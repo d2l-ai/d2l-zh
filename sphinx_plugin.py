@@ -43,7 +43,7 @@ def convert_md():
     """Find all markdown files, convert into jupyter notebooks
     """
     converted_files = []
-    reader = notedown.MarkdownReader()
+    reader = notedown.MarkdownReader(match='strict')
     files = glob.glob('*.md')
     # evaluate the newest file first, so we can catchup error ealier
     files.sort(key=os.path.getmtime, reverse=True)

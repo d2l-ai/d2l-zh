@@ -1,175 +1,158 @@
-# Linear regression from scratch
+# 从0开始的线性回归
 
-Powerful ML libraries can eliminate repetitive work, but if you rely too much on abstractions, you might never learn how neural networks really work under the hood. So for this first example, let's get our hands dirty and build everything from scratch, relying only on autograd and NDArray. First, we'll import the same dependencies as in the [autograd chapter](P01-C05-autograd.ipynb):
+虽然强大的深度学习框架可以消除很多重复性工作，但如果过于依赖它提供的便利抽象，你可能不会那么容易的理解到底深度学习是如何工作的。所以我们的第一个例子将是如何只利用NDArray和autograd来实现一个线性回归的训练。
 
 ```{.python .input  n=1}
-import mxnet as mx
-from mxnet import nd, autograd
-mx.random.seed(1)
+import mxnet.ndarray as nd
+import mxnet.autograd as ag
 ```
 
-## Linear regression
+## 线性回归
 
+给定一个数据点集合`X`和对应的目标值`y`，线性模型的目标是找一根线，其由向量`w`和位移`b`组成，对最好的近似每个样本`X[i]`和`y[i]`。用数学符号来表示就是，我们学一个预测，
 
-We'll focus on the problem of linear regression. Given a collection of data points ``X``, and corresponding target values ``y``, we'll try to find the line, parameterized by a vector ``w`` and intercept ``b`` that approximately best associates data points ``X[i]`` with their corresponding labels ``y[i]``. Using some proper math notation, we want to learn a prediction
+$$\boldsymbol{\hat{y}} = X \boldsymbol{w} + b$$
 
-$$\boldsymbol{\hat{y}} = X \cdot \boldsymbol{w} + b$$
-
-that minimizes the squared error across all examples
+来最小化所有数据点上的平方误差
 
 $$\sum_{i=1}^n (\hat{y}_i-y_i)^2.$$
 
-You might notice that linear regression is an ancient model and wonder why we would present a linear model as the first example in a tutorial series on neural networks. Well it turns out that we can express linear regression as the simplest possible (useful) neural network. A neural network is just a collection of nodes (aka neurons) connected by directed edges. In most networks, we arrange the nodes into layers with each taking input from the nodes below. To calculate the value of any node, we first perform a weighted sum of the inputs (according to weights ``w``) and then apply an *activation function*. For linear regression, we have two layers, the input (depicted in orange) and a single output node (depicted in green) and the activation function is just the identity function.
-
-In this picture, we visualize all of the components of each input as orange circles.
+你可能会对我们把古老的线性回归作为深度学习的一个样例表示很奇怪。实际上线性模型就是最简单，也可能是最有用的，神经网络。一个神经网络就是一个由节点（神经元）和有向边组成的集合。我们一般把一些节点组成层，每一层使用下一层的节点作为输入，并输出给上面层使用。计算一个节点值我们将输入节点值做加权和，然后再加上一个激活函数。对于线性回归，它是一个两层神经网络，第一层是（下图橙色点）输入，每个节点是输入数据点重点一个维度，第二层是单输出节点（下图绿色点），它使用身份函数（$f(x)=x$）作为激活函数。
 
 ![](https://raw.githubusercontent.com/zackchase/mxnet-the-straight-dope/master/img/simple-net-linear.png)
 
-To make things easy, we're going to work with a synthetic data where we know the solution, by generating random data points ``X[i]`` and labels ``y[i] = 2 * X[i][0]- 3.4 * X[i][1] + 4.2 + noise`` where the noise is drawn from a random gaussian with mean ``0`` and variance ``.1``.
+这里我们使用一个人工数据集来把事情弄简单些，因为这样我们知道真实的模型是什么样的。我们使用如下方法来生成数据
 
-In mathematical notation we'd say that the true labeling function is
-$$y = X \cdot w + b + \eta, \quad \text{for } \eta \sim \mathcal{N}(0,\sigma^2)$$
+`y[i] = 2 * X[i][0] - 3.4 * X[i][1] + 4.2 + noise`
 
-```{.python .input  n=2}
+这里噪音服从均值0和方差为0.1的正太分布。
+
+```{.python .input  n=56}
 num_inputs = 2
-num_outputs = 1
-num_examples = 10000
+num_examples = 1000
+
+true_w = [2, 3.4]
+true_b = 4.2
 
 X = nd.random_normal(shape=(num_examples, num_inputs))
-y = 2 * X[:, 0] - 3.4 * X[:, 1] + 4.2 + .01 * nd.random_normal(shape=(num_examples,))
+y = true_w[0] * X[:, 0] - true_w[1] * X[:, 1] + true_b
+y += .01 * nd.random_normal(shape=y.shape)
 ```
 
-Notice that each row in ``X`` consists of a 2-dimensional data point and that each row in ``Y`` consists of a 1-dimensional target value.
+注意到`X`的每一行是一个长度为2的向量，而`y`的每一行是一个长度为1的向量（标量）。
 
-```{.python .input  n=3}
-print(X[0])
-print(y[0])
+```{.python .input  n=57}
+X[0], y[0]
 ```
 
-We can confirm that for any randomly chosen point, a linear combination with the (known) optimal parameters produces a prediction that is indeed close to the target value
+## 数据读取
 
-```{.python .input  n=4}
-print(2 * X[0, 0] - 3.4 * X[0, 1] + 4.2)
+当我们开始训练的神经网络的时候，我们需要不断的读取数据块。这里我们定义一个函数它每次返回`batch_size`个随机的样本和对应的目标。
+
+```{.python .input  n=28}
+import random
+def data_iter(batch_size):
+    # 产生一个随机索引
+    idx = list(range(num_examples))
+    random.shuffle(idx)
+    # 丢弃掉最后一个填不满的数据块
+    for i in range(0, num_examples-batch_size+1, batch_size):
+        j = nd.array(idx[i:i+batch_size])
+        yield nd.take(X, j), nd.take(y, j)
 ```
 
-We can visualize the correspondence between our second feature (``X[:, 1]``) and the target values ``Y`` by generating a scatter plot with the Python plotting package ``matplotlib``.
+下面代码读取第一个随机数据块
 
-```{.python .input  n=5}
-import matplotlib.pyplot as plt
-plt.scatter(X[:, 1].asnumpy(),y.asnumpy())
-plt.show()
-```
-
-## Data iterators
-
-Once we start working with neural networks, we're going to need to iterate through our data points quickly. We'll also want to be able to grab batches of ``k`` data points at a time, to shuffle our data. In MXNet, data iterators give us a nice set of utilities for fetching and manipulating data. In particular, we'll work with the simple  ``NDArrayIter`` class.
-
-```{.python .input  n=6}
-batch_size = 4
-train_data = mx.gluon.data.DataLoader(mx.gluon.data.ArrayDataset(X, y),
-                                      batch_size=batch_size, shuffle=True)
-```
-
-Once we've initialized our NDArrayIter (``train_data``), we can easily fetch batches by calling ``train_data.next()``. ``batch.data`` gives us a list of inputs. Because our model has only one input (``X``), we'll just be grabbing ``batch.data[0]``.
-
-```{.python .input  n=7}
-for data, label in train_data:
+```{.python .input  n=34}
+for data, label in data_iter(4):
     print(data, label)
     break
 ```
 
-Finally, we can iterate over ``train_data`` just as though it were an ordinary Python list:
+## 模型参数
 
-```{.python .input  n=8}
-counter = 0
-for data, label in train_data:
-    counter += 1
-print(counter)
-```
+下面我们初始化模型参数
 
-## Model parameters
-
-Now let's allocate some memory for our parameters and set their initial values.
-
-```{.python .input  n=9}
-w = nd.random_normal(shape=(num_inputs, num_outputs))
-b = nd.random_normal(shape=num_outputs)
+```{.python .input  n=59}
+w = nd.random_normal(shape=(num_inputs, 1))
+b = nd.zeros((1,))
 params = [w, b]
 ```
 
-In the succeeding cells, we're going to update these parameters to better fit our data. This will involve taking the gradient (a multi-dimensional derivative) of some *loss function* with respect to the parameters. We'll update each parameter in the direction that reduces the loss. But first, let's just allocate some memory for each gradient.
+之后训练时我们需要对这些参数求导来更新他们的值，所以这里我们也创建它们的梯度。
 
-```{.python .input  n=10}
+```{.python .input  n=60}
 for param in params:
     param.attach_grad()
 ```
 
-## Neural networks
+## 神经网络
 
-Next we'll want to define our model. In this case, we'll be working with linear models, the simplest possible *useful* neural network. To calculate the output of the linear model, we simply multipy a given input with the model's weights (``w``), and add the offset ``b``.
+线性模型就是将输入和模型做乘法再加上偏移：
 
-```{.python .input  n=11}
+```{.python .input  n=61}
 def net(X):
-    return mx.nd.dot(X, w) + b
+    return nd.dot(X, w) + b
 ```
 
-Ok, that was easy.
+这个很容易。
 
-## Loss function
+## 损失函数
 
-Train a model means making it better and better over the course of a period of training. But in order for this goal to make any sense at all, we first need to define what *better* means in the first place. In this case, we'll use the squared distance between our prediction and the true value.
+我们使用常见的平方误差来衡量预测的目标和真实目标之间的差距。
 
-```{.python .input  n=12}
+```{.python .input  n=62}
 def square_loss(yhat, y):
+    # 注意这里我们把y变形成yhat的形状来避免自动广播
+    y = y.reshape(yhat.shape)
     return nd.mean((yhat - y) ** 2)
 ```
 
-## Optimizer
+## 优化
 
-It turns out that linear regression actually has a closed-form solution. However, most interesting models that we'll care about cannot be solved analytically. So we'll solve this problem by stochastic gradient descent. At each step, we'll estimate the gradient of the loss with respect to our weights, using one batch randomly drawn from our dataset. Then, we'll update our parameters a small amount in the direction that reduces the loss. The size of the step is determined by the *learning rate* ``lr``.
+虽然线性回归有显试解，但绝大部分模型并没有。所以我们这里通过（随机）梯度下降来求解。每一步，我们将模型参数沿着梯度的反方向走特定距离，这个距离一般叫学习率。
 
-```{.python .input  n=13}
+```{.python .input  n=40}
 def SGD(params, lr):
     for param in params:
         param[:] = param - lr * param.grad
 ```
 
-## Execute training loop
+## 训练
 
-Now that we have all the pieces all we have to do is wire them together by writing a training loop. First we'll define ``epochs``, the number of passes to make over the dataset. Then for each pass, we'll iterate through ``train_data``, grabbing batches of examples and their corresponding labels.
+现在我们可以开始训练了。训练通常需要迭代数据数次，一次迭代里，我们每次随机读取固定数个数据点，计算梯度并更新模型参数。
 
-For each batch, we'll go through the following ritual:
-* Generate predictions (``yhat``) and the loss (``loss``) by executing a forward pass through the network.
-* Calculate gradients by making a backwards pass through the network (``loss.backward()``).
-* Update the model parameters by invoking our SGD optimizer.
-
-```{.python .input  n=14}
-epochs = 2
-ctx = mx.cpu()
+```{.python .input  n=63}
+epochs = 5
+batch_size = 4
 learning_rate = .001
-smoothing_constant = .01
-
 for e in range(epochs):
-    for i, (data, label) in enumerate(train_data):
-        data = data.as_in_context(ctx)
-        label = label.as_in_context(ctx).reshape((-1, 1))
-        with autograd.record():
+    total_loss = 0
+    for data, label in data_iter(batch_size):
+        with ag.record():
             output = net(data)
             loss = square_loss(output, label)
         loss.backward()
         SGD(params, learning_rate)
-
-        #  Keep a moving average of the losses
-        curr_loss = loss.asscalar()
-        moving_loss = (curr_loss if ((i == 0) and (e == 0))
-                       else (1 - smoothing_constant) * moving_loss + (smoothing_constant) * curr_loss)
-
-        if i % 500 == 0:
-            print("Epoch %d, batch %4d. Moving avg of loss: %f" % (e, i, moving_loss))
+        
+        total_loss += loss.asscalar()
+    print("Epoch %d, average loss: %f" % (e, total_loss/num_examples))
 ```
 
-## Conclusion
+训练完成后我们可以比较学到的参数和真实参数
 
-You've seen that using just mxnet.ndarray and mxnet.autograd, we can build statistical models from scratch. In the following tutorials, we'll build on this foundation, introducing the basic ideas between modern neural networks and powerful abstractions in MXNet for building comples models with little code.
+```{.python .input}
+true_w, w
+```
 
-For whinges or inquiries, [open an issue on  GitHub.](https://github.com/zackchase/mxnet-the-straight-dope)
+```{.python .input  n=64}
+true_b, b
+```
+
+## 结论
+
+我们现在看到仅仅使用NDArray和autograd我们可以很容易的实现一个模型。
+
+## 练习
+
+尝试用不同的学习率查看误差下降速度（收敛率）
