@@ -1,14 +1,14 @@
-# 前·前言
+# 翻译·前言
 
-这是
-[Deep Learning - The Straight Dope](https://github.com/zackchase/mxnet-the-straight-dope/)
-的中文翻译。
-
+这不仅仅是 [Deep Learning - The Straight Dope](https://github.com/zackchase/mxnet-the-straight-dope/) 的中文翻译，也是一个很好的版本。因为英文版也还是在不断的改进中，在翻译的过程中，我们也经常会对英文版本里面不足的地方进行改进，包括漏讲的要点，冗余的锻炼和不够精炼的代码。所以有可能这两个版本会有不一致的地方。
 
 ## 如何贡献
 
-## 计划
+每个notebook我们希望至少有一个维护者，他/她负责第一版本的翻译，以及持续维护。维护包括如果英文版本有改动，那么需要做对于的修改，以及将中文版本的改动提交回英文版本。
 
-| 原稿          | 状态   | Commit | 贡献者  |
-| :-----------: | :----: | :------: | :----: |
-| [preface]() | 完成   |        | mli, |
+## 进度
+
+|     原稿      |  状态  | Commit |  维护  |
+| :---------: | :--: | :----: | :--: |
+| [preface]() |  完成  |        | mli, |
+

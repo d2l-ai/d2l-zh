@@ -1,158 +1,127 @@
-# Linear regression with ``gluon``
+# 使用Gluon的线性回归
 
-Now that we've implemented a whole neural network from scratch, using nothing but ``mx.ndarray`` and ``mxnet.autograd``, let's see how we can make the same model while doing a lot less work. 
+[前一章](P02-C01-linear-regression-scratch.md)我们仅仅使用了ndarray和autograd来实现线性回归，这一章我们仍然实现同样的模型，但是使用高层抽象包`gluon`。
 
-Again, let's import some packages, this time adding ``mxnet.gluon`` to the list of dependencies.
-
-```{.python .input}
-from __future__ import print_function
-import mxnet as mx
-from mxnet import nd, autograd
+```{.python .input  n=1}
+from mxnet import ndarray as nd
+from mxnet import autograd as ag
 from mxnet import gluon
 ```
 
-## Set the context
+## 创建数据集
 
-We'll also want to set a context to tell gluon where to do most of the computation.
+我们生成同样的数据集
 
-```{.python .input}
-ctx = mx.cpu()
-```
-
-## Build the dataset
-
-Again we'll look at the problem of linear regression and stick with the same synthetic data.
-
-```{.python .input}
+```{.python .input  n=2}
 num_inputs = 2
-num_outputs = 1
-num_examples = 10000
+num_examples = 1000
+
+true_w = [2, 3.4]
+true_b = 4.2
 
 X = nd.random_normal(shape=(num_examples, num_inputs))
-y = 2* X[:,0] - 3.4 * X[:,1] + 4.2 + .01 * nd.random_normal(shape=(num_examples,))
+y = true_w[0] * X[:, 0] - true_w[1] * X[:, 1] + true_b
+y += .01 * nd.random_normal(shape=y.shape)
 ```
 
-## Load the data iterator
+## 数据读取
 
-We'll stick with the ``NDArrayIter`` for handling out data batching.
+但这里使用`data`模块来读取数据。
 
-```{.python .input}
-batch_size = 4
-train_data = mx.gluon.data.DataLoader(mx.gluon.data.ArrayDataset(X, y),
-                                      batch_size=batch_size, shuffle=True)
+```{.python .input  n=3}
+batch_size = 10
+dataset = gluon.data.ArrayDataset(X, y)
+data_iter = gluon.data.DataLoader(dataset, batch_size, shuffle=True)
 ```
 
-## Define the model
+读取跟前面一致：
 
-When we implemented things from scratch, we had to individually allocate parameters and then compose them together as a model. While it's good to know how to do things from scratch, with ``gluon``, we can just compose a network from predefined layers. For a linear model, the appropriate layer is called ``Dense``. It's called a *dense* layer because every node in the input is connected to every node in the subsequent layer. That description seems excessive because we only have one output here. But in most subsequent chapters we'll work with networks that have multiple outputs.
+```{.python .input  n=4}
+for data, label in data_iter:
+    print(data, label)
+    break
+```
 
-Unless we're planning to make some wild decisions (and at some point, we will!), the easiest way to throw together a neural network is to rely on the ``gluon.nn.Sequential``. Once instantiated, a Sequential just stores a chain of layers. Presented with data, the `Sequential` executes each layer in turn. We'll delve deeper into these details later when we actually have more than one layer to work with, for now let's just instantiate the ``Sequential``.
+## 定义模型
 
-```{.python .input}
+当我们手写模型的时候，我们需要先声明模型参数，然后再使用它们来构建模型。但`gluon`提供大量提前定制好的层，使得我们只需要主要关注使用哪些层来构建模型。例如线性模型就是所使用的对应`Dense`层。
+
+虽然我们之后会介绍如何构造任意结构的神经网络，构建模型最简单的办法是利用`Sequential`来所有层串起来。首先我们定义一个空的模型：
+
+```{.python .input  n=5}
 net = gluon.nn.Sequential()
 ```
 
-Recall that in our linear regression example, the number of inputs is 2 and the number of outputs is 1. We can then add on a single ``Dense`` layer. The most direct way to do this is to specify the number of inputs and the number of outpus.
+然后我们加入一个`Dense`层，它唯一必须要定义的参数就是输出节点的个数，在线性模型里面是1.
 
-```{.python .input}
-with net.name_scope():
-    net.add(gluon.nn.Dense(1))
+```{.python .input  n=6}
+net.add(gluon.nn.Dense(1))
 ```
 
-This tells ``gluon`` all that it needs in order to allocate memory for the weights. After that, all we need to do is initialize the weights, instantiate a loss and an optimizer, and we can start training.
+（注意这里我们并没有定义说这个层的输入节点是多少，这个在之后真正给数据的时候系统会自动赋值。我们之后会详细介绍这个特性是如何工作的。）
 
-## Shape inference
+## 初始化模型参数
 
-One slick feature that we can take advantage of in ``gluon`` is shape inference on parameters. 
-Instead of explicitly declaring the number of inputs to a layer, 
-we can simply state the number of outputs.
+在使用前我们必须要初始化模型权重。虽然我们可以全权控制参数初始化（恩，之后我们也会详细介绍），不过这里我们就使用默认的方法。
 
-```{.python .input}
-net = gluon.nn.Sequential()
-with net.name_scope():
-    net.add(gluon.nn.Dense(1))
+```{.python .input  n=7}
+net.initialize()
 ```
 
-You might wonder, how can gluon allocate our parameters if it doesn't know what shape they should take? We'll elaborate on this and more of ``gluon``'s internal workings in [our chapter on plumbing](./P03.5-C01-plumbing.ipynb), but here's the short version. In fact, ``gluon`` doesn't allocate our parameters. Instead it defers allocation to the first time we actually make a forward pass through the model with real data. Then, when ``gluon`` sees the shape of our data, it can infer the shapes of all of the parameters.
+## 损失函数
 
-## Initialize parameters
+`gluon`提供了平方误差函数：
 
-
-This all we need to do to define our network. However, we're not ready to pass it data just yet. If you try calling ``net(nd.array([[0,1]]))``, you'll find the following hideous error message:
-
-``RuntimeError: Parameter dense1_weight has not been initialized. Note that you should initialize parameters and create Trainer with Block.collect_params() instead of Block.params because the later does not include Parameters of nested child Blocks``.
-
-That's because we haven't yet told ``gluon`` what the *initial values* for our parameters should be. Also note that we need not tell our network about the *input dimensionality* and it still works. This is because the dimensions are bound the first time ``net(x)`` is called. This is a common theme in MxNet - stuff is evaluated only when needed (called lazy evaluation), using all the information available at the time when the results is needed.
-
-Before we can do anything with this model, we must initialize its parameters. *MXNet* provides a variety of common initializers in ``mxnet.init``. To keep things consistent with the model we built by hand, we'll choose to initialize each parameter by sampling from a standard normal distribution. Note that we pass the initializer a *context*. This is how we tell ``gluon`` model where to store our parameters. Once we start training deep nets, we'll generally want to keep parameters on one or more GPUs.
-
-```{.python .input}
-net.initialize(ctx=ctx)
-```
-
-## Deferred Initialization
-
-Since ``gluon`` doesn't know the shape of our net's parameters, 
-and we haven't even allcoated memory for them yet, 
-it might seem bizarre that we can initialize them. 
-This is where ``gluon`` does a little more magic to make our lives easier.
-When we call ``initialize``, ``gluon`` associates each parameter with an initializer.
-However, the *actual initialization* is deferred until the shapes have been deferred. 
-
-
-
-## Define loss
-
-Instead of writing our own loss function wer'e just going to call down to ``gluon.loss.L2Loss``
-
-```{.python .input}
+```{.python .input  n=8}
 square_loss = gluon.loss.L2Loss()
 ```
 
-## Optimizer
+## 优化
 
-Instead of writing gradient descent from scratch every time, we can instantiate a ``gluon.Trainer``, passing it a dictionary of parameters.
+同样我们无需手动实现随机梯度下降，我们可以用创建一个`Trainer`的实例，并且将模型参数传递给它就行。
 
-```{.python .input}
-trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.1})
+```{.python .input  n=9}
+trainer = gluon.Trainer(
+    net.collect_params(), 'sgd', {'learning_rate': 0.1})
 ```
 
-## Execute training loop
+## 训练
 
-You might have notived that it was a bit more concise to express our model in ``gluon``. For example, we didn't have to individually allocate parameters, define our loss function, or implement stochastic gradient descent. The benefits of relying on ``gluon``'s abstractions will grow substantially once we start working with much more complext models. But once we have all the basic pieces in place, the training loop itself is quite similar to what we would do if implementing everything from scratch. 
+这里的训练跟前面没有太多区别，唯一的就是我们不再是调用`SGD`，而是`trainer.step`来更新模型。
 
-To refresh your memory. For some number of ``epochs``, we'll make a complete pass over the dataset (``train_data``), grabbing one mini-batch of inputs and the corresponding ground-truth labels at a time. 
-
-Then, for each batch, we'll go through the following ritual. So that this process becomes maximally ritualistic, we'll repeat it verbatim:
-* Generate predictions (``yhat``) and the loss (``loss``) by executing a forward pass through the network.
-* Calculate gradients by making a backwards pass through the network (``loss.backward()``). 
-* Update the model parameters by invoking our SGD optimizer.
-
-```{.python .input}
-epochs = 2
-smoothing_constant = .01
-
+```{.python .input  n=10}
+epochs = 5
+batch_size = 10
+learning_rate = .01
 for e in range(epochs):
-    for i, (data, label) in enumerate(train_data):
-        data = data.as_in_context(ctx)
-        label = label.as_in_context(ctx)
-        with autograd.record():
+    total_loss = 0
+    for data, label in data_iter:
+        with ag.record():
             output = net(data)
             loss = square_loss(output, label)
         loss.backward()
-        trainer.step(batch_size)
-        
-        #  Keep a moving average of the losses
-        curr_loss = nd.sum(loss).asscalar()
-        moving_loss = (curr_loss if ((i == 0) and (e == 0)) 
-                       else (1 - smoothing_constant) * moving_loss + (smoothing_constant) * curr_loss)
-        
-        if i % 500 == 0:
-            print("Epoch %d, batch %4d. Moving avg of loss: %f" % (e, i, moving_loss))
+        trainer.step(batch_size)        
+        total_loss += nd.sum(loss).asscalar()
+    print("Epoch %d, average loss: %f" % (e, total_loss/num_examples))
 ```
 
-## Conclusion 
+比较学到的和真实模型。我们先从`net`拿到需要的层，然后访问其权重和位移。
 
-As you can see, even for a simple eample like linear regression, ``gluon`` can help you to write quick, clean, clode. Next, we'll repeat this exercise for multilayer perceptrons, extending these lessons to deep neural networks and (comparatively) real datasets. 
+```{.python .input  n=12}
+dense = net[0]
+true_w, dense.weight.data()
+```
 
-For whinges or inquiries, [open an issue on  GitHub.](https://github.com/zackchase/mxnet-the-straight-dope)
+```{.python .input  n=13}
+true_b, dense.bias.data()
+```
+
+## 结论
+
+可以看到`gluon`可以帮助我们更快更干净的实现模型。
+
+
+## 练习
+
+- 在训练的时候，为什么我们用了比前面要大10倍的学习率呢？（提示：可以尝试运行 `help(trainer.step)`来寻找答案。）
+- 如何拿到`weight`的梯度呢？（提示：尝试 `help(dense.weight`）

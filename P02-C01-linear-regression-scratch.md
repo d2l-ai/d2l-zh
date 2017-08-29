@@ -21,13 +21,15 @@ $$\sum_{i=1}^n (\hat{y}_i-y_i)^2.$$
 
 ![](https://raw.githubusercontent.com/zackchase/mxnet-the-straight-dope/master/img/simple-net-linear.png)
 
+## 创建数据集
+
 这里我们使用一个人工数据集来把事情弄简单些，因为这样我们知道真实的模型是什么样的。我们使用如下方法来生成数据
 
 `y[i] = 2 * X[i][0] - 3.4 * X[i][1] + 4.2 + noise`
 
 这里噪音服从均值0和方差为0.1的正太分布。
 
-```{.python .input  n=56}
+```{.python .input  n=2}
 num_inputs = 2
 num_examples = 1000
 
@@ -41,7 +43,7 @@ y += .01 * nd.random_normal(shape=y.shape)
 
 注意到`X`的每一行是一个长度为2的向量，而`y`的每一行是一个长度为1的向量（标量）。
 
-```{.python .input  n=57}
+```{.python .input  n=3}
 X[0], y[0]
 ```
 
@@ -49,9 +51,10 @@ X[0], y[0]
 
 当我们开始训练的神经网络的时候，我们需要不断的读取数据块。这里我们定义一个函数它每次返回`batch_size`个随机的样本和对应的目标。
 
-```{.python .input  n=28}
+```{.python .input  n=4}
 import random
-def data_iter(batch_size):
+batch_size = 10
+def data_iter():
     # 产生一个随机索引
     idx = list(range(num_examples))
     random.shuffle(idx)
@@ -63,17 +66,17 @@ def data_iter(batch_size):
 
 下面代码读取第一个随机数据块
 
-```{.python .input  n=34}
-for data, label in data_iter(4):
+```{.python .input  n=5}
+for data, label in data_iter():
     print(data, label)
     break
 ```
 
-## 模型参数
+## 初始化模型参数
 
 下面我们初始化模型参数
 
-```{.python .input  n=59}
+```{.python .input  n=6}
 w = nd.random_normal(shape=(num_inputs, 1))
 b = nd.zeros((1,))
 params = [w, b]
@@ -81,16 +84,16 @@ params = [w, b]
 
 之后训练时我们需要对这些参数求导来更新他们的值，所以这里我们也创建它们的梯度。
 
-```{.python .input  n=60}
+```{.python .input  n=7}
 for param in params:
     param.attach_grad()
 ```
 
-## 神经网络
+## 定义模型
 
 线性模型就是将输入和模型做乘法再加上偏移：
 
-```{.python .input  n=61}
+```{.python .input  n=8}
 def net(X):
     return nd.dot(X, w) + b
 ```
@@ -101,18 +104,18 @@ def net(X):
 
 我们使用常见的平方误差来衡量预测的目标和真实目标之间的差距。
 
-```{.python .input  n=62}
+```{.python .input  n=9}
 def square_loss(yhat, y):
     # 注意这里我们把y变形成yhat的形状来避免自动广播
     y = y.reshape(yhat.shape)
-    return nd.mean((yhat - y) ** 2)
+    return (yhat - y) ** 2
 ```
 
 ## 优化
 
 虽然线性回归有显试解，但绝大部分模型并没有。所以我们这里通过（随机）梯度下降来求解。每一步，我们将模型参数沿着梯度的反方向走特定距离，这个距离一般叫学习率。
 
-```{.python .input  n=40}
+```{.python .input  n=10}
 def SGD(params, lr):
     for param in params:
         param[:] = param - lr * param.grad
@@ -122,30 +125,29 @@ def SGD(params, lr):
 
 现在我们可以开始训练了。训练通常需要迭代数据数次，一次迭代里，我们每次随机读取固定数个数据点，计算梯度并更新模型参数。
 
-```{.python .input  n=63}
+```{.python .input  n=11}
 epochs = 5
-batch_size = 4
 learning_rate = .001
 for e in range(epochs):
     total_loss = 0
-    for data, label in data_iter(batch_size):
+    for data, label in data_iter():
         with ag.record():
             output = net(data)
             loss = square_loss(output, label)
         loss.backward()
         SGD(params, learning_rate)
         
-        total_loss += loss.asscalar()
+        total_loss += nd.sum(loss).asscalar()
     print("Epoch %d, average loss: %f" % (e, total_loss/num_examples))
 ```
 
 训练完成后我们可以比较学到的参数和真实参数
 
-```{.python .input}
+```{.python .input  n=12}
 true_w, w
 ```
 
-```{.python .input  n=64}
+```{.python .input  n=13}
 true_b, b
 ```
 
