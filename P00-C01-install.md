@@ -1,80 +1,138 @@
 # 安装和使用
 
-## Minimal requirements
-Each tutorial consists of a Jupyter notebook, which is editable and
-runnable. To run these notebooks, you must have `python` installed.
-Additionally, you'll need `jupyter` and a recent version of `mxnet`.
-The following commands install them through `pip` (on local directory):
+## 安装需求
+
+每个教程是一个可以编辑和运行的Jupyter notebook。运行这些教程需要
+
+- Python
+- Jupyter和其插件notedown
+- MXNet >= 0.11
+
+安装这些依赖最方便的是通过pip。
+
+## 安装Python和pip
+
+最常用的安装有两种：
+
+1. 在[Python主页](https://www.python.org/downloads/)下载并安装Python (推荐选择python 3)。然后根据[pip官网](https://pip.pypa.io/en/stable/installing/)推荐，下载文件[get-pip.py](https://bootstrap.pypa.io/get-pip.py)后运行
+
+   ```bash
+   python get-pip.py
+   ```
+2. 先[安装conda](https://docs.continuum.io/anaconda/install.html)，然后运行
+   ```bash
+   conda install python pip
+   ```
+
+##  安装Jupyter和notedown
+
+通过pip我们可以
 
 ```bash
-# optional: update pip to the newest version
-sudo pip install --upgrade pip
-# install jupyter
-pip install jupyter --user
-# install the nightly built mxnet
-pip install mxnet --user
+pip install jupyter
 ```
 
-After completing installation, you're ready to obtain and run the source code:
+然后生成默认的jupyter配置文件（记住生成的文件的位置）
 
 ```bash
-git clone https://github.com/zackchase/mxnet-the-straight-dope/
-cd mxnet-the-straight-dope
-jupyter notebook
+jupyter notebook --generate-config
 ```
 
-The last command starts the Jupyter notebook. You can now run and edit the
-notebooks in a web browser, often by the URL [http://localhost:8888](http://localhost:8888).
-
-Pro tip: if you'd like to run your notebook on some other port (than 8888),
-launch it with:
+然后安装jupyter读写markdown文件格式的插件
 
 ```bash
-jupyter notebook --port <port_number>
-```
-
-## Editing markdown format notebooks
-
-Some notebooks are saved in the markdown `.md` format to make code merging
-easier. We can use the [notedown](https://github.com/mli/notedown) plugin
-for `jupyter` to edit markdown files directly. We recommended to use our
-slightly modified version.
-
-```bash
-# remove notedown if installed before. We may get an error message saying that
-# notedown is not installed before, we can just ignore it
-pip uninstall -y notedown
-# install our modified version
 pip install https://github.com/mli/notedown/tarball/master
 ```
 
-Now adding the plugin into jupyter
+如果安装失败可以跳转到[这里](安装原版notedown)。
+
+接着将下面这一行加入到上面生成的配置文件的末尾
+
+```python
+c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'
+```
+
+如果是linux或者mac，可以直接运行
 
 ```bash
 echo "c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'" >>~/.jupyter/jupyter_notebook_config.py
 ```
 
-## GPU supports
 
-The default `MXNet` package only supports CPU but some tutorials require
-GPUs. If you are running on a computer that has a GPU and either CUDA 7.5
-or 8.0 is installed, then the following commands install a GPU-enabled
-version of MXNet.
+
+## 安装MXNet
+
+我们可以通过pip直接安装mxnet的CPU only的版本：
 
 ```bash
-pip install mxnet-cu75 --pre --user  # for CUDA 7.5
-pip install mxnet-cu80 --pre --user  # for CUDA 8.0
+pip install mxnet
 ```
 
-## Run jupyter on a remote server
+如果需要使用GPU，那么事先要安装CUDA，然后选择安装下面版本之一：
 
-If you're running the notebooks on a server,
-then you might want to ssh with the `-L` flag to tie `localhost:8888`
-on your machine and on the server:
-
+```bash
+pip install mxnet-cu75 # CUDA 7.5
+pip install mxnet-cu80 # CUDA 8.0
 ```
+
+如果CPU性能很关键，可以安装MKL版本（但不是每个操作系统都支持）
+
+```bash
+pip install mxnet-mkl # CPU
+pip install mxnet-cu75mkl # CUDA 7.5
+pip install mxnet-cu80mkl # CUDA 8.0
+```
+
+更多安装，例如docker和从源代码编译，可以参见[这里](https://mxnet.incubator.apache.org/get_started/install.html)。
+
+## 下载并运行
+
+```bash
+git clone https://github.com/mli/mxnet-the-straight-dope-zh/
+cd mxnet-the-straight-dope-zh
+jupyter notebook
+```
+
+这时候我们可以打开 [http://localhost:8888](http://localhost:8888) 来查看和运行了。
+
+## 在远端服务器上运行Jupyter
+
+Jupyter的一个常用做法是在远端服务器上运行，然后通过 `http://myserver:8888`来访问。
+
+有时候防火墙阻挡了直接访问对应的端口，但ssh是可以的。如果本地机器是linux或者mac（windows通过第三方软件例如putty应该也能支持），那么可以使用端口映射
+
+```bash
 ssh myserver -L 8888:localhost:8888
 ```
 
-Now we can open [http://localhost:8888](http://localhost:8888) to edit and run the notebooks on remote
-server as before.
+然后我们可以使用[http://localhost:8888](http://localhost:8888)打开远端的Jupyter。
+
+## 安装原版notedown
+
+原版notedown可以通过下面来安装
+
+```bash
+pip install notedown
+```
+
+们对原版的notedown修改了一个很小的地方。主要是它默认会被markdown cell每行按80字符换行，从而导致格式错误。
+
+一个办法是先确定notedown的模板文件
+
+```bash
+python -c "import notedown; print('/'.join((notedown.__file__).split('/')[:-1])+'/templates/markdown.tpl')"
+```
+
+然后打开这个文件，把下面这行
+
+```bash
+{{ cell.source | wordwrap(80, False) }}
+```
+
+替换成
+
+```bash
+{{ cell.source }}
+```
+
+即可。
