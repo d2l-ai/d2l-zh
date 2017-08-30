@@ -1,35 +1,33 @@
 # 从0开始的线性回归
 
-虽然强大的深度学习框架可以消除很多重复性工作，但如果过于依赖它提供的便利抽象，你可能不会那么容易的理解到底深度学习是如何工作的。所以我们的第一个例子将是如何只利用NDArray和autograd来实现一个线性回归的训练。
-
-```{.python .input  n=1}
-import mxnet.ndarray as nd
-import mxnet.autograd as ag
-```
+虽然强大的深度学习框架可以减少很多重复性工作，但如果你过于依赖它提供的便利抽象，那么你可能不会很容易的理解到底深度学习是如何工作的。所以我们的第一个教程是如何只利用ndarray和autograd来实现一个线性回归的训练。
 
 ## 线性回归
 
-给定一个数据点集合`X`和对应的目标值`y`，线性模型的目标是找一根线，其由向量`w`和位移`b`组成，对最好的近似每个样本`X[i]`和`y[i]`。用数学符号来表示就是，我们学一个预测，
+给定一个数据点集合`X`和对应的目标值`y`，线性模型的目标是找一根线，其由向量`w`和位移`b`组成，来最好的近似每个样本`X[i]`和`y[i]`。用数学符号来表示就是我们将学`w`和`b`来预测，
 
 $$\boldsymbol{\hat{y}} = X \boldsymbol{w} + b$$
 
-来最小化所有数据点上的平方误差
+并最小化所有数据点上的平方误差
 
 $$\sum_{i=1}^n (\hat{y}_i-y_i)^2.$$
 
-你可能会对我们把古老的线性回归作为深度学习的一个样例表示很奇怪。实际上线性模型就是最简单，也可能是最有用的，神经网络。一个神经网络就是一个由节点（神经元）和有向边组成的集合。我们一般把一些节点组成层，每一层使用下一层的节点作为输入，并输出给上面层使用。计算一个节点值我们将输入节点值做加权和，然后再加上一个激活函数。对于线性回归，它是一个两层神经网络，第一层是（下图橙色点）输入，每个节点是输入数据点重点一个维度，第二层是单输出节点（下图绿色点），它使用身份函数（$f(x)=x$）作为激活函数。
+你可能会对我们把古老的线性回归作为深度学习的一个样例表示很奇怪。实际上线性模型是最简单但也可能是最有用的神经网络。一个神经网络就是一个由节点（神经元）和有向边组成的集合。我们一般把一些节点组成层，每一层使用下一层的节点作为输入，并输出给上面层使用。为了计算一个节点值，我们将输入节点值做加权和，然后再加上一个激活函数。对于线性回归而言，它是一个两层神经网络，其中第一层是（下图橙色点）输入，每个节点对应输入数据点的一个维度，第二层是单输出节点（下图绿色点），它使用身份函数（$f(x)=x$）作为激活函数。
 
-![](https://raw.githubusercontent.com/zackchase/mxnet-the-straight-dope/master/img/simple-net-linear.png)
+![](img/simple-net-linear.png)
 
 ## 创建数据集
 
-这里我们使用一个人工数据集来把事情弄简单些，因为这样我们知道真实的模型是什么样的。我们使用如下方法来生成数据
+这里我们使用一个人工数据集来把事情弄简单些，因为这样我们将知道真实的模型是什么样的。具体来首我们使用如下方法来生成数据
 
 `y[i] = 2 * X[i][0] - 3.4 * X[i][1] + 4.2 + noise`
 
 这里噪音服从均值0和方差为0.1的正太分布。
 
 ```{.python .input  n=2}
+from mxnet import ndarray as nd
+from mxnet import autograd
+
 num_inputs = 2
 num_examples = 1000
 
@@ -44,12 +42,12 @@ y += .01 * nd.random_normal(shape=y.shape)
 注意到`X`的每一行是一个长度为2的向量，而`y`的每一行是一个长度为1的向量（标量）。
 
 ```{.python .input  n=3}
-X[0], y[0]
+print(X[0], y[0])
 ```
 
 ## 数据读取
 
-当我们开始训练的神经网络的时候，我们需要不断的读取数据块。这里我们定义一个函数它每次返回`batch_size`个随机的样本和对应的目标。
+当我们开始训练的神经网络的时候，我们需要不断的读取数据块。这里我们定义一个函数它每次返回`batch_size`个随机的样本和对应的目标。我们通过python的`yield`来构造一个迭代器。
 
 ```{.python .input  n=4}
 import random
@@ -58,9 +56,8 @@ def data_iter():
     # 产生一个随机索引
     idx = list(range(num_examples))
     random.shuffle(idx)
-    # 丢弃掉最后一个填不满的数据块
-    for i in range(0, num_examples-batch_size+1, batch_size):
-        j = nd.array(idx[i:i+batch_size])
+    for i in range(0, num_examples, batch_size):
+        j = nd.array(idx[i:min(i+batch_size,num_examples)])
         yield nd.take(X, j), nd.take(y, j)
 ```
 
@@ -74,7 +71,7 @@ for data, label in data_iter():
 
 ## 初始化模型参数
 
-下面我们初始化模型参数
+下面我们随机初始化模型参数
 
 ```{.python .input  n=6}
 w = nd.random_normal(shape=(num_inputs, 1))
@@ -82,7 +79,7 @@ b = nd.zeros((1,))
 params = [w, b]
 ```
 
-之后训练时我们需要对这些参数求导来更新他们的值，所以这里我们也创建它们的梯度。
+之后训练时我们需要对这些参数求导来更新他们的值，所以我们需要创建它们的梯度。
 
 ```{.python .input  n=7}
 for param in params:
@@ -98,8 +95,6 @@ def net(X):
     return nd.dot(X, w) + b
 ```
 
-这个很容易。
-
 ## 损失函数
 
 我们使用常见的平方误差来衡量预测的目标和真实目标之间的差距。
@@ -107,13 +102,12 @@ def net(X):
 ```{.python .input  n=9}
 def square_loss(yhat, y):
     # 注意这里我们把y变形成yhat的形状来避免自动广播
-    y = y.reshape(yhat.shape)
-    return (yhat - y) ** 2
+    return (yhat - y.reshape(yhat.shape)) ** 2
 ```
 
 ## 优化
 
-虽然线性回归有显试解，但绝大部分模型并没有。所以我们这里通过（随机）梯度下降来求解。每一步，我们将模型参数沿着梯度的反方向走特定距离，这个距离一般叫学习率。
+虽然线性回归有显试解，但绝大部分模型并没有。所以我们这里通过随机梯度下降来求解。每一步，我们将模型参数沿着梯度的反方向走特定距离，这个距离一般叫学习率。
 
 ```{.python .input  n=10}
 def SGD(params, lr):
@@ -131,7 +125,7 @@ learning_rate = .001
 for e in range(epochs):
     total_loss = 0
     for data, label in data_iter():
-        with ag.record():
+        with autograd.record():
             output = net(data)
             loss = square_loss(output, label)
         loss.backward()

@@ -2,17 +2,15 @@
 
 [前一章](P02-C01-linear-regression-scratch.md)我们仅仅使用了ndarray和autograd来实现线性回归，这一章我们仍然实现同样的模型，但是使用高层抽象包`gluon`。
 
-```{.python .input  n=1}
-from mxnet import ndarray as nd
-from mxnet import autograd as ag
-from mxnet import gluon
-```
-
 ## 创建数据集
 
 我们生成同样的数据集
 
 ```{.python .input  n=2}
+from mxnet import ndarray as nd
+from mxnet import autograd
+from mxnet import gluon
+
 num_inputs = 2
 num_examples = 1000
 
@@ -36,7 +34,7 @@ data_iter = gluon.data.DataLoader(dataset, batch_size, shuffle=True)
 
 读取跟前面一致：
 
-```{.python .input  n=4}
+```{.python .input  n=5}
 for data, label in data_iter:
     print(data, label)
     break
@@ -44,7 +42,7 @@ for data, label in data_iter:
 
 ## 定义模型
 
-当我们手写模型的时候，我们需要先声明模型参数，然后再使用它们来构建模型。但`gluon`提供大量提前定制好的层，使得我们只需要主要关注使用哪些层来构建模型。例如线性模型就是所使用的对应`Dense`层。
+当我们手写模型的时候，我们需要先声明模型参数，然后再使用它们来构建模型。但`gluon`提供大量提前定制好的层，使得我们只需要主要关注使用哪些层来构建模型。例如线性模型就是使用的对应`Dense`层。
 
 虽然我们之后会介绍如何构造任意结构的神经网络，构建模型最简单的办法是利用`Sequential`来所有层串起来。首先我们定义一个空的模型：
 
@@ -62,7 +60,7 @@ net.add(gluon.nn.Dense(1))
 
 ## 初始化模型参数
 
-在使用前我们必须要初始化模型权重。虽然我们可以全权控制参数初始化（恩，之后我们也会详细介绍），不过这里我们就使用默认的方法。
+在使用前`net`我们必须要初始化模型权重，这里我们使用默认随机初始化方法（之后我们会介绍更多的初始化方法）。
 
 ```{.python .input  n=7}
 net.initialize()
@@ -96,7 +94,7 @@ learning_rate = .01
 for e in range(epochs):
     total_loss = 0
     for data, label in data_iter:
-        with ag.record():
+        with autograd.record():
             output = net(data)
             loss = square_loss(output, label)
         loss.backward()
