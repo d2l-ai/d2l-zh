@@ -1,6 +1,6 @@
 # 从0开始的多类Logistic回归
 
-如果你读过了[从0开始的线性回归](P01-C01-linear-regression-scratch.md)，那么最难的部分已经过去了。现在你知道如果读取和操作数据，如何构造目标函数和怼他求导，如果定义损失函数，模型和求解。
+如果你读过了[从0开始的线性回归](linear-regression-scratch.md)，那么最难的部分已经过去了。现在你知道如果读取和操作数据，如何构造目标函数和怼他求导，如果定义损失函数，模型和求解。
 
 下面我们来看一个稍微有意思一点的问题，如何使用多类Logistic回归进行多类分类。这个模型跟线性回归的主要区别在于输出节点从一个变成了多个。
 
@@ -25,7 +25,7 @@ mnist_test = gluon.data.vision.FashionMNIST(train=False, transform=transform)
 打印一个样本的形状和它的标号
 
 ```{.python .input  n=4}
-data, label = mnist_train[0] 
+data, label = mnist_train[0]
 ('example shape: ', data.shape, 'label:', label)
 ```
 
@@ -42,7 +42,7 @@ def show_images(images):
         figs[i].axes.get_xaxis().set_visible(False)
         figs[i].axes.get_yaxis().set_visible(False)
     plt.show()
-    
+
 def get_text_labels(label):
     text_labels = [
         't-shirt', 'trouser', 'pullover', 'dress,', 'coat',
@@ -152,7 +152,7 @@ def accuracy(output, label):
 
 ```{.python .input  n=36}
 def evaluate_accuracy(data_iterator, net):
-    acc = 0.    
+    acc = 0.
     for data, label in data_iterator:
         output = net(data)
         acc += accuracy(output, label)
@@ -182,7 +182,7 @@ for e in range(epochs):
             output = net(data)
             loss = cross_entropy(output, label)
         loss.backward()
-        
+
         SGD(params, learning_rate)
 
         train_loss += nd.mean(loss).asscalar()

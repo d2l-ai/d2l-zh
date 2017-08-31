@@ -1,6 +1,6 @@
 # 使用Gluon的线性回归
 
-[前一章](P02-C01-linear-regression-scratch.md)我们仅仅使用了ndarray和autograd来实现线性回归，这一章我们仍然实现同样的模型，但是使用高层抽象包`gluon`。
+[前一章](linear-regression-scratch.md)我们仅仅使用了ndarray和autograd来实现线性回归，这一章我们仍然实现同样的模型，但是使用高层抽象包`gluon`。
 
 ## 创建数据集
 
@@ -98,7 +98,7 @@ for e in range(epochs):
             output = net(data)
             loss = square_loss(output, label)
         loss.backward()
-        trainer.step(batch_size)        
+        trainer.step(batch_size)
         total_loss += nd.sum(loss).asscalar()
     print("Epoch %d, average loss: %f" % (e, total_loss/num_examples))
 ```

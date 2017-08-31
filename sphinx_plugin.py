@@ -27,8 +27,8 @@ def _replace_ext(fname, new_ext):
     return '.'.join(parts)
 
 def _get_new_fname(fname):
-    """P01-C01-haha.ipynb -> haha.ipynb"""
-    header_re = re.compile("([PA][\d\.]+-C[\d\.]+-)(.*)")
+    """chapter01-something/haha.ipynb -> haha.ipynb"""
+    header_re = re.compile("(chapter[\d\-\w]+/)(.*)")
     m = header_re.match(fname)
     return m.groups()[1] if m else fname
 
@@ -44,7 +44,7 @@ def convert_md():
     """
     converted_files = []
     reader = notedown.MarkdownReader(match='strict')
-    files = glob.glob('*.md')
+    files = glob.glob('*/*.md')
     # evaluate the newest file first, so we can catchup error ealier
     files.sort(key=os.path.getmtime, reverse=True)
     for fname in files:
@@ -103,6 +103,8 @@ def update_links(app, docname, source):
         url = m.groups()[0]
         if url.startswith('./'):
             url = url[2:]
+        if url.startswith('../'):
+            url = url[3:]
         if _get_new_fname(url) != url:
             url = _replace_ext(_get_new_fname(url), 'html')
         return url

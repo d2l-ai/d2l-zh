@@ -72,6 +72,12 @@ jupyter notebook
 
 这时候我们可以打开 [http://localhost:8888](http://localhost:8888) 来查看和运行了。
 
+## Debug
+
+
+
+`The kernel appears to have died. It will restart automatically.`
+
 ## 高级选项
 
 ### 在远端服务器上运行Jupyter
