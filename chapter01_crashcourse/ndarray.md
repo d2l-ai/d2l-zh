@@ -18,19 +18,6 @@ from mxnet import ndarray as nd
 nd.zeros((3, 4))
 ```
 
-```{.json .output n=2}
-[
- {
-  "data": {
-   "text/plain": "\n[[ 0.  0.  0.  0.]\n [ 0.  0.  0.  0.]\n [ 0.  0.  0.  0.]]\n<NDArray 3x4 @cpu(0)>"
-  },
-  "execution_count": 2,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 类似的，我们可以创建数组每个元素被初始化成1。
 
 ```{.python .input  n=3}
@@ -38,36 +25,10 @@ x = nd.ones((3, 4))
 x
 ```
 
-```{.json .output n=3}
-[
- {
-  "data": {
-   "text/plain": "\n[[ 1.  1.  1.  1.]\n [ 1.  1.  1.  1.]\n [ 1.  1.  1.  1.]]\n<NDArray 3x4 @cpu(0)>"
-  },
-  "execution_count": 3,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 或者从python的数组直接构造
 
 ```{.python .input  n=4}
 nd.array([[1,2],[2,3]])
-```
-
-```{.json .output n=4}
-[
- {
-  "data": {
-   "text/plain": "\n[[ 1.  2.]\n [ 2.  3.]]\n<NDArray 2x2 @cpu(0)>"
-  },
-  "execution_count": 4,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 我们经常需要创建随机数组，就是说每个元素的值都是随机采样而来，这个经常被用来初始化模型参数。下面创建数组，它的元素服从均值0方差1的正太分布。
@@ -77,55 +38,16 @@ y = nd.random_normal(0, 1, shape=(3, 4))
 y
 ```
 
-```{.json .output n=5}
-[
- {
-  "data": {
-   "text/plain": "\n[[ 1.16307867  2.21220636  0.48380461  0.7740038 ]\n [ 0.29956347  1.04344034  0.15302546  1.18392551]\n [-1.16881478  1.89171135  1.55807114 -1.23474145]]\n<NDArray 3x4 @cpu(0)>"
-  },
-  "execution_count": 5,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 跟`NumPy`一样，每个数组的形状可以通过`.shape`来获取
 
 ```{.python .input  n=6}
 y.shape
 ```
 
-```{.json .output n=6}
-[
- {
-  "data": {
-   "text/plain": "(3, 4)"
-  },
-  "execution_count": 6,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 它的大小，就是总元素个数，是形状的累乘。
 
 ```{.python .input  n=7}
 y.size
-```
-
-```{.json .output n=7}
-[
- {
-  "data": {
-   "text/plain": "12"
-  },
-  "execution_count": 7,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 ## 操作符
@@ -136,36 +58,10 @@ NDArray支持大量的数学操作符，例如按元素加法：
 x + y
 ```
 
-```{.json .output n=8}
-[
- {
-  "data": {
-   "text/plain": "\n[[ 2.16307878  3.21220636  1.48380458  1.77400374]\n [ 1.29956341  2.04344034  1.15302551  2.18392563]\n [-0.16881478  2.89171124  2.55807114 -0.23474145]]\n<NDArray 3x4 @cpu(0)>"
-  },
-  "execution_count": 8,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 乘法：
 
 ```{.python .input  n=9}
 x * y
-```
-
-```{.json .output n=9}
-[
- {
-  "data": {
-   "text/plain": "\n[[ 1.16307867  2.21220636  0.48380461  0.7740038 ]\n [ 0.29956347  1.04344034  0.15302546  1.18392551]\n [-1.16881478  1.89171135  1.55807114 -1.23474145]]\n<NDArray 3x4 @cpu(0)>"
-  },
-  "execution_count": 9,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 指数运算：
@@ -174,36 +70,10 @@ x * y
 nd.exp(y)
 ```
 
-```{.json .output n=10}
-[
- {
-  "data": {
-   "text/plain": "\n[[ 3.19976926  9.13585091  1.6222347   2.16843081]\n [ 1.34926963  2.83896732  1.16535461  3.26717448]\n [ 0.31073502  6.63070631  4.74965096  0.29090998]]\n<NDArray 3x4 @cpu(0)>"
-  },
-  "execution_count": 10,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 也可以转秩一个矩阵然后计算矩阵乘法：
 
 ```{.python .input  n=11}
 nd.dot(x, y.T)
-```
-
-```{.json .output n=11}
-[
- {
-  "data": {
-   "text/plain": "\n[[ 4.63309383  2.67995477  1.04622626]\n [ 4.63309383  2.67995477  1.04622626]\n [ 4.63309383  2.67995477  1.04622626]]\n<NDArray 3x3 @cpu(0)>"
-  },
-  "execution_count": 11,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 ## 广播
@@ -219,16 +89,6 @@ print('a+b:', a+b)
 
 ```
 
-```{.json .output n=23}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "a: \n[[ 0.]\n [ 1.]\n [ 2.]]\n<NDArray 3x1 @cpu(0)>\nb: \n[[ 0.  1.]]\n<NDArray 1x2 @cpu(0)>\na+b: \n[[ 0.  1.]\n [ 1.  2.]\n [ 2.  3.]]\n<NDArray 3x2 @cpu(0)>\n"
- }
-]
-```
-
 ## 跟NumPy的转换
 
 ndarray可以很方便同numpy进行转换
@@ -241,21 +101,14 @@ z = y.asnumpy()  # mxnet -> numpy
 print([z, y])
 ```
 
-```{.json .output n=26}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "[array([[ 1.,  1.,  1.],\n       [ 1.,  1.,  1.]], dtype=float32), \n[[ 1.  1.  1.]\n [ 1.  1.  1.]]\n<NDArray 2x3 @cpu(0)>]\n"
- }
-]
-```
-
 ## 替换操作
 
 在前面的样例中，我们为每个操作新开内存来存储它的结果。例如，如果我们写`y = x + y`, 我们会把`y`从现在指向的实例转到新建的实例上去。我们可以用Python的`id()`函数来看这个是怎么执行的：
 
 ```{.python .input}
+x = nd.ones((3, 4))
+y = nd.ones((3, 4))
+
 before = id(y)
 y = y + x
 id(y) == before
@@ -283,17 +136,4 @@ id(z) == before
 before = id(x)
 x += y
 id(x) == before
-```
-
-```{.json .output n=16}
-[
- {
-  "data": {
-   "text/plain": "True"
-  },
-  "execution_count": 16,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```

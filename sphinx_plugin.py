@@ -16,7 +16,7 @@ timeout = 120
 # limit the number of lines in a cell output
 max_output_length = 500
 # the files will be ingored for execution
-ignore_execution = ['softmax']
+ignore_execution = []
 
 def _replace_ext(fname, new_ext):
     """replace the file extension in a filename"""

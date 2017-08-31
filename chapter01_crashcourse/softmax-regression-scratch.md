@@ -4,6 +4,9 @@
 
 下面我们来看一个稍微有意思一点的问题，如何使用多类Logistic回归进行多类分类。这个模型跟线性回归的主要区别在于输出节点从一个变成了多个。
 
+![](../img/simple-softmax-net.png)
+
+
 ## 获取数据
 
 演示这个模型的常见数据集是手写数字识别MNIST，它长这个样子。
@@ -12,7 +15,7 @@
 
 这里我们用了一个稍微复杂点的数据集，它跟MNIST非常像，但是内容不再是分类数字，而是服饰。我们通过gluon的data.vision模块自动下载这个数据。
 
-```{.python .input  n=3}
+```{.python .input  n=1}
 from mxnet import gluon
 from mxnet import ndarray as nd
 
@@ -24,14 +27,14 @@ mnist_test = gluon.data.vision.FashionMNIST(train=False, transform=transform)
 
 打印一个样本的形状和它的标号
 
-```{.python .input  n=4}
+```{.python .input  n=2}
 data, label = mnist_train[0]
 ('example shape: ', data.shape, 'label:', label)
 ```
 
 我们画出前几个样本的内容，和对应的文本标号
 
-```{.python .input  n=5}
+```{.python .input  n=3}
 import matplotlib.pyplot as plt
 
 def show_images(images):
@@ -59,7 +62,7 @@ print(get_text_labels(label))
 
 虽然我们可以像前面那样通过`yield`来定义获取批量数据函数，这里我们直接使用gluon.data的DataLoader函数，它每次`yield`一个批量。
 
-```{.python .input  n=6}
+```{.python .input  n=4}
 batch_size = 256
 train_data = gluon.data.DataLoader(mnist_train, batch_size, shuffle=True)
 test_data = gluon.data.DataLoader(mnist_test, batch_size, shuffle=False)
@@ -71,7 +74,7 @@ test_data = gluon.data.DataLoader(mnist_test, batch_size, shuffle=False)
 
 跟线性模型一样，每个样本会表示成一个向量。我们这里数据是$24\times 24$大小的图片，所以输入向量的长度是$24\times 24=784$。因为我们要做多类分类，我们需要对每一个类预测这样样本属于此类的概率。因为这个数据集有10个类型，所以输出应该是长为10的向量。这样，我们需要的权重将是一个$784\times 10$的矩阵：
 
-```{.python .input  n=4}
+```{.python .input  n=5}
 num_inputs = 784
 num_outputs = 10
 
@@ -83,7 +86,7 @@ params = [W, b]
 
 同前一样，我们要对模型参数附上梯度：
 
-```{.python .input  n=8}
+```{.python .input  n=6}
 for param in params:
     param.attach_grad()
 ```
@@ -92,7 +95,7 @@ for param in params:
 
 在线性回归教程里，我们只需要输出一个标量`yhat`使得尽可能的靠近目标值。但在这里的分类里，我们需要属于每个类别的概率。这些概率需要值为正，而且加起来等于1. 而如果简单的使用 $\boldsymbol{\hat y} = \boldsymbol{W} \boldsymbol{x}$, 我们不能保证这一点。一个通常的做法是通过softmax函数来将任意的输入归一化成合法的概率值。
 
-```{.python .input  n=9}
+```{.python .input  n=7}
 from mxnet import nd
 def softmax(X):
     exp = nd.exp(X)
@@ -104,7 +107,7 @@ def softmax(X):
 
 可以看到，对于随机输入，我们将每个元素变成了非负数，而且每一行加起来为1.
 
-```{.python .input  n=10}
+```{.python .input  n=8}
 X = nd.random_normal(shape=(2,5))
 X_prob = softmax(X)
 print(X_prob)
@@ -113,7 +116,7 @@ print(X_prob.sum(axis=1))
 
 现在我们可以定义模型了：
 
-```{.python .input  n=12}
+```{.python .input  n=9}
 def net(X):
     return softmax(nd.dot(X.reshape((-1,num_inputs)), W) + b)
 ```
@@ -124,33 +127,23 @@ def net(X):
 
 具体来说，我们先真实标号表示成一个概率分布，例如如果`y=1`，那么其对应的分布就是一个全0的长为10的向量，除了第二个元素为1，就是 `yvec=[0, 1, 0, 0, 0, 0, 0, 0, 0, 0]`. 那么交叉熵就是`yvec[0]*log(yhat[0])+...+yvec[n]*log(yhat[n])`。注意到`yvec`里面只有一个1，那么前面等价于`log(yhat[y])`。所以我们可以定义这个损失函数了
 
-```{.python .input  n=14}
+```{.python .input  n=10}
 def cross_entropy(yhat, y):
     return - nd.pick(nd.log(yhat), y)
-```
-
-## 优化
-
-我们仍然使用SGD来进行优化：
-
-```{.python .input  n=15}
-def SGD(params, lr):
-    for param in params:
-        param[:] = param - lr * param.grad
 ```
 
 ## 计算精度
 
 给定一个概率输出，我们将预测概率最高的那个类作为预测的类，然后通过比较真实标号我们可以计算精度：
 
-```{.python .input  n=16}
+```{.python .input  n=12}
 def accuracy(output, label):
     return nd.mean(output.argmax(axis=1)==label).asscalar()
 ```
 
-我们可以评估一个模型在这个数据上的精度
+我们可以评估一个模型在这个数据上的精度。（这两个函数我们之后也会用到，所以也都保存在[utils.py](../utils.py)。）
 
-```{.python .input  n=36}
+```{.python .input  n=13}
 def evaluate_accuracy(data_iterator, net):
     acc = 0.
     for data, label in data_iterator:
@@ -161,7 +154,7 @@ def evaluate_accuracy(data_iterator, net):
 
 因为我们随机初始化了模型，所以这个模型的精度应该大概是`1/num_outputs = 0.1`.
 
-```{.python .input  n=38}
+```{.python .input  n=14}
 evaluate_accuracy(test_data, net)
 ```
 
@@ -169,35 +162,37 @@ evaluate_accuracy(test_data, net)
 
 训练代码跟前面的线性回归非常相似：
 
-```{.python .input  n=45}
-from mxnet import autograd as ag
-epochs = 5
+```{.python .input  n=3}
+import sys
+sys.path.append('..')
+from utils import SGD
+from mxnet import autograd 
+
 learning_rate = .001
 
-for e in range(epochs):
-    train_loss = 0
-    train_acc = 0
+for epoch in range(5):
+    train_loss = 0.
+    train_acc = 0.
     for data, label in train_data:
-        with ag.record():
+        with autograd.record():
             output = net(data)
             loss = cross_entropy(output, label)
-        loss.backward()
-
+        loss.backward() 
         SGD(params, learning_rate)
 
         train_loss += nd.mean(loss).asscalar()
         train_acc += accuracy(output, label)
 
     test_acc = evaluate_accuracy(test_data, net)
-    print("Epoch %d. Loss: %f, Train_acc %f, Test_acc %f" % (
-            e, train_loss/len(train_data), train_acc/len(train_data), test_acc))
+    print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
+            epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
 ```
 
 ## 预测
 
 训练完成后，现在我们可以演示对输入图片的标号的预测
 
-```{.python .input}
+```{.python .input  n=16}
 data, label = mnist_test[0:9]
 show_images(data)
 print('true labels')
