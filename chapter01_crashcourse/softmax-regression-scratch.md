@@ -53,9 +53,10 @@ def get_text_labels(label):
     ]
     return [text_labels[int(i)] for i in label]
 
-data, label = mnist_train[0:9]
-show_images(data)
-print(get_text_labels(label))
+# FIXME: need wait PR #7661 to be merged
+# data, label = mnist_train[0:9]
+# show_images(data)
+# print(get_text_labels(label))
 ```
 
 ## 数据读取
@@ -193,14 +194,16 @@ for epoch in range(5):
 训练完成后，现在我们可以演示对输入图片的标号的预测
 
 ```{.python .input  n=16}
-data, label = mnist_test[0:9]
-show_images(data)
-print('true labels')
-print(get_text_labels(label))
+# FIXME: need wait PR #7661 to be merged
 
-predicted_labels = net(data).argmax(axis=1)
-print('predicted labels')
-print(get_text_labels(predicted_labels.asnumpy()))
+# data, label = mnist_test[0:9]
+# show_images(data)
+# print('true labels')
+# print(get_text_labels(label))
+
+# predicted_labels = net(data).argmax(axis=1)
+# print('predicted labels')
+# print(get_text_labels(predicted_labels.asnumpy()))
 ```
 
 ## 结论
