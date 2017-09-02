@@ -12,7 +12,6 @@
    :numbered:
 
    why
-   README
    preface
    install
 
@@ -26,8 +25,6 @@
 
    introduction
    ndarray
-   linear-algebra
-   probability
    autograd
 
 .. toctree::
@@ -37,13 +34,8 @@
 
    linear-regression-scratch
    linear-regression-gluon
-   perceptron
-   loss
    softmax-regression-scratch
    softmax-regression-gluon
-   regularization-scratch
-   regularization-gluon
-   environment
 
 .. toctree::
    :maxdepth: 1
@@ -52,61 +44,3 @@
 
    mlp-scratch
    mlp-gluon
-   mlp-dropout-scratch
-   mlp-dropout-gluon
-   plumbing
-   custom-layer
-   serialization
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Convolutional neural networks
-   :numbered:
-
-   cnn-scratch
-   cnn-gluon
-   deep-cnns-alexnet
-   very-deep-nets-vgg
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Recurrent neural networks
-   :numbered:
-
-   simple-rnn
-   lstm-scratch
-   gru-scratch
-   rnns-gluon
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Computer vision
-   :numbered:
-
-   object-detection
-   fine-tuning
-   tree-lstm
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Generative adversarial networks
-   :numbered:
-
-   gan-intro
-
-.. toctree::
-   :maxdepth: 1
-   :caption: High-performance and distributed training
-   :numbered:
-
-   multiple-gpus-scratch
-   multiple-gpus-gluon
-   training-with-multi-machines
-   hybridize
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Developer documents
-   :numbered:
-
-   contribute

@@ -6,7 +6,7 @@
 
 照旧读取数据。
 
-```{.python .input  n=1}
+```{.python .input  n=4}
 import sys
 sys.path.append('..')
 from mnist import load_data
@@ -19,7 +19,7 @@ train_data, test_data = load_data(batch_size)
 
 唯一的区别在这里，我们加了一行进来。
 
-```{.python .input  n=4}
+```{.python .input  n=5}
 from mxnet import gluon
 
 num_hidden = 256
@@ -33,7 +33,7 @@ net.initialize()
 
 ## 定义剩下的并且训练
 
-```{.python .input  n=9}
+```{.python .input  n=6}
 from mxnet import ndarray as nd
 from mxnet import autograd
 from utils import accuracy, evaluate_accuracy
@@ -69,7 +69,3 @@ for epoch in range(5):
 - 尝试使用一个另外的激活函数，可以使用`help(nd.Activation)`或者[线上文档](https://mxnet.apache.org/api/python/ndarray.html#mxnet.ndarray.Activation)查看提供的选项。
 
 欢迎来[discuss.gluon.ai](http://discuss.gluon.ai)讨论和吐槽。
-
-```{.python .input}
-
-```
