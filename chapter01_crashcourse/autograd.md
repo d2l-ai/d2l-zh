@@ -83,7 +83,7 @@ a.grad == c/a
 
 *注意：读者可以跳过这一小节，不会影响阅读之后的章节*
 
-Sometimes when we call the backward method on an NDArray, e.g. ``y.backward()``, where ``y`` is a function of ``x`` we are just interested in the derivative of ``y`` with respect to ``x``. Mathematicians write this as dy(x)/dx. At other times, we may be interested in the gradient of ``z`` with respect to ``x``, where ``z`` is a function of ``y``, which in turn, is a function of ``x``. That is, we are interested in dz(y(x))/dx$. Recall that by the chain rule $dz(y(x))/dx = [dz(y)/dy] * [dy(x)/dx]$. So, when ``y`` is part of a larger function ``z``, and we want ``x.grad`` to store $dz/dx$, we can pass in the *head gradient* $dz/dy$ as an input to ``backward()``. The default argument is ``nd.ones_like(y)``. See [Wikipedia](https://en.wikipedia.org/wiki/Chain_rule) for more details.
+Sometimes when we call the backward method on an NDArray, e.g. ``y.backward()``, where ``y`` is a function of ``x`` we are just interested in the derivative of ``y`` with respect to ``x``. Mathematicians write this as dy(x)/dx. At other times, we may be interested in the gradient of ``z`` with respect to ``x``, where ``z`` is a function of ``y``, which in turn, is a function of ``x``. That is, we are interested in dz(y(x))/dx. Recall that by the chain rule dz(y(x))/dx = [dz(y)/dy] * [dy(x)/dx]. So, when ``y`` is part of a larger function ``z``, and we want ``x.grad`` to store dz/dx, we can pass in the *head gradient* dz/dy as an input to ``backward()``. The default argument is ``nd.ones_like(y)``. See [Wikipedia](https://en.wikipedia.org/wiki/Chain_rule) for more details.
 
 ```{.python .input}
 with ag.record():
