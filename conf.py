@@ -61,9 +61,9 @@ source_suffix = ['.rst', '.ipynb', '.md']
 master_doc = 'index'
 
 # General information about the project.
-project = 'The Straight Dope'
+project = '动手学深度学习'
 copyright = '2017, Contributors'
-author = "Zachary C. Lipton, Mu Li, Alex Smola and Junyuan Xie"
+author = "MXNet Community"
 
 
 # The version info for the project you're documenting, acts as replacement for
