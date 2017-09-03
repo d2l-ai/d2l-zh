@@ -31,7 +31,7 @@ with net.name_scope():
 net.initialize()
 ```
 
-## 定义剩下的并且训练
+## 定义并执行训练步骤
 
 ```{.python .input  n=6}
 from mxnet import ndarray as nd
@@ -61,7 +61,7 @@ for epoch in range(5):
 
 ## 结论
 
-通过Gluon我们可以更方便的构造多层神经网络。
+通过Gluon我们可以更方便地构造多层神经网络。
 
 ## 练习
 
