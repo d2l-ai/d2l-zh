@@ -22,7 +22,7 @@ $$\sum_{i=1}^n (\hat{y}_i-y_i)^2.$$
 
 `y[i] = 2 * X[i][0] - 3.4 * X[i][1] + 4.2 + noise`
 
-这里噪音服从均值0和方差为0.1的正太分布。
+这里噪音服从均值0和方差为0.1的正态分布。
 
 ```{.python .input  n=2}
 from mxnet import ndarray as nd
@@ -79,7 +79,7 @@ b = nd.zeros((1,))
 params = [w, b]
 ```
 
-之后训练时我们需要对这些参数求导来更新他们的值，所以我们需要创建它们的梯度。
+之后训练时我们需要对这些参数求导来更新它们的值，所以我们需要创建它们的梯度。
 
 ```{.python .input  n=7}
 for param in params:
