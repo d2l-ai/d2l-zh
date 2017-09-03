@@ -9,7 +9,6 @@
 .. toctree::
    :maxdepth: 1
    :caption: 前言
-   :numbered:
 
    why
    preface
@@ -21,7 +20,6 @@
 .. toctree::
    :maxdepth: 1
    :caption: 预备知识
-   :numbered:
 
    introduction
    ndarray
@@ -30,7 +28,6 @@
 .. toctree::
    :maxdepth: 1
    :caption: 监督学习
-   :numbered:
 
    linear-regression-scratch
    linear-regression-gluon
@@ -40,7 +37,6 @@
 .. toctree::
    :maxdepth: 1
    :caption: 神经网络
-   :numbered:
 
    mlp-scratch
    mlp-gluon
