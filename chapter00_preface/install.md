@@ -11,7 +11,7 @@
 ```bash
 git clone https://github.com/mli/gluon-tutorials-zh
 cd gluon-tutorials-zh
-conda env create -f environment.yml
+conda env create -f build/environment.yml
 source activate gluon
 ```
 
