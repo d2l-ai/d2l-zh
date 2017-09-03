@@ -1,10 +1,14 @@
-name: gluon
+name: gluon_zh_docs
 channels:
   - conda-forge
 dependencies:
 - python>=3.5
 - jupyter
+- sphinx
+- sphinx_rtd_theme
 - matplotlib
 - pip:
+  - nbsphinx
+  - recommonmark
   - https://github.com/mli/notedown/tarball/master
   - mxnet>=0.11.1b20170902

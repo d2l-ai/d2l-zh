@@ -5,7 +5,7 @@ set -x
 set -e
 
 # prepare the env
-conda env update -f environment.yml
+conda env update -f build.yml
 source activate gluon_zh_docs
 
 make html

@@ -2,83 +2,61 @@
 
 ## 安装需求
 
-每个教程是一个可以编辑和运行的Jupyter notebook。运行这些教程需要
+每个教程是一个可以编辑和运行的Jupyter notebook。运行这些教程需要`Python`，`Jupyter`和其插件`notedown`，以及最新版`MXNet`。安装这些依赖最方便的是通过conda。
 
-- Python
-- Jupyter和其插件notedown
-- MXNet >= 0.11
+## 通过Conda安装
 
-安装这些依赖最方便的是通过pip。
-
-## 安装Python和pip
-
-最常用的安装有两种：
-
-1. 在[Python主页](https://www.python.org/downloads/)下载并安装Python (推荐选择python 3)。然后根据[pip官网](https://pip.pypa.io/en/stable/installing/)推荐，下载文件[get-pip.py](https://bootstrap.pypa.io/get-pip.py)后运行
-
-   ```bash
-   python get-pip.py
-   ```
-2. 先[安装conda](https://docs.continuum.io/anaconda/install.html)，然后运行
-   ```bash
-   conda install python pip
-   ```
-
-##  安装Jupyter和notedown
-
-通过pip安装Jupyter，然后生成默认的配置文件（记住生成的文件的位置）
+首先根据操作系统下载并安装[Miniconda](https://conda.io/miniconda.html)。然后安装所需的依赖包并激活环境：
 
 ```bash
-pip install jupyter
-jupyter notebook --generate-config
+git clone https://github.com/mli/gluon-tutorials-zh
+cd gluon-tutorials-zh
+conda env create -f environment.yml
+source activate gluon
 ```
 
-接着安装jupyter读写markdown文件格式的插件（如果安装失败可以跳转到[这里](#安装原版notedown)。）
+## 运行
+
+运行Jupyter并加载notedown插件：
 
 ```bash
-pip install https://github.com/mli/notedown/tarball/master
+jupyter notebook --NotebookApp.contents_manager_class='notedown.NotedownContentsManager'
 ```
 
-接着将下面这一行加入到上面生成的配置文件的末尾（Linux/macOS一般在`~/.jupyter/jupyter_notebook_config.py`)
+这时候我们可以通过浏览器打开 [http://localhost:8888](http://localhost:8888) 来查看和运行各个教程了。
 
-```python
-c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'
-```
+## 高级选项
 
-## 安装MXNet
+### 使用GPU
 
-我们可以通过pip直接安装mxnet。下面命令安装CPU版本，这里我们用了`—pre`来安装nightly构建的版本。：
+默认安装的MXNet只支持CPU。有一些教程需要GPU来运行。假设CUDA 7.5或者8.0已经安装了，那么先卸载CPU版本
 
 ```bash
-pip install --pre mxnet
+pip uninstall mxnet
 ```
 
-如果需要使用GPU，那么事先要安装CUDA，然后选择安装下面版本之一：
+然后选择安装下面版本之一：
 
 ```bash
 pip install --pre mxnet-cu75 # CUDA 7.5
 pip install --pre mxnet-cu80 # CUDA 8.0
 ```
 
-如果CPU性能很关键，可以安装MKL版本，包括`mxnet-mkl`, `mxnet-cu75mkl`和`mxnet-cu80mkl`这三个版本。但mkl版本暂时不是每个操作系统都支持。更多安装，例如docker和从源代码编译，可以参见[这里](https://mxnet.incubator.apache.org/get_started/install.html)。
+### 默认开启notedown插件
 
-## 下载并运行
+首先生成jupyter配置文件（如果已经生成过可以跳过）
 
 ```bash
-git clone https://github.com/mli/mxnet-the-straight-dope-zh/
-cd mxnet-the-straight-dope-zh
-jupyter notebook
+jupyter notebook --generate-config
 ```
 
-这时候我们可以打开 [http://localhost:8888](http://localhost:8888) 来查看和运行了。
+将下面这一行加入到生成的配置文件的末尾（Linux/macOS一般在`~/.jupyter/jupyter_notebook_config.py`)
 
-## Debug
+```bash
+c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'
+```
 
-
-
-`The kernel appears to have died. It will restart automatically.`
-
-## 高级选项
+之后就只需要运行`jupyter notebook`即可。
 
 ### 在远端服务器上运行Jupyter
 
@@ -92,24 +70,6 @@ ssh myserver -L 8888:localhost:8888
 
 然后我们可以使用[http://localhost:8888](http://localhost:8888)打开远端的Jupyter。
 
-### 安装原版notedown
-
-原版notedown可以通过下面来安装
-
-```bash
-pip install notedown
-```
-
-们对原版的notedown修改了一个很小的地方。主要是它默认会被markdown cell每行按80字符换行，从而导致格式错误。
-
-一个办法是先确定notedown的模板文件
-
-```bash
-python -c "import notedown; print('/'.join((notedown.__file__).split('/')[:-1])+'/templates/markdown.tpl')"
-```
-
-然后打开这个文件，把这行 `{{ cell.source | wordwrap(80, False) }}` 替换成 `{{ cell.source }}` 即可。
-
 ### 运行计时
 
 我们可以通过ExecutionTime插件来对每个cell的运行计时。
@@ -119,4 +79,3 @@ pip install -e jupyter_contrib_nbextensions
 jupyter contrib nbextension install --user
 jupyter nbextension enable execute_time/ExecuteTime
 ```
-
