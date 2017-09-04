@@ -2,9 +2,10 @@ name: gluon
 channels:
   - conda-forge
 dependencies:
-- python>=3.5
+- python
 - jupyter
 - matplotlib
 - pip:
+  - requests
   - https://github.com/mli/notedown/tarball/master
   - mxnet>=0.11.1b20170902
