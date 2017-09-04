@@ -39,7 +39,7 @@ Github源代码在 `https://github.com/mli/gluon-tutorials-zh <https://github.co
 
 .. toctree::
    :maxdepth: 1
-   :caption: 神经网络
+   :caption: 多层神经网络
 
    mlp-scratch
    mlp-gluon
