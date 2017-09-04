@@ -2,7 +2,7 @@ name: gluon
 channels:
   - conda-forge
 dependencies:
-- python>=3.5
+- python
 - jupyter
 - matplotlib
 - pip:
