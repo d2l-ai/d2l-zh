@@ -1,5 +1,7 @@
 # 安装和使用
 
+【注意】本节目前只在Linux和macOS下测试过，Windows版本还在测试中。
+
 ## 安装需求
 
 每个教程是一个可以编辑和运行的Jupyter notebook。运行这些教程需要`Python`，`Jupyter`和其插件`notedown`，以及最新版`MXNet`。安装这些依赖最方便的是通过conda。
