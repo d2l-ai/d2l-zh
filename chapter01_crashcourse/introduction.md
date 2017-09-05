@@ -1,6 +1,6 @@
 # 机器学习简介
 
-本书作者跟广大程序员一样，在开始写作前需要去来一杯。我们跳进车准备出发，Alex掏出他的安卓喊一声“OK Google”唤醒语言助手，Mu操着他的中式英语命令到“去蓝瓶咖啡店”。手机这时马上显示出识别的命令，并且知道我们需要导航。接着它调出地图应用并给出数条路线方案，每条方案边上会有预估的到达时间并自动选择最快的线路。
+本书作者跟广大程序员一样，在开始写作前需要去来一杯咖啡。我们跳进车准备出发，Alex掏出他的安卓喊一声“OK Google”唤醒语言助手，Mu操着他的中式英语命令到“去蓝瓶咖啡店”。手机这时马上显示出识别的命令，并且知道我们需要导航。接着它调出地图应用并给出数条路线方案，每条方案边上会有预估的到达时间并自动选择最快的线路。
 
 好吧，这是一个虚构的例子，因为我们一般在办公室喝自己的手磨咖啡。但这个例子展示了在短短几秒钟里，我们跟数个机器学习模型进行了交互。
 
@@ -55,29 +55,29 @@ print(' '.join(res))
 对于经验丰富的程序员来说这个太不够一颗赛艇了。所以Joel尝试用机器学习来实现这个。为了让程序能学，他需要准备下面这个数据集：
 
 * 数据 X ``[1, 2, 3, 4, ...]`` 和标注Y ``['fizz', 'buzz', 'fizzbuzz', identity]``
-* Training data, i.e. examples of what the system is supposed to do. Such as ``[(2, 2), (6, fizz), (15, fizzbuzz), (23, 23), (40, buzz)]``
-* ###### Features that map the data into something that the computer can handle more easily, e.g. ``x -> [(x % 3), (x % 5), (x % 15)]``. This is optional but helps a lot if you have it.
+* 训练数据，也就是系统输入输出的实例。例如 ``[(2, 2), (6, fizz), (15, fizzbuzz), (23, 23), (40, buzz)]``
+* 从输入数据中抽取的特征，例如 ``x -> [(x % 3), (x % 5), (x % 15)]``.
 
-有了这些，Jeol利用TensorFlow写了一个[分类器](https://github.com/joelgrus/fizz-buzz-tensorflow)。对于不按常理出牌的Jeol，面试官一脸黑线。而且这个分类器不是总是的对的。
+有了这些，Jeol利用TensorFlow写了一个[分类器](https://github.com/joelgrus/fizz-buzz-tensorflow)。对于不按常理出牌的Jeol，面试官一脸黑线。而且这个分类器不是总是对的。
 
-显然，用原子弹杀鸡了。为什么不直接写几行简单而且保证结果正确的Python代码呢？当然，这里有很多例子一个简单Python脚本不能分类的，即使简单的3岁小孩解决起来毫无压力。
+显然，用原子弹杀鸡了。为什么不直接写几行简单而且保证结果正确的Python代码呢？当然，这里有很多一个简单Python脚本不能分类的例子，即使简单的3岁小孩解决起来毫无压力。
 
 | ![](../img/cat1.jpg) | ![](../img/cat2.jpg) | ![](../img/dog1.jpg) | ![](../img/dog2.jpg) |
-| :---------------: | :---------------: | :---------------: | :---------------: |
-|         喵         |         喵         |         汪         |         汪         |
+| :------------------: | :------------------: | :------------------: | :------------------: |
+|          喵           |          喵           |          汪           |          汪           |
 
 幸运的是，这个正是机器学习的用武之地。我们通过提供大量的含有猫和狗的图片来编程一个猫狗检测器，一般来说它就是一个函数，它会输出一个大的正数如果图片里面是猫，一个大的负数如果是狗，如果不确信就输出一个0附近的。当然，这是机器学习能做的最简单例子。
 
 ## 机器学习最简要素
 
-成功的机器学习有四个要素：数据，转换数据的模型，衡量模型好坏的损失函数，和一个调整模型权重来最小化损失函数的算法。
+成功的机器学习有四个要素：数据、转换数据的模型、衡量模型好坏的损失函数和一个调整模型权重来最小化损失函数的算法。
 
-- **数据**。越多越好。特别的，数据是深度学习复兴的核心，因为复杂的非线性模型比其他机器学习需要更多的数据。数据的例子包括
-  - 图片：例如你的手机图片，里面可能包含猫，狗，恐龙，高中同学聚会，或者昨天的晚饭。
-  - 文本：邮件，新闻，微信聊天记录
-  - 声音：有声书籍，电话记录
-  - 结构数据：Jupyter notebook（里面有文本，图片和代码），网页，租车单，电费表
-- **模型**。通常数据和我们最终想要的相差很远，例如我们想知道照片中的人是不是在高兴，所以我们需要把一千万像素变成一个高兴度的概率值。通常我们需要在数据上应用数个（通常）非线性函数（例如神经网络）
+- **数据**。越多越好。事实上，数据是深度学习复兴的核心，因为复杂的非线性模型比其他机器学习需要更多的数据。数据的例子包括
+  - 图片：例如你的手机图片，里面可能包含猫、狗、恐龙、高中同学聚会或者昨天的晚饭
+  - 文本：邮件、新闻和微信聊天记录
+  - 声音：有声书籍和电话记录
+  - 结构数据：Jupyter notebook（里面有文本，图片和代码）、网页、租车单和电费表
+- **模型**。通常数据和我们最终想要的相差很远，例如我们想知道照片中的人是不是在高兴，所以我们需要把一千万像素变成一个高兴度的概率值。通常我们需要在数据上应用数个非线性函数（例如神经网络）
 - **损失函数**。我们需要对比模型的输出和真实值之间的误差。损失函数帮助我们决定2017年底亚马逊股票会不会价值1500美元。取决于我们想短线还是长线，这个函数可以很不一样。
 - **训练**。通常一个模型里面有很多参数。我们通过最小化损失函数来学这些参数。不幸的是，即使我们做得很好也不能保证在新的没见过的数据上我们可以仍然做很好。
   - **训练误差**。这是模型在评估用来训练模型的数据集上的误差。这个类似于考试前我们在模拟试卷上拿到的分数。有一定的指向性，但不一定保证真实考试分数。
@@ -85,114 +85,83 @@ print(' '.join(res))
 
 下面我们详细讨论一些不同机器学习应用。
 
-In the following we will discuss a few types of machine learning in some more detail. This helps to understand what exactly one aims to do. We begin with a list of *objectives*, i.e. a list of things that machine learning can do. Note that the objectives are complemented with a set of techniques of *how* to accomplish them, i.e. training, types of data, etc. The list below is really only sufficient to whet the readers' appetite and to give us a common language when we talk about problems. We will introduce a larger number of such problems as we go along.
+## 监督学习
 
-## Classification
+监督学习描述的任务是，当给定输入x，如何通过在有标注输入和输出的数据上训练模型而能够预测输出y。从统计角度来说，监督学习主要关注如何估计条件概率P(y|x)。在实际情景中，监督学习最为常用。例如，给定一位患者的CT图像，预测该患者是否得癌症；给定英文句子，预测出它的正确中文翻译；给定本月公司财报数据，预测下个月该公司股票价格。
 
-This is one of the simplest tasks. Given data $x \in X$, such as images, text, sound, video, medical diagnostics, performance of a car, motion sensor data, etc., we want to answer the question as to which class $y \in Y$ the data belongs to. In the above case, $X$ are images and $Y = \mathrm{\{cat, dog\}}$. Quite often the confidence of the classifier, i.e. the algorithm that does this, is expressed in the form of probabilities, e.g. $\Pr(y=\mathrm{cat}\mid x) = 0.9$, i.e. the classifier is 90% sure that it's a cat. Whenever we have only two possible outcomes, statisticians call this a *binary classifier*. All other cases are called *multiclass classification*, e.g. the digits `[0, 1, 2, 3 ... 9]` in a digit recognition task. In `MXNet Gluon` the corresponding loss function is the [Cross Entropy Loss](http://mxnet.io/api/python/gluon.html#mxnet.gluon.loss.SoftmaxCrossEntropyLoss).
+### 回归分析
 
-Note that the most likely class is not necessarily the one that you're going to use for your decision. Assume that you find this beautiful mushroom in your backyard:
+回归分析也许是监督学习里最简单的一类任务。在该项任务里，输入是任意离散或连续的、单一或多个的变量，而输出是连续的数值。例如我们可以把本月公司财报数据抽取出若干特征，如营收总额、支出总额以及是否有负面报道，利用回归分析预测下个月该公司股票价格。
 
-| ![](img/death_cap.jpg)  |
-| :---------------------: |
-| Death cap - do not eat! |
+### 分类
 
-Our (admittedly quite foolish) classifier outputs $\Pr(y=\mathrm{death cap}\mid\mathrm{image}) = 0.2$. In other words, it is quite confident that it *isn't* a death cap. Nonetheless, very few people would be foolhardy enough to eat it, after all, the certain benefit of a delicious dinner isn't worth the potential risk of dying from it. In other words, the effect of the *uncertain risk* by far outweighs the benefit. Let's look at this in math. Basically we need to compute the expected risk that we incur, i.e. we need to multiply the probability of the outcome with the benefit (or harm) associated with it:
+值得一提的是，回归分析所关注的预测往往可以解答输出为**连续数值**的问题。当预测的输出是**离散的**类别时，这个监督学习任务就叫做分类。分类在我们日常生活中很常见。例如我们可以把本月公司财报数据抽取出若干特征，如营收总额、支出总额以及是否有负面报道，利用分类预测下个月该公司的CEO是否会离职。在计算机视觉领域，把一张图片识别成众多物品类别中的某一类，例如猫、狗等。
 
-$$L(\mathrm{action}\mid x) = \mathbf{E}_{y \sim p(y\mid x)}[\mathrm{loss}(\mathrm{action},y)]$$
+### 标注
 
-Hence, the loss $L$ incurred by eating the mushroom is $L(a=\mathrm{eat}\mid x) = 0.2 * \infty + 0.8 * 0 = \infty$, whereas the cost of discarding it is $L(a=\mathrm{discard}\mid x) = 0.2 * 0 + 0.8 * 1 = 0.8$. We got lucky - as any botanist would tell us, the above actually *is* a death cap.
+事实上，有一些看似分类的问题在实际中却难以归于分类。例如，把下图分类成猫或者狗都看上去有些问题。
 
-There are way more fancy classification problems than the ones above. For instance, we might have hierarchies. One of the first examples of such a thing are due to Linnaeus, who applied it to animals. Usually this is referred to as *hierarchical classification*. Typically the cost of misclassification depends on how far you've strayed from the truth, e.g. mistaking a poodle for a schnautzer is no big deal but mistaking it for a dinosaur would be embarrassing. On the other hand, mistaking a rattle snake for a garter snake could be deadly. In other words, the cost might be *nonuniform* over the hierarchy of classes but tends to increase the further away you are from the truth.
+![img](../img/catdog.jpg)
 
-![](img/taxonomy.jpg)
+如你所见，上图里既有猫又有狗。其实还没完呢，里面还有草啊、轮胎啊、石头啊等等。与其将上图仅仅分类为其中一类，倒不如里面我们所关心的类别标注出来。比如给定一张图片，我们希望知道里面是否有猫、是否有狗、是否有草等。给定一个输入，输出不定量的类别，这叫做标注任务。
 
-## Tagging
+### 搜索与排序
 
-It is worth noting that many problems are *not* classification problems. Discerning cats and dogs by computer vision is relatively easy, but what should our poor classifier do in this situation?
+搜索与排序关注的问题更多的是如何把一堆对象排序。例如在信息检索领域，我们常常关注如何把一堆文档按照与检索条目的相关性排序。在互联网时代，由于搜索引擎的流行，我们更加关注如何对网页进行排序。
 
-![](img/catdog.jpg)
+### 推荐系统
 
-Obviously there's a cat in the picture. And a dog. And a tire, some grass, a door, concrete, rust, individual grass leaves, etc.; Treating it as a binary classification problem is asking for trouble. Our poor classifier will get horribly confused if it needs to decide whether the image is one of two things, if it is actually both.
+推荐系统与搜索排序关系紧密。推荐系统的目标是把用户感兴趣的东西推荐给用户。推荐算法用到的信息多种多样，例如用户的自我描述、对过往推荐的反应、社交网络、喜好等。下图展示了亚马逊网站对笔者之一有关深度学习类书籍的推荐结果。
 
-The above example seems contrived but what about this case: a picture of a model posing in front of a car at the beach. Each of the tags `(woman, car, beach)` would be true. In other words, there are situations where we have multiple tags or attributes of what is contained in an object. Sometimes this is treated as a lot of binary classification problems. But this is problematic, too, since there are just so many tags (often hundreds of thousands or millions) that could apply, e.g. `(ham, green eggs, spam, grinch, ...)` and we would have to *check* all of them and to ensure that they are all accurate.
-
-Suffice it to say, there are better ways of generating tags. For instance, we could try to estimate the probability that $y$ is one of the tags in the set $S_x$ of tags associated with $x$, i.e. $\Pr(y \in S_x\mid x)$. We will discuss them later in this tutorial (with actual code). For now just remember that *tagging is not classification*.
-
-## Regression
-
-Let's assume that you're having your drains repaired and the contractor spends $x=3$ hours removing gunk from your sewage pipes. He then sends you a bill of $y = 350\$ $. Your friend hires the same contractor for $x = 2$ hours and he gets a bill of $y = 250\$ $. You can now both team up and perform a regression estimate to identify the contractor's pricing structure: \$100 per hour plus \$50 to show up at your house. That is, $f(x) = 100 \cdot x + 50$.
-
-More generally, in regression we aim to obtain a real-valued number $y \in \mathbb{R}$ based on data $x$. Here $x$ could be as simple as the number of hours worked, or as complex as last week's news if we want to estimate the gain in a share price. For most of the tutorial, we will be using one of two very common losses, the [L1 loss](http://mxnet.io/api/python/gluon.html#mxnet.gluon.loss.L1Loss) where $l(y,y') = \sum_i |y_i-y_i'|$ and the [L2 loss](http://mxnet.io/api/python/gluon.html#mxnet.gluon.loss.L2Loss) where $l(y,y') = \sum_i (y_i - y_i')^2$. As we will see later, the $L_2$ loss corresponds to the assumption that our data was corrupted by Gaussian Noise, whereas the $L_1$ loss is very robust to malicious data corruption, albeit at the expense of lower efficiency.
-
-## Search and ranking
-
-One of the problems quite different from classifications is ranking. There the goal is less to determine whether a particular page is relevant for a query, but rather, which one of the plethora of search results should be displayed for the user. That is, we really care about the ordering among the relevant search results and our learning algorithm needs to produce ordered subsets of elements from a larger set. In other words, if we are asked to produce the first 5 letters from the alphabet, there is a difference between returning ``A B C D E`` and ``C A B E D``. Even if the result set is the same, the ordering within the set matters nonetheless.
-
-A possible solution to this problem is to score every element in the set of possible sets with a relevance score and then retrieve the top-rated elements. [PageRank](https://en.wikipedia.org/wiki/PageRank) is an early example of such a relevance score. One of the peculiarities is that it didn't depend on the actual query. Instead, it simply helped to order the results that contained the query terms. Nowadays search engines use machine learning and behavioral models to obtain query-dependent relevance scores. There are entire conferences devoted to this subject.
-
-## Recommender systems
-
-Quite closely related to search and ranking are recommender systems. The problems are  similar insofar as the goal is to display a set of relevant items to the user. The main difference is the emphasis on *personalization* to specific users in the context of recommender systems. For instance, for movie recommendation the result page for a SciFi fan and the result page for a connoisseur of Woody Allen comedies might differ significantly.
-
-Such problems occur, e.g. for movie, product or music recommendation. In some cases customers will provide explicit details about how much they liked the product (e.g. Amazon product reviews). In some other cases they might simply provide feedback if they are dissatisfied with the result (skipping titles on a playlist). Generally, such systems strive to estimate some score $y_{ij}$ as a function of user $u_i$ and object $o_j$. The objects $o_j$ with the largest scores $y_{ij}$ are then used as recommendation. Production systems are considerably more advanced and take detailed user activity and item characteristics into account when computing such scores. Below an example of the books recommended for deep learning, based on the author's preferences.
-
-![](img/deeplearning_amazon.png)
+![img](../img/deeplearning_amazon.png)
 
 
-## Sequence transformations
 
-Some of the more exciting applications of machine learning are sequence transformations, sometimes also referred as ``seq2seq`` problems. They ingest a sequence of data and emit a new, significantly transformed one. This goes considerably beyond the previous examples where the output essentially had a predermined cardinality and type (e.g. one out of 10 classes, regressing a dollar value, ordering objects). While it is impossible to consider all types of sequence transformations, a number of special cases are worth mentioning:
+搜索引擎的搜索条目自动补全系统也是个好例子。它可根据用户输入的前几个字符把用户可能搜索的条目实时推荐自动补全。在笔者之一的某项工作里，如果系统发现用户刚刚开启了体育类的手机应用，当用户在搜索框拼出"real"时，搜索条目自动补全系统会把"real madrid"（皇家马德里，足球球队）推荐在比通常更频繁被检索的"real estate"（房地产）更靠前的位置，而不是总像下图中这样。
 
-### Tagging and Parsing
+![](../img/qac.png)
 
-This involves annotating a text sequence with attributes. In other words, the number of inputs and outputs is essentially the same. For instance, we might want to know where the verbs and subjects are, we might want to know which words are the named entities. In general, the goal is to decompose and annotate text $x$ based on structural and grammatical assumptions to get some annotation $y$. This sounds more complex than it actually is. Below is a very simple example of annotating a sentence with tags regarding which word refers to a named entity.
+
+
+
+
+### 序列转换
+
+序列转换也是一类近来备受关注的机器学习问题。
+
+#### 语法分析
+
+一个常见语法分析的例子是，给定一个本文序列，如何找出其中的命名实体，例如人物姓名、城市名称等。以下是一个这样的例子。
 
 | `Tom wants to have dinner in Washington with Sally.` |
-| :--------------------------------------- |
+| ---------------------------------------- |
 | `E   -     -  -    -      -  E          -    E` |
 
-### Automatic Speech Recognition
+#### 语音识别
 
-Here the input sequence $x$ is the sound of a speaker, and the output $y$ is the textual transcript of what the speaker said. The challenge is that there are many more audio frames (sound is typically sampled at 8kHz or 16kHz), i.e. there is no 1:1 correspondence between audio and text. In other words, this is a seq2seq problem where the output is much shorter than the input.
+在语音识别的问题里，输入序列通常都是麦克风的声音，而输出是对通过麦克风所说的话的文本转录。这类问题通常有一个难点，例如声音通常都在特定的采样率采样，因为声音和文本之间不存在一一对应。换言之，语音识别是一类序列转换问题。这里的输出往往比输入短很多。
 
 | `----D----e--e--e-----p----------- L----ea-------r---------ni-----ng-----` |
-| :--------------------------------------- |
-| ![Deep Learning](img/speech.jpg)         |
+| ---------------------------------------- |
+| ![Deep Learning](../img/speech.jpg)      |
 
-### Text to Speech
+#### 文本转语音
 
-TTS is the inverse of Speech Recognition. That is, the input $x$ is text and the output $y$ is an audio file. There, the output is *much longer* than the input. While it is easy for *humans* to recognize a bad audio file, this isn't quite so trivial for computers. The challenge is that the audio output is way longer than the input sequence.
+这是语音识别问题的逆问题。这里的输入是一个文本序列，而输出才是声音序列。因此，这类问题的输出比输入长。
 
-### Machine Translation
+#### 机器翻译
 
-The goal here is to map text from one language automatically to the other. Unlike in the previous cases where the order of the inputs was preserved, in machine translation order inversion can be vital for a correct result. In other words, while we are still converting one sequence into another, neither the number of inputs and outputs or their order are assumed to be the same. Consider the following example which illustrates the obnoxious fact of German to place the verb at the end.
+机器翻译的目标是把一段话从一种语言翻译成另一种语言。目前，机器翻译时常会翻译出令人啼笑皆非的结果。主要来说，机器翻译的复杂程度非常高。同一个词在两种不同语言下的对应有时候是多对多。另外，符合语法或者语言习惯的语序调整也另问题更加复杂。
 
-| German          | Haben Sie sich schon dieses grossartige Lehrwerk angeschaut? |
-| :-------------- | :--------------------------------------- |
-| English         | Did you already check out this excellent tutorial? |
-| Wrong alignment | Did you yourself already this excellent tutorial looked-at? |
+## 非监督学习
 
-There are many more related problems. For instance, the order in which a user reads a webpage is a two-dimensional layout analysis problem. Likewise, for dialog problems we need to take world-knowledge and prior state into account. This is an active area of research.
+上述的机器学习问题和应用场景都是基于监督学习的。以下我们简要介绍一些常见的非监督学习任务。
 
+- **聚类**问题通常研究如何把一堆数据点分成若干类，从而使得同类数据点相似而非同类数据点不似。根据实际问题，我们需要定义相似性。
+- **子空间估计**问题通常研究如何将原始数据向量在更低维度下表示。理想情况下，子空间的表示要具有代表性从而才能与原始数据接近。一个常用方法叫做主成分分析。
+- **表征学习**希望在欧几里得空间中找到原始对象的表示方式，从而能在欧几里得空间里表示出原始对象的符号性质。例如我们希望找到城市的向量表示，从而使得我们可以进行这样的向量运算：罗马 - 意大利 + 法国 = 巴黎。
+- **生成对抗网络**是最近一个很火的领域。这里描述数据的生成过程，并检查真实与生成的数据是否统计上相似。
 
-## Unsupervised learning
+## 小结
 
-All the examples so far are related to *Supervised Learning*, i.e. situations where we know what we want. Quite often, though, we simply want to learn as much about the data as possible. This sounds vague because it is. The type and number of questions we could ask is only limited by the creativity of the statistician asking the question. We will address a number of them later in this tutorial where we will provide matching examples. To whet your appetite, we list a few of them below:
-
-* Is there a small number of prototypes that accurately summarize the data. E.g. given a set of photos, can we group  them into landscape photos, pictures of dogs, babies, cats, mountain peaks, etc.? Likewise, given a collection of users (with their behavior), can we group them into users with similar behavior? This problem is typically known as **clustering**.
-* Is there a small number of parameters that accurately captures the relevant properties of the data? E.g. the trajectories of a ball are quite well described by velocity, diameter and mass of the ball. Tailors have developed a small number of parameters that describe human body shape fairly accurately for the purpose of fitting clothes. These problems are referred to as **subspace estimation** problems. If the dependence is linear, it is called **principal component analysis**.
-* Is there a representation of (arbitrary structured) objects in Euclidean space (i.e. the space of vectors in $\mathbb{R}^n$) such that symbolic properties can be well matched? This is called **representation learning** and it is used, to describe entities and their relations such as Rome - Italy + France = Paris.
-* Is there a description of the root causes of much of the data that we observe? For instance, if we have demographic data about house prices, pollution, crime, location, education, salaries, etc., can we discover how they are related simply based on empirical data? The field of **directed graphical models** and **causality** deals with this.
-* An important and exciting recent development are **generative adversarial networks**. They are basically a procedural way of synthesizing data. The underlying statistical mechanisms are tests to check whether real and fake data are the same. We will devote a few notebooks to them.
-
-
-## Environment
-
-So far we didn't discuss at all yet, where all the data comes from, how we need to interact with the environment, whether it remembers what we did previously, if the environment wants to help us (e.g. a user reading text into a speech recognizer) or if it is out to beat us (e.g. in a game), or if it doesn't care (in most cases). Those problems are usually distinguished by monikers such as batch learning, online learning, control, and reinforcement learning.
-
-We also didn't discuss what happens when training and test data are different (statisticians call this covariate shift). This is a problem that most of us will have experienced painfully when taking exams written by the lecturer, while the homeworks were composed by his TAs. Likewise, there is a large area of situations where we want our tools to be robust against malicious or malformed training data (robustness) or equally abnormal test data. We will introduce these aspects gradually throughout this tutorial to help practitioners deal with them in their work.
-
-## Conclusion
-
-Machine Learning is vast. We cannot possibly cover it all. On the other hand, the chain rule is simple, so it's easy to get started.
+机器学习是一个庞大的领域。我们在此无法也无需介绍有关它的全部。有了这些背景知识铺垫，你是否对接下来的学习更有兴趣了呢？
