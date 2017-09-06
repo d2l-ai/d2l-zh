@@ -83,7 +83,7 @@ a.grad == c/a
 
 *注意：读者可以跳过这一小节，不会影响阅读之后的章节*
 
-Sometimes when we call the backward method on an NDArray, e.g. ``y.backward()``, where ``y`` is a function of ``x`` we are just interested in the derivative of ``y`` with respect to ``x``. Mathematicians write this as dy(x)/dx. At other times, we may be interested in the gradient of ``z`` with respect to ``x``, where ``z`` is a function of ``y``, which in turn, is a function of ``x``. That is, we are interested in dz(y(x))/dx. Recall that by the chain rule dz(y(x))/dx = [dz(y)/dy] * [dy(x)/dx]. So, when ``y`` is part of a larger function ``z``, and we want ``x.grad`` to store dz/dx, we can pass in the *head gradient* dz/dy as an input to ``backward()``. The default argument is ``nd.ones_like(y)``. See [Wikipedia](https://en.wikipedia.org/wiki/Chain_rule) for more details.
+当我们在一个`NDArray`上调用`backward`方法时，例如`y.backward()`，此处`y`是一个关于`x`的函数，我们将求得`y`关于`x`的导数。数学家们会把这个求导写成`dy(x)/dx`。还有些更复杂的情况，比如`z`是关于`y`的函数，且`y`是关于`x`的函数，我们想对`z`关于`x`求导，也就是求`dz(y(x))/dx`的结果。回想一下链式法则，我们可以得到`dz(y(x))/dx = [dz(y)/dy] * [dy(x)/dx]`。当`y`是一个更大的`z`函数的一部分，并且我们希望求得`dz/dx`保存在`x.grad`中时，我们可以传入*头梯度*`dz/dy`的值作为`backward()`方法的输入参数，系统会自动应用链式法则进行计算。这个参数的默认值是`nd.ones_like(y)`。关于链式法则的详细解释，请参阅[Wikipedia](https://en.wikipedia.org/wiki/Chain_rule)。
 
 ```{.python .input}
 with ag.record():
