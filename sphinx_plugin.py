@@ -12,7 +12,7 @@ import os
 import time
 
 # timeout in second to evaluate a notebook
-timeout = 120
+timeout = 240
 # limit the number of lines in a cell output
 max_output_length = 500
 # the files will be ingored for execution
