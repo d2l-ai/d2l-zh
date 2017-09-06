@@ -31,7 +31,7 @@ from mxnet import autograd
 num_inputs = 2
 num_examples = 1000
 
-true_w = [2, 3.4]
+true_w = [2, -3.4]
 true_b = 4.2
 
 X = nd.random_normal(shape=(num_examples, num_inputs))
