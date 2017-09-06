@@ -1,6 +1,4 @@
 name: gluon
-channels:
-  - conda-forge
 dependencies:
 - python
 - jupyter
