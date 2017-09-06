@@ -43,3 +43,10 @@ Github源代码在 `https://github.com/mli/gluon-tutorials-zh <https://github.co
 
    mlp-scratch
    mlp-gluon
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: 卷积神经网络
+
+   cnn-scratch
