@@ -29,6 +29,16 @@ source activate gluon # 注意Windows下不需要 source
 jupyter notebook
 ```
 
+## 通过docker安装
+
+首先你需要下载并安装[docker](https://docs.docker.com/engine/installation/)，然后运行下面命令即可
+
+```
+docker run -p 8888:8888 muli/gluon-tutorials-zh
+```
+
+然后浏览器打开[http://localhost:8888](http://localhost:8888) ，这时通常需要填docker运行时产生的token。
+
 ## 高级选项
 
 ### 使用GPU
