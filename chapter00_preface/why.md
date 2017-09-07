@@ -24,7 +24,7 @@
 
 1. [Eric](https://github.com/piiswrong)和[Sheng](https://github.com/szha)开发了MXNet的新前端Gluon，详细可以参见[Eric的这篇介绍](https://zhuanlan.zhihu.com/p/28648399)。这个前端带来跟Python更一致的便利的编程环境，不管是debug还是在交互上，都比TensorFlow之类通过计算图编程的框架更适合学习深度学习。
 2. [Zack](https://github.com/zackchase), [Alex](https://alex.smola.org/), [Aston](https://github.com/astonzhang)和很多小伙伴一起写了一系列的notebook来讲解各个模型。Zack从一个外行（他是专业音乐人）和老师（CMU计算机教授）的角度，从0开始讲解和实现各个算法。
-3. 我们同时将notebook翻译成中文，而且做了很多改进（我个人认为中文版质量更高），并建立中文社区[discuss.gluon.ai](http://discuss.gluon.ai)方便大家来讨论和学习。
+3. 我们同时将notebook翻译成中文，而且做了很多改进（中文版对习惯中文语境的用户更友好），并建立中文社区[discuss.gluon.ai](http://discuss.gluon.ai)方便大家来讨论和学习。
 4. 我们联合[将门](http://www.thejiangmen.com/)在斗鱼上直播一系列课程，深入讲解各个教程。
 
 在我们准备这个的时候，Andrew Ng也开设了深度学习课程。从课程单上看非常好，讲得特别细。而且Andrew讲东西一向特别清楚，所以这个课程必然是精品。但我们做的跟Andrew的主要有几个区别：
