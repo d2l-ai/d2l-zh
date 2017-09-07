@@ -123,16 +123,16 @@ weight_scale = .01
 num_outputs = 10
 num_fc = 128
 
-# output channels = 20, kernel = (3,3)
-W1 = nd.random_normal(shape=(20,1,3,3), scale=weight_scale, ctx=ctx)
+# output channels = 20, kernel = (5,5)
+W1 = nd.random_normal(shape=(20,1,5,5), scale=weight_scale, ctx=ctx)
 b1 = nd.zeros(W1.shape[0], ctx=ctx)
 
-# output channels = 50, kernel = (5,5)
-W2 = nd.random_normal(shape=(50,20,5,5), scale=weight_scale, ctx=ctx)
+# output channels = 50, kernel = (3,3)
+W2 = nd.random_normal(shape=(50,20,3,3), scale=weight_scale, ctx=ctx)
 b2 = nd.zeros(W2.shape[0], ctx=ctx)
 
 # output dim = 128
-W3 = nd.random_normal(shape=(800, 128), scale=weight_scale, ctx=ctx)
+W3 = nd.random_normal(shape=(1250, 128), scale=weight_scale, ctx=ctx)
 b3 = nd.zeros(W3.shape[1], ctx=ctx)
 
 # output dim = 10

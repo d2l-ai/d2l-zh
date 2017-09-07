@@ -22,6 +22,7 @@ def transform_mnist(data, label):
 
 
 def load_data_fashion_mnist(batch_size):
+    """download the fashion mnist dataest and then load into memory"""
     mnist_train = gluon.data.vision.FashionMNIST(
         train=True, transform=transform_mnist)
     mnist_test = gluon.data.vision.FashionMNIST(
@@ -31,3 +32,12 @@ def load_data_fashion_mnist(batch_size):
     test_data = gluon.data.DataLoader(
         mnist_test, batch_size, shuffle=False)
     return (train_data, test_data)
+
+def try_gpu():
+    """If GPU is available, return mx.gpu(0); else return mx.cpu()"""
+    try:
+        ctx = mx.gpu()
+        _ = nd.zeros((1,), ctx=ctx)
+    except:
+        ctx = mx.cpu()
+    return ctx
