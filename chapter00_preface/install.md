@@ -38,9 +38,17 @@ jupyter notebook
 
 ## 通过docker安装
 
-首先你需要下载并安装[docker](https://docs.docker.com/engine/installation/)，然后运行下面命令即可
+首先你需要下载并安装[docker](https://docs.docker.com/engine/installation/)。例如Linux下可以
 
+```bash
+wget -qO- https://get.docker.com/ | sh
+sudo usermod -aG docker
+# 然后logout一次
 ```
+
+然后运行下面命令即可
+
+```bash
 docker run -p 8888:8888 muli/gluon-tutorials-zh
 ```
 
