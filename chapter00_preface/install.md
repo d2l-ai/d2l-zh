@@ -11,9 +11,16 @@
 例如Linux或者macOS可以使用如下命令
 
 ```bash
-mkdir gluon-tutorials && cd gluon-tutorials 
+mkdir gluon-tutorials && cd gluon-tutorials
 curl http://zh.gluon.ai/gluon_tutorials_zh.tar.gz -o tutorials.tar.gz
 tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
+```
+
+配置下载源，使用国内镜像加速下载（可选）:
+
+```bash
+# 国内用户可用下面的命令优先使用清华conda镜像加速下载
+conda config --prepend channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
 ```
 
 然后安装所需的依赖包并激活环境：
@@ -54,6 +61,12 @@ pip uninstall mxnet
 ```bash
 pip install --pre mxnet-cu75 # CUDA 7.5
 pip install --pre mxnet-cu80 # CUDA 8.0
+```
+
+国内用户也可使用豆瓣pypi镜像加速下载:
+```bash
+pip install --pre mxnet-cu75 -i https://pypi.douban.com/simple # CUDA 7.5
+pip install --pre mxnet-cu80 -i https://pypi.douban.com/simple # CUDA 8.0
 ```
 
 ### 使用notedown插件来读写github源文件
