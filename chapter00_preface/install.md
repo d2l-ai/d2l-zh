@@ -63,7 +63,8 @@ pip install --pre mxnet-cu75 # CUDA 7.5
 pip install --pre mxnet-cu80 # CUDA 8.0
 ```
 
-国内用户也可使用豆瓣pypi镜像加速下载:
+【可选项】国内用户可使用豆瓣pypi镜像加速下载:
+
 ```bash
 pip install --pre mxnet-cu75 -i https://pypi.douban.com/simple # CUDA 7.5
 pip install --pre mxnet-cu80 -i https://pypi.douban.com/simple # CUDA 8.0
