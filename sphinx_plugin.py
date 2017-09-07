@@ -10,6 +10,8 @@ import re
 import shutil
 import os
 import time
+import tarfile
+from zipfile import ZipFile
 
 # timeout in second to evaluate a notebook
 timeout = 240
@@ -144,6 +146,41 @@ def check_output(app, exception):
             nb = nbformat.read(f, as_version=4)
             _check_notebook(nb)
 
+def _release_notebook(dst_dir):
+    """convert .md into notebooks and make a zip file"""
+    reader = notedown.MarkdownReader(match='strict')
+    files = glob.glob('*/*.md')
+    package_files = ['environment.yml', 'mnist.py', 'utils.py', 'README.md', 'LICENSE']
+    for fname in files:
+        # parse if each markdown file is actually a jupyter notebook
+        with open(fname, 'r') as fp:
+            valid = '```{.python .input' in fp.read()
+            if not valid:
+                package_files.append(fname)
+                continue
+        # read
+        with open(fname, 'r') as f:
+            notebook = reader.read(f)
+        # write
+        new_fname = _replace_ext(fname, 'ipynb')
+        with open(new_fname, 'w') as f:
+            f.write(nbformat.writes(notebook))
+        package_files.append(new_fname)
+
+    print('=== Packing ', package_files)
+
+    with ZipFile(os.path.join(dst_dir, 'gluon_tutorials_zh.zip'), 'w') as pkg:
+        for f in package_files:
+            pkg.write(f)
+
+    with tarfile.open(
+            os.path.join(dst_dir, 'gluon_tutorials_zh.tar.gz'), "w:gz") as tar:
+        for f in package_files:
+            tar.add(f)
+
+    for f in glob.glob('*/*.ipynb'):
+        os.remove(f)
+
 converted_files = convert_md()
 renamed_files = rename_ipynb()
 ignore_list = [f for f,_ in converted_files + renamed_files]
@@ -153,6 +190,8 @@ def remove_generated_files(app, exception):
         print('=== Remove %s' % (f))
         os.remove(f)
 
+def release_notebook(app, exception):
+    _release_notebook(app.builder.outdir)
 
 def generate_htaccess(app, exception):
     print('=== Generate .htaccess file')
