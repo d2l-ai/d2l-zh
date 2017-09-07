@@ -16,10 +16,10 @@ curl http://zh.gluon.ai/gluon_tutorials_zh.tar.gz -o tutorials.tar.gz
 tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
 ```
 
-配置下载源，使用国内镜像加速下载（可选）:
+【可选项】配置下载源来使用国内镜像加速下载:
 
 ```bash
-# 国内用户可用下面的命令优先使用清华conda镜像加速下载
+# 优先使用清华conda镜像
 conda config --prepend channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
 ```
 
