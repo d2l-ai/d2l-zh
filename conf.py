@@ -330,3 +330,4 @@ def setup(app):
     app.connect('build-finished', sp.check_output)
     app.connect('build-finished', sp.remove_generated_files)
     app.connect('build-finished', sp.generate_htaccess)
+    app.connect('build-finished', sp.release_notebook)
