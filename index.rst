@@ -50,3 +50,4 @@ Github源代码在 `https://github.com/mli/gluon-tutorials-zh <https://github.co
    :caption: 卷积神经网络
 
    cnn-scratch
+   cnn-gluon
