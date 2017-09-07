@@ -23,7 +23,7 @@ conda env create -f environment.yml
 source activate gluon # 注意Windows下不需要 source
 ```
 
-之后运行下面命名，然后浏览器打开[http://localhost:8888](http://localhost:8888) 就可以查看和运行各个教程了。
+之后运行下面命令，然后浏览器打开[http://localhost:8888](http://localhost:8888) （通常会自动打开）就可以查看和运行各个教程了。
 
 ```bash
 jupyter notebook
