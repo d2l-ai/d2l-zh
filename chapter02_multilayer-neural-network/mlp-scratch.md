@@ -37,7 +37,7 @@ b1 = nd.zeros(num_hidden)
 W2 = nd.random_normal(shape=(num_hidden, num_outputs), scale=weight_scale)
 b2 = nd.zeros(num_outputs)
 
-params = [W1, b1, W1, b2]
+params = [W1, b1, W2, b2]
 
 for param in params:
     param.attach_grad()
