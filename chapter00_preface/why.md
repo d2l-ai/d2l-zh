@@ -24,7 +24,7 @@
 
 1. [Eric](https://github.com/piiswrong)和[Sheng](https://github.com/szha)开发了MXNet的新前端Gluon，详细可以参见[Eric的这篇介绍](https://zhuanlan.zhihu.com/p/28648399)。这个前端带来跟Python更一致的便利的编程环境，不管是debug还是在交互上，都比TensorFlow之类通过计算图编程的框架更适合学习深度学习。
 2. [Zack](https://github.com/zackchase), [Alex](https://alex.smola.org/), [Aston](https://github.com/astonzhang)和很多小伙伴一起写了一系列的notebook来讲解各个模型。Zack从一个外行（他是专业音乐人）和老师（CMU计算机教授）的角度，从0开始讲解和实现各个算法。
-3. 我们同时将notebook翻译成中文。虽然翻译进度落后了英文版，但对每个翻译了教程都做了大量的改进（之后会merge会英文版）
+3. 我们同时将notebook翻译成中文。虽然翻译进度落后了英文版，但对每个翻译了教程都做了大量的改进（之后会merge回英文版）
 4. 建立了中文社区[discuss.gluon.ai](http://discuss.gluon.ai)方便大家来讨论和学习。
 5. 我们联合[将门](http://www.thejiangmen.com/)在斗鱼上直播一系列课程，深入讲解各个教程。
 
