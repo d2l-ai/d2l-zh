@@ -4,15 +4,15 @@
 
 ## 获取和读取数据
 
-我们仍然使用FashionMNIST。我们将代码保存在[../mnist.py](../mnist.py)这样这里不用复制一遍。
+我们仍然使用FashionMNIST。我们将代码保存在[../utils.py](../utils.py)这样这里不用复制一遍。
 
 ```{.python .input  n=1}
 import sys
 sys.path.append('..')
-from mnist import load_data
+import utils
 
 batch_size = 256
-train_data, test_data = load_data(batch_size)
+train_data, test_data = utils.load_data_fashion_mnist(batch_size)
 ```
 
 ## 定义和初始化模型
@@ -48,7 +48,6 @@ trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.01})
 ```{.python .input  n=5}
 from mxnet import ndarray as nd
 from mxnet import autograd
-from utils import accuracy, evaluate_accuracy
 
 for epoch in range(5):
     train_loss = 0.
@@ -61,9 +60,9 @@ for epoch in range(5):
         trainer.step(batch_size)
 
         train_loss += nd.mean(loss).asscalar()
-        train_acc += accuracy(output, label)
+        train_acc += utils.accuracy(output, label)
 
-    test_acc = evaluate_accuracy(test_data, net)
+    test_acc = utils.evaluate_accuracy(test_data, net)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
             epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
 ```
