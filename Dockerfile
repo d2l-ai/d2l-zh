@@ -15,6 +15,7 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
 # setup notedown
 RUN source activate gluon && \
+    pip install https://github.com/mli/notedown/tarball/master && \
     mkdir notebook && \
     jupyter notebook --allow-root --generate-config && \
     echo "c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'" >>~/.jupyter/jupyter_notebook_config.py
