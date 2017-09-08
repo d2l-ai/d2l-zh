@@ -91,9 +91,10 @@ conda env create -f environment.yml
 source activate gluon # Windows下不需要 source
 ```
 
-然后运行Jupyter并加载notedown插件：
+然后安装notedown，运行Jupyter并加载notedown插件：
 
 ```bash
+pip install https://github.com/mli/notedown/tarball/master
 jupyter notebook --NotebookApp.contents_manager_class='notedown.NotedownContentsManager'
 ```
 
