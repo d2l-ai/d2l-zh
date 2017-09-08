@@ -8,7 +8,7 @@
 
 首先根据操作系统下载并安装[Miniconda](https://conda.io/miniconda.html)（[Anaconda](https://docs.continuum.io/anaconda/install/)也可以）。接下来下载所有教程的包（[下载tar.gz格式](http://zh.gluon.ai/gluon_tutorials_zh.tar.gz)或者[下载zip格式](http://zh.gluon.ai/gluon_tutorials_zh.zip)均可）。解压后进入文件夹。
 
-例如Linux或者macOS可以使用如下命令
+例如Linux或者Mac OSX 10.11以上可以使用如下命令
 
 ```bash
 mkdir gluon-tutorials && cd gluon-tutorials
