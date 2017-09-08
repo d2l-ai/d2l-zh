@@ -2,19 +2,6 @@
 
 我们只需要稍微改动[多类Logistic回归](../chapter01_crashcourse/softmax-regression-gluon.md)来实现多层感知机。
 
-## 数据读取
-
-照旧读取数据。
-
-```{.python .input  n=4}
-import sys
-sys.path.append('..')
-from mnist import load_data
-
-batch_size = 256
-train_data, test_data = load_data(batch_size)
-```
-
 ## 定义模型
 
 唯一的区别在这里，我们加了一行进来。
@@ -31,15 +18,21 @@ with net.name_scope():
 net.initialize()
 ```
 
-## 定义并执行训练步骤
+## 读取数据并训练
 
 ```{.python .input  n=6}
+import sys
+sys.path.append('..')
 from mxnet import ndarray as nd
 from mxnet import autograd
-from utils import accuracy, evaluate_accuracy
+import utils
+
+
+batch_size = 256
+train_data, test_data = utils.load_data_fashion_mnist(batch_size)
 
 softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
-trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.01})
+trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.5})
 
 for epoch in range(5):
     train_loss = 0.
@@ -52,11 +45,11 @@ for epoch in range(5):
         trainer.step(batch_size)
 
         train_loss += nd.mean(loss).asscalar()
-        train_acc += accuracy(output, label)
+        train_acc += utils.accuracy(output, label)
 
-    test_acc = evaluate_accuracy(test_data, net)
+    test_acc = utils.evaluate_accuracy(test_data, net)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-            epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
+        epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
 ```
 
 ## 结论
@@ -67,5 +60,3 @@ for epoch in range(5):
 
 - 尝试多加入几个隐含层，对比从0开始的实现。
 - 尝试使用一个另外的激活函数，可以使用`help(nd.Activation)`或者[线上文档](https://mxnet.apache.org/api/python/ndarray.html#mxnet.ndarray.Activation)查看提供的选项。
-
-欢迎来[discuss.gluon.ai](http://discuss.gluon.ai)讨论和吐槽。
