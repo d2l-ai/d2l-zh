@@ -40,7 +40,7 @@ softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 ## 优化
 
 ```{.python .input  n=4}
-trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.01})
+trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.1})
 ```
 
 ## 训练
@@ -64,7 +64,7 @@ for epoch in range(5):
 
     test_acc = utils.evaluate_accuracy(test_data, net)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-            epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
+        epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
 ```
 
 ## 结论
@@ -73,4 +73,5 @@ Gluon提供的函数有时候比手工写的数值更稳定。
 
 ## 练习
 
-再尝试调大下学习率看看？
+- 再尝试调大下学习率看看？
+- 为什么参数都差不多，但gluon版本比从0开始的版本精度更高？

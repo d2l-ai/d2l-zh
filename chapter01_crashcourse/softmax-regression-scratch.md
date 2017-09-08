@@ -141,7 +141,7 @@ def accuracy(output, label):
     return nd.mean(output.argmax(axis=1)==label).asscalar()
 ```
 
-我们可以评估一个模型在这个数据上的精度。（这两个函数我们之后也会用到，所以也都保存在[utils.py](../utils.py)。）
+我们可以评估一个模型在这个数据上的精度。（这两个函数我们之后也会用到，所以也都保存在[../utils.py](../utils.py)。）
 
 ```{.python .input  n=13}
 def evaluate_accuracy(data_iterator, net):
@@ -168,7 +168,7 @@ sys.path.append('..')
 from utils import SGD
 from mxnet import autograd 
 
-learning_rate = .001
+learning_rate = .1
 
 for epoch in range(5):
     train_loss = 0.
@@ -178,14 +178,15 @@ for epoch in range(5):
             output = net(data)
             loss = cross_entropy(output, label)
         loss.backward() 
-        SGD(params, learning_rate)
+        # 将梯度做平均，这样学习率会对batch size不那么敏感
+        SGD(params, learning_rate/batch_size)
 
         train_loss += nd.mean(loss).asscalar()
         train_acc += accuracy(output, label)
 
     test_acc = evaluate_accuracy(test_data, net)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-            epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
+        epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
 ```
 
 ## 预测
