@@ -7,8 +7,6 @@ Github源代码在 `https://github.com/mli/gluon-tutorials-zh <https://github.co
 
 欢迎使用 `http://discuss.gluon.ai/ <http://discuss.gluon.ai/>`_ 来进行讨论
 
-如果想了解更多的内容可以参见 `英文版本 <http://gluon.mxnet.io/>`_ （注意：中文版本根据社区的反馈做了比较大的更改，我们还在努力的将改动同步到英文版）
-
 .. toctree::
    :maxdepth: 1
    :caption: 前言
@@ -51,3 +49,6 @@ Github源代码在 `https://github.com/mli/gluon-tutorials-zh <https://github.co
 
    cnn-scratch
    cnn-gluon
+
+
+我们将持续的加入新的内容。如果想提前了解，可以参见 `英文版本 <http://gluon.mxnet.io/>`_ （注意：中文版本根据社区的反馈做了比较大的更改，我们还在努力的将改动同步到英文版）
