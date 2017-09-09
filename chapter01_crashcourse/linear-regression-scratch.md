@@ -22,7 +22,7 @@ $$\sum_{i=1}^n (\hat{y}_i-y_i)^2.$$
 
 `y[i] = 2 * X[i][0] - 3.4 * X[i][1] + 4.2 + noise`
 
-这里噪音服从均值0和方差为0.1的正态分布。
+这里噪音服从均值0和标准差为0.01的正态分布。
 
 ```{.python .input  n=2}
 from mxnet import ndarray as nd

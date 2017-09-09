@@ -72,7 +72,7 @@ test_data = gluon.data.DataLoader(mnist_test, batch_size, shuffle=False)
 
 ## 初始化模型参数
 
-跟线性模型一样，每个样本会表示成一个向量。我们这里数据是 24 * 24 大小的图片，所以输入向量的长度是 24 * 24 = 784。因为我们要做多类分类，我们需要对每一个类预测这个样本属于此类的概率。因为这个数据集有10个类型，所以输出应该是长为10的向量。这样，我们需要的权重将是一个 784 * 10 的矩阵：
+跟线性模型一样，每个样本会表示成一个向量。我们这里数据是 28 * 28 大小的图片，所以输入向量的长度是 28 * 28 = 784。因为我们要做多类分类，我们需要对每一个类预测这个样本属于此类的概率。因为这个数据集有10个类型，所以输出应该是长为10的向量。这样，我们需要的权重将是一个 784 * 10 的矩阵：
 
 ```{.python .input  n=5}
 num_inputs = 784
@@ -166,7 +166,7 @@ evaluate_accuracy(test_data, net)
 import sys
 sys.path.append('..')
 from utils import SGD
-from mxnet import autograd 
+from mxnet import autograd
 
 learning_rate = .1
 
@@ -177,7 +177,7 @@ for epoch in range(5):
         with autograd.record():
             output = net(data)
             loss = cross_entropy(output, label)
-        loss.backward() 
+        loss.backward()
         # 将梯度做平均，这样学习率会对batch size不那么敏感
         SGD(params, learning_rate/batch_size)
 
