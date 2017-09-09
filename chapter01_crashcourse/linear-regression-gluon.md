@@ -90,7 +90,6 @@ trainer = gluon.Trainer(
 ```{.python .input  n=10}
 epochs = 5
 batch_size = 10
-learning_rate = .01
 for e in range(epochs):
     total_loss = 0
     for data, label in data_iter:
