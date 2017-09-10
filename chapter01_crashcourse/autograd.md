@@ -95,4 +95,4 @@ z.backward(head_gradient)
 print(x.grad)
 ```
 
-**吐槽和讨论欢迎点[这里](https://discuss.gluon.ai/t/topic/744)**
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/744)

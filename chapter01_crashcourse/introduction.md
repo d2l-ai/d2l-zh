@@ -187,4 +187,4 @@ print(' '.join(res))
 
 机器学习是一个庞大的领域。我们在此无法也无需介绍有关它的全部。有了这些背景知识铺垫，你是否对接下来的学习更有兴趣了呢？
 
-**吐槽和讨论欢迎点[这里](https://discuss.gluon.ai/t/topic/746)**
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/746)
