@@ -287,3 +287,5 @@ Windows默认不支持curl，tar
 下载和解压推荐用浏览器和解压软件，手动拷贝
 ### 最后
 如果你尝试了很多依然一头雾水，可以试试docker安装：http://zh.gluon.ai/install.html#docker
+
+**吐槽和讨论欢迎点[这里](https://discuss.gluon.ai/t/topic/249)**

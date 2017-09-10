@@ -225,3 +225,5 @@ for epoch in range(5):
 - 试试把池化层从`max`改到`avg`
 - 如果你有GPU，那么尝试用CPU来跑一下看看
 - 你可能注意到比前面的多层感知机慢了很多，那么尝试计算下这两个模型分别需要多少浮点计算。例如$n\times m$和$m \times k$的矩阵乘法需要浮点运算 $2nmk$。
+
+**吐槽和讨论欢迎点[这里](https://discuss.gluon.ai/t/topic/736)**

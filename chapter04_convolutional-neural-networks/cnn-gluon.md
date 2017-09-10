@@ -77,3 +77,5 @@ for epoch in range(5):
 ```{.python .input}
 
 ```
+
+**吐槽和讨论欢迎点[这里](https://discuss.gluon.ai/t/topic/737)**

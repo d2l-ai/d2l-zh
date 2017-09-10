@@ -130,7 +130,7 @@ for e in range(epochs):
             loss = square_loss(output, label)
         loss.backward()
         SGD(params, learning_rate)
-        
+
         total_loss += nd.sum(loss).asscalar()
     print("Epoch %d, average loss: %f" % (e, total_loss/num_examples))
 ```
@@ -152,3 +152,5 @@ true_b, b
 ## 练习
 
 尝试用不同的学习率查看误差下降速度（收敛率）
+
+**吐槽和讨论欢迎点[这里](https://discuss.gluon.ai/t/topic/743)**
