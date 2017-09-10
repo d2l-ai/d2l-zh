@@ -141,3 +141,5 @@ id(x) == before
 ## 总结
 
 ndarray模块提供一系列多维数组操作函数。所有函数列表可以参见[NDArray API文档](https://mxnet.incubator.apache.org/api/python/ndarray.html)。
+
+**吐槽和讨论欢迎点[这里](https://discuss.gluon.ai/t/topic/745)**

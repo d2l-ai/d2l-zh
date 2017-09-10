@@ -122,3 +122,5 @@ true_b, dense.bias.data()
 
 - 在训练的时候，为什么我们用了比前面要大10倍的学习率呢？（提示：可以尝试运行 `help(trainer.step)`来寻找答案。）
 - 如何拿到`weight`的梯度呢？（提示：尝试 `help(dense.weight)`）
+
+**吐槽和讨论欢迎点[这里](https://discuss.gluon.ai/t/topic/742)**

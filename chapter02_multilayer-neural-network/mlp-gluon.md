@@ -60,3 +60,5 @@ for epoch in range(5):
 
 - 尝试多加入几个隐含层，对比从0开始的实现。
 - 尝试使用一个另外的激活函数，可以使用`help(nd.Activation)`或者[线上文档](https://mxnet.apache.org/api/python/ndarray.html#mxnet.ndarray.Activation)查看提供的选项。
+
+**吐槽和讨论欢迎点[这里](https://discuss.gluon.ai/t/topic/739)**
