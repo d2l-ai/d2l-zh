@@ -327,6 +327,7 @@ exclude_patterns += sp.ignore_list
 def setup(app):
     app.add_transform(AutoStructify)
     app.add_javascript('google_analytics.js')
+    app.add_javascript('baidu_tongji.js')
     app.add_stylesheet('gluon.css')
     app.connect('source-read', sp.update_links)
     app.connect('build-finished', sp.check_output)
