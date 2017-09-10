@@ -149,10 +149,9 @@ def check_output(app, exception):
 def _release_notebook(dst_dir):
     """convert .md into notebooks and make a zip file"""
     reader = notedown.MarkdownReader(match='strict')
-    files = []
-    files.extend(glob.glob('*/*.md'))
-    files.extend(glob.glob('img/*'))
+    files = glob.glob('*/*.md')
     package_files = ['environment.yml', 'utils.py', 'README.md', 'LICENSE']
+    package_files.extend(glob.glob('img/*'))
     for fname in files:
         # parse if each markdown file is actually a jupyter notebook
         with open(fname, 'r') as fp:
