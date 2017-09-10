@@ -212,7 +212,9 @@ html_search_language = 'zh'
 # A dictionary with options for the search language support, empty by default.
 # 'ja' uses this config value.
 # 'zh' user can custom change `jieba` dictionary path.
-#html_search_options = {'type': 'default'}
+import jieba
+jieba_dict = os.path.join(os.path.dirname(jieba.__file__), 'dict.txt')
+html_search_options = {'dict':jieba_dict}
 
 # The name of a javascript file (relative to the configuration directory) that
 # implements a search results scorer. If empty, the default will be used.
