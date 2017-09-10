@@ -196,7 +196,7 @@ def release_notebook(app, exception):
 def generate_htaccess(app, exception):
     print('=== Generate .htaccess file')
     with open(app.builder.outdir + '/.htaccess', 'w') as f:
-        f.write('ErrorDocument 404 http://zh.gluon.ai/404.html\n')
+        f.write('ErrorDocument 404 https://zh.gluon.ai/404.html\n')
         for old, new in renamed_files + converted_files:
             f.write('Redirect /%s /%s\n'%(
                 _replace_ext(old, 'html'), _replace_ext(new, 'html')
