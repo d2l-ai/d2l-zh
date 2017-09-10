@@ -49,6 +49,11 @@ def convert_md():
     files = glob.glob('*/*.md')
     # evaluate the newest file first, so we can catchup error ealier
     files.sort(key=os.path.getmtime, reverse=True)
+
+    do_eval = int(os.environ.get('DO_EVAL', True))
+    if not do_eval:
+        print('=== Will skip evaluating notebooks')
+
     for fname in files:
         new_fname = _get_new_fname(fname)
         # parse if each markdown file is actually a jupyter notebook
@@ -65,7 +70,7 @@ def convert_md():
         with open(fname, 'r') as f:
             notebook = reader.read(f)
 
-        if not (_has_output(notebook) or
+        if do_eval and not (_has_output(notebook) or
                 any([i in fname for i in ignore_execution])):
             print('=== Evaluate %s with timeout %d sec'%(fname, timeout))
             tic = time.time()
