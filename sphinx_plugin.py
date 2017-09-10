@@ -156,6 +156,7 @@ def _release_notebook(dst_dir):
     reader = notedown.MarkdownReader(match='strict')
     files = glob.glob('*/*.md')
     package_files = ['environment.yml', 'utils.py', 'README.md', 'LICENSE']
+    package_files.extend(glob.glob('img/*'))
     for fname in files:
         # parse if each markdown file is actually a jupyter notebook
         with open(fname, 'r') as fp:
