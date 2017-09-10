@@ -5,7 +5,7 @@
 每个教程是一个可以编辑和运行的Jupyter notebook。运行这些教程需要`Python`，`Jupyter`，以及最新版`MXNet`。
 
 ## 通过Conda安装
-首先根据操作系统下载并安装[Miniconda](https://conda.io/miniconda.html)（[Anaconda](https://docs.continuum.io/anaconda/install/)也可以）。接下来下载所有教程的包（[下载tar.gz格式](http://zh.gluon.ai/gluon_tutorials_zh.tar.gz)或者[下载zip格式](http://zh.gluon.ai/gluon_tutorials_zh.zip)均可）。解压后进入文件夹。
+首先根据操作系统下载并安装[Miniconda](https://conda.io/miniconda.html)（[Anaconda](https://docs.continuum.io/anaconda/install/)也可以）。接下来下载所有教程的包（[下载tar.gz格式](https://zh.gluon.ai/gluon_tutorials_zh.tar.gz)或者[下载zip格式](https://zh.gluon.ai/gluon_tutorials_zh.zip)均可）。解压后进入文件夹。
 
 例如Linux或者Mac OSX 10.11以上可以使用如下命令
 
