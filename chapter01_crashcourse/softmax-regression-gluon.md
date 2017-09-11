@@ -76,4 +76,4 @@ Gluon提供的函数有时候比手工写的数值更稳定。
 - 再尝试调大下学习率看看？
 - 为什么参数都差不多，但gluon版本比从0开始的版本精度更高？
 
-**吐槽和讨论欢迎点[这里](https://discuss.gluon.ai/t/topic/740)**
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/740)

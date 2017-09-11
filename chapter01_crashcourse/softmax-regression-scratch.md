@@ -219,4 +219,4 @@ print(get_text_labels(predicted_labels.asnumpy()))
 
 请仔细想想再去对比下我们小伙伴之一@[pluskid](https://github.com/pluskid)早年写的一篇[blog解释这个问题](http://freemind.pluskid.org/machine-learning/softmax-vs-softmax-loss-numerical-stability/)，看看你想的是不是不一样。
 
-**吐槽和讨论欢迎点[这里](https://discuss.gluon.ai/t/topic/741)**
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/741)

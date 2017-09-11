@@ -153,4 +153,4 @@ true_b, b
 
 尝试用不同的学习率查看误差下降速度（收敛率）
 
-**吐槽和讨论欢迎点[这里](https://discuss.gluon.ai/t/topic/743)**
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/743)
