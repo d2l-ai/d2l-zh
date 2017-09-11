@@ -15,6 +15,8 @@ curl http://zh.gluon.ai/gluon_tutorials_zh.tar.gz -o tutorials.tar.gz
 tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
 ```
 
+Windows用户可以用浏览器下载[zip格式](https://zh.gluon.ai/gluon_tutorials_zh.zip)并解压，在解压目录文件资源管理器的地址栏输入`cmd`进入命令行模式。
+
 【可选项】配置下载源来使用国内镜像加速下载:
 
 ```bash
@@ -55,7 +57,7 @@ docker run -p 8888:8888 muli/gluon-tutorials-zh
 
 ### 使用GPU
 
-默认安装的MXNet只支持CPU。有一些教程需要GPU来运行。假设CUDA7.5或者8.0已经安装了，那么先卸载CPU版本
+默认安装的MXNet只支持CPU。有一些教程需要GPU来运行。假设电脑有N卡而且CUDA7.5或者8.0已经安装了，那么先卸载CPU版本
 
 ```bash
 pip uninstall mxnet
@@ -174,11 +176,8 @@ Conda安装正常，conda env -f environment.yml失败
 
 ##### 药方
 
-* conda config
---prepend channels
-https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
-*
-如果是miniconda可以改用Anaconda
+* conda config --prepend channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+* 如果是miniconda可以改用Anaconda
 
 ##### 病情分析
 
@@ -192,13 +191,11 @@ conda info -e查看失败信息，建议删除失败的env： conda env remove -
 
 ##### 病情分析
 
-pip本身不存在, pip
---version不能正确显示pip版本号和安装目录
+pip本身不存在, pip --version不能正确显示pip版本号和安装目录
 
 ##### 药方
 
-参考http://pip-
-cn.readthedocs.io/en/latest/installing.html 安装pip
+参考http://pip-cn.readthedocs.io/en/latest/installing.html 安装pip
 
 ##### 病情分析
 
@@ -212,12 +209,11 @@ pip install --upgrade pip
 
 ##### 病情分析
 
-无法找到匹配的wheel， No matching distribution found for
-mxnet>=0.11.1b20170902
+无法找到匹配的wheel， No matching distribution found for mxnet>=0.11.1b20170902
 
 ##### 药方
 
-确保系统被支持，比如Ubuntu 14.04/16.04, Mac10.11/10.12(10.10即将支持）， Windows 10 x64(32位暂时不支持，win7 未测试)， 如果都符合，可以试试命令
+确保系统被支持，比如Ubuntu 14.04/16.04, Mac10.11/10.12(10.10即将支持）， Windows 10(win7 未测试)， 如果都符合，可以试试命令
 
 ```bash
 python -c "import pip; print(pip.pep425tags.get_supported())"
@@ -286,6 +282,6 @@ Windows默认不支持curl，tar
 ##### 药方
 下载和解压推荐用浏览器和解压软件，手动拷贝
 ### 最后
-如果你尝试了很多依然一头雾水，可以试试docker安装：http://zh.gluon.ai/install.html#docker
+如果你尝试了很多依然一头雾水，可以试试docker安装：https://zh.gluon.ai/install.html#docker
 
 **吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/249)
