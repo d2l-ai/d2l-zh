@@ -53,7 +53,7 @@ $$conv(data, w, b) = \sum_i conv(data[:,i,:,:], w[0,i,:,:], b)$$
 w = nd.arange(8).reshape((1,2,2,2))
 data = nd.arange(18).reshape((1,2,3,3))
 
-out = nd.Convolution(data, w, kernel=w.shape[2:], num_filter=w.shape[0], no_bias=True)
+out = nd.Convolution(data, w, b, kernel=w.shape[2:], num_filter=w.shape[0])
 
 print('input:', data, '\n\nweight:', w, '\n\nbias:', b, '\n\noutput:', out)
 ```
@@ -67,7 +67,7 @@ w = nd.arange(16).reshape((2,2,2,2))
 data = nd.arange(18).reshape((1,2,3,3))
 b = nd.array([1,2])
 
-out = nd.Convolution(data, w, kernel=w.shape[2:], num_filter=w.shape[0], no_bias=True)
+out = nd.Convolution(data, w, b, kernel=w.shape[2:], num_filter=w.shape[0])
 
 print('input:', data, '\n\nweight:', w, '\n\nbias:', b, '\n\noutput:', out)
 ```
@@ -194,7 +194,7 @@ from mxnet import gluon
 
 softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 
-learning_rate = .5
+learning_rate = .2
 
 for epoch in range(5):
     train_loss = 0.
@@ -225,3 +225,5 @@ for epoch in range(5):
 - 试试把池化层从`max`改到`avg`
 - 如果你有GPU，那么尝试用CPU来跑一下看看
 - 你可能注意到比前面的多层感知机慢了很多，那么尝试计算下这两个模型分别需要多少浮点计算。例如$n\times m$和$m \times k$的矩阵乘法需要浮点运算 $2nmk$。
+
+**吐槽和讨论欢迎点[这里](https://discuss.gluon.ai/t/topic/736)**

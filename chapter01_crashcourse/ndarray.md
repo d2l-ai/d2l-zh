@@ -4,7 +4,7 @@
 
 ## 让我们开始
 
-我们先介绍最基本的功能。不用担心如果你不懂我们用到的数学操作，例如按元素加法，或者正态分布，我们会在之后的章节分别详细介绍。
+我们先介绍最基本的功能。如果你不懂我们用到的数学操作也不用担心，例如按元素加法，或者正态分布，我们会在之后的章节分别详细介绍。
 
 我们首先从`mxnet`导入`ndarray`这个包
 
@@ -12,7 +12,7 @@
 from mxnet import ndarray as nd
 ```
 
-然后我们创建一个有3行和2列的2D数组（通常也叫矩阵），并且把每个元素初始化成0
+然后我们创建一个有3行和4列的2D数组（通常也叫矩阵），并且把每个元素初始化成0
 
 ```{.python .input  n=2}
 nd.zeros((3, 4))
@@ -114,7 +114,7 @@ y = y + x
 id(y) == before
 ```
 
-我们可以吧结果通过`[:]`写到一个之前开好的数组里：
+我们可以把结果通过`[:]`写到一个之前开好的数组里：
 
 ```{.python .input}
 z = nd.zeros_like(x)
@@ -137,3 +137,9 @@ before = id(x)
 x += y
 id(x) == before
 ```
+
+## 总结
+
+ndarray模块提供一系列多维数组操作函数。所有函数列表可以参见[NDArray API文档](https://mxnet.incubator.apache.org/api/python/ndarray.html)。
+
+**吐槽和讨论欢迎点[这里](https://discuss.gluon.ai/t/topic/745)**

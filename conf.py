@@ -144,12 +144,12 @@ html_theme = 'sphinx_rtd_theme'
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-#html_logo = None
+html_logo = '_static/gluon_white.png'
 
 # The name of an image file (relative to this directory) to use as a favicon of
 # the docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-#html_favicon = None
+html_favicon = '_static/gluon_s2.png'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -207,12 +207,14 @@ html_static_path = ['_static']
 # Sphinx supports the following languages:
 #   'da', 'de', 'en', 'es', 'fi', 'fr', 'h', 'it', 'ja'
 #   'nl', 'no', 'pt', 'ro', 'r', 'sv', 'tr', 'zh'
-#html_search_language = 'en'
+html_search_language = 'zh'
 
 # A dictionary with options for the search language support, empty by default.
 # 'ja' uses this config value.
 # 'zh' user can custom change `jieba` dictionary path.
-#html_search_options = {'type': 'default'}
+import jieba
+jieba_dict = os.path.join(os.path.dirname(jieba.__file__), 'dict.txt')
+html_search_options = {'dict':jieba_dict}
 
 # The name of a javascript file (relative to the configuration directory) that
 # implements a search results scorer. If empty, the default will be used.
@@ -247,7 +249,7 @@ latex_documents = [
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
-#latex_logo = None
+latex_logo = '_static/gluon_while.png'
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.
@@ -324,6 +326,7 @@ exclude_patterns += sp.ignore_list
 
 def setup(app):
     app.add_transform(AutoStructify)
+    app.add_javascript('baidu_tongji.js')
     app.add_javascript('google_analytics.js')
     app.add_stylesheet('gluon.css')
     app.connect('source-read', sp.update_links)

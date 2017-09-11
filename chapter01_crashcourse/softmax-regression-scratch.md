@@ -1,6 +1,6 @@
 # 从0开始的多类逻辑回归
 
-如果你读过了[从0开始的线性回归](linear-regression-scratch.md)，那么最难的部分已经过去了。现在你知道如果读取和操作数据，如何构造目标函数和对他求导，如果定义损失函数，模型和求解。
+如果你读过了[从0开始的线性回归](linear-regression-scratch.md)，那么最难的部分已经过去了。现在你知道如果读取和操作数据，如何构造目标函数和对它求导，如果定义损失函数，模型和求解。
 
 下面我们来看一个稍微有意思一点的问题，如何使用多类逻辑回归进行多类分类。这个模型跟线性回归的主要区别在于输出节点从一个变成了多个。
 
@@ -72,7 +72,7 @@ test_data = gluon.data.DataLoader(mnist_test, batch_size, shuffle=False)
 
 ## 初始化模型参数
 
-跟线性模型一样，每个样本会表示成一个向量。我们这里数据是 24 * 24 大小的图片，所以输入向量的长度是 24 * 24 = 784。因为我们要做多类分类，我们需要对每一个类预测这个样本属于此类的概率。因为这个数据集有10个类型，所以输出应该是长为10的向量。这样，我们需要的权重将是一个 784 * 10 的矩阵：
+跟线性模型一样，每个样本会表示成一个向量。我们这里数据是 28 * 28 大小的图片，所以输入向量的长度是 28 * 28 = 784。因为我们要做多类分类，我们需要对每一个类预测这个样本属于此类的概率。因为这个数据集有10个类型，所以输出应该是长为10的向量。这样，我们需要的权重将是一个 784 * 10 的矩阵：
 
 ```{.python .input  n=5}
 num_inputs = 784
@@ -123,9 +123,9 @@ def net(X):
 
 ## 交叉熵损失函数
 
-我们需要定义个针对预测为概率值的损失函数。其中最常见的是交叉熵损失函数，它将两个概率分布的负交叉熵作为目标值，最小化这个值等价于最大化这两个概率的相似度。
+我们需要定义一个针对预测为概率值的损失函数。其中最常见的是交叉熵损失函数，它将两个概率分布的负交叉熵作为目标值，最小化这个值等价于最大化这两个概率的相似度。
 
-具体来说，我们先真实标号表示成一个概率分布，例如如果`y=1`，那么其对应的分布就是一个全0的长为10的向量，除了第二个元素为1，就是 `yvec=[0, 1, 0, 0, 0, 0, 0, 0, 0, 0]`. 那么交叉熵就是`yvec[0]*log(yhat[0])+...+yvec[n]*log(yhat[n])`。注意到`yvec`里面只有一个1，那么前面等价于`log(yhat[y])`。所以我们可以定义这个损失函数了
+具体来说，我们先将真实标号表示成一个概率分布，例如如果`y=1`，那么其对应的分布就是一个除了第二个元素为1其他全为0的长为10的向量，也就是 `yvec=[0, 1, 0, 0, 0, 0, 0, 0, 0, 0]`。那么交叉熵就是`yvec[0]*log(yhat[0])+...+yvec[n]*log(yhat[n])`。注意到`yvec`里面只有一个1，那么前面等价于`log(yhat[y])`。所以我们可以定义这个损失函数了
 
 ```{.python .input  n=10}
 def cross_entropy(yhat, y):
@@ -141,7 +141,7 @@ def accuracy(output, label):
     return nd.mean(output.argmax(axis=1)==label).asscalar()
 ```
 
-我们可以评估一个模型在这个数据上的精度。（这两个函数我们之后也会用到，所以也都保存在[utils.py](../utils.py)。）
+我们可以评估一个模型在这个数据上的精度。（这两个函数我们之后也会用到，所以也都保存在[../utils.py](../utils.py)。）
 
 ```{.python .input  n=13}
 def evaluate_accuracy(data_iterator, net):
@@ -166,9 +166,9 @@ evaluate_accuracy(test_data, net)
 import sys
 sys.path.append('..')
 from utils import SGD
-from mxnet import autograd 
+from mxnet import autograd
 
-learning_rate = .001
+learning_rate = .1
 
 for epoch in range(5):
     train_loss = 0.
@@ -177,15 +177,16 @@ for epoch in range(5):
         with autograd.record():
             output = net(data)
             loss = cross_entropy(output, label)
-        loss.backward() 
-        SGD(params, learning_rate)
+        loss.backward()
+        # 将梯度做平均，这样学习率会对batch size不那么敏感
+        SGD(params, learning_rate/batch_size)
 
         train_loss += nd.mean(loss).asscalar()
         train_acc += accuracy(output, label)
 
     test_acc = evaluate_accuracy(test_data, net)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-            epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
+        epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
 ```
 
 ## 预测
@@ -205,7 +206,7 @@ print(get_text_labels(predicted_labels.asnumpy()))
 
 ## 结论
 
-与前面的线性回归相比，你会发现多类逻辑回归教程的结构跟其非常相似，获取数据，定义模型和优化算法，和求解。事实上，几乎所有的实际神经网络应用有着同样结构。他们的主要区别在于模型的类型和数据的规模。每一两年会有一个新的优化算法出来，但他们基本都是随机梯度下降的变种。
+与前面的线性回归相比，你会发现多类逻辑回归教程的结构跟其非常相似：获取数据、定义模型及优化算法和求解。事实上，几乎所有的实际神经网络应用都有着同样结构。他们的主要区别在于模型的类型和数据的规模。每一两年会有一个新的优化算法出来，但它们基本都是随机梯度下降的变种。
 
 ## 练习
 
@@ -217,3 +218,5 @@ print(get_text_labels(predicted_labels.asnumpy()))
 - 即使解决exp的问题，求出来的导数是不是还是不稳定？
 
 请仔细想想再去对比下我们小伙伴之一@[pluskid](https://github.com/pluskid)早年写的一篇[blog解释这个问题](http://freemind.pluskid.org/machine-learning/softmax-vs-softmax-loss-numerical-stability/)，看看你想的是不是不一样。
+
+**吐槽和讨论欢迎点[这里](https://discuss.gluon.ai/t/topic/741)**

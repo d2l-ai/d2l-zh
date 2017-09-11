@@ -12,3 +12,4 @@ dependencies:
   - recommonmark
   - https://github.com/mli/notedown/tarball/master
   - mxnet-cu80>=0.11.1b20170904
+  - jieba

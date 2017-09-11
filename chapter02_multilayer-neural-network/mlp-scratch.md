@@ -9,9 +9,9 @@
 ```{.python .input  n=1}
 import sys
 sys.path.append('..')
-from mnist import load_data
+import utils
 batch_size = 256
-train_data, test_data = load_data(batch_size)
+train_data, test_data = utils.load_data_fashion_mnist(batch_size)
 ```
 
 ## 多层感知机
@@ -45,7 +45,13 @@ for param in params:
 
 ## 激活函数
 
-如果我们就用线性操作符来构造多层神经网络，那么整个模型仍然只是一个线性函数。这是因为 $\hat{y} = X \cdot W_1 \cdot W_2 = X \cdot W_4 $，这里$W_4 = W_1 \cdot W_2$。为了让我们的模型可以拟合非线性函数，我们需要在层之间插入非线性的激活函数。这里我们使用ReLU，$f(x)=\max(x, 0)$:
+如果我们就用线性操作符来构造多层神经网络，那么整个模型仍然只是一个线性函数。这是因为 
+
+$$\hat{y} = X \cdot W_1 \cdot W_2 = X \cdot W_3 $$
+
+这里$W_3 = W_1 \cdot W_2$。为了让我们的模型可以拟合非线性函数，我们需要在层之间插入非线性的激活函数。这里我们使用ReLU
+
+$$\textrm{rel}u(x)=\max(x, 0)$$
 
 ```{.python .input  n=3}
 def relu(X):
@@ -75,13 +81,12 @@ softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 
 ## 训练
 
-我们从[../utils.py](../utils.py)导入前面我们写好的函数。训练跟之前一样。
+训练跟之前一样。
 
 ```{.python .input  n=8}
 from mxnet import autograd as autograd
-from utils import SGD, accuracy, evaluate_accuracy
 
-learning_rate = .001
+learning_rate = .5
 
 for epoch in range(5):
     train_loss = 0.
@@ -91,19 +96,19 @@ for epoch in range(5):
             output = net(data)
             loss = softmax_cross_entropy(output, label)
         loss.backward()
-        SGD(params, learning_rate)
+        utils.SGD(params, learning_rate/batch_size)
 
         train_loss += nd.mean(loss).asscalar()
-        train_acc += accuracy(output, label)
+        train_acc += utils.accuracy(output, label)
 
-    test_acc = evaluate_accuracy(test_data, net)
+    test_acc = utils.evaluate_accuracy(test_data, net)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-            epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
+        epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
 ```
 
 ## 总结
 
-可以看到，加入一个隐含层后我们将精度提升了10%。
+可以看到，加入一个隐含层后我们将精度提升了不少。
 
 ## 练习
 

@@ -49,6 +49,11 @@ def convert_md():
     files = glob.glob('*/*.md')
     # evaluate the newest file first, so we can catchup error ealier
     files.sort(key=os.path.getmtime, reverse=True)
+
+    do_eval = int(os.environ.get('DO_EVAL', True))
+    if not do_eval:
+        print('=== Will skip evaluating notebooks')
+
     for fname in files:
         new_fname = _get_new_fname(fname)
         # parse if each markdown file is actually a jupyter notebook
@@ -65,7 +70,7 @@ def convert_md():
         with open(fname, 'r') as f:
             notebook = reader.read(f)
 
-        if not (_has_output(notebook) or
+        if do_eval and not (_has_output(notebook) or
                 any([i in fname for i in ignore_execution])):
             print('=== Evaluate %s with timeout %d sec'%(fname, timeout))
             tic = time.time()
@@ -150,7 +155,8 @@ def _release_notebook(dst_dir):
     """convert .md into notebooks and make a zip file"""
     reader = notedown.MarkdownReader(match='strict')
     files = glob.glob('*/*.md')
-    package_files = ['environment.yml', 'mnist.py', 'utils.py', 'README.md', 'LICENSE']
+    package_files = ['environment.yml', 'utils.py', 'README.md', 'LICENSE']
+    package_files.extend(glob.glob('img/*'))
     for fname in files:
         # parse if each markdown file is actually a jupyter notebook
         with open(fname, 'r') as fp:
@@ -196,7 +202,7 @@ def release_notebook(app, exception):
 def generate_htaccess(app, exception):
     print('=== Generate .htaccess file')
     with open(app.builder.outdir + '/.htaccess', 'w') as f:
-        f.write('ErrorDocument 404 http://gluon-test.mxnet.io/404.html\n')
+        f.write('ErrorDocument 404 https://zh.gluon.ai/404.html\n')
         for old, new in renamed_files + converted_files:
             f.write('Redirect /%s /%s\n'%(
                 _replace_ext(old, 'html'), _replace_ext(new, 'html')
