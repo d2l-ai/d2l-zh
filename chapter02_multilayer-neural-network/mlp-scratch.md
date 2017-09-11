@@ -66,7 +66,7 @@ def relu(X):
 def net(X):
     X = X.reshape((-1, num_inputs))
     h1 = relu(nd.dot(X, W1) + b1)
-    output = relu(nd.dot(h1, W2) + b2)
+    output = nd.dot(h1, W2) + b2
     return output
 ```
 
