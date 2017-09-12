@@ -1,6 +1,6 @@
 # 使用NDArray来处理数据
 
-对于机器学习来说，处理数据往往是万事之开头。它包含两个部分：数据读取和当数据已经在内存里时如何处理。本章将关注后者。我们首先介绍`NDArray`，这是MXNet储存和变化数据的主要工具。如果你之前用过`NumPy`，你会发现`NDArray`和`NumPy`的多维数组非常类似。当然，`NDArray`提供更多的功能，首先是CPU和GPU的异步计算，其次是自动求导。这两点使得 `NDArray`能更好地支持机器学习。
+对于机器学习来说，处理数据往往是万事之开头。它包含两个部分：数据读取和当数据已经在内存里时如何处理。本章将关注后者。我们首先介绍`NDArray`，这是MXNet储存和变换数据的主要工具。如果你之前用过`NumPy`，你会发现`NDArray`和`NumPy`的多维数组非常类似。当然，`NDArray`提供更多的功能，首先是CPU和GPU的异步计算，其次是自动求导。这两点使得`NDArray`能更好地支持机器学习。
 
 ## 让我们开始
 
@@ -123,14 +123,14 @@ z[:] = x + y
 id(z) == before
 ```
 
-但是这里我们还是为`x+y`创建了临时空间，然后在复制到`z`. 需要避免这个开销，我们可以使用操作符的全名版本中的`out`参数：
+但是这里我们还是为`x+y`创建了临时空间，然后再复制到`z`。需要避免这个开销，我们可以使用操作符的全名版本中的`out`参数：
 
 ```{.python .input}
 nd.elemwise_add(x, y, out=z)
 id(z) == before
 ```
 
-如果可以现有的数组之后不会再用，我们也可以用复制操作符达到这个目的
+如果可以现有的数组之后不会再用，我们也可以用复制操作符达到这个目的：
 
 ```{.python .input  n=16}
 before = id(x)
@@ -142,4 +142,4 @@ id(x) == before
 
 ndarray模块提供一系列多维数组操作函数。所有函数列表可以参见[NDArray API文档](https://mxnet.incubator.apache.org/api/python/ndarray.html)。
 
-**吐槽和讨论欢迎点[这里](https://discuss.gluon.ai/t/topic/745)**
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/745)

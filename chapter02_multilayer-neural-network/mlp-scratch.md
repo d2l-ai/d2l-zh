@@ -66,7 +66,7 @@ def relu(X):
 def net(X):
     X = X.reshape((-1, num_inputs))
     h1 = relu(nd.dot(X, W1) + b1)
-    output = relu(nd.dot(h1, W2) + b2)
+    output = nd.dot(h1, W2) + b2
     return output
 ```
 
@@ -115,3 +115,5 @@ for epoch in range(5):
 - 我们使用了 `weight_scale` 来控制权重的初始化值大小，增大或者变小这个值会怎么样？
 - 尝试改变 `num_hiddens` 来控制模型的复杂度
 - 尝试加入一个新的隐含层
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/739)
