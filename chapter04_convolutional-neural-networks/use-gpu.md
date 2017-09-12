@@ -61,10 +61,13 @@ c = nd.random_uniform(shape=(2,3), ctx=mx.gpu())
 尝试将内存开到另外一块GPU上。如果不存在会报错：
 
 ```{.python .input}
+import sys
+
 try:
     nd.array([1,2,3], ctx=mx.gpu(1))
-except mx.MXNetError as err:    
-    print(err)
+except mx.MXNetError as err: 
+    haha = err
+    sys.stderr.write(str(err))
 ```
 
 我么可以通过`copyto`和`as_in_context`来在设备直接传输数据。
@@ -97,7 +100,7 @@ nd.exp(z + 2) * y
 try:
     x + y
 except mx.MXNetError as err:    
-    print(err)
+    sys.stderr.write(str(err))
 ```
 
 ### 默认会复制回CPU的操作
