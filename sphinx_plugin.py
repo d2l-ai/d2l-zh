@@ -74,6 +74,11 @@ def convert_md():
                 any([i in fname for i in ignore_execution])):
             print('=== Evaluate %s with timeout %d sec'%(fname, timeout))
             tic = time.time()
+            # update from ../data to data
+            for c in notebook.cells:
+                if c.get('cell_type', None) == 'code':
+                    c['source'] = c['source'].replace(
+                        '"../data', '"data').replace("'../data", "'data")
             notedown.run(notebook, timeout)
             print('=== Finished in %f sec'%(time.time()-tic))
 

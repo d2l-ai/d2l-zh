@@ -70,13 +70,13 @@ import random
 from mxnet import nd
 
 def data_iter(batch_size, seq_len, ctx=None):
-    num_examples = (len(time_numerical)-1) // seq_len 
+    num_examples = (len(time_numerical)-1) // seq_len
     num_batches = num_examples // batch_size
     # 随机化样本
     idx = list(range(num_examples))
     random.shuffle(idx)
     # 返回seq_len个数据
-    def _data(pos):        
+    def _data(pos):
         return time_numerical[pos:pos+seq_len]
     for i in range(num_batches):
         # 每次读取batch_size个随机样本
@@ -133,10 +133,10 @@ nd.one_hot(nd.array([0,4]), vocab_size)
 ```{.python .input  n=34}
 def get_inputs(data):
     return [nd.one_hot(X, vocab_size) for X in data.T]
-    
+
 inputs = get_inputs(data)
 print('input length: ',len(inputs))
-print('input[0] shape: ', inputs[0].shape)    
+print('input[0] shape: ', inputs[0].shape)
 ```
 
 ## 初始化模型参数
@@ -147,11 +147,13 @@ print('input[0] shape: ', inputs[0].shape)
 import mxnet as mx
 
 # 尝试使用 GPU
-%run ../utils.py 
-ctx = try_gpu() 
+import sys
+sys.path.append('..')
+import utils
+ctx = utils.try_gpu()
 print('Will use ', ctx)
 
-num_hidden = 256 
+num_hidden = 256
 weight_scale = .01
 
 # 隐含层
@@ -177,7 +179,7 @@ def rnn(inputs, H):
     # H: batch_size x num_hidden 矩阵
     # outputs: seq_len 个 batch_size x vocab_size 矩阵
     outputs = []
-    for X in inputs:     
+    for X in inputs:
         H = nd.tanh(nd.dot(X, Wxh) + nd.dot(H, Whh) + bh)
         Y = nd.dot(H, Why) + by
         outputs.append(Y)
@@ -203,7 +205,7 @@ print('state shape: ', state_new.shape)
 
 ```{.python .input  n=37}
 def predict(prefix, num_chars):
-    # 预测以 prefix 开始的接下来的 num_chars 个字符 
+    # 预测以 prefix 开始的接下来的 num_chars 个字符
     prefix = prefix.lower()
     state = nd.zeros(shape=(1, num_hidden), ctx=ctx)
     output = [character_dict[prefix[0]]]
@@ -225,14 +227,13 @@ def predict(prefix, num_chars):
 
 $$ \boldsymbol{g} = \min\left(\frac{\theta}{\|\boldsymbol{g}\|}, 1\right)\boldsymbol{g}$$
 
-
 ```{.python .input}
 def grad_clipping(params, theta):
     norm = nd.array([0.0], ctx)
     for p in params:
         norm += nd.sum(p.grad ** 2)
     norm = nd.sqrt(norm).asscalar()
-    if norm > theta:    
+    if norm > theta:
         for p in params:
             p.grad[:] *= theta/norm
 ```
@@ -267,19 +268,19 @@ for e in range(epochs+1):
             label = label.T.reshape((-1,))
             outputs = nd.concat(*outputs, dim=0)
             loss = softmax_cross_entropy(outputs, label)
-        loss.backward()       
-        
+        loss.backward()
+
         grad_clipping(params, 5)
-        SGD(params, learning_rate)
+        utils.SGD(params, learning_rate)
 
         train_loss += nd.sum(loss).asscalar()
         num_examples += loss.size
-            
+
     if e % 20 == 0:
-        print("Epoch %d. PPL %f" % (e, exp(train_loss/num_examples)))        
+        print("Epoch %d. PPL %f" % (e, exp(train_loss/num_examples)))
         print(' - ', predict('The Time Ma', 100))
-        print(' - ', predict("The Medical Man rose, came to the lamp,", 100), '\n')    
-            
+        print(' - ', predict("The Medical Man rose, came to the lamp,", 100), '\n')
+
 ```
 
 可以看到一开始学到简单的字符，然后简单的词，接着是复杂点的词，然后看上去似乎像个句子了。
