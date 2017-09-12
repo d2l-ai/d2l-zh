@@ -47,6 +47,7 @@ Github源代码在 `https://github.com/mli/gluon-tutorials-zh <https://github.co
    :maxdepth: 1
    :caption: 卷积神经网络
 
+   use-gpu
    cnn-scratch
    cnn-gluon
 
