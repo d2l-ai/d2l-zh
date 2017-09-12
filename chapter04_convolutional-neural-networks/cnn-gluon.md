@@ -74,8 +74,4 @@ for epoch in range(5):
 
 再试试改改卷积层设定，是不是会比上一章容易很多？
 
-```{.python .input}
-
-```
-
 **吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/737)

@@ -34,20 +34,19 @@ Github源代码在 `https://github.com/mli/gluon-tutorials-zh <https://github.co
    linear-regression-gluon
    softmax-regression-scratch
    softmax-regression-gluon
-
-.. toctree::
-   :maxdepth: 1
-   :caption: 多层神经网络
-
    mlp-scratch
    mlp-gluon
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Gluon基础
+
+   use-gpu
 
 .. toctree::
    :maxdepth: 1
    :caption: 卷积神经网络
 
-   use-gpu
    cnn-scratch
    cnn-gluon
 
