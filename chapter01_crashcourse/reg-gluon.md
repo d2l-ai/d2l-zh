@@ -24,15 +24,24 @@ from mxnet import gluon
 
 num_train = 6
 num_test = 1000
+```
 
+这里定义模型真实参数。
+
+
+```python
 true_order = 5
 true_w = [0.001, -0.002, 0.003, -0.004, 0.005]
 true_b = 0.005
+```
 
+我们需要用五阶多项式生成数据样本。
+
+
+```python
 x = nd.random_normal(shape=(num_train + num_test, 1))
 X = x
 y = true_w[0] * X[:, 0]
-
 for i in range(1, true_order):
     X = nd.concat(X, nd.power(x, i + 1))
     y += true_w[i] * X[:, i]
@@ -40,7 +49,12 @@ y += true_b + .01 * nd.random_normal(shape=y.shape)
 
 X_train, X_test = X[:num_train, :], X[num_train:, :]
 y_train, y_test = y[:num_train], y[num_train:]
+```
 
+这里使用`data`模块来读取数据。
+
+
+```python
 batch_size = 10
 dataset_train = gluon.data.ArrayDataset(X_train, y_train)
 data_iter_train = gluon.data.DataLoader(dataset_train, batch_size, shuffle=True)
@@ -61,7 +75,7 @@ net.initialize()
 
 ### 训练模型并观察过拟合
 
-接下来我们训练并测试我们的五阶多项式模型。即便训练误差较低，但是测试数据集上的误差很高。这是典型的过拟合现象。
+接下来我们训练并测试我们的五阶多项式模型。
 
 
 ```python
@@ -78,7 +92,12 @@ for e in range(epochs):
         trainer.step(batch_size)
         total_loss += nd.sum(loss).asscalar()
     print("Epoch %d, train loss: %f" % (e, total_loss / num_train))
+```
 
+即便训练误差较低，但是测试数据集上的误差很高。这是典型的过拟合现象。
+
+
+```python
 loss_test = nd.sum(square_loss(net(X_test), y_test)).asscalar() / num_test
 print("Test loss: %f" % loss_test)
 ```
@@ -118,12 +137,17 @@ for e in range(epochs):
         trainer.step(batch_size)
         total_loss += nd.sum(loss).asscalar()
     print("Epoch %d, train loss: %f" % (e, total_loss / num_train))
+```
 
+我们发现训练误差虽然有所提高，但测试数据集上的误差有所下降。过拟合现象得到缓解。
+
+
+```python
 loss_test = nd.sum(square_loss(net(X_test), y_test)).asscalar() / num_test
 print("Test loss: %f" % loss_test)
 ```
 
-我们发现训练误差虽然有所提高，但测试数据集上的误差有所下降。过拟合现象得到缓解。但打印出的学到的参数依然不是很理想，这主要是因为我们训练数据的样本太少。
+但打印出的学到的参数依然不是很理想，这主要是因为我们训练数据的样本太少。
 
 
 ```python

@@ -80,10 +80,14 @@ from mxnet import gluon
 
 num_train = 1000
 num_test = 1000
-
 true_w = [1.2, -3.4]
 true_b = 5.0
+```
 
+下面生成数据集。
+
+
+```python
 x = nd.random_normal(shape=(num_train + num_test, 1))
 X = nd.concat(x, nd.power(x, 2))
 y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
@@ -91,25 +95,31 @@ y += .1 * nd.random_normal(shape=y.shape)
 y_train, y_test = y[:num_train], y[num_train:]
 ```
 
-### 定义训练和测试步骤
-
-我们定义一个训练和测试的函数，这样在跑不同的实验时不需要重复实现相同的步骤。以下步骤在[使用Gluon的线性回归](linear-regression-gluon.md)有过详细描述。这里不再赘述。
+我们把损失函数定义为平方误差。
 
 
 ```python
-def learn(X_train, X_test, lr, y_train, y_test):
-    # 训练部分。
+square_loss = gluon.loss.L2Loss()
+```
+
+### 定义训练和测试步骤
+
+我们定义一个训练和测试的函数，这样在跑不同的实验时不需要重复实现相同的步骤。
+
+以下的训练步骤在[使用Gluon的线性回归](linear-regression-gluon.md)有过详细描述。这里不再赘述。
+
+
+```python
+def train(X_train, y_train, lr, square_loss):
     batch_size = 10
     dataset_train = gluon.data.ArrayDataset(X_train, y_train)
     data_iter_train = gluon.data.DataLoader(dataset_train, batch_size, shuffle=True)
     net = gluon.nn.Sequential()
-    dense = gluon.nn.Dense(1)
-    net.add(dense)
-    square_loss = gluon.loss.L2Loss()
+    net.add(gluon.nn.Dense(1))
     net.collect_params().initialize(mx.init.Xavier(magnitude=2.24), force_reinit=True)
     trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-    epochs = 5
-    for e in range(epochs):
+
+    for epoch in range(5):
         total_loss = 0
         for data, label in data_iter_train:
             with autograd.record():
@@ -118,14 +128,29 @@ def learn(X_train, X_test, lr, y_train, y_test):
             loss.backward()
             trainer.step(batch_size)
             total_loss += nd.sum(loss).asscalar()
-        print("Epoch %d, train loss: %f" % (e, total_loss / y_train.shape[0]))
-    
-    # 测试部分。
+        print("Epoch %d, train loss: %f" % (epoch, total_loss / y_train.shape[0]))
+    return net
+```
+
+以下是测试步骤。
+
+
+```python
+def test(X_test, y_test, net, square_loss):
     loss_test = nd.sum(square_loss(net(X_test), y_test)).asscalar() / \
                 y_test.shape[0]
     print("Test loss: %f" % loss_test)
     print("True params: ", true_w, true_b)
-    print("Learned params: ", dense.weight.data(), dense.bias.data())
+    print("Learned params: ", net[0].weight.data(), net[0].bias.data())
+```
+
+机器学习全过程包含训练和测试步骤。
+
+
+```python
+def learn(X_train, X_test, y_train, y_test, lr, square_loss):
+    net = train(X_train, y_train, lr, square_loss)
+    test(X_test, y_test, net, square_loss)
 ```
 
 ### 二阶多项式拟合
@@ -137,7 +162,7 @@ def learn(X_train, X_test, lr, y_train, y_test):
 X_train_order2, X_test_order2 = X[:num_train, :], X[num_train:, :]
 
 learning_rate = 0.2
-learn(X_train_order2, X_test_order2, learning_rate, y_train, y_test)
+learn(X_train_order2, X_test_order2, y_train, y_test, learning_rate, square_loss)
 ```
 
 ### 线性拟合（欠拟合）
@@ -149,7 +174,7 @@ learn(X_train_order2, X_test_order2, learning_rate, y_train, y_test)
 x_train_order1, x_test_order1 = x[:num_train, :], x[num_train:, :]
 
 learning_rate = 0.005
-learn(x_train_order1, x_test_order1, learning_rate, y_train, y_test)
+learn(x_train_order1, x_test_order1, y_train, y_test, learning_rate, square_loss)
 ```
 
 ### 训练量不足（过拟合）
@@ -162,7 +187,7 @@ y_train, y_test = y[0], y[num_train:]
 X_train_order2, X_test_order2 = X[0:1, :], X[num_train:, :]
 
 learning_rate = 1
-learn(X_train_order2, X_test_order2, learning_rate, y_train, y_test)
+learn(X_train_order2, X_test_order2, y_train, y_test, learning_rate, square_loss)
 ```
 
 我们还将在后面的章节继续讨论过拟合问题以及应对过拟合的手段，例如正则化。
