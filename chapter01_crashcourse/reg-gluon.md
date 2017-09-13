@@ -1,6 +1,6 @@
 # 正则化 --- 使用Gluon
 
-本章介绍如果使用``Gluon``的正则化来应对[过拟合](/Users/astonz/WorkDocs/Programs/git_repo/gluon-tutorials-zh/chapter01_crashcourse/underfit-overfit.md)问题。
+本章介绍如何使用``Gluon``的正则化来应对[过拟合](/Users/astonz/WorkDocs/Programs/git_repo/gluon-tutorials-zh/chapter01_crashcourse/underfit-overfit.md)问题。
 
 ## 过拟合
 
@@ -102,7 +102,7 @@ loss_test = nd.sum(square_loss(net(X_test), y_test)).asscalar() / num_test
 print("Test loss: %f" % loss_test)
 ```
 
-观察学习的参数。事实上，学到的参数的绝对值比真实参数的绝对值要大一些。
+观察学习的参数。事实上，大部分学到的参数的绝对值比真实参数的绝对值要大一些。
 
 
 ```python
@@ -112,7 +112,7 @@ print("Learned params: ", dense.weight.data()[0], dense.bias.data()[0])
 
 ## 使用``Gluon``的正则化
 
-我们通过优化算法的``wd``参数 (weight decay)实现对模型的正则化。这相当于$L_2$范数正则化。不同于在训练时仅仅最小化损失函数(Loss)，如果weight decay设为$\lambda$, 我们在训练时其实在最小化
+我们通过优化算法的``wd``参数 (weight decay)实现对模型的正则化。这相当于$L_2$范数正则化。不同于在训练时仅仅最小化损失函数(Loss)，如果把weight decay设为$\lambda$, 我们在训练时其实在最小化
 
 $$\text{原损失函数} + \lambda \times \text{模型所有参数的平方和}。$$
 
@@ -157,10 +157,11 @@ print("Learned params: ", dense.weight.data()[0], dense.bias.data()[0])
 
 ## 结论
 
-* 使用``Gluon``的`weight decay`参数可以实现正则化而应对过拟合。
+* 使用``Gluon``的`weight decay`参数可以很容易地使用正则化来应对过拟合问题。
 
 ## 练习
 
+* 如果把`weight decay`调高或调低，对模型的训练误差有何影响？
 * 除了正则化、增大训练量、以及使用合适的模型，你觉得还有哪些办法可以应对过拟合现象？
 * 如果你了解贝叶斯统计，你觉得$L_2$范数正则化对应贝叶斯统计里的哪个重要概念？
 
