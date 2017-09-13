@@ -14,7 +14,7 @@
 
 首先需要确保至少有一块Nvidia显卡已经安装好了，然后下载安装显卡驱动和[CUDA](https://developer.nvidia.com/cuda-downloads)（推荐下载8.0，CUDA自带了驱动）。完成后应该可以通过`nvidia-smi`查看显卡信息了。（Windows用户需要设一下PATH：`set PATH=C:\Program Files\NVIDIA Corporation\NVSMI;%PATH%`）。
 
-```{.python .input}
+```{.python .input  n=1}
 !nvidia-smi
 ```
 
@@ -22,7 +22,7 @@
 
 使用pip来确认下：
 
-```{.python .input}
+```{.python .input  n=2}
 import pip
 for pkg in ['mxnet', 'mxnet-cu75', 'mxnet-cu80']:
     pip.main(['show', pkg])
@@ -32,7 +32,7 @@ for pkg in ['mxnet', 'mxnet-cu75', 'mxnet-cu80']:
 
 MXNet使用Context来指定使用哪个设备来存储和计算。默认会将数据开在主内存，然后利用CPU来计算，这个由`mx.cpu()`来表示。GPU则由`mx.gpu()`来表示。注意`mx.cpu()`表示所有的物理CPU和内存，意味着计算上会尽量使用多有的CPU核。但`mx.gpu()`只代表一块显卡和其对应的显卡内存。如果有多块GPU，我们用`mx.gpu(i)`来表示第*i*块GPU（*i*从0开始）。
 
-```{.python .input}
+```{.python .input  n=3}
 import mxnet as mx
 [mx.cpu(), mx.gpu(), mx.gpu(1)]
 ```
@@ -41,7 +41,7 @@ import mxnet as mx
 
 每个NDArray都有一个`context`属性来表示它存在哪个设备上，默认会是`cpu`。这是为什么前面每次我们打印NDArray的时候都会看到`@cpu(0)`这个标识。
 
-```{.python .input}
+```{.python .input  n=4}
 from mxnet import nd
 x = nd.array([1,2,3])
 x.context
@@ -51,10 +51,10 @@ x.context
 
 我们可以在创建的时候指定创建在哪个设备上（如果GPU不能用或者没有装MXNet GPU版本，这里会有error）：
 
-```{.python .input}
+```{.python .input  n=5}
 a = nd.array([1,2,3], ctx=mx.gpu())
 b = nd.zeros((3,2), ctx=mx.gpu())
-c = nd.random_uniform(shape=(2,3), ctx=mx.gpu())
+c = nd.random.uniform(shape=(2,3), ctx=mx.gpu())
 (a,b,c)
 ```
 
@@ -128,7 +128,7 @@ net.initialize(ctx=mx.gpu())
 输入GPU上的数据，会在GPU上计算结果
 
 ```{.python .input}
-data = nd.random_uniform(shape=[3,2], ctx=mx.gpu())
+data = nd.random.uniform(shape=[3,2], ctx=mx.gpu())
 net(data)
 ```
 
@@ -146,4 +146,3 @@ net[0].weight.data()
 
 - 试试大一点的计算任务，例如大矩阵的乘法，看看CPU和GPU的速度区别。如果是计算量很小的任务呢？
 - 试试CPU和GPU之间传递数据的速度
-
