@@ -1,4 +1,4 @@
-# 从0开始的卷积神经网络
+# 卷积神经网络 --- 从0开始
 
 之前的教程里，在输入神经网络前我们将输入图片直接转成了向量。这样做有两个不好的地方：
 
@@ -39,7 +39,7 @@ print('input:', data, '\n\nweight:', w, '\n\nbias:', b, '\n\noutput:', out)
 ![](https://raw.githubusercontent.com/vdumoulin/conv_arithmetic/master/gif/padding_strides.gif)
 
 ```{.python .input  n=48}
-out = nd.Convolution(data, w, b, kernel=w.shape[2:], num_filter=w.shape[1], 
+out = nd.Convolution(data, w, b, kernel=w.shape[2:], num_filter=w.shape[1],
                      stride=(2,2), pad=(1,1))
 
 print('input:', data, '\n\nweight:', w, '\n\nbias:', b, '\n\noutput:', out)
@@ -159,8 +159,8 @@ def net(X, verbose=False):
     h2_conv = nd.Convolution(
         data=h1, weight=W2, bias=b2, kernel=W2.shape[2:], num_filter=W2.shape[0])
     h2_activation = nd.relu(h2_conv)
-    h2 = nd.Pooling(data=h2_activation, pool_type="max", kernel=(2,2), stride=(2,2))    
-    h2 = nd.flatten(h2) 
+    h2 = nd.Pooling(data=h2_activation, pool_type="max", kernel=(2,2), stride=(2,2))
+    h2 = nd.flatten(h2)
     # 第一层全连接
     h3_linear = nd.dot(h2, W3) + b3
     h3 = nd.relu(h3_linear)

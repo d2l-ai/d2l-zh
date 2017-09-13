@@ -1,4 +1,4 @@
-# 使用Gluon的多层感知机
+# 多层感知机 --- 使用Gluon
 
 我们只需要稍微改动[多类Logistic回归](../chapter01_crashcourse/softmax-regression-gluon.md)来实现多层感知机。
 

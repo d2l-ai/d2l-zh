@@ -1,4 +1,4 @@
-# 使用Gluon的线性回归
+# 线性回归 --- 使用Gluon
 
 [前一章](linear-regression-scratch.md)我们仅仅使用了ndarray和autograd来实现线性回归，这一章我们仍然实现同样的模型，但是使用高层抽象包`gluon`。
 
