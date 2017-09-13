@@ -1,20 +1,14 @@
 # 正则化 --- 使用Gluon
 
-本章介绍如何使用``Gluon``的正则化来应对[过拟合](/Users/astonz/WorkDocs/Programs/git_repo/gluon-tutorials-zh/chapter01_crashcourse/underfit-overfit.md)问题。
+本章介绍如何使用``Gluon``的正则化来应对[过拟合](underfit-overfit.md)问题。
 
-## 过拟合
+## 高维线性回归
 
-我们使用高维线性回归为例来引入一个过拟合问题。
+我们使用与[上一节](reg-scratch.md)相同的高维线性回归为例来引入一个过拟合问题。
 
-### 生成数据集
+## 生成数据集
 
-具体来说我们使用如下的线性函数来生成每一个数据样本
-
-$$y = 0.05 + \sum_{i = 1}^p 0.01x_i +  \text{noise}$$
-
-这里噪音服从均值0和标准差为0.01的正态分布。
-
-需要注意的是，我们用以上相同的数据生成函数来生成训练数据集和测试数据集。为了观察过拟合，我们特意把训练数据样本数设低，例如$n=20$，同时把维度升高，例如$p=200$。这个高维线性回归也属于$p << n$问题。
+我们定义训练和测试数据集的样本数量以及维度。
 
 
 ```python
@@ -63,7 +57,7 @@ data_iter_train = gluon.data.DataLoader(dataset_train, batch_size, shuffle=True)
 square_loss = gluon.loss.L2Loss()
 ```
 
-### 定义模型
+## 定义模型
 
 我们将模型的定义放在一个函数里供多次调用。
 
@@ -78,7 +72,7 @@ def getNet():
 
 我们定义一个训练和测试的函数，这样在跑不同的实验时不需要重复实现相同的步骤。
 
-你也许发现了，`Trainer`有一个新参数`wd`。我们将在本节的正则化部分详细描述它。
+你也许发现了，`Trainer`有一个新参数`wd`。我们通过优化算法的``wd``参数 (weight decay)实现对模型的正则化。这相当于$L_2$范数正则化。
 
 
 ```python
@@ -134,17 +128,30 @@ weight_decay = 0
 learn(data_iter_train, square_loss, learning_rate, weight_decay)
 ```
 
+    Epoch 0, train loss: 0.111031
+    Epoch 1, train loss: 0.019290
+    Epoch 2, train loss: 0.002763
+    Epoch 3, train loss: 0.000244
+    Epoch 4, train loss: 0.000014
+    Epoch 5, train loss: 0.000002
+    Epoch 6, train loss: 0.000000
+    Epoch 7, train loss: 0.000000
+    Epoch 8, train loss: 0.000000
+    Epoch 9, train loss: 0.000000
+    Test loss: 0.169621
+    Learned weights (first 10):  
+    [ 0.02233147  0.02927095  0.03952093 -0.04752691 -0.00439923 -0.04209704
+      0.06403525 -0.04425619 -0.04155682 -0.02823593]
+    <NDArray 10 @cpu(0)> Learned bias:  
+    [-0.01081783]
+    <NDArray 1 @cpu(0)>
+
+
 即便训练误差可以达到0.000000，但是测试数据集上的误差很高。这是典型的过拟合现象。
 
 观察学习的参数。事实上，大部分学到的参数的绝对值比真实参数的绝对值要大一些。
 
 ## 使用``Gluon``的正则化
-
-我们通过优化算法的``wd``参数 (weight decay)实现对模型的正则化。这相当于$L_2$范数正则化。不同于在训练时仅仅最小化损失函数(Loss)，如果把weight decay设为$\lambda$, 我们在训练时其实在最小化
-
-$$\text{原损失函数} + \lambda \times \text{模型所有参数的平方和}。$$
-
-直观上，$L_2$范数正则化试图惩罚较大绝对值的参数值。
 
 下面我们重新初始化模型参数并在`Trainer`里设置一个`wd`参数。
 
@@ -153,6 +160,25 @@ $$\text{原损失函数} + \lambda \times \text{模型所有参数的平方和}�
 weight_decay = 1.0
 learn(data_iter_train, square_loss, learning_rate, weight_decay)
 ```
+
+    Epoch 0, train loss: 0.225623
+    Epoch 1, train loss: 0.006438
+    Epoch 2, train loss: 0.000377
+    Epoch 3, train loss: 0.000113
+    Epoch 4, train loss: 0.000048
+    Epoch 5, train loss: 0.000052
+    Epoch 6, train loss: 0.000036
+    Epoch 7, train loss: 0.000072
+    Epoch 8, train loss: 0.000053
+    Epoch 9, train loss: 0.000037
+    Test loss: 0.027216
+    Learned weights (first 10):  
+    [-0.0279177   0.00097269 -0.00401345  0.00359961 -0.01495902 -0.02302548
+      0.00151448  0.00749522 -0.00127769  0.02289863]
+    <NDArray 10 @cpu(0)> Learned bias:  
+    [-0.0043129]
+    <NDArray 1 @cpu(0)>
+
 
 我们发现训练误差虽然有所提高，但测试数据集上的误差有所下降。过拟合现象得到缓解。
 但打印出的学到的参数依然不是很理想，这主要是因为我们训练数据的样本相对维度来说太少。
@@ -163,9 +189,7 @@ learn(data_iter_train, square_loss, learning_rate, weight_decay)
 
 ## 练习
 
-* 如果把`weight decay`调高或调低，对模型的训练误差有何影响？
-* 除了正则化、增大训练量、以及使用合适的模型，你觉得还有哪些办法可以应对过拟合现象？
-* 如果你了解贝叶斯统计，你觉得$L_2$范数正则化对应贝叶斯统计里的哪个重要概念？
+* 如何从字面正确理解`weight decay`的含义？它为何相当于$L_2$范式正则化？
 
 
 **吐槽和讨论欢迎点[这里](https://discuss.gluon.ai/t/topic/743)**
