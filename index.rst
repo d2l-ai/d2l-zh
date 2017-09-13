@@ -36,6 +36,9 @@ Github源代码在 `https://github.com/mli/gluon-tutorials-zh <https://github.co
    softmax-regression-gluon
    mlp-scratch
    mlp-gluon
+   underfit-overfit
+   reg-scratch
+   reg-gluon
 
 .. toctree::
    :maxdepth: 1
