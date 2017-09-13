@@ -66,6 +66,7 @@ loss_test = nd.sum(square_loss(net(X_test), y_test)).asscalar() / num_test
 print("Test loss: %f" % loss_test)
 ```
 
+
     Epoch 0, train loss: 0.337313
     Epoch 1, train loss: 0.061348
     Epoch 2, train loss: 0.013433
@@ -80,10 +81,13 @@ print("Test loss: %f" % loss_test)
 
 
 
+
+
 ```python
 print(true_w, true_b)
 print(dense.weight.data()[0], dense.bias.data()[0])
 ```
+
 
     ([0.001, -0.002, 0.003, -0.004, 0.005], 0.005)
     (
@@ -91,6 +95,7 @@ print(dense.weight.data()[0], dense.bias.data()[0])
     <NDArray 5 @cpu(0)>, 
     [-0.00080924]
     <NDArray 1 @cpu(0)>)
+
 
 
 ## 使用``Gluon``的正则化
@@ -119,6 +124,7 @@ loss_test = nd.sum(square_loss(net(X_test), y_test)).asscalar() / num_test
 print("Test loss: %f" % loss_test)
 ```
 
+
     Epoch 0, train loss: 0.458372
     Epoch 1, train loss: 0.428181
     Epoch 2, train loss: 0.488526
@@ -133,10 +139,13 @@ print("Test loss: %f" % loss_test)
 
 
 
+
+
 ```python
 print(true_w, true_b)
 print(dense.weight.data()[0], dense.bias.data()[0])
 ```
+
 
     ([0.001, -0.002, 0.003, -0.004, 0.005], 0.005)
     (
@@ -144,6 +153,7 @@ print(dense.weight.data()[0], dense.bias.data()[0])
     <NDArray 5 @cpu(0)>, 
     [-0.00079609]
     <NDArray 1 @cpu(0)>)
+
 
 
 ## 结论

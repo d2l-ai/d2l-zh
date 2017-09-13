@@ -1,4 +1,4 @@
-# 拟合问题和从0开始的正则化
+# 欠拟合和过拟合
 
 你有没有类似这样的体验？考试前突击背了模拟题的答案，模拟题随意秒杀。但考试时出的题即便和模拟题相关，只要不是原题依然容易考挂。换种情况来说，如果考试前通过自己的学习能力从模拟题的答案里总结出一个比较通用的解题套路，考试时碰到这些模拟题的变种更容易答对。
 
@@ -53,9 +53,23 @@
 
 为了理解这两个因素对拟合和过拟合的影响，下面让我们来动手学习。
 
-## 案例分析——多项式拟合
+## 多项式拟合
 
-【以下代码需改进且模块化，文字解释待加】
+我们以多项式拟合为例。给定一个标量数据点集合`x`和对应的标量目标值`y`，多项式拟合的目标是找一个K阶多项式，其由向量`w`和位移`b`组成，来最好地近似每个样本`x`和`y`。用数学符号来表示就是我们将学`w`和`b`来预测
+
+$$\hat{y} = b + \sum_{k=1}^K x^k w_k$$
+
+并以平方误差为损失函数。特别地，一阶多项式拟合又叫线性拟合。
+
+### 创建数据集
+
+这里我们使用一个人工数据集来把事情弄简单些，因为这样我们将知道真实的模型是什么样的。具体来说我们使用如下的二阶多项式来生成每一个数据样本
+
+$$y = 1.2x - 3.4x^2 + 5.0+ \text{noise}$$
+
+这里噪音服从均值0和标准差为0.1的正态分布。
+
+需要注意的是，我们用以上相同的数据生成函数来生成训练数据集和测试数据集。两个数据集的样本数都是1000。
 
 
 ```python
@@ -67,42 +81,34 @@ from mxnet import gluon
 num_train = 1000
 num_test = 1000
 
-max_order = 5
-
 true_w = [1.2, -3.4]
-true_b = 3
+true_b = 5.0
 
 x = nd.random_normal(shape=(num_train + num_test, 1))
 X = nd.concat(x, nd.power(x, 2))
 y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
-y += .01 * nd.random_normal(shape=y.shape)
+y += .1 * nd.random_normal(shape=y.shape)
 y_train, y_test = y[:num_train], y[num_train:]
+```
 
-X_train_true_order, X_test_true_order = X[:num_train, :], X[num_train:, :]
-x_train_order1, x_test_order1 = x[:num_train, :], x[num_train:, :]
+### 定义训练和测试步骤
 
-X_max_order = x
-for i in range(1, max_order):
-    X_max_order = nd.concat(X_max_order, nd.power(x, i + 1))
-X_train_max_order, X_test_max_order = X_max_order[:num_train, :], \
-                                      X_max_order[num_train:, :]
+我们定义一个训练和测试的函数，这样在跑不同的实验时不需要重复实现相同的步骤。以下步骤在[使用Gluon的线性回归](linear-regression-gluon.md)有过详细描述。这里不再赘述。
 
-for X_train, X_test, lr in zip([x_train_order1, X_train_true_order, X_train_max_order],
-                           [x_test_order1, X_test_true_order, X_test_max_order],
-                               [0.01, 0.05, 0.0001]):
+
+```python
+def learn(X_train, X_test, lr, y_train, y_test):
+    # 训练部分。
     batch_size = 10
     dataset_train = gluon.data.ArrayDataset(X_train, y_train)
     data_iter_train = gluon.data.DataLoader(dataset_train, batch_size, shuffle=True)
-
     net = gluon.nn.Sequential()
     dense = gluon.nn.Dense(1)
     net.add(dense)
     square_loss = gluon.loss.L2Loss()
-    net.collect_params().initialize(force_reinit=True)
+    net.collect_params().initialize(mx.init.Xavier(magnitude=2.24), force_reinit=True)
     trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-
     epochs = 5
-    batch_size = 10
     for e in range(epochs):
         total_loss = 0
         for data, label in data_iter_train:
@@ -112,59 +118,107 @@ for X_train, X_test, lr in zip([x_train_order1, X_train_true_order, X_train_max_
             loss.backward()
             trainer.step(batch_size)
             total_loss += nd.sum(loss).asscalar()
-        print("Epoch %d, train loss: %f" % (e, total_loss / num_train))
-
-    loss_test = nd.sum(square_loss(net(X_test), y_test)).asscalar() / num_test
+        print("Epoch %d, train loss: %f" % (e, total_loss / y_train.shape[0]))
+    
+    # 测试部分。
+    loss_test = nd.sum(square_loss(net(X_test), y_test)).asscalar() / \
+                y_test.shape[0]
     print("Test loss: %f" % loss_test)
-
-    print(true_w, true_b)
-    print(dense.weight.data(), dense.bias.data())
+    print("True params: ", true_w, true_b)
+    print("Learned params: ", dense.weight.data(), dense.bias.data())
 ```
 
-    Epoch 0, train loss: 12.915853
-    Epoch 1, train loss: 12.558763
-    Epoch 2, train loss: 12.513711
-    Epoch 3, train loss: 12.526407
-    Epoch 4, train loss: 12.499932
-    Test loss: 10.925433
-    ([1.2, -3.4], 3)
-    (
-    [[ 1.25542045]]
-    <NDArray 1x1 @cpu(0)>, 
-    [-0.45684317]
-    <NDArray 1 @cpu(0)>)
-    Epoch 0, train loss: 1.193887
-    Epoch 1, train loss: 0.001781
-    Epoch 2, train loss: 0.000056
-    Epoch 3, train loss: 0.000052
-    Epoch 4, train loss: 0.000051
-    Test loss: 0.000053
-    ([1.2, -3.4], 3)
-    (
-    [[ 1.19974732 -3.40114522]]
-    <NDArray 1x2 @cpu(0)>, 
-    [ 2.99917698]
-    <NDArray 1 @cpu(0)>)
-    Epoch 0, train loss: 9.331360
-    Epoch 1, train loss: 3.749909
-    Epoch 2, train loss: 3.621049
-    Epoch 3, train loss: 3.702738
-    Epoch 4, train loss: 4.023941
-    Test loss: 3.323413
-    ([1.2, -3.4], 3)
-    (
-    [[ 0.00946653 -0.04145175  0.07508904 -0.38557202  0.01632602]]
-    <NDArray 1x5 @cpu(0)>, 
-    [ 0.03163745]
-    <NDArray 1 @cpu(0)>)
+### 二阶多项式拟合
 
+我们先使用与数据生成函数同阶的二阶多项式拟合。实验表明这个模型的训练误差和在测试数据集的误差都较低。训练出的模型参数也接近真实值。
+
+
+```python
+X_train_order2, X_test_order2 = X[:num_train, :], X[num_train:, :]
+
+learning_rate = 0.2
+learn(X_train_order2, X_test_order2, learning_rate, y_train, y_test)
+```
+
+    Epoch 0, train loss: 1.573718
+    Epoch 1, train loss: 0.005807
+    Epoch 2, train loss: 0.005546
+    Epoch 3, train loss: 0.005726
+    Epoch 4, train loss: 0.005866
+    Test loss: 0.005308
+    True params:  [1.2, -3.4] 5.0
+    Learned params:  
+    [[ 1.20694339 -3.415802  ]]
+    <NDArray 1x2 @cpu(0)> 
+    [ 5.00221348]
+    <NDArray 1 @cpu(0)>
+
+
+### 线性拟合（欠拟合）
+
+我们再试试线性拟合。很明显，该模型的训练误差很高。线性模型对于一个二阶多项式生成的数据集来说容易欠拟合。
+
+
+```python
+x_train_order1, x_test_order1 = x[:num_train, :], x[num_train:, :]
+
+learning_rate = 0.005
+learn(x_train_order1, x_test_order1, learning_rate, y_train, y_test)
+```
+
+    Epoch 0, train loss: 13.262561
+    Epoch 1, train loss: 12.767036
+    Epoch 2, train loss: 12.589087
+    Epoch 3, train loss: 12.527276
+    Epoch 4, train loss: 12.505981
+    Test loss: 10.961882
+    True params:  [1.2, -3.4] 5.0
+    Learned params:  
+    [[ 1.26422477]]
+    <NDArray 1x1 @cpu(0)> 
+    [ 1.43477547]
+    <NDArray 1 @cpu(0)>
+
+
+### 训练量不足（过拟合）
+
+事实上，即便是使用与数据生成模型同阶的二阶多项式模型，如果训练量不足，该模型容易过拟合。让我们仅仅使用一个训练样本来训练。即便训练误差很低，但是测试数据集上的误差很高。这是典型的过拟合现象。
+
+
+```python
+y_train, y_test = y[0], y[num_train:]
+X_train_order2, X_test_order2 = X[0:1, :], X[num_train:, :]
+
+learning_rate = 1
+learn(X_train_order2, X_test_order2, learning_rate, y_train, y_test)
+```
+
+    Epoch 0, train loss: 0.187261
+    Epoch 1, train loss: 0.063371
+    Epoch 2, train loss: 0.021446
+    Epoch 3, train loss: 0.007257
+    Epoch 4, train loss: 0.002456
+    Test loss: 23.885010
+    True params:  [1.2, -3.4] 5.0
+    Learned params:  
+    [[-0.27862826  1.39064181]]
+    <NDArray 1x2 @cpu(0)> 
+    [ 0.13656564]
+    <NDArray 1 @cpu(0)>
+
+
+我们还将在后面的章节继续讨论过拟合问题以及应对过拟合的手段，例如正则化。
 
 ## 结论
 
+* 训练误差的降低并不一定意味着泛化误差的降低。
+* 欠拟合和过拟合都是需要避免的。模型的选择和训练量的大小是造成这些现象的重要因素。
 
 
 ## 练习
 
+* 在我们本节提到的二阶多项式拟合问题里，有没有可能把1000个样本的训练误差的期望降到0，为什么？
+* 如果你熟悉贝叶斯统计，你能从贝叶斯统计的角度理解训练量对过拟合的影响吗？
 
 
 **吐槽和讨论欢迎点[这里](https://discuss.gluon.ai/t/topic/743)**
