@@ -42,6 +42,7 @@ Github源代码在 `https://github.com/mli/gluon-tutorials-zh <https://github.co
    :caption: Gluon基础
 
    block
+   parameters
    use-gpu
 
 .. toctree::
