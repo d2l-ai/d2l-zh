@@ -102,6 +102,18 @@ y_train, y_test = y[:num_train], y[num_train:]
 square_loss = gluon.loss.L2Loss()
 ```
 
+下面定义模型和数据读取器。
+
+
+```python
+def getNetAndIter(X_train, y_train, batch_size):
+    dataset_train = gluon.data.ArrayDataset(X_train, y_train)
+    data_iter_train = gluon.data.DataLoader(dataset_train, batch_size, shuffle=True)
+    net = gluon.nn.Sequential()
+    net.add(gluon.nn.Dense(1))
+    return net, data_iter_train
+```
+
 ### 定义训练和测试步骤
 
 我们定义一个训练和测试的函数，这样在跑不同的实验时不需要重复实现相同的步骤。
@@ -110,16 +122,10 @@ square_loss = gluon.loss.L2Loss()
 
 
 ```python
-def train(X_train, y_train, lr, cur_loss):
-    batch_size = 10
-    dataset_train = gluon.data.ArrayDataset(X_train, y_train)
-    data_iter_train = gluon.data.DataLoader(dataset_train, batch_size, shuffle=True)
-    net = gluon.nn.Sequential()
-    net.add(gluon.nn.Dense(1))
+def train(net, data_iter_train, lr, cur_loss, epochs, verbose_epoch, batch_size):
     net.collect_params().initialize(mx.init.Xavier(magnitude=2.24), force_reinit=True)
     trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-
-    for epoch in range(50):
+    for epoch in range(epochs):
         total_loss = 0
         for data, label in data_iter_train:
             with autograd.record():
@@ -128,7 +134,7 @@ def train(X_train, y_train, lr, cur_loss):
             loss.backward()
             trainer.step(batch_size)
             total_loss += nd.sum(loss).asscalar()
-        if epoch >= 45:
+        if epoch >= verbose_epoch:
             print("Epoch %d, train loss: %f" % (epoch, total_loss / y_train.shape[0]))
     return net
 ```
@@ -150,8 +156,12 @@ def test(X_test, y_test, net, cur_loss):
 
 ```python
 def learn(X_train, X_test, y_train, y_test, lr, cur_loss):
-    net = train(X_train, y_train, lr, cur_loss)
-    test(X_test, y_test, net, cur_loss)
+    epochs = 50
+    verbose_epoch = 45
+    batch_size = min(10, X_train.shape[0])
+    net, data_iter_train = getNetAndIter(X_train, y_train, batch_size)
+    net_trained = train(net, data_iter_train, lr, cur_loss, epochs, verbose_epoch, batch_size)
+    test(X_test, y_test, net_trained, cur_loss)
 ```
 
 ### 三阶多项式拟合
@@ -162,7 +172,7 @@ def learn(X_train, X_test, y_train, y_test, lr, cur_loss):
 ```python
 X_train_ord3, X_test_ord3 = X[:num_train, :], X[num_train:, :]
 
-learning_rate = 0.03
+learning_rate = 0.01
 learn(X_train_ord3, X_test_ord3, y_train, y_test, learning_rate, square_loss)
 ```
 
@@ -174,7 +184,7 @@ learn(X_train_ord3, X_test_ord3, y_train, y_test, learning_rate, square_loss)
 ```python
 x_train_ord1, x_test_ord1 = x[:num_train, :], x[num_train:, :]
 
-learning_rate = 0.03
+learning_rate = 0.01
 learn(x_train_ord1, x_test_ord1, y_train, y_test, learning_rate, square_loss)
 ```
 
@@ -187,7 +197,7 @@ learn(x_train_ord1, x_test_ord1, y_train, y_test, learning_rate, square_loss)
 y_train, y_test = y[0:2], y[num_train:]
 X_train_ord3, X_test_ord3 = X[0:2, :], X[num_train:, :]
 
-learning_rate = 0.03
+learning_rate = 0.01
 learn(X_train_ord3, X_test_ord3, y_train, y_test, learning_rate, square_loss)
 ```
 
