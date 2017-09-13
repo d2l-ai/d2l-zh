@@ -209,6 +209,10 @@ def generate_htaccess(app, exception):
     print('=== Generate .htaccess file')
     with open(app.builder.outdir + '/.htaccess', 'w') as f:
         f.write('ErrorDocument 404 https://zh.gluon.ai/404.html\n')
+        # force to use https
+        f.write('RewriteEngine On\n')
+        f.write('RewriteCond %{SERVER_PORT} 80\n')
+        f.write('RewriteRule ^(.*)$ https://zh.gluon.ai/$1 [R,L]\n')
         for old, new in renamed_files + converted_files:
             f.write('Redirect /%s /%s\n'%(
                 _replace_ext(old, 'html'), _replace_ext(new, 'html')
