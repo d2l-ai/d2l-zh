@@ -10,8 +10,7 @@
 
 我们定义训练和测试数据集的样本数量以及维度。
 
-
-```python
+```{.python .input}
 from mxnet import ndarray as nd
 from mxnet import autograd
 from mxnet import gluon
@@ -23,16 +22,14 @@ num_inputs = 200
 
 这里定义模型真实参数。
 
-
-```python
+```{.python .input}
 true_w = nd.ones(shape=(num_inputs, 1)) * 0.01
 true_b = 0.05
 ```
 
 我们接着生成训练和测试数据集。
 
-
-```python
+```{.python .input}
 X = nd.random_normal(shape=(num_train + num_test, num_inputs))
 y = nd.dot(X, true_w)
 y += .01 * nd.random_normal(shape=y.shape)
@@ -43,8 +40,7 @@ y_train, y_test = y[:num_train], y[num_train:]
 
 这里使用`data`模块来读取数据。
 
-
-```python
+```{.python .input}
 batch_size = 1
 dataset_train = gluon.data.ArrayDataset(X_train, y_train)
 data_iter_train = gluon.data.DataLoader(dataset_train, batch_size, shuffle=True)
@@ -52,8 +48,7 @@ data_iter_train = gluon.data.DataLoader(dataset_train, batch_size, shuffle=True)
 
 我们把损失函数定义为平方误差。
 
-
-```python
+```{.python .input}
 square_loss = gluon.loss.L2Loss()
 ```
 
@@ -61,8 +56,7 @@ square_loss = gluon.loss.L2Loss()
 
 我们将模型的定义放在一个函数里供多次调用。
 
-
-```python
+```{.python .input}
 def getNet():
     net = gluon.nn.Sequential()
     net.add(gluon.nn.Dense(1))
@@ -74,8 +68,7 @@ def getNet():
 
 你也许发现了，`Trainer`有一个新参数`wd`。我们通过优化算法的``wd``参数 (weight decay)实现对模型的正则化。这相当于$L_2$范数正则化。
 
-
-```python
+```{.python .input}
 def train(net, data_iter_train, epochs, square_loss, lr, wd):
     trainer = gluon.Trainer(net.collect_params(), 'sgd',
                             {'learning_rate': lr, 'wd': wd})
@@ -95,8 +88,7 @@ def train(net, data_iter_train, epochs, square_loss, lr, wd):
 
 以下是测试步骤。
 
-
-```python
+```{.python .input}
 def test(net):
     loss_test = nd.sum(square_loss(net(X_test), y_test)).asscalar() / num_test
     print("Test loss: %f" % loss_test)
@@ -107,8 +99,7 @@ def test(net):
 
 以下函数将调用模型的定义、训练和测试。
 
-
-```python
+```{.python .input}
 def learn(data_iter_train, square_loss, learning_rate, weight_decay):
     epochs = 10
     net = getNet()
@@ -121,12 +112,12 @@ def learn(data_iter_train, square_loss, learning_rate, weight_decay):
 
 接下来我们训练并测试我们的高维线性回归模型。
 
-
-```python
+```{.python .input}
 learning_rate = 0.005
 weight_decay = 0
 learn(data_iter_train, square_loss, learning_rate, weight_decay)
 ```
+
 
     Epoch 0, train loss: 0.111031
     Epoch 1, train loss: 0.019290
@@ -147,6 +138,8 @@ learn(data_iter_train, square_loss, learning_rate, weight_decay)
     <NDArray 1 @cpu(0)>
 
 
+
+
 即便训练误差可以达到0.000000，但是测试数据集上的误差很高。这是典型的过拟合现象。
 
 观察学习的参数。事实上，大部分学到的参数的绝对值比真实参数的绝对值要大一些。
@@ -155,11 +148,11 @@ learn(data_iter_train, square_loss, learning_rate, weight_decay)
 
 下面我们重新初始化模型参数并在`Trainer`里设置一个`wd`参数。
 
-
-```python
+```{.python .input}
 weight_decay = 1.0
 learn(data_iter_train, square_loss, learning_rate, weight_decay)
 ```
+
 
     Epoch 0, train loss: 0.225623
     Epoch 1, train loss: 0.006438
@@ -178,6 +171,8 @@ learn(data_iter_train, square_loss, learning_rate, weight_decay)
     <NDArray 10 @cpu(0)> Learned bias:  
     [-0.0043129]
     <NDArray 1 @cpu(0)>
+
+
 
 
 我们发现训练误差虽然有所提高，但测试数据集上的误差有所下降。过拟合现象得到缓解。

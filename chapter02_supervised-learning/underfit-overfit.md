@@ -18,9 +18,9 @@
 
 ## 训练误差和泛化误差
 
-在实践中，机器学习模型通常在训练数据集上训练并不断调整模型里的参数。之后，我们通常把训练得到的模型在一个区别于训练数据集的测试数据集上测试，并根据测试结果评价模型的好坏。机器学习模型在训练数据集上表现出的误差叫做**训练误差**，在任意一个测试数据样本上表现出的误差的期望值叫做**泛化误差**。（如果对严谨的数学定义感兴趣，可参考Mohri的[Foundations of Machine Learning](http://www.cs.nyu.edu/~mohri/mlbook/)）
+在实践中，机器学习模型通常在训练数据集上训练并不断调整模型里的参数。之后，我们通常把训练得到的模型在一个区别于训练数据集的测试数据集上测试，并根据测试结果评价模型的好坏。机器学习模型在训练数据集上表现出的误差叫做**训练误差**，在任意一个测试数据样本上表现出的误差的期望值叫做**泛化误差**。
 
-训练误差和泛化误差的计算可以利用我们之前提到的损失函数，例如[从0开始的线性回归](linear-regression-scratch.md)里用到的平方误差和[从0开始的多类逻辑回归](softmax-regression-scratch.md)里用到的交叉熵损失函数。
+训练误差和泛化误差的计算可以利用我们之前提到的损失函数，例如[线性回归](linear-regression-scratch.md)里用到的平方误差和[多类逻辑回归](softmax-regression-scratch.md)里用到的交叉熵损失函数。
 
 之所以要了解训练误差和泛化误差，是因为统计学习理论基于这两个概念可以科学解释本节教程一开始提到的模型不同的测试效果。我们知道，理论的研究往往需要基于一些假设。而统计学习理论的一个假设是：
 
@@ -40,7 +40,6 @@
 * **过拟合**：机器学习模型的训练误差远小于其在测试数据集上的误差。
 
 我们要尽可能同时避免欠拟合和过拟合的出现。虽然有很多因素可能导致这两种拟合问题，在这里我们重点讨论两个因素：模型的选择和训练数据集的大小。
-
 
 ### 模型的选择
 
@@ -71,9 +70,7 @@ $$y = 1.2x - 3.4x^2 + 5.6x^3 + 5.0 + \text{noise}$$
 
 需要注意的是，我们用以上相同的数据生成函数来生成训练数据集和测试数据集。两个数据集的样本数都是1000。
 
-
-```python
-import mxnet as mx
+```{.python .input}
 from mxnet import ndarray as nd
 from mxnet import autograd
 from mxnet import gluon
@@ -86,8 +83,7 @@ true_b = 5.0
 
 下面生成数据集。
 
-
-```python
+```{.python .input}
 x = nd.random_normal(shape=(num_train + num_test, 1))
 X = nd.concat(x, nd.power(x, 2), nd.power(x, 3))
 y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_w[2] * X[:, 2] + true_b
@@ -97,15 +93,13 @@ y_train, y_test = y[:num_train], y[num_train:]
 
 我们把损失函数定义为平方误差。
 
-
-```python
+```{.python .input}
 square_loss = gluon.loss.L2Loss()
 ```
 
 下面定义模型和数据读取器。
 
-
-```python
+```{.python .input}
 def getNetAndIter(X_train, y_train, batch_size):
     dataset_train = gluon.data.ArrayDataset(X_train, y_train)
     data_iter_train = gluon.data.DataLoader(dataset_train, batch_size, shuffle=True)
@@ -120,10 +114,9 @@ def getNetAndIter(X_train, y_train, batch_size):
 
 以下的训练步骤在[使用Gluon的线性回归](linear-regression-gluon.md)有过详细描述。这里不再赘述。
 
-
-```python
+```{.python .input}
 def train(net, data_iter_train, lr, cur_loss, epochs, verbose_epoch, batch_size):
-    net.collect_params().initialize(mx.init.Xavier(magnitude=2.24), force_reinit=True)
+    net.collect_params().initialize(force_reinit=True)
     trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
     for epoch in range(epochs):
         total_loss = 0
@@ -141,8 +134,7 @@ def train(net, data_iter_train, lr, cur_loss, epochs, verbose_epoch, batch_size)
 
 以下是测试步骤。
 
-
-```python
+```{.python .input}
 def test(X_test, y_test, net, cur_loss):
     loss_test = nd.sum(cur_loss(net(X_test), y_test)).asscalar() / \
                 y_test.shape[0]
@@ -153,8 +145,7 @@ def test(X_test, y_test, net, cur_loss):
 
 机器学习全过程包含训练和测试步骤。
 
-
-```python
+```{.python .input}
 def learn(X_train, X_test, y_train, y_test, lr, cur_loss):
     epochs = 50
     verbose_epoch = 45
@@ -168,8 +159,7 @@ def learn(X_train, X_test, y_train, y_test, lr, cur_loss):
 
 我们先使用与数据生成函数同阶的三阶多项式拟合。实验表明这个模型的训练误差和在测试数据集的误差都较低。训练出的模型参数也接近真实值。
 
-
-```python
+```{.python .input}
 X_train_ord3, X_test_ord3 = X[:num_train, :], X[num_train:, :]
 
 learning_rate = 0.01
@@ -180,8 +170,7 @@ learn(X_train_ord3, X_test_ord3, y_train, y_test, learning_rate, square_loss)
 
 我们再试试线性拟合。很明显，该模型的训练误差很高。线性模型在非线性模型（例如三阶多项式）生成的数据集上容易欠拟合。
 
-
-```python
+```{.python .input}
 x_train_ord1, x_test_ord1 = x[:num_train, :], x[num_train:, :]
 
 learning_rate = 0.01
@@ -192,8 +181,7 @@ learn(x_train_ord1, x_test_ord1, y_train, y_test, learning_rate, square_loss)
 
 事实上，即便是使用与数据生成模型同阶的三阶多项式模型，如果训练量不足，该模型依然容易过拟合。让我们仅仅使用两个训练样本来训练。很显然，训练样本过少了，甚至少于模型参数的数量。这使模型显得过于复杂，以至于容易被训练数据集中的噪音影响。在机器学习过程中，即便训练误差很低，但是测试数据集上的误差很高。这是典型的过拟合现象。
 
-
-```python
+```{.python .input}
 y_train, y_test = y[0:2], y[num_train:]
 X_train_ord3, X_test_ord3 = X[0:2, :], X[num_train:, :]
 
@@ -213,6 +201,3 @@ learn(X_train_ord3, X_test_ord3, y_train, y_test, learning_rate, square_loss)
 
 * 如果用一个三阶多项式模型来拟合一个线性模型生成的数据，可能会有什么问题？为什么？
 * 在我们本节提到的三阶多项式拟合问题里，有没有可能把1000个样本的训练误差的期望降到0，为什么？
-
-
-**吐槽和讨论欢迎点[这里](https://discuss.gluon.ai/t/topic/743)**
