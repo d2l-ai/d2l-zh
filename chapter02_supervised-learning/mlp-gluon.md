@@ -9,11 +9,10 @@
 ```{.python .input  n=5}
 from mxnet import gluon
 
-num_hidden = 256
 net = gluon.nn.Sequential()
 with net.name_scope():
     net.add(gluon.nn.Flatten())
-    net.add(gluon.nn.Dense(num_hidden, activation="relu"))
+    net.add(gluon.nn.Dense(256, activation="relu"))
     net.add(gluon.nn.Dense(10))
 net.initialize()
 ```

@@ -165,4 +165,3 @@ print(rec_mlp)
 ## 练习
 
 如果把`RecMLP`改成`self.denses = [nn.Dense(256), nn.Dense(128), nn.Dense(64)]`，`forward`就用for loop来实现，会有什么问题吗？
-
