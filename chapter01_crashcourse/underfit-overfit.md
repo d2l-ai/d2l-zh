@@ -119,7 +119,7 @@ def train(X_train, y_train, lr, square_loss):
     net.collect_params().initialize(mx.init.Xavier(magnitude=2.24), force_reinit=True)
     trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 
-    for epoch in range(5):
+    for epoch in range(20):
         total_loss = 0
         for data, label in data_iter_train:
             with autograd.record():
@@ -161,7 +161,7 @@ def learn(X_train, X_test, y_train, y_test, lr, square_loss):
 ```python
 X_train_order2, X_test_order2 = X[:num_train, :], X[num_train:, :]
 
-learning_rate = 0.5
+learning_rate = 0.3
 learn(X_train_order2, X_test_order2, y_train, y_test, learning_rate, square_loss)
 ```
 
@@ -173,7 +173,7 @@ learn(X_train_order2, X_test_order2, y_train, y_test, learning_rate, square_loss
 ```python
 x_train_order1, x_test_order1 = x[:num_train, :], x[num_train:, :]
 
-learning_rate = 0.5
+learning_rate = 0.3
 learn(x_train_order1, x_test_order1, y_train, y_test, learning_rate, square_loss)
 ```
 
@@ -186,7 +186,7 @@ learn(x_train_order1, x_test_order1, y_train, y_test, learning_rate, square_loss
 y_train, y_test = y[0], y[num_train:]
 X_train_order2, X_test_order2 = X[0:1, :], X[num_train:, :]
 
-learning_rate = 0.5
+learning_rate = 0.3
 learn(X_train_order2, X_test_order2, y_train, y_test, learning_rate, square_loss)
 ```
 
