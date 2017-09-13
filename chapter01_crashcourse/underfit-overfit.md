@@ -140,20 +140,6 @@ learning_rate = 0.2
 learn(X_train_order2, X_test_order2, learning_rate, y_train, y_test)
 ```
 
-    Epoch 0, train loss: 1.573718
-    Epoch 1, train loss: 0.005807
-    Epoch 2, train loss: 0.005546
-    Epoch 3, train loss: 0.005726
-    Epoch 4, train loss: 0.005866
-    Test loss: 0.005308
-    True params:  [1.2, -3.4] 5.0
-    Learned params:  
-    [[ 1.20694339 -3.415802  ]]
-    <NDArray 1x2 @cpu(0)> 
-    [ 5.00221348]
-    <NDArray 1 @cpu(0)>
-
-
 ### 线性拟合（欠拟合）
 
 我们再试试线性拟合。很明显，该模型的训练误差很高。线性模型对于一个二阶多项式生成的数据集来说容易欠拟合。
@@ -165,20 +151,6 @@ x_train_order1, x_test_order1 = x[:num_train, :], x[num_train:, :]
 learning_rate = 0.005
 learn(x_train_order1, x_test_order1, learning_rate, y_train, y_test)
 ```
-
-    Epoch 0, train loss: 13.262561
-    Epoch 1, train loss: 12.767036
-    Epoch 2, train loss: 12.589087
-    Epoch 3, train loss: 12.527276
-    Epoch 4, train loss: 12.505981
-    Test loss: 10.961882
-    True params:  [1.2, -3.4] 5.0
-    Learned params:  
-    [[ 1.26422477]]
-    <NDArray 1x1 @cpu(0)> 
-    [ 1.43477547]
-    <NDArray 1 @cpu(0)>
-
 
 ### 训练量不足（过拟合）
 
@@ -192,20 +164,6 @@ X_train_order2, X_test_order2 = X[0:1, :], X[num_train:, :]
 learning_rate = 1
 learn(X_train_order2, X_test_order2, learning_rate, y_train, y_test)
 ```
-
-    Epoch 0, train loss: 0.187261
-    Epoch 1, train loss: 0.063371
-    Epoch 2, train loss: 0.021446
-    Epoch 3, train loss: 0.007257
-    Epoch 4, train loss: 0.002456
-    Test loss: 23.885010
-    True params:  [1.2, -3.4] 5.0
-    Learned params:  
-    [[-0.27862826  1.39064181]]
-    <NDArray 1x2 @cpu(0)> 
-    [ 0.13656564]
-    <NDArray 1 @cpu(0)>
-
 
 我们还将在后面的章节继续讨论过拟合问题以及应对过拟合的手段，例如正则化。
 
