@@ -119,7 +119,7 @@ def train(X_train, y_train, lr, square_loss):
     net.collect_params().initialize(mx.init.Xavier(magnitude=2.24), force_reinit=True)
     trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 
-    for epoch in range(20):
+    for epoch in range(15):
         total_loss = 0
         for data, label in data_iter_train:
             with autograd.record():
