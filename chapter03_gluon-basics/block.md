@@ -45,7 +45,8 @@ class MLP(nn.Block):
 net2 = MLP()
 print(net2)
 net2.initialize()
-y = net2(nd.random_uniform(shape=(4,20)))
+x = nd.random.uniform(shape=(4,20))
+y = net2(x)
 y
 ```
 
@@ -105,7 +106,7 @@ with net4.name_scope():
     net4.add(nn.Dense(10))
     
 net4.initialize()
-y = net4(nd.random_uniform(shape=(4,20)))
+y = net4(x)
 y
 ```
 
@@ -131,7 +132,7 @@ class FancyMLP(nn.Block):
 ```{.python .input}
 fancy_mlp = FancyMLP()
 fancy_mlp.initialize()
-y = fancy_mlp(nd.random_uniform(shape=(4,20)))
+y = fancy_mlp(x)
 print(y.shape)
 ```
 
