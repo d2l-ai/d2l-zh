@@ -1,4 +1,4 @@
-# 使用Gluon的正则化
+# 正则化 --- 使用Gluon
 
 本章介绍如果使用``Gluon``的正则化来应对[过拟合](/Users/astonz/WorkDocs/Programs/git_repo/gluon-tutorials-zh/chapter01_crashcourse/underfit-overfit.md)问题。
 
