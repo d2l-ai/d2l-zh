@@ -171,3 +171,5 @@ print(net[1].weight.data())
 ## 练习
 
 如果两个层共用一个参数，那么求梯度的时候会发生什么？
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/987)
