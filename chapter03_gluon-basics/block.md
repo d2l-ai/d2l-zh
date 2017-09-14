@@ -2,7 +2,7 @@
 
 前面的教程我们教了大家如何实现线性回归，多类Logistic回归和多层感知机。我们既展示了如何从0开始实现，也提供使用`gluon`的更紧凑的实现。因为前面我们主要关注在模型本身，所以只解释了如何使用`gluon`，但没说明他们是如何工作的。我们使用了`nn.Sequential`，它是`nn.Block`的一个简单形式，但没有深入了解它们。
 
-本教程和接下来几个教程，我们将详细解释如何使用这两个类来定义神经网络，初始化参数，保存和读取模型。
+本教程和接下来几个教程，我们将详细解释如何使用这两个类来定义神经网络、初始化参数、以及保存和读取模型。
 
 我们重新把[多层感知机 --- 使用Gluon](../chapter02_supervised-learning/mlp-gluon.md)里的网络定义搬到这里作为开始的例子（为了简单起见，这里我们丢掉了Flatten层）。
 
@@ -71,7 +71,7 @@ print('customized prefix:', net3.dense0.name)
 
 ## `nn.Block`到底是什么东西？
 
-在`gluon`里，`nn.Block`是一个一般化的部件。整个神经网络可以是一个`nn.Block`，单个层也是一个`nn.Block`。我们可以（近似）无限的嵌套`nn.Block`来构建新的`nn.Block`。
+在`gluon`里，`nn.Block`是一个一般化的部件。整个神经网络可以是一个`nn.Block`，单个层也是一个`nn.Block`。我们可以（近似）无限地嵌套`nn.Block`来构建新的`nn.Block`。
 
 `nn.Block`主要提供这个东西
 
@@ -138,7 +138,7 @@ print(y.shape)
 
 ## `nn.Block`和`nn.Sequential`的嵌套使用
 
-现在我们知道了`nn`下面的类基本都是`nn.Block`的子类，他们可以很方便的嵌套使用。
+现在我们知道了`nn`下面的类基本都是`nn.Block`的子类，他们可以很方便地嵌套使用。
 
 ```{.python .input}
 class RecMLP(nn.Block):
