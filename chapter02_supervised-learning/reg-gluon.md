@@ -132,3 +132,5 @@ learn(learning_rate = 0.005, weight_decay = 1)
 ## 练习
 
 * 如何从字面正确理解`weight decay`的含义？它为何相当于$L_2$范式正则化？
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/985)

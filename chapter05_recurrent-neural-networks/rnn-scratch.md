@@ -292,3 +292,5 @@ for e in range(epochs+1):
 ## 练习
 
 调调参数（数据集大小，模型复杂度，学习率），看看对Perplexity和预测的结果造成的区别。
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/989)

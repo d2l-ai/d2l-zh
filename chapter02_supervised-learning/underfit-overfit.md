@@ -205,3 +205,5 @@ learn(X_train_ord3, X_test_ord3, y_train, y_test, learning_rate, square_loss)
 
 * 如果用一个三阶多项式模型来拟合一个线性模型生成的数据，可能会有什么问题？为什么？
 * 在我们本节提到的三阶多项式拟合问题里，有没有可能把1000个样本的训练误差的期望降到0，为什么？
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/983)
