@@ -74,20 +74,8 @@ net.save_params(filename)
 ```{.python .input  n=8}
 import mxnet as mx
 net2 = get_net()
-net2.load_params(filename, mx.cpu())
+net2.load_params(filename, mx.cpu())  # FIXME, gluon will support default ctx later 
 print(net2(x))
-```
-
-更进一步的，下面的代码尝试将模型直接读入GPU中
-
-```{.python .input}
-import sys
-sys.path.append('..')
-import utils
-
-net3 = get_net()
-net3.load_params(filename, utils.try_gpu())
-print(net3(x.as_in_context(utils.try_gpu())))
 ```
 
 ## 总结
