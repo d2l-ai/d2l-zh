@@ -25,7 +25,7 @@ make html
 如果没有改动notebook里面源代码，所以不想执行notebook，可以使用
 
 ```
-make html DO_EVAL=0
+make html EVAL=0
 ```
 
 但这样生成的html将不含有输出结果。

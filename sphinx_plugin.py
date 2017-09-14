@@ -51,6 +51,9 @@ def convert_md():
     files.sort(key=os.path.getmtime, reverse=True)
 
     do_eval = int(os.environ.get('DO_EVAL', True))
+    if do_eval:
+        do_eval = int(os.environ.get('EVAL', True))
+
     if not do_eval:
         print('=== Will skip evaluating notebooks')
 
