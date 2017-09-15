@@ -14,6 +14,7 @@ DSTDIR=~/zh/latest
 rm -rf $DSTDIR
 mv _build/html $DSTDIR
 
+set +e
 if [ -x "$(command -v xelatex)" ]; then
     make latex
     cd _build/latex
