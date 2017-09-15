@@ -147,3 +147,5 @@ net[0].weight.data()
 - 试试大一点的计算任务，例如大矩阵的乘法，看看CPU和GPU的速度区别。如果是计算量很小的任务呢？
 - 试试CPU和GPU之间传递数据的速度
 - GPU上如何读写模型呢？
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/988)

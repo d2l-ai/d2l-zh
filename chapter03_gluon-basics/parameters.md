@@ -84,9 +84,9 @@ print(net[0].weight.data(), net[0].bias.data())
 ```{.python .input}
 class MyInit(init.Initializer):
     def __init__(self):
-        super(MyInit, self).__init__()   
+        super(MyInit, self).__init__()
         self._verbose = True
-    def _init_weight(self, _, arr):        
+    def _init_weight(self, _, arr):
         # 初始化权重，使用out=arr后我们不需指定形状
         print('init weight', arr.shape)
         nd.random.uniform(low=5, high=10, out=arr)
@@ -152,7 +152,7 @@ with net.name_scope():
     net.add(nn.Dense(4, in_units=4, activation="relu"))
     net.add(nn.Dense(4, in_units=4, activation="relu", params=net[-1].params))
     net.add(nn.Dense(2, in_units=4))
-    
+
 
 ```
 
@@ -173,3 +173,5 @@ print(net[1].weight.data())
 1. 研究下`net.collect_params()`返回的是什么？`net.params`呢？
 1. 如何对每个层使用不同的初始化函数
 1. 如果两个层共用一个参数，那么求梯度的时候会发生什么？
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/987)

@@ -29,5 +29,8 @@ COPY / /gluon-tutorials-zh/
 # sanity check
 RUN source activate gluon && notedown --run /gluon-tutorials-zh/chapter01_crashcourse/ndarray.md
 
+# for chinese supports
+ENV LANG C.UTF-8
+
 CMD source activate gluon && cd /gluon-tutorials-zh && \
     jupyter notebook --ip=0.0.0.0 --allow-root
