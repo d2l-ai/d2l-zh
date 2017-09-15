@@ -70,7 +70,7 @@ except mx.MXNetError as err:
     sys.stderr.write(str(err))
 ```
 
-我么可以通过`copyto`和`as_in_context`来在设备直接传输数据。
+我们可以通过`copyto`和`as_in_context`来在设备直接传输数据。
 
 ```{.python .input}
 y = x.copyto(mx.gpu())
