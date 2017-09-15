@@ -6,18 +6,18 @@
 
 ![](../img/student_categories.png)
 
-这里简要总结上图中四类学生的特点：
+这里简要总结上图中学生的特点：
 
-* 学渣：训练量较小，学习能力较差，容易考挂
-* 学痞：训练量较小，学习能力较强，通常考不过学霸但比学渣好
-* 学痴：训练量较大，学习能力较差，通常考不过学霸但比学渣好
-* 学霸：训练量较大，学习能力较强，容易考好
+* 学渣：能力不行，也不认真做作业，容易考挂
+* 学痞：能力不错，但喜欢裸奔，但还是可能考得比学渣好
+* 学痴：能力不行，但贵在认真，考不赢学霸但秒掉学渣毫无压力
+* 学霸：有能力，而且卖力，考完后喜大普奔
 
-（问题来了，学酥应该在上图的哪里？）
+（现在问题来了，学酥应该在上图的哪里？）
 
 学生的考试成绩和看起来与自身的训练量以及自身的学习能力有关。但即使是在科技进步的今天，我们依然没有完全知悉人类大脑学习的所有奥秘。的确，依赖数据训练的机器学习和人脑学习不一定完全相同。但有趣的是，机器学习模型也可能由于自身不同的训练量和不同的学习能力而产生不同的测试效果。为了科学地阐明这个现象，我们需要从若干机器学习的重要概念开始讲解。
 
-## 训练误差和泛化误差
+## 训练误差（模考成绩）和泛化误差（考试成绩）
 
 在实践中，机器学习模型通常在训练数据集上训练并不断调整模型里的参数。之后，我们通常把训练得到的模型在一个区别于训练数据集的测试数据集上测试，并根据测试结果评价模型的好坏。机器学习模型在训练数据集上表现出的误差叫做**训练误差**，在任意一个测试数据样本上表现出的误差的期望值叫做**泛化误差**。
 
@@ -53,11 +53,13 @@
 
 在本节的开头，我们同样提到一个学生可以有特定的训练量。类似地，一个机器学习模型的训练数据集的样本数也可大可小。一般来说，如果训练数据集过小，特别是比模型参数数量更小时，过拟合更容易发生。除此之外，泛化误差不会随训练数据集里样本数量增加而增大。
 
+![](../img/model_vs_data.png)
+
 为了理解这两个因素对拟合和过拟合的影响，下面让我们来动手学习。
 
 ## 多项式拟合
 
-我们以多项式拟合为例。给定一个标量数据点集合`x`和对应的标量目标值`y`，多项式拟合的目标是找一个K阶多项式，其由向量`w`和位移`b`组成，来最好地近似每个样本`x`和`y`。用数学符号来表示就是我们将学`w`和`b`来预测
+我们以多项式拟合为例。给定一个**标量**数据点集合`x`和对应的标量目标值`y`，多项式拟合的目标是找一个K阶多项式，其由向量`w`和位移`b`组成，来最好地近似每个样本`x`和`y`。用数学符号来表示就是我们将学`w`和`b`来预测
 
 $$\hat{y} = b + \sum_{k=1}^K x^k w_k$$
 
@@ -87,29 +89,13 @@ true_b = 5.0
 下面生成数据集。
 
 ```{.python .input}
-x = nd.random_normal(shape=(num_train + num_test, 1))
+x = nd.random.normal(shape=(num_train + num_test, 1))
 X = nd.concat(x, nd.power(x, 2), nd.power(x, 3))
 y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_w[2] * X[:, 2] + true_b
-y += .1 * nd.random_normal(shape=y.shape)
+y += .1 * nd.random.normal(shape=y.shape)
 y_train, y_test = y[:num_train], y[num_train:]
-```
 
-我们把损失函数定义为平方误差。
-
-```{.python .input}
-square_loss = gluon.loss.L2Loss()
-```
-
-下面定义模型和数据读取器。
-
-```{.python .input}
-def get_net_and_iter(X_train, y_train, batch_size):
-    dataset_train = gluon.data.ArrayDataset(X_train, y_train)
-    data_iter_train = gluon.data.DataLoader(dataset_train, batch_size, shuffle=True)
-    net = gluon.nn.Sequential()
-    with net.name_scope():
-        net.add(gluon.nn.Dense(1))
-    return net, data_iter_train
+('x:', x[:5], 'X:', X[:5], 'y:', y[:5])
 ```
 
 ### 定义训练和测试步骤
@@ -119,56 +105,60 @@ def get_net_and_iter(X_train, y_train, batch_size):
 以下的训练步骤在[使用Gluon的线性回归](linear-regression-gluon.md)有过详细描述。这里不再赘述。
 
 ```{.python .input}
-def train(net, data_iter_train, lr, cur_loss, epochs, verbose_epoch, batch_size):
-    net.collect_params().initialize(force_reinit=True)
-    trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-    for epoch in range(epochs):
-        total_loss = 0
+%matplotlib inline
+import matplotlib as mpl
+mpl.rcParams['figure.dpi']= 120
+import matplotlib.pyplot as plt
+
+def test(net, X, y):
+    return square_loss(net(X), y).mean().asscalar()
+
+def train(X_train, X_test, y_train, y_test):
+    # 线性回归模型
+    net = gluon.nn.Sequential()
+    with net.name_scope():
+        net.add(gluon.nn.Dense(1))
+    net.initialize()
+    # 设一些默认参数
+    learning_rate = 0.01
+    epochs = 100
+    batch_size = min(10, y_train.shape[0])
+    dataset_train = gluon.data.ArrayDataset(X_train, y_train)
+    data_iter_train = gluon.data.DataLoader(
+        dataset_train, batch_size, shuffle=True)
+    # 默认SGD和均方误差
+    trainer = gluon.Trainer(net.collect_params(), 'sgd', {
+        'learning_rate': learning_rate})
+    square_loss = gluon.loss.L2Loss()
+    # 保存训练和测试损失
+    train_loss = []
+    test_loss = []
+    for e in range(epochs):
         for data, label in data_iter_train:
             with autograd.record():
                 output = net(data)
-                loss = cur_loss(output, label)
+                loss = square_loss(output, label)
             loss.backward()
             trainer.step(batch_size)
-            total_loss += nd.sum(loss).asscalar()
-        if epoch >= verbose_epoch:
-            print("Epoch %d, train loss: %f" % (epoch, total_loss / y_train.shape[0]))
-    return net
+        train_loss.append(square_loss(
+            net(X_train), y_train).mean().asscalar())
+        test_loss.append(square_loss(
+            net(X_test), y_test).mean().asscalar())
+    # 打印结果    
+    plt.plot(train_loss)
+    plt.plot(test_loss)
+    plt.legend(['train','test'])
+    plt.show()
+    return ('learned weight', net[0].weight.data(), 
+            'learned bias', net[0].bias.data())
 ```
 
-以下是测试步骤。
-
-```{.python .input}
-def test(X_test, y_test, net, cur_loss):
-    loss_test = nd.sum(cur_loss(net(X_test), y_test)).asscalar() / \
-                y_test.shape[0]
-    print("Test loss: %f" % loss_test)
-    print("True params: ", true_w, true_b)
-    print("Learned params: ", net[0].weight.data(), net[0].bias.data())
-```
-
-机器学习全过程包含训练和测试步骤。
-
-```{.python .input}
-def learn(X_train, X_test, y_train, y_test, lr, cur_loss):
-    epochs = 100
-    verbose_epoch = 95
-    batch_size = min(10, X_train.shape[0])
-    net, data_iter_train = get_net_and_iter(X_train, y_train, batch_size)
-    net_trained = train(net, data_iter_train, lr, cur_loss, epochs, 
-                        verbose_epoch, batch_size)
-    test(X_test, y_test, net_trained, cur_loss)
-```
-
-### 三阶多项式拟合
+### 三阶多项式拟合（正常）
 
 我们先使用与数据生成函数同阶的三阶多项式拟合。实验表明这个模型的训练误差和在测试数据集的误差都较低。训练出的模型参数也接近真实值。
 
 ```{.python .input}
-X_train_ord3, X_test_ord3 = X[:num_train, :], X[num_train:, :]
-
-learning_rate = 0.025
-learn(X_train_ord3, X_test_ord3, y_train, y_test, learning_rate, square_loss)
+train(X[:num_train, :], X[num_train:, :], y[:num_train], y[num_train:])
 ```
 
 ### 线性拟合（欠拟合）
@@ -176,10 +166,7 @@ learn(X_train_ord3, X_test_ord3, y_train, y_test, learning_rate, square_loss)
 我们再试试线性拟合。很明显，该模型的训练误差很高。线性模型在非线性模型（例如三阶多项式）生成的数据集上容易欠拟合。
 
 ```{.python .input}
-x_train_ord1, x_test_ord1 = x[:num_train, :], x[num_train:, :]
-
-learning_rate = 0.025
-learn(x_train_ord1, x_test_ord1, y_train, y_test, learning_rate, square_loss)
+train(x[:num_train, :], x[num_train:, :], y[:num_train], y[num_train:])
 ```
 
 ### 训练量不足（过拟合）
@@ -187,11 +174,7 @@ learn(x_train_ord1, x_test_ord1, y_train, y_test, learning_rate, square_loss)
 事实上，即便是使用与数据生成模型同阶的三阶多项式模型，如果训练量不足，该模型依然容易过拟合。让我们仅仅使用两个训练样本来训练。很显然，训练样本过少了，甚至少于模型参数的数量。这使模型显得过于复杂，以至于容易被训练数据集中的噪音影响。在机器学习过程中，即便训练误差很低，但是测试数据集上的误差很高。这是典型的过拟合现象。
 
 ```{.python .input}
-y_train, y_test = y[0:2], y[num_train:]
-X_train_ord3, X_test_ord3 = X[0:2, :], X[num_train:, :]
-
-learning_rate = 0.025
-learn(X_train_ord3, X_test_ord3, y_train, y_test, learning_rate, square_loss)
+train(X[0:2, :], X[num_train:, :], y[0:2], y[num_train:])
 ```
 
 我们还将在后面的章节继续讨论过拟合问题以及应对过拟合的方法，例如正则化。
@@ -204,7 +187,8 @@ learn(X_train_ord3, X_test_ord3, y_train, y_test, learning_rate, square_loss)
 
 ## 练习
 
-* 如果用一个三阶多项式模型来拟合一个线性模型生成的数据，可能会有什么问题？为什么？
-* 在我们本节提到的三阶多项式拟合问题里，有没有可能把1000个样本的训练误差的期望降到0，为什么？
+1. 学渣、学痞、学痴、和学霸对应的模型复杂度、训练量、训练误差、泛化误差。 
+1. 如果用一个三阶多项式模型来拟合一个线性模型生成的数据，可能会有什么问题？为什么？
+1. 在我们本节提到的三阶多项式拟合问题里，有没有可能把1000个样本的训练误差的期望降到0，为什么？
 
 **吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/983)
