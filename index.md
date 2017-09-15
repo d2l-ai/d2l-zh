@@ -6,6 +6,8 @@
 
 请使用 [http://discuss.gluon.ai/](http://discuss.gluon.ai/) 来进行讨论
 
+[可打印的PDF版本在这里](./gluon_tutorials_zh.pdf)（可能会点格式错误还没改完）
+
 ```eval_rst
 
 .. toctree::
