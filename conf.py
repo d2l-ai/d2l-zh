@@ -226,11 +226,18 @@ htmlhelp_basename = 'TheStraightDopedoc'
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {
+    # 'papersize' : 'a4paper',
+    'utf8extra' : '',
+    'inputenc'  : '',
+    'babel'     : r'''\usepackage[english]{babel}''',
+    'preamble' : r'''
+\usepackage{ctex}
+''',
 # The paper size ('letterpaper' or 'a4paper').
 #'papersize': 'letterpaper',
 
 # The font size ('10pt', '11pt' or '12pt').
-#'pointsize': '10pt',
+'pointsize': '12pt',
 
 # Additional stuff for the LaTeX preamble.
 #'preamble': '',
@@ -243,14 +250,15 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'TheStraightDope.tex', 'The Straight Dope Documentation',
+    (master_doc, 'gluon_tutorials_zh.tex', '使用MXNet/Gluon来动手学深度学习',
      author, 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
-latex_logo = '_static/gluon_while.png'
+latex_logo = '_static/gluon.png'
 
+# latex_engine  = 'xelatex'
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.
 #latex_use_parts = False
@@ -265,7 +273,7 @@ latex_logo = '_static/gluon_while.png'
 #latex_appendices = []
 
 # If false, no module index is generated.
-#latex_domain_indices = True
+latex_domain_indices = False
 
 
 # -- Options for manual page output ---------------------------------------
@@ -326,6 +334,8 @@ exclude_patterns += sp.ignore_list
 
 def setup(app):
     app.add_transform(AutoStructify)
+    app.add_config_value('recommonmark_config', {
+    }, True)
     app.add_javascript('baidu_tongji.js')
     app.add_javascript('google_analytics.js')
     app.add_stylesheet('gluon.css')

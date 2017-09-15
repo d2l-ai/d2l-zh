@@ -10,5 +10,16 @@ source activate gluon_zh_docs
 
 make html
 
-rm -rf ~/zh/latest
-mv _build/html ~/zh/latest
+DSTDIR=~/zh/latest
+rm -rf $DSTDIR
+mv _build/html $DSTDIR
+
+if [ -x "$(command -v xelatex)" ]; then
+    make latex
+    cd _build/latex
+    TEXFILE=gluon_tutorials_zh.tex
+    sed -i s/{tocdepth}{0}/{tocdepth}{1}/ $TEXFILE
+    xelatex -interaction nonstopmode $TEXFILE
+    xelatex -interaction nonstopmode $TEXFILE
+    cp *.pdf $DSTDIR/
+fi
