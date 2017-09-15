@@ -3,9 +3,10 @@
 
 这是一个深度学习的教学项目。我们将使用 `Apache MXNet (incubating) <https://github.com/apache/incubator-mxnet>`_ 的最新 gluon 接口来演示如何从0开始实现深度学习的各个算法。我们的将利用 `Jupyter notebook <http://jupyter.org/>`_ 能将文档，代码，公式和图形统一在一起的优势，提供一个交互式的学习体验。这个项目可以作为一本书，上课用的材料，现场演示的案例，和一个可以尽情拷贝的代码库。据我们所知，目前并没有哪个项目能既覆盖全面深度学习，又提供交互式的可执行代码。我们将尝试弥补这个空白。
 
-Github源代码在 `https://github.com/mli/gluon-tutorials-zh <https://github.com/mli/gluon-tutorials-zh>`_
+源代码在 `https://github.com/mli/gluon-tutorials-zh
+<https://github.com/mli/gluon-tutorials-zh>`_ （亲，给个好评加颗✨ ）
 
-欢迎使用 `http://discuss.gluon.ai/ <http://discuss.gluon.ai/>`_ 来进行讨论
+请使用 `http://discuss.gluon.ai/ <http://discuss.gluon.ai/>`_ 来进行讨论
 
 .. toctree::
    :maxdepth: 1
@@ -16,7 +17,7 @@ Github源代码在 `https://github.com/mli/gluon-tutorials-zh <https://github.co
    install
 
 第一部分：深度学习介绍
---------------------
+-------------------------
 
 .. toctree::
    :maxdepth: 1
