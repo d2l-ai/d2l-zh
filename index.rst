@@ -47,6 +47,7 @@ Github源代码在 `https://github.com/mli/gluon-tutorials-zh <https://github.co
    block
    parameters
    serialization
+   custom-layer
    use-gpu
 
 .. toctree::
