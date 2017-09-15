@@ -27,7 +27,7 @@
 
 我们通过使用pandas读入数据。请确保安装了pandas (pip install pandas)。
 
-```{.python .input  n=1}
+```{.python .input}
 import pandas as pd
 import numpy as np
 
@@ -39,58 +39,18 @@ all_X = pd.concat((train.loc[:, 'MSSubClass':'SaleCondition'],
 
 我们看看数据长什么样子。
 
-```{.python .input  n=8}
+```{.python .input}
 train.head()
-```
-
-```{.json .output n=8}
-[
- {
-  "data": {
-   "text/html": "<div>\n<style>\n    .dataframe thead tr:only-child th {\n        text-align: right;\n    }\n\n    .dataframe thead th {\n        text-align: left;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Id</th>\n      <th>MSSubClass</th>\n      <th>MSZoning</th>\n      <th>LotFrontage</th>\n      <th>LotArea</th>\n      <th>Street</th>\n      <th>Alley</th>\n      <th>LotShape</th>\n      <th>LandContour</th>\n      <th>Utilities</th>\n      <th>...</th>\n      <th>PoolArea</th>\n      <th>PoolQC</th>\n      <th>Fence</th>\n      <th>MiscFeature</th>\n      <th>MiscVal</th>\n      <th>MoSold</th>\n      <th>YrSold</th>\n      <th>SaleType</th>\n      <th>SaleCondition</th>\n      <th>SalePrice</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>1</td>\n      <td>60</td>\n      <td>RL</td>\n      <td>65.0</td>\n      <td>8450</td>\n      <td>Pave</td>\n      <td>NaN</td>\n      <td>Reg</td>\n      <td>Lvl</td>\n      <td>AllPub</td>\n      <td>...</td>\n      <td>0</td>\n      <td>NaN</td>\n      <td>NaN</td>\n      <td>NaN</td>\n      <td>0</td>\n      <td>2</td>\n      <td>2008</td>\n      <td>WD</td>\n      <td>Normal</td>\n      <td>208500</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>2</td>\n      <td>20</td>\n      <td>RL</td>\n      <td>80.0</td>\n      <td>9600</td>\n      <td>Pave</td>\n      <td>NaN</td>\n      <td>Reg</td>\n      <td>Lvl</td>\n      <td>AllPub</td>\n      <td>...</td>\n      <td>0</td>\n      <td>NaN</td>\n      <td>NaN</td>\n      <td>NaN</td>\n      <td>0</td>\n      <td>5</td>\n      <td>2007</td>\n      <td>WD</td>\n      <td>Normal</td>\n      <td>181500</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>3</td>\n      <td>60</td>\n      <td>RL</td>\n      <td>68.0</td>\n      <td>11250</td>\n      <td>Pave</td>\n      <td>NaN</td>\n      <td>IR1</td>\n      <td>Lvl</td>\n      <td>AllPub</td>\n      <td>...</td>\n      <td>0</td>\n      <td>NaN</td>\n      <td>NaN</td>\n      <td>NaN</td>\n      <td>0</td>\n      <td>9</td>\n      <td>2008</td>\n      <td>WD</td>\n      <td>Normal</td>\n      <td>223500</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>4</td>\n      <td>70</td>\n      <td>RL</td>\n      <td>60.0</td>\n      <td>9550</td>\n      <td>Pave</td>\n      <td>NaN</td>\n      <td>IR1</td>\n      <td>Lvl</td>\n      <td>AllPub</td>\n      <td>...</td>\n      <td>0</td>\n      <td>NaN</td>\n      <td>NaN</td>\n      <td>NaN</td>\n      <td>0</td>\n      <td>2</td>\n      <td>2006</td>\n      <td>WD</td>\n      <td>Abnorml</td>\n      <td>140000</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>5</td>\n      <td>60</td>\n      <td>RL</td>\n      <td>84.0</td>\n      <td>14260</td>\n      <td>Pave</td>\n      <td>NaN</td>\n      <td>IR1</td>\n      <td>Lvl</td>\n      <td>AllPub</td>\n      <td>...</td>\n      <td>0</td>\n      <td>NaN</td>\n      <td>NaN</td>\n      <td>NaN</td>\n      <td>0</td>\n      <td>12</td>\n      <td>2008</td>\n      <td>WD</td>\n      <td>Normal</td>\n      <td>250000</td>\n    </tr>\n  </tbody>\n</table>\n<p>5 rows \u00d7 81 columns</p>\n</div>",
-   "text/plain": "   Id  MSSubClass MSZoning  LotFrontage  LotArea Street Alley LotShape  \\\n0   1          60       RL         65.0     8450   Pave   NaN      Reg   \n1   2          20       RL         80.0     9600   Pave   NaN      Reg   \n2   3          60       RL         68.0    11250   Pave   NaN      IR1   \n3   4          70       RL         60.0     9550   Pave   NaN      IR1   \n4   5          60       RL         84.0    14260   Pave   NaN      IR1   \n\n  LandContour Utilities    ...     PoolArea PoolQC Fence MiscFeature MiscVal  \\\n0         Lvl    AllPub    ...            0    NaN   NaN         NaN       0   \n1         Lvl    AllPub    ...            0    NaN   NaN         NaN       0   \n2         Lvl    AllPub    ...            0    NaN   NaN         NaN       0   \n3         Lvl    AllPub    ...            0    NaN   NaN         NaN       0   \n4         Lvl    AllPub    ...            0    NaN   NaN         NaN       0   \n\n  MoSold YrSold  SaleType  SaleCondition  SalePrice  \n0      2   2008        WD         Normal     208500  \n1      5   2007        WD         Normal     181500  \n2      9   2008        WD         Normal     223500  \n3      2   2006        WD        Abnorml     140000  \n4     12   2008        WD         Normal     250000  \n\n[5 rows x 81 columns]"
-  },
-  "execution_count": 8,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 数据大小如下。
 
-```{.python .input  n=6}
+```{.python .input}
 train.shape
 ```
 
-```{.json .output n=6}
-[
- {
-  "data": {
-   "text/plain": "(1460, 81)"
-  },
-  "execution_count": 6,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
-```{.python .input  n=7}
+```{.python .input}
 test.shape
-```
-
-```{.json .output n=7}
-[
- {
-  "data": {
-   "text/plain": "(1459, 80)"
-  },
-  "execution_count": 7,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 ## 预处理数据
@@ -99,7 +59,7 @@ test.shape
 
 $$x_i = \frac{x_i - \mathbb{E} x_i}{\text{std}(x_i)}。$$
 
-```{.python .input  n=9}
+```{.python .input}
 numeric_feats = all_X.dtypes[all_X.dtypes != "object"].index
 all_X[numeric_feats] = all_X[numeric_feats].apply(lambda x: (x - x.mean())
                                                             / (x.std()))
@@ -107,19 +67,19 @@ all_X[numeric_feats] = all_X[numeric_feats].apply(lambda x: (x - x.mean())
 
 现在把离散数据点转换成数值标签。
 
-```{.python .input  n=10}
+```{.python .input}
 all_X = pd.get_dummies(all_X, dummy_na=True)
 ```
 
 把缺失数据用本特征的平均值估计。
 
-```{.python .input  n=11}
+```{.python .input}
 all_X = all_X.fillna(all_X.mean())
 ```
 
 下面把数据转换一下格式。
 
-```{.python .input  n=12}
+```{.python .input}
 num_train = train.shape[0]
 
 X_train = all_X[:num_train]
@@ -135,7 +95,7 @@ y_train = y_train.as_matrix()
 
 为了便于和``Gluon``交互，我们需要导入NDArray格式数据。
 
-```{.python .input  n=13}
+```{.python .input}
 from mxnet import ndarray as nd
 from mxnet import autograd
 from mxnet import gluon
@@ -149,13 +109,13 @@ X_test = nd.array(X_test)
 
 我们把损失函数定义为平方误差。
 
-```{.python .input  n=14}
+```{.python .input}
 square_loss = gluon.loss.L2Loss()
 ```
 
 我们定义比赛中测量结果用的函数。
 
-```{.python .input  n=15}
+```{.python .input}
 def get_rmse_log(net, X_train, y_train):
     num_train = X_train.shape[0]
     clipped_preds = nd.clip(net(X_train), 1, float('inf'))
@@ -167,7 +127,7 @@ def get_rmse_log(net, X_train, y_train):
 
 我们将模型的定义放在一个函数里供多次调用。这是一个基本的线性回归模型。
 
-```{.python .input  n=16}
+```{.python .input}
 def get_net():
     net = gluon.nn.Sequential()
     with net.name_scope():
@@ -178,7 +138,7 @@ def get_net():
 
 我们定义一个训练的函数，这样在跑不同的实验时不需要重复实现相同的步骤。
 
-```{.python .input  n=17}
+```{.python .input}
 def train(net, X_train, y_train, epochs, verbose_epoch, learning_rate,
           weight_decay):
     batch_size = 100
@@ -211,7 +171,7 @@ def train(net, X_train, y_train, epochs, verbose_epoch, learning_rate,
 
 我们关心K次验证模型的测试结果的平均值和训练误差的平均值，因此我们定义K折交叉验证函数如下。
 
-```{.python .input  n=18}
+```{.python .input}
 def k_fold_cross_valid(k, epochs, verbose_epoch, X_train, y_train,
                        learning_rate, weight_decay):
     assert k > 1
@@ -250,7 +210,7 @@ def k_fold_cross_valid(k, epochs, verbose_epoch, X_train, y_train,
 
 以下的模型参数都是可以调的。
 
-```{.python .input  n=23}
+```{.python .input}
 k = 5
 epochs = 100
 verbose_epoch = 95
@@ -260,21 +220,11 @@ weight_decay = 0.0
 
 给定以上调好的参数，接下来我们训练并交叉验证我们的模型。
 
-```{.python .input  n=24}
+```{.python .input}
 train_loss, test_loss = k_fold_cross_valid(k, epochs, verbose_epoch, X_train,
                                            y_train, learning_rate, weight_decay)
 print("%d-fold validation: Avg train loss: %f, Avg test loss: %f" %
       (k, train_loss, test_loss))
-```
-
-```{.json .output n=24}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "Epoch 96, train loss: 0.201754\nEpoch 97, train loss: 0.199677\nEpoch 98, train loss: 0.197680\nEpoch 99, train loss: 0.195824\nTest loss: 0.188714\nEpoch 96, train loss: 0.197866\nEpoch 97, train loss: 0.195674\nEpoch 98, train loss: 0.193603\nEpoch 99, train loss: 0.191686\nTest loss: 0.211255\nEpoch 96, train loss: 0.199089\nEpoch 97, train loss: 0.196955\nEpoch 98, train loss: 0.194979\nEpoch 99, train loss: 0.193046\nTest loss: 0.201710\nEpoch 96, train loss: 0.201462\nEpoch 97, train loss: 0.199319\nEpoch 98, train loss: 0.197295\nEpoch 99, train loss: 0.195372\nTest loss: 0.178485\nEpoch 96, train loss: 0.196540\nEpoch 97, train loss: 0.194323\nEpoch 98, train loss: 0.192214\nEpoch 99, train loss: 0.190255\nTest loss: 0.206328\n5-fold validation: Avg train loss: 0.193237, Avg test loss: 0.197298\n"
- }
-]
 ```
 
 即便训练误差可以达到很低（调好参数之后），但是K折交叉验证上的误差可能更高。当训练误差特别低时，要观察K折交叉验证上的误差是否同时降低并小心过拟合。我们通常依赖K折交叉验证误差结果来调节参数。
@@ -284,7 +234,7 @@ print("%d-fold validation: Avg train loss: %f, Avg test loss: %f" %
 
 我们定义预测函数。
 
-```{.python .input  n=25}
+```{.python .input}
 def learn(epochs, verbose_epoch, X_train, y_train, test, learning_rate,
           weight_decay):
     net = get_net()
@@ -298,19 +248,9 @@ def learn(epochs, verbose_epoch, X_train, y_train, test, learning_rate,
 
 调好参数以后，下面我们预测并在Kaggle提交预测结果。
 
-```{.python .input  n=26}
+```{.python .input}
 learn(epochs, verbose_epoch, X_train, y_train, test, learning_rate,
       weight_decay)
-```
-
-```{.json .output n=26}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "Epoch 96, train loss: 0.171103\nEpoch 97, train loss: 0.170528\nEpoch 98, train loss: 0.169987\nEpoch 99, train loss: 0.169484\n"
- }
-]
 ```
 
 请注意，**目前Kaggle仅限每个账号一天以内10次提交结果的机会**。所以提交结果前务必三思。
