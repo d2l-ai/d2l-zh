@@ -10,7 +10,7 @@
 
 这是一次宝贵的实战机会，我们相信你一定能从动手的过程中学到很多。
 
-> 请务必 Get your hands dirty。
+> Get your hands dirty。
 
 ## Kaggle中的房价预测问题
 
@@ -91,13 +91,9 @@ all_X = all_X.fillna(all_X.mean())
 ```{.python .input}
 num_train = train.shape[0]
 
-X_train = all_X[:num_train]
-X_test = all_X[num_train:]
-y_train = train.SalePrice
-
-X_train = X_train.as_matrix()
-X_test = X_test.as_matrix()
-y_train = y_train.as_matrix()
+X_train = all_X[:num_train].as_matrix()
+X_test = all_X[num_train:].as_matrix()
+y_train = train.SalePrice.as_matrix()
 ```
 
 ## 导入NDArray格式数据
