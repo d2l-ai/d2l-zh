@@ -302,3 +302,5 @@ learn(epochs, verbose_epoch, X_train, y_train, test, learning_rate,
     * [正则化 --- 使用Gluon](reg-gluon.md)
 * 如果不使用对数值特征做标准化处理能拿到什么样的loss？
 * 你还有什么其他办法可以继续改进模型？小伙伴们都期待学习到你独特的富有创造力的解决方案。
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1039)
