@@ -1,4 +1,4 @@
-# 使用Gluon的多层感知机
+# 多层感知机 --- 使用Gluon
 
 我们只需要稍微改动[多类Logistic回归](../chapter01_crashcourse/softmax-regression-gluon.md)来实现多层感知机。
 
@@ -9,11 +9,10 @@
 ```{.python .input  n=5}
 from mxnet import gluon
 
-num_hidden = 256
 net = gluon.nn.Sequential()
 with net.name_scope():
     net.add(gluon.nn.Flatten())
-    net.add(gluon.nn.Dense(num_hidden, activation="relu"))
+    net.add(gluon.nn.Dense(256, activation="relu"))
     net.add(gluon.nn.Dense(10))
 net.initialize()
 ```
@@ -60,3 +59,5 @@ for epoch in range(5):
 
 - 尝试多加入几个隐含层，对比从0开始的实现。
 - 尝试使用一个另外的激活函数，可以使用`help(nd.Activation)`或者[线上文档](https://mxnet.apache.org/api/python/ndarray.html#mxnet.ndarray.Activation)查看提供的选项。
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/738)

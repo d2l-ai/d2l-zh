@@ -1,4 +1,4 @@
-# 从0开始的多类逻辑回归
+# 多类逻辑回归 --- 从0开始
 
 如果你读过了[从0开始的线性回归](linear-regression-scratch.md)，那么最难的部分已经过去了。现在你知道如果读取和操作数据，如何构造目标函数和对它求导，如果定义损失函数，模型和求解。
 
@@ -72,7 +72,7 @@ test_data = gluon.data.DataLoader(mnist_test, batch_size, shuffle=False)
 
 ## 初始化模型参数
 
-跟线性模型一样，每个样本会表示成一个向量。我们这里数据是 24 * 24 大小的图片，所以输入向量的长度是 24 * 24 = 784。因为我们要做多类分类，我们需要对每一个类预测这个样本属于此类的概率。因为这个数据集有10个类型，所以输出应该是长为10的向量。这样，我们需要的权重将是一个 784 * 10 的矩阵：
+跟线性模型一样，每个样本会表示成一个向量。我们这里数据是 28 * 28 大小的图片，所以输入向量的长度是 28 * 28 = 784。因为我们要做多类分类，我们需要对每一个类预测这个样本属于此类的概率。因为这个数据集有10个类型，所以输出应该是长为10的向量。这样，我们需要的权重将是一个 784 * 10 的矩阵：
 
 ```{.python .input  n=5}
 num_inputs = 784
@@ -166,7 +166,7 @@ evaluate_accuracy(test_data, net)
 import sys
 sys.path.append('..')
 from utils import SGD
-from mxnet import autograd 
+from mxnet import autograd
 
 learning_rate = .1
 
@@ -177,7 +177,7 @@ for epoch in range(5):
         with autograd.record():
             output = net(data)
             loss = cross_entropy(output, label)
-        loss.backward() 
+        loss.backward()
         # 将梯度做平均，这样学习率会对batch size不那么敏感
         SGD(params, learning_rate/batch_size)
 
@@ -218,3 +218,5 @@ print(get_text_labels(predicted_labels.asnumpy()))
 - 即使解决exp的问题，求出来的导数是不是还是不稳定？
 
 请仔细想想再去对比下我们小伙伴之一@[pluskid](https://github.com/pluskid)早年写的一篇[blog解释这个问题](http://freemind.pluskid.org/machine-learning/softmax-vs-softmax-loss-numerical-stability/)，看看你想的是不是不一样。
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/741)

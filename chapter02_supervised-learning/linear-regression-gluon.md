@@ -1,4 +1,4 @@
-# 使用Gluon的线性回归
+# 线性回归 --- 使用Gluon
 
 [前一章](linear-regression-scratch.md)我们仅仅使用了ndarray和autograd来实现线性回归，这一章我们仍然实现同样的模型，但是使用高层抽象包`gluon`。
 
@@ -122,3 +122,5 @@ true_b, dense.bias.data()
 
 - 在训练的时候，为什么我们用了比前面要大10倍的学习率呢？（提示：可以尝试运行 `help(trainer.step)`来寻找答案。）
 - 如何拿到`weight`的梯度呢？（提示：尝试 `help(dense.weight)`）
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/742)

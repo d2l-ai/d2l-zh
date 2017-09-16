@@ -1,4 +1,4 @@
-# 从0开始的线性回归
+# 线性回归 --- 从0开始
 
 虽然强大的深度学习框架可以减少很多重复性工作，但如果你过于依赖它提供的便利抽象，那么你可能不会很容易地理解到底深度学习是如何工作的。所以我们的第一个教程是如何只利用ndarray和autograd来实现一个线性回归的训练。
 
@@ -22,7 +22,7 @@ $$\sum_{i=1}^n (\hat{y}_i-y_i)^2.$$
 
 `y[i] = 2 * X[i][0] - 3.4 * X[i][1] + 4.2 + noise`
 
-这里噪音服从均值0和方差为0.1的正态分布。
+这里噪音服从均值0和标准差为0.01的正态分布。
 
 ```{.python .input  n=2}
 from mxnet import ndarray as nd
@@ -130,7 +130,7 @@ for e in range(epochs):
             loss = square_loss(output, label)
         loss.backward()
         SGD(params, learning_rate)
-        
+
         total_loss += nd.sum(loss).asscalar()
     print("Epoch %d, average loss: %f" % (e, total_loss/num_examples))
 ```
@@ -152,3 +152,5 @@ true_b, b
 ## 练习
 
 尝试用不同的学习率查看误差下降速度（收敛率）
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/743)

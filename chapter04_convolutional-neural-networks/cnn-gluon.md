@@ -1,4 +1,4 @@
-# 使用Gluon的卷积神经网络
+# 卷积神经网络 --- 使用Gluon
 
 现在我们使用Gluon来实现[上一章的卷积神经网络](cnn-scratch.md)。
 
@@ -74,6 +74,4 @@ for epoch in range(5):
 
 再试试改改卷积层设定，是不是会比上一章容易很多？
 
-```{.python .input}
-
-```
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/737)

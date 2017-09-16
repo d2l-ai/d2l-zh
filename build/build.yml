@@ -2,13 +2,16 @@ name: gluon_zh_docs
 channels:
   - conda-forge
 dependencies:
-- python>=3.5
+- python
 - jupyter
 - sphinx
 - sphinx_rtd_theme
 - matplotlib
+- pandas
 - pip:
+  - pyopenssl>= 17.3.0
   - nbsphinx
   - recommonmark
   - https://github.com/mli/notedown/tarball/master
-  - mxnet-cu80>=0.11.1b20170904
+  - mxnet-cu80>=0.11.1b20170913
+  - jieba

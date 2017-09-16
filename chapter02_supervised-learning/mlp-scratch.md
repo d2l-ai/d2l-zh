@@ -1,4 +1,4 @@
-# 从0开始的多层感知机
+# 多层感知机 --- 从0开始
 
 前面我们介绍了包括线性回归和多类逻辑回归的数个模型，它们的一个共同点是全是只含有一个输入层，一个输出层。这一节我们将介绍多层神经网络，就是包含至少一个隐含层的网络。
 
@@ -45,7 +45,7 @@ for param in params:
 
 ## 激活函数
 
-如果我们就用线性操作符来构造多层神经网络，那么整个模型仍然只是一个线性函数。这是因为 
+如果我们就用线性操作符来构造多层神经网络，那么整个模型仍然只是一个线性函数。这是因为
 
 $$\hat{y} = X \cdot W_1 \cdot W_2 = X \cdot W_3 $$
 
@@ -66,7 +66,7 @@ def relu(X):
 def net(X):
     X = X.reshape((-1, num_inputs))
     h1 = relu(nd.dot(X, W1) + b1)
-    output = relu(nd.dot(h1, W2) + b2)
+    output = nd.dot(h1, W2) + b2
     return output
 ```
 
@@ -115,3 +115,5 @@ for epoch in range(5):
 - 我们使用了 `weight_scale` 来控制权重的初始化值大小，增大或者变小这个值会怎么样？
 - 尝试改变 `num_hiddens` 来控制模型的复杂度
 - 尝试加入一个新的隐含层
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/739)
