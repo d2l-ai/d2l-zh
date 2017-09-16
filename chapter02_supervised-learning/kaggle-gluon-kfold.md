@@ -1,5 +1,7 @@
 # 实战Kaggle比赛——使用Gluon预测房价和K折交叉验证
 
+**更新**：为了鼓励小伙伴们动手学习深度学习，认真完成本章节的课后作业有[红包/比特币/以太币奖励](https://discuss.gluon.ai/t/topic/1039)。
+
 本章介绍如何使用``Gluon``来实战[Kaggle比赛](https://www.kaggle.com)。我们以[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)为例，为大家提供一整套实战中常常需要的工具，例如**K折交叉验证**。我们还以``pandas``为工具介绍如何对**真实世界**中的数据进行重要的预处理，例如：
 
 * 处理离散数据
@@ -293,7 +295,7 @@ learn(epochs, verbose_epoch, X_train, y_train, test, learning_rate,
 
 再次温馨提醒，**目前Kaggle仅限每个账号一天以内10次提交结果的机会**。所以提交结果前务必三思。
 
-## 作业
+## 作业: [奖励红包/比特币/以太币](https://discuss.gluon.ai/t/topic/1039)
 
 * 运行本教程，目前的模型在5折交叉验证上可以拿到什么样的loss？
 * 如果网络条件允许，在Kaggle提交本教程的预测结果。观察一下，这个结果能在Kaggle上拿到什么样的loss？
