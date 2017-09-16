@@ -145,12 +145,20 @@ def get_net():
 我们定义一个训练的函数，这样在跑不同的实验时不需要重复实现相同的步骤。
 
 ```{.python .input}
-def train(net, X_train, y_train, epochs, verbose_epoch, learning_rate,
-          weight_decay):
+%matplotlib inline
+import matplotlib as mpl
+mpl.rcParams['figure.dpi']= 120
+import matplotlib.pyplot as plt
+
+def train(net, X_train, y_train, X_test, y_test, epochs, 
+          verbose_epoch, learning_rate, weight_decay):
+    train_loss = []
+    if X_test is not None:
+        test_loss = []
     batch_size = 100
     dataset_train = gluon.data.ArrayDataset(X_train, y_train)
-    data_iter_train = gluon.data.DataLoader(dataset_train, batch_size,
-                                            shuffle=True)
+    data_iter_train = gluon.data.DataLoader(
+        dataset_train, batch_size,shuffle=True)
     trainer = gluon.Trainer(net.collect_params(), 'adam',
                             {'learning_rate': learning_rate,
                              'wd': weight_decay})
@@ -163,10 +171,23 @@ def train(net, X_train, y_train, epochs, verbose_epoch, learning_rate,
             loss.backward()
             trainer.step(batch_size)
 
-            avg_loss = get_rmse_log(net, X_train, y_train)
+            cur_train_loss = get_rmse_log(net, X_train, y_train)
         if epoch > verbose_epoch:
-            print("Epoch %d, train loss: %f" % (epoch, avg_loss))
-    return net, avg_loss
+            print("Epoch %d, train loss: %f" % (epoch, cur_train_loss))
+        train_loss.append(cur_train_loss)
+        if X_test is not None:    
+            cur_test_loss = get_rmse_log(net, X_test, y_test)
+            test_loss.append(cur_test_loss)
+    plt.plot(train_loss)
+    plt.legend(['train'])
+    if X_test is not None:
+        plt.plot(test_loss)
+        plt.legend(['train','test'])
+    plt.show()
+    if X_test is not None:
+        return cur_train_loss, cur_test_loss
+    else:
+        return cur_train_loss
 ```
 
 ## K折交叉验证
@@ -184,14 +205,13 @@ def k_fold_cross_valid(k, epochs, verbose_epoch, X_train, y_train,
     fold_size = X_train.shape[0] // k
     train_loss_sum = 0.0
     test_loss_sum = 0.0
-    for test_idx in range(k):
-        X_val_test = X_train[test_idx * fold_size: (test_idx + 1) *
-                                                   fold_size, :]
-        y_val_test = y_train[test_idx * fold_size: (test_idx + 1) * fold_size]
+    for test_i in range(k):
+        X_val_test = X_train[test_i * fold_size: (test_i + 1) * fold_size, :]
+        y_val_test = y_train[test_i * fold_size: (test_i + 1) * fold_size]
 
         val_train_defined = False
         for i in range(k):
-            if i != test_idx:
+            if i != test_i:
                 X_cur_fold = X_train[i * fold_size: (i + 1) * fold_size, :]
                 y_cur_fold = y_train[i * fold_size: (i + 1) * fold_size]
                 if not val_train_defined:
@@ -202,11 +222,10 @@ def k_fold_cross_valid(k, epochs, verbose_epoch, X_train, y_train,
                     X_val_train = nd.concat(X_val_train, X_cur_fold, dim=0)
                     y_val_train = nd.concat(y_val_train, y_cur_fold, dim=0)
         net = get_net()
-        net_trained, train_loss = train(net, X_val_train, y_val_train, epochs,
-                                        verbose_epoch, learning_rate,
-                                        weight_decay)
+        train_loss, test_loss = train(
+            net, X_val_train, y_val_train, X_val_test, y_val_test, 
+            epochs, verbose_epoch, learning_rate, weight_decay)
         train_loss_sum += train_loss
-        test_loss = get_rmse_log(net_trained, X_val_test, y_val_test)
         print("Test loss: %f" % test_loss)
         test_loss_sum += test_loss
     return train_loss_sum / k, test_loss_sum / k
@@ -247,9 +266,9 @@ print("%d-fold validation: Avg train loss: %f, Avg test loss: %f" %
 def learn(epochs, verbose_epoch, X_train, y_train, test, learning_rate,
           weight_decay):
     net = get_net()
-    net_trained, _ = train(net, X_train, y_train, epochs, verbose_epoch,
-                        learning_rate, weight_decay)
-    preds = net_trained(X_test).asnumpy()
+    train(net, X_train, y_train, None, None, epochs, verbose_epoch, 
+          learning_rate, weight_decay)
+    preds = net(X_test).asnumpy()
     test['SalePrice'] = pd.Series(preds.reshape(1, -1)[0])
     submission = pd.concat([test['Id'], test['SalePrice']], axis=1)
     submission.to_csv('submission.csv', index=False)
