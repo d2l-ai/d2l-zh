@@ -41,9 +41,12 @@ sudo apt-get install texlive-full
 ```bash
 wget https://github.com/adobe-fonts/source-han-sans/raw/release/OTF/SourceHanSansHWSC.zip
 wget https://github.com/adobe-fonts/source-han-serif/raw/release/OTF/SourceHanSerifSC_EL-M.zip
+wget https://github.com/adobe-fonts/source-code-pro/archive/2.030R-ro/1.050R-it.zip
 unzip SourceHanSansHWSC.zip
 unzip SourceHanSerifSC_EL-M.zip
+unzip 1.050R-it.zip
 sudo mv SourceHanSansHWSC SourceHanSerifSC_EL-M /usr/share/fonts/opentype/
+sudo mv source-code-pro-2.030R-ro-1.050R-it/OTF /usr/share/fonts/opentype/source-code-pro
 sudo fc-cache -f -v
 ```
 
