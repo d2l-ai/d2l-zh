@@ -10,7 +10,7 @@
 
 这是一次宝贵的实战机会，我们相信你一定能从动手的过程中学到很多。
 
-> 请务必 Get your hands dirty。
+> Get your hands dirty。
 
 ## Kaggle中的房价预测问题
 
@@ -30,6 +30,9 @@
 ## 读入数据
 
 比赛数据分为训练数据集和测试数据集。两个数据集都包括每个房子的特征，例如街道类型、建造年份、房顶类型、地下室状况等特征值。这些特征值有连续的数字、离散的标签甚至是缺失值'na'。只有训练数据集包括了我们需要在测试数据集中预测的每个房子的价格。数据可以从[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)中下载。
+
+[训练数据集下载地址](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/download/train.csv)
+[测试数据集下载地址](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/download/test.csv)
 
 我们通过使用``pandas``读入数据。请确保安装了``pandas`` (``pip install pandas``)。
 
@@ -88,13 +91,9 @@ all_X = all_X.fillna(all_X.mean())
 ```{.python .input}
 num_train = train.shape[0]
 
-X_train = all_X[:num_train]
-X_test = all_X[num_train:]
-y_train = train.SalePrice
-
-X_train = X_train.as_matrix()
-X_test = X_test.as_matrix()
-y_train = y_train.as_matrix()
+X_train = all_X[:num_train].as_matrix()
+X_test = all_X[num_train:].as_matrix()
+y_train = train.SalePrice.as_matrix()
 ```
 
 ## 导入NDArray格式数据
@@ -145,12 +144,20 @@ def get_net():
 我们定义一个训练的函数，这样在跑不同的实验时不需要重复实现相同的步骤。
 
 ```{.python .input}
-def train(net, X_train, y_train, epochs, verbose_epoch, learning_rate,
-          weight_decay):
+%matplotlib inline
+import matplotlib as mpl
+mpl.rcParams['figure.dpi']= 120
+import matplotlib.pyplot as plt
+
+def train(net, X_train, y_train, X_test, y_test, epochs, 
+          verbose_epoch, learning_rate, weight_decay):
+    train_loss = []
+    if X_test is not None:
+        test_loss = []
     batch_size = 100
     dataset_train = gluon.data.ArrayDataset(X_train, y_train)
-    data_iter_train = gluon.data.DataLoader(dataset_train, batch_size,
-                                            shuffle=True)
+    data_iter_train = gluon.data.DataLoader(
+        dataset_train, batch_size,shuffle=True)
     trainer = gluon.Trainer(net.collect_params(), 'adam',
                             {'learning_rate': learning_rate,
                              'wd': weight_decay})
@@ -163,10 +170,23 @@ def train(net, X_train, y_train, epochs, verbose_epoch, learning_rate,
             loss.backward()
             trainer.step(batch_size)
 
-            avg_loss = get_rmse_log(net, X_train, y_train)
+            cur_train_loss = get_rmse_log(net, X_train, y_train)
         if epoch > verbose_epoch:
-            print("Epoch %d, train loss: %f" % (epoch, avg_loss))
-    return net, avg_loss
+            print("Epoch %d, train loss: %f" % (epoch, cur_train_loss))
+        train_loss.append(cur_train_loss)
+        if X_test is not None:    
+            cur_test_loss = get_rmse_log(net, X_test, y_test)
+            test_loss.append(cur_test_loss)
+    plt.plot(train_loss)
+    plt.legend(['train'])
+    if X_test is not None:
+        plt.plot(test_loss)
+        plt.legend(['train','test'])
+    plt.show()
+    if X_test is not None:
+        return cur_train_loss, cur_test_loss
+    else:
+        return cur_train_loss
 ```
 
 ## K折交叉验证
@@ -184,14 +204,13 @@ def k_fold_cross_valid(k, epochs, verbose_epoch, X_train, y_train,
     fold_size = X_train.shape[0] // k
     train_loss_sum = 0.0
     test_loss_sum = 0.0
-    for test_idx in range(k):
-        X_val_test = X_train[test_idx * fold_size: (test_idx + 1) *
-                                                   fold_size, :]
-        y_val_test = y_train[test_idx * fold_size: (test_idx + 1) * fold_size]
+    for test_i in range(k):
+        X_val_test = X_train[test_i * fold_size: (test_i + 1) * fold_size, :]
+        y_val_test = y_train[test_i * fold_size: (test_i + 1) * fold_size]
 
         val_train_defined = False
         for i in range(k):
-            if i != test_idx:
+            if i != test_i:
                 X_cur_fold = X_train[i * fold_size: (i + 1) * fold_size, :]
                 y_cur_fold = y_train[i * fold_size: (i + 1) * fold_size]
                 if not val_train_defined:
@@ -202,11 +221,10 @@ def k_fold_cross_valid(k, epochs, verbose_epoch, X_train, y_train,
                     X_val_train = nd.concat(X_val_train, X_cur_fold, dim=0)
                     y_val_train = nd.concat(y_val_train, y_cur_fold, dim=0)
         net = get_net()
-        net_trained, train_loss = train(net, X_val_train, y_val_train, epochs,
-                                        verbose_epoch, learning_rate,
-                                        weight_decay)
+        train_loss, test_loss = train(
+            net, X_val_train, y_val_train, X_val_test, y_val_test, 
+            epochs, verbose_epoch, learning_rate, weight_decay)
         train_loss_sum += train_loss
-        test_loss = get_rmse_log(net_trained, X_val_test, y_val_test)
         print("Test loss: %f" % test_loss)
         test_loss_sum += test_loss
     return train_loss_sum / k, test_loss_sum / k
@@ -247,9 +265,9 @@ print("%d-fold validation: Avg train loss: %f, Avg test loss: %f" %
 def learn(epochs, verbose_epoch, X_train, y_train, test, learning_rate,
           weight_decay):
     net = get_net()
-    net_trained, _ = train(net, X_train, y_train, epochs, verbose_epoch,
-                        learning_rate, weight_decay)
-    preds = net_trained(X_test).asnumpy()
+    train(net, X_train, y_train, None, None, epochs, verbose_epoch, 
+          learning_rate, weight_decay)
+    preds = net(X_test).asnumpy()
     test['SalePrice'] = pd.Series(preds.reshape(1, -1)[0])
     submission = pd.concat([test['Id'], test['SalePrice']], axis=1)
     submission.to_csv('submission.csv', index=False)
@@ -274,7 +292,7 @@ learn(epochs, verbose_epoch, X_train, y_train, test, learning_rate,
 
 再次温馨提醒，**目前Kaggle仅限每个账号一天以内10次提交结果的机会**。所以提交结果前务必三思。
 
-## 作业
+## 作业：
 
 * 运行本教程，目前的模型在5折交叉验证上可以拿到什么样的loss？
 * 如果网络条件允许，在Kaggle提交本教程的预测结果。观察一下，这个结果能在Kaggle上拿到什么样的loss？
@@ -283,3 +301,5 @@ learn(epochs, verbose_epoch, X_train, y_train, test, learning_rate,
     * [正则化 --- 使用Gluon](reg-gluon.md)
 * 如果不使用对数值特征做标准化处理能拿到什么样的loss？
 * 你还有什么其他办法可以继续改进模型？小伙伴们都期待学习到你独特的富有创造力的解决方案。
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1039)

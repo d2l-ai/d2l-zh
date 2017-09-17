@@ -232,12 +232,18 @@ latex_elements = {
     'babel'     : r'''\usepackage[english]{babel}''',
     'preamble' : r'''
 \usepackage{ctex}
+\setmonofont{DejaVu Sans Mono}
+\setmainfont{DejaVu Serif}
+\setsansfont{DejaVu Sans}
+\setCJKmainfont{Source Han Serif SC Medium}
+\setCJKsansfont{Source Han Sans HW SC}
+\setCJKmonofont{Source Han Sans HW SC}
 ''',
 # The paper size ('letterpaper' or 'a4paper').
 #'papersize': 'letterpaper',
 
 # The font size ('10pt', '11pt' or '12pt').
-'pointsize': '12pt',
+'pointsize': '11pt',
 
 # Additional stuff for the LaTeX preamble.
 #'preamble': '',
