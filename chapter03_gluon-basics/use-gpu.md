@@ -66,7 +66,6 @@ import sys
 try:
     nd.array([1,2,3], ctx=mx.gpu(1))
 except mx.MXNetError as err: 
-    haha = err
     sys.stderr.write(str(err))
 ```
 
