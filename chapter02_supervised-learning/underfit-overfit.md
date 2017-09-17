@@ -122,8 +122,7 @@ def train(X_train, X_test, y_train, y_test):
     # 设一些默认参数
     learning_rate = 0.01
     epochs = 100
-    # batch_size = min(1, y_train.shape[0])
-    batch_size = 1
+    batch_size = min(10, y_train.shape[0])
     dataset_train = gluon.data.ArrayDataset(X_train, y_train)
     data_iter_train = gluon.data.DataLoader(
         dataset_train, batch_size, shuffle=True)

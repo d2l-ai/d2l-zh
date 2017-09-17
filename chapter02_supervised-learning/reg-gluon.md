@@ -30,7 +30,6 @@ y_train, y_test = y[:num_train], y[num_train:]
 
 跟前一样定义训练模块。你也许发现了主要区别，`Trainer`有一个新参数`wd`。我们通过优化算法的``wd``参数 (weight decay)实现对模型的正则化。这相当于$L_2$范数正则化。
 
-
 ```{.python .input}
 %matplotlib inline
 import matplotlib as mpl
@@ -76,7 +75,7 @@ def train(weight_decay):
     plt.show()
 
     return ('learned w[:10]:', net[0].weight.data()[:,:10], 
-            'learend b:', net[0].bias.data())
+            'learned b:', net[0].bias.data())
 ```
 
 ### 训练模型并观察过拟合

@@ -74,29 +74,29 @@ def get_params():
 
 ## $L_2$范数正则化
 
-
-线性模型就是将输入和模型做乘法再加上偏移。
-
 这里我们引入$L_2$范数正则化。不同于在训练时仅仅最小化损失函数(Loss)，我们在训练时其实在最小化
 
 $$\text{loss} + \lambda \sum_{p \in \textrm{params}}\|p\|_2^2。$$
 
-直观上，$L_2$范数正则化试图惩罚较大绝对值的参数值。在训练模型时，如果$\lambda = 0$，则未使用正则化。需要注意的是，在测试模型时，$\lambda$必须为0。
+直观上，$L_2$范数正则化试图惩罚较大绝对值的参数值。下面我们定义L2正则化。注意有些时候大家对偏移加罚，有时候不加罚。通常结果上两者区别不大。这里我们演示对偏移也加罚的情况：
 
-```{.python .input  n=6}
-def net(X, lambd, w, b):
-    return nd.dot(X, w) + b + lambd * ((w**2).sum() + b**2)
+```{.python .input}
+def L2_penalty(w, b):
+    return (w**2).sum() + b**2
 ```
 
 ## 定义训练和测试
 
-我们定义一个训练函数，这样在跑不同的实验时不需要重复实现相同的步骤。
+下面我们定义剩下的所需要的函数。这个跟之前的教程大致一样，主要是区别在于计算`loss`的时候我们加上了L2正则化，以及我们将训练和测试损失都画了出来。
 
 ```{.python .input  n=8}
 %matplotlib inline
 import matplotlib as mpl
 mpl.rcParams['figure.dpi']= 120
 import matplotlib.pyplot as plt
+
+def net(X, lambd, w, b):
+    return nd.dot(X, w) + b
 
 def square_loss(yhat, y):
     return (yhat - y.reshape(yhat.shape)) ** 2
@@ -118,7 +118,8 @@ def train(lambd):
         for data, label in data_iter(num_train):
             with autograd.record():
                 output = net(data, lambd, *params)
-                loss = square_loss(output, label)
+                loss = square_loss(
+                    output, label) + lambd * L2_penalty(*params)
             loss.backward()
             SGD(params, learning_rate)
         train_loss.append(test(params, X_train, y_train))
