@@ -29,3 +29,30 @@ make html EVAL=0
 ```
 
 但这样生成的html将不含有输出结果。
+
+## 编译PDF版本
+
+编译pdf版本需要xelatex，和思源字体。在Ubuntu可以这样安装
+
+```bash
+sudo apt-get install texlive-full
+```
+
+```bash
+wget https://github.com/adobe-fonts/source-han-sans/raw/release/OTF/SourceHanSansHWSC.zip
+wget https://github.com/adobe-fonts/source-han-serif/raw/release/OTF/SourceHanSerifSC_EL-M.zip
+unzip SourceHanSansHWSC.zip
+unzip SourceHanSerifSC_EL-M.zip
+sudo mv SourceHanSansHWSC SourceHanSerifSC_EL-M /usr/share/fonts/opentype/
+sudo fc-cache -f -v
+```
+
+这时候可以通过 `fc-list :lang=zh` 来查看安装的中文字体。
+
+然后可以编译了
+
+```bash
+make latex
+cd _build/latex
+xelatex -interaction nonstopmode gluon_tutorials_zh.tex
+```
