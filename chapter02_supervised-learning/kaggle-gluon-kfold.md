@@ -10,7 +10,7 @@
 
 这是一次宝贵的实战机会，我们相信你一定能从动手的过程中学到很多。
 
-> 请务必 Get your hands dirty。
+> Get your hands dirty。
 
 ## Kaggle中的房价预测问题
 
@@ -30,6 +30,9 @@
 ## 读入数据
 
 比赛数据分为训练数据集和测试数据集。两个数据集都包括每个房子的特征，例如街道类型、建造年份、房顶类型、地下室状况等特征值。这些特征值有连续的数字、离散的标签甚至是缺失值'na'。只有训练数据集包括了我们需要在测试数据集中预测的每个房子的价格。数据可以从[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)中下载。
+
+[训练数据集下载地址](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/download/train.csv)
+[测试数据集下载地址](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/download/test.csv)
 
 我们通过使用``pandas``读入数据。请确保安装了``pandas`` (``pip install pandas``)。
 
@@ -88,13 +91,9 @@ all_X = all_X.fillna(all_X.mean())
 ```{.python .input}
 num_train = train.shape[0]
 
-X_train = all_X[:num_train]
-X_test = all_X[num_train:]
-y_train = train.SalePrice
-
-X_train = X_train.as_matrix()
-X_test = X_test.as_matrix()
-y_train = y_train.as_matrix()
+X_train = all_X[:num_train].as_matrix()
+X_test = all_X[num_train:].as_matrix()
+y_train = train.SalePrice.as_matrix()
 ```
 
 ## 导入NDArray格式数据
@@ -293,7 +292,7 @@ learn(epochs, verbose_epoch, X_train, y_train, test, learning_rate,
 
 再次温馨提醒，**目前Kaggle仅限每个账号一天以内10次提交结果的机会**。所以提交结果前务必三思。
 
-## 作业
+## 作业：
 
 * 运行本教程，目前的模型在5折交叉验证上可以拿到什么样的loss？
 * 如果网络条件允许，在Kaggle提交本教程的预测结果。观察一下，这个结果能在Kaggle上拿到什么样的loss？
