@@ -6,12 +6,6 @@
 
 常用的解决办法是要么使用多台机器来协同计算，要么使用数值计算更加强劲的硬件，或者两者一起使用。本教程关注使用单块Nvidia GPU来加速计算，更多的选项例如多GPU和多机器计算则留到后面。
 
-
-
-![](../img/jenson.jpg)
-
-（黄教主和他的战术核武器）
-
 首先需要确保至少有一块Nvidia显卡已经安装好了，然后下载安装显卡驱动和[CUDA](https://developer.nvidia.com/cuda-downloads)（推荐下载8.0，CUDA自带了驱动）。完成后应该可以通过`nvidia-smi`查看显卡信息了。（Windows用户需要设一下PATH：`set PATH=C:\Program Files\NVIDIA Corporation\NVSMI;%PATH%`）。
 
 ```{.python .input  n=1}
@@ -65,7 +59,7 @@ import sys
 
 try:
     nd.array([1,2,3], ctx=mx.gpu(1))
-except mx.MXNetError as err: 
+except mx.MXNetError as err:
     sys.stderr.write(str(err))
 ```
 
@@ -98,7 +92,7 @@ nd.exp(z + 2) * y
 ```{.python .input}
 try:
     x + y
-except mx.MXNetError as err:    
+except mx.MXNetError as err:
     sys.stderr.write(str(err))
 ```
 
