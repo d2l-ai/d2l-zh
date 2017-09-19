@@ -53,4 +53,4 @@ GPU的性能主要由下面三个主要参数构成：
   ![](../img/fired.jpg)
 - 主板的PCIe卡槽。推荐使用PCIe 3.0 16x来保证足够的GPU到主内存带宽。如果是多卡的话，要仔细看主板说明，保证多卡一起使用时仍然是16x带宽。（有些主板插4卡时会降到8x甚至4x）
 
-对于更具体的配置可以参考我们[走过的一些弯路](https://zh.gluon.ai/buy-gpu.html)，和来讨论区[交流大家的机器配置](https://discuss.gluon.ai/t/topic/1177)。
+对于更具体的配置可以参考我们[走过的一些弯路](http://mli.github.io/gpu/2016/01/17/build-gpu-clusters/)，和来讨论区[交流大家的机器配置](https://discuss.gluon.ai/t/topic/1177)。
