@@ -1,6 +1,6 @@
 # 深度卷积神经网络
 
-在前面的章节中，我们已经学过如何使用卷积神经网络进行图像分类。其中我们使用了两个卷积层与池化层交替，加入一个全连接隐层，和一个归一化指数输出层。这个结构与LeNet，一个以卷积神经网络先驱[Yann LeCun](http://yann.lecun.com/)命名的早期神经网络。LeCun也是将[卷积神经网络付诸应用的第一人](http://www.mitpressjournals.org/doi/abs/10.1162/neco.1989.1.4.541)，通过反向传播来进行训练，这是一个当时相当新颖的想法。当时一小批对仿生的学习模型热衷的研究者通过人工模拟神经元来作为学习模型。然而即便时至今日，依然没有多少研究者相信真正的大脑是通过梯度下降来学习的，研究社区也探索了许多其他的学习理论。LeCun在当时展现了，在识别手写数字的任务上通过梯度下降训练卷积神经网络可以达到最先进的结果。这个奠基性的工作第一次将卷积神经网络推上舞台，为世人所知。
+在前面的章节中，我们已经学过如何使用卷积神经网络进行图像分类。其中我们使用了两个卷积层与池化层交替，加入一个全连接隐层，和一个归一化指数Softmax输出层。这个结构与LeNet，一个以卷积神经网络先驱[Yann LeCun](http://yann.lecun.com/)命名的早期神经网络。LeCun也是将[卷积神经网络付诸应用的第一人](http://www.mitpressjournals.org/doi/abs/10.1162/neco.1989.1.4.541)，通过反向传播来进行训练，这是一个当时相当新颖的想法。当时一小批对仿生的学习模型热衷的研究者通过人工模拟神经元来作为学习模型。然而即便时至今日，依然没有多少研究者相信真正的大脑是通过梯度下降来学习的，研究社区也探索了许多其他的学习理论。LeCun在当时展现了，在识别手写数字的任务上通过梯度下降训练卷积神经网络可以达到最先进的结果。这个奠基性的工作第一次将卷积神经网络推上舞台，为世人所知。
 
 然而，这之后几年里，神经网络被许多其他方法超越。神经网络训练慢，并且就深度神经网络是不是能从一个随机生成的权重起点是否可行，学界没有广泛达成一致。此外，十多年前还没有黄教主的核武器GPU通用计算，所以训练一个多通道，多层，大量参数的在十几年前难以实现。所以虽然LeNet可以在MNIST上得到好的成绩，在更大的真实世界的数据集上，神经网络还是在这个冬天里渐渐失宠。
 
@@ -55,11 +55,9 @@ Sutskever实现的可以运行在GPU上的深度卷积网络成为重大突破�
 
 ## AlexNet
 
-In 2012, using their cuda-convnet implementation on an eight-layer CNN,
-Khrizhevsky, Sutskever and Hinton won the ImageNet challenge on image recognition by a wide margin.
-Their model, [introduced in this paper](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf). It is *very* similar to the LeNet architecture from 1995.
+2012年的时候，Khrizhevsky，Sutskever和Hinton凭借他们的cuda-convnet实现的8层卷积神经网络以很大的优势赢得了ImageNet图像识别挑战。他们在[这篇论文](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf)中的模型与1995年的LeNet结构*非常*相似。
 
-In the rest of the chapter we're going to implement a similar model to the one designed them. Due to memory constraints on the GPU they did some wacky things to make the model fit. For example, they designed a dual-stream architecture in which half of the nodes live on each GPU. The two streams, and thus the two GPUs only communicate at certain layers. This limits the amount of overhead for keeping the two GPUs in sync with each other. Fortunately, distributed deep learning has advanced a long way in the last few years, so we won't be needing those features (unless for very unusual architectures). In later sections, we'll go into greater depth on how you can speed up your networks by training on many GPUs (in AWS you can get up to 16 on a single machine with 12GB each), and how you can train on many machine simultaneously. As usual, we'll start by importing the same dependencies as in the past gluon tutorials:
+之后的篇幅里我们将实现一个类似于AlexNet的网络。由于GPU显存的限制，最早的AlexNet包括了双数据流的设计，以让网络中一半的节点能存入一个GPU。这两个数据流，也就是说两个GPU只在一部分层进行通信，这样达到限制GPU同步时的额外开销的效果。有幸的是，分布式深度学习在过去几年得到了长足的发展，除了一些特殊的结构外，我们也就不再需要这样的设计了。之后的章节，我们将更深入地分析如何进行GPU多卡训练来提速神经网络训练（在亚马逊云服务上有16个GPU，每个GPU带有12GB显存的机型），以及如何进行多机训练。和之前的教程一样，我们先把必要的依赖导入进来:
 
 ```{.python .input}
 from __future__ import print_function
@@ -74,15 +72,13 @@ mx.random.seed(1)
 ctx = mx.gpu()
 ```
 
-## Load up a dataset
+## 载入数据集
 
-Now let's load up a dataset. This time we're going to use gluon's new `vision` package, and import the CIFAR dataset. Cifar is a much smaller color dataset, roughly the dimensions of ImageNet. It contains 50,000 training and 10,000 test images. The images belong in equal quantities to 10 categories. While this dataset is considerably smaller than the 1M image, 1k category, 256x256 imagenet dataset, we'll use it here to demonstrate the model because we don't want to assume that you have a license to the dataset or a machine that can store it comfortably. To give you some sense for the proportions of working with ImageNet data, we'll upsample the images to 224x224 (the size used in the original AlexNet.
+现在我们来载入一个数据集。这次我们会使用Gluon中新的`vision`包，导入CIFAR10数据集。CIFAR是一个小得多的彩色数据集，图片大小在32x32，其中包含了5万张训练图片和1万张测试图片。这些图片归属于10个等大的类别。虽然这个数据集远远没有到ImageNet那样的一百万张，一千类和256x256的图片，鉴于用户许可和硬件的原因，我们这里使用这个数据集作为演示用。为了使训练体验更接近ImageNet数据，我们把图片上采样到224x224，也就是原版AlexNet的输入的大小。
 
 ```{.python .input}
 def transformer(data, label):
-    data = mx.image.imresize(data, 224, 224)
-    data = mx.nd.transpose(data, (2,0,1))
-    data = data.astype(np.float32)
+    data = mx.image.imresize(data, 224, 224).transpose((2,0,1)).astype(np.float32)
     return data, label
 
 ```
@@ -111,16 +107,13 @@ print(d.shape, l.shape)
 d.dtype
 ```
 
-## The AlexNet architecture
+## AlexNet结构
 
-This model has some notable features.
-First, in contrast to the relatively tiny LeNet,
-AlexNet contains 8 layers of transformations,
-five convolutional layers followed by two fully connected hidden layers and an output layer.
+这个模型有一些显著的特征。第一，与相对来说很小的LeNet相比，AlexNet包含8层变换，其中有五层卷积和两层全连接隐含层，以及一个输出层。
 
-The convolutional kernels in the first convolutional layer are reasonably large at $11 \times 11$, in the second  they are $5\times5$ and thereafter they are $3\times3$. Moreover, the first, second, and fifth convolutional layers are each followed by overlapping pooling operations with pool size $3\times3$ and stride ($2\times2$).
+第一层中的卷积核大小是$11\times11$，接着第二层中的是$5\times5$，之后都是$3\times3$。此外，第一，第二和第五个卷积层之后都跟了有重叠的大小为$3\times3$，步距为$2\times2$的池化操作。
 
-Following the convolutional layers, the original AlexNet had fully-connected layers with 4096 nodes each. Using `gluon.nn.Sequential()`, we can define the entire AlexNet architecture in just 14 lines of code.  Besides the specific architectural choices and the data preparation, we can recycle all of the code we'd used for LeNet verbatim.
+紧接着卷积层，原版的AlexNet有每层大小为4096个节点的全连接层们。使用`gluon.nn.Sequential()`，我们可以仅用14行代码来定义整个AlexNet结构。除了结构和数据准备的代码外，其余代码我们原封不动地使用LeNet的例子中的代码。
 
 [**right now relying on a different data pipeline (the new gluon.vision). Sync this with the other chapter soon and commit to one data pipeline.**]
 
@@ -149,25 +142,25 @@ with alex_net.name_scope():
     alex_net.add(gluon.nn.Dense(10))
 ```
 
-## Initialize parameters
+## 初始化参数
 
 ```{.python .input}
 alex_net.collect_params().initialize(mx.init.Xavier(magnitude=2.24), ctx=ctx)
 ```
 
-## Optimizer
+## 优化器
 
 ```{.python .input}
 trainer = gluon.Trainer(alex_net.collect_params(), 'sgd', {'learning_rate': .001})
 ```
 
-## Softmax cross-entropy loss
+## Softmax交叉熵损失
 
 ```{.python .input}
 softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 ```
 
-## Evaluation loop
+## 表现评估
 
 ```{.python .input}
 def evaluate_accuracy(data_iterator, net):
@@ -181,7 +174,7 @@ def evaluate_accuracy(data_iterator, net):
     return acc.get()[1]
 ```
 
-## Training loop
+## 训练
 
 ```{.python .input}
 ###########################
@@ -213,5 +206,5 @@ for e in range(epochs):
     print("Epoch %s. Loss: %s, Train_acc %s, Test_acc %s" % (e, moving_loss, train_accuracy, test_accuracy))
 ```
 
-## Next
+## 下一步
 [Very deep convolutional neural nets with repeating blocks](../chapter04_convolutional-neural-networks/very-deep-nets-vgg.ipynb)
