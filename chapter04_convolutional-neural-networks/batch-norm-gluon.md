@@ -5,7 +5,8 @@
 
 ## 定义模型并添加批量归一化层
 
-有了`Gluon`，我们模型的定义工作变得简单了许多。
+有了`Gluon`，我们模型的定义工作变得简单了许多。我们只需要添加`gluon.nn.BatchNorm`层并指定对二维卷积的通道(`axis=1`)进行批量
+归一化。
 
 ```{.python .input  n=1}
 import mxnet as mx
