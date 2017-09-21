@@ -5,51 +5,47 @@
 
 ## 定义模型并添加批量归一化层
 
-有了`Gluon`，我们模型的定义工作变得简单了许多。我们只需要添加`gluon.nn.BatchNorm`层并指定对二维卷积的通道(`axis=1`)进行批量
-归一化。
+有了`Gluon`，我们模型的定义工作变得简单了许多。我们只需要添加`nn.BatchNorm`层并指定对二维卷积的通道(`axis=1`)进行批量归一化。
 
 ```{.python .input  n=1}
-import mxnet as mx
-from mxnet import gluon
+from mxnet.gluon import nn
 
-net = gluon.nn.Sequential()
+net = nn.Sequential()
 with net.name_scope():
     # 第一层卷积
-    net.add(gluon.nn.Conv2D(channels=20, kernel_size=5))
-    net.add(gluon.nn.BatchNorm(axis=1))
-    net.add(gluon.nn.Activation(activation='relu'))
-    net.add(gluon.nn.MaxPool2D(pool_size=2, strides=2))
+    net.add(nn.Conv2D(channels=20, kernel_size=5))
+    ### 添加了批量归一化层 
+    net.add(nn.BatchNorm(axis=1))
+    net.add(nn.Activation(activation='relu'))
+    net.add(nn.MaxPool2D(pool_size=2, strides=2))
     # 第二层卷积
-    net.add(gluon.nn.Conv2D(channels=50, kernel_size=3))
-    net.add(gluon.nn.BatchNorm(axis=1))
-    net.add(gluon.nn.Activation(activation='relu'))
-    net.add(gluon.nn.MaxPool2D(pool_size=2, strides=2))
-    net.add(gluon.nn.Flatten())
+    net.add(nn.Conv2D(channels=50, kernel_size=3))
+    ### 添加了批量归一化层 
+    net.add(nn.BatchNorm(axis=1))
+    net.add(nn.Activation(activation='relu'))
+    net.add(nn.MaxPool2D(pool_size=2, strides=2))
+    net.add(nn.Flatten())
     # 第一层全连接
-    net.add(gluon.nn.Dense(128, activation="relu"))
+    net.add(nn.Dense(128, activation="relu"))
     # 第二层全连接
-    net.add(gluon.nn.Dense(10))
+    net.add(nn.Dense(10))
 ```
 
-我们推荐使用GPU运行并教程代码。
+## 模型训练
 
-```{.python .input  n=2}
+剩下的代码跟之前没什么不一样。
+
+```{.python .input  n=3}
 import sys
 sys.path.append('..')
 import utils
-
-ctx = utils.try_gpu()
-net.initialize(mx.init.Normal(sigma=0.01), ctx=ctx)
-
-print('initialize weight on', ctx)
-```
-
-这里训练并测试模型。
-
-```{.python .input  n=3}
 from mxnet import autograd 
 from mxnet import gluon
 from mxnet import nd
+# from mxnet import init
+
+ctx = utils.try_gpu()
+net.initialize(ctx=ctx)
 
 batch_size = 256
 train_data, test_data = utils.load_data_fashion_mnist(batch_size)
@@ -72,7 +68,8 @@ for epoch in range(5):
         train_acc += utils.accuracy(output, label)
     test_acc = utils.evaluate_accuracy(test_data, net, ctx)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-            epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
+        epoch, train_loss/len(train_data), 
+        train_acc/len(train_data), test_acc))
 ```
 
 ## 总结
