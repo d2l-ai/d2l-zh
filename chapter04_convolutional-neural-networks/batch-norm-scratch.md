@@ -1,10 +1,37 @@
 # 批量归一化 --- 从0开始
 
-【草稿】
+我们在之前的课程里学过了[线性回归](../chapter02_supervised-learning/linear-regression-
+scratch.md)和[逻辑回归](../chapter02_supervised-learning/softmax-regression-
+scratch.md)。对于这类无中间层的机器学习模型来说，输入层的输入值的大小不会变化。但是，对于一个可能有很多层的深度学习模型来说，情况可能会比较复杂。
 
-## 批量归一化层
+举个例子，随着第一层和第二层的参数在训练时不断变化，第三层所使用的激活函数的输入值可能由于乘法效应而变得极大或极小，例如和第一层所使用的激活函数的输入值不在一个
+数量级上。这种在训练时可能出现的情况会造成模型训练的不稳定性。例如，给定一个学习率，某次参数迭代后，目标函数值会剧烈变化或甚至升高。数学的解释是，如果把目标函数
+$f$ 根据参数 $\mathbf{w}$ 迭代（如 $f(\mathbf{w} - \eta \nabla f(\mathbf{w}))$
+）进行泰勒展开，有关学习率 $\eta$ 的高阶项的系数可能由于数量级的原因而不容忽略。然而常用的低阶优化算法通常在假设里把这些项都忽略了。
 
-```{.python .input}
+为了应对上述这种情况，Sergey Ioffe和Christian Szegedy在2015年提出了批量归一化的方法。简而言之，在训练时给定一个批量输入，批量归
+一化试图对深度学习模型的某一层所使用的激活函数的输入进行归一化：使批量呈标准正态分布（均值为0，标准差为1）。
+
+
+批量归一化通常应用于输入层或任意中间层。
+
+## 简化的批量归一化层
+
+给定一个批量 $B = \{x_{1, ..., m}\}$, 我们需要学习拉升参数 $\gamma$ 和偏移参数 $\beta$。
+
+我们定义：
+
+$$\mu_B \leftarrow \frac{1}{m}\sum_{i = 1}^{m}x_i$$
+$$\sigma_B^2 \leftarrow \frac{1}{m} \sum_{i=1}^{m}(x_i - \mu_B)^2$$
+$$\hat{x_i} \leftarrow \frac{x_i - \mu_B}{\sqrt{\sigma_B^2 + \epsilon}}$$
+$$y_i \leftarrow \gamma \hat{x_i} + \beta \equiv \mbox{BN}_{\gamma,\beta}(x_i)$$
+
+批量归一化层的输出是 $\{y_i = BN_{\gamma, \beta}(x_i)\}$。
+
+我们现在来动手实现一个简化的批量归一化层。实现时对全连接层和二维卷积层两种情况做了区分。对于全连接层，很明显我们要对每个批量进行归一化。然而这里需要注意的是，对
+于二维卷积，我们要对每个通道进行归一化，并需要保持四维形状使得可以正确地广播。
+
+```{.python .input  n=1}
 from mxnet import nd
 def pure_batch_norm(X, gamma, beta, eps=1e-5):
     assert len(X.shape) in (2, 4)
@@ -15,7 +42,7 @@ def pure_batch_norm(X, gamma, beta, eps=1e-5):
         variance = ((X - mean)**2).mean(axis=0)
     # 2D卷积: batch_size x channel x height x width
     else:
-        # 对每个通道算均值和方差，需要保持4D形状使得可以正确的广播
+        # 对每个通道算均值和方差，需要保持4D形状使得可以正确地广播
         mean = X.mean(axis=(0,2,3), keepdims=True)
         variance = ((X - mean)**2).mean(axis=(0,2,3), keepdims=True)
         
@@ -23,35 +50,54 @@ def pure_batch_norm(X, gamma, beta, eps=1e-5):
     X_hat = (X - mean) / nd.sqrt(variance + eps)
     # 拉升和偏移
     return gamma.reshape(mean.shape) * X_hat + beta.reshape(mean.shape)
-
 ```
 
-```{.python .input}
+下面我们检查一下。我们先定义全连接层的输入是这样的。每一行是批量中的一个实例。
+
+```{.python .input  n=2}
 A = nd.arange(6).reshape((3,2))
 A
 ```
 
-```{.python .input}
+我们希望批量中的每一列都被归一化。结果符合预期。
+
+```{.python .input  n=3}
 pure_batch_norm(A, gamma=nd.array([1,1]), beta=nd.array([0,0]))
 ```
 
-```{.python .input}
+下面我们定义二维卷积网络层的输入是这样的。
+
+```{.python .input  n=4}
 B = nd.arange(18).reshape((1,2,3,3))
 B
 ```
 
-```{.python .input}
+结果也如预期那样，我们对每个通道做了归一化。
+
+```{.python .input  n=5}
 pure_batch_norm(B, gamma=nd.array([1,1]), beta=nd.array([0,0]))
 ```
 
-```{.python .input}
+## 批量归一化层
+
+你可能会想，既然训练时用了批量归一化，那么测试时也该用批量归一化吗？其实这个问题乍一想不是很好回答，因为：
+
+* 不用的话，训练出的模型参数很可能在测试时就不准确了；
+* 用的话，万一测试的数据就只有一个数据实例就不好办了。
+
+事实上，在测试时我们还是需要继续使用批量归一化的，只是需要做些改动。在测试时，我们需要把原先训练时用到的批量均值和方差替换成**整个**训练数据的均值和方差。但
+是当训练数据极大时，这个计算开销很大。因此，我们用移动平均的方法来近似计算（参见实现中的`moving_mean`和`moving_variance`）。
+
+为了方便讨论批量归一化层的实现，我们先看下面这段代码来理解``Python``变量可以如何修改。
+
+```{.python .input  n=6}
 a = nd.array((1,2,3))
 b = a.reshape((1,3))
 b[:] = 2
 a
 ```
 
-```{.python .input}
+```{.python .input  n=7}
 def batch_norm(X, gamma, beta, is_training, moving_mean, moving_variance,
                eps = 1e-5, moving_momentum = 0.9):
     assert len(X.shape) in (2, 4)
@@ -87,7 +133,9 @@ def batch_norm(X, gamma, beta, is_training, moving_mean, moving_variance,
 
 ## 定义模型
 
-```{.python .input}
+我们推荐使用GPU运行本教程代码。
+
+```{.python .input  n=8}
 import sys
 sys.path.append('..')
 import utils
@@ -95,7 +143,9 @@ ctx = utils.try_gpu()
 ctx
 ```
 
-```{.python .input}
+先定义参数。
+
+```{.python .input  n=9}
 weight_scale = .01
 
 # output channels = 20, kernel = (5,5)
@@ -138,13 +188,15 @@ for param in params:
     param.attach_grad()
 ```
 
-```{.python .input}
+下面定义模型。我们添加了批量归一化层。特别要注意我们添加的位置：在卷积层后，在激活函数前。
+
+```{.python .input  n=10}
 def net(X, is_training=False, verbose=False):
     X = X.as_in_context(W1.context)
     # 第一层卷积
     h1_conv = nd.Convolution(
         data=X, weight=W1, bias=b1, kernel=W1.shape[2:], num_filter=c1)
-    #!!! 
+    #添加了批量归一化层 
     h1_bn = batch_norm(h1_conv, gamma1, beta1, is_training, 
                        moving_mean1, moving_variance1)
     h1_activation = nd.relu(h1_bn)
@@ -153,7 +205,7 @@ def net(X, is_training=False, verbose=False):
     # 第二层卷积
     h2_conv = nd.Convolution(
         data=h1, weight=W2, bias=b2, kernel=W2.shape[2:], num_filter=c2)
-    #!!! 
+    #添加了批量归一化层 
     h2_bn = batch_norm(h2_conv, gamma2, beta2, is_training, 
                        moving_mean2, moving_variance2)        
     h2_activation = nd.relu(h2_bn)
@@ -173,7 +225,9 @@ def net(X, is_training=False, verbose=False):
     return h4_linear
 ```
 
-```{.python .input}
+下面我们训练并测试模型。
+
+```{.python .input  n=11}
 from mxnet import autograd 
 from mxnet import gluon
 
