@@ -33,7 +33,9 @@ Schmidhuber，相信通过把许多神经网络层组合起来训练，他们可
 
 这一状况在2009年李飞飞贡献了ImageNet数据库后得以焕然。它包含了1000类，每类有1000张不同的图片，这一规模是当时其他数据集不可相提并论的。
 
-![](../img/imagenet.jpeg)
+![](../img/imagenet.jpg)
+
+(image credit: Ferhat Kurt)
 
 这个数据集同时推动了计算机视觉和机器学习研究进入新的阶段，使得之前的最佳方法不再有优势。
 
@@ -51,158 +53,130 @@ GPU的到来改变了格局。很久以来，GPU都是为了图像处理和计�
 Sutskever实现的可以运行在GPU上的深度卷积网络成为重大突破。他们意识到卷积网络的运算瓶颈（卷积和矩阵乘法）其实都可以在硬件上并行。使用两个NVIDIA GTX580和3GB内存，他们实现了快速的卷积。他们足够好的代码[cuda-convnet](https://code.google.com/archive/p/cuda-convnet/)使其成为那几年里的业界标准，驱动着深度学习繁荣的头几年。
 
 ![](../img/gtx-580-gpu.jpeg)
-
+（老式核武器 GTX 580）
 
 ## AlexNet
 
 2012年的时候，Khrizhevsky，Sutskever和Hinton凭借他们的cuda-convnet实现的8层卷积神经网络以很大的优势赢得了ImageNet图像识别挑战。他们在[这篇论文](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf)中的模型与1995年的LeNet结构*非常*相似。
 
-之后的篇幅里我们将实现一个类似于AlexNet的网络。由于GPU显存的限制，最早的AlexNet包括了双数据流的设计，以让网络中一半的节点能存入一个GPU。这两个数据流，也就是说两个GPU只在一部分层进行通信，这样达到限制GPU同步时的额外开销的效果。有幸的是，分布式深度学习在过去几年得到了长足的发展，除了一些特殊的结构外，我们也就不再需要这样的特别设计了。接下来，我们将更深入地分析如何进行GPU多卡训练来提速神经网络训练（在亚马逊云服务上有16个GPU，每个GPU带有12GB显存的机型），以及如何进行多机训练。和之前的教程一样，我们先把必要的依赖导入进来:
-
-```{.python .input}
-from __future__ import print_function
-import mxnet as mx
-from mxnet import nd, autograd
-from mxnet import gluon
-import numpy as np
-mx.random.seed(1)
-```
-
-```{.python .input}
-ctx = mx.gpu()
-```
-
-## 载入数据集
-
-现在我们来载入一个数据集。这次我们会使用Gluon中新的`vision`包，导入CIFAR10数据集。CIFAR是一个小得多的彩色数据集，图片大小在32x32，其中包含了5万张训练图片和1万张测试图片。这些图片归属于10个等大的类别。虽然这个数据集远远没有到ImageNet那样的一百万张，一千类和256x256的图片，鉴于用户许可和硬件的限制，我们将这个数据集作为演示用。为了使训练体验更接近ImageNet数据，我们把图片上采样到224x224，也就是原版AlexNet的输入的大小。
-
-```{.python .input}
-def transformer(data, label):
-    data = mx.image.imresize(data, 224, 224).transpose((2,0,1)).astype(np.float32)
-    return data, label
-
-```
-
-```{.python .input}
-batch_size = 64
-train_data = gluon.data.DataLoader(
-    gluon.data.vision.CIFAR10('./data', train=True, transform=transformer),
-    batch_size=batch_size, shuffle=True, last_batch='discard')
-
-test_data = gluon.data.DataLoader(
-    gluon.data.vision.CIFAR10('./data', train=False, transform=transformer),
-    batch_size=batch_size, shuffle=False, last_batch='discard')
-```
-
-```{.python .input}
-d, l = next(x for x in train_data)
-print(d.shape, l.shape)
-```
-
-```{.python .input}
-d.dtype
-```
-
-## AlexNet结构
-
 这个模型有一些显著的特征。第一，与相对较小的LeNet相比，AlexNet包含8层变换，其中有五层卷积和两层全连接隐含层，以及一个输出层。
 
 第一层中的卷积核大小是$11\times11$，接着第二层中的是$5\times5$，之后都是$3\times3$。此外，第一，第二和第五个卷积层之后都跟了有重叠的大小为$3\times3$，步距为$2\times2$的池化操作。
 
-紧接着卷积层，原版的AlexNet有每层大小为4096个节点的全连接层们。使用`gluon.nn.Sequential()`，我们可以仅用14行代码来定义整个AlexNet结构。除了结构和数据准备的代码外，其余代码我们原封不动地使用LeNet的例子中的代码。
+紧接着卷积层，原版的AlexNet有每层大小为4096个节点的全连接层们。这两个巨大的全连接层带来将近1GB的模型大小。由于早期GPU显存的限制，最早的AlexNet包括了双数据流的设计，以让网络中一半的节点能存入一个GPU。这两个数据流，也就是说两个GPU只在一部分层进行通信，这样达到限制GPU同步时的额外开销的效果。有幸的是，GPU在过去几年得到了长足的发展，除了一些特殊的结构外，我们也就不再需要这样的特别设计了。
 
-[**right now relying on a different data pipeline (the new gluon.vision). Sync this with the other chapter soon and commit to one data pipeline.**]
+下面的Gluon代码定义了（稍微简化过的）Alexnet：
 
-[add dropout once we are 100% final on API]
+```{.python .input  n=1}
+from mxnet.gluon import nn
 
-```{.python .input}
-alex_net = gluon.nn.Sequential()
-with alex_net.name_scope():
-    #  First convolutional layer
-    alex_net.add(gluon.nn.Conv2D(channels=96, kernel_size=11, strides=(4,4), activation='relu'))
-    alex_net.add(gluon.nn.MaxPool2D(pool_size=3, strides=2))
-    #  Second convolutional layer
-    alex_net.add(gluon.nn.Conv2D(channels=192, kernel_size=5, activation='relu'))
-    alex_net.add(gluon.nn.MaxPool2D(pool_size=3, strides=(2,2)))
-    # Third convolutional layer
-    alex_net.add(gluon.nn.Conv2D(channels=384, kernel_size=3, activation='relu'))
-    # Fourth convolutional layer
-    alex_net.add(gluon.nn.Conv2D(channels=384, kernel_size=3, activation='relu'))
-    # Fifth convolutional layer
-    alex_net.add(gluon.nn.Conv2D(channels=256, kernel_size=3, activation='relu'))
-    alex_net.add(gluon.nn.MaxPool2D(pool_size=3, strides=2))
-    # Flatten and apply fullly connected layers
-    alex_net.add(gluon.nn.Flatten())
-    alex_net.add(gluon.nn.Dense(4096, activation="relu"))
-    alex_net.add(gluon.nn.Dense(4096, activation="relu"))
-    alex_net.add(gluon.nn.Dense(10))
+net = nn.Sequential()
+with net.name_scope():
+    # 第一阶段
+    net.add(nn.Conv2D(
+        channels=96, kernel_size=11, strides=4, activation='relu'))
+    net.add(nn.MaxPool2D(pool_size=3, strides=2))
+    # 第二阶段
+    net.add(nn.Conv2D(
+        channels=256, kernel_size=5, padding=2, activation='relu'))
+    net.add(nn.MaxPool2D(pool_size=3, strides=2))
+    # 第三阶段
+    net.add(nn.Conv2D(
+        channels=384, kernel_size=3, padding=1, activation='relu'))
+    net.add(nn.Conv2D(
+        channels=384, kernel_size=3, padding=1, activation='relu'))
+    net.add(nn.Conv2D(
+        channels=256, kernel_size=3, padding=1, activation='relu'))
+    net.add(nn.MaxPool2D(pool_size=3, strides=2))                 
+    # 第四阶段
+    net.add(nn.Flatten())
+    net.add(nn.Dense(4096, activation="relu"))
+    net.add(nn.Dropout(.5))
+    # 第五阶段
+    net.add(nn.Dense(4096, activation="relu"))
+    net.add(nn.Dropout(.5))
+    # 第六阶段
+    net.add(nn.Dense(10))
 ```
 
-## 初始化参数
+## 读取数据
 
-```{.python .input}
-alex_net.collect_params().initialize(mx.init.Xavier(magnitude=2.24), ctx=ctx)
-```
+Alexnet使用Imagenet数据，其中输入图片大小一般是$224 \times 224$。因为Imagenet数据训练时间过长，我们还是用前面的FashionMNIST来演示。读取数据的时候我们额外做了一步将数据扩大到原版Alexnet使用的$224 \times 224$。
 
-## 优化器
+```{.python .input  n=2}
+import sys
+sys.path.append('..')
+import utils
+from mxnet import image
 
-```{.python .input}
-trainer = gluon.Trainer(alex_net.collect_params(), 'sgd', {'learning_rate': .001})
-```
+def transform(data, label):
+    # resize from 28 x 28 to 224 x 224
+    data = image.imresize(data, 224, 224) 
+    return utils.transform_mnist(data, label)
 
-## Softmax交叉熵损失
-
-```{.python .input}
-softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
-```
-
-## 表现评估
-
-```{.python .input}
-def evaluate_accuracy(data_iterator, net):
-    acc = mx.metric.Accuracy()
-    for d, l in data_iterator:
-        data = d.as_in_context(ctx)
-        label = l.as_in_context(ctx)
-        output = net(data)
-        predictions = nd.argmax(output, axis=1)
-        acc.update(preds=predictions, labels=label)
-    return acc.get()[1]
+batch_size = 64
+train_data, test_data = utils.load_data_fashion_mnist(
+    batch_size, transform)
 ```
 
 ## 训练
 
-```{.python .input}
-###########################
-#  Only one epoch so tests can run quickly, increase this variable to actually run
-###########################
-epochs = 1
-smoothing_constant = .01
+这时候我们可以开始训练。相对于前面的LeNet，我们做了如下两个改动：
 
+1. 我们使用`Xavier`来初始化参数
+2. 使用了更小的学习率
+3. 默认迭代更多轮
 
-for e in range(epochs):
-    for i, (d, l) in enumerate(train_data):
-        data = d.as_in_context(ctx)
-        label = l.as_in_context(ctx)
+```{.python .input  n=3}
+from mxnet import autograd 
+from mxnet import gluon
+from mxnet import nd
+from mxnet import init
+ctx = utils.try_gpu()
+net.initialize(ctx=ctx, init=init.Xavier())
+
+softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
+trainer = gluon.Trainer(
+    net.collect_params(), 'sgd', {'learning_rate': 0.01})
+
+for epoch in range(10):
+    train_loss = 0.
+    train_acc = 0.
+    for i, (data, label) in enumerate(train_data):
+        label = label.as_in_context(ctx)
         with autograd.record():
-            output = alex_net(data)
+            output = net(data.as_in_context(ctx))
             loss = softmax_cross_entropy(output, label)
         loss.backward()
-        trainer.step(data.shape[0])
+        trainer.step(batch_size)
 
-        ##########################
-        #  Keep a moving average of the losses
-        ##########################
-        curr_loss = loss.mean().asscalar()
-        moving_loss = (curr_loss if ((i == 0) and (e == 0))
-                       else (1 - smoothing_constant) * moving_loss + (smoothing_constant) * curr_loss)
+        train_loss += nd.mean(loss).asscalar()
+        train_acc += utils.accuracy(output, label)
 
-    test_accuracy = evaluate_accuracy(test_data, alex_net)
-    train_accuracy = evaluate_accuracy(train_data, alex_net)
-    print("Epoch %s. Loss: %s, Train_acc %s, Test_acc %s" % (e, moving_loss, train_accuracy, test_accuracy))
+    test_acc = utils.evaluate_accuracy(test_data, net, ctx)
+    print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
+        epoch, train_loss/len(train_data), 
+        train_acc/len(train_data), test_acc))
+```
+
+```{.json .output n=3}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Epoch 0. Loss: 1.000072, Train acc 0.625900, Test acc 0.784634\nEpoch 1. Loss: 0.536894, Train acc 0.800290, Test acc 0.844248\nEpoch 2. Loss: 0.442049, Train acc 0.837886, Test acc 0.863256\nEpoch 3. Loss: 0.389956, Train acc 0.858009, Test acc 0.875896\nEpoch 4. Loss: 0.357653, Train acc 0.869703, Test acc 0.881469\nEpoch 5. Loss: 0.334270, Train acc 0.878115, Test acc 0.893909\nEpoch 6. Loss: 0.315352, Train acc 0.884412, Test acc 0.893312\nEpoch 7. Loss: 0.301429, Train acc 0.889109, Test acc 0.896895\nEpoch 8. Loss: 0.287238, Train acc 0.894873, Test acc 0.904956\nEpoch 9. Loss: 0.274960, Train acc 0.899337, Test acc 0.907345\n"
+ }
+]
 ```
 
 ## 结论
-TODO@mli
+
+从LeNet到Alexnet，虽然学术界花了20多年，但实现起来也就多了一行而已。
+
+## 练习
+
+- 找出`Xavier`具体是怎么初始化的，跟默认的比有什么区别
+- 尝试将训练的参数改回到LeNet看看会发生什么？想想看为什么？
+- 试试从0开始实现看看？
 
 **吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1228)
