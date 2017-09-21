@@ -59,36 +59,10 @@ A = nd.arange(6).reshape((3,2))
 A
 ```
 
-```{.json .output n=2}
-[
- {
-  "data": {
-   "text/plain": "\n[[ 0.  1.]\n [ 2.  3.]\n [ 4.  5.]]\n<NDArray 3x2 @cpu(0)>"
-  },
-  "execution_count": 2,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 我们希望批量中的每一列都被归一化。结果符合预期。
 
 ```{.python .input  n=3}
 pure_batch_norm(A, gamma=nd.array([1,1]), beta=nd.array([0,0]))
-```
-
-```{.json .output n=3}
-[
- {
-  "data": {
-   "text/plain": "\n[[-1.22474265 -1.22474265]\n [ 0.          0.        ]\n [ 1.22474265  1.22474265]]\n<NDArray 3x2 @cpu(0)>"
-  },
-  "execution_count": 3,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 下面我们定义二维卷积网络层的输入是这样的。
@@ -98,36 +72,10 @@ B = nd.arange(18).reshape((1,2,3,3))
 B
 ```
 
-```{.json .output n=4}
-[
- {
-  "data": {
-   "text/plain": "\n[[[[  0.   1.   2.]\n   [  3.   4.   5.]\n   [  6.   7.   8.]]\n\n  [[  9.  10.  11.]\n   [ 12.  13.  14.]\n   [ 15.  16.  17.]]]]\n<NDArray 1x2x3x3 @cpu(0)>"
-  },
-  "execution_count": 4,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 结果也如预期那样，我们对每个通道做了归一化。
 
 ```{.python .input  n=5}
 pure_batch_norm(B, gamma=nd.array([1,1]), beta=nd.array([0,0]))
-```
-
-```{.json .output n=5}
-[
- {
-  "data": {
-   "text/plain": "\n[[[[-1.54919219 -1.1618942  -0.7745961 ]\n   [-0.38729805  0.          0.38729805]\n   [ 0.7745961   1.1618942   1.54919219]]\n\n  [[-1.54919219 -1.1618942  -0.7745961 ]\n   [-0.38729805  0.          0.38729805]\n   [ 0.7745961   1.1618942   1.54919219]]]]\n<NDArray 1x2x3x3 @cpu(0)>"
-  },
-  "execution_count": 5,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 ## 批量归一化层
@@ -147,19 +95,6 @@ a = nd.array((1,2,3))
 b = a.reshape((1,3))
 b[:] = 2
 a
-```
-
-```{.json .output n=6}
-[
- {
-  "data": {
-   "text/plain": "\n[ 2.  2.  2.]\n<NDArray 3 @cpu(0)>"
-  },
-  "execution_count": 6,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 ```{.python .input  n=7}
@@ -206,19 +141,6 @@ sys.path.append('..')
 import utils
 ctx = utils.try_gpu()
 ctx
-```
-
-```{.json .output n=8}
-[
- {
-  "data": {
-   "text/plain": "gpu(0)"
-  },
-  "execution_count": 8,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 先定义参数。
@@ -333,16 +255,6 @@ for epoch in range(5):
     test_acc = utils.evaluate_accuracy(test_data, net, ctx)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
             epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
-```
-
-```{.json .output n=11}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "Epoch 0. Loss: 2.147481, Train acc 0.178408, Test acc 0.643457\nEpoch 1. Loss: 0.607631, Train acc 0.765281, Test acc 0.840234\nEpoch 2. Loss: 0.417004, Train acc 0.844886, Test acc 0.875586\nEpoch 3. Loss: 0.350738, Train acc 0.870656, Test acc 0.873633\nEpoch 4. Loss: 0.312399, Train acc 0.883760, Test acc 0.878516\n"
- }
-]
 ```
 
 ## 总结

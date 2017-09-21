@@ -43,16 +43,6 @@ net.initialize(mx.init.Normal(sigma=0.01), ctx=ctx)
 print('initialize weight on', ctx)
 ```
 
-```{.json .output n=2}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "initialize weight on gpu(0)\n"
- }
-]
-```
-
 这里训练并测试模型。
 
 ```{.python .input  n=3}
@@ -82,16 +72,6 @@ for epoch in range(5):
     test_acc = utils.evaluate_accuracy(test_data, net, ctx)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
             epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
-```
-
-```{.json .output n=3}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "Epoch 0. Loss: 0.685993, Train acc 0.738990, Test acc 0.837402\nEpoch 1. Loss: 0.388239, Train acc 0.855801, Test acc 0.875879\nEpoch 2. Loss: 0.324464, Train acc 0.879693, Test acc 0.887793\nEpoch 3. Loss: 0.287061, Train acc 0.893822, Test acc 0.901367\nEpoch 4. Loss: 0.266674, Train acc 0.901230, Test acc 0.899512\n"
- }
-]
 ```
 
 ## 总结
