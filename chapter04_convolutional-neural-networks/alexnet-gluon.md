@@ -121,11 +121,11 @@ train_data, test_data = utils.load_data_fashion_mnist(
 
 ## 训练
 
-这时候我们可以开始训练。相对于前面的LeNet，我们做了如下两个改动：
+这时候我们可以开始训练。相对于前面的LeNet，我们做了如下三个改动：
 
 1. 我们使用`Xavier`来初始化参数
 2. 使用了更小的学习率
-3. 默认迭代更多轮
+3. 默认只迭代一轮（这样网页编译快一点）
 
 ```{.python .input  n=3}
 from mxnet import autograd 
@@ -139,7 +139,7 @@ softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 trainer = gluon.Trainer(
     net.collect_params(), 'sgd', {'learning_rate': 0.01})
 
-for epoch in range(10):
+for epoch in range(1):
     train_loss = 0.
     train_acc = 0.
     for i, (data, label) in enumerate(train_data):
@@ -159,24 +159,16 @@ for epoch in range(10):
         train_acc/len(train_data), test_acc))
 ```
 
-```{.json .output n=3}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "Epoch 0. Loss: 1.000072, Train acc 0.625900, Test acc 0.784634\nEpoch 1. Loss: 0.536894, Train acc 0.800290, Test acc 0.844248\nEpoch 2. Loss: 0.442049, Train acc 0.837886, Test acc 0.863256\nEpoch 3. Loss: 0.389956, Train acc 0.858009, Test acc 0.875896\nEpoch 4. Loss: 0.357653, Train acc 0.869703, Test acc 0.881469\nEpoch 5. Loss: 0.334270, Train acc 0.878115, Test acc 0.893909\nEpoch 6. Loss: 0.315352, Train acc 0.884412, Test acc 0.893312\nEpoch 7. Loss: 0.301429, Train acc 0.889109, Test acc 0.896895\nEpoch 8. Loss: 0.287238, Train acc 0.894873, Test acc 0.904956\nEpoch 9. Loss: 0.274960, Train acc 0.899337, Test acc 0.907345\n"
- }
-]
-```
-
 ## 结论
 
-从LeNet到Alexnet，虽然学术界花了20多年，但实现起来也就多了一行而已。
+从LeNet到Alexnet，虽然学术界花了20多年，但实现起来也就多了几行而已。
 
 ## 练习
 
+- 多迭代几轮看看？跟LeNet比有什么区别？为什么？（提示：看看[欠拟合和过拟合](./chapter02_supervised-learning/underfit-overfit.md)的那几张图）
 - 找出`Xavier`具体是怎么初始化的，跟默认的比有什么区别
 - 尝试将训练的参数改回到LeNet看看会发生什么？想想看为什么？
 - 试试从0开始实现看看？
+
 
 **吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1228)
