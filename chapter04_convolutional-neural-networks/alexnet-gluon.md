@@ -142,7 +142,7 @@ trainer = gluon.Trainer(
 for epoch in range(1):
     train_loss = 0.
     train_acc = 0.
-    for i, (data, label) in enumerate(train_data):
+    for data, label in train_data:
         label = label.as_in_context(ctx)
         with autograd.record():
             output = net(data.as_in_context(ctx))
