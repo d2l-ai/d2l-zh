@@ -14,7 +14,7 @@ import tarfile
 from zipfile import ZipFile
 
 # timeout in second to evaluate a notebook
-timeout = 300
+timeout = 1000
 # limit the number of lines in a cell output
 max_output_length = 500
 # the files will be ingored for execution
