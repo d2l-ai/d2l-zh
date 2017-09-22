@@ -62,7 +62,7 @@ dropout(A, 1.0)
 
 ![](../img/dropout.png)
 
-我们在之前的章节里介绍过[随机梯度下降算法](.linear-regression-scratch.md)：我们在训练神经网络模型时一般随机采样一个批量的训练数
+我们在之前的章节里介绍过[随机梯度下降算法](linear-regression-scratch.md)：我们在训练神经网络模型时一般随机采样一个批量的训练数
 据。丢弃法实质上是对每一个这样的数据集分别训练一个原神经网络子集的分类器。与一般的集成学习不同，这里每个原神经网络子集的分类器用的是同一套参数。因此丢弃法只是在
 模拟集成学习。
 
@@ -85,7 +85,7 @@ train_data, test_data = utils.load_data_fashion_mnist(batch_size)
 
 ## 含两个隐藏层的多层感知机
 
-[多层感知机](.mlp-scratch.md)已经在之前章节里介绍。与[之前章节](.mlp-scratch.md)不同，这里我们定义一个包含两个隐含层的模型
+[多层感知机](mlp-scratch.md)已经在之前章节里介绍。与[之前章节](mlp-scratch.md)不同，这里我们定义一个包含两个隐含层的模型
 ，两个隐含层都输出256个节点。我们定义激活函数Relu并直接使用Gluon提供的交叉熵损失函数。
 
 ```{.python .input  n=2}
