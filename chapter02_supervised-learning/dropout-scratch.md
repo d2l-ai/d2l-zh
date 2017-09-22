@@ -1,7 +1,6 @@
 # 丢弃法 --- 从0开始
 
-前面我们介绍了多层神经网络，就是包含至少一个隐含层的网络。我们也介绍了正则法来应对过拟合问题。在深度学习中，一个常用的应对过拟合问题的方法叫做丢弃法。本节以多层
-神经网络为例，从0开始介绍丢弃法。
+前面我们介绍了多层神经网络，就是包含至少一个隐含层的网络。我们也介绍了正则法来应对过拟合问题。在深度学习中，一个常用的应对过拟合问题的方法叫做丢弃法（Dropout）。本节以多层神经网络为例，从0开始介绍丢弃法。
 
 由于丢弃法的概念和实现非常容易，在本节中，我们先介绍丢弃法的概念以及它在现代神经网络中是如何实现的。然后我们一起探讨丢弃法的本质。
 
@@ -20,6 +19,8 @@
 丢弃法的实现很容易，例如像下面这样。这里的标量`drop_probability`定义了一个`X`（`NDArray`类）中任何一个元素被丢弃的概率。
 
 ```{.python .input}
+from mxnet import nd
+
 def dropout(X, drop_probability):
     keep_probability = 1 - drop_probability
     assert 0 <= keep_probability <= 1
@@ -28,8 +29,9 @@ def dropout(X, drop_probability):
         return X.zeros_like()
     
     # 随机选择一部分该层的输出作为丢弃元素。
-    mask = nd.random_uniform(0, 1.0, X.shape, ctx=X.context) < keep_probability
-    # 这里keep_probability必不为0。
+    mask = nd.random.uniform(
+        0, 1.0, X.shape, ctx=X.context) < keep_probability
+    # 保证 E[dropout(X)] == X
     scale =  1 / keep_probability 
     return mask * X * scale
 ```
@@ -37,8 +39,6 @@ def dropout(X, drop_probability):
 我们运行几个实例来验证一下。
 
 ```{.python .input}
-from mxnet import ndarray as nd
-
 A = nd.arange(20).reshape((5,4))
 dropout(A, 0.0)
 ```
@@ -109,12 +109,6 @@ params = [W1, b1, W2, b2, W3, b3]
 
 for param in params:
     param.attach_grad()
-    
-def relu(X):
-    return nd.maximum(X, 0)
-
-from mxnet import gluon
-softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 ```
 
 ## 定义包含丢弃层的模型
@@ -129,15 +123,14 @@ drop_prob2 = 0.5
 def net(X):
     X = X.reshape((-1, num_inputs))
     # 第一层全连接。
-    h1 = relu(nd.dot(X, W1) + b1)
+    h1 = nd.relu(nd.dot(X, W1) + b1)
     # 在第一层全连接后添加丢弃层。
     h1 = dropout(h1, drop_prob1)
     # 第二层全连接。
-    h2 = relu(nd.dot(h1, W2) + b2)
+    h2 = nd.relu(nd.dot(h1, W2) + b2)
     # 在第二层全连接后添加丢弃层。
     h2 = dropout(h2, drop_prob2)
-    output = nd.dot(h2, W3) + b3
-    return output
+    return nd.dot(h2, W3) + b3
 ```
 
 ## 训练
@@ -145,7 +138,10 @@ def net(X):
 训练跟之前一样。
 
 ```{.python .input  n=8}
-from mxnet import autograd as autograd
+from mxnet import autograd
+from mxnet import gluon
+
+softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 
 learning_rate = .5
 
@@ -164,7 +160,8 @@ for epoch in range(5):
 
     test_acc = utils.evaluate_accuracy(test_data, net)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-        epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
+        epoch, train_loss/len(train_data), 
+        train_acc/len(train_data), test_acc))
 ```
 
 ## 总结

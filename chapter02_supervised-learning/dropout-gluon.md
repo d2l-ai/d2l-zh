@@ -9,23 +9,23 @@
 更靠近输入层的元素丢弃概率设的更小一点。这个试验中，我们把第一层全连接后的元素丢弃概率设为0.2，把第二层全连接后的元素丢弃概率设为0.5。
 
 ```{.python .input  n=5}
-from mxnet import gluon
+from mxnet.gluon import nn
 
-net = gluon.nn.Sequential()
+net = nn.Sequential()
 drop_prob1 = 0.2
 drop_prob2 = 0.5
 
 with net.name_scope():
-    net.add(gluon.nn.Flatten())
+    net.add(nn.Flatten())
     # 第一层全连接。
-    net.add(gluon.nn.Dense(256, activation="relu"))
+    net.add(nn.Dense(256, activation="relu"))
     # 在第一层全连接后添加丢弃层。
-    net.add(gluon.nn.Dropout(drop_prob1))
+    net.add(nn.Dropout(drop_prob1))
     # 第二层全连接。
-    net.add(gluon.nn.Dense(256, activation="relu"))
+    net.add(nn.Dense(256, activation="relu"))
     # 在第二层全连接后添加丢弃层。
-    net.add(gluon.nn.Dropout(drop_prob2))
-    net.add(gluon.nn.Dense(10))
+    net.add(nn.Dropout(drop_prob2))
+    net.add(nn.Dense(10))
 net.initialize()
 ```
 
@@ -36,16 +36,17 @@ net.initialize()
 ```{.python .input  n=6}
 import sys
 sys.path.append('..')
-from mxnet import ndarray as nd
-from mxnet import autograd
 import utils
-
+from mxnet import nd
+from mxnet import autograd
+from mxnet import gluon
 
 batch_size = 256
 train_data, test_data = utils.load_data_fashion_mnist(batch_size)
 
 softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
-trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.5})
+trainer = gluon.Trainer(net.collect_params(), 
+                        'sgd', {'learning_rate': 0.5})
 
 for epoch in range(5):
     train_loss = 0.
@@ -62,7 +63,8 @@ for epoch in range(5):
 
     test_acc = utils.evaluate_accuracy(test_data, net)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-        epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
+        epoch, train_loss/len(train_data), 
+        train_acc/len(train_data), test_acc))
 ```
 
 ## 结论
