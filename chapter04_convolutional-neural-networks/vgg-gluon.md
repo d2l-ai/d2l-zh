@@ -116,3 +116,5 @@ for epoch in range(1):
 ## 练习
 
 尝试下构造VGG其他常用模型，例如VGG16， VGG19. （提示：可以参考[VGG论文](https://arxiv.org/abs/1409.1556)里的表1。）
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1277)
