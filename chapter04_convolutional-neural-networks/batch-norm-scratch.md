@@ -257,3 +257,5 @@ for epoch in range(5):
 ## 练习
 
 尝试调大学习率，看看跟前面比，是不是可以使用更大的学习率。
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1253)

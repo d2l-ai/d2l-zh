@@ -81,3 +81,5 @@ print(net2(x))
 ## 总结
 
 通过`load_params`和`save_params`可以很方便的读写模型参数。
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1255)

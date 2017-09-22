@@ -79,3 +79,5 @@ for epoch in range(5):
 ## 练习
 
 如果在全连接层添加批量归一化结果会怎么样？
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1254)

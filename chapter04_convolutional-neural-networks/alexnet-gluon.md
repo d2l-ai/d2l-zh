@@ -171,4 +171,4 @@ for epoch in range(1):
 - 试试从0开始实现看看？
 
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1228)
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1258)

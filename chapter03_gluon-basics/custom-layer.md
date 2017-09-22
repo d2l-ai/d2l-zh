@@ -128,3 +128,5 @@ net(nd.random.uniform(shape=(2,64)))
 
 1. 怎么修改自定义层里参数的默认初始化函数。
 1. (这个比较难），在一个代码Cell里面输入`nn.Dense??`，看看它是怎么实现的。为什么它就可以支持延迟初始化了。
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1256)
