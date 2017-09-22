@@ -74,3 +74,5 @@ for epoch in range(5):
 ## 练习
 
 - 尝试不同元素丢弃概率参数组合，看看结果有什么不同。
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1279)
