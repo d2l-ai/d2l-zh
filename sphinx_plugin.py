@@ -18,7 +18,7 @@ timeout = 300
 # limit the number of lines in a cell output
 max_output_length = 500
 # the files will be ingored for execution
-ignore_execution = ['alexnet']
+ignore_execution = []
 
 def _replace_ext(fname, new_ext):
     """replace the file extension in a filename"""
