@@ -12,9 +12,9 @@ from mxnet.gluon import nn
 def vgg_block(num_convs, channels):
     out = nn.Sequential()
     for _ in range(num_convs):
-        out.add(nn.Conv2D(channels=channels, kernel_size=3, 
+        out.add(nn.Conv2D(channels=channels, kernel_size=3,
                           padding=1, activation='relu'))
-    out.add(nn.MaxPool2D(pool_size=2, strides=2))  
+    out.add(nn.MaxPool2D(pool_size=2, strides=2))
     return out
 ```
 
@@ -70,14 +70,14 @@ from mxnet import image
 
 def transform(data, label):
     # resize from 28 x 28 to 96 x 96
-    data = image.imresize(data, 96, 96) 
+    data = image.imresize(data, 96, 96)
     return utils.transform_mnist(data, label)
 
 batch_size = 64
 train_data, test_data = utils.load_data_fashion_mnist(
     batch_size, transform)
 
-from mxnet import autograd 
+from mxnet import autograd
 from mxnet import gluon
 from mxnet import nd
 from mxnet import init
@@ -101,10 +101,10 @@ for epoch in range(1):
 
         train_loss += nd.mean(loss).asscalar()
         train_acc += utils.accuracy(output, label)
-        
+
     test_acc = utils.evaluate_accuracy(test_data, net, ctx)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-        epoch, train_loss/len(train_data), 
+        epoch, train_loss/len(train_data),
         train_acc/len(train_data), test_acc))
 ```
 
@@ -119,3 +119,5 @@ for epoch in range(1):
 - 尝试下构造VGG其他常用模型，例如VGG16， VGG19. （提示：可以参考[VGG论文](https://arxiv.org/abs/1409.1556)里的表1。）
 - 把图片从默认的$224\times 224$降到$96\times 96$有什么影响？
 
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1277)
