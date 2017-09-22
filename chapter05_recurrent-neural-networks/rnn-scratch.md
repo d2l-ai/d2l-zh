@@ -102,11 +102,11 @@ for data, label in data_iter(batch_size=3, seq_len=8):
 
 首先回忆下单隐层的前馈神经网络的定义，假设隐层的激活函数是$\phi$，那么这个隐层的输出就是
 
-$$H = \phi(X W_{wh}) + b_h$$
+$$H = \phi(X W_{wh} + b_h)$$
 
 最终的输出是
 
-$$\hat{Y} = \text{softmax}(H W_{hy}) + b_y$$
+$$\hat{Y} = \text{softmax}(H W_{hy} + b_y)$$
 
 （跟[多层感知机](../chapter02_multilayer-neural-network/mlp-scratch.md)相比，这里我们把下标从$W_1$和$W_2$改成了意义更加明确的$W_{wh}$和$W_{hy}$)
 
