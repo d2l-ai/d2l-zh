@@ -69,8 +69,8 @@ import utils
 from mxnet import image
 
 def transform(data, label):
-    # resize from 28 x 28 to 224 x 224
-    data = image.imresize(data, 224, 224) 
+    # resize from 28 x 28 to 96 x 96
+    data = image.imresize(data, 96, 96) 
     return utils.transform_mnist(data, label)
 
 batch_size = 64
@@ -115,4 +115,7 @@ for epoch in range(1):
 
 ## 练习
 
-尝试下构造VGG其他常用模型，例如VGG16， VGG19. （提示：可以参考[VGG论文](https://arxiv.org/abs/1409.1556)里的表1。）
+- 尝试多跑几轮，看看跟LeNet/Alexnet比怎么样？
+- 尝试下构造VGG其他常用模型，例如VGG16， VGG19. （提示：可以参考[VGG论文](https://arxiv.org/abs/1409.1556)里的表1。）
+- 把图片从默认的$224\times 224$降到$96\times 96$有什么影响？
+
