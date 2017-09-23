@@ -120,8 +120,6 @@ ctx
 
 ```{.python .input  n=66}
 weight_scale = .01
-num_outputs = 10
-num_fc = 128
 
 # output channels = 20, kernel = (5,5)
 W1 = nd.random_normal(shape=(20,1,5,5), scale=weight_scale, ctx=ctx)

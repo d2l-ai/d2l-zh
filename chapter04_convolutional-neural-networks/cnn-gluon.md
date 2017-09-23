@@ -7,17 +7,17 @@
 下面是LeNet在Gluon里的实现，注意到我们不再需要实现去计算每层的输入大小，尤其是接在卷积后面的那个全连接层。
 
 ```{.python .input}
-from mxnet import gluon
+from mxnet.gluon import nn
 
-net = gluon.nn.Sequential()
+net = nn.Sequential()
 with net.name_scope():
-    net.add(gluon.nn.Conv2D(channels=20, kernel_size=5, activation='relu'))
-    net.add(gluon.nn.MaxPool2D(pool_size=2, strides=2))
-    net.add(gluon.nn.Conv2D(channels=50, kernel_size=3, activation='relu'))
-    net.add(gluon.nn.MaxPool2D(pool_size=2, strides=2))
-    net.add(gluon.nn.Flatten())
-    net.add(gluon.nn.Dense(128, activation="relu"))
-    net.add(gluon.nn.Dense(10))
+    net.add(nn.Conv2D(channels=20, kernel_size=5, activation='relu'))
+    net.add(nn.MaxPool2D(pool_size=2, strides=2))
+    net.add(nn.Conv2D(channels=50, kernel_size=3, activation='relu'))
+    net.add(nn.MaxPool2D(pool_size=2, strides=2))
+    net.add(nn.Flatten())
+    net.add(nn.Dense(128, activation="relu"))
+    net.add(nn.Dense(10))
 ```
 
 然后我们尝试将模型权重初始化在GPU上
@@ -38,7 +38,8 @@ print('initialize weight on', ctx)
 跟之前没什么两样。
 
 ```{.python .input}
-from mxnet import autograd as autograd
+from mxnet import autograd 
+from mxnet import gluon
 from mxnet import nd
 
 batch_size = 256
@@ -63,7 +64,8 @@ for epoch in range(5):
 
     test_acc = utils.evaluate_accuracy(test_data, net, ctx)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-            epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
+        epoch, train_loss/len(train_data), 
+        train_acc/len(train_data), test_acc))
 ```
 
 ## 结论
