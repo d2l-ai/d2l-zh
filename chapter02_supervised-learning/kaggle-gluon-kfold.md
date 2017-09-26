@@ -292,7 +292,7 @@ learn(epochs, verbose_epoch, X_train, y_train, test, learning_rate,
 
 再次温馨提醒，**目前Kaggle仅限每个账号一天以内10次提交结果的机会**。所以提交结果前务必三思。
 
-## 作业：
+## 作业（[汇报作业和查看其他小伙伴作业](https://discuss.gluon.ai/t/topic/1039)）：
 
 * 运行本教程，目前的模型在5折交叉验证上可以拿到什么样的loss？
 * 如果网络条件允许，在Kaggle提交本教程的预测结果。观察一下，这个结果能在Kaggle上拿到什么样的loss？
