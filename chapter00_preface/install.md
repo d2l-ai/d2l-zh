@@ -11,7 +11,7 @@
 
 ```bash
 mkdir gluon-tutorials && cd gluon-tutorials
-curl http://zh.gluon.ai/gluon_tutorials_zh.tar.gz -o tutorials.tar.gz
+curl https://zh.gluon.ai/gluon_tutorials_zh.tar.gz -o tutorials.tar.gz
 tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
 ```
 
