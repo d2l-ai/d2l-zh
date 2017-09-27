@@ -37,6 +37,18 @@ source activate gluon # 注意Windows下不需要 source
 jupyter notebook
 ```
 
+【可选项】国内用户可使用国内Gluon镜像加速数据集和预训练模型的下载
+Linux/OSX用户:
+```bash
+MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter notebook
+```
+
+Windows用户:
+```bash
+set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/
+jupyter notebook
+```
+
 ## 通过docker安装
 首先你需要下载并安装[docker](https://docs.docker.com/engine/installation/)。例如Linux下可以
 
