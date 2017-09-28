@@ -93,7 +93,6 @@ x = nd.random.normal(shape=(num_train + num_test, 1))
 X = nd.concat(x, nd.power(x, 2), nd.power(x, 3))
 y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_w[2] * X[:, 2] + true_b
 y += .1 * nd.random.normal(shape=y.shape)
-y_train, y_test = y[:num_train], y[num_train:]
 
 ('x:', x[:5], 'X:', X[:5], 'y:', y[:5])
 ```
@@ -109,9 +108,6 @@ y_train, y_test = y[:num_train], y[num_train:]
 import matplotlib as mpl
 mpl.rcParams['figure.dpi']= 120
 import matplotlib.pyplot as plt
-
-def test(net, X, y):
-    return square_loss(net(X), y).mean().asscalar()
 
 def train(X_train, X_test, y_train, y_test):
     # 线性回归模型
@@ -187,7 +183,7 @@ train(X[0:2, :], X[num_train:, :], y[0:2], y[num_train:])
 
 ## 练习
 
-1. 学渣、学痞、学痴、和学霸对应的模型复杂度、训练量、训练误差、泛化误差。 
+1. 学渣、学痞、学痴和学霸对应的模型复杂度、训练量、训练误差和泛化误差分别是怎样的？
 1. 如果用一个三阶多项式模型来拟合一个线性模型生成的数据，可能会有什么问题？为什么？
 1. 在我们本节提到的三阶多项式拟合问题里，有没有可能把1000个样本的训练误差的期望降到0，为什么？
 

@@ -21,12 +21,12 @@ def transform_mnist(data, label):
     return nd.transpose(data.astype('float32'), (2,0,1))/255, label.astype('float32')
 
 
-def load_data_fashion_mnist(batch_size):
+def load_data_fashion_mnist(batch_size, transform=transform_mnist):
     """download the fashion mnist dataest and then load into memory"""
     mnist_train = gluon.data.vision.FashionMNIST(
-        train=True, transform=transform_mnist)
+        train=True, transform=transform)
     mnist_test = gluon.data.vision.FashionMNIST(
-        train=False, transform=transform_mnist)
+        train=False, transform=transform)
     train_data = gluon.data.DataLoader(
         mnist_train, batch_size, shuffle=True)
     test_data = gluon.data.DataLoader(
