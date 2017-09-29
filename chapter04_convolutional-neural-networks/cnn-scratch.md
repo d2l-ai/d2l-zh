@@ -25,7 +25,7 @@
 from mxnet import nd
 
 # 输入输出数据格式是 batch x channel x height x width，这里batch和channel都是1
-# 权重格式是 input_filter x output_filter x height x width，这里input_filter和output_filter都是1。
+# 权重格式是 output_channels x in_channels x height x width，这里input_filter和output_filter都是1。
 w = nd.arange(4).reshape((1,1,2,2))
 b = nd.array([1])
 data = nd.arange(9).reshape((1,1,3,3))
