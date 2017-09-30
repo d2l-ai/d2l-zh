@@ -12,7 +12,7 @@
 
 我们先来看如何定义一个简单层，它不需要维护模型参数。事实上这个跟前面介绍的如何使用nn.Block没什么区别。下面代码定义一个层将输入减掉均值。
 
-```{.python .input  n=1}
+```{.python .input  n=130}
 from mxnet import nd
 from mxnet.gluon import nn
 
@@ -21,19 +21,42 @@ class CenteredLayer(nn.Block):
         super(CenteredLayer, self).__init__(**kwargs)
         
     def forward(self, x):
-        return x - x.mean()
+
+        mean = x.mean(1)
+        mean = nd.reshape(mean, shape=(-1,1))
+        print('x.shape', x.shape)
+        print('mean.shape', mean.shape)
+        return x - mean
 ```
 
 我们可以马上实例化这个层用起来。
 
-```{.python .input  n=2}
+```{.python .input  n=131}
 layer = CenteredLayer()
-layer(nd.array([1,2,3,4,5]))
+layer(nd.array([[1,2,3,4,5],[2,2,2,2,2]]))
+```
+
+```{.json .output n=131}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "x.shape (2, 5)\nmean.shape (2, 1)\n"
+ },
+ {
+  "data": {
+   "text/plain": "\n[[-2. -1.  0.  1.  2.]\n [ 0.  0.  0.  0.  0.]]\n<NDArray 2x5 @cpu(0)>"
+  },
+  "execution_count": 131,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
 我们也可以用它来构造更复杂的神经网络：
 
-```{.python .input  n=3}
+```{.python .input  n=134}
 net = nn.Sequential()
 with net.name_scope():
     net.add(nn.Dense(128))
@@ -43,10 +66,21 @@ with net.name_scope():
 
 确认下输出的均值确实是0：
 
-```{.python .input  n=4}
+```{.python .input  n=135}
 net.initialize()
 y = net(nd.random.uniform(shape=(4, 8)))
-y.mean()
+print(y)
+print(y.mean(1))
+```
+
+```{.json .output n=135}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "x.shape (4, 10)\nmean.shape (4, 1)\n\n[[-0.08396381 -0.02880126  0.0541558   0.00926547  0.03480531 -0.01350444\n  -0.06733967  0.08196212  0.00638181  0.00703867]\n [-0.04678153  0.0004136   0.02304956  0.00645918  0.00248067  0.00202846\n  -0.05513914  0.06010519 -0.02746085  0.03484484]\n [-0.07306895 -0.01641289  0.052403    0.00557444  0.01940816  0.00325631\n  -0.04989622  0.04705198  0.00757001  0.00411418]\n [-0.05802628 -0.0126581   0.03528056  0.00519801  0.01068282  0.00068626\n  -0.0592496   0.05717124  0.01727399  0.0036411 ]]\n<NDArray 4x10 @cpu(0)>\n\n[  3.72529035e-10  -3.72529035e-10  -1.86264518e-10  -1.39698392e-10]\n<NDArray 4 @cpu(0)>\n"
+ }
+]
 ```
 
 当然大部分情况你可以看不到一个实实在在的0，而是一个很小的数。例如`5.82076609e-11`。这是因为MXNet默认使用32位float，会带来一定的浮点精度误差。
