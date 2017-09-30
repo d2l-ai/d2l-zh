@@ -25,7 +25,7 @@
 from mxnet import nd
 
 # 输入输出数据格式是 batch x channel x height x width，这里batch和channel都是1
-# 权重格式是 input_filter x output_filter x height x width，这里input_filter和output_filter都是1。
+# 权重格式是 output_channels x in_channels x height x width，这里input_filter和output_filter都是1。
 w = nd.arange(4).reshape((1,1,2,2))
 b = nd.array([1])
 data = nd.arange(9).reshape((1,1,3,3))
@@ -34,7 +34,7 @@ out = nd.Convolution(data, w, b, kernel=w.shape[2:], num_filter=w.shape[1])
 print('input:', data, '\n\nweight:', w, '\n\nbias:', b, '\n\noutput:', out)
 ```
 
-我们可以控制如何移动窗口，和在边缘的时候如何填充窗口。下图演示了`stride=1`和`pad=1`。
+我们可以控制如何移动窗口，和在边缘的时候如何填充窗口。下图演示了`stride=2`和`pad=1`。
 
 ![](https://raw.githubusercontent.com/vdumoulin/conv_arithmetic/master/gif/padding_strides.gif)
 

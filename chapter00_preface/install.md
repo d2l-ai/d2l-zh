@@ -11,7 +11,7 @@
 
 ```bash
 mkdir gluon-tutorials && cd gluon-tutorials
-curl http://zh.gluon.ai/gluon_tutorials_zh.tar.gz -o tutorials.tar.gz
+curl https://zh.gluon.ai/gluon_tutorials_zh.tar.gz -o tutorials.tar.gz
 tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
 ```
 
@@ -34,6 +34,18 @@ source activate gluon # 注意Windows下不需要 source
 之后运行下面命令，然后浏览器打开[http://localhost:8888](http://localhost:8888)（通常会自动打开）就可以查看和运行各个教程了。
 
 ```bash
+jupyter notebook
+```
+
+【可选项】国内用户可使用国内Gluon镜像加速数据集和预训练模型的下载
+Linux/OSX用户:
+```bash
+MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter notebook
+```
+
+Windows用户:
+```bash
+set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/
 jupyter notebook
 ```
 
