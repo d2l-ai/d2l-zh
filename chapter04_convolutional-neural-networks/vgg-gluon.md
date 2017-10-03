@@ -69,16 +69,11 @@ with net.name_scope():
 import sys
 sys.path.append('..')
 import utils
-from mxnet import image
 from mxnet import gluon
+from mxnet import init
 
-def transform(data, label):
-    # resize from 28 x 28 to 96 x 96
-    data = image.imresize(data, 96, 96)
-    return utils.transform_mnist(data, label)
-batch_size = 64
 train_data, test_data = utils.load_data_fashion_mnist(
-    batch_size, transform)
+    batch_size=64, resize=96)
 
 ctx = utils.try_gpu()
 net.initialize(ctx=ctx, init=init.Xavier())

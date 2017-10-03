@@ -1,6 +1,7 @@
 from mxnet import gluon
 from mxnet import autograd
 from mxnet import nd
+from mxnet import image
 import mxnet as mx
 
 def SGD(params, lr):
@@ -17,17 +18,18 @@ def evaluate_accuracy(data_iterator, net, ctx=mx.cpu()):
         acc += accuracy(output, label.as_in_context(ctx))
     return acc / len(data_iterator)
 
-def transform_mnist(data, label):
-    # change data from height x weight x channel to channel x height x weight
-    return nd.transpose(data.astype('float32'), (2,0,1))/255, label.astype('float32')
-
-
-def load_data_fashion_mnist(batch_size, transform=transform_mnist):
+def load_data_fashion_mnist(batch_size, resize=None):
     """download the fashion mnist dataest and then load into memory"""
+    def transform_mnist(data, label):
+        if resize:
+            # resize to resize x resize
+            data = image.imresize(data, resize, resize)
+        # change data from height x weight x channel to channel x height x weight
+        return nd.transpose(data.astype('float32'), (2,0,1))/255, label.astype('float32')
     mnist_train = gluon.data.vision.FashionMNIST(
-        train=True, transform=transform)
+        train=True, transform=transform_mnist)
     mnist_test = gluon.data.vision.FashionMNIST(
-        train=False, transform=transform)
+        train=False, transform=transform_mnist)
     train_data = gluon.data.DataLoader(
         mnist_train, batch_size, shuffle=True)
     test_data = gluon.data.DataLoader(

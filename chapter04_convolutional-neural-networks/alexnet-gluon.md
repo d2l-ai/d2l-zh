@@ -109,16 +109,9 @@ Alexnet使用Imagenet数据，其中输入图片大小一般是$224 \times 224$�
 import sys
 sys.path.append('..')
 import utils
-from mxnet import image
 
-def transform(data, label):
-    # resize from 28 x 28 to 224 x 224
-    data = image.imresize(data, 224, 224) 
-    return utils.transform_mnist(data, label)
-
-batch_size = 64
 train_data, test_data = utils.load_data_fashion_mnist(
-    batch_size, transform)
+    batch_size=64, resize=224)
 ```
 
 ## 训练
@@ -130,6 +123,9 @@ train_data, test_data = utils.load_data_fashion_mnist(
 3. 默认只迭代一轮（这样网页编译快一点）
 
 ```{.python .input}
+from mxnet import init
+from mxnet import gluon
+
 ctx = utils.try_gpu()
 net.initialize(ctx=ctx, init=init.Xavier())
 
@@ -142,7 +138,7 @@ utils.train(train_data, test_data, net, loss,
 
 ## 结论
 
-从LeNet到Alexnet，虽然学术界花了20多年，但实现起来也就多了几行而已。
+从LeNet到Alexnet，虽然实现起来也就多了几行而已。但这个观念上的转变和真正跑出好实验结果，学术界整整花了20年。
 
 ## 练习
 
