@@ -1,5 +1,6 @@
-from mxnet import ndarray as nd
 from mxnet import gluon
+from mxnet import autograd
+from mxnet import nd
 import mxnet as mx
 
 def SGD(params, lr):
@@ -41,3 +42,33 @@ def try_gpu():
     except:
         ctx = mx.cpu()
     return ctx
+
+
+def train(train_data, test_data, net, loss, trainer, ctx, num_epochs, print_batches=None):
+    """Train a network"""
+    for epoch in range(num_epochs):
+        train_loss = 0.
+        train_acc = 0.
+        batch = 0
+        for data, label in train_data:
+            label = label.as_in_context(ctx)
+            with autograd.record():
+                output = net(data.as_in_context(ctx))
+                L = loss(output, label)
+            L.backward()
+
+            trainer.step(data.shape[0])
+
+            train_loss += nd.mean(L).asscalar()
+            train_acc += accuracy(output, label)
+
+            batch += 1
+            if print_batches and batch % print_batches == 0:
+                print("Batch %d. Loss: %f, Train acc %f" % (
+                    batch, train_loss/batch, train_acc/batch
+                ))
+
+        test_acc = evaluate_accuracy(test_data, net, ctx)
+        print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
+            epoch, train_loss/batch, train_acc/batch, test_acc
+        ))

@@ -103,7 +103,7 @@ train_data, test_data = load_data_fashion_mnist(batch_size)
 
 ## 定义模型
 
-因为卷积网络计算比全连接要复杂，这里我们默认使用GPU来计算。如果GPU不能用，默认使用CPU。
+因为卷积网络计算比全连接要复杂，这里我们默认使用GPU来计算。如果GPU不能用，默认使用CPU。（下面这段代码会保存在`utils.py`里可以下次重复使用）。
 
 ```{.python .input  n=65}
 import mxnet as mx
@@ -183,7 +183,7 @@ for data, _ in train_data:
 
 ## 训练
 
-跟前面没有什么不同的
+跟前面没有什么不同的，除了这里我们使用`as_in_context`将`data`和`label`都放置在需要的设备上。（下面这段代码也将保存在`utils.py`里方便之后使用）。
 
 ```{.python .input  n=60}
 from mxnet import autograd as autograd
@@ -210,7 +210,8 @@ for epoch in range(5):
 
     test_acc = evaluate_accuracy(test_data, net, ctx)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-            epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
+        epoch, train_loss/len(train_data), 
+        train_acc/len(train_data), test_acc))
 ```
 
 ## 结论

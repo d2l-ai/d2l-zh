@@ -11,61 +11,42 @@ from mxnet.gluon import nn
 
 net = nn.Sequential()
 with net.name_scope():
-    net.add(nn.Conv2D(channels=20, kernel_size=5, activation='relu'))
-    net.add(nn.MaxPool2D(pool_size=2, strides=2))
-    net.add(nn.Conv2D(channels=50, kernel_size=3, activation='relu'))
-    net.add(nn.MaxPool2D(pool_size=2, strides=2))
-    net.add(nn.Flatten())
-    net.add(nn.Dense(128, activation="relu"))
-    net.add(nn.Dense(10))
+    net.add(
+        nn.Conv2D(channels=20, kernel_size=5, activation='relu'),
+        nn.MaxPool2D(pool_size=2, strides=2),
+        nn.Conv2D(channels=50, kernel_size=3, activation='relu'),
+        nn.MaxPool2D(pool_size=2, strides=2),
+        nn.Flatten(),
+        nn.Dense(128, activation="relu"),
+        nn.Dense(10)
+    )
 ```
 
-然后我们尝试将模型权重初始化在GPU上
+# 获取数据和训练
+
+剩下的跟上一章没什么不同，我们重用`utils.py`里定义的函数。
 
 ```{.python .input}
+from mxnet import gluon
 import sys
 sys.path.append('..')
 import utils
 
+# 初始化
 ctx = utils.try_gpu()
 net.initialize(ctx=ctx)
-
 print('initialize weight on', ctx)
-```
 
-## 获取数据然后训练
-
-跟之前没什么两样。
-
-```{.python .input}
-from mxnet import autograd 
-from mxnet import gluon
-from mxnet import nd
-
+# 获取数据
 batch_size = 256
 train_data, test_data = utils.load_data_fashion_mnist(batch_size)
 
-softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
-trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.5})
-
-for epoch in range(5):
-    train_loss = 0.
-    train_acc = 0.
-    for data, label in train_data:
-        label = label.as_in_context(ctx)
-        with autograd.record():
-            output = net(data.as_in_context(ctx))
-            loss = softmax_cross_entropy(output, label)
-        loss.backward()
-        trainer.step(batch_size)
-
-        train_loss += nd.mean(loss).asscalar()
-        train_acc += utils.accuracy(output, label)
-
-    test_acc = utils.evaluate_accuracy(test_data, net, ctx)
-    print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-        epoch, train_loss/len(train_data), 
-        train_acc/len(train_data), test_acc))
+# 训练
+loss = gluon.loss.SoftmaxCrossEntropyLoss()
+trainer = gluon.Trainer(net.collect_params(), 
+                        'sgd', {'learning_rate': 0.5})
+utils.train(train_data, test_data, net, loss, 
+            trainer, ctx, num_epochs=5)
 ```
 
 ## 结论
