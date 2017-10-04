@@ -1,17 +1,10 @@
 # 实战Kaggle比赛——使用Gluon对原始图像文件分类（CIFAR-10）
 
 
-我们在[监督学习中的一章](../chapter02_supervised-learning/kaggle-gluon-
-kfold.md)里，以[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-t
-echniques)为例，介绍了如何使用``Gluon``来实战[Kaggle比赛](https://www.kaggle.com)。社区中的很多小伙伴实践了房
-价预测问题并[分享了自己的成绩和方法](https://discuss.gluon.ai/t/topic/1039)。有小伙伴[反馈希望增加Kaggle比赛章节
-](https://discuss.gluon.ai/t/topic/1341)。还有小伙伴[反馈希望提供对原始图像分类的例子](https://discuss
-.gluon.ai/t/topic/499)，例如输入格式是jpg或png而非教程中封装好的图像数据，这样甚至可能[更好地管理手机图片](https://dis
-cuss.gluon.ai/t/topic/1372)。
+我们在[监督学习中的一章](../chapter02_supervised-learning/kaggle-gluon-kfold.md)里，以[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)为例，介绍了如何使用``Gluon``来实战[Kaggle比赛](https://www.kaggle.com)。社区中的很多小伙伴实践了房价预测问题并[分享了自己的成绩和方法](https://discuss.gluon.ai/t/topic/1039)。有小伙伴[反馈希望增加Kaggle比赛章节](https://discuss.gluon.ai/t/topic/1341)。还有小伙伴[反馈希望提供对原始图像分类的例子](https://discuss.gluon.ai/t/topic/499)，例如输入格式是jpg或png而非教程中封装好的图像数据，这样甚至可能[更好地管理手机图片](https://discuss.gluon.ai/t/topic/1372)。
 
 
-有鉴于大家的反馈，我们在本章中选择了Kaggle中著名的[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10
-)。我们以该问题为例，为大家提供使用`Gluon`对原始图像文件进行分类的示例代码。
+有鉴于大家的反馈，我们在本章中选择了Kaggle中著名的[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)。我们以该问题为例，为大家提供使用`Gluon`对原始图像文件进行分类的示例代码。
 
 本章的示例代码主要分五部分：
 
@@ -34,9 +27,7 @@ cuss.gluon.ai/t/topic/1372)。
 
 ## Kaggle中的CIFAR-10原始图像分类问题
 
-[Kaggle](https://www.kaggle.com)是一个著名的供机器学习爱好者交流的平台。为了便于提交结果，请大家注册[Kaggle](https
-://www.kaggle.com)账号。然后请大家先点击[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-1
-0)了解有关本次比赛的信息。
+[Kaggle](https://www.kaggle.com)是一个著名的供机器学习爱好者交流的平台。为了便于提交结果，请大家注册[Kaggle](https://www.kaggle.com)账号。然后请大家先点击[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)了解有关本次比赛的信息。
 
 ![](../img/kaggle_cifar10.png)
 
@@ -61,20 +52,13 @@ cuss.gluon.ai/t/topic/1372)。
 
 * [训练数据集train.7z下载地址](https://www.kaggle.com/c/cifar-10/download/train.7z)
 * [测试数据集test.7z下载地址](https://www.kaggle.com/c/cifar-10/download/test.7z)
-* [训练数据标签trainLabels.csv下载地址](https://www.kaggle.com/c/cifar-10/download/trainLa
-bels.csv)
+* [训练数据标签trainLabels.csv下载地址](https://www.kaggle.com/c/cifar-10/download/trainLabels.csv)
 
 如果不登录Kaggle，比赛数据也可通过以下地址下载：
 
-* [训练数据集train.7z下载地址](https://apache-
-mxnet.s3-accelerate.dualstack.amazonaws.com/gluon/dataset/kaggle-
-cifar10/train.7z)
-* [测试数据集test.7z下载地址](https://apache-
-mxnet.s3-accelerate.dualstack.amazonaws.com/gluon/dataset/kaggle-
-cifar10/test.7z)
-* [训练数据标签trainLabels.csv下载地址](https://apache-
-mxnet.s3-accelerate.dualstack.amazonaws.com/gluon/dataset/kaggle-
-cifar10/trainLabels.csv)
+* [训练数据集train.7z下载地址](https://apache-mxnet.s3-accelerate.dualstack.amazonaws.com/gluon/dataset/kaggle-cifar10/train.7z)
+* [测试数据集test.7z下载地址](https://apache-mxnet.s3-accelerate.dualstack.amazonaws.com/gluon/dataset/kaggle-cifar10/test.7z)
+* [训练数据标签trainLabels.csv下载地址](https://apache-mxnet.s3-accelerate.dualstack.amazonaws.com/gluon/dataset/kaggle-cifar10/trainLabels.csv)
 
 
 ### 解压数据集
@@ -252,8 +236,7 @@ def get_net(ctx):
 
 ## 训练模型并调参
 
-在[过拟合](underfit-overfit.md)中我们讲过，过度依赖训练数据集的误差来推断测试数据集的误差容易导致过拟合。由于图像分类训练时间可能较长，为
-了方便，我们这里不再使用K折交叉验证，而是依赖验证集的结果来调参。
+在[过拟合](underfit-overfit.md)中我们讲过，过度依赖训练数据集的误差来推断测试数据集的误差容易导致过拟合。由于图像分类训练时间可能较长，为了方便，我们这里不再使用K折交叉验证，而是依赖验证集的结果来调参。
 
 我们定义模型训练函数。这里我们记录每个epoch的训练时间。这有助于我们比较不同模型设计的时间成本。
 
@@ -336,8 +319,7 @@ df.to_csv('submission.csv', index=False)
 ```
 
 上述代码执行完会生成一个`submission.csv`的文件用于在Kaggle上提交。这是Kaggle要求的提交格式。这时我们可以在Kaggle上把对测试集分
-类的结果提交并查看分类准确率。你需要登录Kaggle网站，打开[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar
--10)，并点击下方右侧`Late Submission`按钮。
+类的结果提交并查看分类准确率。你需要登录Kaggle网站，打开[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)，并点击下方右侧`Late Submission`按钮。
 
 ![](../img/kaggle_submit3.png)
 
@@ -352,7 +334,7 @@ df.to_csv('submission.csv', index=False)
 ## 作业（[汇报作业和查看其他小伙伴作业]()）：
 
 * 使用Kaggle完整CIFAR-10数据集，把batch_size和num_epochs都改为100，learning_rate改为0.1，可以拿到什么样的
-准确率？
+  准确率？
 * 你还有什么其他办法可以继续改进模型和参数？小伙伴们都期待你的分享。
 
 **吐槽和讨论欢迎点**[这里]()
