@@ -151,14 +151,14 @@ def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir, val
                     os.path.join(data_dir, input_dir, 'test', 'unknown'))
 ```
 
-为了使网页编译快一点，我们在这里仅仅使用1000个训练样本和100个测试样本。训练和测试数据的文件夹名称分别为'train_1000samples'和'test
-_100samples'。我们将10%的训练样本作为调参时的验证集。
+为了使网页编译快一点，我们在这里仅仅使用100个训练样本和1个测试样本。训练和测试数据的文件夹名称分别为'train_100samples'和'test
+_1sample'。我们将10%的训练样本作为调参时的验证集。
 
 ```{.python .input  n=2}
 # 注意：Kaggle的完整数据集应包括5万训练样本，此处为便于网页编译。
-train_dir = 'train_1000samples'
+train_dir = 'train_100samples'
 # 注意：Kaggle的完整数据集应包括30万测试样本，此处为便于网页编译。
-test_dir = 'test_100samples'
+test_dir = 'test_1sample'
 
 data_dir = '../data/kaggle_cifar10'
 label_file = 'trainLabels.csv'
@@ -184,7 +184,6 @@ def transform(data, label):
     return (nd.transpose(data.astype('float32'), (2,0,1)) / 255, 
             nd.array([label]).asscalar().astype('float32'))
 
-batch_size = 100
 input_str = data_dir + '/' + input_dir + '/'
 
 # 读取原始图像文件。flag=1说明输入图像有三个通道（彩色）。
@@ -196,6 +195,9 @@ train_valid_ds = vision.ImageFolderDataset(input_str + 'train_valid',
                                            flag=1, transform=transform)
 test_ds = vision.ImageFolderDataset(input_str + 'test', flag=1, 
                                      transform=transform)
+
+batch_size = 1
+assert min(len(train_ds), len(valid_ds), len(test_ds)) >= batch_size
 
 train_data = gluon.data.DataLoader(train_ds, batch_size, shuffle=True)
 valid_data = gluon.data.DataLoader(valid_ds, batch_size, shuffle=True)
@@ -295,9 +297,9 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx):
 
 我们将依据验证集的结果不断优化模型设计和调整参数。
 
-```{.python .input  n=3}
+```{.python .input  n=6}
 num_epochs = 1
-learning_rate = 0.1
+learning_rate = 0.001
 weight_decay = 5e-4
 
 import sys
@@ -309,21 +311,11 @@ net = get_net(ctx)
 train(net, train_data, valid_data, num_epochs, learning_rate, weight_decay, ctx)
 ```
 
-```{.json .output n=None}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "Epoch 0. Loss: 2.800513, Train acc 0.107778, Valid acc 0.100000, Time 00:01:13\n"
- }
-]
-```
-
 ## 对测试集分类
 
 当得到一组满意的模型设计和参数后，我们使用全部训练数据集（含验证集）重新训练模型，并对测试集分类。
 
-```{.python .input  n=6}
+```{.python .input  n=7}
 import numpy as np
 import pandas as pd
 
@@ -359,7 +351,8 @@ df.to_csv('submission.csv', index=False)
 
 ## 作业（[汇报作业和查看其他小伙伴作业]()）：
 
-* 运行本教程，把epoch次数改为100，可以拿到什么样的准确率？
+* 使用Kaggle完整CIFAR-10数据集，把batch_size和num_epochs都改为100，learning_rate改为0.1，可以拿到什么样的
+准确率？
 * 你还有什么其他办法可以继续改进模型和参数？小伙伴们都期待你的分享。
 
 **吐槽和讨论欢迎点**[这里]()
