@@ -43,19 +43,6 @@ y = blk(x)
 y.shape
 ```
 
-```{.json .output n=8}
-[
- {
-  "data": {
-   "text/plain": "(32, 64, 6, 6)"
-  },
-  "execution_count": 8,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 NiN的卷积层的参数跟Alexnet类似，使用三组不同的设定
 
 - kernel: $11\times 11$, channels: 96
@@ -105,16 +92,6 @@ trainer = gluon.Trainer(net.collect_params(),
                         'sgd', {'learning_rate': 0.1})
 utils.train(train_data, test_data, net, loss,
             trainer, ctx, num_epochs=1)
-```
-
-```{.json .output n=4}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "Epoch 0. Loss: 2.034576, Train acc 0.228228, Test acc 0.354797\n"
- }
-]
 ```
 
 ## 结论
