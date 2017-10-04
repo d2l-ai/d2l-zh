@@ -57,7 +57,7 @@ Sutskever实现的可以运行在GPU上的深度卷积网络成为重大突破�
 
 ## AlexNet
 
-2012年的时候，Khrizhevsky，Sutskever和Hinton凭借他们的cuda-convnet实现的8层卷积神经网络以很大的优势赢得了ImageNet图像识别挑战。他们在[这篇论文](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf)中的模型与1995年的LeNet结构*非常*相似。
+2012年的时候，Khrizhevsky，Sutskever和Hinton凭借他们的cuda-convnet实现的8层卷积神经网络以很大的优势赢得了ImageNet 2012图像识别挑战。他们在[这篇论文](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf)中的模型与1995年的LeNet结构*非常*相似。
 
 这个模型有一些显著的特征。第一，与相对较小的LeNet相比，AlexNet包含8层变换，其中有五层卷积和两层全连接隐含层，以及一个输出层。
 
