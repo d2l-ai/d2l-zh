@@ -167,11 +167,11 @@ utils.train(train_data, test_data, net, loss,
             trainer, ctx, num_epochs=1)
 ```
 
-# 结论
+## 结论
 
 GoogLeNet加入了更加结构化的Inception块来使得我们可以使用更大的通道，更多的层，同时控制计算量和模型大小在合理范围内。
 
-# 练习
+## 练习
 
 GoogLeNet有数个后续版本，尝试实现他们并运行看看有什么不一样
 
