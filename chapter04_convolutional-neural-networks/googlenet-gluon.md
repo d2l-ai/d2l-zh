@@ -8,7 +8,7 @@
 
 可以看到其中有多个四个并行卷积层的块。这个块一般叫做Inception，其基于[Network in network](./nin-gluon.md)的思想做了很大的改进。我们先看下如何定义一个下图所示的Inception块。
 
-![](../img/inception.jpg)
+![](../img/inception.svg)
 
 ```{.python .input}
 from mxnet.gluon import nn
