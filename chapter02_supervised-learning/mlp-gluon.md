@@ -6,20 +6,21 @@
 
 唯一的区别在这里，我们加了一行进来。
 
-```{.python .input  n=5}
+```{.python .input  n=7}
 from mxnet import gluon
 
 net = gluon.nn.Sequential()
 with net.name_scope():
     net.add(gluon.nn.Flatten())
     net.add(gluon.nn.Dense(256, activation="relu"))
+    net.add(gluon.nn.Dense(300, activation="relu"))
     net.add(gluon.nn.Dense(10))
 net.initialize()
 ```
 
 ## 读取数据并训练
 
-```{.python .input  n=6}
+```{.python .input  n=8}
 import sys
 sys.path.append('..')
 from mxnet import ndarray as nd
@@ -49,6 +50,16 @@ for epoch in range(5):
     test_acc = utils.evaluate_accuracy(test_data, net)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
         epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
+```
+
+```{.json .output n=8}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Epoch 0. Loss: 0.808453, Train acc 0.699789, Test acc 0.828516\nEpoch 1. Loss: 0.483568, Train acc 0.819249, Test acc 0.848340\nEpoch 2. Loss: 0.410657, Train acc 0.847146, Test acc 0.867090\nEpoch 3. Loss: 0.378187, Train acc 0.858195, Test acc 0.867188\nEpoch 4. Loss: 0.354629, Train acc 0.867841, Test acc 0.880078\n"
+ }
+]
 ```
 
 ## 结论

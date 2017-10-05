@@ -18,7 +18,7 @@
 
 丢弃法的实现很容易，例如像下面这样。这里的标量`drop_probability`定义了一个`X`（`NDArray`类）中任何一个元素被丢弃的概率。
 
-```{.python .input}
+```{.python .input  n=1}
 from mxnet import nd
 
 def dropout(X, drop_probability):
@@ -37,6 +37,20 @@ def dropout(X, drop_probability):
 ```
 
 我们运行几个实例来验证一下。
+
+```{.python .input  n=2}
+help(nd.Activation)
+```
+
+```{.json .output n=2}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Help on function Activation in module mxnet.ndarray:\n\nActivation(data=None, act_type=_Null, out=None, name=None, **kwargs)\n    Applies an activation function element-wise to the input.\n    \n    The following activation functions are supported:\n    \n    - `relu`: Rectified Linear Unit, :math:`y = max(x, 0)`\n    - `sigmoid`: :math:`y = \\frac{1}{1 + exp(-x)}`\n    - `tanh`: Hyperbolic tangent, :math:`y = \\frac{exp(x) - exp(-x)}{exp(x) + exp(-x)}`\n    - `softrelu`: Soft ReLU, or SoftPlus, :math:`y = log(1 + exp(x))`\n    \n    \n    \n    Defined in src/operator/activation.cc:L91\n    \n    Parameters\n    ----------\n    data : NDArray\n        Input array to activation function.\n    act_type : {'relu', 'sigmoid', 'softrelu', 'tanh'}, required\n        Activation function to be applied.\n    \n    out : NDArray, optional\n        The output NDArray to hold the result.\n    \n    Returns\n    -------\n    out : NDArray or list of NDArrays\n        The output of this function.\n\n"
+ }
+]
+```
 
 ```{.python .input}
 A = nd.arange(20).reshape((5,4))
