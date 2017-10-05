@@ -66,7 +66,7 @@ incp(x).shape
 
 ## 定义GoogLeNet
 
-GoogLeNet将数个Inception串联在一起。注意到原论文里使用了多个输出，为了简化我们这里就使用一个输出。
+GoogLeNet将数个Inception串联在一起。注意到原论文里使用了多个输出，为了简化我们这里就使用一个输出。为了可以更方便的查看数据在内部的形状变化，我们对每个块使用一个`nn.Sequential`，然后再把所有这些块连起来。
 
 ```{.python .input}
 class GoogLeNet(nn.Block):
@@ -133,6 +133,8 @@ class GoogLeNet(nn.Block):
                 print('Block %d output: %s'%(i+1, out.shape))
         return out    
 ```
+
+我们看一下每个块对输出的改变。
 
 ```{.python .input}
 net = GoogLeNet(10, verbose=True)

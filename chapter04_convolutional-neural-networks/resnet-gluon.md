@@ -24,8 +24,7 @@ ResNet通过增加跨层的连接来解决梯度逐层回传时变小的问题�
 
 ## Residual块
 
-ResNet沿用了VGG的那种全用$3\times 3$卷积，但在卷积和池化层之间加入了批量归一层来加速训练。每次跨层连接跨过两层卷积。这里我们定义一个这样的残差块。
-
+ResNet沿用了VGG的那种全用$3\times 3$卷积，但在卷积和池化层之间加入了批量归一层来加速训练。每次跨层连接跨过两层卷积。这里我们定义一个这样的残差块。注意到如果输入的通道数和输出不一样时（`same_shape=False`），我们使用一个额外的$1\times 1$卷积来做通道变化，同时使用`strides=2`来把长宽减半。 
 
 ```{.python .input  n=22}
 from mxnet.gluon import nn
@@ -36,22 +35,25 @@ class Residual(nn.Block):
         super(Residual, self).__init__(**kwargs)
         self.same_shape = same_shape
         with self.name_scope():
-            self.conv1 = nn.Conv2D(channels, kernel_size=3, padding=1)
+            strides = 1 if same_shape else 2
+            self.conv1 = nn.Conv2D(channels, kernel_size=3, padding=1, 
+                                  strides=strides)
             self.bn1 = nn.BatchNorm()
             self.conv2 = nn.Conv2D(channels, kernel_size=3, padding=1)
             self.bn2 = nn.BatchNorm()
             if not same_shape:
-                self.conv3 = nn.Conv2D(channels, kernel_size=1)
+                self.conv3 = nn.Conv2D(channels, kernel_size=1, 
+                                      strides=strides)
 
     def forward(self, x):
         out = nd.relu(self.bn1(self.conv1(x)))
-        out = nd.relu(self.bn2(self.conv2(x)))
+        out = nd.relu(self.bn2(self.conv2(out)))
         if not self.same_shape:
             x = self.conv3(x)
         return out + x
 ```
 
-测试1
+输入输出通道相同：
 
 ```{.python .input  n=23}
 blk = Residual(3)
@@ -61,20 +63,7 @@ x = nd.random.uniform(shape=(4, 3, 6, 6))
 blk(x).shape
 ```
 
-```{.json .output n=23}
-[
- {
-  "data": {
-   "text/plain": "(4, 3, 6, 6)"
-  },
-  "execution_count": 23,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
-测试2
+输入输出通道不同：
 
 ```{.python .input  n=24}
 blk2 = Residual(8, same_shape=False)
@@ -82,19 +71,103 @@ blk2.initialize()
 blk2(x).shape
 ```
 
-```{.json .output n=24}
-[
- {
-  "data": {
-   "text/plain": "(4, 8, 6, 6)"
-  },
-  "execution_count": 24,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 ## 构建ResNet
 
-未完成
+类似GoogLeNet主体是由Inception块串联而成，ResNet的主体部分串联多个Residual块。下面我们定义18层的ResNet。同样为了阅读更加容易，我们这里使用了多个`nn.Sequential`。另外注意到一点是，这里我们没用池化层来减小数据长宽，而是通过有通道变化的Residual块里面的使用`strides=2`的卷积层。
+
+```{.python .input}
+class ResNet(nn.Block):
+    def __init__(self, num_classes, verbose=False, **kwargs):
+        super(ResNet, self).__init__(**kwargs)
+        self.verbose = verbose
+        with self.name_scope():
+            # block 1
+            b1 = nn.Conv2D(64, kernel_size=7, strides=2)
+            # block 2
+            b2 = nn.Sequential()
+            b2.add(
+                nn.MaxPool2D(pool_size=3, strides=2),
+                Residual(64),
+                Residual(64)
+            )
+            # block 3
+            b3 = nn.Sequential()
+            b3.add(
+                Residual(128, same_shape=False),
+                Residual(128)
+            )
+            # block 4
+            b4 = nn.Sequential()
+            b4.add(
+                Residual(256, same_shape=False),
+                Residual(256)
+            )
+            # block 5
+            b5 = nn.Sequential()
+            b5.add(
+                Residual(512, same_shape=False),
+                Residual(512)
+            )
+            # block 6
+            b6 = nn.Sequential()
+            b6.add(
+                nn.AvgPool2D(pool_size=3),
+                nn.Dense(num_classes)
+            )
+            # chain all blocks together
+            self.net = nn.Sequential()
+            self.net.add(b1, b2, b3, b4, b5, b6)
+
+    def forward(self, x):
+        out = x
+        for i, b in enumerate(self.net):
+            out = b(out)
+            if self.verbose:
+                print('Block %d output: %s'%(i+1, out.shape))
+        return out     
+```
+
+这里演示数据在块之间的形状变化：
+
+```{.python .input}
+net = ResNet(10, verbose=True)
+net.initialize()
+
+x = nd.random.uniform(shape=(4, 3, 96, 96))
+y = net(x)
+```
+
+## 获取数据并训练
+
+跟前面类似，但因为有批量归一化，所以使用了较大的学习率。
+
+```{.python .input}
+import sys
+sys.path.append('..')
+import utils
+from mxnet import gluon
+from mxnet import init
+
+train_data, test_data = utils.load_data_fashion_mnist(
+    batch_size=64, resize=96)
+
+ctx = utils.try_gpu()
+net = ResNet(10)
+net.initialize(ctx=ctx, init=init.Xavier())
+
+loss = gluon.loss.SoftmaxCrossEntropyLoss()
+trainer = gluon.Trainer(net.collect_params(), 
+                        'sgd', {'learning_rate': 0.05})
+utils.train(train_data, test_data, net, loss,
+            trainer, ctx, num_epochs=1)
+```
+
+## 结论
+
+ResNet使用跨层通道使得训练非常深的卷积神经网络成为可能。同样它使用很简单的卷积层配置，使得其拓展更加简单。
+
+## 练习
+
+- 这里我们实现了ResNet 18，论文中还讨论了更深的配置。尝试实现它们。（提示：参考论文中的表1）
+- 论文中还介绍了一个“bottleneck”架构，尝试实现这个
+
