@@ -1,7 +1,9 @@
 # 实战Kaggle比赛——使用Gluon对原始图像文件分类（CIFAR-10）
 
 
-我们在[监督学习中的一章](../chapter02_supervised-learning/kaggle-gluon-kfold.md)里，以[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)为例，介绍了如何使用``Gluon``来实战[Kaggle比赛](https://www.kaggle.com)。社区中的很多小伙伴实践了房价预测问题并[分享了自己的成绩和方法](https://discuss.gluon.ai/t/topic/1039)。有小伙伴[反馈希望增加Kaggle比赛章节](https://discuss.gluon.ai/t/topic/1341)。还有小伙伴[反馈希望提供对原始图像分类的例子](https://discuss.gluon.ai/t/topic/499)，例如输入格式是jpg或png而非教程中封装好的图像数据，这样甚至可能[更好地管理手机图片](https://discuss.gluon.ai/t/topic/1372)。
+我们在[监督学习中的一章](../chapter02_supervised-learning/kaggle-gluon-kfold.md)里，以[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)为例，介绍了如何使用``Gluon``来实战[Kaggle比赛](https://www.kaggle.com)。社区中的很多小伙伴实践了房
+价预测问题并[分享了自己的成绩和方法](https://discuss.gluon.ai/t/topic/1039)。有小伙伴[反馈希望增加Kaggle比赛章节](https://discuss.gluon.ai/t/topic/1341)并[反馈希望多从直接与数据打交道中获得灵感](https://discuss.gluon.ai/t/topic/1519)。还有小伙伴[反馈希望提供对原始图像分类的例子](https://discuss.gluon.ai/t/topic/499)，
+例如输入格式是jpg或png而非教程中封装好的图像数据，这样甚至可能[更好地管理手机图片](https://discuss.gluon.ai/t/topic/1372)。
 
 
 有鉴于大家的反馈，我们在本章中选择了Kaggle中著名的[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)。我们以该问题为例，为大家提供使用`Gluon`对原始图像文件进行分类的示例代码。
@@ -35,8 +37,7 @@
 
 ## 整理原始数据集
 
-比赛数据分为训练数据集和测试数据集。训练集包含5万张图片。测试集包含30万张图片：其中有1万张图片用来计分，但为了防止人工标注测试集，里面另加了29万张不计分的
-图片。
+比赛数据分为训练数据集和测试数据集。训练集包含5万张图片。测试集包含30万张图片：其中有1万张图片用来计分，但为了防止人工标注测试集，里面另加了29万张不计分的图片。
 
 两个数据集都是png彩色图片，大小为$32\times 32 \times 3$。训练集一共有10类图片，分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车。
 
@@ -64,8 +65,7 @@
 ### 解压数据集
 
 训练数据集train.7z和测试数据集test.7z都是压缩格式，下载后请解压缩。假设解压缩后原始数据集的路径如下（data_dir是存放数据的路径，例如'..
-/data/kaggle_cifar10'，'train_dir'和'test_dir'分别是对train.7z和test.7z解压后的文件夹名称，例如'tra
-in'和'test'）：
+/data/kaggle_cifar10'，'train_dir'和'test_dir'分别是对train.7z和test.7z解压后的文件夹名称，例如'train'和'test'）：
 
 * data_dir/train_dir/1.png
 * data_dir/train_dir/...
@@ -75,6 +75,15 @@ in'和'test'）：
 * data_dir/test_dir/300000.png
 * data_dir/trainLabels.csv
 
+为了使网页编译快一点，我们在git repo里仅仅存放100个训练样本（'train_tiny.zip'）和1个测试样本（'test_tiny.zip'）。执行以下代码会从git repo里解压生成小样本训练和测试数据，文件夹名称分别为'train_tiny'和'test_tiny'。训练数据标签的压缩文件将被解压成trainLabels.csv。
+
+```{.python .input  n=1}
+# 本段代码仅为网页编译方便，无需本地执行。
+import zipfile
+for fin in ['train_tiny.zip', 'test_tiny.zip', 'trainLabels.csv.zip']:
+    with zipfile.ZipFile('../data/kaggle_cifar10/' + fin, 'r') as zin:
+        zin.extractall('../data/kaggle_cifar10/')
+```
 
 ### 整理数据集
 
@@ -135,39 +144,61 @@ def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir, val
                     os.path.join(data_dir, input_dir, 'test', 'unknown'))
 ```
 
-为了使网页编译快一点，我们在这里仅仅使用100个训练样本和1个测试样本。训练和测试数据的文件夹名称分别为'train_100samples'和'test
-_1sample'。我们将10%的训练样本作为调参时的验证集。
+再次强调，为了使网页编译快一点，我们在这里仅仅使用100个训练样本和1个测试样本。训练和测试数据的文件夹名称分别为'train_tiny'和'test_tiny
+'。相应地，我们仅将训练批量和测试批量大小分别设为10和1。实际训练和测试时应使用Kaggle的完整数据集。由于Kaggle的完整测试集样本数为30万，测试批量
+test_batch大小可设为一个较大的可被30万整除的数，例如100。由于训练集较大，训练批量train_batch大小可设为一个较大的整数，例如128。
 
-```{.python .input  n=2}
-# 注意：Kaggle的完整数据集应包括5万训练样本，此处为便于网页编译。
-train_dir = 'train_100samples'
-# 注意：Kaggle的完整数据集应包括30万测试样本，此处为便于网页编译。
-test_dir = 'test_1sample'
+我们将10%的训练样本作为调参时的验证集。
+
+```{.python .input  n=3}
+# 注意：此处使用小训练集为便于网页编译。Kaggle的完整数据集应包括5万训练样本。
+train_dir = 'train_tiny'
+# 注意：此处使用小测试集为便于网页编译。Kaggle的完整数据集应包括30万测试样本。
+test_dir = 'test_tiny'
+# 注意：此处对小训练集相应使用小训练批量。对Kaggle的完整训练集可设较大的整数，例如128。
+train_batch = 10
+# 注意：此处对小测试集相应使用小测试批量。对Kaggle的完整测试集可设较大的整数，例如100。
+test_batch = 1
 
 data_dir = '../data/kaggle_cifar10'
 label_file = 'trainLabels.csv'
-input_dir = 'train_valid_test'
+input_dir = 'train_valid_test_tiny'
 valid_ratio = 0.1
 reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir, valid_ratio)
 ```
 
 ## 使用Gluon读取整理后的数据集
 
-我们可以使用`Gluon`中的`ImageFolderDataset`类来读取整理后的数据集。
+为避免过拟合，我们在这里使用`image.CreateAugmenter`来加强数据集。例如我们设`rand_crop=True`和`rand_mirror=True`即可随机对每张图片做边切割和镜面反转。我们也通过`mean`和`std`对彩色图像RGB三个通道分别做[标准化](..chapter02_supervised-learning/kaggle-gluon-kfold.md)。以下我们列举了该函数里的所有参数，这些参数都是可以调的。
 
-```{.python .input  n=3}
+```{.python .input  n=4}
 from mxnet import autograd
 from mxnet import gluon
 from mxnet import image
 from mxnet import init
 from mxnet import nd
 from mxnet.gluon.data import vision
+import numpy as np
 
 def transform(data, label):
+    im = data.astype('float32') / 255
+    auglist = image.CreateAugmenter(data_shape=(3, 32, 32), resize=0, 
+                        rand_crop=True, rand_resize=False, rand_mirror=True,
+                        mean=np.array([0.4914, 0.4822, 0.4465]), 
+                        std=np.array([0.2023, 0.1994, 0.2010]), 
+                        brightness=0, contrast=0, 
+                        saturation=0, hue=0, 
+                        pca_noise=0, rand_gray=0, inter_method=2)
+    for aug in auglist:
+        im = aug(im)
     # 将数据格式从"高*宽*通道"改为"通道*高*宽"。
-    return (nd.transpose(data.astype('float32'), (2,0,1)) / 255, 
-            nd.array([label]).asscalar().astype('float32'))
+    im = nd.transpose(im, (2,0,1))
+    return (im, nd.array([label]).asscalar().astype('float32'))
+```
 
+接下来，我们可以使用`Gluon`中的`ImageFolderDataset`类来读取整理后的数据集。
+
+```{.python .input}
 input_str = data_dir + '/' + input_dir + '/'
 
 # 读取原始图像文件。flag=1说明输入图像有三个通道（彩色）。
@@ -180,8 +211,11 @@ train_valid_ds = vision.ImageFolderDataset(input_str + 'train_valid',
 test_ds = vision.ImageFolderDataset(input_str + 'test', flag=1, 
                                      transform=transform)
 
-batch_size = 1
-assert min(len(train_ds), len(valid_ds), len(test_ds)) >= batch_size
+batch_size = 100
+assert len(train_ds) >= train_batch 
+assert min(len(valid_ds), len(test_ds)) >= test_batch
+assert len(valid_ds) % test_batch == 0
+assert len(test_ds) % test_batch == 0
 
 train_data = gluon.data.DataLoader(train_ds, batch_size, shuffle=True)
 valid_data = gluon.data.DataLoader(valid_ds, batch_size, shuffle=True)
@@ -194,42 +228,74 @@ softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 
 ## 设计模型
 
-我们这里使用了[VGG-16模型](vgg-gluon.md)并有意做了一点改动。
+我们这里使用了[ResNet-18](resnet-gluon.md)模型。
 
 请注意：模型可以重新设计，参数也可以重新调整。
 
-```{.python .input  n=4}
+```{.python .input  n=5}
 from mxnet.gluon import nn
+from mxnet import nd
 
-def vgg_block(num_convs, channels):
-    out = nn.Sequential()
-    for i in range(num_convs):
-        out.add(nn.Conv2D(channels=channels, kernel_size=3, padding=1))
-        out.add(nn.BatchNorm(axis=1))
-        out.add(nn.Activation(activation='relu'))
-        if i < num_convs - 1:
-            out.add(nn.Dropout(0.4))
-    out.add(nn.MaxPool2D(pool_size=2, strides=2))
-    return out
+class Residual(nn.Block):
+    def __init__(self, channels, same_shape=True, **kwargs):
+        super(Residual, self).__init__(**kwargs)
+        self.same_shape = same_shape
+        with self.name_scope():
+            strides = 1 if same_shape else 2
+            self.conv1 = nn.Conv2D(channels, kernel_size=3, padding=1,
+                                  strides=strides)
+            self.bn1 = nn.BatchNorm()
+            self.conv2 = nn.Conv2D(channels, kernel_size=3, padding=1)
+            self.bn2 = nn.BatchNorm()
+            if not same_shape:
+                self.conv3 = nn.Conv2D(channels, kernel_size=1,
+                                      strides=strides)
 
-def vgg_stack(architecture):
-    out = nn.Sequential()
-    for (num_convs, channels) in architecture:
-        out.add(vgg_block(num_convs, channels))
-    return out
+    def forward(self, x):
+        out = nd.relu(self.bn1(self.conv1(x)))
+        out = self.bn2(self.conv2(out))
+        if not self.same_shape:
+            x = self.conv3(x)
+        return nd.relu(out + x)
+    
+
+class ResNet(nn.Block):
+    def __init__(self, num_classes, verbose=False, **kwargs):
+        super(ResNet, self).__init__(**kwargs)
+        self.verbose = verbose
+        with self.name_scope():
+            net = self.net = nn.Sequential()
+            # block 1
+            net.add(nn.Conv2D(channels=32, kernel_size=3, strides=1, padding=1))
+            net.add(nn.BatchNorm())
+            net.add(nn.Activation(activation='relu'))
+            # block 2
+            for _ in range(3):
+                net.add(Residual(channels=32))
+            # block 3
+            net.add(Residual(channels=64, same_shape=False))
+            for _ in range(2):
+                net.add(Residual(channels=64))
+            # block 4
+            net.add(Residual(channels=128, same_shape=False))
+            for _ in range(2):
+                net.add(Residual(channels=128))
+            # block 5
+            net.add(nn.AvgPool2D(pool_size=8))
+            net.add(nn.Flatten())
+            net.add(nn.Dense(num_classes))
+
+    def forward(self, x):
+        out = x
+        for i, b in enumerate(self.net):
+            out = b(out)
+            if self.verbose:
+                print('Block %d output: %s'%(i+1, out.shape))
+        return out
 
 def get_net(ctx):
     num_outputs = 10
-    architecture = ((2,64), (2,128), (3,256), (3,512), (3,512))
-    net = nn.Sequential()
-    with net.name_scope():
-        net.add(vgg_stack(architecture))
-        net.add(nn.Flatten())
-        net.add(nn.Dense(512, activation="relu"))
-        net.add(nn.Dropout(.5))
-        net.add(nn.Dense(512, activation="relu"))
-        net.add(nn.Dropout(.5))
-        net.add(nn.Dense(num_outputs))
+    net = ResNet(num_outputs)
     net.initialize(ctx=ctx, init=init.Xavier())
     return net
 ```
@@ -240,23 +306,29 @@ def get_net(ctx):
 
 我们定义模型训练函数。这里我们记录每个epoch的训练时间。这有助于我们比较不同模型设计的时间成本。
 
-```{.python .input  n=5}
+```{.python .input  n=6}
 import datetime
+import sys
+sys.path.append('..')
+import utils
 
-def train(net, train_data, valid_data, num_epochs, lr, wd, ctx):
+def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period, lr_decay):
     trainer = gluon.Trainer(
-        net.collect_params(), 'sgd', {'learning_rate': lr, 'wd': wd})
+        net.collect_params(), 'sgd', {'learning_rate': lr, 'momentum': 0.9, 'wd': wd})
+
     prev_time = datetime.datetime.now()
     for epoch in range(num_epochs):
         train_loss = 0.0
         train_acc = 0.0
+        if epoch > 0 and epoch % lr_period == 0:
+            trainer.set_learning_rate(trainer.learning_rate * lr_decay)
         for data, label in train_data:
             label = label.as_in_context(ctx)
             with autograd.record():
                 output = net(data.as_in_context(ctx))
                 loss = softmax_cross_entropy(output, label)
             loss.backward()
-            trainer.step(batch_size)
+            trainer.step(train_batch)
             train_loss += nd.mean(loss).asscalar()
             train_acc += utils.accuracy(output, label)
         cur_time = datetime.datetime.now()
@@ -273,25 +345,24 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx):
                          % (epoch, train_loss / len(train_data), 
                             train_acc / len(train_data)))
         prev_time = cur_time
-        print(epoch_str + time_str)
+        print(epoch_str + time_str + ', lr ' + str(trainer.learning_rate))
 ```
 
 以下定义训练参数并训练模型。这些参数均可调。为了使网页编译快一点，我们这里将epoch数量有意设为1。事实上，epoch一般可以调大些，例如100。
 
-我们将依据验证集的结果不断优化模型设计和调整参数。
+我们将依据验证集的结果不断优化模型设计和调整参数。依据下面的参数设置，优化算法的学习率将在每80个epoch自乘0.1。
 
-```{.python .input  n=6}
-num_epochs = 1
-learning_rate = 0.001
-weight_decay = 5e-4
-
-import sys
-sys.path.append('..')
-import utils
+```{.python .input  n=7}
 ctx = utils.try_gpu()
+num_epochs = 1
+learning_rate = 0.1
+weight_decay = 5e-4
+lr_period = 80
+lr_decay = 0.1
 
 net = get_net(ctx)
-train(net, train_data, valid_data, num_epochs, learning_rate, weight_decay, ctx)
+train(net, train_data, valid_data, num_epochs, learning_rate, 
+      weight_decay, ctx, lr_period, lr_decay)
 ```
 
 ## 对测试集分类
@@ -303,7 +374,8 @@ import numpy as np
 import pandas as pd
 
 net = get_net(ctx)
-train(net, train_valid_data, None, num_epochs, learning_rate, weight_decay, ctx)
+train(net, train_data, None, num_epochs, learning_rate, 
+      weight_decay, ctx, lr_period, lr_decay)
 
 preds = []
 for data, label in test_data:
@@ -324,17 +396,17 @@ df.to_csv('submission.csv', index=False)
 ![](../img/kaggle_submit3.png)
 
 
-
 请点击下方`Upload Submission File`选择需要提交的预测结果。然后点击下方的`Make Submission`按钮就可以查看结果啦！
 
 ![](../img/kaggle_submit4.png)
 
 
 
-## 作业（[汇报作业和查看其他小伙伴作业]()）：
+## 作业（[汇报作业和查看其他小伙伴作业](https://discuss.gluon.ai/t/topic/1545/)）：
 
-* 使用Kaggle完整CIFAR-10数据集，把batch_size和num_epochs都改为100，learning_rate改为0.1，可以拿到什么样的
-  准确率？
+* 使用Kaggle完整CIFAR-10数据集，把train_batch、test_batch和num_epochs都分别改为128、100和100，可以拿到什
+  么样的准确率？
+* 如果不使用增强数据的方法能拿到什么样的准确率？
 * 你还有什么其他办法可以继续改进模型和参数？小伙伴们都期待你的分享。
 
-**吐槽和讨论欢迎点**[这里]()
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1545/)
