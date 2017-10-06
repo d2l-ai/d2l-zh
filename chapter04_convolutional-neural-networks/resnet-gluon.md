@@ -47,10 +47,10 @@ class Residual(nn.Block):
 
     def forward(self, x):
         out = nd.relu(self.bn1(self.conv1(x)))
-        out = nd.relu(self.bn2(self.conv2(out)))
+        out = self.bn2(self.conv2(out))
         if not self.same_shape:
             x = self.conv3(x)
-        return out + x
+        return nd.relu(out + x)
 ```
 
 输入输出通道相同：
@@ -168,6 +168,6 @@ ResNet使用跨层通道使得训练非常深的卷积神经网络成为可能�
 
 ## 练习
 
-- 这里我们实现了ResNet 18，论文中还讨论了更深的配置。尝试实现它们。（提示：参考论文中的表1）
-- 论文中还介绍了一个“bottleneck”架构，尝试实现这个
-
+- 这里我们实现了ResNet 18，原论文中还讨论了更深的配置。尝试实现它们。（提示：参考论文中的表1）
+- 原论文中还介绍了一个“bottleneck”架构，尝试实现它
+- ResNet作者在[接下来的一篇论文](https://arxiv.org/abs/1603.05027)讨论了将Residual块里面的`Conv->BN->Relu`结构改成了`BN->Relu->Conv`（参考论文图1），尝试实现它
