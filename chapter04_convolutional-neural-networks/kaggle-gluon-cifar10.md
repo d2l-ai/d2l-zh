@@ -1,24 +1,9 @@
 # 实战Kaggle比赛——使用Gluon对原始图像文件分类（CIFAR-10）
 
+我们在[监督学习中的一章](../chapter02_supervised-learning/kaggle-gluon-kfold.md)里，以[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)为例，介绍了如何使用``Gluon``来实战[Kaggle比赛](https://www.kaggle.com)。
 
-我们在[监督学习中的一章](../chapter02_supervised-learning/kaggle-gluon-kfold.md)里，以[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)为例，介绍了如何使用``Gluon``来实战[Kaggle比赛](https://www.kaggle.com)。社区中的很多小伙伴实践了房
-价预测问题并[分享了自己的成绩和方法](https://discuss.gluon.ai/t/topic/1039)。有小伙伴[反馈希望增加Kaggle比赛章节](https://discuss.gluon.ai/t/topic/1341)并[反馈希望多从直接与数据打交道中获得灵感](https://discuss.gluon.ai/t/topic/1519)。还有小伙伴[反馈希望提供对原始图像分类的例子](https://discuss.gluon.ai/t/topic/499)，
-例如输入格式是jpg或png而非教程中封装好的图像数据，这样甚至可能[更好地管理手机图片](https://discuss.gluon.ai/t/topic/1372)。
-
-
-有鉴于大家的反馈，我们在本章中选择了Kaggle中著名的[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)。我们以该问题为例，为大家提供使用`Gluon`对原始图像文件进行分类的示例代码。
-
-本章的示例代码主要分五部分：
-
-* 整理原始数据集；
-* 使用`Gluon`读取整理后的数据集；
-* 设计模型；
-* 使用部分训练数据训练模型并以其它训练数据为验证集调参；
-* 使用全部训练数据训练模型并对测试数据分类。
-
-
-需要注意的是，本章仅提供一些基本实战流程供大家参考。对于数据的预处理、模型的设计和参数的选择等，我们特意提供一个仅供示例的版本。希望大家通过动手实战、仔细观察实
-验现象、认真分析实验结果并不断调整方法，从而不断提升成绩。
+我们在本章中选择了Kaggle中著名的[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)。我们以该问题为
+例，为大家提供使用`Gluon`对原始图像文件进行分类的示例代码。
 
 计算机视觉一直是深度学习的主战场，请
 
@@ -52,63 +37,50 @@
 登录Kaggle后，数据可以从[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)中下载。
 
 * [训练数据集train.7z下载地址](https://www.kaggle.com/c/cifar-10/download/train.7z)
+
 * [测试数据集test.7z下载地址](https://www.kaggle.com/c/cifar-10/download/test.7z)
+
 * [训练数据标签trainLabels.csv下载地址](https://www.kaggle.com/c/cifar-10/download/trainLabels.csv)
-
-如果不登录Kaggle，比赛数据也可通过以下地址下载：
-
-* [训练数据集train.7z下载地址](https://apache-mxnet.s3-accelerate.dualstack.amazonaws.com/gluon/dataset/kaggle-cifar10/train.7z)
-* [测试数据集test.7z下载地址](https://apache-mxnet.s3-accelerate.dualstack.amazonaws.com/gluon/dataset/kaggle-cifar10/test.7z)
-* [训练数据标签trainLabels.csv下载地址](https://apache-mxnet.s3-accelerate.dualstack.amazonaws.com/gluon/dataset/kaggle-cifar10/trainLabels.csv)
 
 
 ### 解压数据集
 
-训练数据集train.7z和测试数据集test.7z都是压缩格式，下载后请解压缩。假设解压缩后原始数据集的路径如下（data_dir是存放数据的路径，例如'..
-/data/kaggle_cifar10'，'train_dir'和'test_dir'分别是对train.7z和test.7z解压后的文件夹名称，例如'train'和'test'）：
+训练数据集train.7z和测试数据集test.7z都是压缩格式，下载后请解压缩。解压缩后原始数据集的路径可以如下：
 
-* data_dir/train_dir/1.png
-* data_dir/train_dir/...
-* data_dir/train_dir/50000.png
-* data_dir/test_dir/1.png
-* data_dir/test_dir/...
-* data_dir/test_dir/300000.png
-* data_dir/trainLabels.csv
+* ../data/kaggle_cifar10/train/[1-50000].png
+* ../data/kaggle_cifar10/test/[1-300000].png
+* ../data/kaggle_cifar10/test/trainLabels.csv
 
-为了使网页编译快一点，我们在git repo里仅仅存放100个训练样本（'train_tiny.zip'）和1个测试样本（'test_tiny.zip'）。执行以下代码会从git repo里解压生成小样本训练和测试数据，文件夹名称分别为'train_tiny'和'test_tiny'。训练数据标签的压缩文件将被解压成trainLabels.csv。
+为了使网页编译快一点，我们在gitrepo里仅仅存放100个训练样本（'train_tiny.zip'）和1个测试样本（'test_tiny.zip'）。执行以下代码会从git repo里解压生成小样本训练和测试数据，文件夹名称分别为'train_tiny'和'test_tiny'。训练数据标签的压缩文件将被解压成trainLabels.csv。
 
 ```{.python .input  n=1}
-# 本段代码仅为网页编译方便，无需本地执行。
-import zipfile
-for fin in ['train_tiny.zip', 'test_tiny.zip', 'trainLabels.csv.zip']:
-    with zipfile.ZipFile('../data/kaggle_cifar10/' + fin, 'r') as zin:
-        zin.extractall('../data/kaggle_cifar10/')
+# 如果训练下载的Kaggle的完整数据集，把下面改False
+demo = True
+if demo:    
+    import zipfile
+    for fin in ['train_tiny.zip', 'test_tiny.zip', 'trainLabels.csv.zip']:
+        with zipfile.ZipFile('../data/kaggle_cifar10/' + fin, 'r') as zin:
+            zin.extractall('../data/kaggle_cifar10/')
 ```
 
 ### 整理数据集
 
 我们定义下面的reorg_cifar10_data函数来整理数据集。整理后，同一类图片将出现在在同一个文件夹下，便于`Gluon`稍后读取。
 
-函数中的参数如data_dir、train_dir和test_dir对应上述数据存放路径及训练和测试的图片集文件夹名称。参数label_file为训练数据标签的
-文件名称。参数input_dir时整理后数据集文件夹名称。参数valid_ratio是验证集占原始训练集的比重。以valid_ratio=0.1为例，由于原始训
-练数据有5万张图片，调参时将有4万5千张图片用于训练（整理后存放在input_dir/train）而另外5千张图片为验证集（整理后存放在input_dir/va
-lid）。
+函数中的参数如data_dir、train_dir和test_dir对应上述数据存放路径及训练和测试的图片集文件夹名称。参数label_file为训练数据标签的文件名称。参数input_dir时整理后数据集文件夹名称。参数valid_ratio是验证集占原始训练集的比重。以valid_ratio=0.1为例，由于原始训练数据有5万张图片，调参时将有4万5千张图片用于训练（整理后存放在input_dir/train）而另外5千张图片为验证集（整理后存放在input_dir/valid）。
 
 ```{.python .input  n=1}
 import os
 import shutil
 
 def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir, valid_ratio):
-    idx_label = dict()
-    labels = set()
     # 读取训练数据标签。
-    with open(os.path.join(data_dir, label_file), 'r') as label_f:
+    with open(os.path.join(data_dir, label_file), 'r') as f:
         # 跳过文件头行（栏名称）。
-        next(label_f)
-        for line in label_f:
-            idx, label = line.rstrip().split(',')
-            idx_label[int(idx)] = label
-            labels.add(label)
+        lines = f.readlines()[1:]
+        tokens = [l.rstrip().split(',') for l in lines]
+        idx_label = dict(((int(idx), label) for idx, label in tokens))
+    labels = set(idx_label.values())
 
     num_train = len(os.listdir(os.path.join(data_dir, train_dir)))
     num_train_tuning = int(num_train * (1 - valid_ratio))
@@ -144,25 +116,26 @@ def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir, val
                     os.path.join(data_dir, input_dir, 'test', 'unknown'))
 ```
 
-再次强调，为了使网页编译快一点，我们在这里仅仅使用100个训练样本和1个测试样本。训练和测试数据的文件夹名称分别为'train_tiny'和'test_tiny
-'。相应地，我们仅将训练批量和测试批量大小分别设为10和1。实际训练和测试时应使用Kaggle的完整数据集。由于Kaggle的完整测试集样本数为30万，测试批量
-test_batch大小可设为一个较大的可被30万整除的数，例如100。由于训练集较大，训练批量train_batch大小可设为一个较大的整数，例如128。
+再次强调，为了使网页编译快一点，我们在这里仅仅使用100个训练样本和1个测试样本。训练和测试数据的文件夹名称分别为'train_tiny'和'test_tiny'。相应地，我们仅将批量大小设为1。实际训练和测试时应使用Kaggle的完整数据集。由于数据集较大，批量大小train_batch大小可设为一个较大的整数，例如128。
 
 我们将10%的训练样本作为调参时的验证集。
 
 ```{.python .input  n=3}
-# 注意：此处使用小训练集为便于网页编译。Kaggle的完整数据集应包括5万训练样本。
-train_dir = 'train_tiny'
-# 注意：此处使用小测试集为便于网页编译。Kaggle的完整数据集应包括30万测试样本。
-test_dir = 'test_tiny'
-# 注意：此处对小训练集相应使用小训练批量。对Kaggle的完整训练集可设较大的整数，例如128。
-train_batch = 10
-# 注意：此处对小测试集相应使用小测试批量。对Kaggle的完整测试集可设较大的整数，例如100。
-test_batch = 1
+if demo:
+    # 注意：此处使用小训练集为便于网页编译。Kaggle的完整数据集应包括5万训练样本。
+    train_dir = 'train_tiny'
+    # 注意：此处使用小测试集为便于网页编译。Kaggle的完整数据集应包括30万测试样本。
+    test_dir = 'test_tiny'
+    # 注意：此处相应使用小批量。对Kaggle的完整数据集可设较大的整数，例如128。
+    batch_size = 1
+else:
+    train_dir = 'train'
+    test_dir = 'test'
+    batch_size = 128
 
 data_dir = '../data/kaggle_cifar10'
 label_file = 'trainLabels.csv'
-input_dir = 'train_valid_test_tiny'
+input_dir = 'train_valid_test'
 valid_ratio = 0.1
 reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir, valid_ratio)
 ```
@@ -211,16 +184,13 @@ train_valid_ds = vision.ImageFolderDataset(input_str + 'train_valid',
 test_ds = vision.ImageFolderDataset(input_str + 'test', flag=1, 
                                      transform=transform)
 
-batch_size = 100
-assert len(train_ds) >= train_batch 
-assert min(len(valid_ds), len(test_ds)) >= test_batch
-assert len(valid_ds) % test_batch == 0
-assert len(test_ds) % test_batch == 0
 
-train_data = gluon.data.DataLoader(train_ds, batch_size, shuffle=True)
-valid_data = gluon.data.DataLoader(valid_ds, batch_size, shuffle=True)
-train_valid_data = gluon.data.DataLoader(train_valid_ds, batch_size, shuffle=True)
-test_data = gluon.data.DataLoader(test_ds, batch_size, shuffle=False)
+
+loader = gluon.data.DataLoader
+train_data = loader(train_ds, batch_size, shuffle=True, last_batch='keep')
+valid_data = loader(valid_ds, batch_size, shuffle=True, last_batch='keep')
+train_valid_data = loader(train_valid_ds, batch_size, shuffle=True, last_batch='keep')
+test_data = loader(test_ds, batch_size, shuffle=False, last_batch='keep')
 
 # 交叉熵损失函数。
 softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
@@ -328,7 +298,7 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period, lr_de
                 output = net(data.as_in_context(ctx))
                 loss = softmax_cross_entropy(output, label)
             loss.backward()
-            trainer.step(train_batch)
+            trainer.step(batch_size)
             train_loss += nd.mean(loss).asscalar()
             train_acc += utils.accuracy(output, label)
         cur_time = datetime.datetime.now()
@@ -390,8 +360,7 @@ df['label'] = df['label'].apply(lambda x: train_valid_ds.synsets[x])
 df.to_csv('submission.csv', index=False)
 ```
 
-上述代码执行完会生成一个`submission.csv`的文件用于在Kaggle上提交。这是Kaggle要求的提交格式。这时我们可以在Kaggle上把对测试集分
-类的结果提交并查看分类准确率。你需要登录Kaggle网站，打开[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)，并点击下方右侧`Late Submission`按钮。
+上述代码执行完会生成一个`submission.csv`的文件用于在Kaggle上提交。这是Kaggle要求的提交格式。这时我们可以在Kaggle上把对测试集分类的结果提交并查看分类准确率。你需要登录Kaggle网站，打开[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)，并点击下方右侧`Late Submission`按钮。
 
 ![](../img/kaggle_submit3.png)
 
@@ -404,8 +373,9 @@ df.to_csv('submission.csv', index=False)
 
 ## 作业（[汇报作业和查看其他小伙伴作业](https://discuss.gluon.ai/t/topic/1545/)）：
 
-* 使用Kaggle完整CIFAR-10数据集，把train_batch、test_batch和num_epochs都分别改为128、100和100，可以拿到什
-  么样的准确率？
+* 使用Kaggle完整CIFAR-10数据集，把batch_size和num_epochs分别改为128和100，可以在Kaggle上拿到什么样的准确率和名次？
+
+
 * 如果不使用增强数据的方法能拿到什么样的准确率？
 * 你还有什么其他办法可以继续改进模型和参数？小伙伴们都期待你的分享。
 
