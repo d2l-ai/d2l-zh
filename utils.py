@@ -3,6 +3,8 @@ from mxnet import autograd
 from mxnet import nd
 from mxnet import image
 import mxnet as mx
+import itchat
+import threading
 
 def SGD(params, lr):
     for param in params:
@@ -74,3 +76,68 @@ def train(train_data, test_data, net, loss, trainer, ctx, num_epochs, print_batc
         print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
             epoch, train_loss/batch, train_acc/batch, test_acc
         ))
+
+#define threading lock
+lock = threading.Lock()
+running = False
+def lock_start():
+    global lock, running
+    print('wait for lock')
+    with lock:
+        running = True
+        run_state = running
+    print('start')
+    return run_state
+
+def chat_inf(wechat_name,epoch,train_loss,train_acc,train_data,test_acc):
+    itchat.send("Epoch %d.\nLoss: %f\nTrain acc %f\nTest acc %f" % (epoch, train_loss/len(train_data),train_acc/len(train_data), test_acc), wechat_name)
+    with lock:
+        run_state = running
+    return run_state
+
+def lock_end(wechat_name):
+    global lock, running
+    print('op is finished!')
+    itchat.send('op is finished!',wechat_name)   
+    with lock:
+        running = False
+	
+#define chat_supervise handle
+batch_size = 256
+learning_rate = 0.5
+training_iters = 2
+def chat_supervisor(target_trainer):
+    @itchat.msg_register([itchat.content.TEXT])
+    def chat_trigger(msg):
+        global lock, running, learning_rate, training_iters, batch_size
+        if msg['Text'] == u'开始':
+            print('Starting')
+            with lock:
+                run_state = running
+            if not run_state:
+                try:
+                    threading.Thread(target=target_trainer, args=(msg['FromUserName'], (learning_rate, training_iters, batch_size))).start()
+                except:
+                    msg.reply('Running')
+        elif msg['Text'] == u'停止':
+            print('Stopping')
+    
+            with lock:
+                running = False
+    
+        elif msg['Text'] == u'参数':
+            itchat.send('lr=%f, ti=%d, bs=%d'%(learning_rate, training_iters, batch_size),msg['FromUserName'])
+        else:
+            try:
+                param = msg['Text'].split()
+                key, value = param
+                print(key, value)
+                if key == 'lr':
+                    learning_rate = float(value)
+                elif key == 'ti':
+                    training_iters = int(value)
+                elif key == 'bs':
+                    batch_size = int(value)
+            except:
+                pass
+        return learning_rate,training_iters,batch_size
