@@ -32,7 +32,7 @@ $$y_i \leftarrow \gamma \hat{x_i} + \beta \equiv \mbox{BN}_{\gamma,\beta}(x_i)$$
 我们现在来动手实现一个简化的批量归一化层。实现时对全连接层和二维卷积层两种情况做了区分。对于全连接层，很明显我们要对每个批量进行归一化。然而这里需要注意的是，对
 于二维卷积，我们要对每个通道进行归一化，并需要保持四维形状使得可以正确地广播。
 
-```{.python .input  n=1}
+```{.python .input  n=71}
 from mxnet import nd
 def pure_batch_norm(X, gamma, beta, eps=1e-5):
     assert len(X.shape) in (2, 4)
@@ -55,28 +55,80 @@ def pure_batch_norm(X, gamma, beta, eps=1e-5):
 
 下面我们检查一下。我们先定义全连接层的输入是这样的。每一行是批量中的一个实例。
 
-```{.python .input  n=2}
+```{.python .input  n=65}
 A = nd.arange(6).reshape((3,2))
 A
 ```
 
+```{.json .output n=65}
+[
+ {
+  "data": {
+   "text/plain": "\n[[ 0.  1.]\n [ 2.  3.]\n [ 4.  5.]]\n<NDArray 3x2 @cpu(0)>"
+  },
+  "execution_count": 65,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
 我们希望批量中的每一列都被归一化。结果符合预期。
 
-```{.python .input  n=3}
+```{.python .input  n=59}
 pure_batch_norm(A, gamma=nd.array([1,1]), beta=nd.array([0,0]))
+```
+
+```{.json .output n=59}
+[
+ {
+  "data": {
+   "text/plain": "\n[[-1.22474265 -1.22474265]\n [ 0.          0.        ]\n [ 1.22474265  1.22474265]]\n<NDArray 3x2 @cpu(0)>"
+  },
+  "execution_count": 59,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
 下面我们定义二维卷积网络层的输入是这样的。
 
-```{.python .input  n=4}
+```{.python .input  n=72}
 B = nd.arange(18).reshape((1,2,3,3))
 B
 ```
 
+```{.json .output n=72}
+[
+ {
+  "data": {
+   "text/plain": "\n[[[[  0.   1.   2.]\n   [  3.   4.   5.]\n   [  6.   7.   8.]]\n\n  [[  9.  10.  11.]\n   [ 12.  13.  14.]\n   [ 15.  16.  17.]]]]\n<NDArray 1x2x3x3 @cpu(0)>"
+  },
+  "execution_count": 72,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
 结果也如预期那样，我们对每个通道做了归一化。
 
-```{.python .input  n=5}
+```{.python .input  n=73}
 pure_batch_norm(B, gamma=nd.array([1,1]), beta=nd.array([0,0]))
+```
+
+```{.json .output n=73}
+[
+ {
+  "data": {
+   "text/plain": "\n[[[[-1.54919219 -1.1618942  -0.7745961 ]\n   [-0.38729805  0.          0.38729805]\n   [ 0.7745961   1.1618942   1.54919219]]\n\n  [[-1.54919219 -1.1618942  -0.7745961 ]\n   [-0.38729805  0.          0.38729805]\n   [ 0.7745961   1.1618942   1.54919219]]]]\n<NDArray 1x2x3x3 @cpu(0)>"
+  },
+  "execution_count": 73,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
 ## 批量归一化层
@@ -129,7 +181,7 @@ def batch_norm(X, gamma, beta, is_training, moving_mean, moving_variance,
 
 我们尝试使用GPU运行本教程代码。
 
-```{.python .input  n=8}
+```{.python .input  n=6}
 import sys
 sys.path.append('..')
 import utils
@@ -137,9 +189,22 @@ ctx = utils.try_gpu()
 ctx
 ```
 
+```{.json .output n=6}
+[
+ {
+  "data": {
+   "text/plain": "cpu(0)"
+  },
+  "execution_count": 6,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
 先定义参数。
 
-```{.python .input  n=9}
+```{.python .input  n=37}
 weight_scale = .01
 
 # output channels = 20, kernel = (5,5)
@@ -184,7 +249,7 @@ for param in params:
 
 下面定义模型。我们添加了批量归一化层。特别要注意我们添加的位置：在卷积层后，在激活函数前。
 
-```{.python .input  n=10}
+```{.python .input  n=41}
 def net(X, is_training=False, verbose=False):
     X = X.as_in_context(W1.context)
     # 第一层卷积
@@ -221,7 +286,7 @@ def net(X, is_training=False, verbose=False):
 
 下面我们训练并测试模型。
 
-```{.python .input  n=11}
+```{.python .input  n=42}
 from mxnet import autograd 
 from mxnet import gluon
 
@@ -249,6 +314,16 @@ for epoch in range(5):
     test_acc = utils.evaluate_accuracy(test_data, net, ctx)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
             epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
+```
+
+```{.json .output n=42}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Epoch 0. Loss: 0.288005, Train acc 0.893839, Test acc 0.892285\nEpoch 1. Loss: 0.270863, Train acc 0.900089, Test acc 0.903906\nEpoch 2. Loss: 0.256467, Train acc 0.904904, Test acc 0.901563\nEpoch 3. Loss: 0.242597, Train acc 0.909652, Test acc 0.897266\nEpoch 4. Loss: 0.234384, Train acc 0.913359, Test acc 0.909375\n"
+ }
+]
 ```
 
 ## 总结

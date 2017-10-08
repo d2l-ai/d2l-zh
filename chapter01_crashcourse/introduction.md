@@ -13,9 +13,25 @@
 
 对于机器学习科学家来说，幸运的是大部分应用没有那么容易。回到前面那个例子，想象下如何写一个程序来回应唤醒词例如“Okay, Google”，“Siri”，和“Alexa”。如果你在一个只有你和代码编辑器的房间里写这个程序，你该怎么办？你可能会想像下面的程序
 
-```python
+```{.python .input  n=2}
 if input_command == 'Okey, Google':
      run_voice_assistant()
+```
+
+```{.json .output n=2}
+[
+ {
+  "ename": "NameError",
+  "evalue": "name 'input_command' is not defined",
+  "output_type": "error",
+  "traceback": [
+   "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+   "\u001b[0;31mNameError\u001b[0m                                 Traceback (most recent call last)",
+   "\u001b[0;32m<ipython-input-2-baf28418ea5a>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[0;32m----> 1\u001b[0;31m \u001b[0;32mif\u001b[0m \u001b[0minput_command\u001b[0m \u001b[0;34m==\u001b[0m \u001b[0;34m'Okey, Google'\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      2\u001b[0m      \u001b[0mrun_voice_assistant\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+   "\u001b[0;31mNameError\u001b[0m: name 'input_command' is not defined"
+  ]
+ }
+]
 ```
 
 但实际上你能拿到的只是麦克风里采集到的原始语音信号，可能是每秒44,000个样本点。那么需要些什么样的规则才能把这些样本点转成一个字符串呢？或者简单点，判断这些信号里是不是就是说了唤醒词。
@@ -49,7 +65,7 @@ if input_command == 'Okey, Google':
 
 传统的实现是这样的：
 
-```{.python .input}
+```{.python .input  n=3}
 res = []
 for i in range(1, 101):
     if i % 15 == 0:
@@ -61,6 +77,16 @@ for i in range(1, 101):
     else:
         res.append(str(i))
 print(' '.join(res))
+```
+
+```{.json .output n=3}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "1 2 fizz 4 buzz fizz 7 8 fizz buzz 11 fizz 13 14 fizzbuzz 16 17 fizz 19 buzz fizz 22 23 fizz buzz 26 fizz 28 29 fizzbuzz 31 32 fizz 34 buzz fizz 37 38 fizz buzz 41 fizz 43 44 fizzbuzz 46 47 fizz 49 buzz fizz 52 53 fizz buzz 56 fizz 58 59 fizzbuzz 61 62 fizz 64 buzz fizz 67 68 fizz buzz 71 fizz 73 74 fizzbuzz 76 77 fizz 79 buzz fizz 82 83 fizz buzz 86 fizz 88 89 fizzbuzz 91 92 fizz 94 buzz fizz 97 98 fizz buzz\n"
+ }
+]
 ```
 
 对于经验丰富的程序员来说这个太不够一颗赛艇了。所以Joel尝试用机器学习来实现这个。为了让程序能学，他需要准备下面这个数据集：

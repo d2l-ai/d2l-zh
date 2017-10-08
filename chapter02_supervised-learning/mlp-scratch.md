@@ -29,7 +29,7 @@ num_inputs = 28*28
 num_outputs = 10
 
 num_hidden = 256
-weight_scale = .01
+weight_scale = .001
 
 W1 = nd.random_normal(shape=(num_inputs, num_hidden), scale=weight_scale)
 b1 = nd.zeros(num_hidden)
@@ -105,6 +105,16 @@ for epoch in range(5):
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
         epoch, train_loss/len(train_data), 
         train_acc/len(train_data), test_acc))
+```
+
+```{.json .output n=None}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Epoch 0. Loss: 0.965007, Train acc 0.626585, Test acc 0.801953\nEpoch 1. Loss: 0.524118, Train acc 0.804388, Test acc 0.835352\nEpoch 2. Loss: 0.465373, Train acc 0.829078, Test acc 0.846875\nEpoch 3. Loss: 0.421120, Train acc 0.843722, Test acc 0.858398\n"
+ }
+]
 ```
 
 ## 总结

@@ -24,7 +24,7 @@ $$\sum_{i=1}^n (\hat{y}_i-y_i)^2.$$
 
 这里噪音服从均值0和标准差为0.01的正态分布。
 
-```{.python .input  n=2}
+```{.python .input  n=1}
 from mxnet import ndarray as nd
 from mxnet import autograd
 
@@ -37,19 +37,36 @@ true_b = 4.2
 X = nd.random_normal(shape=(num_examples, num_inputs))
 y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
 y += .01 * nd.random_normal(shape=y.shape)
+
+Xt = nd.random_normal(shape=(num_examples, num_inputs))
+Yt = true_w[0] * Xt[:, 0] + true_w[1] * Xt[:, 1] + true_b
 ```
 
 注意到`X`的每一行是一个长度为2的向量，而`y`的每一行是一个长度为1的向量（标量）。
 
-```{.python .input  n=3}
+```{.python .input  n=2}
 print(X[0], y[0])
+print(y.shape)
+
+print(Xt[0], Yt[0])
+print(Yt.shape)
+```
+
+```{.json .output n=2}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "\n[ 1.16307867  2.21220636]\n<NDArray 2 @cpu(0)> \n[-1.00153255]\n<NDArray 1 @cpu(0)>\n(1000,)\n\n[ 0.13263007  0.72455114]\n<NDArray 2 @cpu(0)> \n[ 2.00178599]\n<NDArray 1 @cpu(0)>\n(1000,)\n"
+ }
+]
 ```
 
 ## 数据读取
 
 当我们开始训练神经网络的时候，我们需要不断读取数据块。这里我们定义一个函数它每次返回`batch_size`个随机的样本和对应的目标。我们通过python的`yield`来构造一个迭代器。
 
-```{.python .input  n=4}
+```{.python .input  n=3}
 import random
 batch_size = 10
 def data_iter():
@@ -63,25 +80,46 @@ def data_iter():
 
 下面代码读取第一个随机数据块
 
-```{.python .input  n=5}
+```{.python .input  n=4}
 for data, label in data_iter():
     print(data, label)
     break
+```
+
+```{.json .output n=4}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "\n[[ 0.88616693 -0.55615038]\n [ 0.74436289  0.28850451]\n [ 1.14745176  1.08816302]\n [-1.07601869 -0.2127033 ]\n [-0.66981024  0.30749828]\n [ 1.68393016  0.77373821]\n [ 0.5380863  -0.40720204]\n [-0.69395155  0.51240134]\n [ 0.81664836 -0.39319611]\n [-0.35159528  0.02315214]]\n<NDArray 10x2 @cpu(0)> \n[ 7.85006285  4.69725084  2.78988171  2.77930188  1.8178426   4.93909168\n  6.65605068  1.07841051  7.17354155  3.42905402]\n<NDArray 10 @cpu(0)>\n"
+ }
+]
 ```
 
 ## 初始化模型参数
 
 下面我们随机初始化模型参数
 
-```{.python .input  n=6}
+```{.python .input  n=31}
 w = nd.random_normal(shape=(num_inputs, 1))
 b = nd.zeros((1,))
 params = [w, b]
+print(params)
+```
+
+```{.json .output n=31}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "[\n[[ 0.56107295]\n [ 0.71928096]]\n<NDArray 2x1 @cpu(0)>, \n[ 0.]\n<NDArray 1 @cpu(0)>]\n"
+ }
+]
 ```
 
 之后训练时我们需要对这些参数求导来更新它们的值，所以我们需要创建它们的梯度。
 
-```{.python .input  n=7}
+```{.python .input  n=32}
 for param in params:
     param.attach_grad()
 ```
@@ -90,7 +128,7 @@ for param in params:
 
 线性模型就是将输入和模型做乘法再加上偏移：
 
-```{.python .input  n=8}
+```{.python .input  n=46}
 def net(X):
     return nd.dot(X, w) + b
 ```
@@ -99,7 +137,7 @@ def net(X):
 
 我们使用常见的平方误差来衡量预测目标和真实目标之间的差距。
 
-```{.python .input  n=9}
+```{.python .input  n=47}
 def square_loss(yhat, y):
     # 注意这里我们把y变形成yhat的形状来避免自动广播
     return (yhat - y.reshape(yhat.shape)) ** 2
@@ -109,7 +147,7 @@ def square_loss(yhat, y):
 
 虽然线性回归有显试解，但绝大部分模型并没有。所以我们这里通过随机梯度下降来求解。每一步，我们将模型参数沿着梯度的反方向走特定距离，这个距离一般叫学习率。（我们会之后一直使用这个函数，我们将其保存在[utils.py](../utils.py)。）
 
-```{.python .input  n=10}
+```{.python .input  n=48}
 def SGD(params, lr):
     for param in params:
         param[:] = param - lr * param.grad
@@ -119,9 +157,9 @@ def SGD(params, lr):
 
 现在我们可以开始训练了。训练通常需要迭代数据数次，一次迭代里，我们每次随机读取固定数个数据点，计算梯度并更新模型参数。
 
-```{.python .input  n=11}
+```{.python .input  n=49}
 epochs = 5
-learning_rate = .001
+learning_rate = .04
 for e in range(epochs):
     total_loss = 0
     for data, label in data_iter():
@@ -130,19 +168,82 @@ for e in range(epochs):
             loss = square_loss(output, label)
         loss.backward()
         SGD(params, learning_rate)
-
         total_loss += nd.sum(loss).asscalar()
     print("Epoch %d, average loss: %f" % (e, total_loss/num_examples))
 ```
 
+```{.json .output n=49}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Epoch 0, average loss: 0.000126\nEpoch 1, average loss: 0.000128\nEpoch 2, average loss: 0.000129\nEpoch 3, average loss: 0.000124\nEpoch 4, average loss: 0.000132\n"
+ }
+]
+```
+
+```{.python .input  n=18}
+import random
+batch_size = 10
+def data_iter_test():
+    i = list(range(num_examples))
+    j = nd.array(i)
+    yield nd.take(Xt, j), nd.take(Yt, j)
+```
+
+```{.python .input  n=19}
+total_loss = 0
+for data, label in data_iter_test():
+    output = net(data)
+    loss = square_loss(output, label)
+    total_loss += nd.sum(loss).asscalar()
+print("test average loss: %f" % (total_loss/num_examples))
+```
+
+```{.json .output n=19}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "test average loss: 0.000031\n"
+ }
+]
+```
+
 训练完成后我们可以比较学到的参数和真实参数
 
-```{.python .input  n=12}
+```{.python .input  n=13}
 true_w, w
 ```
 
-```{.python .input  n=13}
+```{.json .output n=13}
+[
+ {
+  "data": {
+   "text/plain": "([2, -3.4], \n [[ 2.00169706]\n  [-3.39580774]]\n <NDArray 2x1 @cpu(0)>)"
+  },
+  "execution_count": 13,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
+```{.python .input  n=14}
 true_b, b
+```
+
+```{.json .output n=14}
+[
+ {
+  "data": {
+   "text/plain": "(4.2, \n [ 4.19669342]\n <NDArray 1 @cpu(0)>)"
+  },
+  "execution_count": 14,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
 ## 结论

@@ -6,7 +6,7 @@
 
 我们重新把[多层感知机 --- 使用Gluon](../chapter02_supervised-learning/mlp-gluon.md)里的网络定义搬到这里作为开始的例子（为了简单起见，这里我们丢掉了Flatten层）。
 
-```{.python .input  n=9}
+```{.python .input  n=1}
 from mxnet import nd
 from mxnet.gluon import nn
 
@@ -16,6 +16,16 @@ with net.name_scope():
     net.add(nn.Dense(10))
     
 print(net)
+```
+
+```{.json .output n=1}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Sequential(\n  (0): Dense(256, Activation(relu))\n  (1): Dense(10, linear)\n)\n"
+ }
+]
 ```
 
 ## 使用 `nn.Block` 来定义

@@ -40,16 +40,18 @@ softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 ## 优化
 
 ```{.python .input  n=4}
-trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.1})
+trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.5})
 ```
 
 ## 训练
 
-```{.python .input  n=5}
+```{.python .input  n=10}
 from mxnet import ndarray as nd
 from mxnet import autograd
+import time
 
 for epoch in range(5):
+    start_time = time.time()
     train_loss = 0.
     train_acc = 0.
     for data, label in train_data:
@@ -63,8 +65,18 @@ for epoch in range(5):
         train_acc += utils.accuracy(output, label)
 
     test_acc = utils.evaluate_accuracy(test_data, net)
-    print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-        epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
+    print("Epoch %d. Loss: %f, Train acc %f, Test acc %f, Cost time %f" % (
+        epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc, time.time() - start_time))
+```
+
+```{.json .output n=10}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Epoch 0. Loss: 0.725811, Train acc 0.828291, Test acc 0.843359, Cost time 10.299233\nEpoch 1. Loss: 0.748478, Train acc 0.825792, Test acc 0.821094, Cost time 10.215502\nEpoch 2. Loss: 0.712756, Train acc 0.828441, Test acc 0.840430, Cost time 10.271214\nEpoch 3. Loss: 0.672995, Train acc 0.832945, Test acc 0.849414, Cost time 10.657582\nEpoch 4. Loss: 0.733748, Train acc 0.826867, Test acc 0.849219, Cost time 10.455018\n"
+ }
+]
 ```
 
 ## 结论

@@ -6,20 +6,23 @@
 
 唯一的区别在这里，我们加了一行进来。
 
-```{.python .input  n=5}
+```{.python .input  n=4}
 from mxnet import gluon
 
 net = gluon.nn.Sequential()
 with net.name_scope():
     net.add(gluon.nn.Flatten())
     net.add(gluon.nn.Dense(256, activation="relu"))
+    net.add(gluon.nn.Dense(128, activation="relu"))
+    net.add(gluon.nn.Dense(128, activation="relu"))
+    net.add(gluon.nn.Dense(128, activation="relu"))
     net.add(gluon.nn.Dense(10))
 net.initialize()
 ```
 
 ## 读取数据并训练
 
-```{.python .input  n=6}
+```{.python .input  n=5}
 import sys
 sys.path.append('..')
 from mxnet import ndarray as nd
@@ -49,6 +52,16 @@ for epoch in range(5):
     test_acc = utils.evaluate_accuracy(test_data, net)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
         epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
+```
+
+```{.json .output n=5}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Epoch 0. Loss: 1.620215, Train acc 0.370340, Test acc 0.675098\nEpoch 1. Loss: 0.696776, Train acc 0.722036, Test acc 0.789062\nEpoch 2. Loss: 0.529454, Train acc 0.798643, Test acc 0.835352\nEpoch 3. Loss: 0.463047, Train acc 0.828640, Test acc 0.859180\nEpoch 4. Loss: 0.424583, Train acc 0.844271, Test acc 0.852148\n"
+ }
+]
 ```
 
 ## 结论

@@ -21,7 +21,7 @@
 
 我们使用`nd.Convlution`来演示这个。
 
-```{.python .input  n=47}
+```{.python .input  n=33}
 from mxnet import nd
 
 # 输入输出数据格式是 batch x channel x height x width，这里batch和channel都是1
@@ -30,26 +30,45 @@ w = nd.arange(4).reshape((1,1,2,2))
 b = nd.array([1])
 data = nd.arange(9).reshape((1,1,3,3))
 out = nd.Convolution(data, w, b, kernel=w.shape[2:], num_filter=w.shape[1])
-
 print('input:', data, '\n\nweight:', w, '\n\nbias:', b, '\n\noutput:', out)
 ```
 
-我们可以控制如何移动窗口，和在边缘的时候如何填充窗口。下图演示了`stride=1`和`pad=1`。
+```{.json .output n=33}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "input: \n[[[[ 0.  1.  2.]\n   [ 3.  4.  5.]\n   [ 6.  7.  8.]]]]\n<NDArray 1x1x3x3 @cpu(0)> \n\nweight: \n[[[[ 0.  1.]\n   [ 2.  3.]]]]\n<NDArray 1x1x2x2 @cpu(0)> \n\nbias: \n[ 1.]\n<NDArray 1 @cpu(0)> \n\noutput: \n[[[[ 20.  26.]\n   [ 38.  44.]]]]\n<NDArray 1x1x2x2 @cpu(0)>\n"
+ }
+]
+```
+
+我们可以控制如何移动窗口，和在边缘的时候如何填充窗口。下图演示了`stride=2`和`pad=1`。
 
 ![](https://raw.githubusercontent.com/vdumoulin/conv_arithmetic/master/gif/padding_strides.gif)
 
-```{.python .input  n=48}
+```{.python .input  n=40}
 out = nd.Convolution(data, w, b, kernel=w.shape[2:], num_filter=w.shape[1],
                      stride=(2,2), pad=(1,1))
 
 print('input:', data, '\n\nweight:', w, '\n\nbias:', b, '\n\noutput:', out)
 ```
 
+```{.json .output n=40}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "input: \n[[[[ 0.  1.  2.]\n   [ 3.  4.  5.]\n   [ 6.  7.  8.]]]]\n<NDArray 1x1x3x3 @cpu(0)> \n\nweight: \n[[[[ 0.  1.]\n   [ 2.  3.]]]]\n<NDArray 1x1x2x2 @cpu(0)> \n\nbias: \n[ 1.]\n<NDArray 1 @cpu(0)> \n\noutput: \n[[[[  1.   9.]\n   [ 22.  44.]]]]\n<NDArray 1x1x2x2 @cpu(0)>\n"
+ }
+]
+```
+
 当输入数据有多个通道的时候，每个通道会有对应的权重，然后会对每个通道做卷积之后在通道之间求和
 
 $$conv(data, w, b) = \sum_i conv(data[:,i,:,:], w[0,i,:,:], b)$$
 
-```{.python .input  n=49}
+```{.python .input  n=42}
 w = nd.arange(8).reshape((1,2,2,2))
 data = nd.arange(18).reshape((1,2,3,3))
 
@@ -58,11 +77,21 @@ out = nd.Convolution(data, w, b, kernel=w.shape[2:], num_filter=w.shape[0])
 print('input:', data, '\n\nweight:', w, '\n\nbias:', b, '\n\noutput:', out)
 ```
 
+```{.json .output n=42}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "input: \n[[[[  0.   1.   2.]\n   [  3.   4.   5.]\n   [  6.   7.   8.]]\n\n  [[  9.  10.  11.]\n   [ 12.  13.  14.]\n   [ 15.  16.  17.]]]]\n<NDArray 1x2x3x3 @cpu(0)> \n\nweight: \n[[[[ 0.  1.]\n   [ 2.  3.]]\n\n  [[ 4.  5.]\n   [ 6.  7.]]]]\n<NDArray 1x2x2x2 @cpu(0)> \n\nbias: \n[ 1.]\n<NDArray 1 @cpu(0)> \n\noutput: \n[[[[ 269.  297.]\n   [ 353.  381.]]]]\n<NDArray 1x1x2x2 @cpu(0)>\n"
+ }
+]
+```
+
 当输入需要多通道时，每个输出通道有对应权重，然后每个通道上做卷积。
 
 $$conv(data, w, b)[:,i,:,:] = conv(data, w[i,:,:,:], b[i])$$
 
-```{.python .input  n=50}
+```{.python .input  n=44}
 w = nd.arange(16).reshape((2,2,2,2))
 data = nd.arange(18).reshape((1,2,3,3))
 b = nd.array([1,2])
@@ -72,17 +101,37 @@ out = nd.Convolution(data, w, b, kernel=w.shape[2:], num_filter=w.shape[0])
 print('input:', data, '\n\nweight:', w, '\n\nbias:', b, '\n\noutput:', out)
 ```
 
+```{.json .output n=44}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "input: \n[[[[  0.   1.   2.]\n   [  3.   4.   5.]\n   [  6.   7.   8.]]\n\n  [[  9.  10.  11.]\n   [ 12.  13.  14.]\n   [ 15.  16.  17.]]]]\n<NDArray 1x2x3x3 @cpu(0)> \n\nweight: \n[[[[  0.   1.]\n   [  2.   3.]]\n\n  [[  4.   5.]\n   [  6.   7.]]]\n\n\n [[[  8.   9.]\n   [ 10.  11.]]\n\n  [[ 12.  13.]\n   [ 14.  15.]]]]\n<NDArray 2x2x2x2 @cpu(0)> \n\nbias: \n[ 1.  2.]\n<NDArray 2 @cpu(0)> \n\noutput: \n[[[[  269.   297.]\n   [  353.   381.]]\n\n  [[  686.   778.]\n   [  962.  1054.]]]]\n<NDArray 1x2x2x2 @cpu(0)>\n"
+ }
+]
+```
+
 ### 池化层（pooling）
 
 因为卷积层每次作用在一个窗口，它对位置很敏感。池化层能够很好的缓解这个问题。它跟卷积类似每次看一个小窗口，然后选出窗口里面最大的元素，或者平均元素作为输出。
 
-```{.python .input  n=53}
+```{.python .input  n=25}
 data = nd.arange(18).reshape((1,2,3,3))
 
 max_pool = nd.Pooling(data=data, pool_type="max", kernel=(2,2))
 avg_pool = nd.Pooling(data=data, pool_type="avg", kernel=(2,2))
 
 print('data:', data, '\n\nmax pooling:', max_pool, '\n\navg pooling:', avg_pool)
+```
+
+```{.json .output n=25}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "data: \n[[[[  0.   1.   2.]\n   [  3.   4.   5.]\n   [  6.   7.   8.]]\n\n  [[  9.  10.  11.]\n   [ 12.  13.  14.]\n   [ 15.  16.  17.]]]]\n<NDArray 1x2x3x3 @cpu(0)> \n\nmax pooling: \n[[[[  4.   5.]\n   [  7.   8.]]\n\n  [[ 13.  14.]\n   [ 16.  17.]]]]\n<NDArray 1x2x2x2 @cpu(0)> \n\navg pooling: \n[[[[  2.   3.]\n   [  5.   6.]]\n\n  [[ 11.  12.]\n   [ 14.  15.]]]]\n<NDArray 1x2x2x2 @cpu(0)>\n"
+ }
+]
 ```
 
 下面我们可以开始使用这些层构建模型了。
@@ -92,7 +141,7 @@ print('data:', data, '\n\nmax pooling:', max_pool, '\n\navg pooling:', avg_pool)
 
 我们继续使用FashionMNIST（希望你还没有彻底厌烦这个数据）
 
-```{.python .input  n=22}
+```{.python .input  n=51}
 import sys
 sys.path.append('..')
 from utils import load_data_fashion_mnist
@@ -105,7 +154,7 @@ train_data, test_data = load_data_fashion_mnist(batch_size)
 
 因为卷积网络计算比全连接要复杂，这里我们默认使用GPU来计算。如果GPU不能用，默认使用CPU。
 
-```{.python .input  n=65}
+```{.python .input  n=50}
 import mxnet as mx
 
 try:
@@ -116,17 +165,30 @@ except:
 ctx
 ```
 
+```{.json .output n=50}
+[
+ {
+  "data": {
+   "text/plain": "cpu(0)"
+  },
+  "execution_count": 50,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
 我们使用MNIST常用的LeNet，它有两个卷积层，之后是两个全连接层。注意到我们将权重全部创建在`ctx`上：
 
-```{.python .input  n=66}
+```{.python .input  n=52}
 weight_scale = .01
 
 # output channels = 20, kernel = (5,5)
-W1 = nd.random_normal(shape=(20,1,5,5), scale=weight_scale, ctx=ctx)
+W1 = nd.random_normal(shape=(30,1,5,5), scale=weight_scale, ctx=ctx)
 b1 = nd.zeros(W1.shape[0], ctx=ctx)
 
 # output channels = 50, kernel = (3,3)
-W2 = nd.random_normal(shape=(50,20,3,3), scale=weight_scale, ctx=ctx)
+W2 = nd.random_normal(shape=(50,30,3,3), scale=weight_scale, ctx=ctx)
 b2 = nd.zeros(W2.shape[0], ctx=ctx)
 
 # output dim = 128
@@ -144,7 +206,7 @@ for param in params:
 
 卷积模块通常是“卷积层-激活层-池化层”。然后转成2D矩阵输出给后面的全连接层。
 
-```{.python .input  n=74}
+```{.python .input  n=53}
 def net(X, verbose=False):
     X = X.as_in_context(W1.context)
     # 第一层卷积
@@ -175,17 +237,27 @@ def net(X, verbose=False):
 
 测试一下，输出中间结果形状（当然可以直接打印结果)和最终结果。
 
-```{.python .input  n=76}
+```{.python .input  n=54}
 for data, _ in train_data:
     net(data, verbose=True)
     break
+```
+
+```{.json .output n=54}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "1st conv block: (256, 30, 12, 12)\n2nd conv block: (256, 1250)\n1st dense: (256, 128)\n2nd dense: (256, 10)\noutput: \n[[  1.17871954e-04  -2.81967568e-05  -1.68729282e-04 ...,   1.49743515e-04\n    4.40140466e-05  -3.69331210e-05]\n [  7.07749059e-05  -1.87150072e-05  -7.46809746e-05 ...,   1.29810069e-04\n    2.12704654e-05  -5.25878568e-05]\n [  1.06698513e-04  -1.48740382e-05  -1.00836914e-04 ...,   1.33753521e-04\n    4.56979178e-05  -6.85329360e-05]\n ..., \n [  1.36989489e-04  -5.35887411e-05  -1.78699178e-04 ...,   1.63119141e-04\n    7.22833356e-05  -6.32219744e-05]\n [  8.92738462e-05  -4.75684501e-05  -7.39684692e-05 ...,   1.03854822e-04\n   -1.08442455e-05  -5.11002072e-05]\n [  8.76435370e-05  -9.51043967e-06  -1.31512134e-04 ...,   1.16760282e-04\n    8.07618489e-05  -1.76209651e-05]]\n<NDArray 256x10 @cpu(0)>\n"
+ }
+]
 ```
 
 ## 训练
 
 跟前面没有什么不同的
 
-```{.python .input  n=60}
+```{.python .input  n=55}
 from mxnet import autograd as autograd
 from utils import SGD, accuracy, evaluate_accuracy
 from mxnet import gluon
@@ -211,6 +283,16 @@ for epoch in range(5):
     test_acc = evaluate_accuracy(test_data, net, ctx)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
             epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
+```
+
+```{.json .output n=55}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Epoch 0. Loss: 2.301483, Train acc 0.106222, Test acc 0.178320\nEpoch 1. Loss: 1.412969, Train acc 0.467055, Test acc 0.704199\nEpoch 2. Loss: 0.706792, Train acc 0.726795, Test acc 0.775098\nEpoch 3. Loss: 0.588958, Train acc 0.772861, Test acc 0.804199\nEpoch 4. Loss: 0.520524, Train acc 0.798764, Test acc 0.820117\n"
+ }
+]
 ```
 
 ## 结论
