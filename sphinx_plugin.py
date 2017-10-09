@@ -18,7 +18,7 @@ timeout = 1000
 # limit the number of lines in a cell output
 max_output_length = 500
 # the files will be ingored for execution
-ignore_execution = []
+ignore_execution = ['install']
 
 def _replace_ext(fname, new_ext):
     """replace the file extension in a filename"""
@@ -61,7 +61,8 @@ def convert_md():
         new_fname = _get_new_fname(fname)
         # parse if each markdown file is actually a jupyter notebook
         with open(fname, 'r') as fp:
-            valid = '```{.python .input' in fp.read()
+            data = fp.read()
+            valid = '```{.python .input' in data or '```python' in data
             if not valid:
                 if new_fname != fname:
                     print('=== Rename %s -> %s' % (fname, new_fname))
