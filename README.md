@@ -6,7 +6,7 @@
 
 ## 如何贡献
 
-所有notebook是用markdown格式存储，这样方便merge改动。jupyter可以通过notedown来直接使用markdown，[参考这里安装](./chapter00_preface/install.md#使用notedown插件来读写github源文件)
+所有notebook是用markdown格式存储，这样方便merge改动。jupyter可以通过notedown来直接使用markdown，[参考这里安装](./chapter_preface/install.md#使用notedown插件来读写github源文件)
 
 build服务器在 http://gluon-ci.mxnet.io 。这台服务器有一块Nvidia M60。
 

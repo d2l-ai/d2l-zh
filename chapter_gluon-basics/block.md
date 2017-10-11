@@ -4,7 +4,7 @@
 
 本教程和接下来几个教程，我们将详细解释如何使用这两个类来定义神经网络、初始化参数、以及保存和读取模型。
 
-我们重新把[多层感知机 --- 使用Gluon](../chapter02_supervised-learning/mlp-gluon.md)里的网络定义搬到这里作为开始的例子（为了简单起见，这里我们丢掉了Flatten层）。
+我们重新把[多层感知机 --- 使用Gluon](../chapter_supervised-learning/mlp-gluon.md)里的网络定义搬到这里作为开始的例子（为了简单起见，这里我们丢掉了Flatten层）。
 
 ```{.python .input  n=9}
 from mxnet import nd
@@ -14,7 +14,7 @@ net = nn.Sequential()
 with net.name_scope():
     net.add(nn.Dense(256, activation="relu"))
     net.add(nn.Dense(10))
-    
+
 print(net)
 ```
 
@@ -86,7 +86,7 @@ print('customized prefix:', net3.dense0.name)
 一个简单的实现是这样的：
 
 ```{.python .input}
-class Sequential(nn.Block):    
+class Sequential(nn.Block):
     def __init__(self, **kwargs):
         super(Sequential, self).__init__(**kwargs)
     def add(self, block):
@@ -94,7 +94,7 @@ class Sequential(nn.Block):
     def forward(self, x):
         for block in self._children:
             x = block(x)
-        return x    
+        return x
 ```
 
 可以跟`nn.Sequential`一样的使用这个自定义的类：
@@ -104,7 +104,7 @@ net4 = Sequential()
 with net4.name_scope():
     net4.add(nn.Dense(256, activation="relu"))
     net4.add(nn.Dense(10))
-    
+
 net4.initialize()
 y = net4(x)
 y
@@ -149,7 +149,7 @@ class RecMLP(nn.Block):
             self.net.add(nn.Dense(256, activation="relu"))
             self.net.add(nn.Dense(128, activation="relu"))
             self.dense = nn.Dense(64)
-            
+
     def forward(self, x):
         return nd.relu(self.dense(self.net(x)))
 

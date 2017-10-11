@@ -108,7 +108,7 @@ $$H = \phi(X W_{wh} + b_h)$$
 
 $$\hat{Y} = \text{softmax}(H W_{hy} + b_y)$$
 
-（跟[多层感知机](../chapter02_multilayer-neural-network/mlp-scratch.md)相比，这里我们把下标从$W_1$和$W_2$改成了意义更加明确的$W_{wh}$和$W_{hy}$)
+（跟[多层感知机](../chapter_multilayer-neural-network/mlp-scratch.md)相比，这里我们把下标从$W_1$和$W_2$改成了意义更加明确的$W_{wh}$和$W_{hy}$)
 
 将上面网络改成循环神经网络，我们首先对输入输出加上时间戳$t$。假设$X_t$是序列中的第$t$个输入，对应的隐层输出和最终输出是$H_t$和$\hat{Y}_t$。循环神经网络只需要在计算隐层的输出的时候加上跟前一时间输入的加权和，为此我们引入一个新的可学习的权重$W_{hh}$：
 
