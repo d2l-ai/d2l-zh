@@ -37,6 +37,7 @@ build/data:
 
 html: $(DEPS) $(OBJ)
 	make -C build html
+	bash build/htaccess.sh build/_build/html/
 
 latex: $(DEPS) $(OBJ)
 	make -C build latex
