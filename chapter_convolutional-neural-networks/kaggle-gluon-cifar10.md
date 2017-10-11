@@ -1,6 +1,6 @@
 # 实战Kaggle比赛——使用Gluon对原始图像文件分类（CIFAR-10）
 
-我们在[监督学习中的一章](../chapter02_supervised-learning/kaggle-gluon-kfold.md)里，以[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)为例，介绍了如何使用``Gluon``来实战[Kaggle比赛](https://www.kaggle.com)。
+我们在[监督学习中的一章](../chapter_supervised-learning/kaggle-gluon-kfold.md)里，以[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)为例，介绍了如何使用``Gluon``来实战[Kaggle比赛](https://www.kaggle.com)。
 
 我们在本章中选择了Kaggle中著名的[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)。我们以该问题为
 例，为大家提供使用`Gluon`对原始图像文件进行分类的示例代码。
@@ -56,7 +56,7 @@
 ```{.python .input  n=1}
 # 如果训练下载的Kaggle的完整数据集，把下面改False
 demo = True
-if demo:    
+if demo:
     import zipfile
     for fin in ['train_tiny.zip', 'test_tiny.zip', 'trainLabels.csv.zip']:
         with zipfile.ZipFile('../data/kaggle_cifar10/' + fin, 'r') as zin:
@@ -87,7 +87,7 @@ def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir, val
     assert 0 < num_train_tuning < num_train
     num_train_tuning_per_label = num_train_tuning // len(labels)
     label_count = dict()
-    
+
     def mkdir_if_not_exist(path):
         if not os.path.exists(os.path.join(*path)):
             os.makedirs(os.path.join(*path))
@@ -97,22 +97,22 @@ def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir, val
         idx = int(train_file.split('.')[0])
         label = idx_label[idx]
         mkdir_if_not_exist([data_dir, input_dir, 'train_valid', label])
-        shutil.copy(os.path.join(data_dir, train_dir, train_file), 
+        shutil.copy(os.path.join(data_dir, train_dir, train_file),
                     os.path.join(data_dir, input_dir, 'train_valid', label))
         if label not in label_count or label_count[label] < num_train_tuning_per_label:
             mkdir_if_not_exist([data_dir, input_dir, 'train', label])
-            shutil.copy(os.path.join(data_dir, train_dir, train_file), 
+            shutil.copy(os.path.join(data_dir, train_dir, train_file),
                         os.path.join(data_dir, input_dir, 'train', label))
             label_count[label] = label_count.get(label, 0) + 1
         else:
             mkdir_if_not_exist([data_dir, input_dir, 'valid', label])
-            shutil.copy(os.path.join(data_dir, train_dir, train_file), 
+            shutil.copy(os.path.join(data_dir, train_dir, train_file),
                         os.path.join(data_dir, input_dir, 'valid', label))
 
     # 整理测试集。
     mkdir_if_not_exist([data_dir, input_dir, 'test', 'unknown'])
     for test_file in os.listdir(os.path.join(data_dir, test_dir)):
-        shutil.copy(os.path.join(data_dir, test_dir, test_file), 
+        shutil.copy(os.path.join(data_dir, test_dir, test_file),
                     os.path.join(data_dir, input_dir, 'test', 'unknown'))
 ```
 
@@ -142,7 +142,7 @@ reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir, valid_r
 
 ## 使用Gluon读取整理后的数据集
 
-为避免过拟合，我们在这里使用`image.CreateAugmenter`来加强数据集。例如我们设`rand_crop=True`和`rand_mirror=True`即可随机对每张图片做边切割和镜面反转。我们也通过`mean`和`std`对彩色图像RGB三个通道分别做[标准化](..chapter02_supervised-learning/kaggle-gluon-kfold.md)。以下我们列举了该函数里的所有参数，这些参数都是可以调的。
+为避免过拟合，我们在这里使用`image.CreateAugmenter`来加强数据集。例如我们设`rand_crop=True`和`rand_mirror=True`即可随机对每张图片做边切割和镜面反转。我们也通过`mean`和`std`对彩色图像RGB三个通道分别做[标准化](../chapter_supervised-learning/kaggle-gluon-kfold.md)。以下我们列举了该函数里的所有参数，这些参数都是可以调的。
 
 ```{.python .input  n=4}
 from mxnet import autograd
@@ -155,12 +155,12 @@ import numpy as np
 
 def transform(data, label):
     im = data.astype('float32') / 255
-    auglist = image.CreateAugmenter(data_shape=(3, 32, 32), resize=0, 
+    auglist = image.CreateAugmenter(data_shape=(3, 32, 32), resize=0,
                         rand_crop=True, rand_resize=False, rand_mirror=True,
-                        mean=np.array([0.4914, 0.4822, 0.4465]), 
-                        std=np.array([0.2023, 0.1994, 0.2010]), 
-                        brightness=0, contrast=0, 
-                        saturation=0, hue=0, 
+                        mean=np.array([0.4914, 0.4822, 0.4465]),
+                        std=np.array([0.2023, 0.1994, 0.2010]),
+                        brightness=0, contrast=0,
+                        saturation=0, hue=0,
                         pca_noise=0, rand_gray=0, inter_method=2)
     for aug in auglist:
         im = aug(im)
@@ -175,13 +175,13 @@ def transform(data, label):
 input_str = data_dir + '/' + input_dir + '/'
 
 # 读取原始图像文件。flag=1说明输入图像有三个通道（彩色）。
-train_ds = vision.ImageFolderDataset(input_str + 'train', flag=1, 
+train_ds = vision.ImageFolderDataset(input_str + 'train', flag=1,
                                      transform=transform)
-valid_ds = vision.ImageFolderDataset(input_str + 'valid', flag=1, 
+valid_ds = vision.ImageFolderDataset(input_str + 'valid', flag=1,
                                      transform=transform)
-train_valid_ds = vision.ImageFolderDataset(input_str + 'train_valid', 
+train_valid_ds = vision.ImageFolderDataset(input_str + 'train_valid',
                                            flag=1, transform=transform)
-test_ds = vision.ImageFolderDataset(input_str + 'test', flag=1, 
+test_ds = vision.ImageFolderDataset(input_str + 'test', flag=1,
                                      transform=transform)
 
 
@@ -227,7 +227,7 @@ class Residual(nn.Block):
         if not self.same_shape:
             x = self.conv3(x)
         return nd.relu(out + x)
-    
+
 
 class ResNet(nn.Block):
     def __init__(self, num_classes, verbose=False, **kwargs):
@@ -307,12 +307,12 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period, lr_de
         time_str = "Time %02d:%02d:%02d" % (h, m, s)
         if valid_data is not None:
             valid_acc = utils.evaluate_accuracy(valid_data, net, ctx)
-            epoch_str = ("Epoch %d. Loss: %f, Train acc %f, Valid acc %f, " 
-                         % (epoch, train_loss / len(train_data), 
+            epoch_str = ("Epoch %d. Loss: %f, Train acc %f, Valid acc %f, "
+                         % (epoch, train_loss / len(train_data),
                             train_acc / len(train_data), valid_acc))
         else:
-            epoch_str = ("Epoch %d. Loss: %f, Train acc %f, " 
-                         % (epoch, train_loss / len(train_data), 
+            epoch_str = ("Epoch %d. Loss: %f, Train acc %f, "
+                         % (epoch, train_loss / len(train_data),
                             train_acc / len(train_data)))
         prev_time = cur_time
         print(epoch_str + time_str + ', lr ' + str(trainer.learning_rate))
@@ -331,7 +331,7 @@ lr_period = 80
 lr_decay = 0.1
 
 net = get_net(ctx)
-train(net, train_data, valid_data, num_epochs, learning_rate, 
+train(net, train_data, valid_data, num_epochs, learning_rate,
       weight_decay, ctx, lr_period, lr_decay)
 ```
 
@@ -344,14 +344,14 @@ import numpy as np
 import pandas as pd
 
 net = get_net(ctx)
-train(net, train_data, None, num_epochs, learning_rate, 
+train(net, train_data, None, num_epochs, learning_rate,
       weight_decay, ctx, lr_period, lr_decay)
 
 preds = []
 for data, label in test_data:
     output = net(data.as_in_context(ctx))
     preds.extend(output.argmax(axis=1).astype(int).asnumpy())
-    
+
 sorted_ids = list(range(1, len(test_ds) + 1))
 sorted_ids.sort(key = lambda x:str(x))
 
