@@ -35,10 +35,10 @@ build/img:
 build/data:
 	rsync -rupE data build/
 
-html: $(OBJ) $(DEPS)
+html: $(DEPS) $(OBJ)
 	make -C build html
 
-latex: $(OBJ) $(DEPS)
+latex: $(DEPS) $(OBJ)
 	make -C build latex
 
 clean:
