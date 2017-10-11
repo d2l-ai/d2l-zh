@@ -1,10 +1,10 @@
 # 批量归一化 --- 从0开始
 
-在[Kaggle实战](../chapter02_supervised-learning/kaggle-gluon-kfold.md#预处理数据)我们输入数据做了归一化。在实际应用中，我们通常将输入数据的每个样本或者每个特征进行归一化，就是将均值变为0方差变为1，来使得数值更稳定。
+在[Kaggle实战](../chapter_supervised-learning/kaggle-gluon-kfold.md#预处理数据)我们输入数据做了归一化。在实际应用中，我们通常将输入数据的每个样本或者每个特征进行归一化，就是将均值变为0方差变为1，来使得数值更稳定。
 
 这个对
-我们在之前的课程里学过了[线性回归](../chapter02_supervised-learning/linear-regression-
-scratch.md)和[逻辑回归](../chapter02_supervised-learning/softmax-regression-
+我们在之前的课程里学过了[线性回归](../chapter_supervised-learning/linear-regression-
+scratch.md)和[逻辑回归](../chapter_supervised-learning/softmax-regression-
 scratch.md)很有效。因为输入层的输入值的大小变化不剧烈，那么输入也不会。但是，对于一个可能有很多层的深度学习模型来说，情况可能会比较复杂。
 
 举个例子，随着第一层和第二层的参数在训练时不断变化，第三层所使用的激活函数的输入值可能由于乘法效应而变得极大或极小，例如和第一层所使用的激活函数的输入值不在一个数量级上。这种在训练时可能出现的情况会造成模型训练的不稳定性。例如，给定一个学习率，某次参数迭代后，目标函数值会剧烈变化或甚至升高。数学的解释是，如果把目标函数
@@ -46,7 +46,7 @@ def pure_batch_norm(X, gamma, beta, eps=1e-5):
         # 对每个通道算均值和方差，需要保持4D形状使得可以正确地广播
         mean = X.mean(axis=(0,2,3), keepdims=True)
         variance = ((X - mean)**2).mean(axis=(0,2,3), keepdims=True)
-        
+
     # 均一化
     X_hat = (X - mean) / nd.sqrt(variance + eps)
     # 拉升和偏移
@@ -108,7 +108,7 @@ def batch_norm(X, gamma, beta, is_training, moving_mean, moving_variance,
         # 变形使得可以正确的广播
         moving_mean = moving_mean.reshape(mean.shape)
         moving_variance = moving_variance.reshape(mean.shape)
-        
+
     # 均一化
     if is_training:
         X_hat = (X - mean) / nd.sqrt(variance + eps)
@@ -120,7 +120,7 @@ def batch_norm(X, gamma, beta, is_training, moving_mean, moving_variance,
     else:
         #!!! 测试阶段使用全局的均值和方差
         X_hat = (X - moving_mean) / nd.sqrt(moving_variance + eps)
-    
+
     # 拉升和偏移
     return gamma.reshape(mean.shape) * X_hat + beta.reshape(mean.shape)
 ```
@@ -174,8 +174,8 @@ W4 = nd.random_normal(shape=(W3.shape[1], 10), scale=weight_scale, ctx=ctx)
 b4 = nd.zeros(W4.shape[1], ctx=ctx)
 
 # 注意这里moving_*是不需要更新的
-params = [W1, b1, gamma1, beta1, 
-          W2, b2, gamma2, beta2, 
+params = [W1, b1, gamma1, beta1,
+          W2, b2, gamma2, beta2,
           W3, b3, W4, b4]
 
 for param in params:
@@ -190,8 +190,8 @@ def net(X, is_training=False, verbose=False):
     # 第一层卷积
     h1_conv = nd.Convolution(
         data=X, weight=W1, bias=b1, kernel=W1.shape[2:], num_filter=c1)
-    ### 添加了批量归一化层 
-    h1_bn = batch_norm(h1_conv, gamma1, beta1, is_training, 
+    ### 添加了批量归一化层
+    h1_bn = batch_norm(h1_conv, gamma1, beta1, is_training,
                        moving_mean1, moving_variance1)
     h1_activation = nd.relu(h1_bn)
     h1 = nd.Pooling(
@@ -199,9 +199,9 @@ def net(X, is_training=False, verbose=False):
     # 第二层卷积
     h2_conv = nd.Convolution(
         data=h1, weight=W2, bias=b2, kernel=W2.shape[2:], num_filter=c2)
-    ### 添加了批量归一化层 
-    h2_bn = batch_norm(h2_conv, gamma2, beta2, is_training, 
-                       moving_mean2, moving_variance2)        
+    ### 添加了批量归一化层
+    h2_bn = batch_norm(h2_conv, gamma2, beta2, is_training,
+                       moving_mean2, moving_variance2)
     h2_activation = nd.relu(h2_bn)
     h2 = nd.Pooling(data=h2_activation, pool_type="max", kernel=(2,2), stride=(2,2))
     h2 = nd.flatten(h2)
@@ -222,7 +222,7 @@ def net(X, is_training=False, verbose=False):
 下面我们训练并测试模型。
 
 ```{.python .input  n=11}
-from mxnet import autograd 
+from mxnet import autograd
 from mxnet import gluon
 
 batch_size = 256

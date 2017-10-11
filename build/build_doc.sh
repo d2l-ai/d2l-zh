@@ -17,7 +17,11 @@ if [ -e $DSTDIR/$PDF ]; then
     cp $DSTDIR/$PDF _build/html/
 fi
 rm -rf $DSTDIR
-mv _build/html $DSTDIR
+
+rm -rf build/data
+make pkg
+
+mv build/_build/html $DSTDIR
 
 set +e
 if [ -x "$(command -v xelatex)" ]; then
