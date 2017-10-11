@@ -22,7 +22,7 @@ with net.name_scope():
     )
 ```
 
-# 获取数据和训练
+## 获取数据和训练
 
 剩下的跟上一章没什么不同，我们重用`utils.py`里定义的函数。
 
@@ -43,9 +43,9 @@ train_data, test_data = utils.load_data_fashion_mnist(batch_size)
 
 # 训练
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
-trainer = gluon.Trainer(net.collect_params(), 
+trainer = gluon.Trainer(net.collect_params(),
                         'sgd', {'learning_rate': 0.5})
-utils.train(train_data, test_data, net, loss, 
+utils.train(train_data, test_data, net, loss,
             trainer, ctx, num_epochs=5)
 ```
 
