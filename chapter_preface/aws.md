@@ -182,7 +182,7 @@ ssh -L8888:locallhost:8888 ubuntu@your-ip.amazonaws.com
 ssh -N -f -L localhost:8889:localhost:8888 ubuntu@your-ip.amazonaws.com
 ```
 
-然后在本地浏览器打开http://localhost:8889，这时会提示需要token值。接下来，我们将aws上jupyter log里的token值（例如log里会有一段：Copy/paste this URL into your browser when you connect for the first time, to login with a token: http://localhost:8888/?token=`token值`）复制粘贴即可。
+然后在本地浏览器打开localhost:8889，这时会提示需要token值。接下来，我们将aws上jupyter log里的token值（例如上图里：...localhost:8888/?token=`token值`）复制粘贴即可。
 
 
 
