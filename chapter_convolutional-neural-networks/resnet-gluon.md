@@ -24,16 +24,17 @@ ResNet通过增加跨层的连接来解决梯度逐层回传时变小的问题�
 
 ## Residual块
 
-ResNet沿用了VGG的那种全用$3\times 3$卷积，但在卷积和池化层之间加入了批量归一层来加速训练。每次跨层连接跨过两层卷积。这里我们定义一个这样的残差块。注意到如果输入的通道数和输出不一样时（`same_shape=False`），我们使用一个额外的$1\times 1$卷积来做通道变化，同时使用`strides=2`来把长宽减半。 
+ResNet沿用了VGG的那种全用$3\times 3$卷积，但在卷积和池化层之间加入了批量归一层来加速训练。每次跨层连接跨过两层卷积。这里我们定义一个这样的残差块。注意到如果输入的通道数和输出不一样时（`same_shape=False`），我们使用一个额外的$1\times 1$卷积来做通道变化，同时使用`strides=2`来把长宽减半。
 
-```{.python .input  n=22}
+
+```python
 from mxnet.gluon import nn
 from mxnet import nd
 
 class Residual(nn.Block):
     def __init__(self, channels, same_shape=True, **kwargs):
         super(Residual, self).__init__(**kwargs)
-        self.same_shape = same_shape
+        self.same_shape = same_shapet
         with self.name_scope():
             strides = 1 if same_shape else 2
             self.conv1 = nn.Conv2D(channels, kernel_size=3, padding=1, 
@@ -55,7 +56,8 @@ class Residual(nn.Block):
 
 输入输出通道相同：
 
-```{.python .input  n=23}
+
+```python
 blk = Residual(3)
 blk.initialize()
 
@@ -65,7 +67,8 @@ blk(x).shape
 
 输入输出通道不同：
 
-```{.python .input  n=24}
+
+```python
 blk2 = Residual(8, same_shape=False)
 blk2.initialize()
 blk2(x).shape
@@ -75,7 +78,8 @@ blk2(x).shape
 
 类似GoogLeNet主体是由Inception块串联而成，ResNet的主体部分串联多个Residual块。下面我们定义18层的ResNet。同样为了阅读更加容易，我们这里使用了多个`nn.Sequential`。另外注意到一点是，这里我们没用池化层来减小数据长宽，而是通过有通道变化的Residual块里面的使用`strides=2`的卷积层。
 
-```{.python .input}
+
+```python
 class ResNet(nn.Block):
     def __init__(self, num_classes, verbose=False, **kwargs):
         super(ResNet, self).__init__(**kwargs)
@@ -129,7 +133,8 @@ class ResNet(nn.Block):
 
 这里演示数据在块之间的形状变化：
 
-```{.python .input}
+
+```python
 net = ResNet(10, verbose=True)
 net.initialize()
 
@@ -141,7 +146,8 @@ y = net(x)
 
 跟前面类似，但因为有批量归一化，所以使用了较大的学习率。
 
-```{.python .input}
+
+```python
 import sys
 sys.path.append('..')
 import utils

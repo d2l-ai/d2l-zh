@@ -13,6 +13,7 @@
 
 对于机器学习科学家来说，幸运的是大部分应用没有那么容易。回到前面那个例子，想象下如何写一个程序来回应唤醒词例如“Okay, Google”，“Siri”，和“Alexa”。如果你在一个只有你和代码编辑器的房间里写这个程序，你该怎么办？你可能会想像下面的程序
 
+
 ```python
 if input_command == 'Okey, Google':
      run_voice_assistant()
@@ -49,7 +50,8 @@ if input_command == 'Okey, Google':
 
 传统的实现是这样的：
 
-```{.python .input}
+
+```python
 res = []
 for i in range(1, 101):
     if i % 15 == 0:

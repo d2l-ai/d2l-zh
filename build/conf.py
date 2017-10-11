@@ -332,12 +332,6 @@ intersphinx_mapping = {
 # notebooks will be executed by sphnix_plugin
 nbsphinx_execute = 'never'
 
-curr_path = os.path.dirname(os.path.abspath(os.path.expanduser(__file__)))
-sys.path.insert(0, curr_path)
-import sphinx_plugin as sp
-print('Ignore the generated files: ', sp.ignore_list)
-exclude_patterns += sp.ignore_list
-
 def setup(app):
     app.add_transform(AutoStructify)
     app.add_config_value('recommonmark_config', {
@@ -345,8 +339,3 @@ def setup(app):
     app.add_javascript('baidu_tongji.js')
     app.add_javascript('google_analytics.js')
     app.add_stylesheet('gluon.css')
-    app.connect('source-read', sp.update_links)
-    app.connect('build-finished', sp.check_output)
-    app.connect('build-finished', sp.remove_generated_files)
-    app.connect('build-finished', sp.generate_htaccess)
-    app.connect('build-finished', sp.release_notebook)

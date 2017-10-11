@@ -13,13 +13,13 @@
 .. toctree::
    :maxdepth: 2
 
-   00
-   01
-   02
-   03
-   04
-   05
-   07
+   chapter_preface/index
+   chapter_crashcourse/index
+   chapter_supervised-learning/index
+   chapter_gluon-basics/index
+   chapter_convolutional-neural-networks/index
+   chapter_recurrent-neural-networks/index
+   chapter_gluon-advances/index
 ```
 
 我们将持续的加入新的内容。如果想提前了解，可以参见 [英文版本](http://gluon.mxnet.io/) （注意：中文版本根据社区的反馈做了比较大的更改，我们还在努力的将改动同步到英文版）
