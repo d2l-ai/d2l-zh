@@ -10,8 +10,7 @@ ResNet的跨层连接思想影响了接下来的众多工作。这里我们介�
 
 我们先来定义一个稠密连接块。DenseNet的卷积块使用ResNet改进版本的`BN->Relu->Conv`。每个卷积的输出通道数被称之为`growth_rate`，这是因为假设输出为`in_channels`，而且有`layers`层，那么输出的通道数就是`in_channels+growth_rate*layers`。
 
-
-```python
+```{.python .input}
 from mxnet import nd
 from mxnet.gluon import nn
 
@@ -40,8 +39,7 @@ class DenseBlock(nn.Block):
 
 我们验证下输出通道数是不是符合预期。
 
-
-```python
+```{.python .input}
 dblk = DenseBlock(2, 10)
 dblk.initialize()
 
@@ -53,8 +51,7 @@ dblk(x).shape
 
 因为使用拼接的缘故，每经过一次过渡块输出通道数可能会激增。为了控制模型复杂度，这里引入一个过渡块，它不仅把输入的长宽减半，同时也使用$1\times 1$卷积来改变通道数。
 
-
-```python
+```{.python .input}
 def transition_block(channels):
     out = nn.Sequential()
     out.add(
@@ -68,8 +65,7 @@ def transition_block(channels):
 
 验证一下结果：
 
-
-```python
+```{.python .input}
 tblk = transition_block(10)
 tblk.initialize()
 
@@ -80,8 +76,7 @@ tblk(x).shape
 
 DenseNet的主体就是交替串联稠密块和过渡块。它使用全局的`growth_rate`使得配置更加简单。过渡层每次都将通道数减半。下面定义一个121层的DenseNet。
 
-
-```python
+```{.python .input}
 init_channels = 64
 growth_rate = 32
 block_layers = [6, 12, 24, 16]
@@ -121,8 +116,7 @@ def dense_net():
 
 因为这里我们使用了比较深的网络，所以我们进一步把输入减少到$32\times 32$来训练。
 
-
-```python
+```{.python .input}
 import sys
 sys.path.append('..')
 import utils

@@ -4,8 +4,7 @@
 
 考虑下面这段代码：
 
-
-```python
+```{.python .input}
 def add(A, B):
     return A + B
 
@@ -30,8 +29,7 @@ fancy_func(1,2,3,4)
 
 我们重新实现上面的程序：
 
-
-```python
+```{.python .input}
 def add_str():
     return '''
 def add(A, B):
@@ -76,8 +74,7 @@ exec(y)
 
 我们之前学习了如何使用`Sequential`来串联多个层。如果你想要它跑得飞快，那你应该考虑替换成`HybridSequential`。
 
-
-```python
+```{.python .input}
 from mxnet.gluon import nn
 from mxnet import nd
 
@@ -99,8 +96,7 @@ net(x)
 
 我们可以通过`hybridize`来编译和优化`HybridSequential`。
 
-
-```python
+```{.python .input}
 net.hybridize()
 net(x)
 ```
@@ -112,8 +108,7 @@ net(x)
 
 我们比较`hybridize`前和后的计算时间来展示符号式执行的性能提升。这里我们计时1000次forward：
 
-
-```python
+```{.python .input}
 from time import time
 
 def bench(net, x):
@@ -137,8 +132,7 @@ print('After hybridizing: %.4f sec'%(bench(net, x)))
 
 之前我们给`net`输入`NDArray`类型的`x`，然后`net(x)`会直接返回结果。对于调用过`hybridize()`后的网络，我们可以给它输入一个`Symbol`类型的变量，其会返回同样是`Symbol`类型的程序。
 
-
-```python
+```{.python .input}
 from mxnet import sym
 
 x = sym.var('data')
@@ -154,8 +148,7 @@ TODO(mli) save and load. Eric is working on the new `export` method.
 
 前面我们展示了通过`hybridize`我们可以获得更好的性能和更高的移植性。现在我们来解释这个是如何影响灵活性的。记得我们提过gluon里面的`Sequential`是`Block`的一个便利形式，同理，可以`HybridSequential`是`HybridBlock`的子类。跟`Block`需要实现`forward`方法不一样，对于`HybridBlock`我们需要实现`hybrid_forward`方法。
 
-
-```python
+```{.python .input}
 class HybridNet(nn.HybridBlock):
     def __init__(self, **kwargs):
         super(HybridNet, self).__init__(**kwargs)
@@ -175,8 +168,7 @@ class HybridNet(nn.HybridBlock):
 
 我们实例化一个样例，然后可以看到默认`F`是使用`ndarray`。而且我们打印出了输入和第一层relu的输出。
 
-
-```python
+```{.python .input}
 net = HybridNet()
 net.initialize()
 x = nd.random.normal(shape=(1, 4))
@@ -186,15 +178,13 @@ y = net(x)
 
 在运行一次会得到同样的结果。
 
-
-```python
+```{.python .input}
 y = net(x)
 ```
 
 接下来看看`hybridze`后会发生什么。
 
-
-```python
+```{.python .input}
 net.hybridize()
 y = net(x)
 ```
@@ -206,8 +196,7 @@ y = net(x)
 
 在运行一次看看
 
-
-```python
+```{.python .input}
 y = net(x)
 ```
 
@@ -218,4 +207,3 @@ y = net(x)
 ## 结论
 
 通过`HybridSequental`和`HybridBlock`，我们可以简单的用`hybridize`来将将命令式的程序转成符号式程序。我们推荐大家尽可能的使用这个来获得最好的性能加速。
-

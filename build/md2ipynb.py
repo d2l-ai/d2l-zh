@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 import notedown
 import nbformat
 
@@ -18,7 +19,7 @@ output_fn = sys.argv[2]
 reader = notedown.MarkdownReader(match='strict')
 
 do_eval = int(os.environ.get('EVAL', True))
-do_eval = False
+# do_eval = False
 
 # read
 with open(input_fn, 'r') as f:
