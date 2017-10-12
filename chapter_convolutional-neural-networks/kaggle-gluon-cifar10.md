@@ -1,9 +1,8 @@
 # 实战Kaggle比赛——使用Gluon对原始图像文件分类（CIFAR-10）
 
-我们在[监督学习中的一章](../chapter02_supervised-learning/kaggle-gluon-kfold.md)里，以[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)为例，介绍了如何使用``Gluon``来实战[Kaggle比赛](https://www.kaggle.com)。
+我们在[监督学习中的一章](../chapter_supervised-learning/kaggle-gluon-kfold.md)里，以[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)为例，介绍了如何使用``Gluon``来实战[Kaggle比赛](https://www.kaggle.com)。
 
-我们在本章中选择了Kaggle中著名的[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)。我们以该问题为
-例，为大家提供使用`Gluon`对原始图像文件进行分类的示例代码。
+我们在本章中选择了Kaggle中著名的[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)。我们以该问题为例，为大家提供使用`Gluon`对原始图像文件进行分类的示例代码。
 
 计算机视觉一直是深度学习的主战场，请
 
@@ -184,8 +183,6 @@ train_valid_ds = vision.ImageFolderDataset(input_str + 'train_valid',
 test_ds = vision.ImageFolderDataset(input_str + 'test', flag=1, 
                                      transform=transform)
 
-
-
 loader = gluon.data.DataLoader
 train_data = loader(train_ds, batch_size, shuffle=True, last_batch='keep')
 valid_data = loader(valid_ds, batch_size, shuffle=True, last_batch='keep')
@@ -198,7 +195,7 @@ softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 
 ## 设计模型
 
-我们这里使用了[ResNet-18](resnet-gluon.md)模型。
+我们这里使用了[ResNet-18](resnet-gluon.md)模型。我们使用[hybridizing](../chapter_gluon-advances/hybridize.md)来提升执行效率。
 
 请注意：模型可以重新设计，参数也可以重新调整。
 
@@ -206,7 +203,7 @@ softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 from mxnet.gluon import nn
 from mxnet import nd
 
-class Residual(nn.Block):
+class Residual(nn.HybridBlock):
     def __init__(self, channels, same_shape=True, **kwargs):
         super(Residual, self).__init__(**kwargs)
         self.same_shape = same_shape
@@ -221,20 +218,20 @@ class Residual(nn.Block):
                 self.conv3 = nn.Conv2D(channels, kernel_size=1,
                                       strides=strides)
 
-    def forward(self, x):
-        out = nd.relu(self.bn1(self.conv1(x)))
+    def hybrid_forward(self, F, x):
+        out = F.relu(self.bn1(self.conv1(x)))
         out = self.bn2(self.conv2(out))
         if not self.same_shape:
             x = self.conv3(x)
-        return nd.relu(out + x)
-    
+        return F.relu(out + x)
 
-class ResNet(nn.Block):
+    
+class ResNet(nn.HybridBlock):
     def __init__(self, num_classes, verbose=False, **kwargs):
         super(ResNet, self).__init__(**kwargs)
         self.verbose = verbose
         with self.name_scope():
-            net = self.net = nn.Sequential()
+            net = self.net = nn.HybridSequential()
             # block 1
             net.add(nn.Conv2D(channels=32, kernel_size=3, strides=1, padding=1))
             net.add(nn.BatchNorm())
@@ -255,13 +252,14 @@ class ResNet(nn.Block):
             net.add(nn.Flatten())
             net.add(nn.Dense(num_classes))
 
-    def forward(self, x):
+    def hybrid_forward(self, F, x):
         out = x
         for i, b in enumerate(self.net):
             out = b(out)
             if self.verbose:
                 print('Block %d output: %s'%(i+1, out.shape))
         return out
+
 
 def get_net(ctx):
     num_outputs = 10
@@ -272,7 +270,7 @@ def get_net(ctx):
 
 ## 训练模型并调参
 
-在[过拟合](underfit-overfit.md)中我们讲过，过度依赖训练数据集的误差来推断测试数据集的误差容易导致过拟合。由于图像分类训练时间可能较长，为了方便，我们这里不再使用K折交叉验证，而是依赖验证集的结果来调参。
+在[过拟合](../chapter_supervised-learning/underfit-overfit.md)中我们讲过，过度依赖训练数据集的误差来推断测试数据集的误差容易导致过拟合。由于图像分类训练时间可能较长，为了方便，我们这里不再使用K折交叉验证，而是依赖验证集的结果来调参。
 
 我们定义模型训练函数。这里我们记录每个epoch的训练时间。这有助于我们比较不同模型设计的时间成本。
 
@@ -331,6 +329,7 @@ lr_period = 80
 lr_decay = 0.1
 
 net = get_net(ctx)
+net.hybridize()
 train(net, train_data, valid_data, num_epochs, learning_rate, 
       weight_decay, ctx, lr_period, lr_decay)
 ```
@@ -344,6 +343,7 @@ import numpy as np
 import pandas as pd
 
 net = get_net(ctx)
+net.hybridize()
 train(net, train_data, None, num_epochs, learning_rate, 
       weight_decay, ctx, lr_period, lr_decay)
 
@@ -360,7 +360,8 @@ df['label'] = df['label'].apply(lambda x: train_valid_ds.synsets[x])
 df.to_csv('submission.csv', index=False)
 ```
 
-上述代码执行完会生成一个`submission.csv`的文件用于在Kaggle上提交。这是Kaggle要求的提交格式。这时我们可以在Kaggle上把对测试集分类的结果提交并查看分类准确率。你需要登录Kaggle网站，打开[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)，并点击下方右侧`Late Submission`按钮。
+上述代码执行完会生成一个`submission.csv`的文件用于在Kaggle上提交。这是Kaggle要求的提交格式。这时我们可以在Kaggle上把对测试集分
+类的结果提交并查看分类准确率。你需要登录Kaggle网站，打开[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)，并点击下方右侧`Late Submission`按钮。
 
 ![](../img/kaggle_submit3.png)
 
