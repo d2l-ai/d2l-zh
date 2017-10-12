@@ -360,8 +360,7 @@ df['label'] = df['label'].apply(lambda x: train_valid_ds.synsets[x])
 df.to_csv('submission.csv', index=False)
 ```
 
-上述代码执行完会生成一个`submission.csv`的文件用于在Kaggle上提交。这是Kaggle要求的提交格式。这时我们可以在Kaggle上把对测试集分
-类的结果提交并查看分类准确率。你需要登录Kaggle网站，打开[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)，并点击下方右侧`Late Submission`按钮。
+上述代码执行完会生成一个`submission.csv`的文件用于在Kaggle上提交。这是Kaggle要求的提交格式。这时我们可以在Kaggle上把对测试集分类的结果提交并查看分类准确率。你需要登录Kaggle网站，打开[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)，并点击下方右侧`Late Submission`按钮。
 
 ![](../img/kaggle_submit3.png)
 
