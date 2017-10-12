@@ -141,7 +141,7 @@ reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir, valid_r
 
 ## 使用Gluon读取整理后的数据集
 
-为避免过拟合，我们在这里使用`image.CreateAugmenter`来加强数据集。例如我们设`rand_mirror=True`即可随机对每张图片做镜面反转。我们也通过`mean`和`std`对彩色图像RGB三个通道分别做[标准化](..chapter_supervised-learning/kaggle-gluon-kfold.md)。以下我们列举了该函数里的所有参数，这些参数都是可以调的。
+为避免过拟合，我们在这里使用`image.CreateAugmenter`来加强数据集。例如我们设`rand_mirror=True`即可随机对每张图片做镜面反转。我们也通过`mean`和`std`对彩色图像RGB三个通道分别做[标准化](../chapter_supervised-learning/kaggle-gluon-kfold.md)。以下我们列举了该函数里的所有参数，这些参数都是可以调的。
 
 ```{.python .input  n=4}
 from mxnet import autograd
@@ -206,8 +206,7 @@ softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 
 ## 设计模型
 
-我们这里使用了[ResNet-18](resnet-gluon.md)模型。我们使用[hybridizing](../chapter_gluon-
-advances/hybridize.md)来提升执行效率。
+我们这里使用了[ResNet-18](resnet-gluon.md)模型。我们使用[hybridizing](../chapter_gluon-advances/hybridize.md)来提升执行效率。
 
 请注意：模型可以重新设计，参数也可以重新调整。
 
