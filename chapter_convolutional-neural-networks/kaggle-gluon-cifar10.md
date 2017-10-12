@@ -141,7 +141,7 @@ reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir, valid_r
 
 ## 使用Gluon读取整理后的数据集
 
-为避免过拟合，我们在这里使用`image.CreateAugmenter`来加强数据集。例如我们设`rand_crop=True`和`rand_mirror=True`即可随机对每张图片做边切割和镜面反转。我们也通过`mean`和`std`对彩色图像RGB三个通道分别做[标准化](..chapter02_supervised-learning/kaggle-gluon-kfold.md)。以下我们列举了该函数里的所有参数，这些参数都是可以调的。
+为避免过拟合，我们在这里使用`image.CreateAugmenter`来加强数据集。例如我们设`rand_mirror=True`即可随机对每张图片做镜面反转。我们也通过`mean`和`std`对彩色图像RGB三个通道分别做[标准化](..chapter_supervised-learning/kaggle-gluon-kfold.md)。以下我们列举了该函数里的所有参数，这些参数都是可以调的。
 
 ```{.python .input  n=4}
 from mxnet import autograd
@@ -152,10 +152,10 @@ from mxnet import nd
 from mxnet.gluon.data import vision
 import numpy as np
 
-def transform(data, label):
+def transform_train(data, label):
     im = data.astype('float32') / 255
     auglist = image.CreateAugmenter(data_shape=(3, 32, 32), resize=0, 
-                        rand_crop=True, rand_resize=False, rand_mirror=True,
+                        rand_crop=False, rand_resize=False, rand_mirror=True,
                         mean=np.array([0.4914, 0.4822, 0.4465]), 
                         std=np.array([0.2023, 0.1994, 0.2010]), 
                         brightness=0, contrast=0, 
@@ -164,6 +164,17 @@ def transform(data, label):
     for aug in auglist:
         im = aug(im)
     # 将数据格式从"高*宽*通道"改为"通道*高*宽"。
+    im = nd.transpose(im, (2,0,1))
+    return (im, nd.array([label]).asscalar().astype('float32'))
+
+# 测试时，无需对图像做标准化以外的增强数据处理。
+def transform_test(data, label):
+    im = data.astype('float32') / 255
+    auglist = image.CreateAugmenter(data_shape=(3, 32, 32), 
+                        mean=np.array([0.4914, 0.4822, 0.4465]), 
+                        std=np.array([0.2023, 0.1994, 0.2010]))
+    for aug in auglist:
+        im = aug(im)
     im = nd.transpose(im, (2,0,1))
     return (im, nd.array([label]).asscalar().astype('float32'))
 ```
@@ -175,13 +186,13 @@ input_str = data_dir + '/' + input_dir + '/'
 
 # 读取原始图像文件。flag=1说明输入图像有三个通道（彩色）。
 train_ds = vision.ImageFolderDataset(input_str + 'train', flag=1, 
-                                     transform=transform)
+                                     transform=transform_train)
 valid_ds = vision.ImageFolderDataset(input_str + 'valid', flag=1, 
-                                     transform=transform)
+                                     transform=transform_test)
 train_valid_ds = vision.ImageFolderDataset(input_str + 'train_valid', 
-                                           flag=1, transform=transform)
+                                           flag=1, transform=transform_train)
 test_ds = vision.ImageFolderDataset(input_str + 'test', flag=1, 
-                                     transform=transform)
+                                     transform=transform_test)
 
 loader = gluon.data.DataLoader
 train_data = loader(train_ds, batch_size, shuffle=True, last_batch='keep')
@@ -195,7 +206,8 @@ softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 
 ## 设计模型
 
-我们这里使用了[ResNet-18](resnet-gluon.md)模型。我们使用[hybridizing](../chapter_gluon-advances/hybridize.md)来提升执行效率。
+我们这里使用了[ResNet-18](resnet-gluon.md)模型。我们使用[hybridizing](../chapter_gluon-
+advances/hybridize.md)来提升执行效率。
 
 请注意：模型可以重新设计，参数也可以重新调整。
 
@@ -374,9 +386,10 @@ df.to_csv('submission.csv', index=False)
 ## 作业（[汇报作业和查看其他小伙伴作业](https://discuss.gluon.ai/t/topic/1545/)）：
 
 * 使用Kaggle完整CIFAR-10数据集，把batch_size和num_epochs分别改为128和100，可以在Kaggle上拿到什么样的准确率和名次？
-
-
 * 如果不使用增强数据的方法能拿到什么样的准确率？
+
+
+
 * 你还有什么其他办法可以继续改进模型和参数？小伙伴们都期待你的分享。
 
 **吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1545/)
