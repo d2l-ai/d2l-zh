@@ -2,8 +2,7 @@
 
 我们在[监督学习中的一章](../chapter_supervised-learning/kaggle-gluon-kfold.md)里，以[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)为例，介绍了如何使用``Gluon``来实战[Kaggle比赛](https://www.kaggle.com)。
 
-我们在本章中选择了Kaggle中著名的[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)。我们以该问题为
-例，为大家提供使用`Gluon`对原始图像文件进行分类的示例代码。
+我们在本章中选择了Kaggle中著名的[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)。我们以该问题为例，为大家提供使用`Gluon`对原始图像文件进行分类的示例代码。
 
 计算机视觉一直是深度学习的主战场，请
 
@@ -142,7 +141,7 @@ reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir, valid_r
 
 ## 使用Gluon读取整理后的数据集
 
-为避免过拟合，我们在这里使用`image.CreateAugmenter`来加强数据集。例如我们设`rand_crop=True`和`rand_mirror=True`即可随机对每张图片做边切割和镜面反转。我们也通过`mean`和`std`对彩色图像RGB三个通道分别做[标准化](../chapter_supervised-learning/kaggle-gluon-kfold.md)。以下我们列举了该函数里的所有参数，这些参数都是可以调的。
+为避免过拟合，我们在这里使用`image.CreateAugmenter`来加强数据集。例如我们设`rand_mirror=True`即可随机对每张图片做镜面反转。我们也通过`mean`和`std`对彩色图像RGB三个通道分别做[标准化](../chapter_supervised-learning/kaggle-gluon-kfold.md)。以下我们列举了该函数里的所有参数，这些参数都是可以调的。
 
 ```{.python .input  n=4}
 from mxnet import autograd
@@ -153,18 +152,29 @@ from mxnet import nd
 from mxnet.gluon.data import vision
 import numpy as np
 
-def transform(data, label):
+def transform_train(data, label):
     im = data.astype('float32') / 255
-    auglist = image.CreateAugmenter(data_shape=(3, 32, 32), resize=0,
-                        rand_crop=True, rand_resize=False, rand_mirror=True,
-                        mean=np.array([0.4914, 0.4822, 0.4465]),
-                        std=np.array([0.2023, 0.1994, 0.2010]),
-                        brightness=0, contrast=0,
-                        saturation=0, hue=0,
+    auglist = image.CreateAugmenter(data_shape=(3, 32, 32), resize=0, 
+                        rand_crop=False, rand_resize=False, rand_mirror=True,
+                        mean=np.array([0.4914, 0.4822, 0.4465]), 
+                        std=np.array([0.2023, 0.1994, 0.2010]), 
+                        brightness=0, contrast=0, 
+                        saturation=0, hue=0, 
                         pca_noise=0, rand_gray=0, inter_method=2)
     for aug in auglist:
         im = aug(im)
     # 将数据格式从"高*宽*通道"改为"通道*高*宽"。
+    im = nd.transpose(im, (2,0,1))
+    return (im, nd.array([label]).asscalar().astype('float32'))
+
+# 测试时，无需对图像做标准化以外的增强数据处理。
+def transform_test(data, label):
+    im = data.astype('float32') / 255
+    auglist = image.CreateAugmenter(data_shape=(3, 32, 32), 
+                        mean=np.array([0.4914, 0.4822, 0.4465]), 
+                        std=np.array([0.2023, 0.1994, 0.2010]))
+    for aug in auglist:
+        im = aug(im)
     im = nd.transpose(im, (2,0,1))
     return (im, nd.array([label]).asscalar().astype('float32'))
 ```
@@ -175,16 +185,14 @@ def transform(data, label):
 input_str = data_dir + '/' + input_dir + '/'
 
 # 读取原始图像文件。flag=1说明输入图像有三个通道（彩色）。
-train_ds = vision.ImageFolderDataset(input_str + 'train', flag=1,
-                                     transform=transform)
-valid_ds = vision.ImageFolderDataset(input_str + 'valid', flag=1,
-                                     transform=transform)
-train_valid_ds = vision.ImageFolderDataset(input_str + 'train_valid',
-                                           flag=1, transform=transform)
-test_ds = vision.ImageFolderDataset(input_str + 'test', flag=1,
-                                     transform=transform)
-
-
+train_ds = vision.ImageFolderDataset(input_str + 'train', flag=1, 
+                                     transform=transform_train)
+valid_ds = vision.ImageFolderDataset(input_str + 'valid', flag=1, 
+                                     transform=transform_test)
+train_valid_ds = vision.ImageFolderDataset(input_str + 'train_valid', 
+                                           flag=1, transform=transform_train)
+test_ds = vision.ImageFolderDataset(input_str + 'test', flag=1, 
+                                     transform=transform_test)
 
 loader = gluon.data.DataLoader
 train_data = loader(train_ds, batch_size, shuffle=True, last_batch='keep')
@@ -198,7 +206,7 @@ softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 
 ## 设计模型
 
-我们这里使用了[ResNet-18](resnet-gluon.md)模型。
+我们这里使用了[ResNet-18](resnet-gluon.md)模型。我们使用[hybridizing](../chapter_gluon-advances/hybridize.md)来提升执行效率。
 
 请注意：模型可以重新设计，参数也可以重新调整。
 
@@ -206,7 +214,7 @@ softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 from mxnet.gluon import nn
 from mxnet import nd
 
-class Residual(nn.Block):
+class Residual(nn.HybridBlock):
     def __init__(self, channels, same_shape=True, **kwargs):
         super(Residual, self).__init__(**kwargs)
         self.same_shape = same_shape
@@ -221,20 +229,20 @@ class Residual(nn.Block):
                 self.conv3 = nn.Conv2D(channels, kernel_size=1,
                                       strides=strides)
 
-    def forward(self, x):
-        out = nd.relu(self.bn1(self.conv1(x)))
+    def hybrid_forward(self, F, x):
+        out = F.relu(self.bn1(self.conv1(x)))
         out = self.bn2(self.conv2(out))
         if not self.same_shape:
             x = self.conv3(x)
-        return nd.relu(out + x)
+        return F.relu(out + x)
 
-
-class ResNet(nn.Block):
+    
+class ResNet(nn.HybridBlock):
     def __init__(self, num_classes, verbose=False, **kwargs):
         super(ResNet, self).__init__(**kwargs)
         self.verbose = verbose
         with self.name_scope():
-            net = self.net = nn.Sequential()
+            net = self.net = nn.HybridSequential()
             # block 1
             net.add(nn.Conv2D(channels=32, kernel_size=3, strides=1, padding=1))
             net.add(nn.BatchNorm())
@@ -255,13 +263,14 @@ class ResNet(nn.Block):
             net.add(nn.Flatten())
             net.add(nn.Dense(num_classes))
 
-    def forward(self, x):
+    def hybrid_forward(self, F, x):
         out = x
         for i, b in enumerate(self.net):
             out = b(out)
             if self.verbose:
                 print('Block %d output: %s'%(i+1, out.shape))
         return out
+
 
 def get_net(ctx):
     num_outputs = 10
@@ -272,7 +281,7 @@ def get_net(ctx):
 
 ## 训练模型并调参
 
-在[过拟合](underfit-overfit.md)中我们讲过，过度依赖训练数据集的误差来推断测试数据集的误差容易导致过拟合。由于图像分类训练时间可能较长，为了方便，我们这里不再使用K折交叉验证，而是依赖验证集的结果来调参。
+在[过拟合](../chapter_supervised-learning/underfit-overfit.md)中我们讲过，过度依赖训练数据集的误差来推断测试数据集的误差容易导致过拟合。由于图像分类训练时间可能较长，为了方便，我们这里不再使用K折交叉验证，而是依赖验证集的结果来调参。
 
 我们定义模型训练函数。这里我们记录每个epoch的训练时间。这有助于我们比较不同模型设计的时间成本。
 
@@ -331,7 +340,8 @@ lr_period = 80
 lr_decay = 0.1
 
 net = get_net(ctx)
-train(net, train_data, valid_data, num_epochs, learning_rate,
+net.hybridize()
+train(net, train_data, valid_data, num_epochs, learning_rate, 
       weight_decay, ctx, lr_period, lr_decay)
 ```
 
@@ -344,7 +354,8 @@ import numpy as np
 import pandas as pd
 
 net = get_net(ctx)
-train(net, train_data, None, num_epochs, learning_rate,
+net.hybridize()
+train(net, train_data, None, num_epochs, learning_rate, 
       weight_decay, ctx, lr_period, lr_decay)
 
 preds = []
@@ -374,8 +385,6 @@ df.to_csv('submission.csv', index=False)
 ## 作业（[汇报作业和查看其他小伙伴作业](https://discuss.gluon.ai/t/topic/1545/)）：
 
 * 使用Kaggle完整CIFAR-10数据集，把batch_size和num_epochs分别改为128和100，可以在Kaggle上拿到什么样的准确率和名次？
-
-
 * 如果不使用增强数据的方法能拿到什么样的准确率？
 * 你还有什么其他办法可以继续改进模型和参数？小伙伴们都期待你的分享。
 
