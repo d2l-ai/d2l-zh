@@ -55,7 +55,7 @@
 ```{.python .input  n=1}
 # 如果训练下载的Kaggle的完整数据集，把下面改False
 demo = True
-if demo:    
+if demo:
     import zipfile
     for fin in ['train_tiny.zip', 'test_tiny.zip', 'trainLabels.csv.zip']:
         with zipfile.ZipFile('../data/kaggle_cifar10/' + fin, 'r') as zin:
@@ -86,7 +86,7 @@ def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir, val
     assert 0 < num_train_tuning < num_train
     num_train_tuning_per_label = num_train_tuning // len(labels)
     label_count = dict()
-    
+
     def mkdir_if_not_exist(path):
         if not os.path.exists(os.path.join(*path)):
             os.makedirs(os.path.join(*path))
@@ -96,22 +96,22 @@ def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir, val
         idx = int(train_file.split('.')[0])
         label = idx_label[idx]
         mkdir_if_not_exist([data_dir, input_dir, 'train_valid', label])
-        shutil.copy(os.path.join(data_dir, train_dir, train_file), 
+        shutil.copy(os.path.join(data_dir, train_dir, train_file),
                     os.path.join(data_dir, input_dir, 'train_valid', label))
         if label not in label_count or label_count[label] < num_train_tuning_per_label:
             mkdir_if_not_exist([data_dir, input_dir, 'train', label])
-            shutil.copy(os.path.join(data_dir, train_dir, train_file), 
+            shutil.copy(os.path.join(data_dir, train_dir, train_file),
                         os.path.join(data_dir, input_dir, 'train', label))
             label_count[label] = label_count.get(label, 0) + 1
         else:
             mkdir_if_not_exist([data_dir, input_dir, 'valid', label])
-            shutil.copy(os.path.join(data_dir, train_dir, train_file), 
+            shutil.copy(os.path.join(data_dir, train_dir, train_file),
                         os.path.join(data_dir, input_dir, 'valid', label))
 
     # 整理测试集。
     mkdir_if_not_exist([data_dir, input_dir, 'test', 'unknown'])
     for test_file in os.listdir(os.path.join(data_dir, test_dir)):
-        shutil.copy(os.path.join(data_dir, test_dir, test_file), 
+        shutil.copy(os.path.join(data_dir, test_dir, test_file),
                     os.path.join(data_dir, input_dir, 'test', 'unknown'))
 ```
 
@@ -317,12 +317,12 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period, lr_de
         time_str = "Time %02d:%02d:%02d" % (h, m, s)
         if valid_data is not None:
             valid_acc = utils.evaluate_accuracy(valid_data, net, ctx)
-            epoch_str = ("Epoch %d. Loss: %f, Train acc %f, Valid acc %f, " 
-                         % (epoch, train_loss / len(train_data), 
+            epoch_str = ("Epoch %d. Loss: %f, Train acc %f, Valid acc %f, "
+                         % (epoch, train_loss / len(train_data),
                             train_acc / len(train_data), valid_acc))
         else:
-            epoch_str = ("Epoch %d. Loss: %f, Train acc %f, " 
-                         % (epoch, train_loss / len(train_data), 
+            epoch_str = ("Epoch %d. Loss: %f, Train acc %f, "
+                         % (epoch, train_loss / len(train_data),
                             train_acc / len(train_data)))
         prev_time = cur_time
         print(epoch_str + time_str + ', lr ' + str(trainer.learning_rate))
@@ -363,7 +363,7 @@ preds = []
 for data, label in test_data:
     output = net(data.as_in_context(ctx))
     preds.extend(output.argmax(axis=1).astype(int).asnumpy())
-    
+
 sorted_ids = list(range(1, len(test_ds) + 1))
 sorted_ids.sort(key = lambda x:str(x))
 
