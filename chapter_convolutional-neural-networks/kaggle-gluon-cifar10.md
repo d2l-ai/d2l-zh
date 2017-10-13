@@ -355,7 +355,7 @@ import pandas as pd
 
 net = get_net(ctx)
 net.hybridize()
-train(net, train_data, None, num_epochs, learning_rate, 
+train(net, train_valid_data, None, num_epochs, learning_rate, 
       weight_decay, ctx, lr_period, lr_decay)
 
 preds = []
