@@ -142,7 +142,7 @@ y
 
 我们可以通过`export()`来保存这个程序到硬盘。它可以之后不仅被Python，同时也可以其他支持的前端语言，例如C++, Scala, R...，读取。
 
-TODO(mli) save and load. Eric is working on the new `export` method.
+TODO(mli) `export`需要`mxnet>=0.11.1b20171015`，样例之后放进来。
 
 ## 通过HybridBlock深入理解`hybridize`工作机制
 
