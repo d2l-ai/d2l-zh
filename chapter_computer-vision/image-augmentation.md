@@ -92,8 +92,8 @@ apply(img, aug)
 ```{.python .input  n=81}
 def apply_aug_list(img, augs):
     for f in augs:
-        y = f(y)
-    return y
+        img = f(img)
+    return img
 ```
 
 对于训练图片我们随机水平翻转和剪裁。对于测试图片仅仅就是中心剪裁。CIFAR10图片尺寸是$32\times 32\times 3$，我们剪裁成$28\times 28\times 3$.
@@ -206,11 +206,14 @@ def resnet_18(num_classes):
 我们把训练代码整理成一个函数使得可以重读调用：
 
 ```{.python .input  n=111}
+from mxnet import init
 import sys
 sys.path.append('..')
 import utils
 
 def train(train_augs, test_augs, learning_rate=.1):
+    ctx = utils.try_gpu()
+    loss = gluon.loss.SoftmaxCrossEntropyLoss()
     batch_size = 32
     train_data, test_data = get_data(
         batch_size, train_augs, test_augs)
