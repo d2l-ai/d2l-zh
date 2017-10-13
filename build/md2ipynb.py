@@ -6,8 +6,6 @@ import nbformat
 
 assert len(sys.argv) == 3, 'usage: input.md output.ipynb'
 
-# timeout in second to evaluate a notebook
-timeout = 500
 # the files will be ingored for execution
 ignore_execution = []
 
