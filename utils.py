@@ -4,20 +4,6 @@ from mxnet import nd
 from mxnet import image
 import mxnet as mx
 
-def SGD(params, lr):
-    for param in params:
-        param[:] = param - lr * param.grad
-
-def accuracy(output, label):
-    return nd.mean(output.argmax(axis=1)==label).asscalar()
-
-def evaluate_accuracy(data_iterator, net, ctx=mx.cpu()):
-    acc = 0.
-    for data, label in data_iterator:
-        output = net(data.as_in_context(ctx))
-        acc += accuracy(output, label.as_in_context(ctx))
-    return acc / len(data_iterator)
-
 def load_data_fashion_mnist(batch_size, resize=None):
     """download the fashion mnist dataest and then load into memory"""
     def transform_mnist(data, label):
@@ -45,17 +31,43 @@ def try_gpu():
         ctx = mx.cpu()
     return ctx
 
+def SGD(params, lr):
+    for param in params:
+        param[:] = param - lr * param.grad
+
+def accuracy(output, label):
+    return nd.mean(output.argmax(axis=1)==label).asscalar()
+
+def _get_batch(batch, ctx):
+    """return data and label on ctx"""
+    if isinstance(batch, mx.io.DataBatch):
+        data = batch.data[0]
+        label = batch.label[0]
+    else:
+        data, label = batch
+    return data.as_in_context(ctx), label.as_in_context(ctx)
+
+def evaluate_accuracy(data_iterator, net, ctx=mx.cpu()):
+    acc = 0.
+    if isinstance(data_iterator, mx.io.MXDataIter):
+        data_iterator.reset()
+    for i, batch in enumerate(data_iterator):
+        data, label = _get_batch(batch, ctx)
+        output = net(data)
+        acc += accuracy(output, label)
+    return acc / (i+1)
 
 def train(train_data, test_data, net, loss, trainer, ctx, num_epochs, print_batches=None):
     """Train a network"""
     for epoch in range(num_epochs):
         train_loss = 0.
         train_acc = 0.
-        batch = 0
-        for data, label in train_data:
-            label = label.as_in_context(ctx)
+        if isinstance(train_data, mx.io.MXDataIter):
+            train_data.reset()
+        for i, batch in enumerate(train_data):
+            data, label = _get_batch(batch, ctx)
             with autograd.record():
-                output = net(data.as_in_context(ctx))
+                output = net(data)
                 L = loss(output, label)
             L.backward()
 
@@ -64,13 +76,13 @@ def train(train_data, test_data, net, loss, trainer, ctx, num_epochs, print_batc
             train_loss += nd.mean(L).asscalar()
             train_acc += accuracy(output, label)
 
-            batch += 1
-            if print_batches and batch % print_batches == 0:
+            n = i + 1
+            if print_batches and n % print_batches == 0:
                 print("Batch %d. Loss: %f, Train acc %f" % (
-                    batch, train_loss/batch, train_acc/batch
+                    n, train_loss/n, train_acc/n
                 ))
 
         test_acc = evaluate_accuracy(test_data, net, ctx)
         print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-            epoch, train_loss/batch, train_acc/batch, test_acc
+            epoch, train_loss/n, train_acc/n, test_acc
         ))
