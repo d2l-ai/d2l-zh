@@ -176,7 +176,15 @@ ssh -L8888:locallhost:8888 ubuntu@your-ip.amazonaws.com
 
  然后把jupyter log里的URL复制到本地浏览器就行了。
 
-【注意】如果本地运行了Jupyter notebook，那么8888端口就可能被占用了。要么关掉本地jupyter，要么把端口映射改成别的。
+【注意】如果本地运行了Jupyter notebook，那么8888端口就可能被占用了。要么关掉本地jupyter，要么把端口映射改成别的。例如，假设aws使用默认8888端口，我们可以通过ssh映射到本地8889端口：
+
+```bash
+ssh -N -f -L localhost:8889:localhost:8888 ubuntu@your-ip.amazonaws.com
+```
+
+然后在本地浏览器打开localhost:8889，这时会提示需要token值。接下来，我们将aws上jupyter log里的token值（例如上图里：...localhost:8888/?token=`token值`）复制粘贴即可。
+
+
 
 ## 后续
 
