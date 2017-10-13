@@ -16,5 +16,4 @@
    googlenet-gluon
    resnet-gluon
    densenet-gluon
-   kaggle-gluon-cifar10
 ```

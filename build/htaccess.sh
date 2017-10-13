@@ -13,3 +13,5 @@ for f in chapter*/*; do
     fi
     echo "Redirect /$(basename $f) /$f" >>$OUT
 done
+
+echo "Redirect /chapter_convolutional-neural-networks/kaggle-gluon-cifar10.html /chapter_computer-vision/kaggle-gluon-cifar10.html">>$OUT
