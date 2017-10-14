@@ -1,4 +1,4 @@
-# Finetuning: 通过微调来迁移学习
+# 【草稿】Fine-tuning: 通过微调来迁移学习
 
 【代码完成，但文字还没翻译完】
 
@@ -97,7 +97,7 @@ random negative)
 - not_hotdog_validation.rec 49M (209 positive, 700 interesting negative, and 350
 random negative)
 
-```{.python .input  n=2}
+```{.python .input  n=1}
 
 dataset = {'train': ('not_hotdog_train-e6ef27b4.rec', '0aad7e1f16f5fb109b719a414a867bbee6ef27b4'),
                  'validation': ('not_hotdog_validation-c0201740.rec', '723ae5f8a433ed2e2bf729baec6b878ac0201740')}
@@ -108,7 +108,7 @@ But if you're interested in training on the full set,
 set 'demo' to False in the settings at the beginning.
 Now we're ready to download and verify the dataset.
 
-```{.python .input  n=3}
+```{.python .input  n=2}
 from mxnet import gluon
 base_url = 'https://apache-mxnet.s3-accelerate.amazonaws.com/gluon/dataset/'
 download_dir = '../data/'
@@ -125,7 +125,7 @@ get_file(*dataset['validation'])
 The record files can be read using [mx.io.ImageRecordIter](http://mxnet.io/api/p
 ython/io.html#mxnet.io.ImageRecordIter)
 
-```{.python .input  n=4}
+```{.python .input  n=3}
 from mxnet import io
 
 train_iter = io.ImageRecordIter(
@@ -151,7 +151,7 @@ val_iter = io.ImageRecordIter(
 
 这里我们将使用Gluon提供的ResNet18来训练。我们先从模型园里获取改良过ResNet。使用`pretrained=True`将会自动下载并加载从ImageNet数据集上训练而来的权重。
 
-```{.python .input}
+```{.python .input  n=4}
 from mxnet.gluon.model_zoo import vision as models
 
 pretrained_net = models.resnet18_v2(pretrained=True)
@@ -160,13 +160,13 @@ pretrained_net
 
 可以看到这个模型有两部分组成，一是`features`，二是`classifier`。后者主要包括最后一层全连接层。我们可以看一下第一个卷积层的部分权重。
 
-```{.python .input}
+```{.python .input  n=5}
 pretrained_net.features[1].params.get('weight').data()[0][0]
 ```
 
 在微调里，我们一般新建一个网络，它的定义跟之前训练好的网络一样，除了最后的输出数等于当前数据的类别数。新网络的`features`被初始化前面训练好网络的权重，而`classfier`则是从头开始训练。
 
-```{.python .input}
+```{.python .input  n=6}
 from mxnet import init
 
 finetune_net = models.resnet18_v2(classes=2)
@@ -199,7 +199,7 @@ def train(net, ctx, epochs=2, learning_rate=0.1, wd=0.001):
 
 ```{.python .input}
 ctx = utils.try_gpu()
-train(finetune_net, ctx, learning_rate=0.01, epochs=4)
+train(finetune_net, ctx, epochs=5)
 ```
 
 对比起见我们尝试从随机初始值开始训练一个网络
@@ -249,7 +249,7 @@ classify_hotdog(finetune_net, '../img/real_hotdog.jpg')
 ```
 
 ```{.python .input  n=18}
-classify_hotdog(scratch_net, '../img/leg_hotdog.jpg')
+classify_hotdog(finetune_net, '../img/leg_hotdog.jpg')
 ```
 
 ```{.python .input  n=19}
@@ -279,4 +279,3 @@ so that you can just perform fine-tuning on the task at hand.
   ```
   试试重用`classifer`里重用hotdog的权重
 - 试试不让`finetune_net`里重用的权重参与训练，就是不更新权重
-
