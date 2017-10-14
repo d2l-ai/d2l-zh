@@ -36,13 +36,13 @@ class Residual(nn.Block):
         self.same_shape = same_shape
         with self.name_scope():
             strides = 1 if same_shape else 2
-            self.conv1 = nn.Conv2D(channels, kernel_size=3, padding=1, 
+            self.conv1 = nn.Conv2D(channels, kernel_size=3, padding=1,
                                   strides=strides)
             self.bn1 = nn.BatchNorm()
             self.conv2 = nn.Conv2D(channels, kernel_size=3, padding=1)
             self.bn2 = nn.BatchNorm()
             if not same_shape:
-                self.conv3 = nn.Conv2D(channels, kernel_size=1, 
+                self.conv3 = nn.Conv2D(channels, kernel_size=1,
                                       strides=strides)
 
     def forward(self, x):
@@ -124,7 +124,7 @@ class ResNet(nn.Block):
             out = b(out)
             if self.verbose:
                 print('Block %d output: %s'%(i+1, out.shape))
-        return out     
+        return out
 ```
 
 这里演示数据在块之间的形状变化：
@@ -156,7 +156,7 @@ net = ResNet(10)
 net.initialize(ctx=ctx, init=init.Xavier())
 
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
-trainer = gluon.Trainer(net.collect_params(), 
+trainer = gluon.Trainer(net.collect_params(),
                         'sgd', {'learning_rate': 0.05})
 utils.train(train_data, test_data, net, loss,
             trainer, ctx, num_epochs=1)
@@ -171,3 +171,6 @@ ResNet使用跨层通道使得训练非常深的卷积神经网络成为可能�
 - 这里我们实现了ResNet 18，原论文中还讨论了更深的配置。尝试实现它们。（提示：参考论文中的表1）
 - 原论文中还介绍了一个“bottleneck”架构，尝试实现它
 - ResNet作者在[接下来的一篇论文](https://arxiv.org/abs/1603.05027)讨论了将Residual块里面的`Conv->BN->Relu`结构改成了`BN->Relu->Conv`（参考论文图1），尝试实现它
+
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1663)
