@@ -18,7 +18,7 @@ plt.imshow(img.asnumpy())
 接下来我们定义一个辅助函数，给定输入图片`img`的增强方法`aug`，它会运行多次并画出结果。
 
 ```{.python .input  n=82}
-def apply(img, aug, n=3):    
+def apply(img, aug, n=3):
     _, figs = plt.subplots(n, n, figsize=(8,8))
     for i in range(n):
         for j in range(n):
@@ -123,7 +123,7 @@ def get_transform(augs):
         data = nd.transpose(data, (2,0,1))/255
         return data, label.astype('float32')
     return transform
-    
+
 def get_data(batch_size, train_augs, test_augs=None):
     cifar10_train = gluon.data.vision.CIFAR10(
         train=True, transform=get_transform(train_augs))
@@ -165,13 +165,13 @@ class Residual(nn.HybridBlock):
         self.same_shape = same_shape
         with self.name_scope():
             strides = 1 if same_shape else 2
-            self.conv1 = nn.Conv2D(channels, kernel_size=3, padding=1, 
+            self.conv1 = nn.Conv2D(channels, kernel_size=3, padding=1,
                                   strides=strides)
             self.bn1 = nn.BatchNorm()
             self.conv2 = nn.Conv2D(channels, kernel_size=3, padding=1)
             self.bn2 = nn.BatchNorm()
             if not same_shape:
-                self.conv3 = nn.Conv2D(channels, kernel_size=1, 
+                self.conv3 = nn.Conv2D(channels, kernel_size=1,
                                       strides=strides)
 
     def hybrid_forward(self, F, x):
@@ -180,7 +180,7 @@ class Residual(nn.HybridBlock):
         if not self.same_shape:
             x = self.conv3(x)
         return F.relu(out + x)
-    
+
 def resnet_18(num_classes):
     net = nn.HybridSequential()
     with net.name_scope():
@@ -246,3 +246,6 @@ train(test_augs, test_augs)
 ## 练习
 
 尝试换不同的增强方法试试。
+
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1666)

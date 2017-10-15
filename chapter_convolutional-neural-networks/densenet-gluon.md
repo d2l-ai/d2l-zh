@@ -22,14 +22,14 @@ def conv_block(channels):
         nn.Conv2D(channels, kernel_size=3, padding=1)
     )
     return out
-        
+
 class DenseBlock(nn.Block):
     def __init__(self, layers, growth_rate, **kwargs):
         super(DenseBlock, self).__init__(**kwargs)
         self.net = nn.Sequential()
         for i in range(layers):
             self.net.add(conv_block(growth_rate))
-        
+
     def forward(self, x):
         for layer in self.net:
             out = layer(x)
@@ -87,7 +87,7 @@ def dense_net():
     with net.name_scope():
         # first block
         net.add(
-            nn.Conv2D(init_channels, kernel_size=7, 
+            nn.Conv2D(init_channels, kernel_size=7,
                       strides=2, padding=3),
             nn.BatchNorm(),
             nn.Activation('relu'),
@@ -107,9 +107,9 @@ def dense_net():
             nn.AvgPool2D(pool_size=1),
             nn.Flatten(),
             nn.Dense(num_classes)
-        )    
+        )
     return net
-    
+
 ```
 
 ## 获取数据并训练
@@ -131,7 +131,7 @@ net = dense_net()
 net.initialize(ctx=ctx, init=init.Xavier())
 
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
-trainer = gluon.Trainer(net.collect_params(), 
+trainer = gluon.Trainer(net.collect_params(),
                         'sgd', {'learning_rate': 0.1})
 utils.train(train_data, test_data, net, loss,
             trainer, ctx, num_epochs=1)
@@ -146,3 +146,6 @@ Desnet通过将ResNet里的`+`替换成`concat`从而获得更稠密的连接。
 - DesNet论文中提交的一个优点是其模型参数比ResNet更小，想想为什么？
 - DesNet被人诟病的一个问题是内存消耗过多。真的会这样吗？可以把输入换成$224\times 224$（需要改最后的`AvgPool2D`大小），来看看实际（GPU）内存消耗。
 - 这里的FashionMNIST有必要用100+层的网络吗？尝试将其改简单看看效果。
+
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1664)

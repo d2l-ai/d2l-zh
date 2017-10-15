@@ -13,7 +13,7 @@ Alexnet之后一个重要的工作是[Network in Network（NiN）](https://arxiv
 ```{.python .input  n=2}
 from mxnet.gluon import nn
 
-def mlpconv(channels, kernel_size, padding, 
+def mlpconv(channels, kernel_size, padding,
             strides=1, max_pooling=True):
     out = nn.Sequential()
     with out.name_scope():
@@ -55,19 +55,19 @@ NiN的卷积层的参数跟Alexnet类似，使用三组不同的设定
 net = nn.Sequential()
 with net.name_scope():
     net.add(
-        mlpconv(96, 11, 0, strides=4),        
+        mlpconv(96, 11, 0, strides=4),
         mlpconv(256, 5, 2),
         mlpconv(384, 3, 1),
         nn.Dropout(.5),
         # 目标类为10类
         mlpconv(10, 3, 1, max_pooling=False),
-        # 输入为 batch_size x 10 x 5 x 5, 通过AvgPool2D转成 
+        # 输入为 batch_size x 10 x 5 x 5, 通过AvgPool2D转成
         # batch_size x 10 x 1 x 1。
         nn.AvgPool2D(pool_size=5),
         # 转成 batch_size x 10
         nn.Flatten()
     )
-    
+
 ```
 
 ## 获取数据并训练
@@ -88,7 +88,7 @@ ctx = utils.try_gpu()
 net.initialize(ctx=ctx, init=init.Xavier())
 
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
-trainer = gluon.Trainer(net.collect_params(), 
+trainer = gluon.Trainer(net.collect_params(),
                         'sgd', {'learning_rate': 0.1})
 utils.train(train_data, test_data, net, loss,
             trainer, ctx, num_epochs=1)
@@ -101,3 +101,6 @@ utils.train(train_data, test_data, net, loss,
 ## 练习
 
 - 为什么mlpconv里面要有两个$1\times 1$卷积？
+
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1661)

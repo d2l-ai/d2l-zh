@@ -19,24 +19,24 @@ class Inception(nn.Block):
         super(Inception, self).__init__(**kwargs)
         with self.name_scope():
             # path 1
-            self.p1_conv_1 = nn.Conv2D(n1_1, kernel_size=1, 
+            self.p1_conv_1 = nn.Conv2D(n1_1, kernel_size=1,
                                        activation='relu')
             # path 2
-            self.p2_conv_1 = nn.Conv2D(n2_1, kernel_size=1, 
+            self.p2_conv_1 = nn.Conv2D(n2_1, kernel_size=1,
                                        activation='relu')
-            self.p2_conv_3 = nn.Conv2D(n2_3, kernel_size=3, padding=1, 
+            self.p2_conv_3 = nn.Conv2D(n2_3, kernel_size=3, padding=1,
                                        activation='relu')
             # path 3
-            self.p3_conv_1 = nn.Conv2D(n3_1, kernel_size=1, 
+            self.p3_conv_1 = nn.Conv2D(n3_1, kernel_size=1,
                                        activation='relu')
-            self.p3_conv_5 = nn.Conv2D(n3_5, kernel_size=5, padding=2, 
+            self.p3_conv_5 = nn.Conv2D(n3_5, kernel_size=5, padding=2,
                                        activation='relu')
             # path 4
-            self.p4_pool_3 = nn.MaxPool2D(pool_size=3, padding=1, 
+            self.p4_pool_3 = nn.MaxPool2D(pool_size=3, padding=1,
                                           strides=1)
             self.p4_conv_1 = nn.Conv2D(n4_1, kernel_size=1,
                                        activation='relu')
-        
+
     def forward(self, x):
         p1 = self.p1_conv_1(x)
         p2 = self.p2_conv_3(self.p2_conv_1(x))
@@ -77,7 +77,7 @@ class GoogLeNet(nn.Block):
             # block 1
             b1 = nn.Sequential()
             b1.add(
-                nn.Conv2D(64, kernel_size=7, strides=2,                                     
+                nn.Conv2D(64, kernel_size=7, strides=2,
                           padding=3, activation='relu'),
                 nn.MaxPool2D(pool_size=3, strides=2)
             )
@@ -88,7 +88,7 @@ class GoogLeNet(nn.Block):
                 nn.Conv2D(192, kernel_size=3, padding=1),
                 nn.MaxPool2D(pool_size=3, strides=2)
             )
-            
+
             # block 3
             b3 = nn.Sequential()
             b3.add(
@@ -96,7 +96,7 @@ class GoogLeNet(nn.Block):
                 Inception(128, 128, 192, 32, 96, 64),
                 nn.MaxPool2D(pool_size=3, strides=2)
             )
-            
+
             # block 4
             b4 = nn.Sequential()
             b4.add(
@@ -107,7 +107,7 @@ class GoogLeNet(nn.Block):
                 Inception(256, 160, 320, 32, 128, 128),
                 nn.MaxPool2D(pool_size=3, strides=2)
             )
-            
+
             # block 5
             b5 = nn.Sequential()
             b5.add(
@@ -124,14 +124,14 @@ class GoogLeNet(nn.Block):
             # chain blocks together
             self.net = nn.Sequential()
             self.net.add(b1, b2, b3, b4, b5, b6)
-            
+
     def forward(self, x):
         out = x
         for i, b in enumerate(self.net):
             out = b(out)
             if self.verbose:
                 print('Block %d output: %s'%(i+1, out.shape))
-        return out    
+        return out
 ```
 
 我们看一下每个块对输出的改变。
@@ -163,7 +163,7 @@ net = GoogLeNet(10)
 net.initialize(ctx=ctx, init=init.Xavier())
 
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
-trainer = gluon.Trainer(net.collect_params(), 
+trainer = gluon.Trainer(net.collect_params(),
                         'sgd', {'learning_rate': 0.01})
 utils.train(train_data, test_data, net, loss,
             trainer, ctx, num_epochs=1)
@@ -181,3 +181,6 @@ GoogLeNet有数个后续版本，尝试实现他们并运行看看有什么不�
 - v2: 加入和Batch Normalization：[Accelerating Deep Network Training by Reducing Internal Covariate Shift](http://arxiv.org/abs/1502.03167)
 - v3: 对Inception做了调整：[Rethinking the Inception Architecture for Computer Vision](http://arxiv.org/abs/1512.00567)
 - v4: 基于ResNet加入了Residual Connections：[Inception-ResNet and the Impact of Residual Connections on Learning](http://arxiv.org/abs/1602.07261)
+
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1662)
