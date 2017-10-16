@@ -56,3 +56,87 @@ make latex
 cd _build/latex
 xelatex -interaction nonstopmode gluon_tutorials_zh.tex
 ```
+
+## Terminology 中英术语对照表
+
+attribute space, 属性空间
+
+attribute value, 属性值
+
+attribute, 属性
+
+binary classification, 二分类
+
+classification, 分类
+
+cluster, 簇
+
+clustering, 聚类
+
+data set, 数据集
+
+dimensionality, 维数
+
+distribution, 分布
+
+example, 样例
+
+feature vector, 特征向量
+
+feature, 特征
+
+generalization, 泛化
+
+ground-truth, 真相、真实
+
+hypothesis, 假设
+
+independent and identically distributed(i.i.d), 独立同分布
+
+instance, 示例
+
+label space, 标注空间
+
+label, 标注
+
+learing algorithm, 学习算法
+
+learned model, 学得模型
+
+learner, 学习器
+
+learning, 学习
+
+model 模型
+
+multi-class classification, 多分类
+
+negative class, 反类
+
+positive class, 正类
+
+prediction, 预测
+
+regression, 回归
+
+sample space, 样本空间
+
+sample, 样本
+
+sepecilization, 特化
+
+supervised learning, 监督学习
+
+testing smaple, 测试样本
+
+testing, 测试
+
+training data, 训练数据
+
+training sample, 训练样本
+
+training set, 训练集
+
+training, 训练
+
+unsupervised learning, 无监督学习
