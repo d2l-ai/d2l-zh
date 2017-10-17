@@ -4,7 +4,7 @@
 
 ## 申请账号并登陆
 
-首先我们需要在[https://aws.amazon.com/](https://aws.amazon.com/)上面创建账号，通常这个需要一张信用卡。不熟悉的同学可以自行搜索“如何注册aws账号”。【注意】AWS中国需要公司实体才能注册，推荐直接注册AWS全球账号。
+首先我们需要在[https://aws.amazon.com/](https://aws.amazon.com/)上面创建账号，通常这个需要一张信用卡。不熟悉的同学可以自行搜索“如何注册aws账号”。【注意】AWS中国需要公司实体才能注册，个人用户请注册AWS全球账号。
 
 登陆后点击EC2进入EC2面板：
 
@@ -59,41 +59,43 @@ EC2提供大量的有着不同配置的实例。这里我们选择了`p2.xlarge`
 成功登陆后我们先更新并安装编译需要的包。
 
 ```bash
-sudo apt-get update && sudo apt-get install -y build-essential git
+sudo apt-get update && sudo apt-get install -y build-essential git libgfortran3
 ```
 
 ### 安装CUDA
 
 【注意】只有CPU的实例可以跳过步骤。
 
-我们去Nvidia官网下载CUDA并安装。选择正确的版本并获取下载地址
+我们去Nvidia官网下载CUDA并安装。选择正确的版本并获取下载地址。
+
+【注意】目前CUDA默认下载9.0版，但`mxnet-cu90`的daily build还不完善。建议使用下面命令安装8.0版。
 
 ![](../img/cuda.png)
 
 然后使用`wget`下载并且安装
 
 ```bash
-wget https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda_9.0.176_384.81_linux-run
-sudo sh cuda_9.0.176_384.81_linux-run
+wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda_8.0.61_375.26_linux-run
+sudo sh cuda_8.0.61_375.26_linux-run
 ```
 
 这里需要回答几个问题。
 
 ```
 accept/decline/quit: accept
-Install NVIDIA Accelerated Graphics Driver for Linux-x86_64 384.81?
+Install NVIDIA Accelerated Graphics Driver for Linux-x86_64 375.26?
 (y)es/(n)o/(q)uit: y
 Do you want to install the OpenGL libraries?
 (y)es/(n)o/(q)uit [ default is yes ]: y
 Do you want to run nvidia-xconfig?
 (y)es/(n)o/(q)uit [ default is no ]: n
-Install the CUDA 9.0 Toolkit?
+Install the CUDA 8.0 Toolkit?
 (y)es/(n)o/(q)uit: y
 Enter Toolkit Location
- [ default is /usr/local/cuda-9.0 ]:
+ [ default is /usr/local/cuda-8.0 ]:
 Do you want to install a symbolic link at /usr/local/cuda?
 (y)es/(n)o/(q)uit: y
-Install the CUDA 9.0 Samples?
+Install the CUDA 8.0 Samples?
 (y)es/(n)o/(q)uit: n
 ```
 
@@ -106,7 +108,7 @@ nvidia-smi
 就可以看到这个实例的GPU了。最后将CUDA加入到library path方便之后安装的库找到它。
 
 ```bash
-echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda-9.0/lib64" >>.bashrc
+echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-8.0/lib64" >>.bashrc
 ```
 
 ### 安装MXNet
