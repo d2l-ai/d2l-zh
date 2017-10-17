@@ -59,7 +59,7 @@ EC2提供大量的有着不同配置的实例。这里我们选择了`p2.xlarge`
 成功登陆后我们先更新并安装编译需要的包。
 
 ```bash
-sudo apt-get update && sudo apt-get install build-essential git
+sudo apt-get update && sudo apt-get install -y build-essential git
 ```
 
 ### 安装CUDA
