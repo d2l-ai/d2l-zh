@@ -32,3 +32,5 @@ if [ -x "$(command -v xelatex)" ]; then
     xelatex -interaction nonstopmode $TEX
     cp $PDF $DSTDIR/
 fi
+
+aws s3 sync --delete $DSTDIR/ s3://zh.gluon.ai/ --acl public-read
