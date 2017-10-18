@@ -8,6 +8,7 @@ dependencies:
 - sphinx_rtd_theme
 - matplotlib
 - pandas
+- notebook=5.0.0
 - pip:
   - pyopenssl>= 17.3.0
   - nbsphinx
