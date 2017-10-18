@@ -8,4 +8,5 @@
 
    hybridize
    lazy-evaluation
+   auto-parallelism
 ```
