@@ -84,6 +84,7 @@ num_classes = 10
 
 def dense_net():
     net = nn.Sequential()
+    # add name_scope on the outermost Sequential
     with net.name_scope():
         # first block
         net.add(

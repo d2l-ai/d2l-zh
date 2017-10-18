@@ -50,6 +50,7 @@ def vgg_stack(architecture):
 num_outputs = 10
 architecture = ((1,64), (1,128), (2,256), (2,512), (2,512))
 net = nn.Sequential()
+# add name_scope on the outermost Sequential
 with net.name_scope():
     net.add(
         vgg_stack(architecture),

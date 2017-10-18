@@ -16,17 +16,16 @@ from mxnet.gluon import nn
 def mlpconv(channels, kernel_size, padding,
             strides=1, max_pooling=True):
     out = nn.Sequential()
-    with out.name_scope():
-        out.add(
-            nn.Conv2D(channels=channels, kernel_size=kernel_size,
-                      strides=strides, padding=padding,
-                      activation='relu'),
-            nn.Conv2D(channels=channels, kernel_size=1,
-                      padding=0, strides=1, activation='relu'),
-            nn.Conv2D(channels=channels, kernel_size=1,
-                      padding=0, strides=1, activation='relu'))
-        if max_pooling:
-            out.add(nn.MaxPool2D(pool_size=3, strides=2))
+    out.add(
+        nn.Conv2D(channels=channels, kernel_size=kernel_size,
+                  strides=strides, padding=padding,
+                  activation='relu'),
+        nn.Conv2D(channels=channels, kernel_size=1,
+                  padding=0, strides=1, activation='relu'),
+        nn.Conv2D(channels=channels, kernel_size=1,
+                  padding=0, strides=1, activation='relu'))
+    if max_pooling:
+        out.add(nn.MaxPool2D(pool_size=3, strides=2))
     return out
 ```
 
@@ -53,6 +52,7 @@ NiN的卷积层的参数跟Alexnet类似，使用三组不同的设定
 
 ```{.python .input  n=9}
 net = nn.Sequential()
+# add name_scope on the outer most Sequential
 with net.name_scope():
     net.add(
         mlpconv(96, 11, 0, strides=4),

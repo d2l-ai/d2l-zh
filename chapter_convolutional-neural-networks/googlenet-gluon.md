@@ -17,25 +17,24 @@ from mxnet import nd
 class Inception(nn.Block):
     def __init__(self, n1_1, n2_1, n2_3, n3_1, n3_5, n4_1, **kwargs):
         super(Inception, self).__init__(**kwargs)
-        with self.name_scope():
-            # path 1
-            self.p1_conv_1 = nn.Conv2D(n1_1, kernel_size=1,
-                                       activation='relu')
-            # path 2
-            self.p2_conv_1 = nn.Conv2D(n2_1, kernel_size=1,
-                                       activation='relu')
-            self.p2_conv_3 = nn.Conv2D(n2_3, kernel_size=3, padding=1,
-                                       activation='relu')
-            # path 3
-            self.p3_conv_1 = nn.Conv2D(n3_1, kernel_size=1,
-                                       activation='relu')
-            self.p3_conv_5 = nn.Conv2D(n3_5, kernel_size=5, padding=2,
-                                       activation='relu')
-            # path 4
-            self.p4_pool_3 = nn.MaxPool2D(pool_size=3, padding=1,
-                                          strides=1)
-            self.p4_conv_1 = nn.Conv2D(n4_1, kernel_size=1,
-                                       activation='relu')
+        # path 1
+        self.p1_conv_1 = nn.Conv2D(n1_1, kernel_size=1,
+                                   activation='relu')
+        # path 2
+        self.p2_conv_1 = nn.Conv2D(n2_1, kernel_size=1,
+                                   activation='relu')
+        self.p2_conv_3 = nn.Conv2D(n2_3, kernel_size=3, padding=1,
+                                   activation='relu')
+        # path 3
+        self.p3_conv_1 = nn.Conv2D(n3_1, kernel_size=1,
+                                   activation='relu')
+        self.p3_conv_5 = nn.Conv2D(n3_5, kernel_size=5, padding=2,
+                                   activation='relu')
+        # path 4
+        self.p4_pool_3 = nn.MaxPool2D(pool_size=3, padding=1,
+                                      strides=1)
+        self.p4_conv_1 = nn.Conv2D(n4_1, kernel_size=1,
+                                   activation='relu')
 
     def forward(self, x):
         p1 = self.p1_conv_1(x)
@@ -73,6 +72,7 @@ class GoogLeNet(nn.Block):
     def __init__(self, num_classes, verbose=False, **kwargs):
         super(GoogLeNet, self).__init__(**kwargs)
         self.verbose = verbose
+        # add name_scope on the outer most Sequential
         with self.name_scope():
             # block 1
             b1 = nn.Sequential()

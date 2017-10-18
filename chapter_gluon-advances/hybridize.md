@@ -33,7 +33,7 @@ fancy_func(1,2,3,4)
 def add_str():
     return '''
 def add(A, B):
-    return A + B
+    return A + B    
 '''
 
 def fancy_func_str():
@@ -42,11 +42,11 @@ def fancy_func(A, B, C, D):
     E = add(A, B)
     F = add(C, D)
     G = add(E, F)
-    return G
+    return G    
 '''
 
 def evoke_str():
-    return add_str() + fancy_func_str() + '''
+    return add_str() + fancy_func_str() + '''    
 print(fancy_func(1,2,3,4))
 '''
 
@@ -61,7 +61,7 @@ exec(y)
 
 - **命令式编程更方便。** 当我们在Python里用一个命令式编程库时，我们在写Python代码，绝大部分代码很符合直觉。同样很容易逮BUG，因为我们可以拿到所有中间变量值，我们可以简单打印它们，或者使用Python的debug工具。
 
-- **符号式编程更加高效而且更容易移植。** 之前我们提到在编译的时候系统可以容易的做更多的优化。另外一个好处是可以将程序变成一个与Python无关的格式，从而我们可以在非Python环境下运行。
+- **符号式编程更加高效而且更容易移植。** 之前我们提到在编译的时候系统可以容易的做更多的优化。另外一个好处是可以将程序变成一个与Python无关的格式，从而我们可以在非Python环境下运行。 
 
 ## 使用`hybridize`来拿到两者的好处
 
@@ -118,7 +118,7 @@ def bench(net, x):
     # 等待所有计算完成
     nd.waitall()
     return time() - start
-
+        
 net = get_net()
 print('Before hybridizing: %.4f sec'%(bench(net, x)))
 net.hybridize()
@@ -207,6 +207,3 @@ y = net(x)
 ## 结论
 
 通过`HybridSequental`和`HybridBlock`，我们可以简单的用`hybridize`来将将命令式的程序转成符号式程序。我们推荐大家尽可能的使用这个来获得最好的性能加速。
-
-
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1665)

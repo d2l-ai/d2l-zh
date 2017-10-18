@@ -34,16 +34,15 @@ class Residual(nn.Block):
     def __init__(self, channels, same_shape=True, **kwargs):
         super(Residual, self).__init__(**kwargs)
         self.same_shape = same_shape
-        with self.name_scope():
-            strides = 1 if same_shape else 2
-            self.conv1 = nn.Conv2D(channels, kernel_size=3, padding=1,
+        strides = 1 if same_shape else 2
+        self.conv1 = nn.Conv2D(channels, kernel_size=3, padding=1,
+                              strides=strides)
+        self.bn1 = nn.BatchNorm()
+        self.conv2 = nn.Conv2D(channels, kernel_size=3, padding=1)
+        self.bn2 = nn.BatchNorm()
+        if not same_shape:
+            self.conv3 = nn.Conv2D(channels, kernel_size=1,
                                   strides=strides)
-            self.bn1 = nn.BatchNorm()
-            self.conv2 = nn.Conv2D(channels, kernel_size=3, padding=1)
-            self.bn2 = nn.BatchNorm()
-            if not same_shape:
-                self.conv3 = nn.Conv2D(channels, kernel_size=1,
-                                      strides=strides)
 
     def forward(self, x):
         out = nd.relu(self.bn1(self.conv1(x)))
@@ -80,6 +79,7 @@ class ResNet(nn.Block):
     def __init__(self, num_classes, verbose=False, **kwargs):
         super(ResNet, self).__init__(**kwargs)
         self.verbose = verbose
+        # add name_scope on the outermost Sequential
         with self.name_scope():
             # block 1
             b1 = nn.Conv2D(64, kernel_size=7, strides=2)
