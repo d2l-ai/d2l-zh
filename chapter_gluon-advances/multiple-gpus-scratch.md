@@ -1,7 +1,8 @@
 # 从0开始使用多GPU来训练
 
-【草稿】
 
+
+![](../img/8x-titan-x.png)
 This tutorial shows how we can increase performance by distributing training across multiple GPUs.
 So, as you might expect, running this tutorial requires at least 2 GPUs.
 And these days multi-GPU machines are actually quite common.
