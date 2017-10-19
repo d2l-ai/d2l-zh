@@ -19,6 +19,7 @@
    chapter_gluon-basics/index
    chapter_convolutional-neural-networks/index
    chapter_recurrent-neural-networks/index
+   chapter_optimization/index
    chapter_gluon-advances/index
    chapter_computer-vision/index
 ```
