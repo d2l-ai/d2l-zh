@@ -127,9 +127,6 @@ import numpy as np
 def train(batch_size, lr, mom, epochs, period):
     assert period >= batch_size and period % batch_size == 0
     [w, b], vs = init_params()
-    
-    #data_iter = gluon.data.DataLoader(dataset, batch_size, shuffle=True)
-    
     total_loss = [np.mean(square_loss(net(X, w, b), y).asnumpy())]
 
     # 注意epoch从1开始计数。
