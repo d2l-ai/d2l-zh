@@ -151,59 +151,9 @@ for i in range(6):
         figs[i][j].axes.get_yaxis().set_visible(False)
 ```
 
-### 定义模型
-
-我们使用[ResNet 18](../chapter_convolutional-neural-networks/resnet-gluon.md)训练。这里定义的hybrid版本。
-
-```{.python .input  n=166}
-from mxnet.gluon import nn
-from mxnet import nd
-
-class Residual(nn.HybridBlock):
-    def __init__(self, channels, same_shape=True, **kwargs):
-        super(Residual, self).__init__(**kwargs)
-        self.same_shape = same_shape
-        with self.name_scope():
-            strides = 1 if same_shape else 2
-            self.conv1 = nn.Conv2D(channels, kernel_size=3, padding=1,
-                                  strides=strides)
-            self.bn1 = nn.BatchNorm()
-            self.conv2 = nn.Conv2D(channels, kernel_size=3, padding=1)
-            self.bn2 = nn.BatchNorm()
-            if not same_shape:
-                self.conv3 = nn.Conv2D(channels, kernel_size=1,
-                                      strides=strides)
-
-    def hybrid_forward(self, F, x):
-        out = F.relu(self.bn1(self.conv1(x)))
-        out = self.bn2(self.conv2(out))
-        if not self.same_shape:
-            x = self.conv3(x)
-        return F.relu(out + x)
-
-def resnet_18(num_classes):
-    net = nn.HybridSequential()
-    with net.name_scope():
-        net.add(
-            nn.BatchNorm(),
-            nn.Conv2D(64, kernel_size=3, strides=1),
-            nn.MaxPool2D(pool_size=3, strides=2),
-            Residual(64),
-            Residual(64),
-            Residual(128, same_shape=False),
-            Residual(128),
-            Residual(256, same_shape=False),
-            Residual(256),
-            nn.AvgPool2D(pool_size=3),
-            nn.Dense(num_classes)
-        )
-    return net
-```
-
 ## 训练
 
-
-我们把训练代码整理成一个函数使得可以重读调用：
+我们使用[ResNet 18](../chapter_convolutional-neural-networks/resnet-gluon.md)训练。并且训练代码整理成一个函数使得可以重读调用：
 
 ```{.python .input  n=111}
 from mxnet import init
@@ -217,7 +167,7 @@ def train(train_augs, test_augs, learning_rate=.1):
     batch_size = 32
     train_data, test_data = get_data(
         batch_size, train_augs, test_augs)
-    net = resnet_18(10)
+    net = utils.resnet18_28(10) # resnet with 28x28 images
     net.initialize(ctx=ctx, init=init.Xavier())
     net.hybridize()
     trainer = gluon.Trainer(net.collect_params(),
