@@ -10,4 +10,5 @@
    lazy-evaluation
    auto-parallelism
    multiple-gpus-scratch
+   multiple-gpus-gluon
 ```
