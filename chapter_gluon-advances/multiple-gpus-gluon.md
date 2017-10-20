@@ -58,7 +58,7 @@ from mxnet import autograd
 from time import time
 from mxnet import init
 
-def run(num_gpus, batch_size, lr):
+def train(num_gpus, batch_size, lr):
     train_data, test_data = utils.load_data_fashion_mnist(batch_size)
 
     ctx = [gpu(i) for i in range(num_gpus)]
@@ -66,7 +66,7 @@ def run(num_gpus, batch_size, lr):
 
     net = utils.resnet18_28(10)
     net.initialize(init=init.Xavier(), ctx=ctx)
-
+    loss = gluon.loss.SoftmaxCrossEntropyLoss()
     trainer = gluon.Trainer(
         net.collect_params(),'sgd', {'learning_rate': lr})
 
@@ -95,14 +95,20 @@ def run(num_gpus, batch_size, lr):
 尝试在单GPU上执行。
 
 ```{.python .input}
-run(1, 256, .1)
+train(1, 256, .1)
 
 ```
 
 同样的参数，但使用两个GPU。
 
 ```{.python .input}
-run(2, 256, .1)
+train(2, 256, .1)
+```
+
+增大批量值和学习率
+
+```{.python .input}
+train(2, 512, .2)
 ```
 
 ## 结论
