@@ -1,50 +1,25 @@
 # 从0开始使用多GPU来训练
 
-
+本教程我们将展示如何使用多个GPU来加速训练。正如你期望的那样，这个教程需要至少两块GPU来运行。事实上，一台机器上安装多块GPU非常常见，因为通常主板上会有多个PCIe插槽。下图是一台服务器上安装了8块Titan X。
 
 ![](../img/8x-titan-x.png)
 
-本教程我们将展示如何使用多个GPU来加速训练。正如你期望的那样，这个教程需要
-This tutorial shows how we can increase performance by distributing training across multiple GPUs.
-So, as you might expect, running this tutorial requires at least 2 GPUs.
-And these days multi-GPU machines are actually quite common.
-The following figure depicts 4 GPUs on a single machine and connected to the CPU through a PCIe switch.
-
-![](../img/multi-gpu.svg)
-
-If an NVIDIA driver is installed on our machine,
-then we can check how many GPUs are available by running the command `nvidia-smi`.
+如果正确安装了NVIDIA驱动，我们可以通过`nvidia-smi`来查看当前系统有多少个GPU。
 
 ```{.python .input  n=1}
 !nvidia-smi
 ```
 
-We want to use all of the GPUs on together for the purpose of significantly speeding up training (in terms of wall clock).
-Remember that CPUs and GPUs each can have multiple cores.
-CPUs on a laptop might have 2 or 4 cores, and on a server might have up to 16 or 32 cores.
-GPUs tend to have many more cores - an NVIDIA K80 GPU has 4992 - but run at slower clock speeds.
-Exploiting the parallelism across the GPU cores is how GPUs get their speed advantage in the first place.
+在[自动并行](./auto-parallelism.md]里我们提到虽然大部分的运算可以要么全部使用所有的CPU计算资源，或者单GPU的资源。但对于多GPU的情况，我们仍然需要来实现对应的算法。这些算法中最常用的叫做数据并行。
 
-As compared to the single CPU or single GPU setting where all the cores are typically used by default,
-parallelism across devices is a little more complicated.
-That's because most layers of a neural network can only run on a single device.
-So, in order to parallelize across devices, we need to do a little extra.
-Therefore, we need to do some additional work to partition a workload across multiple GPUs.
-This can be done in a few ways.
+## 数据并行
 
-## Data Parallelism
-
-For deep learning, data parallelism is by far the most widely used approach for partitioning workloads.
-It works like this: Assume that we have *k* GPUs. We split the examples in a data batch into *k* parts,
-and send each part to a different GPUs which then computes the gradient that part of the batch.
-Finally, we collect the gradients from each of the GPUs and sum them together before updating the weights.
-
-The following pseudo-code shows how to train one data batch on *k* GPUs.
+数据并行目前是深度学习里面使用最广泛的用来将任务划分到多设备的办法。它是这样工作的，假设这里有*k*个GPU，每个GPU将维护一个模型参数的复制。然后每次我们将一个批量里面的样本划分成*k*块并分每个GPU一块。每个GPU使用分到的数据计算梯度。然后我们将所有GPU上梯度相加得到这个批量上的完整梯度。之后每个GPU使用这个完整梯度对自己维护的模型做更新。
 
 
-## Define model and updater
+## 定义模型
 
-We will use the convolutional neural networks and plain SGD introduced in [cnn-scratch](../chapter_convolutional-neural-networks/cnn-scratch.md) as an example workload.
+我们使用[卷积神经网络 --- 从0开始](chapter_convolutional-neural-networks/cnn-scratch.md)里介绍的LeNet来作为本章的样例任务。
 
 ```{.python .input  n=2}
 from mxnet import nd
@@ -87,9 +62,11 @@ def lenet(X, params):
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
 ```
 
+然后我们先实现几个在GPU同步数据的辅助函数。
+
 ## 在多GPU之间同步数据
 
-The following function copies the parameters into a particular GPU and initializes the gradients.
+下面函数将模型参数复制到某个特定设备并初始化梯度。
 
 ```{.python .input  n=3}
 from mxnet import gpu
@@ -106,8 +83,7 @@ print('b1 weight = ', new_params[1])
 print('b1 grad = ', new_params[1].grad)
 ```
 
-Given a list of data that spans multiple GPUs, we then define a function to sum the data
-and broadcast the results to each GPU.
+给定分布在多个GPU之间数据，我们定义一个函数它将这些数据加起来，然后再广播到所有GPU上。
 
 ```{.python .input  n=4}
 def allreduce(data):
@@ -123,7 +99,7 @@ allreduce(data)
 print('After:', data)
 ```
 
-Given a data batch, we define a function that splits this batch and copies each part into the corresponding GPU.
+最后给定一个批量，我们划分它并复制到各个GPU上。
 
 ```{.python .input  n=5}
 def split_and_load(data, ctx):
@@ -143,7 +119,7 @@ print('Output:', splitted)
 
 ## 训练一个批量
 
-Now we are ready to implement how to train one data batch with data parallelism.
+现在我们可以实现如何使用数据并行在多个GPU上训练一个批量了。
 
 ```{.python .input  n=6}
 from mxnet import autograd
@@ -170,9 +146,9 @@ def train_batch(data, label, params, ctx, lr):
         utils.SGD(p, lr/data.shape[0])
 ```
 
-## Put all things together
+## 开始训练
 
-Define the program that trains and validates the model on MNIST.
+现在我们可以定义完整的训练函数。这个跟前面教程里没有什么区别。
 
 ```{.python .input  n=7}
 from time import time
@@ -201,23 +177,32 @@ def train(num_gpus, batch_size, lr):
         print('         validation accuracy = %.4f'%(test_acc))
 ```
 
-First run on a single GPU with batch size 64.
+首先我们使用一个GPU来训练。
 
 ```{.python .input  n=8}
 train(1, 256, 0.3)
 ```
 
-Running on multiple GPUs, we often want to increase the batch size so that each GPU still gets a large enough batch size for good computation performance. A larger batch size sometimes slows down the convergence, we often want to increases the learning rate as well.
+使用多个GPU但不改变其他参数会得到跟单GPU一致的结果（但数据是随机顺序，所以会有细微区别）
+
+```{.python .input}
+train(2, 256, 0.3)
+```
+
+但在多GPU时，通常我们需要增加批量大小使得每个GPU能得到足够多的任务来保证性能。但一个大的批量大小可能使得收敛变慢。这时候的一个常用做法是将学习率增大些。
 
 ```{.python .input  n=9}
 train(2, 512, 0.6)
 ```
 
-## Conclusion
+可以看到使用两个GPU能有效的减少训练时间。
 
-We have shown how to implement data parallelism on a deep neural network from scratch. Thanks to the auto-parallelism, we only need to write serial codes while the engine is able to parallelize them on multiple GPUs.
+## 结论
 
-## Next
-[Training with multiple GPUs with ``gluon``](../chapter07_distributed-learning/multiple-gpus-gluon.ipynb)
+数据并行可以有效的在多GPU上提升训练性能。
 
-For whinges or inquiries, [open an issue on  GitHub.](https://github.com/zackchase/mxnet-the-straight-dope)
+## 练习
+
+- 试试不同的批量大小和学习率
+- 将预测也改成多GPU版本
+- 注意到我们使用GPU 0来做梯度求和，会有带来什么问题吗？

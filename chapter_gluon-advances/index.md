@@ -9,4 +9,5 @@
    hybridize
    lazy-evaluation
    auto-parallelism
+   multiple-gpus-scratch
 ```
