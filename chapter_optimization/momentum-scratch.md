@@ -32,8 +32,6 @@ $$
 ![](../img/momentum-move.png)
 
 
-To better understand the momentum parameter $\gamma$, let us simplify the scenario by assuming the stochastic gradients $\nabla f_\mathcal{B}(\mathbf{x})$ are the same as $\mathbf{g}$ throughout the iterations. Since all the gradients are perfectly aligned to the same direction, the momentum algorithm accelerates the advancement along the same direction of $\mathbf{g}$ as
-
 ## 动量参数
 
 为了有助于理解动量参数$\gamma$，让我们考虑一个简单的问题：每次迭代的随机梯度$\nabla f_\mathcal{B}(\mathbf{x})$都等于$\mathbf{g}$。由于所有随机梯度都在同一方向，动量法在该方向使参数移动加速：
