@@ -1,6 +1,7 @@
 name: gluon
 dependencies:
 - python
+- libgfortran
 - jupyter
 - matplotlib
 - pandas
