@@ -238,4 +238,4 @@ train(batch_size=10, lr=0.002, epochs=3, period=10)
 * 梯度下降和随机梯度下降虽然看上去有效，但可能会有哪些问题？
 
 
-**吐槽和讨论欢迎点**[这里]()
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1877)
