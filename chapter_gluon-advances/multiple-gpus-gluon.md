@@ -1,96 +1,64 @@
-#  Training on multiple GPUs with `gluon`
+# 多GPU来训练 --- 使用Gluon
 
-Gluon makes it easy to implement data parallel training.
-In this notebook, we'll implement data parallel training for a convolutional neural network.
-If you'd like a finer grained view of the concepts,
-you might want to first read the previous notebook,
-[multi gpu from scratch](./multiple-gpus-scratch.ipynb) with `gluon`.
 
-To get started, let's first define a simple convolutional neural network and loss function.
+在Gluon里可以很容易的使用数据并行。在[多GPU来训练 --- 从0开始](./multiple-gpus-scratch.md)里我们手动实现了几个数据同步函数来使用数据并行，Gluon里实现了同样的功能。
 
-## Initialize on multiple devices
 
-Gluon supports initialization of network parameters over multiple devices. We accomplish this by passing in an array of device contexts, instead of the single contexts we've used in earlier notebooks.
-When we pass in an array of contexts, the parameters are initialized
-to be identical across all of our devices.
+## 多设备上的初始化
+
+之前我们介绍了如果使用`initialize()`里的`ctx`在CPU或者特定GPU上初始化模型。事实上，`ctx`可以接受一系列的设备，它会将初始好的参数复制所有的设备上。
+
+这里我们使用之前介绍Resnet18来作为演示。
 
 ```{.python .input  n=1}
 import sys
 sys.path.append('..')
 import utils
 from mxnet import gpu
+from mxnet import cpu
 
 net = utils.resnet18_28(10)
-
 ctx = [gpu(0), gpu(1)]
-net.collect_params().initialize(ctx=ctx)
+net.initialize(ctx=ctx)
 ```
 
-Given a batch of input data,
-we can split it into parts (equal to the number of contexts)
-by calling `gluon.utils.split_and_load(batch, ctx)`.
-The `split_and_load` function doesn't just split the data,
-it also loads each part onto the appropriate device context.
+记得前面提到的[延迟初始化](../chapter_gluon-basics/parameters.md)，这里参数还没有被初始化。我们需要先给定数据跑一次。
 
-So now when we call the forward pass on two separate parts,
-each one is computed on the appropriate corresponding device and using the version of the parameters stored there.
+Gluon提供了之前我们实现的`split_and_load`函数，它将数据分割并返回各个设备上的复制。然后根据输入的设备，计算也会在相应的数据上执行。
 
-```{.python .input  n=3}
-#batch = mnist['train_data'][0:GPU_COUNT*2, :]
-#data = gluon.utils.split_and_load(batch, ctx)
-#print(net(data[0]))
-#print(net(data[1]))
-```
-
-At any time, we can access the version of the parameters stored on each device.
-Recall from the first Chapter that our weights may not actually be initialized
-when we call `initialize` because the parameter shapes may not yet be known.
-In these cases, initialization is deferred pending shape inference.
-
-```{.python .input  n=6}
-#weight = net.collect_params()['cnn_conv0_weight']
-
-#for c in ctx:
-#    print('=== channel 0 of the first conv on {} ==={}'.format(
-#        c, weight.data(ctx=c)[0]))
-
-```
-
-Similarly, we can access the gradients on each of the GPUs. Because each GPU gets a different part of the batch (a different subset of examples), the gradients on each GPU vary.
-
-```{.python .input  n=2}
-from mxnet import autograd
+```{.python .input}
+from mxnet import nd
 from mxnet import gluon
 
-loss = gluon.loss.SoftmaxCrossEntropyLoss()
-
-def forward_backward(net, data, label):
-    with autograd.record():
-        losses = [loss(net(X), Y) for X, Y in zip(data, label)]
-    for l in losses:
-        l.backward()
-
-#label = gluon.utils.split_and_load(mnist['train_label'][0:4], ctx)
-#forward_backward(net, data, label)
-#for c in ctx:
-#    print('=== grad of channel 0 of the first conv2d on {} ==={}'.format(
-#        c, weight.grad(ctx=c)[0]))
+x = nd.random.uniform(shape=(4, 1, 28, 28))
+x_list = gluon.utils.split_and_load(x, ctx)
+print(net(x_list[0]))
+print(net(x_list[1]))
 ```
 
-## Put all things together
+这时候我们可以来看初始的过程发生了什么了。记得我们可以通过`data`来访问参数值，它默认会返回CPU上值。但这里我们只在两个GPU上初始化了，在访问的对应设备的值的时候，我们需要指定设备。
 
-Now we can implement the remaining functions. Most of them are the same as [when we did everything by hand](./chapter07_distributed-learning/multiple-gpus-scratch.ipynb); one notable difference is that if a `gluon` trainer recognizes multi-devices, it will automatically aggregate the gradients and synchronize the parameters.
+```{.python .input}
+weight = net[1].params.get('weight')
+print(weight.data(ctx[0])[0])
+print(weight.data(ctx[1])[0])
+try:
+    weight.data(cpu()) 
+except:
+    print('Not initialized on', cpu())
+```
 
-```{.python .input  n=6}
+上一章我们提到过如何在多GPU之间复制梯度求和并广播，这个在`gluon.Trainer`里面会被默认执行。这样我们可以实现完整的训练函数了。
+
+## 训练
+
+```{.python .input  n=7}
+from mxnet import gluon
+from mxnet import autograd
 from time import time
 from mxnet import init
-from mxnet import nd
 
-loss = gluon.loss.SoftmaxCrossEntropyLoss()
-trainer = gluon.Trainer(net.collect_params(),
-                        'sgd', {'learning_rate': 0.05})
-
-def train(num_gpus, batch_size, lr):
+def run(num_gpus, batch_size, lr):
     train_data, test_data = utils.load_data_fashion_mnist(batch_size)
 
     ctx = [gpu(i) for i in range(num_gpus)]
@@ -99,45 +67,49 @@ def train(num_gpus, batch_size, lr):
     net = utils.resnet18_28(10)
     net.initialize(init=init.Xavier(), ctx=ctx)
 
-    trainer = gluon.Trainer(net.collect_params(),
-                        'sgd', {'learning_rate': lr})
+    trainer = gluon.Trainer(
+        net.collect_params(),'sgd', {'learning_rate': lr})
 
     for epoch in range(5):
-        # train
         start = time()
+        total_loss = 0
         for data, label in train_data:
-            data = gluon.utils.split_and_load(data, ctx)
-            label = gluon.utils.split_and_load(label, ctx)
-
-            forward_backward(net, data, label)
+            data_list = gluon.utils.split_and_load(data, ctx)
+            label_list = gluon.utils.split_and_load(label, ctx)            
+            with autograd.record():
+                losses = [loss(net(X), y) for X, y in zip(
+                    data_list, label_list)]
+            for l in losses:
+                l.backward()
+            total_loss += sum([l.sum().asscalar() for l in losses])
             trainer.step(batch_size)
+            
         nd.waitall()
         print('Epoch %d, training time = %.1f sec'%(
             epoch, time()-start))
 
-        # validating on GPU 0
         test_acc = utils.evaluate_accuracy(test_data, net, ctx[0])
         print('         validation accuracy = %.4f'%(test_acc))
-
-train(1, 128, .1)
-train(2, 256, .1)
 ```
 
-```{.json .output n=None}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "Running on [gpu(0)]\nEpoch 0, training time = 15.5 sec\n         validation accuracy = 0.8770\nEpoch 1, training time = 15.1 sec\n         validation accuracy = 0.8888\n"
- }
-]
+尝试在单GPU上执行。
+
+```{.python .input}
+run(1, 256, .1)
+
 ```
 
-## Conclusion
+同样的参数，但使用两个GPU。
 
-Both parameters and trainers in `gluon` support multi-devices. Moving from one device to multi-devices is straightforward.
+```{.python .input}
+run(2, 256, .1)
+```
 
-## Next
-[Distributed training with multiple machines](../chapter07_distributed-learning/training-with-multiple-machines.ipynb)
+## 结论
 
-For whinges or inquiries, [open an issue on  GitHub.](https://github.com/zackchase/mxnet-the-straight-dope)
+Gluon的参数初始化和Trainer都支持多设备，从单设备到多设备非常容易。
+
+## 练习
+
+- 跟[多GPU来训练 --- 从0开始](./multiple-gpus-scratch.md)不一样，这里我们使用了更现代些的ResNet。看看不同的批量大小和学习率对不同GPU个数上的不一样。
+- 有时候各个设备计算能力不一样，例如同时使用CPU和GPU，或者GPU之间型号不一样，这时候应该怎么办？

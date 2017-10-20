@@ -1,4 +1,4 @@
-# 从0开始使用多GPU来训练
+# 多GPU来训练 --- 从0开始
 
 本教程我们将展示如何使用多个GPU来加速训练。正如你期望的那样，这个教程需要至少两块GPU来运行。事实上，一台机器上安装多块GPU非常常见，因为通常主板上会有多个PCIe插槽。下图是一台服务器上安装了8块Titan X。
 
@@ -10,7 +10,7 @@
 !nvidia-smi
 ```
 
-在[自动并行](./auto-parallelism.md]里我们提到虽然大部分的运算可以要么全部使用所有的CPU计算资源，或者单GPU的资源。但对于多GPU的情况，我们仍然需要来实现对应的算法。这些算法中最常用的叫做数据并行。
+在[自动并行](./auto-parallelism.md)里我们提到虽然大部分的运算可以要么全部使用所有的CPU计算资源，或者单GPU的资源。但对于多GPU的情况，我们仍然需要来实现对应的算法。这些算法中最常用的叫做数据并行。
 
 ## 数据并行
 
@@ -19,7 +19,7 @@
 
 ## 定义模型
 
-我们使用[卷积神经网络 --- 从0开始](chapter_convolutional-neural-networks/cnn-scratch.md)里介绍的LeNet来作为本章的样例任务。
+我们使用[卷积神经网络 --- 从0开始](../chapter_convolutional-neural-networks/cnn-scratch.md)里介绍的LeNet来作为本章的样例任务。
 
 ```{.python .input  n=2}
 from mxnet import nd
