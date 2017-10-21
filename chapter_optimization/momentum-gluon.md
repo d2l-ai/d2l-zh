@@ -85,4 +85,4 @@ train(batch_size=10, lr=0.2, mom=0.9, epochs=3, period=10)
 
 * 如果想用以上代码重现随机梯度下降，应该把动量参数改为多少？
 
-**吐槽和讨论欢迎点**[这里]()
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1880)

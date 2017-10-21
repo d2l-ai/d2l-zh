@@ -166,4 +166,4 @@ train(batch_size=10, lr=0.2, mom=0.9, epochs=3, period=10)
 
 * 试着使用较小的动量参数，观察实验结果。
 
-**吐槽和讨论欢迎点**[这里]()
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1879)
