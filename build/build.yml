@@ -1,6 +1,4 @@
 name: gluon_zh_docs
-channels:
-  - conda-forge
 dependencies:
 - python
 - jupyter
@@ -8,10 +6,11 @@ dependencies:
 - sphinx_rtd_theme
 - matplotlib
 - pandas
+- notebook=5.0.0
 - pip:
   - pyopenssl>= 17.3.0
   - nbsphinx
   - recommonmark
   - https://github.com/mli/notedown/tarball/master
-  - mxnet-cu80>=0.11.1b20170913
+  - mxnet-cu80>=0.11.1b20171003
   - jieba
