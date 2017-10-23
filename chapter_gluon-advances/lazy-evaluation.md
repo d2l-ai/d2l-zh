@@ -10,7 +10,7 @@ a = 1 + 1
 print(a)
 ```
 
-第一句对`a`赋值，再执行一些其指令后打印`a`的结果。因为这里我们可能很久以后才用`a`的值，所以我们可以把它的执行延迟到后面。这样的主要好处是在执行之前系统可以看到后面指令，从而有更多机会来对程序进行优化。例如如果`a`在被使用前被重新复制了，那么我们可以不需要真正执行第一条语句。
+第一句对`a`赋值，再执行一些其指令后打印`a`的结果。因为这里我们可能很久以后才用`a`的值，所以我们可以把它的执行延迟到后面。这样的主要好处是在执行之前系统可以看到后面指令，从而有更多机会来对程序进行优化。例如如果`a`在被使用前被重新赋值了，那么我们可以不需要真正执行第一条语句。
 
 在MXNet里，我们把用户打交道的部分叫做前端。例如这个教程里我们一直在使用Python前端写代码。除了Python外，MXNet还支持其他例如Scala，R，C++的前端。不管使用什么前端，MXNet的程序执行主要都在C++后端。前端只是把程序传给后端。后端有自己的线程来不断的收集任务，构造计算图，优化，并执行。本章我们介绍后端优化之一：延迟执行。
 
@@ -86,13 +86,13 @@ start = time()
 for i in range(1000):
     y = x + 1
     y.wait_to_read()
-    
+
 print('No lazy evaluation: %f sec' % (time()-start))
 
 start = time()
 for i in range(1000):
-    y = x + 1    
-nd.waitall()    
+    y = x + 1
+nd.waitall()
 print('With evaluation: %f sec' % (time()-start))
 ```
 
@@ -101,7 +101,7 @@ print('With evaluation: %f sec' % (time()-start))
 在延迟执行里，只要最终结果是一致的，系统可能使用跟代码不一样的顺序来执行，例如假设我们写
 
 ```{.python .input  n=7}
-a = 1 
+a = 1
 b = 2
 a + b
 ```
@@ -136,7 +136,7 @@ with net.name_scope():
         nn.Dense(1024),
         nn.Activation('relu'),
         nn.Dense(1024),
-    )    
+    )
 net.initialize()
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {})
 loss = gluon.loss.L2Loss()
@@ -148,7 +148,7 @@ loss = gluon.loss.L2Loss()
 import os
 import subprocess
 
-def get_mem():    
+def get_mem():
     """get memory usage in MB"""
     res = subprocess.check_output(['ps', 'u', '-p', str(os.getpid())])
     return int(str(res).split()[15])/1e3
@@ -183,7 +183,7 @@ for x, y in get_data():
     loss(y, net(x))
 
 nd.waitall()
-print('Increased memory %f MB' % (get_mem() - mem))    
+print('Increased memory %f MB' % (get_mem() - mem))
 ```
 
 同样对于训练，如果我们每次计算损失，那么就加入了同步
@@ -194,15 +194,15 @@ from mxnet import autograd
 mem = get_mem()
 
 total_loss = 0
-for x, y in get_data(): 
-    with autograd.record():    
+for x, y in get_data():
+    with autograd.record():
         L = loss(y, net(x))
     total_loss += L.sum().asscalar()
     L.backward()
     trainer.step(x.shape[0])
-    
-nd.waitall()    
-print('Increased memory %f MB' % (get_mem() - mem))    
+
+nd.waitall()
+print('Increased memory %f MB' % (get_mem() - mem))
 ```
 
 但如果不去掉同步，同样会首先把数据全部生成好，导致占用大量内存。
@@ -213,14 +213,14 @@ from mxnet import autograd
 mem = get_mem()
 
 total_loss = 0
-for x, y in get_data(): 
-    with autograd.record():    
+for x, y in get_data():
+    with autograd.record():
         L = loss(y, net(x))
     L.backward()
     trainer.step(x.shape[0])
-    
-nd.waitall()    
-print('Increased memory %f MB' % (get_mem() - mem))    
+
+nd.waitall()
+print('Increased memory %f MB' % (get_mem() - mem))
 ```
 
 ## 总结
@@ -230,3 +230,5 @@ print('Increased memory %f MB' % (get_mem() - mem))
 ## 练习
 
 为什么同步版本的训练中，我们看到了内存使用的大量下降？
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1881)

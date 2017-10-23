@@ -43,7 +43,7 @@ weight = net[1].params.get('weight')
 print(weight.data(ctx[0])[0])
 print(weight.data(ctx[1])[0])
 try:
-    weight.data(cpu()) 
+    weight.data(cpu())
 except:
     print('Not initialized on', cpu())
 ```
@@ -75,7 +75,7 @@ def train(num_gpus, batch_size, lr):
         total_loss = 0
         for data, label in train_data:
             data_list = gluon.utils.split_and_load(data, ctx)
-            label_list = gluon.utils.split_and_load(label, ctx)            
+            label_list = gluon.utils.split_and_load(label, ctx)
             with autograd.record():
                 losses = [loss(net(X), y) for X, y in zip(
                     data_list, label_list)]
@@ -83,7 +83,7 @@ def train(num_gpus, batch_size, lr):
                 l.backward()
             total_loss += sum([l.sum().asscalar() for l in losses])
             trainer.step(batch_size)
-            
+
         nd.waitall()
         print('Epoch %d, training time = %.1f sec'%(
             epoch, time()-start))
@@ -119,3 +119,6 @@ Gluon的参数初始化和Trainer都支持多设备，从单设备到多设备�
 
 - 跟[多GPU来训练 --- 从0开始](./multiple-gpus-scratch.md)不一样，这里我们使用了更现代些的ResNet。看看不同的批量大小和学习率对不同GPU个数上的不一样。
 - 有时候各个设备计算能力不一样，例如同时使用CPU和GPU，或者GPU之间型号不一样，这时候应该怎么办？
+
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1885)

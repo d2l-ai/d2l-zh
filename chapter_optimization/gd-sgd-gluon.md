@@ -108,4 +108,4 @@ train(batch_size=10, lr=0.002, epochs=3, period=10)
 
 * 你还能想到哪些学习率自我衰减的方法？
 
-**吐槽和讨论欢迎点**[这里]()
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1878)

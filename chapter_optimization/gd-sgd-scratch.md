@@ -3,7 +3,7 @@
 
 在之前的教程里，我们通过损失函数$\mathcal{L}$中参数的梯度$\nabla_{\theta}\mathcal{L}$来决定如何更新模型$\theta$的参数。我们也提到过学习率$\eta$，并给出了使用梯度下降算法更新模型参数的步骤：
 
-$$\theta_{t} \gets \eta \nabla_{\theta}\mathcal{L}_{t-1}$$
+$$\theta_{t} \gets \theta_{t-1} - \eta \nabla_{\theta}\mathcal{L}_{t-1}$$
 
 在本节教程中，我们将详细介绍梯度下降算法和随机梯度下降算法。由于梯度下降是优化算法的核心部分，深刻理解梯度的意义十分重要。为了帮助大家深刻理解梯度，我们将从数学上阐释梯度下降的意义。
 
@@ -238,4 +238,4 @@ train(batch_size=10, lr=0.002, epochs=3, period=10)
 * 梯度下降和随机梯度下降虽然看上去有效，但可能会有哪些问题？
 
 
-**吐槽和讨论欢迎点**[这里]()
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1877)

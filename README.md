@@ -57,7 +57,14 @@ cd _build/latex
 xelatex -interaction nonstopmode gluon_tutorials_zh.tex
 ```
 
+
 ## Terminology 中英术语对照表
+
+action, 动作
+
+adversarial learning, 对抗学习
+
+agent, 智能体
 
 attribute space, 属性空间
 
@@ -73,11 +80,23 @@ cluster, 簇
 
 clustering, 聚类
 
+confidence, 确信度
+
+contextual bandit problem, 情境式赌博机问题
+
+covariate shift, 协变量转移
+
+credit assignment problem, 信用分配问题
+
+cross-entropy, 交叉熵
+
 data set, 数据集
 
 dimensionality, 维数
 
 distribution, 分布
+
+einforcement learning, 强化学习
 
 example, 样例
 
@@ -86,6 +105,8 @@ feature vector, 特征向量
 feature, 特征
 
 generalization, 泛化
+
+generative adversarial networks, 生成对抗网络
 
 ground-truth, 真相、真实
 
@@ -107,17 +128,31 @@ learner, 学习器
 
 learning, 学习
 
-model 模型
+machine translation, 机器翻译
+
+Markov Decision Process, 马尔可夫决策过程
+
+model, 模型
+
+multi-armed bandit problem, 多臂赌博机问题
 
 multi-class classification, 多分类
 
 negative class, 反类
 
+offline learning, 离线学习
+
 positive class, 正类
 
 prediction, 预测
 
+principal component analysis, 主成分分析
+
 regression, 回归
+
+reinforcement learning, 强化学习
+
+representation learning, 表征学习
 
 sample space, 样本空间
 
@@ -125,11 +160,17 @@ sample, 样本
 
 sepecilization, 特化
 
+sequence learning, 序列学习
+
+subspace estimation, 子空间估计
+
 supervised learning, 监督学习
 
 testing smaple, 测试样本
 
 testing, 测试
+
+time step, 时间步长
 
 training data, 训练数据
 
