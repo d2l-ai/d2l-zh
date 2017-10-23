@@ -307,7 +307,11 @@ python -c "import pip; print(pip.pep425tags.get_supported())"
 #### 症状： pip install mxnet 成功，但是import mxnet失败
 ##### 病情分析
 
+如果看到这样的错误
+
+```bash
 ImportError: No module named mxnet
+```
 python无法找到mxnet，有可能系统上有多个python版本， 导致pip和python版本不一致
 
 ##### 药方
@@ -346,6 +350,18 @@ pip2 install mxnet --pre
 ```
 
 如果不是简单的python2/3的问题，推荐修复默认调用的python。
+
+##### 病情分析
+假设你看到这个错误：
+
+```bash
+ImportError: libgfortran.so.3: cannot open shared object file: No such file or
+directory
+```
+
+##### 药方
+这个一般发生在Linux下。安装`libgfortran`就好，例如Ubuntu下可以`sudo apt-get
+install libgfortran`
 
 #### 症状：可以import mxnet，但是版本不正常(< 0.11.1b20170908)
 ##### 病情分析
