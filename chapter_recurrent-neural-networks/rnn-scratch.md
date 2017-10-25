@@ -80,6 +80,7 @@ def data_iter(batch_size, seq_len, ctx=None):
         return time_numerical[pos:pos+seq_len]
     for i in range(num_batches):
         # 每次读取batch_size个随机样本
+        i = i * batch_size
         examples = idx[i:i+batch_size]
         data = nd.array(
             [_data(j*seq_len) for j in examples], ctx=ctx)
