@@ -2,3 +2,5 @@
 **/__pycache__
 data/
 build/
+*.json
+*.params
