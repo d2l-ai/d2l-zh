@@ -53,10 +53,24 @@ def try_gpu():
     """If GPU is available, return mx.gpu(0); else return mx.cpu()"""
     try:
         ctx = mx.gpu()
-        _ = nd.zeros((1,), ctx=ctx)
+        _ = nd.array([0], ctx=ctx)
     except:
         ctx = mx.cpu()
     return ctx
+
+def try_all_gpus():
+    """Return all available GPUs, or [mx.gpu()] if there is no GPU"""
+    ctx_list = []
+    try:
+        for i in range(16):
+            ctx = mx.gpu(i)
+            _ = nd.array([0], ctx=ctx)
+            ctx_list.append(ctx)
+    except:
+        pass
+    if not ctx_list:
+        ctx_list = [mx.cpu()]
+    return ctx_list
 
 def SGD(params, lr):
     for param in params:
@@ -72,39 +86,45 @@ def _get_batch(batch, ctx):
         label = batch.label[0]
     else:
         data, label = batch
-    return data.as_in_context(ctx), label.as_in_context(ctx)
+    return (gluon.utils.split_and_load(data, ctx),
+            gluon.utils.split_and_load(label, ctx),
+            data.shape[0])
 
-def evaluate_accuracy(data_iterator, net, ctx=mx.cpu()):
-    acc = 0.
+def evaluate_accuracy(data_iterator, net, ctx=[mx.cpu()]):
+    acc = nd.array([0])
+    n = 0.
     if isinstance(data_iterator, mx.io.MXDataIter):
         data_iterator.reset()
-    for i, batch in enumerate(data_iterator):
-        data, label = _get_batch(batch, ctx)
-        output = net(data)
-        acc += accuracy(output, label)
-    return acc / (i+1)
+    for batch in data_iterator:
+        data, label, batch_size = _get_batch(batch, ctx)
+        for X, y in zip(data, label):
+            acc += nd.sum(net(X).argmax(axis=1)==y).copyto(mx.cpu())
+        acc.wait_to_read() # don't push too many operators into backend
+        n += batch_size
+    return acc.asscalar() / n
 
 def train(train_data, test_data, net, loss, trainer, ctx, num_epochs, print_batches=None):
     """Train a network"""
+    if isinstance(ctx, mx.Context):
+        ctx = [ctx]
     for epoch in range(num_epochs):
-        train_loss = 0.
-        train_acc = 0.
+        train_loss, train_acc, n = 0.0, 0.0, 0.0
         if isinstance(train_data, mx.io.MXDataIter):
             train_data.reset()
         for i, batch in enumerate(train_data):
-            data, label = _get_batch(batch, ctx)
+            data, label, batch_size = _get_batch(batch, ctx)
+            losses = []
             with autograd.record():
-                output = net(data)
-                L = loss(output, label)
-            L.backward()
-
-            trainer.step(data.shape[0])
-
-            train_loss += nd.mean(L).asscalar()
-            train_acc += accuracy(output, label)
-
-            n = i + 1
-            if print_batches and n % print_batches == 0:
+                outputs = [net(X) for X in data]
+                losses = [loss(yhat, y) for yhat, y in zip(outputs, label)]
+            for l in losses:
+                l.backward()
+            train_acc += sum([(yhat.argmax(axis=1)==y).sum().asscalar()
+                              for yhat, y in zip(outputs, label)])
+            train_loss += sum([l.sum().asscalar() for l in losses])
+            trainer.step(batch_size)
+            n += batch_size
+            if print_batches and (i+1) % print_batches == 0:
                 print("Batch %d. Loss: %f, Train acc %f" % (
                     n, train_loss/n, train_acc/n
                 ))

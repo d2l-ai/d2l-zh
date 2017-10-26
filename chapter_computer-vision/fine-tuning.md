@@ -176,12 +176,12 @@ finetune_net.classifier.initialize(init.Xavier())
 
 我们先定义一个可以重复使用的训练函数。跟之前教程不一样的地方在于这里我们对正例预测错误做了更大惩罚。
 
-```{.python .input}
+```{.python .input  n=7}
 import sys
 sys.path.append('..')
 import utils
 
-def train(net, ctx, epochs=2, learning_rate=0.1, wd=0.001):
+def train(net, ctx, epochs=10, learning_rate=0.1, wd=0.001):
     # 确保net的初始化在ctx上
     net.collect_params().reset_ctx(ctx)
     net.hybridize()
@@ -197,14 +197,14 @@ def train(net, ctx, epochs=2, learning_rate=0.1, wd=0.001):
 
 现在我们可以训练了。
 
-```{.python .input}
-ctx = utils.try_gpu()
-train(finetune_net, ctx, epochs=5)
+```{.python .input  n=8}
+ctx = utils.try_all_gpus()
+train(finetune_net, ctx)
 ```
 
 对比起见我们尝试从随机初始值开始训练一个网络
 
-```{.python .input}
+```{.python .input  n=9}
 scratch_net = models.resnet18_v2(classes=2)
 scratch_net.initialize(init=init.Xavier())
 train(scratch_net, ctx)
@@ -216,7 +216,7 @@ train(scratch_net, ctx)
 
 我们定义一个预测函数，它可以读取一张图片并返回预测概率：
 
-```{.python .input}
+```{.python .input  n=10}
 %matplotlib inline
 import matplotlib.pyplot as plt
 from mxnet import image
@@ -230,11 +230,9 @@ def classify_hotdog(net, fname):
     img, _ = image.center_crop(img, (224,224))
     plt.imshow(img.asnumpy())
     # from h x w x c -> b x c x h x w
-    data = img.astype('float32')
-    data = nd.transpose(data, (2,1,0))
-    data = nd.expand_dims(data, axis=0)
+    data = img.transpose((2,0,1)).expand_dims(axis=0)
     # predict
-    out = net(data.as_in_context(ctx))
+    out = net(data.astype('float32').as_in_context(ctx[0]))
     out = nd.SoftmaxActivation(out)
     pred = int(nd.argmax(out, axis=1).asscalar())
     prob = out[0][pred].asscalar()
@@ -244,15 +242,15 @@ def classify_hotdog(net, fname):
 
 接下来我们用训练好的图片来预测几张图片：
 
-```{.python .input  n=17}
+```{.python .input  n=11}
 classify_hotdog(finetune_net, '../img/real_hotdog.jpg')
 ```
 
-```{.python .input  n=18}
+```{.python .input  n=12}
 classify_hotdog(finetune_net, '../img/leg_hotdog.jpg')
 ```
 
-```{.python .input  n=19}
+```{.python .input  n=13}
 classify_hotdog(finetune_net, '../img/dog_hotdog.jpg')
 ```
 
