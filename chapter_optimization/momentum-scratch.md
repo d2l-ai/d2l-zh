@@ -57,7 +57,7 @@ $$
 def sgd_momentum(params, vs, lr, mom, batch_size):
     for param, v in zip(params, vs):
         v[:] = mom * v + lr * param.grad / batch_size
-        param[:] = param - v
+        param[:] -= v
 ```
 
 实验中，我们以线性回归为例。其中真实参数`w`为[2, -3.4]，`b`为4.2。我们把速度项初始化为和参数形状相同的零张量。

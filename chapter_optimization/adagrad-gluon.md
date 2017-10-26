@@ -40,7 +40,7 @@ import matplotlib.pyplot as plt
 def train(batch_size, lr, epochs, period):
     assert period >= batch_size and period % batch_size == 0
     net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
-    # 动量法。
+    # Adagrad。
     trainer = gluon.Trainer(net.collect_params(), 'adagrad',
                             {'learning_rate': lr})
     data_iter = gluon.data.DataLoader(dataset, batch_size, shuffle=True)
