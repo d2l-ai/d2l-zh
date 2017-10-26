@@ -91,6 +91,8 @@ def _get_batch(batch, ctx):
             data.shape[0])
 
 def evaluate_accuracy(data_iterator, net, ctx=[mx.cpu()]):
+    if isinstance(ctx, mx.Context):
+        ctx = [ctx]
     acc = nd.array([0])
     n = 0.
     if isinstance(data_iterator, mx.io.MXDataIter):
