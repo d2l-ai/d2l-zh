@@ -1,69 +1,25 @@
-# 【草稿】Fine-tuning: 通过微调来迁移学习
-
-【代码完成，但文字还没翻译完】
-
-In previous chapters,
-we demonstrated how to train a neural network
-to recognize the categories corresponding to objects in images.
-We looked at toy datasets like hand-written digits,
-and thumbnail-sized pictures of animals.
-And we talked about the ImageNet dataset,
-the default academic benchmark,
-which contains 1M million images,
-1000 each from 1000 separate classes.
-
-The ImageNet dataset categorically changed what was possible in computer vision.
-It turns out some things are possible (these days, even easy)
-on gigantic datasets, that simply aren't with smaller datasets.
-In fact, we don't know of any technique that can comparably powerful model
-on a similar photograph dataset but containing only, say, 10k images.
-
-And that's a problem.
-Because however impressive the results of CNNs on ImageNet may be,
-most people aren't interested in ImageNet itself.
-They're interested in their own problems.
-Recognize people based on pictures of their faces.
-Distinguish between photographs of $10$ different types of corral on the ocean
-floor.
-Usually when individuals (and not Amazon, Google, or inter-institutional *big
-science* initiatives)
-are interested in solving a computer vision problem,
-they come to the table with modestly sized datasets.
-A few hundred examples may be common and a few thousand examples may be as much
-as you can reasonably ask for.
-
-So one natural question emerges.
-Can we somehow use the powerful models trained on millions of examples for one
-dataset,
-and apply them to improve performance on a new problem
-with a much smaller dataset?
-This kind of problem (learning on source dataset, bringing knowledge to target
-dataset),
-is appropriately called *transfer learning*.
-Fortunately, we have some effective tools for solving this problem.
-
-For deep neural networks, the most popular approach is called finetuning
-and the idea is both simple and effective:
-
-* Train a neural network on the source task $S$.
-* Decapitate it, replacing it's output layer appropriate to target task $T$.
-* Initialize the weights on the new output layer randomly, keeping all other
-(pretrained) weights the same.
-* Begin training on the new dataset.
-
-This might be clearer if we visualize the algorithm:
-
-![](../img/fine-tune.png)
+# Fine-tuning: 通过微调来迁移学习
 
 
-In this section, we'll demonstrate fine-tuning,
-using the popular and compact SqueezeNet architecture.
-Since we don't want to saddle you with the burden of downloading ImageNet,
-or of training on ImageNet from scratch,
-we'll pull the weights of the pretrained Squeeze net from the internet.
-Specifically, we'll be fine-tuning a squeezenet-1.1
-that was pre-trained on imagenet-12.
-Finally, we'll fine-tune it to recognize **hotdogs**.
+在前面的章节里我们展示了如何训练神经网络来识别小图片里的问题。我们也介绍了ImageNet这个学术界默认的数据集，它有超过一百万的图片和一千类的物体。这个数据集很大的改变计算机视觉这个领域，展示了很多事情虽然在小的数据集上做不到，但在数GB的大数据上是可能的。事实上，我们目前还不知道有什么技术可以在类似的但小图片数据集上，例如一万张图片，训练出一个同样强大的模型。
+
+所以这是一个问题。尽管深度卷积神经网络在ImageNet上有了很惊讶的结果，但大部分人不关心Imagenet这个数据集本身。他们关心他们自己的问题。例如通过图片里面的人脸识别身份，或者识别图片里面的10种不同的珊瑚。通常大部分在非BAT类似大机构里的人在解决计算机视觉问题的时候，能获得的只是相对来说中等规模的数据。几百张图片很正常，找到几千张图片也有可能，但很难同Imagenet一样获得上百万张图片。
+
+于是我们会有一个很自然的问题，如何使用在百万张图片上训练出来的强大的模型来帮助提升在小数据集上的精度呢？这种在源数据上训练，然后将学到的知识应用到目标数据集上的技术通常被叫做**迁移学习**。幸运的是，我们有一些有效的技术来解决这个问题。
+
+对于深度神经网络来首，最为流行的一个方法叫做微调（fine-tuning）。它的想法很简单但有效：
+
+
+* 在源数据 $S$ 上训练一个神经网络。
+* 砍掉它的头，将它的输出层改成适合目标数据 $S$ 的大小
+* 将输出层的权重初始化成随机值，但其它层保持跟原先训练好的权重一致
+* 然后开始在目标数据集开始训练
+
+下图图示了这个算法：
+
+![](../img/fine-tuning.svg)
+
+这一章我们将通过[ResNet](../chapter_convolutional-neural-networks/resnet-gluon.md)来演示如何进行微调。因为通常不会每次从0开始在ImageNet上训练模型，我们直接从Gluon的模型园下载已经训练好的。然后将其迁移到一个我们感兴趣的问题上：识别**热狗**。
 
 ![hot dog](../img/comic-hot-dog.png)
 
@@ -71,20 +27,11 @@ Finally, we'll fine-tune it to recognize **hotdogs**.
 
 ## 数据集
 
-Formally, hot dog recognition is a binary classification problem.
-We'll use $1$ to represent the hotdog class,
-and $0$ for the *not hotdog* class.
-Our hot dog dataset (the target dataset which we'll fine-tune the model to)
-contains 18,141 sample images, 2091 of which are hotdogs.
-Because the dataset is imbalanced (e.g. hotdog class is only 1% in mscoco
-dataset),
-sampling interesting negative samples can help to improve the performance of our
-algorithm.
-Thus, in the negative class in the our dataset,
-two thirds are images from food categories (e.g. pizza) other than hotdogs,
-and 30% are images from all other categories.
+热狗识别是一个二分类问题。我们用$1$来表示图片里面的是热狗，用$0$来表示不是热狗。我们的热狗数据集合是从网上抓取的，它有18,141张图片。可以想象说大部分正常图片里都不会含有热狗，实际上这个数据集里只有2091张图片含有热狗。所以这个是不均衡的问题。
 
 ### 获取数据
+
+我们将数据
 We prepare the dataset in the format of MXRecord using
 [im2rec](http://mxnet.io/how_to/recordio.html?highlight=im2rec) tool. As of the
 current draft, rec files are not yet explained in the book, but if you're
@@ -151,14 +98,21 @@ val_iter = io.ImageRecordIter(
 
 这里我们将使用Gluon提供的ResNet18来训练。我们先从模型园里获取改良过ResNet。使用`pretrained=True`将会自动下载并加载从ImageNet数据集上训练而来的权重。
 
-```{.python .input  n=4}
+```{.python .input  n=6}
 from mxnet.gluon.model_zoo import vision as models
 
 pretrained_net = models.resnet18_v2(pretrained=True)
-pretrained_net
 ```
 
-可以看到这个模型有两部分组成，一是`features`，二是`classifier`。后者主要包括最后一层全连接层。我们可以看一下第一个卷积层的部分权重。
+通常预训练好的模型由两块构成，一是`features`，二是`classifier`。后者主要包括最后一层全连接层，前者包含从输入开始的大部分层。这样的划分的一个主要目的是为了更方便做微调。我们先看下`classifer`的内容：
+
+```{.python .input  n=7}
+pretrained_net.classifier
+```
+
+【注意】未来几天我们可能会将`classifier`重命名成`output`，并在里面只保留最后的Dense层。
+
+我们可以看一下第一个卷积层的部分权重。
 
 ```{.python .input  n=5}
 pretrained_net.features[1].params.get('weight').data()[0][0]
@@ -254,17 +208,9 @@ classify_hotdog(finetune_net, '../img/leg_hotdog.jpg')
 classify_hotdog(finetune_net, '../img/dog_hotdog.jpg')
 ```
 
-## Conclusions
-As you can see, given a pretrained model, we can get a great classifier,
-even for tasks where we simply don't have enough data to train from scratch.
-That's because the representations necessary to perform both tasks have a lot in
-common.
-Since they both address natural images, they both require recognizing textures,
-shapes, edges, etc.
-Whenever you have a small enough dataset that you fear impoverishing your model,
-try thinking about what larger datasets you might be able to pre-train your
-model on,
-so that you can just perform fine-tuning on the task at hand.
+## 结论
+
+我们看到通过一个预先训练好的模型，我们可以在即使小的数据集上训练得到很好的分类器。这是因为这两个任务里面的数据表示有很多共通性。例如他们都需要如何识别纹理，形状，边等等。而这些通常被在靠近数据的层有效的处理。因此，如果你有一个相对较小的数据在手，而且当心它可能不够训练出很好的模型，你可以寻找跟你数据类似的大数据集来先训练你的模型，然后再在你手上的数据集上微调。
 
 ## 练习
 
