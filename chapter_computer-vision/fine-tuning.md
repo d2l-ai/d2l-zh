@@ -19,86 +19,94 @@
 
 ![](../img/fine-tuning.svg)
 
-这一章我们将通过[ResNet](../chapter_convolutional-neural-networks/resnet-gluon.md)来演示如何进行微调。因为通常不会每次从0开始在ImageNet上训练模型，我们直接从Gluon的模型园下载已经训练好的。然后将其迁移到一个我们感兴趣的问题上：识别**热狗**。
+## 热狗识别
+
+这一章我们将通过[ResNet](../chapter_convolutional-neural-networks/resnet-gluon.md)来演示如何进行微调。因为通常不会每次从0开始在ImageNet上训练模型，我们直接从Gluon的模型园下载已经训练好的。然后将其迁移到一个我们感兴趣的问题上：识别热狗。
 
 ![hot dog](../img/comic-hot-dog.png)
 
 
-
-## 数据集
-
-热狗识别是一个二分类问题。我们用$1$来表示图片里面的是热狗，用$0$来表示不是热狗。我们的热狗数据集合是从网上抓取的，它有18,141张图片。可以想象说大部分正常图片里都不会含有热狗，实际上这个数据集里只有2091张图片含有热狗。所以这个是不均衡的问题。
+热狗识别是一个二分类问题。我们这里使用的热狗数据集是从网上抓取的，它有$1400$张正类和同样多的负类，负类主要是食品相关图片。我们将各类的$1000$张作为训练集合，其余的作为测试集合。
 
 ### 获取数据
 
-我们将数据
-We prepare the dataset in the format of MXRecord using
-[im2rec](http://mxnet.io/how_to/recordio.html?highlight=im2rec) tool. As of the
-current draft, rec files are not yet explained in the book, but if you're
-reading after November or December 2017 and you still see this note, [open an
-issue on GitHub](https://github.com/zackchase/mxnet-the-straight-dope) and let
-us know to stop slacking off.
+我们首先从网上下载数据并解压到`../data/hotdog`。每个文件夹下会有对应的`png`文件。
 
-- not_hotdog_train.rec 641M (1882 positive, 10000 interesting negative, and 5000
-random negative)
-- not_hotdog_validation.rec 49M (209 positive, 700 interesting negative, and 350
-random negative)
+```{.python .input  n=24}
+from mxnet import gluon
+import zipfile
+
+data_dir = '../data'
+fname = gluon.utils.download(
+    'https://apache-mxnet.s3-accelerate.amazonaws.com/gluon/dataset/hotdog.zip',
+    path=data_dir, sha1_hash='fba480ffa8aa7e0febbb511d181409f899b9baa5')
+
+with zipfile.ZipFile(fname, 'r') as f:
+    f.extractall(data_dir)
+```
+
+我们使用[图片增强](../image-augmentation.md)里类似的方法来处理图片。
 
 ```{.python .input  n=1}
+from mxnet import nd
+from mxnet import image
+from mxnet import gluon
 
-dataset = {'train': ('not_hotdog_train-e6ef27b4.rec', '0aad7e1f16f5fb109b719a414a867bbee6ef27b4'),
-                 'validation': ('not_hotdog_validation-c0201740.rec', '723ae5f8a433ed2e2bf729baec6b878ac0201740')}
+train_augs = [
+    image.HorizontalFlipAug(.5),
+    image.RandomCropAug((224,224))
+]
+
+test_augs = [
+    image.CenterCropAug((224,224))
+]
+
+def transform(data, label, augs):
+    data = data.astype('float32')
+    for aug in augs:
+        data = aug(data)
+    data = nd.transpose(data, (2,0,1))
+    return data, nd.array([label]).asscalar().astype('float32')
 ```
-
-To demo the model here, we're justgoing to use the smaller validation set.
-But if you're interested in training on the full set,
-set 'demo' to False in the settings at the beginning.
-Now we're ready to download and verify the dataset.
 
 ```{.python .input  n=2}
-from mxnet import gluon
-base_url = 'https://apache-mxnet.s3-accelerate.amazonaws.com/gluon/dataset/'
-download_dir = '../data/'
+%matplotlib inline
+import matplotlib.pyplot as plt
 
-def get_file(name, sha1):
-    gluon.utils.download(base_url+name, 
-                         path=download_dir+name, sha1_hash=sha1)
-get_file(*dataset['train'])
-get_file(*dataset['validation'])
+def show_images(imgs, nrows, ncols, figsize=None):
+    if not figsize:
+        figsize = (ncols, nrows)
+    _, figs = plt.subplots(nrows, ncols, figsize=figsize)
+    for i in range(nrows):
+        for j in range(ncols):
+            figs[i][j].imshow(imgs[i*ncols+j].asnumpy())
+            figs[i][j].axes.get_xaxis().set_visible(False)
+            figs[i][j].axes.get_yaxis().set_visible(False)
+    plt.show()
 ```
 
-### 读取
-
-The record files can be read using [mx.io.ImageRecordIter](http://mxnet.io/api/p
-ython/io.html#mxnet.io.ImageRecordIter)
+读取文件夹下的图片，并且画出一些图片
 
 ```{.python .input  n=3}
-from mxnet import io
+train_imgs = gluon.data.vision.ImageFolderDataset(
+    data_dir+'/hotdog/train',                                   
+    transform=lambda X, y: transform(X, y, train_augs))
+test_imgs = gluon.data.vision.ImageFolderDataset(
+    data_dir+'/hotdog/test',                                   
+    transform=lambda X, y: transform(X, y, test_augs))
 
-train_iter = io.ImageRecordIter(
-    path_imgrec=download_dir+dataset['train'][0],
-    batch_size=128,
-    data_shape=(3, 224, 224),
-    min_img_size=256,
-    rand_crop=True, 
-    rand_mirror=True, 
-    shuffle=True,
-    max_random_scale=1.5, 
-    min_random_scale=0.75
-)
-val_iter = io.ImageRecordIter(
-    path_imgrec=download_dir+dataset['validation'][0],
-    batch_size=128,
-    data_shape=(3, 224, 224),
-    min_img_size=256
-)
+data = gluon.data.DataLoader(train_imgs, 32, shuffle=True)
+for X, _ in data:
+    X = X.transpose((0,2,3,1)).clip(0,255)/255
+    show_images(X, 4, 8)
+    break
 ```
 
-## 模型和训练
+### 模型和训练
 
 这里我们将使用Gluon提供的ResNet18来训练。我们先从模型园里获取改良过ResNet。使用`pretrained=True`将会自动下载并加载从ImageNet数据集上训练而来的权重。
 
-```{.python .input  n=6}
+```{.python .input  n=4}
 from mxnet.gluon.model_zoo import vision as models
 
 pretrained_net = models.resnet18_v2(pretrained=True)
@@ -106,7 +114,7 @@ pretrained_net = models.resnet18_v2(pretrained=True)
 
 通常预训练好的模型由两块构成，一是`features`，二是`classifier`。后者主要包括最后一层全连接层，前者包含从输入开始的大部分层。这样的划分的一个主要目的是为了更方便做微调。我们先看下`classifer`的内容：
 
-```{.python .input  n=7}
+```{.python .input  n=5}
 pretrained_net.classifier
 ```
 
@@ -114,13 +122,13 @@ pretrained_net.classifier
 
 我们可以看一下第一个卷积层的部分权重。
 
-```{.python .input  n=5}
+```{.python .input  n=6}
 pretrained_net.features[1].params.get('weight').data()[0][0]
 ```
 
 在微调里，我们一般新建一个网络，它的定义跟之前训练好的网络一样，除了最后的输出数等于当前数据的类别数。新网络的`features`被初始化前面训练好网络的权重，而`classfier`则是从头开始训练。
 
-```{.python .input  n=6}
+```{.python .input  n=7}
 from mxnet import init
 
 finetune_net = models.resnet18_v2(classes=2)
@@ -128,37 +136,37 @@ finetune_net.features = pretrained_net.features
 finetune_net.classifier.initialize(init.Xavier())
 ```
 
-我们先定义一个可以重复使用的训练函数。跟之前教程不一样的地方在于这里我们对正例预测错误做了更大惩罚。
+我们先定义一个可以重复使用的训练函数。
 
-```{.python .input  n=7}
+```{.python .input  n=8}
 import sys
 sys.path.append('..')
 import utils
 
-def train(net, ctx, epochs=10, learning_rate=0.1, wd=0.001):
+def train(net, ctx, batch_size=64, epochs=10, learning_rate=0.01, wd=0.001):
+    train_data = gluon.data.DataLoader(train_imgs, batch_size, shuffle=True)
+    test_data = gluon.data.DataLoader(test_imgs, batch_size)
+
     # 确保net的初始化在ctx上
     net.collect_params().reset_ctx(ctx)
     net.hybridize()
-    # 自定义损失函数，加大了正例错误的惩罚
-    sce = gluon.loss.SoftmaxCrossEntropyLoss()
-    def loss(yhat, y):
-        return sce(yhat, y) * (1+y*5)/6
+    loss = gluon.loss.SoftmaxCrossEntropyLoss()
     # 训练
     trainer = gluon.Trainer(net.collect_params(), 'sgd', {
         'learning_rate': learning_rate, 'wd': wd})
-    utils.train(train_iter, val_iter, net, loss, trainer, ctx, epochs)
+    utils.train(train_data, test_data, net, loss, trainer, ctx, epochs)
 ```
 
 现在我们可以训练了。
 
-```{.python .input  n=8}
+```{.python .input  n=9}
 ctx = utils.try_all_gpus()
 train(finetune_net, ctx)
 ```
 
 对比起见我们尝试从随机初始值开始训练一个网络
 
-```{.python .input  n=9}
+```{.python .input  n=10}
 scratch_net = models.resnet18_v2(classes=2)
 scratch_net.initialize(init=init.Xavier())
 train(scratch_net, ctx)
@@ -166,45 +174,36 @@ train(scratch_net, ctx)
 
 可以看到，微调版本收敛比从随机值开始的要快很多。
 
-## 预测
+### 图片预测
 
-我们定义一个预测函数，它可以读取一张图片并返回预测概率：
-
-```{.python .input  n=10}
-%matplotlib inline
+```{.python .input  n=21}
 import matplotlib.pyplot as plt
-from mxnet import image
-from mxnet import nd
 
 def classify_hotdog(net, fname):
     with open(fname, 'rb') as f:
-        img = image.imdecode(f.read())
-    # reisze and crop
-    img = image.resize_short(img, 256)
-    img, _ = image.center_crop(img, (224,224))
-    plt.imshow(img.asnumpy())
-    # from h x w x c -> b x c x h x w
-    data = img.transpose((2,0,1)).expand_dims(axis=0)
-    # predict
-    out = net(data.astype('float32').as_in_context(ctx[0]))
+        img = image.imdecode(f.read())        
+    data, _ = transform(img, -1, test_augs)
+    plt.imshow(data.transpose((1,2,0)).asnumpy()/255)
+    data = data.expand_dims(axis=0)
+    out = net(data.as_in_context(ctx[0]))
     out = nd.SoftmaxActivation(out)
     pred = int(nd.argmax(out, axis=1).asscalar())
     prob = out[0][pred].asscalar()
-    label = ['Not hotdog!', 'Hotdog!']
+    label = train_imgs.synsets
     return 'With prob=%f, %s'%(prob, label[pred])
 ```
 
 接下来我们用训练好的图片来预测几张图片：
 
-```{.python .input  n=11}
+```{.python .input  n=22}
 classify_hotdog(finetune_net, '../img/real_hotdog.jpg')
 ```
 
-```{.python .input  n=12}
+```{.python .input  n=13}
 classify_hotdog(finetune_net, '../img/leg_hotdog.jpg')
 ```
 
-```{.python .input  n=13}
+```{.python .input  n=14}
 classify_hotdog(finetune_net, '../img/dog_hotdog.jpg')
 ```
 
@@ -216,10 +215,15 @@ classify_hotdog(finetune_net, '../img/dog_hotdog.jpg')
 
 - 多跑几个`epochs`直到收敛（你可以也需要调调参数），看看`scratch_net`和`finetune_net`最后的精度是不是有区别
 - 这里`finetune_net`重用了`pretrained_net`除最后全连接外的所有权重，试试少重用些权重，有会有什么区别
-- 事实上`ImageNet`里也有`hotdog`这个类，它的index是713。例如它对应的weight可以这样拿到
-  ```
-  weight = pretrained_net.classifier[4].params.get('weight')
-  nd.split(weight,1000, axis=0)[713]
-  ```
-  试试重用`classifer`里重用hotdog的权重
+- 事实上`ImageNet`里也有`hotdog`这个类，它的index是713。例如它对应的weight可以这样拿到。试试如何重用这个权重
+  
+  
+
+```{.python .input}
+weight = pretrained_net.classifier[4].params.get('weight')
+hotdog_w = nd.split(weight.data(), 1000, axis=0)[713]
+hotdog_w.shape
+```
+
 - 试试不让`finetune_net`里重用的权重参与训练，就是不更新权重
+- 如果图片预测这一章里我们训练的模型没有分对所有的图片，如何改进？
