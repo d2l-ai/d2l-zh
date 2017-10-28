@@ -52,20 +52,20 @@ c = nd.random.uniform(shape=(2,3), ctx=mx.gpu())
 (a,b,c)
 ```
 
-尝试将内存开到另外一块GPU上。如果不存在会报错：
+尝试将内存开到另外一块GPU上。如果不存在会报错。当然，如果你有大于10块GPU，那么下面代码会顺利执行。
 
-```{.python .input}
+```{.python .input  n=6}
 import sys
 
 try:
-    nd.array([1,2,3], ctx=mx.gpu(1))
+    nd.array([1,2,3], ctx=mx.gpu(10))
 except mx.MXNetError as err:
     sys.stderr.write(str(err))
 ```
 
 我们可以通过`copyto`和`as_in_context`来在设备直接传输数据。
 
-```{.python .input}
+```{.python .input  n=7}
 y = x.copyto(mx.gpu())
 z = x.as_in_context(mx.gpu())
 (y, z)
@@ -73,7 +73,7 @@ z = x.as_in_context(mx.gpu())
 
 这两个函数的主要区别是，如果源和目标的context一致，`as_in_context`不复制，而`copyto`总是会新建内存：
 
-```{.python .input}
+```{.python .input  n=8}
 yy = y.as_in_context(mx.gpu())
 zz = z.copyto(mx.gpu())
 (yy is y, zz is z)
@@ -83,13 +83,13 @@ zz = z.copyto(mx.gpu())
 
 计算会在数据的`context`上执行。所以为了使用GPU，我们只需要事先将数据放在上面就行了。结果会自动保存在对应的设备上：
 
-```{.python .input}
+```{.python .input  n=9}
 nd.exp(z + 2) * y
 ```
 
 注意所有计算要求输入数据在同一个设备上。不一致的时候系统不进行自动复制。这个设计的目的是因为设备之间的数据交互通常比较昂贵，我们希望用户确切的知道数据放在哪里，而不是隐藏这个细节。下面代码尝试将CPU上`x`和GPU上的`y`做运算。
 
-```{.python .input}
+```{.python .input  n=10}
 try:
     x + y
 except mx.MXNetError as err:
@@ -100,7 +100,7 @@ except mx.MXNetError as err:
 
 如果某个操作需要将NDArray里面的内容转出来，例如打印或变成numpy格式，如果需要的话系统都会自动将数据copy到主内存。
 
-```{.python .input}
+```{.python .input  n=11}
 print(y)
 print(y.asnumpy())
 print(y.sum().asscalar())
@@ -110,7 +110,7 @@ print(y.sum().asscalar())
 
 同NDArray类似，Gluon的大部分函数可以通过`ctx`指定设备。下面代码将模型参数初始化在GPU上：
 
-```{.python .input}
+```{.python .input  n=12}
 from mxnet import gluon
 net = gluon.nn.Sequential()
 net.add(gluon.nn.Dense(1))
@@ -120,14 +120,14 @@ net.initialize(ctx=mx.gpu())
 
 输入GPU上的数据，会在GPU上计算结果
 
-```{.python .input}
+```{.python .input  n=13}
 data = nd.random.uniform(shape=[3,2], ctx=mx.gpu())
 net(data)
 ```
 
 确认下权重：
 
-```{.python .input}
+```{.python .input  n=14}
 net[0].weight.data()
 ```
 

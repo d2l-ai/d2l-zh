@@ -68,7 +68,7 @@ if demo:
 
 函数中的参数如data_dir、train_dir和test_dir对应上述数据存放路径及训练和测试的图片集文件夹名称。参数label_file为训练数据标签的文件名称。参数input_dir时整理后数据集文件夹名称。参数valid_ratio是验证集占原始训练集的比重。以valid_ratio=0.1为例，由于原始训练数据有5万张图片，调参时将有4万5千张图片用于训练（整理后存放在input_dir/train）而另外5千张图片为验证集（整理后存放在input_dir/valid）。
 
-```{.python .input  n=1}
+```{.python .input  n=2}
 import os
 import shutil
 
@@ -181,7 +181,7 @@ def transform_test(data, label):
 
 接下来，我们可以使用`Gluon`中的`ImageFolderDataset`类来读取整理后的数据集。
 
-```{.python .input}
+```{.python .input  n=5}
 input_str = data_dir + '/' + input_dir + '/'
 
 # 读取原始图像文件。flag=1说明输入图像有三个通道（彩色）。
@@ -210,7 +210,7 @@ softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 
 请注意：模型可以重新设计，参数也可以重新调整。
 
-```{.python .input  n=5}
+```{.python .input  n=6}
 from mxnet.gluon import nn
 from mxnet import nd
 
@@ -285,7 +285,7 @@ def get_net(ctx):
 
 我们定义模型训练函数。这里我们记录每个epoch的训练时间。这有助于我们比较不同模型设计的时间成本。
 
-```{.python .input  n=6}
+```{.python .input  n=7}
 import datetime
 import sys
 sys.path.append('..')
@@ -331,7 +331,7 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period, lr_de
 
 我们将依据验证集的结果不断优化模型设计和调整参数。依据下面的参数设置，优化算法的学习率将在每80个epoch自乘0.1。
 
-```{.python .input  n=7}
+```{.python .input  n=8}
 ctx = utils.try_gpu()
 num_epochs = 1
 learning_rate = 0.1
@@ -349,7 +349,7 @@ train(net, train_data, valid_data, num_epochs, learning_rate,
 
 当得到一组满意的模型设计和参数后，我们使用全部训练数据集（含验证集）重新训练模型，并对测试集分类。
 
-```{.python .input  n=7}
+```{.python .input  n=9}
 import numpy as np
 import pandas as pd
 
