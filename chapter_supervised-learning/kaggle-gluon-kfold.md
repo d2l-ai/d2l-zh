@@ -36,7 +36,7 @@
 
 我们通过使用``pandas``读入数据。请确保安装了``pandas`` (``pip install pandas``)。
 
-```{.python .input}
+```{.python .input  n=1}
 import pandas as pd
 import numpy as np
 
@@ -44,6 +44,22 @@ train = pd.read_csv("../data/kaggle_house_pred_train.csv")
 test = pd.read_csv("../data/kaggle_house_pred_test.csv")
 all_X = pd.concat((train.loc[:, 'MSSubClass':'SaleCondition'],
                       test.loc[:, 'MSSubClass':'SaleCondition']))
+```
+
+```{.json .output n=1}
+[
+ {
+  "ename": "ModuleNotFoundError",
+  "evalue": "No module named 'pandas'",
+  "output_type": "error",
+  "traceback": [
+   "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+   "\u001b[0;31mModuleNotFoundError\u001b[0m                       Traceback (most recent call last)",
+   "\u001b[0;32m<ipython-input-1-1c434abb54af>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[0;32m----> 1\u001b[0;31m \u001b[0;32mimport\u001b[0m \u001b[0mpandas\u001b[0m \u001b[0;32mas\u001b[0m \u001b[0mpd\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      2\u001b[0m \u001b[0;32mimport\u001b[0m \u001b[0mnumpy\u001b[0m \u001b[0;32mas\u001b[0m \u001b[0mnp\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      3\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      4\u001b[0m \u001b[0mtrain\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mpd\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mread_csv\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m\"../data/kaggle_house_pred_train.csv\"\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      5\u001b[0m \u001b[0mtest\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mpd\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mread_csv\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m\"../data/kaggle_house_pred_test.csv\"\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+   "\u001b[0;31mModuleNotFoundError\u001b[0m: No module named 'pandas'"
+  ]
+ }
+]
 ```
 
 我们看看数据长什么样子。
