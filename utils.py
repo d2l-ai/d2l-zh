@@ -5,35 +5,43 @@ from mxnet import image
 from mxnet.gluon import nn
 import mxnet as mx
 import numpy as np
+from time import time
 
 class DataLoader(object):
-    """similiar to gluon.data.DataLoader, but faster"""
-    def __init__(self, X, y, batch_size, shuffle):
+    """similiar to gluon.data.DataLoader, but might be faster.
+
+    The main difference this data loader tries to read more exmaples each
+    time. But the limits are 1) all examples in dataset have the same shape, 2)
+    data transfomer needs to process multiple examples at each time
+    """
+    def __init__(self, dataset, batch_size, shuffle):
+        self.dataset = dataset
         self.batch_size = batch_size
         self.shuffle = shuffle
-        self.X = X
-        self.y = y
 
     def __iter__(self):
-        n = self.X.shape[0]
+        data = self.dataset[:]
+        X = data[0]
+        y = nd.array(data[1])
+        n = X.shape[0]
         if self.shuffle:
             idx = np.arange(n)
             np.random.shuffle(idx)
-            self.X = nd.array(self.X.asnumpy()[idx])
-            self.y = nd.array(self.y.asnumpy()[idx])
+            X = nd.array(X.asnumpy()[idx])
+            y = nd.array(y.asnumpy()[idx])
 
         for i in range(n//self.batch_size):
-            yield (self.X[i*self.batch_size:(i+1)*self.batch_size],
-                   self.y[i*self.batch_size:(i+1)*self.batch_size])
+            yield (X[i*self.batch_size:(i+1)*self.batch_size],
+                   y[i*self.batch_size:(i+1)*self.batch_size])
 
     def __len__(self):
-        return self.X.shape[0]//self.batch_size
+        return len(self.dataset)//self.batch_size
 
 def load_data_fashion_mnist(batch_size, resize=None):
     """download the fashion mnist dataest and then load into memory"""
     def transform_mnist(data, label):
+        # transform a batch of examples
         if resize:
-            # resize to resize x resize
             n = data.shape[0]
             new_data = nd.zeros((n, resize, resize, data.shape[3]))
             for i in range(n):
@@ -41,22 +49,34 @@ def load_data_fashion_mnist(batch_size, resize=None):
             data = new_data
         # change data from batch x height x weight x channel to batch x channel x height x weight
         return nd.transpose(data.astype('float32'), (0,3,1,2))/255, label.astype('float32')
-    mnist_train = gluon.data.vision.FashionMNIST(
-        train=True, transform=transform_mnist)[:]
-    mnist_test = gluon.data.vision.FashionMNIST(
-        train=False, transform=transform_mnist)[:]
-    train_data = DataLoader(mnist_train[0], nd.array(mnist_train[1]), batch_size, shuffle=True)
-    test_data = DataLoader(mnist_test[0], nd.array(mnist_test[1]), batch_size, shuffle=False)
+    mnist_train = gluon.data.vision.FashionMNIST(train=True, transform=transform_mnist)
+    mnist_test = gluon.data.vision.FashionMNIST(train=False, transform=transform_mnist)
+    train_data = DataLoader(mnist_train, batch_size, shuffle=True)
+    test_data = DataLoader(mnist_test, batch_size, shuffle=False)
     return (train_data, test_data)
 
 def try_gpu():
     """If GPU is available, return mx.gpu(0); else return mx.cpu()"""
     try:
         ctx = mx.gpu()
-        _ = nd.zeros((1,), ctx=ctx)
+        _ = nd.array([0], ctx=ctx)
     except:
         ctx = mx.cpu()
     return ctx
+
+def try_all_gpus():
+    """Return all available GPUs, or [mx.gpu()] if there is no GPU"""
+    ctx_list = []
+    try:
+        for i in range(16):
+            ctx = mx.gpu(i)
+            _ = nd.array([0], ctx=ctx)
+            ctx_list.append(ctx)
+    except:
+        pass
+    if not ctx_list:
+        ctx_list = [mx.cpu()]
+    return ctx_list
 
 def SGD(params, lr):
     for param in params:
@@ -72,46 +92,56 @@ def _get_batch(batch, ctx):
         label = batch.label[0]
     else:
         data, label = batch
-    return data.as_in_context(ctx), label.as_in_context(ctx)
+    return (gluon.utils.split_and_load(data, ctx),
+            gluon.utils.split_and_load(label, ctx),
+            data.shape[0])
 
-def evaluate_accuracy(data_iterator, net, ctx=mx.cpu()):
-    acc = 0.
+def evaluate_accuracy(data_iterator, net, ctx=[mx.cpu()]):
+    if isinstance(ctx, mx.Context):
+        ctx = [ctx]
+    acc = nd.array([0])
+    n = 0.
     if isinstance(data_iterator, mx.io.MXDataIter):
         data_iterator.reset()
-    for i, batch in enumerate(data_iterator):
-        data, label = _get_batch(batch, ctx)
-        output = net(data)
-        acc += accuracy(output, label)
-    return acc / (i+1)
+    for batch in data_iterator:
+        data, label, batch_size = _get_batch(batch, ctx)
+        for X, y in zip(data, label):
+            acc += nd.sum(net(X).argmax(axis=1)==y).copyto(mx.cpu())
+        acc.wait_to_read() # don't push too many operators into backend
+        n += batch_size
+    return acc.asscalar() / n
 
 def train(train_data, test_data, net, loss, trainer, ctx, num_epochs, print_batches=None):
     """Train a network"""
+    print("Start training on ", ctx)
+    if isinstance(ctx, mx.Context):
+        ctx = [ctx]
     for epoch in range(num_epochs):
-        train_loss = 0.
-        train_acc = 0.
+        train_loss, train_acc, n = 0.0, 0.0, 0.0
         if isinstance(train_data, mx.io.MXDataIter):
             train_data.reset()
+        start = time()
         for i, batch in enumerate(train_data):
-            data, label = _get_batch(batch, ctx)
+            data, label, batch_size = _get_batch(batch, ctx)
+            losses = []
             with autograd.record():
-                output = net(data)
-                L = loss(output, label)
-            L.backward()
-
-            trainer.step(data.shape[0])
-
-            train_loss += nd.mean(L).asscalar()
-            train_acc += accuracy(output, label)
-
-            n = i + 1
-            if print_batches and n % print_batches == 0:
+                outputs = [net(X) for X in data]
+                losses = [loss(yhat, y) for yhat, y in zip(outputs, label)]
+            for l in losses:
+                l.backward()
+            train_acc += sum([(yhat.argmax(axis=1)==y).sum().asscalar()
+                              for yhat, y in zip(outputs, label)])
+            train_loss += sum([l.sum().asscalar() for l in losses])
+            trainer.step(batch_size)
+            n += batch_size
+            if print_batches and (i+1) % print_batches == 0:
                 print("Batch %d. Loss: %f, Train acc %f" % (
                     n, train_loss/n, train_acc/n
                 ))
 
         test_acc = evaluate_accuracy(test_data, net, ctx)
-        print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-            epoch, train_loss/n, train_acc/n, test_acc
+        print("Epoch %d. Loss: %.3f, Train acc %.2f, Test acc %.2f, Time %.1f sec" % (
+            epoch, train_loss/n, train_acc/n, test_acc, time() - start
         ))
 
 class Residual(nn.HybridBlock):
@@ -136,7 +166,7 @@ class Residual(nn.HybridBlock):
             x = self.conv3(x)
         return F.relu(out + x)
 
-def resnet18_28(num_classes):
+def resnet18(num_classes):
     net = nn.HybridSequential()
     with net.name_scope():
         net.add(
@@ -149,7 +179,7 @@ def resnet18_28(num_classes):
             Residual(128),
             Residual(256, same_shape=False),
             Residual(256),
-            nn.AvgPool2D(pool_size=3),
+            nn.GlobalAvgPool2D(),
             nn.Dense(num_classes)
         )
     return net

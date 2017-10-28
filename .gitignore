@@ -3,3 +3,6 @@
 data/
 build/
 .idea
+*.json
+*.params
+

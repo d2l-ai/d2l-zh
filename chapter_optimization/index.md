@@ -11,4 +11,12 @@
    gd-sgd-gluon
    momentum-scratch
    momentum-gluon
+   adagrad-scratch
+   adagrad-gluon
+   rmsprop-scratch
+   rmsprop-gluon
+   adadelta-scratch
+   adadelta-gluon
+   adam-scratch
+   adam-gluon
 ```

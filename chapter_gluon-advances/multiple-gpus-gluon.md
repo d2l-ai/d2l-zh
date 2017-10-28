@@ -17,7 +17,7 @@ import utils
 from mxnet import gpu
 from mxnet import cpu
 
-net = utils.resnet18_28(10)
+net = utils.resnet18(10)
 ctx = [gpu(0), gpu(1)]
 net.initialize(ctx=ctx)
 ```
@@ -64,7 +64,7 @@ def train(num_gpus, batch_size, lr):
     ctx = [gpu(i) for i in range(num_gpus)]
     print('Running on', ctx)
 
-    net = utils.resnet18_28(10)
+    net = utils.resnet18(10)
     net.initialize(init=init.Xavier(), ctx=ctx)
     loss = gluon.loss.SoftmaxCrossEntropyLoss()
     trainer = gluon.Trainer(

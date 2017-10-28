@@ -34,7 +34,7 @@ $$
 
 ## 动量参数
 
-为了有助于理解动量参数$\gamma$，让我们考虑一个简单的问题：每次迭代的随机梯度$\nabla f_\mathcal{B}(\mathbf{x})$都等于$\mathbf{g}$。由于所有随机梯度都在同一方向，动量法在该方向使参数移动加速：
+为了有助于理解动量参数$\gamma$，让我们考虑一个简单的问题：每次迭代的小批量随机梯度$\nabla f_\mathcal{B}(\mathbf{x})$都等于$\mathbf{g}$。由于所有小批量随机梯度都在同一方向，动量法在该方向使参数移动加速：
 
 $$
 \begin{align*}
@@ -46,18 +46,18 @@ $$
 \end{align*}
 $$
 
-例如，当$\gamma = 0.99$, 最终的速度将是相应随机梯度$\mathbf{g}$的100倍大。
+例如，当$\gamma = 0.99$, 最终的速度将是相应小批量随机梯度$\mathbf{g}$的100倍大。
 
 ## 算法实现和实验
 
-动量法的实现也很简单。我们在随机梯度下降的基础上添加速度项。
+动量法的实现也很简单。我们在小批量随机梯度下降的基础上添加速度项。
 
 ```{.python .input  n=1}
 # 动量法。
 def sgd_momentum(params, vs, lr, mom, batch_size):
     for param, v in zip(params, vs):
         v[:] = mom * v + lr * param.grad / batch_size
-        param[:] = param - v
+        param[:] -= v
 ```
 
 实验中，我们以线性回归为例。其中真实参数`w`为[2, -3.4]，`b`为4.2。我们把速度项初始化为和参数形状相同的零张量。
@@ -81,7 +81,6 @@ X = nd.random_normal(scale=1, shape=(num_examples, num_inputs))
 y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
 y += .01 * nd.random_normal(scale=1, shape=y.shape)
 dataset = gluon.data.ArrayDataset(X, y)
-
 
 # 构造迭代器。
 import random
