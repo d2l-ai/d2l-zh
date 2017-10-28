@@ -7,5 +7,6 @@
    :maxdepth: 2
 
    image-augmentation
+   fine-tuning
    kaggle-gluon-cifar10
 ```

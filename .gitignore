@@ -2,6 +2,9 @@
 **/__pycache__
 data/
 .idea/
-
 build/
+.idea
+*.json
+*.params
+
 

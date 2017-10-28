@@ -17,7 +17,7 @@ plt.imshow(img.asnumpy())
 
 接下来我们定义一个辅助函数，给定输入图片`img`的增强方法`aug`，它会运行多次并画出结果。
 
-```{.python .input  n=82}
+```{.python .input  n=2}
 def apply(img, aug, n=3):
     _, figs = plt.subplots(n, n, figsize=(8,8))
     for i in range(n):
@@ -89,7 +89,7 @@ apply(img, aug)
 
 我们首先定义一个辅助函数可以对图片按顺序应用数个增强：
 
-```{.python .input  n=81}
+```{.python .input  n=8}
 def apply_aug_list(img, augs):
     for f in augs:
         img = f(img)
@@ -98,7 +98,7 @@ def apply_aug_list(img, augs):
 
 对于训练图片我们随机水平翻转和剪裁。对于测试图片仅仅就是中心剪裁。CIFAR10图片尺寸是$32\times 32\times 3$，我们剪裁成$28\times 28\times 3$.
 
-```{.python .input  n=197}
+```{.python .input  n=9}
 train_augs = [
     image.HorizontalFlipAug(.5),
     image.RandomCropAug((28,28))
@@ -111,16 +111,23 @@ test_augs = [
 
 然后定义数据读取，这里跟前面的FashionMNIST类似，但在`transform`中加入了图片增强：
 
-```{.python .input  n=195}
+```{.python .input  n=10}
 from mxnet import gluon
 from mxnet import nd
+import sys
+sys.path.append('..')
+import utils
 
 def get_transform(augs):
     def transform(data, label):
+        # data: sample x height x width x channel
+        # label: sample
         data = data.astype('float32')
         if augs is not None:
-            data = apply_aug_list(data, augs)
-        data = nd.transpose(data, (2,0,1))/255
+            # apply to each sample one-by-one and then stack
+            data = nd.stack(*[
+                apply_aug_list(d, augs) for d in data])
+        data = nd.transpose(data, (0,3,1,2))
         return data, label.astype('float32')
     return transform
 
@@ -129,16 +136,16 @@ def get_data(batch_size, train_augs, test_augs=None):
         train=True, transform=get_transform(train_augs))
     cifar10_test = gluon.data.vision.CIFAR10(
         train=False, transform=get_transform(test_augs))
-    train_data = gluon.data.DataLoader(
+    train_data = utils.DataLoader(
         cifar10_train, batch_size, shuffle=True)
-    test_data = gluon.data.DataLoader(
+    test_data = utils.DataLoader(
         cifar10_test, batch_size, shuffle=False)
     return (train_data, test_data)
 ```
 
 画出前几张看看
 
-```{.python .input  n=196}
+```{.python .input  n=11}
 train_data, _ = get_data(36, train_augs)
 for imgs, _ in train_data:
     break
@@ -151,39 +158,42 @@ for i in range(6):
         figs[i][j].axes.get_yaxis().set_visible(False)
 ```
 
+```{.python .input  n=12}
+imgs.shape
+```
+
 ## 训练
 
 我们使用[ResNet 18](../chapter_convolutional-neural-networks/resnet-gluon.md)训练。并且训练代码整理成一个函数使得可以重读调用：
 
-```{.python .input  n=111}
+```{.python .input  n=13}
 from mxnet import init
-import sys
-sys.path.append('..')
-import utils
 
 def train(train_augs, test_augs, learning_rate=.1):
-    ctx = utils.try_gpu()
-    loss = gluon.loss.SoftmaxCrossEntropyLoss()
-    batch_size = 32
+    batch_size = 128
+    num_epochs = 10
+    ctx = utils.try_all_gpus()
+    loss = gluon.loss.SoftmaxCrossEntropyLoss()    
     train_data, test_data = get_data(
         batch_size, train_augs, test_augs)
-    net = utils.resnet18_28(10) # resnet with 28x28 images
+    net = utils.resnet18(10) 
     net.initialize(ctx=ctx, init=init.Xavier())
     net.hybridize()
     trainer = gluon.Trainer(net.collect_params(),
                             'sgd', {'learning_rate': learning_rate})
-    utils.train(train_data, test_data, net, loss, trainer, ctx, 10)
+    utils.train(
+        train_data, test_data, net, loss, trainer, ctx, num_epochs)
 ```
 
 使用增强：
 
-```{.python .input  n=169}
+```{.python .input  n=14}
 train(train_augs, test_augs)
 ```
 
 不使用增强：
 
-```{.python .input  n=168}
+```{.python .input  n=15}
 train(test_augs, test_augs)
 ```
 
