@@ -345,16 +345,6 @@ train(net, train_data, valid_data, num_epochs, learning_rate,
       weight_decay, ctx, lr_period, lr_decay)
 ```
 
-```{.json .output n=8}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "Epoch 0. Loss: 3.767527, Train acc 0.066667, Valid acc 0.100000, Time 00:00:01, lr 0.1\n"
- }
-]
-```
-
 ## 对测试集分类
 
 当得到一组满意的模型设计和参数后，我们使用全部训练数据集（含验证集）重新训练模型，并对测试集分类。
@@ -379,16 +369,6 @@ sorted_ids.sort(key = lambda x:str(x))
 df = pd.DataFrame({'id': sorted_ids, 'label': preds})
 df['label'] = df['label'].apply(lambda x: train_valid_ds.synsets[x])
 df.to_csv('submission.csv', index=False)
-```
-
-```{.json .output n=9}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "Epoch 0. Loss: 3.821863, Train acc 0.040000, Time 00:00:01, lr 0.1\n"
- }
-]
 ```
 
 上述代码执行完会生成一个`submission.csv`的文件用于在Kaggle上提交。这是Kaggle要求的提交格式。这时我们可以在Kaggle上把对测试集分类的结果提交并查看分类准确率。你需要登录Kaggle网站，打开[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)，并点击下方右侧`Late Submission`按钮。
