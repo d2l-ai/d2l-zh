@@ -148,4 +148,4 @@ train(batch_size=10, rho=0.9999, epochs=3, period=10)
 
 * Adadelta为什么不需要设置学习率参数？它被什么代替了？
 
-**吐槽和讨论欢迎点**[这里]()
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/2277)

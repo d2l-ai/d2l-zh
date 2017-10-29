@@ -81,4 +81,4 @@ train(batch_size=10, rho=0.9999, epochs=3, period=10)
 
 * 如果把试验中的参数rho改小会怎样，例如0.9？观察实验结果。
 
-**吐槽和讨论欢迎点**[这里]()
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/2278)
