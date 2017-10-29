@@ -45,7 +45,7 @@ def train(batch_size, lr, epochs, period):
                             {'learning_rate': lr})
     data_iter = gluon.data.DataLoader(dataset, batch_size, shuffle=True)
     total_loss = [np.mean(square_loss(net(X), y).asnumpy())]
-    
+
     for epoch in range(1, epochs + 1):
         for batch_i, (data, label) in enumerate(data_iter):
             with autograd.record():
@@ -55,10 +55,10 @@ def train(batch_size, lr, epochs, period):
             trainer.step(batch_size)
             if batch_i * batch_size % period == 0:
                 total_loss.append(np.mean(square_loss(net(X), y).asnumpy()))
-        print("Batch size %d, Learning rate %f, Epoch %d, loss %.4e" % 
+        print("Batch size %d, Learning rate %f, Epoch %d, loss %.4e" %
               (batch_size, trainer.learning_rate, epoch, total_loss[-1]))
 
-    print('w:', np.reshape(net[0].weight.data().asnumpy(), (1, -1)), 
+    print('w:', np.reshape(net[0].weight.data().asnumpy(), (1, -1)),
           'b:', net[0].bias.data().asnumpy()[0], '\n')
     x_axis = np.linspace(0, epochs, len(total_loss), endpoint=True)
     plt.semilogy(x_axis, total_loss)
@@ -105,4 +105,4 @@ train(batch_size=10, lr=0.1, epochs=3, period=10)
 * 换：这个参数被换成别的了
 * 权：指数加权移动平均
 
-**吐槽和讨论欢迎点**[这里]()
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/2280)
