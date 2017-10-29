@@ -252,6 +252,31 @@ print(dist)
 print(np.argmin(dist))
 
 
+# Compute outer product of vectors
+v = np.array([1,2,3])  # v has shape (3,)
+w = np.array([4,5])    # w has shape (2,)
+
+print(np.reshape(v, (3, 1)) * w)
+print(v[:, np.newaxis] * w)
+
+x = np.array([[1,2,3], [4,5,6]])
+print(x + v)
+
+# 把w加到x的每列上，
+print(x)
+# 这个得先转置x，在广播w，在转置
+print((x.T + w).T)
+# 或者把w变成（2,1)，再与x广播相加
+print(x + np.reshape(w, (2,1)))
+
+# Multiply a matrix by a constant:
+# x has shape (2, 3). Numpy treats scalars as arrays of shape ();
+# these can be broadcast together to shape (2, 3), producing the
+# following array:
+# [[ 2  4  6]
+#  [ 8 10 12]]
+print(x * 2)
+
 
 
 
