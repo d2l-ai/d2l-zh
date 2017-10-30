@@ -6,6 +6,7 @@ from mxnet.gluon import nn
 import mxnet as mx
 import numpy as np
 from time import time
+import matplotlib.pyplot as plt
 
 class DataLoader(object):
     """similiar to gluon.data.DataLoader, but might be faster.
@@ -183,3 +184,15 @@ def resnet18(num_classes):
             nn.Dense(num_classes)
         )
     return net
+
+def show_images(imgs, nrows, ncols, figsize=None):
+    """plot a list of images"""
+    if not figsize:
+        figsize = (ncols, nrows)
+    _, figs = plt.subplots(nrows, ncols, figsize=figsize)
+    for i in range(nrows):
+        for j in range(ncols):
+            figs[i][j].imshow(imgs[i*ncols+j].asnumpy())
+            figs[i][j].axes.get_xaxis().set_visible(False)
+            figs[i][j].axes.get_yaxis().set_visible(False)
+    plt.show()

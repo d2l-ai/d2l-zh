@@ -18,20 +18,20 @@ plt.imshow(img.asnumpy())
 接下来我们定义一个辅助函数，给定输入图片`img`的增强方法`aug`，它会运行多次并画出结果。
 
 ```{.python .input  n=2}
+from mxnet import nd
+import sys
+sys.path.append('..')
+import utils
+
 def apply(img, aug, n=3):
-    _, figs = plt.subplots(n, n, figsize=(8,8))
-    for i in range(n):
-        for j in range(n):
-            # 转成float，一是因为aug需要float类型数据来方便做变化。
-            # 二是这里会有一次copy操作，因为有些aug直接通过改写输入
-            #（而不是新建输出）获取性能的提升
-            x = img.astype('float32')
-            # 有些aug不保证输入是合法值，所以做一次clip
-            y = aug(x).clip(0,254)
-            # 显示浮点图片时imshow要求输入在[0,1]之间
-            figs[i][j].imshow(y.asnumpy()/255.0)
-            figs[i][j].axes.get_xaxis().set_visible(False)
-            figs[i][j].axes.get_yaxis().set_visible(False)
+    # 转成float，一是因为aug需要float类型数据来方便做变化。
+    # 二是这里会有一次copy操作，因为有些aug直接通过改写输入
+    #（而不是新建输出）获取性能的提升
+    X = [aug(img.astype('float32')) for _ in range(n*n)]
+    # 有些aug不保证输入是合法值，所以做一次clip
+    # 显示浮点图片时imshow要求输入在[0,1]之间
+    Y = nd.stack(*X).clip(0,255)/255
+    utils.show_images(Y, n, n, figsize=(8,8))
 ```
 
 ### 变形
@@ -149,13 +149,7 @@ def get_data(batch_size, train_augs, test_augs=None):
 train_data, _ = get_data(36, train_augs)
 for imgs, _ in train_data:
     break
-_, figs = plt.subplots(6, 6, figsize=(6,6))
-for i in range(6):
-    for j in range(6):
-        x = nd.transpose(imgs[i*3+j], (1,2,0))
-        figs[i][j].imshow(x.asnumpy())
-        figs[i][j].axes.get_xaxis().set_visible(False)
-        figs[i][j].axes.get_yaxis().set_visible(False)
+utils.show_images(imgs.transpose((0,2,3,1)), 6, 6)
 ```
 
 ```{.python .input  n=12}
