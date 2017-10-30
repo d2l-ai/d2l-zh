@@ -171,4 +171,4 @@ train(batch_size=10, lr=0.1, epochs=3, period=10)
 
 * 你是怎样理解Adam算法中的偏差修正项的？
 
-**吐槽和讨论欢迎点**[这里]()
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/2279)

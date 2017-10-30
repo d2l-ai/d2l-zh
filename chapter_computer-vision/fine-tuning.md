@@ -211,3 +211,6 @@ hotdog_w.shape
 
 - 试试不让`finetune_net`里重用的权重参与训练，就是不更新权重
 - 如果图片预测这一章里我们训练的模型没有分对所有的图片，如何改进？
+
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/2272)
