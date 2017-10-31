@@ -1,5 +1,5 @@
 index,value
-best_learning_rate,0.049452947945271
-best_weight_decay,9.528448860580598
-best_hidden_nodes,22.0
-loss,0.22294160782077543
+best_learning_rate,4.562009330442935
+best_weight_decay,0.5210752870718349
+best_hidden_nodes,93.0
+loss,3.4933346819825988

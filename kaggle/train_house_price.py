@@ -17,6 +17,10 @@ y_train = train.SalePrice.as_matrix()
 from mxnet import ndarray as nd
 from mxnet import autograd
 from mxnet import gluon
+import time
+
+start = time.time()
+
 
 X_train = nd.array(X_train)
 y_train = nd.array(y_train)
@@ -121,7 +125,7 @@ def k_fold_cross_valid(k, epochs, verbose_epoch, X_train, y_train,
         test_loss_sum += test_loss
     return train_loss_sum / k, test_loss_sum / k
 
-learning_rate_range = 10
+learning_rate_range = 6
 weight_decay_range = 10
 hidden_min_nodes = 10
 hidden_max_nodes = 100
@@ -131,12 +135,15 @@ best_hidden_nodes = None
 best_weight_decay = None
 first_time = True
 min_avg_test_loss = None
-for times in range(800):
-    learning_rate = random.uniform(0, learning_rate_range)
+for times in range(1000):
+    learning_rate = random.uniform(4, learning_rate_range)
     hidden_nodes = random.randint(hidden_min_nodes, hidden_max_nodes)
     weight_decay = random.uniform(0, weight_decay_range)
     net = get_net(hidden_nodes)
     print('*'*10)
+    print('loop', times + 1)
+    end = time.time() - start
+    print("[timecosts: %s]" % end)
     print('learing_rate', learning_rate)
     print('hidden_nodes', hidden_nodes)
     print('weight_decay', weight_decay)
@@ -181,3 +188,5 @@ def learn(epochs, verbose_epoch, X_train, y_train, test, learning_rate,
 
 learn(epochs, verbose_epoch, X_train, y_train, test, best_learning_rate,
       best_weight_decay, best_hidden_nodes)
+end = time.time() - start
+print("[total timecosts: %s]" % end)
