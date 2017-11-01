@@ -58,7 +58,7 @@ out = nd.Convolution(data, w, b, kernel=w.shape[2:], num_filter=w.shape[0])
 print('input:', data, '\n\nweight:', w, '\n\nbias:', b, '\n\noutput:', out)
 ```
 
-当输入需要多通道时，每个输出通道有对应权重，然后每个通道上做卷积。
+当输出需要多通道时，每个输出通道有对应权重，然后每个通道上做卷积。
 
 $$conv(data, w, b)[:,i,:,:] = conv(data, w[i,:,:,:], b[i])$$
 
