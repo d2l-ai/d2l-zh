@@ -250,7 +250,7 @@ class ResNet(nn.HybridBlock):
             for _ in range(2):
                 net.add(Residual(channels=128))
             # 模块5
-            net.add(nn.AvgPool2D(pool_size=8))
+            net.add(nn.GlobalAvgPool2D())
             net.add(nn.Flatten())
             net.add(nn.Dense(num_classes))
 
