@@ -48,9 +48,9 @@
 
 * ../data/kaggle_cifar10/train/[1-50000].png
 * ../data/kaggle_cifar10/test/[1-300000].png
-* ../data/kaggle_cifar10/test/trainLabels.csv
+* ../data/kaggle_cifar10/trainLabels.csv
 
-为了使网页编译快一点，我们在gitrepo里仅仅存放100个训练样本（'train_tiny.zip'）和1个测试样本（'test_tiny.zip'）。执行以下代码会从git repo里解压生成小样本训练和测试数据，文件夹名称分别为'train_tiny'和'test_tiny'。训练数据标签的压缩文件将被解压成trainLabels.csv。
+为了使网页编译快一点，我们在git repo里仅仅存放100个训练样本（'train_tiny.zip'）和1个测试样本（'test_tiny.zip'）。执行以下代码会从git repo里解压生成小样本训练和测试数据，文件夹名称分别为'train_tiny'和'test_tiny'。训练数据标签的压缩文件将被解压成trainLabels.csv。
 
 ```{.python .input  n=1}
 # 如果训练下载的Kaggle的完整数据集，把下面改False
@@ -66,7 +66,7 @@ if demo:
 
 我们定义下面的reorg_cifar10_data函数来整理数据集。整理后，同一类图片将出现在在同一个文件夹下，便于`Gluon`稍后读取。
 
-函数中的参数如data_dir、train_dir和test_dir对应上述数据存放路径及训练和测试的图片集文件夹名称。参数label_file为训练数据标签的文件名称。参数input_dir时整理后数据集文件夹名称。参数valid_ratio是验证集占原始训练集的比重。以valid_ratio=0.1为例，由于原始训练数据有5万张图片，调参时将有4万5千张图片用于训练（整理后存放在input_dir/train）而另外5千张图片为验证集（整理后存放在input_dir/valid）。
+函数中的参数如data_dir、train_dir和test_dir对应上述数据存放路径及训练和测试的图片集文件夹名称。参数label_file为训练数据标签的文件名称。参数input_dir是整理后数据集文件夹名称。参数valid_ratio是验证集占原始训练集的比重。以valid_ratio=0.1为例，由于原始训练数据有5万张图片，调参时将有4万5千张图片用于训练（整理后存放在input_dir/train）而另外5千张图片为验证集（整理后存放在input_dir/valid）。
 
 ```{.python .input  n=2}
 import os
@@ -115,7 +115,7 @@ def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir, val
                     os.path.join(data_dir, input_dir, 'test', 'unknown'))
 ```
 
-再次强调，为了使网页编译快一点，我们在这里仅仅使用100个训练样本和1个测试样本。训练和测试数据的文件夹名称分别为'train_tiny'和'test_tiny'。相应地，我们仅将批量大小设为1。实际训练和测试时应使用Kaggle的完整数据集。由于数据集较大，批量大小train_batch大小可设为一个较大的整数，例如128。
+再次强调，为了使网页编译快一点，我们在这里仅仅使用100个训练样本和1个测试样本。训练和测试数据的文件夹名称分别为'train_tiny'和'test_tiny'。相应地，我们仅将批量大小设为1。实际训练和测试时应使用Kaggle的完整数据集。由于数据集较大，批量大小batch_size大小可设为一个较大的整数，例如128。
 
 我们将10%的训练样本作为调参时的验证集。
 
@@ -243,22 +243,22 @@ class ResNet(nn.HybridBlock):
         self.verbose = verbose
         with self.name_scope():
             net = self.net = nn.HybridSequential()
-            # block 1
+            # 模块1
             net.add(nn.Conv2D(channels=32, kernel_size=3, strides=1, padding=1))
             net.add(nn.BatchNorm())
             net.add(nn.Activation(activation='relu'))
-            # block 2
+            # 模块2
             for _ in range(3):
                 net.add(Residual(channels=32))
-            # block 3
+            # 模块3
             net.add(Residual(channels=64, same_shape=False))
             for _ in range(2):
                 net.add(Residual(channels=64))
-            # block 4
+            # 模块4
             net.add(Residual(channels=128, same_shape=False))
             for _ in range(2):
                 net.add(Residual(channels=128))
-            # block 5
+            # 模块5
             net.add(nn.AvgPool2D(pool_size=8))
             net.add(nn.Flatten())
             net.add(nn.Dense(num_classes))
