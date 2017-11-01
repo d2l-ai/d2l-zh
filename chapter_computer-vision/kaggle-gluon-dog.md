@@ -116,7 +116,7 @@ def reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir,
                     os.path.join(data_dir, input_dir, 'test', 'unknown'))
 ```
 
-再次强调，为了使网页编译快一点，我们在这里仅仅使用小数据样本。相应地，我们仅将批量大小设为2。实际训练和测试时应使用Kaggle的完整数据集并调用reorg_dog_data函数整理便于`Gluon`读取的格式。由于数据集较大，批量大小batch_size大小可设为一个较大的整数，例如16。
+再次强调，为了使网页编译快一点，我们在这里仅仅使用小数据样本。相应地，我们仅将批量大小设为2。实际训练和测试时应使用Kaggle的完整数据集并调用reorg_dog_data函数整理便于`Gluon`读取的格式。由于数据集较大，批量大小batch_size大小可设为一个较大的整数，例如128。
 
 ```{.python .input  n=3}
 if demo:
@@ -129,7 +129,7 @@ else:
     train_dir = 'train'
     test_dir = 'test'
     input_dir = 'train_valid_test'
-    batch_size = 16
+    batch_size = 128
     valid_ratio = 0.1 
     reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir, 
                    valid_ratio)
@@ -149,8 +149,8 @@ from mxnet.gluon.data import vision
 import numpy as np
 
 def transform_train(data, label):
-    im = image.imresize(data.astype('float32') / 255, 224, 224)
-    auglist = image.CreateAugmenter(data_shape=(3, 224, 224), resize=0, 
+    im = image.imresize(data.astype('float32') / 255, 96, 96)
+    auglist = image.CreateAugmenter(data_shape=(3, 96, 96), resize=0, 
                         rand_crop=False, rand_resize=False, rand_mirror=True,
                         mean=None, std=None, 
                         brightness=0, contrast=0, 
@@ -158,13 +158,12 @@ def transform_train(data, label):
                         pca_noise=0, rand_gray=0, inter_method=2)
     for aug in auglist:
         im = aug(im)
-
     # 将数据格式从"高*宽*通道"改为"通道*高*宽"。
     im = nd.transpose(im, (2,0,1))
     return (im, nd.array([label]).asscalar().astype('float32'))
 
 def transform_test(data, label):
-    im = image.imresize(data.astype('float32') / 255, 224, 224)
+    im = image.imresize(data.astype('float32') / 255, 96, 96)
     im = nd.transpose(im, (2,0,1))
     return (im, nd.array([label]).asscalar().astype('float32'))
 ```
