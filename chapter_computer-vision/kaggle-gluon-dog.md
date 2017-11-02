@@ -324,7 +324,7 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
         print(epoch_str + time_str + ', lr ' + str(trainer.learning_rate))
 ```
 
-以下定义训练参数并训练模型。这些参数均可调。为了使网页编译快一点，我们这里将epoch数量有意设为1。事实上，epoch一般可以调大些，例如100。
+以下定义训练参数并训练模型。这些参数均可调。为了使网页编译快一点，我们这里将epoch数量有意设为1。事实上，epoch一般可以调大些。
 
 我们将依据验证集的结果不断优化模型设计和调整参数。依据下面的参数设置，优化算法的学习率将在每80个epoch自乘0.1。
 
@@ -380,7 +380,7 @@ with open('submission.csv', 'w') as f:
 
 ## 作业（[汇报作业和查看其他小伙伴作业](https://discuss.gluon.ai/t/topic/2399)）：
 
-* 使用Kaggle完整数据集，把batch_size和num_epochs分别改为128和20，可以在Kaggle上拿到什么样的准确率和名次？
+* 使用Kaggle完整数据集，把batch_size和num_epochs分别调大些，可以在Kaggle上拿到什么样的准确率和名次？
 * 你还有什么其他办法可以继续改进模型和参数？小伙伴们都期待你的分享。
 
 **吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/2399)
