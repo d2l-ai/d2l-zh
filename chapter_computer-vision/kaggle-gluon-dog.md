@@ -380,7 +380,7 @@ with open('submission.csv', 'w') as f:
 
 ## 作业（[汇报作业和查看其他小伙伴作业](https://discuss.gluon.ai/t/topic/2399)）：
 
-* 使用Kaggle完整数据集，把batch_size和num_epochs分别改为128和100，可以在Kaggle上拿到什么样的准确率和名次？
+* 使用Kaggle完整数据集，把batch_size和num_epochs分别改为128和20，可以在Kaggle上拿到什么样的准确率和名次？
 * 你还有什么其他办法可以继续改进模型和参数？小伙伴们都期待你的分享。
 
 **吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/2399)
