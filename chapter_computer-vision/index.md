@@ -9,5 +9,6 @@
    image-augmentation
    fine-tuning
    object-detection
+   ssd
    kaggle-gluon-cifar10
 ```
