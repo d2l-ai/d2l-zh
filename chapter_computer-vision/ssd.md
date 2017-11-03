@@ -632,7 +632,7 @@ def display(im, out, threshold=0.5):
                         
         text = class_names[class_id]
         plt.gca().text(box[0], box[1], 
-                       '{:s} {:.2f}'.fo99rmat(text, score),
+                       '{:s} {:.2f}'.format(text, score),
                        bbox=dict(facecolor=color, alpha=0.5),
                        fontsize=10, color='white')
     plt.show()
