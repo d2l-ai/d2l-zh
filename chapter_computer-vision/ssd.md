@@ -460,9 +460,9 @@ class FocalLoss(gluon.loss.Loss):
 
     def hybrid_forward(self, F, output, label):
         output = F.softmax(output)
-        pt = F.pick(output, label, axis=self._axis, keepdims=True)
-        loss = -self._alpha * ((1 - pt) ** self._gamma) * F.log(pt)
-        return F.mean(loss, axis=self._batch_axis, exclude=True)
+        pj = output.pick(label, axis=self._axis, keepdims=True)
+        loss = - self._alpha * ((1 - pj) ** self._gamma) * pj.log()
+        return loss.mean(axis=self._batch_axis, exclude=True)
 
 cls_loss = FocalLoss()
 cls_loss
@@ -501,7 +501,7 @@ class SmoothL1Loss(gluon.loss.Loss):
 
     def hybrid_forward(self, F, output, label, mask):
         loss = F.smooth_l1((output - label) * mask, scalar=1.0)
-        return F.mean(loss, self._batch_axis, exclude=True)
+        return loss.mean(self._batch_axis, exclude=True)
 
 box_loss = SmoothL1Loss()
 box_loss
