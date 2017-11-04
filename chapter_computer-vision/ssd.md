@@ -652,3 +652,6 @@ display(im, out[0], threshold=0.5)
 1. `MultiBoxTarget`里我们没有采样负例
 1. 分类和回归损失我们直接加起来了，并没有给予权重
 1. 在展示的时候如何选取阈值`threshold`
+
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/2511)
