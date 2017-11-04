@@ -29,7 +29,7 @@ net.add(gluon.nn.Dense(1))
 square_loss = gluon.loss.L2Loss()
 ```
 
-我们需要在`gluon.Trainer`中指定优化算法名称`adadelta`并设置学习率。
+我们需要在`gluon.Trainer`中指定优化算法名称`adam`并设置学习率。
 
 ```{.python .input  n=2}
 %matplotlib inline
