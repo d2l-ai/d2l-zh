@@ -79,7 +79,6 @@ time() - start
 
 下面例子中，我们不断的对`y`进行赋值。如果每次我们需要等到`y`的值，那么我们必须要要计算它。而在延迟执行里，系统有可能省略掉一些执行。
 
-
 ```{.python .input}
 start = time()
 
@@ -119,8 +118,8 @@ def get_data():
     for i in range(60):
         if i % 10 == 0:
             print('batch %d, time %f sec' %(i, time()-start))
-        x = nd.zeros((batch_size, 1024))
-        y = nd.zeros((batch_size,))
+        x = nd.ones((batch_size, 1024))
+        y = nd.ones((batch_size,))
         yield x, y
 ```
 
@@ -133,9 +132,9 @@ from mxnet.gluon import nn
 net = nn.Sequential()
 with net.name_scope():
     net.add(
-        nn.Dense(1024),
-        nn.Activation('relu'),
-        nn.Dense(1024),
+        nn.Dense(1024, activation='relu'),
+        nn.Dense(1024, activation='relu'),
+        nn.Dense(1),
     )
 net.initialize()
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {})
