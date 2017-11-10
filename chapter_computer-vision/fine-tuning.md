@@ -101,28 +101,26 @@ from mxnet.gluon.model_zoo import vision as models
 pretrained_net = models.resnet18_v2(pretrained=True)
 ```
 
-通常预训练好的模型由两块构成，一是`features`，二是`classifier`。后者主要包括最后一层全连接层，前者包含从输入开始的大部分层。这样的划分的一个主要目的是为了更方便做微调。我们先看下`classifer`的内容：
+通常预训练好的模型由两块构成，一是`features`，二是`output`。后者主要包括最后一层全连接层，前者包含从输入开始的大部分层。这样的划分的一个主要目的是为了更方便做微调。我们先看下`output`的内容：
 
 ```{.python .input  n=22}
-pretrained_net.classifier
+pretrained_net.output
 ```
-
-【注意】未来几天我们可能会将`classifier`重命名成`output`，并在里面只保留最后的Dense层。
 
 我们可以看一下第一个卷积层的部分权重。
 
 ```{.python .input  n=23}
-pretrained_net.features[1].params.get('weight').data()[0][0]
+pretrained_net.features[1].weight.data()[0][0]
 ```
 
-在微调里，我们一般新建一个网络，它的定义跟之前训练好的网络一样，除了最后的输出数等于当前数据的类别数。新网络的`features`被初始化前面训练好网络的权重，而`classfier`则是从头开始训练。
+在微调里，我们一般新建一个网络，它的定义跟之前训练好的网络一样，除了最后的输出数等于当前数据的类别数。新网络的`features`被初始化前面训练好网络的权重，而`output`则是从头开始训练。
 
 ```{.python .input  n=24}
 from mxnet import init
 
 finetune_net = models.resnet18_v2(classes=2)
 finetune_net.features = pretrained_net.features
-finetune_net.classifier.initialize(init.Xavier())
+finetune_net.output.initialize(init.Xavier())
 ```
 
 我们先定义一个可以重复使用的训练函数。
@@ -204,7 +202,7 @@ classify_hotdog(finetune_net, '../img/dog_hotdog.jpg')
 - 事实上`ImageNet`里也有`hotdog`这个类，它的index是713。例如它对应的weight可以这样拿到。试试如何重用这个权重
 
 ```{.python .input  n=16}
-weight = pretrained_net.classifier[4].params.get('weight')
+weight = pretrained_net.output.weight
 hotdog_w = nd.split(weight.data(), 1000, axis=0)[713]
 hotdog_w.shape
 ```
