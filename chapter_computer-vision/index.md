@@ -11,4 +11,5 @@
    object-detection
    ssd
    kaggle-gluon-cifar10
+   kaggle-gluon-dog
 ```
