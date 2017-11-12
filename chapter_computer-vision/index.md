@@ -10,6 +10,7 @@
    fine-tuning
    object-detection
    ssd
+   fcn
    kaggle-gluon-cifar10
    kaggle-gluon-dog
 ```
