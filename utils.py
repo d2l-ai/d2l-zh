@@ -108,8 +108,8 @@ def evaluate_accuracy(data_iterator, net, ctx=[mx.cpu()]):
         data, label, batch_size = _get_batch(batch, ctx)
         for X, y in zip(data, label):
             acc += nd.sum(net(X).argmax(axis=1)==y).copyto(mx.cpu())
+            n += y.size
         acc.wait_to_read() # don't push too many operators into backend
-        n += batch_size
     return acc.asscalar() / n
 
 def train(train_data, test_data, net, loss, trainer, ctx, num_epochs, print_batches=None):
@@ -118,7 +118,7 @@ def train(train_data, test_data, net, loss, trainer, ctx, num_epochs, print_batc
     if isinstance(ctx, mx.Context):
         ctx = [ctx]
     for epoch in range(num_epochs):
-        train_loss, train_acc, n = 0.0, 0.0, 0.0
+        train_loss, train_acc, n, m = 0.0, 0.0, 0.0, 0.0
         if isinstance(train_data, mx.io.MXDataIter):
             train_data.reset()
         start = time()
@@ -135,14 +135,15 @@ def train(train_data, test_data, net, loss, trainer, ctx, num_epochs, print_batc
             train_loss += sum([l.sum().asscalar() for l in losses])
             trainer.step(batch_size)
             n += batch_size
+            m += sum([y.size for y in label])
             if print_batches and (i+1) % print_batches == 0:
                 print("Batch %d. Loss: %f, Train acc %f" % (
-                    n, train_loss/n, train_acc/n
+                    n, train_loss/n, train_acc/m
                 ))
 
         test_acc = evaluate_accuracy(test_data, net, ctx)
         print("Epoch %d. Loss: %.3f, Train acc %.2f, Test acc %.2f, Time %.1f sec" % (
-            epoch, train_loss/n, train_acc/n, test_acc, time() - start
+            epoch, train_loss/n, train_acc/m, test_acc, time() - start
         ))
 
 class Residual(nn.HybridBlock):
