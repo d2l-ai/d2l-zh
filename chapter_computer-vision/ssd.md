@@ -90,7 +90,8 @@ def box_to_rect(box, color, linewidth=3):
 _, figs = plt.subplots(3, 3, figsize=(6,6))
 for i in range(3):
     for j in range(3):        
-        img, labels = batch.data[0][3*i+j], batch.label[0][3*i+j]        
+        img, labels = batch.data[0][3*i+j], batch.label[0][3*i+j]
+        # (3L, 256L, 256L) => (256L, 256L, 3L)
         img = img.transpose((1, 2, 0)) + rgb_mean
         img = img.clip(0,255).asnumpy()/255
         fig = figs[i][j]
