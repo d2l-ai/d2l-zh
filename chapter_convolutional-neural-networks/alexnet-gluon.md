@@ -67,8 +67,7 @@ Sutskever实现的可以运行在GPU上的深度卷积网络成为重大突破�
 
 下面的Gluon代码定义了（稍微简化过的）Alexnet：
 
-
-```python
+```{.python .input}
 from mxnet.gluon import nn
 
 net = nn.Sequential()
@@ -106,8 +105,7 @@ with net.name_scope():
 
 Alexnet使用Imagenet数据，其中输入图片大小一般是$224 \times 224$。因为Imagenet数据训练时间过长，我们还是用前面的FashionMNIST来演示。读取数据的时候我们额外做了一步将数据扩大到原版Alexnet使用的$224 \times 224$。
 
-
-```python
+```{.python .input}
 import sys
 sys.path.append('..')
 import utils
@@ -124,8 +122,7 @@ train_data, test_data = utils.load_data_fashion_mnist(
 2. 使用了更小的学习率
 3. 默认只迭代一轮（这样网页编译快一点）
 
-
-```python
+```{.python .input}
 from mxnet import init
 from mxnet import gluon
 
