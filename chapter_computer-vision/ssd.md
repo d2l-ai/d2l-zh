@@ -377,7 +377,7 @@ print('Output box predictions:', box_preds.shape)
 
 我们知道判断两个集合的相似度最常用的衡量叫做Jaccard距离，给定集合 $A$ 和 $B$，它的定义是 
 
-$$J(A,B) = \frac{|A\cup B|}{| A \cap B|}$$
+$$J(A,B) = \frac{|A\cap B|}{| A \cup B|}$$
 
 边框可以看成是像素的集合，我们可以类似的定义它。这个标准通常被称之为 Intersection over Union (IoU)。
 
