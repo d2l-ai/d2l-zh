@@ -352,7 +352,7 @@ utils.train(train_data, test_data, net, loss,
 
 ```{.python .input  n=27}
 def predict(im):
-    data = (im.astype('float32')/255 - rgb_mean) / rgb_std
+    data = normalize_image(im)
     data = data.transpose((2,0,1)).expand_dims(axis=0)
     yhat = net(data.as_in_context(ctx[0]))
     pred = nd.argmax(yhat, axis=1)
