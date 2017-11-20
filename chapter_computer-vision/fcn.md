@@ -134,6 +134,13 @@ y[105:115, 130:140]
 from mxnet import gluon
 from mxnet import nd
 
+
+rgb_mean = nd.array([0.485, 0.456, 0.406])
+rgb_std = nd.array([0.229, 0.224, 0.225])
+
+def normalize_image(data):
+    return (data.astype('float32') / 255 - rgb_mean) / rgb_std
+
 class VOCSegDataset(gluon.data.Dataset):
     
     def _filter(self, images):
@@ -144,7 +151,8 @@ class VOCSegDataset(gluon.data.Dataset):
     def __init__(self, train, crop_size):
         self.crop_size = crop_size
         data, label = read_images(train=train)
-        self.data = self._filter(data)
+        data = self._filter(data)
+        self.data = [normalize_image(im) for im in data]
         self.label = self._filter(label)
         print('Read '+str(len(self.data))+' examples')
         
@@ -152,7 +160,7 @@ class VOCSegDataset(gluon.data.Dataset):
         data, label = rand_crop(
             self.data[idx], self.label[idx],
             *self.crop_size)
-        data = data.transpose((2,0,1)).astype('float32')
+        data = data.transpose((2,0,1))        
         label = image2label(label)
         return data, label
         
@@ -281,22 +289,23 @@ def bilinear_kernel(in_channels, out_channels, kernel_size):
 ```{.python .input  n=106}
 from matplotlib import pyplot as plt
 
+x = train_images[0]
+print('Input', x.shape)
+x = x.astype('float32').transpose((2,0,1)).expand_dims(axis=0)/255
+
 conv_trans = nn.Conv2DTranspose(
     3, in_channels=3, kernel_size=8, padding=2, strides=4)
 conv_trans.initialize()
+conv_trans(x)
 conv_trans.weight.set_data(bilinear_kernel(3, 3, 8))
 
-x = voc_train[0][0]
-print('Input', x.shape)
-x = x.expand_dims(axis=0)/255
 
 y = conv_trans(x)
-y = y[0].clip(0,1)
+y = y[0].clip(0,1).transpose((1,2,0))
 print('Output', y.shape)
 
-plt.imshow(y.transpose((1,2,0)).asnumpy())
+plt.imshow(y.asnumpy())
 plt.show()
-
 ```
 
 所以网络的初始化包括了三部分。主体卷积网络从训练好的ResNet18复制得来，替代ResNet18最后全连接的卷积层使用随机初始化。
@@ -343,8 +352,8 @@ utils.train(train_data, test_data, net, loss,
 
 ```{.python .input  n=27}
 def predict(im):
-    data = im.transpose((2,0,1)).astype('float32')
-    data = data.expand_dims(axis=0)
+    data = (im.astype('float32')/255 - rgb_mean) / rgb_std
+    data = data.transpose((2,0,1)).expand_dims(axis=0)
     yhat = net(data.as_in_context(ctx[0]))
     pred = nd.argmax(yhat, axis=1)
     return pred.reshape((pred.shape[1], pred.shape[2]))
@@ -380,4 +389,3 @@ utils.show_images(imgs, nrows=n, ncols=3, figsize=(6,10))
 1. 看看双线性差值初始化是不是必要的
 1. 试着改改训练参数来使得收敛更好些
 1. [FCN论文](https://arxiv.org/abs/1411.4038)中提到了不只是使用主体卷积网络输出，还可以将前面层的输出也加进来。试着实现。
-
