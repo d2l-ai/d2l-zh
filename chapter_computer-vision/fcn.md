@@ -15,7 +15,7 @@
 
 [VOC2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/)是一个常用的语义分割数据集。输入图片跟之前的数据集类似，但标注也是保存称相应大小的图片来方便查看。下面代码下载这个数据集并解压。注意到压缩包大小是2GB，可以预先下好放置在`data_root`下。
 
-```{.python .input  n=40}
+```{.python .input  n=1}
 import os
 import tarfile 
 from mxnet import gluon
@@ -35,7 +35,7 @@ if not os.path.isfile(voc_root+'/ImageSets/Segmentation/train.txt'):
 
 下面定义函数将训练图片和标注按序读进内存。
 
-```{.python .input  n=41}
+```{.python .input  n=2}
 from mxnet import image
 
 def read_images(root=voc_root, train=True):
@@ -55,7 +55,7 @@ def read_images(root=voc_root, train=True):
 
 我们画出前面三张图片和它们对应的标号。在标号中，白色代表边框黑色代表背景，其他不同的颜色对应不同物体。
 
-```{.python .input  n=42}
+```{.python .input  n=3}
 import sys
 sys.path.append('..')
 import utils
@@ -74,7 +74,7 @@ utils.show_images(imgs, nrows=3, ncols=2, figsize=(12,8))
 
 这里我们仅仅使用剪切来解决这个问题。就是说对于输入图片，我们随机剪切出一个固定大小的区域，然后对标号图片做同样位置的剪切。
 
-```{.python .input  n=43}
+```{.python .input  n=4}
 def rand_crop(data, label, height, width):
     data, rect = image.random_crop(data, (width, height))
     label = image.fixed_crop(label, *rect)
@@ -90,7 +90,7 @@ utils.show_images(imgs, nrows=3, ncols=2, figsize=(12,8))
 
 接下来我们列出每个物体和背景对应的RGB值
 
-```{.python .input  n=44}
+```{.python .input  n=5}
 classes = ['background','aeroplane','bicycle','bird','boat',
            'bottle','bus','car','cat','chair','cow','diningtable',
            'dog','horse','motorbike','person','potted plant',
@@ -107,7 +107,7 @@ len(classes), len(colormap)
 
 这样给定一个标号图片，我们就可以将每个像素对应的物体标号找出来。
 
-```{.python .input  n=45}
+```{.python .input  n=6}
 import numpy as np
 from mxnet import nd
 
@@ -123,14 +123,14 @@ def image2label(im):
 
 可以看到第一张训练图片的标号里面属于飞机的像素被标记成了1.
 
-```{.python .input  n=53}
+```{.python .input  n=7}
 y = image2label(train_labels[0])
 y[105:115, 130:140]
 ```
 
 现在我们可以定义数据读取了。每一次我们将图片和标注随机剪切到要求的形状，并将标注里每个像素转成对应的标号。简单起见我们将小于要求大小的图片全部过滤掉了。
 
-```{.python .input  n=54}
+```{.python .input  n=8}
 from mxnet import gluon
 from mxnet import nd
 
@@ -170,7 +170,7 @@ class VOCSegDataset(gluon.data.Dataset):
 
 我们采用$320\times 480$的大小用来训练，注意到这个比前面我们使用的$224\times 224$要大上很多。但是同样我们将长宽都定义成了32的整数倍。
 
-```{.python .input  n=55}
+```{.python .input  n=9}
 # height x width
 input_shape = (320, 480)
 voc_train = VOCSegDataset(True, input_shape)
@@ -179,7 +179,7 @@ voc_test = VOCSegDataset(False, input_shape)
 
 最后定义批量读取。可以看到跟之前的不同是批量标号不再是一个向量，而是一个三维数组。
 
-```{.python .input  n=56}
+```{.python .input  n=10}
 batch_size = 64
 train_data = gluon.data.DataLoader(
     voc_train, batch_size, shuffle=True,last_batch='discard')
@@ -202,7 +202,7 @@ for data, label in train_data:
 
 下面例子里我们看到使用同样的参数，除了替换输入和输出通道数外，`Conv2DTranspose`可以将`nn.Conv2D`的输出还原其输入大小。
 
-```{.python .input  n=65}
+```{.python .input  n=11}
 from mxnet.gluon import nn
 
 conv = nn.Conv2D(10, kernel_size=4, padding=1, strides=2)
@@ -231,7 +231,7 @@ print('After transposed conv', conv_trans(y).shape)
 
 下面我们基于Resnet18来创建FCN。首先我们下载一个预先训练好的模型。
 
-```{.python .input  n=71}
+```{.python .input  n=12}
 from mxnet.gluon.model_zoo import vision as models
 pretrained_net = models.resnet18_v2(pretrained=True)
 
@@ -240,7 +240,7 @@ pretrained_net = models.resnet18_v2(pretrained=True)
 
 我们看到`feature`模块最后两层是`GlobalAvgPool2D`和`Flatten`，都是我们不需要的。所以我们定义一个新的网络，它复制除了`features`最后两层的权重。
 
-```{.python .input  n=73}
+```{.python .input  n=13}
 net = nn.HybridSequential()
 for layer in pretrained_net.features[:-2]:
     net.add(layer)
@@ -252,7 +252,7 @@ print('Output:', net(x).shape)
 
 然后接上一个通道数等于类数的$1\times 1$卷积层。注意到`net`已经将输入长宽减少了32倍。那么我们需要接入一个`strides=32`的卷积转置层。我们使用一个比`stides`大两倍的`kernel`，然后补上适当的填充。
 
-```{.python .input  n=74}
+```{.python .input  n=14}
 num_classes = len(classes)
 
 with net.name_scope():
@@ -266,7 +266,7 @@ with net.name_scope():
 
 训练的时候我们需要初始化新添加的两层。我们可以随机初始化，但实际中发现将卷积转置层初始化成双线性差值函数可以使得训练更容易。
 
-```{.python .input  n=75}
+```{.python .input  n=15}
 def bilinear_kernel(in_channels, out_channels, kernel_size):
     factor = (kernel_size + 1) // 2
     if kernel_size % 2 == 1:
@@ -286,7 +286,7 @@ def bilinear_kernel(in_channels, out_channels, kernel_size):
 
 下面代码演示这样的初始化等价于对图片进行双线性差值放大。
 
-```{.python .input  n=106}
+```{.python .input  n=16}
 from matplotlib import pyplot as plt
 
 x = train_images[0]
