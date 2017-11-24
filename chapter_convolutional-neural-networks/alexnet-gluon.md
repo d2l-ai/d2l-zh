@@ -52,8 +52,7 @@ GPU的到来改变了格局。很久以来，GPU都是为了图像处理和计�
 回到2012年，Alex Krizhevsky和Ilya
 Sutskever实现的可以运行在GPU上的深度卷积网络成为重大突破。他们意识到卷积网络的运算瓶颈（卷积和矩阵乘法）其实都可以在硬件上并行。使用两个NVIDIA GTX580和3GB内存，他们实现了快速的卷积。他们足够好的代码[cuda-convnet](https://code.google.com/archive/p/cuda-convnet/)使其成为那几年里的业界标准，驱动着深度学习繁荣的头几年。
 
-![](../img/gtx-580-gpu.jpeg)
-（老式核武器 GTX 580）
+![](../img/gtx-580-gpu.jpg)
 
 ## AlexNet
 
@@ -71,20 +70,20 @@ Sutskever实现的可以运行在GPU上的深度卷积网络成为重大突破�
 from mxnet.gluon import nn
 
 net = nn.Sequential()
-with net.name_scope():    
+with net.name_scope():
     net.add(
         # 第一阶段
-        nn.Conv2D(channels=96, kernel_size=11, 
+        nn.Conv2D(channels=96, kernel_size=11,
                   strides=4, activation='relu'),
         nn.MaxPool2D(pool_size=3, strides=2),
         # 第二阶段
-        nn.Conv2D(channels=256, kernel_size=5, 
+        nn.Conv2D(channels=256, kernel_size=5,
                   padding=2, activation='relu'),
         nn.MaxPool2D(pool_size=3, strides=2),
         # 第三阶段
-        nn.Conv2D(channels=384, kernel_size=3, 
+        nn.Conv2D(channels=384, kernel_size=3,
                   padding=1, activation='relu'),
-        nn.Conv2D(channels=384, kernel_size=3, 
+        nn.Conv2D(channels=384, kernel_size=3,
                   padding=1, activation='relu'),
         nn.Conv2D(channels=256, kernel_size=3,
                   padding=1, activation='relu'),
@@ -130,7 +129,7 @@ ctx = utils.try_gpu()
 net.initialize(ctx=ctx, init=init.Xavier())
 
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
-trainer = gluon.Trainer(net.collect_params(), 
+trainer = gluon.Trainer(net.collect_params(),
                         'sgd', {'learning_rate': 0.01})
 utils.train(train_data, test_data, net, loss,
             trainer, ctx, num_epochs=1)

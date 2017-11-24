@@ -18,12 +18,10 @@
 
 动量法的提出是为了应对梯度下降的上述问题。广义上，以小批量随机梯度下降为例（当批量大小等于训练集大小时，该算法即为梯度下降；批量大小为1即为随机梯度下降），我们对[梯度下降和随机梯度下降](./gd-sgd-scratch.md)的章节中的小批量随机梯度算法做如下修改：
 
-$$
 \begin{align*}
 \mathbf{v} &:= \gamma \mathbf{v} + \eta \nabla f_\mathcal{B}(\mathbf{x}),\\
 \mathbf{x} &:= \mathbf{x} - \mathbf{v},
 \end{align*}
-$$
 
 其中$\mathbf{v}$是当前速度，$\gamma$是动量参数。其余符号如学习率$\eta$、有关小批量$\mathcal{B}$的随机梯度$\nabla f_\mathcal{B}(\mathbf{x})$都已在[梯度下降和随机梯度下降](./gd-sgd-scratch.md)的章节中定义，此处不再赘述。
 
@@ -36,15 +34,13 @@ $$
 
 为了有助于理解动量参数$\gamma$，让我们考虑一个简单的问题：每次迭代的小批量随机梯度$\nabla f_\mathcal{B}(\mathbf{x})$都等于$\mathbf{g}$。由于所有小批量随机梯度都在同一方向，动量法在该方向使参数移动加速：
 
-$$
 \begin{align*}
 \mathbf{v}_1 &:= \eta\mathbf{g},\\
 \mathbf{v}_2 &:= \gamma \mathbf{v}_1 + \eta\mathbf{g} = \eta\mathbf{g} (\gamma + 1),\\
 \mathbf{v}_3 &:= \gamma \mathbf{v}_2 + \eta\mathbf{g} = \eta\mathbf{g} (\gamma^2 + \gamma + 1),\\
 &\ldots\\
-\mathbf{v}_\inf &:= \frac{\eta\mathbf{g}}{1 - \gamma}.
+\mathbf{v}_{\inf} &:= \frac{\eta\mathbf{g}}{1 - \gamma}.
 \end{align*}
-$$
 
 例如，当$\gamma = 0.99$, 最终的速度将是学习率乘以相应小批量随机梯度$\eta\mathbf{g}$的100倍大。
 
@@ -139,9 +135,9 @@ def train(batch_size, lr, mom, epochs, period):
             sgd_momentum([w, b], vs, lr, mom, batch_size)
             if batch_i * batch_size % period == 0:
                 total_loss.append(np.mean(square_loss(net(X, w, b), y).asnumpy()))
-        print("Batch size %d, Learning rate %f, Epoch %d, loss %.4e" % 
+        print("Batch size %d, Learning rate %f, Epoch %d, loss %.4e" %
               (batch_size, lr, epoch, total_loss[-1]))
-    print('w:', np.reshape(w.asnumpy(), (1, -1)), 
+    print('w:', np.reshape(w.asnumpy(), (1, -1)),
           'b:', b.asnumpy()[0], '\n')
     x_axis = np.linspace(0, epochs, len(total_loss), endpoint=True)
     plt.semilogy(x_axis, total_loss)

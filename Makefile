@@ -35,8 +35,29 @@ html: $(DEPS) $(OBJ)
 	make -C build html
 	bash build/htaccess.sh build/_build/html/
 
-latex: $(DEPS) $(OBJ)
+TEX=build/_build/latex/gluon_tutorials_zh.tex
+
+SVG=$(wildcard img/*.svg)
+GIF=$(wildcard img/*.gif)
+
+build/_build/latex/%.png: img/%.svg
+	@mkdir -p $(@D)
+	convert $< $@
+
+build/_build/latex/%_00.pdf: img/%_00.pdf
+	@mkdir -p $(@D)
+	cp $< $@
+
+PDFIMG = $(patsubst img/%.svg, build/_build/latex/%.png, $(SVG)) \
+	$(patsubst img/%.gif, build/_build/latex/%_00.pdf, $(GIF))
+
+pdf: $(DEPS) $(OBJ) $(PDFIMG)
+	@echo $(PDFIMG)
 	make -C build latex
+	sed -i s/\.svg/\.png/ $(TEX)
+	sed -i s/\}\.gif/\_00\}.pdf/ $(TEX)
+	sed -i s/{tocdepth}{0}/{tocdepth}{1}/ $(TEX)
+	cd build/_build/latex && xelatex gluon_tutorials_zh.tex && xelatex gluon_tutorials_zh.tex
 
 clean:
 	rm -rf build/chapter* $(DEPS) $(PKG)
