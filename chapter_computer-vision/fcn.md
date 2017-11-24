@@ -389,3 +389,6 @@ utils.show_images(imgs, nrows=n, ncols=3, figsize=(6,10))
 1. 看看双线性差值初始化是不是必要的
 1. 试着改改训练参数来使得收敛更好些
 1. [FCN论文](https://arxiv.org/abs/1411.4038)中提到了不只是使用主体卷积网络输出，还可以将前面层的输出也加进来。试着实现。
+
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/3041)
