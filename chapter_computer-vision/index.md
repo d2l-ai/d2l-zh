@@ -11,6 +11,7 @@
    object-detection
    ssd
    fcn
+   neural-style
    kaggle-gluon-cifar10
    kaggle-gluon-dog
 ```
