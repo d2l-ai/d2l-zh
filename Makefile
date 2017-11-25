@@ -57,7 +57,9 @@ pdf: $(DEPS) $(OBJ) $(PDFIMG)
 	sed -i s/\.svg/\.pdf/ $(TEX)
 	sed -i s/\}\.gif/\_00\}.pdf/ $(TEX)
 	sed -i s/{tocdepth}{0}/{tocdepth}{1}/ $(TEX)
-	cd build/_build/latex && xelatex gluon_tutorials_zh.tex && xelatex gluon_tutorials_zh.tex
+	cd build/_build/latex && \
+	buf_size=10000000 xelatex gluon_tutorials_zh.tex && \
+	buf_size=10000000 xelatex gluon_tutorials_zh.tex
 
 clean:
 	rm -rf build/chapter* $(DEPS) $(PKG)
