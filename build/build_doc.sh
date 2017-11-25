@@ -12,8 +12,13 @@ pip list
 
 make html
 
-rm -rf build/data
+# avoid to put the downloaed data into the notebook package
+mv build/data build/data-bak
 make pkg
+# backup build/data to avoid download the dataset each time and put the
+rm -rf build/data
+mv build/data-bak build/data
+
 
 make pdf
 cp build/_build/latex/gluon_tutorials_zh.pdf build/_build/html/
