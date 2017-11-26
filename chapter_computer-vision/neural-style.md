@@ -19,15 +19,13 @@
   1. 使用内容损失函数来计算 $y_i$ 和 $c_i$ 的差异
   1. 对损失求和并对输入 $x$ 求导，记导数为 $g$
   1. 更新 $x$， 例如 $x = x - \eta g$
-  
-  
+
+
 内容损失函数使用通常回归用的均方误差。对于样式，我们可以将它看成是像素点在每个通道的统计分布。例如要匹配两张图片的颜色，我们的一个做法是匹配这两张图片在RGB这三个通道上的直方图。更一般的，假设卷积层的输出格式是$c \times h \times w$，既`channels x height x width`。那么我们可以把它变形成 $c \times hw$ 的2D数组，并将它看成是一个维度为$c$ 的随机变量采样到的 $hw$ 个点。所谓的样式匹配就是使得两个 $c$ 维随机变量统计分布一致。
 
 匹配统计分布常用的做法是冲量匹配，就是说使得他们有一样的均值，协方差，和其他高维的冲量。为了计算简单起见，我们这里假设卷积输出已经是均值为0了，而且我们只匹配协方差。也就是说，样式损失函数就是对 $s_i$ 和 $y_i$ 计算 Gram 矩阵然后应用均方误差
 
-$$ 
-\textrm{style_loss}(s_i, y_i) = \frac{1}{c^2hw} \| s_i s_i^T - y_i y_i^T \|_F
-$$
+$$ \textrm{styleloss}(s_i, y_i) = \frac{1}{c^2hw} \| s_i s_i^T - y_i y_i^T \|_F $$
 
 这里假设我们已经将 $s_i$ 和 $y_i$ 变形成了 $c \times hw$ 的2D矩阵了。
 
@@ -221,7 +219,7 @@ def train(x, max_epochs, lr, lr_decay_epoch=200):
             tv_L = tv_weight * tv_loss(x)
             loss = style_L + content_L + tv_L
 
-        loss.backward()        
+        loss.backward()
         x.grad[:] /= x.grad.abs().mean()+1e-8
         x[:] -= lr * x.grad
         # add sync to avoid large mem usage
