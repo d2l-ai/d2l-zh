@@ -297,3 +297,6 @@ plt.imsave('result.png', postprocess(z).asnumpy())
 1. 改变内容和样式层
 1. 使用不同的权重
 1. 换几张样式和内容图片
+
+
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/3273)
