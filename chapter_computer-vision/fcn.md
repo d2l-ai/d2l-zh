@@ -198,7 +198,7 @@ for data, label in train_data:
 
 全连接卷积网络（FCN）的提出是基于这样一个观察。假设$f$是一个卷积层，而且$y=f(x)$。那么在反传求导时，$\partial f(y)$会返回一个跟$x$一样形状的输出。卷积是一个对偶函数，就是$\partial^2 f = f$。那么如果我们想得到跟输入一样的输入，那么定义$g = \partial f$，这样$g(f(x))$就能达到我们想要的。
 
-具体来说，我们定义一个卷积转置层（transposed convolutional, 也经常被错误的叫做deconvolutions），它就是想卷积层的`forward`和`backward`函数兑换。
+具体来说，我们定义一个卷积转置层（transposed convolutional, 也经常被错误的叫做deconvolutions），它就是将卷积层的`forward`和`backward`函数兑换。
 
 下面例子里我们看到使用同样的参数，除了替换输入和输出通道数外，`Conv2DTranspose`可以将`nn.Conv2D`的输出还原其输入大小。
 
@@ -238,7 +238,7 @@ pretrained_net = models.resnet18_v2(pretrained=True)
 (pretrained_net.features[-4:], pretrained_net.output)
 ```
 
-我们看到`feature`模块最后两层是`GlobalAvgPool2D`和`Flatten`，都是我们不需要的。所以我们定义一个新的网络，它复制除了`features`最后两层的权重。
+我们看到`feature`模块最后两层是`GlobalAvgPool2D`和`Flatten`，都是我们不需要的。所以我们定义一个新的网络，它复制除了最后两层的`features`模块的权重。
 
 ```{.python .input  n=13}
 net = nn.HybridSequential()
