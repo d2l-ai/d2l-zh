@@ -45,7 +45,7 @@ data_iter_train = gluon.data.DataLoader(dataset_train, batch_size, shuffle=True)
 square_loss = gluon.loss.L2Loss()
 
 def test(net, X, y):
-    return np.mean(square_loss(net(X), y).asnumpy())
+    return square_loss(net(X), y).mean().asscalar()
 
 def train(weight_decay):
     epochs = 10

@@ -109,7 +109,8 @@ def sgd(params, lr, batch_size):
         param[:] = param - lr * param.grad / batch_size
         
 def test(net, params, X, y):
-    return np.mean(square_loss(net(X, *params), y).asnumpy())
+    return square_loss(net(X, *params), y).mean().asscalar()
+    #return np.mean(square_loss(net(X, *params), y).asnumpy())
 
 def train(lambd):
     epochs = 10
