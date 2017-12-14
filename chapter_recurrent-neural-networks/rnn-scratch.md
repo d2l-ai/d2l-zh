@@ -1,6 +1,6 @@
 # 循环神经网络 --- 从0开始
 
-前面的教程里我们使用的网络都属于**前馈神经网络**。为什么叫前馈是整个网络是一条链（回想下`gluon.nn.Sequential`），每一层的结果都是反馈给下一层。这一节我们介绍**循环神经网络**，这里每一层不仅输出给下一层，同时还输出一个**隐藏状态**，给当前层在处理下一个样本时使用。下图展示这两种网络的区别。
+前面的教程里我们使用的网络都属于**前馈神经网络**。之所以叫前馈，是因为整个网络是一条链（回想下`gluon.nn.Sequential`），每一层的结果都是反馈给下一层。这一节我们介绍**循环神经网络**，这里每一层不仅输出给下一层，同时还输出一个**隐藏状态**，给当前层在处理下一个样本时使用。下图展示这两种网络的区别。
 
 ![](../img/rnn_1.png)
 
@@ -14,21 +14,38 @@
 
 在更加正式的介绍这个模型前，我们先去弄一个比“你好世界“稍微复杂点的数据。
 
-## 《时间机器》数据集
 
-我们用《时间机器》这本书做数据集主要是因为[古登堡计划](http://www.gutenberg.org)计划使得可以免费下载，而且我们看了太多用莎士比亚作为例子的教程。下面我们读取这个数据并看看前面500个字符（char）是什么样的：
+## 周杰伦歌词数据集
 
-```{.python .input  n=1}
-with open("../data/timemachine.txt") as f:
-    time_machine = f.read()
-print(time_machine[0:500])
+这里我们使用周杰伦歌词数据集。该数据集里包含了著名创作型歌手周杰伦从第一张专辑《Jay》到第十张专辑《跨时代》所有歌曲的歌词。
+
+![](../img/jay.jpg)
+
+
+
+下面我们读取这个数据并看看前面49个字符（char）是什么样的：
+
+```{.python .input  n=24}
+import zipfile
+with zipfile.ZipFile('../data/jaychou_lyrics.txt.zip', 'r') as zin:
+    zin.extractall('../data/')
+
+with open('../data/jaychou_lyrics.txt') as f:
+    corpus_chars = f.read()
+print(corpus_chars[0:49])
 ```
 
-接着我们稍微处理下数据集。包括全部改为小写，去除换行符，然后截去后面一段使得接下来的训练会快一点。
+我们看一下数据集里的字符数。
+
+```{.python .input}
+len(corpus_chars)
+```
+
+接着我们稍微处理下数据集。为了打印方便，我们把换行符替换成空格，然后截去后面一段使得接下来的训练会快一点。
 
 ```{.python .input  n=2}
-time_machine = time_machine.lower().replace('\n', '').replace('\r', '')
-time_machine = time_machine[0:10000]
+corpus_chars = corpus_chars.replace('\n', ' ').replace('\r', ' ')
+corpus_chars = corpus_chars[0:20000]
 ```
 
 ## 字符的数值表示
@@ -36,32 +53,30 @@ time_machine = time_machine[0:10000]
 先把数据里面所有不同的字符拿出来做成一个字典：
 
 ```{.python .input  n=3}
-character_list = list(set(time_machine))
-character_dict = dict([(char,i) for i,char in enumerate(character_list)])
+idx_to_char = list(set(corpus_chars))
+char_to_idx = dict([(char, i) for i, char in enumerate(idx_to_char)])
 
-vocab_size = len(character_dict)
+vocab_size = len(char_to_idx)
 
 print('vocab size:', vocab_size)
-print(character_dict)
 ```
 
-然后可以把每个字符转成从0开始的指数(index)来方便之后的使用。
+然后可以把每个字符转成从0开始的索引(index)来方便之后的使用。
 
 ```{.python .input  n=4}
-time_numerical = [character_dict[char] for char in time_machine]
+corpus_indices = [char_to_idx[char] for char in corpus_chars]
 
-sample = time_numerical[:40]
+sample = corpus_indices[:40]
 
-print('chars: \n', ''.join([character_list[idx] for idx in sample]))
+print('chars: \n', ''.join([idx_to_char[idx] for idx in sample]))
 print('\nindices: \n', sample)
-
 ```
 
 ## 数据读取
 
-同前一样我们需要每次随机读取一些（`batch_size`个）样本和其对用的标号。这里的样本跟前面有点不一样，这里一个样本通常包含一系列连续的字符（前馈神经网络里可能每个字符作为一个样本）。
+同之前一样我们需要每次随机读取一些（`batch_size`个）样本和其对用的标号。这里的样本跟前面有点不一样，这里一个样本通常包含一系列连续的字符（前馈神经网络里可能每个字符作为一个样本）。
 
-如果我们把序列长度（`seq_len`）设成10，那么一个可能的样本是`The Time T`。其对应的标号仍然是长为10的序列，每个字符是对应的样本里字符的后面那个。例如前面样本的标号就是`he Time Tr`。
+如果我们把序列长度（`seq_len`）设成5，那么一个可能的样本是“想要有直升”。其对应的标号仍然是长为5的序列，每个字符是对应的样本里字符的后面那个。例如前面样本的标号就是`要有直升机`。
 
 下面代码每次从数据里随机采样一个批量：
 
@@ -70,22 +85,24 @@ import random
 from mxnet import nd
 
 def data_iter(batch_size, seq_len, ctx=None):
-    num_examples = (len(time_numerical)-1) // seq_len
+    num_examples = (len(corpus_indices)-1) // seq_len
     num_batches = num_examples // batch_size
     # 随机化样本
-    idx = list(range(num_examples))
-    random.shuffle(idx)
+    example_indices = list(range(num_examples))
+    random.shuffle(example_indices)
+
     # 返回seq_len个数据
     def _data(pos):
-        return time_numerical[pos:pos+seq_len]
+        return corpus_indices[pos: pos + seq_len]
+
     for i in range(num_batches):
         # 每次读取batch_size个随机样本
         i = i * batch_size
-        examples = idx[i:i+batch_size]
+        batch_indices = example_indices[i: i + batch_size]
         data = nd.array(
-            [_data(j*seq_len) for j in examples], ctx=ctx)
+            [_data(j * seq_len) for j in batch_indices], ctx=ctx)
         label = nd.array(
-            [_data(j*seq_len+1) for j in examples], ctx=ctx)
+            [_data(j * seq_len + 1) for j in batch_indices], ctx=ctx)
         yield data, label
 ```
 
@@ -101,42 +118,45 @@ for data, label in data_iter(batch_size=3, seq_len=8):
 
 在对输入输出数据有了解后，我们来正式介绍循环神经网络。
 
-首先回忆下单隐层的前馈神经网络的定义，假设隐层的激活函数是$\phi$，那么这个隐层的输出就是
+首先回忆下单隐层的前馈神经网络的定义，假设隐层的激活函数是$\phi$，对于一个数据样本$\mathbf{x}$来说，那么这个隐层的输出就是
 
-$$H = \phi(X W_{wh} + b_h)$$
+$$\mathbf{h} = \phi(\mathbf{W}_{xh}\mathbf{x} + \mathbf{b}_h)$$
 
 最终的输出是
 
-$$\hat{Y} = \text{softmax}(H W_{hy} + b_y)$$
+$$\hat{\mathbf{y}} = \text{softmax}(\mathbf{W}_{hy}\mathbf{h} + \mathbf{b}_y)$$
 
-（跟[多层感知机](../chapter_multilayer-neural-network/mlp-scratch.md)相比，这里我们把下标从$W_1$和$W_2$改成了意义更加明确的$W_{wh}$和$W_{hy}$)
+（跟[多层感知机](../chapter_multilayer-neural-network/mlp-scratch.md)相比，这里我们把下标从$\mathbf{W}_1$和$\mathbf{W}_2$改成了意义更加明确的$\mathbf{W}_{xh}$和$\mathbf{W}_{hy}$。)
 
-将上面网络改成循环神经网络，我们首先对输入输出加上时间戳$t$。假设$X_t$是序列中的第$t$个输入，对应的隐层输出和最终输出是$H_t$和$\hat{Y}_t$。循环神经网络只需要在计算隐层的输出的时候加上跟前一时间输入的加权和，为此我们引入一个新的可学习的权重$W_{hh}$：
+将上面网络改成循环神经网络，我们首先对输入输出加上时间戳$t$。假设$\mathbf{x}_t$是序列中的第$t$个输入，对应的隐层输出和最终输出是$\mathbf{h}_t$和$\hat{\mathbf{y}}_t$。在计算隐层的输出的时候，循环神经网络只需要在前馈神经网络基础上加上跟前一时间$t-1$输入隐层$H_{t-1}$的加权和。为此，我们引入一个新的可学习的权重$\mathbf{W}_{hh}$：
 
-$$H_t = \phi(X_t  W_{xh} + H_{t-1} W_{hh} + b_h )$$
+
+$$\mathbf{h}_t = \phi(\mathbf{W}_{xh}\mathbf{x}_t + \mathbf{W}_{hh} \mathbf{h}_{t-1} + \mathbf{b}_h)$$
 
 输出的计算跟前一致：
 
-$$\hat{Y}_t = \text{softmax}(H_t W_{hy} + b_y)$$
+$$\hat{\mathbf{y}}_t = \text{softmax}(\mathbf{W}_{hy}\mathbf{h}_t + \mathbf{b}_y)$$
 
-一开始我们提到过，隐层输出（又叫隐藏状态）可以认为是这个网络的记忆。它存储前面时间里面的信息。我们的输出是完全只基于这个状态。最开始的状态，$H_{-1}$，通常会被初始为0.
+一开始我们提到过，隐层输出（又叫隐藏状态）可以认为是这个网络的记忆。它存储前面时间里面的信息。我们的输出是只基于这个状态。最开始的隐藏状态通常会被初始化为0。
 
 ## Onehot编码
 
-注意到每个字符现在是用一个整数来表示，而输入进网络我们需要一个定长的向量。一个常用的办法是使用onehot来将其表示成向量。就是说，如果值是$i$, 那么我们创建一个全0的长为`vocab_size`的向量，并将其第$i$位表示成1.
+注意到每个字符现在是用一个整数来表示，而输入进网络我们需要一个定长的向量。一个常用的办法是使用onehot来将其表示成向量。也就是说，如果一个字符的整数值是$i$, 那么我们创建一个全0的长为`vocab_size`的向量，并将其第$i$位设成1。该向量就是对原字符的onehot编码。
 
-```{.python .input  n=32}
-nd.one_hot(nd.array([0,4]), vocab_size)
+```{.python .input  n=7}
+nd.one_hot(nd.array([0,2]), vocab_size)
 ```
 
-记得前面我们每次得到的数据是一个`batch_size x seq_len`的批量。下面这个函数将其转换成`seq_len`个可以输入进网络的`batch_size x vocba_size`的矩阵
+记得前面我们每次得到的数据是一个`batch_size * seq_len`的批量。下面这个函数将其转换成`seq_len`个可以输入进网络的`batch_size * vocab_size`的矩阵。
 
-```{.python .input  n=34}
+```{.python .input  n=8}
 def get_inputs(data):
     return [nd.one_hot(X, vocab_size) for X in data.T]
 
 inputs = get_inputs(data)
-print('input length: ',len(inputs))
+print(inputs[0])
+
+print('input length: ', len(inputs))
 print('input[0] shape: ', inputs[0].shape)
 ```
 
@@ -144,15 +164,15 @@ print('input[0] shape: ', inputs[0].shape)
 
 模型的输入和输出维度都是`vocab_size`。
 
-```{.python .input  n=35}
+```{.python .input  n=9}
 import mxnet as mx
 
-# 尝试使用 GPU
+# 尝试使用GPU
 import sys
 sys.path.append('..')
 import utils
 ctx = utils.try_gpu()
-print('Will use ', ctx)
+print('Will use', ctx)
 
 num_hidden = 256
 weight_scale = .01
@@ -161,6 +181,7 @@ weight_scale = .01
 Wxh = nd.random_normal(shape=(vocab_size,num_hidden), ctx=ctx) * weight_scale
 Whh = nd.random_normal(shape=(num_hidden,num_hidden), ctx=ctx) * weight_scale
 bh = nd.zeros(num_hidden, ctx=ctx)
+
 # 输出层
 Why = nd.random_normal(shape=(num_hidden,vocab_size), ctx=ctx) * weight_scale
 by = nd.zeros(vocab_size, ctx=ctx)
@@ -174,7 +195,7 @@ for param in params:
 
 我们将前面的模型公式定义直接写成代码。
 
-```{.python .input  n=23}
+```{.python .input  n=10}
 def rnn(inputs, H):
     # inputs: seq_len 个 batch_size x vocab_size 矩阵
     # H: batch_size x num_hidden 矩阵
@@ -189,7 +210,7 @@ def rnn(inputs, H):
 
 做个简单的测试：
 
-```{.python .input  n=36}
+```{.python .input  n=11}
 state = nd.zeros(shape=(data.shape[0], num_hidden), ctx=ctx)
 outputs, state_new = rnn(get_inputs(data.as_in_context(ctx)), state)
 
@@ -204,22 +225,22 @@ print('state shape: ', state_new.shape)
 
 ![](../img/rnn_3.png)
 
-```{.python .input  n=37}
+```{.python .input  n=12}
 def predict(prefix, num_chars):
     # 预测以 prefix 开始的接下来的 num_chars 个字符
     prefix = prefix.lower()
     state = nd.zeros(shape=(1, num_hidden), ctx=ctx)
-    output = [character_dict[prefix[0]]]
+    output = [char_to_idx[prefix[0]]]
     for i in range(num_chars+len(prefix)):
         X = nd.array([output[-1]], ctx=ctx)
         Y, state = rnn(get_inputs(X), state)
         #print(Y)
         if i < len(prefix)-1:
-            next_input = character_dict[prefix[i+1]]
+            next_input = char_to_idx[prefix[i+1]]
         else:
             next_input = int(Y[0].argmax(axis=1).asscalar())
         output.append(next_input)
-    return ''.join([character_list[i] for i in output])
+    return ''.join([idx_to_char[i] for i in output])
 ```
 
 ## 梯度剪裁
@@ -228,7 +249,7 @@ def predict(prefix, num_chars):
 
 $$ \boldsymbol{g} = \min\left(\frac{\theta}{\|\boldsymbol{g}\|}, 1\right)\boldsymbol{g}$$
 
-```{.python .input}
+```{.python .input  n=13}
 def grad_clipping(params, theta):
     norm = nd.array([0.0], ctx)
     for p in params:
@@ -246,7 +267,10 @@ def grad_clipping(params, theta):
 1. 通常我们使用Perplexit(PPL)这个指标。可以简单的认为就是对交叉熵做exp运算使得数值更好读。
 2. 在更新前我们对梯度做剪裁
 
-```{.python .input  n=81}
+```{.python .input  n=14}
+seq1 = '为什么'
+seq2 = '为什么这样子'
+
 from mxnet import autograd
 from mxnet import gluon
 from math import exp
@@ -278,9 +302,9 @@ for e in range(epochs+1):
         num_examples += loss.size
 
     if e % 20 == 0:
-        print("Epoch %d. PPL %f" % (e, exp(train_loss/num_examples)))
-        print(' - ', predict('The Time Ma', 100))
-        print(' - ', predict("The Medical Man rose, came to the lamp,", 100), '\n')
+        print("Epoch %d. Perplexity %f" % (e, exp(train_loss/num_examples)))
+        print(' - ', predict(seq1, 100))
+        print(' - ', predict(seq2, 100), '\n')
 
 ```
 
@@ -292,6 +316,6 @@ for e in range(epochs+1):
 
 ## 练习
 
-调调参数（数据集大小，模型复杂度，学习率），看看对Perplexity和预测的结果造成的区别。
+调调参数（例如数据集大小、序列长度和学习率），看看对Perplexity和预测的结果造成的区别。
 
 **吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/989)
