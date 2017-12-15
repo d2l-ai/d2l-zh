@@ -12,81 +12,25 @@
 
 循环神经网络使用一个隐藏状态来记录前面看到的数据来帮助当前预测。上图右边展示了这个过程。在预测“好”的时候，我们输出一个隐藏状态。我们用这个状态和新的输入“好”来一起预测“世”，然后同时输出一个更新过的隐藏状态。我们希望前面的信息能够保存在这个隐藏状态里，从而提升预测效果。
 
-在更加正式的介绍这个模型前，我们先去弄一个比“你好世界“稍微复杂点的数据。
-
-
-## 周杰伦歌词数据集
-
-这里我们使用周杰伦歌词数据集。该数据集里包含了著名创作型歌手周杰伦从第一张专辑《Jay》到第十张专辑《跨时代》所有歌曲的歌词。
-
-![](../img/jay.jpg)
-
-
-
-下面我们读取这个数据并看看前面49个字符（char）是什么样的：
-
-```{.python .input  n=1}
-import zipfile
-with zipfile.ZipFile('../data/jaychou_lyrics.txt.zip', 'r') as zin:
-    zin.extractall('../data/')
-
-with open('../data/jaychou_lyrics.txt') as f:
-    corpus_chars = f.read()
-print(corpus_chars[0:49])
-```
-
-我们看一下数据集里的字符数。
-
-```{.python .input  n=2}
-len(corpus_chars)
-```
-
-接着我们稍微处理下数据集。为了打印方便，我们把换行符替换成空格，然后截去后面一段使得接下来的训练会快一点。
-
-```{.python .input  n=3}
-corpus_chars = corpus_chars.replace('\n', ' ').replace('\r', ' ')
-corpus_chars = corpus_chars[0:20000]
-```
-
-## 字符的数值表示
-
-先把数据里面所有不同的字符拿出来做成一个字典：
-
-```{.python .input  n=4}
-idx_to_char = list(set(corpus_chars))
-char_to_idx = dict([(char, i) for i, char in enumerate(idx_to_char)])
-
-vocab_size = len(char_to_idx)
-
-print('vocab size:', vocab_size)
-```
-
-然后可以把每个字符转成从0开始的索引(index)来方便之后的使用。
-
-```{.python .input  n=5}
-corpus_indices = [char_to_idx[char] for char in corpus_chars]
-
-sample = corpus_indices[:40]
-
-print('chars: \n', ''.join([idx_to_char[idx] for idx in sample]))
-print('\nindices: \n', sample)
-```
-
-## 数据读取
+## 时序数据的批量采样
 
 同之前一样我们需要每次随机读取一些（`batch_size`个）样本和其对用的标号。这里的样本跟前面有点不一样，这里一个样本通常包含一系列连续的字符（前馈神经网络里可能每个字符作为一个样本）。
 
 如果我们把序列长度（`seq_len`）设成5，那么一个可能的样本是“想要有直升”。其对应的标号仍然是长为5的序列，每个字符是对应的样本里字符的后面那个。例如前面样本的标号就是“要有直升机”。
 
-下面代码每次从数据里随机采样一个批量：
+
+### 随机批量采样
+
+下面代码每次从数据里随机采样一个批量。
 
 ```{.python .input  n=6}
 import random
 from mxnet import nd
 
-def data_iter(batch_size, seq_len, ctx=None):
-    num_examples = (len(corpus_indices)-1) // seq_len
-    num_batches = num_examples // batch_size
+def data_iter_random(corpus_indices, batch_size, seq_len, ctx=None):
+    # 减一是因为label的索引是相应data的索引加一
+    num_examples = (len(corpus_indices) - 1) // seq_len
+    epoch_size = num_examples // batch_size
     # 随机化样本
     example_indices = list(range(num_examples))
     random.shuffle(example_indices)
@@ -95,7 +39,7 @@ def data_iter(batch_size, seq_len, ctx=None):
     def _data(pos):
         return corpus_indices[pos: pos + seq_len]
 
-    for i in range(num_batches):
+    for i in range(epoch_size):
         # 每次读取batch_size个随机样本
         i = i * batch_size
         batch_indices = example_indices[i: i + batch_size]
@@ -106,12 +50,47 @@ def data_iter(batch_size, seq_len, ctx=None):
         yield data, label
 ```
 
+为了便于理解时序数据上的随机批量采样，让我们输入一个从0到29的人工序列，看下读出来长什么样：
+
+```{.python .input}
+my_seq = list(range(30))
+
+for data, label in data_iter_random(my_seq, batch_size=2, seq_len=3):
+    print('data: ', data, '\nlabel:', label, '\n')
+```
+
+由于各个采样在原始序列上的位置是随机的时序长度为`seq_len`的连续数据点，相邻的两个随机批量在原始序列上的位置不一定相毗邻。因此，在训练模型时，读取每个随机时序批量
+
+
+### 相邻批量采样
+
+除了对原序列做随机批量采样之外，我们还可以使相邻的两个随机批量在原始序列上的位置相毗邻。
+
+```{.python .input}
+def data_iter_consecutive(corpus_indices, batch_size, seq_len, ctx=None):
+    corpus_indices = nd.array(corpus_indices, ctx=ctx)
+    data_len = len(corpus_indices)
+    batch_len = data_len // batch_size
+    
+    indices = corpus_indices[0: batch_size * batch_len].reshape((
+        batch_size, batch_len))
+    # 减一是因为label的索引是相应data的索引加一
+    epoch_size = (batch_len - 1) // seq_len
+    
+    for i in range(epoch_size):
+        i = i * seq_len
+        data = indices[:, i: i + seq_len]
+        label = indices[:, i + 1: i + seq_len + 1]
+        yield data, label
+```
+
 看下读出来长什么样：
 
 ```{.python .input  n=7}
-for data, label in data_iter(batch_size=3, seq_len=8):
-    print('data: ', data, '\n\nlabel:', label)
-    break
+my_seq = list(range(30))
+
+for data, label in data_iter_consecutive(my_seq, batch_size=2, seq_len=3):
+    print('data: ', data, '\nlabel:', label, '\n')
 ```
 
 ## 循环神经网络
@@ -144,6 +123,69 @@ $$\hat{\mathbf{Y}}_t = \text{softmax}(\mathbf{W}_{hy} \mathbf{H}_t  + \mathbf{b}
 
 
 一开始我们提到过，隐层输出（又叫隐藏状态）可以认为是这个网络的记忆。它存储前面时间里面的信息。我们的输出是只基于这个状态。最开始的隐藏状态里的元素通常会被初始化为0。
+
+
+
+
+
+
+
+## 周杰伦歌词数据集
+
+
+为了实现并展示循环神经网络，我们使用周杰伦歌词数据集来训练模型作词。该数据集里包含了著名创作型歌手周杰伦从第一张专辑《Jay》到第十张专辑《跨时代》所有歌曲的歌词。
+
+![](../img/jay.jpg)
+
+
+下面我们读取这个数据并看看前面49个字符（char）是什么样的：
+
+```{.python .input}
+import zipfile
+with zipfile.ZipFile('../data/jaychou_lyrics.txt.zip', 'r') as zin:
+    zin.extractall('../data/')
+
+with open('../data/jaychou_lyrics.txt') as f:
+    corpus_chars = f.read()
+print(corpus_chars[0:49])
+```
+
+我们看一下数据集里的字符数。
+
+```{.python .input}
+len(corpus_chars)
+```
+
+接着我们稍微处理下数据集。为了打印方便，我们把换行符替换成空格，然后截去后面一段使得接下来的训练会快一点。
+
+```{.python .input}
+corpus_chars = corpus_chars.replace('\n', ' ').replace('\r', ' ')
+corpus_chars = corpus_chars[0:20000]
+```
+
+## 字符的数值表示
+
+先把数据里面所有不同的字符拿出来做成一个字典：
+
+```{.python .input}
+idx_to_char = list(set(corpus_chars))
+char_to_idx = dict([(char, i) for i, char in enumerate(idx_to_char)])
+
+vocab_size = len(char_to_idx)
+
+print('vocab size:', vocab_size)
+```
+
+然后可以把每个字符转成从0开始的索引(index)来方便之后的使用。
+
+```{.python .input}
+corpus_indices = [char_to_idx[char] for char in corpus_chars]
+
+sample = corpus_indices[:40]
+
+print('chars: \n', ''.join([idx_to_char[idx] for idx in sample]))
+print('\nindices: \n', sample)
+```
 
 ## Onehot编码
 
@@ -284,6 +326,8 @@ seq1 = '分开'
 seq2 = '不分开'
 seq3 = '战争中部队'
 
+data_iter = data_iter_random
+
 from mxnet import autograd
 from mxnet import gluon
 from math import exp
@@ -297,8 +341,9 @@ softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 
 for e in range(1, epochs + 1):
     train_loss, num_examples = 0, 0
-    state = nd.zeros(shape=(batch_size, hidden_size), ctx=ctx)
-    for data, label in data_iter(batch_size, seq_len, ctx):
+    for data, label in data_iter(corpus_indices, batch_size, seq_len, ctx):
+        # 注意：处理每个随机小批量前需要初始化隐藏状态。
+        state = nd.zeros(shape=(batch_size, hidden_size), ctx=ctx)
         with autograd.record():
             # outputs 尺寸：(batch_size, vocab_size)
             outputs, state = rnn(get_inputs(data), state)
