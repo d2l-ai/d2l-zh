@@ -269,7 +269,7 @@ def grad_clipping(params, theta):
     norm = nd.sqrt(norm).asscalar()
     if norm > theta:
         for p in params:
-            p.grad[:] *= theta/norm
+            p.grad[:] *= theta / norm
 ```
 
 ## 训练模型
@@ -277,7 +277,7 @@ def grad_clipping(params, theta):
 下面我们可以还是训练模型。跟前面前置网络的教程比，这里只有两个不同。
 
 1. 通常我们使用Perplexit(PPL)这个指标。可以简单的认为就是对交叉熵做exp运算使得数值更好读。
-2. 在更新前我们对梯度做剪裁
+2. 在更新前我们对梯度做剪裁。
 
 ```{.python .input  n=15}
 seq1 = '分开'
