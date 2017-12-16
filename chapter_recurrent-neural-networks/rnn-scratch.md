@@ -35,7 +35,7 @@ $$\mathbf{H}_t = \phi(\mathbf{X}_t \mathbf{W}_{xh} + \mathbf{H}_{t-1} \mathbf{W}
 
 输出的计算跟前面一致：
 
-$$\hat{\mathbf{Y}}_t = \text{softmax}(\mathbf{W}_{hy} \mathbf{H}_t  + \mathbf{b}_y)$$
+$$\hat{\mathbf{Y}}_t = \text{softmax}(\mathbf{H}_t \mathbf{W}_{hy}  + \mathbf{b}_y)$$
 
 一开始我们提到过，隐层输出（又叫隐藏状态）可以认为是这个网络的记忆。它存储前面时间里面的信息。我们的输出是只基于这个状态。最开始的隐藏状态里的元素通常会被初始化为0。
 
