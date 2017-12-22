@@ -36,7 +36,7 @@ $$\mathbf{o} = \mathbf{W}^{(2)} \mathbf{h}$$
 
 $$L = \ell(\mathbf{o}, y)$$
 
-根据[$L_2$范数正则化](reg-scratch.md)的定义，带有提前设定的超参数$\lambda$的正则化项
+根据$L_2$范数[正则化](reg-scratch.md)的定义，带有提前设定的超参数$\lambda$的正则化项
 
 $$s = \frac{\lambda}{2} (\|\mathbf{W}^{(1)}\|_2^2 + \|\mathbf{W}^{(2)}\|_2^2)$$
 
