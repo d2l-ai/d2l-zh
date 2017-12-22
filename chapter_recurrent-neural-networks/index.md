@@ -6,5 +6,6 @@
    :maxdepth: 2
 
    rnn-scratch
+   bptt
 
 ```
