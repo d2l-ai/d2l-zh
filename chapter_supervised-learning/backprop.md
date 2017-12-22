@@ -15,7 +15,7 @@
 
 ## 案例分析——正则化的多层感知机
 
-为了解释正向传播和反向传播，我们以$L_2$范数[正则化](reg-scratch.md)的[多层感知机](mlp-scratch.md)为例。
+为了解释正向传播和反向传播，我们以一个简单的$L_2$范数[正则化](reg-scratch.md)的[多层感知机](mlp-scratch.md)为例。
 
 
 ### 模型定义
@@ -44,9 +44,9 @@ $$s = \frac{\lambda}{2} (\|\mathbf{W}^{(1)}\|_2^2 + \|\mathbf{W}^{(2)}\|_2^2)$$
 
 $$J = L + s$$
 
-### 模型图
+### 计算图
 
-为了更清楚的表达模型变量和参数之间的依赖关系，我们可以绘制模型图来可视化上述数学表达式。
+为了可视化模型变量和参数之间在计算中的依赖关系，我们可以绘制计算图。
 
 ![](../img/backprop.png)
 
@@ -60,9 +60,9 @@ $$\mathbf{W}^{(2)} = \mathbf{W}^{(2)} - \eta \frac{\partial J}{\partial \mathbf{
 
 来不断迭代模型参数的值。因此我们需要模型参数梯度$\partial J/\partial \mathbf{W}^{(1)}$和$\partial J/\partial \mathbf{W}^{(2)}$。为此，我们可以按照反向传播的次序依次计算并存储梯度。
 
-为了表述方便，对输入输出$x,y,z$为任意形状张量的函数$y=f(x)$和$z=g(y)$，我们使用
+为了表述方便，对输入输出$\mathsf{X}, \mathsf{Y}, \mathsf{Z}$为任意形状张量的函数$\mathsf{Y}=f(\mathsf{X})$和$\mathsf{Z}=g(\mathsf{Y})$，我们使用
 
-$$\frac{\partial z}{\partial x} = \text{prod}(\frac{\partial z}{\partial y}, \frac{\partial y}{\partial x})$$
+$$\frac{\partial \mathsf{Z}}{\partial \mathsf{X}} = \text{prod}(\frac{\partial \mathsf{Z}}{\partial \mathsf{Y}}, \frac{\partial \mathsf{Y}}{\partial \mathsf{X}})$$
 
 来表达链式法则。以下依次计算得到的梯度将依次被存储。
 
@@ -72,9 +72,6 @@ $$\frac{\partial z}{\partial x} = \text{prod}(\frac{\partial z}{\partial y}, \fr
 $$\frac{\partial J}{\partial L} = 1$$
 
 $$\frac{\partial J}{\partial s} = 1$$
-
-
-
 
 
 其次，我们依据链式法则计算目标函数有关输出层变量的梯度$\partial J/\partial \mathbf{o} \in \mathbb{R}^{y}$。
@@ -92,7 +89,7 @@ $$\frac{\partial s}{\partial \mathbf{W}^{(2)}} = \lambda \mathbf{W}^{(2)}$$
 
 
 
-现在我们可以计算最靠近输出层的模型参数的梯度$\partial J/\partial \mathbf{W}^{(2)} \in \mathbb{R}^{y \times h}$。依据链式法则，由于$\mathbf{W}^{(2)}$有两条依赖路径（经过$\mathbf{o}$和经过$s$）可以通向$J$，我们有
+现在我们可以计算最靠近输出层的模型参数的梯度$\partial J/\partial \mathbf{W}^{(2)} \in \mathbb{R}^{y \times h}$。在计算图中，$\mathbf{W}^{(2)}$可以经过$\mathbf{o}$和$s$通向$J$，依据链式法则，我们有
 
 $$
 \frac{\partial J}{\partial \mathbf{W}^{(2)}} 
@@ -118,7 +115,7 @@ $$
 = \frac{\partial J}{\partial \mathbf{h}} \odot \phi^\prime(\mathbf{z})
 $$
 
-最终，我们可以得到最靠近输入层的模型参数的梯度$\partial J/\partial \mathbf{W}^{(1)} \in \mathbb{R}^{h \times x}$。依据链式法则，由于$\mathbf{W}^{(1)}$有两条依赖路径（经过$\mathbf{z}$和经过$s$）可以通向$J$，我们有
+最终，我们可以得到最靠近输入层的模型参数的梯度$\partial J/\partial \mathbf{W}^{(1)} \in \mathbb{R}^{h \times x}$。在计算图中，$\mathbf{W}^{(1)}$可以经过$\mathbf{z}$和$s$通向$J$，依据链式法则，我们有
 
 $$
 \frac{\partial J}{\partial \mathbf{W}^{(1)}} 
@@ -139,6 +136,6 @@ $$
 ## 练习
 
 - 如果模型的层数特别多，梯度的计算会有什么问题？
-- 阅读Hinton的[Capsule论文](https://arxiv.org/abs/1710.09829)
+- 1986年，Rumelhart, Hinton, 和Williams提出了[反向传播](https://www.iro.umontreal.ca/~vincentp/ift3395/lectures/backprop_old.pdf)。然而2017年[Hinton表示他对反向传播“深刻怀疑”](https://www.axios.com/ai-pioneer-advocates-starting-over-2485537027.html)并发表了[Capsule论文](https://arxiv.org/abs/1710.09829)。你对此有何思考？
 
 **吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/3710)
