@@ -79,13 +79,9 @@ $$\frac{\partial J}{\partial s} = 1$$
 
 其次，我们依据链式法则计算目标函数有关输出层变量的梯度$\partial J/\partial \mathbf{o} \in \mathbb{R}^{y}$。
 
-$$
-\begin{align}
-\frac{\partial J}{\partial \mathbf{o}} 
-&= \text{prod}(\frac{\partial J}{\partial L}， \frac{\partial L}{\partial \mathbf{o}}) \\
-&= \frac{\partial L}{\partial \mathbf{o}}
-\end{align}
-$$
+$$\frac{\partial J}{\partial \mathbf{o}} 
+= \text{prod}(\frac{\partial J}{\partial L}， \frac{\partial L}{\partial \mathbf{o}})
+= \frac{\partial L}{\partial \mathbf{o}}$$
 
 
 正则项有关两个参数的梯度可以很直观地计算：
@@ -99,43 +95,35 @@ $$\frac{\partial s}{\partial \mathbf{W}^{(2)}} = \lambda \mathbf{W}^{(2)}$$
 现在我们可以计算最靠近输出层的模型参数的梯度$\partial J/\partial \mathbf{W}^{(2)} \in \mathbb{R}^{y \times h}$。依据链式法则，由于$\mathbf{W}^{(2)}$有两条依赖路径（经过$\mathbf{o}$和经过$s$）可以通向$J$，我们有
 
 $$
-\begin{align}
 \frac{\partial J}{\partial \mathbf{W}^{(2)}} 
-&= \text{prod}(\frac{\partial J}{\partial \mathbf{o}}, \frac{\partial \mathbf{o}}{\partial \mathbf{W}^{(2)}}) + \text{prod}(\frac{\partial J}{\partial s}, \frac{\partial s}{\partial \mathbf{W}^{(2)}})\\
-&= \frac{\partial J}{\partial \mathbf{o}} \mathbf{h}^\top + \lambda \mathbf{W}^{(2)}
-\end{align}
+= \text{prod}(\frac{\partial J}{\partial \mathbf{o}}, \frac{\partial \mathbf{o}}{\partial \mathbf{W}^{(2)}}) + \text{prod}(\frac{\partial J}{\partial s}, \frac{\partial s}{\partial \mathbf{W}^{(2)}})
+= \frac{\partial J}{\partial \mathbf{o}} \mathbf{h}^\top + \lambda \mathbf{W}^{(2)}
 $$
 
 
 沿着输出层向隐含层继续反向传播，隐含层变量的梯度$\partial J/\partial \mathbf{h} \in \mathbb{R}^h$可以这样计算
 
 $$
-\begin{align}
 \frac{\partial J}{\partial \mathbf{h}} 
-&= \text{prod}(\frac{\partial J}{\partial \mathbf{o}}， \frac{\partial \mathbf{o}}{\partial \mathbf{h}}) \\
-&= {\mathbf{W}^{(2)}}^\top \frac{\partial J}{\partial \mathbf{o}}
-\end{align}
+= \text{prod}(\frac{\partial J}{\partial \mathbf{o}}， \frac{\partial \mathbf{o}}{\partial \mathbf{h}})
+= {\mathbf{W}^{(2)}}^\top \frac{\partial J}{\partial \mathbf{o}}
 $$
 
 
 注意到激活函数$\phi$是按元素操作的，中间变量$\mathbf{z}$的梯度$\partial J/\partial \mathbf{z} \in \mathbb{R}^h$的计算需要使用按元素乘法符$\odot$
 
 $$
-\begin{align}
 \frac{\partial J}{\partial \mathbf{z}} 
-&= \text{prod}(\frac{\partial J}{\partial \mathbf{h}}， \frac{\partial \mathbf{h}}{\partial \mathbf{z}}) \\
-&= \frac{\partial J}{\partial \mathbf{h}} \odot \phi^\prime(\mathbf{z})
-\end{align}
+= \text{prod}(\frac{\partial J}{\partial \mathbf{h}}， \frac{\partial \mathbf{h}}{\partial \mathbf{z}})
+= \frac{\partial J}{\partial \mathbf{h}} \odot \phi^\prime(\mathbf{z})
 $$
 
 最终，我们可以得到最靠近输入层的模型参数的梯度$\partial J/\partial \mathbf{W}^{(1)} \in \mathbb{R}^{h \times x}$。依据链式法则，由于$\mathbf{W}^{(1)}$有两条依赖路径（经过$\mathbf{z}$和经过$s$）可以通向$J$，我们有
 
 $$
-\begin{align}
 \frac{\partial J}{\partial \mathbf{W}^{(1)}} 
-&= \text{prod}(\frac{\partial J}{\partial \mathbf{z}}, \frac{\partial \mathbf{z}}{\partial \mathbf{W}^{(1)}}) + \text{prod}(\frac{\partial J}{\partial s}, \frac{\partial s}{\partial \mathbf{W}^{(1)}})\\
-&= \frac{\partial J}{\partial \mathbf{z}} \mathbf{x}^\top + \lambda \mathbf{W}^{(1)}
-\end{align}
+= \text{prod}(\frac{\partial J}{\partial \mathbf{z}}, \frac{\partial \mathbf{z}}{\partial \mathbf{W}^{(1)}}) + \text{prod}(\frac{\partial J}{\partial s}, \frac{\partial s}{\partial \mathbf{W}^{(1)}})
+= \frac{\partial J}{\partial \mathbf{z}} \mathbf{x}^\top + \lambda \mathbf{W}^{(1)}
 $$
 
 
