@@ -95,7 +95,7 @@ print('a+b:', a+b)
 
 ## 跟NumPy的转换
 
-ndarray可以很方便同numpy进行转换
+ndarray可以很方便地同numpy进行转换
 
 ```{.python .input  n=26}
 import numpy as np

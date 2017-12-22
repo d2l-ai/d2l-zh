@@ -153,7 +153,7 @@ pip install --pre mxnet-cu80 -i https://pypi.douban.com/simple # CUDA 8.0
 
 ### 使用notedown插件来读写github源文件
 
-注意：这个只推荐给如果想上github提交改动的小伙伴。
+注意：这个只推荐给想上github提交改动的小伙伴。
 我们源代码是用markdown格式来存储，而不是jupyter默认的ipynb格式。我们可以用notedown插件来读写markdown格式。下面命令下载源代码并且安装环境：
 
 

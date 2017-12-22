@@ -16,7 +16,7 @@ train_data, test_data = utils.load_data_fashion_mnist(batch_size)
 
 ## 多层感知机
 
-多层感知机与前面介绍的[多类逻辑回归](../chapter_crashcourse/softmax-regression-scratch.md)非常类似，主要的区别是我们在输入层和输出层之间插入了一到多个隐含层。
+多层感知机与前面介绍的[多类逻辑回归](../chapter_crashcourse/softmax-regression-scratch.md)非常类似，主要的区别是我们在输入层和输出层之间插入了一个到多个隐含层。
 
 ![](../img/multilayer-perceptron.png)
 
