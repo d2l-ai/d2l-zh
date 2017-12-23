@@ -385,7 +385,7 @@ def train_and_predict(is_random_iter):
                 loss = softmax_cross_entropy(outputs, label)
             loss.backward()
 
-            #grad_clipping(params, 5)
+            grad_clipping(params, 5)
             utils.SGD(params, learning_rate)
 
             train_loss += nd.sum(loss).asscalar()
