@@ -297,7 +297,11 @@ def predict(prefix, num_chars, params):
 
 ## 梯度剪裁
 
-在求梯度时，循环神经网络因为需要反复做`O(seq_len)`次乘法，有可能会有数值稳定性问题（例如 $2^{40}$）。一个常用的做法是如果梯度特别大，那么就投影到一个比较小的尺度上。假设我们把所有梯度接成一个向量 $\boldsymbol{g}$，假设剪裁的阈值是$\theta$，那么我们这样剪裁使得$\|\boldsymbol{g}\|$不会超过$\theta$：
+我们在[正向传播和反向传播](../chapter_supervised-learning/backprop.md)中提到，
+训练神经网络往往需要依赖梯度计算的优化算法，例如我们之前介绍的[随机梯度下降](../chapter_supervised-learning/linear-regression-scratch.md)。
+而在循环神经网络的训练中，当每个时序训练数据样本的时序长度`seq_len`较大或者时刻$t$较小，目标函数有关$t$时刻的隐含层变量梯度较容易出现衰减（valishing）或爆炸（explosion）。我们会在[下一节](bptt.md)详细介绍出现该现象的原因。
+
+为了应对这一现象，一个常用的做法是如果梯度特别大，那么就投影到一个比较小的尺度上。假设我们把所有梯度接成一个向量 $\boldsymbol{g}$，假设剪裁的阈值是$\theta$，那么我们这样剪裁使得$\|\boldsymbol{g}\|$不会超过$\theta$：
 
 $$ \boldsymbol{g} = \min\left(\frac{\theta}{\|\boldsymbol{g}\|}, 1\right)\boldsymbol{g}$$
 
@@ -381,7 +385,7 @@ def train_and_predict(is_random_iter):
                 loss = softmax_cross_entropy(outputs, label)
             loss.backward()
 
-            grad_clipping(params, 5)
+            #grad_clipping(params, 5)
             utils.SGD(params, learning_rate)
 
             train_loss += nd.sum(loss).asscalar()
