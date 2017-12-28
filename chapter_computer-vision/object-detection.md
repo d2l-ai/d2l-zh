@@ -122,7 +122,7 @@ SSD的具体实现将在[下一章](./ssd.md)详细阐述。
 ![Yolo](../img/yolo.svg)
 
 
-## YOLO v2：更好，更块，更强
+## YOLO v2：更好，更快，更强
 
 YOLO v2对YOLO进行一些地方的改进，其主要包括：
 
