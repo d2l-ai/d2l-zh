@@ -50,7 +50,7 @@ $$\hat{\mathbf{Y}}_t = \text{softmax}(\mathbf{H}_t \mathbf{W}_{hy}  + \mathbf{b}
 
 下面我们读取这个数据并看看前面49个字符（char）是什么样的：
 
-```{.python .input}
+```{.python .input  n=1}
 import zipfile
 with zipfile.ZipFile('../data/jaychou_lyrics.txt.zip', 'r') as zin:
     zin.extractall('../data/')
@@ -62,13 +62,13 @@ print(corpus_chars[0:49])
 
 我们看一下数据集里的字符数。
 
-```{.python .input}
+```{.python .input  n=2}
 len(corpus_chars)
 ```
 
 接着我们稍微处理下数据集。为了打印方便，我们把换行符替换成空格，然后截去后面一段使得接下来的训练会快一点。
 
-```{.python .input}
+```{.python .input  n=3}
 corpus_chars = corpus_chars.replace('\n', ' ').replace('\r', ' ')
 corpus_chars = corpus_chars[0:20000]
 ```
@@ -77,7 +77,7 @@ corpus_chars = corpus_chars[0:20000]
 
 先把数据里面所有不同的字符拿出来做成一个字典：
 
-```{.python .input}
+```{.python .input  n=4}
 idx_to_char = list(set(corpus_chars))
 char_to_idx = dict([(char, i) for i, char in enumerate(idx_to_char)])
 
@@ -88,7 +88,7 @@ print('vocab size:', vocab_size)
 
 然后可以把每个字符转成从0开始的索引(index)来方便之后的使用。
 
-```{.python .input}
+```{.python .input  n=5}
 corpus_indices = [char_to_idx[char] for char in corpus_chars]
 
 sample = corpus_indices[:40]
@@ -101,58 +101,58 @@ print('\nindices: \n', sample)
 
 同之前一样我们需要每次随机读取一些（`batch_size`个）样本和其对用的标号。这里的样本跟前面有点不一样，这里一个样本通常包含一系列连续的字符（前馈神经网络里可能每个字符作为一个样本）。
 
-如果我们把序列长度（`seq_len`）设成5，那么一个可能的样本是“想要有直升”。其对应的标号仍然是长为5的序列，每个字符是对应的样本里字符的后面那个。例如前面样本的标号就是“要有直升机”。
+如果我们把序列长度（`num_steps`）设成5，那么一个可能的样本是“想要有直升”。其对应的标号仍然是长为5的序列，每个字符是对应的样本里字符的后面那个。例如前面样本的标号就是“要有直升机”。
 
 
 ### 随机批量采样
 
 下面代码每次从数据里随机采样一个批量。
 
-```{.python .input}
+```{.python .input  n=6}
 import random
 from mxnet import nd
 
-def data_iter_random(corpus_indices, batch_size, seq_len, ctx=None):
+def data_iter_random(corpus_indices, batch_size, num_steps, ctx=None):
     # 减一是因为label的索引是相应data的索引加一
-    num_examples = (len(corpus_indices) - 1) // seq_len
+    num_examples = (len(corpus_indices) - 1) // num_steps
     epoch_size = num_examples // batch_size
     # 随机化样本
     example_indices = list(range(num_examples))
     random.shuffle(example_indices)
 
-    # 返回seq_len个数据
+    # 返回num_steps个数据
     def _data(pos):
-        return corpus_indices[pos: pos + seq_len]
+        return corpus_indices[pos: pos + num_steps]
 
     for i in range(epoch_size):
         # 每次读取batch_size个随机样本
         i = i * batch_size
         batch_indices = example_indices[i: i + batch_size]
         data = nd.array(
-            [_data(j * seq_len) for j in batch_indices], ctx=ctx)
+            [_data(j * num_steps) for j in batch_indices], ctx=ctx)
         label = nd.array(
-            [_data(j * seq_len + 1) for j in batch_indices], ctx=ctx)
+            [_data(j * num_steps + 1) for j in batch_indices], ctx=ctx)
         yield data, label
 ```
 
 为了便于理解时序数据上的随机批量采样，让我们输入一个从0到29的人工序列，看下读出来长什么样：
 
-```{.python .input}
+```{.python .input  n=7}
 my_seq = list(range(30))
 
-for data, label in data_iter_random(my_seq, batch_size=2, seq_len=3):
+for data, label in data_iter_random(my_seq, batch_size=2, num_steps=3):
     print('data: ', data, '\nlabel:', label, '\n')
 ```
 
-由于各个采样在原始序列上的位置是随机的时序长度为`seq_len`的连续数据点，相邻的两个随机批量在原始序列上的位置不一定相毗邻。因此，在训练模型时，读取每个随机时序批量前需要重新初始化隐藏状态。
+由于各个采样在原始序列上的位置是随机的时序长度为`num_steps`的连续数据点，相邻的两个随机批量在原始序列上的位置不一定相毗邻。因此，在训练模型时，读取每个随机时序批量前需要重新初始化隐藏状态。
 
 
 ### 相邻批量采样
 
 除了对原序列做随机批量采样之外，我们还可以使相邻的两个随机批量在原始序列上的位置相毗邻。
 
-```{.python .input}
-def data_iter_consecutive(corpus_indices, batch_size, seq_len, ctx=None):
+```{.python .input  n=8}
+def data_iter_consecutive(corpus_indices, batch_size, num_steps, ctx=None):
     corpus_indices = nd.array(corpus_indices, ctx=ctx)
     data_len = len(corpus_indices)
     batch_len = data_len // batch_size
@@ -160,38 +160,38 @@ def data_iter_consecutive(corpus_indices, batch_size, seq_len, ctx=None):
     indices = corpus_indices[0: batch_size * batch_len].reshape((
         batch_size, batch_len))
     # 减一是因为label的索引是相应data的索引加一
-    epoch_size = (batch_len - 1) // seq_len
+    epoch_size = (batch_len - 1) // num_steps
     
     for i in range(epoch_size):
-        i = i * seq_len
-        data = indices[:, i: i + seq_len]
-        label = indices[:, i + 1: i + seq_len + 1]
+        i = i * num_steps
+        data = indices[:, i: i + num_steps]
+        label = indices[:, i + 1: i + num_steps + 1]
         yield data, label
 ```
 
 相同地，为了便于理解时序数据上的相邻批量采样，让我们输入一个从0到29的人工序列，看下读出来长什么样：
 
-```{.python .input}
+```{.python .input  n=9}
 my_seq = list(range(30))
 
-for data, label in data_iter_consecutive(my_seq, batch_size=2, seq_len=3):
+for data, label in data_iter_consecutive(my_seq, batch_size=2, num_steps=3):
     print('data: ', data, '\nlabel:', label, '\n')
 ```
 
-由于各个采样在原始序列上的位置是毗邻的时序长度为`seq_len`的连续数据点，因此，使用相邻批量采样训练模型时，读取每个时序批量前，我们需要将该批量最开始的隐藏状态设为上个批量最终输出的隐藏状态。在同一个epoch中，隐藏状态只需要在该epoch开始的时候初始化。
+由于各个采样在原始序列上的位置是毗邻的时序长度为`num_steps`的连续数据点，因此，使用相邻批量采样训练模型时，读取每个时序批量前，我们需要将该批量最开始的隐藏状态设为上个批量最终输出的隐藏状态。在同一个epoch中，隐藏状态只需要在该epoch开始的时候初始化。
 
 
 ## Onehot编码
 
 注意到每个字符现在是用一个整数来表示，而输入进网络我们需要一个定长的向量。一个常用的办法是使用onehot来将其表示成向量。也就是说，如果一个字符的整数值是$i$, 那么我们创建一个全0的长为`vocab_size`的向量，并将其第$i$位设成1。该向量就是对原字符的onehot编码。
 
-```{.python .input  n=8}
+```{.python .input  n=10}
 nd.one_hot(nd.array([0, 2]), vocab_size)
 ```
 
-记得前面我们每次得到的数据是一个`batch_size * seq_len`的批量。下面这个函数将其转换成`seq_len`个可以输入进网络的`batch_size * vocab_size`的矩阵。对于一个长度为`seq_len`的序列，每个批量输入$\mathbf{X} \in \mathbb{R}^{n \times x}$，其中$n=$ `batch_size`，而$x=$`vocab_size`（onehot编码向量维度）。
+记得前面我们每次得到的数据是一个`batch_size * num_steps`的批量。下面这个函数将其转换成`num_steps`个可以输入进网络的`batch_size * vocab_size`的矩阵。对于一个长度为`num_steps`的序列，每个批量输入$\mathbf{X} \in \mathbb{R}^{n \times x}$，其中$n=$ `batch_size`，而$x=$`vocab_size`（onehot编码向量维度）。
 
-```{.python .input  n=9}
+```{.python .input  n=11}
 def get_inputs(data):
     return [nd.one_hot(X, vocab_size) for X in data.T]
 
@@ -207,7 +207,7 @@ print('input[0] shape: ', inputs[0].shape)
 
 当序列中某一个时间戳的输入为一个样本数为`batch_size`（对应模型定义中的$n$）的批量，每个时间戳上的输入和输出皆为尺寸`batch_size * vocab_size`（对应模型定义中的$n \times x$）的矩阵。假设每个样本对应的隐藏状态的长度为`hidden_size`（对应模型定义中的$h$），根据矩阵乘法定义，我们可以推断出模型隐含层和输出层中各个参数的尺寸。
 
-```{.python .input  n=10}
+```{.python .input  n=12}
 import mxnet as mx
 
 # 尝试使用GPU
@@ -239,17 +239,17 @@ def get_params():
 
 ## 定义模型
 
-当序列中某一个时间戳的输入为一个样本数为`batch_size`的批量，而整个序列长度为`seq_len`时，以下`rnn`函数的`inputs`和`outputs`皆为`seq_len` 个尺寸`batch_size * vocab_size`的矩阵，隐藏状态变量$\mathbf{H}$是一个尺寸为`batch_size * hidden_size`的矩阵。
+当序列中某一个时间戳的输入为一个样本数为`batch_size`的批量，而整个序列长度为`num_steps`时，以下`rnn`函数的`inputs`和`outputs`皆为`num_steps` 个尺寸`batch_size * vocab_size`的矩阵，隐藏状态变量$\mathbf{H}$是一个尺寸为`batch_size * hidden_size`的矩阵。
 
 我们将前面的模型公式翻译成代码。这里的激活函数使用了按元素操作的双曲正切函数
 
 $$\text{tanh}(x) = \frac{1 - e^{-2x}}{1 + e^{-2x}}$$
 
-```{.python .input  n=11}
+```{.python .input  n=13}
 def rnn(inputs, H, W_xh, W_hh, b_h, W_hy, b_y):
-    # inputs: seq_len 个尺寸为 batch_size * vocab_size 矩阵
+    # inputs: num_steps 个尺寸为 batch_size * vocab_size 矩阵
     # H: 尺寸为 batch_size * hidden_size 矩阵
-    # outputs: seq_len 个尺寸为 batch_size * vocab_size 矩阵
+    # outputs: num_steps 个尺寸为 batch_size * vocab_size 矩阵
     outputs = []
     for X in inputs:
         H = nd.tanh(nd.dot(X, W_xh) + nd.dot(H, W_hh) + b_h)
@@ -260,7 +260,7 @@ def rnn(inputs, H, W_xh, W_hh, b_h, W_hy, b_y):
 
 做个简单的测试：
 
-```{.python .input  n=12}
+```{.python .input  n=14}
 state = nd.zeros(shape=(data.shape[0], hidden_size), ctx=ctx)
 
 params = get_params()
@@ -277,7 +277,7 @@ print('state shape: ', state_new.shape)
 
 ![](../img/rnn_3.png)
 
-```{.python .input  n=13}
+```{.python .input  n=15}
 def predict(prefix, num_chars, params):
     # 预测以 prefix 开始的接下来的 num_chars 个字符
     prefix = prefix.lower()
@@ -299,13 +299,13 @@ def predict(prefix, num_chars, params):
 
 我们在[正向传播和反向传播](../chapter_supervised-learning/backprop.md)中提到，
 训练神经网络往往需要依赖梯度计算的优化算法，例如我们之前介绍的[随机梯度下降](../chapter_supervised-learning/linear-regression-scratch.md)。
-而在循环神经网络的训练中，当每个时序训练数据样本的时序长度`seq_len`较大或者时刻$t$较小，目标函数有关$t$时刻的隐含层变量梯度较容易出现衰减（valishing）或爆炸（explosion）。我们会在[下一节](bptt.md)详细介绍出现该现象的原因。
+而在循环神经网络的训练中，当每个时序训练数据样本的时序长度`num_steps`较大或者时刻$t$较小，目标函数有关$t$时刻的隐含层变量梯度较容易出现衰减（valishing）或爆炸（explosion）。我们会在[下一节](bptt.md)详细介绍出现该现象的原因。
 
 为了应对梯度爆炸，一个常用的做法是如果梯度特别大，那么就投影到一个比较小的尺度上。假设我们把所有梯度接成一个向量 $\boldsymbol{g}$，假设剪裁的阈值是$\theta$，那么我们这样剪裁使得$\|\boldsymbol{g}\|$不会超过$\theta$：
 
 $$ \boldsymbol{g} = \min\left(\frac{\theta}{\|\boldsymbol{g}\|}, 1\right)\boldsymbol{g}$$
 
-```{.python .input  n=14}
+```{.python .input  n=16}
 def grad_clipping(params, theta):
     norm = nd.array([0.0], ctx)
     for p in params:
@@ -340,7 +340,7 @@ $$\text{loss} = -\frac{1}{N} \sum_{i=1}^N \log p_{\text{predicted}_i}$$
 
 因此，困惑度的值总是在1和$|W|$之间。如果一个模型可以取得较低的困惑度的值（更靠近1），通常情况下，该模型预测更加准确。
 
-```{.python .input  n=15}
+```{.python .input  n=17}
 seq1 = '分开'
 seq2 = '不分开'
 seq3 = '战争中部队'
@@ -400,13 +400,13 @@ def train_and_predict(is_random_iter):
 
 我们先采用随机批量采样实验循环神经网络谱写歌词。我们假定谱写歌词的前缀分别为“分开”、“不分开”和“战争中部队”。
 
-```{.python .input}
+```{.python .input  n=18}
 train_and_predict(is_random_iter=True)
 ```
 
 我们再采用相邻批量采样实验循环神经网络谱写歌词。
 
-```{.python .input}
+```{.python .input  n=19}
 train_and_predict(is_random_iter=False)
 ```
 
