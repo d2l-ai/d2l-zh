@@ -225,12 +225,12 @@ std = .01
 
 def get_params():
     # 隐含层
-    W_xh = nd.random_normal(scale = std, shape=(input_dim, hidden_dim), ctx=ctx)
-    W_hh = nd.random_normal(scale = std, shape=(hidden_dim, hidden_dim), ctx=ctx)
+    W_xh = nd.random_normal(scale=std, shape=(input_dim, hidden_dim), ctx=ctx)
+    W_hh = nd.random_normal(scale=std, shape=(hidden_dim, hidden_dim), ctx=ctx)
     b_h = nd.zeros(hidden_dim, ctx=ctx)
 
     # 输出层
-    W_hy = nd.random_normal(scale = std, shape=(hidden_dim, output_dim), ctx=ctx)
+    W_hy = nd.random_normal(scale=std, shape=(hidden_dim, output_dim), ctx=ctx)
     b_y = nd.zeros(output_dim, ctx=ctx)
 
     params = [W_xh, W_hh, b_h, W_hy, b_y]
@@ -248,10 +248,11 @@ def get_params():
 $$\text{tanh}(x) = \frac{1 - e^{-2x}}{1 + e^{-2x}}$$
 
 ```{.python .input  n=13}
-def rnn(inputs, H, W_xh, W_hh, b_h, W_hy, b_y):
+def rnn(inputs, H, *params):
     # inputs: num_steps 个尺寸为 batch_size * vocab_size 矩阵
     # H: 尺寸为 batch_size * hidden_dim 矩阵
     # outputs: num_steps 个尺寸为 batch_size * vocab_size 矩阵
+    W_xh, W_hh, b_h, W_hy, b_y = params
     outputs = []
     for X in inputs:
         H = nd.tanh(nd.dot(X, W_xh) + nd.dot(H, W_hh) + b_h)
