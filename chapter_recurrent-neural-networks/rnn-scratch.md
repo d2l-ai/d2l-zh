@@ -205,7 +205,7 @@ print('input[0] shape: ', inputs[0].shape)
 
 对于序列中任意一个时间戳，一个字符的输入是维度为`vocab_size`的onehot编码向量，对应输出是预测下一个时间戳为词典中任意字符的概率，因而该输出是维度为`vocab_size`的向量。
 
-当序列中某一个时间戳的输入为一个样本数为`batch_size`（对应模型定义中的$n$）的批量，每个时间戳上的输入和输出皆为尺寸`batch_size * vocab_size`（对应模型定义中的$n \times x$）的矩阵。假设每个样本对应的隐藏状态的长度为`hidden_size`（对应模型定义中的$h$），根据矩阵乘法定义，我们可以推断出模型隐含层和输出层中各个参数的尺寸。
+当序列中某一个时间戳的输入为一个样本数为`batch_size`（对应模型定义中的$n$）的批量，每个时间戳上的输入和输出皆为尺寸`batch_size * vocab_size`（对应模型定义中的$n \times x$）的矩阵。假设每个样本对应的隐藏状态的长度为`hidden_dim`（对应模型定义中的$h$），根据矩阵乘法定义，我们可以推断出模型隐含层和输出层中各个参数的尺寸。
 
 ```{.python .input  n=12}
 import mxnet as mx
@@ -218,18 +218,20 @@ ctx = utils.try_gpu()
 print('Will use', ctx)
 
 # 隐藏状态长度
-hidden_size = 256
+input_dim = vocab_size
+hidden_dim = 256
+output_dim = vocab_size
 std = .01
 
 def get_params():
     # 隐含层
-    W_xh = nd.random_normal(scale = std, shape=(vocab_size, hidden_size), ctx=ctx)
-    W_hh = nd.random_normal(scale = std, shape=(hidden_size, hidden_size), ctx=ctx)
-    b_h = nd.zeros(hidden_size, ctx=ctx)
+    W_xh = nd.random_normal(scale = std, shape=(input_dim, hidden_dim), ctx=ctx)
+    W_hh = nd.random_normal(scale = std, shape=(hidden_dim, hidden_dim), ctx=ctx)
+    b_h = nd.zeros(hidden_dim, ctx=ctx)
 
     # 输出层
-    W_hy = nd.random_normal(scale = std, shape=(hidden_size, vocab_size), ctx=ctx)
-    b_y = nd.zeros(vocab_size, ctx=ctx)
+    W_hy = nd.random_normal(scale = std, shape=(hidden_dim, output_dim), ctx=ctx)
+    b_y = nd.zeros(output_dim, ctx=ctx)
 
     params = [W_xh, W_hh, b_h, W_hy, b_y]
     for param in params:
@@ -239,7 +241,7 @@ def get_params():
 
 ## 定义模型
 
-当序列中某一个时间戳的输入为一个样本数为`batch_size`的批量，而整个序列长度为`num_steps`时，以下`rnn`函数的`inputs`和`outputs`皆为`num_steps` 个尺寸`batch_size * vocab_size`的矩阵，隐藏状态变量$\mathbf{H}$是一个尺寸为`batch_size * hidden_size`的矩阵。
+当序列中某一个时间戳的输入为一个样本数为`batch_size`的批量，而整个序列长度为`num_steps`时，以下`rnn`函数的`inputs`和`outputs`皆为`num_steps` 个尺寸`batch_size * vocab_size`的矩阵，隐藏状态变量$\mathbf{H}$是一个尺寸为`batch_size * hidden_dim`的矩阵。
 
 我们将前面的模型公式翻译成代码。这里的激活函数使用了按元素操作的双曲正切函数
 
@@ -248,7 +250,7 @@ $$\text{tanh}(x) = \frac{1 - e^{-2x}}{1 + e^{-2x}}$$
 ```{.python .input  n=13}
 def rnn(inputs, H, W_xh, W_hh, b_h, W_hy, b_y):
     # inputs: num_steps 个尺寸为 batch_size * vocab_size 矩阵
-    # H: 尺寸为 batch_size * hidden_size 矩阵
+    # H: 尺寸为 batch_size * hidden_dim 矩阵
     # outputs: num_steps 个尺寸为 batch_size * vocab_size 矩阵
     outputs = []
     for X in inputs:
@@ -261,7 +263,7 @@ def rnn(inputs, H, W_xh, W_hh, b_h, W_hy, b_y):
 做个简单的测试：
 
 ```{.python .input  n=14}
-state = nd.zeros(shape=(data.shape[0], hidden_size), ctx=ctx)
+state = nd.zeros(shape=(data.shape[0], hidden_dim), ctx=ctx)
 
 params = get_params()
 outputs, state_new = rnn(get_inputs(data.as_in_context(ctx)), state, *params)
@@ -281,7 +283,7 @@ print('state shape: ', state_new.shape)
 def predict(prefix, num_chars, params):
     # 预测以 prefix 开始的接下来的 num_chars 个字符
     prefix = prefix.lower()
-    state = nd.zeros(shape=(1, hidden_size), ctx=ctx)
+    state = nd.zeros(shape=(1, hidden_dim), ctx=ctx)
     output = [char_to_idx[prefix[0]]]
     for i in range(num_chars + len(prefix)):
         X = nd.array([output[-1]], ctx=ctx)
@@ -328,19 +330,19 @@ def grad_clipping(params, theta):
 
 回忆以下我们之前介绍的[交叉熵损失函数](../chapter_supervised-learning/softmax-regression-scratch.md)。在语言模型中，该损失函数即被预测字符的对数似然平均值的相反数：
 
-$$\text{loss} = -\frac{1}{N} \sum_{i=1}^N \log p_{\text{predicted}_i}$$
+$$\text{loss} = -\frac{1}{N} \sum_{i=1}^N \log p_{\text{target}_i}$$
 
-其中$N$是预测的字符总数，$p_{\text{predicted}_i}$是在第$i$个预测中真实的下个字符被预测的概率。
+其中$N$是预测的字符总数，$p_{\text{target}_i}$是在第$i$个预测中真实的下个字符被预测的概率。
 
 而这里的困惑度可以简单的认为就是对交叉熵做exp运算使得数值更好读。
 
-为了解释困惑度的意义，我们先考虑一个完美结果：模型总是把真实的下个字符的概率预测为1。也就是说，对任意的$i$来说，$p_{\text{predicted}_i} = 1$。这种完美情况下，困惑度值为1。
+为了解释困惑度的意义，我们先考虑一个完美结果：模型总是把真实的下个字符的概率预测为1。也就是说，对任意的$i$来说，$p_{\text{target}_i} = 1$。这种完美情况下，困惑度值为1。
 
-我们再考虑一个基线结果：给定不重复的字符集合$W$及其字符总数$|W|$，模型总是预测下个字符为集合$W$中任一字符的概率都相同。也就是说，对任意的$i$来说，$p_{\text{predicted}_i} = 1/|W|$。这种基线情况下，困惑度值为$|W|$。
+我们再考虑一个基线结果：给定不重复的字符集合$W$及其字符总数$|W|$，模型总是预测下个字符为集合$W$中任一字符的概率都相同。也就是说，对任意的$i$来说，$p_{\text{target}_i} = 1/|W|$。这种基线情况下，困惑度值为$|W|$。
 
-最后，我们可以考虑一个最坏结果：模型总是把真实的下个字符的概率预测为0。也就是说，对任意的$i$来说，$p_{\text{predicted}_i} = 0$。这种最坏情况下，困惑度值为正无穷。
+最后，我们可以考虑一个最坏结果：模型总是把真实的下个字符的概率预测为0。也就是说，对任意的$i$来说，$p_{\text{target}_i} = 0$。这种最坏情况下，困惑度值为正无穷。
 
-如果一个模型可以取得较低的困惑度的值（更靠近1），通常情况下，该模型预测更加准确。
+任何一个有效模型的困惑度值必须小于预测集中元素的数量。在本例中，困惑度必须小于字典中的字符数$|W|$。如果一个模型可以取得较低的困惑度的值（更靠近1），通常情况下，该模型预测更加准确。
 
 ```{.python .input  n=17}
 seq1 = '分开'
@@ -368,13 +370,13 @@ def train_and_predict(is_random_iter):
     for e in range(1, epochs + 1):
         # 如使用相邻批量采样，在同一个epoch中，隐藏状态只需要在该epoch开始的时候初始化。
         if not is_random_iter:
-            state = nd.zeros(shape=(batch_size, hidden_size), ctx=ctx)
+            state = nd.zeros(shape=(batch_size, hidden_dim), ctx=ctx)
 
         train_loss, num_examples = 0, 0
         for data, label in data_iter(corpus_indices, batch_size, seq_len, ctx):
             # 如使用随机批量采样，处理每个随机小批量前都需要初始化隐藏状态。
             if is_random_iter:
-                state = nd.zeros(shape=(batch_size, hidden_size), ctx=ctx)
+                state = nd.zeros(shape=(batch_size, hidden_dim), ctx=ctx)
             with autograd.record():
                 # outputs 尺寸：(batch_size, vocab_size)
                 outputs, state = rnn(get_inputs(data), state, *params)
