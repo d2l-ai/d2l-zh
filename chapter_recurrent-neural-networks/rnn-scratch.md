@@ -20,7 +20,7 @@
 
 $$\mathbf{H} = \phi(\mathbf{X} \mathbf{W}_{xh} + \mathbf{b}_h)$$
 
-假定隐含层长度为$h$，那么其中的权重参数的尺寸为$\mathbf{W}_{xh} \in \mathbb{R}^{x \times h}$。偏移参数 $\mathbf{b}_h \in \mathbb{R}^{1 \times h}$在与前一项$\mathbf{X} \mathbf{W}_{xh} \in \mathbb{R}^{n \times h}$ 相加时使用了[广播](../chapter_crashcourse/ndarray.md)。这个隐含层的输出的尺寸为$\mathbf{H} \in \mathbb{R}^{n \times h}$。
+假定隐含层长度为$h$，其中的$\mathbf{W}_{xh} \in \mathbb{R}^{x \times h}$是权重参数。偏移参数 $\mathbf{b}_h \in \mathbb{R}^{1 \times h}$在与前一项$\mathbf{X} \mathbf{W}_{xh} \in \mathbb{R}^{n \times h}$ 相加时使用了[广播](../chapter_crashcourse/ndarray.md)。这个隐含层的输出的尺寸为$\mathbf{H} \in \mathbb{R}^{n \times h}$。
 
 把隐含层的输出$\mathbf{H}$作为输出层的输入，最终的输出
 
@@ -247,6 +247,8 @@ def get_params():
 
 $$\text{tanh}(x) = \frac{1 - e^{-2x}}{1 + e^{-2x}}$$
 
+需要注意的是，双曲正切函数的值域是$[-1, 1]$。如果自变量均匀分布在整个实域，该激活函数输出的均值为0。
+
 ```{.python .input  n=13}
 def rnn(inputs, state, *params):
     # inputs: num_steps 个尺寸为 batch_size * vocab_size 矩阵。
@@ -357,7 +359,6 @@ def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim,
                           learning_rate, clipping_theta, batch_size,
                           pred_period, pred_len, seqs, get_params, get_inputs,
                           ctx, corpus_indices, idx_to_char, char_to_idx):
-    """Train an RNN model and predict the next item in the sequence."""
     if is_random_iter:
         data_iter = data_iter_random
     else:
