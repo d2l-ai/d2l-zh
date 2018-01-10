@@ -1,6 +1,7 @@
 # 循环神经网络
 
-```{.python .input .eval_rst}
+
+```eval_rst
 
 .. toctree::
    :maxdepth: 2
