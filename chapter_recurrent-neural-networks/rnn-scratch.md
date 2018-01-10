@@ -456,7 +456,7 @@ train_and_predict_rnn(rnn=rnn, is_random_iter=False, epochs=200, num_steps=35,
 
 ## 练习
 
-* 调调参数（例如数据集大小、序列长度和学习率），看看对perplexity和预测的结果造成的区别。
+* 调调参数（例如数据集大小、序列长度、隐含状态长度和学习率），看看对运行时间、perplexity和预测的结果造成的影响。
 * 在随机批量采样中，如果在同一个epoch中只把隐含变量在该epoch开始的时候初始化会怎么样？
 
 **吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/989)
