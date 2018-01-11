@@ -1,4 +1,4 @@
-# 门控循环单元（GRU） --- 从0开始
+# 门控循环单元（GRU）--- 从0开始
 
 [上一节](bptt.md)中，我们介绍了循环神经网络中的梯度计算方法。我们发现，循环神经网络的隐含层变量梯度可能会出现衰减或爆炸。虽然[梯度裁剪](rnn-scratch.md)可以应对梯度爆炸，但无法解决梯度衰减的问题。因此，给定一个时间序列，例如文本序列，循环神经网络在实际中其实较难捕捉两个时刻距离较大的文本元素（字或词）之间的依赖关系。
 
@@ -24,9 +24,9 @@ $$\mathbf{Z}_t = \sigma(\mathbf{X}_t \mathbf{W}_{xz} + \mathbf{H}_{t-1} \mathbf{
 
 ### 候选隐含状态
 
-我们可以通过元素值域在$[0, 1]$的更新门和重置门来控制隐含状态中信息的流动：这通常可以应用按元素乘法符$\odot$。门控循环单元中的候选隐含状态$\tilde{\mathbf{H}_t} \in \mathbb{R}^{n \times h}$使用了值域在$[-1, 1]$的双曲正切函数tanh做激活函数：
+我们可以通过元素值域在$[0, 1]$的更新门和重置门来控制隐含状态中信息的流动：这通常可以应用按元素乘法符$\odot$。门控循环单元中的候选隐含状态$\tilde{\mathbf{H}}_t \in \mathbb{R}^{n \times h}$使用了值域在$[-1, 1]$的双曲正切函数tanh做激活函数：
 
-$$\tilde{\mathbf{H}_t} = \text{tanh}(\mathbf{X}_t \mathbf{W}_{xh} + \mathbf{R}_t \odot \mathbf{H}_{t-1} \mathbf{W}_{hh} + \mathbf{b}_h)$$
+$$\tilde{\mathbf{H}}_t = \text{tanh}(\mathbf{X}_t \mathbf{W}_{xh} + \mathbf{R}_t \odot \mathbf{H}_{t-1} \mathbf{W}_{hh} + \mathbf{b}_h)$$
 
 其中的$\mathbf{W}_{xh} \in \mathbb{R}^{x \times h}$和$\mathbf{W}_{hh} \in \mathbb{R}^{h \times h}$是可学习的权重参数，$\mathbf{b}_h \in \mathbb{R}^{1 \times h}$是可学习的偏移参数。
 
@@ -35,9 +35,9 @@ $$\tilde{\mathbf{H}_t} = \text{tanh}(\mathbf{X}_t \mathbf{W}_{xh} + \mathbf{R}_t
 
 ### 隐含状态
 
-隐含状态$\mathbf{H}_t \in \mathbb{R}^{n \times h}$的计算使用更新门$\mathbf{Z}_t$来对上一时刻的隐含状态$\mathbf{H}_{t-1}$和当前时刻的候选隐含状态$\tilde{\mathbf{H}_t}$做线性组合，公式如下：
+隐含状态$\mathbf{H}_t \in \mathbb{R}^{n \times h}$的计算使用更新门$\mathbf{Z}_t$来对上一时刻的隐含状态$\mathbf{H}_{t-1}$和当前时刻的候选隐含状态$\tilde{\mathbf{H}}_t$做组合，公式如下：
 
-$$\mathbf{H}_t = \mathbf{Z}_t \odot \mathbf{H}_{t-1}  + (1 - \mathbf{Z}_t) \odot \tilde{\mathbf{H}_t}$$
+$$\mathbf{H}_t = \mathbf{Z}_t \odot \mathbf{H}_{t-1}  + (1 - \mathbf{Z}_t) \odot \tilde{\mathbf{H}}_t$$
 
 需要注意的是，更新门可以控制过去的隐含状态在当前时刻的重要性。如果更新门一直近似1，过去的隐含状态将一直通过时间保存并传递至当前时刻。这个设计可以应对循环神经网络中的梯度衰减问题，并更好地捕捉时序数据中间隔较大的依赖关系。
 

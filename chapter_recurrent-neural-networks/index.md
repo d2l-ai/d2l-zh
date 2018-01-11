@@ -9,4 +9,5 @@
    rnn-scratch
    bptt
    gru-scratch
+   lstm-scratch
 ```
