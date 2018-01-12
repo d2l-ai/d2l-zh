@@ -10,4 +10,5 @@
    bptt
    gru-scratch
    lstm-scratch
+   rnn-gluon
 ```
