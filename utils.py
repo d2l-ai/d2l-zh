@@ -274,7 +274,7 @@ def predict_rnn(rnn, prefix, num_chars, params, hidden_dim, ctx, idx_to_char,
 
 
 def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim, 
-                          learning_rate, clipping_norm, batch_size,
+                          learning_rate, clipping_theta, batch_size,
                           pred_period, pred_len, seqs, get_params, get_inputs,
                           ctx, corpus_indices, idx_to_char, char_to_idx,
                           is_lstm=False):
@@ -321,7 +321,7 @@ def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim,
                 loss = softmax_cross_entropy(outputs, label)
             loss.backward()
 
-            grad_clipping(params, clipping_norm, ctx)
+            grad_clipping(params, clipping_theta, ctx)
             SGD(params, learning_rate)
 
             train_loss += nd.sum(loss).asscalar()
