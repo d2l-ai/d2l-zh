@@ -185,7 +185,7 @@ seqs = [seq1, seq2, seq3]
 
 utils.train_and_predict_rnn(rnn=lstm_rnn, is_random_iter=False, epochs=200,
                             num_steps=35, hidden_dim=hidden_dim, 
-                            learning_rate=0.2, clipping_theta=5,
+                            learning_rate=0.2, clipping_norm=5,
                             batch_size=32, pred_period=20, pred_len=100,
                             seqs=seqs, get_params=get_params,
                             get_inputs=get_inputs, ctx=ctx,
