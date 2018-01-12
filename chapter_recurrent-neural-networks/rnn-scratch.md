@@ -101,7 +101,7 @@ print('\nindices: \n', sample)
 
 同之前一样我们需要每次随机读取一些（`batch_size`个）样本和其对用的标号。这里的样本跟前面有点不一样，这里一个样本通常包含一系列连续的字符（前馈神经网络里可能每个字符作为一个样本）。
 
-如果我们把序列长度（`num_steps`）设成5，那么一个可能的样本是“想要有直升”。其对应的标号仍然是长为5的序列，每个字符是对应的样本里字符的后面那个。例如前面样本的标号就是“要有直升机”。
+如果我们把采样序列长度（`num_steps`）设成5，那么一个可能的样本是“想要有直升”。其对应的标号仍然是长为5的序列，每个字符是对应的样本里字符的后面那个。例如前面样本的标号就是“要有直升机”。
 
 
 ### 随机批量采样
@@ -320,15 +320,15 @@ def predict_rnn(rnn, prefix, num_chars, params, hidden_dim, ctx, idx_to_char,
 $$ \boldsymbol{g} = \min\left(\frac{\theta}{\|\boldsymbol{g}\|}, 1\right)\boldsymbol{g}$$
 
 ```{.python .input  n=16}
-def grad_clipping(params, theta, ctx):
-    if theta is not None:
+def grad_clipping(params, clipping_norm, ctx):
+    if clipping_norm is not None:
         norm = nd.array([0.0], ctx)
         for p in params:
             norm += nd.sum(p.grad ** 2)
         norm = nd.sqrt(norm).asscalar()
-        if norm > theta:
+        if norm > clipping_norm:
             for p in params:
-                p.grad[:] *= theta / norm
+                p.grad[:] *= clipping_norm / norm
 ```
 
 ## 训练模型
@@ -363,7 +363,7 @@ from mxnet import gluon
 from math import exp
            
 def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim, 
-                          learning_rate, clipping_theta, batch_size,
+                          learning_rate, clipping_norm, batch_size,
                           pred_period, pred_len, seqs, get_params, get_inputs,
                           ctx, corpus_indices, idx_to_char, char_to_idx,
                           is_lstm=False):
@@ -409,7 +409,7 @@ def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim,
                 loss = softmax_cross_entropy(outputs, label)
             loss.backward()
 
-            grad_clipping(params, clipping_theta, ctx)
+            grad_clipping(params, clipping_norm, ctx)
             utils.SGD(params, learning_rate)
 
             train_loss += nd.sum(loss).asscalar()
@@ -446,7 +446,7 @@ seqs = [seq1, seq2, seq3]
 ```{.python .input  n=18}
 train_and_predict_rnn(rnn=rnn, is_random_iter=True, epochs=200, num_steps=35,
                       hidden_dim=hidden_dim, learning_rate=0.2,
-                      clipping_theta=5, batch_size=32, pred_period=20,
+                      clipping_norm=5, batch_size=32, pred_period=20,
                       pred_len=100, seqs=seqs, get_params=get_params,
                       get_inputs=get_inputs, ctx=ctx,
                       corpus_indices=corpus_indices, idx_to_char=idx_to_char,
@@ -458,7 +458,7 @@ train_and_predict_rnn(rnn=rnn, is_random_iter=True, epochs=200, num_steps=35,
 ```{.python .input  n=19}
 train_and_predict_rnn(rnn=rnn, is_random_iter=False, epochs=200, num_steps=35,
                       hidden_dim=hidden_dim, learning_rate=0.2,
-                      clipping_theta=5, batch_size=32, pred_period=20,
+                      clipping_norm=5, batch_size=32, pred_period=20,
                       pred_len=100, seqs=seqs, get_params=get_params,
                       get_inputs=get_inputs, ctx=ctx,
                       corpus_indices=corpus_indices, idx_to_char=idx_to_char,
@@ -476,7 +476,7 @@ train_and_predict_rnn(rnn=rnn, is_random_iter=False, epochs=200, num_steps=35,
 
 ## 练习
 
-* 调调参数（例如数据集大小、序列长度、隐含状态长度和学习率），看看对运行时间、perplexity和预测的结果造成的影响。
+* 调调参数（例如数据集大小、采样序列长度、隐含状态长度和学习率），看看对运行时间、perplexity和预测的结果造成的影响。
 * 在随机批量采样中，如果在同一个epoch中只把隐含变量在该epoch开始的时候初始化会怎么样？
 
 **吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/989)

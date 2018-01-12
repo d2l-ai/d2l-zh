@@ -185,7 +185,7 @@ seqs = [seq1, seq2, seq3]
 
 utils.train_and_predict_rnn(rnn=lstm_rnn, is_random_iter=False, epochs=200,
                             num_steps=35, hidden_dim=hidden_dim, 
-                            learning_rate=0.2, clipping_theta=5,
+                            learning_rate=0.2, clipping_norm=5,
                             batch_size=32, pred_period=20, pred_len=100,
                             seqs=seqs, get_params=get_params,
                             get_inputs=get_inputs, ctx=ctx,
@@ -204,7 +204,7 @@ utils.train_and_predict_rnn(rnn=lstm_rnn, is_random_iter=False, epochs=200,
 
 ## 练习
 
-* 调调参数（例如数据集大小、序列长度、隐含状态长度和学习率），看看对运行时间、perplexity和预测的结果造成的影响。
+* 调调参数（例如数据集大小、采样序列长度、隐含状态长度和学习率），看看对运行时间、perplexity和预测的结果造成的影响。
 * 在相同条件下，比较长短期记忆和门控循环单元以及循环神经网络的运行效率。
 
 **吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/4042)
