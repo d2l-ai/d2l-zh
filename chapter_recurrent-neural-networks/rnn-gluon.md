@@ -139,6 +139,18 @@ class RNNModel(gluon.Block):
 
 对于一个多层循环神经网络，当前时刻隐含层的输入来自同一时刻输入层（如果有）或上一隐含层的输出。每一层的隐含状态只沿着同一层传递。
 
+把[单层循环神经网络](rnn-scratch.md)中隐含层的每个单元当做一个函数$f$，这个函数在$t$时刻的输入是$\mathbf{X}_t, \mathbf{H}_{t-1}$，输出是$\mathbf{H}_t$：
+
+$$f(\mathbf{X}_t, \mathbf{H}_{t-1}) = \mathbf{H}_t$$
+
+假设输入为第0层，输出为第$L+1$层，在一共$L$个隐含层的循环神经网络中，上式中可以拓展成以下的函数:
+
+$$f(\mathbf{H}_t^{(l-1)}, \mathbf{H}_{t-1}^{(l)}) = \mathbf{H}_t$$
+
+如下图所示。
+
+![](../img/multi-layer-rnn.svg)
+
 ```{.python .input}
 model_name = 'rnn_relu'
 
