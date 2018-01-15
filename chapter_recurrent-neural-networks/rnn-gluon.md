@@ -27,7 +27,7 @@ with zipfile.ZipFile('../data/ptb.zip', 'r') as zin:
 
 下面定义了`Dictionary`类来映射词语和索引。
 
-```{.python .input}
+```{.python .input  n=2}
 class Dictionary(object):
     def __init__(self):
         self.word_to_idx = {}
@@ -45,7 +45,7 @@ class Dictionary(object):
 
 以下的`Corpus`类按照读取的文本数据集建立映射词语和索引的词典，并将文本转换成词语索引的序列。这样，每个文本数据集就变成了`NDArray`格式的整数序列。
 
-```{.python .input}
+```{.python .input  n=3}
 class Corpus(object):
     def __init__(self, path):
         self.dictionary = Dictionary()
@@ -77,7 +77,7 @@ class Corpus(object):
 
 看一下词典的大小。
 
-```{.python .input}
+```{.python .input  n=4}
 data = '../data/ptb/ptb.'
 corpus = Corpus(data)
 vocab_size = len(corpus.dictionary)
@@ -88,7 +88,7 @@ vocab_size
 
 我们可以定义一个循环神经网络模型库。这样就可以支持各种不同的循环神经网络模型了。
 
-```{.python .input}
+```{.python .input  n=5}
 class RNNModel(gluon.Block):
     """循环神经网络模型库"""
     def __init__(self, mode, vocab_size, embed_dim, hidden_dim,
@@ -130,7 +130,7 @@ class RNNModel(gluon.Block):
 
 ## 定义参数
 
-我们接着定义模型参数。我们选择使用ReLU为激活函数的循环神经网络为例。这里我们把`epochs`设为是为了演示方便。
+我们接着定义模型参数。我们选择使用ReLU为激活函数的循环神经网络为例。这里我们把`epochs`设为1是为了演示方便。
 
 
 ## 多层循环神经网络
@@ -145,13 +145,13 @@ $$f(\mathbf{X}_t, \mathbf{H}_{t-1}) = \mathbf{H}_t$$
 
 假设输入为第0层，输出为第$L+1$层，在一共$L$个隐含层的循环神经网络中，上式中可以拓展成以下的函数:
 
-$$f(\mathbf{H}_t^{(l-1)}, \mathbf{H}_{t-1}^{(l)}) = \mathbf{H}_t$$
+$$f(\mathbf{H}_t^{(l-1)}, \mathbf{H}_{t-1}^{(l)}) = \mathbf{H}_t^{(l)}$$
 
 如下图所示。
 
 ![](../img/multi-layer-rnn.svg)
 
-```{.python .input}
+```{.python .input  n=6}
 model_name = 'rnn_relu'
 
 embed_dim = 100
@@ -170,7 +170,7 @@ eval_period = 500
 
 我们将数据进一步处理为便于相邻批量采样的格式。
 
-```{.python .input}
+```{.python .input  n=7}
 # 尝试使用GPU
 import sys
 sys.path.append('..')
@@ -206,7 +206,7 @@ def get_batch(source, i):
 
 在模型训练的每次迭代中，当前批量序列的初始隐含状态来自上一个相邻批量序列的输出隐含状态。为了使模型参数的梯度计算只依赖当前的批量序列，从而减小每次迭代的计算开销，我们可以使用`detach`函数来将隐含状态从计算图分离出来。
 
-```{.python .input}
+```{.python .input  n=8}
 def detach(state):
     if isinstance(state, (tuple, list)):
         state = [i.detach() for i in state]
@@ -219,7 +219,7 @@ def detach(state):
 
 和之前一样，我们定义模型评价函数。
 
-```{.python .input}
+```{.python .input  n=9}
 def model_eval(data_source):
     total_L = 0.0
     ntotal = 0
@@ -236,7 +236,7 @@ def model_eval(data_source):
 
 最后，我们可以训练模型并在每个epoch评价模型在验证集上的结果。我们可以参考验证集上的结果调参。
 
-```{.python .input  n=3}
+```{.python .input  n=10}
 def train():
     for epoch in range(epochs):
         total_L = 0.0
@@ -276,7 +276,7 @@ def train():
 
 训练完模型以后，我们就可以在测试集上评价模型了。
 
-```{.python .input}
+```{.python .input  n=11}
 train()
 test_L = model_eval(test_data)
 print('Test loss %.2f, test perplexity %.2f' % (test_L, math.exp(test_L)))

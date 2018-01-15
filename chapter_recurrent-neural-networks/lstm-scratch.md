@@ -88,7 +88,7 @@ print('vocab size:', vocab_size)
 
 我们使用onehot来将字符索引表示成向量。
 
-```{.python .input}
+```{.python .input  n=2}
 def get_inputs(data):
     return [nd.one_hot(X, vocab_size) for X in data.T]
 ```
@@ -97,7 +97,7 @@ def get_inputs(data):
 
 以下部分对模型参数进行初始化。参数`hidden_dim`定义了隐含状态的长度。
 
-```{.python .input  n=5}
+```{.python .input  n=3}
 import mxnet as mx
 
 # 尝试使用GPU
@@ -150,7 +150,7 @@ def get_params():
 
 我们将前面的模型公式翻译成代码。
 
-```{.python .input  n=6}
+```{.python .input  n=4}
 def lstm_rnn(inputs, state_h, state_c, *params):
     # inputs: num_steps 个尺寸为 batch_size * vocab_size 矩阵
     # H: 尺寸为 batch_size * hidden_dim 矩阵
@@ -177,7 +177,7 @@ def lstm_rnn(inputs, state_h, state_c, *params):
 
 下面我们开始训练模型。我们假定谱写歌词的前缀分别为“分开”、“不分开”和“战争中部队”。这里采用的是相邻批量采样实验门控循环单元谱写歌词。
 
-```{.python .input  n=7}
+```{.python .input  n=5}
 seq1 = '分开'
 seq2 = '不分开'
 seq3 = '战争中部队'
