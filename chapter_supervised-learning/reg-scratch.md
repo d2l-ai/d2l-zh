@@ -40,7 +40,7 @@ true_b = 0.05
 
 ```{.python .input  n=3}
 X = nd.random.normal(shape=(num_train + num_test, num_inputs))
-y = nd.dot(X, true_w)
+y = nd.dot(X, true_w) + true_b
 y += .01 * nd.random.normal(shape=y.shape)
 
 X_train, X_test = X[:num_train, :], X[num_train:, :]
