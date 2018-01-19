@@ -23,22 +23,30 @@ word2vec自提出后被广泛应用在自然语言处理任务中。它的模型
 
 ## 跳字模型
 
+TODO(@astonz)
 
 
 ## 连续词袋模型
 
+TODO(@astonz)
+
 ## 负采样
+
+TODO(@astonz)
 
 ## 层序softmax
 
+TODO(@astonz)
+
 ## 结论
 
-word2vec。
+word2vec工具主要包含两个模型：跳字模型和连续词袋模型，以及两种高效训练的方法：负采样和层序softmax。
 
 
 ## 练习
 
-* 词组问题。
+* 高频词问题，可参考[论文第2.3节](https://papers.nips.cc/paper/5021-distributed-representations-of-words-and-phrases-and-their-compositionality.pdf)
+* 词组问题，可参考[论文第4节](https://papers.nips.cc/paper/5021-distributed-representations-of-words-and-phrases-and-their-compositionality.pdf)。
 
 
 **吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/4203)
