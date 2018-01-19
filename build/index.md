@@ -22,6 +22,7 @@
    chapter_optimization/index
    chapter_gluon-advances/index
    chapter_computer-vision/index
+   chapter_natural-language-processing/index
 ```
 
 我们将持续的加入新的内容。如果想提前了解，可以参见 [英文版本](http://gluon.mxnet.io/) （注意：中文版本根据社区的反馈做了比较大的更改，我们还在努力的将改动同步到英文版）
