@@ -130,7 +130,15 @@ $$ - \text{log} \mathbb{P} (w_o \mid w_c) = -\text{log} \frac{1}{1+\text{exp}(-\
 
 当我们把$K$取较小值时，每次随机梯度下降的梯度计算开销将由$\mathcal{O}(|\mathcal{V}|)$降为$\mathcal{O}(K)$。
 
+我们也可以对连续词袋模型进行负采样。有关背景词$w^{(t-m)}, \ldots,  w^{(t-1)},  w^{(t+1)}, \ldots,  w^{(t+m)}$生成中心词$w_c$的损失函数
 
+$$-\text{log} \mathbb{P}(w^{(t)} \mid  w^{(t-m)}, \ldots,  w^{(t-1)},  w^{(t+1)}, \ldots,  w^{(t+m)})$$
+
+在负采样中可以近似为
+
+$$-\text{log} \frac{1}{1+\text{exp}[-\mathbf{u}_c^\top (\mathbf{v}_{o_1} + \ldots + \mathbf{v}_{o_{2m}}) /(2m)]}  - \sum_{k=1, w_k \sim \mathbb{P}(w)}^K \text{log} \frac{1}{1+\text{exp}[(\mathbf{u}_{i_k}^\top (\mathbf{v}_{o_1} + \ldots + \mathbf{v}_{o_{2m}}) /(2m)]}$$
+
+同样地，当我们把$K$取较小值时，每次随机梯度下降的梯度计算开销将由$\mathcal{O}(|\mathcal{V}|)$降为$\mathcal{O}(K)$。
 
 
 ## 层序softmax
@@ -143,7 +151,7 @@ $$ - \text{log} \mathbb{P} (w_o \mid w_c) = -\text{log} \frac{1}{1+\text{exp}(-\
 
 假设$L(w)$为从二叉树的根到代表词$w$的叶子节点的路径上的节点数，并设$n(w,i)$为该路径上第$i$个节点，该节点的向量为$\mathbf{u}_{n(w,i)}$。以上图为例，$L(w_3) = 4$。那么，跳字模型和连续词袋模型所需要计算的任意词$w_i$生成词$w$的概率为：
 
-$$\mathbb{P}(w \mid w_i) = \prod_{j=1}^{L(w)-1} \sigma([n(w, j+1) = \text{left_child}(n(w,j))] \cdot \mathbf{u}_{n(w,j)}^\top \mathbf{v}_i)$$
+
 
 其中$\sigma(x) = 1/(1+\text{exp}(-x))$，如果$x$为真，$[x] = 1$；反之$[x] = -1$。
 
