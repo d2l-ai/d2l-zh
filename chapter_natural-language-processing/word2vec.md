@@ -128,19 +128,54 @@ $$ \text{log} \mathbb{P} (w_o \mid w_c) = \text{log} \frac{1}{1+\text{exp}(-\mat
 $$ - \text{log} \mathbb{P} (w_o \mid w_c) = -\text{log} \frac{1}{1+\text{exp}(-\mathbf{u}_o^\top \mathbf{v}_c)}  - \sum_{k=1, w_k \sim \mathbb{P}(w)}^K \text{log} \frac{1}{1+\text{exp}(\mathbf{u}_{i_k}^\top \mathbf{v}_c)} $$
 
 
-当我们把$K$取较小值时，每次随机梯度下降的梯度计算开销将较小。
+当我们把$K$取较小值时，每次随机梯度下降的梯度计算开销将由$\mathcal{O}(|\mathcal{V}|)$降为$\mathcal{O}(K)$。
 
+我们也可以对连续词袋模型进行负采样。有关背景词$w^{(t-m)}, \ldots,  w^{(t-1)},  w^{(t+1)}, \ldots,  w^{(t+m)}$生成中心词$w_c$的损失函数
+
+$$-\text{log} \mathbb{P}(w^{(t)} \mid  w^{(t-m)}, \ldots,  w^{(t-1)},  w^{(t+1)}, \ldots,  w^{(t+m)})$$
+
+在负采样中可以近似为
+
+$$-\text{log} \frac{1}{1+\text{exp}[-\mathbf{u}_c^\top (\mathbf{v}_{o_1} + \ldots + \mathbf{v}_{o_{2m}}) /(2m)]}  - \sum_{k=1, w_k \sim \mathbb{P}(w)}^K \text{log} \frac{1}{1+\text{exp}[(\mathbf{u}_{i_k}^\top (\mathbf{v}_{o_1} + \ldots + \mathbf{v}_{o_{2m}}) /(2m)]}$$
+
+同样地，当我们把$K$取较小值时，每次随机梯度下降的梯度计算开销将由$\mathcal{O}(|\mathcal{V}|)$降为$\mathcal{O}(K)$。
+
+
+## 层序softmax
+
+层序softmax利用了二叉树。树的每个叶子节点代表着词典$\mathcal{V}$中的每个词。每个词$w_i$相应的词向量为$\mathbf{v}_i$。我们以下图为例，来描述层序softmax的工作机制。
+
+
+![](../img/hierarchical_softmax.svg)
+
+
+假设$L(w)$为从二叉树的根到代表词$w$的叶子节点的路径上的节点数，并设$n(w,i)$为该路径上第$i$个节点，该节点的向量为$\mathbf{u}_{n(w,i)}$。以上图为例，$L(w_3) = 4$。那么，跳字模型和连续词袋模型所需要计算的任意词$w_i$生成词$w$的概率为：
+
+$$\mathbb{P}(w \mid w_i) = \prod_{j=1}^{L(w)-1} \sigma([n(w, j+1) = \text{left_child}(n(w,j))] \cdot \mathbf{u}_{n(w,j)}^\top \mathbf{v}_i)$$
+
+其中$\sigma(x) = 1/(1+\text{exp}(-x))$，如果$x$为真，$[x] = 1$；反之$[x] = -1$。
+
+由于$\sigma(x)+\sigma(-x) = 1$，$w_i$生成词典中任何词的概率之和为1：
+
+$$\sum_{w=1}^{\mathcal{V}} \mathbb{P}(w \mid w_i) = 1$$
+
+
+让我们计算$w_i$生成$w_3$的概率，由于在二叉树中由根到$w_3$的路径上需要向左、向右、再向左地遍历，我们得到
+
+$$\mathbb{P}(w_3 \mid w_i) = \sigma(\mathbf{u}_{n(w_3,1)}^\top \mathbf{v}_i)) \cdot \sigma(-\mathbf{u}_{n(w_3,2)}^\top \mathbf{v}_i)) \cdot \sigma(\mathbf{u}_{n(w_3,3)}^\top \mathbf{v}_i))$$
+
+我们可以使用随机梯度下降在跳字模型和连续词袋模型中不断迭代计算字典中所有词向量$\mathbf{v}$和非叶子节点的向量$\mathbf{u}$。每次迭代的计算开销由$\mathcal{O}(|\mathcal{V}|)$降为二叉树的高度$\mathcal{O}(\text{log}|\mathcal{V}|)$。
 
 
 
 ## 结论
 
-word2vec工具主要包含两个模型：跳字模型和连续词袋模型，以及两种高效训练的方法：负采样和层序softmax。
+word2vec工具中的跳字模型和连续词袋模型可以使用两种负采样和层序softmax减小训练开销。
 
 
 ## 练习
 
-* 噪声词$\mathbb{P}(w)$在实际中被建议设为$w$的单字概率的3/4次方。为什么？（想想0.99^(3/4)和0.01^(3/4)的大小）
+* 噪声词$\mathbb{P}(w)$在实际中被建议设为$w$的单字概率的3/4次方。为什么？（想想$0.99^{3/4}$和$0.01^{3/4}$的大小）
 * 一些"the"和"a"之类的英文高频词会对结果产生什么影响？该如何处理？（可参考[word2vec论文](https://papers.nips.cc/paper/5021-distributed-representations-of-words-and-phrases-and-their-compositionality.pdf)第2.3节）
 * 如何训练包括例如"new york"在内的词组向量？（可参考[word2vec论文](https://papers.nips.cc/paper/5021-distributed-representations-of-words-and-phrases-and-their-compositionality.pdf)第4节）。
 
