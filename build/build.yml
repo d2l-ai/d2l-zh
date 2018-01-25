@@ -12,5 +12,5 @@ dependencies:
   - nbsphinx
   - recommonmark
   - https://github.com/mli/notedown/tarball/master
-  - mxnet-cu80>=1.0.1b20180123
+  - mxnet-cu80>=1.0.1b20180125
   - jieba
