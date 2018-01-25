@@ -70,6 +70,8 @@ $$
 $$\frac{\partial L}{\partial \mathbf{h}_T} = \text{prod}(\frac{\partial L}{\partial \mathbf{o}_T}, \frac{\partial \mathbf{o}_T}{\partial \mathbf{h}_T} ) = \mathbf{W}_{yh}^\top \frac{\partial L}{\partial \mathbf{o}_T}
 $$
 
+
+为了简化计算，我们假设激活函数$\phi(x) = x$。
 接下来，对于时刻$t < T$，
 在计算图中，
 由于$\mathbf{h}_t$可以经过$\mathbf{h}_{t+1}$和$\mathbf{o}_t$通向$L$，依据链式法则，
@@ -104,7 +106,7 @@ $$\frac{\partial L}{\partial \mathbf{W}_{hh}}
 $$
 
 
-在[正向传播和反向传播](../chapter_supervised-learning/backprop.md)中我们解释过，每次迭代中，上述各个依次计算出的梯度会被依次存储或更新。这是为了避免重复计算。例如，由于输出层变量梯度$\partial L/\partial \mathbf{h}_t$被计算存储，反向传播稍后的参数梯度$\partial L/\partial \partial \mathbf{W}_{hx}$和隐含层变量梯度$\partial L/\partial \mathbf{W}_{hh}$的计算可以直接读取输出层变量梯度的值，而无需重复计算。
+在[正向传播和反向传播](../chapter_supervised-learning/backprop.md)中我们解释过，每次迭代中，上述各个依次计算出的梯度会被依次存储或更新。这是为了避免重复计算。例如，由于输出层变量梯度$\partial L/\partial \mathbf{h}_t$被计算存储，反向传播稍后的参数梯度$\partial L/\partial  \mathbf{W}_{hx}$和隐含层变量梯度$\partial L/\partial \mathbf{W}_{hh}$的计算可以直接读取输出层变量梯度的值，而无需重复计算。
 
 还有需要注意的是，反向传播对于各层中变量和参数的梯度计算可能会依赖通过正向传播计算出的各层变量和参数的当前值。举例来说，参数梯度$\partial L/\partial \mathbf{W}_{hh}$的计算需要依赖隐含层变量在时刻$t = 1, \ldots, T-1$的当前值$\mathbf{h}_t$（$\mathbf{h}_0$是初始化得到的）。这个当前值是通过从输入层到输出层的正向传播计算并存储得到的。
 
