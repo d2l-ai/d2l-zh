@@ -19,21 +19,8 @@ from mxnet.contrib import text
 
 看一下fastText前五个预训练的词向量。它们分别从不同语言的Wikipedia数据集训练得到。
 
-```{.python .input  n=2}
+```{.python .input  n=34}
 text.embedding.get_pretrained_file_names('fasttext')[:5]
-```
-
-```{.json .output n=2}
-[
- {
-  "data": {
-   "text/plain": "['wiki.ab.vec', 'wiki.ace.vec', 'wiki.ady.vec', 'wiki.aa.vec', 'wiki.af.vec']"
-  },
-  "execution_count": 2,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 ### 访问词向量
@@ -53,116 +40,41 @@ my_embedding = text.embedding.create(
     'fasttext', pretrained_file_name='wiki.simple.vec', vocabulary=my_vocab)
 ```
 
-```{.json .output n=4}
-[
- {
-  "name": "stderr",
-  "output_type": "stream",
-  "text": "/home/ubuntu/miniconda3/lib/python3.6/site-packages/mxnet/contrib/text/embedding.py:278: UserWarning: At line 1 of the pre-trained text embedding file: token 111051 with 1-dimensional vector [300.0] is likely a header and is skipped.\n  'skipped.' % (line_num, token, elems))\n"
- }
-]
-```
-
 词典除了包括数据集中四个不同的词语，还包括一个特殊的未知词符号。看一下词典大小。
 
-```{.python .input  n=5}
+```{.python .input}
 len(my_embedding)
-```
-
-```{.json .output n=5}
-[
- {
-  "data": {
-   "text/plain": "5"
-  },
-  "execution_count": 5,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 任意一个词典以外词的词向量默认为零向量。
 
-```{.python .input  n=6}
+```{.python .input}
 my_embedding.get_vecs_by_tokens('beautiful')[:10]
-```
-
-```{.json .output n=6}
-[
- {
-  "data": {
-   "text/plain": "\n[ 0.  0.  0.  0.  0.  0.  0.  0.  0.  0.]\n<NDArray 10 @cpu(0)>"
-  },
-  "execution_count": 6,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 看一下数据集中两个词"hello"和"world"词向量的形状。fastText中每个词均使用300维的词向量。
 
-```{.python .input  n=7}
+```{.python .input  n=5}
 my_embedding.get_vecs_by_tokens(['hello', 'world']).shape
-```
-
-```{.json .output n=7}
-[
- {
-  "data": {
-   "text/plain": "(2, 300)"
-  },
-  "execution_count": 7,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 打印"hello"和"world"词向量前五个元素。
 
-```{.python .input  n=8}
+```{.python .input  n=6}
 my_embedding.get_vecs_by_tokens(['hello', 'world'])[:, :5]
-```
-
-```{.json .output n=8}
-[
- {
-  "data": {
-   "text/plain": "\n[[ 0.39567     0.21454    -0.035389   -0.24299    -0.095645  ]\n [ 0.10444    -0.10858     0.27212     0.13299    -0.33164999]]\n<NDArray 2x5 @cpu(0)>"
-  },
-  "execution_count": 8,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 看一下"hello"和"world"在词典中的索引。
 
-```{.python .input  n=9}
+```{.python .input  n=7}
 my_embedding.to_indices(['hello', 'world'])
-```
-
-```{.json .output n=9}
-[
- {
-  "data": {
-   "text/plain": "[2, 1]"
-  },
-  "execution_count": 9,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 ### 使用预训练词向量初始化gluon.nn.Embedding
 
 我们可以使用预训练的词向量初始化`gluon.nn.Embedding`。
 
-```{.python .input  n=10}
+```{.python .input  n=8}
 layer = gluon.nn.Embedding(len(my_embedding), my_embedding.vec_len)
 layer.initialize()
 layer.weight.set_data(my_embedding.idx_to_vec)
@@ -170,70 +82,34 @@ layer.weight.set_data(my_embedding.idx_to_vec)
 
 使用词典中"hello"和"world"两个词在词典中的索引，我们可以通过`gluon.nn.Embedding`得到它们的词向量，并向神经网络的下一层传递。
 
-```{.python .input  n=11}
+```{.python .input  n=9}
 layer(nd.array([2, 1]))[:, :5]
-```
-
-```{.json .output n=11}
-[
- {
-  "data": {
-   "text/plain": "\n[[ 0.39567     0.21454    -0.035389   -0.24299    -0.095645  ]\n [ 0.10444    -0.10858     0.27212     0.13299    -0.33164999]]\n<NDArray 2x5 @cpu(0)>"
-  },
-  "execution_count": 11,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 ## 由预训练词向量建立词典——以GloVe为例
 
 看一下GloVe前五个预训练的词向量。
 
-```{.python .input  n=12}
+```{.python .input  n=35}
 text.embedding.get_pretrained_file_names('glove')[:5]
-```
-
-```{.json .output n=12}
-[
- {
-  "data": {
-   "text/plain": "['glove.42B.300d.txt',\n 'glove.6B.50d.txt',\n 'glove.6B.100d.txt',\n 'glove.6B.200d.txt',\n 'glove.6B.300d.txt']"
-  },
-  "execution_count": 12,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 为了演示简便，我们使用小一点的词向量，例如50维。这里不再传入根据数据集建立的词典，而是直接使用预训练词向量中的词典。
 
-```{.python .input  n=13}
+```{.python .input  n=11}
 glove_6b50d = text.embedding.create('glove', 
                                     pretrained_file_name='glove.6B.50d.txt')
 ```
 
 看一下这个词典多大。注意其中包含一个特殊的未知词符号。
 
-```{.python .input  n=14}
+```{.python .input}
 print(len(glove_6b50d))
-```
-
-```{.json .output n=14}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "400001\n"
- }
-]
 ```
 
 我们可以访问词向量的属性。
 
-```{.python .input  n=15}
+```{.python .input  n=12}
 # 词到索引。
 print(glove_6b50d.token_to_idx['beautiful'])
 # 索引到词。
@@ -242,79 +118,90 @@ print(glove_6b50d.idx_to_token[3367])
 print(glove_6b50d.vec_len)
 ```
 
-```{.json .output n=15}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "3367\nbeautiful\n50\n"
- }
-]
-```
+## 预训练词向量的应用——以GloVe为例
 
-## 使用预训练词向量解类比题——以GloVe为例
+为了应用预训练词向量，我们需要定义余弦相似度。它可以比较两个向量之间的相似度。
 
-余弦相似度可以比较两个向量之间的相似度。我们定义该相似度。
-
-```{.python .input  n=16}
+```{.python .input  n=13}
 from mxnet import nd
 def cos_sim(x, y):
     return nd.dot(x, y) / (nd.norm(x) * nd.norm(y))
 ```
 
-```{.python .input  n=17}
+余弦相似度的值域在-1到1之间。余弦相似度值越大，两个向量越接近。
+
+```{.python .input  n=14}
 x = nd.array([1, 2])
 y = nd.array([10, 20])
 z = nd.array([-1, -2])
 
-cos_sim(x, y)
+print(cos_sim(x, y))
+print(cos_sim(x, z))
 ```
 
-```{.json .output n=17}
-[
- {
-  "data": {
-   "text/plain": "\n[ 1.]\n<NDArray 1 @cpu(0)>"
-  },
-  "execution_count": 17,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
+### 求近似词
 
-```{.python .input  n=18}
-cos_sim(x, z)
-```
+给定任意词，我们可以从整个词典（大小40万，不含未知词符号）中找出与它最接近的$k$个词（$k$ nearest neighbors）。词与词之间的相似度可以用两个词向量的余弦相似度表示。
 
-```{.json .output n=18}
-[
- {
-  "data": {
-   "text/plain": "\n[-1.]\n<NDArray 1 @cpu(0)>"
-  },
-  "execution_count": 18,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
-```{.python .input  n=19}
+```{.python .input}
 def norm_vecs_by_row(x):
     return x / nd.sqrt(nd.sum(x * x, axis=1)).reshape((-1,1))
+
+def get_knn(token_embedding, k, word):
+    word_vec = token_embedding.get_vecs_by_tokens([word]).reshape((-1, 1))
+    vocab_vecs = norm_vecs_by_row(token_embedding.idx_to_vec)
+    dot_prod = nd.dot(vocab_vecs, word_vec)
+    indices = nd.topk(dot_prod.reshape((len(token_embedding), )), k=k+2,
+                      ret_typ='indices')
+    indices = [int(i.asscalar()) for i in indices]
+    # 除去未知词符号和输入词。
+    return token_embedding.to_tokens(indices[2:])
 ```
 
-```{.python .input  n=20}
+查找词典中与'baby'最接近的5个词。
+
+```{.python .input}
+get_knn(glove_6b50d, 5, 'baby')
+```
+
+验证一下'baby'和'babies'两个词向量之间的余弦相似度。
+
+```{.python .input}
+cos_sim(glove_6b50d.get_vecs_by_tokens('baby'),
+        glove_6b50d.get_vecs_by_tokens('babies'))
+```
+
+查找词典中与'compters'最接近的5个词。
+
+```{.python .input}
+get_knn(glove_6b50d, 5, 'computers')
+```
+
+查找词典中与'run'最接近的5个词。
+
+```{.python .input}
+get_knn(glove_6b50d, 5, 'run')
+```
+
+查找词典中与'beautiful'最接近的5个词。
+
+```{.python .input}
+get_knn(glove_6b50d, 5, 'beautiful')
+```
+
+### 求类比词
+
+我们可以使用预训练词向量求词与词之间的类比关系。例如，man : woman :: son : daughter 是一个类比例子：man之于woman相当于son之于daughter。求类比词问题可以定义为：对于类比关系中的四个词 a : b :: c : d，给定前三个词a, b, c，求d。解类比词的思路是，找到和c+(b-a)的结果词向量最相似的词向量。
+
+本例中，我们将从整个词典（大小40万，不含未知词符号）中找类比词。
+
+```{.python .input  n=17}
 def get_top_k_by_analogy(token_embedding, k, word1, word2, word3):
     word_vecs = token_embedding.get_vecs_by_tokens([word1, word2, word3])
     word_diff = (word_vecs[1] - word_vecs[0] + word_vecs[2]).reshape((-1, 1))
-
     vocab_vecs = norm_vecs_by_row(token_embedding.idx_to_vec)
-
     dot_prod = nd.dot(vocab_vecs, word_diff)
     indices = nd.topk(dot_prod.reshape((len(token_embedding), )), k=k+1, ret_typ='indices')
-
     indices = [int(i.asscalar()) for i in indices]
 
     # 不考虑未知词为可能的类比词。
@@ -324,153 +211,45 @@ def get_top_k_by_analogy(token_embedding, k, word1, word2, word3):
         return token_embedding.to_tokens(indices[:-1])
 ```
 
-```{.python .input  n=21}
+“男-女”类比：man之于woman相当于son之于什么？
+
+```{.python .input  n=18}
 get_top_k_by_analogy(glove_6b50d, 1, 'man', 'woman', 'son')
 ```
 
-```{.json .output n=21}
-[
- {
-  "data": {
-   "text/plain": "['daughter']"
-  },
-  "execution_count": 21,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
+验证一下'son'+('woman'-'man')与'daughter'两个词向量之间的余弦相似度。
 
-```{.python .input  n=22}
-get_top_k_by_analogy(glove_6b50d, 1, 'beijing', 'china', 'tokyo')
-```
-
-```{.json .output n=22}
-[
- {
-  "data": {
-   "text/plain": "['japan']"
-  },
-  "execution_count": 22,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
-```{.python .input  n=23}
-get_top_k_by_analogy(glove_6b50d, 1, 'bad', 'worst', 'big')
-```
-
-```{.json .output n=23}
-[
- {
-  "data": {
-   "text/plain": "['biggest']"
-  },
-  "execution_count": 23,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
-```{.python .input  n=24}
-get_top_k_by_analogy(glove_6b50d, 1, 'do', 'did', 'go')
-```
-
-```{.json .output n=24}
-[
- {
-  "data": {
-   "text/plain": "['went']"
-  },
-  "execution_count": 24,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
-```{.python .input  n=25}
+```{.python .input}
 def cos_sim_word_analogy(token_embedding, word1, word2, word3, word4):
     words = [word1, word2, word3, word4]
     vecs = token_embedding.get_vecs_by_tokens(words)
     return cos_sim(vecs[1] - vecs[0] + vecs[2], vecs[3])
-```
 
-```{.python .input  n=26}
 cos_sim_word_analogy(glove_6b50d, 'man', 'woman', 'son', 'daughter')
 ```
 
-```{.json .output n=26}
-[
- {
-  "data": {
-   "text/plain": "\n[ 0.96583432]\n<NDArray 1 @cpu(0)>"
-  },
-  "execution_count": 26,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
+“首都-国家”类比：beijing之于china相当于tokyo之于什么？
+
+```{.python .input  n=19}
+get_top_k_by_analogy(glove_6b50d, 1, 'beijing', 'china', 'tokyo')
 ```
 
-```{.python .input  n=27}
-cos_sim_word_analogy(glove_6b50d, 'beijing', 'china', 'tokyo', 'japan')
+“形容词-形容词最高级”类比：bad之于worst相当于big之于什么？
+
+```{.python .input  n=20}
+get_top_k_by_analogy(glove_6b50d, 1, 'bad', 'worst', 'big')
 ```
 
-```{.json .output n=27}
-[
- {
-  "data": {
-   "text/plain": "\n[ 0.90540648]\n<NDArray 1 @cpu(0)>"
-  },
-  "execution_count": 27,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
+“动词一般时-动词过去时”类比：do之于did相当于go之于什么？
 
-```{.python .input  n=28}
-cos_sim_word_analogy(glove_6b50d, 'bad', 'worst', 'big', 'biggest')
-```
-
-```{.json .output n=28}
-[
- {
-  "data": {
-   "text/plain": "\n[ 0.80596256]\n<NDArray 1 @cpu(0)>"
-  },
-  "execution_count": 28,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
-```{.python .input  n=29}
-cos_sim_word_analogy(glove_6b50d, 'do', 'did', 'go', 'went')
-```
-
-```{.json .output n=29}
-[
- {
-  "data": {
-   "text/plain": "\n[ 0.92422962]\n<NDArray 1 @cpu(0)>"
-  },
-  "execution_count": 29,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
+```{.python .input  n=21}
+get_top_k_by_analogy(glove_6b50d, 1, 'do', 'did', 'go')
 ```
 
 ## 结论
 
 * 使用mxnet.contrib.text可以轻松载入预训练的词向量。
-* 使用预训练的词向量可以执行词汇类比任务。
+* 我们可以应用预训练的词向量求相似词和类比词。
 
 
 ## 练习
