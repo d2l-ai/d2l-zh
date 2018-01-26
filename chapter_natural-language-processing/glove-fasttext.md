@@ -17,19 +17,17 @@ $$P_{ij} = \mathbb{P}(j \mid i) = \frac{x_{ij}}{x_i}$$
 
 [GloVe论文](https://nlp.stanford.edu/pubs/glove.pdf)里展示了以下一组词对的共现概率与比值：
 
+* $\mathbb{P}(k \mid \text{ice})$：0.00019（$k$= solid），0.000066（$k$= gas），0.003（$k$= water），0.000017（$k$= fashion）
+* $\mathbb{P}(k \mid \text{steam})$：0.000022（$k$= solid），0.00078（$k$= gas），0.0022（$k$= water），0.000018（$k$= fashion）
+* $\mathbb{P}(k \mid \text{ice}) / \mathbb{P}(k \mid \text{steam})$：8.9（$k$= solid），0.085（$k$= gas），1.36（$k$= water），0.96（$k$= fashion）
 
-|共现概率与比值 |$k$= solid|  $k$= gas | $k$= water |$k$= fashion |
-|:-:|:-:|:-:|:-:|:-:|
-|$\mathbb{P}(k \mid \text{ice})$|$0.00019$|$0.000066$|$0.003$|$0.000017$|
-|$\mathbb{P}(k \mid \text{steam})$|$0.000022$|$0.00078$|$0.0022$|$0.000018$|
-|$\mathbb{P}(k \mid \text{ice}) / \mathbb{P}(k \mid \text{steam})$|$8.9$|$0.085$|$1.36$|$0.96$|
 
 我们通过上表可以观察到以下现象：
 
-* 对于与ice相关而与steam不相关的词$k$，例如$k=$solid，我们期望共现概率比值$P_{ik}/P_{jk}$较大，例如上表最后一栏的8.9。
-* 对于与ice不相关而与steam相关的词$k$，例如$k=$gas，我们期望共现概率比值$P_{ik}/P_{jk}$较小，例如上表最后一栏的0.085。
-* 对于与ice和steam都相关的词$k$，例如$k=$water，我们期望共现概率比值$P_{ik}/P_{jk}$接近1，例如上表最后一栏的1.36。
-* 对于与ice和steam都不相关的词$k$，例如$k=$fashion，我们期望共现概率比值$P_{ik}/P_{jk}$接近1，例如上表最后一栏的0.96。
+* 对于与ice相关而与steam不相关的词$k$，例如$k=$solid，我们期望共现概率比值$P_{ik}/P_{jk}$较大，例如上面最后一栏的8.9。
+* 对于与ice不相关而与steam相关的词$k$，例如$k=$gas，我们期望共现概率比值$P_{ik}/P_{jk}$较小，例如上面最后一栏的0.085。
+* 对于与ice和steam都相关的词$k$，例如$k=$water，我们期望共现概率比值$P_{ik}/P_{jk}$接近1，例如上面最后一栏的1.36。
+* 对于与ice和steam都不相关的词$k$，例如$k=$fashion，我们期望共现概率比值$P_{ik}/P_{jk}$接近1，例如上面最后一栏的0.96。
 
 由此可见，共现概率比值能比较直观地表达词之间的关系。GloVe试图用有关词向量的函数来表达共现概率比值。
 
