@@ -248,7 +248,7 @@ get_top_k_by_analogy(glove_6b50d, 1, 'do', 'did', 'go')
 
 ## 结论
 
-* 使用mxnet.contrib.text可以轻松载入预训练的词向量。
+* 使用`mxnet.contrib.text`可以轻松载入预训练的词向量。
 * 我们可以应用预训练的词向量求相似词和类比词。
 
 
