@@ -158,32 +158,32 @@ def get_knn(token_embedding, k, word):
     return token_embedding.to_tokens(indices[2:])
 ```
 
-查找词典中与'baby'最接近的5个词。
+查找词典中与"baby"最接近的5个词。
 
 ```{.python .input}
 get_knn(glove_6b50d, 5, 'baby')
 ```
 
-验证一下'baby'和'babies'两个词向量之间的余弦相似度。
+验证一下"baby"和"babies"两个词向量之间的余弦相似度。
 
 ```{.python .input}
 cos_sim(glove_6b50d.get_vecs_by_tokens('baby'),
         glove_6b50d.get_vecs_by_tokens('babies'))
 ```
 
-查找词典中与'compters'最接近的5个词。
+查找词典中与"compters"最接近的5个词。
 
 ```{.python .input}
 get_knn(glove_6b50d, 5, 'computers')
 ```
 
-查找词典中与'run'最接近的5个词。
+查找词典中与"run"最接近的5个词。
 
 ```{.python .input}
 get_knn(glove_6b50d, 5, 'run')
 ```
 
-查找词典中与'beautiful'最接近的5个词。
+查找词典中与"beautiful"最接近的5个词。
 
 ```{.python .input}
 get_knn(glove_6b50d, 5, 'beautiful')
@@ -211,13 +211,13 @@ def get_top_k_by_analogy(token_embedding, k, word1, word2, word3):
         return token_embedding.to_tokens(indices[:-1])
 ```
 
-“男-女”类比：man之于woman相当于son之于什么？
+“男-女”类比："man"之于"woman"相当于"son"之于什么？
 
 ```{.python .input  n=18}
 get_top_k_by_analogy(glove_6b50d, 1, 'man', 'woman', 'son')
 ```
 
-验证一下'son'+('woman'-'man')与'daughter'两个词向量之间的余弦相似度。
+验证一下vec("son")+vec("woman")-vec("man")与vec("daughter")两个向量之间的余弦相似度。
 
 ```{.python .input}
 def cos_sim_word_analogy(token_embedding, word1, word2, word3, word4):
@@ -228,19 +228,19 @@ def cos_sim_word_analogy(token_embedding, word1, word2, word3, word4):
 cos_sim_word_analogy(glove_6b50d, 'man', 'woman', 'son', 'daughter')
 ```
 
-“首都-国家”类比：beijing之于china相当于tokyo之于什么？
+“首都-国家”类比："beijing"之于"china"相当于"tokyo"之于什么？
 
 ```{.python .input  n=19}
 get_top_k_by_analogy(glove_6b50d, 1, 'beijing', 'china', 'tokyo')
 ```
 
-“形容词-形容词最高级”类比：bad之于worst相当于big之于什么？
+“形容词-形容词最高级”类比："bad"之于"worst"相当于"big"之于什么？
 
 ```{.python .input  n=20}
 get_top_k_by_analogy(glove_6b50d, 1, 'bad', 'worst', 'big')
 ```
 
-“动词一般时-动词过去时”类比：do之于did相当于go之于什么？
+“动词一般时-动词过去时”类比："do"之于"did"相当于"go"之于什么？
 
 ```{.python .input  n=21}
 get_top_k_by_analogy(glove_6b50d, 1, 'do', 'did', 'go')
@@ -255,7 +255,8 @@ get_top_k_by_analogy(glove_6b50d, 1, 'do', 'did', 'go')
 ## 练习
 
 * 将近似词和类比词应用中的$k$调大一些，观察结果。
-* 测试一下fastText的中文词向量：`text.embedding.create('fasttext', pretrained_file_name='wiki.zh.vec')`
+* 测试一下fastText的中文词向量：
+  * `text.embedding.create('fasttext', pretrained_file_name='wiki.zh.vec')`
 * 如果在[使用循环神经网络的语言模型](../chapter_recurrent-neural-networks/rnn-gluon.md)中将Embedding层初始化为预训练的词向量，效果如何？
 
 
