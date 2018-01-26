@@ -52,19 +52,19 @@ len(my_embedding)
 my_embedding.get_vecs_by_tokens('beautiful')[:10]
 ```
 
-看一下数据集中两个词"hello"和"world"词向量的形状。fastText中每个词均使用300维的词向量。
+看一下数据集中两个词“hello”和“world”词向量的形状。fastText中每个词均使用300维的词向量。
 
 ```{.python .input  n=5}
 my_embedding.get_vecs_by_tokens(['hello', 'world']).shape
 ```
 
-打印"hello"和"world"词向量前五个元素。
+打印“hello”和“world”词向量前五个元素。
 
 ```{.python .input  n=6}
 my_embedding.get_vecs_by_tokens(['hello', 'world'])[:, :5]
 ```
 
-看一下"hello"和"world"在词典中的索引。
+看一下“hello”和“world”在词典中的索引。
 
 ```{.python .input  n=7}
 my_embedding.to_indices(['hello', 'world'])
@@ -80,7 +80,7 @@ layer.initialize()
 layer.weight.set_data(my_embedding.idx_to_vec)
 ```
 
-使用词典中"hello"和"world"两个词在词典中的索引，我们可以通过`gluon.nn.Embedding`得到它们的词向量，并向神经网络的下一层传递。
+使用词典中“hello”和“world”两个词在词典中的索引，我们可以通过`gluon.nn.Embedding`得到它们的词向量，并向神经网络的下一层传递。
 
 ```{.python .input  n=9}
 layer(nd.array([2, 1]))[:, :5]
@@ -158,32 +158,32 @@ def get_knn(token_embedding, k, word):
     return token_embedding.to_tokens(indices[2:])
 ```
 
-查找词典中与"baby"最接近的5个词。
+查找词典中与“baby”最接近的5个词。
 
 ```{.python .input}
 get_knn(glove_6b50d, 5, 'baby')
 ```
 
-验证一下"baby"和"babies"两个词向量之间的余弦相似度。
+验证一下“baby”和“babies”两个词向量之间的余弦相似度。
 
 ```{.python .input}
 cos_sim(glove_6b50d.get_vecs_by_tokens('baby'),
         glove_6b50d.get_vecs_by_tokens('babies'))
 ```
 
-查找词典中与"compters"最接近的5个词。
+查找词典中与“compters”最接近的5个词。
 
 ```{.python .input}
 get_knn(glove_6b50d, 5, 'computers')
 ```
 
-查找词典中与"run"最接近的5个词。
+查找词典中与“run”最接近的5个词。
 
 ```{.python .input}
 get_knn(glove_6b50d, 5, 'run')
 ```
 
-查找词典中与"beautiful"最接近的5个词。
+查找词典中与“beautiful”最接近的5个词。
 
 ```{.python .input}
 get_knn(glove_6b50d, 5, 'beautiful')
@@ -191,7 +191,7 @@ get_knn(glove_6b50d, 5, 'beautiful')
 
 ### 求类比词
 
-我们可以使用预训练词向量求词与词之间的类比关系。例如，man : woman :: son : daughter 是一个类比例子：man之于woman相当于son之于daughter。求类比词问题可以定义为：对于类比关系中的四个词 a : b :: c : d，给定前三个词a, b, c，求d。解类比词的思路是，找到和c+(b-a)的结果词向量最相似的词向量。
+我们可以使用预训练词向量求词与词之间的类比关系。例如，man : woman :: son : daughter 是一个类比例子：“man”之于“woman”相当于“son”之于“daughter”。求类比词问题可以定义为：对于类比关系中的四个词 a : b :: c : d，给定前三个词a, b, c，求d。解类比词的思路是，找到和c+(b-a)的结果词向量最相似的词向量。
 
 本例中，我们将从整个词典（大小40万，不含未知词符号）中找类比词。
 
@@ -211,13 +211,13 @@ def get_top_k_by_analogy(token_embedding, k, word1, word2, word3):
         return token_embedding.to_tokens(indices[:-1])
 ```
 
-“男-女”类比："man"之于"woman"相当于"son"之于什么？
+“男-女”类比：“man”之于“woman”相当于“son”之于什么？
 
 ```{.python .input  n=18}
 get_top_k_by_analogy(glove_6b50d, 1, 'man', 'woman', 'son')
 ```
 
-验证一下vec("son")+vec("woman")-vec("man")与vec("daughter")两个向量之间的余弦相似度。
+验证一下vec(“son”)+vec(“woman”)-vec(“man”)与vec(“daughter”)两个向量之间的余弦相似度。
 
 ```{.python .input}
 def cos_sim_word_analogy(token_embedding, word1, word2, word3, word4):
@@ -228,19 +228,19 @@ def cos_sim_word_analogy(token_embedding, word1, word2, word3, word4):
 cos_sim_word_analogy(glove_6b50d, 'man', 'woman', 'son', 'daughter')
 ```
 
-“首都-国家”类比："beijing"之于"china"相当于"tokyo"之于什么？
+“首都-国家”类比：“beijing”之于“china”相当于“tokyo”之于什么？
 
 ```{.python .input  n=19}
 get_top_k_by_analogy(glove_6b50d, 1, 'beijing', 'china', 'tokyo')
 ```
 
-“形容词-形容词最高级”类比："bad"之于"worst"相当于"big"之于什么？
+“形容词-形容词最高级”类比：“bad”之于“worst”相当于“big”之于什么？
 
 ```{.python .input  n=20}
 get_top_k_by_analogy(glove_6b50d, 1, 'bad', 'worst', 'big')
 ```
 
-“动词一般时-动词过去时”类比："do"之于"did"相当于"go"之于什么？
+“动词一般时-动词过去时”类比：“do”之于“did”相当于“go”之于什么？
 
 ```{.python .input  n=21}
 get_top_k_by_analogy(glove_6b50d, 1, 'do', 'did', 'go')
