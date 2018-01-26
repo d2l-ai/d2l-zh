@@ -7,4 +7,6 @@
    :maxdepth: 2
 
    word2vec
+   glove-fasttext
+   pretrained-embedding
 ```

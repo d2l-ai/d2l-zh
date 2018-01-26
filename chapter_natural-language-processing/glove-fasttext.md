@@ -15,7 +15,7 @@ $$P_{ij} = \mathbb{P}(j \mid i) = \frac{x_{ij}}{x_i}$$
 
 ### 共现概率比值
 
-[Glove论文](https://nlp.stanford.edu/pubs/glove.pdf)里展示了以下一组词对的共现概率与比值：
+[GloVe论文](https://nlp.stanford.edu/pubs/glove.pdf)里展示了以下一组词对的共现概率与比值：
 
 
 |共现概率与比值 |$k$= solid|  $k$= gas | $k$= water |$k$= fashion |
@@ -88,60 +88,37 @@ $$\sum_{i, j = 1}^V f(x_{ij}) (\mathbf{v}_i^\top \tilde{\mathbf{v}}_j + b_i + b_
 
 ## fastText
 
-我们以跳字模型为例讨论负采样。
 
-词典$\mathcal{V}$大小之所以会在目标函数中出现，是因为中心词$w_c$生成背景词$w_o$的概率$\mathbb{P}(w_o \mid w_c)$使用了softmax，而softmax正是考虑了背景词可能是词典中的任一词，并体现在softmax的分母上。
+fastText在[使用负采样的skip-gram模型](word2vec.md)基础上，将每个中心词视为子词（subword）的集合，并学习子词的词向量。
 
-我们不妨换个角度，假设中心词$w_c$生成背景词$w_o$由以下相互独立事件联合组成来近似
 
-* 中心词$w_c$和背景词$w_o$同时出现在该训练数据窗口
-* 中心词$w_c$和第1个噪声词$w_1$不同时出现在该训练数据窗口（噪声词$w_1$按噪声词分布$\mathbb{P}(w)$随机生成，假设一定和$w_c$不同时出现在该训练数据窗口）
-* ...
-* 中心词$w_c$和第$K$个噪声词$w_K$不同时出现在该训练数据窗口（噪声词$w_K$按噪声词分布$\mathbb{P}(w)$随机生成，假设一定和$w_c$不同时出现在该训练数据窗口）
+以where这个词为例，设子词为3个字符，它的子词包括"&lt;wh"、"whe"、"her"、"ere"、"re&gt;"和特殊子词（整词）"&lt;where&gt;"。其中的"&lt;"和"&gt;"是为了将作为前后缀的子词区分出来。而且，这里的子词"her"与整词"&lt;her&gt;"也可被区分。给定一个词$w$，我们通常可以把字符长度在3到6之间的所有子词和特殊子词的并集$\mathcal{G}_w$取出。假设词典中任意子词$g$的子词向量为$\mathbf{z}_g$，我们可以把[使用负采样的skip-gram模型](word2vec.md)的损失函数
 
-我们可以使用$\sigma(x) = 1/(1+\text{exp}(-x))$函数来表达中心词$w_c$和背景词$w_o$同时出现在该训练数据窗口的概率：
-
-$$\mathbb{P}(D = 1 \mid w_o, w_c) = \sigma(\mathbf{u}_o^\top \mathbf{v}_c)$$
-
-那么，中心词$w_c$生成背景词$w_o$的对数概率可以近似为
-
-$$ \text{log} \mathbb{P} (w_o \mid w_c) = \text{log} [\mathbb{P}(D = 1 \mid w_o, w_c) \prod_{k=1, w_k \sim \mathbb{P}(w)}^K \mathbb{P}(D = 0 \mid w_k, w_c) ]$$
-
-假设噪声词$w_k$在词典中的索引为$i_k$，上式可改写为
-
-$$ \text{log} \mathbb{P} (w_o \mid w_c) = \text{log} \frac{1}{1+\text{exp}(-\mathbf{u}_o^\top \mathbf{v}_c)}  + \sum_{k=1, w_k \sim \mathbb{P}(w)}^K \text{log} [1-\frac{1}{1+\text{exp}(-\mathbf{u}_{i_k}^\top \mathbf{v}_c)}] $$
-
-因此，有关中心词$w_c$生成背景词$w_o$的损失函数是
 
 $$ - \text{log} \mathbb{P} (w_o \mid w_c) = -\text{log} \frac{1}{1+\text{exp}(-\mathbf{u}_o^\top \mathbf{v}_c)}  - \sum_{k=1, w_k \sim \mathbb{P}(w)}^K \text{log} \frac{1}{1+\text{exp}(\mathbf{u}_{i_k}^\top \mathbf{v}_c)} $$
 
+直接替换成
 
-当我们把$K$取较小值时，每次随机梯度下降的梯度计算开销将由$\mathcal{O}(|\mathcal{V}|)$降为$\mathcal{O}(K)$。
+$$ - \text{log} \mathbb{P} (w_o \mid w_c) = -\text{log} \frac{1}{1+\text{exp}(-\mathbf{u}_o^\top \sum_{g \in \mathcal{G}_{w_c}} \mathbf{z}_g)}  - \sum_{k=1, w_k \sim \mathbb{P}(w)}^K \text{log} \frac{1}{1+\text{exp}(\mathbf{u}_{i_k}^\top \sum_{g \in \mathcal{G}_{w_c}} \mathbf{z}_g)} $$
 
-我们也可以对连续词袋模型进行负采样。有关背景词$w^{(t-m)}, \ldots,  w^{(t-1)},  w^{(t+1)}, \ldots,  w^{(t+m)}$生成中心词$w_c$的损失函数
+我们可以看到，原中心词向量被替换成了中心词的子词向量的和。与整词学习（word2vec和GloVe）不同，词典以外的新词的词向量可以使用fastText中相应的子词向量之和。
 
-$$-\text{log} \mathbb{P}(w^{(t)} \mid  w^{(t-m)}, \ldots,  w^{(t-1)},  w^{(t+1)}, \ldots,  w^{(t+m)})$$
-
-在负采样中可以近似为
-
-$$-\text{log} \frac{1}{1+\text{exp}[-\mathbf{u}_c^\top (\mathbf{v}_{o_1} + \ldots + \mathbf{v}_{o_{2m}}) /(2m)]}  - \sum_{k=1, w_k \sim \mathbb{P}(w)}^K \text{log} \frac{1}{1+\text{exp}[(\mathbf{u}_{i_k}^\top (\mathbf{v}_{o_1} + \ldots + \mathbf{v}_{o_{2m}}) /(2m)]}$$
-
-同样地，当我们把$K$取较小值时，每次随机梯度下降的梯度计算开销将由$\mathcal{O}(|\mathcal{V}|)$降为$\mathcal{O}(K)$。
-
-
+fastText对于一些语言较重要，例如阿拉伯语、德语和俄语。例如，德语中有很多复合词，例如乒乓球（英文table tennis）在德语中叫"Tischtennis"。fastText可以通过子词可以表达两个词的相关性，例如"Tischtennis"和"Tennis"。
 
 
 
 ## 结论
 
-word2vec工具中的跳字模型和连续词袋模型可以使用两种负采样和层序softmax减小训练开销。
+* GloVe用词向量表达共现词频的对数。
+* fastText用子词向量之和表达整词。
 
 
 ## 练习
 
 * GloVe中，如果一个词出现在另一个词的环境中，是否可以利用它们之间在文本序列的距离重新设计词频计算方式？（可参考[Glove论文](https://nlp.stanford.edu/pubs/glove.pdf)4.2节）
 * 如果丢弃GloVe中的偏移项，是否也可以满足任意一对词共现的对称性？
+* 在fastText中，子词过多怎么办（例如，6字英文组合数为$26^6$）？（可参考[fastText论文](https://arxiv.org/pdf/1607.04606.pdf)3.2节）
 
 
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/4203)
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/4372)
