@@ -82,7 +82,16 @@ $$\mathbf{v}_i^\top \tilde{\mathbf{v}}_j + b_i + b_j = \log(x_{ij})$$
 
 $$\sum_{i, j = 1}^V f(x_{ij}) (\mathbf{v}_i^\top \tilde{\mathbf{v}}_j + b_i + b_j - \log(x_{ij}))^2$$
 
-对于权重函数$f(x)$，一个建议的选择是，当$x < c$（例如$c = 100$），令$f(x) = (x/c)^\alpha$（例如$\alpha = 0.75$），反之令$f(x) = 1$。需要注意的是，损失函数的计算复杂度与共现词频矩阵$\mathbf{X}$中非零元素的数目呈线性关系。我们可以从$\mathbf{X}$中随机采样小批量非零元素，使用[随机梯度下降](../chapter_optimization/gd-sgd-scratch.md)迭代词向量和偏移项。当所有词向量学习得到后，GloVe使用一个词的中心词向量与背景词向量之和作为该词的最终词向量。
+对于权重函数$f(x)$，一个建议的选择是，当$x < c$（例如$c = 100$），令$f(x) = (x/c)^\alpha$（例如$\alpha = 0.75$），反之令$f(x) = 1$。需要注意的是，损失函数的计算复杂度与共现词频矩阵$\mathbf{X}$中非零元素的数目呈线性关系。我们可以从$\mathbf{X}$中随机采样小批量非零元素，使用[随机梯度下降](../chapter_optimization/gd-sgd-scratch.md)迭代词向量和偏移项。
+
+事实上，任意词的中心词向量和背景词向量是等价的。例如，对于任意一对$i, j$，损失函数中的两项
+
+$$f(x_{ij}) (\mathbf{v}_i^\top \tilde{\mathbf{v}}_j + b_i + b_j - \log(x_{ij}))^2 + f(x_{ji}) (\mathbf{v}_j^\top \tilde{\mathbf{v}}_i + b_j + b_i - \log(x_{ji}))^2$$
+
+由于$x_{ij} = x_{ji}$，对调$\mathbf{v}$和$\tilde{\mathbf{v}}$并不改变损失函数中这两项的值。只是由于初始化值的不同，同一个词最终学习到的两组词向量可能不同。当所有词向量学习得到后，GloVe使用一个词的中心词向量与背景词向量之和作为该词的最终词向量。
+
+
+
 
 ## fastText
 
