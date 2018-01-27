@@ -88,7 +88,7 @@ $$\sum_{i, j = 1}^V f(x_{ij}) (\mathbf{v}_i^\top \tilde{\mathbf{v}}_j + b_i + b_
 
 $$f(x_{ij}) (\mathbf{v}_i^\top \tilde{\mathbf{v}}_j + b_i + b_j - \log(x_{ij}))^2 + f(x_{ji}) (\mathbf{v}_j^\top \tilde{\mathbf{v}}_i + b_j + b_i - \log(x_{ji}))^2$$
 
-由于$x_{ij} = x_{ji}$，对调$\mathbf{v}$和$\tilde{\mathbf{v}}$并不改变损失函数中这两项的值。因此，任意词的中心词向量和背景词向量是等价的。只是由于初始化值的不同，同一个词最终学习到的两组词向量可能不同。当所有词向量学习得到后，GloVe使用一个词的中心词向量与背景词向量之和作为该词的最终词向量。
+由于$x_{ij} = x_{ji}$，对调$\mathbf{v}$和$\tilde{\mathbf{v}}$并不改变损失函数中这两项之和的值。也就是说，在损失函数所有项上对调$\mathbf{v}$和$\tilde{\mathbf{v}}$也不改变整个损失函数的值。因此，任意词的中心词向量和背景词向量是等价的。只是由于初始化值的不同，同一个词最终学习到的两组词向量可能不同。当所有词向量学习得到后，GloVe使用一个词的中心词向量与背景词向量之和作为该词的最终词向量。
 
 
 
