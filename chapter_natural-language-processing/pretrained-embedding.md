@@ -256,8 +256,7 @@ get_top_k_by_analogy(glove_6b50d, 1, 'do', 'did', 'go')
 ## 练习
 
 * 将近似词和类比词应用中的$k$调大一些，观察结果。
-* 测试一下fastText的中文词向量：
-  * `text.embedding.create('fasttext', pretrained_file_name='wiki.zh.vec')`
+* 测试一下fastText的中文词向量（pretrained_file_name='wiki.zh.vec'）。
 * 如果在[使用循环神经网络的语言模型](../chapter_recurrent-neural-networks/rnn-gluon.md)中将Embedding层初始化为预训练的词向量，效果如何？
 
 
