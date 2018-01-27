@@ -201,7 +201,8 @@ def get_top_k_by_analogy(token_embedding, k, word1, word2, word3):
     word_diff = (word_vecs[1] - word_vecs[0] + word_vecs[2]).reshape((-1, 1))
     vocab_vecs = norm_vecs_by_row(token_embedding.idx_to_vec)
     dot_prod = nd.dot(vocab_vecs, word_diff)
-    indices = nd.topk(dot_prod.reshape((len(token_embedding), )), k=k+1, ret_typ='indices')
+    indices = nd.topk(dot_prod.reshape((len(token_embedding), )), k=k+1,
+                      ret_typ='indices')
     indices = [int(i.asscalar()) for i in indices]
 
     # 不考虑未知词为可能的类比词。
