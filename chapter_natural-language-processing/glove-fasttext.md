@@ -87,10 +87,10 @@ $$\sum_{i, j = 1}^V f(x_{ij}) (\mathbf{v}_i^\top \tilde{\mathbf{v}}_j + b_i + b_
 ## fastText
 
 
-fastText在[使用负采样的skip-gram模型](word2vec.md)基础上，将每个中心词视为子词（subword）的集合，并学习子词的词向量。
+fastText在[使用负采样的跳字模型](word2vec.md)基础上，将每个中心词视为子词（subword）的集合，并学习子词的词向量。
 
 
-以where这个词为例，设子词为3个字符，它的子词包括“&lt;wh”、“whe”、“her”、“ere”、“re&gt;”和特殊子词（整词）“&lt;where&gt;”。其中的“&lt;”和“&gt;”是为了将作为前后缀的子词区分出来。而且，这里的子词“her”与整词“&lt;her&gt;”也可被区分。给定一个词$w$，我们通常可以把字符长度在3到6之间的所有子词和特殊子词的并集$\mathcal{G}_w$取出。假设词典中任意子词$g$的子词向量为$\mathbf{z}_g$，我们可以把[使用负采样的skip-gram模型](word2vec.md)的损失函数
+以where这个词为例，设子词为3个字符，它的子词包括“&lt;wh”、“whe”、“her”、“ere”、“re&gt;”和特殊子词（整词）“&lt;where&gt;”。其中的“&lt;”和“&gt;”是为了将作为前后缀的子词区分出来。而且，这里的子词“her”与整词“&lt;her&gt;”也可被区分。给定一个词$w$，我们通常可以把字符长度在3到6之间的所有子词和特殊子词的并集$\mathcal{G}_w$取出。假设词典中任意子词$g$的子词向量为$\mathbf{z}_g$，我们可以把[使用负采样的跳字模型](word2vec.md)的损失函数
 
 
 $$ - \text{log} \mathbb{P} (w_o \mid w_c) = -\text{log} \frac{1}{1+\text{exp}(-\mathbf{u}_o^\top \mathbf{v}_c)}  - \sum_{k=1, w_k \sim \mathbb{P}(w)}^K \text{log} \frac{1}{1+\text{exp}(\mathbf{u}_{i_k}^\top \mathbf{v}_c)} $$
