@@ -260,4 +260,4 @@ get_top_k_by_analogy(glove_6b50d, 1, 'do', 'did', 'go')
 * 如果在[使用循环神经网络的语言模型](../chapter_recurrent-neural-networks/rnn-gluon.md)中将Embedding层初始化为预训练的词向量，效果如何？
 
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/4372)
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/4373)
