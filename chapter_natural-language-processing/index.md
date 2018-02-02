@@ -9,4 +9,5 @@
    word2vec
    glove-fasttext
    pretrained-embedding
+   seq2seq-attention
 ```
