@@ -77,7 +77,7 @@ pd.get("exciting_parameter_yay", shape=(3,3))
 pd
 ```
 
-现在我们看下如果如果实现一个跟`Dense`一样功能的层，它概念跟前面的`CenteredLayer`的主要区别是我们在初始函数里通过`params`创建了参数：
+现在我们看下如果实现一个跟`Dense`一样功能的层，它概念跟前面的`CenteredLayer`的主要区别是我们在初始函数里通过`params`创建了参数：
 
 ```{.python .input  n=19}
 class MyDense(nn.Block):

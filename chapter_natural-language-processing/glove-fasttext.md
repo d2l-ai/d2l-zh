@@ -110,7 +110,7 @@ $$ - \text{log} \mathbb{P} (w_o \mid w_c) = -\text{log} \frac{1}{1+\text{exp}(-\
 
 我们可以看到，原中心词向量被替换成了中心词的子词向量的和。与整词学习（word2vec和GloVe）不同，词典以外的新词的词向量可以使用fastText中相应的子词向量之和。
 
-fastText对于一些语言较重要，例如阿拉伯语、德语和俄语。例如，德语中有很多复合词，例如乒乓球（英文table tennis）在德语中叫“Tischtennis”。fastText可以通过子词可以表达两个词的相关性，例如“Tischtennis”和“Tennis”。
+fastText对于一些语言较重要，例如阿拉伯语、德语和俄语。例如，德语中有很多复合词，例如乒乓球（英文table tennis）在德语中叫“Tischtennis”。fastText可以通过子词表达两个词的相关性，例如“Tischtennis”和“Tennis”。
 
 
 

@@ -171,7 +171,7 @@ cos_sim(glove_6b50d.get_vecs_by_tokens('baby'),
         glove_6b50d.get_vecs_by_tokens('babies'))
 ```
 
-查找词典中与“compters”最接近的5个词。
+查找词典中与“computers”最接近的5个词。
 
 ```{.python .input}
 get_knn(glove_6b50d, 5, 'computers')

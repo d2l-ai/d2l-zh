@@ -46,7 +46,6 @@ for data, label in data_iter:
 
 我们之后还会介绍如何构造任意结构的神经网络，但对于初学者来说，构建模型最简单的办法是利用`Sequential`来所有层串起来。输入数据之后，`Sequential`会依次执行每一层，并将前一层的输出，作为输入提供给后面的层。首先我们定义一个空的模型：
 
-
 ```{.python .input  n=5}
 net = gluon.nn.Sequential()
 ```
@@ -77,7 +76,7 @@ square_loss = gluon.loss.L2Loss()
 
 ## 优化
 
-同样我们无需手动实现随机梯度下降，我们可以用创建一个`Trainer`的实例，并且将模型参数传递给它就行。
+同样我们无需手动实现随机梯度下降，我们可以创建一个`Trainer`的实例，并且将模型参数传递给它就行。
 
 ```{.python .input  n=9}
 trainer = gluon.Trainer(
