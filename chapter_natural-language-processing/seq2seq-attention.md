@@ -23,9 +23,10 @@
 
 编码器的作用是把一个不定长的输入序列转化成一个定长的背景向量$\mathbf{c}$。该背景向量包含了输入序列的信息。常用的编码器是循环神经网络。
 
-我们回顾一下[循环神经网络](../chapter_recurrent-neural-networks/rnn-scratch.md)知识。假设循环神经网络单元为$f$，在$t$时刻的输入为$x_t, t=1, \ldots, T$，隐含层变量
+我们回顾一下[循环神经网络](../chapter_recurrent-neural-networks/rnn-scratch.md)知识。假设循环神经网络单元为$f$，在$t$时刻的输入为$x_t, t=1, \ldots, T$。
+假设$\mathbf{x}_t$是单个输出$x_t$是嵌入层的结果，例如$x_t$对应的one-hot向量$\mathbf{o} \in \mathbb{R}^x $与嵌入层参数矩阵$\mathbf{E} \in \mathbb{R}^{x \times h}$的乘积 $\mathbf{o}^\top \mathbf{E}$。隐含层变量
 
-$$\mathbf{h}_t = f(x_t, \mathbf{h}_{t-1}) $$
+$$\mathbf{h}_t = f(\mathbf{x}_t, \mathbf{h}_{t-1}) $$
 
 编码器的背景向量
 
@@ -36,19 +37,21 @@ $$\mathbf{c} =  q(\mathbf{h}_1, \ldots, \mathbf{h}_T)$$
 
 #### 双向循环神经网络
 
-编码器的输入既可以是正向传递，也可以是反向传递。如果输入序列是$x_1, x_2, \ldots, x_T$，在正向传递中，最早到最终时刻的输入分别是$x_1, x_2, \ldots, x_T$，隐含层变量
+编码器的输入既可以是正向传递，也可以是反向传递。如果输入序列是$x_1, x_2, \ldots, x_T$，在正向传递中，隐含层变量
 
-$$\overrightarrow{\mathbf{h}}_t = f(x_t, \overrightarrow{\mathbf{h}}_{t-1}) $$
+$$\overrightarrow{\mathbf{h}}_t = f(\mathbf{x}_t, \overrightarrow{\mathbf{h}}_{t-1}) $$
 
 
-而反向传递中，最早到最终时刻的输入分别是$x_T, x_{T-1}, \ldots, x_1$，而隐含层变量的计算变为
+而反向传递中，隐含层变量的计算变为
 
-$$\overleftarrow{\mathbf{h}}_t = f(x_t, \overleftarrow{\mathbf{h}}_{t+1}) $$
+$$\overleftarrow{\mathbf{h}}_t = f(\mathbf{x}_t, \overleftarrow{\mathbf{h}}_{t+1}) $$
 
 
 
 
 当我们希望编码器的输入既包含正向传递信息又包含反向传递信息时，我们可以使用双向循环神经网络。例如，给定输入序列$x_1, x_2, \ldots, x_T$，按正向传递，它们在循环神经网络的隐含层变量分别是$\overrightarrow{\mathbf{h}}_1, \overrightarrow{\mathbf{h}}_2, \ldots, \overrightarrow{\mathbf{h}}_T$；按反向传递，它们在循环神经网络的隐含层变量分别是$\overleftarrow{\mathbf{h}}_1, \overleftarrow{\mathbf{h}}_2, \ldots, \overleftarrow{\mathbf{h}}_T$。在双向循环神经网络中，时刻$i$的隐含层变量可以把$\overrightarrow{\mathbf{h}}_i$和$\overleftarrow{\mathbf{h}}_i$连结起来。
+
+![](../img/bi-rnn.svg)
 
 ```{.python .input}
 # 连结两个向量。
@@ -82,6 +85,7 @@ $$\mathbf{s}_{t^\prime} = g(y_{t^\prime-1}, \mathbf{c}, \mathbf{s}_{t^\prime-1})
 
 其中函数$g$是循环神经网络单元。
 
+需要注意的是，编码器和解码器通常会使用[多层循环神经网络](../chapter_recurrent-neural-networks/rnn-gluon.md)。
 
 ## 注意力机制
 
@@ -111,11 +115,11 @@ $$e_{t^\prime t} = a(\mathbf{s}_{t^\prime - 1}, \mathbf{h}_t)$$
 
 $$e_{t^\prime t} = \mathbf{v}^\top \tanh(\mathbf{W}_s \mathbf{s}_{t^\prime - 1} + \mathbf{W}_h \mathbf{h}_t)$$
 
-其中的$\mathbf{v}$、$\mathbf{W}_s$、$\mathbf{W}_h$和编码器以及解码器两个循环神经网络中的各个权重和偏移项等都是需要同时学习的模型参数。在[Bahanau的论文](https://arxiv.org/abs/1409.0473)中，编码器和解码器分别使用了[门控循环单元（GRU）](../chapter_recurrent-neural-networks/gru-scratch.md)。
+其中的$\mathbf{v}$、$\mathbf{W}_s$、$\mathbf{W}_h$和编码器与解码器两个循环神经网络中的各个权重和偏移项以及嵌入层参数等都是需要同时学习的模型参数。在[Bahanau的论文](https://arxiv.org/abs/1409.0473)中，编码器和解码器分别使用了[门控循环单元（GRU）](../chapter_recurrent-neural-networks/gru-scratch.md)。
 
 
-在解码器中，我们需要对GRU的设计稍作修改。假设$\mathbf{y}_{t^\prime}$是单个输出$y_{t^\prime}$是嵌入层的结果，例如$y_{t^\prime}$对应的one-hot向量与嵌入层参数矩阵的乘积。
-
+在解码器中，我们需要对GRU的设计稍作修改。
+假设$\mathbf{y}_t$是单个输出$y_t$在嵌入层的结果，例如$y_t$对应的one-hot向量$\mathbf{o} \in \mathbb{R}^y $与嵌入层参数矩阵$\mathbf{B} \in \mathbb{R}^{y \times s}$的乘积 $\mathbf{o}^\top \mathbf{B}$。
 假设时刻$t^\prime$的背景向量为$\mathbf{c}_{t^\prime}$。那么解码器在$t^\prime$时刻的单个隐含层变量
 
 $$\mathbf{s}_{t^\prime} = \mathbf{z}_{t^\prime} \odot \mathbf{s}_{t^\prime-1}  + (1 - \mathbf{z}_{t^\prime}) \odot \tilde{\mathbf{s}}_{t^\prime}$$
@@ -142,5 +146,7 @@ $$\tilde{\mathbf{s}}_{t^\prime} = \text{tanh}(\mathbf{W}_{ys} \mathbf{y}_{t^\pri
 * 在[Bahanau的论文](https://arxiv.org/abs/1409.0473)中，我们是否需要重新实现解码器上的GRU？
 
 * 除了机器翻译，你还能想到seq2seq的哪些应用？
+
+* 除了自然语言处理，注意力机制还可以应用在哪些地方？
 
 **吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/4523)
