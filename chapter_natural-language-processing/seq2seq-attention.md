@@ -24,7 +24,7 @@
 编码器的作用是把一个不定长的输入序列转化成一个定长的背景向量$\mathbf{c}$。该背景向量包含了输入序列的信息。常用的编码器是循环神经网络。
 
 我们回顾一下[循环神经网络](../chapter_recurrent-neural-networks/rnn-scratch.md)知识。假设循环神经网络单元为$f$，在$t$时刻的输入为$x_t, t=1, \ldots, T$。
-假设$\mathbf{x}_t$是单个输出$x_t$是嵌入层的结果，例如$x_t$对应的one-hot向量$\mathbf{o} \in \mathbb{R}^x $与嵌入层参数矩阵$\mathbf{E} \in \mathbb{R}^{x \times h}$的乘积 $\mathbf{o}^\top \mathbf{E}$。隐含层变量
+假设$\mathbf{x}_t$是单个输出$x_t$在嵌入层的结果，例如$x_t$对应的one-hot向量$\mathbf{o} \in \mathbb{R}^x$与嵌入层参数矩阵$\mathbf{E} \in \mathbb{R}^{x \times h}$的乘积$\mathbf{o}^\top \mathbf{E}$。隐含层变量
 
 $$\mathbf{h}_t = f(\mathbf{x}_t, \mathbf{h}_{t-1}) $$
 
@@ -119,7 +119,7 @@ $$e_{t^\prime t} = \mathbf{v}^\top \tanh(\mathbf{W}_s \mathbf{s}_{t^\prime - 1} 
 
 
 在解码器中，我们需要对GRU的设计稍作修改。
-假设$\mathbf{y}_t$是单个输出$y_t$在嵌入层的结果，例如$y_t$对应的one-hot向量$\mathbf{o} \in \mathbb{R}^y $与嵌入层参数矩阵$\mathbf{B} \in \mathbb{R}^{y \times s}$的乘积 $\mathbf{o}^\top \mathbf{B}$。
+假设$\mathbf{y}_t$是单个输出$y_t$在嵌入层的结果，例如$y_t$对应的one-hot向量$\mathbf{o} \in \mathbb{R}^y$与嵌入层参数矩阵$\mathbf{B} \in \mathbb{R}^{y \times s}$的乘积$\mathbf{o}^\top \mathbf{B}$。
 假设时刻$t^\prime$的背景向量为$\mathbf{c}_{t^\prime}$。那么解码器在$t^\prime$时刻的单个隐含层变量
 
 $$\mathbf{s}_{t^\prime} = \mathbf{z}_{t^\prime} \odot \mathbf{s}_{t^\prime-1}  + (1 - \mathbf{z}_{t^\prime}) \odot \tilde{\mathbf{s}}_{t^\prime}$$
