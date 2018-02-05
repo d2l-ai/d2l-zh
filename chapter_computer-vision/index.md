@@ -8,5 +8,11 @@
 
    image-augmentation
    fine-tuning
+   object-detection
+   ssd
+   yolo
+   fcn
+   neural-style
    kaggle-gluon-cifar10
+   kaggle-gluon-dog
 ```

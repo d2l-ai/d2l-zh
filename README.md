@@ -96,7 +96,7 @@ dimensionality, 维数
 
 distribution, 分布
 
-einforcement learning, 强化学习
+reinforcement learning, 强化学习
 
 example, 样例
 
@@ -166,7 +166,7 @@ subspace estimation, 子空间估计
 
 supervised learning, 监督学习
 
-testing smaple, 测试样本
+testing sample, 测试样本
 
 testing, 测试
 

@@ -142,34 +142,34 @@ ctx
 ```{.python .input  n=9}
 weight_scale = .01
 
-# output channels = 20, kernel = (5,5)
+# 输出通道 = 20, 卷积核 = (5,5)
 c1 = 20
 W1 = nd.random.normal(shape=(c1,1,5,5), scale=weight_scale, ctx=ctx)
 b1 = nd.zeros(c1, ctx=ctx)
 
-# batch norm 1
+# 第1层批量归一化
 gamma1 = nd.random.normal(shape=c1, scale=weight_scale, ctx=ctx)
 beta1 = nd.random.normal(shape=c1, scale=weight_scale, ctx=ctx)
 moving_mean1 = nd.zeros(c1, ctx=ctx)
 moving_variance1 = nd.zeros(c1, ctx=ctx)
 
-# output channels = 50, kernel = (3,3)
+# 输出通道 = 50, 卷积核 = (3,3)
 c2 = 50
 W2 = nd.random_normal(shape=(c2,c1,3,3), scale=weight_scale, ctx=ctx)
 b2 = nd.zeros(c2, ctx=ctx)
 
-# batch norm 2
+# 第2层批量归一化
 gamma2 = nd.random.normal(shape=c2, scale=weight_scale, ctx=ctx)
 beta2 = nd.random.normal(shape=c2, scale=weight_scale, ctx=ctx)
 moving_mean2 = nd.zeros(c2, ctx=ctx)
 moving_variance2 = nd.zeros(c2, ctx=ctx)
 
-# output dim = 128
+# 输出维度 = 128
 o3 = 128
 W3 = nd.random.normal(shape=(1250, o3), scale=weight_scale, ctx=ctx)
 b3 = nd.zeros(o3, ctx=ctx)
 
-# output dim = 10
+# 输出维度 = 10
 W4 = nd.random_normal(shape=(W3.shape[1], 10), scale=weight_scale, ctx=ctx)
 b4 = nd.zeros(W4.shape[1], ctx=ctx)
 

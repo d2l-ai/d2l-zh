@@ -206,7 +206,7 @@ y = net(x)
 
 ## 结论
 
-通过`HybridSequental`和`HybridBlock`，我们可以简单的用`hybridize`来将将命令式的程序转成符号式程序。我们推荐大家尽可能的使用这个来获得最好的性能加速。
+通过`HybridSequential`和`HybridBlock`，我们可以简单的用`hybridize`来将将命令式的程序转成符号式程序。我们推荐大家尽可能的使用这个来获得最好的性能加速。
 
 
 **吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1665)

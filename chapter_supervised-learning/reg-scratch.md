@@ -19,6 +19,7 @@ $$y = 0.05 + \sum_{i = 1}^p 0.01x_i +  \text{noise}$$
 from mxnet import ndarray as nd
 from mxnet import autograd
 from mxnet import gluon
+import mxnet as mx
 
 num_train = 20
 num_test = 100
@@ -39,7 +40,7 @@ true_b = 0.05
 
 ```{.python .input  n=3}
 X = nd.random.normal(shape=(num_train + num_test, num_inputs))
-y = nd.dot(X, true_w)
+y = nd.dot(X, true_w) + true_b
 y += .01 * nd.random.normal(shape=y.shape)
 
 X_train, X_test = X[:num_train, :], X[num_train:, :]
@@ -64,12 +65,13 @@ def data_iter(num_examples):
 下面我们随机初始化模型参数。之后训练时我们需要对这些参数求导来更新它们的值，所以我们需要创建它们的梯度。
 
 ```{.python .input  n=5}
-def get_params():
-    w = nd.random.normal(shape=(num_inputs, 1))*0.1
-    b = nd.zeros((1,))
-    for param in (w, b):
+def init_params():
+    w = nd.random_normal(scale=1, shape=(num_inputs, 1))
+    b = nd.zeros(shape=(1,))
+    params = [w, b]
+    for param in params:
         param.attach_grad()
-    return (w, b)
+    return params
 ```
 
 ## $L_2$范数正则化
@@ -80,62 +82,64 @@ $$\text{loss} + \lambda \sum_{p \in \textrm{params}}\|p\|_2^2。$$
 
 直观上，$L_2$范数正则化试图惩罚较大绝对值的参数值。下面我们定义L2正则化。注意有些时候大家对偏移加罚，有时候不加罚。通常结果上两者区别不大。这里我们演示对偏移也加罚的情况：
 
-```{.python .input}
+```{.python .input  n=6}
 def L2_penalty(w, b):
-    return (w**2).sum() + b**2
+    return ((w**2).sum() + b**2) / 2
 ```
 
 ## 定义训练和测试
 
 下面我们定义剩下的所需要的函数。这个跟之前的教程大致一样，主要是区别在于计算`loss`的时候我们加上了L2正则化，以及我们将训练和测试损失都画了出来。
 
-```{.python .input  n=8}
+```{.python .input  n=7}
 %matplotlib inline
 import matplotlib as mpl
 mpl.rcParams['figure.dpi']= 120
 import matplotlib.pyplot as plt
+import numpy as np
 
-def net(X, lambd, w, b):
+def net(X, w, b):
     return nd.dot(X, w) + b
 
 def square_loss(yhat, y):
-    return (yhat - y.reshape(yhat.shape)) ** 2
+    return (yhat - y.reshape(yhat.shape)) ** 2 / 2
 
-def SGD(params, lr):
+def sgd(params, lr, batch_size):
     for param in params:
-        param[:] = param - lr * param.grad
+        param[:] = param - lr * param.grad / batch_size
         
-def test(params, X, y):
-    return square_loss(net(X, 0, *params), y).mean().asscalar()
+def test(net, params, X, y):
+    return square_loss(net(X, *params), y).mean().asscalar()
+    #return np.mean(square_loss(net(X, *params), y).asnumpy())
 
 def train(lambd):
     epochs = 10
-    learning_rate = 0.002
-    params = get_params()
+    learning_rate = 0.005
+    w, b = params = init_params()
     train_loss = []
     test_loss = []
     for e in range(epochs):        
         for data, label in data_iter(num_train):
             with autograd.record():
-                output = net(data, lambd, *params)
+                output = net(data, *params)
                 loss = square_loss(
                     output, label) + lambd * L2_penalty(*params)
             loss.backward()
-            SGD(params, learning_rate)
-        train_loss.append(test(params, X_train, y_train))
-        test_loss.append(test(params, X_test, y_test))
+            sgd(params, learning_rate, batch_size)
+        train_loss.append(test(net, params, X_train, y_train))
+        test_loss.append(test(net, params, X_test, y_test))
     plt.plot(train_loss)
     plt.plot(test_loss)
-    plt.legend(['train','test'])
+    plt.legend(['train', 'test'])
     plt.show()
-    return 'learned w[:10]:', params[0][:10], 'learend b:', params[1]
+    return 'learned w[:10]:', w[:10].T, 'learned b:', b
 ```
 
 ## 观察过拟合
 
 接下来我们训练并测试我们的高维线性回归模型。注意这时我们并未使用正则化。
 
-```{.python .input  n=10}
+```{.python .input  n=8}
 train(0)
 ```
 
@@ -148,8 +152,8 @@ train(0)
 
 下面我们重新初始化模型参数并设置一个正则化参数。
 
-```{.python .input  n=11}
-train(2)
+```{.python .input  n=9}
+train(5)
 ```
 
 我们发现训练误差虽然有所提高，但测试数据集上的误差有所下降。过拟合现象得到缓解。但打印出的学到的参数依然不是很理想，这主要是因为我们训练数据的样本相对维度来说太少。

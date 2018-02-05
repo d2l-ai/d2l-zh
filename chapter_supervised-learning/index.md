@@ -16,6 +16,7 @@
    reg-gluon
    dropout-scratch
    dropout-gluon
+   backprop
    kaggle-gluon-kfold
 
 ```

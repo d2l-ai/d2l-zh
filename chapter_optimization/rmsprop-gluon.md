@@ -87,4 +87,4 @@ train(batch_size=10, lr=0.03, gamma=0.999, epochs=3, period=10)
 
 * 试着使用其他的初始学习率和gamma参数的组合，观察实验结果。
 
-**吐槽和讨论欢迎点**[这里]()
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/2276)

@@ -81,4 +81,4 @@ train(batch_size=10, lr=0.9, epochs=3, period=10)
 
 * 尝试使用其他的初始学习率，结果有什么变化？
 
-**吐槽和讨论欢迎点**[这里]()
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/2274)

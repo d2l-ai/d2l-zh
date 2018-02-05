@@ -6,10 +6,11 @@
 
 我们使用与[上一节](reg-scratch.md)相同的高维线性回归为例来引入一个过拟合问题。
 
-```{.python .input}
+```{.python .input  n=1}
 from mxnet import ndarray as nd
 from mxnet import autograd
 from mxnet import gluon
+import mxnet as mx
 
 num_train = 20
 num_test = 100
@@ -19,7 +20,7 @@ true_w = nd.ones((num_inputs, 1)) * 0.01
 true_b = 0.05
 
 X = nd.random.normal(shape=(num_train + num_test, num_inputs))
-y = nd.dot(X, true_w)
+y = nd.dot(X, true_w) + true_b
 y += .01 * nd.random.normal(shape=y.shape)
 
 X_train, X_test = X[:num_train, :], X[num_train:, :]
@@ -35,6 +36,7 @@ y_train, y_test = y[:num_train], y[num_train:]
 import matplotlib as mpl
 mpl.rcParams['figure.dpi']= 120
 import matplotlib.pyplot as plt
+import numpy as np
 
 batch_size = 1
 dataset_train = gluon.data.ArrayDataset(X_train, y_train)
@@ -46,13 +48,12 @@ def test(net, X, y):
     return square_loss(net(X), y).mean().asscalar()
 
 def train(weight_decay):
-    learning_rate = 0.005
     epochs = 10
-    
+    learning_rate = 0.005
     net = gluon.nn.Sequential()
     with net.name_scope():
         net.add(gluon.nn.Dense(1))
-    net.initialize()
+    net.collect_params().initialize(mx.init.Normal(sigma=1))
 
     # 注意到这里 'wd'
     trainer = gluon.Trainer(net.collect_params(), 'sgd', {
