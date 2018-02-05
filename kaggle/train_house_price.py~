@@ -135,7 +135,7 @@ best_hidden_nodes = None
 best_weight_decay = None
 first_time = True
 min_avg_test_loss = None
-for times in range(10):
+for times in range(1000):
     learning_rate = random.uniform(4, learning_rate_range)
     hidden_nodes = random.randint(hidden_min_nodes, hidden_max_nodes)
     weight_decay = random.uniform(0, weight_decay_range)
@@ -164,9 +164,6 @@ for times in range(10):
             best_hidden_nodes = hidden_nodes
             best_weight_decay = weight_decay
     print('current_best_loss', min_avg_test_loss)    
-    print('current_best_learning_rate', best_learning_rate)    
-    print('current_best_hidden_nodes', best_hidden_nodes)    
-    print('current_best_weight_decay', best_weight_decay)    
 print('+'*100)
 print('best_learing_rate', best_learning_rate)
 print('best_hidden_nodes', best_hidden_nodes)

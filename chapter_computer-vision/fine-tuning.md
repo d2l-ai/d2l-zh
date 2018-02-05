@@ -45,6 +45,16 @@ with zipfile.ZipFile(fname, 'r') as f:
     f.extractall(data_dir)
 ```
 
+```{.json .output n=None}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Downloading ../data/hotdog.zip from https://apache-mxnet.s3-accelerate.amazonaws.com/gluon/dataset/hotdog.zip...\n"
+ }
+]
+```
+
 我们使用[图片增强](../image-augmentation.md)里类似的方法来处理图片。
 
 ```{.python .input  n=1}
@@ -216,8 +226,6 @@ classify_hotdog(finetune_net, '../img/dog_hotdog.jpg')
 - 多跑几个`epochs`直到收敛（你可以也需要调调参数），看看`scratch_net`和`finetune_net`最后的精度是不是有区别
 - 这里`finetune_net`重用了`pretrained_net`除最后全连接外的所有权重，试试少重用些权重，有会有什么区别
 - 事实上`ImageNet`里也有`hotdog`这个类，它的index是713。例如它对应的weight可以这样拿到。试试如何重用这个权重
-  
-  
 
 ```{.python .input}
 weight = pretrained_net.classifier[4].params.get('weight')
