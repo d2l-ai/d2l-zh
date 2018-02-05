@@ -165,4 +165,4 @@ train(batch_size=10, lr=0.9, epochs=3, period=10)
 
 * 我们提到了Adagrad可能的问题在于按元素平方的梯度累加变量。你能想到什么办法来应对这个问题吗？
 
-**吐槽和讨论欢迎点**[这里]()
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/2273)

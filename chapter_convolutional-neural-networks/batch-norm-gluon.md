@@ -42,7 +42,6 @@ import utils
 from mxnet import autograd 
 from mxnet import gluon
 from mxnet import nd
-# from mxnet import init
 
 ctx = utils.try_gpu()
 net.initialize(ctx=ctx)

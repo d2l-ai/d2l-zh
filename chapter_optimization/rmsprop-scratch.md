@@ -154,4 +154,4 @@ train(batch_size=10, lr=0.03, gamma=0.999, epochs=3, period=10)
 * 通过查阅网上资料，你对指数加权移动平均是怎样理解的？
 * 为什么gamma调大后，损失函数在迭代后期较平滑？
 
-**吐槽和讨论欢迎点**[这里]()
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/2275)

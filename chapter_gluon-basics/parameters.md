@@ -192,26 +192,7 @@ params.initialize(init=init.One(), force_reinit=True)
 print(net[0].weight.data(), net[0].bias.data())
 ```
 
-更多的方法参见[init的API](https://mxnet.incubator.apache.org/api/python/optimization.html#the-mxnet-initializer-package). 下面我们自定义一个初始化方法。
-
-```{.python .input  n=86}
-class MyInit(init.Initializer):
-    def __init__(self):
-        super(MyInit, self).__init__()
-        self._verbose = True
-    def _init_weight(self, _, arr):
-        # 初始化权重，使用out=arr后我们不需指定形状
-        print('init weight', arr.shape)
-        nd.random.uniform(low=5, high=10, out=arr)
-    def _init_bias(self, _, arr):
-        print('init bias', arr.shape)
-        # 初始化偏移
-        arr[:] = 2
-
-# FIXME: init_bias doesn't work
-params.initialize(init=MyInit(), force_reinit=True)
-print(net[0].weight.data(), net[0].bias.data())
-```
+更多的方法参见[init的API](https://mxnet.incubator.apache.org/api/python/optimization.html#the-mxnet-initializer-package). 
 
 ```{.json .output n=86}
 [
@@ -231,7 +212,7 @@ print(net[0].weight.data(), net[0].bias.data())
 
 ```{.python .input  n=15}
 net = get_net()
-print(net.collect_params())
+net.collect_params()
 ```
 
 ```{.json .output n=15}
@@ -246,25 +227,16 @@ print(net.collect_params())
 
 然后我们初始化
 
-```{.python .input  n=16}
-net.initialize(init=MyInit())
-print(net.collect_params())
+```{.python .input}
+net.initialize()
+net.collect_params()
 ```
 
-```{.json .output n=16}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "sequential1_ (\n  Parameter sequential1_dense0_weight (shape=(4, 0), dtype=<class 'numpy.float32'>)\n  Parameter sequential1_dense0_bias (shape=(4,), dtype=<class 'numpy.float32'>)\n  Parameter sequential1_dense1_weight (shape=(2, 0), dtype=<class 'numpy.float32'>)\n  Parameter sequential1_dense1_bias (shape=(2,), dtype=<class 'numpy.float32'>)\n)\n"
- }
-]
-```
-
-你会看到我们并没有看到MyInit打印的东西，这是因为我们仍然不知道形状。真正的初始化发生在我们看到数据时。
+你会看到我们形状并没有发生变化，这是因为我们仍然不能确定权重形状。真正的初始化发生在我们看到数据时。
 
 ```{.python .input  n=17}
 net(x)
+net.collect_params()
 ```
 
 ```{.json .output n=17}
@@ -287,66 +259,61 @@ net(x)
 
 这时候我们看到shape里面的0被填上正确的值了。
 
-```{.python .input  n=18}
-print(net.collect_params())
-```
-
-```{.json .output n=18}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "sequential1_ (\n  Parameter sequential1_dense0_weight (shape=(4, 5), dtype=<class 'numpy.float32'>)\n  Parameter sequential1_dense0_bias (shape=(4,), dtype=<class 'numpy.float32'>)\n  Parameter sequential1_dense1_weight (shape=(2, 4), dtype=<class 'numpy.float32'>)\n  Parameter sequential1_dense1_bias (shape=(2,), dtype=<class 'numpy.float32'>)\n)\n"
- }
-]
-```
-
-## 避免延后初始化
-
-有时候我们不想要延后初始化，这时候可以在创建网络的时候指定输入大小。
-
-```{.python .input  n=22}
-net = nn.Sequential()
-with net.name_scope():
-    net.add(nn.Dense(4, in_units=5, activation="relu"))
-    net.add(nn.Dense(2, in_units=4))
-
-net.initialize(MyInit())
-print(net[0].weight.data())
-print(net[0].bias.data())
-print(net[1].weight.data())
-```
-
-```{.json .output n=22}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "init weight (4, 5)\ninit weight (2, 4)\n\n[[ 8.89172745  5.98291206  9.74785519  6.84362602  8.31263447]\n [ 9.10496616  5.06785822  5.48550653  8.11423016  9.18972397]\n [ 8.36829758  5.48049212  9.859725    9.88229752  9.39096737]\n [ 7.343256    7.54812193  9.88380527  5.27857351  8.02422714]]\n<NDArray 4x5 @cpu(0)>\n\n[ 0.  0.  0.  0.]\n<NDArray 4 @cpu(0)>\n\n[[ 7.25579596  8.69631767  5.09993839  5.19593906]\n [ 7.20855427  6.41403484  9.89793396  5.60098267]]\n<NDArray 2x4 @cpu(0)>\n"
- }
-]
-```
-
 ## 共享模型参数
 
 有时候我们想在层之间共享同一份参数，我们可以通过Block的`params`输出参数来手动指定参数，而不是让系统自动生成。
 
-```{.python .input  n=53}
+```{.python .input  n=22}
 net = nn.Sequential()
 with net.name_scope():
-    net.add(nn.Dense(4, in_units=4, activation="relu"))
-    net.add(nn.Dense(4, in_units=4, activation="relu", params=net[-1].params))
-    net.add(nn.Dense(2, in_units=4))
-
-
+    net.add(nn.Dense(4, activation="relu"))
+    net.add(nn.Dense(4, activation="relu"))
+    net.add(nn.Dense(4, activation="relu", params=net[-1].params))
+    net.add(nn.Dense(2))
 ```
 
 初始化然后打印
 
-```{.python .input  n=54}
-net.initialize(MyInit())
-print(net[0].weight.data())
+```{.python .input}
+net.initialize()
+net(x)
 print(net[1].weight.data())
+print(net[2].weight.data())
+```
+
+## 自定义初始化方法
+
+下面我们自定义一个初始化方法。它通过重载`_init_weight`来实现不同的初始化方法。（注意到Gluon里面`bias`都是默认初始化成0）
+
+```{.python .input}
+class MyInit(init.Initializer):
+    def __init__(self):
+        super(MyInit, self).__init__()
+        self._verbose = True
+    def _init_weight(self, _, arr):
+        # 初始化权重，使用out=arr后我们不需指定形状
+        print('init weight', arr.shape)
+        nd.random.uniform(low=5, high=10, out=arr)
+
+net = get_net()
+net.initialize(MyInit())
+net(x)
+net[0].weight.data()
+```
+
+当然我们也可以通过`Parameter.set_data`来直接改写权重。注意到由于有延后初始化，所以我们通常可以通过调用一次`net(x)`来确定权重的形状先。
+
+```{.python .input}
+net = get_net()
+net.initialize()
+net(x)
+
+print('default weight:', net[1].weight.data())
+
+w = net[1].weight
+w.set_data(nd.ones(w.shape))
+
+print('init to all 1s:', net[1].weight.data())
 ```
 
 ```{.json .output n=54}

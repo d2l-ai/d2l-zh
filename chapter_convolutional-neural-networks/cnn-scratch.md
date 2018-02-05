@@ -3,7 +3,7 @@
 之前的教程里，在输入神经网络前我们将输入图片直接转成了向量。这样做有两个不好的地方：
 
 - 在图片里相近的像素在向量表示里可能很远，从而模型很难捕获他们的空间关系。
-- 对于大图片输入，模型可能会很大。例如输入是$256\times 256\times3$的照片（仍然远比手机拍的小），输入层是1000，那么这一层的模型大小是将近1GB.
+- 对于大图片输入，模型可能会很大。例如输入是$256\times 256\times3$的照片（仍然远比手机拍的小），输出层是1000，那么这一层的模型大小是将近1GB.
 
 这一节我们介绍卷积神经网络，其有效了解决了上述两个问题。
 
@@ -15,7 +15,7 @@
 
 卷积层跟前面的全连接层类似，但输入和权重不是做简单的矩阵乘法，而是使用每次作用在一个窗口上的卷积。下图演示了输入是一个$4\times 4$矩阵，使用一个$3\times 3$的权重，计算得到$2\times 2$结果的过程。每次我们采样一个跟权重一样大小的窗口，让它跟权重做按元素的乘法然后相加。通常我们也是用卷积的术语把这个权重叫kernel或者filter。
 
-![](https://raw.githubusercontent.com/vdumoulin/conv_arithmetic/master/gif/no_padding_no_strides.gif)
+![](../img/no_padding_no_strides.gif)
 
 （图片版权属于vdumoulin@github）
 
@@ -36,7 +36,7 @@ print('input:', data, '\n\nweight:', w, '\n\nbias:', b, '\n\noutput:', out)
 
 我们可以控制如何移动窗口，和在边缘的时候如何填充窗口。下图演示了`stride=2`和`pad=1`。
 
-![](https://raw.githubusercontent.com/vdumoulin/conv_arithmetic/master/gif/padding_strides.gif)
+![](../img/padding_strides.gif)
 
 ```{.python .input  n=48}
 out = nd.Convolution(data, w, b, kernel=w.shape[2:], num_filter=w.shape[1],
@@ -58,7 +58,7 @@ out = nd.Convolution(data, w, b, kernel=w.shape[2:], num_filter=w.shape[0])
 print('input:', data, '\n\nweight:', w, '\n\nbias:', b, '\n\noutput:', out)
 ```
 
-当输入需要多通道时，每个输出通道有对应权重，然后每个通道上做卷积。
+当输出需要多通道时，每个输出通道有对应权重，然后每个通道上做卷积。
 
 $$conv(data, w, b)[:,i,:,:] = conv(data, w[i,:,:,:], b[i])$$
 
@@ -210,7 +210,7 @@ for epoch in range(5):
 
     test_acc = evaluate_accuracy(test_data, net, ctx)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-        epoch, train_loss/len(train_data), 
+        epoch, train_loss/len(train_data),
         train_acc/len(train_data), test_acc))
 ```
 
