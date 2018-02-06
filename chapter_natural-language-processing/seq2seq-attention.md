@@ -53,7 +53,7 @@ $$\overleftarrow{\mathbf{h}}_t = f(\mathbf{x}_t, \overleftarrow{\mathbf{h}}_{t+1
 
 ![](../img/bi-rnn.svg)
 
-```{.python .input}
+```{.python .input  n=1}
 # 连结两个向量。
 from mxnet import nd
 h_forward = nd.array([1, 2])
@@ -127,11 +127,11 @@ $$\mathbf{s}_{t^\prime} = \mathbf{z}_{t^\prime} \odot \mathbf{s}_{t^\prime-1}  +
 其中的重置门、更新门和候选隐含状态分别为
 
 
-$$\mathbf{r}_{t^\prime} = \sigma(\mathbf{W}_{yr} \mathbf{y}_{t^\prime} + \mathbf{W}_{sr} \mathbf{s}_{t^\prime - 1} + \mathbf{W}_{cr} \mathbf{c}_{t^\prime} + \mathbf{b}_r)$$
+$$\mathbf{r}_{t^\prime} = \sigma(\mathbf{W}_{yr} \mathbf{y}_{t^\prime-1} + \mathbf{W}_{sr} \mathbf{s}_{t^\prime - 1} + \mathbf{W}_{cr} \mathbf{c}_{t^\prime} + \mathbf{b}_r)$$
 
-$$\mathbf{z}_{t^\prime} = \sigma(\mathbf{W}_{yz} \mathbf{y}_{t^\prime} + \mathbf{W}_{sz} \mathbf{s}_{t^\prime - 1} + \mathbf{W}_{cz} \mathbf{c}_{t^\prime} + \mathbf{b}_z)$$
+$$\mathbf{z}_{t^\prime} = \sigma(\mathbf{W}_{yz} \mathbf{y}_{t^\prime-1} + \mathbf{W}_{sz} \mathbf{s}_{t^\prime - 1} + \mathbf{W}_{cz} \mathbf{c}_{t^\prime} + \mathbf{b}_z)$$
 
-$$\tilde{\mathbf{s}}_{t^\prime} = \text{tanh}(\mathbf{W}_{ys} \mathbf{y}_{t^\prime} + \mathbf{W}_{ss} (\mathbf{s}_{t^\prime - 1} \odot \mathbf{r}_{t^\prime}) + \mathbf{W}_{cs} \mathbf{c}_{t^\prime} + \mathbf{b}_s)$$
+$$\tilde{\mathbf{s}}_{t^\prime} = \text{tanh}(\mathbf{W}_{ys} \mathbf{y}_{t^\prime-1} + \mathbf{W}_{ss} (\mathbf{s}_{t^\prime - 1} \odot \mathbf{r}_{t^\prime}) + \mathbf{W}_{cs} \mathbf{c}_{t^\prime} + \mathbf{b}_s)$$
 
 ## 结论
 
