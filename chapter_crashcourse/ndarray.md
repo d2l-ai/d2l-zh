@@ -144,7 +144,7 @@ id(x) == before
 
 ## 截取（Slicing）
 
-MXNet NDArray 提供了各种截取方法。截取 x 的 index 为 1、2 的列：
+MXNet NDArray 提供了各种截取方法。截取 x 的 index 为 1、2 的行：
 
 ```{.python .input}
 x = nd.arange(0,9).reshape((3,3))
