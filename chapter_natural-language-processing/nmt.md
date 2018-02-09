@@ -1,6 +1,11 @@
-# 机器翻译
+# 神经机器翻译
 
-TODO: @astonzhang
+本节介绍[编码器—解码器和注意力机制](seq2seq-attention.md)的应用。我们以神经机器翻译（neural machine translation）为例，介绍如何使用Gluon实现一个简单的编码器—解码器和注意力机制模型。
+
+
+## 使用Gluon实现编码器—解码器和注意力机制
+
+我们先载入需要的包。
 
 ```{.python .input}
 import mxnet as mx
@@ -13,11 +18,22 @@ import collections
 import datetime
 ```
 
+下面定义一些特殊字符。其中PAD (padding)符号使每个序列等长；BOS (beginning of sequence)符号表示序列的开始；而EOS (end of sequence)符号表示序列的结束。
+
+```{.python .input}
+PAD = '<pad>'
+BOS = '<bos>'
+EOS = '<eos>'
+```
+
+以下是一些可以调节的模型参数。我们在编码器和解码器中分别使用了一层和两层的循环神经网络。
+
 ```{.python .input}
 epochs = 50
 epoch_period = 10
 
 learning_rate = 0.005
+# 输入或输出序列的最大长度（含句末添加的EOS字符）。
 max_seq_len = 5
 
 encoder_num_layers = 1
@@ -33,14 +49,11 @@ alignment_dim = 25
 ctx = mx.cpu(0)
 ```
 
-```{.python .input}
-# PAD (padding)符号，使每个序列等长。
-PAD = '<pad>'
-# BOS (beginning of sequence)符号，序列的开始。
-BOS = '<bos>'
-# EOS (end of sequence)符号，序列的结束。
-EOS = '<eos>'
-```
+### 读取数据
+
+我们定义函数读取训练数据集。为了减少运行时间，我们使用一个很小的法语——英语数据集。
+
+这里使用了[之前章节](pretrained-embedding.md)介绍的`mxnet.contrib.text`来创建法语和英语的词典。需要注意的是，我们会在句末附上EOS符号，并可能通过添加PAD符号使每个序列等长。
 
 ```{.python .input}
 def read_data(max_seq_len):
@@ -61,8 +74,8 @@ def read_data(max_seq_len):
                 input_tokens.extend(cur_input_tokens)
                 # 句末附上EOS符号。
                 cur_input_tokens.append(EOS)
+                # 添加PAD符号使每个序列等长（长度为max_seq_len）。
                 while len(cur_input_tokens) < max_seq_len:
-                    # 添加PAD符号使每个序列等长（长度为max_seq_len）。
                     cur_input_tokens.append(PAD)
                 input_seqs.append(cur_input_tokens)
                 output_tokens.extend(cur_output_tokens)
@@ -78,6 +91,8 @@ def read_data(max_seq_len):
     return fr_vocab, en_vocab, input_seqs, output_seqs
 ```
 
+以下创建训练数据集。每一个样本包含法语的输入序列和英语的输出序列。
+
 ```{.python .input}
 input_vocab, output_vocab, input_seqs, output_seqs = read_data(max_seq_len)
 X = nd.zeros((len(input_seqs), max_seq_len), ctx=ctx)
@@ -88,6 +103,10 @@ for i in range(len(input_seqs)):
 
 dataset = gluon.data.ArrayDataset(X, Y)
 ```
+
+### 编码器、含注意力机制的解码器和解码器初始状态
+
+以下定义了基于[GRU](../chapter_recurrent-neural-networks/gru-scratch.md)的编码器。
 
 ```{.python .input}
 class Encoder(Block):
@@ -110,6 +129,8 @@ class Encoder(Block):
     def begin_state(self, *args, **kwargs):
         return self.rnn.begin_state(*args, **kwargs)
 ```
+
+以下定义了基于[GRU](../chapter_recurrent-neural-networks/gru-scratch.md)的解码器。它包含[上一节里介绍的注意力机制](seq2seq-attention.md)的实现。
 
 ```{.python .input}
 class Decoder(Block):
@@ -188,6 +209,8 @@ class Decoder(Block):
         return self.rnn.begin_state(*args, **kwargs)
 ```
 
+为了初始化解码器的隐含状态，我们通过一层全连接网络来转化编码器的输出隐含状态。
+
 ```{.python .input}
 class DecoderInitState(Block):
     """解码器隐含状态的初始化"""
@@ -202,11 +225,16 @@ class DecoderInitState(Block):
         return [self.dense(encoder_state)]
 ```
 
+### 训练和应用模型
+
+我们定义`translate`函数来应用训练好的模型。这些模型通过该函数的前三个参数传递。解码器的最初时刻输入来自BOS字符。当任一时刻的输出为EOS字符时，输出序列即完成。
+
 ```{.python .input}
 def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
     for fr_en in fr_ens:
         print('Input :', fr_en[0])
         input_tokens = fr_en[0].split(' ') + [EOS]
+        # 添加PAD符号使每个序列等长（长度为max_seq_len）。
         while len(input_tokens) < max_seq_len:
             input_tokens.append(PAD)
         inputs = nd.array(input_vocab.to_indices(input_tokens), ctx=ctx)
@@ -215,6 +243,7 @@ def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
         encoder_outputs, encoder_state = encoder(inputs.expand_dims(0),
                                                  encoder_state)
         encoder_outputs = encoder_outputs.flatten()
+        # 编码器的第一个输入为BOS字符。
         decoder_input = nd.array([output_vocab.token_to_idx[BOS]], ctx=ctx)
         decoder_state = decoder_init_state(encoder_state[0])
         output_tokens = []
@@ -223,6 +252,7 @@ def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
             decoder_output, decoder_state = decoder(
                 decoder_input, decoder_state, encoder_outputs)
             pred_i = int(decoder_output.argmax(axis=1).asnumpy())
+            # 当任一时刻的输出为EOS字符时，输出序列即完成。
             if pred_i == output_vocab.token_to_idx[EOS]:
                 break
             else:
@@ -232,6 +262,8 @@ def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
         print('Output:', ' '.join(output_tokens))
         print('Expect:', fr_en[1], '\n')
 ```
+
+下面定义模型训练函数。为了初始化解码器的隐含状态，我们通过一层全连接网络来转化编码器最早时刻的输出隐含状态。
 
 ```{.python .input}
 def train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens):
@@ -298,6 +330,8 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens):
                       max_seq_len)
 ```
 
+以下分别实例化编码器、解码器和解码器初始隐含状态网络。
+
 ```{.python .input}
 encoder = Encoder(len(input_vocab), encoder_hidden_dim, encoder_num_layers,
                   encoder_drop_prob)
@@ -307,6 +341,8 @@ decoder = Decoder(decoder_hidden_dim, len(output_vocab),
 decoder_init_state = DecoderInitState(encoder_hidden_dim, decoder_hidden_dim)
 ```
 
+给定简单的法语和英语序列，我们可以观察模型的训练结果。打印的结果中，Input、Output和Expect分别代表输入序列、输出序列和正确序列。
+
 ```{.python .input}
 eval_fr_ens =[['elle est japonaise .', 'she is japanese .'],
               ['ils regardent .', 'they are watching .']]
@@ -315,9 +351,12 @@ train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens)
 
 ## 结论
 
+* 我们可以将编码器—解码器和注意力机制应用于神经机器翻译中。
 
 
 ## 练习
+
+* 试着使用更大的翻译数据集来训练模型，例如[WMT](http://www.statmt.org/wmt14/translation-task.html)和[Tatoeba Project](http://www.manythings.org/anki/)。调一调不同参数并观察实验结果。
 
 
 **吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/4689)
