@@ -10,4 +10,5 @@
    glove-fasttext
    pretrained-embedding
    seq2seq-attention
+   nmt
 ```
