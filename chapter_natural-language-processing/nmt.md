@@ -9,10 +9,6 @@ from mxnet.contrib import text
 from io import open
 import collections
 import datetime
-import random
-
-mx.random.seed(1)
-random.seed(1)
 ```
 
 ```{.python .input  n=2}
