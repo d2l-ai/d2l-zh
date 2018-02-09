@@ -1,6 +1,6 @@
 # 机器翻译
 
-文字内容TODO: @astonzhang
+TODO: @astonzhang
 
 ```{.python .input}
 import mxnet as mx
