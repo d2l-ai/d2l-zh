@@ -1,6 +1,6 @@
 # 机器翻译
 
-```{.python .input  n=1}
+```{.python .input}
 import mxnet as mx
 from mxnet import autograd, gluon, nd
 from mxnet.gluon import nn, rnn, Block
@@ -11,7 +11,7 @@ import collections
 import datetime
 ```
 
-```{.python .input  n=2}
+```{.python .input}
 epochs = 50
 epoch_period = 10
 
@@ -31,7 +31,7 @@ alignment_dim = 25
 ctx = mx.cpu(0)
 ```
 
-```{.python .input  n=3}
+```{.python .input}
 # PAD (padding)符号，使每个序列等长。
 PAD = '<pad>'
 # BOS (beginning of sequence)符号，序列的开始。
@@ -40,7 +40,7 @@ BOS = '<bos>'
 EOS = '<eos>'
 ```
 
-```{.python .input  n=4}
+```{.python .input}
 def read_data(max_seq_len):
     input_tokens = []
     output_tokens = []
@@ -76,7 +76,7 @@ def read_data(max_seq_len):
     return fr_vocab, en_vocab, input_seqs, output_seqs
 ```
 
-```{.python .input  n=5}
+```{.python .input}
 input_vocab, output_vocab, input_seqs, output_seqs = read_data(max_seq_len)
 X = nd.zeros((len(input_seqs), max_seq_len), ctx=ctx)
 Y = nd.zeros((len(output_seqs), max_seq_len), ctx=ctx)
@@ -87,7 +87,7 @@ for i in range(len(input_seqs)):
 dataset = gluon.data.ArrayDataset(X, Y)
 ```
 
-```{.python .input  n=6}
+```{.python .input}
 class Encoder(Block):
     """编码器"""
     def __init__(self, input_dim, hidden_dim, num_layers, drop_prob):
@@ -109,7 +109,7 @@ class Encoder(Block):
         return self.rnn.begin_state(*args, **kwargs)
 ```
 
-```{.python .input  n=7}
+```{.python .input}
 class Decoder(Block):
     """含注意力机制的解码器"""
     def __init__(self, hidden_dim, output_dim, num_layers, max_seq_len,
@@ -186,7 +186,7 @@ class Decoder(Block):
         return self.rnn.begin_state(*args, **kwargs)
 ```
 
-```{.python .input  n=8}
+```{.python .input}
 class DecoderInitState(Block):
     """解码器隐含状态的初始化"""
     def __init__(self, encoder_hidden_dim, decoder_hidden_dim):
@@ -200,7 +200,7 @@ class DecoderInitState(Block):
         return [self.dense(encoder_state)]
 ```
 
-```{.python .input  n=9}
+```{.python .input}
 def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
     for fr_en in fr_ens:
         print('Input :', fr_en[0])
@@ -231,7 +231,7 @@ def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
         print('Expect:', fr_en[1], '\n')
 ```
 
-```{.python .input  n=10}
+```{.python .input}
 def train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens):
     # 对于三个网络，分别初始化它们的模型参数并定义它们的优化器。
     encoder.collect_params().initialize(mx.init.Xavier(), ctx=ctx)
@@ -296,7 +296,7 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens):
                       max_seq_len)
 ```
 
-```{.python .input  n=11}
+```{.python .input}
 encoder = Encoder(len(input_vocab), encoder_hidden_dim, encoder_num_layers,
                   encoder_drop_prob)
 decoder = Decoder(decoder_hidden_dim, len(output_vocab),
@@ -305,20 +305,10 @@ decoder = Decoder(decoder_hidden_dim, len(output_vocab),
 decoder_init_state = DecoderInitState(encoder_hidden_dim, decoder_hidden_dim)
 ```
 
-```{.python .input  n=12}
+```{.python .input}
 eval_fr_ens =[['elle est japonaise .', 'she is japanese .'],
               ['ils regardent .', 'they are watching .']]
 train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens)
-```
-
-```{.json .output n=12}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "Epoch 1, Loss 0.252837, Time 00:00:00\nInput : elle est japonaise .\nOutput: she is . . .\nExpect: she is japanese . \n\nInput : ils regardent .\nOutput: she she is is .\nExpect: they are watching . \n\nEpoch 10, Loss 0.898673, Time 00:00:06\nInput : elle est japonaise .\nOutput: she is canadian .\nExpect: she is japanese . \n\nInput : ils regardent .\nOutput: they are watching .\nExpect: they are watching . \n\nEpoch 20, Loss 0.328336, Time 00:00:06\nInput : elle est japonaise .\nOutput: she is wrong .\nExpect: she is japanese . \n\nInput : ils regardent .\nOutput: they are watching .\nExpect: they are watching . \n\nEpoch 30, Loss 0.157388, Time 00:00:07\nInput : elle est japonaise .\nOutput: she is japanese .\nExpect: she is japanese . \n\nInput : ils regardent .\nOutput: they are watching .\nExpect: they are watching . \n\nEpoch 40, Loss 0.003317, Time 00:00:07\nInput : elle est japonaise .\nOutput: she is japanese .\nExpect: she is japanese . \n\nInput : ils regardent .\nOutput: they are watching .\nExpect: they are watching . \n\nEpoch 50, Loss 0.001417, Time 00:00:07\nInput : elle est japonaise .\nOutput: she is japanese .\nExpect: she is japanese . \n\nInput : ils regardent .\nOutput: they are watching .\nExpect: they are watching . \n\n"
- }
-]
 ```
 
 ## 结论
@@ -328,4 +318,4 @@ train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens)
 ## 练习
 
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/4203)
+**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/4689)
