@@ -371,9 +371,9 @@ $$y_{t^\prime} = \text{argmax}_{y_{t^\prime} \in \mathcal{Y}} \mathbb{P}(y_{t^\p
 
 接下来，我们可以在输出序列：$A$、$C$、$AB$、$CE$、$ABD$、$CED$中筛选出以特殊字符EOS结尾的候选序列。再在候选序列中取以下分数最高的序列作为最终候选序列：
 
-$$ \frac{1}{L^\alpha} \log \mathbb{P}(y_1, \ldots, y_{L})$$
+$$ \frac{1}{L^\alpha} \log \mathbb{P}(y_1, \ldots, y_{L}) = \frac{1}{L^\alpha} \sum_{t^\prime=1}^L \log \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \mathbf{c})$$
 
-其中$L$为候选序列长度，$\alpha$一般可选为0.75。分母上的$L^\alpha$是为了惩罚较长序列的分数中的相加项。
+其中$L$为候选序列长度，$\alpha$一般可选为0.75。分母上的$L^\alpha$是为了惩罚较长序列的分数中的对数相加项。
 
 ## 结论
 
