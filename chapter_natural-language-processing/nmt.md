@@ -384,7 +384,7 @@ $$ \frac{1}{L^\alpha} \log \mathbb{P}(y_1, \ldots, y_{L})$$
 
 * 试着使用更大的翻译数据集来训练模型，例如[WMT](http://www.statmt.org/wmt14/translation-task.html)和[Tatoeba Project](http://www.manythings.org/anki/)。调一调不同参数并观察实验结果。
 * Teacher forcing：在模型训练中，试着让解码器使用当前时刻的正确结果（而不是预测结果）作为下一时刻的输入。结果会怎么样？
-
+* 了解评价翻译结果的[BLEU指标](https://www.aclweb.org/anthology/P02-1040.pdf)。
 
 
 
