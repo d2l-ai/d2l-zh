@@ -66,7 +66,7 @@ with net.name_scope():
         # 我们可以使用 nn.AvgPool2D(pool_size=5), 
         # 但更方便是使用全局池化，可以避免估算pool_size大小
         nn.GlobalAvgPool2D(),
-        # 转成 batch_size x 10
+        # 转成 batch_size x 10
         nn.Flatten()
     )
 
