@@ -1,6 +1,6 @@
 name: gluon
 dependencies:
-- python
+- python=3
 - jupyter
 - matplotlib
 - pandas
