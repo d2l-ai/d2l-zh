@@ -1,6 +1,10 @@
 **/.ipynb_checkpoints
 **/__pycache__
 data/
+.idea/
 build/
+.idea
 *.json
 *.params
+
+

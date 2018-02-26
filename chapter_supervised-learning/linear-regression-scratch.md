@@ -28,7 +28,7 @@ $$y = X \cdot w + b + \eta, \quad \text{for } \eta \sim \mathcal{N}(0,\sigma^2)$
 
 这里噪音服从均值0和标准差为0.01的正态分布。
 
-```{.python .input  n=2}
+```{.python .input  n=1}
 from mxnet import ndarray as nd
 from mxnet import autograd
 
@@ -45,7 +45,7 @@ y += .01 * nd.random_normal(shape=y.shape)
 
 注意到`X`的每一行是一个长度为2的向量，而`y`的每一行是一个长度为1的向量（标量）。
 
-```{.python .input  n=3}
+```{.python .input  n=2}
 print(X[0], y[0])
 ```
 
@@ -61,7 +61,7 @@ plt.show()
 
 当我们开始训练神经网络的时候，我们需要不断读取数据块。这里我们定义一个函数它每次返回`batch_size`个随机的样本和对应的目标。我们通过python的`yield`来构造一个迭代器。
 
-```{.python .input  n=4}
+```{.python .input  n=3}
 import random
 batch_size = 10
 def data_iter():
@@ -75,17 +75,27 @@ def data_iter():
 
 下面代码读取第一个随机数据块
 
-```{.python .input  n=5}
+```{.python .input  n=4}
 for data, label in data_iter():
     print(data, label)
     break
+```
+
+```{.json .output n=4}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "\n[[ 1.21471119 -0.858639  ]\n [ 0.19793853 -0.11836779]\n [-0.54594457 -1.771029  ]\n [ 1.5087148   0.19236873]\n [-1.01749468  0.25383762]\n [-0.32443359 -0.16558871]\n [-0.38509107 -0.02392192]\n [-0.54877394 -0.20801921]\n [-0.16627775  0.66310221]\n [-0.10484769  0.50182003]]\n<NDArray 10x2 @cpu(0)> \n[ 9.56153393  4.99592209  9.13892365  6.54900837  1.29187155  4.11557388\n  3.51655865  3.80636144  1.59956551  2.28933144]\n<NDArray 10 @cpu(0)>\n"
+ }
+]
 ```
 
 ## 初始化模型参数
 
 下面我们随机初始化模型参数
 
-```{.python .input  n=6}
+```{.python .input  n=35}
 w = nd.random_normal(shape=(num_inputs, 1))
 b = nd.zeros((1,))
 params = [w, b]
@@ -93,7 +103,7 @@ params = [w, b]
 
 之后训练时我们需要对这些参数求导来更新它们的值，使损失尽量减小；因此我们需要创建它们的梯度。
 
-```{.python .input  n=7}
+```{.python .input  n=36}
 for param in params:
     param.attach_grad()
 ```
@@ -102,16 +112,30 @@ for param in params:
 
 线性模型就是将输入和模型的权重（`w`）相乘，再加上偏移（`b`）：
 
-```{.python .input  n=8}
+```{.python .input  n=7}
 def net(X):
     return nd.dot(X, w) + b
+```
+
+```{.python .input  n=11}
+print(X.shape, y.shape)
+```
+
+```{.json .output n=11}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "(1000, 2) (1000,)\n"
+ }
+]
 ```
 
 ## 损失函数
 
 我们使用常见的平方误差来衡量预测目标和真实目标之间的差距。
 
-```{.python .input  n=9}
+```{.python .input  n=13}
 def square_loss(yhat, y):
     # 注意这里我们把y变形成yhat的形状来避免矩阵形状的自动转换
     return (yhat - y.reshape(yhat.shape)) ** 2
@@ -121,7 +145,7 @@ def square_loss(yhat, y):
 
 虽然线性回归有显式解，但绝大部分模型并没有。所以我们这里通过随机梯度下降来求解。每一步，我们将模型参数沿着梯度的反方向走特定距离，这个距离一般叫**学习率（learning rate）** `lr`。（我们会之后一直使用这个函数，我们将其保存在[utils.py](../utils.py)。）
 
-```{.python .input  n=10}
+```{.python .input  n=12}
 def SGD(params, lr):
     for param in params:
         param[:] = param - lr * param.grad
@@ -150,7 +174,7 @@ def plot(losses, X, sample_size=100):
     plt.show()
 ```
 
-```{.python .input  n=11}
+```{.python .input  n=39}
 epochs = 5
 learning_rate = .001
 niter = 0
@@ -186,12 +210,38 @@ for e in range(epochs):
 
 训练完成后，我们可以比较学得的参数和真实参数
 
-```{.python .input  n=12}
+```{.python .input  n=38}
 true_w, w
 ```
 
-```{.python .input  n=13}
+```{.json .output n=38}
+[
+ {
+  "data": {
+   "text/plain": "([2, -3.4], \n [[ 1.46712148]\n  [-2.0926156 ]]\n <NDArray 2x1 @cpu(0)>)"
+  },
+  "execution_count": 38,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
+```{.python .input  n=16}
 true_b, b
+```
+
+```{.json .output n=16}
+[
+ {
+  "data": {
+   "text/plain": "(4.2, \n [ 4.19956732]\n <NDArray 1 @cpu(0)>)"
+  },
+  "execution_count": 16,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
 ## 结论

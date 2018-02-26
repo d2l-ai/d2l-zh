@@ -45,6 +45,16 @@ with zipfile.ZipFile(fname, 'r') as f:
     f.extractall(data_dir)
 ```
 
+```{.json .output n=None}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Downloading ../data/hotdog.zip from https://apache-mxnet.s3-accelerate.amazonaws.com/gluon/dataset/hotdog.zip...\n"
+ }
+]
+```
+
 我们使用[图片增强](../image-augmentation.md)里类似的方法来处理图片。
 
 ```{.python .input  n=18}

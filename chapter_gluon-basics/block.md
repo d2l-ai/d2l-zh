@@ -6,7 +6,7 @@
 
 我们重新把[多层感知机 --- 使用Gluon](../chapter_supervised-learning/mlp-gluon.md)里的网络定义搬到这里作为开始的例子（为了简单起见，这里我们丢掉了Flatten层）。
 
-```{.python .input  n=9}
+```{.python .input  n=1}
 from mxnet import nd
 from mxnet.gluon import nn
 
@@ -18,6 +18,33 @@ with net.name_scope():
 print(net)
 ```
 
+```{.json .output n=1}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Sequential(\n  (0): Dense(256, Activation(relu))\n  (1): Dense(10, linear)\n)\n"
+ }
+]
+```
+
+```{.python .input  n=4}
+from mxnet import nd
+from mxnet.gluon import nn
+
+net = nn.Sequential()
+nn.Sequential??
+
+```
+
+```{.python .input}
+nn.Dense??
+```
+
+```{.python .input}
+nn.HybridBlock??
+```
+
 ## 使用 `nn.Block` 来定义
 
 事实上，`nn.Sequential`是`nn.Block`的简单形式。我们先来看下如何使用`nn.Block`来实现同样的网络。
@@ -26,12 +53,13 @@ print(net)
 class MLP(nn.Block):
     def __init__(self, **kwargs):
         super(MLP, self).__init__(**kwargs)
-        with self.name_scope():
+        with self.name_scope():   # 有参数的放在init里
             self.dense0 = nn.Dense(256)
             self.dense1 = nn.Dense(10)
 
     def forward(self, x):
-        return self.dense1(nd.relu(self.dense0(x)))
+        return self.dense1(nd.relu(self.dense0(x)))  # relu这样固定的放在forward里即可
+    
 ```
 
 可以看到`nn.Block`的使用是通过创建一个它子类的类，其中至少包含了两个函数。
@@ -48,10 +76,6 @@ net2.initialize()
 x = nd.random.uniform(shape=(4,20))
 y = net2(x)
 y
-```
-
-```{.python .input}
-nn.Dense
 ```
 
 如何定义创建和使用`nn.Dense`比较好理解。接下来我们仔细看下`MLP`里面用的其他命令：
@@ -108,6 +132,7 @@ with net4.name_scope():
 net4.initialize()
 y = net4(x)
 y
+print(net4)
 ```
 
 可以看到，`nn.Sequential`的主要好处是定义网络起来更加简单。但`nn.Block`可以提供更加灵活的网络定义。考虑下面这个例子
@@ -116,7 +141,7 @@ y
 class FancyMLP(nn.Block):
     def __init__(self, **kwargs):
         super(FancyMLP, self).__init__(**kwargs)
-        with self.name_scope():
+        with self.name_scope():  # 这个例子第一层是用的Dense，第二次是自己代码写的，第三次用的和第一层一样
             self.dense = nn.Dense(256)
             self.weight = nd.random_uniform(shape=(256,20))
 
@@ -130,22 +155,25 @@ class FancyMLP(nn.Block):
 看到这里我们直接手动创建和初始了权重`weight`，并重复用了`dense`的层。测试一下：
 
 ```{.python .input}
+print(x.shape)
 fancy_mlp = FancyMLP()
 fancy_mlp.initialize()
 y = fancy_mlp(x)
 print(y.shape)
+print(fancy_mlp)
 ```
 
 ## `nn.Block`和`nn.Sequential`的嵌套使用
 
 现在我们知道了`nn`下面的类基本都是`nn.Block`的子类，他们可以很方便地嵌套使用。
 
-```{.python .input}
+```{.python .input  n=74}
 class RecMLP(nn.Block):
     def __init__(self, **kwargs):
         super(RecMLP, self).__init__(**kwargs)
         self.net = nn.Sequential()
         with self.name_scope():
+            
             self.net.add(nn.Dense(256, activation="relu"))
             self.net.add(nn.Dense(128, activation="relu"))
             self.dense = nn.Dense(64)
@@ -157,6 +185,84 @@ rec_mlp = nn.Sequential()
 rec_mlp.add(RecMLP())
 rec_mlp.add(nn.Dense(10))
 print(rec_mlp)
+
+```
+
+```{.json .output n=74}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Sequential(\n  (0): RecMLP(\n    (net): Sequential(\n      (0): Dense(256, Activation(relu))\n      (1): Dense(128, Activation(relu))\n    )\n    (dense): Dense(64, linear)\n  )\n  (1): Dense(10, linear)\n)\n"
+ }
+]
+```
+
+```{.python .input  n=75}
+net5 = RecMLP()
+print(net5.net._children[1].name)
+print(net5.dense.name)
+print(net5)
+```
+
+```{.json .output n=75}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "recmlp23_dense1\nrecmlp23_dense2\nRecMLP(\n  (net): Sequential(\n    (0): Dense(256, Activation(relu))\n    (1): Dense(128, Activation(relu))\n  )\n  (dense): Dense(64, linear)\n)\n"
+ }
+]
+```
+
+```{.python .input  n=62}
+class MyExerciseNet(nn.Block):
+    def __init__(self, **kwargs):
+        super(MyExerciseNet, self).__init__(**kwargs)
+#         with self.name_scope():
+        self.dense = [nn.Dense(256), nn.Dense(128), nn.Dense(64)]
+    
+    def forward(self, x):
+        for block in self.dense:
+            x = block(x)
+        return x
+```
+
+```{.python .input  n=64}
+print(x.shape)
+exeNet = MyExerciseNet()
+exeNet.initialize()
+y = exeNet.forward(x)
+# y = exeNet(x)
+# print(y.shape)
+print(exeNet)
+```
+
+```{.json .output n=64}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "(4, 20)\n"
+ },
+ {
+  "ename": "RuntimeError",
+  "evalue": "Parameter dense9_weight has not been initialized. Note that you should initialize parameters and create Trainer with Block.collect_params() instead of Block.params because the later does not include Parameters of nested child Blocks",
+  "output_type": "error",
+  "traceback": [
+   "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+   "\u001b[0;31mRuntimeError\u001b[0m                              Traceback (most recent call last)",
+   "\u001b[0;32m<ipython-input-64-0cfbda165bda>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[1;32m      2\u001b[0m \u001b[0mexeNet\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mMyExerciseNet\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      3\u001b[0m \u001b[0mexeNet\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0minitialize\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 4\u001b[0;31m \u001b[0my\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mexeNet\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mforward\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mx\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      5\u001b[0m \u001b[0;31m# y = exeNet(x)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      6\u001b[0m \u001b[0;31m# print(y.shape)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+   "\u001b[0;32m<ipython-input-62-19cc3c524557>\u001b[0m in \u001b[0;36mforward\u001b[0;34m(self, x)\u001b[0m\n\u001b[1;32m      7\u001b[0m     \u001b[0;32mdef\u001b[0m \u001b[0mforward\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mx\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      8\u001b[0m         \u001b[0;32mfor\u001b[0m \u001b[0mblock\u001b[0m \u001b[0;32min\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mdense\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 9\u001b[0;31m             \u001b[0mx\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mblock\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mx\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m     10\u001b[0m         \u001b[0;32mreturn\u001b[0m \u001b[0mx\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+   "\u001b[0;32m/Users/thomas_young/miniconda3/envs/gluon/lib/python3.6/site-packages/mxnet/gluon/block.py\u001b[0m in \u001b[0;36m__call__\u001b[0;34m(self, *args)\u001b[0m\n\u001b[1;32m    285\u001b[0m     \u001b[0;32mdef\u001b[0m \u001b[0m__call__\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m*\u001b[0m\u001b[0margs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    286\u001b[0m         \u001b[0;34m\"\"\"Calls forward. Only accepts positional arguments.\"\"\"\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 287\u001b[0;31m         \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mforward\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m*\u001b[0m\u001b[0margs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    288\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    289\u001b[0m     \u001b[0;32mdef\u001b[0m \u001b[0mforward\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m*\u001b[0m\u001b[0margs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+   "\u001b[0;32m/Users/thomas_young/miniconda3/envs/gluon/lib/python3.6/site-packages/mxnet/gluon/block.py\u001b[0m in \u001b[0;36mforward\u001b[0;34m(self, x, *args)\u001b[0m\n\u001b[1;32m    421\u001b[0m                     \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_call_cached_op\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mx\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m*\u001b[0m\u001b[0margs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    422\u001b[0m                 \u001b[0;32mtry\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 423\u001b[0;31m                     \u001b[0mparams\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;34m{\u001b[0m\u001b[0mi\u001b[0m\u001b[0;34m:\u001b[0m \u001b[0mj\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mdata\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mctx\u001b[0m\u001b[0;34m)\u001b[0m \u001b[0;32mfor\u001b[0m \u001b[0mi\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mj\u001b[0m \u001b[0;32min\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_reg_params\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mitems\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m}\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    424\u001b[0m                 \u001b[0;32mexcept\u001b[0m \u001b[0mDeferredInitializationError\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    425\u001b[0m                     \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0minfer_shape\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mx\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m*\u001b[0m\u001b[0margs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+   "\u001b[0;32m/Users/thomas_young/miniconda3/envs/gluon/lib/python3.6/site-packages/mxnet/gluon/block.py\u001b[0m in \u001b[0;36m<dictcomp>\u001b[0;34m(.0)\u001b[0m\n\u001b[1;32m    421\u001b[0m                     \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_call_cached_op\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mx\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m*\u001b[0m\u001b[0margs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    422\u001b[0m                 \u001b[0;32mtry\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 423\u001b[0;31m                     \u001b[0mparams\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;34m{\u001b[0m\u001b[0mi\u001b[0m\u001b[0;34m:\u001b[0m \u001b[0mj\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mdata\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mctx\u001b[0m\u001b[0;34m)\u001b[0m \u001b[0;32mfor\u001b[0m \u001b[0mi\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mj\u001b[0m \u001b[0;32min\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_reg_params\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mitems\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m}\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    424\u001b[0m                 \u001b[0;32mexcept\u001b[0m \u001b[0mDeferredInitializationError\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    425\u001b[0m                     \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0minfer_shape\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mx\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m*\u001b[0m\u001b[0margs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+   "\u001b[0;32m/Users/thomas_young/miniconda3/envs/gluon/lib/python3.6/site-packages/mxnet/gluon/parameter.py\u001b[0m in \u001b[0;36mdata\u001b[0;34m(self, ctx)\u001b[0m\n\u001b[1;32m    337\u001b[0m         \u001b[0mNDArray\u001b[0m \u001b[0mon\u001b[0m \u001b[0mctx\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    338\u001b[0m         \"\"\"\n\u001b[0;32m--> 339\u001b[0;31m         \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_check_and_get\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_data\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mctx\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    340\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    341\u001b[0m     \u001b[0;32mdef\u001b[0m \u001b[0mlist_data\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+   "\u001b[0;32m/Users/thomas_young/miniconda3/envs/gluon/lib/python3.6/site-packages/mxnet/gluon/parameter.py\u001b[0m in \u001b[0;36m_check_and_get\u001b[0;34m(self, arr_dict, ctx)\u001b[0m\n\u001b[1;32m    153\u001b[0m             \u001b[0;34m\"with Block.collect_params() instead of Block.params \"\u001b[0m\u001b[0;31m \u001b[0m\u001b[0;31m\\\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    154\u001b[0m             \u001b[0;34m\"because the later does not include Parameters of \"\u001b[0m\u001b[0;31m \u001b[0m\u001b[0;31m\\\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 155\u001b[0;31m             \"nested child Blocks\"%(self.name))\n\u001b[0m\u001b[1;32m    156\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    157\u001b[0m     \u001b[0;32mdef\u001b[0m \u001b[0m_load_init\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mdata\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mctx\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+   "\u001b[0;31mRuntimeError\u001b[0m: Parameter dense9_weight has not been initialized. Note that you should initialize parameters and create Trainer with Block.collect_params() instead of Block.params because the later does not include Parameters of nested child Blocks"
+  ]
+ }
+]
 ```
 
 ## 总结

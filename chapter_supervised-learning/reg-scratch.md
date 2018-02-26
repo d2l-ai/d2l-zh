@@ -36,25 +36,58 @@ true_w = nd.ones((num_inputs, 1)) * 0.01
 true_b = 0.05
 ```
 
+```{.python .input  n=5}
+true_w.shape
+```
+
+```{.json .output n=5}
+[
+ {
+  "data": {
+   "text/plain": "(200, 1)"
+  },
+  "execution_count": 5,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
 我们接着生成训练和测试数据集。
 
-```{.python .input  n=3}
+```{.python .input  n=6}
 X = nd.random.normal(shape=(num_train + num_test, num_inputs))
 y = nd.dot(X, true_w) + true_b
 y += .01 * nd.random.normal(shape=y.shape)
-
 X_train, X_test = X[:num_train, :], X[num_train:, :]
 y_train, y_test = y[:num_train], y[num_train:]
 ```
 
+```{.python .input  n=12}
+print(X.shape, X_train.shape, X_test.shape)
+print(y.shape, y_train.shape, y_test.shape)
+```
+
+```{.json .output n=12}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "(120, 200) (20, 200) (100, 200)\n(120, 1) (20, 1) (100, 1)\n"
+ }
+]
+```
+
 当我们开始训练神经网络的时候，我们需要不断读取数据块。这里我们定义一个函数它每次返回`batch_size`个随机的样本和对应的目标。我们通过python的`yield`来构造一个迭代器。
 
-```{.python .input  n=4}
+```{.python .input  n=45}
 import random
 batch_size = 1
 def data_iter(num_examples):
     idx = list(range(num_examples))
+    print('idx1', idx)
     random.shuffle(idx)
+    print('idx2', idx)
     for i in range(0, num_examples, batch_size):
         j = nd.array(idx[i:min(i+batch_size,num_examples)])
         yield X.take(j), y.take(j)

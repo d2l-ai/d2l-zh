@@ -6,12 +6,30 @@
 
 我们继续使用FashionMNIST数据集。
 
-```{.python .input  n=1}
+```{.python .input  n=30}
 import sys
 sys.path.append('..')
 import utils
+# utils??
 batch_size = 256
 train_data, test_data = utils.load_data_fashion_mnist(batch_size)
+```
+
+```{.python .input  n=31}
+train_data
+```
+
+```{.json .output n=31}
+[
+ {
+  "data": {
+   "text/plain": "<mxnet.gluon.data.dataloader.DataLoader at 0x7f6544bc6080>"
+  },
+  "execution_count": 31,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
 ## 多层感知机
@@ -22,25 +40,53 @@ train_data, test_data = utils.load_data_fashion_mnist(batch_size)
 
 这里我们定义一个只有一个隐含层的模型，这个隐含层输出256个节点。
 
-```{.python .input  n=2}
+```{.python .input  n=49}
 from mxnet import ndarray as nd
 
 num_inputs = 28*28
 num_outputs = 10
 
 num_hidden = 256
-weight_scale = .01
+weight_scale = 0.01
+
+num_hidden2 = 2200
 
 W1 = nd.random_normal(shape=(num_inputs, num_hidden), scale=weight_scale)
 b1 = nd.zeros(num_hidden)
 
-W2 = nd.random_normal(shape=(num_hidden, num_outputs), scale=weight_scale)
+W11 = nd.random_normal(shape=(num_hidden, num_hidden2), scale=weight_scale)
+b11 = nd.zeros(num_hidden2)
+
+W2 = nd.random_normal(shape=(num_hidden2, num_outputs), scale=weight_scale)
 b2 = nd.zeros(num_outputs)
 
-params = [W1, b1, W2, b2]
-
+params = [W1, b1, W2, b2, W11, b11]
+# print(params)
 for param in params:
     param.attach_grad()
+print(num_inputs)
+
+784*1000 + 1000 *10
+# 784*256 + 256*x + x*10 = 794000
+(794000 - 784*256)/266
+```
+
+```{.json .output n=49}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "784\n"
+ },
+ {
+  "data": {
+   "text/plain": "2230.436090225564"
+  },
+  "execution_count": 49,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
 ## 激活函数
@@ -53,8 +99,9 @@ $$\hat{y} = X \cdot W_1 \cdot W_2 = X \cdot W_3 $$
 
 $$\textrm{rel}u(x)=\max(x, 0)$$
 
-```{.python .input  n=3}
+```{.python .input  n=33}
 def relu(X):
+#     print('relu X.shape', X.shape)
     return nd.maximum(X, 0)
 ```
 
@@ -62,11 +109,13 @@ def relu(X):
 
 我们的模型就是将层（全连接）和激活函数（Relu）串起来：
 
-```{.python .input  n=4}
+```{.python .input  n=53}
 def net(X):
+#     print('net X.shape', X.shape)
     X = X.reshape((-1, num_inputs))
     h1 = relu(nd.dot(X, W1) + b1)
-    output = nd.dot(h1, W2) + b2
+    h2 = relu(nd.dot(h1, W11) + b11)
+    output = nd.dot(h2, W2) + b2
     return output
 ```
 
@@ -74,7 +123,7 @@ def net(X):
 
 在多类Logistic回归里我们提到分开实现Softmax和交叉熵损失函数可能导致数值不稳定。这里我们直接使用Gluon提供的函数
 
-```{.python .input  n=6}
+```{.python .input  n=51}
 from mxnet import gluon
 softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 ```
@@ -83,7 +132,7 @@ softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 
 训练跟之前一样。
 
-```{.python .input  n=8}
+```{.python .input  n=54}
 from mxnet import autograd as autograd
 
 learning_rate = .5
@@ -107,6 +156,16 @@ for epoch in range(5):
         train_acc/len(train_data), test_acc))
 ```
 
+```{.json .output n=54}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Epoch 0. Loss: 1.011042, Train acc 0.614694, Test acc 0.811426\nEpoch 1. Loss: 0.528075, Train acc 0.801579, Test acc 0.817285\nEpoch 2. Loss: 0.445486, Train acc 0.836420, Test acc 0.854980\nEpoch 3. Loss: 0.452725, Train acc 0.836597, Test acc 0.853906\nEpoch 4. Loss: 0.400831, Train acc 0.849596, Test acc 0.861914\n"
+ }
+]
+```
+
 ## 总结
 
 可以看到，加入一个隐含层后我们将精度提升了不少。
@@ -118,3 +177,7 @@ for epoch in range(5):
 - 尝试加入一个新的隐含层
 
 **吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/739)
+
+1. weight过大会导致loss比较大，比较难训练，最好还是用0.01
+2. 增加复杂度能略微增加准确率:num_hidden = 1000时，Test acc 0.878809，训练时间1m 49.4s
+3. 增加隐含层能略微提高准确率：增加一个隐藏层2200neuron，Test acc 0.861914，训练时间 2m 12s
