@@ -49,7 +49,7 @@ sudo fc-cache -f -v
 
 这时候可以通过 `fc-list :lang=zh` 来查看安装的中文字体。
 
-然后可以编译了
+然后可以编译了。
 
 ```bash
 make latex
