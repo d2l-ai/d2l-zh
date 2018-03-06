@@ -32,7 +32,7 @@ make html EVAL=0
 
 ## 编译PDF版本
 
-编译pdf版本需要xelatex，和思源字体。在Ubuntu可以这样安装
+编译pdf版本需要xelatex，和思源字体。在Ubuntu可以这样安装。
 
 ```bash
 sudo apt-get install texlive-full
