@@ -32,7 +32,7 @@ make html EVAL=0
 
 ## 编译PDF版本
 
-编译pdf版本需要xelatex，和思源字体。在Ubuntu可以这样安装
+编译pdf版本需要xelatex，和思源字体。在Ubuntu可以这样安装。
 
 ```bash
 sudo apt-get install texlive-full
@@ -49,7 +49,7 @@ sudo fc-cache -f -v
 
 这时候可以通过 `fc-list :lang=zh` 来查看安装的中文字体。
 
-然后可以编译了
+然后可以编译了。
 
 ```bash
 make latex
