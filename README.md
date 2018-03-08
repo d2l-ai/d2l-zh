@@ -52,9 +52,7 @@ sudo fc-cache -f -v
 然后可以编译了。
 
 ```bash
-make latex
-cd _build/latex
-xelatex -interaction nonstopmode gluon_tutorials_zh.tex
+make pdf
 ```
 
 
