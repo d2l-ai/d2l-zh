@@ -49,7 +49,7 @@ y += .01 * nd.random_normal(shape=y.shape)
 print(X[0], y[0])
 ```
 
-如果有兴趣，可以使用安装包中已包括的 Python 绘图包 `matplotlib`，生成第二个特征值 (`X[:, 1]`) 和目标值 `Y` 的散点图，更直观地观察两者间的关系。 
+如果有兴趣，可以使用安装包中已包括的 Python 绘图包 `matplotlib`，生成第二个特征值 (`X[:, 1]`) 和目标值 `Y` 的散点图，更直观地观察两者间的关系。
 
 ```{.python .input}
 import matplotlib.pyplot as plt
@@ -202,4 +202,8 @@ true_b, b
 
 尝试用不同的学习率查看误差下降速度（收敛率）
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/743)
+## 讨论
+
+**欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/743)**
+
+![](qr/linear-regression-scratch.png)
