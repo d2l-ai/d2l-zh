@@ -311,14 +311,14 @@ def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim,
                 if is_lstm:
                     state_c = nd.zeros(shape=(batch_size, hidden_dim), ctx=ctx)
             with autograd.record():
-                # outputs shape：(batch_size, vocab_size)
+                # outputs shape: (batch_size, vocab_size)
                 if is_lstm:
                     outputs, state_h, state_c = rnn(get_inputs(data), state_h,
                                                     state_c, *params) 
                 else:
                     outputs, state_h = rnn(get_inputs(data), state_h, *params)
                 # Let t_ib_j be the j-th element of the mini-batch at time i.
-                # label shape：（batch_size * num_steps）
+                # label shape: (batch_size * num_steps)
                 # label = [t_0b_0, t_0b_1, ..., t_1b_0, t_1b_1, ..., ].
                 label = label.T.reshape((-1,))
                 # Concatenate outputs:
