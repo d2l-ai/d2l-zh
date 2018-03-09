@@ -206,4 +206,4 @@ true_b, b
 
 **欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/743)**
 
-![](qr/linear-regression-scratch.png)
+![](../img/qr/linear-regression-scratch.png)
