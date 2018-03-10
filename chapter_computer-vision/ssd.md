@@ -323,7 +323,7 @@ def toy_ssd_forward(x, model, sizes, ratios, verbose=False):
             x = nd.Pooling(
                 x, global_pool=True, pool_type='max', 
                 kernel=(x.shape[2], x.shape[3]))
-    # concat date
+    # concat data
     return (concat_predictions(anchors),
             concat_predictions(class_preds),
             concat_predictions(box_preds))
