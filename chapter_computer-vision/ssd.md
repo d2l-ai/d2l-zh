@@ -357,7 +357,7 @@ class ToySSD(gluon.Block):
         return anchors, class_preds, box_preds
 ```
 
-我们看看一下输入图片的形状是如何改变的，已经输出的形状。
+我们看一下输入图片的形状是如何改变的，已经输出的形状。
 
 ```{.python .input  n=16}
 net = ToySSD(num_classes=2, verbose=True)
