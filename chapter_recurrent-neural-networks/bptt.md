@@ -90,7 +90,7 @@ $$\frac{\partial L}{\partial \mathbf{h}_t}
 = \sum_{i=t}^T {(\mathbf{W}_{hh}^\top)}^{T-i} \mathbf{W}_{yh}^\top \frac{\partial L}{\partial \mathbf{o}_{T+t-i}}
 $$
 
-由此可见，当每个时序训练数据样本的时序长度$T$较大或者时刻$t$较小，目标函数有关隐含层变量梯度较容易出现**衰减**（valishing）和**爆炸**（explosion）。想象一下$2^{30}$和$0.5^{30}$会有多大。
+由此可见，当每个时序训练数据样本的时序长度$T$较大或者时刻$t$较小，目标函数有关隐含层变量梯度较容易出现**衰减**（vanishing）和**爆炸**（explosion）。想象一下$2^{30}$和$0.5^{30}$会有多大。
 
 
 有了各时刻隐含层变量的梯度之后，我们可以计算隐含层中模型参数的梯度$\partial L/\partial \mathbf{W}_{hx} \in \mathbb{R}^{h \times x}$和$\partial L/\partial \mathbf{W}_{hh} \in \mathbb{R}^{h \times h}$。在计算图中，它们都可以经过$\mathbf{h}_1, \ldots, \mathbf{h}_T$通向$L$。依据链式法则，我们有
