@@ -101,10 +101,10 @@ from mxnet.gluon.model_zoo import vision as models
 pretrained_net = models.resnet18_v2(pretrained=True)
 ```
 
-通常预训练好的模型由两块构成，一是`features`，二是`output`。后者主要包括最后一层全连接层，前者包含从输入开始的大部分层。这样的划分的一个主要目的是为了更方便做微调。我们先看下`output`的内容：
+通常预训练好的模型由两块构成，一是`features`，二是`classifier`。后者主要包括最后一层全连接层，前者包含从输入开始的大部分层。这样的划分的一个主要目的是为了更方便做微调。我们先看下`classifier`的内容：
 
 ```{.python .input  n=22}
-pretrained_net.output
+pretrained_net.classifier
 ```
 
 我们可以看一下第一个卷积层的部分权重。
@@ -113,14 +113,14 @@ pretrained_net.output
 pretrained_net.features[1].weight.data()[0][0]
 ```
 
-在微调里，我们一般新建一个网络，它的定义跟之前训练好的网络一样，除了最后的输出数等于当前数据的类别数。新网络的`features`被初始化前面训练好网络的权重，而`output`则是从头开始训练。
+在微调里，我们一般新建一个网络，它的定义跟之前训练好的网络一样，除了最后的输出数等于当前数据的类别数。新网络的`features`被初始化前面训练好网络的权重，而`classifier`则是从头开始训练。
 
 ```{.python .input  n=24}
 from mxnet import init
 
 finetune_net = models.resnet18_v2(classes=2)
 finetune_net.features = pretrained_net.features
-finetune_net.output.initialize(init.Xavier())
+finetune_net.classifier.initialize(init.Xavier())
 ```
 
 我们先定义一个可以重复使用的训练函数。
