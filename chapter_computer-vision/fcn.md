@@ -13,7 +13,7 @@
 
 ## 数据集
 
-[VOC2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/)是一个常用的语义分割数据集。输入图片跟之前的数据集类似，但标注也是保存称相应大小的图片来方便查看。下面代码下载这个数据集并解压。注意到压缩包大小是2GB，可以预先下好放置在`data_root`下。
+[VOC2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/)是一个常用的语义分割数据集。输入图片跟之前的数据集类似，标注也是保存成相应大小的图片来方便查看。下面代码下载这个数据集并解压。注意到压缩包大小是2GB，可以预先下好放置在`data_root`下。
 
 ```{.python .input  n=1}
 import os
