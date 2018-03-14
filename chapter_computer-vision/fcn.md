@@ -264,7 +264,7 @@ with net.name_scope():
 
 ## 训练
 
-训练的时候我们需要初始化新添加的两层。我们可以随机初始化，但实际中发现将卷积转置层初始化成双线性差值函数可以使得训练更容易。
+训练的时候我们需要初始化新添加的两层。我们可以随机初始化，但实际中发现将卷积转置层初始化成双线性差值函数可以使训练更容易。
 
 ```{.python .input  n=15}
 def bilinear_kernel(in_channels, out_channels, kernel_size):
