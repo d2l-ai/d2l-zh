@@ -102,8 +102,8 @@ class RNNModel(gluon.Block):
                 self.rnn = rnn.RNN(hidden_dim, num_layers, activation='relu',
                                    dropout=dropout, input_size=embed_dim)
             elif mode == 'rnn_tanh':
-                self.rnn = rnn.RNN(hidden_dim, num_layers, dropout=dropout,
-                                   input_size=embed_dim)
+                self.rnn = rnn.RNN(hidden_dim, num_layers, activation='tanh',
+                                   dropout=dropout, input_size=embed_dim)
             elif mode == 'lstm':
                 self.rnn = rnn.LSTM(hidden_dim, num_layers, dropout=dropout,
                                     input_size=embed_dim)
