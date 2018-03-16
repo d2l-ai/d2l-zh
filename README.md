@@ -14,7 +14,7 @@ build服务器在 http://ci.mxnet.io 。这台服务器有两块Nvidia M60。
 
 在本地可以如下build html（需要GPU支持）
 
-```bash
+```{.python .input}
 conda env update -f build/build.yml
 source activate gluon_zh_docs
 make html
@@ -24,7 +24,7 @@ make html
 
 如果没有改动notebook里面源代码，所以不想执行notebook，可以使用
 
-```
+```{.python .input}
 make html EVAL=0
 ```
 
@@ -34,11 +34,11 @@ make html EVAL=0
 
 编译pdf版本需要xelatex，和思源字体。在Ubuntu可以这样安装。
 
-```bash
+```{.python .input}
 sudo apt-get install texlive-full
 ```
 
-```bash
+```{.python .input}
 wget https://github.com/adobe-fonts/source-han-sans/raw/release/OTF/SourceHanSansHWSC.zip
 wget https://github.com/adobe-fonts/source-han-serif/raw/release/OTF/SourceHanSerifSC_EL-M.zip
 unzip SourceHanSansHWSC.zip
@@ -51,131 +51,79 @@ sudo fc-cache -f -v
 
 然后可以编译了。
 
-```bash
+```{.python .input}
 make pdf
 ```
 
+## 英汉术语对照
 
-## Terminology 中英术语对照表
 
-action, 动作
+accuracy，准确率
 
-adversarial learning, 对抗学习
+baseline，基准
 
-agent, 智能体
+batch，批量
 
-attribute space, 属性空间
+bias，偏差
 
-attribute value, 属性值
+binary classification，二元分类
 
-attribute, 属性
+bucketing，分桶
 
-binary classification, 二分类
+class，类
 
-classification, 分类
+classification，分类
 
-cluster, 簇
+collaborative filtering，协同过滤
 
-clustering, 聚类
+cost，成本
 
-confidence, 确信度
+cross-entropy，交叉熵
 
-contextual bandit problem, 情境式赌博机问题
+data set，数据集
 
-covariate shift, 协变量转移
+decision boundary，决策边界
 
-credit assignment problem, 信用分配问题
+dense，稠密
 
-cross-entropy, 交叉熵
+dense layer，稠密层
 
-data set, 数据集
+dropout，丢弃法
 
-dimensionality, 维数
+empirical risk minimization，经验风险最小化
 
-distribution, 分布
+epoch，周期
 
-reinforcement learning, 强化学习
-
-example, 样例
-
-feature vector, 特征向量
+example，样本
 
 feature, 特征
 
-generalization, 泛化
+fully connected layer，全连接层
 
-generative adversarial networks, 生成对抗网络
+hidden layer，隐藏层
 
-ground-truth, 真相、真实
+hidden variable，隐藏变量
 
-hypothesis, 假设
+generalization，泛化
 
-independent and identically distributed(i.i.d), 独立同分布
+hypothesis，假设
 
-instance, 示例
+independent and identically distributed(i.i.d)，独立同分布
 
-label space, 标注空间
+instance，实例
 
-label, 标注
+label，标签
 
-learing algorithm, 学习算法
+logistic regression，逻辑回归
 
-learned model, 学得模型
+mean squared error，均方误差
 
-learner, 学习器
+metric，指标
 
-learning, 学习
+normalization，归一化
 
-machine translation, 机器翻译
+optimizer，优化器
 
-Markov Decision Process, 马尔可夫决策过程
+perplexity，困惑度
 
-model, 模型
-
-multi-armed bandit problem, 多臂赌博机问题
-
-multi-class classification, 多分类
-
-negative class, 反类
-
-offline learning, 离线学习
-
-positive class, 正类
-
-prediction, 预测
-
-principal component analysis, 主成分分析
-
-regression, 回归
-
-reinforcement learning, 强化学习
-
-representation learning, 表征学习
-
-sample space, 样本空间
-
-sample, 样本
-
-sepecilization, 特化
-
-sequence learning, 序列学习
-
-subspace estimation, 子空间估计
-
-supervised learning, 监督学习
-
-testing sample, 测试样本
-
-testing, 测试
-
-time step, 时间步长
-
-training data, 训练数据
-
-training sample, 训练样本
-
-training set, 训练集
-
-training, 训练
-
-unsupervised learning, 无监督学习
+pipeline，流水线
