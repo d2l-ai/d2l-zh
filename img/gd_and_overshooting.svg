@@ -2,92 +2,92 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="5 35 380 165" width="380" height="165">
   <defs>
-    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 8 8" markerWidth="8" markerHeight="8" color="black">
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="StickArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 10 8" markerWidth="10" markerHeight="8" color="black">
       <g>
-        <path d="M 5.866667 0 L 0 -2.2 L 0 2.2 Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+        <path d="M 8 0 L 0 0 M 0 -3 L 8 0 L 0 3" fill="none" stroke="currentColor" stroke-width="1"/>
       </g>
     </marker>
-    <font-face font-family="Arial" font-size="12" panose-1="2 11 6 4 2 2 2 2 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="0" x-height="518.5547" cap-height="716.3086" ascent="905.2734" descent="-211.91406" font-weight="400">
+    <font-face font-family="Arial" font-size="12" panose-1="2 11 6 4 2 2 2 9 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="-1e3" x-height="518.5547" cap-height="715.8203" ascent="905.2734" descent="-211.91406" font-style="italic" font-weight="400">
       <font-face-src>
-        <font-face-name name="ArialMT"/>
+        <font-face-name name="Arial-ItalicMT"/>
       </font-face-src>
     </font-face>
-    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker_2" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 8 8" markerWidth="8" markerHeight="8" color="#f37373">
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 8 8" markerWidth="8" markerHeight="8" color="#5b7daa">
       <g>
         <path d="M 5.866667 0 L 0 -2.2 L 0 2.2 Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
       </g>
     </marker>
-    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="Ball_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-6 -4 7 8" markerWidth="7" markerHeight="8" color="#f37373">
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="Ball_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-6 -4 7 8" markerWidth="7" markerHeight="8" color="#5b7daa">
       <g>
         <circle cx="-2.199999" cy="0" r="2.1999980557011" fill="none" stroke="currentColor" stroke-width="1"/>
       </g>
     </marker>
   </defs>
   <metadata> Produced by OmniGraffle 7.7.1 
-    <dc:date>2018-03-20 19:21:00 +0000</dc:date>
+    <dc:date>2018-03-20 19:46:33 +0000</dc:date>
   </metadata>
   <g id="Canvas_1" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
     <title>Canvas 1</title>
     <g id="Canvas_1: Layer 1">
       <title>Layer 1</title>
       <g id="Line_6">
-        <line x1="35" y1="172.5" x2="35" y2="47.78867" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <line x1="35" y1="172.5" x2="35" y2="46.28867" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
       </g>
       <g id="Line_7">
-        <line x1="35" y1="173" x2="171.62344" y2="173" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <line x1="35" y1="173" x2="173.12344" y2="173" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
       </g>
       <g id="Graphic_8">
         <text transform="translate(10 41.692383)" fill="black">
-          <tspan font-family="Arial" font-size="12" font-weight="400" fill="black" x=".33691406" y="11">f(x)</tspan>
+          <tspan font-family="Arial" font-size="12" font-style="italic" font-weight="400" fill="black" x=".33691406" y="11">f(x)</tspan>
         </text>
       </g>
       <g id="Graphic_9">
         <text transform="translate(170.5 179.80371)" fill="black">
-          <tspan font-family="Arial" font-size="12" font-weight="400" fill="black" x="0" y="11">x</tspan>
+          <tspan font-family="Arial" font-size="12" font-style="italic" font-weight="400" fill="black" x="0" y="11">x</tspan>
         </text>
       </g>
       <g id="Line_15">
-        <path d="M 58.5 60 C 58.5 60 79.024875 156.25132 106.09766 156.07812 C 133.17044 155.90493 154.06055 59.38867 154.06055 59.38867" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <path d="M 58.5 60 C 58.5 60 79.024875 156.25132 106.09766 156.07812 C 133.17044 155.90493 154.06055 59.38867 154.06055 59.38867" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
       </g>
       <g id="Line_21">
-        <line x1="62.60533" y1="76.43213" x2="64.19914" y2="82.32022" marker-end="url(#FilledArrow_Marker_2)" marker-start="url(#Ball_Marker)" stroke="#f37373" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <line x1="62.60533" y1="76.43213" x2="64.19914" y2="82.32022" marker-end="url(#FilledArrow_Marker)" marker-start="url(#Ball_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
       </g>
       <g id="Line_22">
-        <line x1="69.1542" y1="98.84835" x2="70.89274" y2="104.11094" marker-end="url(#FilledArrow_Marker_2)" marker-start="url(#Ball_Marker)" stroke="#f37373" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <line x1="69.1542" y1="98.84835" x2="70.89274" y2="104.11094" marker-end="url(#FilledArrow_Marker)" marker-start="url(#Ball_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
       </g>
       <g id="Line_23">
-        <line x1="77.5788" y1="121.59513" x2="80.00162" y2="126.78315" marker-end="url(#FilledArrow_Marker_2)" marker-start="url(#Ball_Marker)" stroke="#f37373" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <line x1="77.5788" y1="121.59513" x2="80.00162" y2="126.78315" marker-end="url(#FilledArrow_Marker)" marker-start="url(#Ball_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
       </g>
       <g id="Line_39">
-        <line x1="235.5" y1="172.5" x2="235.5" y2="47.78867" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <line x1="235.5" y1="172.5" x2="235.5" y2="46.28867" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
       </g>
       <g id="Line_38">
-        <line x1="235.5" y1="173" x2="372.12344" y2="173" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <line x1="235.5" y1="173" x2="373.62344" y2="173" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
       </g>
       <g id="Graphic_37">
         <text transform="translate(210.5 41.692383)" fill="black">
-          <tspan font-family="Arial" font-size="12" font-weight="400" fill="black" x=".33691406" y="11">f(x)</tspan>
+          <tspan font-family="Arial" font-size="12" font-style="italic" font-weight="400" fill="black" x=".33691406" y="11">f(x)</tspan>
         </text>
       </g>
       <g id="Graphic_36">
         <text transform="translate(371 179.80371)" fill="black">
-          <tspan font-family="Arial" font-size="12" font-weight="400" fill="black" x="0" y="11">x</tspan>
+          <tspan font-family="Arial" font-size="12" font-style="italic" font-weight="400" fill="black" x="0" y="11">x</tspan>
         </text>
       </g>
       <g id="Line_35">
-        <path d="M 259 60 C 259 60 279.52488 156.25132 306.59766 156.07812 C 333.67044 155.90493 354.56055 59.38867 354.56055 59.38867" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <path d="M 259 60 C 259 60 279.52488 156.25132 306.59766 156.07812 C 333.67044 155.90493 354.56055 59.38867 354.56055 59.38867" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
       </g>
       <g id="Line_41">
-        <line x1="298.55188" y1="144.89357" x2="317.14566" y2="141.40002" marker-end="url(#FilledArrow_Marker_2)" marker-start="url(#Ball_Marker)" stroke="#f37373" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <line x1="298.55188" y1="144.89357" x2="317.14566" y2="141.40002" marker-end="url(#FilledArrow_Marker)" marker-start="url(#Ball_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
       </g>
       <g id="Line_43">
-        <line x1="320.11955" y1="136.01634" x2="287.00124" y2="125.30652" marker-end="url(#FilledArrow_Marker_2)" marker-start="url(#Ball_Marker)" stroke="#f37373" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <line x1="320.11955" y1="136.01634" x2="287.00124" y2="125.30652" marker-end="url(#FilledArrow_Marker)" marker-start="url(#Ball_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
       </g>
       <g id="Line_44">
-        <line x1="285.25747" y1="120.53153" x2="331.5463" y2="109.44607" marker-end="url(#FilledArrow_Marker_2)" marker-start="url(#Ball_Marker)" stroke="#f37373" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <line x1="285.25747" y1="120.53153" x2="331.5463" y2="109.44607" marker-end="url(#FilledArrow_Marker)" marker-start="url(#Ball_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
       </g>
       <g id="Line_45">
-        <line x1="334.1477" y1="104.24621" x2="274.7326" y2="84.50641" marker-end="url(#FilledArrow_Marker_2)" marker-start="url(#Ball_Marker)" stroke="#f37373" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <line x1="334.1477" y1="104.24621" x2="274.7326" y2="84.50641" marker-end="url(#FilledArrow_Marker)" marker-start="url(#Ball_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
       </g>
     </g>
   </g>
