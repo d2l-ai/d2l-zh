@@ -8,7 +8,7 @@
 
 本章将详细介绍深度学习中的一些常用优化算法。
 
-![](../img/test.svg)
+![](../img/training_model.png)
 
 
 ## 优化与机器学习
