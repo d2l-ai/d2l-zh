@@ -163,7 +163,8 @@ def square_loss(yhat, y):
 ```{.python .input  n=3}
 %matplotlib inline
 import matplotlib as mpl
-mpl.rcParams['figure.dpi']= 120
+%config InlineBackend.figure_format = 'svg'
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -190,6 +191,7 @@ def train(batch_size, lr, epochs, period):
     print('w:', np.reshape(w.asnumpy(), (1, -1)), 
           'b:', b.asnumpy()[0], '\n')
     x_axis = np.linspace(0, epochs, len(total_loss), endpoint=True)
+    mpl.rcParams['figure.figsize'] = 3.5, 2.5
     plt.semilogy(x_axis, total_loss)
     plt.xlabel('epoch')
     plt.ylabel('loss')
