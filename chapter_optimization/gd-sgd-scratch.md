@@ -163,7 +163,7 @@ def square_loss(yhat, y):
 ```{.python .input  n=3}
 %matplotlib inline
 import matplotlib as mpl
-%config InlineBackend.figure_format = 'svg'
+%config InlineBackend.figure_format = 'retina'
 
 import matplotlib.pyplot as plt
 import numpy as np
