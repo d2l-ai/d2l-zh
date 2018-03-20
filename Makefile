@@ -42,7 +42,7 @@ GIF=$(wildcard img/*.gif)
 
 build/_build/latex/%.pdf: img/%.svg
 	@mkdir -p $(@D)
-	convert $< $@
+	rsvg-convert -f pdf -o $@ $<
 
 build/_build/latex/%_00.pdf: img/%_00.pdf
 	@mkdir -p $(@D)
