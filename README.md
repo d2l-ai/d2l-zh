@@ -10,6 +10,9 @@
 
 build服务器在 http://ci.mxnet.io 。这台服务器有两块Nvidia M60。
 
+
+## 编译HTML版本
+
 所有markdown文件需要在提交前清除output，它们会在服务器上重新执行生成结果。所以需要保证每个notebook执行不要太久，目前限制是20min。
 
 在本地可以如下build html（需要GPU支持）
@@ -32,10 +35,11 @@ make html EVAL=0
 
 ## 编译PDF版本
 
-编译pdf版本需要xelatex，和思源字体。在Ubuntu可以这样安装。
+编译pdf版本需要xelatex、librsvg2-bin（svg图片转pdf）和思源字体。在Ubuntu可以这样安装。
 
 ```{.python .input}
 sudo apt-get install texlive-full
+sudo apt-get install librsvg2-bin
 ```
 
 ```{.python .input}
