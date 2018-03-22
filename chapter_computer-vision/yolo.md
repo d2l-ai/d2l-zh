@@ -418,7 +418,7 @@ def display(im, out, threshold=0.5):
         if class_id < 0 or score < threshold:
             continue
         color = colors[class_id%len(colors)]
-        box = row[2:6] * np.array([im.shape[0],im.shape[1]]*2)
+        box = row[2:6] * np.array([im.shape[1],im.shape[0]]*2)
         rect = box_to_rect(nd.array(box), color, 2)
         plt.gca().add_patch(rect)
         text = class_names[class_id]
