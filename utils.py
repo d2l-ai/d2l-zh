@@ -343,3 +343,6 @@ def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim,
                       is_lstm))
             print()
 
+def set_fig_size(mpl, figsize=(3.5, 2.5)):
+    mpl.rcParams['figure.figsize'] = figsize
+

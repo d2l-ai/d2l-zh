@@ -162,11 +162,13 @@ def square_loss(yhat, y):
 
 ```{.python .input  n=3}
 %matplotlib inline
-import matplotlib as mpl
 %config InlineBackend.figure_format = 'retina'
-
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
+sys.path.append('..')
+import utils
 
 def train(batch_size, lr, epochs, period):
     assert period >= batch_size and period % batch_size == 0
@@ -191,7 +193,7 @@ def train(batch_size, lr, epochs, period):
     print('w:', np.reshape(w.asnumpy(), (1, -1)), 
           'b:', b.asnumpy()[0], '\n')
     x_axis = np.linspace(0, epochs, len(total_loss), endpoint=True)
-    mpl.rcParams['figure.figsize'] = 3.5, 2.5
+    utils.set_fig_size(mpl)
     plt.semilogy(x_axis, total_loss)
     plt.xlabel('epoch')
     plt.ylabel('loss')
