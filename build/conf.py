@@ -91,7 +91,7 @@ release = '0.6'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = zh_CN
+language = 'zh_CN'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
@@ -250,6 +250,10 @@ latex_elements = {
 \setCJKmainfont{Source Han Serif SC Medium}
 \setCJKsansfont{Source Han Sans HW SC}
 \setCJKmonofont{Source Han Sans HW SC}
+
+\addto\captionsenglish{\renewcommand{\chaptername}{}}
+\addto\captionsenglish{\renewcommand{\contentsname}{目录}}
+
 ''',
 # The paper size ('letterpaper' or 'a4paper').
 #'papersize': 'letterpaper',
@@ -268,7 +272,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'gluon_tutorials_zh.tex', '使用MXNet/Gluon来动手学深度学习',
+    (master_doc, 'gluon_tutorials_zh.tex', '动手学深度学习',
      author, 'manual'),
 ]
 
