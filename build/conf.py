@@ -254,6 +254,11 @@ latex_elements = {
 \addto\captionsenglish{\renewcommand{\chaptername}{}}
 \addto\captionsenglish{\renewcommand{\contentsname}{目录}}
 
+\usepackage[draft]{minted}
+\fvset{breaklines=true, breakanywhere=true}
+\setlength{\headheight}{13.6pt}
+
+
 ''',
 # The paper size ('letterpaper' or 'a4paper').
 #'papersize': 'letterpaper',
