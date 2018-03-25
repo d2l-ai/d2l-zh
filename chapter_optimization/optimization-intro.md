@@ -57,9 +57,9 @@ x = np.arange(-1.0, 2.0, 0.1)
 fig = plt.figure()
 subplt = fig.add_subplot(111)
 subplt.annotate('local minimum', xy=(-0.3, -0.25), xytext=(-0.77, -1.0),
-            arrowprops=dict(facecolor='black', shrink=0.05))
+                arrowprops=dict(facecolor='black', shrink=0.05))
 subplt.annotate('global minimum', xy=(1.1, -0.9), xytext=(0.6, 0.8),
-            arrowprops=dict(facecolor='black', shrink=0.05))
+                arrowprops=dict(facecolor='black', shrink=0.05))
 plt.plot(x, f(x))
 plt.xlabel('x')
 plt.ylabel('f(x)')
@@ -81,8 +81,8 @@ $$f(x) = x^3$$
 x = np.arange(-2.0, 2.0, 0.1)
 fig = plt.figure()
 subplt = fig.add_subplot(111)
-subplt.annotate('saddle point', xy=(0, -0.2), xytext=(-0.52, -5.0), 
-            arrowprops=dict(facecolor='black', shrink=0.05))
+subplt.annotate('saddle point', xy=(0, -0.2), xytext=(-0.52, -5.0),
+                arrowprops=dict(facecolor='black', shrink=0.05))
 plt.plot(x, x**3)
 plt.xlabel('x')
 plt.ylabel('f(x)')
