@@ -344,5 +344,22 @@ def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim,
             print()
 
 def set_fig_size(mpl, figsize=(3.5, 2.5)):
+    """为matplotlib生成的图片设置大小。"""
     mpl.rcParams['figure.figsize'] = figsize
 
+
+def data_iter(batch_size, num_examples, random, X, y):
+    """迭代数据集。"""
+    idx = list(range(num_examples))
+    random.shuffle(idx)
+    for batch_i, i in enumerate(range(0, num_examples, batch_size)):
+        j = nd.array(idx[i: min(i + batch_size, num_examples)])
+        yield batch_i, X.take(j), y.take(j)
+
+def linreg(X, w, b):
+    """线性回归模型。"""
+    return nd.dot(X, w) + b
+
+def squared_loss(yhat, y):
+    """平方损失函数。"""
+    return (yhat - y.reshape(yhat.shape)) ** 2 / 2

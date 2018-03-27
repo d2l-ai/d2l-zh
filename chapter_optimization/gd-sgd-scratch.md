@@ -114,12 +114,10 @@ def sgd(params, lr, batch_size):
 ```{.python .input  n=2}
 import mxnet as mx
 from mxnet import autograd
-from mxnet import ndarray as nd
 from mxnet import gluon
-import random
+from mxnet import nd
 
 mx.random.seed(1)
-random.seed(1)
 
 # 生成数据集。
 num_inputs = 2
@@ -129,16 +127,6 @@ true_b = 4.2
 X = nd.random_normal(scale=1, shape=(num_examples, num_inputs))
 y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
 y += .01 * nd.random_normal(scale=1, shape=y.shape)
-dataset = gluon.data.ArrayDataset(X, y)
-
-# 构造迭代器。
-import random
-def data_iter(batch_size):
-    idx = list(range(num_examples))
-    random.shuffle(idx)
-    for batch_i, i in enumerate(range(0, num_examples, batch_size)):
-        j = nd.array(idx[i: min(i + batch_size, num_examples)])
-        yield batch_i, X.take(j), y.take(j)
 
 # 初始化模型参数。
 def init_params():
@@ -148,14 +136,6 @@ def init_params():
     for param in params:
         param.attach_grad()
     return params
-
-# 线性回归模型。
-def net(X, w, b):
-    return nd.dot(X, w) + b
-
-# 损失函数。
-def square_loss(yhat, y):
-    return (yhat - y.reshape(yhat.shape)) ** 2 / 2
 ```
 
 接下来定义训练函数。当epoch大于2时（epoch从1开始计数），学习率以自乘0.1的方式自我衰减。训练函数的period参数说明，每次采样过该数目的数据点后，记录当前目标函数值用于作图。例如，当period和batch_size都为10时，每次迭代后均会记录目标函数值。
@@ -166,35 +146,41 @@ def square_loss(yhat, y):
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+import random
 import sys
 sys.path.append('..')
 import utils
 
-def train(batch_size, lr, epochs, period):
-    assert period >= batch_size and period % batch_size == 0
+random.seed(1)
+
+net = utils.linreg
+squared_loss = utils.squared_loss
+
+def train(batch_size, lr, num_epochs, plot_interval):
     w, b = init_params()
-    total_loss = [np.mean(square_loss(net(X, w, b), y).asnumpy())]
-    # 注意epoch从1开始计数。
-    for epoch in range(1, epochs + 1):
+    y_vals = [nd.mean(squared_loss(net(X, w, b), y)).asnumpy()]
+    print('batch size', batch_size)
+    for epoch in range(1, num_epochs + 1):
         # 学习率自我衰减。
         if epoch > 2:
             lr *= 0.1
-        for batch_i, data, label in data_iter(batch_size):
+        for batch_i, data, label in utils.data_iter(
+            batch_size, num_examples, random, X, y):
             with autograd.record():
                 output = net(data, w, b)
-                loss = square_loss(output, label)
+                loss = squared_loss(output, label)
             loss.backward()
             sgd([w, b], lr, batch_size)
-            if batch_i * batch_size % period == 0:
-                total_loss.append(
-                    np.mean(square_loss(net(X, w, b), y).asnumpy()))
-        print("Batch size %d, Learning rate %f, Epoch %d, loss %.4e" % 
-              (batch_size, lr, epoch, total_loss[-1]))
+            if batch_i * batch_size % plot_interval == 0:
+                y_vals.append(
+                    nd.mean(squared_loss(net(X, w, b), y)).asnumpy())
+        print('epoch %d, learning rate %f, loss %.4e' % 
+              (epoch, lr, y_vals[-1]))
     print('w:', np.reshape(w.asnumpy(), (1, -1)), 
           'b:', b.asnumpy()[0], '\n')
-    x_axis = np.linspace(0, epochs, len(total_loss), endpoint=True)
+    x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
     utils.set_fig_size(mpl)
-    plt.semilogy(x_axis, total_loss)
+    plt.semilogy(x_vals, y_vals)
     plt.xlabel('epoch')
     plt.ylabel('loss')
     plt.show()
@@ -203,31 +189,31 @@ def train(batch_size, lr, epochs, period):
 当批量大小为1时，训练使用的是随机梯度下降。在当前学习率下，目标函数值在早期快速下降后略有波动。当epoch大于2，学习率自我衰减后，目标函数值下降后较平稳。最终学到的参数值与真实值较接近。
 
 ```{.python .input  n=4}
-train(batch_size=1, lr=0.2, epochs=3, period=10)
+train(batch_size=1, lr=0.2, num_epochs=3, plot_interval=10)
 ```
 
 当批量大小为1000时，由于训练数据集含1000个样本，此时训练使用的是梯度下降。在当前学习率下，目标函数值在前两个epoch下降较快。当epoch大于2，学习率自我衰减后，目标函数值下降较慢。最终学到的参数值与真实值较接近。
 
 ```{.python .input  n=5}
-train(batch_size=1000, lr=0.999, epochs=3, period=1000)
+train(batch_size=1000, lr=0.999, num_epochs=3, plot_interval=1000)
 ```
 
 当批量大小为10时，由于训练数据集含1000个样本，此时训练使用的是小批量随机梯度下降。最终学到的参数值与真实值较接近。
 
 ```{.python .input  n=6}
-train(batch_size=10, lr=0.2, epochs=3, period=10)
+train(batch_size=10, lr=0.2, num_epochs=3, plot_interval=10)
 ```
 
 同样是批量大小为10，我们把学习率改大。这时我们观察到目标函数值不断增大。这时典型的overshooting问题。
 
 ```{.python .input  n=7}
-train(batch_size=10, lr=5, epochs=3, period=10)
+train(batch_size=10, lr=5, num_epochs=3, plot_interval=10)
 ```
 
 同样是批量大小为10，我们把学习率改小。这时我们观察到目标函数值下降较慢，直到3个epoch也没能得到接近真实值的解。
 
 ```{.python .input  n=8}
-train(batch_size=10, lr=0.002, epochs=3, period=10)
+train(batch_size=10, lr=0.002, num_epochs=3, plot_interval=10)
 ```
 
 ## 结论
