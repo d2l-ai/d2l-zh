@@ -149,9 +149,9 @@ from mxnet.gluon.data import vision
 import numpy as np
 
 def transform_train(data, label):
-    im = data.astype('float32') / 255
+    im = image.imresize(data.astype('float32') / 255, 256, 256)
     auglist = image.CreateAugmenter(data_shape=(3, 224, 224),
-                        resize=0, rand_crop=False, rand_mirror=True,
+                        rand_crop=True, rand_mirror=True,
                         mean=np.array([0.485, 0.456, 0.406]),
                         std=np.array([0.229, 0.224, 0.225]),
                         brightness=0, contrast=0, 
@@ -163,14 +163,12 @@ def transform_train(data, label):
     im = nd.transpose(im, (2,0,1))
     return (im, nd.array([label]).asscalar().astype('float32'))
 
+# 去掉随机裁剪/翻转，保留确定性的图像预处理结果
 def transform_test(data, label):
-    im = data.astype('float32') / 255 
-    auglist = image.CreateAugmenter(data_shape=(3, 224, 224), resize=0,
+    im = image.imresize(data.astype('float32') / 255, 256, 256)
+    auglist = image.CreateAugmenter(data_shape=(3, 224, 224),
                         mean=np.array([0.485, 0.456, 0.406]),
-                        std=np.array([0.229, 0.224, 0.225]),
-                        brightness=0, contrast=0, 
-                        saturation=0, hue=0, 
-                        pca_noise=0, rand_gray=0, inter_method=2)
+                        std=np.array([0.229, 0.224, 0.225]))
     for aug in auglist:
         im = aug(im)
     im = nd.transpose(im, (2,0,1))
@@ -215,7 +213,7 @@ softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 
 ![](../img/fix_feature_fine_tune.png)
 
-首先我们定义一个网络，并拿到预训练好的`ResNet-34`模型除输出层之外的权重。
+首先我们定义一个网络，并拿到预训练好的`ResNet-34`模型权重。接下来我们新定义一个两层的全连接网络作为输出层，并初始化其权重，为接下来的训练做准备。
 
 ```{.python .input  n=6}
 from mxnet.gluon import nn
@@ -239,8 +237,6 @@ def get_net(ctx):
     finetune_net.collect_params().reset_ctx(ctx)
     return finetune_net
 ```
-
-我们在特征层之后定义了一个两层的全连接网络，并初始化其权重，为了接下来的训练做准备。
 
 ## 训练模型并调参
 
