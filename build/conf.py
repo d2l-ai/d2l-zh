@@ -18,6 +18,17 @@ import os
 from recommonmark.parser import CommonMarkParser
 from recommonmark.transform import AutoStructify
 
+# Use footnote size for code block.
+from sphinx.highlighting import PygmentsBridge
+from pygments.formatters.latex import LatexFormatter
+
+class CustomLatexFormatter(LatexFormatter):
+    def __init__(self, **options):
+        super(CustomLatexFormatter, self).__init__(**options)
+        self.verboptions = r"formatcom=\footnotesize"
+
+PygmentsBridge.latex_formatter = CustomLatexFormatter
+
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -80,7 +91,7 @@ release = '0.6'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'zh_CN'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
@@ -225,6 +236,7 @@ htmlhelp_basename = 'TheStraightDopedoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
+
 latex_elements = {
     # 'papersize' : 'a4paper',
     'utf8extra' : '',
@@ -238,6 +250,15 @@ latex_elements = {
 \setCJKmainfont{Source Han Serif SC Medium}
 \setCJKsansfont{Source Han Sans HW SC}
 \setCJKmonofont{Source Han Sans HW SC}
+
+\addto\captionsenglish{\renewcommand{\chaptername}{}}
+\addto\captionsenglish{\renewcommand{\contentsname}{目录}}
+
+\usepackage[draft]{minted}
+\fvset{breaklines=true, breakanywhere=true}
+\setlength{\headheight}{13.6pt}
+
+
 ''',
 # The paper size ('letterpaper' or 'a4paper').
 #'papersize': 'letterpaper',
@@ -256,7 +277,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'gluon_tutorials_zh.tex', '使用MXNet/Gluon来动手学深度学习',
+    (master_doc, 'gluon_tutorials_zh.tex', '动手学深度学习',
      author, 'manual'),
 ]
 
