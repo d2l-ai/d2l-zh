@@ -203,6 +203,8 @@ softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 
 这里，我们使用与前述教程略微不同的迁移学习方法。在新的训练数据与预训练数据相似的情况下，我们认为原有特征是可重用的。基于这个原因，在一个预训练好的新模型上，我们可以不去改变原已训练好的权重，而是在原网络结构上新加一个小的输出网络。这样能够节省后向传播的时间，也能避免了在特征层上储存梯度所需要的内存空间。
 
+注意，我们在之前定义的数据预处理函数用了ImageNet数据集上的均值和标准差做标准化，这样才能保证预训练模型能够捕捉正确的数据特征。
+
 ![](../img/fix_feature_fine_tune.png)
 
 首先我们定义一个网络，并拿到预训练好的`ResNet-34`模型除输出层之外的权重。
@@ -263,7 +265,7 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
     prev_time = datetime.datetime.now()
     for epoch in range(num_epochs):
         train_loss = 0.0
-        if (epoch+2) % lr_period == 0:
+        if epoch > 0 and epoch % lr_period == 0:
             trainer.set_learning_rate(trainer.learning_rate * lr_decay)
         for data, label in train_data:
             label = label.as_in_context(ctx)
