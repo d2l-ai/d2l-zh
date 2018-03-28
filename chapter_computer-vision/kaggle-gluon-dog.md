@@ -210,6 +210,7 @@ softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 ```{.python .input  n=6}
 from mxnet.gluon import nn
 from mxnet import nd
+from mxnet.gluon.model_zoo import vision as models
 
 def get_net(ctx):
     pretrained_net = models.resnet34_v2(pretrained=True)
@@ -288,9 +289,9 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
         print(epoch_str + time_str + ', lr ' + str(trainer.learning_rate))
 ```
 
-以下定义训练参数并训练模型。这些参数均可调。为了使网页编译快一点，我们这里将epoch数量有意设为1。事实上，epoch一般可以调大些。
+以下定义训练参数并训练模型。这些参数均可调。为了使网页编译快一点，我们这里将epoch数量有意设为1。事实上，epoch一般可以调大些。我们将依据验证集的结果不断优化模型设计和调整参数。
 
-我们将依据验证集的结果不断优化模型设计和调整参数。依据下面的参数设置，优化算法的学习率将在每80个epoch自乘0.1。
+另外，微调一个预训练模型往往不需要特别久的额外训练。依据下面的参数设置，优化算法的学习率设为0.01，并将在每10个epoch自乘0.1。
 
 ```{.python .input  n=9}
 ctx = utils.try_gpu()
