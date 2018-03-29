@@ -149,10 +149,11 @@ from mxnet.gluon.data import vision
 import numpy as np
 
 def transform_train(data, label):
-    im = image.imresize(data.astype('float32') / 255, 96, 96)
-    auglist = image.CreateAugmenter(data_shape=(3, 96, 96), resize=0, 
-                        rand_crop=False, rand_resize=False, rand_mirror=True,
-                        mean=None, std=None, 
+    im = image.imresize(data.astype('float32') / 255, 256, 256)
+    auglist = image.CreateAugmenter(data_shape=(3, 224, 224),
+                        rand_crop=True, rand_mirror=True,
+                        mean=np.array([0.485, 0.456, 0.406]),
+                        std=np.array([0.229, 0.224, 0.225]),
                         brightness=0, contrast=0, 
                         saturation=0, hue=0, 
                         pca_noise=0, rand_gray=0, inter_method=2)
@@ -162,8 +163,14 @@ def transform_train(data, label):
     im = nd.transpose(im, (2,0,1))
     return (im, nd.array([label]).asscalar().astype('float32'))
 
+# 去掉随机裁剪/翻转，保留确定性的图像预处理结果
 def transform_test(data, label):
-    im = image.imresize(data.astype('float32') / 255, 96, 96)
+    im = image.imresize(data.astype('float32') / 255, 256, 256)
+    auglist = image.CreateAugmenter(data_shape=(3, 224, 224),
+                        mean=np.array([0.485, 0.456, 0.406]),
+                        std=np.array([0.229, 0.224, 0.225]))
+    for aug in auglist:
+        im = aug(im)
     im = nd.transpose(im, (2,0,1))
     return (im, nd.array([label]).asscalar().astype('float32'))
 ```
@@ -196,78 +203,39 @@ softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 
 ## 设计模型
 
-我们这里使用了[ResNet-18](resnet-gluon.md)模型。我们使用[hybridizing](../chapter_gluon-advances/hybridize.md)来提升执行效率。
+这个比赛的数据属于ImageNet数据集的子集，因此我们可以借助[迁移学习](fine-tuning.md)的思想，选用在ImageNet全集上预训练过的模型，并通过微调在新数据集上进行训练。`Gluon`提供了不少预训练模型，综合考虑模型大小与准确率，我们选择使用[ResNet-34](resnet-gluon.md)。
 
-请注意：模型可以重新设计，参数也可以重新调整。
+这里，我们使用与前述教程略微不同的迁移学习方法。在新的训练数据与预训练数据相似的情况下，我们认为原有特征是可重用的。基于这个原因，在一个预训练好的新模型上，我们可以不去改变原已训练好的权重，而是在原网络结构上新加一个小的输出网络。
+
+在训练过程中，我们让训练图片通过正向传播经过原有特征层与新定义的全连接网络，然后只在这个小网络上通过反向传播更新权重。这样的做法既能够节省在整个模型进行后向传播的时间，也能节省在特征层上储存梯度所需要的内存空间。
+
+注意，我们在之前定义的数据预处理函数里用了ImageNet数据集上的均值和标准差做标准化，这样才能保证预训练模型能够捕捉正确的数据特征。
+
+![](../img/fix_feature_fine_tune.png)
+
+首先我们定义一个网络，并拿到预训练好的`ResNet-34`模型权重。接下来我们新定义一个两层的全连接网络作为输出层，并初始化其权重，为接下来的训练做准备。
 
 ```{.python .input  n=6}
 from mxnet.gluon import nn
 from mxnet import nd
-
-class Residual(nn.HybridBlock):
-    def __init__(self, channels, same_shape=True, **kwargs):
-        super(Residual, self).__init__(**kwargs)
-        self.same_shape = same_shape
-        with self.name_scope():
-            strides = 1 if same_shape else 2
-            self.conv1 = nn.Conv2D(channels, kernel_size=3, padding=1,
-                                  strides=strides)
-            self.bn1 = nn.BatchNorm()
-            self.conv2 = nn.Conv2D(channels, kernel_size=3, padding=1)
-            self.bn2 = nn.BatchNorm()
-            if not same_shape:
-                self.conv3 = nn.Conv2D(channels, kernel_size=1,
-                                      strides=strides)
-
-    def hybrid_forward(self, F, x):
-        out = F.relu(self.bn1(self.conv1(x)))
-        out = self.bn2(self.conv2(out))
-        if not self.same_shape:
-            x = self.conv3(x)
-        return F.relu(out + x)
-
-    
-class ResNet(nn.HybridBlock):
-    def __init__(self, num_classes, verbose=False, **kwargs):
-        super(ResNet, self).__init__(**kwargs)
-        self.verbose = verbose
-        with self.name_scope():
-            net = self.net = nn.HybridSequential()
-            # 模块1
-            net.add(nn.Conv2D(channels=32, kernel_size=3, strides=1, 
-                              padding=1))
-            net.add(nn.BatchNorm())
-            net.add(nn.Activation(activation='relu'))
-            # 模块2
-            for _ in range(3):
-                net.add(Residual(channels=32))
-            # 模块3
-            net.add(Residual(channels=64, same_shape=False))
-            for _ in range(2):
-                net.add(Residual(channels=64))
-            # 模块4
-            net.add(Residual(channels=128, same_shape=False))
-            for _ in range(2):
-                net.add(Residual(channels=128))
-            # 模块5
-            net.add(nn.GlobalAvgPool2D())
-            net.add(nn.Flatten())
-            net.add(nn.Dense(num_classes))
-
-    def hybrid_forward(self, F, x):
-        out = x
-        for i, b in enumerate(self.net):
-            out = b(out)
-            if self.verbose:
-                print('Block %d output: %s'%(i+1, out.shape))
-        return out
-
+from mxnet.gluon.model_zoo import vision as models
 
 def get_net(ctx):
-    num_outputs = 120
-    net = ResNet(num_outputs)
-    net.initialize(ctx=ctx, init=init.Xavier())
-    return net
+    # 设置 pretrained=True 就能拿到预训练模型的权重，第一次使用需要联网下载
+    finetune_net = models.resnet34_v2(pretrained=True)
+
+    # 定义新的输出网络
+    finetune_net.output_new = nn.HybridSequential(prefix='')
+    # 定义256个神经元的全连接层
+    finetune_net.output_new.add(nn.Dense(256, activation='relu'))
+    # 定义120个神经元的全连接层，输出分类预测
+    finetune_net.output_new.add(nn.Dense(120))
+    # 初始化这个输出网络
+    finetune_net.output_new.initialize(init.Xavier(), ctx=ctx)
+
+    # 把网络参数分配到即将用于计算的CPU/GPU上
+    finetune_net.collect_params().reset_ctx(ctx)
+    return finetune_net
 ```
 
 ## 训练模型并调参
@@ -275,6 +243,11 @@ def get_net(ctx):
 在[过拟合](../chapter_supervised-learning/underfit-overfit.md)中我们讲过，过度依赖训练数据集的误差来推断测试数据集的误差容易导致过拟合。由于图像分类训练时间可能较长，为了方便，我们这里不再使用K折交叉验证，而是依赖验证集的结果来调参。
 
 我们定义损失函数以便于计算验证集上的损失函数值。我们也定义了模型训练函数，其中的优化算法和参数都是可以调的。
+
+注意，我们为了只更新新的输出层参数，做了两处修改：
+
+1. 在`gluon.Trainer`里只对`net.output_new.collect_params()`定义了优化方法和参数。
+2. 在训练时只在新输出层上记录自动求导的结果。
 
 ```{.python .input  n=7}
 import datetime
@@ -286,16 +259,19 @@ def get_loss(data, net, ctx):
     loss = 0.0
     for feas, label in data:
         label = label.as_in_context(ctx)
-        output = net(feas.as_in_context(ctx))
+        # 计算特征层的结果
+        output_features = net.features(feas.as_in_context(ctx))
+        # 将特征层的结果作为输入，计算全连接网络的结果
+        output = net.output_new(output_features)
         cross_entropy = softmax_cross_entropy(output, label)
         loss += nd.mean(cross_entropy).asscalar()
     return loss / len(data)
 
-def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period, 
+def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
           lr_decay):
-    trainer = gluon.Trainer(
-        net.collect_params(), 'sgd', {'learning_rate': lr, 'momentum': 0.9, 
-                                      'wd': wd})
+    # 只在新的全连接网络的参数上进行训练
+    trainer = gluon.Trainer(net.output_new.collect_params(),
+                            'sgd', {'learning_rate': lr, 'momentum': 0.9, 'wd': wd})
     prev_time = datetime.datetime.now()
     for epoch in range(num_epochs):
         train_loss = 0.0
@@ -303,9 +279,13 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
             trainer.set_learning_rate(trainer.learning_rate * lr_decay)
         for data, label in train_data:
             label = label.as_in_context(ctx)
+            # 正向传播计算特征层的结果
+            output_features = net.features(data.as_in_context(ctx))
             with autograd.record():
-                output = net(data.as_in_context(ctx))
+                # 将特征层的结果作为输入，计算全连接网络的结果
+                output = net.output_new(output_features)
                 loss = softmax_cross_entropy(output, label)
+            # 反向传播与权重更新只发生在全连接网络上
             loss.backward()
             trainer.step(batch_size)
             train_loss += nd.mean(loss).asscalar()
@@ -313,7 +293,7 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
         h, remainder = divmod((cur_time - prev_time).seconds, 3600)
         m, s = divmod(remainder, 60)
         time_str = "Time %02d:%02d:%02d" % (h, m, s)
-        if valid_data is not None:  
+        if valid_data is not None:
             valid_loss = get_loss(valid_data, net, ctx)
             epoch_str = ("Epoch %d. Train loss: %f, Valid loss %f, "
                          % (epoch, train_loss / len(train_data), valid_loss))
@@ -324,16 +304,16 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
         print(epoch_str + time_str + ', lr ' + str(trainer.learning_rate))
 ```
 
-以下定义训练参数并训练模型。这些参数均可调。为了使网页编译快一点，我们这里将epoch数量有意设为1。事实上，epoch一般可以调大些。
+以下定义训练参数并训练模型。这些参数均可调。为了使网页编译快一点，我们这里将epoch数量有意设为1。事实上，epoch一般可以调大些。我们将依据验证集的结果不断优化模型设计和调整参数。
 
-我们将依据验证集的结果不断优化模型设计和调整参数。依据下面的参数设置，优化算法的学习率将在每80个epoch自乘0.1。
+另外，微调一个预训练模型往往不需要特别久的额外训练。依据下面的参数设置，优化算法的学习率设为0.01，并将在每10个epoch自乘0.1。
 
 ```{.python .input  n=9}
 ctx = utils.try_gpu()
 num_epochs = 1
 learning_rate = 0.01
-weight_decay = 5e-4
-lr_period = 80
+weight_decay = 1e-4
+lr_period = 10
 lr_decay = 0.1
 
 net = get_net(ctx)
@@ -344,7 +324,7 @@ train(net, train_data, valid_data, num_epochs, learning_rate,
 
 ## 对测试集分类
 
-当得到一组满意的模型设计和参数后，我们使用全部训练数据集（含验证集）重新训练模型，并对测试集分类。
+当得到一组满意的模型设计和参数后，我们使用全部训练数据集（含验证集）重新训练模型，并对测试集分类。注意，我们要用刚训练好的新输出层做预测。
 
 ```{.python .input  n=8}
 import numpy as np
@@ -356,7 +336,10 @@ train(net, train_valid_data, None, num_epochs, learning_rate, weight_decay,
 
 outputs = []
 for data, label in test_data:
-    output = nd.softmax(net(data.as_in_context(ctx)))
+    # 计算特征层的结果
+    output_features = net.features(data.as_in_context(ctx))
+    # 将特征层的结果作为输入，计算全连接网络的结果
+    output = nd.softmax(net.output_new(output_features))
     outputs.extend(output.asnumpy())
 ids = sorted(os.listdir(os.path.join(data_dir, input_dir, 'test/unknown')))
 with open('submission.csv', 'w') as f:

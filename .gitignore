@@ -4,3 +4,4 @@ data/
 build/
 *.json
 *.params
+*.DS_Store
