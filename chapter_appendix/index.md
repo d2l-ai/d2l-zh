@@ -1,11 +1,11 @@
-# 前言
+# 附录
 
 ```eval_rst
 
 .. toctree::
    :maxdepth: 2
 
-   why
-   preface
-   notation
+   install
+   buy-gpu
+   aws
 ```
