@@ -8,4 +8,5 @@
    install
    buy-gpu
    aws
+   math
 ```
