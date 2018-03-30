@@ -44,8 +44,8 @@ import utils
 ```{.python .input  n=3}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.2})
-utils.train(batch_size=1, trainer=trainer, num_epochs=3, decay_epoch=2,
-            log_interval=10, X=X, y=y, net=net)
+utils.optimize(batch_size=1, trainer=trainer, num_epochs=3, decay_epoch=2,
+               log_interval=10, X=X, y=y, net=net)
 ```
 
 当批量大小为1000时，由于训练数据集含1000个样本，此时训练使用的是梯度下降。在当前学习率下，目标函数值在前两个epoch下降较快。当epoch大于2，学习率自我衰减后，目标函数值下降较慢。最终学到的参数值与真实值较接近。
@@ -53,8 +53,8 @@ utils.train(batch_size=1, trainer=trainer, num_epochs=3, decay_epoch=2,
 ```{.python .input  n=4}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.999})
-utils.train(batch_size=1000, trainer=trainer, num_epochs=3, decay_epoch=2,
-            log_interval=1000, X=X, y=y, net=net)
+utils.optimize(batch_size=1000, trainer=trainer, num_epochs=3, decay_epoch=2,
+               log_interval=1000, X=X, y=y, net=net)
 ```
 
 当批量大小为10时，由于训练数据集含1000个样本，此时训练使用的是（小批量）随机梯度下降。最终学到的参数值与真实值较接近。
@@ -62,8 +62,8 @@ utils.train(batch_size=1000, trainer=trainer, num_epochs=3, decay_epoch=2,
 ```{.python .input  n=5}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.2})
-utils.train(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
-            log_interval=10, X=X, y=y, net=net)
+utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
+               log_interval=10, X=X, y=y, net=net)
 ```
 
 同样是批量大小为10，我们把学习率改大。这时我们观察到目标函数值不断增大。这时典型的overshooting问题。
@@ -71,8 +71,8 @@ utils.train(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
 ```{.python .input  n=6}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 5})
-utils.train(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
-            log_interval=10, X=X, y=y, net=net)
+utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
+               log_interval=10, X=X, y=y, net=net)
 ```
 
 同样是批量大小为10，我们把学习率改小。这时我们观察到目标函数值下降较慢，直到3个epoch也没能得到接近真实值的解。
@@ -80,8 +80,8 @@ utils.train(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
 ```{.python .input  n=7}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.002})
-utils.train(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
-            log_interval=10, X=X, y=y, net=net)
+utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
+               log_interval=10, X=X, y=y, net=net)
 ```
 
 ## 结论

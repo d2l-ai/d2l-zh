@@ -157,7 +157,7 @@ import utils
 net = utils.linreg
 squared_loss = utils.squared_loss
 
-def train(batch_size, lr, num_epochs, log_interval):
+def optimize(batch_size, lr, num_epochs, log_interval):
     w, b = init_params()
     y_vals = [nd.mean(squared_loss(net(X, w, b), y)).asnumpy()]
     print('batch size', batch_size)
@@ -190,31 +190,31 @@ def train(batch_size, lr, num_epochs, log_interval):
 当批量大小为1时，训练使用的是随机梯度下降。在当前学习率下，目标函数值在早期快速下降后略有波动。当epoch大于2，学习率自我衰减后，目标函数值下降后较平稳。最终学到的参数值与真实值较接近。
 
 ```{.python .input  n=4}
-train(batch_size=1, lr=0.2, num_epochs=3, log_interval=10)
+optimize(batch_size=1, lr=0.2, num_epochs=3, log_interval=10)
 ```
 
 当批量大小为1000时，由于训练数据集含1000个样本，此时训练使用的是梯度下降。在当前学习率下，目标函数值在前两个epoch下降较快。当epoch大于2，学习率自我衰减后，目标函数值下降较慢。最终学到的参数值与真实值较接近。
 
 ```{.python .input  n=5}
-train(batch_size=1000, lr=0.999, num_epochs=3, log_interval=1000)
+optimize(batch_size=1000, lr=0.999, num_epochs=3, log_interval=1000)
 ```
 
 当批量大小为10时，由于训练数据集含1000个样本，此时训练使用的是小批量随机梯度下降。最终学到的参数值与真实值较接近。
 
 ```{.python .input  n=6}
-train(batch_size=10, lr=0.2, num_epochs=3, log_interval=10)
+optimize(batch_size=10, lr=0.2, num_epochs=3, log_interval=10)
 ```
 
 同样是批量大小为10，我们把学习率改大。这时我们观察到目标函数值不断增大。这时典型的overshooting问题。
 
 ```{.python .input  n=7}
-train(batch_size=10, lr=5, num_epochs=3, log_interval=10)
+optimize(batch_size=10, lr=5, num_epochs=3, log_interval=10)
 ```
 
 同样是批量大小为10，我们把学习率改小。这时我们观察到目标函数值下降较慢，直到3个epoch也没能得到接近真实值的解。
 
 ```{.python .input  n=8}
-train(batch_size=10, lr=0.002, num_epochs=3, log_interval=10)
+optimize(batch_size=10, lr=0.002, num_epochs=3, log_interval=10)
 ```
 
 ## 结论

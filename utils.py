@@ -368,13 +368,15 @@ def squared_loss(yhat, y):
     return (yhat - y.reshape(yhat.shape)) ** 2 / 2
 
 
-def train(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y, net):
+def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
+             net):
+    """优化目标函数。"""
     dataset = gluon.data.ArrayDataset(X, y)
     data_iter = gluon.data.DataLoader(dataset, batch_size, shuffle=True)
     square_loss = gluon.loss.L2Loss()
     y_vals = [nd.mean(square_loss(net(X), y)).asnumpy()]
     print('batch size', batch_size)
-    for epoch in range(1, num_epochs + 1):
+    for epoch in range(1, num_epochs + 1): 
         # 学习率自我衰减。
         if decay_epoch is not None and epoch > decay_epoch:
             trainer.set_learning_rate(trainer.learning_rate * 0.1)
@@ -395,5 +397,6 @@ def train(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y, net)
     plt.semilogy(x_vals, y_vals)
     plt.xlabel('epoch')
     plt.ylabel('loss')
-    plt.show()
+    plt.show() 
+
 
