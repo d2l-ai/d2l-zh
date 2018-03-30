@@ -1,7 +1,7 @@
-# 梯度下降和随机梯度下降 --- 从0开始
+# 梯度下降和随机梯度下降（从0开始）
 
 
-在之前的教程里，我们通过损失函数$\mathcal{L}$中参数的梯度$\nabla_{\theta}\mathcal{L}$来决定如何更新模型$\theta$的参数。我们也提到过学习率$\eta$，并给出了使用梯度下降算法更新模型参数的步骤：
+在之前的章节里，我们通过损失函数$\ell$中参数的梯度$\nabla_{\theta}\ell$来决定如何更新模型$\theta$的参数。我们也提到过学习率$\eta$，并给出了使用梯度下降算法更新模型参数的步骤：
 
 $$\theta_{t} \gets \theta_{t-1} - \eta \nabla_{\theta}\mathcal{L}_{t-1}$$
 
@@ -139,6 +139,22 @@ def init_params():
     for param in params:
         param.attach_grad()
     return params
+
+# 线性回归模型。
+def linreg(X, w, b): 
+    return nd.dot(X, w) + b 
+
+# 平方损失函数。
+def squared_loss(yhat, y): 
+    return (yhat - y.reshape(yhat.shape)) ** 2 / 2
+
+# 迭代数据集。
+def data_iter(batch_size, num_examples, random, X, y): 
+    idx = list(range(num_examples))
+    random.shuffle(idx)
+    for batch_i, i in enumerate(range(0, num_examples, batch_size)):
+        j = nd.array(idx[i: min(i + batch_size, num_examples)])
+        yield batch_i, X.take(j), y.take(j)
 ```
 
 接下来定义训练函数。当epoch大于2时（epoch从1开始计数），学习率以自乘0.1的方式自我衰减。训练函数的period参数说明，每次采样过该数目的数据点后，记录当前目标函数值用于作图。例如，当period和batch_size都为10时，每次迭代后均会记录目标函数值。
@@ -149,13 +165,12 @@ def init_params():
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-
 import sys
 sys.path.append('..')
 import utils
 
-net = utils.linreg
-squared_loss = utils.squared_loss
+net = linreg
+squared_loss = squared_loss
 
 def optimize(batch_size, lr, num_epochs, log_interval):
     w, b = init_params()
@@ -165,7 +180,7 @@ def optimize(batch_size, lr, num_epochs, log_interval):
         # 学习率自我衰减。
         if epoch > 2:
             lr *= 0.1
-        for batch_i, features, label in utils.data_iter(
+        for batch_i, features, label in data_iter(
             batch_size, num_examples, random, X, y):
             with autograd.record():
                 output = net(features, w, b)
