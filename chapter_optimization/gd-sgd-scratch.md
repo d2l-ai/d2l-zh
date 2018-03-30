@@ -116,8 +116,11 @@ import mxnet as mx
 from mxnet import autograd
 from mxnet import gluon
 from mxnet import nd
+import random
 
+# 为方便比较同一优化算法的从零开始实现和Gluon实现，将输出保持确定。
 mx.random.seed(1)
+random.seed(1)
 
 # 生成数据集。
 num_inputs = 2
@@ -146,17 +149,15 @@ def init_params():
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import random
+
 import sys
 sys.path.append('..')
 import utils
 
-random.seed(1)
-
 net = utils.linreg
 squared_loss = utils.squared_loss
 
-def train(batch_size, lr, num_epochs, plot_interval):
+def train(batch_size, lr, num_epochs, log_interval):
     w, b = init_params()
     y_vals = [nd.mean(squared_loss(net(X, w, b), y)).asnumpy()]
     print('batch size', batch_size)
@@ -164,14 +165,14 @@ def train(batch_size, lr, num_epochs, plot_interval):
         # 学习率自我衰减。
         if epoch > 2:
             lr *= 0.1
-        for batch_i, data, label in utils.data_iter(
+        for batch_i, features, label in utils.data_iter(
             batch_size, num_examples, random, X, y):
             with autograd.record():
-                output = net(data, w, b)
+                output = net(features, w, b)
                 loss = squared_loss(output, label)
             loss.backward()
             sgd([w, b], lr, batch_size)
-            if batch_i * batch_size % plot_interval == 0:
+            if batch_i * batch_size % log_interval == 0:
                 y_vals.append(
                     nd.mean(squared_loss(net(X, w, b), y)).asnumpy())
         print('epoch %d, learning rate %f, loss %.4e' % 
@@ -189,31 +190,31 @@ def train(batch_size, lr, num_epochs, plot_interval):
 当批量大小为1时，训练使用的是随机梯度下降。在当前学习率下，目标函数值在早期快速下降后略有波动。当epoch大于2，学习率自我衰减后，目标函数值下降后较平稳。最终学到的参数值与真实值较接近。
 
 ```{.python .input  n=4}
-train(batch_size=1, lr=0.2, num_epochs=3, plot_interval=10)
+train(batch_size=1, lr=0.2, num_epochs=3, log_interval=10)
 ```
 
 当批量大小为1000时，由于训练数据集含1000个样本，此时训练使用的是梯度下降。在当前学习率下，目标函数值在前两个epoch下降较快。当epoch大于2，学习率自我衰减后，目标函数值下降较慢。最终学到的参数值与真实值较接近。
 
 ```{.python .input  n=5}
-train(batch_size=1000, lr=0.999, num_epochs=3, plot_interval=1000)
+train(batch_size=1000, lr=0.999, num_epochs=3, log_interval=1000)
 ```
 
 当批量大小为10时，由于训练数据集含1000个样本，此时训练使用的是小批量随机梯度下降。最终学到的参数值与真实值较接近。
 
 ```{.python .input  n=6}
-train(batch_size=10, lr=0.2, num_epochs=3, plot_interval=10)
+train(batch_size=10, lr=0.2, num_epochs=3, log_interval=10)
 ```
 
 同样是批量大小为10，我们把学习率改大。这时我们观察到目标函数值不断增大。这时典型的overshooting问题。
 
 ```{.python .input  n=7}
-train(batch_size=10, lr=5, num_epochs=3, plot_interval=10)
+train(batch_size=10, lr=5, num_epochs=3, log_interval=10)
 ```
 
 同样是批量大小为10，我们把学习率改小。这时我们观察到目标函数值下降较慢，直到3个epoch也没能得到接近真实值的解。
 
 ```{.python .input  n=8}
-train(batch_size=10, lr=0.002, num_epochs=3, plot_interval=10)
+train(batch_size=10, lr=0.002, num_epochs=3, log_interval=10)
 ```
 
 ## 结论

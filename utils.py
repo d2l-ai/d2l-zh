@@ -8,6 +8,7 @@ import mxnet as mx
 import numpy as np
 from time import time
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 
 class DataLoader(object):
     """similiar to gluon.data.DataLoader, but might be faster.
@@ -356,10 +357,43 @@ def data_iter(batch_size, num_examples, random, X, y):
         j = nd.array(idx[i: min(i + batch_size, num_examples)])
         yield batch_i, X.take(j), y.take(j)
 
+
 def linreg(X, w, b):
     """线性回归模型。"""
     return nd.dot(X, w) + b
 
+
 def squared_loss(yhat, y):
     """平方损失函数。"""
     return (yhat - y.reshape(yhat.shape)) ** 2 / 2
+
+
+def train(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y, net):
+    dataset = gluon.data.ArrayDataset(X, y)
+    data_iter = gluon.data.DataLoader(dataset, batch_size, shuffle=True)
+    square_loss = gluon.loss.L2Loss()
+    y_vals = [nd.mean(square_loss(net(X), y)).asnumpy()]
+    print('batch size', batch_size)
+    for epoch in range(1, num_epochs + 1):
+        # 学习率自我衰减。
+        if decay_epoch is not None and epoch > decay_epoch:
+            trainer.set_learning_rate(trainer.learning_rate * 0.1)
+        for batch_i, (features, label) in enumerate(data_iter):
+            with autograd.record():
+                output = net(features)
+                loss = square_loss(output, label)
+            loss.backward()
+            trainer.step(batch_size)
+            if batch_i * batch_size % log_interval == 0:
+                y_vals.append(nd.mean(square_loss(net(X), y)).asnumpy())
+        print("epoch %d, learning rate %f, loss %.4e" %
+              (epoch, trainer.learning_rate, y_vals[-1]))
+    print('w:', np.reshape(net[0].weight.data().asnumpy(), (1, -1)),
+          'b:', net[0].bias.data().asnumpy()[0], '\n')
+    x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
+    set_fig_size(mpl)
+    plt.semilogy(x_vals, y_vals)
+    plt.xlabel('epoch')
+    plt.ylabel('loss')
+    plt.show()
+

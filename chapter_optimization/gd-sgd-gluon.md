@@ -6,12 +6,12 @@
 import mxnet as mx
 from mxnet import autograd
 from mxnet import gluon
-from mxnet import ndarray as nd
-import numpy as np
+from mxnet import nd
 import random
 
-mx.random.seed(1)
+# 为方便比较同一优化算法的从零开始实现和Gluon实现，将输出保持确定。
 random.seed(1)
+mx.random.seed(1)
 
 # 生成数据集。
 num_inputs = 2
@@ -21,81 +21,67 @@ true_b = 4.2
 X = nd.random_normal(scale=1, shape=(num_examples, num_inputs))
 y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
 y += .01 * nd.random_normal(scale=1, shape=y.shape)
-dataset = gluon.data.ArrayDataset(X, y)
 
+
+# 创建模型和定义损失函数。
 net = gluon.nn.Sequential()
 net.add(gluon.nn.Dense(1))
-square_loss = gluon.loss.L2Loss()
 ```
 
 为了使学习率在两个epoch后自我衰减，我们需要访问`gluon.Trainer`的`learning_rate`属性和`set_learning_rate`函数。
 
 ```{.python .input  n=2}
 %matplotlib inline
-import matplotlib as mpl
-mpl.rcParams['figure.dpi']= 120
-import matplotlib.pyplot as plt
-
-def train(batch_size, lr, epochs, period):
-    assert period >= batch_size and period % batch_size == 0
-    net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
-    # 随机梯度下降。
-    trainer = gluon.Trainer(net.collect_params(), 'sgd',
-                            {'learning_rate': lr})
-    data_iter = gluon.data.DataLoader(dataset, batch_size, shuffle=True)
-    total_loss = [np.mean(square_loss(net(X), y).asnumpy())]
-    for epoch in range(1, epochs + 1):
-        # 学习率自我衰减。
-        if epoch > 2:
-            trainer.set_learning_rate(trainer.learning_rate * 0.1)
-        for batch_i, (data, label) in enumerate(data_iter):
-            with autograd.record():
-                output = net(data)
-                loss = square_loss(output, label)
-            loss.backward()
-            trainer.step(batch_size)
-            if batch_i * batch_size % period == 0:
-                total_loss.append(np.mean(square_loss(net(X), y).asnumpy()))
-        print("Batch size %d, Learning rate %f, Epoch %d, loss %.4e" % 
-              (batch_size, trainer.learning_rate, epoch, total_loss[-1]))
-
-    print('w:', np.reshape(net[0].weight.data().asnumpy(), (1, -1)), 
-          'b:', net[0].bias.data().asnumpy()[0], '\n')
-    x_axis = np.linspace(0, epochs, len(total_loss), endpoint=True)
-    plt.semilogy(x_axis, total_loss)
-    plt.xlabel('epoch')
-    plt.ylabel('loss')
-    plt.show()
+%config InlineBackend.figure_format = 'retina'
+import numpy as np
+import sys
+sys.path.append('..')
+import utils
 ```
 
 当批量大小为1时，训练使用的是随机梯度下降。在当前学习率下，目标函数值在早期快速下降后略有波动。当epoch大于2，学习率自我衰减后，目标函数值下降后较平稳。最终学到的参数值与真实值较接近。
 
 ```{.python .input  n=3}
-train(batch_size=1, lr=0.2, epochs=3, period=10)
+net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
+trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.2})
+utils.train(batch_size=1, trainer=trainer, num_epochs=3, decay_epoch=2,
+            log_interval=10, X=X, y=y, net=net)
 ```
 
 当批量大小为1000时，由于训练数据集含1000个样本，此时训练使用的是梯度下降。在当前学习率下，目标函数值在前两个epoch下降较快。当epoch大于2，学习率自我衰减后，目标函数值下降较慢。最终学到的参数值与真实值较接近。
 
 ```{.python .input  n=4}
-train(batch_size=1000, lr=0.999, epochs=3, period=1000)
+net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
+trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.999})
+utils.train(batch_size=1000, trainer=trainer, num_epochs=3, decay_epoch=2,
+            log_interval=1000, X=X, y=y, net=net)
 ```
 
 当批量大小为10时，由于训练数据集含1000个样本，此时训练使用的是（小批量）随机梯度下降。最终学到的参数值与真实值较接近。
 
 ```{.python .input  n=5}
-train(batch_size=10, lr=0.2, epochs=3, period=10)
+net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
+trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.2})
+utils.train(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
+            log_interval=10, X=X, y=y, net=net)
 ```
 
 同样是批量大小为10，我们把学习率改大。这时我们观察到目标函数值不断增大。这时典型的overshooting问题。
 
 ```{.python .input  n=6}
-train(batch_size=10, lr=5, epochs=3, period=10)
+net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
+trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 5})
+utils.train(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
+            log_interval=10, X=X, y=y, net=net)
 ```
 
 同样是批量大小为10，我们把学习率改小。这时我们观察到目标函数值下降较慢，直到3个epoch也没能得到接近真实值的解。
 
 ```{.python .input  n=7}
-train(batch_size=10, lr=0.002, epochs=3, period=10)
+net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
+trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.002})
+utils.train(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
+            log_interval=10, X=X, y=y, net=net)
 ```
 
 ## 结论
