@@ -3,7 +3,7 @@
 TODO(@astonzhang)
 
 
-## 微积分
+## 导数和梯度
 
 假设目标函数$f: \mathbb{R}^d \rightarrow \mathbb{R}$的输入是一个多维向量$\mathbf{x} = [x_1, x_2, \ldots, x_d]^\top$。目标函数$f(\mathbf{x})$有关$\mathbf{x}$的梯度是一个由偏导数组成的向量：
 

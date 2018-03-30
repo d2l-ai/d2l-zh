@@ -1,4 +1,4 @@
-# 梯度下降和随机梯度下降 --- 使用Gluon
+# 梯度下降和随机梯度下降——使用`Gluon`
 
 在`Gluon`里，使用小批量随机梯度下降很容易。我们无需重新实现该算法。特别地，当批量大小等于训练集大小时，该算法即为梯度下降；批量大小为1即为随机梯度下降。
 
@@ -115,8 +115,8 @@ optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
 ```{.python .input  n=7}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.002})
-utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
-               log_interval=10, X=X, y=y, net=net)
+optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
+         log_interval=10, X=X, y=y, net=net)
 ```
 
 ## 结论
