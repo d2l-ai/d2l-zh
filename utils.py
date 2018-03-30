@@ -369,7 +369,7 @@ def squared_loss(yhat, y):
 
 
 def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
-             net):
+             net, print_lr=True):
     """优化目标函数。"""
     dataset = gluon.data.ArrayDataset(X, y)
     data_iter = gluon.data.DataLoader(dataset, batch_size, shuffle=True)
@@ -388,8 +388,11 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
             trainer.step(batch_size)
             if batch_i * batch_size % log_interval == 0:
                 y_vals.append(nd.mean(square_loss(net(X), y)).asnumpy())
-        print("epoch %d, learning rate %f, loss %.4e" %
-              (epoch, trainer.learning_rate, y_vals[-1]))
+        if print_lr:
+            print("epoch %d, learning rate %f, loss %.4e" %
+                  (epoch, trainer.learning_rate, y_vals[-1]))
+        else:
+            print("epoch %d, loss %.4e" % (epoch, y_vals[-1]))
     print('w:', np.reshape(net[0].weight.data().asnumpy(), (1, -1)),
           'b:', net[0].bias.data().asnumpy()[0], '\n')
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
