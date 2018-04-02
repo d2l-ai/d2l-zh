@@ -1,11 +1,6 @@
-# 梯度下降和随机梯度下降 --- 从0开始
+# 梯度下降和随机梯度下降——从0开始
 
-
-在之前的教程里，我们通过损失函数$\mathcal{L}$中参数的梯度$\nabla_{\theta}\mathcal{L}$来决定如何更新模型$\theta$的参数。我们也提到过学习率$\eta$，并给出了使用梯度下降算法更新模型参数的步骤：
-
-$$\theta_{t} \gets \theta_{t-1} - \eta \nabla_{\theta}\mathcal{L}_{t-1}$$
-
-在本节教程中，我们将详细介绍梯度下降算法和随机梯度下降算法。由于梯度下降是优化算法的核心部分，深刻理解梯度的意义十分重要。为了帮助大家深刻理解梯度，我们将从数学上阐释梯度下降的意义。
+本节中，我们将介绍梯度下降（gradient descent）和随机梯度下降（stochastic gradient descent）算法。由于梯度下降是优化算法的核心部分，理解梯度的涵义十分重要。为了帮助读者深刻理解梯度，我们将从数学角度阐释梯度下降的意义。
 
 
 ## 一维梯度下降
@@ -24,47 +19,49 @@ $$f(x - \eta f'(x)) \approx f(x) -  \eta f'(x)^2$$
 
 $$f(x - \eta f'(x)) \leq f(x)$$
 
-也就是说，如果当前导数$f'(x) \neq 0$，按照$x := x - \eta f'(x)$更新$x$可能降低$f(x)$的值。
+也就是说，如果目标函数$f(x)$当前的导数$f'(x) \neq 0$，按照
 
-由于导数$f'(x)$是梯度在一维空间的特殊情况，上述更新$x$的方法也即一维空间的梯度下降。一维空间的梯度下降如下方左图所示，参数$x$沿着梯度方向不断更新。
+$$x \leftarrow x - \eta f'(x)$$
 
-![](../img/gd_and_overshooting.svg)
+迭代自变量$x$可能会降低$f(x)$的值。由于导数$f'(x)$是梯度$\nabla_x f$在一维空间的特殊情况，上述迭代自变量$x$的方法也即一维空间的梯度下降。一维空间的梯度下降图7.2（左）所示，自变量$x$沿着梯度方向迭代。
 
+![梯度下降中，目标函数$f(x)$的自变量$x$（圆圈的横坐标）沿着梯度方向迭代](../img/gd_and_overshooting.svg)
 
 
 ## 学习率
 
-上述梯度下降算法中的$\eta$（取正数）叫做学习率或步长。需要注意的是，学习率过大可能会造成$x$迈过（overshoot）最优解，甚至不断发散而无法收敛，如上方右图所示。
+上述梯度下降算法中的$\eta$叫做学习率。这是一个超参数，需要人工设定。学习率$\eta$要取正数。
 
+需要注意的是，学习率过大可能会造成自变量$x$越过（overshoot）目标函数$f(x)$的最优解，甚至发散。见图7.2（右）。
 
+然而，如果学习率过小，目标函数中自变量的迭代速度会过慢。实际中，一个合适的学习率通常是需要通过多次实验找到的。
 
-然而，如果学习率过小，优化算法收敛速度会过慢。实际中，一个合适的学习率通常是需要通过实验调出来的。
 
 ## 多维梯度下降
 
 现在我们考虑一个更广义的情况：目标函数的输入为向量，输出为标量。
 
-假设目标函数$f: \mathbb{R}^d \rightarrow \mathbb{R}$的输入是一个多维向量$\mathbf{x} = [x_1, x_2, \ldots, x_d]^\top$。目标函数$f(\mathbf{x})$有关$\mathbf{x}$的梯度是一个由偏导数组成的向量：
+假设目标函数$f: \mathbb{R}^d \rightarrow \mathbb{R}$的输入是一个$d$维向量$\mathbf{x} = [x_1, x_2, \ldots, x_d]^\top$。目标函数$f(\mathbf{x})$有关$\mathbf{x}$的梯度是一个由$d$个偏导数组成的向量：
 
 $$\nabla_\mathbf{x} f(\mathbf{x}) = \bigg[\frac{\partial f(\mathbf{x})}{\partial x_1}, \frac{\partial f(\mathbf{x})}{\partial x_2}, \ldots, \frac{\partial f(\mathbf{x})}{\partial x_d}\bigg]^\top.$$
 
 
-为表示简洁，我们有时用$\nabla f(\mathbf{x})$代替$\nabla_\mathbf{x} f(\mathbf{x})$。梯度中每个偏导数元素$\partial f(\mathbf{x})/\partial x_i$代表着$f$在$\mathbf{x}$有关输入$x_i$的变化率。为了测量$f$沿着单位向量$\mathbf{u}$方向上的变化率，在多元微积分中，我们定义$f$在$\mathbf{x}$上沿着$\mathbf{u}$方向的方向导数为
+为表示简洁，我们用$\nabla f(\mathbf{x})$代替$\nabla_\mathbf{x} f(\mathbf{x})$。梯度中每个偏导数元素$\partial f(\mathbf{x})/\partial x_i$代表着$f$在$\mathbf{x}$有关输入$x_i$的变化率。为了测量$f$沿着单位向量$\mathbf{u}$方向上的变化率，在多元微积分中，我们定义$f$在$\mathbf{x}$上沿着$\mathbf{u}$方向的方向导数为
 
-$$D_\mathbf{u} f(\mathbf{x}) = \lim_{h \rightarrow 0}  \frac{f(\mathbf{x} + h \mathbf{u}) - f(\mathbf{x})}{h}$$
+$$D_\mathbf{u} f(\mathbf{x}) = \lim_{h \rightarrow 0}  \frac{f(\mathbf{x} + h \mathbf{u}) - f(\mathbf{x})}{h}.$$
 
-由链式法则，该方向导数可以改写为
+依据方向导数性质 [1，14.6节定理三]，该方向导数可以改写为
 
-$$D_\mathbf{u} f(\mathbf{x}) = \nabla f(\mathbf{x}) \cdot \mathbf{u}$$
+$$D_\mathbf{u} f(\mathbf{x}) = \nabla f(\mathbf{x}) \cdot \mathbf{u}.$$
 
-方向导数$D_\mathbf{u} f(\mathbf{x})$给出了$f$在$\mathbf{x}$上沿着所有可能方向的变化率。为了最小化$f$，我们希望找到$f$能被降低最快的方向。因此，我们可以通过$\mathbf{u}$来最小化方向导数$D_\mathbf{u} f(\mathbf{x})$。
+方向导数$D_\mathbf{u} f(\mathbf{x})$给出了$f$在$\mathbf{x}$上沿着所有可能方向的变化率。为了最小化$f$，我们希望找到$f$能被降低最快的方向。因此，我们可以通过单位向量$\mathbf{u}$来最小化方向导数$D_\mathbf{u} f(\mathbf{x})$。
 
 由于$D_\mathbf{u} f(\mathbf{x}) = \|\nabla f(\mathbf{x})\| \cdot \|\mathbf{u}\|  \cdot \text{cos} (\theta) = \|\nabla f(\mathbf{x})\|  \cdot \text{cos} (\theta)$，
-其中$\theta$为$\nabla f(\mathbf{x})$和$\mathbf{u}$之间的夹角，当$\theta = \pi$，$\text{cos}(\theta)$取得最小值-1。因此，当$\mathbf{u}$在梯度方向$\nabla f(\mathbf{x})$的相反方向时，方向导数$D_\mathbf{u} f(\mathbf{x})$被最小化。所以，我们可能通过下面的**梯度下降算法**来不断降低目标函数$f$的值：
+其中$\theta$为梯度$\nabla f(\mathbf{x})$和单位向量$\mathbf{u}$之间的夹角，当$\theta = \pi$，$\text{cos}(\theta)$取得最小值-1。因此，当$\mathbf{u}$在梯度方向$\nabla f(\mathbf{x})$的相反方向时，方向导数$D_\mathbf{u} f(\mathbf{x})$被最小化。所以，我们可能通过下面的梯度下降算法来不断降低目标函数$f$的值：
 
-$$\mathbf{x} := \mathbf{x} - \eta \nabla f(\mathbf{x})$$
+$$\mathbf{x} := \mathbf{x} - \eta \nabla f(\mathbf{x}).$$
 
-相同地，其中$\eta$（取正数）称作学习率或步长。
+相同地，其中$\eta$（取正数）称作学习率。
 
 ## 随机梯度下降
 
@@ -72,30 +69,35 @@ $$\mathbf{x} := \mathbf{x} - \eta \nabla f(\mathbf{x})$$
 
 $$f(\mathbf{x}) = \frac{1}{n} \sum_{i = 1}^n f_i(\mathbf{x}),$$
 
-其中$f_i(\mathbf{x})$是有关索引为$i$的训练数据点的损失函数。需要强调的是，梯度下降每次迭代的计算开销随着$n$线性增长。因此，当$n$很大时，每次迭代的计算开销很高。
+其中$f_i(\mathbf{x})$是有关索引为$i$的训练数据样本的损失函数，$n$是训练数据样本数。由于
 
-这时我们需要**随机梯度下降**算法。在每次迭代时，该算法随机均匀采样$i$并计算$\nabla f_i(\mathbf{x})$。事实上，随机梯度$\nabla f_i(\mathbf{x})$是对梯度$\nabla f(\mathbf{x})$的无偏估计：
+$$\nabla f(\mathbf{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_i(\mathbf{x}),$$
 
-$$\mathbb{E}_i \nabla f_i(\mathbf{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_i(\mathbf{x}) = \nabla f(\mathbf{x})$$
+梯度下降每次迭代的计算开销随着$n$线性增长。因此，当训练数据样本数很大时，梯度下降每次迭代的计算开销很高。这时我们可以使用随机梯度下降。给定学习率$\eta$（取正数），在每次迭代时，随机梯度下降算法随机均匀采样$i$并计算$\nabla f_i(\mathbf{x})$来迭代$\mathbf{x}$：
+
+$$\mathbf{x} := \mathbf{x} - \eta \nabla f_i(\mathbf{x}).$$
+
+
+事实上，随机梯度$\nabla f_i(\mathbf{x})$是对梯度$\nabla f(\mathbf{x})$的无偏估计：
+
+$$\mathbb{E}_i \nabla f_i(\mathbf{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_i(\mathbf{x}) = \nabla f(\mathbf{x}).$$
 
 
 ## 小批量随机梯度下降
 
-
-广义上，每次迭代可以随机均匀采样一个由训练数据点索引所组成的小批量$\mathcal{B}$。类似地，我们可以使用
+广义上，每一次迭代可以随机均匀采样一个由训练数据样本索引所组成的小批量（mini-batch）$\mathcal{B}$。类似地，我们可以使用
 
 $$\nabla f_\mathcal{B}(\mathbf{x}) = \frac{1}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}\nabla f_i(\mathbf{x})$$ 
 
-来更新$\mathbf{x}$：
+来迭代$\mathbf{x}$：
 
-$$\mathbf{x} := \mathbf{x} - \eta \nabla f_\mathcal{B}(\mathbf{x}),$$
+$$\mathbf{x} := \mathbf{x} - \eta \nabla f_\mathcal{B}(\mathbf{x}).$$
 
-其中$|\mathcal{B}|$代表批量中索引数量，$\eta$（取正数）称作学习率或步长。同样，小批量随机梯度$\nabla f_\mathcal{B}(\mathbf{x})$也是对梯度$\nabla f(\mathbf{x})$的无偏估计:
+在上式中，$|\mathcal{B}|$代表样本批量大小，$\eta$（取正数）称作学习率。同样，小批量随机梯度$\nabla f_\mathcal{B}(\mathbf{x})$也是对梯度$\nabla f(\mathbf{x})$的无偏估计:
 
 $$\mathbb{E}_\mathcal{B} \nabla f_\mathcal{B}(\mathbf{x}) = \nabla f(\mathbf{x}).$$
 
-这个算法叫做**小批量随机梯度下降**。该算法每次迭代的计算开销为$\mathcal{O}(|\mathcal{B}|)$。因此，当批量较小时，每次迭代的计算开销也较小。
-
+这个算法叫做小批量随机梯度下降。该算法每次迭代的计算开销为$\mathcal{O}(|\mathcal{B}|)$。当批量大小为1时，该算法即随机梯度下降；当批量大小等于训练数据样本数，该算法即梯度下降。和学习率一样，批量大小也是一个超参数。当批量较小时，虽然每次迭代的计算开销较小，但计算机并行处理批量中各个样本的能力往往只得到较少利用。因此，当训练数据集的样本较少时，我们可以使用梯度下降；当样本较多时，我们可以使用小批量梯度下降并依据计算资源选择合适的批量大小。
 
 
 ## 算法实现和实验
@@ -116,8 +118,11 @@ import mxnet as mx
 from mxnet import autograd
 from mxnet import gluon
 from mxnet import nd
+import random
 
+# 为方便比较同一优化算法的从零开始实现和Gluon实现，将输出保持确定。
 mx.random.seed(1)
+random.seed(1)
 
 # 生成数据集。
 num_inputs = 2
@@ -136,6 +141,22 @@ def init_params():
     for param in params:
         param.attach_grad()
     return params
+
+# 线性回归模型。
+def linreg(X, w, b): 
+    return nd.dot(X, w) + b 
+
+# 平方损失函数。
+def squared_loss(yhat, y): 
+    return (yhat - y.reshape(yhat.shape)) ** 2 / 2
+
+# 迭代数据集。
+def data_iter(batch_size, num_examples, random, X, y): 
+    idx = list(range(num_examples))
+    random.shuffle(idx)
+    for batch_i, i in enumerate(range(0, num_examples, batch_size)):
+        j = nd.array(idx[i: min(i + batch_size, num_examples)])
+        yield batch_i, X.take(j), y.take(j)
 ```
 
 接下来定义训练函数。当epoch大于2时（epoch从1开始计数），学习率以自乘0.1的方式自我衰减。训练函数的period参数说明，每次采样过该数目的数据点后，记录当前目标函数值用于作图。例如，当period和batch_size都为10时，每次迭代后均会记录目标函数值。
@@ -146,17 +167,14 @@ def init_params():
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import random
 import sys
 sys.path.append('..')
 import utils
 
-random.seed(1)
+net = linreg
+squared_loss = squared_loss
 
-net = utils.linreg
-squared_loss = utils.squared_loss
-
-def train(batch_size, lr, num_epochs, plot_interval):
+def optimize(batch_size, lr, num_epochs, log_interval):
     w, b = init_params()
     y_vals = [nd.mean(squared_loss(net(X, w, b), y)).asnumpy()]
     print('batch size', batch_size)
@@ -164,14 +182,14 @@ def train(batch_size, lr, num_epochs, plot_interval):
         # 学习率自我衰减。
         if epoch > 2:
             lr *= 0.1
-        for batch_i, data, label in utils.data_iter(
+        for batch_i, features, label in data_iter(
             batch_size, num_examples, random, X, y):
             with autograd.record():
-                output = net(data, w, b)
+                output = net(features, w, b)
                 loss = squared_loss(output, label)
             loss.backward()
             sgd([w, b], lr, batch_size)
-            if batch_i * batch_size % plot_interval == 0:
+            if batch_i * batch_size % log_interval == 0:
                 y_vals.append(
                     nd.mean(squared_loss(net(X, w, b), y)).asnumpy())
         print('epoch %d, learning rate %f, loss %.4e' % 
@@ -189,34 +207,34 @@ def train(batch_size, lr, num_epochs, plot_interval):
 当批量大小为1时，训练使用的是随机梯度下降。在当前学习率下，目标函数值在早期快速下降后略有波动。当epoch大于2，学习率自我衰减后，目标函数值下降后较平稳。最终学到的参数值与真实值较接近。
 
 ```{.python .input  n=4}
-train(batch_size=1, lr=0.2, num_epochs=3, plot_interval=10)
+optimize(batch_size=1, lr=0.2, num_epochs=3, log_interval=10)
 ```
 
 当批量大小为1000时，由于训练数据集含1000个样本，此时训练使用的是梯度下降。在当前学习率下，目标函数值在前两个epoch下降较快。当epoch大于2，学习率自我衰减后，目标函数值下降较慢。最终学到的参数值与真实值较接近。
 
 ```{.python .input  n=5}
-train(batch_size=1000, lr=0.999, num_epochs=3, plot_interval=1000)
+optimize(batch_size=1000, lr=0.999, num_epochs=3, log_interval=1000)
 ```
 
 当批量大小为10时，由于训练数据集含1000个样本，此时训练使用的是小批量随机梯度下降。最终学到的参数值与真实值较接近。
 
 ```{.python .input  n=6}
-train(batch_size=10, lr=0.2, num_epochs=3, plot_interval=10)
+optimize(batch_size=10, lr=0.2, num_epochs=3, log_interval=10)
 ```
 
 同样是批量大小为10，我们把学习率改大。这时我们观察到目标函数值不断增大。这时典型的overshooting问题。
 
 ```{.python .input  n=7}
-train(batch_size=10, lr=5, num_epochs=3, plot_interval=10)
+optimize(batch_size=10, lr=5, num_epochs=3, log_interval=10)
 ```
 
 同样是批量大小为10，我们把学习率改小。这时我们观察到目标函数值下降较慢，直到3个epoch也没能得到接近真实值的解。
 
 ```{.python .input  n=8}
-train(batch_size=10, lr=0.002, num_epochs=3, plot_interval=10)
+optimize(batch_size=10, lr=0.002, num_epochs=3, log_interval=10)
 ```
 
-## 结论
+## 小结
 
 * 当训练数据较大，梯度下降每次迭代计算开销较大，因而（小批量）随机梯度下降更受青睐。
 * 学习率过大过小都有问题。合适的学习率要靠实验来调。
@@ -226,6 +244,11 @@ train(batch_size=10, lr=0.002, num_epochs=3, plot_interval=10)
 
 * 为什么实验中随机梯度下降的学习率是自我衰减的？
 * 梯度下降和随机梯度下降虽然看上去有效，但可能会有哪些问题？
+
+
+## 参考文献
+
+[1] J. Stewart. Calculus: Early Transcendentals (7th Edition). Brooks Cole. 2010.
 
 
 **吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1877)

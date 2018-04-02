@@ -47,12 +47,13 @@ def adadelta(params, sqrs, deltas, rho, batch_size):
 实验中，我们以线性回归为例。其中真实参数`w`为[2, -3.4]，`b`为4.2。我们把算法中基于指数加权移动平均的变量初始化为和参数形状相同的零张量。
 
 ```{.python .input  n=1}
-from mxnet import ndarray as nd
 import mxnet as mx
 from mxnet import autograd
 from mxnet import gluon
+from mxnet import nd
 import random
 
+# 为方便比较同一优化算法的从零开始实现和Gluon实现，将输出保持确定。
 mx.random.seed(1)
 random.seed(1)
 
@@ -64,16 +65,6 @@ true_b = 4.2
 X = nd.random_normal(scale=1, shape=(num_examples, num_inputs))
 y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
 y += .01 * nd.random_normal(scale=1, shape=y.shape)
-dataset = gluon.data.ArrayDataset(X, y)
-
-# 构造迭代器。
-import random
-def data_iter(batch_size):
-    idx = list(range(num_examples))
-    random.shuffle(idx)
-    for batch_i, i in enumerate(range(0, num_examples, batch_size)):
-        j = nd.array(idx[i: min(i + batch_size, num_examples)])
-        yield batch_i, X.take(j), y.take(j)
 
 # 初始化模型参数。
 def init_params():
@@ -88,46 +79,45 @@ def init_params():
         sqrs.append(param.zeros_like())
         deltas.append(param.zeros_like())
     return params, sqrs, deltas
-
-# 线性回归模型。
-def net(X, w, b):
-    return nd.dot(X, w) + b
-
-# 损失函数。
-def square_loss(yhat, y):
-    return (yhat - y.reshape(yhat.shape)) ** 2 / 2
 ```
 
 接下来定义训练函数。当epoch大于2时（epoch从1开始计数），学习率以自乘0.1的方式自我衰减。训练函数的period参数说明，每次采样过该数目的数据点后，记录当前目标函数值用于作图。例如，当period和batch_size都为10时，每次迭代后均会记录目标函数值。
 
 ```{.python .input  n=2}
 %matplotlib inline
+%config InlineBackend.figure_format = 'retina'
 import matplotlib as mpl
-mpl.rcParams['figure.dpi']= 120
 import matplotlib.pyplot as plt
 import numpy as np
 
-def train(batch_size, rho, epochs, period):
-    assert period >= batch_size and period % batch_size == 0
-    [w, b], sqrs, deltas = init_params()
-    total_loss = [np.mean(square_loss(net(X, w, b), y).asnumpy())]
+import sys
+sys.path.append('..')
+import utils
 
-    # 注意epoch从1开始计数。
-    for epoch in range(1, epochs + 1):
-        for batch_i, data, label in data_iter(batch_size):
+net = utils.linreg
+squared_loss = utils.squared_loss
+
+def optimize(batch_size, rho, num_epochs, log_interval):
+    [w, b], sqrs, deltas = init_params()
+    y_vals = [nd.mean(squared_loss(net(X, w, b), y)).asnumpy()]
+    print('batch size', batch_size)
+    for epoch in range(1, num_epochs + 1):
+        for batch_i, features, label in utils.data_iter(
+            batch_size, num_examples, random, X, y):
             with autograd.record():
-                output = net(data, w, b)
-                loss = square_loss(output, label)
+                output = net(features, w, b)
+                loss = squared_loss(output, label)
             loss.backward()
             adadelta([w, b], sqrs, deltas, rho, batch_size)
-            if batch_i * batch_size % period == 0:
-                total_loss.append(np.mean(square_loss(net(X, w, b), y).asnumpy()))
-        print("Batch size %d, Epoch %d, loss %.4e" % 
-              (batch_size, epoch, total_loss[-1]))
+            if batch_i * batch_size % log_interval == 0:
+                y_vals.append(
+                    nd.mean(squared_loss(net(X, w, b), y)).asnumpy())
+        print('epoch %d, loss %.4e' % (epoch, y_vals[-1]))
     print('w:', np.reshape(w.asnumpy(), (1, -1)), 
           'b:', b.asnumpy()[0], '\n')
-    x_axis = np.linspace(0, epochs, len(total_loss), endpoint=True)
-    plt.semilogy(x_axis, total_loss)
+    x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
+    utils.set_fig_size(mpl)
+    plt.semilogy(x_vals, y_vals)
     plt.xlabel('epoch')
     plt.ylabel('loss')
     plt.show()
@@ -136,7 +126,7 @@ def train(batch_size, rho, epochs, period):
 使用Adadelta，最终学到的参数值与真实值较接近。
 
 ```{.python .input  n=3}
-train(batch_size=10, rho=0.9999, epochs=3, period=10)
+optimize(batch_size=10, rho=0.9999, num_epochs=3, log_interval=10)
 ```
 
 ## 结论

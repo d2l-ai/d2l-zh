@@ -7,8 +7,6 @@
 - 课程源代码在[Github](https://github.com/mli/gluon-tutorials-zh) （亲，给个好评加颗星）
 - 请使用 [http://discuss.gluon.ai/](http://discuss.gluon.ai/) 来进行讨论
 
-**目录**
-
 ```eval_rst
 
 .. toctree::
@@ -24,6 +22,7 @@
    chapter_gluon-advances/index
    chapter_computer-vision/index
    chapter_natural-language-processing/index
+   chapter_appendix/index
 ```
 
 本教程的[英文版本](http://gluon.mxnet.io/) （注意：中文版本根据社区的反馈做了比较大的更改，我们还在努力的将改动同步到英文版）
