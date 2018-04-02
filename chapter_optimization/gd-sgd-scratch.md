@@ -30,7 +30,7 @@ $$x \leftarrow x - \eta f'(x)$$
 
 ## 学习率
 
-上述梯度下降算法中的$\eta$（取正数）叫做学习率。这是一个超参数，需要人工设定。
+上述梯度下降算法中的$\eta$叫做学习率。这是一个超参数，需要人工设定。学习率$\eta$要取正数。
 
 需要注意的是，学习率过大可能会造成自变量$x$越过（overshoot）目标函数$f(x)$的最优解，甚至发散。见图7.2（右）。
 
@@ -41,27 +41,27 @@ $$x \leftarrow x - \eta f'(x)$$
 
 现在我们考虑一个更广义的情况：目标函数的输入为向量，输出为标量。
 
-假设目标函数$f: \mathbb{R}^d \rightarrow \mathbb{R}$的输入是一个多维向量$\mathbf{x} = [x_1, x_2, \ldots, x_d]^\top$。目标函数$f(\mathbf{x})$有关$\mathbf{x}$的梯度是一个由偏导数组成的向量：
+假设目标函数$f: \mathbb{R}^d \rightarrow \mathbb{R}$的输入是一个$d$维向量$\mathbf{x} = [x_1, x_2, \ldots, x_d]^\top$。目标函数$f(\mathbf{x})$有关$\mathbf{x}$的梯度是一个由$d$个偏导数组成的向量：
 
 $$\nabla_\mathbf{x} f(\mathbf{x}) = \bigg[\frac{\partial f(\mathbf{x})}{\partial x_1}, \frac{\partial f(\mathbf{x})}{\partial x_2}, \ldots, \frac{\partial f(\mathbf{x})}{\partial x_d}\bigg]^\top.$$
 
 
-为表示简洁，我们有时用$\nabla f(\mathbf{x})$代替$\nabla_\mathbf{x} f(\mathbf{x})$。梯度中每个偏导数元素$\partial f(\mathbf{x})/\partial x_i$代表着$f$在$\mathbf{x}$有关输入$x_i$的变化率。为了测量$f$沿着单位向量$\mathbf{u}$方向上的变化率，在多元微积分中，我们定义$f$在$\mathbf{x}$上沿着$\mathbf{u}$方向的方向导数为
+为表示简洁，我们用$\nabla f(\mathbf{x})$代替$\nabla_\mathbf{x} f(\mathbf{x})$。梯度中每个偏导数元素$\partial f(\mathbf{x})/\partial x_i$代表着$f$在$\mathbf{x}$有关输入$x_i$的变化率。为了测量$f$沿着单位向量$\mathbf{u}$方向上的变化率，在多元微积分中，我们定义$f$在$\mathbf{x}$上沿着$\mathbf{u}$方向的方向导数为
 
-$$D_\mathbf{u} f(\mathbf{x}) = \lim_{h \rightarrow 0}  \frac{f(\mathbf{x} + h \mathbf{u}) - f(\mathbf{x})}{h}$$
+$$D_\mathbf{u} f(\mathbf{x}) = \lim_{h \rightarrow 0}  \frac{f(\mathbf{x} + h \mathbf{u}) - f(\mathbf{x})}{h}.$$
 
-由链式法则，该方向导数可以改写为
+依据方向导数性质 [1，14.6节定理三]，该方向导数可以改写为
 
-$$D_\mathbf{u} f(\mathbf{x}) = \nabla f(\mathbf{x}) \cdot \mathbf{u}$$
+$$D_\mathbf{u} f(\mathbf{x}) = \nabla f(\mathbf{x}) \cdot \mathbf{u}.$$
 
-方向导数$D_\mathbf{u} f(\mathbf{x})$给出了$f$在$\mathbf{x}$上沿着所有可能方向的变化率。为了最小化$f$，我们希望找到$f$能被降低最快的方向。因此，我们可以通过$\mathbf{u}$来最小化方向导数$D_\mathbf{u} f(\mathbf{x})$。
+方向导数$D_\mathbf{u} f(\mathbf{x})$给出了$f$在$\mathbf{x}$上沿着所有可能方向的变化率。为了最小化$f$，我们希望找到$f$能被降低最快的方向。因此，我们可以通过单位向量$\mathbf{u}$来最小化方向导数$D_\mathbf{u} f(\mathbf{x})$。
 
 由于$D_\mathbf{u} f(\mathbf{x}) = \|\nabla f(\mathbf{x})\| \cdot \|\mathbf{u}\|  \cdot \text{cos} (\theta) = \|\nabla f(\mathbf{x})\|  \cdot \text{cos} (\theta)$，
-其中$\theta$为$\nabla f(\mathbf{x})$和$\mathbf{u}$之间的夹角，当$\theta = \pi$，$\text{cos}(\theta)$取得最小值-1。因此，当$\mathbf{u}$在梯度方向$\nabla f(\mathbf{x})$的相反方向时，方向导数$D_\mathbf{u} f(\mathbf{x})$被最小化。所以，我们可能通过下面的**梯度下降算法**来不断降低目标函数$f$的值：
+其中$\theta$为梯度$\nabla f(\mathbf{x})$和单位向量$\mathbf{u}$之间的夹角，当$\theta = \pi$，$\text{cos}(\theta)$取得最小值-1。因此，当$\mathbf{u}$在梯度方向$\nabla f(\mathbf{x})$的相反方向时，方向导数$D_\mathbf{u} f(\mathbf{x})$被最小化。所以，我们可能通过下面的梯度下降算法来不断降低目标函数$f$的值：
 
-$$\mathbf{x} := \mathbf{x} - \eta \nabla f(\mathbf{x})$$
+$$\mathbf{x} := \mathbf{x} - \eta \nabla f(\mathbf{x}).$$
 
-相同地，其中$\eta$（取正数）称作学习率或步长。
+相同地，其中$\eta$（取正数）称作学习率。
 
 ## 随机梯度下降
 
@@ -69,30 +69,35 @@ $$\mathbf{x} := \mathbf{x} - \eta \nabla f(\mathbf{x})$$
 
 $$f(\mathbf{x}) = \frac{1}{n} \sum_{i = 1}^n f_i(\mathbf{x}),$$
 
-其中$f_i(\mathbf{x})$是有关索引为$i$的训练数据点的损失函数。需要强调的是，梯度下降每次迭代的计算开销随着$n$线性增长。因此，当$n$很大时，每次迭代的计算开销很高。
+其中$f_i(\mathbf{x})$是有关索引为$i$的训练数据样本的损失函数，$n$是训练数据样本数。由于
 
-这时我们需要**随机梯度下降**算法。在每次迭代时，该算法随机均匀采样$i$并计算$\nabla f_i(\mathbf{x})$。事实上，随机梯度$\nabla f_i(\mathbf{x})$是对梯度$\nabla f(\mathbf{x})$的无偏估计：
+$$\nabla f(\mathbf{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_i(\mathbf{x}),$$
 
-$$\mathbb{E}_i \nabla f_i(\mathbf{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_i(\mathbf{x}) = \nabla f(\mathbf{x})$$
+梯度下降每次迭代的计算开销随着$n$线性增长。因此，当训练数据样本数很大时，梯度下降每次迭代的计算开销很高。这时我们可以使用随机梯度下降。给定学习率$\eta$（取正数），在每次迭代时，随机梯度下降算法随机均匀采样$i$并计算$\nabla f_i(\mathbf{x})$来迭代$\mathbf{x}$：
+
+$$\mathbf{x} := \mathbf{x} - \eta \nabla f_i(\mathbf{x}).$$
+
+
+事实上，随机梯度$\nabla f_i(\mathbf{x})$是对梯度$\nabla f(\mathbf{x})$的无偏估计：
+
+$$\mathbb{E}_i \nabla f_i(\mathbf{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_i(\mathbf{x}) = \nabla f(\mathbf{x}).$$
 
 
 ## 小批量随机梯度下降
 
-
-广义上，每次迭代可以随机均匀采样一个由训练数据点索引所组成的小批量$\mathcal{B}$。类似地，我们可以使用
+广义上，每一次迭代可以随机均匀采样一个由训练数据样本索引所组成的小批量（mini-batch）$\mathcal{B}$。类似地，我们可以使用
 
 $$\nabla f_\mathcal{B}(\mathbf{x}) = \frac{1}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}\nabla f_i(\mathbf{x})$$ 
 
-来更新$\mathbf{x}$：
+来迭代$\mathbf{x}$：
 
-$$\mathbf{x} := \mathbf{x} - \eta \nabla f_\mathcal{B}(\mathbf{x}),$$
+$$\mathbf{x} := \mathbf{x} - \eta \nabla f_\mathcal{B}(\mathbf{x}).$$
 
-其中$|\mathcal{B}|$代表批量中索引数量，$\eta$（取正数）称作学习率或步长。同样，小批量随机梯度$\nabla f_\mathcal{B}(\mathbf{x})$也是对梯度$\nabla f(\mathbf{x})$的无偏估计:
+在上式中，$|\mathcal{B}|$代表样本批量大小，$\eta$（取正数）称作学习率。同样，小批量随机梯度$\nabla f_\mathcal{B}(\mathbf{x})$也是对梯度$\nabla f(\mathbf{x})$的无偏估计:
 
 $$\mathbb{E}_\mathcal{B} \nabla f_\mathcal{B}(\mathbf{x}) = \nabla f(\mathbf{x}).$$
 
-这个算法叫做**小批量随机梯度下降**。该算法每次迭代的计算开销为$\mathcal{O}(|\mathcal{B}|)$。因此，当批量较小时，每次迭代的计算开销也较小。
-
+这个算法叫做小批量随机梯度下降。该算法每次迭代的计算开销为$\mathcal{O}(|\mathcal{B}|)$。当批量大小为1时，该算法即随机梯度下降；当批量大小等于训练数据样本数，该算法即梯度下降。和学习率一样，批量大小也是一个超参数。当批量较小时，虽然每次迭代的计算开销较小，但计算机并行处理批量中各个样本的能力往往只得到较少利用。因此，当训练数据集的样本较少时，我们可以使用梯度下降；当样本较多时，我们可以使用小批量梯度下降并依据计算资源选择合适的批量大小。
 
 
 ## 算法实现和实验
@@ -229,7 +234,7 @@ optimize(batch_size=10, lr=5, num_epochs=3, log_interval=10)
 optimize(batch_size=10, lr=0.002, num_epochs=3, log_interval=10)
 ```
 
-## 结论
+## 小结
 
 * 当训练数据较大，梯度下降每次迭代计算开销较大，因而（小批量）随机梯度下降更受青睐。
 * 学习率过大过小都有问题。合适的学习率要靠实验来调。
@@ -239,6 +244,11 @@ optimize(batch_size=10, lr=0.002, num_epochs=3, log_interval=10)
 
 * 为什么实验中随机梯度下降的学习率是自我衰减的？
 * 梯度下降和随机梯度下降虽然看上去有效，但可能会有哪些问题？
+
+
+## 参考文献
+
+[1] J. Stewart. Calculus: Early Transcendentals (7th Edition). Brooks Cole. 2010.
 
 
 **吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1877)
