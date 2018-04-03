@@ -180,14 +180,10 @@ transform_test = transforms.Compose([
 input_str = data_dir + '/' + input_dir + '/'
 
 # 读取原始图像文件。flag=1说明输入图像有三个通道（彩色）。
-train_ds = vision.ImageFolderDataset(input_str + 'train', flag=1, 
-                                     transform=transform_train)
-valid_ds = vision.ImageFolderDataset(input_str + 'valid', flag=1, 
-                                     transform=transform_test)
-train_valid_ds = vision.ImageFolderDataset(input_str + 'train_valid', 
-                                           flag=1, transform=transform_train)
-test_ds = vision.ImageFolderDataset(input_str + 'test', flag=1, 
-                                     transform=transform_test)
+train_ds = vision.ImageFolderDataset(input_str + 'train', flag=1)
+valid_ds = vision.ImageFolderDataset(input_str + 'valid', flag=1)
+train_valid_ds = vision.ImageFolderDataset(input_str + 'train_valid', flag=1)
+test_ds = vision.ImageFolderDataset(input_str + 'test', flag=1)
 
 loader = gluon.data.DataLoader
 train_data = loader(train_ds.transform_first(transform_train),
