@@ -65,7 +65,7 @@ from mxnet import ndarray as nd
 from mxnet import gluon
 import random
 
-# 为方便比较同一优化算法的从零开始实现和Gluon实现，将输出保持确定。
+# 为方便比较同一优化算法的从零开始实现和Gluon实现，固定随机种子。
 mx.random.seed(1)
 random.seed(1)
 

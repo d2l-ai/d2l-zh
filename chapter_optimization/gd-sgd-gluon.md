@@ -9,7 +9,7 @@ from mxnet import gluon
 from mxnet import nd
 import random
 
-# 为方便比较同一优化算法的从零开始实现和Gluon实现，将输出保持确定。
+# 为方便比较同一优化算法的从零开始实现和Gluon实现，固定随机种子。
 random.seed(1)
 mx.random.seed(1)
 
@@ -88,7 +88,7 @@ optimize(batch_size=1, trainer=trainer, num_epochs=3, decay_epoch=2,
 ```{.python .input  n=4}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.999})
-optimize(batch_size=1000, trainer=trainer, num_epochs=3, decay_epoch=2,
+optimize(batch_size=1000, trainer=trainer, num_epochs=3, decay_epoch=None,
          log_interval=1000, X=X, y=y, net=net)
 ```
 

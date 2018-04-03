@@ -111,7 +111,7 @@ def sgd(params, lr, batch_size):
         param[:] = param - lr * param.grad / batch_size
 ```
 
-实验中，我们以线性回归为例。其中真实参数`w`为[2, -3.4]，`b`为4.2。
+实验中，我们以之前介绍过的线性回归为例。我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。目标函数为平方损失函数。
 
 ```{.python .input  n=2}
 import mxnet as mx
@@ -120,7 +120,7 @@ from mxnet import gluon
 from mxnet import nd
 import random
 
-# 为方便比较同一优化算法的从零开始实现和Gluon实现，将输出保持确定。
+# 为方便比较同一优化算法的从零开始实现和Gluon实现，固定随机种子。
 mx.random.seed(1)
 random.seed(1)
 
@@ -159,7 +159,9 @@ def data_iter(batch_size, num_examples, random, X, y):
         yield batch_i, X.take(j), y.take(j)
 ```
 
-接下来定义训练函数。当epoch大于2时（epoch从1开始计数），学习率以自乘0.1的方式自我衰减。训练函数的period参数说明，每次采样过该数目的数据点后，记录当前目标函数值用于作图。例如，当period和batch_size都为10时，每次迭代后均会记录目标函数值。
+接下来定义优化函数。由于随机梯度的方差在迭代过程中无法减小，（小梯度）随机梯度下降的学习率通常会采用自我衰减的方式。实验中，当epoch大于2时，学习率以自乘0.1的方式自我衰减。
+
+训练函数的period参数说明，每次采样过该数目的数据点后，记录当前目标函数值用于作图。例如，当period和batch_size都为10时，每次迭代后均会记录目标函数值。
 
 ```{.python .input  n=3}
 %matplotlib inline
@@ -168,19 +170,20 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
+
 sys.path.append('..')
 import utils
 
 net = linreg
 squared_loss = squared_loss
 
-def optimize(batch_size, lr, num_epochs, log_interval):
+def optimize(batch_size, lr, num_epochs, log_interval, decay_epoch):
     w, b = init_params()
     y_vals = [nd.mean(squared_loss(net(X, w, b), y)).asnumpy()]
     print('batch size', batch_size)
     for epoch in range(1, num_epochs + 1):
         # 学习率自我衰减。
-        if epoch > 2:
+        if decay_epoch is not None and epoch > decay_epoch:
             lr *= 0.1
         for batch_i, features, label in data_iter(
             batch_size, num_examples, random, X, y):
@@ -207,31 +210,31 @@ def optimize(batch_size, lr, num_epochs, log_interval):
 当批量大小为1时，训练使用的是随机梯度下降。在当前学习率下，目标函数值在早期快速下降后略有波动。当epoch大于2，学习率自我衰减后，目标函数值下降后较平稳。最终学到的参数值与真实值较接近。
 
 ```{.python .input  n=4}
-optimize(batch_size=1, lr=0.2, num_epochs=3, log_interval=10)
+optimize(batch_size=1, lr=0.2, num_epochs=3, decay_epoch=2, log_interval=10)
 ```
 
 当批量大小为1000时，由于训练数据集含1000个样本，此时训练使用的是梯度下降。在当前学习率下，目标函数值在前两个epoch下降较快。当epoch大于2，学习率自我衰减后，目标函数值下降较慢。最终学到的参数值与真实值较接近。
 
 ```{.python .input  n=5}
-optimize(batch_size=1000, lr=0.999, num_epochs=3, log_interval=1000)
+optimize(batch_size=1000, lr=0.999, num_epochs=3, decay_epoch=None, log_interval=1000)
 ```
 
 当批量大小为10时，由于训练数据集含1000个样本，此时训练使用的是小批量随机梯度下降。最终学到的参数值与真实值较接近。
 
 ```{.python .input  n=6}
-optimize(batch_size=10, lr=0.2, num_epochs=3, log_interval=10)
+optimize(batch_size=10, lr=0.2, num_epochs=3, decay_epoch=2, log_interval=10)
 ```
 
 同样是批量大小为10，我们把学习率改大。这时我们观察到目标函数值不断增大。这时典型的overshooting问题。
 
 ```{.python .input  n=7}
-optimize(batch_size=10, lr=5, num_epochs=3, log_interval=10)
+optimize(batch_size=10, lr=5, num_epochs=3, decay_epoch=2, log_interval=10)
 ```
 
 同样是批量大小为10，我们把学习率改小。这时我们观察到目标函数值下降较慢，直到3个epoch也没能得到接近真实值的解。
 
 ```{.python .input  n=8}
-optimize(batch_size=10, lr=0.002, num_epochs=3, log_interval=10)
+optimize(batch_size=10, lr=0.002, num_epochs=3, decay_epoch=2, log_interval=10)
 ```
 
 ## 小结
