@@ -111,7 +111,7 @@ def sgd(params, lr, batch_size):
         param[:] = param - lr * param.grad / batch_size
 ```
 
-实验中，我们以之前介绍过的线性回归为例。我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。目标函数为平方损失函数。
+实验中，我们以之前介绍过的线性回归为例。我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。数据集的样本数为1000。目标函数为平方损失函数。
 
 ```{.python .input  n=2}
 import mxnet as mx
@@ -150,7 +150,7 @@ def linreg(X, w, b):
 def squared_loss(yhat, y): 
     return (yhat - y.reshape(yhat.shape)) ** 2 / 2
 
-# 迭代数据集。
+# 遍历数据集。
 def data_iter(batch_size, num_examples, random, X, y): 
     idx = list(range(num_examples))
     random.shuffle(idx)
@@ -159,9 +159,11 @@ def data_iter(batch_size, num_examples, random, X, y):
         yield batch_i, X.take(j), y.take(j)
 ```
 
-接下来定义优化函数。由于随机梯度的方差在迭代过程中无法减小，（小梯度）随机梯度下降的学习率通常会采用自我衰减的方式。实验中，当epoch大于2时，学习率以自乘0.1的方式自我衰减。
+下面我们描述一下优化函数`optimize`。
 
-训练函数的period参数说明，每次采样过该数目的数据点后，记录当前目标函数值用于作图。例如，当period和batch_size都为10时，每次迭代后均会记录目标函数值。
+由于随机梯度的方差在迭代过程中无法减小，（小批量）随机梯度下降的学习率通常会采用自我衰减的方式。如此一来，学习率和随机梯度乘积的方差会衰减。实验中，当迭代周期（`epoch`）大于2时，（小批量）随机梯度下降的学习率在每个迭代周期开始时自乘0.1作自我衰减。而梯度下降在迭代过程中一直使用目标函数的真实梯度，无需自我衰减学习率。
+
+在迭代过程中，每当`log_interval`个样本被采样过后，当前的目标函数值（`loss`）被记录下并用于作图。例如，当`batch_size`和`log_interval`都为10时，每次迭代后的目标函数值都被用来作图。
 
 ```{.python .input  n=3}
 %matplotlib inline
@@ -207,51 +209,59 @@ def optimize(batch_size, lr, num_epochs, log_interval, decay_epoch):
     plt.show()
 ```
 
-当批量大小为1时，训练使用的是随机梯度下降。在当前学习率下，目标函数值在早期快速下降后略有波动。当epoch大于2，学习率自我衰减后，目标函数值下降后较平稳。最终学到的参数值与真实值较接近。
+当批量大小为1时，优化使用的是随机梯度下降。在当前学习率下，目标函数值在早期快速下降后略有波动。这是由于随机梯度的方差在迭代过程中无法减小。当迭代周期大于2，学习率自我衰减后，目标函数值下降后较平稳。最终，优化所得的模型参数值`w`和`b`与它们的真实值[2, -3.4]和4.2较接近。
 
 ```{.python .input  n=4}
 optimize(batch_size=1, lr=0.2, num_epochs=3, decay_epoch=2, log_interval=10)
 ```
 
-当批量大小为1000时，由于训练数据集含1000个样本，此时训练使用的是梯度下降。在当前学习率下，目标函数值在前两个epoch下降较快。当epoch大于2，学习率自我衰减后，目标函数值下降较慢。最终学到的参数值与真实值较接近。
+当批量大小为1000时，由于数据样本总数也是1000，优化使用的是梯度下降。梯度下降无需自我衰减学习率（`decay_epoch=None`）。最终，优化所得的模型参数值与它们的真实值较接近。
+
+需要注意的是，梯度下降的1个迭代周期对模型参数只迭代1次。而随机梯度下降的批量大小为1，它在1个迭代周期对模型参数迭代了1000次。我们观察到，1个迭代周期后，梯度下降所得的目标函数值比随机梯度下降所得的目标函数值略大。而在3个迭代周期后，这两个算法所得的目标函数值很接近。
 
 ```{.python .input  n=5}
-optimize(batch_size=1000, lr=0.999, num_epochs=3, decay_epoch=None, log_interval=1000)
+optimize(batch_size=1000, lr=0.999, num_epochs=3, decay_epoch=None, 
+         log_interval=1000)
 ```
 
-当批量大小为10时，由于训练数据集含1000个样本，此时训练使用的是小批量随机梯度下降。最终学到的参数值与真实值较接近。
+当批量大小为10时，由于数据样本总数也是1000，优化使用的是小批量随机梯度下降。最终，优化所得的模型参数值与它们的真实值较接近。
 
 ```{.python .input  n=6}
 optimize(batch_size=10, lr=0.2, num_epochs=3, decay_epoch=2, log_interval=10)
 ```
 
-同样是批量大小为10，我们把学习率改大。这时我们观察到目标函数值不断增大。这时典型的overshooting问题。
+同样是批量大小为10，我们把学习率改大。这时我们观察到目标函数值不断增大，直到出现'nan'（not a number，非数）。
+这是因为，过大的学习率造成了目标函数自变量越过最优解并发散。
 
 ```{.python .input  n=7}
 optimize(batch_size=10, lr=5, num_epochs=3, decay_epoch=2, log_interval=10)
 ```
 
-同样是批量大小为10，我们把学习率改小。这时我们观察到目标函数值下降较慢，直到3个epoch也没能得到接近真实值的解。
+同样是批量大小为10，我们把学习率改小。这时我们观察到目标函数值下降较慢，直到3个迭代周期也没能得到接近真实值的解。
 
 ```{.python .input  n=8}
-optimize(batch_size=10, lr=0.002, num_epochs=3, decay_epoch=2, log_interval=10)
+optimize(batch_size=10, lr=0.002, num_epochs=3, decay_epoch=2,
+         log_interval=10)
 ```
 
 ## 小结
 
 * 当训练数据较大，梯度下降每次迭代计算开销较大，因而（小批量）随机梯度下降更受青睐。
-* 学习率过大过小都有问题。合适的学习率要靠实验来调。
+* 学习率过大过小都有问题。一个合适的学习率通常是需要通过多次实验找到的。
 
 
 ## 练习
 
-* 为什么实验中随机梯度下降的学习率是自我衰减的？
+* 运行本节中实验代码。比较一下随机梯度下降和梯度下降的运行时间。
 * 梯度下降和随机梯度下降虽然看上去有效，但可能会有哪些问题？
+
+## 讨论
+
+欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/1877)：
+
+![](../img/qr_gd-sgd-scratch.svg)
 
 
 ## 参考文献
 
 [1] J. Stewart. Calculus: Early Transcendentals (7th Edition). Brooks Cole. 2010.
-
-
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1877)

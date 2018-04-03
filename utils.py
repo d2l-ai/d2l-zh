@@ -350,7 +350,7 @@ def set_fig_size(mpl, figsize=(3.5, 2.5)):
 
 
 def data_iter(batch_size, num_examples, random, X, y):
-    """迭代数据集。"""
+    """遍历数据集。"""
     idx = list(range(num_examples))
     random.shuffle(idx)
     for batch_i, i in enumerate(range(0, num_examples, batch_size)):

@@ -129,4 +129,4 @@ plt.show()
 
 欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/1876)：
 
-![](../img/optimization-intro_qr.svg)
+![](../img/qr_optimization-intro.svg)
