@@ -154,16 +154,23 @@ transform_train = transforms.Compose([
     # transforms.RandomColorJitter(brightness=0.0, contrast=0.0, saturation=0.0, hue=0.0),
     # transforms.RandomLighting(0.0),
     # transforms.Cast('float32'),
+
+    # 将图片按比例放缩至短边为256像素
     transforms.Resize(256),
-    transforms.RandomResizedCrop(224),
+    # 随机按照scale和ratio裁剪，并放缩为224x224的正方形
+    transforms.RandomResizedCrop(224, scale=(0.08, 1.0), ratio=(3.0/4.0, 4.0/3.0)),
+    # 随机左右翻转图片
     transforms.RandomFlipLeftRight(),
+    # 将图片像素值缩小到(0,1)内，并将数据格式从"高*宽*通道"改为"通道*高*宽"
     transforms.ToTensor(),
+    # 对图片的每个通道做标准化
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
 # 去掉随机裁剪/翻转，保留确定性的图像预处理结果
 transform_test = transforms.Compose([
     transforms.Resize(256),
+    # 将图片中央的224x224正方形区域裁剪出来
     transforms.CenterCrop(224),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])

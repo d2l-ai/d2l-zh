@@ -158,17 +158,20 @@ transform_train = transforms.Compose([
     # transforms.RandomColorJitter(brightness=0.0, contrast=0.0, saturation=0.0, hue=0.0),
     # transforms.RandomLighting(0.0),
     # transforms.Cast('float32'),
-    transforms.Resize(32),
-    transforms.RandomResizedCrop(32),
+    # transforms.Resize(32),
+
+    # 随机按照scale和ratio裁剪，并放缩为32x32的正方形
+    transforms.RandomResizedCrop(32, scale=(0.08, 1.0), ratio=(3.0/4.0, 4.0/3.0)),
+    # 随机左右翻转图片
     transforms.RandomFlipLeftRight(),
+    # 将图片像素值缩小到(0,1)内，并将数据格式从"高*宽*通道"改为"通道*高*宽"
     transforms.ToTensor(),
+    # 对图片的每个通道做标准化
     transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010])
 ])
 
 # 测试时，无需对图像做标准化以外的增强数据处理。
 transform_test = transforms.Compose([
-    transforms.Resize(32),
-    transforms.CenterCrop(32),
     transforms.ToTensor(),
     transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010])
 ])
