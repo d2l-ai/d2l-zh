@@ -60,7 +60,7 @@ for fin in zipfiles:
 
 ### 整理数据集
 
-对于Kaggle的完整数据集，我们需要定义下面的reorg_dog_data函数来整理一下。整理后，同一类狗的图片将出现在在同一个文件夹下，便于`Gluon`稍后读取。
+对于Kaggle的完整数据集，我们需要定义下面的`reorg_dog_data`函数来整理一下。整理后，同一类狗的图片将出现在在同一个文件夹下，便于`Gluon`稍后读取。
 
 函数中的参数如data_dir、train_dir和test_dir对应上述数据存放路径及原始训练和测试的图片集文件夹名称。参数label_file为训练数据标签的文件名称。参数input_dir是整理后数据集文件夹名称。参数valid_ratio是验证集中每类狗的数量占原始训练集中数量最少一类的狗的数量（66）的比重。
 
@@ -116,7 +116,7 @@ def reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir,
                     os.path.join(data_dir, input_dir, 'test', 'unknown'))
 ```
 
-再次强调，为了使网页编译快一点，我们在这里仅仅使用小数据样本。相应地，我们仅将批量大小设为2。实际训练和测试时应使用Kaggle的完整数据集并调用reorg_dog_data函数整理便于`Gluon`读取的格式。由于数据集较大，批量大小batch_size大小可设为一个较大的整数，例如128。
+再次强调，为了使网页编译快一点，我们在这里仅仅使用小数据样本。相应地，我们仅将批量大小设为2。实际训练和测试时应使用Kaggle的完整数据集并调用`reorg_dog_data`函数整理便于`Gluon`读取的格式。由于数据集较大，批量大小batch_size大小可设为一个较大的整数，例如128。
 
 ```{.python .input  n=3}
 if demo:
@@ -137,65 +137,66 @@ else:
 
 ## 使用Gluon读取整理后的数据集
 
-为避免过拟合，我们在这里使用`image.CreateAugmenter`来增广数据集。例如我们设`rand_mirror=True`即可随机对每张图片做镜面反转。以下我们列举了该函数里的所有参数，这些参数都是可以调的。
+为避免过拟合，我们在这里使用`transforms`来增广数据集。例如我们加入`transforms.RandomFlipLeftRight()`即可随机对每张图片做镜面反转。以下我们列举了所有可能用到的操作，这些操作可以根据需求来决定是否调用，它们的参数也都是可调的。
 
 ```{.python .input  n=4}
 from mxnet import autograd
 from mxnet import gluon
-from mxnet import image
 from mxnet import init
 from mxnet import nd
 from mxnet.gluon.data import vision
+from mxnet.gluon.data.vision import transforms
 import numpy as np
 
-def transform_train(data, label):
-    im = image.imresize(data.astype('float32') / 255, 256, 256)
-    auglist = image.CreateAugmenter(data_shape=(3, 224, 224),
-                        rand_crop=True, rand_mirror=True,
-                        mean=np.array([0.485, 0.456, 0.406]),
-                        std=np.array([0.229, 0.224, 0.225]),
-                        brightness=0, contrast=0, 
-                        saturation=0, hue=0, 
-                        pca_noise=0, rand_gray=0, inter_method=2)
-    for aug in auglist:
-        im = aug(im)
-    # 将数据格式从"高*宽*通道"改为"通道*高*宽"。
-    im = nd.transpose(im, (2,0,1))
-    return (im, nd.array([label]).asscalar().astype('float32'))
+transform_train = transforms.Compose([
+    # transforms.CenterCrop(32)
+    # transforms.RandomFlipTopBottom(),
+    # transforms.RandomColorJitter(brightness=0.0, contrast=0.0, saturation=0.0, hue=0.0),
+    # transforms.RandomLighting(0.0),
+    # transforms.Cast('float32'),
+
+    # 将图片按比例放缩至短边为256像素
+    transforms.Resize(256),
+    # 随机按照scale和ratio裁剪，并放缩为224x224的正方形
+    transforms.RandomResizedCrop(224, scale=(0.08, 1.0), ratio=(3.0/4.0, 4.0/3.0)),
+    # 随机左右翻转图片
+    transforms.RandomFlipLeftRight(),
+    # 将图片像素值缩小到(0,1)内，并将数据格式从"高*宽*通道"改为"通道*高*宽"
+    transforms.ToTensor(),
+    # 对图片的每个通道做标准化
+    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+])
 
 # 去掉随机裁剪/翻转，保留确定性的图像预处理结果
-def transform_test(data, label):
-    im = image.imresize(data.astype('float32') / 255, 256, 256)
-    auglist = image.CreateAugmenter(data_shape=(3, 224, 224),
-                        mean=np.array([0.485, 0.456, 0.406]),
-                        std=np.array([0.229, 0.224, 0.225]))
-    for aug in auglist:
-        im = aug(im)
-    im = nd.transpose(im, (2,0,1))
-    return (im, nd.array([label]).asscalar().astype('float32'))
+transform_test = transforms.Compose([
+    transforms.Resize(256),
+    # 将图片中央的224x224正方形区域裁剪出来
+    transforms.CenterCrop(224),
+    transforms.ToTensor(),
+    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+])
 ```
 
-接下来，我们可以使用`Gluon`中的`ImageFolderDataset`类来读取整理后的数据集。
+接下来，我们可以使用`Gluon`中的`ImageFolderDataset`类来读取整理后的数据集。注意，我们要在`loader`中调用刚刚定义好的图片增广函数。通过`vision.ImageFolderDataset`读入的数据是一个`(image, label)`组合，`transform_first()`的作用便是对这个组合中的第一个成员（即读入的图像）做图片增广操作。
 
 ```{.python .input  n=5}
 input_str = data_dir + '/' + input_dir + '/'
 
 # 读取原始图像文件。flag=1说明输入图像有三个通道（彩色）。
-train_ds = vision.ImageFolderDataset(input_str + 'train', flag=1, 
-                                     transform=transform_train)
-valid_ds = vision.ImageFolderDataset(input_str + 'valid', flag=1, 
-                                     transform=transform_test)
-train_valid_ds = vision.ImageFolderDataset(input_str + 'train_valid', 
-                                           flag=1, transform=transform_train)
-test_ds = vision.ImageFolderDataset(input_str + 'test', flag=1, 
-                                     transform=transform_test)
+train_ds = vision.ImageFolderDataset(input_str + 'train', flag=1)
+valid_ds = vision.ImageFolderDataset(input_str + 'valid', flag=1)
+train_valid_ds = vision.ImageFolderDataset(input_str + 'train_valid', flag=1)
+test_ds = vision.ImageFolderDataset(input_str + 'test', flag=1)
 
 loader = gluon.data.DataLoader
-train_data = loader(train_ds, batch_size, shuffle=True, last_batch='keep')
-valid_data = loader(valid_ds, batch_size, shuffle=True, last_batch='keep')
-train_valid_data = loader(train_valid_ds, batch_size, shuffle=True, 
-                          last_batch='keep')
-test_data = loader(test_ds, batch_size, shuffle=False, last_batch='keep')
+train_data = loader(train_ds.transform_first(transform_train),
+                    batch_size, shuffle=True, last_batch='keep')
+valid_data = loader(valid_ds.transform_first(transform_test),
+                    batch_size, shuffle=True, last_batch='keep')
+train_valid_data = loader(train_valid_ds.transform_first(transform_train),
+                          batch_size, shuffle=True, last_batch='keep')
+test_data = loader(test_ds.transform_first(transform_test),
+                   batch_size, shuffle=False, last_batch='keep')
 
 # 交叉熵损失函数。
 softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
