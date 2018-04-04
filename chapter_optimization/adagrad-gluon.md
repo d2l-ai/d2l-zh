@@ -45,7 +45,7 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
                log_interval=10, X=X, y=y, net=net)
 ```
 
-## 结论
+## 小结
 
 * 使用`Gluon`的`Trainer`可以轻松使用Adagrad。
 
@@ -53,4 +53,8 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
 
 * 尝试使用其他的初始学习率，结果有什么变化？
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/2274)
+## 讨论
+
+欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/2274)：
+
+![](../img/qr_adagrad-gluon.svg)

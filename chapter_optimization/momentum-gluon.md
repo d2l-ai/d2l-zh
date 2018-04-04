@@ -46,7 +46,7 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
                log_interval=10, X=X, y=y, net=net)
 ```
 
-## 结论
+## 小结
 
 * 使用`Gluon`的`Trainer`可以轻松使用动量法。
 
@@ -54,4 +54,8 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
 
 * 如果想用以上代码重现随机梯度下降，应该把动量参数改为多少？
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1880)
+## 讨论
+
+欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/1880)：
+
+![](../img/qr_momentum-gluon.svg)

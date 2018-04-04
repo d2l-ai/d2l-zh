@@ -161,7 +161,7 @@ def optimize(batch_size, lr, num_epochs, log_interval):
 optimize(batch_size=10, lr=0.1, num_epochs=3, log_interval=10)
 ```
 
-## 结论
+## 小结
 
 * Adam组合了动量法和RMSProp。
 
@@ -170,4 +170,8 @@ optimize(batch_size=10, lr=0.1, num_epochs=3, log_interval=10)
 
 * 你是怎样理解Adam算法中的偏差修正项的？
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/2279)
+## 讨论
+
+欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/2279)：
+
+![](../img/qr_adam-scratch.svg)

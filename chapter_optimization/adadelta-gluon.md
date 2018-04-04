@@ -47,7 +47,7 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
                log_interval=10, X=X, y=y, net=net, print_lr=False)
 ```
 
-## 结论
+## 小结
 
 * 使用`Gluon`的`Trainer`可以轻松使用Adadelta。
 
@@ -55,4 +55,9 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
 
 * 如果把试验中的参数rho改小会怎样，例如0.9？观察实验结果。
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/2278)
+
+## 讨论
+
+欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/2278)：
+
+![](../img/qr_adadelta-gluon.svg)

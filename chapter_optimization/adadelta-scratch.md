@@ -124,7 +124,7 @@ def optimize(batch_size, rho, num_epochs, log_interval):
 optimize(batch_size=10, rho=0.9999, num_epochs=3, log_interval=10)
 ```
 
-## 结论
+## 小结
 
 * Adadelta没有学习率参数。
 
@@ -133,4 +133,9 @@ optimize(batch_size=10, rho=0.9999, num_epochs=3, log_interval=10)
 
 * Adadelta为什么不需要设置学习率参数？它被什么代替了？
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/2277)
+
+## 讨论
+
+欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/2277)：
+
+![](../img/qr_adadelta-scratch.svg)

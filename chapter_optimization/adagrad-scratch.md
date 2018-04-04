@@ -141,7 +141,7 @@ def optimize(batch_size, lr, num_epochs, log_interval):
 optimize(batch_size=10, lr=0.9, num_epochs=3, log_interval=10)
 ```
 
-## 结论
+## 小结
 
 * Adagrad是一个在迭代过程中不断自我调整学习率，并让模型参数中每个元素都使用不同学习率的优化算法。
 
@@ -150,4 +150,8 @@ optimize(batch_size=10, lr=0.9, num_epochs=3, log_interval=10)
 
 * 我们提到了Adagrad可能的问题在于按元素平方的梯度累加变量。你能想到什么办法来应对这个问题吗？
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/2273)
+## 讨论
+
+欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/2273)：
+
+![](../img/qr_adagrad-scratch.svg)

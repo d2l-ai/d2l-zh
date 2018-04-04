@@ -137,7 +137,7 @@ def optimize(batch_size, lr, mom, num_epochs, log_interval):
 optimize(batch_size=10, lr=0.2, mom=0.9, num_epochs=3, log_interval=10)
 ```
 
-## 结论
+## 小结
 
 * 动量法可以提升随机梯度下降，例如对于某些问题可以选用较大学习率从而加快收敛。
 
@@ -146,4 +146,8 @@ optimize(batch_size=10, lr=0.2, mom=0.9, num_epochs=3, log_interval=10)
 
 * 试着使用较小的动量参数，观察实验结果。
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1879)
+## 讨论
+
+欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/1879)：
+
+![](../img/qr_momentum-scratch.svg)

@@ -129,7 +129,7 @@ optimize(batch_size=10, lr=0.03, gamma=0.9, num_epochs=3, log_interval=10)
 optimize(batch_size=10, lr=0.03, gamma=0.999, num_epochs=3, log_interval=10)
 ```
 
-## 结论
+## 小结
 
 * RMSProp和Adagrad的不同在于，RMSProp使用了梯度按元素平方的指数加权移动平均变量来调整学习率。
 * 通过调整指数加权移动平均中gamma参数的值可以控制学习率的变化。
@@ -140,4 +140,8 @@ optimize(batch_size=10, lr=0.03, gamma=0.999, num_epochs=3, log_interval=10)
 * 通过查阅网上资料，你对指数加权移动平均是怎样理解的？
 * 为什么gamma调大后，损失函数在迭代后期较平滑？
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/2275)
+## 讨论
+
+欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/2275)：
+
+![](../img/qr_rmsprop-scratch.svg)

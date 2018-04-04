@@ -77,4 +77,8 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
 * 换：这个参数被换成别的了
 * 权：指数加权移动平均
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/2280)
+## 讨论
+
+欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/2280)：
+
+![](../img/qr_adam-gluon.svg)
