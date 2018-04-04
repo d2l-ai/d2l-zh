@@ -56,14 +56,24 @@ def sgd_momentum(params, vs, lr, mom, batch_size):
         param[:] -= v
 ```
 
+```{.python .input}
+%config InlineBackend.figure_format = 'retina'
+%matplotlib inline
+import mxnet as mx
+from mxnet import autograd
+from mxnet import gluon
+from mxnet import nd
+import numpy as np
+import random
+import sys
+sys.path.append('..')
+import utils
+```
+
 实验中，我们以线性回归为例。其中真实参数`w`为[2, -3.4]，`b`为4.2。我们把速度项初始化为和参数形状相同的零张量。
 
 ```{.python .input  n=2}
-import mxnet as mx
-from mxnet import autograd
-from mxnet import ndarray as nd
-from mxnet import gluon
-import random
+
 
 # 生成数据集。
 num_inputs = 2
@@ -90,15 +100,6 @@ def init_params():
 接下来定义训练函数。当epoch大于2时（epoch从1开始计数），学习率以自乘0.1的方式自我衰减。训练函数的period参数说明，每次采样过该数目的数据点后，记录当前目标函数值用于作图。例如，当period和batch_size都为10时，每次迭代后均会记录目标函数值。
 
 ```{.python .input  n=3}
-%matplotlib inline
-%config InlineBackend.figure_format = 'retina'
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import numpy as np
-import sys
-sys.path.append('..')
-import utils
-
 net = utils.linreg
 squared_loss = utils.squared_loss
 
@@ -124,11 +125,7 @@ def optimize(batch_size, lr, mom, num_epochs, log_interval):
     # 为了便于打印，改变输出形状并转化成numpy数组。
     print('w:', w.reshape((1, -1)).asnumpy(), 'b:', b.asscalar(), '\n')
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
-    utils.set_fig_size(mpl)
-    plt.semilogy(x_vals, y_vals)
-    plt.xlabel('epoch')
-    plt.ylabel('loss')
-    plt.show()
+    utils.semilogy('semilogy', x_vals, y_vals, 'epoch', 'loss')
 ```
 
 使用动量法，最终学到的参数值与真实值较接近。

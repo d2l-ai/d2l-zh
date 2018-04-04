@@ -3,13 +3,20 @@
 
 在`Gluon`里，使用RMSProp很容易。我们无需重新实现它。
 
-```{.python .input  n=1}
+```{.python .input}
+%config InlineBackend.figure_format = 'retina'
+%matplotlib inline
 import mxnet as mx
 from mxnet import autograd
 from mxnet import gluon
 from mxnet import nd
-import random
+import numpy as np
+import sys
+sys.path.append('..')
+import utils
+```
 
+```{.python .input  n=1}
 # 生成数据集。
 num_inputs = 2
 num_examples = 1000
@@ -25,15 +32,6 @@ net.add(gluon.nn.Dense(1))
 ```
 
 我们需要在`gluon.Trainer`中指定优化算法名称`rmsprop`并设置参数。例如设置初始学习率`learning_rate`和指数加权移动平均中gamma1参数。
-
-```{.python .input  n=2}
-%matplotlib inline
-%config InlineBackend.figure_format = 'retina'
-import numpy as np
-import sys
-sys.path.append('..')
-import utils
-```
 
 我们将初始学习率设为0.03，并将gamma设为0.9。损失函数在迭代后期较震荡。
 

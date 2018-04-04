@@ -46,13 +46,21 @@ def rmsprop(params, sqrs, lr, gamma, batch_size):
 
 实验中，我们以线性回归为例。其中真实参数`w`为[2, -3.4]，`b`为4.2。我们把梯度按元素平方的指数加权移动平均变量初始化为和参数形状相同的零张量。
 
-```{.python .input  n=1}
+```{.python .input}
+%config InlineBackend.figure_format = 'retina'
+%matplotlib inline
 import mxnet as mx
 from mxnet import autograd
 from mxnet import gluon
 from mxnet import nd
+import numpy as np
 import random
+import sys
+sys.path.append('..')
+import utils
+```
 
+```{.python .input  n=1}
 # 生成数据集。
 num_inputs = 2
 num_examples = 1000
@@ -78,16 +86,6 @@ def init_params():
 接下来定义训练函数。训练函数的period参数说明，每次采样过该数目的数据点后，记录当前目标函数值用于作图。例如，当period和batch_size都为10时，每次迭代后均会记录目标函数值。
 
 ```{.python .input  n=2}
-%matplotlib inline
-%config InlineBackend.figure_format = 'retina'
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import numpy as np
-
-import sys
-sys.path.append('..')
-import utils
-
 net = utils.linreg
 squared_loss = utils.squared_loss
 
@@ -110,11 +108,7 @@ def optimize(batch_size, lr, gamma, num_epochs, log_interval):
     # 为了便于打印，改变输出形状并转化成numpy数组。
     print('w:', w.reshape((1, -1)).asnumpy(), 'b:', b.asscalar(), '\n')
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
-    utils.set_fig_size(mpl)
-    plt.semilogy(x_vals, y_vals)
-    plt.xlabel('epoch')
-    plt.ylabel('loss')
-    plt.show()
+    utils.semilogy('semilogy', x_vals, y_vals, 'epoch', 'loss')
 ```
 
 我们将初始学习率设为0.03，并将gamma设为0.9。损失函数在迭代后期较震荡。

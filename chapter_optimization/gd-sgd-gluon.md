@@ -2,12 +2,20 @@
 
 在`Gluon`里，使用小批量随机梯度下降很容易。我们无需重新实现该算法。特别地，当批量大小等于训练集大小时，该算法即为梯度下降；批量大小为1即为随机梯度下降。
 
-```{.python .input  n=1}
+```{.python .input}
+%config InlineBackend.figure_format = 'retina'
+%matplotlib inline
 import mxnet as mx
 from mxnet import autograd
 from mxnet import gluon
 from mxnet import nd
+import numpy as np
+import sys
+sys.path.append('..')
+import utils
+```
 
+```{.python .input  n=1}
 # 生成数据集。
 num_inputs = 2
 num_examples = 1000
@@ -25,15 +33,6 @@ net.add(gluon.nn.Dense(1))
 为了使学习率在两个epoch后自我衰减，我们需要访问`gluon.Trainer`的`learning_rate`属性和`set_learning_rate`函数。
 
 ```{.python .input  n=2}
-%matplotlib inline
-%config InlineBackend.figure_format = 'retina'
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import numpy as np
-import sys
-sys.path.append('..')
-import utils
-
 # 优化目标函数。
 def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
              net, print_lr=True):
@@ -63,11 +62,7 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
     print('w:', net[0].weight.data().reshape((1, -1)).asnumpy(),
           'b:', net[0].bias.data().asscalar(), '\n')
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
-    utils.set_fig_size(mpl)
-    plt.semilogy(x_vals, y_vals)
-    plt.xlabel('epoch')
-    plt.ylabel('loss')
-    plt.show() 
+    utils.semilogy('semilogy', x_vals, y_vals, 'epoch', 'loss')
 ```
 
 当批量大小为1时，训练使用的是随机梯度下降。在当前学习率下，目标函数值在早期快速下降后略有波动。当epoch大于2，学习率自我衰减后，目标函数值下降后较平稳。最终学到的参数值与真实值较接近。
