@@ -177,7 +177,7 @@ squared_loss = squared_loss
 
 def optimize(batch_size, lr, num_epochs, log_interval, decay_epoch):
     w, b = init_params()
-    y_vals = [nd.mean(squared_loss(net(X, w, b), y)).asnumpy()]
+    y_vals = [squared_loss(net(X, w, b), y).mean().asnumpy()]
     print('batch size', batch_size)
     for epoch in range(1, num_epochs + 1):
         # 学习率自我衰减。

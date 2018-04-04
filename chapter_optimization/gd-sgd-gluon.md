@@ -43,7 +43,7 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
     dataset = gluon.data.ArrayDataset(X, y)
     data_iter = gluon.data.DataLoader(dataset, batch_size, shuffle=True)
     square_loss = gluon.loss.L2Loss()
-    y_vals = [nd.mean(square_loss(net(X), y)).asnumpy()]
+    y_vals = [square_loss(net(X), y).mean().asnumpy()]
     print('batch size', batch_size)
     for epoch in range(1, num_epochs + 1): 
         # 学习率自我衰减。
@@ -56,7 +56,7 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
             loss.backward()
             trainer.step(batch_size)
             if batch_i * batch_size % log_interval == 0:
-                y_vals.append(nd.mean(square_loss(net(X), y)).asnumpy())
+                y_vals.append(square_loss(net(X), y).mean().asnumpy())
         if print_lr:
             print("epoch %d, learning rate %f, loss %.4e" %
                   (epoch, trainer.learning_rate, y_vals[-1]))

@@ -110,7 +110,7 @@ squared_loss = utils.squared_loss
 
 def optimize(batch_size, lr, num_epochs, log_interval):
     [w, b], sqrs = init_params()
-    y_vals = [nd.mean(squared_loss(net(X, w, b), y)).asnumpy()]
+    y_vals = [squared_loss(net(X, w, b), y).mean().asnumpy()]
     print('batch size', batch_size)
     for epoch in range(1, num_epochs + 1):
         for batch_i, (features, label) in enumerate(utils.data_iter(
