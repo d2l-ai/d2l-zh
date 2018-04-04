@@ -300,7 +300,7 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period, lr_de
         if epoch > 0 and epoch % lr_period == 0:
             trainer.set_learning_rate(trainer.learning_rate * lr_decay)
         for data, label in train_data:
-            label = label.as_in_context(ctx)
+            label = label.astype('float32').as_in_context(ctx)
             with autograd.record():
                 output = net(data.as_in_context(ctx))
                 loss = softmax_cross_entropy(output, label)

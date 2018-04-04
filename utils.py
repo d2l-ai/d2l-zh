@@ -94,10 +94,8 @@ def SGD(params, lr):
         param[:] = param - lr * param.grad
 
 def accuracy(output, label):
-    if isinstance(label, mx.nd.NDArray):
-        return nd.mean(output.argmax(axis=1)==label.asnumpy()[0]).asscalar()
-    else:
-        return nd.mean(output.argmax(axis=1)==label).asscalar()
+    return nd.mean(output.argmax(axis=1)==label).asscalar()
+
 
 def _get_batch(batch, ctx):
     """return data and label on ctx"""
@@ -120,13 +118,12 @@ def evaluate_accuracy(data_iterator, net, ctx=[mx.cpu()]):
     for batch in data_iterator:
         data, label, batch_size = _get_batch(batch, ctx)
         for X, y in zip(data, label):
-            if isinstance(y, mx.nd.NDArray):
-                acc += nd.sum(net(X).argmax(axis=1)==y.asnumpy()[0]).copyto(mx.cpu())
-            else:
-                acc += nd.sum(net(X).argmax(axis=1)==y).copyto(mx.cpu())
+            y = y.astype('float32')
+            acc += nd.sum(net(X).argmax(axis=1)==y).copyto(mx.cpu())
             n += y.size
         acc.wait_to_read() # don't push too many operators into backend
     return acc.asscalar() / n
+
 
 def train(train_data, test_data, net, loss, trainer, ctx, num_epochs, print_batches=None):
     """Train a network"""
