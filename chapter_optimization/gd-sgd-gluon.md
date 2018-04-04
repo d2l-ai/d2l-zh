@@ -7,11 +7,6 @@ import mxnet as mx
 from mxnet import autograd
 from mxnet import gluon
 from mxnet import nd
-import random
-
-# 为方便比较同一优化算法的从零开始实现和Gluon实现，固定随机种子。
-random.seed(1)
-mx.random.seed(1)
 
 # 生成数据集。
 num_inputs = 2
@@ -64,8 +59,9 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
                   (epoch, trainer.learning_rate, y_vals[-1]))
         else:
             print("epoch %d, loss %.4e" % (epoch, y_vals[-1]))
-    print('w:', np.reshape(net[0].weight.data().asnumpy(), (1, -1)),
-          'b:', net[0].bias.data().asnumpy()[0], '\n')
+    # 为了便于打印，改变输出形状并转化成numpy数组。
+    print('w:', net[0].weight.data().reshape((1, -1)).asnumpy(),
+          'b:', net[0].bias.data().asscalar(), '\n')
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
     utils.set_fig_size(mpl)
     plt.semilogy(x_vals, y_vals)

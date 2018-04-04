@@ -120,10 +120,6 @@ from mxnet import gluon
 from mxnet import nd
 import random
 
-# 为方便比较同一优化算法的从零开始实现和Gluon实现，固定随机种子。
-mx.random.seed(1)
-random.seed(1)
-
 # 生成数据集。
 num_inputs = 2
 num_examples = 1000
@@ -172,7 +168,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
-
 sys.path.append('..')
 import utils
 
@@ -195,12 +190,11 @@ def optimize(batch_size, lr, num_epochs, log_interval, decay_epoch):
             loss.backward()
             sgd([w, b], lr, batch_size)
             if batch_i * batch_size % log_interval == 0:
-                y_vals.append(
-                    nd.mean(squared_loss(net(X, w, b), y)).asnumpy())
-        print('epoch %d, learning rate %f, loss %.4e' % 
-              (epoch, lr, y_vals[-1]))
-    print('w:', np.reshape(w.asnumpy(), (1, -1)), 
-          'b:', b.asnumpy()[0], '\n')
+                y_vals.append(squared_loss(net(X, w, b), y).mean().asnumpy())
+        print('epoch %d, learning rate %f, loss %.4e' % (epoch, lr,
+                                                         y_vals[-1]))
+    # 为了便于打印，改变输出形状并转化成numpy数组。
+    print('w:', w.reshape(1, -1).asnumpy(), 'b:', b.asscalar(), '\n')
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
     utils.set_fig_size(mpl)
     plt.semilogy(x_vals, y_vals)

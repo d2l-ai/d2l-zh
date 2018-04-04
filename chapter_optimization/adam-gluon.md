@@ -10,10 +10,6 @@ from mxnet import gluon
 from mxnet import nd
 import random
 
-# 为方便比较同一优化算法的从零开始实现和Gluon实现，将输出保持确定。
-random.seed(1)
-mx.random.seed(1)
-
 # 生成数据集。
 num_inputs = 2
 num_examples = 1000
@@ -61,7 +57,7 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
 
 
 
-## 赠诗一首以总结优化章节
+## 总结优化章节
 
 
 > 梯度下降可沉甸，  随机降低方差难。

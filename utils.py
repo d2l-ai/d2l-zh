@@ -9,6 +9,7 @@ import numpy as np
 from time import time
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import random
 
 class DataLoader(object):
     """similiar to gluon.data.DataLoader, but might be faster.
@@ -355,13 +356,13 @@ def set_fig_size(mpl, figsize=(3.5, 2.5)):
     mpl.rcParams['figure.figsize'] = figsize
 
 
-def data_iter(batch_size, num_examples, random, X, y):
+def data_iter(batch_size, num_examples, X, y):
     """遍历数据集。"""
     idx = list(range(num_examples))
     random.shuffle(idx)
-    for batch_i, i in enumerate(range(0, num_examples, batch_size)):
+    for i in range(0, num_examples, batch_size):
         j = nd.array(idx[i: min(i + batch_size, num_examples)])
-        yield batch_i, X.take(j), y.take(j)
+        yield X.take(j), y.take(j)
 
 
 def linreg(X, w, b):
@@ -384,7 +385,7 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
     print('batch size', batch_size)
     for epoch in range(1, num_epochs + 1): 
         # 学习率自我衰减。
-        if decay_epoch is not None and epoch > decay_epoch:
+        if decay_epoch and epoch > decay_epoch:
             trainer.set_learning_rate(trainer.learning_rate * 0.1)
         for batch_i, (features, label) in enumerate(data_iter):
             with autograd.record():
@@ -399,6 +400,7 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
                   (epoch, trainer.learning_rate, y_vals[-1]))
         else:
             print("epoch %d, loss %.4e" % (epoch, y_vals[-1]))
+    # 为了便于打印，改变输出形状并转化成numpy数组。
     print('w:', np.reshape(net[0].weight.data().asnumpy(), (1, -1)),
           'b:', net[0].bias.data().asnumpy()[0], '\n')
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
