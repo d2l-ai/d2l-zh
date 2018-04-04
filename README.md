@@ -112,6 +112,8 @@ generalization，泛化
 
 hypothesis，假设
 
+import，导入
+
 independent and identically distributed(i.i.d)，独立同分布
 
 instance，实例
