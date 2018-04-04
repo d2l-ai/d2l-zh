@@ -109,7 +109,7 @@ def optimize(batch_size, rho, num_epochs, log_interval):
                 y_vals.append(squared_loss(net(X, w, b), y).mean().asnumpy())
         print('epoch %d, loss %.4e' % (epoch, y_vals[-1]))
     # 为了便于打印，改变输出形状并转化成numpy数组。
-    print('w:', w.reshape(1, -1).asnumpy(), 'b:', b.asscalar(), '\n')
+    print('w:', w.reshape((1, -1)).asnumpy(), 'b:', b.asscalar(), '\n')
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
     utils.set_fig_size(mpl)
     plt.semilogy(x_vals, y_vals)

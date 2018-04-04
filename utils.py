@@ -401,8 +401,8 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
         else:
             print("epoch %d, loss %.4e" % (epoch, y_vals[-1]))
     # 为了便于打印，改变输出形状并转化成numpy数组。
-    print('w:', np.reshape(net[0].weight.data().asnumpy(), (1, -1)),
-          'b:', net[0].bias.data().asnumpy()[0], '\n')
+    print('w:', net[0].weight.data().reshape((1, -1)).asnumpy(),
+          'b:', net[0].bias.data().asscalar(), '\n')
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
     set_fig_size(mpl)
     plt.semilogy(x_vals, y_vals)
