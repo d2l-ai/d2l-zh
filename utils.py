@@ -95,7 +95,7 @@ def SGD(params, lr):
 
 def accuracy(output, label):
     if isinstance(label, mx.nd.NDArray):
-        return nd.mean(output.argmax(axis=1)==label.asscalar()).asscalar()
+        return nd.mean(output.argmax(axis=1)==label.asnumpy()[0]).asscalar()
     else:
         return nd.mean(output.argmax(axis=1)==label).asscalar()
 
@@ -121,7 +121,7 @@ def evaluate_accuracy(data_iterator, net, ctx=[mx.cpu()]):
         data, label, batch_size = _get_batch(batch, ctx)
         for X, y in zip(data, label):
             if isinstance(y, mx.nd.NDArray):
-                acc += nd.sum(net(X).argmax(axis=1)==y.asscalar()).copyto(mx.cpu())
+                acc += nd.sum(net(X).argmax(axis=1)==y.asnumpy()[0]).copyto(mx.cpu())
             else:
                 acc += nd.sum(net(X).argmax(axis=1)==y).copyto(mx.cpu())
             n += y.size
