@@ -1,29 +1,29 @@
 # Adadelta --- 从0开始
 
 
-我们在[Adagrad](adagrad-scratch.md)里提到，由于学习率分母上的变量$\mathbf{s}$一直在累加按元素平方的梯度，每个元素的学习率在迭代过程中一直在降低或不变。所以在有些问题下，当学习率在迭代早期降得较快时且当前解依然不理想时，Adagrad在迭代后期可能较难找到一个有用的解。我们在[RMSProp](rmsprop-scratch.md)介绍了应对这一问题的一种方法：对梯度按元素平方使用指数加权移动平均而不是累加。
+我们在[Adagrad](adagrad-scratch.md)里提到，由于学习率分母上的变量$\boldsymbol{s}$一直在累加按元素平方的梯度，每个元素的学习率在迭代过程中一直在降低或不变。所以在有些问题下，当学习率在迭代早期降得较快时且当前解依然不理想时，Adagrad在迭代后期可能较难找到一个有用的解。我们在[RMSProp](rmsprop-scratch.md)介绍了应对这一问题的一种方法：对梯度按元素平方使用指数加权移动平均而不是累加。
 
 事实上，Adadelta也是一种应对这个问题的方法。有意思的是，它没有学习率参数。
 
 
 ## Adadelta算法
 
-Adadelta算法也像RMSProp一样，使用了一个梯度按元素平方的指数加权移动平均变量$\mathbf{s}$，并将其中每个元素初始化为0。在每次迭代中，首先计算[小批量梯度](gd-sgd-scratch.md) $\mathbf{g}$，然后对该梯度按元素平方后做指数加权移动平均并计算$\mathbf{s}$：
+Adadelta算法也像RMSProp一样，使用了一个梯度按元素平方的指数加权移动平均变量$\boldsymbol{s}$，并将其中每个元素初始化为0。在每次迭代中，首先计算[小批量梯度](gd-sgd-scratch.md) $\boldsymbol{g}$，然后对该梯度按元素平方后做指数加权移动平均并计算$\boldsymbol{s}$：
 
-$$\mathbf{s} := \rho \mathbf{s} + (1 - \rho) \mathbf{g} \odot \mathbf{g} $$
+$$\boldsymbol{s} := \rho \boldsymbol{s} + (1 - \rho) \boldsymbol{g} \odot \boldsymbol{g} $$
 
 然后我们计算当前需要更新的参数的变化量：
 
-$$ \mathbf{g}^\prime = \frac{\sqrt{\Delta\mathbf{x} + \epsilon}}{\sqrt{\mathbf{s} + \epsilon}}   \odot \mathbf{g} $$
+$$ \boldsymbol{g}^\prime = \frac{\sqrt{\Delta\boldsymbol{x} + \epsilon}}{\sqrt{\boldsymbol{s} + \epsilon}}   \odot \boldsymbol{g} $$
 
 
-其中$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-5}$。和Adagrad一样，模型参数中每个元素都分别拥有自己的学习率。其中$\Delta\mathbf{x}$初始化为零张量，并做如下$\mathbf{g}^\prime$按元素平方的指数加权移动平均：
+其中$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-5}$。和Adagrad一样，模型参数中每个元素都分别拥有自己的学习率。其中$\Delta\boldsymbol{x}$初始化为零张量，并做如下$\boldsymbol{g}^\prime$按元素平方的指数加权移动平均：
 
-$$\Delta\mathbf{x} := \rho \Delta\mathbf{x} + (1 - \rho) \mathbf{g}^\prime \odot \mathbf{g}^\prime $$
+$$\Delta\boldsymbol{x} := \rho \Delta\boldsymbol{x} + (1 - \rho) \boldsymbol{g}^\prime \odot \boldsymbol{g}^\prime $$
 
 同样地，最后的参数迭代步骤与小批量随机梯度下降类似。只是这里梯度前的学习率已经被调整过了：
 
-$$\mathbf{x} := \mathbf{x} - \mathbf{g}^\prime $$
+$$\boldsymbol{x} := \boldsymbol{x} - \boldsymbol{g}^\prime $$
 
 
 ## Adadelta的实现
