@@ -401,9 +401,9 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
     print('w:', net[0].weight.data().reshape((1, -1)).asnumpy(),
           'b:', net[0].bias.data().asscalar(), '\n')
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
-    semilogy('semilogy', x_vals, y_vals, 'epoch', 'loss')
+    semilogy(x_vals, y_vals, 'epoch', 'loss')
 
-def semilogy(func, x_vals, y_vals, x_label, y_label, figsize=(3.5, 2.5)):
+def semilogy(x_vals, y_vals, x_label, y_label, figsize=(3.5, 2.5)):
     set_fig_size(mpl, figsize)
     plt.semilogy(x_vals, y_vals)
     plt.xlabel(x_label)

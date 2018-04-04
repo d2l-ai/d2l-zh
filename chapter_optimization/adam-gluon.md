@@ -26,7 +26,7 @@ X = nd.random_normal(scale=1, shape=(num_examples, num_inputs))
 y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
 y += .01 * nd.random_normal(scale=1, shape=y.shape)
 
-# 创建模型和定义损失函数。
+# 线性回归模型。
 net = gluon.nn.Sequential()
 net.add(gluon.nn.Dense(1))
 ```
@@ -37,8 +37,7 @@ net.add(gluon.nn.Dense(1))
 
 ```{.python .input  n=3}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
-trainer = gluon.Trainer(net.collect_params(), 'adam',
-                        {'learning_rate': 0.1})
+trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': 0.1})
 utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
                log_interval=10, X=X, y=y, net=net)
 ```

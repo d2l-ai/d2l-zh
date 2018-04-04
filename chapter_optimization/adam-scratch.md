@@ -146,7 +146,7 @@ def optimize(batch_size, lr, num_epochs, log_interval):
     # 为了便于打印，改变输出形状并转化成numpy数组。
     print('w:', w.reshape((1, -1)).asnumpy(), 'b:', b.asscalar(), '\n')
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
-    utils.semilogy('semilogy', x_vals, y_vals, 'epoch', 'loss')
+    utils.semilogy(x_vals, y_vals, 'epoch', 'loss')
 ```
 
 使用Adam，最终学到的参数值与真实值较接近。

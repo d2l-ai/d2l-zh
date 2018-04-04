@@ -108,7 +108,7 @@ def optimize(batch_size, lr, gamma, num_epochs, log_interval):
     # 为了便于打印，改变输出形状并转化成numpy数组。
     print('w:', w.reshape((1, -1)).asnumpy(), 'b:', b.asscalar(), '\n')
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
-    utils.semilogy('semilogy', x_vals, y_vals, 'epoch', 'loss')
+    utils.semilogy(x_vals, y_vals, 'epoch', 'loss')
 ```
 
 我们将初始学习率设为0.03，并将gamma设为0.9。损失函数在迭代后期较震荡。

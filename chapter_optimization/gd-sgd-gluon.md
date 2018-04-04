@@ -1,6 +1,8 @@
 # 梯度下降和随机梯度下降——使用`Gluon`
 
-在`Gluon`里，使用小批量随机梯度下降很容易。我们无需重新实现该算法。特别地，当批量大小等于训练集大小时，该算法即为梯度下降；批量大小为1即为随机梯度下降。
+在`Gluon`里，使用小批量随机梯度下降很方便，我们无需重新实现该算法。特别地，当批量大小等于数据集样本数时，该算法即为梯度下降；批量大小为1即为随机梯度下降。
+
+首先，导入实验所需的包。
 
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
@@ -15,6 +17,8 @@ sys.path.append('..')
 import utils
 ```
 
+下面生成实验数据集并定义线性回归模型。
+
 ```{.python .input  n=1}
 # 生成数据集。
 num_inputs = 2
@@ -25,7 +29,7 @@ X = nd.random_normal(scale=1, shape=(num_examples, num_inputs))
 y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
 y += .01 * nd.random_normal(scale=1, shape=y.shape)
 
-# 创建模型和定义损失函数。
+# 线性回归模型。
 net = gluon.nn.Sequential()
 net.add(gluon.nn.Dense(1))
 ```
@@ -43,7 +47,7 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
     print('batch size', batch_size)
     for epoch in range(1, num_epochs + 1): 
         # 学习率自我衰减。
-        if decay_epoch is not None and epoch > decay_epoch:
+        if decay_epoch and epoch > decay_epoch:
             trainer.set_learning_rate(trainer.learning_rate * 0.1)
         for batch_i, (features, label) in enumerate(data_iter):
             with autograd.record():
@@ -62,7 +66,7 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
     print('w:', net[0].weight.data().reshape((1, -1)).asnumpy(),
           'b:', net[0].bias.data().asscalar(), '\n')
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
-    utils.semilogy('semilogy', x_vals, y_vals, 'epoch', 'loss')
+    utils.semilogy(x_vals, y_vals, 'epoch', 'loss')
 ```
 
 当批量大小为1时，训练使用的是随机梯度下降。在当前学习率下，目标函数值在早期快速下降后略有波动。当epoch大于2，学习率自我衰减后，目标函数值下降后较平稳。最终学到的参数值与真实值较接近。

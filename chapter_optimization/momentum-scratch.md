@@ -73,8 +73,6 @@ import utils
 实验中，我们以线性回归为例。其中真实参数`w`为[2, -3.4]，`b`为4.2。我们把速度项初始化为和参数形状相同的零张量。
 
 ```{.python .input  n=2}
-
-
 # 生成数据集。
 num_inputs = 2
 num_examples = 1000
@@ -125,7 +123,7 @@ def optimize(batch_size, lr, mom, num_epochs, log_interval):
     # 为了便于打印，改变输出形状并转化成numpy数组。
     print('w:', w.reshape((1, -1)).asnumpy(), 'b:', b.asscalar(), '\n')
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
-    utils.semilogy('semilogy', x_vals, y_vals, 'epoch', 'loss')
+    utils.semilogy(x_vals, y_vals, 'epoch', 'loss')
 ```
 
 使用动量法，最终学到的参数值与真实值较接近。

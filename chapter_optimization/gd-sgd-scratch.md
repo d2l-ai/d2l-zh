@@ -102,7 +102,7 @@ $$\mathbb{E}_\mathcal{B} \nabla f_\mathcal{B}(\boldsymbol{x}) = \nabla f(\boldsy
 
 ## 算法实现和实验
 
-我们先载入实验所需要的包。
+首先，导入实验所需的包。
 
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
@@ -197,7 +197,7 @@ def optimize(batch_size, lr, num_epochs, log_interval, decay_epoch):
     # 为了便于打印，改变输出形状并转化成numpy数组。
     print('w:', w.reshape((1, -1)).asnumpy(), 'b:', b.asscalar(), '\n')
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
-    utils.semilogy('semilogy', x_vals, y_vals, 'epoch', 'loss')
+    utils.semilogy(x_vals, y_vals, 'epoch', 'loss')
 ```
 
 当批量大小为1时，优化使用的是随机梯度下降。在当前学习率下，目标函数值在早期快速下降后略有波动。这是由于随机梯度的方差在迭代过程中无法减小。当迭代周期大于2，学习率自我衰减后，目标函数值下降后较平稳。最终，优化所得的模型参数值`w`和`b`与它们的真实值[2, -3.4]和4.2较接近。
