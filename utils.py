@@ -411,4 +411,3 @@ def semilogy(x_vals, y_vals, x_label, y_label, figsize=(3.5, 2.5)):
     plt.ylabel(y_label)
     plt.show()
 
-
