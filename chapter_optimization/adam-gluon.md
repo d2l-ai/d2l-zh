@@ -44,7 +44,7 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
 
 ## 结论
 
-* 使用`Gluon`的`Trainer`可以轻松使用Adam。
+* 使用`Gluon`的`Trainer`可以方便地使用Adam。
 
 
 

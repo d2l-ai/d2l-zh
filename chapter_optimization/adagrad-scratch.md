@@ -113,8 +113,8 @@ def optimize(batch_size, lr, num_epochs, log_interval):
     y_vals = [squared_loss(net(X, w, b), y).mean().asnumpy()]
     print('batch size', batch_size)
     for epoch in range(1, num_epochs + 1):
-        for batch_i, (features, label) in enumerate(utils.data_iter(
-            batch_size, num_examples, X, y)):
+        for batch_i, (features, label) in enumerate(
+            utils.data_iter(batch_size, num_examples, X, y)):
             with autograd.record():
                 output = net(features, w, b)
                 loss = squared_loss(output, label)
@@ -122,8 +122,8 @@ def optimize(batch_size, lr, num_epochs, log_interval):
             adagrad([w, b], sqrs, lr, batch_size)
             if batch_i * batch_size % log_interval == 0:
                 y_vals.append(squared_loss(net(X, w, b), y).mean().asnumpy())
-        print('epoch %d, learning rate %f, loss %.4e' % (epoch, lr,
-                                                         y_vals[-1]))
+        print('epoch %d, learning rate %f, loss %.4e'
+              % (epoch, lr, y_vals[-1]))
     # 为了便于打印，改变输出形状并转化成numpy数组。
     print('w:', w.reshape((1, -1)).asnumpy(), 'b:', b.asscalar(), '\n')
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)

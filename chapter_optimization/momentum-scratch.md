@@ -9,7 +9,7 @@
 
 考虑一个输入为二维向量$\boldsymbol{x} = [x_1, x_2]^\top$，输出为标量的目标函数$f: \mathbb{R}^2 \rightarrow \mathbb{R}$。下面为该函数的等高线示意图（每条等高线表示相同函数值的点：越靠近中间函数值越小）。
 
-![](../img/gd-move.png)
+![](../img/gd-move.svg)
 
 上图中，红色三角形代表参数$\boldsymbol{x}$的初始值。带箭头的线段表示每次迭代时参数的更新。由于目标函数在竖直方向（$x_2$轴方向）上比在水平方向（$x_1$轴方向）弯曲得更厉害，梯度下降迭代参数时会使参数在竖直方向比在水平方向移动更猛烈。因此，我们需要一个较小的学习率从而避免参数在竖直方向上overshoot。这就造成了上图中参数向最优解移动速度的缓慢。
 
@@ -27,7 +27,7 @@
 
 当前速度$\boldsymbol{v}$的更新可以理解为对$[\eta / (1 - \gamma)] \nabla f_\mathcal{B}(\boldsymbol{x})$做指数加权移动平均。因此，动量法的每次迭代中，参数在各个方向上移动幅度不仅取决当前梯度，还取决过去各个梯度在各个方向上是否一致。当过去的所有梯度都在同一方向，例如都是水平向右，那么参数在水平向右的移动幅度最大。如果过去的梯度中在竖直方向上时上时下，那么参数在竖直方向的移动幅度将变小。这样，我们就可以使用较大的学习率，从而如下图收敛更快。
 
-![](../img/momentum-move.png)
+![](../img/momentum-move.svg)
 
 
 ## 动量参数
@@ -109,8 +109,8 @@ def optimize(batch_size, lr, mom, num_epochs, log_interval):
         # 学习率自我衰减。
         if epoch > 2:
             lr *= 0.1
-        for batch_i, (features, label) in enumerate(utils.data_iter(
-            batch_size, num_examples, X, y)):
+        for batch_i, (features, label) in enumerate(
+            utils.data_iter(batch_size, num_examples, X, y)):
             with autograd.record():
                 output = net(features, w, b)
                 loss = squared_loss(output, label)
@@ -118,8 +118,8 @@ def optimize(batch_size, lr, mom, num_epochs, log_interval):
             sgd_momentum([w, b], vs, lr, mom, batch_size)
             if batch_i * batch_size % log_interval == 0:
                 y_vals.append(squared_loss(net(X, w, b), y).mean().asnumpy())
-        print('epoch %d, learning rate %f, loss %.4e' % (epoch, lr,
-                                                         y_vals[-1]))
+        print('epoch %d, learning rate %f, loss %.4e'
+              % (epoch, lr, y_vals[-1]))
     # 为了便于打印，改变输出形状并转化成numpy数组。
     print('w:', w.reshape((1, -1)).asnumpy(), 'b:', b.asscalar(), '\n')
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)

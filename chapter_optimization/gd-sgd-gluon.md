@@ -34,7 +34,7 @@ net = gluon.nn.Sequential()
 net.add(gluon.nn.Dense(1))
 ```
 
-为了使学习率在两个epoch后自我衰减，我们需要访问`gluon.Trainer`的`learning_rate`属性和`set_learning_rate`函数。
+为了使学习率能够自我衰减，我们需要访问`gluon.Trainer`的`learning_rate`属性并使用`set_learning_rate`函数。
 
 ```{.python .input  n=2}
 # 优化目标函数。
@@ -58,8 +58,8 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
             if batch_i * batch_size % log_interval == 0:
                 y_vals.append(square_loss(net(X), y).mean().asnumpy())
         if print_lr:
-            print("epoch %d, learning rate %f, loss %.4e" %
-                  (epoch, trainer.learning_rate, y_vals[-1]))
+            print("epoch %d, learning rate %f, loss %.4e"
+                  % (epoch, trainer.learning_rate, y_vals[-1]))
         else:
             print("epoch %d, loss %.4e" % (epoch, y_vals[-1]))
     # 为了便于打印，改变输出形状并转化成numpy数组。
@@ -69,7 +69,7 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
     utils.semilogy(x_vals, y_vals, 'epoch', 'loss')
 ```
 
-当批量大小为1时，训练使用的是随机梯度下降。在当前学习率下，目标函数值在早期快速下降后略有波动。当epoch大于2，学习率自我衰减后，目标函数值下降后较平稳。最终学到的参数值与真实值较接近。
+当批量大小为1时，优化使用的是随机梯度下降。
 
 ```{.python .input  n=3}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
@@ -78,7 +78,7 @@ optimize(batch_size=1, trainer=trainer, num_epochs=3, decay_epoch=2,
          log_interval=10, X=X, y=y, net=net)
 ```
 
-当批量大小为1000时，由于训练数据集含1000个样本，此时训练使用的是梯度下降。在当前学习率下，目标函数值在前两个epoch下降较快。当epoch大于2，学习率自我衰减后，目标函数值下降较慢。最终学到的参数值与真实值较接近。
+当批量大小为1000时，由于数据样本总数也是1000，优化使用的是梯度下降。梯度下降无需自我衰减学习率（`decay_epoch=None`）。
 
 ```{.python .input  n=4}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
@@ -87,7 +87,7 @@ optimize(batch_size=1000, trainer=trainer, num_epochs=3, decay_epoch=None,
          log_interval=1000, X=X, y=y, net=net)
 ```
 
-当批量大小为10时，由于训练数据集含1000个样本，此时训练使用的是（小批量）随机梯度下降。最终学到的参数值与真实值较接近。
+当批量大小为10时，由于数据样本总数也是1000，优化使用的是小批量随机梯度下降。
 
 ```{.python .input  n=5}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
@@ -96,7 +96,7 @@ optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
          log_interval=10, X=X, y=y, net=net)
 ```
 
-同样是批量大小为10，我们把学习率改大。这时我们观察到目标函数值不断增大。这时典型的overshooting问题。
+同样是批量大小为10，我们把学习率改大。过大的学习率造成了目标函数自变量越过最优解并发散。
 
 ```{.python .input  n=6}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
@@ -105,7 +105,7 @@ optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
          log_interval=10, X=X, y=y, net=net)
 ```
 
-同样是批量大小为10，我们把学习率改小。这时我们观察到目标函数值下降较慢，直到3个epoch也没能得到接近真实值的解。
+同样是批量大小为10，我们把学习率改小。这时我们观察到目标函数值下降较慢。
 
 ```{.python .input  n=7}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
@@ -116,13 +116,14 @@ optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
 
 ## 小结
 
-* 使用`Gluon`的`Trainer`可以使模型训练变得更容易。
-* 使用`gluon.Trainer`的`learning_rate`属性和`set_learning_rate`函数可以随意调整学习率。
+* 使用`Gluon`的`Trainer`可以方便地使用小批量随机梯度下降。
+* 访问`gluon.Trainer`的`learning_rate`属性并使用`set_learning_rate`函数可以在迭代过程中调整学习率。
 
 
 ## 练习
 
-* 你还能想到哪些学习率自我衰减的方法？
+* 查阅网络或书本资料，了解学习率自我衰减的其他方法。
+
 
 ## 讨论
 

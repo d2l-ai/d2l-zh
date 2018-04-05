@@ -96,8 +96,8 @@ def optimize(batch_size, rho, num_epochs, log_interval):
     y_vals = [squared_loss(net(X, w, b), y).mean().asnumpy()]
     print('batch size', batch_size)
     for epoch in range(1, num_epochs + 1):
-        for batch_i, (features, label) in enumerate(utils.data_iter(
-            batch_size, num_examples, X, y)):
+        for batch_i, (features, label) in enumerate(
+            utils.data_iter(batch_size, num_examples, X, y)):
             with autograd.record():
                 output = net(features, w, b)
                 loss = squared_loss(output, label)

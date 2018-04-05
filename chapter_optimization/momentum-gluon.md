@@ -45,7 +45,7 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
 
 ## 小结
 
-* 使用`Gluon`的`Trainer`可以轻松使用动量法。
+* 使用`Gluon`的`Trainer`可以方便地使用动量法。
 
 ## 练习
 

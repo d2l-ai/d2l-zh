@@ -55,7 +55,7 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
 
 ## 小结
 
-* 使用`Gluon`的`Trainer`可以轻松使用RMSProp。
+* 使使用`Gluon`的`Trainer`可以方便地使用RMSProp。
 
 ## 练习
 

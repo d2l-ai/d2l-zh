@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="23.5 24.5 364.30303 153" width="364.30303" height="153">
+  <defs>
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="StickArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 8 8" markerWidth="8" markerHeight="8" color="#5b7daa">
+      <g>
+        <path d="M 5.866667 0 L 0 0 M 0 -2.2 L 5.866667 0 L 0 2.2" fill="none" stroke="currentColor" stroke-width="1"/>
+      </g>
+    </marker>
+  </defs>
+  <metadata> Produced by OmniGraffle 7.7.1 
+    <dc:date>2018-04-05 00:04:12 +0000</dc:date>
+  </metadata>
+  <g id="Canvas_1" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
+    <title>Canvas 1</title>
+    <g id="Canvas_1: Layer 1">
+      <title>Layer 1</title>
+      <g id="Graphic_19">
+        <ellipse cx="205.65152" cy="101" rx="181.651805412816" ry="76.0001214405441" fill="white"/>
+        <path d="M 334.0984 47.259944 C 405.03803 76.93977 405.03803 125.06023 334.0984 154.74006 C 263.1591 184.42003 148.14392 184.42003 77.20464 154.74006 C 6.264999 125.06023 6.264999 76.93977 77.20464 47.259944 C 148.14392 17.579968 263.1591 17.579968 334.0984 47.259944" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
+      </g>
+      <g id="Graphic_12">
+        <ellipse cx="205.65152" cy="101" rx="99.6062197667737" ry="31.6667172668933" fill="white"/>
+        <path d="M 276.08356 78.60831 C 314.9823 90.9749 314.9823 111.0251 276.08356 123.39169 C 237.185 135.75835 174.11803 135.75835 135.21947 123.39169 C 96.32072 111.0251 96.32072 90.9749 135.21947 78.60831 C 174.11803 66.24165 237.185 66.24165 276.08356 78.60831" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
+      </g>
+      <g id="Graphic_11">
+        <ellipse cx="207.3788" cy="101.14394" rx="23.3182190783488" ry="7.62880006884248" fill="white"/>
+        <path d="M 223.86721 95.74958 C 232.97357 98.7288 232.97357 103.55908 223.86721 106.5383 C 214.7609 109.51754 199.99667 109.51754 190.89036 106.5383 C 181.784 103.55908 181.784 98.7288 190.89036 95.74958 C 199.99667 92.77034 214.7609 92.77034 223.86721 95.74958" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
+      </g>
+      <g id="Line_21">
+        <line x1="61.5" y1="107.2998" x2="67.927154" y2="87.82565" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+      </g>
+      <g id="Line_22">
+        <line x1="71.5" y1="79.10645" x2="77.06424" y2="99.9845" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+      </g>
+      <g id="Line_23">
+        <line x1="80" y1="107.2998" x2="86.14131" y2="90.22709" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+      </g>
+      <g id="Line_24">
+        <line x1="88.1932" y1="84.52286" x2="94.36458" y2="100.37652" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+      </g>
+      <g id="Line_25">
+        <line x1="98.5" y1="107.2998" x2="103.30379" y2="93.28416" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+      </g>
+      <g id="Line_27">
+        <line x1="107" y1="85.44971" x2="111.90139" y2="100.18288" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+      </g>
+      <g id="Line_28">
+        <line x1="116.00684" y1="107.2998" x2="120.73623" y2="95.57262" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+      </g>
+      <g id="Line_29">
+        <line x1="125" y1="87.44971" x2="129.18845" y2="99.25607" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+      </g>
+    </g>
+  </g>
+</svg>

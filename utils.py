@@ -393,8 +393,8 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
             if batch_i * batch_size % log_interval == 0:
                 y_vals.append(square_loss(net(X), y).mean().asnumpy())
         if print_lr:
-            print("epoch %d, learning rate %f, loss %.4e" %
-                  (epoch, trainer.learning_rate, y_vals[-1]))
+            print("epoch %d, learning rate %f, loss %.4e"
+                  % (epoch, trainer.learning_rate, y_vals[-1]))
         else:
             print("epoch %d, loss %.4e" % (epoch, y_vals[-1]))
     # 为了便于打印，改变输出形状并转化成numpy数组。
