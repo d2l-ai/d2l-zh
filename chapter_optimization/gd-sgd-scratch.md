@@ -50,7 +50,7 @@ $$\nabla_\boldsymbol{x} f(\boldsymbol{x}) = \bigg[\frac{\partial f(\boldsymbol{x
 
 $$D_\boldsymbol{u} f(\boldsymbol{x}) = \lim_{h \rightarrow 0}  \frac{f(\boldsymbol{x} + h \boldsymbol{u}) - f(\boldsymbol{x})}{h}.$$
 
-依据方向导数性质 [1，14.6节定理三]，该方向导数可以改写为
+依据方向导数性质 \[1，14.6节定理三\]，该方向导数可以改写为
 
 $$D_\boldsymbol{u} f(\boldsymbol{x}) = \nabla f(\boldsymbol{x}) \cdot \boldsymbol{u}.$$
 
