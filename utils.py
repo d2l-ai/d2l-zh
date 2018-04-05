@@ -403,6 +403,7 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
     semilogy(x_vals, y_vals, 'epoch', 'loss')
 
+
 def semilogy(x_vals, y_vals, x_label, y_label, figsize=(3.5, 2.5)):
     set_fig_size(mpl, figsize)
     plt.semilogy(x_vals, y_vals)
