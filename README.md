@@ -1,5 +1,7 @@
 # 通过MXNet/Gluon来动手学习深度学习
 
+[![Build Status](http://ci.mxnet.io/job/gluon-tutorials-zh/badge/icon)](http://ci.mxnet.io/job/gluon-tutorials-zh/)
+
 主页在 [https://zh.gluon.ai/](https://zh.gluon.ai/)。
 
 请使用 [https://discuss.gluon.ai](https://discuss.gluon.ai) 讨论或报告问题。
