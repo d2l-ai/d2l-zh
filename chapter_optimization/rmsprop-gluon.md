@@ -1,7 +1,9 @@
 # RMSProp——使用`Gluon`
 
 
-在`Gluon`里，使用RMSProp很容易。我们无需重新实现它。
+在`Gluon`里，使用RMSProp很方便，我们无需重新实现该算法。
+
+首先，导入实验所需的包。
 
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
@@ -15,6 +17,8 @@ import sys
 sys.path.append('..')
 import utils
 ```
+
+下面生成实验数据集并定义线性回归模型。
 
 ```{.python .input  n=1}
 # 生成数据集。
@@ -31,9 +35,7 @@ net = gluon.nn.Sequential()
 net.add(gluon.nn.Dense(1))
 ```
 
-我们需要在`gluon.Trainer`中指定优化算法名称`rmsprop`并设置参数。例如设置初始学习率`learning_rate`和指数加权移动平均中gamma1参数。
-
-我们将初始学习率设为0.03，并将gamma设为0.9。损失函数在迭代后期较震荡。
+例如，以使用动量法的小批量随机梯度下降为例，我们可以在`Trainer`中定义动量超参数`momentum`。以下几组实验分别重现了[“RMSProp——从零开始”](rmsprop-scratch.md)一节中实验结果。
 
 ```{.python .input  n=3}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
@@ -42,8 +44,6 @@ trainer = gluon.Trainer(net.collect_params(), 'rmsprop',
 utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
                log_interval=10, X=X, y=y, net=net)
 ```
-
-我们将gamma调大一点，例如0.999。这时损失函数在迭代后期较平滑。
 
 ```{.python .input}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
@@ -59,7 +59,7 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
 
 ## 练习
 
-* 试着使用其他的初始学习率和gamma参数的组合，观察实验结果。
+* 试着使用其他的初始学习率和$\gamma$超参数的组合，观察并分析实验现象。
 
 ## 讨论
 
