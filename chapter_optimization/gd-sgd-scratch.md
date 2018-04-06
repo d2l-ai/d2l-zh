@@ -9,19 +9,19 @@
 
 假设函数$f: \mathbb{R} \rightarrow \mathbb{R}$的输入和输出都是标量。给定足够小的数$\epsilon$，根据泰勒展开公式（参见[“数学基础”](../chapter_appendix/math.md)一节），我们得到以下的近似
 
-$$f(x + \epsilon) \approx f(x) + f'(x) \epsilon$$
+$$f(x + \epsilon) \approx f(x) + f'(x) \epsilon.$$
 
 假设$\eta$是一个常数，将$\epsilon$替换为$-\eta f'(x)$后，我们有
 
-$$f(x - \eta f'(x)) \approx f(x) -  \eta f'(x)^2$$
+$$f(x - \eta f'(x)) \approx f(x) -  \eta f'(x)^2.$$
 
 如果$\eta$是一个很小的正数，那么
 
-$$f(x - \eta f'(x)) \leq f(x)$$
+$$f(x - \eta f'(x)) \leq f(x).$$
 
 也就是说，如果目标函数$f(x)$当前的导数$f'(x) \neq 0$，按照
 
-$$x \leftarrow x - \eta f'(x)$$
+$$x \leftarrow x - \eta f'(x).$$
 
 迭代自变量$x$可能会降低$f(x)$的值。由于导数$f'(x)$是梯度$\nabla_x f$在一维空间的特殊情况，上述迭代自变量$x$的方法也即一维空间的梯度下降。一维空间的梯度下降图7.2（左）所示，自变量$x$沿着梯度方向迭代。
 
@@ -248,9 +248,8 @@ optimize(batch_size=10, lr=0.002, num_epochs=3, decay_epoch=2,
 * 运行本节中实验代码。比较一下随机梯度下降和梯度下降的运行时间。
 * 梯度下降和随机梯度下降虽然看上去有效，但可能会有哪些问题？
 
-## 讨论
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1877)
 
-欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/1877)：
 
 ![](../img/qr_gd-sgd-scratch.svg)
 

@@ -181,8 +181,7 @@ optimize(batch_size=10, lr=0.2, mom=0.5, num_epochs=3, log_interval=10)
 * 使用其他动量超参数和学习率的组合，观察实验结果。
 
 
-## 讨论
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1879)
 
-欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/1879)：
 
 ![](../img/qr_momentum-scratch.svg)

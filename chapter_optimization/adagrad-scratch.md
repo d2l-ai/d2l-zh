@@ -142,9 +142,7 @@ optimize(batch_size=10, lr=0.9, num_epochs=3, log_interval=10)
 * 在介绍Adagrad的特点时，我们提到了它可能存在的问题。你能想到什么办法来应对这个问题？
 
 
-## 讨论
-
-欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/2273)：
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2273)
 
 ![](../img/qr_adagrad-scratch.svg)
 

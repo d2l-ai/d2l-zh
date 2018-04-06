@@ -125,8 +125,7 @@ plt.show()
 
 * 你还能想到哪些深度学习中的优化问题的挑战？
 
-## 讨论
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1876)
 
-欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/1876)：
 
 ![](../img/qr_optimization-intro.svg)

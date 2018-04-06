@@ -61,8 +61,7 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
 
 * 试着使用其他的初始学习率和$\gamma$超参数的组合，观察并分析实验结果。
 
-## 讨论
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2276)
 
-欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/2276)：
 
 ![](../img/qr_rmsprop-gluon.svg)

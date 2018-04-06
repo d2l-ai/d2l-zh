@@ -53,9 +53,7 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
 
 * 尝试使用其他的初始学习率，结果有什么变化？
 
-## 讨论
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2274)
 
-欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/2274)：
 
 ![](../img/qr_adagrad-gluon.svg)
-

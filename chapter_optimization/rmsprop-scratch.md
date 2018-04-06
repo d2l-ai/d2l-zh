@@ -137,9 +137,8 @@ optimize(batch_size=10, lr=0.03, gamma=0.999, num_epochs=3, log_interval=10)
 
 * 把$\gamma$的值设为0或1，观察并分析实验结果。
 
-## 讨论
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2275)
 
-欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/2275)：
 
 ![](../img/qr_rmsprop-scratch.svg)
 

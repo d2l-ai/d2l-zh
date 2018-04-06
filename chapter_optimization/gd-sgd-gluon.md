@@ -117,8 +117,7 @@ optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
 * 查阅网络或书本资料，了解学习率自我衰减的其他方法。
 
 
-## 讨论
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1878)
 
-欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/1878)：
 
 ![](../img/qr_gd-sgd-gluon.svg)

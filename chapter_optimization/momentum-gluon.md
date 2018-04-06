@@ -68,8 +68,6 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
 
 * 如果想用以上代码重现小批量随机梯度下降，应该把动量参数改为多少？
 
-## 讨论
-
-欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/1880)：
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1880)
 
 ![](../img/qr_momentum-gluon.svg)

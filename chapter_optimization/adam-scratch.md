@@ -168,9 +168,8 @@ optimize(batch_size=10, lr=0.1, num_epochs=3, log_interval=10)
 * 使用其他初始学习率，观察并分析实验结果。
 
 
-## 讨论
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2279
 
-欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/2279)：
 
 ![](../img/qr_adam-scratch.svg)
 
