@@ -1,6 +1,6 @@
 # Adadelta——使用`Gluon`
 
-在`Gluon`里，Adadelta，我们无需重新实现该算法。
+在`Gluon`里，使用Adadelta很容易，我们无需重新实现该算法。
 
 首先，导入实验所需的包。
 
@@ -34,8 +34,6 @@ net = gluon.nn.Sequential()
 net.add(gluon.nn.Dense(1))
 ```
 
-我们需要在`gluon.Trainer`中指定优化算法名称`adadelta`并设置rho参数。
-
 我们可以在Trainer中定义优化算法名称`adadelta`并定义$\rho$超参数`rho`。以下实验重现了[“Adadelta——从零开始”](adadelta-scratch.md)一节中实验结果。
 
 ```{.python .input  n=3}
@@ -51,7 +49,7 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
 
 ## 练习
 
-* 如果把试验中的参数$\rho$改小会怎样，例如0.9？观察并分析实验结果。
+* 如果把试验中的参数$\rho$改小会怎样？观察并分析实验结果。
 
 
 ## 讨论

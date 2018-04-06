@@ -1,7 +1,8 @@
 # Adam——使用`Gluon`
 
+在`Gluon`里，使用Adadelta很容易，我们无需重新实现该算法。
 
-在`Gluon`里，使用Adam很容易。我们无需重新实现它。
+首先，导入实验所需的包。
 
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
@@ -15,6 +16,8 @@ import sys
 sys.path.append('..')
 import utils
 ```
+
+下面生成实验数据集并定义线性回归模型。
 
 ```{.python .input  n=1}
 # 生成数据集。
@@ -31,9 +34,7 @@ net = gluon.nn.Sequential()
 net.add(gluon.nn.Dense(1))
 ```
 
-我们需要在`gluon.Trainer`中指定优化算法名称`adam`并设置学习率。
-
-使用Adam，最终学到的参数值与真实值较接近。
+我们可以在Trainer中定义优化算法名称`adam`并定义初始学习率。以下实验重现了[“Adam——从零开始”](adam-scratch.md)一节中实验结果。
 
 ```{.python .input  n=3}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
@@ -42,19 +43,18 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
                log_interval=10, X=X, y=y, net=net)
 ```
 
-## 结论
+## 小结
 
 * 使用`Gluon`的`Trainer`可以方便地使用Adam。
 
 
-
 ## 练习
 
-* 试着使用其他Adam初始学习率，观察实验结果。
+* 总结本章各个优化算法的异同。
+* 回顾前面几章中你感兴趣的模型，将训练部分的优化算法替换成其他算法，观察并分析实验现象。
 
 
-
-## 总结优化章节
+## 优化章节回顾
 
 
 > 梯度下降可沉甸，  随机降低方差难。
@@ -68,11 +68,11 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
 
 注释：
 
-* 梯方：梯度按元素平方
-* 贪：因贪婪故而不断累加
-* 学率：学习率
-* 换：这个参数被换成别的了
-* 权：指数加权移动平均
+* 梯方：梯度按元素平方。
+* 贪：因贪婪故而不断累加。
+* 学率：学习率。
+* 换：这个参数被替换掉。
+* 权：指数加权移动平均。
 
 ## 讨论
 
