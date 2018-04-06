@@ -35,7 +35,7 @@ net = gluon.nn.Sequential()
 net.add(gluon.nn.Dense(1))
 ```
 
-例如，以使用动量法的小批量随机梯度下降为例，我们可以在`Trainer`中定义动量超参数`momentum`。以下几组实验分别重现了[“RMSProp——从零开始”](rmsprop-scratch.md)一节中实验结果。
+我们可以在Trainer中定义优化算法名称`rmsprop`并定义$\gamma$超参数`gamma1`。以下几组实验分别重现了[“RMSProp——从零开始”](rmsprop-scratch.md)一节中实验结果。
 
 ```{.python .input  n=3}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
@@ -59,7 +59,7 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
 
 ## 练习
 
-* 试着使用其他的初始学习率和$\gamma$超参数的组合，观察并分析实验现象。
+* 试着使用其他的初始学习率和$\gamma$超参数的组合，观察并分析实验结果。
 
 ## 讨论
 

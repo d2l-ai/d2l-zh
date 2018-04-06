@@ -29,7 +29,7 @@
 
 ### 指数加权移动平均
 
-为了更清晰地理解动量法，让我们先解释指数加权移动平均（exponentially weighted moving average）。给定超参数$\gamma$且$0 \leq \gamma \leq 1$，当前时刻$t$的变量$y^{(t)}$是上一时刻$t-1$的变量$y^{(t-1)}$和当前时刻另一变量$x^{(t)}$的线性组合：
+为了更清晰地理解动量法，让我们先解释指数加权移动平均（exponentially weighted moving average）。给定超参数$\gamma$且$0 \leq \gamma < 1$，当前时刻$t$的变量$y^{(t)}$是上一时刻$t-1$的变量$y^{(t-1)}$和当前时刻另一变量$x^{(t)}$的线性组合：
 
 $$y^{(t)} = \gamma y^{(t-1)} + (1-\gamma) x^{(t)}.$$
 

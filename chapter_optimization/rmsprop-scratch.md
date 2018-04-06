@@ -9,7 +9,7 @@
 ## RMSProp算法
 
 我们在[“动量法——从零开始”](momentum-scratch.md)一节里介绍过指数加权移动平均。事实上，RMSProp算法使用了小批量随机梯度按元素平方的指数加权移动平均变量$\boldsymbol{s}$，并将其中每个元素初始化为0。
-给定超参数$\gamma$且$0 \leq \gamma \leq 1$，
+给定超参数$\gamma$且$0 \leq \gamma < 1$，
 在每次迭代中，RMSProp首先计算小批量随机梯度$\boldsymbol{g}$，然后对该梯度按元素平方项$\boldsymbol{g} \odot \boldsymbol{g}$做指数加权移动平均，记为$\boldsymbol{s}$：
 
 $$\boldsymbol{s} \leftarrow \gamma \boldsymbol{s} + (1 - \gamma) \boldsymbol{g} \odot \boldsymbol{g}. $$
@@ -87,7 +87,7 @@ def init_params():
     return params, sqrs
 ```
 
-优化函数`optimize`与[“梯度下降和随机梯度下降——从零开始”](gd-sgd-scratch.md)一节中的类似。
+优化函数`optimize`与[“Adagrad——从零开始”](adagrad-scratch.md)一节中的类似。
 
 ```{.python .input  n=2}
 net = utils.linreg
@@ -135,7 +135,7 @@ optimize(batch_size=10, lr=0.03, gamma=0.999, num_epochs=3, log_interval=10)
 
 ## 练习
 
-* 把$\gamma$的改成小于0或大于1的值，观察并分析实验现象。
+* 把$\gamma$的值设为0或1，观察并分析实验结果。
 
 ## 讨论
 

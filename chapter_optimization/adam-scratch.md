@@ -8,37 +8,37 @@ Adam是一个组合了[动量法](momentum-scratch.md)和[RMSProp](rmsprop-scrat
 
 Adam算法会使用一个动量变量$\boldsymbol{v}$和一个RMSProp中梯度按元素平方的指数加权移动平均变量$\boldsymbol{s}$，并将它们中每个元素初始化为0。在每次迭代中，首先计算[小批量梯度](gd-sgd-scratch.md) $\boldsymbol{g}$，并递增迭代次数
 
-$$t := t + 1$$
+$$t \leftarrow t + 1.$$
 
 然后对梯度做指数加权移动平均并计算动量变量$\boldsymbol{v}$:
 
-$$\boldsymbol{v} := \beta_1 \boldsymbol{v} + (1 - \beta_1) \boldsymbol{g} $$
+$$\boldsymbol{v} \leftarrow \beta_1 \boldsymbol{v} + (1 - \beta_1) \boldsymbol{g}. $$
 
 
 该梯度按元素平方后做指数加权移动平均并计算$\boldsymbol{s}$：
 
-$$\boldsymbol{s} := \beta_2 \boldsymbol{s} + (1 - \beta_2) \boldsymbol{g} \odot \boldsymbol{g} $$
+$$\boldsymbol{s} \leftarrow \beta_2 \boldsymbol{s} + (1 - \beta_2) \boldsymbol{g} \odot \boldsymbol{g}. $$
 
 
 在Adam算法里，为了减轻$\boldsymbol{v}$和$\boldsymbol{s}$被初始化为0在迭代初期对计算指数加权移动平均的影响，我们做下面的偏差修正：
 
-$$\hat{\boldsymbol{v}} := \frac{\boldsymbol{v}}{1 - \beta_1^t} $$
+$$\hat{\boldsymbol{v}} \leftarrow \frac{\boldsymbol{v}}{1 - \beta_1^t} $$
 
 和
 
-$$\hat{\boldsymbol{s}} := \frac{\boldsymbol{s}}{1 - \beta_2^t} $$
+$$\hat{\boldsymbol{s}} \leftarrow \frac{\boldsymbol{s}}{1 - \beta_2^t}. $$
 
 
 
 可以看到，当$0 \leq \beta_1, \beta_2 < 1$时（算法作者建议分别设为0.9和0.999），当迭代后期$t$较大时，偏差修正几乎就不再有影响。我们使用以上偏差修正后的动量变量和RMSProp中梯度按元素平方的指数加权移动平均变量，将模型参数中每个元素的学习率通过按元素操作重新调整一下：
 
-$$\boldsymbol{g}^\prime := \frac{\eta \hat{\boldsymbol{v}}}{\sqrt{\hat{\boldsymbol{s}} + \epsilon}} $$
+$$\boldsymbol{g}^\prime \leftarrow \frac{\eta \hat{\boldsymbol{v}}}{\sqrt{\hat{\boldsymbol{s}} + \epsilon}} $$
 
 其中$\eta$是初始学习率，$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-8}$。和Adagrad一样，模型参数中每个元素都分别拥有自己的学习率。
 
 同样地，最后的参数迭代步骤与小批量随机梯度下降类似。只是这里梯度前的学习率已经被调整过了：
 
-$$\boldsymbol{x} := \boldsymbol{x} - \boldsymbol{g}^\prime $$
+$$\boldsymbol{x} \leftarrow \boldsymbol{x} - \boldsymbol{g}^\prime $$
 
 
 ## Adam的实现
