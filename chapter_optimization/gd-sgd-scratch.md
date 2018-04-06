@@ -7,7 +7,7 @@
 
 我们先以简单的一维梯度下降为例，解释梯度下降算法可以降低目标函数值的原因。一维梯度是一个标量，也称导数。
 
-假设函数$f: \mathbb{R} \rightarrow \mathbb{R}$的输入和输出都是标量。根据泰勒展开公式，我们得到
+假设函数$f: \mathbb{R} \rightarrow \mathbb{R}$的输入和输出都是标量。给定足够小的数$\epsilon$，根据泰勒展开公式（参见[“数学基础”](../chapter_appendix/math.md)一节），我们得到以下的近似
 
 $$f(x + \epsilon) \approx f(x) + f'(x) \epsilon$$
 
@@ -257,4 +257,4 @@ optimize(batch_size=10, lr=0.002, num_epochs=3, decay_epoch=2,
 
 ## 参考文献
 
-[1] J. Stewart. Calculus: Early Transcendentals (7th Edition). Brooks Cole. 2010.
+[1] Stewart, J. (2010). Calculus: Early Transcendentals (7th Edition). Brooks Cole.

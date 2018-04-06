@@ -1,7 +1,9 @@
 # Adagrad——使用`Gluon`
 
 
-在`Gluon`里，使用Adagrad很容易。我们无需重新实现它。
+在`Gluon`里，使用Adagrad很方便，我们无需重新实现该算法。
+
+首先，导入实验所需的包。
 
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
@@ -14,6 +16,10 @@ import numpy as np
 import sys
 sys.path.append('..')
 import utils
+```
+
+```{.python .input}
+下面生成实验数据集并定义线性回归模型。
 ```
 
 ```{.python .input  n=1}
@@ -31,9 +37,7 @@ net = gluon.nn.Sequential()
 net.add(gluon.nn.Dense(1))
 ```
 
-我们需要在`gluon.Trainer`中指定优化算法名称`adagrad`并设置参数。例如设置初始学习率`learning_rate`。
-
-使用Adagrad，最终学到的参数值与真实值较接近。
+我们可以在Trainer中定义优化算法名称`adagrad`。以下几组实验分别重现了[“Adagrad——从0开始”](adagrad-scratch.md)一节中实验结果。
 
 ```{.python .input  n=3}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
@@ -56,3 +60,4 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
 欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/2274)：
 
 ![](../img/qr_adagrad-gluon.svg)
+
