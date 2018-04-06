@@ -1,4 +1,4 @@
-# Adam——从0开始
+# Adam——从零开始
 
 Adam是一个组合了[动量法](momentum-scratch.md)和[RMSProp](rmsprop-scratch.md)的优化算法。
 

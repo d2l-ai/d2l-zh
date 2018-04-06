@@ -1,14 +1,16 @@
-# RMSProp——从0开始
+# RMSProp——从零开始
 
 
-我们在[Adagrad](adagrad-scratch.md)里提到，由于学习率分母上的变量$\boldsymbol{s}$一直在累加按元素平方的梯度，每个元素的学习率在迭代过程中一直在降低或不变。所以在有些问题下，当学习率在迭代早期降得较快时且当前解依然不理想时，Adagrad在迭代后期可能较难找到一个有用的解。
+我们在[“Adagrad——从零开始”](adagrad-scratch.md)一节里提到，由于调整学习率一步分母上的变量$\boldsymbol{s}$一直在累加按元素平方的小批量随机梯度，每个元素的学习率在迭代过程中一直在降低（或不变）。所以，当学习率在迭代早期降得较快且当前解依然不佳时，Adagrad在迭代后期由于学习率过小，可能较难找到一个有用的解。为了应对这一问题，RMSProp算法对Adagrad做了一点小小的修改 [1]。
 
-为了应对这一问题，RMSProp算法对Adagrad做了一点小小的修改。我们先给出RMSProp算法。
+下面，我们来描述RMSProp算法。
 
 
 ## RMSProp算法
 
-RMSProp算法会使用一个梯度按元素平方的指数加权移动平均变量$\boldsymbol{s}$，并将其中每个元素初始化为0。在每次迭代中，首先计算[小批量梯度](gd-sgd-scratch.md) $\boldsymbol{g}$，然后对该梯度按元素平方后做指数加权移动平均并计算$\boldsymbol{s}$：
+我们在[“动量法——从零开始”](momentum-scratch.md)一节里介绍过指数加权移动平均。事实上，RMSProp算法使用了小批量随机梯度按元素平方的指数加权移动平均变量$\boldsymbol{s}$，并将其中每个元素初始化为0。
+给定超参数$\gamma$且$0 \leq \gamma \leq 1$，
+在每次迭代中，RMSProp首先计算小批量随机梯度$\boldsymbol{g}$，然后对该梯度按元素平方后做指数加权移动平均得到$\boldsymbol{s}$：
 
 $$\boldsymbol{s} := \gamma \boldsymbol{s} + (1 - \gamma) \boldsymbol{g} \odot \boldsymbol{g} $$
 
@@ -139,3 +141,7 @@ optimize(batch_size=10, lr=0.03, gamma=0.999, num_epochs=3, log_interval=10)
 欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/2275)：
 
 ![](../img/qr_rmsprop-scratch.svg)
+
+## 参考文献
+
+[1] Hinton, G., Srivastava, N., & Swersky, K. (2012). Lecture 6a Overview of Mini–batch Gradient Descent. Coursera Lecture Slides.

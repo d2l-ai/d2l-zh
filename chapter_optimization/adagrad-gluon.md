@@ -35,7 +35,7 @@ net = gluon.nn.Sequential()
 net.add(gluon.nn.Dense(1))
 ```
 
-我们可以在Trainer中定义优化算法名称`adagrad`。以下几组实验分别重现了[“Adagrad——从0开始”](adagrad-scratch.md)一节中实验结果。
+我们可以在Trainer中定义优化算法名称`adagrad`。以下几组实验分别重现了[“Adagrad——从零开始”](adagrad-scratch.md)一节中实验结果。
 
 ```{.python .input  n=3}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)

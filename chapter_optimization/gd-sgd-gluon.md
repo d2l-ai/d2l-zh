@@ -69,7 +69,7 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
     utils.semilogy(x_vals, y_vals, 'epoch', 'loss')
 ```
 
-以下几组实验分别重现了["梯度下降和随机梯度下降——从0开始"](gd-sgd-scratch.md)一节中实验结果。
+以下几组实验分别重现了["梯度下降和随机梯度下降——从零开始"](gd-sgd-scratch.md)一节中实验结果。
 
 ```{.python .input  n=3}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)

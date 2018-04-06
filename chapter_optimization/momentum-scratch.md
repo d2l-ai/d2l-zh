@@ -1,4 +1,4 @@
-# 动量法——从0开始
+# 动量法——从零开始
 
 
 我们已经介绍了梯度下降。每次迭代时，该算法根据自变量当前所在位置，沿着目标函数下降最快的方向更新自变量。因此，梯度下降有时也叫做最陡下降（steepest descent）。目标函数有关自变量的梯度代表了目标函数下降最快的方向。
@@ -122,7 +122,7 @@ def init_params():
     return params, vs
 ```
 
-优化函数`optimize`与[“梯度下降和随机梯度下降”](gd-sgd-scratch.md)一节中的类似。
+优化函数`optimize`与[“梯度下降和随机梯度下降——从零开始”](gd-sgd-scratch.md)一节中的类似。
 
 ```{.python .input  n=3}
 net = utils.linreg
