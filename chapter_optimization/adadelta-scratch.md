@@ -36,7 +36,8 @@ def adadelta(params, sqrs, deltas, rho, batch_size):
     for param, sqr, delta in zip(params, sqrs, deltas):
         g = param.grad / batch_size
         sqr[:] = rho * sqr + (1. - rho) * nd.square(g)
-        cur_delta = nd.sqrt(delta + eps_stable) / nd.sqrt(sqr + eps_stable) * g
+        cur_delta = (nd.sqrt(delta + eps_stable) 
+                     / nd.sqrt(sqr + eps_stable) * g)
         delta[:] = rho * delta + (1. - rho) * cur_delta * cur_delta
         param[:] -= cur_delta 
 ```

@@ -54,7 +54,14 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
 * 回顾前面几章中你感兴趣的模型，将训练部分的优化算法替换成其他算法，观察并分析实验现象。
 
 
-## 优化章节回顾
+## 讨论
+
+欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/2280)：
+
+![](../img/qr_adam-gluon.svg)
+
+
+## 本章回顾
 
 
 > 梯度下降可沉甸，  随机降低方差难。
@@ -73,9 +80,3 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
 * 学率：学习率。
 * 换：这个参数被替换掉。
 * 权：指数加权移动平均。
-
-## 讨论
-
-欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/2280)：
-
-![](../img/qr_adam-gluon.svg)
