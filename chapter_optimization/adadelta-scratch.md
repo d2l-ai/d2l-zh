@@ -140,4 +140,4 @@ optimize(batch_size=10, rho=0.9999, num_epochs=3, log_interval=10)
 
 ## 参考文献
 
-[1] Zeiler, M. D. (2012). ADADELTA: an Adaptive Learning Rate Method. arXiv preprint arXiv:1212.5701.
+[1] Zeiler, M. D. (2012). ADADELTA: An Adaptive Learning Rate Method. arXiv preprint arXiv:1212.5701.

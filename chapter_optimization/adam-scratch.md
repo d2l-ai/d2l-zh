@@ -176,4 +176,4 @@ optimize(batch_size=10, lr=0.1, num_epochs=3, log_interval=10)
 
 ## 参考文献
 
-[1] Kingma, D. P., & Ba, J. (2014). Adam: a Method for Stochastic Optimization. arXiv preprint arXiv:1412.6980.
+[1] Kingma, D. P., & Ba, J. (2014). Adam: A Method for Stochastic Optimization. arXiv preprint arXiv:1412.6980.
