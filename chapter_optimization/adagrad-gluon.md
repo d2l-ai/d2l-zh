@@ -18,9 +18,7 @@ sys.path.append('..')
 import utils
 ```
 
-```{.python .input}
 下面生成实验数据集并定义线性回归模型。
-```
 
 ```{.python .input  n=1}
 # 生成数据集。
