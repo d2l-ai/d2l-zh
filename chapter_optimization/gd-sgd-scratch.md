@@ -100,7 +100,18 @@ $$\mathbb{E}_\mathcal{B} \nabla f_\mathcal{B}(\boldsymbol{x}) = \nabla f(\boldsy
 这个算法叫做小批量随机梯度下降。该算法每次迭代的计算开销为$\mathcal{O}(|\mathcal{B}|)$。当批量大小为1时，该算法即随机梯度下降；当批量大小等于训练数据样本数，该算法即梯度下降。和学习率一样，批量大小也是一个超参数。当批量较小时，虽然每次迭代的计算开销较小，但计算机并行处理批量中各个样本的能力往往只得到较少利用。因此，当训练数据集的样本较少时，我们可以使用梯度下降；当样本较多时，我们可以使用小批量梯度下降并依据计算资源选择合适的批量大小。
 
 
-## 算法实现和实验
+## 小批量随机梯度下降的实现
+
+我们只需要实现小批量随机梯度下降。当批量大小等于训练集大小时，该算法即为梯度下降；批量大小为1即为随机梯度下降。
+
+```{.python .input}
+# 小批量随机梯度下降。
+def sgd(params, lr, batch_size):
+    for param in params:
+        param[:] = param - lr * param.grad / batch_size
+```
+
+## 实验
 
 首先，导入实验所需的包。
 
@@ -116,15 +127,6 @@ import random
 import sys
 sys.path.append('..')
 import utils
-```
-
-我们只需要实现小批量随机梯度下降。当批量大小等于训练集大小时，该算法即为梯度下降；批量大小为1即为随机梯度下降。
-
-```{.python .input  n=1}
-# 小批量随机梯度下降。
-def sgd(params, lr, batch_size):
-    for param in params:
-        param[:] = param - lr * param.grad / batch_size
 ```
 
 实验中，我们以之前介绍过的线性回归为例。我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。数据集的样本数为1000。目标函数为平方损失函数。

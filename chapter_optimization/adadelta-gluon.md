@@ -1,4 +1,4 @@
-# Adadelta --- 使用Gluon
+# Adadelta——使用`Gluon`
 
 在`Gluon`里，使用Adadelta很容易。我们无需重新实现它。
 

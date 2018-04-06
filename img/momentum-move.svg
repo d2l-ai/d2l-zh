@@ -1,55 +1,107 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="23.5 24.5 364.30303 153" width="364.30303" height="153">
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="6.5 5 306.14414 158.5" width="306.14414" height="158.5">
   <defs>
     <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="StickArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 8 8" markerWidth="8" markerHeight="8" color="#5b7daa">
       <g>
         <path d="M 5.866667 0 L 0 0 M 0 -2.2 L 5.866667 0 L 0 2.2" fill="none" stroke="currentColor" stroke-width="1"/>
       </g>
     </marker>
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="StickArrow_Marker_2" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 10 8" markerWidth="10" markerHeight="8" color="black">
+      <g>
+        <path d="M 8 0 L 0 0 M 0 -3 L 8 0 L 0 3" fill="none" stroke="currentColor" stroke-width="1"/>
+      </g>
+    </marker>
+    <font-face font-family="Arial" font-size="12" panose-1="2 11 6 4 2 2 2 9 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="-1e3" x-height="518.5547" cap-height="715.8203" ascent="905.2734" descent="-211.91406" font-style="italic" font-weight="400">
+      <font-face-src>
+        <font-face-name name="Arial-ItalicMT"/>
+      </font-face-src>
+    </font-face>
+    <font-face font-family="Arial" font-size="8" panose-1="2 11 6 4 2 2 2 2 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="0" x-height="518.5547" cap-height="716.3086" ascent="905.2734" descent="-211.91406" font-weight="400">
+      <font-face-src>
+        <font-face-name name="ArialMT"/>
+      </font-face-src>
+    </font-face>
   </defs>
   <metadata> Produced by OmniGraffle 7.7.1 
-    <dc:date>2018-04-05 00:05:44 +0000</dc:date>
+    <dc:date>2018-04-05 18:37:56 +0000</dc:date>
   </metadata>
   <g id="Canvas_1" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
     <title>Canvas 1</title>
     <g id="Canvas_1: Layer 1">
       <title>Layer 1</title>
       <g id="Graphic_14">
-        <ellipse cx="205.65152" cy="101" rx="181.651805412816" ry="76.0001214405441" fill="white"/>
-        <path d="M 334.0984 47.259944 C 405.03803 76.93977 405.03803 125.06023 334.0984 154.74006 C 263.1591 184.42003 148.14392 184.42003 77.20464 154.74006 C 6.264999 125.06023 6.264999 76.93977 77.20464 47.259944 C 148.14392 17.579968 263.1591 17.579968 334.0984 47.259944" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
+        <ellipse cx="163.69034" cy="72.75" rx="123.690538554121" ry="51.7500826914231" fill="white"/>
+        <ellipse cx="163.69034" cy="72.75" rx="123.690538554121" ry="51.7500826914231" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
       <g id="Graphic_13">
-        <ellipse cx="205.65152" cy="101" rx="99.6062197667737" ry="31.6667172668933" fill="white"/>
-        <path d="M 276.08356 78.60831 C 314.9823 90.9749 314.9823 111.0251 276.08356 123.39169 C 237.185 135.75835 174.11803 135.75835 135.21947 123.39169 C 96.32072 111.0251 96.32072 90.9749 135.21947 78.60831 C 174.11803 66.24165 237.185 66.24165 276.08356 78.60831" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
+        <ellipse cx="163.69034" cy="72.75" rx="67.8239720122439" ry="21.5625344547596" fill="white"/>
+        <ellipse cx="163.69034" cy="72.75" rx="67.8239720122439" ry="21.5625344547596" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
       <g id="Graphic_12">
-        <ellipse cx="207.3788" cy="101.14394" rx="23.3182190783488" ry="7.62880006884248" fill="white"/>
-        <path d="M 223.86721 95.74958 C 232.97357 98.7288 232.97357 103.55908 223.86721 106.5383 C 214.7609 109.51754 199.99667 109.51754 190.89036 106.5383 C 181.784 103.55908 181.784 98.7288 190.89036 95.74958 C 199.99667 92.77034 214.7609 92.77034 223.86721 95.74958" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
+        <ellipse cx="164.86648" cy="72.84801" rx="15.877866280323" ry="5.19461057319209" fill="white"/>
+        <ellipse cx="164.86648" cy="72.84801" rx="15.877866280323" ry="5.19461057319209" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
       <g id="Line_11">
-        <line x1="59.98485" y1="106.6946" x2="69.84851" y2="80.02547" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <line x1="64.50284" y1="76.627575" x2="69.95741" y2="61.879636" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
       </g>
       <g id="Line_9">
-        <line x1="74.09091" y1="70.77273" x2="79.68317" y2="115.67072" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <path d="M 74.107955 52.167614 L 75.546875 67.35156 L 77.24887 79.1592" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
       </g>
       <g id="Line_8">
-        <line x1="80.7475" y1="124.21573" x2="98.37639" y2="84.48776" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <line x1="78.60427" y1="88.56241" x2="89.16032" y2="64.82744" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
       </g>
       <g id="Line_7">
-        <line x1="103.00024" y1="74.06759" x2="112.64231" y2="103.33525" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <line x1="93.79292" y1="54.411155" x2="99.21977" y2="70.88387" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
       </g>
       <g id="Line_6">
-        <line x1="115.83333" y1="114.27953" x2="124.10188" y2="99.44284" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <line x1="102.53125" y1="81.79231" x2="106.39071" y2="74.86708" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
       </g>
       <g id="Line_5">
-        <line x1="129.65152" y1="90.3035" x2="137.44781" y2="102.83544" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <line x1="111.94034" y1="65.46653" x2="115.32754" y2="70.911195" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
       </g>
       <g id="Line_4">
-        <line x1="143.4697" y1="110.50675" x2="149.47662" y2="104.12145" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <line x1="121.34943" y1="79.22334" x2="122.94727" y2="77.52486" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
       </g>
       <g id="Line_3">
-        <line x1="157.28788" y1="96.03184" x2="163.14996" y2="102.04754" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <line x1="130.75852" y1="69.36708" x2="132.21151" y2="70.85814" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+      </g>
+      <g id="Graphic_19">
+        <circle cx="63.38367" cy="78.88367" r="2.38367080105348" fill="white"/>
+        <circle cx="63.38367" cy="78.88367" r="2.38367080105348" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+      </g>
+      <g id="Line_32">
+        <line x1="28.5" y1="139.5" x2="292.34414" y2="139.5" marker-end="url(#StickArrow_Marker_2)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
+      </g>
+      <g id="Line_33">
+        <line x1="28.5" y1="139.5" x2="28.5" y2="16.730078" marker-end="url(#StickArrow_Marker_2)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
+      </g>
+      <g id="Graphic_35">
+        <text transform="translate(288.05273 141.86914)" fill="black">
+          <tspan font-family="Arial" font-size="12" font-style="italic" font-weight="400" fill="black" x=".27539062" y="11">x</tspan>
+          <tspan font-family="Arial" font-size="8" font-weight="400" fill="black" y="14">1</tspan>
+        </text>
+      </g>
+      <g id="Graphic_36">
+        <text transform="translate(11.5 10.369141)" fill="black">
+          <tspan font-family="Arial" font-size="12" font-style="italic" font-weight="400" fill="black" x=".27539062" y="11">x</tspan>
+          <tspan font-family="Arial" font-size="8" font-weight="400" fill="black" y="14">2</tspan>
+        </text>
+      </g>
+      <g id="Graphic_37">
+        <text transform="translate(268.55273 30.80371)" fill="black">
+          <tspan font-family="Arial" font-size="12" font-style="italic" font-weight="400" fill="black" x=".32128906" y="11">f = 10</tspan>
+        </text>
+      </g>
+      <g id="Graphic_38">
+        <text transform="translate(183.19602 60.89462)" fill="black">
+          <tspan font-family="Arial" font-size="12" font-style="italic" font-weight="400" fill="black" x=".15820312" y="11">f = 1</tspan>
+        </text>
+      </g>
+      <g id="Graphic_39">
+        <text transform="translate(222.79261 48.30371)" fill="black">
+          <tspan font-family="Arial" font-size="12" font-style="italic" font-weight="400" fill="black" x=".15820312" y="11">f = 5</tspan>
+        </text>
       </g>
     </g>
   </g>

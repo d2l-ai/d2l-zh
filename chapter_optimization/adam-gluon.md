@@ -1,4 +1,4 @@
-# Adam --- 使用Gluon
+# Adam——使用`Gluon`
 
 
 在`Gluon`里，使用Adam很容易。我们无需重新实现它。

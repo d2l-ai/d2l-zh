@@ -1,4 +1,4 @@
-# Adagrad --- 使用Gluon
+# Adagrad——使用`Gluon`
 
 
 在`Gluon`里，使用Adagrad很容易。我们无需重新实现它。

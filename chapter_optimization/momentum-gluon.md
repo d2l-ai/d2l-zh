@@ -1,7 +1,8 @@
-# 动量法 --- 使用Gluon
+# 动量法——使用`Gluon`
 
+在`Gluon`里，使用动量法很方便，我们无需重新实现该算法。
 
-在`Gluon`里，使用动量法很容易。我们无需重新实现它。例如，在随机梯度下降中，我们可以定义`momentum`参数。
+首先，导入实验所需的包。
 
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
@@ -15,6 +16,8 @@ import sys
 sys.path.append('..')
 import utils
 ```
+
+下面生成实验数据集并定义线性回归模型。
 
 ```{.python .input  n=1}
 # 生成数据集。
@@ -31,14 +34,28 @@ net = gluon.nn.Sequential()
 net.add(gluon.nn.Dense(1))
 ```
 
-为了使学习率在两个epoch后自我衰减，我们需要访问`gluon.Trainer`的`learning_rate`属性和`set_learning_rate`函数。
-
-使用动量法，最终学到的参数值与真实值较接近。
+例如，以使用动量法的小批量随机梯度下降为例，我们可以在`Trainer`中定义动量超参数`momentum`。以下几组实验分别重现了["动量法——从零开始"](momentum-scratch.md)一节中实验结果。
 
 ```{.python .input  n=3}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
+                        {'learning_rate': 0.2, 'momentum': 0.99})
+utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
+               log_interval=10, X=X, y=y, net=net)
+```
+
+```{.python .input}
+net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
+trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate': 0.2, 'momentum': 0.9})
+utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
+               log_interval=10, X=X, y=y, net=net)
+```
+
+```{.python .input}
+net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
+trainer = gluon.Trainer(net.collect_params(), 'sgd',
+                        {'learning_rate': 0.2, 'momentum': 0.5})
 utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
                log_interval=10, X=X, y=y, net=net)
 ```
@@ -49,7 +66,7 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
 
 ## 练习
 
-* 如果想用以上代码重现随机梯度下降，应该把动量参数改为多少？
+* 如果想用以上代码重现小批量随机梯度下降，应该把动量参数改为多少？
 
 ## 讨论
 

@@ -69,7 +69,7 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
     utils.semilogy(x_vals, y_vals, 'epoch', 'loss')
 ```
 
-当批量大小为1时，优化使用的是随机梯度下降。
+以下几组实验分别重现了["梯度下降和随机梯度下降——从0开始"](gd-sgd-scratch.md)一节中实验结果。
 
 ```{.python .input  n=3}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
@@ -78,16 +78,12 @@ optimize(batch_size=1, trainer=trainer, num_epochs=3, decay_epoch=2,
          log_interval=10, X=X, y=y, net=net)
 ```
 
-当批量大小为1000时，由于数据样本总数也是1000，优化使用的是梯度下降。梯度下降无需自我衰减学习率（`decay_epoch=None`）。
-
 ```{.python .input  n=4}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.999})
 optimize(batch_size=1000, trainer=trainer, num_epochs=3, decay_epoch=None,
          log_interval=1000, X=X, y=y, net=net)
 ```
-
-当批量大小为10时，由于数据样本总数也是1000，优化使用的是小批量随机梯度下降。
 
 ```{.python .input  n=5}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
@@ -96,16 +92,12 @@ optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
          log_interval=10, X=X, y=y, net=net)
 ```
 
-同样是批量大小为10，我们把学习率改大。过大的学习率造成了目标函数自变量越过最优解并发散。
-
 ```{.python .input  n=6}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 5})
 optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
          log_interval=10, X=X, y=y, net=net)
 ```
-
-同样是批量大小为10，我们把学习率改小。这时我们观察到目标函数值下降较慢。
 
 ```{.python .input  n=7}
 net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)

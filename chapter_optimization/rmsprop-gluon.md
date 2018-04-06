@@ -1,4 +1,4 @@
-# RMSProp --- 使用Gluon
+# RMSProp——使用`Gluon`
 
 
 在`Gluon`里，使用RMSProp很容易。我们无需重新实现它。
