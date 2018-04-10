@@ -373,13 +373,12 @@ def squared_loss(yhat, y):
 
 
 def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
-             net, print_lr=True):
+             net):
     """优化目标函数。"""
     dataset = gluon.data.ArrayDataset(X, y)
     data_iter = gluon.data.DataLoader(dataset, batch_size, shuffle=True)
     square_loss = gluon.loss.L2Loss()
     y_vals = [square_loss(net(X), y).mean().asnumpy()]
-    print('batch size', batch_size)
     for epoch in range(1, num_epochs + 1): 
         # 学习率自我衰减。
         if decay_epoch and epoch > decay_epoch:
@@ -392,19 +391,13 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
             trainer.step(batch_size)
             if batch_i * batch_size % log_interval == 0:
                 y_vals.append(square_loss(net(X), y).mean().asnumpy())
-        if print_lr:
-            print("epoch %d, learning rate %f, loss %.4e"
-                  % (epoch, trainer.learning_rate, y_vals[-1]))
-        else:
-            print("epoch %d, loss %.4e" % (epoch, y_vals[-1]))
-    # 为了便于打印，改变输出形状并转化成numpy数组。
-    print('w:', net[0].weight.data().reshape((1, -1)).asnumpy(),
-          'b:', net[0].bias.data().asscalar(), '\n')
+    print('w:', net[0].weight.data(), '\nb:', net[0].bias.data(), '\n')
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
     semilogy(x_vals, y_vals, 'epoch', 'loss')
 
 
 def semilogy(x_vals, y_vals, x_label, y_label, figsize=(3.5, 2.5)):
+    """绘图（y取对数）。"""		
     set_fig_size(mpl, figsize)
     plt.semilogy(x_vals, y_vals)
     plt.xlabel(x_label)

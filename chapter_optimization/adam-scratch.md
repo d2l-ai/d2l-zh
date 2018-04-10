@@ -45,19 +45,18 @@ $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \boldsymbol{g}^\prime. $$
 Adam的实现很简单。我们只需要把上面的数学公式翻译成代码。
 
 ```{.python .input}
-# Adam。
 def adam(params, vs, sqrs, lr, batch_size, t):
     beta1 = 0.9
     beta2 = 0.999
     eps_stable = 1e-8
     for param, v, sqr in zip(params, vs, sqrs):      
         g = param.grad / batch_size
-        v[:] = beta1 * v + (1. - beta1) * g
-        sqr[:] = beta2 * sqr + (1. - beta2) * nd.square(g)
-        v_bias_corr = v / (1. - beta1 ** t)
-        sqr_bias_corr = sqr / (1. - beta2 ** t)
-        div = lr * v_bias_corr / (nd.sqrt(sqr_bias_corr) + eps_stable)        
-        param[:] = param - div
+        v[:] = beta1 * v + (1 - beta1) * g
+        sqr[:] = beta2 * sqr + (1 - beta2) * g.square()
+        v_bias_corr = v / (1 - beta1 ** t)
+        sqr_bias_corr = sqr / (1 - beta2 ** t)    
+        param[:] = param - lr * v_bias_corr / (
+            sqr_bias_corr.sqrt() + eps_stable)  
 ```
 
 ## 实验
@@ -67,13 +66,8 @@ def adam(params, vs, sqrs, lr, batch_size, t):
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
 %matplotlib inline
-import mxnet as mx
-from mxnet import autograd
-from mxnet import gluon
-from mxnet import nd
-import numpy as np
-import random
-import sys
+import mxnet as mx, numpy as np, sys
+from mxnet import autograd, gluon, nd
 sys.path.append('..')
 import utils
 ```
@@ -88,25 +82,13 @@ num_inputs = 2
 num_examples = 1000
 true_w = [2, -3.4]
 true_b = 4.2
-X = nd.random_normal(scale=1, shape=(num_examples, num_inputs))
+X = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
 y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
-y += .01 * nd.random_normal(scale=1, shape=y.shape)
+y += 0.01 * nd.random.normal(scale=1, shape=y.shape)
 
 # 初始化模型参数。
 def init_params():
-    w = nd.random_normal(scale=1, shape=(num_inputs, 1))
-    b = nd.zeros(shape=(1,))
-    params = [w, b]
-    sqrs = []
-    for param in params:
-        param.attach_grad()
-        # 把梯度按元素平方的指数加权移动平均变量初始化为和参数形状相同的零张量。
-        sqrs.append(param.zeros_like())
-    return params, sqrs
-
-# 初始化模型参数。
-def init_params():
-    w = nd.random_normal(scale=1, shape=(num_inputs, 1))
+    w = nd.random.normal(scale=1, shape=(num_inputs, 1))
     b = nd.zeros(shape=(1,))
     params = [w, b]
     vs = []
@@ -128,8 +110,6 @@ squared_loss = utils.squared_loss
 def optimize(batch_size, lr, num_epochs, log_interval):
     [w, b], vs, sqrs = init_params()
     y_vals = [squared_loss(net(X, w, b), y).mean().asnumpy()]
-    print('batch size', batch_size)
-    
     t = 0
     for epoch in range(1, num_epochs + 1):
         for batch_i, (features, label) in enumerate(
@@ -143,10 +123,7 @@ def optimize(batch_size, lr, num_epochs, log_interval):
             adam([w, b], vs, sqrs, lr, batch_size, t)
             if batch_i * batch_size % log_interval == 0:
                 y_vals.append(squared_loss(net(X, w, b), y).mean().asnumpy())
-        print('epoch %d, learning rate %f, loss %.4e'
-              % (epoch, lr, y_vals[-1]))
-    # 为了便于打印，改变输出形状并转化成numpy数组。
-    print('w:', w.reshape((1, -1)).asnumpy(), 'b:', b.asscalar(), '\n')
+    print('w:', w, '\nb:', b, '\n')
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
     utils.semilogy(x_vals, y_vals, 'epoch', 'loss')
 ```

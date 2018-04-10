@@ -105,7 +105,6 @@ $$\mathbb{E}_\mathcal{B} \nabla f_\mathcal{B}(\boldsymbol{x}) = \nabla f(\boldsy
 我们只需要实现小批量随机梯度下降。当批量大小等于训练集大小时，该算法即为梯度下降；批量大小为1即为随机梯度下降。
 
 ```{.python .input}
-# 小批量随机梯度下降。
 def sgd(params, lr, batch_size):
     for param in params:
         param[:] = param - lr * param.grad / batch_size
@@ -132,13 +131,13 @@ num_inputs = 2
 num_examples = 1000
 true_w = [2, -3.4]
 true_b = 4.2
-X = nd.random_normal(scale=1, shape=(num_examples, num_inputs))
+X = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
 y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
-y += .01 * nd.random_normal(scale=1, shape=y.shape)
+y += 0.01 * nd.random.normal(scale=1, shape=y.shape)
 
 # 初始化模型参数。
 def init_params():
-    w = nd.random_normal(scale=1, shape=(num_inputs, 1))
+    w = nd.random.normal(scale=1, shape=(num_inputs, 1))
     b = nd.zeros(shape=(1,))
     params = [w, b]
     for param in params:
@@ -175,7 +174,6 @@ squared_loss = squared_loss
 def optimize(batch_size, lr, num_epochs, log_interval, decay_epoch):
     w, b = init_params()
     y_vals = [squared_loss(net(X, w, b), y).mean().asnumpy()]
-    print('batch size', batch_size)
     for epoch in range(1, num_epochs + 1):
         # 学习率自我衰减。
         if decay_epoch and epoch > decay_epoch:
@@ -189,10 +187,7 @@ def optimize(batch_size, lr, num_epochs, log_interval, decay_epoch):
             sgd([w, b], lr, batch_size)
             if batch_i * batch_size % log_interval == 0:
                 y_vals.append(squared_loss(net(X, w, b), y).mean().asnumpy())
-        print('epoch %d, learning rate %f, loss %.4e'
-              % (epoch, lr, y_vals[-1]))
-    # 为了便于打印，改变输出形状并转化成numpy数组。
-    print('w:', w.reshape((1, -1)).asnumpy(), 'b:', b.asscalar(), '\n')
+    print('w:', w, '\nb:', b, '\n')
     x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
     utils.semilogy(x_vals, y_vals, 'epoch', 'loss')
 ```

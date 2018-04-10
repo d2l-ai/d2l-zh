@@ -30,10 +30,7 @@
 ```{.python .input  n=1}
 %matplotlib inline
 %config InlineBackend.figure_format = 'retina'
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import numpy as np
-import sys
+import matplotlib as mpl, matplotlib.pyplot as plt, numpy as np, sys
 sys.path.append('..')
 import utils
 ```
