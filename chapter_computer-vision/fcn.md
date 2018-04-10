@@ -360,7 +360,7 @@ def predict(im):
 
 def label2image(pred):
     x = pred.astype('int32').asnumpy()
-    cm = np.array(colormap).astype('uint8')
+    cm = nd.array(colormap).astype('uint8')
     return nd.array(cm[x,:])
 ```
 
