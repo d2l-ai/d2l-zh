@@ -31,6 +31,7 @@
 %matplotlib inline
 %config InlineBackend.figure_format = 'retina'
 import matplotlib as mpl, matplotlib.pyplot as plt, numpy as np, sys
+from mpl_toolkits import mplot3d
 sys.path.append('..')
 import utils
 ```
@@ -93,8 +94,6 @@ $$f(x, y) = x^2 - y^2.$$
 我们可以找出该函数的鞍点位置。也许读者已经发现了，该函数看起来像一个马鞍，而鞍点恰好是马鞍上可坐区域的中心。
 
 ```{.python .input  n=4}
-from mpl_toolkits.mplot3d import Axes3D
-
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 x, y = np.mgrid[-1:1:31j, -1:1:31j]
