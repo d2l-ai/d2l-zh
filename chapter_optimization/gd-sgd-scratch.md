@@ -118,13 +118,8 @@ def sgd(params, lr, batch_size):
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
 %matplotlib inline
-import mxnet as mx
-from mxnet import autograd
-from mxnet import gluon
-from mxnet import nd
-import numpy as np
-import random
-import sys
+import mxnet as mx, numpy as np, random, sys
+from mxnet import autograd, gluon, nd
 sys.path.append('..')
 import utils
 ```
