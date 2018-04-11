@@ -30,7 +30,8 @@ y += 0.01 * nd.random.normal(scale=1, shape=y.shape)
 
 # 线性回归模型。
 net = gluon.nn.Sequential()
-net.add(gluon.nn.Dense(1))
+with net.name_scope():
+    net.add(gluon.nn.Dense(1))
 ```
 
 我们可以在Trainer中定义优化算法名称`rmsprop`并定义$\gamma$超参数`gamma1`。以下几组实验分别重现了[“RMSProp——从零开始”](rmsprop-scratch.md)一节中实验结果。
