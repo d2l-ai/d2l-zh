@@ -213,8 +213,8 @@ optimize(batch_size=1000, lr=0.999, num_epochs=3, decay_epoch=None,
 optimize(batch_size=10, lr=0.2, num_epochs=3, decay_epoch=2, log_interval=10)
 ```
 
-同样是批量大小为10，我们把学习率改大。这时我们观察到损失函数值不断增大，直到出现“nan”（not a number，非数）。
-这是因为，过大的学习率造成了模型参数越过最优解并发散。
+同样是批量大小为10，我们把学习率改大。这时损失函数值不断增大，直到出现“nan”（not a number，非数）。
+这是因为，过大的学习率造成了模型参数越过最优解并发散。最终学到的模型参数也是“nan”。
 
 ```{.python .input  n=7}
 optimize(batch_size=10, lr=5, num_epochs=3, decay_epoch=2, log_interval=10)
