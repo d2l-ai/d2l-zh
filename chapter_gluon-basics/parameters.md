@@ -178,6 +178,3 @@ print('init to all 1s:', net[1].weight.data())
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/987)
 
 ![](../img/qr_parameters.svg)
-
-
-

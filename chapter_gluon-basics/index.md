@@ -1,4 +1,4 @@
-# 神经网络计算基础
+# 深度学习计算
 
 ```eval_rst
 
@@ -7,8 +7,8 @@
 
    block
    parameters
-   serialization
    custom-layer
+   serialization
    use-gpu
 
 ```
