@@ -7,9 +7,10 @@
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
 %matplotlib inline
+import sys
 import mxnet as mx
 from mxnet import autograd, gluon, nd
-import numpy as np, sys
+import numpy as np
 sys.path.append('..')
 import utils
 ```

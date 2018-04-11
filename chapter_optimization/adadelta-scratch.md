@@ -48,8 +48,10 @@ def adadelta(params, sqrs, deltas, rho, batch_size):
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
 %matplotlib inline
-import mxnet as mx, numpy as np, sys
+import sys
+import mxnet as mx
 from mxnet import autograd, gluon, nd
+import numpy as np
 sys.path.append('..')
 import utils
 ```
