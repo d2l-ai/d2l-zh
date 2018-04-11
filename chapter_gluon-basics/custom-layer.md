@@ -1,4 +1,4 @@
-# 设计自定义层
+# 自定义层
 
 神经网络的一个魅力是它有大量的层，例如全连接、卷积、循环、激活，和各式花样的连接方式。我们之前学到了如何使用Gluon提供的层来构建新的层(`nn.Block`)继而得到神经网络。虽然Gluon提供了大量的[层的定义](https://mxnet.incubator.apache.org/versions/master/api/python/gluon/gluon.html#neural-network-layers)，但我们仍然会遇到现有层不够用的情况。
 
@@ -120,13 +120,15 @@ net(nd.random.uniform(shape=(2,64)))
 
 仔细的你可能还是注意到了，我们这里指定了输入的大小，而Gluon自带的`Dense`则无需如此。我们已经在前面节介绍过了这个延迟初始化如何使用。但如果实现一个这样的层我们将留到后面介绍了hybridize后。
 
-## 总结
+## 小结
 
 现在我们知道了如何把前面手写过的层全部包装了Gluon能用的Block，之后再用到的时候就可以飞起来了！
 
 ## 练习
 
-1. 怎么修改自定义层里参数的默认初始化函数。
-1. (这个比较难），在一个代码Cell里面输入`nn.Dense??`，看看它是怎么实现的。为什么它就可以支持延迟初始化了。
+* 怎么修改自定义层里参数的默认初始化函数。
+* (这个比较难），在一个代码Cell里面输入`nn.Dense??`，看看它是怎么实现的。为什么它就可以支持延迟初始化了。
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1256)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1256)
+
+![](../img/qr_custom-layer.svg)

@@ -165,14 +165,19 @@ w.set_data(nd.ones(w.shape))
 print('init to all 1s:', net[1].weight.data())
 ```
 
-## 总结
+## 小结
 
-我们可以很灵活地访问和修改模型参数。
+* 我们可以很灵活地访问和修改模型参数。
 
 ## 练习
 
-1. 研究下`net.collect_params()`返回的是什么？`net.params`呢？
-1. 如何对每个层使用不同的初始化函数
-1. 如果两个层共用一个参数，那么求梯度的时候会发生什么？
+* 研究下`net.collect_params()`返回的是什么？`net.params`呢？
+* 如何对每个层使用不同的初始化函数
+* 如果两个层共用一个参数，那么求梯度的时候会发生什么？
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/987)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/987)
+
+![](../img/qr_parameters.svg)
+
+
+

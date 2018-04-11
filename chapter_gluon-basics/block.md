@@ -1,4 +1,4 @@
-# 创建神经网络
+# 自定义神经网络
 
 前面的教程我们教了大家如何实现线性回归，多类Logistic回归和多层感知机。我们既展示了如何从0开始实现，也提供使用`gluon`的更紧凑的实现。因为前面我们主要关注在模型本身，所以只解释了如何使用`gluon`，但没说明他们是如何工作的。我们使用了`nn.Sequential`，它是`nn.Block`的一个简单形式，但没有深入了解它们。
 
@@ -159,12 +159,15 @@ rec_mlp.add(nn.Dense(10))
 print(rec_mlp)
 ```
 
-## 总结
+## 小结
 
-不知道你同不同意，通过`nn.Block`来定义神经网络跟玩积木很类似。
+* 不知道你同不同意，通过`nn.Block`来定义神经网络跟玩积木很类似。
 
 ## 练习
 
-如果把`RecMLP`改成`self.denses = [nn.Dense(256), nn.Dense(128), nn.Dense(64)]`，`forward`就用for loop来实现，会有什么问题吗？
+* 如果把`RecMLP`改成`self.denses = [nn.Dense(256), nn.Dense(128), nn.Dense(64)]`，`forward`就用for loop来实现，会有什么问题吗？
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/986)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/986)
+
+
+![](../img/qr_block.svg)

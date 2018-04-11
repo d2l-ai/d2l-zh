@@ -1,4 +1,4 @@
-# 序列化 --- 读写模型
+# 读写模型
 
 我们现在已经讲了很多，包括
 
@@ -78,8 +78,12 @@ net2.load_params(filename, mx.cpu())  # FIXME, gluon will support default ctx la
 print(net2(x))
 ```
 
-## 总结
+## 小结
 
-通过`load_params`和`save_params`可以很方便的读写模型参数。
+* 通过`load_params`和`save_params`可以很方便的读写模型参数。
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1255)
+
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1255)
+
+![](../img/qr_serialization.svg)

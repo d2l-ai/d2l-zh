@@ -1,4 +1,4 @@
-# 多GPU来训练 --- 使用Gluon
+# 多GPU训练模型——使用`Gluon`
 
 
 在Gluon里可以很容易的使用数据并行。在[多GPU来训练 --- 从0开始](./multiple-gpus-scratch.md)里我们手动实现了几个数据同步函数来使用数据并行，Gluon里实现了同样的功能。
@@ -96,7 +96,6 @@ def train(num_gpus, batch_size, lr):
 
 ```{.python .input}
 train(1, 256, .1)
-
 ```
 
 同样的参数，但使用两个GPU。
@@ -111,14 +110,16 @@ train(2, 256, .1)
 train(2, 512, .2)
 ```
 
-## 结论
+## 小结
 
-Gluon的参数初始化和Trainer都支持多设备，从单设备到多设备非常容易。
+* Gluon的参数初始化和Trainer都支持多设备，从单设备到多设备非常容易。
 
 ## 练习
 
-- 跟[多GPU来训练 --- 从0开始](./multiple-gpus-scratch.md)不一样，这里我们使用了更现代些的ResNet。看看不同的批量大小和学习率对不同GPU个数上的不一样。
-- 有时候各个设备计算能力不一样，例如同时使用CPU和GPU，或者GPU之间型号不一样，这时候应该怎么办？
+* 跟[多GPU来训练 --- 从0开始](./multiple-gpus-scratch.md)不一样，这里我们使用了更现代些的ResNet。看看不同的批量大小和学习率对不同GPU个数上的不一样。
+* 有时候各个设备计算能力不一样，例如同时使用CPU和GPU，或者GPU之间型号不一样，这时候应该怎么办？
 
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1885)
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1885)
+![](../img/qr_multiple-gpus-gluon.svg)
+

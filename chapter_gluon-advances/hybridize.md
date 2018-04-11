@@ -1,4 +1,4 @@
-# Hybridize：更快和更好移植
+# 命令式和符号式混合计算
 
 到目前为止我们看到的教程都使用了**命令式**的编程。你可能之前都从来没有听说这个词。不过，一直以来我们都是用这个方式写Python代码。
 
@@ -204,9 +204,10 @@ y = net(x)
 
 但它可能的问题是我们损失写程序的灵活性。因为Python的代码只执行一次，而且是符号式的执行，那么使用`print`来调试，或者使用`if`和`for`来做复杂的控制都不可能了。
 
-## 结论
+## 小结
 
-通过`HybridSequential`和`HybridBlock`，我们可以简单的用`hybridize`来将将命令式的程序转成符号式程序。我们推荐大家尽可能的使用这个来获得最好的性能加速。
+* 通过`HybridSequential`和`HybridBlock`，我们可以简单的用`hybridize`来将将命令式的程序转成符号式程序。我们推荐大家尽可能的使用这个来获得最好的性能加速。
 
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1665)
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1665)
+![](../img/qr_hybridize.svg)
