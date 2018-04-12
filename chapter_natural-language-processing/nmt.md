@@ -112,8 +112,9 @@ dataset = gluon.data.ArrayDataset(X, Y)
 ```{.python .input}
 class Encoder(Block):
     """编码器"""
-    def __init__(self, input_dim, hidden_dim, num_layers, drop_prob):
-        super(Encoder, self).__init__()
+    def __init__(self, input_dim, hidden_dim, num_layers, drop_prob,
+                 **kwargs):
+        super(Encoder, self).__init__(**kwargs)
         with self.name_scope():
             self.embedding = nn.Embedding(input_dim, hidden_dim)
             self.dropout = nn.Dropout(drop_prob)
@@ -137,8 +138,8 @@ class Encoder(Block):
 class Decoder(Block):
     """含注意力机制的解码器"""
     def __init__(self, hidden_dim, output_dim, num_layers, max_seq_len,
-                 drop_prob, alignment_dim, encoder_hidden_dim):
-        super(Decoder, self).__init__()
+                 drop_prob, alignment_dim, encoder_hidden_dim, **kwargs):
+        super(Decoder, self).__init__(**kwargs)
         self.max_seq_len = max_seq_len
         self.encoder_hidden_dim = encoder_hidden_dim
         self.hidden_size = hidden_dim
@@ -215,8 +216,8 @@ class Decoder(Block):
 ```{.python .input}
 class DecoderInitState(Block):
     """解码器隐含状态的初始化"""
-    def __init__(self, encoder_hidden_dim, decoder_hidden_dim):
-        super(DecoderInitState, self).__init__()
+    def __init__(self, encoder_hidden_dim, decoder_hidden_dim, **kwargs):
+        super(DecoderInitState, self).__init__(**kwargs)
         with self.name_scope():
             self.dense = nn.Dense(decoder_hidden_dim,
                                   in_units=encoder_hidden_dim,
