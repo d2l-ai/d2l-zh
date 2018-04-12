@@ -66,7 +66,7 @@ plt.show()
 
 和生成模型类似，将图像展平后的向量和数字标签的独热编码向量拼接在一起后作为判别模型的输入。随后是一个relu激活的全连接层。输出层则由另外一个全连接层构成。**（此处的英文教程有误）**在本教程中，我们在输出层中不使用sigmod激活函数，这样训练过程的数值稳定性会更好。
 
-![](img/cgan.png "Conditional GAN Architecture")
+![](../img/cgan.png "Conditional GAN Architecture")
 
 
 ```python
