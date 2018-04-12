@@ -13,7 +13,7 @@
 我们先来看如何定义一个简单层，它不需要维护模型参数。事实上这个跟前面介绍的如何使用nn.Block没什么区别。下面代码定义一个层将输入减掉均值。
 
 ```{.python .input  n=1}
-from mxnet import nd
+from mxnet import nd, gluon
 from mxnet.gluon import nn
 
 class CenteredLayer(nn.Block):
@@ -54,20 +54,6 @@ y.mean()
 ## 带模型参数的自定义层
 
 虽然`CenteredLayer`可能会告诉实现自定义层大概是什么样子，但它缺少了重要的一块，就是它没有可以学习的模型参数。
-
-记得我们之前访问`Dense`的权重的时候是通过`dense.weight.data()`，这里`weight`是一个`Parameter`的类型。我们可以显示的构建这样的一个参数。
-
-```{.python .input  n=5}
-from mxnet import gluon
-my_param = gluon.Parameter("exciting_parameter_yay", shape=(3,3))
-```
-
-这里我们创建一个$3\times3$大小的参数并取名为"exciting_parameter_yay"。然后用默认方法初始化打印结果。
-
-```{.python .input  n=6}
-my_param.initialize()
-(my_param.data(), my_param.grad())
-```
 
 通常自定义层的时候我们不会直接创建Parameter，而是用过Block自带的一个ParamterDict类型的成员变量`params`，顾名思义，这是一个由字符串名字映射到Parameter的字典。
 

@@ -1,35 +1,77 @@
-# 构造模型
+# 模型构造
 
-前面的教程我们教了大家如何实现线性回归，多类Logistic回归和多层感知机。我们既展示了如何从0开始实现，也提供使用`gluon`的更紧凑的实现。因为前面我们主要关注在模型本身，所以只解释了如何使用`gluon`，但没说明他们是如何工作的。我们使用了`nn.Sequential`，它是`nn.Block`的一个简单形式，但没有深入了解它们。
+上一章介绍了简单的深度学习模型：我们既介绍了如何从零开始一步步实现，又展示了如何使用`Gluon`更方便地实现。
+在本章中，我们将主要使用`Gluon`来介绍深度学习计算中的重要组成部分：模型构造、模型参数、自定义层、读写和GPU计算。通过本章的学习，读者将能够动手实现和训练更复杂的深度学习模型，例如之后章节里的一些模型。
 
-本教程和接下来几个教程，我们将详细解释如何使用这两个类来定义神经网络、初始化参数、以及保存和读取模型。
+本节中，我们将通过`Gluon`里的`nn.Block`来介绍如何构造深度学习模型。相信读者在学习完本节后，也会对上一章中使用的`nn.Sequential`有更深刻的认识。
 
-我们重新把[多层感知机 --- 使用Gluon](../chapter_supervised-learning/mlp-gluon.md)里的网络定义搬到这里作为开始的例子（为了简单起见，这里我们丢掉了Flatten层）。
+以下先导入实验所需的包。
 
-```{.python .input  n=9}
+```{.python .input  n=2}
 from mxnet import nd
 from mxnet.gluon import nn
+```
 
+## 多层感知机的构造
+
+首先，让我们回顾一下[“多层感知机——使用`Gluon`”](../chapter_supervised-learning/mlp-gluon.md)一节中构造的多层感知机。
+
+```{.python .input  n=8}
 net = nn.Sequential()
 with net.name_scope():
     net.add(nn.Dense(256, activation="relu"))
     net.add(nn.Dense(10))
-
 print(net)
 ```
 
-## 使用 `nn.Block` 来定义
+```{.json .output n=8}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Sequential(\n  (0): Dense(None -> 256, Activation(relu))\n  (1): Dense(None -> 10, linear)\n)\n"
+ }
+]
+```
 
-事实上，`nn.Sequential`是`nn.Block`的简单形式。我们先来看下如何使用`nn.Block`来实现同样的网络。
+在上面的例子里，我们通过在`nn.Sequential`里依次添加两个全连接层构造出多层感知机。其中第一层的输出大小为256，即隐藏层单元个数；第二层的输出大小为10，即输出层单元个数。需要指出的是，此时`net`还没见到模型的输入数据，因此模型中每一层并未指明输入单元个数（以上打印结果中的`None`）。
+
+我们试着让模型根据输入数据做一次计算。
 
 ```{.python .input  n=10}
+net.initialize()
+x = nd.random.uniform(shape=(4, 20))
+y = net(x)
+print(net)
+print(y)
+```
+
+```{.json .output n=10}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Sequential(\n  (0): Dense(20 -> 256, Activation(relu))\n  (1): Dense(256 -> 10, linear)\n)\n\n[[ 0.01803771  0.00885322 -0.02361723 -0.03398523 -0.02884901  0.01643001\n   0.03531958  0.05568955 -0.10098446 -0.05619041]\n [ 0.02517633  0.03709904  0.00167109  0.01606739  0.00074177  0.02450188\n   0.01013323  0.04410878 -0.07387356 -0.03460451]\n [-0.01540573  0.01034719  0.0192194   0.02691511 -0.02588643  0.02654634\n   0.02851276  0.06232543 -0.04436566 -0.04979799]\n [ 0.02341454  0.0065243   0.02044814  0.00534149  0.01529503  0.01422244\n   0.01558096  0.01011804 -0.06939343 -0.0298646 ]]\n<NDArray 4x10 @cpu(0)>\n"
+ }
+]
+```
+
+在上面的例子中，`net`的输入数据`x`是4个样本，每个样本的特征向量长度为20（`shape=(4, 20)`）。在按照默认方式初始化好模型参数后，`net`计算出模型的输出并得到了一个$4 \times 10$的矩阵。其中4是数据样本个数，10是输出层单元个数。值得注意的是，当`net`见到模型的输入数据后（`y = net(x)`），模型中每一层的输入单元个数被自动求出（20和256）。
+
+我们还可以构造更复杂的模型。在此之间，让我们先了解一下如何使用 `nn.Block` 构造模型。
+
+
+## 使用 `nn.Block` 构造模型
+
+使用`Gluon`提供的`nn.Block`，我们可以很方便地构造各种模型。例如，我们可以通过`nn.Block`来构造与上面相同的多层感知机。
+
+```{.python .input  n=3}
 class MLP(nn.Block):
     def __init__(self, **kwargs):
         super(MLP, self).__init__(**kwargs)
         with self.name_scope():
             self.dense0 = nn.Dense(256)
             self.dense1 = nn.Dense(10)
-
     def forward(self, x):
         return self.dense1(nd.relu(self.dense0(x)))
 ```
@@ -41,7 +83,7 @@ class MLP(nn.Block):
 
 我们所创建的类的使用跟前面`net`没有太多不一样。
 
-```{.python .input  n=15}
+```{.python .input  n=4}
 net2 = MLP()
 print(net2)
 net2.initialize()
@@ -50,7 +92,7 @@ y = net2(x)
 y
 ```
 
-```{.python .input}
+```{.python .input  n=5}
 nn.Dense
 ```
 
@@ -60,8 +102,8 @@ nn.Dense
 
 - `self.name_scope()`：调用`nn.Block`提供的`name_scope()`函数。`nn.Dense`的定义放在这个`scope`里面。它的作用是给里面的所有层和参数的名字加上前缀（prefix）使得他们在系统里面独一无二。默认自动会自动生成前缀，我们也可以在创建的时候手动指定。推荐在构建网络时，每个层至少在一个`name_scope()`里。
 
-```{.python .input}
-print('default prefix:', net2.dense0.name)
+```{.python .input  n=17}
+
 
 net3 = MLP(prefix='another_mlp_')
 print('customized prefix:', net3.dense0.name)
@@ -85,7 +127,7 @@ print('customized prefix:', net3.dense0.name)
 
 一个简单的实现是这样的：
 
-```{.python .input}
+```{.python .input  n=7}
 class Sequential(nn.Block):
     def __init__(self, **kwargs):
         super(Sequential, self).__init__(**kwargs)
@@ -99,7 +141,7 @@ class Sequential(nn.Block):
 
 可以跟`nn.Sequential`一样的使用这个自定义的类：
 
-```{.python .input}
+```{.python .input  n=8}
 net4 = Sequential()
 with net4.name_scope():
     net4.add(nn.Dense(256, activation="relu"))
@@ -112,7 +154,7 @@ y
 
 可以看到，`nn.Sequential`的主要好处是定义网络起来更加简单。但`nn.Block`可以提供更加灵活的网络定义。考虑下面这个例子
 
-```{.python .input}
+```{.python .input  n=9}
 class FancyMLP(nn.Block):
     def __init__(self, **kwargs):
         super(FancyMLP, self).__init__(**kwargs)
@@ -129,7 +171,7 @@ class FancyMLP(nn.Block):
 
 看到这里我们直接手动创建和初始了权重`weight`，并重复用了`dense`的层。测试一下：
 
-```{.python .input}
+```{.python .input  n=10}
 fancy_mlp = FancyMLP()
 fancy_mlp.initialize()
 y = fancy_mlp(x)
@@ -140,7 +182,7 @@ print(y.shape)
 
 现在我们知道了`nn`下面的类基本都是`nn.Block`的子类，他们可以很方便地嵌套使用。
 
-```{.python .input}
+```{.python .input  n=11}
 class RecMLP(nn.Block):
     def __init__(self, **kwargs):
         super(RecMLP, self).__init__(**kwargs)

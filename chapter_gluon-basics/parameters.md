@@ -1,10 +1,10 @@
-# 初始化模型参数
+# 模型参数
 
 我们仍然用MLP这个例子来详细解释如何初始化模型参数。
 
 ```{.python .input  n=46}
+from mxnet import gluon, nd
 from mxnet.gluon import nn
-from mxnet import nd
 
 def get_net():
     net = nn.Sequential()
@@ -35,6 +35,14 @@ net(x)
 ```
 
 ## 访问模型参数
+
+我们访问`Dense`的权重的时候是通过`dense.weight.data()`，这里`weight`是一个`Parameter`的类型。我们可以显示的构建这样的一个参数。这里我们创建一个$3\times3$大小的参数并取名为"exciting_parameter_yay"。然后用默认方法初始化打印结果。
+
+```{.python .input}
+my_param = gluon.Parameter("exciting_parameter_yay", shape=(3,3))
+my_param.initialize()
+(my_param.data(), my_param.grad())
+```
 
 之前我们提到过可以通过`weight`和`bias`访问`Dense`的参数，他们是`Parameter`这个类：
 

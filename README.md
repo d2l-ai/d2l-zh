@@ -92,7 +92,7 @@ decision boundary，决策边界
 
 dense，稠密
 
-dense layer，稠密层
+dense layer，全连接层
 
 dropout，丢弃法
 
@@ -135,3 +135,5 @@ optimizer，优化器
 perplexity，困惑度
 
 pipeline，流水线
+
+size，大小
