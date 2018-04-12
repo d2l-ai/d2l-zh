@@ -110,7 +110,7 @@ DCGAN的核心结构是：在判别模型中使用标准的CNN结构，而在生
 - 在生成模型中，除了输出层使用Tanh激活外，其余层均使用ReLu激活；
 - 在判别模型的所有层中均使用LeakyReLu激活。
 
-![](img/dcgan.png "DCGAN Architecture")
+![](../img/dcgan.png "DCGAN Architecture")
 
 
 ```python
