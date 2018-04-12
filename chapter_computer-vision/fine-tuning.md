@@ -113,13 +113,14 @@ pretrained_net.output
 pretrained_net.features[1].weight.data()[0][0]
 ```
 
-在微调里，我们一般新建一个网络，它的定义跟之前训练好的网络一样，除了最后的输出数等于当前数据的类别数。新网络的`features`被初始化前面训练好网络的权重，而`output`则是从头开始训练。
+在微调里，我们一般保留预训练模型的`features`，但替换`output`为新的全连接层，然后从头开始训练。
 
 ```{.python .input  n=24}
 from mxnet import init
 
-finetune_net = models.resnet18_v2(classes=2)
-finetune_net.features = pretrained_net.features
+finetune_net = pretrained_net
+with finetune_net.name_scope():
+    finetune_net.output = gluon.nn.Dense(2)
 finetune_net.output.initialize(init.Xavier())
 ```
 
