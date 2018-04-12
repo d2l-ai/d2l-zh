@@ -124,7 +124,7 @@ preview_train_data()
 
 生成模型的关键在于使用[U-net](https://lmb.informatik.uni-freiburg.de/people/ronneber/u-net/)的结果；在U-net中一些跨层连接将输入图像的低层次信息共享给输出图像。
 
-![](img/Pixel2pixel-Unet.png "Generator Architecture")
+![](../img/Pixel2pixel-Unet.png "Generator Architecture")
 
 本教程使用了PatchGAN作为判别模型，它仅在patch大小的范围上运行。换句话说，这种判别模型每次只区分一张图像中N × N大小的区域是真实的还是伪造的。我们在图像上以卷积的形式使用这种判别模型，将得到的响应平均后作为netD的输出。
 
