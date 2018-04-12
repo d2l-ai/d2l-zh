@@ -78,6 +78,7 @@ print(params.get('dense0_bias').data())
 我们一直在使用默认的`initialize`来初始化权重（除了指定GPU `ctx`外）。它会把所有权重初始化成在`[-0.07, 0.07]`之间均匀分布的随机数。我们可以使用别的初始化方法。例如使用均值为0，方差为0.02的正态分布
 
 ```{.python .input}
+params = net.collect_params()
 params.initialize(init=init.Normal(sigma=0.02), force_reinit=True)
 print(net.hidden.weight.data(), net.hidden.bias.data())
 ```
@@ -118,27 +119,7 @@ net.collect_params()
 
 这时候我们看到shape里面的0被填上正确的值了。
 
-## 共享模型参数
 
-有时候我们想在层之间共享同一份参数，我们可以通过Block的`params`输出参数来手动指定参数，而不是让系统自动生成。
-
-```{.python .input}
-net = nn.Sequential()
-with net.name_scope():
-    net.add(nn.Dense(4, activation="relu"))
-    net.add(nn.Dense(4, activation="relu"))
-    net.add(nn.Dense(4, activation="relu", params=net[1].params))
-    net.add(nn.Dense(2))
-```
-
-初始化然后打印
-
-```{.python .input}
-net.initialize()
-net(x)
-print(net[1].weight.data())
-print(net[2].weight.data())
-```
 
 ## 自定义初始化方法
 
@@ -173,6 +154,24 @@ w = net.output.weight
 w.set_data(nd.ones(w.shape))
 
 print('init to all 1s:', net.output.weight.data())
+```
+
+## 共享模型参数
+
+在有些情况下，我们希望模型的多个层之间共享模型参数。这时，我们可以通过`nn.Block`的`params`来指定模型参数。举个例子：
+
+```{.python .input}
+net = nn.Sequential()
+with net.name_scope():
+    net.add(nn.Dense(4, activation="relu"))
+    net.add(nn.Dense(4, activation="relu"))
+    net.add(nn.Dense(4, activation="relu", params=net[1].params))
+    net.add(nn.Dense(2))
+
+net.initialize()
+net(x)
+print(net[1].weight.data())
+print(net[2].weight.data())
 ```
 
 ## 小结

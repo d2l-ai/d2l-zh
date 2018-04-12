@@ -23,6 +23,8 @@ with net.name_scope():
 net.initialize()
 x = nd.random.uniform(shape=(2, 20))
 print(net(x))
+print('hidden layer: ', net[0])
+print('output layer: ', net[1])
 ```
 
 在上面的例子中，`net`的输入数据`x`包含2个样本，每个样本的特征向量长度为20（`shape=(2, 20)`）。在按照默认方式初始化好模型参数后，`net`计算得到一个$2 \times 10$的矩阵作为模型的输出。其中4是数据样本个数，10是输出层单元个数。
@@ -186,6 +188,7 @@ print(net(x))
 
 ## 练习
 
+* 比较使用`nn.Sequential`和使用`nn.Block`构造模型的方式。如果希望访问模型中某一层（例如隐藏层）的某个属性（例如名字），这两种方式有什么不同？
 * 如果把`NestMLP`中的`self.net`和`self.dense`改成`self.denses = [nn.Dense(64, activation='relu'), nn.Dense(32, activation='relu'), nn.Dense(16)]`，并在`forward`中用for循环实现相同计算，会有什么问题吗？
 
 
