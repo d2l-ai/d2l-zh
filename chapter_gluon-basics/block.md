@@ -61,19 +61,19 @@ class MLP(nn.Block):
 我们可以实例化`MLP`类得到`net2`，并让`net2`根据输入数据`x`做一次计算。其中，`y = net2(x)`明确调用了`MLP`中的`__call__`函数。在`Gluon`中，这将进一步调用`MLP`中的`forward`函数从而完成一次模型计算。
 
 ```{.python .input  n=12}
-net2 = MLP()
-net2.initialize()
-print(net2(x))
-print('hidden layer name with default prefix:', net2.hidden.name)
-print('output layer name with default prefix:', net2.output.name)
+net = MLP()
+net.initialize()
+print(net(x))
+print('hidden layer name with default prefix:', net.hidden.name)
+print('output layer name with default prefix:', net.output.name)
 ```
 
 在上面的例子中，隐藏层和输出层的名字前都加了默认前缀。接下来我们通过`prefix`指定它们的名字前缀。
 
 ```{.python .input  n=5}
-net3 = MLP(prefix='my_mlp_')
-print('hidden layer name with "my_mlp_" prefix:', net3.hidden.name)
-print('output layer name with "my_mlp_" prefix:', net3.output.name)
+net = MLP(prefix='my_mlp_')
+print('hidden layer name with "my_mlp_" prefix:', net.hidden.name)
+print('output layer name with "my_mlp_" prefix:', net.output.name)
 ```
 
 接下来，我们重新定义`MLP_NO_NAMESCOPE`类。它和`MLP`的区别就是不含`with self.name_scope():`。这是，隐藏层和输出层的名字前都不再含指定的前缀`prefix`。
@@ -88,9 +88,9 @@ class MLP_NO_NAMESCOPE(nn.Block):
     def forward(self, x):
         return self.output(nd.relu(self.hidden(x)))
 
-net4 = MLP_NO_NAMESCOPE(prefix='my_mlp_')
-print('hidden layer name without prefix:', net4.hidden.name)
-print('output layer name without prefix:', net4.output.name)
+net = MLP_NO_NAMESCOPE(prefix='my_mlp_')
+print('hidden layer name without prefix:', net.hidden.name)
+print('output layer name without prefix:', net.output.name)
 ```
 
 需要指出的是，在`gluon`里，`nn.Block`是一个一般化的部件。整个神经网络可以是一个`nn.Block`，单个层也是一个`nn.Block`。我们还可以反复嵌套`nn.Block`来构建新的`nn.Block`。
@@ -121,12 +121,12 @@ class MySequential(nn.Block):
 它的使用和`nn.Sequential`类似：
 
 ```{.python .input  n=18}
-net5 = MySequential()
-with net5.name_scope():
-    net5.add(nn.Dense(256, activation="relu"))
-    net5.add(nn.Dense(10))
-net5.initialize()
-net5(x)
+net = MySequential()
+with net.name_scope():
+    net.add(nn.Dense(256, activation="relu"))
+    net.add(nn.Dense(10))
+net.initialize()
+net(x)
 ```
 
 ### 构造更复杂的模型
@@ -151,9 +151,9 @@ class FancyMLP(nn.Block):
 在这个`FancyMLP`模型中，我们使用了常数权重`rand_weight`（注意它不是模型参数）、做了矩阵乘法操作（`nd.dot`）并重复使用了相同的`nn.Dense`层。测试一下：
 
 ```{.python .input  n=10}
-fancy_mlp = FancyMLP()
-fancy_mlp.initialize()
-fancy_mlp(x)
+net = FancyMLP()
+net.initialize()
+net(x)
 ```
 
 由于`nn.Sequential`是`nn.Block`的子类，它们还可以嵌套使用。下面是一个例子。
@@ -171,11 +171,11 @@ class NestMLP(nn.Block):
     def forward(self, x):
         return nd.relu(self.dense(self.net(x)))
 
-nest_mlp = nn.Sequential()
-nest_mlp.add(NestMLP())
-nest_mlp.add(nn.Dense(10))
-nest_mlp.initialize()
-print(nest_mlp(x))
+net = nn.Sequential()
+net.add(NestMLP())
+net.add(nn.Dense(10))
+net.initialize()
+print(net(x))
 ```
 
 ## 小结

@@ -1,73 +1,76 @@
 # 模型参数
 
-我们仍然用MLP这个例子来详细解释如何初始化模型参数。
+为了引出本节的话题，让我们先使用`nn.Sequential`定义一个多层感知机。
 
 ```{.python .input  n=46}
-from mxnet import gluon, nd
+import sys
+from mxnet import init, gluon, nd
 from mxnet.gluon import nn
 
-def get_net():
-    net = nn.Sequential()
-    with net.name_scope():
-        net.add(nn.Dense(4, activation="relu"))
-        net.add(nn.Dense(2))
-    return net
+class MLP(nn.Block):
+    def __init__(self, **kwargs):
+        super(MLP, self).__init__(**kwargs)
+        with self.name_scope():
+            self.hidden = nn.Dense(4)
+            self.output = nn.Dense(2)
 
-x = nd.random.uniform(shape=(3,5))
+    def forward(self, x):
+        return self.output(nd.relu(self.hidden(x)))
 ```
 
-我们知道如果不`initialize()`直接跑forward，那么系统会抱怨说参数没有初始化。
+运行下面代码，系统抱怨说模型参数没有初始化。
 
 ```{.python .input  n=33}
-import sys
+x = nd.random.uniform(shape=(3, 5))
 try:
-    net = get_net()
+    net = MLP()
     net(x)
 except RuntimeError as err:
     sys.stderr.write(str(err))
 ```
 
-正确的打开方式是这样
+作如下修改之后，模型便计算成功。
 
 ```{.python .input  n=34}
 net.initialize()
 net(x)
 ```
 
+这里添加的`net.initialize()`对模型参数做了初始化。模型参数是深度学习计算中的重要组成部分。本节中，我们将介绍如何访问、初始化和共享模型参数。
+
 ## 访问模型参数
 
-我们访问`Dense`的权重的时候是通过`dense.weight.data()`，这里`weight`是一个`Parameter`的类型。我们可以显示的构建这样的一个参数。这里我们创建一个$3\times3$大小的参数并取名为"exciting_parameter_yay"。然后用默认方法初始化打印结果。
+在`Gluon`中，模型参数的类型是`Parameter`。下面让我们创建一个名字叫“good_param”、形状为$2 \times 3$的模型参数。在默认的初始化中，模型参数中的每一个元素是一个在`[-0.07, 0.07]`之间均匀分布的随机数。相应地，该模型参数还有一个形状为$2 \times 3$的梯度，初始值为0。
 
 ```{.python .input}
-my_param = gluon.Parameter("exciting_parameter_yay", shape=(3,3))
+my_param = gluon.Parameter("good_param", shape=(2, 3))
 my_param.initialize()
-(my_param.data(), my_param.grad())
+print('data: ', my_param.data(), '\ngrad: ', my_param.grad(),
+      '\nname: ', my_param.name)
 ```
 
-之前我们提到过可以通过`weight`和`bias`访问`Dense`的参数，他们是`Parameter`这个类：
+接下来，让我们访问本节开头定义的多层感知机`net`中隐藏层`hidden`的模型参数：权重`weight`和偏差`bias`。它们的类型也都是`Parameter`。我们可以看到它们的名字、形状和数据类型。
 
 ```{.python .input  n=35}
-w = net[0].weight
-b = net[0].bias
-print('name: ', net[0].name, '\nweight: ', w, '\nbias: ', b)
+w = net.hidden.weight
+b = net.hidden.bias
+print('hidden layer name: ', net.hidden.name, '\nweight: ', w, '\nbias: ', b)
 ```
 
-然后我们可以通过`data`来访问参数，`grad`来访问对应的梯度
+我们同样可以访问这两个参数的值和梯度。
 
 ```{.python .input  n=43}
-print('weight:', w.data())
-print('weight gradient', w.grad())
-print('bias:', b.data())
-print('bias gradient', b.grad())
+print('weight:', w.data(), '\nweight grad:', w.grad(), '\nbias:', b.data(),
+      '\nbias grad:', b.grad())
 ```
 
-我们也可以通过`collect_params`来访问Block里面所有的参数（这个会包括所有的子Block）。它会返回一个名字到对应Parameter的dict。既可以用正常`[]`来访问参数，也可以用`get()`，它不需要填写名字的前缀。
+另外，我们也可以通过`collect_params`来访问`nn.Block`里的所有参数（包括所有的子`nn.Block`）。它会返回一个名字到对应`Parameter`的字典。在这个字典中，我们既可以用`[]`（需要前缀），又可以用`get()`（不需要前缀）来访问模型参数。
 
 ```{.python .input  n=7}
 params = net.collect_params()
 print(params)
-print(params['sequential0_dense0_bias'].data())
-print(params.get('dense0_weight').data())
+print(params['mlp0_dense0_bias'].data())
+print(params.get('dense0_bias').data())
 ```
 
 ## 使用不同的初始函数来初始化
@@ -75,16 +78,15 @@ print(params.get('dense0_weight').data())
 我们一直在使用默认的`initialize`来初始化权重（除了指定GPU `ctx`外）。它会把所有权重初始化成在`[-0.07, 0.07]`之间均匀分布的随机数。我们可以使用别的初始化方法。例如使用均值为0，方差为0.02的正态分布
 
 ```{.python .input}
-from mxnet import init
 params.initialize(init=init.Normal(sigma=0.02), force_reinit=True)
-print(net[0].weight.data(), net[0].bias.data())
+print(net.hidden.weight.data(), net.hidden.bias.data())
 ```
 
 看得更加清楚点：
 
 ```{.python .input}
 params.initialize(init=init.One(), force_reinit=True)
-print(net[0].weight.data(), net[0].bias.data())
+print(net.hidden.weight.data(), net.hidden.bias.data())
 ```
 
 更多的方法参见[init的API](https://mxnet.incubator.apache.org/api/python/optimization.html#the-mxnet-initializer-package). 
@@ -96,7 +98,7 @@ print(net[0].weight.data(), net[0].bias.data())
 新创建一个网络，然后打印参数。你会发现两个全连接层的权重的形状里都有0。 这是因为在不知道输入数据的情况下，我们无法判断它们的形状。
 
 ```{.python .input}
-net = get_net()
+net = MLP()
 net.collect_params()
 ```
 
@@ -125,7 +127,7 @@ net = nn.Sequential()
 with net.name_scope():
     net.add(nn.Dense(4, activation="relu"))
     net.add(nn.Dense(4, activation="relu"))
-    net.add(nn.Dense(4, activation="relu", params=net[-1].params))
+    net.add(nn.Dense(4, activation="relu", params=net[1].params))
     net.add(nn.Dense(2))
 ```
 
@@ -152,25 +154,25 @@ class MyInit(init.Initializer):
         print('init weight', arr.shape)
         nd.random.uniform(low=5, high=10, out=arr)
 
-net = get_net()
+net = MLP()
 net.initialize(MyInit())
 net(x)
-net[0].weight.data()
+net.hidden.weight.data()
 ```
 
 当然我们也可以通过`Parameter.set_data`来直接改写权重。注意到由于有延后初始化，所以我们通常可以通过调用一次`net(x)`来确定权重的形状先。
 
 ```{.python .input}
-net = get_net()
+net = MLP()
 net.initialize()
 net(x)
 
-print('default weight:', net[1].weight.data())
+print('default weight:', net.output.weight.data())
 
-w = net[1].weight
+w = net.output.weight
 w.set_data(nd.ones(w.shape))
 
-print('init to all 1s:', net[1].weight.data())
+print('init to all 1s:', net.output.weight.data())
 ```
 
 ## 小结
