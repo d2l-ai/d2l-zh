@@ -60,7 +60,7 @@ class MLP(nn.Block):
 
 * `with self.name_scope()`：本例中的两个`nn.Dense`层和其中模型参数的名字前面都将带有模型名前缀。该前缀可以通过构造函数参数`prefix`指定。若未指定，该前缀将自动生成。我们建议，在构造模型时将每个层至少放在一个`name_scope()`里。
 
-我们可以实例化`MLP`类得到`net2`，并让`net2`根据输入数据`x`做一次计算。其中，`y = net2(x)`明确调用了`MLP`中的`__call__`函数。在`Gluon`中，这将进一步调用`MLP`中的`forward`函数从而完成一次模型计算。
+我们可以实例化`MLP`类得到`net2`，并让`net2`根据输入数据`x`做一次计算。其中，`y = net2(x)`明确调用了`MLP`中的`__call__`函数（从`nn.Block`继承得到）。在`Gluon`中，这将进一步调用`MLP`中的`forward`函数从而完成一次模型计算。
 
 ```{.python .input  n=12}
 net = MLP()
