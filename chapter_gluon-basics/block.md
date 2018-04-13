@@ -97,12 +97,12 @@ print('output layer name without prefix:', net.output.name)
 
 需要指出的是，在`gluon`里，`nn.Block`是一个一般化的部件。整个神经网络可以是一个`nn.Block`，单个层也是一个`nn.Block`。我们还可以反复嵌套`nn.Block`来构建新的`nn.Block`。
 
-`nn.Block`类主要提供模型参数的存储、模型计算的定义和自动求导。读者也许已经发现了，以上`nn.Block`的子类中并没有定义如何求导，或者是`backward`函数。事实上，`MXNet`会使用`autograd`对`forward()`自动生成相应的`backward()`函数。
+`nn.Block`类主要提供模型参数的存储、模型计算的定义和自动求导。读者也许已经发现了，以上`nn.Block`的子类中并没有定义如何求导，或者是`backward`函数。事实上，`MXNet`会使用`autograd`对`forward`自动生成相应的`backward`函数。
 
 
 ### `nn.Sequential`是特殊的`nn.Block`
 
-在`Gluon`里，`nn.Sequential`是`nn.Block`的子类。它也可以被看作是一个`nn.Block`的容器：通过`add`函数来添加`nn.Block`。在`forward()`函数里，`nn.Sequential`把添加进来的`nn.Block`逐一运行。
+在`Gluon`里，`nn.Sequential`是`nn.Block`的子类。它也可以被看作是一个`nn.Block`的容器：通过`add`函数来添加`nn.Block`。在`forward`函数里，`nn.Sequential`把添加进来的`nn.Block`逐一运行。
 
 一个简单的实现是这样的：
 
