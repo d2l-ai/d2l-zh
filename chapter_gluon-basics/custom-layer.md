@@ -26,19 +26,6 @@ layer = CenteredLayer()
 layer(nd.array([1, 2, 3, 4, 5]))
 ```
 
-```{.json .output n=2}
-[
- {
-  "data": {
-   "text/plain": "\n[-2. -1.  0.  1.  2.]\n<NDArray 5 @cpu(0)>"
-  },
-  "execution_count": 2,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 我们也可以用它来构造更复杂的模型。
 
 ```{.python .input  n=3}
@@ -57,45 +44,19 @@ y = net(nd.random.uniform(shape=(4, 8)))
 y.mean()
 ```
 
-```{.json .output n=4}
-[
- {
-  "data": {
-   "text/plain": "\n[-6.635673e-10]\n<NDArray 1 @cpu(0)>"
-  },
-  "execution_count": 4,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 ## 含模型参数的自定义层
 
 我们还可以自定义含模型参数的自定义层。这样，自定义层里的模型参数就可以通过训练学出来了。我们在[“模型参数”](parameters.md)一节里介绍了`Parameter`类。其实，在自定义层的时候我们还可以使用`nn.Block`自带的`ParameterDict`类型的成员变量`params`。顾名思义，这是一个由字符串类型的参数名字映射到`Parameter`类型的模型参数的字典。我们可以通过`get`从`ParameterDict`创建`Parameter`。
 
-```{.python .input  n=15}
+```{.python .input  n=7}
 params = gluon.ParameterDict(prefix="block1_")
 params.get("param2", shape=(2, 3))
 params
 ```
 
-```{.json .output n=15}
-[
- {
-  "data": {
-   "text/plain": "block1_ (\n  Parameter block1_param2 (shape=(2, 3), dtype=<class 'numpy.float32'>)\n)"
-  },
-  "execution_count": 15,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 现在我们看下如何实现一个含权重参数和偏差参数的全连接层。它使用ReLU作为激活函数。其中`in_units`和`units`分别是输入单元个数和输出单元个数。
 
-```{.python .input  n=6}
+```{.python .input  n=19}
 class MyDense(nn.Block):
     def __init__(self, units, in_units, **kwargs):
         super(MyDense, self).__init__(**kwargs)
@@ -110,47 +71,21 @@ class MyDense(nn.Block):
 
 下面，我们实例化`MyDense`来看下它的模型参数。这里我们特意加了名字前缀`prefix`。在[“模型构造”](block.md)一节中介绍过，这是`nn.Block`的构造函数自带的参数。
 
-```{.python .input  n=7}
+```{.python .input}
 dense = MyDense(5, in_units=10, prefix='o_my_dense_')
 dense.params
 ```
 
-```{.json .output n=7}
-[
- {
-  "data": {
-   "text/plain": "o_my_dense_ (\n  Parameter o_my_dense_weight (shape=(10, 5), dtype=<class 'numpy.float32'>)\n  Parameter o_my_dense_bias (shape=(5,), dtype=<class 'numpy.float32'>)\n)"
-  },
-  "execution_count": 7,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 我们可以直接使用自定义层做计算。
 
-```{.python .input  n=8}
+```{.python .input  n=20}
 dense.initialize()
 dense(nd.random.uniform(shape=(2, 10)))
 ```
 
-```{.json .output n=8}
-[
- {
-  "data": {
-   "text/plain": "\n[[0.         0.09092736 0.         0.17156085 0.        ]\n [0.         0.06395531 0.         0.09730551 0.        ]]\n<NDArray 2x5 @cpu(0)>"
-  },
-  "execution_count": 8,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
+我们也可以使用自定义层构造模型。它用起来和`Gluon`的其他层很类似。
 
-自定义层跟`Gluon`提供的层用起来很类似。
-
-```{.python .input  n=9}
+```{.python .input  n=19}
 net = nn.Sequential()
 with net.name_scope():
     net.add(MyDense(32, in_units=64))
@@ -159,27 +94,15 @@ net.initialize()
 net(nd.random.uniform(shape=(2, 64)))
 ```
 
-```{.json .output n=9}
-[
- {
-  "data": {
-   "text/plain": "\n[[0. 0.]\n [0. 0.]]\n<NDArray 2x2 @cpu(0)>"
-  },
-  "execution_count": 9,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 ## 小结
 
-现在我们知道了如何把前面手写过的层全部包装了Gluon能用的Block，之后再用到的时候就可以飞起来了！
+* 使用`nn.Block`，我们可以方便地自定义层。
+
 
 ## 练习
 
-* 怎么修改自定义层里参数的默认初始化函数。
-* (这个比较难），在一个代码Cell里面输入`nn.Dense??`，看看它是怎么实现的。为什么它就可以支持延迟初始化了。
+* 如何修改自定义层里模型参数的默认初始化函数？
+
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1256)
 
