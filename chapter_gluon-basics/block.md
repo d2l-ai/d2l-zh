@@ -13,7 +13,7 @@ from mxnet.gluon import nn
 
 net = nn.Sequential()
 with net.name_scope():
-    net.add(nn.Dense(256, activation="relu"))
+    net.add(nn.Dense(256, activation='relu'))
     net.add(nn.Dense(10))
 ```
 
@@ -42,11 +42,11 @@ class MLP(nn.Block):
     def __init__(self, **kwargs):
         super(MLP, self).__init__(**kwargs)
         with self.name_scope():
-            self.hidden = nn.Dense(256)
+            self.hidden = nn.Dense(256, activation='relu')
             self.output = nn.Dense(10)
 
     def forward(self, x):
-        return self.output(nd.relu(self.hidden(x)))
+        return self.output(self.hidden(x))
 ```
 
 这里，我们通过创建`nn.Block`的子类构造模型。任意一个`nn.Block`的子类至少实现以下两个函数：
@@ -84,11 +84,11 @@ print('output layer name with "my_mlp_" prefix:', net.output.name)
 class MLP_NO_NAMESCOPE(nn.Block):
     def __init__(self, **kwargs):
         super(MLP_NO_NAMESCOPE, self).__init__(**kwargs)
-        self.hidden = nn.Dense(256)
+        self.hidden = nn.Dense(256, activation='relu')
         self.output = nn.Dense(10)
 
     def forward(self, x):
-        return self.output(nd.relu(self.hidden(x)))
+        return self.output(self.hidden(x))
 
 net = MLP_NO_NAMESCOPE(prefix='my_mlp_')
 print('hidden layer name without prefix:', net.hidden.name)
@@ -125,7 +125,7 @@ class MySequential(nn.Block):
 ```{.python .input  n=18}
 net = MySequential()
 with net.name_scope():
-    net.add(nn.Dense(256, activation="relu"))
+    net.add(nn.Dense(256, activation='relu'))
     net.add(nn.Dense(10))
 net.initialize()
 net(x)
@@ -141,12 +141,12 @@ class FancyMLP(nn.Block):
         super(FancyMLP, self).__init__(**kwargs)
         self.rand_weight = nd.random_uniform(shape=(10, 20))
         with self.name_scope():
-            self.dense = nn.Dense(10)
+            self.dense = nn.Dense(10, activation='relu')
 
     def forward(self, x):
-        x = nd.relu(self.dense(x))
+        x = self.dense(x)
         x = nd.relu(nd.dot(x, self.rand_weight) + 1)
-        x = nd.relu(self.dense(x))
+        x = self.dense(x)
         return x
 ```
 
@@ -168,10 +168,10 @@ class NestMLP(nn.Block):
         with self.name_scope():
             self.net.add(nn.Dense(64, activation='relu'))
             self.net.add(nn.Dense(32, activation='relu'))
-            self.dense = nn.Dense(16)
+            self.dense = nn.Dense(16, activation='relu')
 
     def forward(self, x):
-        return nd.relu(self.dense(self.net(x)))
+        return self.dense(self.net(x))
 
 net = nn.Sequential()
 net.add(NestMLP())

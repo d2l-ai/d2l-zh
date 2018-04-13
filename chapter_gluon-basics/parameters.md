@@ -204,7 +204,7 @@ print(net.hidden3.weight.data())
 ## 练习
 
 * 在本节任何一个例子中，`net.collect_params()`和`net.params`的返回有什么不同？
-* 查阅MXNet文档，了解不同的参数初始化方式。
+* 查阅[MXNet文档](https://mxnet.incubator.apache.org/api/python/model.html#initializer-api-reference)，了解不同的参数初始化方式。
 * 构造一个含共享参数层的多层感知机并训练。观察每一层的模型参数。
 * 如果两个层共用一个参数，求梯度的时候会发生什么？
 
