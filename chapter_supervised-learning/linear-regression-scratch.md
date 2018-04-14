@@ -134,7 +134,7 @@ def SGD(params, lr):
 ```{.python .input}
 # 模型函数
 def real_fn(X):
-    return 2 * X[:, 0] - 3.4 * X[:, 1] + 4.2
+    return true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
 # 绘制损失随训练次数降低的折线图，以及预测值和真实值的散点图
 def plot(losses, X, sample_size=100):
     xs = list(range(len(losses)))
