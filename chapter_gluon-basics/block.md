@@ -4,7 +4,7 @@
 
 ## 多层感知机的计算
 
-在[“多层感知机——使用`Gluon`”](../chapter_supervised-learning/mlp-gluon.md)一节中，
+在[“多层感知机——使用Gluon”](../chapter_supervised-learning/mlp-gluon.md)一节中，
 我们通过在`nn.Sequential`里依次添加两个全连接层构造出多层感知机。其中第一层的输出大小为256，即隐藏层单元个数；第二层的输出大小为10，即输出层单元个数。
 
 ```{.python .input  n=1}
