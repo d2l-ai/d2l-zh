@@ -146,7 +146,7 @@ TODO(mli) `export`需要`mxnet>=0.11.1b20171015`，样例之后放进来。
 
 ## 通过HybridBlock深入理解`hybridize`工作机制
 
-前面我们展示了通过`hybridize`我们可以获得更好的性能和更高的移植性。现在我们来解释这个是如何影响灵活性的。记得我们提过gluon里面的`Sequential`是`Block`的一个便利形式，同理，可以`HybridSequential`是`HybridBlock`的子类。跟`Block`需要实现`forward`方法不一样，对于`HybridBlock`我们需要实现`hybrid_forward`方法。
+前面我们展示了通过`hybridize`我们可以获得更好的性能和更高的移植性。现在我们来解释这个是如何影响灵活性的。记得我们提过Gluon里面的`Sequential`是`Block`的一个便利形式，同理，可以`HybridSequential`是`HybridBlock`的子类。跟`Block`需要实现`forward`方法不一样，对于`HybridBlock`我们需要实现`hybrid_forward`方法。
 
 ```{.python .input}
 class HybridNet(nn.HybridBlock):

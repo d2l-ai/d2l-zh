@@ -1,4 +1,4 @@
-# 多GPU训练模型——使用`Gluon`
+# 多GPU训练模型——使用Gluon
 
 
 在Gluon里可以很容易的使用数据并行。在[多GPU来训练 --- 从0开始](./multiple-gpus-scratch.md)里我们手动实现了几个数据同步函数来使用数据并行，Gluon里实现了同样的功能。
@@ -122,4 +122,3 @@ train(2, 512, .2)
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1885)
 
 ![](../img/qr_multiple-gpus-gluon.svg)
-
