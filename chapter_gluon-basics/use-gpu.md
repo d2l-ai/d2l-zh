@@ -1,93 +1,92 @@
 # GPU计算
 
-【注意】运行本教程需要GPU。没有GPU的同学可以大致理解下内容，至少是`context`这个概念，因为之后我们也会用到。但没有GPU不会影响运行之后的大部分教程（好吧，还是有点点，可能运行会稍微慢点）。
+目前为止，我们一直在使用CPU计算。的确，绝大部分的计算设备都有CPU。然而，CPU的设计目的是处理通用的计算。对于复杂的神经网络和大规模的数据来说，使用单块CPU计算可能不够高效。
 
-前面的教程里我们一直在使用CPU来计算，因为绝大部分的计算设备都有CPU。但CPU的设计目的是处理通用的计算，例如打开浏览器和运行Jupyter，它一般只有少数的一块区域复杂数值计算，例如`nd.dot(A, B)`。对于复杂的神经网络和大规模的数据来说，单块CPU可能不够给力。
+本节中，我们将介绍如何使用单块Nvidia GPU来计算。
 
-常用的解决办法是要么使用多台机器来协同计算，要么使用数值计算更加强劲的硬件，或者两者一起使用。本教程关注使用单块Nvidia GPU来加速计算，更多的选项例如多GPU和多机器计算则留到后面。
+首先，需要确保至少有一块Nvidia显卡已经安装好了。然后，下载安装显卡驱动和[CUDA](https://developer.nvidia.com/cuda-downloads)（推荐下载8.0，CUDA自带了驱动）。Windows用户还需要设一下PATH：
 
-首先需要确保至少有一块Nvidia显卡已经安装好了，然后下载安装显卡驱动和[CUDA](https://developer.nvidia.com/cuda-downloads)（推荐下载8.0，CUDA自带了驱动）。完成后应该可以通过`nvidia-smi`查看显卡信息了。（Windows用户需要设一下PATH：`set PATH=C:\Program Files\NVIDIA Corporation\NVSMI;%PATH%`）。
+> `set PATH=C:\Program Files\NVIDIA Corporation\NVSMI;%PATH%`
+
+这些准备工作都完成后，下面就可以通过`nvidia-smi`来查看显卡信息了。
 
 ```{.python .input  n=1}
 !nvidia-smi
 ```
 
-接下来要要确认正确安装了的`mxnet`的GPU版本。具体来说是卸载了`mxnet`（`pip uninstall mxnet`），然后根据CUDA版本安装`mxnet-cu75`或者`mxnet-cu80`（例如`pip install --pre mxnet-cu80`）。
+接下来，我们需要确认安装了MXNet的GPU版本。如果装了MXNet的CPU版本，我们需要卸载它。例如
 
-使用pip来确认下：
+> `pip uninstall mxnet`
 
-```{.python .input  n=2}
-import pip
-for pkg in ['mxnet', 'mxnet-cu75', 'mxnet-cu80']:
-    pip.main(['show', pkg])
+为了使用MXNet的GPU版本，我们需要根据CUDA版本安装`mxnet-cu75`、`mxnet-cu80`或者`mxnet-cu90`。例如
+
+> `pip install --pre mxnet-cu80`
+
+## 处理器
+
+使用MXNet的GPU版本和之前没什么不同。下面导入实验所需的包。
+
+```{.python .input}
+import mxnet as mx
+from mxnet import gluon, nd
+import sys
 ```
 
-## Context
-
-MXNet使用Context来指定使用哪个设备来存储和计算。默认会将数据开在主内存，然后利用CPU来计算，这个由`mx.cpu()`来表示。GPU则由`mx.gpu()`来表示。注意`mx.cpu()`表示所有的物理CPU和内存，意味着计算上会尽量使用多有的CPU核。但`mx.gpu()`只代表一块显卡和其对应的显卡内存。如果有多块GPU，我们用`mx.gpu(i)`来表示第*i*块GPU（*i*从0开始）。
+MXNet使用`context`来指定用来存储和计算的设备。默认情况下，MXNet会将数据开在主内存，然后利用CPU来计算。在MXNet中，CPU和GPU可分别由`mx.cpu()`和`mx.gpu()`来表示。需要注意的是，`mx.cpu()`表示所有的物理CPU和内存。这意味着计算上会尽量使用所有的CPU核。但`mx.gpu()`只代表一块显卡和相应的显卡内存。如果有多块GPU，我们用`mx.gpu(i)`来表示第$i$块GPU（$i$从0开始）。
 
 ```{.python .input  n=3}
-import mxnet as mx
 [mx.cpu(), mx.gpu(), mx.gpu(1)]
 ```
 
-## NDArray的GPU计算
+## `NDArray`的GPU计算
 
-每个NDArray都有一个`context`属性来表示它存在哪个设备上，默认会是`cpu`。这是为什么前面每次我们打印NDArray的时候都会看到`@cpu(0)`这个标识。
+每个`NDArray`都有一个`context`属性来表示它存在哪个设备上。默认情况下，`NDArray`存在CPU上。因此，之前我们每次打印`NDArray`的时候都会看到`@cpu(0)`这个标识。
 
 ```{.python .input  n=4}
-from mxnet import nd
 x = nd.array([1,2,3])
-x.context
+print('x: ', x, '\ncontext of x: ', x.context)
 ```
 
-### GPU上创建内存
+### GPU上的存储
 
-我们可以在创建的时候指定创建在哪个设备上（如果GPU不能用或者没有装MXNet GPU版本，这里会有error）：
+我们可以在创建`NDArray`的时候通过`ctx`指定存储设备。
 
 ```{.python .input  n=5}
-a = nd.array([1,2,3], ctx=mx.gpu())
-b = nd.zeros((3,2), ctx=mx.gpu())
-c = nd.random.uniform(shape=(2,3), ctx=mx.gpu())
-(a,b,c)
+a = nd.array([1, 2, 3], ctx=mx.gpu())
+b = nd.zeros((3, 2), ctx=mx.gpu())
+# 假设至少存在2块GPU。如果不存在则会报错。
+c = nd.random.uniform(shape=(2, 3), ctx=mx.gpu(1)) 
+print('a: ', a, '\nb: ', b, '\nc: ', c)
 ```
 
-尝试将内存开到另外一块GPU上。如果不存在会报错。当然，如果你有大于10块GPU，那么下面代码会顺利执行。
-
-```{.python .input  n=6}
-import sys
-
-try:
-    nd.array([1,2,3], ctx=mx.gpu(10))
-except mx.MXNetError as err:
-    sys.stderr.write(str(err))
-```
-
-我们可以通过`copyto`和`as_in_context`来在设备直接传输数据。
+我们可以通过`copyto`和`as_in_context`函数在设备之间传输数据。
 
 ```{.python .input  n=7}
 y = x.copyto(mx.gpu())
 z = x.as_in_context(mx.gpu())
-(y, z)
+print('x: ', x, '\ny: ', y, '\nz: ', z)
 ```
 
-这两个函数的主要区别是，如果源和目标的context一致，`as_in_context`不复制，而`copyto`总是会新建内存：
+需要区分的是，如果源变量和目标变量的`context`一致，`as_in_context`使目标变量和源变量共享源变量的内存，而`copyto`总是为目标变量新创建内存。
 
 ```{.python .input  n=8}
-yy = y.as_in_context(mx.gpu())
-zz = z.copyto(mx.gpu())
-(yy is y, zz is z)
+y_target = y.as_in_context(mx.gpu())
+z_target = z.copyto(mx.gpu())
+print('y: ', y, '\ny_target: ', y_target)
+print('z: ', z, '\nz_target: ', z_target)
+print('y_target and y share memory? ', y_target is y)
+print('z_target and z share memory? ', z_target is z)
 ```
 
 ### GPU上的计算
 
-计算会在数据的`context`上执行。所以为了使用GPU，我们只需要事先将数据放在上面就行了。结果会自动保存在对应的设备上：
+MXNet的计算会在数据的`context`上执行。为了使用GPU计算，我们只需要事先将数据放在GPU上面。而计算结果会自动保存在相同的设备上。
 
 ```{.python .input  n=9}
 nd.exp(z + 2) * y
 ```
 
-注意所有计算要求输入数据在同一个设备上。不一致的时候系统不进行自动复制。这个设计的目的是因为设备之间的数据交互通常比较昂贵，我们希望用户确切的知道数据放在哪里，而不是隐藏这个细节。下面代码尝试将CPU上`x`和GPU上的`y`做运算。
+注意，MXNet要求计算的所有输入数据都在同一个设备上。这个设计的原因是设备之间的数据交互通常比较耗时。因此，MXNet希望用户确切地指明计算的输入数据都在同一个设备上。下面代码尝试将CPU上`x`和GPU上的`y`做运算。这时会出现错误信息。
 
 ```{.python .input  n=10}
 try:
@@ -96,9 +95,9 @@ except mx.MXNetError as err:
     sys.stderr.write(str(err))
 ```
 
-### 默认会复制回CPU的操作
+### 其他复制到主内存的操作
 
-如果某个操作需要将NDArray里面的内容转出来，例如打印或变成numpy格式，如果需要的话系统都会自动将数据copy到主内存。
+当我们打印`NDArray`或将`NDArray`转换成NumPy格式时，MXNet会自动将数据复制到主内存。
 
 ```{.python .input  n=11}
 print(y)
@@ -108,24 +107,22 @@ print(y.sum().asscalar())
 
 ## Gluon的GPU计算
 
-同NDArray类似，Gluon的大部分函数可以通过`ctx`指定设备。下面代码将模型参数初始化在GPU上：
+同`NDArray`类似，Gluon的大部分函数可以通过`ctx`指定设备。下面代码将模型参数初始化在GPU上。
 
 ```{.python .input  n=12}
-from mxnet import gluon
 net = gluon.nn.Sequential()
 net.add(gluon.nn.Dense(1))
-
 net.initialize(ctx=mx.gpu())
 ```
 
-输入GPU上的数据，会在GPU上计算结果
+当输入是GPU上的`NDArray`时，Gluon会在相同的GPU上计算结果。
 
 ```{.python .input  n=13}
-data = nd.random.uniform(shape=[3,2], ctx=mx.gpu())
+data = nd.random.uniform(shape=[3, 2], ctx=mx.gpu())
 net(data)
 ```
 
-确认下权重：
+确认一下模型参数存储在相同的GPU上。
 
 ```{.python .input  n=14}
 net[0].weight.data()
@@ -133,13 +130,12 @@ net[0].weight.data()
 
 ## 小结
 
-* 通过`context`我们可以很容易在不同的设备上计算。
+* 通过`context`，我们可以在不同的设备上存储数据和计算。
 
 ## 练习
 
 * 试试大一点的计算任务，例如大矩阵的乘法，看看CPU和GPU的速度区别。如果是计算量很小的任务呢？
-* 试试CPU和GPU之间传递数据的速度
-* GPU上如何读写模型呢？
+* GPU上应如何读写模型参数？
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/988)
 
