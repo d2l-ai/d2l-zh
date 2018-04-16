@@ -1,6 +1,6 @@
-# Adadelta——使用`Gluon`
+# Adadelta——使用Gluon
 
-在`Gluon`里，使用Adadelta很容易，我们无需重新实现该算法。
+在Gluon里，使用Adadelta很容易，我们无需重新实现该算法。
 
 首先，导入实验所需的包。
 
@@ -44,7 +44,7 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
 
 ## 小结
 
-* 使用`Gluon`的`Trainer`可以方便地使用Adadelta。
+* 使用Gluon的`Trainer`可以方便地使用Adadelta。
 
 ## 练习
 

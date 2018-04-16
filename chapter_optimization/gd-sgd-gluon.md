@@ -1,4 +1,4 @@
-# 梯度下降和随机梯度下降——使用`Gluon`
+# 梯度下降和随机梯度下降——使用Gluon
 
 在`Gluon`里，使用小批量随机梯度下降很方便，我们无需重新实现该算法。特别地，当批量大小等于数据集样本数时，该算法即为梯度下降；批量大小为1即为随机梯度下降。
 
@@ -100,7 +100,7 @@ optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
 
 ## 小结
 
-* 使用`Gluon`的`Trainer`可以方便地使用小批量随机梯度下降。
+* 使用Gluon的`Trainer`可以方便地使用小批量随机梯度下降。
 * 访问`gluon.Trainer`的`learning_rate`属性并使用`set_learning_rate`函数可以在迭代过程中调整学习率。
 
 
