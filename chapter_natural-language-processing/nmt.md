@@ -102,7 +102,6 @@ for i in range(len(input_seqs)):
     Y[i] = nd.array(output_vocab.to_indices(output_seqs[i]), ctx=ctx)
 
 dataset = gluon.data.ArrayDataset(X, Y)
-
 ```
 
 ### 编码器、含注意力机制的解码器和解码器初始状态
@@ -250,7 +249,7 @@ def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
         decoder_state = decoder_init_state(encoder_state[0])
         output_tokens = []
 
-        for i in range(max_seq_len):
+        while True:
             decoder_output, decoder_state = decoder(
                 decoder_input, decoder_state, encoder_outputs)
             pred_i = int(decoder_output.argmax(axis=1).asnumpy())
