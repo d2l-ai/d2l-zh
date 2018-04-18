@@ -1,4 +1,4 @@
-# 正则化 --- 使用Gluon
+# 正则化——使用Gluon
 
 本章介绍如何使用``Gluon``的正则化来应对[过拟合](underfit-overfit.md)问题。
 

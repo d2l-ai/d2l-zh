@@ -1,4 +1,4 @@
-# 丢弃法（Dropout）--- 使用Gluon
+# 丢弃法（Dropout）——使用Gluon
 
 本章介绍如何使用``Gluon``在训练和测试深度学习模型中使用丢弃法 (Dropout)。
 
