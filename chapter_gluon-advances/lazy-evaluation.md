@@ -233,4 +233,3 @@ print('Increased memory %f MB' % (get_mem() - mem))
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1881)
 
 ![](../img/qr_lazy-evaluation.svg)
-

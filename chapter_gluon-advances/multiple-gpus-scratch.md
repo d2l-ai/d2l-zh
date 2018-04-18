@@ -210,4 +210,3 @@ train(2, 512, 0.6)
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1884)
 
 ![](../img/qr_multiple-gpus-scratch.svg)
-
