@@ -1,6 +1,6 @@
 # 模型参数
 
-为了引出本节的话题，让我们先使用`nn.Sequential`定义一个多层感知机。
+为了引出本节的话题，让我们先使用Sequential定义一个多层感知机。
 
 ```{.python .input  n=1}
 import sys
@@ -64,7 +64,7 @@ print('weight:', w.data(), '\nweight grad:', w.grad(), '\nbias:', b.data(),
       '\nbias grad:', b.grad())
 ```
 
-另外，我们也可以通过`collect_params`来访问`nn.Block`里的所有参数（包括所有的子`nn.Block`）。它会返回一个名字到对应`Parameter`的字典。在这个字典中，我们既可以用`[]`（需要指定前缀），又可以用`get()`（不需要指定前缀）来访问模型参数。
+另外，我们也可以通过`collect_params`来访问Block里的所有参数（包括所有的子Block）。它会返回一个名字到对应`Parameter`的字典。在这个字典中，我们既可以用`[]`（需要指定前缀），又可以用`get()`（不需要指定前缀）来访问模型参数。
 
 ```{.python .input  n=7}
 params = net.collect_params()
@@ -155,7 +155,7 @@ net.collect_params()
 
 ## 共享模型参数
 
-在有些情况下，我们希望模型的多个层之间共享模型参数。这时，我们可以通过`nn.Block`的`params`来指定模型参数。在下面使用`nn.Sequential`构造的多层感知机中，模型的第二隐藏层（`net[1]`）和第三隐藏层（`net[2]`）共享模型参数。
+在有些情况下，我们希望模型的多个层之间共享模型参数。这时，我们可以通过Block的`params`来指定模型参数。在下面使用Sequential构造的多层感知机中，模型的第二隐藏层（`net[1]`）和第三隐藏层（`net[2]`）共享模型参数。
 
 ```{.python .input  n=15}
 net = nn.Sequential()
@@ -172,7 +172,7 @@ print(net[1].weight.data())
 print(net[2].weight.data())
 ```
 
-同样，我们也可以在使用`nn.Block`构造的多层感知机中，让模型的第二隐藏层（`hidden2`）和第三隐藏层（`hidden3`）共享模型参数。
+同样，我们也可以在使用Block构造的多层感知机中，让模型的第二隐藏层（`hidden2`）和第三隐藏层（`hidden3`）共享模型参数。
 
 ```{.python .input}
 class MLP_SHARE(nn.Block):

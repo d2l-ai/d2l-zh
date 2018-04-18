@@ -5,7 +5,7 @@
 
 ## 不含模型参数的自定义层
 
-我们先介绍如何定义一个不含模型参数的自定义层。事实上，这和[“模型构造”](block.md)一节中介绍的使用`nn.Block`构造模型类似。下面通过继承`nn.Block`自定义了一个将输入减掉均值的层`CenteredLayer`，并将层的计算放在`forward`函数里。这个层里不含模型参数。
+我们先介绍如何定义一个不含模型参数的自定义层。事实上，这和[“模型构造”](block.md)一节中介绍的使用Block构造模型类似。下面通过继承Block自定义了一个将输入减掉均值的层`CenteredLayer`，并将层的计算放在`forward`函数里。这个层里不含模型参数。
 
 ```{.python .input  n=1}
 from mxnet import nd, gluon
@@ -46,7 +46,7 @@ y.mean()
 
 ## 含模型参数的自定义层
 
-我们还可以自定义含模型参数的自定义层。这样，自定义层里的模型参数就可以通过训练学出来了。我们在[“模型参数”](parameters.md)一节里介绍了`Parameter`类。其实，在自定义层的时候我们还可以使用`nn.Block`自带的`ParameterDict`类型的成员变量`params`。顾名思义，这是一个由字符串类型的参数名字映射到`Parameter`类型的模型参数的字典。我们可以通过`get`从`ParameterDict`创建`Parameter`。
+我们还可以自定义含模型参数的自定义层。这样，自定义层里的模型参数就可以通过训练学出来了。我们在[“模型参数”](parameters.md)一节里介绍了`Parameter`类。其实，在自定义层的时候我们还可以使用Block自带的`ParameterDict`类型的成员变量`params`。顾名思义，这是一个由字符串类型的参数名字映射到`Parameter`类型的模型参数的字典。我们可以通过`get`从`ParameterDict`创建`Parameter`。
 
 ```{.python .input  n=7}
 params = gluon.ParameterDict(prefix="block1_")
@@ -69,7 +69,7 @@ class MyDense(nn.Block):
         return nd.relu(linear)
 ```
 
-下面，我们实例化`MyDense`来看下它的模型参数。这里我们特意加了名字前缀`prefix`。在[“模型构造”](block.md)一节中介绍过，这是`nn.Block`的构造函数自带的参数。
+下面，我们实例化`MyDense`来看下它的模型参数。这里我们特意加了名字前缀`prefix`。在[“模型构造”](block.md)一节中介绍过，这是Block的构造函数自带的参数。
 
 ```{.python .input}
 dense = MyDense(5, in_units=10, prefix='o_my_dense_')
@@ -96,7 +96,7 @@ net(nd.random.uniform(shape=(2, 64)))
 
 ## 小结
 
-* 使用`nn.Block`，我们可以方便地自定义层。
+* 使用Block，我们可以方便地自定义层。
 
 
 ## 练习

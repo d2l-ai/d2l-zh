@@ -3,11 +3,11 @@
 到目前为止，我们介绍了如何处理数据以及构建、训练和测试深度学习模型。然而在实际中，我们有时需要把训练好的模型部署到很多不同的设备。这种情况下，我们可以把内存中训练好的模型参数存储在硬盘上供后续读取使用。
 
 
-## 读写`NDArrays`
+## 读写NDArrays
 
-首先，我们看看如何读写`NDArray`。我们可以直接使用`save`和`load`函数分别存储和读取`NDArray`。事实上，MXNet支持跨语言（例如R和Scala）的存储和读取。
+首先，我们看看如何读写NDArray。我们可以直接使用`save`和`load`函数分别存储和读取NDArray。事实上，MXNet支持跨语言（例如R和Scala）的存储和读取。
 
-下面是存储`NDArray`的例子。
+下面是存储NDArray的例子。
 
 ```{.python .input  n=2}
 from mxnet import nd
@@ -19,14 +19,14 @@ filename = "../data/test1.params"
 nd.save(filename, [x, y])
 ```
 
-读取并打印上面存储的`NDArray`。
+读取并打印上面存储的NDArray。
 
 ```{.python .input  n=3}
 a, b = nd.load(filename)
 print(a, b)
 ```
 
-我们也可以存储和读取含`NDArray`的词典。
+我们也可以存储和读取含NDArray的词典。
 
 ```{.python .input  n=4}
 mydict = {"x": x, "y": y}
@@ -38,7 +38,7 @@ print(c)
 
 ## 读写Gluon模型的参数
 
-在[“模型构造”](block.md)一节中，我们了解了Gluon模型通常是个`nn.Block`。与`NDArray`类似，`nn.Block`提供了`save_params`和`load_params`函数来读写模型参数。
+在[“模型构造”](block.md)一节中，我们了解了Gluon模型通常是个Block。与NDArray类似，Block提供了`save_params`和`load_params`函数来读写模型参数。
 
 下面，我们创建一个多层感知机。
 
@@ -74,7 +74,7 @@ print(net2(x))
 
 ## 小结
 
-* 通过`save`和`load`可以很方便地读写`NDArray`。
+* 通过`save`和`load`可以很方便地读写NDArray。
 * 通过`load_params`和`save_params`可以很方便地读写Gluon的模型参数。
 
 ## 练习
