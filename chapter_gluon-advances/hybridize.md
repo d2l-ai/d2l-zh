@@ -57,7 +57,7 @@ y = compile(prog, '', 'exec')
 exec(y)
 ```
 
-以上定义的三个函数都只是返回计算流程。最后，我们编译完整的计算流程并运行。由于在编译时系统能够完整地看到整个程序，因此有更多的优化空间。例如，编译的时候可以将程序改写成`print((1 + 2) + (3 + 4))`，甚至直接改写成`print(10)`。这样不仅减少了函数调用，还节省了内存。
+以上定义的三个函数都只是返回计算流程。最后，我们编译完整的计算流程并运行。由于在编译时系统能够完整地看到整个程序，因此有更多空间优化计算。例如，编译的时候可以将程序改写成`print((1 + 2) + (3 + 4))`，甚至直接改写成`print(10)`。这样不仅减少了函数调用，还节省了内存。
 
 总结一下，
 
@@ -70,7 +70,7 @@ exec(y)
 
 大部分的深度学习框架在命令式编程和符号式编程之间二选一。例如Theano和受其启发的后来者TensorFlow使用了符号式编程；Chainer和它的追随者PyTorch使用了命令式编程。开发人员在设计Gluon时思考了这个问题：有没有可能既拿到命令式编程的好处，又享受符号式编程的优势？开发者们认为，用户应该用纯命令式编程进行开发和调试；当需要产品级别的性能和部署时，用户可以将至少大部分程序转换成符号式来运行。
 
-值得强调的是，Gluon可以通过混合式编程做到这一点。在混合式编程中，我们可以通过使用HybridBlock或者HybridSequential构建模型。默认情况下，它们和Block或者Sequential一样依据命令式编程的方式执行。当我们调用`hybridize`函数后，Gluon会转换成依据符号式编程的方式执行。事实上，绝大多数模型都可以享受符号式编程的优势。
+值得强调的是，Gluon可以通过混合式编程做到这一点。在混合式编程中，我们可以通过使用HybridBlock或者`HybridSequential`类构建模型。默认情况下，它们和Block或者`Sequential`类一样依据命令式编程的方式执行。当我们调用`hybridize`函数后，Gluon会转换成依据符号式编程的方式执行。事实上，绝大多数模型都可以享受符号式编程的优势。
 
 本节将通过实验展示混合式编程的魅力。首先，导入实验所需的包。
 
@@ -80,9 +80,9 @@ from mxnet import nd, sym
 from time import time
 ```
 
-## 使用HybridSequential构造模型
+## 使用`HybridSequential`类构造模型
 
-我们之前学习了如何使用Sequential来串联多个层。为了使用混合式编程，下面我们将Sequential替换成HybridSequential。
+我们之前学习了如何使用`Sequential`类来串联多个层。为了使用混合式编程，下面我们将`Sequential`类替换成`HybridSequential`类。
 
 ```{.python .input}
 def get_net():
@@ -101,14 +101,14 @@ net = get_net()
 net(x)
 ```
 
-我们可以通过`hybridize`来编译和优化HybridSequential。模型的计算结果不变。
+我们可以通过调用`hybridize`函数来编译和优化`HybridSequential`实例中串联的层的计算。模型的计算结果不变。
 
 ```{.python .input}
 net.hybridize()
 net(x)
 ```
 
-需要注意的是，只有继承HybridBlock的层才会被优化。例如，HybridSequential和Gluon提供的`Dense`层都是HybridBlock的子类，它们都会被优化。如果一个层只是继承自Block而不是HybridBlock，那么它将不会被优化。我们接下会讨论如何使用HybridBlock。
+需要注意的是，只有继承HybridBlock的层才会被优化。例如，`HybridSequential`类和Gluon提供的`Dense`层都是HybridBlock的子类，它们都会被优化计算。如果一个层只是继承自Block而不是HybridBlock，那么它将不会被优化。我们接下会讨论如何使用HybridBlock。
 
 
 ### 性能

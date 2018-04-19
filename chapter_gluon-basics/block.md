@@ -1,7 +1,7 @@
 上一章介绍了简单的深度学习模型，例如多层感知机。为了引入深度学习计算的问题，我们以该模型为例，对输入数据做计算。
 
 在[“多层感知机——使用Gluon”](../chapter_supervised-learning/mlp-gluon.md)一节中，
-我们通过在Sequential里依次添加两个全连接层构造出多层感知机。其中第一层的输出大小为256，即隐藏层单元个数；第二层的输出大小为10，即输出层单元个数。
+我们通过在`Sequential`实例中依次添加两个全连接层构造出多层感知机。其中第一层的输出大小为256，即隐藏层单元个数；第二层的输出大小为10，即输出层单元个数。
 
 ```{.python .input  n=1}
 from mxnet import nd
@@ -29,7 +29,7 @@ print('output layer: ', net[1])
 
 # 模型构造
 
-本节中，我们将通过Gluon里的Block来介绍如何构造深度学习模型。相信读者在学习完本节后，也会对上一章中使用的Sequential有更深刻的认识。
+本节中，我们将通过Gluon里的Block来介绍如何构造深度学习模型。相信读者在学习完本节后，也会对上一章中使用的`Sequential`类有更深刻的认识。
 
 ## 使用Block构造模型
 
@@ -98,9 +98,9 @@ print('output layer name without prefix:', net.output.name)
 Block主要提供模型参数的存储、模型计算的定义和自动求导。读者也许已经发现了，以上Block的子类中并没有定义如何求导，或者是`backward`函数。事实上，MXNet会使用`autograd`对`forward`自动生成相应的`backward`函数。
 
 
-### Sequential是Block的子类
+### `Sequential`类是Block的子类
 
-在Gluon里，Sequential是Block的子类。它也可以被看作是一个Block的容器：通过`add`函数来添加Block。在`forward`函数里，Sequential把添加进来的Block逐一运行。
+在Gluon里，`Sequential`类是Block的子类。`Sequential`类或实例也可以被看作是一个Block的容器：通过`add`函数来添加Block。在`forward`函数里，`Sequential`实例把添加进来的Block逐一运行。
 
 一个简单的实现是这样的：
 
@@ -118,7 +118,7 @@ class MySequential(nn.Block):
         return x
 ```
 
-它的使用和Sequential很相似：
+它的使用和`Sequential`类很相似：
 
 ```{.python .input  n=8}
 net = MySequential()
@@ -131,7 +131,7 @@ net(x)
 
 ### 构造更复杂的模型
 
-与Sequential相比，继承Block可以构造更复杂的模型。下面是一个例子。
+与`Sequential`类相比，继承Block可以构造更复杂的模型。下面是一个例子。
 
 ```{.python .input  n=9}
 class FancyMLP(nn.Block):
@@ -156,7 +156,7 @@ net.initialize()
 net(x)
 ```
 
-由于Sequential是Block的子类，它们还可以嵌套使用。下面是一个例子。
+由于`Sequential`类是Block的子类，它们还可以嵌套使用。下面是一个例子。
 
 ```{.python .input  n=12}
 class NestMLP(nn.Block):
@@ -181,12 +181,12 @@ print(net(x))
 ## 小结
 
 * 我们可以通过Block来构造复杂的模型。
-* Sequential是Block的子类。
+* `Sequential`是Block的子类。
 
 
 ## 练习
 
-* 比较使用Sequential和使用Block构造模型的方式。如果希望访问模型中某一层（例如隐藏层）的某个属性（例如名字），这两种方式有什么不同？
+* 比较使用`Sequential`和使用Block构造模型的方式。如果希望访问模型中某一层（例如隐藏层）的某个属性（例如名字），这两种方式有什么不同？
 * 如果把`NestMLP`中的`self.net`和`self.dense`改成`self.denses = [nn.Dense(64, activation='relu'), nn.Dense(32, activation='relu'), nn.Dense(16)]`，并在`forward`中用for循环实现相同计算，会有什么问题吗？
 
 
