@@ -66,7 +66,7 @@ exec(y)
 - 符号式编程更高效并更容易移植。一方面，在编译的时候系统可以容易地做更多优化；另一方面，符号式编程可以将程序变成一个与Python无关的格式，从而可以使程序在非Python环境下运行。
 
 
-## 混合式编程取二者之长
+## 混合式编程取两者之长
 
 大部分的深度学习框架在命令式编程和符号式编程之间二选一。例如Theano和受其启发的后来者TensorFlow使用了符号式编程；Chainer和它的追随者PyTorch使用了命令式编程。开发人员在设计Gluon时思考了这个问题：有没有可能既拿到命令式编程的好处，又享受符号式编程的优势？开发者们认为，用户应该用纯命令式编程进行开发和调试；当需要产品级别的性能和部署时，用户可以将至少大部分程序转换成符号式来运行。
 
@@ -113,102 +113,110 @@ net(x)
 
 ### 性能
 
-我们比较`hybridize`前和后的计算时间来展示符号式执行的性能提升。这里我们计时1000次forward：
+我们比较调用`hybridize`函数前后的计算时间来展示符号式编程的性能提升。这里我们计时1000次`net`模型计算。在`net`调用`hybridize`函数前后，它分别依据命令式编程和符号式编程做模型计算。
 
 ```{.python .input}
-def bench(net, x):
+def benchmark(net, x):
     start = time()
     for i in range(1000):
         y = net(x)
-    # 等待所有计算完成
+    # 等待所有计算完成。
     nd.waitall()
     return time() - start
 
 net = get_net()
-print('Before hybridizing: %.4f sec'%(bench(net, x)))
+print('Before hybridizing: %.4f sec' % (benchmark(net, x)))
 net.hybridize()
-print('After hybridizing: %.4f sec'%(bench(net, x)))
+print('After hybridizing: %.4f sec' % (benchmark(net, x)))
 ```
 
-可以看到`hybridize`提供近似两倍的加速。
+由上面结果可见，在一个`HybridSequential`实例调用`hybridize`函数后，它可以通过符号式编程提升计算性能。
 
 
-### 获取符号式的程序
+### 获取符号式程序
 
-之前我们给`net`输入NDArray类型的`x`，然后`net(x)`会直接返回结果。对于调用过`hybridize()`后的网络，我们可以给它输入一个`Symbol`类型的变量，其会返回同样是`Symbol`类型的程序。
+在模型`net`根据输入计算模型输出后，例如`benchmark`函数中的`net(x)`，我们就可以通过`export`函数来保存符号式程序和模型参数到硬盘。
+
+```{.python .input}
+net.export('my_mlp')
+```
+
+此时生成的.json和.params文件分别为符号式程序和模型参数。它们可以被Python或MXNet支持的其他前端语言读取，例如C++。这样，我们就可以很方便地使用其他前端语言或在其他设备上部署训练好的模型。同时，由于部署时使用的是基于符号式编程的程序，计算性能往往比基于命令式编程更好。
+
+在MXNet中，符号式程序指的是Symbol类型的程序。我们知道，当给`net`提供NDArray类型的输入`x`后，`net(x)`会根据`x`直接计算模型输出并返回结果。对于调用过`hybridize`函数后的模型，我们还可以给它输入一个Symbol类型的变量，`net(x)`会返回同样是Symbol类型的程序。
 
 ```{.python .input}
 x = sym.var('data')
-y = net(x)
-y
+net(x)
 ```
 
-我们可以通过`export()`来保存这个程序到硬盘。它可以之后不仅被Python，同时也可以其他支持的前端语言，例如C++, Scala, R...，读取。
+## 使用HybridBlock构造模型
 
-TODO(mli) `export`需要`mxnet>=0.11.1b20171015`，样例之后放进来。
+和`Sequential`类与Block之间的关系一样，`HybridSequential`类是HybridBlock的子类。跟Block需要实现`forward`函数不太一样的是，对于HybridBlock我们需要实现`hybrid_forward`函数。
 
-## 通过HybridBlock深入理解`hybridize`工作机制
-
-前面我们展示了通过`hybridize`我们可以获得更好的性能和更高的移植性。现在我们来解释这个是如何影响灵活性的。记得我们提过Gluon里面的`Sequential`是`Block`的一个便利形式，同理，可以`HybridSequential`是`HybridBlock`的子类。跟`Block`需要实现`forward`方法不一样，对于`HybridBlock`我们需要实现`hybrid_forward`方法。
+前面我们展示了调用`hybridize`函数后的模型可以获得更好的计算性能和移植性。另一方面，调用`hybridize`后的模型会影响灵活性。为了解释这一点，我们先使用HybridBlock构造模型。
 
 ```{.python .input}
 class HybridNet(nn.HybridBlock):
     def __init__(self, **kwargs):
         super(HybridNet, self).__init__(**kwargs)
         with self.name_scope():
-            self.fc1 = nn.Dense(10)
-            self.fc2 = nn.Dense(2)
+            self.hidden = nn.Dense(10)
+            self.output = nn.Dense(2)
 
     def hybrid_forward(self, F, x):
-        print(F)
-        print(x)
-        x = F.relu(self.fc1(x))
-        print(x)
-        return self.fc2(x)
+        print('F: ', F)
+        print('x: ', x)
+        x = F.relu(self.hidden(x))
+        print('hidden: ', x)
+        return self.output(x)
 ```
 
-`hybrid_forward`方法加入了额外的输入`F`，它使用了MXNet的一个独特的特征。MXNet有一个符号式的API (`symbol`) 和命令式的API (`ndarray`)。这两个接口里面的函数基本是一致的。系统会根据输入来决定`F`是使用`symbol`还是`ndarray`。
+在继承HybridBlock时，我们需要在`hybrid_forward`函数中添加额外的输入`F`。我们知道，MXNet既有基于命令式编程的NDArray类，又有基于符号式编程的Symbol类。由于这两个类的函数基本一致，MXNet会根据输入来决定`F`使用NDArray或Symbol。
 
-我们实例化一个样例，然后可以看到默认`F`是使用`ndarray`。而且我们打印出了输入和第一层relu的输出。
+下面创建了一个HybridBlock实例。可以看到默认下`F`使用NDArray。而且，我们打印出了输入`x`和使用ReLU激活函数的隐藏层的输出。
 
 ```{.python .input}
 net = HybridNet()
 net.initialize()
 x = nd.random.normal(shape=(1, 4))
-y = net(x)
+net(x)
 ```
 
 再运行一次会得到同样的结果。
 
 ```{.python .input}
-y = net(x)
+net(x)
 ```
 
-接下来看看`hybridze`后会发生什么。
+接下来看看调用`hybridize`函数后会发生什么。
 
 ```{.python .input}
 net.hybridize()
-y = net(x)
+net(x)
 ```
 
-可以看到：
+可以看到，`F`变成了Symbol。而且，虽然输入数据还是NDArray，但`hybrid_forward`函数里，相同输入和中间输出全部变成了Symbol。
 
-1. `F`变成了`symbol`.
-2. 即使输入数据还是`NDArray`的类型，但`hybrid_forward`里不论是输入还是中间输出，全部变成了`Symbol`
-
-再运行一次看看
+再运行一次看看。
 
 ```{.python .input}
-y = net(x)
+net(x)
 ```
 
-可以看到什么都没有输出。这是因为第一次`net(x)`的时候，会先将输入替换成`Symbol`来构建符号式的程序，之后运行的时候系统将不再访问Python的代码，而是直接在C++后端执行这个符号式程序。这是为什么`hybridze`后会变快的一个原因。
+可以看到`hybrid_forward`函数里定义的三行打印语句都没有打印任何东西。这是因为上一次在调用`hybridize`函数后运行`net(x)`的时候，符号式程序已经得到。之后再运行`net(x)`的时候MXNet将不再访问Python代码，而是直接在C++后端执行符号式程序。这也是调用`hybridize`后模型计算性能会提升的一个原因。但它可能的问题是我们损失了写程序的灵活性。在上面这个例子中，如果我们希望使用那三行打印语句调试代码，执行符号式程序时会跳过它们无法打印。
 
-但它可能的问题是我们损失写程序的灵活性。因为Python的代码只执行一次，而且是符号式的执行，那么使用`print`来调试，或者使用`if`和`for`来做复杂的控制都不可能了。
 
 ## 小结
 
-* 通过`HybridSequential`和`HybridBlock`，我们可以简单的用`hybridize`来将将命令式的程序转成符号式程序。我们推荐大家尽可能的使用这个来获得最好的性能加速。
+* 命令式编程和符号式编程各有优劣。MXNet通过混合式编程取两者之长。
+* 通过`HybridSequential`类和HybridBlock构建的模型可以调用`hybridize`来将将命令式程序转成符号式程序。我们建议读者使用这种方法获得计算性能的提升。
+
+
+## 练习
+
+* 回顾前面几章中你感兴趣的模型，改用HybridBlock或`HybridSequential`类实现。
+
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1665)
 
