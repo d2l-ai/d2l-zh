@@ -49,14 +49,14 @@ class MLP(nn.Block):
 
 这里，我们通过创建Block的子类构造模型。任意一个Block的子类至少实现以下两个函数：
 
-* `__init__`：创建模型的参数。在上面的例子里，模型的参数被包含在了两个`nn.Dense`层里。
+* `__init__`：创建模型的参数。在上面的例子里，模型的参数被包含在了两个`Dense`层里。
 * `forward`：定义模型的计算。
 
 接下来我们解释一下`MLP`里面用的其他命令：
 
 * `super(MLP, self).__init__(**kwargs)`：这句话调用`MLP`父类Block的构造函数`__init__`。这样，我们在调用`MLP`的构造函数时还可以指定函数参数`prefix`（名字前缀）或`params`（模型参数，下一节会介绍）。这两个函数参数将通过`**kwargs`传递给Block的构造函数。
 
-* `with self.name_scope()`：本例中的两个`nn.Dense`层和其中模型参数的名字前面都将带有模型名前缀。该前缀可以通过构造函数参数`prefix`指定。若未指定，该前缀将自动生成。我们建议，在构造模型时将每个层至少放在一个`name_scope()`里。
+* `with self.name_scope()`：本例中的两个`Dense`层和其中模型参数的名字前面都将带有模型名前缀。该前缀可以通过构造函数参数`prefix`指定。若未指定，该前缀将自动生成。我们建议，在构造模型时将每个层至少放在一个`name_scope()`里。
 
 我们可以实例化`MLP`类得到`net2`，并让`net2`根据输入数据`x`做一次计算。其中，`y = net2(x)`明确调用了`MLP`中的`__call__`函数（从Block继承得到）。在Gluon中，这将进一步调用`MLP`中的`forward`函数从而完成一次模型计算。
 
@@ -148,7 +148,7 @@ class FancyMLP(nn.Block):
         return x
 ```
 
-在这个`FancyMLP`模型中，我们使用了常数权重`rand_weight`（注意它不是模型参数）、做了矩阵乘法操作（`nd.dot`）并重复使用了相同的`nn.Dense`层。测试一下：
+在这个`FancyMLP`模型中，我们使用了常数权重`rand_weight`（注意它不是模型参数）、做了矩阵乘法操作（`nd.dot`）并重复使用了相同的`Dense`层。测试一下：
 
 ```{.python .input  n=10}
 net = FancyMLP()
