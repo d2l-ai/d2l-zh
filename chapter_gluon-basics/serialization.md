@@ -5,14 +5,18 @@
 
 ## 读写NDArrays
 
-首先，我们看看如何读写NDArray。我们可以直接使用`save`和`load`函数分别存储和读取NDArray。事实上，MXNet支持跨语言（例如R和Scala）的存储和读取。
+首先，导入实验所需的包。
+
+```{.python .input}
+from mxnet import nd
+from mxnet.gluon import nn
+```
+
+我们看看如何读写NDArray。我们可以直接使用`save`和`load`函数分别存储和读取NDArray。事实上，MXNet支持跨语言（例如R和Scala）的存储和读取。
 
 下面是存储NDArray的例子。
 
 ```{.python .input  n=2}
-from mxnet import nd
-from mxnet.gluon import nn
-
 x = nd.ones(3)
 y = nd.zeros(4)
 filename = "../data/test1.params"

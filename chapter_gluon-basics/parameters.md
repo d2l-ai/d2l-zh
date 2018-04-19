@@ -1,12 +1,16 @@
 # 模型参数
 
-为了引出本节的话题，让我们先使用Sequential定义一个多层感知机。
+为了引出本节的话题，让我们先使用Sequential定义一个多层感知机。首先，导入实验所需的包。
 
 ```{.python .input  n=1}
-import sys
 from mxnet import init, gluon, nd
 from mxnet.gluon import nn
+import sys
+```
 
+下面定义多层感知机。
+
+```{.python .input}
 class MLP(nn.Block):
     def __init__(self, **kwargs):
         super(MLP, self).__init__(**kwargs)
