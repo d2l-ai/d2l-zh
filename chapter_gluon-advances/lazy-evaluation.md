@@ -2,7 +2,17 @@
 
 MXNet使用惰性计算（lazy evaluation）来提升计算性能。理解它的工作原理既有助于开发更高效的程序，又有助于在内存资源有限的情况下通过降低计算性能减小内存消耗。
 
-惰性计算是指程序中定义的计算在结果真正被取用的时候才执行。我们先导入实验需要的包。
+我们先导入本节中实验需要的包。
+
+```{.python .input}
+from mxnet import autograd, gluon, nd
+from mxnet.gluon import nn
+import os
+import subprocess
+from time import time
+```
+
+惰性计算是指程序中定义的计算在结果真正被取用的时候才执行。我们先看下面这个例子。
 
 ```{.python .input  n=1}
 a = 1 + 1
@@ -11,7 +21,7 @@ a = 3 + 3
 print(a)
 ```
 
-第一句对`a`赋值，再执行一些其指令后打印`a`的结果。因为这里我们可能很久以后才用`a`的值，所以我们可以把它的执行延迟到后面。这样的主要好处是在执行之前系统可以看到后面指令，从而有更多机会来对程序进行优化。例如如果`a`在被使用前被重新赋值了，那么我们可以不需要真正执行第一条语句。
+在这个例子中，前三句都在对变量`a`赋值，最后一句打印变量`a`的计算结果。事实上，我们可以把前三句赋值语句延迟到需要执行最后的打印语句时才计算。这样的主要好处是系统在计算变量`a`时已经看到了全部有关计算`a`的指令，从而有更多空间优化计算。例如，这里我们并不需要对前两句赋值语句做计算就可以得到正确的`a`的值。
 
 在MXNet里，我们把用户打交道的部分叫做前端。例如这个教程里我们一直在使用Python前端写代码。除了Python外，MXNet还支持其他例如Scala，R，C++的前端。不管使用什么前端，MXNet的程序执行主要都在C++后端。前端只是把程序传给后端。后端有自己的线程来不断的收集任务，构造计算图，优化，并执行。本章我们介绍后端优化之一：延迟执行。
 
@@ -26,11 +36,8 @@ print(a)
 下面的例子通过计时来展示了延后执行的效果。可以看到，当`y=...`返回的时候并没有等待它真的被计算完。
 
 ```{.python .input  n=2}
-from mxnet import nd
-from time import time
-
 start = time()
-x = nd.random.uniform(shape=(2000,2000))
+x = nd.random.uniform(shape=(2000, 2000))
 y = nd.dot(x, x)
 print('workloads are queued:\t%f sec' % (time() - start))
 print(y)
@@ -127,9 +134,6 @@ def get_data():
 使用两层网络和和L2损失函数作为样例
 
 ```{.python .input  n=10}
-from mxnet import gluon
-from mxnet.gluon import nn
-
 net = nn.Sequential()
 with net.name_scope():
     net.add(
@@ -145,9 +149,6 @@ loss = gluon.loss.L2Loss()
 我们定义辅助函数来监测内存的使用（只能在Linux运行）
 
 ```{.python .input  n=11}
-import os
-import subprocess
-
 def get_mem():
     """get memory usage in MB"""
     res = subprocess.check_output(['ps', 'u', '-p', str(os.getpid())])
@@ -189,8 +190,6 @@ print('Increased memory %f MB' % (get_mem() - mem))
 同样对于训练，如果我们每次计算损失，那么就加入了同步
 
 ```{.python .input  n=15}
-from mxnet import autograd
-
 mem = get_mem()
 
 total_loss = 0
@@ -208,8 +207,6 @@ print('Increased memory %f MB' % (get_mem() - mem))
 但如果不去掉同步，同样会首先把数据全部生成好，导致占用大量内存。
 
 ```{.python .input  n=16}
-from mxnet import autograd
-
 mem = get_mem()
 
 total_loss = 0
