@@ -3,7 +3,7 @@
 
 在Gluon里，使用Adagrad很方便，我们无需重新实现该算法。
 
-首先，导入实验所需的包。
+首先，导入本节中实验所需的包。
 
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'

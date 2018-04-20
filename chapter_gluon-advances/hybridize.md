@@ -72,7 +72,7 @@ exec(y)
 
 值得强调的是，Gluon可以通过混合式编程做到这一点。在混合式编程中，我们可以通过使用HybridBlock或者`HybridSequential`类构建模型。默认情况下，它们和Block或者`Sequential`类一样依据命令式编程的方式执行。当我们调用`hybridize`函数后，Gluon会转换成依据符号式编程的方式执行。事实上，绝大多数模型都可以享受符号式编程的优势。
 
-本节将通过实验展示混合式编程的魅力。首先，导入实验所需的包。
+本节将通过实验展示混合式编程的魅力。首先，导入本节中实验所需的包。
 
 ```{.python .input}
 from mxnet.gluon import nn

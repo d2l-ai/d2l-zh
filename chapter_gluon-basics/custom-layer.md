@@ -5,12 +5,18 @@
 
 ## 不含模型参数的自定义层
 
-我们先介绍如何定义一个不含模型参数的自定义层。事实上，这和[“模型构造”](block.md)一节中介绍的使用Block构造模型类似。下面通过继承Block自定义了一个将输入减掉均值的层`CenteredLayer`，并将层的计算放在`forward`函数里。这个层里不含模型参数。
+我们先介绍如何定义一个不含模型参数的自定义层。事实上，这和[“模型构造”](block.md)一节中介绍的使用Block构造模型类似。
 
-```{.python .input  n=1}
+首先，导入本节中实验需要的包。
+
+```{.python .input}
 from mxnet import nd, gluon
 from mxnet.gluon import nn
+```
 
+下面通过继承Block自定义了一个将输入减掉均值的层`CenteredLayer`，并将层的计算放在`forward`函数里。这个层里不含模型参数。
+
+```{.python .input  n=1}
 class CenteredLayer(nn.Block):
     def __init__(self, **kwargs):
         super(CenteredLayer, self).__init__(**kwargs)

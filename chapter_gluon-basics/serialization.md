@@ -5,7 +5,7 @@
 
 ## 读写NDArrays
 
-首先，导入实验所需的包。
+首先，导入本节中实验所需的包。
 
 ```{.python .input}
 from mxnet import nd

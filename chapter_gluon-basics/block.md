@@ -1,12 +1,14 @@
-上一章介绍了简单的深度学习模型，例如多层感知机。为了引入深度学习计算的问题，我们以该模型为例，对输入数据做计算。
+上一章介绍了简单的深度学习模型，例如多层感知机。为了引入深度学习计算的问题，我们以该模型为例，对输入数据做计算。首先，导入实验需要的包。
+
+```{.python .input}
+from mxnet import nd
+from mxnet.gluon import nn
+```
 
 在[“多层感知机——使用Gluon”](../chapter_supervised-learning/mlp-gluon.md)一节中，
 我们通过在`Sequential`实例中依次添加两个全连接层构造出多层感知机。其中第一层的输出大小为256，即隐藏层单元个数；第二层的输出大小为10，即输出层单元个数。
 
 ```{.python .input  n=1}
-from mxnet import nd
-from mxnet.gluon import nn
-
 net = nn.Sequential()
 with net.name_scope():
     net.add(nn.Dense(256, activation='relu'))

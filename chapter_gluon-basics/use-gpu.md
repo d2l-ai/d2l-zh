@@ -24,7 +24,7 @@
 
 ## 处理器
 
-使用MXNet的GPU版本和之前没什么不同。下面导入实验所需的包。
+使用MXNet的GPU版本和之前没什么不同。下面导入本节中实验所需的包。
 
 ```{.python .input}
 import mxnet as mx
