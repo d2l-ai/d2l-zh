@@ -6,7 +6,6 @@
    :maxdepth: 2
 
    introduction
-   install
    ndarray
    autograd
 
