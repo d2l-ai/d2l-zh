@@ -4,7 +4,7 @@ MXNet使用惰性计算（lazy evaluation）来提升计算性能。理解它的
 
 我们先导入本节中实验需要的包。
 
-```{.python .input}
+```{.python .input  n=1}
 from mxnet import autograd, gluon, nd
 from mxnet.gluon import nn
 import os
@@ -14,7 +14,7 @@ from time import time
 
 惰性计算是指程序中定义的计算在结果真正被取用的时候才执行。我们先看下面这个例子。
 
-```{.python .input  n=1}
+```{.python .input  n=2}
 a = 1 + 1
 a = 2 + 2
 a = 3 + 3
@@ -33,8 +33,7 @@ print(a)
 
 考虑下图的样例，我们在前端调用四条语句，它们被后端的线程分析依赖并构建成计算图。
 
-
-```{.python .input}
+```{.python .input  n=3}
 a = nd.ones((1, 2))
 b = nd.ones((1, 2))
 c = a * b + 2
@@ -49,7 +48,7 @@ print(c)
 
 下面的例子通过计时来展示了延后执行的效果。可以看到，当`y=...`返回的时候并没有等待它真的被计算完。
 
-```{.python .input  n=2}
+```{.python .input  n=4}
 start = time()
 x = nd.random.uniform(shape=(2000, 2000))
 y = nd.dot(x, x)
@@ -66,14 +65,14 @@ print('workloads are finished:\t%f sec' % (time() - start))
 
 除了前面介绍的`print`外，我们还有别的方法可以让前端线程等待直到结果完成。我们可以使用`nd.NDArray.wait_to_read()`等待直到特定结果完成，或者`nd.waitall()`等待所有前面结果完成。后者是测试性能常用方法。
 
-```{.python .input  n=3}
+```{.python .input  n=5}
 start = time()
 y = nd.dot(x, x)
 y.wait_to_read()
 time() - start
 ```
 
-```{.python .input  n=4}
+```{.python .input  n=6}
 start = time()
 y = nd.dot(x, x)
 z = nd.dot(x, x)
@@ -83,14 +82,14 @@ time() - start
 
 任何方法将内容从NDArray搬运到其他不支持延迟执行的数据结构里都会触发等待，例如`asnumpy()`, `asscalar()`
 
-```{.python .input  n=5}
+```{.python .input  n=7}
 start = time()
 y = nd.dot(x, x)
 y.asnumpy()
 time() - start
 ```
 
-```{.python .input  n=6}
+```{.python .input  n=8}
 start = time()
 y = nd.dot(x, x)
 y.norm().asscalar()
@@ -101,7 +100,7 @@ time() - start
 
 下面例子中，我们不断的对`y`进行赋值。如果每次我们需要等到`y`的值，那么我们必须要要计算它。而在延迟执行里，系统有可能省略掉一些执行。
 
-```{.python .input  n=7}
+```{.python .input  n=9}
 start = time()
 
 for i in range(1000):
@@ -121,7 +120,7 @@ print('With evaluation: %f sec' % (time()-start))
 
 在延迟执行里，只要最终结果是一致的，系统可能使用跟代码不一样的顺序来执行，例如假设我们写
 
-```{.python .input  n=8}
+```{.python .input  n=10}
 a = 1
 b = 2
 a + b
@@ -133,7 +132,7 @@ a + b
 
 为了演示这种情况，我们定义一个数据获取函数，它会打印什么数据是什么时候被请求的。
 
-```{.python .input  n=9}
+```{.python .input  n=11}
 def get_data():
     start = time()
     batch_size = 1024
@@ -147,7 +146,7 @@ def get_data():
 
 使用两层网络和和L2损失函数作为样例
 
-```{.python .input  n=10}
+```{.python .input  n=12}
 net = nn.Sequential()
 with net.name_scope():
     net.add(
@@ -162,7 +161,7 @@ loss = gluon.loss.L2Loss()
 
 我们定义辅助函数来监测内存的使用（只能在Linux运行）
 
-```{.python .input  n=11}
+```{.python .input  n=13}
 def get_mem():
     """get memory usage in MB"""
     res = subprocess.check_output(['ps', 'u', '-p', str(os.getpid())])
@@ -171,7 +170,7 @@ def get_mem():
 
 现在我们可以做测试了。我们先试运行一次让系统把`net`的参数初始化（回忆[延后初始化](../chapter_gluon-basics/parameters.md)）。
 
-```{.python .input  n=12}
+```{.python .input  n=14}
 for x, y in get_data():
     break
 loss(y, net(x)).wait_to_read()
@@ -179,7 +178,7 @@ loss(y, net(x)).wait_to_read()
 
 如果我们用`net`来做预测，正常情况下对每个批量的结果我们把它复制出NDArray，例如打印或者保存在磁盘上。这里我们简单使用`wait_to_read`来模拟。
 
-```{.python .input  n=13}
+```{.python .input  n=15}
 mem = get_mem()
 
 for x, y in get_data():
@@ -191,7 +190,7 @@ print('Increased memory %f MB' % (get_mem() - mem))
 
 假设我们不使用`wait_to_read()`， 那么前端会将所有批量的计算一次性的添加进后端。可以看到每个批量的数据都会在很短的时间内生成，同时在接下来的数秒钟内，我们看到了内存的增长（包括了在内存中保存所有`x`和`y`）。
 
-```{.python .input  n=14}
+```{.python .input  n=16}
 mem = get_mem()
 
 for x, y in get_data():
@@ -203,7 +202,7 @@ print('Increased memory %f MB' % (get_mem() - mem))
 
 同样对于训练，如果我们每次计算损失，那么就加入了同步
 
-```{.python .input  n=15}
+```{.python .input  n=17}
 mem = get_mem()
 
 total_loss = 0
@@ -220,7 +219,7 @@ print('Increased memory %f MB' % (get_mem() - mem))
 
 但如果不去掉同步，同样会首先把数据全部生成好，导致占用大量内存。
 
-```{.python .input  n=16}
+```{.python .input  n=18}
 mem = get_mem()
 
 total_loss = 0
