@@ -130,6 +130,8 @@ metric，指标
 
 normalization，归一化
 
+operator，运算子
+
 optimizer，优化器
 
 perplexity，困惑度
