@@ -1,10 +1,7 @@
 # 自动并行计算
 
-在[惰性计算](./lazy-evaluation.md)里我们提到后端系统会自动构建计算图。通过计算图系统可以知道所有计算的依赖关系，有了它系统可以选择将没有依赖关系任务同时执行来获得性能的提升。
+在[“惰性计算”](./lazy-evaluation.md)一节里我们提到MXNet后端会自动构建计算图。通过计算图，系统可以知道所有计算的依赖关系，并可以选择将没有依赖关系的多个任务并行执行来获得性能的提升。再次以[“惰性计算”](./lazy-evaluation.md)一节中的计算图（图8.1）为例。其中`a = nd.ones((1, 2))`和`b = nd.ones((1, 2))`这两步计算之间并没有依赖关系。因此，系统可以选择并行执行它们。
 
-仍然考虑下面这个例子，这里`a = ...`和`b = ...`之间没有数据依赖关系，从而系统可以选择并行执行他们。
-
-![](../img/frontend-backend.svg)
 
 通常一个运算符，例如`+`或者`dot`，会用掉一个计算设备上所有计算资源。`dot`同样用到所有CPU的核（即使是有多个CPU）和单GPU上所有线程。因此在单设备上并行运行多个运算符可能效果并不明显。自动并行主要的用途是多设备的计算并行，和计算与通讯的并行。
 
@@ -18,7 +15,6 @@
 from mxnet import nd
 
 def run(x):
-    """push 10 matrix-matrix multiplications"""
     return [nd.dot(x,x) for i in range(10)]
 ```
 
@@ -28,11 +24,11 @@ def run(x):
 from mxnet import gpu
 from time import time
 
-x_cpu = nd.random.uniform(shape=(2000,2000))
-x_gpu = nd.random.uniform(shape=(6000,6000), ctx=gpu(0))
+x_cpu = nd.random.uniform(shape=(2000, 2000))
+x_gpu = nd.random.uniform(shape=(6000, 6000), ctx=gpu(0))
 nd.waitall()
 
-# warm up
+# 预热阶段。
 run(x_cpu)
 run(x_gpu)
 nd.waitall()
@@ -46,7 +42,6 @@ start = time()
 run(x_gpu)
 nd.waitall()
 print('Run on GPU: %f sec'%(time()-start))
-
 ```
 
 我们去掉两次`run`之间的`waitall`，希望系统能自动并行这两个任务：
