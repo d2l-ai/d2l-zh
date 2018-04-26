@@ -135,7 +135,7 @@ a + b
 下面我们来演示惰性计算对内存使用的影响。我们先定义一个数据获取函数，它会从被调用时开始计时，并定期打印到目前为止获取数据批量总共耗时。
 
 ```{.python .input  n=11}
-num_batches = 51
+num_batches = 41
 def get_data():
     start = time()
     batch_size = 1024
@@ -211,7 +211,6 @@ for epoch in range(1, 3):
         loss.backward()
         trainer.step(x.shape[0])
     print('epoch', epoch, ' loss: ', total_loss / num_batches)
-    break
 nd.waitall()
 print('increased memory: %f MB' % (get_mem() - mem))
 ```
@@ -226,7 +225,6 @@ for epoch in range(1, 3):
             loss = square_loss(y, net(x))
         loss.backward()
         trainer.step(x.shape[0])
-    break
 nd.waitall()
 print('increased memory: %f MB' % (get_mem() - mem))
 ```
