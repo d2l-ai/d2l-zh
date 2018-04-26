@@ -1,84 +1,85 @@
 # 自动并行计算
 
-在[“惰性计算”](./lazy-evaluation.md)一节里我们提到MXNet后端会自动构建计算图。通过计算图，系统可以知道所有计算的依赖关系，并可以选择将没有依赖关系的多个任务并行执行来获得性能的提升。再次以[“惰性计算”](./lazy-evaluation.md)一节中的计算图（图8.1）为例。其中`a = nd.ones((1, 2))`和`b = nd.ones((1, 2))`这两步计算之间并没有依赖关系。因此，系统可以选择并行执行它们。
+在[“惰性计算”](./lazy-evaluation.md)一节里我们提到MXNet后端会自动构建计算图。通过计算图，系统可以知道所有计算的依赖关系，并可以选择将没有依赖关系的多个任务并行执行来获得性能的提升。以[“惰性计算”](./lazy-evaluation.md)一节中的计算图（图8.1）为例。其中`a = nd.ones((1, 2))`和`b = nd.ones((1, 2))`这两步计算之间并没有依赖关系。因此，系统可以选择并行执行它们。
 
+通常一个运算符会用掉一个CPU/GPU上所有计算资源。例如，`dot`操作符会用到所有CPU（即使是有多个CPU）或单个GPU上所有线程。因此在单CPU/GPU上并行运行多个运算符可能效果并不明显。本节中探讨的自动并行计算主要关注多CPU/GPU的并行计算，以及计算和通讯的并行。
 
-通常一个运算符，例如`+`或者`dot`，会用掉一个计算设备上所有计算资源。`dot`同样用到所有CPU的核（即使是有多个CPU）和单GPU上所有线程。因此在单设备上并行运行多个运算符可能效果并不明显。自动并行主要的用途是多设备的计算并行，和计算与通讯的并行。
-
-【注意】本章需要至少一个GPU才能运行。
-
-## 多设备的并行计算
-
-我们首先定义一个函数，它做10次矩阵乘法。
+首先导入本节中实验所需的包。注意，我们需要至少一个GPU才能运行本节实验。
 
 ```{.python .input}
+import mxnet as mx
 from mxnet import nd
-
-def run(x):
-    return [nd.dot(x,x) for i in range(10)]
-```
-
-我们分别计算在CPU和GPU上运行时间
-
-```{.python .input}
-from mxnet import gpu
 from time import time
+```
 
+## 多CPU/GPU的并行计算
+
+我们先介绍多CPU/GPU的并行计算，例如程序中的计算既发生在CPU，又发生在GPU之上。
+
+先定义一个函数，令它做10次矩阵乘法。
+
+```{.python .input}
+def run(x):
+    return [nd.dot(x, x) for _ in range(10)]
+```
+
+接下来，分别在CPU和GPU上创建NDArray。
+
+```{.python .input}
 x_cpu = nd.random.uniform(shape=(2000, 2000))
-x_gpu = nd.random.uniform(shape=(6000, 6000), ctx=gpu(0))
-nd.waitall()
-
-# 预热阶段。
-run(x_cpu)
-run(x_gpu)
-nd.waitall()
-
-start = time()
-run(x_cpu)
-nd.waitall()
-print('Run on CPU: %f sec'%(time()-start))
-
-start = time()
-run(x_gpu)
-nd.waitall()
-print('Run on GPU: %f sec'%(time()-start))
+x_gpu = nd.random.uniform(shape=(6000, 6000), ctx=mx.gpu(0))
 ```
 
-我们去掉两次`run`之间的`waitall`，希望系统能自动并行这两个任务：
+然后，分别使用它们在CPU和GPU上运行`run`函数并打印所需时间。
+
+```{.python .input}
+run(x_cpu) # 预热开始。
+run(x_gpu)
+nd.waitall() # 预热结束。
+
+start = time()
+run(x_cpu)
+nd.waitall()
+print('run on CPU: %f sec'%(time()-start))
+
+start = time()
+run(x_gpu)
+nd.waitall()
+print('run on GPU: %f sec'%(time()-start))
+```
+
+我们去掉`run(x_cpu)`和`run(x_gpu)`两个计算任务之间的`nd.waitall()`，希望系统能自动并行这两个任务。
 
 ```{.python .input}
 start = time()
 run(x_cpu)
 run(x_gpu)
 nd.waitall()
-print('Run on both CPU and GPU: %f sec'%(time()-start))
+print('run on both CPU and GPU: %f sec'%(time()-start))
 ```
 
-可以看到两个一起执行时，总时间不是分开执行的总和。这个表示后端系统能有效并行执行它们。
+可以看到，当两个计算任务一起执行时，执行总时间小于它们分开执行的总和。这表示，MXNet能有效地在多CPU/GPU上自动并行计算。
 
-## 计算和通讯的并行
+## 计算和通讯的并行计算
 
-在多设备计算中，我们经常需要在设备之间复制数据。例如下面我们在GPU上计算，然后将结果复制回CPU。
+在多CPU/GPU计算中，我们经常需要在CPU/GPU之间复制数据，造成数据的通讯。举个例子，在下面例子中，我们在GPU上计算，然后将结果复制回CPU。我们分别打印GPU上计算时间和GPU到CPU的通讯时间。
 
 ```{.python .input}
-from mxnet import cpu
-
 def copy_to_cpu(x):
-    """copy data to a device"""
-    return [y.copyto(cpu()) for y in x]
+    return [y.copyto(mx.cpu()) for y in x]
 
 start = time()
 y = run(x_gpu)
 nd.waitall()
-print('Run on GPU: %f sec'%(time()-start))
+print('run on GPU: %f sec' % (time() - start))
 
 start = time()
 copy_to_cpu(y)
 nd.waitall()
-print('Copy to CPU: %f sec'%(time() - start))
+print('copy to CPU: %f sec' % (time() - start))
 ```
 
-同样我们去掉运行和复制之间的`waitall`:
+我们去掉计算和通讯之间的`waitall`函数，打印这两个任务完成的总时间。
 
 ```{.python .input}
 start = time()
@@ -89,16 +90,19 @@ t = time() - start
 print('Run on GPU then Copy to CPU: %f sec'%(time() - start))
 ```
 
-可以看到总时间小于前面两者之和。这个任务稍微不同于上面，因为运行和复制之间有依赖关系。就是`y[i]`必须先计算好才能复制到CPU。但在计算`y[i]`的时候系统可以复制`y[i-1]`，从而获得总运行时间的减少。
+可以看到，执行计算和通讯的总时间小于两者分别执行的耗时之和。需要注意的是，这个计算并通讯的任务不同于前面多CPU/GPU的并行计算中的任务。这里的运行和通讯之间有依赖关系：`y[i]`必须先计算好才能复制到CPU。所幸的是，在计算`y[i]`的时候系统可以复制`y[i-1]`，从而减少计算和通讯的总运行时间。
 
 ## 小结
 
-* MXNet能够自动并行执行没有数据依赖关系的任务从而提升系统性能。
+* MXNet能够通过自动并行计算提升计算性能，例如多CPU/GPU的并行和计算与通讯的并行。
+
 
 ## 练习
 
-* `run`里面计算了10次运算，他们也没有依赖关系。看看系统有没有自动并行执行他们
-* 试试有更加复杂数据依赖的任务，看看系统能不能得到正确的结果，而且性能有提升吗？
+* 本节中定义的`run`函数里做了10次运算。它们之间也没有依赖关系。看看MXNet有没有自动并行执行它们。
+
+* 试试包含更加复杂的数据依赖的计算任务。MXNet能不能得到正确结果并提升计算性能？
+
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1883)
 

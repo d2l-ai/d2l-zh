@@ -130,7 +130,7 @@ metric，指标
 
 normalization，归一化
 
-operator，运算子
+operator，运算符
 
 optimizer，优化器
 

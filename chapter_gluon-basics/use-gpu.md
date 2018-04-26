@@ -32,7 +32,7 @@ from mxnet import gluon, nd
 import sys
 ```
 
-MXNet使用`context`来指定用来存储和计算的设备。默认情况下，MXNet会将数据开在主内存，然后利用CPU来计算。在MXNet中，CPU和GPU可分别由`mx.cpu()`和`mx.gpu()`来表示。需要注意的是，`mx.cpu()`表示所有的物理CPU和内存。这意味着计算上会尽量使用所有的CPU核。但`mx.gpu()`只代表一块显卡和相应的显卡内存。如果有多块GPU，我们用`mx.gpu(i)`来表示第$i$块GPU（$i$从0开始）。
+MXNet使用`context`来指定用来存储和计算的CPU/GPU。默认情况下，MXNet会将数据开在主内存，然后利用CPU来计算。在MXNet中，CPU和GPU可分别由`mx.cpu()`和`mx.gpu()`来表示。需要注意的是，`mx.cpu()`表示所有的物理CPU和内存。这意味着计算上会尽量使用所有的CPU核。但`mx.gpu()`只代表一块显卡和相应的显卡内存。如果有多块GPU，我们用`mx.gpu(i)`来表示第$i$块GPU（$i$从0开始）。
 
 ```{.python .input  n=3}
 [mx.cpu(), mx.gpu(), mx.gpu(1)]
@@ -40,7 +40,7 @@ MXNet使用`context`来指定用来存储和计算的设备。默认情况下，
 
 ## NDArray的GPU计算
 
-每个NDArray都有一个`context`属性来表示它存在哪个设备上。默认情况下，NDArray存在CPU上。因此，之前我们每次打印NDArray的时候都会看到`@cpu(0)`这个标识。
+每个NDArray都有一个`context`属性来表示它存在哪个CPU/GPU上。默认情况下，NDArray存在CPU上。因此，之前我们每次打印NDArray的时候都会看到`@cpu(0)`这个标识。
 
 ```{.python .input  n=4}
 x = nd.array([1,2,3])
@@ -49,7 +49,7 @@ print('x: ', x, '\ncontext of x: ', x.context)
 
 ### GPU上的存储
 
-我们可以在创建NDArray的时候通过`ctx`指定存储设备。
+我们可以在创建NDArray的时候通过`ctx`指定存储的CPU/GPU。
 
 ```{.python .input  n=5}
 a = nd.array([1, 2, 3], ctx=mx.gpu())
@@ -59,7 +59,7 @@ c = nd.random.uniform(shape=(2, 3), ctx=mx.gpu(1))
 print('a: ', a, '\nb: ', b, '\nc: ', c)
 ```
 
-我们可以通过`copyto`和`as_in_context`函数在设备之间传输数据。
+我们可以通过`copyto`和`as_in_context`函数在CPU/GPU之间传输数据。
 
 ```{.python .input  n=7}
 y = x.copyto(mx.gpu())
@@ -80,13 +80,13 @@ print('z_target and z share memory? ', z_target is z)
 
 ### GPU上的计算
 
-MXNet的计算会在数据的`context`上执行。为了使用GPU计算，我们只需要事先将数据放在GPU上面。而计算结果会自动保存在相同的设备上。
+MXNet的计算会在数据的`context`上执行。为了使用GPU计算，我们只需要事先将数据放在GPU上面。而计算结果会自动保存在相同的GPU上。
 
 ```{.python .input  n=9}
 nd.exp(z + 2) * y
 ```
 
-注意，MXNet要求计算的所有输入数据都在同一个设备上。这个设计的原因是设备之间的数据交互通常比较耗时。因此，MXNet希望用户确切地指明计算的输入数据都在同一个设备上。例如，如果将CPU上的`x`和GPU上的`y`做运算，会出现错误信息。
+注意，MXNet要求计算的所有输入数据都在同一个CPU/GPU上。这个设计的原因是不同CPU/GPU之间的数据交互通常比较耗时。因此，MXNet希望用户确切地指明计算的输入数据都在同一个CPU/GPU上。例如，如果将CPU上的`x`和GPU上的`y`做运算，会出现错误信息。
 
 ### 其他复制到主内存的操作
 
@@ -100,7 +100,7 @@ print(y.sum().asscalar())
 
 ## Gluon的GPU计算
 
-同NDArray类似，Gluon的大部分函数可以通过`ctx`指定设备。下面代码将模型参数初始化在GPU上。
+同NDArray类似，Gluon的大部分函数可以通过`ctx`指定CPU/GPU。下面代码将模型参数初始化在GPU上。
 
 ```{.python .input  n=12}
 net = gluon.nn.Sequential()
@@ -123,7 +123,7 @@ net[0].weight.data()
 
 ## 小结
 
-* 通过`context`，我们可以在不同的设备上存储数据和计算。
+* 通过`context`，我们可以在不同的CPU/GPU上存储数据和计算。
 
 ## 练习
 
