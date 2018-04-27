@@ -1,120 +1,130 @@
 # 多GPU训练模型——从零开始
 
-本教程我们将展示如何使用多个GPU来加速训练。正如你期望的那样，这个教程需要至少两块GPU来运行。事实上，一台机器上安装多块GPU非常常见，因为通常主板上会有多个PCIe插槽。下图是一台服务器上安装了8块Titan X。
-
-![](../img/8x-titan-x.png)
-
-如果正确安装了NVIDIA驱动，我们可以通过`nvidia-smi`来查看当前系统有多少个GPU。
+本教程我们将展示如何使用多个GPU来加速训练模型。正如读者期望的那样，运行本节中的程序需要至少两块GPU。事实上，一台机器上安装多块GPU非常常见。这是因为主板上通常会有多个PCIe插槽。如果正确安装了NVIDIA驱动，我们可以通过`nvidia-smi`命令来查看当前机器上的全部GPU。
 
 ```{.python .input  n=1}
 !nvidia-smi
 ```
 
-在[自动并行](./auto-parallelism.md)里我们提到虽然大部分的运算可以要么全部使用所有的CPU计算资源，或者单GPU的资源。但对于多GPU的情况，我们仍然需要来实现对应的算法。这些算法中最常用的叫做数据并行。
+在[“自动并行计算”](./auto-parallelism.md)一节里，我们介绍过，大部分的运算可以使用所有的CPU的全部计算资源，或者单个GPU的全部计算资源。但如果使用多个GPU训练模型，我们仍然需要实现相应的算法。这些算法中最常用的叫做数据并行。
+
 
 ## 数据并行
 
-数据并行目前是深度学习里面使用最广泛的用来将任务划分到多设备的办法。它是这样工作的，假设这里有*k*个GPU，每个GPU将维护一个模型参数的复制。然后每次我们将一个批量里面的样本划分成*k*块并分每个GPU一块。每个GPU使用分到的数据计算梯度。然后我们将所有GPU上梯度相加得到这个批量上的完整梯度。之后每个GPU使用这个完整梯度对自己维护的模型做更新。
+数据并行目前是深度学习里使用最广泛的将模型训练任务划分到多个GPU的办法。回忆一下我们在[“梯度下降和随机梯度下降——从零开始”](../chapter_optimization/gd-sgd-scratch.md)一节中介绍的使用优化算法训练模型的过程。下面我们就以小梯度随机梯度下降为例来介绍数据并行是如何工作的。
 
+假设一台机器上有$k$个GPU。给定需要训练的模型，每个GPU将分别独立维护一份完整的模型参数。在模型训练的任意一次迭代中，给定一个小批量，我们将该批量中的样本划分成$k$份并分给每个GPU一份。然后，每个GPU将分别根据自己分到的训练数据样本和自己维护的模型参数计算模型参数的梯度。
+接下来，我们把$k$个GPU上分别计算得到的梯度相加，从而得到当前的小批量梯度。
+之后，每个GPU都使用这个小批量梯度分别更新自己维护的那一份完整的模型参数。
+
+为了从零开始实现多GPU训练中的数据并行，让我们先导入需要的包。
+
+```{.python .input}
+import mxnet as mx
+from mxnet import autograd, gluon, nd
+import sys
+from time import time
+sys.path.append('..')
+import utils
+```
 
 ## 定义模型
 
-我们使用[卷积神经网络 --- 从0开始](../chapter_convolutional-neural-networks/cnn-scratch.md)里介绍的LeNet来作为本章的样例任务。
+我们使用[“卷积神经网络——从零开始”](../chapter_convolutional-neural-networks/cnn-scratch.md)一节里介绍的LeNet来作为本节的样例模型。
 
 ```{.python .input  n=2}
-from mxnet import nd
-from mxnet import gluon
-
-# initialize parameters
-scale = .01
-W1 = nd.random.normal(shape=(20,1,3,3))*scale
+# 初始化模型参数。
+scale = 0.01
+W1 = nd.random.normal(shape=(20, 1, 3, 3)) * scale
 b1 = nd.zeros(shape=20)
-W2 = nd.random.normal(shape=(50,20,5,5))*scale
+W2 = nd.random.normal(shape=(50, 20, 5, 5)) * scale
 b2 = nd.zeros(shape=50)
-W3 = nd.random.normal(shape=(800,128))*scale
+W3 = nd.random.normal(shape=(800, 128)) * scale
 b3 = nd.zeros(shape=128)
-W4 = nd.random.normal(shape=(128,10))*scale
+W4 = nd.random.normal(shape=(128, 10)) * scale
 b4 = nd.zeros(shape=10)
 params = [W1, b1, W2, b2, W3, b3, W4, b4]
 
-# network and loss
+# 定义模型。
 def lenet(X, params):
-    # first conv
     h1_conv = nd.Convolution(data=X, weight=params[0], bias=params[1],
-                             kernel=(3,3), num_filter=20)
+                             kernel=(3, 3), num_filter=20)
     h1_activation = nd.relu(h1_conv)
-    h1 = nd.Pooling(data=h1_activation, pool_type="avg",
-                    kernel=(2,2), stride=(2,2))
-    # second conv
+    h1 = nd.Pooling(data=h1_activation, pool_type="avg", kernel=(2, 2),
+                    stride=(2, 2))
     h2_conv = nd.Convolution(data=h1, weight=params[2], bias=params[3],
-                             kernel=(5,5), num_filter=50)
+                             kernel=(5, 5), num_filter=50)
     h2_activation = nd.relu(h2_conv)
-    h2 = nd.Pooling(data=h2_activation, pool_type="avg",
-                    kernel=(2,2), stride=(2,2))
+    h2 = nd.Pooling(data=h2_activation, pool_type="avg", kernel=(2, 2),
+                    stride=(2, 2))
     h2 = nd.flatten(h2)
-    # first dense
     h3_linear = nd.dot(h2, params[4]) + params[5]
     h3 = nd.relu(h3_linear)
-    # second dense
     yhat = nd.dot(h3, params[6]) + params[7]
     return yhat
 
-loss = gluon.loss.SoftmaxCrossEntropyLoss()
+# 交叉熵损失函数。
+sce_loss = gluon.loss.SoftmaxCrossEntropyLoss()
 ```
 
-然后我们先实现几个在GPU同步数据的辅助函数。
+## 多GPU之间同步数据
 
-## 在多GPU之间同步数据
-
-下面函数将模型参数复制到某个特定设备并初始化梯度。
+我们需要实现一些多GPU之间同步数据的辅助函数。下面函数将模型参数复制到某个特定GPU并初始化梯度。
 
 ```{.python .input  n=3}
-from mxnet import gpu
-
 def get_params(params, ctx):
     new_params = [p.copyto(ctx) for p in params]
     for p in new_params:
         p.attach_grad()
     return new_params
-
-# copy param to GPU(0)
-new_params = get_params(params, gpu(0))
-print('b1 weight = ', new_params[1])
-print('b1 grad = ', new_params[1].grad)
 ```
 
-给定分布在多个GPU之间数据，我们定义一个函数它将这些数据加起来，然后再广播到所有GPU上。
+试一试把`params`复制到`mx.gpu(0)`上。
+
+```{.python .input}
+new_params = get_params(params, mx.gpu(0))
+print('b1 weight:', new_params[1])
+print('b1 grad:', new_params[1].grad)
+```
+
+给定分布在多个GPU之间的数据。以下函数可以把各个GPU上的数据加起来，然后再广播到所有GPU上。
 
 ```{.python .input  n=4}
 def allreduce(data):
-    # sum on data[0].context, and then broadcast
     for i in range(1, len(data)):
         data[0][:] += data[i].copyto(data[0].context)
     for i in range(1, len(data)):
         data[0].copyto(data[i])
-
-data = [nd.ones((1,2), ctx=gpu(i))*(i+1) for i in range(2)]
-print('Before:', data)
-allreduce(data)
-print('After:', data)
 ```
 
-最后给定一个批量，我们划分它并复制到各个GPU上。
+简单测试一下`allreduce`函数。
+
+```{.python .input}
+data = [nd.ones((1,2), ctx=mx.gpu(i)) * (i + 1) for i in range(2)]
+print('before allreduce:', data)
+allreduce(data)
+print('after allreduce:', data)
+```
+
+给定一个批量的数据样本，以下函数可以划分它们并复制到各个GPU上。
 
 ```{.python .input  n=5}
 def split_and_load(data, ctx):
     n, k = data.shape[0], len(ctx)
     m = n // k
-    assert m * k == n, '# examples is not divided by # devices'
-    return [data[i*m:(i+1)*m].as_in_context(ctx[i]) for i in range(k)]
+    assert m * k == n, '# examples is not divided by # devices.'
+    return [data[i * m: (i + 1) * m].as_in_context(ctx[i]) for i in range(k)]
+```
 
-batch = nd.arange(16).reshape((4,4))
-ctx = [gpu(0), gpu(1)]
+让我们试着用`split_and_load`函数将6个数据样本平均分给2个GPU。
+
+```{.python .input}
+batch = nd.arange(24).reshape((6, 4))
+ctx = [mx.gpu(0), mx.gpu(1)]
 splitted = split_and_load(batch, ctx)
-
-print('Intput: ', batch)
-print('Load into', ctx)
-print('Output:', splitted)
+print('input: ', batch)
+print('load into', ctx)
+print('output:', splitted)
 ```
 
 ## 训练一个批量
@@ -122,59 +132,47 @@ print('Output:', splitted)
 现在我们可以实现如何使用数据并行在多个GPU上训练一个批量了。
 
 ```{.python .input  n=6}
-from mxnet import autograd
-import sys
-sys.path.append('..')
-import utils
-
-def train_batch(data, label, params, ctx, lr):
-    # split the data batch and load them on GPUs
-    data_list = split_and_load(data, ctx)
-    label_list = split_and_load(label, ctx)
-    # run forward on each GPU
+def train_batch(features, labels, gpu_params, ctx, lr):
+    # 划分小批量数据样本并复制到各个GPU上。
+    gpu_features = split_and_load(features, ctx)
+    gpu_labels = split_and_load(labels, ctx)
+    # 在各个GPU上计算损失。
     with autograd.record():
-        losses = [loss(lenet(X, W), Y)
-                  for X, Y, W in zip(data_list, label_list, params)]
-    # run backward on each gpu
-    for l in losses:
-        l.backward()
-    # aggregate gradient over GPUs
-    for i in range(len(params[0])):
-        allreduce([params[c][i].grad for c in range(len(ctx))])
-    # update parameters with SGD on each GPU
-    for p in params:
-        utils.SGD(p, lr/data.shape[0])
+        losses = [sce_loss(lenet(X, W), Y)
+                  for X, Y, W in zip(gpu_features, gpu_labels, gpu_params)]
+    # 在各个GPU上反向传播。
+    for loss in losses:
+        loss.backward()
+    # 把各个GPU上的梯度加起来，然后再广播到所有GPU上。
+    for i in range(len(gpu_params[0])):
+        allreduce([gpu_params[c][i].grad for c in range(len(ctx))])
+    # 在各个GPU上更新自己维护的那一份完整的模型参数。
+    for param in gpu_params:
+        utils.sgd(param, lr / features.shape[0])
 ```
 
-## 开始训练
+## 使用多GPU训练
 
-现在我们可以定义完整的训练函数。这个跟前面教程里没有什么区别。
+现在我们可以定义训练函数。
 
 ```{.python .input  n=7}
-from time import time
-
 def train(num_gpus, batch_size, lr):
     train_data, test_data = utils.load_data_fashion_mnist(batch_size)
+    ctx = [mx.gpu(i) for i in range(num_gpus)]
+    print('running on:', ctx)
+    # 将模型参数复制到num_gpus个GPU上。
+    gpu_params = [get_params(params, c) for c in ctx]
 
-    ctx = [gpu(i) for i in range(num_gpus)]
-    print('Running on', ctx)
-
-    # copy parameters to all GPUs
-    dev_params = [get_params(params, c) for c in ctx]
-
-    for epoch in range(5):
-        # train
+    for epoch in range(1, 6):
         start = time()
-        for data, label in train_data:
-            train_batch(data, label, dev_params, ctx, lr)
+        for features, labels in train_data:
+            train_batch(features, labels, gpu_params, ctx, lr)
         nd.waitall()
-        print('Epoch %d, training time = %.1f sec'%(
-            epoch, time()-start))
-
-        # validating on GPU 0
-        net = lambda data: lenet(data, dev_params[0])
+        print('epoch %d, time: %.1f sec' % (epoch, time() - start))
+        # 在GPU 0上验证模型。
+        net = lambda data: lenet(data, gpu_params[0])
         test_acc = utils.evaluate_accuracy(test_data, net, ctx[0])
-        print('         validation accuracy = %.4f'%(test_acc))
+        print('validation accuracy: %.4f' % test_acc)
 ```
 
 首先我们使用一个GPU来训练。
@@ -185,13 +183,13 @@ train(1, 256, 0.3)
 
 使用多个GPU但不改变其他参数会得到跟单GPU一致的结果（但数据是随机顺序，所以会有细微区别）
 
-```{.python .input}
+```{.python .input  n=9}
 train(2, 256, 0.3)
 ```
 
 但在多GPU时，通常我们需要增加批量大小使得每个GPU能得到足够多的任务来保证性能。但一个大的批量大小可能使得收敛变慢。这时候的一个常用做法是将学习率增大些。
 
-```{.python .input  n=9}
+```{.python .input  n=10}
 train(2, 512, 0.6)
 ```
 

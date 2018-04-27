@@ -93,6 +93,10 @@ def SGD(params, lr):
     for param in params:
         param[:] = param - lr * param.grad
 
+def sgd(params, lr):
+    for param in params:
+        param[:] = param - lr * param.grad
+
 def accuracy(output, label):
     return nd.mean(output.argmax(axis=1)==label).asscalar()
 
