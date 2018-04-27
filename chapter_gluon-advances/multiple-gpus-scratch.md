@@ -127,9 +127,9 @@ print('load into', ctx)
 print('output:', splitted)
 ```
 
-## 训练一个批量
+## 单个小批量上的多GPU训练
 
-现在我们可以实现如何使用数据并行在多个GPU上训练一个批量了。
+现在我们可以实现单个小批量上的多GPU训练了。它的实现主要依据本节介绍的数据并行方法。我们将使用刚刚定义的多GPU之间同步数据的辅助函数，例如`split_and_load`和`allreduce`。
 
 ```{.python .input  n=6}
 def train_batch(features, labels, gpu_params, ctx, lr):
@@ -151,9 +151,9 @@ def train_batch(features, labels, gpu_params, ctx, lr):
         utils.sgd(param, lr / features.shape[0])
 ```
 
-## 使用多GPU训练
+## 训练函数
 
-现在我们可以定义训练函数。
+现在我们可以定义训练函数。这里的训练函数和之前章节里的训练函数稍有不同。例如，在这里我们需要依据本节介绍的数据并行，将完整的模型参数复制到多个GPU上，并在每次迭代时对单个小批量上进行多GPU训练。
 
 ```{.python .input  n=7}
 def train(num_gpus, batch_size, lr):
@@ -162,48 +162,44 @@ def train(num_gpus, batch_size, lr):
     print('running on:', ctx)
     # 将模型参数复制到num_gpus个GPU上。
     gpu_params = [get_params(params, c) for c in ctx]
-
     for epoch in range(1, 6):
         start = time()
         for features, labels in train_data:
+            # 对单个小批量上进行多GPU训练。
             train_batch(features, labels, gpu_params, ctx, lr)
         nd.waitall()
         print('epoch %d, time: %.1f sec' % (epoch, time() - start))
-        # 在GPU 0上验证模型。
+        # 在GPU0上验证模型。
         net = lambda data: lenet(data, gpu_params[0])
         test_acc = utils.evaluate_accuracy(test_data, net, ctx[0])
         print('validation accuracy: %.4f' % test_acc)
 ```
 
-首先我们使用一个GPU来训练。
+我们先使用一个GPU来训练。
 
 ```{.python .input  n=8}
-train(1, 256, 0.3)
+train(num_gpus=1, batch_size=256, lr=0.3)
 ```
 
-使用多个GPU但不改变其他参数会得到跟单GPU一致的结果（但数据是随机顺序，所以会有细微区别）
-
-```{.python .input  n=9}
-train(2, 256, 0.3)
-```
-
-但在多GPU时，通常我们需要增加批量大小使得每个GPU能得到足够多的任务来保证性能。但一个大的批量大小可能使得收敛变慢。这时候的一个常用做法是将学习率增大些。
+接下来，我们先使用2个GPU来训练。我们将批量大小也增加一倍，以使得GPU的计算资源能够得到较充分利用。
 
 ```{.python .input  n=10}
-train(2, 512, 0.6)
+train(num_gpus=2, batch_size=512, lr=0.3)
 ```
 
-可以看到使用两个GPU能有效的减少训练时间。
+由于批量大小增加了一倍，每个迭代周期的迭代次数减小了一半。因此，我们观察到每个迭代周期的耗时比单GPU训练时少了近一半。但由于总体迭代次数的减少，模型在验证数据集上的精度略有下降。这很可能是由于训练不够充分造成的。因此，多GPU训练时，我们可以适当增加迭代周期使训练较充分。
+
+
 
 ## 小结
 
-* 数据并行可以有效的在多GPU上提升训练性能。
+* 我们可以使用数据并行更充分地利用多个GPU的计算资源，实现多GPU训练模型。
 
 ## 练习
 
-* 试试不同的批量大小和学习率
-* 将预测也改成多GPU版本
-* 注意到我们使用GPU 0来做梯度求和，会有带来什么问题吗？
+* 在本节实验中，试一试不同的迭代周期、批量大小和学习率。
+* 将本节实验的模型预测部分改为用多GPU预测。
+
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1884)
 
