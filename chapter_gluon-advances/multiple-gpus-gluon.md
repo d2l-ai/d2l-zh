@@ -63,8 +63,9 @@ sce_loss = gluon.loss.SoftmaxCrossEntropyLoss()
 def train(num_gpus, batch_size, lr):
     train_data, test_data = utils.load_data_fashion_mnist(batch_size)
     ctx = [mx.gpu(i) for i in range(num_gpus)]
-    print('running on', ctx)
-    net.initialize(init=init.Xavier(), ctx=ctx, force_reinit=True)
+    print('running on:', ctx)
+    net.collect_params().initialize(init=init.Xavier(), ctx=ctx,
+                                    force_reinit=True)
     trainer = gluon.Trainer(
         net.collect_params(), 'sgd', {'learning_rate': lr})
     for epoch in range(1, 6):
@@ -81,9 +82,9 @@ def train(num_gpus, batch_size, lr):
             total_loss += sum([loss.sum().asscalar() for loss in losses])
             trainer.step(batch_size)
         nd.waitall()
-        print('epoch %d, training time = %.1f sec'%(epoch, time() - start))
+        print('epoch %d, training time: %.1f sec'%(epoch, time() - start))
         test_acc = utils.evaluate_accuracy(test_data, net, ctx[0])
-        print('validation accuracy = %.4f'%(test_acc))
+        print('validation accuracy: %.4f'%(test_acc))
 ```
 
 我们在2个GPU上训练模型。
