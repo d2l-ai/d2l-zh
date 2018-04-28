@@ -158,7 +158,8 @@ with net.name_scope():
         nn.Dense(1),
     )
 net.initialize()
-trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.005})
+trainer = gluon.Trainer(net.collect_params(), 'sgd',
+                        {'learning_rate':0.005})
 square_loss = gluon.loss.L2Loss()
 ```
 
