@@ -1,123 +1,105 @@
-# 多GPU训练模型——使用Gluon
+# 多GPU计算——使用Gluon
 
+在Gluon中，我们可以很方便地使用数据并行进行多GPU计算。比方说，我们并不需要自己实现[“多GPU计算——从零开始”](./multiple-gpus-scratch.md)一节里介绍的多GPU之间同步数据的辅助函数。
 
-在Gluon里可以很容易的使用数据并行。在[多GPU来训练 --- 从0开始](./multiple-gpus-scratch.md)里我们手动实现了几个数据同步函数来使用数据并行，Gluon里实现了同样的功能。
+先导入本节实验需要的包。同上一节，运行本节中的程序需要至少两块GPU。
 
-
-## 多设备上的初始化
-
-之前我们介绍了如果使用`initialize()`里的`ctx`在CPU或者特定GPU上初始化模型。事实上，`ctx`可以接受一系列的设备，它会将初始好的参数复制所有的设备上。
-
-这里我们使用之前介绍Resnet18来作为演示。
-
-```{.python .input  n=1}
+```{.python .input}
+import mxnet as mx
+from mxnet import autograd, gluon, init, nd
 import sys
+from time import time
 sys.path.append('..')
 import utils
-from mxnet import gpu
-from mxnet import cpu
+```
 
+## 多GPU上初始化模型参数
+
+我们使用ResNet-18来作为本节的样例模型。
+
+```{.python .input  n=1}
 net = utils.resnet18(10)
-ctx = [gpu(0), gpu(1)]
+```
+
+之前我们介绍了如何使用`initialize`函数的`ctx`参数在CPU或单个GPU上初始化模型参数。事实上，`ctx`可以接受一系列的CPU/GPU，从而使初始化好的模型参数复制到`ctx`里所有的CPU/GPU上。
+
+```{.python .input}
+ctx = [mx.gpu(0), mx.gpu(1)]
 net.initialize(ctx=ctx)
 ```
 
-记得前面提到的[延迟初始化](../chapter_gluon-basics/parameters.md)，这里参数还没有被初始化。我们需要先给定数据跑一次。
-
-Gluon提供了之前我们实现的`split_and_load`函数，它将数据分割并返回各个设备上的复制。然后根据输入的设备，计算也会在相应的数据上执行。
+Gluon提供了上一节中实现的`split_and_load`函数。它可以划分一个小批量的数据样本并复制到各个CPU/GPU上。之后，根据输入数据所在的CPU/GPU，模型计算会发生在相同的CPU/GPU上。
 
 ```{.python .input}
-from mxnet import nd
-from mxnet import gluon
-
 x = nd.random.uniform(shape=(4, 1, 28, 28))
-x_list = gluon.utils.split_and_load(x, ctx)
-print(net(x_list[0]))
-print(net(x_list[1]))
+gpu_x = gluon.utils.split_and_load(x, ctx)
+print(net(gpu_x[0]))
+print(net(gpu_x[1]))
 ```
 
-这时候我们可以来看初始的过程发生了什么了。记得我们可以通过`data`来访问参数值，它默认会返回CPU上值。但这里我们只在两个GPU上初始化了，在访问的对应设备的值的时候，我们需要指定设备。
+回忆一下[“模型参数”](../chapter_gluon-basics/parameters.md)一节中介绍的延后的初始化。现在，我们可以通过`data`访问初始化好的模型参数值了。需要注意的是，默认下`weight.data()`会返回CPU上的参数值。由于我们指定了2个GPU来初始化模型参数，我们需要指定GPU访问。我们看到，相同参数在不同的GPU上的值一样。
 
 ```{.python .input}
 weight = net[1].params.get('weight')
+try:
+    weight.data()
+except:
+    print('not initialized on', mx.cpu())
 print(weight.data(ctx[0])[0])
 print(weight.data(ctx[1])[0])
-try:
-    weight.data(cpu())
-except:
-    print('Not initialized on', cpu())
 ```
 
-上一章我们提到过如何在多GPU之间复制梯度求和并广播，这个在`gluon.Trainer`里面会被默认执行。这样我们可以实现完整的训练函数了。
+## 多GPU训练模型
 
-## 训练
+我们先定义交叉熵损失函数。
+
+```{.python .input}
+sce_loss = gluon.loss.SoftmaxCrossEntropyLoss()
+```
+
+当我们使用多个GPU来训练模型时，`gluon.Trainer`会自动做数据并行，例如划分小批量数据样本并复制到各个GPU上，对各个GPU上的梯度求和再广播到所有GPU上。这样，我们就可以很方便地实现训练函数了。
 
 ```{.python .input  n=7}
-from mxnet import gluon
-from mxnet import autograd
-from time import time
-from mxnet import init
-
 def train(num_gpus, batch_size, lr):
     train_data, test_data = utils.load_data_fashion_mnist(batch_size)
-
-    ctx = [gpu(i) for i in range(num_gpus)]
-    print('Running on', ctx)
-
-    net = utils.resnet18(10)
-    net.initialize(init=init.Xavier(), ctx=ctx)
-    loss = gluon.loss.SoftmaxCrossEntropyLoss()
+    ctx = [mx.gpu(i) for i in range(num_gpus)]
+    print('running on', ctx)
+    net.initialize(init=init.Xavier(), ctx=ctx, force_reinit=True)
     trainer = gluon.Trainer(
-        net.collect_params(),'sgd', {'learning_rate': lr})
-
-    for epoch in range(5):
+        net.collect_params(), 'sgd', {'learning_rate': lr})
+    for epoch in range(1, 6):
         start = time()
         total_loss = 0
-        for data, label in train_data:
-            data_list = gluon.utils.split_and_load(data, ctx)
-            label_list = gluon.utils.split_and_load(label, ctx)
+        for features, labels in train_data:
+            gpu_data = gluon.utils.split_and_load(features, ctx)
+            gpu_labels = gluon.utils.split_and_load(labels, ctx)
             with autograd.record():
-                losses = [loss(net(X), y) for X, y in zip(
-                    data_list, label_list)]
-            for l in losses:
-                l.backward()
-            total_loss += sum([l.sum().asscalar() for l in losses])
+                losses = [sce_loss(net(X), y) for X, y in zip(gpu_data,
+                                                              gpu_labels)]
+            for loss in losses:
+                loss.backward()
+            total_loss += sum([loss.sum().asscalar() for loss in losses])
             trainer.step(batch_size)
-
         nd.waitall()
-        print('Epoch %d, training time = %.1f sec'%(
-            epoch, time()-start))
-
+        print('epoch %d, training time = %.1f sec'%(epoch, time() - start))
         test_acc = utils.evaluate_accuracy(test_data, net, ctx[0])
-        print('         validation accuracy = %.4f'%(test_acc))
+        print('validation accuracy = %.4f'%(test_acc))
 ```
 
-尝试在单GPU上执行。
+我们在2个GPU上训练模型。
 
 ```{.python .input}
-train(1, 256, .1)
-```
-
-同样的参数，但使用两个GPU。
-
-```{.python .input}
-train(2, 256, .1)
-```
-
-增大批量值和学习率
-
-```{.python .input}
-train(2, 512, .2)
+train(num_gpus=2, batch_size=512, lr=0.3)
 ```
 
 ## 小结
 
-* Gluon的参数初始化和Trainer都支持多设备，从单设备到多设备非常容易。
+* 在Gluon中，我们可以很方便地进行多GPU计算，例如在多GPU上初始化模型参数和训练模型。
 
 ## 练习
 
-* 跟[多GPU来训练 --- 从0开始](./multiple-gpus-scratch.md)不一样，这里我们使用了更现代些的ResNet。看看不同的批量大小和学习率对不同GPU个数上的不一样。
-* 有时候各个设备计算能力不一样，例如同时使用CPU和GPU，或者GPU之间型号不一样，这时候应该怎么办？
+* 本节使用了ResNet-18。试试不同的迭代周期、批量大小和学习率。如果条件允许，使用更多GPU计算。
+* 有时候，不同的CPU/GPU的计算能力不一样，例如同时使用CPU和GPU，或者GPU之间型号不一样。这时候应该怎么办？
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1885)
 
