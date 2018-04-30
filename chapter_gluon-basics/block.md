@@ -112,10 +112,10 @@ class MySequential(nn.Block):
         super(MySequential, self).__init__(**kwargs)
 
     def add(self, block):
-        self._children.append(block)
+        self._children[str(len(self._children))] = block
 
     def forward(self, x):
-        for block in self._children:
+        for block in self._children.values():
             x = block(x)
         return x
 ```
