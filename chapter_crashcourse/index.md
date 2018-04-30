@@ -6,6 +6,8 @@
    :maxdepth: 2
 
    introduction
+   install
+   aws
    ndarray
    autograd
 
