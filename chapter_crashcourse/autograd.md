@@ -1,14 +1,13 @@
-# 使用autograd来自动求导
+# 自动求导
 
-在机器学习中，我们通常使用**梯度下降（gradient descent）**来更新模型参数从而求解。损失函数关于模型参数的梯度指向一个可以降低损失函数值的方向，我们不断地沿着梯度的方向更新模型从而最小化损失函数。虽然梯度计算比较直观，但对于复杂的模型，例如多达数十层的神经网络，手动计算梯度非常困难。
+在机器学习中，我们通常使用梯度下降（gradient descent）来更新模型参数从而求解。损失函数关于模型参数的梯度指向一个可以降低损失函数值的方向，我们不断地沿着梯度的方向更新模型从而最小化损失函数。虽然梯度计算比较直观，但对于复杂的模型，例如多达数十层的神经网络，手动计算梯度非常困难。
 
 为此MXNet提供autograd包来自动化求导过程。虽然大部分的深度学习框架要求编译计算图来自动求导，`mxnet.autograd`可以对正常的命令式程序进行求导，它每次在后端实时创建计算图，从而可以立即得到梯度的计算方法。
 
 下面让我们一步步介绍这个包。我们先导入`autograd`。
 
 ```{.python .input  n=2}
-import mxnet.ndarray as nd
-import mxnet.autograd as ag
+from mxnet import autograd, nd
 ```
 
 ## 为变量附上梯度
@@ -28,7 +27,7 @@ x.attach_grad()
 下面定义`f`。默认条件下，MXNet不会自动记录和构建用于求导的计算图，我们需要使用autograd里的`record()`函数来显式的要求MXNet记录我们需要求导的程序。
 
 ```{.python .input}
-with ag.record():
+with autograd.record():
     y = x * 2
     z = y * x
 ```
@@ -67,7 +66,7 @@ def f(a):
 ```{.python .input  n=5}
 a = nd.random_normal(shape=3)
 a.attach_grad()
-with ag.record():
+with autograd.record():
     c = f(a)
 c.backward()
 ```
@@ -85,7 +84,7 @@ a.grad == c/a
 当我们在一个`NDArray`上调用`backward`方法时，例如`y.backward()`，此处`y`是一个关于`x`的函数，我们将求得`y`关于`x`的导数。数学家们会把这个求导写成 $\frac{dy(x)}{dx}$ 。还有些更复杂的情况，比如`z`是关于`y`的函数，且`y`是关于`x`的函数，我们想对`z`关于`x`求导，也就是求 $\frac{d}{dx} z(y(x))$ 的结果。回想一下链式法则，我们可以得到$\frac{d}{dx} z(y(x)) = \frac{dz(y)}{dy} \frac{dy(x)}{dx}$。当`y`是一个更大的`z`函数的一部分，并且我们希望求得 $\frac{dz}{dx}$ 保存在`x.grad`中时，我们可以传入**头梯度（head gradient）** $\frac{dz}{dy}$ 的值作为`backward()`方法的输入参数，系统会自动应用链式法则进行计算。这个参数的默认值是`nd.ones_like(y)`。关于链式法则的详细解释，请参阅[Wikipedia](https://en.wikipedia.org/wiki/Chain_rule)。
 
 ```{.python .input}
-with ag.record():
+with autograd.record():
     y = x * 2
     z = y * x
 

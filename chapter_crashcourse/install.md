@@ -390,5 +390,4 @@ Windows默认不支持curl，tar
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/249)
 
-![](../img/qr_.svg)
-
+![](../img/qr_install.svg)
