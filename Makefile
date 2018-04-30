@@ -8,7 +8,7 @@ build/%.md: %.md
 	@mkdir -p $(@D)
 	@cp $< $@
 
-MARKDOWN = $(filter-out chapter_preface/notation.md, $(wildcard chapter_preface/*.md */index.md) chapter_crashcourse/install.md)
+MARKDOWN = $(wildcard */index.md) chapter_crashcourse/introduction.md chapter_crashcourse/install.md chapter_crashcourse/aws.md
 NOTEBOOK = $(filter-out $(MARKDOWN), $(wildcard chapter*/*.md))
 
 OBJ = $(patsubst %.md, build/%.md, $(MARKDOWN)) \
