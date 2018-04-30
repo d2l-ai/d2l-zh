@@ -1,10 +1,10 @@
-# 在AWS上运行教程
+# 使用AWS运行代码
 
 本节我们一步步讲解如何从0开始在AWS上申请CPU或者GPU机器并运行教程。
 
 ## 申请账号并登陆
 
-首先我们需要在[https://aws.amazon.com/](https://aws.amazon.com/)上面创建账号，通常这个需要一张信用卡。不熟悉的同学可以自行搜索“如何注册aws账号”。【注意】AWS中国需要公司实体才能注册，个人用户请注册AWS全球账号。
+首先我们需要在[https://aws.amazon.com/](https://aws.amazon.com/) 上面创建账号，通常这个需要一张信用卡。不熟悉的同学可以自行搜索“如何注册aws账号”。【注意】AWS中国需要公司实体才能注册，个人用户请注册AWS全球账号。
 
 登陆后点击EC2进入EC2面板：
 
@@ -58,7 +58,7 @@ EC2提供大量的有着不同配置的实例。这里我们选择了`p2.xlarge`
 
 成功登陆后我们先更新并安装编译需要的包。
 
-```bash
+```{.python .input}
 sudo apt-get update && sudo apt-get install -y build-essential git libgfortran3
 ```
 
@@ -74,14 +74,14 @@ sudo apt-get update && sudo apt-get install -y build-essential git libgfortran3
 
 然后使用`wget`下载并且安装
 
-```bash
+```{.python .input}
 wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda_8.0.61_375.26_linux-run
 sudo sh cuda_8.0.61_375.26_linux-run
 ```
 
 这里需要回答几个问题。
 
-```
+```{.python .input}
 accept/decline/quit: accept
 Install NVIDIA Accelerated Graphics Driver for Linux-x86_64 375.26?
 (y)es/(n)o/(q)uit: y
@@ -101,13 +101,13 @@ Install the CUDA 8.0 Samples?
 
 安装完成后运行
 
-```bash
+```{.python .input}
 nvidia-smi
 ```
 
 就可以看到这个实例的GPU了。最后将CUDA加入到library path方便之后安装的库找到它。
 
-```bash
+```{.python .input}
 echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-8.0/lib64" >>.bashrc
 ```
 
@@ -115,14 +115,14 @@ echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-8.0/lib64" >>.b
 
 先安装Miniconda
 
-```bash
+```{.python .input}
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 bash Miniconda3-latest-Linux-x86_64.sh
 ```
 
 需要回答下面几个问题
 
-```
+```{.python .input}
 Do you accept the license terms? [yes|no]
 [no] >>> yes
 Do you wish the installer to prepend the Miniconda3 install location
@@ -134,7 +134,7 @@ to PATH in your /home/ubuntu/.bashrc ? [yes|no]
 
 下载本教程，安装并激活conda环境
 
-```bash
+```{.python .input}
 git clone https://github.com/mli/gluon-tutorials-zh
 cd gluon-tutorials-zh
 conda env create -f environment.yml
@@ -143,7 +143,7 @@ source activate gluon
 
 默认环境里安装了只有CPU的版本。现在我们替换成GPU版本。
 
-```bash
+```{.python .input}
 pip uninstall -y mxnet
 pip install --pre mxnet-cu80
 
@@ -151,7 +151,7 @@ pip install --pre mxnet-cu80
 
 同时安装notedown插件来让jupter读写markdown文件。
 
-```bash
+```{.python .input}
 pip install https://github.com/mli/notedown/tarball/master
 jupyter notebook --generate-config
 echo "c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'" >>~/.jupyter/jupyter_notebook_config.py
@@ -162,7 +162,7 @@ echo "c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'"
 
 并运行Jupyter notebook。
 
-```bash
+```{.python .input}
 jupyter notebook
 ```
 
@@ -172,15 +172,15 @@ jupyter notebook
 
 因为我们的实例没有暴露8888端口，所以我们可以在本地启动ssh从实例映射到本地
 
-```bash
+```{.python .input}
 ssh -i "XXX.pem" -L8888:locallhost:8888 ubuntu@XXXX.XXXX.compute.amazonaws.com
 ```
 
- 然后把jupyter log里的URL复制到本地浏览器就行了。
+然后把jupyter log里的URL复制到本地浏览器就行了。
 
 【注意】如果本地运行了Jupyter notebook，那么8888端口就可能被占用了。要么关掉本地jupyter，要么把端口映射改成别的。例如，假设aws使用默认8888端口，我们可以在本地启动ssh从实例映射到本地8889端口：
 
-```bash
+```{.python .input}
 ssh -i "XXX.pem" -N -f -L localhost:8889:localhost:8888 ubuntu@XXXX.XXXX.compute.amazonaws.com
 ```
 
@@ -196,22 +196,27 @@ ssh -i "XXX.pem" -N -f -L localhost:8889:localhost:8888 ubuntu@XXXX.XXXX.compute
 
 每次重新开始后，我们建议升级下教程（记得保存自己的改动）
 
-```bash
+```{.python .input}
 cd gluon-tutorials-zh
 git pull
 ```
 
 和MXNet版本
 
-```bash
+```{.python .input}
 source activate gluon
 pip install -U --pre mxnet-cu80
 ```
 
-## 总结
+## 小结
 
-云上可以很方便的获取计算资源和配置环境
+* 云上可以很方便的获取计算资源和配置环境。
 
 ## 练习
 
-云很方便，但不便宜。研究下它的价格，和看看如何节省开销。
+* 云很方便，但不便宜。研究下它的价格，和看看如何节省开销。
+
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6154)
+
+![](../img/qr_aws.svg)

@@ -94,4 +94,16 @@ z.backward(head_gradient)
 print(x.grad)
 ```
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/744)
+## 小结
+
+* MXNet提供`autograd`包来自动化求导过程。
+* MXNet的`autograd`包可以对正常的命令式程序进行求导。
+
+## 练习
+
+* 自己设计一个对控制流求导的例子。运行并分析结果。
+
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/744)
+
+![](../img/qr_autograd.svg)
