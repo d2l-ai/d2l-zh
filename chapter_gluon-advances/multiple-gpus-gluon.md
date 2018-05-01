@@ -64,8 +64,7 @@ def train(num_gpus, batch_size, lr):
     train_data, test_data = utils.load_data_fashion_mnist(batch_size)
     ctx = [mx.gpu(i) for i in range(num_gpus)]
     print('running on:', ctx)
-    net.collect_params().initialize(init=init.Xavier(), ctx=ctx,
-                                    force_reinit=True)
+    net.initialize(init=init.Xavier(), ctx=ctx, force_reinit=True)
     trainer = gluon.Trainer(
         net.collect_params(), 'sgd', {'learning_rate': lr})
     for epoch in range(1, 6):

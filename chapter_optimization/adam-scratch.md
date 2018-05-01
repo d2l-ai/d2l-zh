@@ -19,7 +19,7 @@ $$\boldsymbol{v} \leftarrow \beta_1 \boldsymbol{v} + (1 - \beta_1) \boldsymbol{g
 
 $$\boldsymbol{s} \leftarrow \beta_2 \boldsymbol{s} + (1 - \beta_2) \boldsymbol{g} \odot \boldsymbol{g}. $$
 
-我们在[动量法——从零开始](momentum-scratch.md)一节中解释了，$\boldsymbol{v}$和$\boldsymbol{s}$可分别看作是最近$1/(1 - \beta_1)$个时刻$\boldsymbol{g}$和最近$1 / (1 - \beta_2)$个时刻的$\boldsymbol{g} \odot \boldsymbol{g}$的加权平均。假设$\beta_1 = 0.9$，$\beta_2 = 0.999$，如果$\boldsymbol{v}$和$\boldsymbol{s}$中的元素都初始化为0，在时刻1我们得到$\boldsymbol{v} = 0.1\boldsymbol{g}$，$\boldsymbol{s} = 0.001\boldsymbol{g} \odot \boldsymbol{g}$。实际上，在迭代初期$t$较小时，$\boldsymbol{v}$和$\boldsymbol{s}$可能过小而无法较准确地估计$\boldsymbol{g}$和$\boldsymbol{g} \odot \boldsymbol{g}$。为此，Adam算法使用了偏差修正：
+我们在[“动量法——从零开始”](momentum-scratch.md)一节中解释了，$\boldsymbol{v}$和$\boldsymbol{s}$可分别看作是最近$1/(1 - \beta_1)$个时刻$\boldsymbol{g}$和最近$1 / (1 - \beta_2)$个时刻的$\boldsymbol{g} \odot \boldsymbol{g}$的加权平均。假设$\beta_1 = 0.9$，$\beta_2 = 0.999$，如果$\boldsymbol{v}$和$\boldsymbol{s}$中的元素都初始化为0，在时刻1我们得到$\boldsymbol{v} = 0.1\boldsymbol{g}$，$\boldsymbol{s} = 0.001\boldsymbol{g} \odot \boldsymbol{g}$。实际上，在迭代初期$t$较小时，$\boldsymbol{v}$和$\boldsymbol{s}$可能过小而无法较准确地估计$\boldsymbol{g}$和$\boldsymbol{g} \odot \boldsymbol{g}$。为此，Adam算法使用了偏差修正：
 
 $$\hat{\boldsymbol{v}} \leftarrow \frac{\boldsymbol{v}}{1 - \beta_1^t}, $$
 

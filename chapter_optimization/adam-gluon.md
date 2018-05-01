@@ -36,7 +36,7 @@ with net.name_scope():
 我们可以在Trainer中定义优化算法名称`adam`并定义初始学习率。以下实验重现了[“Adam——从零开始”](adam-scratch.md)一节中实验结果。
 
 ```{.python .input  n=3}
-net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
+net.initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': 0.1})
 utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
                log_interval=10, X=X, y=y, net=net)

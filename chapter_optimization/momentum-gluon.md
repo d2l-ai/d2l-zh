@@ -36,7 +36,7 @@ with net.name_scope():
 例如，以使用动量法的小批量随机梯度下降为例，我们可以在`Trainer`中定义动量超参数`momentum`。以下几组实验分别重现了[“动量法——从零开始”](momentum-scratch.md)一节中实验结果。
 
 ```{.python .input  n=3}
-net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
+net.initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate': 0.2, 'momentum': 0.99})
 utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
@@ -44,7 +44,7 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
 ```
 
 ```{.python .input}
-net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
+net.initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate': 0.2, 'momentum': 0.9})
 utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
@@ -52,7 +52,7 @@ utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
 ```
 
 ```{.python .input}
-net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
+net.initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate': 0.2, 'momentum': 0.5})
 utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,

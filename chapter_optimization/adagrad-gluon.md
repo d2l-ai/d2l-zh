@@ -37,7 +37,7 @@ with net.name_scope():
 我们可以在Trainer中定义优化算法名称`adagrad`。以下实验分别重现了[“Adagrad——从零开始”](adagrad-scratch.md)一节中实验结果。
 
 ```{.python .input  n=3}
-net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
+net.initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'adagrad',
                         {'learning_rate': 0.9})
 utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,

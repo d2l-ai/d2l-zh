@@ -12,7 +12,7 @@ from mxnet import autograd, nd
 
 ## 简单例子
 
-我们先看一个简单例子：对函数 $y =2 \boldsymbol{x}^\top  \boldsymbol{x} $ 求关于列向量 $\boldsymbol{x}$ 的梯度。
+我们先看一个简单例子：对函数 $y = 2\boldsymbol{x}^{\top}\boldsymbol{x}$ 求关于列向量 $\boldsymbol{x}$ 的梯度。
 
 我们先创建变量`x`，并赋初值。
 
@@ -40,14 +40,14 @@ with autograd.record():
 y.backward()
 ```
 
-函数 $y =2 \boldsymbol{x}^\top  \boldsymbol{x} $ 关于$\boldsymbol{x}$ 的梯度应为$4\boldsymbol{x}$。现在我们来验证一下求出来的梯度是正确的。
+函数 $y = 2\boldsymbol{x}^{\top}\boldsymbol{x}$ 关于$\boldsymbol{x}$ 的梯度应为$4\boldsymbol{x}$。现在我们来验证一下求出来的梯度是正确的。
 
 ```{.python .input}
 print('x.grad: ', x.grad)
 x.grad == 4 * x # 1为真，0为假。
 ```
 
-## 对控制流求梯度
+## 对Python控制流求梯度
 
 使用MXNet的一个便利之处是，即使函数的计算图包含了Python的控制流（例如条件和循环控制），我们也有可能对变量求梯度。
 
