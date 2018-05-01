@@ -1,96 +1,84 @@
-# 自动求导
+# 自动求梯度
 
-在机器学习中，我们通常使用梯度下降（gradient descent）来更新模型参数从而求解。损失函数关于模型参数的梯度指向一个可以降低损失函数值的方向，我们不断地沿着梯度的方向更新模型从而最小化损失函数。虽然梯度计算比较直观，但对于复杂的模型，例如多达数十层的神经网络，手动计算梯度非常困难。
+在深度学习中，我们经常需要对函数求梯度（gradient）。如果你对本节中的数学概念（例如梯度）不是很熟悉，可以参阅[“数学基础”](../chapter_appendix/math.md)一节。
 
-为此MXNet提供autograd包来自动化求导过程。虽然大部分的深度学习框架要求编译计算图来自动求导，`mxnet.autograd`可以对正常的命令式程序进行求导，它每次在后端实时创建计算图，从而可以立即得到梯度的计算方法。
+MXNet提供`autograd`包来自动化求梯度的过程。虽然大部分的深度学习框架要求编译计算图来自动求梯度，MXNet却无需如此。
 
-下面让我们一步步介绍这个包。我们先导入`autograd`。
+首先导入本节实验需要的包。
 
 ```{.python .input  n=2}
 from mxnet import autograd, nd
 ```
 
-## 为变量附上梯度
+## 简单例子
 
-假设我们想对函数 $f=2\times x^2$ 求关于 $x$ 的导数。我们先创建变量`x`，并赋初值。
+我们先看一个简单例子：对函数 $y =2 \boldsymbol{x}^\top  \boldsymbol{x} $ 求关于列向量 $\boldsymbol{x}$ 的梯度。
+
+我们先创建变量`x`，并赋初值。
 
 ```{.python .input}
-x = nd.array([[1, 2], [3, 4]])
+x = nd.arange(4).reshape((4, 1))
+x
 ```
 
-当进行求导的时候，我们需要一个地方来存`x`的导数，这个可以通过NDArray的方法`attach_grad()`来要求系统申请对应的空间。
+为了求有关变量`x`的梯度，我们需要先调用`attach_grad`函数来申请存储梯度所需要的内存。
 
 ```{.python .input}
 x.attach_grad()
 ```
 
-下面定义`f`。默认条件下，MXNet不会自动记录和构建用于求导的计算图，我们需要使用autograd里的`record()`函数来显式的要求MXNet记录我们需要求导的程序。
+下面定义有关变量`x`的函数。默认条件下，为了减少计算和内存开销，MXNet不会记录用于求梯度的计算图。我们需要调用`record`函数来要求MXNet记录与求梯度有关的计算。
 
 ```{.python .input}
 with autograd.record():
-    y = x * 2
-    z = y * x
+    y = 2 * nd.dot(x.T, x)
 ```
 
-接下来我们可以通过`z.backward()`来进行求导。如果`z`不是一个标量，那么`z.backward()`等价于`nd.sum(z).backward()`.
+由于`x`的形状为(4, 1)，`y`是一个标量。接下来我们可以通过调用`backward`函数自动求梯度。需要注意的是，如果`y`不是一个标量，MXNet将先对`y`中元素求和得到新的变量，再求该变量有关`x`的梯度。
 
 ```{.python .input}
-z.backward()
+y.backward()
 ```
 
-现在我们来看求出来的导数是不是正确的。注意到`y = x * 2`和`z = x * y`，所以`z`等价于`2 * x * x`。它的导数那么就是 $\frac{dz}{dx} = 4 \times {x}$ 。
+函数 $y =2 \boldsymbol{x}^\top  \boldsymbol{x} $ 关于$\boldsymbol{x}$ 的梯度应为$4\boldsymbol{x}$。现在我们来验证一下求出来的梯度是正确的。
 
 ```{.python .input}
 print('x.grad: ', x.grad)
-x.grad == 4*x
+x.grad == 4 * x # 1为真，0为假。
 ```
 
-## 对控制流求导
+## 对控制流求梯度
 
-命令式的编程的一个便利之处是几乎可以对任意的可导程序进行求导，即使里面包含了Python的控制流。考虑下面程序，里面包含控制流`for`和`if`，但循环迭代的次数和判断语句的执行都是取决于输入的值。不同的输入会导致这个程序的执行不一样。（对于计算图框架来说，这个对应于动态图，就是图的结构会根据输入数据不同而改变）。
+使用MXNet的一个便利之处是，即使函数的计算图包含了Python的控制流（例如条件和循环控制），我们也有可能对变量求梯度。
+
+考虑下面程序，其中包含Python的条件和循环控制。需要强调的是，这里循环（while循环）迭代的次数和条件判断（if语句）的执行都取决于输入`b`的值。由于不同的输入会导致计算图不同，我们有时把这类计算图称作动态图。
 
 ```{.python .input  n=3}
 def f(a):
     b = a * 2
-    while nd.norm(b).asscalar() < 1000:
+    while b.norm().asscalar() < 1000:
         b = b * 2
-    if nd.sum(b).asscalar() > 0:
+    if b.sum().asscalar() > 0:
         c = b
     else:
         c = 100 * b
     return c
 ```
 
-我们可以跟之前一样使用`record`记录和`backward`求导。
+我们依然跟之前一样使用`record`函数记录计算图，并调用`backward`函数求梯度。
 
 ```{.python .input  n=5}
-a = nd.random_normal(shape=3)
+a = nd.random.normal(shape=1)
 a.attach_grad()
 with autograd.record():
     c = f(a)
 c.backward()
 ```
 
-注意到给定输入`a`，其输出 $\\f(a)= {xa}$，$x$ 的值取决于输入`a`。所以有 $\frac{df}{da} = {x}$，我们可以很简单地评估自动求导的导数：
+让我们仔细观察上面定义的$f$函数。事实上，给定任意输入`a`，其输出必然是 $f(a)= xa$的形式，且标量系数$x$的值取决于输入`a`。由于`c`有关`a`的梯度为$x =  c / a$，我们可以像下面这样验证对本例中控制流求梯度的结果是正确的。
 
 ```{.python .input  n=8}
-a.grad == c/a
-```
-
-## 头梯度和链式法则
-
-**注意：读者可以跳过这一小节，不会影响阅读之后的章节**
-
-当我们在一个`NDArray`上调用`backward`方法时，例如`y.backward()`，此处`y`是一个关于`x`的函数，我们将求得`y`关于`x`的导数。数学家们会把这个求导写成 $\frac{dy(x)}{dx}$ 。还有些更复杂的情况，比如`z`是关于`y`的函数，且`y`是关于`x`的函数，我们想对`z`关于`x`求导，也就是求 $\frac{d}{dx} z(y(x))$ 的结果。回想一下链式法则，我们可以得到$\frac{d}{dx} z(y(x)) = \frac{dz(y)}{dy} \frac{dy(x)}{dx}$。当`y`是一个更大的`z`函数的一部分，并且我们希望求得 $\frac{dz}{dx}$ 保存在`x.grad`中时，我们可以传入**头梯度（head gradient）** $\frac{dz}{dy}$ 的值作为`backward()`方法的输入参数，系统会自动应用链式法则进行计算。这个参数的默认值是`nd.ones_like(y)`。关于链式法则的详细解释，请参阅[Wikipedia](https://en.wikipedia.org/wiki/Chain_rule)。
-
-```{.python .input}
-with autograd.record():
-    y = x * 2
-    z = y * x
-
-head_gradient = nd.array([[10, 1.], [.1, .01]])
-z.backward(head_gradient)
-print(x.grad)
+a.grad == c / a
 ```
 
 ## 小结
@@ -100,7 +88,8 @@ print(x.grad)
 
 ## 练习
 
-* 自己设计一个对控制流求导的例子。运行并分析结果。
+* 在本节对控制流求梯度的例子中，把变量`a`改成一个随机向量或矩阵。此时计算结果`c`不再是标量，运行结果将有何变化？
+* 自己重新设计一个对控制流求梯度的例子。运行并分析结果。
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/744)

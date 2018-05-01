@@ -15,7 +15,7 @@
 from mxnet import nd
 ```
 
-然后我们用NDArray创建一个向量。
+然后我们用NDArray创建一个行向量。
 
 ```{.python .input  n=2}
 x = nd.arange(12)
@@ -40,20 +40,20 @@ nd.zeros((2, 3, 4))
 类似地，我们可以创建各元素为1的张量。
 
 ```{.python .input  n=5}
-nd.ones((3, 2, 5))
+nd.ones((3, 4))
 ```
 
 我们也可以通过Python的列表（list）指定需要创建的NDArray中每个元素的值。
 
 ```{.python .input  n=6}
-nd.array([[1, 2], [2, 3]])
+y = nd.array([[1, 2, 3, 4], [1, 2, 3, 4], [4, 3, 2, 1]])
+y
 ```
 
 有些情况下，我们需要随机生成NDArray中每个元素的值。下面我们创建一个形状为(3, 4)的NDArray。它的每个元素都随机采样于均值为0标准差为1的正态分布。
 
 ```{.python .input  n=7}
-y = nd.random.normal(0, 1, shape=(3, 4))
-y
+nd.random.normal(0, 1, shape=(3, 4))
 ```
 
 每个NDArray的形状可以通过`shape`属性来获取。
@@ -82,6 +82,12 @@ x + y
 x * y
 ```
 
+以下是按元素除法。
+
+```{.python .input}
+x / y
+```
+
 以下是按元素做指数运算。
 
 ```{.python .input  n=12}
@@ -92,6 +98,19 @@ nd.exp(y)
 
 ```{.python .input  n=13}
 nd.dot(x, y.T)
+```
+
+下面，我们对NDArray中的元素求和。结果虽然是个标量，却依然保留了NDArray格式。
+
+```{.python .input}
+x = nd.array([3, 4])
+x.sum()
+```
+
+其实，我们可以把为标量的NDArray通过`asscalar`函数直接变换为Python中的数。下面例子中`x`的$L_2$范数不再是一个NDArray。
+
+```{.python .input}
+x.norm().asscalar()
 ```
 
 ## 广播机制
