@@ -358,7 +358,7 @@ train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens)
 
 在上一节里，我们提到编码器最终输出了一个背景向量$\boldsymbol{c}$，该背景向量编码了输入序列$x_1, x_2, \ldots, x_T$的信息。假设训练数据中的输出序列是$y_1, y_2, \ldots, y_{T^\prime}$，输出序列的生成概率是
 
-$$\mathbb{P}(y_1, \ldots, y_{T^\prime}) = \prod_{t^\prime=1}^{T^\prime} \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c})$$
+$$\mathbb{P}(y_1, \ldots, y_{T^\prime}) = \prod_{t^\prime=1}^{T^\prime} \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c}).$$
 
 
 对于机器翻译的输出来说，如果输出语言的词汇集合$\mathcal{Y}$的大小为$|\mathcal{Y}|$，输出序列的长度为$T^\prime$，那么可能的输出序列种类是$\mathcal{O}(|\mathcal{Y}|^{T^\prime})$。为了找到生成概率最大的输出序列，一种方法是计算所有$\mathcal{O}(|\mathcal{Y}|^{T^\prime})$种可能序列的生成概率，并输出概率最大的序列。我们将该序列称为最优序列。但是这种方法的计算开销过高（例如，$10000^{10} = 1 \times 10^{40}$）。
