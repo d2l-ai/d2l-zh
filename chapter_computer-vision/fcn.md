@@ -379,7 +379,7 @@ for i in range(n):
 utils.show_images(imgs, nrows=n, ncols=3, figsize=(6,10))
 ```
 
-## 总结
+## 小结
 
 通过使用卷积转置层，我们可以得到更大分辨率的输出。
 
