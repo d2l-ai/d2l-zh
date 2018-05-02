@@ -1,10 +1,12 @@
-# 安装和使用
+# 安装MXNet、下载并运行书中代码
+
 
 ## 首次安装
 
 每个教程是一个可以编辑和运行的Jupyter notebook。运行这些教程需要`Python`，`Jupyter`，以及最新版`MXNet`。
 
 ### 通过Conda安装
+
 首先根据操作系统下载并安装[Miniconda](https://conda.io/miniconda.html)（[Anaconda](https://docs.continuum.io/anaconda/install/)也可以）。接下来下载所有教程的包（[下载tar.gz格式](https://zh.gluon.ai/gluon_tutorials_zh.tar.gz)或者[下载zip格式](https://zh.gluon.ai/gluon_tutorials_zh.zip)均可）。解压后进入文件夹。
 
 例如Linux或者Mac OSX 10.11以上可以使用如下命令
@@ -197,196 +199,14 @@ jupyter contrib nbextension install --user
 jupyter nbextension enable execute_time/ExecuteTime
 ```
 
-## 老中医自检程序
-
-### 用途
-本教程提供了一系列自检程序供没有成功安装或者运行报错的难民进行自救，如果全篇都没找到药方，希望可以自己搜索问题，欢迎前往 https://discuss.gluon.ai 提问并且帮他人解答。
-
-### 通过Conda安装
-
-确保conda已经安装完成，并且可以在命令行识别到 "conda --version"
-
-#### 症状
-
-```{.python .input}
--bash: conda: command not found ／’conda‘不是内部或外部命令，也不是可运行的程序
-```
-
-##### 病情分析
-
-conda不在系统搜索目录下，无法找到conda可执行文件
-
-##### 药方
-
-```{.python .input}
-# linux或者mac系统
-export PATH=/path/to/miniconda3/bin:$PATH
-# windows用set或者setx
-set PATH=C:\path\to\miniconda3\bin;%PATH%
-```
-
-```{.python .input}
-完成后命令行测试 "conda --version"
-如果显示类似于 “conda 4.3.21”，则症状痊愈
-```
-
-#### 症状
-
-```{.python .input}
-Conda安装正常，conda env -f environment.yml失败
-```
-
-##### 病情分析
-
-如果在国内的网络环境下，最大的可能是连接太慢，用国内镜像加速不失为一良方
-
-##### 药方
-
-* conda config --prepend channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
-* 如果是miniconda可以改用Anaconda
-
-##### 病情分析
-
-失败后重新尝试 conda env -f environment.yml会报错
-##### 药方
-
-conda info -e查看失败信息，建议删除失败的env： conda env remove --name gluon --all
-### 手动pip安装
-
-#### 症状：pip install mxnet失败
-
-##### 病情分析
-
-pip本身不存在, pip --version不能正确显示pip版本号和安装目录
-
-##### 药方
-
-参考http://pip-cn.readthedocs.io/en/latest/installing.html 安装pip
-
-##### 病情分析
-
-pip版本太低
-
-##### 药方
-
-```{.python .input}
-pip install --upgrade pip
-```
-
-##### 病情分析
-
-无法找到匹配的wheel， No matching distribution found for mxnet>=0.11.1b20170902
-
-##### 药方
-
-确保系统被支持，比如Ubuntu 14.04/16.04, Mac10.11/10.12(10.10即将支持）， Windows 10(win7 未测试)， 如果都符合，可以试试命令
-
-```{.python .input}
-python -c "import pip; print(pip.pep425tags.get_supported())"
-```
-
-然后上论坛讨论：https://discuss.gluon.ai
-
-#### 症状： pip install mxnet 成功，但是import mxnet失败
-##### 病情分析
-
-如果看到这样的错误
-
-```{.python .input}
-ImportError: No module named mxnet
-```
-
-python无法找到mxnet，有可能系统上有多个python版本， 导致pip和python版本不一致
-
-##### 药方
-
-找到pip的安装目录
-
-```{.python .input}
-pip --version
-```
-
-找到python安装目录
-
-```{.python .input}
-which python
-# or
-whereis python
-# or
-python -c "import os, sys; print(os.path.dirname(sys.executable))"
-```
-
-如果pip目录和python目录不一致，可以改变默认加载的python，比如
-
-```{.python .input}
-python3 -c "import mxnet as mx; print(mx.__version__)"
-```
-
-或者用和python对应的pip重新安装mxnet
-
-```{.python .input}
-pip3 install mxnet --pre
-pip2 install mxnet --pre
-```
-
-如果不是简单的python2/3的问题，推荐修复默认调用的python。
-
-##### 病情分析
-假设你看到这个错误：
-
-```{.python .input}
-ImportError: libgfortran.so.3: cannot open shared object file: No such file or
-directory
-```
-
-##### 药方
-这个一般发生在Linux下。安装`libgfortran`就好，例如Ubuntu下可以`sudo apt-get
-install libgfortran`
-
-#### 症状：可以import mxnet，但是版本不正常(< 0.11.1b20170908)
-##### 病情分析
-安装时没有指定最新的版本
-
-##### 药方
-可以使用pip install mxnet --upgrade --pre安装最新的mxnet
-
-##### 病情分析
-
-由于系统的问题，无法正确安装最新版本，参考 No matching
-distribution found for mxnet>=0.11.1b20170902
-
-### Jupyter Notebook
-
-#### 症状： 打开notebook乱码
-
-##### 病情分析
-Windows下不支持编码？
-
-##### 未测试药方
-把md文件用文本编辑器保存为GBK编码
-
-### 其他
-
-#### 症状： Windows下curl, tar失败
-
-##### 病情分析
-Windows默认不支持curl，tar
-
-##### 药方
-下载和解压推荐用浏览器和解压软件，手动拷贝
-
-### 最后
-如果你尝试了很多依然一头雾水，可以试试docker安装：https://zh.gluon.ai/install.html#docker
-
-
-
 ## 小结
 
 * 我们需要安装MXNet来动手学深度学习。
 
 ## 练习
 
-* 安装MXNet。
+* 安装MXNet。如果你在安装时碰到任何问题，
+
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/249)
 
