@@ -1,6 +1,6 @@
 # 情感分析
 
-情感分析是非常重要的一项自然语言处理的任务。例如对于Amazon会对网站所销售的每个产品的评论进行情感分类，Netflix或者IMDb会对每部电影的评论进行情感分类，从而帮助各个平台提供更好的改进产品，提升用户体验。本节介绍如何使用gluon来创建一个情感分类模型，目标是给定一句话，判断这句话包含的是“正面”还是“负面”的情绪。为此，我们构造了一个简单的神经网络，其中包括embedding层，encoder（bidirectional LSTM），decoder，来判断IMDb上电影评论蕴含的情感。下面就让我们一起来构造这个情感分析模型吧。
+情感分析是非常重要的一项自然语言处理的任务。例如对于Amazon会对网站所销售的每个产品的评论进行情感分类，Netflix或者IMDb会对每部电影的评论进行情感分类，从而帮助各个平台提供更好的改进产品，提升用户体验。本节介绍如何使用gluon来创建一个情感分类模型，目标是给定一句话，判断这句话包含的是“正面”还是“负面”的情绪。为此，我们构造了一个简单的神经网络，其中包括`embedding`层，`encoder`（`bidirectional LSTM`），`decoder`，来判断IMDb上电影评论蕴含的情感。下面就让我们一起来构造这个情感分析模型吧。
 
 
 ## 准备工作
@@ -17,11 +17,33 @@ from mxnet import init, gluon, autograd
 from collections import Counter
 ```
 
-### 读取IMDB
+### 读取IMDb数据集
 
-接着需要下载情感分析时需要用的数据集。我们使用Stanford's Large Movie Review Dataset[1]作为数据集，下载地址：http://ai.stanford.edu/~amaas/data/sentiment/ 。这个数据集分为训练（train）和测试（test）数据集，分别都有25,000条从IMDb下载的关于电影的评论，其中12,500条被标注成“正面”的评论，另外12,500条被标注成“负面”的评论。我们使用1表示'正面'评论，0表示'负面'评论。下载好之后，将数据解压，放在教程的'data/'文件夹之下。
+接着需要下载情感分析时需要用的数据集。我们使用Stanford's Large Movie Review Dataset[1]作为数据集。
+* 下载地址：http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz 。
+
+这个数据集分为训练（train）和测试（test）数据集，分别都有25,000条从IMDb下载的关于电影的评论，其中12,500条被标注成“正面”的评论，
+另外12,500条被标注成“负面”的评论。我们使用1表示'正面'评论，0表示'负面'评论。
+
+下载好之后，将数据解压，放在教程的'../data/'文件夹之下，最后文件位置如下。
+
+* '../data/aclImdb'
+
+注意，如果读者已经下载了上述数据集，请略过此步，请设置`demo = False`。
+
+否则，如果读者想快速上手，并没有下载上述数据集，我们提供了上述数据集的一个小的采样'../data/aclImdb_tiny.zip'，
+运行下面的代码解压这个小数据集。
 
 ```{.python .input  n=2}
+# 如果训练下载的IMDb的完整数据集，把下面改False
+demo = True
+if demo:
+    import zipfile
+    with zipfile.ZipFile('../data/aclImdb_tiny.zip', 'r') as zin:
+        zin.extractall('../data/')
+```
+
+```{.python .input  n=3}
 def readIMDB(dir_url, seg = 'train'):
     import os
     pos_or_neg = ['pos','neg']
@@ -29,7 +51,7 @@ def readIMDB(dir_url, seg = 'train'):
     for lb in pos_or_neg:
         files = os.listdir('../data/' + dir_url + '/' + seg + '/' + lb + '/')
         for file in files:
-            with open('../data/' + dir_url + '/' + seg + '/' + lb + '/' + file,'r',encoding='utf8') as rf:
+            with open('../data/' + dir_url + '/' + seg + '/' + lb + '/' + file, 'r', encoding='utf8') as rf:
                 review = rf.read().replace('\n','')
                 if lb == 'pos':
                     dataset.append([review, 1])
@@ -37,34 +59,28 @@ def readIMDB(dir_url, seg = 'train'):
                     dataset.append([review, 0])
     return dataset
 
-train_dataset = readIMDB('aclImdb/', 'train')
-test_dataset = readIMDB('aclImdb/', 'test')
-```
+if demo:
+    train_dataset = readIMDB('aclImdb_tiny/', 'train')
+    test_dataset = readIMDB('aclImdb_tiny/', 'test')
+else:
+    train_dataset = readIMDB('aclImdb/', 'train')
+    test_dataset = readIMDB('aclImdb/', 'test')
 
-下面这步是可选的，如果您迫不急待的想查看情感分析的结果，那么下面这步会帮您采样1/25的数据，快速训练模型并得到结果。否则，请忽略下面这步，使用原始的数据集进行训练和预测。
-
-```{.python .input  n=3}
-#随机采样1000个样本用于训练和预测
-
-def sample_dataset(dataset, selected_sample_idxs):
-    sampled_dataset = []
-    for idx in selected_sample_idxs:
-        sampled_dataset.append(dataset[idx])
-    return sampled_dataset
-sampler = gluon.contrib.data.IntervalSampler(len(train_dataset), interval=2500, rollover=False)
-
-train_dataset = sample_dataset(train_dataset, list(sampler))
-test_dataset = sample_dataset(test_dataset, list(sampler))
+#shuffle数据集
+import random
+random.shuffle(train_dataset)
+random.shuffle(test_dataset)
 ```
 
 ### 指定分词工具并且分词
 
 接下来我们对每条评论分词，得到分好词的评论。我们选用spacy进行分词，记得先pip安装spacy：
-'pip install spacy'
-'python -m spacy download en'
+* `pip install spacy`
+* `python -m spacy download en`
+
 然后运行下面的代码。
 
-```{.python .input  n=5}
+```{.python .input  n=4}
 import spacy
 spacy_en = spacy.load('en')
 
@@ -74,7 +90,7 @@ def tokenizer(text):
 
 通过执行下面的代码，我们能够获得训练和测试数据集的分好词的评论，并且得到相应的情感标签（1代表‘正面’，0代表‘负面’情绪）。
 
-```{.python .input  n=6}
+```{.python .input  n=5}
 train_tokenized = []
 train_labels = []
 for review, score in train_dataset:
@@ -89,9 +105,10 @@ for review, score in test_dataset:
 
 ### 创建词典
 
-现在，先根据分好词的训练数据创建counter，然后使用mxnet.contrib中的vocab创建词典。这里我们特别设置训练数据中没有的单词对应的符号'<unk\>'，所有不存在在词典中的词，未来都将对应到这个符号。
+现在，先根据分好词的训练数据创建counter，然后使用mxnet.contrib中的vocab创建词典。
+这里我们特别设置训练数据中没有的单词对应的符号'<unk\>'，所有不存在在词典中的词，未来都将对应到这个符号。
 
-```{.python .input  n=7}
+```{.python .input  n=6}
 from mxnet.contrib import text
 
 token_counter = Counter()
@@ -107,9 +124,9 @@ count_token(train_tokenized)
 vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>', reserved_tokens=None)
 ```
 
-### 将分好词的数据转化成ndarray
+### 将分好词的数据转化成NDArray
 
-```{.python .input  n=8}
+```{.python .input  n=7}
 #根据词典，将数据转换成特征向量
 def encode_samples(x_raw_samples, vocab):
     x_encoded_samples = []
@@ -140,64 +157,71 @@ def pad_samples(x_encoded_samples, maxlen = 500, val = 0):
 
 运行下面的代码将分好词的训练和测试数据转化成特征向量。
 
-```{.python .input  n=9}
+```{.python .input  n=8}
 x_encoded_train = encode_samples(train_tokenized, vocab)
 x_encoded_test = encode_samples(test_tokenized, vocab)
 ```
 
-通过执行下面的代码将特征向量补成定长（我们使用500），然后将特征向量转化为指定context上的ndarray。这里我们假定您有至少一块gpu，context被设置成gpu。当然，也可以使用cpu，运行速度可能稍微慢一点点。
+通过执行下面的代码将特征向量补成定长（我们使用500），然后将特征向量转化为指定context上的NDArray。
+这里我们假定您有至少一块gpu，context被设置成gpu。当然，也可以使用cpu，运行速度可能稍微慢一点点。
 
-```{.python .input  n=10}
+```{.python .input  n=9}
 #指定context
 context = mx.gpu(0)
 x_train = mx.nd.array(pad_samples(x_encoded_train, 500, 0), ctx=context)
 x_test = mx.nd.array(pad_samples(x_encoded_test, 500, 0), ctx=context)
 ```
 
-这里，我们将情感标签也转化成为了ndarray。
+这里，我们将情感标签也转化成为了NDArray。
 
-```{.python .input  n=12}
+```{.python .input  n=10}
 y_train = mx.nd.array([score for text, score in train_dataset], ctx=context)
 y_test = mx.nd.array([score for text, score in test_dataset], ctx=context)
 ```
 
 ### 加载预训练的词向量
 
-这里我们使用之前创建的词典vocab以及Glove词向量创建词典中每个词所对应的词向量。词向量将在后续的模型中作为每个词的初始权重加入模型，这样做有助于提升模型的结果。我们在这里使用"glove.6B.100d.txt"作为预训练的词向量。
+这里我们使用之前创建的词典vocab以及Glove词向量创建词典中每个词所对应的词向量。词向量将在后续的模型中作为每个词的初始权重加入模型，
+这样做有助于提升模型的结果。我们在这里使用'glove.6B.100d.txt'作为预训练的词向量。
 
-```{.python .input  n=17}
+```{.python .input  n=11}
 glove_embedding = text.embedding.create('glove', pretrained_file_name='glove.6B.100d.txt', vocabulary=vocab)
 ```
 
 ## 创建情感分析模型
 
-情感分类模型是一种比较经典的能使用seq2seq模型的应用。具体的，情感分类输入many-to-one的seq2seq。这种模型一个比较经典的结构为encoder-decoder结构。其中第一个seq是一个不定长的序列，encoder的作用是对于这个序列生成一种表示。第二个seq是一个长度为1的标签，decoder的作用就是利用encoder生成的表示，生成预测，判断类别。基于这种结构，我们设计如下神经网络结构，其结构比较简单，如下图所示。
+情感分类模型是一种比较经典的能使用`seq2seq`模型的应用。具体的，情感分类输入many-to-one的`seq2seq`。
+这种模型一个比较经典的结构为`encoder-decoder`结构。
+其中第一个seq是一个不定长的序列，`encoder`的作用是对于这个序列生成一种表示。第二个seq是一个长度为1的标签，
+`decoder`的作用就是利用`encoder`生成的表示，生成预测，判断类别。基于这种结构，我们设计如下神经网络结构，其结构比较简单，如下图所示。
 
 <img src="../img/samodel-v3.png">
 
 模型包含四部分：
-1，embedding layer: 其将输入数据转化成为TNC的ndarray，并且使用预先加载词向量作为该层的权重。
-2，encoder: 我们将重点介绍这一部分。decoder是由一个两层的bidirectional LSTM构成。这样做的好处是，我们能够利用LSTM的输出作为输入样本的特征，之后用于预测。
-3，pooling layer: 我们使用这个encoder的time step第0步的输出，以及time step最后一步的输出作为每个batch中examples的特征。
-4，decoder: 最后，我们利用上一步所生成的特征，通过一个dense层做预测。
+* 1，`embedding layer`: 其将输入数据转化成为TNC的NDArray，并且使用预先加载词向量作为该层的权重。
+* 2，`encoder`: 我们将重点介绍这一部分。decoder是由一个两层的bidirectional LSTM构成。
+这样做的好处是，我们能够利用LSTM的输出作为输入样本的特征，之后用于预测。
+* 3，`pooling layer`: 我们使用这个encoder在时刻0的输出，以及时刻最后一步的输出作为每个batch中examples的特征。
+* 4，`decoder`: 最后，我们利用上一步所生成的特征，通过一个dense层做预测。
 
-```{.python .input  n=18}
+```{.python .input  n=12}
 nclass = 2
 lr = 0.1
-epochs = 3
+num_epochs = 1
 batch_size = 10
 emsize = 100
-nhid = 100
-nlayers = 1
+num_hiddens = 100
+nlayers = 2
 bidirectional = True
 
 class SentimentNet(gluon.Block):
-    def __init__(self, vocab, emsize, nhid, nlayers, bidirectional, **kwargs):
+    def __init__(self, vocab, emsize, num_hiddens, nlayers, bidirectional, **kwargs):
         super(SentimentNet, self).__init__(**kwargs)
         with self.name_scope():
             self.embedding = gluon.nn.Embedding(len(vocab), emsize, weight_initializer=init.Uniform(0.1))
-            self.encoder = gluon.rnn.LSTM(nhid, num_layers=nlayers, bidirectional=bidirectional, input_size=emsize)
-            self.decoder = gluon.nn.Dense(nclass)
+            self.encoder = gluon.rnn.LSTM(num_hiddens, num_layers=nlayers, 
+                                          bidirectional=bidirectional, input_size=emsize)
+            self.decoder = gluon.nn.Dense(nclass, flatten=False)
     def forward(self, inputs, begin_state=None):
         outputs = self.embedding(inputs)
         outputs = self.encoder(outputs)
@@ -205,7 +229,7 @@ class SentimentNet(gluon.Block):
         outputs = self.decoder(outputs)
         return outputs
     
-net = SentimentNet(vocab, emsize, nhid, nlayers, bidirectional)
+net = SentimentNet(vocab, emsize, num_hiddens, nlayers, bidirectional)
 net.initialize(mx.init.Xavier(), ctx=context)
 #设置embedding层的weight为词向量
 net.embedding.weight.set_data(glove_embedding.idx_to_vec.as_in_context(context))
@@ -218,17 +242,18 @@ loss = gluon.loss.SoftmaxCrossEntropyLoss()
 
 ## 训练模型
 
-这里我们训练模型。我们使用预先设置好的epoch数量和batch_size训练模型。可以看到，gluon能极大的简化训练的代码量，使得训练过程看起来非常简洁。另外，我们使用cross entropy作为loss，使用accuracy来评价模型。
+这里我们训练模型。我们使用预先设置好的迭代次数和batch_size训练模型。可以看到，gluon能极大的简化训练的代码量，
+使得训练过程看起来非常简洁。另外，我们使用cross entropy作为loss，使用accuracy来评价模型。
 
-```{.python .input  n=29}
+```{.python .input  n=13}
 #使用accuracy作为评价指标
 def eval(x_samples, y_samples):
     total_L = 0
     ntotal = 0
     accuracy = mx.metric.Accuracy()
     for i in range(x_samples.shape[0]//batch_size):
-        data = x_train[i*batch_size:(i+1)*batch_size]
-        target = y_train[i*batch_size:(i+1)*batch_size]
+        data = x_samples[i*batch_size:(i+1)*batch_size]
+        target = y_samples[i*batch_size:(i+1)*batch_size]
         data = data.as_in_context(context).T
         target = target.as_in_context(context).T
         output = net(data)
@@ -237,14 +262,17 @@ def eval(x_samples, y_samples):
         ntotal += L.size
         predicts = mx.nd.argmax(output, axis=1)
         accuracy.update(preds=predicts, labels=target)
-    return total_L/ntotal, accuracy.get()[1]
+    return total_L / ntotal, accuracy.get()[1]
 ```
 
-```{.python .input  n=30}
+运行下面的代码开始训练模型。我们每800个batch，会输出一次当前的loss。注意整个训练过程大约会花去5分钟时间，
+如果在cpu上，时间会更久。所以请各位耐心等待一下。
+
+```{.python .input  n=14}
 import time
 
 start_train_time = time.time()
-for epoch in range(epochs):
+for epoch in range(num_epochs):
     start_epoch_time = time.time()
     total_L = 0
     ntotal = 0
@@ -260,33 +288,81 @@ for epoch in range(epochs):
         trainer.step(batch_size)
         total_L += mx.nd.sum(L).asscalar()
         ntotal += L.size
-        if i % 200 == 0 and i != 0:
-            print("[Epoch %d] Batch %d. loss %.2f"%(epoch, i, total_L/ntotal))
+        if i % 800 == 0 and i != 0:
+            print('[epoch %d] Batch %d. loss %.6f'%(epoch, i, total_L / ntotal))
             total_L = 0
             ntotal = 0
-    train_loss, train_accuracy = eval(x_train, y_train)
-    test_loss, test_accuracy = eval(x_test, y_test)
-    print("[Epoch %d] Train loss %.2f, Train accuracy %.2f"%(epoch, train_loss, train_accuracy))
-    print("[Epoch %d] Test loss %.2f, Test accuracy %.2f"%(epoch, test_loss, test_accuracy))
-    print('[Epoch %d] throughput %.2f samples/s'%(epoch, (batch_size * len(x_train)) / (time.time() - start_epoch_time)))
-    print('[Epoch %d] total time %.2f s'%(epoch, (time.time() - start_epoch_time)))
+            
+    print('Peforming testing:')
+    train_loss, train_acc = eval(x_train, y_train)
+    test_loss, test_acc = eval(x_test, y_test)
+        
+    print('[epoch %d] Train loss %.6f, Train accuracy %.2f'%(epoch, train_loss, train_acc))
+    print('[epoch %d] Test loss %.6f, Test accuracy %.2f'%(epoch, test_loss, test_acc))
+    print('[epoch %d] throughput %.2f samples/s'%(epoch, (batch_size * len(x_train)) 
+                                                  / (time.time() - start_epoch_time)))
+    print('[epoch %d] total time %.2f s'%(epoch, (time.time() - start_epoch_time)))
 print('Total training throughput %.2f samples/s'
-      %((batch_size * len(x_train) * epochs) / (time.time() - start_train_time)))
+      %((batch_size * len(x_train) * num_epochs) / (time.time() - start_train_time)))
 print('Total training time %.2f s'%((time.time() - start_train_time)))
+```
+
+```{.json .output n=14}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "[epoch 0] Batch 800. loss 0.691739\n[epoch 0] Batch 1600. loss 0.679358\n[epoch 0] Batch 2400. loss 0.656549\nPeforming testing:\n[epoch 0] Train loss 0.591668, Train accuracy 0.69\n[epoch 0] Test loss 0.599357, Test accuracy 0.69\n[epoch 0] throughput 531.89 samples/s\n[epoch 0] total time 470.02 s\nTotal training throughput 531.89 samples/s\nTotal training time 470.02 s\n"
+ }
+]
 ```
 
 到这里，您已经成功使用gluon创建了一个情感分类模型。下面我们举了一个例子，来看看我们情感分类模型的效果。
 
-```{.python .input  n=89}
+```{.python .input  n=15}
 review = ['This', 'movie', 'is', 'great']
-net(mx.nd.reshape(mx.nd.array([vocab.token_to_idx[token] for token in review], ctx=context), shape=(-1, 1))).sigmoid()
+print(review)
+print('上面这个句子的情感是（1代表正面，0代表负面）：')
+mx.nd.argmax(net(mx.nd.reshape(mx.nd.array([vocab.token_to_idx[token] for token in review], ctx=context), 
+                               shape=(-1, 1))), axis=1).asscalar()
 ```
 
-## 总结
+```{.json .output n=15}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "['This', 'movie', 'is', 'great']\n\u4e0a\u9762\u8fd9\u4e2a\u53e5\u5b50\u7684\u60c5\u611f\u662f\uff081\u4ee3\u8868\u6b63\u9762\uff0c0\u4ee3\u8868\u8d1f\u9762\uff09\uff1a\n"
+ },
+ {
+  "data": {
+   "text/plain": "1.0"
+  },
+  "execution_count": 15,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
 
-这节，我们使用了之前学到的预训练的词向量以及bidirectional的LSTM来构建情感分类模型，通过使用gluon，我们可以很简单的就构造出一个还不错的情感模型。大家可以尝试下面几个方面来得到更好的情感分类模型：
-1，使用更大的预训练词向量，例如300维的glove向量；
-2，使用更加deep的encoder，即使用更多数量的layer；
-3，使用更加有意思的decoder，例如可以加上LSTM，之后再加上dense layer。
+## 小结
+
+这节，我们使用了之前学到的预训练的词向量以及bidirectional的`LSTM`来构建情感分类模型，通过使用gluon，我们可以很简单的就构造出一个还不错的情感模型。
+
+## 练习
+
+大家可以尝试下面几个方面来得到更好的情感分类模型：
+* 想要提高最后的accuracy，有一个小方法，就是把迭代次数(num_epochs)改成3。最后在训练和测试数据上大概能达到accuracy 0.85。
+* 使用更大的预训练词向量，例如300维的glove向量；
+* 使用更加deep的`encoder`，即使用更多数量的layer；
+* 使用更加有意思的`decoder`，例如可以加上`LSTM`，之后再加上dense layer。
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6155)
+
+
+![](../img/qr_sentiment-analysis.svg)
+
+
+## 参考文献
 
 [1] Andrew L. Maas, Raymond E. Daly, Peter T. Pham, Dan Huang, Andrew Y. Ng, and Christopher Potts. (2011). Learning Word Vectors for Sentiment Analysis. The 49th Annual Meeting of the Association for Computational Linguistics (ACL 2011).
