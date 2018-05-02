@@ -20,25 +20,25 @@
 
 ### 模型定义
 
-给定一个输入为$\mathbf{x} \in \mathbb{R}^x$（每个样本输入向量长度为$x$）和真实值为$y \in \mathbb{R}$的训练数据样本，不考虑偏差项，我们可以得到中间变量
+给定一个输入为$\boldsymbol{x} \in \mathbb{R}^x$（每个样本输入向量长度为$x$）和真实值为$y \in \mathbb{R}$的训练数据样本，不考虑偏差项，我们可以得到中间变量
 
-$$\mathbf{z} = \mathbf{W}^{(1)} \mathbf{x}$$
+$$\boldsymbol{z} = \boldsymbol{W}^{(1)} \boldsymbol{x}$$
 
-其中$\mathbf{W}^{(1)} \in \mathbb{R}^{h \times x}$是模型参数。中间变量$\mathbf{z} \in \mathbb{R}^h$应用按元素操作的激活函数$\phi$后将得到向量长度为$h$的隐含层变量
+其中$\boldsymbol{W}^{(1)} \in \mathbb{R}^{h \times x}$是模型参数。中间变量$\boldsymbol{z} \in \mathbb{R}^h$应用按元素操作的激活函数$\phi$后将得到向量长度为$h$的隐含层变量
 
-$$\mathbf{h} = \phi (\mathbf{z})$$
+$$\boldsymbol{h} = \phi (\boldsymbol{z})$$
 
-隐含层$\mathbf{h} \in \mathbb{R}^h$也是一个中间变量。通过模型参数$\mathbf{W}^{(2)} \in \mathbb{R}^{y \times h}$可以得到向量长度为$y$输出层变量
+隐含层$\boldsymbol{h} \in \mathbb{R}^h$也是一个中间变量。通过模型参数$\boldsymbol{W}^{(2)} \in \mathbb{R}^{y \times h}$可以得到向量长度为$y$输出层变量
 
-$$\mathbf{o} = \mathbf{W}^{(2)} \mathbf{h}$$
+$$\boldsymbol{o} = \boldsymbol{W}^{(2)} \boldsymbol{h}$$
 
 假设损失函数为$\ell$，损失项
 
-$$L = \ell(\mathbf{o}, y)$$
+$$L = \ell(\boldsymbol{o}, y)$$
 
 根据$L_2$范数[正则化](reg-scratch.md)的定义，带有提前设定的超参数$\lambda$的正则化项
 
-$$s = \frac{\lambda}{2} (\|\mathbf{W}^{(1)}\|_2^2 + \|\mathbf{W}^{(2)}\|_2^2)$$
+$$s = \frac{\lambda}{2} (\|\boldsymbol{W}^{(1)}\|_2^2 + \|\boldsymbol{W}^{(2)}\|_2^2)$$
 
 模型最终需要被优化的目标函数
 
@@ -52,13 +52,13 @@ $$J = L + s$$
 
 ### 梯度的计算与存储
 
-在上图中，模型的参数是$\mathbf{W}^{(1)}$和$\mathbf{W}^{(2)}$。为了在模型训练中学习这两个参数，以随机梯度下降为例，假设学习率为$\eta$，我们可以通过
+在上图中，模型的参数是$\boldsymbol{W}^{(1)}$和$\boldsymbol{W}^{(2)}$。为了在模型训练中学习这两个参数，以随机梯度下降为例，假设学习率为$\eta$，我们可以通过
 
-$$\mathbf{W}^{(1)} = \mathbf{W}^{(1)} - \eta \frac{\partial J}{\partial \mathbf{W}^{(1)}}$$
+$$\boldsymbol{W}^{(1)} = \boldsymbol{W}^{(1)} - \eta \frac{\partial J}{\partial \boldsymbol{W}^{(1)}}$$
 
-$$\mathbf{W}^{(2)} = \mathbf{W}^{(2)} - \eta \frac{\partial J}{\partial \mathbf{W}^{(2)}}$$
+$$\boldsymbol{W}^{(2)} = \boldsymbol{W}^{(2)} - \eta \frac{\partial J}{\partial \boldsymbol{W}^{(2)}}$$
 
-来不断迭代模型参数的值。因此我们需要模型参数梯度$\partial J/\partial \mathbf{W}^{(1)}$和$\partial J/\partial \mathbf{W}^{(2)}$。为此，我们可以按照反向传播的次序依次计算并存储梯度。
+来不断迭代模型参数的值。因此我们需要模型参数梯度$\partial J/\partial \boldsymbol{W}^{(1)}$和$\partial J/\partial \boldsymbol{W}^{(2)}$。为此，我们可以按照反向传播的次序依次计算并存储梯度。
 
 为了表述方便，对输入输出$\mathsf{X}, \mathsf{Y}, \mathsf{Z}$为任意形状张量的函数$\mathsf{Y}=f(\mathsf{X})$和$\mathsf{Z}=g(\mathsf{Y})$，我们使用
 
@@ -74,59 +74,59 @@ $$\frac{\partial J}{\partial L} = 1$$
 $$\frac{\partial J}{\partial s} = 1$$
 
 
-其次，我们依据链式法则计算目标函数有关输出层变量的梯度$\partial J/\partial \mathbf{o} \in \mathbb{R}^{y}$。
+其次，我们依据链式法则计算目标函数有关输出层变量的梯度$\partial J/\partial \boldsymbol{o} \in \mathbb{R}^{y}$。
 
-$$\frac{\partial J}{\partial \mathbf{o}} 
-= \text{prod}(\frac{\partial J}{\partial L}， \frac{\partial L}{\partial \mathbf{o}})
-= \frac{\partial L}{\partial \mathbf{o}}$$
+$$\frac{\partial J}{\partial \boldsymbol{o}} 
+= \text{prod}(\frac{\partial J}{\partial L}， \frac{\partial L}{\partial \boldsymbol{o}})
+= \frac{\partial L}{\partial \boldsymbol{o}}$$
 
 
 正则项有关两个参数的梯度可以很直观地计算：
 
-$$\frac{\partial s}{\partial \mathbf{W}^{(1)}} = \lambda \mathbf{W}^{(1)}$$
+$$\frac{\partial s}{\partial \boldsymbol{W}^{(1)}} = \lambda \boldsymbol{W}^{(1)}$$
 
-$$\frac{\partial s}{\partial \mathbf{W}^{(2)}} = \lambda \mathbf{W}^{(2)}$$
-
-
-
-现在我们可以计算最靠近输出层的模型参数的梯度$\partial J/\partial \mathbf{W}^{(2)} \in \mathbb{R}^{y \times h}$。在计算图中，$\mathbf{W}^{(2)}$可以经过$\mathbf{o}$和$s$通向$J$，依据链式法则，我们有
-
-$$
-\frac{\partial J}{\partial \mathbf{W}^{(2)}} 
-= \text{prod}(\frac{\partial J}{\partial \mathbf{o}}, \frac{\partial \mathbf{o}}{\partial \mathbf{W}^{(2)}}) + \text{prod}(\frac{\partial J}{\partial s}, \frac{\partial s}{\partial \mathbf{W}^{(2)}})
-= \frac{\partial J}{\partial \mathbf{o}} \mathbf{h}^\top + \lambda \mathbf{W}^{(2)}
-$$
+$$\frac{\partial s}{\partial \boldsymbol{W}^{(2)}} = \lambda \boldsymbol{W}^{(2)}$$
 
 
-沿着输出层向隐含层继续反向传播，隐含层变量的梯度$\partial J/\partial \mathbf{h} \in \mathbb{R}^h$可以这样计算
+
+现在我们可以计算最靠近输出层的模型参数的梯度$\partial J/\partial \boldsymbol{W}^{(2)} \in \mathbb{R}^{y \times h}$。在计算图中，$\boldsymbol{W}^{(2)}$可以经过$\boldsymbol{o}$和$s$通向$J$，依据链式法则，我们有
 
 $$
-\frac{\partial J}{\partial \mathbf{h}} 
-= \text{prod}(\frac{\partial J}{\partial \mathbf{o}}， \frac{\partial \mathbf{o}}{\partial \mathbf{h}})
-= {\mathbf{W}^{(2)}}^\top \frac{\partial J}{\partial \mathbf{o}}
+\frac{\partial J}{\partial \boldsymbol{W}^{(2)}} 
+= \text{prod}(\frac{\partial J}{\partial \boldsymbol{o}}, \frac{\partial \boldsymbol{o}}{\partial \boldsymbol{W}^{(2)}}) + \text{prod}(\frac{\partial J}{\partial s}, \frac{\partial s}{\partial \boldsymbol{W}^{(2)}})
+= \frac{\partial J}{\partial \boldsymbol{o}} \boldsymbol{h}^\top + \lambda \boldsymbol{W}^{(2)}
 $$
 
 
-注意到激活函数$\phi$是按元素操作的，中间变量$\mathbf{z}$的梯度$\partial J/\partial \mathbf{z} \in \mathbb{R}^h$的计算需要使用按元素乘法符$\odot$
+沿着输出层向隐含层继续反向传播，隐含层变量的梯度$\partial J/\partial \boldsymbol{h} \in \mathbb{R}^h$可以这样计算
 
 $$
-\frac{\partial J}{\partial \mathbf{z}} 
-= \text{prod}(\frac{\partial J}{\partial \mathbf{h}}， \frac{\partial \mathbf{h}}{\partial \mathbf{z}})
-= \frac{\partial J}{\partial \mathbf{h}} \odot \phi^\prime(\mathbf{z})
-$$
-
-最终，我们可以得到最靠近输入层的模型参数的梯度$\partial J/\partial \mathbf{W}^{(1)} \in \mathbb{R}^{h \times x}$。在计算图中，$\mathbf{W}^{(1)}$可以经过$\mathbf{z}$和$s$通向$J$，依据链式法则，我们有
-
-$$
-\frac{\partial J}{\partial \mathbf{W}^{(1)}} 
-= \text{prod}(\frac{\partial J}{\partial \mathbf{z}}, \frac{\partial \mathbf{z}}{\partial \mathbf{W}^{(1)}}) + \text{prod}(\frac{\partial J}{\partial s}, \frac{\partial s}{\partial \mathbf{W}^{(1)}})
-= \frac{\partial J}{\partial \mathbf{z}} \mathbf{x}^\top + \lambda \mathbf{W}^{(1)}
+\frac{\partial J}{\partial \boldsymbol{h}} 
+= \text{prod}(\frac{\partial J}{\partial \boldsymbol{o}}， \frac{\partial \boldsymbol{o}}{\partial \boldsymbol{h}})
+= {\boldsymbol{W}^{(2)}}^\top \frac{\partial J}{\partial \boldsymbol{o}}
 $$
 
 
-需要再次提醒的是，每次迭代中，上述各个依次计算出的梯度会被依次存储或更新。这是为了避免重复计算。例如，由于输出层变量梯度$\partial J/\partial \mathbf{o}$被计算存储，反向传播稍后的参数梯度$\partial J/\partial \mathbf{W}^{(2)}$和隐含层变量梯度$\partial J/\partial \mathbf{h}$的计算可以直接读取输出层变量梯度的值，而无需重复计算。
+注意到激活函数$\phi$是按元素操作的，中间变量$\boldsymbol{z}$的梯度$\partial J/\partial \boldsymbol{z} \in \mathbb{R}^h$的计算需要使用按元素乘法符$\odot$
 
-还有需要注意的是，反向传播对于各层中变量和参数的梯度计算可能会依赖通过正向传播计算出的各层变量和参数的当前值。举例来说，参数梯度$\partial J/\partial \mathbf{W}^{(2)}$的计算需要依赖隐含层变量的当前值$\mathbf{h}$。这个当前值是通过从输入层到输出层的正向传播计算并存储得到的。
+$$
+\frac{\partial J}{\partial \boldsymbol{z}} 
+= \text{prod}(\frac{\partial J}{\partial \boldsymbol{h}}， \frac{\partial \boldsymbol{h}}{\partial \boldsymbol{z}})
+= \frac{\partial J}{\partial \boldsymbol{h}} \odot \phi^\prime(\boldsymbol{z})
+$$
+
+最终，我们可以得到最靠近输入层的模型参数的梯度$\partial J/\partial \boldsymbol{W}^{(1)} \in \mathbb{R}^{h \times x}$。在计算图中，$\boldsymbol{W}^{(1)}$可以经过$\boldsymbol{z}$和$s$通向$J$，依据链式法则，我们有
+
+$$
+\frac{\partial J}{\partial \boldsymbol{W}^{(1)}} 
+= \text{prod}(\frac{\partial J}{\partial \boldsymbol{z}}, \frac{\partial \boldsymbol{z}}{\partial \boldsymbol{W}^{(1)}}) + \text{prod}(\frac{\partial J}{\partial s}, \frac{\partial s}{\partial \boldsymbol{W}^{(1)}})
+= \frac{\partial J}{\partial \boldsymbol{z}} \boldsymbol{x}^\top + \lambda \boldsymbol{W}^{(1)}
+$$
+
+
+需要再次提醒的是，每次迭代中，上述各个依次计算出的梯度会被依次存储或更新。这是为了避免重复计算。例如，由于输出层变量梯度$\partial J/\partial \boldsymbol{o}$被计算存储，反向传播稍后的参数梯度$\partial J/\partial \boldsymbol{W}^{(2)}$和隐含层变量梯度$\partial J/\partial \boldsymbol{h}$的计算可以直接读取输出层变量梯度的值，而无需重复计算。
+
+还有需要注意的是，反向传播对于各层中变量和参数的梯度计算可能会依赖通过正向传播计算出的各层变量和参数的当前值。举例来说，参数梯度$\partial J/\partial \boldsymbol{W}^{(2)}$的计算需要依赖隐含层变量的当前值$\boldsymbol{h}$。这个当前值是通过从输入层到输出层的正向传播计算并存储得到的。
 
 ## 总结
 

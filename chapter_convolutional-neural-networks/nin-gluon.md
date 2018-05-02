@@ -1,4 +1,4 @@
-# 网络中的网络
+# 网络中的网络：NiN
 
 Alexnet之后一个重要的工作是[Network in Network（NiN）](https://arxiv.org/abs/1312.4400)，其提出的两个想法影响了后面的网络设计。
 

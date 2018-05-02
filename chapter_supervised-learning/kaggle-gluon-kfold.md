@@ -1,4 +1,4 @@
-# 实战Kaggle比赛——使用Gluon预测房价和K折交叉验证
+# 实战Kaggle比赛：使用Gluon预测房价和K折交叉验证
 
 本章介绍如何使用``Gluon``来实战[Kaggle比赛](https://www.kaggle.com)。我们以[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)为例，为大家提供一整套实战中常常需要的工具，例如**K折交叉验证**。我们还以``pandas``为工具介绍如何对**真实世界**中的数据进行重要的预处理，例如：
 

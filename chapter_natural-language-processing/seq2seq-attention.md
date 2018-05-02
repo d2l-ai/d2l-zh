@@ -17,39 +17,39 @@
 
 ## 编码器—解码器
 
-编码器和解码器是分别对应输入序列和输出序列的两个循环神经网络。我们通常会在输入序列和输出序列后面分别附上一个特殊字符'&lt;eos&gt;'（end of sequence）表示序列的终止。在测试模型时，一旦输出'&lt;eos&gt;'就终止当前的输出序列。
+编码器和解码器是分别对应输入序列和输出序列的两个循环神经网络。我们通常会在输入序列和输出序列后面分别附上一个特殊字符“&lt;eos&gt;”（end of sequence）表示序列的终止。在测试模型时，一旦输出“&lt;eos&gt;”就终止当前的输出序列。
 
 ### 编码器
 
-编码器的作用是把一个不定长的输入序列转化成一个定长的背景向量$\mathbf{c}$。该背景向量包含了输入序列的信息。常用的编码器是循环神经网络。
+编码器的作用是把一个不定长的输入序列转化成一个定长的背景向量$\boldsymbol{c}$。该背景向量包含了输入序列的信息。常用的编码器是循环神经网络。
 
 我们回顾一下[循环神经网络](../chapter_recurrent-neural-networks/rnn-scratch.md)知识。假设循环神经网络单元为$f$，在$t$时刻的输入为$x_t, t=1, \ldots, T$。
-假设$\mathbf{x}_t$是单个输出$x_t$在嵌入层的结果，例如$x_t$对应的one-hot向量$\mathbf{o} \in \mathbb{R}^x$与嵌入层参数矩阵$\mathbf{E} \in \mathbb{R}^{x \times h}$的乘积$\mathbf{o}^\top \mathbf{E}$。隐含层变量
+假设$\boldsymbol{x}_t$是单个输出$x_t$在嵌入层的结果，例如$x_t$对应的one-hot向量$\boldsymbol{o} \in \mathbb{R}^x$与嵌入层参数矩阵$\boldsymbol{E} \in \mathbb{R}^{x \times h}$的乘积$\boldsymbol{o}^\top \boldsymbol{E}$。隐含层变量
 
-$$\mathbf{h}_t = f(\mathbf{x}_t, \mathbf{h}_{t-1}) $$
+$$\boldsymbol{h}_t = f(\boldsymbol{x}_t, \boldsymbol{h}_{t-1}) $$
 
 编码器的背景向量
 
-$$\mathbf{c} =  q(\mathbf{h}_1, \ldots, \mathbf{h}_T)$$
+$$\boldsymbol{c} =  q(\boldsymbol{h}_1, \ldots, \boldsymbol{h}_T)$$
 
-一个简单的背景向量是该网络最终时刻的隐含层变量$\mathbf{h}_T$。
+一个简单的背景向量是该网络最终时刻的隐含层变量$\boldsymbol{h}_T$。
 我们将这里的循环神经网络叫做编码器。
 
 #### 双向循环神经网络
 
 编码器的输入既可以是正向传递，也可以是反向传递。如果输入序列是$x_1, x_2, \ldots, x_T$，在正向传递中，隐含层变量
 
-$$\overrightarrow{\mathbf{h}}_t = f(\mathbf{x}_t, \overrightarrow{\mathbf{h}}_{t-1}) $$
+$$\overrightarrow{\boldsymbol{h}}_t = f(\boldsymbol{x}_t, \overrightarrow{\boldsymbol{h}}_{t-1}) $$
 
 
 而反向传递中，隐含层变量的计算变为
 
-$$\overleftarrow{\mathbf{h}}_t = f(\mathbf{x}_t, \overleftarrow{\mathbf{h}}_{t+1}) $$
+$$\overleftarrow{\boldsymbol{h}}_t = f(\boldsymbol{x}_t, \overleftarrow{\boldsymbol{h}}_{t+1}) $$
 
 
 
 
-当我们希望编码器的输入既包含正向传递信息又包含反向传递信息时，我们可以使用双向循环神经网络。例如，给定输入序列$x_1, x_2, \ldots, x_T$，按正向传递，它们在循环神经网络的隐含层变量分别是$\overrightarrow{\mathbf{h}}_1, \overrightarrow{\mathbf{h}}_2, \ldots, \overrightarrow{\mathbf{h}}_T$；按反向传递，它们在循环神经网络的隐含层变量分别是$\overleftarrow{\mathbf{h}}_1, \overleftarrow{\mathbf{h}}_2, \ldots, \overleftarrow{\mathbf{h}}_T$。在双向循环神经网络中，时刻$i$的隐含层变量可以把$\overrightarrow{\mathbf{h}}_i$和$\overleftarrow{\mathbf{h}}_i$连结起来。
+当我们希望编码器的输入既包含正向传递信息又包含反向传递信息时，我们可以使用双向循环神经网络。例如，给定输入序列$x_1, x_2, \ldots, x_T$，按正向传递，它们在循环神经网络的隐含层变量分别是$\overrightarrow{\boldsymbol{h}}_1, \overrightarrow{\boldsymbol{h}}_2, \ldots, \overrightarrow{\boldsymbol{h}}_T$；按反向传递，它们在循环神经网络的隐含层变量分别是$\overleftarrow{\boldsymbol{h}}_1, \overleftarrow{\boldsymbol{h}}_2, \ldots, \overleftarrow{\boldsymbol{h}}_T$。在双向循环神经网络中，时刻$i$的隐含层变量可以把$\overrightarrow{\boldsymbol{h}}_i$和$\overleftarrow{\boldsymbol{h}}_i$连结起来。
 
 ![](../img/bi-rnn.svg)
 
@@ -64,11 +64,11 @@ h_bi
 
 ### 解码器
 
-编码器最终输出了一个背景向量$\mathbf{c}$，该背景向量编码了输入序列$x_1, x_2, \ldots, x_T$的信息。
+编码器最终输出了一个背景向量$\boldsymbol{c}$，该背景向量编码了输入序列$x_1, x_2, \ldots, x_T$的信息。
 
 假设训练数据中的输出序列是$y_1, y_2, \ldots, y_{T^\prime}$，我们希望表示每个$t$时刻输出的既取决于之前的输出又取决于背景向量。之后，我们就可以最大化输出序列的联合概率
 
-$$\mathbb{P}(y_1, \ldots, y_{T^\prime}) = \prod_{t^\prime=1}^{T^\prime} \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \mathbf{c})$$
+$$\mathbb{P}(y_1, \ldots, y_{T^\prime}) = \prod_{t^\prime=1}^{T^\prime} \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c})$$
 
 
 并得到该输出序列的损失函数
@@ -77,11 +77,11 @@ $$- \log\mathbb{P}(y_1, \ldots, y_{T^\prime})$$
 
 为此，我们使用另一个循环神经网络作为解码器。解码器使用函数$p$来表示单个输出$y_{t^\prime}$的概率
 
-$$\mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \mathbf{c}) = p(y_{t^\prime-1}, \mathbf{s}_{t^\prime}, \mathbf{c})$$
+$$\mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c}) = p(y_{t^\prime-1}, \boldsymbol{s}_{t^\prime}, \boldsymbol{c})$$
 
-其中的$\mathbf{s}_t$为$t^\prime$时刻的解码器的隐含层变量。该隐含层变量
+其中的$\boldsymbol{s}_t$为$t^\prime$时刻的解码器的隐含层变量。该隐含层变量
 
-$$\mathbf{s}_{t^\prime} = g(y_{t^\prime-1}, \mathbf{c}, \mathbf{s}_{t^\prime-1})$$
+$$\boldsymbol{s}_{t^\prime} = g(y_{t^\prime-1}, \boldsymbol{c}, \boldsymbol{s}_{t^\prime-1})$$
 
 其中函数$g$是循环神经网络单元。
 
@@ -93,14 +93,14 @@ $$\mathbf{s}_{t^\prime} = g(y_{t^\prime-1}, \mathbf{c}, \mathbf{s}_{t^\prime-1})
 
 以英语-法语翻译为例，给定一对输入序列“they are watching”和输出序列“Ils regardent”，解码器在时刻1可以使用更多编码了“they are”信息的背景向量来生成“Ils”，而在时刻2可以使用更多编码了“watching”信息的背景向量来生成“regardent”。这看上去就像是在解码器的每一时刻对输入序列中不同时刻分配不同的注意力。这也是注意力机制的由来。它最早[由Bahanau等在2015年提出](https://arxiv.org/abs/1409.0473)。
 
-现在，对上面的解码器稍作修改。我们假设时刻$t^\prime$的背景向量为$\mathbf{c}_{t^\prime}$。那么解码器在$t^\prime$时刻的隐含层变量
+现在，对上面的解码器稍作修改。我们假设时刻$t^\prime$的背景向量为$\boldsymbol{c}_{t^\prime}$。那么解码器在$t^\prime$时刻的隐含层变量
 
-$$\mathbf{s}_{t^\prime} = g(\mathbf{y}_{t^\prime-1}, \mathbf{c}_{t^\prime}, \mathbf{s}_{t^\prime-1})$$
+$$\boldsymbol{s}_{t^\prime} = g(\boldsymbol{y}_{t^\prime-1}, \boldsymbol{c}_{t^\prime}, \boldsymbol{s}_{t^\prime-1})$$
 
 
-令编码器在$t$时刻的隐含变量为$\mathbf{h}_t$，解码器在$t^\prime$时刻的背景向量为
+令编码器在$t$时刻的隐含变量为$\boldsymbol{h}_t$，解码器在$t^\prime$时刻的背景向量为
 
-$$\mathbf{c}_{t^\prime} = \sum_{t=1}^T \alpha_{t^\prime t} \mathbf{h}_t$$
+$$\boldsymbol{c}_{t^\prime} = \sum_{t=1}^T \alpha_{t^\prime t} \boldsymbol{h}_t$$
 
 
 也就是说，给定解码器的当前时刻$t^\prime$，我们需要对编码器中不同时刻$t$的隐含层变量求加权平均。而权值也称注意力权重。它的计算公式是
@@ -109,29 +109,29 @@ $$\alpha_{t^\prime t} = \frac{\exp(e_{t^\prime t})}{ \sum_{k=1}^T \exp(e_{t^\pri
 
 而$e_{t^\prime t} \in \mathbb{R}$的计算为：
 
-$$e_{t^\prime t} = a(\mathbf{s}_{t^\prime - 1}, \mathbf{h}_t)$$
+$$e_{t^\prime t} = a(\boldsymbol{s}_{t^\prime - 1}, \boldsymbol{h}_t)$$
 
 其中函数$a$有多种设计方法。在[Bahanau的论文](https://arxiv.org/abs/1409.0473)中，
 
-$$e_{t^\prime t} = \mathbf{v}^\top \tanh(\mathbf{W}_s \mathbf{s}_{t^\prime - 1} + \mathbf{W}_h \mathbf{h}_t)$$
+$$e_{t^\prime t} = \boldsymbol{v}^\top \tanh(\boldsymbol{W}_s \boldsymbol{s}_{t^\prime - 1} + \boldsymbol{W}_h \boldsymbol{h}_t)$$
 
-其中的$\mathbf{v}$、$\mathbf{W}_s$、$\mathbf{W}_h$和编码器与解码器两个循环神经网络中的各个权重和偏移项以及嵌入层参数等都是需要同时学习的模型参数。在[Bahanau的论文](https://arxiv.org/abs/1409.0473)中，编码器和解码器分别使用了[门控循环单元（GRU）](../chapter_recurrent-neural-networks/gru-scratch.md)。
+其中的$\boldsymbol{v}$、$\boldsymbol{W}_s$、$\boldsymbol{W}_h$和编码器与解码器两个循环神经网络中的各个权重和偏移项以及嵌入层参数等都是需要同时学习的模型参数。在[Bahanau的论文](https://arxiv.org/abs/1409.0473)中，编码器和解码器分别使用了[门控循环单元（GRU）](../chapter_recurrent-neural-networks/gru-scratch.md)。
 
 
 在解码器中，我们需要对GRU的设计稍作修改。
-假设$\mathbf{y}_t$是单个输出$y_t$在嵌入层的结果，例如$y_t$对应的one-hot向量$\mathbf{o} \in \mathbb{R}^y$与嵌入层参数矩阵$\mathbf{B} \in \mathbb{R}^{y \times s}$的乘积$\mathbf{o}^\top \mathbf{B}$。
-假设时刻$t^\prime$的背景向量为$\mathbf{c}_{t^\prime}$。那么解码器在$t^\prime$时刻的单个隐含层变量
+假设$\boldsymbol{y}_t$是单个输出$y_t$在嵌入层的结果，例如$y_t$对应的one-hot向量$\boldsymbol{o} \in \mathbb{R}^y$与嵌入层参数矩阵$\boldsymbol{B} \in \mathbb{R}^{y \times s}$的乘积$\boldsymbol{o}^\top \boldsymbol{B}$。
+假设时刻$t^\prime$的背景向量为$\boldsymbol{c}_{t^\prime}$。那么解码器在$t^\prime$时刻的单个隐含层变量
 
-$$\mathbf{s}_{t^\prime} = \mathbf{z}_{t^\prime} \odot \mathbf{s}_{t^\prime-1}  + (1 - \mathbf{z}_{t^\prime}) \odot \tilde{\mathbf{s}}_{t^\prime}$$
+$$\boldsymbol{s}_{t^\prime} = \boldsymbol{z}_{t^\prime} \odot \boldsymbol{s}_{t^\prime-1}  + (1 - \boldsymbol{z}_{t^\prime}) \odot \tilde{\boldsymbol{s}}_{t^\prime}$$
 
 其中的重置门、更新门和候选隐含状态分别为
 
 
-$$\mathbf{r}_{t^\prime} = \sigma(\mathbf{W}_{yr} \mathbf{y}_{t^\prime-1} + \mathbf{W}_{sr} \mathbf{s}_{t^\prime - 1} + \mathbf{W}_{cr} \mathbf{c}_{t^\prime} + \mathbf{b}_r)$$
+$$\boldsymbol{r}_{t^\prime} = \sigma(\boldsymbol{W}_{yr} \boldsymbol{y}_{t^\prime-1} + \boldsymbol{W}_{sr} \boldsymbol{s}_{t^\prime - 1} + \boldsymbol{W}_{cr} \boldsymbol{c}_{t^\prime} + \boldsymbol{b}_r)$$
 
-$$\mathbf{z}_{t^\prime} = \sigma(\mathbf{W}_{yz} \mathbf{y}_{t^\prime-1} + \mathbf{W}_{sz} \mathbf{s}_{t^\prime - 1} + \mathbf{W}_{cz} \mathbf{c}_{t^\prime} + \mathbf{b}_z)$$
+$$\boldsymbol{z}_{t^\prime} = \sigma(\boldsymbol{W}_{yz} \boldsymbol{y}_{t^\prime-1} + \boldsymbol{W}_{sz} \boldsymbol{s}_{t^\prime - 1} + \boldsymbol{W}_{cz} \boldsymbol{c}_{t^\prime} + \boldsymbol{b}_z)$$
 
-$$\tilde{\mathbf{s}}_{t^\prime} = \text{tanh}(\mathbf{W}_{ys} \mathbf{y}_{t^\prime-1} + \mathbf{W}_{ss} (\mathbf{s}_{t^\prime - 1} \odot \mathbf{r}_{t^\prime}) + \mathbf{W}_{cs} \mathbf{c}_{t^\prime} + \mathbf{b}_s)$$
+$$\tilde{\boldsymbol{s}}_{t^\prime} = \text{tanh}(\boldsymbol{W}_{ys} \boldsymbol{y}_{t^\prime-1} + \boldsymbol{W}_{ss} (\boldsymbol{s}_{t^\prime - 1} \odot \boldsymbol{r}_{t^\prime}) + \boldsymbol{W}_{cs} \boldsymbol{c}_{t^\prime} + \boldsymbol{b}_s)$$
 
 ## 结论
 

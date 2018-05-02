@@ -1,4 +1,4 @@
-# DenseNet：稠密连接的卷积神经网络
+# 稠密连接的网络：DenseNet
 
 ResNet的跨层连接思想影响了接下来的众多工作。这里我们介绍其中的一个：[DenseNet](https://arxiv.org/pdf/1608.06993.pdf)。下图展示了这两个的主要区别：
 

@@ -1,4 +1,4 @@
-# 长短期记忆（LSTM）--- 从0开始
+# 长短期记忆（LSTM）——从零开始
 
 [上一节](bptt.md)中，我们介绍了循环神经网络中的梯度计算方法。我们发现，循环神经网络的隐含层变量梯度可能会出现衰减或爆炸。虽然[梯度裁剪](rnn-scratch.md)可以应对梯度爆炸，但无法解决梯度衰减的问题。因此，给定一个时间序列，例如文本序列，循环神经网络在实际中其实较难捕捉两个时刻距离较大的文本元素（字或词）之间的依赖关系。
 
@@ -7,48 +7,48 @@
 
 ## 长短期记忆
 
-我们先介绍长短期记忆的构造。长短期记忆的隐含状态包括隐含层变量$\mathbf{H}$和细胞$\mathbf{C}$（也称记忆细胞）。它们形状相同。
+我们先介绍长短期记忆的构造。长短期记忆的隐含状态包括隐含层变量$\boldsymbol{H}$和细胞$\boldsymbol{C}$（也称记忆细胞）。它们形状相同。
 
 
 ### 输入门、遗忘门和输出门
 
 
-假定隐含状态长度为$h$，给定时刻$t$的一个样本数为$n$特征向量维度为$x$的批量数据$\mathbf{X}_t \in \mathbb{R}^{n \times x}$和上一时刻隐含状态$\mathbf{H}_{t-1} \in \mathbb{R}^{n \times h}$，输入门（input gate）$\mathbf{I}_t \in \mathbb{R}^{n \times h}$、遗忘门（forget gate）$\mathbf{F}_t \in \mathbb{R}^{n \times h}$和输出门（output gate）$\mathbf{O}_t \in \mathbb{R}^{n \times h}$的定义如下：
+假定隐含状态长度为$h$，给定时刻$t$的一个样本数为$n$特征向量维度为$x$的批量数据$\boldsymbol{X}_t \in \mathbb{R}^{n \times x}$和上一时刻隐含状态$\boldsymbol{H}_{t-1} \in \mathbb{R}^{n \times h}$，输入门（input gate）$\boldsymbol{I}_t \in \mathbb{R}^{n \times h}$、遗忘门（forget gate）$\boldsymbol{F}_t \in \mathbb{R}^{n \times h}$和输出门（output gate）$\boldsymbol{O}_t \in \mathbb{R}^{n \times h}$的定义如下：
 
-$$\mathbf{I}_t = \sigma(\mathbf{X}_t \mathbf{W}_{xi} + \mathbf{H}_{t-1} \mathbf{W}_{hi} + \mathbf{b}_i)$$
+$$\boldsymbol{I}_t = \sigma(\boldsymbol{X}_t \boldsymbol{W}_{xi} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hi} + \boldsymbol{b}_i)$$
 
-$$\mathbf{F}_t = \sigma(\mathbf{X}_t \mathbf{W}_{xf} + \mathbf{H}_{t-1} \mathbf{W}_{hf} + \mathbf{b}_f)$$
+$$\boldsymbol{F}_t = \sigma(\boldsymbol{X}_t \boldsymbol{W}_{xf} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hf} + \boldsymbol{b}_f)$$
 
-$$\mathbf{O}_t = \sigma(\mathbf{X}_t \mathbf{W}_{xo} + \mathbf{H}_{t-1} \mathbf{W}_{ho} + \mathbf{b}_o)$$
+$$\boldsymbol{O}_t = \sigma(\boldsymbol{X}_t \boldsymbol{W}_{xo} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{ho} + \boldsymbol{b}_o)$$
 
-其中的$\mathbf{W}_{xi}, \mathbf{W}_{xf}, \mathbf{W}_{xo} \in \mathbb{R}^{x \times h}$和$\mathbf{W}_{hi}, \mathbf{W}_{hf}, \mathbf{W}_{ho} \in \mathbb{R}^{h \times h}$是可学习的权重参数，$\mathbf{b}_i, \mathbf{b}_f, \mathbf{b}_o \in \mathbb{R}^{1 \times h}$是可学习的偏移参数。函数$\sigma$自变量中的三项相加使用了[广播](../chapter_crashcourse/ndarray.md)。
+其中的$\boldsymbol{W}_{xi}, \boldsymbol{W}_{xf}, \boldsymbol{W}_{xo} \in \mathbb{R}^{x \times h}$和$\boldsymbol{W}_{hi}, \boldsymbol{W}_{hf}, \boldsymbol{W}_{ho} \in \mathbb{R}^{h \times h}$是可学习的权重参数，$\boldsymbol{b}_i, \boldsymbol{b}_f, \boldsymbol{b}_o \in \mathbb{R}^{1 \times h}$是可学习的偏移参数。函数$\sigma$自变量中的三项相加使用了[广播](../chapter_crashcourse/ndarray.md)。
 
 和[门控循环单元](gru-scratch.md)中的重置门和更新门一样，这里的输入门、遗忘门和输出门中每个元素的值域都是$[0, 1]$。
 
 
 ### 候选细胞
 
-和[门控循环单元](gru-scratch.md)中的候选隐含状态一样，长短期记忆中的候选细胞$\tilde{\mathbf{C}}_t \in \mathbb{R}^{n \times h}$也使用了值域在$[-1, 1]$的双曲正切函数tanh做激活函数：
+和[门控循环单元](gru-scratch.md)中的候选隐含状态一样，长短期记忆中的候选细胞$\tilde{\boldsymbol{C}}_t \in \mathbb{R}^{n \times h}$也使用了值域在$[-1, 1]$的双曲正切函数tanh做激活函数：
 
-$$\tilde{\mathbf{C}}_t = \text{tanh}(\mathbf{X}_t \mathbf{W}_{xc} + \mathbf{H}_{t-1} \mathbf{W}_{hc} + \mathbf{b}_c)$$
+$$\tilde{\boldsymbol{C}}_t = \text{tanh}(\boldsymbol{X}_t \boldsymbol{W}_{xc} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hc} + \boldsymbol{b}_c)$$
 
-其中的$\mathbf{W}_{xc} \in \mathbb{R}^{x \times h}$和$\mathbf{W}_{hc} \in \mathbb{R}^{h \times h}$是可学习的权重参数，$\mathbf{b}_c \in \mathbb{R}^{1 \times h}$是可学习的偏移参数。
+其中的$\boldsymbol{W}_{xc} \in \mathbb{R}^{x \times h}$和$\boldsymbol{W}_{hc} \in \mathbb{R}^{h \times h}$是可学习的权重参数，$\boldsymbol{b}_c \in \mathbb{R}^{1 \times h}$是可学习的偏移参数。
 
 
 ### 细胞
 
-我们可以通过元素值域在$[0, 1]$的输入门、遗忘门和输出门来控制隐含状态中信息的流动：这通常可以应用按元素乘法符$\odot$。当前时刻细胞$\mathbf{C}_t \in \mathbb{R}^{n \times h}$的计算组合了上一时刻细胞和当前时刻候选细胞的信息，并通过遗忘门和输入门来控制信息的流动：
+我们可以通过元素值域在$[0, 1]$的输入门、遗忘门和输出门来控制隐含状态中信息的流动：这通常可以应用按元素乘法符$\odot$。当前时刻细胞$\boldsymbol{C}_t \in \mathbb{R}^{n \times h}$的计算组合了上一时刻细胞和当前时刻候选细胞的信息，并通过遗忘门和输入门来控制信息的流动：
 
-$$\mathbf{C}_t = \mathbf{F}_t \odot \mathbf{C}_{t-1} + \mathbf{I}_t \odot \tilde{\mathbf{C}}_t$$
+$$\boldsymbol{C}_t = \boldsymbol{F}_t \odot \boldsymbol{C}_{t-1} + \boldsymbol{I}_t \odot \tilde{\boldsymbol{C}}_t$$
 
 需要注意的是，如果遗忘门一直近似1且输入门一直近似0，过去的细胞将一直通过时间保存并传递至当前时刻。这个设计可以应对循环神经网络中的梯度衰减问题，并更好地捕捉时序数据中间隔较大的依赖关系。
 
 
 ### 隐含状态
 
-有了细胞以后，接下来我们还可以通过输出门来控制从细胞到隐含层变量$\mathbf{H}_t \in \mathbb{R}^{n \times h}$的信息的流动：
+有了细胞以后，接下来我们还可以通过输出门来控制从细胞到隐含层变量$\boldsymbol{H}_t \in \mathbb{R}^{n \times h}$的信息的流动：
 
-$$\mathbf{H}_t = \mathbf{O}_t \odot \text{tanh}(\mathbf{C}_t)$$
+$$\boldsymbol{H}_t = \boldsymbol{O}_t \odot \text{tanh}(\boldsymbol{C}_t)$$
 
 需要注意的是，当输出门近似1，细胞信息将传递到隐含层变量；当输出门近似0，细胞信息只自己保留。
 

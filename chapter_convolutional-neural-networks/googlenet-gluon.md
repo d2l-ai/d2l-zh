@@ -1,4 +1,4 @@
-# 更深的卷积神经网络：GoogLeNet
+# 含并行连结的网络：GoogLeNet
 
 在2014年的Imagenet竞赛里，Google的研究人员利用一个新的网络结构取得很大的优先。这个叫做GoogLeNet的网络虽然在名字上是向LeNet致敬，但网络结构里很难看到LeNet的影子。它颠覆的大家对卷积神经网络串联一系列层的固定做法。下图是其[论文](https://arxiv.org/abs/1409.4842)对GoogLeNet的可视化
 

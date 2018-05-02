@@ -1,4 +1,4 @@
-# SSD --- 使用Gluon
+# 目标检测模型：SSD
 
 这一章下面我们将实现[上一章](./object-detection.md)介绍的SSD来检测野生皮卡丘。
 
