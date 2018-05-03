@@ -1,18 +1,18 @@
 # 安装和运行
 
-本书中的每一节都有与之相对应的Jupyter notebook，其中包含该节的文本和代码。为了便于动手学深度学习，让我们获取本书代码并安装运行所需要的MXNet以及其他工具。
+本书中的每一节都有与之相对应的Jupyter notebook，其中包含该节的代码。为了便于动手学深度学习，让我们获取本书代码、安装并运行所需要的工具，例如MXNet。
 
 
-## 获取代码并安装MXNet等工具
+## 获取代码并安装运行环境
 
-运行本书代码需要Python，Jupyter，以及最新版MXNet。
+我们可以通过Conda或者Docker来获取本书代码并安装运行环境。下面将分别介绍这两种选项。
 
 
-### 通过Conda安装
+### 选项一：通过Conda安装
 
-首先根据操作系统下载并安装[Miniconda](https://conda.io/miniconda.html)（[Anaconda](https://docs.continuum.io/anaconda/install/)也可以）。接下来下载所有教程的包（[下载tar.gz格式](https://zh.gluon.ai/gluon_tutorials_zh.tar.gz)或者[下载zip格式](https://zh.gluon.ai/gluon_tutorials_zh.zip)均可）。解压后进入文件夹。
+第一步，根据操作系统下载并安装Miniconda（网址：https://conda.io/miniconda.html ）。
 
-例如Linux或者Mac OSX 10.11以上可以使用如下命令
+第二步，下载包含本书全部代码的包，解压后进入文件夹。Linux或者Mac OSX（10.11以上版本）用户可以使用如下命令。
 
 ```{.python .input}
 mkdir gluon-tutorials && cd gluon-tutorials
@@ -20,61 +20,63 @@ curl https://zh.gluon.ai/gluon_tutorials_zh.tar.gz -o tutorials.tar.gz
 tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
 ```
 
-Windows用户可以用浏览器下载[zip格式](https://zh.gluon.ai/gluon_tutorials_zh.zip)并解压，在解压目录文件资源管理器的地址栏输入`cmd`进入命令行模式。
+Windows用户可以用浏览器下载压缩文件（下载地址：https://zh.gluon.ai/gluon_tutorials_zh.zip ）并解压。在解压目录文件资源管理器的地址栏输入`cmd`进入命令行模式。
 
-【可选项】配置下载源来使用国内镜像加速下载:
+在本步骤中，我们也可以配置下载源来使用国内镜像加速下载:
 
 ```{.python .input}
-# 优先使用清华conda镜像
+# 优先使用清华conda镜像。
 conda config --prepend channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
 
-# 也可选用科大conda镜像
+# 或者选用科大conda镜像。
 conda config --prepend channels http://mirrors.ustc.edu.cn/anaconda/pkgs/free/
 ```
 
-然后安装所需的依赖包并激活环境：
+第三步，安装运行所需的依赖包并激活该运行环境。运行下面命令。
 
 ```{.python .input}
 conda env create -f environment.yml
-source activate gluon # 注意Windows下不需要 source
+source activate gluon # 注意Windows下不需要 source。
 ```
 
-之后运行下面命令，然后浏览器打开[http://localhost:8888](http://localhost:8888)（通常会自动打开）就可以查看和运行各个教程了。
+第四步，打开Juputer notebook。运行下面命令。
 
 ```{.python .input}
 jupyter notebook
 ```
 
-【可选项】国内用户可使用国内Gluon镜像加速数据集和预训练模型的下载
+这时在浏览器打开 http://localhost:8888 （通常会自动打开）就可以查看和运行本书中每一节的代码了。
 
-- Linux/OSX用户:
+第五步（可选项），如果你是国内用户，建议使用国内Gluon镜像加速数据集和预训练模型的下载。Linux/OSX用户可以运行下面命令。
 
-  ```bash
-  MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter notebook
-  ```
+```{.python .input}
+MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter notebook
+```
 
-- Windows用户:
+Windows用户可以运行下面命令。
 
-  ```bash
-  set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter notebook
-  ```
+```{.python .input}
+set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter notebook
+```
 
-### 通过docker安装
-首先你需要下载并安装[docker](https://docs.docker.com/engine/installation/)。例如Linux下可以
+### 选项二：通过Docker安装
+
+第一步，下载并安装[Docker](https://docs.docker.com/engine/installation/)。
+
+如果你是Linux用户，可以运行下面命令。之后登出一次。
 
 ```{.python .input}
 wget -qO- https://get.docker.com/ | sh
 sudo usermod -aG docker
-# 然后logout一次
 ```
 
-然后运行下面命令即可
+第二步，运行下面命令。
 
 ```{.python .input}
 docker run -p 8888:8888 muli/gluon-tutorials-zh
 ```
 
-然后浏览器打开[http://localhost:8888](http://localhost:8888) ，这时通常需要填docker运行时产生的token。
+第三步，在浏览器打开http://localhost:8888 ，这时通常需要填Docker运行时产生的token。
 
 ## 更新教程
 
