@@ -1,9 +1,12 @@
-# 安装MXNet、下载并运行书中代码
+# 获取书中代码
+
+本书中的每一节都是可以编辑和运行的Jupyter notebook。为了能够动手学深度学习，本节将介绍如何获取并运行书中代码。
 
 
-## 首次安装
+## 获取代码并安装运行环境
 
 每个教程是一个可以编辑和运行的Jupyter notebook。运行这些教程需要`Python`，`Jupyter`，以及最新版`MXNet`。
+
 
 ### 通过Conda安装
 
@@ -203,9 +206,10 @@ jupyter nbextension enable execute_time/ExecuteTime
 
 * 我们需要安装MXNet来动手学深度学习。
 
+
 ## 练习
 
-* 安装MXNet。如果你在安装时碰到任何问题，
+* 安装MXNet。如果你在安装时碰到任何问题，请查阅讨论区中的疑难问题汇总，或者向社区小伙伴们提问。
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/249)
