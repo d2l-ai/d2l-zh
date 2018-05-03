@@ -1,11 +1,12 @@
-# 获取书中代码
+# 安装和运行
 
-本书中的每一节都是可以编辑和运行的Jupyter notebook。为了能够动手学深度学习，本节将介绍如何获取并运行书中代码。
+
+本书中的每一节都是可以编辑和运行的Jupyter notebook。为了便于动手学深度学习，本节将介绍如何获取并运行这些Jupyter notebook。
 
 
 ## 获取代码并安装运行环境
 
-每个教程是一个可以编辑和运行的Jupyter notebook。运行这些教程需要`Python`，`Jupyter`，以及最新版`MXNet`。
+运行本书代码需要Python，Jupyter，以及最新版MXNet。
 
 
 ### 通过Conda安装
