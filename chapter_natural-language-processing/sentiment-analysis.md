@@ -41,7 +41,7 @@ from mxnet.contrib import text
 运行下面的代码解压这个小数据集。
 
 ```{.python .input  n=2}
-# 如果训练下载的IMDb的完整数据集，把下面改False。
+# 如果训练下载的 IMDb 的完整数据集，把下面改 False。
 demo = True
 if demo:
     with zipfile.ZipFile('../data/aclImdb_tiny.zip', 'r') as zin:
@@ -71,7 +71,7 @@ else:
     train_dataset = readIMDB('aclImdb/', 'train')
     test_dataset = readIMDB('aclImdb/', 'test')
 
-# shuffle数据集。
+# shuffle 数据集。
 random.shuffle(train_dataset)
 random.shuffle(test_dataset)
 ```
@@ -167,7 +167,7 @@ x_encoded_test = encode_samples(test_tokenized, vocab)
 这里我们假定我们有至少一块gpu，context被设置成gpu。当然，也可以使用cpu，运行速度可能稍微慢一点点。
 
 ```{.python .input  n=9}
-# 指定context。
+# 指定 context。
 context = mx.gpu(0)
 x_train = nd.array(pad_samples(x_encoded_train, 500, 0), ctx=context)
 x_test = nd.array(pad_samples(x_encoded_test, 500, 0), ctx=context)
@@ -232,9 +232,9 @@ class SentimentNet(gluon.Block):
     
 net = SentimentNet(vocab, emsize, num_hiddens, nlayers, bidirectional)
 net.initialize(mx.init.Xavier(), ctx=context)
-# 设置embedding层的weight为词向量。
+# 设置 embedding 层的 weight 为词向量。
 net.embedding.weight.set_data(glove_embedding.idx_to_vec.as_in_context(context))
-# 对embedding层不进行优化。
+# 对 embedding 层不进行优化。
 net.embedding.collect_params().setattr('grad_req', 'null')
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                        {'learning_rate': lr})
