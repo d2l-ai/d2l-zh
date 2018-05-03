@@ -1,4 +1,4 @@
-# 实战Kaggle比赛：使用Gluon对原始图像文件分类（CIFAR-10）
+# 实战Kaggle比赛：对原始图像文件分类（CIFAR-10）
 
 我们在[监督学习中的一章](../chapter_supervised-learning/kaggle-gluon-kfold.md)里，以[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)为例，介绍了如何使用``Gluon``来实战[Kaggle比赛](https://www.kaggle.com)。
 
@@ -7,8 +7,6 @@
 计算机视觉一直是深度学习的主战场，请
 
 > Get your hands dirty。
-
-
 
 
 ## Kaggle中的CIFAR-10原始图像分类问题
@@ -24,8 +22,6 @@
 比赛数据分为训练数据集和测试数据集。训练集包含5万张图片。测试集包含30万张图片：其中有1万张图片用来计分，但为了防止人工标注测试集，里面另加了29万张不计分的图片。
 
 两个数据集都是png彩色图片，大小为$32\times 32 \times 3$。训练集一共有10类图片，分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车。
-
-（那么问题来了，你觉得你用肉眼能把下面100个图片正确分类吗？）
 
 ![](../img/cifar10.png)
 
