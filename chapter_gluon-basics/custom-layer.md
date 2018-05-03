@@ -1,6 +1,6 @@
 # 自定义层
 
-深度学习的一个魅力之处在于神经网络中各式各样的层，例如全连接层和后面章节中将要介绍的卷积层、池化层与循环层。虽然Gluon提供了大量常用的层，但有时候我们依然希望自定义层。本节将介绍如何使用`NDArray`来自定义一个Gluon的层，从而以后可以被重复调用。
+深度学习的一个魅力之处在于神经网络中各式各样的层，例如全连接层和后面章节中将要介绍的卷积层、池化层与循环层。虽然Gluon提供了大量常用的层，但有时候我们依然希望自定义层。本节将介绍如何使用NDArray来自定义一个Gluon的层，从而以后可以被重复调用。
 
 
 ## 不含模型参数的自定义层
@@ -14,7 +14,7 @@ from mxnet import nd, gluon
 from mxnet.gluon import nn
 ```
 
-下面通过继承Block自定义了一个将输入减掉均值的层`CenteredLayer`，并将层的计算放在`forward`函数里。这个层里不含模型参数。
+下面通过继承Block自定义了一个将输入减掉均值的层：CenteredLayer类，并将层的计算放在`forward`函数里。这个层里不含模型参数。
 
 ```{.python .input  n=1}
 class CenteredLayer(nn.Block):
@@ -52,7 +52,7 @@ y.mean()
 
 ## 含模型参数的自定义层
 
-我们还可以自定义含模型参数的自定义层。这样，自定义层里的模型参数就可以通过训练学出来了。我们在[“模型参数”](parameters.md)一节里介绍了`Parameter`类。其实，在自定义层的时候我们还可以使用Block自带的`ParameterDict`类型的成员变量`params`。顾名思义，这是一个由字符串类型的参数名字映射到`Parameter`类型的模型参数的字典。我们可以通过`get`从`ParameterDict`创建`Parameter`。
+我们还可以自定义含模型参数的自定义层。这样，自定义层里的模型参数就可以通过训练学出来了。我们在[“模型参数”](parameters.md)一节里介绍了Parameter类。其实，在自定义层的时候我们还可以使用Block自带的ParameterDict类型的成员变量`params`。顾名思义，这是一个由字符串类型的参数名字映射到Parameter类型的模型参数的字典。我们可以通过`get`从`ParameterDict`创建`Parameter`。
 
 ```{.python .input  n=7}
 params = gluon.ParameterDict(prefix="block1_")
@@ -75,7 +75,7 @@ class MyDense(nn.Block):
         return nd.relu(linear)
 ```
 
-下面，我们实例化`MyDense`来看下它的模型参数。这里我们特意加了名字前缀`prefix`。在[“模型构造”](block.md)一节中介绍过，这是Block的构造函数自带的参数。
+下面，我们实例化MyDense类来看下它的模型参数。这里我们特意加了名字前缀`prefix`。在[“模型构造”](block.md)一节中介绍过，这是Block的构造函数自带的参数。
 
 ```{.python .input}
 dense = MyDense(5, in_units=10, prefix='o_my_dense_')

@@ -49,13 +49,13 @@ class MLP(nn.Block):
 * `__init__`：创建模型的参数。在上面的例子里，模型的参数被包含在了两个`Dense`层里。
 * `forward`：定义模型的计算。
 
-接下来我们解释一下`MLP`里面用的其他命令：
+接下来我们解释一下MLP类用的其他命令：
 
-* `super(MLP, self).__init__(**kwargs)`：这句话调用`MLP`父类Block的构造函数`__init__`。这样，我们在调用`MLP`的构造函数时还可以指定函数参数`prefix`（名字前缀）或`params`（模型参数，下一节会介绍）。这两个函数参数将通过`**kwargs`传递给Block的构造函数。
+* `super(MLP, self).__init__(**kwargs)`：这句话调用MLP父类Block的构造函数`__init__`。这样，我们在调用`MLP`的构造函数时还可以指定函数参数`prefix`（名字前缀）或`params`（模型参数，下一节会介绍）。这两个函数参数将通过`**kwargs`传递给Block的构造函数。
 
-* `with self.name_scope()`：本例中的两个`Dense`层和其中模型参数的名字前面都将带有模型名前缀。该前缀可以通过构造函数参数`prefix`指定。若未指定，该前缀将自动生成。我们建议，在构造模型时将每个层至少放在一个`name_scope()`里。
+* `with self.name_scope()`：本例中的两个Dense层和其中模型参数的名字前面都将带有模型名前缀。该前缀可以通过构造函数参数`prefix`指定。若未指定，该前缀将自动生成。我们建议，在构造模型时将每个层至少放在一个`name_scope()`里。
 
-我们可以实例化`MLP`类得到`net2`，并让`net2`根据输入数据`x`做一次计算。其中，`y = net2(x)`明确调用了`MLP`中的`__call__`函数（从Block继承得到）。在Gluon中，这将进一步调用`MLP`中的`forward`函数从而完成一次模型计算。
+我们可以实例化MLP类得到`net2`，并让`net2`根据输入数据`x`做一次计算。其中，`y = net2(x)`明确调用了MLP实例中的`__call__`函数（从Block继承得到）。在Gluon中，这将进一步调用`MLP`中的`forward`函数从而完成一次模型计算。
 
 ```{.python .input  n=4}
 net = MLP()
@@ -73,7 +73,7 @@ print('hidden layer name with "my_mlp_" prefix:', net.hidden.name)
 print('output layer name with "my_mlp_" prefix:', net.output.name)
 ```
 
-接下来，我们重新定义`MLP_NO_NAMESCOPE`类。它和`MLP`的区别就是不含`with self.name_scope():`。这是，隐藏层和输出层的名字前都不再含指定的前缀`prefix`。
+接下来，我们重新定义MLP_NO_NAMESCOPE类。它和`MLP`的区别就是不含`with self.name_scope():`。这是，隐藏层和输出层的名字前都不再含指定的前缀`prefix`。
 
 ```{.python .input  n=6}
 class MLP_NO_NAMESCOPE(nn.Block):
@@ -95,9 +95,9 @@ print('output layer name without prefix:', net.output.name)
 Block主要提供模型参数的存储、模型计算的定义和自动求导。你也许已经发现了，以上Block的子类中并没有定义如何求导，或者是`backward`函数。事实上，MXNet会使用`autograd`对`forward`自动生成相应的`backward`函数。
 
 
-### `Sequential`类是Block的子类
+### Sequential类是Block的子类
 
-在Gluon里，`Sequential`类是Block的子类。`Sequential`类或实例也可以被看作是一个Block的容器：通过`add`函数来添加Block。在`forward`函数里，`Sequential`实例把添加进来的Block逐一运行。
+在Gluon里，Sequential类是Block的子类。Sequential类或实例也可以被看作是一个Block的容器：通过`add`函数来添加Block。在`forward`函数里，Sequential实例把添加进来的Block逐一运行。
 
 一个简单的实现是这样的：
 
