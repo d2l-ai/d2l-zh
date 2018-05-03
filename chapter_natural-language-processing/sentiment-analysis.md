@@ -15,10 +15,13 @@
 from collections import Counter
 import os
 import random
+import spacy
+import time
 import zipfile
 
 import mxnet as mx
-from mxnet import autograd, gluon, init, nd 
+from mxnet import autograd, gluon, init, nd
+from mxnet.contrib import text
 ```
 
 ### 读取IMDb数据集
@@ -82,7 +85,6 @@ random.shuffle(test_dataset)
 然后运行下面的代码。
 
 ```{.python .input  n=4}
-import spacy
 spacy_en = spacy.load('en')
 
 def tokenizer(text):
@@ -110,8 +112,6 @@ for review, score in test_dataset:
 这里我们特别设置训练数据中没有的单词对应的符号'<unk\>'，所有不存在在词典中的词，未来都将对应到这个符号。
 
 ```{.python .input  n=6}
-from mxnet.contrib import text
-
 token_counter = Counter()
 def count_token(train_tokenized):
     for sample in train_tokenized:
@@ -164,7 +164,7 @@ x_encoded_test = encode_samples(test_tokenized, vocab)
 ```
 
 通过执行下面的代码将特征向量补成定长（我们使用500），然后将特征向量转化为指定context上的NDArray。
-这里我们假定您有至少一块gpu，context被设置成gpu。当然，也可以使用cpu，运行速度可能稍微慢一点点。
+这里我们假定我们有至少一块gpu，context被设置成gpu。当然，也可以使用cpu，运行速度可能稍微慢一点点。
 
 ```{.python .input  n=9}
 # 指定context。
@@ -194,7 +194,7 @@ glove_embedding = text.embedding.create('glove',
 
 情感分类模型是一种比较经典的能使用LSTM模型的应用。我们特别的使用预训练的词向量来初始化`embedding layer`的权重，然后使用双向LSTM抽取特征。具体地，输入的是一个句子即不定长的序列，然后通过`embedding layer`，利用预训练的词向量表示句子，通过LSTM抽取句子的特征，然后输出是一个长度为1的标签。根据上述原理，我们设计如下神经网络结构，其结构比较简单，如下图所示。
 
-<img src="../img/samodel-v3.png">
+<img src="../img/samodel.svg">
 
 模型包含四部分：
 * 1，`embedding layer`: 其将输入数据转化成为TNC的NDArray，并且使用预先加载词向量作为该层的权重。
@@ -269,8 +269,6 @@ def eval(x_samples, y_samples):
 运行下面的代码开始训练模型。我们每800个batch，会输出一次当前的`loss`。
 
 ```{.python .input  n=14}
-import time
-
 start_train_time = time.time()
 for epoch in range(num_epochs):
     start_epoch_time = time.time()
