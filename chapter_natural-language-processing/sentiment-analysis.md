@@ -1,6 +1,6 @@
 # 情感分析
 
-情感分析是非常重要的一项自然语言处理的任务。例如对于Amazon会对网站所销售的每个产品的评论进行情感分类，Netflix或者IMDb会对每部电影的评论进行情感分类，从而帮助各个平台提供更好的改进产品，提升用户体验。本节介绍如何使用Gluon来创建一个情感分类模型，目标是给定一句话，判断这句话包含的是“正面”还是“负面”的情绪。为此，我们构造了一个简单的神经网络，其中包括`embedding`层，`encoder`（bidirectional LSTM），`decoder`，来判断IMDb上电影评论蕴含的情感。下面就让我们一起来构造这个情感分析模型吧。
+情感分析是非常重要的一项自然语言处理的任务。例如对于Amazon会对网站所销售的每个产品的评论进行情感分类，Netflix或者IMDb会对每部电影的评论进行情感分类，从而帮助各个平台提供更好的改进产品，提升用户体验。本节介绍如何使用Gluon来创建一个情感分类模型，目标是给定一句话，判断这句话包含的是“正面”还是“负面”的情绪。为此，我们构造了一个简单的神经网络，其中包括`embedding`层，`encoder`（双向LSTM），`decoder`，来判断IMDb上电影评论蕴含的情感。下面就让我们一起来构造这个情感分析模型吧。
 
 
 ## 准备工作
@@ -22,6 +22,16 @@ import zipfile
 import mxnet as mx
 from mxnet import autograd, gluon, init, nd
 from mxnet.contrib import text
+```
+
+```{.json .output n=1}
+[
+ {
+  "name": "stderr",
+  "output_type": "stream",
+  "text": "/home/ubuntu/anaconda3/lib/python3.6/site-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.\n  from ._conv import register_converters as _register_converters\n"
+ }
+]
 ```
 
 ### 读取IMDb数据集
@@ -91,6 +101,16 @@ def tokenizer(text):
     return [tok.text for tok in spacy_en.tokenizer(text)]
 ```
 
+```{.json .output n=4}
+[
+ {
+  "name": "stderr",
+  "output_type": "stream",
+  "text": "/home/ubuntu/anaconda3/lib/python3.6/site-packages/msgpack_numpy-0.4.1-py3.6.egg/msgpack_numpy.py:84: DeprecationWarning: The binary mode of fromstring is deprecated, as it behaves surprisingly on unicode inputs. Use frombuffer instead\n  dtype=np.dtype(descr)).reshape(obj[b'shape'])\n/home/ubuntu/anaconda3/lib/python3.6/site-packages/msgpack_numpy-0.4.1-py3.6.egg/msgpack_numpy.py:88: DeprecationWarning: The binary mode of fromstring is deprecated, as it behaves surprisingly on unicode inputs. Use frombuffer instead\n  dtype=np.dtype(descr))[0]\n"
+ }
+]
+```
+
 通过执行下面的代码，我们能够获得训练和测试数据集的分好词的评论，并且得到相应的情感标签（1代表‘正面’，0代表‘负面’情绪）。
 
 ```{.python .input  n=5}
@@ -126,6 +146,8 @@ vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>', reserved_tok
 ```
 
 ### 将分好词的数据转化成NDArray
+
+这小节我们介绍如果将数据转化成为NDArray。
 
 ```{.python .input  n=7}
 # 根据词典，将数据转换成特征向量。
@@ -186,8 +208,8 @@ y_test = nd.array([score for text, score in test_dataset], ctx=context)
 这样做有助于提升模型的结果。我们在这里使用'glove.6B.100d.txt'作为预训练的词向量。
 
 ```{.python .input  n=11}
-glove_embedding = text.embedding.create('glove', 
-                                        pretrained_file_name='glove.6B.100d.txt', vocabulary=vocab)
+glove_embedding = text.embedding.create('glove', pretrained_file_name='glove.6B.100d.txt', 
+                                        vocabulary=vocab)
 ```
 
 ## 创建情感分析模型
@@ -197,11 +219,11 @@ glove_embedding = text.embedding.create('glove',
 <img src="../img/samodel.svg">
 
 模型包含四部分：
-* 1，`embedding layer`: 其将输入数据转化成为TNC的NDArray，并且使用预先加载词向量作为该层的权重。
-* 2，`encoder`: 我们将重点介绍这一部分。decoder是由一个两层的bidirectional LSTM构成。
+1. `embedding layer`: 其将输入数据转化成为TNC的NDArray，并且使用预先加载词向量作为该层的权重。
+2. `encoder`: 我们将重点介绍这一部分。decoder是由一个两层的双向LSTM构成。
 这样做的好处是，我们能够利用LSTM的输出作为输入样本的特征，之后用于预测。
-* 3，`pooling layer`: 我们使用这个encoder在时刻0的输出，以及时刻最后一步的输出作为每个batch中examples的特征。
-* 4，`decoder`: 最后，我们利用上一步所生成的特征，通过一个dense层做预测。
+3. `pooling layer`: 我们使用这个encoder在时刻0的输出，以及时刻最后一步的输出作为每个batch中examples的特征。
+4. `decoder`: 最后，我们利用上一步所生成的特征，通过一个dense层做预测。
 
 ```{.python .input  n=12}
 nclass = 2
