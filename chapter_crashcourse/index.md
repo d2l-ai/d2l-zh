@@ -7,7 +7,6 @@
 
    introduction
    install
-   aws
    ndarray
    autograd
 

@@ -6,5 +6,6 @@
    :maxdepth: 2
 
    math
+   aws
    buy-gpu
 ```
