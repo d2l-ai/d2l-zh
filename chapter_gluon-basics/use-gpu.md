@@ -16,7 +16,6 @@
 
 MXNet使用`context`来指定用来存储和计算的设备，例如可以是CPU或者GPU。默认情况下，MXNet会将数据创建在主内存，然后利用CPU来计算。在MXNet中，CPU和GPU可分别由`cpu()`和`gpu()`来表示。需要注意的是，`mx.cpu()`表示所有的物理CPU和内存。这意味着计算上会尽量使用所有的CPU核。但`mx.gpu()`只代表一块显卡和相应的显卡内存。如果有多块GPU，我们用`mx.gpu(i)`来表示第$i$块GPU（$i$从0开始）。
 
-
 ```{.python .input}
 import mxnet as mx
 from mxnet import nd
@@ -97,8 +96,8 @@ MXNet的计算会在数据的`context`上执行。为了使用GPU计算，我们
 同NDArray类似，Gluon的模型可以在初始化时通过`ctx`指定设备。下面代码将模型参数初始化在GPU上。
 
 ```{.python .input  n=12}
-net = gluon.nn.Sequential()
-net.add(gluon.nn.Dense(1))
+net = nn.Sequential()
+net.add(nn.Dense(1))
 net.initialize(ctx=mx.gpu())
 ```
 
