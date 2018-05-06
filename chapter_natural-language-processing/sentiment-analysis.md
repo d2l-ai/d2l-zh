@@ -24,16 +24,6 @@ from mxnet import autograd, gluon, init, nd
 from mxnet.contrib import text
 ```
 
-```{.json .output n=1}
-[
- {
-  "name": "stderr",
-  "output_type": "stream",
-  "text": "/home/ubuntu/anaconda3/lib/python3.6/site-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.\n  from ._conv import register_converters as _register_converters\n"
- }
-]
-```
-
 ### 读取IMDb数据集
 
 接着需要下载情感分析时需要用的数据集。我们使用Stanford's Large Movie Review Dataset[1]作为数据集。
@@ -99,16 +89,6 @@ spacy_en = spacy.load('en')
 
 def tokenizer(text):
     return [tok.text for tok in spacy_en.tokenizer(text)]
-```
-
-```{.json .output n=4}
-[
- {
-  "name": "stderr",
-  "output_type": "stream",
-  "text": "/home/ubuntu/anaconda3/lib/python3.6/site-packages/msgpack_numpy-0.4.1-py3.6.egg/msgpack_numpy.py:84: DeprecationWarning: The binary mode of fromstring is deprecated, as it behaves surprisingly on unicode inputs. Use frombuffer instead\n  dtype=np.dtype(descr)).reshape(obj[b'shape'])\n/home/ubuntu/anaconda3/lib/python3.6/site-packages/msgpack_numpy-0.4.1-py3.6.egg/msgpack_numpy.py:88: DeprecationWarning: The binary mode of fromstring is deprecated, as it behaves surprisingly on unicode inputs. Use frombuffer instead\n  dtype=np.dtype(descr))[0]\n"
- }
-]
 ```
 
 通过执行下面的代码，我们能够获得训练和测试数据集的分好词的评论，并且得到相应的情感标签（1代表‘正面’，0代表‘负面’情绪）。
