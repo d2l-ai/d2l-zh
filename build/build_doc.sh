@@ -6,6 +6,8 @@ set -e
 
 # prepare the env
 conda env update -f build/build.yml
+python -m spacy download en
+
 source activate gluon_zh_docs
 
 pip list
