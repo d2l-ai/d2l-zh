@@ -50,9 +50,8 @@ Block类提供了`save_params`和`load_params`函数来读写模型参数。它�
 class MLP(nn.Block):
     def __init__(self, **kwargs):
         super(MLP, self).__init__(**kwargs)
-        with self.name_scope():
-            self.hidden = nn.Dense(256, activation='relu')
-            self.output = nn.Dense(10)
+        self.hidden = nn.Dense(256, activation='relu')
+        self.output = nn.Dense(10)
     def forward(self, x):
         return self.output(self.hidden(x))
 

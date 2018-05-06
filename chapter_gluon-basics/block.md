@@ -16,14 +16,12 @@ class MLP(nn.Block):
     # 声明带有模型参数的层，这里我们声明了两个全链接层。
     def __init__(self, **kwargs):
         # 调用 MLP 父类 Block 的构造函数来进行必要的初始化。这样在构造实例时还可以指定
-        # 其他函数参数，例如 prefix（名字前缀，将在下节介绍）和 params（模型参数，
-        # 将在下下一节介绍）。
+        # 其他函数参数，例如下下一节将介绍的模型参数 params.
         super(MLP, self).__init__(**kwargs)
-        # 保证下面声明的两个 Dense 层在不同的实例中有不同的名字。每个带有参数的层的声明
-        # 都应该至少在一个 name_scope 里。下节将详细介绍原理。
-        with self.name_scope():
-            self.hidden = nn.Dense(256, activation='relu')
-            self.output = nn.Dense(10)
+        # 隐藏层。
+        self.hidden = nn.Dense(256, activation='relu')
+        # 输出层。
+        self.output = nn.Dense(10)
     # 定义模型的前向计算，即如何根据输出计算输出。
     def forward(self, x):
         return self.output(self.hidden(x))
@@ -70,9 +68,8 @@ class MySequential(nn.Block):
 
 ```{.python .input  n=4}
 net = MySequential()
-with net.name_scope():
-    net.add(nn.Dense(256, activation='relu'))
-    net.add(nn.Dense(10))
+net.add(nn.Dense(256, activation='relu'))
+net.add(nn.Dense(10))
 net.initialize()
 net(x)
 ```
@@ -92,8 +89,7 @@ class FancyMLP(nn.Block):
         super(FancyMLP, self).__init__(**kwargs)
         # 不会被更新的随机权重。
         self.rand_weight = nd.random.uniform(shape=(20, 20))
-        with self.name_scope():
-            self.dense = nn.Dense(20, activation='relu')
+        self.dense = nn.Dense(20, activation='relu')
 
     def forward(self, x):
         x = self.dense(x)
@@ -124,17 +120,15 @@ class NestMLP(nn.Block):
     def __init__(self, **kwargs):
         super(NestMLP, self).__init__(**kwargs)
         self.net = nn.Sequential()
-        with self.name_scope():
-            self.net.add(nn.Dense(64, activation='relu'),
-                         nn.Dense(32, activation='relu'))
-            self.dense = nn.Dense(16, activation='relu')
+        self.net.add(nn.Dense(64, activation='relu'),
+                     nn.Dense(32, activation='relu'))
+        self.dense = nn.Dense(16, activation='relu')
 
     def forward(self, x):
         return self.dense(self.net(x))
 
 net = nn.Sequential()
-with net.name_scope():
-    net.add(NestMLP(), nn.Dense(20), FancyMLP())
+net.add(NestMLP(), nn.Dense(20), FancyMLP())
 
 net.initialize()
 net(x)

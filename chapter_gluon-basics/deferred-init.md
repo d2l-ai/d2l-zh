@@ -18,9 +18,8 @@ class MyInit(init.Initializer):
         # 实际的初始化逻辑在此省略了。
 
 net = nn.Sequential()
-with net.name_scope():
-    net.add(nn.Dense(256, activation='relu'))
-    net.add(nn.Dense(10))
+net.add(nn.Dense(256, activation='relu'))
+net.add(nn.Dense(10))
 
 net.initialize(init=MyInit())
 ```
@@ -58,9 +57,8 @@ net.initialize(init=MyInit(), force_reinit=True)
 
 ```{.python .input}
 net = nn.Sequential()
-with net.name_scope():
-    net.add(nn.Dense(256, in_units=20, activation='relu'))
-    net.add(nn.Dense(10, in_units=256))
+net.add(nn.Dense(256, in_units=20, activation='relu'))
+net.add(nn.Dense(10, in_units=256))
 
 net.initialize(init=MyInit())
 ```

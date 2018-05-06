@@ -9,9 +9,8 @@ from mxnet import init, nd
 from mxnet.gluon import nn
 
 net = nn.Sequential()
-with net.name_scope():
-    net.add(nn.Dense(256, activation='relu'))
-    net.add(nn.Dense(10))
+net.add(nn.Dense(256, activation='relu'))
+net.add(nn.Dense(10))
 net.initialize()
 
 x = nd.random.uniform(shape=(2,20))
@@ -26,12 +25,12 @@ y = net(x)
 net[0].params
 ```
 
-可以看到我们得到了一个由参数名称映射到参数的字典。第一个参数的名称为`sequential0_dense0_weight`，它由`net[0]`的名称（`sequential0_dense0_`）和自己的变量名（`weight`）组成。而且可以看到它参数的形状为`(256, 20)`，且数据类型为32位浮点数。
+可以看到我们得到了一个由参数名称映射到参数的字典。第一个参数的名称为`dense0_weight`，它由`net[0]`的名称（`dense0_`）和自己的变量名（`weight`）组成。而且可以看到它参数的形状为`(256, 20)`，且数据类型为32位浮点数。
 
 为了访问特定参数，我们既可以通过名字来访问字典里的元素，也可以直接使用它的变量名。下面两种方法是等价的，但通常后者的代码可读性更好。
 
 ```{.python .input  n=3}
-(net[0].params['sequential0_dense0_weight'], net[0].weight)
+(net[0].params['dense0_weight'], net[0].weight)
 ```
 
 Gluon里参数类型为Parameter类，其包含参数权重和它对应的梯度，它们可以分别通过`data`和`grad`函数来访问。因为我们随机初始化了权重，所以它是一个由随机数组成的形状为`(256, 20)`的NDArray.
@@ -108,12 +107,11 @@ from mxnet import nd
 from mxnet.gluon import nn
 
 net = nn.Sequential()
-with net.name_scope():
-    shared = nn.Dense(8, activation='relu')
-    net.add(nn.Dense(8, activation='relu'),
-            shared,
-            nn.Dense(8, activation='relu', params=shared.params),
-            nn.Dense(10))
+shared = nn.Dense(8, activation='relu')
+net.add(nn.Dense(8, activation='relu'),
+        shared,
+        nn.Dense(8, activation='relu', params=shared.params),
+        nn.Dense(10))
 net.initialize()
 
 x = nd.random.uniform(shape=(2,20))
