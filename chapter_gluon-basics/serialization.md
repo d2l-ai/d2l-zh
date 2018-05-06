@@ -5,59 +5,64 @@
 
 ## 读写NDArrays
 
-首先，导入本节中实验所需的包。
+我们首先看如何读写NDArray。我们可以直接使用`save`和`load`函数分别存储和读取NDArray。下面是例子我们创建`x`，并将其存在文件名同为`x`的文件里。
 
 ```{.python .input}
 from mxnet import nd
 from mxnet.gluon import nn
+
+x = nd.ones(3)
+nd.save('x', x)
 ```
 
-我们看看如何读写NDArray。我们可以直接使用`save`和`load`函数分别存储和读取NDArray。事实上，MXNet支持跨语言（例如R和Scala）的存储和读取。
+然后我们再将数据从文件读回内存。
 
-下面是存储NDArray的例子。
+```{.python .input}
+x2 = nd.load('x')
+x2
+```
+
+同样我们可以存储一列NArray并读回内存。
 
 ```{.python .input  n=2}
-x = nd.ones(3)
 y = nd.zeros(4)
-filename = "../data/test1.params"
-nd.save(filename, [x, y])
+nd.save('xy', [x, y])
+x2, y2 = nd.load('xy')
+(x2, y2)
 ```
 
-读取并打印上面存储的NDArray。
-
-```{.python .input  n=3}
-a, b = nd.load(filename)
-print(a, b)
-```
-
-我们也可以存储和读取含NDArray的词典。
+或者是一个从字符串到NDArray的字典。
 
 ```{.python .input  n=4}
-mydict = {"x": x, "y": y}
-filename = "../data/test2.params"
-nd.save(filename, mydict)
-c = nd.load(filename)
-print(c)
+mydict = {'x': x, 'y': y}
+nd.save('mydict', mydict)
+mydict2 = nd.load('mydict')
+mydict2
 ```
 
 ## 读写Gluon模型的参数
 
-在[“模型构造”](block.md)一节中，我们了解了Gluon模型通常是个Block。与NDArray类似，Block提供了`save_params`和`load_params`函数来读写模型参数。
+Block类提供了`save_params`和`load_params`函数来读写模型参数。它实际做的事情就是将所有参数保存成一个名称到NDArray的字典到文件。读取的时候会根据参数名称找到对应的NDArray并赋值。下面的例子我们首先创建一个多层感知机，初始化后将模型参数保存到文件里。
 
 下面，我们创建一个多层感知机。
 
 ```{.python .input  n=6}
-def get_net():
-    net = nn.Sequential()
-    with net.name_scope():
-        net.add(nn.Dense(10, activation="relu"))
-        net.add(nn.Dense(2))
-    return net
+class MLP(nn.Block):
+    def __init__(self, **kwargs):
+        super(MLP, self).__init__(**kwargs)
+        self.hidden = nn.Dense(256, activation='relu')
+        self.output = nn.Dense(10)
+    def forward(self, x):
+        return self.output(self.hidden(x))
 
-net = get_net()
+net = MLP()
 net.initialize()
-x = nd.random.uniform(shape=(2, 10))
-print(net(x))
+
+# 由于延后初始化，我们需要先运行一次前向计算才能实际初始化模型参数。
+x = nd.random.uniform(shape=(2, 20))
+y = net(x)
+
+net.save_params('mlp.params')
 ```
 
 下面我们把该模型的参数存起来。
@@ -67,13 +72,18 @@ filename = "../data/mlp.params"
 net.save_params(filename)
 ```
 
-然后，我们构建一个同`net`一样的多层感知机`net2`。这一次，`net2`不像`net`那样随机初始化，而是直接读取`net`的模型参数。这样，给定同样的输入`x`，`net2`会输出同样的计算结果。
+然后，我们再实例化一次我们定义的多层感知机。但跟前面不一样是我们不是随机初始化模型参数，而是直接读取保存在文件里的参数。
 
 ```{.python .input  n=8}
-import mxnet as mx
-net2 = get_net()
-net2.load_params(filename, mx.cpu(0))
-print(net2(x))
+net2 = MLP()
+net2.load_params('mlp.params')
+```
+
+因为这两个实例都有同样的参数，那么对同一个`x`的计算结果将会是一样。
+
+```{.python .input}
+y2 = net2(x)
+y2 == y
 ```
 
 ## 小结
@@ -84,7 +94,7 @@ print(net2(x))
 ## 练习
 
 * 即使无需把训练好的模型部署到不同的设备，存储模型参数在实际中还有哪些好处？
-
+* 如果注释掉`with self.name_scope()`这一行，我们还能正确读取模型参数吗？
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1255)
 

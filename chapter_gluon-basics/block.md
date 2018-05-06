@@ -1,190 +1,150 @@
 # 模型构造
 
-回忆在[“多层感知机——使用Gluon”](../chapter_supervised-learning/mlp-gluon.md)一节中我们是如何实现一个单隐藏层感知机。我们首先构造Sequential实例，然后依次添加两个全连接层。其中第一层的输出大小为256，即隐藏层单元个数是256；第二层的输出大小为10，即输出层单元个数是10。
+回忆在[“多层感知机——使用Gluon”](../chapter_supervised-learning/mlp-gluon.md)一节中我们是如何实现一个单隐藏层感知机。我们首先构造Sequential实例，然后依次添加两个全连接层。其中第一层的输出大小为256，即隐藏层单元个数是256；第二层的输出大小为10，即输出层单元个数是10。这个简单例子已经包含了深度学习模型计算的方方面面，接下来的小节我们将围绕这个例子展开。
+
+我们之前都是用了Sequential类来构造模型。这里我们另外一种基于Block类的模型构造方法，它让构造模型更加灵活，也将让你能更好的理解Sequential的运行机制。
+
+## 继承Block类来构造模型
+
+Block类是`gluon.nn`里提供的一个模型构造类，我们可以继承它来定义我们想要的模型。例如，我们在这里构造一个同前提到的相同的多层感知机。这里定义的MLP类重载了Block类的两个函数：`__init__`和`forward`.
 
 ```{.python .input  n=1}
 from mxnet import nd
 from mxnet.gluon import nn
 
-net = nn.Sequential()
-with net.name_scope():
-    net.add(nn.Dense(256, activation='relu'))
-    net.add(nn.Dense(10))
+class MLP(nn.Block):
+    # 声明带有模型参数的层，这里我们声明了两个全链接层。
+    def __init__(self, **kwargs):
+        # 调用 MLP 父类 Block 的构造函数来进行必要的初始化。这样在构造实例时还可以指定
+        # 其他函数参数，例如下下一节将介绍的模型参数 params.
+        super(MLP, self).__init__(**kwargs)
+        # 隐藏层。
+        self.hidden = nn.Dense(256, activation='relu')
+        # 输出层。
+        self.output = nn.Dense(10)
+    # 定义模型的前向计算，即如何根据输出计算输出。
+    def forward(self, x):
+        return self.output(self.hidden(x))
 ```
 
-<!-- 注意下输出大小，我们需要所有节都一致 -->
-
-接下来，对模型初始化并做一次计算。
+我们可以实例化MLP类得到`net`，其使用跟[“多层感知机——使用Gluon”](../chapter_supervised-learning/mlp-gluon.md)一节中通过Sequential类构造的`net`一致。下面代码初始化`net`并传入输入数据`x`做一次前向计算。
 
 ```{.python .input  n=2}
-net.initialize()
-x = nd.random.uniform(shape=(2, 20))
-print(net(x))
-print('hidden layer: ', net[0])
-print('output layer: ', net[1])
-```
-
-这里`net`的输入数据`x`包含2个样本，每个样本的特征向量长度为20，因此它的形状是`(2, 20)`。在按照默认方式初始化好模型参数后，`net`计算得到一个$2 \times 10$的矩阵作为模型的输出。其中4是数据样本个数，10是输出层单元个数。实际上，这个简单例子已经包含了神经网络实现的方方面面，接下来的小节我们将围绕这个例子展开。
-
-之前我们都是用了Sequential类来构造模型。这里我们将从Block类开始，它提供一种更灵活的模型构造方式，也使得你能更好的理解Sequential类的运行机制。
-
-## 使用Block构造模型
-
-在Gluon中，Block是一个类。我们可以创建它的子类来构造模型。例如，我们构造一个跟前面提到的相同的多层感知机。
-
-```{.python .input  n=3}
-class MLP(nn.Block):
-    def __init__(self, **kwargs):
-        super(MLP, self).__init__(**kwargs)
-        with self.name_scope():
-            self.hidden = nn.Dense(256, activation='relu')
-            self.output = nn.Dense(10)
-
-    def forward(self, x):
-        return self.output(self.hidden(x))
-```
-
-这里，我们通过创建Block的子类构造模型。任意一个Block的子类至少实现以下两个函数：
-
-* `__init__`：创建模型的参数。在上面的例子里，模型的参数被包含在了两个`Dense`层里。
-* `forward`：定义模型的计算。
-
-接下来我们解释一下MLP类用的其他命令：
-
-* `super(MLP, self).__init__(**kwargs)`：这句话调用MLP父类Block的构造函数`__init__`。这样，我们在调用`MLP`的构造函数时还可以指定函数参数`prefix`（名字前缀）或`params`（模型参数，下一节会介绍）。这两个函数参数将通过`**kwargs`传递给Block的构造函数。
-
-* `with self.name_scope()`：本例中的两个Dense层和其中模型参数的名字前面都将带有模型名前缀。该前缀可以通过构造函数参数`prefix`指定。若未指定，该前缀将自动生成。我们建议，在构造模型时将每个层至少放在一个`name_scope()`里。
-
-我们可以实例化MLP类得到`net2`，并让`net2`根据输入数据`x`做一次计算。其中，`y = net2(x)`明确调用了MLP实例中的`__call__`函数（从Block继承得到）。在Gluon中，这将进一步调用`MLP`中的`forward`函数从而完成一次模型计算。
-
-```{.python .input  n=4}
+x = nd.random.uniform(shape=(2,20))
 net = MLP()
 net.initialize()
-print(net(x))
-print('hidden layer name with default prefix:', net.hidden.name)
-print('output layer name with default prefix:', net.output.name)
+net(x)
 ```
 
-在上面的例子中，隐藏层和输出层的名字前都加了默认前缀。接下来我们通过`prefix`指定它们的名字前缀。
+其中，`net(x)`会调用了MLP继承至Block的`__call__`函数，这个函数将调用MLP定义的`forward`函数来完成前向计算。
 
-```{.python .input  n=5}
-net = MLP(prefix='my_mlp_')
-print('hidden layer name with "my_mlp_" prefix:', net.hidden.name)
-print('output layer name with "my_mlp_" prefix:', net.output.name)
-```
+我们无需在这里定义反向传播函数，系统将通过自动求导，参考[“自动求梯度”](../chapter_crashcourse/autograd.md)一节，来自动生成`backward`函数。
 
-接下来，我们重新定义MLP_NO_NAMESCOPE类。它和`MLP`的区别就是不含`with self.name_scope():`。这是，隐藏层和输出层的名字前都不再含指定的前缀`prefix`。
+注意到我们不是将Block叫做层或者模型之类的名字，这是因为它是一个可以自由组建的部件。它的子类既可以一个层，例如Gluon提供的Dense类，也可以是一个模型，我们定义的MLP类，或者是模型的一个部分，例如我们会在之后介绍的ResNet的残差块。我们下面通过两个例子说明它。
 
-```{.python .input  n=6}
-class MLP_NO_NAMESCOPE(nn.Block):
-    def __init__(self, **kwargs):
-        super(MLP_NO_NAMESCOPE, self).__init__(**kwargs)
-        self.hidden = nn.Dense(256, activation='relu')
-        self.output = nn.Dense(10)
+## Sequential类继承自Block类
 
-    def forward(self, x):
-        return self.output(self.hidden(x))
+当模型的前向计算就是简单串行计算模型里面各个层的时候，我们可以将模型定义变得更加简单，这个就是Sequential类的目的，它通过`add`函数来添加Block子类实例，前向计算时就是将添加的实例逐一运行。下面我们实现一个跟Sequential类有相同功能的类，这样你可以看的更加清楚它的运行机制。
 
-net = MLP_NO_NAMESCOPE(prefix='my_mlp_')
-print('hidden layer name without prefix:', net.hidden.name)
-print('output layer name without prefix:', net.output.name)
-```
-
-需要指出的是，在Gluon里，Block是一个一般化的部件。整个神经网络可以是一个Block，单个层也是一个Block。我们还可以反复嵌套Block来构建新的Block。
-
-Block主要提供模型参数的存储、模型计算的定义和自动求导。你也许已经发现了，以上Block的子类中并没有定义如何求导，或者是`backward`函数。事实上，MXNet会使用`autograd`对`forward`自动生成相应的`backward`函数。
-
-
-### Sequential类是Block的子类
-
-在Gluon里，Sequential类是Block的子类。Sequential类或实例也可以被看作是一个Block的容器：通过`add`函数来添加Block。在`forward`函数里，Sequential实例把添加进来的Block逐一运行。
-
-一个简单的实现是这样的：
-
-```{.python .input  n=7}
+```{.python .input  n=3}
 class MySequential(nn.Block):
     def __init__(self, **kwargs):
         super(MySequential, self).__init__(**kwargs)
 
     def add(self, block):
-        self._children[str(len(self._children))] = block
+        # block 是一个 Block 子类实例，假设它有一个独一无二的名字。我们将它保存在
+        # Block 类的成员变量 _children 里，其类型是 OrderedDict. 当调用
+        # initialize 函数时，系统会自动对 _children 里面所有成员初始化。
+        self._children[block.name] = block
 
     def forward(self, x):
+        # OrderedDict 保证会按照插入时的顺序便利元素。
         for block in self._children.values():
             x = block(x)
         return x
 ```
 
-它的使用和`Sequential`类很相似：
+我们用MySequential类来实现前面的MLP类：
 
-```{.python .input  n=8}
+```{.python .input  n=4}
 net = MySequential()
-with net.name_scope():
-    net.add(nn.Dense(256, activation='relu'))
-    net.add(nn.Dense(10))
+net.add(nn.Dense(256, activation='relu'))
+net.add(nn.Dense(10))
 net.initialize()
 net(x)
 ```
 
-### 构造更复杂的模型
+你会发现这里MySequential类的使用跟[“多层感知机——使用Gluon”](../chapter_supervised-learning/mlp-gluon.md)一节中Sequential类使用一致。
 
-与`Sequential`类相比，继承Block可以构造更复杂的模型。下面是一个例子。
+## 构造复杂的模型
 
-```{.python .input  n=9}
+虽然Sequential类可以使得模型构造更加简单，不需要定义`forward`函数，但直接继承Block类可以极大的拓展灵活性。下面我们构造一个稍微复杂点的网络：
+
+1. 在前向计算中使用了NDArray函数和Python的控制流
+1. 多次调用同一层
+
+```{.python .input  n=5}
 class FancyMLP(nn.Block):
     def __init__(self, **kwargs):
         super(FancyMLP, self).__init__(**kwargs)
-        self.rand_weight = nd.random_uniform(shape=(10, 20))
-        with self.name_scope():
-            self.dense = nn.Dense(10, activation='relu')
+        # 不会被更新的随机权重。
+        self.rand_weight = nd.random.uniform(shape=(20, 20))
+        self.dense = nn.Dense(20, activation='relu')
 
     def forward(self, x):
         x = self.dense(x)
+        # 使用了 nd 包下 relu 和 dot 函数。
         x = nd.relu(nd.dot(x, self.rand_weight) + 1)
+        # 重用了 dense，等价于两层网络但共享了参数。
         x = self.dense(x)
-        return x
+        # 控制流，这里我们需要调用 asscalar 来返回标量进行比较。
+        while x.norm().asscalar() > 1:
+            x /= 2
+        if x.norm().asscalar() < 0.8:
+            x *= 10
+        return x.sum()
 ```
 
 在这个`FancyMLP`模型中，我们使用了常数权重`rand_weight`（注意它不是模型参数）、做了矩阵乘法操作（`nd.dot`）并重复使用了相同的`Dense`层。测试一下：
 
-```{.python .input  n=10}
+```{.python .input  n=6}
 net = FancyMLP()
 net.initialize()
 net(x)
 ```
 
-由于`Sequential`类是Block的子类，它们还可以嵌套使用。下面是一个例子。
+由于FancyMLP和Sequential都是Block的子类，我们可以嵌套调用他们。
 
-```{.python .input  n=12}
+```{.python .input  n=7}
 class NestMLP(nn.Block):
     def __init__(self, **kwargs):
         super(NestMLP, self).__init__(**kwargs)
         self.net = nn.Sequential()
-        with self.name_scope():
-            self.net.add(nn.Dense(64, activation='relu'))
-            self.net.add(nn.Dense(32, activation='relu'))
-            self.dense = nn.Dense(16, activation='relu')
+        self.net.add(nn.Dense(64, activation='relu'),
+                     nn.Dense(32, activation='relu'))
+        self.dense = nn.Dense(16, activation='relu')
 
     def forward(self, x):
         return self.dense(self.net(x))
 
 net = nn.Sequential()
-net.add(NestMLP())
-net.add(nn.Dense(10))
+net.add(NestMLP(), nn.Dense(20), FancyMLP())
+
 net.initialize()
-print(net(x))
+net(x)
 ```
 
 ## 小结
 
-* 我们可以通过Block来构造复杂的模型。
-* `Sequential`是Block的子类。
+* 我们可以通过继承Block类来构造复杂的模型。
+* Sequential是Block的子类。
 
 
 ## 练习
 
-* 比较使用`Sequential`和使用Block构造模型的方式。如果希望访问模型中某一层（例如隐藏层）的某个属性（例如名字），这两种方式有什么不同？
-* 如果把`NestMLP`中的`self.net`和`self.dense`改成`self.denses = [nn.Dense(64, activation='relu'), nn.Dense(32, activation='relu'), nn.Dense(16)]`，并在`forward`中用for循环实现相同计算，会有什么问题吗？
+* 在FancyMLP类里我们重用了`dense`，这样对输入形状有了一定要求，尝试改变下输入数据形状试试
+* 如果我们去掉FancyMLP里面的`asscalar`会有什么问题？
+* 在NestMLP里假设我们改成 `self.net=[nn.Dense(64, activation='relu'),nn.Dense(32, activation='relu')]`，而不是用Sequential类来构造，会有什么问题？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/986)

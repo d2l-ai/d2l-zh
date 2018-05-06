@@ -9,6 +9,7 @@
 
    block
    parameters
+   deferred-init
    custom-layer
    serialization
    use-gpu
