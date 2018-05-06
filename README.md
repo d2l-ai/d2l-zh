@@ -65,7 +65,7 @@ make pdf
 
 
 ```{.python .input}
-python -m spacy download en
+python -m spacy download en # 需已 pip install spacy
 ```
 
 
