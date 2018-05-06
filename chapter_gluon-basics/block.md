@@ -24,7 +24,7 @@ class MLP(nn.Block):
         with self.name_scope():
             self.hidden = nn.Dense(256, activation='relu')
             self.output = nn.Dense(10)
-    # 定义模型的前向计算，即如何根据输出计算输出
+    # 定义模型的前向计算，即如何根据输出计算输出。
     def forward(self, x):
         return self.output(self.hidden(x))
 ```
@@ -40,7 +40,7 @@ net(x)
 
 其中，`net(x)`会调用了MLP继承至Block的`__call__`函数，这个函数将调用MLP定义的`forward`函数来完成前向计算。
 
-我们无需在这里定义反向传播函数，系统将通过自动求导，参考["自动求梯度"](../chapter_crashcourse/autograd.md)小节，来自动生成`backward`函数。
+我们无需在这里定义反向传播函数，系统将通过自动求导，参考[“自动求梯度”](../chapter_crashcourse/autograd.md)一节，来自动生成`backward`函数。
 
 注意到我们不是将Block叫做层或者模型之类的名字，这是因为它是一个可以自由组建的部件。它的子类既可以一个层，例如Gluon提供的Dense类，也可以是一个模型，我们定义的MLP类，或者是模型的一个部分，例如我们会在之后介绍的ResNet的残差块。我们下面通过两个例子说明它。
 
@@ -60,7 +60,7 @@ class MySequential(nn.Block):
         self._children[block.name] = block
 
     def forward(self, x):
-        # OrderedDict 保证会按照插入时的顺序便利元素
+        # OrderedDict 保证会按照插入时的顺序便利元素。
         for block in self._children.values():
             x = block(x)
         return x
@@ -86,22 +86,22 @@ net(x)
 1. 在前向计算中使用了NDArray函数和Python的控制流
 1. 多次调用同一层
 
-```{.python .input  n=12}
+```{.python .input  n=5}
 class FancyMLP(nn.Block):
     def __init__(self, **kwargs):
         super(FancyMLP, self).__init__(**kwargs)
-        # 不会被更新的随机权重
+        # 不会被更新的随机权重。
         self.rand_weight = nd.random.uniform(shape=(20, 20))
         with self.name_scope():
             self.dense = nn.Dense(20, activation='relu')
 
     def forward(self, x):
         x = self.dense(x)
-        # 使用了 nd 包下 relu 和 dot 函数
+        # 使用了 nd 包下 relu 和 dot 函数。
         x = nd.relu(nd.dot(x, self.rand_weight) + 1)
-        # 重用了 dense，等价于两层网络但共享了参数
+        # 重用了 dense，等价于两层网络但共享了参数。
         x = self.dense(x)
-        # 控制流，这里我们需要调用 asscalar 来返回标量进行比较
+        # 控制流，这里我们需要调用 asscalar 来返回标量进行比较。
         while x.norm().asscalar() > 1:
             x /= 2
         if x.norm().asscalar() < 0.8:
@@ -111,7 +111,7 @@ class FancyMLP(nn.Block):
 
 在这个`FancyMLP`模型中，我们使用了常数权重`rand_weight`（注意它不是模型参数）、做了矩阵乘法操作（`nd.dot`）并重复使用了相同的`Dense`层。测试一下：
 
-```{.python .input  n=13}
+```{.python .input  n=6}
 net = FancyMLP()
 net.initialize()
 net(x)
@@ -119,7 +119,7 @@ net(x)
 
 由于FancyMLP和Sequential都是Block的子类，我们可以嵌套调用他们。
 
-```{.python .input  n=26}
+```{.python .input  n=7}
 class NestMLP(nn.Block):
     def __init__(self, **kwargs):
         super(NestMLP, self).__init__(**kwargs)
