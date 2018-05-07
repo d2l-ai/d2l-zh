@@ -247,7 +247,7 @@ get_top_k_by_analogy(glove_6b50d, 1, 'bad', 'worst', 'big')
 get_top_k_by_analogy(glove_6b50d, 1, 'do', 'did', 'go')
 ```
 
-## 结论
+## 小结
 
 * 使用`mxnet.contrib.text`可以轻松载入预训练的词向量。
 * 我们可以应用预训练的词向量求相似词和类比词。
@@ -260,4 +260,6 @@ get_top_k_by_analogy(glove_6b50d, 1, 'do', 'did', 'go')
 * 如果在[使用循环神经网络的语言模型](../chapter_recurrent-neural-networks/rnn-gluon.md)中将Embedding层初始化为预训练的词向量，效果如何？
 
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/4373)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4373)
+
+![](../img/qr_pretrained-embedding.svg)

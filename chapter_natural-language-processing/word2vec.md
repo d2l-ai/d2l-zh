@@ -168,7 +168,7 @@ $$\mathbb{P}(w_3 \mid w_i) = \sigma(\mathbf{u}_{n(w_3,1)}^\top \mathbf{v}_i)) \c
 
 
 
-## 结论
+## 小结
 
 word2vec工具中的跳字模型和连续词袋模型可以使用两种负采样和层序softmax减小训练开销。
 
@@ -179,5 +179,6 @@ word2vec工具中的跳字模型和连续词袋模型可以使用两种负采样
 * 一些"the"和"a"之类的英文高频词会对结果产生什么影响？该如何处理？（可参考[word2vec论文](https://papers.nips.cc/paper/5021-distributed-representations-of-words-and-phrases-and-their-compositionality.pdf)第2.3节）
 * 如何训练包括例如"new york"在内的词组向量？（可参考[word2vec论文](https://papers.nips.cc/paper/5021-distributed-representations-of-words-and-phrases-and-their-compositionality.pdf)第4节）。
 
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4203)
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/4203)
+![](../img/qr_word2vec.svg)

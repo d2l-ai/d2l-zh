@@ -390,7 +390,7 @@ $$ \exp(\min(0, 1 - \frac{len_{ref}}{len_{MT}})) \prod_{i=1}^k p_n^{1/2^n}$$
 
 需要注意的是，随着$n$的提高，n-gram的精度的权值随着$p_n^{1/2^n}$中的指数减小而提高。例如$0.5^{1/2} \approx 0.7, 0.5^{1/4} \approx 0.84, 0.5^{1/8} \approx 0.92, 0.5^{1/16} \approx 0.96$。换句话说，匹配4-gram比匹配1-gram应该得到更多奖励。另外，模型输出越短往往越容易得到较高的n-gram的精度。因此，BLEU公式里连乘项前面的系数为了惩罚较短的输出。例如当$k=2$时，参考输出为ABCDEF，而模型输出为AB，此时的$p_1 = p_2 = 1$，而$\exp(1-6/3) \approx 0.37$，因此BLEU=0.37。当模型输出也为ABCDEF时，BLEU=1。
 
-## 结论
+## 小结
 
 * 我们可以将编码器—解码器和注意力机制应用于神经机器翻译中。
 * 束搜索有可能提高输出质量。
@@ -402,5 +402,6 @@ $$ \exp(\min(0, 1 - \frac{len_{ref}}{len_{MT}})) \prod_{i=1}^k p_n^{1/2^n}$$
 * 试着使用更大的翻译数据集来训练模型，例如[WMT](http://www.statmt.org/wmt14/translation-task.html)和[Tatoeba Project](http://www.manythings.org/anki/)。调一调不同参数并观察实验结果。
 * Teacher forcing：在模型训练中，试着让解码器使用当前时刻的正确结果（而不是预测结果）作为下一时刻的输入。结果会怎么样？
 
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4689)
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/4689)
+![](../img/qr_nmt.svg)

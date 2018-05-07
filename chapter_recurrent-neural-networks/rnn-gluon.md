@@ -282,7 +282,7 @@ test_L = model_eval(test_data)
 print('Test loss %.2f, test perplexity %.2f' % (test_L, math.exp(test_L)))
 ```
 
-## 结论
+## 小结
 
 * 我们可以使用Gluon轻松训练各种不同的循环神经网络，并设置网络参数，例如网络的层数。
 * 训练迭代中需要将隐含状态从计算图中分离，使模型参数梯度计算只依赖当前的时序数据批量采样。
@@ -292,4 +292,6 @@ print('Test loss %.2f, test perplexity %.2f' % (test_L, math.exp(test_L)))
 
 * 调调参数（例如epochs、隐含层的层数、序列长度、隐含状态长度和学习率），看看对运行时间、训练集、验证集和测试集上perplexity造成的影响。
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/4089)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4089)
+
+![](../img/qr_rnn-gluon.svg)

@@ -174,7 +174,7 @@ utils.train_and_predict_rnn(rnn=gru_rnn, is_random_iter=False, epochs=200,
 
 可以看到一开始学到简单的字符，然后简单的词，接着是复杂点的词，然后看上去似乎像个句子了。
 
-## 结论
+## 小结
 
 * 门控循环单元的提出是为了更好地捕捉时序数据中间隔较大的依赖关系。
 * 重置门有助于捕捉时序数据中短期的依赖关系。
@@ -186,4 +186,6 @@ utils.train_and_predict_rnn(rnn=gru_rnn, is_random_iter=False, epochs=200,
 * 调调参数（例如数据集大小、序列长度、隐含状态长度和学习率），看看对运行时间、perplexity和预测的结果造成的影响。
 * 在相同条件下，比较门控循环单元和循环神经网络的运行效率。
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/4042)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4042)
+
+![](../img/qr_gru-scratch.svg)
