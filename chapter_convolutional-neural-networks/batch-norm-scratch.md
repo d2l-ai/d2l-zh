@@ -251,12 +251,14 @@ for epoch in range(5):
             epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
 ```
 
-## 总结
+## 小结
 
-相比[卷积神经网络 --- 从0开始](cnn-scratch.md)来说，通过加入批量归一化层，即使是同样的参数，测试精度也有明显提升，尤其是最开始几轮。
+* 相比[卷积神经网络 --- 从0开始](cnn-scratch.md)来说，通过加入批量归一化层，即使是同样的参数，测试精度也有明显提升，尤其是最开始几轮。
 
 ## 练习
 
-尝试调大学习率，看看跟前面比，是不是可以使用更大的学习率。
+* 尝试调大学习率，看看跟前面比，是不是可以使用更大的学习率。
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1253)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1253)
+
+![](../img/qr_batch-norm-scratch.svg)

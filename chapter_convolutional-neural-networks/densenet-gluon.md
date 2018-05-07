@@ -137,9 +137,9 @@ utils.train(train_data, test_data, net, loss,
             trainer, ctx, num_epochs=1)
 ```
 
-## 结论
+## 小结
 
-Desnet通过将ResNet里的`+`替换成`concat`从而获得更稠密的连接。
+* Desnet通过将ResNet里的`+`替换成`concat`从而获得更稠密的连接。
 
 ## 练习
 
@@ -147,5 +147,6 @@ Desnet通过将ResNet里的`+`替换成`concat`从而获得更稠密的连接。
 - DesNet被人诟病的一个问题是内存消耗过多。真的会这样吗？可以把输入换成$224\times 224$（需要改最后的`AvgPool2D`大小），来看看实际（GPU）内存消耗。
 - 这里的FashionMNIST有必要用100+层的网络吗？尝试将其改简单看看效果。
 
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1664)
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1664)
+![](../img/qr_densenet-gluon.svg)

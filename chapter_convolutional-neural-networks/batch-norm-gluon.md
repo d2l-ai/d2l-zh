@@ -71,12 +71,14 @@ for epoch in range(5):
         train_acc/len(train_data), test_acc))
 ```
 
-## 总结
+## 小结
 
-使用``Gluon``我们可以很轻松地添加批量归一化层。
+* 使用``Gluon``我们可以很轻松地添加批量归一化层。
 
 ## 练习
 
-如果在全连接层添加批量归一化结果会怎么样？
+* 如果在全连接层添加批量归一化结果会怎么样？
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1254)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1254)
+
+![](../img/qr_batch-norm-gluon.svg)

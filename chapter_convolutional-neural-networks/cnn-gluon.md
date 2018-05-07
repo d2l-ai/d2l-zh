@@ -49,12 +49,14 @@ utils.train(train_data, test_data, net, loss,
             trainer, ctx, num_epochs=5)
 ```
 
-## 结论
+## 小结
 
-使用Gluon来实现卷积网络轻松加随意。
+* 使用Gluon来实现卷积网络轻松加随意。
 
 ## 练习
 
-再试试改改卷积层设定，是不是会比上一章容易很多？
+* 再试试改改卷积层设定，是不是会比上一章容易很多？
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/737)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/737)
+
+![](../img/qr_cnn-gluon.svg)
