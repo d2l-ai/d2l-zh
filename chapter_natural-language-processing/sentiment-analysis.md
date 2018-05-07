@@ -26,13 +26,15 @@ from mxnet.contrib import text
 
 ### 读取IMDb数据集
 
-接着需要下载情感分析时需要用的数据集。我们使用Stanford's Large Movie Review Dataset[1]作为数据集。
+接着需要下载情感分析时需要用的数据集。我们使用Stanford's Large Movie Review Dataset[1] 作为数据集。
+
 * 下载地址：http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz 。
 
 这个数据集分为训练（train）和测试（test）数据集，分别都有25,000条从IMDb下载的关于电影的评论，其中12,500条被标注成“正面”的评论，
 另外12,500条被标注成“负面”的评论。我们使用1表示'正面'评论，0表示'负面'评论。
 
 下载好之后，将数据解压，放在教程的'../data/'文件夹之下，最后文件位置如下:
+
 > '../data/aclImdb'
 
 注意，如果读者已经下载了上述数据集，请略过此步，请设置`demo = False`。
@@ -55,8 +57,8 @@ def readIMDB(dir_url, seg = 'train'):
     for lb in pos_or_neg:
         files = os.listdir('../data/' + dir_url + '/' + seg + '/' + lb + '/')
         for file in files:
-            with open('../data/' + dir_url + '/' + seg + '/' + lb + '/' + file, 
-                      'r', encoding='utf8') as rf:
+            with open('../data/' + dir_url + '/' + seg + '/' + lb + '/' 
+                      + file, 'r', encoding='utf8') as rf:
                 review = rf.read().replace('\n','')
                 if lb == 'pos':
                     dataset.append([review, 1])
@@ -122,7 +124,8 @@ def count_token(train_tokenized):
                 token_counter[token] += 1
 
 count_token(train_tokenized)
-vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>', reserved_tokens=None)
+vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>',
+                              reserved_tokens=None)
 ```
 
 ### 将分好词的数据转化成NDArray
@@ -188,8 +191,8 @@ y_test = nd.array([score for text, score in test_dataset], ctx=context)
 这样做有助于提升模型的结果。我们在这里使用'glove.6B.100d.txt'作为预训练的词向量。
 
 ```{.python .input  n=11}
-glove_embedding = text.embedding.create('glove', pretrained_file_name='glove.6B.100d.txt', 
-                                        vocabulary=vocab)
+glove_embedding = text.embedding.create(
+    'glove', pretrained_file_name='glove.6B.100d.txt', vocabulary=vocab)
 ```
 
 ## 创建情感分析模型
@@ -218,12 +221,15 @@ bidirectional = True
 
 ```{.python .input}
 class SentimentNet(gluon.Block):
-    def __init__(self, vocab, emsize, num_hiddens, nlayers, bidirectional, **kwargs):
+    def __init__(self, vocab, emsize, num_hiddens, nlayers, bidirectional,
+                 **kwargs):
         super(SentimentNet, self).__init__(**kwargs)
         with self.name_scope():
-            self.embedding = gluon.nn.Embedding(len(vocab), emsize, weight_initializer=init.Uniform(0.1))
+            self.embedding = gluon.nn.Embedding(
+                len(vocab), emsize, weight_initializer=init.Uniform(0.1))
             self.encoder = gluon.rnn.LSTM(num_hiddens, num_layers=nlayers, 
-                                          bidirectional=bidirectional, input_size=emsize)
+                                          bidirectional=bidirectional,
+                                          input_size=emsize)
             self.decoder = gluon.nn.Dense(nclass, flatten=False)
     def forward(self, inputs, begin_state=None):
         outputs = self.embedding(inputs)
@@ -235,7 +241,8 @@ class SentimentNet(gluon.Block):
 net = SentimentNet(vocab, emsize, num_hiddens, nlayers, bidirectional)
 net.initialize(mx.init.Xavier(), ctx=context)
 # 设置 embedding 层的 weight 为词向量。
-net.embedding.weight.set_data(glove_embedding.idx_to_vec.as_in_context(context))
+net.embedding.weight.set_data(
+    glove_embedding.idx_to_vec.as_in_context(context))
 # 对 embedding 层不进行优化。
 net.embedding.collect_params().setattr('grad_req', 'null')
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
@@ -289,7 +296,8 @@ for epoch in range(num_epochs):
         total_L += nd.sum(L).asscalar()
         ntotal += L.size
         if i % 800 == 0 and i != 0:
-            print('[epoch %d] batch %d. loss %.6f'%(epoch, i, total_L / ntotal))
+            print('[epoch %d] batch %d. loss %.6f' % (epoch, i,
+                                                      total_L / ntotal))
             total_L = 0
             ntotal = 0
             
@@ -297,15 +305,20 @@ for epoch in range(num_epochs):
     train_loss, train_acc = eval(x_train, y_train)
     test_loss, test_acc = eval(x_test, y_test)
         
-    print('[epoch %d] train loss %.6f, train accuracy %.2f'%(epoch, train_loss, train_acc))
-    print('[epoch %d] test loss %.6f, test accuracy %.2f'%(epoch, test_loss, test_acc))
-    print('[epoch %d] throughput %.2f samples/s'%(epoch, (batch_size * len(x_train)) 
-                                                  / (time.time() - start_epoch_time)))
-    print('[epoch %d] total time %.2f s'%(epoch, (time.time() - start_epoch_time)))
+    print('[epoch %d] train loss %.6f, train accuracy %.2f' 
+          % (epoch, train_loss, train_acc))
+    print('[epoch %d] test loss %.6f, test accuracy %.2f' 
+          % (epoch, test_loss, test_acc))
+    print('[epoch %d] throughput %.2f samples/s' 
+          % (epoch, (batch_size * len(x_train)) 
+             / (time.time() - start_epoch_time)))
+    print('[epoch %d] total time %.2f s' 
+          % (epoch, (time.time() - start_epoch_time)))
 
 print('total training throughput %.2f samples/s'
-      %((batch_size * len(x_train) * num_epochs) / (time.time() - start_train_time)))
-print('total training time %.2f s'%((time.time() - start_train_time)))
+      % ((batch_size * len(x_train) * num_epochs) 
+         / (time.time() - start_train_time)))
+print('total training time %.2f s' % ((time.time() - start_train_time)))
 ```
 
 到这里，我们已经成功使用Gluon创建了一个情感分类模型。下面我们举了一个例子，来看看我们情感分类模型的效果。
@@ -314,8 +327,9 @@ print('total training time %.2f s'%((time.time() - start_train_time)))
 review = ['This', 'movie', 'is', 'great']
 print(review)
 print('上面这个句子的情感是（1代表正面，0代表负面）：')
-nd.argmax(net(nd.reshape(nd.array([vocab.token_to_idx[token] for token in review], ctx=context), 
-                               shape=(-1, 1))), axis=1).asscalar()
+nd.argmax(net(nd.reshape(
+    nd.array([vocab.token_to_idx[token] for token in review], ctx=context), 
+    shape=(-1, 1))), axis=1).asscalar()
 ```
 
 ## 小结
@@ -325,6 +339,7 @@ nd.argmax(net(nd.reshape(nd.array([vocab.token_to_idx[token] for token in review
 ## 练习
 
 大家可以尝试下面几个方面来得到更好的情感分类模型：
+
 * 想要提高最后的准确率，有一个小方法，就是把迭代次数(`num_epochs`)改成3。最后在训练和测试数据上准确率大概能达到0.85。
 * 使用更大的预训练词向量，例如300维的GloVe向量；
 * 使用更加深层的`encoder`，即使用更多数量的layer；
