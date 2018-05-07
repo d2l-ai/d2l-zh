@@ -128,7 +128,7 @@ $$
 
 还有需要注意的是，反向传播对于各层中变量和参数的梯度计算可能会依赖通过正向传播计算出的各层变量和参数的当前值。举例来说，参数梯度$\partial J/\partial \boldsymbol{W}^{(2)}$的计算需要依赖隐含层变量的当前值$\boldsymbol{h}$。这个当前值是通过从输入层到输出层的正向传播计算并存储得到的。
 
-## 总结
+## 小结
 
 正向传播和反向传播是深度学习模型训练的基石（目前是）。
 
@@ -138,4 +138,8 @@ $$
 - 如果模型的层数特别多，梯度的计算会有什么问题？
 - 1986年，Rumelhart, Hinton, 和Williams提出了[反向传播](https://www.iro.umontreal.ca/~vincentp/ift3395/lectures/backprop_old.pdf)。然而2017年[Hinton表示他对反向传播“深刻怀疑”](https://www.axios.com/ai-pioneer-advocates-starting-over-2485537027.html)并发表了[Capsule论文](https://arxiv.org/abs/1710.09829)。你对此有何思考？
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/3710)
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/3710)
+
+
+![](../img/qr_backprop.svg)

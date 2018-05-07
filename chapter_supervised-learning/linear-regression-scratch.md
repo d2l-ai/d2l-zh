@@ -28,7 +28,7 @@ $$y = X \cdot w + b + \eta, \quad \text{for } \eta \sim \mathcal{N}(0,\sigma^2)$
 
 这里噪音服从均值0和标准差为0.01的正态分布。
 
-```{.python .input  n=2}
+```{.python .input  n=1}
 from mxnet import ndarray as nd
 from mxnet import autograd
 
@@ -45,13 +45,13 @@ y += .01 * nd.random_normal(shape=y.shape)
 
 注意到`X`的每一行是一个长度为2的向量，而`y`的每一行是一个长度为1的向量（标量）。
 
-```{.python .input  n=3}
+```{.python .input  n=2}
 print(X[0], y[0])
 ```
 
 如果有兴趣，可以使用安装包中已包括的 Python 绘图包 `matplotlib`，生成第二个特征值 (`X[:, 1]`) 和目标值 `Y` 的散点图，更直观地观察两者间的关系。
 
-```{.python .input}
+```{.python .input  n=3}
 import matplotlib.pyplot as plt
 plt.scatter(X[:, 1].asnumpy(),y.asnumpy())
 plt.show()
@@ -131,7 +131,7 @@ def SGD(params, lr):
 
 现在我们可以开始训练了。训练通常需要迭代数据数次，在这里使用`epochs`表示迭代总次数；一次迭代中，我们每次随机读取固定数个数据点，计算梯度并更新模型参数。
 
-```{.python .input}
+```{.python .input  n=11}
 # 模型函数
 def real_fn(X):
     return true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
@@ -150,7 +150,7 @@ def plot(losses, X, sample_size=100):
     plt.show()
 ```
 
-```{.python .input  n=11}
+```{.python .input  n=12}
 epochs = 5
 learning_rate = .001
 niter = 0
@@ -186,11 +186,11 @@ for e in range(epochs):
 
 训练完成后，我们可以比较学得的参数和真实参数
 
-```{.python .input  n=12}
+```{.python .input  n=13}
 true_w, w
 ```
 
-```{.python .input  n=13}
+```{.python .input  n=14}
 true_b, b
 ```
 
@@ -202,7 +202,7 @@ true_b, b
 
 尝试用不同的学习率查看误差下降速度（收敛率）
 
-## 讨论
 
-欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/743)：
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/743)
 
+![](../img/qr_linear-regression-scratch.svg)

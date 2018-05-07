@@ -67,12 +67,14 @@ for epoch in range(5):
         train_acc/len(train_data), test_acc))
 ```
 
-## 结论
+## 小结
 
 通过`Gluon`我们可以更方便地构造多层神经网络并使用丢弃法。
 
 ## 练习
 
-- 尝试不同元素丢弃概率参数组合，看看结果有什么不同。
+* 尝试不同元素丢弃概率参数组合，看看结果有什么不同。
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1279)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1279)
+
+![](../img/qr_dropout-gluon.svg)

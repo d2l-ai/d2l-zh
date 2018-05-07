@@ -204,7 +204,7 @@ print('predicted labels')
 print(get_text_labels(predicted_labels.asnumpy()))
 ```
 
-## 结论
+## 小结
 
 与前面的线性回归相比，你会发现多类逻辑回归教程的结构跟其非常相似：获取数据、定义模型及优化算法和求解。事实上，几乎所有的实际神经网络应用都有着同样结构。他们的主要区别在于模型的类型和数据的规模。每一两年会有一个新的优化算法出来，但它们基本都是随机梯度下降的变种。
 
@@ -219,4 +219,6 @@ print(get_text_labels(predicted_labels.asnumpy()))
 
 请仔细想想再去对比下我们小伙伴之一@[pluskid](https://github.com/pluskid)早年写的一篇[blog解释这个问题](http://freemind.pluskid.org/machine-learning/softmax-vs-softmax-loss-numerical-stability/)，看看你想的是不是不一样。
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/741)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/741)
+
+![](../img/qr_softmax-regression-scratch.svg)
