@@ -29,8 +29,7 @@ y += 0.01 * nd.random.normal(scale=1, shape=y.shape)
 
 # 线性回归模型。
 net = gluon.nn.Sequential()
-with net.name_scope():
-    net.add(gluon.nn.Dense(1))
+net.add(gluon.nn.Dense(1))
 ```
 
 为了使学习率能够自我衰减，我们需要访问`gluon.Trainer`的`learning_rate`属性并使用`set_learning_rate`函数。

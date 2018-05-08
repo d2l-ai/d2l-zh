@@ -29,8 +29,7 @@ y += 0.01 * nd.random.normal(scale=1, shape=y.shape)
 
 # 线性回归模型。
 net = gluon.nn.Sequential()
-with net.name_scope():
-    net.add(gluon.nn.Dense(1))
+net.add(gluon.nn.Dense(1))
 ```
 
 我们可以在Trainer中定义优化算法名称`adam`并定义初始学习率。以下实验重现了[“Adam——从零开始”](adam-scratch.md)一节中实验结果。

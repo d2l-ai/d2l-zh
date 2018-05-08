@@ -151,12 +151,11 @@ def get_data():
 
 ```{.python .input  n=12}
 net = nn.Sequential()
-with net.name_scope():
-    net.add(
-        nn.Dense(2048, activation='relu'),
-        nn.Dense(512, activation='relu'),
-        nn.Dense(1),
-    )
+net.add(
+    nn.Dense(2048, activation='relu'),
+    nn.Dense(512, activation='relu'),
+    nn.Dense(1),
+)
 net.initialize()
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate':0.005})
