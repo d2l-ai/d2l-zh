@@ -72,8 +72,8 @@ exec(y)
 本节将通过实验展示混合式编程的魅力。首先，导入本节中实验所需的包。
 
 ```{.python .input}
-from mxnet.gluon import nn
 from mxnet import nd, sym
+from mxnet.gluon import nn
 from time import time
 ```
 

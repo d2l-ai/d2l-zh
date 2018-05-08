@@ -21,7 +21,8 @@
 
 ```{.python .input}
 import mxnet as mx
-from mxnet import autograd, gluon, nd
+from mxnet import autograd, nd
+from mxnet.gluon import loss as gloss
 import sys
 from time import time
 sys.path.append('..')
@@ -64,7 +65,7 @@ def lenet(X, params):
     return yhat
 
 # 交叉熵损失函数。
-sce_loss = gluon.loss.SoftmaxCrossEntropyLoss()
+sce_loss = gloss.SoftmaxCrossEntropyLoss()
 ```
 
 ## 多GPU之间同步数据

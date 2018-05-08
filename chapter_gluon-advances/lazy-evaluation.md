@@ -6,7 +6,7 @@ MXNet使用惰性计算（lazy evaluation）来提升计算性能。理解它的
 
 ```{.python .input  n=1}
 from mxnet import autograd, gluon, nd
-from mxnet.gluon import nn
+from mxnet.gluon import loss as gloss, nn
 import os
 import subprocess
 from time import time
@@ -159,7 +159,7 @@ net.add(
 net.initialize()
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate':0.005})
-square_loss = gluon.loss.L2Loss()
+square_loss = gloss.L2Loss()
 ```
 
 这里定义辅助函数来监测内存的使用。需要注意的是，这个函数只能在Linux运行。
