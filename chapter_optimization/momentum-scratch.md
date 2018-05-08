@@ -85,10 +85,10 @@ def sgd_momentum(params, vs, lr, mom, batch_size):
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
 %matplotlib inline
-import sys
 import mxnet as mx
-from mxnet import autograd, gluon, nd
+from mxnet import autograd, nd
 import numpy as np
+import sys
 sys.path.append('..')
 import utils
 ```

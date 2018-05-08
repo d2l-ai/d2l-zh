@@ -7,10 +7,11 @@
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
 %matplotlib inline
-import sys
 import mxnet as mx
 from mxnet import autograd, gluon, nd
+from mxnet.gluon import nn, data as gdata, loss as gloss
 import numpy as np
+import sys
 sys.path.append('..')
 import utils
 ```
@@ -28,8 +29,8 @@ y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
 y += 0.01 * nd.random.normal(scale=1, shape=y.shape)
 
 # 线性回归模型。
-net = gluon.nn.Sequential()
-net.add(gluon.nn.Dense(1))
+net = nn.Sequential()
+net.add(nn.Dense(1))
 ```
 
 为了使学习率能够自我衰减，我们需要访问`gluon.Trainer`的`learning_rate`属性并使用`set_learning_rate`函数。
@@ -38,9 +39,9 @@ net.add(gluon.nn.Dense(1))
 # 优化目标函数。
 def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
              net):
-    dataset = gluon.data.ArrayDataset(X, y)
-    data_iter = gluon.data.DataLoader(dataset, batch_size, shuffle=True)
-    square_loss = gluon.loss.L2Loss()
+    dataset = gdata.ArrayDataset(X, y)
+    data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
+    square_loss = gloss.L2Loss()
     y_vals = [square_loss(net(X), y).mean().asnumpy()]
     for epoch in range(1, num_epochs + 1): 
         # 学习率自我衰减。

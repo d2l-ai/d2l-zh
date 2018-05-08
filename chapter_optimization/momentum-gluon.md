@@ -7,10 +7,11 @@
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
 %matplotlib inline
-import sys
 import mxnet as mx
 from mxnet import autograd, gluon, nd
+from mxnet.gluon import nn
 import numpy as np
+import sys
 sys.path.append('..')
 import utils
 ```
@@ -28,8 +29,8 @@ y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
 y += 0.01 * nd.random.normal(scale=1, shape=y.shape)
 
 # 线性回归模型。
-net = gluon.nn.Sequential()
-net.add(gluon.nn.Dense(1))
+net = nn.Sequential()
+net.add(nn.Dense(1))
 ```
 
 例如，以使用动量法的小批量随机梯度下降为例，我们可以在`Trainer`中定义动量超参数`momentum`。以下几组实验分别重现了[“动量法——从零开始”](momentum-scratch.md)一节中实验结果。

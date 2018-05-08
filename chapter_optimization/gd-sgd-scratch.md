@@ -117,11 +117,11 @@ def sgd(params, lr, batch_size):
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
 %matplotlib inline
+import mxnet as mx
+from mxnet import autograd, nd
+import numpy as np
 import random
 import sys
-import mxnet as mx
-from mxnet import autograd, gluon, nd
-import numpy as np
 sys.path.append('..')
 import utils
 ```
@@ -172,7 +172,6 @@ def data_iter(batch_size, num_examples, X, y):
 
 ```{.python .input  n=3}
 net = linreg
-squared_loss = squared_loss
 
 def optimize(batch_size, lr, num_epochs, log_interval, decay_epoch):
     w, b = init_params()
