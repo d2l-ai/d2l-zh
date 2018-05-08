@@ -93,9 +93,9 @@ def SGD(params, lr):
     for param in params:
         param[:] = param - lr * param.grad
 
-def sgd(params, lr):
+def sgd(params, lr, batch_size):
     for param in params:
-        param[:] = param - lr * param.grad
+        param[:] = param - lr * param.grad / batch_size
 
 def accuracy(output, label):
     return nd.mean(output.argmax(axis=1)==label).asscalar()

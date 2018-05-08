@@ -148,7 +148,7 @@ def train_batch(features, labels, gpu_params, ctx, lr):
         allreduce([gpu_params[c][i].grad for c in range(len(ctx))])
     # 在各个GPU上更新自己维护的那一份完整的模型参数。
     for param in gpu_params:
-        utils.sgd(param, lr / features.shape[0])
+        utils.sgd(param, lr, features.shape[0])
 ```
 
 ## 训练函数
