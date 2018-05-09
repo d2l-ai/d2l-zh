@@ -8,10 +8,11 @@
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
 %matplotlib inline
-import sys
 import mxnet as mx
 from mxnet import autograd, gluon, nd
+from mxnet.gluon import nn
 import numpy as np
+import sys
 sys.path.append('..')
 import utils
 ```
@@ -29,9 +30,8 @@ y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
 y += 0.01 * nd.random.normal(scale=1, shape=y.shape)
 
 # 线性回归模型。
-net = gluon.nn.Sequential()
-with net.name_scope():
-    net.add(gluon.nn.Dense(1))
+net = nn.Sequential()
+net.add(nn.Dense(1))
 ```
 
 我们可以在Trainer中定义优化算法名称`adagrad`。以下实验分别重现了[“Adagrad——从零开始”](adagrad-scratch.md)一节中实验结果。

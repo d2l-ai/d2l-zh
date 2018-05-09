@@ -1,8 +1,10 @@
 # 线性回归——从零开始
 
-尽管强大的深度学习框架可以减少大量重复性工作，但若过于依赖它提供的便利，你就会很难深入理解深度学习是如何工作的。因此，我们的第一个教程是如何只利用ndarray和autograd来实现一个线性回归的训练。
+尽管强大的深度学习框架可以减少大量重复性工作，但若过于依赖它提供的便利，你就会很难深入理解深度学习是如何工作的。因此，本章第一节将介绍如何只利用NDArray和`autograd`来实现一个线性回归的训练。
 
 ## 线性回归
+
+TODO(@astonzhang) 神经元和矩阵。
 
 给定一个数据点集合`X`和对应的目标值`y`，线性模型的目标就是找到一条使用向量`w`和位移`b`描述的线，来尽可能地近似每个样本`X[i]`和`y[i]`。用数学符号来表示就是：
 
@@ -16,6 +18,22 @@ $$\sum_{i=1}^n (\hat{y}_i-y_i)^2.$$
 
 ![](../img/onelayer.png)
 
+首先，导入本节中实验所需的包。
+
+```{.python .input}
+%config InlineBackend.figure_format = 'retina'
+%matplotlib inline
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import mxnet as mx
+from mxnet import autograd, nd
+import numpy as np
+import random
+import sys
+sys.path.append('..')
+import utils
+```
+
 ## 创建数据集
 
 这里我们使用一个数据集来尽量简单地解释清楚，真实的模型是什么样的。具体来说，我们使用如下方法来生成数据；随机数值 `X[i]`，其相应的标注为 `y[i]`：
@@ -28,32 +46,27 @@ $$y = X \cdot w + b + \eta, \quad \text{for } \eta \sim \mathcal{N}(0,\sigma^2)$
 
 这里噪音服从均值0和标准差为0.01的正态分布。
 
-```{.python .input  n=2}
-from mxnet import ndarray as nd
-from mxnet import autograd
-
+```{.python .input  n=1}
 num_inputs = 2
 num_examples = 1000
-
 true_w = [2, -3.4]
 true_b = 4.2
-
-X = nd.random_normal(shape=(num_examples, num_inputs))
+X = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
 y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
-y += .01 * nd.random_normal(shape=y.shape)
+y += 0.01 * nd.random.normal(scale=1, shape=y.shape)
 ```
 
 注意到`X`的每一行是一个长度为2的向量，而`y`的每一行是一个长度为1的向量（标量）。
 
-```{.python .input  n=3}
+```{.python .input  n=2}
 print(X[0], y[0])
 ```
 
 如果有兴趣，可以使用安装包中已包括的 Python 绘图包 `matplotlib`，生成第二个特征值 (`X[:, 1]`) 和目标值 `Y` 的散点图，更直观地观察两者间的关系。
 
-```{.python .input}
-import matplotlib.pyplot as plt
-plt.scatter(X[:, 1].asnumpy(),y.asnumpy())
+```{.python .input  n=3}
+utils.set_fig_size(mpl)
+plt.scatter(X[:, 1].asnumpy(), y.asnumpy())
 plt.show()
 ```
 
@@ -62,15 +75,13 @@ plt.show()
 当我们开始训练神经网络的时候，我们需要不断读取数据块。这里我们定义一个函数它每次返回`batch_size`个随机的样本和对应的目标。我们通过python的`yield`来构造一个迭代器。
 
 ```{.python .input  n=4}
-import random
 batch_size = 10
-def data_iter():
-    # 产生一个随机索引
+def data_iter(): 
     idx = list(range(num_examples))
     random.shuffle(idx)
     for i in range(0, num_examples, batch_size):
-        j = nd.array(idx[i:min(i+batch_size,num_examples)])
-        yield nd.take(X, j), nd.take(y, j)
+        j = nd.array(idx[i: min(i + batch_size, num_examples)])
+        yield X.take(j), y.take(j)
 ```
 
 下面代码读取第一个随机数据块
@@ -86,8 +97,8 @@ for data, label in data_iter():
 下面我们随机初始化模型参数
 
 ```{.python .input  n=6}
-w = nd.random_normal(shape=(num_inputs, 1))
-b = nd.zeros((1,))
+w = nd.random.normal(scale=1, shape=(num_inputs, 1))
+b = nd.zeros(shape=(1,))
 params = [w, b]
 ```
 
@@ -103,8 +114,8 @@ for param in params:
 线性模型就是将输入和模型的权重（`w`）相乘，再加上偏移（`b`）：
 
 ```{.python .input  n=8}
-def net(X):
-    return nd.dot(X, w) + b
+def net(X, w, b): 
+    return nd.dot(X, w) + b 
 ```
 
 ## 损失函数
@@ -112,97 +123,61 @@ def net(X):
 我们使用常见的平方误差来衡量预测目标和真实目标之间的差距。
 
 ```{.python .input  n=9}
-def square_loss(yhat, y):
+def squared_loss(yhat, y): 
     # 注意这里我们把y变形成yhat的形状来避免矩阵形状的自动转换
-    return (yhat - y.reshape(yhat.shape)) ** 2
+    return (yhat - y.reshape(yhat.shape)) ** 2 / 2
 ```
 
 ## 优化
 
 虽然线性回归有显式解，但绝大部分模型并没有。所以我们这里通过随机梯度下降来求解。每一步，我们将模型参数沿着梯度的反方向走特定距离，这个距离一般叫**学习率（learning rate）** `lr`。（我们会之后一直使用这个函数，我们将其保存在[utils.py](../utils.py)。）
 
+TODO(@astonzhang) 超参数和模型参数。
+
 ```{.python .input  n=10}
-def SGD(params, lr):
+def sgd(params, lr, batch_size):
     for param in params:
-        param[:] = param - lr * param.grad
+        param[:] = param - lr * param.grad / batch_size
 ```
 
 ## 训练
 
 现在我们可以开始训练了。训练通常需要迭代数据数次，在这里使用`epochs`表示迭代总次数；一次迭代中，我们每次随机读取固定数个数据点，计算梯度并更新模型参数。
 
-```{.python .input}
-# 模型函数
-def real_fn(X):
-    return true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
-# 绘制损失随训练次数降低的折线图，以及预测值和真实值的散点图
-def plot(losses, X, sample_size=100):
-    xs = list(range(len(losses)))
-    f, (fg1, fg2) = plt.subplots(1, 2)
-    fg1.set_title('Loss during training')
-    fg1.plot(xs, losses, '-r')
-    fg2.set_title('Estimated vs real function')
-    fg2.plot(X[:sample_size, 1].asnumpy(),
-             net(X[:sample_size, :]).asnumpy(), 'or', label='Estimated')
-    fg2.plot(X[:sample_size, 1].asnumpy(),
-             real_fn(X[:sample_size, :]).asnumpy(), '*g', label='Real')
-    fg2.legend()
-    plt.show()
-```
+```{.python .input  n=12}
+lr = 0.05
+num_epochs = 3
 
-```{.python .input  n=11}
-epochs = 5
-learning_rate = .001
-niter = 0
-losses = []
-moving_loss = 0
-smoothing_constant = .01
-
-# 训练
-for e in range(epochs):    
-    total_loss = 0
-
-    for data, label in data_iter():
+for epoch in range(1, num_epochs + 1):
+    for features, label in data_iter():
         with autograd.record():
-            output = net(data)
-            loss = square_loss(output, label)
+            output = net(features, w, b)
+            loss = squared_loss(output, label)
         loss.backward()
-        SGD(params, learning_rate)
-        total_loss += nd.sum(loss).asscalar()
-
-        # 记录每读取一个数据点后，损失的移动平均值的变化；
-        niter +=1
-        curr_loss = nd.mean(loss).asscalar()
-        moving_loss = (1 - smoothing_constant) * moving_loss + (smoothing_constant) * curr_loss
-
-        # correct the bias from the moving averages
-        est_loss = moving_loss/(1-(1-smoothing_constant)**niter)
-
-        if (niter + 1) % 100 == 0:
-            losses.append(est_loss)
-            print("Epoch %s, batch %s. Moving avg of loss: %s. Average loss: %f" % (e, niter, est_loss, total_loss/num_examples))
-            plot(losses, X)
+        sgd([w, b], lr, batch_size)
+    print("epoch %d, loss: %f" 
+          % (epoch, squared_loss(net(X, w, b), y).mean().asnumpy()))
 ```
 
 训练完成后，我们可以比较学得的参数和真实参数
 
-```{.python .input  n=12}
+```{.python .input  n=13}
 true_w, w
 ```
 
-```{.python .input  n=13}
+```{.python .input  n=14}
 true_b, b
 ```
 
 ## 小结
 
-我们现在看到，仅仅是使用NDArray和autograd就可以很容易实现的一个模型。在接下来的教程里，我们会在此基础上，介绍更多现代神经网络的知识，以及怎样使用少量的MXNet代码实现各种复杂的模型。
+* 我们现在看到，仅仅是使用NDArray和autograd就可以很容易实现的一个模型。在接下来的教程里，我们会在此基础上，介绍更多现代神经网络的知识，以及怎样使用少量的MXNet代码实现各种复杂的模型。
 
 ## 练习
 
-尝试用不同的学习率查看误差下降速度（收敛率）
+* 尝试用不同的学习率查看误差下降速度（收敛率）
 
-## 讨论
 
-欢迎扫码直达[本节内容讨论区](https://discuss.gluon.ai/t/topic/743)：
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/743)
 
+![](../img/qr_linear-regression-scratch.svg)

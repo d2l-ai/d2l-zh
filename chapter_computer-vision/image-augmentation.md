@@ -193,13 +193,14 @@ train(test_augs, test_augs)
 
 可以看到使用增广后，训练精度提升更慢，但测试精度比不使用更好。
 
-## 总结
+## 小结
 
-图片增广可以有效避免过拟合。
+* 图片增广可以有效避免过拟合。
 
 ## 练习
 
-尝试换不同的增广方法试试。
+* 尝试换不同的增广方法试试。
 
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1666)
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1666)
+![](../img/qr_image-augmentation.svg)

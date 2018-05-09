@@ -382,4 +382,6 @@ df.to_csv('submission.csv', index=False)
 * 如果不使用增强数据的方法能拿到什么样的准确率？
 * 你还有什么其他办法可以继续改进模型和参数？小伙伴们都期待你的分享。
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1545/)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1545/)
+
+![](../img/qr_kaggle-gluon-cifar10.svg)

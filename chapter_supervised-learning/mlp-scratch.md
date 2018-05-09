@@ -107,7 +107,7 @@ for epoch in range(5):
         train_acc/len(train_data), test_acc))
 ```
 
-## 总结
+## 小结
 
 可以看到，加入一个隐含层后我们将精度提升了不少。
 
@@ -117,4 +117,6 @@ for epoch in range(5):
 - 尝试改变 `num_hiddens` 来控制模型的复杂度
 - 尝试加入一个新的隐含层
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/739)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/739)
+
+![](../img/qr_mlp-scratch.svg)

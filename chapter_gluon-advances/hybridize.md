@@ -72,8 +72,8 @@ exec(y)
 本节将通过实验展示混合式编程的魅力。首先，导入本节中实验所需的包。
 
 ```{.python .input}
-from mxnet.gluon import nn
 from mxnet import nd, sym
+from mxnet.gluon import nn
 from time import time
 ```
 
@@ -84,12 +84,11 @@ from time import time
 ```{.python .input}
 def get_net():
     net = nn.HybridSequential()
-    with net.name_scope():
-        net.add(
-            nn.Dense(256, activation="relu"),
-            nn.Dense(128, activation="relu"),
-            nn.Dense(2)
-        )
+    net.add(
+        nn.Dense(256, activation="relu"),
+        nn.Dense(128, activation="relu"),
+        nn.Dense(2)
+    )
     net.initialize()
     return net
 
@@ -157,9 +156,8 @@ net(x)
 class HybridNet(nn.HybridBlock):
     def __init__(self, **kwargs):
         super(HybridNet, self).__init__(**kwargs)
-        with self.name_scope():
-            self.hidden = nn.Dense(10)
-            self.output = nn.Dense(2)
+        self.hidden = nn.Dense(10)
+        self.output = nn.Dense(2)
 
     def hybrid_forward(self, F, x):
         print('F: ', F)

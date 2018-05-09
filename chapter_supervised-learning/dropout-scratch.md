@@ -159,7 +159,7 @@ for epoch in range(5):
         train_acc/len(train_data), test_acc))
 ```
 
-## 总结
+## 小结
 
 我们可以通过使用丢弃法对神经网络正则化。
 
@@ -168,4 +168,6 @@ for epoch in range(5):
 - 尝试不使用丢弃法，看看这个包含两个隐含层的多层感知机可以得到什么结果。
 - 我们推荐把更靠近输入层的元素丢弃概率设的更小一点。想想这是为什么？如果把本节教程中的两个元素丢弃参数对调会有什么结果？
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1278)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1278)
+
+![](../img/qr_dropout-scratch.svg)

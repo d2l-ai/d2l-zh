@@ -21,7 +21,8 @@
 
 ```{.python .input}
 import mxnet as mx
-from mxnet import autograd, gluon, nd
+from mxnet import autograd, nd
+from mxnet.gluon import loss as gloss
 import sys
 from time import time
 sys.path.append('..')
@@ -64,7 +65,7 @@ def lenet(X, params):
     return yhat
 
 # 交叉熵损失函数。
-sce_loss = gluon.loss.SoftmaxCrossEntropyLoss()
+sce_loss = gloss.SoftmaxCrossEntropyLoss()
 ```
 
 ## 多GPU之间同步数据
@@ -148,7 +149,7 @@ def train_batch(features, labels, gpu_params, ctx, lr):
         allreduce([gpu_params[c][i].grad for c in range(len(ctx))])
     # 在各个GPU上更新自己维护的那一份完整的模型参数。
     for param in gpu_params:
-        utils.sgd(param, lr / features.shape[0])
+        utils.sgd(param, lr, features.shape[0])
 ```
 
 ## 训练函数

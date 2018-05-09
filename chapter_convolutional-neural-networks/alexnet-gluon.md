@@ -135,7 +135,7 @@ utils.train(train_data, test_data, net, loss,
             trainer, ctx, num_epochs=1)
 ```
 
-## 结论
+## 小结
 
 从LeNet到Alexnet，虽然实现起来也就多了几行而已。但这个观念上的转变和真正跑出好实验结果，学术界整整花了20年。
 
@@ -146,5 +146,6 @@ utils.train(train_data, test_data, net, loss,
 - 尝试将训练的参数改回到LeNet看看会发生什么？想想看为什么？
 - 试试从0开始实现看看？
 
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1258)
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1258)
+![](../img/qr_alexnet-gluon.svg)

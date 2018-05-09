@@ -169,9 +169,9 @@ utils.train(train_data, test_data, net, loss,
             trainer, ctx, num_epochs=1)
 ```
 
-## 结论
+## 小结
 
-GoogLeNet加入了更加结构化的Inception块来使得我们可以使用更大的通道，更多的层，同时控制计算量和模型大小在合理范围内。
+* GoogLeNet加入了更加结构化的Inception块来使得我们可以使用更大的通道，更多的层，同时控制计算量和模型大小在合理范围内。
 
 ## 练习
 
@@ -182,5 +182,6 @@ GoogLeNet有数个后续版本，尝试实现他们并运行看看有什么不�
 - v3: 对Inception做了调整：[Rethinking the Inception Architecture for Computer Vision](http://arxiv.org/abs/1512.00567)
 - v4: 基于ResNet加入了Residual Connections：[Inception-ResNet and the Impact of Residual Connections on Learning](http://arxiv.org/abs/1602.07261)
 
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1662)
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1662)
+![](../img/qr_googlenet-gluon.svg)

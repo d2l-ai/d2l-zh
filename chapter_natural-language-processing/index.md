@@ -9,6 +9,7 @@
    word2vec
    glove-fasttext
    pretrained-embedding
+   sentiment-analysis
    seq2seq-attention
    nmt
 ```

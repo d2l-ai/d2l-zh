@@ -67,7 +67,7 @@ for epoch in range(5):
         epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
 ```
 
-## 结论
+## 小结
 
 Gluon提供的函数有时候比手工写的数值更稳定。
 
@@ -76,4 +76,6 @@ Gluon提供的函数有时候比手工写的数值更稳定。
 - 再尝试调大下学习率看看？
 - 为什么参数都差不多，但gluon版本比从0开始的版本精度更高？
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/740)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/740)
+
+![](../img/qr_softmax-regression-gluon.svg)

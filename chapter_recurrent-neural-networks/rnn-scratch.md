@@ -467,7 +467,7 @@ train_and_predict_rnn(rnn=rnn, is_random_iter=False, epochs=200, num_steps=35,
 
 可以看到一开始学到简单的字符，然后简单的词，接着是复杂点的词，然后看上去似乎像个句子了。
 
-## 结论
+## 小结
 
 * 通过隐含状态，循环神经网络适合处理前后有依赖关系时序数据样本。
 * 对前后有依赖关系时序数据样本批量采样时，我们可以使用随机批量采样和相邻批量采样。
@@ -479,4 +479,6 @@ train_and_predict_rnn(rnn=rnn, is_random_iter=False, epochs=200, num_steps=35,
 * 调调参数（例如数据集大小、序列长度、隐含状态长度和学习率），看看对运行时间、perplexity和预测的结果造成的影响。
 * 在随机批量采样中，如果在同一个epoch中只把隐含变量在该epoch开始的时候初始化会怎么样？
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/989)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/989)
+
+![](../img/qr_rnn-scratch.svg)

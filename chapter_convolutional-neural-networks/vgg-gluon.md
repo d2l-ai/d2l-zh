@@ -86,9 +86,9 @@ utils.train(train_data, test_data, net, loss,
             trainer, ctx, num_epochs=1)
 ```
 
-## 总结
+## 小结
 
-通过使用重复的元素，我们可以通过循环和函数来定义模型。使用不同的配置(`architecture`)可以得到一系列不同的模型。
+* 通过使用重复的元素，我们可以通过循环和函数来定义模型。使用不同的配置(`architecture`)可以得到一系列不同的模型。
 
 
 ## 练习
@@ -97,5 +97,6 @@ utils.train(train_data, test_data, net, loss,
 - 尝试下构造VGG其他常用模型，例如VGG16， VGG19. （提示：可以参考[VGG论文](https://arxiv.org/abs/1409.1556)里的表1。）
 - 把图片从默认的$224\times 224$降到$96\times 96$有什么影响？
 
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1277)
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1277)
+![](../img/qr_vgg-gluon.svg)

@@ -96,13 +96,14 @@ utils.train(train_data, test_data, net, loss,
             trainer, ctx, num_epochs=1)
 ```
 
-## 结论
+## 小结
 
-这种“一卷卷到底”最后加一个平均池化层的做法也成为了深度卷积神经网络的常用设计。
+* 这种“一卷卷到底”最后加一个平均池化层的做法也成为了深度卷积神经网络的常用设计。
 
 ## 练习
 
 - 为什么mlpconv里面要有两个$1\times 1$卷积？
 
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1661)
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1661)
+![](../img/qr_nin-gluon.svg)

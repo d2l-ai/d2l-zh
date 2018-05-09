@@ -26,11 +26,11 @@
 ```{.python .input  n=1}
 %matplotlib inline
 %config InlineBackend.figure_format = 'retina'
-import sys
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 import numpy as np
+import sys
 sys.path.append('..')
 import utils
 ```

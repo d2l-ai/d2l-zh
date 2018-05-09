@@ -114,7 +114,7 @@ fastText对于一些语言较重要，例如阿拉伯语、德语和俄语。例
 
 
 
-## 结论
+## 小结
 
 * GloVe用词向量表达共现词频的对数。
 * fastText用子词向量之和表达整词。
@@ -126,6 +126,6 @@ fastText对于一些语言较重要，例如阿拉伯语、德语和俄语。例
 * 如果丢弃GloVe中的偏移项，是否也可以满足任意一对词共现的对称性？
 * 在fastText中，子词过多怎么办（例如，6字英文组合数为$26^6$）？（可参考[fastText论文](https://arxiv.org/pdf/1607.04606.pdf)3.2节）
 
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4372)
 
-
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/4372)
+![](../img/qr_glove-fasttext.svg)

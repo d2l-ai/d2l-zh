@@ -133,7 +133,7 @@ $$\boldsymbol{z}_{t^\prime} = \sigma(\boldsymbol{W}_{yz} \boldsymbol{y}_{t^\prim
 
 $$\tilde{\boldsymbol{s}}_{t^\prime} = \text{tanh}(\boldsymbol{W}_{ys} \boldsymbol{y}_{t^\prime-1} + \boldsymbol{W}_{ss} (\boldsymbol{s}_{t^\prime - 1} \odot \boldsymbol{r}_{t^\prime}) + \boldsymbol{W}_{cs} \boldsymbol{c}_{t^\prime} + \boldsymbol{b}_s)$$
 
-## 结论
+## 小结
 
 * 编码器-解码器（seq2seq）的输入和输出可以都是不定长序列。
 * 在解码器上应用注意力机制可以在解码器的每个时刻使用不同的背景向量。每个背景向量相当于对输入序列的不同部分分配了不同的注意力。
@@ -149,4 +149,6 @@ $$\tilde{\boldsymbol{s}}_{t^\prime} = \text{tanh}(\boldsymbol{W}_{ys} \boldsymbo
 
 * 除了自然语言处理，注意力机制还可以应用在哪些地方？
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/4523)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4523)
+
+![](../img/qr_seq2seq-attention.svg)

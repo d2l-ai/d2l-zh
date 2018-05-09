@@ -61,6 +61,14 @@ sudo fc-cache -f -v
 make pdf
 ```
 
+## 其他安装
+
+
+```{.python .input}
+python -m spacy download en # 需已 pip install spacy
+```
+
+
 ## 英汉术语对照
 
 

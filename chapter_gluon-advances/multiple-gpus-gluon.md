@@ -7,6 +7,7 @@
 ```{.python .input}
 import mxnet as mx
 from mxnet import autograd, gluon, init, nd
+from mxnet.gluon import loss as gloss, utils as gutils
 import sys
 from time import time
 sys.path.append('..')
@@ -32,7 +33,7 @@ Gluon提供了上一节中实现的`split_and_load`函数。它可以划分一�
 
 ```{.python .input}
 x = nd.random.uniform(shape=(4, 1, 28, 28))
-gpu_x = gluon.utils.split_and_load(x, ctx)
+gpu_x = gutils.split_and_load(x, ctx)
 print(net(gpu_x[0]))
 print(net(gpu_x[1]))
 ```
@@ -54,7 +55,7 @@ print(weight.data(ctx[1])[0])
 我们先定义交叉熵损失函数。
 
 ```{.python .input}
-sce_loss = gluon.loss.SoftmaxCrossEntropyLoss()
+sce_loss = gloss.SoftmaxCrossEntropyLoss()
 ```
 
 当我们使用多个GPU来训练模型时，`gluon.Trainer`会自动做数据并行，例如划分小批量数据样本并复制到各个GPU上，对各个GPU上的梯度求和再广播到所有GPU上。这样，我们就可以很方便地实现训练函数了。
@@ -71,8 +72,8 @@ def train(num_gpus, batch_size, lr):
         start = time()
         total_loss = 0
         for features, labels in train_data:
-            gpu_data = gluon.utils.split_and_load(features, ctx)
-            gpu_labels = gluon.utils.split_and_load(labels, ctx)
+            gpu_data = gutils.split_and_load(features, ctx)
+            gpu_labels = gutils.split_and_load(labels, ctx)
             with autograd.record():
                 losses = [sce_loss(net(X), y) for X, y in zip(gpu_data,
                                                               gpu_labels)]
