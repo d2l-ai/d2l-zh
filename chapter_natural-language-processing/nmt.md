@@ -121,7 +121,7 @@ class Encoder(Block):
                                input_size=hidden_dim)
 
     def forward(self, inputs, state):
-        # inputs尺寸: (1, num_steps)，emb尺寸: (num_steps, 1, 256)
+        # inputs尺寸: (batch_size, num_steps)，emb尺寸: (num_steps, batch_size, 256)
         emb = self.embedding(inputs).swapaxes(0, 1)
         emb = self.dropout(emb)
         output, state = self.rnn(emb, state)
@@ -157,7 +157,7 @@ class Decoder(Block):
 
             self.rnn = rnn.GRU(hidden_dim, num_layers, dropout=drop_prob,
                                input_size=hidden_dim)
-            self.out = nn.Dense(output_dim, in_units=hidden_dim)
+            self.out = nn.Dense(output_dim, in_units=hidden_dim, flatten=False)
             self.rnn_concat_input = nn.Dense(
                 hidden_dim, in_units=hidden_dim + encoder_hidden_dim,
                 flatten=False)
@@ -165,35 +165,37 @@ class Decoder(Block):
     def forward(self, cur_input, state, encoder_outputs):
         # 当RNN为多层时，取最靠近输出层的单层隐含状态。
         single_layer_state = [state[0][-1].expand_dims(0)]
-        encoder_outputs = encoder_outputs.reshape((self.max_seq_len, 1,
+        encoder_outputs = encoder_outputs.reshape((self.max_seq_len, -1,
                                                    self.encoder_hidden_dim))
-        # single_layer_state尺寸: [(1, 1, decoder_hidden_dim)]
-        # hidden_broadcast尺寸: (max_seq_len, 1, decoder_hidden_dim)
+        # single_layer_state尺寸: [(1, batch_size, decoder_hidden_dim)]
+        # hidden_broadcast尺寸: (max_seq_len, batch_size, decoder_hidden_dim)
         hidden_broadcast = nd.broadcast_axis(single_layer_state[0], axis=0,
                                              size=self.max_seq_len)
 
         # encoder_outputs_and_hiddens尺寸:
-        # (max_seq_len, 1, encoder_hidden_dim + decoder_hidden_dim)
+        # (max_seq_len, batch_size, encoder_hidden_dim + decoder_hidden_dim)
         encoder_outputs_and_hiddens = nd.concat(encoder_outputs,
                                                 hidden_broadcast, dim=2)
 
-        # energy尺寸: (max_seq_len, 1, 1)
+        # energy尺寸: (max_seq_len, batch_size, 1)
         energy = self.attention(encoder_outputs_and_hiddens)
 
-        batch_attention = nd.softmax(energy, axis=0).reshape(
-            (1, 1, self.max_seq_len))
+        # batch_attention尺寸: (batch_size, 1, max_seq_len)
+        batch_attention = nd.softmax(energy, axis=0).transpose(
+            (1, 2, 0))
 
-        # batch_encoder_outputs尺寸: (1, max_seq_len, encoder_hidden_dim)
+        # batch_encoder_outputs尺寸: (batch_size, max_seq_len, encoder_hidden_dim)
         batch_encoder_outputs = encoder_outputs.swapaxes(0, 1)
 
-        # decoder_context尺寸: (1, 1, encoder_hidden_dim)
+        # decoder_context尺寸: (batch_size, 1, encoder_hidden_dim)
         decoder_context = nd.batch_dot(batch_attention, batch_encoder_outputs)
 
-        # input_and_context尺寸: (1, 1, encoder_hidden_dim + decoder_hidden_dim)
-        input_and_context = nd.concat(self.embedding(cur_input).reshape(
-            (1, 1, self.hidden_size)), decoder_context, dim=2)
-        # concat_input尺寸: (1, 1, decoder_hidden_dim)
-        concat_input = self.rnn_concat_input(input_and_context)
+        # cur_input尺寸: (batch_size,)
+        # input_and_context尺寸: (batch_size, 1, encoder_hidden_dim + decoder_hidden_dim)
+        input_and_context = nd.concat(nd.expand_dims(self.embedding(cur_input), axis=1),
+                                      decoder_context, dim=2)
+        # concat_input尺寸: (1, batch_size, decoder_hidden_dim)
+        concat_input = self.rnn_concat_input(input_and_context).reshape((1, -1, 0))
         concat_input = self.dropout(concat_input)
 
         # 当RNN为多层时，用单层隐含状态初始化各个层的隐含状态。
@@ -202,8 +204,8 @@ class Decoder(Block):
 
         output, state = self.rnn(concat_input, state)
         output = self.dropout(output)
-        output = self.out(output)
-        # output尺寸: (1, output_size)，hidden尺寸: [(1, 1, decoder_hidden_dim)]
+        output = self.out(output).reshape((-3, -1))
+        # output尺寸: (batch_size, output_size)
         return output, state
 
     def begin_state(self, *args, **kwargs):
@@ -252,7 +254,7 @@ def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
         while True:
             decoder_output, decoder_state = decoder(
                 decoder_input, decoder_state, encoder_outputs)
-            pred_i = int(decoder_output.argmax(axis=1).asnumpy())
+            pred_i = int(decoder_output.argmax(axis=1).asnumpy()[0])
             # 当任一时刻的输出为EOS字符时，输出序列即完成。
             if pred_i == output_vocab.token_to_idx[EOS]:
                 break
@@ -304,9 +306,8 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens):
                     decoder_output, decoder_state = decoder(
                         decoder_input, decoder_state, encoder_outputs)
                     # 解码器使用当前时刻的预测结果作为下一时刻的输入。
-                    decoder_input = nd.array(
-                        [decoder_output.argmax(axis=1).asscalar()], ctx=ctx)
-                    loss = loss + softmax_cross_entropy(decoder_output, y[0][i])
+                    decoder_input = decoder_output.argmax(axis=1)
+                    loss = loss + softmax_cross_entropy(decoder_output[0], y[0][i])
                     if y[0][i].asscalar() == output_vocab.token_to_idx[EOS]:
                         break
 
