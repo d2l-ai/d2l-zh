@@ -341,15 +341,15 @@ nd.argmax(net(nd.reshape(
 * 想要提高最后的准确率，有一个小方法，就是把迭代次数(`num_epochs`)改成3。最后在训练和测试数据上准确率大概能达到0.82；
 * 可以尝试使用更好的分词工具得到更好的分词效果，会对最终结果有帮助。例如可以使用spacy分词工具，先pip安装spacy：
     * `
-    pip install spacy
+    pip install spacy  
     python -m spacy download en`
     
     然后这样分词：
     
     * `
-    import spacy
-    spacy_en = spacy.load('en')
-    def tokenizer(text):
+    import spacy  
+    spacy_en = spacy.load('en')  
+    def tokenizer(text):  
         return [tok.text for tok in spacy_en.tokenizer(text)]`
         
     注意，GloVe的向量对于名词词组的存储方式是用'-'连接独立单词，例如'new york'为'new-york'。而使用spacy分词之后'new york'的存储可能是'new york'。所以为了得到更好的embedding效果，可以对于词组进行简单的后续处理。
