@@ -15,23 +15,12 @@
 from collections import Counter
 import os
 import random
-import spacy
 import time
 import zipfile
 
 import mxnet as mx
 from mxnet import autograd, gluon, init, nd
 from mxnet.contrib import text
-```
-
-```{.json .output n=1}
-[
- {
-  "name": "stderr",
-  "output_type": "stream",
-  "text": "/home/ubuntu/anaconda3/lib/python3.6/site-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.\n  from ._conv import register_converters as _register_converters\n"
- }
-]
 ```
 
 ### 读取IMDb数据集
@@ -60,7 +49,7 @@ if demo:
         zin.extractall('../data/')
 ```
 
-```{.python .input  n=3}
+```{.python .input}
 def readIMDB(dir_url, seg = 'train'):
     pos_or_neg = ['pos','neg']
     dataset = []
@@ -90,17 +79,17 @@ random.shuffle(test_dataset)
 
 ### 指定分词方式并且分词
 
-接下来我们对每条评论分词，得到分好词的评论。我们使用最简单的基于空格进行分词（更好的分词工具我们留作联系）。
+接下来我们对每条评论分词，得到分好词的评论。我们使用最简单的基于空格进行分词（更好的分词工具我们留作练习）。
 运行下面的代码进行分词。
 
-```{.python .input  n=7}
+```{.python .input  n=4}
 def tokenizer(text):
-    return [tok for tok in text.split(' ')]
+    return [tok.lower() for tok in text.split(' ')]
 ```
 
 通过执行下面的代码，我们能够获得训练和测试数据集的分好词的评论，并且得到相应的情感标签（1代表‘正面’，0代表‘负面’情绪）。
 
-```{.python .input  n=8}
+```{.python .input  n=5}
 train_tokenized = []
 train_labels = []
 for review, score in train_dataset:
@@ -113,29 +102,12 @@ for review, score in test_dataset:
     test_labels.append(score)
 ```
 
-```{.python .input  n=10}
-len(train_tokenized)
-```
-
-```{.json .output n=10}
-[
- {
-  "data": {
-   "text/plain": "20"
-  },
-  "execution_count": 10,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 ### 创建词典
 
 现在，先根据分好词的训练数据创建counter，然后使用mxnet.contrib中的`vocab`创建词典。
 这里我们特别设置训练数据中没有的单词对应的符号'<unk\>'，所有不存在在词典中的词，未来都将对应到这个符号。
 
-```{.python .input  n=11}
+```{.python .input  n=6}
 token_counter = Counter()
 def count_token(train_tokenized):
     for sample in train_tokenized:
@@ -154,7 +126,7 @@ vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>',
 
 这小节我们介绍如果将数据转化成为NDArray。
 
-```{.python .input  n=12}
+```{.python .input  n=7}
 # 根据词典，将数据转换成特征向量。
 def encode_samples(x_raw_samples, vocab):
     x_encoded_samples = []
@@ -185,7 +157,7 @@ def pad_samples(x_encoded_samples, maxlen=500, val=0):
 
 运行下面的代码将分好词的训练和测试数据转化成特征向量。
 
-```{.python .input  n=13}
+```{.python .input  n=8}
 x_encoded_train = encode_samples(train_tokenized, vocab)
 x_encoded_test = encode_samples(test_tokenized, vocab)
 ```
@@ -193,7 +165,7 @@ x_encoded_test = encode_samples(test_tokenized, vocab)
 通过执行下面的代码将特征向量补成定长（我们使用500），然后将特征向量转化为指定context上的NDArray。
 这里我们假定我们有至少一块gpu，context被设置成gpu。当然，也可以使用cpu，运行速度可能稍微慢一点点。
 
-```{.python .input  n=14}
+```{.python .input  n=9}
 # 指定 context。
 context = mx.gpu(0)
 x_train = nd.array(pad_samples(x_encoded_train, 500, 0), ctx=context)
@@ -202,7 +174,7 @@ x_test = nd.array(pad_samples(x_encoded_test, 500, 0), ctx=context)
 
 这里，我们将情感标签也转化成为了NDArray。
 
-```{.python .input  n=15}
+```{.python .input  n=10}
 y_train = nd.array([score for text, score in train_dataset], ctx=context)
 y_test = nd.array([score for text, score in test_dataset], ctx=context)
 ```
@@ -212,7 +184,7 @@ y_test = nd.array([score for text, score in test_dataset], ctx=context)
 这里我们使用之前创建的词典`vocab`以及GloVe词向量创建词典中每个词所对应的词向量。词向量将在后续的模型中作为每个词的初始权重加入模型，
 这样做有助于提升模型的结果。我们在这里使用'glove.6B.100d.txt'作为预训练的词向量。
 
-```{.python .input  n=16}
+```{.python .input  n=11}
 glove_embedding = text.embedding.create(
     'glove', pretrained_file_name='glove.6B.100d.txt', vocabulary=vocab)
 ```
@@ -230,7 +202,7 @@ glove_embedding = text.embedding.create(
 3. `pooling layer`: 我们使用这个encoder在时刻0的输出，以及时刻最后一步的输出作为每个batch中examples的特征。
 4. `decoder`: 最后，我们利用上一步所生成的特征，通过一个dense层做预测。
 
-```{.python .input  n=17}
+```{.python .input  n=12}
 nclass = 2
 lr = 0.1
 num_epochs = 1
@@ -241,7 +213,7 @@ nlayers = 2
 bidirectional = True
 ```
 
-```{.python .input  n=18}
+```{.python .input}
 class SentimentNet(gluon.Block):
     def __init__(self, vocab, emsize, num_hiddens, nlayers, bidirectional,
                  **kwargs):
@@ -277,7 +249,7 @@ loss = gluon.loss.SoftmaxCrossEntropyLoss()
 这里我们训练模型。我们使用预先设置好的迭代次数和`batch_size`训练模型。可以看到，Gluon能极大的简化训练的代码量，
 使得训练过程看起来非常简洁。另外，我们使用交叉熵作为损失函数，使用准确率来评价模型。
 
-```{.python .input  n=19}
+```{.python .input  n=13}
 # 使用准确率作为评价指标。
 def eval(x_samples, y_samples):
     total_L = 0
@@ -299,7 +271,7 @@ def eval(x_samples, y_samples):
 
 运行下面的代码开始训练模型。我们每800个batch，会输出一次当前的`loss`。
 
-```{.python .input  n=20}
+```{.python .input  n=14}
 start_train_time = time.time()
 for epoch in range(num_epochs):
     start_epoch_time = time.time()
@@ -323,7 +295,7 @@ for epoch in range(num_epochs):
             total_L = 0
             ntotal = 0
             
-    print('peforming testing:')
+    print('performing testing:')
     train_loss, train_acc = eval(x_train, y_train)
     test_loss, test_acc = eval(x_test, y_test)
         
@@ -343,43 +315,19 @@ print('total training throughput %.2f samples/s'
 print('total training time %.2f s' % ((time.time() - start_train_time)))
 ```
 
-```{.json .output n=20}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "peforming testing:\n[epoch 0] train loss 0.692129, train accuracy 0.60\n[epoch 0] test loss 0.694599, test accuracy 0.45\n[epoch 0] throughput 386.10 samples/s\n[epoch 0] total time 0.52 s\ntotal training throughput 384.95 samples/s\ntotal training time 0.52 s\n"
- }
-]
-```
-
 到这里，我们已经成功使用Gluon创建了一个情感分类模型。下面我们举了一个例子，来看看我们情感分类模型的效果。
 
-```{.python .input  n=21}
-review = ['This', 'movie', 'is', 'great']
+```{.python .input  n=15}
+review = ['this', 'movie', 'is', 'great']
 print(review)
-print('上面这个句子的情感是（1代表正面，0代表负面）：')
+```
+
+上面这个句子的情感是（1代表正面，0代表负面）:
+
+```{.python .input}
 nd.argmax(net(nd.reshape(
     nd.array([vocab.token_to_idx[token] for token in review], ctx=context), 
     shape=(-1, 1))), axis=1).asscalar()
-```
-
-```{.json .output n=21}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "['This', 'movie', 'is', 'great']\n\u4e0a\u9762\u8fd9\u4e2a\u53e5\u5b50\u7684\u60c5\u611f\u662f\uff081\u4ee3\u8868\u6b63\u9762\uff0c0\u4ee3\u8868\u8d1f\u9762\uff09\uff1a\n"
- },
- {
-  "data": {
-   "text/plain": "1.0"
-  },
-  "execution_count": 21,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 ## 小结
@@ -388,22 +336,24 @@ nd.argmax(net(nd.reshape(
 
 ## 练习
 
-大家可以尝试下面几个方面来得到更好的情感分类模型：
+大家可以尝试下面几个方向来得到更好的情感分类模型：
 
-* 想要提高最后的准确率，有一个小方法，就是把迭代次数(`num_epochs`)改成3。最后在训练和测试数据上准确率大概能达到0.85；
+* 想要提高最后的准确率，有一个小方法，就是把迭代次数(`num_epochs`)改成3。最后在训练和测试数据上准确率大概能达到0.82；
 * 可以尝试使用更好的分词工具得到更好的分词效果，会对最终结果有帮助。例如可以使用spacy分词工具，先pip安装spacy：
+    ```
+    pip install spacy
+    python -m spacy download en```
+    然后这样分词：
+    ```
+    import spacy
+    spacy_en = spacy.load('en')
+    def tokenizer(text):
+        return [tok.text for tok in spacy_en.tokenizer(text)]```
 
-`pip install spacy`
 
-`python -m spacy download en`
+    注意，GloVe的向量对于名词词组的存储方式是用'-'连接独立单词，例如'new york'为'new-york'。而使用spacy分词之后'new york'的存储可能是'new york'。所以为了得到更好的embedding效果，可以对于词组进行简单的后续处理。
 
-然后这样分词：
-```python
-spacy_en = spacy.load('en')
 
-def tokenizer(text):
-    return [tok.text for tok in spacy_en.tokenizer(text)]
-```
 
 * 使用更大的预训练词向量，例如300维的GloVe向量；
 * 使用更加深层的`encoder`，即使用更多数量的layer；
