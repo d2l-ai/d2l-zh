@@ -26,7 +26,7 @@ def corr2d(X, K):
     Y = nd.zeros((X.shape[0]-n+1, X.shape[1]-m+1))
     for i in range(Y.shape[0]):
         for j in range(Y.shape[1]):
-            Y[i,j] = (X[i:i+m, j:j+m]*K).sum()
+            Y[i,j] = (X[i:i+n, j:j+m]*K).sum()
     return Y
 
 X = nd.array([[0,1,2],[3,4,5],[6,7,8]])
@@ -36,18 +36,18 @@ corr2d(X, K)
 
 ## 图片边缘检测
 
-在这里让我们看一个如何构造一个核来进行图片检测。假如我们定义一个$8\times 8$的图片，它中间4列为黑，其余为白。
+在这里让我们看一个如何构造一个核来进行图片检测。假如我们定义一个$6\times 8$的图片，它中间4列为黑，其余为白。
 
 ```{.python .input  n=66}
-X = nd.ones((8,8))
+X = nd.ones((6,8))
 X[:,2:6] = 0
 plt.imshow(X.asnumpy(), cmap='gray')
 ```
 
-然后我们构造一个形状为`(2,2)`的核，使得如果是作用在相同色块上时输出为0，有颜色变化时为1. 因为这里颜色只在水平方向上变化，所以我们设计是第一列全为0.5，第二列全为-0.5.
+然后我们构造一个形状为`(1,2)`的核，使得如果是作用在相同色块上时输出为0，有颜色变化时为1. 因为这里颜色只在水平方向上变化，所以我们设计是第一个元素为1，第二个元素为-1.
 
 ```{.python .input  n=67}
-K = nd.array([[.5,-.5],[.5,-.5]])
+K = nd.array([[1,-1]])
 K
 ```
 
@@ -68,8 +68,7 @@ Y
 class Conv2D(nn.Block):
     def __init__(self, kernel_size, **kwargs):
         super(Conv2D, self).__init__(**kwargs)
-        self.weight = self.params.get(
-            'weight', shape=(kernel_size, kernel_size))
+        self.weight = self.params.get('weight', shape=kernel_size)
         self.bias = self.params.get('bias', shape=(1,))
 
     def forward(self, x):
@@ -80,18 +79,18 @@ class Conv2D(nn.Block):
 
 ## 学习核参数
 
-最后我们来看一个例子，我们使用图片边缘检测例子里的`X`和`Y`来学习`K`. 虽然我们之前定义了`Conv2D`，但由于`corr2d`使用了对单个元素赋值（`[i,j]=`）的操作会导致系统无法对其自动求导，所以我们使用`nn`模块里的`Conv2D`层来实现这个例子。它的使用跟我们定义的非常相似。
+最后我们来看一个例子，我们使用图片边缘检测例子里的`X`和`Y`来学习`K`. 虽然我们之前定义了Conv2D，但由于`corr2d`使用了对单个元素赋值（`[i,j]=`）的操作会导致系统无法对其自动求导，所以我们使用`nn`模块里的Conv2D层来实现这个例子。它的使用跟我们定义的非常相似。
 
 每一个迭代里，我们使用平方误差来比较`Y`和卷积层的输入，然后计算梯度来更新权重（为了简单起见这里忽略了偏差）。
 
 ```{.python .input  n=83}
 # 构造一个输出通道是 1 的二维卷基层，我们会在后面小节里解释什么是通道。
-conv2d = nn.Conv2D(1, kernel_size=2)
+conv2d = nn.Conv2D(1, kernel_size=(1,2))
 conv2d.initialize()
 
 # 二维卷基层使用 4 维输入输出，格式为（批量大小，通道数，高，宽），这里批量和通道均为 1.
-X = X.reshape((1,1,8,8))
-Y = Y.reshape((1,1,7,7))
+X = X.reshape((1,1,6,8))
+Y = Y.reshape((1,1,6,7))
 
 for i in range(10):
     with autograd.record():
@@ -99,7 +98,7 @@ for i in range(10):
         loss = (pY - Y) ** 2
         print('Batch %d, Loss %.3f'%(i, loss.sum().asscalar()))
     loss.backward()
-    conv2d.weight.data()[:] -= 1e-2 * conv2d.weight.grad()
+    conv2d.weight.data()[:] -= 3e-2 * conv2d.weight.grad()
 ```
 
 可以看到10次迭代后误差已经降到了一个比较小的值，现在来看一下学习到的权重。
@@ -119,3 +118,5 @@ conv2d.weight.data()
 
 - 构造一个`X`它有水平方向的边缘，如何设计`K`来检测它？如果是对角方向的边缘呢？
 - 试着对我们构造的`Conv2D`进行自动求导，会有什么样的错误信息？
+- 在Conv2D的`forward`函数里，将`corr2d`替换成`nd.Convolution`使得其可以求导。
+- 试着将conv2d的核构造成`(2,2)`，会学出什么样的结果？
