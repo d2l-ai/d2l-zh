@@ -1,8 +1,10 @@
 # 线性回归——从零开始
 
-尽管强大的深度学习框架可以减少大量重复性工作，但若过于依赖它提供的便利，你就会很难深入理解深度学习是如何工作的。因此，我们的第一个教程是如何只利用ndarray和autograd来实现一个线性回归的训练。
+尽管强大的深度学习框架可以减少大量重复性工作，但若过于依赖它提供的便利，你就会很难深入理解深度学习是如何工作的。因此，本章第一节将介绍如何只利用NDArray和`autograd`来实现一个线性回归的训练。
 
 ## 线性回归
+
+TODO(@astonzhang) 神经元和矩阵。
 
 给定一个数据点集合`X`和对应的目标值`y`，线性模型的目标就是找到一条使用向量`w`和位移`b`描述的线，来尽可能地近似每个样本`X[i]`和`y[i]`。用数学符号来表示就是：
 
@@ -21,11 +23,15 @@ $$\sum_{i=1}^n (\hat{y}_i-y_i)^2.$$
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
 %matplotlib inline
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import mxnet as mx
 from mxnet import autograd, nd
 import numpy as np
 import random
+import sys
+sys.path.append('..')
+import utils
 ```
 
 ## 创建数据集
@@ -59,6 +65,7 @@ print(X[0], y[0])
 如果有兴趣，可以使用安装包中已包括的 Python 绘图包 `matplotlib`，生成第二个特征值 (`X[:, 1]`) 和目标值 `Y` 的散点图，更直观地观察两者间的关系。
 
 ```{.python .input  n=3}
+utils.set_fig_size(mpl)
 plt.scatter(X[:, 1].asnumpy(), y.asnumpy())
 plt.show()
 ```
@@ -125,6 +132,8 @@ def squared_loss(yhat, y):
 
 虽然线性回归有显式解，但绝大部分模型并没有。所以我们这里通过随机梯度下降来求解。每一步，我们将模型参数沿着梯度的反方向走特定距离，这个距离一般叫**学习率（learning rate）** `lr`。（我们会之后一直使用这个函数，我们将其保存在[utils.py](../utils.py)。）
 
+TODO(@astonzhang) 超参数和模型参数。
+
 ```{.python .input  n=10}
 def sgd(params, lr, batch_size):
     for param in params:
@@ -140,8 +149,6 @@ lr = 0.05
 num_epochs = 3
 
 for epoch in range(1, num_epochs + 1):
-    # 学习率自我衰减。
-    lr *= 0.9
     for features, label in data_iter():
         with autograd.record():
             output = net(features, w, b)

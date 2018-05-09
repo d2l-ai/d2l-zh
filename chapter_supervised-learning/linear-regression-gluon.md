@@ -93,8 +93,6 @@ trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.05})
 ```{.python .input  n=10}
 num_epochs = 3
 for epoch in range(1, num_epochs + 1): 
-    # 学习率自我衰减。
-    trainer.set_learning_rate(trainer.learning_rate * 0.9)
     for features, label in data_iter:
         with autograd.record():
             output = net(features)
