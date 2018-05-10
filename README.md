@@ -106,7 +106,7 @@ dropout，丢弃法
 
 empirical risk minimization，经验风险最小化
 
-epoch，周期
+epoch，迭代周期（周期）
 
 example，样本
 
