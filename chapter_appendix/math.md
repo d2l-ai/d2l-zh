@@ -2,6 +2,40 @@
 
 TODO(@astonzhang)<解释符号一览>。
 
+## 向量
+
+设$d$维向量$\boldsymbol{x} = [x_1, x_2, \ldots, x_d]^\top$，或
+
+$$
+\boldsymbol{x} = 
+\begin{bmatrix}
+    x_{1}  \\
+    x_{2}  \\
+    \vdots  \\
+    x_{d} 
+\end{bmatrix}.
+$$
+
+上式中$x_1, \ldots, x_d$是向量的元素。我们用$\boldsymbol{x} \in \mathbb{R}^{d}$或$\boldsymbol{x} \in \mathbb{R}^{d \times 1}$表示，$\boldsymbol{x}$是一个各元素均为实数的$d$维向量。
+
+
+## 矩阵
+
+设$m$行$n$列矩阵
+
+$$
+\boldsymbol{X} = 
+\begin{bmatrix}
+    x_{11} & x_{12} & x_{13} & \dots  & x_{1n} \\
+    x_{21} & x_{22} & x_{23} & \dots  & x_{2n} \\
+    \vdots & \vdots & \vdots & \ddots & \vdots \\
+    x_{m1} & x_{m2} & x_{m3} & \dots  & x_{mn}
+\end{bmatrix}.
+$$
+
+上式中$x_{11}, \ldots, x_{mn}$是矩阵的元素。我们用$\boldsymbol{X} \in \mathbb{R}^{m \times n}$表示，$\boldsymbol{X}$是一个各元素均为实数的$m$行$n$列矩阵。
+
+
 ## 运算
 
 
