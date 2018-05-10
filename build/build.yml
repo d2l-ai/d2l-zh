@@ -10,7 +10,6 @@ dependencies:
 - pip:
   - pyopenssl>= 17.3.0
   - nbsphinx
-  - spacy
   - recommonmark
   - https://github.com/mli/notedown/tarball/master
   - mxnet-cu80>=1.2.0b20180427

@@ -6,5 +6,4 @@ dependencies:
 - pandas
 - pip:
   - requests
-  - spacy
   - mxnet>=1.2.0b20180427
