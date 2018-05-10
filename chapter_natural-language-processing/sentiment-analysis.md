@@ -1,6 +1,6 @@
 # 文本分类：情感分析
 
-情感分析是非常重要的一项自然语言处理的任务。例如对于Amazon会对网站所销售的每个产品的评论进行情感分类，Netflix或者IMDb会对每部电影的评论进行情感分类，从而帮助各个平台提供更好的改进产品，提升用户体验。本节介绍如何使用Gluon来创建一个情感分类模型，目标是给定一句话，判断这句话包含的是“正面”还是“负面”的情绪。为此，我们构造了一个简单的神经网络，其中包括`embedding`层，`encoder`（双向LSTM），`decoder`，来判断IMDb上电影评论蕴含的情感。下面就让我们一起来构造这个情感分析模型吧。
+情感分析是非常重要的一项自然语言处理的任务。例如对于Amazon会对网站所销售的每个产品的评论进行情感分类，Netflix或者IMDb会对每部电影的评论进行情感分类，从而帮助各个平台改进产品，提升用户体验。本节介绍如何使用Gluon来创建一个情感分类模型，目标是给定一句话，判断这句话包含的是“正面”还是“负面”的情绪。为此，我们构造了一个简单的神经网络，其中包括`embedding`层，`encoder`（双向LSTM），`decoder`，来判断IMDb上电影评论蕴含的情感。下面就让我们一起来构造这个情感分析模型吧。
 
 
 ## 准备工作
@@ -15,7 +15,6 @@
 from collections import Counter
 import os
 import random
-import spacy
 import time
 import zipfile
 
@@ -50,7 +49,7 @@ if demo:
         zin.extractall('../data/')
 ```
 
-```{.python .input  n=3}
+```{.python .input}
 def readIMDB(dir_url, seg = 'train'):
     pos_or_neg = ['pos','neg']
     dataset = []
@@ -78,19 +77,14 @@ random.shuffle(train_dataset)
 random.shuffle(test_dataset)
 ```
 
-### 指定分词工具并且分词
+### 指定分词方式并且分词
 
-接下来我们对每条评论分词，得到分好词的评论。我们选用spacy进行分词，记得先pip安装spacy：
-* `pip install spacy`
-* `python -m spacy download en`
-
-然后运行下面的代码。
+接下来我们对每条评论分词，得到分好词的评论。我们使用最简单的基于空格进行分词（更好的分词工具我们留作练习）。
+运行下面的代码进行分词。
 
 ```{.python .input  n=4}
-spacy_en = spacy.load('en')
-
 def tokenizer(text):
-    return [tok.text for tok in spacy_en.tokenizer(text)]
+    return [tok.lower() for tok in text.split(' ')]
 ```
 
 通过执行下面的代码，我们能够获得训练和测试数据集的分好词的评论，并且得到相应的情感标签（1代表‘正面’，0代表‘负面’情绪）。
@@ -301,7 +295,7 @@ for epoch in range(num_epochs):
             total_L = 0
             ntotal = 0
             
-    print('peforming testing:')
+    print('performing testing:')
     train_loss, train_acc = eval(x_train, y_train)
     test_loss, test_acc = eval(x_test, y_test)
         
@@ -324,9 +318,13 @@ print('total training time %.2f s' % ((time.time() - start_train_time)))
 到这里，我们已经成功使用Gluon创建了一个情感分类模型。下面我们举了一个例子，来看看我们情感分类模型的效果。
 
 ```{.python .input  n=15}
-review = ['This', 'movie', 'is', 'great']
+review = ['this', 'movie', 'is', 'great']
 print(review)
-print('上面这个句子的情感是（1代表正面，0代表负面）：')
+```
+
+上面这个句子的情感是（1代表正面，0代表负面）:
+
+```{.python .input}
 nd.argmax(net(nd.reshape(
     nd.array([vocab.token_to_idx[token] for token in review], ctx=context), 
     shape=(-1, 1))), axis=1).asscalar()
@@ -338,9 +336,20 @@ nd.argmax(net(nd.reshape(
 
 ## 练习
 
-大家可以尝试下面几个方面来得到更好的情感分类模型：
+大家可以尝试下面几个方向来得到更好的情感分类模型：
 
-* 想要提高最后的准确率，有一个小方法，就是把迭代次数(`num_epochs`)改成3。最后在训练和测试数据上准确率大概能达到0.85。
+* 想要提高最后的准确率，有一个小方法，就是把迭代次数(`num_epochs`)改成3。最后在训练和测试数据上准确率大概能达到0.82；
+* 可以尝试使用更好的分词工具得到更好的分词效果，会对最终结果有帮助。例如可以使用spacy分词工具，先pip安装spacy：
+    * ```
+    pip install spacy  
+    python -m spacy download en  
+    然后运行下面的代码分词：  
+    import spacy  
+    spacy_en = spacy.load('en')  
+    def tokenizer(text):  
+        return [tok.text for tok in spacy_en.tokenizer(text)]          
+    注意，GloVe的向量对于名词词组的存储方式是用'-'连接独立单词，例如'new york'为'new-york'。而使用spacy分词之后'new york'的存储可能是'new york'。所以为了得到更好的embedding效果，可以对于词组进行简单的后续处理。  ```
+
 * 使用更大的预训练词向量，例如300维的GloVe向量；
 * 使用更加深层的`encoder`，即使用更多数量的layer；
 * 使用更加有意思的`decoder`，例如可以加上LSTM，之后再加上dense layer。
