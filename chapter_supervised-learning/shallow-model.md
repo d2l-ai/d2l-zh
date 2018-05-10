@@ -48,8 +48,6 @@ $$\ell(w_1, w_2, b) =\frac{1}{n} \sum_{i=1}^n \ell^{(i)}(w_1, w_2, b) =\frac{1}{
 
 $$w_1 \leftarrow w_1 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \frac{ \partial \ell^{(i)}(w_1, w_2, b)  }{\partial w_1} = w_1 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}x_1^{(i)} (x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}),$$
 
-
-
 $$w_2 \leftarrow w_2 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \frac{ \partial \ell^{(i)}(w_1, w_2, b)  }{\partial w_2} = w_2 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}x_2^{(i)} (x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}),$$
 
 $$b \leftarrow b -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \frac{ \partial \ell^{(i)}(w_1, w_2, b)  }{\partial b} = b -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}(x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}).$$
@@ -157,7 +155,25 @@ $$\boldsymbol{\hat{y}} = \boldsymbol{X} \boldsymbol{w} + b,$$
 
 同理，我们也可以在模型训练中对优化算法做矢量计算。设模型参数$\boldsymbol{\theta} = [w_1, w_2, b]^\top$，本节中小批量随机梯度下降的迭代步骤将相应地改写为
 
-$$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}   \nabla_{\boldsymbol{\theta}} \ell^{(i)}(\boldsymbol{\theta}) .$$
+$$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}   \nabla_{\boldsymbol{\theta}} \ell^{(i)}(\boldsymbol{\theta}),$$
+
+其中梯度是损失有关三个标量模型参数的偏导数组成的向量：
+$$
+\nabla_{\boldsymbol{\theta}} \ell^{(i)}(\boldsymbol{\theta})=
+\begin{bmatrix}
+    \frac{ \partial \ell^{(i)}(w_1, w_2, b)  }{\partial w_1} \\
+    \frac{ \partial \ell^{(i)}(w_1, w_2, b)  }{\partial w_2} \\
+    \frac{ \partial \ell^{(i)}(w_1, w_2, b)  }{\partial b}
+\end{bmatrix}
+=
+\begin{bmatrix}
+    x_1^{(i)} (x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}) \\
+    x_2^{(i)} (x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}) \\
+    x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}
+\end{bmatrix}.
+$$
+
+
 
 ## 小结
 
