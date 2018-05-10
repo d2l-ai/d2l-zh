@@ -8,6 +8,7 @@
    :maxdepth: 2
 
    conv-layer
+   padding-and-strides
    cnn-scratch
    cnn-gluon
    batch-norm-scratch
