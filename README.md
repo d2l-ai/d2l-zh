@@ -120,6 +120,8 @@ hidden variable，隐藏变量
 
 generalization，泛化
 
+hyperparameter，超参数
+
 hypothesis，假设
 
 import，导入
@@ -136,11 +138,15 @@ mean squared error，均方误差
 
 metric，指标
 
+mini-batch，小批量
+
 normalization，归一化
 
 operator，运算符
 
 optimizer，优化器
+
+parameter，参数
 
 perplexity，困惑度
 
