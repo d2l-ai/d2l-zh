@@ -8,6 +8,7 @@
 .. toctree::
    :maxdepth: 2
 
+   shallow-model
    linear-regression-scratch
    linear-regression-gluon
    softmax-regression-scratch
