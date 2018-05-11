@@ -9,6 +9,7 @@
 
    conv-layer
    padding-and-strides
+   channels
    cnn-scratch
    cnn-gluon
    batch-norm-scratch
