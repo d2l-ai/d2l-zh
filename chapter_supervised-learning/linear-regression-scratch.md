@@ -43,7 +43,6 @@ $$\boldsymbol{y} = \boldsymbol{X}\boldsymbol{w} + b + \epsilon,$$
 
 其中噪音项$\epsilon$服从均值为0和标准差为0.01的正态分布。下面，让我们生成数据集。
 
-
 ```{.python .input  n=2}
 num_inputs = 2
 num_examples = 1000
@@ -64,7 +63,7 @@ print(X[0], y[0])
 
 ```{.python .input  n=4}
 utils.set_fig_size(mpl)
-plt.scatter(X[:, 1].asnumpy(), y.asnumpy())
+plt.scatter(X[:, 1].asnumpy(), y.asnumpy(), 1)
 plt.show()
 ```
 
