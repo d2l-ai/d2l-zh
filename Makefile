@@ -60,7 +60,7 @@ pdf: $(DEPS) $(OBJ) $(PDFIMG)
 	sed -i s/{tocdepth}{0}/{tocdepth}{1}/ $(TEX)
 	sed -i s/{\\\\releasename}{发布}/{\\\\releasename}{}/ $(TEX)
 	sed -i s/{OriginalVerbatim}\\\[commandchars=\\\\\\\\\\\\{\\\\}\\\]/{OriginalVerbatim}\\\[commandchars=\\\\\\\\\\\\{\\\\},formatcom=\\\\footnotesize\\\]/ $(TEX)
-	sed -i s/\\\\usepackage{geometry}/\\\\usepackage[paperwidth=187mm,paperheight=235mm,left=20mm,right=20mm,top=15mm,bottom=15mm,includefoot]{geometry}/ $(TEX)
+	sed -i s/\\\\usepackage{geometry}/\\\\usepackage[paperwidth=187mm,paperheight=235mm,left=20mm,right=20mm,top=20mm,bottom=15mm,includefoot]{geometry}/ $(TEX)
 	cd build/_build/latex && \
 	buf_size=10000000 xelatex gluon_tutorials_zh.tex && \
 	buf_size=10000000 xelatex gluon_tutorials_zh.tex
