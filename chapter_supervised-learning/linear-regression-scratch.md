@@ -1,23 +1,20 @@
 # 线性回归——从零开始
 
-尽管强大的深度学习框架可以减少大量重复性工作，但若过于依赖它提供的便利，你就会很难深入理解深度学习是如何工作的。因此，本章第一节将介绍如何只利用NDArray和`autograd`来实现一个线性回归的训练。
+在了解了线性回归的背景知识之后，现在我们可以动手实现它了。
+尽管强大的深度学习框架可以减少大量重复性工作，但若过于依赖它提供的便利，我们就会很难深入理解深度学习是如何工作的。因此，本节将介绍如何只利用NDArray和`autograd`来实现一个线性回归的训练。
 
 
 ## 线性回归
 
-给定一个数据点集合`X`和对应的目标值`y`，线性模型的目标就是找到一条使用向量`w`和位移`b`描述的线，来尽可能地近似每个样本`X[i]`和`y[i]`。用数学符号来表示就是：
+让我们先回忆一下上节中的内容。设数据样本数为$n$，特征数为$d$。给定批量数据样本的特征$\boldsymbol{X} \in \mathbb{R}^{n \times d}$和标签$\boldsymbol{y} \in \mathbb{R}^{n \times 1}$，线性回归的批量输出$\boldsymbol{\hat{y}} \in \mathbb{R}^{n \times 1}$的计算表达式为
 
-$$\boldsymbol{\hat{y}} = X \boldsymbol{w} + b$$
+$$\boldsymbol{\hat{y}} = \boldsymbol{X} \boldsymbol{w} + b,$$
 
-并最小化所有数据点上的平方误差
+其中$\boldsymbol{w} \in \mathbb{R}^{d \times 1}$和$b \in \mathbb{R}$分别为线性回归的模型参数：权重和偏差。为了学习权重和偏差，我们用预测值$\boldsymbol{\hat{y}}$和真实值$\boldsymbol{y}$之间的平方损失作为模型的损失函数。在模型训练过程中，我们使用小批量随机梯度下降不断迭代模型参数的值，以最小化损失函数。最终，在有限次迭代后，我们便学出了模型参数的值。
 
-$$\sum_{i=1}^n (\hat{y}_i-y_i)^2.$$
+下面我们开始动手实现线性回归的训练。首先，导入本节中实验所需的包。
 
-你可能会对我们把古老的线性回归作为深度学习的一个样例表示奇怪。实际上线性模型是最简单、但也是最有用的神经网络。一个神经网络就是一个由节点（神经元）和有向边组成的集合。我们一般把一些节点组成层，每一层先从下面一层的节点获取输入，然后输出给上面的层使用。要计算一个节点值，我们需要将输入节点值做加权和（权数值即 `w`），然后再加上一个**激活函数（activation function）**。对于线性回归而言，它是一个两层神经网络，其中第一层是（下图橙色点）输入，每个节点对应输入数据点的一个维度，第二层是单输出节点（下图绿色点），它使用身份函数（$f(x)=x$）作为激活函数。
-
-首先，导入本节中实验所需的包。
-
-```{.python .input}
+```{.python .input  n=1}
 %config InlineBackend.figure_format = 'retina'
 %matplotlib inline
 import matplotlib as mpl
@@ -26,64 +23,67 @@ import mxnet as mx
 from mxnet import autograd, nd
 import numpy as np
 import random
+```
+
+在本书中，我们会将重复使用的函数定义在[utils.py](../utils.py)中。对于里面大部分较重要的函数，我们会在第一次使用时描述它是如何实现的，例如本节中的`sgd`函数。
+
+```{.python .input}
 import sys
 sys.path.append('..')
 import utils
 ```
 
-## 创建数据集
+## 生成数据集
 
-这里我们使用一个数据集来尽量简单地解释清楚，真实的模型是什么样的。具体来说，我们使用如下方法来生成数据；随机数值 `X[i]`，其相应的标注为 `y[i]`：
+我们在这里描述用来生成人工训练数据集的真实模型。
 
-`y[i] = 2 * X[i][0] - 3.4 * X[i][1] + 4.2 + noise`
+设训练数据集样本数为1000，输入个数（特征数）为2。给定随机生成的批量样本特征$\boldsymbol{X} \in \mathbb{R}^{1000 \times 2}$，我们使用线性回归模型真实权重$\boldsymbol{w} = [2, -3.4]^\top$和偏差$b = 4.2$，以及一个随机噪音项$\epsilon$来生成标签
 
-使用数学符号表示：
+$$\boldsymbol{y} = \boldsymbol{X}\boldsymbol{w} + b + \epsilon,$$
 
-$$y = X \cdot w + b + \eta, \quad \text{for } \eta \sim \mathcal{N}(0,\sigma^2)$$
+其中噪音项$\epsilon$服从均值为0和标准差为0.01的正态分布。下面，让我们生成数据集。
 
-这里噪音服从均值0和标准差为0.01的正态分布。
-
-```{.python .input  n=1}
+```{.python .input  n=2}
 num_inputs = 2
 num_examples = 1000
 true_w = [2, -3.4]
 true_b = 4.2
 X = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
 y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
-y += 0.01 * nd.random.normal(scale=1, shape=y.shape)
+y += nd.random.normal(scale=0.01, shape=y.shape)
 ```
 
 注意到`X`的每一行是一个长度为2的向量，而`y`的每一行是一个长度为1的向量（标量）。
 
-```{.python .input  n=2}
+```{.python .input  n=3}
 print(X[0], y[0])
 ```
 
-如果有兴趣，可以使用安装包中已包括的 Python 绘图包 `matplotlib`，生成第二个特征值 (`X[:, 1]`) 和目标值 `Y` 的散点图，更直观地观察两者间的关系。
+通过生成第二个特征`X[:, 1]`和标签 `y` 的散点图，我们可以更直观地观察两者间的线性关系。
 
-```{.python .input  n=3}
+```{.python .input  n=4}
 utils.set_fig_size(mpl)
-plt.scatter(X[:, 1].asnumpy(), y.asnumpy())
+plt.scatter(X[:, 1].asnumpy(), y.asnumpy(), 1)
 plt.show()
 ```
 
-## 数据读取
+## 遍历数据集
 
-当我们开始训练神经网络的时候，我们需要不断读取数据块。这里我们定义一个函数它每次返回`batch_size`个随机的样本和对应的目标。我们通过python的`yield`来构造一个迭代器。
+在训练模型的时候，我们需要遍历数据集并不断读取小批量数据样本。这里我们定义一个函数：它每次返回`batch_size`个随机样本的特征和标签。设批量大小（`batch_size`）为10。
 
-```{.python .input  n=4}
+```{.python .input  n=5}
 batch_size = 10
 def data_iter(): 
-    idx = list(range(num_examples))
-    random.shuffle(idx)
+    indices = list(range(num_examples))
+    random.shuffle(indices)
     for i in range(0, num_examples, batch_size):
-        j = nd.array(idx[i: min(i + batch_size, num_examples)])
+        j = nd.array(indices[i: min(i + batch_size, num_examples)])
         yield X.take(j), y.take(j)
 ```
 
-下面代码读取第一个随机数据块
+让我们读取第一个小批量数据样本并打印。每个批量的特征形状为`（10, 2）`，分别对应批量大小`batch_size`和输入个数`num_inputs`；标签形状为`10`，也就是批量大小。
 
-```{.python .input  n=5}
+```{.python .input  n=6}
 for data, label in data_iter():
     print(data, label)
     break
@@ -91,55 +91,52 @@ for data, label in data_iter():
 
 ## 初始化模型参数
 
-下面我们随机初始化模型参数
+下面我们随机初始化模型参数。
 
-```{.python .input  n=6}
+```{.python .input  n=7}
 w = nd.random.normal(scale=1, shape=(num_inputs, 1))
 b = nd.zeros(shape=(1,))
 params = [w, b]
 ```
 
-之后训练时我们需要对这些参数求导来更新它们的值，使损失尽量减小；因此我们需要创建它们的梯度。
+之后训练时我们需要对这些参数求梯度来迭代它们的值，以使损失函数不断减小。因此我们需要创建它们的梯度。
 
-```{.python .input  n=7}
+```{.python .input  n=8}
 for param in params:
     param.attach_grad()
 ```
 
 ## 定义模型
 
-线性模型就是将输入和模型的权重（`w`）相乘，再加上偏移（`b`）：
+下面是线性回归的矢量计算表达式的实现。我们使用`nd.dot`函数做矩阵乘法。
 
-```{.python .input  n=8}
+```{.python .input  n=9}
 def net(X, w, b): 
     return nd.dot(X, w) + b 
 ```
 
-## 损失函数
+## 定义损失函数
 
-我们使用常见的平方误差来衡量预测目标和真实目标之间的差距。
+我们使用上一节描述的平方损失来定义线性回归的损失函数。在实现中，我们需要把`y`变形成`yhat`的形状。以下函数返回的结果也将和`yhat`的形状相同。
 
-```{.python .input  n=9}
+```{.python .input  n=10}
 def squared_loss(yhat, y): 
-    # 注意这里我们把y变形成yhat的形状来避免矩阵形状的自动转换
     return (yhat - y.reshape(yhat.shape)) ** 2 / 2
 ```
 
-## 优化
+## 优化算法
 
-虽然线性回归有显式解，但绝大部分模型并没有。所以我们这里通过随机梯度下降来求解。每一步，我们将模型参数沿着梯度的反方向走特定距离，这个距离一般叫**学习率（learning rate）** `lr`。（我们会之后一直使用这个函数，我们将其保存在[utils.py](../utils.py)。）
+以下的`sgd`函数实现了上一节中介绍的小批量随机梯度下降算法。这是我们最小化损失函数所需要的优化算法。
 
-TODO(@astonzhang) 超参数和模型参数。
-
-```{.python .input  n=10}
+```{.python .input  n=11}
 def sgd(params, lr, batch_size):
     for param in params:
         param[:] = param - lr * param.grad / batch_size
 ```
 
-## 训练
+## 训练模型
 
-现在我们可以开始训练了。训练通常需要迭代数据数次，在这里使用`epochs`表示迭代总次数；一次迭代中，我们每次随机读取固定数个数据点，计算梯度并更新模型参数。
+现在我们可以开始训练模型了。在训练中，我们将有限次地迭代模型参数。在每次迭代中，我们根据当前读取的小批量数据样本（特征`features`和标签`label`），通过调用反向函数`backward`计算小批量随机梯度，并调用优化算法`sgd`迭代模型参数。在一个迭代周期（epoch）中，我们将完整遍历一遍`data_iter`函数，并对训练数据集中所有样本都使用一次。这里的迭代周期数`num_epochs`和学习率`lr`都是超参数，分别设3和0.05。在实践中，大多超参数都是需要通过反复试错来不断调节。当迭代周期数设的越大时，虽然模型可能更有效，但是训练时间可能过长。而有关学习率对模型的影响，我们会在后面“优化算法”一章中详细介绍。
 
 ```{.python .input  n=12}
 lr = 0.05
@@ -156,7 +153,7 @@ for epoch in range(1, num_epochs + 1):
           % (epoch, squared_loss(net(X, w, b), y).mean().asnumpy()))
 ```
 
-训练完成后，我们可以比较学得的参数和真实参数
+训练完成后，我们可以比较学到的参数和真实参数。它们应该很接近。
 
 ```{.python .input  n=13}
 true_w, w
@@ -168,11 +165,16 @@ true_b, b
 
 ## 小结
 
-* 我们现在看到，仅仅是使用NDArray和autograd就可以很容易实现的一个模型。在接下来的教程里，我们会在此基础上，介绍更多现代神经网络的知识，以及怎样使用少量的MXNet代码实现各种复杂的模型。
+* 我们现在看到，仅使用NDArray和`autograd`就可以很容易地实现一个模型。在接下来的章节中，我们会在此基础上描述更多深度学习模型，并介绍怎样使用更简洁的代码（例如下一节）实现它们。
+
 
 ## 练习
 
-* 尝试用不同的学习率查看误差下降速度（收敛率）
+* 尝试用不同的学习率查看损失函数值的下降速度。
+
+* 回顾[“自动求梯度”](../chapter_crashcourse/autograd.md)一节。本节中`loss`并不是一个标量，运行`loss.backward()`将如何对模型参数求梯度？
+
+* 回顾上一节中小批量随机梯度下降的公式。公式中分母上的批量大小为何不需要在代码中直接实现出来？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/743)

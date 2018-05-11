@@ -9,7 +9,6 @@
 
 为了简单起见，我们先从一个具体案例来解释线性回归的基本要素。
 
-
 ### 模型
 
 给定一个有关房屋的数据集，其中每栋房屋的相关数据包括面积（平方米）、房龄（年）和价格（元）。假设我们想使用任意一栋房屋的面积（设$x_1$）和房龄（设$x_2$）来估算它的真实价格（设$y$）。那么$x_1$和$x_2$即每栋房屋的特征（feature），$y$为标签（label）或真实值（ground truth）。在线性回归模型中，房屋估计价格（设$\hat{y}$）的表达式为
@@ -30,27 +29,31 @@ $$\hat{y}^{(i)} = x_1^{(i)} w_1 + x_2^{(i)} w_2 + b.$$
 
 ### 损失函数
 
-在模型训练中，我们希望模型的估计值和真实值在训练数据集上尽可能接近。因此，线性回归的目标是找到一组模型参数$w_1, w_2, b$来最小化损失函数（loss function）
+在模型训练中，我们希望模型的估计值和真实值在训练数据集上尽可能接近。用平方损失（square loss）来定义数据样本$i$上的损失（loss）为
 
-$$\ell(w_1, w_2, b) =\frac{1}{n} \sum_{i=1}^n \ell^{(i)}(w_1, w_2, b) =\frac{1}{n} \sum_{i=1}^n (\hat{y}^{(i)} - y^{(i)})^2.$$
+$$\ell^{(i)}(w_1, w_2, b) = \frac{(\hat{y}^{(i)} - y^{(i)})^2}{2},$$
 
-该损失函数又叫平方损失（square loss）。
+当该损失越小时，模型在数据样本$i$上的估计值和真实值越接近。已知训练数据集样本数为$n$。线性回归的目标是找到一组模型参数$w_1, w_2, b$来最小化损失函数
+
+$$\ell(w_1, w_2, b) =\frac{1}{n} \sum_{i=1}^n \ell^{(i)}(w_1, w_2, b) =\frac{1}{n} \sum_{i=1}^n \frac{(x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)})^2}{2}.$$
+
+在上式中，损失函数$\ell(w_1, w_2, b)$可看作是训练数据集中各个样本上损失的平均。
 
 
 ### 优化算法
 
 
-虽然线性回归中我们可通过微分最小化损失函数，对大多数深度学习模型来说，我们需要使用优化算法并通过有限次迭代模型参数来最小化损失函数。一种常用的优化算法叫做小批量随机梯度下降（mini-batch stochastic gradient descent）。每一次迭代前，我们可以随机均匀采样一个由训练数据样本索引所组成的小批量（mini-batch）$\mathcal{B}$。在上面讨论的线性回归模型中，模型的每个参数将迭代如下：
+虽然线性回归中我们可通过微分最小化损失函数，对大多数深度学习模型来说，我们需要使用优化算法并通过有限次迭代模型参数来最小化损失函数。一种常用的优化算法叫做小批量随机梯度下降（mini-batch stochastic gradient descent）。每一次迭代前，我们可以随机均匀采样一个由训练数据样本索引所组成的小批量（mini-batch）$\mathcal{B}$；然后求小批量中数据样本平均损失有关模型参数的导数（梯度）；用此结果与人为设定的正数的乘积作为模型参数在本次迭代的减小量。在本节讨论的线性回归模型中，模型的每个参数将迭代如下：
 
-$$w_1 \leftarrow w_1 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \frac{ \partial \ell^{(i)}(w_1, w_2, b)  }{\partial w_1},$$
+$$w_1 \leftarrow w_1 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \frac{ \partial \ell^{(i)}(w_1, w_2, b)  }{\partial w_1} = w_1 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}x_1^{(i)} (x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}),$$
 
-$$w_2 \leftarrow w_2 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \frac{ \partial \ell^{(i)}(w_1, w_2, b)  }{\partial w_2},$$
+$$w_2 \leftarrow w_2 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \frac{ \partial \ell^{(i)}(w_1, w_2, b)  }{\partial w_2} = w_2 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}x_2^{(i)} (x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}),$$
 
-$$b \leftarrow b -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \frac{ \partial \ell^{(i)}(w_1, w_2, b)  }{\partial b}.$$
+$$b \leftarrow b -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \frac{ \partial \ell^{(i)}(w_1, w_2, b)  }{\partial b} = b -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}(x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}).$$
 
 在上式中，$|\mathcal{B}|$代表每个小批量中的样本个数（批量大小，batch size），$\eta$称作学习率（learning rate）并取正数。需要强调的是，这里的批量大小和学习率的值是人为设定的，并不需要通过模型训练学出，也叫做超参数（hyperparameter）。
 
-我们将在后面“优化算法”一章中详细解释小批量随机梯度下降和其他优化算法。在模型训练中，我们会使用优化算法迭代模型参数若干次。之后便学出了模型参数值$w_1, w_2, b$。这时，我们就可以使用学出的线性回归模型$x_1 w_1 + x_2 w_2 + b$来估算训练数据集以外任意一栋面积（平方米）为$x_1$且房龄（年）为$x_2$的房屋的价格了。这也叫做模型推断。
+我们将在后面“优化算法”一章中详细解释小批量随机梯度下降和其他优化算法。在模型训练中，我们会使用优化算法迭代模型参数若干次。之后便学出了模型参数值$w_1, w_2, b$。这时，我们就可以使用学出的线性回归模型$x_1 w_1 + x_2 w_2 + b$来估算训练数据集以外任意一栋面积（平方米）为$x_1$且房龄（年）为$x_2$的房屋的价格了。这也叫做模型预测或模型推断。
 
 
 ## 线性回归的表示方法
@@ -63,8 +66,7 @@ $$b \leftarrow b -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \frac{ 
 
 ![用一层神经网络表示线性回归](../img/linreg.svg)
 
-
-在图3.1所表示的神经网络中，输入层的输入个数为2，分别为$x_1$和$x_2$；输出层的输出个数为1，即$\hat{y}$。由于输入层并不涉及计算，按照惯例，图3.1所示的神经网络的层数为1。也就是说，线性回归是一个一层神经网络。输出层中负责计算$\hat{y}$的单元又叫神经元。在线性回归中，输出层中的神经元和输入层中各个输入完全连接。因此，这里的输出层又叫全连接层（dense layer或fully-connected layer）。
+在图3.1所表示的神经网络中，输入层的输入个数为2（输入分别为$x_1$和$x_2$）；输出层的输出个数为1（输出即$\hat{y}$）。由于输入层并不涉及计算，按照惯例，图3.1所示的神经网络的层数为1。也就是说，线性回归是一个一层神经网络。输出层中负责计算$\hat{y}$的单元又叫神经元。在线性回归中，输出层中的神经元和输入层中各个输入完全连接。因此，这里的输出层又叫全连接层（dense layer或fully-connected layer）。
 
 
 ### 矢量计算
@@ -73,7 +75,7 @@ $$b \leftarrow b -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \frac{ 
 
 下面先定义两个1000维的向量。
 
-```{.python .input}
+```{.python .input  n=1}
 from mxnet import nd
 from time import time
 
@@ -83,7 +85,7 @@ b = nd.ones(shape=1000)
 
 向量相加的一种方法是，将这两个向量按元素逐一做标量加法：
 
-```{.python .input}
+```{.python .input  n=2}
 start = time()
 c = nd.zeros(shape=1000)
 for i in range(1000):
@@ -93,7 +95,7 @@ time() - start
 
 向量相加的另一种方法是，将这两个向量直接做矢量加法：
 
-```{.python .input}
+```{.python .input  n=3}
 start = time()
 d = a + b
 time() - start
@@ -137,7 +139,7 @@ $$\boldsymbol{\hat{y}} = \boldsymbol{X} \boldsymbol{w} + b,$$
 
 其中的加法运算使用了广播机制（参见[“数据操作”](../chapter_crashcourse/ndarray.md)一节）。例如
 
-```{.python .input}
+```{.python .input  n=4}
 a = nd.ones(shape=3)
 b = 10
 a + b
@@ -151,7 +153,25 @@ $$\boldsymbol{\hat{y}} = \boldsymbol{X} \boldsymbol{w} + b,$$
 
 同理，我们也可以在模型训练中对优化算法做矢量计算。设模型参数$\boldsymbol{\theta} = [w_1, w_2, b]^\top$，本节中小批量随机梯度下降的迭代步骤将相应地改写为
 
-$$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}   \nabla_{\boldsymbol{\theta}} \ell^{(i)}(\boldsymbol{\theta}) .$$
+$$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}   \nabla_{\boldsymbol{\theta}} \ell^{(i)}(\boldsymbol{\theta}),$$
+
+其中梯度是损失有关三个标量模型参数的偏导数组成的向量：
+$$
+\nabla_{\boldsymbol{\theta}} \ell^{(i)}(\boldsymbol{\theta})=
+\begin{bmatrix}
+    \frac{ \partial \ell^{(i)}(w_1, w_2, b)  }{\partial w_1} \\
+    \frac{ \partial \ell^{(i)}(w_1, w_2, b)  }{\partial w_2} \\
+    \frac{ \partial \ell^{(i)}(w_1, w_2, b)  }{\partial b}
+\end{bmatrix}
+=
+\begin{bmatrix}
+    x_1^{(i)} (x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}) \\
+    x_2^{(i)} (x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}) \\
+    x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}
+\end{bmatrix}.
+$$
+
+
 
 ## 小结
 

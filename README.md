@@ -106,7 +106,7 @@ dropout，丢弃法
 
 empirical risk minimization，经验风险最小化
 
-epoch，周期
+epoch，迭代周期（周期）
 
 example，样本
 
@@ -119,6 +119,8 @@ hidden layer，隐藏层
 hidden variable，隐藏变量
 
 generalization，泛化
+
+hyperparameter，超参数
 
 hypothesis，假设
 
@@ -136,11 +138,15 @@ mean squared error，均方误差
 
 metric，指标
 
+mini-batch，小批量
+
 normalization，归一化
 
 operator，运算符
 
 optimizer，优化器
+
+parameter，参数
 
 perplexity，困惑度
 

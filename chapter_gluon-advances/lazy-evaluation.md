@@ -170,7 +170,7 @@ def get_mem():
     return int(str(res).split()[15]) / 1e3
 ```
 
-现在我们可以做测试了。我们先试运行一次让系统把`net`的参数初始化。相关内容请参见[“模型参数”](../chapter_gluon-basics/parameters.md)一节。
+现在我们可以做测试了。我们先试运行一次让系统把`net`的参数初始化。相关内容请参见[“模型参数的延后初始化”](../chapter_gluon-basics/deferred-init.md)一节。
 
 ```{.python .input  n=14}
 for x, y in get_data():
@@ -178,27 +178,7 @@ for x, y in get_data():
 square_loss(y, net(x)).wait_to_read()
 ```
 
-如果我们用`net`来做预测，通常情况下我们可以把每个小批量的结果通过同步函数从NDArray格式中取出，例如打印或者保存在磁盘上。这里我们使用`wait_to_read`来模拟。此时，每个小批量的生成间隔较长，不过内存开销较小。
-
-```{.python .input  n=15}
-mem = get_mem()
-for x, y in get_data():
-    square_loss(y, net(x)).wait_to_read()
-nd.waitall()
-print('increased memory: %f MB' % (get_mem() - mem))
-```
-
-假设我们不使用`wait_to_read()`，默认惰性计算下，前端会将所有小批量计算一次性添加进后端。可以看到，每个小批量的生成间隔较短。然而，此时内存开销较大：它包括了在内存中保存的所有`x`和`y`。
-
-```{.python .input  n=16}
-mem = get_mem()
-for x, y in get_data():
-    square_loss(y, net(x))
-nd.waitall()
-print('increased memory: %f MB' % (get_mem() - mem))
-```
-
-对于训练`net`来说，假设我们希望打印每个迭代周期后的模型损失，我们可以自然地使用同步函数`asscalar`和`print`来避免内存开销过大。
+对于训练`net`来说，我们可以自然地使用同步函数`asscalar`将每个小批量的损失从NDArray格式中取出，并打印每个迭代周期后的模型损失。此时，每个小批量的生成间隔较长，不过内存开销较小。
 
 ```{.python .input  n=17}
 mem = get_mem()
@@ -215,7 +195,7 @@ nd.waitall()
 print('increased memory: %f MB' % (get_mem() - mem))
 ```
 
-但如果去掉同步函数，训练过程中可能会导致内存开销过大。
+如果去掉同步函数，虽然每个小批量的生成间隔较短，训练过程中可能会导致内存开销过大。这是因为默认惰性计算下，前端会将所有小批量计算一次性添加进后端。
 
 ```{.python .input  n=18}
 mem = get_mem()
