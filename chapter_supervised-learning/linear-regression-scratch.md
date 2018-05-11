@@ -23,6 +23,11 @@ import mxnet as mx
 from mxnet import autograd, nd
 import numpy as np
 import random
+```
+
+在本书中，我们会将重复使用的函数定义在[utils.py](../utils.py)中。对于里面大部分较重要的函数，我们会在第一次使用时描述它是如何实现的，例如本节中的`sgd`函数。
+
+```{.python .input}
 import sys
 sys.path.append('..')
 import utils
@@ -30,7 +35,7 @@ import utils
 
 ## 生成数据集
 
-我们在这里描述生成人工训练数据集的真实模型。
+我们在这里描述用来生成人工训练数据集的真实模型。
 
 设训练数据集样本数为1000，输入个数（特征数）为2。给定随机生成的批量样本特征$\boldsymbol{X} \in \mathbb{R}^{1000 \times 2}$，我们使用线性回归模型真实权重$\boldsymbol{w} = [2, -3.4]^\top$和偏差$b = 4.2$，以及一个随机噪音项$\epsilon$来生成标签
 
@@ -65,15 +70,15 @@ plt.show()
 
 ## 遍历数据集
 
-在训练模型的时候，我们需要遍历数据集并不断读取小批量数据样本。这里我们定义一个函数：它每次返回`batch_size`个随机样本的特征和标签。我们设批量大小为10。
+在训练模型的时候，我们需要遍历数据集并不断读取小批量数据样本。这里我们定义一个函数：它每次返回`batch_size`个随机样本的特征和标签。设批量大小（`batch_size`）为10。
 
 ```{.python .input  n=5}
 batch_size = 10
 def data_iter(): 
-    idx = list(range(num_examples))
-    random.shuffle(idx)
+    indices = list(range(num_examples))
+    random.shuffle(indices)
     for i in range(0, num_examples, batch_size):
-        j = nd.array(idx[i: min(i + batch_size, num_examples)])
+        j = nd.array(indices[i: min(i + batch_size, num_examples)])
         yield X.take(j), y.take(j)
 ```
 
@@ -104,26 +109,25 @@ for param in params:
 
 ## 定义模型
 
-下面将线性回归的矢量计算表达式翻译成代码。
+下面是线性回归的矢量计算表达式的实现。我们使用`nd.dot`函数做矩阵乘法。
 
 ```{.python .input  n=9}
 def net(X, w, b): 
     return nd.dot(X, w) + b 
 ```
 
-## 损失函数
+## 定义损失函数
 
-我们使用常见的平方误差来衡量预测目标和真实目标之间的差距。
+我们使用上一节描述的平方损失来定义线性回归的损失函数。在实现中，我们需要把`y`变形成`yhat`的形状。以下函数返回的结果也将和`yhat`的形状相同。
 
 ```{.python .input  n=10}
 def squared_loss(yhat, y): 
-    # 注意这里我们把 y 变形成 yhat 的形状来避免矩阵形状的自动转换。
     return (yhat - y.reshape(yhat.shape)) ** 2 / 2
 ```
 
-## 优化
+## 优化算法
 
-虽然线性回归有显式解，但绝大部分模型并没有。所以我们这里通过随机梯度下降来求解。每一步，我们将模型参数沿着梯度的反方向走特定距离，这个距离一般叫**学习率（learning rate）** `lr`。（我们会之后一直使用这个函数，我们将其保存在[utils.py](../utils.py)。）
+以下的`sgd`函数实现了上一节中介绍的小批量随机梯度下降算法。这是我们最小化损失函数所需要的优化算法。
 
 ```{.python .input  n=11}
 def sgd(params, lr, batch_size):
@@ -131,12 +135,9 @@ def sgd(params, lr, batch_size):
         param[:] = param - lr * param.grad / batch_size
 ```
 
-## 训练
+## 训练模型
 
-现在我们可以开始训练了。训练通常需要迭代数据数次，在这里使用`epochs`表示迭代总次数；一次迭代中，我们每次随机读取固定数个数据点，计算梯度并更新模型参数。
-
-
-TODO(@astonzhang) 向量backward，epochs。
+现在我们可以开始训练模型了。在训练中，我们将有限次地迭代模型参数。在每次迭代中，我们根据当前读取的小批量数据样本（特征`features`和标签`label`），通过调用反向函数`backward`计算小批量随机梯度，并调用优化算法`sgd`迭代模型参数。在一个迭代周期（epoch）中，我们将完整遍历一遍`data_iter`函数，并对训练数据集中所有样本都使用一次。这里的迭代周期数`num_epochs`和学习率`lr`都是超参数，分别设3和0.05。在实践中，大多超参数都是需要通过反复试错来不断调节。当迭代周期数设的越大时，虽然模型可能更有效，但是训练时间可能过长。而有关学习率对模型的影响，我们会在后面“优化算法”一章中详细介绍。
 
 ```{.python .input  n=12}
 lr = 0.05
@@ -153,7 +154,7 @@ for epoch in range(1, num_epochs + 1):
           % (epoch, squared_loss(net(X, w, b), y).mean().asnumpy()))
 ```
 
-训练完成后，我们可以比较学得的参数和真实参数
+训练完成后，我们可以比较学到的参数和真实参数。它们应该很接近。
 
 ```{.python .input  n=13}
 true_w, w
@@ -165,11 +166,16 @@ true_b, b
 
 ## 小结
 
-* 我们现在看到，仅仅是使用NDArray和autograd就可以很容易实现的一个模型。在接下来的教程里，我们会在此基础上，介绍更多现代神经网络的知识，以及怎样使用少量的MXNet代码实现各种复杂的模型。
+* 我们现在看到，仅使用NDArray和`autograd`就可以很容易地实现一个模型。在接下来的章节中，我们会在此基础上描述更多深度学习模型，并介绍怎样使用更简洁的代码（例如下一节）实现它们。
+
 
 ## 练习
 
-* 尝试用不同的学习率查看误差下降速度（收敛率）
+* 尝试用不同的学习率查看损失函数值的下降速度。
+
+* 回顾[“自动求梯度”](../chapter_crashcourse/autograd.md)一节。本节中`loss`并不是一个标量，运行`loss.backward()`将如何对模型参数求梯度？
+
+* 回顾上一节中小批量随机梯度下降的公式。公式中分母上的批量大小为何不需要在代码中直接实现出来？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/743)
