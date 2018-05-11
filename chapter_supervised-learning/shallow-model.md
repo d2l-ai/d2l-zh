@@ -66,7 +66,6 @@ $$b \leftarrow b -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \frac{ 
 
 ![用一层神经网络表示线性回归](../img/linreg.svg)
 
-
 在图3.1所表示的神经网络中，输入层的输入个数为2（输入分别为$x_1$和$x_2$）；输出层的输出个数为1（输出即$\hat{y}$）。由于输入层并不涉及计算，按照惯例，图3.1所示的神经网络的层数为1。也就是说，线性回归是一个一层神经网络。输出层中负责计算$\hat{y}$的单元又叫神经元。在线性回归中，输出层中的神经元和输入层中各个输入完全连接。因此，这里的输出层又叫全连接层（dense layer或fully-connected layer）。
 
 
@@ -76,7 +75,7 @@ $$b \leftarrow b -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \frac{ 
 
 下面先定义两个1000维的向量。
 
-```{.python .input}
+```{.python .input  n=1}
 from mxnet import nd
 from time import time
 
@@ -86,7 +85,7 @@ b = nd.ones(shape=1000)
 
 向量相加的一种方法是，将这两个向量按元素逐一做标量加法：
 
-```{.python .input}
+```{.python .input  n=2}
 start = time()
 c = nd.zeros(shape=1000)
 for i in range(1000):
@@ -96,7 +95,7 @@ time() - start
 
 向量相加的另一种方法是，将这两个向量直接做矢量加法：
 
-```{.python .input}
+```{.python .input  n=3}
 start = time()
 d = a + b
 time() - start
@@ -140,7 +139,7 @@ $$\boldsymbol{\hat{y}} = \boldsymbol{X} \boldsymbol{w} + b,$$
 
 其中的加法运算使用了广播机制（参见[“数据操作”](../chapter_crashcourse/ndarray.md)一节）。例如
 
-```{.python .input}
+```{.python .input  n=4}
 a = nd.ones(shape=3)
 b = 10
 a + b
