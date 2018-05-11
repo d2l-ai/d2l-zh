@@ -153,3 +153,9 @@ perplexity，困惑度
 pipeline，流水线
 
 size，大小
+
+
+## 样式规范
+
+贡献请遵照本教程的[样式规范](FORMAT.md)。
+

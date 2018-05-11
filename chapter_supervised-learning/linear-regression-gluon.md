@@ -1,21 +1,20 @@
 # 线性回归——使用Gluon
 
-[前一章](linear-regression-scratch.md)我们仅仅使用了`ndarray`和`autograd`来实现线性回归，这一章我们仍然实现同样的模型，但是使用高层抽象包`gluon`。
+随着深度学习框架的发展，开发深度学习应用变得越来越便利。实践中，我们通常可以用比上一节中更简洁的代码来实现相同模型。本节中，我们将介绍如何使用MXNet提供的Gluon接口更方便地实现线性回归的训练。
 
-首先，导入本节中实验所需的包。
+首先，导入本节中实验所需的一部分包。我们在之前的章节里使用过它们。
 
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
 %matplotlib inline
 import mxnet as mx
-from mxnet import autograd, gluon, nd
-from mxnet.gluon import nn, data as gdata, loss as gloss
+from mxnet import autograd, nd
 import numpy as np
 ```
 
-## 创建数据集
+## 生成数据集
 
-我们生成同样的数据集
+我们生成与上一节中相同的数据集。其中`X`是训练数据特征，`y`是标签。
 
 ```{.python .input  n=2}
 num_inputs = 2
@@ -27,11 +26,13 @@ y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
 y += nd.random.normal(scale=0.01, shape=y.shape)
 ```
 
-## 数据读取
+## 读取数据
 
-但这里使用`data`模块来读取数据。
+这里，我们使用Gluon提供的`data`模块来读取数据。在每一次迭代中，我们将随机读取包含10个数据样本的小批量。
 
 ```{.python .input  n=3}
+from mxnet.gluon import data as gdata
+
 batch_size = 10
 dataset = gdata.ArrayDataset(X, y)
 data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
@@ -52,6 +53,8 @@ for data, label in data_iter:
 我们之后还会介绍如何构造任意结构的神经网络，但对于初学者来说，构建模型最简单的办法是利用`Sequential`来所有层串起来。输入数据之后，`Sequential`会依次执行每一层，并将前一层的输出，作为输入提供给后面的层。首先我们定义一个空的模型：
 
 ```{.python .input  n=5}
+from mxnet.gluon import nn
+
 net = nn.Sequential()
 ```
 
@@ -76,7 +79,9 @@ net.initialize()
 `gluon`提供了平方误差函数：
 
 ```{.python .input  n=8}
-square_loss = gloss.L2Loss()
+from mxnet.gluon import nn, data as gdata, loss as gloss
+
+squared_loss = gloss.L2Loss()
 ```
 
 ## 优化
@@ -84,6 +89,8 @@ square_loss = gloss.L2Loss()
 同样我们无需手动实现随机梯度下降，我们可以创建一个`Trainer`的实例，并且将模型参数传递给它就行。
 
 ```{.python .input  n=9}
+from mxnet import gluon
+
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.05})
 ```
 
@@ -96,11 +103,11 @@ for epoch in range(1, num_epochs + 1):
     for features, label in data_iter:
         with autograd.record():
             output = net(features)
-            loss = square_loss(output, label)
+            loss = squared_loss(output, label)
         loss.backward()
         trainer.step(batch_size)
     print("epoch %d, loss: %f" 
-          % (epoch, square_loss(net(X), y).mean().asnumpy()))
+          % (epoch, squared_loss(net(X), y).mean().asnumpy()))
 ```
 
 比较学到的和真实模型。我们先从`net`拿到需要的层，然后访问其权重和位移。
