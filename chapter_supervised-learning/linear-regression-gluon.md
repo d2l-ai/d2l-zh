@@ -24,7 +24,7 @@ true_w = [2, -3.4]
 true_b = 4.2
 X = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
 y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
-y += 0.01 * nd.random.normal(scale=1, shape=y.shape)
+y += nd.random.normal(scale=0.01, shape=y.shape)
 ```
 
 ## 数据读取
