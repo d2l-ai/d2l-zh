@@ -25,8 +25,8 @@
         * 这些都作为词，不要带重音符
     * Dense类/实例, Sequential类/实例, HybridSequential类/实例
         * 不要带重音符
-    * backward函数
-        * 不是“backward()函数” （不要带括号）
+    * `backward`函数
+        * 不是“`backward()`函数” （不要带括号）
     * for循环
 * 术语
     * 统一使用
@@ -115,8 +115,8 @@
     * 迭代中
         * 特征：X
         * 标签：y, y_hat 或 Y, Y_hat
-    * 人工数据集：
-        * 特征：features
+    * 数据集：
+        * 特征：features或images
         * 标签：labels
 * 注释
     * 中文
@@ -140,7 +140,6 @@
     * multiple imports
     * .1 → 1.0
     * 1. → 1.0
-    * data → features
     * remove namescope
 
 ## 超链接
@@ -164,5 +163,3 @@
 * 每节末尾附上本节参考文献
     * 学术性引用
     * Google Scholar: APA格式
-
-
