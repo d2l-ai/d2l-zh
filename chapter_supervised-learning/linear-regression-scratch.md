@@ -48,26 +48,26 @@ num_inputs = 2
 num_examples = 1000
 true_w = [2, -3.4]
 true_b = 4.2
-X = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
-y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
-y += nd.random.normal(scale=0.01, shape=y.shape)
+features = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
+labels = true_w[0] * features[:, 0] + true_w[1] * features[:, 1] + true_b
+labels += nd.random.normal(scale=0.01, shape=labels.shape)
 ```
 
-注意到`X`的每一行是一个长度为2的向量，而`y`的每一行是一个长度为1的向量（标量）。
+注意到`features`的每一行是一个长度为2的向量，而`labels`的每一行是一个长度为1的向量（标量）。
 
 ```{.python .input  n=3}
-print(X[0], y[0])
+print(features[0], labels[0])
 ```
 
-通过生成第二个特征`X[:, 1]`和标签 `y` 的散点图，我们可以更直观地观察两者间的线性关系。
+通过生成第二个特征`features[:, 1]`和标签 `labels` 的散点图，我们可以更直观地观察两者间的线性关系。
 
 ```{.python .input  n=4}
 utils.set_fig_size(mpl)
-plt.scatter(X[:, 1].asnumpy(), y.asnumpy(), 1)
+plt.scatter(features[:, 1].asnumpy(), labels.asnumpy(), 1)
 plt.show()
 ```
 
-## 遍历数据集
+## 读取数据
 
 在训练模型的时候，我们需要遍历数据集并不断读取小批量数据样本。这里我们定义一个函数：它每次返回`batch_size`个随机样本的特征和标签。设批量大小（`batch_size`）为10。
 
@@ -78,14 +78,14 @@ def data_iter():
     random.shuffle(indices)
     for i in range(0, num_examples, batch_size):
         j = nd.array(indices[i: min(i + batch_size, num_examples)])
-        yield X.take(j), y.take(j)
+        yield features.take(j), labels.take(j)
 ```
 
 让我们读取第一个小批量数据样本并打印。每个批量的特征形状为`（10, 2）`，分别对应批量大小`batch_size`和输入个数`num_inputs`；标签形状为`10`，也就是批量大小。
 
 ```{.python .input  n=6}
-for data, label in data_iter():
-    print(data, label)
+for X, y in data_iter():
+    print(X, y)
     break
 ```
 
@@ -141,16 +141,17 @@ def sgd(params, lr, batch_size):
 ```{.python .input  n=12}
 lr = 0.05
 num_epochs = 3
+loss = squared_loss
 
 for epoch in range(1, num_epochs + 1):
-    for features, label in data_iter():
+    for X, y in data_iter():
         with autograd.record():
-            output = net(features, w, b)
-            loss = squared_loss(output, label)
-        loss.backward()
+            yhat = net(X, w, b)
+            l = loss(yhat, y)
+        l.backward()
         sgd([w, b], lr, batch_size)
-    print("epoch %d, loss: %f" 
-          % (epoch, squared_loss(net(X, w, b), y).mean().asnumpy()))
+    print("epoch %d, loss: %f"
+          % (epoch, loss(net(features, w, b), labels).mean().asnumpy()))
 ```
 
 训练完成后，我们可以比较学到的参数和真实参数。它们应该很接近。
