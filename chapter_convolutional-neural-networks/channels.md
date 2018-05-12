@@ -105,7 +105,7 @@ Y2 = corr2d_multi_in_out(X, K)
 
 ## 练习
 
-- 假设输入大小为$c_i\times h\times w$，我们使用$c_o\times c_i\times k_h\times k_w$的核，而且使用$(p_h, p_w)$填充和$(s_h, s_w)$步幅，那么这个卷基层的前向计算需要多少次乘法？
+- 假设输入大小为$c_i\times h\times w$，我们使用$c_o\times c_i\times k_h\times k_w$的核，而且使用$(p_h, p_w)$填充和$(s_h, s_w)$步幅，那么这个卷积层的前向计算需要多少次乘法，多少次加法？
 - 翻倍输入通道$c_i$和输出通道$c_o$会增加多少倍计算？翻倍填充呢？
 - 如果使用$k_h=k_w=1$，能减低多少倍计算？
 - `Y1`和`Y2`结果完全一致吗？原因是什么？
