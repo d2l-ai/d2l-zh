@@ -21,9 +21,9 @@ num_inputs = 2
 num_examples = 1000
 true_w = [2, -3.4]
 true_b = 4.2
-X = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
-y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
-y += nd.random.normal(scale=0.01, shape=y.shape)
+features = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
+labels = true_w[0] * features[:, 0] + true_w[1] * features[:, 1] + true_b
+labels += nd.random.normal(scale=0.01, shape=labels.shape)
 ```
 
 ## 读取数据
@@ -34,23 +34,23 @@ y += nd.random.normal(scale=0.01, shape=y.shape)
 from mxnet.gluon import data as gdata
 
 batch_size = 10
-dataset = gdata.ArrayDataset(X, y)
+dataset = gdata.ArrayDataset(features, labels)
 data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
 ```
 
-读取跟前面一致：
+和上一节一样，让我们读取并打印第一个小批量数据样本。
 
 ```{.python .input  n=5}
-for data, label in data_iter:
-    print(data, label)
+for X, y in data_iter:
+    print(X, y)
     break
 ```
 
 ## 定义模型
 
-之前一章中，当我们从0开始训练模型时，需要先声明模型参数，然后再使用它们来构建模型。但`gluon`提供大量预定义的层，我们只需要关注使用哪些层来构建模型。例如线性模型就是使用对应的`Dense`层；之所以称为dense层，是因为输入的所有节点都与后续的节点相连。在这个例子中仅有一个输出，但在大多数后续章节中，我们会用到具有多个输出的网络。
+在上一节从零开始的实现中，我们需要定义模型参数，并使用它们一步步描述模型是怎样计算的。当模型结构变得更复杂时，这些步骤将变得更加繁琐。其实，Gluon提供了大量预定义的层，这使我们只需关注使用哪些层来构造模型。下面将介绍如何使用Gluon更简洁地定义线性回归。
 
-我们之后还会介绍如何构造任意结构的神经网络，但对于初学者来说，构建模型最简单的办法是利用`Sequential`来所有层串起来。输入数据之后，`Sequential`会依次执行每一层，并将前一层的输出，作为输入提供给后面的层。首先我们定义一个空的模型：
+首先，导入`nn`模块。我们先定义一个模型变量`net`，它是一个Sequential实例。在Gluon中，Sequential实例可以看做是一个串联各个层的容器。在构造模型时，我们在该容器中依次添加层。当给定输入数据时，容器中的每一层将依次计算并将输出作为下一层的输入。
 
 ```{.python .input  n=5}
 from mxnet.gluon import nn
@@ -58,59 +58,61 @@ from mxnet.gluon import nn
 net = nn.Sequential()
 ```
 
-然后我们加入一个`Dense`层，它唯一必须定义的参数就是输出节点的个数，在线性模型里面是1.
+回顾图3.1中线性回归在神经网络图中的表示。作为一个单层神经网络，线性回归输出层中的神经元和输入层中各个输入完全连接。因此，线性回归的输出层又叫全连接层。在Gluon中，全连接层是一个Dense实例。我们定义该层输出个数为1。
 
 ```{.python .input  n=6}
 net.add(nn.Dense(1))
 ```
 
-（注意这里我们并没有定义说这个层的输入节点是多少，这个在之后真正给数据的时候系统会自动赋值。我们之后会详细介绍这个特性是如何工作的。）
+值得一提的是，在Gluon中我们无需指定每一层输入的形状，例如线性回归的输入个数。当模型看见数据时，例如后面执行`net(X)`时，模型将自动推断出每一层的输入个数。我们将在之后“深度学习计算基础”一章详细介绍这个机制。Gluon的这一设计为模型开发带来便利。
+
 
 ## 初始化模型参数
 
-在使用前`net`我们必须要初始化模型权重，这里我们使用默认随机初始化方法（之后我们会介绍更多的初始化方法）。
+在使用`net`前，我们需要初始化模型参数，例如线性回归模型中的权重和偏差。这里我们使用默认的随机初始化方法。
 
 ```{.python .input  n=7}
 net.initialize()
 ```
 
-## 损失函数
+## 定义损失函数
 
-`gluon`提供了平方误差函数：
+我们从Gluon中导入`loss`模块，并直接使用它所提供的平方损失作为模型的损失函数。
 
 ```{.python .input  n=8}
-from mxnet.gluon import nn, data as gdata, loss as gloss
+from mxnet.gluon import loss as gloss
 
-squared_loss = gloss.L2Loss()
+loss = gloss.L2Loss()
 ```
 
-## 优化
+## 定义优化算法
 
-同样我们无需手动实现随机梯度下降，我们可以创建一个`Trainer`的实例，并且将模型参数传递给它就行。
+同样，我们也无需实现小批量随机梯度下降。在导入Gluon后，我们可以创建一个Trainer实例，并且将模型参数传递给它。下面定义了学习率为0.03的小批量随机梯度下降。
 
 ```{.python .input  n=9}
 from mxnet import gluon
 
-trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.05})
+trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.03})
 ```
 
-## 训练
-使用`gluon`使模型训练过程更为简洁。我们不需要挨个定义相关参数、损失函数，也不需使用随机梯度下降。`gluon`的抽象和便利的优势将随着我们着手处理更多复杂模型的愈发显现。不过在完成初始设置后，训练过程本身和前面没有太多区别，唯一的不同在于我们不再是调用`SGD`，而是`trainer.step`来更新模型（此处一并省略之前绘制损失变化的折线图和散点图的过程，有兴趣的同学可以自行尝试）。
+## 训练模型
+
+和上一节不同，我们通过调用`step`函数来迭代模型参数。由于变量`l`是`batch_size`维的NDArray，执行`l.backward()`等价于`l.sum().backward()`。按照小批量随机梯度下降的定义，我们在`step`函数中提供`batch_size`，以确保小批量随机梯度是该批量中每个样本梯度的平均。
 
 ```{.python .input  n=10}
 num_epochs = 3
 for epoch in range(1, num_epochs + 1): 
-    for features, label in data_iter:
+    for X, y in data_iter:
         with autograd.record():
-            output = net(features)
-            loss = squared_loss(output, label)
-        loss.backward()
+            output = net(X)
+            l = loss(output, y)
+        l.backward()
         trainer.step(batch_size)
     print("epoch %d, loss: %f" 
-          % (epoch, squared_loss(net(X), y).mean().asnumpy()))
+          % (epoch, loss(net(features), labels).mean().asnumpy()))
 ```
 
-比较学到的和真实模型。我们先从`net`拿到需要的层，然后访问其权重和位移。
+下面我们分别比较学到的和真实的模型参数。我们从`net`获得需要的层，并访问其权重和位移。学到的和真实的参数很接近。
 
 ```{.python .input  n=12}
 dense = net[0]
@@ -123,12 +125,12 @@ true_b, dense.bias.data()
 
 ## 小结
 
-可以看到`gluon`可以帮助我们更快更干净地实现模型。
+* 使用Gluon可以更简洁地实现模型。
 
 
 ## 练习
 
-- 如何拿到`weight`的梯度呢？（提示：尝试 `help(dense.weight)`）
+* 如果将`l = loss(output, y)`替换成`l = loss(output, y).mean()`，我们需要将`trainer.step(batch_size)`相应地改成`trainer.step(1)`。这是为什么呢？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/742)
