@@ -8,3 +8,5 @@ build/
 /chapter_gluon-basics/x
 /chapter_gluon-basics/xy
 /chapter_gluon-basics/mydict
+*egg-info*
+dist*
