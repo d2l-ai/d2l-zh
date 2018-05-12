@@ -117,14 +117,14 @@ def net(X, w, b):
 
 ## 定义损失函数
 
-我们使用上一节描述的平方损失来定义线性回归的损失函数。在实现中，我们需要把`y`变形成`yhat`的形状。以下函数返回的结果也将和`yhat`的形状相同。
+我们使用上一节描述的平方损失来定义线性回归的损失函数。在实现中，我们需要把真实值`y`变形成预测值`y_hat`的形状。以下函数返回的结果也将和`y_hat`的形状相同。
 
 ```{.python .input  n=10}
-def squared_loss(yhat, y): 
-    return (yhat - y.reshape(yhat.shape)) ** 2 / 2
+def squared_loss(y_hat, y): 
+    return (y_hat - y.reshape(y_hat.shape)) ** 2 / 2
 ```
 
-## 优化算法
+## 定义优化算法
 
 以下的`sgd`函数实现了上一节中介绍的小批量随机梯度下降算法。这是我们最小化损失函数所需要的优化算法。
 
@@ -136,18 +136,18 @@ def sgd(params, lr, batch_size):
 
 ## 训练模型
 
-现在我们可以开始训练模型了。在训练中，我们将有限次地迭代模型参数。在每次迭代中，我们根据当前读取的小批量数据样本（特征`features`和标签`label`），通过调用反向函数`backward`计算小批量随机梯度，并调用优化算法`sgd`迭代模型参数。在一个迭代周期（epoch）中，我们将完整遍历一遍`data_iter`函数，并对训练数据集中所有样本都使用一次。这里的迭代周期数`num_epochs`和学习率`lr`都是超参数，分别设3和0.05。在实践中，大多超参数都是需要通过反复试错来不断调节。当迭代周期数设的越大时，虽然模型可能更有效，但是训练时间可能过长。而有关学习率对模型的影响，我们会在后面“优化算法”一章中详细介绍。
+现在我们可以开始训练模型了。在训练中，我们将有限次地迭代模型参数。在每次迭代中，我们根据当前读取的小批量数据样本（特征`features`和标签`label`），通过调用反向函数`backward`计算小批量随机梯度，并调用优化算法`sgd`迭代模型参数。在一个迭代周期（epoch）中，我们将完整遍历一遍`data_iter`函数，并对训练数据集中所有样本都使用一次。这里的迭代周期数`num_epochs`和学习率`lr`都是超参数，分别设3和0.03。在实践中，大多超参数都是需要通过反复试错来不断调节。当迭代周期数设的越大时，虽然模型可能更有效，但是训练时间可能过长。而有关学习率对模型的影响，我们会在后面“优化算法”一章中详细介绍。
 
 ```{.python .input  n=12}
-lr = 0.05
+lr = 0.03
 num_epochs = 3
 loss = squared_loss
 
 for epoch in range(1, num_epochs + 1):
     for X, y in data_iter():
         with autograd.record():
-            yhat = net(X, w, b)
-            l = loss(yhat, y)
+            y_hat = net(X, w, b)
+            l = loss(y_hat, y)
         l.backward()
         sgd([w, b], lr, batch_size)
     print("epoch %d, loss: %f"
@@ -173,9 +173,7 @@ true_b, b
 
 * 尝试用不同的学习率查看损失函数值的下降速度。
 
-* 回顾[“自动求梯度”](../chapter_crashcourse/autograd.md)一节。本节中`loss`并不是一个标量，运行`loss.backward()`将如何对模型参数求梯度？
-
-* 回顾上一节中小批量随机梯度下降的公式。公式中分母上的批量大小为何不需要在代码中直接实现出来？
+* 回顾[“自动求梯度”](../chapter_crashcourse/autograd.md)一节。本节代码中变量`l`并不是一个标量，运行`l.backward()`将如何对模型参数求梯度？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/743)
