@@ -4,16 +4,12 @@
 
 下面我们来看一个稍微有意思一点的问题，如何使用多类逻辑回归进行多类分类。这个模型跟线性回归的主要区别在于输出节点从一个变成了多个。
 
-![](../img/simple-softmax-net.png)
+![](../img/softmaxreg.svg)
 
 
 ## 获取数据
 
-演示这个模型的常见数据集是手写数字识别MNIST，它长这个样子。
-
-![](https://raw.githubusercontent.com/dmlc/web-data/master/mxnet/example/mnist.png)
-
-这里我们用了一个稍微复杂点的数据集，它跟MNIST非常像，但是内容不再是分类数字，而是服饰。我们通过gluon的data.vision模块自动下载这个数据。
+演示这个模型的常见数据集是手写数字识别MNIST。这里我们用了一个稍微复杂点的数据集，它跟MNIST非常像，但是内容不再是分类数字，而是服饰。我们通过gluon的data.vision模块自动下载这个数据。
 
 ```{.python .input  n=1}
 from mxnet import gluon
