@@ -3,7 +3,7 @@ from mxnet import gluon
 from mxnet import autograd
 from mxnet import nd
 from mxnet import image
-from mxnet.gluon import nn
+from mxnet.gluon import nn, data as gdata, loss as gloss
 import mxnet as mx
 import numpy as np
 from time import time
@@ -357,13 +357,13 @@ def set_fig_size(mpl, figsize=(3.5, 2.5)):
     mpl.rcParams['figure.figsize'] = figsize
 
 
-def data_iter(batch_size, num_examples, X, y):
+def data_iter(batch_size, num_examples, features, labels): 
     """遍历数据集。"""
-    idx = list(range(num_examples))
-    random.shuffle(idx)
+    indices = list(range(num_examples))
+    random.shuffle(indices)
     for i in range(0, num_examples, batch_size):
-        j = nd.array(idx[i: min(i + batch_size, num_examples)])
-        yield X.take(j), y.take(j)
+        j = nd.array(indices[i: min(i + batch_size, num_examples)])
+        yield features.take(j), labels.take(j)
 
 
 def linreg(X, w, b):
@@ -371,33 +371,33 @@ def linreg(X, w, b):
     return nd.dot(X, w) + b
 
 
-def squared_loss(yhat, y):
+def squared_loss(y_hat, y):
     """平方损失函数。"""
-    return (yhat - y.reshape(yhat.shape)) ** 2 / 2
+    return (y_hat - y.reshape(y_hat.shape)) ** 2 / 2
 
 
-def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
-             net):
+def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval,
+             features, labels, net):
     """优化目标函数。"""
-    dataset = gluon.data.ArrayDataset(X, y)
-    data_iter = gluon.data.DataLoader(dataset, batch_size, shuffle=True)
-    square_loss = gluon.loss.L2Loss()
-    y_vals = [square_loss(net(X), y).mean().asnumpy()]
+    dataset = gdata.ArrayDataset(features, labels)
+    data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
+    loss = gloss.L2Loss()
+    ls = [loss(net(features), labels).mean().asnumpy()]
     for epoch in range(1, num_epochs + 1): 
         # 学习率自我衰减。
         if decay_epoch and epoch > decay_epoch:
             trainer.set_learning_rate(trainer.learning_rate * 0.1)
-        for batch_i, (features, label) in enumerate(data_iter):
+        for batch_i, (X, y) in enumerate(data_iter):
             with autograd.record():
-                output = net(features)
-                loss = square_loss(output, label)
-            loss.backward()
+                l = loss(net(X), y)
+            l.backward()
             trainer.step(batch_size)
             if batch_i * batch_size % log_interval == 0:
-                y_vals.append(square_loss(net(X), y).mean().asnumpy())
+                ls.append(loss(net(features), labels).mean().asnumpy())
+    # 为了便于打印，改变输出形状并转化成numpy数组。
     print('w:', net[0].weight.data(), '\nb:', net[0].bias.data(), '\n')
-    x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
-    semilogy(x_vals, y_vals, 'epoch', 'loss')
+    es = np.linspace(0, num_epochs, len(ls), endpoint=True)
+    semilogy(es, ls, 'epoch', 'loss')
 
 
 def semilogy(x_vals, y_vals, x_label, y_label, figsize=(3.5, 2.5)):

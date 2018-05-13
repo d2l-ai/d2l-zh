@@ -134,9 +134,9 @@ num_inputs = 2
 num_examples = 1000
 true_w = [2, -3.4]
 true_b = 4.2
-X = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
-y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
-y += nd.random.normal(scale=0.01, shape=y.shape)
+features = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
+labels = true_w[0] * features[:, 0] + true_w[1] * features[:, 1] + true_b
+labels += nd.random.normal(scale=0.01, shape=labels.shape)
 
 # 初始化模型参数。
 def init_params():
@@ -152,16 +152,16 @@ def linreg(X, w, b):
     return nd.dot(X, w) + b 
 
 # 平方损失函数。
-def squared_loss(yhat, y): 
-    return (yhat - y.reshape(yhat.shape)) ** 2 / 2
+def squared_loss(y_hat, y): 
+    return (y_hat - y.reshape(y_hat.shape)) ** 2 / 2
 
 # 遍历数据集。
-def data_iter(batch_size, num_examples, X, y): 
-    idx = list(range(num_examples))
-    random.shuffle(idx)
+def data_iter(batch_size, num_examples, features, labels): 
+    indices = list(range(num_examples))
+    random.shuffle(indices)
     for i in range(0, num_examples, batch_size):
-        j = nd.array(idx[i: min(i + batch_size, num_examples)])
-        yield X.take(j), y.take(j)
+        j = nd.array(indices[i: min(i + batch_size, num_examples)])
+        yield features.take(j), labels.take(j)
 ```
 
 下面我们描述一下优化函数`optimize`。
@@ -172,26 +172,26 @@ def data_iter(batch_size, num_examples, X, y):
 
 ```{.python .input  n=3}
 net = linreg
+loss = squared_loss
 
 def optimize(batch_size, lr, num_epochs, log_interval, decay_epoch):
     w, b = init_params()
-    y_vals = [squared_loss(net(X, w, b), y).mean().asnumpy()]
+    ls = [squared_loss(net(features, w, b), labels).mean().asnumpy()]
     for epoch in range(1, num_epochs + 1):
         # 学习率自我衰减。
         if decay_epoch and epoch > decay_epoch:
             lr *= 0.1
-        for batch_i, (features, label) in enumerate(
-            data_iter(batch_size, num_examples, X, y)):
+        for batch_i, (X, y) in enumerate(
+            data_iter(batch_size, num_examples, features, labels)):
             with autograd.record():
-                output = net(features, w, b)
-                loss = squared_loss(output, label)
-            loss.backward()
+                l = loss(net(X, w, b), y)
+            l.backward()
             sgd([w, b], lr, batch_size)
             if batch_i * batch_size % log_interval == 0:
-                y_vals.append(squared_loss(net(X, w, b), y).mean().asnumpy())
+                ls.append(loss(net(features, w, b), labels).mean().asnumpy())
     print('w:', w, '\nb:', b, '\n')
-    x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
-    utils.semilogy(x_vals, y_vals, 'epoch', 'loss')
+    es = np.linspace(0, num_epochs, len(ls), endpoint=True)
+    utils.semilogy(es, ls, 'epoch', 'loss')
 ```
 
 当批量大小为1时，优化使用的是随机梯度下降。在当前学习率下，损失函数值在早期快速下降后略有波动。这是由于随机梯度的方差在迭代过程中无法减小。当迭代周期大于2，学习率自我衰减后，损失函数值下降后较平稳。最终，优化所得的模型参数值`w`和`b`与它们的真实值[2, -3.4]和4.2较接近。
