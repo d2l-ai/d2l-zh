@@ -55,7 +55,7 @@ print(weight.data(ctx[1])[0])
 我们先定义交叉熵损失函数。
 
 ```{.python .input}
-sce_loss = gloss.SoftmaxCrossEntropyLoss()
+loss = gloss.SoftmaxCrossEntropyLoss()
 ```
 
 当我们使用多个GPU来训练模型时，`gluon.Trainer`会自动做数据并行，例如划分小批量数据样本并复制到各个GPU上，对各个GPU上的梯度求和再广播到所有GPU上。这样，我们就可以很方便地实现训练函数了。
@@ -70,16 +70,14 @@ def train(num_gpus, batch_size, lr):
         net.collect_params(), 'sgd', {'learning_rate': lr})
     for epoch in range(1, 6):
         start = time()
-        total_loss = 0
-        for features, labels in train_data:
-            gpu_data = gutils.split_and_load(features, ctx)
-            gpu_labels = gutils.split_and_load(labels, ctx)
+        for X, y in train_data:
+            gpu_Xs = gutils.split_and_load(X, ctx)
+            gpu_ys = gutils.split_and_load(y, ctx)
             with autograd.record():
-                losses = [sce_loss(net(X), y) for X, y in zip(gpu_data,
-                                                              gpu_labels)]
-            for loss in losses:
-                loss.backward()
-            total_loss += sum([loss.sum().asscalar() for loss in losses])
+                ls = [loss(net(gpu_X), gpu_y) for gpu_X, gpu_y in zip(
+                    gpu_Xs, gpu_ys)]
+            for l in ls:
+                l.backward()
             trainer.step(batch_size)
         nd.waitall()
         print('epoch %d, training time: %.1f sec'%(epoch, time() - start))

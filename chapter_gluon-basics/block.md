@@ -16,7 +16,7 @@ class MLP(nn.Block):
     # 声明带有模型参数的层，这里我们声明了两个全链接层。
     def __init__(self, **kwargs):
         # 调用 MLP 父类 Block 的构造函数来进行必要的初始化。这样在构造实例时还可以指定
-        # 其他函数参数，例如下下一节将介绍的模型参数 params.
+        # 其他函数参数，例如下下一节将介绍的模型参数 params。
         super(MLP, self).__init__(**kwargs)
         # 隐藏层。
         self.hidden = nn.Dense(256, activation='relu')

@@ -62,7 +62,7 @@ net.collect_params()
 当使用默认的模型初始化，Gluon会将权重参数元素初始化为`[-0.07, 0.07]`之间均匀分布的随机数，偏差参数则全为0. 但经常我们需要使用其他的方法来初始话权重，MXNet的[`init`模块](https://mxnet.incubator.apache.org/api/python/optimization/optimization.html#module-mxnet.initializer)里提供了多种预设的初始化方法。例如下面例子我们将权重参数初始化成均值为0，标准差为0.01的正态分布随机数。
 
 ```{.python .input  n=7}
-# 非首次对模型初始化需要指定 force_reinit
+# 非首次对模型初始化需要指定 force_reinit。
 net.initialize(init=init.Normal(sigma=0.01), force_reinit=True)
 net[0].weight.data()[0]
 ```

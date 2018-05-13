@@ -142,9 +142,9 @@ def get_data():
     for i in range(num_batches):
         if i % 10 == 0:
             print('batch %d, time %f sec' % (i, time() - start))
-        x = nd.random.normal(shape=(batch_size, 512))
+        X = nd.random.normal(shape=(batch_size, 512))
         y = nd.ones((batch_size,))
-        yield x, y
+        yield X, y
 ```
 
 以下定义多层感知机、优化器和损失函数。
@@ -159,7 +159,7 @@ net.add(
 net.initialize()
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate':0.005})
-square_loss = gloss.L2Loss()
+loss = gloss.L2Loss()
 ```
 
 这里定义辅助函数来监测内存的使用。需要注意的是，这个函数只能在Linux运行。
@@ -173,9 +173,9 @@ def get_mem():
 现在我们可以做测试了。我们先试运行一次让系统把`net`的参数初始化。相关内容请参见[“模型参数的延后初始化”](../chapter_gluon-basics/deferred-init.md)一节。
 
 ```{.python .input  n=14}
-for x, y in get_data():
+for X, y in get_data():
     break
-square_loss(y, net(x)).wait_to_read()
+loss(y, net(X)).wait_to_read()
 ```
 
 对于训练`net`来说，我们可以自然地使用同步函数`asscalar`将每个小批量的损失从NDArray格式中取出，并打印每个迭代周期后的模型损失。此时，每个小批量的生成间隔较长，不过内存开销较小。
@@ -183,14 +183,14 @@ square_loss(y, net(x)).wait_to_read()
 ```{.python .input  n=17}
 mem = get_mem()
 for epoch in range(1, 3):
-    total_loss = 0
-    for x, y in get_data():
+    l_sum = 0
+    for X, y in get_data():
         with autograd.record():
-            loss = square_loss(y, net(x))
-        total_loss += loss.mean().asscalar()
-        loss.backward()
-        trainer.step(x.shape[0])
-    print('epoch', epoch, ' loss: ', total_loss / num_batches)
+            l = loss(y, net(X))
+        l_sum += l.mean().asscalar()
+        l.backward()
+        trainer.step(X.shape[0])
+    print('epoch', epoch, ' loss: ', l_sum / num_batches)
 nd.waitall()
 print('increased memory: %f MB' % (get_mem() - mem))
 ```
@@ -200,10 +200,10 @@ print('increased memory: %f MB' % (get_mem() - mem))
 ```{.python .input  n=18}
 mem = get_mem()
 for epoch in range(1, 3):
-    for x, y in get_data():
+    for X, y in get_data():
         with autograd.record():
-            loss = square_loss(y, net(x))
-        loss.backward()
+            l = loss(y, net(X))
+        l.backward()
         trainer.step(x.shape[0])
 nd.waitall()
 print('increased memory: %f MB' % (get_mem() - mem))
