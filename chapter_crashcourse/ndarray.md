@@ -141,7 +141,7 @@ y = y + x
 id(y) == before
 ```
 
-在下面的例子中，我们先通过`nd.zeros_like(x)`创建和`y`形状相同且元素为0的NDArray，记为`z`。接下来，我们把`x + y`的结果通过`[:]`写进`z`所对应的内存中。
+在下面的例子中，我们先通过`nd.zeros_like(y)`创建和`y`形状相同且元素为0的NDArray，记为`z`。接下来，我们把`x + y`的结果通过`[:]`写进`z`所对应的内存中。
 
 ```{.python .input  n=16}
 z = nd.zeros_like(y)
