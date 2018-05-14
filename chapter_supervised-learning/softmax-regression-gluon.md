@@ -1,4 +1,4 @@
-# 多类逻辑回归——使用Gluon
+# Softmax回归——使用Gluon
 
 现在让我们使用gluon来更快速地实现一个多类逻辑回归。
 
@@ -6,13 +6,17 @@
 
 我们仍然使用FashionMNIST。我们将代码保存在[../utils.py](../utils.py)这样这里不用复制一遍。
 
-```{.python .input  n=1}
+```{.python .input}
+from mxnet import autograd, gluon, nd
+from mxnet.gluon import nn, loss as gloss
 import sys
 sys.path.append('..')
 import utils
+```
 
+```{.python .input  n=1}
 batch_size = 256
-train_data, test_data = utils.load_data_fashion_mnist(batch_size)
+train_iter, test_iter = utils.load_data_fashion_mnist(batch_size)
 ```
 
 ## 定义和初始化模型
@@ -20,12 +24,10 @@ train_data, test_data = utils.load_data_fashion_mnist(batch_size)
 我们先使用Flatten层将输入数据转成 `batch_size` x `?` 的矩阵，然后输入到10个输出节点的全连接层。照例我们不需要制定每层输入的大小，gluon会做自动推导。
 
 ```{.python .input  n=2}
-from mxnet import gluon
-
-net = gluon.nn.Sequential()
+net = nn.Sequential()
 with net.name_scope():
-    net.add(gluon.nn.Flatten())
-    net.add(gluon.nn.Dense(10))
+    net.add(nn.Flatten())
+    net.add(nn.Dense(10))
 net.initialize()
 ```
 
@@ -34,7 +36,7 @@ net.initialize()
 如果你做了上一章的练习，那么你可能意识到了分开定义Softmax和交叉熵会有数值不稳定性。因此gluon提供一个将这两个函数合起来的数值更稳定的版本
 
 ```{.python .input  n=3}
-softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
+loss = gloss.SoftmaxCrossEntropyLoss()
 ```
 
 ## 优化
@@ -46,25 +48,23 @@ trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.1})
 ## 训练
 
 ```{.python .input  n=5}
-from mxnet import ndarray as nd
-from mxnet import autograd
+num_epochs = 5
 
-for epoch in range(5):
-    train_loss = 0.
-    train_acc = 0.
-    for data, label in train_data:
+for epoch in range(1, num_epochs + 1):
+    train_l_sum = 0
+    train_acc_sum = 0
+    for X, y in train_iter:
         with autograd.record():
-            output = net(data)
-            loss = softmax_cross_entropy(output, label)
-        loss.backward()
+            y_hat = net(X)
+            l = loss(y_hat, y)
+        l.backward()
         trainer.step(batch_size)
-
-        train_loss += nd.mean(loss).asscalar()
-        train_acc += utils.accuracy(output, label)
-
-    test_acc = utils.evaluate_accuracy(test_data, net)
-    print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-        epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
+        train_l_sum += l.mean().asscalar()
+        train_acc_sum += utils.accuracy(y_hat, y)
+    test_acc = utils.evaluate_accuracy(test_iter, net)
+    print("epoch %d, loss %f, train acc %f, test acc %f"
+          % (epoch, train_l_sum / len(train_iter),
+             train_acc_sum / len(train_iter), test_acc))
 ```
 
 ## 小结
