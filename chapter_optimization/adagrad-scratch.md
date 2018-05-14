@@ -52,7 +52,7 @@ def adagrad(params, sqrs, lr, batch_size):
 
 ## 实验
 
-首先，导入本节中实验所需的包。
+首先，导入本节中实验所需的包或模块。
 
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'

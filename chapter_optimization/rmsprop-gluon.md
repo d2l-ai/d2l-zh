@@ -3,7 +3,7 @@
 
 在Gluon里，使用RMSProp很方便，我们无需重新实现该算法。
 
-首先，导入本节中实验所需的包。
+首先，导入本节中实验所需的包或模块。
 
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'

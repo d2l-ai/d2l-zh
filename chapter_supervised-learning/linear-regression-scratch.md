@@ -12,7 +12,7 @@ $$\boldsymbol{\hat{y}} = \boldsymbol{X} \boldsymbol{w} + b,$$
 
 其中$\boldsymbol{w} \in \mathbb{R}^{d \times 1}$和$b \in \mathbb{R}$分别为线性回归的模型参数：权重和偏差。为了学习权重和偏差，我们用预测值$\boldsymbol{\hat{y}}$和真实值$\boldsymbol{y}$之间的平方损失作为模型的损失函数。在模型训练过程中，我们使用小批量随机梯度下降不断迭代模型参数的值，以最小化损失函数。最终，在有限次迭代后，我们便学出了模型参数的值。
 
-下面我们开始动手实现线性回归的训练。首先，导入本节中实验所需的包。
+下面我们开始动手实现线性回归的训练。首先，导入本节中实验所需的包或模块。
 
 ```{.python .input  n=1}
 %config InlineBackend.figure_format = 'retina'

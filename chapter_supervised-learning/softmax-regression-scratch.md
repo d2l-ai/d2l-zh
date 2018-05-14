@@ -1,14 +1,118 @@
 # Softmax回归——从零开始
 
-如果你读过了[“从0开始的线性回归”](linear-regression-scratch.md)，那么最难的部分已经过去了。现在你知道如果读取和操作数据，如何构造目标函数和对它求导，如果定义损失函数，模型和求解。
+前几节介绍的线性回归模型适用于输出为连续值的情景，例如输出为房价。在其他情景中，模型输出还可以是一个离散值，例如图片类别。对于这样的分类问题，我们可以使用Softmax回归模型。和线性回归不同，Softmax回归的输出单元从一个变成了多个。
 
 
-下面我们来看一个稍微有意思一点的问题，如何使用多类逻辑回归进行多类分类。这个模型跟线性回归的主要区别在于输出节点从一个变成了多个。
+## Softmax回归模型
 
-![](../img/softmaxreg.svg)
+让我们考虑一个简单的分类问题。为了便于讨论，让我们假设输入图片的尺寸为$2 \times 2$，并设图片的四个特征值，即像素值分别为$x_1, x_2, x_3, x_4$。假设训练数据集中图片的真实标签为狗、猫或鸡，这些标签分别对应离散值$y_1, y_2, y_3$。举个例子，如果$y_1=0, y_2=1, y_3=2$，任意一张狗图片的标签记作0。
 
 
-## 获取数据
+### 单样本分类
+
+下面我们一步步地描述Softmax回归是怎样对单个$2 \times 2$图片样本分类的。
+
+设带下标的$w$和$b$分别为Softmax回归的权重和偏差参数。给定单个图片的输入特征$x_1, x_2, x_3, x_4$，我们有
+$$
+o_1 = x_1 w_{11} + x_2 w_{21} + x_3 w_{31} + x_4 w_{41} + b_1,\\
+o_2 = x_1 w_{12} + x_2 w_{22} + x_3 w_{32} + x_4 w_{42} + b_2,\\
+o_3 = x_1 w_{13} + x_2 w_{23} + x_3 w_{33} + x_4 w_{43} + b_3.
+$$
+
+图3.2用神经网络图描绘了上面的计算。
+和线性回归一样，Softmax回归也是一个单层神经网络。和线性回归有所不同的是，Softmax回归输出层中的输出个数等于类别个数，因此从一个变成了多个。在Softmax回归中，$o_1, o_2, o_3$的计算都要依赖于$x_1, x_2, x_3, x_4$。所以，Softmax回归的输出层是一个全连接层。
+
+![Softmax回归是一个单层神经网络](../img/softmaxreg.svg)
+
+在得到输出层的三个输出后，我们需要预测输出分别为狗、猫或鸡的概率。不妨设它们分别为$\hat{y}_1, \hat{y}_2, \hat{y}_3$。下面，我们通过对$o_1, o_2, o_3$做Softmax运算，得到模型最终输出
+
+$$
+\hat{y}_1 = \frac{ \exp(o_1)}{\sum_{i=1}^3 \exp(o_i)},\\
+\hat{y}_2 = \frac{ \exp(o_2)}{\sum_{i=1}^3 \exp(o_i)},\\
+\hat{y}_3 = \frac{ \exp(o_3)}{\sum_{i=1}^3 \exp(o_i)}.
+$$
+
+由于$\hat{y}_1 + \hat{y}_2 + \hat{y}_3 = 1$且$\hat{y}_1 \geq 0, \hat{y}_2 \geq 0, \hat{y}_3 \geq 0$，$\hat{y}_1, \hat{y}_2, \hat{y}_3$是一个合法的概率分布。我们可将上面三式记作
+
+$$\hat{y}_1, \hat{y}_2, \hat{y}_3 = \text{Softmax}(o_1, o_2, o_3).$$
+
+
+### 单样本分类的矢量计算表达式
+
+为了提高计算效率，我们可以将单样本分类通过矢量计算来表达。在上面的图片分类问题中，假设Softmax回归的权重和偏差参数分别为
+
+$$
+\boldsymbol{W} = 
+\begin{bmatrix}
+    w_{11} & w_{12} & w_{13} \\
+    w_{21} & w_{22} & w_{23} \\
+    w_{31} & w_{32} & w_{33} \\
+    w_{41} & w_{42} & w_{43}
+\end{bmatrix},\quad
+\boldsymbol{b} = 
+\begin{bmatrix}
+    b_1 & b_2 & b_3
+\end{bmatrix},
+$$
+
+
+
+
+设$2 \times 2$图片样本$i$的特征为
+
+$$\boldsymbol{x}^{(i)} = \begin{bmatrix}x_1^{(i)} & x_2^{(i)} & x_3^{(i)} & x_4^{(i)}\end{bmatrix},$$
+
+输出层输出为
+$$\boldsymbol{o}^{(i)} = \begin{bmatrix}o_1^{(i)} & o_2^{(i)} & o_3^{(i)}\end{bmatrix},$$
+
+预测为狗、猫或鸡的概率分布为
+
+$$\boldsymbol{\hat{y}}^{(i)} = \begin{bmatrix}\hat{y}_1^{(i)} & \hat{y}_2^{(i)} & \hat{y}_3^{(i)}\end{bmatrix}.$$
+
+
+我们对样本$i$分类的矢量计算表达式为
+
+$$
+\boldsymbol{o}^{(i)} = \boldsymbol{x}^{(i)} \boldsymbol{W} + \boldsymbol{b},\\
+\boldsymbol{\hat{y}}^{(i)} = \text{Softmax}(\boldsymbol{o}^{(i)}).
+$$
+
+
+### 小批量样本分类的矢量计算表达式
+
+
+为了进一步提升计算效率，我们通常对小批量数据做矢量计算。广义上，给定一个小批量样本，其批量大小为$n$，输入个数（特征数）为$x$，输出个数（类别数）为$y$。设批量特征为$\boldsymbol{X} \in \mathbb{R}^{n \times x}$，批量标签$\boldsymbol{y} \in \mathbb{R}^{n \times 1}$。
+假设Softmax回归的权重和偏差参数分别为$\boldsymbol{W} \in \mathbb{R}^{x \times y}, \boldsymbol{b} \in \mathbb{R}^{1 \times y}$。Softmax回归的矢量计算表达式为
+
+$$
+\boldsymbol{O} = \boldsymbol{X} \boldsymbol{W} + \boldsymbol{b},\\
+\boldsymbol{\hat{Y}} = \text{Softmax}(\boldsymbol{O}),
+$$
+
+其中的加法运算使用了广播机制，$\boldsymbol{O}, \boldsymbol{\hat{Y}} \in \mathbb{R}^{n \times y}$且这两个矩阵的第$i$行分别为$\boldsymbol{o}^{(i)}$和$\boldsymbol{\hat{y}}^{(i)}$。
+
+
+### 交叉熵损失函数
+
+Softmax回归使用了交叉熵损失函数（cross-entropy loss）。以本节中的图片分类为例，真实标签狗、猫或鸡分别对应离散值$y_1, y_2, y_3$，它们的预测概率分别为$\hat{y}_1, \hat{y}_2, \hat{y}_3$。为了便于描述，设样本$i$的标签的被预测概率为$p_{\text{label}_i}$。例如，如果样本$i$的标签为$y_3$，那么$p_{\text{label}_i} = \hat{y}_3$。直观上，训练数据集上每个样本的真实标签的被预测概率越大（最大为1），分类越准确。假设训练数据集的样本数为$n$。由于对数函数是单调递增的，且最大化函数与最小化该函数的相反数等价，我们希望最小化
+
+$$
+\ell(\boldsymbol{\Theta}) = -\frac{1}{n} \sum_{i=1}^n \log p_{\text{label}_i},
+$$
+其中$\boldsymbol{\Theta}$为模型参数。该函数即交叉熵损失函数。在训练Softmax回归时，我们将使用优化算法来迭代模型参数并最小化该损失函数。
+
+
+### 模型预测及评价
+
+在训练好Softmax回归模型后，给定任一样本特征，我们可以预测每个输出类别的概率。通常，我们把预测概率最大的类别作为输出类别。如果它与真实类别（标签）一致，说明这次预测是正确的。在本节的实验中，我们将使用准确率（accuracy）来评价模型的表现。它等于正确预测数量与总预测数量的比。
+
+
+## Softmax回归实现
+
+下面我们来动手实现Softmax回归。首先，导入实验所需的包或模块。
+
+
+### 获取数据
 
 演示这个模型的常见数据集是手写数字识别MNIST。这里我们用了一个稍微复杂点的数据集，它跟MNIST非常像，但是内容不再是分类数字，而是服饰。我们通过gluon的data.vision模块自动下载这个数据。
 
@@ -64,7 +168,7 @@ show_images(X)
 print(get_text_labels(y))
 ```
 
-## 数据读取
+### 数据读取
 
 虽然我们可以像前面那样通过`yield`来定义获取批量数据函数，这里我们直接使用gluon.data的DataLoader函数，它每次`yield`一个批量。
 
@@ -76,7 +180,7 @@ test_iter = gdata.DataLoader(mnist_test, batch_size, shuffle=False)
 
 注意到这里我们要求每次从训练数据里读取一个由随机样本组成的批量，但测试数据则不需要这个要求。
 
-## 初始化模型参数
+### 初始化模型参数
 
 跟线性模型一样，每个样本会表示成一个向量。我们这里数据是 $28 \times 28$ 大小的图片，所以输入向量的长度是 $28 \times 28 = 784$。因为我们要做多类分类，我们需要对每一个类预测这个样本属于此类的概率。因为这个数据集有10个类型，所以输出应该是长为10的向量。这样，我们需要的权重将是一个 $784 \times 10$ 的矩阵：
 
@@ -97,7 +201,7 @@ for param in params:
     param.attach_grad()
 ```
 
-## 定义模型
+### 定义模型
 
 在线性回归教程里，我们只需要输出一个标量`yhat`使得尽可能的靠近目标值。但在这里的分类里，我们需要属于每个类别的概率。这些概率需要值为正，而且加起来等于1. 而如果简单的使用 $\boldsymbol{\hat y} = \boldsymbol{W} \boldsymbol{x}$, 我们不能保证这一点。一个通常的做法是通过softmax函数来将任意的输入归一化成合法的概率值。
 
@@ -127,7 +231,7 @@ def net(X):
     return softmax(nd.dot(X.reshape((-1, num_inputs)), W) + b)
 ```
 
-## 交叉熵损失函数
+### 交叉熵损失函数
 
 我们需要定义一个针对预测为概率值的损失函数。其中最常见的是交叉熵损失函数，它将两个概率分布的负交叉熵作为目标值，最小化这个值等价于最大化这两个概率的相似度。
 
@@ -144,7 +248,7 @@ y = nd.array([0, 2])
 cross_entropy(y_hat, y)
 ```
 
-## 计算精度
+### 计算精度
 
 给定一个概率输出，我们将预测概率最高的那个类作为预测的类，然后通过比较真实标号我们可以计算精度：
 
@@ -169,7 +273,7 @@ def evaluate_accuracy(data_iter, net):
 evaluate_accuracy(test_iter, net)
 ```
 
-## 训练
+### 训练
 
 训练代码跟前面的线性回归非常相似：
 
@@ -194,7 +298,7 @@ for epoch in range(1, num_epochs + 1):
              train_acc_sum / len(train_iter), test_acc))
 ```
 
-## 预测
+### 预测
 
 训练完成后，现在我们可以演示对输入图片的标号的预测
 

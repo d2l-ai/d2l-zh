@@ -61,7 +61,7 @@ def adam(params, vs, sqrs, lr, batch_size, t):
 
 ## 实验
 
-首先，导入实验所需的包。
+首先，导入实验所需的包或模块。
 
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'

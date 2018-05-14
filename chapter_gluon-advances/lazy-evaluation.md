@@ -2,7 +2,7 @@
 
 MXNet使用惰性计算（lazy evaluation）来提升计算性能。理解它的工作原理既有助于开发更高效的程序，又有助于在内存资源有限的情况下主动降低计算性能从而减小内存开销。
 
-我们先导入本节中实验需要的包。
+我们先导入本节中实验需要的包或模块。
 
 ```{.python .input  n=1}
 from mxnet import autograd, gluon, nd
