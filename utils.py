@@ -1,15 +1,13 @@
 from math import exp
-from mxnet import gluon
-from mxnet import autograd
-from mxnet import nd
-from mxnet import image
-from mxnet.gluon import nn, data as gdata, loss as gloss, utils as gutils
-import mxnet as mx
-import numpy as np
-from time import time
-import matplotlib.pyplot as plt
-import matplotlib as mpl
 import random
+from time import time
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import mxnet as mx
+from mxnet import autograd, gluon, image, nd
+from mxnet.gluon import nn, data as gdata, loss as gloss, utils as gutils
+import numpy as np
 
 class DataLoader(object):
     """similiar to gluon.data.DataLoader, but might be faster.
