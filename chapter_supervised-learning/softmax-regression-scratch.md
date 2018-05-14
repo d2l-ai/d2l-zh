@@ -1,7 +1,6 @@
-# 多类逻辑回归——从零开始
+# Softmax回归——从零开始
 
 如果你读过了[“从0开始的线性回归”](linear-regression-scratch.md)，那么最难的部分已经过去了。现在你知道如果读取和操作数据，如何构造目标函数和对它求导，如果定义损失函数，模型和求解。
-
 
 
 下面我们来看一个稍微有意思一点的问题，如何使用多类逻辑回归进行多类分类。这个模型跟线性回归的主要区别在于输出节点从一个变成了多个。
@@ -48,17 +47,21 @@ def show_images(images):
         figs[i].axes.get_xaxis().set_visible(False)
         figs[i].axes.get_yaxis().set_visible(False)
     plt.show()
+```
 
+```{.python .input}
 def get_text_labels(labels):
     text_labels = [
         't-shirt', 'trouser', 'pullover', 'dress,', 'coat',
         'sandal', 'shirt', 'sneaker', 'bag', 'ankle boot'
     ]
     return [text_labels[int(i)] for i in labels]
+```
 
-feature, label = mnist_train[0:9]
-show_images(feature)
-print(get_text_labels(label))
+```{.python .input}
+X, y = mnist_train[0:9]
+show_images(X)
+print(get_text_labels(y))
 ```
 
 ## 数据读取
@@ -67,8 +70,8 @@ print(get_text_labels(label))
 
 ```{.python .input  n=5}
 batch_size = 256
-train_data = gdata.DataLoader(mnist_train, batch_size, shuffle=True)
-test_data = gdata.DataLoader(mnist_test, batch_size, shuffle=False)
+train_iter = gdata.DataLoader(mnist_train, batch_size, shuffle=True)
+test_iter = gdata.DataLoader(mnist_test, batch_size, shuffle=False)
 ```
 
 注意到这里我们要求每次从训练数据里读取一个由随机样本组成的批量，但测试数据则不需要这个要求。
@@ -111,7 +114,7 @@ def softmax(X):
 可以看到，对于随机输入，我们将每个元素变成了非负数，而且每一行加起来为1。
 
 ```{.python .input  n=9}
-X = nd.random_normal(shape=(2,5))
+X = nd.random_normal(shape=(2, 5))
 X_prob = softmax(X)
 print(X_prob)
 print(X_prob.sum(axis=1))
@@ -135,6 +138,12 @@ def cross_entropy(y_hat, y):
     return - nd.pick(nd.log(y_hat), y)
 ```
 
+```{.python .input}
+y_hat = nd.array([[0.1, 0.3, 0.6], [0.3, 0.2, 0.5]])
+y = nd.array([0, 2])
+cross_entropy(y_hat, y)
+```
+
 ## 计算精度
 
 给定一个概率输出，我们将预测概率最高的那个类作为预测的类，然后通过比较真实标号我们可以计算精度：
@@ -148,17 +157,16 @@ def accuracy(output, label):
 
 ```{.python .input  n=13}
 def evaluate_accuracy(data_iter, net):
-    acc = 0.0
-    for data, label in data_iter:
-        output = net(data)
-        acc += accuracy(output, label)
+    acc = 0
+    for X, y in data_iter:
+        acc += accuracy(net(X), y)
     return acc / len(data_iter)
 ```
 
 因为我们随机初始化了模型，所以这个模型的精度应该大概是`1/num_outputs = 0.1`.
 
 ```{.python .input  n=14}
-evaluate_accuracy(test_data, net)
+evaluate_accuracy(test_iter, net)
 ```
 
 ## 训练
@@ -167,24 +175,23 @@ evaluate_accuracy(test_data, net)
 
 ```{.python .input  n=15}
 num_epochs = 5
-learning_rate = 0.1
+lr = 0.1
 
-for epoch in range(num_epochs):
-    train_loss = 0
-    train_acc = 0
-    for X, y in train_data:
+for epoch in range(1, num_epochs + 1):
+    train_l_sum = 0
+    train_acc_sum = 0
+    for X, y in train_iter:
         with autograd.record():
-            output = net(X)
-            loss = cross_entropy(output, y)
-        loss.backward()
-        utils.sgd(params, learning_rate, batch_size)
-
-        train_loss += nd.mean(loss).asscalar()
-        train_acc += accuracy(output, y)
-
-    test_acc = evaluate_accuracy(test_data, net)
-    print("epoch %d, loss %f, train acc %f, test acc %f" % (
-        epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
+            y_hat = net(X)
+            l = cross_entropy(y_hat, y)
+        l.backward()
+        utils.sgd(params, lr, batch_size)
+        train_l_sum += l.mean().asscalar()
+        train_acc_sum += accuracy(y_hat, y)
+    test_acc = evaluate_accuracy(test_iter, net)
+    print("epoch %d, loss %f, train acc %f, test acc %f" 
+          % (epoch, train_l_sum / len(train_iter),
+             train_acc_sum / len(train_iter), test_acc))
 ```
 
 ## 预测
@@ -196,7 +203,6 @@ data, label = mnist_test[0:9]
 show_images(data)
 print('true labels')
 print(get_text_labels(label))
-
 predicted_labels = net(data).argmax(axis=1)
 print('predicted labels')
 print(get_text_labels(predicted_labels.asnumpy()))

@@ -1,15 +1,13 @@
 from math import exp
-from mxnet import gluon
-from mxnet import autograd
-from mxnet import nd
-from mxnet import image
-from mxnet.gluon import nn, data as gdata, loss as gloss
-import mxnet as mx
-import numpy as np
-from time import time
-import matplotlib.pyplot as plt
-import matplotlib as mpl
 import random
+from time import time
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import mxnet as mx
+from mxnet import autograd, gluon, image, nd
+from mxnet.gluon import nn, data as gdata, loss as gloss, utils as gutils
+import numpy as np
 
 class DataLoader(object):
     """similiar to gluon.data.DataLoader, but might be faster.
@@ -90,42 +88,48 @@ def try_all_gpus():
     return ctx_list
 
 def SGD(params, lr):
+    """（不要用，最后删掉）"""
     for param in params:
         param[:] = param - lr * param.grad
 
+
 def sgd(params, lr, batch_size):
+    """小批量随机梯度下降。"""
     for param in params:
         param[:] = param - lr * param.grad / batch_size
 
+
 def accuracy(output, label):
-    return nd.mean(output.argmax(axis=1)==label).asscalar()
+    """准确率。"""
+    return (output.argmax(axis=1) == label).mean().asscalar()
 
 
 def _get_batch(batch, ctx):
-    """return data and label on ctx"""
     if isinstance(batch, mx.io.DataBatch):
-        data = batch.data[0]
-        label = batch.label[0]
+        features = batch.data[0]
+        labels = batch.label[0]
     else:
-        data, label = batch
-    return (gluon.utils.split_and_load(data, ctx),
-            gluon.utils.split_and_load(label, ctx),
-            data.shape[0])
+        features, labels = batch
+    return (gutils.split_and_load(features, ctx),
+            gutils.split_and_load(labels, ctx),
+            features.shape[0])
 
-def evaluate_accuracy(data_iterator, net, ctx=[mx.cpu()]):
+
+def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
+    """评价模型在数据集上的准确率。"""
     if isinstance(ctx, mx.Context):
         ctx = [ctx]
     acc = nd.array([0])
-    n = 0.
-    if isinstance(data_iterator, mx.io.MXDataIter):
-        data_iterator.reset()
-    for batch in data_iterator:
-        data, label, batch_size = _get_batch(batch, ctx)
-        for X, y in zip(data, label):
+    n = 0
+    if isinstance(data_iter, mx.io.MXDataIter):
+        data_iter.reset()
+    for batch in data_iter:
+        features, labels, batch_size = _get_batch(batch, ctx)
+        for X, y in zip(features, labels):
             y = y.astype('float32')
-            acc += nd.sum(net(X).argmax(axis=1)==y).copyto(mx.cpu())
+            acc += (net(X).argmax(axis=1)==y).sum().copyto(mx.cpu())
             n += y.size
-        acc.wait_to_read() # don't push too many operators into backend
+        acc.wait_to_read() 
     return acc.asscalar() / n
 
 
