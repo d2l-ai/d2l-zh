@@ -13,9 +13,9 @@
    pooling
    lenet
    alexnet
+   vgg
    batch-norm-scratch
    batch-norm-gluon
-   vgg-gluon
    nin-gluon
    googlenet-gluon
    resnet-gluon
