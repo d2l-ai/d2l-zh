@@ -136,7 +136,7 @@ a + b
 
 ```{.python .input  n=11}
 num_batches = 41
-def get_data():
+def data_iter():
     start = time()
     batch_size = 1024
     for i in range(num_batches):
@@ -173,7 +173,7 @@ def get_mem():
 现在我们可以做测试了。我们先试运行一次让系统把`net`的参数初始化。相关内容请参见[“模型参数的延后初始化”](../chapter_gluon-basics/deferred-init.md)一节。
 
 ```{.python .input  n=14}
-for X, y in get_data():
+for X, y in data_iter():
     break
 loss(y, net(X)).wait_to_read()
 ```
@@ -184,7 +184,7 @@ loss(y, net(X)).wait_to_read()
 mem = get_mem()
 for epoch in range(1, 3):
     l_sum = 0
-    for X, y in get_data():
+    for X, y in data_iter():
         with autograd.record():
             l = loss(y, net(X))
         l_sum += l.mean().asscalar()
@@ -200,7 +200,7 @@ print('increased memory: %f MB' % (get_mem() - mem))
 ```{.python .input  n=18}
 mem = get_mem()
 for epoch in range(1, 3):
-    for X, y in get_data():
+    for X, y in data_iter():
         with autograd.record():
             l = loss(y, net(X))
         l.backward()

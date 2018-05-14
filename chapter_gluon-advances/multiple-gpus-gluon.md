@@ -62,7 +62,7 @@ loss = gloss.SoftmaxCrossEntropyLoss()
 
 ```{.python .input  n=7}
 def train(num_gpus, batch_size, lr):
-    train_data, test_data = utils.load_data_fashion_mnist(batch_size)
+    train_iter, test_iter = utils.load_data_fashion_mnist(batch_size)
     ctx = [mx.gpu(i) for i in range(num_gpus)]
     print('running on:', ctx)
     net.initialize(init=init.Xavier(), ctx=ctx, force_reinit=True)
@@ -70,7 +70,7 @@ def train(num_gpus, batch_size, lr):
         net.collect_params(), 'sgd', {'learning_rate': lr})
     for epoch in range(1, 6):
         start = time()
-        for X, y in train_data:
+        for X, y in train_iter:
             gpu_Xs = gutils.split_and_load(X, ctx)
             gpu_ys = gutils.split_and_load(y, ctx)
             with autograd.record():
@@ -81,7 +81,7 @@ def train(num_gpus, batch_size, lr):
             trainer.step(batch_size)
         nd.waitall()
         print('epoch %d, training time: %.1f sec'%(epoch, time() - start))
-        test_acc = utils.evaluate_accuracy(test_data, net, ctx[0])
+        test_acc = utils.evaluate_accuracy(test_iter, net, ctx[0])
         print('validation accuracy: %.4f'%(test_acc))
 ```
 

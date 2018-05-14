@@ -158,21 +158,21 @@ def train_batch(X, y, gpu_params, ctx, lr):
 
 ```{.python .input  n=7}
 def train(num_gpus, batch_size, lr):
-    train_data, test_data = utils.load_data_fashion_mnist(batch_size)
+    train_iter, test_iter = utils.load_data_fashion_mnist(batch_size)
     ctx = [mx.gpu(i) for i in range(num_gpus)]
     print('running on:', ctx)
     # 将模型参数复制到 num_gpus 个 GPU 上。
     gpu_params = [get_params(params, c) for c in ctx]
     for epoch in range(1, 6):
         start = time()
-        for X, y in train_data:
+        for X, y in train_iter:
             # 对单个小批量上进行多 GPU 训练。
             train_batch(X, y, gpu_params, ctx, lr)
         nd.waitall()
         print('epoch %d, time: %.1f sec' % (epoch, time() - start))
         # 在 GPU0 上验证模型。
         net = lambda x: lenet(x, gpu_params[0])
-        test_acc = utils.evaluate_accuracy(test_data, net, ctx[0])
+        test_acc = utils.evaluate_accuracy(test_iter, net, ctx[0])
         print('validation accuracy: %.4f' % test_acc)
 ```
 
