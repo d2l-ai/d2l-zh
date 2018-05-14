@@ -3,7 +3,7 @@ from mxnet import gluon
 from mxnet import autograd
 from mxnet import nd
 from mxnet import image
-from mxnet.gluon import nn, data as gdata, loss as gloss
+from mxnet.gluon import nn, data as gdata, loss as gloss, utils as gutils
 import mxnet as mx
 import numpy as np
 from time import time
@@ -112,8 +112,8 @@ def _get_batch(batch, ctx):
         labels = batch.label[0]
     else:
         features, labels = batch
-    return (gluon.utils.split_and_load(features, ctx),
-            gluon.utils.split_and_load(labels, ctx),
+    return (gutils.split_and_load(features, ctx),
+            gutils.split_and_load(labels, ctx),
             features.shape[0])
 
 
