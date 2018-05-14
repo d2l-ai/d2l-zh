@@ -11,10 +11,10 @@
    padding-and-strides
    channels
    pooling
-   cnn
+   lenet
+   alexnet-gluon
    batch-norm-scratch
    batch-norm-gluon
-   alexnet-gluon
    vgg-gluon
    nin-gluon
    googlenet-gluon
