@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="105 21 149 76" width="149" height="76">
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="105 28 149 69" width="149" height="69">
   <defs>
     <font-face font-family="Arial" font-size="9" panose-1="2 11 6 4 2 2 2 2 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="0" x-height="518.5547" cap-height="716.3086" ascent="905.2734" descent="-211.91406" font-weight="400">
       <font-face-src>
@@ -17,11 +17,6 @@
         <path d="M 8 0 L 0 0 M 0 -3 L 8 0 L 0 3" fill="none" stroke="currentColor" stroke-width="1"/>
       </g>
     </marker>
-    <font-face font-family="Arial" font-size="12" panose-1="2 11 6 4 2 2 2 2 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="0" x-height="518.5547" cap-height="716.3086" ascent="905.2734" descent="-211.91406" font-weight="400">
-      <font-face-src>
-        <font-face-name name="ArialMT"/>
-      </font-face-src>
-    </font-face>
     <font-face font-family="PingFang SC" font-size="9" panose-1="2 11 4 0 0 0 0 0 0 0" units-per-em="1000" underline-position="-150" underline-thickness="58" slope="0" x-height="600" cap-height="860" ascent="1060.0021" descent="-340.0007" font-weight="400">
       <font-face-src>
         <font-face-name name="PingFangSC-Regular"/>
@@ -29,7 +24,7 @@
     </font-face>
   </defs>
   <metadata> Produced by OmniGraffle 7.7.1 
-    <dc:date>2018-05-11 21:10:05 +0000</dc:date>
+    <dc:date>2018-05-13 22:33:53 +0000</dc:date>
   </metadata>
   <g id="Canvas_1" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
     <title>Canvas 1</title>
@@ -54,22 +49,15 @@
       <g id="Graphic_9">
         <circle cx="211.5" cy="41.25" r="12.7500203732492" fill="#c9e2ff"/>
         <circle cx="211.5" cy="41.25" r="12.7500203732492" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(206.3 36.102783)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="2.6973145" y="8">o</tspan>
+        </text>
       </g>
       <g id="Line_8">
         <line x1="191.60076" y1="72.49366" x2="199.33095" y2="60.35654" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
       <g id="Line_7">
         <line x1="233.04675" y1="72.72699" x2="224.29536" y2="59.942355" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-      </g>
-      <g id="Graphic_6">
-        <text transform="translate(209 26.80371)" fill="black">
-          <tspan font-family="Arial" font-size="12" font-weight="400" fill="black" x=".18457031" y="17">^</tspan>
-        </text>
-      </g>
-      <g id="Graphic_5">
-        <text transform="translate(209 33.852783)" fill="black">
-          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x=".25" y="13">y</tspan>
-        </text>
       </g>
       <g id="Graphic_4">
         <text transform="translate(110.5 76)" fill="black">

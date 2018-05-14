@@ -115,9 +115,11 @@
     * 迭代中
         * 特征：X
         * 标签：y, y_hat 或 Y, Y_hat
+        * for X, y in data_iter
     * 数据集：
         * 特征：features或images
         * 标签：labels
+        * DataLoader实例：train_iter, test_iter, data_iter
 * 注释
     * 中文
     * 中文和英文之间加空格

@@ -24,9 +24,9 @@ num_inputs = 2
 num_examples = 1000
 true_w = [2, -3.4]
 true_b = 4.2
-X = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
-y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
-y += nd.random.normal(scale=0.01, shape=y.shape)
+features = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
+labels = true_w[0] * features[:, 0] + true_w[1] * features[:, 1] + true_b
+labels += nd.random.normal(scale=0.01, shape=labels.shape)
 
 # 线性回归模型。
 net = nn.Sequential()
@@ -37,28 +37,27 @@ net.add(nn.Dense(1))
 
 ```{.python .input  n=2}
 # 优化目标函数。
-def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
-             net):
-    dataset = gdata.ArrayDataset(X, y)
+def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval,
+             features, labels, net):
+    dataset = gdata.ArrayDataset(features, labels)
     data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
-    square_loss = gloss.L2Loss()
-    y_vals = [square_loss(net(X), y).mean().asnumpy()]
+    loss = gloss.L2Loss()
+    ls = [loss(net(features), labels).mean().asnumpy()]
     for epoch in range(1, num_epochs + 1): 
         # 学习率自我衰减。
         if decay_epoch and epoch > decay_epoch:
             trainer.set_learning_rate(trainer.learning_rate * 0.1)
-        for batch_i, (features, label) in enumerate(data_iter):
+        for batch_i, (X, y) in enumerate(data_iter):
             with autograd.record():
-                output = net(features)
-                loss = square_loss(output, label)
-            loss.backward()
+                l = loss(net(X), y)
+            l.backward()
             trainer.step(batch_size)
             if batch_i * batch_size % log_interval == 0:
-                y_vals.append(square_loss(net(X), y).mean().asnumpy())
+                ls.append(loss(net(features), labels).mean().asnumpy())
     # 为了便于打印，改变输出形状并转化成numpy数组。
     print('w:', net[0].weight.data(), '\nb:', net[0].bias.data(), '\n')
-    x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
-    utils.semilogy(x_vals, y_vals, 'epoch', 'loss')
+    es = np.linspace(0, num_epochs, len(ls), endpoint=True)
+    utils.semilogy(es, ls, 'epoch', 'loss')
 ```
 
 以下几组实验分别重现了["梯度下降和随机梯度下降——从零开始"](gd-sgd-scratch.md)一节中实验结果。
@@ -67,35 +66,35 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
 net.initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.2})
 optimize(batch_size=1, trainer=trainer, num_epochs=3, decay_epoch=2,
-         log_interval=10, X=X, y=y, net=net)
+         log_interval=10, features=features, labels=labels, net=net)
 ```
 
 ```{.python .input  n=4}
 net.initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.999})
 optimize(batch_size=1000, trainer=trainer, num_epochs=3, decay_epoch=None,
-         log_interval=1000, X=X, y=y, net=net)
+         log_interval=1000, features=features, labels=labels, net=net)
 ```
 
 ```{.python .input  n=5}
 net.initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.2})
 optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
-         log_interval=10, X=X, y=y, net=net)
+         log_interval=10, features=features, labels=labels, net=net)
 ```
 
 ```{.python .input  n=6}
 net.initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 5})
 optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
-         log_interval=10, X=X, y=y, net=net)
+         log_interval=10, features=features, labels=labels, net=net)
 ```
 
 ```{.python .input  n=7}
 net.initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.002})
 optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
-         log_interval=10, X=X, y=y, net=net)
+         log_interval=10, features=features, labels=labels, net=net)
 ```
 
 ## 小结

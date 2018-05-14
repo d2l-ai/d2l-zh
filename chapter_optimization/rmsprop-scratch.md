@@ -64,9 +64,9 @@ num_inputs = 2
 num_examples = 1000
 true_w = [2, -3.4]
 true_b = 4.2
-X = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
-y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
-y += nd.random.normal(scale=0.01, shape=y.shape)
+features = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
+labels = true_w[0] * features[:, 0] + true_w[1] * features[:, 1] + true_b
+labels += nd.random.normal(scale=0.01, shape=labels.shape)
 
 # 初始化模型参数。
 def init_params():
@@ -85,24 +85,23 @@ def init_params():
 
 ```{.python .input  n=2}
 net = utils.linreg
-squared_loss = utils.squared_loss
+loss = utils.squared_loss
 
 def optimize(batch_size, lr, gamma, num_epochs, log_interval):
     [w, b], sqrs = init_params()
-    y_vals = [squared_loss(net(X, w, b), y).mean().asnumpy()]
+    ls = [loss(net(features, w, b), labels).mean().asnumpy()]
     for epoch in range(1, num_epochs + 1):
-        for batch_i, (features, label) in enumerate(
-            utils.data_iter(batch_size, num_examples, X, y)):
+        for batch_i, (X, y) in enumerate(
+            utils.data_iter(batch_size, num_examples, features, labels)):
             with autograd.record():
-                output = net(features, w, b)
-                loss = squared_loss(output, label)
-            loss.backward()
+                l = loss(net(X, w, b), y)
+            l.backward()
             rmsprop([w, b], sqrs, lr, gamma, batch_size)
             if batch_i * batch_size % log_interval == 0:
-                y_vals.append(squared_loss(net(X, w, b), y).mean().asnumpy())
+                ls.append(loss(net(features, w, b), labels).mean().asnumpy())
     print('w:', w, '\nb:', b, '\n')
-    x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
-    utils.semilogy(x_vals, y_vals, 'epoch', 'loss')
+    es = np.linspace(0, num_epochs, len(ls), endpoint=True)
+    utils.semilogy(es, ls, 'epoch', 'loss')
 ```
 
 我们将初始学习率设为0.03，并将$\gamma$（`gamma`）设为0.9。此时，变量$\boldsymbol{s}$可看作是最近$1/(1-0.9) = 10$个时刻的平方项$\boldsymbol{g} \odot \boldsymbol{g}$的加权平均。我们观察到，损失函数在迭代后期较震荡。

@@ -9,9 +9,8 @@
 %config InlineBackend.figure_format = 'retina'
 %matplotlib inline
 import mxnet as mx
-from mxnet import autograd, gluon, nd
+from mxnet import gluon, nd
 from mxnet.gluon import nn
-import numpy as np
 import sys
 sys.path.append('..')
 import utils
@@ -25,9 +24,9 @@ num_inputs = 2
 num_examples = 1000
 true_w = [2, -3.4]
 true_b = 4.2
-X = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
-y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_b
-y += nd.random.normal(scale=0.01, shape=y.shape)
+features = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
+labels = true_w[0] * features[:, 0] + true_w[1] * features[:, 1] + true_b
+labels += nd.random.normal(scale=0.01, shape=labels.shape)
 
 # 线性回归模型。
 net = nn.Sequential()
@@ -41,7 +40,7 @@ net.initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'rmsprop',
                         {'learning_rate': 0.03, 'gamma1': 0.9})
 utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
-               log_interval=10, X=X, y=y, net=net)
+               log_interval=10, features=features, labels=labels, net=net)
 ```
 
 ```{.python .input}
@@ -49,7 +48,7 @@ net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'rmsprop',
                         {'learning_rate': 0.03, 'gamma1': 0.999})
 utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
-               log_interval=10, X=X, y=y, net=net)
+               log_interval=10, features=features, labels=labels, net=net)
 ```
 
 ## 小结
