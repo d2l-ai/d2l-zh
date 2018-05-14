@@ -12,7 +12,7 @@
    channels
    pooling
    lenet
-   alexnet-gluon
+   alexnet
    batch-norm-scratch
    batch-norm-gluon
    vgg-gluon

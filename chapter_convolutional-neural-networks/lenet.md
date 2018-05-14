@@ -5,7 +5,7 @@
 1. 垂直方向接近的像素在这个向量的图片表示里可能相距很远，从而很难被模型察觉。
 2. 对于大图片输入模型可能会过大。例如对于输入是$1000 \times 1000\times3$的彩色照片，即使隐藏层输出仍为256，这一层的模型形状是$3,000,000\times 256$，其占用将近3GB的内存，这带来过于复杂的模型和过高的存储开销。
 
-卷积层尝试解决这两个问题：它保留输入形状，使得有效的发掘水平和垂直两个方向上的数据关联。且通过滑动窗口将核参数重复作用在输入上，而得到更紧凑的参数表示。卷积神经网络就是主要由卷积层组成的网络，这一小节我们介绍一个著名的早期用来识别手写数字图片的卷积神经网络：LeNet [1]。
+卷积层尝试解决这两个问题：它保留输入形状，使得有效的发掘水平和垂直两个方向上的数据关联。且通过滑动窗口将核参数重复作用在输入上，而得到更紧凑的参数表示。卷积神经网络就是主要由卷积层组成的网络，这一小节我们介绍一个著名的早期用来识别手写数字图片的卷积神经网络：LeNet [1]。它证明了通过梯度下降训练卷积神经网络可以达到手写数字识别的最先进的结果。这个奠基性的工作第一次将卷积神经网络推上舞台，为世人所知。
 
 ## 定义模型
 
@@ -33,17 +33,16 @@ net.add(
 )
 ```
 
-接下来我们构造一个图片形状为`28\times 28`，批量大小为256的随机数据，并逐层进行前向计算来查看每个层的输出大小。
+接下来我们构造一个高宽均为28的单通道数据点，并逐层进行前向计算来查看每个层的输出大小。
 
 ```{.python .input}
-batch_size = 256
-X = nd.random.uniform(shape=(batch_size,1,28,28))
+X = nd.random.uniform(shape=(1,1,28,28))
 
 net.initialize()
 
 for layer in net:
     X = layer(X)
-    print(layer.name, 'output shape:', X.shape)
+    print(layer.name, 'output shape:\t', X.shape)
 ```
 
 可以看到在卷积层块中图片的高宽在逐层减小，卷积层由于没有使用填充从而将高宽减4，池化层则减半，但通道数则从1增加到16。全连接层则进一步减小输出大小直到变成10。
@@ -54,7 +53,7 @@ for layer in net:
 我们仍然使用FashionMNIST作为训练数据。
 
 ```{.python .input}
-train_data, test_data = gb.load_data_fashion_mnist(batch_size)
+train_data, test_data = gb.load_data_fashion_mnist(batch_size=256)
 ```
 
 因为卷积神经网络计算比多层感知机要复杂，因此我们使用GPU来加速计算。我们尝试在GPU 0上创建NDArray，如果成功则使用GPU 0，否则则使用CPU。（我们将下面这段代码保存在GluonBook的`try_gpu`函数里方便下次重复使用）。
@@ -96,4 +95,3 @@ LeNet是针对MNIST提出，但在我们这里的FashionMNIST上效果不是特�
 [1] LeCun, Y., Bottou, L., Bengio, Y., & Haffner, P. (1998). Gradient-based learning applied to document recognition. Proceedings of the IEEE, 86(11), 2278-2324.
 
 [2] Glorot, X., & Bengio, Y. (2010, March). Understanding the difficulty of training deep feedforward neural networks. In Proceedings of the thirteenth international conference on artificial intelligence and statistics (pp. 249-256).
-
