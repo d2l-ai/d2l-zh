@@ -121,6 +121,7 @@ conv2d.weight.data()
 - 试着对我们构造的`Conv2D`进行自动求导，会有什么样的错误信息？
 - 在Conv2D的`forward`函数里，将`corr2d`替换成`nd.Convolution`使得其可以求导。
 - 试着将conv2d的核构造成`(2, 2)`，会学出什么样的结果？
+- 如果通过变化输入和核的矩阵来将相关运算表示成一个矩阵乘法。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6314)
 

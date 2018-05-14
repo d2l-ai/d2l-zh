@@ -11,8 +11,7 @@
    padding-and-strides
    channels
    pooling
-   cnn-scratch
-   cnn-gluon
+   cnn
    batch-norm-scratch
    batch-norm-gluon
    alexnet-gluon
