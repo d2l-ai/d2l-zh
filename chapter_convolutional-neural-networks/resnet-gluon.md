@@ -144,7 +144,7 @@ y = net(x)
 ```{.python .input}
 import sys
 sys.path.append('..')
-import utils
+import gluonbook as gb
 from mxnet import gluon
 from mxnet import init
 
