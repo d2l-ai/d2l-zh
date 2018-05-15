@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="26.5 31 140 113.5" width="140" height="113.5">
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="26.5 31 145 113.5" width="145" height="113.5">
   <defs>
     <font-face font-family="PingFang SC" font-size="9" panose-1="2 11 4 0 0 0 0 0 0 0" units-per-em="1000" underline-position="-150" underline-thickness="58" slope="0" x-height="600" cap-height="860" ascent="1060.0021" descent="-340.0007" font-weight="400">
       <font-face-src>
@@ -14,12 +14,12 @@
     </marker>
   </defs>
   <metadata> Produced by OmniGraffle 7.7.1 
-    <dc:date>2018-05-15 04:00:57 +0000</dc:date>
+    <dc:date>2018-05-15 05:09:55 +0000</dc:date>
   </metadata>
-  <g id="Canvas_8" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
+  <g id="nin" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
     <title>nin</title>
-    <rect fill="white" x="26.5" y="31" width="140" height="113.5"/>
-    <g id="Canvas_8: Layer 1">
+    <rect fill="white" x="26.5" y="31" width="145" height="113.5"/>
+    <g id="nin: Layer 1">
       <title>Layer 1</title>
       <g id="Graphic_8">
         <rect x="27" y="94.5" width="50" height="18" fill="#d7e8fd"/>
@@ -36,17 +36,17 @@
         </text>
       </g>
       <g id="Graphic_6">
-        <rect x="108" y="126" width="58" height="18" fill="#d7e8fd"/>
-        <rect x="108" y="126" width="58" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <rect x="108" y="126" width="63" height="18" fill="#d7e8fd"/>
+        <rect x="108" y="126" width="63" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
         <text transform="translate(113 128.5)" fill="black">
-          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="10.5" y="10">卷积层</tspan>
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="13" y="10">卷积层</tspan>
         </text>
       </g>
       <g id="Graphic_5">
-        <rect x="108" y="94.5" width="58" height="18" fill="#eff6fd"/>
-        <rect x="108" y="94.5" width="58" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <rect x="108" y="94.5" width="63" height="18" fill="#eff6fd"/>
+        <rect x="108" y="94.5" width="63" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
         <text transform="translate(113 97)" fill="black">
-          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x=".105" y="10">1 x 1 卷积层</tspan>
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="2.605" y="10">1 x 1 卷积层</tspan>
         </text>
       </g>
       <g id="Line_4">
@@ -73,27 +73,27 @@
         <line x1="52" y1="63" x2="52" y2="59.4" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
       <g id="Line_12">
-        <line x1="137" y1="126" x2="137" y2="122.4" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <line x1="139.5" y1="126" x2="139.5" y2="122.4" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
       <g id="Graphic_13">
-        <rect x="108" y="63" width="58" height="18" fill="#d7e8fd"/>
-        <rect x="108" y="63" width="58" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <rect x="108" y="63" width="63" height="18" fill="#d7e8fd"/>
+        <rect x="108" y="63" width="63" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
         <text transform="translate(113 65.5)" fill="black">
-          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="10.5" y="10">卷积层</tspan>
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="13" y="10">卷积层</tspan>
         </text>
       </g>
       <g id="Graphic_14">
-        <rect x="108" y="31.5" width="58" height="18" fill="#eff6fd"/>
-        <rect x="108" y="31.5" width="58" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <rect x="108" y="31.5" width="63" height="18" fill="#eff6fd"/>
+        <rect x="108" y="31.5" width="63" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
         <text transform="translate(113 34)" fill="black">
-          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x=".105" y="10">1 x 1 卷积层</tspan>
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="2.605" y="10">1 x 1 卷积层</tspan>
         </text>
       </g>
       <g id="Line_15">
-        <line x1="137" y1="63" x2="137" y2="59.4" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <line x1="139.5" y1="63" x2="139.5" y2="59.4" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
       <g id="Line_16">
-        <line x1="137" y1="94.5" x2="137" y2="90.9" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <line x1="139.5" y1="94.5" x2="139.5" y2="90.9" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
     </g>
   </g>
