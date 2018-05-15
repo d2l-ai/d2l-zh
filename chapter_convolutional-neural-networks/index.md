@@ -14,10 +14,10 @@
    lenet
    alexnet
    vgg
+   nin
+   googlenet-gluon
    batch-norm-scratch
    batch-norm-gluon
-   nin-gluon
-   googlenet-gluon
    resnet-gluon
    densenet-gluon
 ```
