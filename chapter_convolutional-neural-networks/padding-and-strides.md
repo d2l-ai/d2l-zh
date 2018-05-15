@@ -66,7 +66,7 @@ comp_conv2d(conv2d, X).shape
 ![使用步幅4。](../img/conv_stride2.svg)
 
 
-## 小节
+## 小结
 
 - 通过填充可以增加输出的高宽，常用来使得输出与输出同高宽。
 - 通过步幅可以成倍的减少输出的高宽。
@@ -74,3 +74,7 @@ comp_conv2d(conv2d, X).shape
 ## 练习
 
 - 填充和步幅使得推断输出大小变得困难。尝试使用不同的组合来观察输出大小的变化。
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6404)
+
+![](../img/qr_padding-and-strides.svg)

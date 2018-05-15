@@ -11,6 +11,7 @@
    shallow-model
    linear-regression-scratch
    linear-regression-gluon
+   classification
    softmax-regression-scratch
    softmax-regression-gluon
    mlp-scratch
