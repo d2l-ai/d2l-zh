@@ -53,7 +53,7 @@ wget https://github.com/adobe-fonts/source-han-serif/raw/release/OTF/SourceHanSe
 unzip SourceHanSansSC.zip
 unzip SourceHanSerifSC_EL-M.zip
 unzip SourceHanSerifSC_SB-H.zip
-f
+
 sudo mv SourceHanSansSC SourceHanSerifSC_EL-M SourceHanSerifSC_SB-H /usr/share/fonts/opentype/
 sudo fc-cache -f -v
 ```
