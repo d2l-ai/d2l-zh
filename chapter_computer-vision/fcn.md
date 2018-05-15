@@ -58,7 +58,7 @@ def read_images(root=voc_root, train=True):
 ```{.python .input  n=3}
 import sys
 sys.path.append('..')
-import utils
+import gluonbook as gb
 
 train_images, train_labels = read_images()
 
@@ -330,10 +330,6 @@ conv_trans.weight.set_data(bilinear_kernel(*shape[0:3]))
 这时候我们可以真正开始训练了。值得一提的是我们使用卷积转置层的通道来预测像素的类别。所以在做`softmax`和预测的时候我们需要使用通道这个维度，既维度1. 所以在`SoftmaxCrossEntropyLoss`里加入了额外了`axis=1`选项。其他的部分跟之前的训练一致。
 
 ```{.python .input}
-import sys
-sys.path.append('..')
-import gluonbook as gb
-
 loss = gluon.loss.SoftmaxCrossEntropyLoss(axis=1)
 
 ctx = gb.try_all_gpus()
