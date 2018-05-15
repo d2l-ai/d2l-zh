@@ -12,15 +12,22 @@
 
 可以看到`Y`的形状是`(2, 2)`，而且第一个元素是由`X`的左上的`(2, 2)`子矩阵与核做按元素乘法然后相加得来，即`Y[0, 0] = (X[0:2, 0:2] * K).sum()`，这里我们使用假设数据类型是NDArray。然后我们将`X`上子矩阵向左滑动一个元素来计算`Y`的第一行第二个元素。以此类推计算下面所有结果。
 
-我们将这一过程实现在下面的`corr2d`函数里。
+首先导入实验所需的包或模块。
 
 ```{.python .input  n=21}
-%config InlineBackend.figure_format = 'retina'
+%matplotlib inline
+import sys
+sys.path.append('..')
+import gluonbook as gb
+import matplotlib as mpl  
 import matplotlib.pyplot as plt
-
-from mxnet import nd, autograd
+from mxnet import autograd, nd
 from mxnet.gluon import nn
+```
 
+我们将上面描述的这一过程实现在`corr2d`函数里。
+
+```{.python .input}
 def corr2d(X, K):
     n, m = K.shape
     Y = nd.zeros((X.shape[0]-n+1, X.shape[1]-m+1))
@@ -41,6 +48,7 @@ corr2d(X, K)
 ```{.python .input  n=66}
 X = nd.ones((6, 8))
 X[:, 2:6] = 0
+gb.set_fig_size(mpl)
 plt.imshow(X.asnumpy(), cmap='gray')
 plt.show()
 ```

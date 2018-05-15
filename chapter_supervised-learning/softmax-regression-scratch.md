@@ -1,13 +1,6 @@
 # Softmax回归——从零开始
 
-
-
 下面我们来动手实现Softmax回归。首先，导入实验所需的包或模块。
-
-
-## 获取数据
-
-演示这个模型的常见数据集是手写数字识别MNIST。这里我们用了一个稍微复杂点的数据集，它跟MNIST非常像，但是内容不再是分类数字，而是服饰。我们通过gluon的data.vision模块自动下载这个数据。
 
 ```{.python .input  n=1}
 import sys
@@ -17,6 +10,10 @@ import matplotlib.pyplot as plt
 from mxnet import autograd, nd
 from mxnet.gluon import data as gdata
 ```
+
+## 获取Fashion-MNIST数据集
+
+本节中，我们考虑图片分类问题，并使用一个类别为服饰的数据集Fashion-MNIST [1]。该数据集有10个类别，图片尺寸为$28 \times 28$。我们通过Gluon的`data`包来下载这个数据集。由于图片中每个像素的值在0到255之间，我们可以通过定义`transform`函数将每个值转换为0到1之间。
 
 ```{.python .input  n=2}
 def transform(feature, label):
@@ -254,3 +251,7 @@ print(get_text_labels(predicted_labels.asnumpy()))
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/741)
 
 ![](../img/qr_softmax-regression-scratch.svg)
+
+## 参考文献
+
+[1] Xiao, Han, Kashif Rasul, and Roland Vollgraf. "Fashion-mnist: a novel image dataset for benchmarking machine learning algorithms." arXiv preprint arXiv:1708.07747 (2017).
