@@ -168,4 +168,4 @@
 
 * 每节末尾附上本节参考文献
     * 学术性引用
-    * Google Scholar: APA格式
+    * Google Scholar: MLA格式
