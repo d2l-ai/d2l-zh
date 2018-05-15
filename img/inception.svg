@@ -14,7 +14,7 @@
     </marker>
   </defs>
   <metadata> Produced by OmniGraffle 7.7.1 
-    <dc:date>2018-05-15 05:22:17 +0000</dc:date>
+    <dc:date>2018-05-15 05:25:40 +0000</dc:date>
   </metadata>
   <g id="Inception" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
     <title>Inception</title>
@@ -64,7 +64,7 @@
         </text>
       </g>
       <g id="Graphic_9">
-        <rect x="283.5" y="63" width="90" height="18" fill="#eff6fd"/>
+        <rect x="283.5" y="63" width="90" height="18" fill="#d7e8fd"/>
         <rect x="283.5" y="63" width="90" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
         <text transform="translate(288.5 65.5)" fill="black">
           <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="5.314" y="10">3 x 3 最大池化层</tspan>
@@ -74,7 +74,7 @@
         <rect x="162" y="94.5" width="67.5" height="18" fill="#eff6fd"/>
         <rect x="162" y="94.5" width="67.5" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
         <text transform="translate(167 97)" fill="black">
-          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="19.75" y="10">输出</tspan>
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="19.75" y="10">输入</tspan>
         </text>
       </g>
       <g id="Graphic_11">

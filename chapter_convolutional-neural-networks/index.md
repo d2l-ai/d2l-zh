@@ -15,7 +15,7 @@
    alexnet
    vgg
    nin
-   googlenet-gluon
+   googlenet
    batch-norm-scratch
    batch-norm-gluon
    resnet-gluon
