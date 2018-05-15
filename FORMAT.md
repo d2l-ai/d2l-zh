@@ -21,7 +21,7 @@
     * 第一人称 → 我们
     * 第二人称 → 你、大家
 * 工具或部件
-    * Gluon, MXNet, NumPy, NDArray, Symbol, Block, HybridBlock, ResNet-18
+    * Gluon, MXNet, NumPy, NDArray, Symbol, Block, HybridBlock, ResNet-18, Fashion-MNIST
         * 这些都作为词，不要带重音符
     * Dense类/实例, Sequential类/实例, HybridSequential类/实例
         * 不要带重音符
