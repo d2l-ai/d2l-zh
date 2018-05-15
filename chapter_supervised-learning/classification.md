@@ -100,7 +100,7 @@ Softmax回归使用了交叉熵损失函数（cross-entropy loss）。以本节�
 $$
 \ell(\boldsymbol{\Theta}) = -\frac{1}{n} \sum_{i=1}^n \log p_{\text{label}_i},
 $$
-其中$\boldsymbol{\Theta}$为模型参数。该函数即交叉熵损失函数。在训练Softmax回归时，我们将使用优化算法来迭代模型参数并最小化该损失函数。
+其中$\boldsymbol{\Theta}$为模型参数。该函数即交叉熵损失函数。在训练Softmax回归时，我们将使用优化算法来迭代模型参数并不断降低损失函数的值。
 
 
 ## 模型预测及评价

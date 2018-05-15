@@ -25,11 +25,10 @@
 
 ```{.python .input  n=1}
 %matplotlib inline
-%config InlineBackend.figure_format = 'retina'
 import sys
 sys.path.append('..')
 import gluonbook as gb
-import matplotlib as mpl
+import matplotlib as mpl                                                                             
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 import numpy as np
@@ -51,7 +50,7 @@ def f(x):
 
 gb.set_fig_size(mpl, (4.5, 2.5))
 x = np.arange(-1.0, 2.0, 0.1)
-fig = plt.figure()
+fig = gb.plt.figure()
 subplt = fig.add_subplot(111)
 subplt.annotate('local minimum', xy=(-0.3, -0.25), xytext=(-0.77, -1.0),
                 arrowprops=dict(facecolor='black', shrink=0.05))
