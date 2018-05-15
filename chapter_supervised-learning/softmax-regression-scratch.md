@@ -13,7 +13,7 @@ from mxnet.gluon import data as gdata
 
 ## 获取Fashion-MNIST数据集
 
-本节中，我们考虑图片分类问题，并使用一个类别为服饰的数据集Fashion-MNIST [1]。该数据集有10个类别，图片尺寸为$28 \times 28$。我们通过Gluon的`data`包来下载这个数据集。由于图片中每个像素的值在0到255之间，我们可以通过定义`transform`函数将每个值转换为0到1之间。
+本节中，我们考虑图片分类问题。我们使用一个类别为服饰的数据集Fashion-MNIST [1]。该数据集有10个类别，图片尺寸为$28 \times 28$。我们通过Gluon的`data`包来下载这个数据集。由于图片中每个像素的值在0到255之间，我们可以通过定义`transform`函数将每个值转换为0到1之间。
 
 ```{.python .input  n=2}
 def transform(feature, label):

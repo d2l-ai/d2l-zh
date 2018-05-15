@@ -247,4 +247,4 @@ optimize(batch_size=10, lr=0.002, num_epochs=3, decay_epoch=2,
 
 ## 参考文献
 
-[1] Stewart, J. (2010). Calculus: Early Transcendentals (7th Edition). Brooks Cole.
+[1] Stewart, James. “Calculus: Early Transcendentals (7th Edition).” Brooks Cole (2010).

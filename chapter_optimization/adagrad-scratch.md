@@ -138,4 +138,4 @@ optimize(batch_size=10, lr=0.9, num_epochs=3, log_interval=10)
 
 ## 参考文献
 
-[1] Duchi, J., Hazan, E., & Singer, Y. (2011). Adaptive Subgradient Methods for Online Learning and Stochastic Optimization. Journal of Machine Learning Research, 12(Jul), 2121-2159.
+[1] Duchi, John, Elad Hazan, and Yoram Singer. "Adaptive subgradient methods for online learning and stochastic optimization." Journal of Machine Learning Research 12.Jul (2011): 2121-2159.
