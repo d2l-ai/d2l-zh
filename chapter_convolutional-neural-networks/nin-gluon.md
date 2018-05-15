@@ -79,21 +79,20 @@ with net.name_scope():
 ```{.python .input  n=4}
 import sys
 sys.path.append('..')
-import utils
+import gluonbook as gb
 from mxnet import gluon
 from mxnet import init
 
-train_data, test_data = utils.load_data_fashion_mnist(
+train_data, test_data = gb.load_data_fashion_mnist(
     batch_size=64, resize=224)
 
-ctx = utils.try_gpu()
+ctx = gb.try_gpu()
 net.initialize(ctx=ctx, init=init.Xavier())
 
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
 trainer = gluon.Trainer(net.collect_params(),
                         'sgd', {'learning_rate': 0.1})
-utils.train(train_data, test_data, net, loss,
-            trainer, ctx, num_epochs=1)
+gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=1)
 ```
 
 ## 小结

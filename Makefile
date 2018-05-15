@@ -1,6 +1,6 @@
 all: html
 
-build/%.ipynb: %.md build/build.yml utils.py
+build/%.ipynb: %.md build/build.yml gluonbook/*
 	@mkdir -p $(@D)
 	cd $(@D); python ../md2ipynb.py ../../$< ../../$@
 

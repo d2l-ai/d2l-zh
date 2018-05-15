@@ -9,9 +9,9 @@
 ```{.python .input  n=1}
 import sys
 sys.path.append('..')
-import utils
+import gluonbook as gb
 batch_size = 256
-train_data, test_data = utils.load_data_fashion_mnist(batch_size)
+train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
 ```
 
 ## 多层感知机
@@ -76,7 +76,7 @@ def net(X):
 
 ```{.python .input  n=6}
 from mxnet import gluon
-softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
+loss = gluon.loss.SoftmaxCrossEntropyLoss()
 ```
 
 ## 训练
@@ -86,25 +86,11 @@ softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 ```{.python .input  n=8}
 from mxnet import autograd as autograd
 
-learning_rate = .5
+num_epochs = 5
+lr = 0.5
 
-for epoch in range(5):
-    train_loss = 0.
-    train_acc = 0.
-    for data, label in train_data:
-        with autograd.record():
-            output = net(data)
-            loss = softmax_cross_entropy(output, label)
-        loss.backward()
-        utils.SGD(params, learning_rate/batch_size)
-
-        train_loss += nd.mean(loss).asscalar()
-        train_acc += utils.accuracy(output, label)
-
-    test_acc = utils.evaluate_accuracy(test_data, net)
-    print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-        epoch, train_loss/len(train_data),
-        train_acc/len(train_data), test_acc))
+gb.train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
+             params, lr)
 ```
 
 ## 小结

@@ -38,16 +38,16 @@ with net.name_scope():
 ```{.python .input  n=3}
 import sys
 sys.path.append('..')
-import utils
+import gluonbook as gb
 from mxnet import autograd 
 from mxnet import gluon
 from mxnet import nd
 
-ctx = utils.try_gpu()
+ctx = gb.try_gpu()
 net.initialize(ctx=ctx)
 
 batch_size = 256
-train_data, test_data = utils.load_data_fashion_mnist(batch_size)
+train_data, test_data = gb.load_data_fashion_mnist(batch_size)
 
 softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.2})
@@ -64,8 +64,8 @@ for epoch in range(5):
         trainer.step(batch_size)
 
         train_loss += nd.mean(loss).asscalar()
-        train_acc += utils.accuracy(output, label)
-    test_acc = utils.evaluate_accuracy(test_data, net, ctx)
+        train_acc += gb.accuracy(output, label)
+    test_acc = gb.evaluate_accuracy(test_data, net, ctx)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
         epoch, train_loss/len(train_data), 
         train_acc/len(train_data), test_acc))

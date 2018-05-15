@@ -7,6 +7,8 @@ AlexNet在LeNet的基础上增加了三个卷基层。但他们在卷积窗口�
 VGG模型的最基础单位是连续数个相同的使用1填充的$3\times 3$卷基层后接上一个不重叠的$2\times 2$最大池化层。前者保持输出输出高宽，后者则对其减半。我们定义这个这个基础块叫`vgg_block`，它可以指定连续的卷基层个数和卷基层的输出通道数。
 
 ```{.python .input  n=1}
+import sys
+sys.path.append('..')
 import gluonbook as gb
 from mxnet import nd, init, gluon
 from mxnet.gluon import nn
@@ -21,7 +23,6 @@ def vgg_block(num_convs, num_channels):
 ```
 
 VGG网络同前一样由数个卷积层后接上数个全连接层构成。卷积层部分串联数个卷积块，其具体架构由`conv_arch`，即每个块的卷基层个数和输出通道，定义。全连接层则跟AlexNet一样使用3个全连接层。
-
 
 ```{.python .input  n=3}
 def vgg(conv_arch, num_outputs):

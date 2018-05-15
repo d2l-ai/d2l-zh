@@ -1,15 +1,14 @@
-from math import exp
-from mxnet import gluon
-from mxnet import autograd
-from mxnet import nd
-from mxnet import image
-from mxnet.gluon import nn
-import mxnet as mx
-import numpy as np
-from time import time
-import matplotlib.pyplot as plt
-import matplotlib as mpl
+from math import exp                                                                                                         
 import random
+from time import time
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import mxnet as mx
+from mxnet import autograd, gluon, image, nd
+from mxnet.gluon import nn, data as gdata, loss as gloss, utils as gutils
+import numpy as np
+
 
 class DataLoader(object):
     """similiar to gluon.data.DataLoader, but might be faster.
@@ -90,16 +89,18 @@ def try_all_gpus():
     return ctx_list
 
 def SGD(params, lr):
+    """DEPRECATED!"""
     for param in params:
         param[:] = param - lr * param.grad
 
 def sgd(params, lr, batch_size):
+    """Mini-batch stochastic gradient descent."""
     for param in params:
         param[:] = param - lr * param.grad / batch_size
 
 def accuracy(output, label):
-    return nd.mean(output.argmax(axis=1)==label).asscalar()
-
+    """Get accuracy."""
+    return (output.argmax(axis=1) == label).mean().asscalar()
 
 def _get_batch(batch, ctx):
     """return data and label on ctx"""
@@ -112,21 +113,53 @@ def _get_batch(batch, ctx):
             gluon.utils.split_and_load(label, ctx),
             data.shape[0])
 
-def evaluate_accuracy(data_iterator, net, ctx=[mx.cpu()]):
+
+def evaluate_accuracy_cpu(data_iter, net):
+    """Evaluate accuracy of a model on the given data set on CPU."""
+    acc = 0
+    for X, y in data_iter:
+        acc += accuracy(net(X), y)
+    return acc / len(data_iter)
+
+
+def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
+    """Evaluate accuracy of a model on the given data set."""
     if isinstance(ctx, mx.Context):
         ctx = [ctx]
     acc = nd.array([0])
-    n = 0.
-    if isinstance(data_iterator, mx.io.MXDataIter):
-        data_iterator.reset()
-    for batch in data_iterator:
-        data, label, batch_size = _get_batch(batch, ctx)
-        for X, y in zip(data, label):
+    n = 0
+    if isinstance(data_iter, mx.io.MXDataIter):
+        data_iter.reset()
+    for batch in data_iter:
+        features, labels, batch_size = _get_batch(batch, ctx)
+        for X, y in zip(features, labels):
             y = y.astype('float32')
-            acc += nd.sum(net(X).argmax(axis=1)==y).copyto(mx.cpu())
+            acc += (net(X).argmax(axis=1)==y).sum().copyto(mx.cpu())
             n += y.size
-        acc.wait_to_read() # don't push too many operators into backend
+        acc.wait_to_read() 
     return acc.asscalar() / n
+
+
+def train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
+              params=None, lr=None, trainer=None):
+    for epoch in range(1, num_epochs + 1): 
+        train_l_sum = 0 
+        train_acc_sum = 0 
+        for X, y in train_iter:
+            with autograd.record():
+                y_hat = net(X)
+                l = loss(y_hat, y)
+            l.backward()
+            if trainer is None:
+                sgd(params, lr, batch_size)
+            else:
+                trainer.step(batch_size)
+            train_l_sum += l.mean().asscalar()
+            train_acc_sum += accuracy(y_hat, y)
+        test_acc = evaluate_accuracy_cpu(test_iter, net)
+        print("epoch %d, loss %f, train acc %f, test acc %f" 
+              % (epoch, train_l_sum / len(train_iter),
+                 train_acc_sum / len(train_iter), test_acc))
 
 
 def train(train_data, test_data, net, loss, trainer, ctx, num_epochs, print_batches=None):
@@ -352,60 +385,60 @@ def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim,
                       is_lstm))
             print()
 
+
 def set_fig_size(mpl, figsize=(3.5, 2.5)):
-    """为matplotlib生成的图片设置大小。"""
+    """Set size for the matplotlib figure."""
     mpl.rcParams['figure.figsize'] = figsize
 
 
-def data_iter(batch_size, num_examples, X, y):
-    """遍历数据集。"""
-    idx = list(range(num_examples))
-    random.shuffle(idx)
+def data_iter(batch_size, num_examples, features, labels):
+    """Iterate through a data set."""
+    indices = list(range(num_examples))
+    random.shuffle(indices)
     for i in range(0, num_examples, batch_size):
-        j = nd.array(idx[i: min(i + batch_size, num_examples)])
-        yield X.take(j), y.take(j)
+        j = nd.array(indices[i: min(i + batch_size, num_examples)])
+        yield features.take(j), labels.take(j)
 
 
 def linreg(X, w, b):
-    """线性回归模型。"""
+    """Linear regression."""
     return nd.dot(X, w) + b
 
 
-def squared_loss(yhat, y):
-    """平方损失函数。"""
-    return (yhat - y.reshape(yhat.shape)) ** 2 / 2
+def squared_loss(y_hat, y):
+    """Squared loss."""
+    return (y_hat - y.reshape(y_hat.shape)) ** 2 / 2
 
 
-def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval, X, y,
-             net):
-    """优化目标函数。"""
-    dataset = gluon.data.ArrayDataset(X, y)
-    data_iter = gluon.data.DataLoader(dataset, batch_size, shuffle=True)
-    square_loss = gluon.loss.L2Loss()
-    y_vals = [square_loss(net(X), y).mean().asnumpy()]
-    for epoch in range(1, num_epochs + 1): 
-        # 学习率自我衰减。
+def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval,
+             features, labels, net):
+    """Optimize an objective function."""
+    dataset = gdata.ArrayDataset(features, labels)
+    data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
+    loss = gloss.L2Loss()
+    ls = [loss(net(features), labels).mean().asnumpy()]
+    for epoch in range(1, num_epochs + 1):
+        # Decay the learning rate.
         if decay_epoch and epoch > decay_epoch:
             trainer.set_learning_rate(trainer.learning_rate * 0.1)
-        for batch_i, (features, label) in enumerate(data_iter):
+        for batch_i, (X, y) in enumerate(data_iter):
             with autograd.record():
-                output = net(features)
-                loss = square_loss(output, label)
-            loss.backward()
+                l = loss(net(X), y)
+            l.backward()
             trainer.step(batch_size)
             if batch_i * batch_size % log_interval == 0:
-                y_vals.append(square_loss(net(X), y).mean().asnumpy())
+                ls.append(loss(net(features), labels).mean().asnumpy())
+    # To print more conveniently, use numpy.
     print('w:', net[0].weight.data(), '\nb:', net[0].bias.data(), '\n')
-    x_vals = np.linspace(0, num_epochs, len(y_vals), endpoint=True)
-    semilogy(x_vals, y_vals, 'epoch', 'loss')
+    es = np.linspace(0, num_epochs, len(ls), endpoint=True)
+    semilogy(es, ls, 'epoch', 'loss')
 
 
 def semilogy(x_vals, y_vals, x_label, y_label, figsize=(3.5, 2.5)):
-    """绘图（y取对数）。"""		
+    """Plot x and log(y)."""
     set_fig_size(mpl, figsize)
     plt.semilogy(x_vals, y_vals)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.show()
-
 

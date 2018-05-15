@@ -51,6 +51,8 @@ GPU的到来改变了格局。很久以来，GPU都是为了图像处理和计�
 下面我们实现（稍微简化过的）Alexnet：
 
 ```{.python .input}
+import sys
+sys.path.append('..')
 import gluonbook as gb
 from mxnet import nd, init, gluon
 from mxnet.gluon import nn

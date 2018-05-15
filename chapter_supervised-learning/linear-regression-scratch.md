@@ -25,14 +25,6 @@ import numpy as np
 import random
 ```
 
-在本书中，我们会将重复使用的函数定义在[utils.py](../utils.py)中。对于里面大部分较重要的函数，我们会在第一次使用时描述它是如何实现的，例如本节中的`sgd`函数。
-
-```{.python .input}
-import sys
-sys.path.append('..')
-import utils
-```
-
 ## 生成数据集
 
 我们在这里描述用来生成人工训练数据集的真实模型。
@@ -62,10 +54,15 @@ print(features[0], labels[0])
 通过生成第二个特征`features[:, 1]`和标签 `labels` 的散点图，我们可以更直观地观察两者间的线性关系。
 
 ```{.python .input  n=4}
-utils.set_fig_size(mpl)
+def set_fig_size(mpl, figsize=(3.5, 2.5)):
+    mpl.rcParams['figure.figsize'] = figsize
+
+set_fig_size(mpl)
 plt.scatter(features[:, 1].asnumpy(), labels.asnumpy(), 1)
 plt.show()
 ```
+
+我们将该函数定义在`gluonbook`包中供后面章节调用。
 
 ## 读取数据
 
@@ -133,6 +130,9 @@ def sgd(params, lr, batch_size):
     for param in params:
         param[:] = param - lr * param.grad / batch_size
 ```
+
+我们将该函数定义在`gluonbook`包中供后面章节调用。
+
 
 ## 训练模型
 

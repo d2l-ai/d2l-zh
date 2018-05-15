@@ -132,8 +132,8 @@ def batch_norm(X, gamma, beta, is_training, moving_mean, moving_variance,
 ```{.python .input  n=8}
 import sys
 sys.path.append('..')
-import utils
-ctx = utils.try_gpu()
+import gluonbook as gb
+ctx = gb.try_gpu()
 ctx
 ```
 
@@ -226,7 +226,7 @@ from mxnet import autograd
 from mxnet import gluon
 
 batch_size = 256
-train_data, test_data = utils.load_data_fashion_mnist(batch_size)
+train_data, test_data = gb.load_data_fashion_mnist(batch_size)
 
 softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 
@@ -241,12 +241,12 @@ for epoch in range(5):
             output = net(data, is_training=True)
             loss = softmax_cross_entropy(output, label)
         loss.backward()
-        utils.SGD(params, learning_rate/batch_size)
+        gb.SGD(params, learning_rate/batch_size)
 
         train_loss += nd.mean(loss).asscalar()
-        train_acc += utils.accuracy(output, label)
+        train_acc += gb.accuracy(output, label)
 
-    test_acc = utils.evaluate_accuracy(test_data, net, ctx)
+    test_acc = gb.evaluate_accuracy(test_data, net, ctx)
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
             epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
 ```
