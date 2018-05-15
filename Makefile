@@ -1,6 +1,6 @@
 all: html
 
-build/%.ipynb: %.md build/build.yml gluonbook/*
+build/%.ipynb: %.md build/build.yml $(wildcard gluonbook/*)
 	@mkdir -p $(@D)
 	cd $(@D); python ../md2ipynb.py ../../$< ../../$@
 
@@ -14,7 +14,7 @@ NOTEBOOK = $(filter-out $(MARKDOWN), $(wildcard chapter*/*.md))
 OBJ = $(patsubst %.md, build/%.md, $(MARKDOWN)) \
 	$(patsubst %.md, build/%.ipynb, $(NOTEBOOK))
 
-ORIGN_DEPS = $(wildcard img/* data/*) environment.yml utils.py README.md
+ORIGN_DEPS = $(wildcard img/* data/* gluonbook/*) environment.yml README.md
 DEPS = $(patsubst %, build/%, $(ORIGN_DEPS))
 
 PKG = build/_build/html/gluon_tutorials_zh.tar.gz build/_build/html/gluon_tutorials_zh.zip
