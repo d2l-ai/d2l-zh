@@ -6,5 +6,10 @@ code, .rst-content tt, .rst-content code {
     display: block;
     margin-left: auto;
     margin-right: auto;
-    width: 80%;
+    /* resize image to 1.5x larger, because HTML uses larger fonts than pdf */
+    -moz-transform: scale(1.5);
+    -ms-transform: scale(1.5);
+    -o-transform: scale(1.5);
+    -webkit-transform: scale(1.5);
+    transform: scale(1.5);
 }
