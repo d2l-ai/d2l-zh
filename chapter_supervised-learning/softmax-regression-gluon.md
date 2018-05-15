@@ -51,7 +51,7 @@ trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.1})
 num_epochs = 5
 
 gb.train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size, None,
-             trainer)
+             None, trainer)
 ```
 
 ## 小结
