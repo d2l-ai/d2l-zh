@@ -244,12 +244,13 @@ latex_elements = {
     'babel'     : r'''\usepackage[english]{babel}''',
     'preamble' : r'''
 \usepackage{ctex}
-\setmonofont{DejaVu Sans Mono}
-\setmainfont{DejaVu Serif}
-\setsansfont{DejaVu Sans}
-\setCJKmainfont{Source Han Serif SC Medium}
-\setCJKsansfont{Source Han Sans HW SC}
-\setCJKmonofont{Source Han Sans HW SC}
+\setmainfont{Source Serif Pro}
+\setsansfont{Source Sans Pro}
+\setmonofont{Source Code Pro}
+\setCJKmainfont[BoldFont=Source Han Serif SC SemiBold]{Source Han Serif SC}
+\setCJKsansfont[BoldFont=Source Han Sans SC Medium]{Source Han Sans SC Normal}
+\setCJKmonofont{Source Han Sans SC Normal}
+
 
 \addto\captionsenglish{\renewcommand{\chaptername}{}}
 \addto\captionsenglish{\renewcommand{\contentsname}{目录}}
@@ -258,14 +259,14 @@ latex_elements = {
 \fvset{breaklines=true, breakanywhere=true}
 \setlength{\headheight}{13.6pt}
 
-\makeatletter 
-    \fancypagestyle{normal}{ 
-        \fancyhf{} 
-        \fancyfoot[LE,RO]{{\py@HeaderFamily\thepage}} 
-        \fancyfoot[LO]{{\py@HeaderFamily\nouppercase{\rightmark}}} 
-        \fancyfoot[RE]{{\py@HeaderFamily\nouppercase{\leftmark}}} 
+\makeatletter
+    \fancypagestyle{normal}{
+        \fancyhf{}
+        \fancyfoot[LE,RO]{{\py@HeaderFamily\thepage}}
+        \fancyfoot[LO]{{\py@HeaderFamily\nouppercase{\rightmark}}}
+        \fancyfoot[RE]{{\py@HeaderFamily\nouppercase{\leftmark}}}
         \fancyhead[LE,RO]{{\py@HeaderFamily }}
-     } 
+     }
 \makeatother
 ''',
 # The paper size ('letterpaper' or 'a4paper').
