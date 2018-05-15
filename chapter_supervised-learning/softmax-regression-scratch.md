@@ -13,7 +13,9 @@ from mxnet.gluon import data as gdata
 
 ## 获取Fashion-MNIST数据集
 
-本节中，我们考虑图片分类问题。我们使用一个类别为服饰的数据集Fashion-MNIST [1]。该数据集有10个类别，图片尺寸为$28 \times 28$。我们通过Gluon的`data`包来下载这个数据集。由于图片中每个像素的值在0到255之间，我们可以通过定义`transform`函数将每个值转换为0到1之间。
+本节中，我们考虑图片分类问题。我们使用一个类别为服饰的数据集Fashion-MNIST [1]。该数据集中，图片尺寸为$28 \times 28$，一共包括了10个类别，分别为：t-shirt（T恤）、trouser（裤子）、pullover（套衫）、dress（连衣裙）、coat（外套）、sandal（凉鞋）、shirt（衬衫）、sneaker（运动鞋）、bag（包）和ankle boot（短靴）。
+
+下面，我们通过Gluon的`data`包来下载这个数据集。由于图片中每个像素的值在0到255之间，我们可以通过定义`transform`函数将每个值转换为0到1之间。
 
 ```{.python .input  n=2}
 def transform(feature, label):
@@ -23,16 +25,27 @@ mnist_train = gdata.vision.FashionMNIST(train=True, transform=transform)
 mnist_test = gdata.vision.FashionMNIST(train=False, transform=transform)
 ```
 
-打印一个样本的形状和它的标号
+打印一个样本的形状和它的标签看看。
 
 ```{.python .input  n=3}
 feature, label = mnist_train[0]
 'feature shape: ', feature.shape, 'label: ', label
 ```
 
-我们画出前几个样本的内容，和对应的文本标号
+注意到上面的标签是个数字。以下函数可以将数字标签转成相应的文本标签。
 
 ```{.python .input  n=4}
+def get_text_labels(labels):
+    text_labels = [
+        't-shirt', 'trouser', 'pullover', 'dress', 'coat',
+        'sandal', 'shirt', 'sneaker', 'bag', 'ankle boot'
+    ]
+    return [text_labels[int(i)] for i in labels]
+```
+
+我们再定义一个函数来描绘图片内容。
+
+```{.python .input  n=5}
 def show_fashion_imgs(images):
     n = images.shape[0]
     _, figs = plt.subplots(1, n, figsize=(15, 15))
@@ -43,14 +56,7 @@ def show_fashion_imgs(images):
     plt.show()
 ```
 
-```{.python .input  n=5}
-def get_text_labels(labels):
-    text_labels = [
-        't-shirt', 'trouser', 'pullover', 'dress,', 'coat',
-        'sandal', 'shirt', 'sneaker', 'bag', 'ankle boot'
-    ]
-    return [text_labels[int(i)] for i in labels]
-```
+现在，我们看一下训练数据集中前9个样本的图片内容和文本标签。
 
 ```{.python .input  n=6}
 X, y = mnist_train[0:9]
@@ -194,29 +200,6 @@ def train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
                  train_acc_sum / len(train_iter), test_acc))
 
 train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size, lr)
-```
-
-```{.python .input}
-def train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
-              lr=None, trainer=None):
-    for epoch in range(1, num_epochs + 1):
-        train_l_sum = 0
-        train_acc_sum = 0
-        for X, y in train_iter:
-            with autograd.record():
-                y_hat = net(X)
-                l = loss(y_hat, y)
-            l.backward()
-            if trainer is None:
-                sgd(params, lr, batch_size)
-            else:
-                trainer.step(batch_size)
-            train_l_sum += l.mean().asscalar()
-            train_acc_sum += accuracy(y_hat, y)
-        test_acc = evaluate_accuracy_cpu(test_iter, net)
-        print("epoch %d, loss %f, train acc %f, test acc %f" 
-              % (epoch, train_l_sum / len(train_iter),
-                 train_acc_sum / len(train_iter), test_acc))
 ```
 
 ## 预测
