@@ -46,15 +46,25 @@ sudo apt-get install librsvg2-bin
 ```
 
 ```{.python .input}
-wget https://github.com/adobe-fonts/source-han-sans/raw/release/OTF/SourceHanSansHWSC.zip
+wget https://github.com/adobe-fonts/source-han-sans/raw/release/OTF/SourceHanSansSC.zip
+wget https://github.com/adobe-fonts/source-han-serif/raw/release/OTF/SourceHanSerifSC_SB-H.zip
 wget https://github.com/adobe-fonts/source-han-serif/raw/release/OTF/SourceHanSerifSC_EL-M.zip
-unzip SourceHanSansHWSC.zip
+
+unzip SourceHanSansSC.zip
 unzip SourceHanSerifSC_EL-M.zip
-sudo mv SourceHanSansHWSC SourceHanSerifSC_EL-M /usr/share/fonts/opentype/
+unzip SourceHanSerifSC_SB-H.zip
+
+sudo mv SourceHanSansSC SourceHanSerifSC_EL-M SourceHanSerifSC_SB-H /usr/share/fonts/opentype/
 sudo fc-cache -f -v
 ```
 
 这时候可以通过 `fc-list :lang=zh` 来查看安装的中文字体。
+
+同样的去下载和安装英文字体
+
+https://www.fontsquirrel.com/fonts/source-code-pro
+https://www.fontsquirrel.com/fonts/source-serif-pro
+https://www.fontsquirrel.com/fonts/source-sans-pro
 
 然后可以编译了。
 
