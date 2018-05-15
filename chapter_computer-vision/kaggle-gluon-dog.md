@@ -254,7 +254,7 @@ def get_net(ctx):
 import datetime
 import sys
 sys.path.append('..')
-import utils
+import gluonbook as gb
 
 def get_loss(data, net, ctx):
     loss = 0.0
@@ -310,7 +310,7 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
 另外，微调一个预训练模型往往不需要特别久的额外训练。依据下面的参数设置，优化算法的学习率设为0.01，并将在每10个epoch自乘0.1。
 
 ```{.python .input  n=9}
-ctx = utils.try_gpu()
+ctx = gb.try_gpu()
 num_epochs = 1
 learning_rate = 0.01
 weight_decay = 1e-4

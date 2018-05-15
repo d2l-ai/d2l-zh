@@ -26,13 +26,13 @@
 ```{.python .input  n=1}
 %matplotlib inline
 %config InlineBackend.figure_format = 'retina'
+import sys
+sys.path.append('..')
+import gluonbook as gb
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 import numpy as np
-import sys
-sys.path.append('..')
-import utils
 ```
 
 ### 局部最小值
@@ -49,7 +49,7 @@ $$f(x) = x \cdot \text{cos}(\pi x), \qquad -1.0 \leq x \leq 2.0,$$
 def f(x):
     return x * np.cos(np.pi * x)
 
-utils.set_fig_size(mpl, (4.5, 2.5))
+gb.set_fig_size(mpl, (4.5, 2.5))
 x = np.arange(-1.0, 2.0, 0.1)
 fig = plt.figure()
 subplt = fig.add_subplot(111)

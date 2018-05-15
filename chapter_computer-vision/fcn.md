@@ -66,7 +66,7 @@ imgs = []
 for i in range(3):
     imgs += [train_images[i], train_labels[i]]
 
-utils.show_images(imgs, nrows=3, ncols=2, figsize=(12,8))
+gb.show_images(imgs, nrows=3, ncols=2, figsize=(12,8))
 [im.shape for im in imgs]
 ```
 
@@ -85,7 +85,7 @@ for _ in range(3):
     imgs += rand_crop(train_images[0], train_labels[0],
                       200, 300)
 
-utils.show_images(imgs, nrows=3, ncols=2, figsize=(12,8))
+gb.show_images(imgs, nrows=3, ncols=2, figsize=(12,8))
 ```
 
 接下来我们列出每个物体和背景对应的RGB值
@@ -332,18 +332,17 @@ conv_trans.weight.set_data(bilinear_kernel(*shape[0:3]))
 ```{.python .input}
 import sys
 sys.path.append('..')
-import utils
+import gluonbook as gb
 
 loss = gluon.loss.SoftmaxCrossEntropyLoss(axis=1)
 
-ctx = utils.try_all_gpus()
+ctx = gb.try_all_gpus()
 net.collect_params().reset_ctx(ctx)
 
 trainer = gluon.Trainer(net.collect_params(),
                         'sgd', {'learning_rate': .1, 'wd':1e-3})
 
-utils.train(train_data, test_data, net, loss,
-            trainer, ctx, num_epochs=10)
+gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=10)
 ```
 
 ## 预测
@@ -376,7 +375,7 @@ for i in range(n):
     pred = label2image(predict(x))
     imgs += [x, pred, test_labels[i]]
 
-utils.show_images(imgs, nrows=n, ncols=3, figsize=(6,10))
+gb.show_images(imgs, nrows=n, ncols=3, figsize=(6,10))
 ```
 
 ## 小结

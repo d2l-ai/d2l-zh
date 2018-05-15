@@ -103,9 +103,9 @@ import mxnet as mx
 # 尝试使用GPU
 import sys
 sys.path.append('..')
+import gluonbook as gb
 from mxnet import nd
-import utils
-ctx = utils.try_gpu()
+ctx = gb.try_gpu()
 print('Will use', ctx)
 
 input_dim = vocab_size
@@ -183,15 +183,15 @@ seq2 = '不分开'
 seq3 = '战争中部队'
 seqs = [seq1, seq2, seq3]
 
-utils.train_and_predict_rnn(rnn=lstm_rnn, is_random_iter=False, epochs=200,
-                            num_steps=35, hidden_dim=hidden_dim, 
-                            learning_rate=0.2, clipping_norm=5,
-                            batch_size=32, pred_period=20, pred_len=100,
-                            seqs=seqs, get_params=get_params,
-                            get_inputs=get_inputs, ctx=ctx,
-                            corpus_indices=corpus_indices,
-                            idx_to_char=idx_to_char, char_to_idx=char_to_idx,
-                            is_lstm=True)
+gb.train_and_predict_rnn(rnn=lstm_rnn, is_random_iter=False, epochs=200,
+                         num_steps=35, hidden_dim=hidden_dim, 
+                         learning_rate=0.2, clipping_norm=5,
+                         batch_size=32, pred_period=20, pred_len=100,
+                         seqs=seqs, get_params=get_params,
+                         get_inputs=get_inputs, ctx=ctx,
+                         corpus_indices=corpus_indices,
+                         idx_to_char=idx_to_char, char_to_idx=char_to_idx,
+                         is_lstm=True)
 ```
 
 可以看到一开始学到简单的字符，然后简单的词，接着是复杂点的词，然后看上去似乎像个句子了。

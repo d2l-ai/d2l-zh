@@ -246,11 +246,11 @@ def train(x, max_epochs, lr, lr_decay_epoch=200):
 ```{.python .input  n=19}
 import sys
 sys.path.append('..')
-import utils
+import gluonbook as gb
 
 image_shape = (300,200)
 
-ctx = utils.try_gpu()
+ctx = gb.try_gpu()
 net.collect_params().reset_ctx(ctx)
 
 content_x, content_y = get_contents(image_shape)

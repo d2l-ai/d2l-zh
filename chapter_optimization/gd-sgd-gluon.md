@@ -7,13 +7,13 @@
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
 %matplotlib inline
+import sys
+sys.path.append('..')
+import gluonbook as gb
 import mxnet as mx
 from mxnet import autograd, gluon, nd
 from mxnet.gluon import nn, data as gdata, loss as gloss
 import numpy as np
-import sys
-sys.path.append('..')
-import utils
 ```
 
 下面生成实验数据集并定义线性回归模型。
@@ -57,7 +57,7 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval,
     # 为了便于打印，改变输出形状并转化成numpy数组。
     print('w:', net[0].weight.data(), '\nb:', net[0].bias.data(), '\n')
     es = np.linspace(0, num_epochs, len(ls), endpoint=True)
-    utils.semilogy(es, ls, 'epoch', 'loss')
+    gb.semilogy(es, ls, 'epoch', 'loss')
 ```
 
 以下几组实验分别重现了["梯度下降和随机梯度下降——从零开始"](gd-sgd-scratch.md)一节中实验结果。

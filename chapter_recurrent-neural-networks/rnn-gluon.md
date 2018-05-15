@@ -174,8 +174,8 @@ eval_period = 500
 # 尝试使用GPU
 import sys
 sys.path.append('..')
-import utils
-context = utils.try_gpu()
+import gluonbook as gb
+context = gb.try_gpu()
 
 def batchify(data, batch_size):
     """数据形状 (num_batches, batch_size)"""

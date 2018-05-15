@@ -213,8 +213,8 @@ import mxnet as mx
 # 尝试使用GPU
 import sys
 sys.path.append('..')
-import utils
-ctx = utils.try_gpu()
+import gluonbook as gb
+ctx = gb.try_gpu()
 print('Will use', ctx)
 
 input_dim = vocab_size
@@ -410,7 +410,7 @@ def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim,
             loss.backward()
 
             grad_clipping(params, clipping_theta, ctx)
-            utils.SGD(params, learning_rate)
+            gb.SGD(params, learning_rate)
 
             train_loss += nd.sum(loss).asscalar()
             num_examples += loss.size

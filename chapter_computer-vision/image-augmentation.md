@@ -21,7 +21,7 @@ plt.imshow(img.asnumpy())
 from mxnet import nd
 import sys
 sys.path.append('..')
-import utils
+import gluonbook as gb
 
 def apply(img, aug, n=3):
     # 转成float，一是因为aug需要float类型数据来方便做变化。
@@ -31,7 +31,7 @@ def apply(img, aug, n=3):
     # 有些aug不保证输入是合法值，所以做一次clip
     # 显示浮点图片时imshow要求输入在[0,1]之间
     Y = nd.stack(*X).clip(0,255)/255
-    utils.show_images(Y, n, n, figsize=(8,8))
+    gb.show_images(Y, n, n, figsize=(8,8))
 ```
 
 ### 变形
@@ -136,9 +136,9 @@ def get_data(batch_size, train_augs, test_augs=None):
         train=True, transform=get_transform(train_augs))
     cifar10_test = gluon.data.vision.CIFAR10(
         train=False, transform=get_transform(test_augs))
-    train_data = utils.DataLoader(
+    train_data = gb.DataLoader(
         cifar10_train, batch_size, shuffle=True)
-    test_data = utils.DataLoader(
+    test_data = gb.DataLoader(
         cifar10_test, batch_size, shuffle=False)
     return (train_data, test_data)
 ```
@@ -149,7 +149,7 @@ def get_data(batch_size, train_augs, test_augs=None):
 train_data, _ = get_data(36, train_augs)
 for imgs, _ in train_data:
     break
-utils.show_images(imgs.transpose((0,2,3,1)), 6, 6)
+gb.show_images(imgs.transpose((0,2,3,1)), 6, 6)
 ```
 
 ```{.python .input  n=12}
@@ -166,17 +166,16 @@ from mxnet import init
 def train(train_augs, test_augs, learning_rate=.1):
     batch_size = 128
     num_epochs = 10
-    ctx = utils.try_all_gpus()
+    ctx = gb.try_all_gpus()
     loss = gluon.loss.SoftmaxCrossEntropyLoss()    
     train_data, test_data = get_data(
         batch_size, train_augs, test_augs)
-    net = utils.resnet18(10) 
+    net = gb.resnet18(10) 
     net.initialize(ctx=ctx, init=init.Xavier())
     net.hybridize()
     trainer = gluon.Trainer(net.collect_params(),
                             'sgd', {'learning_rate': learning_rate})
-    utils.train(
-        train_data, test_data, net, loss, trainer, ctx, num_epochs)
+    gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs)
 ```
 
 使用增广：

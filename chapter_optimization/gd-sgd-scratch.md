@@ -117,13 +117,13 @@ def sgd(params, lr, batch_size):
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
 %matplotlib inline
+import sys
+sys.path.append('..')
+import gluonbook as gb
 import mxnet as mx
 from mxnet import autograd, nd
 import numpy as np
 import random
-import sys
-sys.path.append('..')
-import utils
 ```
 
 实验中，我们以之前介绍过的线性回归为例。设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。该模型的平方损失函数即所需优化的目标函数，模型参数即目标函数自变量。
@@ -191,7 +191,7 @@ def optimize(batch_size, lr, num_epochs, log_interval, decay_epoch):
                 ls.append(loss(net(features, w, b), labels).mean().asnumpy())
     print('w:', w, '\nb:', b, '\n')
     es = np.linspace(0, num_epochs, len(ls), endpoint=True)
-    utils.semilogy(es, ls, 'epoch', 'loss')
+    gb.semilogy(es, ls, 'epoch', 'loss')
 ```
 
 当批量大小为1时，优化使用的是随机梯度下降。在当前学习率下，损失函数值在早期快速下降后略有波动。这是由于随机梯度的方差在迭代过程中无法减小。当迭代周期大于2，学习率自我衰减后，损失函数值下降后较平稳。最终，优化所得的模型参数值`w`和`b`与它们的真实值[2, -3.4]和4.2较接近。

@@ -7,12 +7,12 @@
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
 %matplotlib inline
+import sys
+sys.path.append('..')
+import gluonbook as gb
 import mxnet as mx
 from mxnet import gluon, nd
 from mxnet.gluon import nn
-import sys
-sys.path.append('..')
-import utils
 ```
 
 下面生成实验数据集并定义线性回归模型。
@@ -37,8 +37,8 @@ net.add(nn.Dense(1))
 ```{.python .input  n=3}
 net.initialize(mx.init.Normal(sigma=1), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': 0.1})
-utils.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
-               log_interval=10, features=features, labels=labels, net=net)
+gb.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
+            log_interval=10, features=features, labels=labels, net=net)
 ```
 
 ## 小结

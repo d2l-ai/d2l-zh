@@ -66,12 +66,12 @@ def adam(params, vs, sqrs, lr, batch_size, t):
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
 %matplotlib inline
+import sys
+sys.path.append('..')
+import gluonbook as gb
 import mxnet as mx
 from mxnet import autograd, nd
 import numpy as np
-import sys
-sys.path.append('..')
-import utils
 ```
 
 实验中，我们依然以线性回归为例。设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。该模型的平方损失函数即所需优化的目标函数，模型参数即目标函数自变量。
@@ -106,8 +106,8 @@ def init_params():
 优化函数`optimize`与[“Adagrad——从零开始”](adagrad-scratch.md)一节中的类似。
 
 ```{.python .input  n=2}
-net = utils.linreg
-loss = utils.squared_loss
+net = gb.linreg
+loss = gb.squared_loss
 
 def optimize(batch_size, lr, num_epochs, log_interval):
     [w, b], vs, sqrs = init_params()
@@ -115,7 +115,7 @@ def optimize(batch_size, lr, num_epochs, log_interval):
     t = 0
     for epoch in range(1, num_epochs + 1):
         for batch_i, (X, y) in enumerate(
-            utils.data_iter(batch_size, num_examples, features, labels)):
+            gb.data_iter(batch_size, num_examples, features, labels)):
             with autograd.record():
                 l = loss(net(X, w, b), y)
             l.backward()
@@ -126,7 +126,7 @@ def optimize(batch_size, lr, num_epochs, log_interval):
                 ls.append(loss(net(features, w, b), labels).mean().asnumpy())
     print('w:', w, '\nb:', b, '\n')
     es = np.linspace(0, num_epochs, len(ls), endpoint=True)
-    utils.semilogy(es, ls, 'epoch', 'loss')
+    gb.semilogy(es, ls, 'epoch', 'loss')
 ```
 
 最终，优化所得的模型参数值与它们的真实值较接近。

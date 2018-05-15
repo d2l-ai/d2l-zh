@@ -75,7 +75,7 @@ def transform(data, label, augs):
 %matplotlib inline
 import sys
 sys.path.append('..')
-import utils
+import gluonbook as gb
 
 train_imgs = gluon.data.vision.ImageFolderDataset(
     data_dir+'/hotdog/train',
@@ -87,7 +87,7 @@ test_imgs = gluon.data.vision.ImageFolderDataset(
 data = gluon.data.DataLoader(train_imgs, 32, shuffle=True)
 for X, _ in data:
     X = X.transpose((0,2,3,1)).clip(0,255)/255
-    utils.show_images(X, 4, 8)
+    gb.show_images(X, 4, 8)
     break
 ```
 
@@ -138,13 +138,13 @@ def train(net, ctx, batch_size=64, epochs=10, learning_rate=0.01, wd=0.001):
     # 训练
     trainer = gluon.Trainer(net.collect_params(), 'sgd', {
         'learning_rate': learning_rate, 'wd': wd})
-    utils.train(train_data, test_data, net, loss, trainer, ctx, epochs)
+    gb.train(train_data, test_data, net, loss, trainer, ctx, epochs)
 ```
 
 现在我们可以训练了。
 
 ```{.python .input  n=10}
-ctx = utils.try_all_gpus()
+ctx = gb.try_all_gpus()
 train(finetune_net, ctx)
 ```
 

@@ -20,13 +20,13 @@
 为了从零开始实现多GPU训练中的数据并行，让我们先导入需要的包或模块。
 
 ```{.python .input}
+import sys
+sys.path.append('..')
+import gluonbook as gb
 import mxnet as mx
 from mxnet import autograd, nd
 from mxnet.gluon import loss as gloss
-import sys
 from time import time
-sys.path.append('..')
-import utils
 ```
 
 ## 定义模型
@@ -149,7 +149,7 @@ def train_batch(X, y, gpu_params, ctx, lr):
         allreduce([gpu_params[c][i].grad for c in range(len(ctx))])
     # 在各个 GPU 上更新自己维护的那一份完整的模型参数。
     for param in gpu_params:
-        utils.sgd(param, lr, X.shape[0])
+        gb.sgd(param, lr, X.shape[0])
 ```
 
 ## 训练函数
@@ -158,7 +158,7 @@ def train_batch(X, y, gpu_params, ctx, lr):
 
 ```{.python .input  n=7}
 def train(num_gpus, batch_size, lr):
-    train_iter, test_iter = utils.load_data_fashion_mnist(batch_size)
+    train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
     ctx = [mx.gpu(i) for i in range(num_gpus)]
     print('running on:', ctx)
     # 将模型参数复制到 num_gpus 个 GPU 上。
@@ -172,7 +172,7 @@ def train(num_gpus, batch_size, lr):
         print('epoch %d, time: %.1f sec' % (epoch, time() - start))
         # 在 GPU0 上验证模型。
         net = lambda x: lenet(x, gpu_params[0])
-        test_acc = utils.evaluate_accuracy(test_iter, net, ctx[0])
+        test_acc = gb.evaluate_accuracy(test_iter, net, ctx[0])
         print('validation accuracy: %.4f' % test_acc)
 ```
 

@@ -283,7 +283,7 @@ def get_net(ctx):
 import datetime
 import sys
 sys.path.append('..')
-import utils
+import gluonbook as gb
 
 def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period, lr_decay):
     trainer = gluon.Trainer(
@@ -303,13 +303,13 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period, lr_de
             loss.backward()
             trainer.step(batch_size)
             train_loss += nd.mean(loss).asscalar()
-            train_acc += utils.accuracy(output, label)
+            train_acc += gb.accuracy(output, label)
         cur_time = datetime.datetime.now()
         h, remainder = divmod((cur_time - prev_time).seconds, 3600)
         m, s = divmod(remainder, 60)
         time_str = "Time %02d:%02d:%02d" % (h, m, s)
         if valid_data is not None:
-            valid_acc = utils.evaluate_accuracy(valid_data, net, ctx)
+            valid_acc = gb.evaluate_accuracy(valid_data, net, ctx)
             epoch_str = ("Epoch %d. Loss: %f, Train acc %f, Valid acc %f, "
                          % (epoch, train_loss / len(train_data),
                             train_acc / len(train_data), valid_acc))
@@ -326,7 +326,7 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period, lr_de
 我们将依据验证集的结果不断优化模型设计和调整参数。依据下面的参数设置，优化算法的学习率将在每80个epoch自乘0.1。
 
 ```{.python .input  n=8}
-ctx = utils.try_gpu()
+ctx = gb.try_gpu()
 num_epochs = 1
 learning_rate = 0.1
 weight_decay = 5e-4
