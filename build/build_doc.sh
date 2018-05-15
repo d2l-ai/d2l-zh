@@ -8,8 +8,7 @@ set -e
 conda env update -f build/build.yml
 
 source activate gluon_zh_docs
-pip uninstall gluonbook
-yes
+yes | pip uninstall gluonbook
 
 pip list
 
