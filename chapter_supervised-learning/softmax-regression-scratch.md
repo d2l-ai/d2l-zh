@@ -25,8 +25,6 @@ mnist_train = gdata.vision.FashionMNIST(train=True, transform=transform)
 mnist_test = gdata.vision.FashionMNIST(train=False, transform=transform)
 ```
 
-我们将上面获取Fashion-MNIST的逻辑封装在`gluonbook.load_data_fashion_mnist`函数中供后面章节调用。
-
 打印一个样本的形状和它的标签看看。
 
 ```{.python .input  n=3}
@@ -77,6 +75,8 @@ test_iter = gdata.DataLoader(mnist_test, batch_size, shuffle=False)
 ```
 
 注意到这里我们需要每次从训练数据里读取一个由随机样本组成的小批量，但测试数据则无需如此。
+
+我们将获取并读取Fashion-MNIST数据集的逻辑封装在`gluonbook.load_data_fashion_mnist`函数中供后面章节调用。
 
 
 ## 初始化模型参数
