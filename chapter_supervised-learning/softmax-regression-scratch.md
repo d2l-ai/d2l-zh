@@ -25,6 +25,8 @@ mnist_train = gdata.vision.FashionMNIST(train=True, transform=transform)
 mnist_test = gdata.vision.FashionMNIST(train=False, transform=transform)
 ```
 
+我们将上面获取Fashion-MNIST的逻辑封装在`gluonbook.load_data_fashion_mnist`函数中供后面章节调用。
+
 打印一个样本的形状和它的标签看看。
 
 ```{.python .input  n=3}
@@ -127,7 +129,7 @@ X_prob, X_prob.sum(axis=1)
 
 ## 定义模型
 
-有了Softmax运算，我们可以定义上节描述的Softmax回归模型了。
+有了Softmax运算，我们可以定义上节描述的Softmax回归模型了。这里通过`reshape`函数将每张原始图片改成长度为`num_inputs`的向量。
 
 ```{.python .input  n=12}
 def net(X):
@@ -243,7 +245,8 @@ print('predictions:', get_text_labels(predicted_labels.asnumpy()))
 ## 练习
 
 * 本节中，我们直接按照Softmax运算的数学定义来实现`softmax`函数。这可能会造成什么问题？（试一试计算$e^{50}$的大小。）
-* 你能想到哪些办法来解决上面的问题？
+* 本节中的`cross_entropy`函数同样是按照交叉熵损失函数的数学定义实现的。这样的实现方式可能有什么问题？（思考一下对数函数的定义域。）
+* 你能想到哪些办法来解决上面这两个问题？
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/741)
 
