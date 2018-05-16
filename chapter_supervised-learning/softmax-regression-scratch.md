@@ -61,12 +61,12 @@ def show_fashion_imgs(images):
 ```{.python .input  n=6}
 X, y = mnist_train[0:9]
 show_fashion_imgs(X)
-print(get_text_labels(y))
+get_text_labels(y)
 ```
 
-## 数据读取
+## 读取数据
 
-虽然我们可以像前面那样通过`yield`来定义获取批量数据函数，这里我们直接使用gluon.data的DataLoader函数，它每次`yield`一个批量。
+我们可以像[“线性回归——从零开始”](linear-regression-scratch.md)一节中那样通过`yield`来定义读取小批量数据样本的函数。为了简洁，这里我们直接使用`gluon.data.DataLoader`，从而每次读取一个样本数为`batch_size`的小批量。
 
 ```{.python .input  n=7}
 batch_size = 256
@@ -74,11 +74,12 @@ train_iter = gdata.DataLoader(mnist_train, batch_size, shuffle=True)
 test_iter = gdata.DataLoader(mnist_test, batch_size, shuffle=False)
 ```
 
-注意到这里我们要求每次从训练数据里读取一个由随机样本组成的批量，但测试数据则不需要这个要求。
+注意到这里我们需要每次从训练数据里读取一个由随机样本组成的小批量，但测试数据则无需如此。
+
 
 ## 初始化模型参数
 
-跟线性模型一样，每个样本会表示成一个向量。我们这里数据是 $28 \times 28$ 大小的图片，所以输入向量的长度是 $28 \times 28 = 784$。因为我们要做多类分类，我们需要对每一个类预测这个样本属于此类的概率。因为这个数据集有10个类型，所以输出应该是长为10的向量。这样，我们需要的权重将是一个 $784 \times 10$ 的矩阵：
+跟线性回归中的例子一样，我们将使用向量表示每个样本。已知每个样本是大小为$28 \times 28$的图片。模型的输入向量的长度是$28 \times 28 = 784$：该向量的每个元素对应图片中每个像素。由于图片有10个类别，单层神经网络输出层的输出个数为10。由上一节可知，Softmax回归的权重和偏差参数分别为$784 \times 10$和$1 \times 10$的矩阵。
 
 ```{.python .input  n=8}
 num_inputs = 784
@@ -86,92 +87,106 @@ num_outputs = 10
 
 W = nd.random.normal(shape=(num_inputs, num_outputs))
 b = nd.random.normal(shape=num_outputs)
-
 params = [W, b]
 ```
 
-同之前一样，我们要对模型参数附上梯度：
+同之前一样，我们要对模型参数附上梯度。
 
 ```{.python .input  n=9}
 for param in params:
     param.attach_grad()
 ```
 
-## 定义模型
+## 定义Softmax运算
 
-在线性回归教程里，我们只需要输出一个标量`yhat`使得尽可能的靠近目标值。但在这里的分类里，我们需要属于每个类别的概率。这些概率需要值为正，而且加起来等于1. 而如果简单的使用 $\boldsymbol{\hat y} = \boldsymbol{W} \boldsymbol{x}$, 我们不能保证这一点。一个通常的做法是通过softmax函数来将任意的输入归一化成合法的概率值。
+在介绍如何定义Softmax回归之前，我们先描述一下对如何对多维NDArray按维度操作。
+
+在下面例子中，给定一个NDArray矩阵`X`。我们可以只对其中每一列（`axis=0`）或每一行（`axis=1`）求和，并在结果中保留行和列这两个维度（`keepdims=True`）。
+
+```{.python .input}
+X = nd.array([[1,2,3], [4,5,6]])
+X.sum(axis=0, keepdims=True), X.sum(axis=1, keepdims=True)
+```
+
+下面我们就可以定义上一节中介绍的Softmax运算了。在下面的函数中，矩阵`X`的行数是样本数，列数是输出个数。为了表达样本预测各个输出的概率，Softmax运算会先通过`exp = nd.exp(X)`对每个元素做指数运算，再对`exp`矩阵的每行求和，最后令矩阵每行各元素与该行元素之和相除。这样一来，最终得到的矩阵每行元素和为1且非负（应用了指数运算）。因此，该矩阵每行都是合法的概率分布。Softmax运算的输出矩阵中的任意一行元素是一个样本在各个类别上的概率。
 
 ```{.python .input  n=10}
-from mxnet import nd
 def softmax(X):
-    exp = nd.exp(X)
-    # 假设exp是矩阵，这里对行进行求和，并要求保留axis 1，
-    # 就是返回 (nrows, 1) 形状的矩阵
+    exp = X.exp()
     partition = exp.sum(axis=1, keepdims=True)
-    return exp / partition
+    return exp / partition # 这里应用了广播机制。
 ```
 
 可以看到，对于随机输入，我们将每个元素变成了非负数，而且每一行加起来为1。
 
 ```{.python .input  n=11}
-X = nd.random_normal(shape=(2, 5))
+X = nd.random.normal(shape=(2, 5))
 X_prob = softmax(X)
-print(X_prob)
-print(X_prob.sum(axis=1))
+X_prob, X_prob.sum(axis=1)
 ```
 
-现在我们可以定义模型了：
+## 定义模型
+
+有了Softmax运算，我们可以定义上节描述的Softmax回归模型了。
 
 ```{.python .input  n=12}
 def net(X):
     return softmax(nd.dot(X.reshape((-1, num_inputs)), W) + b)
 ```
 
-## 交叉熵损失函数
+## 定义损失函数
 
-我们需要定义一个针对预测为概率值的损失函数。其中最常见的是交叉熵损失函数，它将两个概率分布的负交叉熵作为目标值，最小化这个值等价于最大化这两个概率的相似度。
+上一节中，我们介绍了Softmax回归使用的交叉熵损失函数。为了得到标签的被预测概率，我们可以使用`pick`函数。在下面例子中，`y_hat`是2个样本在3个类别的预测概率，`y`是两个样本的标签类别。通过使用`pick`函数，我们得到了2个样本的标签的被预测概率。
 
-具体来说，我们先将真实标号表示成一个概率分布，例如如果`y=1`，那么其对应的分布就是一个除了第二个元素为1其他全为0的长为10的向量，也就是 `yvec=[0, 1, 0, 0, 0, 0, 0, 0, 0, 0]`。那么交叉熵就是`yvec[0]*log(yhat[0])+...+yvec[n]*log(yhat[n])`。注意到`yvec`里面只有一个1，那么前面等价于`log(yhat[y])`。所以我们可以定义这个损失函数了
+```{.python .input}
+y_hat = nd.array([[0.1, 0.3, 0.6], [0.3, 0.2, 0.5]])
+y = nd.array([0, 2])
+nd.pick(y_hat, y)
+```
+
+下面，我们直接将上一节中的交叉熵损失函数翻译成代码。
 
 ```{.python .input  n=13}
 def cross_entropy(y_hat, y):
-    return - nd.pick(nd.log(y_hat), y)
+    return -nd.pick(y_hat.log(), y)
 ```
 
-```{.python .input  n=14}
-y_hat = nd.array([[0.1, 0.3, 0.6], [0.3, 0.2, 0.5]])
-y = nd.array([0, 2])
-cross_entropy(y_hat, y)
-```
+## 计算分类准确率
 
-## 计算精度
-
-给定一个概率输出，我们将预测概率最高的那个类作为预测的类，然后通过比较真实标号我们可以计算精度：
+给定一个类别的预测概率分布`y_hat`，我们把预测概率最大的类别作为输出类别。如果它与真实类别`y`一致，说明这次预测是正确的。分类准确率即正确预测数量与总预测数量的比。在下面的函数中，`y_hat`
 
 ```{.python .input  n=15}
-def accuracy(output, label):
-    return (output.argmax(axis=1) == label).mean().asscalar()
+def accuracy(y_hat, y):
+    return (y_hat.argmax(axis=1) == y).mean().asscalar()
 ```
 
-我们可以评估一个模型在这个数据上的精度。（这两个函数我们之后也会用到，所以也都保存在[../utils.py](../utils.py)。）
+我们仍然使用`y_hat`和`y`分别作为预测概率分布和标签。可以看到，第一个样本预测类别为2（该行最大元素0.6在本行的索引），与真实标签不一致；第二个样本预测类别为2（该行最大元素0.5在本行的索引），与真实标签一致。因此，这两个样本上的分类准确率为0.5。
+
+```{.python .input}
+accuracy(y_hat, y)
+```
+
+类似地，我们可以评价模型`net`在数据集`data_iter`上的准确率。
 
 ```{.python .input  n=16}
-def evaluate_accuracy_cpu(data_iter, net):
+def evaluate_accuracy(data_iter, net):
     acc = 0
     for X, y in data_iter:
         acc += accuracy(net(X), y)
     return acc / len(data_iter)
 ```
 
-因为我们随机初始化了模型，所以这个模型的精度应该大概是`1/num_outputs = 0.1`.
+因为我们随机初始化了模型`net`，所以这个模型的准确率应该接近于`1 / num_outputs = 0.1`。
 
 ```{.python .input  n=17}
-evaluate_accuracy_cpu(test_iter, net)
+evaluate_accuracy(test_iter, net)
 ```
 
-## 训练
+我们将`accuracy`和`evaluate_accuracy`函数定义在`gluonbook`包中供后面章节调用。
 
-训练代码跟前面的线性回归非常相似：
+## 训练模型
+
+训练Softmax回归的实现跟前面线性回归中的实现非常相似。
 
 ```{.python .input  n=18}
 num_epochs = 5
@@ -179,7 +194,7 @@ lr = 0.1
 loss = cross_entropy
 
 def train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
-              lr=None, trainer=None):
+              params=None, lr=None, trainer=None):
     for epoch in range(1, num_epochs + 1):
         train_l_sum = 0
         train_acc_sum = 0
@@ -194,13 +209,16 @@ def train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
                 trainer.step(batch_size)
             train_l_sum += l.mean().asscalar()
             train_acc_sum += accuracy(y_hat, y)
-        test_acc = evaluate_accuracy_cpu(test_iter, net)
-        print("epoch %d, loss %f, train acc %f, test acc %f" 
+        test_acc = evaluate_accuracy(test_iter, net)
+        print("epoch %d, loss %.4f, train acc %.3f, test acc %.3f" 
               % (epoch, train_l_sum / len(train_iter),
                  train_acc_sum / len(train_iter), test_acc))
 
-train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size, lr)
+train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size, params,
+          lr)
 ```
+
+我们将`train_cpu`函数定义在`gluonbook`包中供后面章节调用。
 
 ## 预测
 
