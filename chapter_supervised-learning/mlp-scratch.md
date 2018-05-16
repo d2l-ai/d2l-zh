@@ -6,10 +6,14 @@
 
 我们继续使用FashionMNIST数据集。
 
-```{.python .input  n=1}
+```{.python .input}
 import sys
 sys.path.append('..')
 import gluonbook as gb
+from mxnet import autograd, gluon, nd
+```
+
+```{.python .input  n=1}
 batch_size = 256
 train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
 ```
@@ -23,13 +27,11 @@ train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
 这里我们定义一个只有一个隐含层的模型，这个隐含层输出256个节点。
 
 ```{.python .input  n=2}
-from mxnet import ndarray as nd
-
-num_inputs = 28*28
+num_inputs = 784
 num_outputs = 10
 
 num_hidden = 256
-weight_scale = .01
+weight_scale = 0.01
 
 W1 = nd.random_normal(shape=(num_inputs, num_hidden), scale=weight_scale)
 b1 = nd.zeros(num_hidden)
@@ -75,7 +77,6 @@ def net(X):
 在多类Logistic回归里我们提到分开实现Softmax和交叉熵损失函数可能导致数值不稳定。这里我们直接使用Gluon提供的函数
 
 ```{.python .input  n=6}
-from mxnet import gluon
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
 ```
 
@@ -84,8 +85,6 @@ loss = gluon.loss.SoftmaxCrossEntropyLoss()
 训练跟之前一样。
 
 ```{.python .input  n=8}
-from mxnet import autograd as autograd
-
 num_epochs = 5
 lr = 0.5
 
