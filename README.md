@@ -62,9 +62,21 @@ sudo fc-cache -f -v
 
 同样的去下载和安装英文字体
 
-https://www.fontsquirrel.com/fonts/source-code-pro
-https://www.fontsquirrel.com/fonts/source-serif-pro
-https://www.fontsquirrel.com/fonts/source-sans-pro
+```
+wget -O source-serif-pro.zip https://www.fontsquirrel.com/fonts/download/source-serif-pro
+unzip source-serif-pro -d source-serif-pro
+sudo mv source-serif-pro /usr/share/fonts/opentype/
+
+wget -O source-sans-pro.zip https://www.fontsquirrel.com/fonts/download/source-sans-pro
+unzip source-sans-pro -d source-sans-pro
+sudo mv source-sans-pro /usr/share/fonts/opentype/
+
+wget -O source-code-pro.zip https://www.fontsquirrel.com/fonts/download/source-code-pro
+unzip source-code-pro -d source-code-pro
+sudo mv source-code-pro /usr/share/fonts/opentype/
+
+sudo fc-cache -f -v
+```
 
 然后可以编译了。
 

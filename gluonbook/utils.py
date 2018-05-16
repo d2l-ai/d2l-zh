@@ -97,9 +97,9 @@ def sgd(params, lr, batch_size):
     for param in params:
         param[:] = param - lr * param.grad / batch_size
 
-def accuracy(output, label):
+def accuracy(y_hat, y):
     """Get accuracy."""
-    return (output.argmax(axis=1) == label).mean().asscalar()
+    return (y_hat.argmax(axis=1) == y).mean().asscalar()
 
 def _get_batch(batch, ctx):
     """return data and label on ctx"""
@@ -111,14 +111,6 @@ def _get_batch(batch, ctx):
     return (gluon.utils.split_and_load(data, ctx),
             gluon.utils.split_and_load(label, ctx),
             data.shape[0])
-
-
-def evaluate_accuracy_cpu(data_iter, net):
-    """Evaluate accuracy of a model on the given data set on CPU."""
-    acc = 0
-    for X, y in data_iter:
-        acc += accuracy(net(X), y)
-    return acc / len(data_iter)
 
 
 def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
@@ -141,6 +133,7 @@ def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
 
 def train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
               params=None, lr=None, trainer=None):
+    """Train and evaluate a model on CPU."""
     for epoch in range(1, num_epochs + 1): 
         train_l_sum = 0 
         train_acc_sum = 0 
@@ -155,14 +148,14 @@ def train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
                 trainer.step(batch_size)
             train_l_sum += l.mean().asscalar()
             train_acc_sum += accuracy(y_hat, y)
-        test_acc = evaluate_accuracy_cpu(test_iter, net)
-        print("epoch %d, loss %f, train acc %f, test acc %f" 
+        test_acc = evaluate_accuracy(test_iter, net)
+        print("epoch %d, loss %.4f, train acc %.3f, test acc %.3f" 
               % (epoch, train_l_sum / len(train_iter),
                  train_acc_sum / len(train_iter), test_acc))
 
 
 def train(train_data, test_data, net, loss, trainer, ctx, num_epochs, print_batches=None):
-    """Train a network"""
+    """Train and evaluate a model."""
     print("Start training on ", ctx)
     if isinstance(ctx, mx.Context):
         ctx = [ctx]
@@ -186,14 +179,15 @@ def train(train_data, test_data, net, loss, trainer, ctx, num_epochs, print_batc
             n += batch_size
             m += sum([y.size for y in label])
             if print_batches and (i+1) % print_batches == 0:
-                print("Batch %d. Loss: %f, Train acc %f" % (
+                print("batch %d, loss: %f, train acc %f" % (
                     n, train_loss/n, train_acc/m
                 ))
 
         test_acc = evaluate_accuracy(test_data, net, ctx)
-        print("Epoch %d. Loss: %.3f, Train acc %.2f, Test acc %.2f, Time %.1f sec" % (
+        print("epoch %d, loss: %.4f, train acc %.3f, test acc %.3f, time %.1f sec" % (
             epoch, train_loss/n, train_acc/m, test_acc, time() - start
         ))
+
 
 class Residual(nn.HybridBlock):
     def __init__(self, channels, same_shape=True, **kwargs):
