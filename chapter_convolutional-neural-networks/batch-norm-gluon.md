@@ -1,83 +1,53 @@
 # 批量归一化——使用Gluon
 
-本章介绍如何使用``Gluon``在训练和测试深度学习模型中使用批量归一化。
-
-
-## 定义模型并添加批量归一化层
-
-有了`Gluon`，我们模型的定义工作变得简单了许多。我们只需要添加`nn.BatchNorm`层并指定对二维卷积的通道(`axis=1`)进行批量归一化。
+相比于前小节定义的BatchNorm类，`nn`模块定义的BatchNorm使用更加简单。它不需要指定输出数据的维度和特征维的大小，这些都将通过延后初始化来获取。我们实现同前小节一样的批量归一化的LeNet。
 
 ```{.python .input  n=1}
-from mxnet.gluon import nn
-
-net = nn.Sequential()
-with net.name_scope():
-    # 第一层卷积
-    net.add(nn.Conv2D(channels=20, kernel_size=5))
-    ### 添加了批量归一化层 
-    net.add(nn.BatchNorm(axis=1))
-    net.add(nn.Activation(activation='relu'))
-    net.add(nn.MaxPool2D(pool_size=2, strides=2))
-    # 第二层卷积
-    net.add(nn.Conv2D(channels=50, kernel_size=3))
-    ### 添加了批量归一化层 
-    net.add(nn.BatchNorm(axis=1))
-    net.add(nn.Activation(activation='relu'))
-    net.add(nn.MaxPool2D(pool_size=2, strides=2))
-    net.add(nn.Flatten())
-    # 第一层全连接
-    net.add(nn.Dense(128, activation="relu"))
-    # 第二层全连接
-    net.add(nn.Dense(10))
-```
-
-## 模型训练
-
-剩下的代码跟之前没什么不一样。
-
-```{.python .input  n=3}
 import sys
 sys.path.append('..')
 import gluonbook as gb
-from mxnet import autograd 
-from mxnet import gluon
-from mxnet import nd
+import mxnet as mx
+from mxnet import nd, gluon, init
+from mxnet.gluon import nn
 
+net = nn.Sequential()
+net.add(
+    nn.Conv2D(6, kernel_size=5),
+    nn.BatchNorm(),
+    nn.Activation('sigmoid'),
+    nn.MaxPool2D(pool_size=2, strides=2),
+    nn.Conv2D(16, kernel_size=5),
+    nn.BatchNorm(),
+    nn.Activation('sigmoid'),
+    nn.MaxPool2D(pool_size=2, strides=2),
+    nn.Dense(120),
+    nn.BatchNorm(),
+    nn.Activation('sigmoid'),   
+    nn.Dense(84),
+    nn.BatchNorm(),
+    nn.Activation('sigmoid'),
+    nn.Dense(10)
+)
+```
+
+和使用同样的超参数进行训练。
+
+```{.python .input  n=3}
 ctx = gb.try_gpu()
-net.initialize(ctx=ctx)
-
-batch_size = 256
-train_data, test_data = gb.load_data_fashion_mnist(batch_size)
-
-softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
-trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.2})
-
-for epoch in range(5):
-    train_loss = 0.
-    train_acc = 0.
-    for data, label in train_data:
-        label = label.as_in_context(ctx)
-        with autograd.record():
-            output = net(data.as_in_context(ctx))
-            loss = softmax_cross_entropy(output, label)
-        loss.backward()
-        trainer.step(batch_size)
-
-        train_loss += nd.mean(loss).asscalar()
-        train_acc += gb.accuracy(output, label)
-    test_acc = gb.evaluate_accuracy(test_data, net, ctx)
-    print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-        epoch, train_loss/len(train_data), 
-        train_acc/len(train_data), test_acc))
+net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
+trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 1})
+loss = gluon.loss.SoftmaxCrossEntropyLoss()
+train_data, test_data = gb.load_data_fashion_mnist(batch_size=256)
+gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 ```
 
 ## 小结
 
-* 使用``Gluon``我们可以很轻松地添加批量归一化层。
+Gluon提供的BatchNorm使用上更加简单。
 
 ## 练习
 
-* 如果在全连接层添加批量归一化结果会怎么样？
+* 查看BatchNorm文档来了解更多使用方法，例如如何在训练时使用全局平均的均值和方差。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1254)
 

@@ -117,13 +117,11 @@ net.add(
 使用更前同样的超参数，可以发现前面五个迭代周期的收敛有明显加速。
 
 ```{.python .input  n=77}
-train_data, test_data = gb.load_data_fashion_mnist(batch_size=256)
 ctx = gb.try_gpu()
-loss = gluon.loss.SoftmaxCrossEntropyLoss()
-
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 1})
-
+loss = gluon.loss.SoftmaxCrossEntropyLoss()
+train_data, test_data = gb.load_data_fashion_mnist(batch_size=256)
 gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 ```
 
