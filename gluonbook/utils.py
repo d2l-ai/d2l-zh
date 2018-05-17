@@ -9,6 +9,7 @@ from mxnet import autograd, gluon, image, nd
 from mxnet.gluon import nn, data as gdata, loss as gloss, utils as gutils
 import numpy as np
 
+
 class DataLoader(object):
     """similiar to gluon.data.DataLoader, but might be faster.
 
@@ -44,6 +45,7 @@ class DataLoader(object):
     def __len__(self):
         return len(self.dataset)//self.batch_size
 
+
 def load_data_fashion_mnist(batch_size, resize=None, root="~/.mxnet/datasets/fashion-mnist"):
     """download the fashion mnist dataest and then load into memory"""
     def transform_mnist(data, label):
@@ -64,6 +66,7 @@ def load_data_fashion_mnist(batch_size, resize=None, root="~/.mxnet/datasets/fas
     test_data = DataLoader(mnist_test, batch_size, shuffle=False, transform=transform_mnist)
     return (train_data, test_data)
 
+
 def try_gpu():
     """If GPU is available, return mx.gpu(0); else return mx.cpu()"""
     try:
@@ -73,44 +76,49 @@ def try_gpu():
         ctx = mx.cpu()
     return ctx
 
+
 def try_all_gpus():
     """Return all available GPUs, or [mx.gpu()] if there is no GPU"""
-    ctx_list = []
+    ctxes = []
     try:
         for i in range(16):
             ctx = mx.gpu(i)
             _ = nd.array([0], ctx=ctx)
-            ctx_list.append(ctx)
+            ctxes.append(ctx)
     except:
         pass
-    if not ctx_list:
-        ctx_list = [mx.cpu()]
-    return ctx_list
+    if not ctxes:
+        ctxes = [mx.cpu()]
+    return ctxes
+
 
 def SGD(params, lr):
     """DEPRECATED!"""
     for param in params:
         param[:] = param - lr * param.grad
 
+
 def sgd(params, lr, batch_size):
     """Mini-batch stochastic gradient descent."""
     for param in params:
         param[:] = param - lr * param.grad / batch_size
 
+
 def accuracy(y_hat, y):
     """Get accuracy."""
     return (y_hat.argmax(axis=1) == y).mean().asscalar()
 
+
 def _get_batch(batch, ctx):
-    """return data and label on ctx"""
+    """return features and labels on ctx"""
     if isinstance(batch, mx.io.DataBatch):
-        data = batch.data[0]
-        label = batch.label[0]
+        features = batch.data[0]
+        labels = batch.label[0]
     else:
-        data, label = batch
-    return (gluon.utils.split_and_load(data, ctx),
-            gluon.utils.split_and_load(label, ctx),
-            data.shape[0])
+        features, labels = batch
+    return (gutils.split_and_load(features, ctx),
+            gutils.split_and_load(labels, ctx),
+            features.shape[0])
 
 
 def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
@@ -154,38 +162,37 @@ def train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
                  train_acc_sum / len(train_iter), test_acc))
 
 
-def train(train_data, test_data, net, loss, trainer, ctx, num_epochs, print_batches=None):
+def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs, print_batches=None):
     """Train and evaluate a model."""
-    print("Start training on ", ctx)
+    print("training on ", ctx)
     if isinstance(ctx, mx.Context):
         ctx = [ctx]
-    for epoch in range(num_epochs):
-        train_loss, train_acc, n, m = 0.0, 0.0, 0.0, 0.0
-        if isinstance(train_data, mx.io.MXDataIter):
-            train_data.reset()
+    for epoch in range(1, num_epochs + 1):
+        train_l_sum, train_acc_sum, n, m = 0.0, 0.0, 0.0, 0.0
+        if isinstance(train_iter, mx.io.MXDataIter):
+            train_iter.reset()
         start = time()
-        for i, batch in enumerate(train_data):
-            data, label, batch_size = _get_batch(batch, ctx)
-            losses = []
+        for i, batch in enumerate(train_iter):
+            Xs, ys, batch_size = _get_batch(batch, ctx)
+            ls = []
             with autograd.record():
-                outputs = [net(X) for X in data]
-                losses = [loss(yhat, y) for yhat, y in zip(outputs, label)]
-            for l in losses:
+                y_hats = [net(X) for X in Xs]
+                ls = [loss(y_hat, y) for y_hat, y in zip(y_hats, ys)]
+            for l in ls:
                 l.backward()
-            train_acc += sum([(yhat.argmax(axis=1)==y).sum().asscalar()
-                              for yhat, y in zip(outputs, label)])
-            train_loss += sum([l.sum().asscalar() for l in losses])
+            train_acc_sum += sum([(y_hat.argmax(axis=1) == y).sum().asscalar()
+                                 for y_hat, y in zip(y_hats, ys)])
+            train_l_sum += sum([l.sum().asscalar() for l in ls])
             trainer.step(batch_size)
             n += batch_size
-            m += sum([y.size for y in label])
+            m += sum([y.size for y in ys])
             if print_batches and (i+1) % print_batches == 0:
-                print("batch %d, loss: %f, train acc %f" % (
-                    n, train_loss/n, train_acc/m
+                print("batch %d, loss %f, train acc %f" % (
+                    n, train_l_sum / n, train_acc_sum / m
                 ))
-
-        test_acc = evaluate_accuracy(test_data, net, ctx)
-        print("epoch %d, loss: %.4f, train acc %.3f, test acc %.3f, time %.1f sec" % (
-            epoch, train_loss/n, train_acc/m, test_acc, time() - start
+        test_acc = evaluate_accuracy(test_iter, net, ctx)
+        print("epoch %d, loss %.4f, train acc %.3f, test acc %.3f, time %.1f sec" % (
+            epoch, train_l_sum / n, train_acc_sum / m, test_acc, time() - start
         ))
 
 

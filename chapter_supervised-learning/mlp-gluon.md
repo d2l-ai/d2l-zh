@@ -6,33 +6,30 @@
 
 唯一的区别在这里，我们加了一行进来。
 
-```{.python .input  n=5}
-from mxnet import gluon
+```{.python .input}
+import sys
+sys.path.append('..')
+import gluonbook as gb
+from mxnet import autograd, gluon, nd
+from mxnet.gluon import nn, loss as gloss
+```
 
-net = gluon.nn.Sequential()
-with net.name_scope():
-    net.add(gluon.nn.Dense(256, activation="relu"))
-    net.add(gluon.nn.Dense(10))
+```{.python .input  n=5}
+net = nn.Sequential()
+net.add(nn.Dense(256, activation='relu'))
+net.add(nn.Dense(10))
 net.initialize()
 ```
 
 ## 读取数据并训练
 
 ```{.python .input  n=6}
-import sys
-sys.path.append('..')
-from mxnet import ndarray as nd
-from mxnet import autograd
-import gluonbook as gb
-
-
 batch_size = 256
 train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
 
-loss = gluon.loss.SoftmaxCrossEntropyLoss()
+loss = gloss.SoftmaxCrossEntropyLoss()
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.5})
 num_epochs = 5
-
 gb.train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
              None, None, trainer)
 ```

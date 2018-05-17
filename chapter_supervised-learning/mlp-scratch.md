@@ -6,10 +6,15 @@
 
 我们继续使用FashionMNIST数据集。
 
-```{.python .input  n=1}
+```{.python .input}
 import sys
 sys.path.append('..')
 import gluonbook as gb
+from mxnet import autograd, gluon, nd
+from mxnet.gluon import loss as gloss
+```
+
+```{.python .input  n=1}
 batch_size = 256
 train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
 ```
@@ -18,25 +23,19 @@ train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
 
 多层感知机与前面介绍的[多类逻辑回归](../chapter_crashcourse/softmax-regression-scratch.md)非常类似，主要的区别是我们在输入层和输出层之间插入了一个到多个隐含层。
 
-![](../img/multilayer-perceptron.png)
 
 这里我们定义一个只有一个隐含层的模型，这个隐含层输出256个节点。
 
 ```{.python .input  n=2}
-from mxnet import ndarray as nd
-
-num_inputs = 28*28
+num_inputs = 784
 num_outputs = 10
 
-num_hidden = 256
-weight_scale = .01
+num_hiddens = 256
 
-W1 = nd.random_normal(shape=(num_inputs, num_hidden), scale=weight_scale)
-b1 = nd.zeros(num_hidden)
-
-W2 = nd.random_normal(shape=(num_hidden, num_outputs), scale=weight_scale)
+W1 = nd.random_normal(shape=(num_inputs, num_hiddens), scale=0.01)
+b1 = nd.zeros(num_hiddens)
+W2 = nd.random_normal(shape=(num_hiddens, num_outputs), scale=0.01)
 b2 = nd.zeros(num_outputs)
-
 params = [W1, b1, W2, b2]
 
 for param in params:
@@ -65,9 +64,8 @@ def relu(X):
 ```{.python .input  n=4}
 def net(X):
     X = X.reshape((-1, num_inputs))
-    h1 = relu(nd.dot(X, W1) + b1)
-    output = nd.dot(h1, W2) + b2
-    return output
+    H = relu(nd.dot(X, W1) + b1)
+    return nd.dot(H, W2) + b2
 ```
 
 ## Softmax和交叉熵损失函数
@@ -75,8 +73,7 @@ def net(X):
 在多类Logistic回归里我们提到分开实现Softmax和交叉熵损失函数可能导致数值不稳定。这里我们直接使用Gluon提供的函数
 
 ```{.python .input  n=6}
-from mxnet import gluon
-loss = gluon.loss.SoftmaxCrossEntropyLoss()
+loss = gloss.SoftmaxCrossEntropyLoss()
 ```
 
 ## 训练
@@ -84,8 +81,6 @@ loss = gluon.loss.SoftmaxCrossEntropyLoss()
 训练跟之前一样。
 
 ```{.python .input  n=8}
-from mxnet import autograd as autograd
-
 num_epochs = 5
 lr = 0.5
 
@@ -99,7 +94,6 @@ gb.train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
 
 ## 练习
 
-- 我们使用了 `weight_scale` 来控制权重的初始化值大小，增大或者变小这个值会怎么样？
 - 尝试改变 `num_hiddens` 来控制模型的复杂度
 - 尝试加入一个新的隐含层
 

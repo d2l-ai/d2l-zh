@@ -66,7 +66,7 @@ get_text_labels(y)
 
 ## 读取数据
 
-我们可以像[“线性回归——从零开始”](linear-regression-scratch.md)一节中那样通过`yield`来定义读取小批量数据样本的函数。为了简洁，这里我们直接使用`gluon.data.DataLoader`，从而每次读取一个样本数为`batch_size`的小批量。
+我们可以像[“线性回归——从零开始”](linear-regression-scratch.md)一节中那样通过`yield`来定义读取小批量数据样本的函数。为了简洁，这里我们直接使用`gluon.data.DataLoader`，从而每次读取一个样本数为`batch_size`的小批量。这里的批量大小`batch_size`是一个超参数。
 
 ```{.python .input  n=7}
 batch_size = 256
@@ -75,6 +75,8 @@ test_iter = gdata.DataLoader(mnist_test, batch_size, shuffle=False)
 ```
 
 注意到这里我们需要每次从训练数据里读取一个由随机样本组成的小批量，但测试数据则无需如此。
+
+我们将获取并读取Fashion-MNIST数据集的逻辑封装在`gluonbook.load_data_fashion_mnist`函数中供后面章节调用。
 
 
 ## 初始化模型参数
@@ -127,7 +129,7 @@ X_prob, X_prob.sum(axis=1)
 
 ## 定义模型
 
-有了Softmax运算，我们可以定义上节描述的Softmax回归模型了。
+有了Softmax运算，我们可以定义上节描述的Softmax回归模型了。这里通过`reshape`函数将每张原始图片改成长度为`num_inputs`的向量。
 
 ```{.python .input  n=12}
 def net(X):
@@ -153,14 +155,16 @@ def cross_entropy(y_hat, y):
 
 ## 计算分类准确率
 
-给定一个类别的预测概率分布`y_hat`，我们把预测概率最大的类别作为输出类别。如果它与真实类别`y`一致，说明这次预测是正确的。分类准确率即正确预测数量与总预测数量的比。在下面的函数中，`y_hat`
+给定一个类别的预测概率分布`y_hat`，我们把预测概率最大的类别作为输出类别。如果它与真实类别`y`一致，说明这次预测是正确的。分类准确率即正确预测数量与总预测数量的比。
+
+下面定义`accuracy`函数。其中`y_hat.argmax(axis=1)`返回矩阵`y_hat`每行中最大元素的索引，且返回结果与`y`形状相同。我们在[“数据操作”](../chapter_crashcourse/ndarray.md)一节介绍过，条件判断式`(y_hat.argmax(axis=1) == y)`是一个值为0或1的NDArray。
 
 ```{.python .input  n=15}
 def accuracy(y_hat, y):
     return (y_hat.argmax(axis=1) == y).mean().asscalar()
 ```
 
-我们仍然使用`y_hat`和`y`分别作为预测概率分布和标签。可以看到，第一个样本预测类别为2（该行最大元素0.6在本行的索引），与真实标签不一致；第二个样本预测类别为2（该行最大元素0.5在本行的索引），与真实标签一致。因此，这两个样本上的分类准确率为0.5。
+让我们继续使用在演示`pick`函数时定义的`y_hat`和`y`，分别作为预测概率分布和标签。可以看到，第一个样本预测类别为2（该行最大元素0.6在本行的索引），与真实标签不一致；第二个样本预测类别为2（该行最大元素0.5在本行的索引），与真实标签一致。因此，这两个样本上的分类准确率为0.5。
 
 ```{.python .input}
 accuracy(y_hat, y)
@@ -186,7 +190,7 @@ evaluate_accuracy(test_iter, net)
 
 ## 训练模型
 
-训练Softmax回归的实现跟前面线性回归中的实现非常相似。
+训练Softmax回归的实现跟前面线性回归中的实现非常相似。我们同样使用小批量随机梯度下降来优化模型的损失函数。在训练模型时，迭代周期数`num_epochs`和学习率`lr`都是可以调的超参数。改变它们的值可能会得到分类更准确的模型。
 
 ```{.python .input  n=18}
 num_epochs = 5
@@ -222,32 +226,27 @@ train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size, params,
 
 ## 预测
 
-训练完成后，现在我们可以演示对输入图片的标号的预测
+训练完成后，现在我们可以演示如何对图片进行分类。给定一系列图片，我们比较一下它们的真实标签和模型预测结果。
 
 ```{.python .input  n=19}
 data, label = mnist_test[0:9]
 show_fashion_imgs(data)
-print('true labels')
-print(get_text_labels(label))
+print('labels:', get_text_labels(label))
 predicted_labels = net(data).argmax(axis=1)
-print('predicted labels')
-print(get_text_labels(predicted_labels.asnumpy()))
+print('predictions:', get_text_labels(predicted_labels.asnumpy()))
 ```
 
 ## 小结
 
-与前面的线性回归相比，你会发现多类逻辑回归教程的结构跟其非常相似：获取数据、定义模型及优化算法和求解。事实上，几乎所有的实际神经网络应用都有着同样结构。他们的主要区别在于模型的类型和数据的规模。每一两年会有一个新的优化算法出来，但它们基本都是随机梯度下降的变种。
+* 与训练线性回归相比，你会发现训练Softmax回归的步骤跟其非常相似：获取并读取数据、定义模型和损失函数并使用优化算法训练模型。事实上，绝大多数深度学习模型的训练都有着类似的步骤。
+
+* 我们可以使用Softmax回归做多类别分类。
 
 ## 练习
 
-尝试增大学习率，你会马上发现结果变得很糟糕，精度基本徘徊在随机的0.1左右。这是为什么呢？提示：
-
-- 打印下output看看是不是有什么异常
-- 前面线性回归还好好的，这里我们在net()里加了什么呢？
-- 如果给exp输入个很大的数会怎么样？
-- 即使解决exp的问题，求出来的导数是不是还是不稳定？
-
-请仔细想想再去对比下我们小伙伴之一@[pluskid](https://github.com/pluskid)早年写的一篇[blog解释这个问题](http://freemind.pluskid.org/machine-learning/softmax-vs-softmax-loss-numerical-stability/)，看看你想的是不是不一样。
+* 本节中，我们直接按照Softmax运算的数学定义来实现`softmax`函数。这可能会造成什么问题？（试一试计算$e^{50}$的大小。）
+* 本节中的`cross_entropy`函数同样是按照交叉熵损失函数的数学定义实现的。这样的实现方式可能有什么问题？（思考一下对数函数的定义域。）
+* 你能想到哪些办法来解决上面这两个问题？
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/741)
 
