@@ -14,6 +14,7 @@
    classification
    softmax-regression-scratch
    softmax-regression-gluon
+   multi-layer
    mlp-scratch
    mlp-gluon
    underfit-overfit
