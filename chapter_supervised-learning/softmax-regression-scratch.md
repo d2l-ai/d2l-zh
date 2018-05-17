@@ -61,7 +61,7 @@ def show_fashion_imgs(images):
 ```{.python .input  n=6}
 X, y = mnist_train[0:9]
 show_fashion_imgs(X)
-get_text_labels(y)
+print(get_text_labels(y))
 ```
 
 ## 读取数据
