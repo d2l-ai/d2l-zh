@@ -18,6 +18,6 @@
    googlenet
    batch-norm-scratch
    batch-norm-gluon
-   resnet-gluon
+   resnet
    densenet-gluon
 ```
