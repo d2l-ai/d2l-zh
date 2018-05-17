@@ -84,7 +84,7 @@ plt.show()
 
 Tanh（双曲正切）函数可以将元素的值转换到-1和1之间：
 
-$$\text{sigmoid}(x) = \frac{1 - \exp(-2x)}{1 + \exp(-2x)}.$$
+$$\text{tanh}(x) = \frac{1 - \exp(-2x)}{1 + \exp(-2x)}.$$
 
 下面绘制了tanh函数。当元素值接近0时，tanh函数接近线性转换。值得一提的是，它的形状和sigmoid函数很像，且当元素在实数域上均匀分布时，tanh函数值的均值为0。
 
