@@ -33,6 +33,8 @@ epochs = 50
 epoch_period = 10
 
 learning_rate = 0.005
+# 每步计算梯度时使用的样本个数
+batch_size = 2
 # 输入或输出序列的最大长度（含句末添加的EOS字符）。
 max_seq_len = 5
 
@@ -285,32 +287,35 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens):
     softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 
     prev_time = datetime.datetime.now()
-    data_iter = gluon.data.DataLoader(dataset, 1, shuffle=True)
+    data_iter = gluon.data.DataLoader(dataset, batch_size, shuffle=True)
 
     total_loss = 0.0
+    eos_id = output_vocab.token_to_idx[EOS]
     for epoch in range(1, epochs + 1):
         for x, y in data_iter:
             with autograd.record():
                 loss = nd.array([0], ctx=ctx)
+                valid_length = nd.array([0], ctx=ctx)
                 encoder_state = encoder.begin_state(
-                    func=mx.nd.zeros, batch_size=1, ctx=ctx)
+                    func=mx.nd.zeros, batch_size=batch_size, ctx=ctx)
                 encoder_outputs, encoder_state = encoder(x, encoder_state)
 
                 # encoder_outputs尺寸: (max_seq_len, encoder_hidden_dim)
                 encoder_outputs = encoder_outputs.flatten()
                 # 解码器的第一个输入为BOS字符。
-                decoder_input = nd.array([output_vocab.token_to_idx[BOS]],
+                decoder_input = nd.array([output_vocab.token_to_idx[BOS]] * batch_size,
                                          ctx=ctx)
+                mask = nd.ones(shape=(batch_size,), ctx=ctx)
                 decoder_state = decoder_init_state(encoder_state[0])
                 for i in range(max_seq_len):
                     decoder_output, decoder_state = decoder(
                         decoder_input, decoder_state, encoder_outputs)
                     # 解码器使用当前时刻的预测结果作为下一时刻的输入。
                     decoder_input = decoder_output.argmax(axis=1)
-                    loss = loss + softmax_cross_entropy(decoder_output[0], y[0][i])
-                    if y[0][i].asscalar() == output_vocab.token_to_idx[EOS]:
-                        break
-
+                    valid_length = valid_length + mask.sum()
+                    loss = loss + (mask * softmax_cross_entropy(decoder_output, y[:, i])).sum()
+                    mask = mask * (y[:, i] != eos_id)
+                loss = loss / valid_length
             loss.backward()
             encoder_optimizer.step(1)
             decoder_optimizer.step(1)
