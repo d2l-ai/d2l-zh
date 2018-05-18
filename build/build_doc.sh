@@ -4,9 +4,6 @@
 set -x
 set -e
 
-rm build/_build/latex/gluon_tutorials_zh.aux
-rm build/_build/latex/gluon_tutorials_zh.idx
-
 # prepare the env
 conda env update -f build/build.yml
 
@@ -27,7 +24,7 @@ mv build/data-bak build/data
 make pdf
 cp build/_build/latex/gluon_tutorials_zh.pdf build/_build/html/
 
-
-
+rm build/_build/latex/gluon_tutorials_zh.aux
+rm build/_build/latex/gluon_tutorials_zh.idx
 
 aws s3 sync --delete build/_build/html/ s3://zh.gluon.ai/ --acl public-read
