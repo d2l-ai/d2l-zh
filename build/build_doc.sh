@@ -7,8 +7,6 @@ set -e
 # prepare the env
 conda env update -f build/build.yml
 
-rm _build/latex/gluon_tutorials_zh.aux
-rm _build/latex/gluon_tutorials_zh.idx
 source activate gluon_zh_docs
 
 pip list
