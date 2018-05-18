@@ -48,7 +48,7 @@ true_b = 0.05
 ```{.python .input  n=3}
 features = nd.random.normal(shape=(n_train+n_test, num_inputs))
 labels = nd.dot(features, true_w) + true_b
-labels += .01 * nd.random.normal(shape=labels.shape)
+labels += nd.random.normal(scale=0.01, shape=labels.shape)
 
 features_train, features_test = features[:n_train, :], features[n_train:, :]
 labels_train, labels_test = labels[:n_train], labels[n_train:]
@@ -66,7 +66,7 @@ batch_size = 1
 
 ```{.python .input  n=5}
 def init_params():
-    w = nd.random.normal(scale=1, shape=(num_inputs, 1))
+    w = nd.random.normal(scale=0.01, shape=(num_inputs, 1))
     b = nd.zeros(shape=(1,))
     params = [w, b]
     for param in params:
@@ -83,13 +83,13 @@ $$\text{loss} + \lambda \sum_{p \in \textrm{params}}\|p\|_2^2。$$
 直观上，$L_2$范数正则化试图惩罚较大绝对值的参数值。下面我们定义L2正则化。注意有些时候大家对偏移加罚，有时候不加罚。通常结果上两者区别不大。这里我们演示对偏移也加罚的情况：
 
 ```{.python .input  n=6}
-def L2_penalty(w, b):
-    return ((w**2).sum() + b**2) / 2
+def l2_penalty(w):
+    return (w**2).sum() / 2
 ```
 
 ```{.python .input}
 num_epochs = 10
-lr = 0.005
+lr = 0.003
 ```
 
 ## 定义训练和测试
@@ -107,7 +107,7 @@ def fit_and_plot(lambd):
     for _ in range(num_epochs):        
         for X, y in gb.data_iter(batch_size, n_train, features, labels):
             with autograd.record():
-                l = loss(net(X, w, b), y) + lambd * L2_penalty(w, b)
+                l = loss(net(X, w, b), y) + lambd * l2_penalty(w)
             l.backward()
             gb.sgd(params, lr, batch_size)
         train_ls.append(loss(net(features_train, w, b),
