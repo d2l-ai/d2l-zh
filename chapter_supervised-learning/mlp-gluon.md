@@ -7,7 +7,7 @@ import sys
 sys.path.append('..')
 import gluonbook as gb
 from mxnet import autograd, gluon, nd
-from mxnet.gluon import nn, loss as gloss
+from mxnet.gluon import loss as gloss, nn
 ```
 
 ## 定义模型

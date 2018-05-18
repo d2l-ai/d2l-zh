@@ -134,10 +134,12 @@
 * utils代码写进附录
 * imports
     * import alphabetically
-    * from mxnet.gluon import nn, data as gdata, loss as gloss, utils as gutils
+    * from mxnet.gluon import data as gdata, loss as gloss, nn, utils as gutils
 * 打印名称
     * epoch（从1开始计数）, lr, loss, train acc, time
     * 5行左右
+* 打印变量
+    * 代码块最后一行尽量不用print()语句，例如`x, y`而不是`print('x:', x, 'y:', y)`
 * 字符串
     * 使用单引号
 * 其他

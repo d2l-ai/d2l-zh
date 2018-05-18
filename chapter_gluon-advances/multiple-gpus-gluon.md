@@ -5,13 +5,13 @@
 先导入本节实验需要的包或模块。同上一节，运行本节中的程序需要至少两块GPU。
 
 ```{.python .input}
+import sys
+sys.path.append('..')
+import gluonbook as gb
 import mxnet as mx
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import loss as gloss, utils as gutils
-import sys
 from time import time
-sys.path.append('..')
-import utils
 ```
 
 ## 多GPU上初始化模型参数
@@ -19,7 +19,7 @@ import utils
 我们使用ResNet-18来作为本节的样例模型。
 
 ```{.python .input  n=1}
-net = utils.resnet18(10)
+net = gb.resnet18(10)
 ```
 
 之前我们介绍了如何使用`initialize`函数的`ctx`参数在CPU或单个GPU上初始化模型参数。事实上，`ctx`可以接受一系列的CPU/GPU，从而使初始化好的模型参数复制到`ctx`里所有的CPU/GPU上。
@@ -34,8 +34,7 @@ Gluon提供了上一节中实现的`split_and_load`函数。它可以划分一�
 ```{.python .input}
 x = nd.random.uniform(shape=(4, 1, 28, 28))
 gpu_x = gutils.split_and_load(x, ctx)
-print(net(gpu_x[0]))
-print(net(gpu_x[1]))
+net(gpu_x[0]), net(gpu_x[1])
 ```
 
 回忆一下[“模型参数的延后初始化”](../chapter_gluon-basics/deferred-init.md)一节中介绍的延后的初始化。现在，我们可以通过`data`访问初始化好的模型参数值了。需要注意的是，默认下`weight.data()`会返回CPU上的参数值。由于我们指定了2个GPU来初始化模型参数，我们需要指定GPU访问。我们看到，相同参数在不同的GPU上的值一样。
@@ -46,8 +45,7 @@ try:
     weight.data()
 except:
     print('not initialized on', mx.cpu())
-print(weight.data(ctx[0])[0])
-print(weight.data(ctx[1])[0])
+weight.data(ctx[0])[0], weight.data(ctx[1])[0]
 ```
 
 ## 多GPU训练模型
@@ -62,7 +60,7 @@ loss = gloss.SoftmaxCrossEntropyLoss()
 
 ```{.python .input  n=7}
 def train(num_gpus, batch_size, lr):
-    train_iter, test_iter = utils.load_data_fashion_mnist(batch_size)
+    train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
     ctx = [mx.gpu(i) for i in range(num_gpus)]
     print('running on:', ctx)
     net.initialize(init=init.Xavier(), ctx=ctx, force_reinit=True)
@@ -81,7 +79,7 @@ def train(num_gpus, batch_size, lr):
             trainer.step(batch_size)
         nd.waitall()
         print('epoch %d, training time: %.1f sec'%(epoch, time() - start))
-        test_acc = utils.evaluate_accuracy(test_iter, net, ctx[0])
+        test_acc = gb.evaluate_accuracy(test_iter, net, ctx[0])
         print('validation accuracy: %.4f'%(test_acc))
 ```
 

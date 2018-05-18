@@ -48,7 +48,7 @@ labels += nd.random.normal(scale=0.01, shape=labels.shape)
 注意到`features`的每一行是一个长度为2的向量，而`labels`的每一行是一个长度为1的向量（标量）。
 
 ```{.python .input  n=3}
-print(features[0], labels[0])
+features[0], labels[0]
 ```
 
 通过生成第二个特征`features[:, 1]`和标签 `labels` 的散点图，我们可以更直观地观察两者间的线性关系。

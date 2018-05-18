@@ -130,9 +130,7 @@ x.norm().asscalar()
 ```{.python .input  n=14}
 a = nd.arange(3).reshape((3, 1))
 b = nd.arange(2).reshape((1, 2))
-print('a:', a)
-print('b:', b)
-print('a + b:', a + b)
+a, b, a+b
 ```
 
 由于`a`和`b`分别是3行1列和1行2列的矩阵，为了使它们可以按元素相加，计算时`a`中第一列的三个元素被广播（复制）到了第二列，而`b`中第一行的两个元素被广播（复制）到了第二行和第三行。如此，我们就可以对两个3行2列的矩阵按元素相加，得到上面的结果。
@@ -181,8 +179,7 @@ id(x) == before
 
 ```{.python .input  n=19}
 x = nd.arange(9).reshape((3, 3))
-print('x:', x)
-x[1:3]
+x, x[1:3]
 ```
 
 我们可以指定NDArray中需要访问的单个元素的位置，例如矩阵中行和列的索引，并重设该元素的值。
@@ -208,7 +205,7 @@ import numpy as np
 x = np.ones((2, 3))
 y = nd.array(x)  # NumPy转换成NDArray。
 z = y.asnumpy()  # NDArray转换成NumPy。
-print([z, y])
+z, y
 ```
 
 ## 小结
