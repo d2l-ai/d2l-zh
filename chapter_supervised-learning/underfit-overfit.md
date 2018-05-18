@@ -76,10 +76,19 @@ $$y = 1.2x - 3.4x^2 + 5.6x^3 + 5.0 + \text{noise}$$
 需要注意的是，我们用以上相同的数据生成函数来生成训练数据集和测试数据集。两个数据集的样本数都是100。
 
 ```{.python .input}
-from mxnet import ndarray as nd
-from mxnet import autograd
-from mxnet import gluon
+%matplotlib inline
+import sys
+sys.path.append('..')
+import gluonbook as gb
+from mxnet import autograd, gluon, nd
+from mxnet.gluon import loss as gloss, nn
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 
+gb.set_fig_size(mpl)
+```
+
+```{.python .input}
 num_train = 100
 num_test = 100
 true_w = [1.2, -3.4, 5.6]
@@ -104,16 +113,10 @@ y += .1 * nd.random.normal(shape=y.shape)
 以下的训练步骤在[使用Gluon的线性回归](linear-regression-gluon.md)有过详细描述。这里不再赘述。
 
 ```{.python .input}
-%matplotlib inline
-import matplotlib as mpl
-mpl.rcParams['figure.dpi']= 120
-import matplotlib.pyplot as plt
-
 def train(X_train, X_test, y_train, y_test):
     # 线性回归模型
-    net = gluon.nn.Sequential()
-    with net.name_scope():
-        net.add(gluon.nn.Dense(1))
+    net = nn.Sequential()
+    net.add(nn.Dense(1))
     net.initialize()
     # 设一些默认参数
     learning_rate = 0.01
@@ -125,8 +128,8 @@ def train(X_train, X_test, y_train, y_test):
     # 默认SGD和均方误差
     trainer = gluon.Trainer(net.collect_params(), 'sgd', {
         'learning_rate': learning_rate})
-    square_loss = gluon.loss.L2Loss()
-    # 保存训练和测试损失
+    square_loss = gloss.L2Loss()
+    # 保存训练和测试损失。
     train_loss = []
     test_loss = []
     for e in range(epochs):
@@ -140,7 +143,7 @@ def train(X_train, X_test, y_train, y_test):
             net(X_train), y_train).mean().asscalar())
         test_loss.append(square_loss(
             net(X_test), y_test).mean().asscalar())
-    # 打印结果    
+    # 打印结果。
     plt.plot(train_loss)
     plt.plot(test_loss)
     plt.legend(['train','test'])
