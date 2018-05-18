@@ -177,6 +177,7 @@ pipeline，流水线
 
 size，大小
 
+transformation，变换
 
 ## 样式规范
 
