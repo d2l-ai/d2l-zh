@@ -28,9 +28,9 @@ num_inputs = 784
 num_outputs = 10
 num_hiddens = 256
 
-W1 = nd.random.normal(shape=(num_inputs, num_hiddens), scale=0.01)
+W1 = nd.random.normal(scale=0.01, shape=(num_inputs, num_hiddens))
 b1 = nd.zeros(num_hiddens)
-W2 = nd.random.normal(shape=(num_hiddens, num_outputs), scale=0.01)
+W2 = nd.random.normal(scale=0.01, shape=(num_hiddens, num_outputs))
 b2 = nd.zeros(num_outputs)
 params = [W1, b1, W2, b2]
 

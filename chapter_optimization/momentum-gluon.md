@@ -9,8 +9,7 @@
 import sys
 sys.path.append('..')
 import gluonbook as gb
-import mxnet as mx
-from mxnet import gluon, nd
+from mxnet import gluon, init, nd
 from mxnet.gluon import nn
 ```
 
@@ -34,7 +33,7 @@ net.add(nn.Dense(1))
 例如，以使用动量法的小批量随机梯度下降为例，我们可以在`Trainer`中定义动量超参数`momentum`。以下几组实验分别重现了[“动量法——从零开始”](momentum-scratch.md)一节中实验结果。
 
 ```{.python .input  n=3}
-net.initialize(mx.init.Normal(sigma=1), force_reinit=True)
+net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate': 0.2, 'momentum': 0.99})
 gb.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
@@ -42,7 +41,7 @@ gb.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
 ```
 
 ```{.python .input}
-net.initialize(mx.init.Normal(sigma=1), force_reinit=True)
+net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate': 0.2, 'momentum': 0.9})
 gb.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
@@ -50,7 +49,7 @@ gb.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,
 ```
 
 ```{.python .input}
-net.initialize(mx.init.Normal(sigma=1), force_reinit=True)
+net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate': 0.2, 'momentum': 0.5})
 gb.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=2,

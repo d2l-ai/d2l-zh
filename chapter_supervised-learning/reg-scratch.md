@@ -22,10 +22,7 @@ sys.path.append('..')
 import gluonbook as gb
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import mxnet as mx
 from mxnet import autograd, gluon, nd
-import numpy as np
-import random
 
 gb.set_fig_size(mpl)
 ```
@@ -61,12 +58,6 @@ labels_train, labels_test = labels[:n_train], labels[n_train:]
 
 ```{.python .input  n=4}
 batch_size = 1
-def data_iter(num_examples):
-    idx = list(range(num_examples))
-    random.shuffle(idx)
-    for i in range(0, num_examples, batch_size):
-        j = nd.array(idx[i:min(i+batch_size, num_examples)])
-        yield X.take(j), y.take(j)
 ```
 
 ## 初始化模型参数
@@ -97,8 +88,8 @@ def L2_penalty(w, b):
 ```
 
 ```{.python .input}
-epochs = 10
-learning_rate = 0.005
+num_epochs = 10
+lr = 0.005
 ```
 
 ## 定义训练和测试
@@ -106,34 +97,30 @@ learning_rate = 0.005
 下面我们定义剩下的所需要的函数。这个跟之前的教程大致一样，主要是区别在于计算`loss`的时候我们加上了L2正则化，以及我们将训练和测试损失都画了出来。
 
 ```{.python .input  n=7}
-def net(X, w, b):
-    return nd.dot(X, w) + b
+net = gb.linreg
+loss = gb.squared_loss
 
-def square_loss(yhat, y):
-    return (yhat - y.reshape(yhat.shape)) ** 2 / 2
-        
-def test(net, params, X, y):
-    return square_loss(net(X, *params), y).mean().asscalar()
-
-def train(lambd):
+def fit_and_plot(lambd):
     w, b = params = init_params()
-    train_loss = []
-    test_loss = []
-    for e in range(epochs):        
-        for data, label in gb.data_iter(batch_size, n_train, features, labels):
+    train_ls = []
+    test_ls = []
+    for _ in range(num_epochs):        
+        for X, y in gb.data_iter(batch_size, n_train, features, labels):
             with autograd.record():
-                output = net(data, *params)
-                loss = square_loss(
-                    output, label) + lambd * L2_penalty(*params)
-            loss.backward()
-            gb.sgd(params, learning_rate, batch_size)
-        train_loss.append(test(net, params, features_train, labels_train))
-        test_loss.append(test(net, params, features_test, labels_test))
-    plt.plot(train_loss)
-    plt.plot(test_loss)
-    plt.legend(['train', 'test'])
+                l = loss(net(X, w, b), y) + lambd * L2_penalty(w, b)
+            l.backward()
+            gb.sgd(params, lr, batch_size)
+        train_ls.append(loss(net(features_train, w, b),
+                             labels_train).mean().asscalar())
+        test_ls.append(loss(net(features_test, w, b),
+                            labels_test).mean().asscalar())
+    plt.xlabel('epochs')
+    plt.ylabel('loss')
+    plt.semilogy(range(1, num_epochs+1), train_ls)
+    plt.semilogy(range(1, num_epochs+1), test_ls)
+    plt.legend(['train','test'])
     plt.show()
-    return 'learned w[:10]:', w[:10].T, 'learned b:', b
+    return 'w[:10]:', w[:10].T, 'b:', b
 ```
 
 ## 观察过拟合
@@ -141,7 +128,7 @@ def train(lambd):
 接下来我们训练并测试我们的高维线性回归模型。注意这时我们并未使用正则化。
 
 ```{.python .input  n=8}
-train(0)
+fit_and_plot(0)
 ```
 
 即便训练误差可以达到0.000000，但是测试数据集上的误差很高。这是典型的过拟合现象。
@@ -154,7 +141,7 @@ train(0)
 下面我们重新初始化模型参数并设置一个正则化参数。
 
 ```{.python .input  n=9}
-train(5)
+fit_and_plot(5)
 ```
 
 我们发现训练误差虽然有所提高，但测试数据集上的误差有所下降。过拟合现象得到缓解。但打印出的学到的参数依然不是很理想，这主要是因为我们训练数据的样本相对维度来说太少。

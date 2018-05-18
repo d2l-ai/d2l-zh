@@ -36,13 +36,13 @@ from time import time
 ```{.python .input  n=2}
 # 初始化模型参数。
 scale = 0.01
-W1 = nd.random.normal(shape=(20, 1, 3, 3)) * scale
+W1 = nd.random.normal(scale=scale, shape=(20, 1, 3, 3))
 b1 = nd.zeros(shape=20)
-W2 = nd.random.normal(shape=(50, 20, 5, 5)) * scale
+W2 = nd.random.normal(scale=scale, shape=(50, 20, 5, 5))
 b2 = nd.zeros(shape=50)
-W3 = nd.random.normal(shape=(800, 128)) * scale
+W3 = nd.random.normal(scale=scale, shape=(800, 128))
 b3 = nd.zeros(shape=128)
-W4 = nd.random.normal(shape=(128, 10)) * scale
+W4 = nd.random.normal(scale=scale, shape=(128, 10))
 b4 = nd.zeros(shape=10)
 params = [W1, b1, W2, b2, W3, b3, W4, b4]
 

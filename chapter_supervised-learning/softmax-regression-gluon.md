@@ -8,7 +8,7 @@
 import sys
 sys.path.append('..')
 import gluonbook as gb
-from mxnet import autograd, gluon, nd
+from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import loss as gloss, nn
 ```
 
@@ -23,13 +23,13 @@ train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
 
 ## 定义和初始化模型
 
-在使用Gluon定义模型时，我们先通过添加Flatten实例将每张原始图片用向量表示。它的输出是一个行数为`batch_size`的矩阵，其中每一行代表了一个样本向量。在[“分类模型”](classification.md)一节中，我们提到Softmax回归的输出层是一个全连接层。因此，我们继续添加一个输出个数为10的全连接层。
+在使用Gluon定义模型时，我们先通过添加Flatten实例将每张原始图片用向量表示。它的输出是一个行数为`batch_size`的矩阵，其中每一行代表了一个样本向量。在[“分类模型”](classification.md)一节中，我们提到Softmax回归的输出层是一个全连接层。因此，我们继续添加一个输出个数为10的全连接层。我们使用均值为0标准差为0.01的正态分布随机初始化模型的权重参数。
 
 ```{.python .input  n=3}
 net = nn.Sequential()
 net.add(nn.Flatten())
 net.add(nn.Dense(10))
-net.initialize()
+net.initialize(init.Normal(sigma=0.01))
 ```
 
 ## Softmax和交叉熵损失函数

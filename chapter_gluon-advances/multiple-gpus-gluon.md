@@ -26,7 +26,7 @@ net = gb.resnet18(10)
 
 ```{.python .input}
 ctx = [mx.gpu(0), mx.gpu(1)]
-net.initialize(ctx=ctx)
+net.initialize(init=init.Normal(sigma=0.01), ctx=ctx)
 ```
 
 Gluon提供了上一节中实现的`split_and_load`函数。它可以划分一个小批量的数据样本并复制到各个CPU/GPU上。之后，根据输入数据所在的CPU/GPU，模型计算会发生在相同的CPU/GPU上。
@@ -63,7 +63,7 @@ def train(num_gpus, batch_size, lr):
     train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
     ctx = [mx.gpu(i) for i in range(num_gpus)]
     print('running on:', ctx)
-    net.initialize(init=init.Xavier(), ctx=ctx, force_reinit=True)
+    net.initialize(init=init.Normal(sigma=0.01), ctx=ctx, force_reinit=True)
     trainer = gluon.Trainer(
         net.collect_params(), 'sgd', {'learning_rate': lr})
     for epoch in range(1, 6):

@@ -87,8 +87,8 @@ test_iter = gdata.DataLoader(mnist_test, batch_size, shuffle=False)
 num_inputs = 784
 num_outputs = 10
 
-W = nd.random.normal(shape=(num_inputs, num_outputs))
-b = nd.random.normal(shape=num_outputs)
+W = nd.random.normal(scale=0.01, shape=(num_inputs, num_outputs))
+b = nd.zeros(num_outputs)
 params = [W, b]
 ```
 
@@ -105,14 +105,14 @@ for param in params:
 
 在下面例子中，给定一个NDArray矩阵`X`。我们可以只对其中每一列（`axis=0`）或每一行（`axis=1`）求和，并在结果中保留行和列这两个维度（`keepdims=True`）。
 
-```{.python .input}
+```{.python .input  n=10}
 X = nd.array([[1,2,3], [4,5,6]])
 X.sum(axis=0, keepdims=True), X.sum(axis=1, keepdims=True)
 ```
 
 下面我们就可以定义上一节中介绍的Softmax运算了。在下面的函数中，矩阵`X`的行数是样本数，列数是输出个数。为了表达样本预测各个输出的概率，Softmax运算会先通过`exp = nd.exp(X)`对每个元素做指数运算，再对`exp`矩阵的每行求和，最后令矩阵每行各元素与该行元素之和相除。这样一来，最终得到的矩阵每行元素和为1且非负（应用了指数运算）。因此，该矩阵每行都是合法的概率分布。Softmax运算的输出矩阵中的任意一行元素是一个样本在各个类别上的概率。
 
-```{.python .input  n=10}
+```{.python .input  n=11}
 def softmax(X):
     exp = X.exp()
     partition = exp.sum(axis=1, keepdims=True)
@@ -121,7 +121,7 @@ def softmax(X):
 
 可以看到，对于随机输入，我们将每个元素变成了非负数，而且每一行加起来为1。
 
-```{.python .input  n=11}
+```{.python .input  n=12}
 X = nd.random.normal(shape=(2, 5))
 X_prob = softmax(X)
 X_prob, X_prob.sum(axis=1)
@@ -131,7 +131,7 @@ X_prob, X_prob.sum(axis=1)
 
 有了Softmax运算，我们可以定义上节描述的Softmax回归模型了。这里通过`reshape`函数将每张原始图片改成长度为`num_inputs`的向量。
 
-```{.python .input  n=12}
+```{.python .input  n=13}
 def net(X):
     return softmax(nd.dot(X.reshape((-1, num_inputs)), W) + b)
 ```
@@ -140,7 +140,7 @@ def net(X):
 
 上一节中，我们介绍了Softmax回归使用的交叉熵损失函数。为了得到标签的被预测概率，我们可以使用`pick`函数。在下面例子中，`y_hat`是2个样本在3个类别的预测概率，`y`是两个样本的标签类别。通过使用`pick`函数，我们得到了2个样本的标签的被预测概率。
 
-```{.python .input}
+```{.python .input  n=14}
 y_hat = nd.array([[0.1, 0.3, 0.6], [0.3, 0.2, 0.5]])
 y = nd.array([0, 2])
 nd.pick(y_hat, y)
@@ -148,7 +148,7 @@ nd.pick(y_hat, y)
 
 下面，我们直接将上一节中的交叉熵损失函数翻译成代码。
 
-```{.python .input  n=13}
+```{.python .input  n=15}
 def cross_entropy(y_hat, y):
     return -nd.pick(y_hat.log(), y)
 ```
@@ -159,20 +159,20 @@ def cross_entropy(y_hat, y):
 
 下面定义`accuracy`函数。其中`y_hat.argmax(axis=1)`返回矩阵`y_hat`每行中最大元素的索引，且返回结果与`y`形状相同。我们在[“数据操作”](../chapter_crashcourse/ndarray.md)一节介绍过，条件判断式`(y_hat.argmax(axis=1) == y)`是一个值为0或1的NDArray。
 
-```{.python .input  n=15}
+```{.python .input  n=16}
 def accuracy(y_hat, y):
     return (y_hat.argmax(axis=1) == y).mean().asscalar()
 ```
 
 让我们继续使用在演示`pick`函数时定义的`y_hat`和`y`，分别作为预测概率分布和标签。可以看到，第一个样本预测类别为2（该行最大元素0.6在本行的索引），与真实标签不一致；第二个样本预测类别为2（该行最大元素0.5在本行的索引），与真实标签一致。因此，这两个样本上的分类准确率为0.5。
 
-```{.python .input}
+```{.python .input  n=17}
 accuracy(y_hat, y)
 ```
 
 类似地，我们可以评价模型`net`在数据集`data_iter`上的准确率。
 
-```{.python .input  n=16}
+```{.python .input  n=18}
 def evaluate_accuracy(data_iter, net):
     acc = 0
     for X, y in data_iter:
@@ -182,7 +182,7 @@ def evaluate_accuracy(data_iter, net):
 
 因为我们随机初始化了模型`net`，所以这个模型的准确率应该接近于`1 / num_outputs = 0.1`。
 
-```{.python .input  n=17}
+```{.python .input  n=19}
 evaluate_accuracy(test_iter, net)
 ```
 
@@ -192,7 +192,7 @@ evaluate_accuracy(test_iter, net)
 
 训练Softmax回归的实现跟前面线性回归中的实现非常相似。我们同样使用小批量随机梯度下降来优化模型的损失函数。在训练模型时，迭代周期数`num_epochs`和学习率`lr`都是可以调的超参数。改变它们的值可能会得到分类更准确的模型。
 
-```{.python .input  n=18}
+```{.python .input  n=20}
 num_epochs = 5
 lr = 0.1
 loss = cross_entropy
@@ -228,7 +228,7 @@ train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size, params,
 
 训练完成后，现在我们可以演示如何对图片进行分类。给定一系列图片，我们比较一下它们的真实标签和模型预测结果。
 
-```{.python .input  n=19}
+```{.python .input  n=21}
 data, label = mnist_test[0:9]
 show_fashion_imgs(data)
 print('labels:', get_text_labels(label))

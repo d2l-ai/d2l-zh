@@ -68,7 +68,6 @@ def adam(params, vs, sqrs, lr, batch_size, t):
 import sys
 sys.path.append('..')
 import gluonbook as gb
-import mxnet as mx
 from mxnet import autograd, nd
 import numpy as np
 ```
@@ -89,7 +88,7 @@ labels += nd.random.normal(scale=0.01, shape=labels.shape)
 
 # 初始化模型参数。
 def init_params():
-    w = nd.random.normal(scale=1, shape=(num_inputs, 1))
+    w = nd.random.normal(scale=0.01, shape=(num_inputs, 1))
     b = nd.zeros(shape=(1,))
     params = [w, b]
     vs = []

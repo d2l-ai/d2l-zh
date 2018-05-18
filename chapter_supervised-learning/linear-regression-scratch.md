@@ -19,9 +19,7 @@ $$\boldsymbol{\hat{y}} = \boldsymbol{X} \boldsymbol{w} + b,$$
 %matplotlib inline
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import mxnet as mx
 from mxnet import autograd, nd
-import numpy as np
 import random
 ```
 
@@ -93,7 +91,7 @@ for X, y in data_iter(batch_size, num_examples, features, labels):
 下面我们随机初始化模型参数。
 
 ```{.python .input  n=7}
-w = nd.random.normal(scale=1, shape=(num_inputs, 1))
+w = nd.random.normal(scale=0.01, shape=(num_inputs, 1))
 b = nd.zeros(shape=(1,))
 params = [w, b]
 ```
@@ -154,7 +152,7 @@ for epoch in range(1, num_epochs + 1):
             l = loss(net(X, w, b), y)
         l.backward()
         sgd([w, b], lr, batch_size)
-    print("epoch %d, loss: %f"
+    print("epoch %d, loss %f"
           % (epoch, loss(net(features, w, b), labels).mean().asnumpy()))
 ```
 

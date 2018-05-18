@@ -103,7 +103,7 @@ poly_features = nd.concat(features, nd.power(features, 2),
                           nd.power(features, 3))
 labels = (true_w[0] * poly_features[:, 0] + true_w[1] * poly_features[:, 1]
           + true_w[2] * poly_features[:, 2] + true_b)
-labels += 0.1 * nd.random.normal(shape=labels.shape)
+labels += nd.random.normal(scale=0.1, shape=labels.shape)
 ```
 
 ```{.python .input}

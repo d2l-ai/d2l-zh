@@ -7,9 +7,7 @@
 ```{.python .input}
 %config InlineBackend.figure_format = 'retina'
 %matplotlib inline
-import mxnet as mx
 from mxnet import autograd, nd
-import numpy as np
 ```
 
 ## 生成数据集
@@ -69,10 +67,12 @@ net.add(nn.Dense(1))
 
 ## 初始化模型参数
 
-在使用`net`前，我们需要初始化模型参数，例如线性回归模型中的权重和偏差。这里我们使用默认的随机初始化方法：权重参数每个元素随机采样于-0.07到0.07之间的均匀分布，偏差参数全部元素清零。
+在使用`net`前，我们需要初始化模型参数，例如线性回归模型中的权重和偏差。这里我们从MXNet中导入init模块，并通过`init.Normal(sigma=0.01)`指定权重参数每个元素将在初始化时随机采样于均值为0标准差为0.01的正态分布。偏差参数全部元素初始化为零。
 
 ```{.python .input  n=7}
-net.initialize()
+from mxnet import init
+
+net.initialize(init.Normal(sigma=0.01))
 ```
 
 ## 定义损失函数

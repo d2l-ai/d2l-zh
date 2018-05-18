@@ -10,8 +10,7 @@
 import sys
 sys.path.append('..')
 import gluonbook as gb
-import mxnet as mx
-from mxnet import gluon, nd
+from mxnet import gluon, init, nd
 from mxnet.gluon import nn
 ```
 
@@ -35,7 +34,7 @@ net.add(nn.Dense(1))
 我们可以在Trainer中定义优化算法名称`rmsprop`并定义$\gamma$超参数`gamma1`。以下几组实验分别重现了[“RMSProp——从零开始”](rmsprop-scratch.md)一节中实验结果。
 
 ```{.python .input  n=3}
-net.initialize(mx.init.Normal(sigma=1), force_reinit=True)
+net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'rmsprop',
                         {'learning_rate': 0.03, 'gamma1': 0.9})
 gb.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
@@ -43,7 +42,7 @@ gb.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
 ```
 
 ```{.python .input}
-net.collect_params().initialize(mx.init.Normal(sigma=1), force_reinit=True)
+net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'rmsprop',
                         {'learning_rate': 0.03, 'gamma1': 0.999})
 gb.optimize(batch_size=10, trainer=trainer, num_epochs=3, decay_epoch=None,
