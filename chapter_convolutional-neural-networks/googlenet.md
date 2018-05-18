@@ -106,16 +106,14 @@ b5.add(
 )
 
 net = nn.Sequential()
-net.add(b1, b2, b3, b4, b5, nn.Flatten(), nn.Dense(10))
+net.add(b1, b2, b3, b4, b5, nn.Dense(10))
 ```
 
 因为这个模型相计算复杂，而且修改通道数不如VGG那样简单。本节里我们将输入高宽从224降到96来加速计算。下面演示各个模块之间的输出形状变化。
 
 ```{.python .input  n=7}
 X = nd.random.uniform(shape=(1,1,96,96))
-
 net.initialize()
-
 for layer in net:
     X = layer(X)
     print(layer.name, 'output shape:\t', X.shape)
@@ -129,9 +127,7 @@ for layer in net:
 ctx = gb.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': .1})
-
 train_data, test_data = gb.load_data_fashion_mnist(batch_size=128, resize=96)
-
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
 gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 ```

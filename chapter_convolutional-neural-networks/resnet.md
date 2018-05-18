@@ -14,31 +14,29 @@ ResNet的基础块叫做残差块。如下图所示，它将层A的输出在输�
 
 ResNet沿用了VGG全$3\times 3$卷积层设计。残差块输入首先被连续作用两次同样输入通道的$3\times 3$卷积层，每个卷积层后跟一个批量归一化层，然后是ReLU激活层。然后我们将输入跳过这两个卷积层后直接加在最后的ReLU激活层前。这样我们要求这两个卷积层的输出都保持跟输入形状一样来保证可以之后与输入相加。
 
-如果我们想改变输入大小，意味着卷积层使用跟输入不一样的通道大小，同时我们让第一个卷积层使用步幅2来减半输入高宽。为了保证的相加操作还能进行，我们引入一个额外的$1\times 1$卷积层来将输入变换成需要的形状后再相加。
+如果想改变输出的通道数，我们则引入一个额外的$1\times 1$卷积层来将输入变换成需要的形状后再相加。
 
-残差块的实现见下。它可以设定输出通道数，和是否保持输出形状和输入一致。
+残差块的实现见下。它可以设定输出通道数，是否是用额外的卷积层来修改输入通道数，以及步幅大小。
 
 ```{.python .input  n=1}
 import sys
 sys.path.append('..')
 import gluonbook as gb
-import mxnet as mx
+
 from mxnet import nd, gluon, init
 from mxnet.gluon import nn
 
 class Residual(nn.Block):
-    def __init__(self, num_channels, same_shape=True, **kwargs):
+    def __init__(self, num_channels, use_1x1conv=False, strides=1, **kwargs):
         super(Residual, self).__init__(**kwargs)
-        if same_shape:
-            self.conv1 = nn.Conv2D(num_channels, kernel_size=3, padding=1)
-            self.conv2 = nn.Conv2D(num_channels, kernel_size=3, padding=1)
-            self.conv3 = None
+        self.conv1 = nn.Conv2D(num_channels, kernel_size=3, padding=1, 
+                               strides=strides)
+        self.conv2 = nn.Conv2D(num_channels, kernel_size=3, padding=1)
+        if use_1x1conv:
+            self.conv3 = nn.Conv2D(num_channels, kernel_size=1, 
+                                   strides=strides)
         else:
-            self.conv1 = nn.Conv2D(num_channels, kernel_size=3, padding=1, 
-                                   strides=2)
-            self.conv2 = nn.Conv2D(num_channels, kernel_size=3, padding=1)            
-            self.conv3 = nn.Conv2D(num_channels, kernel_size=1, strides=2)
-
+            self.conv3 = None
         self.bn1 = nn.BatchNorm()
         self.bn2 = nn.BatchNorm()
 
@@ -55,58 +53,69 @@ class Residual(nn.Block):
 ```{.python .input  n=2}
 blk = Residual(3)
 blk.initialize()
-
-x = nd.random.uniform(shape=(4, 3, 6, 6))
-blk(x).shape
+X = nd.random.uniform(shape=(4, 3, 6, 6))
+blk(X).shape
 ```
 
 否则我们改变输出形状的同时减半输出高宽：
 
 ```{.python .input  n=3}
-blk2 = Residual(6, same_shape=False)
-blk2.initialize()
-blk2(x).shape
+blk = Residual(6, use_1x1conv=True, strides=2)
+blk.initialize()
+blk(X).shape
 ```
 
 ## ResNet模型
 
-ResNet主体是由多个残差块构成。它的构建模式是首先一个减半高宽的残差块，然后接数个保持输入形状的残差块，然后再接一个通道翻倍但高宽减半的残差块。如此重复4次。我们先定义一个这样的模式，它在一个减半高宽的残差块后加数个保持形状的残差块：
+ResNet前面两层跟前面介绍的GoogLeNet一样，在输出通道为64、步幅为2的$7\times 7$卷积层后接步幅为2的$3\times 3$的最大池化层。不同在于一点在于ResNet的每个卷积层后面增加的批量归一化层。
+
+```{.python .input}
+net = nn.Sequential()
+net.add(nn.Conv2D(64, kernel_size=7, strides=2, padding=3),
+        nn.BatchNorm(), nn.Activation('relu'),
+        nn.MaxPool2D(pool_size=3, strides=2, padding=1))
+```
+
+GoogLeNet在后面接四个有Inception块组成的模块。而ResNet则是使用四个由残差块组成的模块。每个模块使用数个同样输出通道的残差块。第一个模块的通道数同输入一致。之后每个模块对之前的通道数翻倍。同时因为第一个模块之前已经使用了步幅为2的最大池化层，所以不继续减小高宽。后面的模块则在第一个残差块里减半高宽。
+
+下面我们实现这个模块，注意我们根据它是不是第一个模块而使用了不同的策略。
 
 ```{.python .input  n=4}
-def resnet_block(num_channels, num_residuals):
+def resnet_block(num_channels, num_residuals, first_block=False):
     blk = nn.Sequential()
     for i in range(num_residuals):
-        blk.add(Residual(num_channels, same_shape=(i is not 0)))
+        if i == 0 and not first_block:
+            blk.add(Residual(num_channels, use_1x1conv=True, strides=2))
+        else:
+            blk.add(Residual(num_channels))
     return blk
 ```
 
-下面我们构造一个ResNet。前面两层跟前面介绍的GoogLeNet一样，在输出通道为64、步幅为2的$7\times 7$卷积层后接步幅为2的$3\times 3$的最大池化层。不同于GoogLeNet在后面接4个有Inception块组成的模块，这里我们使用输出通道数从64开始，每次翻倍的由2个残差块组成的模块。最后跟GoogLeNet一样使用全局平均池化层和全连接层来输出。
-
-因为这里每个模块里有4个卷积层（$1\times 1$卷积层不算），加上最开始的卷积层和最后的全连接层，一共有18层。这个模型也通常被称之为ResNet 18。通过配置不同的通道数和模块里的残差块数我们可以得到不同的ResNet模型。
+下面我们为ResNet加入所有残差块。这里每个模块使用两个残差块。
 
 ```{.python .input  n=5}
-net = nn.Sequential()
-net.add(
-    nn.Conv2D(64, kernel_size=7, strides=2, activation='relu'),
-    nn.MaxPool2D(pool_size=3, strides=2),
-    resnet_block(64, 2),
-    resnet_block(128, 2),
-    resnet_block(256, 2),
-    resnet_block(512, 2),
-    nn.GlobalAvgPool2D(),
-    nn.Dense(10),
-)
+net.add(resnet_block(64, 2, first_block=True),
+        resnet_block(128, 2),
+        resnet_block(256, 2),
+        resnet_block(512, 2))
 ```
 
-主要到每个残差块里我们都将输入直接或者通过简单的$1\times 1$卷积层加在输出上，所以即使层数很多，损失函数的梯度也能很快的传递到靠近输入的层那里。这使得即使是很深的ResNet（例如ResNet 152）在收敛速度上也同浅的ResNet（例如这里实现的ResNet 18）类似。同时虽然它的主体架构上跟GoogLeNet类似，但ResNet结构更加简单，修改也更加方便。这些因素都导致了ResNet迅速的被广泛使用。
+最后与GoogLeNet一样我们加入全局平均池化层后接上全连接层输出。
+
+```{.python .input}
+net.add(nn.GlobalAvgPool2D(), nn.Dense(10))
+```
+
+这里每个模块里有4个卷积层（不计算$1\times 1$卷积层），加上最开始的卷积层和最后的全连接层，一共有18层。这个模型也通常被称之为ResNet 18。通过配置不同的通道数和模块里的残差块数我们可以得到不同的ResNet模型。
+
+
+注意到每个残差块里我们都将输入直接或者通过简单的$1\times 1$卷积层加在输出上，所以即使层数很多，损失函数的梯度也能很快的传递到靠近输入的层那里。这使得即使是很深的ResNet（例如ResNet 152）在收敛速度上也同浅的ResNet（例如这里实现的ResNet 18）类似。同时虽然它的主体架构上跟GoogLeNet类似，但ResNet结构更加简单，修改也更加方便。这些因素都导致了ResNet迅速的被广泛使用。
 
 最后我们考察输入在ResNet不同模块之间的变化。
 
-```{.python .input}
-X = nd.random.uniform(shape=(1,1,96,96))
-
+```{.python .input  n=6}
+X = nd.random.uniform(shape=(1, 1, 224, 224))
 net.initialize()
-
 for layer in net:
     X = layer(X)
     print(layer.name, 'output shape:\t', X.shape)
@@ -114,16 +123,17 @@ for layer in net:
 
 ## 获取数据并训练
 
-使用跟GoogLeNet一样的超参数。
+使用跟GoogLeNet一样的超参数，但减半了学习率。
 
-```{.python .input  n=7}
+```{.python .input}
 ctx = gb.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
-trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.1})
+trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.05})
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
 train_data, test_data = gb.load_data_fashion_mnist(batch_size=256, resize=96)
 gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 ```
+
 
 ## 小结
 
