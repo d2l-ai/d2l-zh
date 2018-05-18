@@ -90,7 +90,7 @@ gb.set_fig_size(mpl)
 
 ```{.python .input}
 n_train = 100
-num_test = 100
+n_test = 100
 true_w = [1.2, -3.4, 5.6]
 true_b = 5.0
 ```
@@ -98,14 +98,16 @@ true_b = 5.0
 下面生成数据集。
 
 ```{.python .input}
-x = nd.random.normal(shape=(n_train + num_test, 1))
-X = nd.concat(x, nd.power(x, 2), nd.power(x, 3))
-y = true_w[0] * X[:, 0] + true_w[1] * X[:, 1] + true_w[2] * X[:, 2] + true_b
-y += 0.1 * nd.random.normal(shape=y.shape)
+features = nd.random.normal(shape=(n_train + n_test, 1))
+poly_features = nd.concat(features, nd.power(features, 2),
+                          nd.power(features, 3))
+labels = (true_w[0] * poly_features[:, 0] + true_w[1] * poly_features[:, 1]
+          + true_w[2] * poly_features[:, 2] + true_b)
+labels += 0.1 * nd.random.normal(shape=labels.shape)
 ```
 
 ```{.python .input}
-'x:', x[:5], 'X:', X[:5], 'y:', y[:5]
+features[:5], poly_features[:5], labels[:5]
 ```
 
 ```{.python .input}
@@ -120,24 +122,26 @@ loss = gloss.L2Loss()
 以下的训练步骤在[使用Gluon的线性回归](linear-regression-gluon.md)有过详细描述。这里不再赘述。
 
 ```{.python .input}
-def fit_and_plot(X_train, X_test, y_train, y_test):
+def fit_and_plot(features_train, features_test, labels_train, labels_test):
     net = nn.Sequential()
     net.add(nn.Dense(1))
     net.initialize()
-    batch_size = min(10, y_train.shape[0])
-    train_iter = gdata.DataLoader(gdata.ArrayDataset(X_train, y_train),
-                                  batch_size, shuffle=True)
+    batch_size = min(10, labels_train.shape[0])
+    train_iter = gdata.DataLoader(gdata.ArrayDataset(
+        features_train, labels_train), batch_size, shuffle=True)
     trainer = gluon.Trainer(net.collect_params(), 'sgd',
                             {'learning_rate': 0.01})
     train_ls, test_ls = [], []
     for _ in range(num_epochs):
-        for data, label in train_iter:
+        for X, y in train_iter:
             with autograd.record():
-                l = loss(net(data), label)
+                l = loss(net(X), y)
             l.backward()
             trainer.step(batch_size)
-        train_ls.append(loss(net(X_train), y_train).mean().asscalar())
-        test_ls.append(loss(net(X_test), y_test).mean().asscalar())
+        train_ls.append(loss(net(features_train),
+                             labels_train).mean().asscalar())
+        test_ls.append(loss(net(features_test),
+                            labels_test).mean().asscalar())
     plt.xlabel('epochs')
     plt.ylabel('loss')
     plt.semilogy(range(1, num_epochs+1), train_ls)
@@ -152,7 +156,8 @@ def fit_and_plot(X_train, X_test, y_train, y_test):
 我们先使用与数据生成函数同阶的三阶多项式拟合。实验表明这个模型的训练误差和在测试数据集的误差都较低。训练出的模型参数也接近真实值。
 
 ```{.python .input}
-fit_and_plot(X[:n_train, :], X[n_train:, :], y[:n_train], y[n_train:])
+fit_and_plot(poly_features[:n_train, :], poly_features[n_train:, :],
+             labels[:n_train], labels[n_train:])
 ```
 
 ### 线性拟合（欠拟合）
@@ -160,7 +165,8 @@ fit_and_plot(X[:n_train, :], X[n_train:, :], y[:n_train], y[n_train:])
 我们再试试线性拟合。很明显，该模型的训练误差很高。线性模型在非线性模型（例如三阶多项式）生成的数据集上容易欠拟合。
 
 ```{.python .input}
-fit_and_plot(x[:n_train, :], x[n_train:, :], y[:n_train], y[n_train:])
+fit_and_plot(features[:n_train, :], features[n_train:, :], labels[:n_train],
+             labels[n_train:])
 ```
 
 ### 训练量不足（过拟合）
@@ -168,7 +174,8 @@ fit_and_plot(x[:n_train, :], x[n_train:, :], y[:n_train], y[n_train:])
 事实上，即便是使用与数据生成模型同阶的三阶多项式模型，如果训练量不足，该模型依然容易过拟合。让我们仅仅使用两个训练样本来训练。很显然，训练样本过少了，甚至少于模型参数的数量。这使模型显得过于复杂，以至于容易被训练数据集中的噪音影响。在机器学习过程中，即便训练误差很低，但是测试数据集上的误差很高。这是典型的过拟合现象。
 
 ```{.python .input}
-fit_and_plot(X[0:2, :], X[n_train:, :], y[0:2], y[n_train:])
+fit_and_plot(poly_features[0:2, :], poly_features[n_train:, :], labels[0:2],
+             labels[n_train:])
 ```
 
 我们还将在后面的章节继续讨论过拟合问题以及应对过拟合的方法，例如正则化。

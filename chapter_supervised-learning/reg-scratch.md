@@ -120,7 +120,7 @@ def train(lambd):
     train_loss = []
     test_loss = []
     for e in range(epochs):        
-        for data, label in data_iter(num_train):
+        for data, label in gb.data_iter(num_train):
             with autograd.record():
                 output = net(data, *params)
                 loss = square_loss(
