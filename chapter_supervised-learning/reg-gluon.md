@@ -23,16 +23,21 @@ gb.set_fig_size(mpl)
 n_train = 20
 n_test = 100
 num_inputs = 200
-
 true_w = nd.ones((num_inputs, 1)) * 0.01
 true_b = 0.05
 
 features = nd.random.normal(shape=(n_train+n_test, num_inputs))
 labels = nd.dot(features, true_w) + true_b
 labels += nd.random.normal(scale=0.01, shape=labels.shape)
-
 features_train, features_test = features[:n_train, :], features[n_train:, :]
 labels_train, labels_test = labels[:n_train], labels[n_train:]
+
+num_epochs = 10
+learning_rate = 0.003
+batch_size = 1
+train_iter = gdata.DataLoader(gdata.ArrayDataset(
+    features_train, labels_train), batch_size, shuffle=True)
+loss = gloss.L2Loss()
 ```
 
 ## 定义训练和测试
@@ -40,17 +45,6 @@ labels_train, labels_test = labels[:n_train], labels[n_train:]
 跟前一样定义训练模块。你也许发现了主要区别，`Trainer`有一个新参数`wd`。我们通过优化算法的``wd``参数 (weight decay)实现对模型的正则化。这相当于$L_2$范数正则化。
 
 ```{.python .input  n=3}
-batch_size = 1
-train_iter = gdata.DataLoader(gdata.ArrayDataset(
-    features_train, labels_train), batch_size, shuffle=True)
-loss = gloss.L2Loss()
-
-num_epochs = 10
-learning_rate = 0.003
-
-def test(net, X, y):
-    return loss(net(X), y).mean().asscalar()
-
 def fit_and_plot(weight_decay):
     net = nn.Sequential()
     net.add(nn.Dense(1))
@@ -62,7 +56,7 @@ def fit_and_plot(weight_decay):
         'learning_rate': learning_rate})
     train_ls = []
     test_ls = []
-    for _ in range(num_epochs):        
+    for _ in range(num_epochs):
         for X, y in train_iter:
             with autograd.record():
                 l = loss(net(X), y)
