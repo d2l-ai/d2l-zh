@@ -31,8 +31,8 @@ gb.set_fig_size(mpl)
 ```
 
 ```{.python .input  n=1}
-num_train = 20
-num_test = 100
+n_train = 20
+n_test = 100
 num_inputs = 200
 ```
 
@@ -49,12 +49,12 @@ true_b = 0.05
 我们接着生成训练和测试数据集。
 
 ```{.python .input  n=3}
-X = nd.random.normal(shape=(num_train+num_test, num_inputs))
-y = nd.dot(X, true_w) + true_b
-y += .01 * nd.random.normal(shape=y.shape)
+features = nd.random.normal(shape=(n_train+n_test, num_inputs))
+labels = nd.dot(features, true_w) + true_b
+labels += .01 * nd.random.normal(shape=labels.shape)
 
-X_train, X_test = X[:num_train, :], X[num_train:, :]
-y_train, y_test = y[:num_train], y[num_train:]
+features_train, features_test = features[:n_train, :], features[n_train:, :]
+labels_train, labels_test = labels[:n_train], labels[n_train:]
 ```
 
 当我们开始训练神经网络的时候，我们需要不断读取数据块。这里我们定义一个函数它每次返回`batch_size`个随机的样本和对应的目标。我们通过python的`yield`来构造一个迭代器。
@@ -120,15 +120,15 @@ def train(lambd):
     train_loss = []
     test_loss = []
     for e in range(epochs):        
-        for data, label in gb.data_iter(num_train):
+        for data, label in gb.data_iter(batch_size, n_train, features, labels):
             with autograd.record():
                 output = net(data, *params)
                 loss = square_loss(
                     output, label) + lambd * L2_penalty(*params)
             loss.backward()
             gb.sgd(params, learning_rate, batch_size)
-        train_loss.append(test(net, params, X_train, y_train))
-        test_loss.append(test(net, params, X_test, y_test))
+        train_loss.append(test(net, params, features_train, labels_train))
+        test_loss.append(test(net, params, features_test, labels_test))
     plt.plot(train_loss)
     plt.plot(test_loss)
     plt.legend(['train', 'test'])
