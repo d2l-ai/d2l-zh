@@ -129,8 +129,7 @@ def fit_and_plot(X_train, X_test, y_train, y_test):
                                   batch_size, shuffle=True)
     trainer = gluon.Trainer(net.collect_params(), 'sgd',
                             {'learning_rate': 0.01})
-    train_ls = []
-    test_ls = []
+    train_ls, test_ls = [], []
     for _ in range(num_epochs):
         for data, label in train_iter:
             with autograd.record():
@@ -141,8 +140,8 @@ def fit_and_plot(X_train, X_test, y_train, y_test):
         test_ls.append(loss(net(X_test), y_test).mean().asscalar())
     plt.xlabel('epochs')
     plt.ylabel('loss')
-    plt.semilogy(train_ls)
-    plt.semilogy(test_ls)
+    plt.semilogy(range(1, num_epochs+1), train_ls)
+    plt.semilogy(range(1, num_epochs+1), test_ls)
     plt.legend(['train','test'])
     plt.show()
     return ('weight:', net[0].weight.data(), 'bias:', net[0].bias.data())

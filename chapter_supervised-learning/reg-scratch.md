@@ -15,12 +15,22 @@ $$y = 0.05 + \sum_{i = 1}^p 0.01x_i +  \text{noise}$$
 
 需要注意的是，我们用以上相同的数据生成函数来生成训练数据集和测试数据集。为了观察过拟合，我们特意把训练数据样本数设低，例如$n=20$，同时把维度升高，例如$p=200$。
 
-```{.python .input  n=1}
-from mxnet import ndarray as nd
-from mxnet import autograd
-from mxnet import gluon
+```{.python .input}
+%matplotlib inline
+import sys
+sys.path.append('..')
+import gluonbook as gb
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 import mxnet as mx
+from mxnet import autograd, gluon, nd
+import numpy as np
+import random
 
+gb.set_fig_size(mpl)
+```
+
+```{.python .input  n=1}
 num_train = 20
 num_test = 100
 num_inputs = 200
@@ -39,7 +49,7 @@ true_b = 0.05
 我们接着生成训练和测试数据集。
 
 ```{.python .input  n=3}
-X = nd.random.normal(shape=(num_train + num_test, num_inputs))
+X = nd.random.normal(shape=(num_train+num_test, num_inputs))
 y = nd.dot(X, true_w) + true_b
 y += .01 * nd.random.normal(shape=y.shape)
 
@@ -50,13 +60,12 @@ y_train, y_test = y[:num_train], y[num_train:]
 当我们开始训练神经网络的时候，我们需要不断读取数据块。这里我们定义一个函数它每次返回`batch_size`个随机的样本和对应的目标。我们通过python的`yield`来构造一个迭代器。
 
 ```{.python .input  n=4}
-import random
 batch_size = 1
 def data_iter(num_examples):
     idx = list(range(num_examples))
     random.shuffle(idx)
     for i in range(0, num_examples, batch_size):
-        j = nd.array(idx[i:min(i+batch_size,num_examples)])
+        j = nd.array(idx[i:min(i+batch_size, num_examples)])
         yield X.take(j), y.take(j)
 ```
 
@@ -66,7 +75,7 @@ def data_iter(num_examples):
 
 ```{.python .input  n=5}
 def init_params():
-    w = nd.random_normal(scale=1, shape=(num_inputs, 1))
+    w = nd.random.normal(scale=1, shape=(num_inputs, 1))
     b = nd.zeros(shape=(1,))
     params = [w, b]
     for param in params:
@@ -87,34 +96,26 @@ def L2_penalty(w, b):
     return ((w**2).sum() + b**2) / 2
 ```
 
+```{.python .input}
+epochs = 10
+learning_rate = 0.005
+```
+
 ## 定义训练和测试
 
 下面我们定义剩下的所需要的函数。这个跟之前的教程大致一样，主要是区别在于计算`loss`的时候我们加上了L2正则化，以及我们将训练和测试损失都画了出来。
 
 ```{.python .input  n=7}
-%matplotlib inline
-import matplotlib as mpl
-mpl.rcParams['figure.dpi']= 120
-import matplotlib.pyplot as plt
-import numpy as np
-
 def net(X, w, b):
     return nd.dot(X, w) + b
 
 def square_loss(yhat, y):
     return (yhat - y.reshape(yhat.shape)) ** 2 / 2
-
-def sgd(params, lr, batch_size):
-    for param in params:
-        param[:] = param - lr * param.grad / batch_size
         
 def test(net, params, X, y):
     return square_loss(net(X, *params), y).mean().asscalar()
-    #return np.mean(square_loss(net(X, *params), y).asnumpy())
 
 def train(lambd):
-    epochs = 10
-    learning_rate = 0.005
     w, b = params = init_params()
     train_loss = []
     test_loss = []
@@ -125,7 +126,7 @@ def train(lambd):
                 loss = square_loss(
                     output, label) + lambd * L2_penalty(*params)
             loss.backward()
-            sgd(params, learning_rate, batch_size)
+            gb.sgd(params, learning_rate, batch_size)
         train_loss.append(test(net, params, X_train, y_train))
         test_loss.append(test(net, params, X_test, y_test))
     plt.plot(train_loss)

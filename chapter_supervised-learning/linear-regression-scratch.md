@@ -70,7 +70,7 @@ plt.show()
 
 ```{.python .input  n=5}
 batch_size = 10
-def data_iter(): 
+def data_iter(batch_size, num_examples, features, labels): 
     indices = list(range(num_examples))
     random.shuffle(indices)
     for i in range(0, num_examples, batch_size):
@@ -81,10 +81,12 @@ def data_iter():
 让我们读取第一个小批量数据样本并打印。每个批量的特征形状为`（10, 2）`，分别对应批量大小`batch_size`和输入个数`num_inputs`；标签形状为`10`，也就是批量大小。
 
 ```{.python .input  n=6}
-for X, y in data_iter():
+for X, y in data_iter(batch_size, num_examples, features, labels):
     print(X, y)
     break
 ```
+
+我们将`data_iter`函数定义在`gluonbook`包中供后面章节调用。
 
 ## 初始化模型参数
 
@@ -108,7 +110,7 @@ for param in params:
 下面是线性回归的矢量计算表达式的实现。我们使用`nd.dot`函数做矩阵乘法。
 
 ```{.python .input  n=9}
-def net(X, w, b): 
+def linreg(X, w, b): 
     return nd.dot(X, w) + b 
 ```
 
@@ -120,6 +122,8 @@ def net(X, w, b):
 def squared_loss(y_hat, y): 
     return (y_hat - y.reshape(y_hat.shape)) ** 2 / 2
 ```
+
+我们将`linreg`和`squared_loss`函数定义在`gluonbook`包中供后面章节调用。
 
 ## 定义优化算法
 
@@ -141,13 +145,13 @@ def sgd(params, lr, batch_size):
 ```{.python .input  n=12}
 lr = 0.03
 num_epochs = 3
+net = linreg
 loss = squared_loss
 
 for epoch in range(1, num_epochs + 1):
-    for X, y in data_iter():
+    for X, y in data_iter(batch_size, num_examples, features, labels):
         with autograd.record():
-            y_hat = net(X, w, b)
-            l = loss(y_hat, y)
+            l = loss(net(X, w, b), y)
         l.backward()
         sgd([w, b], lr, batch_size)
     print("epoch %d, loss: %f"

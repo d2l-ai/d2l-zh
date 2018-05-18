@@ -125,7 +125,14 @@ import numpy as np
 import random
 ```
 
-实验中，我们以之前介绍过的线性回归为例。设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。该模型的平方损失函数即所需优化的目标函数，模型参数即目标函数自变量。
+实验中，我们以之前介绍过的线性回归为例。我们直接调用`gluonbook`中的线性回归模型和平方损失函数。它们已在[“线性回归——从零开始”](../chapter_supervised-learning/linear-regression-scratch.md)一节中实现过了。
+
+```{.python .input}
+net = gb.linreg
+loss = gb.squared_loss
+```
+
+设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。该模型的平方损失函数即所需优化的目标函数，模型参数即目标函数自变量。
 
 ```{.python .input  n=2}
 # 生成数据集。
@@ -145,22 +152,6 @@ def init_params():
     for param in params:
         param.attach_grad()
     return params
-
-# 线性回归模型。
-def linreg(X, w, b): 
-    return nd.dot(X, w) + b 
-
-# 平方损失函数。
-def squared_loss(y_hat, y): 
-    return (y_hat - y.reshape(y_hat.shape)) ** 2 / 2
-
-# 遍历数据集。
-def data_iter(batch_size, num_examples, features, labels): 
-    indices = list(range(num_examples))
-    random.shuffle(indices)
-    for i in range(0, num_examples, batch_size):
-        j = nd.array(indices[i: min(i + batch_size, num_examples)])
-        yield features.take(j), labels.take(j)
 ```
 
 下面我们描述一下优化函数`optimize`。
@@ -170,18 +161,15 @@ def data_iter(batch_size, num_examples, features, labels):
 在迭代过程中，每当`log_interval`个样本被采样过后，模型当前的损失函数值（`loss`）被记录下并用于作图。例如，当`batch_size`和`log_interval`都为10时，每次迭代后的损失函数值都被用来作图。
 
 ```{.python .input  n=3}
-net = linreg
-loss = squared_loss
-
 def optimize(batch_size, lr, num_epochs, log_interval, decay_epoch):
     w, b = init_params()
-    ls = [squared_loss(net(features, w, b), labels).mean().asnumpy()]
+    ls = [loss(net(features, w, b), labels).mean().asnumpy()]
     for epoch in range(1, num_epochs + 1):
         # 学习率自我衰减。
         if decay_epoch and epoch > decay_epoch:
             lr *= 0.1
         for batch_i, (X, y) in enumerate(
-            data_iter(batch_size, num_examples, features, labels)):
+            gb.data_iter(batch_size, num_examples, features, labels)):
             with autograd.record():
                 l = loss(net(X, w, b), y)
             l.backward()

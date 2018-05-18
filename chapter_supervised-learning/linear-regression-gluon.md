@@ -104,8 +104,7 @@ num_epochs = 3
 for epoch in range(1, num_epochs + 1): 
     for X, y in data_iter:
         with autograd.record():
-            output = net(X)
-            l = loss(output, y)
+            l = loss(net(X), y)
         l.backward()
         trainer.step(batch_size)
     print("epoch %d, loss: %f" 

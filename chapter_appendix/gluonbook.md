@@ -3,6 +3,12 @@
 
 函数，定义所在章节
 
+`data_iter`，[线性回归——从零开始](../chapter_supervised-learning/linear-regression-scratch.md)
+
+`linreg`，[线性回归——从零开始](../chapter_supervised-learning/linear-regression-scratch.md)
+
+`squared_loss`，[线性回归——从零开始](../chapter_supervised-learning/linear-regression-scratch.md)
+
 `sgd`，[线性回归——从零开始](../chapter_supervised-learning/linear-regression-scratch.md)
 
 `set_fig_size`，[线性回归——从零开始](../chapter_supervised-learning/linear-regression-scratch.md)
