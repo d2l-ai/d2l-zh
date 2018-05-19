@@ -15,8 +15,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
-
-gb.set_fig_size(mpl)
 ```
 
 ```{.python .input  n=2}
@@ -45,6 +43,8 @@ loss = gloss.L2Loss()
 跟前一样定义训练模块。你也许发现了主要区别，`Trainer`有一个新参数`wd`。我们通过优化算法的``wd``参数 (weight decay)实现对模型的正则化。这相当于$L_2$范数正则化。
 
 ```{.python .input  n=3}
+gb.set_fig_size(mpl)
+
 def fit_and_plot(weight_decay):
     net = nn.Sequential()
     net.add(nn.Dense(1))

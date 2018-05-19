@@ -84,8 +84,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from mxnet import autograd, gluon, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
-
-gb.set_fig_size(mpl)
 ```
 
 ```{.python .input}
@@ -122,6 +120,8 @@ loss = gloss.L2Loss()
 以下的训练步骤在[使用Gluon的线性回归](linear-regression-gluon.md)有过详细描述。这里不再赘述。
 
 ```{.python .input}
+gb.set_fig_size(mpl)
+
 def fit_and_plot(train_features, test_features, train_labels, test_labels):
     net = nn.Sequential()
     net.add(nn.Dense(1))

@@ -23,8 +23,6 @@ import gluonbook as gb
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from mxnet import autograd, gluon, nd
-
-gb.set_fig_size(mpl)
 ```
 
 ```{.python .input  n=1}
@@ -98,6 +96,7 @@ lr = 0.003
 ```{.python .input  n=7}
 net = gb.linreg
 loss = gb.squared_loss
+gb.set_fig_size(mpl)
 
 def fit_and_plot(lambd):
     w, b = params = init_params()
