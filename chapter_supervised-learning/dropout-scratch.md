@@ -19,8 +19,14 @@
 丢弃法的实现很容易，例如像下面这样。这里的标量`drop_probability`定义了一个`X`（`NDArray`类）中任何一个元素被丢弃的概率。
 
 ```{.python .input}
-from mxnet import nd
+import sys
+sys.path.append('..')
+import gluonbook as gb
+from mxnet import autograd, gluon, nd
+from mxnet.gluon import loss as gloss
+```
 
+```{.python .input}
 def dropout(X, drop_probability):
     keep_probability = 1 - drop_probability
     assert 0 <= keep_probability <= 1
@@ -73,9 +79,6 @@ dropout(A, 1.0)
 我们继续使用FashionMNIST数据集。
 
 ```{.python .input  n=1}
-import sys
-sys.path.append('..')
-import gluonbook as gb
 batch_size = 256
 train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
 ```
@@ -88,21 +91,18 @@ train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
 num_inputs = 28*28
 num_outputs = 10
 
-num_hidden1 = 256
-num_hidden2 = 256
-weight_scale = .01
+num_hiddens1 = 256
+num_hiddens2 = 256
+scale = 0.01
 
-W1 = nd.random_normal(shape=(num_inputs, num_hidden1), scale=weight_scale)
-b1 = nd.zeros(num_hidden1)
-
-W2 = nd.random_normal(shape=(num_hidden1, num_hidden2), scale=weight_scale)
-b2 = nd.zeros(num_hidden2)
-
-W3 = nd.random_normal(shape=(num_hidden2, num_outputs), scale=weight_scale)
+W1 = nd.random_normal(scale=scale, shape=(num_inputs, num_hiddens1))
+b1 = nd.zeros(num_hiddens1)
+W2 = nd.random_normal(scale=scale, shape=(num_hiddens1, num_hiddens2))
+b2 = nd.zeros(num_hiddens2)
+W3 = nd.random_normal(scale=scale, shape=(num_hiddens2, num_outputs))
 b3 = nd.zeros(num_outputs)
 
 params = [W1, b1, W2, b2, W3, b3]
-
 for param in params:
     param.attach_grad()
 ```
@@ -133,13 +133,9 @@ def net(X):
 训练跟之前一样。
 
 ```{.python .input  n=8}
-from mxnet import autograd
-from mxnet import gluon
-
-loss = gluon.loss.SoftmaxCrossEntropyLoss()
+loss = gloss.SoftmaxCrossEntropyLoss()
 num_epochs = 5
 lr = 0.5
-
 gb.train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
              params, lr)
 ```

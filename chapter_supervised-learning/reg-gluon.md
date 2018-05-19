@@ -29,14 +29,14 @@ true_b = 0.05
 features = nd.random.normal(shape=(n_train+n_test, num_inputs))
 labels = nd.dot(features, true_w) + true_b
 labels += nd.random.normal(scale=0.01, shape=labels.shape)
-features_train, features_test = features[:n_train, :], features[n_train:, :]
-labels_train, labels_test = labels[:n_train], labels[n_train:]
+train_features, test_features = features[:n_train, :], features[n_train:, :]
+train_labels, test_labels = labels[:n_train], labels[n_train:]
 
 num_epochs = 10
 learning_rate = 0.003
 batch_size = 1
 train_iter = gdata.DataLoader(gdata.ArrayDataset(
-    features_train, labels_train), batch_size, shuffle=True)
+    train_features, train_labels), batch_size, shuffle=True)
 loss = gloss.L2Loss()
 ```
 
@@ -63,10 +63,10 @@ def fit_and_plot(weight_decay):
             l.backward()
             trainer_w.step(batch_size)
             trainer_b.step(batch_size)
-        train_ls.append(loss(net(features_train),
-                             labels_train).mean().asscalar())
-        test_ls.append(loss(net(features_test),
-                            labels_test).mean().asscalar())
+        train_ls.append(loss(net(train_features),
+                             train_labels).mean().asscalar())
+        test_ls.append(loss(net(test_features),
+                            test_labels).mean().asscalar())
     plt.xlabel('epochs')
     plt.ylabel('loss')
     plt.semilogy(range(1, num_epochs+1), train_ls)

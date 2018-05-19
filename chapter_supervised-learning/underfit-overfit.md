@@ -80,10 +80,10 @@ $$y = 1.2x - 3.4x^2 + 5.6x^3 + 5.0 + \text{noise}$$
 import sys
 sys.path.append('..')
 import gluonbook as gb
-from mxnet import autograd, gluon, nd
-from mxnet.gluon import data as gdata, loss as gloss, nn
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from mxnet import autograd, gluon, nd
+from mxnet.gluon import data as gdata, loss as gloss, nn
 
 gb.set_fig_size(mpl)
 ```
@@ -122,13 +122,13 @@ loss = gloss.L2Loss()
 以下的训练步骤在[使用Gluon的线性回归](linear-regression-gluon.md)有过详细描述。这里不再赘述。
 
 ```{.python .input}
-def fit_and_plot(features_train, features_test, labels_train, labels_test):
+def fit_and_plot(train_features, test_features, train_labels, test_labels):
     net = nn.Sequential()
     net.add(nn.Dense(1))
     net.initialize()
-    batch_size = min(10, labels_train.shape[0])
+    batch_size = min(10, train_labels.shape[0])
     train_iter = gdata.DataLoader(gdata.ArrayDataset(
-        features_train, labels_train), batch_size, shuffle=True)
+        train_features, train_labels), batch_size, shuffle=True)
     trainer = gluon.Trainer(net.collect_params(), 'sgd',
                             {'learning_rate': 0.01})
     train_ls, test_ls = [], []
@@ -138,10 +138,10 @@ def fit_and_plot(features_train, features_test, labels_train, labels_test):
                 l = loss(net(X), y)
             l.backward()
             trainer.step(batch_size)
-        train_ls.append(loss(net(features_train),
-                             labels_train).mean().asscalar())
-        test_ls.append(loss(net(features_test),
-                            labels_test).mean().asscalar())
+        train_ls.append(loss(net(train_features),
+                             train_labels).mean().asscalar())
+        test_ls.append(loss(net(test_features),
+                            test_labels).mean().asscalar())
     plt.xlabel('epochs')
     plt.ylabel('loss')
     plt.semilogy(range(1, num_epochs+1), train_ls)

@@ -49,9 +49,8 @@ true_b = 0.05
 features = nd.random.normal(shape=(n_train+n_test, num_inputs))
 labels = nd.dot(features, true_w) + true_b
 labels += nd.random.normal(scale=0.01, shape=labels.shape)
-
-features_train, features_test = features[:n_train, :], features[n_train:, :]
-labels_train, labels_test = labels[:n_train], labels[n_train:]
+train_features, test_features = features[:n_train, :], features[n_train:, :]
+train_labels, test_labels = labels[:n_train], labels[n_train:]
 ```
 
 当我们开始训练神经网络的时候，我们需要不断读取数据块。这里我们定义一个函数它每次返回`batch_size`个随机的样本和对应的目标。我们通过python的`yield`来构造一个迭代器。
@@ -110,10 +109,10 @@ def fit_and_plot(lambd):
                 l = loss(net(X, w, b), y) + lambd * l2_penalty(w)
             l.backward()
             gb.sgd(params, lr, batch_size)
-        train_ls.append(loss(net(features_train, w, b),
-                             labels_train).mean().asscalar())
-        test_ls.append(loss(net(features_test, w, b),
-                            labels_test).mean().asscalar())
+        train_ls.append(loss(net(train_features, w, b),
+                             train_labels).mean().asscalar())
+        test_ls.append(loss(net(test_features, w, b),
+                            test_labels).mean().asscalar())
     plt.xlabel('epochs')
     plt.ylabel('loss')
     plt.semilogy(range(1, num_epochs+1), train_ls)
