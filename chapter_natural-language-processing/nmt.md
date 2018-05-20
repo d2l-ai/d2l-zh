@@ -34,9 +34,11 @@ epoch_period = 10
 
 learning_rate = 0.005
 # 每步计算梯度时使用的样本个数
-batch_size = 8
-# 输入或输出序列的最大长度（含句末添加的EOS字符）。
+batch_size = 2
+# 输入序列的最大长度（含句末添加的EOS字符）。
 max_seq_len = 5
+# 输出序列的最大长度（含句末添加的EOS字符）。
+max_output_len = 20
 
 encoder_num_layers = 1
 decoder_num_layers = 2
@@ -102,7 +104,6 @@ Y = nd.zeros((len(output_seqs), max_seq_len), ctx=ctx)
 for i in range(len(input_seqs)):
     X[i] = nd.array(input_vocab.to_indices(input_seqs[i]), ctx=ctx)
     Y[i] = nd.array(output_vocab.to_indices(output_seqs[i]), ctx=ctx)
-
 dataset = gluon.data.ArrayDataset(X, Y)
 ```
 
@@ -253,7 +254,7 @@ def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
         decoder_state = decoder_init_state(encoder_state[0])
         output_tokens = []
 
-        for _ in range(max_seq_len):
+        for _ in range(max_output_len):
             decoder_output, decoder_state = decoder(
                 decoder_input, decoder_state, encoder_outputs)
             pred_i = int(decoder_output.argmax(axis=1).asnumpy()[0])
