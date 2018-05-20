@@ -51,7 +51,8 @@ class DenseBlock(nn.Block):
 blk = DenseBlock(2, 10)
 blk.initialize()
 X = nd.random.uniform(shape=(4,3,8,8))
-blk(X).shape
+Y = blk(X)
+Y.shape
 ```
 
 ## 过渡块
@@ -98,7 +99,8 @@ num_convs_in_dense_blocks = [4, 4, 4, 4]
 for i, num_convs in enumerate(num_convs_in_dense_blocks):
     net.add(DenseBlock(num_convs, growth_rate))
     num_channels += num_convs * growth_rate  # 上一个稠密的输出通道数。
-    if i != len(block_layers)-1:
+    # 在稠密块之间加入通道数减半的过渡块。
+    if i != len(num_convs_in_dense_blocks)-1:
         net.add(transition_block(num_channels//2))
 ```
 
