@@ -19,5 +19,5 @@
    batch-norm-scratch
    batch-norm-gluon
    resnet
-   densenet-gluon
+   densenet
 ```

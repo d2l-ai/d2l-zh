@@ -134,7 +134,6 @@ train_data, test_data = gb.load_data_fashion_mnist(batch_size=256, resize=96)
 gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 ```
 
-
 ## 小结
 
 残差块通过将输入加在卷积层作用过的输出上来引入跨层通道。这使得即使非常深的网络也能很容易训练。
