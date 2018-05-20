@@ -66,15 +66,13 @@ print(get_text_labels(y))
 
 ## 读取数据
 
-我们可以像[“线性回归——从零开始”](linear-regression-scratch.md)一节中那样通过`yield`来定义读取小批量数据样本的函数。为了简洁，这里我们直接使用`gluon.data.DataLoader`，从而每次读取一个样本数为`batch_size`的小批量。这里的批量大小`batch_size`是一个超参数。
+Fashion-MNIST包括训练数据集和测试数据集。我们将在训练数据集上训练模型，并将训练好的模型在测试数据集上评价模型的表现。我们可以像[“线性回归——从零开始”](linear-regression-scratch.md)一节中那样通过`yield`来定义读取小批量数据样本的函数。为了简洁，这里我们直接创建DataLoader实例，从而每次读取一个样本数为`batch_size`的小批量。这里的批量大小`batch_size`是一个超参数。需要注意的是，我们每次从训练数据集里读取的小批量是由随机样本组成的。
 
 ```{.python .input  n=7}
 batch_size = 256
 train_iter = gdata.DataLoader(mnist_train, batch_size, shuffle=True)
 test_iter = gdata.DataLoader(mnist_test, batch_size, shuffle=False)
 ```
-
-注意到这里我们需要每次从训练数据里读取一个由随机样本组成的小批量，但测试数据则无需如此。
 
 我们将获取并读取Fashion-MNIST数据集的逻辑封装在`gluonbook.load_data_fashion_mnist`函数中供后面章节调用。
 
