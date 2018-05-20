@@ -34,7 +34,7 @@ epoch_period = 10
 
 learning_rate = 0.005
 # 每步计算梯度时使用的样本个数
-batch_size = 2
+batch_size = 8
 # 输入或输出序列的最大长度（含句末添加的EOS字符）。
 max_seq_len = 5
 
@@ -253,7 +253,7 @@ def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
         decoder_state = decoder_init_state(encoder_state[0])
         output_tokens = []
 
-        while True:
+        for _ in range(max_seq_len):
             decoder_output, decoder_state = decoder(
                 decoder_input, decoder_state, encoder_outputs)
             pred_i = int(decoder_output.argmax(axis=1).asnumpy()[0])
@@ -293,19 +293,20 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens):
     eos_id = output_vocab.token_to_idx[EOS]
     for epoch in range(1, epochs + 1):
         for x, y in data_iter:
+            real_batch_size = x.shape[0]
             with autograd.record():
                 loss = nd.array([0], ctx=ctx)
                 valid_length = nd.array([0], ctx=ctx)
                 encoder_state = encoder.begin_state(
-                    func=mx.nd.zeros, batch_size=batch_size, ctx=ctx)
+                    func=mx.nd.zeros, batch_size=real_batch_size, ctx=ctx)
                 encoder_outputs, encoder_state = encoder(x, encoder_state)
 
                 # encoder_outputs尺寸: (max_seq_len, encoder_hidden_dim)
                 encoder_outputs = encoder_outputs.flatten()
                 # 解码器的第一个输入为BOS字符。
-                decoder_input = nd.array([output_vocab.token_to_idx[BOS]] * batch_size,
+                decoder_input = nd.array([output_vocab.token_to_idx[BOS]] * real_batch_size,
                                          ctx=ctx)
-                mask = nd.ones(shape=(batch_size,), ctx=ctx)
+                mask = nd.ones(shape=(real_batch_size,), ctx=ctx)
                 decoder_state = decoder_init_state(encoder_state[0])
                 for i in range(max_seq_len):
                     decoder_output, decoder_state = decoder(
