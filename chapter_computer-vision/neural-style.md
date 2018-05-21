@@ -39,7 +39,7 @@ $$ \textrm{styleloss}(s_i, y_i) = \frac{1}{c^2hw} \| s_i s_i^T - y_i y_i^T \|_F 
 %matplotlib inline
 import matplotlib as mpl
 mpl.rcParams['figure.dpi']= 150
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 
 from mxnet import image
 

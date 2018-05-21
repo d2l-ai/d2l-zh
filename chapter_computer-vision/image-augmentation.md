@@ -8,7 +8,7 @@ AlexNet当年能取得巨大的成功，其中图片增广功不可没。图片�
 
 ```{.python .input  n=1}
 %matplotlib inline
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 from mxnet import image
 
 img = image.imdecode(open('../img/cat1.jpg', 'rb').read())

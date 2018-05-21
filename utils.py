@@ -3,7 +3,7 @@ import random
 from time import time
 
 import matplotlib as mpl
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 import mxnet as mx
 from mxnet import autograd, gluon, image, nd
 from mxnet.gluon import nn, data as gdata, loss as gloss, utils as gutils

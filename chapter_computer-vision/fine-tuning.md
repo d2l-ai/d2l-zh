@@ -161,7 +161,7 @@ train(scratch_net, ctx)
 ### 图片预测
 
 ```{.python .input  n=12}
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 
 def classify_hotdog(net, fname):
     with open(fname, 'rb') as f:

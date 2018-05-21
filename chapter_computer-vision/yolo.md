@@ -238,7 +238,7 @@ print(batch)
 %matplotlib inline
 import matplotlib as mpl
 mpl.rcParams['figure.dpi']= 120
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 
 def box_to_rect(box, color, linewidth=3):
     """convert an anchor box to a matplotlib rectangle"""

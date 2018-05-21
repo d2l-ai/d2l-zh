@@ -5,8 +5,6 @@
 首先，导入本节中实验所需的一部分包或模块。我们在之前的章节里使用过它们。
 
 ```{.python .input}
-%config InlineBackend.figure_format = 'retina'
-%matplotlib inline
 from mxnet import autograd, nd
 ```
 

@@ -41,7 +41,7 @@ import sys
 sys.path.append('..')
 import gluonbook as gb
 import matplotlib as mpl
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 from mxnet import autograd, init, gluon, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
 import numpy as np

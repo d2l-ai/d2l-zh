@@ -29,7 +29,7 @@ import sys
 sys.path.append('..')
 import gluonbook as gb
 import matplotlib as mpl
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 from mpl_toolkits import mplot3d
 import numpy as np
 ```

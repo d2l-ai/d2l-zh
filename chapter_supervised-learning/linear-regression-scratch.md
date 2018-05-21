@@ -18,7 +18,7 @@ $$\boldsymbol{\hat{y}} = \boldsymbol{X} \boldsymbol{w} + b,$$
 %config InlineBackend.figure_format = 'retina'
 %matplotlib inline
 import matplotlib as mpl
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 from mxnet import autograd, nd
 import random
 ```
