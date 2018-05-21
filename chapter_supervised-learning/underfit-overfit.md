@@ -17,11 +17,13 @@
 
 ### 模型复杂度
 
-为了解释模型复杂度，让我们以多项式函数拟合为例。给定一个由标量数据特征$x$和对应的标量标签$y$组成的训练数据集，多项式函数拟合的目标是找一个$K$阶多项式，
+为了解释模型复杂度，让我们以多项式函数拟合为例。给定一个由标量数据特征$x$和对应的标量标签$y$组成的训练数据集，多项式函数拟合的目标是找一个$K$阶多项式函数
 
 $$\hat{y} = b + \sum_{k=1}^K x^k w_k$$
 
-来近似$y$。上式中，带下标的$w$是模型的权重参数，$b$是偏差参数。和线性回归相同，多项式函数拟合也使用平方损失函数。特别地，一阶多项式拟合又叫线性拟合。高阶多项式函数比低阶多项式函数的复杂度更高，例如高阶多项式函数模型参数更多，模型函数的选择范围更广。正因为如此，高阶多项式函数比低阶多项式函数更容易在相同的训练数据集上得到更低的训练误差。给定训练数据集，模型复杂度的和误差之间的关系通常如图3.4所示。给定训练数据集，如果模型的复杂度过低，很容易出现欠拟合；如果模型复杂度过高，很容易出现过拟合。
+来近似$y$。上式中，带下标的$w$是模型的权重参数，$b$是偏差参数。和线性回归相同，多项式函数拟合也使用平方损失函数。特别地，一阶多项式函数拟合又叫线性函数拟合。
+
+高阶多项式函数比低阶多项式函数的复杂度更高，例如高阶多项式函数模型参数更多，模型函数的选择范围更广。正因为如此，高阶多项式函数比低阶多项式函数更容易在相同的训练数据集上得到更低的训练误差。给定训练数据集，模型复杂度的和误差之间的关系通常如图3.4所示。给定训练数据集，如果模型的复杂度过低，很容易出现欠拟合；如果模型复杂度过高，很容易出现过拟合。
 
 ![模型复杂度对欠拟合和过拟合的影响](../img/capacity_vs_error.svg)
 
@@ -33,18 +35,9 @@ $$\hat{y} = b + \sum_{k=1}^K x^k w_k$$
 此外，泛化误差不会随训练数据集里样本数量增加而增大。因此，在计算资源允许范围之内，我们通常希望训练数据集大一些，特别当模型复杂度较高时，例如训练层数较多的深度学习模型时。
 
 
-
 ## 多项式函数拟合实验
 
-为了理解模型复杂度和训练数据集大小对欠拟合和过拟合的影响，下面让我们以多项式拟合为例来动手学习。
-
-### 创建数据集
-
-这里我们使用一个人工数据集，因为这样我们将知道真实的模型是什么样的。具体来说我们使用如下的二阶多项式来生成每一个数据样本
-
-$$y = 1.2x - 3.4x^2 + 5.6x^3 + 5.0 + \text{noise}$$
-
-这里噪音服从均值0和标准差为0.1的正态分布。需要注意的是，我们用以上相同的数据生成函数来生成训练数据集和测试数据集。两个数据集的样本数都是100。
+为了理解模型复杂度和训练数据集大小对欠拟合和过拟合的影响，下面让我们以多项式函数拟合为例来实验。首先导入实现需要的包或模块。
 
 ```{.python .input}
 %matplotlib inline
@@ -52,21 +45,25 @@ import sys
 sys.path.append('..')
 import gluonbook as gb
 import matplotlib as mpl
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 from mxnet import autograd, gluon, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
 ```
+
+### 生成数据集
+
+我们先生成一个人工数据集，这样我们将知道真实的模型参数。具体来说，我们使用如下三阶多项式函数来生成训练数据集和测试数据集里的每一个样本
+
+$$y = 1.2x - 3.4x^2 + 5.6x^3 + 5 + \epsilon,$$
+
+其中噪音项$\epsilon$服从均值为0和标准差为0.1的正态分布。训练数据集和测试数据集的样本数都是100。
 
 ```{.python .input}
 n_train = 100
 n_test = 100
 true_w = [1.2, -3.4, 5.6]
-true_b = 5.0
-```
+true_b = 5
 
-下面生成数据集。
-
-```{.python .input}
 features = nd.random.normal(shape=(n_train + n_test, 1))
 poly_features = nd.concat(features, nd.power(features, 2),
                           nd.power(features, 3))
@@ -75,23 +72,20 @@ labels = (true_w[0] * poly_features[:, 0] + true_w[1] * poly_features[:, 1]
 labels += nd.random.normal(scale=0.1, shape=labels.shape)
 ```
 
+看一看生成数据集的前5个样本。
+
 ```{.python .input}
 features[:5], poly_features[:5], labels[:5]
 ```
 
-```{.python .input}
-num_epochs = 100
-loss = gloss.L2Loss()
-```
+### 定义、训练和测试模型
 
-### 定义训练和测试步骤
-
-我们定义一个训练和测试的函数，这样在跑不同的实验时不需要重复实现相同的步骤。
-
-以下的训练步骤在[使用Gluon的线性回归](linear-regression-gluon.md)有过详细描述。这里不再赘述。
+和线性回归一样，多项式函数拟合也使用平方损失函数。由于我们将尝试使用不同复杂度的模型来拟合生成的数据集，我们把模型定义部分放在`fit_and_plot`函数中。多项式函数拟合的训练和测试步骤与之前介绍的Softmax回归中的这些步骤类似。
 
 ```{.python .input}
 gb.set_fig_size(mpl)
+num_epochs = 100
+loss = gloss.L2Loss()
 
 def fit_and_plot(train_features, test_features, train_labels, test_labels):
     net = nn.Sequential()
@@ -113,6 +107,7 @@ def fit_and_plot(train_features, test_features, train_labels, test_labels):
                              train_labels).mean().asscalar())
         test_ls.append(loss(net(test_features),
                             test_labels).mean().asscalar())
+    print('final epoch: train loss', train_ls[-1], 'test loss', test_ls[-1])
     plt.xlabel('epochs')
     plt.ylabel('loss')
     plt.semilogy(range(1, num_epochs+1), train_ls)
@@ -122,18 +117,18 @@ def fit_and_plot(train_features, test_features, train_labels, test_labels):
     return ('weight:', net[0].weight.data(), 'bias:', net[0].bias.data())
 ```
 
-### 三阶多项式拟合（正常）
+### 三阶多项式函数拟合（正常）
 
-我们先使用与数据生成函数同阶的三阶多项式拟合。实验表明这个模型的训练误差和在测试数据集的误差都较低。训练出的模型参数也接近真实值。
+我们先使用与数据生成函数同阶的三阶多项式函数拟合。实验表明，这个模型的训练误差和在测试数据集的误差都较低。训练出的模型参数也接近真实值。
 
 ```{.python .input}
 fit_and_plot(poly_features[:n_train, :], poly_features[n_train:, :],
              labels[:n_train], labels[n_train:])
 ```
 
-### 线性拟合（欠拟合）
+### 线性函数拟合（欠拟合）
 
-我们再试试线性拟合。很明显，该模型的训练误差很高。线性模型在非线性模型（例如三阶多项式）生成的数据集上容易欠拟合。
+我们再试试线性函数拟合。很明显，该模型的训练误差在迭代早期下降后便很难继续降低。在完成最后一次迭代周期后，训练误差依旧很高。线性模型在非线性模型（例如三阶多项式函数）生成的数据集上容易欠拟合。
 
 ```{.python .input}
 fit_and_plot(features[:n_train, :], features[n_train:, :], labels[:n_train],
@@ -142,26 +137,28 @@ fit_and_plot(features[:n_train, :], features[n_train:, :], labels[:n_train],
 
 ### 训练量不足（过拟合）
 
-事实上，即便是使用与数据生成模型同阶的三阶多项式模型，如果训练量不足，该模型依然容易过拟合。让我们仅仅使用两个训练样本来训练。很显然，训练样本过少了，甚至少于模型参数的数量。这使模型显得过于复杂，以至于容易被训练数据集中的噪音影响。在机器学习过程中，即便训练误差很低，但是测试数据集上的误差很高。这是典型的过拟合现象。
+事实上，即便是使用与数据生成模型同阶的三阶多项式函数模型，如果训练量不足，该模型依然容易过拟合。
+
+让我们仅仅使用两个样本来训练模型。显然，训练样本过少了，甚至少于模型参数的数量。这使模型显得过于复杂，以至于容易被训练数据中的噪音影响。在迭代过程中，即便训练误差较低，但是测试数据集上的误差却很高。这是典型的过拟合现象。
 
 ```{.python .input}
 fit_and_plot(poly_features[0:2, :], poly_features[n_train:, :], labels[0:2],
              labels[n_train:])
 ```
 
-我们还将在后面的章节继续讨论过拟合问题以及应对过拟合的方法，例如正则化。
+我们将在后面的章节继续讨论过拟合问题以及应对过拟合的方法，例如正则化和丢弃法。
 
 ## 小结
 
-* 训练误差的降低并不一定意味着泛化误差的降低。
-* 欠拟合和过拟合都是需要尽量避免的。我们要注意模型的选择和训练量的大小。
+* 我们希望通过适当降低模型的训练误差，从而能够间接降低模型的泛化误差。
+* 欠拟合指模型无法得到较低的训练误差；过拟合指模型的训练误差远小于它在测试数据集上的误差。
+* 我们应选择复杂度合适的模型并避免使用过少的训练样本。
 
 
 ## 练习
 
-* 学渣、学痞、学痴和学霸对应的模型复杂度、训练量、训练误差和泛化误差分别是怎样的？
 * 如果用一个三阶多项式模型来拟合一个线性模型生成的数据，可能会有什么问题？为什么？
-* 在我们本节提到的三阶多项式拟合问题里，有没有可能把1000个样本的训练误差的期望降到0，为什么？
+* 在我们本节提到的三阶多项式拟合问题里，有没有可能把100个样本的训练误差的期望降到0，为什么？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/983)
