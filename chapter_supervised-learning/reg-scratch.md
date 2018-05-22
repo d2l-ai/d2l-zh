@@ -1,19 +1,30 @@
 # 正则化——从零开始
 
-本章从0开始介绍如何的正则化来应对[过拟合](underfit-overfit.md)问题。
-
-## 高维线性回归
-
-我们使用高维线性回归为例来引入一个过拟合问题。
+上一节中我们观察了过拟合现象，即模型的训练误差远小于它在测试数据集上的误差。本节将介绍应对过拟合问题的常用方法：正则化。
 
 
-具体来说我们使用如下的线性函数来生成每一个数据样本
+## $L_2$范数正则化
 
-$$y = 0.05 + \sum_{i = 1}^p 0.01x_i +  \text{noise}$$
+在深度学习中，我们常使用$L_2$范数正则化，也就是在模型原先损失函数基础上添加$L_2$范数惩罚项，从而得到训练所需要最小化的函数。$L_2$范数惩罚项指的是模型权重参数每个元素的平方和与一个超参数的乘积。以[“单层神经网络”](../chapter_supervised-learning/shallow-model.md)一节中线性回归的损失函数$\ell(w_1, w_2, b)$为例（$w_1, w_2$是权重参数，$b$是偏差参数），带有$L_2$范数惩罚项的新损失函数为
 
-这里噪音服从均值0和标准差为0.01的正态分布。
+$$\ell(w_1, w_2, b) + \frac{\lambda}{2}(w_1^2 + w_2^2),$$
 
-需要注意的是，我们用以上相同的数据生成函数来生成训练数据集和测试数据集。为了观察过拟合，我们特意把训练数据样本数设低，例如$n=20$，同时把维度升高，例如$p=200$。
+其中超参数$\lambda > 0$。当权重参数均为0时，惩罚项最小。当$\lambda$较大时，惩罚项在损失函数中的比重较大，这通常会使学到的权重参数的元素较接近0。当$\lambda$设为0时，惩罚项完全不起作用。
+
+有了$L_2$范数惩罚项后，在小批量随机梯度下降中，我们将[“单层神经网络”](../chapter_supervised-learning/shallow-model.md)一节中权重$w_1$和$w_2$的迭代方式更改为
+
+$$w_1 \leftarrow w_1 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}x_1^{(i)} (x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}) - \lambda w_1,$$
+
+$$w_2 \leftarrow w_2 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}x_2^{(i)} (x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}) - \lambda w_2.$$
+
+
+可见，$L_2$范数正则化令权重$w_1$和$w_2$的每一步迭代分别添加了$- \lambda w_1$和$- \lambda w_2$。因此，我们有时也把$L_2$范数正则化称为权重衰减（weight decay）。
+
+在实际中，我们有时也在惩罚项中添加偏差元素的平方和。假设神经网络中某一个神经元的输入是$x_1, x_2$，使用激活函数$\phi$并输出$\phi(x_1 w_1 + x_2 w_2 + b)$。假设激活函数$\phi$是ReLU、tanh或sigmoid，如果$w_1, w_2, b$都非常接近0，那么输出也接近0。也就是说，这个神经元的作用比较小，甚至就像是令神经网络少了一个神经元一样。上一节我们提到，给定训练数据集，过高复杂度的模型容易过拟合。因此，$L_2$范数正则化可能对过拟合有效。
+
+## 高维线性回归实验
+
+下面，我们通过高维线性回归为例来引入一个过拟合问题，并使用$L_2$范数正则化来试着应对过拟合。我们先导入本节实验所需的包或模块。
 
 ```{.python .input}
 %matplotlib inline
@@ -25,36 +36,27 @@ from matplotlib import pyplot as plt
 from mxnet import autograd, gluon, nd
 ```
 
-```{.python .input  n=1}
-n_train = 20
-n_test = 100
-num_inputs = 200
-```
-
 ## 生成数据集
 
+对于训练数据集和测试数据集中特征为$x_1, x_2, \ldots, x_p$的任一样本，我们使用如下的线性函数来生成该样本的标签：
 
-这里定义模型真实参数。
+$$y = 0.05 + \sum_{i = 1}^p 0.01x_i +  \epsilon,$$
+
+其中噪音项$\epsilon$服从均值为0和标准差为0.1的正态分布。为了较容易地观察过拟合，我们考虑高维线性回归问题，例如设维度$p=200$；同时，我们特意把训练数据集的样本数设低，例如20。
 
 ```{.python .input  n=2}
+n_train = 20
+n_test = 100
+
+num_inputs = 200
 true_w = nd.ones((num_inputs, 1)) * 0.01
 true_b = 0.05
-```
 
-我们接着生成训练和测试数据集。
-
-```{.python .input  n=3}
 features = nd.random.normal(shape=(n_train+n_test, num_inputs))
 labels = nd.dot(features, true_w) + true_b
 labels += nd.random.normal(scale=0.01, shape=labels.shape)
 train_features, test_features = features[:n_train, :], features[n_train:, :]
 train_labels, test_labels = labels[:n_train], labels[n_train:]
-```
-
-当我们开始训练神经网络的时候，我们需要不断读取数据块。这里我们定义一个函数它每次返回`batch_size`个随机的样本和对应的目标。我们通过python的`yield`来构造一个迭代器。
-
-```{.python .input  n=4}
-batch_size = 1
 ```
 
 ## 初始化模型参数
@@ -94,6 +96,7 @@ lr = 0.003
 下面我们定义剩下的所需要的函数。这个跟之前的教程大致一样，主要是区别在于计算`loss`的时候我们加上了L2正则化，以及我们将训练和测试损失都画了出来。
 
 ```{.python .input  n=7}
+batch_size = 1
 net = gb.linreg
 loss = gb.squared_loss
 gb.set_fig_size(mpl)
