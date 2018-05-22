@@ -36,9 +36,9 @@ from matplotlib import pyplot as plt
 from mxnet import autograd, gluon, nd
 ```
 
-## 生成数据集
+### 生成数据集
 
-对于训练数据集和测试数据集中特征为$x_1, x_2, \ldots, x_p$的任一样本，我们使用如下的线性函数来生成该样本的标签：
+设数据样本特征的维度为$p$。对于训练数据集和测试数据集中特征为$x_1, x_2, \ldots, x_p$的任一样本，我们使用如下的线性函数来生成该样本的标签：
 
 $$y = 0.05 + \sum_{i = 1}^p 0.01x_i +  \epsilon,$$
 
@@ -59,13 +59,13 @@ train_features, test_features = features[:n_train, :], features[n_train:, :]
 train_labels, test_labels = labels[:n_train], labels[n_train:]
 ```
 
-## 初始化模型参数
+### 初始化模型参数
 
-下面我们随机初始化模型参数。之后训练时我们需要对这些参数求导来更新它们的值，所以我们需要创建它们的梯度。
+下面定义函数来随机初始化模型参数，并为它们附上梯度。
 
 ```{.python .input  n=5}
 def init_params():
-    w = nd.random.normal(scale=0.01, shape=(num_inputs, 1))
+    w = nd.random.normal(scale=1, shape=(num_inputs, 1))
     b = nd.zeros(shape=(1,))
     params = [w, b]
     for param in params:
@@ -73,30 +73,24 @@ def init_params():
     return params
 ```
 
-## $L_2$范数正则化
+### 定义$L_2$范数惩罚项
 
-这里我们引入$L_2$范数正则化。不同于在训练时仅仅最小化损失函数(Loss)，我们在训练时其实在最小化
-
-$$\text{loss} + \lambda \sum_{p \in \textrm{params}}\|p\|_2^2。$$
-
-直观上，$L_2$范数正则化试图惩罚较大绝对值的参数值。下面我们定义L2正则化。注意有些时候大家对偏移加罚，有时候不加罚。通常结果上两者区别不大。这里我们演示对偏移也加罚的情况：
+下面定义$L_2$范数惩罚项。这里只惩罚模型的权重参数。
 
 ```{.python .input  n=6}
 def l2_penalty(w):
     return (w**2).sum() / 2
 ```
 
-```{.python .input}
-num_epochs = 10
-lr = 0.003
-```
+### 定义训练和测试
 
-## 定义训练和测试
-
-下面我们定义剩下的所需要的函数。这个跟之前的教程大致一样，主要是区别在于计算`loss`的时候我们加上了L2正则化，以及我们将训练和测试损失都画了出来。
+下面定义如何在训练数据集和测试数据集上分别训练和测试模型。和前面几节中不同的是，这里在计算最终的损失函数时添加了$L_2$范数惩罚项。
 
 ```{.python .input  n=7}
 batch_size = 1
+num_epochs = 10
+lr = 0.003
+
 net = gb.linreg
 loss = gb.squared_loss
 gb.set_fig_size(mpl)
@@ -108,6 +102,7 @@ def fit_and_plot(lambd):
     for _ in range(num_epochs):        
         for X, y in gb.data_iter(batch_size, n_train, features, labels):
             with autograd.record():
+                # 添加了 L2 范数惩罚项。
                 l = loss(net(X, w, b), y) + lambd * l2_penalty(w)
             l.backward()
             gb.sgd(params, lr, batch_size)
@@ -124,36 +119,33 @@ def fit_and_plot(lambd):
     return 'w[:10]:', w[:10].T, 'b:', b
 ```
 
-## 观察过拟合
+### 观察过拟合
 
-接下来我们训练并测试我们的高维线性回归模型。注意这时我们并未使用正则化。
+接下来，让我们训练并测试高维线性回归模型。当`lambd`设为0时，我们没有使用正则化。结果训练误差远小于测试数据集上的误差。这是典型的过拟合现象。
 
 ```{.python .input  n=8}
-fit_and_plot(0)
+fit_and_plot(lambd=0)
 ```
 
-即便训练误差可以达到0.000000，但是测试数据集上的误差很高。这是典型的过拟合现象。
+### 使用正则化
 
-观察学习的参数。事实上，大部分学到的参数的绝对值比真实参数的绝对值要大一些。
+下面我们使用$L_2$范数正则化。我们发现训练误差虽然有所提高，但测试数据集上的误差有所下降。过拟合现象得到一定程度上的缓解。另外，学到的权重参数的绝对值比不使用正则化时相比更接近0。
 
-
-## 使用正则化
-
-下面我们重新初始化模型参数并设置一个正则化参数。
+然而，即便是使用了正则化的模型依然没有学出较准确的模型参数。这主要是因为训练数据集的样本数相对维度来说太小。
 
 ```{.python .input  n=9}
-fit_and_plot(5)
+fit_and_plot(lambd=5)
 ```
-
-我们发现训练误差虽然有所提高，但测试数据集上的误差有所下降。过拟合现象得到缓解。但打印出的学到的参数依然不是很理想，这主要是因为我们训练数据的样本相对维度来说太少。
 
 ## 小结
 
 * 我们可以使用正则化来应对过拟合问题。
+* $L_2$范数正则化通常会使学到的权重参数的元素较接近0。
+* $L_2$范数正则化也叫权重衰减。
 
 ## 练习
 
-* 除了正则化、增大训练量、以及使用合适的模型，你觉得还有哪些办法可以应对过拟合现象？
+* 除了正则化、增大训练量、以及使用复杂度合适的模型，你还能想到哪些办法可以应对过拟合现象？
 * 如果你了解贝叶斯统计，你觉得$L_2$范数正则化对应贝叶斯统计里的哪个重要概念？
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/984)

@@ -1,10 +1,6 @@
 # 正则化——使用Gluon
 
-本章介绍如何使用``Gluon``的正则化来应对[过拟合](underfit-overfit.md)问题。
-
-## 高维线性回归数据集
-
-我们使用与[上一节](reg-scratch.md)相同的高维线性回归为例来引入一个过拟合问题。
+本节将介绍如何使用Gluon实现上一节介绍的正则化。导入实验所需的包或模块。
 
 ```{.python .input  n=1}
 %matplotlib inline
@@ -16,6 +12,10 @@ from matplotlib import pyplot as plt
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
 ```
+
+## 生成数据集
+
+我们使用和上一节完全一样的方法生成数据集。
 
 ```{.python .input  n=2}
 n_train = 20
@@ -40,7 +40,7 @@ loss = gloss.L2Loss()
 
 ## 定义训练和测试
 
-跟前一样定义训练模块。你也许发现了主要区别，`Trainer`有一个新参数`wd`。我们通过优化算法的``wd``参数 (weight decay)实现对模型的正则化。这相当于$L_2$范数正则化。
+在训练和测试的定义中，我们分别定义了两个Trainer实例。其中一个对权重参数做$L_2$范数正则化，另一个并没有对偏差参数做正则化。我们在上一节也提到了，实际中有时也对偏差参数做正则化。这样只需要定义一个Trainer实例就可以了。
 
 ```{.python .input  n=3}
 gb.set_fig_size(mpl)
@@ -48,10 +48,11 @@ gb.set_fig_size(mpl)
 def fit_and_plot(weight_decay):
     net = nn.Sequential()
     net.add(nn.Dense(1))
-    net.initialize(init.Normal(sigma=0.01))
-    # 注意到这里 'wd'
+    net.initialize(init.Normal(sigma=1))
+    # 对权重参数做L2范数正则化，即权重衰减。
     trainer_w = gluon.Trainer(net.collect_params('.*weight'), 'sgd', {
         'learning_rate': learning_rate, 'wd': weight_decay})
+    # 不对偏差参数做L2范数正则化。
     trainer_b = gluon.Trainer(net.collect_params('.*bias'), 'sgd', {
         'learning_rate': learning_rate})
     train_ls = []
@@ -76,36 +77,26 @@ def fit_and_plot(weight_decay):
     return 'w[:10]:', net[0].weight.data()[:,:10], 'b:', net[0].bias.data()
 ```
 
-### 训练模型并观察过拟合
+## 观察实验结果
 
-接下来我们训练并测试我们的高维线性回归模型。
+以下实验结果和上一节中的类似。
 
 ```{.python .input  n=4}
 fit_and_plot(0)
 ```
 
-即便训练误差可以达到0.000000，但是测试数据集上的误差很高。这是典型的过拟合现象。
-
-观察学习的参数。事实上，大部分学到的参数的绝对值比真实参数的绝对值要大一些。
-
-## 使用``Gluon``的正则化
-
-下面我们重新初始化模型参数并在`Trainer`里设置一个`wd`参数。
-
 ```{.python .input  n=5}
 fit_and_plot(5)
 ```
 
-我们发现训练误差虽然有所提高，但测试数据集上的误差有所下降。过拟合现象得到缓解。
-但打印出的学到的参数依然不是很理想，这主要是因为我们训练数据的样本相对维度来说太少。
-
 ## 小结
 
-* 使用``Gluon``的`weight decay`参数可以很容易地使用正则化来应对过拟合问题。
+* 使用Gluon的`wd`超参数可以使用正则化来应对过拟合问题。
+* 我们可以定义多个Trainer实例对不同的模型参数使用不同的迭代方法。
 
 ## 练习
 
-* 如何从字面正确理解`weight decay`的含义？它为何相当于$L_2$范式正则化？
+* 调一调本节实验中的`wd`超参数。观察并分析实验结果。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/985)
 
