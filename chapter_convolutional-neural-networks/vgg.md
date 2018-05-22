@@ -4,7 +4,7 @@ AlexNet在LeNet的基础上增加了三个卷积层。但作者对它们的卷�
 
 本节我们介绍VGG [1]，它名字来源于论文作者所在实验室Visual Geometry Group。VGG提出了可以通过重复使用简单的基础块来构建深层模型。
 
-## VGG模型
+## VGG块
 
 VGG模型的基础组成单位是连续数个相同的使用填充1的$3\times 3$卷积层后接上一个步幅为2的$2\times 2$最大池化层。卷积层保持输入高宽，而池化层则对其减半。我们使用`vgg_block`函数来实现这个基础块，它可以指定使用多少卷积层和其输出通道数。
 
@@ -23,6 +23,8 @@ def vgg_block(num_convs, num_channels):
     blk.add(nn.MaxPool2D(pool_size=2, strides=2))
     return blk
 ```
+
+## VGG模型
 
 VGG网络同AlexNet和LeNet一样由卷积层模块后接全连接层模块构成。卷积层模块串联数个`vgg_block`，其超参数由`conv_arch`定义，其指定每个块里卷基层个数和输出通道。全连接模块则跟AlexNet一样。
 
