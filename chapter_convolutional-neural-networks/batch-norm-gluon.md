@@ -6,7 +6,6 @@
 import sys
 sys.path.append('..')
 import gluonbook as gb
-import mxnet as mx
 from mxnet import nd, gluon, init
 from mxnet.gluon import nn
 
@@ -33,9 +32,10 @@ net.add(
 和使用同样的超参数进行训练。
 
 ```{.python .input  n=3}
+lr = 1.0
 ctx = gb.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
-trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 1})
+trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
 train_data, test_data = gb.load_data_fashion_mnist(batch_size=256)
 gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
@@ -47,7 +47,7 @@ Gluon提供的BatchNorm使用上更加简单。
 
 ## 练习
 
-* 查看BatchNorm文档来了解更多使用方法，例如如何在训练时使用全局平均的均值和方差。
+查看BatchNorm文档来了解更多使用方法，例如如何在训练时使用全局平均的均值和方差。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1254)
 
