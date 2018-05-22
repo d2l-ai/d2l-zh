@@ -45,7 +45,7 @@ def vgg(conv_arch):
     # 全连接层部分
     net.add(nn.Dense(4096, activation="relu"), nn.Dropout(.5),
             nn.Dense(4096, activation="relu"), nn.Dropout(.5),
-            nn.Dense(num_outputs))
+            nn.Dense(10))
     return net
 
 net = vgg(conv_arch)
