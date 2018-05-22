@@ -1,6 +1,6 @@
 # 含并行连结的网络：GoogLeNet
 
-在2014年的Imagenet竞赛中，一个名叫GoogLeNet [1]的网络结构大放光彩。它虽然在名字上是向LeNet致敬，但在网络结构上已经很难看到LeNet的影子。GoogLeNet吸收了NiN的网络嵌套网络的想法，在此基础上做了很大的改进。在随后的几年里研究人员持续对它进行改进，提出了数个被广泛使用的版本。本小节将介绍这个模型系列的一个版本。
+在2014年的Imagenet竞赛中，一个名叫GoogLeNet [1]的网络结构大放光彩。它虽然在名字上是向LeNet致敬，但在网络结构上已经很难看到LeNet的影子。GoogLeNet吸收了NiN的网络嵌套网络的想法，并在此基础上做了很大的改进。在随后的几年里研究人员对它进行了数次改进，本小节将介绍这个模型系列的第一个版本。
 
 ## Inception 块
 
@@ -8,7 +8,7 @@ GoogLeNet中的基础卷积块叫做Inception，得名于同名电影《Inceptio
 
 ![Inception块。](../img/inception.svg)
 
-由上图可以看出，Inception里有四个并行的线路。前三个通道里使用窗口大小分别是$1\times 1$、$3\times 3$和$5\times 5$的卷基层来抽取不同空间尺寸下的信息。其中中间两个线路会对输入先作用$1\times 1$卷积来将减小输入通道数，以此减低模型复杂度。第四条线路则是使用$3\times 3$最大池化层，后接$1\times 1$卷基层来变换通道。四条线路都使用了合适的填充来使得输入输出高宽一致。最后我们将每条线路的输出在通道维上合并在一起，输入到接下来的层中去。
+由上图可以看出，Inception里有四个并行的线路。前三个线路里使用窗口大小分别是$1\times 1$、$3\times 3$和$5\times 5$的卷基层来抽取不同空间尺寸下的信息。其中中间两个线路会对输入先作用$1\times 1$卷积来将减小输入通道数，以此减低模型复杂度。第四条线路则是使用$3\times 3$最大池化层，后接$1\times 1$卷基层来变换通道。四条线路都使用了合适的填充来使得输入输出高宽一致。最后我们将每条线路的输出在通道维上合并在一起，输入到接下来的层中去。
 
 Inception块中可以自定义的超参数是每个层的输出通道数，以此我们来控制模型复杂度。
 
@@ -16,7 +16,6 @@ Inception块中可以自定义的超参数是每个层的输出通道数，以�
 import sys
 sys.path.insert(0, '..')
 import gluonbook as gb
-
 from mxnet import nd, init, gluon
 from mxnet.gluon import nn
 
@@ -34,7 +33,7 @@ class Inception(nn.Block):
         self.p3_1 = nn.Conv2D(c3[0], kernel_size=1, activation='relu')
         self.p3_2 = nn.Conv2D(c3[1], kernel_size=5, padding=2,
                               activation='relu')
-        # 线路 4，3 x 3最大池化层后接 1 x 1 卷积层。
+        # 线路 4，3 x 3 最大池化层后接 1 x 1 卷积层。
         self.p4_1 = nn.MaxPool2D(pool_size=3, strides=1, padding=1)
         self.p4_2 = nn.Conv2D(c4, kernel_size=1, activation='relu')
 
@@ -124,9 +123,10 @@ for layer in net:
 我们使用高宽为96的数据来训练。
 
 ```{.python .input  n=8}
+lr = 0.1
 ctx = gb.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
-trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': .1})
+trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 train_data, test_data = gb.load_data_fashion_mnist(batch_size=128, resize=96)
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
 gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
@@ -134,7 +134,7 @@ gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 
 ## 小结
 
-Inception定义了一个有四条线路的子网络。它通过不同窗口大小的卷基层和最大池化层来并行抽取信息，使用$1\times 1$卷基层减低通道数来减少模型复杂度。GoogLeNet则精细的将多个Inception块和其他层串联起来。其通道分配比例是在ImageNet数据集上通过大量的实验得来。这个使得GoogLeNet和它的后继者一度是ImageNet上最高效的模型之一，即在给定同样的测试精度下计算复杂度更低。
+Inception定义了一个有四条线路的子网络。它通过不同窗口大小的卷基层和最大池化层来并行抽取信息，并使用$1\times 1$卷基层减低通道数来减少模型复杂度。GoogLeNet将多个精细设计的Inception块和其他层串联起来。其通道分配比例是在ImageNet数据集上通过大量的实验得来。GoogLeNet和它的后继者一度是ImageNet上最高效的模型之一，即在给定同样的测试精度下计算复杂度更低。
 
 ## 练习
 
