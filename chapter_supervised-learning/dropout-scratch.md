@@ -1,4 +1,4 @@
-# 丢弃法（Dropout）——从零开始
+# Dropout——从零开始
 
 前面我们介绍了多层神经网络，就是包含至少一个隐含层的网络。我们也介绍了正则法来应对过拟合问题。在深度学习中，一个常用的应对过拟合问题的方法叫做丢弃法（Dropout）。本节以多层神经网络为例，从0开始介绍丢弃法。
 
@@ -27,26 +27,22 @@ from mxnet.gluon import loss as gloss
 ```
 
 ```{.python .input}
-def dropout(X, drop_probability):
-    keep_probability = 1 - drop_probability
-    assert 0 <= keep_probability <= 1
+def dropout(X, drop_prob):
+    assert 0 <= drop_prob <= 1
+    keep_prob = 1 - drop_prob
     # 这种情况下把全部元素都丢弃。
-    if keep_probability == 0:
+    if keep_prob == 0:
         return X.zeros_like()
-    
-    # 随机选择一部分该层的输出作为丢弃元素。
-    mask = nd.random.uniform(
-        0, 1.0, X.shape, ctx=X.context) < keep_probability
-    # 保证 E[dropout(X)] == X
-    scale =  1 / keep_probability 
-    return mask * X * scale
+    # 随机选择一部分该层的输出作为丢弃元素。我们将在“深度学习计算”一章介绍 context 属性。
+    mask = nd.random.uniform(0, 1, X.shape, ctx=X.context) < keep_prob
+    return mask * X / keep_prob
 ```
 
 我们运行几个实例来验证一下。
 
 ```{.python .input}
-A = nd.arange(20).reshape((5,4))
-dropout(A, 0.0)
+A = nd.arange(20).reshape((5, 4))
+dropout(A, 0)
 ```
 
 ```{.python .input}
@@ -54,7 +50,7 @@ dropout(A, 0.5)
 ```
 
 ```{.python .input}
-dropout(A, 1.0)
+dropout(A, 1)
 ```
 
 ## 丢弃法的本质
@@ -65,7 +61,6 @@ dropout(A, 1.0)
 
 事实上，丢弃法在模拟集成学习。试想，一个使用了丢弃法的多层神经网络本质上是原始网络的子集（节点和边）。举个例子，它可能长这个样子。
 
-![](../img/dropout.png)
 
 我们在之前的章节里介绍过[随机梯度下降算法](linear-regression-scratch.md)：我们在训练神经网络模型时一般随机采样一个批量的训练数
 据。丢弃法实质上是对每一个这样的数据集分别训练一个原神经网络子集的分类器。与一般的集成学习不同，这里每个原神经网络子集的分类器用的是同一套参数。因此丢弃法只是在模拟集成学习。
@@ -88,7 +83,7 @@ train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
 [多层感知机](mlp-scratch.md)已经在之前章节里介绍。与[之前章节](mlp-scratch.md)不同，这里我们定义一个包含两个隐含层的模型，两个隐含层都输出256个节点。我们定义激活函数Relu并直接使用Gluon提供的交叉熵损失函数。
 
 ```{.python .input  n=2}
-num_inputs = 28*28
+num_inputs = 784
 num_outputs = 10
 
 num_hiddens1 = 256
@@ -117,15 +112,15 @@ drop_prob2 = 0.5
 
 def net(X):
     X = X.reshape((-1, num_inputs))
-    # 第一层全连接。
-    h1 = nd.relu(nd.dot(X, W1) + b1)
-    # 在第一层全连接后添加丢弃层。
-    h1 = dropout(h1, drop_prob1)
-    # 第二层全连接。
-    h2 = nd.relu(nd.dot(h1, W2) + b2)
-    # 在第二层全连接后添加丢弃层。
-    h2 = dropout(h2, drop_prob2)
-    return nd.dot(h2, W3) + b3
+    H1 = (nd.dot(X, W1) + b1).relu()
+    if autograd.is_training():
+        # 在第一层全连接后添加丢弃层。
+        H1 = dropout(H1, drop_prob1)
+    H2 = (nd.dot(H1, W2) + b2).relu()
+    if autograd.is_training():
+        # 在第二层全连接后添加丢弃层。
+        H2 = dropout(H2, drop_prob2)
+    return nd.dot(H2, W3) + b3
 ```
 
 ## 训练
@@ -136,8 +131,9 @@ def net(X):
 loss = gloss.SoftmaxCrossEntropyLoss()
 num_epochs = 5
 lr = 0.5
-gb.train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
-             params, lr)
+
+gb.train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size, params,
+             lr)
 ```
 
 ## 小结
