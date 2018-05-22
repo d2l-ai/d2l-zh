@@ -49,10 +49,10 @@ def fit_and_plot(weight_decay):
     net = nn.Sequential()
     net.add(nn.Dense(1))
     net.initialize(init.Normal(sigma=1))
-    # 对权重参数做L2范数正则化，即权重衰减。
+    # 对权重参数做 L2 范数正则化，即权重衰减。
     trainer_w = gluon.Trainer(net.collect_params('.*weight'), 'sgd', {
         'learning_rate': learning_rate, 'wd': weight_decay})
-    # 不对偏差参数做L2范数正则化。
+    # 不对偏差参数做 L2 范数正则化。
     trainer_b = gluon.Trainer(net.collect_params('.*bias'), 'sgd', {
         'learning_rate': learning_rate})
     train_ls = []
@@ -62,6 +62,7 @@ def fit_and_plot(weight_decay):
             with autograd.record():
                 l = loss(net(X), y)
             l.backward()
+            # 对两个 Trainer 实例分别调用 step 函数。
             trainer_w.step(batch_size)
             trainer_b.step(batch_size)
         train_ls.append(loss(net(train_features),
