@@ -79,7 +79,7 @@ def fit_and_plot(weight_decay):
 
 ## 观察实验结果
 
-以下实验结果和上一节中的类似。
+以下实验结果和上一节中的类似。同样地，使用正则化可以从一定程度上缓解过拟合问题。
 
 ```{.python .input  n=4}
 fit_and_plot(0)
