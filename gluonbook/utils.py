@@ -1,14 +1,17 @@
-from math import exp                                                                                                         
+from math import exp
 import random
 from time import time
 
-import matplotlib as mpl                                                                             
-from matplotlib import pyplot as plt
+from IPython.display import set_matplotlib_formats
+import matplotlib.pyplot as plt
 import mxnet as mx
 from mxnet import autograd, gluon, image, nd
 from mxnet.gluon import nn, data as gdata, loss as gloss, utils as gutils
 import numpy as np
 
+# set default figure size
+set_matplotlib_formats('retina')
+plt.rcParams['figure.figsize'] = (3.5, 2.5)
 
 class DataLoader(object):
     """similiar to gluon.data.DataLoader, but might be faster.
@@ -36,7 +39,7 @@ class DataLoader(object):
 
         for i in range(n//self.batch_size):
             if self.transform is not None:
-                yield self.transform(X[i*self.batch_size:(i+1)*self.batch_size], 
+                yield self.transform(X[i*self.batch_size:(i+1)*self.batch_size],
                                      y[i*self.batch_size:(i+1)*self.batch_size])
             else:
                 yield (X[i*self.batch_size:(i+1)*self.batch_size],
@@ -61,7 +64,7 @@ def load_data_fashion_mnist(batch_size, resize=None, root="~/.mxnet/datasets/fas
 
     mnist_train = gluon.data.vision.FashionMNIST(root=root, train=True, transform=None)
     mnist_test = gluon.data.vision.FashionMNIST(root=root, train=False, transform=None)
-    # Transform later to avoid memory explosion. 
+    # Transform later to avoid memory explosion.
     train_data = DataLoader(mnist_train, batch_size, shuffle=True, transform=transform_mnist)
     test_data = DataLoader(mnist_test, batch_size, shuffle=False, transform=transform_mnist)
     return (train_data, test_data)
@@ -135,16 +138,16 @@ def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
             y = y.astype('float32')
             acc += (net(X).argmax(axis=1)==y).sum().copyto(mx.cpu())
             n += y.size
-        acc.wait_to_read() 
+        acc.wait_to_read()
     return acc.asscalar() / n
 
 
 def train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
               params=None, lr=None, trainer=None):
     """Train and evaluate a model on CPU."""
-    for epoch in range(1, num_epochs + 1): 
-        train_l_sum = 0 
-        train_acc_sum = 0 
+    for epoch in range(1, num_epochs + 1):
+        train_l_sum = 0
+        train_acc_sum = 0
         for X, y in train_iter:
             with autograd.record():
                 y_hat = net(X)
@@ -157,7 +160,7 @@ def train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
             train_l_sum += l.mean().asscalar()
             train_acc_sum += accuracy(y_hat, y)
         test_acc = evaluate_accuracy(test_iter, net)
-        print("epoch %d, loss %.4f, train acc %.3f, test acc %.3f" 
+        print("epoch %d, loss %.4f, train acc %.3f, test acc %.3f"
               % (epoch, train_l_sum / len(train_iter),
                  train_acc_sum / len(train_iter), test_acc))
 
@@ -250,7 +253,7 @@ def show_images(imgs, nrows, ncols, figsize=None):
 
 def data_iter_random(corpus_indices, batch_size, num_steps, ctx=None):
     """Sample mini-batches in a random order from sequential data."""
-    # Subtract 1 because label indices are corresponding input indices + 1. 
+    # Subtract 1 because label indices are corresponding input indices + 1.
     num_examples = (len(corpus_indices) - 1) // num_steps
     epoch_size = num_examples // batch_size
     # Randomize samples.
@@ -275,12 +278,12 @@ def data_iter_consecutive(corpus_indices, batch_size, num_steps, ctx=None):
     corpus_indices = nd.array(corpus_indices, ctx=ctx)
     data_len = len(corpus_indices)
     batch_len = data_len // batch_size
-    
+
     indices = corpus_indices[0: batch_size * batch_len].reshape((
         batch_size, batch_len))
-    # Subtract 1 because label indices are corresponding input indices + 1. 
+    # Subtract 1 because label indices are corresponding input indices + 1.
     epoch_size = (batch_len - 1) // num_steps
-    
+
     for i in range(epoch_size):
         i = i * num_steps
         data = indices[:, i: i + num_steps]
@@ -322,7 +325,7 @@ def predict_rnn(rnn, prefix, num_chars, params, hidden_dim, ctx, idx_to_char,
     return ''.join([idx_to_char[i] for i in output])
 
 
-def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim, 
+def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim,
                           learning_rate, clipping_norm, batch_size,
                           pred_period, pred_len, seqs, get_params, get_inputs,
                           ctx, corpus_indices, idx_to_char, char_to_idx,
@@ -333,10 +336,10 @@ def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim,
     else:
         data_iter = data_iter_consecutive
     params = get_params()
-    
+
     softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 
-    for e in range(1, epochs + 1): 
+    for e in range(1, epochs + 1):
         # If consecutive sampling is used, in the same epoch, the hidden state
         # is initialized only at the beginning of the epoch.
         if not is_random_iter:
@@ -344,7 +347,7 @@ def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim,
             if is_lstm:
                 state_c = nd.zeros(shape=(batch_size, hidden_dim), ctx=ctx)
         train_loss, num_examples = 0, 0
-        for data, label in data_iter(corpus_indices, batch_size, num_steps, 
+        for data, label in data_iter(corpus_indices, batch_size, num_steps,
                                      ctx):
             # If random sampling is used, the hidden state has to be
             # initialized for each mini-batch.
@@ -356,7 +359,7 @@ def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim,
                 # outputs shape: (batch_size, vocab_size)
                 if is_lstm:
                     outputs, state_h, state_c = rnn(get_inputs(data), state_h,
-                                                    state_c, *params) 
+                                                    state_c, *params)
                 else:
                     outputs, state_h = rnn(get_inputs(data), state_h, *params)
                 # Let t_ib_j be the j-th element of the mini-batch at time i.
@@ -377,7 +380,7 @@ def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim,
             num_examples += loss.size
 
         if e % pred_period == 0:
-            print("Epoch %d. Training perplexity %f" % (e, 
+            print("Epoch %d. Training perplexity %f" % (e,
                                                exp(train_loss/num_examples)))
             for seq in seqs:
                 print(' - ', predict_rnn(rnn, seq, pred_len, params,
@@ -385,7 +388,7 @@ def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim,
                       is_lstm))
             print()
 
-
+# TODO(aston), remove this function
 def set_fig_size(mpl, figsize=(3.5, 2.5)):
     """Set size for the matplotlib figure."""
     mpl.rcParams['figure.figsize'] = figsize
@@ -441,4 +444,3 @@ def semilogy(x_vals, y_vals, x_label, y_label, figsize=(3.5, 2.5)):
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.show()
-
