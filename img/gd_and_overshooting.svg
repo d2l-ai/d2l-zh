@@ -2,7 +2,7 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="7 35 378 161" width="378" height="161">
   <defs>
-    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="StickArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 10 8" markerWidth="10" markerHeight="8" color="black">
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="StickArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 10 8" markerWidth="10" markerHeight="8" color="#5b7daa">
       <g>
         <path d="M 8 0 L 0 0 M 0 -3 L 8 0 L 0 3" fill="none" stroke="currentColor" stroke-width="1"/>
       </g>
@@ -24,17 +24,17 @@
     </marker>
   </defs>
   <metadata> Produced by OmniGraffle 7.7.1 
-    <dc:date>2018-05-13 01:22:49 +0000</dc:date>
+    <dc:date>2018-05-23 21:42:23 +0000</dc:date>
   </metadata>
   <g id="Canvas_1" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
     <title>Canvas 1</title>
     <g id="Canvas_1: Layer 1">
       <title>Layer 1</title>
       <g id="Line_19">
-        <line x1="35" y1="172.5" x2="35" y2="46.28867" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
+        <line x1="35" y1="172.5" x2="35" y2="46.28867" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
       <g id="Line_18">
-        <line x1="35" y1="173" x2="173.12344" y2="173" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
+        <line x1="35" y1="173" x2="173.12344" y2="173" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
       <g id="Graphic_17">
         <text transform="translate(12.5 41.741455)" fill="black">
@@ -59,10 +59,10 @@
         <line x1="76.18175" y1="118.12405" x2="78.50369" y2="123.52359" marker-end="url(#FilledArrow_Marker)" marker-start="url(#Ball_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
       <g id="Line_11">
-        <line x1="235.5" y1="172.5" x2="235.5" y2="46.28867" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
+        <line x1="235.5" y1="172.5" x2="235.5" y2="46.28867" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
       <g id="Line_10">
-        <line x1="235.5" y1="173" x2="373.62344" y2="173" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
+        <line x1="235.5" y1="173" x2="373.62344" y2="173" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
       <g id="Graphic_9">
         <text transform="translate(213 41.741455)" fill="black">
