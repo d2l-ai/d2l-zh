@@ -40,8 +40,6 @@
 import sys
 sys.path.append('..')
 import gluonbook as gb
-import matplotlib as mpl
-from matplotlib import pyplot as plt
 from mxnet import autograd, init, gluon, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
 import numpy as np
@@ -145,9 +143,6 @@ def get_net():
 我们定义一个训练的函数，这样在跑不同的实验时不需要重复实现相同的步骤。
 
 ```{.python .input  n=14}
-%config InlineBackend.figure_format = 'retina'
-gb.set_fig_size(mpl)
-
 def train(net, train_features, train_labels, test_features, test_labels,
           num_epochs, verbose_epoch, learning_rate, weight_decay, batch_size):
     train_ls = []
@@ -171,14 +166,11 @@ def train(net, train_features, train_labels, test_features, test_labels,
         if test_features is not None:    
             cur_test_l = get_rmse_log(net, test_features, test_labels)
             test_ls.append(cur_test_l)
-    plt.xlabel('epochs')
-    plt.ylabel('loss')
-    plt.semilogy(range(1, num_epochs+1), train_ls)
-    plt.legend(['train'])
     if test_features is not None:
-        plt.semilogy(range(1, num_epochs+1), test_ls)
-        plt.legend(['train','test'])
-    plt.show()
+        gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'loss',
+                    range(1, num_epochs+1), test_ls, ['train', 'test'])
+    else:
+        gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'loss')
     if test_features is not None:
         return cur_train_l, cur_test_l
     else:

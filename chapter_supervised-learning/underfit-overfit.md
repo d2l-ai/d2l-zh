@@ -40,12 +40,9 @@ $$\hat{y} = b + \sum_{k=1}^K x^k w_k$$
 为了理解模型复杂度和训练数据集大小对欠拟合和过拟合的影响，下面让我们以多项式函数拟合为例来实验。首先导入实现需要的包或模块。
 
 ```{.python .input}
-%matplotlib inline
 import sys
 sys.path.append('..')
 import gluonbook as gb
-import matplotlib as mpl
-from matplotlib import pyplot as plt
 from mxnet import autograd, gluon, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
 ```
@@ -80,10 +77,26 @@ features[:5], poly_features[:5], labels[:5]
 
 ### 定义、训练和测试模型
 
+我们先定义作图函数，其中y轴是基于对数尺度。该作图函数`semilogy`也被定义在`gluonbook`包中供后面章节调用。
+
+```{.python .input}
+from IPython.display import set_matplotlib_formats
+def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
+             legend=None, figsize=(3.5, 2.5)):
+    gb.plt.rcParams['figure.figsize'] = figsize
+    set_matplotlib_formats('retina')
+    gb.plt.xlabel(x_label)
+    gb.plt.ylabel(y_label)
+    gb.plt.semilogy(x_vals, y_vals)
+    if x2_vals and y2_vals:
+        gb.plt.semilogy(x2_vals, y2_vals)
+        gb.plt.legend(legend)
+    gb.plt.show() 
+```
+
 和线性回归一样，多项式函数拟合也使用平方损失函数。由于我们将尝试使用不同复杂度的模型来拟合生成的数据集，我们把模型定义部分放在`fit_and_plot`函数中。多项式函数拟合的训练和测试步骤与之前介绍的Softmax回归中的这些步骤类似。
 
 ```{.python .input}
-gb.set_fig_size(mpl)
 num_epochs = 100
 loss = gloss.L2Loss()
 
@@ -108,12 +121,8 @@ def fit_and_plot(train_features, test_features, train_labels, test_labels):
         test_ls.append(loss(net(test_features),
                             test_labels).mean().asscalar())
     print('final epoch: train loss', train_ls[-1], 'test loss', test_ls[-1])
-    plt.xlabel('epochs')
-    plt.ylabel('loss')
-    plt.semilogy(range(1, num_epochs+1), train_ls)
-    plt.semilogy(range(1, num_epochs+1), test_ls)
-    plt.legend(['train','test'])
-    plt.show()
+    semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'loss',
+             range(1, num_epochs+1), test_ls, ['train', 'test'])
     return ('weight:', net[0].weight.data(), 'bias:', net[0].bias.data())
 ```
 
