@@ -77,7 +77,7 @@ $$\frac{\partial J}{\partial L} = 1, \quad \frac{\partial J}{\partial s} = 1.$$
 其次，我们依据链式法则计算目标函数有关输出层变量的梯度$\partial J/\partial \boldsymbol{o} \in \mathbb{R}^{y}$：
 
 $$\frac{\partial J}{\partial \boldsymbol{o}} 
-= \text{prod}(\frac{\partial J}{\partial L}， \frac{\partial L}{\partial \boldsymbol{o}})
+= \text{prod}(\frac{\partial J}{\partial L}, \frac{\partial L}{\partial \boldsymbol{o}})
 = \frac{\partial L}{\partial \boldsymbol{o}}.$$
 
 
@@ -102,7 +102,7 @@ $$
 
 $$
 \frac{\partial J}{\partial \boldsymbol{h}} 
-= \text{prod}(\frac{\partial J}{\partial \boldsymbol{o}}， \frac{\partial \boldsymbol{o}}{\partial \boldsymbol{h}})
+= \text{prod}(\frac{\partial J}{\partial \boldsymbol{o}}, \frac{\partial \boldsymbol{o}}{\partial \boldsymbol{h}})
 = {\boldsymbol{W}^{(2)}}^\top \frac{\partial J}{\partial \boldsymbol{o}}.
 $$
 
@@ -111,7 +111,7 @@ $$
 
 $$
 \frac{\partial J}{\partial \boldsymbol{z}} 
-= \text{prod}(\frac{\partial J}{\partial \boldsymbol{h}}， \frac{\partial \boldsymbol{h}}{\partial \boldsymbol{z}})
+= \text{prod}(\frac{\partial J}{\partial \boldsymbol{h}}, \frac{\partial \boldsymbol{h}}{\partial \boldsymbol{z}})
 = \frac{\partial J}{\partial \boldsymbol{h}} \odot \phi^\prime(\boldsymbol{z}).
 $$
 
