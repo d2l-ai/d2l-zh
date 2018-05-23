@@ -24,7 +24,7 @@
     </font-face>
   </defs>
   <metadata> Produced by OmniGraffle 7.7.1 
-    <dc:date>2018-05-23 05:14:57 +0000</dc:date>
+    <dc:date>2018-05-23 21:36:52 +0000</dc:date>
   </metadata>
   <g id="Canvas_1" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
     <title>Canvas 1</title>
@@ -112,24 +112,27 @@
       <g id="Line_8">
         <line x1="111.2493" y1="138.1" x2="141.69887" y2="90.58529" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
-      <g id="Graphic_7">
-        <path d="M 154.25 23 L 165.5 33.35 L 154.25 43.7 L 143 33.35 Z" fill="#c9e2ff"/>
-        <path d="M 154.25 23 L 165.5 33.35 L 154.25 43.7 L 143 33.35 Z" stroke="gray" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        <text transform="translate(151.0375 27.995784)" fill="black">
-          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="400" fill="black" x="1.1875" y="8">J</tspan>
-        </text>
-      </g>
       <g id="Line_6">
         <line x1="65.400006" y1="33.35" x2="83.05" y2="33.35" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
       <g id="Line_5">
         <line x1="65.4" y1="62.73102" x2="85.05752" y2="47.8455" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
-      <g id="Line_4">
+    </g>
+    <g id="Canvas_1: Layer 2">
+      <title>Layer 2</title>
+      <g id="Graphic_24">
+        <rect x="143" y="22.1" width="22.5" height="22.5" fill="#c9e2ff"/>
+        <rect x="143" y="22.1" width="22.5" height="22.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(148 28.202784)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="400" fill="black" x="4" y="8">J</tspan>
+        </text>
+      </g>
+      <g id="Line_25">
         <line x1="115.45" y1="33.35" x2="133.1" y2="33.35" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
-      <g id="Line_3">
-        <line x1="154.25" y1="59.75" x2="154.25" y2="53.6" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      <g id="Line_26">
+        <line x1="154.25" y1="59.75" x2="154.25" y2="54.5" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
     </g>
   </g>
