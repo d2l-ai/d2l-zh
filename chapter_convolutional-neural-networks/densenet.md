@@ -1,22 +1,21 @@
 # 稠密连接网络：DenseNet
 
-上一节介绍的ResNet中的跨层连接设计引申出了数个后续工作。这一节我们介绍其中的一个：稠密连接网络（DenseNet） [1]。 它与ResNet的主要区别如下图演示。
+ResNet中的跨层连接设计引申出了数个后续工作。这一节我们介绍其中的一个：稠密连接网络（DenseNet） [1]。 它与ResNet的主要区别如下图演示。
 
 ![ResNet（左）对比DenseNet（右）。](../img/densenet.svg)
 
-可以看出主要区别在于层B的输入不是像ResNet那样通过加法和输出合并，而是通过在通道维上的跟层B的输出进行合并。因为使用了拼接，所以底层的输出会单独保留的进入上面所有层。这是为什么称之为“稠密连接“的原因。
+可以DenseNet里层B的输出不是像ResNet那样通过加法和其输入，即层A的输出，合并，而是通过在通道维上的合并，这样层A的输出可以不受影响的进入上面的神经层。这样层A直接跟上面的所有层连接在了一起，这是为什么称之为“稠密连接“的原因。
 
-DenseNet的主要构建模块是稠密块和过渡块，前者定义了输入和输出是如何拼接的，后者则用来控制通道数不要过大。
+DenseNet的主要构建模块是稠密块和过渡块，前者定义了输入和输出是如何合并的，后者则用来控制通道数不要过大。
 
 ## 稠密块
 
-DeseNet使用了ResNet改良版的“批量归一化、激活和卷积”结构（参见上一节习题），我们首先实现这个结构。
+DeseNet使用了ResNet改良版的“批量归一化、激活和卷积”结构（参见上一节习题），我们首先在`conv_block`函数里实现这个结构。
 
 ```{.python .input  n=1}
 import sys
 sys.path.append('..')
 import gluonbook as gb
-
 from mxnet import nd, gluon, init
 from mxnet.gluon import nn
 
@@ -27,7 +26,7 @@ def conv_block(num_channels):
     return blk
 ```
 
-稠密块里有多个卷积块，每个卷积块使用相同的输出通道数。但在前向计算时，我们将每个卷积块的输出在通道维上同其输出合并进入下一个卷积块。
+稠密块由多个`conv_block`组成，每块使用相同的输出通道数。但在前向计算时，我们将每块的输出在通道维上同其输出合并进入下一个块。
 
 ```{.python .input  n=2}
 class DenseBlock(nn.Block):
@@ -45,7 +44,7 @@ class DenseBlock(nn.Block):
         return Y
 ```
 
-下面例子中我们定义一个有两个输出通道数为10的卷积块，使用通道数为3的输入时，我们会得到通道数为$3+2\times 10=23$的输入。卷积块的通道数影响了输出通道数相对于输入通道数的增长，因此也被成为之增长率（growth rate）。
+下面例子中我们定义一个有两个输出通道数为10的卷积块，使用通道数为3的输入时，我们会得到通道数为$3+2\times 10=23$的输出。卷积块的通道数控制了输出通道数相对于输入通道数的增长，因此也被成为之增长率（growth rate）。
 
 ```{.python .input  n=8}
 blk = DenseBlock(2, 10)
@@ -57,7 +56,7 @@ Y.shape
 
 ## 过渡块
 
-每个稠密块都会带来通道数的增加。使用过多则会带过于复杂的模型复杂度。过渡块（transition block）则是用来通过$1\times1$卷积层来减小通道数。同时它使用步幅为2的平均池化层来将高宽减半来进一步降低复杂度。
+由于每个稠密块都会带来通道数的增加。使用过多则会导致过于复杂的模型复杂度。过渡块（transition block）则用来控制模型复杂度。它通过$1\times1$卷积层来减小通道数。同时它使用步幅为2的平均池化层来将高宽减半来进一步降低复杂度。
 
 ```{.python .input  n=3}
 def transition_block(num_channels):
@@ -78,7 +77,7 @@ blk(Y).shape
 
 ## DenseNet模型
 
-DenseNet跟ResNet一样首先使用单卷积层和最大池化层：
+DenseNet首先使用跟ResNet一样的单卷积层和最大池化层：
 
 ```{.python .input}
 net = nn.Sequential()
@@ -126,7 +125,7 @@ gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 
 ## 小结
 
-不同于ResNet中将输入加在输出上完成跨层连接，DenseNet使用拼接来使得底部层的输出能够更独立的进入顶部层。
+不同于ResNet中将输入加在输出上完成跨层连接，DenseNet在通道维上合并输入和输出来使得底部神经层能跟其上面所有层连接起来。
 
 ## 练习
 
