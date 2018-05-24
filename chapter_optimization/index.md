@@ -8,7 +8,7 @@
 
 ![漫画：训练深度学习模型](../img/training_model.png)
 
-```{.python .input .eval_rst}
+```eval_rst
 
 .. toctree::
    :maxdepth: 2
