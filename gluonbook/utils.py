@@ -12,6 +12,7 @@ import numpy as np
 # set default figure size
 set_matplotlib_formats('retina')
 plt.rcParams['figure.figsize'] = (3.5, 2.5)
+print(plt.rcParams['figure.figsize'] )
 
 class DataLoader(object):
     """similiar to gluon.data.DataLoader, but might be faster.
@@ -119,6 +120,8 @@ def _get_batch(batch, ctx):
         labels = batch.label[0]
     else:
         features, labels = batch
+    if labels.dtype != features.dtype:
+        labels = labels.astype(features.dtype)
     return (gutils.split_and_load(features, ctx),
             gutils.split_and_load(labels, ctx),
             features.shape[0])
@@ -167,7 +170,7 @@ def train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
 
 def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs, print_batches=None):
     """Train and evaluate a model."""
-    print("training on ", ctx)
+    print("training on", ctx)
     if isinstance(ctx, mx.Context):
         ctx = [ctx]
     for epoch in range(1, num_epochs + 1):
