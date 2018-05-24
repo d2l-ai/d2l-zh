@@ -1,4 +1,4 @@
-# 语义分割：FCN
+# 语义分割
 
 我们已经学习了如何识别图片里面的主要物体，和找出里面物体的边框。语义分割则在之上更进一步，它对每个像素预测它是否只是背景，还是属于哪个我们感兴趣的物体。
 
@@ -58,7 +58,7 @@ def read_images(root=voc_root, train=True):
 ```{.python .input  n=3}
 import sys
 sys.path.append('..')
-import utils
+import gluonbook as gb
 
 train_images, train_labels = read_images()
 
@@ -66,7 +66,7 @@ imgs = []
 for i in range(3):
     imgs += [train_images[i], train_labels[i]]
 
-utils.show_images(imgs, nrows=3, ncols=2, figsize=(12,8))
+gb.show_images(imgs, nrows=3, ncols=2, figsize=(12,8))
 [im.shape for im in imgs]
 ```
 
@@ -85,7 +85,7 @@ for _ in range(3):
     imgs += rand_crop(train_images[0], train_labels[0],
                       200, 300)
 
-utils.show_images(imgs, nrows=3, ncols=2, figsize=(12,8))
+gb.show_images(imgs, nrows=3, ncols=2, figsize=(12,8))
 ```
 
 接下来我们列出每个物体和背景对应的RGB值
@@ -330,20 +330,15 @@ conv_trans.weight.set_data(bilinear_kernel(*shape[0:3]))
 这时候我们可以真正开始训练了。值得一提的是我们使用卷积转置层的通道来预测像素的类别。所以在做`softmax`和预测的时候我们需要使用通道这个维度，既维度1. 所以在`SoftmaxCrossEntropyLoss`里加入了额外了`axis=1`选项。其他的部分跟之前的训练一致。
 
 ```{.python .input}
-import sys
-sys.path.append('..')
-import utils
-
 loss = gluon.loss.SoftmaxCrossEntropyLoss(axis=1)
 
-ctx = utils.try_all_gpus()
+ctx = gb.try_all_gpus()
 net.collect_params().reset_ctx(ctx)
 
 trainer = gluon.Trainer(net.collect_params(),
                         'sgd', {'learning_rate': .1, 'wd':1e-3})
 
-utils.train(train_data, test_data, net, loss,
-            trainer, ctx, num_epochs=10)
+gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=10)
 ```
 
 ## 预测
@@ -360,7 +355,7 @@ def predict(im):
 
 def label2image(pred):
     x = pred.astype('int32').asnumpy()
-    cm = np.array(colormap).astype('uint8')
+    cm = nd.array(colormap).astype('uint8')
     return nd.array(cm[x,:])
 ```
 
@@ -376,19 +371,20 @@ for i in range(n):
     pred = label2image(predict(x))
     imgs += [x, pred, test_labels[i]]
 
-utils.show_images(imgs, nrows=n, ncols=3, figsize=(6,10))
+gb.show_images(imgs, nrows=n, ncols=3, figsize=(6,10))
 ```
 
-## 总结
+## 小结
 
-通过使用卷积转置层，我们可以得到更大分辨率的输出。
+* 通过使用卷积转置层，我们可以得到更大分辨率的输出。
 
 ## 练习
 
-1. 试着改改最后的卷积转置层的参数设定
-1. 看看双线性差值初始化是不是必要的
-1. 试着改改训练参数来使得收敛更好些
-1. [FCN论文](https://arxiv.org/abs/1411.4038)中提到了不只是使用主体卷积网络输出，还可以将前面层的输出也加进来。试着实现。
+* 试着改改最后的卷积转置层的参数设定
+* 看看双线性差值初始化是不是必要的
+* 试着改改训练参数来使得收敛更好些
+* [FCN论文](https://arxiv.org/abs/1411.4038)中提到了不只是使用主体卷积网络输出，还可以将前面层的输出也加进来。试着实现。
 
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/3041)
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/3041)
+![](../img/qr_fcn.svg)

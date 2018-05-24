@@ -1,57 +1,46 @@
-# 多层感知机 --- 从0开始
+# 多层感知机——从零开始
 
-前面我们介绍了包括线性回归和多类逻辑回归的数个模型，它们的一个共同点是全是只含有一个输入层，一个输出层。这一节我们将介绍多层神经网络，就是包含至少一个隐含层的网络。
+我们已经从上一章里了解了多层感知机的原理。下面我们一起来动手实现一个多层感知机。首先导入实现所需的包或模块。
 
-## 数据获取
-
-我们继续使用FashionMNIST数据集。
-
-```{.python .input  n=1}
+```{.python .input}
 import sys
 sys.path.append('..')
-import utils
-batch_size = 256
-train_data, test_data = utils.load_data_fashion_mnist(batch_size)
+import gluonbook as gb
+from mxnet import autograd, gluon, nd
+from mxnet.gluon import loss as gloss
 ```
 
-## 多层感知机
+## 获取和读取数据
 
-多层感知机与前面介绍的[多类逻辑回归](../chapter_crashcourse/softmax-regression-scratch.md)非常类似，主要的区别是我们在输入层和输出层之间插入了一个到多个隐含层。
+我们继续使用Fashion-MNIST数据集。我们将使用多层感知机对图片进行分类。
 
-![](../img/multilayer-perceptron.png)
+```{.python .input  n=1}
+batch_size = 256
+train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
+```
 
-这里我们定义一个只有一个隐含层的模型，这个隐含层输出256个节点。
+## 定义模型参数
+
+我们在[“Softmax回归——从零开始”](../chapter_crashcourse/softmax-regression-scratch.md)一节里已经介绍了，Fashion-MNIST数据集中图片尺寸为$28 \times 28$，类别数为10。本节中我们依然使用长度为$28 \times 28 = 784$的向量表示每一张图片。因此，输入个数为784，输出个数为10。实验中，我们设超参数隐藏单元个数为256。
 
 ```{.python .input  n=2}
-from mxnet import ndarray as nd
-
-num_inputs = 28*28
+num_inputs = 784
 num_outputs = 10
+num_hiddens = 256
 
-num_hidden = 256
-weight_scale = .01
-
-W1 = nd.random_normal(shape=(num_inputs, num_hidden), scale=weight_scale)
-b1 = nd.zeros(num_hidden)
-
-W2 = nd.random_normal(shape=(num_hidden, num_outputs), scale=weight_scale)
+W1 = nd.random.normal(scale=0.01, shape=(num_inputs, num_hiddens))
+b1 = nd.zeros(num_hiddens)
+W2 = nd.random.normal(scale=0.01, shape=(num_hiddens, num_outputs))
 b2 = nd.zeros(num_outputs)
-
 params = [W1, b1, W2, b2]
 
 for param in params:
     param.attach_grad()
 ```
 
-## 激活函数
+## 定义激活函数
 
-如果我们就用线性操作符来构造多层神经网络，那么整个模型仍然只是一个线性函数。这是因为
-
-$$\hat{y} = X \cdot W_1 \cdot W_2 = X \cdot W_3 $$
-
-这里$W_3 = W_1 \cdot W_2$。为了让我们的模型可以拟合非线性函数，我们需要在层之间插入非线性的激活函数。这里我们使用ReLU
-
-$$\textrm{rel}u(x)=\max(x, 0)$$
+这里我们使用ReLU作为隐藏层的激活函数。
 
 ```{.python .input  n=3}
 def relu(X):
@@ -60,61 +49,46 @@ def relu(X):
 
 ## 定义模型
 
-我们的模型就是将层（全连接）和激活函数（Relu）串起来：
+同Softmax回归一样，我们通过`reshape`函数将每张原始图片改成长度为`num_inputs`的向量。然后我们将上一节多层感知机的矢量计算表达式翻译成代码。
 
 ```{.python .input  n=4}
 def net(X):
     X = X.reshape((-1, num_inputs))
-    h1 = relu(nd.dot(X, W1) + b1)
-    output = nd.dot(h1, W2) + b2
-    return output
+    H = relu(nd.dot(X, W1) + b1)
+    return nd.dot(H, W2) + b2
 ```
 
-## Softmax和交叉熵损失函数
+## 定义损失函数
 
-在多类Logistic回归里我们提到分开实现Softmax和交叉熵损失函数可能导致数值不稳定。这里我们直接使用Gluon提供的函数
+为了得到更好的数值稳定性，我们直接使用Gluon提供的包括Softmax运算和交叉熵损失计算的函数。
 
 ```{.python .input  n=6}
-from mxnet import gluon
-softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
+loss = gloss.SoftmaxCrossEntropyLoss()
 ```
 
-## 训练
+## 训练模型
 
-训练跟之前一样。
+训练多层感知机的步骤和之前训练Softmax回归的步骤没什么区别。我们直接调用`gluonbook`包中的`train_cpu`函数，它的实现已经在[“Softmax回归——从零开始”](../chapter_crashcourse/softmax-regression-scratch.md)一节里介绍了。
+
+这里设超参数迭代周期为5，学习率为0.5。
 
 ```{.python .input  n=8}
-from mxnet import autograd as autograd
-
-learning_rate = .5
-
-for epoch in range(5):
-    train_loss = 0.
-    train_acc = 0.
-    for data, label in train_data:
-        with autograd.record():
-            output = net(data)
-            loss = softmax_cross_entropy(output, label)
-        loss.backward()
-        utils.SGD(params, learning_rate/batch_size)
-
-        train_loss += nd.mean(loss).asscalar()
-        train_acc += utils.accuracy(output, label)
-
-    test_acc = utils.evaluate_accuracy(test_data, net)
-    print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-        epoch, train_loss/len(train_data),
-        train_acc/len(train_data), test_acc))
+num_epochs = 5
+lr = 0.5
+gb.train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
+             params, lr)
 ```
 
-## 总结
+## 小结
 
-可以看到，加入一个隐含层后我们将精度提升了不少。
+* 我们可以通过手动定义模型及其参数来实现简单的多层感知机。
+* 当多层感知机的层数较多时，本节的实现方法会显得较繁琐，特别在定义模型参数上。
 
 ## 练习
 
-- 我们使用了 `weight_scale` 来控制权重的初始化值大小，增大或者变小这个值会怎么样？
-- 尝试改变 `num_hiddens` 来控制模型的复杂度
-- 尝试加入一个新的隐含层
+- 改变 `num_hiddens`超参数的值，看看对结果有什么影响。
+- 试着加入一个新的隐藏层，看看对结果有什么影响。
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/739)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/739)
+
+![](../img/qr_mlp-scratch.svg)

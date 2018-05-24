@@ -39,7 +39,7 @@ $$ \textrm{styleloss}(s_i, y_i) = \frac{1}{c^2hw} \| s_i s_i^T - y_i y_i^T \|_F 
 %matplotlib inline
 import matplotlib as mpl
 mpl.rcParams['figure.dpi']= 150
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 
 from mxnet import image
 
@@ -246,11 +246,11 @@ def train(x, max_epochs, lr, lr_decay_epoch=200):
 ```{.python .input  n=19}
 import sys
 sys.path.append('..')
-import utils
+import gluonbook as gb
 
 image_shape = (300,200)
 
-ctx = utils.try_gpu()
+ctx = gb.try_gpu()
 net.collect_params().reset_ctx(ctx)
 
 content_x, content_y = get_contents(image_shape)
@@ -288,15 +288,16 @@ z = train(x, 300, 0.1, 100)
 plt.imsave('result.png', postprocess(z).asnumpy())
 ```
 
-## 总结
+## 小结
 
-通过匹配神经网络的中间层输出，我们可以有效的融合不同图片的内容和样式。
+* 通过匹配神经网络的中间层输出，我们可以有效的融合不同图片的内容和样式。
 
 ## 练习
 
-1. 改变内容和样式层
-1. 使用不同的权重
-1. 换几张样式和内容图片
+* 改变内容和样式层
+* 使用不同的权重
+* 换几张样式和内容图片
 
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/3273)
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/3273)
+![](../img/qr_neural-style.svg)

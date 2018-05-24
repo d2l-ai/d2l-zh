@@ -27,7 +27,7 @@ RUN  mkdir /gluon-tutorials-zh
 COPY / /gluon-tutorials-zh/
 
 # sanity check
-RUN source activate gluon && notedown --run /gluon-tutorials-zh/chapter_crashcourse/ndarray.md
+# RUN source activate gluon && notedown --run /gluon-tutorials-zh/chapter_crashcourse/ndarray.md
 
 # for chinese supports
 ENV LANG C.UTF-8

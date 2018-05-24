@@ -1,4 +1,4 @@
-# 神经机器翻译
+# 应用编码器—解码器和注意力机制：机器翻译
 
 本节介绍[编码器—解码器和注意力机制](seq2seq-attention.md)的应用。我们以神经机器翻译（neural machine translation）为例，介绍如何使用Gluon实现一个简单的编码器—解码器和注意力机制模型。
 
@@ -33,8 +33,12 @@ epochs = 50
 epoch_period = 10
 
 learning_rate = 0.005
-# 输入或输出序列的最大长度（含句末添加的EOS字符）。
+# 每步计算梯度时使用的样本个数
+batch_size = 2
+# 输入序列的最大长度（含句末添加的EOS字符）。
 max_seq_len = 5
+# 输出序列的最大长度（含句末添加的EOS字符）。
+max_output_len = 20
 
 encoder_num_layers = 1
 decoder_num_layers = 2
@@ -100,9 +104,7 @@ Y = nd.zeros((len(output_seqs), max_seq_len), ctx=ctx)
 for i in range(len(input_seqs)):
     X[i] = nd.array(input_vocab.to_indices(input_seqs[i]), ctx=ctx)
     Y[i] = nd.array(output_vocab.to_indices(output_seqs[i]), ctx=ctx)
-
 dataset = gluon.data.ArrayDataset(X, Y)
-
 ```
 
 ### 编码器、含注意力机制的解码器和解码器初始状态
@@ -112,8 +114,9 @@ dataset = gluon.data.ArrayDataset(X, Y)
 ```{.python .input}
 class Encoder(Block):
     """编码器"""
-    def __init__(self, input_dim, hidden_dim, num_layers, drop_prob):
-        super(Encoder, self).__init__()
+    def __init__(self, input_dim, hidden_dim, num_layers, drop_prob,
+                 **kwargs):
+        super(Encoder, self).__init__(**kwargs)
         with self.name_scope():
             self.embedding = nn.Embedding(input_dim, hidden_dim)
             self.dropout = nn.Dropout(drop_prob)
@@ -121,7 +124,7 @@ class Encoder(Block):
                                input_size=hidden_dim)
 
     def forward(self, inputs, state):
-        # inputs尺寸: (1, num_steps)，emb尺寸: (num_steps, 1, 256)
+        # inputs尺寸: (batch_size, num_steps)，emb尺寸: (num_steps, batch_size, 256)
         emb = self.embedding(inputs).swapaxes(0, 1)
         emb = self.dropout(emb)
         output, state = self.rnn(emb, state)
@@ -137,8 +140,8 @@ class Encoder(Block):
 class Decoder(Block):
     """含注意力机制的解码器"""
     def __init__(self, hidden_dim, output_dim, num_layers, max_seq_len,
-                 drop_prob, alignment_dim, encoder_hidden_dim):
-        super(Decoder, self).__init__()
+                 drop_prob, alignment_dim, encoder_hidden_dim, **kwargs):
+        super(Decoder, self).__init__(**kwargs)
         self.max_seq_len = max_seq_len
         self.encoder_hidden_dim = encoder_hidden_dim
         self.hidden_size = hidden_dim
@@ -157,7 +160,7 @@ class Decoder(Block):
 
             self.rnn = rnn.GRU(hidden_dim, num_layers, dropout=drop_prob,
                                input_size=hidden_dim)
-            self.out = nn.Dense(output_dim, in_units=hidden_dim)
+            self.out = nn.Dense(output_dim, in_units=hidden_dim, flatten=False)
             self.rnn_concat_input = nn.Dense(
                 hidden_dim, in_units=hidden_dim + encoder_hidden_dim,
                 flatten=False)
@@ -165,35 +168,37 @@ class Decoder(Block):
     def forward(self, cur_input, state, encoder_outputs):
         # 当RNN为多层时，取最靠近输出层的单层隐含状态。
         single_layer_state = [state[0][-1].expand_dims(0)]
-        encoder_outputs = encoder_outputs.reshape((self.max_seq_len, 1,
+        encoder_outputs = encoder_outputs.reshape((self.max_seq_len, -1,
                                                    self.encoder_hidden_dim))
-        # single_layer_state尺寸: [(1, 1, decoder_hidden_dim)]
-        # hidden_broadcast尺寸: (max_seq_len, 1, decoder_hidden_dim)
+        # single_layer_state尺寸: [(1, batch_size, decoder_hidden_dim)]
+        # hidden_broadcast尺寸: (max_seq_len, batch_size, decoder_hidden_dim)
         hidden_broadcast = nd.broadcast_axis(single_layer_state[0], axis=0,
                                              size=self.max_seq_len)
 
         # encoder_outputs_and_hiddens尺寸:
-        # (max_seq_len, 1, encoder_hidden_dim + decoder_hidden_dim)
+        # (max_seq_len, batch_size, encoder_hidden_dim + decoder_hidden_dim)
         encoder_outputs_and_hiddens = nd.concat(encoder_outputs,
                                                 hidden_broadcast, dim=2)
 
-        # energy尺寸: (max_seq_len, 1, 1)
+        # energy尺寸: (max_seq_len, batch_size, 1)
         energy = self.attention(encoder_outputs_and_hiddens)
 
-        batch_attention = nd.softmax(energy, axis=0).reshape(
-            (1, 1, self.max_seq_len))
+        # batch_attention尺寸: (batch_size, 1, max_seq_len)
+        batch_attention = nd.softmax(energy, axis=0).transpose(
+            (1, 2, 0))
 
-        # batch_encoder_outputs尺寸: (1, max_seq_len, encoder_hidden_dim)
+        # batch_encoder_outputs尺寸: (batch_size, max_seq_len, encoder_hidden_dim)
         batch_encoder_outputs = encoder_outputs.swapaxes(0, 1)
 
-        # decoder_context尺寸: (1, 1, encoder_hidden_dim)
+        # decoder_context尺寸: (batch_size, 1, encoder_hidden_dim)
         decoder_context = nd.batch_dot(batch_attention, batch_encoder_outputs)
 
-        # input_and_context尺寸: (1, 1, encoder_hidden_dim + decoder_hidden_dim)
-        input_and_context = nd.concat(self.embedding(cur_input).reshape(
-            (1, 1, self.hidden_size)), decoder_context, dim=2)
-        # concat_input尺寸: (1, 1, decoder_hidden_dim)
-        concat_input = self.rnn_concat_input(input_and_context)
+        # cur_input尺寸: (batch_size,)
+        # input_and_context尺寸: (batch_size, 1, encoder_hidden_dim + decoder_hidden_dim)
+        input_and_context = nd.concat(nd.expand_dims(self.embedding(cur_input), axis=1),
+                                      decoder_context, dim=2)
+        # concat_input尺寸: (1, batch_size, decoder_hidden_dim)
+        concat_input = self.rnn_concat_input(input_and_context).reshape((1, -1, 0))
         concat_input = self.dropout(concat_input)
 
         # 当RNN为多层时，用单层隐含状态初始化各个层的隐含状态。
@@ -202,8 +207,8 @@ class Decoder(Block):
 
         output, state = self.rnn(concat_input, state)
         output = self.dropout(output)
-        output = self.out(output)
-        # output尺寸: (1, output_size)，hidden尺寸: [(1, 1, decoder_hidden_dim)]
+        output = self.out(output).reshape((-3, -1))
+        # output尺寸: (batch_size, output_size)
         return output, state
 
     def begin_state(self, *args, **kwargs):
@@ -215,8 +220,8 @@ class Decoder(Block):
 ```{.python .input}
 class DecoderInitState(Block):
     """解码器隐含状态的初始化"""
-    def __init__(self, encoder_hidden_dim, decoder_hidden_dim):
-        super(DecoderInitState, self).__init__()
+    def __init__(self, encoder_hidden_dim, decoder_hidden_dim, **kwargs):
+        super(DecoderInitState, self).__init__(**kwargs)
         with self.name_scope():
             self.dense = nn.Dense(decoder_hidden_dim,
                                   in_units=encoder_hidden_dim,
@@ -249,10 +254,10 @@ def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
         decoder_state = decoder_init_state(encoder_state[0])
         output_tokens = []
 
-        for i in range(max_seq_len):
+        for _ in range(max_output_len):
             decoder_output, decoder_state = decoder(
                 decoder_input, decoder_state, encoder_outputs)
-            pred_i = int(decoder_output.argmax(axis=1).asnumpy())
+            pred_i = int(decoder_output.argmax(axis=1).asnumpy()[0])
             # 当任一时刻的输出为EOS字符时，输出序列即完成。
             if pred_i == output_vocab.token_to_idx[EOS]:
                 break
@@ -283,33 +288,36 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens):
     softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 
     prev_time = datetime.datetime.now()
-    data_iter = gluon.data.DataLoader(dataset, 1, shuffle=True)
+    data_iter = gluon.data.DataLoader(dataset, batch_size, shuffle=True)
 
     total_loss = 0.0
+    eos_id = output_vocab.token_to_idx[EOS]
     for epoch in range(1, epochs + 1):
         for x, y in data_iter:
+            real_batch_size = x.shape[0]
             with autograd.record():
                 loss = nd.array([0], ctx=ctx)
+                valid_length = nd.array([0], ctx=ctx)
                 encoder_state = encoder.begin_state(
-                    func=mx.nd.zeros, batch_size=1, ctx=ctx)
+                    func=mx.nd.zeros, batch_size=real_batch_size, ctx=ctx)
                 encoder_outputs, encoder_state = encoder(x, encoder_state)
 
                 # encoder_outputs尺寸: (max_seq_len, encoder_hidden_dim)
                 encoder_outputs = encoder_outputs.flatten()
                 # 解码器的第一个输入为BOS字符。
-                decoder_input = nd.array([output_vocab.token_to_idx[BOS]],
+                decoder_input = nd.array([output_vocab.token_to_idx[BOS]] * real_batch_size,
                                          ctx=ctx)
+                mask = nd.ones(shape=(real_batch_size,), ctx=ctx)
                 decoder_state = decoder_init_state(encoder_state[0])
                 for i in range(max_seq_len):
                     decoder_output, decoder_state = decoder(
                         decoder_input, decoder_state, encoder_outputs)
                     # 解码器使用当前时刻的预测结果作为下一时刻的输入。
-                    decoder_input = nd.array(
-                        [decoder_output.argmax(axis=1).asscalar()], ctx=ctx)
-                    loss = loss + softmax_cross_entropy(decoder_output, y[0][i])
-                    if y[0][i].asscalar() == output_vocab.token_to_idx[EOS]:
-                        break
-
+                    decoder_input = decoder_output.argmax(axis=1)
+                    valid_length = valid_length + mask.sum()
+                    loss = loss + (mask * softmax_cross_entropy(decoder_output, y[:, i])).sum()
+                    mask = mask * (y[:, i] != eos_id)
+                loss = loss / valid_length
             loss.backward()
             encoder_optimizer.step(1)
             decoder_optimizer.step(1)
@@ -356,9 +364,9 @@ train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens)
 
 ## 束搜索
 
-在上一节里，我们提到编码器最终输出了一个背景向量$\mathbf{c}$，该背景向量编码了输入序列$x_1, x_2, \ldots, x_T$的信息。假设训练数据中的输出序列是$y_1, y_2, \ldots, y_{T^\prime}$，输出序列的生成概率是
+在上一节里，我们提到编码器最终输出了一个背景向量$\boldsymbol{c}$，该背景向量编码了输入序列$x_1, x_2, \ldots, x_T$的信息。假设训练数据中的输出序列是$y_1, y_2, \ldots, y_{T^\prime}$，输出序列的生成概率是
 
-$$\mathbb{P}(y_1, \ldots, y_{T^\prime}) = \prod_{t^\prime=1}^{T^\prime} \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \mathbf{c})$$
+$$\mathbb{P}(y_1, \ldots, y_{T^\prime}) = \prod_{t^\prime=1}^{T^\prime} \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c}).$$
 
 
 对于机器翻译的输出来说，如果输出语言的词汇集合$\mathcal{Y}$的大小为$|\mathcal{Y}|$，输出序列的长度为$T^\prime$，那么可能的输出序列种类是$\mathcal{O}(|\mathcal{Y}|^{T^\prime})$。为了找到生成概率最大的输出序列，一种方法是计算所有$\mathcal{O}(|\mathcal{Y}|^{T^\prime})$种可能序列的生成概率，并输出概率最大的序列。我们将该序列称为最优序列。但是这种方法的计算开销过高（例如，$10000^{10} = 1 \times 10^{40}$）。
@@ -366,17 +374,17 @@ $$\mathbb{P}(y_1, \ldots, y_{T^\prime}) = \prod_{t^\prime=1}^{T^\prime} \mathbb{
 
 我们目前所介绍的解码器在每个时刻只输出生成概率最大的一个词汇。对于任一时刻$t^\prime$，我们从$|\mathcal{Y}|$个词中搜索出输出词
 
-$$y_{t^\prime} = \text{argmax}_{y_{t^\prime} \in \mathcal{Y}} \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \mathbf{c})$$
+$$y_{t^\prime} = \text{argmax}_{y_{t^\prime} \in \mathcal{Y}} \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c})$$
 
 因此，搜索计算开销（$\mathcal{O}(|\mathcal{Y}| \times {T^\prime})$）显著下降（例如，$10000 \times 10 = 1 \times 10^5$），但这并不能保证一定搜索到最优序列。
 
 束搜索（beam search）介于上面二者之间。我们来看一个例子。
 
-假设输出序列的词典中只包含五个词：$\mathcal{Y} = \{A, B, C, D, E\}$。束搜索的一个超参数叫做束宽（beam width）。以束宽等于2为例，假设输出序列长度为3，假如时刻1生成概率$\mathbb{P}(y_{t^\prime} \mid \mathbf{c})$最大的两个词为$A$和$C$，我们在时刻2对于所有的$y_2 \in \mathcal{Y}$都分别计算$\mathbb{P}(y_2 \mid A, \mathbf{c})$和$\mathbb{P}(y_2 \mid C, \mathbf{c})$，从计算出的10个概率中取最大的两个，假设为$\mathbb{P}(B \mid A, \mathbf{c})$和$\mathbb{P}(E \mid C, \mathbf{c})$。那么，我们在时刻3对于所有的$y_3 \in \mathcal{Y}$都分别计算$\mathbb{P}(y_3 \mid A, B, \mathbf{c})$和$\mathbb{P}(y_3 \mid C, E, \mathbf{c})$，从计算出的10个概率中取最大的两个，假设为$\mathbb{P}(D \mid A, B, \mathbf{c})$和$\mathbb{P}(D \mid C, E, \mathbf{c})$。
+假设输出序列的词典中只包含五个词：$\mathcal{Y} = \{A, B, C, D, E\}$。束搜索的一个超参数叫做束宽（beam width）。以束宽等于2为例，假设输出序列长度为3，假如时刻1生成概率$\mathbb{P}(y_{t^\prime} \mid \boldsymbol{c})$最大的两个词为$A$和$C$，我们在时刻2对于所有的$y_2 \in \mathcal{Y}$都分别计算$\mathbb{P}(y_2 \mid A, \boldsymbol{c})$和$\mathbb{P}(y_2 \mid C, \boldsymbol{c})$，从计算出的10个概率中取最大的两个，假设为$\mathbb{P}(B \mid A, \boldsymbol{c})$和$\mathbb{P}(E \mid C, \boldsymbol{c})$。那么，我们在时刻3对于所有的$y_3 \in \mathcal{Y}$都分别计算$\mathbb{P}(y_3 \mid A, B, \boldsymbol{c})$和$\mathbb{P}(y_3 \mid C, E, \boldsymbol{c})$，从计算出的10个概率中取最大的两个，假设为$\mathbb{P}(D \mid A, B, \boldsymbol{c})$和$\mathbb{P}(D \mid C, E, \boldsymbol{c})$。
 
 接下来，我们可以在输出序列：$A$、$C$、$AB$、$CE$、$ABD$、$CED$中筛选出以特殊字符EOS结尾的候选序列。再在候选序列中取以下分数最高的序列作为最终候选序列：
 
-$$ \frac{1}{L^\alpha} \log \mathbb{P}(y_1, \ldots, y_{L}) = \frac{1}{L^\alpha} \sum_{t^\prime=1}^L \log \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \mathbf{c})$$
+$$ \frac{1}{L^\alpha} \log \mathbb{P}(y_1, \ldots, y_{L}) = \frac{1}{L^\alpha} \sum_{t^\prime=1}^L \log \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c})$$
 
 其中$L$为候选序列长度，$\alpha$一般可选为0.75。分母上的$L^\alpha$是为了惩罚较长序列的分数中的对数相加项。
 
@@ -390,7 +398,7 @@ $$ \exp(\min(0, 1 - \frac{len_{ref}}{len_{MT}})) \prod_{i=1}^k p_n^{1/2^n}$$
 
 需要注意的是，随着$n$的提高，n-gram的精度的权值随着$p_n^{1/2^n}$中的指数减小而提高。例如$0.5^{1/2} \approx 0.7, 0.5^{1/4} \approx 0.84, 0.5^{1/8} \approx 0.92, 0.5^{1/16} \approx 0.96$。换句话说，匹配4-gram比匹配1-gram应该得到更多奖励。另外，模型输出越短往往越容易得到较高的n-gram的精度。因此，BLEU公式里连乘项前面的系数为了惩罚较短的输出。例如当$k=2$时，参考输出为ABCDEF，而模型输出为AB，此时的$p_1 = p_2 = 1$，而$\exp(1-6/3) \approx 0.37$，因此BLEU=0.37。当模型输出也为ABCDEF时，BLEU=1。
 
-## 结论
+## 小结
 
 * 我们可以将编码器—解码器和注意力机制应用于神经机器翻译中。
 * 束搜索有可能提高输出质量。
@@ -402,5 +410,6 @@ $$ \exp(\min(0, 1 - \frac{len_{ref}}{len_{MT}})) \prod_{i=1}^k p_n^{1/2^n}$$
 * 试着使用更大的翻译数据集来训练模型，例如[WMT](http://www.statmt.org/wmt14/translation-task.html)和[Tatoeba Project](http://www.manythings.org/anki/)。调一调不同参数并观察实验结果。
 * Teacher forcing：在模型训练中，试着让解码器使用当前时刻的正确结果（而不是预测结果）作为下一时刻的输入。结果会怎么样？
 
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4689)
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/4689)
+![](../img/qr_nmt.svg)

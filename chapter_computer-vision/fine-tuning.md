@@ -1,4 +1,4 @@
-# Fine-tuning: 通过微调来迁移学习
+# 迁移学习
 
 
 在前面的章节里我们展示了如何训练神经网络来识别小图片里的问题。我们也介绍了ImageNet这个学术界默认的数据集，它有超过一百万的图片和一千类的物体。这个数据集很大的改变计算机视觉这个领域，展示了很多事情虽然在小的数据集上做不到，但在数GB的大数据上是可能的。事实上，我们目前还不知道有什么技术可以在类似的但小图片数据集上，例如一万张图片，训练出一个同样强大的模型。
@@ -75,7 +75,7 @@ def transform(data, label, augs):
 %matplotlib inline
 import sys
 sys.path.append('..')
-import utils
+import gluonbook as gb
 
 train_imgs = gluon.data.vision.ImageFolderDataset(
     data_dir+'/hotdog/train',
@@ -87,7 +87,7 @@ test_imgs = gluon.data.vision.ImageFolderDataset(
 data = gluon.data.DataLoader(train_imgs, 32, shuffle=True)
 for X, _ in data:
     X = X.transpose((0,2,3,1)).clip(0,255)/255
-    utils.show_images(X, 4, 8)
+    gb.show_images(X, 4, 8)
     break
 ```
 
@@ -138,13 +138,13 @@ def train(net, ctx, batch_size=64, epochs=10, learning_rate=0.01, wd=0.001):
     # 训练
     trainer = gluon.Trainer(net.collect_params(), 'sgd', {
         'learning_rate': learning_rate, 'wd': wd})
-    utils.train(train_data, test_data, net, loss, trainer, ctx, epochs)
+    gb.train(train_data, test_data, net, loss, trainer, ctx, epochs)
 ```
 
 现在我们可以训练了。
 
 ```{.python .input  n=10}
-ctx = utils.try_all_gpus()
+ctx = gb.try_all_gpus()
 train(finetune_net, ctx)
 ```
 
@@ -161,7 +161,7 @@ train(scratch_net, ctx)
 ### 图片预测
 
 ```{.python .input  n=12}
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 
 def classify_hotdog(net, fname):
     with open(fname, 'rb') as f:
@@ -191,9 +191,9 @@ classify_hotdog(finetune_net, '../img/leg_hotdog.jpg')
 classify_hotdog(finetune_net, '../img/dog_hotdog.jpg')
 ```
 
-## 结论
+## 小结
 
-我们看到，通过一个预先训练好的模型，我们可以在即使较小的数据集上训练得到很好的分类器。这是因为这两个任务里面的数据表示有很多共通性，例如都需要如何识别纹理、形状、边等等。而这些通常被在靠近数据的层有效的处理。因此，如果你有一个相对较小的数据在手，而且担心它可能不够训练出很好的模型，你可以寻找跟你数据类似的大数据集来先训练你的模型，然后再在你手上的数据集上微调。
+* 我们看到，通过一个预先训练好的模型，我们可以在即使较小的数据集上训练得到很好的分类器。这是因为这两个任务里面的数据表示有很多共通性，例如都需要如何识别纹理、形状、边等等。而这些通常被在靠近数据的层有效的处理。因此，如果你有一个相对较小的数据在手，而且担心它可能不够训练出很好的模型，你可以寻找跟你数据类似的大数据集来先训练你的模型，然后再在你手上的数据集上微调。
 
 ## 练习
 
@@ -210,5 +210,6 @@ hotdog_w.shape
 - 试试不让`finetune_net`里重用的权重参与训练，就是不更新权重
 - 如果图片预测这一章里我们训练的模型没有分对所有的图片，如何改进？
 
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2272)
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/2272)
+![](../img/qr_fine-tuning.svg)

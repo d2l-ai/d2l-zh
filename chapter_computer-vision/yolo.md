@@ -1,4 +1,4 @@
-# YOLO --- 使用Gluon
+# 目标检测模型：YOLO
 
 接着上一讲的SSD，我们继续来实现一个目标检测的经典算法--YOLO2。YOLO2是继YOLO之后使用纯卷积网络的作品。
 这里不再赘述数据集之类的琐事，直接进入算法实现的部分，推荐不熟悉的小伙伴先用SSD的例子热身一下。
@@ -238,7 +238,7 @@ print(batch)
 %matplotlib inline
 import matplotlib as mpl
 mpl.rcParams['figure.dpi']= 120
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 
 def box_to_rect(box, color, linewidth=3):
     """convert an anchor box to a matplotlib rectangle"""
@@ -431,7 +431,17 @@ def display(im, out, threshold=0.5):
 display(im, out[0], threshold=0.5)
 ```
 
-## 课后习题
-1. 试试改变默认的anchor scale，调整尺寸，增加或减少数量？
-2. 调整不同损失函数相对的权重，看看对于训练结果有什么影响？
-3. 在目标检测这种batch内部有效目标占比很少的情况下，损失函数内部取平均有什么问题，更好的方法？
+## 小结
+
+* TODO(@mli)
+
+
+## 练习
+
+* 试试改变默认的anchor scale，调整尺寸，增加或减少数量？
+* 调整不同损失函数相对的权重，看看对于训练结果有什么影响？
+* 在目标检测这种batch内部有效目标占比很少的情况下，损失函数内部取平均有什么问题，更好的方法？
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6279)
+
+![](../img/qr_yolo.svg)

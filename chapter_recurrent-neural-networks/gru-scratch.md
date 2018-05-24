@@ -1,4 +1,4 @@
-# 门控循环单元（GRU）--- 从0开始
+# 门控循环单元（GRU）——从零开始
 
 [上一节](bptt.md)中，我们介绍了循环神经网络中的梯度计算方法。我们发现，循环神经网络的隐含层变量梯度可能会出现衰减或爆炸。虽然[梯度裁剪](rnn-scratch.md)可以应对梯度爆炸，但无法解决梯度衰减的问题。因此，给定一个时间序列，例如文本序列，循环神经网络在实际中其实较难捕捉两个时刻距离较大的文本元素（字或词）之间的依赖关系。
 
@@ -11,33 +11,33 @@
 
 ### 重置门和更新门
 
-门控循环单元的隐含状态只包含隐含层变量$\mathbf{H}$。假定隐含状态长度为$h$，给定时刻$t$的一个样本数为$n$特征向量维度为$x$的批量数据$\mathbf{X}_t \in \mathbb{R}^{n \times x}$和上一时刻隐含状态$\mathbf{H}_{t-1} \in \mathbb{R}^{n \times h}$，重置门（reset gate）$\mathbf{R}_t \in \mathbb{R}^{n \times h}$和更新门（update gate）$\mathbf{Z}_t \in \mathbb{R}^{n \times h}$的定义如下：
+门控循环单元的隐含状态只包含隐含层变量$\boldsymbol{H}$。假定隐含状态长度为$h$，给定时刻$t$的一个样本数为$n$特征向量维度为$x$的批量数据$\boldsymbol{X}_t \in \mathbb{R}^{n \times x}$和上一时刻隐含状态$\boldsymbol{H}_{t-1} \in \mathbb{R}^{n \times h}$，重置门（reset gate）$\boldsymbol{R}_t \in \mathbb{R}^{n \times h}$和更新门（update gate）$\boldsymbol{Z}_t \in \mathbb{R}^{n \times h}$的定义如下：
 
-$$\mathbf{R}_t = \sigma(\mathbf{X}_t \mathbf{W}_{xr} + \mathbf{H}_{t-1} \mathbf{W}_{hr} + \mathbf{b}_r)$$
+$$\boldsymbol{R}_t = \sigma(\boldsymbol{X}_t \boldsymbol{W}_{xr} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hr} + \boldsymbol{b}_r)$$
 
-$$\mathbf{Z}_t = \sigma(\mathbf{X}_t \mathbf{W}_{xz} + \mathbf{H}_{t-1} \mathbf{W}_{hz} + \mathbf{b}_z)$$
+$$\boldsymbol{Z}_t = \sigma(\boldsymbol{X}_t \boldsymbol{W}_{xz} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hz} + \boldsymbol{b}_z)$$
 
-其中的$\mathbf{W}_{xr}, \mathbf{W}_{xz} \in \mathbb{R}^{x \times h}$和$\mathbf{W}_{hr}, \mathbf{W}_{hz} \in \mathbb{R}^{h \times h}$是可学习的权重参数，$\mathbf{b}_r, \mathbf{b}_z \in \mathbb{R}^{1 \times h}$是可学习的偏移参数。函数$\sigma$自变量中的三项相加使用了[广播](../chapter_crashcourse/ndarray.md)。
+其中的$\boldsymbol{W}_{xr}, \boldsymbol{W}_{xz} \in \mathbb{R}^{x \times h}$和$\boldsymbol{W}_{hr}, \boldsymbol{W}_{hz} \in \mathbb{R}^{h \times h}$是可学习的权重参数，$\boldsymbol{b}_r, \boldsymbol{b}_z \in \mathbb{R}^{1 \times h}$是可学习的偏移参数。函数$\sigma$自变量中的三项相加使用了[广播](../chapter_crashcourse/ndarray.md)。
 
-需要注意的是，重置门和更新门使用了值域为$[0, 1]$的函数$\sigma(x) = 1/(1+\text{exp}(-x))$。因此，重置门$\mathbf{R}_t$和更新门$\mathbf{Z}_t$中每个元素的值域都是$[0, 1]$。
+需要注意的是，重置门和更新门使用了值域为$[0, 1]$的函数$\sigma(x) = 1/(1+\text{exp}(-x))$。因此，重置门$\boldsymbol{R}_t$和更新门$\boldsymbol{Z}_t$中每个元素的值域都是$[0, 1]$。
 
 
 ### 候选隐含状态
 
-我们可以通过元素值域在$[0, 1]$的更新门和重置门来控制隐含状态中信息的流动：这通常可以应用按元素乘法符$\odot$。门控循环单元中的候选隐含状态$\tilde{\mathbf{H}}_t \in \mathbb{R}^{n \times h}$使用了值域在$[-1, 1]$的双曲正切函数tanh做激活函数：
+我们可以通过元素值域在$[0, 1]$的更新门和重置门来控制隐含状态中信息的流动：这通常可以应用按元素乘法符$\odot$。门控循环单元中的候选隐含状态$\tilde{\boldsymbol{H}}_t \in \mathbb{R}^{n \times h}$使用了值域在$[-1, 1]$的双曲正切函数tanh做激活函数：
 
-$$\tilde{\mathbf{H}}_t = \text{tanh}(\mathbf{X}_t \mathbf{W}_{xh} + \mathbf{R}_t \odot \mathbf{H}_{t-1} \mathbf{W}_{hh} + \mathbf{b}_h)$$
+$$\tilde{\boldsymbol{H}}_t = \text{tanh}(\boldsymbol{X}_t \boldsymbol{W}_{xh} + \boldsymbol{R}_t \odot \boldsymbol{H}_{t-1} \boldsymbol{W}_{hh} + \boldsymbol{b}_h)$$
 
-其中的$\mathbf{W}_{xh} \in \mathbb{R}^{x \times h}$和$\mathbf{W}_{hh} \in \mathbb{R}^{h \times h}$是可学习的权重参数，$\mathbf{b}_h \in \mathbb{R}^{1 \times h}$是可学习的偏移参数。
+其中的$\boldsymbol{W}_{xh} \in \mathbb{R}^{x \times h}$和$\boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$是可学习的权重参数，$\boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$是可学习的偏移参数。
 
 需要注意的是，候选隐含状态使用了重置门来控制包含过去时刻信息的上一个隐含状态的流入。如果重置门近似0，上一个隐含状态将被丢弃。因此，重置门提供了丢弃与未来无关的过去隐含状态的机制。
 
 
 ### 隐含状态
 
-隐含状态$\mathbf{H}_t \in \mathbb{R}^{n \times h}$的计算使用更新门$\mathbf{Z}_t$来对上一时刻的隐含状态$\mathbf{H}_{t-1}$和当前时刻的候选隐含状态$\tilde{\mathbf{H}}_t$做组合，公式如下：
+隐含状态$\boldsymbol{H}_t \in \mathbb{R}^{n \times h}$的计算使用更新门$\boldsymbol{Z}_t$来对上一时刻的隐含状态$\boldsymbol{H}_{t-1}$和当前时刻的候选隐含状态$\tilde{\boldsymbol{H}}_t$做组合，公式如下：
 
-$$\mathbf{H}_t = \mathbf{Z}_t \odot \mathbf{H}_{t-1}  + (1 - \mathbf{Z}_t) \odot \tilde{\mathbf{H}}_t$$
+$$\boldsymbol{H}_t = \boldsymbol{Z}_t \odot \boldsymbol{H}_{t-1}  + (1 - \boldsymbol{Z}_t) \odot \tilde{\boldsymbol{H}}_t$$
 
 需要注意的是，更新门可以控制过去的隐含状态在当前时刻的重要性。如果更新门一直近似1，过去的隐含状态将一直通过时间保存并传递至当前时刻。这个设计可以应对循环神经网络中的梯度衰减问题，并更好地捕捉时序数据中间隔较大的依赖关系。
 
@@ -96,9 +96,9 @@ import mxnet as mx
 # 尝试使用GPU
 import sys
 sys.path.append('..')
+import gluonbook as gb
 from mxnet import nd
-import utils
-ctx = utils.try_gpu()
+ctx = gb.try_gpu()
 print('Will use', ctx)
 
 input_dim = vocab_size
@@ -162,19 +162,19 @@ seq2 = '不分开'
 seq3 = '战争中部队'
 seqs = [seq1, seq2, seq3]
 
-utils.train_and_predict_rnn(rnn=gru_rnn, is_random_iter=False, epochs=200,
-                            num_steps=35, hidden_dim=hidden_dim, 
-                            learning_rate=0.2, clipping_norm=5,
-                            batch_size=32, pred_period=20, pred_len=100,
-                            seqs=seqs, get_params=get_params,
-                            get_inputs=get_inputs, ctx=ctx,
-                            corpus_indices=corpus_indices,
-                            idx_to_char=idx_to_char, char_to_idx=char_to_idx)
+gb.train_and_predict_rnn(rnn=gru_rnn, is_random_iter=False, epochs=200,
+                         num_steps=35, hidden_dim=hidden_dim, 
+                         learning_rate=0.2, clipping_norm=5,
+                         batch_size=32, pred_period=20, pred_len=100,
+                         seqs=seqs, get_params=get_params,
+                         get_inputs=get_inputs, ctx=ctx,
+                         corpus_indices=corpus_indices,
+                         idx_to_char=idx_to_char, char_to_idx=char_to_idx)
 ```
 
 可以看到一开始学到简单的字符，然后简单的词，接着是复杂点的词，然后看上去似乎像个句子了。
 
-## 结论
+## 小结
 
 * 门控循环单元的提出是为了更好地捕捉时序数据中间隔较大的依赖关系。
 * 重置门有助于捕捉时序数据中短期的依赖关系。
@@ -186,4 +186,6 @@ utils.train_and_predict_rnn(rnn=gru_rnn, is_random_iter=False, epochs=200,
 * 调调参数（例如数据集大小、序列长度、隐含状态长度和学习率），看看对运行时间、perplexity和预测的结果造成的影响。
 * 在相同条件下，比较门控循环单元和循环神经网络的运行效率。
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/4042)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4042)
+
+![](../img/qr_gru-scratch.svg)

@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="24.10479 33.703593 338.53807 118" width="338.53807" height="118">
+  <defs>
+    <font-face font-family="Arial" font-size="9" panose-1="2 11 6 4 2 2 2 2 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="0" x-height="518.5547" cap-height="716.3086" ascent="905.2734" descent="-211.91406" font-weight="400">
+      <font-face-src>
+        <font-face-name name="ArialMT"/>
+      </font-face-src>
+    </font-face>
+    <font-face font-family="Arial" font-size="18" panose-1="2 11 6 4 2 2 2 2 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="0" x-height="518.5547" cap-height="716.3086" ascent="905.2734" descent="-211.91406" font-weight="400">
+      <font-face-src>
+        <font-face-name name="ArialMT"/>
+      </font-face-src>
+    </font-face>
+  </defs>
+  <metadata> Produced by OmniGraffle 7.7.1 
+    <dc:date>2018-05-21 01:14:11 +0000</dc:date>
+  </metadata>
+  <g id="multi-in-channel" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
+    <title>multi-in-channel</title>
+    <rect fill="white" x="24.10479" y="33.703593" width="338.53807" height="118"/>
+    <g id="multi-in-channel: Layer 1">
+      <title>Layer 1</title>
+      <g id="Group_64">
+        <g id="Graphic_73">
+          <rect x="51.60479" y="99" width="18" height="18" fill="white"/>
+          <rect x="51.60479" y="99" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(56.60479 102.85278)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">8</tspan>
+          </text>
+        </g>
+        <g id="Graphic_72">
+          <rect x="51.60479" y="63" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="51.60479" y="63" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(56.60479 66.85278)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">2</tspan>
+          </text>
+        </g>
+        <g id="Graphic_71">
+          <rect x="51.60479" y="81" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="51.60479" y="81" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(56.60479 84.85278)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">5</tspan>
+          </text>
+        </g>
+        <g id="Graphic_70">
+          <rect x="33.60479" y="99" width="18" height="18" fill="white"/>
+          <rect x="33.60479" y="99" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(38.60479 102.85278)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">7</tspan>
+          </text>
+        </g>
+        <g id="Graphic_69">
+          <rect x="69.60479" y="81" width="18" height="18" fill="white"/>
+          <rect x="69.60479" y="81" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(74.60479 84.85278)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">6</tspan>
+          </text>
+        </g>
+        <g id="Graphic_68">
+          <rect x="33.60479" y="81" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="33.60479" y="81" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(38.60479 84.85278)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">4</tspan>
+          </text>
+        </g>
+        <g id="Graphic_67">
+          <rect x="69.60479" y="99" width="18" height="18" fill="white"/>
+          <rect x="69.60479" y="99" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(74.60479 102.85278)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">9</tspan>
+          </text>
+        </g>
+        <g id="Graphic_66">
+          <rect x="69.60479" y="63" width="18" height="18" fill="white"/>
+          <rect x="69.60479" y="63" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(74.60479 66.85278)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">3</tspan>
+          </text>
+        </g>
+        <g id="Graphic_65">
+          <rect x="33.60479" y="63" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="33.60479" y="63" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(38.60479 66.85278)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">1</tspan>
+          </text>
+        </g>
+      </g>
+      <g id="Group_59">
+        <g id="Graphic_63">
+          <rect x="121.22384" y="88.80952" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="121.22384" y="88.80952" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(126.22384 92.66231)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">3</tspan>
+          </text>
+        </g>
+        <g id="Graphic_62">
+          <rect x="139.22384" y="88.80952" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="139.22384" y="88.80952" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(144.22384 92.66231)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">4</tspan>
+          </text>
+        </g>
+        <g id="Graphic_61">
+          <rect x="139.22384" y="70.80952" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="139.22384" y="70.80952" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(144.22384 74.66231)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">2</tspan>
+          </text>
+        </g>
+        <g id="Graphic_60">
+          <rect x="121.22384" y="70.80952" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="121.22384" y="70.80952" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(126.22384 74.66231)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">1</tspan>
+          </text>
+        </g>
+      </g>
+      <g id="Group_54">
+        <g id="Graphic_58">
+          <rect x="342.14286" y="91.72979" width="20" height="20" fill="white"/>
+          <rect x="342.14286" y="91.72979" width="20" height="20" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(343.14286 96.58257)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4919434" y="8">120</tspan>
+          </text>
+        </g>
+        <g id="Graphic_57">
+          <rect x="322.14286" y="91.72979" width="20" height="20" fill="white"/>
+          <rect x="322.14286" y="91.72979" width="20" height="20" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(323.14286 96.58257)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4919434" y="8">104</tspan>
+          </text>
+        </g>
+        <g id="Graphic_56">
+          <rect x="342.14286" y="71.72979" width="20" height="20" fill="white"/>
+          <rect x="342.14286" y="71.72979" width="20" height="20" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(343.14286 76.58257)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="3.994629" y="8">72</tspan>
+          </text>
+        </g>
+        <g id="Graphic_55">
+          <rect x="322.14286" y="71.72979" width="20" height="20" fill="#d3e9ff"/>
+          <rect x="322.14286" y="71.72979" width="20" height="20" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(323.14286 76.58257)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="3.994629" y="8">56</tspan>
+          </text>
+        </g>
+      </g>
+      <g id="Graphic_53">
+        <text transform="translate(96.48986 86.94345)" fill="black">
+          <tspan font-family="Arial" font-size="18" font-weight="400" fill="black" x="0" y="16">*</tspan>
+        </text>
+      </g>
+      <g id="Graphic_52">
+        <text transform="translate(164.51613 82.3346)" fill="black">
+          <tspan font-family="Arial" font-size="18" font-weight="400" fill="black" x="0" y="16">=</tspan>
+        </text>
+      </g>
+      <g id="Group_42">
+        <g id="Graphic_51">
+          <rect x="42.60479" y="108" width="18" height="18" fill="white"/>
+          <rect x="42.60479" y="108" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(47.60479 111.85278)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">7</tspan>
+          </text>
+        </g>
+        <g id="Graphic_50">
+          <rect x="42.60479" y="72" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="42.60479" y="72" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(47.60479 75.85278)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">1</tspan>
+          </text>
+        </g>
+        <g id="Graphic_49">
+          <rect x="42.60479" y="90" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="42.60479" y="90" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(47.60479 93.85278)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">4</tspan>
+          </text>
+        </g>
+        <g id="Graphic_48">
+          <rect x="24.60479" y="108" width="18" height="18" fill="white"/>
+          <rect x="24.60479" y="108" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(29.60479 111.85278)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">6</tspan>
+          </text>
+        </g>
+        <g id="Graphic_47">
+          <rect x="60.60479" y="90" width="18" height="18" fill="white"/>
+          <rect x="60.60479" y="90" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(65.60479 93.85278)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">5</tspan>
+          </text>
+        </g>
+        <g id="Graphic_46">
+          <rect x="24.60479" y="90" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="24.60479" y="90" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(29.60479 93.85278)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">3</tspan>
+          </text>
+        </g>
+        <g id="Graphic_45">
+          <rect x="60.60479" y="108" width="18" height="18" fill="white"/>
+          <rect x="60.60479" y="108" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(65.60479 111.85278)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">8</tspan>
+          </text>
+        </g>
+        <g id="Graphic_44">
+          <rect x="60.60479" y="72" width="18" height="18" fill="white"/>
+          <rect x="60.60479" y="72" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(65.60479 75.85278)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">2</tspan>
+          </text>
+        </g>
+        <g id="Graphic_43">
+          <rect x="24.60479" y="72" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="24.60479" y="72" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(29.60479 75.85278)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">0</tspan>
+          </text>
+        </g>
+      </g>
+      <g id="Group_37">
+        <g id="Graphic_41">
+          <rect x="112.63705" y="97.34793" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="112.63705" y="97.34793" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(117.63705 101.20071)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">2</tspan>
+          </text>
+        </g>
+        <g id="Graphic_40">
+          <rect x="130.63705" y="97.34793" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="130.63705" y="97.34793" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(135.63705 101.20071)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">3</tspan>
+          </text>
+        </g>
+        <g id="Graphic_39">
+          <rect x="130.63705" y="79.34793" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="130.63705" y="79.34793" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(135.63705 83.20071)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">1</tspan>
+          </text>
+        </g>
+        <g id="Graphic_38">
+          <rect x="112.63705" y="79.34793" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="112.63705" y="79.34793" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(117.63705 83.20071)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">0</tspan>
+          </text>
+        </g>
+      </g>
+      <g id="Graphic_36">
+        <text transform="translate(244.8173 117.45483)" fill="black">
+          <tspan font-family="Arial" font-size="18" font-weight="400" fill="black" x="0" y="16">*</tspan>
+        </text>
+      </g>
+      <g id="Group_26">
+        <g id="Graphic_35">
+          <rect x="202.81502" y="133.2036" width="18" height="18" fill="white"/>
+          <rect x="202.81502" y="133.2036" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(207.81502 137.05638)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">7</tspan>
+          </text>
+        </g>
+        <g id="Graphic_34">
+          <rect x="202.81502" y="97.20359" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="202.81502" y="97.20359" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(207.81502 101.05638)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">1</tspan>
+          </text>
+        </g>
+        <g id="Graphic_33">
+          <rect x="202.81502" y="115.20359" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="202.81502" y="115.20359" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(207.81502 119.05638)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">4</tspan>
+          </text>
+        </g>
+        <g id="Graphic_32">
+          <rect x="184.81502" y="133.2036" width="18" height="18" fill="white"/>
+          <rect x="184.81502" y="133.2036" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(189.81502 137.05638)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">6</tspan>
+          </text>
+        </g>
+        <g id="Graphic_31">
+          <rect x="220.81502" y="115.20359" width="18" height="18" fill="white"/>
+          <rect x="220.81502" y="115.20359" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(225.81502 119.05638)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">5</tspan>
+          </text>
+        </g>
+        <g id="Graphic_30">
+          <rect x="184.81502" y="115.20359" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="184.81502" y="115.20359" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(189.81502 119.05638)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">3</tspan>
+          </text>
+        </g>
+        <g id="Graphic_29">
+          <rect x="220.81502" y="133.2036" width="18" height="18" fill="white"/>
+          <rect x="220.81502" y="133.2036" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(225.81502 137.05638)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">8</tspan>
+          </text>
+        </g>
+        <g id="Graphic_28">
+          <rect x="220.81502" y="97.20359" width="18" height="18" fill="white"/>
+          <rect x="220.81502" y="97.20359" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(225.81502 101.05638)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">2</tspan>
+          </text>
+        </g>
+        <g id="Graphic_27">
+          <rect x="184.81502" y="97.20359" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="184.81502" y="97.20359" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(189.81502 101.05638)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">0</tspan>
+          </text>
+        </g>
+      </g>
+      <g id="Group_21">
+        <g id="Graphic_25">
+          <rect x="259.14286" y="123.60479" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="259.14286" y="123.60479" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(264.14286 127.45757)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">2</tspan>
+          </text>
+        </g>
+        <g id="Graphic_24">
+          <rect x="277.14286" y="123.60479" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="277.14286" y="123.60479" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(282.14286 127.45757)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">3</tspan>
+          </text>
+        </g>
+        <g id="Graphic_23">
+          <rect x="277.14286" y="105.60479" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="277.14286" y="105.60479" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(282.14286 109.45757)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">1</tspan>
+          </text>
+        </g>
+        <g id="Graphic_22">
+          <rect x="259.14286" y="105.60479" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="259.14286" y="105.60479" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(264.14286 109.45757)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">0</tspan>
+          </text>
+        </g>
+      </g>
+      <g id="Group_11">
+        <g id="Graphic_20">
+          <rect x="202.81502" y="70.20359" width="18" height="18" fill="white"/>
+          <rect x="202.81502" y="70.20359" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(207.81502 74.05638)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">8</tspan>
+          </text>
+        </g>
+        <g id="Graphic_19">
+          <rect x="202.81502" y="34.203593" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="202.81502" y="34.203593" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(207.81502 38.056376)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">2</tspan>
+          </text>
+        </g>
+        <g id="Graphic_18">
+          <rect x="202.81502" y="52.20359" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="202.81502" y="52.20359" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(207.81502 56.056376)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">5</tspan>
+          </text>
+        </g>
+        <g id="Graphic_17">
+          <rect x="184.81502" y="70.20359" width="18" height="18" fill="white"/>
+          <rect x="184.81502" y="70.20359" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(189.81502 74.05638)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">7</tspan>
+          </text>
+        </g>
+        <g id="Graphic_16">
+          <rect x="220.81502" y="52.20359" width="18" height="18" fill="white"/>
+          <rect x="220.81502" y="52.20359" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(225.81502 56.056376)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">6</tspan>
+          </text>
+        </g>
+        <g id="Graphic_15">
+          <rect x="184.81502" y="52.20359" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="184.81502" y="52.20359" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(189.81502 56.056376)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">4</tspan>
+          </text>
+        </g>
+        <g id="Graphic_14">
+          <rect x="220.81502" y="70.20359" width="18" height="18" fill="white"/>
+          <rect x="220.81502" y="70.20359" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(225.81502 74.05638)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">9</tspan>
+          </text>
+        </g>
+        <g id="Graphic_13">
+          <rect x="220.81502" y="34.203593" width="18" height="18" fill="white"/>
+          <rect x="220.81502" y="34.203593" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(225.81502 38.056376)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">3</tspan>
+          </text>
+        </g>
+        <g id="Graphic_12">
+          <rect x="184.81502" y="34.203593" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="184.81502" y="34.203593" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(189.81502 38.056376)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">1</tspan>
+          </text>
+        </g>
+      </g>
+      <g id="Group_6">
+        <g id="Graphic_10">
+          <rect x="259.41504" y="60.648885" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="259.41504" y="60.648885" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(264.41504 64.50167)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">3</tspan>
+          </text>
+        </g>
+        <g id="Graphic_9">
+          <rect x="277.41504" y="60.648885" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="277.41504" y="60.648885" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(282.41504 64.50167)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">4</tspan>
+          </text>
+        </g>
+        <g id="Graphic_8">
+          <rect x="277.41504" y="42.648885" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="277.41504" y="42.648885" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(282.41504 46.50167)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">2</tspan>
+          </text>
+        </g>
+        <g id="Graphic_7">
+          <rect x="259.41504" y="42.648885" width="18" height="18" fill="#d3e9ff"/>
+          <rect x="259.41504" y="42.648885" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(264.41504 46.50167)" fill="black">
+            <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="1.4973145" y="8">1</tspan>
+          </text>
+        </g>
+      </g>
+      <g id="Graphic_5">
+        <text transform="translate(245.4161 54.57561)" fill="black">
+          <tspan font-family="Arial" font-size="18" font-weight="400" fill="black" x="0" y="16">*</tspan>
+        </text>
+      </g>
+      <g id="Graphic_4">
+        <text transform="translate(271.5341 81.61966)" fill="black">
+          <tspan font-family="Arial" font-size="18" font-weight="400" fill="black" x="0" y="16">+</tspan>
+        </text>
+      </g>
+      <g id="Graphic_3">
+        <text transform="translate(303.2707 81.61966)" fill="black">
+          <tspan font-family="Arial" font-size="18" font-weight="400" fill="black" x="0" y="16">=</tspan>
+        </text>
+      </g>
+    </g>
+  </g>
+</svg>

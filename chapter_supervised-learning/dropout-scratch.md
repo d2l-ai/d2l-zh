@@ -1,115 +1,89 @@
-# 丢弃法（Dropout）--- 从0开始
+# 丢弃法——从零开始
 
-前面我们介绍了多层神经网络，就是包含至少一个隐含层的网络。我们也介绍了正则法来应对过拟合问题。在深度学习中，一个常用的应对过拟合问题的方法叫做丢弃法（Dropout）。本节以多层神经网络为例，从0开始介绍丢弃法。
-
-由于丢弃法的概念和实现非常容易，在本节中，我们先介绍丢弃法的概念以及它在现代神经网络中是如何实现的。然后我们一起探讨丢弃法的本质。
+除了前两节介绍的权重衰减以外，深度学习模型常常使用丢弃法（dropout）来应对过拟合问题。丢弃法有一些不同的变体。本节中提到的丢弃法特指倒置丢弃法（inverted dropout）。它被广泛使用于深度学习。
 
 
-## 丢弃法的概念
+## 方法和原理
 
-在现代神经网络中，我们所指的丢弃法，通常是对输入层或者隐含层做以下操作：
+为了确保测试模型的确定性，丢弃法的使用只发生在训练模型时，并非测试模型时。当神经网络中的某一层使用丢弃法时，该层的神经元将有一定概率被丢弃掉。设丢弃概率为$p$。具体来说，该层任一神经元在应用激活函数后，有$p$的概率自乘0，有$1-p$的概率自除以$1-p$做拉伸。丢弃概率是丢弃法的超参数。
 
-* 随机选择一部分该层的输出作为丢弃元素；
-* 把丢弃元素乘以0；
-* 把非丢弃元素拉伸。
+我们在[“多层神经网络”](multi-layer.md)一节的图3.3中描述了一个未使用丢弃法的多层感知机。假设其中隐藏单元$h_i$（$i=1, \ldots, 5$）的计算表达式为
 
+$$h_i = \phi(x_1 w_1^{(i)} + x_2 w_2^{(i)} + x_3 w_3^{(i)} + x_4 w_4^{(i)} + b^{(i)}),$$
 
-## 丢弃法的实现
+其中$\phi$是激活函数，$x_1, \ldots, x_4$是输入，$w_1^{(i)}, \ldots, w_4^{(i)}$是权重参数，$b^{(i)}$是偏差参数。设丢弃概率为$p$，并设随机变量$\xi_i$有$p$概率为0，有$1-p$概率为1。那么，使用丢弃法的隐藏单元$h_i$的计算表达式变为
 
-丢弃法的实现很容易，例如像下面这样。这里的标量`drop_probability`定义了一个`X`（`NDArray`类）中任何一个元素被丢弃的概率。
+$$h_i = \frac{\xi_i}{1-p} \phi(x_1 w_1^{(i)} + x_2 w_2^{(i)} + x_3 w_3^{(i)} + x_4 w_4^{(i)} + b^{(i)}).$$
 
-```{.python .input}
-from mxnet import nd
+注意到测试模型时不使用丢弃法。由于$\mathbb{E} (\xi_i) = 1-p$，同一神经元在模型训练和测试时的输出值的期望不变。
 
-def dropout(X, drop_probability):
-    keep_probability = 1 - drop_probability
-    assert 0 <= keep_probability <= 1
-    # 这种情况下把全部元素都丢弃。
-    if keep_probability == 0:
-        return X.zeros_like()
-    
-    # 随机选择一部分该层的输出作为丢弃元素。
-    mask = nd.random.uniform(
-        0, 1.0, X.shape, ctx=X.context) < keep_probability
-    # 保证 E[dropout(X)] == X
-    scale =  1 / keep_probability 
-    return mask * X * scale
-```
+让我们对图3.3中的隐藏层使用丢弃法，一种可能的结果如图3.5所示。
 
-我们运行几个实例来验证一下。
+![隐藏层使用了丢弃法的多层感知机](../img/dropout.svg)
+
+以图3.5为例，每次训练迭代时，隐藏层中每个神经元都有可能被丢弃，即$h_i$（$i=1, \ldots, 5$）都有可能为0。因此，输出层每个单元的计算，例如$o_1 = \phi(h_1 w_1^\prime + h_2 w_2^\prime + h_3 w_3^\prime + h_4 w_4^\prime + h_5 w_5^\prime  + b^\prime)$，都无法过分依赖$h_1, \ldots, h_5$中的任一个。这样通常会造成$o_1$表达式中的权重参数$w_1^\prime, \ldots ,w_5^\prime$都接近0。因此，丢弃法可以起到正则化的作用，并可以用来应对过拟合。
+
+## 实现丢弃法
+
+根据丢弃法的定义，我们可以很容易地实现丢弃法。下面的`dropout`函数将以`drop_prob`的概率丢弃NDArray输入`X`中的元素。
 
 ```{.python .input}
-A = nd.arange(20).reshape((5,4))
-dropout(A, 0.0)
-```
-
-```{.python .input}
-dropout(A, 0.5)
-```
-
-```{.python .input}
-dropout(A, 1.0)
-```
-
-## 丢弃法的本质
-
-了解了丢弃法的概念与实现，那你可能对它的本质产生了好奇。
-
-如果你了解集成学习，你可能知道它在提升弱分类器准确率上的威力。一般来说，在集成学习里，我们可以对训练数据集有放回地采样若干次并分别训练若干个不同的分类器；测试时，把这些分类器的结果集成一下作为最终分类结果。
-
-事实上，丢弃法在模拟集成学习。试想，一个使用了丢弃法的多层神经网络本质上是原始网络的子集（节点和边）。举个例子，它可能长这个样子。
-
-![](../img/dropout.png)
-
-我们在之前的章节里介绍过[随机梯度下降算法](linear-regression-scratch.md)：我们在训练神经网络模型时一般随机采样一个批量的训练数
-据。丢弃法实质上是对每一个这样的数据集分别训练一个原神经网络子集的分类器。与一般的集成学习不同，这里每个原神经网络子集的分类器用的是同一套参数。因此丢弃法只是在模拟集成学习。
-
-我们刚刚强调了，原神经网络子集的分类器在不同的训练数据批量上训练并使用同一套参数。因此，使用丢弃法的神经网络实质上是对输入层和隐含层的参数做了正则化：学到的参数使得原神经网络不同子集在训练数据上都尽可能表现良好。
-
-下面我们动手实现一下在多层神经网络里加丢弃层。
-
-## 数据获取
-
-我们继续使用FashionMNIST数据集。
-
-```{.python .input  n=1}
 import sys
 sys.path.append('..')
-import utils
-batch_size = 256
-train_data, test_data = utils.load_data_fashion_mnist(batch_size)
+import gluonbook as gb
+from mxnet import autograd, gluon, nd
+from mxnet.gluon import loss as gloss
+
+def dropout(X, drop_prob):
+    assert 0 <= drop_prob <= 1
+    keep_prob = 1 - drop_prob
+    # 这种情况下把全部元素都丢弃。
+    if keep_prob == 0:
+        return X.zeros_like()
+    mask = nd.random.uniform(0, 1, X.shape) < keep_prob
+    return mask * X / keep_prob
 ```
 
-## 含两个隐藏层的多层感知机
+我们运行几个例子来验证一下`dropout`函数。
 
-[多层感知机](mlp-scratch.md)已经在之前章节里介绍。与[之前章节](mlp-scratch.md)不同，这里我们定义一个包含两个隐含层的模型，两个隐含层都输出256个节点。我们定义激活函数Relu并直接使用Gluon提供的交叉熵损失函数。
+```{.python .input}
+X = nd.arange(20).reshape((5, 4))
+dropout(X, 0)
+```
+
+```{.python .input}
+dropout(X, 0.5)
+```
+
+```{.python .input}
+dropout(X, 1)
+```
+
+## 定义模型参数
+
+实验中，我们依然使用[“Softmax回归——从零开始”](../chapter_crashcourse/softmax-regression-scratch.md)一节中介绍的Fashion-MNIST数据集。我们将定义一个包含两个隐藏层的多层感知机。其中两个隐藏层的输出个数都是256。
 
 ```{.python .input  n=2}
-num_inputs = 28*28
+num_inputs = 784
 num_outputs = 10
+num_hiddens1 = 256
+num_hiddens2 = 256
 
-num_hidden1 = 256
-num_hidden2 = 256
-weight_scale = .01
-
-W1 = nd.random_normal(shape=(num_inputs, num_hidden1), scale=weight_scale)
-b1 = nd.zeros(num_hidden1)
-
-W2 = nd.random_normal(shape=(num_hidden1, num_hidden2), scale=weight_scale)
-b2 = nd.zeros(num_hidden2)
-
-W3 = nd.random_normal(shape=(num_hidden2, num_outputs), scale=weight_scale)
+W1 = nd.random.normal(scale=0.01, shape=(num_inputs, num_hiddens1))
+b1 = nd.zeros(num_hiddens1)
+W2 = nd.random.normal(scale=0.01, shape=(num_hiddens1, num_hiddens2))
+b2 = nd.zeros(num_hiddens2)
+W3 = nd.random.normal(scale=0.01, shape=(num_hiddens2, num_outputs))
 b3 = nd.zeros(num_outputs)
 
 params = [W1, b1, W2, b2, W3, b3]
-
 for param in params:
     param.attach_grad()
 ```
 
-## 定义包含丢弃层的模型
+## 定义模型
 
-我们的模型就是将层（全连接）和激活函数（Relu）串起来，并在应用激活函数后添加丢弃层。每个丢弃层的元素丢弃概率可以分别设置。一般情况下，我们推荐把更靠近输入层的元素丢弃概率设的更小一点。这个试验中，我们把第一层全连接后的元素丢弃概率设为0.2，把第二层全连接后的元素丢弃概率设为0.5。
+我们的模型就是将全连接层和激活函数ReLU串起来，并对激活函数的输出使用丢弃法。我们可以分别设置各个层的丢弃概率。通常，建议把靠近输入层的丢弃概率设的小一点。在这个实验中，我们把第一个隐藏层的丢弃概率设为0.2，把第二个隐藏层的丢弃概率设为0.5。我们只需在训练模型时使用丢弃法。
 
 ```{.python .input  n=4}
 drop_prob1 = 0.2
@@ -117,55 +91,42 @@ drop_prob2 = 0.5
 
 def net(X):
     X = X.reshape((-1, num_inputs))
-    # 第一层全连接。
-    h1 = nd.relu(nd.dot(X, W1) + b1)
-    # 在第一层全连接后添加丢弃层。
-    h1 = dropout(h1, drop_prob1)
-    # 第二层全连接。
-    h2 = nd.relu(nd.dot(h1, W2) + b2)
-    # 在第二层全连接后添加丢弃层。
-    h2 = dropout(h2, drop_prob2)
-    return nd.dot(h2, W3) + b3
+    H1 = (nd.dot(X, W1) + b1).relu()
+    # 只在训练模型时使用丢弃法。
+    if autograd.is_training():
+        # 在第一层全连接后添加丢弃层。
+        H1 = dropout(H1, drop_prob1)
+    H2 = (nd.dot(H1, W2) + b2).relu()
+    if autograd.is_training():
+        # 在第二层全连接后添加丢弃层。
+        H2 = dropout(H2, drop_prob2)
+    return nd.dot(H2, W3) + b3
 ```
 
-## 训练
+## 训练和测试模型
 
-训练跟之前一样。
+这部分和之前多层感知机的训练与测试类似。
 
 ```{.python .input  n=8}
-from mxnet import autograd
-from mxnet import gluon
-
-softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
-
-learning_rate = .5
-
-for epoch in range(5):
-    train_loss = 0.
-    train_acc = 0.
-    for data, label in train_data:
-        with autograd.record():
-            output = net(data)
-            loss = softmax_cross_entropy(output, label)
-        loss.backward()
-        utils.SGD(params, learning_rate/batch_size)
-
-        train_loss += nd.mean(loss).asscalar()
-        train_acc += utils.accuracy(output, label)
-
-    test_acc = utils.evaluate_accuracy(test_data, net)
-    print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-        epoch, train_loss/len(train_data), 
-        train_acc/len(train_data), test_acc))
+num_epochs = 5
+lr = 0.5
+batch_size = 256
+loss = gloss.SoftmaxCrossEntropyLoss()
+train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
+gb.train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size, params,
+             lr)
 ```
 
-## 总结
+## 小结
 
-我们可以通过使用丢弃法对神经网络正则化。
+* 我们可以通过使用丢弃法应对过拟合。
+* 只需在训练模型时使用丢弃法。
 
 ## 练习
 
-- 尝试不使用丢弃法，看看这个包含两个隐含层的多层感知机可以得到什么结果。
-- 我们推荐把更靠近输入层的元素丢弃概率设的更小一点。想想这是为什么？如果把本节教程中的两个元素丢弃参数对调会有什么结果？
+- 尝试不使用丢弃法，看看这个包含两个隐藏层的多层感知机可以得到什么结果。
+- 如果把本节中的两个丢弃概率超参数对调，会有什么结果？
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1278)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1278)
+
+![](../img/qr_dropout-scratch.svg)

@@ -1,113 +1,95 @@
-# 正则化 --- 使用Gluon
+# 正则化——使用Gluon
 
-本章介绍如何使用``Gluon``的正则化来应对[过拟合](underfit-overfit.md)问题。
-
-## 高维线性回归数据集
-
-我们使用与[上一节](reg-scratch.md)相同的高维线性回归为例来引入一个过拟合问题。
+本节将介绍如何使用Gluon实现上一节介绍的正则化。导入实验所需的包或模块。
 
 ```{.python .input  n=1}
-from mxnet import ndarray as nd
-from mxnet import autograd
-from mxnet import gluon
-import mxnet as mx
+import sys
+sys.path.append('..')
+import gluonbook as gb
+from mxnet import autograd, gluon, init, nd
+from mxnet.gluon import data as gdata, loss as gloss, nn
+```
 
-num_train = 20
-num_test = 100
+## 生成数据集
+
+我们使用和上一节完全一样的方法生成数据集。
+
+```{.python .input  n=2}
+n_train = 20
+n_test = 100
 num_inputs = 200
-
 true_w = nd.ones((num_inputs, 1)) * 0.01
 true_b = 0.05
 
-X = nd.random.normal(shape=(num_train + num_test, num_inputs))
-y = nd.dot(X, true_w) + true_b
-y += .01 * nd.random.normal(shape=y.shape)
+features = nd.random.normal(shape=(n_train+n_test, num_inputs))
+labels = nd.dot(features, true_w) + true_b
+labels += nd.random.normal(scale=0.01, shape=labels.shape)
+train_features, test_features = features[:n_train, :], features[n_train:, :]
+train_labels, test_labels = labels[:n_train], labels[n_train:]
 
-X_train, X_test = X[:num_train, :], X[num_train:, :]
-y_train, y_test = y[:num_train], y[num_train:]
+num_epochs = 10
+learning_rate = 0.003
+batch_size = 1
+train_iter = gdata.DataLoader(gdata.ArrayDataset(
+    train_features, train_labels), batch_size, shuffle=True)
+loss = gloss.L2Loss()
 ```
 
 ## 定义训练和测试
 
-跟前一样定义训练模块。你也许发现了主要区别，`Trainer`有一个新参数`wd`。我们通过优化算法的``wd``参数 (weight decay)实现对模型的正则化。这相当于$L_2$范数正则化。
+在训练和测试的定义中，我们分别定义了两个Trainer实例。其中一个对权重参数做$L_2$范数正则化，另一个并没有对偏差参数做正则化。我们在上一节也提到了，实际中有时也对偏差参数做正则化。这样只需要定义一个Trainer实例就可以了。
 
-```{.python .input}
-%matplotlib inline
-import matplotlib as mpl
-mpl.rcParams['figure.dpi']= 120
-import matplotlib.pyplot as plt
-import numpy as np
-
-batch_size = 1
-dataset_train = gluon.data.ArrayDataset(X_train, y_train)
-data_iter_train = gluon.data.DataLoader(dataset_train, batch_size, shuffle=True)
-
-square_loss = gluon.loss.L2Loss()
-
-def test(net, X, y):
-    return square_loss(net(X), y).mean().asscalar()
-
-def train(weight_decay):
-    epochs = 10
-    learning_rate = 0.005
-    net = gluon.nn.Sequential()
-    with net.name_scope():
-        net.add(gluon.nn.Dense(1))
-    net.collect_params().initialize(mx.init.Normal(sigma=1))
-
-    # 注意到这里 'wd'
-    trainer = gluon.Trainer(net.collect_params(), 'sgd', {
+```{.python .input  n=3}
+def fit_and_plot(weight_decay):
+    net = nn.Sequential()
+    net.add(nn.Dense(1))
+    net.initialize(init.Normal(sigma=1))
+    # 对权重参数做 L2 范数正则化，即权重衰减。
+    trainer_w = gluon.Trainer(net.collect_params('.*weight'), 'sgd', {
         'learning_rate': learning_rate, 'wd': weight_decay})
-    
-    train_loss = []
-    test_loss = []
-    for e in range(epochs):        
-        for data, label in data_iter_train:
+    # 不对偏差参数做 L2 范数正则化。
+    trainer_b = gluon.Trainer(net.collect_params('.*bias'), 'sgd', {
+        'learning_rate': learning_rate})
+    train_ls = []
+    test_ls = []
+    for _ in range(num_epochs):
+        for X, y in train_iter:
             with autograd.record():
-                output = net(data)
-                loss = square_loss(output, label)
-            loss.backward()
-            trainer.step(batch_size)            
-        train_loss.append(test(net, X_train, y_train))
-        test_loss.append(test(net, X_test, y_test))
-    plt.plot(train_loss)
-    plt.plot(test_loss)
-    plt.legend(['train','test'])
-    plt.show()
-
-    return ('learned w[:10]:', net[0].weight.data()[:,:10], 
-            'learned b:', net[0].bias.data())
+                l = loss(net(X), y)
+            l.backward()
+            # 对两个 Trainer 实例分别调用 step 函数。
+            trainer_w.step(batch_size)
+            trainer_b.step(batch_size)
+        train_ls.append(loss(net(train_features),
+                             train_labels).mean().asscalar())
+        test_ls.append(loss(net(test_features),
+                            test_labels).mean().asscalar())
+    gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'loss',
+                range(1, num_epochs+1), test_ls, ['train', 'test'])
+    return 'w[:10]:', net[0].weight.data()[:,:10], 'b:', net[0].bias.data()
 ```
 
-### 训练模型并观察过拟合
+## 观察实验结果
 
-接下来我们训练并测试我们的高维线性回归模型。
+以下实验结果和上一节中的类似。同样地，使用正则化可以从一定程度上缓解过拟合问题。
 
-```{.python .input}
-train(0)
+```{.python .input  n=4}
+fit_and_plot(0)
 ```
 
-即便训练误差可以达到0.000000，但是测试数据集上的误差很高。这是典型的过拟合现象。
-
-观察学习的参数。事实上，大部分学到的参数的绝对值比真实参数的绝对值要大一些。
-
-## 使用``Gluon``的正则化
-
-下面我们重新初始化模型参数并在`Trainer`里设置一个`wd`参数。
-
-```{.python .input}
-train(5)
+```{.python .input  n=5}
+fit_and_plot(5)
 ```
 
-我们发现训练误差虽然有所提高，但测试数据集上的误差有所下降。过拟合现象得到缓解。
-但打印出的学到的参数依然不是很理想，这主要是因为我们训练数据的样本相对维度来说太少。
+## 小结
 
-## 结论
-
-* 使用``Gluon``的`weight decay`参数可以很容易地使用正则化来应对过拟合问题。
+* 使用Gluon的`wd`超参数可以使用正则化来应对过拟合问题。
+* 我们可以定义多个Trainer实例对不同的模型参数使用不同的迭代方法。
 
 ## 练习
 
-* 如何从字面正确理解`weight decay`的含义？它为何相当于$L_2$范式正则化？
+* 调一调本节实验中的`wd`超参数。观察并分析实验结果。
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/985)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/985)
+
+![](../img/qr_reg-gluon.svg)

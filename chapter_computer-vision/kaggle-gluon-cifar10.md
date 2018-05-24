@@ -1,13 +1,8 @@
-# 实战Kaggle比赛——使用Gluon对原始图像文件分类（CIFAR-10）
+# 实战Kaggle比赛：对原始图像文件分类（CIFAR-10）
 
 我们在[监督学习中的一章](../chapter_supervised-learning/kaggle-gluon-kfold.md)里，以[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)为例，介绍了如何使用``Gluon``来实战[Kaggle比赛](https://www.kaggle.com)。
 
 我们在本章中选择了Kaggle中著名的[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)。我们以该问题为例，为大家提供使用`Gluon`对原始图像文件进行分类的示例代码。
-
-计算机视觉一直是深度学习的主战场，请
-
-> Get your hands dirty。
-
 
 
 
@@ -24,8 +19,6 @@
 比赛数据分为训练数据集和测试数据集。训练集包含5万张图片。测试集包含30万张图片：其中有1万张图片用来计分，但为了防止人工标注测试集，里面另加了29万张不计分的图片。
 
 两个数据集都是png彩色图片，大小为$32\times 32 \times 3$。训练集一共有10类图片，分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车。
-
-（那么问题来了，你觉得你用肉眼能把下面100个图片正确分类吗？）
 
 ![](../img/cifar10.png)
 
@@ -287,7 +280,7 @@ def get_net(ctx):
 import datetime
 import sys
 sys.path.append('..')
-import utils
+import gluonbook as gb
 
 def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period, lr_decay):
     trainer = gluon.Trainer(
@@ -300,20 +293,20 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period, lr_de
         if epoch > 0 and epoch % lr_period == 0:
             trainer.set_learning_rate(trainer.learning_rate * lr_decay)
         for data, label in train_data:
-            label = label.as_in_context(ctx)
+            label = label.astype('float32').as_in_context(ctx)
             with autograd.record():
                 output = net(data.as_in_context(ctx))
                 loss = softmax_cross_entropy(output, label)
             loss.backward()
             trainer.step(batch_size)
             train_loss += nd.mean(loss).asscalar()
-            train_acc += utils.accuracy(output, label)
+            train_acc += gb.accuracy(output, label)
         cur_time = datetime.datetime.now()
         h, remainder = divmod((cur_time - prev_time).seconds, 3600)
         m, s = divmod(remainder, 60)
         time_str = "Time %02d:%02d:%02d" % (h, m, s)
         if valid_data is not None:
-            valid_acc = utils.evaluate_accuracy(valid_data, net, ctx)
+            valid_acc = gb.evaluate_accuracy(valid_data, net, ctx)
             epoch_str = ("Epoch %d. Loss: %f, Train acc %f, Valid acc %f, "
                          % (epoch, train_loss / len(train_data),
                             train_acc / len(train_data), valid_acc))
@@ -330,7 +323,7 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period, lr_de
 我们将依据验证集的结果不断优化模型设计和调整参数。依据下面的参数设置，优化算法的学习率将在每80个epoch自乘0.1。
 
 ```{.python .input  n=8}
-ctx = utils.try_gpu()
+ctx = gb.try_gpu()
 num_epochs = 1
 learning_rate = 0.1
 weight_decay = 5e-4
@@ -369,21 +362,24 @@ df['label'] = df['label'].apply(lambda x: train_valid_ds.synsets[x])
 df.to_csv('submission.csv', index=False)
 ```
 
-上述代码执行完会生成一个`submission.csv`的文件用于在Kaggle上提交。这是Kaggle要求的提交格式。这时我们可以在Kaggle上把对测试集分类的结果提交并查看分类准确率。你需要登录Kaggle网站，打开[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)，并点击下方右侧`Late Submission`按钮。
-
-![](../img/kaggle_submit3.png)
+执行完上述代码后，会生成一个“submission.csv”文件。这个文件符合Kaggle比赛要求的提交格式。这时我们可以在Kaggle上把对测试集分类的结果提交并查看分类准确率。你需要登录Kaggle网站，访问CIFAR-10比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮 [1]。然后，点击页面下方“Upload Submission File”选择需要提交的分类结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。
 
 
-请点击下方`Upload Submission File`选择需要提交的预测结果。然后点击下方的`Make Submission`按钮就可以查看结果啦！
+## 小结
 
-![](../img/kaggle_submit4.png)
+* CIFAR-10是深度学习在计算机视觉领域的一个重要数据集。
 
 
-
-## 作业（[汇报作业和查看其他小伙伴作业](https://discuss.gluon.ai/t/topic/1545/)）：
+## 练习
 
 * 使用Kaggle完整CIFAR-10数据集，把batch_size和num_epochs分别改为128和100，可以在Kaggle上拿到什么样的准确率和名次？
 * 如果不使用增强数据的方法能拿到什么样的准确率？
-* 你还有什么其他办法可以继续改进模型和参数？小伙伴们都期待你的分享。
+* 扫码直达讨论区，在社区交流方法和结果。相信你一定会有收获。
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/1545/)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1545/)
+
+![](../img/qr_kaggle-gluon-cifar10.svg)
+
+## 参考文献
+
+[1] Kaggle CIFAR-10比赛网址。https://www.kaggle.com/c/cifar-10

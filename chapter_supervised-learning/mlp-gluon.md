@@ -1,63 +1,51 @@
-# 多层感知机 --- 使用Gluon
+# 多层感知机——使用Gluon
 
-我们只需要稍微改动[多类Logistic回归](../chapter_crashcourse/softmax-regression-gluon.md)来实现多层感知机。
+下面我们使用Gluon来实现上一节中的多层感知机。导入所需的包或模块。
+
+```{.python .input}
+import sys
+sys.path.append('..')
+import gluonbook as gb
+from mxnet import autograd, gluon, init, nd
+from mxnet.gluon import loss as gloss, nn
+```
 
 ## 定义模型
 
-唯一的区别在这里，我们加了一行进来。
+和Softmax回归唯一的不同在于，我们多加了一个全连接层作为隐藏层。我们指定了该层的隐藏单元个数为256，并使用ReLU作为激活函数。
 
 ```{.python .input  n=5}
-from mxnet import gluon
-
-net = gluon.nn.Sequential()
-with net.name_scope():
-    net.add(gluon.nn.Flatten())
-    net.add(gluon.nn.Dense(256, activation="relu"))
-    net.add(gluon.nn.Dense(10))
-net.initialize()
+net = nn.Sequential()
+net.add(nn.Dense(256, activation='relu'))
+net.add(nn.Dense(10))
+net.add(nn.Dense(10))
+net.initialize(init.Normal(sigma=0.01))
 ```
 
-## 读取数据并训练
+## 读取数据并训练模型
+
+我们使用和训练Softmax回归几乎相同的步骤来读取数据并训练模型。
 
 ```{.python .input  n=6}
-import sys
-sys.path.append('..')
-from mxnet import ndarray as nd
-from mxnet import autograd
-import utils
-
-
 batch_size = 256
-train_data, test_data = utils.load_data_fashion_mnist(batch_size)
+train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
 
-softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
+loss = gloss.SoftmaxCrossEntropyLoss()
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.5})
-
-for epoch in range(5):
-    train_loss = 0.
-    train_acc = 0.
-    for data, label in train_data:
-        with autograd.record():
-            output = net(data)
-            loss = softmax_cross_entropy(output, label)
-        loss.backward()
-        trainer.step(batch_size)
-
-        train_loss += nd.mean(loss).asscalar()
-        train_acc += utils.accuracy(output, label)
-
-    test_acc = utils.evaluate_accuracy(test_data, net)
-    print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
-        epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
+num_epochs = 5
+gb.train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
+             None, None, trainer)
 ```
 
-## 结论
+## 小结
 
-通过Gluon我们可以更方便地构造多层神经网络。
+* 通过Gluon我们可以更方便地构造多层感知机。
 
 ## 练习
 
-- 尝试多加入几个隐含层，对比从0开始的实现。
-- 尝试使用一个另外的激活函数，可以使用`help(nd.Activation)`或者[线上文档](https://mxnet.apache.org/api/python/ndarray.html#mxnet.ndarray.Activation)查看提供的选项。
+- 尝试多加入几个隐藏层，对比上节中从零开始的实现。
+- 使用其他的激活函数，看看对结果的影响。
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/738)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/73)
+
+![](../img/qr_mlp-gluon.svg)

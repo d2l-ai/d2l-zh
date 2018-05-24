@@ -1,4 +1,4 @@
-# 循环神经网络 --- 使用Gluon
+# 循环神经网络——使用Gluon
 
 本节介绍如何使用`Gluon`训练循环神经网络。
 
@@ -139,13 +139,13 @@ class RNNModel(gluon.Block):
 
 对于一个多层循环神经网络，当前时刻隐含层的输入来自同一时刻输入层（如果有）或上一隐含层的输出。每一层的隐含状态只沿着同一层传递。
 
-把[单层循环神经网络](rnn-scratch.md)中隐含层的每个单元当做一个函数$f$，这个函数在$t$时刻的输入是$\mathbf{X}_t, \mathbf{H}_{t-1}$，输出是$\mathbf{H}_t$：
+把[单层循环神经网络](rnn-scratch.md)中隐含层的每个单元当做一个函数$f$，这个函数在$t$时刻的输入是$\boldsymbol{X}_t, \boldsymbol{H}_{t-1}$，输出是$\boldsymbol{H}_t$：
 
-$$f(\mathbf{X}_t, \mathbf{H}_{t-1}) = \mathbf{H}_t$$
+$$f(\boldsymbol{X}_t, \boldsymbol{H}_{t-1}) = \boldsymbol{H}_t$$
 
 假设输入为第0层，输出为第$L+1$层，在一共$L$个隐含层的循环神经网络中，上式中可以拓展成以下的函数:
 
-$$f(\mathbf{H}_t^{(l-1)}, \mathbf{H}_{t-1}^{(l)}) = \mathbf{H}_t^{(l)}$$
+$$f(\boldsymbol{H}_t^{(l-1)}, \boldsymbol{H}_{t-1}^{(l)}) = \boldsymbol{H}_t^{(l)}$$
 
 如下图所示。
 
@@ -174,8 +174,8 @@ eval_period = 500
 # 尝试使用GPU
 import sys
 sys.path.append('..')
-import utils
-context = utils.try_gpu()
+import gluonbook as gb
+context = gb.try_gpu()
 
 def batchify(data, batch_size):
     """数据形状 (num_batches, batch_size)"""
@@ -282,7 +282,7 @@ test_L = model_eval(test_data)
 print('Test loss %.2f, test perplexity %.2f' % (test_L, math.exp(test_L)))
 ```
 
-## 结论
+## 小结
 
 * 我们可以使用Gluon轻松训练各种不同的循环神经网络，并设置网络参数，例如网络的层数。
 * 训练迭代中需要将隐含状态从计算图中分离，使模型参数梯度计算只依赖当前的时序数据批量采样。
@@ -292,4 +292,6 @@ print('Test loss %.2f, test perplexity %.2f' % (test_L, math.exp(test_L)))
 
 * 调调参数（例如epochs、隐含层的层数、序列长度、隐含状态长度和学习率），看看对运行时间、训练集、验证集和测试集上perplexity造成的影响。
 
-**吐槽和讨论欢迎点**[这里](https://discuss.gluon.ai/t/topic/4089)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4089)
+
+![](../img/qr_rnn-gluon.svg)
