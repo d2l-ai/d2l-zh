@@ -1,4 +1,4 @@
-MD="booksrc" 
+MD="mdd" 
 
 [ -e $MD ] && rm -rf $MD
 mkdir $MD
@@ -15,4 +15,5 @@ for f in $MD/chapter*/*ipynb; do
 	rm $f
 done
 
-tar -zcvf $MD
+zip -r "$MD.zip" $MD
+

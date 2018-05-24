@@ -27,7 +27,7 @@ cp build/_build/latex/gluon_tutorials_zh.pdf build/_build/html/
 rm build/_build/latex/gluon_tutorials_zh.aux
 rm build/_build/latex/gluon_tutorials_zh.idx
 
-bash ipynb2booksrc.sh
-cp booksrc.zip _build/html/booksrc.zip
+bash ipynb2mdd.sh
+cp mdd.zip _build/html/mdd.zip
 
 aws s3 sync --delete build/_build/html/ s3://zh.gluon.ai/ --acl public-read
