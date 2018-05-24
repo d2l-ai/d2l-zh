@@ -65,7 +65,7 @@ print(get_text_labels(y))
 
 ## 读取数据
 
-Fashion-MNIST包括训练数据集和测试数据集。我们将在训练数据集上训练模型，并将训练好的模型在测试数据集上评价模型的表现。我们可以像[“线性回归——从零开始”](linear-regression-scratch.md)一节中那样通过`yield`来定义读取小批量数据样本的函数。为了简洁，这里我们直接创建DataLoader实例，从而每次读取一个样本数为`batch_size`的小批量。这里的批量大小`batch_size`是一个超参数。需要注意的是，我们每次从训练数据集里读取的小批量是由随机样本组成的。
+Fashion-MNIST包括训练数据集和测试数据集（testing data set）。我们将在训练数据集上训练模型，并将训练好的模型在测试数据集上评价模型的表现。我们可以像[“线性回归——从零开始”](linear-regression-scratch.md)一节中那样通过`yield`来定义读取小批量数据样本的函数。为了简洁，这里我们直接创建DataLoader实例，从而每次读取一个样本数为`batch_size`的小批量。这里的批量大小`batch_size`是一个超参数。需要注意的是，我们每次从训练数据集里读取的小批量是由随机样本组成的。
 
 ```{.python .input  n=7}
 batch_size = 256
