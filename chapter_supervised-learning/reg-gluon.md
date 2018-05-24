@@ -3,12 +3,9 @@
 本节将介绍如何使用Gluon实现上一节介绍的正则化。导入实验所需的包或模块。
 
 ```{.python .input  n=1}
-%matplotlib inline
 import sys
 sys.path.append('..')
 import gluonbook as gb
-import matplotlib as mpl
-from matplotlib import pyplot as plt
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
 ```
@@ -43,8 +40,6 @@ loss = gloss.L2Loss()
 在训练和测试的定义中，我们分别定义了两个Trainer实例。其中一个对权重参数做$L_2$范数正则化，另一个并没有对偏差参数做正则化。我们在上一节也提到了，实际中有时也对偏差参数做正则化。这样只需要定义一个Trainer实例就可以了。
 
 ```{.python .input  n=3}
-gb.set_fig_size(mpl)
-
 def fit_and_plot(weight_decay):
     net = nn.Sequential()
     net.add(nn.Dense(1))
@@ -69,12 +64,8 @@ def fit_and_plot(weight_decay):
                              train_labels).mean().asscalar())
         test_ls.append(loss(net(test_features),
                             test_labels).mean().asscalar())
-    plt.xlabel('epochs')
-    plt.ylabel('loss')
-    plt.semilogy(range(1, num_epochs+1), train_ls)
-    plt.semilogy(range(1, num_epochs+1), test_ls)
-    plt.legend(['train','test'])
-    plt.show()
+    gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'loss',
+                range(1, num_epochs+1), test_ls, ['train', 'test'])
     return 'w[:10]:', net[0].weight.data()[:,:10], 'b:', net[0].bias.data()
 ```
 

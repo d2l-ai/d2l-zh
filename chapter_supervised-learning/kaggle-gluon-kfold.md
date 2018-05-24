@@ -1,71 +1,64 @@
-# 实战Kaggle比赛：预测房价和K折交叉验证
+# 实战Kaggle比赛：预测房价
 
-本章介绍如何使用``Gluon``来实战[Kaggle比赛](https://www.kaggle.com)。我们以[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)为例，为大家提供一整套实战中常常需要的工具，例如**K折交叉验证**。我们还以``pandas``为工具介绍如何对**真实世界**中的数据进行重要的预处理，例如：
 
-* 处理离散数据
-* 处理丢失的数据特征
-* 对数据进行标准化
+作为深度学习基础篇章的总结，我们将对本章内容学以致用。下面，让我们动手实战一个Kaggle比赛：预测房价。
 
-需要注意的是，本章仅提供一些基本实战流程供大家参考。对于数据的预处理、模型的设计和参数的选择等，我们特意只提供最基础的版本。希望大家一定要通过动手实战、仔细观察实验现象、认真分析实验结果并不断调整方法，从而得到令自己满意的结果。
+在这个房价预测比赛中，我们还将以`pandas`为工具介绍如何对真实世界中的数据进行重要的预处理，例如：
 
-这是一次宝贵的实战机会，我们相信你一定能从动手的过程中学到很多。
+* 处理离散数据；
+* 处理丢失的数据特征；
+* 对数据进行标准化。
 
-> Get your hands dirty。
-
-## Kaggle中的房价预测问题
-
-[Kaggle](https://www.kaggle.com)是一个著名的供机器学习爱好者交流的平台。为了便于提交结果，请大家注册[Kaggle](https://www.kaggle.com)账号。请注意，**目前Kaggle仅限每个账号一天以内10次提交结果的机会**。所以提交结果前务必三思。
-
-![](../img/kaggle.png)
+需要注意的是，本节中对于数据的预处理、模型的设计和超参数的选择等，我们特意只提供最基础的版本。我们希望大家通过动手实战、仔细观察实验现象、认真分析实验结果并不断调整方法，从而得到令自己满意的结果。
 
 
 
+## Kaggle比赛
 
-我们以[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)为例教大家如何实战一次Kaggle比赛。请大家在动手开始之前点击[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)了解相关信息。
+Kaggle是一个著名的供机器学习爱好者交流的平台 [1]。图3.7展示了Kaggle网站首页。为了便于提交结果，请大家注册Kaggle账号。
 
-![](../img/house_pricing.png)
+![Kaggle网站首页](../img/kaggle.png)
+
+我们可以在预测房价比赛的网页上了解比赛信息和参赛者成绩、下载数据集并提交自己的预测结果 [2]。图3.8展示了预测房价比赛的网页信息。
+
+![预测房价比赛的网页信息](../img/house_pricing.png)
 
 
 
-## 读入数据
+## 获取和读取数据集
 
-比赛数据分为训练数据集和测试数据集。两个数据集都包括每个房子的特征，例如街道类型、建造年份、房顶类型、地下室状况等特征值。这些特征值有连续的数字、离散的标签甚至是缺失值'na'。只有训练数据集包括了我们需要在测试数据集中预测的每个房子的价格。数据可以从[房价预测问题](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)中下载。
+比赛数据分为训练数据集和测试数据集。两个数据集都包括每栋房子的特征，例如街道类型、建造年份、房顶类型、地下室状况等特征值。这些特征值有连续的数字、离散的标签甚至是缺失值“na”。只有训练数据集包括了每栋房子的价格。我们可以访问比赛网页，点击“Data”标签，并下载这些数据集 [2]。
 
-[训练数据集下载地址](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/download/train.csv)
-[测试数据集下载地址](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/download/test.csv)
-
-我们通过使用``pandas``读入数据。请确保安装了``pandas`` (``pip install pandas``)。
+下面，我们通过使用`pandas`读入数据。请确保已安装`pandas` (命令行执行`pip install pandas`)。
 
 ```{.python .input  n=1}
 import sys
 sys.path.append('..')
 import gluonbook as gb
-import matplotlib as mpl
-from matplotlib import pyplot as plt
 from mxnet import autograd, init, gluon, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
 import numpy as np
 import pandas as pd
-```
 
-```{.python .input  n=2}
 train_data = pd.read_csv("../data/kaggle_house_pred_train.csv")
 test_data = pd.read_csv("../data/kaggle_house_pred_test.csv")
 all_features = pd.concat((train_data.loc[:, 'MSSubClass':'SaleCondition'],
                           test_data.loc[:, 'MSSubClass':'SaleCondition']))
 ```
 
-我们看看数据长什么样子。
+我们看看头几个训练数据样本长什么样子。
 
 ```{.python .input  n=3}
 train_data.head()
 ```
 
-数据大小如下。
+训练数据集包括1460个样本、80个特征和1个标签。
 
 ```{.python .input  n=4}
 train_data.shape
 ```
+
+测试数据集包括1459个样本和80个特征。我们需要预测测试数据集上每个样本的标签。
 
 ```{.python .input  n=5}
 test_data.shape
@@ -73,9 +66,7 @@ test_data.shape
 
 ## 预处理数据
 
-我们使用pandas对数值特征做标准化处理：
-
-$$x_i = \frac{x_i - \mathbb{E} x_i}{\text{std}(x_i)}。$$
+我们对连续数值的特征做标准化处理。如果一个特征的值是连续的，设该特征在训练数据集和测试数据集上的均值为$\mu$，标准差为$\sigma$。那么，该特征的每个值将先减去$\mu$再除以$\sigma$。
 
 ```{.python .input  n=6}
 numeric_features = all_features.dtypes[all_features.dtypes != "object"].index
@@ -83,15 +74,10 @@ all_features[numeric_features] = all_features[numeric_features].apply(
     lambda x: (x - x.mean()) / (x.std()))
 ```
 
-现在把离散数据点转换成数值标签。
+现在，对离散数值的特征进一步处理，并把缺失数据值用本特征的平均值估计。
 
 ```{.python .input  n=7}
 all_features = pd.get_dummies(all_features, dummy_na=True)
-```
-
-把缺失数据用本特征的平均值估计。
-
-```{.python .input  n=8}
 all_features = all_features.fillna(all_features.mean())
 ```
 
@@ -115,15 +101,10 @@ train_labels.reshape((n_train, 1))
 test_features = nd.array(test_features)
 ```
 
-我们把损失函数定义为平方误差。
+我们使用平方损失函数训练模型，并定义比赛用来评价模型的函数。
 
 ```{.python .input  n=11}
 loss = gloss.L2Loss()
-```
-
-我们定义比赛中测量结果用的函数。
-
-```{.python .input  n=12}
 def get_rmse_log(net, train_features, train_labels):
     clipped_preds = nd.clip(net(train_features), 1, float('inf'))
     return nd.sqrt(2 * loss(clipped_preds.log(),
@@ -132,7 +113,7 @@ def get_rmse_log(net, train_features, train_labels):
 
 ## 定义模型
 
-我们将模型的定义放在一个函数里供多次调用。这是一个基本的线性回归模型。
+我们将模型的定义放在一个函数里供多次调用。这是一个基本的线性回归模型，并使用了Xavier随机初始化。
 
 ```{.python .input  n=13}
 def get_net():
@@ -142,12 +123,11 @@ def get_net():
     return net
 ```
 
-我们定义一个训练的函数，这样在跑不同的实验时不需要重复实现相同的步骤。
+## 定义训练函数
+
+下面定义模型的训练函数。和本章中前几节不同，这里使用了Adam优化算法。我们将在之后的“优化算法”一章里详细介绍它。
 
 ```{.python .input  n=14}
-%config InlineBackend.figure_format = 'retina'
-gb.set_fig_size(mpl)
-
 def train(net, train_features, train_labels, test_features, test_labels,
           num_epochs, verbose_epoch, learning_rate, weight_decay, batch_size):
     train_ls = []
@@ -155,6 +135,7 @@ def train(net, train_features, train_labels, test_features, test_labels,
         test_ls = []
     train_iter = gdata.DataLoader(gdata.ArrayDataset(
         train_features, train_labels), batch_size, shuffle=True)
+    # 这里使用了 Adam 优化算法。
     trainer = gluon.Trainer(net.collect_params(), 'adam', {
         'learning_rate': learning_rate, 'wd': weight_decay})
     net.initialize(init=init.Xavier(), force_reinit=True)
@@ -171,27 +152,20 @@ def train(net, train_features, train_labels, test_features, test_labels,
         if test_features is not None:    
             cur_test_l = get_rmse_log(net, test_features, test_labels)
             test_ls.append(cur_test_l)
-    plt.xlabel('epochs')
-    plt.ylabel('loss')
-    plt.semilogy(range(1, num_epochs+1), train_ls)
-    plt.legend(['train'])
     if test_features is not None:
-        plt.semilogy(range(1, num_epochs+1), test_ls)
-        plt.legend(['train','test'])
-    plt.show()
+        gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'loss',
+                    range(1, num_epochs+1), test_ls, ['train', 'test'])
+    else:
+        gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'loss')
     if test_features is not None:
         return cur_train_l, cur_test_l
     else:
         return cur_train_l
 ```
 
-## K折交叉验证
+## 定义$K$折交叉验证
 
-在[过拟合](underfit-overfit.md)中我们讲过，过度依赖训练数据集的误差来推断测试数据集的误差容易导致过拟合。事实上，当我们调参时，往往需要基于K折交叉验证。
-
-> 在K折交叉验证中，我们把初始采样分割成$K$个子样本，一个单独的子样本被保留作为验证模型的数据，其他$K-1$个样本用来训练。
-
-我们关心K次验证模型的测试结果的平均值和训练误差的平均值，因此我们定义K折交叉验证函数如下。
+[“欠拟合、过拟合、选择模型和调节超参数”](underfit-overfit.md)一节中介绍了$K$折交叉验证。下面定义了$K$折交叉验证函数。我们将根据$K$折交叉验证的结果选择模型设计并调参。
 
 ```{.python .input  n=15}
 def k_fold_cross_valid(k, epochs, verbose_epoch, X_train, y_train,
@@ -225,9 +199,9 @@ def k_fold_cross_valid(k, epochs, verbose_epoch, X_train, y_train,
     return train_l_sum / k, test_l_sum / k
 ```
 
-### 训练模型并交叉验证
+## 交叉验证模型
 
-以下的模型参数都是可以调的。
+现在，我们可以交叉验证模型了。以下的超参数都是可以调节的。
 
 ```{.python .input  n=16}
 k = 5
@@ -236,11 +210,7 @@ verbose_epoch = num_epochs - 2
 lr = 5
 weight_decay = 0
 batch_size = 64
-```
 
-给定以上调好的参数，接下来我们训练并交叉验证我们的模型。
-
-```{.python .input  n=17}
 train_l, test_l = k_fold_cross_valid(k, num_epochs, verbose_epoch,
                                      train_features, train_labels, lr,
                                      weight_decay, batch_size)
@@ -248,15 +218,12 @@ print("%d-fold validation: avg train loss: %f, avg test loss: %f"
       % (k, train_l, test_l))
 ```
 
-即便训练误差可以达到很低（调好参数之后），但是K折交叉验证上的误差可能更高。当训练误差特别低时，要观察K折交叉验证上的误差是否同时降低并小心过拟合。我们通常依赖K折交叉验证误差结果来调节参数。
+在设定了一组参数后，即便训练误差可以达到很低，但是$K$折交叉验证上的误差可能更高。这很可能是由于过拟合造成的。因此，当训练误差特别低时，要观察$K$折交叉验证上的误差是否同时降低。
 
 
+## 预测并在Kaggle提交结果
 
-## 预测并在Kaggle提交预测结果
-
-本部分为选学内容。网络不好的同学可以通过上述K折交叉验证的方法来评测自己训练的模型。
-
-我们首先定义预测函数。
+我们首先定义预测函数。在预测之前，我们会使用完整的训练数据集来重新训练模型。
 
 ```{.python .input  n=18}
 def train_and_pred(num_epochs, verbose_epoch, train_features, test_feature,
@@ -270,35 +237,39 @@ def train_and_pred(num_epochs, verbose_epoch, train_features, test_feature,
     submission.to_csv('submission.csv', index=False)
 ```
 
-调好参数以后，下面我们预测并在Kaggle提交预测结果。
+设计好模型并调好超参数以后，让我们对测试数据集上的房屋样本做价格预测，并在Kaggle上提交结果。
 
 ```{.python .input  n=19}
 train_and_pred(num_epochs, verbose_epoch, train_features, test_features,
                train_labels, test_data, lr, weight_decay, batch_size)
 ```
 
-执行完上述代码后，会生成一个`submission.csv`文件。这是Kaggle要求的提交格式。这时我们可以在Kaggle上把我们预测得出的结果提交并查看与测试数据集上真实房价的误差。你需要登录Kaggle网站，打开[房价预测问题地址](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)，并点击下方右侧`Submit Predictions`按钮提交。
+执行完上述代码后，会生成一个“submission.csv”文件。这个文件符合Kaggle比赛要求的提交格式。这时我们可以在Kaggle上把我们预测得出的结果提交并查看与测试数据集上真实房价（标签）的误差。你需要登录Kaggle网站，访问预测房价比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮 [2]。然后，点击页面下方“Upload Submission File”选择需要提交的预测结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。如图3.9所示。
 
-![](../img/kaggle_submit.png)
+![Kaggle预测房价比赛的预测结果提交页面](../img/kaggle_submit2.png)
 
 
+## 小结
 
-请点击下方`Upload Submission File`选择需要提交的预测结果。然后点击下方的`Make Submission`按钮就可以查看结果啦！
+* 我们通常需要对真实数据做预处理。
+* 我们可以使用$K$折交叉验证来选择模型并调参。
 
-![](../img/kaggle_submit2.png)
 
-再次温馨提醒，**目前Kaggle仅限每个账号一天以内10次提交结果的机会**。所以提交结果前务必三思。
+## 练习
 
-## 作业（[汇报作业和查看其他小伙伴作业](https://discuss.gluon.ai/t/topic/1039)）：
+* 在Kaggle提交本教程的预测结果。观察一下，这个结果能在Kaggle上拿到什么样的分数？
+* 对照$K$折交叉验证结果，不断修改模型（例如添加隐藏层）和调参，你能提高Kaggle上的分数吗？
+* 如果不使用本节中对连续数值特征的标准化处理，结果会有什么变化?
+* 扫码直达讨论区，在社区交流方法和结果。相信你一定会有收获。
 
-* 运行本教程，目前的模型在5折交叉验证上可以拿到什么样的loss？
-* 如果网络条件允许，在Kaggle提交本教程的预测结果。观察一下，这个结果能在Kaggle上拿到什么样的loss？
-* 通过重新设计模型、调参并对照K折交叉验证结果，新模型是否比其他小伙伴的更好？除了调参，你可能发现我们之前学过的以下内容有些帮助：
-    * [多层感知机 --- 使用Gluon](mlp-gluon.md)
-    * [正则化 --- 使用Gluon](reg-gluon.md)
-* 如果不使用对数值特征做标准化处理能拿到什么样的loss？
-* 你还有什么其他办法可以继续改进模型？小伙伴们都期待学习到你独特的富有创造力的解决方案。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1039)
 
 ![](../img/qr_kaggle-gluon-kfold.svg)
+
+
+## 参考文献
+
+[1] Kaggle网站。 https://www.kaggle.com
+
+[2] Kaggle房价预测比赛网址。 https://www.kaggle.com/c/house-prices-advanced-regression-techniques

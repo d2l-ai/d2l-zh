@@ -350,23 +350,23 @@ with open('submission.csv', 'w') as f:
             [str(num) for num in output]) + '\n')
 ```
 
-上述代码执行完会生成一个`submission.csv`的文件用于在Kaggle上提交。这是Kaggle要求的提交格式。这时我们可以在Kaggle上把对测试集分类的结果提交并查看分类准确率。你需要登录Kaggle网站，打开[120种狗类识别问题](https://www.kaggle.com/c/dog-breed-identification)，并点击下方右侧`Submit Predictions`按钮。
-
-![](../img/kaggle-dog-submit1.png)
+执行完上述代码后，会生成一个“submission.csv”文件。这个文件符合Kaggle比赛要求的提交格式。这时我们可以在Kaggle上把对测试集分类的结果提交并查看分类准确率。你需要登录Kaggle网站，访问ImageNet Dogs比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮 [1]。然后，点击页面下方“Upload Submission File”选择需要提交的分类结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。
 
 
-请点击下方`Upload Submission File`选择需要提交的预测结果。然后点击下方的`Make Submission`按钮就可以查看结果啦！
+## 小结
 
-![](../img/kaggle-dog-submit2.png)
-
-温馨提醒，目前**Kaggle仅限每个账号一天以内5次提交结果的机会**。所以提交结果前务必三思。
+* 我们可以利用在ImageNet数据集上预训练的模型对它的子集数据集做分类。
 
 
-## 作业（[汇报作业和查看其他小伙伴作业](https://discuss.gluon.ai/t/topic/2399)）：
+## 练习
 
 * 使用Kaggle完整数据集，把batch_size和num_epochs分别调大些，可以在Kaggle上拿到什么样的准确率和名次？
-* 你还有什么其他办法可以继续改进模型和参数？小伙伴们都期待你的分享。
+* 扫码直达讨论区，在社区交流方法和结果。相信你一定会有收获。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2399)
 
 ![](../img/qr_kaggle-gluon-dog.svg)
+
+## 参考文献
+
+[1] Kaggle ImageNet Dogs比赛网址。https://www.kaggle.com/c/dog-breed-identification

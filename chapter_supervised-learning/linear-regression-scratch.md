@@ -15,9 +15,6 @@ $$\boldsymbol{\hat{y}} = \boldsymbol{X} \boldsymbol{w} + b,$$
 下面我们开始动手实现线性回归的训练。首先，导入本节中实验所需的包或模块。
 
 ```{.python .input  n=1}
-%config InlineBackend.figure_format = 'retina'
-%matplotlib inline
-import matplotlib as mpl
 from matplotlib import pyplot as plt
 from mxnet import autograd, nd
 import random
@@ -52,15 +49,15 @@ features[0], labels[0]
 通过生成第二个特征`features[:, 1]`和标签 `labels` 的散点图，我们可以更直观地观察两者间的线性关系。
 
 ```{.python .input  n=4}
-def set_fig_size(mpl, figsize=(3.5, 2.5)):
-    mpl.rcParams['figure.figsize'] = figsize
-
-set_fig_size(mpl)
+%config InlineBackend.figure_format = 'retina'
+plt.rcParams['figure.figsize'] = (3.5, 2.5)
 plt.scatter(features[:, 1].asnumpy(), labels.asnumpy(), 1)
 plt.show()
 ```
 
-我们将该函数定义在`gluonbook`包中供后面章节调用。
+我们将上面的`plt`作图函数定义在`gluonbook`包里。以后在作图时，我们将直接调用`gluonbook.plt`，而无需执行`from matplotlib import pyplot as plt`。
+
+
 
 ## 读取数据
 

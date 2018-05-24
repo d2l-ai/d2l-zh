@@ -11,7 +11,7 @@
 
 `sgd`，[线性回归——从零开始](../chapter_supervised-learning/linear-regression-scratch.md)
 
-`set_fig_size`，[线性回归——从零开始](../chapter_supervised-learning/linear-regression-scratch.md)
+`plt`，[线性回归——从零开始](../chapter_supervised-learning/linear-regression-scratch.md)
 
 `accuracy`，[Softmax回归——从零开始](../chapter_supervised-learning/softmax-regression-scratch.md)
 
@@ -20,3 +20,5 @@
 `load_data_fashion_mnist`，[Softmax回归——从零开始](../chapter_supervised-learning/softmax-regression-scratch.md)
 
 `train_cpu`，[Softmax回归——从零开始](../chapter_supervised-learning/softmax-regression-scratch.md)
+
+`semilogy`，[欠拟合和过拟合](../chapter_supervised-learning/underfit-overfit.md)

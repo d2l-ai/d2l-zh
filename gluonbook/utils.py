@@ -3,7 +3,7 @@ import random
 from time import time
 
 from IPython.display import set_matplotlib_formats
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 import mxnet as mx
 from mxnet import autograd, gluon, image, nd
 from mxnet.gluon import nn, data as gdata, loss as gloss, utils as gutils
@@ -391,11 +391,6 @@ def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim,
                       is_lstm))
             print()
 
-# TODO(aston), remove this function
-def set_fig_size(mpl, figsize=(3.5, 2.5)):
-    """Set size for the matplotlib figure."""
-    mpl.rcParams['figure.figsize'] = figsize
-
 
 def data_iter(batch_size, num_examples, features, labels):
     """Iterate through a data set."""
@@ -440,10 +435,16 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval,
     semilogy(es, ls, 'epoch', 'loss')
 
 
-def semilogy(x_vals, y_vals, x_label, y_label, figsize=(3.5, 2.5)):
+def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
+             legend=None, figsize=(3.5, 2.5)):
     """Plot x and log(y)."""
-    set_fig_size(mpl, figsize)
-    plt.semilogy(x_vals, y_vals)
+    plt.rcParams['figure.figsize'] = figsize
+    set_matplotlib_formats('retina')
     plt.xlabel(x_label)
     plt.ylabel(y_label)
+    plt.semilogy(x_vals, y_vals)
+    if x2_vals and y2_vals:
+        plt.semilogy(x2_vals, y2_vals)
+        plt.legend(legend)
     plt.show()
+
