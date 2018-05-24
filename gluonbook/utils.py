@@ -12,7 +12,6 @@ import numpy as np
 # set default figure size
 set_matplotlib_formats('retina')
 plt.rcParams['figure.figsize'] = (3.5, 2.5)
-print(plt.rcParams['figure.figsize'] )
 
 class DataLoader(object):
     """similiar to gluon.data.DataLoader, but might be faster.
@@ -447,4 +446,3 @@ def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
         plt.semilogy(x2_vals, y2_vals)
         plt.legend(legend)
     plt.show()
-
