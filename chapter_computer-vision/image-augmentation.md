@@ -1,204 +1,166 @@
 # 图片增广
 
-AlexNet当年能取得巨大的成功，其中图片增广功不可没。图片增广通过一系列的随机变化生成大量“新”的样本，从而减低过拟合的可能。现在在深度卷积神经网络训练中，图片增广是必不可少的一部分。
+在[“深度卷积神经网络：AlexNet”](../chapter_convolutional-neural-networks/alexnet.md)小节里我们提到过大规模数据集是深度网络能成功的前提条件。在AlexNet当年能取得的成功中，图片增广（image augmentation）功不可没。本小节我们将讨论这个在计算机视觉里被广泛使用的技术。
+
+图片增广是指通过对训练图片做一系列变化来产生相似但又有不同的训练样本，这样来模型训练的时候识别了难以泛化的模式。例如我们可以对图片进行不同的裁剪使得感兴趣的物体出现在不同的位置中，从而使得模型减小对物体出现位置的依赖性。也可以调整亮度色彩等因素来降低模型对色彩的敏感度。
 
 ## 常用增广方法
 
-我们首先读取一张$400\times 500$的图片作为样例
+我们首先读取一张$400\times 500$的图片作为样例解释常用的增广方法。
 
 ```{.python .input  n=1}
 %matplotlib inline
-from matplotlib import pyplot as plt
-from mxnet import image
+import sys
+sys.path.insert(0, '..')
+import gluonbook as gb
+from mxnet import nd, image, gluon, init
+from mxnet.gluon.data.vision import transforms
 
-img = image.imdecode(open('../img/cat1.jpg', 'rb').read())
-plt.imshow(img.asnumpy())
+img = image.imread('../img/cat1.jpg')
+gb.plt.imshow(img.asnumpy())
 ```
 
-接下来我们定义一个辅助函数，给定输入图片`img`的增广方法`aug`，它会运行多次并画出结果。
+因为大部分的增广方法都有一定的随机性。接下来我们定义一个辅助函数，它对输入图片`img`运行多次增广方法`aug`并画出结果。
 
 ```{.python .input  n=2}
-from mxnet import nd
-import sys
-sys.path.append('..')
-import gluonbook as gb
-
-def apply(img, aug, n=3):
-    # 转成float，一是因为aug需要float类型数据来方便做变化。
-    # 二是这里会有一次copy操作，因为有些aug直接通过改写输入
-    #（而不是新建输出）获取性能的提升
-    X = [aug(img.astype('float32')) for _ in range(n*n)]
-    # 有些aug不保证输入是合法值，所以做一次clip
-    # 显示浮点图片时imshow要求输入在[0,1]之间
-    Y = nd.stack(*X).clip(0,255)/255
-    gb.show_images(Y, n, n, figsize=(8,8))
+def plot(imgs, num_rows, num_cols, ratio):
+    _, figs = gb.plt.subplots(
+        num_rows, num_cols, figsize=(num_cols*ratio, num_rows*ratio))
+    for i in range(num_rows):
+        for j in range(num_cols):
+            figs[i][j].imshow(imgs[i*num_cols+j].asnumpy())
+            figs[i][j].axes.get_xaxis().set_visible(False)
+            figs[i][j].axes.get_yaxis().set_visible(False)
+            
+def apply(img, aug, num_rows=2, num_cols=4, ratio=2):
+    Y = [aug(img) for _ in range(num_rows*num_cols)]
+    plot(Y, num_rows, num_cols, ratio)
 ```
 
 ### 变形
 
-水平方向翻转图片是最早也是最广泛使用的一种增广。
+左右翻转图片通常不影响识别图片，它是最早也是最广泛使用的一种增广。下面我们使用transform模块里的`RandomFlipLeftRight`类来实现按0.5的概率左右翻转图片：
 
 ```{.python .input  n=3}
-# 以.5的概率做翻转
-aug = image.HorizontalFlipAug(.5)
-apply(img, aug)
+apply(img, transforms.RandomFlipLeftRight())
 ```
 
-样例图片里我们关心的猫在图片正中间，但一般情况下可能不是这样。前面我们提到池化层能弱化卷积层对目标位置的敏感度，但也不能完全解决这个问题。一个常用增广方法是随机的截取其中的一块。
-
-注意到随机截取一般会缩小输入的形状。如果原始输入图片过小，导致没有太多空间进行随机裁剪，通常做法是先将其放大的足够大的尺寸。所以如果你的原始图片足够大，建议不要事先将它们裁到网络需要的大小。
+当然有时候我们也使用上下翻转，至少对于我们使用的图片，上下翻转不会造成人的识别障碍。
 
 ```{.python .input  n=4}
-# 随机裁剪一个块 200 x 200 的区域
-aug = image.RandomCropAug([200,200])
-apply(img, aug)
+apply(img, transforms.RandomFlipTopBottom())
 ```
 
-我们也可以随机裁剪一块随机大小的区域
+我们使用的样例图片里猫在图片正中间，但一般情况下可能不是这样。[“池化层”](../chapter_convolutional-neural-networks/pooling.md)一节里我们解释了池化层能弱化卷积层对目标位置的敏感度，另一方面我们可以通过对图片随机剪裁来是的物体以不同的比例出现在不同位置。
+
+下面代码里我们每次随机裁剪一片面积为原面积10%到100%的区域，其宽和高的比例在0.5和2之间，然后再将高宽缩放到200像素。
 
 ```{.python .input  n=5}
-# 随机裁剪，要求保留至少0.1的区域，随机长宽比在.5和2之间。
-# 最后将结果resize到200x200
-aug = image.RandomSizedCropAug((200,200), .1, (.5,2))
-apply(img, aug)
+shape_aug = transforms.RandomResizedCrop(
+    (200, 200), scale=(.1, 1), ratio=(.5, 2))
+apply(img, shape_aug)
 ```
 
 ### 颜色变化
 
-形状变化外的一个另一大类是变化颜色。
+形状变化外的一个另一大类是变化颜色。颜色一般有四个可以调的参数：亮度、对比、饱和度和色相。下面例子里我们随机将亮度在当前值上增加或减小一个在0到50%之前的量。
 
 ```{.python .input  n=6}
-# 随机将亮度增加或者减小在0-50%间的一个量
-aug = image.BrightnessJitterAug(.5)
-apply(img, aug)
+apply(img, transforms.RandomLighting(.5))
 ```
+
+同样的修改色相。
 
 ```{.python .input  n=7}
-# 随机色调变化
-aug = image.HueJitterAug(.5)
-apply(img, aug)
+apply(img, transforms.RandomHue(.5))
 ```
 
-## 如何使用
-
-通常使用时我们会将数个增广方法一起使用。注意到图片增广通常只是针对训练数据，对于测试数据则用得较小。后者常用的是做5次随机剪裁，然后讲5张图片的预测结果做均值。
-
-下面我们使用CIFAR10来演示图片增广对训练的影响。我们这里不使用前面一直用的FashionMNIST，这是因为这个数据的图片基本已经对齐好了，而且是黑白图片，所以不管是变形还是变色增广效果都不会明显。
-
-### 数据读取
-
-我们首先定义一个辅助函数可以对图片按顺序应用数个增广：
+或者用使用`RandomColorJitter`来一起使用。
 
 ```{.python .input  n=8}
-def apply_aug_list(img, augs):
-    for f in augs:
-        img = f(img)
-    return img
+color_aug = transforms.RandomColorJitter(
+    brightness=.5, contrast=.5, saturation=.5, hue=.5)
+apply(img, color_aug)
 ```
 
-对于训练图片我们随机水平翻转和剪裁。对于测试图片仅仅就是中心剪裁。CIFAR10图片尺寸是$32\times 32\times 3$，我们剪裁成$28\times 28\times 3$.
+### 使用多个增广
+
+实际应用中我们会将多个增广叠加使用。我们可以使用Compose类来将多个增广串联起来。
 
 ```{.python .input  n=9}
-train_augs = [
-    image.HorizontalFlipAug(.5),
-    image.RandomCropAug((28,28))
-]
-
-test_augs = [
-    image.CenterCropAug((28,28))
-]
+augs = transforms.Compose([
+    transforms.RandomFlipLeftRight(), color_aug, shape_aug])
+apply(img, augs)
 ```
 
-然后定义数据读取，这里跟前面的FashionMNIST类似，但在`transform`中加入了图片增广：
+## 使用图片增广来训练
+
+接下来我们来看一个将图片增广应用在实际训练的例子，并比较其与不使用时的区别。这里我们使用CIFAR-10数据集，而不是之前我们一直使用的FashionMNIST。原因在于FashionMNIST中物体位置和尺寸都已经统一化了，而CIFAR-10中物体颜色和大小区别更加显著。下面我们展示CIFAR-10中的前32张训练图片。
 
 ```{.python .input  n=10}
-from mxnet import gluon
-from mxnet import nd
-import sys
-sys.path.append('..')
-import utils
-
-def get_transform(augs):
-    def transform(data, label):
-        # data: sample x height x width x channel
-        # label: sample
-        data = data.astype('float32')
-        if augs is not None:
-            # apply to each sample one-by-one and then stack
-            data = nd.stack(*[
-                apply_aug_list(d, augs) for d in data])
-        data = nd.transpose(data, (0,3,1,2))
-        return data, label.astype('float32')
-    return transform
-
-def get_data(batch_size, train_augs, test_augs=None):
-    cifar10_train = gluon.data.vision.CIFAR10(
-        train=True, transform=get_transform(train_augs))
-    cifar10_test = gluon.data.vision.CIFAR10(
-        train=False, transform=get_transform(test_augs))
-    train_data = gb.DataLoader(
-        cifar10_train, batch_size, shuffle=True)
-    test_data = gb.DataLoader(
-        cifar10_test, batch_size, shuffle=False)
-    return (train_data, test_data)
+plot(gluon.data.vision.CIFAR10(train=True)[0:32][0], 4, 8, 1)
 ```
 
-画出前几张看看
+在训练时，我们通常将图片增广作用在训练图片上，使得模型能识别出各种变化过后的版本。这里我们仅仅使用最简单的随机水平翻转。此外我们使用`ToTensor`变换来图片转成MXNet需要的格式，即格式为（批量，通道，高，宽）以及类型为32位浮点数。
 
 ```{.python .input  n=11}
-train_data, _ = get_data(36, train_augs)
-for imgs, _ in train_data:
-    break
-gb.show_images(imgs.transpose((0,2,3,1)), 6, 6)
+train_augs = transforms.Compose([
+    transforms.RandomFlipLeftRight(),
+    transforms.ToTensor(),
+])
+
+test_augs = transforms.Compose([
+    transforms.ToTensor(),
+])
 ```
+
+接下来我们定义一个辅助函数来方便读取图片并应用增广。Gluon的数据集提供`transform_first`函数来对数据里面的第一项图片（标签为第二项）来应用增广。另外图片增广将增加计算复杂度，我们使用两个额外CPU进程加来加速计算。
 
 ```{.python .input  n=12}
-imgs.shape
+def load_cifar10(is_train, augs, batch_size):
+    return gluon.data.DataLoader(gluon.data.vision.CIFAR10(
+        train=is_train).transform_first(augs),
+        batch_size=batch_size, shuffle=is_train, num_workers=2)
 ```
 
-## 训练
+### 模型训练
 
-我们使用[ResNet 18](../chapter_convolutional-neural-networks/resnet-gluon.md)训练。并且训练代码整理成一个函数使得可以重读调用：
-
-```{.python .input  n=13}
-from mxnet import init
-
-def train(train_augs, test_augs, learning_rate=.1):
-    batch_size = 128
-    num_epochs = 10
-    ctx = gb.try_all_gpus()
-    loss = gluon.loss.SoftmaxCrossEntropyLoss()    
-    train_data, test_data = get_data(
-        batch_size, train_augs, test_augs)
-    net = gb.resnet18(10) 
-    net.initialize(ctx=ctx, init=init.Xavier())
-    net.hybridize()
-    trainer = gluon.Trainer(net.collect_params(),
-                            'sgd', {'learning_rate': learning_rate})
-    gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs)
-```
-
-使用增广：
+我们使用ResNet 18来训练CIFAR-10。训练的的代码跟[“残差网络：ResNet”](..//chapter_convolutional-neural-networks/resnet.md)一致，除了使用所有可用的GPU和不同的学习率外。
 
 ```{.python .input  n=14}
+def train(train_augs, test_augs, lr=.1):
+    batch_size = 256
+    ctx = gb.try_all_gpus()
+    net = gb.resnet18(10)
+    net.initialize(ctx=ctx, init=init.Xavier())
+    trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate':lr})
+    loss = gluon.loss.SoftmaxCrossEntropyLoss()
+    train_data = load_cifar10(True, train_augs, batch_size)
+    test_data = load_cifar10(False, test_augs, batch_size)
+    gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=8)
+```
+
+首先我们看使用了图片增广的情况。
+
+```{.python .input  n=15}
 train(train_augs, test_augs)
 ```
 
-不使用增广：
+作为对比，我们只对训练数据做中间剪裁。
 
-```{.python .input  n=15}
+```{.python .input  n=16}
 train(test_augs, test_augs)
 ```
 
-可以看到使用增广后，训练精度提升更慢，但测试精度比不使用更好。
+可以看到，即使是简单的随机翻转也会有明显效果。使用增广类似于增加了正则项话，它使得训练精度变低，但对提升测试精度有帮助。
 
 ## 小结
 
-* 图片增广可以有效避免过拟合。
+图片增广对现有训练数据生成大量随机图片来有效避免过拟合。
 
 ## 练习
 
-* 尝试换不同的增广方法试试。
+尝试在CIFAR-10训练中增加不同的增广方法。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1666)
 
