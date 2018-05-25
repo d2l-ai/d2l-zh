@@ -163,22 +163,6 @@ def data_iter_consecutive(corpus_indices, batch_size, num_steps, ctx=None):
         X = indices[:, i: i + num_steps]
         Y = indices[:, i + 1: i + num_steps + 1]
         yield X, Y
-        
-        
-        
-def data_iter_consecutive(corpus_indices, batch_size, num_steps, ctx=None):
-    """Sample mini-batches in a consecutive order from sequential data."""
-    corpus_indices = nd.array(corpus_indices, ctx=ctx)
-    data_len = len(corpus_indices)
-    batch_len = data_len // batch_size
-    indices = corpus_indices[0: batch_size * batch_len].reshape((
-        batch_size, batch_len))
-    epoch_size = (batch_len - 1) // num_steps
-    for i in range(epoch_size):
-        i = i * num_steps
-        X = indices[:, i: i + num_steps]
-        Y = indices[:, i + 1: i + num_steps + 1]
-        yield X, Y
 ```
 
 相同地，为了便于理解时序数据上的相邻批量采样，让我们输入一个从0到29的人工序列，看下读出来长什么样：
@@ -419,6 +403,8 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
                     rnn, prefix, pred_len, params, num_hiddens, vocab_size,
                     ctx, idx_to_char, char_to_idx, get_inputs, is_lstm))
 ```
+
+我们将`to_onehot`、`data_iter_random`、`data_iter_consecutive`、`grad_clipping`、`predict_rnn`和`train_and_predict_rnn`、函数定义在gluonbook包中供后面章节调用。
 
 以下定义模型参数和预测序列前缀。
 

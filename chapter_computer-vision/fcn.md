@@ -66,7 +66,7 @@ imgs = []
 for i in range(3):
     imgs += [train_images[i], train_labels[i]]
 
-gb.show_images(imgs, nrows=3, ncols=2)
+gb.show_images(imgs, 3, 2)
 [im.shape for im in imgs]
 ```
 
@@ -85,7 +85,7 @@ for _ in range(3):
     imgs += rand_crop(train_images[0], train_labels[0],
                       200, 300)
 
-gb.show_images(imgs, nrows=3, ncols=2)
+gb.show_images(imgs, 3, 2)
 ```
 
 接下来我们列出每个物体和背景对应的RGB值
@@ -371,7 +371,7 @@ for i in range(n):
     pred = label2image(predict(x))
     imgs += [x, pred, test_labels[i]]
 
-gb.show_images(imgs, nrows=n, ncols=3)
+gb.show_images(imgs, n, 3)
 ```
 
 ## 小结
