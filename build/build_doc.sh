@@ -24,8 +24,8 @@ mv build/data-bak build/data
 make pdf
 cp build/_build/latex/gluon_tutorials_zh.pdf build/_build/html/
 
-rm build/_build/latex/gluon_tutorials_zh.aux
-rm build/_build/latex/gluon_tutorials_zh.idx
+[ -e build/_build/latex/gluon_tutorials_zh.aux ] && rm build/_build/latex/gluon_tutorials_zh.aux
+[ -e build/_build/latex/gluon_tutorials_zh.idx ] && rm build/_build/latex/gluon_tutorials_zh.idx
 
 bash ipynb2mdd.sh
 cp mdd.zip _build/html/mdd.zip

@@ -16,4 +16,4 @@ for f in $MD/chapter*/*ipynb; do
 done
 
 zip -r "$MD.zip" $MD
-
+[ -e $MD ] && rm -rf $MD
