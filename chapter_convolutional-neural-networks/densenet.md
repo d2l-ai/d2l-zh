@@ -91,13 +91,15 @@ net.add(nn.Conv2D(64, kernel_size=7, strides=2, padding=3),
 ResNet里通过步幅为2的残差块来在每个模块之间减小高宽，这里我们则是使用过渡块来减半高宽，并且减半输入通道数。
 
 ```{.python .input  n=5}
-num_channels = 64  # 当前的数据通道数。
+# 当前的数据通道数。
+num_channels = 64
 growth_rate = 32
 num_convs_in_dense_blocks = [4, 4, 4, 4]
 
 for i, num_convs in enumerate(num_convs_in_dense_blocks):
     net.add(DenseBlock(num_convs, growth_rate))
-    num_channels += num_convs * growth_rate  # 上一个稠密的输出通道数。
+    # 上一个稠密的输出通道数。
+    num_channels += num_convs * growth_rate
     # 在稠密块之间加入通道数减半的过渡块。
     if i != len(num_convs_in_dense_blocks)-1:
         net.add(transition_block(num_channels//2))
