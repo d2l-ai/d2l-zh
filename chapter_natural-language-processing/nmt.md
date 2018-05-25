@@ -124,7 +124,8 @@ class Encoder(Block):
                                input_size=hidden_dim)
 
     def forward(self, inputs, state):
-        # inputs尺寸: (batch_size, num_steps)，emb尺寸: (num_steps, batch_size, 256)
+        # inputs 形状: (batch_size, num_steps)
+        # emb形状: (num_steps, batch_size, 256)
         emb = self.embedding(inputs).swapaxes(0, 1)
         emb = self.dropout(emb)
         output, state = self.rnn(emb, state)
@@ -170,34 +171,34 @@ class Decoder(Block):
         single_layer_state = [state[0][-1].expand_dims(0)]
         encoder_outputs = encoder_outputs.reshape((self.max_seq_len, -1,
                                                    self.encoder_hidden_dim))
-        # single_layer_state尺寸: [(1, batch_size, decoder_hidden_dim)]
-        # hidden_broadcast尺寸: (max_seq_len, batch_size, decoder_hidden_dim)
+        # single_layer_state形状: [(1, batch_size, decoder_hidden_dim)]
+        # hidden_broadcast形状: (max_seq_len, batch_size, decoder_hidden_dim)
         hidden_broadcast = nd.broadcast_axis(single_layer_state[0], axis=0,
                                              size=self.max_seq_len)
 
-        # encoder_outputs_and_hiddens尺寸:
+        # encoder_outputs_and_hiddens形状:
         # (max_seq_len, batch_size, encoder_hidden_dim + decoder_hidden_dim)
         encoder_outputs_and_hiddens = nd.concat(encoder_outputs,
                                                 hidden_broadcast, dim=2)
 
-        # energy尺寸: (max_seq_len, batch_size, 1)
+        # energy形状: (max_seq_len, batch_size, 1)
         energy = self.attention(encoder_outputs_and_hiddens)
 
-        # batch_attention尺寸: (batch_size, 1, max_seq_len)
+        # batch_attention形状: (batch_size, 1, max_seq_len)
         batch_attention = nd.softmax(energy, axis=0).transpose(
             (1, 2, 0))
 
-        # batch_encoder_outputs尺寸: (batch_size, max_seq_len, encoder_hidden_dim)
+        # batch_encoder_outputs形状: (batch_size, max_seq_len, encoder_hidden_dim)
         batch_encoder_outputs = encoder_outputs.swapaxes(0, 1)
 
-        # decoder_context尺寸: (batch_size, 1, encoder_hidden_dim)
+        # decoder_context形状: (batch_size, 1, encoder_hidden_dim)
         decoder_context = nd.batch_dot(batch_attention, batch_encoder_outputs)
 
-        # cur_input尺寸: (batch_size,)
-        # input_and_context尺寸: (batch_size, 1, encoder_hidden_dim + decoder_hidden_dim)
+        # cur_input形状: (batch_size,)
+        # input_and_context形状: (batch_size, 1, encoder_hidden_dim + decoder_hidden_dim)
         input_and_context = nd.concat(nd.expand_dims(self.embedding(cur_input), axis=1),
                                       decoder_context, dim=2)
-        # concat_input尺寸: (1, batch_size, decoder_hidden_dim)
+        # concat_input形状: (1, batch_size, decoder_hidden_dim)
         concat_input = self.rnn_concat_input(input_and_context).reshape((1, -1, 0))
         concat_input = self.dropout(concat_input)
 
@@ -208,7 +209,7 @@ class Decoder(Block):
         output, state = self.rnn(concat_input, state)
         output = self.dropout(output)
         output = self.out(output).reshape((-3, -1))
-        # output尺寸: (batch_size, output_size)
+        # output形状: (batch_size, output_size)
         return output, state
 
     def begin_state(self, *args, **kwargs):
@@ -302,7 +303,7 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens):
                     func=mx.nd.zeros, batch_size=real_batch_size, ctx=ctx)
                 encoder_outputs, encoder_state = encoder(x, encoder_state)
 
-                # encoder_outputs尺寸: (max_seq_len, encoder_hidden_dim)
+                # encoder_outputs形状: (max_seq_len, encoder_hidden_dim)
                 encoder_outputs = encoder_outputs.flatten()
                 # 解码器的第一个输入为BOS字符。
                 decoder_input = nd.array([output_vocab.token_to_idx[BOS]] * real_batch_size,

@@ -1,4 +1,3 @@
-from math import exp
 import random
 from time import time
 
@@ -252,142 +251,128 @@ def show_images(imgs, num_rows, num_cols, scale=2):
             figs[i][j].axes.get_yaxis().set_visible(False)
     plt.show()
 
+
+def to_onehot(X, size):
+    """Represent inputs with one-hot encoding."""
+    return [nd.one_hot(x, size) for x in X.T]
+
+
 def data_iter_random(corpus_indices, batch_size, num_steps, ctx=None):
     """Sample mini-batches in a random order from sequential data."""
-    # Subtract 1 because label indices are corresponding input indices + 1.
     num_examples = (len(corpus_indices) - 1) // num_steps
     epoch_size = num_examples // batch_size
-    # Randomize samples.
     example_indices = list(range(num_examples))
     random.shuffle(example_indices)
-
     def _data(pos):
         return corpus_indices[pos: pos + num_steps]
-
     for i in range(epoch_size):
-        # Read batch_size random samples each time.
         i = i * batch_size
         batch_indices = example_indices[i: i + batch_size]
-        data = nd.array(
+        X = nd.array(
             [_data(j * num_steps) for j in batch_indices], ctx=ctx)
-        label = nd.array(
+        Y = nd.array(
             [_data(j * num_steps + 1) for j in batch_indices], ctx=ctx)
-        yield data, label
+        yield X, Y
+
 
 def data_iter_consecutive(corpus_indices, batch_size, num_steps, ctx=None):
     """Sample mini-batches in a consecutive order from sequential data."""
     corpus_indices = nd.array(corpus_indices, ctx=ctx)
     data_len = len(corpus_indices)
     batch_len = data_len // batch_size
-
     indices = corpus_indices[0: batch_size * batch_len].reshape((
         batch_size, batch_len))
-    # Subtract 1 because label indices are corresponding input indices + 1.
     epoch_size = (batch_len - 1) // num_steps
-
     for i in range(epoch_size):
         i = i * num_steps
-        data = indices[:, i: i + num_steps]
-        label = indices[:, i + 1: i + num_steps + 1]
-        yield data, label
+        X = indices[:, i: i + num_steps]
+        Y = indices[:, i + 1: i + num_steps + 1]
+        yield X, Y
 
 
-def grad_clipping(params, clipping_norm, ctx):
-    """Gradient clipping."""
-    if clipping_norm is not None:
+def grad_clipping(params, theta, ctx):
+    """Clip the gradient."""
+    if theta is not None:
         norm = nd.array([0.0], ctx)
-        for p in params:
-            norm += nd.sum(p.grad ** 2)
-        norm = nd.sqrt(norm).asscalar()
-        if norm > clipping_norm:
-            for p in params:
-                p.grad[:] *= clipping_norm / norm
+        for param in params:
+            norm += (param.grad ** 2).sum()
+        norm = norm.sqrt().asscalar()
+        if norm > theta:
+            for param in params:
+                param.grad[:] *= theta / norm 
 
 
-def predict_rnn(rnn, prefix, num_chars, params, hidden_dim, ctx, idx_to_char,
-                char_to_idx, get_inputs, is_lstm=False):
+def predict_rnn(rnn, prefix, num_chars, params, num_hiddens, vocab_size, ctx,
+                idx_to_char, char_to_idx, get_inputs, is_lstm=False):
     """Predict the next chars given the prefix."""
     prefix = prefix.lower()
-    state_h = nd.zeros(shape=(1, hidden_dim), ctx=ctx)
+    state_h = nd.zeros(shape=(1, num_hiddens), ctx=ctx)
     if is_lstm:
-        state_c = nd.zeros(shape=(1, hidden_dim), ctx=ctx)
+        state_c = nd.zeros(shape=(1, num_hiddens), ctx=ctx)
     output = [char_to_idx[prefix[0]]]
     for i in range(num_chars + len(prefix)):
         X = nd.array([output[-1]], ctx=ctx)
         if is_lstm:
-            Y, state_h, state_c = rnn(get_inputs(X), state_h, state_c, *params)
+            Y, state_h, state_c = rnn(get_inputs(X, vocab_size), state_h,
+                                      state_c, *params)
         else:
-            Y, state_h = rnn(get_inputs(X), state_h, *params)
-        if i < len(prefix)-1:
-            next_input = char_to_idx[prefix[i+1]]
+            Y, state_h = rnn(get_inputs(X, vocab_size), state_h, *params)
+        if i < len(prefix) - 1:
+            next_input = char_to_idx[prefix[i + 1]]
         else:
             next_input = int(Y[0].argmax(axis=1).asscalar())
         output.append(next_input)
     return ''.join([idx_to_char[i] for i in output])
 
 
-def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim,
-                          learning_rate, clipping_norm, batch_size,
-                          pred_period, pred_len, seqs, get_params, get_inputs,
-                          ctx, corpus_indices, idx_to_char, char_to_idx,
-                          is_lstm=False):
+def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
+                          num_hiddens, lr, clipping_theta, batch_size,
+                          vocab_size, pred_period, pred_len, prefixes,
+                          get_params, get_inputs, ctx, corpus_indices,
+                          idx_to_char, char_to_idx, is_lstm=False):
     """Train an RNN model and predict the next item in the sequence."""
     if is_random_iter:
         data_iter = data_iter_random
     else:
         data_iter = data_iter_consecutive
     params = get_params()
+    loss = gloss.SoftmaxCrossEntropyLoss()
 
-    softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
-
-    for e in range(1, epochs + 1):
-        # If consecutive sampling is used, in the same epoch, the hidden state
-        # is initialized only at the beginning of the epoch.
+    for epoch in range(1, num_epochs + 1):
         if not is_random_iter:
-            state_h = nd.zeros(shape=(batch_size, hidden_dim), ctx=ctx)
+            state_h = nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx)
             if is_lstm:
-                state_c = nd.zeros(shape=(batch_size, hidden_dim), ctx=ctx)
-        train_loss, num_examples = 0, 0
-        for data, label in data_iter(corpus_indices, batch_size, num_steps,
-                                     ctx):
-            # If random sampling is used, the hidden state has to be
-            # initialized for each mini-batch.
+                state_c = nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx)
+        train_l_sum = nd.array([0], ctx=ctx)
+        num_iters = 0
+        for X, Y in data_iter(corpus_indices, batch_size, num_steps, ctx):
             if is_random_iter:
-                state_h = nd.zeros(shape=(batch_size, hidden_dim), ctx=ctx)
+                state_h = nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx)
                 if is_lstm:
-                    state_c = nd.zeros(shape=(batch_size, hidden_dim), ctx=ctx)
+                    state_c = nd.zeros(shape=(batch_size, num_hiddens),
+                                       ctx=ctx)
             with autograd.record():
-                # outputs shape: (batch_size, vocab_size)
                 if is_lstm:
-                    outputs, state_h, state_c = rnn(get_inputs(data), state_h,
-                                                    state_c, *params)
+                    outputs, state_h, state_c = rnn(
+                        get_inputs(X, vocab_size), state_h, state_c, *params) 
                 else:
-                    outputs, state_h = rnn(get_inputs(data), state_h, *params)
-                # Let t_ib_j be the j-th element of the mini-batch at time i.
-                # label shape: (batch_size * num_steps)
-                # label = [t_0b_0, t_0b_1, ..., t_1b_0, t_1b_1, ..., ].
-                label = label.T.reshape((-1,))
-                # Concatenate outputs:
-                # shape: (batch_size * num_steps, vocab_size).
+                    outputs, state_h = rnn(
+                        get_inputs(X, vocab_size), state_h, *params)
+                Y = Y.T.reshape((-1,))
                 outputs = nd.concat(*outputs, dim=0)
-                # Now outputs and label are aligned.
-                loss = softmax_cross_entropy(outputs, label)
-            loss.backward()
-
-            grad_clipping(params, clipping_norm, ctx)
-            SGD(params, learning_rate)
-
-            train_loss += nd.sum(loss).asscalar()
-            num_examples += loss.size
-
-        if e % pred_period == 0:
-            print("Epoch %d. Training perplexity %f" % (e,
-                                               exp(train_loss/num_examples)))
-            for seq in seqs:
-                print(' - ', predict_rnn(rnn, seq, pred_len, params,
-                      hidden_dim, ctx, idx_to_char, char_to_idx, get_inputs,
-                      is_lstm))
-            print()
+                l = loss(outputs, Y).sum() / (batch_size * num_steps)
+            l.backward()
+            grad_clipping(params, clipping_theta, ctx)
+            sgd(params, lr, 1)
+            train_l_sum = train_l_sum + l
+            num_iters += 1
+        if epoch % pred_period == 0:
+            print("\nepoch %d, perplexity %f"
+                  % (epoch, (train_l_sum / num_iters).exp().asscalar()))
+            for prefix in prefixes:
+                print(' - ', predict_rnn(
+                    rnn, prefix, pred_len, params, num_hiddens, vocab_size,
+                    ctx, idx_to_char, char_to_idx, get_inputs, is_lstm))
 
 
 def data_iter(batch_size, num_examples, features, labels):
