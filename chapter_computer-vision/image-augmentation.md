@@ -23,18 +23,9 @@ gb.plt.imshow(img.asnumpy())
 因为大部分的增广方法都有一定的随机性。接下来我们定义一个辅助函数，它对输入图片`img`运行多次增广方法`aug`并画出结果。
 
 ```{.python .input  n=2}
-def plot(imgs, num_rows, num_cols, ratio):
-    _, figs = gb.plt.subplots(
-        num_rows, num_cols, figsize=(num_cols*ratio, num_rows*ratio))
-    for i in range(num_rows):
-        for j in range(num_cols):
-            figs[i][j].imshow(imgs[i*num_cols+j].asnumpy())
-            figs[i][j].axes.get_xaxis().set_visible(False)
-            figs[i][j].axes.get_yaxis().set_visible(False)
-            
-def apply(img, aug, num_rows=2, num_cols=4, ratio=2):
+def apply(img, aug, num_rows=2, num_cols=4, scale=1.5):
     Y = [aug(img) for _ in range(num_rows*num_cols)]
-    plot(Y, num_rows, num_cols, ratio)
+    gb.show_images(Y, num_rows, num_cols, scale)
 ```
 
 ### 变形
@@ -98,7 +89,7 @@ apply(img, augs)
 接下来我们来看一个将图片增广应用在实际训练的例子，并比较其与不使用时的区别。这里我们使用CIFAR-10数据集，而不是之前我们一直使用的FashionMNIST。原因在于FashionMNIST中物体位置和尺寸都已经统一化了，而CIFAR-10中物体颜色和大小区别更加显著。下面我们展示CIFAR-10中的前32张训练图片。
 
 ```{.python .input  n=10}
-plot(gluon.data.vision.CIFAR10(train=True)[0:32][0], 4, 8, 1)
+gb.show_images(gluon.data.vision.CIFAR10(train=True)[0:32][0], 4, 8, scale=0.8)
 ```
 
 在训练时，我们通常将图片增广作用在训练图片上，使得模型能识别出各种变化过后的版本。这里我们仅仅使用最简单的随机水平翻转。此外我们使用`ToTensor`变换来图片转成MXNet需要的格式，即格式为（批量，通道，高，宽）以及类型为32位浮点数。
@@ -127,7 +118,7 @@ def load_cifar10(is_train, augs, batch_size):
 
 我们使用ResNet 18来训练CIFAR-10。训练的的代码跟[“残差网络：ResNet”](..//chapter_convolutional-neural-networks/resnet.md)一致，除了使用所有可用的GPU和不同的学习率外。
 
-```{.python .input  n=14}
+```{.python .input  n=13}
 def train(train_augs, test_augs, lr=.1):
     batch_size = 256
     ctx = gb.try_all_gpus()
@@ -142,13 +133,13 @@ def train(train_augs, test_augs, lr=.1):
 
 首先我们看使用了图片增广的情况。
 
-```{.python .input  n=15}
+```{.python .input  n=14}
 train(train_augs, test_augs)
 ```
 
 作为对比，我们只对训练数据做中间剪裁。
 
-```{.python .input  n=16}
+```{.python .input  n=15}
 train(test_augs, test_augs)
 ```
 

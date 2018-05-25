@@ -241,6 +241,17 @@ def resnet18(num_classes):
         )
     return net
 
+def show_images(imgs, num_rows, num_cols, scale=2):
+    """plot a list of images"""
+    figsize = (num_cols*scale, num_rows*scale)
+    _, figs = plt.subplots(num_rows, num_cols, figsize=figsize)
+    for i in range(num_rows):
+        for j in range(num_cols):
+            figs[i][j].imshow(imgs[i*num_cols+j].asnumpy())
+            figs[i][j].axes.get_xaxis().set_visible(False)
+            figs[i][j].axes.get_yaxis().set_visible(False)
+    plt.show()
+
 def data_iter_random(corpus_indices, batch_size, num_steps, ctx=None):
     """Sample mini-batches in a random order from sequential data."""
     # Subtract 1 because label indices are corresponding input indices + 1.
