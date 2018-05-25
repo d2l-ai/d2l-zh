@@ -64,7 +64,6 @@ $$\boldsymbol{H}_t = \boldsymbol{Z}_t \odot \boldsymbol{H}_{t-1}  + (1 - \boldsy
 import sys
 sys.path.append('..')
 import gluonbook as gb
-import mxnet as mx
 from mxnet import nd
 import zipfile
 ```
@@ -90,7 +89,11 @@ vocab_size = len(char_to_idx)
 以下部分对模型参数进行初始化。参数`num_hiddens`定义了隐含状态的长度。
 
 ```{.python .input  n=3}
-ctx = gb.try_gpu()
+#ctx = gb.try_gpu()
+import mxnet as mx
+ctx = mx.gpu(2)
+
+
 num_inputs = vocab_size
 num_hiddens = 256
 num_outputs = vocab_size
