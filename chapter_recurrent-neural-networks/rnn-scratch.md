@@ -45,19 +45,28 @@ $$\hat{\boldsymbol{Y}}_t = \text{softmax}(\boldsymbol{H}_t \boldsymbol{W}_{hy}  
 
 为了实现并展示循环神经网络，我们使用周杰伦歌词数据集来训练模型作词。该数据集里包含了著名创作型歌手周杰伦从第一张专辑《Jay》到第十张专辑《跨时代》所有歌曲的歌词。
 
-![](../img/jay.jpg)
-
 
 下面我们读取这个数据并看看前面49个字符（char）是什么样的：
 
-```{.python .input  n=1}
+```{.python .input}
+import sys
+sys.path.append('..')
+import gluonbook as gb
+from math import exp
+import mxnet as mx
+from mxnet import autograd, gluon, nd
+import random
 import zipfile
+```
+
+```{.python .input  n=1}
 with zipfile.ZipFile('../data/jaychou_lyrics.txt.zip', 'r') as zin:
     zin.extractall('../data/')
 
 with open('../data/jaychou_lyrics.txt') as f:
     corpus_chars = f.read()
-print(corpus_chars[0:49])
+
+corpus_chars[0:49]
 ```
 
 我们看一下数据集里的字符数。
@@ -109,9 +118,6 @@ print('\nindices: \n', sample)
 下面代码每次从数据里随机采样一个批量。
 
 ```{.python .input  n=6}
-import random
-from mxnet import nd
-
 def data_iter_random(corpus_indices, batch_size, num_steps, ctx=None):
     # 减一是因为label的索引是相应data的索引加一
     num_examples = (len(corpus_indices) - 1) // num_steps
@@ -208,12 +214,6 @@ print('input[0] shape: ', inputs[0].shape)
 当序列中某一个时间戳的输入为一个样本数为`batch_size`（对应模型定义中的$n$）的批量，每个时间戳上的输入和输出皆为尺寸`batch_size * vocab_size`（对应模型定义中的$n \times x$）的矩阵。假设每个样本对应的隐含状态的长度为`hidden_dim`（对应模型定义中隐含层长度$h$），根据矩阵乘法定义，我们可以推断出模型隐含层和输出层中各个参数的尺寸。
 
 ```{.python .input  n=12}
-import mxnet as mx
-
-# 尝试使用GPU
-import sys
-sys.path.append('..')
-import gluonbook as gb
 ctx = gb.try_gpu()
 print('Will use', ctx)
 
@@ -358,10 +358,6 @@ $$\text{loss} = -\frac{1}{N} \sum_{i=1}^N \log p_{\text{target}_i}$$
 任何一个有效模型的困惑度值必须小于预测集中元素的数量。在本例中，困惑度必须小于字典中的字符数$|W|$。如果一个模型可以取得较低的困惑度的值（更靠近1），通常情况下，该模型预测更加准确。
 
 ```{.python .input  n=17}
-from mxnet import autograd
-from mxnet import gluon
-from math import exp
-           
 def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim, 
                           learning_rate, clipping_theta, batch_size,
                           pred_period, pred_len, seqs, get_params, get_inputs,
