@@ -89,12 +89,7 @@ vocab_size = len(char_to_idx)
 以下部分对模型参数进行初始化。参数`num_hiddens`定义了隐含状态的长度。
 
 ```{.python .input  n=3}
-#ctx = gb.try_gpu()
-
-import mxnet as mx
-ctx = mx.gpu(2)
-
-
+ctx = gb.try_gpu()
 num_inputs = vocab_size
 num_hiddens = 256
 num_outputs = vocab_size

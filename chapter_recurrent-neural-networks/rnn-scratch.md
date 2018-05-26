@@ -201,11 +201,7 @@ len(inputs), inputs[0].shape
 当序列中某一个时间戳的输入为一个样本数为`batch_size`（对应模型定义中的$n$）的批量，每个时间戳上的输入和输出皆为形状`batch_size * vocab_size`（对应模型定义中的$n \times x$）的矩阵。假设每个样本对应的隐含状态的长度为`num_hiddens`（对应模型定义中隐含层长度$h$），根据矩阵乘法定义，我们可以推断出模型隐含层和输出层中各个参数的形状。
 
 ```{.python .input  n=12}
-#ctx = gb.try_gpu()
-import mxnet as mx
-ctx = mx.gpu(1)
-
-
+ctx = gb.try_gpu()
 print('will use', ctx)
 
 num_inputs = vocab_size
