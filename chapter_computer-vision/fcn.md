@@ -508,6 +508,7 @@ for i in range(n):
     #imgs += [x, pred, test_labels[i]]
 
 #gb.show_images(imgs, n, 3)
+# TODO(mli): fix vgg.md: out of memory error, too.
 ```
 
 ## 小结
