@@ -52,8 +52,7 @@ $$\hat{\boldsymbol{Y}}_t = \text{softmax}(\boldsymbol{H}_t \boldsymbol{W}_{hy}  
 import sys
 sys.path.append('..')
 import gluonbook as gb
-import mxnet as mx
-from mxnet import autograd, gluon, nd
+from mxnet import autograd, nd
 from mxnet.gluon import loss as gloss
 import random
 import zipfile
@@ -122,11 +121,11 @@ def data_iter_random(corpus_indices, batch_size, num_steps, ctx=None):
     example_indices = list(range(num_examples))
     random.shuffle(example_indices)
     def _data(pos):
-        return corpus_indices[pos: pos + num_steps]
+        return corpus_indices[pos: pos+num_steps]
     for i in range(epoch_size):
         # 每次读取 batch_size 个随机样本。
         i = i * batch_size
-        batch_indices = example_indices[i: i + batch_size]
+        batch_indices = example_indices[i: i+batch_size]
         X = nd.array(
             [_data(j * num_steps) for j in batch_indices], ctx=ctx)
         Y = nd.array(
@@ -154,14 +153,14 @@ def data_iter_consecutive(corpus_indices, batch_size, num_steps, ctx=None):
     corpus_indices = nd.array(corpus_indices, ctx=ctx)
     data_len = len(corpus_indices)
     batch_len = data_len // batch_size
-    indices = corpus_indices[0: batch_size * batch_len].reshape((
+    indices = corpus_indices[0: batch_size*batch_len].reshape((
         batch_size, batch_len))
     # 减一是因为输出的索引是相应输入的索引加一。
     epoch_size = (batch_len - 1) // num_steps
     for i in range(epoch_size):
         i = i * num_steps
-        X = indices[:, i: i + num_steps]
-        Y = indices[:, i + 1: i + num_steps + 1]
+        X = indices[:, i: i+num_steps]
+        Y = indices[:, i+1: i+num_steps+1]
         yield X, Y
 ```
 
@@ -202,7 +201,11 @@ len(inputs), inputs[0].shape
 当序列中某一个时间戳的输入为一个样本数为`batch_size`（对应模型定义中的$n$）的批量，每个时间戳上的输入和输出皆为形状`batch_size * vocab_size`（对应模型定义中的$n \times x$）的矩阵。假设每个样本对应的隐含状态的长度为`num_hiddens`（对应模型定义中隐含层长度$h$），根据矩阵乘法定义，我们可以推断出模型隐含层和输出层中各个参数的形状。
 
 ```{.python .input  n=12}
-ctx = gb.try_gpu()
+#ctx = gb.try_gpu()
+import mxnet as mx
+ctx = mx.gpu(1)
+
+
 print('will use', ctx)
 
 num_inputs = vocab_size
@@ -325,6 +328,8 @@ def grad_clipping(params, theta, ctx):
 2. 在更新前我们对梯度做剪裁。
 3. 在训练模型时，对时序数据采用不同批量采样方法将导致隐含变量初始化的不同。
 
+代码中`is_lstm`部分：当 RNN 使用 LSTM 时才会用到（后面章节会介绍），本节可以忽略。
+
 ### 困惑度（Perplexity）
 
 回忆以下我们之前介绍的[交叉熵损失函数](../chapter_supervised-learning/softmax-regression-scratch.md)。在语言模型中，该损失函数即被预测字符的对数似然平均值的相反数：
@@ -361,7 +366,6 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
         if not is_random_iter:
             state_h = nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx)
             if is_lstm:
-                # 当 RNN 使用 LSTM 时才会用到（后面章节会介绍），本节可以忽略。
                 state_c = nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx)
         train_l_sum = nd.array([0], ctx=ctx)
         num_iters = 0
@@ -370,26 +374,29 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
             if is_random_iter:
                 state_h = nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx)
                 if is_lstm:
-                    # 当 RNN 使用 LSTM 时才会用到（后面章节会介绍），本节可以忽略。
                     state_c = nd.zeros(shape=(batch_size, num_hiddens),
                                        ctx=ctx)
+            # 如使用相邻批量采样，需要从计算图分离隐藏状态变量。
+            else:
+                state_h = state_h.detach()
+                if is_lstm:
+                    state_c = state_c.detach()       
             with autograd.record():
                 # outputs 形状：(batch_size, vocab_size)
                 if is_lstm:
-                    # 当 RNN 使用 LSTM 时才会用到（后面章节会介绍），本节可以忽略。
                     outputs, state_h, state_c = rnn(
                         get_inputs(X, vocab_size), state_h, state_c, *params) 
                 else:
                     outputs, state_h = rnn(
                         get_inputs(X, vocab_size), state_h, *params)
-                # 设 t_ib_j 为时间步 i 批量中的元素 j:
+                # 设 t_ib_j 为时间步 i 批量中的元素 j：
                 # Y 形状：（batch_size * num_steps）
                 # Y = [t_0b_0, t_0b_1, ..., t_1b_0, t_1b_1, ..., ]
-                Y = Y.T.reshape((-1,))
+                y = Y.T.reshape((-1,))
                 # 拼接 outputs，形状：(batch_size * num_steps, vocab_size)。
                 outputs = nd.concat(*outputs, dim=0)
-                # 经上述操作， outputs 和 y 形状已对齐。
-                l = loss(outputs, Y).sum() / (batch_size * num_steps)
+                # loss(outputs, y) 形状：(batch_size * num_steps,)
+                l = loss(outputs, y).sum() / (batch_size * num_steps) 
             l.backward()
             grad_clipping(params, clipping_theta, ctx)
             gb.sgd(params, lr, 1)
@@ -409,13 +416,13 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
 以下定义模型参数和预测序列前缀。
 
 ```{.python .input}
-num_epochs = 200
-num_steps = 20
+num_epochs = 400
+num_steps = 35
 batch_size = 32
-lr = 0.4
+lr = 0.1
 clipping_theta = 5
 prefixes = ['分开', '不分开']
-pred_period = 40
+pred_period = 80
 pred_len = 100
 ```
 

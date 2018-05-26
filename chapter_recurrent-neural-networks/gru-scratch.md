@@ -60,7 +60,7 @@ $$\boldsymbol{H}_t = \boldsymbol{Z}_t \odot \boldsymbol{H}_{t-1}  + (1 - \boldsy
 
 我们先读取并对数据集做简单处理。
 
-```{.python .input}
+```{.python .input  n=1}
 import sys
 sys.path.append('..')
 import gluonbook as gb
@@ -68,7 +68,7 @@ from mxnet import nd
 import zipfile
 ```
 
-```{.python .input  n=1}
+```{.python .input  n=2}
 with zipfile.ZipFile('../data/jaychou_lyrics.txt.zip', 'r') as zin:
     zin.extractall('../data/')
 with open('../data/jaychou_lyrics.txt') as f:
@@ -89,7 +89,12 @@ vocab_size = len(char_to_idx)
 以下部分对模型参数进行初始化。参数`num_hiddens`定义了隐含状态的长度。
 
 ```{.python .input  n=3}
-ctx = gb.try_gpu()
+#ctx = gb.try_gpu()
+
+import mxnet as mx
+ctx = mx.gpu(2)
+
+
 num_inputs = vocab_size
 num_hiddens = 256
 num_outputs = vocab_size
@@ -151,13 +156,13 @@ def gru_rnn(inputs, H, *params):
 
 ```{.python .input  n=5}
 get_inputs = gb.to_onehot
-num_epochs = 200
-num_steps = 20
+num_epochs = 350
+num_steps = 35
 batch_size = 32
-lr = 0.8
+lr = 0.7
 clipping_theta = 5
 prefixes = ['分开', '不分开']
-pred_period = 40
+pred_period = 70
 pred_len = 100
 
 gb.train_and_predict_rnn(gru_rnn, False, num_epochs, num_steps, num_hiddens,
