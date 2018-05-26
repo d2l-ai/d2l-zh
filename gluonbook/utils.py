@@ -264,10 +264,10 @@ def data_iter_random(corpus_indices, batch_size, num_steps, ctx=None):
     example_indices = list(range(num_examples))
     random.shuffle(example_indices)
     def _data(pos):
-        return corpus_indices[pos: pos + num_steps]
+        return corpus_indices[pos: pos+num_steps]
     for i in range(epoch_size):
         i = i * batch_size
-        batch_indices = example_indices[i: i + batch_size]
+        batch_indices = example_indices[i: i+batch_size]
         X = nd.array(
             [_data(j * num_steps) for j in batch_indices], ctx=ctx)
         Y = nd.array(
@@ -280,13 +280,13 @@ def data_iter_consecutive(corpus_indices, batch_size, num_steps, ctx=None):
     corpus_indices = nd.array(corpus_indices, ctx=ctx)
     data_len = len(corpus_indices)
     batch_len = data_len // batch_size
-    indices = corpus_indices[0: batch_size * batch_len].reshape((
+    indices = corpus_indices[0: batch_size*batch_len].reshape((
         batch_size, batch_len))
     epoch_size = (batch_len - 1) // num_steps
     for i in range(epoch_size):
         i = i * num_steps
-        X = indices[:, i: i + num_steps]
-        Y = indices[:, i + 1: i + num_steps + 1]
+        X = indices[:, i: i+num_steps]
+        Y = indices[:, i+1: i+num_steps+1]
         yield X, Y
 
 
@@ -351,6 +351,10 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
                 if is_lstm:
                     state_c = nd.zeros(shape=(batch_size, num_hiddens),
                                        ctx=ctx)
+            else:
+                state_h = state_h.detach()
+                if is_lstm:
+                    state_c = state_c.detach()       
             with autograd.record():
                 if is_lstm:
                     outputs, state_h, state_c = rnn(
@@ -360,13 +364,13 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
                         get_inputs(X, vocab_size), state_h, *params)
                 Y = Y.T.reshape((-1,))
                 outputs = nd.concat(*outputs, dim=0)
-                l = loss(outputs, Y).sum() / (batch_size * num_steps)
+                l = loss(outputs, Y).sum() / (batch_size * num_steps) 
             l.backward()
             grad_clipping(params, clipping_theta, ctx)
             sgd(params, lr, 1)
             train_l_sum = train_l_sum + l
             num_iters += 1
-        if epoch % pred_period == 0:
+        if epoch % pred_period == 0 or epoch == 40:
             print("\nepoch %d, perplexity %f"
                   % (epoch, (train_l_sum / num_iters).exp().asscalar()))
             for prefix in prefixes:
