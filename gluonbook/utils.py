@@ -240,7 +240,7 @@ def resnet18(num_classes):
         )
     return net
 
-def show_images(imgs, num_rows, num_cols, scale=1):
+def show_images(imgs, num_rows, num_cols, scale=2):
     """plot a list of images"""
     figsize = (num_cols*scale, num_rows*scale)
     _, figs = plt.subplots(num_rows, num_cols, figsize=figsize)
