@@ -151,13 +151,13 @@ def gru_rnn(inputs, H, *params):
 
 ```{.python .input  n=5}
 get_inputs = gb.to_onehot
-num_epochs = 350
+num_epochs = 150
 num_steps = 35
 batch_size = 32
-lr = 0.7
+lr = 0.25
 clipping_theta = 5
 prefixes = ['分开', '不分开']
-pred_period = 70
+pred_period = 30
 pred_len = 100
 
 gb.train_and_predict_rnn(gru_rnn, False, num_epochs, num_steps, num_hiddens,

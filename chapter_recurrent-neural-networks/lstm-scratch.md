@@ -96,7 +96,12 @@ vocab_size = len(char_to_idx)
 以下部分对模型参数进行初始化。参数`hidden_dim`定义了隐含状态的长度。
 
 ```{.python .input  n=3}
-ctx = gb.try_gpu()
+#ctx = gb.try_gpu()
+
+import mxnet as mx
+ctx = mx.gpu(3)
+
+
 input_dim = vocab_size
 num_hiddens = 256
 output_dim = vocab_size
@@ -170,13 +175,13 @@ def lstm_rnn(inputs, state_h, state_c, *params):
 
 ```{.python .input  n=5}
 get_inputs = gb.to_onehot
-num_epochs = 450
+num_epochs = 150
 num_steps = 35
 batch_size = 32
-lr = 0.6
+lr = 0.25
 clipping_theta = 5
 prefixes = ['分开', '不分开']
-pred_period = 90
+pred_period = 30
 pred_len = 100
 
 gb.train_and_predict_rnn(lstm_rnn, False, num_epochs, num_steps, num_hiddens,

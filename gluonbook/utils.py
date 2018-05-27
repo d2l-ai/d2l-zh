@@ -344,7 +344,7 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
             if is_lstm:
                 state_c = nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx)
         train_l_sum = nd.array([0], ctx=ctx)
-        num_iters = 0
+        train_l_cnt = 0
         for X, Y in data_iter(corpus_indices, batch_size, num_steps, ctx):
             if is_random_iter:
                 state_h = nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx)
@@ -364,15 +364,15 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
                         get_inputs(X, vocab_size), state_h, *params)
                 y = Y.T.reshape((-1,))
                 outputs = nd.concat(*outputs, dim=0)
-                l = loss(outputs, y).sum() / (batch_size * num_steps) 
+                l = loss(outputs, y)
             l.backward()
             grad_clipping(params, clipping_theta, ctx)
             sgd(params, lr, 1)
-            train_l_sum = train_l_sum + l
-            num_iters += 1
+            train_l_sum = train_l_sum + l.sum()
+            train_l_cnt += l.size
         if epoch % pred_period == 0:
             print("\nepoch %d, perplexity %f"
-                  % (epoch, (train_l_sum / num_iters).exp().asscalar()))
+                  % (epoch, (train_l_sum / train_l_cnt).exp().asscalar()))
             for prefix in prefixes:
                 print(' - ', predict_rnn(
                     rnn, prefix, pred_len, params, num_hiddens, vocab_size,
