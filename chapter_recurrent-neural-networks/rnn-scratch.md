@@ -345,66 +345,74 @@ $$\text{loss} = -\frac{1}{N} \sum_{i=1}^N \log p_{\text{target}_i}$$
 任何一个有效模型的困惑度值必须小于预测集中元素的数量。在本例中，困惑度必须小于字典中的字符数$|W|$。如果一个模型可以取得较低的困惑度的值（更靠近1），通常情况下，该模型预测更加准确。
 
 ```{.python .input  n=17}
-def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
-                          num_hiddens, lr, clipping_theta, batch_size,
-                          vocab_size, pred_period, pred_len, prefixes,
-                          get_params, get_inputs, ctx, corpus_indices,
-                          idx_to_char, char_to_idx, is_lstm=False):
+from math import exp
+           
+def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim, 
+                          learning_rate, clipping_theta, batch_size,
+                          pred_period, pred_len, seqs, get_params, get_inputs,
+                          ctx, corpus_indices, idx_to_char, char_to_idx,
+                          is_lstm=False):
     if is_random_iter:
         data_iter = data_iter_random
     else:
         data_iter = data_iter_consecutive
     params = get_params()
-    loss = gloss.SoftmaxCrossEntropyLoss()
+    
+    softmax_cross_entropy = gloss.SoftmaxCrossEntropyLoss()
 
-    for epoch in range(1, num_epochs + 1):
-        # 如使用相邻批量采样，在同一个 epoch 中，隐藏变量只需要在该 epoch 开始时初始化。
+    for e in range(1, epochs + 1):
+        # 如使用相邻批量采样，在同一个epoch中，隐含变量只需要在该epoch开始的时候初始化。
         if not is_random_iter:
-            state_h = nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx)
+            state_h = nd.zeros(shape=(batch_size, hidden_dim), ctx=ctx)
             if is_lstm:
-                state_c = nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx)
-        train_l_sum = nd.array([0], ctx=ctx)
-        num_iters = 0
-        for X, Y in data_iter(corpus_indices, batch_size, num_steps, ctx):
-            # 如使用随机批量采样，处理每个随机小批量前都需要初始化隐藏变量。
+                # 当RNN使用LSTM时才会用到，这里可以忽略。
+                state_c = nd.zeros(shape=(batch_size, hidden_dim), ctx=ctx)
+        train_loss, num_examples = 0, 0
+        for data, label in data_iter(corpus_indices, batch_size, num_steps, 
+                                     ctx):
+            # 如使用随机批量采样，处理每个随机小批量前都需要初始化隐含变量。
             if is_random_iter:
-                state_h = nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx)
+                state_h = nd.zeros(shape=(batch_size, hidden_dim), ctx=ctx)
                 if is_lstm:
-                    state_c = nd.zeros(shape=(batch_size, num_hiddens),
-                                       ctx=ctx)
+                    # 当RNN使用LSTM时才会用到，这里可以忽略。
+                    state_c = nd.zeros(shape=(batch_size, hidden_dim), ctx=ctx)
             # 如使用相邻批量采样，需要从计算图分离隐藏状态变量。
             else:
                 state_h = state_h.detach()
                 if is_lstm:
-                    state_c = state_c.detach()       
+                    state_c = state_c.detach()
             with autograd.record():
-                # outputs 形状：(batch_size, vocab_size)
+                # outputs 尺寸：(batch_size, vocab_size)
                 if is_lstm:
-                    outputs, state_h, state_c = rnn(
-                        get_inputs(X, vocab_size), state_h, state_c, *params) 
+                    # 当RNN使用LSTM时才会用到，这里可以忽略。
+                    outputs, state_h, state_c = rnn(get_inputs(data, vocab_size), state_h,
+                                                    state_c, *params) 
                 else:
-                    outputs, state_h = rnn(
-                        get_inputs(X, vocab_size), state_h, *params)
-                # 设 t_ib_j 为时间步 i 批量中的元素 j：
-                # Y 形状：（batch_size * num_steps）
-                # Y = [t_0b_0, t_0b_1, ..., t_1b_0, t_1b_1, ..., ]
-                y = Y.T.reshape((-1,))
-                # 拼接 outputs，形状：(batch_size * num_steps, vocab_size)。
+                    outputs, state_h = rnn(get_inputs(data, vocab_size), state_h, *params)
+                # 设t_ib_j为i时间批量中的j元素:
+                # label 尺寸：（batch_size * num_steps）
+                # label = [t_0b_0, t_0b_1, ..., t_1b_0, t_1b_1, ..., ]
+                label = label.T.reshape((-1,))
+                # 拼接outputs，尺寸：(batch_size * num_steps, vocab_size)。
                 outputs = nd.concat(*outputs, dim=0)
-                # loss(outputs, y) 形状：(batch_size * num_steps,)
-                l = loss(outputs, y).sum() / (batch_size * num_steps) 
-            l.backward()
+                # 经上述操作，outputs和label已对齐。
+                loss = softmax_cross_entropy(outputs, label)
+            loss.backward()
+
             grad_clipping(params, clipping_theta, ctx)
-            gb.sgd(params, lr, 1)
-            train_l_sum = train_l_sum + l
-            num_iters += 1
-        if epoch % pred_period == 0:
-            print("\nepoch %d, perplexity %f"
-                  % (epoch, (train_l_sum / num_iters).exp().asscalar()))
-            for prefix in prefixes:
-                print(' - ', predict_rnn(
-                    rnn, prefix, pred_len, params, num_hiddens, vocab_size,
-                    ctx, idx_to_char, char_to_idx, get_inputs, is_lstm))
+            gb.sgd(params, learning_rate, 1)
+
+            train_loss += nd.sum(loss).asscalar()
+            num_examples += loss.size
+
+        if e % pred_period == 0:
+            print("Epoch %d. Perplexity %f" % (e, 
+                                               exp(train_loss/num_examples)))
+            for seq in seqs:
+                print(' - ', predict_rnn(rnn, seq, pred_len, params,
+                      hidden_dim, vocab_size, ctx, idx_to_char, char_to_idx, get_inputs,
+                      is_lstm))
+            print()
 ```
 
 我们将`to_onehot`、`data_iter_random`、`data_iter_consecutive`、`grad_clipping`、`predict_rnn`和`train_and_predict_rnn`、函数定义在gluonbook包中供后面章节调用。
@@ -412,32 +420,38 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
 以下定义模型参数和预测序列前缀。
 
 ```{.python .input}
-num_epochs = 400
+epochs = 200
 num_steps = 35
 batch_size = 32
-lr = 0.1
-clipping_theta = 5
-prefixes = ['分开', '不分开']
-pred_period = 80
-pred_len = 100
+
+seq1 = '分开'
+seq2 = '不分开'
+seq3 = '战争中部队'
+seqs = [seq1, seq2, seq3]
 ```
 
 我们先采用随机批量采样实验循环神经网络谱写歌词。我们假定谱写歌词的前缀分别为“分开”、“不分开”和“战争中部队”。
 
 ```{.python .input  n=18}
-train_and_predict_rnn(rnn, True, num_epochs, num_steps, num_hiddens, lr,
-                      clipping_theta, batch_size, vocab_size, pred_period,
-                      pred_len, prefixes, get_params, get_inputs, ctx,
-                      corpus_indices, idx_to_char, char_to_idx)
+train_and_predict_rnn(rnn=rnn, is_random_iter=False, epochs=200, num_steps=35,
+                      hidden_dim=num_hiddens, learning_rate=0.2,
+                      clipping_theta=5, batch_size=32, pred_period=40,
+                      pred_len=100, seqs=seqs, get_params=get_params,
+                      get_inputs=get_inputs, ctx=ctx,
+                      corpus_indices=corpus_indices, idx_to_char=idx_to_char,
+                      char_to_idx=char_to_idx)
 ```
 
 我们再采用相邻批量采样实验循环神经网络谱写歌词。
 
 ```{.python .input  n=19}
-train_and_predict_rnn(rnn, False, num_epochs, num_steps, num_hiddens, lr,
-                      clipping_theta, batch_size, vocab_size, pred_period,
-                      pred_len, prefixes, get_params, get_inputs, ctx,
-                      corpus_indices, idx_to_char, char_to_idx)
+train_and_predict_rnn(rnn=rnn, is_random_iter=False, epochs=200, num_steps=35,
+                      hidden_dim=num_hiddens, learning_rate=0.2,
+                      clipping_theta=5, batch_size=32, pred_period=40,
+                      pred_len=100, seqs=seqs, get_params=get_params,
+                      get_inputs=get_inputs, ctx=ctx,
+                      corpus_indices=corpus_indices, idx_to_char=idx_to_char,
+                      char_to_idx=char_to_idx)
 ```
 
 可以看到一开始学到简单的字符，然后简单的词，接着是复杂点的词，然后看上去似乎像个句子了。
