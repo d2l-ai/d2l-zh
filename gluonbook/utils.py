@@ -94,12 +94,6 @@ def try_all_gpus():
     return ctxes
 
 
-def SGD(params, lr):
-    """DEPRECATED!"""
-    for param in params:
-        param[:] = param - lr * param.grad
-
-
 def sgd(params, lr, batch_size):
     """Mini-batch stochastic gradient descent."""
     for param in params:
