@@ -412,13 +412,13 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
 以下定义模型参数和预测序列前缀。
 
 ```{.python .input}
-num_epochs = 200
+num_epochs = 250
 num_steps = 35
 batch_size = 32
-lr = 0.25
+lr = 0.2
 clipping_theta = 5
 prefixes = ['分开', '不分开']
-pred_period = 40
+pred_period = 50
 pred_len = 100
 ```
 
