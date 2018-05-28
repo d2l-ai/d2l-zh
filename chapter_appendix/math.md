@@ -113,3 +113,6 @@ $$f(x + \epsilon) \approx f(x) + f'(x) \epsilon + \mathcal{O}(\epsilon^2).$$
 由于$\epsilon$足够小，上式也可以简化成
 
 $$f(x + \epsilon) \approx f(x) + f'(x) \epsilon.$$
+
+
+@TODO(astonz)，不以数学公式结尾。
