@@ -70,21 +70,23 @@ $$\frac{\partial \mathsf{Z}}{\partial \mathsf{X}} = \text{prod}(\frac{\partial \
 
 首先，我们计算目标函数有关损失项和有关正则项的梯度
 
-$$\frac{\partial J}{\partial L} = 1, \quad \frac{\partial J}{\partial s} = 1.$$
+$$\frac{\partial J}{\partial L} = 1,$$ 
+$$\frac{\partial J}{\partial s} = 1.$$
 
 
 
 其次，我们依据链式法则计算目标函数有关输出层变量的梯度$\partial J/\partial \boldsymbol{o} \in \mathbb{R}^{y}$：
 
-$$\frac{\partial J}{\partial \boldsymbol{o}} 
+$$
+\frac{\partial J}{\partial \boldsymbol{o}} 
 = \text{prod}(\frac{\partial J}{\partial L}, \frac{\partial L}{\partial \boldsymbol{o}})
-= \frac{\partial L}{\partial \boldsymbol{o}}.$$
+= \frac{\partial L}{\partial \boldsymbol{o}}.
+$$
 
 
 正则项有关两个参数的梯度可以很直观地计算：
 
-$$\frac{\partial s}{\partial \boldsymbol{W}^{(1)}} = \lambda \boldsymbol{W}^{(1)}, \quad
-\frac{\partial s}{\partial \boldsymbol{W}^{(2)}} = \lambda \boldsymbol{W}^{(2)}.$$
+$$\frac{\partial s}{\partial \boldsymbol{W}^{(1)}} = \lambda \boldsymbol{W}^{(1)},$$ $$\frac{\partial s}{\partial \boldsymbol{W}^{(2)}} = \lambda \boldsymbol{W}^{(2)}.$$
 
 
 

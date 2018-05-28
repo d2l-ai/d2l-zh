@@ -56,7 +56,8 @@ $$\frac{\partial L}{\partial \boldsymbol{o}_t} =  \frac{\partial \ell (\boldsymb
 事实上，这时我们已经可以计算目标函数有关模型参数$\boldsymbol{W}_{yh}$的梯度$\partial L/\partial \boldsymbol{W}_{yh} \in \mathbb{R}^{y \times h}$。需要注意的是，在计算图中，
 $\boldsymbol{W}_{yh}$可以经过$\boldsymbol{o}_1, \ldots, \boldsymbol{o}_T$通向$L$，依据链式法则，
 
-$$\frac{\partial L}{\partial \boldsymbol{W}_{yh}} 
+$$
+\frac{\partial L}{\partial \boldsymbol{W}_{yh}} 
 = \sum_{t=1}^T \text{prod}(\frac{\partial L}{\partial \boldsymbol{o}_t}, \frac{\partial \boldsymbol{o}_t}{\partial \boldsymbol{W}_{yh}}) 
 = \sum_{t=1}^T \frac{\partial L}{\partial \boldsymbol{o}_t} \boldsymbol{h}_t^\top
 $$
@@ -67,7 +68,8 @@ $$
 在计算图中，
 隐含层变量$\boldsymbol{h}_T$只经过$\boldsymbol{o}_T$通向$L$。因此我们先计算目标函数有关最终时刻隐含层变量的梯度$\partial L/\partial \boldsymbol{h}_T \in \mathbb{R}^h$。依据链式法则，我们得到
 
-$$\frac{\partial L}{\partial \boldsymbol{h}_T} = \text{prod}(\frac{\partial L}{\partial \boldsymbol{o}_T}, \frac{\partial \boldsymbol{o}_T}{\partial \boldsymbol{h}_T} ) = \boldsymbol{W}_{yh}^\top \frac{\partial L}{\partial \boldsymbol{o}_T}
+$$
+\frac{\partial L}{\partial \boldsymbol{h}_T} = \text{prod}(\frac{\partial L}{\partial \boldsymbol{o}_T}, \frac{\partial \boldsymbol{o}_T}{\partial \boldsymbol{h}_T} ) = \boldsymbol{W}_{yh}^\top \frac{\partial L}{\partial \boldsymbol{o}_T}
 $$
 
 
@@ -78,7 +80,8 @@ $$
 目标函数有关隐含层变量的梯度$\partial L/\partial \boldsymbol{h}_t \in \mathbb{R}^h$需要按照时刻从晚到早依次计算：
 
 
-$$\frac{\partial L}{\partial \boldsymbol{h}_t} 
+$$
+\frac{\partial L}{\partial \boldsymbol{h}_t} 
 = \text{prod}(\frac{\partial L}{\partial \boldsymbol{h}_{t+1}}, \frac{\partial \boldsymbol{h}_{t+1}}{\partial \boldsymbol{h}_t} ) 
 + \text{prod}(\frac{\partial L}{\partial \boldsymbol{o}_t}, \frac{\partial \boldsymbol{o}_t}{\partial \boldsymbol{h}_t} ) 
 = \boldsymbol{W}_{hh}^\top \frac{\partial L}{\partial \boldsymbol{h}_{t+1}} + \boldsymbol{W}_{yh}^\top \frac{\partial L}{\partial \boldsymbol{o}_t}
@@ -86,7 +89,8 @@ $$
 
 将递归公式展开，对任意$1 \leq t \leq T$，我们可以得到目标函数有关隐含层变量梯度的通项公式
 
-$$\frac{\partial L}{\partial \boldsymbol{h}_t} 
+$$
+\frac{\partial L}{\partial \boldsymbol{h}_t} 
 = \sum_{i=t}^T {(\boldsymbol{W}_{hh}^\top)}^{T-i} \boldsymbol{W}_{yh}^\top \frac{\partial L}{\partial \boldsymbol{o}_{T+t-i}}
 $$
 
@@ -95,12 +99,14 @@ $$
 
 有了各时刻隐含层变量的梯度之后，我们可以计算隐含层中模型参数的梯度$\partial L/\partial \boldsymbol{W}_{hx} \in \mathbb{R}^{h \times x}$和$\partial L/\partial \boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$。在计算图中，它们都可以经过$\boldsymbol{h}_1, \ldots, \boldsymbol{h}_T$通向$L$。依据链式法则，我们有
 
-$$\frac{\partial L}{\partial \boldsymbol{W}_{hx}} 
+$$
+\frac{\partial L}{\partial \boldsymbol{W}_{hx}} 
 = \sum_{t=1}^T \text{prod}(\frac{\partial L}{\partial \boldsymbol{h}_t}, \frac{\partial \boldsymbol{h}_t}{\partial \boldsymbol{W}_{hx}}) 
 = \sum_{t=1}^T \frac{\partial L}{\partial \boldsymbol{h}_t} \boldsymbol{x}_t^\top
 $$
 
-$$\frac{\partial L}{\partial \boldsymbol{W}_{hh}} 
+$$
+\frac{\partial L}{\partial \boldsymbol{W}_{hh}} 
 = \sum_{t=1}^T \text{prod}(\frac{\partial L}{\partial \boldsymbol{h}_t}, \frac{\partial \boldsymbol{h}_t}{\partial \boldsymbol{W}_{hh}}) 
 = \sum_{t=1}^T \frac{\partial L}{\partial \boldsymbol{h}_t} \boldsymbol{h}_{t-1}^\top
 $$

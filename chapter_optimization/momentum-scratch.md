@@ -19,10 +19,12 @@
 
 动量法的提出是为了应对梯度下降的上述问题。广义上，以小批量随机梯度下降为例（当批量大小等于训练集样本数时，该算法即为梯度下降；批量大小为1时即为随机梯度下降），我们对小批量随机梯度算法在每次迭代的步骤做如下修改：
 
+$$
 \begin{align*}
 \boldsymbol{v} &\leftarrow \gamma \boldsymbol{v} + \eta \nabla f_\mathcal{B}(\boldsymbol{x}),\\
 \boldsymbol{x} &\leftarrow \boldsymbol{x} - \boldsymbol{v}.
 \end{align*}
+$$
 
 其中$\boldsymbol{v}$是速度变量，动量超参数$\gamma$满足$0 \leq \gamma \leq 1$。动量法中的学习率$\eta$和有关小批量$\mathcal{B}$的随机梯度$\nabla f_\mathcal{B}(\boldsymbol{x})$已在[“梯度下降和随机梯度下降”](./gd-sgd-scratch.md)一节中描述。
 
@@ -35,12 +37,14 @@ $$y^{(t)} = \gamma y^{(t-1)} + (1-\gamma) x^{(t)}.$$
 
 我们可以对$y^{(t)}$展开：
 
+$$
 \begin{align*}
 y^{(t)}  &= (1-\gamma) x^{(t)} + \gamma y^{(t-1)}\\
          &= (1-\gamma)x^{(t)} + (1-\gamma) \cdot \gamma x^{(t-1)} + \gamma^2y^{(t-2)}\\
          &= (1-\gamma)x^{(t)} + (1-\gamma) \cdot \gamma x^{(t-1)} + (1-\gamma) \cdot \gamma^2x^{(t-2)} + \gamma^3y^{(t-3)}\\
          &\ldots
 \end{align*}
+$$
 
 由于
 

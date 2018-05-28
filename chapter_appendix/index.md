@@ -8,4 +8,5 @@
    math
    aws
    buy-gpu
+   gluonbook
 ```

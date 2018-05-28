@@ -29,8 +29,7 @@ $$\|\boldsymbol{x}\|_1 = \sum_{i=1}^d |x_i|.$$
 
 而$\boldsymbol{x}$的$L_2$范数是该向量元素平方和的平方根：
 
-$$\|\boldsymbol{x}\|_2 = \sqrt{\sum_{i=1}^d x_i^2}.
-$$
+$$\|\boldsymbol{x}\|_2 = \sqrt{\sum_{i=1}^d x_i^2}.$$
 
 我们通常用$\|\boldsymbol{x}\|$指代$\|\boldsymbol{x}\|_2$。
 
@@ -90,15 +89,15 @@ $$\nabla_{\boldsymbol{x}} f(\boldsymbol{x}) = \bigg[\frac{\partial f(\boldsymbol
 
 假设$\boldsymbol{x}$是一个向量，那么
 
-$$\nabla_{\boldsymbol{x}} \boldsymbol{A}^\top \boldsymbol{x} = \boldsymbol{A} \\
+$$
+\nabla_{\boldsymbol{x}} \boldsymbol{A}^\top \boldsymbol{x} = \boldsymbol{A} \\
 \nabla_{\boldsymbol{x}} \boldsymbol{x}^\top \boldsymbol{A}  = \boldsymbol{A} \\
 \nabla_{\boldsymbol{x}} \boldsymbol{x}^\top \boldsymbol{A} \boldsymbol{x}  = (\boldsymbol{A} + \boldsymbol{A}^\top)\boldsymbol{x}\\
-\nabla_{\boldsymbol{x}} \|\boldsymbol{x} \|^2 = \nabla_{\boldsymbol{x}} \boldsymbol{x}^\top \boldsymbol{x} = 2\boldsymbol{x}$$
+\nabla_{\boldsymbol{x}} \|\boldsymbol{x} \|^2 = \nabla_{\boldsymbol{x}} \boldsymbol{x}^\top \boldsymbol{x} = 2\boldsymbol{x}
+$$
 
 假设$\boldsymbol{X}$是一个矩阵，那么
-$$
-\nabla_{\boldsymbol{X}} \|\boldsymbol{X} \|_F^2 = 2\boldsymbol{X}
-$$
+$$\nabla_{\boldsymbol{X}} \|\boldsymbol{X} \|_F^2 = 2\boldsymbol{X}.$$
 
 
 ### 泰勒展开

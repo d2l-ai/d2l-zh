@@ -46,12 +46,6 @@ all_features = pd.concat((train_data.loc[:, 'MSSubClass':'SaleCondition'],
                           test_data.loc[:, 'MSSubClass':'SaleCondition']))
 ```
 
-我们看看头几个训练数据样本长什么样子。
-
-```{.python .input  n=3}
-train_data.head()
-```
-
 训练数据集包括1460个样本、80个特征和1个标签。
 
 ```{.python .input  n=4}
