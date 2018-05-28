@@ -21,7 +21,7 @@
 
 我们使用`nd.Convolution`来演示这个。
 
-```{.python .input  n=1}
+```{.python .input  n=47}
 from mxnet import nd
 
 # 输入输出数据格式是 batch x channel x height x width，这里batch和channel都是1
@@ -34,42 +34,22 @@ out = nd.Convolution(data, w, b, kernel=w.shape[2:], num_filter=w.shape[1])
 print('input:', data, '\n\nweight:', w, '\n\nbias:', b, '\n\noutput:', out)
 ```
 
-```{.json .output n=1}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "input: \n[[[[0. 1. 2.]\n   [3. 4. 5.]\n   [6. 7. 8.]]]]\n<NDArray 1x1x3x3 @cpu(0)> \n\nweight: \n[[[[0. 1.]\n   [2. 3.]]]]\n<NDArray 1x1x2x2 @cpu(0)> \n\nbias: \n[1.]\n<NDArray 1 @cpu(0)> \n\noutput: \n[[[[20. 26.]\n   [38. 44.]]]]\n<NDArray 1x1x2x2 @cpu(0)>\n"
- }
-]
-```
-
 我们可以控制如何移动窗口，和在边缘的时候如何填充窗口。下图演示了`stride=2`和`pad=1`。
 
 ![](../img/padding_strides.gif)
 
-```{.python .input  n=2}
+```{.python .input  n=48}
 out = nd.Convolution(data, w, b, kernel=w.shape[2:], num_filter=w.shape[1],
                      stride=(2,2), pad=(1,1))
 
 print('input:', data, '\n\nweight:', w, '\n\nbias:', b, '\n\noutput:', out)
 ```
 
-```{.json .output n=2}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "input: \n[[[[0. 1. 2.]\n   [3. 4. 5.]\n   [6. 7. 8.]]]]\n<NDArray 1x1x3x3 @cpu(0)> \n\nweight: \n[[[[0. 1.]\n   [2. 3.]]]]\n<NDArray 1x1x2x2 @cpu(0)> \n\nbias: \n[1.]\n<NDArray 1 @cpu(0)> \n\noutput: \n[[[[ 1.  9.]\n   [22. 44.]]]]\n<NDArray 1x1x2x2 @cpu(0)>\n"
- }
-]
-```
-
 当输入数据有多个通道的时候，每个通道会有对应的权重，然后会对每个通道做卷积之后在通道之间求和
 
 $$conv(data, w, b) = \sum_i conv(data[:,i,:,:], w[:,i,:,:], b)$$
 
-```{.python .input  n=3}
+```{.python .input  n=49}
 w = nd.arange(8).reshape((1,2,2,2))
 data = nd.arange(18).reshape((1,2,3,3))
 
@@ -78,21 +58,11 @@ out = nd.Convolution(data, w, b, kernel=w.shape[2:], num_filter=w.shape[0])
 print('input:', data, '\n\nweight:', w, '\n\nbias:', b, '\n\noutput:', out)
 ```
 
-```{.json .output n=3}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "input: \n[[[[ 0.  1.  2.]\n   [ 3.  4.  5.]\n   [ 6.  7.  8.]]\n\n  [[ 9. 10. 11.]\n   [12. 13. 14.]\n   [15. 16. 17.]]]]\n<NDArray 1x2x3x3 @cpu(0)> \n\nweight: \n[[[[0. 1.]\n   [2. 3.]]\n\n  [[4. 5.]\n   [6. 7.]]]]\n<NDArray 1x2x2x2 @cpu(0)> \n\nbias: \n[1.]\n<NDArray 1 @cpu(0)> \n\noutput: \n[[[[269. 297.]\n   [353. 381.]]]]\n<NDArray 1x1x2x2 @cpu(0)>\n"
- }
-]
-```
-
 当输出需要多通道时，每个输出通道有对应权重，然后每个通道上做卷积。
 
 $$conv(data, w, b)[:,i,:,:] = conv(data, w[i,:,:,:], b[i])$$
 
-```{.python .input  n=4}
+```{.python .input  n=50}
 w = nd.arange(16).reshape((2,2,2,2))
 data = nd.arange(18).reshape((1,2,3,3))
 b = nd.array([1,2])
@@ -102,37 +72,17 @@ out = nd.Convolution(data, w, b, kernel=w.shape[2:], num_filter=w.shape[0])
 print('input:', data, '\n\nweight:', w, '\n\nbias:', b, '\n\noutput:', out)
 ```
 
-```{.json .output n=4}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "input: \n[[[[ 0.  1.  2.]\n   [ 3.  4.  5.]\n   [ 6.  7.  8.]]\n\n  [[ 9. 10. 11.]\n   [12. 13. 14.]\n   [15. 16. 17.]]]]\n<NDArray 1x2x3x3 @cpu(0)> \n\nweight: \n[[[[ 0.  1.]\n   [ 2.  3.]]\n\n  [[ 4.  5.]\n   [ 6.  7.]]]\n\n\n [[[ 8.  9.]\n   [10. 11.]]\n\n  [[12. 13.]\n   [14. 15.]]]]\n<NDArray 2x2x2x2 @cpu(0)> \n\nbias: \n[1. 2.]\n<NDArray 2 @cpu(0)> \n\noutput: \n[[[[ 269.  297.]\n   [ 353.  381.]]\n\n  [[ 686.  778.]\n   [ 962. 1054.]]]]\n<NDArray 1x2x2x2 @cpu(0)>\n"
- }
-]
-```
-
 ### 池化层（pooling）
 
 因为卷积层每次作用在一个窗口，它对位置很敏感。池化层能够很好的缓解这个问题。它跟卷积类似每次看一个小窗口，然后选出窗口里面最大的元素，或者平均元素作为输出。
 
-```{.python .input  n=5}
+```{.python .input  n=53}
 data = nd.arange(18).reshape((1,2,3,3))
 
 max_pool = nd.Pooling(data=data, pool_type="max", kernel=(2,2))
 avg_pool = nd.Pooling(data=data, pool_type="avg", kernel=(2,2))
 
 print('data:', data, '\n\nmax pooling:', max_pool, '\n\navg pooling:', avg_pool)
-```
-
-```{.json .output n=5}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "data: \n[[[[ 0.  1.  2.]\n   [ 3.  4.  5.]\n   [ 6.  7.  8.]]\n\n  [[ 9. 10. 11.]\n   [12. 13. 14.]\n   [15. 16. 17.]]]]\n<NDArray 1x2x3x3 @cpu(0)> \n\nmax pooling: \n[[[[ 4.  5.]\n   [ 7.  8.]]\n\n  [[13. 14.]\n   [16. 17.]]]]\n<NDArray 1x2x2x2 @cpu(0)> \n\navg pooling: \n[[[[ 2.  3.]\n   [ 5.  6.]]\n\n  [[11. 12.]\n   [14. 15.]]]]\n<NDArray 1x2x2x2 @cpu(0)>\n"
- }
-]
 ```
 
 下面我们可以开始使用这些层构建模型了。
@@ -142,7 +92,7 @@ print('data:', data, '\n\nmax pooling:', max_pool, '\n\navg pooling:', avg_pool)
 
 我们继续使用FashionMNIST（希望你还没有彻底厌烦这个数据）
 
-```{.python .input  n=6}
+```{.python .input  n=22}
 import sys
 sys.path.append('..')
 from utils import load_data_fashion_mnist
@@ -155,7 +105,7 @@ train_data, test_data = load_data_fashion_mnist(batch_size)
 
 因为卷积网络计算比全连接要复杂，这里我们默认使用GPU来计算。如果GPU不能用，默认使用CPU。（下面这段代码会保存在`utils.py`里可以下次重复使用）。
 
-```{.python .input  n=7}
+```{.python .input  n=65}
 import mxnet as mx
 
 try:
@@ -166,22 +116,9 @@ except:
 ctx
 ```
 
-```{.json .output n=7}
-[
- {
-  "data": {
-   "text/plain": "gpu(0)"
-  },
-  "execution_count": 7,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 我们使用MNIST常用的LeNet，它有两个卷积层，之后是两个全连接层。注意到我们将权重全部创建在`ctx`上：
 
-```{.python .input  n=8}
+```{.python .input  n=66}
 weight_scale = .01
 
 # output channels = 20, kernel = (5,5)
@@ -207,7 +144,7 @@ for param in params:
 
 卷积模块通常是“卷积层-激活层-池化层”。然后转成2D矩阵输出给后面的全连接层。
 
-```{.python .input  n=9}
+```{.python .input  n=74}
 def net(X, verbose=False):
     X = X.as_in_context(W1.context)
     # 第一层卷积
@@ -238,27 +175,17 @@ def net(X, verbose=False):
 
 测试一下，输出中间结果形状（当然可以直接打印结果)和最终结果。
 
-```{.python .input  n=10}
+```{.python .input  n=76}
 for data, _ in train_data:
     net(data, verbose=True)
     break
-```
-
-```{.json .output n=10}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "1st conv block: (256, 20, 12, 12)\n2nd conv block: (256, 1250)\n1st dense: (256, 128)\n2nd dense: (256, 10)\noutput: \n[[-3.3925247e-05  2.0509553e-05  6.9833914e-05 ...  1.1542630e-04\n  -3.1285742e-07 -4.9090349e-06]\n [-1.8353056e-05 -2.6016109e-05  1.2142538e-05 ...  1.3945384e-04\n  -2.2869344e-06 -6.6407934e-05]\n [-2.1752960e-05  1.6249284e-06  6.5040411e-05 ...  9.2870701e-05\n   2.2438833e-06  8.3653076e-06]\n ...\n [ 2.2026910e-05  3.7551144e-05  9.1815993e-05 ...  1.7011777e-04\n   5.2437601e-05 -8.2880133e-06]\n [ 1.4066664e-05  1.6618336e-05  4.6656591e-05 ...  5.6715591e-05\n   1.9566707e-05  6.0198211e-08]\n [-6.9756556e-05  5.0529779e-05  4.9999631e-05 ...  1.9709159e-04\n   4.7282505e-05  6.6513501e-05]]\n<NDArray 256x10 @gpu(0)>\n"
- }
-]
 ```
 
 ## 训练
 
 跟前面没有什么不同的，除了这里我们使用`as_in_context`将`data`和`label`都放置在需要的设备上。（下面这段代码也将保存在`utils.py`里方便之后使用）。
 
-```{.python .input  n=11}
+```{.python .input  n=60}
 import sys
 sys.path.append('..')
 import gluonbook as gb
@@ -289,16 +216,6 @@ for epoch in range(5):
     print("Epoch %d. Loss: %f, Train acc %f, Test acc %f" % (
         epoch, train_loss/len(train_data),
         train_acc/len(train_data), test_acc))
-```
-
-```{.json .output n=11}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "Epoch 0. Loss: 2.302478, Train acc 0.101980, Test acc 0.185998\nEpoch 1. Loss: 1.473099, Train acc 0.448902, Test acc 0.699920\nEpoch 2. Loss: 0.670971, Train acc 0.737964, Test acc 0.768630\nEpoch 3. Loss: 0.535203, Train acc 0.793286, Test acc 0.821214\nEpoch 4. Loss: 0.463232, Train acc 0.827841, Test acc 0.840645\n"
- }
-]
 ```
 
 ## 小结
