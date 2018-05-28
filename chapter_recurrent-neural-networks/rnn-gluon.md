@@ -255,8 +255,9 @@ def train():
             train_l_sum += l
             if batch_i % eval_period == 0 and batch_i > 0:
                 cur_l = train_l_sum / eval_period
-                print('epoch %d, batch %d, loss %.2f, perplexity %.2f' % (
-                    epoch, batch_i, cur_l.asscalar(), cur_l.exp().asscalar()))
+                print('epoch %d, batch %d, train loss %.2f, perplexity %.2f'
+                      % (epoch, batch_i, cur_l.asscalar(),
+                         cur_l.exp().asscalar()))
                 train_l_sum = nd.array([0], ctx=ctx)
         val_l = eval_rnn(val_data)
         print('epoch %d, time %.2fs, valid loss %.2f, perplexity %.2f'

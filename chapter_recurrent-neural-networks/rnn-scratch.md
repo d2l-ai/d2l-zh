@@ -386,8 +386,8 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
                     outputs, state_h = rnn(
                         get_inputs(X, vocab_size), state_h, *params)
                 # 设 t_ib_j 为时间步 i 批量中的元素 j：
-                # Y 形状：（batch_size * num_steps）
-                # Y = [t_0b_0, t_0b_1, ..., t_1b_0, t_1b_1, ..., ]。
+                # y 形状：（batch_size * num_steps,）
+                # y = [t_0b_0, t_0b_1, ..., t_1b_0, t_1b_1, ..., ]。
                 y = Y.T.reshape((-1,))
                 # 拼接 outputs，形状：(batch_size * num_steps, vocab_size)。
                 outputs = nd.concat(*outputs, dim=0)
