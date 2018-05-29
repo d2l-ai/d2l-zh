@@ -87,7 +87,7 @@ gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=3)
 
 ## 小结
 
-VGG通过5个可以重复使用的卷积块来构造网络。根据每块里卷积层个数和输出通道数不同可以定义出不同的VGG模型。
+VGG通过5个可以重复使用的卷积块来构造网络。根据每块里卷积层个数和输出通道数的不同可以定义出不同的VGG模型。
 
 ## 练习
 
