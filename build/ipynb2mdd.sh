@@ -16,7 +16,16 @@ done
 for f in $MD/chapter*/*ipynb; do
     base=$(basename $f)
     jupyter nbconvert --to markdown $f --output "${base%%.*}.md" 
-    rm $f
+	rm $f
+done
+
+for f in $MD/chapter*/*md; do
+	sed -i s/\.svg/\.pdf/ $f
+done
+
+for f in $MD/img/*svg; do
+	rsvg-convert -f pdf -o "${f%%.*}.pdf" $f
+	rm $f
 done
 
 [ -e "$MD.zip" ] && rm "$MD.zip"
