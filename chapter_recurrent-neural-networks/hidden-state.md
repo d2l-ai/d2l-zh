@@ -12,7 +12,7 @@ $$\mathbb{P}(w_t \mid w_{t-(n-1)}, \ldots, w_{t-1}).$$
 ## 不含隐藏状态的神经网络
 
 
-首先让我们回顾一下不含隐藏状态的神经网络，例如只有一个隐藏层的多层感知机。
+让我们回顾一下不含隐藏状态的神经网络，例如只有一个隐藏层的多层感知机。
 
 假设隐藏层的激活函数是$\phi$，对于一个样本数为$n$特征向量维度为$x$的批量数据$\boldsymbol{X} \in \mathbb{R}^{n \times x}$（$\boldsymbol{X}$是一个$n$行$x$列的实数矩阵）来说，那么这个隐含层的输出就是
 
@@ -54,6 +54,6 @@ $$\hat{\boldsymbol{Y}}_t = \text{softmax}(\boldsymbol{H}_t \boldsymbol{W}_{hy}  
 * 你还能想到哪些语言模型的应用？
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6650)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6669)
 
-![](../img/qr_lm.svg)
+![](../img/qr_hidden-state.svg)
