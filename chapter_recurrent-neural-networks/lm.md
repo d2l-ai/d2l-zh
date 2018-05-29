@@ -13,8 +13,7 @@ $$\mathbb{P}(w_1, w_2, \ldots, w_T).$$
 
 既然语言模型这么有用，那该如何计算它呢？根据全概率公式，我们有
 
-$$\mathbb{P}(w_1, w_2, \ldots, w_T) = \prod_{t=1}^T \mathbb{P}(w_t \mid w_1, 
-\ldots, w_{t-1}) .$$
+$$\mathbb{P}(w_1, w_2, \ldots, w_T) = \prod_{t=1}^T \mathbb{P}(w_t \mid w_1, \ldots, w_{t-1}) .$$
 
 例如，
 
@@ -27,8 +26,7 @@ $$\mathbb{P}(w_1, w_2, w_3, w_4) =  \mathbb{P}(w_1) \mathbb{P}(w_2 \mid w_1) \ma
 
 实际上，我们可以通过马尔可夫假设（虽然并不一定成立）来简化语言模型的计算。基于$n-1$阶马尔可夫假设，我们将语言模型改写为
 
-$$\mathbb{P}(w_1, w_2, \ldots, w_T) \approx \prod_{t=1}^T \mathbb{P}(w_t \mid w_{t-(n-1)}, 
-\ldots, w_{t-1}) .$$
+$$\mathbb{P}(w_1, w_2, \ldots, w_T) \approx \prod_{t=1}^T \mathbb{P}(w_t \mid w_{t-(n-1)}, \ldots, w_{t-1}) .$$
 
 
 以上也叫$n$元语法（$n$-grams）。它是基于$n-1$阶马尔可夫链的概率语言模型。当$n$分别为1、2和3时，我们将其分别称作一元语法（unigram）、二元语法（bigram）和三元语法（trigram）。例如，$w_1, w_2, w_3, w_4$在一元、二元和三元语法中的概率分别为
