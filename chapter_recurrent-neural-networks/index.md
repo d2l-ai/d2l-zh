@@ -11,6 +11,7 @@
 .. toctree::
    :maxdepth: 2
 
+   lm
    rnn-scratch
    bptt
    gru-scratch
