@@ -12,6 +12,7 @@
    :maxdepth: 2
 
    lm
+   hidden-state
    rnn-scratch
    bptt
    gru-scratch
