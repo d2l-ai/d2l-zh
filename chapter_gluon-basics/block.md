@@ -19,7 +19,7 @@ class MLP(nn.Block):
         # 其他函数参数，例如下下一节将介绍的模型参数 params。
         super(MLP, self).__init__(**kwargs)
         # 隐藏层。
-        self.hidden = nn.Dense(256, activation='relu')
+        self.hidden = nn.Dense(256, activation='relu') # no mentioning of name_scope?
         # 输出层。
         self.output = nn.Dense(10)
     # 定义模型的前向计算，即如何根据输出计算输出。
@@ -58,7 +58,7 @@ class MySequential(nn.Block):
         self._children[block.name] = block
 
     def forward(self, x):
-        # OrderedDict 保证会按照插入时的顺序便利元素。
+        # OrderedDict 保证会按照插入时的顺序遍历元素。
         for block in self._children.values():
             x = block(x)
         return x
@@ -67,7 +67,7 @@ class MySequential(nn.Block):
 我们用MySequential类来实现前面的MLP类：
 
 ```{.python .input  n=4}
-net = MySequential()
+net = MySequential() # name_scope?
 net.add(nn.Dense(256, activation='relu'))
 net.add(nn.Dense(10))
 net.initialize()
@@ -88,12 +88,12 @@ class FancyMLP(nn.Block):
     def __init__(self, **kwargs):
         super(FancyMLP, self).__init__(**kwargs)
         # 不会被更新的随机权重。
-        self.rand_weight = nd.random.uniform(shape=(20, 20))
+        self.rand_weight = nd.random.uniform(shape=(20, 20)) # use self.params.get_constant? if not parameter, the model is hard to get right
         self.dense = nn.Dense(20, activation='relu')
 
     def forward(self, x):
         x = self.dense(x)
-        # 使用了 nd 包下 relu 和 dot 函数。
+        # 使用了 ndarray 包下 relu 和 dot 函数。
         x = nd.relu(nd.dot(x, self.rand_weight) + 1)
         # 重用了 dense，等价于两层网络但共享了参数。
         x = self.dense(x)
@@ -142,7 +142,7 @@ net(x)
 
 ## 练习
 
-* 在FancyMLP类里我们重用了`dense`，这样对输入形状有了一定要求，尝试改变下输入数据形状试试
+* 在FancyMLP类里我们重用了`dense`，这样对输入形状有了一定要求，尝试改变下输入数据形状试试。
 * 如果我们去掉FancyMLP里面的`asscalar`会有什么问题？
 * 在NestMLP里假设我们改成 `self.net=[nn.Dense(64, activation='relu'),nn.Dense(32, activation='relu')]`，而不是用Sequential类来构造，会有什么问题？
 

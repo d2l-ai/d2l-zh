@@ -1,8 +1,8 @@
 # 模型参数的访问、初始化和共享
 
-在之前的小节里我们一直在使用默认的初始函数，`net.initialize()`，来初始话模型参数。我们也同时介绍过如何访问模型参数的简单方法。这一节我们将深入讲解模型参数的访问和初始化，以及如何在多个层之间共享同一份参数。
+在之前的小节里我们一直在使用默认的初始函数，`net.initialize()`，来初始化模型参数。我们也同时介绍过如何访问模型参数的简单方法。这一节我们将深入讲解模型参数的访问和初始化，以及如何在多个层之间共享同一份参数。
 
-我们首先定义同前的多层感知机、初始化权重和计算前向结果。同前比一点不同的是，在这里我们从MXNet中导入了`init`这个包，它包含了多种模型初始化方法。
+我们首先定义同前的多层感知机、初始化权重和计算前向结果。与之前不同的是，在这里我们从MXNet中导入了`init`这个包，它包含了多种模型初始化方法。
 
 ```{.python .input  n=1}
 from mxnet import init, nd
@@ -25,7 +25,7 @@ y = net(x)
 net[0].params
 ```
 
-可以看到我们得到了一个由参数名称映射到参数的字典。第一个参数的名称为`dense0_weight`，它由`net[0]`的名称（`dense0_`）和自己的变量名（`weight`）组成。而且可以看到它参数的形状为`(256, 20)`，且数据类型为32位浮点数。
+可以看到我们得到了一个由参数名称映射到参数实例的字典。第一个参数的名称为`dense0_weight`，它由`net[0]`的名称（`dense0_`）和自己的变量名（`weight`）组成。而且可以看到它参数的形状为`(256, 20)`，且数据类型为32位浮点数。
 
 为了访问特定参数，我们既可以通过名字来访问字典里的元素，也可以直接使用它的变量名。下面两种方法是等价的，但通常后者的代码可读性更好。
 
@@ -39,7 +39,7 @@ Gluon里参数类型为Parameter类，其包含参数权重和它对应的梯度
 net[0].weight.data()
 ```
 
-梯度的形状跟权重一样。但我们还没有进行反向传播计算，所以它的值全为0.
+梯度的形状跟权重一样。但由于我们还没有进行反向传播计算，所以它的值全为0.
 
 ```{.python .input  n=5}
 net[0].weight.grad()
@@ -51,15 +51,17 @@ net[0].weight.grad()
 net[1].bias.data()
 ```
 
-最后，我们可以使用Block类提供的`collect_params`函数来获取这个实例包含的所有的参数，它的返回同样是一个参数名称到参数的字典。
+最后，我们可以使用Block类提供的`collect_params`函数来获取这个实例包含的所有的参数，它的返回同样是一个参数名称到参数的字典。 # this doesn't explain the recursive nature of collect_params. it sounds the same as what .params does, which isn't the case.
 
 ```{.python .input  n=11}
 net.collect_params()
 ```
 
+params.get_constant is missing
+
 ## 初始化模型参数
 
-当使用默认的模型初始化，Gluon会将权重参数元素初始化为`[-0.07, 0.07]`之间均匀分布的随机数，偏差参数则全为0. 但经常我们需要使用其他的方法来初始话权重，MXNet的[`init`模块](https://mxnet.incubator.apache.org/api/python/optimization/optimization.html#module-mxnet.initializer)里提供了多种预设的初始化方法。例如下面例子我们将权重参数初始化成均值为0，标准差为0.01的正态分布随机数。
+当使用默认的模型初始化，Gluon会将权重参数元素初始化为`[-0.07, 0.07]`之间均匀分布的随机数，偏差参数则全为0. 但经常我们需要使用其他的方法来初始话权重，MXNet的[`init`模块](https://mxnet.incubator.apache.org/api/python/optimization/optimization.html#module-mxnet.initializer) # should the api doc links freeze to a version? 里提供了多种预设的初始化方法。例如下面例子我们将权重参数初始化成均值为0，标准差为0.01的正态分布随机数。
 
 ```{.python .input  n=7}
 # 非首次对模型初始化需要指定 force_reinit。
@@ -95,6 +97,9 @@ net[0].weight.data()[0]
 net[0].weight.set_data(net[0].weight.data()+1)
 net[0].weight.data()[0]
 ```
+
+set_data only works when weight has been initialized. given that set_data is proposed as an
+alternative, this needs to be made clear.
 
 ## 共享模型参数
 
