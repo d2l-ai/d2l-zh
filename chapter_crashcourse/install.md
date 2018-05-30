@@ -14,7 +14,7 @@
 
 第二步，下载包含本书全部代码的包，解压后进入文件夹。Linux/macOS用户可以使用如下命令。
 
-```bash```
+```
 mkdir gluon-tutorials && cd gluon-tutorials
 curl https://zh.gluon.ai/gluon_tutorials_zh.tar.gz -o tutorials.tar.gz
 tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
@@ -25,7 +25,7 @@ Windows用户可以用浏览器下载压缩文件（下载地址：https://zh.gl
 
 在本步骤中，我们也可以配置下载源来使用国内镜像加速下载:
 
-```bash```
+```
 # 优先使用清华 conda 镜像。
 conda config --prepend channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
 
@@ -33,25 +33,25 @@ conda config --prepend channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pk
 conda config --prepend channels http://mirrors.ustc.edu.cn/anaconda/pkgs/free/
 ```
 
-
 第三步，安装运行所需的依赖包并激活该运行环境。Linux/macOS用户可以使用如下命令。
 
-```bash```
+```
 conda env create -f environment.yml
 source activate gluon
-
 ```
+
+由于教程会使用`matplotlib.plot`函数作图，macOS用户需要创建或访问`~/.matplotlib/matplotlibrc`文件并添加一行代码：`backend: TkAgg`。
 
 Windows用户可以使用如下命令。
 
-```bash```
+```
 conda env create -f environment.yml
 activate gluon
 ```
 
 第四步，打开Juputer notebook。运行下面命令。
 
-```bash```
+```
 jupyter notebook
 ```
 
@@ -59,13 +59,13 @@ jupyter notebook
 
 第五步（可选项），如果你是国内用户，建议使用国内Gluon镜像加速数据集和预训练模型的下载。Linux/macOS用户可以运行下面命令。
 
-```bash```
+```
 MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter notebook
 ```
 
 Windows用户可以运行下面命令。
 
-```bash```
+```
 set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter notebook
 ```
 
@@ -75,14 +75,14 @@ set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyte
 
 如果你是Linux用户，可以运行下面命令。之后登出一次。
 
-```bash```
+```
 wget -qO- https://get.docker.com/ | sh
 sudo usermod -aG docker
 ```
 
 第二步，运行下面命令。
 
-```bash```
+```
 docker run -p 8888:8888 muli/gluon-tutorials-zh
 ```
 
@@ -105,7 +105,7 @@ docker run -p 8888:8888 muli/gluon-tutorials-zh
 
 第二步，使用下面命令更新运行环境。
 
-```bash```
+```
 conda env update -f environment.yml
 ```
 

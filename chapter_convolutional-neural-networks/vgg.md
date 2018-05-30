@@ -82,8 +82,7 @@ net.initialize(ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 train_data, test_data = gb.load_data_fashion_mnist(batch_size=128, resize=224)
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
-# TODO(mli): out of memory
-#gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=3)
+gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=3)
 ```
 
 ## 小结

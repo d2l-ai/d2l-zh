@@ -6,7 +6,7 @@
 
 ## 线性回归
 
-让我们先回忆一下上节中的内容。设数据样本数为$n$，特征数为$d$。给定批量数据样本的特征$\boldsymbol{X} \in \mathbb{R}^{n \times d}$和标签$\boldsymbol{y} \in \mathbb{R}^{n \times 1}$，线性回归的批量输出$\boldsymbol{\hat{y}} \in \mathbb{R}^{n \times 1}$的计算表达式为
+让我们先回忆一下上节中的内容。设数据样本数为$n$，输入个数为$d$。给定批量数据样本的特征$\boldsymbol{X} \in \mathbb{R}^{n \times d}$和标签$\boldsymbol{y} \in \mathbb{R}^{n \times 1}$，线性回归的批量输出$\boldsymbol{\hat{y}} \in \mathbb{R}^{n \times 1}$的计算表达式为
 
 $$\boldsymbol{\hat{y}} = \boldsymbol{X} \boldsymbol{w} + b,$$
 
@@ -24,7 +24,7 @@ import random
 
 我们在这里描述用来生成人工训练数据集的真实模型。
 
-设训练数据集样本数为1000，输入个数（特征数）为2。给定随机生成的批量样本特征$\boldsymbol{X} \in \mathbb{R}^{1000 \times 2}$，我们使用线性回归模型真实权重$\boldsymbol{w} = [2, -3.4]^\top$和偏差$b = 4.2$，以及一个随机噪音项$\epsilon$来生成标签
+设训练数据集样本数为1000，输入个数为2。给定随机生成的批量样本特征$\boldsymbol{X} \in \mathbb{R}^{1000 \times 2}$，我们使用线性回归模型真实权重$\boldsymbol{w} = [2, -3.4]^\top$和偏差$b = 4.2$，以及一个随机噪音项$\epsilon$来生成标签
 
 $$\boldsymbol{y} = \boldsymbol{X}\boldsymbol{w} + b + \epsilon,$$
 
