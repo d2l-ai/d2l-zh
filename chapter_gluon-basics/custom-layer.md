@@ -66,7 +66,7 @@ class MyDense(nn.Block):
     def __init__(self, units, in_units, **kwargs):
         super(MyDense, self).__init__(**kwargs)
         self.weight = self.params.get('weight', shape=(in_units, units))
-        self.bias = self.params.get('bias', shape=(units,))        
+        self.bias = self.params.get('bias', shape=(units,))
 
     def forward(self, x):
         linear = nd.dot(x, self.weight.data()) + self.bias.data()
@@ -76,7 +76,7 @@ class MyDense(nn.Block):
 下面，我们实例化MyDense类来看下它的模型参数。
 
 ```{.python .input}
-dense = MyDense(5, in_units=10)
+dense = MyDense(5, in_units=10) # units=5? or (5, 10)? doesn't seem to have reason for inconsistency since neither argument has default value
 dense.params
 ```
 
@@ -96,6 +96,8 @@ net.add(MyDense(2, in_units=32))
 net.initialize()
 net(nd.random.uniform(shape=(2, 64)))
 ```
+
+autograd.Function? customop?
 
 ## 小结
 
