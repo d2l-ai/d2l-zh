@@ -37,8 +37,9 @@ from mxnet import nd, image, gluon, init
 from mxnet.gluon.data.vision import transforms
 
 data_dir = '../data/'
+base_url = 'https://apache-mxnet.s3-accelerate.amazonaws.com/'
 fname = gluon.utils.download(
-    'https://apache-mxnet.s3-accelerate.amazonaws.com/gluon/dataset/hotdog.zip',
+    base_url+'gluon/dataset/hotdog.zip',
     path=data_dir, sha1_hash='fba480ffa8aa7e0febbb511d181409f899b9baa5')
 
 with zipfile.ZipFile(fname, 'r') as f:
