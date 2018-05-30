@@ -11,11 +11,11 @@ $$\mathbb{P}(w_1, w_2, \ldots, w_T).$$
 ## 语言模型的计算
 
 
-既然语言模型这么有用，那该如何计算它呢？根据全概率公式，我们有
+既然语言模型很有用，那该如何计算它呢？根据全概率公式，我们有
 
 $$\mathbb{P}(w_1, w_2, \ldots, w_T) = \prod_{t=1}^T \mathbb{P}(w_t \mid w_1, \ldots, w_{t-1}) .$$
 
-例如，
+例如一段含有四个词的文本序列的概率
 
 $$\mathbb{P}(w_1, w_2, w_3, w_4) =  \mathbb{P}(w_1) \mathbb{P}(w_2 \mid w_1) \mathbb{P}(w_3 \mid w_1, w_2) \mathbb{P}(w_4 \mid w_1, w_2, w_3) .$$
 
