@@ -1,6 +1,6 @@
 # 梯度下降和随机梯度下降——从零开始
 
-本节中，我们将介绍梯度下降（gradient descent）和随机梯度下降（stochastic gradient descent）算法。由于梯度下降是优化算法的核心部分，理解梯度的涵义十分重要。为了帮助大家深刻理解梯度，我们将从数学角度阐释梯度下降的意义。在这个章节中，我们假设目标函数是连续可导。
+本节中，我们将介绍梯度下降（gradient descent）和随机梯度下降（stochastic gradient descent）算法。由于梯度下降是优化算法的核心部分，理解梯度的涵义十分重要。为了帮助大家深刻理解梯度，我们将从数学角度阐释梯度下降的意义。本节中，我们假设目标函数连续可导。
 
 
 
@@ -10,15 +10,15 @@
 
 假设函数$f: \mathbb{R} \rightarrow \mathbb{R}$的输入和输出都是标量。给定足够小的数$\epsilon$，根据泰勒展开公式（参见[“数学基础”](../chapter_appendix/math.md)一节），我们得到以下的近似
 
-$$f(x + \epsilon) \approx f(x) + f'(x) \epsilon + o(\epsilon^2).$$
+$$f(x + \epsilon) \approx f(x) + f'(x) \epsilon.$$
 
 假设$\eta$是一个常数，将$\epsilon$替换为$-\eta f'(x)$后，我们有
 
-$$f(x - \eta f'(x)) \approx f(x) -  \eta f'(x)^2 + o(\ets^2).$$
+$$f(x - \eta f'(x)) \approx f(x) -  \eta f'(x)^2.$$
 
 如果$\eta$是一个很小的正数，那么
 
-$$f(x - \eta f'(x)) \leq f(x).$$
+$$f(x - \eta f'(x)) \lesssim f(x).$$
 
 也就是说，如果目标函数$f(x)$当前的导数$f'(x) \neq 0$，按照
 
