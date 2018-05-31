@@ -25,13 +25,13 @@ done
 for f in $MD/chapter*/*md; do
 	dir=$(dirname "$f")
 	# Remove inner link. 
-	sed -i 's/\[\([^]]*\)\]([^\)]*.md)/\1/' $f
+	sed -i 's/\[\([^]]*\)\]([^\)]*.md)/\1/g' $f
 	# Refer pdf instead of svg.
-	sed -i s/\.svg/\.pdf/ $f
+	sed -i s/\.svg/\.pdf/g $f
 	# Refer img in the same level. 
-	sed -i 's/\](..\/img/\](img/' $f
+	sed -i 's/\](..\/img/\](img/g' $f
 	if [ "$f" != "$dir/index.md" ]; then
-		sed -i s/#\ /##\ / $f
+		sed -i s/#\ /##\ /g $f
 	fi
 done
 
