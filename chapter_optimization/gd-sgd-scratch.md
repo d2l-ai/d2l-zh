@@ -1,6 +1,7 @@
 # 梯度下降和随机梯度下降——从零开始
 
-本节中，我们将介绍梯度下降（gradient descent）和随机梯度下降（stochastic gradient descent）算法。由于梯度下降是优化算法的核心部分，理解梯度的涵义十分重要。为了帮助大家深刻理解梯度，我们将从数学角度阐释梯度下降的意义。
+本节中，我们将介绍梯度下降（gradient descent）和随机梯度下降（stochastic gradient descent）算法。由于梯度下降是优化算法的核心部分，理解梯度的涵义十分重要。为了帮助大家深刻理解梯度，我们将从数学角度阐释梯度下降的意义。本节中，我们假设目标函数连续可导。
+
 
 
 ## 一维梯度下降
@@ -17,7 +18,7 @@ $$f(x - \eta f'(x)) \approx f(x) -  \eta f'(x)^2.$$
 
 如果$\eta$是一个很小的正数，那么
 
-$$f(x - \eta f'(x)) \leq f(x).$$
+$$f(x - \eta f'(x)) \lesssim f(x).$$
 
 也就是说，如果目标函数$f(x)$当前的导数$f'(x) \neq 0$，按照
 
@@ -34,7 +35,7 @@ $$x \leftarrow x - \eta f'(x).$$
 
 需要注意的是，学习率过大可能会造成自变量$x$越过（overshoot）目标函数$f(x)$的最优解，甚至发散。见图7.2（右）。
 
-然而，如果学习率过小，目标函数中自变量的迭代速度会过慢。实际中，一个合适的学习率通常是需要通过多次实验找到的。
+然而，如果学习率过小，目标函数中自变量的收敛速度会过慢。实际中，一个合适的学习率通常是需要通过多次实验找到的。
 
 
 ## 多维梯度下降
@@ -85,7 +86,8 @@ $$\mathbb{E}_i \nabla f_i(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_
 
 ## 小批量随机梯度下降
 
-广义上，每一次迭代可以随机均匀采样一个由训练数据样本索引所组成的小批量（mini-batch）$\mathcal{B}$。类似地，我们可以使用
+广义上，每一次迭代可以随机均匀采样一个由训练数据样本索引所组成的小批量（mini-batch）$\mathcal{B}$。一般来说，
+我们可以通过重复采样（sampling with replacement）或者不重复采样（sampling without replacement）得到同一个小批量中的各个样本。前者允许同一个小批量中出现重复的样本，后者则不允许如此。对于这两者间的任一种方式，我们可以使用
 
 $$\nabla f_\mathcal{B}(\boldsymbol{x}) = \frac{1}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}\nabla f_i(\boldsymbol{x})$$ 
 
@@ -98,6 +100,9 @@ $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f_\mathcal{B}(\boldsymb
 $$\mathbb{E}_\mathcal{B} \nabla f_\mathcal{B}(\boldsymbol{x}) = \nabla f(\boldsymbol{x}).$$
 
 这个算法叫做小批量随机梯度下降。该算法每次迭代的计算开销为$\mathcal{O}(|\mathcal{B}|)$。当批量大小为1时，该算法即随机梯度下降；当批量大小等于训练数据样本数，该算法即梯度下降。和学习率一样，批量大小也是一个超参数。当批量较小时，虽然每次迭代的计算开销较小，但计算机并行处理批量中各个样本的能力往往只得到较少利用。因此，当训练数据集的样本较少时，我们可以使用梯度下降；当样本较多时，我们可以使用小批量梯度下降并依据计算资源选择合适的批量大小。
+
+实际中，我们通常在每个迭代周期（epoch）开始前随机打乱数据集中样本的先后顺序，然后在同一个迭代周期中依次读取小批量的样本。理论上，这种方法能让符合某些特征的目标函数的优化收敛更快 [2]。我们在实验中也用这种方法随机采样小批量样本。
+
 
 
 ## 小批量随机梯度下降的实现
@@ -234,3 +239,5 @@ optimize(batch_size=10, lr=0.002, num_epochs=3, decay_epoch=2,
 ## 参考文献
 
 [1] Stewart, James. “Calculus: Early Transcendentals (7th Edition).” Brooks Cole (2010).
+
+[2] Gürbüzbalaban, Mert, Asu Ozdaglar, and Pablo Parrilo. "Why random reshuffling beats stochastic gradient descent." arXiv preprint arXiv:1510.08560 (2018).

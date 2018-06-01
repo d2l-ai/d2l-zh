@@ -2,7 +2,11 @@
 
 TODO(@astonzhang)<解释符号一览>。
 
-## 向量和$L_p$范数
+
+## 线性代数
+
+
+### 向量和$L_p$范数
 
 设$d$维向量$\boldsymbol{x} = [x_1, x_2, \ldots, x_d]^\top$，或
 
@@ -36,7 +40,7 @@ $$\|\boldsymbol{x}\|_2 = \sqrt{\sum_{i=1}^d x_i^2}.$$
 
 
 
-## 矩阵和Frobenius范数
+### 矩阵和Frobenius范数
 
 设$m$行$n$列矩阵
 
@@ -57,7 +61,11 @@ $$
 $$\|\boldsymbol{X}\|_F = \sqrt{\sum_{i=1}^m \sum_{j=1}^n x_{ij}^2}.$$
 
 
-## 运算
+### 特征向量和特征值
+
+
+
+
 
 
 ### 按元素运算
@@ -115,8 +123,11 @@ $$f(x + \epsilon) \approx f(x) + f'(x) \epsilon + \mathcal{O}(\epsilon^2).$$
 $$f(x + \epsilon) \approx f(x) + f'(x) \epsilon.$$
 
 
+### 黑塞矩阵（Hessian matrix）
+
+
+
+
 ## 概率
 
 ### 全概率和条件概率
-
-
