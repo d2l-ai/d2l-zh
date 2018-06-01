@@ -86,7 +86,8 @@ $$\mathbb{E}_i \nabla f_i(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_
 
 ## 小批量随机梯度下降
 
-广义上，每一次迭代可以随机均匀采样一个由训练数据样本索引所组成的小批量（mini-batch）$\mathcal{B}$。一般来说我们可以采用可重复采样（sampling with replacement）或者不可重复采样（sampling without replacement）。可重复采样意味着随机抓取的小批量数据中可以出现重复的样本，而不可重复采样相反不允许出现重复的样本。基于小批量的样本，我们可以使用
+广义上，每一次迭代可以随机均匀采样一个由训练数据样本索引所组成的小批量（mini-batch）$\mathcal{B}$。一般来说，
+我们可以通过重复采样（sampling with replacement）或者不重复采样（sampling without replacement）得到同一个小批量中的各个样本。前者允许同一个小批量中出现重复的样本，后者则不允许如此。对于这两者间的任一种方式，我们可以使用
 
 $$\nabla f_\mathcal{B}(\boldsymbol{x}) = \frac{1}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}\nabla f_i(\boldsymbol{x})$$ 
 
@@ -100,7 +101,9 @@ $$\mathbb{E}_\mathcal{B} \nabla f_\mathcal{B}(\boldsymbol{x}) = \nabla f(\boldsy
 
 这个算法叫做小批量随机梯度下降。该算法每次迭代的计算开销为$\mathcal{O}(|\mathcal{B}|)$。当批量大小为1时，该算法即随机梯度下降；当批量大小等于训练数据样本数，该算法即梯度下降。和学习率一样，批量大小也是一个超参数。当批量较小时，虽然每次迭代的计算开销较小，但计算机并行处理批量中各个样本的能力往往只得到较少利用。因此，当训练数据集的样本较少时，我们可以使用梯度下降；当样本较多时，我们可以使用小批量梯度下降并依据计算资源选择合适的批量大小。
 
-在实际的训练中，我们还可以把数据集随机分成多份，每份的大小是$\mathcal{B}$。接着我们就可以按顺序用小批量数据来进行梯度下降。由于算法的收敛往往需要几遍数据集迭代以及随机性可以增加算法的收敛的速度，我们可以在每次数据迭代前对数据集进行随机打乱（shuffle）。但在这样的情况下，小批量随机梯度不再是梯度$\nabla f(\boldsymbol{x})$的无偏估计。
+实际中，我们通常在每个迭代周期（epoch）开始前随机打乱数据集中样本的先后顺序，然后在同一个迭代周期中依次读取小批量的样本。理论上，这种方法能让符合某些特征的目标函数的优化收敛更快 [2]。我们在实验中也用这种方法随机采样小批量样本。
+
+
 
 ## 小批量随机梯度下降的实现
 
@@ -236,3 +239,5 @@ optimize(batch_size=10, lr=0.002, num_epochs=3, decay_epoch=2,
 ## 参考文献
 
 [1] Stewart, James. “Calculus: Early Transcendentals (7th Edition).” Brooks Cole (2010).
+
+[2] Gürbüzbalaban, Mert, Asu Ozdaglar, and Pablo Parrilo. "Why random reshuffling beats stochastic gradient descent." arXiv preprint arXiv:1510.08560 (2018).

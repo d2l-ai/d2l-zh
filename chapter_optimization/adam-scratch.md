@@ -5,38 +5,35 @@ Adam是一个组合了动量法和RMSProp的优化算法 [1]。下面我们来�
 
 ## Adam算法
 
-Adam算法使用了动量变量$\boldsymbol{v}$和RMSProp中小批量随机梯度按元素平方的指数加权移动平均变量$\boldsymbol{s}$，并将它们中每个元素初始化为0。在每次迭代中，首先计算小批量随机梯度$\boldsymbol{g}$，并递增迭代次数
-
-$$t \leftarrow t + 1.$$
+Adam算法使用了动量变量$\boldsymbol{v}$和RMSProp中小批量随机梯度按元素平方的指数加权移动平均变量$\boldsymbol{s}$，并将它们中每个元素初始化为0。在每次迭代中，时刻$t$的小批量随机梯度记作$\boldsymbol{g}_t$。
 
 
-和动量法类似，给定超参数$\beta_1$且满足$0 \leq \beta_1 < 1$（算法作者建议设为0.9），将小批量随机梯度$\boldsymbol{g}$的指数加权移动平均记作动量变量$\boldsymbol{v}$:
+和动量法类似，给定超参数$\beta_1$且满足$0 \leq \beta_1 < 1$（算法作者建议设为0.9），将小批量随机梯度的指数加权移动平均记作动量变量$\boldsymbol{v}$，并将它在时刻$t$的值记作$\boldsymbol{v}_t$：
 
-$$\boldsymbol{v} \leftarrow \beta_1 \boldsymbol{v} + (1 - \beta_1) \boldsymbol{g}. $$
+$$\boldsymbol{v}_t \leftarrow \beta_1 \boldsymbol{v}_{t-1} + (1 - \beta_1) \boldsymbol{g}_t. $$
 
 和RMSProp中一样，给定超参数$\beta_2$且满足$0 \leq \beta_2 < 1$（算法作者建议设为0.999），
-将$\boldsymbol{g}$按元素平方后做指数加权移动平均得到$\boldsymbol{s}$：
+将小批量随机梯度按元素平方后做指数加权移动平均得到$\boldsymbol{s}$，并将它在时刻$t$的值记作$\boldsymbol{s}_t$：
 
-$$\boldsymbol{s} \leftarrow \beta_2 \boldsymbol{s} + (1 - \beta_2) \boldsymbol{g} \odot \boldsymbol{g}. $$
+$$\boldsymbol{s}_t \leftarrow \beta_2 \boldsymbol{s}_{t-1} + (1 - \beta_2) \boldsymbol{g}_t \odot \boldsymbol{g}_t. $$
 
-我们在[“动量法——从零开始”](momentum-scratch.md)一节中解释了，$\boldsymbol{v}$和$\boldsymbol{s}$可分别看作是最近$1/(1 - \beta_1)$个时刻$\boldsymbol{g}$和最近$1 / (1 - \beta_2)$个时刻的$\boldsymbol{g} \odot \boldsymbol{g}$的加权平均。假设$\beta_1 = 0.9$，$\beta_2 = 0.999$，如果$\boldsymbol{v}$和$\boldsymbol{s}$中的元素都初始化为0，在时刻1我们得到$\boldsymbol{v} = 0.1\boldsymbol{g}$，$\boldsymbol{s} = 0.001\boldsymbol{g} \odot \boldsymbol{g}$。实际上，在迭代初期$t$较小时，$\boldsymbol{v}$和$\boldsymbol{s}$可能过小而无法较准确地估计$\boldsymbol{g}$和$\boldsymbol{g} \odot \boldsymbol{g}$。为此，Adam算法使用了偏差修正：
+由于我们将$\boldsymbol{v}$和$\boldsymbol{s}$中的元素都初始化为0，
+在时刻$t$我们得到$\boldsymbol{v}_t =  (1-\beta_1) \sum_{i=1}^t \beta_1^{t-i} \boldsymbol{g}_i$。将过去各时刻小批量随机梯度的权值相加，得到 $(1-\beta_1) \sum_{i=1}^t \beta_1^{t-i} = 1 - \beta_1^t$。需要注意的是，当$t$较小时，过去各时刻小批量随机梯度权值之和会较小。例如当$\beta_1 = 0.9$时，$\boldsymbol{v}_1 = 0.1\boldsymbol{g}_1$。为了消除这样的影响，对于任意时刻$t$，我们可以将$\boldsymbol{v}_t$再除以$1 - \beta_1^t$，从而使得过去各时刻小批量随机梯度权值之和为1。这也叫做偏差修正。在Adam算法中，我们对变量$\boldsymbol{v}$和$\boldsymbol{s}$均作偏差修正：
 
-$$\hat{\boldsymbol{v}} \leftarrow \frac{\boldsymbol{v}}{1 - \beta_1^t}, $$
+$$\hat{\boldsymbol{v}}_t \leftarrow \frac{\boldsymbol{v}_t}{1 - \beta_1^t}, $$
 
-$$\hat{\boldsymbol{s}} \leftarrow \frac{\boldsymbol{s}}{1 - \beta_2^t}. $$
+$$\hat{\boldsymbol{s}}_t \leftarrow \frac{\boldsymbol{s}_t}{1 - \beta_2^t}. $$
 
-由于$0 \leq \beta_1, \beta_2 < 1$，在迭代初期$t$较小时，上面两式的分母较接近0，相当于放大了$\boldsymbol{v}$和$\boldsymbol{s}$的值。
-当迭代后期$t$较大时，上面两式的分母较接近1，偏差修正就几乎不再有影响。
 
-接下来，Adam算法使用以上偏差修正后的动量变量$\hat{\boldsymbol{v}}$和RMSProp中小批量随机梯度按元素平方的指数加权移动平均变量$\hat{\boldsymbol{s}}$，将模型参数中每个元素的学习率通过按元素运算重新调整：
+接下来，Adam算法使用以上偏差修正后的变量$\hat{\boldsymbol{v}}_t$和$\hat{\boldsymbol{s}}_t$，将模型参数中每个元素的学习率通过按元素运算重新调整：
 
-$$\boldsymbol{g}^\prime \leftarrow \frac{\eta \hat{\boldsymbol{v}}}{\sqrt{\hat{\boldsymbol{s}} + \epsilon}},$$
+$$\boldsymbol{g}_t^\prime \leftarrow \frac{\eta \hat{\boldsymbol{v}}_t}{\sqrt{\hat{\boldsymbol{s}}_t + \epsilon}},$$
 
 其中$\eta$是初始学习率且$\eta > 0$，$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-8}$。和Adagrad、RMSProp以及Adadelta一样，目标函数自变量中每个元素都分别拥有自己的学习率。
 
-最后，自变量迭代步骤与小批量随机梯度下降类似：
+最后，时刻$t$的自变量$\boldsymbol{x}_t$的迭代步骤与小批量随机梯度下降类似：
 
-$$\boldsymbol{x} \leftarrow \boldsymbol{x} - \boldsymbol{g}^\prime. $$
+$$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \boldsymbol{g}_t^\prime. $$
 
 
 ## Adam的实现
