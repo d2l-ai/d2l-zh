@@ -4,7 +4,7 @@
 
 $$\mathbb{P}(w_t \mid w_{t-(n-1)}, \ldots, w_{t-1}).$$
 
-需要注意的是，以上概率并没有考虑到比$t-(n-1)$更早时刻的词对$w_t$可能的影响。然而，考虑这些影响需要增大$n$的值，那么$n$元语法的模型参数的数量将随之呈指数级增长（可参考上一节的练习）。为了解决$n$元语法的局限性，我们可以在神经网络中引入隐藏状态。隐藏状态既可以捕捉时间序列的历史信息，且模型参数的数量不随着历史而增长。
+需要注意的是，以上概率并没有考虑到比$t-(n-1)$更早时刻的词对$w_t$可能的影响。然而，考虑这些影响需要增大$n$的值，那么$n$元语法的模型参数的数量将随之呈指数级增长（可参考上一节的练习）。为了解决$n$元语法的局限性，我们可以在神经网络中引入隐藏状态。我们既要捕捉时间序列的历史信息，又希望模型参数的数量不随历史增长而增长。
 
 
 
@@ -22,34 +22,38 @@ $$\boldsymbol{H} = \phi(\boldsymbol{X} \boldsymbol{W}_{xh} + \boldsymbol{b}_h),$
 
 $$\boldsymbol{O} = \boldsymbol{H} \boldsymbol{W}_{hy} + \boldsymbol{b}_y,$$
 
-其中输出变量$\boldsymbol{O} \in \mathbb{R}^{n \times y}$, 输出层权重参数$\boldsymbol{W}_{hy} \in \mathbb{R}^{h \times y}$, 输出层偏差参数$\boldsymbol{b}_y \in \mathbb{R}^{1 \times y}$。如果是[分类问题](../chapter_supervised-learning/classification.md)，我们可以使用$\text{softmax}(\boldsymbol{O})$来计算输出类别的概率分布。
+其中输出变量$\boldsymbol{O} \in \mathbb{R}^{n \times y}$, 输出层权重参数$\boldsymbol{W}_{hy} \in \mathbb{R}^{h \times y}$, 输出层偏差参数$\boldsymbol{b}_y \in \mathbb{R}^{1 \times y}$。如果是分类问题，我们可以使用$\text{softmax}(\boldsymbol{O})$来计算输出类别的概率分布。
 
 
 
 ## 含隐藏状态的循环神经网络
 
 
-将上面网络改成循环神经网络，我们首先对输入输出加上时间戳$t$。假设$\boldsymbol{X}_t \in \mathbb{R}^{n \times x}$是序列中的第$t$个批量输入（样本数为$n$，每个样本的特征向量维度为$x$），对应的隐含层输出是隐含状态$\boldsymbol{H}_t  \in \mathbb{R}^{n \times h}$（隐含层长度为$h$），而对应的最终输出是$\hat{\boldsymbol{Y}}_t \in \mathbb{R}^{n \times y}$（每个样本对应的输出向量维度为$y$）。在计算隐含层的输出的时候，循环神经网络只需要在前馈神经网络基础上加上跟前一时间$t-1$输入隐含层$\boldsymbol{H}_{t-1} \in \mathbb{R}^{n \times h}$的加权和。为此，我们引入一个新的可学习的权重$\boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$：
+现在我们考虑时间序列数据，并基于上面描述的多层感知机引入隐藏状态，从而构造循环神经网络。
 
-$$\boldsymbol{H}_t = \phi(\boldsymbol{X}_t \boldsymbol{W}_{xh} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hh}  + \boldsymbol{b}_h)$$
+假设$\boldsymbol{X}_t \in \mathbb{R}^{n \times x}$是序列中时刻$t$的小批量输入（样本数为$n$，输入个数为$x$），该时刻隐藏层变量是$\boldsymbol{H}_t  \in \mathbb{R}^{n \times h}$（隐藏单元个数为$h$），输出层变量是$\boldsymbol{O}_t \in \mathbb{R}^{n \times y}$（输出个数为$y$）。
 
-输出的计算跟前面一致：
+为了使隐藏层变量能够捕捉时间序列的历史信息，我们引入一个新的权重参数$\boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$，并且使当前时刻隐藏层变量同时取决于当前时刻输入$\boldsymbol{X}_t$和上一时刻隐藏层变量$\boldsymbol{H}_{t-1} \in \mathbb{R}^{n \times h}$：
 
-$$\hat{\boldsymbol{Y}}_t = \text{softmax}(\boldsymbol{H}_t \boldsymbol{W}_{hy}  + \boldsymbol{b}_y)$$
+$$\boldsymbol{H}_t = \phi(\boldsymbol{X}_t \boldsymbol{W}_{xh} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hh}  + \boldsymbol{b}_h).$$
 
-一开始我们提到过，隐含状态可以认为是这个网络的记忆。该网络中，时刻$t$的隐含状态就是该时刻的隐含层变量$\boldsymbol{H}_t$。它存储前面时间里面的信息。我们的输出是只基于这个状态。最开始的隐含状态里的元素通常会被初始化为0。
+这里的隐藏层变量又叫隐藏状态。通常，我们会将隐藏状态全部元素初始化为0。隐藏状态捕捉了截至当前时刻的序列历史信息，就像是神经网络当前时刻的状态或记忆一样。神经网络下一时刻的隐藏状态既取决于下一时刻的输入，又取决于当前时刻的隐藏状态。如此循环往复。我们将此类神经网络称作循环神经网络。在时刻$t$，循环神经网络的输出层输出和多层感知机中的计算类似：
+
+$$\boldsymbol{O}_t = \boldsymbol{H}_t \boldsymbol{W}_{hy} + \boldsymbol{b}_y.$$
+
+可见，循环神经网络在时刻$t$的输出基于相同时刻的隐藏状态。循环神经网络的参数包括隐藏层的权重$\boldsymbol{W}_{xh} \in \mathbb{R}^{x \times h}$和偏差 $\boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$，以及输出层的权重$\boldsymbol{W}_{hy} \in \mathbb{R}^{h \times y}$和偏差$\boldsymbol{b}_y \in \mathbb{R}^{1 \times y}$。值得一提的是，即便在不同时刻，循环神经网络始终使用这些模型参数。因此，循环神经网络模型参数的数量不随历史增长而增长。
+
 
 
 ## 小结
 
-* 语言模型是自然语言处理的重要技术。
-* $N$元语法是基于$n-1$阶马尔可夫链的概率语言模型。但它有一定的局限性。
+* 循环神经网络通过引入隐藏状态来捕捉时间序列的历史信息。
+* 循环神经网络模型参数的数量不随历史增长而增长。
 
 
 ## 练习
 
-* 假设训练数据集中有十万个词，四元语法需要存储多少词频和多词相邻频率？
-* 你还能想到哪些语言模型的应用？
+* 如果我们使用循环神经网络来预测一段文本序列的下一个词，输入个数和输出个数分别是多少？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6669)
