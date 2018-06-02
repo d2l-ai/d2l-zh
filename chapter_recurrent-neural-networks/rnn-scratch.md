@@ -244,7 +244,7 @@ def rnn(inputs, state, *params):
     W_xh, W_hh, b_h, W_hy, b_y = params
     outputs = []
     for X in inputs:
-        H = nd.dot(X, W_xh).tanh() + nd.dot(H, W_hh) + b_h
+        H = nd.tanh(nd.dot(X, W_xh) + nd.dot(H, W_hh) + b_h)
         Y = nd.dot(H, W_hy) + b_y
         outputs.append(Y)
     return outputs, H
@@ -260,9 +260,9 @@ outputs, state_new = rnn(get_inputs(X.as_in_context(ctx), vocab_size), state,
 len(outputs), outputs[0].shape, state_new.shape
 ```
 
-## 预测
+## 定义预测函数
 
-以下函数预测以前缀`prefix`开始的接下来的`num_chars`个字符。我们将用它根据训练得到的循环神经网络`rnn`来创作歌词。
+以下函数预测基于前缀`prefix`接下来的`num_chars`个字符。我们将用它根据训练得到的循环神经网络`rnn`来创作歌词。
 
 ```{.python .input  n=15}
 def predict_rnn(rnn, prefix, num_chars, params, num_hiddens, vocab_size, ctx,
@@ -292,9 +292,7 @@ def predict_rnn(rnn, prefix, num_chars, params, num_hiddens, vocab_size, ctx,
 
 ## 裁剪梯度
 
-循环神经网络中较容易出现梯度衰减或爆炸。我们会在[下一节](bptt.md)中解释原因。
-
-为了应对梯度爆炸，我们可以裁剪梯度（clipping gradient）。假设我们把所有模型参数梯度的元素拼接成一个向量 $\boldsymbol{g}$，并设裁剪的阈值是$\theta$。裁剪后梯度
+循环神经网络中较容易出现梯度衰减或爆炸。我们会在[下一节](bptt.md)中解释原因。为了应对梯度爆炸，我们可以裁剪梯度（clipping gradient）。假设我们把所有模型参数梯度的元素拼接成一个向量 $\boldsymbol{g}$，并设裁剪的阈值是$\theta$。裁剪后梯度
 
 $$ \min\left(\frac{\theta}{\|\boldsymbol{g}\|}, 1\right)\boldsymbol{g}$$
 
@@ -312,31 +310,13 @@ def grad_clipping(params, state_h, Y, theta, ctx):
                 param.grad[:] *= theta / norm
 ```
 
-## 训练模型
+## 定义模型训练函数
 
-下面我们可以还是训练模型。跟前面前置网络的教程比，这里有以下几个不同。
+跟之前章节的训练模型函数相比，这里有以下几个不同。
 
-1. 通常我们使用困惑度（Perplexity）这个指标。
-2. 在更新前我们对梯度做剪裁。
-3. 在训练模型时，对时序数据采用不同采样方法将导致隐含变量初始化的不同。
-
-### 困惑度（Perplexity）
-
-回忆以下我们之前介绍的[交叉熵损失函数](../chapter_supervised-learning/softmax-regression-scratch.md)。在语言模型中，该损失函数即被预测字符的对数似然平均值的相反数：
-
-$$\text{loss} = -\frac{1}{N} \sum_{i=1}^N \log p_{\text{target}_i}$$
-
-其中$N$是预测的字符总数，$p_{\text{target}_i}$是在第$i$个预测中真实的下个字符被预测的概率。
-
-而这里的困惑度可以简单的认为就是对交叉熵做exp运算使得数值更好读。
-
-为了解释困惑度的意义，我们先考虑一个完美结果：模型总是把真实的下个字符的概率预测为1。也就是说，对任意的$i$来说，$p_{\text{target}_i} = 1$。这种完美情况下，困惑度值为1。
-
-我们再考虑一个基线结果：给定不重复的字符集合$W$及其字符总数$|W|$，模型总是预测下个字符为集合$W$中任一字符的概率都相同。也就是说，对任意的$i$来说，$p_{\text{target}_i} = 1/|W|$。这种基线情况下，困惑度值为$|W|$。
-
-最后，我们可以考虑一个最坏结果：模型总是把真实的下个字符的概率预测为0。也就是说，对任意的$i$来说，$p_{\text{target}_i} = 0$。这种最坏情况下，困惑度值为正无穷。
-
-任何一个有效模型的困惑度值必须小于预测集中元素的数量。在本例中，困惑度必须小于字典中的字符数$|W|$。如果一个模型可以取得较低的困惑度的值（更靠近1），通常情况下，该模型预测更加准确。
+1. 使用困惑度（perplexity）评价模型。
+2. 在迭代模型参数前裁剪梯度。
+3. 对时序数据采用不同采样方法将导致隐藏状态初始化的不同。
 
 ```{.python .input  n=17}
 def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
@@ -387,6 +367,7 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
                 outputs = nd.concat(*outputs, dim=0)
                 l = loss(outputs, y)
             l.backward()
+            # 裁剪梯度。
             grad_clipping(params, state_h, Y, clipping_theta, ctx)
             gb.sgd(params, lr, 1)
             train_l_sum = train_l_sum + l.sum()
@@ -400,22 +381,35 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
                     ctx, idx_to_char, char_to_idx, get_inputs, is_lstm))
 ```
 
-我们将`to_onehot`、`data_iter_random`、`data_iter_consecutive`、`grad_clipping`、`predict_rnn`和`train_and_predict_rnn`、函数定义在gluonbook包中供后面章节调用。
+### 困惑度
 
-以下定义模型参数和预测序列前缀。
+回忆一下[“分类模型”](../chapter_supervised-learning/classification.md)一节中交叉熵损失函数的定义。困惑度是对交叉熵损失函数做指数运算后得到的值。特别地，
+
+* 最佳情况下，模型总是把标签类别的概率预测为1。此时困惑度为1。
+* 最坏情况下，模型总是把标签类别的概率预测为0。此时困惑度为正无穷。
+* 基线情况下，模型总是预测所有类别的概率都相同。此时困惑度为类别数。
+
+显然，任何一个有效模型的困惑度必须小于类别数。在本例中，困惑度必须小于词典中不同的字符数`vocab_size`。
+
+
+## 训练模型并创作歌词
+
+以上介绍的`to_onehot`、`data_iter_random`、`data_iter_consecutive`、`grad_clipping`、`predict_rnn`和`train_and_predict_rnn`函数均定义在`gluonbook`包中供后面章节调用。有了这些函数以后，我们就可以训练模型了。
+
+首先，设置模型超参数。我们将根据前缀“分开”和“不分开”分别创作长度为100个字符的一段歌词。我们每过40个迭代周期便根据当前训练的模型创作一段歌词。
 
 ```{.python .input}
-num_epochs = 300
+num_epochs = 200
 num_steps = 35
 batch_size = 32
 lr = 0.2
 clipping_theta = 5
 prefixes = ['分开', '不分开']
-pred_period = 60
+pred_period = 40
 pred_len = 100
 ```
 
-我们先采用随机采样实验循环神经网络谱写歌词。我们假定谱写歌词的前缀分别为“分开”、“不分开”和“战争中部队”。
+下面采用随机采样训练模型并创作歌词。
 
 ```{.python .input  n=18}
 train_and_predict_rnn(rnn, True, num_epochs, num_steps, num_hiddens, lr,
@@ -424,7 +418,7 @@ train_and_predict_rnn(rnn, True, num_epochs, num_steps, num_hiddens, lr,
                       corpus_indices, idx_to_char, char_to_idx)
 ```
 
-我们再采用相邻采样实验循环神经网络谱写歌词。
+接下来采用相邻采样训练模型并创作歌词。
 
 ```{.python .input  n=19}
 train_and_predict_rnn(rnn, False, num_epochs, num_steps, num_hiddens, lr,
@@ -433,21 +427,21 @@ train_and_predict_rnn(rnn, False, num_epochs, num_steps, num_hiddens, lr,
                       corpus_indices, idx_to_char, char_to_idx)
 ```
 
-可以看到一开始学到简单的字符，然后简单的词，接着是复杂点的词，然后看上去似乎像个句子了。
-
-
-
 ## 小结
 
-* 通过隐含状态，循环神经网络适合处理前后有依赖关系时序数据样本。
-* 对前后有依赖关系时序数据样本采样时，我们可以使用随机采样和相邻采样。
-* 循环神经网络较容易出现梯度衰减和爆炸。
+* 我们可以应用基于字符级循环神经网络的语言模型来创作歌词。
+* 时序数据采样方式包括随机采样和相邻采样。使用这两种方式的循环神经网络训练略有不同。
+* 当训练循环神经网络时，为了应对梯度爆炸，我们可以裁剪梯度。
+* 困惑度是对交叉熵损失函数做指数运算后得到的值。
 
 
 ## 练习
 
-* 调调参数（例如数据集大小、序列长度、隐含状态长度和学习率），看看对运行时间、perplexity和预测的结果造成的影响。
-* 在随机采样中，如果在同一个epoch中只把隐含变量在该epoch开始的时候初始化会怎么样？
+* 调调超参数，观察并分析对运行时间、困惑度以及创作歌词的结果造成的影响。
+* 将`pred_period`改为1，观察未充分训练的模型（困惑度高）是如何创作歌词的。你获得了什么启发？
+* 将相邻采样改为不从计算图分离隐藏状态，运行时间有没有变化？
+* 将本节中使用的激活函数替换成ReLU，重复本节的实验。
+
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/989)
 
