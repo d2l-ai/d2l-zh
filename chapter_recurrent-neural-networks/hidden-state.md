@@ -1,6 +1,6 @@
 # 隐藏状态
 
-上一节介绍的$n$元语法中，时刻$t$的词$w_t$基于文本序列最近$n-1$个词的条件概率为
+上一节介绍的$n$元语法中，基于文本序列最近$n-1$个词生成时刻$t$的词$w_t$的条件概率为
 
 $$\mathbb{P}(w_t \mid w_{t-(n-1)}, \ldots, w_{t-1}).$$
 
@@ -41,7 +41,7 @@ $$\boldsymbol{H}_t = \phi(\boldsymbol{X}_t \boldsymbol{W}_{xh} + \boldsymbol{H}_
 
 $$\boldsymbol{O}_t = \boldsymbol{H}_t \boldsymbol{W}_{hy} + \boldsymbol{b}_y.$$
 
-可见，循环神经网络在时刻$t$的输出基于相同时刻的隐藏状态。循环神经网络的参数包括隐藏层的权重$\boldsymbol{W}_{xh} \in \mathbb{R}^{x \times h}$和偏差 $\boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$，以及输出层的权重$\boldsymbol{W}_{hy} \in \mathbb{R}^{h \times y}$和偏差$\boldsymbol{b}_y \in \mathbb{R}^{1 \times y}$。值得一提的是，即便在不同时刻，循环神经网络始终使用这些模型参数。因此，循环神经网络模型参数的数量不随历史增长而增长。
+可见，循环神经网络在时刻$t$的输出基于相同时刻的隐藏状态。循环神经网络的参数包括隐藏层的权重$\boldsymbol{W}_{xh} \in \mathbb{R}^{x \times h}, \boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$和偏差 $\boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$，以及输出层的权重$\boldsymbol{W}_{hy} \in \mathbb{R}^{h \times y}$和偏差$\boldsymbol{b}_y \in \mathbb{R}^{1 \times y}$。值得一提的是，即便在不同时刻，循环神经网络始终使用这些模型参数。因此，循环神经网络模型参数的数量不随历史增长而增长。
 
 
 
@@ -53,7 +53,8 @@ $$\boldsymbol{O}_t = \boldsymbol{H}_t \boldsymbol{W}_{hy} + \boldsymbol{b}_y.$$
 
 ## 练习
 
-* 如果我们使用循环神经网络来预测一段文本序列的下一个词，输入个数和输出个数分别是多少？
+* 如果我们使用循环神经网络来预测一段文本序列的下一个词，输出个数应该是多少？
+* 为什么循环神经网络可以表达某时刻的词基于文本序列中所有过去的词的条件概率？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6669)

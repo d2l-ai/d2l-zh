@@ -1,32 +1,43 @@
 # 循环神经网络——从零开始
 
-本节将介绍循环神经网络的设计和实现。有了上一节的知识做铺垫，我们还会把循环神经网络应用在语言模型中。实验中，我们将使用基于循环神经网络的
+前两节介绍了语言模型和循环神经网络的设计。在本节中，我们将从零开始实现一个基于循环神经网络的语言模型，并将它应用于歌词创作中。
 
 
-## 循环神经网络
+## 基于循环神经网络的语言模型
 
-首先回忆一下单隐含层的前馈神经网络的定义，例如[多层感知机](../chapter_supervised-learning/mlp-scratch.md)。假设隐含层的激活函数是$\phi$，对于一个样本数为$n$、特征向量维度为$x$的批量数据$\boldsymbol{X} \in \mathbb{R}^{n \times x}$（$\boldsymbol{X}$是一个$n$行$x$列的实数矩阵）来说，那么这个隐含层的输出就是
-
-$$\boldsymbol{H} = \phi(\boldsymbol{X} \boldsymbol{W}_{xh} + \boldsymbol{b}_h)$$
-
-假定隐含层长度为$h$，其中的$\boldsymbol{W}_{xh} \in \mathbb{R}^{x \times h}$是权重参数。偏移参数 $\boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$在与前一项$\boldsymbol{X} \boldsymbol{W}_{xh} \in \mathbb{R}^{n \times h}$ 相加时使用了[广播](../chapter_crashcourse/ndarray.md)。这个隐含层的输出的形状为$\boldsymbol{H} \in \mathbb{R}^{n \times h}$。
-
-把隐含层的输出$\boldsymbol{H}$作为输出层的输入，最终的输出
-
-$$\hat{\boldsymbol{Y}} = \text{softmax}(\boldsymbol{H} \boldsymbol{W}_{hy} + \boldsymbol{b}_y)$$
-
-假定每个样本对应的输出向量维度为$y$，其中 $\hat{\boldsymbol{Y}} \in \mathbb{R}^{n \times y}, \boldsymbol{W}_{hy} \in \mathbb{R}^{h \times y}, \boldsymbol{b}_y \in \mathbb{R}^{1 \times y}$且两项相加使用了[广播](../chapter_crashcourse/ndarray.md)。
+首先让我们简单回顾一下上一节描述的循环神经网络表达式。给定时刻$t$的小批量输入$\boldsymbol{X}_t \in \mathbb{R}^{n \times x}$（样本数为$n$，输入个数为$x$），设该时刻隐藏状态为$\boldsymbol{H}_t  \in \mathbb{R}^{n \times h}$（隐藏单元个数为$h$），输出层变量为$\boldsymbol{O}_t \in \mathbb{R}^{n \times y}$（输出个数为$y$），隐藏层的激活函数为$\phi$。循环神经网络的矢量计算表达式为
 
 
-将上面网络改成循环神经网络，我们首先对输入输出加上时间戳$t$。假设$\boldsymbol{X}_t \in \mathbb{R}^{n \times x}$是序列中的第$t$个批量输入（样本数为$n$，每个样本的特征向量维度为$x$），对应的隐含层输出是隐含状态$\boldsymbol{H}_t  \in \mathbb{R}^{n \times h}$（隐含层长度为$h$），而对应的最终输出是$\hat{\boldsymbol{Y}}_t \in \mathbb{R}^{n \times y}$（每个样本对应的输出向量维度为$y$）。在计算隐含层的输出的时候，循环神经网络只需要在前馈神经网络基础上加上跟前一时间$t-1$输入隐含层$\boldsymbol{H}_{t-1} \in \mathbb{R}^{n \times h}$的加权和。为此，我们引入一个新的可学习的权重$\boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$：
+$$
+\begin{aligned}
+\boldsymbol{H}_t &= \phi(\boldsymbol{X}_t \boldsymbol{W}_{xh} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hh}  + \boldsymbol{b}_h),\\
+\boldsymbol{O}_t &= \boldsymbol{H}_t \boldsymbol{W}_{hy} + \boldsymbol{b}_y,
+\end{aligned}
+$$
 
-$$\boldsymbol{H}_t = \phi(\boldsymbol{X}_t \boldsymbol{W}_{xh} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hh}  + \boldsymbol{b}_h)$$
+其中隐藏层的权重$\boldsymbol{W}_{xh} \in \mathbb{R}^{x \times h}, \boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$和偏差 $\boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$，以及输出层的权重$\boldsymbol{W}_{hy} \in \mathbb{R}^{h \times y}$和偏差$\boldsymbol{b}_y \in \mathbb{R}^{1 \times y}$为循环神经网络的模型参数。
 
-输出的计算跟前面一致：
+在语言模型中，输入个数$x$为任意词的特征向量长度（本节稍后将讨论）；输出个数$y$为语料库中所有可能的词的个数。对循环神经网络的输出做softmax运算，我们可以得到时刻$t$输出所有可能的词的概率分布$\hat{\boldsymbol{Y}}_t \in \mathbb{R}^{n \times y}$：
 
-$$\hat{\boldsymbol{Y}}_t = \text{softmax}(\boldsymbol{H}_t \boldsymbol{W}_{hy}  + \boldsymbol{b}_y)$$
+$$\hat{\boldsymbol{Y}}_t = \text{softmax}(\boldsymbol{O}_t).$$
 
-一开始我们提到过，隐含状态可以认为是这个网络的记忆。该网络中，时刻$t$的隐含状态就是该时刻的隐含层变量$\boldsymbol{H}_t$。它存储前面时间里面的信息。我们的输出是只基于这个状态。最开始的隐含状态里的元素通常会被初始化为0。
+
+由于隐藏状态$\boldsymbol{H}_t$捕捉了时刻1到时刻$t$的小批量输入$\boldsymbol{X}_1, \ldots, \boldsymbol{X}_t$的信息，$\hat{\boldsymbol{Y}}_t$可以批量表达语言模型中给定文本序列中过去词生成下一个词的条件概率。有了这些条件概率，语言模型可以计算任意文本序列的概率。
+
+
+下面我们看一个例子。为了便于讨论，设小批量中样本数$n=1$，文本序列为“你好世界”。为了表达给定文本序列中过去词生成下一个词的条件概率，我们需要把输入序列和输出序列分别设为“你好世”和“好世界”，如图所示。
+
+
+![基于循环神经网络的语言模型。输入序列和输出序列分别设为“你好世”和“好世界”。](../img/rnn-train.svg)
+
+
+
+
+
+
+
+
+
 
 
 ## 周杰伦歌词数据集
