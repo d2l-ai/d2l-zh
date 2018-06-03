@@ -1,74 +1,74 @@
 # 门控循环单元（GRU）——从零开始
 
-[上一节](bptt.md)中，我们介绍了循环神经网络中的梯度计算方法。我们发现，循环神经网络的隐含层变量梯度可能会出现衰减或爆炸。虽然[梯度裁剪](rnn-scratch.md)可以应对梯度爆炸，但无法解决梯度衰减的问题。因此，给定一个时间序列，例如文本序列，循环神经网络在实际中其实较难捕捉两个时刻距离较大的文本元素（字或词）之间的依赖关系。
+上一节介绍了循环神经网络中的梯度计算方法。我们发现，循环神经网络的梯度可能会衰减或爆炸。虽然裁剪梯度可以应对梯度爆炸，但无法解决梯度衰减的问题。给定一个时间序列，例如文本序列，循环神经网络在实际中较难捕捉时间步距离较大的词之间的依赖关系。
 
-门控循环神经网络（gated recurrent neural networks）的提出，是为了更好地捕捉时序数据中间隔较大的依赖关系。其中，门控循环单元（gated recurrent unit，简称GRU）是一种常用的门控循环神经网络。它由Cho、van Merrienboer、 Bahdanau和Bengio在2014年被提出。
+门控循环神经网络（gated recurrent neural network）的提出，是为了更好地捕捉时间序列中时间步距离较大的依赖关系。其中，门控循环单元（gated recurrent unit，简称GRU）是一种常用的门控循环神经网络 [1, 2]。我们将在下一节介绍另一种门控循环神经网络：长短期记忆。
 
 
 ## 门控循环单元
 
-我们先介绍门控循环单元的构造。它比循环神经网络中的隐含层构造稍复杂一点。
+下面将介绍门控循环单元的设计。它引入了门的概念，从而修改了循环神经网络中隐藏状态的计算方式。输出层的设计不变。
+
 
 ### 重置门和更新门
 
-门控循环单元的隐含状态只包含隐含层变量$\boldsymbol{H}$。假定隐含状态长度为$h$，给定时刻$t$的一个样本数为$n$特征向量维度为$x$的批量数据$\boldsymbol{X}_t \in \mathbb{R}^{n \times x}$和上一时刻隐含状态$\boldsymbol{H}_{t-1} \in \mathbb{R}^{n \times h}$，重置门（reset gate）$\boldsymbol{R}_t \in \mathbb{R}^{n \times h}$和更新门（update gate）$\boldsymbol{Z}_t \in \mathbb{R}^{n \times h}$的定义如下：
+假设隐藏单元个数为$h$，给定时间步$t$的小批量输入$\boldsymbol{X}_t \in \mathbb{R}^{n \times x}$（样本数为$n$，输入个数为$x$），和上一时间步隐藏状态$\boldsymbol{H}_{t-1} \in \mathbb{R}^{n \times h}$。重置门（reset gate）$\boldsymbol{R}_t \in \mathbb{R}^{n \times h}$和更新门（update gate）$\boldsymbol{Z}_t \in \mathbb{R}^{n \times h}$的计算如下：
 
-$$\boldsymbol{R}_t = \sigma(\boldsymbol{X}_t \boldsymbol{W}_{xr} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hr} + \boldsymbol{b}_r)$$
+$$
+\begin{aligned}
+\boldsymbol{R}_t = \sigma(\boldsymbol{X}_t \boldsymbol{W}_{xr} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hr} + \boldsymbol{b}_r),\\
+\boldsymbol{Z}_t = \sigma(\boldsymbol{X}_t \boldsymbol{W}_{xz} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hz} + \boldsymbol{b}_z).
+\end{aligned}
+$$
 
-$$\boldsymbol{Z}_t = \sigma(\boldsymbol{X}_t \boldsymbol{W}_{xz} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hz} + \boldsymbol{b}_z)$$
+其中$\boldsymbol{W}_{xr}, \boldsymbol{W}_{xz} \in \mathbb{R}^{x \times h}$和$\boldsymbol{W}_{hr}, \boldsymbol{W}_{hz} \in \mathbb{R}^{h \times h}$是权重参数，$\boldsymbol{b}_r, \boldsymbol{b}_z \in \mathbb{R}^{1 \times h}$是偏移参数。激活函数$\sigma$是sigmoid函数。[“多层神经网络”](../chapter_supervised-learning/multi-layer.md)一节中介绍过，sigmoid函数可以将元素的值变换到0和1之间。因此，重置门$\boldsymbol{R}_t$和更新门$\boldsymbol{Z}_t$中每个元素的值域都是$[0, 1]$。
 
-其中的$\boldsymbol{W}_{xr}, \boldsymbol{W}_{xz} \in \mathbb{R}^{x \times h}$和$\boldsymbol{W}_{hr}, \boldsymbol{W}_{hz} \in \mathbb{R}^{h \times h}$是可学习的权重参数，$\boldsymbol{b}_r, \boldsymbol{b}_z \in \mathbb{R}^{1 \times h}$是可学习的偏移参数。函数$\sigma$自变量中的三项相加使用了[广播](../chapter_crashcourse/ndarray.md)。
-
-需要注意的是，重置门和更新门使用了值域为$[0, 1]$的函数$\sigma(x) = 1/(1+\text{exp}(-x))$。因此，重置门$\boldsymbol{R}_t$和更新门$\boldsymbol{Z}_t$中每个元素的值域都是$[0, 1]$。
-
-
-### 候选隐含状态
-
-我们可以通过元素值域在$[0, 1]$的更新门和重置门来控制隐含状态中信息的流动：这通常可以应用按元素乘法符$\odot$。门控循环单元中的候选隐含状态$\tilde{\boldsymbol{H}}_t \in \mathbb{R}^{n \times h}$使用了值域在$[-1, 1]$的双曲正切函数tanh做激活函数：
-
-$$\tilde{\boldsymbol{H}}_t = \text{tanh}(\boldsymbol{X}_t \boldsymbol{W}_{xh} + \boldsymbol{R}_t \odot \boldsymbol{H}_{t-1} \boldsymbol{W}_{hh} + \boldsymbol{b}_h)$$
-
-其中的$\boldsymbol{W}_{xh} \in \mathbb{R}^{x \times h}$和$\boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$是可学习的权重参数，$\boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$是可学习的偏移参数。
-
-需要注意的是，候选隐含状态使用了重置门来控制包含过去时刻信息的上一个隐含状态的流入。如果重置门近似0，上一个隐含状态将被丢弃。因此，重置门提供了丢弃与未来无关的过去隐含状态的机制。
+我们可以通过元素值域在$[0, 1]$的更新门和重置门来控制隐藏状态中信息的流动：这通常可以应用按元素乘法符$\odot$。
 
 
-### 隐含状态
+### 候选隐藏状态
 
-隐含状态$\boldsymbol{H}_t \in \mathbb{R}^{n \times h}$的计算使用更新门$\boldsymbol{Z}_t$来对上一时刻的隐含状态$\boldsymbol{H}_{t-1}$和当前时刻的候选隐含状态$\tilde{\boldsymbol{H}}_t$做组合，公式如下：
+接下来，时间步$t$的候选隐藏状态$\tilde{\boldsymbol{H}}_t \in \mathbb{R}^{n \times h}$的计算使用了值域在$[-1, 1]$的tanh函数做激活函数。它在之前描述的循环神经网络隐藏状态表达式的基础上，引入了重置门和按元素乘法：
 
-$$\boldsymbol{H}_t = \boldsymbol{Z}_t \odot \boldsymbol{H}_{t-1}  + (1 - \boldsymbol{Z}_t) \odot \tilde{\boldsymbol{H}}_t$$
+$$\tilde{\boldsymbol{H}}_t = \text{tanh}(\boldsymbol{X}_t \boldsymbol{W}_{xh} + \boldsymbol{R}_t \odot \boldsymbol{H}_{t-1} \boldsymbol{W}_{hh} + \boldsymbol{b}_h),$$
 
-需要注意的是，更新门可以控制过去的隐含状态在当前时刻的重要性。如果更新门一直近似1，过去的隐含状态将一直通过时间保存并传递至当前时刻。这个设计可以应对循环神经网络中的梯度衰减问题，并更好地捕捉时序数据中间隔较大的依赖关系。
+其中$\boldsymbol{W}_{xh} \in \mathbb{R}^{x \times h}$和$\boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$是权重参数，$\boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$是偏移参数。需要注意的是，候选隐藏状态使用了重置门，从而控制包含时间序列历史信息的上一个时间步的隐藏状态如何流入当前时间步的候选隐藏状态。如果重置门近似0，上一个隐藏状态将被丢弃。因此，重置门可以丢弃与预测未来无关的历史信息。
+
+
+### 隐藏状态
+
+最后，隐藏状态$\boldsymbol{H}_t \in \mathbb{R}^{n \times h}$的计算使用更新门$\boldsymbol{Z}_t$来对上一时间步的隐藏状态$\boldsymbol{H}_{t-1}$和当前时间步的候选隐藏状态$\tilde{\boldsymbol{H}}_t$做组合：
+
+$$\boldsymbol{H}_t = \boldsymbol{Z}_t \odot \boldsymbol{H}_{t-1}  + (1 - \boldsymbol{Z}_t) \odot \tilde{\boldsymbol{H}}_t.$$
+
+值得注意的是，更新门可以控制隐藏状态应该如何被包含当前时间步信息的候选隐藏状态所更新。假设更新门在时间步$t^\prime$到$t$（$t^\prime < t$）之间一直近似1。那么，在时间步$t^\prime$到$t$之间的输入信息几乎没有流入时间步$t$的隐藏状态$\boldsymbol{H}_t$。
+实际上，这可以看作是较早时刻的隐藏状态$\boldsymbol{H}_{t^\prime-1}$一直通过时间保存并传递至当前时间步$t$。
+这个设计可以应对循环神经网络中的梯度衰减问题，并更好地捕捉时间序列中时间步距离较大的依赖关系。
 
 我们对门控循环单元的设计稍作总结：
 
-* 重置门有助于捕捉时序数据中短期的依赖关系。
-* 更新门有助于捕捉时序数据中长期的依赖关系。
+* 重置门有助于捕捉时间序列里短期的依赖关系。
+* 更新门有助于捕捉时间序列里长期的依赖关系。
 
-
-输出层的设计可参照[循环神经网络](rnn-scratch.md)中的描述。
 
 
 ## 实验
 
 
-为了实现并展示门控循环单元，我们依然使用周杰伦歌词数据集来训练模型作词。这里除门控循环单元以外的实现已在[循环神经网络](rnn-scratch.md)中介绍。
+为了实现并展示门控循环单元，我们依然使用周杰伦歌词数据集来训练模型作词。这里除门控循环单元以外的实现已在[“循环神经网络——从零开始”](rnn-scratch.md)一节中介绍。
 
 
-### 数据处理
+### 处理数据
 
-我们先读取并对数据集做简单处理。
+我们先读取并简单处理数据集。
 
-```{.python .input  n=1}
+```{.python .input  n=2}
 import sys
 sys.path.append('..')
 import gluonbook as gb
 from mxnet import nd
 import zipfile
-```
 
-```{.python .input  n=2}
 with zipfile.ZipFile('../data/jaychou_lyrics.txt.zip', 'r') as zin:
     zin.extractall('../data/')
 with open('../data/jaychou_lyrics.txt') as f:
@@ -82,11 +82,9 @@ corpus_indices = [char_to_idx[char] for char in corpus_chars]
 vocab_size = len(char_to_idx)
 ```
 
-我们使用onehot来将字符索引表示成向量。
-
 ### 初始化模型参数
 
-以下部分对模型参数进行初始化。参数`num_hiddens`定义了隐含状态的长度。
+以下部分对模型参数进行初始化。超参数`num_hiddens`定义了隐藏单元的个数。
 
 ```{.python .input  n=3}
 ctx = gb.try_gpu()
@@ -126,13 +124,10 @@ def get_params():
 
 ## 定义模型
 
-我们将前面的模型公式翻译成代码。
+下面根据门控循环单元的计算表达式定义模型。
 
 ```{.python .input  n=4}
 def gru_rnn(inputs, H, *params):
-    # inputs: num_steps 个形状为 batch_size * vocab_size 的矩阵。
-    # H: 形状为 batch_size * num_hiddens 的矩阵。
-    # outputs: num_steps 个形状为 batch_size * vocab_size 矩阵。
     W_xz, W_hz, b_z, W_xr, W_hr, b_r, W_xh, W_hh, b_h, W_hy, b_y = params
     outputs = []
     for X in inputs:        
@@ -145,9 +140,9 @@ def gru_rnn(inputs, H, *params):
     return (outputs, H)
 ```
 
-### 训练模型
+### 训练模型并创作歌词
 
-下面我们开始训练模型。我们假定谱写歌词的前缀分别为“分开”、“不分开”和“战争中部队”。这里采用的是相邻批量采样实验门控循环单元谱写歌词。
+设置好超参数后，我们将训练模型并跟据前缀“分开”和“不分开”分别创作长度为100个字符的一段歌词。我们每过30个迭代周期便根据当前训练的模型创作一段歌词。训练模型时采用了相邻采样。
 
 ```{.python .input  n=5}
 get_inputs = gb.to_onehot
@@ -167,20 +162,27 @@ gb.train_and_predict_rnn(gru_rnn, False, num_epochs, num_steps, num_hiddens,
                          char_to_idx)
 ```
 
-可以看到一开始学到简单的字符，然后简单的词，接着是复杂点的词，然后看上去似乎像个句子了。
-
 ## 小结
 
-* 门控循环单元的提出是为了更好地捕捉时序数据中间隔较大的依赖关系。
-* 重置门有助于捕捉时序数据中短期的依赖关系。
-* 更新门有助于捕捉时序数据中长期的依赖关系。
+* 门控循环神经网络的可以更好地捕捉时间序列中时间步距离较大的依赖关系，它包括门控循环单元和长短期记忆。
+* 门控循环单元引入了门的概念，从而修改了循环神经网络中隐藏状态的计算方式。它包括重置门、更新门、候选隐藏状态和隐藏状态。
+* 重置门有助于捕捉时间序列里短期的依赖关系。
+* 更新门有助于捕捉时间序列里长期的依赖关系。
 
 
 ## 练习
 
-* 调调参数（例如数据集大小、序列长度、隐含状态长度和学习率），看看对运行时间、perplexity和预测的结果造成的影响。
-* 在相同条件下，比较门控循环单元和循环神经网络的运行效率。
+* 假设时间步$t^\prime < t$。如果我们只希望用时间步$t^\prime$的输入来预测时间步$t$的输出，每个时间步的重置门和更新门的值最好是多少？
+* 调调超参数，观察并分析对运行时间、困惑度以及创作歌词的结果造成的影响。
+* 在相同条件下，比较门控循环单元和循环神经网络的运行时间。
+
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4042)
 
 ![](../img/qr_gru-scratch.svg)
+
+## 参考文献
+
+[1] Cho, Kyunghyun, et al. "On the properties of neural machine translation: Encoder-decoder approaches." arXiv preprint arXiv:1409.1259 (2014).
+
+[2] Chung, Junyoung, et al. "Empirical evaluation of gated recurrent neural networks on sequence modeling." arXiv preprint arXiv:1412.3555 (2014).

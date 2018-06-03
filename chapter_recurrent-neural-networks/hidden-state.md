@@ -31,7 +31,7 @@ $$\boldsymbol{O} = \boldsymbol{H} \boldsymbol{W}_{hy} + \boldsymbol{b}_y,$$
 
 现在我们考虑时间序列数据，并基于上面描述的多层感知机引入隐藏状态，从而构造循环神经网络。
 
-假设$\boldsymbol{X}_t \in \mathbb{R}^{n \times x}$是序列中时间步$t$的小批量输入（样本数为$n$，输入个数为$x$），该时间步隐藏层变量是$\boldsymbol{H}_t  \in \mathbb{R}^{n \times h}$（隐藏单元个数为$h$），输出层变量是$\boldsymbol{O}_t \in \mathbb{R}^{n \times y}$（输出个数为$y$）。
+假设$\boldsymbol{X}_t \in \mathbb{R}^{n \times x}$是序列中时间步$t$的小批量输入（样本数为$n$，输入个数为$x$），该时间步隐藏层变量是$\boldsymbol{H}_t  \in \mathbb{R}^{n \times h}$（隐藏单元个数为$h$，是超参数），输出层变量是$\boldsymbol{O}_t \in \mathbb{R}^{n \times y}$（输出个数为$y$）。
 
 为了使隐藏层变量能够捕捉时间序列的历史信息，我们引入一个新的权重参数$\boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$，并且使当前时间步隐藏层变量同时取决于当前时间步输入$\boldsymbol{X}_t$和上一时间步隐藏层变量$\boldsymbol{H}_{t-1} \in \mathbb{R}^{n \times h}$：
 

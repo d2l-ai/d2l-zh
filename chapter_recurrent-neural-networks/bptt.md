@@ -79,7 +79,7 @@ $$
 = \sum_{i=t}^T {(\boldsymbol{W}_{hh}^\top)}^{T-i} \boldsymbol{W}_{yh}^\top \frac{\partial L}{\partial \boldsymbol{o}_{T+t-i}}.
 $$
 
-由上式中的指数项可见，当时间步数$T$较大或者时间步$t$较小，目标函数有关隐藏状态的梯度较容易出现衰减和爆炸。这也会影响其他计算中包含$\partial L/\partial \boldsymbol{h}_t $的梯度，例如隐藏层中模型参数的梯度$\partial L/\partial \boldsymbol{W}_{hx} \in \mathbb{R}^{h \times x}$和$\partial L/\partial \boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$。
+由上式中的指数项可见，当时间步数$T$较大或者时间步$t$较小，目标函数有关隐藏状态的梯度较容易出现衰减和爆炸。这也会影响其他计算中包含$\partial L / \partial \boldsymbol{h}_t$的梯度，例如隐藏层中模型参数的梯度$\partial L / \partial \boldsymbol{W}_{hx} \in \mathbb{R}^{h \times x}$和$\partial L / \partial \boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$。
 在图6.2中，$L$通过$\boldsymbol{h}_1, \ldots, \boldsymbol{h}_T$依赖这些模型参数。
 依据链式法则，我们有
 
