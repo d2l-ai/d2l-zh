@@ -2,7 +2,11 @@
 
 TODO(@astonzhang)<解释符号一览>。
 
-## 向量和$L_p$范数
+
+## 线性代数
+
+
+### 向量和$L_p$范数
 
 设$d$维向量$\boldsymbol{x} = [x_1, x_2, \ldots, x_d]^\top$，或
 
@@ -29,15 +33,14 @@ $$\|\boldsymbol{x}\|_1 = \sum_{i=1}^d |x_i|.$$
 
 而$\boldsymbol{x}$的$L_2$范数是该向量元素平方和的平方根：
 
-$$\|\boldsymbol{x}\|_2 = \sqrt{\sum_{i=1}^d x_i^2}.
-$$
+$$\|\boldsymbol{x}\|_2 = \sqrt{\sum_{i=1}^d x_i^2}.$$
 
 我们通常用$\|\boldsymbol{x}\|$指代$\|\boldsymbol{x}\|_2$。
 
 
 
 
-## 矩阵和Frobenius范数
+### 矩阵和Frobenius范数
 
 设$m$行$n$列矩阵
 
@@ -58,7 +61,11 @@ $$
 $$\|\boldsymbol{X}\|_F = \sqrt{\sum_{i=1}^m \sum_{j=1}^n x_{ij}^2}.$$
 
 
-## 运算
+### 特征向量和特征值
+
+
+
+
 
 
 ### 按元素运算
@@ -90,15 +97,15 @@ $$\nabla_{\boldsymbol{x}} f(\boldsymbol{x}) = \bigg[\frac{\partial f(\boldsymbol
 
 假设$\boldsymbol{x}$是一个向量，那么
 
-$$\nabla_{\boldsymbol{x}} \boldsymbol{A}^\top \boldsymbol{x} = \boldsymbol{A} \\
+$$
+\nabla_{\boldsymbol{x}} \boldsymbol{A}^\top \boldsymbol{x} = \boldsymbol{A} \\
 \nabla_{\boldsymbol{x}} \boldsymbol{x}^\top \boldsymbol{A}  = \boldsymbol{A} \\
 \nabla_{\boldsymbol{x}} \boldsymbol{x}^\top \boldsymbol{A} \boldsymbol{x}  = (\boldsymbol{A} + \boldsymbol{A}^\top)\boldsymbol{x}\\
-\nabla_{\boldsymbol{x}} \|\boldsymbol{x} \|^2 = \nabla_{\boldsymbol{x}} \boldsymbol{x}^\top \boldsymbol{x} = 2\boldsymbol{x}$$
+\nabla_{\boldsymbol{x}} \|\boldsymbol{x} \|^2 = \nabla_{\boldsymbol{x}} \boldsymbol{x}^\top \boldsymbol{x} = 2\boldsymbol{x}
+$$
 
 假设$\boldsymbol{X}$是一个矩阵，那么
-$$
-\nabla_{\boldsymbol{X}} \|\boldsymbol{X} \|_F^2 = 2\boldsymbol{X}
-$$
+$$\nabla_{\boldsymbol{X}} \|\boldsymbol{X} \|_F^2 = 2\boldsymbol{X}.$$
 
 
 ### 泰勒展开
@@ -114,3 +121,13 @@ $$f(x + \epsilon) \approx f(x) + f'(x) \epsilon + \mathcal{O}(\epsilon^2).$$
 由于$\epsilon$足够小，上式也可以简化成
 
 $$f(x + \epsilon) \approx f(x) + f'(x) \epsilon.$$
+
+
+### 黑塞矩阵（Hessian matrix）
+
+
+
+
+## 概率
+
+### 全概率和条件概率

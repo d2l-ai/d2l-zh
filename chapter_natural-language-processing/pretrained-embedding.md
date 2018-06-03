@@ -10,9 +10,9 @@
 我们先载入需要的包。
 
 ```{.python .input  n=1}
-from mxnet import gluon
 from mxnet import nd
 from mxnet.contrib import text
+from mxnet.gluon import nn
 ```
 
 ## 由数据集建立词典和载入词向量——以fastText为例
@@ -70,17 +70,17 @@ my_embedding.get_vecs_by_tokens(['hello', 'world'])[:, :5]
 my_embedding.to_indices(['hello', 'world'])
 ```
 
-### 使用预训练词向量初始化gluon.nn.Embedding
+### 使用预训练词向量初始化nn.Embedding
 
-我们可以使用预训练的词向量初始化`gluon.nn.Embedding`。
+我们可以使用预训练的词向量初始化`nn.Embedding`。
 
 ```{.python .input  n=8}
-layer = gluon.nn.Embedding(len(my_embedding), my_embedding.vec_len)
+layer = nn.Embedding(len(my_embedding), my_embedding.vec_len)
 layer.initialize()
 layer.weight.set_data(my_embedding.idx_to_vec)
 ```
 
-使用词典中“hello”和“world”两个词在词典中的索引，我们可以通过`gluon.nn.Embedding`得到它们的词向量，并向神经网络的下一层传递。
+使用词典中“hello”和“world”两个词在词典中的索引，我们可以通过`nn.Embedding`得到它们的词向量，并向神经网络的下一层传递。
 
 ```{.python .input  n=9}
 layer(nd.array([2, 1]))[:, :5]
@@ -110,12 +110,8 @@ print(len(glove_6b50d))
 我们可以访问词向量的属性。
 
 ```{.python .input  n=12}
-# 词到索引。
-print(glove_6b50d.token_to_idx['beautiful'])
-# 索引到词。
-print(glove_6b50d.idx_to_token[3367])
-# 词向量长度。
-print(glove_6b50d.vec_len)
+# 词到索引，索引到词。
+glove_6b50d.token_to_idx['beautiful'], glove_6b50d.idx_to_token[3367]
 ```
 
 ## 预训练词向量的应用——以GloVe为例
@@ -123,9 +119,8 @@ print(glove_6b50d.vec_len)
 为了应用预训练词向量，我们需要定义余弦相似度。它可以比较两个向量之间的相似度。
 
 ```{.python .input  n=13}
-from mxnet import nd
 def cos_sim(x, y):
-    return nd.dot(x, y) / (nd.norm(x) * nd.norm(y))
+    return nd.dot(x, y) / (x.norm() * y.norm())
 ```
 
 余弦相似度的值域在-1到1之间。余弦相似度值越大，两个向量越接近。
@@ -135,8 +130,7 @@ x = nd.array([1, 2])
 y = nd.array([10, 20])
 z = nd.array([-1, -2])
 
-print(cos_sim(x, y))
-print(cos_sim(x, z))
+cos_sim(x, y), cos_sim(x, z)
 ```
 
 ### 求近似词
@@ -145,7 +139,7 @@ print(cos_sim(x, z))
 
 ```{.python .input}
 def norm_vecs_by_row(x):
-    return x / nd.sqrt(nd.sum(x * x, axis=1)).reshape((-1,1))
+    return x / nd.sum(x * x, axis=1).sqrt().reshape((-1, 1))
 
 def get_knn(token_embedding, k, word):
     word_vec = token_embedding.get_vecs_by_tokens([word]).reshape((-1, 1))

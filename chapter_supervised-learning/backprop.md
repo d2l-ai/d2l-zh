@@ -49,7 +49,7 @@ $$J = L + s.$$
 
 为了可视化模型变量和参数之间在计算中的依赖关系，我们可以绘制模型计算图，如图3.6所示。例如，正则化项$s$的计算依赖模型参数$\boldsymbol{W}^{(1)}$和$\boldsymbol{W}^{(2)}$。
 
-![模型计算中的依赖关系](../img/backprop.svg)
+![正则化的多层感知机模型计算中的依赖关系。方框中字母代表变量，圆圈中字母代表数据样本特征和标签，无边框的字母代表模型参数。](../img/backprop.svg)
 
 
 ### 正向传播
@@ -70,21 +70,23 @@ $$\frac{\partial \mathsf{Z}}{\partial \mathsf{X}} = \text{prod}(\frac{\partial \
 
 首先，我们计算目标函数有关损失项和有关正则项的梯度
 
-$$\frac{\partial J}{\partial L} = 1, \quad \frac{\partial J}{\partial s} = 1.$$
+$$\frac{\partial J}{\partial L} = 1,$$ 
+$$\frac{\partial J}{\partial s} = 1.$$
 
 
 
 其次，我们依据链式法则计算目标函数有关输出层变量的梯度$\partial J/\partial \boldsymbol{o} \in \mathbb{R}^{y}$：
 
-$$\frac{\partial J}{\partial \boldsymbol{o}} 
+$$
+\frac{\partial J}{\partial \boldsymbol{o}} 
 = \text{prod}(\frac{\partial J}{\partial L}, \frac{\partial L}{\partial \boldsymbol{o}})
-= \frac{\partial L}{\partial \boldsymbol{o}}.$$
+= \frac{\partial L}{\partial \boldsymbol{o}}.
+$$
 
 
 正则项有关两个参数的梯度可以很直观地计算：
 
-$$\frac{\partial s}{\partial \boldsymbol{W}^{(1)}} = \lambda \boldsymbol{W}^{(1)}, \quad
-\frac{\partial s}{\partial \boldsymbol{W}^{(2)}} = \lambda \boldsymbol{W}^{(2)}.$$
+$$\frac{\partial s}{\partial \boldsymbol{W}^{(1)}} = \lambda \boldsymbol{W}^{(1)},$$ $$\frac{\partial s}{\partial \boldsymbol{W}^{(2)}} = \lambda \boldsymbol{W}^{(2)}.$$
 
 
 

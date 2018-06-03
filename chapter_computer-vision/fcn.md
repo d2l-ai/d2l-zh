@@ -66,7 +66,9 @@ imgs = []
 for i in range(3):
     imgs += [train_images[i], train_labels[i]]
 
-gb.show_images(imgs, nrows=3, ncols=2, figsize=(12,8))
+# TODO(mli) temporarily disable show_images to avoid 
+# TeX capacity exceeded error.
+#gb.show_images(imgs, 3, 2)
 [im.shape for im in imgs]
 ```
 
@@ -85,7 +87,9 @@ for _ in range(3):
     imgs += rand_crop(train_images[0], train_labels[0],
                       200, 300)
 
-gb.show_images(imgs, nrows=3, ncols=2, figsize=(12,8))
+# TODO(mli) temporarily disable show_images to avoid 
+# TeX capacity exceeded error.
+#gb.show_images(imgs, 3, 2)
 ```
 
 接下来我们列出每个物体和背景对应的RGB值
@@ -312,7 +316,7 @@ plt.show()
 
 最后的卷积转置层则使用双线性差值。对于卷积转置层，我们可以自定义一个初始化类。简单起见，这里我们直接通过权重的`set_data`函数改写权重。记得我们介绍过Gluon使用延后初始化来减少构造网络时需要制定输入大小。所以我们先随意初始化它，计算一次`forward`，然后再改写权重。
 
-```{.python .input  n=110}
+```{.python .input  n=17}
 from mxnet import init
 
 conv_trans = net[-1]
@@ -329,7 +333,7 @@ conv_trans.weight.set_data(bilinear_kernel(*shape[0:3]))
 
 这时候我们可以真正开始训练了。值得一提的是我们使用卷积转置层的通道来预测像素的类别。所以在做`softmax`和预测的时候我们需要使用通道这个维度，既维度1. 所以在`SoftmaxCrossEntropyLoss`里加入了额外了`axis=1`选项。其他的部分跟之前的训练一致。
 
-```{.python .input}
+```{.python .input  n=18}
 loss = gluon.loss.SoftmaxCrossEntropyLoss(axis=1)
 
 ctx = gb.try_all_gpus()
@@ -338,14 +342,14 @@ net.collect_params().reset_ctx(ctx)
 trainer = gluon.Trainer(net.collect_params(),
                         'sgd', {'learning_rate': .1, 'wd':1e-3})
 
-gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=10)
+#gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=10)
 ```
 
 ## 预测
 
 预测函数跟之前的图片分类预测类似，但跟上面一样，主要不同在于我们需要在`axis=1`上做`argmax`. 同时我们定义`image2label`的反函数，它将预测值转成图片。
 
-```{.python .input  n=27}
+```{.python .input  n=19}
 def predict(im):
     data = normalize_image(im)
     data = data.transpose((2,0,1)).expand_dims(axis=0)
@@ -361,17 +365,18 @@ def label2image(pred):
 
 我们读取前几张测试图片并对其进行预测。
 
-```{.python .input}
+```{.python .input  n=20}
 test_images, test_labels = read_images(train=False)
 
 n = 6
 imgs = []
 for i in range(n):
     x = test_images[i]
-    pred = label2image(predict(x))
-    imgs += [x, pred, test_labels[i]]
+    #pred = label2image(predict(x))
+    #imgs += [x, pred, test_labels[i]]
 
-gb.show_images(imgs, nrows=n, ncols=3, figsize=(6,10))
+#gb.show_images(imgs, n, 3)
+# TODO(mli): fix vgg.md: out of memory error, too.
 ```
 
 ## 小结

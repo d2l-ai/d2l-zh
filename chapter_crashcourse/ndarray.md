@@ -203,8 +203,8 @@ x
 ```{.python .input  n=22}
 import numpy as np
 x = np.ones((2, 3))
-y = nd.array(x)  # NumPy变换成NDArray。
-z = y.asnumpy()  # NDArray变换成NumPy。
+y = nd.array(x)  # NumPy 变换成 NDArray。
+z = y.asnumpy()  # NDArray 变换成 NumPy。
 z, y
 ```
 

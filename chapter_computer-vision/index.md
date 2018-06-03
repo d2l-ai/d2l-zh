@@ -8,6 +8,7 @@
 
    image-augmentation
    fine-tuning
+   bounding-box
    object-detection
    ssd
    yolo

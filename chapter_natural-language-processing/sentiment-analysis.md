@@ -12,15 +12,17 @@
 首先，我们当然需要加载MXNet和Gluon。
 
 ```{.python .input  n=1}
-from collections import Counter
+import sys
+sys.path.append('..')
+import collections
+import gluonbook as gb
+import mxnet as mx
+from mxnet import autograd, gluon, init, metric, nd
+from mxnet.gluon import loss as gloss, nn, rnn
+from mxnet.contrib import text
 import os
 import random
-import time
 import zipfile
-
-import mxnet as mx
-from mxnet import autograd, gluon, init, nd
-from mxnet.contrib import text
 ```
 
 ### 读取IMDb数据集
@@ -50,31 +52,30 @@ if demo:
 ```
 
 ```{.python .input}
-def readIMDB(dir_url, seg = 'train'):
-    pos_or_neg = ['pos','neg']
-    dataset = []
-    for lb in pos_or_neg:
-        files = os.listdir('../data/' + dir_url + '/' + seg + '/' + lb + '/')
+def readIMDB(dir_url, seg='train'):
+    pos_or_neg = ['pos', 'neg']
+    data = []
+    for label in pos_or_neg:
+        files = os.listdir('../data/' + dir_url + '/' + seg + '/' + label + '/')
         for file in files:
-            with open('../data/' + dir_url + '/' + seg + '/' + lb + '/' 
+            with open('../data/' + dir_url + '/' + seg + '/' + label + '/' 
                       + file, 'r', encoding='utf8') as rf:
-                review = rf.read().replace('\n','')
-                if lb == 'pos':
-                    dataset.append([review, 1])
-                elif lb == 'neg':
-                    dataset.append([review, 0])
-    return dataset
+                review = rf.read().replace('\n', '')
+                if label == 'pos':
+                    data.append([review, 1])
+                elif label == 'neg':
+                    data.append([review, 0])
+    return data
 
 if demo:
-    train_dataset = readIMDB('aclImdb_tiny/', 'train')
-    test_dataset = readIMDB('aclImdb_tiny/', 'test')
+    train_data = readIMDB('aclImdb_tiny/', 'train')
+    test_data = readIMDB('aclImdb_tiny/', 'test')
 else:
-    train_dataset = readIMDB('aclImdb/', 'train')
-    test_dataset = readIMDB('aclImdb/', 'test')
+    train_data = readIMDB('aclImdb/', 'train')
+    test_data = readIMDB('aclImdb/', 'test')
 
-# shuffle 数据集。
-random.shuffle(train_dataset)
-random.shuffle(test_dataset)
+random.shuffle(train_data)
+random.shuffle(test_data)
 ```
 
 ### 指定分词方式并且分词
@@ -91,15 +92,11 @@ def tokenizer(text):
 
 ```{.python .input  n=5}
 train_tokenized = []
-train_labels = []
-for review, score in train_dataset:
+for review, score in train_data:
     train_tokenized.append(tokenizer(review))
-    train_labels.append(score)
 test_tokenized = []
-test_labels = []
-for review, score in test_dataset:
+for review, score in test_data:
     test_tokenized.append(tokenizer(review))
-    test_labels.append(score)
 ```
 
 ### 创建词典
@@ -108,7 +105,7 @@ for review, score in test_dataset:
 这里我们特别设置训练数据中没有的单词对应的符号'<unk\>'，所有不存在在词典中的词，未来都将对应到这个符号。
 
 ```{.python .input  n=6}
-token_counter = Counter()
+token_counter = collections.Counter()
 def count_token(train_tokenized):
     for sample in train_tokenized:
         for token in sample:
@@ -128,55 +125,53 @@ vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>',
 
 ```{.python .input  n=7}
 # 根据词典，将数据转换成特征向量。
-def encode_samples(x_raw_samples, vocab):
-    x_encoded_samples = []
-    for sample in x_raw_samples:
-        x_encoded_sample = []
+def encode_samples(tokenized_samples, vocab):
+    features = []
+    for sample in tokenized_samples:
+        feature = []
         for token in sample:
             if token in vocab.token_to_idx:
-                x_encoded_sample.append(vocab.token_to_idx[token])
+                feature.append(vocab.token_to_idx[token])
             else:
-                x_encoded_sample.append(0)
-        x_encoded_samples.append(x_encoded_sample)         
-    return x_encoded_samples
+                feature.append(0)
+        features.append(feature)         
+    return features
 
-# 将特征向量补成定长。
-def pad_samples(x_encoded_samples, maxlen=500, val=0):
-    x_samples = []
-    for sample in x_encoded_samples:
-        if len(sample) > maxlen:
-            new_sample = sample[:maxlen]
+def pad_samples(features, maxlen=500, padding=0):
+    padded_features = []
+    for feature in features:
+        if len(feature) > maxlen:
+            padded_feature = feature[:maxlen]
         else:
-            num_padding = maxlen - len(sample)
-            new_sample = sample
-            for i in range(num_padding):
-                new_sample.append(val)
-        x_samples.append(new_sample)
-    return x_samples
+            padded_feature = feature
+            # 添加 PAD 符号使每个序列等长（长度为 maxlen ）。
+            while len(padded_feature) < maxlen:
+                padded_feature.append(padding)
+        padded_features.append(padded_feature)
+    return padded_features
 ```
 
 运行下面的代码将分好词的训练和测试数据转化成特征向量。
 
 ```{.python .input  n=8}
-x_encoded_train = encode_samples(train_tokenized, vocab)
-x_encoded_test = encode_samples(test_tokenized, vocab)
+train_features = encode_samples(train_tokenized, vocab)
+test_features = encode_samples(test_tokenized, vocab)
 ```
 
 通过执行下面的代码将特征向量补成定长（我们使用500），然后将特征向量转化为指定context上的NDArray。
 这里我们假定我们有至少一块gpu，context被设置成gpu。当然，也可以使用cpu，运行速度可能稍微慢一点点。
 
 ```{.python .input  n=9}
-# 指定 context。
-context = mx.gpu(0)
-x_train = nd.array(pad_samples(x_encoded_train, 500, 0), ctx=context)
-x_test = nd.array(pad_samples(x_encoded_test, 500, 0), ctx=context)
+ctx = gb.try_gpu()
+train_features = nd.array(pad_samples(train_features, 500, 0), ctx=ctx)
+test_features = nd.array(pad_samples(test_features, 500, 0), ctx=ctx)
 ```
 
 这里，我们将情感标签也转化成为了NDArray。
 
 ```{.python .input  n=10}
-y_train = nd.array([score for text, score in train_dataset], ctx=context)
-y_test = nd.array([score for text, score in test_dataset], ctx=context)
+train_labels = nd.array([score for _, score in train_data], ctx=ctx)
+test_labels = nd.array([score for _, score in test_data], ctx=ctx)
 ```
 
 ### 加载预训练的词向量
@@ -203,45 +198,43 @@ glove_embedding = text.embedding.create(
 4. `decoder`: 最后，我们利用上一步所生成的特征，通过一个dense层做预测。
 
 ```{.python .input  n=12}
-nclass = 2
+num_outputs = 2
 lr = 0.1
 num_epochs = 1
 batch_size = 10
-emsize = 100
+embed_size = 100
 num_hiddens = 100
-nlayers = 2
+num_layers = 2
 bidirectional = True
 ```
 
 ```{.python .input}
-class SentimentNet(gluon.Block):
-    def __init__(self, vocab, emsize, num_hiddens, nlayers, bidirectional,
-                 **kwargs):
+class SentimentNet(nn.Block):
+    def __init__(self, vocab, embed_size, num_hiddens, num_layers,
+                 bidirectional, **kwargs):
         super(SentimentNet, self).__init__(**kwargs)
         with self.name_scope():
-            self.embedding = gluon.nn.Embedding(
-                len(vocab), emsize, weight_initializer=init.Uniform(0.1))
-            self.encoder = gluon.rnn.LSTM(num_hiddens, num_layers=nlayers, 
-                                          bidirectional=bidirectional,
-                                          input_size=emsize)
-            self.decoder = gluon.nn.Dense(nclass, flatten=False)
+            self.embedding = nn.Embedding(
+                len(vocab), embed_size, weight_initializer=init.Uniform(0.1))
+            self.encoder = rnn.LSTM(num_hiddens, num_layers=num_layers,
+                                    bidirectional=bidirectional,
+                                    input_size=embed_size)
+            self.decoder = nn.Dense(num_outputs, flatten=False)
     def forward(self, inputs, begin_state=None):
         outputs = self.embedding(inputs)
         outputs = self.encoder(outputs)
         outputs = nd.concat(outputs[0], outputs[-1])
         outputs = self.decoder(outputs)
         return outputs
-    
-net = SentimentNet(vocab, emsize, num_hiddens, nlayers, bidirectional)
-net.initialize(mx.init.Xavier(), ctx=context)
+
+net = SentimentNet(vocab, embed_size, num_hiddens, num_layers, bidirectional)
+net.initialize(init.Xavier(), ctx=ctx)
 # 设置 embedding 层的 weight 为词向量。
-net.embedding.weight.set_data(
-    glove_embedding.idx_to_vec.as_in_context(context))
+net.embedding.weight.set_data(glove_embedding.idx_to_vec.as_in_context(ctx))
 # 对 embedding 层不进行优化。
 net.embedding.collect_params().setattr('grad_req', 'null')
-trainer = gluon.Trainer(net.collect_params(), 'sgd',
-                       {'learning_rate': lr})
-loss = gluon.loss.SoftmaxCrossEntropyLoss()
+trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
+loss = gloss.SoftmaxCrossEntropyLoss()
 ```
 
 ## 训练模型
@@ -251,82 +244,46 @@ loss = gluon.loss.SoftmaxCrossEntropyLoss()
 
 ```{.python .input  n=13}
 # 使用准确率作为评价指标。
-def eval(x_samples, y_samples):
-    total_L = 0
-    ntotal = 0
-    accuracy = mx.metric.Accuracy()
-    for i in range(x_samples.shape[0] // batch_size):
-        data = x_samples[i * batch_size : (i+1) * batch_size]
-        target = y_samples[i * batch_size :(i+1) * batch_size]
-        data = data.as_in_context(context).T
-        target = target.as_in_context(context).T
-        output = net(data)
-        L = loss(output, target)
-        total_L += nd.sum(L).asscalar()
-        ntotal += L.size
-        predicts = nd.argmax(output, axis=1)
-        accuracy.update(preds=predicts, labels=target)
-    return total_L / ntotal, accuracy.get()[1]
+def eval_model(features, labels):
+    l_sum = 0
+    l_n = 0
+    accuracy = metric.Accuracy()
+    for i in range(features.shape[0] // batch_size):
+        X = features[i*batch_size : (i+1)*batch_size].as_in_context(ctx).T
+        y = labels[i*batch_size :(i+1)*batch_size].as_in_context(ctx).T
+        output = net(X)
+        l = loss(output, y)
+        l_sum += l.sum().asscalar()
+        l_n += l.size
+        accuracy.update(preds=nd.argmax(output, axis=1), labels=y)
+    return l_sum / l_n, accuracy.get()[1]
 ```
 
-运行下面的代码开始训练模型。我们每800个batch，会输出一次当前的`loss`。
+运行下面的代码开始训练模型。
 
 ```{.python .input  n=14}
-start_train_time = time.time()
-for epoch in range(num_epochs):
-    start_epoch_time = time.time()
-    total_L = 0
-    ntotal = 0
-    for i in range(x_train.shape[0] // batch_size):
-        data = x_train[i * batch_size : (i+1) * batch_size]
-        target = y_train[i * batch_size : (i+1) * batch_size]
-        data = data.as_in_context(context).T
-        target = target.as_in_context(context).T
+for epoch in range(1, num_epochs + 1):
+    for i in range(train_features.shape[0] // batch_size):
+        X = train_features[i*batch_size : (i+1)*batch_size].as_in_context(
+            ctx).T
+        y = train_labels[i*batch_size : (i+1)*batch_size].as_in_context(
+            ctx).T
         with autograd.record():
-            output = net(data)
-            L = loss(output, target)
-        L.backward()
+            l = loss(net(X), y)
+        l.backward()
         trainer.step(batch_size)
-        total_L += nd.sum(L).asscalar()
-        ntotal += L.size
-        if i % 800 == 0 and i != 0:
-            print('[epoch %d] batch %d. loss %.6f' % (epoch, i,
-                                                      total_L / ntotal))
-            total_L = 0
-            ntotal = 0
-            
-    print('performing testing:')
-    train_loss, train_acc = eval(x_train, y_train)
-    test_loss, test_acc = eval(x_test, y_test)
-        
-    print('[epoch %d] train loss %.6f, train accuracy %.2f' 
-          % (epoch, train_loss, train_acc))
-    print('[epoch %d] test loss %.6f, test accuracy %.2f' 
-          % (epoch, test_loss, test_acc))
-    print('[epoch %d] throughput %.2f samples/s' 
-          % (epoch, (batch_size * len(x_train)) 
-             / (time.time() - start_epoch_time)))
-    print('[epoch %d] total time %.2f s' 
-          % (epoch, (time.time() - start_epoch_time)))
-
-print('total training throughput %.2f samples/s'
-      % ((batch_size * len(x_train) * num_epochs) 
-         / (time.time() - start_train_time)))
-print('total training time %.2f s' % ((time.time() - start_train_time)))
+    train_loss, train_acc = eval_model(train_features, train_labels)
+    test_loss, test_acc = eval_model(test_features, test_labels)
+    print('epoch %d, train loss %.6f, acc %.2f; test loss %.6f, acc %.2f' 
+          % (epoch, train_loss, train_acc, test_loss, test_acc))
 ```
 
-到这里，我们已经成功使用Gluon创建了一个情感分类模型。下面我们举了一个例子，来看看我们情感分类模型的效果。
-
-```{.python .input  n=15}
-review = ['this', 'movie', 'is', 'great']
-print(review)
-```
-
-上面这个句子的情感是（1代表正面，0代表负面）:
+到这里，我们已经成功使用Gluon创建了一个情感分类模型。下面我们举了一个例子，来看看我们情感分类模型的效果（1代表正面，0代表负面）。如果希望在不同句子上得到较准确的分类，我们需要使用更大的数据集，并增大模型训练周期。
 
 ```{.python .input}
+review = ['this', 'movie', 'is', 'great']
 nd.argmax(net(nd.reshape(
-    nd.array([vocab.token_to_idx[token] for token in review], ctx=context), 
+    nd.array([vocab.token_to_idx[token] for token in review], ctx=ctx), 
     shape=(-1, 1))), axis=1).asscalar()
 ```
 
