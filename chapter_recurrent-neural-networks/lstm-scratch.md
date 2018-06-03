@@ -43,7 +43,7 @@ $$\tilde{\boldsymbol{C}}_t = \text{tanh}(\boldsymbol{X}_t \boldsymbol{W}_{xc} + 
 $$\boldsymbol{C}_t = \boldsymbol{F}_t \odot \boldsymbol{C}_{t-1} + \boldsymbol{I}_t \odot \tilde{\boldsymbol{C}}_t.$$
 
 需要注意的是，如果遗忘门一直近似1且输入门一直近似0，过去的细胞将一直通过时间保存并传递至当前时间步。
-和门控循环单元隐藏状态的计算类似，这个设计可以应对循环神经网络中的梯度衰减问题，并更好地捕捉时序数据中间隔较大的依赖关系。
+这个设计可以应对循环神经网络中的梯度衰减问题，并更好地捕捉时序数据中间隔较大的依赖关系。
 
 
 ### 隐藏层变量
@@ -52,7 +52,7 @@ $$\boldsymbol{C}_t = \boldsymbol{F}_t \odot \boldsymbol{C}_{t-1} + \boldsymbol{I
 
 $$\boldsymbol{H}_t = \boldsymbol{O}_t \odot \text{tanh}(\boldsymbol{C}_t).$$
 
-需要注意的是，当输出门近似1，细胞信息将传递到隐藏层变量供输出层使用；当输出门近似0，细胞信息只自己保留。
+这里的tanh函数确保隐藏层变量元素值在-1到1之间。需要注意的是，当输出门近似1，细胞信息将传递到隐藏层变量供输出层使用；当输出门近似0，细胞信息只自己保留。
 
 
 ### 输出层
@@ -191,7 +191,7 @@ gb.train_and_predict_rnn(lstm_rnn, False, num_epochs, num_steps, num_hiddens,
 
 * 调调超参数，观察并分析对运行时间、困惑度以及创作歌词的结果造成的影响。
 * 在相同条件下，比较长短期记忆、门控循环单元和循环神经网络的运行时间。
-* 既然我们在候选细胞中已使用了tanh函数，那么隐藏层变量的tanh函数是必需的吗？将`lstm_rnn`函数中`H = O * C.tanh()`改为`H = O * C`，重复本节实验。你对这个问题是如何思考的？
+* 既然候选细胞已通过使用tanh函数确保值域在-1到1之间，为什么隐藏层变量还需再次使用tanh函数来确保输出值域在-1到1之间？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4042)
