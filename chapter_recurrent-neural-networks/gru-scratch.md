@@ -12,7 +12,7 @@
 
 ### 重置门和更新门
 
-假设隐藏单元个数为$h$，给定时间步$t$的小批量输入$\boldsymbol{X}_t \in \mathbb{R}^{n \times x}$（样本数为$n$，输入个数为$x$），和上一时间步隐藏状态$\boldsymbol{H}_{t-1} \in \mathbb{R}^{n \times h}$。重置门（reset gate）$\boldsymbol{R}_t \in \mathbb{R}^{n \times h}$和更新门（update gate）$\boldsymbol{Z}_t \in \mathbb{R}^{n \times h}$的计算如下：
+假设隐藏单元个数为$h$，给定时间步$t$的小批量输入$\boldsymbol{X}_t \in \mathbb{R}^{n \times x}$（样本数为$n$，输入个数为$x$）和上一时间步隐藏状态$\boldsymbol{H}_{t-1} \in \mathbb{R}^{n \times h}$。重置门（reset gate）$\boldsymbol{R}_t \in \mathbb{R}^{n \times h}$和更新门（update gate）$\boldsymbol{Z}_t \in \mathbb{R}^{n \times h}$的计算如下：
 
 $$
 \begin{aligned}
