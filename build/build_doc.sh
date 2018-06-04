@@ -11,9 +11,7 @@ source activate gluon_zh_docs
 
 pip list
 
-
-rm build/_build/latex/bi-rnn1*
-rm build/_build/latex/gluon_tutorials_zh.tex
+grep -rnw  '.' -e 'bi-rnn1'
 
 make html
 
