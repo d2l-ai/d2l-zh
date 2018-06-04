@@ -11,6 +11,10 @@ source activate gluon_zh_docs
 
 pip list
 
+
+rm build/_build/latex/bi-rnn1*
+
+
 make html
 
 # avoid to put the downloaed data into the notebook package
