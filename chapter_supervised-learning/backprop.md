@@ -84,14 +84,14 @@ $$
 $$
 
 
-正则项有关两个参数的梯度可以很直观地计算：
+接下来，我们可以很直观地计算出正则项有关两个参数的梯度：
 
 $$\frac{\partial s}{\partial \boldsymbol{W}^{(1)}} = \lambda \boldsymbol{W}^{(1)},$$ $$\frac{\partial s}{\partial \boldsymbol{W}^{(2)}} = \lambda \boldsymbol{W}^{(2)}.$$
 
 
 
-现在我们可以计算最靠近输出层的模型参数的梯度$\partial J/\partial \boldsymbol{W}^{(2)} \in \mathbb{R}^{y \times h}$。在图3.6中，
-$J$分别通过$\boldsymbol{o}$和$s$依赖$\boldsymbol{W}^{(2)}$。依据链式法则，我们有
+现在，我们可以计算最靠近输出层的模型参数的梯度$\partial J/\partial \boldsymbol{W}^{(2)} \in \mathbb{R}^{y \times h}$。在图3.6中，
+$J$分别通过$\boldsymbol{o}$和$s$依赖$\boldsymbol{W}^{(2)}$。依据链式法则，我们得到：
 
 $$
 \frac{\partial J}{\partial \boldsymbol{W}^{(2)}} 
@@ -109,7 +109,7 @@ $$
 $$
 
 
-注意到激活函数$\phi$是按元素操作的，中间变量$\boldsymbol{z}$的梯度$\partial J/\partial \boldsymbol{z} \in \mathbb{R}^h$的计算需要使用按元素乘法符$\odot$：
+其中，激活函数$\phi$是按元素操作的。中间变量$\boldsymbol{z}$的梯度$\partial J/\partial \boldsymbol{z} \in \mathbb{R}^h$的计算需要使用按元素乘法符$\odot$：
 
 $$
 \frac{\partial J}{\partial \boldsymbol{z}} 
@@ -117,7 +117,7 @@ $$
 = \frac{\partial J}{\partial \boldsymbol{h}} \odot \phi^\prime(\boldsymbol{z}).
 $$
 
-最终，我们可以得到最靠近输入层的模型参数的梯度$\partial J/\partial \boldsymbol{W}^{(1)} \in \mathbb{R}^{h \times x}$。在图3.6中，$J$分别通过$\boldsymbol{z}$和$s$依赖$\boldsymbol{W}^{(1)}$。依据链式法则，我们有
+最终，我们可以得到最靠近输入层的模型参数的梯度$\partial J/\partial \boldsymbol{W}^{(1)} \in \mathbb{R}^{h \times x}$。在图3.6中，$J$分别通过$\boldsymbol{z}$和$s$依赖$\boldsymbol{W}^{(1)}$。依据链式法则，我们得到：
 
 $$
 \frac{\partial J}{\partial \boldsymbol{W}^{(1)}} 
@@ -126,17 +126,17 @@ $$
 $$
 
 
-需要再次提醒的是，每次迭代中，上述各个依次计算出的梯度会被依次存储或更新。这是为了避免重复计算。例如，由于输出层变量梯度$\partial J/\partial \boldsymbol{o}$被计算存储，反向传播稍后的参数梯度$\partial J/\partial \boldsymbol{W}^{(2)}$和隐藏层变量梯度$\partial J/\partial \boldsymbol{h}$的计算可以直接读取输出层变量梯度的值，而无需重复计算。
+需要强调的是，每次迭代中，上述各个依次计算出的梯度会被依次存储或更新。这可以用来避免重复计算某些梯度需要的值。例如，由于输出层变量梯度$\partial J/\partial \boldsymbol{o}$被计算存储，反向传播稍后的参数梯度$\partial J/\partial \boldsymbol{W}^{(2)}$和隐藏层变量梯度$\partial J/\partial \boldsymbol{h}$的计算可以直接读取输出层变量梯度的值，而无需重复计算。
 
 ### 正向传播和反向传播相互依赖
 
-事实上，正向传播和反向传播相互依赖。
+事实上，正向传播和反向传播相互依赖。为什么这么说呢？
 
-一方面，正向传播的计算可能依赖模型参数的当前值。而这些模型参数是在反向传播的梯度计算后通过优化算法迭代的。例如，图3.6中，计算正则化项$s$依赖模型参数$\boldsymbol{W}^{(1)}$和$\boldsymbol{W}^{(2)}$的当前值。而这些当前值是优化算法最近一次根据反向传播算出梯度后迭代得到的。
+一方面，正向传播的计算可能依赖于模型参数的当前值。而这些模型参数是在反向传播的梯度计算后通过优化算法迭代的。例如，图3.6中，计算正则化项$s$依赖模型参数$\boldsymbol{W}^{(1)}$和$\boldsymbol{W}^{(2)}$的当前值。而这些当前值是优化算法最近一次根据反向传播算出梯度后迭代得到的。
 
-另一方面，反向传播的梯度计算可能依赖各变量的当前值。而这些变量的当前值是通过正向传播计算的。举例来说，参数梯度$\partial J/\partial \boldsymbol{W}^{(2)}$的计算需要依赖隐藏层变量的当前值$\boldsymbol{h}$。这个当前值是通过从输入层到输出层的正向传播计算并存储得到的。
+另一方面，反向传播的梯度计算可能依赖于各变量的当前值。而这些变量的当前值是通过正向传播计算的。举例来说，参数梯度$\partial J/\partial \boldsymbol{W}^{(2)}$的计算需要依赖隐藏层变量的当前值$\boldsymbol{h}$。这个当前值是通过从输入层到输出层的正向传播计算并存储得到的。
 
-因此，在模型参数初始化完成后，我们可以交替进行正向传播和反向传播，并根据反向传播计算的梯度迭代模型参数。
+因此，在模型参数初始化完成后，我们可以交替地进行正向传播和反向传播，并根据反向传播计算的梯度迭代模型参数。
 
 ## 小结
 
