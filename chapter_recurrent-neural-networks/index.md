@@ -17,7 +17,6 @@
    bptt
    gru-scratch
    lstm-scratch
-   deep-rnn
    bi-rnn
    rnn-gluon
 ```
