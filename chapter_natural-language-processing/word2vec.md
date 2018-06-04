@@ -166,7 +166,7 @@ $$\mathbb{P}(w \mid w_i) = \prod_{j=1}^{L(w)-1} \sigma\left( \left[n(w, j+1) = \
 $$\sum_{w \in \mathcal{V}} \mathbb{P}(w \mid w_i) = 1.$$
 
 
-让我们计算图10.1中给定词$w_i$生成词$w_3$的条件概率。我们需要将$w_i$的词向量$\mathbf{v}_i$和根节点到$w_3$路径上的非叶子节点向量一一点乘。由于在二叉树中由根节点到叶子节点$w_3$的路径上需要向左、向右、再向左地遍历，我们得到
+让我们计算图10.1中给定词$w_i$生成词$w_3$的条件概率。我们需要将$w_i$的词向量$\mathbf{v}_i$和根节点到$w_3$路径上的非叶子节点向量一一求内积。由于在二叉树中由根节点到叶子节点$w_3$的路径上需要向左、向右、再向左地遍历，我们得到
 
 $$\mathbb{P}(w_3 \mid w_i) = \sigma(\mathbf{u}_{n(w_3,1)}^\top \mathbf{v}_i) \cdot \sigma(-\mathbf{u}_{n(w_3,2)}^\top \mathbf{v}_i) \cdot \sigma(\mathbf{u}_{n(w_3,3)}^\top \mathbf{v}_i).$$
 
@@ -196,4 +196,4 @@ $$\mathbb{P}(w_3 \mid w_i) = \sigma(\mathbf{u}_{n(w_3,1)}^\top \mathbf{v}_i) \cd
 
 [1] word2vec工具. https://code.google.com/archive/p/word2vec/
 
-[2] Mikolov, Tomas, et al. "Distributed representations of words and phrases and their compositionality." NIPS. 2013.
+[2] Mikolov, Tomas, et al. “Distributed representations of words and phrases and their compositionality.” NIPS. 2013.

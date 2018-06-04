@@ -78,6 +78,11 @@ $$\|\boldsymbol{X}\|_F = \sqrt{\sum_{i=1}^m \sum_{j=1}^n x_{ij}^2}.$$
 * 按元素开方： $\sqrt{\boldsymbol{x}} = [2, 3]^\top$
 
 
+### 运算
+
+转置、点乘（内积）、矩阵加法、减法和乘法。
+
+
 
 
 
