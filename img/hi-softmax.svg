@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="24.5 11.5 389.5 185" width="389.5" height="185">
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="24.5 -2 389.5 198.5" width="389.5" height="198.5">
   <defs>
     <font-face font-family="Arial" font-size="9" panose-1="2 11 6 4 2 2 2 9 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="-1333.3333" x-height="518.5547" cap-height="715.8203" ascent="905.2734" descent="-211.91406" font-style="italic" font-weight="400">
       <font-face-src>
@@ -24,7 +24,7 @@
     </font-face>
   </defs>
   <metadata> Produced by OmniGraffle 7.7.1 
-    <dc:date>2018-06-04 03:53:25 +0000</dc:date>
+    <dc:date>2018-06-04 04:06:08 +0000</dc:date>
   </metadata>
   <g id="Canvas_1" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
     <title>Canvas 1</title>
@@ -136,21 +136,21 @@
         </text>
       </g>
       <g id="Graphic_67">
-        <text transform="translate(173 16.885498)" fill="black">
+        <text transform="translate(169.5 3.385498)" fill="black">
           <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x=".30078125" y="8">n(w</tspan>
           <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">3</tspan>
           <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" y="8">, 1)</tspan>
         </text>
       </g>
       <g id="Graphic_68">
-        <text transform="translate(73 57.8855)" fill="black">
+        <text transform="translate(70.5 52.8855)" fill="black">
           <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x=".30078125" y="8">n(w</tspan>
           <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">3</tspan>
           <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" y="8">, 2)</tspan>
         </text>
       </g>
       <g id="Graphic_69">
-        <text transform="translate(183 103.3855)" fill="black">
+        <text transform="translate(183 98.3855)" fill="black">
           <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x=".30078125" y="8">n(w</tspan>
           <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">3</tspan>
           <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" y="8">, 3)</tspan>
