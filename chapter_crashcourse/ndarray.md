@@ -90,6 +90,12 @@ x * y
 x / y
 ```
 
+以下分别基于最外层和最里层连结两个矩阵。
+
+```{.python .input}
+nd.concat(x, y, dim=0), nd.concat(x, y, dim=1)
+```
+
 以下是按元素做指数运算。
 
 ```{.python .input  n=12}
@@ -120,6 +126,8 @@ x.sum()
 ```{.python .input}
 x.norm().asscalar()
 ```
+
+以上`y.exp()`、`x.sum()`和`x.norm()`也可分别写作`nd.exp(y)`、`nd.sum(x)`和`nd.norm(x)`。
 
 ## 广播机制
 
