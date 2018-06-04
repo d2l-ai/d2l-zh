@@ -428,3 +428,4 @@ def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
         plt.semilogy(x2_vals, y2_vals)
         plt.legend(legend)
     plt.show()
+
