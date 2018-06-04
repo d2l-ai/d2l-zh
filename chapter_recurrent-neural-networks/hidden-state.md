@@ -18,7 +18,7 @@ $$\mathbb{P}(w_t \mid w_{t-(n-1)}, \ldots, w_{t-1}).$$
 
 $$\boldsymbol{H} = \phi(\boldsymbol{X} \boldsymbol{W}_{xh} + \boldsymbol{b}_h),$$
 
-其中权重参数$\boldsymbol{W}_{xh} \in \mathbb{R}^{x \times h}$，偏差参数 $\boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$，$h$为隐藏单元个数。我们之前也提到，上式的两项相加使用了广播机制。把隐藏变量$\boldsymbol{H}$作为输出层的输入，且设输出个数为$y$（例如分类问题中的类别数），输出层的输出
+其中权重参数$\boldsymbol{W}_{xh} \in \mathbb{R}^{x \times h}$，偏差参数 $\boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$，$h$为隐藏单元个数。上式相加的两项形状不同，因此将按照广播机制相加（参见[“数据操作”](../chapter_crashcourse/ndarray.md)一节）。把隐藏变量$\boldsymbol{H}$作为输出层的输入，且设输出个数为$y$（例如分类问题中的类别数），输出层的输出
 
 $$\boldsymbol{O} = \boldsymbol{H} \boldsymbol{W}_{hy} + \boldsymbol{b}_y,$$
 
