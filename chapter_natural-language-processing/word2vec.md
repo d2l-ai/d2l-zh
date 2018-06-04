@@ -166,12 +166,12 @@ $$\mathbb{P}(w \mid w_i) = \prod_{j=1}^{L(w)-1} \sigma\left( \left[n(w, j+1) = \
 $$\sum_{w \in \mathcal{V}} \mathbb{P}(w \mid w_i) = 1.$$
 
 
-让我们计算图10.1中给定词$w_i$生成$w_3$的条件概率。由于在二叉树中由根节点到叶子节点$w_3$的路径上需要向左、向右、再向左地遍历，我们得到
+让我们计算图10.1中给定词$w_i$生成词$w_3$的条件概率。我们需要将$w_i$的词向量$\mathbf{v}_i$和根节点到$w_3$路径上的非叶子节点向量一一点乘。由于在二叉树中由根节点到叶子节点$w_3$的路径上需要向左、向右、再向左地遍历，我们得到
 
 $$\mathbb{P}(w_3 \mid w_i) = \sigma(\mathbf{u}_{n(w_3,1)}^\top \mathbf{v}_i) \cdot \sigma(-\mathbf{u}_{n(w_3,2)}^\top \mathbf{v}_i) \cdot \sigma(\mathbf{u}_{n(w_3,3)}^\top \mathbf{v}_i).$$
 
 
-在使用softmax的跳字模型和连续词袋模型中，词向量和非叶子节点向量是需要学习的模型参数。假设词典$\mathcal{V}$很大，每次迭代的计算开销由$\mathcal{O}(|\mathcal{V}|)$下降至$\mathcal{O}(\text{log}_2|\mathcal{V}|)$。
+在使用softmax的跳字模型和连续词袋模型中，词向量和二叉树中非叶子节点向量是需要学习的模型参数。假设词典$\mathcal{V}$很大，每次迭代的计算开销由$\mathcal{O}(|\mathcal{V}|)$下降至$\mathcal{O}(\text{log}_2|\mathcal{V}|)$。
 
 
 
@@ -183,9 +183,9 @@ $$\mathbb{P}(w_3 \mid w_i) = \sigma(\mathbf{u}_{n(w_3,1)}^\top \mathbf{v}_i) \cd
 
 ## 练习
 
-* 噪声词$\mathbb{P}(w)$在实际中被建议设为$w$的单字概率的3/4次方。为什么？（想想$0.99^{3/4}$和$0.01^{3/4}$的大小）
-* 一些"the"和"a"之类的英文高频词会对结果产生什么影响？该如何处理？可参考word2vec论文第2.3节 [2]。
-* 如何训练包括例如"new york"在内的词组向量？可参考word2vec论文第4节 [2]。
+* 噪声词采样概率$\mathbb{P}(w)$在实际中被建议设为$w$词频与总词频的比的3/4次方。这样做有什么好处？提示：想想$0.99^{3/4}$和$0.01^{3/4}$的大小。
+* 一些"the"和"a"之类的英文高频词会对结果产生什么影响？该如何处理？提示：可参考word2vec论文第2.3节 [2]。
+* 如何训练包括例如"new york"在内的词组向量？提示：可参考word2vec论文第4节 [2]。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4203)
 
