@@ -1,13 +1,13 @@
 # 循环神经网络——使用Gluon
 
-本节介绍如何使用`Gluon`训练循环神经网络。
+本节介绍如何使用Gluon训练循环神经网络。
 
 
-## Penn Tree Bank (PTB) 数据集
+## Penn Tree Bank数据集
 
-我们以单词为基本元素来训练语言模型。[Penn Tree Bank](https://catalog.ldc.upenn.edu/ldc99t42)（PTB）是一个标准的文本序列数据集。它包括训练集、验证集和测试集。
+我们以英文单词为单元来训练基于循环神经网络的语言模型。Penn Tree Bank（PTB）是一个标准的文本序列数据集 [1]。它包括训练集、验证集和测试集 。
 
-下面我们载入数据集。
+首先导入实验所需的包或模块，并抽取数据集。
 
 ```{.python .input  n=1}
 import sys
@@ -27,7 +27,7 @@ with zipfile.ZipFile('../data/ptb.zip', 'r') as zin:
 
 ## 建立词语索引
 
-下面定义了`Dictionary`类来映射词语和索引。
+下面定义了`Dictionary`类来映射词语和整数索引。
 
 ```{.python .input  n=2}
 class Dictionary(object):
@@ -45,7 +45,7 @@ class Dictionary(object):
         return len(self.idx_to_word)
 ```
 
-以下的`Corpus`类按照读取的文本数据集建立映射词语和索引的词典，并将文本转换成词语索引的序列。这样，每个文本数据集就变成了`NDArray`格式的整数序列。
+以下的`Corpus`类按照读取的文本数据集建立映射词语和索引的词典，并将文本转换成词语索引的序列。这样，每个文本数据集就变成了NDArray格式的整数序列。
 
 ```{.python .input  n=3}
 class Corpus(object):
@@ -85,9 +85,9 @@ vocab_size = len(corpus.dictionary)
 vocab_size
 ```
 
-## 循环神经网络模型库
+## 定义循环神经网络模型库
 
-我们可以定义一个循环神经网络模型库。这样就可以支持各种不同的循环神经网络模型了。
+我们可以定义一个循环神经网络模型库。这样我们就可以使用以ReLU或tanh函数为激活函数的循环神经网络，以及长短期记忆和门控循环单元。和本章中其他实验不同，这里使用了Embedding实例将每个词索引变换成一个长度为`embed_size`的词向量。这些词向量实际上也是模型参数。在随机初始化后，它们会在模型训练结束时被学到。此外，我们使用了丢弃法来应对过拟合。
 
 ```{.python .input  n=5}
 class RNNModel(nn.Block):
@@ -96,6 +96,7 @@ class RNNModel(nn.Block):
         super(RNNModel, self).__init__(**kwargs)
         with self.name_scope():
             self.dropout = nn.Dropout(drop_prob)
+            # 将词索引变换成词向量。这些词向量也是模型参数。
             self.embedding = nn.Embedding(
                 vocab_size, embed_size, weight_initializer=init.Uniform(0.1))
             if mode == 'rnn_relu':
@@ -113,7 +114,6 @@ class RNNModel(nn.Block):
             else:
                 raise ValueError("Invalid mode %s. Options are rnn_relu, "
                                  "rnn_tanh, lstm, and gru" % mode)
-
             self.dense = nn.Dense(vocab_size, in_units=num_hiddens)
             self.num_hiddens = num_hiddens
 
@@ -128,28 +128,9 @@ class RNNModel(nn.Block):
         return self.rnn.begin_state(*args, **kwargs)
 ```
 
-## 定义参数
+## 设置超参数
 
-我们接着定义模型参数。我们选择使用ReLU为激活函数的循环神经网络为例。这里我们把`epochs`设为1是为了演示方便。
-
-
-## 多层循环神经网络
-
-我们通过`num_layers`设置循环神经网络隐含层的层数，例如2。
-
-对于一个多层循环神经网络，当前时刻隐含层的输入来自同一时刻输入层（如果有）或上一隐含层的输出。每一层的隐含状态只沿着同一层传递。
-
-把[单层循环神经网络](rnn-scratch.md)中隐含层的每个单元当做一个函数$f$，这个函数在$t$时刻的输入是$\boldsymbol{X}_t, \boldsymbol{H}_{t-1}$，输出是$\boldsymbol{H}_t$：
-
-$$f(\boldsymbol{X}_t, \boldsymbol{H}_{t-1}) = \boldsymbol{H}_t$$
-
-假设输入为第0层，输出为第$L+1$层，在一共$L$个隐含层的循环神经网络中，上式中可以拓展成以下的函数:
-
-$$f(\boldsymbol{H}_t^{(l-1)}, \boldsymbol{H}_{t-1}^{(l)}) = \boldsymbol{H}_t^{(l)}$$
-
-如下图所示。
-
-![](../img/multi-layer-rnn.svg)
+我们接着设置超参数。这里选择使用以ReLU为激活函数的循环神经网络。它包含2个隐藏层。为了得到更好的实验结果，这些超参数还需要重新设置。
 
 ```{.python .input  n=6}
 model_name = 'rnn_relu'
@@ -158,20 +139,26 @@ num_hiddens = 100
 num_layers = 2
 lr = 0.5
 clipping_theta = 0.2
-num_epochs = 1
+num_epochs = 2
 batch_size = 32
 num_steps = 5
 drop_prob = 0.2
-eval_period = 500
+eval_period = 1000
+
+ctx = gb.try_gpu()
+model = RNNModel(model_name, vocab_size, embed_size, num_hiddens, num_layers,
+                 drop_prob)
+model.initialize(init.Xavier(), ctx=ctx)
+trainer = gluon.Trainer(model.collect_params(), 'sgd',
+                        {'learning_rate': lr, 'momentum': 0, 'wd': 0})
+loss = gloss.SoftmaxCrossEntropyLoss()
 ```
 
-## 批量采样
+## 相邻采样
 
-我们将数据进一步处理为便于相邻批量采样的格式。
+我们将在实验中使用相邻采样。
 
 ```{.python .input  n=7}
-ctx = gb.try_gpu()
-
 def batchify(data, batch_size):
     num_batches = data.shape[0] // batch_size
     data = data[:num_batches*batch_size]
@@ -182,23 +169,14 @@ train_data = batchify(corpus.train, batch_size).as_in_context(ctx)
 val_data = batchify(corpus.valid, batch_size).as_in_context(ctx)
 test_data = batchify(corpus.test, batch_size).as_in_context(ctx)
 
-model = RNNModel(model_name, vocab_size, embed_size, num_hiddens, num_layers,
-                 drop_prob)
-model.initialize(init.Xavier(), ctx=ctx)
-trainer = gluon.Trainer(model.collect_params(), 'sgd',
-                        {'learning_rate': lr, 'momentum': 0, 'wd': 0})
-loss = gloss.SoftmaxCrossEntropyLoss()
-
 def get_batch(source, i):
-    seq_len = min(num_steps, source.shape[0] - 1 - i)
-    X = source[i:i+seq_len]
-    Y = source[i+1:i+1+seq_len]
+    seq_len = min(num_steps, source.shape[0]-1-i)
+    X = source[i : i+seq_len]
+    Y = source[i+1 : i+1+seq_len]
     return X, Y.reshape((-1,))
 ```
 
-## 从计算图分离隐含状态
-
-在模型训练的每次迭代中，当前批量序列的初始隐含状态来自上一个相邻批量序列的输出隐含状态。为了使模型参数的梯度计算只依赖当前的批量序列，从而减小每次迭代的计算开销，我们可以使用`detach`函数来将隐含状态从计算图分离出来。
+[“循环神经网络——从零开始”](rnn-scratch.md)一节里已经解释了，相邻采样应在每次读取小批量前将隐藏状态从计算图分离出来。
 
 ```{.python .input  n=8}
 def detach(state):
@@ -211,7 +189,7 @@ def detach(state):
 
 ## 训练和评价模型
 
-和之前一样，我们定义模型评价函数。
+以下定义了模型评价函数。
 
 ```{.python .input  n=9}
 def eval_rnn(data_source):
@@ -227,10 +205,10 @@ def eval_rnn(data_source):
     return l_sum / n
 ```
 
-最后，我们可以训练模型并在每个epoch评价模型在验证集上的结果。我们可以参考验证集上的结果调参。
+下面的`train_rnn`函数将训练模型并在每个迭代周期结束时评价模型在验证集上的表现。我们可以参考验证集上的结果调节超参数。
 
 ```{.python .input  n=10}
-def train():
+def train_rnn():
     for epoch in range(1, num_epochs + 1):
         train_l_sum = nd.array([0], ctx=ctx)
         start_time = time.time()
@@ -268,7 +246,7 @@ def train():
 训练完模型以后，我们就可以在测试集上评价模型了。
 
 ```{.python .input  n=11}
-train()
+train_rnn()
 test_l = eval_rnn(test_data)
 print('test loss %.2f, perplexity %.2f'
       % (test_l.asscalar(), test_l.exp().asscalar()))
@@ -276,14 +254,21 @@ print('test loss %.2f, perplexity %.2f'
 
 ## 小结
 
-* 我们可以使用Gluon轻松训练各种不同的循环神经网络，并设置网络参数，例如网络的层数。
-* 训练迭代中需要将隐含状态从计算图中分离，使模型参数梯度计算只依赖当前的时序数据批量采样。
+* 我们可以使用Gluon训练循环神经网络。它更简洁，例如无需我们手动实现含有多个隐藏层的复杂模型。
+* 在训练语言模型时，我们可以将词索引变换成词向量，并将这些词向量视为模型参数。
 
 
 ## 练习
 
-* 调调参数（例如epochs、隐含层的层数、序列长度、隐含状态长度和学习率），看看对运行时间、训练集、验证集和测试集上perplexity造成的影响。
+* 回忆[“模型参数的访问、初始化和共享”](../chapter_gluon-basics/parameters.md)一节中有关共享模型参数的描述。将本节中RNNModel类里的`self.dense`的定义改为`nn.Dense(vocab_size, in_units = num_hiddens, params=self.embedding.params)`并运行本节实验。这里为什么可以共享词向量参数？有哪些好处？
+
+* 调调超参数，观察并分析对运行时间以及训练集、验证集和测试集上困惑度的影响。
+
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4089)
 
 ![](../img/qr_rnn-gluon.svg)
+
+## 参考文献
+
+[1] Penn Tree Bank. https://catalog.ldc.upenn.edu/ldc99t42
