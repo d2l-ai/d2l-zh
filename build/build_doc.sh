@@ -13,7 +13,7 @@ pip list
 
 
 rm build/_build/latex/bi-rnn1*
-
+rm build/_build/latex/gluon_tutorials_zh.tex
 
 make html
 
