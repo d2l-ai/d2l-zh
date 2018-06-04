@@ -107,7 +107,7 @@ def get_rmse_log(net, train_features, train_labels):
 
 ## 定义模型
 
-我们将模型的定义放在一个函数里供多次调用。在此版本中，我们只使用一个基本的线性回归模型，并使用了Xavier随机初始化模型的参数。
+我们将模型的定义放在一个函数里供多次调用。在此我们使用一个基本的线性回归模型，并使用了Xavier随机初始化模型的参数。
 
 ```{.python .input  n=13}
 def get_net():
