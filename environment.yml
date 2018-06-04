@@ -6,4 +6,4 @@ dependencies:
 - pandas
 - pip:
   - requests
-  - mxnet=1.2.0
+  - mxnet==1.2.0
