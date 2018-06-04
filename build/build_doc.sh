@@ -11,8 +11,6 @@ source activate gluon_zh_docs
 
 pip list
 
-grep -rnw  '.' -e 'bi-rnn1'
-
 make html
 
 # avoid to put the downloaed data into the notebook package
