@@ -146,7 +146,7 @@ $$-\text{log} \frac{1}{1+\text{exp}[-\mathbf{u}_c^\top (\mathbf{v}_{o_1} + \ldot
 层序softmax利用了二叉树。树的每个叶子节点代表着词典$\mathcal{V}$中的每个词。每个词$w_i$相应的词向量为$\mathbf{v}_i$。我们以下图为例，来描述层序softmax的工作机制。
 
 
-![](../img/hierarchical_softmax.svg)
+![](../img/hi-softmax.svg)
 
 
 假设$L(w)$为从二叉树的根到代表词$w$的叶子节点的路径上的节点数，并设$n(w,i)$为该路径上第$i$个节点，该节点的向量为$\mathbf{u}_{n(w,i)}$。以上图为例，$L(w_3) = 4$。那么，跳字模型和连续词袋模型所需要计算的任意词$w_i$生成词$w$的概率为：
