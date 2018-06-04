@@ -51,15 +51,6 @@ $$\overleftarrow{\boldsymbol{h}}_t = f(\boldsymbol{x}_t, \overleftarrow{\boldsym
 
 当我们希望编码器的输入既包含正向传递信息又包含反向传递信息时，我们可以使用双向循环神经网络。例如，给定输入序列$x_1, x_2, \ldots, x_T$，按正向传递，它们在循环神经网络的隐含层变量分别是$\overrightarrow{\boldsymbol{h}}_1, \overrightarrow{\boldsymbol{h}}_2, \ldots, \overrightarrow{\boldsymbol{h}}_T$；按反向传递，它们在循环神经网络的隐含层变量分别是$\overleftarrow{\boldsymbol{h}}_1, \overleftarrow{\boldsymbol{h}}_2, \ldots, \overleftarrow{\boldsymbol{h}}_T$。在双向循环神经网络中，时刻$i$的隐含层变量可以把$\overrightarrow{\boldsymbol{h}}_i$和$\overleftarrow{\boldsymbol{h}}_i$连结起来。
 
-```{.python .input  n=1}
-# 连结两个向量。
-from mxnet import nd
-h_forward = nd.array([1, 2])
-h_backward = nd.array([3, 4])
-h_bi = nd.concat(h_forward, h_backward, dim=0)
-h_bi
-```
-
 ### 解码器
 
 编码器最终输出了一个背景向量$\boldsymbol{c}$，该背景向量编码了输入序列$x_1, x_2, \ldots, x_T$的信息。
