@@ -14,6 +14,7 @@
    glove-fasttext
    pretrained-embedding
    sentiment-analysis
-   seq2seq-attention
+   seq2seq
+   attention
    nmt
 ```
