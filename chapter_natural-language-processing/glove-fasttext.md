@@ -79,28 +79,26 @@ $$\boldsymbol{v}_i^\top \tilde{\boldsymbol{v}}_j + b_i + b_j = \log(x_{ij}).$$
 
 ### 损失函数
 
-上式中的共现词频是直接在训练数据上统计得到的，为了学习词向量和相应的偏移项，我们希望上式中的左边与右边越接近越好。给定词典大小$V$和权重函数$f(x_{ij})$，我们定义损失函数为
+GloVe中的共现词频是直接在训练数据上统计得到的。为了学习词向量和相应的偏差项，我们希望上式中的左边与右边尽可能接近。给定词典$\mathcal{V}$和权重函数$h(x_{ij})$，GloVe的损失函数为
 
-$$\sum_{i, j = 1}^V f(x_{ij}) (\boldsymbol{v}_i^\top \tilde{\boldsymbol{v}}_j + b_i + b_j - \log(x_{ij}))^2.$$
+$$\sum_{i \in \mathcal{V}, j \in \mathcal{V}} h(x_{ij}) \left(\boldsymbol{v}_i^\top \tilde{\boldsymbol{v}}_j + b_i + b_j - \log(x_{ij})\right)^2,$$
 
-对于权重函数$f(x)$，一个建议的选择是，当$x < c$（例如$c = 100$），令$f(x) = (x/c)^\alpha$（例如$\alpha = 0.75$），反之令$f(x) = 1$。需要注意的是，损失函数的计算复杂度与共现词频矩阵$\boldsymbol{X}$中非零元素的数目呈线性关系。我们可以从$\boldsymbol{X}$中随机采样小批量非零元素，使用[随机梯度下降](../chapter_optimization/gd-sgd-scratch.md)迭代词向量和偏移项。
+其中权重函数$h(x)$的一个建议选择是，当$x < c$（例如$c = 100$），令$h(x) = (x/c)^\alpha$（例如$\alpha = 0.75$），反之令$h(x) = 1$。由于权重函数的存在，损失函数的计算复杂度与共现词频矩阵$\boldsymbol{X}$中非零元素的数目呈正相关。我们可以从$\boldsymbol{X}$中随机采样小批量非零元素，并使用优化算法迭代共现词频相关词的向量和偏差项。
 
 需要注意的是，对于任意一对$i, j$，损失函数中存在以下两项之和
 
-$$f(x_{ij}) (\boldsymbol{v}_i^\top \tilde{\boldsymbol{v}}_j + b_i + b_j - \log(x_{ij}))^2 + f(x_{ji}) (\boldsymbol{v}_j^\top \tilde{\boldsymbol{v}}_i + b_j + b_i - \log(x_{ji}))^2.$$
+$$h(x_{ij}) (\boldsymbol{v}_i^\top \tilde{\boldsymbol{v}}_j + b_i + b_j - \log(x_{ij}))^2 + h(x_{ji}) (\boldsymbol{v}_j^\top \tilde{\boldsymbol{v}}_i + b_j + b_i - \log(x_{ji}))^2.$$
 
-由于$x_{ij} = x_{ji}$，对调$\boldsymbol{v}$和$\tilde{\boldsymbol{v}}$并不改变损失函数中这两项之和的值。也就是说，在损失函数所有项上对调$\boldsymbol{v}$和$\tilde{\boldsymbol{v}}$也不改变整个损失函数的值。因此，任意词的中心词向量和背景词向量是等价的。只是由于初始化值的不同，同一个词最终学习到的两组词向量可能不同。当所有词向量学习得到后，GloVe使用一个词的中心词向量与背景词向量之和作为该词的最终词向量。
+由于上式中$x_{ij} = x_{ji}$，对调$\boldsymbol{v}$和$\tilde{\boldsymbol{v}}$并不改变损失函数中这两项之和。也就是说，在损失函数所有项上对调$\boldsymbol{v}$和$\tilde{\boldsymbol{v}}$也不改变整个损失函数的值。因此，任意词的中心词向量和背景词向量是等价的。只是由于初始化值的不同，同一个词最终学习到的两组词向量可能不同。当学习得到所有词向量以后，GloVe使用一个词的中心词向量与背景词向量之和作为该词的最终词向量。
 
 
 
 
 ## fastText
 
+我们在上一节介绍了word2vec的跳字模型和负采样。fastText以跳字模型为基础，将每个中心词视为子词（subword）的集合，并使用负采样学习子词的词向量。
 
-fastText在[使用负采样的跳字模型](word2vec.md)基础上，将每个中心词视为子词（subword）的集合，并学习子词的词向量。
-
-
-以where这个词为例，设子词为3个字符，它的子词包括“&lt;wh”、“whe”、“her”、“ere”、“re&gt;”和特殊子词（整词）“&lt;where&gt;”。其中的“&lt;”和“&gt;”是为了将作为前后缀的子词区分出来。而且，这里的子词“her”与整词“&lt;her&gt;”也可被区分。给定一个词$w$，我们通常可以把字符长度在3到6之间的所有子词和特殊子词的并集$\mathcal{G}_w$取出。假设词典中任意子词$g$的子词向量为$\boldsymbol{z}_g$，我们可以把[使用负采样的跳字模型](word2vec.md)的损失函数
+举个例子，设子词长度为3个字符，“where”的子词包括“&lt;wh”、“whe”、“her”、“ere”、“re&gt;”和特殊子词（整词）“&lt;where&gt;”。这些子词中的“&lt;”和“&gt;”符号是为了将作为前后缀的子词区分出来。并且，这里的子词“her”与整词“&lt;her&gt;”也可被区分开。给定一个词$w$，我们通常可以把字符长度在3到6之间的所有子词和特殊子词的并集$\mathcal{G}_w$取出。假设词典中任意子词$g$的子词向量为$\boldsymbol{z}_g$，我们可以把使用负采样的跳字模型的损失函数
 
 
 $$ - \text{log} \mathbb{P} (w_o \mid w_c) = -\text{log} \frac{1}{1+\text{exp}(-\boldsymbol{u}_o^\top \boldsymbol{v}_c)}  - \sum_{k=1, w_k \sim \mathbb{P}(w)}^K \text{log} \frac{1}{1+\text{exp}(\boldsymbol{u}_{i_k}^\top \boldsymbol{v}_c)} $$
@@ -109,7 +107,7 @@ $$ - \text{log} \mathbb{P} (w_o \mid w_c) = -\text{log} \frac{1}{1+\text{exp}(-\
 
 $$ - \text{log} \mathbb{P} (w_o \mid w_c) = -\text{log} \frac{1}{1+\text{exp}(-\boldsymbol{u}_o^\top \sum_{g \in \mathcal{G}_{w_c}} \boldsymbol{z}_g)}  - \sum_{k=1, w_k \sim \mathbb{P}(w)}^K \text{log} \frac{1}{1+\text{exp}(\boldsymbol{u}_{i_k}^\top \sum_{g \in \mathcal{G}_{w_c}} \boldsymbol{z}_g)}. $$
 
-我们可以看到，原中心词向量被替换成了中心词的子词向量的和。与整词学习（word2vec和GloVe）不同，词典以外的新词的词向量可以使用fastText中相应的子词向量之和。
+可以看到，原中心词向量被替换成了中心词的子词向量之和。与word2vec和GloVe不同，词典以外的新词的词向量可以使用fastText中相应的子词向量之和。
 
 fastText对于一些语言较重要，例如阿拉伯语、德语和俄语。例如，德语中有很多复合词，例如乒乓球（英文table tennis）在德语中叫“Tischtennis”。fastText可以通过子词表达两个词的相关性，例如“Tischtennis”和“Tennis”。
 
@@ -118,14 +116,14 @@ fastText对于一些语言较重要，例如阿拉伯语、德语和俄语。例
 ## 小结
 
 * GloVe用词向量表达共现词频的对数。
-* fastText用子词向量之和表达整词。
+* fastText用子词向量之和表达整词。它能表示词典以外的新词。
 
 
 ## 练习
 
-* GloVe中，如果一个词出现在另一个词的背景中，是否可以利用它们之间在文本序列的距离重新设计词频计算方式？（可参考[Glove论文](https://nlp.stanford.edu/pubs/glove.pdf)4.2节）
-* 如果丢弃GloVe中的偏移项，是否也可以满足任意一对词共现的对称性？
-* 在fastText中，子词过多怎么办（例如，6字英文组合数为$26^6$）？（可参考[fastText论文](https://arxiv.org/pdf/1607.04606.pdf)3.2节）
+* GloVe中，如果一个词出现在另一个词的背景中，是否可以利用它们之间在文本序列的距离重新设计词频计算方式？提示：可参考Glove论文4.2节 [1]。
+* 如果丢弃GloVe中的偏差项，是否也可以满足任意一对词共现的对称性？
+* 在fastText中，子词过多怎么办（例如，6字英文组合数为$26^6$）？提示：可参考fastText论文3.2节 [2]。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4372)
 
