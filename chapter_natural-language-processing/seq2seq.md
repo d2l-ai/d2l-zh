@@ -14,7 +14,8 @@
 编码器的把一个不定长的输入序列变换成一个定长的背景变量$\boldsymbol{c}$，并在该背景变量中编码输入序列信息。常用的编码器是循环神经网络。
 
 让我们考虑批量大小为1的时序数据样本。
-在时间步$t$，循环神经网络将输入$x_t$的特征向量$\boldsymbol{x}_t$和上个时间步的隐藏状态$\boldsymbol{h}_{t-1}$变换为当前时间步的隐藏状态$\boldsymbol{h}_t$。因此，我们可以用函数$f$表达循环神经网络隐藏层的变换：
+在时间步$t$，循环神经网络将输入$x_t$的特征向量$\boldsymbol{x}_t$和上个时间步的隐藏状态$\boldsymbol{h}_{t-1}$变换为当前时间步的隐藏状态$\boldsymbol{h}_t$。
+其中，每个输入的特征向量可能是模型参数，例如[“循环神经网络——使用Gluon”](../chapter_recurrent-neural-networks/rnn-gluon.md)一节中需要学习的每个词向量。我们可以用函数$f$表达循环神经网络隐藏层的变换：
 
 $$\boldsymbol{h}_t = f(\boldsymbol{x}_t, \boldsymbol{h}_{t-1}). $$
 
@@ -64,13 +65,10 @@ $$\boldsymbol{s}_{t^\prime} = g(y_{t^\prime-1}, \boldsymbol{c}, \boldsymbol{s}_{
 
 ## 练习
 
-* 了解其他的注意力机制设计。例如论文[Effective Approaches to Attention-based Neural Machine Translation](https://nlp.stanford.edu/pubs/emnlp15_attn.pdf)。
-
-* 在[Bahanau的论文](https://arxiv.org/abs/1409.0473)中，我们是否需要重新实现解码器上的GRU？
-
 * 除了机器翻译，你还能想到seq2seq的哪些应用？
 
-* 除了自然语言处理，注意力机制还可以应用在哪些地方？
+* 有哪些方法可以设计解码器的输出层？
+
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4523)
 
