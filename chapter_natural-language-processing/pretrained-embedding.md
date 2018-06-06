@@ -67,7 +67,7 @@ my_embedding.to_indices(['hello', 'world'])
 
 ### 使用预训练词向量初始化Embedding实例
 
-我们在[“循环神经网络——使用Gluon”](../chapter_recurrent-neural-networks/rnn-gluon.md)一节中介绍了Gluon中的Embedding实例，并对其中每个词的向量做了随机初始化。实际上，我们可以使用预训练的词向量初始化Embedding实例。
+我们在[“循环神经网络——使用Gluon”](../chapter_recurrent-neural-networks/rnn-gluon.md)一节中介绍了Gluon中的Embedding实例，并对其中每个词的向量做了随机初始化。实际上，我们还可以使用预训练的词向量初始化Embedding实例。
 
 ```{.python .input  n=8}
 layer = nn.Embedding(len(my_embedding), my_embedding.vec_len)

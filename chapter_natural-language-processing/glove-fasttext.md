@@ -1,7 +1,7 @@
 # 词向量：GloVe和fastText
 
 
-在word2vec被提出以后，很多其他词向量模型也陆续发表出来。本节介绍其中比较有代表性的两个模型。它们分别是2014年由斯坦福团队发表的GloVe和2017年由Facebook团队发表的fastText。
+在word2vec被提出以后，很多其他词嵌入模型也陆续发表出来。本节介绍其中比较有代表性的两个模型。它们分别是2014年由斯坦福团队发表的GloVe和2017年由Facebook团队发表的fastText。
 
 
 ## GloVe
@@ -96,7 +96,7 @@ $$h(x_{ij}) (\boldsymbol{v}_i^\top \tilde{\boldsymbol{v}}_j + b_i + b_j - \log(x
 
 ## fastText
 
-我们在上一节介绍了word2vec的跳字模型和负采样。fastText以跳字模型为基础，将每个中心词视为子词（subword）的集合，并使用负采样学习子词的词向量。
+我们在上一节介绍了word2vec的跳字模型和负采样。fastText以跳字模型为基础，将每个中心词视为子词（subword）的集合，并使用负采样学习子词的词向量。因此，fastText是一个子词嵌入模型。
 
 举个例子，设子词长度为3个字符，“where”的子词包括“&lt;wh”、“whe”、“her”、“ere”、“re&gt;”和特殊子词（整词）“&lt;where&gt;”。这些子词中的“&lt;”和“&gt;”符号是为了将作为前后缀的子词区分出来。并且，这里的子词“her”与整词“&lt;her&gt;”也可被区分开。给定一个词$w$，我们通常可以把字符长度在3到6之间的所有子词和特殊子词的并集$\mathcal{G}_w$取出。假设词典中任意子词$g$的子词向量为$\boldsymbol{z}_g$，我们可以把使用负采样的跳字模型的损失函数
 

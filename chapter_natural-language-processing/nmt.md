@@ -55,7 +55,6 @@ ctx = mx.cpu(0)
 
 我们通常会在输入序列和输出序列后面分别附上一个特殊字符“&lt;eos&gt;”（end of sequence）表示序列的终止。在测试模型时，一旦输出“&lt;eos&gt;”就终止当前的输出序列。
 
-
 ```{.python .input}
 def read_data(max_seq_len):
     input_tokens = []
