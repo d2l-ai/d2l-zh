@@ -30,6 +30,7 @@ VERSION = find_version('gluonbook', '__init__.py')
 requirements = [
     'numpy',
     'matplotlib',
+	'jupyter'
 ]
 
 setup(
