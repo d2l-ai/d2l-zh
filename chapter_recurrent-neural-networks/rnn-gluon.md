@@ -195,10 +195,10 @@ def detach(state):
 def eval_rnn(data_source):
     l_sum = nd.array([0], ctx=ctx)
     n = 0
-    hidden = model.begin_state(func=nd.zeros, batch_size=batch_size, ctx=ctx)
+    state = model.begin_state(func=nd.zeros, batch_size=batch_size, ctx=ctx)
     for i in range(0, data_source.shape[0] - 1, num_steps):
         X, y = get_batch(data_source, i)
-        output, hidden = model(X, hidden)
+        output, state = model(X, state)
         l = loss(output, y)
         l_sum += l.sum()
         n += l.size
@@ -212,15 +212,15 @@ def train_rnn():
     for epoch in range(1, num_epochs + 1):
         train_l_sum = nd.array([0], ctx=ctx)
         start_time = time.time()
-        hidden = model.begin_state(func=nd.zeros, batch_size=batch_size,
+        state = model.begin_state(func=nd.zeros, batch_size=batch_size,
                                    ctx=ctx)
         for batch_i, idx in enumerate(range(0, train_data.shape[0] - 1,
                                           num_steps)):
             X, y = get_batch(train_data, idx)
-            # 从计算图分离隐藏状态。
-            hidden = detach(hidden)
+            # 从计算图分离隐藏状态变量（包括 LSTM 的记忆细胞）。
+            state = detach(state)
             with autograd.record():
-                output, hidden = model(X, hidden)
+                output, state = model(X, state)
                 # l 形状：(batch_size * num_steps,)。
                 l = loss(output, y).sum() / (batch_size * num_steps)
             l.backward()

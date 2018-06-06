@@ -1,24 +1,24 @@
 # 注意力机制
 
 
-在以上的解码器设计中，各个时刻使用了相同的背景向量。如果解码器的不同时刻可以使用不同的背景向量呢？
+在以上的解码器设计中，各个时间步使用了相同的背景变量。如果解码器的不同时间步可以使用不同的背景变量呢？
 
 ## 设计
 
 
-以英语-法语翻译为例，给定一对输入序列“they are watching”和输出序列“Ils regardent”，解码器在时刻1可以使用更多编码了“they are”信息的背景向量来生成“Ils”，而在时刻2可以使用更多编码了“watching”信息的背景向量来生成“regardent”。这看上去就像是在解码器的每一时刻对输入序列中不同时刻分配不同的注意力。这也是注意力机制的由来。它最早[由Bahanau等在2015年提出](https://arxiv.org/abs/1409.0473)。
+以英语-法语翻译为例，给定一对输入序列“they are watching”和输出序列“Ils regardent”，解码器在时间步1可以使用更多编码了“they are”信息的背景变量来生成“Ils”，而在时间步2可以使用更多编码了“watching”信息的背景变量来生成“regardent”。这看上去就像是在解码器的每一时间步对输入序列中不同时间步分配不同的注意力。这也是注意力机制的由来。它最早[由Bahanau等在2015年提出](https://arxiv.org/abs/1409.0473)。
 
-现在，对上面的解码器稍作修改。我们假设时刻$t^\prime$的背景向量为$\boldsymbol{c}_{t^\prime}$。那么解码器在$t^\prime$时刻的隐含层变量
+现在，对上面的解码器稍作修改。我们假设时间步$t^\prime$的背景变量为$\boldsymbol{c}_{t^\prime}$。那么解码器在$t^\prime$时间步的隐含层变量
 
 $$\boldsymbol{s}_{t^\prime} = g(\boldsymbol{y}_{t^\prime-1}, \boldsymbol{c}_{t^\prime}, \boldsymbol{s}_{t^\prime-1})$$
 
 
-令编码器在$t$时刻的隐含变量为$\boldsymbol{h}_t$，解码器在$t^\prime$时刻的背景向量为
+令编码器在$t$时间步的隐含变量为$\boldsymbol{h}_t$，解码器在$t^\prime$时间步的背景变量为
 
 $$\boldsymbol{c}_{t^\prime} = \sum_{t=1}^T \alpha_{t^\prime t} \boldsymbol{h}_t$$
 
 
-也就是说，给定解码器的当前时刻$t^\prime$，我们需要对编码器中不同时刻$t$的隐含层变量求加权平均。而权值也称注意力权重。它的计算公式是
+也就是说，给定解码器的当前时间步$t^\prime$，我们需要对编码器中不同时间步$t$的隐含层变量求加权平均。而权值也称注意力权重。它的计算公式是
 
 $$\alpha_{t^\prime t} = \frac{\exp(e_{t^\prime t})}{ \sum_{k=1}^T \exp(e_{t^\prime k}) } $$
 
@@ -35,7 +35,7 @@ $$e_{t^\prime t} = \boldsymbol{v}^\top \tanh(\boldsymbol{W}_s \boldsymbol{s}_{t^
 
 在解码器中，我们需要对GRU的设计稍作修改。
 假设$\boldsymbol{y}_t$是单个输出$y_t$在嵌入层的结果，例如$y_t$对应的one-hot向量$\boldsymbol{o} \in \mathbb{R}^y$与嵌入层参数矩阵$\boldsymbol{B} \in \mathbb{R}^{y \times s}$的乘积$\boldsymbol{o}^\top \boldsymbol{B}$。
-假设时刻$t^\prime$的背景向量为$\boldsymbol{c}_{t^\prime}$。那么解码器在$t^\prime$时刻的单个隐含层变量
+假设时间步$t^\prime$的背景变量为$\boldsymbol{c}_{t^\prime}$。那么解码器在$t^\prime$时间步的单个隐含层变量
 
 $$\boldsymbol{s}_{t^\prime} = \boldsymbol{z}_{t^\prime} \odot \boldsymbol{s}_{t^\prime-1}  + (1 - \boldsymbol{z}_{t^\prime}) \odot \tilde{\boldsymbol{s}}_{t^\prime}$$
 
@@ -48,9 +48,12 @@ $$\boldsymbol{z}_{t^\prime} = \sigma(\boldsymbol{W}_{yz} \boldsymbol{y}_{t^\prim
 
 $$\tilde{\boldsymbol{s}}_{t^\prime} = \text{tanh}(\boldsymbol{W}_{ys} \boldsymbol{y}_{t^\prime-1} + \boldsymbol{W}_{ss} (\boldsymbol{s}_{t^\prime - 1} \odot \boldsymbol{r}_{t^\prime}) + \boldsymbol{W}_{cs} \boldsymbol{c}_{t^\prime} + \boldsymbol{b}_s)$$
 
+
+我们将在本章稍后的[“机器翻译”](nmt.md)一节中实现含深度循环神经网络的编码器和解码器。
+
 ## 小结
 
-* 在解码器上应用注意力机制可以在解码器的每个时刻使用不同的背景向量。每个背景向量相当于对输入序列的不同部分分配了不同的注意力。
+* 在解码器上应用注意力机制可以在解码器的每个时间步使用不同的背景变量。每个背景变量相当于对输入序列的不同部分分配了不同的注意力。
 
 
 ## 练习
@@ -66,3 +69,10 @@ $$\tilde{\boldsymbol{s}}_{t^\prime} = \text{tanh}(\boldsymbol{W}_{ys} \boldsymbo
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6759)
 
 ![](../img/qr_seq2seq-attention.svg)
+
+
+## 参考文献
+
+[1] Bahdanau, Dzmitry, Kyunghyun Cho, and Yoshua Bengio. “Neural machine translation by jointly learning to align and translate.” arXiv:1409.0473 (2014).
+
+[2] Luong, Minh-Thang, Hieu Pham, and Christopher D. Manning. “Effective approaches to attention-based neural machine translation.” arXiv:1508.04025 (2015).

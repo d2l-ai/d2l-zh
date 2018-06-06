@@ -1,6 +1,6 @@
 # 求近似词和类比词
 
-本节介绍如何应用预训练的词向量，例如求近似词和类比词。这里使用的预训练的GloVe和fastText词向量分别来自它们的项目网站 [1,2]。
+本节介绍如何应用在大规模语料上预训练的词向量，例如求近似词和类比词。这里使用的预训练的GloVe和fastText词向量分别来自它们的项目网站 [1,2]。
 
 首先导入实验所需的包或模块。
 
@@ -12,10 +12,10 @@ from mxnet.gluon import nn
 
 ## 由数据集建立词典和载入词向量
 
-下面，我们以fastText为例，由数据集建立词典并载入词向量。fastText提供了基于不同语言的多套预训练的词向量。以下打印了其中的5套。
+下面，我们以fastText为例，由数据集建立词典并载入词向量。fastText提供了基于不同语言的多套预训练的词向量。这些词向量是在大规模语料上训练得到的，例如维基百科语料。以下打印了其中的10套。
 
 ```{.python .input  n=34}
-text.embedding.get_pretrained_file_names('fasttext')[:5]
+print(text.embedding.get_pretrained_file_names('fasttext')[:10])
 ```
 
 ### 访问词向量
@@ -85,10 +85,10 @@ layer(nd.array([2, 1]))[:, :5]
 
 除了使用数据集建立词典外，我们还可以直接由预训练词向量建立词典。
 
-这一次我们使用GloVe的预训练词向量。以下打印了GloVe提供的预训练词向量中的5套。
+这一次我们使用GloVe的预训练词向量。以下打印了GloVe提供的各套预训练词向量。这些词向量是在大规模语料上训练得到的，例如维基百科语料和推特语料。
 
 ```{.python .input  n=35}
-text.embedding.get_pretrained_file_names('glove')[:5]
+print(text.embedding.get_pretrained_file_names('glove'))
 ```
 
 我们使用50维的词向量。和之前不同，这里不再传入根据数据集建立的词典，而是直接使用预训练词向量中的词建立词典。

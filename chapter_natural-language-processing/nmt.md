@@ -39,6 +39,7 @@ encoder_num_layers = 1
 decoder_num_layers = 2
 encoder_drop_prob = 0.1
 decoder_drop_prob = 0.1
+encoder_embed_size = 256
 encoder_num_hiddens = 256
 decoder_num_hiddens = 256
 alignment_size = 25
@@ -50,6 +51,10 @@ ctx = mx.cpu(0)
 我们定义函数读取训练数据集。为了减少运行时间，我们使用一个很小的法语——英语数据集。
 
 这里使用了[之前章节](pretrained-embedding.md)介绍的`mxnet.contrib.text`来创建法语和英语的词典。需要注意的是，我们会在句末附上EOS符号，并可能通过添加PAD符号使每个序列等长。
+
+
+我们通常会在输入序列和输出序列后面分别附上一个特殊字符“&lt;eos&gt;”（end of sequence）表示序列的终止。在测试模型时，一旦输出“&lt;eos&gt;”就终止当前的输出序列。
+
 
 ```{.python .input}
 def read_data(max_seq_len):
@@ -103,14 +108,14 @@ dataset = gdata.ArrayDataset(fr, en)
 ```{.python .input}
 class Encoder(nn.Block):
     """编码器。"""
-    def __init__(self, num_inputs, num_hiddens, num_layers, drop_prob,
-                 **kwargs):
+    def __init__(self, num_inputs, embed_size, num_hiddens, num_layers,
+                 drop_prob, **kwargs):
         super(Encoder, self).__init__(**kwargs)
         with self.name_scope():
-            self.embedding = nn.Embedding(num_inputs, num_hiddens)
+            self.embedding = nn.Embedding(num_inputs, embed_size)
             self.dropout = nn.Dropout(drop_prob)
             self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
-                               input_size=num_hiddens)
+                               input_size=embed_size)
 
     def forward(self, inputs, state):
         embedding = self.embedding(inputs).swapaxes(0, 1)
@@ -304,8 +309,8 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx,
 以下分别实例化编码器、解码器和解码器初始隐藏状态网络。
 
 ```{.python .input}
-encoder = Encoder(len(input_vocab), encoder_num_hiddens, encoder_num_layers,
-                  encoder_drop_prob)
+encoder = Encoder(len(input_vocab), encoder_embed_size, encoder_num_hiddens,
+                  encoder_num_layers, encoder_drop_prob)
 decoder = Decoder(decoder_num_hiddens, len(output_vocab),
                   decoder_num_layers, max_seq_len, decoder_drop_prob,
                   alignment_size, encoder_num_hiddens)
@@ -323,7 +328,7 @@ train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens)
 
 ## 束搜索
 
-在上一节里，我们提到编码器最终输出了一个背景向量$\boldsymbol{c}$，该背景向量编码了输入序列$x_1, x_2, \ldots, x_T$的信息。假设训练数据中的输出序列是$y_1, y_2, \ldots, y_{T^\prime}$，输出序列的生成概率是
+在上一节里，我们提到编码器最终输出了一个背景变量$\boldsymbol{c}$，该背景变量编码了输入序列$x_1, x_2, \ldots, x_T$的信息。假设训练数据中的输出序列是$y_1, y_2, \ldots, y_{T^\prime}$，输出序列的生成概率是
 
 $$\mathbb{P}(y_1, \ldots, y_{T^\prime}) = \prod_{t^\prime=1}^{T^\prime} \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c}).$$
 
