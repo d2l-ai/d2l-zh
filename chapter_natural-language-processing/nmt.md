@@ -3,7 +3,7 @@
 本节介绍[编码器—解码器和注意力机制](seq2seq-attention.md)的应用。我们以神经机器翻译（neural machine translation）为例，介绍如何使用Gluon实现一个简单的编码器—解码器和注意力机制模型。
 
 
-## 使用Gluon实现编码器—解码器和注意力机制
+## 实现编码器—解码器和注意力机制
 
 我们先载入需要的包。
 
@@ -325,32 +325,6 @@ eval_fr_ens =[['elle est japonaise .', 'she is japanese .'],
 train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens)
 ```
 
-## 束搜索
-
-在上一节里，我们提到编码器最终输出了一个背景变量$\boldsymbol{c}$，该背景变量编码了输入序列$x_1, x_2, \ldots, x_T$的信息。假设训练数据中的输出序列是$y_1, y_2, \ldots, y_{T^\prime}$，输出序列的生成概率是
-
-$$\mathbb{P}(y_1, \ldots, y_{T^\prime}) = \prod_{t^\prime=1}^{T^\prime} \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c}).$$
-
-
-对于机器翻译的输出来说，如果输出语言的词汇集合$\mathcal{Y}$的大小为$|\mathcal{Y}|$，输出序列的长度为$T^\prime$，那么可能的输出序列种类是$\mathcal{O}(|\mathcal{Y}|^{T^\prime})$。为了找到生成概率最大的输出序列，一种方法是计算所有$\mathcal{O}(|\mathcal{Y}|^{T^\prime})$种可能序列的生成概率，并输出概率最大的序列。我们将该序列称为最优序列。但是这种方法的计算开销过高（例如，$10000^{10} = 1 \times 10^{40}$）。
-
-
-我们目前所介绍的解码器在每个时刻只输出生成概率最大的一个词汇。对于任一时刻$t^\prime$，我们从$|\mathcal{Y}|$个词中搜索出输出词
-
-$$y_{t^\prime} = \text{argmax}_{y_{t^\prime} \in \mathcal{Y}} \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c})$$
-
-因此，搜索计算开销（$\mathcal{O}(|\mathcal{Y}| \times {T^\prime})$）显著下降（例如，$10000 \times 10 = 1 \times 10^5$），但这并不能保证一定搜索到最优序列。
-
-束搜索（beam search）介于上面二者之间。我们来看一个例子。
-
-假设输出序列的词典中只包含五个词：$\mathcal{Y} = \{A, B, C, D, E\}$。束搜索的一个超参数叫做束宽（beam width）。以束宽等于2为例，假设输出序列长度为3，假如时刻1生成概率$\mathbb{P}(y_{t^\prime} \mid \boldsymbol{c})$最大的两个词为$A$和$C$，我们在时刻2对于所有的$y_2 \in \mathcal{Y}$都分别计算$\mathbb{P}(y_2 \mid A, \boldsymbol{c})$和$\mathbb{P}(y_2 \mid C, \boldsymbol{c})$，从计算出的10个概率中取最大的两个，假设为$\mathbb{P}(B \mid A, \boldsymbol{c})$和$\mathbb{P}(E \mid C, \boldsymbol{c})$。那么，我们在时刻3对于所有的$y_3 \in \mathcal{Y}$都分别计算$\mathbb{P}(y_3 \mid A, B, \boldsymbol{c})$和$\mathbb{P}(y_3 \mid C, E, \boldsymbol{c})$，从计算出的10个概率中取最大的两个，假设为$\mathbb{P}(D \mid A, B, \boldsymbol{c})$和$\mathbb{P}(D \mid C, E, \boldsymbol{c})$。
-
-接下来，我们可以在输出序列：$A$、$C$、$AB$、$CE$、$ABD$、$CED$中筛选出以特殊字符EOS结尾的候选序列。再在候选序列中取以下分数最高的序列作为最终候选序列：
-
-$$ \frac{1}{L^\alpha} \log \mathbb{P}(y_1, \ldots, y_{L}) = \frac{1}{L^\alpha} \sum_{t^\prime=1}^L \log \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c})$$
-
-其中$L$为候选序列长度，$\alpha$一般可选为0.75。分母上的$L^\alpha$是为了惩罚较长序列的分数中的对数相加项。
-
 ## 评价翻译结果
 
 2002年，IBM团队提出了一种评价翻译结果的指标，叫做[BLEU](https://www.aclweb.org/anthology/P02-1040.pdf) （Bilingual Evaluation Understudy）。
@@ -364,7 +338,6 @@ $$ \exp(\min(0, 1 - \frac{len_{ref}}{len_{MT}})) \prod_{i=1}^k p_n^{1/2^n}$$
 ## 小结
 
 * 我们可以将编码器—解码器和注意力机制应用于神经机器翻译中。
-* 束搜索有可能提高输出质量。
 * BLEU可以用来评价翻译结果。
 
 

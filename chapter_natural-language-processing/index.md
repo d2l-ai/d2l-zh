@@ -15,6 +15,7 @@
    pretrained-embedding
    sentiment-analysis
    seq2seq
+   beam-search
    attention
    nmt
 ```

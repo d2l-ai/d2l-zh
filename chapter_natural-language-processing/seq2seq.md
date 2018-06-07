@@ -61,6 +61,7 @@ $$\boldsymbol{s}_{t^\prime} = g(y_{t^\prime-1}, \boldsymbol{c}, \boldsymbol{s}_{
 
 * 编码器-解码器（seq2seq）可以输入并输出不定长的序列。
 * 编码器—解码器使用了两个循环神经网络。
+* 预测不定长序列的方法包括穷举搜索、贪婪搜索和束搜索。
 
 
 ## 练习

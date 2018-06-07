@@ -89,6 +89,8 @@ vocab_size
 
 我们可以定义一个循环神经网络模型库。这样我们就可以使用以ReLU或tanh函数为激活函数的循环神经网络，以及长短期记忆和门控循环单元。和本章中其他实验不同，这里使用了Embedding实例将每个词索引变换成一个长度为`embed_size`的词向量。这些词向量实际上也是模型参数。在随机初始化后，它们会在模型训练结束时被学到。此外，我们使用了丢弃法来应对过拟合。
 
+这里的Embedding实例也叫嵌入层。我们会在“自然语言处理”篇章介绍如何用在大规模语料上预训练的词向量初始化嵌入层参数。
+
 ```{.python .input  n=5}
 class RNNModel(nn.Block):
     def __init__(self, mode, vocab_size, embed_size, num_hiddens,
