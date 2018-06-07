@@ -19,7 +19,7 @@
 
 $$y_{t^\prime} = \text{argmax}_{y_{t^\prime} \in \mathcal{Y}} \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c}),$$
 
-且一旦搜索出“&lt;eos&gt;”就中止。
+且一旦搜索出“&lt;eos&gt;”字符即完成输出。
 
 
 设输出文本词典$\mathcal{Y}$的大小为$|\mathcal{Y}|$，输出序列的最大长度为$T^\prime$。
