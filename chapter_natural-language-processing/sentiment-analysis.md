@@ -2,9 +2,13 @@
 
 文本分类即把一段不定长的文本序列变换为类别。在文本分类问题中，情感分析是一项重要的自然语言处理的任务。例如，Netflix或者IMDb可以对每部电影的评论进行情感分类，从而帮助各个平台改进产品，提升用户体验。
 
-本节介绍如何使用Gluon来创建一个情感分类模型。该模型将判断一段不定长的文本序列中包含的是正面还是负面的情绪，也即将文本序列分类为正面或负面。在这个模型中，我们将应用预训练的词向量和双向循环神经网络。
+本节介绍如何使用Gluon来创建一个情感分类模型。该模型将判断一段不定长的文本序列中包含的是正面还是负面的情绪，也即将文本序列分类为正面或负面。
 
-首先，导入本节实验所需的包或模块。
+## 模型设计
+
+在这个模型中，我们将应用预训练的词向量和含多个隐藏层的双向循环神经网络。首先，文本序列的每一个词将以预训练的词向量作为词的特征向量。然后，我们使用双向循环神经网络对特征序列进一步编码得到序列信息。最后，我们将编码的序列信息通过全连接层变换为输出。在本节的实验中，我们将双向长短期记忆在最初时间步和最终时间步的隐藏状态连结，并作为特征序列的编码信息传递给输出层分类。
+
+在实验开始前，导入所需的包或模块。
 
 ```{.python .input  n=1}
 import sys
@@ -28,7 +32,7 @@ import zipfile
 
 这个数据集分为训练和测试用的两个数据集，分别有25,000条从IMDb下载的关于电影的评论。在每个数据集中，标签为“正面”（1）和“负面”（0）的评论数量相等。将下载好的数据解压并存放在路径“../data/aclImdb”。
 
-为方便快速上手，我们提供了上述数据集的小规模采样，并存放在路径“../data/aclImdb_tiny.zip”。如果你将使用上述数据集的完整版本，还需要把下面`demo`变量改为`False`。
+为方便快速上手，我们提供了上述数据集的小规模采样，并存放在路径“../data/aclImdb_tiny.zip”。如果你将使用上述的IMDb完整数据集，还需要把下面`demo`变量改为`False`。
 
 ```{.python .input  n=2}
 # 如果训练下载的 IMDb 的完整数据集，把下面改 False。
@@ -40,7 +44,7 @@ if demo:
 
 下面，读取训练和测试数据集。
 
-```{.python .input  n=3}
+```{.python .input}
 def readIMDB(dir_url, seg='train'):
     pos_or_neg = ['pos', 'neg']
     data = []
@@ -86,10 +90,9 @@ for review, score in test_data:
 
 ## 创建词典
 
-现在，先根据分好词的训练数据创建counter，然后使用mxnet.contrib中的`vocab`创建词典。
-这里我们特别设置训练数据中没有的单词对应的符号'<unk\>'，所有不存在在词典中的词，未来都将对应到这个符号。
+现在，我们可以根据分好词的训练数据集来创建词典了。这里我们设置了特殊符号“&lt;unk&gt;”（unknown）。它将表示一切不存在于训练数据集词典中的词。
 
-```{.python .input  n=5}
+```{.python .input  n=6}
 token_counter = collections.Counter()
 def count_token(train_tokenized):
     for sample in train_tokenized:
@@ -104,12 +107,11 @@ vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>',
                               reserved_tokens=None)
 ```
 
-## 将分好词的数据转化成NDArray
+## 预处理数据
 
-这小节我们介绍如果将数据转化成为NDArray。
+下面，我们继续对数据进行预处理。每个不定长的评论将被特殊符号`padding`补成长度为`maxlen`的序列。
 
-```{.python .input  n=6}
-# 根据词典，将数据转换成特征向量。
+```{.python .input  n=7}
 def encode_samples(tokenized_samples, vocab):
     features = []
     for sample in tokenized_samples:
@@ -134,55 +136,53 @@ def pad_samples(features, maxlen=500, padding=0):
                 padded_feature.append(padding)
         padded_features.append(padded_feature)
     return padded_features
-```
 
-运行下面的代码将分好词的训练和测试数据转化成特征向量。
-
-```{.python .input  n=7}
+ctx = gb.try_gpu()
 train_features = encode_samples(train_tokenized, vocab)
 test_features = encode_samples(test_tokenized, vocab)
-```
-
-通过执行下面的代码将特征向量补成定长（我们使用500），然后将特征向量转化为指定context上的NDArray。
-这里我们假定我们有至少一块gpu，context被设置成gpu。当然，也可以使用cpu，运行速度可能稍微慢一点点。
-
-```{.python .input  n=8}
-ctx = gb.try_gpu()
 train_features = nd.array(pad_samples(train_features, 500, 0), ctx=ctx)
 test_features = nd.array(pad_samples(test_features, 500, 0), ctx=ctx)
-```
-
-这里，我们将情感标签也转化成为了NDArray。
-
-```{.python .input  n=9}
 train_labels = nd.array([score for _, score in train_data], ctx=ctx)
 test_labels = nd.array([score for _, score in test_data], ctx=ctx)
 ```
 
 ## 加载预训练的词向量
 
-这里我们使用之前创建的词典`vocab`以及GloVe词向量创建词典中每个词所对应的词向量。词向量将在后续的模型中作为每个词的初始权重加入模型，
-这样做有助于提升模型的结果。我们在这里使用'glove.6B.100d.txt'作为预训练的词向量。
+这里，我们为词典`vocab`中的每个词加载GloVe词向量（每个词向量长度为100）。稍后，我们将用这些词向量作为评论中每个词的特征向量。
 
-```{.python .input  n=10}
+```{.python .input  n=11}
 glove_embedding = text.embedding.create(
     'glove', pretrained_file_name='glove.6B.100d.txt', vocabulary=vocab)
 ```
 
-## 创建情感分析模型
+## 定义模型
 
-情感分类模型是一种比较经典的能使用LSTM模型的应用。我们特别的使用预训练的词向量来初始化`embedding layer`的权重，然后使用双向LSTM抽取特征。具体地，输入的是一个句子即不定长的序列，然后通过`embedding layer`，利用预训练的词向量表示句子，通过LSTM抽取句子的特征，然后输出是一个长度为1的标签。根据上述原理，我们设计如下神经网络结构，其结构比较简单，如下图所示。
+下面我们根据模型设计里的描述定义情感分类模型。其中的Embedding实例即嵌入层。
 
-<img src="../img/samodel.svg">
+```{.python .input}
+class SentimentNet(nn.Block):
+    def __init__(self, vocab, embed_size, num_hiddens, num_layers,
+                 bidirectional, **kwargs):
+        super(SentimentNet, self).__init__(**kwargs)
+        with self.name_scope():
+            self.embedding = nn.Embedding(len(vocab), embed_size)
+            self.encoder = rnn.LSTM(num_hiddens, num_layers=num_layers,
+                                    bidirectional=bidirectional,
+                                    input_size=embed_size)
+            self.decoder = nn.Dense(num_outputs, flatten=False)
 
-模型包含四部分：
-1. `embedding layer`: 其将输入数据转化成为TNC的NDArray，并且使用预先加载词向量作为该层的权重。
-2. `encoder`: 我们将重点介绍这一部分。decoder是由一个两层的双向LSTM构成。
-这样做的好处是，我们能够利用LSTM的输出作为输入样本的特征，之后用于预测。
-3. `pooling layer`: 我们使用这个encoder在时刻0的输出，以及时刻最后一步的输出作为每个batch中examples的特征。
-4. `decoder`: 最后，我们利用上一步所生成的特征，通过一个dense层做预测。
+    def forward(self, inputs, begin_state=None):
+        embeddings = self.embedding(inputs)
+        states = self.encoder(embeddings)
+        # 连结初始时间步和最终时间步的隐藏状态。
+        encoding = nd.concat(states[0], states[-1])
+        outputs = self.decoder(encoding)
+        return outputs
+```
 
-```{.python .input  n=11}
+由于情感分类的训练数据集并不是很大，我们将直接使用在更大规模语料上预训练的词向量作为每个词的特征向量。在训练中，我们不再迭代这些词向量，即模型嵌入层中的参数。当我们使用完整数据集时，我们可以重新调节下面的超参数，例如增加迭代周期。
+
+```{.python .input}
 num_outputs = 2
 lr = 0.1
 num_epochs = 1
@@ -191,44 +191,22 @@ embed_size = 100
 num_hiddens = 100
 num_layers = 2
 bidirectional = True
-```
-
-```{.python .input  n=12}
-class SentimentNet(nn.Block):
-    def __init__(self, vocab, embed_size, num_hiddens, num_layers,
-                 bidirectional, **kwargs):
-        super(SentimentNet, self).__init__(**kwargs)
-        with self.name_scope():
-            self.embedding = nn.Embedding(
-                len(vocab), embed_size, weight_initializer=init.Uniform(0.1))
-            self.encoder = rnn.LSTM(num_hiddens, num_layers=num_layers,
-                                    bidirectional=bidirectional,
-                                    input_size=embed_size)
-            self.decoder = nn.Dense(num_outputs, flatten=False)
-    def forward(self, inputs, begin_state=None):
-        outputs = self.embedding(inputs)
-        outputs = self.encoder(outputs)
-        outputs = nd.concat(outputs[0], outputs[-1])
-        outputs = self.decoder(outputs)
-        return outputs
-
+    
 net = SentimentNet(vocab, embed_size, num_hiddens, num_layers, bidirectional)
 net.initialize(init.Xavier(), ctx=ctx)
-# 设置 embedding 层的 weight 为词向量。
+# 设置 embedding 层的 weight 为预训练的词向量。
 net.embedding.weight.set_data(glove_embedding.idx_to_vec.as_in_context(ctx))
-# 对 embedding 层不进行优化。
+# 训练中不迭代词向量（net.embedding中的模型参数）。
 net.embedding.collect_params().setattr('grad_req', 'null')
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 loss = gloss.SoftmaxCrossEntropyLoss()
 ```
 
-## 训练模型
+## 训练并评价模型
 
-这里我们训练模型。我们使用预先设置好的迭代次数和`batch_size`训练模型。可以看到，Gluon能极大的简化训练的代码量，
-使得训练过程看起来非常简洁。另外，我们使用交叉熵作为损失函数，使用准确率来评价模型。
+在实验中，我们使用准确率作为评价模型的指标。
 
 ```{.python .input  n=13}
-# 使用准确率作为评价指标。
 def eval_model(features, labels):
     l_sum = 0
     l_n = 0
@@ -244,7 +222,7 @@ def eval_model(features, labels):
     return l_sum / l_n, accuracy.get()[1]
 ```
 
-运行下面的代码开始训练模型。
+下面开始训练模型。
 
 ```{.python .input  n=14}
 for epoch in range(1, num_epochs + 1):
@@ -263,51 +241,30 @@ for epoch in range(1, num_epochs + 1):
           % (epoch, train_loss, train_acc, test_loss, test_acc))
 ```
 
-```{.json .output n=14}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "epoch 1, train loss 0.693665, acc 0.40; test loss 0.691642, acc 0.50\n"
- }
-]
-```
+下面我们试着对一个简单的句子分析情感（1和0分别代表正面和负面）。为了在更复杂的句子上得到较准确的分类，我们需要使用完整数据集训练模型，并适当增大训练周期。
 
-到这里，我们已经成功使用Gluon创建了一个情感分类模型。下面我们举了一个例子，来看看我们情感分类模型的效果（1代表正面，0代表负面）。如果希望在不同句子上得到较准确的分类，我们需要使用更大的数据集，并增大模型训练周期。
-
-```{.python .input  n=15}
+```{.python .input}
 review = ['this', 'movie', 'is', 'great']
 nd.argmax(net(nd.reshape(
     nd.array([vocab.token_to_idx[token] for token in review], ctx=ctx), 
     shape=(-1, 1))), axis=1).asscalar()
 ```
 
-```{.json .output n=15}
-[
- {
-  "data": {
-   "text/plain": "1.0"
-  },
-  "execution_count": 15,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 ## 小结
 
-这节，我们使用了之前学到的预训练的词向量以及双向LSTM来构建情感分类模型，通过使用Gluon，我们可以很简单的就构造出一个还不错的情感模型。
+* 我们可以应用预训练的词向量和循环神经网络对文本进行情感分析。
+
 
 ## 练习
 
-大家可以尝试下面几个方向来得到更好的情感分类模型：
+* 使用IMDb完整数据集，并把迭代周期改为3。你的模型能在训练和测试数据集上得到怎样的准确率？通过调节超参数，你能进一步提升模型表现吗？
 
-* 想要提高最后的准确率，有一个小方法，就是把迭代次数(`num_epochs`)改成3。最后在训练和测试数据上准确率大概能达到0.82。
-* 可以尝试使用更好的分词工具得到更好的分词效果，会对最终结果有帮助。例如可以使用spacy分词工具，先pip安装spacy：``pip install spacy``，并且安装spacy的英文包：``python -m spacy download en``，然后运行下面的代码分词，先载入spacy：``import spacy ``，接着加载spacy英文包：``spacy_en = spacy.load('en')``，最后定义基于spacy的分词函数：``def tokenizer(text): return [tok.text for tok in spacy_en.tokenizer(text)]``替换原来的基于空格的分词工具。注意，GloVe的向量对于名词词组的存储方式是用'-'连接独立单词，例如'new york'为'new-york'。而使用spacy分词之后'new york'的存储可能是'new york'。所以为了得到更好的embedding效果，可以对于词组进行简单的后续处理。使用spacy作为分词工具，能使准确率上升到0.85以上。
-* 使用更大的预训练词向量，例如300维的GloVe向量。
-* 使用更加深层的`encoder`，即使用更多数量的layer。
-* 使用更加有意思的`decoder`，例如可以加上LSTM，之后再加上dense layer。
+* 使用更大的预训练词向量，例如300维的GloVe词向量。
+
+* 使用spacy分词工具。你需要安装spacy：`pip install spacy`，并且安装英文包：`python -m spacy download en`。在代码中，先导入spacy：`import spacy`。然后加载spacy英文包：`spacy_en = spacy.load('en')`。最后定义函数：`def tokenizer(text): return [tok.text for tok in spacy_en.tokenizer(text)]`替换原来的基于空格分词的`tokenizer`函数。需要注意的是，GloVe的词向量对于名词词组的存储方式是用“-”连接各个单词，例如词组“new york”在GloVe中的表示为“new-york”。而使用spacy分词之后“new york”的存储可能是“new york”。你能使模型在测试集上的准确率提高到0.85以上吗？
+
+
+
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6155)
 

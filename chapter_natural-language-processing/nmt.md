@@ -16,7 +16,7 @@ from mxnet.contrib import text
 from mxnet.gluon import data as gdata, loss as gloss, nn, rnn
 ```
 
-下面定义一些特殊字符。其中PAD（padding）符号使每个序列等长；BOS（beginning of sequence）符号表示序列的开始；而EOS（end of sequence）符号表示序列的结束。
+下面定义一些特殊符号。其中“&lt;pad&gt;”（padding）符号使每个序列等长；“&lt;bos&gt;”（beginning of sequence）符号表示序列的开始；而“&lt;eos&gt;”（end of sequence）符号表示序列的结束。
 
 ```{.python .input}
 PAD = '<pad>'
@@ -24,7 +24,7 @@ BOS = '<bos>'
 EOS = '<eos>'
 ```
 
-以下设置了模型超参数。我们在编码器和解码器中分别使用了一层和两层的循环神经网络。实验中，我们选取长度不超过5的输入和输出序列，并将预测时输出序列的最大长度设为20。这些序列长度考虑了句末添加的EOS字符。
+以下设置了模型超参数。我们在编码器和解码器中分别使用了一层和两层的循环神经网络。实验中，我们选取长度不超过5的输入和输出序列，并将预测时输出序列的最大长度设为20。这些序列长度考虑了句末添加的“&lt;eos&gt;”符号。
 
 ```{.python .input}
 num_epochs = 40
@@ -46,7 +46,7 @@ ctx = mx.cpu(0)
 
 ### 读取数据
 
-我们定义函数读取训练数据集。为了演示方便，这里使用了一个很小的法语—英语数据集。在读取数据时，我们在句末附上EOS符号，并可能通过添加PAD符号使每个序列等长。
+我们定义函数读取训练数据集。为了演示方便，这里使用了一个很小的法语—英语数据集。在读取数据时，我们在句末附上“&lt;eos&gt;”符号，并可能通过添加“&lt;pad&gt;”符号使每个序列等长。
 
 ```{.python .input}
 def read_data(max_seq_len):
@@ -201,7 +201,7 @@ class DecoderInitState(nn.Block):
 
 ### 训练模型并输出不定长序列
 
-我们定义`translate`函数应用训练好的模型，并通过贪婪搜索输出不定长的翻译文本序列。解码器的最初时间步输入来自BOS字符。对于一个输出中的序列，当解码器在某一时间步搜索出EOS字符时，即完成该输出序列。
+我们定义`translate`函数应用训练好的模型，并通过贪婪搜索输出不定长的翻译文本序列。解码器的最初时间步输入来自“&lt;bos&gt;”符号。对于一个输出中的序列，当解码器在某一时间步搜索出“&lt;eos&gt;”符号时，即完成该输出序列。
 
 ```{.python .input}
 def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
@@ -217,7 +217,7 @@ def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
         encoder_outputs, encoder_state = encoder(inputs.expand_dims(0),
                                                  encoder_state)
         encoder_outputs = encoder_outputs.flatten()
-        # 解码器的第一个输入为 BOS 字符。
+        # 解码器的第一个输入为 BOS 符号。
         decoder_input = nd.array([output_vocab.token_to_idx[BOS]], ctx=ctx)
         decoder_state = decoder_init_state(encoder_state[0])
         output_tokens = []
@@ -226,7 +226,7 @@ def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
             decoder_output, decoder_state = decoder(
                 decoder_input, decoder_state, encoder_outputs)
             pred_i = int(decoder_output.argmax(axis=1).asnumpy()[0])
-            # 当任一时间步搜索出 EOS 字符时，输出序列即完成。
+            # 当任一时间步搜索出 EOS 符号时，输出序列即完成。
             if pred_i == output_vocab.token_to_idx[EOS]:
                 break
             else:
@@ -266,7 +266,7 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx,
                     func=nd.zeros, batch_size=cur_batch_size, ctx=ctx)
                 encoder_outputs, encoder_state = encoder(x, encoder_state)
                 encoder_outputs = encoder_outputs.flatten()
-                # 解码器的第一个输入为 BOS 字符。
+                # 解码器的第一个输入为 BOS 符号。
                 decoder_input = nd.array(
                     [output_vocab.token_to_idx[BOS]] * cur_batch_size,
                     ctx=ctx)
