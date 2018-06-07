@@ -1,6 +1,6 @@
 # 文本分类：情感分析
 
-和图像分类类似，文本分类就是把一段不定长的文本序列变换为类别。在文本分类问题中，情感分析是一项重要的自然语言处理的任务。例如，Netflix或者IMDb可以对每部电影的评论进行情感分类，从而帮助各个平台改进产品，提升用户体验。
+文本分类即把一段不定长的文本序列变换为类别。在文本分类问题中，情感分析是一项重要的自然语言处理的任务。例如，Netflix或者IMDb可以对每部电影的评论进行情感分类，从而帮助各个平台改进产品，提升用户体验。
 
 本节介绍如何使用Gluon来创建一个情感分类模型。该模型将判断一段不定长的文本序列中包含的是正面还是负面的情绪，也即将文本序列分类为正面或负面。在这个模型中，我们将应用预训练的词向量和双向循环神经网络。
 
@@ -22,21 +22,13 @@ import zipfile
 
 ## 读取IMDb数据集
 
-接着需要下载情感分析时需要用的数据集。我们使用Stanford's Large Movie Review Dataset[1] 作为数据集。
+我们使用Stanford's Large Movie Review Dataset作为情感分析的数据集 [1]。它的下载地址是
 
-* 下载地址：http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz 。
+> http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz 。
 
-这个数据集分为训练（train）和测试（test）数据集，分别都有25,000条从IMDb下载的关于电影的评论，其中12,500条被标注成“正面”的评论，
-另外12,500条被标注成“负面”的评论。我们使用1表示'正面'评论，0表示'负面'评论。
+这个数据集分为训练和测试用的两个数据集，分别有25,000条从IMDb下载的关于电影的评论。在每个数据集中，标签为“正面”（1）和“负面”（0）的评论数量相等。将下载好的数据解压并存放在路径“../data/aclImdb”。
 
-下载好之后，将数据解压，放在教程的'../data/'文件夹之下，最后文件位置如下:
-
-> '../data/aclImdb'
-
-注意，如果读者已经下载了上述数据集，请略过此步，请设置`demo = False`。
-
-否则，如果读者想快速上手，并没有下载上述数据集，我们提供了上述数据集的一个小的采样'../data/aclImdb_tiny.zip'，
-运行下面的代码解压这个小数据集。
+为方便快速上手，我们提供了上述数据集的小规模采样，并存放在路径“../data/aclImdb_tiny.zip”。如果你将使用上述数据集的完整版本，还需要把下面`demo`变量改为`False`。
 
 ```{.python .input  n=2}
 # 如果训练下载的 IMDb 的完整数据集，把下面改 False。
@@ -46,7 +38,9 @@ if demo:
         zin.extractall('../data/')
 ```
 
-```{.python .input}
+下面，读取训练和测试数据集。
+
+```{.python .input  n=3}
 def readIMDB(dir_url, seg='train'):
     pos_or_neg = ['pos', 'neg']
     data = []
@@ -76,17 +70,12 @@ random.shuffle(test_data)
 
 ## 分词
 
-接下来我们对每条评论分词，得到分好词的评论。我们使用最简单的基于空格进行分词（更好的分词工具我们留作练习）。
-运行下面的代码进行分词。
+接下来我们对每条评论做分词，从而得到分好词的评论。这里使用最简单的方法：基于空格进行分词。我们将在本节练习中探究其他的分词方法。
 
 ```{.python .input  n=4}
 def tokenizer(text):
     return [tok.lower() for tok in text.split(' ')]
-```
 
-通过执行下面的代码，我们能够获得训练和测试数据集的分好词的评论，并且得到相应的情感标签（1代表‘正面’，0代表‘负面’情绪）。
-
-```{.python .input  n=5}
 train_tokenized = []
 for review, score in train_data:
     train_tokenized.append(tokenizer(review))
@@ -100,7 +89,7 @@ for review, score in test_data:
 现在，先根据分好词的训练数据创建counter，然后使用mxnet.contrib中的`vocab`创建词典。
 这里我们特别设置训练数据中没有的单词对应的符号'<unk\>'，所有不存在在词典中的词，未来都将对应到这个符号。
 
-```{.python .input  n=6}
+```{.python .input  n=5}
 token_counter = collections.Counter()
 def count_token(train_tokenized):
     for sample in train_tokenized:
@@ -119,7 +108,7 @@ vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>',
 
 这小节我们介绍如果将数据转化成为NDArray。
 
-```{.python .input  n=7}
+```{.python .input  n=6}
 # 根据词典，将数据转换成特征向量。
 def encode_samples(tokenized_samples, vocab):
     features = []
@@ -149,7 +138,7 @@ def pad_samples(features, maxlen=500, padding=0):
 
 运行下面的代码将分好词的训练和测试数据转化成特征向量。
 
-```{.python .input  n=8}
+```{.python .input  n=7}
 train_features = encode_samples(train_tokenized, vocab)
 test_features = encode_samples(test_tokenized, vocab)
 ```
@@ -157,7 +146,7 @@ test_features = encode_samples(test_tokenized, vocab)
 通过执行下面的代码将特征向量补成定长（我们使用500），然后将特征向量转化为指定context上的NDArray。
 这里我们假定我们有至少一块gpu，context被设置成gpu。当然，也可以使用cpu，运行速度可能稍微慢一点点。
 
-```{.python .input  n=9}
+```{.python .input  n=8}
 ctx = gb.try_gpu()
 train_features = nd.array(pad_samples(train_features, 500, 0), ctx=ctx)
 test_features = nd.array(pad_samples(test_features, 500, 0), ctx=ctx)
@@ -165,7 +154,7 @@ test_features = nd.array(pad_samples(test_features, 500, 0), ctx=ctx)
 
 这里，我们将情感标签也转化成为了NDArray。
 
-```{.python .input  n=10}
+```{.python .input  n=9}
 train_labels = nd.array([score for _, score in train_data], ctx=ctx)
 test_labels = nd.array([score for _, score in test_data], ctx=ctx)
 ```
@@ -175,7 +164,7 @@ test_labels = nd.array([score for _, score in test_data], ctx=ctx)
 这里我们使用之前创建的词典`vocab`以及GloVe词向量创建词典中每个词所对应的词向量。词向量将在后续的模型中作为每个词的初始权重加入模型，
 这样做有助于提升模型的结果。我们在这里使用'glove.6B.100d.txt'作为预训练的词向量。
 
-```{.python .input  n=11}
+```{.python .input  n=10}
 glove_embedding = text.embedding.create(
     'glove', pretrained_file_name='glove.6B.100d.txt', vocabulary=vocab)
 ```
@@ -193,7 +182,7 @@ glove_embedding = text.embedding.create(
 3. `pooling layer`: 我们使用这个encoder在时刻0的输出，以及时刻最后一步的输出作为每个batch中examples的特征。
 4. `decoder`: 最后，我们利用上一步所生成的特征，通过一个dense层做预测。
 
-```{.python .input  n=12}
+```{.python .input  n=11}
 num_outputs = 2
 lr = 0.1
 num_epochs = 1
@@ -204,7 +193,7 @@ num_layers = 2
 bidirectional = True
 ```
 
-```{.python .input}
+```{.python .input  n=12}
 class SentimentNet(nn.Block):
     def __init__(self, vocab, embed_size, num_hiddens, num_layers,
                  bidirectional, **kwargs):
@@ -274,13 +263,36 @@ for epoch in range(1, num_epochs + 1):
           % (epoch, train_loss, train_acc, test_loss, test_acc))
 ```
 
+```{.json .output n=14}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "epoch 1, train loss 0.693665, acc 0.40; test loss 0.691642, acc 0.50\n"
+ }
+]
+```
+
 到这里，我们已经成功使用Gluon创建了一个情感分类模型。下面我们举了一个例子，来看看我们情感分类模型的效果（1代表正面，0代表负面）。如果希望在不同句子上得到较准确的分类，我们需要使用更大的数据集，并增大模型训练周期。
 
-```{.python .input}
+```{.python .input  n=15}
 review = ['this', 'movie', 'is', 'great']
 nd.argmax(net(nd.reshape(
     nd.array([vocab.token_to_idx[token] for token in review], ctx=ctx), 
     shape=(-1, 1))), axis=1).asscalar()
+```
+
+```{.json .output n=15}
+[
+ {
+  "data": {
+   "text/plain": "1.0"
+  },
+  "execution_count": 15,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
 ## 小结
