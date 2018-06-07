@@ -175,6 +175,7 @@ def optimize(batch_size, lr, num_epochs, log_interval, decay_epoch):
             gb.data_iter(batch_size, num_examples, features, labels)):
             with autograd.record():
                 l = loss(net(X, w, b), y)
+            # 先对 l 中元素求和，得到小批量损失之和，然后求参数的梯度。
             l.backward()
             sgd([w, b], lr, batch_size)
             if batch_i * batch_size % log_interval == 0:
