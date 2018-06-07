@@ -28,7 +28,7 @@ EOS = '<eos>'
 
 ```{.python .input}
 num_epochs = 40
-epoch_period = 10
+eval_interval = 10
 lr = 0.005
 batch_size = 2
 max_seq_len = 5
@@ -287,12 +287,12 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx,
             decoder_init_state_optimizer.step(1)
             l_sum += l.asscalar() / max_seq_len
 
-        if epoch % epoch_period == 0 or epoch == 1:
+        if epoch % eval_interval == 0 or epoch == 1:
             if epoch == 1:
                 print('epoch %d, loss %f, ' % (epoch, l_sum / len(data_iter)))
             else:
                 print('epoch %d, loss %f, ' 
-                      % (epoch, l_sum / epoch_period / len(data_iter)))
+                      % (epoch, l_sum / eval_interval / len(data_iter)))
             if epoch != 1:
                 l_sum = 0
             translate(encoder, decoder, decoder_init_state, eval_fr_ens, ctx,
