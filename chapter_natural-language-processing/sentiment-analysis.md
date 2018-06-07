@@ -1,6 +1,6 @@
 # 文本分类：情感分析
 
-情感分析是非常重要的一项自然语言处理的任务。例如对于Amazon会对网站所销售的每个产品的评论进行情感分类，Netflix或者IMDb会对每部电影的评论进行情感分类，从而帮助各个平台改进产品，提升用户体验。本节介绍如何使用Gluon来创建一个情感分类模型，目标是给定一句话，判断这句话包含的是“正面”还是“负面”的情绪。为此，我们构造了一个简单的神经网络，其中包括`embedding`层，`encoder`（双向LSTM），`decoder`，来判断IMDb上电影评论蕴含的情感。下面就让我们一起来构造这个情感分析模型吧。
+情感分析是非常重要的一项自然语言处理的任务。例如亚马逊会对网站所销售的每个产品的评论进行情感分类，Netflix或者IMDb会对每部电影的评论进行情感分类，从而帮助各个平台改进产品，提升用户体验。本节介绍如何使用Gluon来创建一个情感分类模型，目标是给定一句话，判断这句话包含的是“正面”还是“负面”的情绪。为此，我们构造了一个简单的神经网络，其中包括`embedding`层，`encoder`（双向LSTM），`decoder`，来判断IMDb上电影评论蕴含的情感。下面就让我们一起来构造这个情感分析模型吧。
 
 
 ## 准备工作
@@ -309,4 +309,4 @@ nd.argmax(net(nd.reshape(
 
 ## 参考文献
 
-[1] Andrew L. Maas, Raymond E. Daly, Peter T. Pham, Dan Huang, Andrew Y. Ng, and Christopher Potts. (2011). Learning Word Vectors for Sentiment Analysis. The 49th Annual Meeting of the Association for Computational Linguistics (ACL 2011).
+[1] Maas, Andrew L., et al. “Learning word vectors for sentiment analysis.” Proceedings of the 49th annual meeting of the association for computational linguistics: Human language technologies-volume 1. Association for Computational Linguistics, 2011.

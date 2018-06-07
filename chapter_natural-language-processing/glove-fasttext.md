@@ -1,7 +1,7 @@
 # 词向量：GloVe和fastText
 
 
-在word2vec被提出以后，很多其他词嵌入模型也陆续发表出来。本节介绍其中比较有代表性的两个模型。它们分别是2014年由斯坦福团队发表的GloVe和2017年由Facebook团队发表的fastText。
+在word2vec被提出以后，很多其他词嵌入模型也陆续发表。本节介绍其中比较有代表性的两个模型。它们分别是由斯坦福团队发表的GloVe和由Facebook团队发表的fastText。
 
 
 ## GloVe
@@ -134,6 +134,6 @@ fastText对于一些语言较重要，例如阿拉伯语、德语和俄语。例
 
 ## 参考文献
 
-[1] Pennington, Jeffrey, Richard Socher, and Christopher Manning. “Glove: Global vectors for word representation.” EMNLP. 2014.
+[1] Pennington, Jeffrey, Richard Socher, and Christopher Manning. “Glove: Global vectors for word representation.” Proceedings of the 2014 conference on empirical methods in natural language processing. 2014.
 
-[2] Bojanowski, Piotr, et al. “Enriching word vectors with subword information.” TACL vol. 5 (2017): 135–146.
+[2] Bojanowski, Piotr, et al. "Enriching word vectors with subword information." arXiv preprint arXiv:1607.04606 (2016).

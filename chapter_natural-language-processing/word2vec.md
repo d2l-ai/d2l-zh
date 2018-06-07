@@ -194,4 +194,4 @@ $$\mathbb{P}(w_3 \mid w_i) = \sigma(\mathbf{u}_{n(w_3,1)}^\top \mathbf{v}_i) \cd
 
 [1] word2vec工具. https://code.google.com/archive/p/word2vec/
 
-[2] Mikolov, Tomas, et al. “Distributed representations of words and phrases and their compositionality.” NIPS. 2013.
+[2] Mikolov, Tomas, et al. “Distributed representations of words and phrases and their compositionality.” Advances in neural information processing systems. 2013.

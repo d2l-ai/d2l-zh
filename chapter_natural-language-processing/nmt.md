@@ -349,7 +349,7 @@ $$ \exp(\min(0, 1 - \frac{len_{\text{label}}}{len_{\text{pred}}})) \prod_{i=1}^k
 
 ## 参考文献
 
-[1] Papineni, Kishore, et al. “BLEU: a method for automatic evaluation of machine translation.” ACL. 2002.
+[1] Papineni, Kishore, et al. “BLEU: a method for automatic evaluation of machine translation.” Proceedings of the 40th annual meeting on association for computational linguistics. Association for Computational Linguistics, 2002.
 
 [2] WMT. http://www.statmt.org/wmt14/translation-task.html
 
