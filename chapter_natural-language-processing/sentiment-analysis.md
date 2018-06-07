@@ -1,15 +1,10 @@
 # 文本分类：情感分析
 
-情感分析是非常重要的一项自然语言处理的任务。例如亚马逊会对网站所销售的每个产品的评论进行情感分类，Netflix或者IMDb会对每部电影的评论进行情感分类，从而帮助各个平台改进产品，提升用户体验。本节介绍如何使用Gluon来创建一个情感分类模型，目标是给定一句话，判断这句话包含的是“正面”还是“负面”的情绪。为此，我们构造了一个简单的神经网络，其中包括`embedding`层，`encoder`（双向LSTM），`decoder`，来判断IMDb上电影评论蕴含的情感。下面就让我们一起来构造这个情感分析模型吧。
+和图像分类类似，文本分类就是把一段不定长的文本序列变换为类别。在文本分类问题中，情感分析是一项重要的自然语言处理的任务。例如，Netflix或者IMDb可以对每部电影的评论进行情感分类，从而帮助各个平台改进产品，提升用户体验。
 
+本节介绍如何使用Gluon来创建一个情感分类模型。该模型将判断一段不定长的文本序列中包含的是正面还是负面的情绪，也即将文本序列分类为正面或负面。在这个模型中，我们将应用预训练的词向量和双向循环神经网络。
 
-## 准备工作
-
-在开始构造情感分析模型之前，我们需要进行下面的一些准备工作。
-
-### 加载MXNet和Gluon
-
-首先，我们当然需要加载MXNet和Gluon。
+首先，导入本节实验所需的包或模块。
 
 ```{.python .input  n=1}
 import sys
@@ -25,7 +20,7 @@ import random
 import zipfile
 ```
 
-### 读取IMDb数据集
+## 读取IMDb数据集
 
 接着需要下载情感分析时需要用的数据集。我们使用Stanford's Large Movie Review Dataset[1] 作为数据集。
 
@@ -56,7 +51,8 @@ def readIMDB(dir_url, seg='train'):
     pos_or_neg = ['pos', 'neg']
     data = []
     for label in pos_or_neg:
-        files = os.listdir('../data/' + dir_url + '/' + seg + '/' + label + '/')
+        files = os.listdir(
+            '../data/' + dir_url + '/' + seg + '/' + label + '/')
         for file in files:
             with open('../data/' + dir_url + '/' + seg + '/' + label + '/' 
                       + file, 'r', encoding='utf8') as rf:
@@ -78,7 +74,7 @@ random.shuffle(train_data)
 random.shuffle(test_data)
 ```
 
-### 指定分词方式并且分词
+## 分词
 
 接下来我们对每条评论分词，得到分好词的评论。我们使用最简单的基于空格进行分词（更好的分词工具我们留作练习）。
 运行下面的代码进行分词。
@@ -99,7 +95,7 @@ for review, score in test_data:
     test_tokenized.append(tokenizer(review))
 ```
 
-### 创建词典
+## 创建词典
 
 现在，先根据分好词的训练数据创建counter，然后使用mxnet.contrib中的`vocab`创建词典。
 这里我们特别设置训练数据中没有的单词对应的符号'<unk\>'，所有不存在在词典中的词，未来都将对应到这个符号。
@@ -119,7 +115,7 @@ vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>',
                               reserved_tokens=None)
 ```
 
-### 将分好词的数据转化成NDArray
+## 将分好词的数据转化成NDArray
 
 这小节我们介绍如果将数据转化成为NDArray。
 
@@ -174,7 +170,7 @@ train_labels = nd.array([score for _, score in train_data], ctx=ctx)
 test_labels = nd.array([score for _, score in test_data], ctx=ctx)
 ```
 
-### 加载预训练的词向量
+## 加载预训练的词向量
 
 这里我们使用之前创建的词典`vocab`以及GloVe词向量创建词典中每个词所对应的词向量。词向量将在后续的模型中作为每个词的初始权重加入模型，
 这样做有助于提升模型的结果。我们在这里使用'glove.6B.100d.txt'作为预训练的词向量。
