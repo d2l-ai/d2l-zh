@@ -22,7 +22,7 @@ import random
 
 ## 生成数据集
 
-我们在这里描述用来生成人工训练数据集的真实模型。
+我们在这里描述如何生成仿真数据作为模型训练的数据集。
 
 设训练数据集样本数为1000，输入个数为2。给定随机生成的批量样本特征$\boldsymbol{X} \in \mathbb{R}^{1000 \times 2}$，我们使用线性回归模型真实权重$\boldsymbol{w} = [2, -3.4]^\top$和偏差$b = 4.2$，以及一个随机噪音项$\epsilon$来生成标签
 
@@ -153,7 +153,7 @@ for epoch in range(1, num_epochs + 1):
           % (epoch, loss(net(features, w, b), labels).mean().asnumpy()))
 ```
 
-训练完成后，我们可以比较学到的参数和真实参数。它们应该很接近。
+训练完成后，我们可以比较学到的参数和用来生成训练集的真实参数。它们应该很接近。
 
 ```{.python .input  n=13}
 true_w, w
