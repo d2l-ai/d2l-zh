@@ -1,9 +1,9 @@
-# 实战Kaggle比赛：预测房价
+# 实战Kaggle比赛：房价预测
 
 
-作为深度学习基础篇章的总结，我们将对本章内容学以致用。下面，让我们动手实战一个Kaggle比赛：预测房价。
+作为深度学习基础篇章的总结，我们将对本章内容学以致用。下面，让我们动手实战一个Kaggle比赛：房价预测。
 
-在这个房价预测比赛中，我们还将以`pandas`为工具介绍如何对真实世界中的数据进行重要的预处理，例如：
+在这个房价预测比赛中，我们还将以`pandas`为工具，介绍如何对真实世界中的数据进行重要的预处理，例如：
 
 * 处理离散数据；
 * 处理丢失的数据特征；
@@ -60,7 +60,7 @@ test_data.shape
 
 ## 预处理数据
 
-我们对连续数值的特征做标准化处理。如果一个特征的值是连续的，设该特征在训练数据集和测试数据集上的均值为$\mu$，标准差为$\sigma$。那么，该特征的每个值将先减去$\mu$再除以$\sigma$。
+我们对连续数值的特征做标准化处理。如果一个特征的值是连续的，设该特征在训练数据集和测试数据集上的均值为$\mu$，标准差为$\sigma$。那么，我们可以将先减去$\mu$再除以$\sigma$得到标准化后的每个特征值。
 
 ```{.python .input  n=6}
 numeric_features = all_features.dtypes[all_features.dtypes != "object"].index
@@ -68,14 +68,14 @@ all_features[numeric_features] = all_features[numeric_features].apply(
     lambda x: (x - x.mean()) / (x.std()))
 ```
 
-现在，对离散数值的特征进一步处理，并把缺失数据值用本特征的平均值估计。
+现在，我们对离散数值的特征进一步处理，并把缺失数据值用本特征的平均值进行估计。
 
 ```{.python .input  n=7}
 all_features = pd.get_dummies(all_features, dummy_na=True)
 all_features = all_features.fillna(all_features.mean())
 ```
 
-下面把数据转换一下格式。
+接下来，我们把数据转换一下格式。
 
 ```{.python .input  n=9}
 n_train = train_data.shape[0]
@@ -86,7 +86,7 @@ train_labels = train_data.SalePrice.as_matrix()
 
 ## 导入NDArray格式数据
 
-为了便于和``Gluon``交互，我们需要导入NDArray格式数据。
+为了便于和``Gluon``交互，我们将数据以NDArray的格式导入。
 
 ```{.python .input  n=10}
 train_features = nd.array(train_features)
@@ -107,7 +107,7 @@ def get_rmse_log(net, train_features, train_labels):
 
 ## 定义模型
 
-我们将模型的定义放在一个函数里供多次调用。这是一个基本的线性回归模型，并使用了Xavier随机初始化。
+我们将模型的定义放在一个函数里供多次调用。在此我们使用一个基本的线性回归模型，并使用了Xavier随机初始化模型的参数。
 
 ```{.python .input  n=13}
 def get_net():
@@ -159,7 +159,7 @@ def train(net, train_features, train_labels, test_features, test_labels,
 
 ## 定义$K$折交叉验证
 
-[“欠拟合、过拟合、选择模型和调节超参数”](underfit-overfit.md)一节中介绍了$K$折交叉验证。下面定义了$K$折交叉验证函数。我们将根据$K$折交叉验证的结果选择模型设计并调参。
+我们在[“欠拟合、过拟合、选择模型和调节超参数”](underfit-overfit.md)一节中介绍了$K$折交叉验证。下面，我们将定义$K$折交叉验证函数，并根据$K$折交叉验证的结果选择模型设计并调参。
 
 ```{.python .input  n=15}
 def k_fold_cross_valid(k, epochs, verbose_epoch, X_train, y_train,
@@ -212,7 +212,7 @@ print("%d-fold validation: avg train loss: %f, avg test loss: %f"
       % (k, train_l, test_l))
 ```
 
-在设定了一组参数后，即便训练误差可以达到很低，但是$K$折交叉验证上的误差可能更高。这很可能是由于过拟合造成的。因此，当训练误差特别低时，要观察$K$折交叉验证上的误差是否同时降低。
+在设定了一组参数后，即便训练误差可以达到很低，但是在$K$折交叉验证上的误差可能反而较高。这种现象这很可能是由于过拟合造成的。因此，当训练误差特别低时，我们要观察$K$折交叉验证上的误差是否同时降低，以避免模型的过拟合。
 
 
 ## 预测并在Kaggle提交结果
@@ -231,14 +231,14 @@ def train_and_pred(num_epochs, verbose_epoch, train_features, test_feature,
     submission.to_csv('submission.csv', index=False)
 ```
 
-设计好模型并调好超参数以后，让我们对测试数据集上的房屋样本做价格预测，并在Kaggle上提交结果。
+设计好模型并调好超参数之后，下一步就是对测试数据集上的房屋样本做价格预测，并在Kaggle上提交结果。
 
 ```{.python .input  n=19}
 train_and_pred(num_epochs, verbose_epoch, train_features, test_features,
                train_labels, test_data, lr, weight_decay, batch_size)
 ```
 
-执行完上述代码后，会生成一个“submission.csv”文件。这个文件符合Kaggle比赛要求的提交格式。这时我们可以在Kaggle上把我们预测得出的结果提交并查看与测试数据集上真实房价（标签）的误差。你需要登录Kaggle网站，访问预测房价比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮 [2]。然后，点击页面下方“Upload Submission File”选择需要提交的预测结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。如图3.9所示。
+上述代码执行完之会生成一个“submission.csv”文件。这个文件是符合Kaggle比赛要求的提交格式的。这时，我们可以在Kaggle上把我们预测得出的结果进行提交，并且查看与测试数据集上真实房价（标签）的误差。具体来说有以下几个步骤：你需要登录Kaggle网站，访问预测房价比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮 [2]。然后，点击页面下方“Upload Submission File”选择需要提交的预测结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。如图3.9所示。
 
 ![Kaggle预测房价比赛的预测结果提交页面](../img/kaggle_submit2.png)
 
