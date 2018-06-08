@@ -1,9 +1,9 @@
-# 实战Kaggle比赛：房价预测
+# 实战Kaggle比赛：预测房价
 
 
-作为深度学习基础篇章的总结，我们将对本章内容学以致用。下面，让我们动手实战一个Kaggle比赛：房价预测。
+作为深度学习基础篇章的总结，我们将对本章内容学以致用。下面，让我们动手实战一个Kaggle比赛：预测房价。
 
-在这个房价预测比赛中，我们还将以`pandas`为工具，介绍如何对真实世界中的数据进行重要的预处理，例如：
+在这个预测房价比赛中，我们还将以`pandas`为工具，介绍如何对真实世界中的数据进行重要的预处理，例如：
 
 * 处理离散数据；
 * 处理丢失的数据特征；
@@ -60,7 +60,7 @@ test_data.shape
 
 ## 预处理数据
 
-我们对连续数值的特征做标准化处理。如果一个特征的值是连续的，设该特征在训练数据集和测试数据集上的均值为$\mu$，标准差为$\sigma$。那么，我们可以将先减去$\mu$再除以$\sigma$得到标准化后的每个特征值。
+我们对连续数值的特征做标准化处理。如果一个特征的值是连续的，设该特征在训练数据集和测试数据集上的均值为$\mu$，标准差为$\sigma$。那么，我们可以将该特征的每个值先减去$\mu$再除以$\sigma$得到标准化后的每个特征值。
 
 ```{.python .input  n=6}
 numeric_features = all_features.dtypes[all_features.dtypes != "object"].index
@@ -107,7 +107,7 @@ def get_rmse_log(net, train_features, train_labels):
 
 ## 定义模型
 
-我们将模型的定义放在一个函数里供多次调用。在此我们使用一个基本的线性回归模型，并使用了Xavier随机初始化模型的参数。
+我们将模型的定义放在一个函数里供多次调用。在此我们使用一个基本的线性回归模型，并对模型参数做Xavier随机初始化。
 
 ```{.python .input  n=13}
 def get_net():
@@ -159,7 +159,7 @@ def train(net, train_features, train_labels, test_features, test_labels,
 
 ## 定义$K$折交叉验证
 
-我们在[“欠拟合、过拟合、选择模型和调节超参数”](underfit-overfit.md)一节中介绍了$K$折交叉验证。下面，我们将定义$K$折交叉验证函数，并根据$K$折交叉验证的结果选择模型设计并调参。
+我们在[“欠拟合、过拟合和模型选择”](underfit-overfit.md)一节中介绍了$K$折交叉验证。下面，我们将定义$K$折交叉验证函数，并根据$K$折交叉验证的结果选择模型设计并调参。
 
 ```{.python .input  n=15}
 def k_fold_cross_valid(k, epochs, verbose_epoch, X_train, y_train,
@@ -238,7 +238,7 @@ train_and_pred(num_epochs, verbose_epoch, train_features, test_features,
                train_labels, test_data, lr, weight_decay, batch_size)
 ```
 
-上述代码执行完之会生成一个“submission.csv”文件。这个文件是符合Kaggle比赛要求的提交格式的。这时，我们可以在Kaggle上把我们预测得出的结果进行提交，并且查看与测试数据集上真实房价（标签）的误差。具体来说有以下几个步骤：你需要登录Kaggle网站，访问预测房价比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮 [2]。然后，点击页面下方“Upload Submission File”选择需要提交的预测结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。如图3.9所示。
+上述代码执行完之后会生成一个“submission.csv”文件。这个文件是符合Kaggle比赛要求的提交格式的。这时，我们可以在Kaggle上把我们预测得出的结果进行提交，并且查看与测试数据集上真实房价（标签）的误差。具体来说有以下几个步骤：你需要登录Kaggle网站，访问预测房价比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮 [2]。然后，点击页面下方“Upload Submission File”选择需要提交的预测结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。如图3.9所示。
 
 ![Kaggle预测房价比赛的预测结果提交页面](../img/kaggle_submit2.png)
 
