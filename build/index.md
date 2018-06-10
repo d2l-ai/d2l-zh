@@ -12,7 +12,7 @@
 .. toctree::
    :maxdepth: 2
 
-   chapter_preface/index
+   chapter_introduction/index
    chapter_crashcourse/index
    chapter_supervised-learning/index
    chapter_gluon-basics/index
