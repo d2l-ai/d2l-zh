@@ -22,9 +22,7 @@ import random
 
 ## 生成数据集
 
-我们在这里描述用来生成人工训练数据集的真实模型。
-
-设训练数据集样本数为1000，输入个数为2。给定随机生成的批量样本特征$\boldsymbol{X} \in \mathbb{R}^{1000 \times 2}$，我们使用线性回归模型真实权重$\boldsymbol{w} = [2, -3.4]^\top$和偏差$b = 4.2$，以及一个随机噪音项$\epsilon$来生成标签
+我们在这里描述用来生成人工训练数据集的真实模型。设训练数据集样本数为1000，输入个数为2。给定随机生成的批量样本特征$\boldsymbol{X} \in \mathbb{R}^{1000 \times 2}$，我们使用线性回归模型真实权重$\boldsymbol{w} = [2, -3.4]^\top$和偏差$b = 4.2$，以及一个随机噪音项$\epsilon$来生成标签
 
 $$\boldsymbol{y} = \boldsymbol{X}\boldsymbol{w} + b + \epsilon,$$
 
@@ -55,28 +53,31 @@ plt.scatter(features[:, 1].asnumpy(), labels.asnumpy(), 1)
 plt.show()
 ```
 
-我们将上面的`plt`作图函数定义在`gluonbook`包里。以后在作图时，我们将直接调用`gluonbook.plt`，而无需执行`from matplotlib import pyplot as plt`。
+我们将上面的`plt`作图函数定义在`gluonbook`包里。以后在作图时，我们将直接调用`gluonbook.plt`，而无需执行其他设置项。
 
 
 
 ## 读取数据
 
-在训练模型的时候，我们需要遍历数据集并不断读取小批量数据样本。这里我们定义一个函数：它每次返回`batch_size`个随机样本的特征和标签。设批量大小（`batch_size`）为10。
+在训练模型的时候，我们需要遍历数据集并不断读取小批量数据样本。这里我们定义一个函数：它每次返回批量大小个随机样本的特征和标签。
 
 ```{.python .input  n=5}
 batch_size = 10
-def data_iter(batch_size, num_examples, features, labels): 
+def data_iter(batch_size, features, labels):
+    num_examples = len(features)
+    # 随机化读取顺序。
     indices = list(range(num_examples))
     random.shuffle(indices)
     for i in range(0, num_examples, batch_size):
         j = nd.array(indices[i: min(i + batch_size, num_examples)])
+        # take 函数根据索引返回对应元素。
         yield features.take(j), labels.take(j)
 ```
 
-让我们读取第一个小批量数据样本并打印。每个批量的特征形状为`（10, 2）`，分别对应批量大小`batch_size`和输入个数`num_inputs`；标签形状为`10`，也就是批量大小。
+让我们读取第一个小批量数据样本并打印。每个批量的特征形状为`（10, 2）`，分别对应批量大小和输入个数；标签形状为批量大小。
 
 ```{.python .input  n=6}
-for X, y in data_iter(batch_size, num_examples, features, labels):
+for X, y in data_iter(batch_size, features, labels):
     print(X, y)
     break
 ```
@@ -85,7 +86,7 @@ for X, y in data_iter(batch_size, num_examples, features, labels):
 
 ## 初始化模型参数
 
-下面我们随机初始化模型参数。
+我们将权重随机化成均值0方差为0.01的正态随机数，偏差则初始化成0。
 
 ```{.python .input  n=7}
 w = nd.random.normal(scale=0.01, shape=(num_inputs, 1))
@@ -93,7 +94,7 @@ b = nd.zeros(shape=(1,))
 params = [w, b]
 ```
 
-之后训练时我们需要对这些参数求梯度来迭代它们的值，以使损失函数不断减小。因此我们需要创建它们的梯度。
+之后训练时我们需要对这些参数求梯度来迭代它们的值，因此我们需要创建它们的梯度。
 
 ```{.python .input  n=8}
 for param in params:
@@ -102,7 +103,7 @@ for param in params:
 
 ## 定义模型
 
-下面是线性回归的矢量计算表达式的实现。我们使用`nd.dot`函数做矩阵乘法。
+下面是线性回归的矢量计算表达式的实现。我们使用`dot`函数做矩阵乘法。
 
 ```{.python .input  n=9}
 def linreg(X, w, b): 
@@ -122,7 +123,7 @@ def squared_loss(y_hat, y):
 
 ## 定义优化算法
 
-以下的`sgd`函数实现了上一节中介绍的小批量随机梯度下降算法。这是我们最小化损失函数所需要的优化算法。
+以下的`sgd`函数实现了上一节中介绍的小批量随机梯度下降算法中的模型更新。
 
 ```{.python .input  n=11}
 def sgd(params, lr, batch_size):
@@ -144,7 +145,7 @@ net = linreg
 loss = squared_loss
 
 for epoch in range(1, num_epochs + 1):
-    for X, y in data_iter(batch_size, num_examples, features, labels):
+    for X, y in data_iter(batch_size, features, labels):
         with autograd.record():
             l = loss(net(X, w, b), y)
         l.backward()
