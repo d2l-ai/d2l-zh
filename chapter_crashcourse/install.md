@@ -14,7 +14,7 @@
 
 第二步，下载包含本书全部代码的包，解压后进入文件夹。Linux/macOS用户可以使用如下命令。
 
-```
+```{.python .input}
 mkdir gluon-tutorials && cd gluon-tutorials
 curl https://zh.gluon.ai/gluon_tutorials_zh.tar.gz -o tutorials.tar.gz
 tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
@@ -25,7 +25,7 @@ Windows用户可以用浏览器下载压缩文件（下载地址：https://zh.gl
 
 在本步骤中，我们也可以配置下载源来使用国内镜像加速下载:
 
-```
+```{.python .input}
 # 优先使用清华 conda 镜像。
 conda config --prepend channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
 
@@ -35,7 +35,7 @@ conda config --prepend channels http://mirrors.ustc.edu.cn/anaconda/pkgs/free/
 
 第三步，安装运行所需的依赖包并激活该运行环境。Linux/macOS用户可以使用如下命令。
 
-```
+```{.python .input}
 conda env create -f environment.yml
 source activate gluon
 ```
@@ -44,14 +44,14 @@ source activate gluon
 
 Windows用户可以使用如下命令。
 
-```
+```{.python .input}
 conda env create -f environment.yml
 activate gluon
 ```
 
 第四步，打开Juputer notebook。运行下面命令。
 
-```
+```{.python .input}
 jupyter notebook
 ```
 
@@ -59,13 +59,13 @@ jupyter notebook
 
 第五步（可选项），如果你是国内用户，建议使用国内Gluon镜像加速数据集和预训练模型的下载。Linux/macOS用户可以运行下面命令。
 
-```
+```{.python .input}
 MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter notebook
 ```
 
 Windows用户可以运行下面命令。
 
-```
+```{.python .input}
 set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter notebook
 ```
 
@@ -75,14 +75,14 @@ set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyte
 
 如果你是Linux用户，可以运行下面命令。之后登出一次。
 
-```
+```{.python .input}
 wget -qO- https://get.docker.com/ | sh
 sudo usermod -aG docker
 ```
 
 第二步，运行下面命令。
 
-```
+```{.python .input}
 docker run -p 8888:8888 muli/gluon-tutorials-zh
 ```
 
@@ -105,7 +105,7 @@ docker run -p 8888:8888 muli/gluon-tutorials-zh
 
 第二步，使用下面命令更新运行环境。
 
-```
+```{.python .input}
 conda env update -f environment.yml
 ```
 
@@ -113,7 +113,7 @@ conda env update -f environment.yml
 
 我们可以直接下载新的Docker image，例如执行下面的命令。
 
-```
+```{.python .input}
 docker pull muli/gluon-tutorials-zh
 ```
 
@@ -121,19 +121,19 @@ docker pull muli/gluon-tutorials-zh
 
 第一步，如果你熟悉Git操作，可以直接pull并且合并可能造成的冲突：
 
-```
+```{.python .input}
 git pull https://github.com/mli/gluon-tutorials-zh
 ```
 
 如果不想造成冲突，在保存完有价值的本地修改以后，你可以在pull前先用reset还原到上次更新的版本：
 
-```
+```{.python .input}
 git reset --hard
 ```
 
 第二步，使用下面命令更新运行环境。
 
-```
+```{.python .input}
 conda env update -f environment.yml
 ```
 
@@ -145,13 +145,13 @@ conda env update -f environment.yml
 
 通过上述方式安装的MXNet只支持CPU。本书中有部分章节需要或推荐使用GPU来运行。假设电脑有Nvidia显卡并且安装了CUDA7.5、8.0或9.0，那么先卸载CPU版本：
 
-```
+```{.python .input}
 pip uninstall mxnet
 ```
 
 然后，根据电脑上安装的CUDA版本，使用以下三者之一安装相应的GPU版MXNet。
 
-```
+```{.python .input}
 pip install --pre mxnet-cu75 # CUDA 7.5
 pip install --pre mxnet-cu80 # CUDA 8.0
 pip install --pre mxnet-cu90 # CUDA 9.0
@@ -159,13 +159,13 @@ pip install --pre mxnet-cu90 # CUDA 9.0
 
 我们建议国内用户使用豆瓣pypi镜像加速下载。以mxnet-cu80为例，我们可以使用如下命令。
 
-```
+```{.python .input}
 pip install --pre mxnet-cu80 -i https://pypi.douban.com/simple # CUDA 8.0
 ```
 
 需要注意的是，如果你安装GPU版的MXNet，使用`conda update`命令不会自动升级GPU版的MXNet。这时候可以运行了`source activate gluon`后手动更新MXNet。以mxnet-cu80为例，我们可以使用以下命令手动更新MXNet。
 
-```
+```{.python .input}
 pip install --pre mxnet-cu80 # CUDA 8.0
 ```
 
@@ -173,7 +173,7 @@ pip install --pre mxnet-cu80 # CUDA 8.0
 
 如果你希望为本书内容做贡献，需要修改在GitHub上Markdown格式的源文件（.md文件非.ipynb文件）。通过notedown插件，我们就可以使用Jupyter Notebook修改并运行Markdown格式的源代码。Linux/macOS用户可以执行以下命令获得GitHub源文件并激活运行环境。
 
-```
+```{.python .input}
 git clone https://github.com/mli/gluon-tutorials-zh
 cd gluon-tutorials-zh
 conda env create -f environment.yml
@@ -182,7 +182,7 @@ source activate gluon # Windows 用户运行 activate gluon
 
 下面安装notedown插件，运行Jupyter Notebook并加载插件：
 
-```
+```{.python .input}
 pip install https://github.com/mli/notedown/tarball/master
 jupyter notebook --NotebookApp.contents_manager_class='notedown.NotedownContentsManager'
 ```
@@ -191,13 +191,13 @@ jupyter notebook --NotebookApp.contents_manager_class='notedown.NotedownContents
 
 首先，执行下面命令生成Jupyter Notebook配置文件（如果已经生成可以跳过）。
 
-```
+```{.python .input}
 jupyter notebook --generate-config
 ```
 
 然后，将下面这一行加入到Jupyter Notebook配置文件的末尾（Linux/macOS上一般在`~/.jupyter/jupyter_notebook_config.py`)
 
-```
+```{.python .input}
 c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'
 ```
 
@@ -208,7 +208,7 @@ c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'
 
 有时候，我们希望在远端服务器上运行Jupyter Notebook，并通过本地电脑上的浏览器访问。如果本地机器上安装了Linux或者macOS（Windows通过第三方软件例如putty应该也能支持），那么可以使用端口映射：
 
-```
+```{.python .input}
 ssh myserver -L 8888:localhost:8888
 ```
 
@@ -218,7 +218,7 @@ ssh myserver -L 8888:localhost:8888
 
 我们可以通过ExecutionTime插件来对Jupyter Notebook的每个代码单元的运行计时。以下是安装该插件的命令。
 
-```
+```{.python .input}
 pip install jupyter_contrib_nbextensions
 jupyter contrib nbextension install --user
 jupyter nbextension enable execute_time/ExecuteTime

@@ -1,4 +1,4 @@
-# 如何使用本书
+# 如何使用
 
 TODO(@astonzhang)
 
