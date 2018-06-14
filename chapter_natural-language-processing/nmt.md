@@ -1,11 +1,11 @@
-# 应用编码器—解码器和注意力机制：机器翻译
+# 机器翻译
 
-本节介绍[编码器—解码器和注意力机制](seq2seq-attention.md)的应用。我们以神经机器翻译（neural machine translation）为例，介绍如何使用Gluon实现一个简单的编码器—解码器和注意力机制模型。
+本节介绍编码器—解码器和注意力机制的应用。我们以机器翻译为例，使用Gluon实现一个含注意力机制的编码器—解码器。机器翻译的输入与输出都是不定长的文本序列。
 
 
-## 使用Gluon实现编码器—解码器和注意力机制
+## 含注意力机制的编码器—解码器
 
-我们先载入需要的包。
+首先，导入实现所需的包或模块。
 
 ```{.python .input}
 import collections
@@ -16,7 +16,7 @@ from mxnet.contrib import text
 from mxnet.gluon import data as gdata, loss as gloss, nn, rnn
 ```
 
-下面定义一些特殊字符。其中PAD (padding)符号使每个序列等长；BOS (beginning of sequence)符号表示序列的开始；而EOS (end of sequence)符号表示序列的结束。
+下面定义一些特殊符号。其中“&lt;pad&gt;”（padding）符号使每个序列等长；“&lt;bos&gt;”（beginning of sequence）符号表示序列的开始；而“&lt;eos&gt;”（end of sequence）符号表示序列的结束。
 
 ```{.python .input}
 PAD = '<pad>'
@@ -24,21 +24,20 @@ BOS = '<bos>'
 EOS = '<eos>'
 ```
 
-以下是一些可以调节的模型参数。我们在编码器和解码器中分别使用了一层和两层的循环神经网络。
+以下设置了模型超参数。我们在编码器和解码器中分别使用了一层和两层的循环神经网络。实验中，我们选取长度不超过5的输入和输出序列，并将预测时输出序列的最大长度设为20。这些序列长度考虑了句末添加的“&lt;eos&gt;”符号。
 
 ```{.python .input}
-epochs = 40
-epoch_period = 10
+num_epochs = 40
+eval_interval = 10
 lr = 0.005
 batch_size = 2
-# 序列最大长度（含句末添加的EOS字符）。
 max_seq_len = 5
-# 测试时输出序列的最大长度（含句末添加的EOS字符）。
 max_test_output_len = 20
 encoder_num_layers = 1
 decoder_num_layers = 2
 encoder_drop_prob = 0.1
 decoder_drop_prob = 0.1
+encoder_embed_size = 256
 encoder_num_hiddens = 256
 decoder_num_hiddens = 256
 alignment_size = 25
@@ -47,9 +46,7 @@ ctx = mx.cpu(0)
 
 ### 读取数据
 
-我们定义函数读取训练数据集。为了减少运行时间，我们使用一个很小的法语——英语数据集。
-
-这里使用了[之前章节](pretrained-embedding.md)介绍的`mxnet.contrib.text`来创建法语和英语的词典。需要注意的是，我们会在句末附上EOS符号，并可能通过添加PAD符号使每个序列等长。
+我们定义函数读取训练数据集。为了演示方便，这里使用了一个很小的法语—英语数据集。在读取数据时，我们在句末附上“&lt;eos&gt;”符号，并可能通过添加“&lt;pad&gt;”符号使每个序列等长。
 
 ```{.python .input}
 def read_data(max_seq_len):
@@ -96,21 +93,20 @@ for i in range(len(input_seqs)):
 dataset = gdata.ArrayDataset(fr, en)
 ```
 
-### 编码器、含注意力机制的解码器和解码器初始状态
+### 定义编码器
 
-以下定义了基于[GRU](../chapter_recurrent-neural-networks/gru-scratch.md)的编码器。
+以下定义了基于门控循环单元的编码器。
 
 ```{.python .input}
 class Encoder(nn.Block):
-    """编码器。"""
-    def __init__(self, num_inputs, num_hiddens, num_layers, drop_prob,
-                 **kwargs):
+    def __init__(self, num_inputs, embed_size, num_hiddens, num_layers,
+                 drop_prob, **kwargs):
         super(Encoder, self).__init__(**kwargs)
         with self.name_scope():
-            self.embedding = nn.Embedding(num_inputs, num_hiddens)
+            self.embedding = nn.Embedding(num_inputs, embed_size)
             self.dropout = nn.Dropout(drop_prob)
             self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
-                               input_size=num_hiddens)
+                               input_size=embed_size)
 
     def forward(self, inputs, state):
         embedding = self.embedding(inputs).swapaxes(0, 1)
@@ -122,11 +118,12 @@ class Encoder(nn.Block):
         return self.rnn.begin_state(*args, **kwargs)
 ```
 
-以下定义了基于[GRU](../chapter_recurrent-neural-networks/gru-scratch.md)的解码器。它包含[上一节里介绍的注意力机制](seq2seq-attention.md)的实现。
+### 定义含注意力机制的解码器
+
+以下定义了基于门控循环单元的解码器。解码器中注意力机制的实现参考了[“注意力机制”](attention.md)一节中的描述。
 
 ```{.python .input}
 class Decoder(nn.Block):
-    """含注意力机制的解码器。"""
     def __init__(self, num_hiddens, num_outputs, num_layers, max_seq_len,
                  drop_prob, alignment_size, encoder_num_hiddens, **kwargs):
         super(Decoder, self).__init__(**kwargs)
@@ -156,7 +153,7 @@ class Decoder(nn.Block):
                 flatten=False)
 
     def forward(self, cur_input, state, encoder_outputs):
-        # 当 RNN 为多层时，取最靠近输出层的单层隐藏状态。
+        # 当循环神经网络有多个隐藏层时，取最靠近输出层的单层隐藏状态。
         single_layer_state = [state[0][-1].expand_dims(0)]
         encoder_outputs = encoder_outputs.reshape((self.max_seq_len, -1,
                                                    self.encoder_num_hiddens))
@@ -185,11 +182,12 @@ class Decoder(nn.Block):
         return self.rnn.begin_state(*args, **kwargs)
 ```
 
-为了初始化解码器的隐藏状态，我们通过一层全连接网络来转化编码器的输出隐藏状态。
+### 定义解码器初始状态
+
+为了初始化解码器的隐藏状态，我们通过一层全连接网络来变换编码器的输出隐藏状态。
 
 ```{.python .input}
 class DecoderInitState(nn.Block):
-    """解码器隐藏状态的初始化。"""
     def __init__(self, encoder_num_hiddens, decoder_num_hiddens, **kwargs):
         super(DecoderInitState, self).__init__(**kwargs)
         with self.name_scope():
@@ -201,9 +199,9 @@ class DecoderInitState(nn.Block):
         return [self.dense(encoder_state)]
 ```
 
-### 训练和应用模型
+### 训练模型并输出不定长序列
 
-我们定义`translate`函数来应用训练好的模型。这些模型通过该函数的前三个参数传递。解码器的最初时刻输入来自BOS字符。当任一时刻的输出为EOS字符时，输出序列即完成。
+我们定义`translate`函数应用训练好的模型，并通过贪婪搜索输出不定长的翻译文本序列。解码器的最初时间步输入来自“&lt;bos&gt;”符号。对于一个输出中的序列，当解码器在某一时间步搜索出“&lt;eos&gt;”符号时，即完成该输出序列。
 
 ```{.python .input}
 def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
@@ -219,7 +217,7 @@ def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
         encoder_outputs, encoder_state = encoder(inputs.expand_dims(0),
                                                  encoder_state)
         encoder_outputs = encoder_outputs.flatten()
-        # 解码器的第一个输入为 BOS 字符。
+        # 解码器的第一个输入为 BOS 符号。
         decoder_input = nd.array([output_vocab.token_to_idx[BOS]], ctx=ctx)
         decoder_state = decoder_init_state(encoder_state[0])
         output_tokens = []
@@ -228,7 +226,7 @@ def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
             decoder_output, decoder_state = decoder(
                 decoder_input, decoder_state, encoder_outputs)
             pred_i = int(decoder_output.argmax(axis=1).asnumpy()[0])
-            # 当任一时刻的输出为 EOS 字符时，输出序列即完成。
+            # 当任一时间步搜索出 EOS 符号时，输出序列即完成。
             if pred_i == output_vocab.token_to_idx[EOS]:
                 break
             else:
@@ -238,7 +236,7 @@ def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
         print('[expect]', fr_en[1], '\n')
 ```
 
-下面定义模型训练函数。为了初始化解码器的隐藏状态，我们通过一层全连接网络来转化编码器最早时刻的输出隐藏状态。这里的解码器使用当前时刻的预测结果作为下一时刻的输入。
+下面定义模型训练函数。为了初始化解码器的隐藏状态，我们通过一层全连接网络来变换编码器最早时间步的输出隐藏状态。解码器中，当前时间步的预测词将作为下一时间步的输入。其实，我们也可以使用样本输出序列在当前时间步的词作为下一时间步的输入。这叫作强制教学（teacher forcing）。
 
 ```{.python .input}
 loss = gloss.SoftmaxCrossEntropyLoss()
@@ -258,7 +256,7 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx,
 
     data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
     l_sum = 0
-    for epoch in range(1, epochs + 1):
+    for epoch in range(1, num_epochs + 1):
         for x, y in data_iter:
             cur_batch_size = x.shape[0]
             with autograd.record():
@@ -268,7 +266,7 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx,
                     func=nd.zeros, batch_size=cur_batch_size, ctx=ctx)
                 encoder_outputs, encoder_state = encoder(x, encoder_state)
                 encoder_outputs = encoder_outputs.flatten()
-                # 解码器的第一个输入为 BOS 字符。
+                # 解码器的第一个输入为 BOS 符号。
                 decoder_input = nd.array(
                     [output_vocab.token_to_idx[BOS]] * cur_batch_size,
                     ctx=ctx)
@@ -277,7 +275,7 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx,
                 for i in range(max_seq_len):
                     decoder_output, decoder_state = decoder(
                         decoder_input, decoder_state, encoder_outputs)
-                    # 解码器使用当前时刻的预测结果作为下一时刻的输入。
+                    # 解码器使用当前时间步的预测词作为下一时间步的输入。
                     decoder_input = decoder_output.argmax(axis=1)
                     valid_length = valid_length + mask.sum()
                     l = l + (mask * loss(decoder_output, y[:, i])).sum()
@@ -289,12 +287,12 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx,
             decoder_init_state_optimizer.step(1)
             l_sum += l.asscalar() / max_seq_len
 
-        if epoch % epoch_period == 0 or epoch == 1:
+        if epoch % eval_interval == 0 or epoch == 1:
             if epoch == 1:
                 print('epoch %d, loss %f, ' % (epoch, l_sum / len(data_iter)))
             else:
                 print('epoch %d, loss %f, ' 
-                      % (epoch, l_sum / epoch_period / len(data_iter)))
+                      % (epoch, l_sum / eval_interval / len(data_iter)))
             if epoch != 1:
                 l_sum = 0
             translate(encoder, decoder, decoder_init_state, eval_fr_ens, ctx,
@@ -304,8 +302,8 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx,
 以下分别实例化编码器、解码器和解码器初始隐藏状态网络。
 
 ```{.python .input}
-encoder = Encoder(len(input_vocab), encoder_num_hiddens, encoder_num_layers,
-                  encoder_drop_prob)
+encoder = Encoder(len(input_vocab), encoder_embed_size, encoder_num_hiddens,
+                  encoder_num_layers, encoder_drop_prob)
 decoder = Decoder(decoder_num_hiddens, len(output_vocab),
                   decoder_num_layers, max_seq_len, decoder_drop_prob,
                   alignment_size, encoder_num_hiddens)
@@ -313,7 +311,7 @@ decoder_init_state = DecoderInitState(encoder_num_hiddens,
                                       decoder_num_hiddens)
 ```
 
-给定简单的法语和英语序列，我们可以观察模型的训练结果。打印的结果中，Input、Output和Expect分别代表输入序列、输出序列和正确序列。
+给定简单的法语和英语序列，我们可以观察模型的训练结果。打印的结果中，input、output和expect分别代表输入序列、输出序列和正确序列。我们可以比较output和expect，观察输出序列是否符合预期。
 
 ```{.python .input}
 eval_fr_ens =[['elle est japonaise .', 'she is japanese .'],
@@ -321,54 +319,38 @@ eval_fr_ens =[['elle est japonaise .', 'she is japanese .'],
 train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens)
 ```
 
-## 束搜索
+为了使模型能够翻译更复杂的句子，我们需要使用更大的训练数据集、调节超参数并增加训练时间。当然，我们还需要有验证数据集，并依据模型在它上面的表现调参。那么，该如何在验证数据集上评价模型的表现呢？这就需要评价翻译结果的指标。
 
-在上一节里，我们提到编码器最终输出了一个背景向量$\boldsymbol{c}$，该背景向量编码了输入序列$x_1, x_2, \ldots, x_T$的信息。假设训练数据中的输出序列是$y_1, y_2, \ldots, y_{T^\prime}$，输出序列的生成概率是
-
-$$\mathbb{P}(y_1, \ldots, y_{T^\prime}) = \prod_{t^\prime=1}^{T^\prime} \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c}).$$
-
-
-对于机器翻译的输出来说，如果输出语言的词汇集合$\mathcal{Y}$的大小为$|\mathcal{Y}|$，输出序列的长度为$T^\prime$，那么可能的输出序列种类是$\mathcal{O}(|\mathcal{Y}|^{T^\prime})$。为了找到生成概率最大的输出序列，一种方法是计算所有$\mathcal{O}(|\mathcal{Y}|^{T^\prime})$种可能序列的生成概率，并输出概率最大的序列。我们将该序列称为最优序列。但是这种方法的计算开销过高（例如，$10000^{10} = 1 \times 10^{40}$）。
-
-
-我们目前所介绍的解码器在每个时刻只输出生成概率最大的一个词汇。对于任一时刻$t^\prime$，我们从$|\mathcal{Y}|$个词中搜索出输出词
-
-$$y_{t^\prime} = \text{argmax}_{y_{t^\prime} \in \mathcal{Y}} \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c})$$
-
-因此，搜索计算开销（$\mathcal{O}(|\mathcal{Y}| \times {T^\prime})$）显著下降（例如，$10000 \times 10 = 1 \times 10^5$），但这并不能保证一定搜索到最优序列。
-
-束搜索（beam search）介于上面二者之间。我们来看一个例子。
-
-假设输出序列的词典中只包含五个词：$\mathcal{Y} = \{A, B, C, D, E\}$。束搜索的一个超参数叫做束宽（beam width）。以束宽等于2为例，假设输出序列长度为3，假如时刻1生成概率$\mathbb{P}(y_{t^\prime} \mid \boldsymbol{c})$最大的两个词为$A$和$C$，我们在时刻2对于所有的$y_2 \in \mathcal{Y}$都分别计算$\mathbb{P}(y_2 \mid A, \boldsymbol{c})$和$\mathbb{P}(y_2 \mid C, \boldsymbol{c})$，从计算出的10个概率中取最大的两个，假设为$\mathbb{P}(B \mid A, \boldsymbol{c})$和$\mathbb{P}(E \mid C, \boldsymbol{c})$。那么，我们在时刻3对于所有的$y_3 \in \mathcal{Y}$都分别计算$\mathbb{P}(y_3 \mid A, B, \boldsymbol{c})$和$\mathbb{P}(y_3 \mid C, E, \boldsymbol{c})$，从计算出的10个概率中取最大的两个，假设为$\mathbb{P}(D \mid A, B, \boldsymbol{c})$和$\mathbb{P}(D \mid C, E, \boldsymbol{c})$。
-
-接下来，我们可以在输出序列：$A$、$C$、$AB$、$CE$、$ABD$、$CED$中筛选出以特殊字符EOS结尾的候选序列。再在候选序列中取以下分数最高的序列作为最终候选序列：
-
-$$ \frac{1}{L^\alpha} \log \mathbb{P}(y_1, \ldots, y_{L}) = \frac{1}{L^\alpha} \sum_{t^\prime=1}^L \log \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c})$$
-
-其中$L$为候选序列长度，$\alpha$一般可选为0.75。分母上的$L^\alpha$是为了惩罚较长序列的分数中的对数相加项。
 
 ## 评价翻译结果
 
-2002年，IBM团队提出了一种评价翻译结果的指标，叫做[BLEU](https://www.aclweb.org/anthology/P02-1040.pdf) （Bilingual Evaluation Understudy）。
+2002年，IBM团队提出了一种评价翻译结果的指标，叫BLEU（Bilingual Evaluation Understudy）[1]。
 
-设$k$为我们希望评价的n-gram的最大长度，例如$k=4$。n-gram的精度$p_n$为模型输出中的n-gram匹配参考输出的数量与模型输出中的n-gram的数量的比值。例如，参考输出（真实值）为ABCDEF，模型输出为ABBCD。那么$p_1 = 4/5, p_2 = 3/4, p_3 = 1/3, p_4 = 0$。设$len_{ref}$和$len_{MT}$分别为参考输出和模型输出的词数。那么，BLEU的定义为
+设$k$为我们希望评价的$n$个连续词的最大长度，例如$k=4$。设$n$个连续词的精度为$p_n$。它是模型预测序列与样本标签序列匹配$n$个连续词的数量与模型预测序列中$n$个连续词数量之比。举个例子，假设标签序列为$ABCDEF$，预测序列为$ABBCD$。那么$p_1 = 4/5, p_2 = 3/4, p_3 = 1/3, p_4 = 0$。设$len_{\text{label}}$和$len_{\text{pred}}$分别为标签序列和模型预测序列的词数。那么，BLEU的定义为
 
-$$ \exp(\min(0, 1 - \frac{len_{ref}}{len_{MT}})) \prod_{i=1}^k p_n^{1/2^n}$$
+$$ \exp(\min(0, 1 - \frac{len_{\text{label}}}{len_{\text{pred}}})) \prod_{i=1}^k p_n^{1/2^n}.$$
 
-需要注意的是，随着$n$的提高，n-gram的精度的权值随着$p_n^{1/2^n}$中的指数减小而提高。例如$0.5^{1/2} \approx 0.7, 0.5^{1/4} \approx 0.84, 0.5^{1/8} \approx 0.92, 0.5^{1/16} \approx 0.96$。换句话说，匹配4-gram比匹配1-gram应该得到更多奖励。另外，模型输出越短往往越容易得到较高的n-gram的精度。因此，BLEU公式里连乘项前面的系数为了惩罚较短的输出。例如当$k=2$时，参考输出为ABCDEF，而模型输出为AB，此时的$p_1 = p_2 = 1$，而$\exp(1-6/3) \approx 0.37$，因此BLEU=0.37。当模型输出也为ABCDEF时，BLEU=1。
+需要注意的是，匹配较长连续词比匹配较短连续词更难。因此，一方面，匹配较长连续词应被赋予更大权重。而上式中$p_n^{1/2^n}$的指数相当于权重。随着$n$的提高，$n$个连续词的精度的权重随着$1/2^n$的减小而增大。例如$0.5^{1/2} \approx 0.7, 0.5^{1/4} \approx 0.84, 0.5^{1/8} \approx 0.92, 0.5^{1/16} \approx 0.96$。另一方面，模型预测较短序列往往会得到较高的$n$个连续词的精度。因此，上式中连乘项前面的系数是为了惩罚较短的输出。举个例子，当$k=2$时，假设标签序列为$ABCDEF$，而预测序列为$AB$。虽然$p_1 = p_2 = 1$，但惩罚系数$\exp(1-6/2) \approx 0.14$，因此BLEU也接近0.14。当预测序列和标签序列完全一致时，BLEU为1。
 
 ## 小结
 
-* 我们可以将编码器—解码器和注意力机制应用于神经机器翻译中。
-* 束搜索有可能提高输出质量。
+* 我们可以将编码器—解码器和注意力机制应用于机器翻译中。
 * BLEU可以用来评价翻译结果。
 
 
 ## 练习
 
-* 试着使用更大的翻译数据集来训练模型，例如[WMT](http://www.statmt.org/wmt14/translation-task.html)和[Tatoeba Project](http://www.manythings.org/anki/)。调一调不同参数并观察实验结果。
-* Teacher forcing：在模型训练中，试着让解码器使用当前时刻的正确结果（而不是预测结果）作为下一时刻的输入。结果会怎么样？
+* 试着使用更大的翻译数据集来训练模型，例如WMT [2] 和Tatoeba Project [3]。
+* 在解码器中使用强制教学，观察实现现象。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4689)
 
 ![](../img/qr_nmt.svg)
+
+## 参考文献
+
+[1] Papineni, Kishore, et al. “BLEU: a method for automatic evaluation of machine translation.” Proceedings of the 40th annual meeting on association for computational linguistics. Association for Computational Linguistics, 2002.
+
+[2] WMT. http://www.statmt.org/wmt14/translation-task.html
+
+[3] Tatoeba Project. http://www.manythings.org/anki/

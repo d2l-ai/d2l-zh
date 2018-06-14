@@ -153,7 +153,7 @@ for epoch in range(1, num_epochs + 1):
           % (epoch, loss(net(features, w, b), labels).mean().asnumpy()))
 ```
 
-训练完成后，我们可以比较学到的参数和真实参数。它们应该很接近。
+训练完成后，我们可以比较学到的参数和用来生成训练集的真实参数。它们应该很接近。
 
 ```{.python .input  n=13}
 true_w, w

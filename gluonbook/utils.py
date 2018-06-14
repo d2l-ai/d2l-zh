@@ -433,7 +433,6 @@ def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
         plt.legend(legend)
     plt.show()
 
-
 def bbox_to_rect(bbox, color):
     """Convert bounding box to matplotlib format.
     """

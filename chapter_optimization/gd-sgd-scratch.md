@@ -24,7 +24,7 @@ $$f(x - \eta f'(x)) \lesssim f(x).$$
 
 $$x \leftarrow x - \eta f'(x).$$
 
-迭代自变量$x$可能会降低$f(x)$的值。由于导数$f'(x)$是梯度$\nabla_x f$在一维空间的特殊情况，上述迭代自变量$x$的方法也即一维空间的梯度下降。一维空间的梯度下降图7.2（左）所示，自变量$x$沿着梯度方向迭代。
+迭代自变量$x$可能会降低$f(x)$的值。由于导数$f'(x)$是梯度$\nabla_x f$在一维空间的特殊情况，上述迭代自变量$x$的方法也即一维空间的梯度下降。一维空间的梯度下降图7.1（左）所示，自变量$x$沿着梯度方向迭代。
 
 ![梯度下降中，目标函数$f(x)$的自变量$x$（圆圈的横坐标）沿着梯度方向迭代](../img/gd_and_overshooting.svg)
 
@@ -33,7 +33,7 @@ $$x \leftarrow x - \eta f'(x).$$
 
 上述梯度下降算法中的$\eta$叫做学习率。这是一个超参数，需要人工设定。学习率$\eta$要取正数。
 
-需要注意的是，学习率过大可能会造成自变量$x$越过（overshoot）目标函数$f(x)$的最优解，甚至发散。见图7.2（右）。
+需要注意的是，学习率过大可能会造成自变量$x$越过（overshoot）目标函数$f(x)$的最优解，甚至发散。见图7.1（右）。
 
 然而，如果学习率过小，目标函数中自变量的收敛速度会过慢。实际中，一个合适的学习率通常是需要通过多次实验找到的。
 
@@ -175,6 +175,7 @@ def optimize(batch_size, lr, num_epochs, log_interval, decay_epoch):
             gb.data_iter(batch_size, num_examples, features, labels)):
             with autograd.record():
                 l = loss(net(X, w, b), y)
+            # 先对 l 中元素求和，得到小批量损失之和，然后求参数的梯度。
             l.backward()
             sgd([w, b], lr, batch_size)
             if batch_i * batch_size % log_interval == 0:
