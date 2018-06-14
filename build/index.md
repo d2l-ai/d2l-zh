@@ -13,7 +13,7 @@
    :maxdepth: 2
 
    chapter_introduction/index
-   chapter_crashcourse/index
+   chapter_prerequisite/index
    chapter_supervised-learning/index
    chapter_gluon-basics/index
    chapter_convolutional-neural-networks/index
@@ -25,4 +25,4 @@
    chapter_appendix/index
 ```
 
-本教程的[英文版本](http://gluon.mxnet.io/) （注意：中文版本根据社区的反馈做了比较大的更改，我们还在努力的将改动同步到英文版）
+本教程的[英文版本](http://gluon.mxnet.io/) （注意：中文版本根据社区的反馈做了比较大的更改，我们还在努力将改动同步到英文版）

@@ -61,7 +61,7 @@ dropout(X, 1)
 
 ## 定义模型参数
 
-实验中，我们依然使用[“Softmax回归——从零开始”](../chapter_crashcourse/softmax-regression-scratch.md)一节中介绍的Fashion-MNIST数据集。我们将定义一个包含两个隐藏层的多层感知机。其中两个隐藏层的输出个数都是256。
+实验中，我们依然使用[“Softmax回归——从零开始”](softmax-regression-scratch.md)一节中介绍的Fashion-MNIST数据集。我们将定义一个包含两个隐藏层的多层感知机。其中两个隐藏层的输出个数都是256。
 
 ```{.python .input  n=2}
 num_inputs = 784
