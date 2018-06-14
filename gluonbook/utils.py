@@ -10,7 +10,11 @@ import numpy as np
 
 # set default figure size
 set_matplotlib_formats('retina')
-plt.rcParams['figure.figsize'] = (3.5, 2.5)
+
+def set_figsize(figsize=(3.5, 2.5)):
+    plt.rcParams['figure.figsize'] = figsize
+
+set_figsize()
 
 class DataLoader(object):
     """similiar to gluon.data.DataLoader, but might be faster.
@@ -237,13 +241,13 @@ def resnet18(num_classes):
 def show_images(imgs, num_rows, num_cols, scale=2):
     """plot a list of images"""
     figsize = (num_cols*scale, num_rows*scale)
-    _, figs = plt.subplots(num_rows, num_cols, figsize=figsize)
+    _, axes = plt.subplots(num_rows, num_cols, figsize=figsize)
     for i in range(num_rows):
         for j in range(num_cols):
-            figs[i][j].imshow(imgs[i*num_cols+j].asnumpy())
-            figs[i][j].axes.get_xaxis().set_visible(False)
-            figs[i][j].axes.get_yaxis().set_visible(False)
-    plt.show()
+            axes[i][j].imshow(imgs[i*num_cols+j].asnumpy())
+            axes[i][j].axes.get_xaxis().set_visible(False)
+            axes[i][j].axes.get_yaxis().set_visible(False)
+    return axes
 
 
 def to_onehot(X, size):
@@ -293,7 +297,7 @@ def grad_clipping(params, theta, ctx):
         norm = norm.sqrt().asscalar()
         if norm > theta:
             for param in params:
-                param.grad[:] *= theta / norm 
+                param.grad[:] *= theta / norm
 
 
 def predict_rnn(rnn, prefix, num_chars, params, num_hiddens, vocab_size, ctx,
@@ -348,11 +352,11 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
             else:
                 state_h = state_h.detach()
                 if is_lstm:
-                    state_c = state_c.detach()       
+                    state_c = state_c.detach()
             with autograd.record():
                 if is_lstm:
                     outputs, state_h, state_c = rnn(
-                        get_inputs(X, vocab_size), state_h, state_c, *params) 
+                        get_inputs(X, vocab_size), state_h, state_c, *params)
                 else:
                     outputs, state_h = rnn(
                         get_inputs(X, vocab_size), state_h, *params)
@@ -419,7 +423,7 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval,
 def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
              legend=None, figsize=(3.5, 2.5)):
     """Plot x and log(y)."""
-    plt.rcParams['figure.figsize'] = figsize
+    set_figsize()
     set_matplotlib_formats('retina')
     plt.xlabel(x_label)
     plt.ylabel(y_label)
@@ -428,3 +432,59 @@ def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
         plt.semilogy(x2_vals, y2_vals)
         plt.legend(legend)
     plt.show()
+
+
+def bbox_to_rect(bbox, color):
+    """Convert bounding box to matplotlib format.
+    """
+    return plt.Rectangle(xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0],
+                         height=bbox[3]-bbox[1], fill=False, edgecolor=color, linewidth=2)
+
+
+def _make_list(obj, default_values=None):
+    if obj is None:
+        obj = default_values
+    elif not isinstance(obj, (list, tuple)):
+        obj = [obj]
+    return obj
+
+def show_bboxes(axes, bboxes, labels=None, colors=None):
+    labels = _make_list(labels)
+    colors = _make_list(colors, ['b', 'g', 'r',  'm', 'k'])
+    for i, bbox in enumerate(bboxes):
+        color = colors[i%len(colors)]
+        rect = bbox_to_rect(bbox.asnumpy(), color)
+        axes.add_patch(rect)
+        if labels and len(labels) > i:
+            text_color = 'k' if color == 'w' else 'w'
+            axes.text(rect.xy[0], rect.xy[1], labels[i],
+                      va="center", ha="center", fontsize=9, color=text_color,
+                      bbox=dict(facecolor=color, lw=0))
+
+def _download_pikachu(data_dir):
+    root_url = ('https://apache-mxnet.s3-accelerate.amazonaws.com/'
+                'gluon/dataset/pikachu/')
+    dataset = {'train.rec': 'e6bcb6ffba1ac04ff8a9b1115e650af56ee969c8',
+               'train.idx': 'dcf7318b2602c06428b9988470c731621716c393',
+               'val.rec': 'd6c33f799b4d058e82f2cb5bd9a976f69d72d520'}
+    for k, v in dataset.items():
+        gluon.utils.download(root_url+k, data_dir+k, sha1_hash=v)
+
+def load_data_pikachu(batch_size, edge_size=256):
+    data_dir = '../data/pikachu/'
+    _download_pikachu(data_dir)
+    train_data = image.ImageDetIter(
+        path_imgrec=data_dir+'train.rec',
+        path_imgidx=data_dir+'train.idx',
+        batch_size=batch_size,
+        data_shape=(3, edge_size, edge_size),
+        shuffle=True,
+        rand_crop=1,
+        min_object_covered=0.95,
+        max_attempts=200)
+    val_data = image.ImageDetIter(
+        path_imgrec=data_dir+'val.rec',
+        batch_size=batch_size,
+        data_shape=(3, edge_size, edge_size),
+        shuffle=False)
+    return (train_data, val_data)
