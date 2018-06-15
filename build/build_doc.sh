@@ -1,6 +1,9 @@
+#!/bin/bash
 # Build and publish all docs into Pulish all notebooks to mxnet.
 set -x
 set -e
+
+cd build
 
 # Clean build/chapter*/*ipynb and build/chapter*/*md that are no longer needed.
 for ch in chapter*; do
@@ -21,6 +24,7 @@ done
 
 ls chapter*
 
+cd ..
 
 # prepare the env
 conda env update -f build/build.yml
