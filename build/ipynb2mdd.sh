@@ -1,3 +1,5 @@
+#!/bin/bash
+
 MD="mdd" 
 CH="ch.md"
 
