@@ -55,6 +55,7 @@ PDFIMG = $(patsubst img/%.svg, build/_build/latex/%.pdf, $(SVG)) \
 pdf: $(DEPS) $(OBJ) $(PDFIMG)
 	@echo $(PDFIMG)
 	make -C build latex
+	cp build/_build/latex/gluon_tutorials_zh.tex .
 	sed -i s/\.svg/\.pdf/g $(TEX)
 	sed -i s/\}\.gif/\_00\}.pdf/g $(TEX)
 	sed -i s/{tocdepth}{0}/{tocdepth}{1}/g $(TEX)
@@ -67,3 +68,4 @@ pdf: $(DEPS) $(OBJ) $(PDFIMG)
 
 clean:
 	rm -rf build/chapter* $(DEPS) $(PKG)
+
