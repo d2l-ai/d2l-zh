@@ -1,5 +1,3 @@
-#!/bin/bash
-#
 # Build and publish all docs into Pulish all notebooks to mxnet.
 set -x
 set -e
