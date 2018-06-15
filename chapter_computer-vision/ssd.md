@@ -1,4 +1,4 @@
-# 物体检测模型：SSD
+# 单发多框检测：SSD
 
 我们将介绍的第一个模型是单发多框检测（single shot multibox detection，简称SSD）[1]。它并不是第一个提出来的基于深度学习的物体检测模型，也不是精度最高的，但因为其简单性而被大量使用。我们将使用SSD来详解目标检测的实现细节。
 
@@ -199,7 +199,7 @@ train_data.reshape(label_shape=(3, 5))
 ctx = gb.try_gpu()
 net = TinySSD(num_classes = 2)
 net.initialize(init=init.Xavier(), ctx=ctx)
-trainer = gluon.Trainer(net.collect_params(), 
+trainer = gluon.Trainer(net.collect_params(),
                         'sgd', {'learning_rate': 0.1, 'wd': 5e-4})
 ```
 
@@ -217,7 +217,7 @@ def calc_loss(cls_preds, cls_labels, bbox_preds, bbox_labels, bbox_masks):
     cls = cls_loss(cls_preds, cls_labels)
     bbox = bbox_loss(bbox_preds * bbox_masks, bbox_labels * bbox_masks)
     return cls + bbox
-    
+
 ```
 
 对于分类好坏我们可以沿用之前的分类精度。因为使用了L1损失，我们评估边框预测的用平均绝对误差。
@@ -237,7 +237,7 @@ def bbox_metric(bbox_preds, bbox_labels, bbox_masks):
 
 ```{.python .input  n=22}
 for epoch in range(20):
-    acc, mae = 0, 0    
+    acc, mae = 0, 0
     train_data.reset()  # 从头读取数据。
     tic = time.time()
     for i, batch in enumerate(train_data):
@@ -251,9 +251,9 @@ for epoch in range(20):
             bbox_labels, bbox_masks, cls_labels = contrib.nd.MultiBoxTarget(
                 anchors, Y, cls_preds.transpose(axes=(0,2,1)))
             # 计算类别预测和边界框预测损失。
-            loss = calc_loss(cls_preds, cls_labels, 
+            loss = calc_loss(cls_preds, cls_labels,
                              bbox_preds, bbox_labels, bbox_masks)
-        # 计算梯度和更新模型。            
+        # 计算梯度和更新模型。
         loss.backward()
         trainer.step(batch_size)
         # 更新类别预测和边界框预测评估。
@@ -303,7 +303,7 @@ def display(img, out, threshold=0.5):
         bbox = [row[2:6] * nd.array(img.shape[0:2]*2, ctx=row.context)]
         gb.show_bboxes(fig.axes, bbox, '%.2f'%score, 'w')
 
-display(img, out, threshold=0.2)
+display(img, out, threshold=0.4)
 ```
 
 ## 小结
