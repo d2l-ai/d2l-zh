@@ -7,14 +7,14 @@ set -e
 # Clean build/chapter*/*ipynb and build/chapter*/*md that are no longer needed.
 for ch in chapter*; do
     if ! [ -e "../$ch" ]; then
-        rm -rf $ch 
+        [ -e $ch ] && rm -rf $ch
     fi  
     for f in $ch/*.md $ch/*.ipynb; do
         base=$(basename $f)
         md=${base%%.*}.md
         echo "../$ch/$md"
         if ! [ -e "../$ch/$md" ]; then
-            rm $f
+            [ -e $f ] && rm $f
         fi  
     done
 done
