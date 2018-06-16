@@ -140,7 +140,7 @@ $$
 
 $$\boldsymbol{\hat{y}} = \boldsymbol{X} \boldsymbol{w} + b,$$
 
-其中的加法运算使用了广播机制（参见[“数据操作”](../chapter_crashcourse/ndarray.md)一节）。例如
+其中的加法运算使用了广播机制（参见[“数据操作”](../chapter_prerequisite/ndarray.md)一节）。例如
 
 ```{.python .input  n=4}
 a = nd.ones(shape=3)

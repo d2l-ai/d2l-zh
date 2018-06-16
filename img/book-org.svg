@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="-35 26 388 241" width="388" height="241">
+  <defs>
+    <font-face font-family="PingFang SC" font-size="9" panose-1="2 11 4 0 0 0 0 0 0 0" units-per-em="1000" underline-position="-150" underline-thickness="58" slope="0" x-height="600" cap-height="860" ascent="1060.0021" descent="-340.0007" font-weight="400">
+      <font-face-src>
+        <font-face-name name="PingFangSC-Regular"/>
+      </font-face-src>
+    </font-face>
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="StickArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 10 8" markerWidth="10" markerHeight="8" color="black">
+      <g>
+        <path d="M 8 0 L 0 0 M 0 -3 L 8 0 L 0 3" fill="none" stroke="currentColor" stroke-width="1"/>
+      </g>
+    </marker>
+  </defs>
+  <metadata> Produced by OmniGraffle 7.7.1 
+    <dc:date>2018-06-10 23:09:40 +0000</dc:date>
+  </metadata>
+  <g id="Canvas_1" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
+    <title>Canvas 2</title>
+    <g id="Canvas_1: Layer 1">
+      <title>Layer 1</title>
+      <g id="Graphic_27">
+        <rect x="67" y="197" width="81.5" height="24.45" fill="#eff6fd"/>
+        <rect x="67" y="197" width="81.5" height="24.45" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(72 202.725)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="3.3635" y="10">6. 循环神经网络</tspan>
+        </text>
+      </g>
+      <g id="Graphic_28">
+        <rect x="-34.5" y="197" width="81.5" height="24.45" fill="#eff6fd"/>
+        <rect x="-34.5" y="197" width="81.5" height="24.45" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(-29.5 202.725)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="3.3635" y="10">5. 卷积神经网络</tspan>
+        </text>
+      </g>
+      <g id="Graphic_29">
+        <rect x="168.5" y="117.5" width="81.5" height="24.45" fill="white"/>
+        <rect x="168.5" y="117.5" width="81.5" height="24.45" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(173.5 123.225)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="3.3635" y="10">3. 深度学习基础</tspan>
+        </text>
+      </g>
+      <g id="Graphic_30">
+        <rect x="67" y="152.5" width="81.5" height="24.45" fill="#eff6fd"/>
+        <rect x="67" y="152.5" width="81.5" height="24.45" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(72 158.225)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="3.3635" y="10">4. 深度学习计算</tspan>
+        </text>
+      </g>
+      <g id="Graphic_32">
+        <rect x="168.5" y="72.5" width="81.5" height="24.45" fill="white"/>
+        <rect x="168.5" y="72.5" width="81.5" height="24.45" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(173.5 78.225)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="12.3635" y="10">2. 预备知识</tspan>
+        </text>
+      </g>
+      <g id="Graphic_33">
+        <rect x="271" y="152.5" width="81.5" height="24.45" fill="#c9e2ff"/>
+        <rect x="271" y="152.5" width="81.5" height="24.45" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(276 158.225)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="12.602" y="10">7. 优化算法</tspan>
+        </text>
+      </g>
+      <g id="Graphic_34">
+        <rect x="168.5" y="197" width="81.5" height="24.45" fill="#c9e2ff"/>
+        <rect x="168.5" y="197" width="81.5" height="24.45" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(173.5 202.725)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="12.3635" y="10">8. 计算性能</tspan>
+        </text>
+      </g>
+      <g id="Graphic_35">
+        <rect x="168.5" y="241.5" width="81.5" height="24.45" fill="#c9e2ff"/>
+        <rect x="168.5" y="241.5" width="81.5" height="24.45" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(173.5 247.225)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="1.559" y="10">10. 自然语言处理</tspan>
+        </text>
+      </g>
+      <g id="Graphic_36">
+        <rect x="67" y="241.5" width="81.5" height="24.45" fill="#c9e2ff"/>
+        <rect x="67" y="241.5" width="81.5" height="24.45" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(72 247.225)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="7.8635" y="10">9. 计算机视觉</tspan>
+        </text>
+      </g>
+      <g id="Line_37">
+        <line x1="209.25" y1="96.95" x2="209.25" y2="107.6" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_38">
+        <line x1="173.7975" y1="141.95" x2="152.5617" y2="149.2727" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_39">
+        <line x1="245.0518" y1="141.95" x2="266.57935" y2="149.30088" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_40">
+        <line x1="79.86601" y1="176.95" x2="43.20087" y2="193.02487" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_41">
+        <line x1="107.75" y1="176.95" x2="107.75" y2="187.1" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_42">
+        <line x1="135.63399" y1="176.95" x2="172.29913" y2="193.02487" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_43">
+        <line x1="283.5913" y1="176.95" x2="246.4898" y2="193.05747" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_44">
+        <line x1="135.63399" y1="221.45" x2="172.29913" y2="237.52487" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_45">
+        <line x1="34.13399" y1="221.45" x2="70.79913" y2="237.52487" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_46">
+        <line x1="181.36601" y1="221.45" x2="144.70087" y2="237.52487" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_47">
+        <line x1="209.25" y1="221.45" x2="209.25" y2="231.6" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_48">
+        <rect x="168.5" y="27.5" width="81.5" height="24.45" fill="white"/>
+        <rect x="168.5" y="27.5" width="81.5" height="24.45" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(173.5 33.225)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="22.259" y="10">1. 引言</tspan>
+        </text>
+      </g>
+      <g id="Line_52">
+        <line x1="209.25" y1="51.95" x2="209.25" y2="62.6" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+    </g>
+  </g>
+</svg>

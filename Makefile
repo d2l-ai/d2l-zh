@@ -67,3 +67,4 @@ pdf: $(DEPS) $(OBJ) $(PDFIMG)
 
 clean:
 	rm -rf build/chapter* $(DEPS) $(PKG)
+

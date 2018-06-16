@@ -137,17 +137,18 @@ cos_sim(x, y), cos_sim(x, z)
 
 ```{.python .input}
 def norm_vecs_by_row(x):
-    return x / nd.sum(x * x, axis=1).sqrt().reshape((-1, 1))
+    # 分母中添加的 1e-10 是为了数值稳定性。
+    return x / (nd.sum(x * x, axis=1) + 1e-10).sqrt().reshape((-1, 1))
 
 def get_knn(token_embedding, k, word):
     word_vec = token_embedding.get_vecs_by_tokens([word]).reshape((-1, 1))
     vocab_vecs = norm_vecs_by_row(token_embedding.idx_to_vec)
     dot_prod = nd.dot(vocab_vecs, word_vec)
-    indices = nd.topk(dot_prod.reshape((len(token_embedding), )), k=k+2,
+    indices = nd.topk(dot_prod.reshape((len(token_embedding), )), k=k+1,
                       ret_typ='indices')
     indices = [int(i.asscalar()) for i in indices]
-    # 除去未知词符号和输入词。
-    return token_embedding.to_tokens(indices[2:])
+    # 除去输入词。
+    return token_embedding.to_tokens(indices[1:])
 ```
 
 查找词典中与“baby”最近似的5个词。
@@ -183,7 +184,7 @@ get_knn(glove_6b50d, 5, 'beautiful')
 
 ### 求类比词
 
-除近似词以外，我们还可以使用预训练词向量求词与词之间的类比关系。例如，man : woman :: son : daughter 是一个类比例子：“man”之于“woman”相当于“son”之于“daughter”。求类比词问题可以定义为：对于类比关系中的四个词 $a : b :: c : d$，给定前三个词$a$、$b$和$c$，求$d$。设词$w$的词向量为$\text{vec}(w)$。而解类比词的思路是，找到和$\text{vec}(c)+\text{vec}(b)-\text{vec}(a)$的结果向量最相似的词向量。
+除近似词以外，我们还可以使用预训练词向量求词与词之间的类比关系。例如，man（男人）: woman（女人）:: son（儿子） : daughter（女儿）是一个类比例子：“man”之于“woman”相当于“son”之于“daughter”。求类比词问题可以定义为：对于类比关系中的四个词 $a : b :: c : d$，给定前三个词$a$、$b$和$c$，求$d$。设词$w$的词向量为$\text{vec}(w)$。而解类比词的思路是，找到和$\text{vec}(c)+\text{vec}(b)-\text{vec}(a)$的结果向量最相似的词向量。
 
 本例中，我们将从整个词典（大小40万，不含未知词符号）中搜索类比词。
 
@@ -193,15 +194,10 @@ def get_top_k_by_analogy(token_embedding, k, word1, word2, word3):
     word_diff = (word_vecs[1] - word_vecs[0] + word_vecs[2]).reshape((-1, 1))
     vocab_vecs = norm_vecs_by_row(token_embedding.idx_to_vec)
     dot_prod = nd.dot(vocab_vecs, word_diff)
-    indices = nd.topk(dot_prod.reshape((len(token_embedding), )), k=k+1,
+    indices = nd.topk(dot_prod.reshape((len(token_embedding), )), k=k,
                       ret_typ='indices')
     indices = [int(i.asscalar()) for i in indices]
-
-    # 不考虑未知词为可能的类比词。
-    if token_embedding.to_tokens(indices[0]) == token_embedding.unknown_token:
-        return token_embedding.to_tokens(indices[1:])
-    else:
-        return token_embedding.to_tokens(indices[:-1])
+    return token_embedding.to_tokens(indices)
 ```
 
 “男-女”类比：“man”之于“woman”相当于“son”之于什么？
@@ -221,19 +217,19 @@ def cos_sim_word_analogy(token_embedding, word1, word2, word3, word4):
 cos_sim_word_analogy(glove_6b50d, 'man', 'woman', 'son', 'daughter')
 ```
 
-“首都-国家”类比：“beijing”之于“china”相当于“tokyo”之于什么？
+“首都-国家”类比：“beijing”（北京）之于“china”（中国）相当于“tokyo”（东京）之于什么？答案应该是“japan”（日本）。
 
 ```{.python .input  n=19}
 get_top_k_by_analogy(glove_6b50d, 1, 'beijing', 'china', 'tokyo')
 ```
 
-“形容词-形容词最高级”类比：“bad”之于“worst”相当于“big”之于什么？
+“形容词-形容词最高级”类比：“bad”（坏的）之于“worst”（最坏的）相当于“big”（大的）之于什么？答案应该是“biggest”（最大的）。
 
 ```{.python .input  n=20}
 get_top_k_by_analogy(glove_6b50d, 1, 'bad', 'worst', 'big')
 ```
 
-“动词一般时-动词过去时”类比：“do”之于“did”相当于“go”之于什么？
+“动词一般时-动词过去时”类比：“do”（做）之于“did”（做过）相当于“go”（去）之于什么？答案应该是“went”（去过）。
 
 ```{.python .input  n=21}
 get_top_k_by_analogy(glove_6b50d, 1, 'do', 'did', 'go')

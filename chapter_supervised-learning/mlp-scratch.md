@@ -21,7 +21,7 @@ train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
 
 ## 定义模型参数
 
-我们在[“Softmax回归——从零开始”](../chapter_crashcourse/softmax-regression-scratch.md)一节里已经介绍了，Fashion-MNIST数据集中图片尺寸为$28 \times 28$，类别数为10。本节中我们依然使用长度为$28 \times 28 = 784$的向量表示每一张图片。因此，输入个数为784，输出个数为10。实验中，我们设超参数隐藏单元个数为256。
+我们在[“Softmax回归——从零开始”](softmax-regression-scratch.md)一节里已经介绍了，Fashion-MNIST数据集中图片尺寸为$28 \times 28$，类别数为10。本节中我们依然使用长度为$28 \times 28 = 784$的向量表示每一张图片。因此，输入个数为784，输出个数为10。实验中，我们设超参数隐藏单元个数为256。
 
 ```{.python .input  n=2}
 num_inputs = 784
@@ -68,7 +68,7 @@ loss = gloss.SoftmaxCrossEntropyLoss()
 
 ## 训练模型
 
-训练多层感知机的步骤和之前训练Softmax回归的步骤没什么区别。我们直接调用`gluonbook`包中的`train_cpu`函数，它的实现已经在[“Softmax回归——从零开始”](../chapter_crashcourse/softmax-regression-scratch.md)一节里介绍了。
+训练多层感知机的步骤和之前训练Softmax回归的步骤没什么区别。我们直接调用`gluonbook`包中的`train_cpu`函数，它的实现已经在[“Softmax回归——从零开始”](softmax-regression-scratch.md)一节里介绍了。
 
 这里设超参数迭代周期为5，学习率为0.5。
 
