@@ -22,8 +22,6 @@ for ch in chapter*; do
     fi  
 done
 
-ls chapter*
-
 cd ..
 
 # prepare the env
