@@ -3,9 +3,10 @@
 set -x
 set -e
 
-cd build
+make clean
 
 # Clean build/chapter*/*ipynb and build/chapter*/*md that are no longer needed.
+cd build
 for ch in chapter*; do
     if ! [ -e "../$ch" ]; then
         rm -rf $ch 
@@ -21,7 +22,6 @@ for ch in chapter*; do
         done
     fi  
 done
-
 cd ..
 
 # prepare the env

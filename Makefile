@@ -66,5 +66,5 @@ pdf: $(DEPS) $(OBJ) $(PDFIMG)
 	buf_size=10000000 xelatex gluon_tutorials_zh.tex
 
 clean:
-	rm -rf build/chapter* $(DEPS) $(PKG)
+	rm -rf build/chapter* build/_build $(DEPS) $(PKG)
 
