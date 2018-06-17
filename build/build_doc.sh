@@ -3,6 +3,8 @@
 set -x
 set -e
 
+make clean
+
 cd build
 
 # Clean build/chapter*/*ipynb and build/chapter*/*md that are no longer needed.
