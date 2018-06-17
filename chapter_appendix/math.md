@@ -139,3 +139,12 @@ $$f(x + \epsilon) \approx f(x) + f'(x) \epsilon.$$
 
 
 ### 最大似然估计
+
+
+## 小结
+
+## 练习
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6966)
+
+![](../img/qr_math.svg)
