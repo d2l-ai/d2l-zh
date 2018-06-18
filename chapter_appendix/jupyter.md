@@ -11,12 +11,12 @@
 
 
 我们可以通过点击网页上显示的文件夹访问其中的notebook文件。它们的后缀通常是“ipynb”。
-为了简洁起见，我们创建了一个“test.ipynb”文件，点击后将显示其中内容，如图11.2所示。该notebook包括了格式化文本单元（markdown cell）和代码单元（code cell）。其中格式化文本单元中的内容包括“这是标题”、“这是一段正文”和“这是二号标题”。代码单元中包括两行Python代码。
+为了简洁起见，我们创建了一个“test.ipynb”文件，点击后将显示其中内容，如图11.2所示。该notebook包括了格式化文本单元（markdown cell）和代码单元（code cell）。其中格式化文本单元中的内容包括“这是标题”和“这是一段正文。”。代码单元中包括两行Python代码。
 
 ![“test.ipynb”文件包括了格式化文本单元和代码单元。](../img/jupyter01.png)
 
 
-双击格式化文本单元，我们进入了编辑模式。在该单元的末尾添加一段新文本“你好世界”，如图11.3所示。
+双击格式化文本单元，我们进入了编辑模式。在该单元的末尾添加一段新文本“你好世界。”，如图11.3所示。
 
 ![编辑格式化文本单元。](../img/jupyter02.png)
 
@@ -26,7 +26,7 @@
 ![运行单元。](../img/jupyter03.png)
 
 
-我们得到了编辑后的格式化文本单元，如图11.5所示。
+运行完以后，图11.5展示了编辑后的格式化文本单元。
 
 ![编辑后的格式化文本单元。](../img/jupyter04.png)
 
@@ -41,7 +41,7 @@
 ![运行代码单元得到输出结果。](../img/jupyter06.png)
 
 
-当一个notebook包含的单元较多时，我们可以点击菜单栏的“Kernel” $\rightarrow$ “Restart & Run All”，运行整个notebook中的所有单元。点击菜单栏的“Help” $\rightarrow$ “Edit Keyboard Shortcuts”可以根据自己的喜好编辑快捷键。
+当一个notebook包含的单元较多时，我们可以点击菜单栏的“Kernel” $\rightarrow$ “Restart & Run All”，以运行整个notebook中的所有单元。点击菜单栏的“Help” $\rightarrow$ “Edit Keyboard Shortcuts”后可以根据自己的喜好编辑快捷键。
 
 
 ## 高级选项
@@ -52,7 +52,7 @@
 
 如果你希望为本书内容做贡献，需要修改在GitHub上Markdown格式的源文件（.md文件非.ipynb文件）。通过notedown插件，我们就可以使用Jupyter Notebook修改并运行Markdown格式的源代码。Linux/macOS用户可以执行以下命令获得GitHub源文件并激活运行环境。
 
-```
+```{.python .input}
 git clone https://github.com/mli/gluon-tutorials-zh
 cd gluon-tutorials-zh
 conda env create -f environment.yml
@@ -61,7 +61,7 @@ source activate gluon # Windows 用户运行 activate gluon
 
 下面安装notedown插件，运行Jupyter Notebook并加载插件：
 
-```
+```{.python .input}
 pip install https://github.com/mli/notedown/tarball/master
 jupyter notebook --NotebookApp.contents_manager_class='notedown.NotedownContentsManager'
 ```
@@ -70,13 +70,13 @@ jupyter notebook --NotebookApp.contents_manager_class='notedown.NotedownContents
 
 首先，执行下面命令生成Jupyter Notebook配置文件（如果已经生成可以跳过）。
 
-```
+```{.python .input}
 jupyter notebook --generate-config
 ```
 
 然后，将下面这一行加入到Jupyter Notebook配置文件的末尾（Linux/macOS上一般在`~/.jupyter/jupyter_notebook_config.py`)
 
-```
+```{.python .input}
 c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'
 ```
 
@@ -87,7 +87,7 @@ c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'
 
 有时候，我们希望在远端服务器上运行Jupyter Notebook，并通过本地电脑上的浏览器访问。如果本地机器上安装了Linux或者macOS（Windows通过第三方软件例如putty应该也能支持），那么可以使用端口映射：
 
-```
+```{.python .input}
 ssh myserver -L 8888:localhost:8888
 ```
 
@@ -97,7 +97,7 @@ ssh myserver -L 8888:localhost:8888
 
 我们可以通过ExecutionTime插件来对Jupyter Notebook的每个代码单元的运行计时。以下是安装该插件的命令。
 
-```
+```{.python .input}
 pip install jupyter_contrib_nbextensions
 jupyter contrib nbextension install --user
 jupyter nbextension enable execute_time/ExecuteTime
