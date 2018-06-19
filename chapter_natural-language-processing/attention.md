@@ -5,7 +5,7 @@
 
 ## 动机
 
-以英语-法语翻译为例，给定一对输入序列“They”、“are”、“watching”、“.”和输出序列“Ils”、“regardent”、“.”。解码器可以在输出序列的时间步1使用更多编码了“They”、“are”信息的背景变量来生成“Ils”，在时间步2使用更多编码了“watching”信息的背景变量来生成“regardent”，在时间步3使用更多编码了“.”信息的背景变量来生成“.”。这看上去就像是在解码器的每一时间步对输入序列中不同时间步编码的信息分配不同的注意力。这也是注意力机制的由来。它最早由Bahanau等提出 [1]。
+以英语-法语翻译为例，给定一对输入序列“They”、“are”、“watching”、“.”和输出序列“Ils”、“regardent”、“.”。解码器可以在输出序列的时间步1使用更集中编码了“They”、“are”信息的背景变量来生成“Ils”，在时间步2使用更集中编码了“watching”信息的背景变量来生成“regardent”，在时间步3使用更集中编码了“.”信息的背景变量来生成“.”。这看上去就像是在解码器的每一时间步对输入序列中不同时间步编码的信息分配不同的注意力。这也是注意力机制的由来，它最早由Bahanau等提出 [1]。
 
 
 ## 设计
@@ -13,12 +13,12 @@
 本节沿用[“编码器—解码器（seq2seq）”](seq2seq.md)一节里的数学符号。
 
 我们对[“编码器—解码器（seq2seq）”](seq2seq.md)一节里的解码器稍作修改。在时间步$t^\prime$，设解码器的背景变量为$\boldsymbol{c}_{t^\prime}$，输出$y_{t^\prime}$的特征向量为$\boldsymbol{y}_{t^\prime}$。
-和输入的特征向量一样，这里每个输出的特征向量也可能是模型参数。解码器在时间步$t^\prime$的隐藏状态
+和输入的特征向量一样，这里每个输出的特征向量也是模型参数。解码器在时间步$t^\prime$的隐藏状态
 
 $$\boldsymbol{s}_{t^\prime} = g(\boldsymbol{y}_{t^\prime-1}, \boldsymbol{c}_{t^\prime}, \boldsymbol{s}_{t^\prime-1}).$$
 
 
-令编码器在时间步$t$的隐藏状态为$\boldsymbol{h}_t$，且时间步数为$T$。解码器在时间步$t^\prime$的背景变量为
+令编码器在时间步$t$的隐藏状态为$\boldsymbol{h}_t$，且总时间步数为$T$。解码器在时间步$t^\prime$的背景变量为
 
 $$\boldsymbol{c}_{t^\prime} = \sum_{t=1}^T \alpha_{t^\prime t} \boldsymbol{h}_t,$$
 
@@ -30,7 +30,7 @@ $$\alpha_{t^\prime t} = \frac{\exp(e_{t^\prime t})}{ \sum_{k=1}^T \exp(e_{t^\pri
 
 $$e_{t^\prime t} = a(\boldsymbol{s}_{t^\prime - 1}, \boldsymbol{h}_t).$$
 
-上式中的函数$a$有多种设计方法。Bahanau等使用了
+上式中的函数$a$有多种设计方法。Bahanau等使用了前馈神经网络（feedforward neural network）：
 
 $$e_{t^\prime t} = \boldsymbol{v}^\top \tanh(\boldsymbol{W}_s \boldsymbol{s}_{t^\prime - 1} + \boldsymbol{W}_h \boldsymbol{h}_t),$$
 
@@ -72,4 +72,4 @@ $$
 
 ## 参考文献
 
-[1] Bahdanau, Dzmitry, Kyunghyun Cho, and Yoshua Bengio. “Neural machine translation by jointly learning to align and translate.” arXiv preprint arXiv:1409.0473 (2014).
+[1] Bahdanau, Dzmitry, Kyunghyun Cho, and Yoshua Bengio. “Neural machine translation by jointly learning to align and translate.” ICLR. 2015.
