@@ -15,10 +15,9 @@
 第二步，下载包含本书全部代码的包，解压后进入文件夹。Linux/macOS用户可以使用如下命令。
 
 ```
-mkdir gluon-tutorials && cd gluon-tutorials
+mkdir gluon_tutorials_zh && cd gluon_tutorials_zh
 curl https://zh.gluon.ai/gluon_tutorials_zh.tar.gz -o tutorials.tar.gz
 tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
-
 ```
 
 Windows用户可以用浏览器下载压缩文件（下载地址：https://zh.gluon.ai/gluon_tutorials_zh.zip ）并解压。在解压目录文件资源管理器的地址栏输入`cmd`进入命令行模式。

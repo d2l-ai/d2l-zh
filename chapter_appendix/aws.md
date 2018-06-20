@@ -1,6 +1,6 @@
 # 使用AWS运行代码
 
-当本地机器的计算资源有限时，我们可以通过云计算服务获取更强大的计算资源来运行本书中的深度学习代码。本节将介绍如何在AWS（亚马逊的云计算服务）上申请GPU实例并通过Jupyter notebook运行代码。
+当本地机器的计算资源有限时，我们可以通过云计算服务获取更强大的计算资源来运行本书中的深度学习代码。本节将介绍如何在AWS（亚马逊的云计算服务）上申请实例并通过Jupyter notebook运行代码。本节中的例子基于申请含一个K80 GPU的“p2.xlarge”实例和安装CUDA8.0及相应GPU版本的MXNet（mxnet-cu80）。申请其他类型的实例或安装其他版本的MXNet的方法同本节类似。
 
 
 
@@ -13,7 +13,7 @@
 ![登陆AWS账号。](../img/aws.png)
 
 
-## 选择并运行EC2实例
+## 创建并运行EC2实例
 
 图11.9展示了EC2面板的界面。在图11.9右上角红框处选择离我们较近的数据中心来减低延迟。我们可以选离国内较近的亚太地区，例如Asia Pacific（Seoul）。注意，有些数据中心可能没有GPU实例。点击图11.9下方红框内“Launch Instance”启动实例。
 
@@ -24,21 +24,20 @@
 
 ![选择操作系统。](../img/os.png)
 
-EC2提供了大量的有着不同配置的实例。如图11.11所示，在第二步“2. Chosse Instance Type”中，我们选择了有一个K80 GPU的“p2.xlarge”实例。我们也可以选择例如“p2.16xlarge”的有更多GPU的实例、有更新GPU的“g3”系列实例，或者像“c4”系列的只含CPU的实例。如果你想比较不同实例的机器配置和收费，可参考 https://www.ec2instances.info/ 。
+EC2提供了大量的有着不同配置的实例。如图11.11所示，在第二步“2. Chosse Instance Type”中，选择有一个K80 GPU的“p2.xlarge”实例。我们也可以选择像“p2.16xlarge”这样有多个GPU的实例。如果你想比较不同实例的机器配置和收费，可参考 https://www.ec2instances.info/ 。
 
 ![选择实例。](../img/p2x.png)
 
-
-我们建议在选择实例前在图11.9左栏“Limits”里检查下有无数量限制。如图11.12所示，该账号的限制是最多在一个区域开一个“p2.xlarge”实例。如果需要开更多实例，可以通过点击右边“Request limit increase”来申请更大的实例容量。这通常需要一个工作日来处理。
+我们建议在选择实例前先在图11.9左栏“Limits”里检查下有无数量限制。如图11.12所示，该账号的限制是最多在一个区域开一个“p2.xlarge”实例。如果需要开更多实例，可以通过点击右边“Request limit increase”来申请更大的实例容量。这通常需要一个工作日来处理。
 
 ![实例的数量限制。](../img/limits.png)
 
-我们将保持第三步“3. Configure Instance”、第五步“5. Add Tags”和第六步“6. Configure Security Group”中的默认配置。点击第四步“4.Add Storage”，如图11.13所示，将默认的硬盘大小增大到40GB。注意，安装CUDA需要4GB左右空间。
+我们将保持第三步“3. Configure Instance”、第五步“5. Add Tags”和第六步“6. Configure Security Group”中的默认配置不变。点击第四步“4.Add Storage”，如图11.13所示，将默认的硬盘大小增大到40GB。注意，安装CUDA需要4GB左右空间。
 
 ![修改实例的硬盘大小。](../img/disk.png)
 
 
-最后，在第七步“7. Review”中点击“Launch”来启动配置好的实例。这时候会提示我们选择用来访问实例的密钥。如果没有的话，可以选择图11.14中第一个下拉菜单的“Create a new key pair”选项来生成秘钥。之后，我们通过该下拉菜单的“Choose an existing key pair”选项选择生成好的密钥。点击“Launch Instance”。
+最后，在第七步“7. Review”中点击“Launch”来启动配置好的实例。这时候会提示我们选择用来访问实例的密钥。如果没有的话，可以选择图11.14中第一个下拉菜单的“Create a new key pair”选项来生成秘钥。之后，我们通过该下拉菜单的“Choose an existing key pair”选项选择生成好的密钥。点击“Launch Instance”启动创建好的实例。
 
 ![选择密钥。](../img/keypair.png)
 
@@ -52,7 +51,7 @@ EC2提供了大量的有着不同配置的实例。如图11.11所示，在第二
 ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com
 ```
 
-其中“/path/to/key.pem”是本地存放访问实例的密钥的路径。当命令行提示“Are you sure you want to continue connecting (yes/no)”时，键入“yes”并按回车键即可登录实例。
+其中“/path/to/key.pem”是本地存放访问实例的密钥的路径。当命令行提示“Are you sure you want to continue connecting (yes/no)”时，键入“yes”并按回车键即可登录创建好的实例。
 
 ![查看访问开启实例的方法。](../img/connect.png)
 
@@ -65,20 +64,19 @@ ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com
 sudo apt-get update && sudo apt-get install -y build-essential git libgfortran3
 ```
 
-然后，访问Nvidia官网下载并安装CUDA。选择正确的版本并获取下载地址。
+然后，访问Nvidia官网（https://developer.nvidia.com/cuda-80-ga2-download-archive ）获取正确版本的CUDA8.0的下载地址，如图11.17所示。
 
-【注意】目前CUDA默认下载9.0版，但`mxnet-cu90`的daily build还不完善。建议使用下面命令安装8.0版。
+![获取CUDA8.0的下载地址。](../img/cuda.png)
 
-![](../img/cuda.png)
 
-然后使用`wget`下载并且安装
+获取下载地址后，我们将下载并安装CUDA8.0，例如
 
 ```
 wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda_8.0.61_375.26_linux-run
 sudo sh cuda_8.0.61_375.26_linux-run
 ```
 
-这里需要回答几个问题。
+点击“Ctrl+C”跳出文档浏览，并回答以下几个问题。
 
 ```
 accept/decline/quit: accept
@@ -98,28 +96,28 @@ Install the CUDA 8.0 Samples?
 (y)es/(n)o/(q)uit: n
 ```
 
-安装完成后运行
+当安装完成后，运行下面的命令就可以看到该实例的GPU了。
 
 ```
 nvidia-smi
 ```
 
-就可以看到这个实例的GPU了。最后将CUDA加入到library path方便之后安装的库找到它。
+最后，将CUDA加入到库的路径中，以方便其他库找到它。
 
 ```
 echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-8.0/lib64" >>.bashrc
 ```
 
-### 安装MXNet
+## 获取本书代码并安装GPU版的MXNet
 
-先安装Miniconda
+我们已在[“安装和运行”](../chapter_prerequisite/install.md)一节中介绍了Linux用户获取本书代码并安装运行环境的方法。首先，安装Linux版的Miniconda（网址：https://conda.io/miniconda.html ），例如
 
 ```
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 bash Miniconda3-latest-Linux-x86_64.sh
 ```
 
-需要回答下面几个问题
+这时需要回答下面几个问题：
 
 ```
 Do you accept the license terms? [yes|no]
@@ -129,87 +127,55 @@ to PATH in your /home/ubuntu/.bashrc ? [yes|no]
 [no] >>> yes
 ```
 
-运行一次`bash`让CUDA和conda生效。
-
-下载本教程，安装并激活conda环境
+安装完成后，运行一次`bash`让CUDA和conda生效。接下来，下载本书代码、安装并激活conda环境
 
 ```
-git clone https://github.com/mli/gluon-tutorials-zh
-cd gluon-tutorials-zh
+mkdir gluon_tutorials_zh && cd gluon_tutorials_zh
+curl https://zh.gluon.ai/gluon_tutorials_zh.tar.gz -o tutorials.tar.gz
+tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
 conda env create -f environment.yml
 source activate gluon
 ```
 
-默认环境里安装了只有CPU的版本。现在我们替换成GPU版本。
+默认环境里安装了CPU版本的MXNet。现在我们将它替换成GPU版本的MXNet（1.2.0版）。
 
 ```
-pip uninstall -y mxnet
-pip install --pre mxnet-cu80
-
+pip uninstall mxnet
+pip install mxnet-cu80==1.2.0
 ```
 
-同时安装notedown插件来让jupter读写markdown文件。
+## 运行Jupyter notebook
 
-```
-pip install https://github.com/mli/notedown/tarball/master
-jupyter notebook --generate-config
-echo "c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'" >>~/.jupyter/jupyter_notebook_config.py
-
-```
-
-## 运行
-
-并运行Jupyter notebook。
+现在，我们可以运行Jupyter notebook了：
 
 ```
 jupyter notebook
 ```
 
-如果成功的话会看到类似的输出
+图11.18显示了运行后可能的输出，其中最后一行为8888端口下的URL。
 
-![](../img/jupyter.png)
+![运行Jupyter notebook后的输出，其中最后一行为8888端口下的URL。](../img/jupyter.png)
 
-因为我们的实例没有暴露8888端口，所以我们可以在本地启动ssh从实例映射到本地
-
-```
-ssh -i "XXX.pem" -L8888:locallhost:8888 ubuntu@XXXX.XXXX.compute.amazonaws.com
-```
-
-然后把jupyter log里的URL复制到本地浏览器就行了。
-
-【注意】如果本地运行了Jupyter notebook，那么8888端口就可能被占用了。要么关掉本地jupyter，要么把端口映射改成别的。例如，假设aws使用默认8888端口，我们可以在本地启动ssh从实例映射到本地8889端口：
+由于创建的实例并没有暴露8888端口，我们可以在本地命令行启动ssh从实例映射到本地8889端口。
 
 ```
-ssh -i "XXX.pem" -N -f -L localhost:8889:localhost:8888 ubuntu@XXXX.XXXX.compute.amazonaws.com
+# 该命令须在本地命令行运行。
+ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com -L 8889:localhost:8888
 ```
 
-然后在本地浏览器打开localhost:8889，这时会提示需要token值。接下来，我们将aws上jupyter log里的token值（例如上图里：...localhost:8888/?token=`token值`）复制粘贴即可。
+最后，把图11.18中运行Jupyter notebook后输出的最后一行URL复制到本地浏览器，并将8888改为8889。点击回车键即可从本地浏览器通过Jupyter notebook运行实例上的代码。
 
+## 关闭不使用的实例
 
+因为云服务按使用时长计费，我们通常会在不使用实例时将其关闭。
 
-## 后续
+如果较短时间内还将重新开启实例，右击图11.16中的示例，选择“Instance State” $\rightarrow$ “Stop”将实例停止，等下次使用时选择“Instance State” $\rightarrow$ “Start”重新开启实例。这种情况下，开启的实例将保留其停止前硬盘上的存储（例如无需再安装CUDA和其他运行环境）。然而，停止状态的实例也会因其所保留的硬盘空间而产生少量计费。
 
-因为云服务按时间计费，通常我们不用时需要把样例关掉，到下次要用时再开。如果是停掉（Stop)，下次可以直接继续用，但硬盘空间会计费。如果是终结(Termination)，我们一般会先把操作系统做镜像，下次开始时直接使用镜像（AMI）（上面的教程使用了Ubuntu 16.06 AMI）就行了，不需要再把上面流程走一次。
-
-![](../img/ami.png)
-
-每次重新开始后，我们建议升级下教程（记得保存自己的改动）
-
-```
-cd gluon-tutorials-zh
-git pull
-```
-
-和MXNet版本
-
-```
-source activate gluon
-pip install -U --pre mxnet-cu80
-```
+如果较长时间内不会重新开启实例，右击图11.16中的示例，选择“Image” $\rightarrow$ “Create”创建镜像。然后，选择“Instance State” $\rightarrow$ “Terminate”将实例终结（硬盘不再产生计费）。当下次使用时，我们可按本节中创建并运行EC2实例的步骤重新创建一个基于保存镜像的实例。唯一的区别在于，在图11.10的第一步“1. Chosse AMI”中，我们需要通过左栏“My AMIs”选择之前保存的镜像。这样创建的实例将保留镜像上硬盘的存储（例如无需再安装CUDA和其他运行环境）。
 
 ## 小结
 
-* 云上可以很方便的获取计算资源和配置环境。
+* 我们可以通过云计算服务获取更强大的计算资源来运行本书中的深度学习代码。
 
 ## 练习
 
