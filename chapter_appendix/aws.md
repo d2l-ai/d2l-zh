@@ -1,6 +1,6 @@
 # 使用AWS运行代码
 
-当本地机器的计算资源有限时，我们可以通过云计算服务获取更强大的计算资源来运行本书中的深度学习代码。本节将介绍如何在AWS（亚马逊的云计算服务）上申请CPU或GPU的实例并通过Jupyter notebook运行代码。
+当本地机器的计算资源有限时，我们可以通过云计算服务获取更强大的计算资源来运行本书中的深度学习代码。本节将介绍如何在AWS（亚马逊的云计算服务）上申请GPU实例并通过Jupyter notebook运行代码。
 
 
 
@@ -10,64 +10,62 @@
 
 登陆AWS账号后，点击图11.8红框中的“EC2”进入EC2面板。
 
-![进入EC2面板。](../img/aws.png)
+![登陆AWS账号。](../img/aws.png)
 
 
 ## 选择并运行EC2实例
 
-进入EC2面板后，在右上角选择离我们较近的数据中心来减低延迟。当我们在国内时，可以选亚太地区，例如Asia Pacific（Seoul）。注意，有些数据中心可能没有GPU实例。
+图11.9展示了EC2面板的界面。在图11.9右上角红框处选择离我们较近的数据中心来减低延迟。我们可以选离国内较近的亚太地区，例如Asia Pacific（Seoul）。注意，有些数据中心可能没有GPU实例。点击图11.9下方红框内“Launch Instance”启动实例。
 
-然后点击启动实例来选择操作系统和实例类型。
-
-![](../img/ec2.png)
-
-在接下来的操作系统里面选Ubuntu 16.06:
-
-![](../img/os.png)
-
-EC2提供大量的有着不同配置的实例。这里我们选择了`p2.xlarge`，它有一个K80 GPU。我们也可以选择有更多GPU的实例例如`p2.16xlarge`，或者有新一点GPU的`g3`系列。我们也可以选择只有CPU的实例，例如`c4`系列。每个不同实例的机器配置和收费可以参考 [ec2instances.info](http://www.ec2instances.info/).
-
-![](../img/p2x.png)
-
-【注意】选择某个类型的样例前我们需要在`Limits`里检查下这个是不是有数量限制。例如这个账号的`p2.xlarge`限制是最多一个区域开一个。如果需要更多，需要点右边来申请更多的实例容量（通常需要一个工作日来处理）。
-
-![](../img/limits.png)
+![EC2面板。](../img/ec2.png)
 
 
+图11.10的最上面一行显示了配置实例所需的7个步骤。在第一步“1. Chosse AMI”中，选择Ubuntu 16.04作为操作系统。
 
-然后我们在存储那里将默认的硬盘从8GB增大的40GB. 因为安装CUDA需要4GB空间，所以最小推荐20GB（只有CPU的话不需要CUDA，可以更少）。
+![选择操作系统。](../img/os.png)
 
-![](../img/disk.png)
+EC2提供了大量的有着不同配置的实例。如图11.11所示，在第二步“2. Chosse Instance Type”中，我们选择了有一个K80 GPU的“p2.xlarge”实例。我们也可以选择例如“p2.16xlarge”的有更多GPU的实例、有更新GPU的“g3”系列实例，或者像“c4”系列的只含CPU的实例。如果你想比较不同实例的机器配置和收费，可参考 https://www.ec2instances.info/ 。
 
-其他的项我们都选默认，然后可以启动了。这时候会跳出选项选择`key pair`，这是用来之后访问机器的秘钥（EC2默认不支持密码访问）。如果没有的话可以选择生成一对秘钥。
+![选择实例。](../img/p2x.png)
 
-![](../img/keypair.png)
 
-然后点击实例的ID可以查看当前实例的状态
+我们建议在选择实例前在图11.9左栏“Limits”里检查下有无数量限制。如图11.12所示，该账号的限制是最多在一个区域开一个“p2.xlarge”实例。如果需要开更多实例，可以通过点击右边“Request limit increase”来申请更大的实例容量。这通常需要一个工作日来处理。
 
-![](../img/launching.png)
+![实例的数量限制。](../img/limits.png)
 
-状态变绿后右击点`Connect`就可以看到如何访问这个实例的说明了
+我们将保持第三步“3. Configure Instance”、第五步“5. Add Tags”和第六步“6. Configure Security Group”中的默认配置。点击第四步“4.Add Storage”，如图11.13所示，将默认的硬盘大小增大到40GB。注意，安装CUDA需要4GB左右空间。
 
-![](../img/connect.png)
+![修改实例的硬盘大小。](../img/disk.png)
 
-例如我们这里
 
-![](../img/ssh.png)
+最后，在第七步“7. Review”中点击“Launch”来启动配置好的实例。这时候会提示我们选择用来访问实例的密钥。如果没有的话，可以选择图11.14中第一个下拉菜单的“Create a new key pair”选项来生成秘钥。之后，我们通过该下拉菜单的“Choose an existing key pair”选项选择生成好的密钥。点击“Launch Instance”。
 
-## 安装依赖包 
+![选择密钥。](../img/keypair.png)
 
-成功登陆后我们先更新并安装编译需要的包。
+点击图11.15中的实例ID就可以查看该实例的状态了。
 
-```{.python .input}
+![点击实例ID。](../img/launching.png)
+
+如图11.16所示，当实例状态（Instance State）变绿后，右击实例并选择“Connect”，这时就可以看到访问该实例的方法了。例如在命令行输入
+
+```
+ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com
+```
+
+其中“/path/to/key.pem”是本地存放访问实例的密钥的路径。当命令行提示“Are you sure you want to continue connecting (yes/no)”时，键入“yes”并按回车键即可登录实例。
+
+![查看访问开启实例的方法。](../img/connect.png)
+
+
+## 安装CUDA
+
+如果你登录的是一个GPU实例，需要下载并安装CUDA。首先，更新并安装编译需要的包：
+
+```
 sudo apt-get update && sudo apt-get install -y build-essential git libgfortran3
 ```
 
-### 安装CUDA
-
-【注意】只有CPU的实例可以跳过步骤。
-
-我们去Nvidia官网下载CUDA并安装。选择正确的版本并获取下载地址。
+然后，访问Nvidia官网下载并安装CUDA。选择正确的版本并获取下载地址。
 
 【注意】目前CUDA默认下载9.0版，但`mxnet-cu90`的daily build还不完善。建议使用下面命令安装8.0版。
 
@@ -75,14 +73,14 @@ sudo apt-get update && sudo apt-get install -y build-essential git libgfortran3
 
 然后使用`wget`下载并且安装
 
-```{.python .input}
+```
 wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda_8.0.61_375.26_linux-run
 sudo sh cuda_8.0.61_375.26_linux-run
 ```
 
 这里需要回答几个问题。
 
-```{.python .input}
+```
 accept/decline/quit: accept
 Install NVIDIA Accelerated Graphics Driver for Linux-x86_64 375.26?
 (y)es/(n)o/(q)uit: y
@@ -102,13 +100,13 @@ Install the CUDA 8.0 Samples?
 
 安装完成后运行
 
-```{.python .input}
+```
 nvidia-smi
 ```
 
 就可以看到这个实例的GPU了。最后将CUDA加入到library path方便之后安装的库找到它。
 
-```{.python .input}
+```
 echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-8.0/lib64" >>.bashrc
 ```
 
@@ -116,14 +114,14 @@ echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-8.0/lib64" >>.b
 
 先安装Miniconda
 
-```{.python .input}
+```
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 bash Miniconda3-latest-Linux-x86_64.sh
 ```
 
 需要回答下面几个问题
 
-```{.python .input}
+```
 Do you accept the license terms? [yes|no]
 [no] >>> yes
 Do you wish the installer to prepend the Miniconda3 install location
@@ -135,7 +133,7 @@ to PATH in your /home/ubuntu/.bashrc ? [yes|no]
 
 下载本教程，安装并激活conda环境
 
-```{.python .input}
+```
 git clone https://github.com/mli/gluon-tutorials-zh
 cd gluon-tutorials-zh
 conda env create -f environment.yml
@@ -144,7 +142,7 @@ source activate gluon
 
 默认环境里安装了只有CPU的版本。现在我们替换成GPU版本。
 
-```{.python .input}
+```
 pip uninstall -y mxnet
 pip install --pre mxnet-cu80
 
@@ -152,7 +150,7 @@ pip install --pre mxnet-cu80
 
 同时安装notedown插件来让jupter读写markdown文件。
 
-```{.python .input}
+```
 pip install https://github.com/mli/notedown/tarball/master
 jupyter notebook --generate-config
 echo "c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'" >>~/.jupyter/jupyter_notebook_config.py
@@ -163,7 +161,7 @@ echo "c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'"
 
 并运行Jupyter notebook。
 
-```{.python .input}
+```
 jupyter notebook
 ```
 
@@ -173,7 +171,7 @@ jupyter notebook
 
 因为我们的实例没有暴露8888端口，所以我们可以在本地启动ssh从实例映射到本地
 
-```{.python .input}
+```
 ssh -i "XXX.pem" -L8888:locallhost:8888 ubuntu@XXXX.XXXX.compute.amazonaws.com
 ```
 
@@ -181,7 +179,7 @@ ssh -i "XXX.pem" -L8888:locallhost:8888 ubuntu@XXXX.XXXX.compute.amazonaws.com
 
 【注意】如果本地运行了Jupyter notebook，那么8888端口就可能被占用了。要么关掉本地jupyter，要么把端口映射改成别的。例如，假设aws使用默认8888端口，我们可以在本地启动ssh从实例映射到本地8889端口：
 
-```{.python .input}
+```
 ssh -i "XXX.pem" -N -f -L localhost:8889:localhost:8888 ubuntu@XXXX.XXXX.compute.amazonaws.com
 ```
 
@@ -197,14 +195,14 @@ ssh -i "XXX.pem" -N -f -L localhost:8889:localhost:8888 ubuntu@XXXX.XXXX.compute
 
 每次重新开始后，我们建议升级下教程（记得保存自己的改动）
 
-```{.python .input}
+```
 cd gluon-tutorials-zh
 git pull
 ```
 
 和MXNet版本
 
-```{.python .input}
+```
 source activate gluon
 pip install -U --pre mxnet-cu80
 ```
