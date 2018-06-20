@@ -12,7 +12,7 @@
    pikachu
    anchor
    ssd
-   object-detection
+   rcnn
    fcn
    neural-style
    kaggle-gluon-cifar10
