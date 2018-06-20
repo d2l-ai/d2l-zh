@@ -1,4 +1,4 @@
-# 皮卡丘检测数据集
+# 物体检测数据集
 
 在物体检测领域并没有类似MNIST那样的小数据集方便我们快速测试模型。为此我们合成了一个小的人工数据集。我们首先使用一个开源的皮卡丘3D模型生成1000张不同角度和大小的图片。然后我们收集了一系列背景图片，并在每张图的随机位置放置一张皮卡丘图片。我们使用MXNet提供的[tools/im2rec.py](https://github.com/apache/incubator-mxnet/blob/master/tools/im2rec.py)来将图片打包成二进制rec文件。（这是MXNet在Gluon开发出来之前常用的数据格式。注意到GluonCV这个包里已经提供了更简单的类似之前我们读取图片的方式，从而无需打包图片。但由于这个包目前仍在快速迭代中，所以这里我们使用rec格式。）
 
@@ -95,4 +95,3 @@ for ax, label in zip(axes, batch.label[0][0:10]):
 ## 练习
 
 了解下`image.ImageDetIter`和`image.CreateDetAugmenter`这两个类的创建参数。
-
