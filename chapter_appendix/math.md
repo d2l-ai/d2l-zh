@@ -1,11 +1,11 @@
 # 数学基础
 
-本节总结了本书中涉及到的线性代数、微分和概率统计的基础知识。
+本节总结了本书中涉及到的有关线性代数、微分和概率统计的基础知识。
 
 
 ## 线性代数
 
-以下概括了向量、矩阵、运算、范数、特征向量和特征值的概念。
+以下分别概括了向量、矩阵、运算、范数、特征向量和特征值的概念。
 
 ### 向量
 
@@ -116,10 +116,9 @@ k\boldsymbol{A} =
 \end{bmatrix}.
 $$
 
-其它例如标量与矩阵按元素相加、相除等运算与上式中的运算类似。矩阵按元素开根号、取对数等运算也即对矩阵每个元素开根号、取对数等，并得到和原矩阵形状相同的矩阵。
+其它例如标量与矩阵按元素相加、相除等运算与上式中的相乘运算类似。矩阵按元素开根号、取对数等运算也即对矩阵每个元素开根号、取对数等，并得到和原矩阵形状相同的矩阵。
 
-
-设$\boldsymbol{A}$为$m$行$p$列的矩阵，$\boldsymbol{B}$为$p$行$n$列的矩阵。两个矩阵相乘的结果
+矩阵乘法和按元素的乘法不同。设$\boldsymbol{A}$为$m$行$p$列的矩阵，$\boldsymbol{B}$为$p$行$n$列的矩阵。两个矩阵相乘的结果
 
 $$
 \boldsymbol{A} \boldsymbol{B} = 
@@ -144,31 +143,125 @@ $$
 $$a_{i1}b_{1j}  + a_{i2}b_{2j} + \ldots + a_{ip}b_{pj} = \sum_{k=1}^p a_{ik}b_{kj}. $$
 
 
-需要注意区分矩阵乘法和矩阵的按元素乘法。
-
-
-TODO(@astonzhang)
-
-
 ### 范数
 
+设$d$维向量$\boldsymbol{x}$中的元素为$x_1, \ldots, x_d$。向量$\boldsymbol{x}$的$L_p$范数为
+
+$$\|\boldsymbol{x}\|_p = (\sum_{i=1}^d |x_i|^p)^{1/p}.$$
+
+例如，$\boldsymbol{x}$的$L_1$范数是该向量元素绝对值的和：
+
+$$\|\boldsymbol{x}\|_1 = \sum_{i=1}^d |x_i|.$$
+
+而$\boldsymbol{x}$的$L_2$范数是该向量元素平方和的平方根：
+
+$$\|\boldsymbol{x}\|_2 = \sqrt{\sum_{i=1}^d x_i^2}.$$
+
+我们通常用$\|\boldsymbol{x}\|$指代$\|\boldsymbol{x}\|_2$。
+
+设$\boldsymbol{X}$是一个$m$行$n$列矩阵。矩阵$\boldsymbol{X}$的Frobenius范数为该矩阵元素平方和的平方根：
+
+$$\|\boldsymbol{X}\|_F = \sqrt{\sum_{i=1}^m \sum_{j=1}^n x_{ij}^2},$$
+
+其中$x_{ij}$为矩阵$\boldsymbol{X}$在第$i$行第$j$列的元素。
 
 
 ### 特征向量和特征值
 
 
+对于一个$n$行$n$列的矩阵$\boldsymbol{A}$，假设有标量$\lambda$和非零的$n$维向量$\boldsymbol{v}$使
+
+$$\boldsymbol{A} \boldsymbol{v} = \lambda \boldsymbol{v},$$
+
+那么$\boldsymbol{v}$是矩阵$\boldsymbol{A}$的一个特征向量，标量$\lambda$是$\boldsymbol{v}$对应的特征值。
+
 
 
 ## 微分
 
+我们在这里简要介绍微分的一些基本概念和演算。
 
-### 导数和梯度
+
+### 导数和微分
+
+假设函数$f: \mathbb{R} \rightarrow \mathbb{R}$的输入和输出都是标量。函数$f$的导数
+
+$$f^\prime(x) = \lim_{h \rightarrow 0} \frac{f(x+h) - f(x)}{h},$$
+
+且假定该极限存在。给定$y = f(x)$，其中$x$和$y$分别是函数$f$的自变量和因变量。以下有关导数和微分的表达式等价：
+
+$$f^\prime(x) = y^\prime = \frac{dy}{dx} = \frac{df}{dx} = \frac{d}{dx} f(x) = Df(x) = D_x f(x),$$
+
+其中符号$D$和$d/dx$也叫微分运算符。常见的微分演算有$DC = 0$（$C$为常数）、$Dx^n = nx^{n-1}$（$n$为常数）、$De^x = e^x$、$D\ln(x) = 1/x$等。
+
+如果函数$f$和$g$都可导，设$C$为常数，那么
+
+$$
+\begin{aligned}
+\frac{d}{dx} [Cf(x)] &= C \frac{d}{dx} f(x),\\
+\frac{d}{dx} [f(x) + g(x)] &= \frac{d}{dx} f(x) + \frac{d}{dx} g(x),\\ 
+\frac{d}{dx} [f(x)g(x)] &= f(x) \frac{d}{dx} [g(x)] + g(x) \frac{d}{dx} [f(x)],\\
+\frac{d}{dx} \left[\frac{f(x)}{g(x)}\right] &= \frac{g(x) \frac{d}{dx} [f(x)] - f(x) \frac{d}{dx} [g(x)]}{[g(x)]^2}.
+\end{aligned}
+$$
 
 
-### 常用梯度
+如果$y=f(u)$和$u=g(x)$都是可导函数，依据链式法则，
+
+$$\frac{dy}{dx} = \frac{dy}{du} \frac{du}{dx}.$$
 
 
 ### 泰勒展开
+
+函数$f$的泰勒展开式是
+
+$$f(x) = \sum_{n=0}^\infty \frac{f^{(n)}(a)}{n!} (x-a)^n,$$
+
+其中$f^{(n)}$为函数$f$的$n$阶导数。假设$\epsilon$是个足够小的数，如果将上式中$x$和$a$分别替换成$x+\epsilon$和$x$，我们可以得到
+
+$$f(x + \epsilon) \approx f(x) + f'(x) \epsilon + \mathcal{O}(\epsilon^2).$$
+
+由于$\epsilon$足够小，上式也可以简化成
+
+$$f(x + \epsilon) \approx f(x) + f'(x) \epsilon.$$
+
+
+
+### 偏导数
+
+
+
+
+
+### 梯度
+
+
+假设函数$f: \mathbb{R}^d \rightarrow \mathbb{R}$的输入是一个$d$维向量$\boldsymbol{x} = [x_1, x_2, \ldots, x_d]^\top$，输出是标量。函数$f(\boldsymbol{x})$有关$\boldsymbol{x}$的梯度是一个由$d$个偏导数组成的向量：
+
+$$\nabla_{\boldsymbol{x}} f(\boldsymbol{x}) = \bigg[\frac{\partial f(\boldsymbol{x})}{\partial x_1}, \frac{\partial f(\boldsymbol{x})}{\partial x_2}, \ldots, \frac{\partial f(\boldsymbol{x})}{\partial x_d}\bigg]^\top.$$
+
+
+为表示简洁，我们有时用$\nabla f(\boldsymbol{x})$代替$\nabla_{\boldsymbol{x}} f(\boldsymbol{x})$。
+
+
+### 常用梯度演算
+
+假设$\boldsymbol{x}$是一个向量，那么
+
+$$
+\begin{aligned}
+\nabla_{\boldsymbol{x}} \boldsymbol{A}^\top \boldsymbol{x} &= \boldsymbol{A} \\
+\nabla_{\boldsymbol{x}} \boldsymbol{x}^\top \boldsymbol{A}  &= \boldsymbol{A} \\
+\nabla_{\boldsymbol{x}} \boldsymbol{x}^\top \boldsymbol{A} \boldsymbol{x}  &= (\boldsymbol{A} + \boldsymbol{A}^\top)\boldsymbol{x}\\
+\nabla_{\boldsymbol{x}} \|\boldsymbol{x} \|^2 &= \nabla_{\boldsymbol{x}} \boldsymbol{x}^\top \boldsymbol{x} = 2\boldsymbol{x}
+\end{aligned}
+$$
+
+假设$\boldsymbol{X}$是一个矩阵，那么
+$$\nabla_{\boldsymbol{X}} \|\boldsymbol{X} \|_F^2 = 2\boldsymbol{X}.$$
+
+
+
 
 
 ### 黑塞矩阵
@@ -186,121 +279,6 @@ TODO(@astonzhang)
 
 
 ### 最大似然估计
-
-
-
-
-
-
-
-## MOVE
-
-
-
-
-### 向量和$L_p$范数
-
-
-
-
-向量$\boldsymbol{x}$的$L_p$范数为
-
-$$\|\boldsymbol{x}\|_p = (\sum_{i=1}^d |x_i|^p)^{1/p}.$$
-
-例如$\boldsymbol{x}$的$L_1$范数是该向量元素绝对值的和：
-
-$$\|\boldsymbol{x}\|_1 = \sum_{i=1}^d |x_i|.$$
-
-而$\boldsymbol{x}$的$L_2$范数是该向量元素平方和的平方根：
-
-$$\|\boldsymbol{x}\|_2 = \sqrt{\sum_{i=1}^d x_i^2}.$$
-
-我们通常用$\|\boldsymbol{x}\|$指代$\|\boldsymbol{x}\|_2$。
-
-
-
-
-### 矩阵和Frobenius范数
-
-
-
-矩阵$\boldsymbol{X}$的Frobenius范数为该矩阵元素平方和的平方根：
-
-$$\|\boldsymbol{X}\|_F = \sqrt{\sum_{i=1}^m \sum_{j=1}^n x_{ij}^2}.$$
-
-
-
-
-
-
-
-
-
-### 按元素运算
-
-假设$\boldsymbol{x} = [4, 9]^\top$，以下是一些按元素运算的例子：
-
-* 按元素相加： $\boldsymbol{x} + 1 = [5, 10]^\top$
-* 按元素相乘： $\boldsymbol{x} \odot \boldsymbol{x} = [16, 81]^\top$
-* 按元素相除： $72 / \boldsymbol{x} = [18, 8]^\top$
-* 按元素开方： $\sqrt{\boldsymbol{x}} = [2, 3]^\top$
-
-
-### 运算
-
-
-
-
-
-
-
-## 导数和梯度
-
-TODO(@astonzhang)<解释导数>。
-
-假设函数$f: \mathbb{R}^d \rightarrow \mathbb{R}$的输入是一个$d$维向量$\boldsymbol{x} = [x_1, x_2, \ldots, x_d]^\top$。函数$f(\boldsymbol{x})$有关$\boldsymbol{x}$的梯度是一个由$d$个偏导数组成的向量：
-
-$$\nabla_{\boldsymbol{x}} f(\boldsymbol{x}) = \bigg[\frac{\partial f(\boldsymbol{x})}{\partial x_1}, \frac{\partial f(\boldsymbol{x})}{\partial x_2}, \ldots, \frac{\partial f(\boldsymbol{x})}{\partial x_d}\bigg]^\top.$$
-
-
-为表示简洁，我们有时用$\nabla f(\boldsymbol{x})$代替$\nabla_{\boldsymbol{x}} f(\boldsymbol{x})$。
-
-
-### 常用梯度
-
-假设$\boldsymbol{x}$是一个向量，那么
-
-$$
-\begin{aligned}
-&\nabla_{\boldsymbol{x}} \boldsymbol{A}^\top \boldsymbol{x} = \boldsymbol{A} \\
-&\nabla_{\boldsymbol{x}} \boldsymbol{x}^\top \boldsymbol{A}  = \boldsymbol{A} \\
-&\nabla_{\boldsymbol{x}} \boldsymbol{x}^\top \boldsymbol{A} \boldsymbol{x}  = (\boldsymbol{A} + \boldsymbol{A}^\top)\boldsymbol{x}\\
-&\nabla_{\boldsymbol{x}} \|\boldsymbol{x} \|^2 = \nabla_{\boldsymbol{x}} \boldsymbol{x}^\top \boldsymbol{x} = 2\boldsymbol{x}
-\end{aligned}
-$$
-
-假设$\boldsymbol{X}$是一个矩阵，那么
-$$\nabla_{\boldsymbol{X}} \|\boldsymbol{X} \|_F^2 = 2\boldsymbol{X}.$$
-
-
-### 泰勒展开
-
-函数f的泰勒展开式是
-
-$$f(x) = \sum_{n=0}^\infty \frac{f^{(n)}(a)}{n!} (x-a)^n,$$
-
-其中$f^{(n)}$为函数$f$的$n$阶导数。假设$\epsilon$是个足够小的数，如果将上式中$x$和$a$分别替换成$x+\epsilon$和$x$，我们可以得到
-
-$$f(x + \epsilon) \approx f(x) + f'(x) \epsilon + \mathcal{O}(\epsilon^2).$$
-
-由于$\epsilon$足够小，上式也可以简化成
-
-$$f(x + \epsilon) \approx f(x) + f'(x) \epsilon.$$
-
-
-### 黑塞矩阵（Hessian matrix）
-
-
 
 
 
