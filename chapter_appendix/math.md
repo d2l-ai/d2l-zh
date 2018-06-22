@@ -1,6 +1,6 @@
 # 数学基础
 
-本节总结了本书中涉及到的有关线性代数、微分和概率统计的基础知识。
+本节总结了本书中涉及到的有关线性代数、微分和概率的基础知识。为避免赘述本书未涉及的数学背景知识，本节中的少数定义稍有简化。
 
 
 ## 线性代数
@@ -289,24 +289,51 @@ $$\frac{\partial^2 f}{\partial x_i \partial x_j} = \frac{\partial }{\partial x_j
 
 
 
-## 概率和统计
+## 概率
 
-
-### 全概率
-
+最后，我们简要介绍条件概率、期望和均匀分布。
 
 ### 条件概率
 
+假设事件$A$和事件$B$的概率分别为$\mathbb{P}(A)$和$\mathbb{P}(B)$，两个事件同时发生的概率记作$\mathbb{P}(A \cap B)$或$\mathbb{P}(A, B)$。给定事件$B$，事件$A$的条件概率
 
-### 最大似然估计
+$$\mathbb{P}(A \mid B) = \frac{\mathbb{P}(A \cap B)}{\mathbb{P}(B)}.$$
 
+也就是说，
+
+$$\mathbb{P}(A \cap B) = \mathbb{P}(B) \mathbb{P}(A \mid B) = \mathbb{P}(A) \mathbb{P}(B \mid A).$$
+
+当满足
+
+$$\mathbb{P}(A \cap B) = \mathbb{P}(A) \mathbb{P}(B)$$
+
+时，事件$A$和事件$B$相互独立。
+
+
+### 期望
+
+随机变量$X$的期望（或平均值）
+
+$$\mathbb{E}(X) = \sum_{x} x \mathbb{P}(X = x).$$
+
+
+
+### 均匀分布
+
+假设随机变量$X$服从$[a, b]$上的均匀分布，即$X \sim U(a, b)$。随机变量$X$取$a$和$b$之间任意一个数的概率相等。
 
 
 
 
 ## 小结
 
+* 本节总结了本书中涉及到的有关线性代数、微分和概率的基础知识。
+
+
 ## 练习
+
+* 求函数$f(\boldsymbol{x}) = 3x_1^2 + 5e^{x_2}$的梯度。
+
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6966)
 
