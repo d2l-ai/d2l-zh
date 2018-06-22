@@ -79,9 +79,9 @@ loss = gluon.loss.SoftmaxCrossEntropyLoss()
 gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 ```
 
-## 小节
+## 小结
 
-LeNet交替使用卷积层和最大池化层后接全连接层来进行图片分类。
+* LeNet交替使用卷积层和最大池化层后接全连接层来进行图片分类。
 
 ## 练习
 

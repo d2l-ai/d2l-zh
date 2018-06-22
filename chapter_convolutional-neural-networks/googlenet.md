@@ -134,12 +134,14 @@ gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 
 ## 小结
 
-Inception定义了一个有四条线路的子网络。它通过不同窗口大小的卷积层和最大池化层来并行抽取信息，并使用$1\times 1$卷基层减低通道数来减少模型复杂度。GoogLeNet将多个精细设计的Inception块和其他层串联起来。其通道分配比例是在ImageNet数据集上通过大量的实验得来。GoogLeNet和它的后继者一度是ImageNet上最高效的模型之一，即在给定同样的测试精度下计算复杂度更低。
+* Inception定义了一个有四条线路的子网络。它通过不同窗口大小的卷积层和最大池化层来并行抽取信息，并使用$1\times 1$卷基层减低通道数来减少模型复杂度。
+
+* GoogLeNet将多个精细设计的Inception块和其他层串联起来。其通道分配比例是在ImageNet数据集上通过大量的实验得来。GoogLeNet和它的后继者一度是ImageNet上最高效的模型之一，即在给定同样的测试精度下计算复杂度更低。
 
 ## 练习
 
-1. GoogLeNet有数个后续版本，尝试实现他们并运行看看有什么不一样。本小节介绍的是最先的版本 [1]。[2] 加入批量归一化层（后一小节将介绍），[3] 对Inception块做了调整。[4] 则加入了残差连接（后面小节将介绍）。
-2. 对比AlexNet、VGG和NiN、GoogLeNet的模型参数大小。分析为什么后两个网络可以显著减小模型大小。
+* GoogLeNet有数个后续版本，尝试实现他们并运行看看有什么不一样。本小节介绍的是最先的版本 [1]。[2] 加入批量归一化层（后一小节将介绍），[3] 对Inception块做了调整。[4] 则加入了残差连接（后面小节将介绍）。
+* 对比AlexNet、VGG和NiN、GoogLeNet的模型参数大小。分析为什么后两个网络可以显著减小模型大小。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1662)
 
@@ -147,10 +149,10 @@ Inception定义了一个有四条线路的子网络。它通过不同窗口大�
 
 ## 参考文献
 
-[1] Szegedy, Christian, et al. "Going deeper with convolutions." CVPR, 2015.
+[1] Szegedy, C., Liu, W., Jia, Y., Sermanet, P., Reed, S., & Anguelov, D. & Rabinovich, A.(2015). Going deeper with convolutions. In Proceedings of the IEEE conference on computer vision and pattern recognition (pp. 1-9).
 
-[2] Ioffe, Sergey, and Christian Szegedy. "Batch normalization: Accelerating deep network training by reducing internal covariate shift." arXiv:1502.03167 (2015).
+[2] Ioffe, S., & Szegedy, C. (2015). Batch normalization: Accelerating deep network training by reducing internal covariate shift. arXiv preprint arXiv:1502.03167.
 
-[3] Szegedy, Christian, et al. "Rethinking the inception architecture for computer vision." CVPR. 2016.
+[3] Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., & Wojna, Z. (2016). Rethinking the inception architecture for computer vision. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (pp. 2818-2826).
 
-[4] Szegedy, Christian, et al. "Inception-v4, inception-resnet and the impact of residual connections on learning." AAAI. 2017.
+[4] Szegedy, C., Ioffe, S., Vanhoucke, V., & Alemi, A. A. (2017, February). Inception-v4, inception-resnet and the impact of residual connections on learning. In Proceedings of the AAAI Conference on Artificial Intelligence (Vol. 4, p. 12).

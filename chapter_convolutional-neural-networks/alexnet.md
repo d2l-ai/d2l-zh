@@ -113,7 +113,7 @@ gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 
 ## 小结
 
-AlexNet跟LeNet类似，但使用了更多的卷积层和更大的参数空间来拟合大规模数据集ImageNet。它是浅层神经网络和深度神经网络的分界线。虽然看上去AlexNet的实现比LeNet也就就多了几行而已。但这个观念上的转变和真正跑出好实验结果，学术界整整花了20年。
+* AlexNet跟LeNet类似，但使用了更多的卷积层和更大的参数空间来拟合大规模数据集ImageNet。它是浅层神经网络和深度神经网络的分界线。虽然看上去AlexNet的实现比LeNet也就就多了几行而已。但这个观念上的转变和真正跑出好实验结果，学术界整整花了20年。
 
 ## 练习
 
