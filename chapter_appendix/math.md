@@ -9,7 +9,7 @@
 
 ### 向量
 
-本书中的向量指的是列向量。设$d$维向量
+本书中的向量指的是列向量。一个$n$维向量$\boldsymbol{x}$的表达式可写成
 
 $$
 \boldsymbol{x} = 
@@ -17,16 +17,16 @@ $$
     x_{1}  \\
     x_{2}  \\
     \vdots  \\
-    x_{d} 
+    x_{n} 
 \end{bmatrix},
 $$
 
-其中$x_1, \ldots, x_d$是向量的元素。我们将各元素均为实数的$d$维向量$\boldsymbol{x}$记作$\boldsymbol{x} \in \mathbb{R}^{d}$或$\boldsymbol{x} \in \mathbb{R}^{d \times 1}$。
+其中$x_1, \ldots, x_n$是向量的元素。我们将各元素均为实数的$n$维向量$\boldsymbol{x}$记作$\boldsymbol{x} \in \mathbb{R}^{n}$或$\boldsymbol{x} \in \mathbb{R}^{n \times 1}$。
 
 
 ### 矩阵
 
-设$m$行$n$列矩阵
+一个$m$行$n$列矩阵的表达式可写成
 
 $$
 \boldsymbol{X} = 
@@ -43,9 +43,9 @@ $$
 
 ### 运算
 
-设$d$维向量$\boldsymbol{a}$中的元素为$a_1, \ldots, a_d$，$d$维向量$\boldsymbol{b}$中的元素为$b_1, \ldots, b_d$。向量$\boldsymbol{a}$与$\boldsymbol{b}$的点乘（内积）是一个标量：
+设$n$维向量$\boldsymbol{a}$中的元素为$a_1, \ldots, a_n$，$n$维向量$\boldsymbol{b}$中的元素为$b_1, \ldots, b_n$。向量$\boldsymbol{a}$与$\boldsymbol{b}$的点乘（内积）是一个标量：
 
-$$\boldsymbol{a} \cdot \boldsymbol{b} = a_1 b_1 + \ldots + a_d b_d.$$
+$$\boldsymbol{a} \cdot \boldsymbol{b} = a_1 b_1 + \ldots + a_n b_n.$$
 
 
 设两个$m$行$n$列矩阵
@@ -145,17 +145,17 @@ $$a_{i1}b_{1j}  + a_{i2}b_{2j} + \ldots + a_{ip}b_{pj} = \sum_{k=1}^p a_{ik}b_{k
 
 ### 范数
 
-设$d$维向量$\boldsymbol{x}$中的元素为$x_1, \ldots, x_d$。向量$\boldsymbol{x}$的$L_p$范数为
+设$n$维向量$\boldsymbol{x}$中的元素为$x_1, \ldots, x_n$。向量$\boldsymbol{x}$的$L_p$范数为
 
-$$\|\boldsymbol{x}\|_p = (\sum_{i=1}^d |x_i|^p)^{1/p}.$$
+$$\|\boldsymbol{x}\|_p = (\sum_{i=1}^n |x_i|^p)^{1/p}.$$
 
 例如，$\boldsymbol{x}$的$L_1$范数是该向量元素绝对值的和：
 
-$$\|\boldsymbol{x}\|_1 = \sum_{i=1}^d |x_i|.$$
+$$\|\boldsymbol{x}\|_1 = \sum_{i=1}^n |x_i|.$$
 
 而$\boldsymbol{x}$的$L_2$范数是该向量元素平方和的平方根：
 
-$$\|\boldsymbol{x}\|_2 = \sqrt{\sum_{i=1}^d x_i^2}.$$
+$$\|\boldsymbol{x}\|_2 = \sqrt{\sum_{i=1}^n x_i^2}.$$
 
 我们通常用$\|\boldsymbol{x}\|$指代$\|\boldsymbol{x}\|_2$。
 
@@ -217,7 +217,7 @@ $$\frac{dy}{dx} = \frac{dy}{du} \frac{du}{dx}.$$
 
 $$f(x) = \sum_{n=0}^\infty \frac{f^{(n)}(a)}{n!} (x-a)^n,$$
 
-其中$f^{(n)}$为函数$f$的$n$阶导数。假设$\epsilon$是个足够小的数，如果将上式中$x$和$a$分别替换成$x+\epsilon$和$x$，我们可以得到
+其中$f^{(n)}$为函数$f$的$n$阶导数（求$n$次导数），$n!$为$n$的阶乘。假设$\epsilon$是个足够小的数，如果将上式中$x$和$a$分别替换成$x+\epsilon$和$x$，我们可以得到
 
 $$f(x + \epsilon) \approx f(x) + f'(x) \epsilon + \mathcal{O}(\epsilon^2).$$
 
@@ -229,43 +229,63 @@ $$f(x + \epsilon) \approx f(x) + f'(x) \epsilon.$$
 
 ### 偏导数
 
+设$u$为一个有$n$个自变量的函数，$u = f(x_1, x_2, \ldots, x_n)$，它有关第$i$个变量$x_i$的偏导数为
 
+$$ \frac{\partial u}{\partial x_i} = \lim_{h \rightarrow 0} \frac{f(x_1, \ldots, x_{i-1}, x_i+h, x_{i+1}, \ldots, x_n) - f(x_1, \ldots, x_i, \ldots, x_n)}{h}.$$
+
+
+以下有关偏导数的表达式等价：
+
+$$\frac{\partial u}{\partial x_i} = \frac{\partial f}{\partial x_i} = f_{x_i} = f_i = D_i f = D_{x_i} f.$$
+
+为了计算$\partial u/\partial x_i$，我们只需将$x_1, \ldots, x_{i-1}, x_{i+1}, \ldots, x_n$视为常数并求$u$有关$x_i$的导数。
 
 
 
 ### 梯度
 
 
-假设函数$f: \mathbb{R}^d \rightarrow \mathbb{R}$的输入是一个$d$维向量$\boldsymbol{x} = [x_1, x_2, \ldots, x_d]^\top$，输出是标量。函数$f(\boldsymbol{x})$有关$\boldsymbol{x}$的梯度是一个由$d$个偏导数组成的向量：
+假设函数$f: \mathbb{R}^n \rightarrow \mathbb{R}$的输入是一个$n$维向量$\boldsymbol{x} = [x_1, x_2, \ldots, x_n]^\top$，输出是标量。函数$f(\boldsymbol{x})$有关$\boldsymbol{x}$的梯度是一个由$n$个偏导数组成的向量：
 
-$$\nabla_{\boldsymbol{x}} f(\boldsymbol{x}) = \bigg[\frac{\partial f(\boldsymbol{x})}{\partial x_1}, \frac{\partial f(\boldsymbol{x})}{\partial x_2}, \ldots, \frac{\partial f(\boldsymbol{x})}{\partial x_d}\bigg]^\top.$$
+$$\nabla_{\boldsymbol{x}} f(\boldsymbol{x}) = \bigg[\frac{\partial f(\boldsymbol{x})}{\partial x_1}, \frac{\partial f(\boldsymbol{x})}{\partial x_2}, \ldots, \frac{\partial f(\boldsymbol{x})}{\partial x_n}\bigg]^\top.$$
 
 
 为表示简洁，我们有时用$\nabla f(\boldsymbol{x})$代替$\nabla_{\boldsymbol{x}} f(\boldsymbol{x})$。
 
-
-### 常用梯度演算
-
-假设$\boldsymbol{x}$是一个向量，那么
+假设$\boldsymbol{x}$是一个向量，常见的梯度演算包括
 
 $$
 \begin{aligned}
-\nabla_{\boldsymbol{x}} \boldsymbol{A}^\top \boldsymbol{x} &= \boldsymbol{A} \\
-\nabla_{\boldsymbol{x}} \boldsymbol{x}^\top \boldsymbol{A}  &= \boldsymbol{A} \\
-\nabla_{\boldsymbol{x}} \boldsymbol{x}^\top \boldsymbol{A} \boldsymbol{x}  &= (\boldsymbol{A} + \boldsymbol{A}^\top)\boldsymbol{x}\\
-\nabla_{\boldsymbol{x}} \|\boldsymbol{x} \|^2 &= \nabla_{\boldsymbol{x}} \boldsymbol{x}^\top \boldsymbol{x} = 2\boldsymbol{x}
+\nabla_{\boldsymbol{x}} \boldsymbol{A}^\top \boldsymbol{x} &= \boldsymbol{A}, \\
+\nabla_{\boldsymbol{x}} \boldsymbol{x}^\top \boldsymbol{A}  &= \boldsymbol{A}, \\
+\nabla_{\boldsymbol{x}} \boldsymbol{x}^\top \boldsymbol{A} \boldsymbol{x}  &= (\boldsymbol{A} + \boldsymbol{A}^\top)\boldsymbol{x},\\
+\nabla_{\boldsymbol{x}} \|\boldsymbol{x} \|^2 &= \nabla_{\boldsymbol{x}} \boldsymbol{x}^\top \boldsymbol{x} = 2\boldsymbol{x}.
 \end{aligned}
 $$
 
-假设$\boldsymbol{X}$是一个矩阵，那么
+类似地，假设$\boldsymbol{X}$是一个矩阵，那么
 $$\nabla_{\boldsymbol{X}} \|\boldsymbol{X} \|_F^2 = 2\boldsymbol{X}.$$
-
 
 
 
 
 ### 黑塞矩阵
 
+假设函数$f: \mathbb{R}^n \rightarrow \mathbb{R}$的输入是一个$n$维向量$\boldsymbol{x} = [x_1, x_2, \ldots, x_n]^\top$，输出是标量。假定函数$f$所有的二阶偏导数都存在，$f$的黑塞矩阵$\boldsymbol{H}$是一个$n$行$n$列的矩阵：
+
+$$
+\boldsymbol{H} = 
+\begin{bmatrix}
+    \frac{\partial^2 f}{\partial x_1^2} & \frac{\partial^2 f}{\partial x_1 \partial x_2} & \dots  & \frac{\partial^2 f}{\partial x_1 \partial x_n} \\
+    \frac{\partial^2 f}{\partial x_2 \partial x_1} & \frac{\partial^2 f}{\partial x_2^2} & \dots  & \frac{\partial^2 f}{\partial x_2 \partial x_n} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    \frac{\partial^2 f}{\partial x_n \partial x_1} & \frac{\partial^2 f}{\partial x_n \partial x_2} & \dots  & \frac{\partial^2 f}{\partial x_n^2}
+\end{bmatrix},
+$$
+
+其中二阶偏导数
+
+$$\frac{\partial^2 f}{\partial x_i \partial x_j} = \frac{\partial }{\partial x_j} \left(\frac{\partial f}{ \partial x_i}\right).$$
 
 
 
