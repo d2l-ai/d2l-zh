@@ -93,12 +93,12 @@ $$f(x,y) = (\lfloor y \rfloor + 1-y)f(x, \lfloor y \rfloor) + (y-\lfloor y \rflo
 
 ## 参考文献
 
-[1] Girshick, Ross, et al. "Rich feature hierarchies for accurate object detection and semantic segmentation." CVPR. 2014.
+[1] Girshick, R., Donahue, J., Darrell, T., & Malik, J. (2014). Rich feature hierarchies for accurate object detection and semantic segmentation. In Proceedings of the IEEE conference on computer vision and pattern recognition (pp. 580-587).
 
-[2] Uijlings, Jasper RR, et al. "Selective search for object recognition." IJCV, 2013.
+[2] Uijlings, J. R., Van De Sande, K. E., Gevers, T., & Smeulders, A. W. (2013). Selective search for object recognition. International journal of computer vision, 104(2), 154-171.
 
-[3] Girshick, Ross. "Fast r-cnn." arXiv:1504.08083 (2015).
+[3] Girshick, R. (2015). Fast r-cnn. arXiv preprint arXiv:1504.08083.
 
-[3] Ren, Shaoqing, et al. "Faster r-cnn: Towards real-time object detection with region proposal networks." NIPS. 2015.
+[3] Ren, S., He, K., Girshick, R., & Sun, J. (2015). Faster r-cnn: Towards real-time object detection with region proposal networks. In Advances in neural information processing systems (pp. 91-99).
 
-[4] He, Kaiming, et al. "Mask r-cnn." ICCV. 2017.
+[4] He, K., Gkioxari, G., Dollár, P., & Girshick, R. (2017, October). Mask r-cnn. In Computer Vision (ICCV), 2017 IEEE International Conference on (pp. 2980-2988). IEEE.

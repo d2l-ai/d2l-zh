@@ -2,7 +2,7 @@
 
 我们已经学习了如何识别图片里面的主要物体，和找出里面物体的边框。语义分割则在之上更进一步，它对每个像素预测它是否只是背景，还是属于哪个我们感兴趣的物体。
 
-![Semantic Segmentation](../img/segmentation.svg)
+![语义分割。](../img/segmentation.svg)
 
 可以看到，跟物体检测相比，语义分割预测的边框更加精细。
 
@@ -212,7 +212,7 @@ print('After transposed conv', conv_trans(y).shape)
 - 最后接上卷积转置层来得到需要大小的输出
 - 为了训练更快，通常权重会初始化称预先训练好的权重
 
-![FCN](../img/fcn.svg)
+![FCN。](../img/fcn.svg)
 
 下面我们基于Resnet18来创建FCN。首先我们下载一个预先训练好的模型。
 

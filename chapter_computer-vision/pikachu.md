@@ -88,10 +88,14 @@ for ax, label in zip(axes, batch.label[0][0:10]):
     show_bboxes(ax, [label[0][1:5]*edge_size], colors=['w'])
 ```
 
-## 小节
+## 小结
 
-物体识别的数据读取跟图片分类类似，但引入了边界框后导致标注形状和图片增强均有所不同。
+* 物体识别的数据读取跟图片分类类似，但引入了边界框后导致标注形状和图片增强均有所不同。
 
 ## 练习
 
-了解下`image.ImageDetIter`和`image.CreateDetAugmenter`这两个类的创建参数。
+* 了解下`image.ImageDetIter`和`image.CreateDetAugmenter`这两个类的创建参数。
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7022)
+
+![](../img/qr_pikachu.svg)
