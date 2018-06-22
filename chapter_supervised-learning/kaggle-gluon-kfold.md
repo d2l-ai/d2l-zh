@@ -79,9 +79,9 @@ all_features = all_features.fillna(all_features.mean())
 
 ```{.python .input  n=9}
 n_train = train_data.shape[0]
-train_features = all_features[:n_train].as_matrix()
-test_features = all_features[n_train:].as_matrix()
-train_labels = train_data.SalePrice.as_matrix()
+train_features = all_features[:n_train].values
+test_features = all_features[n_train:].values
+train_labels = train_data.SalePrice.values
 ```
 
 ## 导入NDArray格式数据
