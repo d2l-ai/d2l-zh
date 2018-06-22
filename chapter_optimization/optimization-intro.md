@@ -135,4 +135,4 @@ gb.plt.show()
 
 ## 参考文献
 
-[1] Wigner, Eugene P. “On the distribution of the roots of certain symmetric matrices.” Annals of Mathematics (1958): 325-327.
+[1] Wigner, E. P. (1958). On the distribution of the roots of certain symmetric matrices. Annals of Mathematics, 325-327.

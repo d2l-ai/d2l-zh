@@ -274,4 +274,4 @@ nd.argmax(net(nd.reshape(
 
 ## 参考文献
 
-[1] Maas, Andrew L., et al. “Learning word vectors for sentiment analysis.” Proceedings of the 49th annual meeting of the association for computational linguistics: Human language technologies-volume 1. Association for Computational Linguistics, 2011.
+[1] Maas, A. L., Daly, R. E., Pham, P. T., Huang, D., Ng, A. Y., & Potts, C. (2011, June). Learning word vectors for sentiment analysis. In Proceedings of the 49th annual meeting of the association for computational linguistics: Human language technologies-volume 1 (pp. 142-150). Association for Computational Linguistics.

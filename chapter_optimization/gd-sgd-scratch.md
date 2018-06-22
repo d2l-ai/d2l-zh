@@ -26,7 +26,7 @@ $$x \leftarrow x - \eta f'(x).$$
 
 迭代自变量$x$可能会降低$f(x)$的值。由于导数$f'(x)$是梯度$\nabla_x f$在一维空间的特殊情况，上述迭代自变量$x$的方法也即一维空间的梯度下降。一维空间的梯度下降图7.1（左）所示，自变量$x$沿着梯度方向迭代。
 
-![梯度下降中，目标函数$f(x)$的自变量$x$（圆圈的横坐标）沿着梯度方向迭代](../img/gd_and_overshooting.svg)
+![梯度下降中，目标函数$f(x)$的自变量$x$（圆圈的横坐标）沿着梯度方向迭代。](../img/gd_and_overshooting.svg)
 
 
 ## 学习率
@@ -239,6 +239,6 @@ optimize(batch_size=10, lr=0.002, num_epochs=3, decay_epoch=2,
 
 ## 参考文献
 
-[1] Stewart, James. “Calculus: Early Transcendentals (7th Edition).” Brooks Cole (2010).
+[1] Stewart, J. (2010). Calculus: Early Transcendentals (7th Edition). Brooks Cole.
 
-[2] Gürbüzbalaban, Mert, Asu Ozdaglar, and Pablo Parrilo. "Why random reshuffling beats stochastic gradient descent." arXiv preprint arXiv:1510.08560 (2018).
+[2] Gürbüzbalaban, M., Ozdaglar, A., & Parrilo, P. (2018). Why random reshuffling beats stochastic gradient descent. arXiv preprint arXiv:1510.08560.

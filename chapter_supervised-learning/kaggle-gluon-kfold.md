@@ -17,11 +17,11 @@
 
 Kaggle是一个著名的供机器学习爱好者交流的平台 [1]。图3.7展示了Kaggle网站首页。为了便于提交结果，请大家注册Kaggle账号。
 
-![Kaggle网站首页](../img/kaggle.png)
+![Kaggle网站首页。](../img/kaggle.png)
 
 我们可以在预测房价比赛的网页上了解比赛信息和参赛者成绩、下载数据集并提交自己的预测结果 [2]。图3.8展示了预测房价比赛的网页信息。
 
-![预测房价比赛的网页信息](../img/house_pricing.png)
+![预测房价比赛的网页信息。](../img/house_pricing.png)
 
 
 
@@ -240,7 +240,7 @@ train_and_pred(num_epochs, verbose_epoch, train_features, test_features,
 
 上述代码执行完之后会生成一个“submission.csv”文件。这个文件是符合Kaggle比赛要求的提交格式的。这时，我们可以在Kaggle上把我们预测得出的结果进行提交，并且查看与测试数据集上真实房价（标签）的误差。具体来说有以下几个步骤：你需要登录Kaggle网站，访问预测房价比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮 [2]。然后，点击页面下方“Upload Submission File”选择需要提交的预测结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。如图3.9所示。
 
-![Kaggle预测房价比赛的预测结果提交页面](../img/kaggle_submit2.png)
+![Kaggle预测房价比赛的预测结果提交页面。](../img/kaggle_submit2.png)
 
 
 ## 小结
