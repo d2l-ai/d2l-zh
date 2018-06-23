@@ -91,12 +91,12 @@ def reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir,
         idx_label = dict(((idx, label) for idx, label in tokens))
     labels = set(idx_label.values())
 
-    num_train = len(os.listdir(os.path.join(data_dir, train_dir)))
+    n_train = len(os.listdir(os.path.join(data_dir, train_dir)))
     # 训练集中数量最少一类的狗的数量。
-    min_num_train_per_label = (
+    min_n_train_per_label = (
         collections.Counter(idx_label.values()).most_common()[:-2:-1][0][1])
     # 验证集中每类狗的数量。
-    num_valid_per_label = math.floor(min_num_train_per_label * valid_ratio)
+    n_valid_per_label = math.floor(min_n_train_per_label * valid_ratio)
     label_count = dict()
 
     def mkdir_if_not_exist(path):
@@ -110,7 +110,7 @@ def reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir,
         mkdir_if_not_exist([data_dir, input_dir, 'train_valid', label])
         shutil.copy(os.path.join(data_dir, train_dir, train_file),
                     os.path.join(data_dir, input_dir, 'train_valid', label))
-        if label not in label_count or label_count[label] < num_valid_per_label:
+        if label not in label_count or label_count[label] < n_valid_per_label:
             mkdir_if_not_exist([data_dir, input_dir, 'valid', label])
             shutil.copy(os.path.join(data_dir, train_dir, train_file),
                         os.path.join(data_dir, input_dir, 'valid', label))
@@ -141,7 +141,7 @@ else:
     test_dir = 'test'
     input_dir = 'train_valid_test'
     batch_size = 128
-    valid_ratio = 0.1 
+    valid_ratio = 0.1
     reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir, 
                    valid_ratio)
 ```
@@ -154,14 +154,16 @@ else:
 transform_train = transforms.Compose([
     # transforms.CenterCrop(32),
     # transforms.RandomFlipTopBottom(),
-    # transforms.RandomColorJitter(brightness=0.0, contrast=0.0, saturation=0.0, hue=0.0),
+    # transforms.RandomColorJitter(brightness=0.0, contrast=0.0,
+    #                              saturation=0.0, hue=0.0),
     # transforms.RandomLighting(0.0),
     # transforms.Cast('float32'),
 
     # 将图片按比例放缩至短边为256像素
     transforms.Resize(256),
     # 随机按照scale和ratio裁剪，并放缩为224x224的正方形
-    transforms.RandomResizedCrop(224, scale=(0.08, 1.0), ratio=(3.0/4.0, 4.0/3.0)),
+    transforms.RandomResizedCrop(224, scale=(0.08, 1.0),
+                                 ratio=(3.0/4.0, 4.0/3.0)),
     # 随机左右翻转图片
     transforms.RandomFlipLeftRight(),
     # 将图片像素值缩小到(0,1)内，并将数据格式从"高*宽*通道"改为"通道*高*宽"
@@ -183,26 +185,23 @@ transform_test = transforms.Compose([
 接下来，我们可以使用`Gluon`中的`ImageFolderDataset`类来读取整理后的数据集。注意，我们要在`loader`中调用刚刚定义好的图片增广函数。通过`vision.ImageFolderDataset`读入的数据是一个`(image, label)`组合，`transform_first()`的作用便是对这个组合中的第一个成员（即读入的图像）做图片增广操作。
 
 ```{.python .input  n=5}
-input_str = data_dir + '/' + input_dir + '/'
+input_s = data_dir + '/' + input_dir + '/'
 
 # 读取原始图像文件。flag=1说明输入图像有三个通道（彩色）。
-train_ds = gdata.vision.ImageFolderDataset(input_str + 'train', flag=1)
-valid_ds = gdata.vision.ImageFolderDataset(input_str + 'valid', flag=1)
-train_valid_ds = gdata.vision.ImageFolderDataset(input_str + 'train_valid', flag=1)
-test_ds = gdata.vision.ImageFolderDataset(input_str + 'test', flag=1)
+train_ds = gdata.vision.ImageFolderDataset(input_s + 'train', flag=1)
+valid_ds = gdata.vision.ImageFolderDataset(input_s + 'valid', flag=1)
+train_valid_ds = gdata.vision.ImageFolderDataset(input_s + 'train_valid',
+                                                 flag=1)
+test_ds = gdata.vision.ImageFolderDataset(input_s + 'test', flag=1)
 
-loader = gdata.DataLoader
-train_data = loader(train_ds.transform_first(transform_train),
-                    batch_size, shuffle=True, last_batch='keep')
-valid_data = loader(valid_ds.transform_first(transform_test),
-                    batch_size, shuffle=True, last_batch='keep')
-train_valid_data = loader(train_valid_ds.transform_first(transform_train),
-                          batch_size, shuffle=True, last_batch='keep')
-test_data = loader(test_ds.transform_first(transform_test),
-                   batch_size, shuffle=False, last_batch='keep')
-
-# 交叉熵损失函数。
-softmax_cross_entropy = gloss.SoftmaxCrossEntropyLoss()
+train_data = gdata.DataLoader(train_ds.transform_first(transform_train),
+                              batch_size, shuffle=True, last_batch='keep')
+valid_data = gdata.DataLoader(valid_ds.transform_first(transform_test),
+                              batch_size, shuffle=True, last_batch='keep')
+train_valid_data = gdata.DataLoader(train_valid_ds.transform_first(
+    transform_train), batch_size, shuffle=True, last_batch='keep')
+test_data = gdata.DataLoader(test_ds.transform_first(transform_test),
+                             batch_size, shuffle=False, last_batch='keep')
 ```
 
 ## 设计模型
@@ -220,22 +219,18 @@ softmax_cross_entropy = gloss.SoftmaxCrossEntropyLoss()
 首先我们定义一个网络，并拿到预训练好的`ResNet-34`模型权重。接下来我们新定义一个两层的全连接网络作为输出层，并初始化其权重，为接下来的训练做准备。
 
 ```{.python .input  n=6}
-
-
 def get_net(ctx):
-    # 设置 pretrained=True 就能拿到预训练模型的权重，第一次使用需要联网下载
+    # 设置 pretrained=True 就能拿到预训练模型的权重，第一次使用需要联网下载。
     finetune_net = model_zoo.vision.resnet34_v2(pretrained=True)
-
-    # 定义新的输出网络
+    # 定义新的输出网络。
     finetune_net.output_new = nn.HybridSequential(prefix='')
-    # 定义256个神经元的全连接层
+    # 定义256个神经元的全连接层。
     finetune_net.output_new.add(nn.Dense(256, activation='relu'))
-    # 定义120个神经元的全连接层，输出分类预测
+    # 定义120个神经元的全连接层，输出分类预测。
     finetune_net.output_new.add(nn.Dense(120))
-    # 初始化这个输出网络
+    # 初始化这个输出网络。
     finetune_net.output_new.initialize(init.Xavier(), ctx=ctx)
-
-    # 把网络参数分配到即将用于计算的CPU/GPU上
+    # 把网络参数分配到即将用于计算的CPU/GPU上。
     finetune_net.collect_params().reset_ctx(ctx)
     return finetune_net
 ```
@@ -252,53 +247,54 @@ def get_net(ctx):
 2. 在训练时只在新输出层上记录自动求导的结果。
 
 ```{.python .input  n=7}
+loss = gloss.SoftmaxCrossEntropyLoss()
+
 def get_loss(data, net, ctx):
-    loss = 0.0
-    for feas, label in data:
-        label = label.as_in_context(ctx)
-        # 计算特征层的结果
-        output_features = net.features(feas.as_in_context(ctx))
-        # 将特征层的结果作为输入，计算全连接网络的结果
-        output = net.output_new(output_features)
-        cross_entropy = softmax_cross_entropy(output, label)
-        loss += nd.mean(cross_entropy).asscalar()
-    return loss / len(data)
+    l = 0.0
+    for X, y in data:
+        y = y.as_in_context(ctx)
+        # 计算特征层的结果。
+        output_features = net.features(X.as_in_context(ctx))
+        # 将特征层的结果作为输入，计算全连接网络的结果。
+        outputs = net.output_new(output_features)
+        l += loss(outputs, y).mean().asscalar()
+    return l / len(data)
 
 def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
           lr_decay):
-    # 只在新的全连接网络的参数上进行训练
-    trainer = gluon.Trainer(net.output_new.collect_params(),
-                            'sgd', {'learning_rate': lr, 'momentum': 0.9, 'wd': wd})
+    # 只在新的全连接网络的参数上进行训练。
+    trainer = gluon.Trainer(net.output_new.collect_params(), 'sgd',
+                            {'learning_rate': lr, 'momentum': 0.9, 'wd': wd})
     prev_time = datetime.datetime.now()
     for epoch in range(num_epochs):
-        train_loss = 0.0
+        train_l = 0.0
         if epoch > 0 and epoch % lr_period == 0:
             trainer.set_learning_rate(trainer.learning_rate * lr_decay)
-        for data, label in train_data:
-            label = label.astype('float32').as_in_context(ctx)
-            # 正向传播计算特征层的结果
-            output_features = net.features(data.as_in_context(ctx))
+        for X, y in train_data:
+            y = y.astype('float32').as_in_context(ctx)
+            # 正向传播计算特征层的结果。
+            output_features = net.features(X.as_in_context(ctx))
             with autograd.record():
-                # 将特征层的结果作为输入，计算全连接网络的结果
-                output = net.output_new(output_features)
-                loss = softmax_cross_entropy(output, label)
-            # 反向传播与权重更新只发生在全连接网络上
-            loss.backward()
+                # 将特征层的结果作为输入，计算全连接网络的结果。
+                outputs = net.output_new(output_features)
+                l = loss(outputs, y)
+            # 反向传播与权重更新只发生在全连接网络上。
+            l.backward()
             trainer.step(batch_size)
-            train_loss += nd.mean(loss).asscalar()
+            train_l += l.mean().asscalar()
         cur_time = datetime.datetime.now()
         h, remainder = divmod((cur_time - prev_time).seconds, 3600)
         m, s = divmod(remainder, 60)
-        time_str = "Time %02d:%02d:%02d" % (h, m, s)
+        time_s = "time %02d:%02d:%02d" % (h, m, s)
         if valid_data is not None:
             valid_loss = get_loss(valid_data, net, ctx)
-            epoch_str = ("Epoch %d. Train loss: %f, Valid loss %f, "
-                         % (epoch, train_loss / len(train_data), valid_loss))
+            epoch_s = ("epoch %d, train loss %f, valid loss %f, "
+                       % (epoch, train_l / len(train_data), valid_loss))
         else:
-            epoch_str = ("Epoch %d. Train loss: %f, "
-                         % (epoch, train_loss / len(train_data)))
+            epoch_s = ("epoch %d, train loss %f, "
+                       % (epoch, train_l / len(train_data)))
         prev_time = cur_time
-        print(epoch_str + time_str + ', lr ' + str(trainer.learning_rate))
+        print(epoch_s + time_s + ', lr ' + str(trainer.learning_rate))
 ```
 
 以下定义训练参数并训练模型。这些参数均可调。为了使网页编译快一点，我们这里将epoch数量有意设为1。事实上，epoch一般可以调大些。我们将依据验证集的结果不断优化模型设计和调整参数。
@@ -308,15 +304,15 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
 ```{.python .input  n=9}
 ctx = gb.try_gpu()
 num_epochs = 1
-learning_rate = 0.01
-weight_decay = 1e-4
+lr = 0.01
+wd = 1e-4
 lr_period = 10
 lr_decay = 0.1
 
 net = get_net(ctx)
 net.hybridize()
-train(net, train_data, valid_data, num_epochs, learning_rate, 
-      weight_decay, ctx, lr_period, lr_decay)
+train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
+      lr_decay)
 ```
 
 ## 对测试集分类
@@ -326,20 +322,20 @@ train(net, train_data, valid_data, num_epochs, learning_rate,
 ```{.python .input  n=8}
 net = get_net(ctx)
 net.hybridize()
-train(net, train_valid_data, None, num_epochs, learning_rate, weight_decay, 
-      ctx, lr_period, lr_decay)
+train(net, train_valid_data, None, num_epochs, lr, wd, ctx, lr_period,
+      lr_decay)
 
-outputs = []
+preds = []
 for data, label in test_data:
-    # 计算特征层的结果
+    # 计算特征层的结果。
     output_features = net.features(data.as_in_context(ctx))
-    # 将特征层的结果作为输入，计算全连接网络的结果
+    # 将特征层的结果作为输入，计算全连接网络的结果。
     output = nd.softmax(net.output_new(output_features))
-    outputs.extend(output.asnumpy())
+    preds.extend(output.asnumpy())
 ids = sorted(os.listdir(os.path.join(data_dir, input_dir, 'test/unknown')))
 with open('submission.csv', 'w') as f:
     f.write('id,' + ','.join(train_valid_ds.synsets) + '\n')
-    for i, output in zip(ids, outputs):
+    for i, output in zip(ids, preds):
         f.write(i.split('.')[0] + ',' + ','.join(
             [str(num) for num in output]) + '\n')
 ```
