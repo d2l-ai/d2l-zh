@@ -58,7 +58,7 @@ test_imgs = gdata.vision.ImageFolderDataset(data_dir+'/hotdog/test')
 ```{.python .input}
 hotdogs = [train_imgs[i][0] for i in range(8)]
 not_hotdogs = [train_imgs[-i-1][0] for i in range(8)]
-gb.show_images(hotdogs+not_hotdogs, 2, 8, scale=1.4)
+gb.show_images(hotdogs+not_hotdogs, 2, 8, scale=1.4); # 加分号只显示图。
 ```
 
 我们将训练图片首先扩大到高宽为480，然后随机剪裁出高宽为224的输入。测试图片则是简单的中心剪裁。此外，我们对输入的RGB通道数值进行了归一化。
@@ -88,7 +88,7 @@ test_augs = transforms.Compose([
 我们用在ImageNet上训练好了ResNet 18来作为基础模型。这里指定`pretrained=True`来自动下载并加载训练好的权重。
 
 ```{.python .input  n=6}
-pretrained_net = gluon.model_zoo.vision.resnet18_v2(pretrained=True)
+pretrained_net = model_zoo.vision.resnet18_v2(pretrained=True)
 ```
 
 预训练好的模型由两块构成，一是`features`，二是`output`。前者包含从输入开始的大部分卷积和全连接层，后者主要包括最后一层全连接层。这样的划分的主要目的是为了更方便做微调。下面查看下`output`的内容：
@@ -102,7 +102,7 @@ pretrained_net.output
 在微调中，我们新建一个网络，它的定义跟之前训练好的网络一样，除了最后的输出数等于当前数据的类别数。就是说新网络的`features`被初始化成前面训练好网络的权重，而`output`则是从头开始训练。
 
 ```{.python .input  n=9}
-finetune_net = gluon.model_zoo.vision.resnet18_v2(classes=2)
+finetune_net = model_zoo.vision.resnet18_v2(classes=2)
 finetune_net.features = pretrained_net.features
 finetune_net.output.initialize(init.Xavier())
 ```
