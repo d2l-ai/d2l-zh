@@ -28,29 +28,29 @@
 我们首先将数据下载到`../data`。在当前目录解压后得到`hotdog/train`和`hotdog/test`这两个文件夹。每个下面有`hotdog`和`not-hotdog`这两个类别文件夹，里面是对应的图片文件。
 
 ```{.python .input  n=4}
-%matplotlib inline
 import sys
 sys.path.insert(0, '..')
 import zipfile
 import gluonbook as gb
-from mxnet import nd, image, gluon, init
+from mxnet import nd, gluon, init
+from mxnet.gluon import data as gdata, loss as gloss, model_zoo, utils as gutils
 from mxnet.gluon.data.vision import transforms
 
 data_dir = '../data/'
 base_url = 'https://apache-mxnet.s3-accelerate.amazonaws.com/'
-fname = gluon.utils.download(
+fname = gutils.download(
     base_url+'gluon/dataset/hotdog.zip',
     path=data_dir, sha1_hash='fba480ffa8aa7e0febbb511d181409f899b9baa5')
 
-with zipfile.ZipFile(fname, 'r') as f:
-    f.extractall(data_dir)
+with zipfile.ZipFile(fname, 'r') as z:
+    z.extractall(data_dir)
 ```
 
 我们使用使用`ImageFolderDataset`类来读取数据。它将每个类别文件夹当做一个类，并读取下面所有的图片。
 
 ```{.python .input  n=6}
-train_imgs = gluon.data.vision.ImageFolderDataset(data_dir+'/hotdog/train')
-test_imgs = gluon.data.vision.ImageFolderDataset(data_dir+'/hotdog/test')
+train_imgs = gdata.vision.ImageFolderDataset(data_dir+'/hotdog/train')
+test_imgs = gdata.vision.ImageFolderDataset(data_dir+'/hotdog/test')
 ```
 
 下面画出前8张正例图片和最后的8张负例图片，可以看到他们性质和高宽各不相同。
@@ -113,15 +113,15 @@ finetune_net.output.initialize(init.Xavier())
 
 ```{.python .input  n=12}
 def train(net, learning_rate, batch_size=128, epochs=5):
-    train_data = gluon.data.DataLoader(
+    train_data = gdata.DataLoader(
         train_imgs.transform_first(train_augs), batch_size, shuffle=True)
-    test_data = gluon.data.DataLoader(
+    test_data = gdata.DataLoader(
         test_imgs.transform_first(test_augs), batch_size)
 
     ctx = gb.try_all_gpus()
     net.collect_params().reset_ctx(ctx)
     net.hybridize()
-    loss = gluon.loss.SoftmaxCrossEntropyLoss()
+    loss = gloss.SoftmaxCrossEntropyLoss()
     trainer = gluon.Trainer(net.collect_params(), 'sgd', {
         'learning_rate': learning_rate, 'wd': 0.001})
     gb.train(train_data, test_data, net, loss, trainer, ctx, epochs)
@@ -136,7 +136,7 @@ train(finetune_net, 0.01)
 为了对比起见，我们训练同样的一个模型，但所有参数都初始成随机值。我们使用较大的学习率来加速收敛。
 
 ```{.python .input  n=14}
-scratch_net = gluon.model_zoo.vision.resnet18_v2(classes=2)
+scratch_net = model_zoo.vision.resnet18_v2(classes=2)
 scratch_net.initialize(init=init.Xavier())
 train(scratch_net, 0.1)
 ```

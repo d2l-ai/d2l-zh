@@ -53,6 +53,7 @@ import datetime
 import gluonbook as gb
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import data as gdata, nn, loss as gloss
+from mxnet.gluon.data.vision import transforms
 import numpy as np
 import os
 import pandas as pd
@@ -64,9 +65,9 @@ import shutil
 demo = True
 if demo:
     import zipfile
-    for fin in ['train_tiny.zip', 'test_tiny.zip', 'trainLabels.csv.zip']:
-        with zipfile.ZipFile('../data/kaggle_cifar10/' + fin, 'r') as zin:
-            zin.extractall('../data/kaggle_cifar10/')
+    for f in ['train_tiny.zip', 'test_tiny.zip', 'trainLabels.csv.zip']:
+        with zipfile.ZipFile('../data/kaggle_cifar10/' + f, 'r') as z:
+            z.extractall('../data/kaggle_cifar10/')
 ```
 
 ### 整理数据集
@@ -150,31 +151,31 @@ reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
 为避免过拟合，我们在这里使用`transforms`来增广数据集。例如我们加入`transforms.RandomFlipLeftRight()`即可随机对每张图片做镜面反转。我们也通过`transforms.Normalize()`对彩色图像RGB三个通道分别做[标准化](../chapter_supervised-learning/kaggle-gluon-kfold.md)。以下我们列举了所有可能用到的操作，这些操作可以根据需求来决定是否调用，它们的参数也都是可调的。
 
 ```{.python .input  n=4}
-transform_train = gdata.vision.transforms.Compose([
-    # gdata.vision.transforms.CenterCrop(32),
-    # gdata.vision.transforms.RandomFlipTopBottom(),
-    # gdata.vision.transforms.RandomColorJitter(brightness=0.0, contrast=0.0,
-    #                                           saturation=0.0, hue=0.0),
-    # gdata.vision.transforms.RandomLighting(0.0),
-    # gdata.vision.transforms.Cast('float32'),
-    # gdata.vision.transforms.Resize(32),
+transform_train = transforms.Compose([
+     transforms.CenterCrop(32),
+     transforms.RandomFlipTopBottom(),
+     transforms.RandomColorJitter(brightness=0.0, contrast=0.0,
+                                               saturation=0.0, hue=0.0),
+     transforms.RandomLighting(0.0),
+     transforms.Cast('float32'),
+     transforms.Resize(32),
 
     # 随机按照 scale 和 ratio 裁剪，并放缩为 32 x 32 的正方形。
-    gdata.vision.transforms.RandomResizedCrop(32, scale=(0.08, 1.0),
+    transforms.RandomResizedCrop(32, scale=(0.08, 1.0),
                                               ratio=(3.0/4.0, 4.0/3.0)),
     # 随机左右翻转图片。
-    gdata.vision.transforms.RandomFlipLeftRight(),
+    transforms.RandomFlipLeftRight(),
     # 将图片像素值缩小到（0, 1）内，并将数据格式从“高*宽*通道”改为“通道*高*宽”。
-    gdata.vision.transforms.ToTensor(),
+    transforms.ToTensor(),
     # 对图片的每个通道做标准化。
-    gdata.vision.transforms.Normalize([0.4914, 0.4822, 0.4465],
+    transforms.Normalize([0.4914, 0.4822, 0.4465],
                                       [0.2023, 0.1994, 0.2010])
 ])
 
 # 测试时，无需对图像做标准化以外的增强数据处理。
-transform_test = gdata.vision.transforms.Compose([
-    gdata.vision.transforms.ToTensor(),
-    gdata.vision.transforms.Normalize([0.4914, 0.4822, 0.4465],
+transform_test = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize([0.4914, 0.4822, 0.4465],
                                       [0.2023, 0.1994, 0.2010])
 ])
 ```
