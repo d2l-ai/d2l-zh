@@ -42,6 +42,23 @@
 
 为了使网页编译快一点，我们在git repo里仅仅存放小数据样本（'train_valid_test_tiny.zip'）。执行以下代码会从git repo里解压生成小数据样本。
 
+```{.python .input}
+import sys
+sys.path.append('..')
+
+import collections
+import datetime
+import gluonbook as gb
+import math
+from mxnet import autograd, gluon, init, nd
+from mxnet.gluon import data as gdata, loss as gloss, model_zoo, nn
+from mxnet.gluon.data.vision import transforms
+import numpy as np
+import os
+import shutil
+import zipfile
+```
+
 ```{.python .input  n=1}
 # 如果训练下载的Kaggle的完整数据集，把demo改为False。
 demo = True
@@ -52,10 +69,9 @@ if demo:
 else:
     zipfiles= ['train.zip', 'test.zip', 'labels.csv.zip']
 
-import zipfile
-for fin in zipfiles:
-    with zipfile.ZipFile(data_dir + '/' + fin, 'r') as zin:
-        zin.extractall(data_dir)
+for f in zipfiles:
+    with zipfile.ZipFile(data_dir + '/' + f, 'r') as z:
+        z.extractall(data_dir)
 ```
 
 ### 整理数据集
@@ -65,11 +81,6 @@ for fin in zipfiles:
 函数中的参数如data_dir、train_dir和test_dir对应上述数据存放路径及原始训练和测试的图片集文件夹名称。参数label_file为训练数据标签的文件名称。参数input_dir是整理后数据集文件夹名称。参数valid_ratio是验证集中每类狗的数量占原始训练集中数量最少一类的狗的数量（66）的比重。
 
 ```{.python .input  n=2}
-import math
-import os
-import shutil
-from collections import Counter
-
 def reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir, 
                    valid_ratio):
     # 读取训练数据标签。
@@ -83,7 +94,7 @@ def reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir,
     num_train = len(os.listdir(os.path.join(data_dir, train_dir)))
     # 训练集中数量最少一类的狗的数量。
     min_num_train_per_label = (
-        Counter(idx_label.values()).most_common()[:-2:-1][0][1])
+        collections.Counter(idx_label.values()).most_common()[:-2:-1][0][1])
     # 验证集中每类狗的数量。
     num_valid_per_label = math.floor(min_num_train_per_label * valid_ratio)
     label_count = dict()
@@ -140,16 +151,8 @@ else:
 为避免过拟合，我们在这里使用`transforms`来增广数据集。例如我们加入`transforms.RandomFlipLeftRight()`即可随机对每张图片做镜面反转。以下我们列举了所有可能用到的操作，这些操作可以根据需求来决定是否调用，它们的参数也都是可调的。
 
 ```{.python .input  n=4}
-from mxnet import autograd
-from mxnet import gluon
-from mxnet import init
-from mxnet import nd
-from mxnet.gluon.data import vision
-from mxnet.gluon.data.vision import transforms
-import numpy as np
-
 transform_train = transforms.Compose([
-    # transforms.CenterCrop(32)
+    # transforms.CenterCrop(32),
     # transforms.RandomFlipTopBottom(),
     # transforms.RandomColorJitter(brightness=0.0, contrast=0.0, saturation=0.0, hue=0.0),
     # transforms.RandomLighting(0.0),
@@ -183,12 +186,12 @@ transform_test = transforms.Compose([
 input_str = data_dir + '/' + input_dir + '/'
 
 # 读取原始图像文件。flag=1说明输入图像有三个通道（彩色）。
-train_ds = vision.ImageFolderDataset(input_str + 'train', flag=1)
-valid_ds = vision.ImageFolderDataset(input_str + 'valid', flag=1)
-train_valid_ds = vision.ImageFolderDataset(input_str + 'train_valid', flag=1)
-test_ds = vision.ImageFolderDataset(input_str + 'test', flag=1)
+train_ds = gdata.vision.ImageFolderDataset(input_str + 'train', flag=1)
+valid_ds = gdata.vision.ImageFolderDataset(input_str + 'valid', flag=1)
+train_valid_ds = gdata.vision.ImageFolderDataset(input_str + 'train_valid', flag=1)
+test_ds = gdata.vision.ImageFolderDataset(input_str + 'test', flag=1)
 
-loader = gluon.data.DataLoader
+loader = gdata.DataLoader
 train_data = loader(train_ds.transform_first(transform_train),
                     batch_size, shuffle=True, last_batch='keep')
 valid_data = loader(valid_ds.transform_first(transform_test),
@@ -199,7 +202,7 @@ test_data = loader(test_ds.transform_first(transform_test),
                    batch_size, shuffle=False, last_batch='keep')
 
 # 交叉熵损失函数。
-softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
+softmax_cross_entropy = gloss.SoftmaxCrossEntropyLoss()
 ```
 
 ## 设计模型
@@ -217,13 +220,11 @@ softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 首先我们定义一个网络，并拿到预训练好的`ResNet-34`模型权重。接下来我们新定义一个两层的全连接网络作为输出层，并初始化其权重，为接下来的训练做准备。
 
 ```{.python .input  n=6}
-from mxnet.gluon import nn
-from mxnet import nd
-from mxnet.gluon.model_zoo import vision as models
+
 
 def get_net(ctx):
     # 设置 pretrained=True 就能拿到预训练模型的权重，第一次使用需要联网下载
-    finetune_net = models.resnet34_v2(pretrained=True)
+    finetune_net = model_zoo.vision.resnet34_v2(pretrained=True)
 
     # 定义新的输出网络
     finetune_net.output_new = nn.HybridSequential(prefix='')
@@ -251,11 +252,6 @@ def get_net(ctx):
 2. 在训练时只在新输出层上记录自动求导的结果。
 
 ```{.python .input  n=7}
-import datetime
-import sys
-sys.path.append('..')
-import gluonbook as gb
-
 def get_loss(data, net, ctx):
     loss = 0.0
     for feas, label in data:
@@ -328,8 +324,6 @@ train(net, train_data, valid_data, num_epochs, learning_rate,
 当得到一组满意的模型设计和参数后，我们使用全部训练数据集（含验证集）重新训练模型，并对测试集分类。注意，我们要用刚训练好的新输出层做预测。
 
 ```{.python .input  n=8}
-import numpy as np
-
 net = get_net(ctx)
 net.hybridize()
 train(net, train_valid_data, None, num_epochs, learning_rate, weight_decay, 
