@@ -15,11 +15,16 @@
 
 ## Kaggle比赛
 
-Kaggle是一个著名的供机器学习爱好者交流的平台 [1]。图3.7展示了Kaggle网站首页。为了便于提交结果，请大家注册Kaggle账号。
+Kaggle（网站地址：https://www.kaggle.com ）是一个著名的供机器学习爱好者交流的平台。图3.7展示了Kaggle网站首页。为了便于提交结果，请大家注册Kaggle账号。
 
 ![Kaggle网站首页。](../img/kaggle.png)
 
-我们可以在预测房价比赛的网页上了解比赛信息和参赛者成绩、下载数据集并提交自己的预测结果 [2]。图3.8展示了预测房价比赛的网页信息。
+我们可以在预测房价比赛的网页上了解比赛信息和参赛者成绩、下载数据集并提交自己的预测结果。该比赛的网页地址是
+
+> https://www.kaggle.com/c/house-prices-advanced-regression-techniques
+
+
+图3.8展示了预测房价比赛的网页信息。
 
 ![预测房价比赛的网页信息。](../img/house_pricing.png)
 
@@ -27,7 +32,7 @@ Kaggle是一个著名的供机器学习爱好者交流的平台 [1]。图3.7展�
 
 ## 获取和读取数据集
 
-比赛数据分为训练数据集和测试数据集。两个数据集都包括每栋房子的特征，例如街道类型、建造年份、房顶类型、地下室状况等特征值。这些特征值有连续的数字、离散的标签甚至是缺失值“na”。只有训练数据集包括了每栋房子的价格。我们可以访问比赛网页，点击“Data”标签，并下载这些数据集 [2]。
+比赛数据分为训练数据集和测试数据集。两个数据集都包括每栋房子的特征，例如街道类型、建造年份、房顶类型、地下室状况等特征值。这些特征值有连续的数字、离散的标签甚至是缺失值“na”。只有训练数据集包括了每栋房子的价格。我们可以访问比赛网页，点击“Data”标签，并下载这些数据集。
 
 下面，我们通过使用`pandas`读入数据。请确保已安装`pandas` (命令行执行`pip install pandas`)。
 
@@ -238,7 +243,7 @@ train_and_pred(num_epochs, verbose_epoch, train_features, test_features,
                train_labels, test_data, lr, weight_decay, batch_size)
 ```
 
-上述代码执行完之后会生成一个“submission.csv”文件。这个文件是符合Kaggle比赛要求的提交格式的。这时，我们可以在Kaggle上把我们预测得出的结果进行提交，并且查看与测试数据集上真实房价（标签）的误差。具体来说有以下几个步骤：你需要登录Kaggle网站，访问预测房价比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮 [2]。然后，点击页面下方“Upload Submission File”选择需要提交的预测结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。如图3.9所示。
+上述代码执行完之后会生成一个“submission.csv”文件。这个文件是符合Kaggle比赛要求的提交格式的。这时，我们可以在Kaggle上把我们预测得出的结果进行提交，并且查看与测试数据集上真实房价（标签）的误差。具体来说有以下几个步骤：你需要登录Kaggle网站，访问预测房价比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮。然后，点击页面下方“Upload Submission File”选择需要提交的预测结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。如图3.9所示。
 
 ![Kaggle预测房价比赛的预测结果提交页面。](../img/kaggle_submit2.png)
 
@@ -260,10 +265,3 @@ train_and_pred(num_epochs, verbose_epoch, train_features, test_features,
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1039)
 
 ![](../img/qr_kaggle-gluon-kfold.svg)
-
-
-## 参考文献
-
-[1] Kaggle网站。 https://www.kaggle.com
-
-[2] Kaggle房价预测比赛网址。 https://www.kaggle.com/c/house-prices-advanced-regression-techniques
