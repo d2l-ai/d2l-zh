@@ -97,7 +97,7 @@ def reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir,
         collections.Counter(idx_label.values()).most_common()[:-2:-1][0][1])
     # 验证集中每类狗的数量。
     n_valid_per_label = math.floor(min_n_train_per_label * valid_ratio)
-    label_count = dict()
+    label_count = {}
 
     def mkdir_if_not_exist(path):
         if not os.path.exists(os.path.join(*path)):
