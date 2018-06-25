@@ -29,7 +29,7 @@ import shutil
 
 ## 获取数据集
 
-比赛数据分为训练数据集和测试数据集。训练集包含5万张图片。测试集包含30万张图片：其中有1万张图片用来计分，其他29万张不计分的图片是为了防止人工标注测试集。两个数据集中的图片格式都是png，长和宽均为32，通道数为3（彩色）。图片的类别数为10，类别分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车，如图9.X所示。
+比赛数据分为训练数据集和测试数据集。训练集包含5万张图片。测试集包含30万张图片：其中有1万张图片用来计分，其他29万张不计分的图片是为了防止人工标注测试集。两个数据集中的图片格式都是png，高和宽均为32，并含有RGB三个通道（彩色）。图片的类别数为10，类别分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车，如图9.X所示。
 
 ![CIFAR-10图像的类别分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车。](../img/cifar10.png)
 
@@ -61,14 +61,12 @@ if demo:
 
 ### 整理数据集
 
-我们定义下面的`reorg_cifar10_data`函数来整理数据集。整理后，同一类图片将出现在在同一个文件夹下，便于`Gluon`稍后读取。
-
-函数中的参数如data_dir、train_dir和test_dir对应上述数据存放路径及训练和测试的图片集文件夹名称。参数label_file为训练数据标签的文件名称。参数input_dir是整理后数据集文件夹名称。参数valid_ratio是验证集占原始训练集的比重。以valid_ratio=0.1为例，由于原始训练数据有5万张图片，调参时将有4万5千张图片用于训练（整理后存放在input_dir/train）而另外5千张图片为验证集（整理后存放在input_dir/valid）。
+我们定义下面的`reorg_cifar10_data`函数来整理数据集。整理后，同一类图片将被放在同一个文件夹下，便于我们稍后读取。该函数中的参数`valid_ratio`是验证集占原始训练集的比重。以`valid_ratio=0.1`为例，由于原始训练数据有50,000张图片，调参时将有45,000张图片用于训练并存放在路径“`input_dir`/train”，而另外5,000张图片为验证集并存放在路径“`input_dir`/valid”。
 
 ```{.python .input  n=2}
 def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
                        valid_ratio):
-    # 读取训练数据标签。
+    # 读取训练数据集标签。
     with open(os.path.join(data_dir, label_file), 'r') as f:
         # 跳过文件头行（栏名称）。
         lines = f.readlines()[1:]
@@ -110,17 +108,15 @@ def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
                     os.path.join(data_dir, input_dir, 'test', 'unknown'))
 ```
 
-再次强调，为了使网页编译快一点，我们在这里仅仅使用100个训练样本和1个测试样本。训练和测试数据的文件夹名称分别为'train_tiny'和'test_tiny'。相应地，我们仅将批量大小设为1。实际训练和测试时应使用Kaggle的完整数据集。由于数据集较大，批量大小batch_size大小可设为一个较大的整数，例如128。
-
-我们将10%的训练样本作为调参时的验证集。
+我们在这里仅仅使用100个训练样本和1个测试样本。训练和测试数据集的文件夹名称分别为“train_tiny”和“test_tiny”。相应地，我们仅将批量大小设为1。实际训练和测试时应使用Kaggle比赛的完整数据集，并将批量大小`batch_size`设为一个较大的整数，例如128。我们将10%的训练样本作为调参时的验证集。
 
 ```{.python .input  n=3}
 if demo:
-    # 注意：此处使用小训练集为便于网页编译。Kaggle的完整数据集应包括5万训练样本。
+    # 注意：此处使用小训练集。Kaggle 比赛的完整数据集应包括 5 万训练样本。
     train_dir = 'train_tiny'
-    # 注意：此处使用小测试集为便于网页编译。Kaggle的完整数据集应包括30万测试样本。
+    # 注意：此处使用小测试集。Kaggle 比赛的完整数据集应包括 30 万测试样本。
     test_dir = 'test_tiny'
-    # 注意：此处相应使用小批量。对Kaggle的完整数据集可设较大的整数，例如128。
+    # 注意：此处相应使用小批量。使用 Kaggle 比赛的完整数据集时可设较大的整数。
     batch_size = 1
 else:
     train_dir = 'train'
@@ -135,20 +131,12 @@ reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
                    valid_ratio)
 ```
 
-## 使用Gluon读取整理后的数据集
+## 增广数据
 
-为避免过拟合，我们在这里使用`transforms`来增广数据集。例如我们加入`transforms.RandomFlipLeftRight()`即可随机对每张图片做镜面反转。我们也通过`transforms.Normalize()`对彩色图像RGB三个通道分别做[标准化](../chapter_supervised-learning/kaggle-gluon-kfold.md)。以下我们列举了所有可能用到的操作，这些操作可以根据需求来决定是否调用，它们的参数也都是可调的。
+为应对过拟合，我们在这里使用`transforms`来增广数据。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图片做镜面反转。我们也通过`transforms.Normalize()`对彩色图像RGB三个通道分别做标准化。以下列举了部分操作。这些操作可以根据需求来决定是否使用，它们的超参数也都是可调的。
 
 ```{.python .input  n=4}
 transform_train = transforms.Compose([
-     transforms.CenterCrop(32),
-     transforms.RandomFlipTopBottom(),
-     transforms.RandomColorJitter(brightness=0.0, contrast=0.0,
-                                               saturation=0.0, hue=0.0),
-     transforms.RandomLighting(0.0),
-     transforms.Cast('float32'),
-     transforms.Resize(32),
-
     # 随机按照 scale 和 ratio 裁剪，并放缩为 32 x 32 的正方形。
     transforms.RandomResizedCrop(32, scale=(0.08, 1.0),
                                  ratio=(3.0/4.0, 4.0/3.0)),
@@ -163,22 +151,22 @@ transform_train = transforms.Compose([
 # 测试时，无需对图像做标准化以外的增强数据处理。
 transform_test = transforms.Compose([
     transforms.ToTensor(),
-    transforms.Normalize([0.4914, 0.4822, 0.4465],
-                         [0.2023, 0.1994, 0.2010])
+    transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010])
 ])
 ```
 
-接下来，我们可以使用`Gluon`中的`ImageFolderDataset`类来读取整理后的数据集。注意，我们要在`loader`中调用刚刚定义好的图片增广函数。通过`vision.ImageFolderDataset`读入的数据是一个`(image, label)`组合，`transform_first()`的作用便是对这个组合中的第一个成员（即读入的图像）做图片增广操作。
+接下来，我们可以使用`ImageFolderDataset`类来读取整理后的数据集，其中每个数据样本包括图像和标签。需要注意的是，我们要在`DataLoader`中调用刚刚定义好的图片增广函数。其中`transform_first`函数指明对每个数据样本中的图像做数据增广。
 
 ```{.python .input  n=5}
-input_s = data_dir + '/' + input_dir + '/'
-
 # 读取原始图像文件。flag=1 说明输入图像有三个通道（彩色）。
-train_ds = gdata.vision.ImageFolderDataset(input_s + 'train', flag=1)
-valid_ds = gdata.vision.ImageFolderDataset(input_s + 'valid', flag=1)
-train_valid_ds = gdata.vision.ImageFolderDataset(input_s + 'train_valid',
-                                                 flag=1)
-test_ds = gdata.vision.ImageFolderDataset(input_s + 'test', flag=1)
+train_ds = gdata.vision.ImageFolderDataset(
+    os.path.join(data_dir, input_dir, 'train'), flag=1)
+valid_ds = gdata.vision.ImageFolderDataset(
+    os.path.join(data_dir, input_dir, 'valid'), flag=1)
+train_valid_ds = gdata.vision.ImageFolderDataset(
+    os.path.join(data_dir, input_dir, 'train_valid'), flag=1)
+test_ds = gdata.vision.ImageFolderDataset(
+    os.path.join(data_dir, input_dir, 'test'), flag=1)
 
 train_data = gdata.DataLoader(train_ds.transform_first(transform_train),
                               batch_size, shuffle=True, last_batch='keep')
@@ -190,11 +178,9 @@ test_data = gdata.DataLoader(test_ds.transform_first(transform_test),
                              batch_size, shuffle=False, last_batch='keep')
 ```
 
-## 设计模型
+## 定义模型
 
-我们这里使用了[ResNet-18](resnet-gluon.md)模型。我们使用[hybridizing](../chapter_gluon-advances/hybridize.md)来提升执行效率。
-
-请注意：模型可以重新设计，参数也可以重新调整。
+我们这里使用了ResNet-18模型，并使用混合式编程来提升执行效率。
 
 ```{.python .input  n=6}
 class Residual(nn.HybridBlock):
@@ -262,14 +248,11 @@ def get_net(ctx):
     return net
 ```
 
-## 训练模型并调参
+## 定义训练函数
 
-在[过拟合](../chapter_supervised-learning/underfit-overfit.md)中我们讲过，过度依赖训练数据集的误差来推断测试数据集的误差容易导致过拟合。由于图像分类训练时间可能较长，为了方便，我们这里不再使用K折交叉验证，而是依赖验证集的结果来调参。
-
-我们定义模型训练函数。这里我们记录每个epoch的训练时间。这有助于我们比较不同模型设计的时间成本。
+我们将依赖模型在验证集上的表现来选择模型并调节超参数。下面定义了模型的训练函数`train`。我们记录了每个迭代周期的训练时间。这有助于比较不同模型的时间开销。
 
 ```{.python .input  n=7}
-# 交叉熵损失函数。
 loss = gloss.SoftmaxCrossEntropyLoss()
 
 def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
@@ -308,15 +291,18 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
         print(epoch_s + time_s + ', lr ' + str(trainer.learning_rate))
 ```
 
-以下定义训练参数并训练模型。这些参数均可调。为了使网页编译快一点，我们这里将epoch数量有意设为1。事实上，epoch一般可以调大些，例如100。
+## 训练并验证模型
 
-我们将依据验证集的结果不断优化模型设计和调整参数。依据下面的参数设置，优化算法的学习率将在每80个epoch自乘0.1。
+现在，我们可以训练并验证模型了。以下的超参数都是可以调节的，例如增加迭代周期。
 
 ```{.python .input  n=8}
 ctx = gb.try_gpu()
 num_epochs = 1
+# 学习率。
 lr = 0.1
+# 权重衰减参数。
 wd = 5e-4
+# 优化算法的学习率将在每80个迭代周期时自乘0.1。
 lr_period = 80
 lr_decay = 0.1
 
@@ -326,9 +312,9 @@ train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
       lr_decay)
 ```
 
-## 对测试集分类
+## 对测试集分类并在Kaggle提交结果
 
-当得到一组满意的模型设计和参数后，我们使用全部训练数据集（含验证集）重新训练模型，并对测试集分类。
+当得到一组满意的模型设计和超参数后，我们使用全部训练数据集（含验证集）重新训练模型，并对测试集分类。
 
 ```{.python .input  n=9}
 net = get_net(ctx)
@@ -347,18 +333,20 @@ df['label'] = df['label'].apply(lambda x: train_valid_ds.synsets[x])
 df.to_csv('submission.csv', index=False)
 ```
 
-执行完上述代码后，会生成一个“submission.csv”文件。这个文件符合Kaggle比赛要求的提交格式。这时我们可以在Kaggle上把对测试集分类的结果提交并查看分类准确率。你需要登录Kaggle网站，访问CIFAR-10比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮 [1]。然后，点击页面下方“Upload Submission File”选择需要提交的分类结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。
+执行完上述代码后，会生成一个“submission.csv”文件。这个文件符合Kaggle比赛要求的提交格式。这时我们可以在Kaggle上把对测试集分类的结果提交并查看分类准确率。你需要登录Kaggle网站，访问CIFAR-10比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮。然后，点击页面下方“Upload Submission File”选择需要提交的分类结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。
 
 
 ## 小结
 
-* CIFAR-10是深度学习在计算机视觉领域的一个重要数据集。
+* CIFAR-10是计算机视觉领域的一个重要的数据集。
+* 我们可以应用卷积神经网络、图片增广和混合式编程来实战图像分类比赛。
 
 
 ## 练习
 
-* 使用Kaggle完整CIFAR-10数据集，把batch_size和num_epochs分别改为128和100，可以在Kaggle上拿到什么样的准确率和名次？
+* 使用Kaggle比赛的完整CIFAR-10数据集。把`batch_size`和`num_epochs`分别改为128和100。看看你可以在这个比赛中拿到什么样的准确率和名次？
 * 如果不使用增强数据的方法能拿到什么样的准确率？
+* 在`transforms.RandomResizedCrop`前依次添加以下数据增广操作（使用逗号隔开）：`transforms.CenterCrop(32)`、`transforms.RandomFlipTopBottom()`、`transforms.RandomColorJitter(brightness=0.0, contrast=0.0, saturation=0.0, hue=0.0)`、`transforms.RandomLighting(0.0)`、`transforms.Cast('float32')`、`transforms.Resize(32)`。调一调它们的超参数。对结果有什么影响？
 * 扫码直达讨论区，在社区交流方法和结果。相信你一定会有收获。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1545/)

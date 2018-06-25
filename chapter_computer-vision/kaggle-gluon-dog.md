@@ -185,14 +185,15 @@ transform_test = transforms.Compose([
 接下来，我们可以使用`Gluon`中的`ImageFolderDataset`类来读取整理后的数据集。注意，我们要在`loader`中调用刚刚定义好的图片增广函数。通过`vision.ImageFolderDataset`读入的数据是一个`(image, label)`组合，`transform_first()`的作用便是对这个组合中的第一个成员（即读入的图像）做图片增广操作。
 
 ```{.python .input  n=5}
-input_s = data_dir + '/' + input_dir + '/'
-
-# 读取原始图像文件。flag=1说明输入图像有三个通道（彩色）。
-train_ds = gdata.vision.ImageFolderDataset(input_s + 'train', flag=1)
-valid_ds = gdata.vision.ImageFolderDataset(input_s + 'valid', flag=1)
-train_valid_ds = gdata.vision.ImageFolderDataset(input_s + 'train_valid',
-                                                 flag=1)
-test_ds = gdata.vision.ImageFolderDataset(input_s + 'test', flag=1)
+# 读取原始图像文件。flag=1 说明输入图像有三个通道（彩色）。
+train_ds = gdata.vision.ImageFolderDataset(
+    os.path.join(data_dir, input_dir, 'train'), flag=1)
+valid_ds = gdata.vision.ImageFolderDataset(
+    os.path.join(data_dir, input_dir, 'valid'), flag=1)
+train_valid_ds = gdata.vision.ImageFolderDataset(
+    os.path.join(data_dir, input_dir, 'train_valid'), flag=1)
+test_ds = gdata.vision.ImageFolderDataset(
+    os.path.join(data_dir, input_dir, 'test'), flag=1)
 
 train_data = gdata.DataLoader(train_ds.transform_first(transform_train),
                               batch_size, shuffle=True, last_batch='keep')
