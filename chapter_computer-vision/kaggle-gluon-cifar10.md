@@ -346,7 +346,7 @@ df.to_csv('submission.csv', index=False)
 
 * 使用Kaggle比赛的完整CIFAR-10数据集。把`batch_size`和`num_epochs`分别改为128和100。看看你可以在这个比赛中拿到什么样的准确率和名次？
 * 如果不使用增强数据的方法能拿到什么样的准确率？
-* 在`transforms.RandomResizedCrop`前依次添加以下数据增广操作（使用逗号隔开）：`transforms.CenterCrop(32)`、`transforms.RandomFlipTopBottom()`、`transforms.RandomColorJitter(brightness=0.0, contrast=0.0, saturation=0.0, hue=0.0)`、`transforms.RandomLighting(0.0)`、`transforms.Cast('float32')`、`transforms.Resize(32)`。调一调它们的超参数。对结果有什么影响？
+* 在`transforms.RandomResizedCrop`前依次添加以下数据增广操作（使用逗号隔开）：transforms.CenterCrop(32)、transforms.RandomFlipTopBottom()、transforms.RandomColorJitter(brightness=0.0, contrast=0.0, saturation=0.0, hue=0.0)、transforms.RandomLighting(0.0)、transforms.Cast('float32')和transforms.Resize(32)。调一调它们的超参数。对结果有什么影响？
 * 扫码直达讨论区，在社区交流方法和结果。相信你一定会有收获。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1545/)
