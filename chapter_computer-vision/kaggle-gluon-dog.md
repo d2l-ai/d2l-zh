@@ -1,16 +1,37 @@
-# 实战Kaggle比赛：识别120种狗 (ImageNet Dogs)
+# 实战Kaggle比赛：狗的品种识别 (ImageNet Dogs)
 
 
-我们在本章中选择了Kaggle中的[120种狗类识别问题](https://www.kaggle.com/c/dog-breed-identification)。这是著名的ImageNet的子集数据集。与之前的[CIFAR-10原始图像分类问题](kaggle-gluon-cifar10.md)不同，本问题中的图片文件大小更接近真实照片大小，且大小不一。本问题的输出也变的更加通用：我们将输出每张图片对应120种狗的分别概率。
+我们在本章中选择了Kaggle中的[狗的品种识别问题](https://www.kaggle.com/c/dog-breed-identification)。这是著名的ImageNet的子集数据集。与之前的[CIFAR-10原始图像分类问题](kaggle-gluon-cifar10.md)不同，本问题中的图片文件大小更接近真实照片大小，且大小不一。本问题的输出也变的更加通用：我们将输出每张图片对应120种狗的分别概率。
+
+我们将在本节动手实战Kaggle比赛中的狗的品种识别问题。该比赛的网页地址是
+
+> https://www.kaggle.com/c/dog-breed-identification
+
+在这个比赛中，我们将识别120类不同品种的狗。这个比赛的数据集实际上是著名的ImageNet的子集数据集。和上一节CIFAR-10数据集中的图像不同，ImageNet数据集中的图像更加接近真实图片大小，且大小不一。
+
+图9.X展示了该比赛的网页信息。为了便于提交结果，请先在Kaggle网站上注册账号。
+
+![狗的品种识别比赛的网页信息。比赛数据集可通过点击“Data”标签获取](../img/kaggle-dog.png)
 
 
-## Kaggle中的CIFAR-10原始图像分类问题
+首先，导入实验所需的包或模块。
 
-[Kaggle](https://www.kaggle.com)是一个著名的供机器学习爱好者交流的平台。为了便于提交结果，请大家注册[Kaggle](https://www.kaggle.com)账号。然后请大家先点击[120种狗类识别问题](https://www.kaggle.com/c/dog-breed-identification)了解有关本次比赛的信息。
+```{.python .input}
+import sys
+sys.path.append('..')
 
-![](../img/kaggle-dog.png)
-
-
+import collections
+import datetime
+import gluonbook as gb
+import math
+from mxnet import autograd, gluon, init, nd
+from mxnet.gluon import data as gdata, loss as gloss, model_zoo, nn
+from mxnet.gluon.data.vision import transforms
+import numpy as np
+import os
+import shutil
+import zipfile
+```
 
 ## 整理原始数据集
 
@@ -41,23 +62,6 @@
 * ../data/kaggle_dog/labels.csv.zip
 
 为了使网页编译快一点，我们在git repo里仅仅存放小数据样本（'train_valid_test_tiny.zip'）。执行以下代码会从git repo里解压生成小数据样本。
-
-```{.python .input}
-import sys
-sys.path.append('..')
-
-import collections
-import datetime
-import gluonbook as gb
-import math
-from mxnet import autograd, gluon, init, nd
-from mxnet.gluon import data as gdata, loss as gloss, model_zoo, nn
-from mxnet.gluon.data.vision import transforms
-import numpy as np
-import os
-import shutil
-import zipfile
-```
 
 ```{.python .input  n=1}
 # 如果训练下载的Kaggle的完整数据集，把demo改为False。
