@@ -2,7 +2,7 @@
 
 在深度学习中，我们通常会频繁地对数据进行操作。作为动手学深度学习的基础，本节将介绍如何对内存中的数据进行操作。
 
-在MXNet中，NDArray是存储和变换数据的主要工具。如果你之前用过NumPy，你会发现NDArray和NumPy的多维数组非常类似。然而，NDArray提供更多的功能，例如CPU和GPU的异步计算，以及自动求导。这些都使得NDArray更加适合深度学习。
+在MXNet中，NDArray是存储和变换数据的主要工具。如果你之前用过NumPy，你会发现NDArray和NumPy的多维数组非常类似。然而，NDArray提供诸如GPU计算和自动求导在内的更多功能。这些都使得NDArray更加适合深度学习。
 
 
 ## 创建NDArray
@@ -90,6 +90,12 @@ x * y
 x / y
 ```
 
+以下分别基于最外层和最里层连结两个矩阵。
+
+```{.python .input}
+nd.concat(x, y, dim=0), nd.concat(x, y, dim=1)
+```
+
 以下是按元素做指数运算。
 
 ```{.python .input  n=12}
@@ -120,6 +126,8 @@ x.sum()
 ```{.python .input}
 x.norm().asscalar()
 ```
+
+以上`y.exp()`、`x.sum()`和`x.norm()`也可分别写作`nd.exp(y)`、`nd.sum(x)`和`nd.norm(x)`。
 
 ## 广播机制
 
@@ -203,8 +211,8 @@ x
 ```{.python .input  n=22}
 import numpy as np
 x = np.ones((2, 3))
-y = nd.array(x)  # NumPy变换成NDArray。
-z = y.asnumpy()  # NDArray变换成NumPy。
+y = nd.array(x)  # NumPy 变换成 NDArray。
+z = y.asnumpy()  # NDArray 变换成 NumPy。
 z, y
 ```
 

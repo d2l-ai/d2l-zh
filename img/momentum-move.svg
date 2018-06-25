@@ -7,11 +7,6 @@
         <path d="M 8 0 L 0 0 M 0 -3 L 8 0 L 0 3" fill="none" stroke="currentColor" stroke-width="1"/>
       </g>
     </marker>
-    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="StickArrow_Marker_2" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 10 8" markerWidth="10" markerHeight="8" color="black">
-      <g>
-        <path d="M 8 0 L 0 0 M 0 -3 L 8 0 L 0 3" fill="none" stroke="currentColor" stroke-width="1"/>
-      </g>
-    </marker>
     <font-face font-family="Arial" font-size="9" panose-1="2 11 6 4 2 2 2 9 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="-1333.3333" x-height="518.5547" cap-height="715.8203" ascent="905.2734" descent="-211.91406" font-style="italic" font-weight="400">
       <font-face-src>
         <font-face-name name="Arial-ItalicMT"/>
@@ -24,7 +19,7 @@
     </font-face>
   </defs>
   <metadata> Produced by OmniGraffle 7.7.1 
-    <dc:date>2018-05-13 01:23:28 +0000</dc:date>
+    <dc:date>2018-05-23 21:44:02 +0000</dc:date>
   </metadata>
   <g id="Canvas_1" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
     <title>Canvas 1</title>
@@ -71,10 +66,10 @@
         <circle cx="63.38367" cy="78.88367" r="2.38367080105348" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
       <g id="Line_9">
-        <line x1="28.5" y1="139.5" x2="292.34414" y2="139.5" marker-end="url(#StickArrow_Marker_2)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
+        <line x1="28.5" y1="139.5" x2="292.34414" y2="139.5" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
       <g id="Line_8">
-        <line x1="28.5" y1="139.5" x2="28.5" y2="16.730078" marker-end="url(#StickArrow_Marker_2)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
+        <line x1="28.5" y1="139.5" x2="28.5" y2="16.730078" marker-end="url(#StickArrow_Marker)" stroke="#5b7daa" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
       <g id="Graphic_7">
         <text transform="translate(289.05273 141.8855)" fill="black">

@@ -43,11 +43,11 @@ gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 
 ## 小结
 
-Gluon提供的BatchNorm使用上更加简单。
+* Gluon提供的BatchNorm使用上更加简单。
 
 ## 练习
 
-查看BatchNorm文档来了解更多使用方法，例如如何在训练时使用全局平均的均值和方差。
+* 查看BatchNorm文档来了解更多使用方法，例如如何在训练时使用全局平均的均值和方差。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1254)
 

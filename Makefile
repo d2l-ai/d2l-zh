@@ -8,7 +8,7 @@ build/%.md: %.md
 	@mkdir -p $(@D)
 	@cp $< $@
 
-MARKDOWN = $(wildcard */index.md) chapter_crashcourse/introduction.md chapter_appendix/aws.md
+MARKDOWN = $(wildcard */index.md) 
 NOTEBOOK = $(filter-out $(MARKDOWN), $(wildcard chapter*/*.md))
 
 OBJ = $(patsubst %.md, build/%.md, $(MARKDOWN)) \
@@ -55,15 +55,16 @@ PDFIMG = $(patsubst img/%.svg, build/_build/latex/%.pdf, $(SVG)) \
 pdf: $(DEPS) $(OBJ) $(PDFIMG)
 	@echo $(PDFIMG)
 	make -C build latex
-	sed -i s/\.svg/\.pdf/ $(TEX)
-	sed -i s/\}\.gif/\_00\}.pdf/ $(TEX)
-	sed -i s/{tocdepth}{0}/{tocdepth}{1}/ $(TEX)
-	sed -i s/{\\\\releasename}{发布}/{\\\\releasename}{}/ $(TEX)
-	sed -i s/{OriginalVerbatim}\\\[commandchars=\\\\\\\\\\\\{\\\\}\\\]/{OriginalVerbatim}\\\[commandchars=\\\\\\\\\\\\{\\\\},formatcom=\\\\footnotesize\\\]/ $(TEX)
-	sed -i s/\\\\usepackage{geometry}/\\\\usepackage[paperwidth=187mm,paperheight=235mm,left=20mm,right=20mm,top=20mm,bottom=15mm,includefoot]{geometry}/ $(TEX)
+	sed -i s/\.svg/\.pdf/g $(TEX)
+	sed -i s/\}\.gif/\_00\}.pdf/g $(TEX)
+	sed -i s/{tocdepth}{0}/{tocdepth}{1}/g $(TEX)
+	sed -i s/{\\\\releasename}{发布}/{\\\\releasename}{}/g $(TEX)
+	sed -i s/{OriginalVerbatim}\\\[commandchars=\\\\\\\\\\\\{\\\\}\\\]/{OriginalVerbatim}\\\[commandchars=\\\\\\\\\\\\{\\\\},formatcom=\\\\footnotesize\\\]/g $(TEX)
+	sed -i s/\\\\usepackage{geometry}/\\\\usepackage[paperwidth=187mm,paperheight=235mm,left=20mm,right=20mm,top=20mm,bottom=15mm,includefoot]{geometry}/g $(TEX)
 	cd build/_build/latex && \
 	buf_size=10000000 xelatex gluon_tutorials_zh.tex && \
 	buf_size=10000000 xelatex gluon_tutorials_zh.tex
 
 clean:
-	rm -rf build/chapter* $(DEPS) $(PKG)
+	rm -rf build/chapter* build/_build $(DEPS) $(PKG)
+

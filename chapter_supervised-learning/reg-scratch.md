@@ -1,6 +1,6 @@
-# 正则化——从零开始
+# 权重衰减——从零开始
 
-上一节中我们观察了过拟合现象，即模型的训练误差远小于它在测试数据集上的误差。本节将介绍应对过拟合问题的常用方法：正则化。
+上一节中我们观察了过拟合现象，即模型的训练误差远小于它在测试数据集上的误差。本节将介绍应对过拟合问题的常用方法：权重衰减。
 
 
 ## $L_2$范数正则化
@@ -24,17 +24,7 @@ $$w_2 \leftarrow w_2 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}x_2^
 
 ## 高维线性回归实验
 
-下面，我们通过高维线性回归为例来引入一个过拟合问题，并使用$L_2$范数正则化来试着应对过拟合。我们先导入本节实验所需的包或模块。
-
-```{.python .input}
-%matplotlib inline
-import sys
-sys.path.append('..')
-import gluonbook as gb
-import matplotlib as mpl
-from matplotlib import pyplot as plt
-from mxnet import autograd, gluon, nd
-```
+下面，我们通过高维线性回归为例来引入一个过拟合问题，并使用$L_2$范数正则化来试着应对过拟合。
 
 ### 生成数据集
 
@@ -45,6 +35,11 @@ $$y = 0.05 + \sum_{i = 1}^p 0.01x_i +  \epsilon,$$
 其中噪音项$\epsilon$服从均值为0和标准差为0.1的正态分布。为了较容易地观察过拟合，我们考虑高维线性回归问题，例如设维度$p=200$；同时，我们特意把训练数据集的样本数设低，例如20。
 
 ```{.python .input  n=2}
+import sys
+sys.path.append('..')
+import gluonbook as gb
+from mxnet import autograd, gluon, nd
+
 n_train = 20
 n_test = 100
 
@@ -93,7 +88,8 @@ lr = 0.003
 
 net = gb.linreg
 loss = gb.squared_loss
-gb.set_fig_size(mpl)
+%config InlineBackend.figure_format = 'retina'
+gb.plt.rcParams['figure.figsize'] = (3.5, 2.5)
 
 def fit_and_plot(lambd):
     w, b = params = init_params()
@@ -110,12 +106,8 @@ def fit_and_plot(lambd):
                              train_labels).mean().asscalar())
         test_ls.append(loss(net(test_features, w, b),
                             test_labels).mean().asscalar())
-    plt.xlabel('epochs')
-    plt.ylabel('loss')
-    plt.semilogy(range(1, num_epochs+1), train_ls)
-    plt.semilogy(range(1, num_epochs+1), test_ls)
-    plt.legend(['train','test'])
-    plt.show()
+    gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'loss',
+                range(1, num_epochs+1), test_ls, ['train', 'test'])
     return 'w[:10]:', w[:10].T, 'b:', b
 ```
 
@@ -139,7 +131,7 @@ fit_and_plot(lambd=5)
 
 ## 小结
 
-* 我们可以使用正则化来应对过拟合问题。
+* 我们可以使用权重衰减来应对过拟合问题。
 * $L_2$范数正则化通常会使学到的权重参数的元素较接近0。
 * $L_2$范数正则化也叫权重衰减。
 

@@ -19,7 +19,7 @@ $$h_i = \frac{\xi_i}{1-p} \phi(x_1 w_1^{(i)} + x_2 w_2^{(i)} + x_3 w_3^{(i)} + x
 
 让我们对图3.3中的隐藏层使用丢弃法，一种可能的结果如图3.5所示。
 
-![隐藏层使用了丢弃法的多层感知机](../img/dropout.svg)
+![隐藏层使用了丢弃法的多层感知机。](../img/dropout.svg)
 
 以图3.5为例，每次训练迭代时，隐藏层中每个神经元都有可能被丢弃，即$h_i$（$i=1, \ldots, 5$）都有可能为0。因此，输出层每个单元的计算，例如$o_1 = \phi(h_1 w_1^\prime + h_2 w_2^\prime + h_3 w_3^\prime + h_4 w_4^\prime + h_5 w_5^\prime  + b^\prime)$，都无法过分依赖$h_1, \ldots, h_5$中的任一个。这样通常会造成$o_1$表达式中的权重参数$w_1^\prime, \ldots ,w_5^\prime$都接近0。因此，丢弃法可以起到正则化的作用，并可以用来应对过拟合。
 
@@ -61,7 +61,7 @@ dropout(X, 1)
 
 ## 定义模型参数
 
-实验中，我们依然使用[“Softmax回归——从零开始”](../chapter_crashcourse/softmax-regression-scratch.md)一节中介绍的Fashion-MNIST数据集。我们将定义一个包含两个隐藏层的多层感知机。其中两个隐藏层的输出个数都是256。
+实验中，我们依然使用[“Softmax回归——从零开始”](softmax-regression-scratch.md)一节中介绍的Fashion-MNIST数据集。我们将定义一个包含两个隐藏层的多层感知机。其中两个隐藏层的输出个数都是256。
 
 ```{.python .input  n=2}
 num_inputs = 784

@@ -1,142 +1,131 @@
 # 长短期记忆（LSTM）——从零开始
 
-[上一节](bptt.md)中，我们介绍了循环神经网络中的梯度计算方法。我们发现，循环神经网络的隐含层变量梯度可能会出现衰减或爆炸。虽然[梯度裁剪](rnn-scratch.md)可以应对梯度爆炸，但无法解决梯度衰减的问题。因此，给定一个时间序列，例如文本序列，循环神经网络在实际中其实较难捕捉两个时刻距离较大的文本元素（字或词）之间的依赖关系。
 
-为了更好地捕捉时序数据中间隔较大的依赖关系，我们介绍了一种常用的门控循环神经网络，叫做[门控循环单元](gru-scratch.md)。本节将介绍另一种常用的门控循环神经网络，长短期记忆（long short-term memory，简称LSTM）。它由Hochreiter和Schmidhuber在1997年被提出。事实上，它比门控循环单元的结构稍微更复杂一点。
+本节将介绍另一种常用的门控循环神经网络：长短期记忆（long short-term memory，简称LSTM）[1]。它比门控循环单元的结构稍微更复杂一点。
 
 
 ## 长短期记忆
 
-我们先介绍长短期记忆的构造。长短期记忆的隐含状态包括隐含层变量$\boldsymbol{H}$和细胞$\boldsymbol{C}$（也称记忆细胞）。它们形状相同。
+我们先介绍长短期记忆的设计。它修改了循环神经网络隐藏状态的计算方式，并引入了与隐藏状态形状相同的记忆细胞（某些文献把记忆细胞当成一种特殊的隐藏状态）。
 
 
 ### 输入门、遗忘门和输出门
 
 
-假定隐含状态长度为$h$，给定时刻$t$的一个样本数为$n$特征向量维度为$x$的批量数据$\boldsymbol{X}_t \in \mathbb{R}^{n \times x}$和上一时刻隐含状态$\boldsymbol{H}_{t-1} \in \mathbb{R}^{n \times h}$，输入门（input gate）$\boldsymbol{I}_t \in \mathbb{R}^{n \times h}$、遗忘门（forget gate）$\boldsymbol{F}_t \in \mathbb{R}^{n \times h}$和输出门（output gate）$\boldsymbol{O}_t \in \mathbb{R}^{n \times h}$的定义如下：
+假设隐藏单元个数为$h$，给定时间步$t$的小批量输入$\boldsymbol{X}_t \in \mathbb{R}^{n \times x}$（样本数为$n$，输入个数为$x$）和上一时间步隐藏状态$\boldsymbol{H}_{t-1} \in \mathbb{R}^{n \times h}$。
+时间步$t$的输入门（input gate）$\boldsymbol{I}_t \in \mathbb{R}^{n \times h}$、遗忘门（forget gate）$\boldsymbol{F}_t \in \mathbb{R}^{n \times h}$和输出门（output gate）$\boldsymbol{O}_t \in \mathbb{R}^{n \times h}$分别计算如下：
 
-$$\boldsymbol{I}_t = \sigma(\boldsymbol{X}_t \boldsymbol{W}_{xi} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hi} + \boldsymbol{b}_i)$$
+$$
+\begin{aligned}
+\boldsymbol{I}_t &= \sigma(\boldsymbol{X}_t \boldsymbol{W}_{xi} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hi} + \boldsymbol{b}_i),\\
+\boldsymbol{F}_t &= \sigma(\boldsymbol{X}_t \boldsymbol{W}_{xf} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hf} + \boldsymbol{b}_f),\\
+\boldsymbol{O}_t &= \sigma(\boldsymbol{X}_t \boldsymbol{W}_{xo} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{ho} + \boldsymbol{b}_o).
+\end{aligned}
+$$
 
-$$\boldsymbol{F}_t = \sigma(\boldsymbol{X}_t \boldsymbol{W}_{xf} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hf} + \boldsymbol{b}_f)$$
-
-$$\boldsymbol{O}_t = \sigma(\boldsymbol{X}_t \boldsymbol{W}_{xo} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{ho} + \boldsymbol{b}_o)$$
-
-其中的$\boldsymbol{W}_{xi}, \boldsymbol{W}_{xf}, \boldsymbol{W}_{xo} \in \mathbb{R}^{x \times h}$和$\boldsymbol{W}_{hi}, \boldsymbol{W}_{hf}, \boldsymbol{W}_{ho} \in \mathbb{R}^{h \times h}$是可学习的权重参数，$\boldsymbol{b}_i, \boldsymbol{b}_f, \boldsymbol{b}_o \in \mathbb{R}^{1 \times h}$是可学习的偏移参数。函数$\sigma$自变量中的三项相加使用了[广播](../chapter_crashcourse/ndarray.md)。
-
-和[门控循环单元](gru-scratch.md)中的重置门和更新门一样，这里的输入门、遗忘门和输出门中每个元素的值域都是$[0, 1]$。
-
-
-### 候选细胞
-
-和[门控循环单元](gru-scratch.md)中的候选隐含状态一样，长短期记忆中的候选细胞$\tilde{\boldsymbol{C}}_t \in \mathbb{R}^{n \times h}$也使用了值域在$[-1, 1]$的双曲正切函数tanh做激活函数：
-
-$$\tilde{\boldsymbol{C}}_t = \text{tanh}(\boldsymbol{X}_t \boldsymbol{W}_{xc} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hc} + \boldsymbol{b}_c)$$
-
-其中的$\boldsymbol{W}_{xc} \in \mathbb{R}^{x \times h}$和$\boldsymbol{W}_{hc} \in \mathbb{R}^{h \times h}$是可学习的权重参数，$\boldsymbol{b}_c \in \mathbb{R}^{1 \times h}$是可学习的偏移参数。
+其中的$\boldsymbol{W}_{xi}, \boldsymbol{W}_{xf}, \boldsymbol{W}_{xo} \in \mathbb{R}^{x \times h}$和$\boldsymbol{W}_{hi}, \boldsymbol{W}_{hf}, \boldsymbol{W}_{ho} \in \mathbb{R}^{h \times h}$是权重参数，$\boldsymbol{b}_i, \boldsymbol{b}_f, \boldsymbol{b}_o \in \mathbb{R}^{1 \times h}$是偏移参数。激活函数$\sigma$是sigmoid函数。
+和门控循环单元中的重置门和更新门一样，这里的输入门、遗忘门和输出门中每个元素的值域都是$[0, 1]$。
 
 
-### 细胞
+### 候选记忆细胞
 
-我们可以通过元素值域在$[0, 1]$的输入门、遗忘门和输出门来控制隐含状态中信息的流动：这通常可以应用按元素乘法符$\odot$。当前时刻细胞$\boldsymbol{C}_t \in \mathbb{R}^{n \times h}$的计算组合了上一时刻细胞和当前时刻候选细胞的信息，并通过遗忘门和输入门来控制信息的流动：
+和门控循环单元中的候选隐藏状态一样，时间步$t$的的候选记忆细胞$\tilde{\boldsymbol{C}}_t \in \mathbb{R}^{n \times h}$也使用了值域在$[-1, 1]$的tanh函数做激活函数。它的计算和不带门控的循环神经网络的隐藏状态的计算没什么区别：
 
-$$\boldsymbol{C}_t = \boldsymbol{F}_t \odot \boldsymbol{C}_{t-1} + \boldsymbol{I}_t \odot \tilde{\boldsymbol{C}}_t$$
+$$\tilde{\boldsymbol{C}}_t = \text{tanh}(\boldsymbol{X}_t \boldsymbol{W}_{xc} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hc} + \boldsymbol{b}_c).$$
 
-需要注意的是，如果遗忘门一直近似1且输入门一直近似0，过去的细胞将一直通过时间保存并传递至当前时刻。这个设计可以应对循环神经网络中的梯度衰减问题，并更好地捕捉时序数据中间隔较大的依赖关系。
-
-
-### 隐含状态
-
-有了细胞以后，接下来我们还可以通过输出门来控制从细胞到隐含层变量$\boldsymbol{H}_t \in \mathbb{R}^{n \times h}$的信息的流动：
-
-$$\boldsymbol{H}_t = \boldsymbol{O}_t \odot \text{tanh}(\boldsymbol{C}_t)$$
-
-需要注意的是，当输出门近似1，细胞信息将传递到隐含层变量；当输出门近似0，细胞信息只自己保留。
+其中的$\boldsymbol{W}_{xc} \in \mathbb{R}^{x \times h}$和$\boldsymbol{W}_{hc} \in \mathbb{R}^{h \times h}$是权重参数，$\boldsymbol{b}_c \in \mathbb{R}^{1 \times h}$是偏移参数。
 
 
+### 记忆细胞
 
-输出层的设计可参照[循环神经网络](rnn-scratch.md)中的描述。
+我们可以通过元素值域在$[0, 1]$的输入门、遗忘门和输出门来控制隐藏状态中信息的流动：这通常可以应用按元素乘法符$\odot$。当前时间步记忆细胞$\boldsymbol{C}_t \in \mathbb{R}^{n \times h}$的计算组合了上一时间步记忆细胞和当前时间步候选记忆细胞的信息，并通过遗忘门和输入门来控制信息的流动：
+
+$$\boldsymbol{C}_t = \boldsymbol{F}_t \odot \boldsymbol{C}_{t-1} + \boldsymbol{I}_t \odot \tilde{\boldsymbol{C}}_t.$$
+
+需要注意的是，如果遗忘门一直近似1且输入门一直近似0，过去的记忆细胞将一直通过时间保存并传递至当前时间步。
+这个设计可以应对循环神经网络中的梯度衰减问题，并更好地捕捉时序数据中间隔较大的依赖关系。
+
+
+### 隐藏状态
+
+有了记忆细胞以后，接下来我们还可以通过输出门来控制从记忆细胞到隐藏状态$\boldsymbol{H}_t \in \mathbb{R}^{n \times h}$的信息的流动：
+
+$$\boldsymbol{H}_t = \boldsymbol{O}_t \odot \text{tanh}(\boldsymbol{C}_t).$$
+
+这里的tanh函数确保隐藏状态元素值在-1到1之间。需要注意的是，当输出门近似1，记忆细胞信息将传递到隐藏状态供输出层使用；当输出门近似0，记忆细胞信息只自己保留。
+
+
+### 输出层
+
+在时间步$t$，长短期记忆的输出层计算和之前描述的循环神经网络输出层计算一样：我们只需将该时刻的隐藏状态$\boldsymbol{H}_t$传递进输出层，从而计算时间步$t$的输出。
 
 
 ## 实验
 
+和前几节中的实验一样，我们依然使用周杰伦歌词数据集来训练模型作词。
 
-为了实现并展示门控循环单元，我们依然使用周杰伦歌词数据集来训练模型作词。这里除长短期记忆以外的实现已在[循环神经网络](rnn-scratch.md)中介绍。
+### 处理数据
 
-
-### 数据处理
-
-我们先读取并对数据集做简单处理。
+我们先读取并简单处理数据集。
 
 ```{.python .input  n=1}
+import sys
+sys.path.append('..')
+import gluonbook as gb
+from mxnet import nd
 import zipfile
+
 with zipfile.ZipFile('../data/jaychou_lyrics.txt.zip', 'r') as zin:
     zin.extractall('../data/')
-
 with open('../data/jaychou_lyrics.txt') as f:
     corpus_chars = f.read()
 
 corpus_chars = corpus_chars.replace('\n', ' ').replace('\r', ' ')
 corpus_chars = corpus_chars[0:20000]
-
 idx_to_char = list(set(corpus_chars))
 char_to_idx = dict([(char, i) for i, char in enumerate(idx_to_char)])
 corpus_indices = [char_to_idx[char] for char in corpus_chars]
-
 vocab_size = len(char_to_idx)
-print('vocab size:', vocab_size)
-```
-
-我们使用onehot来将字符索引表示成向量。
-
-```{.python .input  n=2}
-def get_inputs(data):
-    return [nd.one_hot(X, vocab_size) for X in data.T]
 ```
 
 ### 初始化模型参数
 
-以下部分对模型参数进行初始化。参数`hidden_dim`定义了隐含状态的长度。
+以下部分对模型参数进行初始化。超参数`num_hiddens`定义了隐藏单元的个数。
 
 ```{.python .input  n=3}
-import mxnet as mx
-
-# 尝试使用GPU
-import sys
-sys.path.append('..')
-import gluonbook as gb
-from mxnet import nd
 ctx = gb.try_gpu()
-print('Will use', ctx)
-
 input_dim = vocab_size
-# 隐含状态长度
-hidden_dim = 256
+num_hiddens = 256
 output_dim = vocab_size
-std = .01
 
 def get_params():
-    # 输入门参数
-    W_xi = nd.random_normal(scale=std, shape=(input_dim, hidden_dim), ctx=ctx)
-    W_hi = nd.random_normal(scale=std, shape=(hidden_dim, hidden_dim), ctx=ctx)
-    b_i = nd.zeros(hidden_dim, ctx=ctx)
-    
-    # 遗忘门参数
-    W_xf = nd.random_normal(scale=std, shape=(input_dim, hidden_dim), ctx=ctx)
-    W_hf = nd.random_normal(scale=std, shape=(hidden_dim, hidden_dim), ctx=ctx)
-    b_f = nd.zeros(hidden_dim, ctx=ctx)
-    
-    # 输出门参数
-    W_xo = nd.random_normal(scale=std, shape=(input_dim, hidden_dim), ctx=ctx)
-    W_ho = nd.random_normal(scale=std, shape=(hidden_dim, hidden_dim), ctx=ctx)
-    b_o = nd.zeros(hidden_dim, ctx=ctx)
-
-    # 候选细胞参数
-    W_xc = nd.random_normal(scale=std, shape=(input_dim, hidden_dim), ctx=ctx)
-    W_hc = nd.random_normal(scale=std, shape=(hidden_dim, hidden_dim), ctx=ctx)
-    b_c = nd.zeros(hidden_dim, ctx=ctx)
-
-    # 输出层
-    W_hy = nd.random_normal(scale=std, shape=(hidden_dim, output_dim), ctx=ctx)
+    # 输入门参数.
+    W_xi = nd.random_normal(scale=0.01, shape=(input_dim, num_hiddens),
+                            ctx=ctx)
+    W_hi = nd.random_normal(scale=0.01, shape=(num_hiddens, num_hiddens),
+                            ctx=ctx)
+    b_i = nd.zeros(num_hiddens, ctx=ctx)
+    # 遗忘门参数。
+    W_xf = nd.random_normal(scale=0.01, shape=(input_dim, num_hiddens),
+                            ctx=ctx)
+    W_hf = nd.random_normal(scale=0.01, shape=(num_hiddens, num_hiddens),
+                            ctx=ctx)
+    b_f = nd.zeros(num_hiddens, ctx=ctx)
+    # 输出门参数。
+    W_xo = nd.random_normal(scale=0.01, shape=(input_dim, num_hiddens),
+                            ctx=ctx)
+    W_ho = nd.random_normal(scale=0.01, shape=(num_hiddens, num_hiddens),
+                            ctx=ctx)
+    b_o = nd.zeros(num_hiddens, ctx=ctx)
+    # 候选细胞参数。
+    W_xc = nd.random_normal(scale=0.01, shape=(input_dim, num_hiddens),
+                            ctx=ctx)
+    W_hc = nd.random_normal(scale=0.01, shape=(num_hiddens, num_hiddens),
+                            ctx=ctx)
+    b_c = nd.zeros(num_hiddens, ctx=ctx)
+    # 输出层参数。
+    W_hy = nd.random_normal(scale=0.01, shape=(num_hiddens, output_dim),
+                            ctx=ctx)
     b_y = nd.zeros(output_dim, ctx=ctx)
 
     params = [W_xi, W_hi, b_i, W_xf, W_hf, b_f, W_xo, W_ho, b_o, W_xc, W_hc,
@@ -148,16 +137,12 @@ def get_params():
 
 ## 定义模型
 
-我们将前面的模型公式翻译成代码。
+下面根据长短期记忆的计算表达式定义模型。
 
 ```{.python .input  n=4}
 def lstm_rnn(inputs, state_h, state_c, *params):
-    # inputs: num_steps 个尺寸为 batch_size * vocab_size 矩阵
-    # H: 尺寸为 batch_size * hidden_dim 矩阵
-    # outputs: num_steps 个尺寸为 batch_size * vocab_size 矩阵
     [W_xi, W_hi, b_i, W_xf, W_hf, b_f, W_xo, W_ho, b_o, W_xc, W_hc, b_c,
      W_hy, b_y] = params
-
     H = state_h
     C = state_c
     outputs = []
@@ -167,46 +152,52 @@ def lstm_rnn(inputs, state_h, state_c, *params):
         O = nd.sigmoid(nd.dot(X, W_xo) + nd.dot(H, W_ho) + b_o)
         C_tilda = nd.tanh(nd.dot(X, W_xc) + nd.dot(H, W_hc) + b_c)
         C = F * C + I * C_tilda
-        H = O * nd.tanh(C)
+        H = O * C.tanh()
         Y = nd.dot(H, W_hy) + b_y
         outputs.append(Y)
     return (outputs, H, C)
 ```
 
-### 训练模型
+### 训练模型并创作歌词
 
-下面我们开始训练模型。我们假定谱写歌词的前缀分别为“分开”、“不分开”和“战争中部队”。这里采用的是相邻批量采样实验门控循环单元谱写歌词。
+设置好超参数后，我们将训练模型并跟据前缀“分开”和“不分开”分别创作长度为100个字符的一段歌词。我们每过30个迭代周期便根据当前训练的模型创作一段歌词。训练模型时采用了相邻采样。
 
 ```{.python .input  n=5}
-seq1 = '分开'
-seq2 = '不分开'
-seq3 = '战争中部队'
-seqs = [seq1, seq2, seq3]
+get_inputs = gb.to_onehot
+num_epochs = 150
+num_steps = 35
+batch_size = 32
+lr = 0.25
+clipping_theta = 5
+prefixes = ['分开', '不分开']
+pred_period = 30
+pred_len = 100
 
-gb.train_and_predict_rnn(rnn=lstm_rnn, is_random_iter=False, epochs=200,
-                         num_steps=35, hidden_dim=hidden_dim, 
-                         learning_rate=0.2, clipping_norm=5,
-                         batch_size=32, pred_period=20, pred_len=100,
-                         seqs=seqs, get_params=get_params,
-                         get_inputs=get_inputs, ctx=ctx,
-                         corpus_indices=corpus_indices,
-                         idx_to_char=idx_to_char, char_to_idx=char_to_idx,
-                         is_lstm=True)
+gb.train_and_predict_rnn(lstm_rnn, False, num_epochs, num_steps, num_hiddens,
+                         lr, clipping_theta, batch_size, vocab_size,
+                         pred_period, pred_len, prefixes, get_params,
+                         get_inputs, ctx, corpus_indices, idx_to_char,
+                         char_to_idx, is_lstm=True)
 ```
-
-可以看到一开始学到简单的字符，然后简单的词，接着是复杂点的词，然后看上去似乎像个句子了。
 
 ## 小结
 
-* 长短期记忆的提出是为了更好地捕捉时序数据中间隔较大的依赖关系。
-* 长短期记忆的结构比门控循环单元的结构较复杂。
+* 长短期记忆的隐藏层输出包括隐藏状态和记忆细胞。只有隐藏状态会传递进输出层。
+* 长短期记忆的输入门、遗忘门和输出门可以控制信息的流动。
+* 长短期记忆的可以应对循环神经网络中的梯度衰减问题，并更好地捕捉时序数据中间隔较大的依赖关系。
 
 
 ## 练习
 
-* 调调参数（例如数据集大小、序列长度、隐含状态长度和学习率），看看对运行时间、perplexity和预测的结果造成的影响。
-* 在相同条件下，比较长短期记忆和门控循环单元以及循环神经网络的运行效率。
+* 调调超参数，观察并分析对运行时间、困惑度以及创作歌词的结果造成的影响。
+* 在相同条件下，比较长短期记忆、门控循环单元和不带门控的循环神经网络的运行时间。
+* 既然候选记忆细胞已通过使用tanh函数确保值域在-1到1之间，为什么隐藏状态还需再次使用tanh函数来确保输出值域在-1到1之间？
+
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4042)
 
 ![](../img/qr_lstm-scratch.svg)
+
+## 参考文献
+
+[1] Hochreiter, S., & Schmidhuber, J. (1997). Long short-term memory. Neural computation, 9(8), 1735-1780.

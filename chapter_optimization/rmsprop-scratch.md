@@ -44,7 +44,6 @@ def rmsprop(params, sqrs, lr, gamma, batch_size):
 首先，导入本节中实验所需的包或模块。
 
 ```{.python .input}
-%matplotlib inline
 import sys
 sys.path.append('..')
 import gluonbook as gb
@@ -131,4 +130,4 @@ optimize(batch_size=10, lr=0.03, gamma=0.999, num_epochs=3, log_interval=10)
 
 ## 参考文献
 
-[1] Tieleman, Tijmen, and Geoffrey Hinton. “Lecture 6.5-rmsprop: Divide the gradient by a running average of its recent magnitude.” COURSERA: Neural networks for machine learning 4.2 (2012): 26-31.
+[1] Tieleman, T., & Hinton, G. (2012). Lecture 6.5-rmsprop: Divide the gradient by a running average of its recent magnitude. COURSERA: Neural networks for machine learning, 4(2), 26-31.

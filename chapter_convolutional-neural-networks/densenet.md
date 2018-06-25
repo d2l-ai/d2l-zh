@@ -125,7 +125,7 @@ gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 
 ## 小结
 
-不同于ResNet中将输入加在输出上完成跨层连接，DenseNet在通道维上合并输入和输出来使得底部神经层能跟其上面所有层连接起来。
+* 不同于ResNet中将输入加在输出上完成跨层连接，DenseNet在通道维上合并输入和输出来使得底部神经层能跟其上面所有层连接起来。
 
 ## 练习
 
@@ -139,4 +139,4 @@ gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 
 ## 参考文献
 
-[1] Huang, Gao, et al. "Densely connected convolutional networks." CVPR. 2017.
+[1] Huang, G., Liu, Z., Weinberger, K. Q., & van der Maaten, L. (2017). Densely connected convolutional networks. In Proceedings of the IEEE conference on computer vision and pattern recognition (Vol. 1, No. 2).

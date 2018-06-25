@@ -9,7 +9,7 @@
 
 多层感知机在单层神经网络的基础上引入了一到多个隐藏层（hidden layer）。隐藏层位于输入层和输出层之间。图3.3展示了一个多层感知机的神经网络图。
 
-![带有隐藏层的多层感知机。它含有一个隐藏层，该层中有5个隐藏单元](../img/mlp.svg)
+![带有隐藏层的多层感知机。它含有一个隐藏层，该层中有5个隐藏单元。](../img/mlp.svg)
 
 在图3.3的多层感知机中，输入和输出个数分别为4和3，中间的隐藏层中包含了5个隐藏单元（hidden unit）。由于输入层不涉及计算，图3.3中的多层感知机的层数为2。由图3.3可见，隐藏层中的神经元和输入层中各个输入完全连接，输出层中的神经元和隐藏层中的各个神经元也完全连接。因此，多层感知机中的隐藏层和输出层都是全连接层。
 
@@ -40,28 +40,28 @@ ReLU（rectified linear unit）函数提供了一个很简单的非线性变换�
 
 $$\text{relu}(x) = \max(x, 0).$$
 
-ReLU函数只保留正数元素，并将负数元素清零。为了直观地观察这一非线性变换，让我们先导入一些包或模块。
+ReLU函数只保留正数元素，并将负数元素清零。为了直观地观察这一非线性变换，让我们先定义一个绘图函数`xyplot`。
 
-```{.python .input  n=1}
-%matplotlib inline
+```{.python .input}
 import sys
 sys.path.append('..')
 import gluonbook as gb
-import matplotlib as mpl
-from matplotlib import pyplot as plt
 from mxnet import nd
+
+def xyplot(x_vals, y_vals, x_label, y_label):
+    %config InlineBackend.figure_format = 'retina'
+    gb.plt.rcParams['figure.figsize'] = (3.5, 2.5)
+    gb.plt.plot(x_vals,y_vals)
+    gb.plt.xlabel(x_label)
+    gb.plt.ylabel(y_label)
+    gb.plt.show()
 ```
 
-下面，让我们绘制ReLU函数。当元素值非负时，ReLU函数实际上在做线性变换。
+让我们绘制ReLU函数。当元素值非负时，ReLU函数实际上在做线性变换。
 
 ```{.python .input  n=2}
-gb.set_fig_size(mpl)
-
 x = nd.arange(-5.0, 5.0, 0.1)
-plt.plot(x.asnumpy(), x.relu().asnumpy())
-plt.xlabel('x')
-plt.ylabel('relu(x)')
-plt.show()
+xyplot(x.asnumpy(), x.relu().asnumpy(), 'x', 'relu(x)')
 ```
 
 ### Sigmoid函数
@@ -75,10 +75,7 @@ $$\text{sigmoid}(x) = \frac{1}{1 + \exp(-x)}.$$
 下面绘制了sigmoid函数。当元素值接近0时，sigmoid函数接近线性变换。
 
 ```{.python .input  n=3}
-plt.plot(x.asnumpy(), x.sigmoid().asnumpy())
-plt.xlabel('x')
-plt.ylabel('sigmoid(x)')
-plt.show()
+xyplot(x.asnumpy(), x.sigmoid().asnumpy(), 'x', 'sigmoid(x)')
 ```
 
 ### Tanh函数
@@ -90,10 +87,7 @@ $$\text{tanh}(x) = \frac{1 - \exp(-2x)}{1 + \exp(-2x)}.$$
 下面绘制了tanh函数。当元素值接近0时，tanh函数接近线性变换。值得一提的是，它的形状和sigmoid函数很像，且当元素在实数域上均匀分布时，tanh函数值的均值为0。
 
 ```{.python .input  n=4}
-plt.plot(x.asnumpy(), x.tanh().asnumpy())
-plt.xlabel('x')
-plt.ylabel('tanh(x)')
-plt.show()
+xyplot(x.asnumpy(), x.tanh().asnumpy(), 'x', 'tanh(x)')
 ```
 
 下面，我们使用三种激活函数来变换输入。按元素操作后，输入和输出形状相同。
@@ -151,7 +145,7 @@ $$
 
 还有一种比较常用的随机初始化方法叫做Xavier随机初始化 [1]。假设某全连接层的输入个数为$a$，输出个数为$b$，Xavier随机初始化将该层权重参数的每个元素随机采样于均匀分布
 
-$$U(-\sqrt{\frac{6}{a+b}}, \sqrt{\frac{6}{a+b}}).$$
+$$U\left(-\sqrt{\frac{6}{a+b}}, \sqrt{\frac{6}{a+b}}\right).$$
 
 它的设计主要考虑到，模型参数初始化后，每层输出的方差不该被该层输入个数所影响，且每层梯度的方差不该被该层输出个数所影响。这两点与我们之后将要介绍的正向传播和反向传播有关。
 
@@ -173,4 +167,4 @@ $$U(-\sqrt{\frac{6}{a+b}}, \sqrt{\frac{6}{a+b}}).$$
 
 ## 参考文献
 
-[1] Glorot, Xavier, and Yoshua Bengio. “Understanding the difficulty of training deep feedforward neural networks.” Proceedings of the thirteenth international conference on artificial intelligence and statistics. 2010.
+[1] Glorot, X., & Bengio, Y. (2010, March). Understanding the difficulty of training deep feedforward neural networks. In Proceedings of the thirteenth international conference on artificial intelligence and statistics (pp. 249-256).

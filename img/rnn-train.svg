@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="7 1.5 222.375 191" width="222.375" height="191">
+  <defs>
+    <font-face font-family="PingFang SC" font-size="9" panose-1="2 11 4 0 0 0 0 0 0 0" units-per-em="1000" underline-position="-150" underline-thickness="58" slope="0" x-height="600" cap-height="860" ascent="1060.0021" descent="-340.0007" font-weight="400">
+      <font-face-src>
+        <font-face-name name="PingFangSC-Regular"/>
+      </font-face-src>
+    </font-face>
+    <font-face font-family="Arial" font-size="9" panose-1="2 11 7 4 2 2 2 9 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="104.98047" slope="-1333.3333" x-height="518.5547" cap-height="715.332" ascent="905.2734" descent="-211.91406" font-style="italic" font-weight="700">
+      <font-face-src>
+        <font-face-name name="Arial-BoldItalicMT"/>
+      </font-face-src>
+    </font-face>
+    <font-face font-family="Arial" font-size="7" panose-1="2 11 6 4 2 2 2 2 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="0" x-height="518.5547" cap-height="716.3086" ascent="905.2734" descent="-211.91406" font-weight="400">
+      <font-face-src>
+        <font-face-name name="ArialMT"/>
+      </font-face-src>
+    </font-face>
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="StickArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 10 8" markerWidth="10" markerHeight="8" color="black">
+      <g>
+        <path d="M 8 0 L 0 0 M 0 -3 L 8 0 L 0 3" fill="none" stroke="currentColor" stroke-width="1"/>
+      </g>
+    </marker>
+  </defs>
+  <metadata> Produced by OmniGraffle 7.7.1 
+    <dc:date>2018-06-01 21:54:28 +0000</dc:date>
+  </metadata>
+  <g id="Canvas_1" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
+    <title>Canvas 1</title>
+    <g id="Canvas_1: Layer 2">
+      <title>Layer 2</title>
+      <g id="Graphic_30">
+        <text transform="translate(78 7)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x=".1955" y="10">1</tspan>
+        </text>
+      </g>
+      <g id="Graphic_29">
+        <text transform="translate(143.21875 7)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x=".3" y="10">2</tspan>
+        </text>
+      </g>
+      <g id="Graphic_28">
+        <text transform="translate(210.9375 7)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x=".3" y="10">3</tspan>
+        </text>
+      </g>
+      <g id="Graphic_27">
+        <text transform="translate(16.5 7)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="0" y="10">时刻</tspan>
+        </text>
+      </g>
+      <g id="Graphic_26">
+        <text transform="translate(16.5 41.5)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="0" y="10">标签</tspan>
+        </text>
+      </g>
+      <g id="Graphic_25">
+        <text transform="translate(16.5 174)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="0" y="10">输入</tspan>
+        </text>
+      </g>
+      <g id="Graphic_24">
+        <text transform="translate(71.4375 174)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x=".167" y="10">“你”</tspan>
+        </text>
+      </g>
+      <g id="Graphic_23">
+        <text transform="translate(138.40625 174)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x=".167" y="10">“好”</tspan>
+        </text>
+      </g>
+      <g id="Graphic_22">
+        <text transform="translate(205.375 174)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x=".167" y="10">“世”</tspan>
+        </text>
+      </g>
+      <g id="Graphic_21">
+        <text transform="translate(71.4375 41.5)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x=".167" y="10">“好”</tspan>
+        </text>
+      </g>
+      <g id="Graphic_20">
+        <text transform="translate(138.40625 41.5)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x=".167" y="10">“世”</tspan>
+        </text>
+      </g>
+      <g id="Graphic_19">
+        <text transform="translate(205.375 41.5)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x=".167" y="10">“界”</tspan>
+        </text>
+      </g>
+      <g id="Graphic_18">
+        <rect x="67.9375" y="121" width="26" height="20" fill="#eff6fd"/>
+        <rect x="67.9375" y="121" width="26" height="20" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(72.9375 125.3855)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="700" fill="black" x="2.803711" y="8">H</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">1</tspan>
+        </text>
+      </g>
+      <g id="Graphic_17">
+        <rect x="134.90625" y="121" width="26" height="20" fill="#eff6fd"/>
+        <rect x="134.90625" y="121" width="26" height="20" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(139.90625 125.3855)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="700" fill="black" x="2.803711" y="8">H</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">2</tspan>
+        </text>
+      </g>
+      <g id="Graphic_16">
+        <rect x="201.875" y="121" width="26" height="20" fill="#eff6fd"/>
+        <rect x="201.875" y="121" width="26" height="20" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(206.875 125.3855)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="700" fill="black" x="2.803711" y="8">H</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">3</tspan>
+        </text>
+      </g>
+      <g id="Graphic_15">
+        <rect x="67.9375" y="74" width="26" height="20" fill="#c9e2ff"/>
+        <rect x="67.9375" y="74" width="26" height="20" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(72.9375 78.3855)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="700" fill="black" x="2.5532227" y="8">O</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">1</tspan>
+        </text>
+      </g>
+      <g id="Graphic_14">
+        <rect x="134.90625" y="74" width="26" height="20" fill="#c9e2ff"/>
+        <rect x="134.90625" y="74" width="26" height="20" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(139.90625 78.3855)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="700" fill="black" x="2.5532227" y="8">O</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">2</tspan>
+        </text>
+      </g>
+      <g id="Graphic_13">
+        <rect x="201.875" y="74" width="26" height="20" fill="#c9e2ff"/>
+        <rect x="201.875" y="74" width="26" height="20" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(206.875 78.3855)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="700" fill="black" x="2.5532227" y="8">O</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">3</tspan>
+        </text>
+      </g>
+      <g id="Line_12">
+        <line x1="93.9375" y1="131" x2="125.00625" y2="131" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_11">
+        <line x1="160.90625" y1="131" x2="191.975" y2="131" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_10">
+        <line x1="80.9375" y1="121" x2="80.9375" y2="103.9" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_9">
+        <line x1="147.90625" y1="121" x2="147.90625" y2="103.9" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_8">
+        <line x1="214.875" y1="121" x2="214.875" y2="103.9" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_7">
+        <line x1="80.9375" y1="168.5" x2="80.9375" y2="150.9" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_6">
+        <line x1="147.90625" y1="168.5" x2="147.90625" y2="150.9" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_5">
+        <line x1="214.875" y1="168.5" x2="214.875" y2="150.9" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_4">
+        <text transform="translate(12 124.5)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="0" y="10">隐藏层</tspan>
+        </text>
+      </g>
+      <g id="Graphic_3">
+        <text transform="translate(12 77.5)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="0" y="10">输出层</tspan>
+        </text>
+      </g>
+    </g>
+  </g>
+</svg>

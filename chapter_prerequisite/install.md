@@ -1,6 +1,6 @@
 # 安装和运行
 
-为了便于动手学深度学习，让我们获取本书代码、安装并运行所需要的工具，例如MXNet。在这一节中，我们将描述安装和运行所需要的命令。执行命令需要进入命令行模式：Linux/macOS用户可以打开Terminal应用，Windows用户可以在文件资源管理器的地址栏输入`cmd`。
+为了便于动手学深度学习，让我们获取本书代码、安装并运行所需要的工具，例如Python、MXNet和Jupyter notebook。在这一节中，我们将描述安装和运行所需要的命令。执行命令需要进入命令行模式：Linux/macOS用户可以打开Terminal应用，Windows用户可以在文件资源管理器的地址栏输入`cmd`。
 
 
 ## 获取代码并安装运行环境
@@ -14,18 +14,17 @@
 
 第二步，下载包含本书全部代码的包，解压后进入文件夹。Linux/macOS用户可以使用如下命令。
 
-```bash```
-mkdir gluon-tutorials && cd gluon-tutorials
+```
+mkdir gluon_tutorials_zh && cd gluon_tutorials_zh
 curl https://zh.gluon.ai/gluon_tutorials_zh.tar.gz -o tutorials.tar.gz
 tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
-
 ```
 
 Windows用户可以用浏览器下载压缩文件（下载地址：https://zh.gluon.ai/gluon_tutorials_zh.zip ）并解压。在解压目录文件资源管理器的地址栏输入`cmd`进入命令行模式。
 
 在本步骤中，我们也可以配置下载源来使用国内镜像加速下载:
 
-```bash```
+```
 # 优先使用清华 conda 镜像。
 conda config --prepend channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
 
@@ -33,25 +32,25 @@ conda config --prepend channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pk
 conda config --prepend channels http://mirrors.ustc.edu.cn/anaconda/pkgs/free/
 ```
 
-
 第三步，安装运行所需的依赖包并激活该运行环境。Linux/macOS用户可以使用如下命令。
 
-```bash```
+```
 conda env create -f environment.yml
 source activate gluon
-
 ```
+
+由于教程会使用`matplotlib.plot`函数作图，macOS用户需要创建或访问`~/.matplotlib/matplotlibrc`文件并添加一行代码：`backend: TkAgg`。
 
 Windows用户可以使用如下命令。
 
-```bash```
+```
 conda env create -f environment.yml
 activate gluon
 ```
 
 第四步，打开Juputer notebook。运行下面命令。
 
-```bash```
+```
 jupyter notebook
 ```
 
@@ -59,13 +58,13 @@ jupyter notebook
 
 第五步（可选项），如果你是国内用户，建议使用国内Gluon镜像加速数据集和预训练模型的下载。Linux/macOS用户可以运行下面命令。
 
-```bash```
+```
 MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter notebook
 ```
 
 Windows用户可以运行下面命令。
 
-```bash```
+```
 set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter notebook
 ```
 
@@ -75,14 +74,14 @@ set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyte
 
 如果你是Linux用户，可以运行下面命令。之后登出一次。
 
-```bash```
+```
 wget -qO- https://get.docker.com/ | sh
 sudo usermod -aG docker
 ```
 
 第二步，运行下面命令。
 
-```bash```
+```
 docker run -p 8888:8888 muli/gluon-tutorials-zh
 ```
 
@@ -105,7 +104,7 @@ docker run -p 8888:8888 muli/gluon-tutorials-zh
 
 第二步，使用下面命令更新运行环境。
 
-```bash```
+```
 conda env update -f environment.yml
 ```
 
@@ -137,11 +136,7 @@ git reset --hard
 conda env update -f environment.yml
 ```
 
-## 高级选项
-
-以下针对不同的使用场景列举了一些安装和使用上的可选项。如果它们和你无关，请放心忽略。
-
-### 使用GPU
+## 使用GPU
 
 通过上述方式安装的MXNet只支持CPU。本书中有部分章节需要或推荐使用GPU来运行。假设电脑有Nvidia显卡并且安装了CUDA7.5、8.0或9.0，那么先卸载CPU版本：
 
@@ -169,61 +164,6 @@ pip install --pre mxnet-cu80 -i https://pypi.douban.com/simple # CUDA 8.0
 pip install --pre mxnet-cu80 # CUDA 8.0
 ```
 
-### 用Jupyter Notebook读写GitHub源文件
-
-如果你希望为本书内容做贡献，需要修改在GitHub上Markdown格式的源文件（.md文件非.ipynb文件）。通过notedown插件，我们就可以使用Jupyter Notebook修改并运行Markdown格式的源代码。Linux/macOS用户可以执行以下命令获得GitHub源文件并激活运行环境。
-
-```
-git clone https://github.com/mli/gluon-tutorials-zh
-cd gluon-tutorials-zh
-conda env create -f environment.yml
-source activate gluon # Windows 用户运行 activate gluon
-```
-
-下面安装notedown插件，运行Jupyter Notebook并加载插件：
-
-```
-pip install https://github.com/mli/notedown/tarball/master
-jupyter notebook --NotebookApp.contents_manager_class='notedown.NotedownContentsManager'
-```
-
-如果你希望每次运行Jupyter Notebook时默认开启notedown插件，可以参考下面步骤。
-
-首先，执行下面命令生成Jupyter Notebook配置文件（如果已经生成可以跳过）。
-
-```
-jupyter notebook --generate-config
-```
-
-然后，将下面这一行加入到Jupyter Notebook配置文件的末尾（Linux/macOS上一般在`~/.jupyter/jupyter_notebook_config.py`)
-
-```
-c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'
-```
-
-之后，我们只需要运行`jupyter notebook`即可默认开启notedown插件。
-
-
-### 在远端服务器上运行Jupyter Notebook
-
-有时候，我们希望在远端服务器上运行Jupyter Notebook，并通过本地电脑上的浏览器访问。如果本地机器上安装了Linux或者macOS（Windows通过第三方软件例如putty应该也能支持），那么可以使用端口映射：
-
-```
-ssh myserver -L 8888:localhost:8888
-```
-
-以上`myserver`是远端服务器地址。然后我们可以使用 http://localhost:8888 打开远端服务器`myserver`上运行Jupyter Notebook。
-
-### 运行计时
-
-我们可以通过ExecutionTime插件来对Jupyter Notebook的每个代码单元的运行计时。以下是安装该插件的命令。
-
-```
-pip install jupyter_contrib_nbextensions
-jupyter contrib nbextension install --user
-jupyter nbextension enable execute_time/ExecuteTime
-```
-
 ## 小结
 
 * 为了能够动手学深度学习，我们需要获取本书代码并安装运行环境。
@@ -232,7 +172,7 @@ jupyter nbextension enable execute_time/ExecuteTime
 
 ## 练习
 
-* 获取本书代码并安装运行环境。如果你在安装时碰到任何问题，请查阅讨论区中的疑难问题汇总，或者向社区小伙伴们提问。
+* 获取本书代码并安装运行环境。如果你在安装时遇到任何问题，请扫一扫本节二维码。在讨论区，你可以查阅疑难问题汇总，或者向社区小伙伴们提问。
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/249)

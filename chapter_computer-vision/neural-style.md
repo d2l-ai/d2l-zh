@@ -4,11 +4,11 @@
 
 一个自然的想法是，我们能不能通过神经网络来自动化这个过程。具体来说，我们希望将一张指定的图片的风格，例如梵高的某张油画，应用到另外一张内容图片上。
 
-![Neural Style](../img/neural-style.svg)
+![Neural Style。](../img/neural-style.svg)
 
 [Gatys等人](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Gatys_Image_Style_Transfer_CVPR_2016_paper.pdf)开创性的通过匹配卷积神经网络的中间层输出来训练出合成图片。它的流程如下所示：
 
-![Neural Style Training](../img/neural-style2.svg)
+![Neural Style Training。](../img/neural-style2.svg)
 
 1. 我们首先挑选一个卷积神经网络来提取特征。我们选择它的特定层来匹配样式，特定层来匹配内容。示意图中我们选择层1,2,4作为样式层，层3作为内容层。
 1. 输入样式图片并保存样式层输出，记第 $i$ 层输出为 $s_i$

@@ -46,7 +46,6 @@ def adadelta(params, sqrs, deltas, rho, batch_size):
 首先，导入本节中实验所需的包或模块。
 
 ```{.python .input}
-%matplotlib inline
 import sys
 sys.path.append('..')
 import gluonbook as gb
@@ -128,4 +127,4 @@ optimize(batch_size=10, rho=0.9999, num_epochs=3, log_interval=10)
 
 ## 参考文献
 
-[1] Zeiler, Matthew D. “ADADELTA: an adaptive learning rate method.” arXiv preprint arXiv:1212.5701 (2012).
+[1] Zeiler, M. D. (2012). ADADELTA: an adaptive learning rate method. arXiv preprint arXiv:1212.5701.

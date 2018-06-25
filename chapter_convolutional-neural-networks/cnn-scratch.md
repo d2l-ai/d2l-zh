@@ -186,7 +186,11 @@ for data, _ in train_data:
 跟前面没有什么不同的，除了这里我们使用`as_in_context`将`data`和`label`都放置在需要的设备上。（下面这段代码也将保存在`utils.py`里方便之后使用）。
 
 ```{.python .input  n=60}
-from mxnet import autograd as autograd
+import sys
+sys.path.append('..')
+import gluonbook as gb
+
+from mxnet import autograd
 from utils import SGD, accuracy, evaluate_accuracy
 from mxnet import gluon
 
@@ -203,7 +207,7 @@ for epoch in range(5):
             output = net(data)
             loss = softmax_cross_entropy(output, label)
         loss.backward()
-        SGD(params, learning_rate/batch_size)
+        gb.sgd(params, learning_rate, batch_size)
 
         train_loss += nd.mean(loss).asscalar()
         train_acc += accuracy(output, label)

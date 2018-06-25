@@ -6,7 +6,7 @@
 
 ## 线性回归
 
-让我们先回忆一下上节中的内容。设数据样本数为$n$，特征数为$d$。给定批量数据样本的特征$\boldsymbol{X} \in \mathbb{R}^{n \times d}$和标签$\boldsymbol{y} \in \mathbb{R}^{n \times 1}$，线性回归的批量输出$\boldsymbol{\hat{y}} \in \mathbb{R}^{n \times 1}$的计算表达式为
+让我们先回忆一下上节中的内容。设数据样本数为$n$，输入个数为$d$。给定批量数据样本的特征$\boldsymbol{X} \in \mathbb{R}^{n \times d}$和标签$\boldsymbol{y} \in \mathbb{R}^{n \times 1}$，线性回归的批量输出$\boldsymbol{\hat{y}} \in \mathbb{R}^{n \times 1}$的计算表达式为
 
 $$\boldsymbol{\hat{y}} = \boldsymbol{X} \boldsymbol{w} + b,$$
 
@@ -15,9 +15,6 @@ $$\boldsymbol{\hat{y}} = \boldsymbol{X} \boldsymbol{w} + b,$$
 下面我们开始动手实现线性回归的训练。首先，导入本节中实验所需的包或模块。
 
 ```{.python .input  n=1}
-%config InlineBackend.figure_format = 'retina'
-%matplotlib inline
-import matplotlib as mpl
 from matplotlib import pyplot as plt
 from mxnet import autograd, nd
 import random
@@ -27,7 +24,7 @@ import random
 
 我们在这里描述用来生成人工训练数据集的真实模型。
 
-设训练数据集样本数为1000，输入个数（特征数）为2。给定随机生成的批量样本特征$\boldsymbol{X} \in \mathbb{R}^{1000 \times 2}$，我们使用线性回归模型真实权重$\boldsymbol{w} = [2, -3.4]^\top$和偏差$b = 4.2$，以及一个随机噪音项$\epsilon$来生成标签
+设训练数据集样本数为1000，输入个数为2。给定随机生成的批量样本特征$\boldsymbol{X} \in \mathbb{R}^{1000 \times 2}$，我们使用线性回归模型真实权重$\boldsymbol{w} = [2, -3.4]^\top$和偏差$b = 4.2$，以及一个随机噪音项$\epsilon$来生成标签
 
 $$\boldsymbol{y} = \boldsymbol{X}\boldsymbol{w} + b + \epsilon,$$
 
@@ -52,15 +49,15 @@ features[0], labels[0]
 通过生成第二个特征`features[:, 1]`和标签 `labels` 的散点图，我们可以更直观地观察两者间的线性关系。
 
 ```{.python .input  n=4}
-def set_fig_size(mpl, figsize=(3.5, 2.5)):
-    mpl.rcParams['figure.figsize'] = figsize
-
-set_fig_size(mpl)
+%config InlineBackend.figure_format = 'retina'
+plt.rcParams['figure.figsize'] = (3.5, 2.5)
 plt.scatter(features[:, 1].asnumpy(), labels.asnumpy(), 1)
 plt.show()
 ```
 
-我们将该函数定义在`gluonbook`包中供后面章节调用。
+我们将上面的`plt`作图函数定义在`gluonbook`包里。以后在作图时，我们将直接调用`gluonbook.plt`，而无需执行`from matplotlib import pyplot as plt`。
+
+
 
 ## 读取数据
 
@@ -156,7 +153,7 @@ for epoch in range(1, num_epochs + 1):
           % (epoch, loss(net(features, w, b), labels).mean().asnumpy()))
 ```
 
-训练完成后，我们可以比较学到的参数和真实参数。它们应该很接近。
+训练完成后，我们可以比较学到的参数和用来生成训练集的真实参数。它们应该很接近。
 
 ```{.python .input  n=13}
 true_w, w
@@ -175,7 +172,7 @@ true_b, b
 
 * 尝试用不同的学习率查看损失函数值的下降速度。
 
-* 回顾[“自动求梯度”](../chapter_crashcourse/autograd.md)一节。本节代码中变量`l`并不是一个标量，运行`l.backward()`将如何对模型参数求梯度？
+* 回顾[“自动求梯度”](../chapter_prerequisite/autograd.md)一节。本节代码中变量`l`并不是一个标量，运行`l.backward()`将如何对模型参数求梯度？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/743)

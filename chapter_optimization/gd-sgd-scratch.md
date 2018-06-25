@@ -1,6 +1,7 @@
 # 梯度下降和随机梯度下降——从零开始
 
-本节中，我们将介绍梯度下降（gradient descent）和随机梯度下降（stochastic gradient descent）算法。由于梯度下降是优化算法的核心部分，理解梯度的涵义十分重要。为了帮助大家深刻理解梯度，我们将从数学角度阐释梯度下降的意义。
+本节中，我们将介绍梯度下降（gradient descent）和随机梯度下降（stochastic gradient descent）算法。由于梯度下降是优化算法的核心部分，理解梯度的涵义十分重要。为了帮助大家深刻理解梯度，我们将从数学角度阐释梯度下降的意义。本节中，我们假设目标函数连续可导。
+
 
 
 ## 一维梯度下降
@@ -17,24 +18,24 @@ $$f(x - \eta f'(x)) \approx f(x) -  \eta f'(x)^2.$$
 
 如果$\eta$是一个很小的正数，那么
 
-$$f(x - \eta f'(x)) \leq f(x).$$
+$$f(x - \eta f'(x)) \lesssim f(x).$$
 
 也就是说，如果目标函数$f(x)$当前的导数$f'(x) \neq 0$，按照
 
 $$x \leftarrow x - \eta f'(x).$$
 
-迭代自变量$x$可能会降低$f(x)$的值。由于导数$f'(x)$是梯度$\nabla_x f$在一维空间的特殊情况，上述迭代自变量$x$的方法也即一维空间的梯度下降。一维空间的梯度下降图7.2（左）所示，自变量$x$沿着梯度方向迭代。
+迭代自变量$x$可能会降低$f(x)$的值。由于导数$f'(x)$是梯度$\nabla_x f$在一维空间的特殊情况，上述迭代自变量$x$的方法也即一维空间的梯度下降。一维空间的梯度下降图7.1（左）所示，自变量$x$沿着梯度方向迭代。
 
-![梯度下降中，目标函数$f(x)$的自变量$x$（圆圈的横坐标）沿着梯度方向迭代](../img/gd_and_overshooting.svg)
+![梯度下降中，目标函数$f(x)$的自变量$x$（圆圈的横坐标）沿着梯度方向迭代。](../img/gd_and_overshooting.svg)
 
 
 ## 学习率
 
 上述梯度下降算法中的$\eta$叫做学习率。这是一个超参数，需要人工设定。学习率$\eta$要取正数。
 
-需要注意的是，学习率过大可能会造成自变量$x$越过（overshoot）目标函数$f(x)$的最优解，甚至发散。见图7.2（右）。
+需要注意的是，学习率过大可能会造成自变量$x$越过（overshoot）目标函数$f(x)$的最优解，甚至发散。见图7.1（右）。
 
-然而，如果学习率过小，目标函数中自变量的迭代速度会过慢。实际中，一个合适的学习率通常是需要通过多次实验找到的。
+然而，如果学习率过小，目标函数中自变量的收敛速度会过慢。实际中，一个合适的学习率通常是需要通过多次实验找到的。
 
 
 ## 多维梯度下降
@@ -85,7 +86,8 @@ $$\mathbb{E}_i \nabla f_i(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_
 
 ## 小批量随机梯度下降
 
-广义上，每一次迭代可以随机均匀采样一个由训练数据样本索引所组成的小批量（mini-batch）$\mathcal{B}$。类似地，我们可以使用
+广义上，每一次迭代可以随机均匀采样一个由训练数据样本索引所组成的小批量（mini-batch）$\mathcal{B}$。一般来说，
+我们可以通过重复采样（sampling with replacement）或者不重复采样（sampling without replacement）得到同一个小批量中的各个样本。前者允许同一个小批量中出现重复的样本，后者则不允许如此。对于这两者间的任一种方式，我们可以使用
 
 $$\nabla f_\mathcal{B}(\boldsymbol{x}) = \frac{1}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}\nabla f_i(\boldsymbol{x})$$ 
 
@@ -98,6 +100,9 @@ $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f_\mathcal{B}(\boldsymb
 $$\mathbb{E}_\mathcal{B} \nabla f_\mathcal{B}(\boldsymbol{x}) = \nabla f(\boldsymbol{x}).$$
 
 这个算法叫做小批量随机梯度下降。该算法每次迭代的计算开销为$\mathcal{O}(|\mathcal{B}|)$。当批量大小为1时，该算法即随机梯度下降；当批量大小等于训练数据样本数，该算法即梯度下降。和学习率一样，批量大小也是一个超参数。当批量较小时，虽然每次迭代的计算开销较小，但计算机并行处理批量中各个样本的能力往往只得到较少利用。因此，当训练数据集的样本较少时，我们可以使用梯度下降；当样本较多时，我们可以使用小批量梯度下降并依据计算资源选择合适的批量大小。
+
+实际中，我们通常在每个迭代周期（epoch）开始前随机打乱数据集中样本的先后顺序，然后在同一个迭代周期中依次读取小批量的样本。理论上，这种方法能让符合某些特征的目标函数的优化收敛更快 [2]。我们在实验中也用这种方法随机采样小批量样本。
+
 
 
 ## 小批量随机梯度下降的实现
@@ -115,7 +120,6 @@ def sgd(params, lr, batch_size):
 首先，导入本节中实验所需的包或模块。
 
 ```{.python .input}
-%matplotlib inline
 import sys
 sys.path.append('..')
 import gluonbook as gb
@@ -171,6 +175,7 @@ def optimize(batch_size, lr, num_epochs, log_interval, decay_epoch):
             gb.data_iter(batch_size, num_examples, features, labels)):
             with autograd.record():
                 l = loss(net(X, w, b), y)
+            # 先对 l 中元素求和，得到小批量损失之和，然后求参数的梯度。
             l.backward()
             sgd([w, b], lr, batch_size)
             if batch_i * batch_size % log_interval == 0:
@@ -234,4 +239,6 @@ optimize(batch_size=10, lr=0.002, num_epochs=3, decay_epoch=2,
 
 ## 参考文献
 
-[1] Stewart, James. “Calculus: Early Transcendentals (7th Edition).” Brooks Cole (2010).
+[1] Stewart, J. (2010). Calculus: Early Transcendentals (7th Edition). Brooks Cole.
+
+[2] Gürbüzbalaban, M., Ozdaglar, A., & Parrilo, P. (2018). Why random reshuffling beats stochastic gradient descent. arXiv preprint arXiv:1510.08560.
