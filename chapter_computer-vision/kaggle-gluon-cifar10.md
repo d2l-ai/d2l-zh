@@ -1,48 +1,16 @@
-# 实战Kaggle比赛：对原始图像文件分类（CIFAR-10）
+# 实战Kaggle比赛：图像分类（CIFAR-10）
+
+CIFAR-10是计算机视觉领域的一个重要的数据集。本节中，我们将动手实战一个有关它的Kaggle比赛：CIFAR-10图像分类问题。该比赛的网页地址是
+
+> https://www.kaggle.com/c/cifar-10
 
 
-我们在本章中选择了Kaggle中著名的[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)。我们以该问题为例，为大家提供使用`Gluon`对原始图像文件进行分类的示例代码。
+图9.X展示了该比赛的网页信息。为了便于提交结果，请先在Kaggle网站上注册账号。
+
+![CIFAR-10图像分类比赛的网页信息。比赛数据集可通过点击“Data”标签获取。](../img/kaggle_cifar10.png)
 
 
-
-## Kaggle中的CIFAR-10原始图像分类问题
-
-[Kaggle](https://www.kaggle.com)是一个著名的供机器学习爱好者交流的平台。为了便于提交结果，请大家注册[Kaggle](https://www.kaggle.com)账号。然后请大家先点击[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)了解有关本次比赛的信息。
-
-![](../img/kaggle_cifar10.png)
-
-
-
-## 整理原始数据集
-
-比赛数据分为训练数据集和测试数据集。训练集包含5万张图片。测试集包含30万张图片：其中有1万张图片用来计分，但为了防止人工标注测试集，里面另加了29万张不计分的图片。
-
-两个数据集都是png彩色图片，大小为$32\times 32 \times 3$。训练集一共有10类图片，分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车。
-
-![](../img/cifar10.png)
-
-
-### 下载数据集
-
-
-登录Kaggle后，数据可以从[CIFAR-10原始图像分类问题](https://www.kaggle.com/c/cifar-10)中下载。
-
-* [训练数据集train.7z下载地址](https://www.kaggle.com/c/cifar-10/download/train.7z)
-
-* [测试数据集test.7z下载地址](https://www.kaggle.com/c/cifar-10/download/test.7z)
-
-* [训练数据标签trainLabels.csv下载地址](https://www.kaggle.com/c/cifar-10/download/trainLabels.csv)
-
-
-### 解压数据集
-
-训练数据集train.7z和测试数据集test.7z都是压缩格式，下载后请解压缩。解压缩后原始数据集的路径可以如下：
-
-* ../data/kaggle_cifar10/train/[1-50000].png
-* ../data/kaggle_cifar10/test/[1-300000].png
-* ../data/kaggle_cifar10/trainLabels.csv
-
-为了使网页编译快一点，我们在git repo里仅仅存放100个训练样本（'train_tiny.zip'）和1个测试样本（'test_tiny.zip'）。执行以下代码会从git repo里解压生成小样本训练和测试数据，文件夹名称分别为'train_tiny'和'test_tiny'。训练数据标签的压缩文件将被解压成trainLabels.csv。
+首先，导入实验所需的包或模块。
 
 ```{.python .input}
 import sys
@@ -59,8 +27,30 @@ import pandas as pd
 import shutil
 ```
 
-```{.python .input  n=1}
-# 如果训练下载的Kaggle的完整数据集，把下面改False。
+## 获取数据集
+
+比赛数据分为训练数据集和测试数据集。训练集包含5万张图片。测试集包含30万张图片：其中有1万张图片用来计分，其他29万张不计分的图片是为了防止人工标注测试集。两个数据集中的图片格式都是png，长和宽均为32，通道数为3（彩色）。图片的类别数为10，类别分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车，如图9.X所示。
+
+![CIFAR-10图像的类别分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车。](../img/cifar10.png)
+
+
+### 下载数据集
+
+登录Kaggle后，我们可以点击图9.X所示的CIFAR-10图像分类比赛网页上的“Data”标签，并分别下载训练数据集“train.7z”、测试数据集“test.7z”和训练数据集标签“trainLabels.csv”。
+
+
+### 解压数据集
+
+下载完训练数据集“train.7z”和测试数据集“test.7z”后请解压缩。解压缩后，将训练数据集、测试数据集和训练数据集标签分别存放在以下路径：
+
+* ../data/kaggle_cifar10/train/[1-50000].png
+* ../data/kaggle_cifar10/test/[1-300000].png
+* ../data/kaggle_cifar10/trainLabels.csv
+
+为方便快速上手，我们提供了上述数据集的小规模采样，例如仅含100个训练样本的“train_tiny.zip”和1个测试样本的“test_tiny.zip”。它们解压后的文件夹名称分别为“train_tiny”和“test_tiny”。此外，训练数据集标签的压缩文件解压后得到“trainLabels.csv”。如果你将使用上述的Kaggle比赛完整数据集，还需要把下面`demo`变量改为`False`。
+
+```{.python .input}
+# 如果使用下载的 Kaggle 比赛的完整数据集，把下面改为 False。
 demo = True
 if demo:
     import zipfile
@@ -374,7 +364,3 @@ df.to_csv('submission.csv', index=False)
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1545/)
 
 ![](../img/qr_kaggle-gluon-cifar10.svg)
-
-## 参考文献
-
-[1] Kaggle CIFAR-10比赛网址。https://www.kaggle.com/c/cifar-10

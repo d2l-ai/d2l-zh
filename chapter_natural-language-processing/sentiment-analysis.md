@@ -35,7 +35,7 @@ import zipfile
 为方便快速上手，我们提供了上述数据集的小规模采样，并存放在路径“../data/aclImdb_tiny.zip”。如果你将使用上述的IMDb完整数据集，还需要把下面`demo`变量改为`False`。
 
 ```{.python .input  n=2}
-# 如果训练下载的 IMDb 的完整数据集，把下面改 False。
+# 如果使用下载的 IMDb 的完整数据集，把下面改为 False。
 demo = True
 if demo:
     with zipfile.ZipFile('../data/aclImdb_tiny.zip', 'r') as zin:
