@@ -22,7 +22,7 @@ x2 = nd.load('x')
 x2
 ```
 
-同样我们可以存储一列NArray并读回内存。
+同样我们可以存储一列NDArray并读回内存。
 
 ```{.python .input  n=2}
 y = nd.zeros(4)
@@ -61,8 +61,6 @@ net.initialize()
 # 由于延后初始化，我们需要先运行一次前向计算才能实际初始化模型参数。
 x = nd.random.uniform(shape=(2, 20))
 y = net(x)
-
-net.save_params('mlp.params')
 ```
 
 下面我们把该模型的参数存起来。
@@ -76,7 +74,7 @@ net.save_params(filename)
 
 ```{.python .input  n=8}
 net2 = MLP()
-net2.load_params('mlp.params')
+net2.load_params(filename)
 ```
 
 因为这两个实例都有同样的参数，那么对同一个`x`的计算结果将会是一样。

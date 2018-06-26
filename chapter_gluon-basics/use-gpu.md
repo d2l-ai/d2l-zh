@@ -1,6 +1,6 @@
 # GPU计算
 
-目前为止我们一直在使用CPU计算。的确，绝大部分的计算设备都有CPU。然而CPU的设计目的是处理通用的计算。对于复杂的神经网络和大规模的数据来说，使用CPU来计算可能不够高效。
+目前为止我们一直在使用CPU计算。的确，绝大部分的计算设备都有CPU。然而CPU的设计目的是处理通用的计算。对于复杂的神经网络和大规模的数据来说，使用CPU来计算可能不够高效。# GPU computing is also general purpose (as in GPGPU), so maybe a better explanation/intuition is needed here.
 
 本节中，我们将介绍如何使用单块Nvidia GPU来计算。首先，需要确保至少有一块Nvidia显卡已经安装好了。然后，下载[CUDA](https://developer.nvidia.com/cuda-downloads)并按照提示设置好相应的路径。这些准备工作都完成后，下面就可以通过`nvidia-smi`来查看显卡信息了。
 
@@ -15,6 +15,7 @@
 ## 计算设备
 
 MXNet使用`context`来指定用来存储和计算的设备，例如可以是CPU或者GPU。默认情况下，MXNet会将数据创建在主内存，然后利用CPU来计算。在MXNet中，CPU和GPU可分别由`cpu()`和`gpu()`来表示。需要注意的是，`mx.cpu()`表示所有的物理CPU和内存。这意味着计算上会尽量使用所有的CPU核。但`mx.gpu()`只代表一块显卡和相应的显卡内存。如果有多块GPU，我们用`mx.gpu(i)`来表示第$i$块GPU（$i$从0开始）。
+need explanation on the behavior for mx.cpu(i)
 
 ```{.python .input}
 import mxnet as mx
@@ -67,7 +68,7 @@ z = x.as_in_context(mx.gpu())
 z
 ```
 
-需要区分的是，如果源变量和目标变量的`context`一致，`as_in_context`使目标变量和源变量共享源变量的内存
+需要区分的是，如果源变量和目标变量的`context`一致，`as_in_context`使目标变量和源变量共享源变量的内存，
 
 ```{.python .input  n=8}
 y.as_in_context(mx.gpu()) is y
@@ -112,6 +113,7 @@ net(y)
 ```{.python .input  n=14}
 net[0].weight.data()
 ```
+this only works when there's one single context. maybe use list_ctx() to illustrate
 
 ## 小结
 
