@@ -1,6 +1,6 @@
 # 多层感知机——使用Gluon
 
-下面我们使用Gluon来实现上一节中的多层感知机。导入所需的包或模块。
+下面我们使用Gluon来实现上一节中的多层感知机。首先我们导入所需的包或模块。
 
 ```{.python .input}
 import sys
@@ -12,7 +12,7 @@ from mxnet.gluon import loss as gloss, nn
 
 ## 定义模型
 
-和Softmax回归唯一的不同在于，我们多加了一个全连接层作为隐藏层。我们指定了该层的隐藏单元个数为256，并使用ReLU作为激活函数。
+和Softmax回归唯一的不同在于，我们多加了一个全连接层作为隐藏层，其中该层的隐藏单元个数为256，并使用ReLU作为激活函数。
 
 ```{.python .input  n=5}
 net = nn.Sequential()
