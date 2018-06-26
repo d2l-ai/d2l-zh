@@ -30,7 +30,7 @@ net[0].params
 为了访问特定参数，我们既可以通过名字来访问字典里的元素，也可以直接使用它的变量名。下面两种方法是等价的，但通常后者的代码可读性更好。
 
 ```{.python .input  n=3}
-(net[0].params['dense0_weight'], net[0].weight)
+net[0].params['dense0_weight'], net[0].weight
 ```
 
 Gluon里参数类型为Parameter类，其包含参数权重和它对应的梯度，它们可以分别通过`data`和`grad`函数来访问。因为我们随机初始化了权重，所以它是一个由随机数组成的形状为`(256, 20)`的NDArray.
@@ -51,17 +51,15 @@ net[0].weight.grad()
 net[1].bias.data()
 ```
 
-最后，我们可以使用Block类提供的`collect_params`函数来获取这个实例包含的所有的参数，它的返回同样是一个参数名称到参数的字典。 # this doesn't explain the recursive nature of collect_params. it sounds the same as what .params does, which isn't the case.
+最后，我们可以`collect_params`函数来获取`net`实例所有嵌套（例如通过`add`函数嵌套）的层所包含的所有参数。它返回的同样是一个参数名称到参数实例的字典。
 
 ```{.python .input  n=11}
 net.collect_params()
 ```
 
-params.get_constant is missing
-
 ## 初始化模型参数
 
-当使用默认的模型初始化，Gluon会将权重参数元素初始化为`[-0.07, 0.07]`之间均匀分布的随机数，偏差参数则全为0. 但经常我们需要使用其他的方法来初始话权重，MXNet的[`init`模块](https://mxnet.incubator.apache.org/api/python/optimization/optimization.html#module-mxnet.initializer) # should the api doc links freeze to a version? 里提供了多种预设的初始化方法。例如下面例子我们将权重参数初始化成均值为0，标准差为0.01的正态分布随机数。
+当使用默认的模型初始化，Gluon会将权重参数元素初始化为[-0.07, 0.07]之间均匀分布的随机数，偏差参数则全为0. 但经常我们需要使用其他的方法来初始话权重，MXNet的`init`模块里提供了多种预设的初始化方法。例如下面例子我们将权重参数初始化成均值为0，标准差为0.01的正态分布随机数。
 
 ```{.python .input  n=7}
 # 非首次对模型初始化需要指定 force_reinit。
@@ -69,7 +67,7 @@ net.initialize(init=init.Normal(sigma=0.01), force_reinit=True)
 net[0].weight.data()[0]
 ```
 
-如果想只对某个特定参数进行初始化，我们可以调用Paramter类的`initialize`函数，它的使用跟Block类提供的一致。下例中我们对第一个隐藏层的权重使用Xavier方法来进行初始化。
+如果想只对某个特定参数进行初始化，我们可以调用`Paramter`类的`initialize`函数，它的使用跟Block类提供的一致。下例中我们对第一个隐藏层的权重使用Xavier初始化方法。
 
 ```{.python .input  n=8}
 net[0].weight.initialize(init=init.Xavier(), force_reinit=True)
@@ -78,7 +76,7 @@ net[0].weight.data()[0]
 
 ## 自定义初始化方法
 
-有时候我们需要的初始化方法并没有在`init`模块中提供，这时我们有两种方法来自定义参数初始化。一种是实现一个Initializer类的子类使得我们可以跟前面使用`init.Normal`那样使用它。在这个方法里，我们只需要实现`_init_weight`这个函数，将其传入的NDArray修改成需要的内容。下面例子里我们把权重初始化成`[-10,-5]`和`[5,10]`两个区间里均匀分布的随机数。
+有时候我们需要的初始化方法并没有在`init`模块中提供。这时，我们可以实现一个Initializer类的子类使得我们可以跟前面使用`init.Normal`那样使用它。通常，我们只需要实现`_init_weight`这个函数，将其传入的NDArray修改成需要的内容。下面例子里我们把权重初始化成`[-10,-5]`和`[5,10]`两个区间里均匀分布的随机数。
 
 ```{.python .input  n=9}
 class MyInit(init.Initializer):
@@ -91,15 +89,12 @@ net.initialize(MyInit(), force_reinit=True)
 net[0].weight.data()[0]
 ```
 
-第二种方法是我们通过Parameter类的`set_data`函数来直接改写模型参数。例如下例中我们将隐藏层参数在现有的基础上加1.
+此外，我们还可以通过`Parameter`类的`set_data`函数来直接改写模型参数。例如下例中我们将隐藏层参数在现有的基础上加1。
 
 ```{.python .input  n=10}
-net[0].weight.set_data(net[0].weight.data()+1)
+net[0].weight.set_data(net[0].weight.data() + 1)
 net[0].weight.data()[0]
 ```
-
-set_data only works when weight has been initialized. given that set_data is proposed as an
-alternative, this needs to be made clear.
 
 ## 共享模型参数
 
@@ -108,9 +103,6 @@ alternative, this needs to be made clear.
 在下面例子里，我们让模型的第二隐藏层和第三隐藏层共享模型参数。
 
 ```{.python .input}
-from mxnet import nd
-from mxnet.gluon import nn
-
 net = nn.Sequential()
 shared = nn.Dense(8, activation='relu')
 net.add(nn.Dense(8, activation='relu'),
@@ -126,6 +118,7 @@ net[1].weight.data()[0] == net[2].weight.data()[0]
 ```
 
 我们在构造第三隐藏层时通过`params`来指定它使用第二隐藏层的参数。由于模型参数里包含了梯度，所以在反向传播计算时，第二隐藏层和第三隐藏层的梯度都会被累加在`shared.params.grad()`里。
+
 
 ## 小结
 

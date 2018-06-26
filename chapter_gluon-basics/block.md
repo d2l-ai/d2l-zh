@@ -19,7 +19,7 @@ class MLP(nn.Block):
         # 其他函数参数，例如下下一节将介绍的模型参数 params。
         super(MLP, self).__init__(**kwargs)
         # 隐藏层。
-        self.hidden = nn.Dense(256, activation='relu') # no mentioning of name_scope?
+        self.hidden = nn.Dense(256, activation='relu')
         # 输出层。
         self.output = nn.Dense(10)
     # 定义模型的前向计算，即如何根据输出计算输出。
@@ -67,7 +67,7 @@ class MySequential(nn.Block):
 我们用MySequential类来实现前面的MLP类：
 
 ```{.python .input  n=4}
-net = MySequential() # name_scope?
+net = MySequential()
 net.add(nn.Dense(256, activation='relu'))
 net.add(nn.Dense(10))
 net.initialize()
@@ -78,24 +78,22 @@ net(x)
 
 ## 构造复杂的模型
 
-虽然Sequential类可以使得模型构造更加简单，不需要定义`forward`函数，但直接继承Block类可以极大的拓展灵活性。下面我们构造一个稍微复杂点的网络：
-
-1. 在前向计算中使用了NDArray函数和Python的控制流
-1. 多次调用同一层
+虽然Sequential类可以使得模型构造更加简单，不需要定义`forward`函数，但直接继承Block类可以极大的拓展灵活性。下面我们构造一个稍微复杂点的网络。在这个网络中，我们通过`get_constant`函数创建训练中不被迭代的参数，即常数参数。在前向计算中，除了使用创建的常数参数外，我们还使用NDArray的函数和Python的控制流，并多次调用同一层。
 
 ```{.python .input  n=5}
 class FancyMLP(nn.Block):
     def __init__(self, **kwargs):
         super(FancyMLP, self).__init__(**kwargs)
-        # 不会被更新的随机权重。
-        self.rand_weight = nd.random.uniform(shape=(20, 20)) # use self.params.get_constant? if not parameter, the model is hard to get right
+        # 使用 get_constant 创建的随机权重参数不会在训练中被迭代（即常数参数）。
+        self.rand_weight = self.params.get_constant(
+            'rand_weight', nd.random.uniform(shape=(20, 20)))
         self.dense = nn.Dense(20, activation='relu')
 
     def forward(self, x):
         x = self.dense(x)
-        # 使用了 ndarray 包下 relu 和 dot 函数。
-        x = nd.relu(nd.dot(x, self.rand_weight) + 1)
-        # 重用了 dense，等价于两层网络但共享了参数。
+        # 使用创建的常数参数，以及 NDArray 的 relu 和 dot 函数。
+        x = nd.relu(nd.dot(x, self.rand_weight.data()) + 1)
+        # 重用全连接层。等价于两个全连接层共享参数。
         x = self.dense(x)
         # 控制流，这里我们需要调用 asscalar 来返回标量进行比较。
         while x.norm().asscalar() > 1:

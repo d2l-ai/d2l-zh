@@ -66,7 +66,7 @@ y = net(x)
 下面我们把该模型的参数存起来。
 
 ```{.python .input}
-filename = "../data/mlp.params"
+filename = 'mlp.params'
 net.save_params(filename)
 ```
 

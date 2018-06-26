@@ -130,8 +130,7 @@ def train(net, learning_rate, batch_size=128, epochs=5):
 因为微调的网络中的主要层的已经训练的足够好，所以一般采用比较小的学习率，防止过大的步长对训练好的层产生过多影响。
 
 ```{.python .input  n=13}
-# out of memory TOFIX: @mli
-# train(finetune_net, 0.01)
+train(finetune_net, 0.01)
 ```
 
 为了对比起见，我们训练同样的一个模型，但所有参数都初始成随机值。我们使用较大的学习率来加速收敛。
@@ -139,8 +138,7 @@ def train(net, learning_rate, batch_size=128, epochs=5):
 ```{.python .input  n=14}
 scratch_net = model_zoo.vision.resnet18_v2(classes=2)
 scratch_net.initialize(init=init.Xavier())
-# out of memory TOFIX: @mli
-# train(scratch_net, 0.1)
+train(scratch_net, 0.1)
 ```
 
 可以看到，微调的模型因为初始值更好，它的收敛比从头开始训练要快很多。在很多情况下，微调的模型最终的收敛到的结果也可能比非微调的模型更好。

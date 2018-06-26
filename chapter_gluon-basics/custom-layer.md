@@ -76,7 +76,8 @@ class MyDense(nn.Block):
 下面，我们实例化MyDense类来看下它的模型参数。
 
 ```{.python .input}
-dense = MyDense(5, in_units=10) # units=5? or (5, 10)? doesn't seem to have reason for inconsistency since neither argument has default value
+# units：该层的输出个数；in_units：该层的输入个数。
+dense = MyDense(units=5, in_units=10)
 dense.params
 ```
 
@@ -96,8 +97,6 @@ net.add(MyDense(2, in_units=32))
 net.initialize()
 net(nd.random.uniform(shape=(2, 64)))
 ```
-
-autograd.Function? customop?
 
 ## 小结
 
