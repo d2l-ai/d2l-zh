@@ -11,7 +11,7 @@
 $$
 \begin{aligned}
 \boldsymbol{H}_t &= \phi(\boldsymbol{X}_t \boldsymbol{W}_{xh} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hh}  + \boldsymbol{b}_h),\\
-\boldsymbol{O}_t &= \boldsymbol{H}_t \boldsymbol{W}_{hy} + \boldsymbol{b}_y,
+\boldsymbol{O}_t &= \boldsymbol{H}_t \boldsymbol{W}_{hy} + \boldsymbol{b}_y, % this is usually not part of RNN.
 \end{aligned}
 $$
 
