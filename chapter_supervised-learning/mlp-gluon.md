@@ -12,7 +12,7 @@ from mxnet.gluon import loss as gloss, nn
 
 ## 定义模型
 
-和Softmax回归唯一的不同在于，我们多加了一个全连接层作为隐藏层，其中该层的隐藏单元个数为256，并使用ReLU作为激活函数。
+和Softmax回归唯一的不同在于，我们多加了一个全连接层作为隐藏层。它的隐藏单元个数为256，并使用ReLU作为激活函数。
 
 ```{.python .input  n=5}
 net = nn.Sequential()
