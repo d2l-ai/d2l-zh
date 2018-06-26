@@ -29,7 +29,7 @@ import shutil
 
 ## 获取数据集
 
-比赛数据分为训练数据集和测试数据集。训练集包含5万张图片。测试集包含30万张图片：其中有1万张图片用来计分，其他29万张不计分的图片是为了防止人工标注测试集。两个数据集中的图片格式都是png，高和宽均为32，并含有RGB三个通道（彩色）。图片的类别数为10，类别分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车，如图9.X所示。
+比赛数据分为训练数据集和测试数据集。训练集包含5万张图片。测试集包含30万张图片：其中有1万张图片用来计分，其他29万张不计分的图片是为了防止人工标注测试集。两个数据集中的图片格式都是png，高和宽均为32像素，并含有RGB三个通道（彩色）。图片的类别数为10，类别分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车，如图9.X所示。
 
 ![CIFAR-10图像的类别分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车。](../img/cifar10.png)
 
@@ -47,7 +47,7 @@ import shutil
 * ../data/kaggle_cifar10/test/[1-300000].png
 * ../data/kaggle_cifar10/trainLabels.csv
 
-为方便快速上手，我们提供了上述数据集的小规模采样，例如仅含100个训练样本的“train_tiny.zip”和1个测试样本的“test_tiny.zip”。它们解压后的文件夹名称分别为“train_tiny”和“test_tiny”。此外，训练数据集标签的压缩文件解压后得到“trainLabels.csv”。如果你将使用上述的Kaggle比赛完整数据集，还需要把下面`demo`变量改为`False`。
+为方便快速上手，我们提供了上述数据集的小规模采样，例如仅含100个训练样本的“train_tiny.zip”和1个测试样本的“test_tiny.zip”。它们解压后的文件夹名称分别为“train_tiny”和“test_tiny”。此外，训练数据集标签的压缩文件解压后得到“trainLabels.csv”。如果你将使用上述Kaggle比赛的完整数据集，还需要把下面`demo`变量改为`False`。
 
 ```{.python .input}
 # 如果使用下载的 Kaggle 比赛的完整数据集，把下面改为 False。
@@ -61,7 +61,7 @@ if demo:
 
 ### 整理数据集
 
-我们定义下面的`reorg_cifar10_data`函数来整理数据集。整理后，同一类图片将被放在同一个文件夹下，便于我们稍后读取。该函数中的参数`valid_ratio`是验证集占原始训练集的比重。以`valid_ratio=0.1`为例，由于原始训练数据有50,000张图片，调参时将有45,000张图片用于训练并存放在路径“`input_dir`/train”，而另外5,000张图片为验证集并存放在路径“`input_dir`/valid”。
+我们定义下面的`reorg_cifar10_data`函数来整理数据集。整理后，同一类图片将被放在同一个文件夹下，便于我们稍后读取。该函数中的参数`valid_ratio`是验证集样本数与原始训练集样本数之比。以`valid_ratio=0.1`为例，由于原始训练数据集有50,000张图片，调参时将有45,000张图片用于训练并存放在路径“`input_dir`/train”，而另外5,000张图片为验证集并存放在路径“`input_dir`/valid”。
 
 ```{.python .input  n=2}
 def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
@@ -112,11 +112,11 @@ def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
 
 ```{.python .input  n=3}
 if demo:
-    # 注意：此处使用小训练集。Kaggle 比赛的完整数据集应包括 5 万训练样本。
+    # 注意：此处使用小训练集。
     train_dir = 'train_tiny'
-    # 注意：此处使用小测试集。Kaggle 比赛的完整数据集应包括 30 万测试样本。
+    # 注意：此处使用小测试集。
     test_dir = 'test_tiny'
-    # 注意：此处相应使用小批量。使用 Kaggle 比赛的完整数据集时可设较大的整数。
+    # 注意：此处将批量大小相应设小。使用 Kaggle 比赛的完整数据集时可设较大整数。
     batch_size = 1
 else:
     train_dir = 'train'
@@ -131,18 +131,20 @@ reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
                    valid_ratio)
 ```
 
-## 增广数据
+## 图片增广
 
-为应对过拟合，我们在这里使用`transforms`来增广数据。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图片做镜面反转。我们也通过`transforms.Normalize()`对彩色图像RGB三个通道分别做标准化。以下列举了部分操作。这些操作可以根据需求来决定是否使用，它们的超参数也都是可调的。
+为应对过拟合，我们在这里使用`transforms`来增广数据。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图片做镜面反转。我们也通过`transforms.Normalize()`对彩色图像RGB三个通道分别做标准化。以下列举了部分操作。这些操作可以根据需求来决定是否使用或修改。
 
 ```{.python .input  n=4}
 transform_train = transforms.Compose([
-    # 随机按照 scale 和 ratio 裁剪，并放缩为 32 x 32 的正方形。
-    transforms.RandomResizedCrop(32, scale=(0.08, 1.0),
-                                 ratio=(3.0/4.0, 4.0/3.0)),
+    # 将图片放大成高和宽各为 40 像素的正方形。
+    transforms.Resize(40),
+    # 随机对高和宽各为 40 像素的正方形图片裁剪出面积为原图片面积 0.64 到 1 倍之间的小正方
+    # 形，再放缩为高和宽各为 32 像素的正方形。
+    transforms.RandomResizedCrop(32, scale=(0.64, 1.0), ratio=(1.0, 1.0)),
     # 随机左右翻转图片。
     transforms.RandomFlipLeftRight(),
-    # 将图片像素值缩小到（0, 1）内，并将数据格式从“高*宽*通道”改为“通道*高*宽”。
+    # 将图片像素值按比例缩小到 0 和 1 之间，并将数据格式从“高*宽*通道”改为“通道*高*宽”。
     transforms.ToTensor(),
     # 对图片的每个通道做标准化。
     transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010])
@@ -344,10 +346,9 @@ df.to_csv('submission.csv', index=False)
 
 ## 练习
 
-* 使用Kaggle比赛的完整CIFAR-10数据集。把`batch_size`和`num_epochs`分别改为128和100。看看你可以在这个比赛中拿到什么样的准确率和名次？
+* 使用Kaggle比赛的完整CIFAR-10数据集。把批量大小`batch_size`和迭代周期数`num_epochs`分别改为128和100。看看你可以在这个比赛中拿到什么样的准确率和名次？
 * 如果不使用增强数据的方法能拿到什么样的准确率？
-* 在`transforms.RandomResizedCrop`前依次添加以下数据增广操作（使用逗号隔开）：transforms.CenterCrop(32)、transforms.RandomFlipTopBottom()、transforms.RandomColorJitter(brightness=0.0, contrast=0.0, saturation=0.0, hue=0.0)、transforms.RandomLighting(0.0)、transforms.Cast('float32')和transforms.Resize(32)。调一调它们的超参数。对结果有什么影响？
-* 扫码直达讨论区，在社区交流方法和结果。相信你一定会有收获。
+* 扫码直达讨论区，在社区交流方法和结果。你能发掘出其他更好的技巧吗？
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1545/)
 

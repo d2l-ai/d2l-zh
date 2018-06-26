@@ -48,7 +48,7 @@ apply(img, transforms.RandomFlipTopBottom())
 
 ```{.python .input  n=5}
 shape_aug = transforms.RandomResizedCrop(
-    (200, 200), scale=(.1, 1), ratio=(.5, 2))
+    (200, 200), scale=(0.1, 1), ratio=(0.5, 2))
 apply(img, shape_aug)
 ```
 
@@ -57,20 +57,20 @@ apply(img, shape_aug)
 形状变化外的一个另一大类是变化颜色。颜色一般有四个可以调的参数：亮度、对比、饱和度和色相。下面例子里我们随机将亮度在当前值上增加或减小一个在0到50%之前的量。
 
 ```{.python .input  n=6}
-apply(img, transforms.RandomLighting(.5))
+apply(img, transforms.RandomBrightness(0.5))
 ```
 
 同样的修改色相。
 
 ```{.python .input  n=7}
-apply(img, transforms.RandomHue(.5))
+apply(img, transforms.RandomHue(0.5))
 ```
 
 或者用使用`RandomColorJitter`来一起使用。
 
 ```{.python .input  n=8}
 color_aug = transforms.RandomColorJitter(
-    brightness=.5, contrast=.5, saturation=.5, hue=.5)
+    brightness=0.5, contrast=0.5, saturation=0.5, hue=0.5)
 apply(img, color_aug)
 ```
 
@@ -89,7 +89,8 @@ apply(img, augs)
 接下来我们来看一个将图片增广应用在实际训练的例子，并比较其与不使用时的区别。这里我们使用CIFAR-10数据集，而不是之前我们一直使用的FashionMNIST。原因在于FashionMNIST中物体位置和尺寸都已经统一化了，而CIFAR-10中物体颜色和大小区别更加显著。下面我们展示CIFAR-10中的前32张训练图片。
 
 ```{.python .input  n=10}
-gb.show_images(gluon.data.vision.CIFAR10(train=True)[0:32][0], 4, 8, scale=0.8)
+gb.show_images(gluon.data.vision.CIFAR10(train=True)[0:32][0], 4, 8,
+               scale=0.8);
 ```
 
 在训练时，我们通常将图片增广作用在训练图片上，使得模型能识别出各种变化过后的版本。这里我们仅仅使用最简单的随机水平翻转。此外我们使用`ToTensor`变换来图片转成MXNet需要的格式，即格式为（批量，通道，高，宽）以及类型为32位浮点数。
@@ -119,7 +120,7 @@ def load_cifar10(is_train, augs, batch_size):
 我们使用ResNet 18来训练CIFAR-10。训练的的代码跟[“残差网络：ResNet”](..//chapter_convolutional-neural-networks/resnet.md)一致，除了使用所有可用的GPU和不同的学习率外。
 
 ```{.python .input  n=13}
-def train(train_augs, test_augs, lr=.1):
+def train(train_augs, test_augs, lr=0.1):
     batch_size = 256
     ctx = gb.try_all_gpus()
     net = gb.resnet18(10)
