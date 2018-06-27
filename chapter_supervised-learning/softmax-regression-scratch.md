@@ -12,7 +12,7 @@ from mxnet.gluon import data as gdata
 
 ## 获取Fashion-MNIST数据集
 
-本节中，我们考虑图片分类问题。我们使用一个类别为服饰的数据集Fashion-MNIST [1]。该数据集中，图片尺寸为$28 \times 28$，一共包括了10个类别，分别为：t-shirt（T恤）、trouser（裤子）、pullover（套衫）、dress（连衣裙）、coat（外套）、sandal（凉鞋）、shirt（衬衫）、sneaker（运动鞋）、bag（包）和ankle boot（短靴）。
+本节中，我们考虑图片分类问题。我们使用一个类别为服饰的数据集Fashion-MNIST [1]。该数据集中，图片的高和宽均为28像素，一共包括了10个类别，分别为：t-shirt（T恤）、trouser（裤子）、pullover（套衫）、dress（连衣裙）、coat（外套）、sandal（凉鞋）、shirt（衬衫）、sneaker（运动鞋）、bag（包）和ankle boot（短靴）。
 
 下面，我们通过Gluon的`data`包来下载这个数据集。由于图片中每个像素的值在0到255之间，我们可以通过定义`transform`函数将每个值转换为0到1之间。
 
@@ -78,7 +78,7 @@ test_iter = gdata.DataLoader(mnist_test, batch_size, shuffle=False)
 
 ## 初始化模型参数
 
-跟线性回归中的例子一样，我们将使用向量表示每个样本。已知每个样本是大小为$28 \times 28$的图片。模型的输入向量的长度是$28 \times 28 = 784$：该向量的每个元素对应图片中每个像素。由于图片有10个类别，单层神经网络输出层的输出个数为10。由上一节可知，Softmax回归的权重和偏差参数分别为$784 \times 10$和$1 \times 10$的矩阵。
+跟线性回归中的例子一样，我们将使用向量表示每个样本。已知每个样本是高和宽均为28像素的图片。模型的输入向量的长度是$28 \times 28 = 784$：该向量的每个元素对应图片中每个像素。由于图片有10个类别，单层神经网络输出层的输出个数为10。由上一节可知，Softmax回归的权重和偏差参数分别为$784 \times 10$和$1 \times 10$的矩阵。
 
 ```{.python .input  n=8}
 num_inputs = 784
