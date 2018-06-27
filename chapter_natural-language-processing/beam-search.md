@@ -1,17 +1,15 @@
-# 束搜索（beam search）
+# 束搜索
 
 上一节介绍了如何训练输入输出均为不定长序列的编码器—解码器。在准备训练数据集时，我们通常会在样本的输入序列和输出序列后面分别附上一个特殊符号“&lt;eos&gt;”（end of sequence）表示序列的终止。在预测中，模型该如何输出不定长序列呢？
 
-为了便于讨论，假设解码器的输出是一段文本序列。我们将在本节的讨论中沿用上一节的数学符号。
-
-设输出文本词典$\mathcal{Y}$（包含特殊符号“&lt;eos&gt;”）的大小为$|\mathcal{Y}|$，输出序列的最大长度为$T^\prime$。那么，所有可能的输出序列一共有$\mathcal{O}(|\mathcal{Y}|^{T^\prime})$种。这些输出序列中所有特殊符号“&lt;eos&gt;”及其后面的子序列将被舍弃。
-
-我们在描述解码器时提到，输出序列基于输入序列的条件概率是$\prod_{t^\prime=1}^{T^\prime} \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c})$。
+我们在接下来的讨论中将沿用上一节的数学符号。为了便于讨论，假设解码器的输出是一段文本序列。设输出文本词典$\mathcal{Y}$（包含特殊符号“&lt;eos&gt;”）的大小为$|\mathcal{Y}|$，输出序列的最大长度为$T^\prime$。所有可能的输出序列一共有$\mathcal{O}(|\mathcal{Y}|^{T^\prime})$种。这些输出序列中所有特殊符号“&lt;eos&gt;”及其后面的子序列将被舍弃。
 
 
 ## 穷举搜索
 
-为了搜索该概率最大的输出序列，一种方法是穷举所有可能序列的概率，并输出概率最大的序列。我们将该序列称为最优序列，并将这种搜索方法称为穷举搜索（exhaustive search）。很明显，穷举搜索的计算开销$\mathcal{O}(|\mathcal{Y}|^{T^\prime})$很容易太大而无法使用（例如，$10000^{10} = 1 \times 10^{40}$）。
+我们在描述解码器时提到，输出序列基于输入序列的条件概率是$\prod_{t^\prime=1}^{T^\prime} \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c})$。为了搜索该概率最大的输出序列，一种方法是穷举所有可能序列的概率，并输出概率最大的序列。我们将该序列称为最优序列，并将这种搜索方法称为穷举搜索（exhaustive search）。
+
+很明显，穷举搜索很容易因为计算开销$\mathcal{O}(|\mathcal{Y}|^{T^\prime})$太大而无法使用。例如，当$|\mathcal{Y}|=10000$且$ {T^\prime}=10$时，$10000^{10} = 1 \times 10^{40}$。
 
 
 ## 贪婪搜索
@@ -22,9 +20,7 @@ $$y_{t^\prime} = \text{argmax}_{y_{t^\prime} \in \mathcal{Y}} \mathbb{P}(y_{t^\p
 
 且一旦搜索出“&lt;eos&gt;”符号即完成输出。
 
-
-设输出文本词典$\mathcal{Y}$的大小为$|\mathcal{Y}|$，输出序列的最大长度为$T^\prime$。
-贪婪搜索的计算开销是$\mathcal{O}(|\mathcal{Y}| \times {T^\prime})$。它比起穷举搜索的计算开销显著下降（例如，当${T^\prime}=10$时，$10000 \times 10 = 1 \times 10^5$）。然而，贪婪搜索并不能保证输出是最优序列。
+贪婪搜索的计算开销是$\mathcal{O}(|\mathcal{Y}| \times {T^\prime})$。它比起穷举搜索的计算开销显著下降。例如，当$|\mathcal{Y}|=10000$且$ {T^\prime}=10$时，$10000 \times 10 = 1 \times 10^5$。然而，贪婪搜索并不能保证输出是最优序列。
 
 
 ## 束搜索
@@ -42,7 +38,7 @@ $$ \frac{1}{L^\alpha} \log \mathbb{P}(y_1, \ldots, y_{L}) = \frac{1}{L^\alpha} \
 
 其中$L$为候选序列长度，$\alpha$一般可选为0.75。分母上的$L^\alpha$是为了惩罚较长序列在以上分数中较多的对数相加项。
 
-穷举搜索和贪婪搜索也可看作是两种特殊束宽的束搜索。束搜索通过更灵活的束宽来权衡计算开销和搜索质量。通常束宽等于1技能在机器翻译中取得不错的结果[1]。
+穷举搜索和贪婪搜索也可看作是两种特殊束宽的束搜索。束搜索通过更灵活的束宽来权衡计算开销和搜索质量。通常束宽取1也可以在机器翻译中也可以取得不错的结果 [1]。
 
 
 ## 小结
@@ -62,4 +58,4 @@ $$ \frac{1}{L^\alpha} \log \mathbb{P}(y_1, \ldots, y_{L}) = \frac{1}{L^\alpha} \
 
 ## 参考文献
 
-[1] Sutskever, Ilya, Oriol Vinyals, and Quoc V. Le. "Sequence to sequence learning with neural networks." NIPS. 2014.
+[1] Sutskever, I., Vinyals, O., & Le, Q. V. (2014). Sequence to sequence learning with neural networks. In Advances in neural information processing systems (pp. 3104-3112).

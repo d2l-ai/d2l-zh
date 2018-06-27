@@ -5,7 +5,7 @@
 
 ## 动机
 
-以英语-法语翻译为例，给定一对输入序列“They”、“are”、“watching”、“.”和输出序列“Ils”、“regardent”、“.”。解码器可以在输出序列的时间步1使用更集中编码了“They”、“are”信息的背景变量来生成“Ils”，在时间步2使用更集中编码了“watching”信息的背景变量来生成“regardent”，在时间步3使用更集中编码了“.”信息的背景变量来生成“.”。这看上去就像是在解码器的每一时间步对输入序列中不同时间步编码的信息分配不同的注意力。这也是注意力机制的由来，它最早由Bahanau等提出 [1]。
+以英语-法语翻译为例，给定一对英语输入序列“They”、“are”、“watching”、“.”和法语输出序列“Ils”、“regardent”、“.”。解码器可以在输出序列的时间步1使用更集中编码了“They”、“are”信息的背景变量来生成“Ils”，在时间步2使用更集中编码了“watching”信息的背景变量来生成“regardent”，在时间步3使用更集中编码了“.”信息的背景变量来生成“.”。这看上去就像是在解码器的每一时间步对输入序列中不同时间步编码的信息分配不同的注意力。这也是注意力机制的由来。它最早由Bahanau等提出 [1]。
 
 
 ## 设计
@@ -30,7 +30,7 @@ $$\alpha_{t^\prime t} = \frac{\exp(e_{t^\prime t})}{ \sum_{k=1}^T \exp(e_{t^\pri
 
 $$e_{t^\prime t} = a(\boldsymbol{s}_{t^\prime - 1}, \boldsymbol{h}_t).$$
 
-上式中的函数$a$有多种设计方法。Bahanau等使用了前馈神经网络（feedforward neural network）：
+上式中的函数$a$有多种设计方法。Bahanau等使用了多层感知机：
 
 $$e_{t^\prime t} = \boldsymbol{v}^\top \tanh(\boldsymbol{W}_s \boldsymbol{s}_{t^\prime - 1} + \boldsymbol{W}_h \boldsymbol{h}_t),$$
 
