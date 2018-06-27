@@ -7,15 +7,17 @@
 
 首先让我们简单回顾一下上一节描述的循环神经网络表达式。给定时间步$t$的小批量输入$\boldsymbol{X}_t \in \mathbb{R}^{n \times x}$（样本数为$n$，输入个数为$x$），设该时间步隐藏状态为$\boldsymbol{H}_t  \in \mathbb{R}^{n \times h}$（隐藏单元个数为$h$），输出层变量为$\boldsymbol{O}_t \in \mathbb{R}^{n \times y}$（输出个数为$y$），隐藏层的激活函数为$\phi$。循环神经网络的矢量计算表达式为
 
-
 $$
 \begin{aligned}
 \boldsymbol{H}_t &= \phi(\boldsymbol{X}_t \boldsymbol{W}_{xh} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hh}  + \boldsymbol{b}_h),\\
-\boldsymbol{O}_t &= \boldsymbol{H}_t \boldsymbol{W}_{hy} + \boldsymbol{b}_y, % this is usually not part of RNN.
+\boldsymbol{O}_t &= \boldsymbol{H}_t \boldsymbol{W}_{hy} + \boldsymbol{b}_y,
 \end{aligned}
 $$
 
-其中隐藏层的权重$\boldsymbol{W}_{xh} \in \mathbb{R}^{x \times h}, \boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$和偏差 $\boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$，以及输出层的权重$\boldsymbol{W}_{hy} \in \mathbb{R}^{h \times y}$和偏差$\boldsymbol{b}_y \in \mathbb{R}^{1 \times y}$为循环神经网络的模型参数。
+其中隐藏层的权重$\boldsymbol{W}_{xh} \in \mathbb{R}^{x \times h}, \boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$和偏差 $\boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$，以及输出层的权重$\boldsymbol{W}_{hy} \in \mathbb{R}^{h \times y}$和偏差$\boldsymbol{b}_y \in \mathbb{R}^{1 \times y}$为循环神经网络的模型参数。有些文献所指的循环神经网络只含隐藏状态$\boldsymbol{H}_t$的计算表达式。
+
+
+
 
 在语言模型中，输入个数$x$为任意词的特征向量长度（本节稍后将讨论）；输出个数$y$为语料库中所有可能的词的个数。对循环神经网络的输出做softmax运算，我们可以得到时间步$t$输出所有可能的词的概率分布$\hat{\boldsymbol{Y}}_t \in \mathbb{R}^{n \times y}$：
 

@@ -29,7 +29,7 @@ $$\mathbb{P}(w_1, w_2, w_3, w_4) =  \mathbb{P}(w_1) \mathbb{P}(w_2 \mid w_1) \ma
 $$\mathbb{P}(w_1, w_2, \ldots, w_T) \approx \prod_{t=1}^T \mathbb{P}(w_t \mid w_{t-(n-1)}, \ldots, w_{t-1}) .$$
 
 
-以上也叫$n$元语法（$n$-grams）。它是基于 $n-1$ (render error) 阶马尔可夫链的概率语言模型。当$n$分别为1、2和3时，我们将其分别称作一元语法（unigram）、二元语法（bigram）和三元语法（trigram）。例如，$w_1, w_2, w_3, w_4$在一元、二元和三元语法中的概率分别为
+以上也叫$n$元语法（$n$-grams）。它是基于$n - 1$阶马尔可夫链的概率语言模型。当$n$分别为1、2和3时，我们将其分别称作一元语法（unigram）、二元语法（bigram）和三元语法（trigram）。例如，$w_1, w_2, w_3, w_4$在一元、二元和三元语法中的概率分别为
 
 $$
 \begin{aligned}
