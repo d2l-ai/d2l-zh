@@ -90,7 +90,7 @@ for review, score in test_data:
 
 ## 创建词典
 
-现在，我们可以根据分好词的训练数据集来创建词典了。这里我们设置了特殊符号“&lt;unk&gt;”（unknown），它将表示一切不存在于训练数据集词典中的词。
+现在，我们可以根据分好词的训练数据集来创建词典了。这里我们设置了特殊符号“&lt;unk&gt;”（unknown）。它将表示一切不存在于训练数据集词典中的词。
 
 ```{.python .input  n=6}
 token_counter = collections.Counter()
@@ -109,7 +109,7 @@ vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>',
 
 ## 预处理数据
 
-下面，我们继续对数据进行预处理。每个不定长的评论将被特殊符号`PAD`补成长度为`maxlen`的序列，以及生成`NDArray`类型的序列。
+下面，我们继续对数据进行预处理。每个不定长的评论将被特殊符号`PAD`补成长度为`maxlen`的序列，并用NDArray表示。
 
 ```{.python .input  n=7}
 def encode_samples(tokenized_samples, vocab):
@@ -157,7 +157,7 @@ glove_embedding = text.embedding.create(
 
 ## 定义模型
 
-下面我们根据模型设计里的描述定义情感分类模型。其中的Embedding实例即嵌入层，LSTM实例即生成编码信息的隐含层，Dense实例即生成分类结果的输出层。
+下面我们根据模型设计里的描述定义情感分类模型。其中的`Embedding`实例即嵌入层，`LSTM`实例即对句子编码信息的隐藏层，`Dense`实例即生成分类结果的输出层。
 
 ```{.python .input}
 class SentimentNet(nn.Block):
@@ -180,7 +180,7 @@ class SentimentNet(nn.Block):
         return outputs
 ```
 
-由于情感分类的训练数据集并不是很大，为防止过拟合现象，我们将直接使用在更大规模语料上预训练的词向量作为每个词的特征向量。在训练中，我们不再更新这些词向量，即模型嵌入层中的参数。
+由于情感分类的训练数据集并不是很大，为应对过拟合现象，我们将直接使用在更大规模语料上预训练的词向量作为每个词的特征向量。在训练中，我们不再更新这些词向量，即不再迭代模型嵌入层中的参数。
 
 ```{.python .input}
 num_outputs = 2
@@ -257,11 +257,11 @@ nd.argmax(net(nd.reshape(
 
 ## 练习
 
-* 使用IMDb完整数据集，并把迭代周期改为3。你的模型能在训练和测试数据集上得到怎样的准确率？通过调节超参数，你能进一步提升模型表现吗？
+* 使用IMDb完整数据集，并把迭代周期改为3。你的模型能在训练和测试数据集上得到怎样的准确率？通过调节超参数，你能进一步提升分类准确率吗？
 
-* 使用更大的预训练词向量，例如300维的GloVe词向量，能否对分类结果带来提升？
+* 使用更大的预训练词向量，例如300维的GloVe词向量，能否提升分类准确率？
 
-* 使用spacy分词工具，能否提升分类效果？。你需要安装spacy：`pip install spacy`，并且安装英文包：`python -m spacy download en`。在代码中，先导入spacy：`import spacy`。然后加载spacy英文包：`spacy_en = spacy.load('en')`。最后定义函数：`def tokenizer(text): return [tok.text for tok in spacy_en.tokenizer(text)]`替换原来的基于空格分词的`tokenizer`函数。需要注意的是，GloVe的词向量对于名词词组的存储方式是用“-”连接各个单词，例如词组“new york”在GloVe中的表示为“new-york”。而使用spacy分词之后“new york”的存储可能是“new york”。
+* 使用spacy分词工具，能否提升分类准确率？。你需要安装spacy：`pip install spacy`，并且安装英文包：`python -m spacy download en`。在代码中，先导入spacy：`import spacy`。然后加载spacy英文包：`spacy_en = spacy.load('en')`。最后定义函数：`def tokenizer(text): return [tok.text for tok in spacy_en.tokenizer(text)]`替换原来的基于空格分词的`tokenizer`函数。需要注意的是，GloVe的词向量对于名词词组的存储方式是用“-”连接各个单词，例如词组“new york”在GloVe中的表示为“new-york”。而使用spacy分词之后“new york”的存储可能是“new york”。
 
 * 通过上面三种方法，你能使模型在测试集上的准确率提高到0.85以上吗？
 
