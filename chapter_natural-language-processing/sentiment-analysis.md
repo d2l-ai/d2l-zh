@@ -1,12 +1,12 @@
 # 文本分类：情感分析
 
-文本分类即把一段不定长的文本序列变换为类别。在文本分类问题中，情感分析是一项重要的自然语言处理的任务。例如，Netflix或者IMDb可以对每部电影的评论进行情感分类，从而帮助各个平台改进产品，提升用户体验。
+文本分类即把一段不定长的文本序列变换为类别。在文本分类问题中，情感分析是一项重要的自然语言处理任务。例如，Netflix或者IMDb可以对每部电影的评论进行情感分类，从而帮助各个平台改进产品，提升用户体验。
 
 本节介绍如何使用Gluon来创建一个情感分类模型。该模型将判断一段不定长的文本序列中包含的是正面还是负面的情绪，也即将文本序列分类为正面或负面。
 
 ## 模型设计
 
-在这个模型中，我们将应用预训练的词向量和含多个隐藏层的双向循环神经网络。首先，文本序列的每一个词将以预训练的词向量作为词的特征向量。然后，我们使用双向循环神经网络对特征序列进一步编码得到序列信息。最后，我们将编码的序列信息通过全连接层变换为输出。在本节的实验中，我们将双向长短期记忆在最初时间步和最终时间步的隐藏状态连结，并作为特征序列的编码信息传递给输出层分类。
+在这个模型中，我们将应用预训练的词向量和含多个隐藏层的双向循环神经网络。首先，文本序列的每一个词将以预训练的词向量作为词的特征向量。然后，我们使用双向循环神经网络对特征序列进一步编码得到序列信息。最后，我们将编码的序列信息通过全连接层变换为输出。在本节的实验中，我们将双向长短期记忆在最初时间步和最终时间步的隐藏状态连结，作为特征序列的编码信息传递给输出层分类。
 
 在实验开始前，导入所需的包或模块。
 
@@ -90,7 +90,7 @@ for review, score in test_data:
 
 ## 创建词典
 
-现在，我们可以根据分好词的训练数据集来创建词典了。这里我们设置了特殊符号“&lt;unk&gt;”（unknown）。它将表示一切不存在于训练数据集词典中的词。
+现在，我们可以根据分好词的训练数据集来创建词典了。这里我们设置了特殊符号“&lt;unk&gt;”（unknown），它将表示一切不存在于训练数据集词典中的词。
 
 ```{.python .input  n=6}
 token_counter = collections.Counter()
@@ -109,7 +109,7 @@ vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>',
 
 ## 预处理数据
 
-下面，我们继续对数据进行预处理。每个不定长的评论将被特殊符号`padding`补成长度为`maxlen`的序列。
+下面，我们继续对数据进行预处理。每个不定长的评论将被特殊符号`PAD`补成长度为`maxlen`的序列，以及生成`NDArray`类型的序列。
 
 ```{.python .input  n=7}
 def encode_samples(tokenized_samples, vocab):
@@ -124,7 +124,7 @@ def encode_samples(tokenized_samples, vocab):
         features.append(feature)         
     return features
 
-def pad_samples(features, maxlen=500, padding=0):
+def pad_samples(features, maxlen=500, PAD=0):
     padded_features = []
     for feature in features:
         if len(feature) > maxlen:
@@ -133,7 +133,7 @@ def pad_samples(features, maxlen=500, padding=0):
             padded_feature = feature
             # 添加 PAD 符号使每个序列等长（长度为 maxlen ）。
             while len(padded_feature) < maxlen:
-                padded_feature.append(padding)
+                padded_feature.append(PAD)
         padded_features.append(padded_feature)
     return padded_features
 
@@ -157,7 +157,7 @@ glove_embedding = text.embedding.create(
 
 ## 定义模型
 
-下面我们根据模型设计里的描述定义情感分类模型。其中的Embedding实例即嵌入层。
+下面我们根据模型设计里的描述定义情感分类模型。其中的Embedding实例即嵌入层，LSTM实例即生成编码信息的隐含层，Dense实例即生成分类结果的输出层。
 
 ```{.python .input}
 class SentimentNet(nn.Block):
@@ -171,7 +171,7 @@ class SentimentNet(nn.Block):
                                     input_size=embed_size)
             self.decoder = nn.Dense(num_outputs, flatten=False)
 
-    def forward(self, inputs, begin_state=None):
+    def forward(self, inputs):
         embeddings = self.embedding(inputs)
         states = self.encoder(embeddings)
         # 连结初始时间步和最终时间步的隐藏状态。
@@ -180,7 +180,7 @@ class SentimentNet(nn.Block):
         return outputs
 ```
 
-由于情感分类的训练数据集并不是很大，我们将直接使用在更大规模语料上预训练的词向量作为每个词的特征向量。在训练中，我们不再迭代这些词向量，即模型嵌入层中的参数。当我们使用完整数据集时，我们可以重新调节下面的超参数，例如增加迭代周期。
+由于情感分类的训练数据集并不是很大，为防止过拟合现象，我们将直接使用在更大规模语料上预训练的词向量作为每个词的特征向量。在训练中，我们不再更新这些词向量，即模型嵌入层中的参数。
 
 ```{.python .input}
 num_outputs = 2
@@ -196,7 +196,7 @@ net = SentimentNet(vocab, embed_size, num_hiddens, num_layers, bidirectional)
 net.initialize(init.Xavier(), ctx=ctx)
 # 设置 embedding 层的 weight 为预训练的词向量。
 net.embedding.weight.set_data(glove_embedding.idx_to_vec.as_in_context(ctx))
-# 训练中不迭代词向量（net.embedding中的模型参数）。
+# 训练中不更新词向量（net.embedding中的模型参数）。
 net.embedding.collect_params().setattr('grad_req', 'null')
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 loss = gloss.SoftmaxCrossEntropyLoss()
@@ -241,7 +241,7 @@ for epoch in range(1, num_epochs + 1):
           % (epoch, train_loss, train_acc, test_loss, test_acc))
 ```
 
-下面我们试着对一个简单的句子分析情感（1和0分别代表正面和负面）。为了在更复杂的句子上得到较准确的分类，我们需要使用完整数据集训练模型，并适当增大训练周期。
+下面我们试着分析一个简单的句子的情感（1和0分别代表正面和负面）。为了在更复杂的句子上得到较准确的分类，我们需要使用完整数据集训练模型，并适当增大训练周期。
 
 ```{.python .input}
 review = ['this', 'movie', 'is', 'great']
@@ -259,9 +259,11 @@ nd.argmax(net(nd.reshape(
 
 * 使用IMDb完整数据集，并把迭代周期改为3。你的模型能在训练和测试数据集上得到怎样的准确率？通过调节超参数，你能进一步提升模型表现吗？
 
-* 使用更大的预训练词向量，例如300维的GloVe词向量。
+* 使用更大的预训练词向量，例如300维的GloVe词向量，能否对分类结果带来提升？
 
-* 使用spacy分词工具。你需要安装spacy：`pip install spacy`，并且安装英文包：`python -m spacy download en`。在代码中，先导入spacy：`import spacy`。然后加载spacy英文包：`spacy_en = spacy.load('en')`。最后定义函数：`def tokenizer(text): return [tok.text for tok in spacy_en.tokenizer(text)]`替换原来的基于空格分词的`tokenizer`函数。需要注意的是，GloVe的词向量对于名词词组的存储方式是用“-”连接各个单词，例如词组“new york”在GloVe中的表示为“new-york”。而使用spacy分词之后“new york”的存储可能是“new york”。你能使模型在测试集上的准确率提高到0.85以上吗？
+* 使用spacy分词工具，能否提升分类效果？。你需要安装spacy：`pip install spacy`，并且安装英文包：`python -m spacy download en`。在代码中，先导入spacy：`import spacy`。然后加载spacy英文包：`spacy_en = spacy.load('en')`。最后定义函数：`def tokenizer(text): return [tok.text for tok in spacy_en.tokenizer(text)]`替换原来的基于空格分词的`tokenizer`函数。需要注意的是，GloVe的词向量对于名词词组的存储方式是用“-”连接各个单词，例如词组“new york”在GloVe中的表示为“new-york”。而使用spacy分词之后“new york”的存储可能是“new york”。
+
+* 通过上面三种方法，你能使模型在测试集上的准确率提高到0.85以上吗？
 
 
 
