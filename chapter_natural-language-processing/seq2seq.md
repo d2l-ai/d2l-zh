@@ -2,9 +2,9 @@
 
 在很多应用中，输入和输出都可以是不定长序列。以机器翻译为例，输入可以是一段不定长的英语文本序列，输出可以是一段不定长的法语文本序列，例如
 
-> 输入（英语）：“They”、“are”、“watching”、“.”
+> 英语输入：“They”、“are”、“watching”、“.”
 
-> 输出（法语）：“Ils”、“regardent”、“.”
+> 法语输出：“Ils”、“regardent”、“.”
 
 当输入输出都是不定长序列时，我们可以使用编码器—解码器（encoder-decoder）[1] 或者seq2seq模型 [2]。这两个模型本质上都用到了两个循环神经网络，分别叫做编码器和解码器。编码器对应输入序列，解码器对应输出序列。下面我们来介绍编码器—解码器的设计。
 
@@ -45,14 +45,14 @@ $$
 
 并得到该输出序列的损失
 
-$$- \log\mathbb{P}(y_1, \ldots, y_{T^\prime}) = -\sum_{t^\prime=1}^{T^\prime} \log \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c}).$$
+$$- \log\mathbb{P}(y_1, \ldots, y_{T^\prime} \mid x_1, \ldots, x_T) = -\sum_{t^\prime=1}^{T^\prime} \log \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c}).$$
 
 为此，我们可以使用另一个循环神经网络作为解码器。
 在输出序列的时间步$t^\prime$，解码器将上一时间步的输出$y_{t^\prime-1}$以及背景变量$\boldsymbol{c}$作为输入，并将它们与上一时间步的隐藏状态$\boldsymbol{s}_{t^\prime-1}$变换为当前时间步的隐藏状态$\boldsymbol{s}_{t^\prime}$。因此，我们可以用函数$g$表达解码器隐藏层的变换：
 
 $$\boldsymbol{s}_{t^\prime} = g(y_{t^\prime-1}, \boldsymbol{c}, \boldsymbol{s}_{t^\prime-1}).$$
 
-有了解码器的隐藏状态后，我们可以自定义输出层来计算损失中的$\mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c})$，例如基于当前时间步的解码器隐藏状态 $\boldsymbol{s}_{t^\prime}$、上一时间步的输出$y_{t^\prime-1}$以及背景变量$\boldsymbol{c}$来计算当前时间步输出$y_{t^\prime}$的概率分布（例如：softmax）。
+有了解码器的隐藏状态后，我们可以自定义输出层来计算损失中的$\mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c})$，例如基于当前时间步的解码器隐藏状态 $\boldsymbol{s}_{t^\prime}$、上一时间步的输出$y_{t^\prime-1}$以及背景变量$\boldsymbol{c}$来计算当前时间步输出$y_{t^\prime}$的概率分布。
 
 在实际中，我们常使用深度循环神经网络作为编码器和解码器。我们将在本章稍后的[“机器翻译”](nmt.md)一节中实现含深度循环神经网络的编码器和解码器。
 
