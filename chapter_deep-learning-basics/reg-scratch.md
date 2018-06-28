@@ -96,7 +96,7 @@ def fit_and_plot(lambd):
     train_ls = []
     test_ls = []
     for _ in range(num_epochs):        
-        for X, y in gb.data_iter(batch_size, n_train, features, labels):
+        for X, y in gb.data_iter(batch_size, features, labels):
             with autograd.record():
                 # 添加了 L2 范数惩罚项。
                 l = loss(net(X, w, b), y) + lambd * l2_penalty(w)

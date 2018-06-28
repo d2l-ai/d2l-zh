@@ -172,7 +172,7 @@ def optimize(batch_size, lr, num_epochs, log_interval, decay_epoch):
         if decay_epoch and epoch > decay_epoch:
             lr *= 0.1
         for batch_i, (X, y) in enumerate(
-            gb.data_iter(batch_size, num_examples, features, labels)):
+            gb.data_iter(batch_size, features, labels)):
             with autograd.record():
                 l = loss(net(X, w, b), y)
             # 先对 l 中元素求和，得到小批量损失之和，然后求参数的梯度。

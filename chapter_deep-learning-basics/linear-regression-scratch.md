@@ -59,7 +59,7 @@ plt.show()
 
 ## 读取数据
 
-在训练模型的时候，我们需要遍历数据集并不断读取小批量数据样本。这里我们定义一个函数：它每次返回批量大小个随机样本的特征和标签。
+在训练模型的时候，我们需要遍历数据集并不断读取小批量数据样本。这里我们定义一个函数：它每次返回`batch_size`（批量大小）个随机样本的特征和标签。
 
 ```{.python .input  n=5}
 batch_size = 10
@@ -74,7 +74,7 @@ def data_iter(batch_size, features, labels):
         yield features.take(j), labels.take(j)
 ```
 
-让我们读取第一个小批量数据样本并打印。每个批量的特征形状为`（10, 2）`，分别对应批量大小和输入个数；标签形状为批量大小。
+让我们读取第一个小批量数据样本并打印。每个批量的特征形状为（10， 2），分别对应批量大小和输入个数；标签形状为批量大小。
 
 ```{.python .input  n=6}
 for X, y in data_iter(batch_size, features, labels):
@@ -86,7 +86,7 @@ for X, y in data_iter(batch_size, features, labels):
 
 ## 初始化模型参数
 
-我们将权重随机化成均值0方差为0.01的正态随机数，偏差则初始化成0。
+我们将权重初始化成均值0标准差为0.01的正态随机数，偏差则初始化成0。
 
 ```{.python .input  n=7}
 w = nd.random.normal(scale=0.01, shape=(num_inputs, 1))
@@ -123,7 +123,7 @@ def squared_loss(y_hat, y):
 
 ## 定义优化算法
 
-以下的`sgd`函数实现了上一节中介绍的小批量随机梯度下降算法中的模型更新。
+以下的`sgd`函数实现了上一节中介绍的小批量随机梯度下降算法。它通过不断更新模型参数来优化损失函数。
 
 ```{.python .input  n=11}
 def sgd(params, lr, batch_size):
