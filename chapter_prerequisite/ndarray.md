@@ -2,14 +2,14 @@
 
 在深度学习中，我们通常会频繁地对数据进行操作。作为动手学深度学习的基础，本节将介绍如何对内存中的数据进行操作。
 
-在MXNet中，NDArray是存储和变换数据的主要工具。如果你之前用过NumPy，你会发现NDArray和NumPy的多维数组非常类似。然而，NDArray提供诸如GPU计算和自动求导在内的更多功能，这些都使得NDArray更加适合深度学习。
+在MXNet中，NDArray是存储和变换数据的主要工具。如果你之前用过NumPy，你会发现NDArray和NumPy的多维数组非常类似。然而，NDArray提供诸如GPU计算和自动求导在内的更多功能。这些都使得NDArray更加适合深度学习。
 
 
 ## 创建NDArray
 
 我们先介绍NDArray的最基本功能。如果你对我们用到的数学操作不是很熟悉，可以参阅附录中[“数学基础”](../chapter_appendix/math.md)一节。
 
-首先从MXNet导入`ndarray`模块，这里`nd`是`ndarray`的缩写形式。
+首先从MXNet导入`ndarray`模块。这里的`nd`是`ndarray`的缩写形式。
 
 ```{.python .input  n=1}
 from mxnet import nd
@@ -22,7 +22,7 @@ x = nd.arange(12)
 x
 ```
 
-其返回一个NDArray实例，里面一共包含12个从0开始的12个连续整数。通过在打印`x`时标注属性`<NDArray 12 @cpu(0)>`可以看到，它是长度为12的一维数组，且被创建在CPU主内存上，CPU里面的0没有特别的意义，这是主要是被之后介绍的GPU使用。
+其返回一个NDArray实例，里面一共包含从0开始的12个连续整数。从打印`x`时显示的属性`<NDArray 12 @cpu(0)>`可以看到，它是长度为12的一维数组，且被创建在CPU主内存上，CPU里面的0没有特别的意义。
 
 我们可以通过`shape`属性来获取NDArray实例形状。
 
@@ -30,20 +30,20 @@ x
 x.shape
 ```
 
-和通过`size`属性得到其元素的总数。
+我们也能够通过`size`属性得到NDArray实例中元素（element）的总数。
 
 ```{.python .input  n=9}
 x.size
 ```
 
-下面使用`reshape`函数把向量`x`的形状改为（3，4），也就是一个3行4列的矩阵。除了形状改变之外，`x`中的元素（element）保持不变。
+下面使用`reshape`函数把向量`x`的形状改为（3，4），也就是一个3行4列的矩阵。除了形状改变之外，`x`中的元素保持不变。
 
 ```{.python .input  n=3}
 x = x.reshape((3, 4))
 x
 ```
 
-注意`x`属性中的形状发生了变化。上面`x.reshape((3, 4))`也可写成`x.reshape((-1, 4))`或`x.reshape((3, -1))`。由于`x`的元素个数是已知的，这里的`-1`是能够通过元素个数和其他维的大小推断出来的。
+注意`x`属性中的形状发生了变化。上面`x.reshape((3, 4))`也可写成`x.reshape((-1, 4))`或`x.reshape((3, -1))`。由于`x`的元素个数是已知的，这里的`-1`是能够通过元素个数和其他维度的大小推断出来的。
 
 接下来，我们创建一个各元素为0，形状为（2，3，4）的张量。实际上，之前创建的向量和矩阵都是特殊的张量。
 
@@ -64,7 +64,7 @@ y = nd.array([[2, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
 y
 ```
 
-有些情况下，我们需要随机生成NDArray中每个元素的值。下面我们创建一个形状为（3，4）的NDArray，它的每个元素都随机采样于均值为0标准差为1的正态分布。
+有些情况下，我们需要随机生成NDArray中每个元素的值。下面我们创建一个形状为（3，4）的NDArray。它的每个元素都随机采样于均值为0标准差为1的正态分布。
 
 ```{.python .input  n=7}
 nd.random.normal(0, 1, shape=(3, 4))
@@ -102,7 +102,7 @@ y.exp()
 nd.dot(x, y.T)
 ```
 
-我们也可以将多个NDArray合并。下面分别在行上（维度0，即形状中的最左边元素）和列上（维度1，即形状中的从左边数其第二个元素）连结两个矩阵。
+我们也可以将多个NDArray合并。下面分别在行上（维度0，即形状中的最左边元素）和列上（维度1，即形状中左起第二个元素）连结两个矩阵。
 
 ```{.python .input}
 nd.concat(x, y, dim=0), nd.concat(x, y, dim=1)
@@ -130,7 +130,7 @@ x.norm().asscalar()
 
 前面我们看到如何对两个形状相同的NDArray做按元素操作。当对两个形状不同的NDArray做同样操作时，可能会触发广播（broadcasting）机制：先适当复制元素使得这两个NDArray形状相同后再按元素操作。
 
-定义两个NDArray
+定义两个NDArray：
 
 ```{.python .input  n=14}
 a = nd.arange(3).reshape((3, 1))
@@ -170,7 +170,7 @@ x
 
 ## 运算的内存开销
 
-前面例子里我们对每个操作新开内存来储存它的结果。例如即使是`y = x + y`我们也会新创建内存，然后再将`y`指向到新内存上。为了展示这一点，我们可以使用Python自带的`id`函数：如果两个实例的ID一致，那么它们所对应的内存地址相同；反之则不同。
+前面例子里我们对每个操作新开内存来储存它的结果。例如即使是`y = x + y`我们也会新创建内存，然后再将`y`指向新内存。为了展示这一点，我们可以使用Python自带的`id`函数：如果两个实例的ID一致，那么它们所对应的内存地址相同；反之则不同。
 
 ```{.python .input  n=15}
 before = id(y)
@@ -204,7 +204,7 @@ id(x) == before
 
 ## NDArray和NumPy相互变换
 
-我们可以通过`array`和`asnumpy`函数令数据在NDArray和Numpy格式之间相互转换。下面将NumPy变换成NDArray。
+我们可以通过`array`和`asnumpy`函数令数据在NDArray和Numpy格式之间相互转换。下面将NumPy实例变换成NDArray实例。
 
 ```{.python .input  n=22}
 import numpy as np
@@ -214,7 +214,7 @@ d = nd.array(x)
 d
 ```
 
-和NDArray变换成NumPy。
+再将NDArray实例变换成NumPy实例。
 
 ```{.python .input}
 d.asnumpy()
