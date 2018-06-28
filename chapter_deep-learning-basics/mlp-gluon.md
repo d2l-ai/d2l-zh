@@ -46,6 +46,6 @@ gb.train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
 - 尝试多加入几个隐藏层，对比上节中从零开始的实现。
 - 使用其他的激活函数，看看对结果的影响。
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/73)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/738)
 
 ![](../img/qr_mlp-gluon.svg)
