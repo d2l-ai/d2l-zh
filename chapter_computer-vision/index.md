@@ -9,9 +9,10 @@
    image-augmentation
    fine-tuning
    bounding-box
-   object-detection
+   pikachu
+   anchor
    ssd
-   yolo
+   rcnn
    fcn
    neural-style
    kaggle-gluon-cifar10

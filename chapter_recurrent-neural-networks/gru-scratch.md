@@ -183,6 +183,6 @@ gb.train_and_predict_rnn(gru_rnn, False, num_epochs, num_steps, num_hiddens,
 
 ## 参考文献
 
-[1] Cho, Kyunghyun, et al. “On the properties of neural machine translation: Encoder-decoder approaches.” arXiv:1409.1259 (2014).
+[1] Cho, K., Van Merriënboer, B., Bahdanau, D., & Bengio, Y. (2014). On the properties of neural machine translation: Encoder-decoder approaches. arXiv preprint arXiv:1409.1259.
 
-[2] Chung, Junyoung, et al. “Empirical evaluation of gated recurrent neural networks on sequence modeling.” arXiv:1412.3555 (2014).
+[2] Chung, J., Gulcehre, C., Cho, K., & Bengio, Y. (2014). Empirical evaluation of gated recurrent neural networks on sequence modeling. arXiv preprint arXiv:1412.3555.

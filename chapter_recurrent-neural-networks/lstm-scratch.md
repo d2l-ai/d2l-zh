@@ -200,4 +200,4 @@ gb.train_and_predict_rnn(lstm_rnn, False, num_epochs, num_steps, num_hiddens,
 
 ## 参考文献
 
-[1] Hochreiter, Sepp, and Jürgen Schmidhuber. “Long short-term memory.” Neural computation 9.8 (1997): 1735-1780.
+[1] Hochreiter, S., & Schmidhuber, J. (1997). Long short-term memory. Neural computation, 9(8), 1735-1780.

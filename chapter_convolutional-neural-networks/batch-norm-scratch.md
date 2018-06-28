@@ -134,7 +134,7 @@ gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 
 ## 小结
 
-批量归一化层对网络中间层的输出做归一化，来使得深层网络学习时数值更加稳定。
+* 批量归一化层对网络中间层的输出做归一化，来使得深层网络学习时数值更加稳定。
 
 ## 练习
 
