@@ -379,7 +379,7 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
 
 def data_iter(batch_size, features, labels):
     """Iterate through a data set."""
-	num_examples = len(features)
+    num_examples = len(features)
     indices = list(range(num_examples))
     random.shuffle(indices)
     for i in range(0, num_examples, batch_size):
