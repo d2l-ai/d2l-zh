@@ -9,7 +9,7 @@ ResNet [1] 成功增加跨层的数据线路来允许梯度可以快速的到达
 
 ResNet的基础块叫做残差块。如下图所示，它将层A的输出在输入给层B的同时跨过B，并和B的输出相加作为下面层的输入。它可以看成是两个网络相加，一个网络只有层A，一个则有层A和B。这里层A在两个网络之间共享参数。在求梯度的时候，来自层B上层的梯度既可以通过层B也可以直接到达层A，从而使得层A可以更容易获取足够大的梯度来进行模型更新。
 
-![残差块（左）和它的分解（右）](../img/resnet.svg)
+![残差块（左）和它的分解（右）。](../img/resnet.svg)
 
 
 ResNet沿用了VGG全$3\times 3$卷积层设计。残差块里首先是两次有同样输出通道的$3\times 3$卷积层，每个卷积层后跟一个批量归一化层和ReLU激活层。然后我们将输入跳过这两个卷积层后直接加在最后的ReLU激活层前。这样的设计要求这两个卷积层的输出都保持跟输入形状一样来保证相加可以进行。如果想改变输出的通道数，我们则引入一个额外的$1\times 1$卷积层来将输入变换成需要的形状后再相加。
@@ -146,6 +146,6 @@ gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 
 ## 参考文献
 
-[1] He, Kaiming, et al. "Deep residual learning for image recognition." CVPR. 2016.
+[1] He, K., Zhang, X., Ren, S., & Sun, J. (2016). Deep residual learning for image recognition. In Proceedings of the IEEE conference on computer vision and pattern recognition (pp. 770-778).
 
-[2] He, Kaiming, et al. "Identity mappings in deep residual networks." ECCV, 2016.
+[2] He, K., Zhang, X., Ren, S., & Sun, J. (2016, October). Identity mappings in deep residual networks. In European Conference on Computer Vision (pp. 630-645). Springer, Cham.
