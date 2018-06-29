@@ -12,7 +12,7 @@ from mxnet.gluon import data as gdata
 
 ## 获取Fashion-MNIST数据集
 
-本节中，我们考虑图片分类问题。我们使用一个类别为服饰的数据集Fashion-MNIST [1]。该数据集中，图片的高和宽均为28像素，一共包括了10个类别，分别为：t-shirt（T恤）、trouser（裤子）、pullover（套衫）、dress（连衣裙）、coat（外套）、sandal（凉鞋）、shirt（衬衫）、sneaker（运动鞋）、bag（包）和ankle boot（短靴）。
+本节中，我们考虑图片分类问题。我们使用一个类别为服饰的数据集Fashion-MNIST [1]。该数据集中，图片的高和宽均为28像素，一共包括了10个类别，分别为：t-shirt（T恤）、trouser（裤子）、pullover（套衫）、dress（连衣裙）、coat（外套）、sandal（凉鞋）、shirt（衬衫）、sneaker（运动鞋）、bag（包）和ankle boot（短靴）。训练数据集中和测试数据集中的每个类别的图片数分别为6,000和1,000。
 
 下面，我们通过Gluon的`data`包来下载这个数据集。由于图片中每个像素的值在0到255之间，我们可以通过定义`transform`函数将每个值转换为0到1之间。
 

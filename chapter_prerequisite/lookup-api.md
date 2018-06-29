@@ -1,6 +1,6 @@
-# 查阅MXNet API
+# 查阅MXNet文档
 
-受篇幅所限，本书无法对所有MXNet的应用程序接口（API）一一介绍。每当遇到不熟悉的MXNet API时，我们可以主动查阅它的相关信息。
+受篇幅所限，本书无法对所有MXNet的应用程序接口（API）一一介绍。每当遇到不熟悉的MXNet API时，我们可以主动查阅它的相关文档。
 
 
 ## 使用`dir`函数
@@ -31,18 +31,18 @@ y
 
 ## 在MXNet网站上查阅
 
-我们也可以在MXNet的网站上查阅API的相关信息。访问MXNet网站（mxnet.apache.org）。如图2.1所示，点击网页顶部的下拉菜单“API”可查阅各个前端语言的API。此外，我们也可以在网页右上方含“Search”字样的搜索框中直接搜索API名称。
+我们也可以在MXNet的网站上查阅API的相关文档。访问MXNet网站（mxnet.apache.org）。如图2.1所示，点击网页顶部的下拉菜单“API”可查阅各个前端语言的API。此外，我们也可以在网页右上方含“Search”字样的搜索框中直接搜索API名称。
 
 ![MXNet官方网站（mxnet.apache.org）。点击顶部的下拉菜单“API”可查阅各个前端语言的API。在右上方含“Search”字样的搜索框中也可直接搜索API名称。](../img/mxnet-website.png)
 
-图2.2展示了MXNet网站上有关`ones_like`函数的描述。
+图2.2展示了MXNet网站上有关`ones_like`函数的文档。
 
-![MXNet网站上有关`ones_like`函数的描述。](../img/ones_like.png)
+![MXNet网站上有关`ones_like`函数的文档。](../img/ones_like.png)
 
 ## 小结
 
-* 每当遇到不熟悉的MXNet API时，我们可以主动查阅它的相关信息。
-* 查阅MXNet API时可以使用`dir`和`help`函数，或访问MXNet官网。
+* 每当遇到不熟悉的MXNet API时，我们可以主动查阅它的相关文档。
+* 查阅MXNet文档可以使用`dir`和`help`函数，或访问MXNet官网。
 
 
 ## 练习
