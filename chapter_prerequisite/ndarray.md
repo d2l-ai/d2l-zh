@@ -126,6 +126,8 @@ x.sum()
 x.norm().asscalar()
 ```
 
+我们也可以把`y.exp()`、`x.sum()`、`x.norm()`等分别改写为`nd.exp(y)`、`nd.sum(x)`、`nd.norm(x)`等。
+
 ## 广播机制
 
 前面我们看到如何对两个形状相同的NDArray做按元素操作。当对两个形状不同的NDArray做同样操作时，可能会触发广播（broadcasting）机制：先适当复制元素使得这两个NDArray形状相同后再按元素操作。
@@ -181,7 +183,7 @@ id(y) == before
 如果我们想指定结果到特定内存，我们可以使用前面介绍的索引来进替换操作。在下面的例子中，我们先通过`zeros_like`创建和`y`形状相同且元素为0的NDArray，记为`z`。接下来，我们把`x + y`的结果通过`[:]`写进`z`所对应的内存中。
 
 ```{.python .input  n=16}
-z = nd.zeros_like(y)
+z = y.zeros_like()
 before = id(z)
 z[:] = x + y
 id(z) == before
@@ -230,7 +232,6 @@ d.asnumpy()
 
 * 运行本节代码。将本节中条件判断式`x == y`改为`x < y`或`x > y`，看看能够得到什么样的NDArray。
 * 将广播机制中按元素操作的两个NDArray替换成其他形状，结果是否和预期一样？
-* 查阅MXNet官方网站上的[文档](https://mxnet.incubator.apache.org/api/python/ndarray/ndarray.html)，了解NDArray支持的其他操作。
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/745)
