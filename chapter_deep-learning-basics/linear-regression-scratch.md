@@ -68,10 +68,9 @@ def data_iter(batch_size, features, labels):
     # 随机化读取顺序。
     indices = list(range(num_examples))
     random.shuffle(indices)
-    for i in range(0, num_examples, batch_size):
-        j = nd.array(indices[i: min(i + batch_size, num_examples)])
-        # take 函数根据索引返回对应元素。
-        yield features.take(j), labels.take(j)
+    j = nd.array(indices[0: min(i + batch_size, num_examples)])
+    # take 函数根据索引返回对应元素。
+    yield features.take(j), labels.take(j)
 ```
 
 让我们读取第一个小批量数据样本并打印。每个批量的特征形状为（10， 2），分别对应批量大小和输入个数；标签形状为批量大小。
