@@ -162,7 +162,6 @@
 * https://www.the-qrcode-generator.com/
     * 75pixel, SVG
 
-
 ## 文献引用
 
 * 每节末尾附上本节参考文献
