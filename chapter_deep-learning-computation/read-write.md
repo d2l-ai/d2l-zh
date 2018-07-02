@@ -95,4 +95,4 @@ y2 == y
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1255)
 
-![](../img/qr_serialization.svg)
+![](../img/qr_read-write.svg)

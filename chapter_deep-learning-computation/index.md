@@ -7,11 +7,11 @@
 .. toctree::
    :maxdepth: 2
 
-   block
+   model-construction
    parameters
    deferred-init
    custom-layer
-   serialization
+   read-write
    use-gpu
 
 ```

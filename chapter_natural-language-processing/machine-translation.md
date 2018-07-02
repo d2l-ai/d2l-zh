@@ -345,7 +345,7 @@ $$ \exp(\min(0, 1 - \frac{len_{\text{label}}}{len_{\text{pred}}})) \prod_{i=1}^k
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4689)
 
-![](../img/qr_nmt.svg)
+![](../img/qr_machine-translation.svg)
 
 ## 参考文献
 

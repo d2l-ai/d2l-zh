@@ -92,4 +92,4 @@ fit_and_plot(5)
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/985)
 
-![](../img/qr_regularization-gluon.svg)
+![](../img/qr_weight-decay-gluon.svg)

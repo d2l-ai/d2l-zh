@@ -17,8 +17,8 @@
    mlp-scratch
    mlp-gluon
    underfit-overfit
-   regularization
-   regularization-gluon
+   weight-decay
+   weight-decay-gluon
    dropout
    dropout-gluon
    backprop

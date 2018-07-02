@@ -11,7 +11,7 @@
 .. toctree::
    :maxdepth: 2
 
-   lm
+   lang-model
    hidden-state
    rnn
    bptt

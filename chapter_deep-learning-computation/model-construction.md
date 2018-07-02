@@ -148,4 +148,4 @@ net(x)
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/986)
 
 
-![](../img/qr_block.svg)
+![](../img/qr_model-construction.svg)

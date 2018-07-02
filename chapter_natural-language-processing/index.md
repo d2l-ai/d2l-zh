@@ -11,10 +11,10 @@
 
    word2vec
    glove-fasttext
-   pretrained-embedding
+   similarity-analogy
    sentiment-analysis
    seq2seq
    beam-search
    attention
-   nmt
+   machine-translation
 ```

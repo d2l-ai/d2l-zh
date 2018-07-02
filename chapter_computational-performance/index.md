@@ -8,7 +8,7 @@
    :maxdepth: 2
 
    hybridize
-   lazy-evaluation
+   async-computation
    auto-parallelism
    multiple-gpus
    multiple-gpus-gluon

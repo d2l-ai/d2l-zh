@@ -58,4 +58,4 @@ $$
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6650)
 
-![](../img/qr_lm.svg)
+![](../img/qr_lang-model.svg)

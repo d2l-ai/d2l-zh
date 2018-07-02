@@ -250,7 +250,7 @@ get_top_k_by_analogy(glove_6b50d, 1, 'do', 'did', 'go')
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4373)
 
-![](../img/qr_pretrained-embedding.svg)
+![](../img/qr_similarity-analogy.svg)
 
 ## 参考文献
 
