@@ -15,7 +15,7 @@
 
 让我们考虑批量大小为1的时序数据样本。
 在时间步$t$，循环神经网络将输入$x_t$的特征向量$\boldsymbol{x}_t$和上个时间步的隐藏状态$\boldsymbol{h}_{t-1}$变换为当前时间步的隐藏状态$\boldsymbol{h}_t$。
-其中，每个输入的特征向量可能是模型参数，例如[“循环神经网络——使用Gluon”](../chapter_recurrent-neural-networks/rnn-gluon.md)一节中需要学习的每个词向量。我们可以用函数$f$表达循环神经网络隐藏层的变换：
+其中，每个输入的特征向量可能是模型参数，例如[“循环神经网络的Gluon实现”](../chapter_recurrent-neural-networks/rnn-gluon.md)一节中需要学习的每个词向量。我们可以用函数$f$表达循环神经网络隐藏层的变换：
 
 $$\boldsymbol{h}_t = f(\boldsymbol{x}_t, \boldsymbol{h}_{t-1}). $$
 
@@ -54,7 +54,7 @@ $$\boldsymbol{s}_{t^\prime} = g(y_{t^\prime-1}, \boldsymbol{c}, \boldsymbol{s}_{
 
 有了解码器的隐藏状态后，我们可以自定义输出层来计算损失中的$\mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c})$，例如基于当前时间步的解码器隐藏状态 $\boldsymbol{s}_{t^\prime}$、上一时间步的输出$y_{t^\prime-1}$以及背景变量$\boldsymbol{c}$来计算当前时间步输出$y_{t^\prime}$的概率分布。
 
-在实际中，我们常使用深度循环神经网络作为编码器和解码器。我们将在本章稍后的[“机器翻译”](nmt.md)一节中实现含深度循环神经网络的编码器和解码器。
+在实际中，我们常使用深度循环神经网络作为编码器和解码器。我们将在本章稍后的[“机器翻译”](machine-translation.md)一节中实现含深度循环神经网络的编码器和解码器。
 
 
 ## 小结

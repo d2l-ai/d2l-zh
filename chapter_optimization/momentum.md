@@ -28,7 +28,7 @@ $$
 $$
 
 
-其中$\boldsymbol{v}$是速度变量，动量超参数$\gamma$满足$0 \leq \gamma \leq 1$。动量法中的学习率$\eta$和有关小批量$\mathcal{B}$的随机梯度$\nabla f_\mathcal{B}(\boldsymbol{x})$已在[“梯度下降和随机梯度下降”](./gd-sgd-scratch.md)一节中描述。
+其中$\boldsymbol{v}$是速度变量，动量超参数$\gamma$满足$0 \leq \gamma \leq 1$。动量法中的学习率$\eta$和有关小批量$\mathcal{B}$的随机梯度$\nabla f_\mathcal{B}(\boldsymbol{x})$已在[“梯度下降和随机梯度下降”](gd-sgd.md)一节中描述。
 
 
 ### 指数加权移动平均
@@ -121,7 +121,7 @@ def init_params():
     return params, vs
 ```
 
-优化函数`optimize`与[“梯度下降和随机梯度下降——从零开始”](gd-sgd-scratch.md)一节中的类似。
+优化函数`optimize`与[“梯度下降和随机梯度下降”](gd-sgd.md)一节中的类似。
 
 ```{.python .input  n=3}
 net = gb.linreg

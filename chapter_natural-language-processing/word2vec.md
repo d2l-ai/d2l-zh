@@ -6,7 +6,7 @@
 
 ## 为何不采用one-hot向量
 
-我们在[“循环神经网络——从零开始”](../chapter_recurrent-neural-networks/rnn-scratch.md)一节中使用one-hot向量表示词（字符为词）。回忆一下，假设词典中不同词的数量（词典大小）为$N$，每个词可以和从0到$N-1$的连续整数一一对应。这些与词对应的整数也叫词的索引。
+我们在[“循环神经网络”](../chapter_recurrent-neural-networks/rnn.md)一节中使用one-hot向量表示词（字符为词）。回忆一下，假设词典中不同词的数量（词典大小）为$N$，每个词可以和从0到$N-1$的连续整数一一对应。这些与词对应的整数也叫词的索引。
 假设一个词的索引为$i$，为了得到该词的one-hot向量表示，我们创建一个全0的长为$N$的向量，并将其第$i$位设成1。
 
 然而，使用one-hot词向量通常并不是一个好选择。一个主要的原因是，one-hot词向量无法表达不同词之间的相似度，例如余弦相似度。由于任意一对向量$\boldsymbol{x}, \boldsymbol{y} \in \mathbb{R}^d$的余弦相似度为
@@ -50,7 +50,7 @@ $$ -\frac{1}{T} \sum_{t=1}^T \sum_{-m \leq j \leq m, j \neq 0} \text{log} \mathb
 
 $$\mathbb{P}(w_o \mid w_c) = \frac{\text{exp}(\mathbf{u}_o^\top \mathbf{v}_c)}{ \sum_{i \in \mathcal{V}} \text{exp}(\mathbf{u}_i^\top \mathbf{v}_c)}.$$
 
-当序列长度$T$较大时，我们通常在每次迭代时随机采样一个较短的子序列来计算有关该子序列的损失。然后，根据该损失计算词向量的梯度并迭代词向量。具体算法可以参考[“梯度下降和随机梯度下降——从零开始”](../chapter_optimization/gd-sgd-scratch.md)一节。
+当序列长度$T$较大时，我们通常在每次迭代时随机采样一个较短的子序列来计算有关该子序列的损失。然后，根据该损失计算词向量的梯度并迭代词向量。具体算法可以参考[“梯度下降和随机梯度下降”](../chapter_optimization/gd-sgd.md)一节。
 作为一个具体的例子，下面我们看看如何计算随机采样的子序列的损失有关中心词向量的梯度。和上面提到的长度为$T$的文本序列的损失函数类似，随机采样的子序列的损失实际上是对子序列中给定中心词生成背景词的条件概率的对数求平均。通过微分，我们可以得到上式中条件概率的对数有关中心词向量$\mathbf{v}_c$的梯度
 
 $$\frac{\partial \text{log} \mathbb{P}(w_o \mid w_c)}{\partial \mathbf{v}_c} = \mathbf{u}_o - \sum_{j \in \mathcal{V}} \frac{\text{exp}(\mathbf{u}_j^\top \mathbf{v}_c)}{ \sum_{i \in \mathcal{V}} \text{exp}(\mathbf{u}_i^\top \mathbf{v}_c)} \mathbf{u}_j.$$

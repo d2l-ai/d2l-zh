@@ -5,7 +5,7 @@
 
 ## 不含模型参数的自定义层
 
-我们先介绍如何定义一个不含模型参数的自定义层。事实上，这和[“模型构造”](block.md)一节中介绍的使用Block构造模型类似。
+我们先介绍如何定义一个不含模型参数的自定义层。事实上，这和[“模型构造”](model-construction.md)一节中介绍的使用Block构造模型类似。
 
 首先，导入本节中实验需要的包或模块。
 
@@ -51,7 +51,7 @@ y.mean()
 
 ## 含模型参数的自定义层
 
-我们还可以自定义含模型参数的自定义层。这样，自定义层里的模型参数就可以通过训练学出来了。我们在[“模型参数”](parameters.md)一节里介绍了Parameter类。其实，在自定义层的时候我们还可以使用Block自带的ParameterDict类型的成员变量`params`。顾名思义，这是一个由字符串类型的参数名字映射到Parameter类型的模型参数的字典。我们可以通过`get`函数从`ParameterDict`创建`Parameter`。
+我们还可以自定义含模型参数的自定义层。这样，自定义层里的模型参数就可以通过训练学出来了。我们在[“模型参数的访问、初始化和共享”](parameters.md)一节里介绍了Parameter类。其实，在自定义层的时候我们还可以使用Block自带的ParameterDict类型的成员变量`params`。顾名思义，这是一个由字符串类型的参数名字映射到Parameter类型的模型参数的字典。我们可以通过`get`函数从`ParameterDict`创建`Parameter`。
 
 ```{.python .input  n=7}
 params = gluon.ParameterDict()

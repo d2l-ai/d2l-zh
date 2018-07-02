@@ -1,6 +1,6 @@
 # Softmax回归的Gluon实现
 
-我们在[“线性回归——使用Gluon”](linear-regression-gluon.md)一节中已经了解了使用Gluon实现模型的便利。下面，让我们使用Gluon来实现一个Softmax回归模型。
+我们在[“线性回归的Gluon实现”](linear-regression-gluon.md)一节中已经了解了使用Gluon实现模型的便利。下面，让我们使用Gluon来实现一个Softmax回归模型。
 
 首先导入本节实现所需的包或模块。
 
@@ -23,7 +23,7 @@ train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
 
 ## 定义和初始化模型
 
-在使用Gluon定义模型时，我们先通过添加Flatten实例将每张原始图片用向量表示。它的输出是一个行数为`batch_size`的矩阵，其中每一行代表了一个样本向量。在[“分类模型”](classification.md)一节中，我们提到Softmax回归的输出层是一个全连接层。因此，我们继续添加一个输出个数为10的全连接层。我们使用均值为0标准差为0.01的正态分布随机初始化模型的权重参数。
+在使用Gluon定义模型时，我们先通过添加Flatten实例将每张原始图片用向量表示。它的输出是一个行数为`batch_size`的矩阵，其中每一行代表了一个样本向量。在[“Softmax回归”](softmax-regression.md)一节中，我们提到Softmax回归的输出层是一个全连接层。因此，我们继续添加一个输出个数为10的全连接层。我们使用均值为0标准差为0.01的正态分布随机初始化模型的权重参数。
 
 ```{.python .input  n=3}
 net = nn.Sequential()

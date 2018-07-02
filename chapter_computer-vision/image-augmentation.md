@@ -117,7 +117,7 @@ def load_cifar10(is_train, augs, batch_size):
 
 ### 模型训练
 
-我们使用ResNet 18来训练CIFAR-10。训练的的代码跟[“残差网络：ResNet”](..//chapter_convolutional-neural-networks/resnet.md)一致，除了使用所有可用的GPU和不同的学习率外。
+我们使用ResNet 18来训练CIFAR-10。训练的的代码跟[“残差网络：ResNet”](../chapter_convolutional-neural-networks/resnet.md)一致，除了使用所有可用的GPU和不同的学习率外。
 
 ```{.python .input  n=13}
 def train(train_augs, test_augs, lr=0.1):

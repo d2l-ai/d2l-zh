@@ -30,7 +30,7 @@ net = nn.Sequential()
 net.add(nn.Dense(1))
 ```
 
-我们可以在Trainer中定义优化算法名称`rmsprop`并定义$\gamma$超参数`gamma1`。以下几组实验分别重现了[“RMSProp——从零开始”](rmsprop-scratch.md)一节中实验结果。
+我们可以在Trainer中定义优化算法名称`rmsprop`并定义$\gamma$超参数`gamma1`。以下几组实验分别重现了[“RMSProp”](rmsprop.md)一节中实验结果。
 
 ```{.python .input  n=3}
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)

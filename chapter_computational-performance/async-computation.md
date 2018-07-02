@@ -155,7 +155,7 @@ def get_mem():
     return int(str(res).split()[15]) / 1e3
 ```
 
-现在我们可以做测试了。我们先试运行一次让系统把`net`的参数初始化。相关内容请参见[“模型参数的延后初始化”](../chapter_gluon-basics/deferred-init.md)一节。
+现在我们可以做测试了。我们先试运行一次让系统把`net`的参数初始化。相关内容请参见[“模型参数的延后初始化”](../chapter_deep-learning-computation/deferred-init.md)一节。
 
 ```{.python .input  n=14}
 for X, y in data_iter():

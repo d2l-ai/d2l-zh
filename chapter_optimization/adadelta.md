@@ -1,6 +1,6 @@
 # Adadelta
 
-我们在[“RMSProp——从零开始”](rmsprop-gluon.md)一节中描述了，RMSProp针对Adagrad在迭代后期可能较难找到有用解的问题，对小批量随机梯度按元素平方项做指数加权移动平均而不是累加。另一种应对该问题的优化算法叫做Adadelta [1]。有意思的是，它没有学习率超参数。
+我们在[“RMSProp”](rmsprop.md)一节中描述了，RMSProp针对Adagrad在迭代后期可能较难找到有用解的问题，对小批量随机梯度按元素平方项做指数加权移动平均而不是累加。另一种应对该问题的优化算法叫做Adadelta [1]。有意思的是，它没有学习率超参数。
 
 
 ## Adadelta算法
@@ -82,7 +82,7 @@ def init_params():
     return params, sqrs, deltas
 ```
 
-优化函数`optimize`与[“Adagrad——从零开始”](adagrad-scratch.md)一节中的类似。
+优化函数`optimize`与[“Adagrad”](adagrad.md)一节中的类似。
 
 ```{.python .input  n=2}
 net = gb.linreg

@@ -40,7 +40,7 @@ $$\boldsymbol{O}_t = \boldsymbol{H}_t^{(L)} \boldsymbol{W}_{hy} + \boldsymbol{b}
 
 ## 练习
 
-* 将[“循环神经网络——从零开始”](rnn-scratch.md)一节中的模型改为含有2个隐藏层的循环神经网络。观察并分析实验现象。
+* 将[“循环神经网络”](rnn.md)一节中的模型改为含有2个隐藏层的循环神经网络。观察并分析实验现象。
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6730)

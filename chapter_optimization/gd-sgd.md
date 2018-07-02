@@ -128,7 +128,7 @@ import numpy as np
 import random
 ```
 
-实验中，我们以之前介绍过的线性回归为例。我们直接调用`gluonbook`中的线性回归模型和平方损失函数。它们已在[“线性回归——从零开始”](../chapter_supervised-learning/linear-regression-scratch.md)一节中实现过了。
+实验中，我们以之前介绍过的线性回归为例。我们直接调用`gluonbook`中的线性回归模型和平方损失函数。它们已在[“线性回归的从零开始实现”](../chapter_deep-learning-basics/linear-regression-scratch.md)一节中实现过了。
 
 ```{.python .input}
 net = gb.linreg

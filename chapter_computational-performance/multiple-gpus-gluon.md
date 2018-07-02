@@ -1,6 +1,6 @@
 # 多GPU计算的Gluon实现
 
-在Gluon中，我们可以很方便地使用数据并行进行多GPU计算。比方说，我们并不需要自己实现[“多GPU计算——从零开始”](./multiple-gpus-scratch.md)一节里介绍的多GPU之间同步数据的辅助函数。
+在Gluon中，我们可以很方便地使用数据并行进行多GPU计算。比方说，我们并不需要自己实现[“多GPU计算”](multiple-gpus.md)一节里介绍的多GPU之间同步数据的辅助函数。
 
 先导入本节实验需要的包或模块。同上一节，运行本节中的程序需要至少两块GPU。
 
@@ -37,7 +37,7 @@ gpu_x = gutils.split_and_load(x, ctx)
 net(gpu_x[0]), net(gpu_x[1])
 ```
 
-回忆一下[“模型参数的延后初始化”](../chapter_gluon-basics/deferred-init.md)一节中介绍的延后的初始化。现在，我们可以通过`data`访问初始化好的模型参数值了。需要注意的是，默认下`weight.data()`会返回CPU上的参数值。由于我们指定了2个GPU来初始化模型参数，我们需要指定GPU访问。我们看到，相同参数在不同的GPU上的值一样。
+回忆一下[“模型参数的延后初始化”](../chapter_deep-learning-computation/deferred-init.md)一节中介绍的延后的初始化。现在，我们可以通过`data`访问初始化好的模型参数值了。需要注意的是，默认下`weight.data()`会返回CPU上的参数值。由于我们指定了2个GPU来初始化模型参数，我们需要指定GPU访问。我们看到，相同参数在不同的GPU上的值一样。
 
 ```{.python .input}
 weight = net[1].params.get('weight')

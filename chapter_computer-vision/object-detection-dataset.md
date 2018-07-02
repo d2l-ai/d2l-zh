@@ -98,4 +98,4 @@ for ax, label in zip(axes, batch.label[0][0:10]):
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7022)
 
-![](../img/qr_pikachu.svg)
+![](../img/qr_object-detection-dataset.svg)

@@ -97,7 +97,7 @@ def init_params():
     return params, vs, sqrs
 ```
 
-优化函数`optimize`与[“Adagrad——从零开始”](adagrad-scratch.md)一节中的类似。
+优化函数`optimize`与[“Adagrad”](adagrad.md)一节中的类似。
 
 ```{.python .input  n=2}
 net = gb.linreg

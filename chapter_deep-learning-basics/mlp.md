@@ -137,7 +137,7 @@ $$
 
 ### MXNet的默认随机初始化
 
-随机初始化模型参数的方法有很多。在[“线性回归——使用Gluon”](linear-regression-gluon.md)一节中，我们使用`net.initialize(init.Normal(sigma=0.01))`使模型`net`的权重参数采用正态分布的随机初始化方式。如果不指定初始化方法，例如`net.initialize()`，我们将使用MXNet的默认随机初始化方法。默认的随机初始化中，权重参数每个元素随机采样于-0.07到0.07之间的均匀分布，偏差参数全部清零。
+随机初始化模型参数的方法有很多。在[“线性回归的Gluon实现”](linear-regression-gluon.md)一节中，我们使用`net.initialize(init.Normal(sigma=0.01))`使模型`net`的权重参数采用正态分布的随机初始化方式。如果不指定初始化方法，例如`net.initialize()`，我们将使用MXNet的默认随机初始化方法。默认的随机初始化中，权重参数每个元素随机采样于-0.07到0.07之间的均匀分布，偏差参数全部清零。
 
 
 ### Xavier随机初始化

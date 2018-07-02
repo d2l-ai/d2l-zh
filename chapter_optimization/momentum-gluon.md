@@ -29,7 +29,7 @@ net = nn.Sequential()
 net.add(nn.Dense(1))
 ```
 
-例如，以使用动量法的小批量随机梯度下降为例，我们可以在`Trainer`中定义动量超参数`momentum`。以下几组实验分别重现了[“动量法——从零开始”](momentum-scratch.md)一节中实验结果。
+例如，以使用动量法的小批量随机梯度下降为例，我们可以在`Trainer`中定义动量超参数`momentum`。以下几组实验分别重现了[“动量法”](momentum.md)一节中实验结果。
 
 ```{.python .input  n=3}
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)

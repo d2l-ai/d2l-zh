@@ -89,7 +89,7 @@ def init_params():
     return params, sqrs
 ```
 
-优化函数`optimize`与[“梯度下降和随机梯度下降”](gd-sgd-scratch.md)一节中的类似。需要指出的是，这里的初始学习率`lr`无需自我衰减。
+优化函数`optimize`与[“梯度下降和随机梯度下降”](gd-sgd.md)一节中的类似。需要指出的是，这里的初始学习率`lr`无需自我衰减。
 
 ```{.python .input  n=3}
 net = gb.linreg

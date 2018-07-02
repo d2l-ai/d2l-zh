@@ -9,7 +9,7 @@
    image-augmentation
    fine-tuning
    bounding-box
-   pikachu
+   object-detection-dataset
    anchor
    ssd
    rcnn

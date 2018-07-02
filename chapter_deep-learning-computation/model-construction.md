@@ -1,6 +1,6 @@
 # 模型构造
 
-回忆在[“多层感知机——使用Gluon”](../chapter_supervised-learning/mlp-gluon.md)一节中我们是如何实现一个单隐藏层感知机。我们首先构造Sequential实例，然后依次添加两个全连接层。其中第一层的输出大小为256，即隐藏层单元个数是256；第二层的输出大小为10，即输出层单元个数是10。这个简单例子已经包含了深度学习模型计算的方方面面，接下来的小节我们将围绕这个例子展开。
+回忆在[“多层感知机的Gluon实现”](../chapter_deep-learning-basics/mlp-gluon.md)一节中我们是如何实现一个单隐藏层感知机。我们首先构造Sequential实例，然后依次添加两个全连接层。其中第一层的输出大小为256，即隐藏层单元个数是256；第二层的输出大小为10，即输出层单元个数是10。这个简单例子已经包含了深度学习模型计算的方方面面，接下来的小节我们将围绕这个例子展开。
 
 我们之前都是用了Sequential类来构造模型。这里我们另外一种基于Block类的模型构造方法，它让构造模型更加灵活，也将让你能更好的理解Sequential的运行机制。
 
@@ -27,7 +27,7 @@ class MLP(nn.Block):
         return self.output(self.hidden(x))
 ```
 
-我们可以实例化MLP类得到`net`，其使用跟[“多层感知机——使用Gluon”](../chapter_supervised-learning/mlp-gluon.md)一节中通过Sequential类构造的`net`一致。下面代码初始化`net`并传入输入数据`x`做一次前向计算。
+我们可以实例化MLP类得到`net`，其使用跟[“多层感知机的Gluon实现”](../chapter_deep-learning-basics/mlp-gluon.md)一节中通过Sequential类构造的`net`一致。下面代码初始化`net`并传入输入数据`x`做一次前向计算。
 
 ```{.python .input  n=2}
 x = nd.random.uniform(shape=(2,20))
@@ -74,7 +74,7 @@ net.initialize()
 net(x)
 ```
 
-你会发现这里MySequential类的使用跟[“多层感知机——使用Gluon”](../chapter_supervised-learning/mlp-gluon.md)一节中Sequential类使用一致。
+你会发现这里MySequential类的使用跟[“多层感知机的Gluon实现”](../chapter_deep-learning-basics/mlp-gluon.md)一节中Sequential类使用一致。
 
 ## 构造复杂的模型
 

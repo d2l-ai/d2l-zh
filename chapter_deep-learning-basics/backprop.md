@@ -59,7 +59,7 @@ $$J = L + s.$$
 
 ### 反向传播
 
-刚刚提到，图3.6中模型的参数是$\boldsymbol{W}^{(1)}$和$\boldsymbol{W}^{(2)}$。根据["单层神经网络"](shallow-model.md)一节中定义的小批量随机梯度下降，对于小批量中每个样本，我们都需要对目标函数$J$有关$\boldsymbol{W}^{(1)}$和$\boldsymbol{W}^{(2)}$的梯度求平均来迭代$\boldsymbol{W}^{(1)}$和$\boldsymbol{W}^{(2)}$。也就是说，每一次迭代都需要计算模型参数梯度$\partial J/\partial \boldsymbol{W}^{(1)}$和$\partial J/\partial \boldsymbol{W}^{(2)}$。根据图3.6中的依赖关系，我们可以按照其中箭头所指的反方向依次计算并存储梯度。
+刚刚提到，图3.6中模型的参数是$\boldsymbol{W}^{(1)}$和$\boldsymbol{W}^{(2)}$。根据["线性回归"](linear-regression.md)一节中定义的小批量随机梯度下降，对于小批量中每个样本，我们都需要对目标函数$J$有关$\boldsymbol{W}^{(1)}$和$\boldsymbol{W}^{(2)}$的梯度求平均来迭代$\boldsymbol{W}^{(1)}$和$\boldsymbol{W}^{(2)}$。也就是说，每一次迭代都需要计算模型参数梯度$\partial J/\partial \boldsymbol{W}^{(1)}$和$\partial J/\partial \boldsymbol{W}^{(2)}$。根据图3.6中的依赖关系，我们可以按照其中箭头所指的反方向依次计算并存储梯度。
 
 为了表述方便，对输入输出$\mathsf{X}, \mathsf{Y}, \mathsf{Z}$为任意形状张量的函数$\mathsf{Y}=f(\mathsf{X})$和$\mathsf{Z}=g(\mathsf{Y})$，我们使用
 
@@ -147,7 +147,7 @@ $$
 
 ## 练习
 
-* 学习了本节内容后，你是否能解释[“多层神经网络”](multi-layer.md)一节中提到的层数较多时梯度可能会衰减或爆炸的原因？
+* 学习了本节内容后，你是否能解释[“多层感知机”](mlp.md)一节中提到的层数较多时梯度可能会衰减或爆炸的原因？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/3710)

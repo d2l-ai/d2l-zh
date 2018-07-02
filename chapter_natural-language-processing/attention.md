@@ -61,7 +61,7 @@ $$
 
 ## 练习
 
-* 不修改[“门控循环单元（GRU）——从零开始”](../chapter_recurrent-neural-networks/gru-scratch.md)一节中的`gru_rnn`函数，应如何用它实现本节介绍的解码器？
+* 不修改[“门控循环单元（GRU）”](../chapter_recurrent-neural-networks/gru.md)一节中的`gru_rnn`函数，应如何用它实现本节介绍的解码器？
 
 * 除了自然语言处理，注意力机制还可以应用在哪些地方？
 

@@ -44,7 +44,7 @@ AlextNet与LeNet的设计理念非常相似。但也有非常显著的特征。
 
 2. 将sigmoid激活函数改成了更加简单的relu函数$f(x)=\max(x,0)$。它计算上更简单，同时在不同的参数初始化方法下收敛更加稳定。
 
-3. 通过丢弃法（参见[“丢弃法”](../chapter_supervised-learning/dropout-scratch.md)这一小节）来控制全连接层的模型复杂度。
+3. 通过丢弃法（参见[“丢弃法”](../chapter_deep-learning-basics/dropout.md)这一小节）来控制全连接层的模型复杂度。
 
 4. 引入了大量的图片增广，例如翻转、裁剪和颜色变化，进一步扩大数据集来减小过拟合。我们将在后面的[“图片增广”](chapter_computer-vision/image-augmentation.md)的小节来详细讨论。
 

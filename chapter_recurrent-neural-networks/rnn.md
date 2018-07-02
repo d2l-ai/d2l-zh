@@ -237,7 +237,7 @@ def get_params():
 
 ## 定义模型
 
-我们根据循环神经网络的表达式实现该模型。这里的激活函数使用了tanh函数。[“多层神经网络”](../chapter_supervised-learning/multi-layer.md)一节中介绍过，当元素在实数域上均匀分布时，tanh函数值的均值为0。
+我们根据循环神经网络的表达式实现该模型。这里的激活函数使用了tanh函数。[“多层感知机”](../chapter_deep-learning-basics/mlp.md)一节中介绍过，当元素在实数域上均匀分布时，tanh函数值的均值为0。
 
 假设小批量中样本数为`batch_size`，时间步数为`num_steps`。
 以下`rnn`函数的`inputs`和`outputs`皆为`num_steps` 个形状为（`batch_size`, `vocab_size`）的矩阵，隐藏状态`H`是一个形状为（`batch_size`, `num_hiddens`）的矩阵。
@@ -387,7 +387,7 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
 
 ### 困惑度
 
-回忆一下[“分类模型”](../chapter_supervised-learning/classification.md)一节中交叉熵损失函数的定义。困惑度是对交叉熵损失函数做指数运算后得到的值。特别地，
+回忆一下[“Softmax回归”](../chapter_deep-learning-basics/softmax-regression.md)一节中交叉熵损失函数的定义。困惑度是对交叉熵损失函数做指数运算后得到的值。特别地，
 
 * 最佳情况下，模型总是把标签类别的概率预测为1。此时困惑度为1。
 * 最坏情况下，模型总是把标签类别的概率预测为0。此时困惑度为正无穷。
