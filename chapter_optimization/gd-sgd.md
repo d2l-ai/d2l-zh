@@ -234,7 +234,7 @@ optimize(batch_size=10, lr=0.002, num_epochs=3, decay_epoch=2,
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1877)
 
 
-![](../img/qr_gd-sgd-scratch.svg)
+![](../img/qr_gd-sgd.svg)
 
 
 ## 参考文献

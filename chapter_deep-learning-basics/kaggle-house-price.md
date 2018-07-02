@@ -264,4 +264,4 @@ train_and_pred(num_epochs, verbose_epoch, train_features, test_features,
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1039)
 
-![](../img/qr_kaggle-gluon-kfold.svg)
+![](../img/qr_kaggle-house-price.svg)

@@ -124,4 +124,4 @@ $$
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6403)
 
-![](../img/qr_classification.svg)
+![](../img/qr_softmax-regression.svg)

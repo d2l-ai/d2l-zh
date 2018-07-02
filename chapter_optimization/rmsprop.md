@@ -126,7 +126,7 @@ optimize(batch_size=10, lr=0.03, gamma=0.999, num_epochs=3, log_interval=10)
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2275)
 
 
-![](../img/qr_rmsprop-scratch.svg)
+![](../img/qr_rmsprop.svg)
 
 ## 参考文献
 

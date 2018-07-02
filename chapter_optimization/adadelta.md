@@ -123,7 +123,7 @@ optimize(batch_size=10, rho=0.9999, num_epochs=3, log_interval=10)
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2277)
 
-![](../img/qr_adadelta-scratch.svg)
+![](../img/qr_adadelta.svg)
 
 ## 参考文献
 

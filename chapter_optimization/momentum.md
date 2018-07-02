@@ -178,4 +178,4 @@ optimize(batch_size=10, lr=0.2, mom=0.5, num_epochs=3, log_interval=10)
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1879)
 
 
-![](../img/qr_momentum-scratch.svg)
+![](../img/qr_momentum.svg)

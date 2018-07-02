@@ -190,4 +190,4 @@ $$
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6321)
 
-![](../img/qr_shallow-model.svg)
+![](../img/qr_linear-regression.svg)

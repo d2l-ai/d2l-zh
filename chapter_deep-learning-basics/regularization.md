@@ -142,4 +142,4 @@ fit_and_plot(lambd=5)
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/984)
 
-![](../img/qr_reg-scratch.svg)
+![](../img/qr_regularization.svg)

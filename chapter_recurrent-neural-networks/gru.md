@@ -179,7 +179,7 @@ gb.train_and_predict_rnn(gru_rnn, False, num_epochs, num_steps, num_hiddens,
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4042)
 
-![](../img/qr_gru-scratch.svg)
+![](../img/qr_gru.svg)
 
 ## 参考文献
 

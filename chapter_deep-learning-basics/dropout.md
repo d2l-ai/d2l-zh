@@ -129,4 +129,4 @@ gb.train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size, params,
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1278)
 
-![](../img/qr_dropout-scratch.svg)
+![](../img/qr_dropout.svg)

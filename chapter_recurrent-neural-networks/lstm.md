@@ -194,9 +194,9 @@ gb.train_and_predict_rnn(lstm_rnn, False, num_epochs, num_steps, num_hiddens,
 * 既然候选记忆细胞已通过使用tanh函数确保值域在-1到1之间，为什么隐藏状态还需再次使用tanh函数来确保输出值域在-1到1之间？
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4042)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4049)
 
-![](../img/qr_lstm-scratch.svg)
+![](../img/qr_lstm.svg)
 
 ## 参考文献
 

@@ -162,7 +162,7 @@ $$U\left(-\sqrt{\frac{6}{a+b}}, \sqrt{\frac{6}{a+b}}\right).$$
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6447)
 
-![](../img/qr_multi-layer.svg)
+![](../img/qr_mlp.svg)
 
 ## 参考文献
 

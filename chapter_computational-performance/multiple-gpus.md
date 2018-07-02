@@ -204,4 +204,4 @@ train(num_gpus=2, batch_size=512, lr=0.3)
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1884)
 
-![](../img/qr_multiple-gpus-scratch.svg)
+![](../img/qr_multiple-gpus.svg)

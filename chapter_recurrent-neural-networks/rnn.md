@@ -450,4 +450,4 @@ train_and_predict_rnn(rnn, False, num_epochs, num_steps, num_hiddens, lr,
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/989)
 
-![](../img/qr_rnn-scratch.svg)
+![](../img/qr_rnn.svg)

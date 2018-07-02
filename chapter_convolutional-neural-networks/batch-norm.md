@@ -144,7 +144,7 @@ gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1253)
 
-![](../img/qr_batch-norm-scratch.svg)
+![](../img/qr_batch-norm.svg)
 
 ## 参考文献
 

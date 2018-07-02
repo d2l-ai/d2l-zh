@@ -131,7 +131,7 @@ optimize(batch_size=10, lr=0.9, num_epochs=3, log_interval=10)
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2273)
 
-![](../img/qr_adagrad-scratch.svg)
+![](../img/qr_adagrad.svg)
 
 
 ## 参考文献
