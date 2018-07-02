@@ -1,4 +1,4 @@
-# Softmax回归——使用Gluon
+# Softmax回归的Gluon实现
 
 我们在[“线性回归——使用Gluon”](linear-regression-gluon.md)一节中已经了解了使用Gluon实现模型的便利。下面，让我们使用Gluon来实现一个Softmax回归模型。
 

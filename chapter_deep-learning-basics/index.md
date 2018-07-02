@@ -7,21 +7,21 @@
 .. toctree::
    :maxdepth: 2
 
-   shallow-model
+   linear-regression-concepts
    linear-regression-scratch
    linear-regression-gluon
-   classification
+   softmax-regression-concepts
    softmax-regression-scratch
    softmax-regression-gluon
-   multi-layer
+   mlp-concepts
    mlp-scratch
    mlp-gluon
    underfit-overfit
-   reg-scratch
+   reg
    reg-gluon
-   dropout-scratch
+   dropout
    dropout-gluon
    backprop
-   kaggle-gluon-kfold
+   kaggle-house-price
 
 ```
