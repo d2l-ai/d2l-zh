@@ -7,18 +7,18 @@
 .. toctree::
    :maxdepth: 2
 
-   linear-regression-concepts
+   linear-regression
    linear-regression-scratch
    linear-regression-gluon
-   softmax-regression-concepts
+   softmax-regression
    softmax-regression-scratch
    softmax-regression-gluon
-   mlp-concepts
+   mlp
    mlp-scratch
    mlp-gluon
    underfit-overfit
-   reg
-   reg-gluon
+   regularization
+   regularization-gluon
    dropout
    dropout-gluon
    backprop
