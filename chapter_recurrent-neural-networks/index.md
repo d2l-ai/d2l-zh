@@ -13,10 +13,10 @@
 
    lm
    hidden-state
-   rnn-scratch
+   rnn
    bptt
-   gru-scratch
-   lstm-scratch
+   gru
+   lstm
    deep-rnn
    bi-rnn
    rnn-gluon

@@ -10,6 +10,6 @@
    hybridize
    lazy-evaluation
    auto-parallelism
-   multiple-gpus-scratch
+   multiple-gpus
    multiple-gpus-gluon
 ```

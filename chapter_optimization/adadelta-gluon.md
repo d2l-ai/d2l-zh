@@ -1,4 +1,4 @@
-# Adadelta——使用Gluon
+# Adadelta的Gluon实现
 
 在Gluon里，使用Adadelta很容易，我们无需重新实现该算法。
 

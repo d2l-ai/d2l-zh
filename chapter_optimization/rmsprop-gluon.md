@@ -1,4 +1,4 @@
-# RMSProp——使用Gluon
+# RMSProp的Gluon实现
 
 
 在Gluon里，使用RMSProp很方便，我们无需重新实现该算法。

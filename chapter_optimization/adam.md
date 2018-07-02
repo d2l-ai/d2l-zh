@@ -1,4 +1,4 @@
-# Adam——从零开始
+# Adam
 
 Adam是一个组合了动量法和RMSProp的优化算法 [1]。下面我们来介绍Adam算法。
 

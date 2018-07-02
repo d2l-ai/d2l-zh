@@ -1,4 +1,4 @@
-# Adagrad——使用Gluon
+# Adagrad的Gluon实现
 
 
 在Gluon里，使用Adagrad很方便，我们无需重新实现该算法。

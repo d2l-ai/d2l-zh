@@ -13,16 +13,16 @@
    :maxdepth: 2
 
    optimization-intro
-   gd-sgd-scratch
+   gd-sgd
    gd-sgd-gluon
-   momentum-scratch
+   momentum
    momentum-gluon
-   adagrad-scratch
+   adagrad
    adagrad-gluon
-   rmsprop-scratch
+   rmsprop
    rmsprop-gluon
-   adadelta-scratch
+   adadelta
    adadelta-gluon
-   adam-scratch
+   adam
    adam-gluon
 ```
