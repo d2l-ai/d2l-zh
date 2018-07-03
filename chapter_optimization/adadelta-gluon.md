@@ -1,4 +1,4 @@
-# Adadelta——使用Gluon
+# Adadelta的Gluon实现
 
 在Gluon里，使用Adadelta很容易，我们无需重新实现该算法。
 
@@ -29,7 +29,7 @@ net = nn.Sequential()
 net.add(nn.Dense(1))
 ```
 
-我们可以在Trainer中定义优化算法名称`adadelta`并定义$\rho$超参数`rho`。以下实验重现了[“Adadelta——从零开始”](adadelta-scratch.md)一节中实验结果。
+我们可以在Trainer中定义优化算法名称`adadelta`并定义$\rho$超参数`rho`。以下实验重现了[“Adadelta”](adadelta.md)一节中实验结果。
 
 ```{.python .input  n=3}
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)

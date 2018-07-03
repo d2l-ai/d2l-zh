@@ -67,7 +67,7 @@ Faster R-CNN [4] 对Fast R-CNN做了进一步改进，它将Fast R-CNN中的选�
 
 具体来说，RPN里面有四个神经层。
 
-1. 卷积网络抽取的特征首先进入1填充256通道的3\times 3$卷积层，这样每个像素得到一个256长度的特征表示。
+1. 卷积网络抽取的特征首先进入1填充256通道的 $3\times 3$ 卷积层，这样每个像素得到一个256长度的特征表示。
 1. 以每个像素为中心，生成多个大小和比例不同的锚框，和对应的标注。每个锚框使用其中心像素对应的256维特征来表示。
 1. 在锚框特征和标注上面训练一个两类分类器，判断其是否含有感兴趣物体还是只有背景。
 1. 对每个被判断成含有物体的锚框，进一步预测其边界框，然后进入RoI池化层。
@@ -76,7 +76,7 @@ Faster R-CNN [4] 对Fast R-CNN做了进一步改进，它将Fast R-CNN中的选�
 
 ## Mask R-CNN：使用全连接卷积网络的Faster RCNN
 
-如果训练数据中我们标注了每个物体的精确边框，而不是一个简单的方形边界框，那么Mask R-CNN [4]能有效的利用这些详尽的标注信息来进一步提升物体识别精度。具体来说，Mask R-CNN使用额外的全连接卷积网络来利用像素级别标注信息，这个网络将在稍后的[“语义分割”](./fcn.md)这一节做详细介绍。
+如果训练数据中我们标注了每个物体的精确边框，而不是一个简单的方形边界框，那么Mask R-CNN [4]能有效的利用这些详尽的标注信息来进一步提升物体识别精度。具体来说，Mask R-CNN使用额外的全连接卷积网络来利用像素级别标注信息，这个网络将在稍后的[“语义分割”](fcn.md)这一节做详细介绍。
 
 ![Mask R-CNN模型。](../img/mask-rcnn.svg)
 
@@ -93,12 +93,12 @@ $$f(x,y) = (\lfloor y \rfloor + 1-y)f(x, \lfloor y \rfloor) + (y-\lfloor y \rflo
 
 ## 参考文献
 
-[1] Girshick, Ross, et al. "Rich feature hierarchies for accurate object detection and semantic segmentation." CVPR. 2014.
+[1] Girshick, R., Donahue, J., Darrell, T., & Malik, J. (2014). Rich feature hierarchies for accurate object detection and semantic segmentation. In Proceedings of the IEEE conference on computer vision and pattern recognition (pp. 580-587).
 
-[2] Uijlings, Jasper RR, et al. "Selective search for object recognition." IJCV, 2013.
+[2] Uijlings, J. R., Van De Sande, K. E., Gevers, T., & Smeulders, A. W. (2013). Selective search for object recognition. International journal of computer vision, 104(2), 154-171.
 
-[3] Girshick, Ross. "Fast r-cnn." arXiv:1504.08083 (2015).
+[3] Girshick, R. (2015). Fast r-cnn. arXiv preprint arXiv:1504.08083.
 
-[3] Ren, Shaoqing, et al. "Faster r-cnn: Towards real-time object detection with region proposal networks." NIPS. 2015.
+[3] Ren, S., He, K., Girshick, R., & Sun, J. (2015). Faster r-cnn: Towards real-time object detection with region proposal networks. In Advances in neural information processing systems (pp. 91-99).
 
-[4] He, Kaiming, et al. "Mask r-cnn." ICCV. 2017.
+[4] He, K., Gkioxari, G., Dollár, P., & Girshick, R. (2017, October). Mask r-cnn. In Computer Vision (ICCV), 2017 IEEE International Conference on (pp. 2980-2988). IEEE.

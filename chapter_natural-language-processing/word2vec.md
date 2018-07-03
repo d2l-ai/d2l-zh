@@ -6,7 +6,7 @@
 
 ## 为何不采用one-hot向量
 
-我们在[“循环神经网络——从零开始”](../chapter_recurrent-neural-networks/rnn-scratch.md)一节中使用one-hot向量表示字符，并以字符为词。回忆一下，假设词典中不同词的数量（词典大小）为$N$，每个词可以和从0到$N-1$的连续整数一一对应。这些与词对应的整数也叫词的索引。
+我们在[“循环神经网络”](../chapter_recurrent-neural-networks/rnn.md)一节中使用one-hot向量表示词（字符为词）。回忆一下，假设词典中不同词的数量（词典大小）为$N$，每个词可以和从0到$N-1$的连续整数一一对应。这些与词对应的整数也叫词的索引。
 假设一个词的索引为$i$，为了得到该词的one-hot向量表示，我们创建一个全0的长为$N$的向量，并将其第$i$位设成1。
 
 然而，使用one-hot词向量通常并不是一个好选择。一个主要的原因是，one-hot词向量无法表达不同词之间的相似度，例如余弦相似度。由于任意一对向量$\boldsymbol{x}, \boldsymbol{y} \in \mathbb{R}^d$的余弦相似度为
@@ -32,8 +32,7 @@ word2vec工具主要包含跳字模型和连续词袋模型。下面将分别介
 ### 跳字模型
 
 
-在跳字模型中，我们用一个词来预测它在文本序列周围的词。举个例子，假设文本序列是“the”、“man”、“hit”、“his”和“son”。跳字模型所关心的是，给定“hit”生成邻近词“the”、“man”、“his”和“son”的条件概率。在这个例子中，“hit”叫中心词，“the”、“man”、“his”和“son”叫背景词。由于“hit”只生成与它距离不超过2的背景词，该时间窗口的大小为2。
-
+在跳字模型中，我们用一个词来预测它在文本序列周围的词。举个例子，假设文本序列是“the”、“man”、“loves”、“his”和“son”。以“loves”作为中心词，设时间窗口大小为2。跳字模型所关心的是，给定中心词“loves”生成与它距离不超过2个词的背景词“the”、“man”、“his”和“son”的条件概率。
 
 我们来描述一下跳字模型。
 
@@ -51,7 +50,7 @@ $$ -\frac{1}{T} \sum_{t=1}^T \sum_{-m \leq j \leq m, j \neq 0} \text{log} \mathb
 
 $$\mathbb{P}(w_o \mid w_c) = \frac{\text{exp}(\mathbf{u}_o^\top \mathbf{v}_c)}{ \sum_{i \in \mathcal{V}} \text{exp}(\mathbf{u}_i^\top \mathbf{v}_c)}.$$
 
-当序列长度$T$较大时，我们通常在每次迭代时随机采样一个较短的子序列来计算有关该子序列的损失。然后，根据该损失计算词向量的梯度并迭代词向量。具体算法可以参考[“梯度下降和随机梯度下降——从零开始”](../chapter_optimization/gd-sgd-scratch.md)一节。
+当序列长度$T$较大时，我们通常在每次迭代时随机采样一个较短的子序列来计算有关该子序列的损失。然后，根据该损失计算词向量的梯度并迭代词向量。具体算法可以参考[“梯度下降和随机梯度下降”](../chapter_optimization/gd-sgd.md)一节。
 作为一个具体的例子，下面我们看看如何计算随机采样的子序列的损失有关中心词向量的梯度。和上面提到的长度为$T$的文本序列的损失函数类似，随机采样的子序列的损失实际上是对子序列中给定中心词生成背景词的条件概率的对数求平均。通过微分，我们可以得到上式中条件概率的对数有关中心词向量$\mathbf{v}_c$的梯度
 
 $$\frac{\partial \text{log} \mathbb{P}(w_o \mid w_c)}{\partial \mathbf{v}_c} = \mathbf{u}_o - \sum_{j \in \mathcal{V}} \frac{\text{exp}(\mathbf{u}_j^\top \mathbf{v}_c)}{ \sum_{i \in \mathcal{V}} \text{exp}(\mathbf{u}_i^\top \mathbf{v}_c)} \mathbf{u}_j.$$
@@ -66,7 +65,8 @@ $$\frac{\partial \text{log} \mathbb{P}(w_o \mid w_c)}{\partial \mathbf{v}_c} = \
 
 ### 连续词袋模型
 
-连续词袋模型与跳字模型类似。与跳字模型最大的不同是，连续词袋模型用一个中心词在文本序列周围的词来预测该中心词。举个例子，假设文本序列为“the”、 “man”、“hit”、“his”和“son”。连续词袋模型所关心的是，邻近词“the”、“man”、“his”和“son”一起生成中心词“hit”的概率。
+连续词袋模型与跳字模型类似。与跳字模型最大的不同是，连续词袋模型用一个中心词在文本序列前后的背景词来预测该中心词。举个例子，假设文本序列为“the”、 “man”、“loves”、“his”和“son”。以“loves”作为中心词，设时间窗口大小为2。连续词袋模型所关心的是，给定与中心词距离不超过2个词的背景词“the”、“man”、“his”和“son”生成中心词“loves”的条件概率。
+
 
 假设词典索引集$\mathcal{V}$的大小为$|\mathcal{V}|$，且$\mathcal{V} = \{0, 1, \ldots, |\mathcal{V}|-1\}$。给定一个长度为$T$的文本序列中，时间步$t$的词为$w^{(t)}$。当时间窗口大小为$m$时，连续词袋模型需要最大化由背景词生成任一中心词的概率
 
@@ -109,7 +109,7 @@ $$\frac{\partial \text{log} \mathbb{P}(w_c \mid w_{o_1}, \ldots, w_{o_{2m}})}{\p
 
 实际上，词典$\mathcal{V}$的大小之所以会在损失中出现，是因为给定中心词$w_c$生成背景词$w_o$的条件概率$\mathbb{P}(w_o \mid w_c)$使用了softmax运算，而softmax运算正是考虑了背景词可能是词典中的任一词，并体现在分母上。
 
-不妨换个角度考虑给定中心词生成背景词的条件概率。假设中心词$w_c$生成背景词$w_o$由以下相互独立事件联合组成来近似：
+不妨换个角度考虑给定中心词生成背景词的条件概率。我们先定义噪声词分布$\mathbb{P}(w)$，接着假设给定中心词$w_c$生成背景词$w_o$由以下相互独立事件联合组成来近似：
 
 * 中心词$w_c$和背景词$w_o$同时出现时间窗口。
 * 中心词$w_c$和第1个噪声词$w_1$不同时出现在该时间窗口（噪声词$w_1$按噪声词分布$\mathbb{P}(w)$随机生成，且假设一定和$w_c$不同时出现在该时间窗口）。
@@ -157,14 +157,14 @@ $$-\text{log} \frac{1}{1+\text{exp}\left(-\mathbf{u}_c^\top (\mathbf{v}_{o_1} + 
 
 假设$L(w)$为从二叉树的根节点到词$w$的叶子节点的路径（包括根和叶子节点）上的节点数。设$n(w,j)$为该路径上第$j$个节点，并设该节点的向量为$\mathbf{u}_{n(w,j)}$。以图10.1为例，$L(w_3) = 4$。设词典中的词$w_i$的词向量为$\mathbf{v}_i$。那么，跳字模型和连续词袋模型所需要计算的给定词$w_i$生成词$w$的条件概率为：
 
-$$\mathbb{P}(w \mid w_i) = \prod_{j=1}^{L(w)-1} \sigma\left( \left[n(w, j+1) = \text{leftChild}(n(w,j))\right] \cdot \mathbf{u}_{n(w,j)}^\top \mathbf{v}_i\right),$$
+$$\mathbb{P}(w \mid w_i) = \prod_{j=1}^{L(w)-1} \sigma\left( [\![  n(w, j+1) = \text{leftChild}(n(w,j)) ]\!] \cdot \mathbf{u}_{n(w,j)}^\top \mathbf{v}_i\right),$$
 
-其中$\sigma(x) = 1/(1+\text{exp}(-x))$，$\text{leftChild}(n)$是节点$n$的左孩子节点，如果判断$x$为真，$[x] = 1$；反之$[x] = -1$。由于$\sigma(x)+\sigma(-x) = 1$，给定词$w_i$生成词典$\mathcal{V}$中任一词的条件概率之和为1这一条件也将满足：
+其中$\sigma(x) = 1/(1+\text{exp}(-x))$，$\text{leftChild}(n)$是节点$n$的左孩子节点，如果判断$x$为真，$[\![x]\!] = 1$；反之$[\![x]\!] = -1$。由于$\sigma(x)+\sigma(-x) = 1$，给定词$w_i$生成词典$\mathcal{V}$中任一词的条件概率之和为1这一条件也将满足：
 
 $$\sum_{w \in \mathcal{V}} \mathbb{P}(w \mid w_i) = 1.$$
 
 
-让我们计算图10.1中给定词$w_i$生成词$w_3$的条件概率。我们需要将$w_i$的词向量$\mathbf{v}_i$和根节点到$w_3$路径上的非叶子节点向量一一求内积。由于在二叉树中由根节点到叶子节点$w_3$的路径上需要向左、向右、再向左地遍历，我们得到
+让我们计算图10.1中给定词$w_i$生成词$w_3$的条件概率。我们需要将$w_i$的词向量$\mathbf{v}_i$和根节点到$w_3$路径上的非叶子节点向量一一求内积。由于在二叉树中由根节点到叶子节点$w_3$的路径上需要向左、向右、再向左地遍历（图10.1中加粗的路径），我们得到
 
 $$\mathbb{P}(w_3 \mid w_i) = \sigma(\mathbf{u}_{n(w_3,1)}^\top \mathbf{v}_i) \cdot \sigma(-\mathbf{u}_{n(w_3,2)}^\top \mathbf{v}_i) \cdot \sigma(\mathbf{u}_{n(w_3,3)}^\top \mathbf{v}_i).$$
 
@@ -176,6 +176,7 @@ $$\mathbb{P}(w_3 \mid w_i) = \sigma(\mathbf{u}_{n(w_3,1)}^\top \mathbf{v}_i) \cd
 
 ## 小结
 
+* 词向量是用于表示自然语言中词的语义的向量。
 * word2vec工具中的跳字模型和连续词袋模型通常使用近似训练法，例如负采样和层序softmax，从而减小训练的计算开销。
 
 
@@ -194,4 +195,4 @@ $$\mathbb{P}(w_3 \mid w_i) = \sigma(\mathbf{u}_{n(w_3,1)}^\top \mathbf{v}_i) \cd
 
 [1] word2vec工具. https://code.google.com/archive/p/word2vec/
 
-[2] Mikolov, Tomas, et al. “Distributed representations of words and phrases and their compositionality.” Advances in neural information processing systems. 2013.
+[2] Mikolov, T., Sutskever, I., Chen, K., Corrado, G. S., & Dean, J. (2013). Distributed representations of words and phrases and their compositionality. In Advances in neural information processing systems (pp. 3111-3119).

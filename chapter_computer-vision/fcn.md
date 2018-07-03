@@ -103,7 +103,7 @@ def bilinear_kernel(in_channels, out_channels, kernel_size):
 接下来我们构造一个步幅为2的转置卷积层，将其权重初始化成双线性差值核。
 
 ```{.python .input  n=7}
-conv_trans = nn.Conv2DTranspose(3, kernel_size=4, padding=1, strides=2)  
+conv_trans = nn.Conv2DTranspose(3, kernel_size=4, padding=1, strides=2)
 conv_trans.initialize(init.Constant(bilinear_kernel(3, 3, 4)))
 ```
 

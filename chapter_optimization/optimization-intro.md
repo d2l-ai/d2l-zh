@@ -8,7 +8,7 @@
 在一个深度学习问题中，通常我们会预先定义一个损失函数。有了损失函数以后，我们就可以使用优化算法试图使其最小化。在优化中，这样的损失函数通常被称作优化问题的目标函数（objective function）。依据惯例，优化算法通常只考虑最小化目标函数。其实，任何最大化问题都可以很容易地转化为最小化问题：我们只需把目标函数前面的正号或负号取相反。
 
 虽然优化为深度学习提供了最小化损失函数的方法，但本质上，这两者之间的目标是有区别的。
-在[“欠拟合、过拟合和模型选择”](../chapter_supervised-learning/underfit-overfit.md)一节中，我们区分了训练误差和泛化误差。
+在[“欠拟合、过拟合和模型选择”](../chapter_deep-learning-basics/underfit-overfit.md)一节中，我们区分了训练误差和泛化误差。
 由于优化算法的目标函数通常是一个基于训练数据集的损失函数，优化的目标在于降低训练误差。
 而深度学习的目标在于降低泛化误差。
 为了降低泛化误差，除了使用优化算法降低训练误差以外，我们还需要注意应对过拟合。
@@ -135,4 +135,4 @@ gb.plt.show()
 
 ## 参考文献
 
-[1] Wigner, Eugene P. “On the distribution of the roots of certain symmetric matrices.” Annals of Mathematics (1958): 325-327.
+[1] Wigner, E. P. (1958). On the distribution of the roots of certain symmetric matrices. Annals of Mathematics, 325-327.

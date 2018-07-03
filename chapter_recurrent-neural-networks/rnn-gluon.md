@@ -1,4 +1,4 @@
-# 循环神经网络——使用Gluon
+# 循环神经网络的Gluon实现
 
 本节介绍如何使用Gluon训练循环神经网络。
 
@@ -178,7 +178,7 @@ def get_batch(source, i):
     return X, Y.reshape((-1,))
 ```
 
-[“循环神经网络——从零开始”](rnn-scratch.md)一节里已经解释了，相邻采样应在每次读取小批量前将隐藏状态从计算图分离出来。
+[“循环神经网络”](rnn.md)一节里已经解释了，相邻采样应在每次读取小批量前将隐藏状态从计算图分离出来。
 
 ```{.python .input  n=8}
 def detach(state):
@@ -262,7 +262,7 @@ print('test loss %.2f, perplexity %.2f'
 
 ## 练习
 
-* 回忆[“模型参数的访问、初始化和共享”](../chapter_gluon-basics/parameters.md)一节中有关共享模型参数的描述。将本节中RNNModel类里的`self.dense`的定义改为`nn.Dense(vocab_size, in_units = num_hiddens, params=self.embedding.params)`并运行本节实验。这里为什么可以共享词向量参数？有哪些好处？
+* 回忆[“模型参数的访问、初始化和共享”](../chapter_deep-learning-computation/parameters.md)一节中有关共享模型参数的描述。将本节中RNNModel类里的`self.dense`的定义改为`nn.Dense(vocab_size, in_units = num_hiddens, params=self.embedding.params)`并运行本节实验。这里为什么可以共享词向量参数？有哪些好处？
 
 * 调调超参数，观察并分析对运行时间以及训练集、验证集和测试集上困惑度的影响。
 
