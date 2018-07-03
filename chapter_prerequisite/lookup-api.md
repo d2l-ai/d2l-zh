@@ -18,7 +18,7 @@ print(dir(autograd))
 
 ```{.python .input}
 from mxnet import nd
-help(nd.ones_like)
+help(nd.ones_like) # 在 Jupyter notebook 中可使用问号查询，例如 nd.ones_like?
 ```
 
 从文档信息我们了解到，`ones_like`函数会创建和输入NDArray形状相同且元素为1的新的NDArray。我们可以验证一下：
