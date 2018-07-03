@@ -62,7 +62,7 @@ net.add(nn.Dense(1))
 
 ## 初始化模型参数
 
-在使用`net`前，我们需要初始化模型参数，例如线性回归模型中的权重和偏差。这里我们从MXNet中导入init模块，并通过`init.Normal(sigma=0.01)`指定权重参数每个元素将在初始化时随机采样于均值为0标准差为0.01的正态分布。偏差参数全部元素初始化为零。
+在使用`net`前，我们需要初始化模型参数，例如线性回归模型中的权重和偏差。我们从MXNet导入`initializer`模块。该模块提供了模型参数初始化的各种方法。这里的`init`是`initializer`的缩写形式。我们通过`init.Normal(sigma=0.01)`指定权重参数每个元素将在初始化时随机采样于均值为0标准差为0.01的正态分布。偏差参数全部元素初始化为零。
 
 ```{.python .input  n=7}
 from mxnet import init
@@ -72,7 +72,7 @@ net.initialize(init.Normal(sigma=0.01))
 
 ## 定义损失函数
 
-我们从Gluon中导入`loss`模块，并直接使用它所提供的平方损失作为模型的损失函数。
+在Gluon中，`loss`模块定义了各种损失函数。我们用假名`gloss`代替导入的`loss`模块，并直接使用它所提供的平方损失作为模型的损失函数。
 
 ```{.python .input  n=8}
 from mxnet.gluon import loss as gloss
@@ -82,7 +82,7 @@ loss = gloss.L2Loss()
 
 ## 定义优化算法
 
-同样，我们也无需实现小批量随机梯度下降。在导入Gluon后，我们可以创建一个Trainer实例，并且将模型参数传递给它。下面定义了学习率为0.03的小批量随机梯度下降。
+同样，我们也无需实现小批量随机梯度下降。在导入Gluon后，我们创建一个Trainer实例，并指定学习率为0.03的小批量随机梯度下降（`sgd`）为优化算法。该优化算法将用来迭代`net`实例所有通过`add`函数嵌套的层所包含的所有参数。
 
 ```{.python .input  n=9}
 from mxnet import gluon
@@ -92,7 +92,7 @@ trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.03})
 
 ## 训练模型
 
-和上一节不同，我们通过调用`step`函数来迭代模型参数。由于变量`l`是`batch_size`维的NDArray，执行`l.backward()`等价于`l.sum().backward()`。按照小批量随机梯度下降的定义，我们在`step`函数中提供`batch_size`，以确保小批量随机梯度是该批量中每个样本梯度的平均。
+在使用Gluon训练模型时，我们通过调用`Trainer`实例的`step`函数来迭代模型参数。由于变量`l`是长度为`batch_size`的一维NDArray，执行`l.backward()`等价于`l.sum().backward()`。按照小批量随机梯度下降的定义，我们在`step`函数中指明批量大小，以确保小批量随机梯度是该批量中每个样本梯度的平均。
 
 ```{.python .input  n=10}
 num_epochs = 3
@@ -106,7 +106,7 @@ for epoch in range(1, num_epochs + 1):
           % (epoch, loss(net(features), labels).mean().asnumpy()))
 ```
 
-下面我们分别比较学到的和真实的模型参数。我们从`net`获得需要的层，并访问其权重和位移。学到的和真实的参数很接近。
+下面我们分别比较学到的和真实的模型参数。我们从`net`获得需要的层，并访问其权重（`weight`）和位移（`bias`）。学到的和真实的参数很接近。
 
 ```{.python .input  n=12}
 dense = net[0]
@@ -120,6 +120,8 @@ true_b, dense.bias.data()
 ## 小结
 
 * 使用Gluon可以更简洁地实现模型。
+* 在Gluon中，`data`模块提供了有关数据处理的工具，`nn`模块定义了大量神经网络的层，`loss`模块定义了各种损失函数。
+* MXNet的`initializer`模块提供了模型参数初始化的各种方法。
 
 
 ## 练习
