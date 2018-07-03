@@ -2,17 +2,13 @@
 
 随着深度学习框架的发展，开发深度学习应用变得越来越便利。实践中，我们通常可以用比上一节中更简洁的代码来实现相同模型。本节中，我们将介绍如何使用MXNet提供的Gluon接口更方便地实现线性回归的训练。
 
-首先，导入本节中实验所需的一部分包或模块。我们在之前的章节里使用过它们。
-
-```{.python .input}
-from mxnet import autograd, nd
-```
-
 ## 生成数据集
 
-我们生成与上一节中相同的数据集。其中`X`是训练数据特征，`y`是标签。
+我们生成与上一节中相同的数据集。其中`features`是训练数据特征，`labels`是标签。
 
 ```{.python .input  n=2}
+from mxnet import autograd, nd
+
 num_inputs = 2
 num_examples = 1000
 true_w = [2, -3.4]
@@ -24,12 +20,13 @@ labels += nd.random.normal(scale=0.01, shape=labels.shape)
 
 ## 读取数据
 
-这里，我们使用Gluon提供的`data`模块来读取数据。在每一次迭代中，我们将随机读取包含10个数据样本的小批量。
+这里，我们使用Gluon提供的`data`模块来读取数据。该模块提供了有关数据处理的工具。由于`data`常用作变量名，我们将导入的`data`模块用添加了Gluon首字母的假名`gdata`代替。在每一次迭代中，我们将随机读取包含10个数据样本的小批量。
 
 ```{.python .input  n=3}
 from mxnet.gluon import data as gdata
 
 batch_size = 10
+# 将训练数据的特征和标签组合。
 dataset = gdata.ArrayDataset(features, labels)
 data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
 ```
@@ -46,7 +43,7 @@ for X, y in data_iter:
 
 在上一节从零开始的实现中，我们需要定义模型参数，并使用它们一步步描述模型是怎样计算的。当模型结构变得更复杂时，这些步骤将变得更加繁琐。其实，Gluon提供了大量预定义的层，这使我们只需关注使用哪些层来构造模型。下面将介绍如何使用Gluon更简洁地定义线性回归。
 
-首先，导入`nn`模块。我们先定义一个模型变量`net`，它是一个Sequential实例。在Gluon中，Sequential实例可以看做是一个串联各个层的容器。在构造模型时，我们在该容器中依次添加层。当给定输入数据时，容器中的每一层将依次计算并将输出作为下一层的输入。
+首先，导入`nn`模块。实际上，“nn”是neural networks的缩写。顾名思义，该模块定义了大量神经网络的层。我们先定义一个模型变量`net`，它是一个Sequential实例。在Gluon中，Sequential实例可以看做是一个串联各个层的容器。在构造模型时，我们在该容器中依次添加层。当给定输入数据时，容器中的每一层将依次计算并将输出作为下一层的输入。
 
 ```{.python .input  n=5}
 from mxnet.gluon import nn
@@ -60,7 +57,7 @@ net = nn.Sequential()
 net.add(nn.Dense(1))
 ```
 
-值得一提的是，在Gluon中我们无需指定每一层输入的形状，例如线性回归的输入个数。当模型看见数据时，例如后面执行`net(X)`时，模型将自动推断出每一层的输入个数。我们将在之后“深度学习计算基础”一章详细介绍这个机制。Gluon的这一设计为模型开发带来便利。
+值得一提的是，在Gluon中我们无需指定每一层输入的形状，例如线性回归的输入个数。当模型看见数据时，例如后面执行`net(X)`时，模型将自动推断出每一层的输入个数。我们将在之后“深度学习计算”一章详细介绍这个机制。Gluon的这一设计为模型开发带来便利。
 
 
 ## 初始化模型参数
