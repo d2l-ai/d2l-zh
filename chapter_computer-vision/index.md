@@ -9,10 +9,11 @@
    image-augmentation
    fine-tuning
    bounding-box
-   pikachu
    anchor
+   pikachu
    ssd
    rcnn
+   voc
    fcn
    neural-style
    kaggle-gluon-cifar10
