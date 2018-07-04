@@ -18,16 +18,16 @@
 
 在描述隐藏层的计算之前，让我们看看多层感知机输出层是怎样计算的。它的计算和之前介绍的单层神经网络的输出层的计算类似：只是输出层的输入变成了隐藏层的输出。我们通常将隐藏层的输出称为隐藏层变量或隐藏变量。
 
-给定一个小批量样本，其批量大小为$n$，输入个数为$x$，输出个数为$y$。假设多层感知机只有一个隐藏层，其中隐藏单元个数为$h$，隐藏变量$\boldsymbol{H} \in \mathbb{R}^{n \times h}$。假设输出层的权重和偏差参数分别为$\boldsymbol{W}_o \in \mathbb{R}^{h \times y}, \boldsymbol{b}_o \in \mathbb{R}^{1 \times y}$，多层感知机输出
+给定一个小批量样本，其批量大小为$n$，输入个数为$d$，输出个数为$q$。假设多层感知机只有一个隐藏层，其中隐藏单元个数为$h$，隐藏变量$\boldsymbol{H} \in \mathbb{R}^{n \times h}$。假设输出层的权重和偏差参数分别为$\boldsymbol{W}_o \in \mathbb{R}^{h \times q}, \boldsymbol{b}_o \in \mathbb{R}^{1 \times q}$，多层感知机输出
 
 $$
 \boldsymbol{O} = \boldsymbol{H} \boldsymbol{W}_o + \boldsymbol{b}_o,
 $$
 
-其中的加法运算使用了广播机制，$\boldsymbol{O}  \in \mathbb{R}^{n \times y}$。实际上，多层感知机的输出$\boldsymbol{O}$是对上一层的输出$\boldsymbol{H}$的仿射变换（affine transformation）。它包括一次通过乘以权重参数的线性变换和一次通过加上偏差参数的平移。
+其中的加法运算使用了广播机制，$\boldsymbol{O}  \in \mathbb{R}^{n \times q}$。实际上，多层感知机的输出$\boldsymbol{O}$是对上一层的输出$\boldsymbol{H}$的仿射变换（affine transformation）。它包括一次通过乘以权重参数的线性变换和一次通过加上偏差参数的平移。
 
 
-那么，如果隐藏层也只对输入做仿射变换会怎么样呢？设单个样本的特征为$\boldsymbol{x} \in \mathbb{R}^{1 \times x}$，隐藏层的权重参数和偏差参数分别为$\boldsymbol{W}_h \in \mathbb{R}^{x \times h}, \boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$。
+那么，如果隐藏层也只对输入做仿射变换会怎么样呢？设单个样本的特征为$\boldsymbol{x} \in \mathbb{R}^{1 \times d}$，隐藏层的权重参数和偏差参数分别为$\boldsymbol{W}_h \in \mathbb{R}^{d \times h}, \boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$。
 假设$\boldsymbol{h} = \boldsymbol{x} \boldsymbol{W}_h + \boldsymbol{b}_h$且$\boldsymbol{o} = \boldsymbol{h} \boldsymbol{W}_o + \boldsymbol{b}_o$，联立两式可得$\boldsymbol{o} = \boldsymbol{x} \boldsymbol{W}_h \boldsymbol{W}_o + \boldsymbol{b}_h \boldsymbol{W}_o + \boldsymbol{b}_o$：它等价于单层神经网络的输出$\boldsymbol{o} = \boldsymbol{x} \boldsymbol{W}^\prime + \boldsymbol{b}^\prime$，其中$\boldsymbol{W}^\prime = \boldsymbol{W}_h \boldsymbol{W}_o, \boldsymbol{b}^\prime = \boldsymbol{b}_h \boldsymbol{W}_o + \boldsymbol{b}_o$。因此，在隐藏层中仅使用仿射变换的多层感知机与前面介绍的单层神经网络没什么区别。
 
 ## 激活函数
@@ -101,9 +101,9 @@ X.relu(), X.sigmoid(), X.tanh()
 
 现在，我们可以给出多层感知机的矢量计算表达式了。
 
-给定一个小批量样本$\boldsymbol{X} \in \mathbb{R}^{n \times x}$，其批量大小为$n$，输入个数为$x$，输出个数为$y$。
-假设多层感知机只有一个隐藏层，其中隐藏单元个数为$h$，激活函数为$\phi$。假设隐藏层的权重和偏差参数分别为$\boldsymbol{W}_h \in \mathbb{R}^{x \times h}, \boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$，
-输出层的权重和偏差参数分别为$\boldsymbol{W}_o \in \mathbb{R}^{h \times y}, \boldsymbol{b}_o \in \mathbb{R}^{1 \times y}$。
+给定一个小批量样本$\boldsymbol{X} \in \mathbb{R}^{n \times d}$，其批量大小为$n$，输入个数为$d$，输出个数为$q$。
+假设多层感知机只有一个隐藏层，其中隐藏单元个数为$h$，激活函数为$\phi$。假设隐藏层的权重和偏差参数分别为$\boldsymbol{W}_h \in \mathbb{R}^{d \times h}, \boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$，
+输出层的权重和偏差参数分别为$\boldsymbol{W}_o \in \mathbb{R}^{h \times q}, \boldsymbol{b}_o \in \mathbb{R}^{1 \times q}$。
 多层感知机的矢量计算表达式为
 
 $$
@@ -111,7 +111,7 @@ $$
 \boldsymbol{O} = \boldsymbol{H} \boldsymbol{W}_o + \boldsymbol{b}_o,
 $$
 
-其中的加法运算使用了广播机制，$\boldsymbol{H} \in \mathbb{R}^{n \times h}, \boldsymbol{O}  \in \mathbb{R}^{n \times y}$。
+其中的加法运算使用了广播机制，$\boldsymbol{H} \in \mathbb{R}^{n \times h}, \boldsymbol{O}  \in \mathbb{R}^{n \times q}$。
 在分类问题中，我们可以对输出$\boldsymbol{O}$做Softmax运算，并使用Softmax回归中的交叉熵损失函数。
 在回归问题中，我们将输出层的输出个数设为1，并将输出$\boldsymbol{O}$直接提供给线性回归中使用的平方损失函数。
 

@@ -83,15 +83,15 @@ $$
 ## 小批量样本分类的矢量计算表达式
 
 
-为了进一步提升计算效率，我们通常对小批量数据做矢量计算。广义上，给定一个小批量样本，其批量大小为$n$，输入个数（特征数）为$x$，输出个数（类别数）为$y$。设批量特征为$\boldsymbol{X} \in \mathbb{R}^{n \times x}$，批量标签$\boldsymbol{y} \in \mathbb{R}^{n \times 1}$。
-假设softmax回归的权重和偏差参数分别为$\boldsymbol{W} \in \mathbb{R}^{x \times y}, \boldsymbol{b} \in \mathbb{R}^{1 \times y}$。Softmax回归的矢量计算表达式为
+为了进一步提升计算效率，我们通常对小批量数据做矢量计算。广义上，给定一个小批量样本，其批量大小为$n$，输入个数（特征数）为$d$，输出个数（类别数）为$q$。设批量特征为$\boldsymbol{X} \in \mathbb{R}^{n \times d}$，批量标签$\boldsymbol{y} \in \mathbb{R}^{n \times 1}$。
+假设softmax回归的权重和偏差参数分别为$\boldsymbol{W} \in \mathbb{R}^{d \times q}, \boldsymbol{b} \in \mathbb{R}^{1 \times q}$。Softmax回归的矢量计算表达式为
 
 $$
 \boldsymbol{O} = \boldsymbol{X} \boldsymbol{W} + \boldsymbol{b},\\
 \boldsymbol{\hat{Y}} = \text{softmax}(\boldsymbol{O}),
 $$
 
-其中的加法运算使用了广播机制，$\boldsymbol{O}, \boldsymbol{\hat{Y}} \in \mathbb{R}^{n \times y}$且这两个矩阵的第$i$行分别为$\boldsymbol{o}^{(i)}$和$\boldsymbol{\hat{y}}^{(i)}$。
+其中的加法运算使用了广播机制，$\boldsymbol{O}, \boldsymbol{\hat{Y}} \in \mathbb{R}^{n \times q}$且这两个矩阵的第$i$行分别为$\boldsymbol{o}^{(i)}$和$\boldsymbol{\hat{y}}^{(i)}$。
 
 
 ## 交叉熵损失函数
@@ -121,7 +121,7 @@ $$
 
 ## 练习
 
-* 如果按本节softmax运算的定义来实现该运算，在计算时可能会有什么问题？
+* 如果按本节softmax运算的定义来实现该运算，在计算时可能会有什么问题？提示：想想$\exp(50)$的大小。
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6403)
