@@ -12,7 +12,7 @@
 ![狗的品种识别比赛的网页信息。比赛数据集可通过点击“Data”标签获取](../img/kaggle-dog.png)
 
 
-首先，导入实验所需的包或模块。
+首先，导入实验所需的模块。
 
 ```{.python .input}
 import sys
@@ -34,8 +34,6 @@ import zipfile
 ## 获取数据集
 
 比赛数据分为训练数据集和测试数据集。训练集包含10,222张图片。测试集包含10,357张图片。两个数据集中的图片格式都是jpg。这些图片都含有RGB三个通道（彩色），高和宽的大小不一。训练集中狗的类别共有120种，例如拉布拉多、贵宾、腊肠、萨摩耶、哈士奇、吉娃娃和约克夏。
-
-
 
 ### 下载数据集
 
@@ -115,7 +113,7 @@ def reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir,
                     os.path.join(data_dir, input_dir, 'test', 'unknown'))
 ```
 
-我们在这里仅仅使用小数据集。相应地，我们仅将批量大小设为1。实际训练和测试时应使用Kaggle比赛的完整数据集并调用`reorg_dog_data`函数整理数据集。同时，我们也需要将批量大小`batch_size`设为一个较大的整数，例如128。
+因为我们在这里仅仅使用小数据集，于是我们将批量大小设为1。在实际训练和测试时应使用Kaggle比赛的完整数据集并调用`reorg_dog_data`函数整理数据集，因此我们也需要将批量大小`batch_size`设为一个较大的整数，例如128。
 
 ```{.python .input  n=3}
 if demo:
