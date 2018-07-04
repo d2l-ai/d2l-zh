@@ -1,7 +1,5 @@
 # 样式规范
 
-
-
 ## 文本
 
 * 章节
@@ -105,11 +103,11 @@
     * num_epochs
         * 迭代周期
     * num_hiddens
-        * 隐藏层单元个数
+        * 隐藏单元个数
     * num_inputs
-        * 输入层单元个数
+        * 输入个数
     * num_outputs
-        * 输出层单元个数
+        * 输出个数
     * net
         * 模型
     * lr
@@ -129,7 +127,7 @@
     * 中文和英文之间加空格
     * 句末加句号
 * 书本页宽限制
-    * 每行不超过78字符 (差一char到红线)
+    * 每行不超过79字符
     * 打印结果自动换行
 * utils代码写进附录
 * imports
@@ -164,10 +162,8 @@
 * https://www.the-qrcode-generator.com/
     * 75pixel, SVG
 
-
-
 ## 文献引用
 
 * 每节末尾附上本节参考文献
     * 学术性引用
-    * Google Scholar: MLA格式
+    * Google Scholar: APA格式

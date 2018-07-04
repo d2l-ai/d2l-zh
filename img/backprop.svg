@@ -17,9 +17,9 @@
         <path d="M 8 0 L 0 0 M 0 -3 L 8 0 L 0 3" fill="none" stroke="currentColor" stroke-width="1"/>
       </g>
     </marker>
-    <font-face font-family="Arial" font-size="7" panose-1="2 11 7 4 2 2 2 9 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="104.98047" slope="-1714.2857" x-height="518.5547" cap-height="715.332" ascent="905.2734" descent="-211.91406" font-style="italic" font-weight="700">
+    <font-face font-family="Arial" font-size="7" panose-1="2 11 6 4 2 2 2 2 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="0" x-height="518.5547" cap-height="716.3086" ascent="905.2734" descent="-211.91406" font-weight="400">
       <font-face-src>
-        <font-face-name name="Arial-BoldItalicMT"/>
+        <font-face-name name="ArialMT"/>
       </font-face-src>
     </font-face>
   </defs>
@@ -91,13 +91,13 @@
       <g id="Graphic_13">
         <text transform="translate(95.2 143.45279)" fill="black">
           <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="700" fill="black" x=".47509766" y="9">W</tspan>
-          <tspan font-family="Arial" font-size="7" font-style="italic" font-weight="700" fill="black" y="6">(1)</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="6">(1)</tspan>
         </text>
       </g>
       <g id="Graphic_12">
         <text transform="translate(95.2 65.602784)" fill="black">
           <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="700" fill="black" x=".47509766" y="9">W</tspan>
-          <tspan font-family="Arial" font-size="7" font-style="italic" font-weight="700" fill="black" y="6">(2)</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="6">(2)</tspan>
         </text>
       </g>
       <g id="Line_11">
@@ -112,26 +112,26 @@
       <g id="Line_8">
         <line x1="111.2493" y1="138.1" x2="141.69887" y2="90.58529" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
-      <g id="Line_6">
+      <g id="Line_7">
         <line x1="65.400006" y1="33.35" x2="83.05" y2="33.35" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
-      <g id="Line_5">
+      <g id="Line_6">
         <line x1="65.4" y1="62.73102" x2="85.05752" y2="47.8455" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
     </g>
     <g id="Canvas_1: Layer 2">
       <title>Layer 2</title>
-      <g id="Graphic_24">
+      <g id="Graphic_5">
         <rect x="143" y="22.1" width="22.5" height="22.5" fill="#c9e2ff"/>
         <rect x="143" y="22.1" width="22.5" height="22.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
         <text transform="translate(148 28.202784)" fill="black">
           <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="400" fill="black" x="4" y="8">J</tspan>
         </text>
       </g>
-      <g id="Line_25">
+      <g id="Line_4">
         <line x1="115.45" y1="33.35" x2="133.1" y2="33.35" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
-      <g id="Line_26">
+      <g id="Line_3">
         <line x1="154.25" y1="59.75" x2="154.25" y2="54.5" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
     </g>

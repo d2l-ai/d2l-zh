@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="24.5 -2 389.5 198.5" width="389.5" height="198.5">
+  <defs>
+    <font-face font-family="Arial" font-size="9" panose-1="2 11 6 4 2 2 2 9 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="-1333.3333" x-height="518.5547" cap-height="715.8203" ascent="905.2734" descent="-211.91406" font-style="italic" font-weight="400">
+      <font-face-src>
+        <font-face-name name="Arial-ItalicMT"/>
+      </font-face-src>
+    </font-face>
+    <font-face font-family="Arial" font-size="7" panose-1="2 11 6 4 2 2 2 2 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="0" x-height="518.5547" cap-height="716.3086" ascent="905.2734" descent="-211.91406" font-weight="400">
+      <font-face-src>
+        <font-face-name name="ArialMT"/>
+      </font-face-src>
+    </font-face>
+    <font-face font-family="Helvetica Neue" font-size="24" panose-1="2 0 5 3 0 0 0 2 0 4" units-per-em="1000" underline-position="-100" underline-thickness="50" slope="0" x-height="517" cap-height="714" ascent="951.9958" descent="-212.99744" font-weight="400">
+      <font-face-src>
+        <font-face-name name="HelveticaNeue"/>
+      </font-face-src>
+    </font-face>
+    <font-face font-family="Arial" font-size="9" panose-1="2 11 6 4 2 2 2 2 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="0" x-height="518.5547" cap-height="716.3086" ascent="905.2734" descent="-211.91406" font-weight="400">
+      <font-face-src>
+        <font-face-name name="ArialMT"/>
+      </font-face-src>
+    </font-face>
+  </defs>
+  <metadata> Produced by OmniGraffle 7.7.1 
+    <dc:date>2018-06-04 04:06:08 +0000</dc:date>
+  </metadata>
+  <g id="Canvas_1" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
+    <title>Canvas 1</title>
+    <g id="Canvas_1: Layer 2">
+      <title>Layer 2</title>
+      <g id="Graphic_32">
+        <circle cx="64" cy="127.5" r="16.0000255664303" fill="#c9e2ff"/>
+        <circle cx="64" cy="127.5" r="16.0000255664303" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_31">
+        <circle cx="170.5" cy="127.5" r="16.0000255664304" fill="#c9e2ff"/>
+        <circle cx="170.5" cy="127.5" r="16.0000255664304" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_30">
+        <circle cx="117.5" cy="83.5" r="16.0000255664304" fill="#c9e2ff"/>
+        <circle cx="117.5" cy="83.5" r="16.0000255664304" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_45">
+        <circle cx="148" cy="180" r="16.0000255664304" fill="#eff6fd"/>
+        <circle cx="148" cy="180" r="16.0000255664304" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(140.2 173.8855)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="400" fill="black" x="2.603711" y="8">w</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="11">3</tspan>
+        </text>
+      </g>
+      <g id="Graphic_46">
+        <circle cx="41" cy="180" r="16.0000255664304" fill="#eff6fd"/>
+        <circle cx="41" cy="180" r="16.0000255664304" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(33.2 173.8855)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="400" fill="black" x="2.603711" y="8">w</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="11">1</tspan>
+        </text>
+      </g>
+      <g id="Graphic_47">
+        <circle cx="86.5" cy="180" r="16.0000255664304" fill="#eff6fd"/>
+        <circle cx="86.5" cy="180" r="16.0000255664304" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(78.7 173.8855)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="400" fill="black" x="2.603711" y="8">w</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="11">2</tspan>
+        </text>
+      </g>
+      <g id="Graphic_48">
+        <circle cx="194" cy="180" r="16.0000255664304" fill="#eff6fd"/>
+        <circle cx="194" cy="180" r="16.0000255664304" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(186.2 173.8855)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="400" fill="black" x="2.603711" y="8">w</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="11">4</tspan>
+        </text>
+      </g>
+      <g id="Graphic_49">
+        <circle cx="397.5" cy="180" r="16.0000255664304" fill="#eff6fd"/>
+        <circle cx="397.5" cy="180" r="16.0000255664304" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(389.7 173.8855)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="400" fill="black" x=".3974121" y="8">w</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="11">|V|</tspan>
+        </text>
+      </g>
+      <g id="Graphic_50">
+        <circle cx="222.5" cy="33" r="16.0000255664304" fill="#c9e2ff"/>
+        <circle cx="222.5" cy="33" r="16.0000255664304" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_51">
+        <circle cx="373.5" cy="127.5" r="16.0000255664304" fill="#c9e2ff"/>
+        <circle cx="373.5" cy="127.5" r="16.0000255664304" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_52">
+        <circle cx="320.5" cy="83.5" r="16.0000255664304" fill="#c9e2ff"/>
+        <circle cx="320.5" cy="83.5" r="16.0000255664304" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_53">
+        <line x1="131.92293" y1="76.563255" x2="208.07707" y2="39.936745" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </g>
+      <g id="Line_54">
+        <line x1="129.81136" y1="93.72075" x2="158.18864" y2="117.27925" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </g>
+      <g id="Line_55">
+        <line x1="164.19562" y1="142.21023" x2="154.30438" y2="165.28977" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </g>
+      <g id="Line_56">
+        <line x1="236.72652" y1="40.331013" x2="306.27348" y2="76.16899" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_57">
+        <line x1="332.81136" y1="93.72075" x2="361.18864" y2="117.27925" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_58">
+        <line x1="380.15396" y1="142.05554" x2="390.84604" y2="165.44446" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_59">
+        <line x1="105.14158" y1="93.66393" x2="76.35842" y2="117.33607" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_60">
+        <line x1="57.577856" y1="142.15924" x2="47.422144" y2="165.34076" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_61">
+        <line x1="70.304385" y1="142.21023" x2="80.19562" y2="165.28977" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_62">
+        <line x1="177.03867" y1="142.10767" x2="187.46133" y2="165.39233" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_64">
+        <line x1="308.2964" y1="93.84888" x2="279.4922" y2="118.27539" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_65">
+        <line x1="367.46307" y1="142.32188" x2="357.5" y2="166.7832" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_66">
+        <text transform="translate(271.75 139.164)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="24" font-weight="400" fill="black" x="0" y="23">…</tspan>
+        </text>
+      </g>
+      <g id="Graphic_67">
+        <text transform="translate(169.5 3.385498)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x=".30078125" y="8">n(w</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">3</tspan>
+          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" y="8">, 1)</tspan>
+        </text>
+      </g>
+      <g id="Graphic_68">
+        <text transform="translate(70.5 52.8855)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x=".30078125" y="8">n(w</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">3</tspan>
+          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" y="8">, 2)</tspan>
+        </text>
+      </g>
+      <g id="Graphic_69">
+        <text transform="translate(183 98.3855)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x=".30078125" y="8">n(w</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">3</tspan>
+          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" y="8">, 3)</tspan>
+        </text>
+      </g>
+    </g>
+  </g>
+</svg>

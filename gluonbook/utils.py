@@ -1,5 +1,6 @@
-from math import exp
 import random
+import os
+import tarfile
 from time import time
 
 from IPython.display import set_matplotlib_formats
@@ -11,7 +12,11 @@ import numpy as np
 
 # set default figure size
 set_matplotlib_formats('retina')
-plt.rcParams['figure.figsize'] = (3.5, 2.5)
+
+def set_figsize(figsize=(3.5, 2.5)):
+    plt.rcParams['figure.figsize'] = figsize
+
+set_figsize()
 
 class DataLoader(object):
     """similiar to gluon.data.DataLoader, but might be faster.
@@ -93,12 +98,6 @@ def try_all_gpus():
     if not ctxes:
         ctxes = [mx.cpu()]
     return ctxes
-
-
-def SGD(params, lr):
-    """DEPRECATED!"""
-    for param in params:
-        param[:] = param - lr * param.grad
 
 
 def sgd(params, lr, batch_size):
@@ -241,158 +240,148 @@ def resnet18(num_classes):
         )
     return net
 
-def show_images(imgs, nrows, ncols, figsize=None):
+def show_images(imgs, num_rows, num_cols, scale=2):
     """plot a list of images"""
-    if not figsize:
-        figsize = (ncols, nrows)
-    _, figs = plt.subplots(nrows, ncols, figsize=figsize)
-    for i in range(nrows):
-        for j in range(ncols):
-            figs[i][j].imshow(imgs[i*ncols+j].asnumpy())
-            figs[i][j].axes.get_xaxis().set_visible(False)
-            figs[i][j].axes.get_yaxis().set_visible(False)
-    plt.show()
+    figsize = (num_cols*scale, num_rows*scale)
+    _, axes = plt.subplots(num_rows, num_cols, figsize=figsize)
+    for i in range(num_rows):
+        for j in range(num_cols):
+            axes[i][j].imshow(imgs[i*num_cols+j].asnumpy())
+            axes[i][j].axes.get_xaxis().set_visible(False)
+            axes[i][j].axes.get_yaxis().set_visible(False)
+    return axes
+
+
+def to_onehot(X, size):
+    """Represent inputs with one-hot encoding."""
+    return [nd.one_hot(x, size) for x in X.T]
+
 
 def data_iter_random(corpus_indices, batch_size, num_steps, ctx=None):
     """Sample mini-batches in a random order from sequential data."""
-    # Subtract 1 because label indices are corresponding input indices + 1.
     num_examples = (len(corpus_indices) - 1) // num_steps
     epoch_size = num_examples // batch_size
-    # Randomize samples.
     example_indices = list(range(num_examples))
     random.shuffle(example_indices)
-
     def _data(pos):
-        return corpus_indices[pos: pos + num_steps]
-
+        return corpus_indices[pos : pos+num_steps]
     for i in range(epoch_size):
-        # Read batch_size random samples each time.
         i = i * batch_size
-        batch_indices = example_indices[i: i + batch_size]
-        data = nd.array(
+        batch_indices = example_indices[i : i+batch_size]
+        X = nd.array(
             [_data(j * num_steps) for j in batch_indices], ctx=ctx)
-        label = nd.array(
+        Y = nd.array(
             [_data(j * num_steps + 1) for j in batch_indices], ctx=ctx)
-        yield data, label
+        yield X, Y
+
 
 def data_iter_consecutive(corpus_indices, batch_size, num_steps, ctx=None):
     """Sample mini-batches in a consecutive order from sequential data."""
     corpus_indices = nd.array(corpus_indices, ctx=ctx)
     data_len = len(corpus_indices)
     batch_len = data_len // batch_size
-
-    indices = corpus_indices[0: batch_size * batch_len].reshape((
+    indices = corpus_indices[0 : batch_size*batch_len].reshape((
         batch_size, batch_len))
-    # Subtract 1 because label indices are corresponding input indices + 1.
     epoch_size = (batch_len - 1) // num_steps
-
     for i in range(epoch_size):
         i = i * num_steps
-        data = indices[:, i: i + num_steps]
-        label = indices[:, i + 1: i + num_steps + 1]
-        yield data, label
+        X = indices[:, i : i+num_steps]
+        Y = indices[:, i+1 : i+num_steps+1]
+        yield X, Y
 
 
-def grad_clipping(params, clipping_norm, ctx):
-    """Gradient clipping."""
-    if clipping_norm is not None:
+def grad_clipping(params, theta, ctx):
+    """Clip the gradient."""
+    if theta is not None:
         norm = nd.array([0.0], ctx)
-        for p in params:
-            norm += nd.sum(p.grad ** 2)
-        norm = nd.sqrt(norm).asscalar()
-        if norm > clipping_norm:
-            for p in params:
-                p.grad[:] *= clipping_norm / norm
+        for param in params:
+            norm += (param.grad ** 2).sum()
+        norm = norm.sqrt().asscalar()
+        if norm > theta:
+            for param in params:
+                param.grad[:] *= theta / norm
 
 
-def predict_rnn(rnn, prefix, num_chars, params, hidden_dim, ctx, idx_to_char,
-                char_to_idx, get_inputs, is_lstm=False):
+def predict_rnn(rnn, prefix, num_chars, params, num_hiddens, vocab_size, ctx,
+                idx_to_char, char_to_idx, get_inputs, is_lstm=False):
     """Predict the next chars given the prefix."""
     prefix = prefix.lower()
-    state_h = nd.zeros(shape=(1, hidden_dim), ctx=ctx)
+    state_h = nd.zeros(shape=(1, num_hiddens), ctx=ctx)
     if is_lstm:
-        state_c = nd.zeros(shape=(1, hidden_dim), ctx=ctx)
+        state_c = nd.zeros(shape=(1, num_hiddens), ctx=ctx)
     output = [char_to_idx[prefix[0]]]
     for i in range(num_chars + len(prefix)):
         X = nd.array([output[-1]], ctx=ctx)
         if is_lstm:
-            Y, state_h, state_c = rnn(get_inputs(X), state_h, state_c, *params)
+            Y, state_h, state_c = rnn(get_inputs(X, vocab_size), state_h,
+                                      state_c, *params)
         else:
-            Y, state_h = rnn(get_inputs(X), state_h, *params)
-        if i < len(prefix)-1:
-            next_input = char_to_idx[prefix[i+1]]
+            Y, state_h = rnn(get_inputs(X, vocab_size), state_h, *params)
+        if i < len(prefix) - 1:
+            next_input = char_to_idx[prefix[i + 1]]
         else:
             next_input = int(Y[0].argmax(axis=1).asscalar())
         output.append(next_input)
     return ''.join([idx_to_char[i] for i in output])
 
 
-def train_and_predict_rnn(rnn, is_random_iter, epochs, num_steps, hidden_dim,
-                          learning_rate, clipping_norm, batch_size,
-                          pred_period, pred_len, seqs, get_params, get_inputs,
-                          ctx, corpus_indices, idx_to_char, char_to_idx,
-                          is_lstm=False):
+def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
+                          num_hiddens, lr, clipping_theta, batch_size,
+                          vocab_size, pred_period, pred_len, prefixes,
+                          get_params, get_inputs, ctx, corpus_indices,
+                          idx_to_char, char_to_idx, is_lstm=False):
     """Train an RNN model and predict the next item in the sequence."""
     if is_random_iter:
         data_iter = data_iter_random
     else:
         data_iter = data_iter_consecutive
     params = get_params()
+    loss = gloss.SoftmaxCrossEntropyLoss()
 
-    softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
-
-    for e in range(1, epochs + 1):
-        # If consecutive sampling is used, in the same epoch, the hidden state
-        # is initialized only at the beginning of the epoch.
+    for epoch in range(1, num_epochs + 1):
         if not is_random_iter:
-            state_h = nd.zeros(shape=(batch_size, hidden_dim), ctx=ctx)
+            state_h = nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx)
             if is_lstm:
-                state_c = nd.zeros(shape=(batch_size, hidden_dim), ctx=ctx)
-        train_loss, num_examples = 0, 0
-        for data, label in data_iter(corpus_indices, batch_size, num_steps,
-                                     ctx):
-            # If random sampling is used, the hidden state has to be
-            # initialized for each mini-batch.
+                state_c = nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx)
+        train_l_sum = nd.array([0], ctx=ctx)
+        train_l_cnt = 0
+        for X, Y in data_iter(corpus_indices, batch_size, num_steps, ctx):
             if is_random_iter:
-                state_h = nd.zeros(shape=(batch_size, hidden_dim), ctx=ctx)
+                state_h = nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx)
                 if is_lstm:
-                    state_c = nd.zeros(shape=(batch_size, hidden_dim), ctx=ctx)
+                    state_c = nd.zeros(shape=(batch_size, num_hiddens),
+                                       ctx=ctx)
+            else:
+                state_h = state_h.detach()
+                if is_lstm:
+                    state_c = state_c.detach()
             with autograd.record():
-                # outputs shape: (batch_size, vocab_size)
                 if is_lstm:
-                    outputs, state_h, state_c = rnn(get_inputs(data), state_h,
-                                                    state_c, *params)
+                    outputs, state_h, state_c = rnn(
+                        get_inputs(X, vocab_size), state_h, state_c, *params)
                 else:
-                    outputs, state_h = rnn(get_inputs(data), state_h, *params)
-                # Let t_ib_j be the j-th element of the mini-batch at time i.
-                # label shape: (batch_size * num_steps)
-                # label = [t_0b_0, t_0b_1, ..., t_1b_0, t_1b_1, ..., ].
-                label = label.T.reshape((-1,))
-                # Concatenate outputs:
-                # shape: (batch_size * num_steps, vocab_size).
+                    outputs, state_h = rnn(
+                        get_inputs(X, vocab_size), state_h, *params)
+                y = Y.T.reshape((-1,))
                 outputs = nd.concat(*outputs, dim=0)
-                # Now outputs and label are aligned.
-                loss = softmax_cross_entropy(outputs, label)
-            loss.backward()
-
-            grad_clipping(params, clipping_norm, ctx)
-            SGD(params, learning_rate)
-
-            train_loss += nd.sum(loss).asscalar()
-            num_examples += loss.size
-
-        if e % pred_period == 0:
-            print("Epoch %d. Training perplexity %f" % (e,
-                                               exp(train_loss/num_examples)))
-            for seq in seqs:
-                print(' - ', predict_rnn(rnn, seq, pred_len, params,
-                      hidden_dim, ctx, idx_to_char, char_to_idx, get_inputs,
-                      is_lstm))
-            print()
+                l = loss(outputs, y)
+            l.backward()
+            grad_clipping(params, clipping_theta, ctx)
+            sgd(params, lr, 1)
+            train_l_sum = train_l_sum + l.sum()
+            train_l_cnt += l.size
+        if epoch % pred_period == 0:
+            print("\nepoch %d, perplexity %f"
+                  % (epoch, (train_l_sum / train_l_cnt).exp().asscalar()))
+            for prefix in prefixes:
+                print(' - ', predict_rnn(
+                    rnn, prefix, pred_len, params, num_hiddens, vocab_size,
+                    ctx, idx_to_char, char_to_idx, get_inputs, is_lstm))
 
 
-def data_iter(batch_size, num_examples, features, labels):
+def data_iter(batch_size, features, labels):
     """Iterate through a data set."""
+    num_examples = len(features)
     indices = list(range(num_examples))
     random.shuffle(indices)
     for i in range(0, num_examples, batch_size):
@@ -437,7 +426,7 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval,
 def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
              legend=None, figsize=(3.5, 2.5)):
     """Plot x and log(y)."""
-    plt.rcParams['figure.figsize'] = figsize
+    set_figsize()
     set_matplotlib_formats('retina')
     plt.xlabel(x_label)
     plt.ylabel(y_label)
@@ -446,3 +435,152 @@ def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
         plt.semilogy(x2_vals, y2_vals)
         plt.legend(legend)
     plt.show()
+
+def bbox_to_rect(bbox, color):
+    """Convert bounding box to matplotlib format.
+    """
+    return plt.Rectangle(xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0],
+                         height=bbox[3]-bbox[1], fill=False, edgecolor=color, linewidth=2)
+
+
+def _make_list(obj, default_values=None):
+    if obj is None:
+        obj = default_values
+    elif not isinstance(obj, (list, tuple)):
+        obj = [obj]
+    return obj
+
+def show_bboxes(axes, bboxes, labels=None, colors=None):
+    labels = _make_list(labels)
+    colors = _make_list(colors, ['b', 'g', 'r',  'm', 'k'])
+    for i, bbox in enumerate(bboxes):
+        color = colors[i%len(colors)]
+        rect = bbox_to_rect(bbox.asnumpy(), color)
+        axes.add_patch(rect)
+        if labels and len(labels) > i:
+            text_color = 'k' if color == 'w' else 'w'
+            axes.text(rect.xy[0], rect.xy[1], labels[i],
+                      va="center", ha="center", fontsize=9, color=text_color,
+                      bbox=dict(facecolor=color, lw=0))
+
+def _download_pikachu(data_dir):
+    root_url = ('https://apache-mxnet.s3-accelerate.amazonaws.com/'
+                'gluon/dataset/pikachu/')
+    dataset = {'train.rec': 'e6bcb6ffba1ac04ff8a9b1115e650af56ee969c8',
+               'train.idx': 'dcf7318b2602c06428b9988470c731621716c393',
+               'val.rec': 'd6c33f799b4d058e82f2cb5bd9a976f69d72d520'}
+    for k, v in dataset.items():
+        gluon.utils.download(root_url+k, data_dir+k, sha1_hash=v)
+
+def load_data_pikachu(batch_size, edge_size=256):
+    data_dir = '../data/pikachu/'
+    _download_pikachu(data_dir)
+    train_data = image.ImageDetIter(
+        path_imgrec=data_dir+'train.rec',
+        path_imgidx=data_dir+'train.idx',
+        batch_size=batch_size,
+        data_shape=(3, edge_size, edge_size),
+        shuffle=True,
+        rand_crop=1,
+        min_object_covered=0.95,
+        max_attempts=200)
+    val_data = image.ImageDetIter(
+        path_imgrec=data_dir+'val.rec',
+        batch_size=batch_size,
+        data_shape=(3, edge_size, edge_size),
+        shuffle=False)
+    return (train_data, val_data)
+
+def _download_voc_pascal(data_dir='../data'):
+    voc_dir = data_dir + '/VOCdevkit/VOC2012'
+    url = ('http://host.robots.ox.ac.uk/pascal/VOC/voc2012'
+           '/VOCtrainval_11-May-2012.tar')
+    sha1 = '4e443f8a2eca6b1dac8a6c57641b67dd40621a49'
+    fname = gluon.utils.download(url, data_dir, sha1_hash=sha1)
+    if not os.path.exists(voc_dir+'/ImageSets/Segmentation/train.txt'):
+        with tarfile.open(fname, 'r') as f:
+            f.extractall(data_dir)
+    return voc_dir
+
+def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):
+    txt_fname = '%s/ImageSets/Segmentation/%s'%(
+        root, 'train.txt' if train else 'val.txt')
+    with open(txt_fname, 'r') as f:
+        images = f.read().split()
+    data, label = [None] * len(images), [None] * len(images)
+    for i, fname in enumerate(images):
+        data[i] = image.imread('%s/JPEGImages/%s.jpg'%(root, fname))
+        label[i] = image.imread('%s/SegmentationClass/%s.png'%(root, fname))
+    return data, label
+
+
+voc_rgb_mean = nd.array([0.485, 0.456, 0.406])
+voc_rgb_std = nd.array([0.229, 0.224, 0.225])
+
+def normalize_voc_image(data):
+    return (data.astype('float32') / 255 - voc_rgb_mean) / voc_rgb_std
+
+class VOCSegDataset(gluon.data.Dataset):
+    def __init__(self, train, crop_size):
+        self.train = train
+        self.crop_size = crop_size
+        self.rgb_mean = nd.array([0.485, 0.456, 0.406])
+        self.rgb_std = nd.array([0.229, 0.224, 0.225])
+        self.voc_colormap = [[0,0,0],[128,0,0],[0,128,0], [128,128,0], [0,0,128],
+                             [128,0,128],[0,128,128],[128,128,128],[64,0,0],[192,0,0],
+                             [64,128,0],[192,128,0],[64,0,128],[192,0,128],
+                             [64,128,128],[192,128,128],[0,64,0],[128,64,0],
+                             [0,192,0],[128,192,0],[0,64,128]]
+        self.voc_classes = ['background','aeroplane','bicycle','bird','boat',
+                            'bottle','bus','car','cat','chair','cow','diningtable',
+                            'dog','horse','motorbike','person','potted plant',
+                            'sheep','sofa','train','tv/monitor']
+        self.colormap2label = None
+        self.load_images()
+
+    def voc_label_indices(self, img):
+        if self.colormap2label is None:
+            self.colormap2label = nd.zeros(256**3)
+            for i, cm in enumerate(self.voc_colormap):
+                self.colormap2label[(cm[0]*256+cm[1]) * 256 + cm[2]] = i
+        data = img.astype('int32')
+        idx = (data[:,:,0]*256+data[:,:,1])*256+data[:,:,2]
+        return self.colormap2label[idx]
+
+    def rand_crop(self, data, label, height, width):
+        data, rect = image.random_crop(data, (width, height))
+        label = image.fixed_crop(label, *rect)
+        return data, label
+
+    def load_images(self):
+        voc_dir = _download_voc_pascal()
+        data, label = read_voc_images(root=voc_dir, train=self.train)
+        self.data = [self.normalize_image(im) for im in self.filter(data)]
+        self.label = self.filter(label)
+        print('Read '+str(len(self.data))+' examples')
+
+    def normalize_image(self, data):
+        return (data.astype('float32') / 255 - self.rgb_mean) / self.rgb_std
+
+    def filter(self, images):
+        return [im for im in images if (
+            im.shape[0] >= self.crop_size[0] and
+            im.shape[1] >= self.crop_size[1])]
+
+    def __getitem__(self, idx):
+        data, label = self.rand_crop(self.data[idx], self.label[idx],
+                                *self.crop_size)
+        return data.transpose((2,0,1)), self.voc_label_indices(label)
+
+    def __len__(self):
+        return len(self.data)
+
+def load_data_pascal_voc(batch_size, output_shape):
+    voc_train = VOCSegDataset(True, output_shape)
+    voc_test = VOCSegDataset(False, output_shape)
+
+    train_data = gluon.data.DataLoader(
+        voc_train, batch_size, shuffle=True,last_batch='discard', num_workers=4)
+    test_data = gluon.data.DataLoader(
+        voc_test, batch_size,last_batch='discard', num_workers=4)
+    return train_data, test_data

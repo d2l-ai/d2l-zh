@@ -8,9 +8,13 @@
 
    image-augmentation
    fine-tuning
-   object-detection
+   bounding-box
+   object-detection-dataset
+   anchor
+   pikachu
    ssd
-   yolo
+   rcnn
+   semantic-segmentation-and-dataset
    fcn
    neural-style
    kaggle-gluon-cifar10

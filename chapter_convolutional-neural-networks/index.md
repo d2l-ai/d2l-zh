@@ -16,7 +16,7 @@
    vgg
    nin
    googlenet
-   batch-norm-scratch
+   batch-norm
    batch-norm-gluon
    resnet
    densenet
