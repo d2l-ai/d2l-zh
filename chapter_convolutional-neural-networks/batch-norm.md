@@ -1,10 +1,10 @@
 # 批量归一化
 
-这一节我们介绍批量归一化（batch normalization）层 [1]，它的主要作用是使得深层卷积网络训练更加容易。回忆在[“实战Kaggle比赛：房价预测”](../chapter_deep-learning-basics/kaggle-house-price.md)一节里，我们对输入数据做了归一化处理。就是我们将每个特征在所有样本上的值转归一化成均值0方差1。这样我们保证训练数据里数值都同样量级上，从而使得训练的时候数值更加稳定。
+这一节我们介绍批量归一化（batch normalization）层 [1] ，它能让深层卷积网络的训练变得更加容易。在 [“实战Kaggle比赛：预测房价和K折交叉验证”](../chapter_supervised-learning/kaggle-gluon-kfold.md) 小节里，我们对输入数据做了归一化处理，即将每个特征在所有样本上的值转归一化成均值0方差1。这个处理可以保证训练数据的值都在同一量级上，从而使得训练时模型参数更加稳定。
 
-对于浅层模型来说，通常数据归一化预处理足够有效。输出数值在只经过几个神经层后通常不会出现剧烈变化。但对于深层神经网络来说，情况一般比较复杂。因为每一层里都对输入乘以权重后得到输出。当很多层这样的相乘累计在一起时，一个输出数据较大的改变都可以导致输出产生巨大变化，从而带来不稳定性。
+通常来说，数据归一化预处理对于浅层模型就足够有效了。输出数值在只经过几个神经层后一般不会出现剧烈变化。但对于深层神经网络来说，情况会变得比较复杂：每一层里都对输入乘以权重后得到输出。当很多层这样的相乘累计在一起时，一个输入数据较小的改变都可能导致输出产生巨大变化，从而带来不稳定性。
 
-批量归一化层的提出是针对这个情况。它将一个批量里的输入数据进行归一化然后输出。如果我们将批量归一化层放置在网络的各个层之间，那么就可以不断的对中间输出进行调整，从而保证整个网络的中间输出的数值稳定性。
+批量归一化层就是针对这个情况提出的。它将一个批量里的输入数据进行归一化后再输出。如果我们将批量归一化层放置在网络的各个层之间，那么就可以不断的对中间输出进行调整，从而保证整个网络的中间输出在数值上都是稳定的。
 
 ## 批量归一化层
 
@@ -17,7 +17,7 @@ $$\sigma^2 \leftarrow \frac{1}{n} \sum_{i=1}^{n}(x_i - \mu)^2.$$
 
 $$\hat{x_i} \leftarrow \frac{x_i - \mu}{\sqrt{\sigma^2 + \epsilon}},$$
 
-这里$\epsilon$是一个很小的常数保证不除以0。在上面归一化的基础上，批量归一化层引入了两个可以学习的模型参数，拉升参数 $\gamma$ 和偏移参数 $\beta$。它们是长为$p$的向量，作用在$\hat{x_i}$上：
+这里$\epsilon$是一个很小的常数，保证分母大于0。在上面归一化的基础上，批量归一化层引入了两个可以学习的模型参数，拉升参数 $\gamma$ 和偏移参数 $\beta$。它们是长为$p$的向量，作用在$\hat{x_i}$上：
 
 $$y_i \leftarrow \gamma \hat{x_i} + \beta.$$
 
@@ -25,7 +25,7 @@ $$y_i \leftarrow \gamma \hat{x_i} + \beta.$$
 
 如果批量归一化层是放置在卷积层后面，那么我们将通道维当做是特征维，空间维（高和宽）里的元素则当成是样本（参考[“多输入和输出通道”](channels.md)一节里我们对$1\times 1$卷积层的讨论）。
 
-通常训练的时候我们使用较大的批量大小来获取更好的计算性能，这时批量内样本均值和方差的计算都较为准确。但在预测的时候，我们可能使用很小的批量大小，甚至每次我们只对一个样本做预测，这时我们无法得到较为准确的均值和方差。对此，批量归一化层的解决方法是维护一个移动平滑的样本均值和方差来在预测时使用。
+通常训练的时候我们使用较大的批量大小来获取更好的计算性能，这时批量内样本均值和方差的计算都较为准确。但在预测的时候，我们可能使用很小的批量大小，甚至每次我们只对一个样本做预测，这时我们无法得到较为准确的均值和方差。对此，一般的解决方法是维护一个移动平滑的样本均值和方差，从而在预测时使用。
 
 下面我们通过NDArray来实现这个计算。
 
@@ -42,13 +42,13 @@ def batch_norm(X, gamma, beta, moving_mean, moving_var,
     if not autograd.is_training():
         # 如果是在预测模式下，直接使用传入的移动平滑均值和方差。
         X_hat = (X - moving_mean) / nd.sqrt(moving_var + eps)
-    else:        
+    else:
         assert len(X.shape) in (2, 4)
         # 接在全连接层后情况，计算特征维上的均值和方差。
         if len(X.shape) == 2:
             mean = X.mean(axis=0)
             var = ((X - mean)**2).mean(axis=0)
-        # 接在二维卷积层后的情况，计算通道维上（axis=1）的均值和方差。这里我们需要保持 X 
+        # 接在二维卷积层后的情况，计算通道维上（axis=1）的均值和方差。这里我们需要保持 X
         # 的形状以便后面可以正常的做广播运算。
         else:
             mean = X.mean(axis=(0,2,3), keepdims=True)
@@ -63,7 +63,7 @@ def batch_norm(X, gamma, beta, moving_mean, moving_var,
     return (Y, moving_mean, moving_var)
 ```
 
-接下来我们自定义一个BatchNorm层。它保存参与求导和更新的模型参数`beta`和`gamma`。同时也维护移动平滑的均值和方差使得在预测时可以使用。
+接下来我们自定义一个BatchNorm层。它保存参与求导和更新的模型参数`beta`和`gamma`，同时也维护移动平滑的均值和方差使得在预测时可以使用。
 
 ```{.python .input  n=73}
 class BatchNorm(nn.Block):
@@ -83,7 +83,7 @@ class BatchNorm(nn.Block):
             self.moving_variance = self.moving_variance.copyto(X.context)
         # 保存更新过的 moving_mean 和 moving_var。
         Y, self.moving_mean, self.moving_variance = batch_norm(
-            X, self.gamma.data(), self.beta.data(), self.moving_mean, 
+            X, self.gamma.data(), self.beta.data(), self.moving_mean,
             self.moving_variance, eps=1e-5, momentum=0.9)
         return Y
 ```
@@ -105,7 +105,7 @@ net.add(
     nn.MaxPool2D(pool_size=2, strides=2),
     nn.Dense(120),
     BatchNorm(120, num_dims=2),
-    nn.Activation('sigmoid'),   
+    nn.Activation('sigmoid'),
     nn.Dense(84),
     BatchNorm(84, num_dims=2),
     nn.Activation('sigmoid'),
@@ -113,7 +113,7 @@ net.add(
 )
 ```
 
-使用同前一样的超参数，可以发现前面五个迭代周期的收敛有明显加速。
+使用同之前一样的超参数，可以发现前面五个迭代周期的收敛有明显加速。
 
 ```{.python .input  n=77}
 lr = 1.0
@@ -125,7 +125,7 @@ train_data, test_data = gb.load_data_fashion_mnist(batch_size=256)
 gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 ```
 
-最后我们查看下第一个批量归一化层学习到了`beta`和`gamma`。
+最后我们查看下第一个批量归一化层学习到的`beta`和`gamma`。
 
 ```{.python .input  n=60}
 (net[1].beta.data().reshape((-1,)),
@@ -134,7 +134,7 @@ gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 
 ## 小结
 
-* 批量归一化层对网络中间层的输出做归一化，来使得深层网络学习时数值更加稳定。
+批量归一化层对网络中间层的输出做归一化，使得深层网络学习时数值更加稳定。
 
 ## 练习
 
