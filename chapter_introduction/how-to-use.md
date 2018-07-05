@@ -36,6 +36,8 @@
 
 ## 视频课程
 
+(建议去掉视频，因为跟目前版本差太远）
+
 本书作者曾在网上直播教学《动手学深度学习》系列课程。这套课程的视频录像可在Bilibili网站或Youtube网站上收看。
 
 * 扫码直达[Bilibili网站的视频教程](https://space.bilibili.com/209599371/#/channel/detail?cid=23541)：
