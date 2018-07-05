@@ -19,6 +19,8 @@
 
 第二步，下载包含本书全部代码的包。我们可以在浏览器的地址栏中输入以下地址并按回车键进行下载：
 
+（需要考虑merge了英文后文件名是不是发生变化，而且需要把版本号带上。例如我们让用户下 1.0，而不是latest）
+
 > https://zh.gluon.ai/gluon_tutorials_zh.zip
 
 下载完成后，解压该文件并进入文件夹“gluon_tutorials_zh”。在该目录文件资源管理器的地址栏输入`cmd`进入命令行模式。
@@ -101,6 +103,8 @@ MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter no
 
 ## 激活运行环境
 
+（重复前面了。只需要前面说清楚 1,2是安装，3，4是运行。下一次运行时只需要3，4就行了）
+
 运行环境中已安装了运行书中代码所需的Python、MXNet、Jupyter notebook等工具。我们可以在下载并解压的代码包里的文件“gluon_tutorials_zh/environment.yml”中查看它们。在运行书中代码前，我们需要激活运行环境。Windows和Linux/macOS用户请分别参照以下步骤激活并退出运行环境。
 
 ### Windows用户
@@ -132,6 +136,8 @@ source deactivate
 ```
 
 ## 更新代码和运行环境
+
+（感觉可以放后面，毕竟是打印版用户应该不会经常更新）
 
 为了适应深度学习和MXNet的快速发展，本书的开源内容将定期发布新版本。我们推荐大家定期更新本书的开源内容（例如代码）和相应的运行环境（例如新版MXNet）。以下是更新的具体步骤。
 
