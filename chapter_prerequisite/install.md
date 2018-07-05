@@ -25,7 +25,7 @@
 
 第三步，安装运行所需的依赖包并激活该运行环境。我们可以先通过运行下面命令来配置下载源，从而使用国内镜像加速下载:
 
-```{.python .input}
+```
 # 优先使用清华 conda 镜像。
 conda config --prepend channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
 
@@ -35,14 +35,14 @@ conda config --prepend channels http://mirrors.ustc.edu.cn/anaconda/pkgs/free/
 
 然后运行以下命令安装并激活运行环境。
 
-```{.python .input}
+```
 conda env create -f environment.yml
 activate gluon
 ```
 
 第四步，打开Juputer notebook。运行下面命令。
 
-```{.python .input}
+```
 jupyter notebook
 ```
 
@@ -50,7 +50,7 @@ jupyter notebook
 
 第五步（可选项），如果你是国内用户，建议使用国内Gluon镜像加速数据集和预训练模型的下载。运行下面命令。
 
-```{.python .input}
+```
 set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter notebook
 ```
 
@@ -60,7 +60,7 @@ set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyte
 
 第二步，下载包含本书全部代码的包，解压后进入文件夹。运行如下命令。
 
-```{.python .input}
+```
 mkdir gluon_tutorials_zh-1.0 && cd gluon_tutorials_zh-1.0
 curl https://zh.gluon.ai/gluon_tutorials_zh-1.0.tar.gz -o tutorials.tar.gz
 tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
@@ -68,7 +68,7 @@ tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
 
 第三步，安装运行所需的依赖包并激活该运行环境。我们可以先通过运行下面命令来配置下载源，从而使用国内镜像加速下载:
 
-```{.python .input}
+```
 # 优先使用清华 conda 镜像。
 conda config --prepend channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
 
@@ -78,7 +78,7 @@ conda config --prepend channels http://mirrors.ustc.edu.cn/anaconda/pkgs/free/
 
 然后运行以下命令安装并激活运行环境。
 
-```{.python .input}
+```
 conda env create -f environment.yml
 source activate gluon
 ```
@@ -87,7 +87,7 @@ source activate gluon
 
 第四步，打开Juputer notebook。运行下面命令。
 
-```{.python .input}
+```
 jupyter notebook
 ```
 
@@ -95,7 +95,7 @@ jupyter notebook
 
 第五步（可选项），如果你是国内用户，建议使用国内Gluon镜像加速数据集和预训练模型的下载。运行下面命令。
 
-```{.python .input}
+```
 MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter notebook
 ```
 
@@ -107,13 +107,13 @@ MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter no
 
 首先进入之前解压得到的文件夹“gluon_tutorials_zh-1.0”。然后在该目录文件资源管理器的地址栏输入`cmd`进入命令行模式。最后运行以下命令激活安装环境。
 
-```{.python .input}
+```
 activate gluon
 ```
 
 如需退出激活环境，运行以下命令。
 
-```{.python .input}
+```
 deactivate
 ```
 
@@ -121,13 +121,13 @@ deactivate
 
 首先在命令行模式下进入之前解压得到的文件夹“gluon_tutorials_zh-1.0”（例如运行`cd gluon_tutorials_zh-1.0`），然后运行以下命令激活安装环境。
 
-```{.python .input}
+```
 source activate gluon
 ```
 
 如需退出激活环境，运行以下命令。
 
-```{.python .input}
+```
 source deactivate
 ```
 
@@ -145,7 +145,7 @@ source deactivate
 
 第二步，使用下面命令更新运行环境。
 
-```{.python .input}
+```
 conda env update -f environment.yml
 ```
 
@@ -155,13 +155,13 @@ conda env update -f environment.yml
 
 我们在完成获取代码并安装运行环境的步骤后，需要先激活运行环境。然后卸载CPU版本的MXNet：
 
-```{.python .input}
+```
 pip uninstall mxnet
 ```
 
 接下来，退出运行环境。使用文本编辑器打开之前解压得到的代码包里的文件“gluon_tutorials_zh-1.0/environment.yml”。如果电脑上装的是8.0版本的CUDA，将该文件中的字符串“mxnet”改为“mxnet-cu80”。如果电脑上安装了其他版本的CUDA（比如7.5、9.0、9.2等），对该文件中的字符串“mxnet”做类似修改（比如改为“mxnet-cu75”、“mxnet-cu90”、“mxnet-cu92”等）。然后，使用下面命令更新运行环境。
 
-```{.python .input}
+```
 conda env update -f environment.yml
 ```
 
@@ -183,7 +183,7 @@ conda env update -f environment.yml
 
 第三步，使用下面命令更新运行环境。
 
-```{.python .input}
+```
 conda env update -f environment.yml
 ```
 

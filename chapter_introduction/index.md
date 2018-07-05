@@ -9,6 +9,5 @@
 
    deep-learning-intro
    how-to-use
-   notation
 
 ```
