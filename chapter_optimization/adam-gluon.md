@@ -1,4 +1,4 @@
-# Adam——使用Gluon
+# Adam的Gluon实现
 
 在Gluon里，使用Adadelta很容易，我们无需重新实现该算法。
 
@@ -29,7 +29,7 @@ net = nn.Sequential()
 net.add(nn.Dense(1))
 ```
 
-我们可以在Trainer中定义优化算法名称`adam`并定义初始学习率。以下实验重现了[“Adam——从零开始”](adam-scratch.md)一节中实验结果。
+我们可以在Trainer中定义优化算法名称`adam`并定义初始学习率。以下实验重现了[“Adam”](adam.md)一节中实验结果。
 
 ```{.python .input  n=3}
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)

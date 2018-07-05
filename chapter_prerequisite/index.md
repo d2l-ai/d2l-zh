@@ -10,5 +10,6 @@
    install
    ndarray
    autograd
+   lookup-api
 
 ```

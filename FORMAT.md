@@ -1,7 +1,5 @@
 # 样式规范
 
-
-
 ## 文本
 
 * 章节
@@ -163,8 +161,6 @@
 
 * https://www.the-qrcode-generator.com/
     * 75pixel, SVG
-
-
 
 ## 文献引用
 

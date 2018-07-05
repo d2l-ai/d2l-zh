@@ -1,6 +1,6 @@
 # 如何使用
 
-在本书中，我们不仅阐述深度学习的技术与应用，还使用Apache MXNet及其最新的Gluon接口演示如何实现它们。
+在本书中，我们不仅阐述深度学习的技术与应用，还使用Apache MXNet（incubating）及其最新的Gluon接口演示如何实现它们。
 除了视频课程和讨论区以外，我们将利用Jupyter notebook能将文字、代码、公式和图像统一起来的优势，提供一个交互式的学习体验。据我们所知，目前还没有如此多方位交互式的深度学习的学习体验。我们将尝试弥补这个空白。
 
 
@@ -36,10 +36,15 @@
 
 ## 视频课程
 
-本书作者曾在网上直播教学《动手学深度学习》系列课程。这套课程的视频录像可在Bilibili网站或Youtube网站上收看：
+本书作者曾在网上直播教学《动手学深度学习》系列课程。这套课程的视频录像可在Bilibili网站或Youtube网站上收看。
 
-* Bilibili网站的视频教程地址：goo.gl/gBVfAo
-* Youtube网站的视频教程地址：goo.gl/Pz1wSq
+* 扫码直达[Bilibili网站的视频教程](https://space.bilibili.com/209599371/#/channel/detail?cid=23541)：
+
+![](../img/qr_lectures_bilibili.svg)
+
+* 扫码直达[Youtube网站的视频教程](https://www.youtube.com/watch?v=kGktiYF5upk&list=PLLbeS1kM6teJqdFzw1ICHfa4a1y0hg8Ax)：
+
+![](../img/qr_lectures_youtube.svg)
 
 本书基于观众反馈意见对视频课程内容做了部分修改。如果视频与本书有内容不一致，请以本书内容为准。
 
