@@ -45,6 +45,10 @@ cp build/_build/latex/gluon_tutorials_zh.pdf build/_build/html/
 [ -e build/_build/latex/gluon_tutorials_zh.aux ] && rm build/_build/latex/gluon_tutorials_zh.aux
 [ -e build/_build/latex/gluon_tutorials_zh.idx ] && rm build/_build/latex/gluon_tutorials_zh.idx
 
+
+cp build/_build/html/gluon_tutorials_zh.tar.gz build/_build/html/gluon_tutorials_zh-1.0.tar.gz
+cp build/_build/html/gluon_tutorials_zh.zip build/_build/html/gluon_tutorials_zh-1.0.zip
+
 cd build
 
 bash ipynb2mdd.sh
