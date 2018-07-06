@@ -1,8 +1,6 @@
 # 文本分类：情感分析
 
-文本分类即把一段不定长的文本序列变换为类别。在文本分类问题中，情感分析是一项重要的自然语言处理任务。例如，Netflix或者IMDb可以对每部电影的评论进行情感分类，从而帮助各个平台改进产品，提升用户体验。
-
-本节介绍如何使用Gluon来创建一个情感分类模型。该模型将判断一段不定长的文本序列中包含的是正面还是负面的情绪，也即将文本序列分类为正面或负面。
+本节将介绍如何将卷积神经网络应用于自然语言处理领域。以及参考textCNN模型使用Gluon创建一个卷积神经网络用于文本情感分类。
 
 ## 模型设计
 
@@ -186,12 +184,12 @@ class TextCNN(nn.Block):
     def forward(self, inputs):
         embeddings_static = self.embedding_static(inputs).transpose((1,2,0))
         embeddings_non_static = self.embedding_non_static(inputs).transpose((1,2,0))
-        embeddings = nd.concat(embeddings_static,embedding_non_static,dim=1)
+        embeddings = nd.concat(embeddings_static,embeddings_non_static,dim=1)
         encoding = [
-            nd.flatten(self.get_pool(i)(self.get_conv(i)(x)))
+            nd.flatten(self.get_pool(i)(self.get_conv(i)(embeddings)))
             for i in range(len(self.FILTERS))]
         encoding = nd.concat(*encoding, dim=1)
-        outputs = self.output(self.dropout(encoding))
+        outputs = self.decoder(self.dropout(encoding))
         return outputs
     def get_conv(self, i):
         return getattr(self, f'conv_{i}')
@@ -208,8 +206,6 @@ num_epochs = 1
 batch_size = 10
 embed_size = 100
 num_hiddens = 100
-num_layers = 2
-bidirectional = True
     
 net = TextCNN(vocab, embed_size, num_hiddens)
 net.initialize(init.Xavier(), ctx=ctx)
