@@ -6,7 +6,7 @@
 
 ```{.python .input  n=1}
 from mxnet import nd, gluon
-from mxnet.gluon import nn
+from mxnet.gluon import data as gdata, loss as gloss, nn
 import collections
 import functools
 import itertools
@@ -100,7 +100,7 @@ the whole dataset at once into center words with respective contexts so that
 during training we only need to iterate over the pre-computed arrays.
 
 ```{.python .input  n=5}
-def get_center_context_arrays(coded_sentences, window):
+def get_center_context_arrays(coded_sentences, window_size):
     centers = []
     contexts = []
     masks = []
@@ -109,14 +109,15 @@ def get_center_context_arrays(coded_sentences, window):
         if len(sentence) < 2:
             continue
         centers += sentence
-        context = [get_one_context(sentence, i, window) for i in range(len(sentence))]
+        context = [get_one_context(sentence, i, window_size)
+                   for i in range(len(sentence))]
         contexts += context
     return centers, contexts
 
 
-def get_one_context(sentence, word_index, window):
+def get_one_context(sentence, word_index, window_size):
     # A random reduced window size is drawn.
-    random_window_size = random.randint(1, window)
+    random_window_size = random.randint(1, window_size)
 
     start_idx = max(0, word_index - random_window_size)
     # First index outside of the window
@@ -224,13 +225,13 @@ knn = get_knn(token_to_idx, idx_to_token, embedding, 5, example_token)
 The gluon `SigmoidBinaryCrossEntropyLoss` corresponds to the loss function introduced above.
 
 ```{.python .input  n=16}
-loss = gluon.loss.SigmoidBinaryCrossEntropyLoss()
+loss = gloss.SigmoidBinaryCrossEntropyLoss()
 ```
 
 Finally we train the word2vec model. We first shuffle our dataset
 
 ```{.python .input}
-class Dataset(gluon.data.SimpleDataset):
+class Dataset(gdata.SimpleDataset):
     def __init__(self, centers, contexts, negatives):
         data = list(zip(all_centers, all_contexts, all_negatives))
         super().__init__(data)
@@ -241,48 +242,55 @@ def batchify_fn(data):
     centers, contexts, negatives = zip(*data)
     batch_size = len(centers)  # == len(contexts) == len(negatives)
     
-    # To avoid using a mask we find the max length
-    # that all samples in this batch can fullfil.
-    # This means we need to throw some negatives.
-    length = min(len(c) + len(n) for c, n in zip(contexts, negatives))
-    contexts_ = []
+    # contexts and negatives are of variable length
+    # we pad them to a fixed length and introduce a mask
+    length = max(len(c) + len(n) for c, n in zip(contexts, negatives))
+    contexts_negatives = []
+    masks = []
     labels = []
     for i, (context, negative) in enumerate(zip(contexts, negatives)):
-        contexts_.append((context + negative)[:length])
-        labels.append(([1] * len(context)) + ([0] * (length - len(context))))
+        len_context_negative = len(context) + len(negative)
+        context_negative = context + negative + [0] * (length - len_context_negative)
+        mask = [1] * len_context_negative + [0] * (length - len_context_negative)
+        label = [1] * len(context) + [0] * (length - len(context))
+        contexts_negatives.append(context_negative)
+        masks.append(mask)
+        labels.append(label)
         
     centers_nd = nd.array(centers).reshape((batch_size, 1))
-    contexts_nd = nd.array(contexts_)
+    contexts_negatives_nd = nd.array(contexts_negatives)
+    masks_nd = nd.array(masks)
     labels_nd = nd.array(labels)
-    return centers_nd, contexts_nd, labels_nd
+    return centers_nd, contexts_negatives_nd, masks_nd, labels_nd
 
 batch_size = 512
 
 data = Dataset(all_centers, all_contexts, all_negatives)
-batches = gluon.data.DataLoader(data, batch_size=batch_size,
+batches = gdata.DataLoader(data, batch_size=batch_size,
                                 shuffle=True, batchify_fn=batchify_fn,
                                 num_workers=1)
 ```
 
 ```{.python .input  n=17}
-def train_embedding(num_epochs=5, eval_period=100):
+def train_embedding(num_epochs=3, eval_period=100):
     batch_id = 0
     for epoch in range(1, num_epochs + 1):
         start_time = time.time()
         train_l_sum = 0
-        for batch_i, (center, word_context, context_label) in enumerate(batches):
+        for batch_i, (center, context_and_negative, mask, label) in enumerate(batches):
             center = center.as_in_context(context)
-            word_context = word_context.as_in_context(context)
-            context_label = context_label.as_in_context(context)
+            context_and_negative = context_and_negative.as_in_context(context)
+            mask = mask.as_in_context(context)
+            label = label.as_in_context(context)
             with mx.autograd.record():
                 # 1. Compute the embedding of the center words
                 emb_in = embedding(center)
                 # 2. Compute the context embedding
-                emb_out = embedding_out(word_context)
+                emb_out = embedding_out(context_and_negative) * mask.expand_dims(-1)
                 # 3. Compute the prediction
                 pred = nd.batch_dot(emb_in, emb_out.swapaxes(1, 2))
                 # 4. Compute the Loss function (SigmoidBinaryCrossEntropyLoss)
-                l = loss(pred, context_label)
+                l = loss(pred, label)
             # Compute the gradient
             l.backward()
             # Update the parameters
@@ -290,8 +298,8 @@ def train_embedding(num_epochs=5, eval_period=100):
             train_l_sum += l.mean()
             if batch_i % eval_period == 0 and batch_i != 0 :
                 cur_l = train_l_sum / eval_period
-                print('epoch %d, batch %d, train loss %.2f'
-                      % (epoch, batch_i, cur_l.asscalar()))
+                print('epoch %d, batch %d, time %.2fs, train loss %.2f'
+                      % (epoch, batch_i, time.time() - start_time, cur_l.asscalar()))
                 train_l_sum = 0
                 get_knn(token_to_idx, idx_to_token, embedding, 5, example_token)
 ```
