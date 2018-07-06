@@ -3,10 +3,6 @@
 set -x
 set -e
 
-rm build/_build/html/gluon_tutorials_zh.tar.gz
-rm build/_build/html/gluon_tutorials_zh.zip
-
-
 # Clean build/chapter*/*ipynb and build/chapter*/*md that are no longer needed.
 cd build
 for ch in chapter*; do
