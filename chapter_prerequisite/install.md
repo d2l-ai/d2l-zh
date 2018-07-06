@@ -58,6 +58,18 @@ set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyte
 
 第一步，根据操作系统下载并安装Miniconda（网址：https://conda.io/miniconda.html ）。
 
+安装时需要回答下面几个问题：
+
+```
+Do you accept the license terms? [yes|no]
+[no] >>> yes
+Do you wish the installer to prepend the Miniconda3 install location
+to PATH in your /xx/yyy/.zzzz ? [yes|no]
+[no] >>> yes
+```
+
+安装完成后，我们需要让conda生效。Linux用户需要运行一次`source ~/.bashrc`或重启命令行；macOS用户需要运行一次`source ~/.bash_profile`或重启命令行。
+
 第二步，下载包含本书全部代码的包，解压后进入文件夹。运行如下命令。
 
 ```
