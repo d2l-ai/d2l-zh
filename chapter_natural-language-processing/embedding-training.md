@@ -1,20 +1,20 @@
 # Training 词向量：word2vec
 
-我们在[“词向量：word2vec”](./word2vec.md)introduced the word2vec word embedding model. In this notebook we will show how to train a word2vec model with Gluon. We will introduce training the model with the skip-gram objective and negative sampling. Besides mxnet Gluon and numpy we will only use standard Python language features but note that specific  toolkits for Natural Language Processing, such as the Gluon-NLP toolkit exist.
+我们在[“词向量：word2vec”](./word2vec.md)introduced the word2vec word embedding model. In this notebook we will show how to train a word2vec model with Gluon. We will introduce training the model with the skip-gram objective and negative sampling. Besides mxnet Gluon we will only use standard Python language features but note that specific  toolkits for Natural Language Processing, such as the Gluon-NLP toolkit exist.
 
 首先导入实验所需的包或模块，并抽取数据集。
 
 ```{.python .input  n=1}
-import collections
-import itertools
-import functools
-import random
-
-import numpy as np
-import mxnet as mx
 from mxnet import nd, gluon
-
 from mxnet.gluon import nn
+import collections
+import functools
+import itertools
+import math
+import mxnet as mx
+import operator
+import random
+import time
 ```
 
 ## Data
@@ -58,13 +58,15 @@ according to the token frequencies. [2] proposes to discards individual
 occurences of words from the dataset with probability $$ P(w_i) = 1 -
 \sqrt{\frac{t}{f(w_i)}}$$ where $f(w_i)$ is the frequency with which a word is
 observed in a dataset and $t$ is a subsampling constant typically chosen around
-$10^{-5}$.
+$10^{-5}$. We are using a very small dataset here and found results in this case to be better with
+$10^{-4}$.
 
 ```{.python .input}
-idx_to_counts = np.array([counter[w] for w in idx_to_token])
-frequent_tokens_subsampling_constant = 1e-5
-f = idx_to_counts / np.sum(idx_to_counts)
-idx_to_pdiscard = 1 - np.sqrt(frequent_tokens_subsampling_constant / f)
+idx_to_counts = [counter[w] for w in idx_to_token]
+frequent_tokens_subsampling_constant = 1e-4
+sum_counts =  sum(idx_to_counts)
+idx_to_pdiscard = [1 - math.sqrt(frequent_tokens_subsampling_constant / (count / sum_counts))
+                   for count in idx_to_counts]
 
 pruned_dataset = [[t for t in s if random.uniform(0, 1) > idx_to_pdiscard[t]] for s in coded_dataset]
 ```
@@ -99,24 +101,20 @@ during training we only need to iterate over the pre-computed arrays.
 
 ```{.python .input  n=5}
 def get_center_context_arrays(coded_sentences, window):
+    centers = []
     contexts = []
     masks = []
     for sentence in coded_sentences:
-        if not sentence:  # Sentence with no words
+        # We need at least  2  words  to form a source, context pair
+        if len(sentence) < 2:
             continue
-            
-        context, mask = zip(*[get_one_context_mask(sentence, i, window) for i in range(len(sentence))])
+        centers += sentence
+        context = [get_one_context(sentence, i, window) for i in range(len(sentence))]
         contexts += context
-        masks += mask
-        
-    centers = mx.nd.array(np.concatenate(coded_sentences))
-    contexts = mx.nd.array(np.stack(contexts))
-    masks = mx.nd.array(np.stack(masks))
-    
-    return centers, contexts, masks
+    return centers, contexts
 
 
-def get_one_context_mask(sentence, word_index, window):
+def get_one_context(sentence, word_index, window):
     # A random reduced window size is drawn.
     random_window_size = random.randint(1, window)
 
@@ -124,26 +122,17 @@ def get_one_context_mask(sentence, word_index, window):
     # First index outside of the window
     end_idx = min(len(sentence), word_index + random_window_size + 1)
 
-    context = np.zeros(window * 2, dtype=np.float32)
+    context = []
     # Get contexts left of center word
-    next_context_idx = 0
-    context[:word_index - start_idx] = sentence[start_idx:word_index]
-    next_context_idx += word_index - start_idx
+    if start_idx != word_index:
+        context += sentence[start_idx:word_index]
     # Get contexts right of center word
-    context[next_context_idx:next_context_idx + end_idx - (word_index + 1)] = \
-        sentence[word_index + 1:end_idx]
-    next_context_idx += end_idx - (word_index + 1)
+    if word_index + 1 != end_idx: 
+        context += sentence[word_index + 1:end_idx]
+    return context
 
-    # The mask masks entries that fall inside the window
-    # but outside random the reduced window size.
-    # It is necessary as all context arrays must have the same shape for batching.
-    mask = np.ones(window * 2, dtype=np.float32)
-    mask[next_context_idx:] = 0
-
-    return context, mask
-    
-
-all_centers, all_contexts, all_masks = get_center_context_arrays(pruned_dataset, 5)
+window_size = 5
+all_centers, all_contexts = get_center_context_arrays(pruned_dataset, window_size)
 ```
 
 ### 负采样
@@ -162,28 +151,29 @@ of the center word. To improve training stability, we mask such accidental hits.
 
 Here we directly sample negatives for every context precomputed before.
 
-```{.python .input  n=5}
-def get_negatives(shape, true_samples, true_samples_mask, token_frequencies, distortion=0.75):
-        token_frequencies = np.array(token_frequencies)
-        smoothed_token_freq_cumsum = np.cumsum((token_frequencies**distortion).astype(np.int))
+```{.python .input  n=8}
+def get_negatives(shape, true_samples, negatives_weights):
+    population = list(range(len(negatives_weights)))
+    k = functools.reduce(operator.mul, shape)
+    assert len(shape) == 2
+    assert len(true_samples) == shape[0]
+    
+    negatives = random.choices(population, weights=negatives_weights, k=k)
+    negatives = [negatives[i:i+shape[1]] for i in range(0, k, shape[1])]
+    negatives = [
+        [negative for negative in negatives_batch
+        if negative not in true_samples[i]]
+        for i, negatives_batch in enumerate(negatives)
+    ]
+    return negatives
+```
 
-        negatives = np.searchsorted(smoothed_token_freq_cumsum,
-            np.random.randint(smoothed_token_freq_cumsum[-1], size=shape))
-        
-        # Mask accidental hits
-        true_samples, true_samples_mask = true_samples.asnumpy(), true_samples_mask.asnumpy()
-        negatives_mask = np.array([
-            [negatives[i, j] not in true_samples[i] for j in range(negatives.shape[1])]
-            for i in range(negatives.shape[0])
-        ])
-
-        return mx.nd.array(negatives), mx.nd.array(negatives_mask)
-        
-        
+```{.python .input  n=9}
+# This may take around 20 seconds
 num_negatives = 5
-negatives_weights = [counter[w] for w in idx_to_token]
-negatives_shape = (all_contexts.shape[0], all_contexts.shape[1] * num_negatives)
-all_negatives, all_negatives_masks = get_negatives(negatives_shape, all_contexts, all_masks, negatives_weights)
+negatives_weights = [counter[w]**0.75 for w in idx_to_token]
+negatives_shape = (len(all_contexts), window_size * 2 * num_negatives)
+all_negatives = get_negatives(negatives_shape, all_contexts, negatives_weights)
 ```
 
 ## Model
@@ -192,25 +182,26 @@ First we define a helper function `get_knn` to obtain the k closest words to for
 a given word according to our trained word embedding model to evaluate if it
 learned successfully.
 
-```{.python .input  n=7}
+```{.python .input  n=10}
 def norm_vecs_by_row(x):
-    return x / nd.sqrt(nd.sum(x * x, axis=1) + 1E-10).reshape((-1,1))
+    # 分母中添加的 1e-10 是为了数值稳定性。
+    return x / (nd.sum(x * x, axis=1) + 1e-10).sqrt().reshape((-1, 1))
 
 def get_knn(token_to_idx, idx_to_token, embedding, k, word):
-    word_vec = embedding(mx.nd.array([token_to_idx[word]], ctx=context)).reshape((-1, 1))
+    word_vec = embedding(nd.array([token_to_idx[word]], ctx=context)).reshape((-1, 1))
     vocab_vecs = norm_vecs_by_row(embedding.weight.data())
     dot_prod = nd.dot(vocab_vecs, word_vec)
     indices = nd.topk(dot_prod.reshape((len(idx_to_token), )), k=k+1, ret_typ='indices')
     indices = [int(i.asscalar()) for i in indices]
     # Remove unknown and input tokens.
     result = [idx_to_token[i] for i in indices[1:]]
-    print(f'Closest tokens to "{example_token}": {", ".join(result)}')
+    print('Closest tokens to "%s": %s' % (word, ", ".join(result)))
     return result
 ```
 
 We then define the model and initialize it randomly. Here we denote the model containing the weights $\mathbf{v}$ as `embedding` and respectively the model for $\mathbf{u}$ as `embedding_out`.
 
-```{.python .input  n=8}
+```{.python .input  n=15}
 context = mx.gpu(0)
 # context = mx.cpu()
 
@@ -224,7 +215,7 @@ embedding.hybridize()
 embedding_out.hybridize()
 
 params = list(embedding.collect_params().values()) + list(embedding_out.collect_params().values())
-trainer = gluon.Trainer(params, 'adagrad', dict(learning_rate=0.05))
+trainer = gluon.Trainer(params, 'adagrad', dict(learning_rate=0.1))
 
 example_token = 'president'
 knn = get_knn(token_to_idx, idx_to_token, embedding, 5, example_token)
@@ -232,84 +223,81 @@ knn = get_knn(token_to_idx, idx_to_token, embedding, 5, example_token)
 
 The gluon `SigmoidBinaryCrossEntropyLoss` corresponds to the loss function introduced above.
 
-```{.python .input  n=9}
-loss_function = gluon.loss.SigmoidBinaryCrossEntropyLoss()
+```{.python .input  n=16}
+loss = gluon.loss.SigmoidBinaryCrossEntropyLoss()
 ```
 
-Finally we train the word2vec model. We first shuffle our dataset 
+Finally we train the word2vec model. We first shuffle our dataset
 
-```{.python .input  n=11}
-import time
-start = time.time()
+```{.python .input}
+class Dataset(gluon.data.SimpleDataset):
+    def __init__(self, centers, contexts, negatives):
+        data = list(zip(all_centers, all_contexts, all_negatives))
+        super().__init__(data)
 
-batch_size = 256
-batch_id = 0
+def batchify_fn(data):
+    # data is a list with batch_size elements
+    # each element is of form (center, context, negative)
+    centers, contexts, negatives = zip(*data)
+    batch_size = len(centers)  # == len(contexts) == len(negatives)
+    
+    # To avoid using a mask we find the max length
+    # that all samples in this batch can fullfil.
+    # This means we need to throw some negatives.
+    length = min(len(c) + len(n) for c, n in zip(contexts, negatives))
+    contexts_ = []
+    labels = []
+    for i, (context, negative) in enumerate(zip(contexts, negatives)):
+        contexts_.append((context + negative)[:length])
+        labels.append(([1] * len(context)) + ([0] * (length - len(context))))
+        
+    centers_nd = nd.array(centers).reshape((batch_size, 1))
+    contexts_nd = nd.array(contexts_)
+    labels_nd = nd.array(labels)
+    return centers_nd, contexts_nd, labels_nd
 
-# Shuffle the dataset
-random_indices = mx.nd.random.shuffle(mx.nd.arange(len(all_centers)))
-all_centers = all_centers[random_indices]
-all_contexts = all_contexts[random_indices]
-all_masks = all_masks[random_indices]
-all_negatives = all_negatives[random_indices]
-all_negatives_masks = all_negatives_masks[random_indices]
+batch_size = 512
 
-batches = (
-    gluon.data.DataLoader(all_centers, batch_size=batch_size),
-    gluon.data.DataLoader(all_contexts, batch_size=batch_size),
-    gluon.data.DataLoader(all_masks, batch_size=batch_size),
-    gluon.data.DataLoader(all_negatives, batch_size=batch_size),
-    gluon.data.DataLoader(all_negatives_masks, batch_size=batch_size),
-)
+data = Dataset(all_centers, all_contexts, all_negatives)
+batches = gluon.data.DataLoader(data, batch_size=batch_size,
+                                shuffle=True, batchify_fn=batchify_fn,
+                                num_workers=1)
+```
 
-for batch in zip(*batches):
-    # Each batch from the context_sampler includes
-    # a batch of center words, their contexts as well
-    # as a mask as the contexts can be of varying lengths
-    (center, word_context, word_context_mask, negatives, negatives_mask) = batch
+```{.python .input  n=17}
+def train_embedding(num_epochs=5, eval_period=100):
+    batch_id = 0
+    for epoch in range(1, num_epochs + 1):
+        start_time = time.time()
+        train_l_sum = 0
+        for batch_i, (center, word_context, context_label) in enumerate(batches):
+            center = center.as_in_context(context)
+            word_context = word_context.as_in_context(context)
+            context_label = context_label.as_in_context(context)
+            with mx.autograd.record():
+                # 1. Compute the embedding of the center words
+                emb_in = embedding(center)
+                # 2. Compute the context embedding
+                emb_out = embedding_out(word_context)
+                # 3. Compute the prediction
+                pred = nd.batch_dot(emb_in, emb_out.swapaxes(1, 2))
+                # 4. Compute the Loss function (SigmoidBinaryCrossEntropyLoss)
+                l = loss(pred, context_label)
+            # Compute the gradient
+            l.backward()
+            # Update the parameters
+            trainer.step(batch_size=1)
+            train_l_sum += l.mean()
+            if batch_i % eval_period == 0 and batch_i != 0 :
+                cur_l = train_l_sum / eval_period
+                print('epoch %d, batch %d, train loss %.2f'
+                      % (epoch, batch_i, cur_l.asscalar()))
+                train_l_sum = 0
+                get_knn(token_to_idx, idx_to_token, embedding, 5, example_token)
+```
 
-    # We copy all data to the GPU
-    center = center.as_in_context(context)
-    word_context = word_context.as_in_context(context)
-    word_context_mask = word_context_mask.as_in_context(context)
-    negatives = negatives.as_in_context(context)
-    negatives_mask = negatives_mask.as_in_context(context)
-
-    # We concatenate the positive context words and negatives
-    # to a single ndarray 
-    word_context_negatives = mx.nd.concat(word_context, negatives, dim=1)
-    word_context_negatives_mask = mx.nd.concat(word_context_mask, negatives_mask, dim=1)
-
-    # We record the gradient of one forward pass
-    with mx.autograd.record():
-        # 1. Compute the embedding of the center words
-        emb_in = embedding(center)
-
-        # 2. Compute the context embedding  and apply mask
-        emb_out = embedding_out(word_context_negatives)
-        emb_out = emb_out * word_context_negatives_mask.expand_dims(-1)
-
-        # 3. Compute the prediction
-        pred = mx.nd.batch_dot(emb_in, emb_out.swapaxes(1, 2))
-        pred = pred.squeeze() * word_context_negatives_mask
-        label = mx.nd.concat(word_context_mask, mx.nd.zeros_like(negatives), dim=1)
-
-        # 4. Compute the Loss function (SigmoidBinaryCrossEntropyLoss)
-        loss = loss_function(pred, label)
-
-    # Compute the gradient
-    loss.backward()
-
-    # Update the parameters
-    trainer.step(batch_size=1)
-
-    if batch_id % 500 == 0:
-        print(f'Batch {batch_id}: loss = {loss.mean().asscalar():.2f}\t(Took {time.time()-start:.2f} seconds)')
-        get_knn(token_to_idx, idx_to_token, embedding, 5, "president")
-    batch_id += 1
-
-
-print(f'Batch {batch_id}: loss = {loss.mean().asscalar():.2f}\t(After {time.time()-start:.2f} seconds)')
-knn = get_knn(token_to_idx, idx_to_token, embedding, 5, "president")
+```{.python .input}
+train_embedding()
 ```
 
 [1] word2vec工具. https://code.google.com/archive/p/word2vec/
