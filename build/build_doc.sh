@@ -46,8 +46,8 @@ cp build/_build/latex/gluon_tutorials_zh.pdf build/_build/html/
 [ -e build/_build/latex/gluon_tutorials_zh.idx ] && rm build/_build/latex/gluon_tutorials_zh.idx
 
 # FOR 1.0
-# cp build/_build/html/gluon_tutorials_zh.tar.gz build/_build/html/gluon_tutorials_zh-1.0.tar.gz
-# cp build/_build/html/gluon_tutorials_zh.zip build/_build/html/gluon_tutorials_zh-1.0.zip
+cp build/_build/html/gluon_tutorials_zh.tar.gz build/_build/html/gluon_tutorials_zh-1.0.tar.gz
+cp build/_build/html/gluon_tutorials_zh.zip build/_build/html/gluon_tutorials_zh-1.0.zip
 
 cd build
 
