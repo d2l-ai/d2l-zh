@@ -1,3 +1,4 @@
+
 # 文本分类：情感分析
 
 本节将介绍如何将卷积神经网络应用于自然语言处理领域。以及参考textCNN模型使用Gluon创建一个卷积神经网络用于文本情感分类。
@@ -17,7 +18,8 @@
 
 在实验开始前，导入所需的包或模块。
 
-```{.python .input  n=1}
+
+```
 import sys
 sys.path.append('..')
 import collections
@@ -31,6 +33,14 @@ import random
 import zipfile
 ```
 
+    /home/ubuntu/anaconda3/lib/python3.6/site-packages/matplotlib/__init__.py:1067: UserWarning: Duplicate key in file "/home/ubuntu/.config/matplotlib/matplotlibrc", line #2
+      (fname, cnt))
+    /home/ubuntu/anaconda3/lib/python3.6/site-packages/matplotlib/__init__.py:1067: UserWarning: Duplicate key in file "/home/ubuntu/.config/matplotlib/matplotlibrc", line #3
+      (fname, cnt))
+    /home/ubuntu/anaconda3/lib/python3.6/site-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+      from ._conv import register_converters as _register_converters
+
+
 ## 读取IMDb数据集
 
 我们使用Stanford's Large Movie Review Dataset作为情感分析的数据集 [1]。它的下载地址是
@@ -41,7 +51,8 @@ import zipfile
 
 为方便快速上手，我们提供了上述数据集的小规模采样，并存放在路径“../data/aclImdb_tiny.zip”。如果你将使用上述的IMDb完整数据集，还需要把下面`demo`变量改为`False`。
 
-```{.python .input  n=2}
+
+```
 # 如果使用下载的 IMDb 的完整数据集，把下面改为 False。
 demo = True
 if demo:
@@ -51,7 +62,8 @@ if demo:
 
 下面，读取训练和测试数据集。
 
-```{.python .input}
+
+```
 def readIMDB(dir_url, seg='train'):
     pos_or_neg = ['pos', 'neg']
     data = []
@@ -83,7 +95,8 @@ random.shuffle(test_data)
 
 接下来我们对每条评论做分词，从而得到分好词的评论。这里使用最简单的方法：基于空格进行分词。我们将在本节练习中探究其他的分词方法。
 
-```{.python .input  n=4}
+
+```
 def tokenizer(text):
     return [tok.lower() for tok in text.split(' ')]
 
@@ -99,7 +112,8 @@ for review, score in test_data:
 
 现在，我们可以根据分好词的训练数据集来创建词典了。这里我们设置了特殊符号“&lt;unk&gt;”（unknown）。它将表示一切不存在于训练数据集词典中的词。
 
-```{.python .input  n=6}
+
+```
 token_counter = collections.Counter()
 def count_token(train_tokenized):
     for sample in train_tokenized:
@@ -118,7 +132,8 @@ vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>',
 
 下面，我们继续对数据进行预处理。每个不定长的评论将被特殊符号`PAD`补成长度为`maxlen`的序列，并用NDArray表示。在这里由于模型使用了最大池化层，只取卷积后最大的一个值，所以补0不会对结果产生影响。
 
-```{.python .input  n=7}
+
+```
 def encode_samples(tokenized_samples, vocab):
     features = []
     for sample in tokenized_samples:
@@ -157,7 +172,8 @@ test_labels = nd.array([score for _, score in test_data], ctx=ctx)
 
 这里，我们为词典`vocab`中的每个词加载GloVe词向量（每个词向量长度为100）。稍后，我们将用这些词向量作为评论中每个词的特征向量。
 
-```{.python .input  n=11}
+
+```
 glove_embedding = text.embedding.create(
     'glove', pretrained_file_name='glove.6B.100d.txt', vocabulary=vocab)
 ```
@@ -166,7 +182,8 @@ glove_embedding = text.embedding.create(
 
 下面我们根据模型设计里的描述定义情感分类模型。其中的`Embedding`实例即嵌入层，在实验中，我们使用了两个嵌入层。`Conv1D`实例即为卷积层，`GlobalMaxPool1D`实例为池化层，卷积层和池化层用于抽取文本中重要的特征。`Dense`实例即生成分类结果的输出层。
 
-```{.python .input}
+
+```
 class TextCNN(nn.Block):
     def __init__(self, vocab, embedding_size, **kwargs):
         super(TextCNN, self).__init__(**kwargs)
@@ -199,15 +216,15 @@ class TextCNN(nn.Block):
 
 我们使用在更大规模语料上预训练的词向量作为每个词的特征向量。本实验有两个嵌入层，其中嵌入层`Embedding_non_static`的词向量可以在训练过程中被更新，另一个嵌入层`Embedding_static`的词向量在训练过程中不能被更新。
 
-```{.python .input}
+
+```
 num_outputs = 2
-lr = 0.1
+lr = 0.01
 num_epochs = 1
 batch_size = 10
 embed_size = 100
-num_hiddens = 100
     
-net = TextCNN(vocab, embed_size, num_hiddens)
+net = TextCNN(vocab, embed_size)
 net.initialize(init.Xavier(), ctx=ctx)
 # 设置两个embedding 层的 weight 为预训练的词向量。
 net.embedding_static.weight.set_data(glove_embedding.idx_to_vec.as_in_context(ctx))
@@ -222,7 +239,8 @@ loss = gloss.SoftmaxCrossEntropyLoss()
 
 在实验中，我们使用准确率作为评价模型的指标。
 
-```{.python .input  n=13}
+
+```
 def eval_model(features, labels):
     l_sum = 0
     l_n = 0
@@ -240,7 +258,8 @@ def eval_model(features, labels):
 
 下面开始训练模型。
 
-```{.python .input  n=14}
+
+```
 for epoch in range(1, num_epochs + 1):
     for i in range(train_features.shape[0] // batch_size):
         X = train_features[i*batch_size : (i+1)*batch_size].as_in_context(
@@ -257,14 +276,8 @@ for epoch in range(1, num_epochs + 1):
           % (epoch, train_loss, train_acc, test_loss, test_acc))
 ```
 
-下面我们试着分析一个简单的句子的情感（1和0分别代表正面和负面）。为了在更复杂的句子上得到较准确的分类，我们需要使用完整数据集训练模型，并适当增大训练周期。
+    epoch 1, train loss 1.291998, acc 0.75; test loss 5.334179, acc 0.50
 
-```{.python .input}
-review = ['this', 'movie', 'is', 'great']
-nd.argmax(net(nd.reshape(
-    nd.array([vocab.token_to_idx[token] for token in review], ctx=ctx), 
-    shape=(-1, 1))), axis=1).asscalar()
-```
 
 ## 小结
 
