@@ -36,7 +36,7 @@ $$e_{t^\prime t} = \boldsymbol{v}^\top \tanh(\boldsymbol{W}_s \boldsymbol{s}_{t^
 
 其中$\boldsymbol{v}$、$\boldsymbol{W}_s$、$\boldsymbol{W}_h$以及编码器与解码器中的各个权重和偏差都是模型参数 [1]。
 
-Bahanau等在编码器和解码器中分别使用了门控循环单元 [1]。在解码器中，我们需要对门控循环单元的设计稍作修改。解码器在$t^\prime$时间步的隐藏状态为
+Bahanau等在编码器和解码器中分别使用了门控循环单元 [1]。在解码器中，我们需要对门控循环单元的设计稍作修改。解码器在$t^\prime $时间步的隐藏状态为
 
 $$\boldsymbol{s}_{t^\prime} = \boldsymbol{z}_{t^\prime} \odot \boldsymbol{s}_{t^\prime-1}  + (1 - \boldsymbol{z}_{t^\prime}) \odot \tilde{\boldsymbol{s}}_{t^\prime},$$
 

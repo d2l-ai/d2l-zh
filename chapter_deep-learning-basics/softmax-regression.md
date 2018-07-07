@@ -1,9 +1,11 @@
 # Softmax回归
 
-前几节介绍的线性回归模型适用于输出为连续值的情景，例如输出为房价。在其他情景中，模型输出还可以是一个离散值，例如图片类别。对于这样的分类问题，我们可以使用分类模型，例如softmax回归。和线性回归不同，softmax回归的输出单元从一个变成了多个。本节以softmax回归模型为例，介绍神经网络中的分类模型。Softmax回归是一个单层神经网络。
+前几节介绍的线性回归模型适用于输出为连续值的情景。在其他情景中，模型输出还可以是一个像图片类别这样的离散值。对于这样的分类问题，我们可以使用分类模型，例如softmax回归。和线性回归不同，softmax回归的输出单元从一个变成了多个。本节以softmax回归模型为例，介绍神经网络中的分类模型。Softmax回归是一个单层神经网络。
 
 
-让我们考虑一个简单的分类问题。为了便于讨论，让我们假设输入图片的高和宽均为两个像素，并设图片的四个特征值，即像素值分别为$x_1, x_2, x_3, x_4$。假设训练数据集中图片的真实标签为狗、猫或鸡，这些标签分别对应离散值$y_1, y_2, y_3$。举个例子，如果$y_1=0, y_2=1, y_3=2$，任意一张狗图片的标签记作0。
+## 分类问题
+
+让我们考虑一个简单的图片分类问题。通常，我们将高和宽分别为$m$和$n$个像素的图片的尺寸记作$m \times n$或$(m, n)$。为了便于讨论，让我们假设输入图片的尺寸为$2 \times 2$。设图片的四个特征值，即像素值分别为$x_1, x_2, x_3, x_4$。假设训练数据集中图片的真实标签为狗、猫或鸡，这些标签分别对应离散值$y_1, y_2, y_3$。举个例子，如果$y_1=0, y_2=1, y_3=2$，任意一张狗的图片的标签记作0。在这个分类问题中，输入一张图片的四个特征值，我们需要输出该图片的类别。
 
 
 
@@ -81,15 +83,15 @@ $$
 ## 小批量样本分类的矢量计算表达式
 
 
-为了进一步提升计算效率，我们通常对小批量数据做矢量计算。广义上，给定一个小批量样本，其批量大小为$n$，输入个数（特征数）为$x$，输出个数（类别数）为$y$。设批量特征为$\boldsymbol{X} \in \mathbb{R}^{n \times x}$，批量标签$\boldsymbol{y} \in \mathbb{R}^{n \times 1}$。
-假设softmax回归的权重和偏差参数分别为$\boldsymbol{W} \in \mathbb{R}^{x \times y}, \boldsymbol{b} \in \mathbb{R}^{1 \times y}$。Softmax回归的矢量计算表达式为
+为了进一步提升计算效率，我们通常对小批量数据做矢量计算。广义上，给定一个小批量样本，其批量大小为$n$，输入个数（特征数）为$d$，输出个数（类别数）为$q$。设批量特征为$\boldsymbol{X} \in \mathbb{R}^{n \times d}$，批量标签$\boldsymbol{y} \in \mathbb{R}^{n \times 1}$。
+假设softmax回归的权重和偏差参数分别为$\boldsymbol{W} \in \mathbb{R}^{d \times q}, \boldsymbol{b} \in \mathbb{R}^{1 \times q}$。Softmax回归的矢量计算表达式为
 
 $$
 \boldsymbol{O} = \boldsymbol{X} \boldsymbol{W} + \boldsymbol{b},\\
 \boldsymbol{\hat{Y}} = \text{softmax}(\boldsymbol{O}),
 $$
 
-其中的加法运算使用了广播机制，$\boldsymbol{O}, \boldsymbol{\hat{Y}} \in \mathbb{R}^{n \times y}$且这两个矩阵的第$i$行分别为$\boldsymbol{o}^{(i)}$和$\boldsymbol{\hat{y}}^{(i)}$。
+其中的加法运算使用了广播机制，$\boldsymbol{O}, \boldsymbol{\hat{Y}} \in \mathbb{R}^{n \times q}$且这两个矩阵的第$i$行分别为$\boldsymbol{o}^{(i)}$和$\boldsymbol{\hat{y}}^{(i)}$。
 
 
 ## 交叉熵损失函数
@@ -119,7 +121,7 @@ $$
 
 ## 练习
 
-* 如果按本节softmax运算的定义来实现它，可能会有什么问题？
+* 如果按本节softmax运算的定义来实现该运算，在计算时可能会有什么问题？提示：想想$\exp(50)$的大小。
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6403)

@@ -127,7 +127,7 @@ to PATH in your /home/ubuntu/.bashrc ? [yes|no]
 [no] >>> yes
 ```
 
-安装完成后，运行一次`bash`让CUDA和conda生效。接下来，下载本书代码、安装并激活conda环境
+安装完成后，运行一次`source ~/.bashrc`让CUDA和conda生效。接下来，下载本书代码、安装并激活conda环境
 
 ```
 mkdir gluon_tutorials_zh && cd gluon_tutorials_zh

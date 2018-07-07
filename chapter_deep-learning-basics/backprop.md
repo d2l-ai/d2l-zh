@@ -18,21 +18,21 @@
 
 ### 定义模型
 
-我们以类别数为$y$的分类问题为例。给定一个特征为$\boldsymbol{x} \in \mathbb{R}^x$和标签为离散值$y^\prime$的训练数据样本。不考虑偏差项，我们可以得到中间变量
+我们以类别数为$q$的分类问题为例。给定一个特征为$\boldsymbol{x} \in \mathbb{R}^d$和标签为离散值$y$的训练数据样本。不考虑偏差项，我们可以得到中间变量
 
 $$\boldsymbol{z} = \boldsymbol{W}^{(1)} \boldsymbol{x},$$
 
-其中$\boldsymbol{W}^{(1)} \in \mathbb{R}^{h \times x}$是模型参数。将中间变量$\boldsymbol{z} \in \mathbb{R}^h$应用按元素操作的激活函数$\phi$后，我们将得到向量长度为$h$的隐藏层变量
+其中$\boldsymbol{W}^{(1)} \in \mathbb{R}^{h \times d}$是模型参数。将中间变量$\boldsymbol{z} \in \mathbb{R}^h$应用按元素操作的激活函数$\phi$后，我们将得到向量长度为$h$的隐藏层变量
 
 $$\boldsymbol{h} = \phi (\boldsymbol{z}).$$
 
-隐藏层$\boldsymbol{h} \in \mathbb{R}^h$也是一个中间变量。通过模型参数$\boldsymbol{W}^{(2)} \in \mathbb{R}^{y \times h}$可以得到向量长度为$y$的输出层变量
+隐藏层$\boldsymbol{h} \in \mathbb{R}^h$也是一个中间变量。通过模型参数$\boldsymbol{W}^{(2)} \in \mathbb{R}^{q \times h}$可以得到向量长度为$q$的输出层变量
 
 $$\boldsymbol{o} = \boldsymbol{W}^{(2)} \boldsymbol{h}.$$
 
 假设损失函数为$\ell$，我们可以计算出单个数据样本的损失项
 
-$$L = \ell(\boldsymbol{o}, y^\prime).$$
+$$L = \ell(\boldsymbol{o}, y).$$
 
 根据$L_2$范数正则化的定义，给定超参数$\lambda$，正则化项即
 
@@ -75,7 +75,7 @@ $$\frac{\partial J}{\partial s} = 1.$$
 
 
 
-其次，我们依据链式法则计算目标函数有关输出层变量的梯度$\partial J/\partial \boldsymbol{o} \in \mathbb{R}^{y}$：
+其次，我们依据链式法则计算目标函数有关输出层变量的梯度$\partial J/\partial \boldsymbol{o} \in \mathbb{R}^q$：
 
 $$
 \frac{\partial J}{\partial \boldsymbol{o}} 
@@ -90,7 +90,7 @@ $$\frac{\partial s}{\partial \boldsymbol{W}^{(1)}} = \lambda \boldsymbol{W}^{(1)
 
 
 
-现在，我们可以计算最靠近输出层的模型参数的梯度$\partial J/\partial \boldsymbol{W}^{(2)} \in \mathbb{R}^{y \times h}$。在图3.6中，
+现在，我们可以计算最靠近输出层的模型参数的梯度$\partial J/\partial \boldsymbol{W}^{(2)} \in \mathbb{R}^{q \times h}$。在图3.6中，
 $J$分别通过$\boldsymbol{o}$和$s$依赖$\boldsymbol{W}^{(2)}$。依据链式法则，我们得到
 
 $$
@@ -117,7 +117,7 @@ $$
 = \frac{\partial J}{\partial \boldsymbol{h}} \odot \phi^\prime(\boldsymbol{z}).
 $$
 
-最终，我们可以得到最靠近输入层的模型参数的梯度$\partial J/\partial \boldsymbol{W}^{(1)} \in \mathbb{R}^{h \times x}$。在图3.6中，$J$分别通过$\boldsymbol{z}$和$s$依赖$\boldsymbol{W}^{(1)}$。依据链式法则，我们得到
+最终，我们可以得到最靠近输入层的模型参数的梯度$\partial J/\partial \boldsymbol{W}^{(1)} \in \mathbb{R}^{h \times d}$。在图3.6中，$J$分别通过$\boldsymbol{z}$和$s$依赖$\boldsymbol{W}^{(1)}$。依据链式法则，我们得到
 
 $$
 \frac{\partial J}{\partial \boldsymbol{W}^{(1)}} 

@@ -21,7 +21,7 @@ net.add(
     nn.MaxPool2D(pool_size=2, strides=2),
     nn.Dense(120),
     nn.BatchNorm(),
-    nn.Activation('sigmoid'),   
+    nn.Activation('sigmoid'),
     nn.Dense(84),
     nn.BatchNorm(),
     nn.Activation('sigmoid'),
@@ -29,7 +29,7 @@ net.add(
 )
 ```
 
-和使用同样的超参数进行训练。
+使用同样的超参数进行训练。
 
 ```{.python .input  n=3}
 lr = 1.0
@@ -43,7 +43,7 @@ gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 
 ## 小结
 
-* Gluon提供的BatchNorm使用上更加简单。
+Gluon提供的BatchNorm在使用上更加简单。
 
 ## 练习
 

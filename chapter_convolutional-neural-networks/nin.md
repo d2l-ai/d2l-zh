@@ -1,6 +1,6 @@
 # 网络中的网络（NiN）
 
-前面小节里我们看到LeNet、AlexNet和VGG均由两个部分组成：主要有卷积层构成的模块充分抽取空间特征，然后主要有全连接层构成的模块来输出最终分类结果。AlexNet和VGG对LeNet的改进主要在于如何加深加宽这两模块。这一节我们介绍网络中的网络（NiN）[1]。它提出了另外一个思路，它串联多个由卷积层和“全连接”层构成的小网络来构建一个深层网络。
+前面小节里我们看到LeNet、AlexNet和VGG均由两个部分组成：以卷积层构成的模块充分抽取空间特征，然后以全连接层构成的模块来输出最终分类结果。AlexNet和VGG对LeNet的改进主要在于如何加深加宽这两个模块。这一节我们介绍网络中的网络（NiN）[1]。它提出了另外一个思路，即串联多个由卷积层和“全连接”层构成的小网络来构建一个深层网络。
 
 ## NiN块
 
@@ -19,7 +19,7 @@ from mxnet.gluon import nn
 
 def nin_block(num_channels, kernel_size, strides, padding):
     blk = nn.Sequential()
-    blk.add(nn.Conv2D(num_channels, kernel_size, 
+    blk.add(nn.Conv2D(num_channels, kernel_size,
                       strides, padding, activation='relu'),
             nn.Conv2D(num_channels, kernel_size=1, activation='relu'),
             nn.Conv2D(num_channels, kernel_size=1, activation='relu'))
@@ -30,7 +30,7 @@ def nin_block(num_channels, kernel_size, strides, padding):
 
 NiN紧跟AlexNet后提出，所以它的卷积层设定跟Alexnet类似。它使用窗口分别为$11\times 11$、$5\times 5$和$3\times 3$的卷积层，输出通道数也与之相同。卷积层后跟步幅为2的$3\times 3$最大池化层。
 
-除了使用NiN块外，NiN还有一个重要的跟AlexNet不同的地方：NiN去掉了最后的三个全连接层，取而代之的是使用输出通道数等于标签类数的卷积层，然后使用一个窗口为输入高宽的平均池化层来将每个通道里的数值平均成一个标量直接用于分类。这个设计好处是可以显著的减小模型参数大小，从而能很好的避免过拟合。但它也可能会造成训练时收敛变慢。
+除了使用NiN块外，NiN还有一个重要的跟AlexNet不同的地方：NiN去掉了最后的三个全连接层，取而代之的是使用输出通道数等于标签类数的卷积层，然后使用一个窗口为输入高宽的平均池化层来将每个通道里的数值平均成一个标量直接用于分类。这个设计好处是可以显著的减小模型参数大小，从而能很好的避免过拟合，但它也可能会造成训练时收敛变慢。
 
 ```{.python .input  n=9}
 net = nn.Sequential()
@@ -62,7 +62,7 @@ for layer in net:
 
 ## 获取数据并训练
 
-跟Alexnet和VGG类似，但使用了更大的学习率。
+NiN的训练与Alexnet和VGG类似，但一般使用更大的学习率。
 
 ```{.python .input}
 lr = .1
@@ -79,7 +79,7 @@ gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=3)
 NiN提供了两个重要的设计思路：
 
 - 重复使用由卷积层和代替全连接层的$1\times 1$卷积层构成的基础块来构建深层网络；
-- 去除了容易造成过拟合的全连接层，而是替代成由输出通道数为标签类数的卷积层和全局平均池化层作为输出。
+- 去除了容易造成过拟合的全连接输出层，而是替换成输出通道数等于标签类数的卷积层和全局平均池化层。
 
 虽然因为精度和收敛速度等问题NiN并没有像本章中介绍的其他网络那么被广泛使用，但NiN的设计思想影响了后面的一系列网络的设计。
 

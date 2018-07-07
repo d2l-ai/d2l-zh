@@ -1,9 +1,0 @@
-name: gluon
-dependencies:
-- python=3
-- jupyter
-- matplotlib
-- pandas
-- pip:
-  - requests
-  - mxnet==1.2.0
