@@ -1,4 +1,4 @@
-# 词向量：GloVe和fastText
+# 词嵌入：GloVe和fastText
 
 
 在word2vec被提出以后，很多其他词嵌入模型也陆续发表。本节介绍其中比较有代表性的两个模型。它们分别是由斯坦福团队发表的GloVe和由Facebook团队发表的fastText。

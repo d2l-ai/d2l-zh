@@ -1,4 +1,4 @@
-# Training 词向量：word2vec
+# 训练词嵌入模型
 
 我们在[“词向量：word2vec”](./word2vec.md)introduced the word2vec word embedding model. In this notebook we will show how to train a word2vec model with Gluon. We will introduce training the model with the skip-gram objective and negative sampling. Besides mxnet Gluon we will only use standard Python language features but note that specific  toolkits for Natural Language Processing, such as the Gluon-NLP toolkit exist.
 
