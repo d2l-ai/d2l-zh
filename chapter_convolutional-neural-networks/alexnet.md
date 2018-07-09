@@ -55,7 +55,7 @@ import sys
 sys.path.append('..')
 import gluonbook as gb
 from mxnet import nd, init, gluon
-from mxnet.gluon import nn
+from mxnet.gluon import nn, data as gdata
 
 net = nn.Sequential()
 net.add(
@@ -92,10 +92,25 @@ for layer in net:
 
 ## 读取数据
 
-虽然论文中Alexnet使用Imagenet数据，但因为Imagenet数据训练时间较长，我们仍用前面的FashionMNIST来演示。读取数据的时候我们额外做了一步将图片高宽扩大到原版Alexnet使用的224。
+虽然论文中Alexnet使用Imagenet数据，但因为Imagenet数据训练时间较长，我们仍用前面的FashionMNIST来演示。读取数据的时候我们额外做了一步将图片高宽扩大到原版Alexnet使用的224，这个可以通过Resize来实现。即我们在ToTenor前使用Resize，然后使用Compose来将这两个变化合并成一个来方便调用。
 
 ```{.python .input}
-train_data, test_data = gb.load_data_fashion_mnist(batch_size=128, resize=224)
+transformer = gdata.vision.transforms.Compose(
+    [gdata.vision.transforms.Resize(224), 
+     gdata.vision.transforms.ToTensor()])
+```
+
+数据读取的其他部分跟前面一致。
+
+```{.python .input}
+batch_size = 128
+
+mnist_train = gdata.vision.FashionMNIST(train=True)
+mnist_test = gdata.vision.FashionMNIST(train=False)
+train_data = gdata.DataLoader(mnist_train.transform_first(transformer),
+                              batch_size, shuffle=True, num_workers=4)
+test_data = gdata.DataLoader(mnist_test.transform_first(transformer),
+                             batch_size, shuffle=False, num_workers=4)
 ```
 
 ## 训练
