@@ -14,50 +14,55 @@ from mxnet.gluon import data as gdata
 
 本节中，我们考虑图片分类问题。我们使用一个类别为服饰的数据集Fashion-MNIST [1]。该数据集中，图片的高和宽均为28像素，一共包括了10个类别，分别为：t-shirt（T恤）、trouser（裤子）、pullover（套衫）、dress（连衣裙）、coat（外套）、sandal（凉鞋）、shirt（衬衫）、sneaker（运动鞋）、bag（包）和ankle boot（短靴）。训练数据集中和测试数据集中的每个类别的图片数分别为6,000和1,000。
 
-下面，我们通过Gluon的`data`包来下载这个数据集。由于图片中每个像素的值在0到255之间，我们可以通过定义`transform`函数将每个值转换为0到1之间。
+下面，我们通过Gluon的`data`包来下载这个数据集。
 
-```{.python .input  n=2}
-def transform(feature, label):
-    return feature.astype('float32') / 255, label.astype('float32')
-
-mnist_train = gdata.vision.FashionMNIST(train=True, transform=transform)
-mnist_test = gdata.vision.FashionMNIST(train=False, transform=transform)
+```{.python .input  n=23}
+mnist_train = gdata.vision.FashionMNIST(train=True)
+mnist_test = gdata.vision.FashionMNIST(train=False)
 ```
 
-打印一个样本的形状和它的标签看看。
+我们可以通过`[]`来访问任意一个样本，下面获取第一个样本和图片和标签。
 
-```{.python .input  n=3}
+```{.python .input  n=24}
 feature, label = mnist_train[0]
-'feature shape: ', feature.shape, 'label: ', label
 ```
 
-注意到上面的标签是个数字。以下函数可以将数字标签转成相应的文本标签。
+图片的高宽均为28，数值为0到255之间无符号8位整数（uint8）。它使用3维的NDArray储存，最后一维为1，表示灰度图片。
 
-```{.python .input  n=4}
-def get_text_labels(labels):
-    text_labels = [
-        't-shirt', 'trouser', 'pullover', 'dress', 'coat',
-        'sandal', 'shirt', 'sneaker', 'bag', 'ankle boot'
-    ]
-    return [text_labels[int(i)] for i in labels]
+```{.python .input}
+feature.shape, feature.dtype
 ```
 
-我们再定义一个函数来描绘图片内容。
+下面定义一个函数可以在一行里画出多张图片。
 
-```{.python .input  n=5}
+```{.python .input}
 def show_fashion_imgs(images):
-    n = images.shape[0]
-    _, figs = gb.plt.subplots(1, n, figsize=(15, 15))
-    for i in range(n):
-        figs[i].imshow(images[i].reshape((28, 28)).asnumpy())
-        figs[i].axes.get_xaxis().set_visible(False)
-        figs[i].axes.get_yaxis().set_visible(False)
+    _, figs = gb.plt.subplots(1, len(images), figsize=(15, 15))
+    for f, img in zip(figs, images):
+        f.imshow(img.reshape((28, 28)).asnumpy())
+        f.axes.get_xaxis().set_visible(False)
+        f.axes.get_yaxis().set_visible(False)
     gb.plt.show()
+```
+
+标签则是使用numpy的标量，类型为32位整数。
+
+```{.python .input}
+label, type(label), label.dtype
+```
+
+以下函数可以将数字标签转成相应的文本标签。
+
+```{.python .input  n=25}
+def get_text_labels(labels):
+    text_labels = ['t-shirt', 'trouser', 'pullover', 'dress', 'coat',
+                   'sandal', 'shirt', 'sneaker', 'bag', 'ankle boot']
+    return [text_labels[int(i)] for i in labels]
 ```
 
 现在，我们看一下训练数据集中前9个样本的图片内容和文本标签。
 
-```{.python .input  n=6}
+```{.python .input  n=27}
 X, y = mnist_train[0:9]
 show_fashion_imgs(X)
 print(get_text_labels(y))
@@ -65,12 +70,19 @@ print(get_text_labels(y))
 
 ## 读取数据
 
-Fashion-MNIST包括训练数据集和测试数据集（testing data set）。我们将在训练数据集上训练模型，并将训练好的模型在测试数据集上评价模型的表现。我们可以像[“线性回归的从零开始实现”](linear-regression-scratch.md)一节中那样通过`yield`来定义读取小批量数据样本的函数。为了简洁，这里我们直接创建DataLoader实例，从而每次读取一个样本数为`batch_size`的小批量。这里的批量大小`batch_size`是一个超参数。需要注意的是，我们每次从训练数据集里读取的小批量是由随机样本组成的。
+Fashion-MNIST包括训练数据集和测试数据集（testing data set）。我们将在训练数据集上训练模型，并将训练好的模型在测试数据集上评价模型的表现。对于训练数据集，我们需要使用随机顺序访问其样本。
 
-```{.python .input  n=7}
+我们可以像[“线性回归的从零开始实现”](linear-regression-scratch.md)一节中那样通过`yield`来定义读取小批量数据样本的函数。为了代码简洁，这里我们直接创建DataLoader实例，其每次读取一个样本数为`batch_size`的小批量。这里的批量大小`batch_size`是一个超参数。在实际中数据读取经常是训练的性能瓶颈，特别是在使用比较简单的模型或者高性能计算硬件下。DataLoader的一个很方便功能是可以使用多进程来加速数据读取，这里我们使用4个进程。
+
+还需要注意的是图片数据格式是uint8，我们通过ToTensor将其转换成32位浮点数，同时除以255使得值在0到1之间。这个函数还额外的将图片通道从最后一维调整到最前面来方便之后将介绍的卷积神经网络使用。通过数据集的`transform_first`函数我们将ToTensor选择性作用在图片上。
+
+```{.python .input  n=28}
 batch_size = 256
-train_iter = gdata.DataLoader(mnist_train, batch_size, shuffle=True)
-test_iter = gdata.DataLoader(mnist_test, batch_size, shuffle=False)
+transformer = gdata.vision.transforms.ToTensor()
+train_iter = gdata.DataLoader(mnist_train.transform_first(transformer),
+                              batch_size, shuffle=True, num_workers=4)
+test_iter = gdata.DataLoader(mnist_test.transform_first(transformer), 
+                             batch_size, shuffle=False, num_workers=4)
 ```
 
 我们将获取并读取Fashion-MNIST数据集的逻辑封装在`gluonbook.load_data_fashion_mnist`函数中供后面章节调用。
@@ -80,7 +92,7 @@ test_iter = gdata.DataLoader(mnist_test, batch_size, shuffle=False)
 
 跟线性回归中的例子一样，我们将使用向量表示每个样本。已知每个样本是高和宽均为28像素的图片。模型的输入向量的长度是$28 \times 28 = 784$：该向量的每个元素对应图片中每个像素。由于图片有10个类别，单层神经网络输出层的输出个数为10。由上一节可知，Softmax回归的权重和偏差参数分别为$784 \times 10$和$1 \times 10$的矩阵。
 
-```{.python .input  n=8}
+```{.python .input  n=9}
 num_inputs = 784
 num_outputs = 10
 
@@ -91,7 +103,7 @@ params = [W, b]
 
 同之前一样，我们要对模型参数附上梯度。
 
-```{.python .input  n=9}
+```{.python .input  n=10}
 for param in params:
     param.attach_grad()
 ```
@@ -102,14 +114,14 @@ for param in params:
 
 在下面例子中，给定一个NDArray矩阵`X`。我们可以只对其中每一列（`axis=0`）或每一行（`axis=1`）求和，并在结果中保留行和列这两个维度（`keepdims=True`）。
 
-```{.python .input  n=10}
+```{.python .input  n=11}
 X = nd.array([[1,2,3], [4,5,6]])
 X.sum(axis=0, keepdims=True), X.sum(axis=1, keepdims=True)
 ```
 
 下面我们就可以定义上一节中介绍的Softmax运算了。在下面的函数中，矩阵`X`的行数是样本数，列数是输出个数。为了表达样本预测各个输出的概率，Softmax运算会先通过`exp = nd.exp(X)`对每个元素做指数运算，再对`exp`矩阵的每行求和，最后令矩阵每行各元素与该行元素之和相除。这样一来，最终得到的矩阵每行元素和为1且非负（应用了指数运算）。因此，该矩阵每行都是合法的概率分布。Softmax运算的输出矩阵中的任意一行元素是一个样本在各个类别上的概率。
 
-```{.python .input  n=11}
+```{.python .input  n=12}
 def softmax(X):
     exp = X.exp()
     partition = exp.sum(axis=1, keepdims=True)
@@ -118,7 +130,7 @@ def softmax(X):
 
 可以看到，对于随机输入，我们将每个元素变成了非负数，而且每一行加起来为1。
 
-```{.python .input  n=12}
+```{.python .input  n=13}
 X = nd.random.normal(shape=(2, 5))
 X_prob = softmax(X)
 X_prob, X_prob.sum(axis=1)
@@ -128,7 +140,7 @@ X_prob, X_prob.sum(axis=1)
 
 有了Softmax运算，我们可以定义上节描述的Softmax回归模型了。这里通过`reshape`函数将每张原始图片改成长度为`num_inputs`的向量。
 
-```{.python .input  n=13}
+```{.python .input  n=14}
 def net(X):
     return softmax(nd.dot(X.reshape((-1, num_inputs)), W) + b)
 ```
@@ -137,7 +149,7 @@ def net(X):
 
 上一节中，我们介绍了Softmax回归使用的交叉熵损失函数。为了得到标签的被预测概率，我们可以使用`pick`函数。在下面例子中，`y_hat`是2个样本在3个类别的预测概率，`y`是两个样本的标签类别。通过使用`pick`函数，我们得到了2个样本的标签的被预测概率。
 
-```{.python .input  n=14}
+```{.python .input  n=15}
 y_hat = nd.array([[0.1, 0.3, 0.6], [0.3, 0.2, 0.5]])
 y = nd.array([0, 2])
 nd.pick(y_hat, y)
@@ -145,7 +157,7 @@ nd.pick(y_hat, y)
 
 下面，我们直接将上一节中的交叉熵损失函数翻译成代码。
 
-```{.python .input  n=15}
+```{.python .input  n=16}
 def cross_entropy(y_hat, y):
     return -nd.pick(y_hat.log(), y)
 ```
@@ -154,22 +166,22 @@ def cross_entropy(y_hat, y):
 
 给定一个类别的预测概率分布`y_hat`，我们把预测概率最大的类别作为输出类别。如果它与真实类别`y`一致，说明这次预测是正确的。分类准确率即正确预测数量与总预测数量的比。
 
-下面定义`accuracy`函数。其中`y_hat.argmax(axis=1)`返回矩阵`y_hat`每行中最大元素的索引，且返回结果与`y`形状相同。我们在[“数据操作”](../chapter_prerequisite/ndarray.md)一节介绍过，条件判断式`(y_hat.argmax(axis=1) == y)`是一个值为0或1的NDArray。
+下面定义`accuracy`函数。其中`y_hat.argmax(axis=1)`返回矩阵`y_hat`每行中最大元素的索引，且返回结果与`y`形状相同。我们在[“数据操作”](../chapter_prerequisite/ndarray.md)一节介绍过，条件判断式`(y_hat.argmax(axis=1) == y)`是一个值为0或1的NDArray。注意到标注类型为整数，我们需要转换数据格式来进行比较。
 
-```{.python .input  n=16}
+```{.python .input  n=17}
 def accuracy(y_hat, y):
-    return (y_hat.argmax(axis=1) == y).mean().asscalar()
+    return (y_hat.argmax(axis=1) == y.astype('float32')).mean().asscalar()
 ```
 
 让我们继续使用在演示`pick`函数时定义的`y_hat`和`y`，分别作为预测概率分布和标签。可以看到，第一个样本预测类别为2（该行最大元素0.6在本行的索引），与真实标签不一致；第二个样本预测类别为2（该行最大元素0.5在本行的索引），与真实标签一致。因此，这两个样本上的分类准确率为0.5。
 
-```{.python .input  n=17}
+```{.python .input  n=18}
 accuracy(y_hat, y)
 ```
 
 类似地，我们可以评价模型`net`在数据集`data_iter`上的准确率。
 
-```{.python .input  n=18}
+```{.python .input  n=19}
 def evaluate_accuracy(data_iter, net):
     acc = 0
     for X, y in data_iter:
@@ -179,7 +191,7 @@ def evaluate_accuracy(data_iter, net):
 
 因为我们随机初始化了模型`net`，所以这个模型的准确率应该接近于`1 / num_outputs = 0.1`。
 
-```{.python .input  n=19}
+```{.python .input  n=20}
 evaluate_accuracy(test_iter, net)
 ```
 
@@ -189,7 +201,7 @@ evaluate_accuracy(test_iter, net)
 
 训练Softmax回归的实现跟前面线性回归中的实现非常相似。我们同样使用小批量随机梯度下降来优化模型的损失函数。在训练模型时，迭代周期数`num_epochs`和学习率`lr`都是可以调的超参数。改变它们的值可能会得到分类更准确的模型。
 
-```{.python .input  n=20}
+```{.python .input  n=21}
 num_epochs = 5
 lr = 0.1
 loss = cross_entropy
@@ -225,12 +237,13 @@ train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size, params,
 
 训练完成后，现在我们可以演示如何对图片进行分类。给定一系列图片，我们比较一下它们的真实标签和模型预测结果。
 
-```{.python .input  n=21}
+```{.python .input  n=39}
 data, label = mnist_test[0:9]
 show_fashion_imgs(data)
 print('labels:', get_text_labels(label))
-predicted_labels = net(data).argmax(axis=1)
-print('predictions:', get_text_labels(predicted_labels.asnumpy()))
+    
+predicted_labels = [net(transformer(x)).argmax(axis=1).asscalar() for x in data]
+print('predictions:', get_text_labels(predicted_labels))
 ```
 
 ## 小结
@@ -244,6 +257,7 @@ print('predictions:', get_text_labels(predicted_labels.asnumpy()))
 * 本节中，我们直接按照Softmax运算的数学定义来实现`softmax`函数。这可能会造成什么问题？（试一试计算$e^{50}$的大小。）
 * 本节中的`cross_entropy`函数同样是按照交叉熵损失函数的数学定义实现的。这样的实现方式可能有什么问题？（思考一下对数函数的定义域。）
 * 你能想到哪些办法来解决上面这两个问题？
+* 试着修改DataLoader里的处理进程数来查看其对计算性能的影响。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/741)
 
