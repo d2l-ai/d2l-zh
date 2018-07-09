@@ -27,13 +27,13 @@ mnist_test = gdata.vision.FashionMNIST(train=False)
 feature, label = mnist_train[0]
 ```
 
-图片的高宽均为28，数值为0到255之间无符号8位整数（uint8）。它使用3维的NDArray储存，最后一维为1，表示灰度图片。
+图片的高和宽均为28像素。每个像素的数值为0到255之间8位无符号整数（uint8）。它使用3维的NDArray储存。其中的最后一维是通道数：1表示灰度图片。
 
 ```{.python .input}
 feature.shape, feature.dtype
 ```
 
-下面定义一个函数可以在一行里画出多张图片。
+下面定义一个可以在一行里画出多张图片的函数。
 
 ```{.python .input}
 def show_fashion_imgs(images):
@@ -45,13 +45,13 @@ def show_fashion_imgs(images):
     gb.plt.show()
 ```
 
-标签则是使用numpy的标量，类型为32位整数。
+图片的标签使用numpy的标量表示。它的类型为32位整数。
 
 ```{.python .input}
 label, type(label), label.dtype
 ```
 
-以下函数可以将数字标签转成相应的文本标签。
+以下函数可以将数值标签转成相应的文本标签。
 
 ```{.python .input  n=25}
 def get_text_labels(labels):
@@ -72,9 +72,9 @@ print(get_text_labels(y))
 
 Fashion-MNIST包括训练数据集和测试数据集（testing data set）。我们将在训练数据集上训练模型，并将训练好的模型在测试数据集上评价模型的表现。对于训练数据集，我们需要使用随机顺序访问其样本。
 
-我们可以像[“线性回归的从零开始实现”](linear-regression-scratch.md)一节中那样通过`yield`来定义读取小批量数据样本的函数。为了代码简洁，这里我们直接创建DataLoader实例，其每次读取一个样本数为`batch_size`的小批量。这里的批量大小`batch_size`是一个超参数。在实际中数据读取经常是训练的性能瓶颈，特别是在使用比较简单的模型或者高性能计算硬件下。DataLoader的一个很方便功能是可以使用多进程来加速数据读取，这里我们使用4个进程。
+我们可以像[“线性回归的从零开始实现”](linear-regression-scratch.md)一节中那样通过`yield`来定义读取小批量数据样本的函数。为了代码简洁，这里我们直接创建DataLoader实例，其每次读取一个样本数为`batch_size`的小批量。这里的批量大小`batch_size`是一个超参数。在实际中，数据读取经常是训练的性能瓶颈，特别当模型较简单或者计算硬件性能较高时。Gluon的`DataLoader`中一个很方便的功能是允许使用多进程来加速数据读取。这里我们通过参数`num_workers`来设置4个进程读取数据。
 
-还需要注意的是图片数据格式是uint8，我们通过ToTensor将其转换成32位浮点数，同时除以255使得值在0到1之间。这个函数还额外的将图片通道从最后一维调整到最前面来方便之后将介绍的卷积神经网络使用。通过数据集的`transform_first`函数我们将ToTensor选择性作用在图片上。
+此外，我们通过`ToTensor`将图片数据从uint8格式变换成32位浮点数格式，并除以255使得所有像素的数值均在0到1之间。`ToTensor`还将图片通道从最后一维调整到最前一维来方便之后介绍的卷积神经网络使用。通过数据集的`transform_first`函数，我们将`ToTensor`的变换应用在每个数据样本（图片和标签）的第一个元素，也即图片之上。
 
 ```{.python .input  n=28}
 batch_size = 256
@@ -110,9 +110,7 @@ for param in params:
 
 ## 定义Softmax运算
 
-在介绍如何定义Softmax回归之前，我们先描述一下对如何对多维NDArray按维度操作。
-
-在下面例子中，给定一个NDArray矩阵`X`。我们可以只对其中每一列（`axis=0`）或每一行（`axis=1`）求和，并在结果中保留行和列这两个维度（`keepdims=True`）。
+在介绍如何定义Softmax回归之前，我们先描述一下对如何对多维NDArray按维度操作。在下面例子中，给定一个NDArray矩阵`X`。我们可以只对其中每一列（`axis=0`）或每一行（`axis=1`）求和，并在结果中保留行和列这两个维度（`keepdims=True`）。
 
 ```{.python .input  n=11}
 X = nd.array([[1,2,3], [4,5,6]])
@@ -166,7 +164,7 @@ def cross_entropy(y_hat, y):
 
 给定一个类别的预测概率分布`y_hat`，我们把预测概率最大的类别作为输出类别。如果它与真实类别`y`一致，说明这次预测是正确的。分类准确率即正确预测数量与总预测数量的比。
 
-下面定义`accuracy`函数。其中`y_hat.argmax(axis=1)`返回矩阵`y_hat`每行中最大元素的索引，且返回结果与`y`形状相同。我们在[“数据操作”](../chapter_prerequisite/ndarray.md)一节介绍过，条件判断式`(y_hat.argmax(axis=1) == y)`是一个值为0或1的NDArray。注意到标注类型为整数，我们需要转换数据格式来进行比较。
+下面定义`accuracy`函数。其中`y_hat.argmax(axis=1)`返回矩阵`y_hat`每行中最大元素的索引，且返回结果与`y`形状相同。我们在[“数据操作”](../chapter_prerequisite/ndarray.md)一节介绍过，条件判断式`(y_hat.argmax(axis=1) == y)`是一个值为0或1的NDArray。由于标签类型为整数，我们先将其变换为浮点数再进行比较。
 
 ```{.python .input  n=17}
 def accuracy(y_hat, y):
@@ -257,7 +255,7 @@ print('predictions:', get_text_labels(predicted_labels))
 * 本节中，我们直接按照Softmax运算的数学定义来实现`softmax`函数。这可能会造成什么问题？（试一试计算$e^{50}$的大小。）
 * 本节中的`cross_entropy`函数同样是按照交叉熵损失函数的数学定义实现的。这样的实现方式可能有什么问题？（思考一下对数函数的定义域。）
 * 你能想到哪些办法来解决上面这两个问题？
-* 试着修改DataLoader里的处理进程数来查看其对计算性能的影响。
+* 修改`DataLoader`里的参数`num_workers`，查看这个改动对计算性能的影响。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/741)
 
