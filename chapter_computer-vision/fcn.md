@@ -2,7 +2,7 @@
 
 在图片分类里，我们通过卷积层和池化层逐渐减少图片高宽最终得到跟预测类别数长的向量。例如用于ImageNet分类的ResNet 18里，我们将高宽为224的输入图片首先减少到高宽7，然后使用全局池化层得到512维输出，最后使用全连接层输出长为1000的预测向量。
 
-但在语义分割里，我们需要对每个像素预测类别，也就是需要输出形状需要是$1000\times 224\times 224$。如果仍然使用全链接层作为输出，那么这一层权重将多达数百GB。本小节我们将介绍利用卷积神经网络解决语义分割的一个开创性工作之一：全卷积网络（fully convolutional network，简称FCN）[1]。FCN里将最后的全连接层修改称转置卷积层（transposed convolution）来得到所需大小的输出。
+但在语义分割里，我们需要对每个像素预测类别，也就是需要输出形状需要是$1000\times 224\times 224$。如果仍然使用全连接层作为输出，那么这一层权重将多达数百GB。本小节我们将介绍利用卷积神经网络解决语义分割的一个开创性工作之一：全卷积网络（fully convolutional network，简称FCN）[1]。FCN里将最后的全连接层修改称转置卷积层（transposed convolution）来得到所需大小的输出。
 
 ```{.python .input  n=2}
 %matplotlib inline
@@ -41,7 +41,7 @@ conv_trans(y).shape
 
 ## FCN模型
 
-FCN的核心思想是将一个卷积网络的最后全连接输出层替换成转置卷积层来获取对每个输入像素的预测。具体来说，它去掉了过于损失空间信息的全局池化层，并将最后的全链接层替换成输出通道是原全连接层输出大小的$1\times 1$卷积层，最后接上卷积转置层来得到需要形状的输出。
+FCN的核心思想是将一个卷积网络的最后全连接输出层替换成转置卷积层来获取对每个输入像素的预测。具体来说，它去掉了过于损失空间信息的全局池化层，并将最后的全连接层替换成输出通道是原全连接层输出大小的$1\times 1$卷积层，最后接上转置卷积层来得到需要形状的输出。
 
 ![FCN模型。](../img/fcn.svg)
 
@@ -53,7 +53,7 @@ pretrained_net = gluon.model_zoo.vision.resnet18_v2(pretrained=True)
 (pretrained_net.features[-4:], pretrained_net.output)
 ```
 
-可以看到`feature`模块最后两层是`GlobalAvgPool2D`和`Flatten`，在FCN里均不需要，`output`模块里的全链接层也需要舍去。下面我们定义一个新的网络，它复制除了`feature`里除去最后两层的所有神经层以及权重。
+可以看到`feature`模块最后两层是`GlobalAvgPool2D`和`Flatten`，在FCN里均不需要，`output`模块里的全连接层也需要舍去。下面我们定义一个新的网络，它复制除了`feature`里除去最后两层的所有神经层以及权重。
 
 ```{.python .input  n=4}
 net = nn.HybridSequential()
