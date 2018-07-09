@@ -163,16 +163,15 @@ class Residual(nn.HybridBlock):
     def __init__(self, channels, same_shape=True, **kwargs):
         super(Residual, self).__init__(**kwargs)
         self.same_shape = same_shape
-        with self.name_scope():
-            strides = 1 if same_shape else 2
-            self.conv1 = nn.Conv2D(channels, kernel_size=3, padding=1,
+        strides = 1 if same_shape else 2
+        self.conv1 = nn.Conv2D(channels, kernel_size=3, padding=1,
+                               strides=strides)
+        self.bn1 = nn.BatchNorm()
+        self.conv2 = nn.Conv2D(channels, kernel_size=3, padding=1)
+        self.bn2 = nn.BatchNorm()
+        if not same_shape:
+            self.conv3 = nn.Conv2D(channels, kernel_size=1,
                                   strides=strides)
-            self.bn1 = nn.BatchNorm()
-            self.conv2 = nn.Conv2D(channels, kernel_size=3, padding=1)
-            self.bn2 = nn.BatchNorm()
-            if not same_shape:
-                self.conv3 = nn.Conv2D(channels, kernel_size=1,
-                                      strides=strides)
 
     def hybrid_forward(self, F, x):
         out = F.relu(self.bn1(self.conv1(x)))
@@ -183,9 +182,7 @@ class Residual(nn.HybridBlock):
 
 def resnet18(num_classes):
     net = nn.HybridSequential()
-    with net.name_scope():
-        net.add(
-            nn.BatchNorm(),
+    net.add(nn.BatchNorm(),
             nn.Conv2D(64, kernel_size=3, strides=1),
             nn.MaxPool2D(pool_size=3, strides=2),
             Residual(64),
@@ -195,8 +192,7 @@ def resnet18(num_classes):
             Residual(256, same_shape=False),
             Residual(256),
             nn.GlobalAvgPool2D(),
-            nn.Dense(num_classes)
-        )
+            nn.Dense(num_classes))
     return net
 
 def show_images(imgs, num_rows, num_cols, scale=2):
