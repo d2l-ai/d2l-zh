@@ -176,6 +176,15 @@ for data, label in train_data:
     break
 ```
 
-## 小节
+## 小结
+
+* TODO(@mli)
+
 
 ## 练习
+
+* TODO(@mli)
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7218)
+
+![](../img/qr_semantic-segmentation-and-dataset.svg)

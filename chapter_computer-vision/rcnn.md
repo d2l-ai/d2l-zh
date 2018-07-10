@@ -91,6 +91,22 @@ $$f(x,\lfloor y \rfloor+1) = (\lfloor x \rfloor + 1-x)f(\lfloor x \rfloor, \lflo
 
 $$f(x,y) = (\lfloor y \rfloor + 1-y)f(x, \lfloor y \rfloor) + (y-\lfloor y \rfloor)f(x, \lfloor y \rfloor + 1).$$
 
+
+## 小结
+
+* TODO(@mli)
+
+
+## 练习
+
+* TODO(@mli)
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7219)
+
+![](../img/qr_rcnn.svg)
+
+
+
 ## 参考文献
 
 [1] Girshick, R., Donahue, J., Darrell, T., & Malik, J. (2014). Rich feature hierarchies for accurate object detection and semantic segmentation. In Proceedings of the IEEE conference on computer vision and pattern recognition (pp. 580-587).
