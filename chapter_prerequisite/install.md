@@ -15,15 +15,15 @@
 
 ### Windows用户
 
-第一步，根据操作系统下载并安装Miniconda（网址：https://conda.io/miniconda.html ）。
+第一步，根据操作系统下载并安装Miniconda（网址：https://conda.io/miniconda.html ），在安装过程中需要勾选“Add Anaconda to my PATH environment variable”选项。
 
-第二步，下载包含本书全部代码的包。我们可以在浏览器的地址栏中输入以下地址并按回车键进行下载：
+第二步，下载包含本书全部代码的压缩包。我们可以在浏览器的地址栏中输入以下地址并按回车键进行下载：
 
 > https://zh.gluon.ai/gluon_tutorials_zh-1.0.zip
 
-下载完成后，解压该文件并进入文件夹“gluon_tutorials_zh-1.0”。在该目录文件资源管理器的地址栏输入`cmd`进入命令行模式。
+下载完成后，创建文件夹“gluon_tutorials_zh-1.0”并将以上压缩包解压到这个文件夹。在该目录文件资源管理器的地址栏输入`cmd`打开命令提示符。
 
-第三步，安装运行所需的依赖包并激活该运行环境。我们可以先通过运行下面命令来配置下载源，从而使用国内镜像加速下载:
+第三步，安装运行所需的软件包并激活该运行环境。我们可以先通过运行下面命令来配置下载源，从而使用国内镜像加速下载:
 
 ```
 # 优先使用清华 conda 镜像。
@@ -58,7 +58,7 @@ set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyte
 
 第一步，根据操作系统下载并安装Miniconda（网址：https://conda.io/miniconda.html ）。
 
-安装时需要回答下面几个问题：
+安装时使用条款会弹出，按“↓”继续阅读，按“q”退出阅读，之后需要回答下面几个问题：
 
 ```
 Do you accept the license terms? [yes|no]
@@ -70,7 +70,7 @@ to PATH in your /xx/yyy/.zzzz ? [yes|no]
 
 安装完成后，我们需要让conda生效。Linux用户需要运行一次`source ~/.bashrc`或重启命令行；macOS用户需要运行一次`source ~/.bash_profile`或重启命令行。
 
-第二步，下载包含本书全部代码的包，解压后进入文件夹。运行如下命令。
+第二步，下载包含本书全部代码的压缩包，解压后进入文件夹。运行如下命令。
 
 ```
 mkdir gluon_tutorials_zh-1.0 && cd gluon_tutorials_zh-1.0
@@ -78,7 +78,7 @@ curl https://zh.gluon.ai/gluon_tutorials_zh-1.0.tar.gz -o tutorials.tar.gz
 tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
 ```
 
-第三步，安装运行所需的依赖包并激活该运行环境。我们可以先通过运行下面命令来配置下载源，从而使用国内镜像加速下载:
+第三步，安装运行所需的软件包并激活该运行环境。我们可以先通过运行下面命令来配置下载源，从而使用国内镜像加速下载:
 
 ```
 # 优先使用清华 conda 镜像。
