@@ -20,27 +20,27 @@ from mxnet.gluon import nn
 
 def pool2d(X, pool_size, mode='max'):
     p_h, p_w = pool_size
-    Y = nd.zeros((X.shape[0]-p_h+1, X.shape[1]-p_w+1))
+    Y = nd.zeros((X.shape[0] - p_h + 1, X.shape[1] - p_w + 1))
     for i in range(Y.shape[0]):
         for j in range(Y.shape[1]):
             if mode == 'max':
-                Y[i, j] = X[i:i+p_h, j:j+p_w].max()
+                Y[i, j] = X[i : i + p_h, j : j + p_w].max()
             elif mode == 'avg':
-                Y[i, j] = X[i:i+p_h, j:j+p_w].mean()            
+                Y[i, j] = X[i : i + p_h, j : j + p_w].mean()            
     return Y
 ```
 
 构造上图中的数据来验证实现的正确性。
 
 ```{.python .input  n=13}
-X = nd.array([[0,1,2], [3,4,5], [6,7,8]])
-pool2d(X, (2,2))
+X = nd.array([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
+pool2d(X, (2, 2))
 ```
 
 同时我们试一试平均池化层。
 
 ```{.python .input  n=14}
-pool2d(X, (2,2), 'avg')
+pool2d(X, (2, 2), 'avg')
 ```
 
 ## 填充和步幅
@@ -70,7 +70,7 @@ pool2d(X)
 当然，我们也可以是非方形的窗口，并且指定各个方向上的填充和步幅。
 
 ```{.python .input  n=8}
-pool2d = nn.MaxPool2D((2,3), padding=(1,2), strides=(2,3))
+pool2d = nn.MaxPool2D((2, 3), padding=(1, 2), strides=(2, 3))
 pool2d(X)
 ```
 
@@ -79,7 +79,7 @@ pool2d(X)
 在处理多通道输入数据时，池化层对每个输入通道分别池化，而不是像卷积层那样混合输入通道。这个意味着池化层的输出通道跟输入通道数相同。下面我们将`X`和`X+1`在通道维度上合并来构造通道数为2输入。
 
 ```{.python .input  n=9}
-X = nd.concat(X, X+1, dim=1)
+X = nd.concat(X, X + 1, dim=1)
 X
 ```
 

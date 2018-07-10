@@ -55,7 +55,7 @@ import sys
 sys.path.append('..')
 import gluonbook as gb
 from mxnet import nd, init, gluon
-from mxnet.gluon import nn, data as gdata
+from mxnet.gluon import data as gdata, loss as gloss, nn
 
 net = nn.Sequential()
 net.add(
@@ -73,8 +73,8 @@ net.add(
     nn.Conv2D(256, kernel_size=3, padding=1, activation='relu'),
     nn.MaxPool2D(pool_size=3, strides=2),
     # 使用比 LeNet 输出大数倍了全连接层。其使用丢弃层来控制复杂度。
-    nn.Dense(4096, activation="relu"), nn.Dropout(.5),
-    nn.Dense(4096, activation="relu"), nn.Dropout(.5),
+    nn.Dense(4096, activation="relu"), nn.Dropout(0.5),
+    nn.Dense(4096, activation="relu"), nn.Dropout(0.5),
     # 输出层。我们这里使用 FashionMNIST，所以用 10，而不是论文中的 1000。
     nn.Dense(10)
 )
@@ -83,7 +83,7 @@ net.add(
 我们构造一个高和宽均为224像素的单通道数据点来观察每一层的输出大小。
 
 ```{.python .input}
-X = nd.random.uniform(shape=(1,1,224,224))
+X = nd.random.uniform(shape=(1, 1, 224, 224))
 net.initialize()
 for layer in net:
     X = layer(X)
@@ -107,9 +107,9 @@ batch_size = 128
 
 mnist_train = gdata.vision.FashionMNIST(train=True)
 mnist_test = gdata.vision.FashionMNIST(train=False)
-train_data = gdata.DataLoader(mnist_train.transform_first(transformer),
+train_iter = gdata.DataLoader(mnist_train.transform_first(transformer),
                               batch_size, shuffle=True, num_workers=4)
-test_data = gdata.DataLoader(mnist_test.transform_first(transformer),
+test_iter = gdata.DataLoader(mnist_test.transform_first(transformer),
                              batch_size, shuffle=False, num_workers=4)
 ```
 
@@ -122,8 +122,8 @@ lr = 0.01
 ctx = gb.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-loss = gluon.loss.SoftmaxCrossEntropyLoss()
-gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
+loss = gloss.SoftmaxCrossEntropyLoss()
+gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
 ```
 
 ## 小结

@@ -17,7 +17,7 @@ import sys
 sys.path.append('..')
 import gluonbook as gb
 from mxnet import nd, gluon, init
-from mxnet.gluon import nn
+from mxnet.gluon import loss as gloss, nn
 
 def conv_block(num_channels):
     blk = nn.Sequential()
@@ -101,15 +101,15 @@ for i, num_convs in enumerate(num_convs_in_dense_blocks):
     # 上一个稠密的输出通道数。
     num_channels += num_convs * growth_rate
     # 在稠密块之间加入通道数减半的过渡块。
-    if i != len(num_convs_in_dense_blocks)-1:
-        net.add(transition_block(num_channels//2))
+    if i != len(num_convs_in_dense_blocks) - 1:
+        net.add(transition_block(num_channels // 2))
 ```
 
 最后同ResNet一样我们接上全局池化层和全连接层来输出。
 
 ```{.python .input}
-net.add(nn.BatchNorm(), nn.Activation('relu'),
-        nn.GlobalAvgPool2D(), nn.Dense(10))
+net.add(nn.BatchNorm(), nn.Activation('relu'), nn.GlobalAvgPool2D(),
+        nn.Dense(10))
 ```
 
 ## 获取数据并训练
@@ -120,9 +120,9 @@ net.add(nn.BatchNorm(), nn.Activation('relu'),
 ctx = gb.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.1})
-loss = gluon.loss.SoftmaxCrossEntropyLoss()
-train_data, test_data = gb.load_data_fashion_mnist(batch_size=256, resize=96)
-gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
+loss = gloss.SoftmaxCrossEntropyLoss()
+train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=256, resize=96)
+gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
 ```
 
 ## 小结

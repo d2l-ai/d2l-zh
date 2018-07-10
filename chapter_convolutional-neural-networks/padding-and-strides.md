@@ -31,11 +31,11 @@ from mxnet.gluon import nn
 # 定义一个便利函数来计算卷积层。它初始化卷积层权重，并对输入和输出做相应的升维和降维。
 def comp_conv2d(conv2d, X):
     conv2d.initialize()
-    X = X.reshape((1,1,)+X.shape)
+    X = X.reshape((1, 1,) + X.shape)
     Y = conv2d(X)
     return Y.reshape(Y.shape[2:])
 
-X = nd.random.uniform(shape=(8,8))
+X = nd.random.uniform(shape=(8, 8))
 
 # 注意这里是两侧分别填充 1，所以 p_w = p_h = 2。
 conv2d = nn.Conv2D(1, kernel_size=3, padding=1)
@@ -46,7 +46,7 @@ comp_conv2d(conv2d, X).shape
 
 ```{.python .input  n=2}
 # 使用高为 5，宽为 3 的卷积核。
-conv2d = nn.Conv2D(1, kernel_size=(5,3), padding=(2,1))
+conv2d = nn.Conv2D(1, kernel_size=(5, 3), padding=(2, 1))
 comp_conv2d(conv2d, X).shape
 ```
 
@@ -74,7 +74,7 @@ comp_conv2d(conv2d, X).shape
 接下来是一个稍微复杂点的例子。
 
 ```{.python .input  n=3}
-conv2d = nn.Conv2D(1, kernel_size=(3,5), padding=(0,1), strides=(3,4))
+conv2d = nn.Conv2D(1, kernel_size=(3, 5), padding=(0, 1), strides=(3, 4))
 comp_conv2d(conv2d, X).shape
 ```
 

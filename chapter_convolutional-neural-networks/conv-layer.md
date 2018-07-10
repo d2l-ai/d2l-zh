@@ -21,18 +21,18 @@ from mxnet.gluon import nn
 
 def corr2d(X, K):
     h, w = K.shape
-    Y = nd.zeros((X.shape[0]-h+1, X.shape[1]-w+1))
+    Y = nd.zeros((X.shape[0] - h + 1, X.shape[1] - w + 1))
     for i in range(Y.shape[0]):
         for j in range(Y.shape[1]):
-            Y[i, j] = (X[i:i+h, j:j+w]*K).sum()
+            Y[i, j] = (X[i : i + h, j : j + w] * K).sum()
     return Y
 ```
 
 构造上图中的数据来测试实现的正确性。
 
 ```{.python .input}
-X = nd.array([[0,1,2], [3,4,5], [6,7,8]])
-K = nd.array([[0,1], [2,3]])
+X = nd.array([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
+K = nd.array([[0, 1], [2, 3]])
 corr2d(X, K)
 ```
 
@@ -98,10 +98,10 @@ Y = Y.reshape((1, 1, 6, 7))
 for i in range(10):
     with autograd.record():
         Y_hat = conv2d(X)
-        loss = (Y_hat - Y) ** 2
+        l = (Y_hat-Y) ** 2
         if i % 2 == 1:
-            print('batch %d, loss %.3f' % (i, loss.sum().asscalar()))
-    loss.backward()
+            print('batch %d, loss %.3f' % (i, l.sum().asscalar()))
+    l.backward()
     # 为了简单起见这里忽略了偏差。
     conv2d.weight.data()[:] -= 3e-2 * conv2d.weight.grad()
 ```
@@ -109,7 +109,7 @@ for i in range(10):
 可以看到10次迭代后误差已经降到了一个比较小的值，现在来看一下学习到的核。
 
 ```{.python .input}
-conv2d.weight.data().reshape((1,2))
+conv2d.weight.data().reshape((1, 2))
 ```
 
 我们看到学到的核与我们之前定义的`K`非常接近。

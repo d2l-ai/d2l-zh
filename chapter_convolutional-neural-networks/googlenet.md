@@ -17,7 +17,7 @@ import sys
 sys.path.insert(0, '..')
 import gluonbook as gb
 from mxnet import nd, init, gluon
-from mxnet.gluon import nn
+from mxnet.gluon import loss as gloss, nn
 
 class Inception(nn.Block):
     # c1 - c4 为每条线路里的层的输出通道数。
@@ -111,7 +111,7 @@ net.add(b1, b2, b3, b4, b5, nn.Dense(10))
 因为这个模型相计算复杂，而且修改通道数不如VGG那样简单。本节里我们将输入高宽从224降到96来加速计算。下面演示各个模块之间的输出形状变化。
 
 ```{.python .input  n=7}
-X = nd.random.uniform(shape=(1,1,96,96))
+X = nd.random.uniform(shape=(1, 1, 96, 96))
 net.initialize()
 for layer in net:
     X = layer(X)
@@ -127,9 +127,9 @@ lr = 0.1
 ctx = gb.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-train_data, test_data = gb.load_data_fashion_mnist(batch_size=128, resize=96)
-loss = gluon.loss.SoftmaxCrossEntropyLoss()
-gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
+train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=128, resize=96)
+loss = gloss.SoftmaxCrossEntropyLoss()
+gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
 ```
 
 ## 小结

@@ -60,6 +60,6 @@
 
 * `try_all_gpus`
 
-* `try_gpu`
+* `try_gpu`，[卷积神经网络（LeNet）](../chapter_convolutional-neural-networks/lenet.md)
 
 * `VOCSegDataset`
