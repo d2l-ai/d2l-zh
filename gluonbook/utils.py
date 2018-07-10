@@ -119,7 +119,7 @@ def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
 
 
 def _get_batch(batch, ctx):
-    """return features and labels on ctx"""
+    """Return features and labels on ctx."""
     if isinstance(batch, mx.io.DataBatch):
         features = batch.data[0]
         labels = batch.label[0]
@@ -150,8 +150,10 @@ def linreg(X, w, b):
 
 
 def load_data_fashion_mnist(batch_size, resize=None,
-                            root='~/.mxnet/datasets/fashion-mnist'):                                    
-    """download the fashion mnist dataest and then load into memory"""
+                            root=os.path.join('~', '.mxnet', 'datasets',
+                                              'fashion-mnist'):                                                             
+    """Download the fashion mnist dataest and then load into memory."""
+    root = os.path.expanduser(root)
     transformer = []
     if resize:
         transformer += [gdata.vision.transforms.Resize(resize)]
@@ -164,25 +166,27 @@ def load_data_fashion_mnist(batch_size, resize=None,
                                   batch_size, shuffle=True, num_workers=4)
     test_iter = gdata.DataLoader(mnist_test.transform_first(transformer),
                                  batch_size, shuffle=False, num_workers=4)
-    return (train_iter, test_iter)
+    return train_iter, test_iter
 
 
 def load_data_pascal_voc(batch_size, output_shape): 
+    """Download the pascal voc dataest and then load into memory."""
     voc_train = VOCSegDataset(True, output_shape) 
     voc_test = VOCSegDataset(False, output_shape) 
  
-    train_data = gluon.data.DataLoader( 
+    train_iter = gluon.data.DataLoader( 
         voc_train, batch_size, shuffle=True,last_batch='discard',
         num_workers=4) 
-    test_data = gluon.data.DataLoader( 
+    test_iter = gluon.data.DataLoader( 
         voc_test, batch_size,last_batch='discard', num_workers=4) 
-    return train_data, test_data
+    return train_iter, test_iter
 
 
 def load_data_pikachu(batch_size, edge_size=256):                                                                                
+    """Download the pikachu dataest and then load into memory."""
     data_dir = '../data/pikachu/'
     _download_pikachu(data_dir)
-    train_data = image.ImageDetIter(
+    train_iter = image.ImageDetIter(
         path_imgrec=data_dir+'train.rec',
         path_imgidx=data_dir+'train.idx',
         batch_size=batch_size,
@@ -191,12 +195,12 @@ def load_data_pikachu(batch_size, edge_size=256):
         rand_crop=1,
         min_object_covered=0.95,
         max_attempts=200)
-    val_data = image.ImageDetIter(
+    val_iter = image.ImageDetIter(
         path_imgrec=data_dir+'val.rec',
         batch_size=batch_size,
         data_shape=(3, edge_size, edge_size),
         shuffle=False)
-    return (train_data, val_data)
+    return train_iter, val_iter
 
 
 def _make_list(obj, default_values=None):
@@ -338,7 +342,7 @@ def show_bboxes(axes, bboxes, labels=None, colors=None):
         if labels and len(labels) > i:
             text_color = 'k' if color == 'w' else 'w'
             axes.text(rect.xy[0], rect.xy[1], labels[i],
-                      va="center", ha="center", fontsize=9, color=text_color,
+                      va='center', ha='center', fontsize=9, color=text_color,
                       bbox=dict(facecolor=color, lw=0))
 
 
@@ -394,8 +398,8 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs,
                     n, train_l_sum / n, train_acc_sum / m
                 ))
         test_acc = evaluate_accuracy(test_iter, net, ctx)
-        print(('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
-               + 'time %.1f sec')
+        print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
+              'time %.1f sec'
               % (epoch, train_l_sum / n, train_acc_sum / m, test_acc,
                  time() - start))
 
@@ -446,7 +450,7 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
             train_l_sum = train_l_sum + l.sum()
             train_l_cnt += l.size
         if epoch % pred_period == 0:
-            print("\nepoch %d, perplexity %f"
+            print('\nepoch %d, perplexity %f'
                   % (epoch, (train_l_sum / train_l_cnt).exp().asscalar()))
             for prefix in prefixes:
                 print(' - ', predict_rnn(
@@ -472,7 +476,7 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
             train_l_sum += l.mean().asscalar()
             train_acc_sum += accuracy(y_hat, y)
         test_acc = evaluate_accuracy(test_iter, net)
-        print("epoch %d, loss %.4f, train acc %.3f, test acc %.3f"
+        print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f'
               % (epoch, train_l_sum / len(train_iter),
                  train_acc_sum / len(train_iter), test_acc))
 

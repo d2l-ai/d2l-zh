@@ -140,7 +140,7 @@ class Decoder(nn.Block):
                 self.attention.add(
                     nn.Dense(alignment_size,
                              in_units=num_hiddens + encoder_num_hiddens,
-                             activation="tanh", flatten=False))
+                             activation='tanh', flatten=False))
                 self.attention.add(nn.Dense(1, in_units=alignment_size,
                                             flatten=False))
 

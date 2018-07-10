@@ -85,8 +85,8 @@ from time import time
 def get_net():
     net = nn.HybridSequential()
     net.add(
-        nn.Dense(256, activation="relu"),
-        nn.Dense(128, activation="relu"),
+        nn.Dense(256, activation='relu'),
+        nn.Dense(128, activation='relu'),
         nn.Dense(2)
     )
     net.initialize()
@@ -121,9 +121,9 @@ def benchmark(net, x):
     return time() - start
 
 net = get_net()
-print('Before hybridizing: %.4f sec' % (benchmark(net, x)))
+print('before hybridizing: %.4f sec' % (benchmark(net, x)))
 net.hybridize()
-print('After hybridizing: %.4f sec' % (benchmark(net, x)))
+print('after hybridizing: %.4f sec' % (benchmark(net, x)))
 ```
 
 由上面结果可见，在一个HybridSequential实例调用`hybridize`函数后，它可以通过符号式编程提升计算性能。

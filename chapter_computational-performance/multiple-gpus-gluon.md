@@ -78,9 +78,9 @@ def train(num_gpus, batch_size, lr):
                 l.backward()
             trainer.step(batch_size)
         nd.waitall()
-        print('epoch %d, training time: %.1f sec'%(epoch, time() - start))
+        print('epoch %d, training time: %.1f sec' % (epoch, time() - start))
         test_acc = gb.evaluate_accuracy(test_iter, net, ctx[0])
-        print('validation accuracy: %.4f'%(test_acc))
+        print('validation accuracy: %.4f' % (test_acc))
 ```
 
 我们在2个GPU上训练模型。
