@@ -157,27 +157,6 @@ true_w, w
 true_b, b
 ```
 
-```{.python .input}
-def load_data_fashion_mnist(batch_size, resize=None,
-                            root=os.path.join('~', '.mxnet', 'datasets',
-                                              'fashion-mnist'):                                                             
-    """Download the fashion mnist dataest and then load into memory."""
-    root = os.path.expanduser(root)
-    transformer = []
-    if resize:
-        transformer += [gdata.vision.transforms.Resize(resize)]
-    transformer += [gdata.vision.transforms.ToTensor()]
-    transformer = gdata.vision.transforms.Compose(transformer)
-
-    mnist_train = gdata.vision.FashionMNIST(root=root, train=True)
-    mnist_test = gdata.vision.FashionMNIST(root=root, train=False)
-    train_iter = gdata.DataLoader(mnist_train.transform_first(transformer),
-                                  batch_size, shuffle=True, num_workers=4)
-    test_iter = gdata.DataLoader(mnist_test.transform_first(transformer),
-                                 batch_size, shuffle=False, num_workers=4)
-    return (train_iter, test_iter)
-```
-
 ## 小结
 
 * 我们现在看到，仅使用NDArray和`autograd`就可以很容易地实现一个模型。在接下来的章节中，我们会在此基础上描述更多深度学习模型，并介绍怎样使用更简洁的代码（例如下一节）实现它们。
