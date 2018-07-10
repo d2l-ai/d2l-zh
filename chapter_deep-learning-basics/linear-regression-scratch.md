@@ -143,7 +143,7 @@ for epoch in range(1, num_epochs + 1):
         l.backward()
         # 使用小批量随机梯度下降迭代模型参数。
         sgd([w, b], lr, batch_size)
-    print("epoch %d, loss %f"
+    print('epoch %d, loss %f'
           % (epoch, loss(net(features, w, b), labels).mean().asnumpy()))
 ```
 
@@ -155,6 +155,27 @@ true_w, w
 
 ```{.python .input  n=14}
 true_b, b
+```
+
+```{.python .input}
+def load_data_fashion_mnist(batch_size, resize=None,
+                            root=os.path.join('~', '.mxnet', 'datasets',
+                                              'fashion-mnist'):                                                             
+    """Download the fashion mnist dataest and then load into memory."""
+    root = os.path.expanduser(root)
+    transformer = []
+    if resize:
+        transformer += [gdata.vision.transforms.Resize(resize)]
+    transformer += [gdata.vision.transforms.ToTensor()]
+    transformer = gdata.vision.transforms.Compose(transformer)
+
+    mnist_train = gdata.vision.FashionMNIST(root=root, train=True)
+    mnist_test = gdata.vision.FashionMNIST(root=root, train=False)
+    train_iter = gdata.DataLoader(mnist_train.transform_first(transformer),
+                                  batch_size, shuffle=True, num_workers=4)
+    test_iter = gdata.DataLoader(mnist_test.transform_first(transformer),
+                                 batch_size, shuffle=False, num_workers=4)
+    return (train_iter, test_iter)
 ```
 
 ## 小结

@@ -114,8 +114,8 @@ class RNNModel(nn.Block):
                 self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
                                    input_size=embed_size)
             else:
-                raise ValueError("Invalid mode %s. Options are rnn_relu, "
-                                 "rnn_tanh, lstm, and gru" % mode)
+                raise ValueError('Invalid mode %s. Options are rnn_relu, '
+                                 'rnn_tanh, lstm, and gru' % mode)
             self.dense = nn.Dense(vocab_size, in_units=num_hiddens)
             self.num_hiddens = num_hiddens
 

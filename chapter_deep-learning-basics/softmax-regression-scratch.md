@@ -221,7 +221,7 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
             train_l_sum += l.mean().asscalar()
             train_acc_sum += accuracy(y_hat, y)
         test_acc = evaluate_accuracy(test_iter, net)
-        print("epoch %d, loss %.4f, train acc %.3f, test acc %.3f" 
+        print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f' 
               % (epoch, train_l_sum / len(train_iter),
                  train_acc_sum / len(train_iter), test_acc))
 

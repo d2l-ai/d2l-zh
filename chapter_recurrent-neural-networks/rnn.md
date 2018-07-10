@@ -377,7 +377,7 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
             train_l_sum = train_l_sum + l.sum()
             train_l_cnt += l.size
         if epoch % pred_period == 0:
-            print("\nepoch %d, perplexity %f"
+            print('\nepoch %d, perplexity %f'
                   % (epoch, (train_l_sum / train_l_cnt).exp().asscalar()))
             for prefix in prefixes:
                 print(' - ', predict_rnn(
