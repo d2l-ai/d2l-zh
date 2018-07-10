@@ -21,7 +21,7 @@
 
 > https://zh.gluon.ai/gluon_tutorials_zh-1.0.zip
 
-下载完成后，创建文件夹“gluon_tutorials_zh-1.0”并将以上压缩包解压到这个文件夹。在该目录文件资源管理器的地址栏输入`cmd`打开命令提示符。
+下载完成后，创建文件夹“gluon_tutorials_zh-1.0”并将以上压缩包解压到这个文件夹。在该目录文件资源管理器的地址栏输入`cmd`进入命令行模式。
 
 第三步，安装运行所需的软件包并激活该运行环境。我们可以先通过运行下面命令来配置下载源，从而使用国内镜像加速下载:
 
@@ -58,7 +58,7 @@ set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyte
 
 第一步，根据操作系统下载并安装Miniconda（网址：https://conda.io/miniconda.html ）。
 
-安装时使用条款会弹出，按“↓”继续阅读，按“q”退出阅读，之后需要回答下面几个问题：
+安装时会显示使用条款，按“↓”继续阅读，按“Q”退出阅读。之后需要回答下面几个问题：
 
 ```
 Do you accept the license terms? [yes|no]
