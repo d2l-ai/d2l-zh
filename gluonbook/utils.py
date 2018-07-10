@@ -52,13 +52,13 @@ def data_iter_consecutive(corpus_indices, batch_size, num_steps, ctx=None):
     corpus_indices = nd.array(corpus_indices, ctx=ctx)
     data_len = len(corpus_indices)
     batch_len = data_len // batch_size
-    indices = corpus_indices[0 : batch_size*batch_len].reshape((
+    indices = corpus_indices[0 : batch_size * batch_len].reshape((
         batch_size, batch_len))
     epoch_size = (batch_len - 1) // num_steps
     for i in range(epoch_size):
         i = i * num_steps
-        X = indices[:, i : i+num_steps]
-        Y = indices[:, i+1 : i+num_steps+1]
+        X = indices[:, i : i + num_steps]
+        Y = indices[:, i + 1 : i + num_steps + 1]
         yield X, Y
 
 
@@ -69,10 +69,10 @@ def data_iter_random(corpus_indices, batch_size, num_steps, ctx=None):
     example_indices = list(range(num_examples))
     random.shuffle(example_indices)
     def _data(pos):
-        return corpus_indices[pos : pos+num_steps]
+        return corpus_indices[pos : pos + num_steps]
     for i in range(epoch_size):
         i = i * batch_size
-        batch_indices = example_indices[i : i+batch_size]
+        batch_indices = example_indices[i : i + batch_size]
         X = nd.array(
             [_data(j * num_steps) for j in batch_indices], ctx=ctx)
         Y = nd.array(
@@ -87,7 +87,7 @@ def _download_pikachu(data_dir):
                'train.idx': 'dcf7318b2602c06428b9988470c731621716c393',
                'val.rec': 'd6c33f799b4d058e82f2cb5bd9a976f69d72d520'}
     for k, v in dataset.items():
-        gutils.download(root_url+k, data_dir+k, sha1_hash=v)
+        gutils.download(root_url + k, data_dir + k, sha1_hash=v)
 
 
 def _download_voc_pascal(data_dir='../data'):
@@ -96,7 +96,7 @@ def _download_voc_pascal(data_dir='../data'):
            '/VOCtrainval_11-May-2012.tar')
     sha1 = '4e443f8a2eca6b1dac8a6c57641b67dd40621a49'
     fname = gutils.download(url, data_dir, sha1_hash=sha1)
-    if not os.path.exists(voc_dir+'/ImageSets/Segmentation/train.txt'):
+    if not os.path.exists(voc_dir + '/ImageSets/Segmentation/train.txt'):
         with tarfile.open(fname, 'r') as f:
             f.extractall(data_dir)
     return voc_dir
@@ -290,8 +290,7 @@ class Residual(nn.HybridBlock):
         self.conv2 = nn.Conv2D(channels, kernel_size=3, padding=1)
         self.bn2 = nn.BatchNorm()
         if not same_shape:
-            self.conv3 = nn.Conv2D(channels, kernel_size=1,
-                                  strides=strides)
+            self.conv3 = nn.Conv2D(channels, kernel_size=1, strides=strides)
 
     def hybrid_forward(self, F, x):
         out = F.relu(self.bn1(self.conv1(x)))
@@ -341,9 +340,9 @@ def sgd(params, lr, batch_size):
 def show_bboxes(axes, bboxes, labels=None, colors=None):                                                                         
     """Show bounding boxes."""
     labels = _make_list(labels)
-    colors = _make_list(colors, ['b', 'g', 'r',  'm', 'k'])
+    colors = _make_list(colors, ['b', 'g', 'r', 'm', 'k'])
     for i, bbox in enumerate(bboxes):
-        color = colors[i%len(colors)]
+        color = colors[i % len(colors)]
         rect = bbox_to_rect(bbox.asnumpy(), color)
         axes.add_patch(rect)
         if labels and len(labels) > i:
@@ -355,11 +354,11 @@ def show_bboxes(axes, bboxes, labels=None, colors=None):
 
 def show_images(imgs, num_rows, num_cols, scale=2):                                                                              
     """Plot a list of images."""
-    figsize = (num_cols*scale, num_rows*scale)
+    figsize = (num_cols * scale, num_rows * scale)
     _, axes = plt.subplots(num_rows, num_cols, figsize=figsize)
     for i in range(num_rows):
         for j in range(num_cols):
-            axes[i][j].imshow(imgs[i*num_cols+j].asnumpy())
+            axes[i][j].imshow(imgs[i * num_cols + j].asnumpy())
             axes[i][j].axes.get_xaxis().set_visible(False)
             axes[i][j].axes.get_yaxis().set_visible(False)
     return axes
@@ -520,12 +519,14 @@ class VOCSegDataset(gluon.data.Dataset):
         self.crop_size = crop_size 
         self.rgb_mean = nd.array([0.485, 0.456, 0.406]) 
         self.rgb_std = nd.array([0.229, 0.224, 0.225]) 
-        self.voc_colormap = [[0,0,0], [128,0,0], [0,128,0], [128,128,0],
-                             [0,0,128], [128,0,128], [0,128,128],
-                             [128,128,128], [64,0,0], [192,0,0], [64,128,0],
-                             [192,128,0], [64,0,128], [192,0,128], 
-                             [64,128,128], [192,128,128], [0,64,0],
-                             [128,64,0], [0,192,0], [128,192,0], [0,64,128]] 
+        self.voc_colormap = [[0, 0, 0], [128, 0, 0], [0, 128, 0],
+                             [128, 128, 0],
+                             [0, 0, 128], [128, 0, 128], [0, 128, 128],
+                             [128, 128, 128], [64, 0, 0], [192, 0, 0],
+                             [64, 128, 0], [192, 128, 0], [64, 0, 128],
+                             [192, 0, 128], [64, 128, 128], [192, 128, 128],
+                             [0, 64, 0], [128, 64, 0], [0, 192, 0],
+                             [128, 192, 0], [0, 64, 128]] 
         self.voc_classes = ['background', 'aeroplane', 'bicycle', 'bird',
                             'boat', 'bottle', 'bus', 'car', 'cat', 'chair',
                             'cow', 'diningtable', 'dog', 'horse', 'motorbike',
@@ -536,11 +537,11 @@ class VOCSegDataset(gluon.data.Dataset):
  
     def voc_label_indices(self, img): 
         if self.colormap2label is None: 
-            self.colormap2label = nd.zeros(256**3) 
+            self.colormap2label = nd.zeros(256 ** 3) 
             for i, cm in enumerate(self.voc_colormap): 
                 self.colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i 
         data = img.astype('int32') 
-        idx = (data[:,:,0] * 256 + data[:,:,1]) * 256 + data[:,:,2] 
+        idx = (data[:, :, 0] * 256 + data[:, :, 1]) * 256 + data[:, :, 2] 
         return self.colormap2label[idx] 
  
     def rand_crop(self, data, label, height, width): 
@@ -553,7 +554,7 @@ class VOCSegDataset(gluon.data.Dataset):
         data, label = read_voc_images(root=voc_dir, train=self.train) 
         self.data = [self.normalize_image(im) for im in self.filter(data)] 
         self.label = self.filter(label) 
-        print('Read '+str(len(self.data))+' examples') 
+        print('read '+ str(len(self.data)) + ' examples') 
  
     def normalize_image(self, data): 
         return (data.astype('float32') / 255 - self.rgb_mean) / self.rgb_std 
