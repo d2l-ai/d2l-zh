@@ -10,7 +10,7 @@ CIFAR-10是计算机视觉领域的一个重要的数据集。本节中，我们
 ![CIFAR-10图像分类比赛的网页信息。比赛数据集可通过点击“Data”标签获取。](../img/kaggle_cifar10.png)
 
 
-首先，导入实验所需的模块。
+首先，导入实验所需的包或模块。
 
 ```{.python .input}
 import sys
@@ -41,7 +41,7 @@ import shutil
 
 ### 解压数据集
 
-下载完训练数据集“train.7z”和测试数据集“test.7z”后请解压缩。解压缩后，将训练数据集、测试数据集和训练数据集标签分别以如下格式存放：
+下载完训练数据集“train.7z”和测试数据集“test.7z”后请解压缩。解压缩后，将训练数据集、测试数据集和训练数据集标签分别存放在以下路径：
 
 * ../data/kaggle_cifar10/train/[1-50000].png
 * ../data/kaggle_cifar10/test/[1-300000].png
@@ -133,7 +133,7 @@ reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
 
 ## 图片增广
 
-为避免过拟合，我们在这里使用`transforms`来增广数据。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图片做镜面反转。我们也通过`transforms.Normalize()`对彩色图像RGB三个通道分别做标准化。以下列举了部分操作。这些操作可以根据需求来决定是否使用或修改。
+为应对过拟合，我们在这里使用`transforms`来增广数据。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图片做镜面反转。我们也通过`transforms.Normalize()`对彩色图像RGB三个通道分别做标准化。以下列举了部分操作。这些操作可以根据需求来决定是否使用或修改。
 
 ```{.python .input  n=4}
 transform_train = transforms.Compose([
