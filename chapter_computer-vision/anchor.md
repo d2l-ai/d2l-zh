@@ -5,11 +5,10 @@
 导入本小节需要的包。注意我们新引入了`contrib`这个模块，以及使用numpy修改了打印精度，这是因为NDArray的打印实际上调用了numpy的打印函数。
 
 ```{.python .input  n=1}
-%matplotlib inline
 import sys
 sys.path.insert(0, '..')
 import gluonbook as gb
-from mxnet import image, gluon, nd, contrib
+from mxnet import contrib, gluon, image, nd
 import numpy as np
 np.set_printoptions(2)
 ```
@@ -29,8 +28,8 @@ $$\left( ws\sqrt{r}, \  \frac{hs}{\sqrt{r}}\right),$$
 ```{.python .input  n=52}
 img = image.imread('../img/catdog.jpg').asnumpy()
 h, w = img.shape[0:2]
-x = nd.random.uniform(shape=(1, 3, h, w))  # 构造一个输入数据，
-y = contrib.nd.MultiBoxPrior(x, sizes=[.75, .5, .25], ratios=[1, 2, .5])
+x = nd.random.uniform(shape=(1, 3, h, w))  # 构造一个输入数据。
+y = contrib.nd.MultiBoxPrior(x, sizes=[0.75, 0.5, 0.25], ratios=[1, 2, 0.5])
 y.shape
 ```
 
@@ -41,18 +40,32 @@ boxes = y.reshape((h, w, 5, 4))
 boxes[250, 250, 0, :]
 ```
 
-在画出这些锚框的具体样子前我们先定义一个函数来图上画出多个边界框，它将被保存在GluonBook里以便后面使用。
+在画出这些锚框的具体样子前，我们需要定义函数在图上画出多个边界框。以下的`bbox_to_rect`和`show_bboxes`函数将被定义在`gluonbook`包中供后面章节调用。
 
 ```{.python .input  n=11}
-def show_bboxs(axes, bboxs, labels=None):
-    colors = ['b', 'g', 'r', 'k', 'm']
-    for i, bbox in enumerate(bboxs):
+def bbox_to_rect(bbox, color):                                                                                                                  
+    return gb.plt.Rectangle(xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0],
+                            height=bbox[3]-bbox[1], fill=False,
+                            edgecolor=color, linewidth=2)
+
+def show_bboxes(axes, bboxes, labels=None, colors=None):
+    def _make_list(obj, default_values=None):                                                                                                       
+        if obj is None:
+            obj = default_values
+        elif not isinstance(obj, (list, tuple)):
+            obj = [obj]
+        return obj
+
+    labels = _make_list(labels)                                                                                                                 
+    colors = _make_list(colors, ['b', 'g', 'r', 'm', 'k'])
+    for i, bbox in enumerate(bboxes):
         color = colors[i%len(colors)]
         rect = bbox_to_rect(bbox.asnumpy(), color)
         axes.add_patch(rect)
         if labels and len(labels) > i:
+            text_color = 'k' if color == 'w' else 'w'
             axes.text(rect.xy[0], rect.xy[1], labels[i],
-                      va="center", ha="center", fontsize=9, color='white',
+                      va='center', ha='center', fontsize=9, color=text_color,
                       bbox=dict(facecolor=color, lw=0))
 ```
 
@@ -61,8 +74,9 @@ def show_bboxs(axes, bboxs, labels=None):
 ```{.python .input  n=12}
 bbox_scale = nd.array((w, h, w, h))  # 需要乘以高和宽使得符合我们的画图格式。
 fig = gb.plt.imshow(img)
-gb.show_bboxes(fig.axes, boxes[250, 250, :, :]*bbox_scale, [
-    's=.75, r=1', 's=.5, r=1', 's=.25, r=1', 's=.75, r=2', 's=.75, r=.5'])
+show_bboxes(fig.axes, boxes[250, 250, :, :] * bbox_scale,
+            ['s=0.75, r=1', 's=0.5, r=1', 's=0.25, r=1', 's=0.75, r=2',
+             's=0.75, r=0.5'])
 ```
 
 可以看到大小为0.75比例为1的蓝色锚框比较好的覆盖了图片中的小狗。
@@ -71,7 +85,7 @@ gb.show_bboxes(fig.axes, boxes[250, 250, :, :]*bbox_scale, [
 
 在介绍如何使用锚框参与训练和预测前，我们先介绍如何判断两个边界框的距离。我们知道集合相似度的最常用衡量标准叫做Jaccard距离。给定集合$A$和$B$，它的定义是集合的交集除以集合的并集：
 
-$$J(A,B) = \frac{|A\cap B|}{| A \cup B|}$$
+$$J(A,B) = \frac{|A\cap B|}{| A \cup B|}.$$
 
 边界框指定了一块像素区域，其可以看成是像素点的集合。因此我们可以定义类似的距离，即我们使用两个边界框的相交面积除以相并面积来衡量它们的相似度。这被称之为交集除并集（Intersection over Union，简称IoU）。它的取值范围在0和1之间。0表示边界框不相关，1则表示完全重合。
 
@@ -87,13 +101,14 @@ $$J(A,B) = \frac{|A\cap B|}{| A \cup B|}$$
 下面来看一个具体的例子。我们将读取的图片中的猫和狗边界框定义成真实边界框，其中第一个元素为类别号（从0开始）。然后我们构造四个锚框，其与真实边界框的位置如下图示。
 
 ```{.python .input  n=25}
-ground_truth = nd.array([[0, .1, .08, .52, .92], [1, .55, .2, .9, .88]])
-anchors = nd.array([[ 0, .1, .2, .3], [.15, .2, .5, .6],
-                    [.5, .25, .85, .85], [.57, .45, .85, .85]])
+ground_truth = nd.array([[0, 0.1, 0.08, 0.52, 0.92],
+                         [1, 0.55, 0.2, 0.9, 0.88]])
+anchors = nd.array([[0, 0.1, 0.2, 0.3], [0.15, 0.2, 0.5, 0.6],
+                    [0.5, 0.25, 0.85, 0.85], [0.57, 0.45, 0.85, 0.85]])
 
 fig = gb.plt.imshow(img)
-gb.show_bboxes(fig.axes, ground_truth[:,1:]*bbox_scale, ['dog','cat'], 'k')
-gb.show_bboxes(fig.axes, anchors*bbox_scale, ['0', '1', '2', '3'] );
+show_bboxes(fig.axes, ground_truth[:, 1:] * bbox_scale, ['dog', 'cat'], 'k')
+show_bboxes(fig.axes, anchors * bbox_scale, ['0', '1', '2', '3'] );
 ```
 
 我们可以通过`contrib.nd`模块中的MultiBoxTarget函数来对锚框生成标号。我们把锚框和真实边界框加上批量维（实际中我们会批量处理数据），然后构造一个任意的锚框预测结果，其形状为（批量大小，类别数+1，锚框数），其中第0类为背景。
@@ -101,7 +116,7 @@ gb.show_bboxes(fig.axes, anchors*bbox_scale, ['0', '1', '2', '3'] );
 ```{.python .input  n=26}
 out = contrib.nd.MultiBoxTarget(anchors.expand_dims(axis=0),
                                 ground_truth.expand_dims(axis=0),
-                                nd.zeros((1,3,4)))
+                                nd.zeros((1, 3, 4)))
 ```
 
 返回的结果里有三个`NDArray`。首先看第三个值，其表示赋予锚框的标号。
@@ -138,20 +153,20 @@ out[0]
 下面来看一个具体的例子。我们先构造四个锚框，为了简单起见我们假设预测偏移全是0，然后构造了类别预测。
 
 ```{.python .input  n=48}
-anchors = nd.array([[.1, .08, .52, .92], [.08, .2, .56, .95],
-                    [.15, .3, .62, .91], [.55, .2, .9, .88]])
-loc_preds = nd.array([.0]*anchors.size)
-cls_probs = nd.array([[0]*4,  # 是背景的概率。
-                      [.9, .8, .7, .1],  # 是狗的概率 。
-                      [.1, .2, .3, .9]])  # 是猫的概率。
+anchors = nd.array([[0.1, 0.08, 0.52, 0.92], [0.08, 0.2, 0.56, 0.95],
+                    [0.15, 0.3, 0.62, 0.91], [0.55, 0.2, 0.9, 0.88]])
+loc_preds = nd.array([0] * anchors.size)
+cls_probs = nd.array([[0] * 4,  # 是背景的概率。
+                      [0.9, 0.8, 0.7, 0.1],  # 是狗的概率 。
+                      [0.1, 0.2, 0.3, 0.9]])  # 是猫的概率。
 ```
 
 在实际图片上查看预测边界框的位置和预测置信度：
 
 ```{.python .input  n=49}
 fig = gb.plt.imshow(img)
-gb.show_bboxes(fig.axes, anchors * bbox_scale,
-               ['dog=.9', 'dog=.8', 'dog=.7',' cat=.9'])
+show_bboxes(fig.axes, anchors * bbox_scale,
+            ['dog=0.9', 'dog=0.8', 'dog=0.7',' cat=0.9'])
 ```
 
 我们使用`contrib.nd`模块的`MultiBoxDetection`函数来执行NMS，这里为NDArray输入都增加了批量维。
@@ -171,7 +186,7 @@ for i in ret[0].asnumpy():
     if i[0] == -1:
         continue
     label = ('dog=', 'cat=')[int(i[0])] + str(i[1])
-    gb.show_bboxes(fig.axes, [nd.array(i[2:])*bbox_scale], label)
+    show_bboxes(fig.axes, [nd.array(i[2:]) * bbox_scale], label)
 ```
 
 ## 小结

@@ -12,13 +12,12 @@
 ![Neural Style。](../img/neural-style.svg)
 
 ```{.python .input}
-%matplotlib inline
 import sys
 sys.path.append('..')
 import gluonbook as gb
+from mxnet import autograd, gluon, image, nd
+from mxnet.gluon import model_zoo, nn
 import time
-from mxnet import image, nd, gluon, autograd
-from mxnet.gluon import nn
 ```
 
 ## 数据
@@ -43,12 +42,12 @@ rgb_std = nd.array([0.229, 0.224, 0.225])
 
 def preprocess(img, image_shape):
     img = image.imresize(img, *image_shape)
-    img = (img.astype('float32')/255 - rgb_mean) / rgb_std
-    return img.transpose((2,0,1)).expand_dims(axis=0)
+    img = (img.astype('float32') / 255 - rgb_mean) / rgb_std
+    return img.transpose((2, 0, 1)).expand_dims(axis=0)
 
 def postprocess(img):
     img = img[0].as_in_context(rgb_std.context)
-    return (img.transpose((1,2,0))*rgb_std + rgb_mean).clip(0,1)
+    return (img.transpose((1, 2, 0)) * rgb_std + rgb_mean).clip(0, 1)
 ```
 
 ## 抽取特征
@@ -56,7 +55,7 @@ def postprocess(img):
 我们使用原论文[1]使用的VGG 19模型，并下载在Imagenet上训练好的权重。
 
 ```{.python .input  n=3}
-pretrained_net = gluon.model_zoo.vision.vgg19(pretrained=True)
+pretrained_net = model_zoo.vision.vgg19(pretrained=True)
 ```
 
 我们知道VGG使用了五个卷积块来构建网络，块之间使用最大池化层来做间隔（参考[“使用重复元素的网络（VGG）”](../chapter_convolutional-neural-networks/vgg.md)小节）。[1]中使用每个卷积块的第一个卷积层输出来匹配样式（称之为样式层），和第四块中的最后一个卷积层来匹配内容（称之为内容层）。我们可以打印`pretrained_net`来获取这些层的具体位置。
@@ -72,7 +71,7 @@ content_layers = [25]
 
 ```{.python .input  n=13}
 net = nn.Sequential()
-for i in range(max(content_layers+style_layers)+1):
+for i in range(max(content_layers + style_layers) + 1):
     net.add(pretrained_net.features[i])
 ```
 
@@ -111,7 +110,7 @@ def get_styles(image_shape, ctx):
 
 ```{.python .input}
 def content_loss(y_hat, y):
-    return (y_hat-y).square().mean()
+    return (y_hat - y).square().mean()
 ```
 
 对于样式，我们可以简单将它看成是像素点在每个通道的统计分布。例如要匹配两张图片的样式，我们可以匹配这两张图片在RGB这三个通道上的直方图。更一般的，假设卷积层的输出格式是$c \times h \times w$，既（通道，高，宽）。那么我们可以把它变形成 $c \times hw$ 的二维数组，并将它看成是一个维度为$c$ 的随机变量采样到的 $hw$ 个点。所谓的样式匹配就是使得两个 $c$ 维随机变量统计分布一致。
@@ -140,15 +139,15 @@ $$
 
 ```{.python .input}
 def tv_loss(y_hat):
-    return 0.5*((y_hat[:,:,1:,:] - y_hat[:,:,:-1,:]).abs().mean() +
-                (y_hat[:,:,:,1:] - y_hat[:,:,:,:-1]).abs().mean())
+    return 0.5 * ((y_hat[:,:,1:,:] - y_hat[:,:,:-1,:]).abs().mean() +
+                  (y_hat[:,:,:,1:] - y_hat[:,:,:,:-1]).abs().mean())
 ```
 
 训练中我们将上述三个损失函数加权求和。通过调整权重值我们可以控制学到的图片是否保留更多样式，更多内容，还是更加干净。此外注意到样式层里有五个神经层，我们对靠近输入的有较少的通道数的层给予比较大的权重。
 
 ```{.python .input  n=12}
 style_channels = [net[l].weight.shape[0] for l in style_layers]
-style_weights = [1e4/c**2 for c in style_channels]
+style_weights = [1e4 / c**2 for c in style_channels]
 content_weights = [1]
 tv_weight = 10
 ```
@@ -162,7 +161,7 @@ def train(x, content_y, style_y, ctx, lr, max_epochs, lr_decay_epoch):
     x = x.as_in_context(ctx)
     x.attach_grad()
     style_y_gram = [gram(y) for y in style_y]
-    for i in range(1, max_epochs+1):
+    for i in range(1, max_epochs + 1):
         tic = time.time()
         with autograd.record():
             # 对 x 抽取样式和内容特征。
@@ -175,9 +174,8 @@ def train(x, content_y, style_y, ctx, lr, max_epochs, lr_decay_epoch):
                 style_weights, style_y_hat, style_y_gram)]
             tv_L = tv_weight * tv_loss(x)
             # 对所有损失求和。
-            loss = nd.add_n(*style_L) + nd.add_n(*content_L) + tv_L
-            
-        loss.backward()
+            l = nd.add_n(*style_L) + nd.add_n(*content_L) + tv_L
+        l.backward()
         # 对 x 的梯度除去绝对均值使得数值更加稳定，并更新 x
         x.grad[:] /= x.grad.abs().mean() + 1e-8
         x[:] -= lr * x.grad
@@ -186,10 +184,10 @@ def train(x, content_y, style_y, ctx, lr, max_epochs, lr_decay_epoch):
 
         if i % 50 == 0:
             print('batch %3d: content %.2f, style %.2f, '
-                  'TV %.2f, %.1f sec per batch' % (
-                      i, nd.add_n(*content_L).asscalar(), 
-                      nd.add_n(*style_L).asscalar(), 
-                      tv_L.asscalar(), time.time()-tic))
+                  'TV %.2f, %.1f sec per batch'
+                  % (i, nd.add_n(*content_L).asscalar(),
+                     nd.add_n(*style_L).asscalar(), tv_L.asscalar(),
+                     time.time() - tic))
             
         if i % lr_decay_epoch == 0:
             lr *= 0.1
@@ -227,7 +225,7 @@ image_shape = (1200, 800)
 content_x, content_y = get_contents(image_shape, ctx)
 style_x, style_y = get_styles(image_shape, ctx)
 
-x = preprocess(postprocess(y)*255, image_shape)
+x = preprocess(postprocess(y) * 255, image_shape)
 z = train(x, content_y, style_y, ctx, 0.1, 300, 100)
 
 gb.plt.imsave('neural-style-2.png', postprocess(z).asnumpy())

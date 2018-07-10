@@ -20,7 +20,6 @@ import datetime
 import gluonbook as gb
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import data as gdata, nn, loss as gloss
-from mxnet.gluon.data.vision import transforms
 import numpy as np
 import os
 import pandas as pd
@@ -136,24 +135,27 @@ reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
 为应对过拟合，我们在这里使用`transforms`来增广数据。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图片做镜面反转。我们也通过`transforms.Normalize()`对彩色图像RGB三个通道分别做标准化。以下列举了部分操作。这些操作可以根据需求来决定是否使用或修改。
 
 ```{.python .input  n=4}
-transform_train = transforms.Compose([
+transform_train = gdata.vision.transforms.Compose([
     # 将图片放大成高和宽各为 40 像素的正方形。
-    transforms.Resize(40),
+    gdata.vision.transforms.Resize(40),
     # 随机对高和宽各为 40 像素的正方形图片裁剪出面积为原图片面积 0.64 到 1 倍之间的小正方
     # 形，再放缩为高和宽各为 32 像素的正方形。
-    transforms.RandomResizedCrop(32, scale=(0.64, 1.0), ratio=(1.0, 1.0)),
+    gdata.vision.transforms.RandomResizedCrop(32, scale=(0.64, 1.0),
+                                              ratio=(1.0, 1.0)),
     # 随机左右翻转图片。
-    transforms.RandomFlipLeftRight(),
+    gdata.vision.transforms.RandomFlipLeftRight(),
     # 将图片像素值按比例缩小到 0 和 1 之间，并将数据格式从“高*宽*通道”改为“通道*高*宽”。
-    transforms.ToTensor(),
+    gdata.vision.transforms.ToTensor(),
     # 对图片的每个通道做标准化。
-    transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010])
+    gdata.vision.transforms.Normalize([0.4914, 0.4822, 0.4465],
+                                      [0.2023, 0.1994, 0.2010])
 ])
 
 # 测试时，无需对图像做标准化以外的增强数据处理。
-transform_test = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010])
+transform_test = gdata.vision.transforms.Compose([
+    gdata.vision.transforms.ToTensor(),
+    gdata.vision.transforms.Normalize([0.4914, 0.4822, 0.4465],
+                                      [0.2023, 0.1994, 0.2010])
 ])
 ```
 

@@ -6,15 +6,12 @@
 
 在接下来的数小节里我们将介绍物体检测里的多个深度学习模型。在此之前，让我们先讨论物体位置这个概念。首先我们加载本小节将使用的示例图片。
 
-```{.python .input}
-%matplotlib inline
+```{.python .input  n=1}
 import sys
 sys.path.insert(0, '..')
 import gluonbook as gb
 from mxnet import image
-```
 
-```{.python .input  n=1}
 img = image.imread('../img/catdog.jpg').asnumpy()
 gb.plt.imshow(img);  # 用 ; 使输出图片不显示。
 ```

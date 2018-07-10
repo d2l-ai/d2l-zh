@@ -24,7 +24,6 @@ import gluonbook as gb
 import math
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, model_zoo, nn
-from mxnet.gluon.data.vision import transforms
 import numpy as np
 import os
 import shutil
@@ -137,32 +136,34 @@ else:
 为应对过拟合，我们在这里使用`transforms`来增广数据集。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图片做镜面反转。我们也通过`transforms.Normalize()`对彩色图像RGB三个通道分别做标准化。以下列举了部分操作。这些操作可以根据需求来决定是否使用或修改。
 
 ```{.python .input  n=4}
-transform_train = transforms.Compose([
+transform_train = gdata.vision.transforms.Compose([
     # 随机对图片裁剪出面积为原图片面积 0.08 到 1 倍之间、且高和宽之比在 3/4 和 4/3 之间
     # 的图片，再放缩为高和宽均为 224 像素的新图片。
-    transforms.RandomResizedCrop(224, scale=(0.08, 1.0),
-                                 ratio=(3.0/4.0, 4.0/3.0)),
+    gdata.vision.transforms.RandomResizedCrop(224, scale=(0.08, 1.0),
+                                              ratio=(3.0/4.0, 4.0/3.0)),
     # 随机左右翻转图片。
-    transforms.RandomFlipLeftRight(),
+    gdata.vision.transforms.RandomFlipLeftRight(),
     # 随机抖动亮度、对比度和饱和度。
-    transforms.RandomColorJitter(brightness=0.4, contrast=0.4,
-                                 saturation=0.4),
+    gdata.vision.transforms.RandomColorJitter(brightness=0.4, contrast=0.4,
+                                              saturation=0.4),
     # 随机加噪音。
-    transforms.RandomLighting(0.1),
+    gdata.vision.transforms.RandomLighting(0.1),
     
     # 将图片像素值按比例缩小到 0 和 1 之间，并将数据格式从“高*宽*通道”改为“通道*高*宽”。
-    transforms.ToTensor(),
+    gdata.vision.transforms.ToTensor(),
     # 对图片的每个通道做标准化。
-    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    gdata.vision.transforms.Normalize([0.485, 0.456, 0.406],
+                                      [0.229, 0.224, 0.225])
 ])
 
 # 测试时，只使用确定性的图像预处理操作。
-transform_test = transforms.Compose([
-    transforms.Resize(256),
+transform_test = gdata.vision.transforms.Compose([
+    gdata.vision.transforms.Resize(256),
     # 将图片中央的高和宽均为 224 的正方形区域裁剪出来。
-    transforms.CenterCrop(224),
-    transforms.ToTensor(),
-    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    gdata.vision.transforms.CenterCrop(224),
+    gdata.vision.transforms.ToTensor(),
+    gdata.vision.transforms.Normalize([0.485, 0.456, 0.406],
+                                      [0.229, 0.224, 0.225])
 ])
 ```
 

@@ -32,9 +32,9 @@ import sys
 sys.path.insert(0, '..')
 import zipfile
 import gluonbook as gb
-from mxnet import nd, gluon, init
-from mxnet.gluon import data as gdata, loss as gloss, model_zoo, utils as gutils
-from mxnet.gluon.data.vision import transforms
+from mxnet import gluon, init, nd
+from mxnet.gluon import data as gdata, loss as gloss, model_zoo
+from mxnet.gluon import utils as gutils
 
 data_dir = '../data/'
 base_url = 'https://apache-mxnet.s3-accelerate.amazonaws.com/'
@@ -58,27 +58,27 @@ test_imgs = gdata.vision.ImageFolderDataset(data_dir+'/hotdog/test')
 ```{.python .input}
 hotdogs = [train_imgs[i][0] for i in range(8)]
 not_hotdogs = [train_imgs[-i-1][0] for i in range(8)]
-gb.show_images(hotdogs+not_hotdogs, 2, 8, scale=1.4); # 加分号只显示图。
+gb.show_images(hotdogs + not_hotdogs, 2, 8, scale=1.4); # 加分号只显示图。
 ```
 
 在训练时，我们先从图片中剪裁出随机大小，随机长宽比的一块，然后将它们统一缩放为长宽都是224的输入。测试时，则使用简单的中心剪裁。此外，我们对输入的RGB通道数值进行了归一化。
 
 ```{.python .input  n=3}
 # 指定 RGB 三个通道的均值和方差来将图片通道归一化。
-normalize = transforms.Normalize(
+normalize = gdata.vision.transforms.Normalize(
     [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 
-train_augs = transforms.Compose([
-    transforms.RandomResizedCrop(224),
-    transforms.RandomFlipLeftRight(),
-    transforms.ToTensor(),
+train_augs = gdata.vision.transforms.Compose([
+    gdata.vision.transforms.RandomResizedCrop(224),
+    gdata.vision.transforms.RandomFlipLeftRight(),
+    gdata.vision.transforms.ToTensor(),
     normalize,
 ])
 
-test_augs = transforms.Compose([
-    transforms.Resize(256),
-    transforms.CenterCrop(224),
-    transforms.ToTensor(),
+test_augs = gdata.vision.transforms.Compose([
+    gdata.vision.transforms.Resize(256),
+    gdata.vision.transforms.CenterCrop(224),
+    gdata.vision.transforms.ToTensor(),
     normalize
 ])
 ```
@@ -113,9 +113,9 @@ finetune_net.output.initialize(init.Xavier())
 
 ```{.python .input  n=12}
 def train(net, learning_rate, batch_size=128, epochs=5):
-    train_data = gdata.DataLoader(
+    train_iter = gdata.DataLoader(
         train_imgs.transform_first(train_augs), batch_size, shuffle=True)
-    test_data = gdata.DataLoader(
+    test_iter = gdata.DataLoader(
         test_imgs.transform_first(test_augs), batch_size)
 
     ctx = gb.try_all_gpus()
@@ -124,7 +124,7 @@ def train(net, learning_rate, batch_size=128, epochs=5):
     loss = gloss.SoftmaxCrossEntropyLoss()
     trainer = gluon.Trainer(net.collect_params(), 'sgd', {
         'learning_rate': learning_rate, 'wd': 0.001})
-    gb.train(train_data, test_data, net, loss, trainer, ctx, epochs)
+    gb.train(train_iter, test_iter, net, loss, trainer, ctx, epochs)
 ```
 
 因为微调的网络中的主要层的已经训练的足够好，所以一般采用比较小的学习率，防止过大的步长对训练好的层产生过多影响。

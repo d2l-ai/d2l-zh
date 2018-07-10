@@ -14,12 +14,12 @@
 [Pascal VOC2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/)来介绍这个应用。
 
 ```{.python .input  n=1}
-%matplotlib inline
 import sys
 sys.path.append('..')
 import gluonbook as gb
+from mxnet import gluon, image, nd
+from mxnet.gluon import data as gdata, utils as gutils
 import tarfile
-from mxnet import nd, image, gluon
 ```
 
 我们首先下载这个数据集到`../data`下。压缩包大小是2GB，下载需要一定时间。解压之后这个数据集将会放置在`../data/VOCdevkit/VOC2012`下。
@@ -31,8 +31,7 @@ url = ('http://host.robots.ox.ac.uk/pascal/VOC/voc2012'
        '/VOCtrainval_11-May-2012.tar')
 sha1 = '4e443f8a2eca6b1dac8a6c57641b67dd40621a49'
 
-fname = gluon.utils.download(url, data_dir, sha1_hash=sha1)
-
+fname = gutils.download(url, data_dir, sha1_hash=sha1)
 with tarfile.open(fname, 'r') as f:
     f.extractall(data_dir)
 ```
@@ -67,16 +66,16 @@ gb.show_images(imgs, 2, n);
 接下来我们列出标注中每个RGB颜色值对应的类别。
 
 ```{.python .input  n=5}
-voc_colormap = [[0,0,0],[128,0,0],[0,128,0], [128,128,0], [0,0,128],
-                [128,0,128],[0,128,128],[128,128,128],[64,0,0],[192,0,0],
-                [64,128,0],[192,128,0],[64,0,128],[192,0,128],
-                [64,128,128],[192,128,128],[0,64,0],[128,64,0],
-                [0,192,0],[128,192,0],[0,64,128]]
+voc_colormap = [[0,0,0], [128,0,0], [0,128,0], [128,128,0], [0,0,128],
+                [128,0,128], [0,128,128], [128,128,128], [64,0,0], [192,0,0],
+                [64,128,0], [192,128,0], [64,0,128], [192,0,128],
+                [64,128,128], [192,128,128], [0,64,0], [128,64,0],
+                [0,192,0], [128,192,0], [0,64,128]]
 
-voc_classes = ['background','aeroplane','bicycle','bird','boat',
-               'bottle','bus','car','cat','chair','cow','diningtable',
-               'dog','horse','motorbike','person','potted plant',
-               'sheep','sofa','train','tv/monitor']
+voc_classes = ['background', 'aeroplane', 'bicycle', 'bird', 'boat', 'bottle',
+               'bus', 'car', 'cat', 'chair', 'cow', 'diningtable', 'dog',
+               'horse', 'motorbike', 'person', 'potted plant', 'sheep',
+               'sofa', 'train', 'tv/monitor']
 ```
 
 这样给定一个标号图片，我们就可以将每个像素对应的物体标号找出来。
@@ -84,11 +83,11 @@ voc_classes = ['background','aeroplane','bicycle','bird','boat',
 ```{.python .input  n=6}
 colormap2label = nd.zeros(256**3)
 for i, cm in enumerate(voc_colormap):
-    colormap2label[(cm[0]*256+cm[1]) * 256 + cm[2]] = i
+    colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i
 
 def voc_label_indices(img):
     data = img.astype('int32')
-    idx = (data[:,:,0]*256+data[:,:,1])*256+data[:,:,2]
+    idx = (data[:,:,0] * 256 + data[:,:,1]) * 256 + data[:,:,2]
     return colormap2label[idx]
 ```
 
@@ -114,7 +113,7 @@ def rand_crop(data, label, height, width):
 imgs = []
 for _ in range(n):
     imgs += rand_crop(train_images[0], train_labels[0], 200, 300)
-gb.show_images(imgs[::2]+imgs[1::2], 2, n);
+gb.show_images(imgs[::2] + imgs[1::2], 2, n);
 ```
 
 ### 数据读取
@@ -122,7 +121,7 @@ gb.show_images(imgs[::2]+imgs[1::2], 2, n);
 下面我们定义Gluon可以使用的数据集类，它可以返回任意的第$i$个样本图片和标号。除了随机剪裁外，这里我们将样本图片进行了归一化，同时过滤了小于剪裁尺寸的图片。
 
 ```{.python .input  n=9}
-class VOCSegDataset(gluon.data.Dataset):
+class VOCSegDataset(gdata.Dataset):
     def __init__(self, train, crop_size):
         self.rgb_mean = nd.array([0.485, 0.456, 0.406])
         self.rgb_std = nd.array([0.229, 0.224, 0.225])
@@ -130,7 +129,7 @@ class VOCSegDataset(gluon.data.Dataset):
         data, label = read_voc_images(train=train)
         self.data = [self.normalize_image(im) for im in self.filter(data)]
         self.label = self.filter(label)            
-        print('Read '+str(len(self.data))+' examples')
+        print('read ' + str(len(self.data)) + ' examples')
         
     def normalize_image(self, data):
         return (data.astype('float32') / 255 - self.rgb_mean) / self.rgb_std
@@ -143,7 +142,7 @@ class VOCSegDataset(gluon.data.Dataset):
     def __getitem__(self, idx):
         data, label = rand_crop(self.data[idx], self.label[idx],
                                 *self.crop_size)
-        return data.transpose((2,0,1)), voc_label_indices(label)
+        return data.transpose((2, 0, 1)), voc_label_indices(label)
 
     def __len__(self):
         return len(self.data)
@@ -152,7 +151,7 @@ class VOCSegDataset(gluon.data.Dataset):
 假设我们剪裁$320\times 480$图片来进行训练，我们可以查看训练和测试各保留了多少图片。
 
 ```{.python .input  n=10}
-output_shape = (320, 480)  # 高和宽
+output_shape = (320, 480)  # 高和宽。
 voc_train = VOCSegDataset(True, output_shape)
 voc_test = VOCSegDataset(False, output_shape)
 ```
@@ -161,18 +160,18 @@ voc_test = VOCSegDataset(False, output_shape)
 
 ```{.python .input  n=11}
 batch_size = 64
-train_data = gluon.data.DataLoader(
-    voc_train, batch_size, shuffle=True,last_batch='discard', num_workers=4)
-test_data = gluon.data.DataLoader(
-    voc_test, batch_size,last_batch='discard', num_workers=4)
+train_iter = gdata.DataLoader(
+    voc_train, batch_size, shuffle=True, last_batch='discard', num_workers=4)
+test_iter = gdata.DataLoader(
+    voc_test, batch_size, last_batch='discard', num_workers=4)
 ```
 
-打印第一个批量可以看到，不同于图片分类和物体识别，这里的标注是一个三维的数组。
+打印第一个批量可以看到，不同于图片分类和物体识别，这里的标签是一个三维的数组。
 
 ```{.python .input  n=12}
-for data, label in train_data:
-    print(data.shape)
-    print(label.shape)
+for X, Y in train_iter:
+    print(X.shape)
+    print(Y.shape)
     break
 ```
 

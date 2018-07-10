@@ -7,12 +7,11 @@
 我们首先读取一张$400\times 500$的图片作为样例。
 
 ```{.python .input  n=1}
-%matplotlib inline
 import sys
 sys.path.insert(0, '..')
 import gluonbook as gb
-from mxnet import nd, image, gluon, init
-from mxnet.gluon.data.vision import transforms
+from mxnet import gluon, image, init, nd 
+from mxnet.gluon import data as gdata, loss as gloss
 
 img = image.imread('../img/cat1.jpg')
 gb.plt.imshow(img.asnumpy())
@@ -22,7 +21,7 @@ gb.plt.imshow(img.asnumpy())
 
 ```{.python .input  n=2}
 def apply(img, aug, num_rows=2, num_cols=4, scale=1.5):
-    Y = [aug(img) for _ in range(num_rows*num_cols)]
+    Y = [aug(img) for _ in range(num_rows * num_cols)]
     gb.show_images(Y, num_rows, num_cols, scale)
 ```
 
@@ -31,13 +30,13 @@ def apply(img, aug, num_rows=2, num_cols=4, scale=1.5):
 左右翻转图片通常不物体的类别，它是最早也是最广泛使用的一种增广。下面我们使用transform模块里的`RandomFlipLeftRight`类来实现按0.5的概率左右翻转图片：
 
 ```{.python .input  n=3}
-apply(img, transforms.RandomFlipLeftRight())
+apply(img, gdata.vision.transforms.RandomFlipLeftRight())
 ```
 
 上下翻转不如水平翻转通用，但是至少对于样例图片，上下翻转不会造成识别障碍。
 
 ```{.python .input  n=4}
-apply(img, transforms.RandomFlipTopBottom())
+apply(img, gdata.vision.transforms.RandomFlipTopBottom())
 ```
 
 我们使用的样例图片里，猫在图片正中间，但一般情况下可能不是这样。[“池化层”](../chapter_convolutional-neural-networks/pooling.md)一节里我们解释了池化层能弱化卷积层对目标位置的敏感度，另一方面我们可以通过对图片随机剪裁来让物体以不同的比例出现在不同位置。
@@ -45,29 +44,29 @@ apply(img, transforms.RandomFlipTopBottom())
 下面代码里我们每次随机裁剪一片面积为原面积10%到100%的区域，其宽和高的比例在0.5和2之间，然后再将高宽缩放到200像素大小。
 
 ```{.python .input  n=5}
-shape_aug = transforms.RandomResizedCrop(
+shape_aug = gdata.vision.transforms.RandomResizedCrop(
     (200, 200), scale=(0.1, 1), ratio=(0.5, 2))
 apply(img, shape_aug)
 ```
 
 ### 颜色变化
 
-另一类增广方法是变化颜色。我们可以从四个维度改变图片的颜色：亮度、对比、饱和度和色相。在下面的例子里，我们随机亮度改为原图的50%到150%。
+另一类增广方法是变化颜色。我们可以从四个维度改变图片的颜色：亮度、对比、饱和度和色相。在下面的例子里，我们将随机亮度改为原图的50%到150%。
 
 ```{.python .input  n=6}
-apply(img, transforms.RandomBrightness(0.5))
+apply(img, gdata.vision.transforms.RandomBrightness(0.5))
 ```
 
 类似的，我们可以修改色相。
 
 ```{.python .input  n=7}
-apply(img, transforms.RandomHue(0.5))
+apply(img, gdata.vision.transforms.RandomHue(0.5))
 ```
 
 或者用使用`RandomColorJitter`来一起使用。
 
 ```{.python .input  n=8}
-color_aug = transforms.RandomColorJitter(
+color_aug = gdata.vision.transforms.RandomColorJitter(
     brightness=0.5, contrast=0.5, saturation=0.5, hue=0.5)
 apply(img, color_aug)
 ```
@@ -77,8 +76,8 @@ apply(img, color_aug)
 实际应用中我们会将多个增广叠加使用。Compose类可以将多个增广串联起来。
 
 ```{.python .input  n=9}
-augs = transforms.Compose([
-    transforms.RandomFlipLeftRight(), color_aug, shape_aug])
+augs = gdata.vision.transforms.Compose([
+    gdata.vision.transforms.RandomFlipLeftRight(), color_aug, shape_aug])
 apply(img, augs)
 ```
 
@@ -94,13 +93,13 @@ gb.show_images(gluon.data.vision.CIFAR10(train=True)[0:32][0], 4, 8,
 我们通常将图片增广用在训练样本上，但是在预测的时候并不使用随机增广。这里我们仅仅使用最简单的随机水平翻转。此外，我们使用`ToTensor`变换来将图片转成MXNet需要的格式，即格式为（批量，通道，高，宽）以及类型为32位浮点数。
 
 ```{.python .input  n=11}
-train_augs = transforms.Compose([
-    transforms.RandomFlipLeftRight(),
-    transforms.ToTensor(),
+train_augs = gdata.vision.transforms.Compose([
+    gdata.vision.transforms.RandomFlipLeftRight(),
+    gdata.vision.transforms.ToTensor(),
 ])
 
-test_augs = transforms.Compose([
-    transforms.ToTensor(),
+test_augs = gdata.vision.transforms.Compose([
+    gdata.vision.transforms.ToTensor(),
 ])
 ```
 
@@ -124,10 +123,10 @@ def train(train_augs, test_augs, lr=0.1):
     net = gb.resnet18(10)
     net.initialize(ctx=ctx, init=init.Xavier())
     trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate':lr})
-    loss = gluon.loss.SoftmaxCrossEntropyLoss()
-    train_data = load_cifar10(True, train_augs, batch_size)
-    test_data = load_cifar10(False, test_augs, batch_size)
-    gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=8)
+    loss = gloss.SoftmaxCrossEntropyLoss()
+    train_iter = load_cifar10(True, train_augs, batch_size)
+    test_iter = load_cifar10(False, test_augs, batch_size)
+    gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=8)
 ```
 
 首先我们看使用了图片增广的情况。

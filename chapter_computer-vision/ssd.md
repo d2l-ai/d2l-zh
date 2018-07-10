@@ -3,13 +3,12 @@
 我们将介绍的第一个模型是单发多框检测（single shot multibox detection，简称SSD）[1]。它并不是第一个提出来的基于深度学习的物体检测模型，也不是精度最高的，但因为其简单快速而被大量使用。我们将使用SSD来详解目标检测的实现细节。
 
 ```{.python .input  n=1}
-%matplotlib inline
 import sys
 sys.path.insert(0, '..')
-import time
 import gluonbook as gb
-from mxnet import gluon, image, nd, contrib, init, autograd
-from mxnet.gluon import nn
+from mxnet import autograd, contrib, gluon, image, init, nd
+from mxnet.gluon import loss as gloss, nn
+import time
 ```
 
 ## SSD 模型
@@ -30,7 +29,8 @@ SSD模型的示意图如下。给定输入图片，其首先使用主要由卷�
 
 ```{.python .input  n=2}
 def cls_predictor(num_anchors, num_classes):
-    return nn.Conv2D(num_anchors * (num_classes+1), kernel_size=3, padding=1)
+    return nn.Conv2D(num_anchors * (num_classes + 1), kernel_size=3,
+                     padding=1)
 ```
 
 ### 边界框预测
@@ -62,7 +62,7 @@ y2 = forward(nd.zeros((2, 16, 10, 10)), cls_predictor(3, 10))
 
 ```{.python .input  n=5}
 def flatten_pred(pred):
-    return pred.transpose(axes=(0,2,3,1)).flatten()
+    return pred.transpose(axes=(0, 2, 3, 1)).flatten()
 ```
 
 拼接就是简单将在维度1上合并结果。
@@ -144,8 +144,9 @@ def single_scale_forward(x, blk, size, ratio, cls_predictor, bbox_predictor):
 
 ```{.python .input  n=13}
 num_anchors = 4
-sizes = [[.2, .272], [.37, .447], [.54, .619], [.71, .79], [.88, .961]]
-ratios = [[1,2,.5]] * 5
+sizes = [[0.2, 0.272], [0.37, 0.447], [0.54, 0.619], [0.71, 0.79],
+         [0.88, 0.961]]
+ratios = [[1,2, 0.5]] * 5
 ```
 
 完整的模型定义如下。
@@ -156,28 +157,30 @@ class TinySSD(gluon.Block):
         super(TinySSD, self).__init__(**kwargs)
         self.num_classes = num_classes
         for i in range(5):
-            setattr(self, 'blk_%d'%i, get_blk(i))
-            setattr(self, 'cls_%d'%i, cls_predictor(num_anchors, num_classes))
-            setattr(self, 'bbox_%d'%i, bbox_predictor(num_anchors))
+            setattr(self, 'blk_%d' % i, get_blk(i))
+            setattr(self, 'cls_%d' % i, cls_predictor(num_anchors,
+                                                      num_classes))
+            setattr(self, 'bbox_%d' % i, bbox_predictor(num_anchors))
 
     def forward(self, x):
-        anchors, cls_preds, bbox_preds = [None]*5, [None]*5, [None]*5
+        anchors, cls_preds, bbox_preds = [None] * 5, [None] * 5, [None] * 5
         for i in range(5):
             x, anchors[i], cls_preds[i], bbox_preds[i] = single_scale_forward(
-                x, getattr(self, 'blk_%d'%i), sizes[i], ratios[i],
-                getattr(self, 'cls_%d'%i), getattr(self, 'bbox_%d'%i))
+                x, getattr(self, 'blk_%d' % i), sizes[i], ratios[i],
+                getattr(self, 'cls_%d' % i), getattr(self, 'bbox_%d' % i))
         return (nd.concat(*anchors, dim=1),
-                concat_preds(cls_preds).reshape((0, -1, self.num_classes+1)), #.transpose(axes=(0,2,1)),
+                concat_preds(cls_preds).reshape(
+                    (0, -1, self.num_classes + 1)),
                 concat_preds(bbox_preds))
 
 net = TinySSD(num_classes=2, verbose=True)
 net.initialize()
-x = nd.zeros((2,3,256,256))
+x = nd.zeros((2, 3, 256, 256))
 anchors, cls_preds, bbox_preds = net(x)
 
-print('Output achors:', anchors.shape)
-print('Output class predictions:', cls_preds.shape)
-print('Output box predictions:', bbox_preds.shape)
+print('output achors:', anchors.shape)
+print('output class predictions:', cls_preds.shape)
+print('output box predictions:', bbox_preds.shape)
 ```
 
 ## 训练
@@ -208,8 +211,8 @@ trainer = gluon.Trainer(net.collect_params(),
 物体识别有两个损失函数，一是对每个锚框的类别预测，我们可以重用之前图片分类问题里一直使用的Softmax和交叉熵损失。二是正类锚框的偏移预测。它是一个回归问题，但我们这里不使用前面介绍过的L2损失函数，而是使用惩罚相对更小的线性L1损失函数，即$l_1(\hat y, y) = |\hat y - y|$。
 
 ```{.python .input  n=17}
-cls_loss = gluon.loss.SoftmaxCrossEntropyLoss()
-bbox_loss = gluon.loss.L1Loss()
+cls_loss = gloss.SoftmaxCrossEntropyLoss()
+bbox_loss = gloss.L1Loss()
 ```
 
 ```{.python .input  n=18}
@@ -217,7 +220,6 @@ def calc_loss(cls_preds, cls_labels, bbox_preds, bbox_labels, bbox_masks):
     cls = cls_loss(cls_preds, cls_labels)
     bbox = bbox_loss(bbox_preds * bbox_masks, bbox_labels * bbox_masks)
     return cls + bbox
-
 ```
 
 对于分类好坏我们可以沿用之前的分类精度。因为使用了L1损失，我们用平均绝对误差评估边框预测的性能。
@@ -236,7 +238,7 @@ def bbox_metric(bbox_preds, bbox_labels, bbox_masks):
 训练函数跟前面的不一样在于网络会有多个输出，而且有两个损失函数。为了代码简单起见我们没有评估测试数据集。
 
 ```{.python .input  n=22}
-for epoch in range(20):
+for epoch in range(1, 21):
     acc, mae = 0, 0
     train_data.reset()  # 从头读取数据。
     tic = time.time()
@@ -251,17 +253,17 @@ for epoch in range(20):
             bbox_labels, bbox_masks, cls_labels = contrib.nd.MultiBoxTarget(
                 anchors, Y, cls_preds.transpose(axes=(0,2,1)))
             # 计算类别预测和边界框预测损失。
-            loss = calc_loss(cls_preds, cls_labels,
+            l = calc_loss(cls_preds, cls_labels,
                              bbox_preds, bbox_labels, bbox_masks)
         # 计算梯度和更新模型。
-        loss.backward()
+        l.backward()
         trainer.step(batch_size)
         # 更新类别预测和边界框预测评估。
         acc += cls_metric(cls_preds, cls_labels)
         mae += bbox_metric(bbox_preds, bbox_labels, bbox_masks)
-    if (epoch+1) % 5 == 0:
+    if epoch % 5 == 0:
         print('epoch %2d, class err %.2e, bbox mae %.2e, time %.1f sec' % (
-            epoch+1, 1-acc/(i+1), mae/(i+1), time.time()-tic))
+            epoch, 1 - acc / (i + 1), mae / (i + 1), time.time() - tic))
 ```
 
 ## 预测
@@ -272,7 +274,7 @@ for epoch in range(20):
 def process_image(file_name):
     img = image.imread(file_name)
     data = image.imresize(img, 256, 256).astype('float32')
-    return data.transpose((2,0,1)).expand_dims(axis=0), img
+    return data.transpose((2, 0, 1)).expand_dims(axis=0), img
 
 x, img = process_image('../img/pikachu.jpg')
 ```
@@ -282,7 +284,7 @@ x, img = process_image('../img/pikachu.jpg')
 ```{.python .input  n=33}
 def predict(x):
     anchors, cls_preds, bbox_preds = net(x.as_in_context(ctx))
-    cls_probs = cls_preds.softmax().transpose((0,2,1))
+    cls_probs = cls_preds.softmax().transpose((0, 2, 1))
     out = contrib.nd.MultiBoxDetection(cls_probs, bbox_preds, anchors)
     idx = [i for i, row in enumerate(out[0]) if row[0].asscalar() != -1]
     return out[0, idx]
@@ -300,8 +302,8 @@ def display(img, out, threshold=0.5):
         score = row[1].asscalar()
         if score < threshold:
             continue
-        bbox = [row[2:6] * nd.array(img.shape[0:2]*2, ctx=row.context)]
-        gb.show_bboxes(fig.axes, bbox, '%.2f'%score, 'w')
+        bbox = [row[2:6] * nd.array(img.shape[0:2] * 2, ctx=row.context)]
+        gb.show_bboxes(fig.axes, bbox, '%.2f' % score, 'w')
 
 display(img, out, threshold=0.4)
 ```
@@ -329,14 +331,14 @@ $$
 当$\sigma$很大时它类似于$L_1$损失，变小时函数更加平滑。
 
 ```{.python .input  n=26}
-sigmas = [10, 1, .5]
+sigmas = [10, 1, 0.5]
 lines = ['-', '--', '-.']
 x = nd.arange(-2, 2, 0.1)
 
 gb.set_figsize((4,3))
 for l,s in zip(lines, sigmas):
     y = nd.smooth_l1(x, scalar=s)
-    gb.plt.plot(x.asnumpy(), y.asnumpy(), l, label='sigma=%.1f'%s)
+    gb.plt.plot(x.asnumpy(), y.asnumpy(), l, label='sigma=%.1f' % s)
 gb.plt.legend();
 ```
 
@@ -348,7 +350,7 @@ $$ - \alpha (1-p_j)^{\gamma} \log(p_j) $$
 
 ```{.python .input}
 def focal_loss(gamma, x):
-    return - (1-x)**gamma*x.log()
+    return -(1 - x) ** gamma * x.log()
 
 x = nd.arange(0.01, 1, .01)
 for l, gamma in zip(lines, [0,1,5]):

@@ -6,7 +6,7 @@
 
 * `accuracy`，[Softmax回归的从零开始实现](../chapter_deep-learning-basics/softmax-regression-scratch.md)
 
-* `bbox_to_rect`
+* `bbox_to_rect`，[锚框](../chapter_computer-vision/anchor.md)
 
 * `data_iter`，[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)
 
@@ -24,7 +24,7 @@
 
 * `load_data_pascal_voc`
 
-* `load_data_pikachu`
+* `load_data_pikachu`，[物体检测数据集](../chapter_computer-vision/object-detection-dataset.md)
 
 * `normalize_voc_image`
 
@@ -44,7 +44,7 @@
 
 * `sgd`，[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)
 
-* `show_bboxes`
+* `show_bboxes`，[锚框](../chapter_computer-vision/anchor.md)
 
 * `show_images`
 

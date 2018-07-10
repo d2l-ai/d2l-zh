@@ -9,9 +9,8 @@
    image-augmentation
    fine-tuning
    bounding-box
-   object-detection-dataset
    anchor
-   pikachu
+   object-detection-dataset
    ssd
    rcnn
    semantic-segmentation-and-dataset
