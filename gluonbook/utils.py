@@ -10,6 +10,7 @@ from mxnet import autograd, gluon, image, nd
 from mxnet.gluon import nn, data as gdata, loss as gloss, utils as gutils
 import numpy as np
 
+
 # Set default figure size.
 set_matplotlib_formats('retina')
 
