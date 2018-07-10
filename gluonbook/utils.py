@@ -152,7 +152,7 @@ def linreg(X, w, b):
 
 def load_data_fashion_mnist(batch_size, resize=None,
                             root=os.path.join('~', '.mxnet', 'datasets',
-                                              'fashion-mnist'):
+                                              'fashion-mnist')):
     """Download the fashion mnist dataest and then load into memory."""
     root = os.path.expanduser(root)
     transformer = []
