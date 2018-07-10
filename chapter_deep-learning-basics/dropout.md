@@ -113,7 +113,7 @@ lr = 0.5
 batch_size = 256
 loss = gloss.SoftmaxCrossEntropyLoss()
 train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
-gb.train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size, params,
+gb.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size, params,
              lr)
 ```
 

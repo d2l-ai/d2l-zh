@@ -204,7 +204,7 @@ num_epochs = 5
 lr = 0.1
 loss = cross_entropy
 
-def train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
+def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
               params=None, lr=None, trainer=None):
     for epoch in range(1, num_epochs + 1):
         train_l_sum = 0
@@ -225,11 +225,11 @@ def train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
               % (epoch, train_l_sum / len(train_iter),
                  train_acc_sum / len(train_iter), test_acc))
 
-train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size, params,
+train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size, params,
           lr)
 ```
 
-我们将`train_cpu`函数定义在`gluonbook`包中供后面章节调用。
+我们将`train_ch3`函数定义在`gluonbook`包中供后面章节调用。
 
 ## 预测
 
@@ -240,7 +240,8 @@ data, label = mnist_test[0:9]
 show_fashion_imgs(data)
 print('labels:', get_text_labels(label))
     
-predicted_labels = [net(transformer(x)).argmax(axis=1).asscalar() for x in data]
+predicted_labels = [net(transformer(x)).argmax(axis=1).asscalar()
+                    for x in data]
 print('predictions:', get_text_labels(predicted_labels))
 ```
 
