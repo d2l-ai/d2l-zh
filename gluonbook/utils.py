@@ -14,6 +14,7 @@ import numpy as np
 set_matplotlib_formats('retina')
 
 def set_figsize(figsize=(3.5, 2.5)):
+    """Set matplotlib figure size."""
     plt.rcParams['figure.figsize'] = figsize
 
 set_figsize()
@@ -85,7 +86,7 @@ def _download_pikachu(data_dir):
                'train.idx': 'dcf7318b2602c06428b9988470c731621716c393',
                'val.rec': 'd6c33f799b4d058e82f2cb5bd9a976f69d72d520'}
     for k, v in dataset.items():
-        gluon.utils.download(root_url+k, data_dir+k, sha1_hash=v)
+        gutils.download(root_url+k, data_dir+k, sha1_hash=v)
 
 
 def _download_voc_pascal(data_dir='../data'):
@@ -93,7 +94,7 @@ def _download_voc_pascal(data_dir='../data'):
     url = ('http://host.robots.ox.ac.uk/pascal/VOC/voc2012'
            '/VOCtrainval_11-May-2012.tar')
     sha1 = '4e443f8a2eca6b1dac8a6c57641b67dd40621a49'
-    fname = gluon.utils.download(url, data_dir, sha1_hash=sha1)
+    fname = gutils.download(url, data_dir, sha1_hash=sha1)
     if not os.path.exists(voc_dir+'/ImageSets/Segmentation/train.txt'):
         with tarfile.open(fname, 'r') as f:
             f.extractall(data_dir)
@@ -174,10 +175,10 @@ def load_data_pascal_voc(batch_size, output_shape):
     voc_train = VOCSegDataset(True, output_shape) 
     voc_test = VOCSegDataset(False, output_shape) 
  
-    train_iter = gluon.data.DataLoader( 
+    train_iter = gdata.DataLoader( 
         voc_train, batch_size, shuffle=True,last_batch='discard',
         num_workers=4) 
-    test_iter = gluon.data.DataLoader( 
+    test_iter = gdata.DataLoader( 
         voc_test, batch_size,last_batch='discard', num_workers=4) 
     return train_iter, test_iter
 
@@ -212,6 +213,7 @@ def _make_list(obj, default_values=None):
 
 
 def normalize_voc_image(data):
+    """Normalize VOC images."""
     return (data.astype('float32') / 255 - voc_rgb_mean) / voc_rgb_std
 
 
@@ -263,6 +265,7 @@ def predict_rnn(rnn, prefix, num_chars, params, num_hiddens, vocab_size, ctx,
 
 
 def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):                                                               
+    """Read VOC images."""
     txt_fname = '%s/ImageSets/Segmentation/%s'%(
         root, 'train.txt' if train else 'val.txt')
     with open(txt_fname, 'r') as f:
@@ -275,6 +278,7 @@ def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):
 
 
 class Residual(nn.HybridBlock):
+    """The residual block."""
     def __init__(self, channels, same_shape=True, **kwargs):
         super(Residual, self).__init__(**kwargs)
         self.same_shape = same_shape
@@ -297,6 +301,7 @@ class Residual(nn.HybridBlock):
 
 
 def resnet18(num_classes):
+    """The ResNet-18 model."""
     net = nn.HybridSequential()
     net.add(nn.BatchNorm(),
             nn.Conv2D(64, kernel_size=3, strides=1),
@@ -333,6 +338,7 @@ def sgd(params, lr, batch_size):
 
 
 def show_bboxes(axes, bboxes, labels=None, colors=None):                                                                         
+    """Show bounding boxes."""
     labels = _make_list(labels)
     colors = _make_list(colors, ['b', 'g', 'r',  'm', 'k'])
     for i, bbox in enumerate(bboxes):
@@ -347,7 +353,7 @@ def show_bboxes(axes, bboxes, labels=None, colors=None):
 
 
 def show_images(imgs, num_rows, num_cols, scale=2):                                                                              
-    """plot a list of images"""
+    """Plot a list of images."""
     figsize = (num_cols*scale, num_rows*scale)
     _, axes = plt.subplots(num_rows, num_cols, figsize=figsize)
     for i in range(num_rows):
@@ -482,7 +488,7 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
 
 
 def try_all_gpus():
-    """Return all available GPUs, or [mx.gpu()] if there is no GPU"""
+    """Return all available GPUs, or [mx.gpu()] if there is no GPU."""
     ctxes = []
     try:
         for i in range(16):
@@ -497,7 +503,7 @@ def try_all_gpus():
 
 
 def try_gpu():
-    """If GPU is available, return mx.gpu(0); else return mx.cpu()"""
+    """If GPU is available, return mx.gpu(0); else return mx.cpu()."""
     try:
         ctx = mx.gpu()
         _ = nd.array([0], ctx=ctx)
@@ -506,7 +512,8 @@ def try_gpu():
     return ctx 
 
 
-class VOCSegDataset(gluon.data.Dataset): 
+class VOCSegDataset(gluon.data.Dataset):
+    """The Pascal VOC2012 Dataset."""
     def __init__(self, train, crop_size): 
         self.train = train 
         self.crop_size = crop_size 
@@ -530,9 +537,9 @@ class VOCSegDataset(gluon.data.Dataset):
         if self.colormap2label is None: 
             self.colormap2label = nd.zeros(256**3) 
             for i, cm in enumerate(self.voc_colormap): 
-                self.colormap2label[(cm[0]*256+cm[1]) * 256 + cm[2]] = i 
+                self.colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i 
         data = img.astype('int32') 
-        idx = (data[:,:,0]*256+data[:,:,1])*256+data[:,:,2] 
+        idx = (data[:,:,0] * 256 + data[:,:,1]) * 256 + data[:,:,2] 
         return self.colormap2label[idx] 
  
     def rand_crop(self, data, label, height, width): 
@@ -558,9 +565,8 @@ class VOCSegDataset(gluon.data.Dataset):
     def __getitem__(self, idx): 
         data, label = self.rand_crop(self.data[idx], self.label[idx], 
                                 *self.crop_size) 
-        return data.transpose((2,0,1)), self.voc_label_indices(label) 
+        return data.transpose((2, 0, 1)), self.voc_label_indices(label) 
  
     def __len__(self): 
         return len(self.data)
-
 
