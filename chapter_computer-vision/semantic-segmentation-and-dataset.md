@@ -27,7 +27,7 @@ import tarfile
 
 ```{.python .input  n=2}
 data_dir = '../data'
-voc_dir = os.path.join(data_dir, '/VOCdevkit/VOC2012')
+voc_dir = os.path.join(data_dir, 'VOCdevkit/VOC2012')
 url = ('http://host.robots.ox.ac.uk/pascal/VOC/voc2012'
        '/VOCtrainval_11-May-2012.tar')
 sha1 = '4e443f8a2eca6b1dac8a6c57641b67dd40621a49'
@@ -54,23 +54,6 @@ def read_voc_images(root=voc_dir, train=True):
     return data, label
 
 train_images, train_labels = read_voc_images()
-```
-
-```{.json .output n=3}
-[
- {
-  "ename": "FileNotFoundError",
-  "evalue": "[Errno 2] No such file or directory: '/VOCdevkit/VOC2012/ImageSets/Segmentation/train.txt'",
-  "output_type": "error",
-  "traceback": [
-   "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
-   "\u001b[0;31mFileNotFoundError\u001b[0m                         Traceback (most recent call last)",
-   "\u001b[0;32m<ipython-input-3-62f82de5f427>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[1;32m     10\u001b[0m     \u001b[0;32mreturn\u001b[0m \u001b[0mdata\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mlabel\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     11\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m---> 12\u001b[0;31m \u001b[0mtrain_images\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mtrain_labels\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mread_voc_images\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m",
-   "\u001b[0;32m<ipython-input-3-62f82de5f427>\u001b[0m in \u001b[0;36mread_voc_images\u001b[0;34m(root, train)\u001b[0m\n\u001b[1;32m      2\u001b[0m     txt_fname = '%s/ImageSets/Segmentation/%s' % (\n\u001b[1;32m      3\u001b[0m         root, 'train.txt' if train else 'val.txt')\n\u001b[0;32m----> 4\u001b[0;31m     \u001b[0;32mwith\u001b[0m \u001b[0mopen\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mtxt_fname\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m'r'\u001b[0m\u001b[0;34m)\u001b[0m \u001b[0;32mas\u001b[0m \u001b[0mf\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      5\u001b[0m         \u001b[0mimages\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mf\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mread\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0msplit\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      6\u001b[0m     \u001b[0mdata\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mlabel\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;34m[\u001b[0m\u001b[0;32mNone\u001b[0m\u001b[0;34m]\u001b[0m \u001b[0;34m*\u001b[0m \u001b[0mlen\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mimages\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m[\u001b[0m\u001b[0;32mNone\u001b[0m\u001b[0;34m]\u001b[0m \u001b[0;34m*\u001b[0m \u001b[0mlen\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mimages\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
-   "\u001b[0;31mFileNotFoundError\u001b[0m: [Errno 2] No such file or directory: '/VOCdevkit/VOC2012/ImageSets/Segmentation/train.txt'"
-  ]
- }
-]
 ```
 
 我们画出前面五张图片和它们对应的标注。在标注，白色代表边框黑色代表背景，其他不同的颜色对应不同物体类别。
