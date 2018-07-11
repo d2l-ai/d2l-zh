@@ -6,7 +6,7 @@
 
 * `accuracy`，[Softmax回归的从零开始实现](../chapter_deep-learning-basics/softmax-regression-scratch.md)
 
-* `bbox_to_rect`，[锚框](../chapter_computer-vision/anchor.md)
+* `bbox_to_rect`，[物体检测和边界框](../chapter_computer-vision/bounding-box.md)
 
 * `data_iter`，[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)
 

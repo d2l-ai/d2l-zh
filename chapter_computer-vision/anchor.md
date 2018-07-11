@@ -40,14 +40,9 @@ boxes = y.reshape((h, w, 5, 4))
 boxes[250, 250, 0, :]
 ```
 
-在画出这些锚框的具体样子前，我们需要定义函数在图上画出多个边界框。以下的`bbox_to_rect`和`show_bboxes`函数将被定义在`gluonbook`包中供后面章节调用。
+在画出这些锚框的具体样子前，我们需要定义`show_bboxes`函数在图上画出多个边界框。我们将该函数定义在`gluonbook`包中供后面章节调用。
 
 ```{.python .input  n=11}
-def bbox_to_rect(bbox, color):                                                                                                                  
-    return gb.plt.Rectangle(xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0],
-                            height=bbox[3]-bbox[1], fill=False,
-                            edgecolor=color, linewidth=2)
-
 def show_bboxes(axes, bboxes, labels=None, colors=None):
     def _make_list(obj, default_values=None):                                                                                                       
         if obj is None:
@@ -60,7 +55,7 @@ def show_bboxes(axes, bboxes, labels=None, colors=None):
     colors = _make_list(colors, ['b', 'g', 'r', 'm', 'k'])
     for i, bbox in enumerate(bboxes):
         color = colors[i%len(colors)]
-        rect = bbox_to_rect(bbox.asnumpy(), color)
+        rect = gb.bbox_to_rect(bbox.asnumpy(), color)
         axes.add_patch(rect)
         if labels and len(labels) > i:
             text_color = 'k' if color == 'w' else 'w'
