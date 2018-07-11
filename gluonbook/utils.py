@@ -2,7 +2,8 @@ import random
 import os
 import tarfile
 from time import time
-
+	
+    
 from IPython.display import set_matplotlib_formats
 from matplotlib import pyplot as plt
 import mxnet as mx
@@ -87,16 +88,17 @@ def _download_pikachu(data_dir):
                'train.idx': 'dcf7318b2602c06428b9988470c731621716c393',
                'val.rec': 'd6c33f799b4d058e82f2cb5bd9a976f69d72d520'}
     for k, v in dataset.items():
-        gutils.download(root_url + k, data_dir + k, sha1_hash=v)
+        gutils.download(root_url + k, os.path.join(data_dir, k), sha1_hash=v)
 
 
 def _download_voc_pascal(data_dir='../data'):
-    voc_dir = data_dir + '/VOCdevkit/VOC2012'
+    voc_dir = os.path.join(data_dir, '/VOCdevkit/VOC2012')
     url = ('http://host.robots.ox.ac.uk/pascal/VOC/voc2012'
            '/VOCtrainval_11-May-2012.tar')
     sha1 = '4e443f8a2eca6b1dac8a6c57641b67dd40621a49'
     fname = gutils.download(url, data_dir, sha1_hash=sha1)
-    if not os.path.exists(voc_dir + '/ImageSets/Segmentation/train.txt'):
+    if not os.path.exists(os.path.join(voc_dir,
+                                       '/ImageSets/Segmentation/train.txt')):
         with tarfile.open(fname, 'r') as f:
             f.extractall(data_dir)
     return voc_dir
@@ -189,8 +191,8 @@ def load_data_pikachu(batch_size, edge_size=256):
     data_dir = '../data/pikachu/'
     _download_pikachu(data_dir)
     train_iter = image.ImageDetIter(
-        path_imgrec=data_dir+'train.rec',
-        path_imgidx=data_dir+'train.idx',
+        path_imgrec=os.path.join(data_dir, 'train.rec'),
+        path_imgidx=os.path.join(data_dir, 'train.idx'),
         batch_size=batch_size,
         data_shape=(3, edge_size, edge_size),
         shuffle=True,
@@ -198,7 +200,7 @@ def load_data_pikachu(batch_size, edge_size=256):
         min_object_covered=0.95,
         max_attempts=200)
     val_iter = image.ImageDetIter(
-        path_imgrec=data_dir+'val.rec',
+        path_imgrec=os.path.join(data_dir, 'val.rec'),
         batch_size=batch_size,
         data_shape=(3, edge_size, edge_size),
         shuffle=False)
@@ -267,14 +269,14 @@ def predict_rnn(rnn, prefix, num_chars, params, num_hiddens, vocab_size, ctx,
 
 def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):                                                               
     """Read VOC images."""
-    txt_fname = '%s/ImageSets/Segmentation/%s'%(
+    txt_fname = '%s/ImageSets/Segmentation/%s' % (
         root, 'train.txt' if train else 'val.txt')
     with open(txt_fname, 'r') as f:
         images = f.read().split()
     data, label = [None] * len(images), [None] * len(images)
     for i, fname in enumerate(images):
-        data[i] = image.imread('%s/JPEGImages/%s.jpg'%(root, fname))
-        label[i] = image.imread('%s/SegmentationClass/%s.png'%(root, fname))
+        data[i] = image.imread('%s/JPEGImages/%s.jpg' % (root, fname))
+        label[i] = image.imread('%s/SegmentationClass/%s.png' % (root, fname))
     return data, label
 
 
