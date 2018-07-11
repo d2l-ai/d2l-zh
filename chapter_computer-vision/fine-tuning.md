@@ -35,11 +35,12 @@ import gluonbook as gb
 from mxnet import gluon, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, model_zoo
 from mxnet.gluon import utils as gutils
+import os
 
-data_dir = '../data/'
+data_dir = '../data'
 base_url = 'https://apache-mxnet.s3-accelerate.amazonaws.com/'
 fname = gutils.download(
-    base_url+'gluon/dataset/hotdog.zip',
+    base_url + 'gluon/dataset/hotdog.zip',
     path=data_dir, sha1_hash='fba480ffa8aa7e0febbb511d181409f899b9baa5')
 
 with zipfile.ZipFile(fname, 'r') as z:
@@ -49,8 +50,10 @@ with zipfile.ZipFile(fname, 'r') as z:
 我们使用使用`ImageFolderDataset`类来读取数据。它将每个文件夹当做一个类，并读取下面所有的图片。
 
 ```{.python .input  n=6}
-train_imgs = gdata.vision.ImageFolderDataset(data_dir+'/hotdog/train')
-test_imgs = gdata.vision.ImageFolderDataset(data_dir+'/hotdog/test')
+train_imgs = gdata.vision.ImageFolderDataset(
+    os.path.join(data_dir, 'hotdog/train'))
+test_imgs = gdata.vision.ImageFolderDataset(
+    os.path.join(data_dir, 'hotdog/test'))
 ```
 
 下面画出前8张正例图片和最后的8张负例图片，可以看到它们的大小和长宽比各不相同。

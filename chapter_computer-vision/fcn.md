@@ -62,7 +62,7 @@ for layer in pretrained_net.features[:-2]:
 给定高宽为224的输入，`net`的输出将输入高宽减少了32倍。
 
 ```{.python .input  n=6}
-x = nd.random.uniform(shape=(1,3,224,224))
+x = nd.random.uniform(shape=(1, 3, 224, 224))
 net(x).shape
 ```
 

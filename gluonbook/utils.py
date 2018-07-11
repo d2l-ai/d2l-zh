@@ -2,8 +2,7 @@ import random
 import os
 import tarfile
 from time import time
-	
-    
+
 from IPython.display import set_matplotlib_formats
 from matplotlib import pyplot as plt
 import mxnet as mx
@@ -92,13 +91,13 @@ def _download_pikachu(data_dir):
 
 
 def _download_voc_pascal(data_dir='../data'):
-    voc_dir = os.path.join(data_dir, '/VOCdevkit/VOC2012')
+    voc_dir = os.path.join(data_dir, 'VOCdevkit/VOC2012')
     url = ('http://host.robots.ox.ac.uk/pascal/VOC/voc2012'
            '/VOCtrainval_11-May-2012.tar')
     sha1 = '4e443f8a2eca6b1dac8a6c57641b67dd40621a49'
     fname = gutils.download(url, data_dir, sha1_hash=sha1)
     if not os.path.exists(os.path.join(voc_dir,
-                                       '/ImageSets/Segmentation/train.txt')):
+                                       'ImageSets/Segmentation/train.txt')):
         with tarfile.open(fname, 'r') as f:
             f.extractall(data_dir)
     return voc_dir
@@ -188,7 +187,7 @@ def load_data_pascal_voc(batch_size, output_shape):
 
 def load_data_pikachu(batch_size, edge_size=256):                                                                                
     """Download the pikachu dataest and then load into memory."""
-    data_dir = '../data/pikachu/'
+    data_dir = '../data/pikachu'
     _download_pikachu(data_dir)
     train_iter = image.ImageDetIter(
         path_imgrec=os.path.join(data_dir, 'train.rec'),

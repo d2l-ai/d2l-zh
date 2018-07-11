@@ -12,6 +12,7 @@ sys.path.insert(0, '..')
 import gluonbook as gb
 from mxnet import gluon, image
 from mxnet.gluon import utils as gutils
+import os
 
 def _download_pikachu(data_dir):
     root_url = ('https://apache-mxnet.s3-accelerate.amazonaws.com/'
@@ -20,7 +21,7 @@ def _download_pikachu(data_dir):
                'train.idx': 'dcf7318b2602c06428b9988470c731621716c393',
                'val.rec': 'd6c33f799b4d058e82f2cb5bd9a976f69d72d520'}
     for k, v in dataset.items():
-        gutils.download(root_url + k, data_dir + k, sha1_hash=v)
+        gutils.download(root_url + k, os.path.join(data_dir, k), sha1_hash=v)
 ```
 
 ## 读取数据集
@@ -30,12 +31,12 @@ def _download_pikachu(data_dir):
 ```{.python .input  n=85}
 # edge_size：输出图片的宽和高。
 def load_data_pikachu(batch_size, edge_size=256): 
-    data_dir = '../data/pikachu/'
+    data_dir = '../data/pikachu'
     _download_pikachu(data_dir)                                                                                                                 
     train_iter = image.ImageDetIter(
-        path_imgrec = data_dir+'train.rec',
+        path_imgrec =os.path.join(data_dir, 'train.rec'),
         # 每张图片在rec中的位置，使用随机顺序时需要。
-        path_imgidx=data_dir+'train.idx', 
+        path_imgidx=os.path.join(data_dir, 'train.idx'), 
         batch_size=batch_size,
         data_shape=(3, edge_size, edge_size), # 输出图片形状。
         shuffle=True, # 用随机顺序访问。
@@ -43,7 +44,7 @@ def load_data_pikachu(batch_size, edge_size=256):
         min_object_covered=0.95, # 剪裁出的图片至少覆盖每个物体95%的区域。
         max_attempts=200) # 最多尝试 200 次随机剪裁。如果失败则不进行剪裁。
     val_iter = image.ImageDetIter( # 测试图片则去除了随机访问和随机剪裁。
-        path_imgrec=data_dir+'val.rec',
+        path_imgrec=os.path.join(data_dir, 'val.rec'),
         batch_size=batch_size,
         data_shape=(3, edge_size, edge_size),
         shuffle=False)

@@ -122,7 +122,8 @@ def train_with_data_aug(train_augs, test_augs, lr=0.1):
     ctx = gb.try_all_gpus()
     net = gb.resnet18(10)
     net.initialize(ctx=ctx, init=init.Xavier())
-    trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate':lr})
+    trainer = gluon.Trainer(net.collect_params(), 'sgd',
+                            {'learning_rate': lr})
     loss = gloss.SoftmaxCrossEntropyLoss()
     train_iter = load_cifar10(True, train_augs, batch_size)
     test_iter = load_cifar10(False, test_augs, batch_size)

@@ -19,6 +19,7 @@ sys.path.append('..')
 import gluonbook as gb
 from mxnet import gluon, image, nd
 from mxnet.gluon import data as gdata, utils as gutils
+import os
 import tarfile
 ```
 
@@ -26,7 +27,7 @@ import tarfile
 
 ```{.python .input  n=2}
 data_dir = '../data'
-voc_dir = data_dir + '/VOCdevkit/VOC2012'
+voc_dir = os.path.join(data_dir, '/VOCdevkit/VOC2012')
 url = ('http://host.robots.ox.ac.uk/pascal/VOC/voc2012'
        '/VOCtrainval_11-May-2012.tar')
 sha1 = '4e443f8a2eca6b1dac8a6c57641b67dd40621a49'
@@ -42,17 +43,34 @@ with tarfile.open(fname, 'r') as f:
 
 ```{.python .input  n=3}
 def read_voc_images(root=voc_dir, train=True):
-    txt_fname = '%s/ImageSets/Segmentation/%s'%(
+    txt_fname = '%s/ImageSets/Segmentation/%s' % (
         root, 'train.txt' if train else 'val.txt')
     with open(txt_fname, 'r') as f:
         images = f.read().split()
     data, label = [None] * len(images), [None] * len(images)
     for i, fname in enumerate(images):
-        data[i] = image.imread('%s/JPEGImages/%s.jpg'%(root, fname))
-        label[i] = image.imread('%s/SegmentationClass/%s.png'%(root, fname))
+        data[i] = image.imread('%s/JPEGImages/%s.jpg' % (root, fname))
+        label[i] = image.imread('%s/SegmentationClass/%s.png' % (root, fname))
     return data, label
 
 train_images, train_labels = read_voc_images()
+```
+
+```{.json .output n=3}
+[
+ {
+  "ename": "FileNotFoundError",
+  "evalue": "[Errno 2] No such file or directory: '/VOCdevkit/VOC2012/ImageSets/Segmentation/train.txt'",
+  "output_type": "error",
+  "traceback": [
+   "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+   "\u001b[0;31mFileNotFoundError\u001b[0m                         Traceback (most recent call last)",
+   "\u001b[0;32m<ipython-input-3-62f82de5f427>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[1;32m     10\u001b[0m     \u001b[0;32mreturn\u001b[0m \u001b[0mdata\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mlabel\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     11\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m---> 12\u001b[0;31m \u001b[0mtrain_images\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mtrain_labels\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mread_voc_images\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m",
+   "\u001b[0;32m<ipython-input-3-62f82de5f427>\u001b[0m in \u001b[0;36mread_voc_images\u001b[0;34m(root, train)\u001b[0m\n\u001b[1;32m      2\u001b[0m     txt_fname = '%s/ImageSets/Segmentation/%s' % (\n\u001b[1;32m      3\u001b[0m         root, 'train.txt' if train else 'val.txt')\n\u001b[0;32m----> 4\u001b[0;31m     \u001b[0;32mwith\u001b[0m \u001b[0mopen\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mtxt_fname\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m'r'\u001b[0m\u001b[0;34m)\u001b[0m \u001b[0;32mas\u001b[0m \u001b[0mf\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      5\u001b[0m         \u001b[0mimages\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mf\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mread\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0msplit\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      6\u001b[0m     \u001b[0mdata\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mlabel\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;34m[\u001b[0m\u001b[0;32mNone\u001b[0m\u001b[0;34m]\u001b[0m \u001b[0;34m*\u001b[0m \u001b[0mlen\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mimages\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m[\u001b[0m\u001b[0;32mNone\u001b[0m\u001b[0;34m]\u001b[0m \u001b[0;34m*\u001b[0m \u001b[0mlen\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mimages\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+   "\u001b[0;31mFileNotFoundError\u001b[0m: [Errno 2] No such file or directory: '/VOCdevkit/VOC2012/ImageSets/Segmentation/train.txt'"
+  ]
+ }
+]
 ```
 
 我们画出前面五张图片和它们对应的标注。在标注，白色代表边框黑色代表背景，其他不同的颜色对应不同物体类别。
@@ -66,11 +84,12 @@ gb.show_images(imgs, 2, n);
 接下来我们列出标注中每个RGB颜色值对应的类别。
 
 ```{.python .input  n=5}
-voc_colormap = [[0,0,0], [128,0,0], [0,128,0], [128,128,0], [0,0,128],
-                [128,0,128], [0,128,128], [128,128,128], [64,0,0], [192,0,0],
-                [64,128,0], [192,128,0], [64,0,128], [192,0,128],
-                [64,128,128], [192,128,128], [0,64,0], [128,64,0],
-                [0,192,0], [128,192,0], [0,64,128]]
+voc_colormap = [[0, 0, 0], [128, 0, 0], [0, 128, 0], [128, 128, 0],
+                [0, 0, 128], [128, 0, 128], [0, 128, 128], [128, 128, 128],
+                [64, 0, 0], [192, 0, 0], [64, 128, 0], [192, 128, 0],
+                [64, 0, 128], [192, 0, 128], [64, 128, 128], [192, 128, 128],
+                [0, 64, 0], [128, 64, 0], [0, 192, 0], [128, 192, 0],
+                [0, 64, 128]]
 
 voc_classes = ['background', 'aeroplane', 'bicycle', 'bird', 'boat', 'bottle',
                'bus', 'car', 'cat', 'chair', 'cow', 'diningtable', 'dog',
