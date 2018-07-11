@@ -114,7 +114,7 @@ x = img.astype('float32').transpose((2, 0, 1)).expand_dims(axis=0) / 255
 y = conv_trans(x)
 y = y[0].clip(0,1).transpose((1,2,0))
 print('output', y.shape)
-gb.plt.imshow(y.asnumpy());
+gb.plt.imshow(y.asnumpy()); # 加分号只显示图。
 ```
 
 下面对`net`的最后两层进行初始化。其中$1\times 1$卷积层使用Xavier，转置卷积层则使用双线性差值核。

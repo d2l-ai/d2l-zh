@@ -11,16 +11,6 @@ from mxnet.gluon import nn, data as gdata, loss as gloss, utils as gutils
 import numpy as np
 
 
-# Set default figure size.
-set_matplotlib_formats('retina')
-
-def set_figsize(figsize=(3.5, 2.5)):
-    """Set matplotlib figure size."""
-    plt.rcParams['figure.figsize'] = figsize
-
-set_figsize()
-
-
 voc_rgb_mean = nd.array([0.485, 0.456, 0.406])
 voc_rgb_std = nd.array([0.229, 0.224, 0.225])
 
@@ -321,8 +311,7 @@ def resnet18(num_classes):
 def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
              legend=None, figsize=(3.5, 2.5)):
     """Plot x and log(y)."""
-    set_figsize()
-    set_matplotlib_formats('retina')
+    set_figsize(figsize)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.semilogy(x_vals, y_vals)
@@ -330,6 +319,12 @@ def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
         plt.semilogy(x2_vals, y2_vals)
         plt.legend(legend)
     plt.show()
+
+
+def set_figsize(figsize=(3.5, 2.5)):
+    """Set matplotlib figure size."""
+    set_matplotlib_formats('retina')
+    plt.rcParams['figure.figsize'] = figsize
 
 
 def sgd(params, lr, batch_size):                                                                                                 
@@ -572,4 +567,8 @@ class VOCSegDataset(gluon.data.Dataset):
  
     def __len__(self): 
         return len(self.data)
+
+
+# Set default figure size.
+set_figsize()
 

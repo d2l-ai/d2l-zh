@@ -335,7 +335,7 @@ sigmas = [10, 1, 0.5]
 lines = ['-', '--', '-.']
 x = nd.arange(-2, 2, 0.1)
 
-gb.set_figsize((4,3))
+gb.set_figsize()
 for l,s in zip(lines, sigmas):
     y = nd.smooth_l1(x, scalar=s)
     gb.plt.plot(x.asnumpy(), y.asnumpy(), l, label='sigma=%.1f' % s)
@@ -352,10 +352,10 @@ $$ - \alpha (1-p_j)^{\gamma} \log(p_j) $$
 def focal_loss(gamma, x):
     return -(1 - x) ** gamma * x.log()
 
-x = nd.arange(0.01, 1, .01)
-for l, gamma in zip(lines, [0,1,5]):
+x = nd.arange(0.01, 1, 0.01)
+for l, gamma in zip(lines, [0, 1, 5]):
     y = gb.plt.plot(x.asnumpy(), focal_loss(gamma, x).asnumpy(), l,
-                    label='gamma=%.1f'%gamma)
+                    label='gamma=%.1f' % gamma)
 gb.plt.legend();
 ```
 

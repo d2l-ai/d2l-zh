@@ -77,14 +77,12 @@ features[:5], poly_features[:5], labels[:5]
 
 ### 定义、训练和测试模型
 
-我们先定义作图函数，其中y轴使用了对数尺度。该作图函数`semilogy`也被定义在`gluonbook`包中供后面章节调用。
+我们先定义作图函数`semilogy`，其中y轴使用了对数尺度。该作图函数也被定义在`gluonbook`包中供后面章节调用。
 
 ```{.python .input}
-from IPython.display import set_matplotlib_formats
 def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
              legend=None, figsize=(3.5, 2.5)):
-    gb.plt.rcParams['figure.figsize'] = figsize
-    set_matplotlib_formats('retina')
+    gb.set_figsize(figsize)
     gb.plt.xlabel(x_label)
     gb.plt.ylabel(y_label)
     gb.plt.semilogy(x_vals, y_vals)

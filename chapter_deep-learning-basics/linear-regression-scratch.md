@@ -3,9 +3,10 @@
 在了解了线性回归的背景知识之后，现在我们可以动手实现它了。
 尽管强大的深度学习框架可以减少大量重复性工作，但若过于依赖它提供的便利，我们就会很难深入理解深度学习是如何工作的。因此，本节将介绍如何只利用NDArray和`autograd`来实现一个线性回归的训练。
 
-首先，导入本节中实验所需的包或模块。
+首先，导入本节中实验所需的包或模块，其中的matplotlib包可用于作图。
 
 ```{.python .input  n=1}
+from IPython.display import set_matplotlib_formats
 from matplotlib import pyplot as plt
 from mxnet import autograd, nd
 import random
@@ -38,14 +39,16 @@ features[0], labels[0]
 通过生成第二个特征`features[:, 1]`和标签 `labels` 的散点图，我们可以更直观地观察两者间的线性关系。
 
 ```{.python .input  n=4}
-%config InlineBackend.figure_format = 'retina'
-plt.rcParams['figure.figsize'] = (3.5, 2.5)
+def set_figsize(figsize=(3.5, 2.5)):
+    set_matplotlib_formats('retina') # 打印高清图。
+    plt.rcParams['figure.figsize'] = figsize # 设置图的尺寸。
+
+set_figsize()
 plt.scatter(features[:, 1].asnumpy(), labels.asnumpy(), 1)
 plt.show()
 ```
 
-我们将上面的`plt`作图函数定义在`gluonbook`包里。以后在作图时，我们将直接调用`gluonbook.plt`，而无需执行其他设置项。
-
+我们将上面的`plt`作图函数和`set_figsize`函数定义在`gluonbook`包里。以后在作图时，我们将直接调用`gluonbook.plt`。由于`plt`在`gluonbook`包中是一个全局变量，我们在作图前只需要调用`gluonbook.set_figsize()`即可打印高清图并设置图的尺寸。
 
 
 ## 读取数据
