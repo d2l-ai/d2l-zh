@@ -14,7 +14,7 @@
 
 * `data_iter_random`，[循环神经网络](../chapter_recurrent-neural-networks/rnn.md)
 
-* `evaluate_accuracy`，[Softmax回归的从零开始实现](../chapter_deep-learning-basics/softmax-regression-scratch.md)
+* `evaluate_accuracy`，
 
 * `grad_clipping`，[循环神经网络](../chapter_recurrent-neural-networks/rnn.md)
 

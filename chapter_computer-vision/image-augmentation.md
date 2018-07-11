@@ -114,10 +114,10 @@ def load_cifar10(is_train, augs, batch_size):
 
 ### 模型训练
 
-我们使用ResNet 18来训练CIFAR-10。训练的的代码与[“残差网络：ResNet”](../chapter_convolutional-neural-networks/resnet.md)中一致，除了使用所有可用的GPU和不同的学习率外。
+我们使用ResNet-18来训练CIFAR-10。训练的代码与[“残差网络：ResNet”](../chapter_convolutional-neural-networks/resnet.md)中一致，除了使用所有可用的GPU和不同的学习率外。
 
 ```{.python .input  n=13}
-def train(train_augs, test_augs, lr=0.1):
+def train_with_data_aug(train_augs, test_augs, lr=0.1):
     batch_size = 256
     ctx = gb.try_all_gpus()
     net = gb.resnet18(10)
@@ -132,13 +132,13 @@ def train(train_augs, test_augs, lr=0.1):
 首先我们看使用了图片增广的情况。
 
 ```{.python .input  n=14}
-train(train_augs, test_augs)
+train_with_data_aug(train_augs, test_augs)
 ```
 
 作为对比，我们尝试只对训练数据做中间剪裁。
 
 ```{.python .input  n=15}
-train(test_augs, test_augs)
+train_with_data_aug(test_augs, test_augs)
 ```
 
 可以看到，即使是简单的随机翻转也会有明显的效果。图片增广类似于正则项，它使得训练精度变低，但可以提高测试精度。

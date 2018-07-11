@@ -399,7 +399,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs,
             trainer.step(batch_size)
             n += batch_size
             m += sum([y.size for y in ys])
-            if print_batches and (i+1) % print_batches == 0:
+            if print_batches and (i + 1) % print_batches == 0:
                 print('batch %d, loss %f, train acc %f' % (
                     n, train_l_sum / n, train_acc_sum / m
                 ))
@@ -488,7 +488,7 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
 
 
 def try_all_gpus():
-    """Return all available GPUs, or [mx.gpu()] if there is no GPU."""
+    """Return all available GPUs, or [mx.cpu()] if there is no GPU."""
     ctxes = []
     try:
         for i in range(16):
