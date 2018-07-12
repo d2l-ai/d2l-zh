@@ -54,7 +54,7 @@ def show_bboxes(axes, bboxes, labels=None, colors=None):
     labels = _make_list(labels)                                                                                                                 
     colors = _make_list(colors, ['b', 'g', 'r', 'm', 'k'])
     for i, bbox in enumerate(bboxes):
-        color = colors[i%len(colors)]
+        color = colors[i % len(colors)]
         rect = gb.bbox_to_rect(bbox.asnumpy(), color)
         axes.add_patch(rect)
         if labels and len(labels) > i:
@@ -67,6 +67,7 @@ def show_bboxes(axes, bboxes, labels=None, colors=None):
 然后我们画出以（200，200）为中心的所有锚框。
 
 ```{.python .input  n=12}
+gb.set_figsize()
 bbox_scale = nd.array((w, h, w, h))  # 需要乘以高和宽使得符合我们的画图格式。
 fig = gb.plt.imshow(img)
 show_bboxes(fig.axes, boxes[250, 250, :, :] * bbox_scale,

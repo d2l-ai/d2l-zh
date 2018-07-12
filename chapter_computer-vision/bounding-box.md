@@ -17,7 +17,7 @@ from mxnet import image
 
 ```{.python .input}
 img = image.imread('../img/catdog.jpg').asnumpy()
-gb.plt.imshow(img); # 加分号只显示图。
+gb.plt.imshow(img);  # 加分号只显示图。
 ```
 
 ## 边界框
@@ -44,6 +44,7 @@ def bbox_to_rect(bbox, color):
 我们将边界框加载在图上，可以看到物体的主要轮廓基本在框内。
 
 ```{.python .input}
+gb.set_figsize()
 fig = gb.plt.imshow(img)
 fig.axes.add_patch(bbox_to_rect(dog_bbox, 'blue'))
 fig.axes.add_patch(bbox_to_rect(cat_bbox, 'red'));

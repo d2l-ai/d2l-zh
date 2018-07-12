@@ -61,7 +61,7 @@ test_imgs = gdata.vision.ImageFolderDataset(
 ```{.python .input}
 hotdogs = [train_imgs[i][0] for i in range(8)]
 not_hotdogs = [train_imgs[-i-1][0] for i in range(8)]
-gb.show_images(hotdogs + not_hotdogs, 2, 8, scale=1.4); # 加分号只显示图。
+gb.show_images(hotdogs + not_hotdogs, 2, 8, scale=1.4);
 ```
 
 在训练时，我们先从图片中剪裁出随机大小，随机长宽比的一块，然后将它们统一缩放为长宽都是224的输入。测试时，则使用简单的中心剪裁。此外，我们对输入的RGB通道数值进行了归一化。

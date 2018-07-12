@@ -295,7 +295,8 @@ out = predict(x)
 最后我们将预测出置信度超过某个阈值的边框画出来：
 
 ```{.python .input  n=34}
-gb.plt.rcParams['figure.figsize'] = (6, 6)
+gb.set_figsize((5, 5))
+
 def display(img, out, threshold=0.5):
     fig = gb.plt.imshow(img.asnumpy())
     for row in out:
@@ -334,8 +335,8 @@ $$
 sigmas = [10, 1, 0.5]
 lines = ['-', '--', '-.']
 x = nd.arange(-2, 2, 0.1)
-
 gb.set_figsize()
+
 for l,s in zip(lines, sigmas):
     y = nd.smooth_l1(x, scalar=s)
     gb.plt.plot(x.asnumpy(), y.asnumpy(), l, label='sigma=%.1f' % s)

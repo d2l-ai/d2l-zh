@@ -61,7 +61,7 @@ train_images, train_labels = read_voc_images()
 ```{.python .input  n=4}
 n = 5
 imgs = train_images[0:n] + train_labels[0:n]
-gb.show_images(imgs, 2, n); # 加分号只显示图。
+gb.show_images(imgs, 2, n);
 ```
 
 接下来我们列出标注中每个RGB颜色值对应的类别。
@@ -115,7 +115,7 @@ def rand_crop(data, label, height, width):
 imgs = []
 for _ in range(n):
     imgs += rand_crop(train_images[0], train_labels[0], 200, 300)
-gb.show_images(imgs[::2] + imgs[1::2], 2, n); # 加分号只显示图。
+gb.show_images(imgs[::2] + imgs[1::2], 2, n);
 ```
 
 ### 数据读取

@@ -108,13 +108,14 @@ conv_trans.initialize(init.Constant(bilinear_kernel(3, 3, 4)))
 可以看到这个转置卷积层的前向函数的效果是将输入图片高宽扩大2倍。
 
 ```{.python .input  n=10}
+gb.set_figsize()
 img = image.imread('../img/catdog.jpg')
 print('input', img.shape)
 x = img.astype('float32').transpose((2, 0, 1)).expand_dims(axis=0) / 255
 y = conv_trans(x)
 y = y[0].clip(0,1).transpose((1,2,0))
 print('output', y.shape)
-gb.plt.imshow(y.asnumpy()); # 加分号只显示图。
+gb.plt.imshow(y.asnumpy());
 ```
 
 下面对`net`的最后两层进行初始化。其中$1\times 1$卷积层使用Xavier，转置卷积层则使用双线性差值核。
