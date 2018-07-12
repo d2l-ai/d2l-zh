@@ -233,7 +233,7 @@ Finally we train the word2vec model. We first shuffle our dataset
 ```{.python .input}
 class Dataset(gdata.SimpleDataset):
     def __init__(self, centers, contexts, negatives):
-        data = list(zip(all_centers, all_contexts, all_negatives))
+        data = list(zip(centers, contexts, negatives))
         super().__init__(data)
 
 def batchify_fn(data):
