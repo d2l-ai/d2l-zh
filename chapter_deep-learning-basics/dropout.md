@@ -25,7 +25,7 @@ $$h_i = \frac{\xi_i}{1-p} \phi(x_1 w_1^{(i)} + x_2 w_2^{(i)} + x_3 w_3^{(i)} + x
 
 ## 实现丢弃法
 
-根据丢弃法的定义，我们可以很容易地实现丢弃法。下面的`dropout`函数将以`drop_prob`的概率丢弃NDArray输入`X`中的元素。
+根据丢弃法的定义，我们可以很容易地实现它。下面的`dropout`函数将以`drop_prob`的概率丢弃NDArray输入`X`中的元素。
 
 ```{.python .input}
 import sys
@@ -63,7 +63,7 @@ dropout(X, 1)
 
 实验中，我们依然使用[“Softmax回归——从零开始”](softmax-regression-scratch.md)一节中介绍的Fashion-MNIST数据集。我们将定义一个包含两个隐藏层的多层感知机。其中两个隐藏层的输出个数都是256。
 
-```{.python .input  n=2}
+```{.python .input}
 num_inputs = 784
 num_outputs = 10
 num_hiddens1 = 256
@@ -85,7 +85,7 @@ for param in params:
 
 我们的模型就是将全连接层和激活函数ReLU串起来，并对激活函数的输出使用丢弃法。我们可以分别设置各个层的丢弃概率。通常，建议把靠近输入层的丢弃概率设的小一点。在这个实验中，我们把第一个隐藏层的丢弃概率设为0.2，把第二个隐藏层的丢弃概率设为0.5。我们只需在训练模型时使用丢弃法。
 
-```{.python .input  n=4}
+```{.python .input}
 drop_prob1 = 0.2
 drop_prob2 = 0.5
 
@@ -107,7 +107,7 @@ def net(X):
 
 这部分和之前多层感知机的训练与测试类似。
 
-```{.python .input  n=8}
+```{.python .input}
 num_epochs = 5
 lr = 0.5
 batch_size = 256
