@@ -86,8 +86,7 @@ apply(img, augs)
 接下来我们来看一个将图片增广应用在实际训练中的例子，并比较其与不使用时的区别。这里我们使用CIFAR-10数据集，而不是之前我们一直使用的FashionMNIST。原因在于FashionMNIST中物体位置和尺寸都已经归一化了，而CIFAR-10中物体颜色和大小区别更加显著。下面我们展示CIFAR-10中的前32张训练图片。
 
 ```{.python .input  n=10}
-gb.show_images(gluon.data.vision.CIFAR10(train=True)[0:32][0], 4, 8,
-               scale=0.8);
+gb.show_images(gdata.vision.CIFAR10(train=True)[0:32][0], 4, 8, scale=0.8);
 ```
 
 我们通常将图片增广用在训练样本上，但是在预测的时候并不使用随机增广。这里我们仅仅使用最简单的随机水平翻转。此外，我们使用`ToTensor`变换来将图片转成MXNet需要的格式，即格式为（批量，通道，高，宽）以及类型为32位浮点数。
@@ -107,8 +106,8 @@ test_augs = gdata.vision.transforms.Compose([
 
 ```{.python .input  n=12}
 def load_cifar10(is_train, augs, batch_size):
-    return gluon.data.DataLoader(gluon.data.vision.CIFAR10(
-        train=is_train).transform_first(augs),
+    return gdata.DataLoader(
+        gdata.vision.CIFAR10(train=is_train).transform_first(augs),
         batch_size=batch_size, shuffle=is_train, num_workers=2)
 ```
 

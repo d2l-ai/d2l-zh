@@ -85,7 +85,7 @@ test_iter = gdata.DataLoader(mnist_test.transform_first(transformer),
                              batch_size, shuffle=False, num_workers=4)
 ```
 
-我们将获取并读取Fashion-MNIST数据集的逻辑封装在`gluonbook.load_data_fashion_mnist`函数中供后面章节调用。
+我们将获取并读取Fashion-MNIST数据集的逻辑封装在`gluonbook.load_data_fashion_mnist`函数中供后面章节调用。随着本书内容的不断深入，我们会进一步改进该函数。它的完整实现将在[“深度卷积神经网络（AlexNet）”](../chapter_convolutional-neural-networks/alexnet.md)一节中描述。
 
 
 ## 初始化模型参数

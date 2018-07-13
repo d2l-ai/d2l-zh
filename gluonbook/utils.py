@@ -378,8 +378,6 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs,
         ctx = [ctx]
     for epoch in range(1, num_epochs + 1):
         train_l_sum, train_acc_sum, n, m = 0.0, 0.0, 0.0, 0.0
-        if isinstance(train_iter, mx.io.MXDataIter):
-            train_iter.reset()
         start = time()
         for i, batch in enumerate(train_iter):
             Xs, ys, batch_size = _get_batch(batch, ctx)

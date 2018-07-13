@@ -50,12 +50,13 @@ AlextNet与LeNet的设计理念非常相似。但也有非常显著的区别。
 
 下面我们实现（稍微简化过的）Alexnet：
 
-```{.python .input}
+```{.python .input  n=1}
 import sys
 sys.path.append('..')
 import gluonbook as gb
 from mxnet import nd, init, gluon
 from mxnet.gluon import data as gdata, loss as gloss, nn
+import os
 
 net = nn.Sequential()
 net.add(
@@ -82,7 +83,7 @@ net.add(
 
 我们构造一个高和宽均为224像素的单通道数据点来观察每一层的输出大小。
 
-```{.python .input}
+```{.python .input  n=2}
 X = nd.random.uniform(shape=(1, 1, 224, 224))
 net.initialize()
 for layer in net:
@@ -90,40 +91,64 @@ for layer in net:
     print(layer.name, 'output shape:\t', X.shape)
 ```
 
+```{.json .output n=2}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "conv0 output shape:\t (1, 96, 54, 54)\npool0 output shape:\t (1, 96, 26, 26)\nconv1 output shape:\t (1, 256, 26, 26)\npool1 output shape:\t (1, 256, 12, 12)\nconv2 output shape:\t (1, 384, 12, 12)\nconv3 output shape:\t (1, 384, 12, 12)\nconv4 output shape:\t (1, 256, 12, 12)\npool2 output shape:\t (1, 256, 5, 5)\ndense0 output shape:\t (1, 4096)\ndropout0 output shape:\t (1, 4096)\ndense1 output shape:\t (1, 4096)\ndropout1 output shape:\t (1, 4096)\ndense2 output shape:\t (1, 10)\n"
+ }
+]
+```
+
 ## 读取数据
 
-虽然论文中Alexnet使用Imagenet数据，但因为Imagenet数据训练时间较长，我们仍用前面的FashionMNIST来演示。读取数据的时候我们额外做了一步将图片高宽扩大到原版Alexnet使用的224，这个可以通过Resize来实现。即我们在ToTenor前使用Resize，然后使用Compose来将这两个变化合并成一个来方便调用。
+虽然论文中Alexnet使用Imagenet数据，但因为Imagenet数据训练时间较长，我们仍用前面的Fashion-MNIST来演示。读取数据的时候我们额外做了一步将图片高宽扩大到原版Alexnet使用的224，这个可以通过`Resize`来实现。即我们在`ToTenor`前使用`Resize`，然后使用`Compose`来将这两个变化合并成一个来方便调用。数据读取的其他部分跟前面一致。
 
-```{.python .input}
-transformer = gdata.vision.transforms.Compose(
-    [gdata.vision.transforms.Resize(224), 
-     gdata.vision.transforms.ToTensor()])
+```{.python .input  n=3}
+def load_data_fashion_mnist(batch_size, resize=None,
+                            root=os.path.join('~', '.mxnet', 'datasets',
+                                              'fashion-mnist')):
+    root = os.path.expanduser(root)  # 展开用户路径 '~'。
+    transformer = []
+    if resize:
+        transformer += [gdata.vision.transforms.Resize(resize)]
+    transformer += [gdata.vision.transforms.ToTensor()]
+    transformer = gdata.vision.transforms.Compose(transformer)
+    mnist_train = gdata.vision.FashionMNIST(root=root, train=True)
+    mnist_test = gdata.vision.FashionMNIST(root=root, train=False)
+    train_iter = gdata.DataLoader(mnist_train.transform_first(transformer),
+                                  batch_size, shuffle=True, num_workers=4)
+    test_iter = gdata.DataLoader(mnist_test.transform_first(transformer),
+                                 batch_size, shuffle=False, num_workers=4)
+    return train_iter, test_iter
+
+train_iter, test_iter = load_data_fashion_mnist(batch_size=128, resize=224)
 ```
 
-数据读取的其他部分跟前面一致。
-
-```{.python .input}
-batch_size = 128
-
-mnist_train = gdata.vision.FashionMNIST(train=True)
-mnist_test = gdata.vision.FashionMNIST(train=False)
-train_iter = gdata.DataLoader(mnist_train.transform_first(transformer),
-                              batch_size, shuffle=True, num_workers=4)
-test_iter = gdata.DataLoader(mnist_test.transform_first(transformer),
-                             batch_size, shuffle=False, num_workers=4)
-```
+我们将`load_data_fashion_mnist`函数定义在`gluonbook`包中供后面章节调用。
 
 ## 训练
 
 这时候我们可以开始训练。相对于上节的LeNet，这里的主要改动是使用了更小的学习率。
 
-```{.python .input}
+```{.python .input  n=5}
 lr = 0.01
 ctx = gb.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 loss = gloss.SoftmaxCrossEntropyLoss()
 gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
+```
+
+```{.json .output n=5}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "training on gpu(0)\nepoch 1, loss 1.2884, train acc 0.515, test acc 0.760, time 20.3 sec\nepoch 2, loss 0.6309, train acc 0.763, test acc 0.805, time 18.7 sec\nepoch 3, loss 0.5170, train acc 0.808, test acc 0.844, time 18.7 sec\nepoch 4, loss 0.4537, train acc 0.832, test acc 0.858, time 19.2 sec\nepoch 5, loss 0.4146, train acc 0.848, test acc 0.867, time 18.8 sec\n"
+ }
+]
 ```
 
 ## 小结

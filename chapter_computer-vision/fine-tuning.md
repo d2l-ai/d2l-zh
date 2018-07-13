@@ -115,7 +115,7 @@ finetune_net.output.initialize(init.Xavier())
 我们先定义一个可以重复使用的训练函数。
 
 ```{.python .input  n=12}
-def train(net, learning_rate, batch_size=128, epochs=5):
+def train_fine_tuning(net, learning_rate, batch_size=128, epochs=5):
     train_iter = gdata.DataLoader(
         train_imgs.transform_first(train_augs), batch_size, shuffle=True)
     test_iter = gdata.DataLoader(
@@ -133,7 +133,7 @@ def train(net, learning_rate, batch_size=128, epochs=5):
 因为微调的网络中的主要层的已经训练的足够好，所以一般采用比较小的学习率，防止过大的步长对训练好的层产生过多影响。
 
 ```{.python .input  n=13}
-train(finetune_net, 0.01)
+train_fine_tuning(finetune_net, 0.01)
 ```
 
 作为对比，我们训练一个同样的模型，但将所有参数都初始化为随机值。我们使用较大的学习率来加速收敛。
@@ -141,7 +141,7 @@ train(finetune_net, 0.01)
 ```{.python .input  n=14}
 scratch_net = model_zoo.vision.resnet18_v2(classes=2)
 scratch_net.initialize(init=init.Xavier())
-train(scratch_net, 0.1)
+train_fine_tuning(scratch_net, 0.1)
 ```
 
 可以看到，微调的模型因为初始值更好，收敛速度比从头开始训练要快很多。在很多情况下，微调的模型最终的收敛到的结果也可能比非微调的模型更好。

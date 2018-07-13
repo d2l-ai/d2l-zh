@@ -20,7 +20,7 @@
 
 * `linreg`，[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)
 
-* `load_data_fashion_mnist`
+* `load_data_fashion_mnist`，[“深度卷积神经网络（AlexNet）”](../chapter_convolutional-neural-networks/alexnet.md)
 
 * `load_data_pascal_voc`
 
