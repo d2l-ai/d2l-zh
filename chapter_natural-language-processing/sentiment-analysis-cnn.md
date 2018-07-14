@@ -169,7 +169,9 @@ glove_embedding = text.embedding.create(
 ## 一维卷积
 
 一维卷积即将一个一维核（kernel）数组作用在一个一维输入数据上来计算一个一维数组输出。下图演示了如何对一个长度为7的输入X作用宽为2的核K来计算输出Y。
+
 ![](../img/Conv1D.svg)
+
 可以看到输出Y是一个6维的向量，且第一个元素是由X的最左侧宽为2的子数组与核数组按元素相乘后再相加得来。即Y[0] = (X[0:2] * K).sum()。卷积后输出的数据维度仍遵循n-f+1，即 7-2+1=6
 
 一维卷积常用于序列模型，比如自然语言处理领域中。
@@ -343,15 +345,6 @@ for epoch in range(1, num_epochs + 1):
           % (epoch, train_loss, train_acc, test_loss, test_acc))
 ```
 
-```{.json .output n=13}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "epoch 1, train loss 1.220348, acc 0.50; test loss 2.188816, acc 0.50\n"
- }
-]
-```
 
 ## 小结
 
