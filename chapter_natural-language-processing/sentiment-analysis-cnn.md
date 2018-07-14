@@ -199,20 +199,6 @@ K = nd.array([1 ,2])
 corr1d(X, K)
 ```
 
-```{.json .output n=9}
-[
- {
-  "data": {
-   "text/plain": "\n[  2.   5.   8.  11.  14.  17.]\n<NDArray 6 @cpu(0)>"
-  },
-  "execution_count": 9,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
-
 一维卷积多通道输入的卷积运算与二维卷积的多通道运算类似。将每个单通道与对应的filter进行卷积运算求和，然后再将多个通道的和相加，得到输出的一个数值。
 
 ![](../img/Conv1D-channel.svg)
