@@ -37,16 +37,6 @@ import random
 import zipfile
 ```
 
-```{.json .output n=1}
-[
- {
-  "name": "stderr",
-  "output_type": "stream",
-  "text": "/home/ubuntu/anaconda3/envs/mxnet_p36/lib/python3.6/site-packages/matplotlib/__init__.py:1067: UserWarning: Duplicate key in file \"/home/ubuntu/.config/matplotlib/matplotlibrc\", line #2\n  (fname, cnt))\n/home/ubuntu/anaconda3/envs/mxnet_p36/lib/python3.6/site-packages/matplotlib/__init__.py:1067: UserWarning: Duplicate key in file \"/home/ubuntu/.config/matplotlib/matplotlibrc\", line #3\n  (fname, cnt))\n"
- }
-]
-```
-
 ## 读取IMDb数据集
 
 我们使用Stanford's Large Movie Review Dataset作为情感分析的数据集 [1]。它的下载地址是
