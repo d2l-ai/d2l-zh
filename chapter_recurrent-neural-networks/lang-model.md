@@ -10,8 +10,10 @@ $$\mathbb{P}(w_1, w_2, \ldots, w_T).$$
 
 ## 语言模型的计算
 
+既然语言模型很有用，那该如何计算它呢？假设序列$w_1, w_2, \ldots, w_T$依次生成，我们有 
 
-既然语言模型很有用，那该如何计算它呢？假设序列$w_1, w_2, \ldots, w_T$依次生成，我们有
+
+(解释下面公式是如何通过bayesian计算）
 
 $$\mathbb{P}(w_1, w_2, \ldots, w_T) = \prod_{t=1}^T \mathbb{P}(w_t \mid w_1, \ldots, w_{t-1}) .$$
 
