@@ -49,11 +49,9 @@ def readIMDB(dir_url, seg='train'):
     pos_or_neg = ['pos', 'neg']
     data = []
     for label in pos_or_neg:
-        files = os.listdir(
-            '../data/' + dir_url + '/' + seg + '/' + label + '/')
+        files = os.listdir(os.path.join('../data/',dir_url, seg, label))
         for file in files:
-            with open('../data/' + dir_url + '/' + seg + '/' + label + '/' 
-                      + file, 'r', encoding='utf8') as rf:
+            with open(os.path.join('../data/',dir_url, seg, label, file), 'r', encoding='utf8') as rf:
                 review = rf.read().replace('\n', '')
                 if label == 'pos':
                     data.append([review, 1])
@@ -62,11 +60,11 @@ def readIMDB(dir_url, seg='train'):
     return data
 
 if demo:
-    train_data = readIMDB('aclImdb_tiny/', 'train')
-    test_data = readIMDB('aclImdb_tiny/', 'test')
+    train_data = readIMDB('aclImdb_tiny', 'train')
+    test_data = readIMDB('aclImdb_tiny', 'test')
 else:
-    train_data = readIMDB('aclImdb/', 'train')
-    test_data = readIMDB('aclImdb/', 'test')
+    train_data = readIMDB('aclImdb', 'train')
+    test_data = readIMDB('aclImdb', 'test')
 
 random.shuffle(train_data)
 random.shuffle(test_data)
