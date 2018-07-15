@@ -569,4 +569,3 @@ class VOCSegDataset(gluon.data.Dataset):
 
 # Set default figure size.
 set_figsize()
-
