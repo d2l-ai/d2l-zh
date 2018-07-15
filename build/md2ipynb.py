@@ -11,7 +11,7 @@ def is_ascii(character):
 
 def add_space_between_ascii_and_non_ascii(string):
     punc = (' ','\n','\t','\r','，','。','？','！','、','；','：','“',
-            '”','（','）','【','】','—','…')
+            '”','（','）','【','】','—','…','《','》')
     if len(string) == 0:
         return ''
     ret = string[0]
