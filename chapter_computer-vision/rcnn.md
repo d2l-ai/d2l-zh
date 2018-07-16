@@ -94,12 +94,15 @@ $$f(x,y) = (\lfloor y \rfloor + 1-y)f(x, \lfloor y \rfloor) + (y-\lfloor y \rflo
 
 ## 小结
 
-* TODO(@mli)
+* R-CNN对每张图片选取多个提议区域，然后使用卷积层来对每个区域抽取特征，之后对每个区域进行物体分类和真实边界框预测。
+* Fast R-CNN对整个图片进行特征抽取后再选取提议区域来提升计算性能，它引入了兴趣区域池化层将每个提议区域提取同样大小的输出以便输入之后的神经层。
+* Faster R-CNN引入区域提议网络来进一步简化区域提议流程。
+* Mask R-CNN在Faster R-CNN基础上进入一个全卷积网络可以借助像素粒度的标注来进一步提升模型精度。
 
 
 ## 练习
 
-* TODO(@mli)
+介于篇幅原因这里没有提供R-CNN系列模型的实现。有兴趣的读者可以参考Gluon CV工具包（https://gluon-cv.mxnet.io/）来学习它们的实现。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7219)
 
