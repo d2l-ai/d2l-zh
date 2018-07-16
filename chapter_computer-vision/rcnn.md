@@ -102,7 +102,7 @@ $$f(x,y) = (\lfloor y \rfloor + 1-y)f(x, \lfloor y \rfloor) + (y-\lfloor y \rflo
 
 ## 练习
 
-介于篇幅原因这里没有提供R-CNN系列模型的实现。有兴趣的读者可以参考Gluon CV工具包（https://gluon-cv.mxnet.io/）来学习它们的实现。
+* 介于篇幅原因这里没有提供R-CNN系列模型的实现。有兴趣的读者可以参考Gluon CV工具包（https://gluon-cv.mxnet.io/ ）来学习它们的实现。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7219)
 
