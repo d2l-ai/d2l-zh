@@ -17,8 +17,8 @@ import collections
 import gluonbook as gb
 import mxnet as mx
 from mxnet import autograd, gluon, init, metric, nd
-from mxnet.gluon import loss as gloss, nn, rnn
 from mxnet.contrib import text
+from mxnet.gluon import loss as gloss, nn, rnn
 import os
 import random
 import zipfile
@@ -44,7 +44,7 @@ if demo:
 
 下面，读取训练和测试数据集。
 
-```{.python .input}
+```{.python .input  n=3}
 def readIMDB(dir_url, seg='train'):
     pos_or_neg = ['pos', 'neg']
     data = []
@@ -90,7 +90,7 @@ for review, score in test_data:
 
 现在，我们可以根据分好词的训练数据集来创建词典了。这里我们设置了特殊符号“&lt;unk&gt;”（unknown）。它将表示一切不存在于训练数据集词典中的词。
 
-```{.python .input  n=6}
+```{.python .input  n=5}
 token_counter = collections.Counter()
 def count_token(train_tokenized):
     for sample in train_tokenized:
@@ -109,7 +109,7 @@ vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>',
 
 下面，我们继续对数据进行预处理。每个不定长的评论将被特殊符号`PAD`补成长度为`maxlen`的序列，并用NDArray表示。
 
-```{.python .input  n=7}
+```{.python .input  n=6}
 def encode_samples(tokenized_samples, vocab):
     features = []
     for sample in tokenized_samples:
