@@ -85,19 +85,6 @@ vocab_size = len(corpus.dictionary)
 vocab_size
 ```
 
-```{.json .output n=4}
-[
- {
-  "data": {
-   "text/plain": "10000"
-  },
-  "execution_count": 4,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 ## 定义循环神经网络模型库
 
 我们可以定义一个循环神经网络模型库。这样我们就可以使用以ReLU或tanh函数为激活函数的循环神经网络，以及长短期记忆和门控循环单元。和本章中其他实验不同，这里使用了Embedding实例将每个词索引变换成一个长度为`embed_size`的词向量。这些词向量实际上也是模型参数。在随机初始化后，它们会在模型训练结束时被学到。此外，我们使用了丢弃法来应对过拟合。
@@ -265,16 +252,6 @@ train_rnn()
 test_l = eval_rnn(test_data)
 print('test loss %.2f, perplexity %.2f'
       % (test_l.asscalar(), test_l.exp().asscalar()))
-```
-
-```{.json .output n=None}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "epoch 1, batch 1000, train loss 7.04, perplexity 1136.45\nepoch 1, batch 2000, train loss 6.37, perplexity 584.98\n"
- }
-]
 ```
 
 ## 小结

@@ -99,8 +99,6 @@ def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
         ctx = [ctx]
     acc = nd.array([0])
     n = 0
-    if isinstance(data_iter, mx.io.MXDataIter):
-        data_iter.reset()
     for batch in data_iter:
         features, labels, batch_size = _get_batch(batch, ctx)
         for X, y in zip(features, labels):
