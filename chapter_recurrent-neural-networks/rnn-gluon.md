@@ -12,15 +12,12 @@
 ```{.python .input  n=1}
 import sys
 sys.path.append('..')
-import collections
 import gluonbook as gb
 import math
 import mxnet as mx
 from mxnet import autograd, gluon, init, nd
-from mxnet.contrib import text
 from mxnet.gluon import loss as gloss, nn, rnn, utils as gutils
 import numpy as np
-import os
 import time
 import zipfile
 
@@ -30,82 +27,75 @@ with zipfile.ZipFile('../data/ptb.zip', 'r') as zin:
 
 ## 建立词语索引
 
-下面，读取数据集。
+下面定义了`Dictionary`类来映射词语和整数索引。
 
-```{.python .input}
-def readPTB(dir_url, seg='train'):
-    data = []
-    with open(os.path.join('../data', dir_url, 'ptb.' + seg + '.txt'), 'r', encoding='utf8') as rf:
-        for line in rf:
-            data.append(line)
-    return data
-train_data = readPTB('ptb', 'train')
-valid_data = readPTB('ptb', 'valid')
-test_data = readPTB('ptb', 'test')
+```{.python .input  n=2}
+class Dictionary(object):
+    def __init__(self):
+        self.word_to_idx = {}
+        self.idx_to_word = []
+
+    def add_word(self, word):
+        if word not in self.word_to_idx:
+            self.idx_to_word.append(word)
+            self.word_to_idx[word] = len(self.idx_to_word) - 1
+        return self.word_to_idx[word]
+
+    def __len__(self):
+        return len(self.idx_to_word)
 ```
 
-## 分词
+以下的`Corpus`类按照读取的文本数据集建立映射词语和索引的词典，并将文本转换成词语索引的序列。这样，每个文本数据集就变成了NDArray格式的整数序列。
 
-接下来我们对每篇文章做分词。
+```{.python .input  n=3}
+class Corpus(object):
+    def __init__(self, path):
+        self.dictionary = Dictionary()
+        self.train = self.tokenize(path + 'train.txt')
+        self.valid = self.tokenize(path + 'valid.txt')
+        self.test = self.tokenize(path + 'test.txt')
 
-```{.python .input}
-def tokenizer(text):
-    return [tok.lower() for tok in text.split()] + ['<eos>']
-
-train_tokenized = []
-for content in train_data:
-    train_tokenized.append(tokenizer(content))
-valid_tokenized = []
-for content in valid_data:
-    valid_tokenized.append(tokenizer(content))
-test_tokenized = []
-for content in test_data:
-    test_tokenized.append(tokenizer(content))
-```
-
-## 创建词典
-
-现在，我们根据分好词的训练数据集来创建词典了。特殊符号“<unk>”（unknown）表示一切不存在于训练数据集词典中的词。
-
-```{.python .input}
-token_counter = collections.Counter()
-def count_token(tokenized):
-    for sample in train_tokenized:
-        for token in sample:
-            if token not in token_counter:
-                token_counter[token] = 1
-            else:
-                token_counter[token] += 1
-
-count_token(train_tokenized)
-vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>',
-                              reserved_tokens=None)
-```
-
-## 建立词语索引
-
-将文本转换成词语索引的序列。这样，每个文本数据集就变成了 NDArray 格式的整数序列。
-
-```{.python .input}
-def encode_samples(tokenized_samples, vocab):
-    feature = []
-    for sample in tokenized_samples:
-        for token in sample:
-            feature.append(vocab.token_to_idx[token])
-    return feature
-
-ctx = gb.try_gpu()
-
-train_features = nd.array(encode_samples(train_tokenized, vocab), dtype='int32', ctx=ctx)
-valid_features = nd.array(encode_samples(valid_tokenized, vocab), dtype='int32', ctx=ctx)
-test_features = nd.array(encode_samples(test_tokenized, vocab), dtype='int32', ctx=ctx)
+    def tokenize(self, path):
+        # 将词语添加至词典。
+        with open(path, 'r') as f:
+            num_words = 0
+            for line in f:
+                words = line.split() + ['<eos>']
+                num_words += len(words)
+                for word in words:
+                    self.dictionary.add_word(word)
+        # 将文本转换成词语索引的序列（ NDArray 格式）。
+        with open(path, 'r') as f:
+            indices = np.zeros((num_words,), dtype='int32')
+            idx = 0
+            for line in f:
+                words = line.split() + ['<eos>']
+                for word in words:
+                    indices[idx] = self.dictionary.word_to_idx[word]
+                    idx += 1
+        return nd.array(indices, dtype='int32')
 ```
 
 看一下词典的大小。
 
 ```{.python .input  n=4}
-vocab_size = len(vocab)
+data = '../data/ptb/ptb.'
+corpus = Corpus(data)
+vocab_size = len(corpus.dictionary)
 vocab_size
+```
+
+```{.json .output n=4}
+[
+ {
+  "data": {
+   "text/plain": "10000"
+  },
+  "execution_count": 4,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
 ## 定义循环神经网络模型库
@@ -137,8 +127,8 @@ class RNNModel(nn.Block):
                 self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
                                    input_size=embed_size)
             else:
-                raise ValueError("Invalid mode %s. Options are rnn_relu, "
-                                 "rnn_tanh, lstm, and gru" % mode)
+                raise ValueError('Invalid mode %s. Options are rnn_relu, '
+                                 'rnn_tanh, lstm, and gru' % mode)
             self.dense = nn.Dense(vocab_size, in_units=num_hiddens)
             self.num_hiddens = num_hiddens
 
@@ -163,13 +153,14 @@ embed_size = 100
 num_hiddens = 100
 num_layers = 2
 lr = 0.5
-clipping_theta = 0.4
+clipping_theta = 0.2
 num_epochs = 2
 batch_size = 32
 num_steps = 5
 drop_prob = 0.2
 eval_period = 1000
 
+ctx = gb.try_gpu()
 model = RNNModel(model_name, vocab_size, embed_size, num_hiddens, num_layers,
                  drop_prob)
 model.initialize(init.Xavier(), ctx=ctx)
@@ -185,18 +176,18 @@ loss = gloss.SoftmaxCrossEntropyLoss()
 ```{.python .input  n=7}
 def batchify(data, batch_size):
     num_batches = data.shape[0] // batch_size
-    data = data[:num_batches*batch_size]
+    data = data[: num_batches * batch_size]
     data = data.reshape((batch_size, num_batches)).T
     return data
 
-train_data = batchify(train_features, batch_size).as_in_context(ctx)
-val_data = batchify(valid_features, batch_size).as_in_context(ctx)
-test_data = batchify(test_features, batch_size).as_in_context(ctx)
+train_data = batchify(corpus.train, batch_size).as_in_context(ctx)
+val_data = batchify(corpus.valid, batch_size).as_in_context(ctx)
+test_data = batchify(corpus.test, batch_size).as_in_context(ctx)
 
 def get_batch(source, i):
-    seq_len = min(num_steps, source.shape[0]-1-i)
-    X = source[i : i+seq_len]
-    Y = source[i+1 : i+1+seq_len]
+    seq_len = min(num_steps, source.shape[0] - 1 - i)
+    X = source[i : i + seq_len]
+    Y = source[i + 1 : i + 1 + seq_len]
     return X, Y.reshape((-1,))
 ```
 
@@ -274,6 +265,16 @@ train_rnn()
 test_l = eval_rnn(test_data)
 print('test loss %.2f, perplexity %.2f'
       % (test_l.asscalar(), test_l.exp().asscalar()))
+```
+
+```{.json .output n=None}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "epoch 1, batch 1000, train loss 7.04, perplexity 1136.45\nepoch 1, batch 2000, train loss 6.37, perplexity 584.98\n"
+ }
+]
 ```
 
 ## 小结
