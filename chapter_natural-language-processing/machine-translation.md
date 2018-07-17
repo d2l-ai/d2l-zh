@@ -264,6 +264,7 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx,
                 valid_length = nd.array([0], ctx=ctx)
                 encoder_state = encoder.begin_state(
                     func=nd.zeros, batch_size=cur_batch_size, ctx=ctx)
+                # encoder_outputs 包含了编码器在每个时间步的隐藏状态。
                 encoder_outputs, encoder_state = encoder(x, encoder_state)
                 encoder_outputs = encoder_outputs.flatten()
                 # 解码器的第一个输入为 BOS 符号。
