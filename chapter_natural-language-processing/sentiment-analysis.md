@@ -41,6 +41,7 @@ if demo:
     with zipfile.ZipFile('../data/aclImdb_tiny.zip', 'r') as zin:
         zin.extractall('../data/')
 ```
+（多讲下数据是张什么样子，或者数据读出来是什么样的。读者即使忽略掉代码，也可以知道丢到后面的数据时什么样。）
 
 下面，读取训练和测试数据集。
 
@@ -69,6 +70,8 @@ else:
 random.shuffle(train_data)
 random.shuffle(test_data)
 ```
+
+（数据预处理描述过于简单。可以至少print一行看看每个函数是如何变化数据）
 
 ## 分词
 
@@ -157,6 +160,8 @@ glove_embedding = text.embedding.create(
 
 下面我们根据模型设计里的描述定义情感分类模型。其中的`Embedding`实例即嵌入层，`LSTM`实例即对句子编码信息的隐藏层，`Dense`实例即生成分类结果的输出层。
 
+（不需要name scope）
+
 ```{.python .input}
 class SentimentNet(nn.Block):
     def __init__(self, vocab, embed_size, num_hiddens, num_layers,
@@ -173,6 +178,7 @@ class SentimentNet(nn.Block):
         embeddings = self.embedding(inputs)
         states = self.encoder(embeddings)
         # 连结初始时间步和最终时间步的隐藏状态。
+        #（之前有解释过这个吗？）
         encoding = nd.concat(states[0], states[-1])
         outputs = self.decoder(encoding)
         return outputs
@@ -195,6 +201,7 @@ net.initialize(init.Xavier(), ctx=ctx)
 # 设置 embedding 层的 weight 为预训练的词向量。
 net.embedding.weight.set_data(glove_embedding.idx_to_vec.as_in_context(ctx))
 # 训练中不更新词向量（net.embedding中的模型参数）。
+# （这个是内部 API？还有更可读的吗？）
 net.embedding.collect_params().setattr('grad_req', 'null')
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 loss = gloss.SoftmaxCrossEntropyLoss()
@@ -208,6 +215,7 @@ loss = gloss.SoftmaxCrossEntropyLoss()
 def eval_model(features, labels):
     l_sum = 0
     l_n = 0
+    # （不要使用metric，我们直接都没介绍过。用python实现就好）
     accuracy = metric.Accuracy()
     for i in range(features.shape[0] // batch_size):
         X = features[i*batch_size : (i+1)*batch_size].as_in_context(ctx).T
@@ -221,10 +229,11 @@ def eval_model(features, labels):
 ```
 
 下面开始训练模型。
-
+(为什么只有一个epoch？）
 ```{.python .input  n=14}
 for epoch in range(1, num_epochs + 1):
     for i in range(train_features.shape[0] // batch_size):
+        # （出现好几次了，用个func来实现，X, y = get_batch(train_features, train_labels, i, ctx）
         X = train_features[i*batch_size : (i+1)*batch_size].as_in_context(
             ctx).T
         y = train_labels[i*batch_size : (i+1)*batch_size].as_in_context(
