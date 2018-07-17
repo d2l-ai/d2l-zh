@@ -16,10 +16,10 @@ from mxnet.gluon import nn
 
 def corr2d(X, K):
     n, m = K.shape
-    Y = nd.zeros((X.shape[0]-n+1, X.shape[1]-m+1))
+    Y = nd.zeros((X.shape[0] - n + 1, X.shape[1] - m + 1))
     for i in range(Y.shape[0]):
         for j in range(Y.shape[1]):
-            Y[i, j] = (X[i:i+n, j:j+m]*K).sum()
+            Y[i, j] = (X[i : i + n, j : j + m] * K).sum()
     return Y
 ```
 
@@ -35,9 +35,9 @@ def corr2d_multi_in(X, K):
 我们构造上图中的输入数据来验证实现的正确性。
 
 ```{.python .input  n=33}
-X = nd.array([[[0,1,2], [3,4,5], [6,7,8]],
-              [[1,2,3], [4,5,6], [7,8,9]]])
-K = nd.array([[[0,1], [2,3]], [[1,2], [3,4]]])
+X = nd.array([[[0, 1, 2], [3, 4, 5], [6, 7, 8]],
+              [[1, 2, 3], [4, 5, 6], [7, 8, 9]]])
+K = nd.array([[[0, 1], [2, 3]], [[1, 2], [3, 4]]])
 
 corr2d_multi_in(X, K)
 ```
@@ -55,7 +55,7 @@ def corr2d_multi_in_out(X, K):
 我们将三维核矩阵`K`同`K+1`和`K+2`拼在一起来构造一个输出通道为3的四维卷积核。
 
 ```{.python .input  n=34}
-K = nd.stack(K, K+1, K+2)
+K = nd.stack(K, K + 1, K + 2)
 K.shape
 ```
 
@@ -77,7 +77,7 @@ corr2d_multi_in_out(X, K)
 def corr2d_multi_in_out_1x1(X, K):
     c_i, h, w = X.shape
     c_o = K.shape[0]
-    X = X.reshape((c_i, h*w))
+    X = X.reshape((c_i, h * w))
     K = K.reshape((c_o, c_i))
     Y = nd.dot(K, X)
     return Y.reshape((c_o, h, w))
@@ -86,8 +86,8 @@ def corr2d_multi_in_out_1x1(X, K):
 生成一组随机数来验证实现的正确性。
 
 ```{.python .input}
-X = nd.random.uniform(shape=(3,3,3))
-K = nd.random.uniform(shape=(2,3,1,1))
+X = nd.random.uniform(shape=(3, 3, 3))
+K = nd.random.uniform(shape=(2, 3, 1, 1))
 
 Y1 = corr2d_multi_in_out_1x1(X, K)
 Y2 = corr2d_multi_in_out(X, K)

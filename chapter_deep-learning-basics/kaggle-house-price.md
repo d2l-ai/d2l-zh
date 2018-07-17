@@ -45,8 +45,8 @@ from mxnet.gluon import data as gdata, loss as gloss, nn
 import numpy as np
 import pandas as pd
 
-train_data = pd.read_csv("../data/kaggle_house_pred_train.csv")
-test_data = pd.read_csv("../data/kaggle_house_pred_test.csv")
+train_data = pd.read_csv('../data/kaggle_house_pred_train.csv')
+test_data = pd.read_csv('../data/kaggle_house_pred_test.csv')
 all_features = pd.concat((train_data.loc[:, 'MSSubClass':'SaleCondition'],
                           test_data.loc[:, 'MSSubClass':'SaleCondition']))
 ```
@@ -68,7 +68,7 @@ test_data.shape
 我们对连续数值的特征做标准化处理。如果一个特征的值是连续的，设该特征在训练数据集和测试数据集上的均值为$\mu$，标准差为$\sigma$。那么，我们可以将该特征的每个值先减去$\mu$再除以$\sigma$得到标准化后的每个特征值。
 
 ```{.python .input  n=6}
-numeric_features = all_features.dtypes[all_features.dtypes != "object"].index
+numeric_features = all_features.dtypes[all_features.dtypes != 'object'].index
 all_features[numeric_features] = all_features[numeric_features].apply(
     lambda x: (x - x.mean()) / (x.std()))
 ```
@@ -146,7 +146,7 @@ def train(net, train_features, train_labels, test_features, test_labels,
             trainer.step(batch_size)
             cur_train_l = get_rmse_log(net, train_features, train_labels)
         if epoch >= verbose_epoch:
-            print("epoch %d, train loss: %f" % (epoch, cur_train_l))
+            print('epoch %d, train loss: %f' % (epoch, cur_train_l))
         train_ls.append(cur_train_l)
         if test_features is not None:    
             cur_test_l = get_rmse_log(net, test_features, test_labels)
@@ -193,7 +193,7 @@ def k_fold_cross_valid(k, epochs, verbose_epoch, X_train, y_train,
             net, X_val_train, y_val_train, X_val_test, y_val_test, 
             epochs, verbose_epoch, learning_rate, weight_decay, batch_size)
         train_l_sum += train_l
-        print("test loss: %f" % test_l)
+        print('test loss: %f' % test_l)
         test_l_sum += test_l
     return train_l_sum / k, test_l_sum / k
 ```
@@ -213,7 +213,7 @@ batch_size = 64
 train_l, test_l = k_fold_cross_valid(k, num_epochs, verbose_epoch,
                                      train_features, train_labels, lr,
                                      weight_decay, batch_size)
-print("%d-fold validation: avg train loss: %f, avg test loss: %f"
+print('%d-fold validation: avg train loss: %f, avg test loss: %f'
       % (k, train_l, test_l))
 ```
 

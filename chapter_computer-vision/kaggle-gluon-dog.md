@@ -7,7 +7,7 @@
 
 在这个比赛中，我们将识别120类不同品种的狗。这个比赛的数据集实际上是著名的ImageNet的子集数据集。和上一节CIFAR-10数据集中的图像不同，ImageNet数据集中的图像的高和宽更大，且大小不一。
 
-图9.X展示了该比赛的网页信息。为了便于提交结果，请先在Kaggle网站上注册账号。
+图9.16展示了该比赛的网页信息。为了便于提交结果，请先在Kaggle网站上注册账号。
 
 ![狗的品种识别比赛的网页信息。比赛数据集可通过点击“Data”标签获取](../img/kaggle-dog.png)
 
@@ -24,7 +24,6 @@ import gluonbook as gb
 import math
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, model_zoo, nn
-from mxnet.gluon.data.vision import transforms
 import numpy as np
 import os
 import shutil
@@ -35,11 +34,9 @@ import zipfile
 
 比赛数据分为训练数据集和测试数据集。训练集包含10,222张图片。测试集包含10,357张图片。两个数据集中的图片格式都是jpg。这些图片都含有RGB三个通道（彩色），高和宽的大小不一。训练集中狗的类别共有120种，例如拉布拉多、贵宾、腊肠、萨摩耶、哈士奇、吉娃娃和约克夏。
 
-
-
 ### 下载数据集
 
-登录Kaggle后，我们可以点击图9.X所示的狗的品种识别比赛网页上的“Data”标签，并分别下载训练数据集“train.zip”、测试数据集“test.zip”和训练数据集标签“label.csv.zip”。下载完成后，将它们分别存放在以下路径：
+登录Kaggle后，我们可以点击图9.16所示的狗的品种识别比赛网页上的“Data”标签，并分别下载训练数据集“train.zip”、测试数据集“test.zip”和训练数据集标签“label.csv.zip”。下载完成后，将它们分别存放在以下路径：
 
 * ../data/kaggle_dog/train.zip
 * ../data/kaggle_dog/test.zip
@@ -115,7 +112,7 @@ def reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir,
                     os.path.join(data_dir, input_dir, 'test', 'unknown'))
 ```
 
-我们在这里仅仅使用小数据集。相应地，我们仅将批量大小设为1。实际训练和测试时应使用Kaggle比赛的完整数据集并调用`reorg_dog_data`函数整理数据集。同时，我们也需要将批量大小`batch_size`设为一个较大的整数，例如128。
+由于我们在这里仅仅使用小数据集，于是将批量大小设为1。在实际训练和测试时，我们应使用Kaggle比赛的完整数据集并调用`reorg_dog_data`函数整理数据集。相应地，我们也需要将批量大小`batch_size`设为一个较大的整数，例如128。
 
 ```{.python .input  n=3}
 if demo:
@@ -139,32 +136,34 @@ else:
 为应对过拟合，我们在这里使用`transforms`来增广数据集。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图片做镜面反转。我们也通过`transforms.Normalize()`对彩色图像RGB三个通道分别做标准化。以下列举了部分操作。这些操作可以根据需求来决定是否使用或修改。
 
 ```{.python .input  n=4}
-transform_train = transforms.Compose([
+transform_train = gdata.vision.transforms.Compose([
     # 随机对图片裁剪出面积为原图片面积 0.08 到 1 倍之间、且高和宽之比在 3/4 和 4/3 之间
     # 的图片，再放缩为高和宽均为 224 像素的新图片。
-    transforms.RandomResizedCrop(224, scale=(0.08, 1.0),
-                                 ratio=(3.0/4.0, 4.0/3.0)),
+    gdata.vision.transforms.RandomResizedCrop(224, scale=(0.08, 1.0),
+                                              ratio=(3.0/4.0, 4.0/3.0)),
     # 随机左右翻转图片。
-    transforms.RandomFlipLeftRight(),
+    gdata.vision.transforms.RandomFlipLeftRight(),
     # 随机抖动亮度、对比度和饱和度。
-    transforms.RandomColorJitter(brightness=0.4, contrast=0.4,
-                                 saturation=0.4),
+    gdata.vision.transforms.RandomColorJitter(brightness=0.4, contrast=0.4,
+                                              saturation=0.4),
     # 随机加噪音。
-    transforms.RandomLighting(0.1),
+    gdata.vision.transforms.RandomLighting(0.1),
     
     # 将图片像素值按比例缩小到 0 和 1 之间，并将数据格式从“高*宽*通道”改为“通道*高*宽”。
-    transforms.ToTensor(),
+    gdata.vision.transforms.ToTensor(),
     # 对图片的每个通道做标准化。
-    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    gdata.vision.transforms.Normalize([0.485, 0.456, 0.406],
+                                      [0.229, 0.224, 0.225])
 ])
 
 # 测试时，只使用确定性的图像预处理操作。
-transform_test = transforms.Compose([
-    transforms.Resize(256),
+transform_test = gdata.vision.transforms.Compose([
+    gdata.vision.transforms.Resize(256),
     # 将图片中央的高和宽均为 224 的正方形区域裁剪出来。
-    transforms.CenterCrop(224),
-    transforms.ToTensor(),
-    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    gdata.vision.transforms.CenterCrop(224),
+    gdata.vision.transforms.ToTensor(),
+    gdata.vision.transforms.Normalize([0.485, 0.456, 0.406],
+                                      [0.229, 0.224, 0.225])
 ])
 ```
 

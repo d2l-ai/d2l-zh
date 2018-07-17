@@ -5,7 +5,7 @@ CIFAR-10是计算机视觉领域的一个重要的数据集。本节中，我们
 > https://www.kaggle.com/c/cifar-10
 
 
-图9.X展示了该比赛的网页信息。为了便于提交结果，请先在Kaggle网站上注册账号。
+图9.14展示了该比赛的网页信息。为了便于提交结果，请先在Kaggle网站上注册账号。
 
 ![CIFAR-10图像分类比赛的网页信息。比赛数据集可通过点击“Data”标签获取。](../img/kaggle_cifar10.png)
 
@@ -20,7 +20,6 @@ import datetime
 import gluonbook as gb
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import data as gdata, nn, loss as gloss
-from mxnet.gluon.data.vision import transforms
 import numpy as np
 import os
 import pandas as pd
@@ -29,14 +28,14 @@ import shutil
 
 ## 获取数据集
 
-比赛数据分为训练数据集和测试数据集。训练集包含5万张图片。测试集包含30万张图片：其中有1万张图片用来计分，其他29万张不计分的图片是为了防止人工标注测试集。两个数据集中的图片格式都是png，高和宽均为32像素，并含有RGB三个通道（彩色）。图片的类别数为10，类别分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车，如图9.X所示。
+比赛数据分为训练集和测试集。训练集包含5万张图片。测试集包含30万张图片：其中有1万张图片用来计分，其他29万张不计分的图片是为了防止人工标注测试集。两个数据集中的图片格式都是png，高和宽均为32像素，并含有RGB三个通道（彩色）。图片一共涵盖10个类别，分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车，如图9.15所示。
 
 ![CIFAR-10图像的类别分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车。](../img/cifar10.png)
 
 
 ### 下载数据集
 
-登录Kaggle后，我们可以点击图9.X所示的CIFAR-10图像分类比赛网页上的“Data”标签，并分别下载训练数据集“train.7z”、测试数据集“test.7z”和训练数据集标签“trainLabels.csv”。
+登录Kaggle后，我们可以点击图9.14所示的CIFAR-10图像分类比赛网页上的“Data”标签，并分别下载训练数据集“train.7z”、测试数据集“test.7z”和训练数据集标签“trainLabels.csv”。
 
 
 ### 解压数据集
@@ -50,7 +49,7 @@ import shutil
 为方便快速上手，我们提供了上述数据集的小规模采样，例如仅含100个训练样本的“train_tiny.zip”和1个测试样本的“test_tiny.zip”。它们解压后的文件夹名称分别为“train_tiny”和“test_tiny”。此外，训练数据集标签的压缩文件解压后得到“trainLabels.csv”。如果你将使用上述Kaggle比赛的完整数据集，还需要把下面`demo`变量改为`False`。
 
 ```{.python .input}
-# 如果使用下载的 Kaggle 比赛的完整数据集，把下面改为 False。
+# 如果使用下载的 Kaggle 比赛的完整数据集，把下面 demo 变量改为 False。
 demo = True
 if demo:
     import zipfile
@@ -61,7 +60,7 @@ if demo:
 
 ### 整理数据集
 
-我们定义下面的`reorg_cifar10_data`函数来整理数据集。整理后，同一类图片将被放在同一个文件夹下，便于我们稍后读取。该函数中的参数`valid_ratio`是验证集样本数与原始训练集样本数之比。以`valid_ratio=0.1`为例，由于原始训练数据集有50,000张图片，调参时将有45,000张图片用于训练并存放在路径“`input_dir`/train”，而另外5,000张图片为验证集并存放在路径“`input_dir`/valid”。
+我们接下来定义`reorg_cifar10_data`函数来整理数据集。整理后，同一类图片将被放在同一个文件夹下，便于我们稍后读取。该函数中的参数`valid_ratio`是验证集样本数与原始训练集样本数之比。以`valid_ratio=0.1`为例，由于原始训练数据集有50,000张图片，调参时将有45,000张图片用于训练并存放在路径“`input_dir/train`”，而另外5,000张图片为验证集并存放在路径“`input_dir/valid`”。
 
 ```{.python .input  n=2}
 def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
@@ -136,24 +135,27 @@ reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
 为应对过拟合，我们在这里使用`transforms`来增广数据。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图片做镜面反转。我们也通过`transforms.Normalize()`对彩色图像RGB三个通道分别做标准化。以下列举了部分操作。这些操作可以根据需求来决定是否使用或修改。
 
 ```{.python .input  n=4}
-transform_train = transforms.Compose([
+transform_train = gdata.vision.transforms.Compose([
     # 将图片放大成高和宽各为 40 像素的正方形。
-    transforms.Resize(40),
+    gdata.vision.transforms.Resize(40),
     # 随机对高和宽各为 40 像素的正方形图片裁剪出面积为原图片面积 0.64 到 1 倍之间的小正方
     # 形，再放缩为高和宽各为 32 像素的正方形。
-    transforms.RandomResizedCrop(32, scale=(0.64, 1.0), ratio=(1.0, 1.0)),
+    gdata.vision.transforms.RandomResizedCrop(32, scale=(0.64, 1.0),
+                                              ratio=(1.0, 1.0)),
     # 随机左右翻转图片。
-    transforms.RandomFlipLeftRight(),
+    gdata.vision.transforms.RandomFlipLeftRight(),
     # 将图片像素值按比例缩小到 0 和 1 之间，并将数据格式从“高*宽*通道”改为“通道*高*宽”。
-    transforms.ToTensor(),
+    gdata.vision.transforms.ToTensor(),
     # 对图片的每个通道做标准化。
-    transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010])
+    gdata.vision.transforms.Normalize([0.4914, 0.4822, 0.4465],
+                                      [0.2023, 0.1994, 0.2010])
 ])
 
 # 测试时，无需对图像做标准化以外的增强数据处理。
-transform_test = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010])
+transform_test = gdata.vision.transforms.Compose([
+    gdata.vision.transforms.ToTensor(),
+    gdata.vision.transforms.Normalize([0.4914, 0.4822, 0.4465],
+                                      [0.2023, 0.1994, 0.2010])
 ])
 ```
 
@@ -252,7 +254,7 @@ def get_net(ctx):
 
 ## 定义训练函数
 
-我们将依赖模型在验证集上的表现来选择模型并调节超参数。下面定义了模型的训练函数`train`。我们记录了每个迭代周期的训练时间。这有助于比较不同模型的时间开销。
+我们将根据模型在验证集上的表现来选择模型并调节超参数。下面定义了模型的训练函数`train`。我们记录了每个迭代周期的训练时间。这有助于比较不同模型的时间开销。
 
 ```{.python .input  n=7}
 loss = gloss.SoftmaxCrossEntropyLoss()
@@ -316,7 +318,7 @@ train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
 
 ## 对测试集分类并在Kaggle提交结果
 
-当得到一组满意的模型设计和超参数后，我们使用全部训练数据集（含验证集）重新训练模型，并对测试集分类。
+当得到一组满意的模型设计和超参数后，我们使用所有训练数据集（含验证集）重新训练模型，并对测试集分类。
 
 ```{.python .input  n=9}
 net = get_net(ctx)

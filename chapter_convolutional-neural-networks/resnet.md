@@ -21,7 +21,7 @@ import sys
 sys.path.append('..')
 import gluonbook as gb
 from mxnet import nd, gluon, init
-from mxnet.gluon import nn
+from mxnet.gluon import loss as gloss, nn
 
 class Residual(nn.Block):
     def __init__(self, num_channels, use_1x1conv=False, strides=1, **kwargs):
@@ -125,9 +125,9 @@ for layer in net:
 ctx = gb.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.05})
-loss = gluon.loss.SoftmaxCrossEntropyLoss()
-train_data, test_data = gb.load_data_fashion_mnist(batch_size=256, resize=96)
-gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
+loss = gloss.SoftmaxCrossEntropyLoss()
+train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=256, resize=96)
+gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
 ```
 
 ## 小结

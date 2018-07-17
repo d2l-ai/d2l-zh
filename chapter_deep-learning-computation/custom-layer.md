@@ -55,7 +55,7 @@ y.mean()
 
 ```{.python .input  n=7}
 params = gluon.ParameterDict()
-params.get("param2", shape=(2, 3))
+params.get('param2', shape=(2, 3))
 params
 ```
 

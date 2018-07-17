@@ -21,7 +21,7 @@ sys.path.append('..')
 import gluonbook as gb
 import mxnet as mx
 from mxnet import nd, gluon, init
-from mxnet.gluon import nn
+from mxnet.gluon import loss as gloss, nn
 
 net = nn.Sequential()
 net.add(
@@ -40,7 +40,7 @@ net.add(
 接下来我们构造一个高宽均为28的单通道数据点，并逐层进行前向计算来查看每个层的输出大小。
 
 ```{.python .input}
-X = nd.random.uniform(shape=(1,1,28,28))
+X = nd.random.uniform(shape=(1, 1, 28, 28))
 net.initialize()
 for layer in net:
     X = layer(X)
@@ -55,28 +55,32 @@ for layer in net:
 我们仍然使用FashionMNIST作为训练数据。
 
 ```{.python .input}
-train_data, test_data = gb.load_data_fashion_mnist(batch_size=256)
+train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=256)
 ```
 
-因为卷积神经网络计算比多层感知机要复杂，因此我们使用GPU来加速计算。我们尝试在GPU 0上创建NDArray，如果成功则使用GPU 0，否则则使用CPU。（下面代码将保存在GluonBook的`try_gpu`函数里来方便重复使用）。
+因为卷积神经网络计算比多层感知机要复杂，因此我们使用GPU来加速计算。我们尝试在GPU 0上创建NDArray，如果成功则使用GPU 0，否则则使用CPU。我们将`try_gpu`函数定义在`gluonbook`包中供后面章节调用。
 
 ```{.python .input}
-try:
-    ctx = mx.gpu()
-    _ = nd.zeros((1,), ctx=ctx)
-except:
-    ctx = mx.cpu()
+def try_gpu():
+    try:
+        ctx = mx.gpu()
+        _ = nd.zeros((1,), ctx=ctx)
+    except:
+        ctx = mx.cpu()
+    return ctx
+
+ctx = try_gpu()
 ctx
 ```
 
-我们重新将模型参数初始化到`ctx`，且使用Xavier [2]（使用论文一作姓氏命名）来进行随机初始化。Xavier根据每个层的输入输出大小来选择随机数的上下区间，来使得每一层输出有相似的方差，从而使得训练时数值更加稳定。损失函数和训练算法则使用跟之前一样的交叉熵损失函数和小批量随机梯度下降。
+我们重新将模型参数初始化到`ctx`，且使用[“多层感知机”](../chapter_deep-learning-basics/mlp.md)一节里介绍过Xavier随机初始化。损失函数和训练算法则使用跟之前一样的交叉熵损失函数和小批量随机梯度下降。
 
 ```{.python .input}
-lr = 1
+lr = 1.0
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-loss = gluon.loss.SoftmaxCrossEntropyLoss()
-gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
+loss = gloss.SoftmaxCrossEntropyLoss()
+gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
 ```
 
 ## 小结
@@ -95,5 +99,3 @@ gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 ## 参考文献
 
 [1] LeCun, Y., Bottou, L., Bengio, Y., & Haffner, P. (1998). Gradient-based learning applied to document recognition. Proceedings of the IEEE, 86(11), 2278-2324.
-
-[2] Glorot, X., & Bengio, Y. (2010, March). Understanding the difficulty of training deep feedforward neural networks. In Proceedings of the thirteenth international conference on artificial intelligence and statistics (pp. 249-256).

@@ -15,15 +15,15 @@
 
 ### Windows用户
 
-第一步，根据操作系统下载并安装Miniconda（网址：https://conda.io/miniconda.html ）。
+第一步，根据操作系统下载并安装Miniconda（网址：https://conda.io/miniconda.html ），在安装过程中需要勾选“Add Anaconda to my PATH environment variable”选项。
 
-第二步，下载包含本书全部代码的包。我们可以在浏览器的地址栏中输入以下地址并按回车键进行下载：
+第二步，下载包含本书全部代码的压缩包。我们可以在浏览器的地址栏中输入以下地址并按回车键进行下载：
 
-> https://zh.gluon.ai/gluon_tutorials_zh.zip
+> https://zh.gluon.ai/gluon_tutorials_zh-1.0.zip
 
-下载完成后，解压该文件并进入文件夹“gluon_tutorials_zh”。在该目录文件资源管理器的地址栏输入`cmd`进入命令行模式。
+下载完成后，创建文件夹“gluon_tutorials_zh-1.0”并将以上压缩包解压到这个文件夹。在该目录文件资源管理器的地址栏输入`cmd`进入命令行模式。
 
-第三步，安装运行所需的依赖包并激活该运行环境。我们可以先通过运行下面命令来配置下载源，从而使用国内镜像加速下载:
+第三步，安装运行所需的软件包并激活该运行环境。我们可以先通过运行下面命令来配置下载源，从而使用国内镜像加速下载:
 
 ```
 # 优先使用清华 conda 镜像。
@@ -58,15 +58,27 @@ set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyte
 
 第一步，根据操作系统下载并安装Miniconda（网址：https://conda.io/miniconda.html ）。
 
-第二步，下载包含本书全部代码的包，解压后进入文件夹。运行如下命令。
+安装时会显示使用条款，按“↓”继续阅读，按“Q”退出阅读。之后需要回答下面几个问题：
 
 ```
-mkdir gluon_tutorials_zh && cd gluon_tutorials_zh
-curl https://zh.gluon.ai/gluon_tutorials_zh.tar.gz -o tutorials.tar.gz
+Do you accept the license terms? [yes|no]
+[no] >>> yes
+Do you wish the installer to prepend the Miniconda3 install location
+to PATH in your /xx/yyy/.zzzz ? [yes|no]
+[no] >>> yes
+```
+
+安装完成后，我们需要让conda生效。Linux用户需要运行一次`source ~/.bashrc`或重启命令行；macOS用户需要运行一次`source ~/.bash_profile`或重启命令行。
+
+第二步，下载包含本书全部代码的压缩包，解压后进入文件夹。运行如下命令。
+
+```
+mkdir gluon_tutorials_zh-1.0 && cd gluon_tutorials_zh-1.0
+curl https://zh.gluon.ai/gluon_tutorials_zh-1.0.tar.gz -o tutorials.tar.gz
 tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
 ```
 
-第三步，安装运行所需的依赖包并激活该运行环境。我们可以先通过运行下面命令来配置下载源，从而使用国内镜像加速下载:
+第三步，安装运行所需的软件包并激活该运行环境。我们可以先通过运行下面命令来配置下载源，从而使用国内镜像加速下载:
 
 ```
 # 优先使用清华 conda 镜像。
@@ -101,11 +113,11 @@ MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter no
 
 ## 激活运行环境
 
-运行环境中已安装了运行书中代码所需的Python、MXNet、Jupyter notebook等工具。我们可以在下载并解压的代码包里的文件“gluon_tutorials_zh/environment.yml”中查看它们。在运行书中代码前，我们需要激活运行环境。Windows和Linux/macOS用户请分别参照以下步骤激活并退出运行环境。
+运行环境中已安装了运行书中代码所需的Python、MXNet、Jupyter notebook等工具。我们可以在下载并解压的代码包里的文件“gluon_tutorials_zh-1.0/environment.yml”中查看它们。在运行书中代码前，我们需要激活运行环境。Windows和Linux/macOS用户请分别参照以下步骤激活并退出运行环境。
 
 ### Windows用户
 
-首先进入之前解压得到的文件夹“gluon_tutorials_zh”。然后在该目录文件资源管理器的地址栏输入`cmd`进入命令行模式。最后运行以下命令激活安装环境。
+首先进入之前解压得到的文件夹“gluon_tutorials_zh-1.0”。然后在该目录文件资源管理器的地址栏输入`cmd`进入命令行模式。最后运行以下命令激活安装环境。
 
 ```
 activate gluon
@@ -119,7 +131,7 @@ deactivate
 
 ###  Linux/macOS用户
 
-首先在命令行模式下进入之前解压得到的文件夹“gluon_tutorials_zh”（例如运行`cd gluon_tutorials_zh`），然后运行以下命令激活安装环境。
+首先在命令行模式下进入之前解压得到的文件夹“gluon_tutorials_zh-1.0”（例如运行`cd gluon_tutorials_zh-1.0`），然后运行以下命令激活安装环境。
 
 ```
 source activate gluon
@@ -136,10 +148,12 @@ source deactivate
 为了适应深度学习和MXNet的快速发展，本书的开源内容将定期发布新版本。我们推荐大家定期更新本书的开源内容（例如代码）和相应的运行环境（例如新版MXNet）。以下是更新的具体步骤。
 
 
-第一步，重新下载最新的包含本书全部代码的包，解压后进入文件夹“gluon_tutorials_zh”。下载地址可以从以下二者之间选择。
+第一步，重新下载最新的包含本书全部代码的包。下载地址可以从以下二者之间选择。
 
 * https://zh.gluon.ai/gluon_tutorials_zh.zip
 * https://zh.gluon.ai/gluon_tutorials_zh.tar.gz
+
+解压后进入文件夹“gluon_tutorials_zh”。
 
 第二步，使用下面命令更新运行环境。
 
@@ -157,7 +171,7 @@ conda env update -f environment.yml
 pip uninstall mxnet
 ```
 
-接下来，退出运行环境。使用文本编辑器打开之前解压得到的代码包里的文件“gluon_tutorials_zh/environment.yml”。如果电脑上装的是8.0版本的CUDA，将该文件中的字符串“mxnet”改为“mxnet-cu80”。如果电脑上安装了其他版本的CUDA（比如7.5、9.0、9.2等），对该文件中的字符串“mxnet”做类似修改（比如改为“mxnet-cu75”、“mxnet-cu90”、“mxnet-cu92”等）。然后，使用下面命令更新运行环境。
+接下来，退出运行环境。使用文本编辑器打开之前解压得到的代码包里的文件“gluon_tutorials_zh-1.0/environment.yml”。如果电脑上装的是8.0版本的CUDA，将该文件中的字符串“mxnet”改为“mxnet-cu80”。如果电脑上安装了其他版本的CUDA（比如7.5、9.0、9.2等），对该文件中的字符串“mxnet”做类似修改（比如改为“mxnet-cu75”、“mxnet-cu90”、“mxnet-cu92”等）。然后，使用下面命令更新运行环境。
 
 ```
 conda env update -f environment.yml
@@ -169,11 +183,12 @@ conda env update -f environment.yml
 
 如果使用GPU版的MXNet，更新代码和运行环境可参照以下步骤：
 
-第一步，重新下载最新的包含本书全部代码的包，解压后进入文件夹“gluon_tutorials_zh”。下载地址可以从以下二者之间选择。
+第一步，重新下载最新的包含本书全部代码的包。下载地址可以从以下二者之间选择。
 
 * https://zh.gluon.ai/gluon_tutorials_zh.zip
 * https://zh.gluon.ai/gluon_tutorials_zh.tar.gz
 
+解压后进入文件夹“gluon_tutorials_zh”。
 
 第二步，使用文本编辑器打开文件夹“gluon_tutorials_zh”中的环境配置文件“environment.yml”。如果电脑上装的是8.0版本的CUDA，将该文件中的字符串“mxnet”改为“mxnet-cu80”。如果电脑上安装了其他版本的CUDA（比如7.5、9.0、9.2等），对该文件中的字符串“mxnet”做类似修改（比如改为“mxnet-cu75”、“mxnet-cu90”、“mxnet-cu92”等）。
 

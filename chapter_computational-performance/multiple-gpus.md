@@ -51,12 +51,12 @@ def lenet(X, params):
     h1_conv = nd.Convolution(data=X, weight=params[0], bias=params[1],
                              kernel=(3, 3), num_filter=20)
     h1_activation = nd.relu(h1_conv)
-    h1 = nd.Pooling(data=h1_activation, pool_type="avg", kernel=(2, 2),
+    h1 = nd.Pooling(data=h1_activation, pool_type='avg', kernel=(2, 2),
                     stride=(2, 2))
     h2_conv = nd.Convolution(data=h1, weight=params[2], bias=params[3],
                              kernel=(5, 5), num_filter=50)
     h2_activation = nd.relu(h2_conv)
-    h2 = nd.Pooling(data=h2_activation, pool_type="avg", kernel=(2, 2),
+    h2 = nd.Pooling(data=h2_activation, pool_type='avg', kernel=(2, 2),
                     stride=(2, 2))
     h2 = nd.flatten(h2)
     h3_linear = nd.dot(h2, params[4]) + params[5]

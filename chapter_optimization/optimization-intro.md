@@ -45,7 +45,7 @@ $$f(x) = x \cdot \text{cos}(\pi x), \qquad -1.0 \leq x \leq 2.0,$$
 def f(x):
     return x * np.cos(np.pi * x)
 
-gb.plt.rcParams['figure.figsize'] = (4.5, 2.5)
+gb.set_figsize((4.5, 2.5))
 x = np.arange(-1.0, 2.0, 0.1)
 fig = gb.plt.figure()
 subplt = fig.add_subplot(111)

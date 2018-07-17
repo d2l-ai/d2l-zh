@@ -34,10 +34,9 @@ import sys
 sys.path.insert(0, '..')
 import gluonbook as gb
 from mxnet import nd, gluon, init, autograd
-from mxnet.gluon import nn
+from mxnet.gluon import loss as gloss, nn
 
-def batch_norm(X, gamma, beta, moving_mean, moving_var,
-               eps, momentum):
+def batch_norm(X, gamma, beta, moving_mean, moving_var, eps, momentum):
     # 通过 autograd 来获取是不是在训练环境下。
     if not autograd.is_training():
         # 如果是在预测模式下，直接使用传入的移动平滑均值和方差。
@@ -47,20 +46,20 @@ def batch_norm(X, gamma, beta, moving_mean, moving_var,
         # 接在全连接层后情况，计算特征维上的均值和方差。
         if len(X.shape) == 2:
             mean = X.mean(axis=0)
-            var = ((X - mean)**2).mean(axis=0)
+            var = ((X - mean) ** 2).mean(axis=0)
         # 接在二维卷积层后的情况，计算通道维上（axis=1）的均值和方差。这里我们需要保持 X
         # 的形状以便后面可以正常的做广播运算。
         else:
-            mean = X.mean(axis=(0,2,3), keepdims=True)
-            var = ((X - mean)**2).mean(axis=(0,2,3), keepdims=True)
+            mean = X.mean(axis=(0, 2, 3), keepdims=True)
+            var = ((X - mean) ** 2).mean(axis=(0, 2, 3), keepdims=True)
         # 训练模式下用当前的均值和方差做归一化。
         X_hat = (X - mean) / nd.sqrt(var + eps)
         # 更新移动平滑均值和方差。
         moving_mean = momentum * moving_mean + (1.0 - momentum) * mean
         moving_var = momentum * moving_var + (1.0 - momentum) * var
-    # 拉升和偏移
+    # 拉升和偏移。
     Y = gamma * X_hat + beta
-    return (Y, moving_mean, moving_var)
+    return Y, moving_mean, moving_var
 ```
 
 接下来我们自定义一个BatchNorm层。它保存参与求导和更新的模型参数`beta`和`gamma`，同时也维护移动平滑的均值和方差使得在预测时可以使用。
@@ -69,22 +68,24 @@ def batch_norm(X, gamma, beta, moving_mean, moving_var,
 class BatchNorm(nn.Block):
     def __init__(self, num_features, num_dims, **kwargs):
         super(BatchNorm, self).__init__(**kwargs)
-        shape = (1,num_features) if num_dims == 2 else (1,num_features,1,1)
+        shape = (1, num_features) if num_dims == 2 else (1, num_features, 1,
+                                                         1)
         # 参与求导和更新的模型参数，分别初始化成 0 和 1。
         self.beta = self.params.get('beta', shape=shape, init=init.Zero())
         self.gamma = self.params.get('gamma', shape=shape, init=init.One())
         # 不参与求导的模型参数。全在 CPU 上初始化成 0。
         self.moving_mean = nd.zeros(shape)
-        self.moving_variance = nd.zeros(shape)
+        self.moving_var = nd.zeros(shape)
+
     def forward(self, X):
         # 如果 X 不在 CPU 上，将 moving_mean 和 moving_varience 复制到对应设备上。
         if self.moving_mean.context != X.context:
             self.moving_mean = self.moving_mean.copyto(X.context)
-            self.moving_variance = self.moving_variance.copyto(X.context)
+            self.moving_var = self.moving_var.copyto(X.context)
         # 保存更新过的 moving_mean 和 moving_var。
-        Y, self.moving_mean, self.moving_variance = batch_norm(
+        Y, self.moving_mean, self.moving_var = batch_norm(
             X, self.gamma.data(), self.beta.data(), self.moving_mean,
-            self.moving_variance, eps=1e-5, momentum=0.9)
+            self.moving_var, eps=1e-5, momentum=0.9)
         return Y
 ```
 
@@ -120,21 +121,20 @@ lr = 1.0
 ctx = gb.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-loss = gluon.loss.SoftmaxCrossEntropyLoss()
-train_data, test_data = gb.load_data_fashion_mnist(batch_size=256)
-gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
+loss = gloss.SoftmaxCrossEntropyLoss()
+train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=256)
+gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
 ```
 
 最后我们查看下第一个批量归一化层学习到的`beta`和`gamma`。
 
 ```{.python .input  n=60}
-(net[1].beta.data().reshape((-1,)),
- net[1].gamma.data().reshape((-1,)))
+net[1].beta.data().reshape((-1,)), net[1].gamma.data().reshape((-1,))
 ```
 
 ## 小结
 
-批量归一化层对网络中间层的输出做归一化，使得深层网络学习时数值更加稳定。
+* 批量归一化层对网络中间层的输出做归一化，使得深层网络学习时数值更加稳定。
 
 ## 练习
 
@@ -148,4 +148,4 @@ gb.train(train_data, test_data, net, loss, trainer, ctx, num_epochs=5)
 
 ## 参考文献
 
-[1] Ioffe, Sergey, and Christian Szegedy. "Batch normalization: Accelerating deep network training by reducing internal covariate shift." arXiv:1502.03167 (2015).
+[1] Ioffe, S., & Szegedy, C. (2015). Batch normalization: Accelerating deep network training by reducing internal covariate shift. arXiv preprint arXiv:1502.03167.

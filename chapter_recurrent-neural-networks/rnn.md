@@ -131,11 +131,11 @@ def data_iter_random(corpus_indices, batch_size, num_steps, ctx=None):
     example_indices = list(range(num_examples))
     random.shuffle(example_indices)
     def _data(pos):
-        return corpus_indices[pos: pos+num_steps]
+        return corpus_indices[pos: pos + num_steps]
     for i in range(epoch_size):
         # 每次读取 batch_size 个随机样本。
         i = i * batch_size
-        batch_indices = example_indices[i: i+batch_size]
+        batch_indices = example_indices[i: i + batch_size]
         X = nd.array(
             [_data(j * num_steps) for j in batch_indices], ctx=ctx)
         Y = nd.array(
@@ -169,8 +169,8 @@ def data_iter_consecutive(corpus_indices, batch_size, num_steps, ctx=None):
     epoch_size = (batch_len - 1) // num_steps
     for i in range(epoch_size):
         i = i * num_steps
-        X = indices[:, i: i+num_steps]
-        Y = indices[:, i+1: i+num_steps+1]
+        X = indices[:, i: i + num_steps]
+        Y = indices[:, i + 1: i + num_steps + 1]
         yield X, Y
 ```
 
@@ -377,7 +377,7 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
             train_l_sum = train_l_sum + l.sum()
             train_l_cnt += l.size
         if epoch % pred_period == 0:
-            print("\nepoch %d, perplexity %f"
+            print('\nepoch %d, perplexity %f'
                   % (epoch, (train_l_sum / train_l_cnt).exp().asscalar()))
             for prefix in prefixes:
                 print(' - ', predict_rnn(

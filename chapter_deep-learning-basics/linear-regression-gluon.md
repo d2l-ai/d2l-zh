@@ -102,7 +102,7 @@ for epoch in range(1, num_epochs + 1):
             l = loss(net(X), y)
         l.backward()
         trainer.step(batch_size)
-    print("epoch %d, loss: %f" 
+    print('epoch %d, loss: %f'
           % (epoch, loss(net(features), labels).mean().asnumpy()))
 ```
 

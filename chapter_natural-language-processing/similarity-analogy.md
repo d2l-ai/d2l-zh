@@ -23,7 +23,7 @@ print(text.embedding.get_pretrained_file_names('fasttext')[:10])
 为了演示方便，我们创建一个很小的文本数据集，并计算词频。
 
 ```{.python .input  n=3}
-text_data = " hello world \n hello nice world \n hi world \n"
+text_data = ' hello world \n hello nice world \n hi world \n'
 counter = text.utils.count_tokens_from_str(text_data)
 ```
 

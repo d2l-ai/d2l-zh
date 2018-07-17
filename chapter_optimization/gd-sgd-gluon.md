@@ -57,7 +57,7 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval,
     gb.semilogy(es, ls, 'epoch', 'loss')
 ```
 
-以下几组实验分别重现了["梯度下降和随机梯度下降"](gd-sgd.md)一节中实验结果。
+我们将`optimize`函数定义在`gluonbook`包中供后面章节调用。以下几组实验分别重现了["梯度下降和随机梯度下降"](gd-sgd.md)一节中实验结果。
 
 ```{.python .input  n=3}
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)

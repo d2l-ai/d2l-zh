@@ -32,7 +32,7 @@ train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
 loss = gloss.SoftmaxCrossEntropyLoss()
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.5})
 num_epochs = 5
-gb.train_cpu(net, train_iter, test_iter, loss, num_epochs, batch_size,
+gb.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
              None, None, trainer)
 ```
 

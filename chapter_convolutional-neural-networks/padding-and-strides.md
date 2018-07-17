@@ -2,7 +2,7 @@
 
 在上一节的例子里，我们使用高宽为3的输入和高宽为2的卷积核得到高宽为2的输出。一般来说，假设输入形状是$n_h\times n_w$，卷积核形状是$k_h\times k_w$，那么输出形状将会是
 
-$$(n_h-k_h+1) \times (n_h-k_w+1).$$
+$$(n_h-k_h+1) \times (n_w-k_w+1).$$
 
 所以卷积层的输出形状由输入形状和卷积核形状决定。这一节我们将介绍卷积层的两个超参数，填充和步幅，它们可以在给定形状的输入和卷积核下来改变输出形状。
 
@@ -31,11 +31,11 @@ from mxnet.gluon import nn
 # 定义一个便利函数来计算卷积层。它初始化卷积层权重，并对输入和输出做相应的升维和降维。
 def comp_conv2d(conv2d, X):
     conv2d.initialize()
-    X = X.reshape((1,1,)+X.shape)
+    X = X.reshape((1, 1,) + X.shape)
     Y = conv2d(X)
     return Y.reshape(Y.shape[2:])
 
-X = nd.random.uniform(shape=(8,8))
+X = nd.random.uniform(shape=(8, 8))
 
 # 注意这里是两侧分别填充 1，所以 p_w = p_h = 2。
 conv2d = nn.Conv2D(1, kernel_size=3, padding=1)
@@ -46,7 +46,7 @@ comp_conv2d(conv2d, X).shape
 
 ```{.python .input  n=2}
 # 使用高为 5，宽为 3 的卷积核。
-conv2d = nn.Conv2D(1, kernel_size=(5,3), padding=(2,1))
+conv2d = nn.Conv2D(1, kernel_size=(5, 3), padding=(2, 1))
 comp_conv2d(conv2d, X).shape
 ```
 
@@ -74,7 +74,7 @@ comp_conv2d(conv2d, X).shape
 接下来是一个稍微复杂点的例子。
 
 ```{.python .input  n=3}
-conv2d = nn.Conv2D(1, kernel_size=(3,5), padding=(0,1), strides=(3,4))
+conv2d = nn.Conv2D(1, kernel_size=(3, 5), padding=(0, 1), strides=(3, 4))
 comp_conv2d(conv2d, X).shape
 ```
 
