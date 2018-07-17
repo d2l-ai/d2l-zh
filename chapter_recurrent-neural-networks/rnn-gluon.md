@@ -163,7 +163,7 @@ loss = gloss.SoftmaxCrossEntropyLoss()
 ```{.python .input  n=7}
 def batchify(data, batch_size):
     num_batches = data.shape[0] // batch_size
-    data = data[:num_batches*batch_size]
+    data = data[: num_batches * batch_size]
     data = data.reshape((batch_size, num_batches)).T
     return data
 
@@ -172,9 +172,9 @@ val_data = batchify(corpus.valid, batch_size).as_in_context(ctx)
 test_data = batchify(corpus.test, batch_size).as_in_context(ctx)
 
 def get_batch(source, i):
-    seq_len = min(num_steps, source.shape[0]-1-i)
-    X = source[i : i+seq_len]
-    Y = source[i+1 : i+1+seq_len]
+    seq_len = min(num_steps, source.shape[0] - 1 - i)
+    X = source[i : i + seq_len]
+    Y = source[i + 1 : i + 1 + seq_len]
     return X, Y.reshape((-1,))
 ```
 
