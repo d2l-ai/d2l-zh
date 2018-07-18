@@ -76,7 +76,7 @@ net.add(
     # 使用比 LeNet 输出大数倍了全连接层。其使用丢弃层来控制复杂度。
     nn.Dense(4096, activation="relu"), nn.Dropout(0.5),
     nn.Dense(4096, activation="relu"), nn.Dropout(0.5),
-    # 输出层。我们这里使用 FashionMNIST，所以用 10，而不是论文中的 1000。
+    # 输出层。我们这里使用 Fashion-MNIST，所以用 10，而不是论文中的 1000。
     nn.Dense(10)
 )
 ```

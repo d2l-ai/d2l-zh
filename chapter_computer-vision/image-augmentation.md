@@ -2,17 +2,23 @@
 
 在[“深度卷积神经网络：AlexNet”](../chapter_convolutional-neural-networks/alexnet.md)小节里我们提到过，大规模数据集是成功使用深度网络的前提。图片增广（image augmentation）技术通过对训练图片做一系列随机变化，来产生相似但又有不同的训练样本，从而扩大训练数据集规模。图片增广的另一种解释是，通过对训练样本做一些随机变形，可以降低模型对某些属性的依赖，从而提高泛化能力。例如我们可以对图片进行不同的裁剪，使得感兴趣的物体出现在不同的位置中，从而使得模型减小对物体出现位置的依赖性。也可以调整亮度色彩等因素来降低模型对色彩的敏感度。在AlexNet的成功中，图片增广技术功不可没。本小节我们将讨论这个在计算机视觉里被广泛使用的技术。
 
-## 常用增广方法
+首先，导入本节实验所需的包或模块。
 
-我们首先读取一张$400\times 500$的图片作为样例。
-
-```{.python .input  n=1}
+```{.python .input}
 import sys
 sys.path.insert(0, '..')
 import gluonbook as gb
-from mxnet import gluon, image, init, nd 
-from mxnet.gluon import data as gdata, loss as gloss
+import mxnet as mx
+from mxnet import autograd, gluon, image, init, nd 
+from mxnet.gluon import data as gdata, loss as gloss, utils as gutils
+from time import time
+```
 
+## 常用增广方法
+
+我们先读取一张$400\times 500$的图片作为样例。
+
+```{.python .input}
 img = image.imread('../img/cat1.jpg')
 gb.plt.imshow(img.asnumpy())
 ```
@@ -73,7 +79,7 @@ apply(img, color_aug)
 
 ### 使用多个增广
 
-实际应用中我们会将多个增广叠加使用。Compose类可以将多个增广串联起来。
+实际应用中我们会将多个增广叠加使用。`Compose`类可以将多个增广串联起来。
 
 ```{.python .input  n=9}
 augs = gdata.vision.transforms.Compose([
@@ -83,7 +89,7 @@ apply(img, augs)
 
 ## 使用图片增广来训练
 
-接下来我们来看一个将图片增广应用在实际训练中的例子，并比较其与不使用时的区别。这里我们使用CIFAR-10数据集，而不是之前我们一直使用的FashionMNIST。原因在于FashionMNIST中物体位置和尺寸都已经归一化了，而CIFAR-10中物体颜色和大小区别更加显著。下面我们展示CIFAR-10中的前32张训练图片。
+接下来我们来看一个将图片增广应用在实际训练中的例子，并比较其与不使用时的区别。这里我们使用CIFAR-10数据集，而不是之前我们一直使用的Fashion-MNIST。原因在于Fashion-MNIST中物体位置和尺寸都已经归一化了，而CIFAR-10中物体颜色和大小区别更加显著。下面我们展示CIFAR-10中的前32张训练图片。
 
 ```{.python .input  n=10}
 gb.show_images(gdata.vision.CIFAR10(train=True)[0:32][0], 4, 8, scale=0.8);
@@ -111,14 +117,91 @@ def load_cifar10(is_train, augs, batch_size):
         batch_size=batch_size, shuffle=is_train, num_workers=2)
 ```
 
-### 模型训练
+### 使用多GPU训练模型
 
-我们使用ResNet-18来训练CIFAR-10。训练的代码与[“残差网络：ResNet”](../chapter_convolutional-neural-networks/resnet.md)中一致，除了使用所有可用的GPU和不同的学习率外。
+我们在CIFAR-10数据集上训练[“残差网络：ResNet”](../chapter_convolutional-neural-networks/resnet.md)一节介绍的ResNet-18模型。我们将应用[“多GPU计算的Gluon实现”](../chapter_computational-performance/multiple-gpus-gluon.md)一节中介绍的方法，使用多GPU训练模型。
+
+首先，我们定义`try_all_gpus`函数，从而能够使用所有可用的GPU。
+
+```{.python .input}
+def try_all_gpus():
+    ctxes = []
+    try:
+        for i in range(16):
+            ctx = mx.gpu(i)
+            _ = nd.array([0], ctx=ctx)
+            ctxes.append(ctx)
+    except:
+        pass
+    if not ctxes:
+        ctxes = [mx.cpu()]
+    return ctxes
+```
+
+然后，我们定义`evaluate_accuracy`函数评价模型的分类准确率。与[“Softmax回归的从零开始实现”](../chapter_deep-learning-basics/softmax-regression-scratch.md)和[“卷积神经网络（LeNet）”](../chapter_convolutional-neural-networks/lenet.md)两节中描述的`evaluate_accuracy`函数不同，当`ctx`包含多个GPU时，这里定义的函数通过辅助函数`_get_batch`将小批量数据样本划分并复制到各个GPU上。
+
+```{.python .input}
+def _get_batch(batch, ctx):
+    features, labels = batch
+    if labels.dtype != features.dtype:
+        labels = labels.astype(features.dtype)
+    # 当 ctx 包含多个GPU时，划分小批量数据样本并复制到各个 GPU 上。
+    return (gutils.split_and_load(features, ctx),
+            gutils.split_and_load(labels, ctx),
+            features.shape[0])
+
+def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
+    if isinstance(ctx, mx.Context):
+        ctx = [ctx]
+    acc = nd.array([0])
+    n = 0
+    for batch in data_iter:
+        features, labels, _ = _get_batch(batch, ctx)
+        for X, y in zip(features, labels):
+            y = y.astype('float32')
+            acc += (net(X).argmax(axis=1)==y).sum().copyto(mx.cpu())
+            n += y.size
+        acc.wait_to_read()
+    return acc.asscalar() / n
+```
+
+接下来，我们定义`train`函数使用多GPU训练并评价模型。
+
+```{.python .input}
+def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
+    print('training on', ctx)
+    if isinstance(ctx, mx.Context):
+        ctx = [ctx]
+    for epoch in range(1, num_epochs + 1):
+        train_l_sum, train_acc_sum, n, m = 0.0, 0.0, 0.0, 0.0
+        start = time()
+        for i, batch in enumerate(train_iter):
+            Xs, ys, batch_size = _get_batch(batch, ctx)
+            ls = []
+            with autograd.record():
+                y_hats = [net(X) for X in Xs]
+                ls = [loss(y_hat, y) for y_hat, y in zip(y_hats, ys)]
+            for l in ls:
+                l.backward()
+            train_acc_sum += sum([(y_hat.argmax(axis=1) == y).sum().asscalar()
+                                 for y_hat, y in zip(y_hats, ys)])
+            train_l_sum += sum([l.sum().asscalar() for l in ls])
+            trainer.step(batch_size)
+            n += batch_size
+            m += sum([y.size for y in ys])
+        test_acc = evaluate_accuracy(test_iter, net, ctx)
+        print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
+              'time %.1f sec'
+              % (epoch, train_l_sum / n, train_acc_sum / m, test_acc,
+                 time() - start))
+```
+
+现在，我们可以定义函数使用图片增广来训练模型了。
 
 ```{.python .input  n=13}
 def train_with_data_aug(train_augs, test_augs, lr=0.1):
     batch_size = 256
-    ctx = gb.try_all_gpus()
+    ctx = try_all_gpus()
     net = gb.resnet18(10)
     net.initialize(ctx=ctx, init=init.Xavier())
     trainer = gluon.Trainer(net.collect_params(), 'sgd',
@@ -126,10 +209,10 @@ def train_with_data_aug(train_augs, test_augs, lr=0.1):
     loss = gloss.SoftmaxCrossEntropyLoss()
     train_iter = load_cifar10(True, train_augs, batch_size)
     test_iter = load_cifar10(False, test_augs, batch_size)
-    gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=8)
+    train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=8)
 ```
 
-首先我们看使用了图片增广的情况。
+我们先观察使用了图片增广的结果。
 
 ```{.python .input  n=14}
 train_with_data_aug(train_augs, test_augs)
@@ -141,7 +224,9 @@ train_with_data_aug(train_augs, test_augs)
 train_with_data_aug(test_augs, test_augs)
 ```
 
-可以看到，即使是简单的随机翻转也会有明显的效果。图片增广类似于正则项，它使得训练精度变低，但可以提高测试精度。
+可以看到，即使是简单的随机翻转也会有明显的效果。图片增广类似于正则化，它使得训练精度变低，但可以提高测试精度。
+
+本节中描述的`try_all_gpus`、`evaluate_accuracy`和`train`函数被定义在`gluonbook`包中供后面章节调用。
 
 ## 小结
 

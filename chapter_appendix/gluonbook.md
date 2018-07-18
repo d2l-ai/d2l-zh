@@ -54,7 +54,7 @@
 
 * `to_onehot`，[循环神经网络](../chapter_recurrent-neural-networks/rnn.md)
 
-* `train`
+* `train`，[图片增广](../chapter_computer-vision/image-augmentation.md)
 
 * `train_and_predict_rnn`，[循环神经网络](../chapter_recurrent-neural-networks/rnn.md)
 
@@ -62,7 +62,7 @@
 
 * `train_ch5`，[卷积神经网络（LeNet）](../chapter_convolutional-neural-networks/lenet.md)
 
-* `try_all_gpus`
+* `try_all_gpus`，[图片增广](../chapter_computer-vision/image-augmentation.md)
 
 * `try_gpu`，[卷积神经网络（LeNet）](../chapter_convolutional-neural-networks/lenet.md)
 
