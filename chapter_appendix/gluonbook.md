@@ -36,9 +36,9 @@
 
 * `read_voc_images`
 
-* `Residual`
+* `Residual`，[残差网络（ResNet）](../chapter_convolutional-neural-networks/resnet.md)
 
-* `resnet18`
+* `resnet18`，[多GPU计算的Gluon实现](../chapter_computational-performance/multiple-gpus-gluon.md)
 
 * `semilogy`，[欠拟合、过拟合和模型选择](../chapter_deep-learning-basics/underfit-overfit.md)
 

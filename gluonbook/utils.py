@@ -263,42 +263,50 @@ def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):
     return data, label
 
 
-class Residual(nn.HybridBlock):
+class Residual(nn.Block):
     """The residual block."""
-    def __init__(self, channels, same_shape=True, **kwargs):
+    def __init__(self, num_channels, use_1x1conv=False, strides=1, **kwargs):
         super(Residual, self).__init__(**kwargs)
-        self.same_shape = same_shape
-        strides = 1 if same_shape else 2
-        self.conv1 = nn.Conv2D(channels, kernel_size=3, padding=1,
+        self.conv1 = nn.Conv2D(num_channels, kernel_size=3, padding=1,
                                strides=strides)
+        self.conv2 = nn.Conv2D(num_channels, kernel_size=3, padding=1)
+        if use_1x1conv:
+            self.conv3 = nn.Conv2D(num_channels, kernel_size=1,
+                                   strides=strides)
+        else:
+            self.conv3 = None
         self.bn1 = nn.BatchNorm()
-        self.conv2 = nn.Conv2D(channels, kernel_size=3, padding=1)
         self.bn2 = nn.BatchNorm()
-        if not same_shape:
-            self.conv3 = nn.Conv2D(channels, kernel_size=1, strides=strides)
 
-    def hybrid_forward(self, F, x):
-        out = F.relu(self.bn1(self.conv1(x)))
-        out = self.bn2(self.conv2(out))
-        if not self.same_shape:
-            x = self.conv3(x)
-        return F.relu(out + x)
+    def forward(self, X):
+        Y = nd.relu(self.bn1(self.conv1(X)))
+        Y = self.bn2(self.conv2(Y))
+        if self.conv3:
+            X = self.conv3(X)
+        return nd.relu(Y + X)
 
 
 def resnet18(num_classes):
     """The ResNet-18 model."""
-    net = nn.HybridSequential()
-    net.add(nn.BatchNorm(),
-            nn.Conv2D(64, kernel_size=3, strides=1),
-            nn.MaxPool2D(pool_size=3, strides=2),
-            Residual(64),
-            Residual(64),
-            Residual(128, same_shape=False),
-            Residual(128),
-            Residual(256, same_shape=False),
-            Residual(256),
-            nn.GlobalAvgPool2D(),
-            nn.Dense(num_classes))
+    net = nn.Sequential()
+    net.add(nn.Conv2D(64, kernel_size=3, strides=1, padding=1),
+            nn.BatchNorm(), nn.Activation('relu'),
+            nn.MaxPool2D(pool_size=3, strides=2, padding=1))
+
+    def resnet_block(num_channels, num_residuals, first_block=False):
+        blk = nn.Sequential()
+        for i in range(num_residuals):
+            if i == 0 and not first_block:
+                blk.add(Residual(num_channels, use_1x1conv=True, strides=2))
+            else:
+                blk.add(Residual(num_channels))
+        return blk
+
+    net.add(resnet_block(64, 2, first_block=True),
+            resnet_block(128, 2),
+            resnet_block(256, 2),
+            resnet_block(512, 2))
+    net.add(nn.GlobalAvgPool2D(), nn.Dense(num_classes))
     return net
 
 
