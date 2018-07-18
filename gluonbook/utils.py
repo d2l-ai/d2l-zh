@@ -111,11 +111,7 @@ def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
 
 def _get_batch(batch, ctx):
     """Return features and labels on ctx."""
-    if isinstance(batch, mx.io.DataBatch):
-        features = batch.data[0]
-        labels = batch.label[0]
-    else:
-        features, labels = batch
+    features, labels = batch
     if labels.dtype != features.dtype:
         labels = labels.astype(features.dtype)
     return (gutils.split_and_load(features, ctx),
