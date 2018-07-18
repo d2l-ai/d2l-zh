@@ -91,16 +91,6 @@ for layer in net:
     print(layer.name, 'output shape:\t', X.shape)
 ```
 
-```{.json .output n=2}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "conv0 output shape:\t (1, 96, 54, 54)\npool0 output shape:\t (1, 96, 26, 26)\nconv1 output shape:\t (1, 256, 26, 26)\npool1 output shape:\t (1, 256, 12, 12)\nconv2 output shape:\t (1, 384, 12, 12)\nconv3 output shape:\t (1, 384, 12, 12)\nconv4 output shape:\t (1, 256, 12, 12)\npool2 output shape:\t (1, 256, 5, 5)\ndense0 output shape:\t (1, 4096)\ndropout0 output shape:\t (1, 4096)\ndense1 output shape:\t (1, 4096)\ndropout1 output shape:\t (1, 4096)\ndense2 output shape:\t (1, 10)\n"
- }
-]
-```
-
 ## 读取数据
 
 虽然论文中Alexnet使用Imagenet数据，但因为Imagenet数据训练时间较长，我们仍用前面的Fashion-MNIST来演示。读取数据的时候我们额外做了一步将图片高宽扩大到原版Alexnet使用的224，这个可以通过`Resize`来实现。即我们在`ToTenor`前使用`Resize`，然后使用`Compose`来将这两个变化合并成一个来方便调用。数据读取的其他部分跟前面一致。
@@ -123,7 +113,9 @@ def load_data_fashion_mnist(batch_size, resize=None,
                                  batch_size, shuffle=False, num_workers=4)
     return train_iter, test_iter
 
-train_iter, test_iter = load_data_fashion_mnist(batch_size=128, resize=224)
+batch_size = 128
+train_iter, test_iter = load_data_fashion_mnist(batch_size=batch_size,
+                                                resize=224)
 ```
 
 我们将`load_data_fashion_mnist`函数定义在`gluonbook`包中供后面章节调用。
@@ -134,21 +126,13 @@ train_iter, test_iter = load_data_fashion_mnist(batch_size=128, resize=224)
 
 ```{.python .input  n=5}
 lr = 0.01
+num_epochs = 5
 ctx = gb.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 loss = gloss.SoftmaxCrossEntropyLoss()
-gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
-```
-
-```{.json .output n=5}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "training on gpu(0)\nepoch 1, loss 1.2884, train acc 0.515, test acc 0.760, time 20.3 sec\nepoch 2, loss 0.6309, train acc 0.763, test acc 0.805, time 18.7 sec\nepoch 3, loss 0.5170, train acc 0.808, test acc 0.844, time 18.7 sec\nepoch 4, loss 0.4537, train acc 0.832, test acc 0.858, time 19.2 sec\nepoch 5, loss 0.4146, train acc 0.848, test acc 0.867, time 18.8 sec\n"
- }
-]
+gb.train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
+             num_epochs)
 ```
 
 ## 小结

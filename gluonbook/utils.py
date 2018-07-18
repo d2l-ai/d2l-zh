@@ -100,7 +100,7 @@ def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
     acc = nd.array([0])
     n = 0
     for batch in data_iter:
-        features, labels, batch_size = _get_batch(batch, ctx)
+        features, labels, _ = _get_batch(batch, ctx)
         for X, y in zip(features, labels):
             y = y.astype('float32')
             acc += (net(X).argmax(axis=1)==y).sum().copyto(mx.cpu())
@@ -368,8 +368,7 @@ def to_onehot(X, size):
     return [nd.one_hot(x, size) for x in X.T]
 
 
-def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs,
-          print_batches=None):
+def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
     """Train and evaluate a model."""
     print('training on', ctx)
     if isinstance(ctx, mx.Context):
@@ -391,10 +390,6 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs,
             trainer.step(batch_size)
             n += batch_size
             m += sum([y.size for y in ys])
-            if print_batches and (i + 1) % print_batches == 0:
-                print('batch %d, loss %f, train acc %f' % (
-                    n, train_l_sum / n, train_acc_sum / m
-                ))
         test_acc = evaluate_accuracy(test_iter, net, ctx)
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
               'time %.1f sec'
@@ -477,6 +472,31 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f'
               % (epoch, train_l_sum / len(train_iter),
                  train_acc_sum / len(train_iter), test_acc))
+
+
+def train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
+              num_epochs):
+    """Train and evaluate a model on CPU or GPU."""	
+    print('training on', ctx)
+    for epoch in range(1, num_epochs + 1):
+        train_l_sum = 0
+        train_acc_sum = 0
+        start = time()
+        for X, y in train_iter:
+            X = X.as_in_context(ctx)
+            y = y.as_in_context(ctx)
+            with autograd.record():
+                y_hat = net(X)
+                l = loss(y_hat, y)
+            l.backward()
+            trainer.step(batch_size)
+            train_l_sum += l.mean().asscalar()
+            train_acc_sum += accuracy(y_hat, y)
+        test_acc = evaluate_accuracy(test_iter, net, ctx)
+        print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
+              'time %.1f sec'
+              % (epoch, train_l_sum / len(train_iter),
+                 train_acc_sum / len(train_iter), test_acc, time() - start))
 
 
 def try_all_gpus():

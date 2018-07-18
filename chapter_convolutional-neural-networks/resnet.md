@@ -122,12 +122,17 @@ for layer in net:
 使用跟GoogLeNet一样的超参数，但减半了学习率。
 
 ```{.python .input}
+lr = 0.05
+num_epochs = 5
+batch_size = 256
 ctx = gb.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
-trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.05})
+trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 loss = gloss.SoftmaxCrossEntropyLoss()
-train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=256, resize=96)
-gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
+train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=batch_size,
+                                                   resize=96)
+gb.train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
+             num_epochs)
 ```
 
 ## 小结
