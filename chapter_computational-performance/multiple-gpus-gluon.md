@@ -10,16 +10,39 @@ sys.path.append('..')
 import gluonbook as gb
 import mxnet as mx
 from mxnet import autograd, gluon, init, nd
-from mxnet.gluon import loss as gloss, utils as gutils
+from mxnet.gluon import loss as gloss, nn, utils as gutils
 from time import time
 ```
 
 ## 多GPU上初始化模型参数
 
-我们使用ResNet-18来作为本节的样例模型。
+我们使用ResNet-18来作为本节的样例模型。我们将`resnet18`函数定义在`gluonbook`包中供后面章节调用。
 
 ```{.python .input  n=1}
-net = gb.resnet18(10)
+def resnet18(num_classes):
+    net = nn.Sequential()
+    net.add(nn.Conv2D(64, kernel_size=3, strides=1, padding=1),
+            nn.BatchNorm(), nn.Activation('relu'),
+            nn.MaxPool2D(pool_size=3, strides=2, padding=1))                 
+
+    def resnet_block(num_channels, num_residuals, first_block=False):
+        blk = nn.Sequential()
+        for i in range(num_residuals):
+            if i == 0 and not first_block:
+                blk.add(gb.Residual(num_channels, use_1x1conv=True,
+                                    strides=2))
+            else:
+                blk.add(gb.Residual(num_channels))
+        return blk 
+
+    net.add(resnet_block(64, 2, first_block=True),
+            resnet_block(128, 2), 
+            resnet_block(256, 2), 
+            resnet_block(512, 2)) 
+    net.add(nn.GlobalAvgPool2D(), nn.Dense(num_classes))
+    return net 
+
+net = resnet18(10)
 ```
 
 之前我们介绍了如何使用`initialize`函数的`ctx`参数在CPU或单个GPU上初始化模型参数。事实上，`ctx`可以接受一系列的CPU/GPU，从而使初始化好的模型参数复制到`ctx`里所有的CPU/GPU上。
@@ -40,7 +63,7 @@ net(gpu_x[0]), net(gpu_x[1])
 回忆一下[“模型参数的延后初始化”](../chapter_deep-learning-computation/deferred-init.md)一节中介绍的延后的初始化。现在，我们可以通过`data`访问初始化好的模型参数值了。需要注意的是，默认下`weight.data()`会返回CPU上的参数值。由于我们指定了2个GPU来初始化模型参数，我们需要指定GPU访问。我们看到，相同参数在不同的GPU上的值一样。
 
 ```{.python .input}
-weight = net[1].params.get('weight')
+weight = net[0].params.get('weight')
 try:
     weight.data()
 except:

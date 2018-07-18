@@ -193,8 +193,6 @@ def evaluate_accuracy(data_iter, net):
 evaluate_accuracy(test_iter, net)
 ```
 
-我们将`accuracy`和`evaluate_accuracy`函数定义在`gluonbook`包中供后面章节调用。
-
 ## 训练模型
 
 训练Softmax回归的实现跟前面线性回归中的实现非常相似。我们同样使用小批量随机梯度下降来优化模型的损失函数。在训练模型时，迭代周期数`num_epochs`和学习率`lr`都是可以调的超参数。改变它们的值可能会得到分类更准确的模型。
@@ -229,8 +227,6 @@ train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size, params,
           lr)
 ```
 
-我们将`train_ch3`函数定义在`gluonbook`包中供后面章节调用。
-
 ## 预测
 
 训练完成后，现在我们可以演示如何对图片进行分类。给定一系列图片，我们比较一下它们的真实标签和模型预测结果。
@@ -244,6 +240,9 @@ predicted_labels = [net(transformer(x)).argmax(axis=1).asscalar()
                     for x in data]
 print('predictions:', get_text_labels(predicted_labels))
 ```
+
+本节中的`accuracy`、`evaluate_accuracy`和`train_ch3`函数被定义在`gluonbook`包中供后面章节调用。其中的`evaluate_accuracy`函数将被逐步改进：它的完整实现将在[“图片增广”](../chapter_computer-vision/image-augmentation.md)一节中描述。
+
 
 ## 小结
 

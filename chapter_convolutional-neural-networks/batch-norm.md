@@ -118,12 +118,15 @@ net.add(
 
 ```{.python .input  n=77}
 lr = 1.0
+num_epochs = 5
+batch_size = 256
 ctx = gb.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 loss = gloss.SoftmaxCrossEntropyLoss()
-train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=256)
-gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
+train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
+gb.train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
+             num_epochs)
 ```
 
 最后我们查看下第一个批量归一化层学习到的`beta`和`gamma`。

@@ -99,10 +99,8 @@ def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
         ctx = [ctx]
     acc = nd.array([0])
     n = 0
-    if isinstance(data_iter, mx.io.MXDataIter):
-        data_iter.reset()
     for batch in data_iter:
-        features, labels, batch_size = _get_batch(batch, ctx)
+        features, labels, _ = _get_batch(batch, ctx)
         for X, y in zip(features, labels):
             y = y.astype('float32')
             acc += (net(X).argmax(axis=1)==y).sum().copyto(mx.cpu())
@@ -113,11 +111,7 @@ def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
 
 def _get_batch(batch, ctx):
     """Return features and labels on ctx."""
-    if isinstance(batch, mx.io.DataBatch):
-        features = batch.data[0]
-        labels = batch.label[0]
-    else:
-        features, labels = batch
+    features, labels = batch
     if labels.dtype != features.dtype:
         labels = labels.astype(features.dtype)
     return (gutils.split_and_load(features, ctx),
@@ -269,42 +263,50 @@ def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):
     return data, label
 
 
-class Residual(nn.HybridBlock):
+class Residual(nn.Block):
     """The residual block."""
-    def __init__(self, channels, same_shape=True, **kwargs):
+    def __init__(self, num_channels, use_1x1conv=False, strides=1, **kwargs):
         super(Residual, self).__init__(**kwargs)
-        self.same_shape = same_shape
-        strides = 1 if same_shape else 2
-        self.conv1 = nn.Conv2D(channels, kernel_size=3, padding=1,
+        self.conv1 = nn.Conv2D(num_channels, kernel_size=3, padding=1,
                                strides=strides)
+        self.conv2 = nn.Conv2D(num_channels, kernel_size=3, padding=1)
+        if use_1x1conv:
+            self.conv3 = nn.Conv2D(num_channels, kernel_size=1,
+                                   strides=strides)
+        else:
+            self.conv3 = None
         self.bn1 = nn.BatchNorm()
-        self.conv2 = nn.Conv2D(channels, kernel_size=3, padding=1)
         self.bn2 = nn.BatchNorm()
-        if not same_shape:
-            self.conv3 = nn.Conv2D(channels, kernel_size=1, strides=strides)
 
-    def hybrid_forward(self, F, x):
-        out = F.relu(self.bn1(self.conv1(x)))
-        out = self.bn2(self.conv2(out))
-        if not self.same_shape:
-            x = self.conv3(x)
-        return F.relu(out + x)
+    def forward(self, X):
+        Y = nd.relu(self.bn1(self.conv1(X)))
+        Y = self.bn2(self.conv2(Y))
+        if self.conv3:
+            X = self.conv3(X)
+        return nd.relu(Y + X)
 
 
 def resnet18(num_classes):
     """The ResNet-18 model."""
-    net = nn.HybridSequential()
-    net.add(nn.BatchNorm(),
-            nn.Conv2D(64, kernel_size=3, strides=1),
-            nn.MaxPool2D(pool_size=3, strides=2),
-            Residual(64),
-            Residual(64),
-            Residual(128, same_shape=False),
-            Residual(128),
-            Residual(256, same_shape=False),
-            Residual(256),
-            nn.GlobalAvgPool2D(),
-            nn.Dense(num_classes))
+    net = nn.Sequential()
+    net.add(nn.Conv2D(64, kernel_size=3, strides=1, padding=1),
+            nn.BatchNorm(), nn.Activation('relu'),
+            nn.MaxPool2D(pool_size=3, strides=2, padding=1))
+
+    def resnet_block(num_channels, num_residuals, first_block=False):
+        blk = nn.Sequential()
+        for i in range(num_residuals):
+            if i == 0 and not first_block:
+                blk.add(Residual(num_channels, use_1x1conv=True, strides=2))
+            else:
+                blk.add(Residual(num_channels))
+        return blk
+
+    net.add(resnet_block(64, 2, first_block=True),
+            resnet_block(128, 2),
+            resnet_block(256, 2),
+            resnet_block(512, 2))
+    net.add(nn.GlobalAvgPool2D(), nn.Dense(num_classes))
     return net
 
 
@@ -370,8 +372,7 @@ def to_onehot(X, size):
     return [nd.one_hot(x, size) for x in X.T]
 
 
-def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs,
-          print_batches=None):
+def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
     """Train and evaluate a model."""
     print('training on', ctx)
     if isinstance(ctx, mx.Context):
@@ -393,10 +394,6 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs,
             trainer.step(batch_size)
             n += batch_size
             m += sum([y.size for y in ys])
-            if print_batches and (i + 1) % print_batches == 0:
-                print('batch %d, loss %f, train acc %f' % (
-                    n, train_l_sum / n, train_acc_sum / m
-                ))
         test_acc = evaluate_accuracy(test_iter, net, ctx)
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
               'time %.1f sec'
@@ -479,6 +476,31 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f'
               % (epoch, train_l_sum / len(train_iter),
                  train_acc_sum / len(train_iter), test_acc))
+
+
+def train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
+              num_epochs):
+    """Train and evaluate a model on CPU or GPU."""	
+    print('training on', ctx)
+    for epoch in range(1, num_epochs + 1):
+        train_l_sum = 0
+        train_acc_sum = 0
+        start = time()
+        for X, y in train_iter:
+            X = X.as_in_context(ctx)
+            y = y.as_in_context(ctx)
+            with autograd.record():
+                y_hat = net(X)
+                l = loss(y_hat, y)
+            l.backward()
+            trainer.step(batch_size)
+            train_l_sum += l.mean().asscalar()
+            train_acc_sum += accuracy(y_hat, y)
+        test_acc = evaluate_accuracy(test_iter, net, ctx)
+        print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
+              'time %.1f sec'
+              % (epoch, train_l_sum / len(train_iter),
+                 train_acc_sum / len(train_iter), test_acc, time() - start))
 
 
 def try_all_gpus():

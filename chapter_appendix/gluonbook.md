@@ -14,13 +14,13 @@
 
 * `data_iter_random`，[循环神经网络](../chapter_recurrent-neural-networks/rnn.md)
 
-* `evaluate_accuracy`，
+* `evaluate_accuracy`，[图片增广](../chapter_computer-vision/image-augmentation.md)
 
 * `grad_clipping`，[循环神经网络](../chapter_recurrent-neural-networks/rnn.md)
 
 * `linreg`，[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)
 
-* `load_data_fashion_mnist`，[“深度卷积神经网络（AlexNet）”](../chapter_convolutional-neural-networks/alexnet.md)
+* `load_data_fashion_mnist`，[深度卷积神经网络（AlexNet）](../chapter_convolutional-neural-networks/alexnet.md)
 
 * `load_data_pascal_voc`
 
@@ -36,9 +36,9 @@
 
 * `read_voc_images`
 
-* `Residual`
+* `Residual`，[残差网络（ResNet）](../chapter_convolutional-neural-networks/resnet.md)
 
-* `resnet18`
+* `resnet18`，[多GPU计算的Gluon实现](../chapter_computational-performance/multiple-gpus-gluon.md)
 
 * `semilogy`，[欠拟合、过拟合和模型选择](../chapter_deep-learning-basics/underfit-overfit.md)
 
@@ -54,13 +54,15 @@
 
 * `to_onehot`，[循环神经网络](../chapter_recurrent-neural-networks/rnn.md)
 
-* `train`
+* `train`，[图片增广](../chapter_computer-vision/image-augmentation.md)
 
 * `train_and_predict_rnn`，[循环神经网络](../chapter_recurrent-neural-networks/rnn.md)
 
 * `train_ch3`，[Softmax回归的从零开始实现](../chapter_deep-learning-basics/softmax-regression-scratch.md)
 
-* `try_all_gpus`
+* `train_ch5`，[卷积神经网络（LeNet）](../chapter_convolutional-neural-networks/lenet.md)
+
+* `try_all_gpus`，[图片增广](../chapter_computer-vision/image-augmentation.md)
 
 * `try_gpu`，[卷积神经网络（LeNet）](../chapter_convolutional-neural-networks/lenet.md)
 

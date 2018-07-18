@@ -20,8 +20,9 @@ import sys
 sys.path.append('..')
 import gluonbook as gb
 import mxnet as mx
-from mxnet import nd, gluon, init
+from mxnet import autograd, nd, gluon, init
 from mxnet.gluon import loss as gloss, nn
+from time import time
 
 net = nn.Sequential()
 net.add(
@@ -52,13 +53,14 @@ for layer in net:
 ## 获取数据和训练
 
 
-我们仍然使用FashionMNIST作为训练数据。
+我们仍然使用Fashion-MNIST作为训练数据。
 
 ```{.python .input}
-train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=256)
+batch_size = 256
+train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=batch_size)
 ```
 
-因为卷积神经网络计算比多层感知机要复杂，因此我们使用GPU来加速计算。我们尝试在GPU 0上创建NDArray，如果成功则使用GPU 0，否则则使用CPU。我们将`try_gpu`函数定义在`gluonbook`包中供后面章节调用。
+因为卷积神经网络计算比多层感知机要复杂，因此我们使用GPU来加速计算。我们尝试在GPU 0上创建NDArray，如果成功则使用GPU 0，否则则使用CPU。
 
 ```{.python .input}
 def try_gpu():
@@ -73,15 +75,61 @@ ctx = try_gpu()
 ctx
 ```
 
-我们重新将模型参数初始化到`ctx`，且使用[“多层感知机”](../chapter_deep-learning-basics/mlp.md)一节里介绍过Xavier随机初始化。损失函数和训练算法则使用跟之前一样的交叉熵损失函数和小批量随机梯度下降。
+相应地，我们对[“Softmax回归的从零开始实现”](../chapter_deep-learning-basics/softmax-regression-scratch.md)一节中描述的`evaluate_accuracy`函数略作修改。由于数据刚开始存在CPU的内存上，当`ctx`为GPU时，我们通过[“GPU计算”](../chapter_deep-learning-computation/use-gpu.md)一节中介绍的`as_in_context`函数将数据复制到GPU上（例如GPU 0）。
 
 ```{.python .input}
-lr = 1.0
+def evaluate_accuracy(data_iter, net, ctx):
+    acc = nd.array([0], ctx=ctx)
+    for X, y in data_iter:
+        # 如果 ctx 是 GPU，将数据复制到 GPU 上。
+        X = X.as_in_context(ctx)
+        y = y.as_in_context(ctx)
+        acc += gb.accuracy(net(X), y)
+    return acc.asscalar() / len(data_iter)
+```
+
+我们同样对[“Softmax回归的从零开始实现”](../chapter_deep-learning-basics/softmax-regression-scratch.md)一节中定义的`train_ch3`函数略作修改，确保计算使用的数据和模型同在CPU或GPU的内存上。
+
+```{.python .input}
+def train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
+              num_epochs):
+    print('training on', ctx)
+    for epoch in range(1, num_epochs + 1):
+        train_l_sum = 0
+        train_acc_sum = 0
+        start = time()
+        for X, y in train_iter:
+            # 如果 ctx 是 GPU，将数据复制到 GPU 上。
+            X = X.as_in_context(ctx)
+            y = y.as_in_context(ctx)
+            with autograd.record():
+                y_hat = net(X)
+                l = loss(y_hat, y)
+            l.backward()
+            trainer.step(batch_size)
+            train_l_sum += l.mean().asscalar()
+            train_acc_sum += gb.accuracy(y_hat, y)
+        test_acc = evaluate_accuracy(test_iter, net, ctx)
+        print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
+              'time %.1f sec'
+              % (epoch, train_l_sum / len(train_iter),
+                 train_acc_sum / len(train_iter), test_acc, time() - start))
+```
+
+我们重新将模型参数初始化到`ctx`，并使用[“多层感知机”](../chapter_deep-learning-basics/mlp.md)一节里介绍过Xavier随机初始化。损失函数和训练算法则使用跟之前一样的交叉熵损失函数和小批量随机梯度下降。
+
+```{.python .input}
+lr = 0.8
+num_epochs = 5
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 loss = gloss.SoftmaxCrossEntropyLoss()
-gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
+train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
+          num_epochs)
 ```
+
+本节中的`try_gpu`、`evaluate_accuracy`和`train_ch5`函数被定义在`gluonbook`包中供后面章节调用。其中的`evaluate_accuracy`函数会被进一步改进：它的完整实现将在[“图片增广”](../chapter_computer-vision/image-augmentation.md)一节中描述。
+
 
 ## 小结
 
