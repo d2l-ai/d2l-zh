@@ -71,7 +71,7 @@ import zipfile
 
 with zipfile.ZipFile('../data/jaychou_lyrics.txt.zip', 'r') as zin:
     zin.extractall('../data/')
-with open('../data/jaychou_lyrics.txt') as f:
+with open('../data/jaychou_lyrics.txt', encoding='utf-8') as f:
     corpus_chars = f.read()
 
 corpus_chars = corpus_chars.replace('\n', ' ').replace('\r', ' ')

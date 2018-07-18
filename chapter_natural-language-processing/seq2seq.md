@@ -34,6 +34,7 @@ $$\boldsymbol{c} =  q(\boldsymbol{h}_1, \ldots, \boldsymbol{h}_T).$$
 
 ## 解码器
 
+
 刚刚已经介绍编码器输出的背景变量$\boldsymbol{c}$编码了整个输入序列$x_1, \ldots, x_T$的信息。给定训练样本中的输出序列$y_1, y_2, \ldots, y_{T'}$，对每个时间步$t'$，解码器输出$y_{t'}$基于之前输出序列$y_1,\ldots,y_{t'-1}$和背景变量$\boldsymbol{c}$的条件概率，即$\mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c})$。
 
 如果我们也使用循环神经网络作为解码器。首先将其初始隐藏状态$\boldsymbol{s}_0$设为背景变量$\boldsymbol{c}$。假设$\boldsymbol{y}_{t'}$是$y_{t'}$的特征，那么对每个时间步$t'=1,\ldots,T'$，首先更新隐藏状态：
@@ -51,6 +52,7 @@ $$\mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c}) = \m
 ## 模型训练
 
 根据最大似然估计，我们可以知道输出序列基于输入序列的条件概率为
+
 
 $$
 \begin{aligned}

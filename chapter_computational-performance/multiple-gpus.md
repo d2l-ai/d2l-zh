@@ -134,7 +134,7 @@ print('output:', splitted)
 
 ```{.python .input  n=6}
 def train_batch(X, y, gpu_params, ctx, lr):
-    # 划分小批量数据样本并复制到各个 GPU 上。
+    # 当 ctx 包含多个GPU时，划分小批量数据样本并复制到各个 GPU 上。
     gpu_Xs = split_and_load(X, ctx)
     gpu_ys = split_and_load(y, ctx)
     # 在各个 GPU 上计算损失。

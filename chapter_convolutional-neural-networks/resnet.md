@@ -14,7 +14,7 @@ ResNet的基础块叫做残差块 (Residual Block) 。如下图所示，它将�
 
 ResNet沿用了VGG全$3\times 3$卷积层设计。残差块里首先是两个有同样输出通道的$3\times 3$卷积层，每个卷积层后跟一个批量归一化层和ReLU激活层。然后我们将输入跳过这两个卷积层后直接加在最后的ReLU激活层前。这样的设计要求两个卷积层的输出与输入形状一样，从而可以相加。如果想改变输出的通道数，我们需要引入一个额外的$1\times 1$卷积层来将输入变换成需要的形状后再相加。
 
-残差块的实现见下。它可以设定输出通道数，是否使用额外的卷积层来修改输入通道数，以及卷积层的步幅大小。
+残差块的实现如下。它可以设定输出通道数，是否使用额外的卷积层来修改输入通道数，以及卷积层的步幅大小。我们将`Residual`类定义在`gluonbook`包中供后面章节调用。
 
 ```{.python .input  n=1}
 import sys
@@ -103,9 +103,9 @@ net.add(resnet_block(64, 2, first_block=True),
 net.add(nn.GlobalAvgPool2D(), nn.Dense(10))
 ```
 
-这里每个模块里有4个卷积层（不计算$1\times 1$卷积层），加上最开始的卷积层和最后的全连接层，一共有18层。这个模型也通常被称之为ResNet 18。通过配置不同的通道数和模块里的残差块数我们可以得到不同的ResNet模型。
+这里每个模块里有4个卷积层（不计算$1\times 1$卷积层），加上最开始的卷积层和最后的全连接层，一共有18层。这个模型也通常被称之为ResNet-18。通过配置不同的通道数和模块里的残差块数我们可以得到不同的ResNet模型。
 
-注意，每个残差块里我们都将输入直接加在输出上，少数几个通过简单的$1\times 1$卷积层后相加。这样一来，即使层数很多，损失函数的梯度也能很快的传递到靠近输入的层那里。这使得即使是很深的ResNet（例如ResNet 152），在收敛速度上也同浅的ResNet（例如这里实现的ResNet 18）类似。同时虽然它的主体架构上跟GoogLeNet类似，但ResNet结构更加简单，修改也更加方便。这些因素都导致了ResNet迅速被广泛使用。
+注意，每个残差块里我们都将输入直接加在输出上，少数几个通过简单的$1\times 1$卷积层后相加。这样一来，即使层数很多，损失函数的梯度也能很快的传递到靠近输入的层那里。这使得即使是很深的ResNet（例如ResNet-152），在收敛速度上也同浅的ResNet（例如这里实现的ResNet 18）类似。同时虽然它的主体架构上跟GoogLeNet类似，但ResNet结构更加简单，修改也更加方便。这些因素都导致了ResNet迅速被广泛使用。
 
 最后我们考察输入在ResNet不同模块之间的变化。
 
@@ -122,12 +122,17 @@ for layer in net:
 使用跟GoogLeNet一样的超参数，但减半了学习率。
 
 ```{.python .input}
+lr = 0.05
+num_epochs = 5
+batch_size = 256
 ctx = gb.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
-trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.05})
+trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 loss = gloss.SoftmaxCrossEntropyLoss()
-train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=256, resize=96)
-gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
+train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=batch_size,
+                                                   resize=96)
+gb.train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
+             num_epochs)
 ```
 
 ## 小结

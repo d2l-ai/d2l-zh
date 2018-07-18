@@ -115,7 +115,7 @@ finetune_net.output.initialize(init.Xavier())
 我们先定义一个可以重复使用的训练函数。
 
 ```{.python .input  n=12}
-def train_fine_tuning(net, learning_rate, batch_size=128, epochs=5):
+def train_fine_tuning(net, learning_rate, batch_size=128, num_epochs=5):
     train_iter = gdata.DataLoader(
         train_imgs.transform_first(train_augs), batch_size, shuffle=True)
     test_iter = gdata.DataLoader(
@@ -127,7 +127,7 @@ def train_fine_tuning(net, learning_rate, batch_size=128, epochs=5):
     loss = gloss.SoftmaxCrossEntropyLoss()
     trainer = gluon.Trainer(net.collect_params(), 'sgd', {
         'learning_rate': learning_rate, 'wd': 0.001})
-    gb.train(train_iter, test_iter, net, loss, trainer, ctx, epochs)
+    gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs)
 ```
 
 因为微调的网络中的主要层的已经训练的足够好，所以一般采用比较小的学习率，防止过大的步长对训练好的层产生过多影响。
@@ -153,7 +153,7 @@ train_fine_tuning(scratch_net, 0.1)
 ## 练习
 
 - 试着增大`finetune_net`的学习率看看收敛变化。
-- 多跑几个`epochs`直到收敛（其他参数可能也需要微调），看看`scratch_net`和`finetune_net`最后的精度是不是有区别
+- 多跑几个`num_epochs`直到收敛（其他参数可能也需要微调），看看`scratch_net`和`finetune_net`最后的精度是不是有区别
 - 这里`finetune_net`重用了`pretrained_net`除最后全连接外的所有权重，试试少重用些权重，有会有什么区别
 - 事实上`ImageNet`里也有`hotdog`这个类，它对应的输出层参数可以用如下代码拿到。试试如何使用它。
 

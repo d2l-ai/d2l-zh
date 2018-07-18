@@ -124,12 +124,16 @@ for layer in net:
 
 ```{.python .input  n=8}
 lr = 0.1
+num_epochs = 5
+batch_size = 128
 ctx = gb.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=128, resize=96)
+train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=batch_size,
+                                                   resize=96)
 loss = gloss.SoftmaxCrossEntropyLoss()
-gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
+gb.train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
+             num_epochs)
 ```
 
 ## 小结
