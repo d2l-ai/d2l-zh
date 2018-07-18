@@ -28,7 +28,7 @@ $$
 
 
 那么，如果隐藏层也只对输入做仿射变换会怎么样呢？设单个样本的特征为$\boldsymbol{x} \in \mathbb{R}^{1 \times d}$，隐藏层的权重参数和偏差参数分别为$\boldsymbol{W}_h \in \mathbb{R}^{d \times h}, \boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$。
-假设$\boldsymbol{h} = \boldsymbol{x} \boldsymbol{W}_h + \boldsymbol{b}_h$且$\boldsymbol{o} = \boldsymbol{h} \boldsymbol{W}_o + \boldsymbol{b}_o$，联立两式可得$\boldsymbol{o} = \boldsymbol{x} \boldsymbol{W}_h \boldsymbol{W}_o + \boldsymbol{b}_h \boldsymbol{W}_o + \boldsymbol{b}_o$：它等价于单层神经网络的输出$\boldsymbol{o} = \boldsymbol{x} \boldsymbol{W}^\prime + \boldsymbol{b}^\prime$，其中$\boldsymbol{W}^\prime = \boldsymbol{W}_h \boldsymbol{W}_o, \boldsymbol{b}^\prime = \boldsymbol{b}_h \boldsymbol{W}_o + \boldsymbol{b}_o$。因此，在隐藏层中仅使用仿射变换的多层感知机与前面介绍的单层神经网络没什么区别。
+假设$\boldsymbol{h} = \boldsymbol{x} \boldsymbol{W}_h + \boldsymbol{b}_h$且$\boldsymbol{o} = \boldsymbol{h} \boldsymbol{W}_o + \boldsymbol{b}_o$，联立两式可得$\boldsymbol{o} = \boldsymbol{x} \boldsymbol{W}_h \boldsymbol{W}_o + \boldsymbol{b}_h \boldsymbol{W}_o + \boldsymbol{b}_o$：它等价于单层神经网络的输出$\boldsymbol{o} = \boldsymbol{x} \boldsymbol{W}' + \boldsymbol{b}'$，其中$\boldsymbol{W}' = \boldsymbol{W}_h \boldsymbol{W}_o, \boldsymbol{b}' = \boldsymbol{b}_h \boldsymbol{W}_o + \boldsymbol{b}_o$。因此，在隐藏层中仅使用仿射变换的多层感知机与前面介绍的单层神经网络没什么区别。
 
 ## 激活函数
 
