@@ -34,7 +34,7 @@ $$\boldsymbol{c} =  q(\boldsymbol{h}_1, \ldots, \boldsymbol{h}_T).$$
 
 ## 解码器
 
-刚刚已经介绍编码器输出的背景变量$\boldsymbol{c}$编码了整个输入序列$x_1, \ldots, x_T$的信息。给定训练样本中的输出序列$y_1, y_2, \ldots, y_{T'}$。假设其中每个时间步$t^\prime$的输出同时取决于该时间步之前的输出序列和背景变量。那么，根据最大似然估计，我们可以最大化输出序列基于输入序列的条件概率
+刚刚已经介绍编码器输出的背景变量$\boldsymbol{c}$编码了整个输入序列$x_1, \ldots, x_T$的信息。给定训练样本中的输出序列$y_1, y_2, \ldots, y_{T^\prime}$。假设其中每个时间步$t^\prime$的输出同时取决于该时间步之前的输出序列和背景变量。那么，根据最大似然估计，我们可以最大化输出序列基于输入序列的条件概率
 
 $$
 \begin{aligned}
@@ -83,7 +83,3 @@ $$\boldsymbol{s}_{t^\prime} = g(y_{t^\prime-1}, \boldsymbol{c}, \boldsymbol{s}_{
 [1] Cho, K., Van Merriënboer, B., Gulcehre, C., Bahdanau, D., Bougares, F., Schwenk, H., & Bengio, Y. (2014). Learning phrase representations using RNN encoder-decoder for statistical machine translation. arXiv preprint arXiv:1406.1078.
 
 [2] Sutskever, I., Vinyals, O., & Le, Q. V. (2014). Sequence to sequence learning with neural networks. In Advances in neural information processing systems (pp. 3104-3112).
-
-```{.python .input}
-
-```
