@@ -9,7 +9,7 @@
 
 我们在描述解码器时提到，输出序列基于输入序列的条件概率是$\prod_{t^\prime=1}^{T^\prime} \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c})$。为了搜索该概率最大的输出序列，一种方法是穷举所有可能序列的概率，并输出概率最大的序列。我们将该序列称为最优序列，并将这种搜索方法称为穷举搜索（exhaustive search）。
 
-很明显，穷举搜索很容易因为计算开销$\mathcal{O}(|\mathcal{Y}|^{T^\prime})$太大而无法使用。例如，当$|\mathcal{Y}|=10000$且$ {T^\prime}=10$时，$10000^{10} = 1 \times 10^{40}$。
+很明显，穷举搜索很容易因为计算开销$\mathcal{O}(|\mathcal{Y}|^{T^\prime})$太大而无法使用。例如，当$|\mathcal{Y}|=10000$且$T^\prime=10$时，$10000^{10}=1\times10^{40}$。
 
 
 ## 贪婪搜索
@@ -20,7 +20,7 @@ $$y_{t^\prime} = \text{argmax}_{y_{t^\prime} \in \mathcal{Y}} \mathbb{P}(y_{t^\p
 
 且一旦搜索出“&lt;eos&gt;”符号即完成输出。
 
-贪婪搜索的计算开销是$\mathcal{O}(|\mathcal{Y}| \times {T^\prime})$。它比起穷举搜索的计算开销显著下降。例如，当$|\mathcal{Y}|=10000$且$ {T^\prime}=10$时，$10000 \times 10 = 1 \times 10^5$。然而，贪婪搜索并不能保证输出是最优序列。
+贪婪搜索的计算开销是$\mathcal{O}(|\mathcal{Y}| \times {T^\prime})$。它比起穷举搜索的计算开销显著下降。例如，当$|\mathcal{Y}|=10000$且$T^\prime=10$时，$10000\times10=1\times10^5$。然而，贪婪搜索并不能保证输出是最优序列。
 
 
 ## 束搜索
