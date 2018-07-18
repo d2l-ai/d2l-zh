@@ -34,7 +34,25 @@ $$\boldsymbol{c} =  q(\boldsymbol{h}_1, \ldots, \boldsymbol{h}_T).$$
 
 ## 解码器
 
-刚刚已经介绍编码器输出的背景变量$\boldsymbol{c}$编码了整个输入序列$x_1, \ldots, x_T$的信息。给定训练样本中的输出序列$y_1, y_2, \ldots, y_{T^\prime}$。假设其中每个时间步$t^\prime$的输出同时取决于该时间步之前的输出序列和背景变量。那么，根据最大似然估计，我们可以最大化输出序列基于输入序列的条件概率
+
+刚刚已经介绍编码器输出的背景变量$\boldsymbol{c}$编码了整个输入序列$x_1, \ldots, x_T$的信息。给定训练样本中的输出序列$y_1, y_2, \ldots, y_{T'}$，对每个时间步$t'$，解码器输出$y_{t'}$基于之前输出序列$y_1,\ldots,y_{t'-1}$和背景变量$\boldsymbol{c}$的条件概率，即$\mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c})$。
+
+如果我们也使用循环神经网络作为解码器。首先将其初始隐藏状态$\boldsymbol{s}_0$设为背景变量$\boldsymbol{c}$。假设$\boldsymbol{y}_{t'}$是$y_{t'}$的特征，那么对每个时间步$t'=1,\ldots,T'$，首先更新隐藏状态：
+
+$$\boldsymbol{s}_{t'} = g(\boldsymbol{y}_{t'-1}, \boldsymbol{c}, \boldsymbol{s}_{t'-1}),$$
+
+然后计算当前时间步输出
+
+$$\boldsymbol{\hat y}_{t'} = u\left(\boldsymbol{y}_{t'-1}, \boldsymbol{c}, \boldsymbol{s}_{t'-1}\right),$$
+
+再应用softmax后便可以得到条件概率输出，即
+
+$$\mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c}) = \mathrm{softmax}\left(\boldsymbol{\hat y}_{t'}\right).$$
+
+## 模型训练
+
+根据最大似然估计，我们可以知道输出序列基于输入序列的条件概率为
+
 
 $$
 \begin{aligned}
@@ -44,19 +62,12 @@ $$
 \end{aligned}
 $$
 
+设负对数最大似然估计为损失函数，即
 
-并得到该输出序列的损失
 
-$$- \log\mathbb{P}(y_1, \ldots, y_{T^\prime} \mid x_1, \ldots, x_T) = -\sum_{t^\prime=1}^{T^\prime} \log \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c}).$$
+$$- \log\mathbb{P}(y_1, \ldots, y_{T^\prime} \mid x_1, \ldots, x_T) = -\sum_{t^\prime=1}^{T^\prime} \log \mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c}),$$
 
-为此，我们可以使用另一个循环神经网络作为解码器。
-在输出序列的时间步$t^\prime$，解码器将上一时间步的输出$y_{t^\prime-1}$以及背景变量$\boldsymbol{c}$作为输入，并将它们与上一时间步的隐藏状态$\boldsymbol{s}_{t^\prime-1}$变换为当前时间步的隐藏状态$\boldsymbol{s}_{t^\prime}$。因此，我们可以用函数$g$表达解码器隐藏层的变换：
-
-$$\boldsymbol{s}_{t^\prime} = g(y_{t^\prime-1}, \boldsymbol{c}, \boldsymbol{s}_{t^\prime-1}).$$
-
-有了解码器的隐藏状态后，我们可以自定义输出层来计算损失中的$\mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c})$，例如基于当前时间步的解码器隐藏状态 $\boldsymbol{s}_{t^\prime}$、上一时间步的输出$y_{t^\prime-1}$以及背景变量$\boldsymbol{c}$来计算当前时间步输出$y_{t^\prime}$的概率分布。
-
-在实际中，我们常使用深度循环神经网络作为编码器和解码器。我们将在本章稍后的[“机器翻译”](machine-translation.md)一节中实现含深度循环神经网络的编码器和解码器。
+在模型训练中，我们通过最小化这个损失函数来训练模型参数。
 
 
 ## 小结
@@ -65,6 +76,8 @@ $$\boldsymbol{s}_{t^\prime} = g(y_{t^\prime-1}, \boldsymbol{c}, \boldsymbol{s}_{
 * 编码器—解码器使用了两个循环神经网络。
 * 预测不定长序列的方法包括穷举搜索、贪婪搜索和束搜索。
 
+
+（TODO @aston, 因为提到了[1]和[2], 最好解释下两边论文的区别。）
 
 ## 练习
 
@@ -76,7 +89,6 @@ $$\boldsymbol{s}_{t^\prime} = g(y_{t^\prime-1}, \boldsymbol{c}, \boldsymbol{s}_{
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4523)
 
 ![](../img/qr_seq2seq.svg)
-
 
 ## 参考文献
 
