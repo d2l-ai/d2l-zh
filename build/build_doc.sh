@@ -25,7 +25,7 @@ cd ..
 # prepare the env
 conda env update -f build/build.yml
 
-source activate gluon_zh_docs
+conda activate gluon_zh_docs
 
 pip list
 
