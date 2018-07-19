@@ -114,7 +114,7 @@ $$
 $$
 \frac{\partial J}{\partial \boldsymbol{z}} 
 = \text{prod}(\frac{\partial J}{\partial \boldsymbol{h}}, \frac{\partial \boldsymbol{h}}{\partial \boldsymbol{z}})
-= \frac{\partial J}{\partial \boldsymbol{h}} \odot \phi^\prime(\boldsymbol{z}).
+= \frac{\partial J}{\partial \boldsymbol{h}} \odot \phi'(\boldsymbol{z}).
 $$
 
 最终，我们可以得到最靠近输入层的模型参数的梯度$\partial J/\partial \boldsymbol{W}^{(1)} \in \mathbb{R}^{h \times d}$。在图3.6中，$J$分别通过$\boldsymbol{z}$和$s$依赖$\boldsymbol{W}^{(1)}$。依据链式法则，我们得到

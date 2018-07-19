@@ -186,11 +186,11 @@ $$\boldsymbol{A} \boldsymbol{v} = \lambda \boldsymbol{v},$$
 
 假设函数$f: \mathbb{R} \rightarrow \mathbb{R}$的输入和输出都是标量。函数$f$的导数
 
-$$f^\prime(x) = \lim_{h \rightarrow 0} \frac{f(x+h) - f(x)}{h},$$
+$$f'(x) = \lim_{h \rightarrow 0} \frac{f(x+h) - f(x)}{h},$$
 
 且假定该极限存在。给定$y = f(x)$，其中$x$和$y$分别是函数$f$的自变量和因变量。以下有关导数和微分的表达式等价：
 
-$$f^\prime(x) = y^\prime = \frac{dy}{dx} = \frac{df}{dx} = \frac{d}{dx} f(x) = Df(x) = D_x f(x),$$
+$$f'(x) = y' = \frac{dy}{dx} = \frac{df}{dx} = \frac{d}{dx} f(x) = Df(x) = D_x f(x),$$
 
 其中符号$D$和$d/dx$也叫微分运算符。常见的微分演算有$DC = 0$（$C$为常数）、$Dx^n = nx^{n-1}$（$n$为常数）、$De^x = e^x$、$D\ln(x) = 1/x$等。
 
