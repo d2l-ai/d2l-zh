@@ -50,7 +50,7 @@ import shutil
 
 ```{.python .input}
 # 如果使用下载的 Kaggle 比赛的完整数据集，把下面 demo 变量改为 False。
-demo = False
+demo = True
 if demo:
     import zipfile
     for f in ['train_tiny.zip', 'test_tiny.zip', 'trainLabels.csv.zip']:
@@ -122,7 +122,7 @@ else:
     test_dir = 'test'
     batch_size = 128
 
-data_dir = '../../cifar'
+data_dir = '../data/kaggle_cifar10'
 label_file = 'trainLabels.csv'
 input_dir = 'train_valid_test'
 valid_ratio = 0.1
@@ -211,8 +211,7 @@ class Residual(nn.HybridBlock):
 def resnet18(num_classes):
     net = nn.HybridSequential()
     net.add(nn.Conv2D(32, kernel_size=3, strides=1, padding=1),
-            nn.BatchNorm(), nn.Activation('relu'))#,
-            #nn.MaxPool2D(pool_size=3, strides=2, padding=1))
+            nn.BatchNorm(), nn.Activation('relu'))
 
     def resnet_block(num_channels, num_residuals, first_block=False):
         blk = nn.HybridSequential()
