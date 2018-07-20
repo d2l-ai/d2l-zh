@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="124 260 380.5 162.04545" width="380.5" height="162.04545">
+  <defs>
+    <font-face font-family="Arial" font-size="9" panose-1="2 11 6 4 2 2 2 2 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="0" x-height="518.5547" cap-height="716.3086" ascent="905.2734" descent="-211.91406" font-weight="400">
+      <font-face-src>
+        <font-face-name name="ArialMT"/>
+      </font-face-src>
+    </font-face>
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="StickArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 10 8" markerWidth="10" markerHeight="8" color="black">
+      <g>
+        <path d="M 8 0 L 0 0 M 0 -3 L 8 0 L 0 3" fill="none" stroke="currentColor" stroke-width="1"/>
+      </g>
+    </marker>
+    <font-face font-family="Arial" font-size="9" panose-1="2 11 7 4 2 2 2 2 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="104.98047" slope="0" x-height="518.5547" cap-height="715.8203" ascent="905.2734" descent="-211.91406" font-weight="700">
+      <font-face-src>
+        <font-face-name name="Arial-BoldMT"/>
+      </font-face-src>
+    </font-face>
+    <font-face font-family="Arial" font-size="7" panose-1="2 11 6 4 2 2 2 2 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="0" x-height="518.5547" cap-height="716.3086" ascent="905.2734" descent="-211.91406" font-weight="400">
+      <font-face-src>
+        <font-face-name name="ArialMT"/>
+      </font-face-src>
+    </font-face>
+    <font-face font-family="PingFang SC" font-size="9" panose-1="2 11 4 0 0 0 0 0 0 0" units-per-em="1000" underline-position="-150" underline-thickness="58" slope="0" x-height="600" cap-height="860" ascent="1060.0021" descent="-340.0007" font-weight="400">
+      <font-face-src>
+        <font-face-name name="PingFangSC-Regular"/>
+      </font-face-src>
+    </font-face>
+  </defs>
+  <metadata> Produced by OmniGraffle 7.7.1 
+    <dc:date>2018-07-20 20:40:14 +0000</dc:date>
+  </metadata>
+  <g id="rnn" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
+    <title>rnn</title>
+    <rect fill="white" x="124" y="260" width="380.5" height="162.04545"/>
+    <g id="rnn: Layer 1">
+      <title>Layer 1</title>
+      <g id="Graphic_8">
+        <path d="M 302 300 L 370 300 C 373.3137 300 376 302.6863 376 306 L 376 350 C 376 353.3137 373.3137 356 370 356 L 302 356 C 298.6863 356 296 353.3137 296 350 L 296 306 C 296 302.6863 298.6863 300 302 300 Z" fill="white"/>
+        <path d="M 302 300 L 370 300 C 373.3137 300 376 302.6863 376 306 L 376 350 C 376 353.3137 373.3137 356 370 356 L 302 356 C 298.6863 356 296 353.3137 296 350 L 296 306 C 296 302.6863 298.6863 300 302 300 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_3">
+        <rect x="326.2013" y="320" width="28" height="16" fill="#d3e8ff"/>
+        <rect x="326.2013" y="320" width="28" height="16" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(331.2013 322.8528)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="6.525879" y="8">ɸ</tspan>
+        </text>
+      </g>
+      <g id="Line_33">
+        <line x1="272" y1="328" x2="316.3013" y2="328" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_34">
+        <path d="M 307.97702 369.0874 L 307.99665 333.99664 C 307.9985 330.68425 310.68425 328 313.99665 328 L 321.2568 328" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_6">
+        <line x1="354.2013" y1="328" x2="421.83975" y2="328" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_7">
+        <path d="M 356.91477 328 L 358 328 C 361.3137 328 364 325.3137 364 322 L 364 289.9" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_9">
+        <text transform="translate(303.97087 374.47288)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-weight="700" fill="black" x=".026123047" y="8">X</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">t</tspan>
+        </text>
+      </g>
+      <g id="Graphic_10">
+        <text transform="translate(126 321.5)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="1.5" y="10">隐藏状态：</tspan>
+        </text>
+      </g>
+      <g id="Graphic_11">
+        <text transform="translate(383.5 313.3855)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-weight="700" fill="black" x=".27783203" y="8">H</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">t</tspan>
+        </text>
+      </g>
+      <g id="Graphic_13">
+        <rect x="172" y="402" width="28" height="16" fill="#d3e8ff"/>
+        <rect x="172" y="402" width="28" height="16" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(177 404.8528)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="6.525879" y="8">ɸ</tspan>
+        </text>
+      </g>
+      <g id="Graphic_14">
+        <text transform="translate(209 403.5)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="0" y="10">全连接层和激活函数</tspan>
+        </text>
+      </g>
+      <g id="Group_23">
+        <g id="Line_22">
+          <line x1="433.36364" y1="406.27273" x2="451.46364" y2="406.27273" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        </g>
+        <g id="Line_21">
+          <path d="M 442.36364 418.27273 L 442.36364 412.27273 C 442.36364 408.959 445.04993 406.27273 448.36364 406.27273 L 459.1531 406.27273" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        </g>
+      </g>
+      <g id="Graphic_17">
+        <text transform="translate(469 403.5)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="0" y="10">合并</tspan>
+        </text>
+      </g>
+      <g id="Group_26">
+        <g id="Line_25">
+          <line x1="332" y1="414" x2="350.1" y2="414" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        </g>
+        <g id="Line_24">
+          <path d="M 332 414 L 338 414 C 341.3137 414 344 411.3137 344 408 L 344 407.9" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        </g>
+      </g>
+      <g id="Graphic_20">
+        <text transform="translate(367.63636 403.54545)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="0" y="10">复制</tspan>
+        </text>
+      </g>
+      <g id="Graphic_27">
+        <path d="M 191.94872 300 L 259.94872 300 C 263.26243 300 265.94872 302.6863 265.94872 306 L 265.94872 350 C 265.94872 353.3137 263.26243 356 259.94872 356 L 191.94872 356 C 188.635 356 185.94872 353.3137 185.94872 350 L 185.94872 306 C 185.94872 302.6863 188.635 300 191.94872 300 Z" fill="white"/>
+        <path d="M 191.94872 300 L 259.94872 300 C 263.26243 300 265.94872 302.6863 265.94872 306 L 265.94872 350 C 265.94872 353.3137 263.26243 356 259.94872 356 L 191.94872 356 C 188.635 356 185.94872 353.3137 185.94872 350 L 185.94872 306 C 185.94872 302.6863 188.635 300 191.94872 300 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_28">
+        <rect x="216.15" y="320" width="28" height="16" fill="#d3e8ff"/>
+        <rect x="216.15" y="320" width="28" height="16" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(221.15 322.8528)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="6.525879" y="8">ɸ</tspan>
+        </text>
+      </g>
+      <g id="Line_29">
+        <line x1="176" y1="328" x2="206.25" y2="328" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_30">
+        <path d="M 197.94872 369.0874 L 197.94872 334 C 197.94872 330.6863 200.635 328 203.94872 328 L 205.34691 328" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_31">
+        <line x1="244.15" y1="328" x2="316.3013" y2="328" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_32">
+        <path d="M 247.02142 328 L 247.94872 328 C 251.26243 328 253.94872 325.3137 253.94872 322 L 253.94872 289.9" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_35">
+        <path d="M 407.53846 300 L 475.53846 300 C 478.85217 300 481.53846 302.6863 481.53846 306 L 481.53846 350 C 481.53846 353.3137 478.85217 356 475.53846 356 L 407.53846 356 C 404.22475 356 401.53846 353.3137 401.53846 350 L 401.53846 306 C 401.53846 302.6863 404.22475 300 407.53846 300 Z" fill="white"/>
+        <path d="M 407.53846 300 L 475.53846 300 C 478.85217 300 481.53846 302.6863 481.53846 306 L 481.53846 350 C 481.53846 353.3137 478.85217 356 475.53846 356 L 407.53846 356 C 404.22475 356 401.53846 353.3137 401.53846 350 L 401.53846 306 C 401.53846 302.6863 404.22475 300 407.53846 300 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_36">
+        <rect x="431.73975" y="320" width="28" height="16" fill="#d3e8ff"/>
+        <rect x="431.73975" y="320" width="28" height="16" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(436.73975 322.8528)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="6.525879" y="8">ɸ</tspan>
+        </text>
+      </g>
+      <g id="Line_37">
+        <line x1="377.53846" y1="328" x2="421.83975" y2="328" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_38">
+        <path d="M 413.53846 367.02564 L 413.53846 331.61744 C 413.53846 329.6196 415.15804 328 417.1559 328 L 417.1559 328" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_39">
+        <line x1="459.73975" y1="328" x2="494.1" y2="328" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_40">
+        <path d="M 461.28865 328 L 463.53846 328 C 466.85217 328 469.53846 325.3137 469.53846 322 L 469.53846 289.9" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_41">
+        <text transform="translate(274.36612 313.3855)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-weight="700" fill="black" x=".16577148" y="8">H</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">t-1</tspan>
+        </text>
+      </g>
+      <g id="Graphic_42">
+        <text transform="translate(145.54348 369.5)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="0" y="10">输入：</tspan>
+        </text>
+      </g>
+      <g id="Graphic_43">
+        <text transform="translate(191.97436 372.41114)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-weight="700" fill="black" x=".4140625" y="8">X</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">t-1</tspan>
+        </text>
+      </g>
+      <g id="Graphic_44">
+        <text transform="translate(407.47436 371.3855)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-weight="700" fill="black" x=".03564453" y="8">X</tspan>
+          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">t+1</tspan>
+        </text>
+      </g>
+      <g id="Graphic_45">
+        <rect x="349.9487" y="264" width="28" height="16" fill="#d3e8ff"/>
+        <rect x="349.9487" y="264" width="28" height="16" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_46">
+        <rect x="240" y="264" width="28" height="16" fill="#d3e8ff"/>
+        <rect x="240" y="264" width="28" height="16" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_47">
+        <rect x="456" y="264" width="28" height="16" fill="#d3e8ff"/>
+        <rect x="456" y="264" width="28" height="16" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_48">
+        <text transform="translate(130.54348 265.5)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="6" y="10">输出层：</tspan>
+        </text>
+      </g>
+    </g>
+  </g>
+</svg>
