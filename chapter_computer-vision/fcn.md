@@ -145,7 +145,7 @@ train_iter = gdata.DataLoader(gb.VOCSegDataset(True, input_shape), batch_size,
 test_iter = gdata.DataLoader(gb.VOCSegDataset(False, input_shape), batch_size,
                              last_batch='discard', num_workers=4) 
 
-#gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=10)
+gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=10)
 ```
 
 ## 预测
