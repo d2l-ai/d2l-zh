@@ -19,6 +19,7 @@ from time import time
 我们先读取一张$400\times 500$的图片作为样例。
 
 ```{.python .input  n=2}
+%config InlineBackend.figure_format = 'retina'
 img = image.imread('../img/cat1.jpg')
 gb.plt.imshow(img.asnumpy())
 ```
