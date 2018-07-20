@@ -28,7 +28,7 @@ y = conv(x)
 y.shape
 ```
 
-使用用样的卷积窗、填充和步幅的转置卷积层，我们可以得到跟`x`一样的输出。
+使用用样的卷积窗、填充和步幅的转置卷积层，我们可以得到和`x`一样的输出。
 
 ```{.python .input  n=3}
 conv_trans = nn.Conv2DTranspose(3, kernel_size=4, padding=1, strides=2)
