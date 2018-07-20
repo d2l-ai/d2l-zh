@@ -35,6 +35,7 @@ $$y = 0.05 + \sum_{i = 1}^p 0.01x_i +  \epsilon,$$
 其中噪音项$\epsilon$服从均值为0和标准差为0.1的正态分布。为了较容易地观察过拟合，我们考虑高维线性回归问题，例如设维度$p=200$；同时，我们特意把训练数据集的样本数设低，例如20。
 
 ```{.python .input  n=2}
+%matplotlib inline
 import sys
 sys.path.append('..')
 import gluonbook as gb
