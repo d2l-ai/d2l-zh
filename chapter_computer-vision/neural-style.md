@@ -12,6 +12,7 @@
 ![Neural Style。](../img/neural-style.svg)
 
 ```{.python .input}
+%matplotlib inline
 import sys
 sys.path.append('..')
 import gluonbook as gb

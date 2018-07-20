@@ -28,6 +28,7 @@
 我们首先将数据下载到`../data`。在当前目录解压后得到`hotdog/train`和`hotdog/test`这两个文件夹。每个下面有`hotdog`和`not-hotdog`这两个类别文件夹，里面是对应的图片文件。
 
 ```{.python .input  n=4}
+%matplotlib inline
 import sys
 sys.path.insert(0, '..')
 import zipfile

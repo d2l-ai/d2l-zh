@@ -7,6 +7,7 @@
 打包好的数据集可以直接在网上下载。下载数据集的操作定义在`_download_pikachu`函数中。
 
 ```{.python .input  n=1}
+%matplotlib inline
 import sys
 sys.path.insert(0, '..')
 import gluonbook as gb

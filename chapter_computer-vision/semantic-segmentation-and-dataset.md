@@ -14,6 +14,7 @@
 [Pascal VOC2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/)来介绍这个应用。
 
 ```{.python .input  n=1}
+%matplotlib inline
 import sys
 sys.path.append('..')
 import gluonbook as gb

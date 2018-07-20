@@ -3,6 +3,7 @@
 我们将介绍的第一个模型是单发多框检测（single shot multibox detection，简称SSD）[1]。它并不是第一个提出来的基于深度学习的物体检测模型，也不是精度最高的，但因为其简单快速而被大量使用。我们将使用SSD来详解目标检测的实现细节。
 
 ```{.python .input  n=1}
+%matplotlib inline
 import sys
 sys.path.insert(0, '..')
 import gluonbook as gb

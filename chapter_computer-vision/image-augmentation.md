@@ -5,6 +5,7 @@
 首先，导入本节实验所需的包或模块。
 
 ```{.python .input  n=1}
+%matplotlib inline
 import sys
 sys.path.insert(0, '..')
 import gluonbook as gb
