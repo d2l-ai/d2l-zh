@@ -23,6 +23,8 @@ $$
 
 其中$\boldsymbol{W}_{xr}, \boldsymbol{W}_{xz} \in \mathbb{R}^{d \times h}$和$\boldsymbol{W}_{hr}, \boldsymbol{W}_{hz} \in \mathbb{R}^{h \times h}$是权重参数，$\boldsymbol{b}_r, \boldsymbol{b}_z \in \mathbb{R}^{1 \times h}$是偏移参数。激活函数$\sigma$是sigmoid函数。[“多层感知机”](../chapter_deep-learning-basics/mlp.md)一节中介绍过，sigmoid函数可以将元素的值变换到0和1之间。因此，重置门$\boldsymbol{R}_t$和更新门$\boldsymbol{Z}_t$中每个元素的值域都是$[0, 1]$。
 
+![GRU中计算重置门和更新。](../img/gru1.svg)
+
 我们可以通过元素值域在$[0, 1]$的更新门和重置门来控制隐藏状态中信息的流动：这通常可以应用按元素乘法符$\odot$。
 
 
@@ -33,6 +35,8 @@ $$
 $$\tilde{\boldsymbol{H}}_t = \text{tanh}(\boldsymbol{X}_t \boldsymbol{W}_{xh} + \boldsymbol{R}_t \odot \boldsymbol{H}_{t-1} \boldsymbol{W}_{hh} + \boldsymbol{b}_h),$$
 
 其中$\boldsymbol{W}_{xh} \in \mathbb{R}^{d \times h}$和$\boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$是权重参数，$\boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$是偏移参数。需要注意的是，候选隐藏状态使用了重置门，从而控制包含时间序列历史信息的上一个时间步的隐藏状态如何流入当前时间步的候选隐藏状态。如果重置门近似0，上一个隐藏状态将被丢弃。因此，重置门可以丢弃与预测未来无关的历史信息。
+
+![GRU中计算候选隐藏状态。](../img/gru2.svg)
 
 
 ### 隐藏状态
@@ -50,6 +54,8 @@ $$\boldsymbol{H}_t = \boldsymbol{Z}_t \odot \boldsymbol{H}_{t-1}  + (1 - \boldsy
 * 重置门有助于捕捉时间序列里短期的依赖关系。
 * 更新门有助于捕捉时间序列里长期的依赖关系。
 
+
+![完整的GRU计算单元。](../img/gru3.svg)
 
 
 ## 实验
