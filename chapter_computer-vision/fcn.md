@@ -126,27 +126,38 @@ net[-1].initialize(init.Constant(trans_conv_weights))
 net[-2].initialize(init=init.Xavier())
 ```
 
-## 训练
+## 读取数据
 
-这时候我们可以真正开始训练了。我们使用较大的输入图片尺寸，其值选成了32的倍数。因为我们使用转置卷积层的通道来预测像素的类别，所以在做softmax是作用在通道这个维度（维度1），所以在`SoftmaxCrossEntropyLoss`里加入了额外了`axis=1`选项。
+我们使用较大的输入图片尺寸，其值选成了32的倍数。数据的读取方法已在上一节描述。
 
-```{.python .input  n=12}
+```{.python .input}
 input_shape = (320, 480)
 batch_size = 32
+colormap2label = nd.zeros(256**3)
+for i, cm in enumerate(gb.voc_colormap):
+    colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i 
+voc_dir = gb.download_voc_pascal(data_dir='../data')
+
+num_workers = 0 if sys.platform.startswith('win32') else 4
+train_iter = gdata.DataLoader(
+    gb.VOCSegDataset(True, input_shape, voc_dir, colormap2label), batch_size,
+    shuffle=True, last_batch='discard', num_workers=num_workers)
+test_iter = gdata.DataLoader(
+    gb.VOCSegDataset(False, input_shape, voc_dir, colormap2label), batch_size,
+    last_batch='discard', num_workers=num_workers) 
+```
+
+## 训练
+
+这时候我们可以真正开始训练了。因为我们使用转置卷积层的通道来预测像素的类别，所以在做softmax是作用在通道这个维度（维度1），所以在`SoftmaxCrossEntropyLoss`里加入了额外了`axis=1`选项。
+
+```{.python .input  n=12}
 ctx = gb.try_all_gpus()
 loss = gloss.SoftmaxCrossEntropyLoss(axis=1)
 net.collect_params().reset_ctx(ctx)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate': 0.1, 'wd': 1e-3})
-
-voc_dir = gb.download_voc_pascal(data_dir='../data')
-train_iter = gdata.DataLoader(gb.VOCSegDataset(True, input_shape, voc_dir),
-                              batch_size, shuffle=True, last_batch='discard',
-                              num_workers=4)
-test_iter = gdata.DataLoader(gb.VOCSegDataset(False, input_shape, voc_dir),
-                             batch_size, last_batch='discard', num_workers=4) 
-
-gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
+gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=10)
 ```
 
 ## 预测
@@ -195,7 +206,7 @@ gb.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n);
 * 试着改改最后的转置卷积层的参数设定。
 * 看看双线性差值初始化是不是必要的。
 * 试着改改训练参数来使得收敛更好些。
-* FCN论文[1]中提到了不只是使用主体卷积网络输出，还可以考虑其中间层的输出。试着实现这个想法。
+* FCN论文 [1] 中提到了不只是使用主体卷积网络输出，还可以考虑其中间层的输出。试着实现这个想法。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/3041)
 
@@ -204,4 +215,4 @@ gb.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n);
 
 ## 参考文献
 
-[1] Long, Jonathan, Evan Shelhamer, and Trevor Darrell. "Fully convolutional networks for semantic segmentation." CVPR. 2015.
+[1] Long, J., Shelhamer, E., & Darrell, T. (2015). Fully convolutional networks for semantic segmentation. In Proceedings of the IEEE conference on computer vision and pattern recognition (pp. 3431-3440).

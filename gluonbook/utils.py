@@ -158,10 +158,14 @@ def load_data_fashion_mnist(batch_size, resize=None,
 
     mnist_train = gdata.vision.FashionMNIST(root=root, train=True)
     mnist_test = gdata.vision.FashionMNIST(root=root, train=False)
+    num_workers = 0 if sys.platform.startswith('win32') else 4
+
     train_iter = gdata.DataLoader(mnist_train.transform_first(transformer),
-                                  batch_size, shuffle=True, num_workers=4)
+                                  batch_size, shuffle=True,
+                                  num_workers=num_workers)
     test_iter = gdata.DataLoader(mnist_test.transform_first(transformer),
-                                 batch_size, shuffle=False, num_workers=4)
+                                 batch_size, shuffle=False,
+                                 num_workers=num_workers)                                                              
     return train_iter, test_iter
 
 
@@ -519,11 +523,8 @@ def try_gpu():
     return ctx
 
 
-def voc_label_indices(img):
+def voc_label_indices(img, colormap2label):
     """Assig label indices for Pascal VOC2012 Dataset."""
-    colormap2label = nd.zeros(256**3)
-    for i, cm in enumerate(voc_colormap):
-        colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i
     data = img.astype('int32')
     idx = (data[:,:,0] * 256 + data[:,:,1]) * 256 + data[:,:,2]
     return colormap2label[idx]
@@ -538,13 +539,14 @@ def voc_rand_crop(data, label, height, width):
 
 class VOCSegDataset(gdata.Dataset):
     """The Pascal VOC2012 Dataset."""
-    def __init__(self, train, crop_size, voc_dir):
+    def __init__(self, train, crop_size, voc_dir, colormap2label):
         self.rgb_mean = nd.array([0.485, 0.456, 0.406])
         self.rgb_std = nd.array([0.229, 0.224, 0.225])
         self.crop_size = crop_size        
         data, label = read_voc_images(root=voc_dir, train=train)
         self.data = [self.normalize_image(im) for im in self.filter(data)]
-        self.label = self.filter(label)            
+        self.label = self.filter(label)
+        self.colormap2label = colormap2label
         print('read ' + str(len(self.data)) + ' examples')
         
     def normalize_image(self, data):
@@ -558,7 +560,8 @@ class VOCSegDataset(gdata.Dataset):
     def __getitem__(self, idx):
         data, label = voc_rand_crop(self.data[idx], self.label[idx],
                                     *self.crop_size)
-        return data.transpose((2, 0, 1)), voc_label_indices(label)
+        return (data.transpose((2, 0, 1)),
+                voc_label_indices(label, self.colormap2label))
 
     def __len__(self):
         return len(self.data)

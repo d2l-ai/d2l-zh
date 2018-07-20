@@ -85,10 +85,11 @@ voc_classes = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
 这样给定一个标号图片，我们就可以将每个像素对应的物体标号找出来。
 
 ```{.python .input  n=6}
-def voc_label_indices(img):
-    colormap2label = nd.zeros(256**3)
-    for i, cm in enumerate(voc_colormap):
-        colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i
+colormap2label = nd.zeros(256**3)
+for i, cm in enumerate(voc_colormap):
+    colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i
+
+def voc_label_indices(img, colormap2label):
     data = img.astype('int32')
     idx = (data[:,:,0] * 256 + data[:,:,1]) * 256 + data[:,:,2]
     return colormap2label[idx]
@@ -97,7 +98,7 @@ def voc_label_indices(img):
 可以看到第一张样本中飞机头部对应的标注里属于飞机的像素被标记成了1。
 
 ```{.python .input  n=7}
-y = voc_label_indices(train_labels[0])
+y = voc_label_indices(train_labels[0], colormap2label)
 y[105:115, 130:140], voc_classes[1]
 ```
 
@@ -125,13 +126,14 @@ gb.show_images(imgs[::2] + imgs[1::2], 2, n);
 
 ```{.python .input  n=9}
 class VOCSegDataset(gdata.Dataset):
-    def __init__(self, train, crop_size, voc_dir):
+    def __init__(self, train, crop_size, voc_dir, colormap2label):
         self.rgb_mean = nd.array([0.485, 0.456, 0.406])
         self.rgb_std = nd.array([0.229, 0.224, 0.225])
         self.crop_size = crop_size        
         data, label = read_voc_images(root=voc_dir, train=train)
         self.data = [self.normalize_image(im) for im in self.filter(data)]
-        self.label = self.filter(label)            
+        self.label = self.filter(label)
+        self.colormap2label = colormap2label
         print('read ' + str(len(self.data)) + ' examples')
         
     def normalize_image(self, data):
@@ -145,7 +147,8 @@ class VOCSegDataset(gdata.Dataset):
     def __getitem__(self, idx):
         data, label = voc_rand_crop(self.data[idx], self.label[idx],
                                     *self.crop_size)
-        return data.transpose((2, 0, 1)), voc_label_indices(label)
+        return (data.transpose((2, 0, 1)),
+                voc_label_indices(label, self.colormap2label))
 
     def __len__(self):
         return len(self.data)
@@ -155,18 +158,19 @@ class VOCSegDataset(gdata.Dataset):
 
 ```{.python .input  n=10}
 output_shape = (320, 480)  # 高和宽。
-voc_train = VOCSegDataset(True, output_shape, voc_dir)
-voc_test = VOCSegDataset(False, output_shape, voc_dir)
+voc_train = VOCSegDataset(True, output_shape, voc_dir, colormap2label)
+voc_test = VOCSegDataset(False, output_shape, voc_dir, colormap2label)
 ```
 
-最后定义批量读取，这里使用4个进程来加速读取。
+最后定义批量读取，这里使用4个进程来加速读取（暂不支持Windows操作系统）。
 
 ```{.python .input  n=11}
 batch_size = 64
-train_iter = gdata.DataLoader(
-    voc_train, batch_size, shuffle=True, last_batch='discard', num_workers=4)
-test_iter = gdata.DataLoader(
-    voc_test, batch_size, last_batch='discard', num_workers=4)
+num_workers = 0 if sys.platform.startswith('win32') else 4
+train_iter = gdata.DataLoader(voc_train, batch_size, shuffle=True,
+                              last_batch='discard', num_workers=num_workers)
+test_iter = gdata.DataLoader(voc_test, batch_size, last_batch='discard',
+                             num_workers=num_workers)
 ```
 
 打印第一个批量可以看到，不同于图片分类和物体识别，这里的标签是一个三维的数组。
