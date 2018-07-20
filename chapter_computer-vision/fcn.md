@@ -139,11 +139,12 @@ net.collect_params().reset_ctx(ctx)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate': 0.1, 'wd': 1e-3})
 
-train_iter = gdata.DataLoader(gb.VOCSegDataset(True, input_shape), batch_size,
-                              shuffle=True, last_batch='discard',
+voc_dir = gb.download_voc_pascal(data_dir='../data')
+train_iter = gdata.DataLoader(gb.VOCSegDataset(True, input_shape, voc_dir),
+                              batch_size, shuffle=True, last_batch='discard',
                               num_workers=4)
-test_iter = gdata.DataLoader(gb.VOCSegDataset(False, input_shape), batch_size,
-                             last_batch='discard', num_workers=4) 
+test_iter = gdata.DataLoader(gb.VOCSegDataset(False, input_shape, voc_dir),
+                             batch_size, last_batch='discard', num_workers=4) 
 
 gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=10)
 ```

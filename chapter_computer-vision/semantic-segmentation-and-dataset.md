@@ -26,15 +26,18 @@ import tarfile
 我们首先下载这个数据集到`../data`下。压缩包大小是2GB，下载需要一定时间。解压之后这个数据集将会放置在`../data/VOCdevkit/VOC2012`下。
 
 ```{.python .input  n=2}
-data_dir = '../data'
-voc_dir = os.path.join(data_dir, 'VOCdevkit/VOC2012')
-url = ('http://host.robots.ox.ac.uk/pascal/VOC/voc2012'
-       '/VOCtrainval_11-May-2012.tar')
-sha1 = '4e443f8a2eca6b1dac8a6c57641b67dd40621a49'
+def download_voc_pascal(data_dir='../data'):
+    """Download the Pascal VOC2012 Dataset."""
+    voc_dir = os.path.join(data_dir, 'VOCdevkit/VOC2012')
+    url = ('http://host.robots.ox.ac.uk/pascal/VOC/voc2012'
+           '/VOCtrainval_11-May-2012.tar')
+    sha1 = '4e443f8a2eca6b1dac8a6c57641b67dd40621a49'
+    fname = gutils.download(url, data_dir, sha1_hash=sha1)
+    with tarfile.open(fname, 'r') as f:
+        f.extractall(data_dir)
+    return voc_dir
 
-fname = gutils.download(url, data_dir, sha1_hash=sha1)
-with tarfile.open(fname, 'r') as f:
-    f.extractall(data_dir)
+voc_dir = download_voc_pascal()
 ```
 
 在`ImageSets/Segmentation`下有文本文件指定哪些样本用来训练，哪些用来测试。样本图片放置在`JPEGImages`下，标注则放在`SegmentationClass`下。这里标注也是图片格式，图片大小与对应的样本图片一致，其中颜色相同的像素属于同一个类。
@@ -122,11 +125,11 @@ gb.show_images(imgs[::2] + imgs[1::2], 2, n);
 
 ```{.python .input  n=9}
 class VOCSegDataset(gdata.Dataset):
-    def __init__(self, train, crop_size):
+    def __init__(self, train, crop_size, voc_dir):
         self.rgb_mean = nd.array([0.485, 0.456, 0.406])
         self.rgb_std = nd.array([0.229, 0.224, 0.225])
         self.crop_size = crop_size        
-        data, label = read_voc_images(train=train)
+        data, label = read_voc_images(root=voc_dir, train=train)
         self.data = [self.normalize_image(im) for im in self.filter(data)]
         self.label = self.filter(label)            
         print('read ' + str(len(self.data)) + ' examples')
@@ -152,8 +155,8 @@ class VOCSegDataset(gdata.Dataset):
 
 ```{.python .input  n=10}
 output_shape = (320, 480)  # 高和宽。
-voc_train = VOCSegDataset(True, output_shape)
-voc_test = VOCSegDataset(False, output_shape)
+voc_train = VOCSegDataset(True, output_shape, voc_dir)
+voc_test = VOCSegDataset(False, output_shape, voc_dir)
 ```
 
 最后定义批量读取，这里使用4个进程来加速读取。
@@ -175,7 +178,7 @@ for X, Y in train_iter:
     break
 ```
 
-我们将本节中描述的`voc_classes`和`voc_colormap`变量、`read_voc_images`、`voc_label_indices`和`voc_rand_crop`函数，以及`VOCSegDataset`类定义在`gluonbook`包中供后面章节使用。
+我们将本节中描述的`voc_classes`和`voc_colormap`变量、`download_voc_pascal`、`read_voc_images`、`voc_label_indices`和`voc_rand_crop`函数，以及`VOCSegDataset`类定义在`gluonbook`包中供后面章节使用。
 
 ## 小结
 

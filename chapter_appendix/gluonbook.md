@@ -14,6 +14,8 @@
 
 * `data_iter_random`，[循环神经网络](../chapter_recurrent-neural-networks/rnn.md)
 
+* `download_voc_pascal`，[语义分割和数据集](../chapter_computer-vision/semantic-segmentation-and-dataset.md)
+
 * `evaluate_accuracy`，[图片增广](../chapter_computer-vision/image-augmentation.md)
 
 * `grad_clipping`，[循环神经网络](../chapter_recurrent-neural-networks/rnn.md)
