@@ -1,6 +1,6 @@
 # 计算机视觉
 
-```{.python .input .eval_rst}
+```eval_rst
 
 .. toctree::
    :maxdepth: 2
