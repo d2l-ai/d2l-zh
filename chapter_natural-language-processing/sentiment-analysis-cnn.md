@@ -34,6 +34,7 @@ from mxnet.contrib import text
 from mxnet.gluon import loss as gloss, nn, rnn
 import os
 import random
+from time import time
 import zipfile
 ```
 
@@ -316,8 +317,10 @@ def eval_model(features, labels):
     l_n = 0
     accuracy = metric.Accuracy()
     for i in range(features.shape[0] // batch_size ):
-        X = features[i*batch_size : (i + 1) * batch_size ].as_in_context(ctx).T
-        y = labels[i*batch_size :(i + 1) * batch_size ].as_in_context(ctx).T
+        X = features[i * batch_size
+                     : (i + 1) * batch_size].as_in_context(ctx).T
+        y = labels[i * batch_size
+                   : (i + 1) * batch_size].as_in_context(ctx).T
         output = net(X)
         l = loss(output, y)
         l_sum += l.sum().asscalar()
@@ -329,22 +332,23 @@ def eval_model(features, labels):
 下面开始训练模型。
 
 ```{.python .input  n=13}
+print('training on', ctx)
 for epoch in range(1, num_epochs + 1):
+    start = time()
     for i in range(train_features.shape[0] // batch_size):
-        X = train_features[i*batch_size : (i+1)*batch_size].as_in_context(
-            ctx).T
-        y = train_labels[i*batch_size : (i+1)*batch_size].as_in_context(
-            ctx).T
+        X = train_features[i * batch_size
+                           : (i + 1) * batch_size].as_in_context(ctx).T
+        y = train_labels[i * batch_size
+                         : (i + 1) * batch_size].as_in_context(ctx).T
         with autograd.record():
             l = loss(net(X), y)
         l.backward()
         trainer.step(batch_size)
-    train_loss, train_acc = eval_model(train_features, train_labels)
-    test_loss, test_acc = eval_model(test_features, test_labels)
-    print('epoch %d, train loss %.6f, acc %.2f; test loss %.6f, acc %.2f' 
-          % (epoch, train_loss, train_acc, test_loss, test_acc))
+    train_l, train_acc = eval_model(train_features, train_labels)
+    _, test_acc = eval_model(test_features, test_labels)
+    print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, time %.1f sec'
+          % (epoch, train_l, train_acc, test_acc, time() - start))
 ```
-
 
 ## 小结
 
