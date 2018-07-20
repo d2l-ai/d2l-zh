@@ -2,9 +2,9 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="124 260 380.5 162.04545" width="380.5" height="162.04545">
   <defs>
-    <font-face font-family="Arial" font-size="9" panose-1="2 11 6 4 2 2 2 2 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="0" x-height="518.5547" cap-height="716.3086" ascent="905.2734" descent="-211.91406" font-weight="400">
+    <font-face font-family="Arial" font-size="9" panose-1="2 11 6 4 2 2 2 9 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="-1333.3333" x-height="518.5547" cap-height="715.8203" ascent="905.2734" descent="-211.91406" font-style="italic" font-weight="400">
       <font-face-src>
-        <font-face-name name="ArialMT"/>
+        <font-face-name name="Arial-ItalicMT"/>
       </font-face-src>
     </font-face>
     <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="StickArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 10 8" markerWidth="10" markerHeight="8" color="black">
@@ -12,14 +12,14 @@
         <path d="M 8 0 L 0 0 M 0 -3 L 8 0 L 0 3" fill="none" stroke="currentColor" stroke-width="1"/>
       </g>
     </marker>
-    <font-face font-family="Arial" font-size="9" panose-1="2 11 7 4 2 2 2 2 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="104.98047" slope="0" x-height="518.5547" cap-height="715.8203" ascent="905.2734" descent="-211.91406" font-weight="700">
+    <font-face font-family="Arial" font-size="9" panose-1="2 11 7 4 2 2 2 9 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="104.98047" slope="-1333.3333" x-height="518.5547" cap-height="715.332" ascent="905.2734" descent="-211.91406" font-style="italic" font-weight="700">
       <font-face-src>
-        <font-face-name name="Arial-BoldMT"/>
+        <font-face-name name="Arial-BoldItalicMT"/>
       </font-face-src>
     </font-face>
-    <font-face font-family="Arial" font-size="7" panose-1="2 11 6 4 2 2 2 2 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="0" x-height="518.5547" cap-height="716.3086" ascent="905.2734" descent="-211.91406" font-weight="400">
+    <font-face font-family="Arial" font-size="7" panose-1="2 11 6 4 2 2 2 9 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="-1714.2857" x-height="518.5547" cap-height="715.8203" ascent="905.2734" descent="-211.91406" font-style="italic" font-weight="400">
       <font-face-src>
-        <font-face-name name="ArialMT"/>
+        <font-face-name name="Arial-ItalicMT"/>
       </font-face-src>
     </font-face>
     <font-face font-family="PingFang SC" font-size="9" panose-1="2 11 4 0 0 0 0 0 0 0" units-per-em="1000" underline-position="-150" underline-thickness="58" slope="0" x-height="600" cap-height="860" ascent="1060.0021" descent="-340.0007" font-weight="400">
@@ -29,7 +29,7 @@
     </font-face>
   </defs>
   <metadata> Produced by OmniGraffle 7.7.1 
-    <dc:date>2018-07-20 20:40:14 +0000</dc:date>
+    <dc:date>2018-07-20 23:24:04 +0000</dc:date>
   </metadata>
   <g id="rnn" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
     <title>rnn</title>
@@ -44,7 +44,7 @@
         <rect x="326.2013" y="320" width="28" height="16" fill="#d3e8ff"/>
         <rect x="326.2013" y="320" width="28" height="16" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
         <text transform="translate(331.2013 322.8528)" fill="black">
-          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="6.525879" y="8">ɸ</tspan>
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="400" fill="black" x="6.4973145" y="8">ɸ</tspan>
         </text>
       </g>
       <g id="Line_33">
@@ -61,8 +61,8 @@
       </g>
       <g id="Graphic_9">
         <text transform="translate(303.97087 374.47288)" fill="black">
-          <tspan font-family="Arial" font-size="9" font-weight="700" fill="black" x=".026123047" y="8">X</tspan>
-          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">t</tspan>
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="700" fill="black" x=".026123047" y="8">X</tspan>
+          <tspan font-family="Arial" font-size="7" font-style="italic" font-weight="400" fill="black" y="10">t</tspan>
         </text>
       </g>
       <g id="Graphic_10">
@@ -72,15 +72,15 @@
       </g>
       <g id="Graphic_11">
         <text transform="translate(383.5 313.3855)" fill="black">
-          <tspan font-family="Arial" font-size="9" font-weight="700" fill="black" x=".27783203" y="8">H</tspan>
-          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">t</tspan>
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="700" fill="black" x=".27783203" y="8">H</tspan>
+          <tspan font-family="Arial" font-size="7" font-style="italic" font-weight="400" fill="black" y="10">t</tspan>
         </text>
       </g>
       <g id="Graphic_13">
         <rect x="172" y="402" width="28" height="16" fill="#d3e8ff"/>
         <rect x="172" y="402" width="28" height="16" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
         <text transform="translate(177 404.8528)" fill="black">
-          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="6.525879" y="8">ɸ</tspan>
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="400" fill="black" x="6.4973145" y="8">ɸ</tspan>
         </text>
       </g>
       <g id="Graphic_14">
@@ -122,7 +122,7 @@
         <rect x="216.15" y="320" width="28" height="16" fill="#d3e8ff"/>
         <rect x="216.15" y="320" width="28" height="16" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
         <text transform="translate(221.15 322.8528)" fill="black">
-          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="6.525879" y="8">ɸ</tspan>
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="400" fill="black" x="6.4973145" y="8">ɸ</tspan>
         </text>
       </g>
       <g id="Line_29">
@@ -145,7 +145,7 @@
         <rect x="431.73975" y="320" width="28" height="16" fill="#d3e8ff"/>
         <rect x="431.73975" y="320" width="28" height="16" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
         <text transform="translate(436.73975 322.8528)" fill="black">
-          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="6.525879" y="8">ɸ</tspan>
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="400" fill="black" x="6.4973145" y="8">ɸ</tspan>
         </text>
       </g>
       <g id="Line_37">
@@ -162,8 +162,8 @@
       </g>
       <g id="Graphic_41">
         <text transform="translate(274.36612 313.3855)" fill="black">
-          <tspan font-family="Arial" font-size="9" font-weight="700" fill="black" x=".16577148" y="8">H</tspan>
-          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">t-1</tspan>
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="700" fill="black" x=".16577148" y="8">H</tspan>
+          <tspan font-family="Arial" font-size="7" font-style="italic" font-weight="400" fill="black" y="10">t-1</tspan>
         </text>
       </g>
       <g id="Graphic_42">
@@ -173,14 +173,14 @@
       </g>
       <g id="Graphic_43">
         <text transform="translate(191.97436 372.41114)" fill="black">
-          <tspan font-family="Arial" font-size="9" font-weight="700" fill="black" x=".4140625" y="8">X</tspan>
-          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">t-1</tspan>
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="700" fill="black" x=".4140625" y="8">X</tspan>
+          <tspan font-family="Arial" font-size="7" font-style="italic" font-weight="400" fill="black" y="10">t-1</tspan>
         </text>
       </g>
       <g id="Graphic_44">
         <text transform="translate(407.47436 371.3855)" fill="black">
-          <tspan font-family="Arial" font-size="9" font-weight="700" fill="black" x=".03564453" y="8">X</tspan>
-          <tspan font-family="Arial" font-size="7" font-weight="400" fill="black" y="10">t+1</tspan>
+          <tspan font-family="Arial" font-size="9" font-style="italic" font-weight="700" fill="black" x=".03564453" y="8">X</tspan>
+          <tspan font-family="Arial" font-size="7" font-style="italic" font-weight="400" fill="black" y="10">t+1</tspan>
         </text>
       </g>
       <g id="Graphic_45">
