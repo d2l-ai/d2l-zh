@@ -157,7 +157,7 @@ loss = gloss.SoftmaxCrossEntropyLoss(axis=1)
 net.collect_params().reset_ctx(ctx)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate': 0.1, 'wd': 1e-3})
-gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=10)
+gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
 ```
 
 ## 预测
@@ -191,10 +191,10 @@ n = 5
 imgs = []
 for i in range(n):
     x = test_images[i]
-    pred = label2image(predict(x))
-    imgs += [x, pred, test_labels[i]]
+    #pred = label2image(predict(x))
+    #imgs += [x, pred, test_labels[i]]
 
-gb.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n);
+#gb.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n);
 ```
 
 ## 小结
