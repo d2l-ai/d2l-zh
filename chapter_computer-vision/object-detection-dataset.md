@@ -6,7 +6,7 @@
 
 打包好的数据集可以直接在网上下载。下载数据集的操作定义在`_download_pikachu`函数中。
 
-```{.python .input}
+```{.python .input  n=1}
 import sys
 sys.path.insert(0, '..')
 import gluonbook as gb
@@ -28,7 +28,7 @@ def _download_pikachu(data_dir):
 
 我们使用`image.ImageDetIter`来读取数据。这是针对物体检测的迭代器，(Det表示Detection)。在读取训练图片时我们做了随机剪裁。我们将读取数据集的`load_data_pikachu`函数定义在`gluonbook`包中供后面章节调用。
 
-```{.python .input  n=85}
+```{.python .input  n=2}
 # edge_size：输出图片的宽和高。
 def load_data_pikachu(batch_size, edge_size=256): 
     data_dir = '../data/pikachu'
@@ -57,7 +57,7 @@ train_iter, _ = load_data_pikachu(batch_size, edge_size)
 
 下面我们读取一个批量。
 
-```{.python .input  n=86}
+```{.python .input  n=3}
 batch = train_iter.next()
 batch.data[0].shape, batch.label[0].shape
 ```
@@ -68,7 +68,7 @@ batch.data[0].shape, batch.label[0].shape
 
 我们画出几张图片和其对应的标号。可以看到比卡丘的角度大小位置在每张图图片都不一样。当然，这是一个简单的人工数据集，物体和背景的区别较大。实际中遇到的数据集通常会复杂很多。
 
-```{.python .input  n=19}
+```{.python .input  n=4}
 imgs = (batch.data[0][0:10].transpose((0, 2, 3, 1))).clip(0, 254) / 254
 axes = gb.show_images(imgs, 2, 5).flatten()
 for ax, label in zip(axes, batch.label[0][0:10]):
