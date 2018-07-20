@@ -9,6 +9,7 @@ import mxnet as mx
 from mxnet import autograd, gluon, image, nd
 from mxnet.gluon import nn, data as gdata, loss as gloss, utils as gutils
 import numpy as np
+import sys
 
 
 voc_classes = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
