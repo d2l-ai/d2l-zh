@@ -1,7 +1,7 @@
-# `gluonbook`包中成员的索引
+# `gluonbook`包索引
 
 
-成员名称，定义所在章节
+函数、类等名称，定义所在章节
 
 
 * `accuracy`，[Softmax回归的从零开始实现](../chapter_deep-learning-basics/softmax-regression-scratch.md)
