@@ -23,12 +23,27 @@ img = image.imread('../img/cat1.jpg')
 gb.plt.imshow(img.asnumpy())
 ```
 
+下面定义绘图函数`show_images`。该函数也被定义在`gluonbook`包中供后面章节调用。
+
+```{.python .input}
+def show_images(imgs, num_rows, num_cols, scale=2):                                                                              
+    """Plot a list of images."""
+    figsize = (num_cols * scale, num_rows * scale)
+    _, axes = plt.subplots(num_rows, num_cols, figsize=figsize)
+    for i in range(num_rows):
+        for j in range(num_cols):
+            axes[i][j].imshow(imgs[i * num_cols + j].asnumpy())
+            axes[i][j].axes.get_xaxis().set_visible(False)
+            axes[i][j].axes.get_yaxis().set_visible(False)
+    return axes
+```
+
 因为大部分的增广方法都有一定的随机性。接下来我们定义一个辅助函数，它对输入图片`img`运行多次增广方法`aug`并显示所有结果。
 
 ```{.python .input  n=3}
 def apply(img, aug, num_rows=2, num_cols=4, scale=1.5):
     Y = [aug(img) for _ in range(num_rows * num_cols)]
-    gb.show_images(Y, num_rows, num_cols, scale)
+    show_images(Y, num_rows, num_cols, scale)
 ```
 
 ### 变形
@@ -92,7 +107,7 @@ apply(img, augs)
 接下来我们来看一个将图片增广应用在实际训练中的例子，并比较其与不使用时的区别。这里我们使用CIFAR-10数据集，而不是之前我们一直使用的Fashion-MNIST。原因在于Fashion-MNIST中物体位置和尺寸都已经归一化了，而CIFAR-10中物体颜色和大小区别更加显著。下面我们展示CIFAR-10中的前32张训练图片。
 
 ```{.python .input  n=11}
-gb.show_images(gdata.vision.CIFAR10(train=True)[0:32][0], 4, 8, scale=0.8);
+show_images(gdata.vision.CIFAR10(train=True)[0:32][0], 4, 8, scale=0.8);
 ```
 
 我们通常将图片增广用在训练样本上，但是在预测的时候并不使用随机增广。这里我们仅仅使用最简单的随机水平翻转。此外，我们使用`ToTensor`变换来将图片转成MXNet需要的格式，即格式为（批量，通道，高，宽）以及类型为32位浮点数。

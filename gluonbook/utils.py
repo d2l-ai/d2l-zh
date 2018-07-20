@@ -11,8 +11,18 @@ from mxnet.gluon import nn, data as gdata, loss as gloss, utils as gutils
 import numpy as np
 
 
-voc_rgb_mean = nd.array([0.485, 0.456, 0.406])
-voc_rgb_std = nd.array([0.229, 0.224, 0.225])
+voc_classes = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
+               'bottle', 'bus', 'car', 'cat', 'chair', 'cow',
+               'diningtable', 'dog', 'horse', 'motorbike', 'person',
+               'potted plant', 'sheep', 'sofa', 'train', 'tv/monitor']
+
+
+voc_colormap = [[0, 0, 0], [128, 0, 0], [0, 128, 0], [128, 128, 0],
+                [0, 0, 128], [128, 0, 128], [0, 128, 128], [128, 128, 128],
+                [64, 0, 0], [192, 0, 0], [64, 128, 0], [192, 128, 0],
+                [64, 0, 128], [192, 0, 128], [64, 128, 128], [192, 128, 128],
+                [0, 64, 0], [128, 64, 0], [0, 192, 0], [128, 192, 0],
+                [0, 64, 128]]
 
 
 def accuracy(y_hat, y): 
@@ -156,19 +166,6 @@ def load_data_fashion_mnist(batch_size, resize=None,
     return train_iter, test_iter
 
 
-def load_data_pascal_voc(batch_size, output_shape): 
-    """Download the pascal voc dataest and then load into memory."""
-    voc_train = VOCSegDataset(True, output_shape) 
-    voc_test = VOCSegDataset(False, output_shape) 
- 
-    train_iter = gdata.DataLoader( 
-        voc_train, batch_size, shuffle=True,last_batch='discard',
-        num_workers=4) 
-    test_iter = gdata.DataLoader( 
-        voc_test, batch_size,last_batch='discard', num_workers=4) 
-    return train_iter, test_iter
-
-
 def load_data_pikachu(batch_size, edge_size=256):                                                                                
     """Download the pikachu dataest and then load into memory."""
     data_dir = '../data/pikachu'
@@ -196,11 +193,6 @@ def _make_list(obj, default_values=None):
     elif not isinstance(obj, (list, tuple)):
         obj = [obj]
     return obj
-
-
-def normalize_voc_image(data):
-    """Normalize VOC images."""
-    return (data.astype('float32') / 255 - voc_rgb_mean) / voc_rgb_std
 
 
 def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval,
@@ -525,70 +517,50 @@ def try_gpu():
         _ = nd.array([0], ctx=ctx)
     except:
         ctx = mx.cpu()
-    return ctx 
+    return ctx
 
 
-class VOCSegDataset(gluon.data.Dataset):
+def voc_label_indices(img):
+    """Assig label indices for Pascal VOC2012 Dataset."""
+    colormap2label = nd.zeros(256**3)
+    for i, cm in enumerate(voc_colormap):
+        colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i
+    data = img.astype('int32')
+    idx = (data[:,:,0] * 256 + data[:,:,1]) * 256 + data[:,:,2]
+    return colormap2label[idx]
+
+
+def voc_rand_crop(data, label, height, width):
+    """Random cropping for images of the Pascal VOC2012 Dataset."""
+    data, rect = image.random_crop(data, (width, height))
+    label = image.fixed_crop(label, *rect)
+    return data, label
+
+
+class VOCSegDataset(gdata.Dataset):
     """The Pascal VOC2012 Dataset."""
-    def __init__(self, train, crop_size): 
-        self.train = train 
-        self.crop_size = crop_size 
-        self.rgb_mean = nd.array([0.485, 0.456, 0.406]) 
-        self.rgb_std = nd.array([0.229, 0.224, 0.225]) 
-        self.voc_colormap = [[0, 0, 0], [128, 0, 0], [0, 128, 0],
-                             [128, 128, 0],
-                             [0, 0, 128], [128, 0, 128], [0, 128, 128],
-                             [128, 128, 128], [64, 0, 0], [192, 0, 0],
-                             [64, 128, 0], [192, 128, 0], [64, 0, 128],
-                             [192, 0, 128], [64, 128, 128], [192, 128, 128],
-                             [0, 64, 0], [128, 64, 0], [0, 192, 0],
-                             [128, 192, 0], [0, 64, 128]] 
-        self.voc_classes = ['background', 'aeroplane', 'bicycle', 'bird',
-                            'boat', 'bottle', 'bus', 'car', 'cat', 'chair',
-                            'cow', 'diningtable', 'dog', 'horse', 'motorbike',
-                            'person', 'potted plant', 'sheep', 'sofa',
-                            'train', 'tv/monitor'] 
-        self.colormap2label = None 
-        self.load_images() 
- 
-    def voc_label_indices(self, img): 
-        if self.colormap2label is None: 
-            self.colormap2label = nd.zeros(256 ** 3) 
-            for i, cm in enumerate(self.voc_colormap): 
-                self.colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i 
-        data = img.astype('int32') 
-        idx = (data[:, :, 0] * 256 + data[:, :, 1]) * 256 + data[:, :, 2] 
-        return self.colormap2label[idx] 
- 
-    def rand_crop(self, data, label, height, width): 
-        data, rect = image.random_crop(data, (width, height)) 
-        label = image.fixed_crop(label, *rect) 
-        return data, label 
- 
-    def load_images(self): 
-        voc_dir = _download_voc_pascal() 
-        data, label = read_voc_images(root=voc_dir, train=self.train) 
-        self.data = [self.normalize_image(im) for im in self.filter(data)] 
-        self.label = self.filter(label) 
-        print('read '+ str(len(self.data)) + ' examples') 
- 
-    def normalize_image(self, data): 
-        return (data.astype('float32') / 255 - self.rgb_mean) / self.rgb_std 
- 
-    def filter(self, images): 
-        return [im for im in images if ( 
-            im.shape[0] >= self.crop_size[0] and 
-            im.shape[1] >= self.crop_size[1])] 
- 
-    def __getitem__(self, idx): 
-        data, label = self.rand_crop(self.data[idx], self.label[idx], 
-                                *self.crop_size) 
-        return data.transpose((2, 0, 1)), self.voc_label_indices(label) 
- 
-    def __len__(self): 
+    def __init__(self, train, crop_size):
+        self.rgb_mean = nd.array([0.485, 0.456, 0.406])
+        self.rgb_std = nd.array([0.229, 0.224, 0.225])
+        self.crop_size = crop_size        
+        data, label = read_voc_images(train=train)
+        self.data = [self.normalize_image(im) for im in self.filter(data)]
+        self.label = self.filter(label)            
+        print('read ' + str(len(self.data)) + ' examples')
+        
+    def normalize_image(self, data):
+        return (data.astype('float32') / 255 - self.rgb_mean) / self.rgb_std
+    
+    def filter(self, images):
+        return [im for im in images if (
+            im.shape[0] >= self.crop_size[0] and
+            im.shape[1] >= self.crop_size[1])]
+
+    def __getitem__(self, idx):
+        data, label = voc_rand_crop(self.data[idx], self.label[idx],
+                                    *self.crop_size)
+        return data.transpose((2, 0, 1)), voc_label_indices(label)
+
+    def __len__(self):
         return len(self.data)
-
-
-# Set default figure size.
-set_figsize()
 

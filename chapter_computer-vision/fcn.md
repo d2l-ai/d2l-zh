@@ -9,7 +9,7 @@ import sys
 sys.path.append('..')
 import gluonbook as gb
 from mxnet import gluon, init, nd, image
-from mxnet.gluon import loss as gloss, model_zoo, nn
+from mxnet.gluon import data as gdata, loss as gloss, model_zoo, nn
 import numpy as np
 ```
 
@@ -138,7 +138,13 @@ loss = gloss.SoftmaxCrossEntropyLoss(axis=1)
 net.collect_params().reset_ctx(ctx)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate': 0.1, 'wd': 1e-3})
-train_iter, test_iter = gb.load_data_pascal_voc(batch_size, input_shape)
+
+train_iter = gdata.DataLoader(gb.VOCSegDataset(True, input_shape), batch_size,
+                              shuffle=True, last_batch='discard',
+                              num_workers=4)
+test_iter = gdata.DataLoader(gb.VOCSegDataset(False, input_shape), batch_size,
+                             last_batch='discard', num_workers=4) 
+
 gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=10)
 ```
 
@@ -159,8 +165,7 @@ def predict(im):
 
 ```{.python .input  n=14}
 def label2image(pred):
-    colormap = nd.array(
-        test_iter._dataset.voc_colormap, ctx=ctx[0], dtype='uint8')
+    colormap = nd.array(gb.voc_colormap, ctx=ctx[0], dtype='uint8')
     x = pred.astype('int32')
     return colormap[x,:]
 ```
