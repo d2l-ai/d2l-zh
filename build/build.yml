@@ -1,11 +1,11 @@
 name: gluon_zh_docs
 dependencies:
-- python
-- jupyter
+- python>=3.6
+- jupyter=1.0.0
 - sphinx=1.6.3
 - sphinx_rtd_theme
-- matplotlib
-- pandas
+- matplotlib=2.2.0
+- pandas=0.22.0
 - notebook=5.0.0
 - pip:
   - pyopenssl>= 17.3.0
