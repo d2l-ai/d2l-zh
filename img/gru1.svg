@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="198.5 231.5 278 179.5" width="278" height="179.5">
+  <defs>
+    <font-face font-family="Arial" font-size="9" panose-1="2 11 6 4 2 2 2 2 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="0" x-height="518.5547" cap-height="716.3086" ascent="905.2734" descent="-211.91406" font-weight="400">
+      <font-face-src>
+        <font-face-name name="ArialMT"/>
+      </font-face-src>
+    </font-face>
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="StickArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 10 8" markerWidth="10" markerHeight="8" color="black">
+      <g>
+        <path d="M 8 0 L 0 0 M 0 -3 L 8 0 L 0 3" fill="none" stroke="currentColor" stroke-width="1"/>
+      </g>
+    </marker>
+    <font-face font-family="PingFang SC" font-size="9" panose-1="2 11 4 0 0 0 0 0 0 0" units-per-em="1000" underline-position="-150" underline-thickness="58" slope="0" x-height="600" cap-height="860" ascent="1060.0021" descent="-340.0007" font-weight="400">
+      <font-face-src>
+        <font-face-name name="PingFangSC-Regular"/>
+      </font-face-src>
+    </font-face>
+    <font-face font-family="Arial" font-size="9" panose-1="2 11 7 4 2 2 2 2 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="104.98047" slope="0" x-height="518.5547" cap-height="715.8203" ascent="905.2734" descent="-211.91406" font-weight="700">
+      <font-face-src>
+        <font-face-name name="Arial-BoldMT"/>
+      </font-face-src>
+    </font-face>
+  </defs>
+  <metadata> Produced by OmniGraffle 7.7.1 
+    <dc:date>2018-07-20 21:27:46 +0000</dc:date>
+  </metadata>
+  <g id="gru_1" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
+    <title>gru_1</title>
+    <rect fill="white" x="198.5" y="231.5" width="278" height="179.5"/>
+    <g id="gru_1: Layer 1">
+      <title>Layer 1</title>
+      <g id="Graphic_31">
+        <path d="M 292 232 L 464 232 C 470.6274 232 476 237.37258 476 244 L 476 364 C 476 370.6274 470.6274 376 464 376 L 292 376 C 285.3726 376 280 370.6274 280 364 L 280 244 C 280 237.37258 285.3726 232 292 232 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_30">
+        <rect x="326.2013" y="320" width="28" height="16" fill="#d3e8ff"/>
+        <rect x="326.2013" y="320" width="28" height="16" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(331.2013 322.8528)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="6.222656" y="8">σ</tspan>
+        </text>
+      </g>
+      <g id="Line_34">
+        <line x1="271.5" y1="251.3261" x2="292" y2="251.3261" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_35">
+        <path d="M 274.49866 251.3261 L 294 251.3261 C 297.3137 251.3261 300 254.01238 300 257.3261 L 300 346 C 300 349.3137 302.6863 352 306 352 L 334.0501 352 C 337.3442 352 340.02227 349.34428 340.0499 346.0503 L 340.05116 345.89965" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_23">
+        <rect x="377.94384" y="320" width="28" height="16" fill="#d3e8ff"/>
+        <rect x="377.94384" y="320" width="28" height="16" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(382.94384 322.8528)" fill="black">
+          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" x="6.222656" y="8">σ</tspan>
+        </text>
+      </g>
+      <g id="Graphic_17">
+        <text transform="translate(317.2437 276.35278)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="5" y="10">重置门：</tspan>
+          <tspan font-family="Arial" font-size="9" font-weight="700" fill="black" x="18.5" y="21">R</tspan>
+          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" y="25">t</tspan>
+        </text>
+      </g>
+      <g id="Graphic_16">
+        <text transform="translate(374.00997 275.685)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="0" y="10">更新门：</tspan>
+          <tspan font-family="Arial" font-size="9" font-weight="700" fill="black" x="14.000977" y="21">Z</tspan>
+          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" y="25">t</tspan>
+        </text>
+      </g>
+      <g id="Line_36">
+        <path d="M 320.92115 352 L 386 352 C 389.3137 352 392 349.3137 392 346 L 392 345.9" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_37">
+        <path d="M 300.037 384 L 300.00695 358.00694 C 300.0031 354.69323 302.6863 352.00384 306 352 C 306.0023 352 306.00463 352 306.00694 352 L 326.4376 352" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_5">
+        <text transform="translate(282.05263 389.3528)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x=".24829102" y="10">输入：</tspan>
+          <tspan font-family="Arial" font-size="9" font-weight="700" fill="black" y="10">X</tspan>
+          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" y="14">t</tspan>
+        </text>
+      </g>
+      <g id="Graphic_4">
+        <text transform="translate(203.5 243.17887)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x=".4987793" y="10">隐藏状态：</tspan>
+          <tspan font-family="Arial" font-size="9" font-weight="700" fill="black" y="10">H</tspan>
+          <tspan font-family="Arial" font-size="9" font-weight="400" fill="black" y="14">t-1</tspan>
+        </text>
+      </g>
+      <g id="Line_40">
+        <line x1="340.2102" y1="320" x2="340.217" y2="313.9" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_41">
+        <line x1="391.95752" y1="320" x2="391.9691" y2="313.2322" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+    </g>
+  </g>
+</svg>
