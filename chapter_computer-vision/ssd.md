@@ -186,6 +186,8 @@ print('output box predictions:', bbox_preds.shape)
 
 ## 训练
 
+下面我们描述如何一步步训练SSD模型来进行物体检测。
+
 ### 读取数据和初始化训练
 
 我们使用之前构造的皮卡丘数据集。
