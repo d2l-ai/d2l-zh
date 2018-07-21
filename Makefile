@@ -8,13 +8,13 @@ build/%.md: %.md
 	@mkdir -p $(@D)
 	@cp $< $@
 
-MARKDOWN = $(wildcard */index.md) 
+MARKDOWN = $(wildcard */index.md)
 NOTEBOOK = $(filter-out $(MARKDOWN), $(wildcard chapter*/*.md))
 
 OBJ = $(patsubst %.md, build/%.md, $(MARKDOWN)) \
 	$(patsubst %.md, build/%.ipynb, $(NOTEBOOK))
 
-ORIGN_DEPS = $(wildcard img/* data/* gluonbook/*) environment.yml README.md
+ORIGN_DEPS = $(wildcard img/* gluonbook/*) environment.yml README.md
 DEPS = $(patsubst %, build/%, $(ORIGN_DEPS))
 
 PKG = build/_build/html/gluon_tutorials_zh.tar.gz build/_build/html/gluon_tutorials_zh.zip
@@ -67,4 +67,3 @@ pdf: $(DEPS) $(OBJ) $(PDFIMG)
 
 clean:
 	rm -rf build/chapter* build/_build $(DEPS) $(PKG)
-
