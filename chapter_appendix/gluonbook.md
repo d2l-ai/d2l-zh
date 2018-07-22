@@ -1,7 +1,7 @@
-# `gluonbook`函数和类的索引
+# `gluonbook`包索引
 
 
-函数或类的名称，定义所在章节
+函数、类等名称，定义所在章节
 
 
 * `accuracy`，[Softmax回归的从零开始实现](../chapter_deep-learning-basics/softmax-regression-scratch.md)
@@ -14,6 +14,8 @@
 
 * `data_iter_random`，[循环神经网络](../chapter_recurrent-neural-networks/rnn.md)
 
+* `download_voc_pascal`，[语义分割和数据集](../chapter_computer-vision/semantic-segmentation-and-dataset.md)
+
 * `evaluate_accuracy`，[图片增广](../chapter_computer-vision/image-augmentation.md)
 
 * `grad_clipping`，[循环神经网络](../chapter_recurrent-neural-networks/rnn.md)
@@ -22,11 +24,7 @@
 
 * `load_data_fashion_mnist`，[深度卷积神经网络（AlexNet）](../chapter_convolutional-neural-networks/alexnet.md)
 
-* `load_data_pascal_voc`
-
 * `load_data_pikachu`，[物体检测数据集](../chapter_computer-vision/object-detection-dataset.md)
-
-* `normalize_voc_image`
 
 * `optimize`，[梯度下降和随机梯度下降的Gluon实现](../chapter_optimization/gd-sgd-gluon.md)
 
@@ -34,7 +32,7 @@
 
 * `predict_rnn`，[循环神经网络](../chapter_recurrent-neural-networks/rnn.md)
 
-* `read_voc_images`
+* `read_voc_images`，[语义分割和数据集](../chapter_computer-vision/semantic-segmentation-and-dataset.md)
 
 * `Residual`，[残差网络（ResNet）](../chapter_convolutional-neural-networks/resnet.md)
 
@@ -48,7 +46,7 @@
 
 * `show_bboxes`，[锚框](../chapter_computer-vision/anchor.md)
 
-* `show_images`
+* `show_images`，[图片增广](../chapter_computer-vision/image-augmentation.md)
 
 * `squared_loss`，[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)
 
@@ -66,4 +64,12 @@
 
 * `try_gpu`，[卷积神经网络（LeNet）](../chapter_convolutional-neural-networks/lenet.md)
 
-* `VOCSegDataset`
+* `voc_classes`，[语义分割和数据集](../chapter_computer-vision/semantic-segmentation-and-dataset.md)
+
+* `voc_colormap`，[语义分割和数据集](../chapter_computer-vision/semantic-segmentation-and-dataset.md)
+
+* `voc_label_indices`，[语义分割和数据集](../chapter_computer-vision/semantic-segmentation-and-dataset.md)
+
+* `voc_rand_crop`，[语义分割和数据集](../chapter_computer-vision/semantic-segmentation-and-dataset.md)
+
+* `VOCSegDataset`，[语义分割和数据集](../chapter_computer-vision/semantic-segmentation-and-dataset.md)

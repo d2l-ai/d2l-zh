@@ -37,6 +37,7 @@ Kaggle（网站地址：https://www.kaggle.com ）是一个著名的供机器学
 下面，我们通过使用`pandas`读入数据。请确保已安装`pandas` (命令行执行`pip install pandas`)。
 
 ```{.python .input  n=1}
+%matplotlib inline
 import sys
 sys.path.append('..')
 import gluonbook as gb

@@ -5,11 +5,12 @@
 但在语义分割里，我们需要对每个像素预测类别，也就是需要输出形状需要是$1000\times 224\times 224$。如果仍然使用全连接层作为输出，那么这一层权重将多达数百GB。本小节我们将介绍利用卷积神经网络解决语义分割的一个开创性工作之一：全卷积网络（fully convolutional network，简称FCN）[1]。FCN里将最后的全连接层修改称转置卷积层（transposed convolution）来得到所需大小的输出。
 
 ```{.python .input  n=1}
+%matplotlib inline
 import sys
 sys.path.append('..')
 import gluonbook as gb
 from mxnet import gluon, init, nd, image
-from mxnet.gluon import loss as gloss, model_zoo, nn
+from mxnet.gluon import data as gdata, loss as gloss, model_zoo, nn
 import numpy as np
 ```
 
@@ -17,7 +18,7 @@ import numpy as np
 
 假设$f$是一个卷积层，给定输入$x$，我们可以计算前向输出$y=f(x)$。在反向求导$z=\frac{\partial\, f(y)}{\partial\,x}$时，我们知道$z$会得到跟$x$一样形状的输出。因为卷积运算的导数的导数是自己本身，我们可以合法定义转置卷积层，记为$g$，为交互了前向和反向求导函数的卷积层。也就是$z=g(y)$。
 
-下面我们构造一个卷积层并打印其输出形状。
+下面我们构造一个卷积层并打印它的输出形状。
 
 ```{.python .input  n=2}
 conv = nn.Conv2D(10, kernel_size=4, padding=1, strides=2)
@@ -28,7 +29,7 @@ y = conv(x)
 y.shape
 ```
 
-使用用样的卷积窗、填充和步幅的转置卷积层，我们可以得到跟`x`一样的输出。
+使用用样的卷积窗、填充和步幅的转置卷积层，我们可以得到和`x`一样的输出。
 
 ```{.python .input  n=3}
 conv_trans = nn.Conv2DTranspose(3, kernel_size=4, padding=1, strides=2)
@@ -126,20 +127,38 @@ net[-1].initialize(init.Constant(trans_conv_weights))
 net[-2].initialize(init=init.Xavier())
 ```
 
-## 训练
+## 读取数据
 
-这时候我们可以真正开始训练了。我们使用较大的输入图片尺寸，其值选成了32的倍数。因为我们使用转置卷积层的通道来预测像素的类别，所以在做softmax是作用在通道这个维度（维度1），所以在`SoftmaxCrossEntropyLoss`里加入了额外了`axis=1`选项。
+我们使用较大的输入图片尺寸，其值选成了32的倍数。数据的读取方法已在上一节描述。
 
-```{.python .input  n=12}
+```{.python .input}
 input_shape = (320, 480)
 batch_size = 32
+colormap2label = nd.zeros(256**3)
+for i, cm in enumerate(gb.voc_colormap):
+    colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i 
+voc_dir = gb.download_voc_pascal(data_dir='../data')
+99
+num_workers = 0 if sys.platform.startswith('win32') else 4
+train_iter = gdata.DataLoader(
+    gb.VOCSegDataset(True, input_shape, voc_dir, colormap2label), batch_size,
+    shuffle=True, last_batch='discard', num_workers=num_workers)
+test_iter = gdata.DataLoader(
+    gb.VOCSegDataset(False, input_shape, voc_dir, colormap2label), batch_size,
+    last_batch='discard', num_workers=num_workers) 
+```
+
+## 训练
+
+这时候我们可以真正开始训练了。因为我们使用转置卷积层的通道来预测像素的类别，所以在做softmax是作用在通道这个维度（维度1），所以在`SoftmaxCrossEntropyLoss`里加入了额外了`axis=1`选项。
+
+```{.python .input  n=12}
 ctx = gb.try_all_gpus()
 loss = gloss.SoftmaxCrossEntropyLoss(axis=1)
 net.collect_params().reset_ctx(ctx)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate': 0.1, 'wd': 1e-3})
-train_iter, test_iter = gb.load_data_pascal_voc(batch_size, input_shape)
-gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=10)
+gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
 ```
 
 ## 预测
@@ -159,8 +178,7 @@ def predict(im):
 
 ```{.python .input  n=14}
 def label2image(pred):
-    colormap = nd.array(
-        test_iter._dataset.voc_colormap, ctx=ctx[0], dtype='uint8')
+    colormap = nd.array(gb.voc_colormap, ctx=ctx[0], dtype='uint8')
     x = pred.astype('int32')
     return colormap[x,:]
 ```
@@ -189,7 +207,7 @@ gb.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n);
 * 试着改改最后的转置卷积层的参数设定。
 * 看看双线性差值初始化是不是必要的。
 * 试着改改训练参数来使得收敛更好些。
-* FCN论文[1]中提到了不只是使用主体卷积网络输出，还可以考虑其中间层的输出。试着实现这个想法。
+* FCN论文 [1] 中提到了不只是使用主体卷积网络输出，还可以考虑其中间层的输出。试着实现这个想法。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/3041)
 
@@ -198,4 +216,4 @@ gb.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n);
 
 ## 参考文献
 
-[1] Long, Jonathan, Evan Shelhamer, and Trevor Darrell. "Fully convolutional networks for semantic segmentation." CVPR. 2015.
+[1] Long, J., Shelhamer, E., & Darrell, T. (2015). Fully convolutional networks for semantic segmentation. In Proceedings of the IEEE conference on computer vision and pattern recognition (pp. 3431-3440).

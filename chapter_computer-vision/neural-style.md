@@ -12,6 +12,7 @@
 ![Neural Style。](../img/neural-style.svg)
 
 ```{.python .input}
+%matplotlib inline
 import sys
 sys.path.append('..')
 import gluonbook as gb
@@ -25,6 +26,7 @@ import time
 我们分别读取样式和内容图片。
 
 ```{.python .input  n=9}
+gb.set_figsize()
 style_img = image.imread('../img/autumn_oak.jpg')
 gb.plt.imshow(style_img.asnumpy());
 ```

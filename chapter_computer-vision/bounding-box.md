@@ -7,6 +7,7 @@
 在接下来的数小节里我们将介绍物体检测里的多个深度学习模型。在此之前，让我们先讨论物体位置这个概念。首先导入本节实验所需的包或模块。
 
 ```{.python .input  n=1}
+%matplotlib inline
 import sys
 sys.path.insert(0, '..')
 import gluonbook as gb
@@ -16,6 +17,7 @@ from mxnet import image
 我们加载本小节将使用的示例图片。可以看到图片左边是一只小狗，右边是一只小猫。跟前面使用的图片的主要不同点在于这张图里有两个主要物体。
 
 ```{.python .input}
+gb.set_figsize()
 img = image.imread('../img/catdog.jpg').asnumpy()
 gb.plt.imshow(img);  # 加分号只显示图。
 ```
@@ -44,7 +46,6 @@ def bbox_to_rect(bbox, color):
 我们将边界框加载在图上，可以看到物体的主要轮廓基本在框内。
 
 ```{.python .input}
-gb.set_figsize()
 fig = gb.plt.imshow(img)
 fig.axes.add_patch(bbox_to_rect(dog_bbox, 'blue'))
 fig.axes.add_patch(bbox_to_rect(cat_bbox, 'red'));

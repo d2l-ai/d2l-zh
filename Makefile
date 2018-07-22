@@ -8,7 +8,7 @@ build/%.md: %.md
 	@mkdir -p $(@D)
 	@cp $< $@
 
-MARKDOWN = $(wildcard */index.md) 
+MARKDOWN = $(wildcard */index.md)
 NOTEBOOK = $(filter-out $(MARKDOWN), $(wildcard chapter*/*.md))
 
 OBJ = $(patsubst %.md, build/%.md, $(MARKDOWN)) \
@@ -67,4 +67,3 @@ pdf: $(DEPS) $(OBJ) $(PDFIMG)
 
 clean:
 	rm -rf build/chapter* build/_build $(DEPS) $(PKG)
-
