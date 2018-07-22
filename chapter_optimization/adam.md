@@ -61,7 +61,6 @@ def adam(params, vs, sqrs, lr, batch_size, t):
 首先，导入实验所需的包或模块。
 
 ```{.python .input}
-%matplotlib inline
 import sys
 sys.path.append('..')
 import gluonbook as gb

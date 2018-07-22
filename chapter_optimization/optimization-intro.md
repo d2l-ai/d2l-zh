@@ -24,7 +24,6 @@
 优化在深度学习中有很多挑战。以下描述了其中的两个挑战：局部最小值和鞍点。为了更好地描述问题，我们先导入本节中实验需要的包或模块。
 
 ```{.python .input  n=1}
-%matplotlib inline
 import sys
 sys.path.append('..')
 import gluonbook as gb
