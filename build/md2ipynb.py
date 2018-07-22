@@ -18,7 +18,7 @@ def add_space_between_ascii_and_non_ascii(string):
         return ''
 
     ret = []
-	# We don't allow space within figure cpations, such as ![](). 
+    # We don't allow space within figure cpations, such as ![](). 
     is_fig_caption = False
     num_left_brackets = 0
     for i in range(len(string) - 1):
