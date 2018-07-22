@@ -6,22 +6,6 @@ import nbformat
 
 assert len(sys.argv) == 3, 'usage: input.md output.ipynb'
 
-def is_ascii(character):
-    return ord(character) <= 128
-
-def add_space_between_ascii_and_non_ascii(string):
-    punc = (' ','\n','\t','\r','，','。','？','！','、','；','：','“',
-            '”','（','）','【','】','—','…','《','》')
-    if len(string) == 0:
-        return ''
-    ret = string[0]
-    for i in range(1, len(string)):
-        if ((is_ascii(string[i-1]) != is_ascii(string[i]))
-            and (string[i-1] not in punc)
-            and (string[i] not in punc)):
-            ret += ' '
-        ret += string[i]
-    return ret
 # timeout for each notebook, in sec
 timeout = 20 * 60
 
@@ -38,9 +22,6 @@ do_eval = int(os.environ.get('EVAL', True))
 # read
 with open(input_fn, 'r') as f:
     notebook = reader.read(f)
-
-for c in notebook.cells:
-    c.source = add_space_between_ascii_and_non_ascii(c.source)
 
 if do_eval and not any([i in input_fn for i in ignore_execution]):
     tic = time.time()

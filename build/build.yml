@@ -3,14 +3,14 @@ dependencies:
 - python>=3.6
 - jupyter=1.0.0
 - sphinx=1.6.3
-- sphinx_rtd_theme
-- matplotlib=2.2.0
-- pandas=0.22.0
+- sphinx_rtd_theme=0.4.0
+- matplotlib=2.2.2
+- pandas=0.23.2
 - notebook=5.0.0
 - pip:
   - pyopenssl>= 17.3.0
-  - nbsphinx
-  - recommonmark
+  - nbsphinx==0.2.14
+  - recommonmark==0.4.0
   - https://github.com/mli/notedown/tarball/master
   - mxnet-cu80==1.2.0
-  - jieba
+  - jieba==0.39
