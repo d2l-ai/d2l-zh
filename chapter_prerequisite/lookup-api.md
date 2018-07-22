@@ -33,7 +33,7 @@ y
 
 我们也可以在MXNet的网站上查阅API的相关文档。访问MXNet网站（mxnet.apache.org）。如图2.1所示，点击网页顶部的下拉菜单“API”可查阅各个前端语言的API。此外，我们也可以在网页右上方含“Search”字样的搜索框中直接搜索API名称。
 
-![MXNet官方网站（mxnet.apache.org）。点击顶部的下拉菜单“API”可查阅各个前端语言的API。在右上方含“Search”字样的搜索框中也可直接搜索API名称。](../img/mxnet-website.png)
+![基于循环神经网络的语言模型。输入序列和标签序列分别为“你”、“好”、“世”和“好”、“世”、“界”。](../img/mxnet-website.png)
 
 图2.2展示了MXNet网站上有关`ones_like`函数的文档。
 
