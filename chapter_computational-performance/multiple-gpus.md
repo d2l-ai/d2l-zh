@@ -20,8 +20,6 @@
 为了从零开始实现多GPU训练中的数据并行，让我们先导入需要的包或模块。
 
 ```{.python .input}
-import sys
-sys.path.append('..')
 import gluonbook as gb
 import mxnet as mx
 from mxnet import autograd, nd

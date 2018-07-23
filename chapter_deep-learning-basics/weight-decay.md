@@ -38,8 +38,6 @@ $$y = 0.05 + \sum_{i = 1}^p 0.01x_i +  \epsilon,$$
 
 ```{.python .input  n=2}
 %matplotlib inline
-import sys
-sys.path.append('..')
 import gluonbook as gb
 from mxnet import autograd, gluon, nd
 

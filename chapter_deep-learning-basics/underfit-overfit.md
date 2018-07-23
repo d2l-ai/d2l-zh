@@ -41,8 +41,6 @@ $$\hat{y} = b + \sum_{k=1}^K x^k w_k$$
 
 ```{.python .input}
 %matplotlib inline
-import sys
-sys.path.append('..')
 import gluonbook as gb
 from mxnet import autograd, gluon, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn

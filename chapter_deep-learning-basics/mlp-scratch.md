@@ -3,8 +3,6 @@
 我们已经从上一章里了解了多层感知机的原理。下面，我们一起来动手实现一个多层感知机。首先导入实现所需的包或模块。
 
 ```{.python .input}
-import sys
-sys.path.append('..')
 import gluonbook as gb
 from mxnet import autograd, gluon, nd
 from mxnet.gluon import loss as gloss

@@ -58,8 +58,6 @@ $$\hat{\boldsymbol{Y}}_t = \text{softmax}(\boldsymbol{O}_t).$$
 首先导入实现所需的包或模块。
 
 ```{.python .input}
-import sys
-sys.path.append('..')
 import gluonbook as gb
 from mxnet import autograd, nd
 from mxnet.gluon import loss as gloss

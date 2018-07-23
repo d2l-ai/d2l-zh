@@ -15,12 +15,11 @@
 
 ```{.python .input  n=1}
 %matplotlib inline
-import sys
-sys.path.append('..')
 import gluonbook as gb
 from mxnet import gluon, image, nd
 from mxnet.gluon import data as gdata, utils as gutils
 import os
+import sys
 import tarfile
 ```
 

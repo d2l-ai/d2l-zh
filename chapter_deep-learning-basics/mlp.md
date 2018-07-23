@@ -45,8 +45,6 @@ $$\text{relu}(x) = \max(x, 0).$$
 ```{.python .input}
 # 将图打印在 Jupyter notebook 的文本之间。
 %matplotlib inline
-import sys
-sys.path.append('..')
 import gluonbook as gb
 from mxnet import nd
 

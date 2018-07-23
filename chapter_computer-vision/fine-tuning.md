@@ -31,8 +31,6 @@
 
 ```{.python .input  n=4}
 %matplotlib inline
-import sys
-sys.path.insert(0, '..')
 import zipfile
 import gluonbook as gb
 from mxnet import gluon, init, nd

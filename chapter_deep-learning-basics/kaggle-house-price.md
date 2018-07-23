@@ -38,8 +38,6 @@ Kaggle（网站地址：https://www.kaggle.com ）是一个著名的供机器学
 
 ```{.python .input  n=1}
 %matplotlib inline
-import sys
-sys.path.append('..')
 import gluonbook as gb
 from mxnet import autograd, init, gluon, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn

@@ -13,8 +13,6 @@
 
 ```{.python .input}
 %matplotlib inline
-import sys
-sys.path.append('..')
 import gluonbook as gb
 from mxnet import autograd, gluon, image, nd
 from mxnet.gluon import model_zoo, nn
@@ -256,4 +254,4 @@ gb.plt.imsave('../img/neural-style-2.png', postprocess(z).asnumpy())
 
 ## 参考文献
 
-[1] Gatys, Leon A., Alexander S. Ecker, and Matthias Bethge. "Image style transfer using convolutional neural networks." CVPR. 2016.
+[1] Gatys, L. A., Ecker, A. S., & Bethge, M. (2016). Image style transfer using convolutional neural networks. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (pp. 2414-2423).

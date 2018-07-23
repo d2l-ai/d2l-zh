@@ -6,12 +6,11 @@
 
 ```{.python .input  n=1}
 %matplotlib inline
-import sys
-sys.path.append('..')
 import gluonbook as gb
 from mxnet import gluon, init, nd, image
 from mxnet.gluon import data as gdata, loss as gloss, model_zoo, nn
 import numpy as np
+import sys
 ```
 
 ## 转置卷积层

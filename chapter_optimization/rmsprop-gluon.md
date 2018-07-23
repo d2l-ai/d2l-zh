@@ -7,8 +7,6 @@
 
 ```{.python .input}
 %matplotlib inline
-import sys
-sys.path.append('..')
 import gluonbook as gb
 from mxnet import gluon, init, nd
 from mxnet.gluon import nn

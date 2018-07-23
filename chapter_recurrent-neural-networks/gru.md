@@ -63,8 +63,6 @@ $$\boldsymbol{H}_t = \boldsymbol{Z}_t \odot \boldsymbol{H}_{t-1}  + (1 - \boldsy
 我们先读取并简单处理数据集。
 
 ```{.python .input  n=2}
-import sys
-sys.path.append('..')
 import gluonbook as gb
 from mxnet import nd
 import zipfile

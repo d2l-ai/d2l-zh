@@ -28,8 +28,6 @@ $$h_i = \frac{\xi_i}{1-p} \phi(x_1 w_1^{(i)} + x_2 w_2^{(i)} + x_3 w_3^{(i)} + x
 根据丢弃法的定义，我们可以很容易地实现它。下面的`dropout`函数将以`drop_prob`的概率丢弃NDArray输入`X`中的元素。
 
 ```{.python .input}
-import sys
-sys.path.append('..')
 import gluonbook as gb
 from mxnet import autograd, gluon, nd
 from mxnet.gluon import loss as gloss

@@ -6,8 +6,6 @@
 
 ```{.python .input  n=21}
 %matplotlib inline
-import sys
-sys.path.insert(0, '..')
 import gluonbook as gb
 import mxnet as mx
 from mxnet import autograd, gluon, image, init, nd 

@@ -10,8 +10,6 @@
 首先导入实验所需的包或模块，并抽取数据集。
 
 ```{.python .input  n=1}
-import sys
-sys.path.append('..')
 import gluonbook as gb
 import math
 import mxnet as mx

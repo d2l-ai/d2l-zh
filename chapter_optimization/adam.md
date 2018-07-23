@@ -62,8 +62,6 @@ def adam(params, vs, sqrs, lr, batch_size, t):
 
 ```{.python .input}
 %matplotlib inline
-import sys
-sys.path.append('..')
 import gluonbook as gb
 from mxnet import autograd, nd
 import numpy as np

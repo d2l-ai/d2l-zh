@@ -1,5 +1,7 @@
 # 文本分类：情感分析
 
+TODO(@astonzhang): edits
+
 在之前的章节中介绍了卷积神经网络用于计算机视觉领域。
 在本节将介绍如何将卷积神经网络应用于自然语言处理领域。以及参考textCNN模型使用Gluon创建一个卷积神经网络用于文本情感分类。
 
@@ -24,8 +26,6 @@
 在实验开始前，导入所需的包或模块。
 
 ```{.python .input  n=1}
-import sys
-sys.path.append('..')
 import collections
 import gluonbook as gb
 import mxnet as mx

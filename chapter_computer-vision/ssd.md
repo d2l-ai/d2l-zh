@@ -4,8 +4,6 @@
 
 ```{.python .input  n=1}
 %matplotlib inline
-import sys
-sys.path.insert(0, '..')
 import gluonbook as gb
 from mxnet import autograd, contrib, gluon, image, init, nd
 from mxnet.gluon import loss as gloss, nn

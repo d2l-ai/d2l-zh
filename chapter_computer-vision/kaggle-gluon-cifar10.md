@@ -13,9 +13,6 @@ CIFAR-10是计算机视觉领域的一个重要的数据集。本节中，我们
 首先，导入实验所需的包或模块。
 
 ```{.python .input}
-import sys
-sys.path.append('..')
-
 import datetime
 import gluonbook as gb
 from mxnet import autograd, gluon, init, nd
