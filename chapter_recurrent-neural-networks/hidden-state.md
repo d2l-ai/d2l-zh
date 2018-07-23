@@ -40,9 +40,9 @@ $$\boldsymbol{H}_t = \phi(\boldsymbol{X}_t \boldsymbol{W}_{xh} + \boldsymbol{H}_
 
 $$\boldsymbol{O}_t = \boldsymbol{H}_t \boldsymbol{W}_{hy} + \boldsymbol{b}_y.$$
 
-下图展示了这个模型在三个时间步的计算逻辑。在时间步$t$中，输入$\boldsymbol{X}_t$和前一时刻隐藏状态输出$\boldsymbol{H}_{t-1}$合并后输入到一个全连接层，其激活函数为$\phi$。全连接层的输出就是当前时间步的隐藏状态输入$\boldsymbol{H}_t$，其将输入到下一个时间步，以及到同一时间步的全连接输出层。
+图6.1展示了循环神经网络在三个时间步的计算逻辑。在时间步$t$，输入$\boldsymbol{X}_t$和前一时间步隐藏状态$\boldsymbol{H}_{t-1}$同时输入一个激活函数为$\phi$的全连接层。该全连接层的输出就是当前时间步的隐藏状态$\boldsymbol{H}_t$。当前时间步的隐藏状态将参与下一个时间步的隐藏状态的计算，并输入到当前时间步的全连接输出层。
 
-![循环神经网络。](../img/rnn.svg)
+![含隐藏状态的循环神经网络。](../img/rnn.svg)
 
 循环神经网络的参数包括隐藏层的权重$\boldsymbol{W}_{xh} \in \mathbb{R}^{d \times h}, \boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$和偏差 $\boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$，以及输出层的权重$\boldsymbol{W}_{hy} \in \mathbb{R}^{h \times q}$和偏差$\boldsymbol{b}_y \in \mathbb{R}^{1 \times q}$。值得一提的是，即便在不同时间步，循环神经网络始终使用这些模型参数。因此，循环神经网络模型参数的数量不随历史增长而增长。
 

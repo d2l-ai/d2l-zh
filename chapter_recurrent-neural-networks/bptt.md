@@ -26,15 +26,15 @@ $$L = \frac{1}{T} \sum_{t=1}^T \ell (\boldsymbol{o}_t, y_t).$$
 
 ## 模型计算图
 
-为了可视化模型变量和参数之间在计算中的依赖关系，我们可以绘制模型计算图，如图6.2所示。例如，时间步3的隐藏状态$\boldsymbol{h}_3$的计算依赖模型参数$\boldsymbol{W}_{hx}, \boldsymbol{W}_{hh}$、上一时间步隐藏状态$\boldsymbol{h}_2$以及当前时间步输入$\boldsymbol{x}_3$。
+为了可视化模型变量和参数之间在计算中的依赖关系，我们可以绘制模型计算图，如图6.3所示。例如，时间步3的隐藏状态$\boldsymbol{h}_3$的计算依赖模型参数$\boldsymbol{W}_{hx}, \boldsymbol{W}_{hh}$、上一时间步隐藏状态$\boldsymbol{h}_2$以及当前时间步输入$\boldsymbol{x}_3$。
 
 
 ![时间步数为3的循环神经网络模型计算中的依赖关系。方框中字母代表变量，圆圈中字母代表数据样本特征和标签，无边框的字母代表模型参数。](../img/rnn-bptt.svg)
 
 ## 通过时间反向传播
 
-刚刚提到，图6.2中模型的参数是$\boldsymbol{W}_{hx}$、$\boldsymbol{W}_{hh}$和$\boldsymbol{W}_{yh}$。与[“正向传播和反向传播”](../chapter_deep-learning-basics/backprop.md)一节中类似，训练模型通常需要模型参数的梯度$\partial L/\partial \boldsymbol{W}_{hx}$、$\partial L/\partial \boldsymbol{W}_{hh}$和$\partial L/\partial \boldsymbol{W}_{yh}$。
-根据图6.2中的依赖关系，我们可以按照其中箭头所指的反方向依次计算并存储梯度。
+刚刚提到，图6.3中模型的参数是$\boldsymbol{W}_{hx}$、$\boldsymbol{W}_{hh}$和$\boldsymbol{W}_{yh}$。与[“正向传播和反向传播”](../chapter_deep-learning-basics/backprop.md)一节中类似，训练模型通常需要模型参数的梯度$\partial L/\partial \boldsymbol{W}_{hx}$、$\partial L/\partial \boldsymbol{W}_{hh}$和$\partial L/\partial \boldsymbol{W}_{yh}$。
+根据图6.3中的依赖关系，我们可以按照其中箭头所指的反方向依次计算并存储梯度。
 
 为了表述方便，我们依然使用[“正向传播和反向传播”](../chapter_deep-learning-basics/backprop.md)一节中表达链式法则的操作符prod。
 
@@ -42,7 +42,7 @@ $$L = \frac{1}{T} \sum_{t=1}^T \ell (\boldsymbol{o}_t, y_t).$$
 
 $$\frac{\partial L}{\partial \boldsymbol{o}_t} =  \frac{\partial \ell (\boldsymbol{o}_t, y_t)}{T \cdot \partial \boldsymbol{o}_t}.$$
 
-下面，我们可以计算目标函数有关模型参数$\boldsymbol{W}_{yh}$的梯度$\partial L/\partial \boldsymbol{W}_{yh} \in \mathbb{R}^{q \times h}$。根据图6.2，$L$通过$\boldsymbol{o}_1, \ldots, \boldsymbol{o}_T$依赖$\boldsymbol{W}_{yh}$。依据链式法则，
+下面，我们可以计算目标函数有关模型参数$\boldsymbol{W}_{yh}$的梯度$\partial L/\partial \boldsymbol{W}_{yh} \in \mathbb{R}^{q \times h}$。根据图6.3，$L$通过$\boldsymbol{o}_1, \ldots, \boldsymbol{o}_T$依赖$\boldsymbol{W}_{yh}$。依据链式法则，
 
 $$
 \frac{\partial L}{\partial \boldsymbol{W}_{yh}} 
@@ -52,7 +52,7 @@ $$
 
 
 其次，我们注意到隐藏状态之间也有依赖关系。
-在图6.2中，$L$只通过$\boldsymbol{o}_T$依赖最终时间步$T$的隐藏状态$\boldsymbol{h}_T$。因此，我们先计算目标函数有关最终时间步隐藏状态的梯度$\partial L/\partial \boldsymbol{h}_T \in \mathbb{R}^h$。依据链式法则，我们得到
+在图6.3中，$L$只通过$\boldsymbol{o}_T$依赖最终时间步$T$的隐藏状态$\boldsymbol{h}_T$。因此，我们先计算目标函数有关最终时间步隐藏状态的梯度$\partial L/\partial \boldsymbol{h}_T \in \mathbb{R}^h$。依据链式法则，我们得到
 
 $$
 \frac{\partial L}{\partial \boldsymbol{h}_T} = \text{prod}(\frac{\partial L}{\partial \boldsymbol{o}_T}, \frac{\partial \boldsymbol{o}_T}{\partial \boldsymbol{h}_T} ) = \boldsymbol{W}_{yh}^\top \frac{\partial L}{\partial \boldsymbol{o}_T}.
@@ -61,7 +61,7 @@ $$
 
 
 接下来，对于时间步$t < T$，
-在图6.2中，$L$通过$\boldsymbol{h}_{t+1}$和$\boldsymbol{o}_t$依赖$\boldsymbol{h}_t$。依据链式法则，
+在图6.3中，$L$通过$\boldsymbol{h}_{t+1}$和$\boldsymbol{o}_t$依赖$\boldsymbol{h}_t$。依据链式法则，
 目标函数有关时间步$t < T$的隐藏状态的梯度$\partial L/\partial \boldsymbol{h}_t \in \mathbb{R}^h$需要按照时间步从晚到早依次计算：
 
 
@@ -80,7 +80,7 @@ $$
 $$
 
 由上式中的指数项可见，当时间步数$T$较大或者时间步$t$较小，目标函数有关隐藏状态的梯度较容易出现衰减和爆炸。这也会影响其他计算中包含$\partial L / \partial \boldsymbol{h}_t$的梯度，例如隐藏层中模型参数的梯度$\partial L / \partial \boldsymbol{W}_{hx} \in \mathbb{R}^{h \times d}$和$\partial L / \partial \boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$。
-在图6.2中，$L$通过$\boldsymbol{h}_1, \ldots, \boldsymbol{h}_T$依赖这些模型参数。
+在图6.3中，$L$通过$\boldsymbol{h}_1, \ldots, \boldsymbol{h}_T$依赖这些模型参数。
 依据链式法则，我们有
 
 $$
