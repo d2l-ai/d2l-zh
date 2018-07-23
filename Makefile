@@ -61,6 +61,10 @@ pdf: $(DEPS) $(OBJ) $(PDFIMG)
 	sed -i s/{\\\\releasename}{发布}/{\\\\releasename}{}/g $(TEX)
 	sed -i s/{OriginalVerbatim}\\\[commandchars=\\\\\\\\\\\\{\\\\}\\\]/{OriginalVerbatim}\\\[commandchars=\\\\\\\\\\\\{\\\\},formatcom=\\\\footnotesize\\\]/g $(TEX)
 	sed -i s/\\\\usepackage{geometry}/\\\\usepackage[paperwidth=187mm,paperheight=235mm,left=20mm,right=20mm,top=20mm,bottom=15mm,includefoot]{geometry}/g $(TEX)
+	# Remove un-translated long table descriptions
+	sed -i /\\\\multicolumn{2}{c}\%/d $(TEX)
+	sed -i /\\\\sphinxtablecontinued{Continued\ on\ next\ page}/d $(TEX)
+	sed -i /{\\\\tablename\\\\\ \\\\thetable{}\ --\ continued\ from\ previous\ page}/d $(TEX)
 	cd build/_build/latex && \
 	buf_size=10000000 xelatex gluon_tutorials_zh.tex && \
 	buf_size=10000000 xelatex gluon_tutorials_zh.tex
