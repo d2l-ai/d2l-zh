@@ -30,7 +30,7 @@
 |:--|:-:|
 |$\boldsymbol{(\cdot)}^\top$|向量或矩阵的转置|
 |$\odot$|按元素相乘|
-|$\left|\mathcal{X}\right|$|集合$\mathcal{X}$中元素个数|
+|$\lvert\mathcal{X}\rvert$|集合$\mathcal{X}$中元素个数|
 |$\|\cdot\|_p$|$L_p$范数|
 |$\|\cdot\|$|$L_2$范数|
 |$\sum$|连加|
