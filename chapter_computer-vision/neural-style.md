@@ -214,7 +214,7 @@ y = train(x, content_y, style_y, ctx, 0.1, 500, 200)
 因为使用了内容图片作为初始值，所以一开始内容误差远小于样式误差。随着迭代的进行样式误差迅速减少，最终它们值在相近的范围。下面我们将训练好的合成图片保存下来。
 
 ```{.python .input}
-gb.plt.imsave('neural-style-1.png', postprocess(y).asnumpy())
+gb.plt.imsave('../img/neural-style-1.png', postprocess(y).asnumpy())
 ```
 
 ![$300 \times 200$ 尺寸的合成图片。](../img/neural-style-1.png)
@@ -230,7 +230,7 @@ style_x, style_y = get_styles(image_shape, ctx)
 x = preprocess(postprocess(y) * 255, image_shape)
 z = train(x, content_y, style_y, ctx, 0.1, 300, 100)
 
-gb.plt.imsave('neural-style-2.png', postprocess(z).asnumpy())
+gb.plt.imsave('../img/neural-style-2.png', postprocess(z).asnumpy())
 ```
 
 可以看到这一次由于初始值离最终输出更近使得收敛更加迅速。但同时由于图片尺寸更大，每一次迭代需要花费更多的时间和内存。
