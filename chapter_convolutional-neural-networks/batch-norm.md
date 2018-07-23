@@ -15,11 +15,11 @@ $$\sigma^2 \leftarrow \frac{1}{n} \sum_{i=1}^{n}(x_i - \mu)^2.$$
 
 对于数据点 $x_i$，我们可以对它的每一个特征维进行归一化：
 
-$$\hat{x_i} \leftarrow \frac{x_i - \mu}{\sqrt{\sigma^2 + \epsilon}},$$
+$$\hat{x}_i \leftarrow \frac{x_i - \mu}{\sqrt{\sigma^2 + \epsilon}},$$
 
-这里$\epsilon$是一个很小的常数，保证分母大于0。在上面归一化的基础上，批量归一化层引入了两个可以学习的模型参数，拉升参数 $\gamma$ 和偏移参数 $\beta$。它们是长为$p$的向量，作用在$\hat{x_i}$上：
+这里$\epsilon$是一个很小的常数，保证分母大于0。在上面归一化的基础上，批量归一化层引入了两个可以学习的模型参数，拉升参数 $\gamma$ 和偏移参数 $\beta$。它们是长为$p$的向量，作用在$\hat{x}_i$上：
 
-$$y_i \leftarrow \gamma \hat{x_i} + \beta.$$
+$$y_i \leftarrow \gamma \hat{x}_i + \beta.$$
 
 这里$Y = \{y_1, \ldots, y_n\}$是批量归一化层的输出。
 

@@ -1,6 +1,6 @@
 # 稠密连接网络（DenseNet）
 
-ResNet中的跨层连接设计引申出了数个后续工作。这一节我们介绍其中的一个：稠密连接网络（DenseNet） [1]。 它与ResNet的主要区别如下图演示。
+ResNet中的跨层连接设计引申出了数个后续工作。这一节我们介绍其中的一个：稠密连接网络（DenseNet） [1]。 它与ResNet的主要区别如图5.10演示。
 
 ![ResNet（左）对比DenseNet（右）。](../img/densenet.svg)
 
