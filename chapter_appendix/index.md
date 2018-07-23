@@ -5,6 +5,7 @@
 .. toctree::
    :maxdepth: 2
 
+   notation
    math
    jupyter
    aws
