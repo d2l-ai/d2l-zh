@@ -50,7 +50,8 @@ def readIMDB(dir_url, seg='train'):
     for label in pos_or_neg:
         files = os.listdir(os.path.join('../data/',dir_url, seg, label))
         for file in files:
-            with open(os.path.join('../data/',dir_url, seg, label, file), 'r', encoding='utf8') as rf:
+            with open(os.path.join('../data/',dir_url, seg, label, file), 'r',
+                      encoding='utf8') as rf:
                 review = rf.read().replace('\n', '')
                 if label == 'pos':
                     data.append([review, 1])

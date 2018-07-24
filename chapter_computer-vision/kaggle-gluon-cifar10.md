@@ -141,7 +141,8 @@ transform_train = gdata.vision.transforms.Compose([
                                               ratio=(1.0, 1.0)),
     # 随机左右翻转图片。
     gdata.vision.transforms.RandomFlipLeftRight(),
-    # 将图片像素值按比例缩小到 0 和 1 之间，并将数据格式从“高*宽*通道”改为“通道*高*宽”。
+    # 将图片像素值按比例缩小到 0 和 1 之间，并将数据格式从“高 * 宽 * 通道”改为
+    # “通道 * 高 * 宽”。
     gdata.vision.transforms.ToTensor(),
     # 对图片的每个通道做标准化。
     gdata.vision.transforms.Normalize([0.4914, 0.4822, 0.4465],

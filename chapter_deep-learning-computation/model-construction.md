@@ -142,7 +142,7 @@ net(x)
 
 * 在FancyMLP类里我们重用了`dense`，这样对输入形状有了一定要求，尝试改变下输入数据形状试试。
 * 如果我们去掉FancyMLP里面的`asscalar`会有什么问题？
-* 在NestMLP里假设我们改成 `self.net=[nn.Dense(64, activation='relu'),nn.Dense(32, activation='relu')]`，而不是用Sequential类来构造，会有什么问题？
+* 在NestMLP里假设我们改成 `self.net = [nn.Dense(64, activation='relu'), nn.Dense(32, activation='relu')]`，而不是用Sequential类来构造，会有什么问题？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/986)

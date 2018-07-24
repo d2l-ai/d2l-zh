@@ -133,9 +133,7 @@ def style_loss(y_hat, gram_y):
 
 当我们使用靠近输出层的神经层输出来匹配时，经常可以观察到学到的合成图片里面有大量高频噪音，即有特别亮或者暗的颗粒像素。一种常用的降噪方法是总变差降噪（total variation denoising）。假设 $x_{i,j}$ 表示像素 $(i,j)$的值，总变差损失使得邻近的像素值相似：
 
-$$
-\sum_{i,j} |x_{i,j} - x_{i+1,j}| + |x_{i,j} - x_{i,j+1}|
-$$
+$$\sum_{i,j} \left|x_{i,j} - x_{i+1,j}\right| + \left|x_{i,j} - x_{i,j+1}\right|.$$
 
 ```{.python .input}
 def tv_loss(y_hat):
@@ -176,7 +174,7 @@ def train(x, content_y, style_y, ctx, lr, max_epochs, lr_decay_epoch):
             # 对所有损失求和。
             l = nd.add_n(*style_L) + nd.add_n(*content_L) + tv_L
         l.backward()
-        # 对 x 的梯度除去绝对均值使得数值更加稳定，并更新 x
+        # 对 x 的梯度除去绝对均值使得数值更加稳定，并更新 x。
         x.grad[:] /= x.grad.abs().mean() + 1e-8
         x[:] -= lr * x.grad
         # 如果不加的话会导致每50轮迭代才同步一次，可能导致过大内存使用。
