@@ -65,7 +65,7 @@ def read_data(max_seq_len):
                 input_tokens.extend(cur_input_tokens)
                 # 句末附上 EOS 符号。
                 cur_input_tokens.append(EOS)
-                # 添加 PAD 符号使每个序列等长（长度为 max_seq_len ）。
+                # 添加 PAD 符号使每个序列等长（长度为 max_seq_len）。
                 while len(cur_input_tokens) < max_seq_len:
                     cur_input_tokens.append(PAD)
                 input_seqs.append(cur_input_tokens)

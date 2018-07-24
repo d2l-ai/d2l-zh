@@ -61,7 +61,7 @@ test_imgs = gdata.vision.ImageFolderDataset(
 
 ```{.python .input}
 hotdogs = [train_imgs[i][0] for i in range(8)]
-not_hotdogs = [train_imgs[-i-1][0] for i in range(8)]
+not_hotdogs = [train_imgs[-i - 1][0] for i in range(8)]
 gb.show_images(hotdogs + not_hotdogs, 2, 8, scale=1.4);
 ```
 

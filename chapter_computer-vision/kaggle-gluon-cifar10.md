@@ -288,7 +288,7 @@ num_epochs = 1
 lr = 0.1
 # 权重衰减参数。
 wd = 5e-4
-# 优化算法的学习率将在每80个迭代周期时自乘0.1。
+# 优化算法的学习率将在每 80 个迭代周期时自乘 0.1。
 lr_period = 80
 lr_decay = 0.1
 
@@ -313,7 +313,7 @@ for X, _ in test_data:
     y_hat = net(X.as_in_context(ctx))
     preds.extend(y_hat.argmax(axis=1).astype(int).asnumpy())
 sorted_ids = list(range(1, len(test_ds) + 1))
-sorted_ids.sort(key = lambda x:str(x))
+sorted_ids.sort(key=lambda x:str(x))
 df = pd.DataFrame({'id': sorted_ids, 'label': preds})
 df['label'] = df['label'].apply(lambda x: train_valid_ds.synsets[x])
 df.to_csv('submission.csv', index=False)

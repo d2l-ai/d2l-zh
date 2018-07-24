@@ -227,7 +227,7 @@ def calc_loss(cls_preds, cls_labels, bbox_preds, bbox_labels, bbox_masks):
 
 ```{.python .input  n=21}
 def cls_metric(cls_preds, cls_labels):
-    # 注意这里类别预测结果放在最后一维，argmax的时候指定使用最后一维。
+    # 注意这里类别预测结果放在最后一维，argmax 的时候指定使用最后一维。
     return (cls_preds.argmax(axis=-1) == cls_labels).mean().asscalar()
 
 def bbox_metric(bbox_preds, bbox_labels, bbox_masks):

@@ -146,7 +146,7 @@ transform_train = gdata.vision.transforms.Compose([
     # 随机加噪音。
     gdata.vision.transforms.RandomLighting(0.1),
     
-    # 将图片像素值按比例缩小到 0 和 1 之间，并将数据格式从“高 *宽 * 通道”改为
+    # 将图片像素值按比例缩小到 0 和 1 之间，并将数据格式从“高 * 宽 * 通道”改为
     # “通道 * 高 * 宽”。
     gdata.vision.transforms.ToTensor(),
     # 对图片的每个通道做标准化。
@@ -205,7 +205,7 @@ def get_net(ctx):
     finetune_net.output_new.add(nn.Dense(120))
     # 初始化输出网络。
     finetune_net.output_new.initialize(init.Xavier(), ctx=ctx)
-    # 把模型参数分配到即将用于计算的 CPU或GPU 上。
+    # 把模型参数分配到即将用于计算的 CPU 或 GPU 上。
     finetune_net.collect_params().reset_ctx(ctx)
     return finetune_net
 ```
@@ -276,7 +276,7 @@ num_epochs = 1
 lr = 0.01
 # 权重衰减参数。
 wd = 1e-4
-# 优化算法的学习率将在每10个迭代周期时自乘0.1。
+# 优化算法的学习率将在每 10 个迭代周期时自乘 0.1。
 lr_period = 10
 lr_decay = 0.1
 

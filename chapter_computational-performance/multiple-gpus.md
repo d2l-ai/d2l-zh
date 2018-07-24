@@ -168,7 +168,7 @@ def train(num_gpus, batch_size, lr):
             train_batch(X, y, gpu_params, ctx, lr)
         nd.waitall()
         print('epoch %d, time: %.1f sec' % (epoch, time() - start))
-        # 在 GPU0 上验证模型。
+        # 在 GPU 0 上验证模型。
         net = lambda x: lenet(x, gpu_params[0])
         test_acc = gb.evaluate_accuracy(test_iter, net, ctx[0])
         print('validation accuracy: %.4f' % test_acc)

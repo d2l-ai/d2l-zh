@@ -32,7 +32,7 @@ GPU的到来改变了格局。很久以来，GPU都是为了图像处理和计�
 
 ## AlexNet
 
-2012年AlexNet [1]，名字来源于论文一作姓名Alex Krizhevsky，横空出世，它使用8层卷积神经网络以很大的优势赢得了ImageNet 2012图像识别挑战赛。它首次证明了学习到的特征可以超越手工设计的特征，从而一举打破计算机视觉研究的前状。
+2012年AlexNet横空出世。它的名字来源于论文一作姓名Alex Krizhevsky [1]。它使用8层卷积神经网络以很大的优势赢得了ImageNet 2012图像识别挑战赛。它首次证明了学习到的特征可以超越手工设计的特征，从而一举打破计算机视觉研究的前状。
 
 AlextNet与LeNet的设计理念非常相似。但也有非常显著的区别。
 
@@ -66,8 +66,8 @@ net.add(
     # 减小卷积窗口，使用填充为2来使得输入输出高宽一致。且增大输出通道数。
     nn.Conv2D(256, kernel_size=5, padding=2, activation='relu'),
     nn.MaxPool2D(pool_size=3, strides=2),
-    # 连续三个卷积层，且使用更小的卷积窗口。除了最后的卷积层外，
-    # 进一步增大了输出通道数。前两个卷积层后不使用池化层来减小输入的高宽。
+    # 连续三个卷积层，且使用更小的卷积窗口。除了最后的卷积层外，进一步增大了输出通道数。
+    # 前两个卷积层后不使用池化层来减小输入的高宽。
     nn.Conv2D(384, kernel_size=3, padding=1, activation='relu'),
     nn.Conv2D(384, kernel_size=3, padding=1, activation='relu'),
     nn.Conv2D(256, kernel_size=3, padding=1, activation='relu'),
@@ -139,7 +139,7 @@ gb.train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
 
 ## 小结
 
-AlexNet跟LeNet结构类似，但使用了更多的卷积层和更大的参数空间来拟合大规模数据集ImageNet。它是浅层神经网络和深度神经网络的分界线。虽然看上去AlexNet的实现比LeNet也就就多了几行而已。但这个观念上的转变和真正优秀实验结果的产生，学术界整整花了20年。
+* AlexNet跟LeNet结构类似，但使用了更多的卷积层和更大的参数空间来拟合大规模数据集ImageNet。它是浅层神经网络和深度神经网络的分界线。虽然看上去AlexNet的实现比LeNet也就就多了几行而已。但这个观念上的转变和真正优秀实验结果的产生，学术界整整花了20年。
 
 ## 练习
 

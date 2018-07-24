@@ -1,6 +1,6 @@
 # 区域卷积神经网络（R-CNN）系列
 
-区域卷积神经网络（Regions with CNN features，简称R-CNN）[1]是使用深度模型来解决物体识别的开创性工作，这一小节我们将介绍它和它之后数个重要变种。但限于篇幅原因，这里主要介绍模型思路而不是具体实现。
+区域卷积神经网络（Regions with CNN features，简称R-CNN）是使用深度模型来解决物体识别的开创性工作，这一小节我们将介绍它和它之后数个重要变种 [1]。但限于篇幅原因，这里主要介绍模型思路而不是具体实现。
 
 ## R-CNN：区域卷积神经网络
 
@@ -10,7 +10,7 @@ R-CNN的提出影响了后面一系列深度模型的设计。它首先对每张
 
 具体来说，它的由四步构成：
 
-1. 对每张输入图片使用选择性搜索[2]来选取多个高质量的提议区域。这个算法先对图片基于像素信息做快速分割来得到多个区域，然后将当下最相似的两区域合并成一个区域，重复进行合并直到整张图片变成一个区域。最后根据合并的信息生成多个有层次结构的提议区域，并为每个提议区域生成物体类别和真实边界框。
+1. 对每张输入图片使用选择性搜索来选取多个高质量的提议区域 [2]。这个算法先对图片基于像素信息做快速分割来得到多个区域，然后将当下最相似的两区域合并成一个区域，重复进行合并直到整张图片变成一个区域。最后根据合并的信息生成多个有层次结构的提议区域，并为每个提议区域生成物体类别和真实边界框。
 1. 选取一个预先训练好的卷积神经网络，去掉最后的输出层来作为特征抽取模块。对每个提议区域，将其变形成卷积神经网络需要的输入尺寸后进行前向计算抽取特征。
 1. 将每个提议区域的特征连同其标注做成一个样本，训练多个支持向量机（SVM）来进行物体类别分类，这里第$i$个SVM预测样本是否属于第$i$类。
 1. 在这些样本上训练一个线性回归模型来预测真实边界框。
@@ -19,7 +19,7 @@ R-CNN对之前物体识别算法的主要改进是使用了预先训练好的卷
 
 ## Fast R-CNN：快速的区域卷积神经网络
 
-R-CNN的主要性能瓶颈在于需要对每个提议区域独立的抽取特征。考虑到这些区域会有大量重叠，独立的特征抽取导致了大量的重复计算。Fast R-CNN [3] 对R-CNN的一个主要改进在于首先对整个图片进行特征抽取，然后再选取提议区域，从而减少重复计算。图9.5描述了Fast R-CNN模型。
+R-CNN的主要性能瓶颈在于需要对每个提议区域独立的抽取特征。考虑到这些区域会有大量重叠，独立的特征抽取导致了大量的重复计算。Fast R-CNN对R-CNN的一个主要改进在于首先对整个图片进行特征抽取，然后再选取提议区域，从而减少重复计算 [3]。图9.5描述了Fast R-CNN模型。
 
 ![Fast R-CNN模型。](../img/fast-rcnn.svg)
 
@@ -41,14 +41,14 @@ Fast R-CNN中提出的RoI池化层跟我们之前介绍过的池化层有显著�
 ```{.python .input  n=4}
 from mxnet import nd
 
-x = nd.arange(16).reshape((1,1,4,4))
+x = nd.arange(16).reshape((1, 1, 4, 4))
 x
 ```
 
 我们定义两个兴趣区域，每个区域由五个元素表示，分别为区域物体标号，左上角的x、y轴坐标和右下角的x、y轴坐标。
 
 ```{.python .input  n=5}
-rois = nd.array([[0,0,0,2,2], [0,0,1,3,3]])
+rois = nd.array([[0, 0, 0, 2, 2], [0, 0, 1, 3, 3]])
 ```
 
 可以看到这里我们生成了$3\times 3$和$4\times 3$大小的两个区域。
@@ -61,7 +61,7 @@ nd.ROIPooling(x, rois, pooled_size=(2, 2), spatial_scale=1)
 
 ## Faster R-CNN：更快速的区域卷积神经网络
 
-Faster R-CNN [4] 对Fast R-CNN做了进一步改进，它将Fast R-CNN中的选择性搜索替换成区域提议网络（region proposal network，简称RPN）。RPN以锚框为起始点，通过一个小神经网络来选择提议区域。图9.7描述了Faster R-CNN模型。
+Faster R-CNN 对Fast R-CNN做了进一步改进，它将Fast R-CNN中的选择性搜索替换成区域提议网络（region proposal network，简称RPN）[4]。RPN以锚框为起始点，通过一个小神经网络来选择提议区域。图9.7描述了Faster R-CNN模型。
 
 ![Faster R-CNN模型。](../img/faster-rcnn.svg)
 
@@ -76,7 +76,7 @@ Faster R-CNN [4] 对Fast R-CNN做了进一步改进，它将Fast R-CNN中的选�
 
 ## Mask R-CNN：使用全连接卷积网络的Faster RCNN
 
-如果训练数据中我们标注了每个物体的精确边框，而不是一个简单的方形边界框，那么Mask R-CNN [4]能有效的利用这些详尽的标注信息来进一步提升物体识别精度。具体来说，Mask R-CNN使用额外的全连接卷积网络来利用像素级别标注信息，这个网络将在稍后的[“语义分割”](fcn.md)这一节做详细介绍。图9.8描述了Mask R-CNN模型。
+如果训练数据中我们标注了每个物体的精确边框，而不是一个简单的方形边界框，那么Mask R-CNN能有效的利用这些详尽的标注信息来进一步提升物体识别精度 [5]。具体来说，Mask R-CNN使用额外的全连接卷积网络来利用像素级别标注信息，这个网络将在稍后的[“语义分割”](fcn.md)这一节做详细介绍。图9.8描述了Mask R-CNN模型。
 
 ![Mask R-CNN模型。](../img/mask-rcnn.svg)
 
@@ -118,6 +118,6 @@ $$f(x,y) = (\lfloor y \rfloor + 1-y)f(x, \lfloor y \rfloor) + (y-\lfloor y \rflo
 
 [3] Girshick, R. (2015). Fast r-cnn. arXiv preprint arXiv:1504.08083.
 
-[3] Ren, S., He, K., Girshick, R., & Sun, J. (2015). Faster r-cnn: Towards real-time object detection with region proposal networks. In Advances in neural information processing systems (pp. 91-99).
+[4] Ren, S., He, K., Girshick, R., & Sun, J. (2015). Faster r-cnn: Towards real-time object detection with region proposal networks. In Advances in neural information processing systems (pp. 91-99).
 
-[4] He, K., Gkioxari, G., Dollár, P., & Girshick, R. (2017, October). Mask r-cnn. In Computer Vision (ICCV), 2017 IEEE International Conference on (pp. 2980-2988). IEEE.
+[5] He, K., Gkioxari, G., Dollár, P., & Girshick, R. (2017, October). Mask r-cnn. In Computer Vision (ICCV), 2017 IEEE International Conference on (pp. 2980-2988). IEEE.

@@ -47,7 +47,7 @@ class DenseBlock(nn.Block):
 ```{.python .input  n=8}
 blk = DenseBlock(2, 10)
 blk.initialize()
-X = nd.random.uniform(shape=(4,3,8,8))
+X = nd.random.uniform(shape=(4, 3, 8, 8))
 Y = blk(X)
 Y.shape
 ```
@@ -136,7 +136,7 @@ gb.train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
 
 - DesNet论文中提交的一个优点是其模型参数比ResNet更小，这是为什么？
 - DesNet被人诟病的一个问题是内存消耗过多。真的会这样吗？可以把输入换成$224\times 224$，来看看实际（GPU）内存消耗。
-- 实现 [1] 中的表1提出的各个DenseNet版本。
+- 实现DenseNet论文中的表1提出的各个DenseNet版本 [1]。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1664)
 

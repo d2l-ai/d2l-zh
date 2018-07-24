@@ -44,7 +44,7 @@ gb.train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
 
 ## 小结
 
-Gluon提供的BatchNorm在使用上更加简单。
+* Gluon提供的BatchNorm在使用上更加简单。
 
 ## 练习
 

@@ -96,7 +96,7 @@ Y = Y.reshape((1, 1, 6, 7))
 for i in range(10):
     with autograd.record():
         Y_hat = conv2d(X)
-        l = (Y_hat-Y) ** 2
+        l = (Y_hat - Y) ** 2
         if i % 2 == 1:
             print('batch %d, loss %.3f' % (i, l.sum().asscalar()))
     l.backward()

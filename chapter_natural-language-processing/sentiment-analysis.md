@@ -129,7 +129,7 @@ def pad_samples(features, maxlen=500, PAD=0):
             padded_feature = feature[:maxlen]
         else:
             padded_feature = feature
-            # 添加 PAD 符号使每个序列等长（长度为 maxlen ）。
+            # 添加 PAD 符号使每个序列等长（长度为 maxlen）。
             while len(padded_feature) < maxlen:
                 padded_feature.append(PAD)
         padded_features.append(padded_feature)

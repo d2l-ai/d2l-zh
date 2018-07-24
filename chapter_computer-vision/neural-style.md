@@ -52,13 +52,13 @@ def postprocess(img):
 
 ## 抽取特征
 
-我们使用原论文[1]使用的VGG 19模型，并下载在Imagenet上训练好的权重。
+我们使用原论文使用的VGG 19模型，并下载在Imagenet上训练好的权重 [1]。
 
 ```{.python .input  n=3}
 pretrained_net = model_zoo.vision.vgg19(pretrained=True)
 ```
 
-我们知道VGG使用了五个卷积块来构建网络，块之间使用最大池化层来做间隔（参考[“使用重复元素的网络（VGG）”](../chapter_convolutional-neural-networks/vgg.md)小节）。[1]中使用每个卷积块的第一个卷积层输出来匹配样式（称之为样式层），和第四块中的最后一个卷积层来匹配内容（称之为内容层）。我们可以打印`pretrained_net`来获取这些层的具体位置。
+我们知道VGG使用了五个卷积块来构建网络，块之间使用最大池化层来做间隔（参考[“使用重复元素的网络（VGG）”](../chapter_convolutional-neural-networks/vgg.md)小节）。原论文中使用每个卷积块的第一个卷积层输出来匹配样式（称之为样式层），和第四块中的最后一个卷积层来匹配内容（称之为内容层）[1]。我们可以打印`pretrained_net`来获取这些层的具体位置。
 
 ```{.python .input  n=11}
 style_layers = [0, 5, 10, 19, 28]
