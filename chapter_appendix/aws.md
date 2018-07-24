@@ -137,11 +137,11 @@ conda env create -f environment.yml
 source activate gluon
 ```
 
-默认环境里安装了CPU版本的MXNet。现在我们将它替换成GPU版本的MXNet（1.2.0版）。
+默认环境里安装了CPU版本的MXNet。现在我们将它替换成GPU版本的MXNet（1.2.1 版）。
 
 ```
 pip uninstall mxnet
-pip install mxnet-cu80==1.2.0
+pip install mxnet-cu80==1.2.1
 ```
 
 ## 运行Jupyter notebook
