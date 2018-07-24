@@ -4,7 +4,7 @@
 
 ```{.python .input  n=1}
 import gluonbook as gb
-from mxnet import nd, gluon, init
+from mxnet import gluon, init
 from mxnet.gluon import loss as gloss, nn
 
 net = nn.Sequential()

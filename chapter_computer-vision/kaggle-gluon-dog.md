@@ -21,7 +21,6 @@ import gluonbook as gb
 import math
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, model_zoo, nn
-import numpy as np
 import os
 import shutil
 import zipfile
@@ -71,9 +70,7 @@ def reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir,
         lines = f.readlines()[1:]
         tokens = [l.rstrip().split(',') for l in lines]
         idx_label = dict(((idx, label) for idx, label in tokens))
-    labels = set(idx_label.values())
 
-    n_train = len(os.listdir(os.path.join(data_dir, train_dir)))
     # 训练集中数量最少一类的狗的样本数。
     min_n_train_per_label = (
         collections.Counter(idx_label.values()).most_common()[:-2:-1][0][1])

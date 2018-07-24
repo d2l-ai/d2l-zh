@@ -13,7 +13,6 @@
 下面我们将上述过程实现在`corr2d`函数里，它接受`X`和`K`，输出`Y`。
 
 ```{.python .input}
-import gluonbook as gb
 from mxnet import autograd, nd
 from mxnet.gluon import nn
 

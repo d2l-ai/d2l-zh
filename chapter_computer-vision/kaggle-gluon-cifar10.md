@@ -15,9 +15,8 @@ CIFAR-10是计算机视觉领域的一个重要的数据集。本节中，我们
 ```{.python .input}
 import datetime
 import gluonbook as gb
-from mxnet import autograd, gluon, init, nd
+from mxnet import autograd, gluon, init
 from mxnet.gluon import data as gdata, nn, loss as gloss
-import numpy as np
 import os
 import pandas as pd
 import shutil

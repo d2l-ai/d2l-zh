@@ -6,7 +6,7 @@
 
 ```{.python .input  n=1}
 import gluonbook as gb
-from mxnet import autograd, gluon, init, nd
+from mxnet import gluon, init
 from mxnet.gluon import loss as gloss, nn
 ```
 

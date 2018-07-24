@@ -28,10 +28,9 @@ TODO(@astonzhang): edits
 ```{.python .input  n=1}
 import collections
 import gluonbook as gb
-import mxnet as mx
 from mxnet import autograd, gluon, init, metric, nd
 from mxnet.contrib import text
-from mxnet.gluon import loss as gloss, nn, rnn
+from mxnet.gluon import loss as gloss, nn
 import os
 import random
 from time import time
@@ -183,7 +182,6 @@ glove_embedding = text.embedding.create(
 import sys
 sys.path.append('..')
 import gluonbook as gb
-from mxnet import autograd, nd
 from mxnet.gluon import nn
 
 def corr1d(X, K):

@@ -29,7 +29,7 @@ $$h_i = \frac{\xi_i}{1-p} \phi(x_1 w_1^{(i)} + x_2 w_2^{(i)} + x_3 w_3^{(i)} + x
 
 ```{.python .input}
 import gluonbook as gb
-from mxnet import autograd, gluon, nd
+from mxnet import autograd, nd
 from mxnet.gluon import loss as gloss
 
 def dropout(X, drop_prob):
