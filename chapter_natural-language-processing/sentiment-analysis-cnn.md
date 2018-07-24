@@ -179,11 +179,6 @@ glove_embedding = text.embedding.create(
 下面我们将上述过程实现在corr1d函数里，它接受X和K，输出Y。
 
 ```{.python .input  n=8}
-import sys
-sys.path.append('..')
-import gluonbook as gb
-from mxnet.gluon import nn
-
 def corr1d(X, K):
     w = K.shape[0]
     Y = nd.zeros((X.shape[0] - w + 1))
