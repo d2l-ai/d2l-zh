@@ -27,7 +27,7 @@ train_features, test_features = features[:n_train, :], features[n_train:, :]
 train_labels, test_labels = labels[:n_train], labels[n_train:]
 
 num_epochs = 10
-learning_rate = 0.003
+lr = 0.003
 batch_size = 1
 train_iter = gdata.DataLoader(gdata.ArrayDataset(
     train_features, train_labels), batch_size, shuffle=True)
@@ -45,10 +45,10 @@ def fit_and_plot(weight_decay):
     net.initialize(init.Normal(sigma=1))
     # 对权重参数做 L2 范数正则化，即权重衰减。
     trainer_w = gluon.Trainer(net.collect_params('.*weight'), 'sgd', {
-        'learning_rate': learning_rate, 'wd': weight_decay})
+        'learning_rate': lr, 'wd': weight_decay})
     # 不对偏差参数做 L2 范数正则化。
     trainer_b = gluon.Trainer(net.collect_params('.*bias'), 'sgd', {
-        'learning_rate': learning_rate})
+        'learning_rate': lr})
     train_ls = []
     test_ls = []
     for _ in range(num_epochs):
@@ -65,7 +65,7 @@ def fit_and_plot(weight_decay):
                             test_labels).mean().asscalar())
     gb.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'loss',
                 range(1, num_epochs + 1), test_ls, ['train', 'test'])
-    return 'w[:10]:', net[0].weight.data()[:,:10], 'b:', net[0].bias.data()
+    return 'w[:10]:', net[0].weight.data()[:, :10], 'b:', net[0].bias.data()
 ```
 
 ## 观察实验结果

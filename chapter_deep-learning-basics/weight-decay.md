@@ -43,6 +43,7 @@ $$y = 0.05 + \sum_{i = 1}^p 0.01x_i +  \epsilon,$$
 %matplotlib inline
 import gluonbook as gb
 from mxnet import autograd, gluon, nd
+from mxnet.gluon import data as gdata
 
 n_train = 20
 n_test = 100
@@ -88,6 +89,8 @@ def l2_penalty(w):
 batch_size = 1
 num_epochs = 10
 lr = 0.003
+train_iter = gdata.DataLoader(gdata.ArrayDataset(
+    train_features, train_labels), batch_size, shuffle=True)
 
 net = gb.linreg
 loss = gb.squared_loss
@@ -99,7 +102,7 @@ def fit_and_plot(lambd):
     train_ls = []
     test_ls = []
     for _ in range(num_epochs):        
-        for X, y in gb.data_iter(batch_size, features, labels):
+        for X, y in train_iter:
             with autograd.record():
                 # 添加了 L2 范数惩罚项。
                 l = loss(net(X, w, b), y) + lambd * l2_penalty(w)
