@@ -4,7 +4,7 @@
 
 ```{.python .input}
 import gluonbook as gb
-from mxnet import autograd, gluon, nd
+from mxnet import nd
 from mxnet.gluon import loss as gloss
 ```
 

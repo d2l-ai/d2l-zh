@@ -11,8 +11,7 @@
 接下来我们实现处理多输入通道的相关运算符。首先我们将前面小节实现的`corr2d`复制过来。
 
 ```{.python .input  n=2}
-from mxnet import nd, autograd
-from mxnet.gluon import nn
+from mxnet import nd
 
 def corr2d(X, K):
     n, m = K.shape

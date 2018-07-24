@@ -9,7 +9,7 @@
 
 ```{.python .input  n=5}
 import gluonbook as gb
-from mxnet import autograd, gluon, init, nd
+from mxnet import gluon, init
 from mxnet.gluon import loss as gloss, nn
 
 drop_prob1 = 0.2
