@@ -125,7 +125,7 @@ X.sum(axis=0, keepdims=True), X.sum(axis=1, keepdims=True)
 def softmax(X):
     exp = X.exp()
     partition = exp.sum(axis=1, keepdims=True)
-    return exp / partition # 这里应用了广播机制。
+    return exp / partition  # 这里应用了广播机制。
 ```
 
 可以看到，对于随机输入，我们将每个元素变成了非负数，而且每一行加起来为1。

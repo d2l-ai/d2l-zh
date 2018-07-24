@@ -20,7 +20,7 @@ num_inputs = 200
 true_w = nd.ones((num_inputs, 1)) * 0.01
 true_b = 0.05
 
-features = nd.random.normal(shape=(n_train+n_test, num_inputs))
+features = nd.random.normal(shape=(n_train + n_test, num_inputs))
 labels = nd.dot(features, true_w) + true_b
 labels += nd.random.normal(scale=0.01, shape=labels.shape)
 train_features, test_features = features[:n_train, :], features[n_train:, :]
@@ -63,8 +63,8 @@ def fit_and_plot(weight_decay):
                              train_labels).mean().asscalar())
         test_ls.append(loss(net(test_features),
                             test_labels).mean().asscalar())
-    gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'loss',
-                range(1, num_epochs+1), test_ls, ['train', 'test'])
+    gb.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'loss',
+                range(1, num_epochs + 1), test_ls, ['train', 'test'])
     return 'w[:10]:', net[0].weight.data()[:,:10], 'b:', net[0].bias.data()
 ```
 
