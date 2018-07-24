@@ -11,7 +11,6 @@
 
 ```{.python .input  n=1}
 import gluonbook as gb
-import math
 import mxnet as mx
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import loss as gloss, nn, rnn, utils as gutils
