@@ -37,7 +37,7 @@ y.backward()
 函数 $y = 2\boldsymbol{x}^{\top}\boldsymbol{x}$ 关于$\boldsymbol{x}$ 的梯度应为$4\boldsymbol{x}$。现在我们来验证一下求出来的梯度是正确的。
 
 ```{.python .input}
-x.grad, x.grad == 4*x # 1为真，0为假。
+x.grad, x.grad == 4 * x  # 1为真，0为假。
 ```
 
 ## 对Python控制流求梯度

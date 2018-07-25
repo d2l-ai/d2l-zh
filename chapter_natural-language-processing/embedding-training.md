@@ -105,7 +105,6 @@ during training we only need to iterate over the pre-computed arrays.
 def get_center_context_arrays(coded_sentences, window_size):
     centers = []
     contexts = []
-    masks = []
     for sentence in coded_sentences:
         # We need at least  2  words  to form a source, context pair
         if len(sentence) < 2:
@@ -275,7 +274,6 @@ batches = gdata.DataLoader(data, batch_size=batch_size,
 
 ```{.python .input  n=17}
 def train_embedding(num_epochs=3, eval_period=100):
-    batch_id = 0
     for epoch in range(1, num_epochs + 1):
         start_time = time.time()
         train_l_sum = 0

@@ -8,7 +8,7 @@
 
 另外一种解决办法是应用迁移学习（transfer learning），将从源数据集学到的知识迁移到目标数据集上。例如，虽然ImageNet的图片基本跟椅子无关，但在其上训练的模型可以抽取通用图片特征，然后用来帮助识别边缘、纹理、形状和物体组成。类似的，它对于识别椅子也可能同样有效。
 
-本小节我们介绍迁移学习中的一个常用技术：微调（fine tuning）。它由下面四步构成：
+本小节我们介绍迁移学习中的一个常用技术：微调（fine tuning）。如图9.1所示，微调由下面四步构成：
 
 1. 在源数据（例如ImageNet）上训练一个神经网络$A$。
 2. 创建一个新的神经网络$B$，它复制了$A$上除了输出层外的所有模型参数。我们假设这些模型参数含有源数据上学习到的知识，且这些知识同样适用于目标数据集。但最后的输出层跟源数据标注紧密相关，所以不被重用。
@@ -31,8 +31,6 @@
 
 ```{.python .input  n=4}
 %matplotlib inline
-import sys
-sys.path.insert(0, '..')
 import zipfile
 import gluonbook as gb
 from mxnet import gluon, init, nd
@@ -63,7 +61,7 @@ test_imgs = gdata.vision.ImageFolderDataset(
 
 ```{.python .input}
 hotdogs = [train_imgs[i][0] for i in range(8)]
-not_hotdogs = [train_imgs[-i-1][0] for i in range(8)]
+not_hotdogs = [train_imgs[-i - 1][0] for i in range(8)]
 gb.show_images(hotdogs + not_hotdogs, 2, 8, scale=1.4);
 ```
 

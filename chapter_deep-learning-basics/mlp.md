@@ -45,8 +45,6 @@ $$\text{relu}(x) = \max(x, 0).$$
 ```{.python .input}
 # 将图打印在 Jupyter notebook 的文本之间。
 %matplotlib inline
-import sys
-sys.path.append('..')
 import gluonbook as gb
 from mxnet import nd
 
@@ -109,8 +107,10 @@ X.relu(), X.sigmoid(), X.tanh()
 多层感知机的矢量计算表达式为
 
 $$
-\boldsymbol{H} = \phi(\boldsymbol{X} \boldsymbol{W}_h + \boldsymbol{b}_h),\\
-\boldsymbol{O} = \boldsymbol{H} \boldsymbol{W}_o + \boldsymbol{b}_o,
+\begin{aligned}
+\boldsymbol{H} &= \phi(\boldsymbol{X} \boldsymbol{W}_h + \boldsymbol{b}_h),\\
+\boldsymbol{O} &= \boldsymbol{H} \boldsymbol{W}_o + \boldsymbol{b}_o,
+\end{aligned}
 $$
 
 其中的加法运算使用了广播机制，$\boldsymbol{H} \in \mathbb{R}^{n \times h}, \boldsymbol{O}  \in \mathbb{R}^{n \times q}$。

@@ -3,11 +3,10 @@
 下面我们来动手实现Softmax回归。首先，导入实验所需的包或模块。
 
 ```{.python .input  n=1}
-import sys
-sys.path.append('..')
 import gluonbook as gb
 from mxnet import autograd, nd
 from mxnet.gluon import data as gdata
+import sys
 ```
 
 ## 获取Fashion-MNIST数据集
@@ -126,7 +125,7 @@ X.sum(axis=0, keepdims=True), X.sum(axis=1, keepdims=True)
 def softmax(X):
     exp = X.exp()
     partition = exp.sum(axis=1, keepdims=True)
-    return exp / partition # 这里应用了广播机制。
+    return exp / partition  # 这里应用了广播机制。
 ```
 
 可以看到，对于随机输入，我们将每个元素变成了非负数，而且每一行加起来为1。

@@ -3,10 +3,8 @@
 相比于前小节定义的BatchNorm类，`nn`模块定义的BatchNorm使用更加简单。它不需要指定输出数据的维度和特征维的大小，这些都将通过延后初始化来获取。我们实现同前小节一样的批量归一化的LeNet。
 
 ```{.python .input  n=1}
-import sys
-sys.path.append('..')
 import gluonbook as gb
-from mxnet import nd, gluon, init
+from mxnet import gluon, init
 from mxnet.gluon import loss as gloss, nn
 
 net = nn.Sequential()
@@ -46,7 +44,7 @@ gb.train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
 
 ## 小结
 
-Gluon提供的BatchNorm在使用上更加简单。
+* Gluon提供的BatchNorm在使用上更加简单。
 
 ## 练习
 

@@ -15,9 +15,12 @@ $$\ell(w_1, w_2, b) + \frac{\lambda}{2}(w_1^2 + w_2^2),$$
 
 有了$L_2$范数惩罚项后，在小批量随机梯度下降中，我们将[“线性回归”](linear-regression.md)一节中权重$w_1$和$w_2$的迭代方式更改为
 
-$$w_1 \leftarrow w_1 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}x_1^{(i)} (x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}) - \lambda w_1,$$
-
-$$w_2 \leftarrow w_2 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}x_2^{(i)} (x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}) - \lambda w_2.$$
+$$
+\begin{aligned}
+w_1 &\leftarrow w_1 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}x_1^{(i)} (x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}) - \lambda w_1,\\
+w_2 &\leftarrow w_2 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}x_2^{(i)} (x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}) - \lambda w_2.
+\end{aligned}
+$$
 
 
 可见，$L_2$范数正则化令权重$w_1$和$w_2$的每一步迭代分别添加了$- \lambda w_1$和$- \lambda w_2$。因此，我们也把$L_2$范数正则化称为权重衰减（weight decay）。
@@ -38,14 +41,12 @@ $$y = 0.05 + \sum_{i = 1}^p 0.01x_i +  \epsilon,$$
 
 ```{.python .input  n=2}
 %matplotlib inline
-import sys
-sys.path.append('..')
 import gluonbook as gb
 from mxnet import autograd, gluon, nd
+from mxnet.gluon import data as gdata
 
 n_train = 20
 n_test = 100
-
 num_inputs = 200
 true_w = nd.ones((num_inputs, 1)) * 0.01
 true_b = 0.05
@@ -88,6 +89,8 @@ def l2_penalty(w):
 batch_size = 1
 num_epochs = 10
 lr = 0.003
+train_iter = gdata.DataLoader(gdata.ArrayDataset(
+    train_features, train_labels), batch_size, shuffle=True)
 
 net = gb.linreg
 loss = gb.squared_loss
@@ -99,7 +102,7 @@ def fit_and_plot(lambd):
     train_ls = []
     test_ls = []
     for _ in range(num_epochs):        
-        for X, y in gb.data_iter(batch_size, features, labels):
+        for X, y in train_iter:
             with autograd.record():
                 # 添加了 L2 范数惩罚项。
                 l = loss(net(X, w, b), y) + lambd * l2_penalty(w)

@@ -6,8 +6,6 @@
 
 ```{.python .input}
 %matplotlib inline
-import sys
-sys.path.append('..')
 import gluonbook as gb
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import nn, data as gdata, loss as gloss

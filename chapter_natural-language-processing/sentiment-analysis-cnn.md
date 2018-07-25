@@ -1,5 +1,7 @@
 # 文本分类：情感分析
 
+TODO(@astonzhang): edits
+
 在之前的章节中介绍了卷积神经网络用于计算机视觉领域。
 在本节将介绍如何将卷积神经网络应用于自然语言处理领域。以及参考textCNN模型使用Gluon创建一个卷积神经网络用于文本情感分类。
 
@@ -24,14 +26,11 @@
 在实验开始前，导入所需的包或模块。
 
 ```{.python .input  n=1}
-import sys
-sys.path.append('..')
 import collections
 import gluonbook as gb
-import mxnet as mx
 from mxnet import autograd, gluon, init, metric, nd
 from mxnet.contrib import text
-from mxnet.gluon import loss as gloss, nn, rnn
+from mxnet.gluon import loss as gloss, nn
 import os
 import random
 from time import time
@@ -180,12 +179,6 @@ glove_embedding = text.embedding.create(
 下面我们将上述过程实现在corr1d函数里，它接受X和K，输出Y。
 
 ```{.python .input  n=8}
-import sys
-sys.path.append('..')
-import gluonbook as gb
-from mxnet import autograd, nd
-from mxnet.gluon import nn
-
 def corr1d(X, K):
     w = K.shape[0]
     Y = nd.zeros((X.shape[0] - w + 1))

@@ -6,12 +6,11 @@
 
 ```{.python .input  n=1}
 %matplotlib inline
-import sys
-sys.path.append('..')
 import gluonbook as gb
 from mxnet import gluon, init, nd, image
 from mxnet.gluon import data as gdata, loss as gloss, model_zoo, nn
 import numpy as np
+import sys
 ```
 
 ## 转置卷积层
@@ -41,7 +40,7 @@ conv_trans(y).shape
 
 ## FCN模型
 
-FCN的核心思想是将一个卷积网络的最后全连接输出层替换成转置卷积层来获取对每个输入像素的预测。具体来说，它去掉了过于损失空间信息的全局池化层，并将最后的全连接层替换成输出通道是原全连接层输出大小的$1\times 1$卷积层，最后接上转置卷积层来得到需要形状的输出。
+FCN的核心思想是将一个卷积网络的最后全连接输出层替换成转置卷积层来获取对每个输入像素的预测。具体来说，它去掉了过于损失空间信息的全局池化层，并将最后的全连接层替换成输出通道是原全连接层输出大小的$1\times 1$卷积层，最后接上转置卷积层来得到需要形状的输出。图9.10描述了FCN模型。
 
 ![FCN模型。](../img/fcn.svg)
 
@@ -74,7 +73,7 @@ num_classes = 21
 
 net.add(
     nn.Conv2D(num_classes, kernel_size=1),
-    nn.Conv2DTranspose(num_classes, kernel_size=64, padding=16,strides=32)
+    nn.Conv2DTranspose(num_classes, kernel_size=64, padding=16, strides=32)
 )
 ```
 
@@ -114,7 +113,7 @@ img = image.imread('../img/catdog.jpg')
 print('input', img.shape)
 x = img.astype('float32').transpose((2, 0, 1)).expand_dims(axis=0) / 255
 y = conv_trans(x)
-y = y[0].clip(0,1).transpose((1,2,0))
+y = y[0].clip(0, 1).transpose((1, 2, 0))
 print('output', y.shape)
 gb.plt.imshow(y.asnumpy());
 ```
@@ -138,7 +137,7 @@ colormap2label = nd.zeros(256**3)
 for i, cm in enumerate(gb.voc_colormap):
     colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i 
 voc_dir = gb.download_voc_pascal(data_dir='../data')
-99
+
 num_workers = 0 if sys.platform.startswith('win32') else 4
 train_iter = gdata.DataLoader(
     gb.VOCSegDataset(True, input_shape, voc_dir, colormap2label), batch_size,
@@ -207,7 +206,7 @@ gb.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n);
 * 试着改改最后的转置卷积层的参数设定。
 * 看看双线性差值初始化是不是必要的。
 * 试着改改训练参数来使得收敛更好些。
-* FCN论文 [1] 中提到了不只是使用主体卷积网络输出，还可以考虑其中间层的输出。试着实现这个想法。
+* FCN论文中提到了不只是使用主体卷积网络输出，还可以考虑其中间层的输出 [1]。试着实现这个想法。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/3041)
 

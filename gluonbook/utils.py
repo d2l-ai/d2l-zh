@@ -314,7 +314,7 @@ def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
     plt.ylabel(y_label)
     plt.semilogy(x_vals, y_vals)
     if x2_vals and y2_vals:
-        plt.semilogy(x2_vals, y2_vals)
+        plt.semilogy(x2_vals, y2_vals, linestyle=':')
         plt.legend(legend)
     plt.show()
 

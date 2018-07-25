@@ -11,11 +11,8 @@
 在实验开始前，导入所需的包或模块。
 
 ```{.python .input  n=1}
-import sys
-sys.path.append('..')
 import collections
 import gluonbook as gb
-import mxnet as mx
 from mxnet import autograd, gluon, init, metric, nd
 from mxnet.contrib import text
 from mxnet.gluon import loss as gloss, nn, rnn
@@ -52,7 +49,8 @@ def readIMDB(dir_url, seg='train'):
     for label in pos_or_neg:
         files = os.listdir(os.path.join('../data/',dir_url, seg, label))
         for file in files:
-            with open(os.path.join('../data/',dir_url, seg, label, file), 'r', encoding='utf8') as rf:
+            with open(os.path.join('../data/',dir_url, seg, label, file), 'r',
+                      encoding='utf8') as rf:
                 review = rf.read().replace('\n', '')
                 if label == 'pos':
                     data.append([review, 1])
@@ -130,7 +128,7 @@ def pad_samples(features, maxlen=500, PAD=0):
             padded_feature = feature[:maxlen]
         else:
             padded_feature = feature
-            # 添加 PAD 符号使每个序列等长（长度为 maxlen ）。
+            # 添加 PAD 符号使每个序列等长（长度为 maxlen）。
             while len(padded_feature) < maxlen:
                 padded_feature.append(PAD)
         padded_features.append(padded_feature)

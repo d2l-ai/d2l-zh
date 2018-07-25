@@ -15,9 +15,11 @@
 
 设带下标的$w$和$b$分别为softmax回归的权重和偏差参数。给定单个图片的输入特征$x_1, x_2, x_3, x_4$，有关三个不同标签的输出分别为
 $$
-o_1 = x_1 w_{11} + x_2 w_{21} + x_3 w_{31} + x_4 w_{41} + b_1,\\
-o_2 = x_1 w_{12} + x_2 w_{22} + x_3 w_{32} + x_4 w_{42} + b_2,\\
-o_3 = x_1 w_{13} + x_2 w_{23} + x_3 w_{33} + x_4 w_{43} + b_3.
+\begin{aligned}
+o_1 &= x_1 w_{11} + x_2 w_{21} + x_3 w_{31} + x_4 w_{41} + b_1,\\
+o_2 &= x_1 w_{12} + x_2 w_{22} + x_3 w_{32} + x_4 w_{42} + b_2,\\
+o_3 &= x_1 w_{13} + x_2 w_{23} + x_3 w_{33} + x_4 w_{43} + b_3.
+\end{aligned}
 $$
 
 图3.2用神经网络图描绘了上面的计算。
@@ -28,9 +30,11 @@ $$
 在得到输出层的三个输出后，我们需要预测输出分别为狗、猫或鸡的概率，即各个类别的预测概率。不妨设它们分别为$\hat{y}_1, \hat{y}_2, \hat{y}_3$。下面，我们通过对$o_1, o_2, o_3$做softmax运算，得到模型对各个类别的预测概率
 
 $$
-\hat{y}_1 = \frac{ \exp(o_1)}{\sum_{i=1}^3 \exp(o_i)},\\
-\hat{y}_2 = \frac{ \exp(o_2)}{\sum_{i=1}^3 \exp(o_i)},\\
-\hat{y}_3 = \frac{ \exp(o_3)}{\sum_{i=1}^3 \exp(o_i)}.
+\begin{aligned}
+\hat{y}_1 &= \frac{ \exp(o_1)}{\sum_{i=1}^3 \exp(o_i)},\\
+\hat{y}_2 &= \frac{ \exp(o_2)}{\sum_{i=1}^3 \exp(o_i)},\\
+\hat{y}_3 &= \frac{ \exp(o_3)}{\sum_{i=1}^3 \exp(o_i)}.
+\end{aligned}
 $$
 
 由于$\hat{y}_1 + \hat{y}_2 + \hat{y}_3 = 1$且$\hat{y}_1 \geq 0, \hat{y}_2 \geq 0, \hat{y}_3 \geq 0$，$\hat{y}_1, \hat{y}_2, \hat{y}_3$是一个合法的概率分布。我们可将上面softmax运算中的三式记作
@@ -75,8 +79,10 @@ $$\boldsymbol{\hat{y}}^{(i)} = \begin{bmatrix}\hat{y}_1^{(i)} & \hat{y}_2^{(i)} 
 我们对样本$i$分类的矢量计算表达式为
 
 $$
-\boldsymbol{o}^{(i)} = \boldsymbol{x}^{(i)} \boldsymbol{W} + \boldsymbol{b},\\
-\boldsymbol{\hat{y}}^{(i)} = \text{softmax}(\boldsymbol{o}^{(i)}).
+\begin{aligned}
+\boldsymbol{o}^{(i)} &= \boldsymbol{x}^{(i)} \boldsymbol{W} + \boldsymbol{b},\\
+\boldsymbol{\hat{y}}^{(i)} &= \text{softmax}(\boldsymbol{o}^{(i)}).
+\end{aligned}
 $$
 
 
@@ -87,8 +93,10 @@ $$
 假设softmax回归的权重和偏差参数分别为$\boldsymbol{W} \in \mathbb{R}^{d \times q}, \boldsymbol{b} \in \mathbb{R}^{1 \times q}$。Softmax回归的矢量计算表达式为
 
 $$
-\boldsymbol{O} = \boldsymbol{X} \boldsymbol{W} + \boldsymbol{b},\\
-\boldsymbol{\hat{Y}} = \text{softmax}(\boldsymbol{O}),
+\begin{aligned}
+\boldsymbol{O} &= \boldsymbol{X} \boldsymbol{W} + \boldsymbol{b},\\
+\boldsymbol{\hat{Y}} &= \text{softmax}(\boldsymbol{O}),
+\end{aligned}
 $$
 
 其中的加法运算使用了广播机制，$\boldsymbol{O}, \boldsymbol{\hat{Y}} \in \mathbb{R}^{n \times q}$且这两个矩阵的第$i$行分别为$\boldsymbol{o}^{(i)}$和$\boldsymbol{\hat{y}}^{(i)}$。

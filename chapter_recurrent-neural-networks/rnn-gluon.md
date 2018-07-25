@@ -10,11 +10,7 @@
 首先导入实验所需的包或模块，并抽取数据集。
 
 ```{.python .input  n=1}
-import sys
-sys.path.append('..')
 import gluonbook as gb
-import math
-import mxnet as mx
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import loss as gloss, nn, rnn, utils as gutils
 import numpy as np
@@ -227,8 +223,8 @@ def train_rnn():
                 l = loss(output, y).sum() / (batch_size * num_steps)
             l.backward()
             grads = [p.grad(ctx) for p in model.collect_params().values()]
-            # 梯度裁剪。需要注意的是，这里的梯度是整个批量的梯度。
-            # 因此我们将 clipping_theta 乘以 num_steps 和 batch_size。
+            # 梯度裁剪。需要注意的是，这里的梯度是整个批量的梯度。 因此我们将
+            # clipping_theta 乘以 num_steps 和 batch_size。
             gutils.clip_global_norm(
                 grads, clipping_theta * num_steps * batch_size)
             trainer.step(1)
