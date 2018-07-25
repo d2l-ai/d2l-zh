@@ -10,6 +10,7 @@ import gluonbook as gb
 import mxnet as mx
 from mxnet import autograd, gluon, image, init, nd 
 from mxnet.gluon import data as gdata, loss as gloss, utils as gutils
+import sys
 from time import time
 ```
 
@@ -123,13 +124,14 @@ test_augs = gdata.vision.transforms.Compose([
 ])
 ```
 
-接下来我们定义一个辅助函数来方便读取图片并应用增广。Gluon的数据集提供`transform_first`函数来对数据里面的第一项（数据一般有图片和标签两项）来应用增广。另外图片增广将增加计算复杂度，我们使用两个额外CPU进程加来加速计算。
+接下来我们定义一个辅助函数来方便读取图片并应用增广。Gluon的数据集提供`transform_first`函数来对数据里面的第一项（数据一般有图片和标签两项）来应用增广。另外图片增广将增加计算复杂度，这里使用4个进程来加速读取（暂不支持 Windows 操作系统）。
 
 ```{.python .input  n=34}
+num_workers = 0 if sys.platform.startswith('win32') else 4
 def load_cifar10(is_train, augs, batch_size):
     return gdata.DataLoader(
         gdata.vision.CIFAR10(train=is_train).transform_first(augs),
-        batch_size=batch_size, shuffle=is_train, num_workers=2)
+        batch_size=batch_size, shuffle=is_train, num_workers=num_workers)
 ```
 
 ### 使用多GPU训练模型
