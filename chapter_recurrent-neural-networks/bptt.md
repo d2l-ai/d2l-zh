@@ -46,7 +46,7 @@ $$\frac{\partial L}{\partial \boldsymbol{o}_t} =  \frac{\partial \ell (\boldsymb
 
 $$
 \frac{\partial L}{\partial \boldsymbol{W}_{yh}} 
-= \sum_{t=1}^T \text{prod}(\frac{\partial L}{\partial \boldsymbol{o}_t}, \frac{\partial \boldsymbol{o}_t}{\partial \boldsymbol{W}_{yh}}) 
+= \sum_{t=1}^T \text{prod}\left(\frac{\partial L}{\partial \boldsymbol{o}_t}, \frac{\partial \boldsymbol{o}_t}{\partial \boldsymbol{W}_{yh}}\right) 
 = \sum_{t=1}^T \frac{\partial L}{\partial \boldsymbol{o}_t} \boldsymbol{h}_t^\top
 $$
 
@@ -55,7 +55,7 @@ $$
 在图6.3中，$L$只通过$\boldsymbol{o}_T$依赖最终时间步$T$的隐藏状态$\boldsymbol{h}_T$。因此，我们先计算目标函数有关最终时间步隐藏状态的梯度$\partial L/\partial \boldsymbol{h}_T \in \mathbb{R}^h$。依据链式法则，我们得到
 
 $$
-\frac{\partial L}{\partial \boldsymbol{h}_T} = \text{prod}(\frac{\partial L}{\partial \boldsymbol{o}_T}, \frac{\partial \boldsymbol{o}_T}{\partial \boldsymbol{h}_T} ) = \boldsymbol{W}_{yh}^\top \frac{\partial L}{\partial \boldsymbol{o}_T}.
+\frac{\partial L}{\partial \boldsymbol{h}_T} = \text{prod}\left(\frac{\partial L}{\partial \boldsymbol{o}_T}, \frac{\partial \boldsymbol{o}_T}{\partial \boldsymbol{h}_T} \right) = \boldsymbol{W}_{yh}^\top \frac{\partial L}{\partial \boldsymbol{o}_T}.
 $$
 
 
@@ -67,8 +67,8 @@ $$
 
 $$
 \frac{\partial L}{\partial \boldsymbol{h}_t} 
-= \text{prod}(\frac{\partial L}{\partial \boldsymbol{h}_{t+1}}, \frac{\partial \boldsymbol{h}_{t+1}}{\partial \boldsymbol{h}_t} ) 
-+ \text{prod}(\frac{\partial L}{\partial \boldsymbol{o}_t}, \frac{\partial \boldsymbol{o}_t}{\partial \boldsymbol{h}_t} ) 
+= \text{prod}\left(\frac{\partial L}{\partial \boldsymbol{h}_{t+1}}, \frac{\partial \boldsymbol{h}_{t+1}}{\partial \boldsymbol{h}_t} \right) 
++ \text{prod}\left(\frac{\partial L}{\partial \boldsymbol{o}_t}, \frac{\partial \boldsymbol{o}_t}{\partial \boldsymbol{h}_t} \right) 
 = \boldsymbol{W}_{hh}^\top \frac{\partial L}{\partial \boldsymbol{h}_{t+1}} + \boldsymbol{W}_{yh}^\top \frac{\partial L}{\partial \boldsymbol{o}_t}.
 $$
 
@@ -76,7 +76,7 @@ $$
 
 $$
 \frac{\partial L}{\partial \boldsymbol{h}_t} 
-= \sum_{i=t}^T {(\boldsymbol{W}_{hh}^\top)}^{T-i} \boldsymbol{W}_{yh}^\top \frac{\partial L}{\partial \boldsymbol{o}_{T+t-i}}.
+= \sum_{i=t}^T {\left(\boldsymbol{W}_{hh}^\top\right)}^{T-i} \boldsymbol{W}_{yh}^\top \frac{\partial L}{\partial \boldsymbol{o}_{T+t-i}}.
 $$
 
 由上式中的指数项可见，当时间步数$T$较大或者时间步$t$较小，目标函数有关隐藏状态的梯度较容易出现衰减和爆炸。这也会影响其他计算中包含$\partial L / \partial \boldsymbol{h}_t$的梯度，例如隐藏层中模型参数的梯度$\partial L / \partial \boldsymbol{W}_{hx} \in \mathbb{R}^{h \times d}$和$\partial L / \partial \boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$。
@@ -86,10 +86,10 @@ $$
 $$
 \begin{aligned}
 \frac{\partial L}{\partial \boldsymbol{W}_{hx}} 
-&= \sum_{t=1}^T \text{prod}(\frac{\partial L}{\partial \boldsymbol{h}_t}, \frac{\partial \boldsymbol{h}_t}{\partial \boldsymbol{W}_{hx}}) 
+&= \sum_{t=1}^T \text{prod}\left(\frac{\partial L}{\partial \boldsymbol{h}_t}, \frac{\partial \boldsymbol{h}_t}{\partial \boldsymbol{W}_{hx}}\right) 
 = \sum_{t=1}^T \frac{\partial L}{\partial \boldsymbol{h}_t} \boldsymbol{x}_t^\top,\\
 \frac{\partial L}{\partial \boldsymbol{W}_{hh}} 
-&= \sum_{t=1}^T \text{prod}(\frac{\partial L}{\partial \boldsymbol{h}_t}, \frac{\partial \boldsymbol{h}_t}{\partial \boldsymbol{W}_{hh}}) 
+&= \sum_{t=1}^T \text{prod}\left(\frac{\partial L}{\partial \boldsymbol{h}_t}, \frac{\partial \boldsymbol{h}_t}{\partial \boldsymbol{W}_{hh}}\right) 
 = \sum_{t=1}^T \frac{\partial L}{\partial \boldsymbol{h}_t} \boldsymbol{h}_{t-1}^\top.
 \end{aligned}
 $$
