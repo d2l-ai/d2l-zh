@@ -34,7 +34,7 @@ build/%: %
 html: $(DEPS) $(OBJ)
 	make -C build html
 	bash build/htaccess.sh build/_build/html/
-	cp tencent1668843323268181422.txt build/_build/html/tencent1668843323268181422.txt
+	cp build/tencent1668843323268181422.txt build/_build/html/tencent1668843323268181422.txt
 
 TEX=build/_build/latex/gluon_tutorials_zh.tex
 
