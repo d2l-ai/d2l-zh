@@ -25,16 +25,17 @@ TODO(@astonzhang): edits
 
 在实验开始前，导入所需的包或模块。
 
-```{.python .input  n=1}
+```{.python .input  n=2}
 import collections
 import gluonbook as gb
 from mxnet import autograd, gluon, init, metric, nd
 from mxnet.contrib import text
-from mxnet.gluon import loss as gloss, nn
+from mxnet.gluon import loss as gloss, nn, utils as gutils
+from mxnet.gluon.data import DataLoader, Dataset
 import os
 import random
 from time import time
-import zipfile
+import tarfile
 ```
 
 ## 读取IMDb数据集
@@ -43,21 +44,26 @@ import zipfile
 
 > http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz 。
 
-这个数据集分为训练和测试用的两个数据集，分别有25,000条从IMDb下载的关于电影的评论。在每个数据集中，标签为“正面”（1）和“负面”（0）的评论数量相等。将下载好的数据解压并存放在路径“../data/aclImdb”。
+这个数据集分为训练和测试用的两个数据集，分别有25,000条从IMDb下载的关于电影的评论。在每个数据集中，标签为“正面”（1）和“负面”（0）的评论数量相等。
+我们首先下载这个数据集到`../data`下。压缩包大小是 81MB，下载解压需要一定时间。解压之后这个数据集将会放置在`../data/aclImdb`下。
 
-为方便快速上手，我们提供了上述数据集的小规模采样，并存放在路径“../data/aclImdb_tiny.zip”。如果你将使用上述的IMDb完整数据集，还需要把下面`demo`变量改为`False`。
+```{.python .input  n=4}
+def download_imdb(data_dir='../data'):
+    """Download the IMDb Dataset."""
+    imdb_dir = os.path.join(data_dir, 'aclImdb')
+    url = ('http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz')
+    sha1 = '01ada507287d82875905620988597833ad4e0903'
+    fname = gutils.download(url, data_dir, sha1_hash=sha1)
+    with tarfile.open(fname, 'r') as f:
+        f.extractall(data_dir)
+    return imdb_dir
 
-```{.python .input  n=2}
-# 如果使用下载的 IMDb 的完整数据集，把下面改为 False。
-demo = True
-if demo:
-    with zipfile.ZipFile('../data/aclImdb_tiny.zip', 'r') as zin:
-        zin.extractall('../data/')
+imdb_dir = download_imdb()
 ```
 
 下面，读取训练和测试数据集。
 
-```{.python .input  n=3}
+```{.python .input  n=66}
 def readIMDB(dir_url, seg='train'):
     pos_or_neg = ['pos', 'neg']
     data = []
@@ -72,12 +78,8 @@ def readIMDB(dir_url, seg='train'):
                     data.append([review, 0])
     return data
 
-if demo:
-    train_data = readIMDB('aclImdb_tiny', 'train')
-    test_data = readIMDB('aclImdb_tiny', 'test')
-else:
-    train_data = readIMDB('aclImdb', 'train')
-    test_data = readIMDB('aclImdb', 'test')
+train_data = readIMDB('aclImdb', 'train')
+test_data = readIMDB('aclImdb', 'test')
 
 random.shuffle(train_data)
 random.shuffle(test_data)
@@ -87,7 +89,7 @@ random.shuffle(test_data)
 
 接下来我们对每条评论做分词，从而得到分好词的评论。这里使用最简单的方法：基于空格进行分词。我们将在本节练习中探究其他的分词方法。
 
-```{.python .input  n=4}
+```{.python .input  n=67}
 def tokenizer(text):
     return [tok.lower() for tok in text.split(' ')]
 
@@ -103,7 +105,7 @@ for review, score in test_data:
 
 现在，我们可以根据分好词的训练数据集来创建词典了。这里我们设置了特殊符号“&lt;unk&gt;”（unknown）。它将表示一切不存在于训练数据集词典中的词。
 
-```{.python .input  n=5}
+```{.python .input  n=45}
 token_counter = collections.Counter()
 def count_token(train_tokenized):
     for sample in train_tokenized:
@@ -122,7 +124,7 @@ vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>',
 
 下面，我们继续对数据进行预处理。每个不定长的评论将被特殊符号`PAD`补成长度为`maxlen`的序列，并用NDArray表示。在这里由于模型使用了最大池化层，只取卷积后最大的一个值，所以补0不会对结果产生影响。
 
-```{.python .input  n=6}
+```{.python .input  n=68}
 def encode_samples(tokenized_samples, vocab):
     features = []
     for sample in tokenized_samples:
@@ -148,20 +150,19 @@ def pad_samples(features, maxlen=500, PAD=0):
         padded_features.append(padded_feature)
     return padded_features
 
-ctx = gb.try_gpu()
 train_features = encode_samples(train_tokenized, vocab)
 test_features = encode_samples(test_tokenized, vocab)
-train_features = nd.array(pad_samples(train_features, 1000, 0), ctx=ctx)
-test_features = nd.array(pad_samples(test_features, 1000, 0), ctx=ctx)
-train_labels = nd.array([score for _, score in train_data], ctx=ctx)
-test_labels = nd.array([score for _, score in test_data], ctx=ctx)
+train_features = nd.array(pad_samples(train_features, 1000, 0))
+test_features = nd.array(pad_samples(test_features, 1000, 0))
+train_labels = nd.array([score for _, score in train_data])
+test_labels = nd.array([score for _, score in test_data])
 ```
 
 ## 加载预训练的词向量
 
 这里，我们为词典`vocab`中的每个词加载GloVe词向量（每个词向量长度为100）。稍后，我们将用这些词向量作为评论中每个词的特征向量。
 
-```{.python .input  n=7}
+```{.python .input  n=69}
 glove_embedding = text.embedding.create(
     'glove', pretrained_file_name='glove.6B.100d.txt', vocabulary=vocab)
 ```
@@ -178,7 +179,7 @@ glove_embedding = text.embedding.create(
 
 下面我们将上述过程实现在corr1d函数里，它接受X和K，输出Y。
 
-```{.python .input  n=8}
+```{.python .input  n=70}
 def corr1d(X, K):
     w = K.shape[0]
     Y = nd.zeros((X.shape[0] - w + 1))
@@ -189,7 +190,7 @@ def corr1d(X, K):
 
 构造上图中的数据来测试实现的正确性。
 
-```{.python .input  n=9}
+```{.python .input  n=71}
 X = nd.array([0 ,1 ,2, 3, 4 ,5 ,6])
 K = nd.array([1 ,2])
 corr1d(X, K)
@@ -224,7 +225,7 @@ $$ y(i)=\sum_m \sum_{n\in\{0, 1, 2\}} C(i-m,j-n)K(m,n) $$
 
 下面我们根据模型设计里的描述定义情感分类模型。其中的`Embedding`实例即嵌入层，在实验中，我们使用了两个嵌入层。`Conv1D`实例即为卷积层，`GlobalMaxPool1D`实例为池化层，卷积层和池化层用于抽取文本中重要的特征。`Dense`实例即生成分类结果的输出层。
 
-```{.python .input  n=10}
+```{.python .input  n=72}
 class TextCNN(nn.Block):
     def __init__(self, vocab, embedding_size, ngram_kernel_sizes, nums_channels, **kwargs):
         super(TextCNN, self).__init__(**kwargs)
@@ -238,8 +239,8 @@ class TextCNN(nn.Block):
                 strides=1,
                 activation='relu')
             pool = nn.GlobalMaxPool1D()
-            setattr(self, f'conv_{i}', conv)  #将self.conv_{i}置为第i个conv
-            setattr(self, f'pool_{i}', pool)  #将self.pool_{i}置为第i个pool
+            setattr(self, 'conv_{i}', conv)  #将self.conv_{i}置为第i个conv
+            setattr(self, 'pool_{i}', pool)  #将self.pool_{i}置为第i个pool
         self.dropout = nn.Dropout(0.5)
         self.decoder = nn.Dense(num_outputs)
     def forward(self, inputs):
@@ -272,28 +273,29 @@ class TextCNN(nn.Block):
         return outputs
     #调用self.get_conv(i)，即返回self.conv_{i}
     def get_conv(self, i):
-        return getattr(self, f'conv_{i}')
+        return getattr(self, 'conv_{i}')
     #调用self.get_pool(i)，即返回self.pool_{i}
     def get_pool(self, i):
-        return getattr(self, f'pool_{i}')
+        return getattr(self, 'pool_{i}')
 ```
 
 我们使用在更大规模语料上预训练的词向量作为每个词的特征向量。本实验有两个嵌入层，其中嵌入层`Embedding_non_static`的词向量可以在训练过程中被更新，另一个嵌入层`Embedding_static`的词向量在训练过程中不能被更新。
 
-```{.python .input  n=11}
+```{.python .input  n=73}
 num_outputs = 2
-lr = 0.002
+lr = 0.001
 num_epochs = 1
-batch_size = 10
+batch_size = 64
 embed_size = 100
 ngram_kernel_sizes = [3, 4, 5]
 nums_channels = [100, 100, 100]
+ctx = gb.try_all_gpus()
 
 net = TextCNN(vocab, embed_size, ngram_kernel_sizes, nums_channels)
 net.initialize(init.Xavier(), ctx=ctx)
 # 设置两个embedding 层的 weight 为预训练的词向量。
-net.embedding_static.weight.set_data(glove_embedding.idx_to_vec.as_in_context(ctx))
-net.embedding_non_static.weight.set_data(glove_embedding.idx_to_vec.as_in_context(ctx))
+net.embedding_static.weight.set_data(glove_embedding.idx_to_vec)
+net.embedding_non_static.weight.set_data(glove_embedding.idx_to_vec)
 # 训练中不更新embedding_static的词向量（net.embedding中的模型参数）。
 net.embedding_static.collect_params().setattr('grad_req', 'null')
 trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': lr})
@@ -304,16 +306,16 @@ loss = gloss.SoftmaxCrossEntropyLoss()
 
 在实验中，我们使用准确率作为评价模型的指标。
 
-```{.python .input  n=12}
+```{.python .input  n=95}
 def eval_model(features, labels):
     l_sum = 0
     l_n = 0
     accuracy = metric.Accuracy()
-    for i in range(features.shape[0] // batch_size ):
+    for i in range(features.shape[0] // batch_size):
         X = features[i * batch_size
-                     : (i + 1) * batch_size].as_in_context(ctx).T
+                     : (i + 1) * batch_size].as_in_context(gb.try_gpu()).T
         y = labels[i * batch_size
-                   : (i + 1) * batch_size].as_in_context(ctx).T
+                   : (i + 1) * batch_size].as_in_context(gb.try_gpu()).T
         output = net(X)
         l = loss(output, y)
         l_sum += l.sum().asscalar()
@@ -322,20 +324,38 @@ def eval_model(features, labels):
     return l_sum / l_n, accuracy.get()[1]
 ```
 
+使用gluon的DataLoader加载数据
+
+```{.python .input  n=100}
+class MyDataset(Dataset):
+    def __init__(self, x, y):
+        super(MyDataset, self).__init__()
+        self.x = x
+        self.y = y
+
+    def __getitem__(self, index):
+        return self.x[index], self.y[index]
+
+    def __len__(self):
+        return len(self.x)
+train_loader = DataLoader(MyDataset(train_features, train_labels), batch_size=batch_size, shuffle=True)
+test_loader = DataLoader(MyDataset(test_features, test_labels), batch_size=batch_size, shuffle=False)
+```
+
 下面开始训练模型。
 
-```{.python .input  n=13}
+```{.python .input  n=101}
 print('training on', ctx)
 for epoch in range(1, num_epochs + 1):
     start = time()
-    for i in range(train_features.shape[0] // batch_size):
-        X = train_features[i * batch_size
-                           : (i + 1) * batch_size].as_in_context(ctx).T
-        y = train_labels[i * batch_size
-                         : (i + 1) * batch_size].as_in_context(ctx).T
+    for X, y in train_loader:
+        gpu_Xs = gutils.split_and_load(X, ctx)
+        gpu_ys = gutils.split_and_load(y, ctx)
         with autograd.record():
-            l = loss(net(X), y)
-        l.backward()
+            ls = [loss(net(gpu_X.T), gpu_y) for gpu_X, gpu_y in zip(
+                gpu_Xs, gpu_ys)]
+        for l in ls:
+            l.backward()
         trainer.step(batch_size)
     train_l, train_acc = eval_model(train_features, train_labels)
     _, test_acc = eval_model(test_features, test_labels)
