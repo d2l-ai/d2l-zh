@@ -12,9 +12,10 @@
 
 ### 重置门和更新门
 
-GRU进入了重置门（reset gate）和更新门（update gate），它们用来控制信息在时间步之间的流动。如下图所示，重置门和更新门是将输入$\boldsymbol{X}_t$与上一时间步隐藏状态$\boldsymbol{H}_{t-1}$合并后通过使用sigmoid激活函数的全连接层计算而来。
+门控循环单元引入了重置门（reset gate）和更新门（update gate）。如图6.4所示，重置门和更新门均由输入为当前时间步输入$\boldsymbol{X}_t$与上一时间步隐藏状态$\boldsymbol{H}_{t-1}$、激活函数为sigmoid函数的全连接层分别计算得出。
 
-![GRU中计算重置门和更新门。](../img/gru_1.svg)
+
+![门控循环单元中重置门和更新门的计算。](../img/gru_1.svg)
 
 
 具体来说，假设隐藏单元个数为$h$，给定时间步$t$的小批量输入$\boldsymbol{X}_t \in \mathbb{R}^{n \times d}$（样本数为$n$，输入个数为$d$）和上一时间步隐藏状态$\boldsymbol{H}_{t-1} \in \mathbb{R}^{n \times h}$。重置门$\boldsymbol{R}_t \in \mathbb{R}^{n \times h}$和更新门$\boldsymbol{Z}_t \in \mathbb{R}^{n \times h}$的计算如下：
@@ -28,30 +29,32 @@ $$
 
 其中$\boldsymbol{W}_{xr}, \boldsymbol{W}_{xz} \in \mathbb{R}^{d \times h}$和$\boldsymbol{W}_{hr}, \boldsymbol{W}_{hz} \in \mathbb{R}^{h \times h}$是权重参数，$\boldsymbol{b}_r, \boldsymbol{b}_z \in \mathbb{R}^{1 \times h}$是偏移参数。激活函数$\sigma$是sigmoid函数。[“多层感知机”](../chapter_deep-learning-basics/mlp.md)一节中介绍过，sigmoid函数可以将元素的值变换到0和1之间。因此，重置门$\boldsymbol{R}_t$和更新门$\boldsymbol{Z}_t$中每个元素的值域都是$[0, 1]$。
 
+我们可以通过元素值域在$[0, 1]$的更新门和重置门来控制隐藏状态中信息的流动：这通常可以应用按元素乘法符$\odot$。
+
 
 ### 候选隐藏状态
 
-GRU接下来计算候选隐藏状态来辅助稍后的隐藏状态计算。如下图所示，我们将重置门输出与上一时间步的隐藏状态做按元素乘法。如果重置门中元素值接近0，那么意味着重置对应隐藏状态元素为0，就是丢弃掉来自上一时间步的历史信息。其可以用来丢弃与预测未来无关的历史信息。接下来合并上当前输入后通过使用tanh激活函数的全连接层来得到候选隐藏状态，其所有元素值域为$[-1, 1]$。
+接下来，门控循环单元将计算候选隐藏状态来辅助稍后的隐藏状态计算。如图6.5所示，我们将当前时间步重置门的输出与上一时间步隐藏状态做按元素乘法。如果重置门中元素值接近0，那么意味着重置对应隐藏状态元素为0，即丢弃来自上一时间步的历史信息。然后，将重置后的上一时间步的隐藏状态与当前时间步的输入合并，再通过含tanh激活函数的全连接层计算出候选隐藏状态，其所有元素的值域为$[-1, 1]$。
 
-![GRU中计算候选隐藏状态。](../img/gru_2.svg)
+![门控循环单元中候选隐藏状态的计算。这里的乘号是按元素乘法。](../img/gru_2.svg)
 
-具体来说，时间步$t$的候选隐藏状态$\tilde{\boldsymbol{H}}_t \in \mathbb{R}^{n \times h}$的计算为：
+具体来说，时间步$t$的候选隐藏状态$\tilde{\boldsymbol{H}}_t \in \mathbb{R}^{n \times h}$的计算为
 
 $$\tilde{\boldsymbol{H}}_t = \text{tanh}(\boldsymbol{X}_t \boldsymbol{W}_{xh} + \boldsymbol{R}_t \odot \boldsymbol{H}_{t-1} \boldsymbol{W}_{hh} + \boldsymbol{b}_h),$$
 
-其中$\boldsymbol{W}_{xh} \in \mathbb{R}^{d \times h}$和$\boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$是权重参数，$\boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$是偏移参数。
+其中$\boldsymbol{W}_{xh} \in \mathbb{R}^{d \times h}$和$\boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$是权重参数，$\boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$是偏移参数。从上面这个公式可以看出，重置门控制了包含时间序列历史信息的上一个时间步的隐藏状态如何流入当前时间步的候选隐藏状态。如果重置门近似0，上一个隐藏状态几乎被丢弃。因此，重置门可以丢弃与预测未来无关的历史信息。
 
 ### 隐藏状态
 
-最后，隐藏状态$\boldsymbol{H}_t \in \mathbb{R}^{n \times h}$的计算，见下图图示，使用更新门$\boldsymbol{Z}_t$来对上一时间步的隐藏状态$\boldsymbol{H}_{t-1}$和当前时间步的候选隐藏状态$\tilde{\boldsymbol{H}}_t$做组合：
+最后，隐藏状态$\boldsymbol{H}_t \in \mathbb{R}^{n \times h}$的计算使用更新门$\boldsymbol{Z}_t$来对上一时间步的隐藏状态$\boldsymbol{H}_{t-1}$和当前时间步的候选隐藏状态$\tilde{\boldsymbol{H}}_t$做组合：
 
 $$\boldsymbol{H}_t = \boldsymbol{Z}_t \odot \boldsymbol{H}_{t-1}  + (1 - \boldsymbol{Z}_t) \odot \tilde{\boldsymbol{H}}_t.$$
 
 
-![GRU中计算隐藏状态。](../img/gru_3.svg)
+![门控循环单元中隐藏状态的计算。这里的乘号是按元素乘法。](../img/gru_3.svg)
 
 
-值得注意的是，更新门可以控制隐藏状态应该如何被包含当前时间步信息的候选隐藏状态所更新。假设更新门在时间步$t'$到$t$（$t' < t$）之间一直近似1。那么，在时间步$t'$到$t$之间的输入信息几乎没有流入时间步$t$的隐藏状态$\boldsymbol{H}_t$。实际上，这可以看作是较早时刻的隐藏状态$\boldsymbol{H}_{t'-1}$一直通过时间保存并传递至当前时间步$t$。这个设计可以应对循环神经网络中的梯度衰减问题，并更好地捕捉时间序列中时间步距离较大的依赖关系。
+值得注意的是，更新门可以控制隐藏状态应该如何被包含当前时间步信息的候选隐藏状态所更新，如图6.6所示。假设更新门在时间步$t'$到$t$（$t' < t$）之间一直近似1。那么，在时间步$t'$到$t$之间的输入信息几乎没有流入时间步$t$的隐藏状态$\boldsymbol{H}_t$。实际上，这可以看作是较早时刻的隐藏状态$\boldsymbol{H}_{t'-1}$一直通过时间保存并传递至当前时间步$t$。这个设计可以应对循环神经网络中的梯度衰减问题，并更好地捕捉时间序列中时间步距离较大的依赖关系。
 
 我们对门控循环单元的设计稍作总结：
 
