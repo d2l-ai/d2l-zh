@@ -363,6 +363,9 @@ intersphinx_mapping = {
 # notebooks will be executed by sphnix_plugin
 nbsphinx_execute = 'never'
 
+# let the source file format to be xxx.ipynb instead of xxx.ipynb.txt
+html_sourcelink_suffix = ''
+
 def setup(app):
     app.add_transform(AutoStructify)
     app.add_config_value('recommonmark_config', {
