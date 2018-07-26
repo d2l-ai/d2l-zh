@@ -25,16 +25,16 @@ TODO(@astonzhang): edits
 
 在实验开始前，导入所需的包或模块。
 
-```{.python .input  n=1}
+```{.python .input  n=27}
 import collections
 import gluonbook as gb
 from mxnet import autograd, gluon, init, metric, nd
 from mxnet.contrib import text
-from mxnet.gluon import loss as gloss, nn
+from mxnet.gluon import data as gdata, loss as gloss, nn, utils as gutils
 import os
 import random
 from time import time
-import zipfile
+import tarfile
 ```
 
 ## 读取IMDb数据集
@@ -43,16 +43,21 @@ import zipfile
 
 > http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz 。
 
-这个数据集分为训练和测试用的两个数据集，分别有25,000条从IMDb下载的关于电影的评论。在每个数据集中，标签为“正面”（1）和“负面”（0）的评论数量相等。将下载好的数据解压并存放在路径“../data/aclImdb”。
-
-为方便快速上手，我们提供了上述数据集的小规模采样，并存放在路径“../data/aclImdb_tiny.zip”。如果你将使用上述的IMDb完整数据集，还需要把下面`demo`变量改为`False`。
+这个数据集分为训练和测试用的两个数据集，分别有25,000条从IMDb下载的关于电影的评论。在每个数据集中，标签为“正面”（1）和“负面”（0）的评论数量相等。
+我们首先下载这个数据集到`../data`下。压缩包大小是 81MB，下载解压需要一定时间。解压之后这个数据集将会放置在`../data/aclImdb`下。
 
 ```{.python .input  n=2}
-# 如果使用下载的 IMDb 的完整数据集，把下面改为 False。
-demo = True
-if demo:
-    with zipfile.ZipFile('../data/aclImdb_tiny.zip', 'r') as zin:
-        zin.extractall('../data/')
+def download_imdb(data_dir='../data'):
+    """Download the IMDb Dataset."""
+    imdb_dir = os.path.join(data_dir, 'aclImdb')
+    url = ('http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz')
+    sha1 = '01ada507287d82875905620988597833ad4e0903'
+    fname = gutils.download(url, data_dir, sha1_hash=sha1)
+    with tarfile.open(fname, 'r') as f:
+        f.extractall(data_dir)
+    return imdb_dir
+
+imdb_dir = download_imdb()
 ```
 
 下面，读取训练和测试数据集。
@@ -72,12 +77,8 @@ def readIMDB(dir_url, seg='train'):
                     data.append([review, 0])
     return data
 
-if demo:
-    train_data = readIMDB('aclImdb_tiny', 'train')
-    test_data = readIMDB('aclImdb_tiny', 'test')
-else:
-    train_data = readIMDB('aclImdb', 'train')
-    test_data = readIMDB('aclImdb', 'test')
+train_data = readIMDB('aclImdb', 'train')
+test_data = readIMDB('aclImdb', 'test')
 
 random.shuffle(train_data)
 random.shuffle(test_data)
@@ -148,13 +149,12 @@ def pad_samples(features, maxlen=500, PAD=0):
         padded_features.append(padded_feature)
     return padded_features
 
-ctx = gb.try_gpu()
 train_features = encode_samples(train_tokenized, vocab)
 test_features = encode_samples(test_tokenized, vocab)
-train_features = nd.array(pad_samples(train_features, 1000, 0), ctx=ctx)
-test_features = nd.array(pad_samples(test_features, 1000, 0), ctx=ctx)
-train_labels = nd.array([score for _, score in train_data], ctx=ctx)
-test_labels = nd.array([score for _, score in test_data], ctx=ctx)
+train_features = nd.array(pad_samples(train_features, 1000, 0))
+test_features = nd.array(pad_samples(test_features, 1000, 0))
+train_labels = nd.array([score for _, score in train_data])
+test_labels = nd.array([score for _, score in test_data])
 ```
 
 ## 加载预训练的词向量
@@ -238,13 +238,13 @@ class TextCNN(nn.Block):
                 strides=1,
                 activation='relu')
             pool = nn.GlobalMaxPool1D()
-            setattr(self, f'conv_{i}', conv)  #将self.conv_{i}置为第i个conv
-            setattr(self, f'pool_{i}', pool)  #将self.pool_{i}置为第i个pool
+            setattr(self, 'conv_{i}', conv)  #将self.conv_{i}置为第i个conv
+            setattr(self, 'pool_{i}', pool)  #将self.pool_{i}置为第i个pool
         self.dropout = nn.Dropout(0.5)
         self.decoder = nn.Dense(num_outputs)
     def forward(self, inputs):
-        #inputs 的维度为(句子长度, batch_size) 
-        
+        #inputs 输入的维度为(batch_size, 句子长度) ，转换为(句子长度, batch_size)
+        inputs = inputs.T
         #embeddings_static 的维度为（句子长度, batch_size, embed_size） 
         embeddings_static = self.embedding_static(inputs)
         
@@ -272,28 +272,29 @@ class TextCNN(nn.Block):
         return outputs
     #调用self.get_conv(i)，即返回self.conv_{i}
     def get_conv(self, i):
-        return getattr(self, f'conv_{i}')
+        return getattr(self, 'conv_{i}')
     #调用self.get_pool(i)，即返回self.pool_{i}
     def get_pool(self, i):
-        return getattr(self, f'pool_{i}')
+        return getattr(self, 'pool_{i}')
 ```
 
 我们使用在更大规模语料上预训练的词向量作为每个词的特征向量。本实验有两个嵌入层，其中嵌入层`Embedding_non_static`的词向量可以在训练过程中被更新，另一个嵌入层`Embedding_static`的词向量在训练过程中不能被更新。
 
 ```{.python .input  n=11}
 num_outputs = 2
-lr = 0.002
+lr = 0.001
 num_epochs = 1
-batch_size = 10
+batch_size = 64
 embed_size = 100
 ngram_kernel_sizes = [3, 4, 5]
 nums_channels = [100, 100, 100]
+ctx = gb.try_all_gpus()
 
 net = TextCNN(vocab, embed_size, ngram_kernel_sizes, nums_channels)
 net.initialize(init.Xavier(), ctx=ctx)
 # 设置两个embedding 层的 weight 为预训练的词向量。
-net.embedding_static.weight.set_data(glove_embedding.idx_to_vec.as_in_context(ctx))
-net.embedding_non_static.weight.set_data(glove_embedding.idx_to_vec.as_in_context(ctx))
+net.embedding_static.weight.set_data(glove_embedding.idx_to_vec)
+net.embedding_non_static.weight.set_data(glove_embedding.idx_to_vec)
 # 训练中不更新embedding_static的词向量（net.embedding中的模型参数）。
 net.embedding_static.collect_params().setattr('grad_req', 'null')
 trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': lr})
@@ -302,45 +303,19 @@ loss = gloss.SoftmaxCrossEntropyLoss()
 
 ## 训练并评价模型
 
-在实验中，我们使用准确率作为评价模型的指标。
+使用gluon的DataLoader加载数据
 
-```{.python .input  n=12}
-def eval_model(features, labels):
-    l_sum = 0
-    l_n = 0
-    accuracy = metric.Accuracy()
-    for i in range(features.shape[0] // batch_size ):
-        X = features[i * batch_size
-                     : (i + 1) * batch_size].as_in_context(ctx).T
-        y = labels[i * batch_size
-                   : (i + 1) * batch_size].as_in_context(ctx).T
-        output = net(X)
-        l = loss(output, y)
-        l_sum += l.sum().asscalar()
-        l_n += l.size
-        accuracy.update(preds=nd.argmax(output, axis=1), labels=y)
-    return l_sum / l_n, accuracy.get()[1]
+```{.python .input  n=30}
+train_set = gdata.ArrayDataset(train_features, train_labels)
+test_set = gdata.ArrayDataset(test_features, test_labels)
+train_loader = gdata.DataLoader(train_set, batch_size=batch_size, shuffle=True)
+test_loader = gdata.DataLoader(test_set, batch_size=batch_size, shuffle=False)
 ```
 
 下面开始训练模型。
 
-```{.python .input  n=13}
-print('training on', ctx)
-for epoch in range(1, num_epochs + 1):
-    start = time()
-    for i in range(train_features.shape[0] // batch_size):
-        X = train_features[i * batch_size
-                           : (i + 1) * batch_size].as_in_context(ctx).T
-        y = train_labels[i * batch_size
-                         : (i + 1) * batch_size].as_in_context(ctx).T
-        with autograd.record():
-            l = loss(net(X), y)
-        l.backward()
-        trainer.step(batch_size)
-    train_l, train_acc = eval_model(train_features, train_labels)
-    _, test_acc = eval_model(test_features, test_labels)
-    print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, time %.1f sec'
-          % (epoch, train_l, train_acc, test_acc, time() - start))
+```{.python .input}
+gb.train(train_loader, test_loader, net, loss, trainer, ctx, num_epochs)
 ```
 
 ## 小结
@@ -352,13 +327,13 @@ for epoch in range(1, num_epochs + 1):
 
 ## 练习
 
-* 使用IMDb完整数据集。你的模型能在训练和测试数据集上得到怎样的准确率？通过调节超参数，你能进一步提升分类准确率吗？
+* 使用IMDb完整数据集，把迭代周期改为 5。你的模型能在训练和测试数据集上得到怎样的准确率？通过调节超参数，你能进一步提升分类准确率吗？
 
 * 使用更大的预训练词向量，例如300维的GloVe词向量，能否提升分类准确率？
 
 * 使用spacy分词工具，能否提升分类准确率？。你需要安装spacy：`pip install spacy`，并且安装英文包：`python -m spacy download en`。在代码中，先导入spacy：`import spacy`。然后加载spacy英文包：`spacy_en = spacy.load('en')`。最后定义函数：`def tokenizer(text): return [tok.text for tok in spacy_en.tokenizer(text)]`替换原来的基于空格分词的`tokenizer`函数。需要注意的是，GloVe的词向量对于名词词组的存储方式是用“-”连接各个单词，例如词组“new york”在GloVe中的表示为“new-york”。而使用spacy分词之后“new york”的存储可能是“new york”。
 
-* 通过上面三种方法，你能使模型在测试集上的准确率提高到0.86以上吗？
+* 通过上面三种方法，你能使模型在测试集上的准确率提高到0.87以上吗？
 
 
 
