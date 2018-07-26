@@ -15,8 +15,7 @@ import collections
 import gluonbook as gb
 from mxnet import autograd, gluon, init, metric, nd
 from mxnet.contrib import text
-from mxnet.gluon import loss as gloss, nn, rnn, utils as gutils
-from mxnet.gluon.data import DataLoader, Dataset
+from mxnet.gluon import data as gdata, loss as gloss, nn, rnn, utils as gutils
 import os
 import random
 from time import time
@@ -170,7 +169,7 @@ class SentimentNet(nn.Block):
             self.decoder = nn.Dense(num_outputs, flatten=False)
 
     def forward(self, inputs):
-        embeddings = self.embedding(inputs)
+        embeddings = self.embedding(inputs.T)
         states = self.encoder(embeddings)
         # 连结初始时间步和最终时间步的隐藏状态。
         encoding = nd.concat(states[0], states[-1])
@@ -203,63 +202,19 @@ loss = gloss.SoftmaxCrossEntropyLoss()
 
 ## 训练并评价模型
 
-在实验中，我们使用准确率作为评价模型的指标。
-
-```{.python .input  n=39}
-def eval_model(features, labels):
-    l_sum = 0
-    l_n = 0
-    accuracy = metric.Accuracy()
-    for i in range(features.shape[0] // batch_size):
-        X = features[i * batch_size
-                     : (i + 1) * batch_size].as_in_context(gb.try_gpu()).T
-        y = labels[i * batch_size
-                   : (i + 1) * batch_size].as_in_context(gb.try_gpu()).T
-        output = net(X)
-        l = loss(output, y)
-        l_sum += l.sum().asscalar()
-        l_n += l.size
-        accuracy.update(preds=nd.argmax(output, axis=1), labels=y)
-    return l_sum / l_n, accuracy.get()[1]
-```
-
 使用gluon的DataLoader加载数据
 
 ```{.python .input  n=26}
-class MyDataset(Dataset):
-    def __init__(self, x, y):
-        super(MyDataset, self).__init__()
-        self.x = x
-        self.y = y
-
-    def __getitem__(self, index):
-        return self.x[index], self.y[index]
-
-    def __len__(self):
-        return len(self.x)
-train_loader = DataLoader(MyDataset(train_features, train_labels), batch_size=batch_size, shuffle=True)
-test_loader = DataLoader(MyDataset(test_features, test_labels), batch_size=batch_size, shuffle=False)
+train_set = gdata.ArrayDataset(train_features, train_labels)
+test_set = gdata.ArrayDataset(test_features, test_labels)
+train_loader = gdata.DataLoader(train_set, batch_size=batch_size, shuffle=True)
+test_loader = gdata.DataLoader(test_set, batch_size=batch_size, shuffle=False)
 ```
 
 下面开始训练模型。
 
 ```{.python .input  n=40}
-print('training on', ctx)
-for epoch in range(1, num_epochs + 1):
-    start = time()
-    for X, y in train_loader:
-        gpu_Xs = gutils.split_and_load(X, ctx)
-        gpu_ys = gutils.split_and_load(y, ctx)
-        with autograd.record():
-            ls = [loss(net(gpu_X.T), gpu_y) for gpu_X, gpu_y in zip(
-                gpu_Xs, gpu_ys)]
-        for l in ls:
-            l.backward()
-        trainer.step(batch_size)
-    train_l, train_acc = eval_model(train_features, train_labels)
-    _, test_acc = eval_model(test_features, test_labels)
-    print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, time %.1f sec'
-          % (epoch, train_l, train_acc, test_acc, time() - start))
+gb.train(train_loader, test_loader, net, loss, trainer, ctx, num_epochs)
 ```
 
 下面我们试着分析一个简单的句子的情感（1和0分别代表正面和负面）。为了在更复杂的句子上得到较准确的分类，我们需要使用完整数据集训练模型，并适当增大训练周期。
@@ -268,7 +223,7 @@ for epoch in range(1, num_epochs + 1):
 review = ['this', 'movie', 'is', 'great']
 nd.argmax(net(nd.reshape(
     nd.array([vocab.token_to_idx[token] for token in review], ctx=gb.try_gpu()), 
-    shape=(-1, 1))), axis=1).asscalar()
+    shape=(1, -1))), axis=1).asscalar()
 ```
 
 ## 小结
