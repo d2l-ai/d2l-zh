@@ -327,13 +327,13 @@ gb.train(train_loader, test_loader, net, loss, trainer, ctx, num_epochs)
 
 ## 练习
 
-* 使用IMDb完整数据集。你的模型能在训练和测试数据集上得到怎样的准确率？通过调节超参数，你能进一步提升分类准确率吗？
+* 使用IMDb完整数据集，把迭代周期改为 5。你的模型能在训练和测试数据集上得到怎样的准确率？通过调节超参数，你能进一步提升分类准确率吗？
 
 * 使用更大的预训练词向量，例如300维的GloVe词向量，能否提升分类准确率？
 
 * 使用spacy分词工具，能否提升分类准确率？。你需要安装spacy：`pip install spacy`，并且安装英文包：`python -m spacy download en`。在代码中，先导入spacy：`import spacy`。然后加载spacy英文包：`spacy_en = spacy.load('en')`。最后定义函数：`def tokenizer(text): return [tok.text for tok in spacy_en.tokenizer(text)]`替换原来的基于空格分词的`tokenizer`函数。需要注意的是，GloVe的词向量对于名词词组的存储方式是用“-”连接各个单词，例如词组“new york”在GloVe中的表示为“new-york”。而使用spacy分词之后“new york”的存储可能是“new york”。
 
-* 通过上面三种方法，你能使模型在测试集上的准确率提高到0.86以上吗？
+* 通过上面三种方法，你能使模型在测试集上的准确率提高到0.87以上吗？
 
 
 
