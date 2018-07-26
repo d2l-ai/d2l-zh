@@ -1,201 +1,201 @@
 ## 英汉术语对照
 
-鞍点, saddle point
+鞍点，saddle point
 
-背景向量, context vector
+背景向量，context vector
 
-变换, transformation
+变换，transform
 
 编码器，encoder
 
-标签, label
+标签，label
 
-步幅, stride
+步幅，stride
 
-参数, parameter
+参数，parameter
 
-超参数, hyper-parameter
+超参数，hyper-parameter
 
-层序softmax, hierarchical softmax
+层序softmax，hierarchical softmax
 
-成本, cost
+成本，cost
 
-词向量, embedding vector
+词嵌入，word embedding
 
-池化层, pooling layer
+词向量，word vector
 
-稠密, dense
+池化层，pooling layer
 
-大小, size
+稠密，dense
 
-导入, import
+大小，size
 
-迭代周期（周期), epoch
+导入，import
 
-迭代模型参数, update model parameter
+迭代周期（周期)，epoch
 
-丢弃法, dropout
+迭代模型参数，update model parameter(s)
 
-动量法, momentum method
+丢弃法，dropout
 
-独立同分布, independent and identically distributed(i.i.d.)
+动量法，momentum (method)
 
-端到端, end-to-end
+独立同分布，independent and identically distributed (i.i.d.)
 
-二元分类, binary classification
+端到端，end-to-end
 
-发散, divergence
+二元分类，binary classification
 
-泛化, generalization
+发散，diverge
 
-泛化误差, generalization error
+泛化，generalization
 
-方差, variance
+泛化误差，generalization error
 
-非凸优化, non-convex optimization
+方差，variance
 
-分桶, bucketing
+非凸优化，non-convex optimization
 
-分类, classification
+分桶，bucketing
 
-分类器, classifier
+分类，classification
 
-分词方式, tokenizer/tokenization
+分类器，classifier
 
-负采样, negative sampling
+分词方式，tokenizer/tokenization
 
-共现词频, n-gram frequency
+负采样，negative sampling
 
-归一化, normalization
+共现词频，co-occurrence frequency
 
-过拟合, underfitting
+归一化，normalization
 
-假设, hypothesis
+过拟合，underfitting
 
-基准, baseline
+假设，hypothesis
 
-激活函数, activation function
+基准，baseline
 
-解码器, decoder
+激活函数，activation function
 
-经验风险最小化, empirical risk minimization
+解码器，decoder
 
-局部最小值, local minimum
+经验风险最小化，empirical risk minimization
 
-卷积核, filter/kernel
+局部最小值，local minimum
 
-卷积神经网络, convolutional neural network
+卷积核，kernel
 
-决策边界, decision boundary
+卷积神经网络，convolutional neural network
 
-均值, mean
+决策边界，decision boundary
 
-均方误差, mean squared error 
+均值，mean
 
-困惑度, perplexity
+均方误差，mean squared error
 
-类, class
+均匀采样，uniform sampling
 
-交叉熵, cross-entropy
+困惑度，perplexity
 
-连续词袋模型, Continous Bag of Words Model (CBOW)
+类，class
 
-零张量, zero vector/tensor
+交叉熵，cross-entropy
 
-流水线, pipeline
+连续词袋模型，continous bag-of-words (CBOW) model
 
-逻辑回归, logistic regression
+零张量，zero tensor
 
-模型参数, model parameter
+流水线，pipeline
 
-模型复杂度, model complexity
+softmax回归，softmax regression
 
-偏差, bias
+模型参数，model parameter
 
-偏导数, partial derivative
+模型复杂度，model complexity
 
-批量, batch
+偏差，bias
 
-平均池化层, mean pooling layer
+偏导数，partial derivative
 
-欠拟合, overfitting
+批量，batch
 
-情感分析, sentiment analysis
+平均池化层，mean pooling layer
 
-全连接层, fully connected layer/dense layer
+欠拟合，overfitting
 
-实例, instance
+情感分析，sentiment analysis
 
-随机均匀采样, uniform sampling
+全连接层，fully connected layer
 
-收敛速度, convergence rate
+实例，instance
 
-数值方法, numerical method
+收敛速度，convergence rate
 
-数据集, data set
+数值方法，numerical method
 
-损失函数, loss function
+数据集，data set
 
-双向循环神经网络, bidirectional recurrent neural network
+损失函数，loss function
 
-特征, feature
+双向循环神经网络，bidirectional recurrent neural network
 
-特征值, eigenvalue
+特征，feature
 
-梯度, gradient
+特征值，eigenvalue
 
-梯度裁剪, gradient clipping
+梯度，gradient
 
-填充, padding
+梯度裁剪，gradient clipping
 
-跳字模型, skip-gram model
+填充，padding
 
-调参, tune parameter
+跳字模型，skip-gram model
 
-通道, channel
+调参，tune parameter
 
-凸优化, convex optimization
+通道，channel
 
-未知词符号, unknown token
+凸优化，convex optimization
 
-无偏估计, unbiased estimate
+未知词符号，unknown token
 
-小批量, mini-batch
+无偏估计，unbiased estimate
 
-小批量梯度, mini-batch gradient
+小批量，mini-batch
 
-线性模型, linear model
+小批量梯度，mini-batch gradient
 
-线性回归模型, linear regression model
+线性模型，linear model
 
-协同过滤, collaborative filtering
+线性回归，linear regression
 
-学习率, learning rate
+协同过滤，collaborative filtering
 
-训练误差, optimization error
+学习率，learning rate
 
-循环神经网络, recurrent neural network
+训练误差，training error
 
-样本, example
+循环神经网络，recurrent neural network
 
-一维梯度下降, gradient descent in one dimensional space
+样本，example
 
-隐藏变量, hidden variable
+一维梯度下降，gradient descent in one-dimensional space
 
-隐藏层, hidden layer
+隐藏变量，hidden variable
 
-优化器, optimizer
+隐藏层，hidden layer
 
-运算符, operator
+优化器，optimizer
 
-真实值, ground truth
+运算符，operator
 
-指标, metric
+真实值，ground truth
 
-支持向量机, support vector machine
+指标，metric
 
-注意力机制模型, attention model
+支持向量机，support vector machine
 
-准确率, accuracy
+注意力机制模型，attention model
 
-最小化模型的损失函数, minimize loss function
+准确率，accuracy
