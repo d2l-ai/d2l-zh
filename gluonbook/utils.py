@@ -286,8 +286,7 @@ def resnet18(num_classes):
     """The ResNet-18 model."""
     net = nn.Sequential()
     net.add(nn.Conv2D(64, kernel_size=3, strides=1, padding=1),
-            nn.BatchNorm(), nn.Activation('relu'),
-            nn.MaxPool2D(pool_size=3, strides=2, padding=1))
+            nn.BatchNorm(), nn.Activation('relu'))
 
     def resnet_block(num_channels, num_residuals, first_block=False):
         blk = nn.Sequential()

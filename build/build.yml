@@ -13,5 +13,5 @@ dependencies:
   - recommonmark==0.4.0
   - https://github.com/mli/notedown/tarball/master
   - mxnet-cu80==1.2.1
-  - gluonbook==0.7.2
+  - gluonbook==0.7.3
   - jieba==0.39

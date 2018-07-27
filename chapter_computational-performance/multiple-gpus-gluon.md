@@ -14,14 +14,14 @@ from time import time
 
 ## 多GPU上初始化模型参数
 
-我们使用ResNet-18来作为本节的样例模型。我们将`resnet18`函数定义在`gluonbook`包中供后面章节调用。
+我们使用ResNet-18来作为本节的样例模型。由于本节的输入图片使用原尺寸（未放大），这里的模型构造与[“残差网络（ResNet）”](../chapter_convolutional-neural-networks/resnet.md)一节中的ResNet-18构造稍有不同。这里的模型在一开始使用了较小的卷积核、步幅和填充，并去掉了最大池化层。我们将`resnet18`函数定义在`gluonbook`包中供后面章节调用。
 
 ```{.python .input  n=2}
 def resnet18(num_classes):
     net = nn.Sequential()
+    # 这里使用了较小的卷积核、步幅和填充，并去掉了最大池化层。
     net.add(nn.Conv2D(64, kernel_size=3, strides=1, padding=1),
-            nn.BatchNorm(), nn.Activation('relu'),
-            nn.MaxPool2D(pool_size=3, strides=2, padding=1))                 
+            nn.BatchNorm(), nn.Activation('relu'))                 
 
     def resnet_block(num_channels, num_residuals, first_block=False):
         blk = nn.Sequential()
