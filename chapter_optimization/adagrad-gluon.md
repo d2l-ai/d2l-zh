@@ -1,4 +1,4 @@
-# Adagrad——使用Gluon
+# Adagrad的Gluon实现
 
 
 在Gluon里，使用Adagrad很方便，我们无需重新实现该算法。
@@ -7,8 +7,6 @@
 
 ```{.python .input}
 %matplotlib inline
-import sys
-sys.path.append('..')
 import gluonbook as gb
 from mxnet import gluon, init, nd
 from mxnet.gluon import nn
@@ -31,7 +29,7 @@ net = nn.Sequential()
 net.add(nn.Dense(1))
 ```
 
-我们可以在Trainer中定义优化算法名称`adagrad`。以下实验分别重现了[“Adagrad——从零开始”](adagrad-scratch.md)一节中实验结果。
+我们可以在Trainer中定义优化算法名称`adagrad`。以下实验分别重现了[“Adagrad”](adagrad.md)一节中实验结果。
 
 ```{.python .input  n=3}
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)

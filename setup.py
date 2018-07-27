@@ -23,13 +23,12 @@ def find_version(*file_paths):
     raise RuntimeError("Unable to find version string.")
 
 
-readme = open('README.md').read()
-
 VERSION = find_version('gluonbook', '__init__.py')
 
 requirements = [
     'numpy',
     'matplotlib',
+	'jupyter'
 ]
 
 setup(
@@ -40,7 +39,7 @@ setup(
     author_email='mli@amazon.com',
     url='https://github.com/mli/gluon-tutorials-zh',
     description='Gluon Book Utils',
-    long_description=readme,
+    long_description='Gluon Book Utilities',
     license='Apache-2.0',
 
     # Package info

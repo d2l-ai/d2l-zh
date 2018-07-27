@@ -4,7 +4,7 @@
 
 ## 二维相关运算符
 
-虽然卷积层得名于卷积运算符（convolution），但我们常用更加直观的相关运算符（correlation）来实现卷积层。一个二维相关运算符将一个二维核（kernel）数组作用在一个二维输入数据上来计算一个二维数组输出。下图演示了如何对一个高宽为3的输入`X`作用高宽为2的核`K`来计算输出`Y`。
+虽然卷积层得名于卷积运算符（convolution），但我们常用更加直观的相关运算符（correlation）来实现卷积层。一个二维相关运算符将一个二维核（kernel）数组作用在一个二维输入数据上来计算一个二维数组输出。图5.1演示了如何对一个高宽为3的输入`X`作用高宽为2的核`K`来计算输出`Y`。
 
 ![二维相关运算符，高亮了计算第一个输出元素所使用的输入和核数组元素。](../img/correlation.svg)
 
@@ -13,26 +13,23 @@
 下面我们将上述过程实现在`corr2d`函数里，它接受`X`和`K`，输出`Y`。
 
 ```{.python .input}
-import sys
-sys.path.append('..')
-import gluonbook as gb
 from mxnet import autograd, nd
 from mxnet.gluon import nn
 
 def corr2d(X, K):
     h, w = K.shape
-    Y = nd.zeros((X.shape[0]-h+1, X.shape[1]-w+1))
+    Y = nd.zeros((X.shape[0] - h + 1, X.shape[1] - w + 1))
     for i in range(Y.shape[0]):
         for j in range(Y.shape[1]):
-            Y[i, j] = (X[i:i+h, j:j+w]*K).sum()
+            Y[i, j] = (X[i : i + h, j : j + w] * K).sum()
     return Y
 ```
 
-构造上图中的数据来测试实现的正确性。
+构造图5.1中的数据来测试实现的正确性。
 
 ```{.python .input}
-X = nd.array([[0,1,2], [3,4,5], [6,7,8]])
-K = nd.array([[0,1], [2,3]])
+X = nd.array([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
+K = nd.array([[0, 1], [2, 3]])
 corr2d(X, K)
 ```
 
@@ -53,7 +50,7 @@ class Conv2D(nn.Block):
         return corr2d(x, self.weight.data()) + self.bias.data()
 ```
 
-你也许会好奇既然称之为卷积层，为什么不使用卷积运算符呢？其实卷积运算的计算与二维相关运算类似，唯一的区别是反向的将核数组跟输入做乘法，即`Y[0, 0] = (X[0:2, 0:2] * K[::-1, ::-1]).sum()`。但是因为在卷积层里`K`是学习而来而，所以不论是正向还是反向访问都可以。
+你也许会好奇既然称之为卷积层，为什么不使用卷积运算符呢？其实卷积运算的计算与二维相关运算类似，唯一的区别是反向的将核数组跟输入做乘法，即`Y[0, 0] = (X[0:2, 0:2] * K[::-1, ::-1]).sum()`。但是因为在卷积层里`K`是学习而来的，所以不论是正向还是反向访问都可以。
 
 ## 图片物体边缘检测
 
@@ -91,17 +88,17 @@ Y
 conv2d = nn.Conv2D(1, kernel_size=(1, 2))
 conv2d.initialize()
 
-# 二维卷积层使用 4 维输入输出，格式为（批量大小，通道数，高，宽），这里批量和通道均为 1.
+# 二维卷积层使用 4 维输入输出，格式为（批量大小，通道数，高，宽），这里批量和通道均为 1。
 X = X.reshape((1, 1, 6, 8))
 Y = Y.reshape((1, 1, 6, 7))
 
 for i in range(10):
     with autograd.record():
         Y_hat = conv2d(X)
-        loss = (Y_hat - Y) ** 2
+        l = (Y_hat - Y) ** 2
         if i % 2 == 1:
-            print('batch %d, loss %.3f' % (i, loss.sum().asscalar()))
-    loss.backward()
+            print('batch %d, loss %.3f' % (i, l.sum().asscalar()))
+    l.backward()
     # 为了简单起见这里忽略了偏差。
     conv2d.weight.data()[:] -= 3e-2 * conv2d.weight.grad()
 ```
@@ -109,7 +106,7 @@ for i in range(10):
 可以看到10次迭代后误差已经降到了一个比较小的值，现在来看一下学习到的核。
 
 ```{.python .input}
-conv2d.weight.data().reshape((1,2))
+conv2d.weight.data().reshape((1, 2))
 ```
 
 我们看到学到的核与我们之前定义的`K`非常接近。
@@ -121,11 +118,11 @@ conv2d.weight.data().reshape((1,2))
 
 ## 练习
 
-- 构造一个`X`它有水平方向的边缘，如何设计`K`来检测它？如果是对角方向的边缘呢？
+- 构造一个`X`，它有水平方向的边缘，如何设计`K`来检测它？如果是对角方向的边缘呢？
 - 试着对我们构造的`Conv2D`进行自动求导，会有什么样的错误信息？
 - 在Conv2D的`forward`函数里，将`corr2d`替换成`nd.Convolution`使得其可以求导。
 - 试着将conv2d的核构造成`(2, 2)`，会学出什么样的结果？
-- 如果通过变化输入和核的矩阵来将相关运算表示成一个矩阵乘法。
+- 如何通过变化输入和核的矩阵来将相关运算表示成一个矩阵乘法。
 - 如何构造一个全连接层来进行物体边缘检测？
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6314)

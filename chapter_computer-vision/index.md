@@ -1,6 +1,5 @@
 # 计算机视觉
 
-
 ```eval_rst
 
 .. toctree::
@@ -8,9 +7,12 @@
 
    image-augmentation
    fine-tuning
-   object-detection
+   bounding-box
+   anchor
+   object-detection-dataset
    ssd
-   yolo
+   rcnn
+   semantic-segmentation-and-dataset
    fcn
    neural-style
    kaggle-gluon-cifar10

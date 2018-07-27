@@ -73,7 +73,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = '动手学深度学习'
-copyright = '2017, Contributors'
+copyright = '2017--2018, Contributors'
 author = "MXNet Community"
 
 
@@ -362,6 +362,9 @@ intersphinx_mapping = {
 
 # notebooks will be executed by sphnix_plugin
 nbsphinx_execute = 'never'
+
+# let the source file format to be xxx.ipynb instead of xxx.ipynb.txt
+html_sourcelink_suffix = ''
 
 def setup(app):
     app.add_transform(AutoStructify)

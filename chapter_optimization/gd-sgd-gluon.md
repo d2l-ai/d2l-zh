@@ -1,4 +1,4 @@
-# 梯度下降和随机梯度下降——使用Gluon
+# 梯度下降和随机梯度下降的Gluon实现
 
 在Gluon里，使用小批量随机梯度下降很方便，我们无需重新实现该算法。特别地，当批量大小等于数据集样本数时，该算法即为梯度下降；批量大小为1即为随机梯度下降。
 
@@ -6,8 +6,6 @@
 
 ```{.python .input}
 %matplotlib inline
-import sys
-sys.path.append('..')
 import gluonbook as gb
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import nn, data as gdata, loss as gloss
@@ -58,7 +56,7 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval,
     gb.semilogy(es, ls, 'epoch', 'loss')
 ```
 
-以下几组实验分别重现了["梯度下降和随机梯度下降——从零开始"](gd-sgd-scratch.md)一节中实验结果。
+我们将`optimize`函数定义在`gluonbook`包中供后面章节调用。以下几组实验分别重现了["梯度下降和随机梯度下降"](gd-sgd.md)一节中实验结果。
 
 ```{.python .input  n=3}
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)
