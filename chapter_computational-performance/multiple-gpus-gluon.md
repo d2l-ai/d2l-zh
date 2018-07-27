@@ -107,7 +107,7 @@ def train(num_gpus, batch_size, lr):
 我们在2个GPU上训练模型。
 
 ```{.python .input  n=10}
-train(num_gpus=2, batch_size=512, lr=0.3)
+train(num_gpus=2, batch_size=512, lr=0.4)
 ```
 
 ## 小结

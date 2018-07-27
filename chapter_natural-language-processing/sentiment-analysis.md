@@ -207,7 +207,8 @@ loss = gloss.SoftmaxCrossEntropyLoss()
 ```{.python .input  n=40}
 train_set = gdata.ArrayDataset(train_features, train_labels)
 test_set = gdata.ArrayDataset(test_features, test_labels)
-train_loader = gdata.DataLoader(train_set, batch_size=batch_size, shuffle=True)
+train_loader = gdata.DataLoader(train_set, batch_size=batch_size,
+                                shuffle=True)
 test_loader = gdata.DataLoader(test_set, batch_size=batch_size, shuffle=False)
 
 gb.train(train_loader, test_loader, net, loss, trainer, ctx, num_epochs)

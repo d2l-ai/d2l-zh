@@ -221,6 +221,7 @@ def train_with_data_aug(train_augs, test_augs, lr=0.001):
     ctx = try_all_gpus()
     net = gb.resnet18(10)
     net.initialize(ctx=ctx, init=init.Xavier())
+    # 这里使用了 Adam 优化算法。
     trainer = gluon.Trainer(net.collect_params(), 'adam',
                             {'learning_rate': lr})
     loss = gloss.SoftmaxCrossEntropyLoss()
@@ -241,7 +242,7 @@ train_with_data_aug(train_augs, test_augs)
 train_with_data_aug(test_augs, test_augs)
 ```
 
-可以看到，即使添加了简单的随机翻转也会有明显的效果。图片增广类似于正则化，它使得训练精度变低，但可以提高测试精度。
+可以看到，即使添加了简单的随机翻转也会对训练产生一定的影响。图片增广类似于正则化，它使得训练精度变低，但可能提高测试精度。
 
 本节中描述的`try_all_gpus`、`evaluate_accuracy`和`train`函数被定义在`gluonbook`包中供后面章节调用。
 
