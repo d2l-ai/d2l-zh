@@ -181,7 +181,7 @@ class SentimentNet(nn.Block):
 
 ```{.python .input  n=11}
 num_outputs = 2
-lr = 0.5
+lr = 0.8
 num_epochs = 5
 batch_size = 64
 embed_size = 100
