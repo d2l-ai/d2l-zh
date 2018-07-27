@@ -1,4 +1,4 @@
-# 文本分类：情感分析
+# 文本情感分类：使用卷积神经网络（textCNN）
 
 TODO(@astonzhang): edits
 
@@ -318,18 +318,20 @@ test_loader = gdata.DataLoader(test_set, batch_size=batch_size, shuffle=False)
 gb.train(train_loader, test_loader, net, loss, trainer, ctx, num_epochs)
 ```
 
+下面我们使用训练好的模型对两个简单句子的情感进行分类。
+
 ```{.python .input}
-review = ['this', 'movie', 'is', 'just', 'great']
-nd.argmax(net(nd.reshape(
-    nd.array([vocab.token_to_idx[token] for token in review], ctx=gb.try_gpu()), 
-    shape=(1, -1))), axis=1).asscalar()
+def get_sentiment(vocab, sentence):
+    sentence = nd.array([vocab.token_to_idx[token] for token in sentence],
+                        ctx=gb.try_gpu())
+    label = nd.argmax(net(nd.reshape(sentence, shape=(1, -1))), axis=1)
+    return 'positive' if label.asscalar() == 1 else 'negative'
+
+get_sentiment(vocab, ['i', 'think', 'this', 'movie', 'is', 'great'])
 ```
 
 ```{.python .input}
-review = ['this', 'movie', 'is', 'terribly', 'boring']
-nd.argmax(net(nd.reshape(
-    nd.array([vocab.token_to_idx[token] for token in review], ctx=gb.try_gpu()), 
-    shape=(1, -1))), axis=1).asscalar()
+get_sentiment(vocab, ['the', 'show', 'is', 'terribly', 'boring'])
 ```
 
 ## 小结
@@ -352,10 +354,10 @@ nd.argmax(net(nd.reshape(
 
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6155)
+## 扫码直达[讨论区]()
 
 
-![](../img/qr_sentiment-analysis.svg)
+![](../img/qr_sentiment-analysis_cnn.svg)
 
 
 ## 参考文献
