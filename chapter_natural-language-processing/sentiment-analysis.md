@@ -1,8 +1,8 @@
-# 文本分类：情感分析
+# 文本情感分类：使用循环神经网络
 
-文本分类即把一段不定长的文本序列变换为类别。在文本分类问题中，情感分析是一项重要的自然语言处理任务。例如，Netflix或者IMDb可以对每部电影的评论进行情感分类，从而帮助各个平台改进产品，提升用户体验。
+文本分类即把一段不定长的文本序列变换为类别。在这类问题中，文本情感分类（情感分析）是一项重要的自然语言处理任务。例如，Netflix或者IMDb可以对每部电影的评论进行情感分类，从而帮助各个平台改进产品，提升用户体验。
 
-本节介绍如何使用Gluon来创建一个情感分类模型。该模型将判断一段不定长的文本序列中包含的是正面还是负面的情绪，也即将文本序列分类为正面或负面。
+本节介绍如何使用Gluon来创建一个文本情感分类模型。该模型将判断一段不定长的文本序列中包含的是正面还是负面的情绪，也即将文本序列分类为正面或负面。
 
 ## 模型设计
 
@@ -24,12 +24,12 @@ import tarfile
 
 ## 读取IMDb数据集
 
-我们使用Stanford's Large Movie Review Dataset作为情感分析的数据集 [1]。它的下载地址是
+我们使用Stanford's Large Movie Review Dataset作为文本情感分类的数据集 [1]。它的下载地址是
 
 > http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz 。
 
 这个数据集分为训练和测试用的两个数据集，分别有25,000条从IMDb下载的关于电影的评论。在每个数据集中，标签为“正面”（1）和“负面”（0）的评论数量相等。
-我们首先下载这个数据集到`../data`下。压缩包大小是 81MB，下载解压需要一定时间。解压之后这个数据集将会放置在`../data/aclImdb`下。
+我们首先下载这个数据集到“../data”路径下。该数据集的压缩包大小是 81MB，下载解压需要一定时间。解压后的数据集将会放置在“../data/aclImdb”路径下。
 
 ```{.python .input  n=4}
 def download_imdb(data_dir='../data'):
@@ -194,7 +194,7 @@ net = SentimentNet(vocab, embed_size, num_hiddens, num_layers, bidirectional)
 net.initialize(init.Xavier(), ctx=ctx)
 # 设置 embedding 层的 weight 为预训练的词向量。
 net.embedding.weight.set_data(glove_embedding.idx_to_vec)
-# 训练中不更新词向量（net.embedding中的模型参数）。
+# 训练中不更新词向量（net.embedding 中的模型参数）。
 net.embedding.collect_params().setattr('grad_req', 'null')
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 loss = gloss.SoftmaxCrossEntropyLoss()
@@ -202,52 +202,47 @@ loss = gloss.SoftmaxCrossEntropyLoss()
 
 ## 训练并评价模型
 
-使用gluon的DataLoader加载数据
+加载完数据以后，我们就可以训练模型了。
 
-```{.python .input  n=26}
+```{.python .input  n=40}
 train_set = gdata.ArrayDataset(train_features, train_labels)
 test_set = gdata.ArrayDataset(test_features, test_labels)
 train_loader = gdata.DataLoader(train_set, batch_size=batch_size, shuffle=True)
 test_loader = gdata.DataLoader(test_set, batch_size=batch_size, shuffle=False)
-```
 
-下面开始训练模型。
-
-```{.python .input  n=40}
 gb.train(train_loader, test_loader, net, loss, trainer, ctx, num_epochs)
 ```
 
-下面我们试着分析一个简单的句子的情感（1和0分别代表正面和负面）。为了在更复杂的句子上得到较准确的分类，我们需要使用完整数据集训练模型，并适当增大训练周期。
+下面我们使用训练好的模型对两个简单句子的情感进行分类。
 
 ```{.python .input  n=18}
-review = ['this', 'movie', 'is', 'just', 'great']
-nd.argmax(net(nd.reshape(
-    nd.array([vocab.token_to_idx[token] for token in review], ctx=gb.try_gpu()), 
-    shape=(1, -1))), axis=1).asscalar()
+def get_sentiment(vocab, sentence):
+    sentence = nd.array([vocab.token_to_idx[token] for token in sentence],
+                        ctx=gb.try_gpu())
+    label = nd.argmax(net(nd.reshape(sentence, shape=(1, -1))), axis=1)
+    return 'positive' if label.asscalar() == 1 else 'negative'
+
+get_sentiment(vocab, ['i', 'think', 'this', 'movie', 'is', 'great'])
 ```
 
 ```{.python .input}
-review = ['this', 'movie', 'is', 'terribly', 'boring']
-nd.argmax(net(nd.reshape(
-    nd.array([vocab.token_to_idx[token] for token in review], ctx=gb.try_gpu()), 
-    shape=(1, -1))), axis=1).asscalar()
+get_sentiment(vocab, ['the', 'show', 'is', 'terribly', 'boring'])
 ```
 
 ## 小结
 
-* 我们可以应用预训练的词向量和循环神经网络对文本进行情感分析。
+* 我们可以应用预训练的词向量和循环神经网络对文本的情感进行分类。
 
 
 ## 练习
 
-* 使用IMDb完整数据集，并把迭代周期改为20。你的模型能在训练和测试数据集上得到怎样的准确率？通过调节超参数，你能进一步提升分类准确率吗？
+* 把迭代周期改大。你的模型能在训练和测试数据集上得到怎样的准确率？通过调节超参数，你能进一步提升分类准确率吗？
 
 * 使用更大的预训练词向量，例如300维的GloVe词向量，能否提升分类准确率？
 
 * 使用spacy分词工具，能否提升分类准确率？。你需要安装spacy：`pip install spacy`，并且安装英文包：`python -m spacy download en`。在代码中，先导入spacy：`import spacy`。然后加载spacy英文包：`spacy_en = spacy.load('en')`。最后定义函数：`def tokenizer(text): return [tok.text for tok in spacy_en.tokenizer(text)]`替换原来的基于空格分词的`tokenizer`函数。需要注意的是，GloVe的词向量对于名词词组的存储方式是用“-”连接各个单词，例如词组“new york”在GloVe中的表示为“new-york”。而使用spacy分词之后“new york”的存储可能是“new york”。
 
 * 通过上面三种方法，你能使模型在测试集上的准确率提高到0.85以上吗？
-
 
 
 
