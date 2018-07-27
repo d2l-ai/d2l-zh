@@ -4,7 +4,7 @@
 
 但在语义分割里，我们需要对每个像素预测类别，也就是需要输出形状需要是$1000\times 224\times 224$。如果仍然使用全连接层作为输出，那么这一层权重将多达数百GB。本小节我们将介绍利用卷积神经网络解决语义分割的一个开创性工作之一：全卷积网络（fully convolutional network，简称FCN）[1]。FCN里将最后的全连接层修改称转置卷积层（transposed convolution）来得到所需大小的输出。
 
-```{.python .input  n=1}
+```{.python .input  n=2}
 %matplotlib inline
 import gluonbook as gb
 from mxnet import gluon, init, nd, image
@@ -19,7 +19,7 @@ import sys
 
 下面我们构造一个卷积层并打印它的输出形状。
 
-```{.python .input  n=2}
+```{.python .input  n=3}
 conv = nn.Conv2D(10, kernel_size=4, padding=1, strides=2)
 conv.initialize()
 
@@ -30,7 +30,7 @@ y.shape
 
 使用用样的卷积窗、填充和步幅的转置卷积层，我们可以得到和`x`一样的输出。
 
-```{.python .input  n=3}
+```{.python .input  n=4}
 conv_trans = nn.Conv2DTranspose(3, kernel_size=4, padding=1, strides=2)
 conv_trans.initialize()
 conv_trans(y).shape
@@ -46,14 +46,14 @@ FCN的核心思想是将一个卷积网络的最后全连接输出层替换成�
 
 下面我们基于ResNet 18来创建FCN。首先我们下载一个预先训练好的模型，并打印其最后的数个神经层。
 
-```{.python .input  n=4}
+```{.python .input  n=5}
 pretrained_net = model_zoo.vision.resnet18_v2(pretrained=True)
 pretrained_net.features[-4:], pretrained_net.output
 ```
 
 可以看到`feature`模块最后两层是`GlobalAvgPool2D`和`Flatten`，在FCN里均不需要，`output`模块里的全连接层也需要舍去。下面我们定义一个新的网络，它复制除了`feature`里除去最后两层的所有神经层以及权重。
 
-```{.python .input  n=5}
+```{.python .input  n=6}
 net = nn.HybridSequential()
 for layer in pretrained_net.features[:-2]:
     net.add(layer)
@@ -61,14 +61,14 @@ for layer in pretrained_net.features[:-2]:
 
 给定高宽为224的输入，`net`的输出将输入高宽减少了32倍。
 
-```{.python .input  n=6}
+```{.python .input  n=7}
 x = nd.random.uniform(shape=(1, 3, 224, 224))
 net(x).shape
 ```
 
 为了是的输出跟输入有同样的高宽，我们构建一个步幅为32的转置卷积层，卷积核的窗口高宽设置成步幅的2倍，并补充适当的填充。在转置卷积层之前，我们加上$1\times 1$卷积层来将通道数从512降到标注类别数，对Pascal VOC数据集来说是21。
 
-```{.python .input  n=7}
+```{.python .input  n=8}
 num_classes = 21
 
 net.add(
@@ -81,7 +81,7 @@ net.add(
 
 模型`net`中的最后两层需要对权重进行初始化，通常我们会使用随机初始化。但新加入的转置卷积层的功能有些类似于将输入调整到更大的尺寸。在图片处理里面，我们可以通过有适当卷积核的卷积运算符来完成这个操作。常用的包括双线性差值核，下面函数构造核权重。
 
-```{.python .input  n=8}
+```{.python .input  n=9}
 def bilinear_kernel(in_channels, out_channels, kernel_size):
     factor = (kernel_size + 1) // 2
     if kernel_size % 2 == 1:
@@ -100,14 +100,14 @@ def bilinear_kernel(in_channels, out_channels, kernel_size):
 
 接下来我们构造一个步幅为2的转置卷积层，将其权重初始化成双线性差值核。
 
-```{.python .input  n=9}
+```{.python .input  n=10}
 conv_trans = nn.Conv2DTranspose(3, kernel_size=4, padding=1, strides=2)
 conv_trans.initialize(init.Constant(bilinear_kernel(3, 3, 4)))
 ```
 
 可以看到这个转置卷积层的前向函数的效果是将输入图片高宽扩大2倍。
 
-```{.python .input  n=10}
+```{.python .input  n=11}
 gb.set_figsize()
 img = image.imread('../img/catdog.jpg')
 print('input', img.shape)
@@ -120,7 +120,7 @@ gb.plt.imshow(y.asnumpy());
 
 下面对`net`的最后两层进行初始化。其中$1\times 1$卷积层使用Xavier，转置卷积层则使用双线性差值核。
 
-```{.python .input  n=11}
+```{.python .input  n=12}
 trans_conv_weights = bilinear_kernel(num_classes, num_classes, 64)
 net[-1].initialize(init.Constant(trans_conv_weights))
 net[-2].initialize(init=init.Xavier())
@@ -130,7 +130,7 @@ net[-2].initialize(init=init.Xavier())
 
 我们使用较大的输入图片尺寸，其值选成了32的倍数。数据的读取方法已在上一节描述。
 
-```{.python .input}
+```{.python .input  n=13}
 input_shape = (320, 480)
 batch_size = 32
 colormap2label = nd.zeros(256**3)
@@ -156,7 +156,7 @@ ctx = gb.try_all_gpus()
 loss = gloss.SoftmaxCrossEntropyLoss(axis=1)
 net.collect_params().reset_ctx(ctx)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
-                        {'learning_rate': 0.1, 'wd': 1e-3})
+                        {'learning_rate': 0.02, 'wd': 1e-3})
 gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
 ```
 
@@ -167,7 +167,7 @@ gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
 ```{.python .input  n=13}
 def predict(im):
     data = test_iter._dataset.normalize_image(im)
-    data = data.transpose((2,0,1)).expand_dims(axis=0)
+    data = data.transpose((2, 0, 1)).expand_dims(axis=0)
     yhat = net(data.as_in_context(ctx[0]))
     pred = nd.argmax(yhat, axis=1)
     return pred.reshape((pred.shape[1], pred.shape[2]))

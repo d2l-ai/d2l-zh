@@ -4,7 +4,7 @@
 
 先导入本节实验需要的包或模块。同上一节，运行本节中的程序需要至少两块GPU。
 
-```{.python .input}
+```{.python .input  n=1}
 import gluonbook as gb
 import mxnet as mx
 from mxnet import autograd, gluon, init, nd
@@ -16,7 +16,7 @@ from time import time
 
 我们使用ResNet-18来作为本节的样例模型。我们将`resnet18`函数定义在`gluonbook`包中供后面章节调用。
 
-```{.python .input  n=1}
+```{.python .input  n=2}
 def resnet18(num_classes):
     net = nn.Sequential()
     net.add(nn.Conv2D(64, kernel_size=3, strides=1, padding=1),
@@ -45,14 +45,14 @@ net = resnet18(10)
 
 之前我们介绍了如何使用`initialize`函数的`ctx`参数在CPU或单个GPU上初始化模型参数。事实上，`ctx`可以接受一系列的CPU/GPU，从而使初始化好的模型参数复制到`ctx`里所有的CPU/GPU上。
 
-```{.python .input}
+```{.python .input  n=3}
 ctx = [mx.gpu(0), mx.gpu(1)]
 net.initialize(init=init.Normal(sigma=0.01), ctx=ctx)
 ```
 
 Gluon提供了上一节中实现的`split_and_load`函数。它可以划分一个小批量的数据样本并复制到各个CPU/GPU上。之后，根据输入数据所在的CPU/GPU，模型计算会发生在相同的CPU/GPU上。
 
-```{.python .input}
+```{.python .input  n=4}
 x = nd.random.uniform(shape=(4, 1, 28, 28))
 gpu_x = gutils.split_and_load(x, ctx)
 net(gpu_x[0]), net(gpu_x[1])
@@ -60,7 +60,7 @@ net(gpu_x[0]), net(gpu_x[1])
 
 回忆一下[“模型参数的延后初始化”](../chapter_deep-learning-computation/deferred-init.md)一节中介绍的延后的初始化。现在，我们可以通过`data`访问初始化好的模型参数值了。需要注意的是，默认下`weight.data()`会返回CPU上的参数值。由于我们指定了2个GPU来初始化模型参数，我们需要指定GPU访问。我们看到，相同参数在不同的GPU上的值一样。
 
-```{.python .input}
+```{.python .input  n=5}
 weight = net[0].params.get('weight')
 try:
     weight.data()
@@ -73,7 +73,7 @@ weight.data(ctx[0])[0], weight.data(ctx[1])[0]
 
 我们先定义交叉熵损失函数。
 
-```{.python .input}
+```{.python .input  n=6}
 loss = gloss.SoftmaxCrossEntropyLoss()
 ```
 
@@ -97,7 +97,8 @@ def train(num_gpus, batch_size, lr):
                     gpu_Xs, gpu_ys)]
             for l in ls:
                 l.backward()
-            trainer.step(batch_size)
+            # 每个 GPU 上批量大小为总批量大小与 GPU 数量之比。
+            trainer.step(batch_size / len(ctx))
         nd.waitall()
         print('epoch %d, training time: %.1f sec' % (epoch, time() - start))
         test_acc = gb.evaluate_accuracy(test_iter, net, ctx[0])
@@ -106,7 +107,7 @@ def train(num_gpus, batch_size, lr):
 
 我们在2个GPU上训练模型。
 
-```{.python .input}
+```{.python .input  n=8}
 train(num_gpus=2, batch_size=512, lr=0.3)
 ```
 

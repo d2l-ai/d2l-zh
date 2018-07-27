@@ -283,7 +283,7 @@ class TextCNN(nn.Block):
 ```{.python .input  n=11}
 num_outputs = 2
 lr = 0.001
-num_epochs = 1
+num_epochs = 5
 batch_size = 64
 embed_size = 100
 ngram_kernel_sizes = [3, 4, 5]
@@ -316,6 +316,20 @@ test_loader = gdata.DataLoader(test_set, batch_size=batch_size, shuffle=False)
 
 ```{.python .input}
 gb.train(train_loader, test_loader, net, loss, trainer, ctx, num_epochs)
+```
+
+```{.python .input}
+review = ['this', 'movie', 'is', 'just', 'great']
+nd.argmax(net(nd.reshape(
+    nd.array([vocab.token_to_idx[token] for token in review], ctx=gb.try_gpu()), 
+    shape=(1, -1))), axis=1).asscalar()
+```
+
+```{.python .input}
+review = ['this', 'movie', 'is', 'terribly', 'boring']
+nd.argmax(net(nd.reshape(
+    nd.array([vocab.token_to_idx[token] for token in review], ctx=gb.try_gpu()), 
+    shape=(1, -1))), axis=1).asscalar()
 ```
 
 ## 小结

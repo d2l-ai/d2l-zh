@@ -181,8 +181,8 @@ class SentimentNet(nn.Block):
 
 ```{.python .input  n=11}
 num_outputs = 2
-lr = 0.1
-num_epochs = 1
+lr = 0.5
+num_epochs = 5
 batch_size = 64
 embed_size = 100
 num_hiddens = 100
@@ -220,7 +220,14 @@ gb.train(train_loader, test_loader, net, loss, trainer, ctx, num_epochs)
 下面我们试着分析一个简单的句子的情感（1和0分别代表正面和负面）。为了在更复杂的句子上得到较准确的分类，我们需要使用完整数据集训练模型，并适当增大训练周期。
 
 ```{.python .input  n=18}
-review = ['this', 'movie', 'is', 'great']
+review = ['this', 'movie', 'is', 'just', 'great']
+nd.argmax(net(nd.reshape(
+    nd.array([vocab.token_to_idx[token] for token in review], ctx=gb.try_gpu()), 
+    shape=(1, -1))), axis=1).asscalar()
+```
+
+```{.python .input}
+review = ['this', 'movie', 'is', 'terribly', 'boring']
 nd.argmax(net(nd.reshape(
     nd.array([vocab.token_to_idx[token] for token in review], ctx=gb.try_gpu()), 
     shape=(1, -1))), axis=1).asscalar()

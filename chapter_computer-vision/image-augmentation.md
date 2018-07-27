@@ -216,7 +216,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
 现在，我们可以定义函数使用图片增广来训练模型了。
 
 ```{.python .input  n=38}
-def train_with_data_aug(train_augs, test_augs, lr=0.01):
+def train_with_data_aug(train_augs, test_augs, lr=0.005):
     batch_size = 256
     ctx = try_all_gpus()
     net = gb.resnet18(10)
@@ -235,7 +235,7 @@ def train_with_data_aug(train_augs, test_augs, lr=0.01):
 train_with_data_aug(train_augs, test_augs)
 ```
 
-作为对比，我们尝试只对训练数据做中间剪裁。
+作为对比，下面我们尝试不使用图片增广。
 
 ```{.python .input  n=40}
 train_with_data_aug(test_augs, test_augs)
