@@ -93,12 +93,11 @@ def train(num_gpus, batch_size, lr):
             gpu_Xs = gutils.split_and_load(X, ctx)
             gpu_ys = gutils.split_and_load(y, ctx)
             with autograd.record():
-                ls = [loss(net(gpu_X), gpu_y) for gpu_X, gpu_y in zip(
-                    gpu_Xs, gpu_ys)]
+                ls = [loss(net(gpu_X), gpu_y)
+                      for gpu_X, gpu_y in zip(gpu_Xs, gpu_ys)]
             for l in ls:
                 l.backward()
-            # 每个 GPU 上批量大小为总批量大小与 GPU 数量之比。
-            trainer.step(batch_size / len(ctx))
+            trainer.step(batch_size)
         nd.waitall()
         print('epoch %d, training time: %.1f sec' % (epoch, time() - start))
         test_acc = gb.evaluate_accuracy(test_iter, net, ctx[0])
@@ -107,7 +106,7 @@ def train(num_gpus, batch_size, lr):
 
 我们在2个GPU上训练模型。
 
-```{.python .input  n=8}
+```{.python .input  n=10}
 train(num_gpus=2, batch_size=512, lr=0.3)
 ```
 

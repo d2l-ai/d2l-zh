@@ -156,7 +156,7 @@ ctx = gb.try_all_gpus()
 loss = gloss.SoftmaxCrossEntropyLoss(axis=1)
 net.collect_params().reset_ctx(ctx)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
-                        {'learning_rate': 0.02, 'wd': 1e-3})
+                        {'learning_rate': 0.1, 'wd': 1e-3})
 gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
 ```
 
@@ -179,7 +179,7 @@ def predict(im):
 def label2image(pred):
     colormap = nd.array(gb.voc_colormap, ctx=ctx[0], dtype='uint8')
     x = pred.astype('int32')
-    return colormap[x,:]
+    return colormap[x, :]
 ```
 
 现在我们读取前几张测试图片并对其进行预测。

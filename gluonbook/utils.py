@@ -386,7 +386,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
             train_acc_sum += sum([(y_hat.argmax(axis=1) == y).sum().asscalar()
                                  for y_hat, y in zip(y_hats, ys)])
             train_l_sum += sum([l.sum().asscalar() for l in ls])
-            trainer.step(batch_size / len(ctx))
+            trainer.step(batch_size)
             n += batch_size
             m += sum([y.size for y in ys])
         test_acc = evaluate_accuracy(test_iter, net, ctx)

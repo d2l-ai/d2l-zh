@@ -128,7 +128,7 @@ print('output:', splitted)
 
 ## 单个小批量上的多GPU训练
 
-现在我们可以实现单个小批量上的多GPU训练了。它的实现主要依据本节介绍的数据并行方法。我们将使用刚刚定义的多GPU之间同步数据的辅助函数，例如`split_and_load`和`allreduce`。这里需要注意的是，每个GPU上的批量大小应该为总批量大小与GPU数量之比。
+现在我们可以实现单个小批量上的多GPU训练了。它的实现主要依据本节介绍的数据并行方法。我们将使用刚刚定义的多GPU之间同步数据的辅助函数，例如`split_and_load`和`allreduce`。
 
 ```{.python .input  n=6}
 def train_batch(X, y, gpu_params, ctx, lr):
@@ -145,10 +145,8 @@ def train_batch(X, y, gpu_params, ctx, lr):
     # 把各个 GPU 上的梯度加起来，然后再广播到所有 GPU 上。
     for i in range(len(gpu_params[0])):
         allreduce([gpu_params[c][i].grad for c in range(len(ctx))])
-    # 在各个 GPU 上更新自己维护的那一份完整的模型参数。每个 GPU 上批量大小为总批量大小
-    # X.shape[0] 与 GPU 数量 len(ctx) 之比。
     for param in gpu_params:
-        gb.sgd(param, lr, X.shape[0] / len(ctx))
+        gb.sgd(param, lr, X.shape[0])
 ```
 
 ## 训练函数
@@ -175,21 +173,11 @@ def train(num_gpus, batch_size, lr):
         print('validation accuracy: %.4f' % test_acc)
 ```
 
-我们先使用一个GPU来训练。
-
-```{.python .input  n=8}
-train(num_gpus=1, batch_size=256, lr=0.2)
-```
-
-接下来，我们先使用2个GPU来训练。我们将批量大小也增加一倍，以使得GPU的计算资源能够得到较充分利用。
+我们使用2个GPU和较大的批量大小来训练，以使得GPU的计算资源能够得到较充分利用。
 
 ```{.python .input  n=10}
 train(num_gpus=2, batch_size=512, lr=0.2)
 ```
-
-由于批量大小增加了一倍，每个迭代周期的迭代次数减小了一半。因此，我们观察到每个迭代周期的耗时比单GPU训练时少了近一半。但由于总体迭代次数的减少，模型在验证数据集上的精度略有下降。这很可能是由于训练不够充分造成的。因此，多GPU训练时，我们可以适当增加迭代周期使训练较充分。
-
-
 
 ## 小结
 
