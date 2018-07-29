@@ -176,7 +176,7 @@ def train(num_gpus, batch_size, lr):
 我们使用2个GPU和较大的批量大小来训练，以使得GPU的计算资源能够得到较充分利用。
 
 ```{.python .input  n=10}
-train(num_gpus=2, batch_size=512, lr=0.2)
+train(num_gpus=2, batch_size=512, lr=0.3)
 ```
 
 ## 小结
