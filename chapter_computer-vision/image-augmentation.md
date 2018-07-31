@@ -219,7 +219,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
 现在，我们可以定义函数使用图片增广来训练模型了。
 
 ```{.python .input  n=38}
-def train_with_data_aug(train_augs, test_augs, lr=0.002):
+def train_with_data_aug(train_augs, test_augs, lr=0.001):
     batch_size = 256
     ctx = try_all_gpus()
     net = gb.resnet18(10)
@@ -230,7 +230,7 @@ def train_with_data_aug(train_augs, test_augs, lr=0.002):
     loss = gloss.SoftmaxCrossEntropyLoss()
     train_iter = load_cifar10(True, train_augs, batch_size)
     test_iter = load_cifar10(False, test_augs, batch_size)
-    train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=10)
+    train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=15)
 ```
 
 我们先观察使用了图片增广的结果。
