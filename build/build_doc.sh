@@ -30,7 +30,7 @@ conda activate gluon_zh_docs
 
 
 pip uninstall gluonbook
-yes
+y
 
 pip list
 
