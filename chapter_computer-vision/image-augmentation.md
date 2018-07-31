@@ -219,7 +219,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
 现在，我们可以定义函数使用图片增广来训练模型了。
 
 ```{.python .input  n=38}
-def train_with_data_aug(train_augs, test_augs, lr=0.001):
+def train_with_data_aug(train_augs, test_augs, lr=0.002):
     batch_size = 256
     ctx = try_all_gpus()
     net = gb.resnet18(10)
@@ -245,7 +245,7 @@ train_with_data_aug(train_augs, test_augs)
 train_with_data_aug(test_augs, test_augs)
 ```
 
-可以看到，即使添加了简单的随机翻转也会对训练产生一定的影响。图片增广类似于正则化，它使得训练精度变低，但可能提高测试精度。
+可以看到，即使添加了简单的随机翻转也会对训练产生一定的影响。图片增广通常会使训练准确率变低，但有可能提高测试准确率。
 
 本节中描述的`try_all_gpus`、`evaluate_accuracy`和`train`函数被定义在`gluonbook`包中供后面章节调用。
 
