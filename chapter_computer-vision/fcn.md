@@ -5,6 +5,9 @@
 但在语义分割里，我们需要对每个像素预测类别，也就是需要输出形状需要是$1000\times 224\times 224$。如果仍然使用全连接层作为输出，那么这一层权重将多达数百GB。本小节我们将介绍利用卷积神经网络解决语义分割的一个开创性工作之一：全卷积网络（fully convolutional network，简称FCN）[1]。FCN里将最后的全连接层修改称转置卷积层（transposed convolution）来得到所需大小的输出。
 
 ```{.python .input  n=2}
+import sys
+sys.path.insert(0, '..')
+
 %matplotlib inline
 import gluonbook as gb
 from mxnet import gluon, init, nd, image

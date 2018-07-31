@@ -17,6 +17,9 @@ ResNet沿用了VGG全$3\times 3$卷积层设计。残差块里首先是两个有
 残差块的实现如下。它可以设定输出通道数，是否使用额外的卷积层来修改输入通道数，以及卷积层的步幅大小。我们将`Residual`类定义在`gluonbook`包中供后面章节调用。
 
 ```{.python .input  n=1}
+import sys
+sys.path.insert(0, '..')
+
 import gluonbook as gb
 from mxnet import nd, gluon, init
 from mxnet.gluon import loss as gloss, nn

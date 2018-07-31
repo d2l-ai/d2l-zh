@@ -5,6 +5,9 @@
 导入本小节需要的包。注意我们新引入了`contrib`这个模块，以及使用numpy修改了打印精度，这是因为NDArray的打印实际上调用了numpy的打印函数。
 
 ```{.python .input  n=1}
+import sys
+sys.path.insert(0, '..')
+
 %matplotlib inline
 import gluonbook as gb
 from mxnet import contrib, gluon, image, nd

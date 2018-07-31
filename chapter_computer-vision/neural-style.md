@@ -12,6 +12,9 @@
 ![使用神经网络进行样式迁移。](../img/neural-style.svg)
 
 ```{.python .input}
+import sys
+sys.path.insert(0, '..')
+
 %matplotlib inline
 import gluonbook as gb
 from mxnet import autograd, gluon, image, nd

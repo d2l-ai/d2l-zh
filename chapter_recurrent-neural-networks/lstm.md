@@ -81,6 +81,9 @@ $$\boldsymbol{H}_t = \boldsymbol{O}_t \odot \text{tanh}(\boldsymbol{C}_t).$$
 我们先读取并简单处理数据集。
 
 ```{.python .input  n=1}
+import sys
+sys.path.insert(0, '..')
+
 import gluonbook as gb
 from mxnet import nd
 import zipfile

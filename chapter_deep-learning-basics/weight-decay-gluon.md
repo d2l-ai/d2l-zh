@@ -3,6 +3,9 @@
 本节将介绍如何使用Gluon实现上一节介绍的权重衰减。首先导入实验所需的包或模块。
 
 ```{.python .input  n=1}
+import sys
+sys.path.insert(0, '..')
+
 %matplotlib inline
 import gluonbook as gb
 from mxnet import autograd, gluon, init, nd

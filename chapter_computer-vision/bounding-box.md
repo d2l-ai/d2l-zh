@@ -7,6 +7,9 @@
 在接下来的数小节里我们将介绍物体检测里的多个深度学习模型。在此之前，让我们先讨论物体位置这个概念。首先导入本节实验所需的包或模块。
 
 ```{.python .input  n=1}
+import sys
+sys.path.insert(0, '..')
+
 %matplotlib inline
 import gluonbook as gb
 from mxnet import image

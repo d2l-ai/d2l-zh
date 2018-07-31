@@ -11,6 +11,9 @@
 NiN中的一个基础块由一个卷积层外加两个充当全连接层的$1\times 1$卷积层构成。第一个卷积层我们可以设置它的超参数，而第二和第三卷积层则使用固定超参数。
 
 ```{.python .input  n=2}
+import sys
+sys.path.insert(0, '..')
+
 import gluonbook as gb
 from mxnet import nd, gluon, init
 from mxnet.gluon import loss as gloss, nn

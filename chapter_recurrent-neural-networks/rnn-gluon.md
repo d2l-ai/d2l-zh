@@ -10,6 +10,9 @@
 首先导入实验所需的包或模块，并抽取数据集。
 
 ```{.python .input  n=1}
+import sys
+sys.path.insert(0, '..')
+
 import gluonbook as gb
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import loss as gloss, nn, rnn, utils as gutils

@@ -9,6 +9,9 @@ AlexNet在LeNet的基础上增加了三个卷积层。但作者对它们的卷�
 VGG模型的基础组成规律是：连续使用数个相同的填充为1的$3\times 3$卷积层后接上一个步幅为2的$2\times 2$最大池化层。卷积层保持输入高宽，而池化层则对其减半。我们使用`vgg_block`函数来实现这个基础块，它可以指定使用卷积层的数量和其输出通道数。
 
 ```{.python .input  n=1}
+import sys
+sys.path.insert(0, '..')
+
 import gluonbook as gb
 from mxnet import nd, init, gluon
 from mxnet.gluon import loss as gloss, nn

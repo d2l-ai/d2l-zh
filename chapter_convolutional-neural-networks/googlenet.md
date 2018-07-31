@@ -13,6 +13,9 @@ GoogLeNet中的基础卷积块叫做Inception，得名于同名电影《盗梦�
 Inception块中可以自定义的超参数是每个层的输出通道数，我们以此来控制模型复杂度。
 
 ```{.python .input  n=1}
+import sys
+sys.path.insert(0, '..')
+
 import gluonbook as gb
 from mxnet import nd, init, gluon
 from mxnet.gluon import loss as gloss, nn

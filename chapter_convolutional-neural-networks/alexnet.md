@@ -51,6 +51,9 @@ AlextNet与LeNet的设计理念非常相似。但也有非常显著的区别。
 下面我们实现（稍微简化过的）Alexnet：
 
 ```{.python .input  n=1}
+import sys
+sys.path.insert(0, '..')
+
 import gluonbook as gb
 from mxnet import nd, init, gluon
 from mxnet.gluon import data as gdata, loss as gloss, nn

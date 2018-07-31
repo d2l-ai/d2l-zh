@@ -5,6 +5,9 @@
 先导入本节实验需要的包或模块。同上一节，运行本节中的程序需要至少两块GPU。
 
 ```{.python .input  n=1}
+import sys
+sys.path.insert(0, '..')
+
 import gluonbook as gb
 import mxnet as mx
 from mxnet import autograd, gluon, init, nd

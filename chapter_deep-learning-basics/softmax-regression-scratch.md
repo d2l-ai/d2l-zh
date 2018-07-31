@@ -3,6 +3,9 @@
 下面我们来动手实现Softmax回归。首先，导入实验所需的包或模块。
 
 ```{.python .input  n=1}
+import sys
+sys.path.insert(0, '..')
+
 import gluonbook as gb
 from mxnet import autograd, nd
 from mxnet.gluon import data as gdata

@@ -30,6 +30,9 @@ $$y_i \leftarrow \gamma \hat{x}_i + \beta.$$
 下面我们通过NDArray来实现这个计算。
 
 ```{.python .input  n=72}
+import sys
+sys.path.insert(0, '..')
+
 import gluonbook as gb
 from mxnet import nd, gluon, init, autograd
 from mxnet.gluon import loss as gloss, nn

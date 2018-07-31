@@ -26,6 +26,9 @@ TODO(@astonzhang): edits
 在实验开始前，导入所需的包或模块。
 
 ```{.python .input  n=27}
+import sys
+sys.path.insert(0, '..')
+
 import collections
 import gluonbook as gb
 from mxnet import autograd, gluon, init, metric, nd

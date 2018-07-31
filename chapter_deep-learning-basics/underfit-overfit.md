@@ -40,6 +40,9 @@ $$\hat{y} = b + \sum_{k=1}^K x^k w_k$$
 为了理解模型复杂度和训练数据集大小对欠拟合和过拟合的影响，下面我们以多项式函数拟合为例来实验。首先导入实现需要的包或模块。
 
 ```{.python .input}
+import sys
+sys.path.insert(0, '..')
+
 %matplotlib inline
 import gluonbook as gb
 from mxnet import autograd, gluon, nd

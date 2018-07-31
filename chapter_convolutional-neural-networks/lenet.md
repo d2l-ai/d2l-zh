@@ -16,6 +16,9 @@ LeNet分为卷积层块和全连接层块两个部分。卷积层块里的基本
 卷积层块把每个样本输出拉升成向量输入到全连接层块中。全连接层块由两个输出大小分别为120和84的全连接层，然后接上输出大小为10（因为数字的类别一共为10）的输出层构成。下面我们通过Sequential类来实现LeNet。
 
 ```{.python .input}
+import sys
+sys.path.insert(0, '..')
+
 import gluonbook as gb
 import mxnet as mx
 from mxnet import autograd, nd, gluon, init

@@ -8,6 +8,9 @@
 在多层感知机中Gluon实现的基础上，我们只需要在全连接层后添加Dropout层并指定丢弃概率。在训练模型时，Dropout层将以指定的丢弃概率随机丢弃上一层的输出元素；在测试模型时，Dropout层并不发挥作用。
 
 ```{.python .input  n=5}
+import sys
+sys.path.insert(0, '..')
+
 import gluonbook as gb
 from mxnet import gluon, init
 from mxnet.gluon import loss as gloss, nn

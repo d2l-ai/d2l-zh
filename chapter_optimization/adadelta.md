@@ -46,6 +46,9 @@ def adadelta(params, sqrs, deltas, rho, batch_size):
 首先，导入本节中实验所需的包或模块。
 
 ```{.python .input}
+import sys
+sys.path.insert(0, '..')
+
 %matplotlib inline
 import gluonbook as gb
 from mxnet import autograd, nd

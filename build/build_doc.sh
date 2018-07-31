@@ -28,6 +28,10 @@ conda env update -f build/build.yml
 
 conda activate gluon_zh_docs
 
+
+pip uninstall gluonbook
+
+
 pip list
 
 make html
