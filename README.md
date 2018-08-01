@@ -86,7 +86,6 @@ make pdf
 
 ## 其他安装
 
-
 ```{.python .input}
 python -m spacy download en # 需已 pip install spacy
 ```
