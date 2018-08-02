@@ -66,6 +66,7 @@ pdf: $(DEPS) $(OBJ) $(PDFIMG)
 	sed -i /\\\\sphinxtablecontinued{Continued\ on\ next\ page}/d $(TEX)
 	sed -i /{\\\\tablename\\\\\ \\\\thetable{}\ --\ continued\ from\ previous\ page}/d $(TEX)
 	cd build/_build/latex && \
+	bash ../../convert_output_svg.sh && \
 	buf_size=10000000 xelatex gluon_tutorials_zh.tex && \
 	buf_size=10000000 xelatex gluon_tutorials_zh.tex
 

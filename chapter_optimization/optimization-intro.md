@@ -24,13 +24,11 @@
 优化在深度学习中有很多挑战。以下描述了其中的两个挑战：局部最小值和鞍点。为了更好地描述问题，我们先导入本节中实验需要的包或模块。
 
 ```{.python .input  n=1}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 from mpl_toolkits import mplot3d
 import numpy as np
+from matplotlib import pyplot as plt
 ```
 
 ### 局部最小值
@@ -48,6 +46,8 @@ def f(x):
     return x * np.cos(np.pi * x)
 
 gb.set_figsize((4.5, 2.5))
+gb.set_matplotlib_formats('svg')
+
 x = np.arange(-1.0, 2.0, 0.1)
 fig = gb.plt.figure()
 subplt = fig.add_subplot(111)
@@ -57,8 +57,7 @@ subplt.annotate('global minimum', xy=(1.1, -0.9), xytext=(0.6, 0.8),
                 arrowprops=dict(facecolor='black', shrink=0.05))
 gb.plt.plot(x, f(x))
 gb.plt.xlabel('x')
-gb.plt.ylabel('f(x)')
-gb.plt.show()
+gb.plt.ylabel('f(x)');
 ```
 
 深度学习模型的目标函数可能有若干局部最优值。当一个优化问题的数值解在局部最优解附近时，由于目标函数有关解的梯度接近或变成零，最终迭代求得的数值解可能只令目标函数局部最小化而非全局最小化。
@@ -80,8 +79,7 @@ subplt.annotate('saddle point', xy=(0, -0.2), xytext=(-0.52, -5.0),
                 arrowprops=dict(facecolor='black', shrink=0.05))
 gb.plt.plot(x, x**3)
 gb.plt.xlabel('x')
-gb.plt.ylabel('f(x)')
-gb.plt.show()
+gb.plt.ylabel('f(x)');
 ```
 
 再举个定义在二维空间的函数的例子，例如
@@ -102,8 +100,7 @@ gb.plt.xticks([-1, -0.5, 0, 0.5, 1])
 gb.plt.yticks([-1, -0.5, 0, 0.5, 1])
 ax.set_zticks([-1, -0.5, 0, 0.5, 1])
 gb.plt.xlabel('x')
-gb.plt.ylabel('y')
-gb.plt.show()
+gb.plt.ylabel('y');
 ```
 
 在上图的鞍点位置，目标函数在$x$轴方向上是局部最小值，而在$y$轴方向上是局部最大值。
