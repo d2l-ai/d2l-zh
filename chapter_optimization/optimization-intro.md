@@ -25,6 +25,9 @@
 
 ```{.python .input  n=1}
 %matplotlib inline
+import sys
+sys.path.insert(0, '..')
+
 import gluonbook as gb
 from mpl_toolkits import mplot3d
 import numpy as np
