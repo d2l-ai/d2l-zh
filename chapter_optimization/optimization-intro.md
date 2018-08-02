@@ -31,7 +31,6 @@ sys.path.insert(0, '..')
 import gluonbook as gb
 from mpl_toolkits import mplot3d
 import numpy as np
-from matplotlib import pyplot as plt
 ```
 
 ### 局部最小值
