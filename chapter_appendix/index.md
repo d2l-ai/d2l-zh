@@ -10,5 +10,6 @@
    jupyter
    aws
    buy-gpu
+   how-to-contribute
    gluonbook
 ```
