@@ -1,260 +1,77 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="8.5 71.5 235 73" width="235" height="73">
-  <defs>
-    <font-face font-family="Arial" font-size="18" panose-1="2 11 6 4 2 2 2 2 2 4" units-per-em="1000" underline-position="-105.95703" underline-thickness="73.24219" slope="0" x-height="518.5547" cap-height="716.3086" ascent="905.2734" descent="-211.91406" font-weight="400">
-      <font-face-src>
-        <font-face-name name="ArialMT"/>
-      </font-face-src>
-    </font-face>
-  </defs>
-  <metadata> Produced by OmniGraffle 7.7.1 
-    <dc:date>2018-05-21 00:11:17 +0000</dc:date>
-  </metadata>
-  <g id="1x1" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
-    <title>1x1</title>
-    <rect fill="white" x="8.5" y="71.5" width="235" height="73"/>
-    <g id="1x1: Layer 1">
-      <title>Layer 1</title>
-      <g id="Group_57">
-        <g id="Graphic_66">
-          <rect x="63" y="108" width="18" height="18" fill="#6d91b9"/>
-          <rect x="63" y="108" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_65">
-          <rect x="63" y="72" width="18" height="18" fill="white"/>
-          <rect x="63" y="72" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_64">
-          <rect x="63" y="90" width="18" height="18" fill="white"/>
-          <rect x="63" y="90" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_63">
-          <rect x="27" y="108" width="18" height="18" fill="white"/>
-          <rect x="27" y="108" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_62">
-          <rect x="45" y="108" width="18" height="18" fill="white"/>
-          <rect x="45" y="108" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_61">
-          <rect x="27" y="72" width="18" height="18" fill="#d3e9ff"/>
-          <rect x="27" y="72" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_60">
-          <rect x="27" y="90" width="18" height="18" fill="white"/>
-          <rect x="27" y="90" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_59">
-          <rect x="45" y="72" width="18" height="18" fill="white"/>
-          <rect x="45" y="72" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_58">
-          <rect x="45" y="90" width="18" height="18" fill="white"/>
-          <rect x="45" y="90" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-      </g>
-      <g id="Group_47">
-        <g id="Graphic_56">
-          <rect x="54" y="117" width="18" height="18" fill="#6d91b9"/>
-          <rect x="54" y="117" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_55">
-          <rect x="54" y="81" width="18" height="18" fill="white"/>
-          <rect x="54" y="81" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_54">
-          <rect x="54" y="99" width="18" height="18" fill="white"/>
-          <rect x="54" y="99" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_53">
-          <rect x="18" y="117" width="18" height="18" fill="white"/>
-          <rect x="18" y="117" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_52">
-          <rect x="36" y="117" width="18" height="18" fill="white"/>
-          <rect x="36" y="117" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_51">
-          <rect x="18" y="81" width="18" height="18" fill="#d3e9ff"/>
-          <rect x="18" y="81" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_50">
-          <rect x="18" y="99" width="18" height="18" fill="white"/>
-          <rect x="18" y="99" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_49">
-          <rect x="36" y="81" width="18" height="18" fill="white"/>
-          <rect x="36" y="81" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_48">
-          <rect x="36" y="99" width="18" height="18" fill="white"/>
-          <rect x="36" y="99" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-      </g>
-    </g>
-    <g id="1x1: Layer 2">
-      <title>Layer 2</title>
-      <g id="Group_37">
-        <g id="Graphic_46">
-          <rect x="45" y="126" width="18" height="18" fill="#6d91b9"/>
-          <rect x="45" y="126" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_45">
-          <rect x="45" y="90" width="18" height="18" fill="white"/>
-          <rect x="45" y="90" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_44">
-          <rect x="45" y="108" width="18" height="18" fill="white"/>
-          <rect x="45" y="108" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_43">
-          <rect x="9" y="126" width="18" height="18" fill="white"/>
-          <rect x="9" y="126" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_42">
-          <rect x="27" y="126" width="18" height="18" fill="white"/>
-          <rect x="27" y="126" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_41">
-          <rect x="9" y="90" width="18" height="18" fill="#d3e9ff"/>
-          <rect x="9" y="90" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_40">
-          <rect x="9" y="108" width="18" height="18" fill="white"/>
-          <rect x="9" y="108" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_39">
-          <rect x="27" y="90" width="18" height="18" fill="white"/>
-          <rect x="27" y="90" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_38">
-          <rect x="27" y="108" width="18" height="18" fill="white"/>
-          <rect x="27" y="108" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-      </g>
-      <g id="Graphic_36">
-        <text transform="translate(90.48387 101.29257)" fill="black">
-          <tspan font-family="Arial" font-size="18" font-weight="400" fill="black" x="0" y="16">*</tspan>
-        </text>
-      </g>
-      <g id="Graphic_35">
-        <text transform="translate(155.51613 97.91036)" fill="black">
-          <tspan font-family="Arial" font-size="18" font-weight="400" fill="black" x="0" y="16">=</tspan>
-        </text>
-      </g>
-      <g id="Group_33">
-        <g id="Graphic_34">
-          <rect x="126" y="72" width="18" height="18" fill="#d3e9ff"/>
-          <rect x="126" y="72" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-      </g>
-      <g id="Group_31">
-        <g id="Graphic_32">
-          <rect x="117" y="81" width="18" height="18" fill="#d3e9ff"/>
-          <rect x="117" y="81" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-      </g>
-      <g id="Group_29">
-        <g id="Graphic_30">
-          <rect x="108" y="90" width="18" height="18" fill="#d3e9ff"/>
-          <rect x="108" y="90" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-      </g>
-      <g id="Group_27">
-        <g id="Graphic_28">
-          <rect x="126" y="108" width="18" height="18" fill="#6d91b9"/>
-          <rect x="126" y="108" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-      </g>
-      <g id="Group_25">
-        <g id="Graphic_26">
-          <rect x="117" y="117" width="18" height="18" fill="#6d91b9"/>
-          <rect x="117" y="117" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-      </g>
-      <g id="Group_23">
-        <g id="Graphic_24">
-          <rect x="108" y="126" width="18" height="18" fill="#6d91b9"/>
-          <rect x="108" y="126" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-      </g>
-      <g id="Group_13">
-        <g id="Graphic_22">
-          <rect x="225" y="113.36364" width="18" height="18" fill="#6d91b9"/>
-          <rect x="225" y="113.36364" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_21">
-          <rect x="225" y="77.36364" width="18" height="18" fill="white"/>
-          <rect x="225" y="77.36364" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_20">
-          <rect x="225" y="95.36364" width="18" height="18" fill="white"/>
-          <rect x="225" y="95.36364" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_19">
-          <rect x="189" y="113.36364" width="18" height="18" fill="white"/>
-          <rect x="189" y="113.36364" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_18">
-          <rect x="207" y="113.36364" width="18" height="18" fill="white"/>
-          <rect x="207" y="113.36364" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_17">
-          <rect x="189" y="77.36364" width="18" height="18" fill="white"/>
-          <rect x="189" y="77.36364" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_16">
-          <rect x="189" y="95.36364" width="18" height="18" fill="white"/>
-          <rect x="189" y="95.36364" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_15">
-          <rect x="207" y="77.36364" width="18" height="18" fill="white"/>
-          <rect x="207" y="77.36364" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_14">
-          <rect x="207" y="95.36364" width="18" height="18" fill="white"/>
-          <rect x="207" y="95.36364" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-      </g>
-      <g id="Group_3">
-        <g id="Graphic_12">
-          <rect x="216" y="122.36364" width="18" height="18" fill="white"/>
-          <rect x="216" y="122.36364" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_11">
-          <rect x="216" y="86.36364" width="18" height="18" fill="white"/>
-          <rect x="216" y="86.36364" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_10">
-          <rect x="216" y="104.36364" width="18" height="18" fill="white"/>
-          <rect x="216" y="104.36364" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_9">
-          <rect x="180" y="122.36364" width="18" height="18" fill="white"/>
-          <rect x="180" y="122.36364" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_8">
-          <rect x="198" y="122.36364" width="18" height="18" fill="white"/>
-          <rect x="198" y="122.36364" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_7">
-          <rect x="180" y="86.36364" width="18" height="18" fill="#d3e9ff"/>
-          <rect x="180" y="86.36364" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_6">
-          <rect x="180" y="104.36364" width="18" height="18" fill="white"/>
-          <rect x="180" y="104.36364" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_5">
-          <rect x="198" y="86.36364" width="18" height="18" fill="white"/>
-          <rect x="198" y="86.36364" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Graphic_4">
-          <rect x="198" y="104.36364" width="18" height="18" fill="white"/>
-          <rect x="198" y="104.36364" width="18" height="18" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
-      </g>
-    </g>
-  </g>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="272pt" height="74pt" viewBox="0 0 272 74" version="1.1">
+<defs>
+<g>
+<symbol overflow="visible" id="glyph0-0">
+<path style="stroke:none;" d="M 2.25 0 L 2.25 -11.25 L 11.25 -11.25 L 11.25 0 Z M 2.53125 -0.28125 L 10.96875 -0.28125 L 10.96875 -10.96875 L 2.53125 -10.96875 Z M 2.53125 -0.28125 "/>
+</symbol>
+<symbol overflow="visible" id="glyph0-1">
+<path style="stroke:none;" d="M 0.5625 -10.515625 L 0.96875 -11.765625 C 1.894531 -11.441406 2.570312 -11.160156 3 -10.921875 C 2.882812 -11.972656 2.828125 -12.703125 2.828125 -13.109375 L 4.09375 -13.109375 C 4.070312 -12.523438 4.003906 -11.796875 3.890625 -10.921875 C 4.492188 -11.222656 5.1875 -11.503906 5.96875 -11.765625 L 6.375 -10.515625 C 5.625 -10.273438 4.894531 -10.113281 4.1875 -10.03125 C 4.539062 -9.71875 5.046875 -9.164062 5.703125 -8.375 L 4.640625 -7.625 C 4.296875 -8.082031 3.894531 -8.710938 3.4375 -9.515625 C 3 -8.679688 2.617188 -8.050781 2.296875 -7.625 L 1.25 -8.375 C 1.9375 -9.207031 2.425781 -9.757812 2.71875 -10.03125 C 1.957031 -10.175781 1.238281 -10.335938 0.5625 -10.515625 Z M 0.5625 -10.515625 "/>
+</symbol>
+<symbol overflow="visible" id="glyph0-2">
+<path style="stroke:none;" d="M 9.515625 -7.578125 L 1 -7.578125 L 1 -9.046875 L 9.515625 -9.046875 Z M 9.515625 -3.671875 L 1 -3.671875 L 1 -5.140625 L 9.515625 -5.140625 Z M 9.515625 -3.671875 "/>
+</symbol>
+</g>
+</defs>
+<g id="surface1">
+<rect x="0" y="0" width="272" height="74" style="fill:rgb(100%,100%,100%);fill-opacity:1;stroke:none;"/>
+<rect x="0" y="0" width="272" height="74" style="fill:rgb(100%,100%,100%);fill-opacity:1;stroke:none;"/>
+<path style="fill-rule:nonzero;fill:rgb(42.848206%,56.707764%,72.395325%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 63 108 L 81 108 L 81 126 L 63 126 Z M 63 108 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 63 72 L 81 72 L 81 90 L 63 90 Z M 63 72 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 63 90 L 81 90 L 81 108 L 63 108 Z M 63 90 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 27 108 L 45 108 L 45 126 L 27 126 Z M 27 108 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 45 108 L 63 108 L 63 126 L 45 126 Z M 45 108 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(82.550049%,91.036987%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 27 72 L 45 72 L 45 90 L 27 90 Z M 27 72 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 27 90 L 45 90 L 45 108 L 27 108 Z M 27 90 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 45 72 L 63 72 L 63 90 L 45 90 Z M 45 72 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 45 90 L 63 90 L 63 108 L 45 108 Z M 45 90 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(42.848206%,56.707764%,72.395325%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 54 117 L 72 117 L 72 135 L 54 135 Z M 54 117 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 54 81 L 72 81 L 72 99 L 54 99 Z M 54 81 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 54 99 L 72 99 L 72 117 L 54 117 Z M 54 99 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 18 117 L 36 117 L 36 135 L 18 135 Z M 18 117 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 36 117 L 54 117 L 54 135 L 36 135 Z M 36 117 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(82.550049%,91.036987%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 18 81 L 36 81 L 36 99 L 18 99 Z M 18 81 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 18 99 L 36 99 L 36 117 L 18 117 Z M 18 99 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 36 81 L 54 81 L 54 99 L 36 99 Z M 36 81 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 36 99 L 54 99 L 54 117 L 36 117 Z M 36 99 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(42.848206%,56.707764%,72.395325%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 45 126 L 63 126 L 63 144 L 45 144 Z M 45 126 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 45 90 L 63 90 L 63 108 L 45 108 Z M 45 90 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 45 108 L 63 108 L 63 126 L 45 126 Z M 45 108 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 9 126 L 27 126 L 27 144 L 9 144 Z M 9 126 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 27 126 L 45 126 L 45 144 L 27 144 Z M 27 126 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(82.550049%,91.036987%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 9 90 L 27 90 L 27 108 L 9 108 Z M 9 90 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 9 108 L 27 108 L 27 126 L 9 126 Z M 9 108 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 27 90 L 45 90 L 45 108 L 27 108 Z M 27 90 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 27 108 L 45 108 L 45 126 L 27 126 Z M 27 108 " transform="matrix(1,0,0,1,-8,-71)"/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#glyph0-1" x="91.48387" y="46.292566"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#glyph0-2" x="174.5161" y="42.910356"/>
+</g>
+<path style="fill-rule:nonzero;fill:rgb(82.550049%,91.036987%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 144 72 L 162 72 L 162 90 L 144 90 Z M 144 72 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(82.550049%,91.036987%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 135 81 L 153 81 L 153 99 L 135 99 Z M 135 81 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(82.550049%,91.036987%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 126 90 L 144 90 L 144 108 L 126 108 Z M 126 90 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(42.848206%,56.707764%,72.395325%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 144 108 L 162 108 L 162 126 L 144 126 Z M 144 108 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(42.848206%,56.707764%,72.395325%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 135 117 L 153 117 L 153 135 L 135 135 Z M 135 117 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(42.848206%,56.707764%,72.395325%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 126 126 L 144 126 L 144 144 L 126 144 Z M 126 126 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(42.848206%,56.707764%,72.395325%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 261 113.363281 L 279 113.363281 L 279 131.363281 L 261 131.363281 Z M 261 113.363281 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 261 77.363281 L 279 77.363281 L 279 95.363281 L 261 95.363281 Z M 261 77.363281 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 261 95.363281 L 279 95.363281 L 279 113.363281 L 261 113.363281 Z M 261 95.363281 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 225 113.363281 L 243 113.363281 L 243 131.363281 L 225 131.363281 Z M 225 113.363281 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 243 113.363281 L 261 113.363281 L 261 131.363281 L 243 131.363281 Z M 243 113.363281 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 225 77.363281 L 243 77.363281 L 243 95.363281 L 225 95.363281 Z M 225 77.363281 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 225 95.363281 L 243 95.363281 L 243 113.363281 L 225 113.363281 Z M 225 95.363281 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 243 77.363281 L 261 77.363281 L 261 95.363281 L 243 95.363281 Z M 243 77.363281 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 243 95.363281 L 261 95.363281 L 261 113.363281 L 243 113.363281 Z M 243 95.363281 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 252 122.363281 L 270 122.363281 L 270 140.363281 L 252 140.363281 Z M 252 122.363281 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 252 86.363281 L 270 86.363281 L 270 104.363281 L 252 104.363281 Z M 252 86.363281 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 252 104.363281 L 270 104.363281 L 270 122.363281 L 252 122.363281 Z M 252 104.363281 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 216 122.363281 L 234 122.363281 L 234 140.363281 L 216 140.363281 Z M 216 122.363281 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 234 122.363281 L 252 122.363281 L 252 140.363281 L 234 140.363281 Z M 234 122.363281 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(82.550049%,91.036987%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 216 86.363281 L 234 86.363281 L 234 104.363281 L 216 104.363281 Z M 216 86.363281 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 216 104.363281 L 234 104.363281 L 234 122.363281 L 216 122.363281 Z M 216 104.363281 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 234 86.363281 L 252 86.363281 L 252 104.363281 L 234 104.363281 Z M 234 86.363281 " transform="matrix(1,0,0,1,-8,-71)"/>
+<path style="fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 234 104.363281 L 252 104.363281 L 252 122.363281 L 234 122.363281 Z M 234 104.363281 " transform="matrix(1,0,0,1,-8,-71)"/>
+</g>
 </svg>
