@@ -43,12 +43,6 @@ for f in $MD/img/*svg; do
 	rm $f
 done
 
-# Convert matplotlib-generated svg to pdf.
-for f in $MD/*_files/*svg; do
-	rsvg-convert -f pdf -z 0.80 -o "${f%%.*}.pdf" $f
-	rm $f
-done
-
 # Concat sections in each chapter.
 for f in $MD/chapter*/index.md; do
 	sections=$(python -c 'import mdd_utils; print(mdd_utils.get_sections())' $f)
@@ -67,6 +61,12 @@ for chapter in $chapters; do
 	mv $MD/$chapter/$CH $MD/ch$(printf %02d $i).md
 	rm -rf $MD/$chapter
 	i=$((i + 1))		
+done
+
+# Convert matplotlib-generated svg to pdf.
+for f in $MD/*_files/*svg; do
+	rsvg-convert -f pdf -z 0.80 -o "${f%%.*}.pdf" $f
+	rm $f
 done
 
 rm $MD/index.md
