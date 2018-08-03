@@ -30,7 +30,7 @@ git clone https://github.com/your_Github_ID/gluon-tutorials-zh.git
 这时，本地的“~/repo/gluon-tutorials-zh”路径下将包含本书代码库中的所有文件。
 
 
-第四步，编辑本地路径下的本书代码库。假设我们修改了“~/repo/gluon-tutorials-zh/chapter_deep-learning-basics/linear-regression.md”文件中的一个错别字。在命令行模式中进入路径“~/repo/gluon-tutorials-zh”，执行命令
+第四步，编辑本地路径下的本书代码库。假设我们修改了`~/repo/gluon-tutorials-zh/chapter_deep-learning-basics/linear-regression.md`文件中的一个错别字。在命令行模式中进入路径`~/repo/gluon-tutorials-zh`，执行命令
 
 ```
 git status
