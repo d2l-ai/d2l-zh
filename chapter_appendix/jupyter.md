@@ -5,7 +5,7 @@
 
 ## 在本地编辑和运行本书代码
 
-下面我们介绍如何在本地使用Jupyter Notebook来编辑和运行本书代码。假设本书代码所在的本地路径为“xx/yy/gluon_tutorials_zh-1.0/”。在命令行模式下进入该路径（`cd xx/yy/gluon_tutorials_zh-1.0`），然后运行命令`jupyter notebook`。这时在浏览器打开 http://localhost:8888 （通常会自动打开）就可以看到Jupyter notebook的界面和本书代码所在的各个文件夹，如图11.1所示。
+下面我们介绍如何在本地使用Jupyter notebook来编辑和运行本书代码。假设本书代码所在的本地路径为“xx/yy/gluon_tutorials_zh-1.0/”。在命令行模式下进入该路径（`cd xx/yy/gluon_tutorials_zh-1.0`），然后运行命令`jupyter notebook`。这时在浏览器打开 http://localhost:8888 （通常会自动打开）就可以看到Jupyter notebook的界面和本书代码所在的各个文件夹，如图11.1所示。
 
 ![本书代码所在的各个文件夹。](../img/jupyter00.png)
 
@@ -50,7 +50,7 @@
 
 ### 用Jupyter Notebook读写GitHub源文件
 
-如果你希望为本书内容做贡献，需要修改在GitHub上Markdown格式的源文件（.md文件非.ipynb文件）。通过notedown插件，我们就可以使用Jupyter notebook修改并运行Markdown格式的源代码。Linux/macOS用户可以执行以下命令获得GitHub源文件并激活运行环境。
+如果你希望为本书内容做贡献，需要修改在GitHub上markdown格式的源文件（.md文件非.ipynb文件）。通过notedown插件，我们就可以使用Jupyter notebook修改并运行markdown格式的源代码。Linux/macOS用户可以执行以下命令获得GitHub源文件并激活运行环境。
 
 ```
 git clone https://github.com/mli/gluon-tutorials-zh
