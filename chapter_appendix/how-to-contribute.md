@@ -23,7 +23,7 @@
 第三步，点击图11.21右方的“Clone or download”绿色按钮，并点击红框中的按钮复制位于你用户名下的代码库地址。按[“安装和运行”](../chapter_prerequisite/install.md)介绍的方法进入命令行模式。假设我们希望将代码库保存在本地的“~/repo”路径之下。进入该路径，键入`git clone `并粘贴位于你用户名下的代码库地址。执行命令
 
 ```
-# 将 your_Github_ID 替换成你的 Git 用户名。
+# 将 your_Github_ID 替换成你的 Github 用户名。
 git clone https://github.com/your_Github_ID/gluon-tutorials-zh.git
 ```
 
