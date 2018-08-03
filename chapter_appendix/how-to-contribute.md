@@ -12,12 +12,12 @@
 
 第二步，登录Github。在浏览器输入本书代码库地址 [2]。点击图11.20右上方红框中的“Fork”按钮获得一份本书的代码库。
 
-![点击右上方红框中的“Fork”按钮可获得一份本书的代码库。点击左方“New pull request”按钮可提交pull request。](../img/contrib01.png)
+![代码库的页面。](../img/contrib01.png)
 
 
 这时，本书的代码库会复制到你的用户名下，例如图11.21左上方显示的“你的Github ID/gluon-tutorials-zh”。
 
-![点击右方的“Clone or download”绿色按钮，并点击红框中的按钮复制位于你用户名下的代码库地址。](../img/contrib02.png)
+![复制代码库。](../img/contrib02.png)
 
 
 第三步，点击图11.21右方的“Clone or download”绿色按钮，并点击红框中的按钮复制位于你用户名下的代码库地址。按[“安装和运行”](../chapter_prerequisite/install.md)介绍的方法进入命令行模式。假设我们希望将代码库保存在本地的“~/repo”路径之下。进入该路径，键入`git clone `并粘贴位于你用户名下的代码库地址。执行命令
