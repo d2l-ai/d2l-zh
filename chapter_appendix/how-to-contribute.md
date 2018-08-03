@@ -2,7 +2,7 @@
 
 本书在“致谢”部分感谢本书的所有贡献者并列出他们的Github ID或姓名。每位贡献者也将在本书出版时获得一本贡献者专享的赠书。
 
-你可以在本书的Github代码库查看贡献者列表 [1]。如果你希望成为本书的贡献者之一，需要安装Git并为本书的Github代码库提交pull request [2]。如果你的pull request被本书作者合并进了代码库，你就成为了本书的贡献者。
+你可以在本书的Github代码库查看贡献者列表 [1]。如果你希望成为本书的贡献者之一，需要安装Git并为本书的Github代码库提交pull request [2]。当你的pull request被本书作者合并进了代码库后，你就成为了本书的贡献者。
 
 本节介绍了为本书贡献的基本Git操作步骤。如果你熟悉Git的操作，可以跳过本节。
 
@@ -23,6 +23,7 @@
 第三步，点击图11.21右方的“Clone or download”绿色按钮，并点击红框中的按钮复制位于你用户名下的代码库地址。按[“安装和运行”](../chapter_prerequisite/install.md)介绍的方法进入命令行模式。假设我们希望将代码库保存在本地的“~/repo”路径之下。进入该路径，键入`git clone `并粘贴位于你用户名下的代码库地址。执行命令
 
 ```
+# 将 your_Github_ID 替换成你的 Git 用户名。
 git clone https://github.com/your_Github_ID/gluon-tutorials-zh.git
 ```
 
