@@ -43,7 +43,7 @@ GIF=$(wildcard img/*.gif)
 
 build/_build/latex/%.pdf: img/%.svg
 	@mkdir -p $(@D)
-	rsvg-convert -f pdf -o $@ $<
+	rsvg-convert -f pdf -z 0.80 -o $@ $<
 
 build/_build/latex/%_00.pdf: img/%_00.pdf
 	@mkdir -p $(@D)
@@ -55,8 +55,8 @@ PDFIMG = $(patsubst img/%.svg, build/_build/latex/%.pdf, $(SVG)) \
 pdf: $(DEPS) $(OBJ) $(PDFIMG)
 	@echo $(PDFIMG)
 	make -C build latex
-	sed -i 's/\.svg/\.pdf/g' ${TEX}
-	sed -i s/\}\.gif/\_00\}.pdf/g $(TEX)
+	sed -i s/\\.svg/.pdf/g ${TEX}
+	sed -i s/\}\\.gif/\_00\}.pdf/g $(TEX)
 	sed -i s/{tocdepth}{0}/{tocdepth}{1}/g $(TEX)
 	sed -i s/{\\\\releasename}{发布}/{\\\\releasename}{}/g $(TEX)
 	sed -i s/{OriginalVerbatim}\\\[commandchars=\\\\\\\\\\\\{\\\\}\\\]/{OriginalVerbatim}\\\[commandchars=\\\\\\\\\\\\{\\\\},formatcom=\\\\footnotesize\\\]/g $(TEX)

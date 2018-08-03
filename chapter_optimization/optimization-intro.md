@@ -48,8 +48,6 @@ def f(x):
     return x * np.cos(np.pi * x)
 
 gb.set_figsize((4.5, 2.5))
-gb.set_matplotlib_formats('svg')
-
 x = np.arange(-1.0, 2.0, 0.1)
 fig = gb.plt.figure()
 subplt = fig.add_subplot(111)

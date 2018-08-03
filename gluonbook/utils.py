@@ -320,7 +320,7 @@ def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
 
 def set_figsize(figsize=(3.5, 2.5)):
     """Set matplotlib figure size."""
-    set_matplotlib_formats('retina')
+    set_matplotlib_formats('svg')
     plt.rcParams['figure.figsize'] = figsize
 
 

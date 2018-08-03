@@ -97,7 +97,7 @@ train_iter = gdata.DataLoader(gdata.ArrayDataset(
 
 net = gb.linreg
 loss = gb.squared_loss
-%config InlineBackend.figure_format = 'retina'
+%config InlineBackend.figure_format = 'svg'
 gb.plt.rcParams['figure.figsize'] = (3.5, 2.5)
 
 def fit_and_plot(lambd):

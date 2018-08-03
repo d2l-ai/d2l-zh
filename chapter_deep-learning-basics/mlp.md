@@ -52,7 +52,7 @@ import gluonbook as gb
 from mxnet import nd
 
 def xyplot(x_vals, y_vals, x_label, y_label):
-    %config InlineBackend.figure_format = 'retina'
+    %config InlineBackend.figure_format = 'svg'
     gb.plt.rcParams['figure.figsize'] = (3.5, 2.5)
     gb.plt.plot(x_vals,y_vals)
     gb.plt.xlabel(x_label)

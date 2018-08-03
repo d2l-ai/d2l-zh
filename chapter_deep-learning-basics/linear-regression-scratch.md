@@ -40,7 +40,7 @@ features[0], labels[0]
 
 ```{.python .input  n=4}
 def set_figsize(figsize=(3.5, 2.5)):
-    set_matplotlib_formats('retina')  # 打印高清图。
+    set_matplotlib_formats('svg')  # 打印矢量图。
     plt.rcParams['figure.figsize'] = figsize  # 设置图的尺寸。
 
 set_figsize()
