@@ -2,18 +2,20 @@
 
 喜欢拍照的同学可能都接触过滤镜，它们能改变照片的颜色风格，可以使得风景照更加锐利或者人像更加美白。但一个滤镜通常只能改变照片的某个方面，达到想要的风格经常需要大量组合尝试，其复杂程度不亚于模型调参。
 
-本小节我们将介绍如何使用神经网络来自动化这个过程 [1]。这里我们需要两张输入图片，一张是内容图片，另一张是样式图片，我们将使用神经网络修改内容图片使得其样式接近样式图片。下图中的内容图片为作者在西雅图郊区的雷尼尔山（mountain rainier）拍摄风景照，样式图片则为一副主题为秋天橡树的油画，其合成图片在保留了内容图片中物体主体形状的情况下加入了样式图片的油画笔触，同时也让整体颜色更加鲜艳。
+本小节我们将介绍如何使用神经网络来自动化这个过程 [1]。这里我们需要两张输入图片，一张是内容图片，另一张是样式图片，我们将使用神经网络修改内容图片使得其样式接近样式图片。图9.11中的内容图片为本书作者在西雅图郊区的雷尼尔山国家公园（Mount Rainier National Park）拍摄的风景照，样式图片则为一副主题为秋天橡树的油画，其合成图片在保留了内容图片中物体主体形状的情况下加入了样式图片的油画笔触，同时也让整体颜色更加鲜艳。
 
-![样式迁移。](../img/style-transfer.svg)
+![输入内容图片和样式图片，输出样式迁移后的合成图片。](../img/style-transfer.svg)
 
 
-使用神经网络进行样式迁移的过程如下图所示。在图中我们选取一个有三个卷积层的神经网络为例，来提取特征。对于样式图片，我们选取第一和第三层输出作为样式特征。对于内容图片则选取第二层输出作为内容特征。给定一个合成图片的初始值，我们通过不断的迭代直到其与样式图片输入到同一神经网络时，第一和第三层输出能很好地匹配样式特征，并且合成图片与初始内容图片输入到神经网络时在第二层输出能匹配到内容特征。
+使用神经网络进行样式迁移的过程如图9.12所示。在图中我们选取一个有三个卷积层的神经网络为例，来提取特征。对于样式图片，我们选取第一和第三层输出作为样式特征。对于内容图片则选取第二层输出作为内容特征。给定一个合成图片的初始值，我们通过不断的迭代直到其与样式图片输入到同一神经网络时，第一和第三层输出能很好地匹配样式特征，并且合成图片与初始内容图片输入到神经网络时在第二层输出能匹配到内容特征。
 
-![Neural Style。](../img/neural-style.svg)
+![使用神经网络进行样式迁移。](../img/neural-style.svg)
 
 ```{.python .input}
 import sys
-sys.path.append('..')
+sys.path.insert(0, '..')
+
+%matplotlib inline
 import gluonbook as gb
 from mxnet import autograd, gluon, image, nd
 from mxnet.gluon import model_zoo, nn
@@ -25,6 +27,7 @@ import time
 我们分别读取样式和内容图片。
 
 ```{.python .input  n=9}
+gb.set_figsize()
 style_img = image.imread('../img/autumn_oak.jpg')
 gb.plt.imshow(style_img.asnumpy());
 ```
@@ -52,13 +55,13 @@ def postprocess(img):
 
 ## 抽取特征
 
-我们使用原论文[1]使用的VGG 19模型，并下载在Imagenet上训练好的权重。
+我们使用原论文使用的VGG 19模型，并下载在Imagenet上训练好的权重 [1]。
 
 ```{.python .input  n=3}
 pretrained_net = model_zoo.vision.vgg19(pretrained=True)
 ```
 
-我们知道VGG使用了五个卷积块来构建网络，块之间使用最大池化层来做间隔（参考[“使用重复元素的网络（VGG）”](../chapter_convolutional-neural-networks/vgg.md)小节）。[1]中使用每个卷积块的第一个卷积层输出来匹配样式（称之为样式层），和第四块中的最后一个卷积层来匹配内容（称之为内容层）。我们可以打印`pretrained_net`来获取这些层的具体位置。
+我们知道VGG使用了五个卷积块来构建网络，块之间使用最大池化层来做间隔（参考[“使用重复元素的网络（VGG）”](../chapter_convolutional-neural-networks/vgg.md)小节）。原论文中使用每个卷积块的第一个卷积层输出来匹配样式（称之为样式层），和第四块中的最后一个卷积层来匹配内容（称之为内容层）[1]。我们可以打印`pretrained_net`来获取这些层的具体位置。
 
 ```{.python .input  n=11}
 style_layers = [0, 5, 10, 19, 28]
@@ -133,14 +136,12 @@ def style_loss(y_hat, gram_y):
 
 当我们使用靠近输出层的神经层输出来匹配时，经常可以观察到学到的合成图片里面有大量高频噪音，即有特别亮或者暗的颗粒像素。一种常用的降噪方法是总变差降噪（total variation denoising）。假设 $x_{i,j}$ 表示像素 $(i,j)$的值，总变差损失使得邻近的像素值相似：
 
-$$
-\sum_{i,j} |x_{i,j} - x_{i+1,j}| + |x_{i,j} - x_{i,j+1}|
-$$
+$$\sum_{i,j} \left|x_{i,j} - x_{i+1,j}\right| + \left|x_{i,j} - x_{i,j+1}\right|.$$
 
 ```{.python .input}
 def tv_loss(y_hat):
-    return 0.5 * ((y_hat[:,:,1:,:] - y_hat[:,:,:-1,:]).abs().mean() +
-                  (y_hat[:,:,:,1:] - y_hat[:,:,:,:-1]).abs().mean())
+    return 0.5 * ((y_hat[:, :, 1:, :] - y_hat[:, :, :-1, :]).abs().mean() +
+                  (y_hat[:, :, :, 1:] - y_hat[:, :, :, :-1]).abs().mean())
 ```
 
 训练中我们将上述三个损失函数加权求和。通过调整权重值我们可以控制学到的图片是否保留更多样式，更多内容，还是更加干净。此外注意到样式层里有五个神经层，我们对靠近输入的有较少的通道数的层给予比较大的权重。
@@ -176,7 +177,7 @@ def train(x, content_y, style_y, ctx, lr, max_epochs, lr_decay_epoch):
             # 对所有损失求和。
             l = nd.add_n(*style_L) + nd.add_n(*content_L) + tv_L
         l.backward()
-        # 对 x 的梯度除去绝对均值使得数值更加稳定，并更新 x
+        # 对 x 的梯度除去绝对均值使得数值更加稳定，并更新 x。
         x.grad[:] /= x.grad.abs().mean() + 1e-8
         x[:] -= lr * x.grad
         # 如果不加的话会导致每50轮迭代才同步一次，可能导致过大内存使用。
@@ -212,12 +213,12 @@ y = train(x, content_y, style_y, ctx, 0.1, 500, 200)
 因为使用了内容图片作为初始值，所以一开始内容误差远小于样式误差。随着迭代的进行样式误差迅速减少，最终它们值在相近的范围。下面我们将训练好的合成图片保存下来。
 
 ```{.python .input}
-gb.plt.imsave('neural-style-1.png', postprocess(y).asnumpy())
+gb.plt.imsave('../img/neural-style-1.png', postprocess(y).asnumpy())
 ```
 
-![300 x 200 尺寸的合成图片。](./neural-style-1.png)
+![$300 \times 200$ 尺寸的合成图片。](../img/neural-style-1.png)
 
-可以看到合成图片保留了样式图片的风景物体，同时借鉴了样式图片的色彩。由于图片尺寸较小，所以细节上比较模糊。下面我们在更大的`1200 x 800`的尺寸上训练，希望可以得到更加清晰的合成图片。为了加速收敛，我们将训练到的合成图片高宽放大3倍来作为初始值。
+可以看到图9.13中的合成图片保留了样式图片的风景物体，同时借鉴了样式图片的色彩。由于图片尺寸较小，所以细节上比较模糊。下面我们在更大的$1200 \times 800$的尺寸上训练，希望可以得到更加清晰的合成图片。为了加速收敛，我们将训练到的合成图片高宽放大3倍来作为初始值。
 
 ```{.python .input  n=20}
 image_shape = (1200, 800)
@@ -228,18 +229,18 @@ style_x, style_y = get_styles(image_shape, ctx)
 x = preprocess(postprocess(y) * 255, image_shape)
 z = train(x, content_y, style_y, ctx, 0.1, 300, 100)
 
-gb.plt.imsave('neural-style-2.png', postprocess(z).asnumpy())
+gb.plt.imsave('../img/neural-style-2.png', postprocess(z).asnumpy())
 ```
 
 可以看到这一次由于初始值离最终输出更近使得收敛更加迅速。但同时由于图片尺寸更大，每一次迭代需要花费更多的时间和内存。
 
-![1200 x 800 尺寸的合成图片。](./neural-style-2.png)
+![$1200 \times 800$ 尺寸的合成图片。](../img/neural-style-2.png)
 
-从训练得到的图片可以看到它保留了更多的细节，里面不仅有大块的类似样式图片的油画色彩块，色彩块里面也有细微的纹理。
+从训练得到的图9.14中的可以看到它保留了更多的细节，里面不仅有大块的类似样式图片的油画色彩块，色彩块里面也有细微的纹理。
 
 ## 小结
 
-通过匹配神经网络的中间层输出可以有效的融合不同图片的内容和样式。
+* 通过匹配神经网络的中间层输出可以有效的融合不同图片的内容和样式。
 
 ## 练习
 
@@ -254,4 +255,4 @@ gb.plt.imsave('neural-style-2.png', postprocess(z).asnumpy())
 
 ## 参考文献
 
-[1] Gatys, Leon A., Alexander S. Ecker, and Matthias Bethge. "Image style transfer using convolutional neural networks." CVPR. 2016.
+[1] Gatys, L. A., Ecker, A. S., & Bethge, M. (2016). Image style transfer using convolutional neural networks. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (pp. 2414-2423).

@@ -4,9 +4,10 @@
 
 ```{.python .input  n=1}
 import sys
-sys.path.append('..')
+sys.path.insert(0, '..')
+
 import gluonbook as gb
-from mxnet import nd, gluon, init
+from mxnet import gluon, init
 from mxnet.gluon import loss as gloss, nn
 
 net = nn.Sequential()
@@ -46,7 +47,7 @@ gb.train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
 
 ## 小结
 
-Gluon提供的BatchNorm在使用上更加简单。
+* Gluon提供的BatchNorm在使用上更加简单。
 
 ## 练习
 

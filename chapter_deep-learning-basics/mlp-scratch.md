@@ -4,9 +4,10 @@
 
 ```{.python .input}
 import sys
-sys.path.append('..')
+sys.path.insert(0, '..')
+
 import gluonbook as gb
-from mxnet import autograd, gluon, nd
+from mxnet import nd
 from mxnet.gluon import loss as gloss
 ```
 

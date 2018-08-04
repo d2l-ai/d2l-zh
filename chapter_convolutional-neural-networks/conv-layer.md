@@ -4,7 +4,7 @@
 
 ## 二维相关运算符
 
-虽然卷积层得名于卷积运算符（convolution），但我们常用更加直观的相关运算符（correlation）来实现卷积层。一个二维相关运算符将一个二维核（kernel）数组作用在一个二维输入数据上来计算一个二维数组输出。下图演示了如何对一个高宽为3的输入`X`作用高宽为2的核`K`来计算输出`Y`。
+虽然卷积层得名于卷积运算符（convolution），但我们常用更加直观的相关运算符（correlation）来实现卷积层。一个二维相关运算符将一个二维核（kernel）数组作用在一个二维输入数据上来计算一个二维数组输出。图5.1演示了如何对一个高宽为3的输入`X`作用高宽为2的核`K`来计算输出`Y`。
 
 ![二维相关运算符，高亮了计算第一个输出元素所使用的输入和核数组元素。](../img/correlation.svg)
 
@@ -13,9 +13,6 @@
 下面我们将上述过程实现在`corr2d`函数里，它接受`X`和`K`，输出`Y`。
 
 ```{.python .input}
-import sys
-sys.path.append('..')
-import gluonbook as gb
 from mxnet import autograd, nd
 from mxnet.gluon import nn
 
@@ -28,7 +25,7 @@ def corr2d(X, K):
     return Y
 ```
 
-构造上图中的数据来测试实现的正确性。
+构造图5.1中的数据来测试实现的正确性。
 
 ```{.python .input}
 X = nd.array([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
@@ -98,7 +95,7 @@ Y = Y.reshape((1, 1, 6, 7))
 for i in range(10):
     with autograd.record():
         Y_hat = conv2d(X)
-        l = (Y_hat-Y) ** 2
+        l = (Y_hat - Y) ** 2
         if i % 2 == 1:
             print('batch %d, loss %.3f' % (i, l.sum().asscalar()))
     l.backward()

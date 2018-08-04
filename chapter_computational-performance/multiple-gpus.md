@@ -21,7 +21,8 @@
 
 ```{.python .input}
 import sys
-sys.path.append('..')
+sys.path.insert(0, '..')
+
 import gluonbook as gb
 import mxnet as mx
 from mxnet import autograd, nd
@@ -147,7 +148,6 @@ def train_batch(X, y, gpu_params, ctx, lr):
     # 把各个 GPU 上的梯度加起来，然后再广播到所有 GPU 上。
     for i in range(len(gpu_params[0])):
         allreduce([gpu_params[c][i].grad for c in range(len(ctx))])
-    # 在各个 GPU 上更新自己维护的那一份完整的模型参数。
     for param in gpu_params:
         gb.sgd(param, lr, X.shape[0])
 ```
@@ -170,27 +170,17 @@ def train(num_gpus, batch_size, lr):
             train_batch(X, y, gpu_params, ctx, lr)
         nd.waitall()
         print('epoch %d, time: %.1f sec' % (epoch, time() - start))
-        # 在 GPU0 上验证模型。
+        # 在 GPU 0 上验证模型。
         net = lambda x: lenet(x, gpu_params[0])
         test_acc = gb.evaluate_accuracy(test_iter, net, ctx[0])
         print('validation accuracy: %.4f' % test_acc)
 ```
 
-我们先使用一个GPU来训练。
-
-```{.python .input  n=8}
-train(num_gpus=1, batch_size=256, lr=0.3)
-```
-
-接下来，我们先使用2个GPU来训练。我们将批量大小也增加一倍，以使得GPU的计算资源能够得到较充分利用。
+我们使用2个GPU和较大的批量大小来训练，以使得GPU的计算资源能够得到较充分利用。
 
 ```{.python .input  n=10}
 train(num_gpus=2, batch_size=512, lr=0.3)
 ```
-
-由于批量大小增加了一倍，每个迭代周期的迭代次数减小了一半。因此，我们观察到每个迭代周期的耗时比单GPU训练时少了近一半。但由于总体迭代次数的减少，模型在验证数据集上的精度略有下降。这很可能是由于训练不够充分造成的。因此，多GPU训练时，我们可以适当增加迭代周期使训练较充分。
-
-
 
 ## 小结
 

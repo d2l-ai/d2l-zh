@@ -1,6 +1,6 @@
 # 安装和运行
 
-为了动手学深度学习，我们需要获取本书代码，安装并运行Python、MXNet、Jupyter notebook等工具。
+为了动手学深度学习，我们需要获取本书代码，安装并运行Python、MXNet、`gluonbook`、Jupyter notebook等工具。
 
 
 ## 进入命令行模式
@@ -113,7 +113,7 @@ MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter no
 
 ## 激活运行环境
 
-运行环境中已安装了运行书中代码所需的Python、MXNet、Jupyter notebook等工具。我们可以在下载并解压的代码包里的文件“gluon_tutorials_zh-1.0/environment.yml”中查看它们。在运行书中代码前，我们需要激活运行环境。Windows和Linux/macOS用户请分别参照以下步骤激活并退出运行环境。
+运行环境中已安装了运行书中代码所需的Python、MXNet、`gluonbook`、Jupyter notebook等工具。我们可以在下载并解压的代码包里的文件“gluon_tutorials_zh-1.0/environment.yml”中查看它们。在运行书中代码前，我们需要激活运行环境。Windows和Linux/macOS用户请分别参照以下步骤激活并退出运行环境。
 
 ### Windows用户
 

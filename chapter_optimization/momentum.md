@@ -90,7 +90,9 @@ def sgd_momentum(params, vs, lr, mom, batch_size):
 
 ```{.python .input}
 import sys
-sys.path.append('..')
+sys.path.insert(0, '..')
+
+%matplotlib inline
 import gluonbook as gb
 from mxnet import autograd, nd
 import numpy as np

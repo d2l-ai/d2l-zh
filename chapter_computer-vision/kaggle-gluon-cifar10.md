@@ -5,7 +5,7 @@ CIFAR-10是计算机视觉领域的一个重要的数据集。本节中，我们
 > https://www.kaggle.com/c/cifar-10
 
 
-图9.14展示了该比赛的网页信息。为了便于提交结果，请先在Kaggle网站上注册账号。
+图9.15展示了该比赛的网页信息。为了便于提交结果，请先在Kaggle网站上注册账号。
 
 ![CIFAR-10图像分类比赛的网页信息。比赛数据集可通过点击“Data”标签获取。](../img/kaggle_cifar10.png)
 
@@ -14,13 +14,12 @@ CIFAR-10是计算机视觉领域的一个重要的数据集。本节中，我们
 
 ```{.python .input}
 import sys
-sys.path.append('..')
+sys.path.insert(0, '..')
 
 import datetime
 import gluonbook as gb
-from mxnet import autograd, gluon, init, nd
+from mxnet import autograd, gluon, init
 from mxnet.gluon import data as gdata, nn, loss as gloss
-import numpy as np
 import os
 import pandas as pd
 import shutil
@@ -28,14 +27,14 @@ import shutil
 
 ## 获取数据集
 
-比赛数据分为训练集和测试集。训练集包含5万张图片。测试集包含30万张图片：其中有1万张图片用来计分，其他29万张不计分的图片是为了防止人工标注测试集。两个数据集中的图片格式都是png，高和宽均为32像素，并含有RGB三个通道（彩色）。图片一共涵盖10个类别，分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车，如图9.15所示。
+比赛数据分为训练集和测试集。训练集包含5万张图片。测试集包含30万张图片：其中有1万张图片用来计分，其他29万张不计分的图片是为了防止人工标注测试集。两个数据集中的图片格式都是png，高和宽均为32像素，并含有RGB三个通道（彩色）。图片一共涵盖10个类别，分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车，如图9.16所示。
 
 ![CIFAR-10图像的类别分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车。](../img/cifar10.png)
 
 
 ### 下载数据集
 
-登录Kaggle后，我们可以点击图9.14所示的CIFAR-10图像分类比赛网页上的“Data”标签，并分别下载训练数据集“train.7z”、测试数据集“test.7z”和训练数据集标签“trainLabels.csv”。
+登录Kaggle后，我们可以点击图9.15所示的CIFAR-10图像分类比赛网页上的“Data”标签，并分别下载训练数据集“train.7z”、测试数据集“test.7z”和训练数据集标签“trainLabels.csv”。
 
 
 ### 解压数据集
@@ -144,7 +143,8 @@ transform_train = gdata.vision.transforms.Compose([
                                               ratio=(1.0, 1.0)),
     # 随机左右翻转图片。
     gdata.vision.transforms.RandomFlipLeftRight(),
-    # 将图片像素值按比例缩小到 0 和 1 之间，并将数据格式从“高*宽*通道”改为“通道*高*宽”。
+    # 将图片像素值按比例缩小到 0 和 1 之间，并将数据格式从“高 * 宽 * 通道”改为
+    # “通道 * 高 * 宽”。
     gdata.vision.transforms.ToTensor(),
     # 对图片的每个通道做标准化。
     gdata.vision.transforms.Normalize([0.4914, 0.4822, 0.4465],
@@ -184,70 +184,54 @@ test_data = gdata.DataLoader(test_ds.transform_first(transform_test),
 
 ## 定义模型
 
-我们这里使用了ResNet-18模型，并使用混合式编程来提升执行效率。
+我们在这里定义ResNet-18模型，并使用混合式编程来提升执行效率。
 
 ```{.python .input  n=6}
 class Residual(nn.HybridBlock):
-    def __init__(self, channels, same_shape=True, **kwargs):
+    def __init__(self, num_channels, use_1x1conv=False, strides=1, **kwargs):
         super(Residual, self).__init__(**kwargs)
-        self.same_shape = same_shape
-        with self.name_scope():
-            strides = 1 if same_shape else 2
-            self.conv1 = nn.Conv2D(channels, kernel_size=3, padding=1,
+        self.conv1 = nn.Conv2D(num_channels, kernel_size=3, padding=1,
+                               strides=strides)
+        self.conv2 = nn.Conv2D(num_channels, kernel_size=3, padding=1)
+        if use_1x1conv:
+            self.conv3 = nn.Conv2D(num_channels, kernel_size=1,
                                    strides=strides)
-            self.bn1 = nn.BatchNorm()
-            self.conv2 = nn.Conv2D(channels, kernel_size=3, padding=1)
-            self.bn2 = nn.BatchNorm()
-            if not same_shape:
-                self.conv3 = nn.Conv2D(channels, kernel_size=1,
-                                       strides=strides)
+        else:
+            self.conv3 = None
+        self.bn1 = nn.BatchNorm()
+        self.bn2 = nn.BatchNorm()
 
-    def hybrid_forward(self, F, x):
-        out = F.relu(self.bn1(self.conv1(x)))
-        out = self.bn2(self.conv2(out))
-        if not self.same_shape:
-            x = self.conv3(x)
-        return F.relu(out + x)
+    def hybrid_forward(self, F, X):
+        Y = F.relu(self.bn1(self.conv1(X)))
+        Y = self.bn2(self.conv2(Y))
+        if self.conv3:
+            X = self.conv3(X)
+        return F.relu(Y + X)
+    
+def resnet18(num_classes):
+    net = nn.HybridSequential()
+    net.add(nn.Conv2D(64, kernel_size=3, strides=1, padding=1),
+            nn.BatchNorm(), nn.Activation('relu'))
 
+    def resnet_block(num_channels, num_residuals, first_block=False):
+        blk = nn.HybridSequential()
+        for i in range(num_residuals):
+            if i == 0 and not first_block:
+                blk.add(Residual(num_channels, use_1x1conv=True, strides=2))
+            else:
+                blk.add(Residual(num_channels))
+        return blk 
 
-class ResNet(nn.HybridBlock):
-    def __init__(self, num_classes, verbose=False, **kwargs):
-        super(ResNet, self).__init__(**kwargs)
-        self.verbose = verbose
-        with self.name_scope():
-            net = self.net = nn.HybridSequential()
-            # 模块 1。
-            net.add(nn.Conv2D(channels=32, kernel_size=3, strides=1,
-                              padding=1))
-            net.add(nn.BatchNorm())
-            net.add(nn.Activation(activation='relu'))
-            # 模块 2。
-            for _ in range(3):
-                net.add(Residual(channels=32))
-            # 模块 3。
-            net.add(Residual(channels=64, same_shape=False))
-            for _ in range(2):
-                net.add(Residual(channels=64))
-            # 模块 4。
-            net.add(Residual(channels=128, same_shape=False))
-            for _ in range(2):
-                net.add(Residual(channels=128))
-            # 模块 5。
-            net.add(nn.AvgPool2D(pool_size=8))
-            net.add(nn.Flatten())
-            net.add(nn.Dense(num_classes))
-
-    def hybrid_forward(self, F, x):
-        out = x
-        for i, b in enumerate(self.net):
-            out = b(out)
-            if self.verbose:
-                print('Block %d output: %s'%(i+1, out.shape))
-        return out
+    net.add(resnet_block(64, 2, first_block=True),
+            resnet_block(128, 2), 
+            resnet_block(256, 2), 
+            resnet_block(512, 2)) 
+    net.add(nn.GlobalAvgPool2D(), nn.Dense(num_classes))
+    return net 
 
 def get_net(ctx):
-    num_outputs = 10
-    net = ResNet(num_outputs)
+    num_classes = 10
+    net = resnet18(num_classes)
     net.initialize(ctx=ctx, init=init.Xavier())
     return net
 ```
@@ -306,7 +290,7 @@ num_epochs = 1
 lr = 0.1
 # 权重衰减参数。
 wd = 5e-4
-# 优化算法的学习率将在每80个迭代周期时自乘0.1。
+# 优化算法的学习率将在每 80 个迭代周期时自乘 0.1。
 lr_period = 80
 lr_decay = 0.1
 
@@ -331,7 +315,7 @@ for X, _ in test_data:
     y_hat = net(X.as_in_context(ctx))
     preds.extend(y_hat.argmax(axis=1).astype(int).asnumpy())
 sorted_ids = list(range(1, len(test_ds) + 1))
-sorted_ids.sort(key = lambda x:str(x))
+sorted_ids.sort(key=lambda x:str(x))
 df = pd.DataFrame({'id': sorted_ids, 'label': preds})
 df['label'] = df['label'].apply(lambda x: train_valid_ds.synsets[x])
 df.to_csv('submission.csv', index=False)

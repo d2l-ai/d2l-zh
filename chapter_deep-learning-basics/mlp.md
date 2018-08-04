@@ -28,7 +28,7 @@ $$
 
 
 那么，如果隐藏层也只对输入做仿射变换会怎么样呢？设单个样本的特征为$\boldsymbol{x} \in \mathbb{R}^{1 \times d}$，隐藏层的权重参数和偏差参数分别为$\boldsymbol{W}_h \in \mathbb{R}^{d \times h}, \boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$。
-假设$\boldsymbol{h} = \boldsymbol{x} \boldsymbol{W}_h + \boldsymbol{b}_h$且$\boldsymbol{o} = \boldsymbol{h} \boldsymbol{W}_o + \boldsymbol{b}_o$，联立两式可得$\boldsymbol{o} = \boldsymbol{x} \boldsymbol{W}_h \boldsymbol{W}_o + \boldsymbol{b}_h \boldsymbol{W}_o + \boldsymbol{b}_o$：它等价于单层神经网络的输出$\boldsymbol{o} = \boldsymbol{x} \boldsymbol{W}^\prime + \boldsymbol{b}^\prime$，其中$\boldsymbol{W}^\prime = \boldsymbol{W}_h \boldsymbol{W}_o, \boldsymbol{b}^\prime = \boldsymbol{b}_h \boldsymbol{W}_o + \boldsymbol{b}_o$。因此，在隐藏层中仅使用仿射变换的多层感知机与前面介绍的单层神经网络没什么区别。
+假设$\boldsymbol{h} = \boldsymbol{x} \boldsymbol{W}_h + \boldsymbol{b}_h$且$\boldsymbol{o} = \boldsymbol{h} \boldsymbol{W}_o + \boldsymbol{b}_o$，联立两式可得$\boldsymbol{o} = \boldsymbol{x} \boldsymbol{W}_h \boldsymbol{W}_o + \boldsymbol{b}_h \boldsymbol{W}_o + \boldsymbol{b}_o$：它等价于单层神经网络的输出$\boldsymbol{o} = \boldsymbol{x} \boldsymbol{W}' + \boldsymbol{b}'$，其中$\boldsymbol{W}' = \boldsymbol{W}_h \boldsymbol{W}_o, \boldsymbol{b}' = \boldsymbol{b}_h \boldsymbol{W}_o + \boldsymbol{b}_o$。因此，在隐藏层中仅使用仿射变换的多层感知机与前面介绍的单层神经网络没什么区别。
 
 ## 激活函数
 
@@ -44,12 +44,15 @@ $$\text{relu}(x) = \max(x, 0).$$
 
 ```{.python .input}
 import sys
-sys.path.append('..')
+sys.path.insert(0, '..')
+
+# 将图打印在 Jupyter notebook 的文本之间。
+%matplotlib inline
 import gluonbook as gb
 from mxnet import nd
 
 def xyplot(x_vals, y_vals, x_label, y_label):
-    %config InlineBackend.figure_format = 'retina'
+    %config InlineBackend.figure_format = 'svg'
     gb.plt.rcParams['figure.figsize'] = (3.5, 2.5)
     gb.plt.plot(x_vals,y_vals)
     gb.plt.xlabel(x_label)
@@ -107,8 +110,10 @@ X.relu(), X.sigmoid(), X.tanh()
 多层感知机的矢量计算表达式为
 
 $$
-\boldsymbol{H} = \phi(\boldsymbol{X} \boldsymbol{W}_h + \boldsymbol{b}_h),\\
-\boldsymbol{O} = \boldsymbol{H} \boldsymbol{W}_o + \boldsymbol{b}_o,
+\begin{aligned}
+\boldsymbol{H} &= \phi(\boldsymbol{X} \boldsymbol{W}_h + \boldsymbol{b}_h),\\
+\boldsymbol{O} &= \boldsymbol{H} \boldsymbol{W}_o + \boldsymbol{b}_o,
+\end{aligned}
 $$
 
 其中的加法运算使用了广播机制，$\boldsymbol{H} \in \mathbb{R}^{n \times h}, \boldsymbol{O}  \in \mathbb{R}^{n \times q}$。

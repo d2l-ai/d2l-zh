@@ -7,7 +7,7 @@
 
 在这个比赛中，我们将识别120类不同品种的狗。这个比赛的数据集实际上是著名的ImageNet的子集数据集。和上一节CIFAR-10数据集中的图像不同，ImageNet数据集中的图像的高和宽更大，且大小不一。
 
-图9.16展示了该比赛的网页信息。为了便于提交结果，请先在Kaggle网站上注册账号。
+图9.17展示了该比赛的网页信息。为了便于提交结果，请先在Kaggle网站上注册账号。
 
 ![狗的品种识别比赛的网页信息。比赛数据集可通过点击“Data”标签获取](../img/kaggle-dog.png)
 
@@ -16,7 +16,7 @@
 
 ```{.python .input}
 import sys
-sys.path.append('..')
+sys.path.insert(0, '..')
 
 import collections
 import datetime
@@ -24,7 +24,6 @@ import gluonbook as gb
 import math
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, model_zoo, nn
-import numpy as np
 import os
 import shutil
 import zipfile
@@ -36,7 +35,7 @@ import zipfile
 
 ### 下载数据集
 
-登录Kaggle后，我们可以点击图9.16所示的狗的品种识别比赛网页上的“Data”标签，并分别下载训练数据集“train.zip”、测试数据集“test.zip”和训练数据集标签“label.csv.zip”。下载完成后，将它们分别存放在以下路径：
+登录Kaggle后，我们可以点击图9.17所示的狗的品种识别比赛网页上的“Data”标签，并分别下载训练数据集“train.zip”、测试数据集“test.zip”和训练数据集标签“label.csv.zip”。下载完成后，将它们分别存放在以下路径：
 
 * ../data/kaggle_dog/train.zip
 * ../data/kaggle_dog/test.zip
@@ -74,9 +73,7 @@ def reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir,
         lines = f.readlines()[1:]
         tokens = [l.rstrip().split(',') for l in lines]
         idx_label = dict(((idx, label) for idx, label in tokens))
-    labels = set(idx_label.values())
 
-    n_train = len(os.listdir(os.path.join(data_dir, train_dir)))
     # 训练集中数量最少一类的狗的样本数。
     min_n_train_per_label = (
         collections.Counter(idx_label.values()).most_common()[:-2:-1][0][1])
@@ -149,7 +146,8 @@ transform_train = gdata.vision.transforms.Compose([
     # 随机加噪音。
     gdata.vision.transforms.RandomLighting(0.1),
     
-    # 将图片像素值按比例缩小到 0 和 1 之间，并将数据格式从“高*宽*通道”改为“通道*高*宽”。
+    # 将图片像素值按比例缩小到 0 和 1 之间，并将数据格式从“高 * 宽 * 通道”改为
+    # “通道 * 高 * 宽”。
     gdata.vision.transforms.ToTensor(),
     # 对图片的每个通道做标准化。
     gdata.vision.transforms.Normalize([0.485, 0.456, 0.406],
@@ -207,7 +205,7 @@ def get_net(ctx):
     finetune_net.output_new.add(nn.Dense(120))
     # 初始化输出网络。
     finetune_net.output_new.initialize(init.Xavier(), ctx=ctx)
-    # 把模型参数分配到即将用于计算的 CPU或GPU 上。
+    # 把模型参数分配到即将用于计算的 CPU 或 GPU 上。
     finetune_net.collect_params().reset_ctx(ctx)
     return finetune_net
 ```
@@ -278,7 +276,7 @@ num_epochs = 1
 lr = 0.01
 # 权重衰减参数。
 wd = 1e-4
-# 优化算法的学习率将在每10个迭代周期时自乘0.1。
+# 优化算法的学习率将在每 10 个迭代周期时自乘 0.1。
 lr_period = 10
 lr_decay = 0.1
 

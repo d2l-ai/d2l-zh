@@ -8,18 +8,20 @@
 
 另外一种解决办法是应用迁移学习（transfer learning），将从源数据集学到的知识迁移到目标数据集上。例如，虽然ImageNet的图片基本跟椅子无关，但在其上训练的模型可以抽取通用图片特征，然后用来帮助识别边缘、纹理、形状和物体组成。类似的，它对于识别椅子也可能同样有效。
 
-本小节我们介绍迁移学习中的一个常用技术：微调（fine tuning）。它由下面四步构成：
+本小节我们介绍迁移学习中的一个常用技术：微调（fine tuning）。如图9.1所示，微调由下面四步构成：
 
 1. 在源数据（例如ImageNet）上训练一个神经网络$A$。
 2. 创建一个新的神经网络$B$，它复制了$A$上除了输出层外的所有模型参数。我们假设这些模型参数含有源数据上学习到的知识，且这些知识同样适用于目标数据集。但最后的输出层跟源数据标注紧密相关，所以不被重用。
 3. 为$B$添加一个输出大小为目标数据集类别数目（例如一百类椅子）的输出层，并将其权重初始化成随机值。
 4. 在目标数据集（例如椅子数据集）上训练$B$。我们将从头开始学习输出层，但其余层都是基于源数据上的模型参数进行微调。
 
-![微调。](../img/fine-tuning.svg)
+![微调。](../img/finetune.svg)
 
-接下来我们来看一个具体的例子，它使用ImageNet上训练好的ResNet用来微调一个我们构造的小数据集：其含有数千张包含热狗和不包含热狗的图片。
+
 
 ## 热狗识别
+
+接下来我们来看一个具体的例子，它使用ImageNet上训练好的ResNet用来微调一个我们构造的小数据集：其含有数千张包含热狗和不包含热狗的图片。
 
 ### 获取数据
 
@@ -30,6 +32,8 @@
 ```{.python .input  n=4}
 import sys
 sys.path.insert(0, '..')
+
+%matplotlib inline
 import zipfile
 import gluonbook as gb
 from mxnet import gluon, init, nd
@@ -60,7 +64,7 @@ test_imgs = gdata.vision.ImageFolderDataset(
 
 ```{.python .input}
 hotdogs = [train_imgs[i][0] for i in range(8)]
-not_hotdogs = [train_imgs[-i-1][0] for i in range(8)]
+not_hotdogs = [train_imgs[-i - 1][0] for i in range(8)]
 gb.show_images(hotdogs + not_hotdogs, 2, 8, scale=1.4);
 ```
 
@@ -144,7 +148,8 @@ scratch_net.initialize(init=init.Xavier())
 train_fine_tuning(scratch_net, 0.1)
 ```
 
-可以看到，微调的模型因为初始值更好，收敛速度比从头开始训练要快很多。在很多情况下，微调的模型最终的收敛到的结果也可能比非微调的模型更好。
+可以看到，微调的模型因为初始值更好，在相同迭代周期下能够取得更好的结果。在很多情况下，微调的模型最终也会比非微调的模型取得更好的结果。
+
 
 ## 小结
 

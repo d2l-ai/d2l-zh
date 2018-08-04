@@ -12,42 +12,42 @@
 
 本节沿用[“编码器—解码器（seq2seq）”](seq2seq.md)一节里的数学符号。
 
-我们对[“编码器—解码器（seq2seq）”](seq2seq.md)一节里的解码器稍作修改。在时间步$t^\prime$，设解码器的背景变量为$\boldsymbol{c}_{t^\prime}$，输出$y_{t^\prime}$的特征向量为$\boldsymbol{y}_{t^\prime}$。
-和输入的特征向量一样，这里每个输出的特征向量也是模型参数。解码器在时间步$t^\prime$的隐藏状态
+我们对[“编码器—解码器（seq2seq）”](seq2seq.md)一节里的解码器稍作修改。在时间步$t'$，设解码器的背景变量为$\boldsymbol{c}_{t'}$，输出$y_{t'}$的特征向量为$\boldsymbol{y}_{t'}$。
+和输入的特征向量一样，这里每个输出的特征向量也是模型参数。解码器在时间步$t'$的隐藏状态
 
-$$\boldsymbol{s}_{t^\prime} = g(\boldsymbol{y}_{t^\prime-1}, \boldsymbol{c}_{t^\prime}, \boldsymbol{s}_{t^\prime-1}).$$
+$$\boldsymbol{s}_{t'} = g(\boldsymbol{y}_{t'-1}, \boldsymbol{c}_{t'}, \boldsymbol{s}_{t'-1}).$$
 
 
-令编码器在时间步$t$的隐藏状态为$\boldsymbol{h}_t$，且总时间步数为$T$。解码器在时间步$t^\prime$的背景变量为
+令编码器在时间步$t$的隐藏状态为$\boldsymbol{h}_t$，且总时间步数为$T$。解码器在时间步$t'$的背景变量为
 
-$$\boldsymbol{c}_{t^\prime} = \sum_{t=1}^T \alpha_{t^\prime t} \boldsymbol{h}_t,$$
+$$\boldsymbol{c}_{t'} = \sum_{t=1}^T \alpha_{t' t} \boldsymbol{h}_t,$$
 
-其中$\alpha_{t^\prime t}$是权值。也就是说，给定解码器的当前时间步$t^\prime$，我们需要对编码器中不同时间步$t$的隐藏状态求加权平均。这里的权值也称注意力权重。它的计算公式是
+其中$\alpha_{t' t}$是权值。也就是说，给定解码器的当前时间步$t'$，我们需要对编码器中不同时间步$t$的隐藏状态求加权平均。这里的权值也称注意力权重。它的计算公式是
 
-$$\alpha_{t^\prime t} = \frac{\exp(e_{t^\prime t})}{ \sum_{k=1}^T \exp(e_{t^\prime k}) },$$
+$$\alpha_{t' t} = \frac{\exp(e_{t' t})}{ \sum_{k=1}^T \exp(e_{t' k}) },$$
 
-其中$e_{t^\prime t} \in \mathbb{R}$的计算为
+其中$e_{t' t} \in \mathbb{R}$的计算为
 
-$$e_{t^\prime t} = a(\boldsymbol{s}_{t^\prime - 1}, \boldsymbol{h}_t).$$
+$$e_{t' t} = a(\boldsymbol{s}_{t' - 1}, \boldsymbol{h}_t).$$
 
 上式中的函数$a$有多种设计方法。Bahanau等使用了多层感知机：
 
-$$e_{t^\prime t} = \boldsymbol{v}^\top \tanh(\boldsymbol{W}_s \boldsymbol{s}_{t^\prime - 1} + \boldsymbol{W}_h \boldsymbol{h}_t),$$
+$$e_{t' t} = \boldsymbol{v}^\top \tanh(\boldsymbol{W}_s \boldsymbol{s}_{t' - 1} + \boldsymbol{W}_h \boldsymbol{h}_t),$$
 
 其中$\boldsymbol{v}$、$\boldsymbol{W}_s$、$\boldsymbol{W}_h$以及编码器与解码器中的各个权重和偏差都是模型参数 [1]。
 
-Bahanau等在编码器和解码器中分别使用了门控循环单元 [1]。在解码器中，我们需要对门控循环单元的设计稍作修改。解码器在$t^\prime $时间步的隐藏状态为
+Bahanau等在编码器和解码器中分别使用了门控循环单元 [1]。在解码器中，我们需要对门控循环单元的设计稍作修改。解码器在$t' $时间步的隐藏状态为
 
-$$\boldsymbol{s}_{t^\prime} = \boldsymbol{z}_{t^\prime} \odot \boldsymbol{s}_{t^\prime-1}  + (1 - \boldsymbol{z}_{t^\prime}) \odot \tilde{\boldsymbol{s}}_{t^\prime},$$
+$$\boldsymbol{s}_{t'} = \boldsymbol{z}_{t'} \odot \boldsymbol{s}_{t'-1}  + (1 - \boldsymbol{z}_{t'}) \odot \tilde{\boldsymbol{s}}_{t'},$$
 
 其中的重置门、更新门和候选隐含状态分别为
 
 
 $$
 \begin{aligned}
-\boldsymbol{r}_{t^\prime} &= \sigma(\boldsymbol{W}_{yr} \boldsymbol{y}_{t^\prime-1} + \boldsymbol{W}_{sr} \boldsymbol{s}_{t^\prime - 1} + \boldsymbol{W}_{cr} \boldsymbol{c}_{t^\prime} + \boldsymbol{b}_r),\\
-\boldsymbol{z}_{t^\prime} &= \sigma(\boldsymbol{W}_{yz} \boldsymbol{y}_{t^\prime-1} + \boldsymbol{W}_{sz} \boldsymbol{s}_{t^\prime - 1} + \boldsymbol{W}_{cz} \boldsymbol{c}_{t^\prime} + \boldsymbol{b}_z),\\
-\tilde{\boldsymbol{s}}_{t^\prime} &= \text{tanh}(\boldsymbol{W}_{ys} \boldsymbol{y}_{t^\prime-1} + \boldsymbol{W}_{ss} (\boldsymbol{s}_{t^\prime - 1} \odot \boldsymbol{r}_{t^\prime}) + \boldsymbol{W}_{cs} \boldsymbol{c}_{t^\prime} + \boldsymbol{b}_s).
+\boldsymbol{r}_{t'} &= \sigma(\boldsymbol{W}_{yr} \boldsymbol{y}_{t'-1} + \boldsymbol{W}_{sr} \boldsymbol{s}_{t' - 1} + \boldsymbol{W}_{cr} \boldsymbol{c}_{t'} + \boldsymbol{b}_r),\\
+\boldsymbol{z}_{t'} &= \sigma(\boldsymbol{W}_{yz} \boldsymbol{y}_{t'-1} + \boldsymbol{W}_{sz} \boldsymbol{s}_{t' - 1} + \boldsymbol{W}_{cz} \boldsymbol{c}_{t'} + \boldsymbol{b}_z),\\
+\tilde{\boldsymbol{s}}_{t'} &= \text{tanh}(\boldsymbol{W}_{ys} \boldsymbol{y}_{t'-1} + \boldsymbol{W}_{ss} (\boldsymbol{s}_{t' - 1} \odot \boldsymbol{r}_{t'}) + \boldsymbol{W}_{cs} \boldsymbol{c}_{t'} + \boldsymbol{b}_s).
 \end{aligned}
 $$
 

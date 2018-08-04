@@ -20,7 +20,7 @@ build服务器在 http://ci.mxnet.io 。这台服务器有两块Nvidia M60。
 
 在本地可以如下build html（需要GPU支持）
 
-```{.python .input}
+```
 conda env update -f build/build.yml
 source activate gluon_zh_docs
 make html
@@ -30,7 +30,7 @@ make html
 
 如果没有改动notebook里面源代码，所以不想执行notebook，可以使用
 
-```{.python .input}
+```
 make html EVAL=0
 ```
 
@@ -40,12 +40,12 @@ make html EVAL=0
 
 编译pdf版本需要xelatex、librsvg2-bin（svg图片转pdf）和思源字体。在Ubuntu可以这样安装。
 
-```{.python .input}
+```
 sudo apt-get install texlive-full
 sudo apt-get install librsvg2-bin
 ```
 
-```{.python .input}
+```
 wget https://github.com/adobe-fonts/source-han-sans/raw/release/OTF/SourceHanSansSC.zip
 wget https://github.com/adobe-fonts/source-han-serif/raw/release/OTF/SourceHanSerifSC_SB-H.zip
 wget https://github.com/adobe-fonts/source-han-serif/raw/release/OTF/SourceHanSerifSC_EL-M.zip
@@ -80,107 +80,22 @@ sudo fc-cache -f -v
 
 然后可以编译了。
 
-```{.python .input}
+```
 make pdf
 ```
 
 ## 其他安装
 
-
-```{.python .input}
+```
 python -m spacy download en # 需已 pip install spacy
 ```
 
-
-## 英汉术语对照
-
-
-accuracy，准确率
-
-baseline，基准
-
-batch，批量
-
-bias，偏差
-
-binary classification，二元分类
-
-bucketing，分桶
-
-class，类
-
-classification，分类
-
-collaborative filtering，协同过滤
-
-cost，成本
-
-cross-entropy，交叉熵
-
-data set，数据集
-
-decision boundary，决策边界
-
-dense，稠密
-
-dense layer，全连接层
-
-dropout，丢弃法
-
-empirical risk minimization，经验风险最小化
-
-epoch，迭代周期（周期）
-
-example，样本
-
-feature, 特征
-
-fully connected layer，全连接层
-
-hidden layer，隐藏层
-
-hidden variable，隐藏变量
-
-generalization，泛化
-
-hyperparameter，超参数
-
-hypothesis，假设
-
-import，导入
-
-independent and identically distributed(i.i.d)，独立同分布
-
-instance，实例
-
-label，标签
-
-logistic regression，逻辑回归
-
-mean squared error，均方误差
-
-metric，指标
-
-mini-batch，小批量
-
-normalization，归一化
-
-operator，运算符
-
-optimizer，优化器
-
-parameter，参数
-
-perplexity，困惑度
-
-pipeline，流水线
-
-size，大小
-
-transformation，变换
-
-
 ## 样式规范
 
-贡献请遵照本教程的[样式规范](FORMAT.md)。
+贡献请遵照本教程的[样式规范](STYLE_GUIDE.md)。
+
+
+## 中英文术语对照
+
+翻译请参照[中英文术语对照](TERMINOLOGY.md)。
 

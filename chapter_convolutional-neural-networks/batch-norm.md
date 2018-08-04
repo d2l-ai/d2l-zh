@@ -1,6 +1,6 @@
 # 批量归一化
 
-这一节我们介绍批量归一化（batch normalization）层 [1] ，它能让深层卷积网络的训练变得更加容易。在 [“实战Kaggle比赛：预测房价和K折交叉验证”](../chapter_supervised-learning/kaggle-gluon-kfold.md) 小节里，我们对输入数据做了归一化处理，即将每个特征在所有样本上的值转归一化成均值0方差1。这个处理可以保证训练数据的值都在同一量级上，从而使得训练时模型参数更加稳定。
+这一节我们介绍批量归一化（batch normalization）层，它能让深层卷积网络的训练变得更加容易 [1]。在 [“实战Kaggle比赛：预测房价和K折交叉验证”](../chapter_supervised-learning/kaggle-gluon-kfold.md) 小节里，我们对输入数据做了归一化处理，即将每个特征在所有样本上的值转归一化成均值0方差1。这个处理可以保证训练数据的值都在同一量级上，从而使得训练时模型参数更加稳定。
 
 通常来说，数据归一化预处理对于浅层模型就足够有效了。输出数值在只经过几个神经层后一般不会出现剧烈变化。但对于深层神经网络来说，情况会变得比较复杂：每一层里都对输入乘以权重后得到输出。当很多层这样的相乘累计在一起时，一个输入数据较小的改变都可能导致输出产生巨大变化，从而带来不稳定性。
 
@@ -15,11 +15,11 @@ $$\sigma^2 \leftarrow \frac{1}{n} \sum_{i=1}^{n}(x_i - \mu)^2.$$
 
 对于数据点 $x_i$，我们可以对它的每一个特征维进行归一化：
 
-$$\hat{x_i} \leftarrow \frac{x_i - \mu}{\sqrt{\sigma^2 + \epsilon}},$$
+$$\hat{x}_i \leftarrow \frac{x_i - \mu}{\sqrt{\sigma^2 + \epsilon}},$$
 
-这里$\epsilon$是一个很小的常数，保证分母大于0。在上面归一化的基础上，批量归一化层引入了两个可以学习的模型参数，拉升参数 $\gamma$ 和偏移参数 $\beta$。它们是长为$p$的向量，作用在$\hat{x_i}$上：
+这里$\epsilon$是一个很小的常数，保证分母大于0。在上面归一化的基础上，批量归一化层引入了两个可以学习的模型参数，拉升参数 $\gamma$ 和偏移参数 $\beta$。它们是长为$p$的向量，作用在$\hat{x}_i$上：
 
-$$y_i \leftarrow \gamma \hat{x_i} + \beta.$$
+$$y_i \leftarrow \gamma \hat{x}_i + \beta.$$
 
 这里$Y = \{y_1, \ldots, y_n\}$是批量归一化层的输出。
 
@@ -32,6 +32,7 @@ $$y_i \leftarrow \gamma \hat{x_i} + \beta.$$
 ```{.python .input  n=72}
 import sys
 sys.path.insert(0, '..')
+
 import gluonbook as gb
 from mxnet import nd, gluon, init, autograd
 from mxnet.gluon import loss as gloss, nn

@@ -60,7 +60,7 @@
 ## 图片
 
 * 软件
-    * 使用OmniGraffle制图
+    * 使用OmniGraffle制图，以80%的大小导出pdf（infinite canvas），再使用pdf2svg转成svg
 * 样式
     * 格式：
         * svg

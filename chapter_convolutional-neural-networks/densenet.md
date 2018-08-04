@@ -1,6 +1,6 @@
 # 稠密连接网络（DenseNet）
 
-ResNet中的跨层连接设计引申出了数个后续工作。这一节我们介绍其中的一个：稠密连接网络（DenseNet） [1]。 它与ResNet的主要区别如下图演示。
+ResNet中的跨层连接设计引申出了数个后续工作。这一节我们介绍其中的一个：稠密连接网络（DenseNet） [1]。 它与ResNet的主要区别如图5.10演示。
 
 ![ResNet（左）对比DenseNet（右）。](../img/densenet.svg)
 
@@ -14,7 +14,8 @@ DeseNet使用了ResNet改良版的“批量归一化、激活和卷积”结构�
 
 ```{.python .input  n=1}
 import sys
-sys.path.append('..')
+sys.path.insert(0, '..')
+
 import gluonbook as gb
 from mxnet import nd, gluon, init
 from mxnet.gluon import loss as gloss, nn
@@ -49,7 +50,7 @@ class DenseBlock(nn.Block):
 ```{.python .input  n=8}
 blk = DenseBlock(2, 10)
 blk.initialize()
-X = nd.random.uniform(shape=(4,3,8,8))
+X = nd.random.uniform(shape=(4, 3, 8, 8))
 Y = blk(X)
 Y.shape
 ```
@@ -138,7 +139,7 @@ gb.train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
 
 - DesNet论文中提交的一个优点是其模型参数比ResNet更小，这是为什么？
 - DesNet被人诟病的一个问题是内存消耗过多。真的会这样吗？可以把输入换成$224\times 224$，来看看实际（GPU）内存消耗。
-- 实现 [1] 中的表1提出的各个DenseNet版本。
+- 实现DenseNet论文中的表1提出的各个DenseNet版本 [1]。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1664)
 

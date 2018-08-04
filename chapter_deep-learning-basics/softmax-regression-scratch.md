@@ -4,10 +4,12 @@
 
 ```{.python .input  n=1}
 import sys
-sys.path.append('..')
+sys.path.insert(0, '..')
+
 import gluonbook as gb
 from mxnet import autograd, nd
 from mxnet.gluon import data as gdata
+import sys
 ```
 
 ## 获取Fashion-MNIST数据集
@@ -72,17 +74,20 @@ print(get_text_labels(y))
 
 Fashion-MNIST包括训练数据集和测试数据集（testing data set）。我们将在训练数据集上训练模型，并将训练好的模型在测试数据集上评价模型的表现。对于训练数据集，我们需要使用随机顺序访问其样本。
 
-我们可以像[“线性回归的从零开始实现”](linear-regression-scratch.md)一节中那样通过`yield`来定义读取小批量数据样本的函数。为了代码简洁，这里我们直接创建DataLoader实例，其每次读取一个样本数为`batch_size`的小批量。这里的批量大小`batch_size`是一个超参数。在实际中，数据读取经常是训练的性能瓶颈，特别当模型较简单或者计算硬件性能较高时。Gluon的`DataLoader`中一个很方便的功能是允许使用多进程来加速数据读取。这里我们通过参数`num_workers`来设置4个进程读取数据。
+我们可以像[“线性回归的从零开始实现”](linear-regression-scratch.md)一节中那样通过`yield`来定义读取小批量数据样本的函数。为了代码简洁，这里我们直接创建DataLoader实例，其每次读取一个样本数为`batch_size`的小批量。这里的批量大小`batch_size`是一个超参数。在实际中，数据读取经常是训练的性能瓶颈，特别当模型较简单或者计算硬件性能较高时。Gluon的`DataLoader`中一个很方便的功能是允许使用多进程来加速数据读取（暂不支持Windows操作系统）。这里我们通过参数`num_workers`来设置4个进程读取数据。
 
 此外，我们通过`ToTensor`将图片数据从uint8格式变换成32位浮点数格式，并除以255使得所有像素的数值均在0到1之间。`ToTensor`还将图片通道从最后一维调整到最前一维来方便之后介绍的卷积神经网络使用。通过数据集的`transform_first`函数，我们将`ToTensor`的变换应用在每个数据样本（图片和标签）的第一个元素，也即图片之上。
 
 ```{.python .input  n=28}
 batch_size = 256
 transformer = gdata.vision.transforms.ToTensor()
+num_workers = 0 if sys.platform.startswith('win32') else 4
 train_iter = gdata.DataLoader(mnist_train.transform_first(transformer),
-                              batch_size, shuffle=True, num_workers=4)
+                              batch_size, shuffle=True,
+                              num_workers=num_workers)
 test_iter = gdata.DataLoader(mnist_test.transform_first(transformer), 
-                             batch_size, shuffle=False, num_workers=4)
+                             batch_size, shuffle=False,
+                             num_workers=num_workers)
 ```
 
 我们将获取并读取Fashion-MNIST数据集的逻辑封装在`gluonbook.load_data_fashion_mnist`函数中供后面章节调用。随着本书内容的不断深入，我们会进一步改进该函数。它的完整实现将在[“深度卷积神经网络（AlexNet）”](../chapter_convolutional-neural-networks/alexnet.md)一节中描述。
@@ -123,7 +128,7 @@ X.sum(axis=0, keepdims=True), X.sum(axis=1, keepdims=True)
 def softmax(X):
     exp = X.exp()
     partition = exp.sum(axis=1, keepdims=True)
-    return exp / partition # 这里应用了广播机制。
+    return exp / partition  # 这里应用了广播机制。
 ```
 
 可以看到，对于随机输入，我们将每个元素变成了非负数，而且每一行加起来为1。

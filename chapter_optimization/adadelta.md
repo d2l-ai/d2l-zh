@@ -11,18 +11,18 @@ Adadelta算法也像RMSProp一样，使用了小批量随机梯度按元素平�
 
 $$\boldsymbol{s} \leftarrow \rho \boldsymbol{s} + (1 - \rho) \boldsymbol{g} \odot \boldsymbol{g}. $$
 
-然后，计算当前需要迭代的目标函数自变量的变化量$\boldsymbol{g}^\prime$：
+然后，计算当前需要迭代的目标函数自变量的变化量$\boldsymbol{g}'$：
 
-$$ \boldsymbol{g}^\prime \leftarrow \frac{\sqrt{\Delta\boldsymbol{x} + \epsilon}}{\sqrt{\boldsymbol{s} + \epsilon}}   \odot \boldsymbol{g}, $$
+$$ \boldsymbol{g}' \leftarrow \frac{\sqrt{\Delta\boldsymbol{x} + \epsilon}}{\sqrt{\boldsymbol{s} + \epsilon}}   \odot \boldsymbol{g}, $$
 
 
-其中$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-5}$。和Adagrad与RMSProp一样，目标函数自变量中每个元素都分别拥有自己的学习率。上式中$\Delta\boldsymbol{x}$初始化为零张量，并记录$\boldsymbol{g}^\prime$按元素平方的指数加权移动平均：
+其中$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-5}$。和Adagrad与RMSProp一样，目标函数自变量中每个元素都分别拥有自己的学习率。上式中$\Delta\boldsymbol{x}$初始化为零张量，并记录$\boldsymbol{g}'$按元素平方的指数加权移动平均：
 
-$$\Delta\boldsymbol{x} \leftarrow \rho \Delta\boldsymbol{x} + (1 - \rho) \boldsymbol{g}^\prime \odot \boldsymbol{g}^\prime. $$
+$$\Delta\boldsymbol{x} \leftarrow \rho \Delta\boldsymbol{x} + (1 - \rho) \boldsymbol{g}' \odot \boldsymbol{g}'. $$
 
 同样地，最后的自变量迭代步骤与小批量随机梯度下降类似：
 
-$$\boldsymbol{x} \leftarrow \boldsymbol{x} - \boldsymbol{g}^\prime. $$
+$$\boldsymbol{x} \leftarrow \boldsymbol{x} - \boldsymbol{g}'. $$
 
 
 ## Adadelta的实现
@@ -47,7 +47,9 @@ def adadelta(params, sqrs, deltas, rho, batch_size):
 
 ```{.python .input}
 import sys
-sys.path.append('..')
+sys.path.insert(0, '..')
+
+%matplotlib inline
 import gluonbook as gb
 from mxnet import autograd, nd
 import numpy as np

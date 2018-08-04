@@ -29,7 +29,7 @@ for f in $MD/chapter*/*md; do
 	# Remove inner link. 
 	sed -i 's/\[\([^]]*\)\]([^\)]*.md)/\1/g' $f
 	# Refer pdf instead of svg.
-	sed -i s/\.svg/\.pdf/g $f
+	sed -i s/\\.svg/.pdf/g $f
 	# Refer img in the same level. 
 	sed -i 's/\](..\/img/\](img/g' $f
 	if [ "$f" != "$dir/index.md" ]; then
@@ -39,7 +39,7 @@ done
 
 # Convert svg to pdf.
 for f in $MD/img/*svg; do
-	rsvg-convert -f pdf -o "${f%%.*}.pdf" $f
+	rsvg-convert -f pdf -z 0.80 -o "${f%%.*}.pdf" $f
 	rm $f
 done
 
@@ -61,6 +61,12 @@ for chapter in $chapters; do
 	mv $MD/$chapter/$CH $MD/ch$(printf %02d $i).md
 	rm -rf $MD/$chapter
 	i=$((i + 1))		
+done
+
+# Convert matplotlib-generated svg to pdf.
+for f in $MD/*_files/*svg; do
+	rsvg-convert -f pdf -z 0.80 -o "${f%%.*}.pdf" $f
+	rm $f
 done
 
 rm $MD/index.md

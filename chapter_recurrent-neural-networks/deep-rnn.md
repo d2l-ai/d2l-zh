@@ -25,7 +25,7 @@ $$\boldsymbol{O}_t = \boldsymbol{H}_t^{(L)} \boldsymbol{W}_{hy} + \boldsymbol{b}
 
 其中权重$\boldsymbol{W}_{hy} \in \mathbb{R}^{h \times q}$和偏差$\boldsymbol{b}_y \in \mathbb{R}^{1 \times q}$为输出层的模型参数。
 
-深度循环神经网络的架构如图6.3所示。隐藏状态的信息不断传递至当前层的下一时间步和当前时间步的下一层。
+深度循环神经网络的架构如图6.11所示。隐藏状态的信息不断传递至当前层的下一时间步和当前时间步的下一层。
 
 ![深度循环神经网络的架构。](../img/deep-rnn.svg)
 

@@ -41,7 +41,9 @@ $$\hat{y} = b + \sum_{k=1}^K x^k w_k$$
 
 ```{.python .input}
 import sys
-sys.path.append('..')
+sys.path.insert(0, '..')
+
+%matplotlib inline
 import gluonbook as gb
 from mxnet import autograd, gluon, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
@@ -87,7 +89,7 @@ def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
     gb.plt.ylabel(y_label)
     gb.plt.semilogy(x_vals, y_vals)
     if x2_vals and y2_vals:
-        gb.plt.semilogy(x2_vals, y2_vals)
+        gb.plt.semilogy(x2_vals, y2_vals, linestyle=':')
         gb.plt.legend(legend)
     gb.plt.show() 
 ```

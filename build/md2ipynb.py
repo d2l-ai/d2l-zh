@@ -10,18 +10,41 @@ def is_ascii(character):
     return ord(character) <= 128
 
 def add_space_between_ascii_and_non_ascii(string):
-    punc = (' ','\n','\t','\r','，','。','？','！','、','；','：','“',
-            '”','（','）','【','】','—','…','《','》')
+    punc = {' ', '\n', '\t', '\r', '，', '。', '？', '！', '、',
+            '；', '：', '“', '”', '（', '）', '【', '】', '—',
+            '…', '《', '》', '`', '(', ')', '[', ']', ',', '.',
+            '?', '!', ';', ':', '\'', '"'}
     if len(string) == 0:
         return ''
-    ret = string[0]
-    for i in range(1, len(string)):
-        if ((is_ascii(string[i-1]) != is_ascii(string[i]))
-            and (string[i-1] not in punc)
-            and (string[i] not in punc)):
-            ret += ' '
-        ret += string[i]
-    return ret
+
+    ret = []
+    # We don't allow space within figure cpations, such as ![](). 
+    is_fig_caption = False
+    num_left_brackets = 0
+    for i in range(len(string) - 1):
+        cur_char = string[i]
+        next_char = string[i + 1]
+        if cur_char == '[':
+            if i > 0 and string[i - 1] == '!':
+                is_fig_caption = True
+            else:
+                num_left_brackets += 1
+        elif cur_char == ']':
+            if num_left_brackets > 0:
+                num_left_brackets -= 1
+            else:
+                is_fig_caption = False
+
+        ret.append(cur_char)
+        if ((is_ascii(cur_char) != is_ascii(next_char))
+            and (cur_char not in punc)
+            and (next_char not in punc)
+            and not is_fig_caption):
+            ret.append(' ')
+
+    ret.append(string[-1])
+    return ''.join(ret)
+
 # timeout for each notebook, in sec
 timeout = 20 * 60
 
