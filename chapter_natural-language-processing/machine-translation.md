@@ -201,7 +201,7 @@ class DecoderInitState(nn.Block):
 
 ### 训练模型并输出不定长序列
 
-我们定义`translate`函数应用训练好的模型，并通过贪婪搜索输出不定长的翻译文本序列。解码器的最初时间步输入来自“&lt;bos&gt;”符号。对于一个输出中的序列，当解码器在某一时间步搜索出“&lt;eos&gt;”符号时，即完成该输出序列。
+Sutskever等人发现贪婪搜索也可以在机器翻译中也可以取得不错的结果 [1]。我们定义`translate`函数应用训练好的模型，并通过贪婪搜索输出不定长的翻译文本序列。解码器的最初时间步输入来自“&lt;bos&gt;”符号。对于一个输出中的序列，当解码器在某一时间步搜索出“&lt;eos&gt;”符号时，即完成该输出序列。
 
 ```{.python .input}
 def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
@@ -325,7 +325,7 @@ train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens)
 
 ## 评价翻译结果
 
-2002年，IBM团队提出了一种评价翻译结果的指标，叫BLEU（Bilingual Evaluation Understudy）[1]。
+2002年，IBM团队提出了一种评价翻译结果的指标，叫BLEU（Bilingual Evaluation Understudy）[2]。
 
 设$k$为我们希望评价的$n$个连续词的最大长度，例如$k=4$。设$n$个连续词的精度为$p_n$。它是模型预测序列与样本标签序列匹配$n$个连续词的数量与模型预测序列中$n$个连续词数量之比。举个例子，假设标签序列为$ABCDEF$，预测序列为$ABBCD$。那么$p_1 = 4/5, p_2 = 3/4, p_3 = 1/3, p_4 = 0$。设$len_{\text{label}}$和$len_{\text{pred}}$分别为标签序列和模型预测序列的词数。那么，BLEU的定义为
 
@@ -341,7 +341,7 @@ $$ \exp(\min(0, 1 - \frac{len_{\text{label}}}{len_{\text{pred}}})) \prod_{i=1}^k
 
 ## 练习
 
-* 试着使用更大的翻译数据集来训练模型，例如WMT [2] 和Tatoeba Project [3]。
+* 试着使用更大的翻译数据集来训练模型，例如WMT [3] 和Tatoeba Project [4]。
 * 在解码器中使用强制教学，观察实现现象。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4689)
@@ -350,8 +350,10 @@ $$ \exp(\min(0, 1 - \frac{len_{\text{label}}}{len_{\text{pred}}})) \prod_{i=1}^k
 
 ## 参考文献
 
-[1] Papineni, K., Roukos, S., Ward, T., & Zhu, W. J. (2002, July). BLEU: a method for automatic evaluation of machine translation. In Proceedings of the 40th annual meeting on association for computational linguistics (pp. 311-318). Association for Computational Linguistics.
+[1] Sutskever, I., Vinyals, O., & Le, Q. V. (2014). Sequence to sequence learning with neural networks. In Advances in neural information processing systems (pp. 3104-3112).
 
-[2] WMT. http://www.statmt.org/wmt14/translation-task.html
+[2] Papineni, K., Roukos, S., Ward, T., & Zhu, W. J. (2002, July). BLEU: a method for automatic evaluation of machine translation. In Proceedings of the 40th annual meeting on association for computational linguistics (pp. 311-318). Association for Computational Linguistics.
 
-[3] Tatoeba Project. http://www.manythings.org/anki/
+[3] WMT. http://www.statmt.org/wmt14/translation-task.html
+
+[4] Tatoeba Project. http://www.manythings.org/anki/
