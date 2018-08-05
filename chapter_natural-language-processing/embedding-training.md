@@ -28,13 +28,23 @@ import zipfile
 
 with zipfile.ZipFile('../data/ptb.zip', 'r') as zin:
     zin.extractall('../data/')
-    
+
 with open('../data/ptb/ptb.train.txt', 'r') as f:
     dataset = f.readlines()
     dataset = [sentence.split() for sentence in dataset]
 
 for sentence in dataset[:3]:
     print(sentence[:5] + ['...'])
+```
+
+```{.json .output n=2}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "['aer', 'banknote', 'berlitz', 'calloway', 'centrust', '...']\n['pierre', '<unk>', 'N', 'years', 'old', '...']\n['mr.', '<unk>', 'is', 'chairman', 'of', '...']\n"
+ }
+]
 ```
 
 ### 建立词语索引
@@ -44,6 +54,7 @@ for sentence in dataset[:3]:
 ```{.python .input  n=3}
 min_token_occurence = 5
 
+# 统计 dataset 中的词频。
 counter = collections.Counter(itertools.chain.from_iterable(dataset))
 idx_to_token = list(token_count[0] for token_count in 
                     filter(lambda token_count: token_count[1] >= min_token_occurence,
@@ -63,7 +74,7 @@ observed in a dataset and $t$ is a subsampling constant typically chosen around
 $10^{-5}$. We are using a very small dataset here and found results in this case to be better with
 $10^{-4}$.
 
-```{.python .input}
+```{.python .input  n=4}
 idx_to_counts = [counter[w] for w in idx_to_token]
 frequent_tokens_subsampling_constant = 1e-4
 sum_counts =  sum(idx_to_counts)
@@ -153,7 +164,7 @@ of the center word. To improve training stability, we mask such accidental hits.
 
 Here we directly sample negatives for every context precomputed before.
 
-```{.python .input  n=8}
+```{.python .input  n=6}
 def get_negatives(shape, true_samples, negatives_weights):
     population = list(range(len(negatives_weights)))
     k = functools.reduce(operator.mul, shape)
@@ -170,7 +181,7 @@ def get_negatives(shape, true_samples, negatives_weights):
     return negatives
 ```
 
-```{.python .input  n=9}
+```{.python .input  n=7}
 # This may take around 20 seconds
 num_negatives = 5
 negatives_weights = [counter[w]**0.75 for w in idx_to_token]
@@ -184,7 +195,7 @@ First we define a helper function `get_knn` to obtain the k closest words to for
 a given word according to our trained word embedding model to evaluate if it
 learned successfully.
 
-```{.python .input  n=10}
+```{.python .input  n=8}
 def norm_vecs_by_row(x):
     # 分母中添加的 1e-10 是为了数值稳定性。
     return x / (nd.sum(x * x, axis=1) + 1e-10).sqrt().reshape((-1, 1))
@@ -203,7 +214,7 @@ def get_knn(token_to_idx, idx_to_token, embedding, k, word):
 
 We then define the model and initialize it randomly. Here we denote the model containing the weights $\mathbf{v}$ as `embedding` and respectively the model for $\mathbf{u}$ as `embedding_out`.
 
-```{.python .input  n=15}
+```{.python .input  n=9}
 context = mx.gpu(0)
 # context = mx.cpu()
 
@@ -223,15 +234,25 @@ example_token = 'president'
 knn = get_knn(token_to_idx, idx_to_token, embedding, 5, example_token)
 ```
 
+```{.json .output n=9}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Closest tokens to \"president\": hoping, tailored, upheld, manila, borough\n"
+ }
+]
+```
+
 The gluon `SigmoidBinaryCrossEntropyLoss` corresponds to the loss function introduced above.
 
-```{.python .input  n=16}
+```{.python .input  n=10}
 loss = gloss.SigmoidBinaryCrossEntropyLoss()
 ```
 
 Finally we train the word2vec model. We first shuffle our dataset
 
-```{.python .input}
+```{.python .input  n=11}
 class Dataset(gdata.SimpleDataset):
     def __init__(self, centers, contexts, negatives):
         data = list(zip(centers, contexts, negatives))
@@ -272,7 +293,7 @@ batches = gdata.DataLoader(data, batch_size=batch_size,
                                 num_workers=1)
 ```
 
-```{.python .input  n=17}
+```{.python .input  n=12}
 def train_embedding(num_epochs=3, eval_period=100):
     for epoch in range(1, num_epochs + 1):
         start_time = time.time()
@@ -304,8 +325,18 @@ def train_embedding(num_epochs=3, eval_period=100):
                 get_knn(token_to_idx, idx_to_token, embedding, 5, example_token)
 ```
 
-```{.python .input}
+```{.python .input  n=13}
 train_embedding()
+```
+
+```{.json .output n=13}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "epoch 1, batch 100, time 1.43s, train loss 0.40\nClosest tokens to \"president\": named, chairman, succeeding, formerly, stoltzman\nepoch 1, batch 200, time 2.42s, train loss 0.33\nClosest tokens to \"president\": succeeding, e., named, officer, sanford\nepoch 1, batch 300, time 3.42s, train loss 0.32\nClosest tokens to \"president\": treasurer, deputy, e., f., succeeding\nepoch 1, batch 400, time 4.41s, train loss 0.31\nClosest tokens to \"president\": treasurer, vice, resigned, formerly, jordan\nepoch 1, batch 500, time 5.40s, train loss 0.31\nClosest tokens to \"president\": treasurer, deputy, formerly, p., named\nepoch 1, batch 600, time 6.39s, train loss 0.31\nClosest tokens to \"president\": treasurer, katz, chairman, deputy, p.\nepoch 1, batch 700, time 7.38s, train loss 0.31\nClosest tokens to \"president\": treasurer, p., chief, chairman, katz\nepoch 2, batch 100, time 1.43s, train loss 0.28\nClosest tokens to \"president\": treasurer, succeeding, formerly, roger, vice\nepoch 2, batch 200, time 2.43s, train loss 0.27\nClosest tokens to \"president\": succeeding, treasurer, formerly, vice, p.\nepoch 2, batch 300, time 3.41s, train loss 0.27\nClosest tokens to \"president\": succeeding, treasurer, dover, vice, formerly\nepoch 2, batch 400, time 4.40s, train loss 0.27\nClosest tokens to \"president\": treasurer, vice, succeeding, resigned, katz\nepoch 2, batch 500, time 5.39s, train loss 0.27\nClosest tokens to \"president\": treasurer, p., vice, ehrlich, succeeding\nepoch 2, batch 600, time 6.38s, train loss 0.27\nClosest tokens to \"president\": vice, treasurer, ehrlich, p., formerly\nepoch 2, batch 700, time 7.37s, train loss 0.27\nClosest tokens to \"president\": vice, succeeding, treasurer, p., formerly\nepoch 3, batch 100, time 1.42s, train loss 0.25\nClosest tokens to \"president\": succeeding, vice, ehrlich, formerly, treasurer\nepoch 3, batch 200, time 2.41s, train loss 0.25\nClosest tokens to \"president\": succeeding, vice, p., treasurer, formerly\nepoch 3, batch 300, time 3.41s, train loss 0.25\nClosest tokens to \"president\": vice, succeeding, p., dover, ehrlich\nepoch 3, batch 400, time 4.40s, train loss 0.25\nClosest tokens to \"president\": vice, succeeding, formerly, ehrlich, gerald\nepoch 3, batch 500, time 5.40s, train loss 0.25\nClosest tokens to \"president\": vice, formerly, gerald, succeeding, p.\nepoch 3, batch 600, time 6.41s, train loss 0.25\nClosest tokens to \"president\": vice, p., dover, formerly, gerald\nepoch 3, batch 700, time 7.42s, train loss 0.25\nClosest tokens to \"president\": vice, p., succeeding, formerly, dover\n"
+ }
+]
 ```
 
 [1] word2vec工具. https://code.google.com/archive/p/word2vec/
