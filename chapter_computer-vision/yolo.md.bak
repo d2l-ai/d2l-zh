@@ -88,7 +88,7 @@ def yolo2_forward(x, num_class, anchor_scales):
 ```
 
 ### 定义一个函数来生成yolo2训练目标
-YOLO2寻找真实目标的方法比较特殊，是在每个格点内各自比较，而不是使用全局的预设。而且我们不需要对生成的训练目标进行反向传播，为了简洁描述比较的方法，我们可以在这里转成numpy而且可以用for循环（切记转成numpy会破坏自动求导的记录，只有当反向传播不需要的时候才能使用这个技巧），实际使用中，如果遇到速度问题，我们可以用mx.ndarray矩阵的写法来加速。
+YOLO2寻找真实目标的方法比较特殊，是在每个格点内各自比较，而不是使用全局的预设。而且我们不需要对生成的训练目标进行反向传播，为了简洁描述比较的方法，我们可以在这里转成NumPy而且可以用for循环（切记转成NumPy会破坏自动求导的记录，只有当反向传播不需要的时候才能使用这个技巧），实际使用中，如果遇到速度问题，我们可以用mx.ndarray矩阵的写法来加速。
 这里我们使用了一个技巧：sample_weight（个体权重）矩阵， 用于损失函数内部权重的调整，我们也可以通过权重矩阵来控制哪些个体需要被屏蔽，这一点在目标检测中尤其重要，因为往往大多数的背景区域不需要预测检测框。
 
 ```{.python .input  n=3}
@@ -173,7 +173,7 @@ class YOLO2Output(HybridBlock):
         out_channels = len(anchor_scales) * (num_class + 1 + 4)
         with self.name_scope():
             self.output = nn.Conv2D(out_channels, 1, 1)
-        
+
     def hybrid_forward(self, F, x, *args):
         return self.output(x)
 ```
@@ -249,15 +249,15 @@ def box_to_rect(box, color, linewidth=3):
 
 _, figs = plt.subplots(3, 3, figsize=(6,6))
 for i in range(3):
-    for j in range(3):        
-        img, labels = batch.data[0][3*i+j], batch.label[0][3*i+j]        
+    for j in range(3):
+        img, labels = batch.data[0][3*i+j], batch.label[0][3*i+j]
         img = img.transpose((1, 2, 0)) * rgb_std + rgb_mean
         img = img.clip(0,255).asnumpy()/255
         fig = figs[i][j]
         fig.imshow(img)
         for label in labels:
             rect = box_to_rect(label[1:5]*data_shape,'red',2)
-            fig.add_patch(rect)                    
+            fig.add_patch(rect)
         fig.axes.get_xaxis().set_visible(False)
         fig.axes.get_yaxis().set_visible(False)
 plt.show()
@@ -291,7 +291,7 @@ class LossRecorder(mx.metric.EvalMetric):
                 loss = loss.asnumpy()
             self.sum_metric += loss.sum()
             self.num_inst += 1
-            
+
 obj_loss = LossRecorder('objectness_loss')
 cls_loss = LossRecorder('classification_loss')
 box_loss = LossRecorder('box_refine_loss')
@@ -334,7 +334,7 @@ from mxnet import gpu
 
 ctx = gpu(0)
 net.collect_params().reset_ctx(ctx)
-trainer = gluon.Trainer(net.collect_params(), 
+trainer = gluon.Trainer(net.collect_params(),
                         'sgd', {'learning_rate': 1, 'wd': 5e-4})
 ```
 
@@ -342,7 +342,7 @@ trainer = gluon.Trainer(net.collect_params(),
 import time
 from mxnet import autograd
 for epoch in range(20):
-    # reset data iterators and metrics 
+    # reset data iterators and metrics
     train_data.reset()
     cls_loss.reset()
     obj_loss.reset()
@@ -358,8 +358,8 @@ for epoch in range(20):
                 tid, tscore, tbox, sample_weight = yolo2_target(score, xywh, y, scales, thresh=0.5)
             # losses
             loss1 = sce_loss(cls_pred, tid, sample_weight * class_weight)
-            score_weight = nd.where(sample_weight > 0, 
-                                    nd.ones_like(sample_weight) * positive_weight, 
+            score_weight = nd.where(sample_weight > 0,
+                                    nd.ones_like(sample_weight) * positive_weight,
                                     nd.ones_like(sample_weight) * negative_weight)
             loss2 = l1_loss(score, tscore, score_weight)
             loss3 = l1_loss(xywh, tbox, sample_weight * box_weight)
@@ -370,7 +370,7 @@ for epoch in range(20):
         cls_loss.update(loss1)
         obj_loss.update(loss2)
         box_loss.update(loss3)
-        
+
     print('Epoch %2d, train %s %.5f, %s %.5f, %s %.5f time %.1f sec' % (
         epoch, *cls_loss.get(), *obj_loss.get(), *box_loss.get(), time.time()-tic))
 ```
@@ -410,7 +410,7 @@ mpl.rcParams['figure.figsize'] = (6,6)
 
 colors = ['blue', 'green', 'red', 'black', 'magenta']
 
-def display(im, out, threshold=0.5):    
+def display(im, out, threshold=0.5):
     plt.imshow(im.asnumpy())
     for row in out:
         row = row.asnumpy()
@@ -422,7 +422,7 @@ def display(im, out, threshold=0.5):
         rect = box_to_rect(nd.array(box), color, 2)
         plt.gca().add_patch(rect)
         text = class_names[class_id]
-        plt.gca().text(box[0], box[1], 
+        plt.gca().text(box[0], box[1],
                        '{:s} {:.2f}'.format(text, score),
                        bbox=dict(facecolor=color, alpha=0.5),
                        fontsize=10, color='white')

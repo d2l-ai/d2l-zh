@@ -42,7 +42,7 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval,
     data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
     loss = gloss.L2Loss()
     ls = [loss(net(features), labels).mean().asnumpy()]
-    for epoch in range(1, num_epochs + 1): 
+    for epoch in range(1, num_epochs + 1):
         # 学习率自我衰减。
         if decay_epoch and epoch > decay_epoch:
             trainer.set_learning_rate(trainer.learning_rate * 0.1)
@@ -53,7 +53,7 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval,
             trainer.step(batch_size)
             if batch_i * batch_size % log_interval == 0:
                 ls.append(loss(net(features), labels).mean().asnumpy())
-    # 为了便于打印，改变输出形状并转化成numpy数组。
+    # 为了便于打印，改变输出形状并转化成NumPy数组。
     print('w:', net[0].weight.data(), '\nb:', net[0].bias.data(), '\n')
     es = np.linspace(0, num_epochs, len(ls), endpoint=True)
     gb.semilogy(es, ls, 'epoch', 'loss')

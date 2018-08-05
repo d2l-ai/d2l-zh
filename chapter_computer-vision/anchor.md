@@ -2,7 +2,7 @@
 
 物体识别算法通常会在输入图片中采样大量的区域，然后判断这些区域是否有我们感兴趣的物体，以及进一步调整区域边缘来更准确预测物体的真实边界框。不同的模型使用不同的区域采样方法，这里我们介绍其中的一种：它以每个像素为中心生成数个大小和比例不同的被称之为锚框（anchor box）的边界框。
 
-导入本小节需要的包。注意我们新引入了`contrib`这个模块，以及使用numpy修改了打印精度，这是因为NDArray的打印实际上调用了numpy的打印函数。
+导入本小节需要的包。注意我们新引入了`contrib`这个模块，以及使用NumPy修改了打印精度，这是因为NDArray的打印实际上调用了NumPy的打印函数。
 
 ```{.python .input  n=1}
 import sys
@@ -46,14 +46,14 @@ boxes[250, 250, 0, :]
 
 ```{.python .input  n=11}
 def show_bboxes(axes, bboxes, labels=None, colors=None):
-    def _make_list(obj, default_values=None):                                                                                                       
+    def _make_list(obj, default_values=None):
         if obj is None:
             obj = default_values
         elif not isinstance(obj, (list, tuple)):
             obj = [obj]
         return obj
 
-    labels = _make_list(labels)                                                                                                                 
+    labels = _make_list(labels)
     colors = _make_list(colors, ['b', 'g', 'r', 'm', 'k'])
     for i, bbox in enumerate(bboxes):
         color = colors[i % len(colors)]

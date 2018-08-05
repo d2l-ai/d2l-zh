@@ -47,7 +47,7 @@ def show_fashion_imgs(images):
     gb.plt.show()
 ```
 
-图片的标签使用numpy的标量表示。它的类型为32位整数。
+图片的标签使用NumPy的标量表示。它的类型为32位整数。
 
 ```{.python .input}
 label, type(label), label.dtype
@@ -85,7 +85,7 @@ num_workers = 0 if sys.platform.startswith('win32') else 4
 train_iter = gdata.DataLoader(mnist_train.transform_first(transformer),
                               batch_size, shuffle=True,
                               num_workers=num_workers)
-test_iter = gdata.DataLoader(mnist_test.transform_first(transformer), 
+test_iter = gdata.DataLoader(mnist_test.transform_first(transformer),
                              batch_size, shuffle=False,
                              num_workers=num_workers)
 ```
@@ -224,7 +224,7 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
             train_l_sum += l.mean().asscalar()
             train_acc_sum += accuracy(y_hat, y)
         test_acc = evaluate_accuracy(test_iter, net)
-        print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f' 
+        print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f'
               % (epoch, train_l_sum / len(train_iter),
                  train_acc_sum / len(train_iter), test_acc))
 
@@ -240,7 +240,7 @@ train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size, params,
 data, label = mnist_test[0:9]
 show_fashion_imgs(data)
 print('labels:', get_text_labels(label))
-    
+
 predicted_labels = [net(transformer(x)).argmax(axis=1).asscalar()
                     for x in data]
 print('predictions:', get_text_labels(predicted_labels))
