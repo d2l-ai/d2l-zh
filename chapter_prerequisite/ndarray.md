@@ -212,7 +212,7 @@ id(x) == before
 import numpy as np
 
 p = np.ones((2, 3))
-d = nd.array(x)
+d = nd.array(p)
 d
 ```
 
