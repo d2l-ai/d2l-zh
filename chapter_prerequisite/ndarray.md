@@ -206,7 +206,7 @@ id(x) == before
 
 ## NDArray和NumPy相互变换
 
-我们可以通过`array`和`asnumpy`函数令数据在NDArray和Numpy格式之间相互转换。下面将NumPy实例变换成NDArray实例。
+我们可以通过`array`和`asnumpy`函数令数据在NDArray和NumPy格式之间相互转换。下面将NumPy实例变换成NDArray实例。
 
 ```{.python .input  n=22}
 import numpy as np
