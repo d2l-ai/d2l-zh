@@ -6,7 +6,7 @@
 
 首先导入实验所需的包或模块，并抽取数据集。
 
-```{.python .input  n=1}
+```{.python .input  n=2}
 from mxnet import nd, gluon
 from mxnet.gluon import data as gdata, loss as gloss, nn
 import collections
@@ -23,7 +23,7 @@ import time
 
 We then load a corpus for training the word embedding model. Like for training the language model in [“循环神经网络——使用Gluon”](../chapter_recurrent-neural-networks/rnn-gluon.md), we use the Penn Tree Bank（PTB）[1]。它包括训练集、验证集和测试集 。We directly split the datasets into sentences and tokens, considering newlines as paragraph delimeters and whitespace as token delimiter. We print the first five words of the first three sentences of the dataset.
 
-```{.python .input  n=2}
+```{.python .input  n=3}
 import zipfile
 
 with zipfile.ZipFile('../data/ptb.zip', 'r') as zin:
@@ -37,31 +37,24 @@ for sentence in dataset[:3]:
     print(sentence[:5] + ['...'])
 ```
 
-```{.json .output n=2}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "['aer', 'banknote', 'berlitz', 'calloway', 'centrust', '...']\n['pierre', '<unk>', 'N', 'years', 'old', '...']\n['mr.', '<unk>', 'is', 'chairman', 'of', '...']\n"
- }
-]
-```
-
 ### 建立词语索引
 
 下面定义了`Dictionary`类来映射词语和整数索引。We first count all tokens in the dataset and assign integer indices to all tokens that occur more than five times in the corpus. We also construct the reverse mapping token to integer index `token_to_idx` and finally replace all tokens in the dataset with their respective indices.
 
 ```{.python .input  n=3}
-min_token_occurence = 5
+min_count = 5
 
-# 统计 dataset 中的词频。
+# 将 dataset 中所有词拼接起来，统计 dataset 中各个词出现的频率。
 counter = collections.Counter(itertools.chain.from_iterable(dataset))
+# 只为词频不小于 min_count 的词建立索引。
 idx_to_token = list(token_count[0] for token_count in 
-                    filter(lambda token_count: token_count[1] >= min_token_occurence,
+                    filter(lambda token_count: token_count[1] >= min_count,
                            counter.items()))
 token_to_idx = {token: idx for idx, token in enumerate(idx_to_token)}
 
-coded_dataset = [[token_to_idx[token] for token in sentence if token in token_to_idx] for sentence in dataset]
+# coded_dataset 只包含被索引词的索引。
+coded_dataset = [[token_to_idx[token] for token in sentence
+                  if token in token_to_idx] for sentence in dataset]
 ```
 
 ### Dataset subsampling
@@ -69,19 +62,19 @@ coded_dataset = [[token_to_idx[token] for token in sentence if token in token_to
 One important trick applied when training word2vec is to subsample the dataset
 according to the token frequencies. [2] proposes to discards individual
 occurences of words from the dataset with probability $$ P(w_i) = 1 -
-\sqrt{\frac{t}{f(w_i)}}$$ where $f(w_i)$ is the frequency with which a word is
+\sqrt{\frac{t}{f(w_i)}}$$ where $f(w_i)$ is the frequency ratio with which a word is
 observed in a dataset and $t$ is a subsampling constant typically chosen around
 $10^{-5}$. We are using a very small dataset here and found results in this case to be better with
 $10^{-4}$.
 
 ```{.python .input  n=4}
-idx_to_counts = [counter[w] for w in idx_to_token]
-frequent_tokens_subsampling_constant = 1e-4
-sum_counts =  sum(idx_to_counts)
-idx_to_pdiscard = [1 - math.sqrt(frequent_tokens_subsampling_constant / (count / sum_counts))
-                   for count in idx_to_counts]
+idx_to_count = [counter[w] for w in idx_to_token]
+total_count =  sum(idx_to_count)
+idx_to_pdiscard = [1 - math.sqrt(1e-4 / (count / total_count))
+                   for count in idx_to_count]
 
-pruned_dataset = [[t for t in s if random.uniform(0, 1) > idx_to_pdiscard[t]] for s in coded_dataset]
+pruned_dataset = [[t for t in s if random.uniform(0, 1) > idx_to_pdiscard[t]]
+                  for s in coded_dataset]
 ```
 
 ### Transformation of data
@@ -112,40 +105,54 @@ streaming manner. Here for simplicity and as we use a small dataset we transform
 the whole dataset at once into center words with respective contexts so that
 during training we only need to iterate over the pre-computed arrays.
 
+
+我们先随机得到不大于 `max_window_size` 的正整数作为窗口大小，设为$h$。中心词的每个背景词与该中心词在同一个句子中的词间距不超过$h$。
+
 ```{.python .input  n=5}
-def get_center_context_arrays(coded_sentences, window_size):
+def get_center_context_arrays(coded_sentences, max_window_size):
     centers = []
     contexts = []
     for sentence in coded_sentences:
-        # We need at least  2  words  to form a source, context pair
+        # 每句话至少要有 2 个词才可能组成一对“中心词-背景词”。
         if len(sentence) < 2:
             continue
         centers += sentence
-        context = [get_one_context(sentence, i, window_size)
+        context = [get_one_context(sentence, i, max_window_size)
                    for i in range(len(sentence))]
         contexts += context
     return centers, contexts
 
 
-def get_one_context(sentence, word_index, window_size):
-    # A random reduced window size is drawn.
-    random_window_size = random.randint(1, window_size)
-
-    start_idx = max(0, word_index - random_window_size)
-    # First index outside of the window
-    end_idx = min(len(sentence), word_index + random_window_size + 1)
-
+def get_one_context(sentence, word_idx, max_window_size):
+    # 从 1 和 max_window_size 之间均匀随机生成整数（包括 1 和 max_window_size）。
+    window_size = random.randint(1, max_window_size)
+    start_idx = max(0, word_idx - window_size)
+    # 加 1 是为了将中心词排除在背景词之外。
+    end_idx = min(len(sentence), word_idx + window_size + 1)
     context = []
-    # Get contexts left of center word
-    if start_idx != word_index:
-        context += sentence[start_idx:word_index]
-    # Get contexts right of center word
-    if word_index + 1 != end_idx: 
-        context += sentence[word_index + 1:end_idx]
+    # 添加中心词左边的背景词。
+    if start_idx != word_idx:
+        context += sentence[start_idx:word_idx]
+    # 添加中心词右边的背景词。
+    if word_idx + 1 != end_idx: 
+        context += sentence[word_idx + 1 : end_idx]
     return context
 
-window_size = 5
-all_centers, all_contexts = get_center_context_arrays(pruned_dataset, window_size)
+max_window_size = 5
+all_centers, all_contexts = get_center_context_arrays(pruned_dataset,
+                                                      max_window_size)
+```
+
+```{.python .input}
+my_pruned_dataset = [list(range(10)), list(range(10, 13))]
+
+my_max_window_size = 2
+my_all_centers, my_all_contexts = get_center_context_arrays(
+    my_pruned_dataset, my_max_window_size)
+
+print(my_pruned_dataset)
+for i in range(13):
+    print('center', my_all_centers[i], 'has contexts', my_all_contexts[i])
 ```
 
 ### 负采样
@@ -185,7 +192,7 @@ def get_negatives(shape, true_samples, negatives_weights):
 # This may take around 20 seconds
 num_negatives = 5
 negatives_weights = [counter[w]**0.75 for w in idx_to_token]
-negatives_shape = (len(all_contexts), window_size * 2 * num_negatives)
+negatives_shape = (len(all_contexts), max_window_size * 2 * num_negatives)
 all_negatives = get_negatives(negatives_shape, all_contexts, negatives_weights)
 ```
 
@@ -232,16 +239,6 @@ trainer = gluon.Trainer(params, 'adagrad', dict(learning_rate=0.1))
 
 example_token = 'president'
 knn = get_knn(token_to_idx, idx_to_token, embedding, 5, example_token)
-```
-
-```{.json .output n=9}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "Closest tokens to \"president\": hoping, tailored, upheld, manila, borough\n"
- }
-]
 ```
 
 The gluon `SigmoidBinaryCrossEntropyLoss` corresponds to the loss function introduced above.
@@ -327,16 +324,6 @@ def train_embedding(num_epochs=3, eval_period=100):
 
 ```{.python .input  n=13}
 train_embedding()
-```
-
-```{.json .output n=13}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "epoch 1, batch 100, time 1.43s, train loss 0.40\nClosest tokens to \"president\": named, chairman, succeeding, formerly, stoltzman\nepoch 1, batch 200, time 2.42s, train loss 0.33\nClosest tokens to \"president\": succeeding, e., named, officer, sanford\nepoch 1, batch 300, time 3.42s, train loss 0.32\nClosest tokens to \"president\": treasurer, deputy, e., f., succeeding\nepoch 1, batch 400, time 4.41s, train loss 0.31\nClosest tokens to \"president\": treasurer, vice, resigned, formerly, jordan\nepoch 1, batch 500, time 5.40s, train loss 0.31\nClosest tokens to \"president\": treasurer, deputy, formerly, p., named\nepoch 1, batch 600, time 6.39s, train loss 0.31\nClosest tokens to \"president\": treasurer, katz, chairman, deputy, p.\nepoch 1, batch 700, time 7.38s, train loss 0.31\nClosest tokens to \"president\": treasurer, p., chief, chairman, katz\nepoch 2, batch 100, time 1.43s, train loss 0.28\nClosest tokens to \"president\": treasurer, succeeding, formerly, roger, vice\nepoch 2, batch 200, time 2.43s, train loss 0.27\nClosest tokens to \"president\": succeeding, treasurer, formerly, vice, p.\nepoch 2, batch 300, time 3.41s, train loss 0.27\nClosest tokens to \"president\": succeeding, treasurer, dover, vice, formerly\nepoch 2, batch 400, time 4.40s, train loss 0.27\nClosest tokens to \"president\": treasurer, vice, succeeding, resigned, katz\nepoch 2, batch 500, time 5.39s, train loss 0.27\nClosest tokens to \"president\": treasurer, p., vice, ehrlich, succeeding\nepoch 2, batch 600, time 6.38s, train loss 0.27\nClosest tokens to \"president\": vice, treasurer, ehrlich, p., formerly\nepoch 2, batch 700, time 7.37s, train loss 0.27\nClosest tokens to \"president\": vice, succeeding, treasurer, p., formerly\nepoch 3, batch 100, time 1.42s, train loss 0.25\nClosest tokens to \"president\": succeeding, vice, ehrlich, formerly, treasurer\nepoch 3, batch 200, time 2.41s, train loss 0.25\nClosest tokens to \"president\": succeeding, vice, p., treasurer, formerly\nepoch 3, batch 300, time 3.41s, train loss 0.25\nClosest tokens to \"president\": vice, succeeding, p., dover, ehrlich\nepoch 3, batch 400, time 4.40s, train loss 0.25\nClosest tokens to \"president\": vice, succeeding, formerly, ehrlich, gerald\nepoch 3, batch 500, time 5.40s, train loss 0.25\nClosest tokens to \"president\": vice, formerly, gerald, succeeding, p.\nepoch 3, batch 600, time 6.41s, train loss 0.25\nClosest tokens to \"president\": vice, p., dover, formerly, gerald\nepoch 3, batch 700, time 7.42s, train loss 0.25\nClosest tokens to \"president\": vice, p., succeeding, formerly, dover\n"
- }
-]
 ```
 
 [1] word2vec工具. https://code.google.com/archive/p/word2vec/
