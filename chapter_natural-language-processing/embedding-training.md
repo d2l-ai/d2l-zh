@@ -128,7 +128,7 @@ def get_one_context(sentence, word_idx, max_window_size):
     window_size = random.randint(1, max_window_size)
     start_idx = max(0, word_idx - window_size)
     # 加 1 是为了将中心词排除在背景词之外。
-    end_idx = min(len(sentence), word_idx + window_size + 1)
+    end_idx = min(len(sentence), word_idx + 1 + window_size)
     context = []
     # 添加中心词左边的背景词。
     if start_idx != word_idx:
