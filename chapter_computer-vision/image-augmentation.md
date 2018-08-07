@@ -106,49 +106,6 @@ augs = gdata.vision.transforms.Compose([
 apply(img, augs)
 ```
 
-#### 对数据集图片进行增广操作
-如果希望对自己的数据进行曾广扩充，可以利用img_aug()函数来直接对某个文件夹下的图片进行随机变换和增强
-
-```{.python .input}
-# 先定义一组增广操作，其中的参数可以根据上述讲解来调整
-augs = [gdata.vision.transforms.RandomFlipLeftRight(),
-       gdata.vision.transforms.RandomResizedCrop(
-       (200, 200), scale=(0.1, 1), ratio=(0.8, 1.25)),
-       gdata.vision.transforms.RandomBrightness(0.1),
-       gdata.vision.transforms.RandomHue(0.5),
-       gdata.vision.transforms.RandomColorJitter(
-       brightness=0.1, contrast=0.5, saturation=0.5, hue=0.5)
-      ]    """augmentation list example"""
-```
-
-```{.python .input}
-#将增广操作应用于图像上，其中num_aug为每种操作进行的次数
-def apply_aug(img, augs, path, name, num_aug=10):
-    """Apply augmetaion manipulation on images"""
-    for aug in augs:
-        Y = [aug(img) for _ in range(num_aug)]
-        for i in range(len(Y)):
-            augged = Y[i].asnumpy()
-            id_name = name.split('.')[0]
-            new_name = path+'aug/'+id_name+'0'+str(i)+'.jpg'
-            cv2.imwrite(new_name,augged)
-
-#定义文件夹增广函数，作用后可以在path/aug/下生成变化后的增广数据
-def img_aug(path):
-    """Generate augmentation images, your train img store in path/"""
-    if not os.path.exists(path+'aug/'):
-        os.mkdir(path+'aug/')              
-    names = os.listdir(path)
-    for name in names:
-        if name.endswith('.jpg'):
-            aug_img = image.imread(path+name)
-            apply_aug(aug_img, augs,path,name)
-```
-
-```{.python .input}
-img_aug('./../where/you/store/your/images/')
-```
-
 ## 使用图片增广来训练
 
 接下来我们来看一个将图片增广应用在实际训练中的例子，并比较其与不使用时的区别。这里我们使用CIFAR-10数据集，而不是之前我们一直使用的Fashion-MNIST。原因在于Fashion-MNIST中物体位置和尺寸都已经归一化了，而CIFAR-10中物体颜色和大小区别更加显著。下面我们展示CIFAR-10中的前32张训练图片。
