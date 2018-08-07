@@ -10,7 +10,7 @@ DenseNet的主要构建模块是稠密块和过渡块，前者定义了输入和
 
 ## 稠密块
 
-DeseNet使用了ResNet改良版的“批量归一化、激活和卷积”结构（参见上一节习题），我们首先在`conv_block`函数里实现这个结构。
+DenseNet使用了ResNet改良版的“批量归一化、激活和卷积”结构（参见上一节习题），我们首先在`conv_block`函数里实现这个结构。
 
 ```{.python .input  n=1}
 import sys
