@@ -65,7 +65,7 @@ blk(X).shape
 
 ## ResNet模型
 
-ResNet前面两层跟前面介绍的GoogLeNet一样，在输出通道为64、步幅为2的$7\times 7$卷积层后接步幅为2的$3\times 3$的最大池化层。不同在于一点在于ResNet的每个卷积层后面增加的批量归一化层。
+ResNet前面两层跟前面介绍的GoogLeNet一样，在输出通道为64、步幅为2的$7\times 7$卷积层后接步幅为2的$3\times 3$的最大池化层。不同一点在于ResNet的每个卷积层后面增加的批量归一化层。
 
 ```{.python .input}
 net = nn.Sequential()
