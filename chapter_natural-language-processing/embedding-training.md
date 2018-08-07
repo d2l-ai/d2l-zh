@@ -20,6 +20,7 @@ import itertools
 import math
 import mxnet as mx
 import random
+import sys
 import time
 ```
 
@@ -243,10 +244,11 @@ embedding_out.initialize(ctx=ctx)
 embedding.hybridize()
 embedding_out.hybridize()
 
-params = list(embedding.collect_params().values()) + list(embedding_out.collect_params().values())
+params = list(embedding.collect_params().values()) + list(
+    embedding_out.collect_params().values())
 trainer = gluon.Trainer(params, 'adam', {'learning_rate': 0.01})
 
-example_token = 'president'
+example_token = 'chip'
 get_k_closest_tokens(token_to_idx, idx_to_token, embedding, 10, example_token)
 ```
 
@@ -259,32 +261,28 @@ loss = gloss.SigmoidBinaryCrossEntropyLoss()
 Finally we train the word2vec model. We first shuffle our dataset
 
 ```{.python .input  n=11}
-class Dataset(gdata.SimpleDataset):
-    def __init__(self, centers, contexts, negatives):
-        data = list(zip(centers, contexts, negatives))
-        super().__init__(data)
-
 def batchify_fn(data):
-    # data is a list with batch_size elements
-    # each element is of form (center, context, negative)
+    # data 是一个长度为 batch_size 的 list，其中每个元素为 (中心词, 背景词, 负采样词)。
     centers, contexts, negatives = zip(*data)
-    batch_size = len(centers)  # == len(contexts) == len(negatives)
-    
-    # contexts and negatives are of variable length
-    # we pad them to a fixed length and introduce a mask
-    length = max(len(c) + len(n) for c, n in zip(contexts, negatives))
+    batch_size = len(centers)
+
+    # 每个中心词的背景词 contexts 和负采样词 negatives 的长度不一，我们将当前批量每个中
+    # 心词的背景词和负采样词连结在一起，并填充 0 至相同长度 max_len。
+    max_len = max(len(c) + len(n) for c, n in zip(contexts, negatives))    
     contexts_negatives = []
     masks = []
     labels = []
-    for i, (context, negative) in enumerate(zip(contexts, negatives)):
-        len_context_negative = len(context) + len(negative)
-        context_negative = context + negative + [0] * (length - len_context_negative)
-        mask = [1] * len_context_negative + [0] * (length - len_context_negative)
-        label = [1] * len(context) + [0] * (length - len(context))
+    for context, negative in zip(contexts, negatives):
+        cur_len = len(context) + len(negative)
+        context_negative = context + negative + [0] * (max_len - cur_len)
+        # mask 用来区分非填充（背景词和负采样词）和填充。
+        mask = [1] * cur_len + [0] * (max_len - cur_len)
+        # label 用来区分背景词和非背景词。
+        label = [1] * len(context) + [0] * (max_len - len(context))
         contexts_negatives.append(context_negative)
         masks.append(mask)
         labels.append(label)
-        
+
     centers_nd = nd.array(centers).reshape((batch_size, 1))
     contexts_negatives_nd = nd.array(contexts_negatives)
     masks_nd = nd.array(masks)
@@ -292,11 +290,11 @@ def batchify_fn(data):
     return centers_nd, contexts_negatives_nd, masks_nd, labels_nd
 
 batch_size = 512
+num_workers = 0 if sys.platform.startswith('win32') else 4
 
-data = Dataset(all_centers, all_contexts, all_negatives)
-batches = gdata.DataLoader(data, batch_size=batch_size,
-                                shuffle=True, batchify_fn=batchify_fn,
-                                num_workers=1)
+dataset = gdata.ArrayDataset(all_centers, all_contexts, all_negatives)
+data_iter = gdata.DataLoader(dataset, batch_size=batch_size, shuffle=True,
+                             batchify_fn=batchify_fn, num_workers=num_workers)
 ```
 
 ```{.python .input  n=12}
@@ -304,27 +302,27 @@ def train_embedding(num_epochs):
     for epoch in range(1, num_epochs + 1):
         start_time = time.time()
         train_l_sum = 0
-        for center, context_and_negative, mask, label in batches:
+        for center, context_and_negative, mask, label in data_iter:
             center = center.as_in_context(ctx)
             context_and_negative = context_and_negative.as_in_context(ctx)
             mask = mask.as_in_context(ctx)
             label = label.as_in_context(ctx)
             with autograd.record():
-                # 1. Compute the embedding of the center words
+                # emb_in 形状：（batch_size, 1, embedding_size）。
                 emb_in = embedding(center)
-                # 2. Compute the context embedding
-                emb_out = embedding_out(context_and_negative) * mask.expand_dims(-1)
-                # 3. Compute the prediction
+                # embedding_out(context_and_negative) 形状：
+                #（batch_size, max_len, embedding_size）。
+                # mask.expand_dims(-1) 形状：（batch_size, max_len, 1）。
+                emb_out = embedding_out(
+                    context_and_negative) * mask.expand_dims(-1)
+                # pred 形状：（batch_size, 1, max_len）。
                 pred = nd.batch_dot(emb_in, emb_out.swapaxes(1, 2))
-                # 4. Compute the Loss function (SigmoidBinaryCrossEntropyLoss)
-                l = loss(pred, label)
-            # Compute the gradient
+                l = loss(pred.reshape(label.shape), label)
             l.backward()
-            # Update the parameters
-            trainer.step(1)
+            trainer.step(batch_size)
             train_l_sum += l.mean().asscalar()
         print('epoch %d, time %.2fs, train loss %.2f' % (
-            epoch, time.time() - start_time, train_l_sum / len(batches)))
+            epoch, time.time() - start_time, train_l_sum / len(data_iter)))
         get_k_closest_tokens(token_to_idx, idx_to_token, embedding, 10,
                              example_token)
 ```
