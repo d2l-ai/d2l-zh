@@ -40,6 +40,28 @@ y.backward()
 x.grad, x.grad == 4 * x  # 1为真，0为假。
 ```
 
+### 训练(training)模式和预测(predicting)模式
+从上面可以看出在调用`record`后，Mxnet会记录并计算梯度。调用`record`后，`autograd`还会默认将运行模式从预测模式转换成训练模式，可以通过`autograd.is_training()`来查看
+```{.python .input}
+print(autograd.is_training())
+with autograd.record():
+    print(autograd.is_training())
+```
+在一些网络层中，训练模式和预测模式的计算结果是不同的，例如`Dropout`，这在后面的章节中会有更详细的介绍。下面仅仅演示一下运行模式的不同对一些运算的影响  
+可以使用`autograd.set_training(train_mode=True)`来设定训练模式，`autograd.set_training(train_mode=False)`设定为预测模式  
+在训练模式下的结果
+```{.python .input}
+autograd.set_training(train_mode=True)
+print(autograd.is_training())
+nd.Dropout(y)
+```
+在预测模式下的结果
+```{.python .input}
+autograd.set_training(train_mode=False)
+print(autograd.is_training())
+nd.Dropout(y)
+```
+
 ## 对Python控制流求梯度
 
 使用MXNet的一个便利之处是，即使函数的计算图包含了Python的控制流（例如条件和循环控制），我们也有可能对变量求梯度。
