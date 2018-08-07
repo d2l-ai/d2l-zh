@@ -10,6 +10,7 @@ import mxnet as mx
 from mxnet import autograd, gluon, image, nd
 from mxnet.gluon import nn, data as gdata, loss as gloss, utils as gutils
 import numpy as np
+import cv2
 
 
 voc_classes = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
@@ -565,4 +566,36 @@ class VOCSegDataset(gdata.Dataset):
 
     def __len__(self):
         return len(self.data)
+        
 
+def apply_aug(img, augs, path, name, num_aug=10):
+    """Apply augmetaion manipulation on images"""
+    for aug in augs:
+        Y = [aug(img) for _ in range(num_aug)]
+        for i in range(len(Y)):
+            augged = Y[i].asnumpy()
+            id_name = name.split('.')[0]
+            new_name = path+'aug/'+id_name+'0'+str(i)+'.jpg'
+            cv2.imwrite(new_name,augged)
+    
+
+def img_aug(path):
+    """Generate augmentation images, your train img store in path/"""
+    
+    augs = [gdata.vision.transforms.RandomFlipLeftRight(),
+           gdata.vision.transforms.RandomResizedCrop(
+           (200, 200), scale=(0.1, 1), ratio=(0.8, 1.25)),
+           gdata.vision.transforms.RandomBrightness(0.1),
+           gdata.vision.transforms.RandomHue(0.5),
+           gdata.vision.transforms.RandomColorJitter(
+           brightness=0.1, contrast=0.5, saturation=0.5, hue=0.5)
+          ]    """augmentation list example"""
+
+    if not os.path.exists(path+'aug/'):
+        os.mkdir(path+'aug/') 
+              
+    names = os.listdir(path)
+    for name in names:
+        if name.endswith('.jpg'):
+            aug_img = image.imread(path+name)
+            apply_aug(aug_img, augs,path,name)
