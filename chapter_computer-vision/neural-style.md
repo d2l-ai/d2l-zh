@@ -93,7 +93,7 @@ def extract_features(x, content_layers, style_layers):
     return contents, styles
 ```
 
-最后我们定义函数分别对内容图片和样式图片抽取对应的特征。因为在训练时我们不修改网络的权重，所以我们可以在训练开始之前提取抽所要的特征。
+最后我们定义函数分别对内容图片和样式图片抽取对应的特征。因为在训练时我们不修改网络的权重，所以我们可以在训练开始之前提取出所要的特征。
 
 ```{.python .input}
 def get_contents(image_shape, ctx):

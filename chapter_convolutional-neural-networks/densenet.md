@@ -10,7 +10,7 @@ DenseNet的主要构建模块是稠密块和过渡块，前者定义了输入和
 
 ## 稠密块
 
-DeseNet使用了ResNet改良版的“批量归一化、激活和卷积”结构（参见上一节习题），我们首先在`conv_block`函数里实现这个结构。
+DenseNet使用了ResNet改良版的“批量归一化、激活和卷积”结构（参见上一节习题），我们首先在`conv_block`函数里实现这个结构。
 
 ```{.python .input  n=1}
 import sys
@@ -137,8 +137,8 @@ gb.train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
 
 ## 练习
 
-- DesNet论文中提交的一个优点是其模型参数比ResNet更小，这是为什么？
-- DesNet被人诟病的一个问题是内存消耗过多。真的会这样吗？可以把输入换成$224\times 224$，来看看实际（GPU）内存消耗。
+- DenseNet论文中提交的一个优点是其模型参数比ResNet更小，这是为什么？
+- DenseNet被人诟病的一个问题是内存消耗过多。真的会这样吗？可以把输入换成$224\times 224$，来看看实际（GPU）内存消耗。
 - 实现DenseNet论文中的表1提出的各个DenseNet版本 [1]。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1664)
