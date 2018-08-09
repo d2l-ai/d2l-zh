@@ -316,7 +316,8 @@ def train_embedding(num_epochs):
                 # pred 形状：（batch_size, 1, max_len）。
                 pred = nd.batch_dot(emb_in, emb_out.swapaxes(1, 2))
                 # mask 和 label 形状：（batch_size, max_len）。
-                l = loss(pred.reshape(label.shape), label, mask)
+                l = (loss(pred.reshape(label.shape), label, mask) *
+                     mask.shape[1] / mask.sum(axis=1))
             l.backward()
             trainer.step(batch_size)
             train_l_sum += l.mean().asscalar()
