@@ -312,12 +312,11 @@ def train_embedding(num_epochs):
                 emb_in = embedding(center)
                 # embedding_out(context_and_negative) 形状：
                 #（batch_size, max_len, embedding_size）。
-                # mask.expand_dims(-1) 形状：（batch_size, max_len, 1）。
-                emb_out = embedding_out(
-                    context_and_negative) * mask.expand_dims(-1)
+                emb_out = embedding_out(context_and_negative)
                 # pred 形状：（batch_size, 1, max_len）。
+                # mask 形状：（batch_size, max_len）。
                 pred = nd.batch_dot(emb_in, emb_out.swapaxes(1, 2))
-                l = loss(pred.reshape(label.shape), label)
+                l = loss(pred.reshape(label.shape), label, mask)
             l.backward()
             trainer.step(batch_size)
             train_l_sum += l.mean().asscalar()
