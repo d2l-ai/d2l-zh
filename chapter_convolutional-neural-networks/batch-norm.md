@@ -144,7 +144,7 @@ net[1].beta.data().reshape((-1,)), net[1].gamma.data().reshape((-1,))
 
 * 尝试调大学习率，看看跟前面的LeNet比，是不是可以使用更大的学习率。
 * 尝试将批量归一化层插入到LeNet的其他地方，看看效果如何，想一想为什么。
-* 尝试不不学习`beta`和`gamma`（构造的时候加入这个参数`grad_req='null'`来避免计算梯度），看看效果会怎么样。
+* 尝试下不学习`beta`和`gamma`（构造的时候加入这个参数`grad_req='null'`来避免计算梯度），看看效果会怎么样。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1253)
 
