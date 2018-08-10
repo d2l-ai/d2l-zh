@@ -40,26 +40,22 @@ y.backward()
 x.grad, x.grad == 4 * x  # 1为真，0为假。
 ```
 
-### 训练(training)模式和预测(predicting)模式
+## 训练模式和预测模式
 从上面可以看出在调用`record`后，Mxnet会记录并计算梯度。调用`record`后，`autograd`还会默认将运行模式从预测模式转换成训练模式，可以通过`autograd.is_training()`来查看
 ```{.python .input}
 print(autograd.is_training())
 with autograd.record():
     print(autograd.is_training())
 ```
-在一些网络层中，训练模式和预测模式的计算结果是不同的，例如`Dropout`，这在后面的章节中会有更详细的介绍。下面仅仅演示一下运行模式的不同对一些运算的影响  
-可以使用`autograd.set_training(train_mode=True)`来设定训练模式，`autograd.set_training(train_mode=False)`设定为预测模式  
-在训练模式下的结果
+除了调用`record`来切换运行模式外，还可以显示的使用`autograd.set_training()`来设定运行模式
 ```{.python .input}
+# 设置为训练模式
 autograd.set_training(train_mode=True)
 print(autograd.is_training())
-nd.Dropout(y)
-```
-在预测模式下的结果
-```{.python .input}
+
+# 设置为预测模式
 autograd.set_training(train_mode=False)
 print(autograd.is_training())
-nd.Dropout(y)
 ```
 
 ## 对Python控制流求梯度
@@ -100,10 +96,12 @@ a.grad == c / a
 
 * MXNet提供`autograd`包来自动化求导过程。
 * MXNet的`autograd`包可以对正常的命令式程序进行求导。
+* MXNet通过`autograd.is_training()`来判断运行模式，并可以使用`autograd.set_training()`来设定运行模式
 
 ## 练习
 
 * 在本节对控制流求梯度的例子中，把变量`a`改成一个随机向量或矩阵。此时计算结果`c`不再是标量，运行结果将有何变化？该如何分析此结果？
+* 思考一下，为什么会有训练模式和预测模式，尝试从本书后续的章节寻找答案。
 * 自己重新设计一个对控制流求梯度的例子。运行并分析结果。
 
 
