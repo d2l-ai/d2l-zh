@@ -312,17 +312,18 @@ def train_embedding(num_epochs):
                 emb_in = embedding(center)
                 # embedding_out(context_and_negative) 形状：
                 #（batch_size, max_len, embedding_size）。
-                # mask.expand_dims(-1) 形状：（batch_size, max_len, 1）。
-                emb_out = embedding_out(
-                    context_and_negative) * mask.expand_dims(-1)
+                emb_out = embedding_out(context_and_negative)
                 # pred 形状：（batch_size, 1, max_len）。
                 pred = nd.batch_dot(emb_in, emb_out.swapaxes(1, 2))
-                l = loss(pred.reshape(label.shape), label)
+                # mask 和 label 形状：（batch_size, max_len）。
+                l = (loss(pred.reshape(label.shape), label, mask) *
+                     mask.shape[1] / mask.sum(axis=1))
             l.backward()
             trainer.step(batch_size)
             train_l_sum += l.mean().asscalar()
-        print('epoch %d, time %.2fs, train loss %.2f' % (
-            epoch, time.time() - start_time, train_l_sum / len(data_iter)))
+        print('epoch %d, time %.2fs, train loss %.2f' 
+              % (epoch, time.time() - start_time,
+                 train_l_sum / len(data_iter)))
         get_k_closest_tokens(token_to_idx, idx_to_token, embedding, 10,
                              example_token)
 ```
