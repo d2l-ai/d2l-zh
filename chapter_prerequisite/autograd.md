@@ -1,6 +1,6 @@
 # 自动求梯度
 
-在深度学习中，我们经常需要对函数求梯度（gradient）。如果你对本节中的数学概念（例如梯度）不是很熟悉，可以参阅附录中[“数学基础”](../chapter_appendix/math.md)一节。本小节将介绍如何使用MXNet提供的`autograd`包来自动求梯度。
+在深度学习中，我们经常需要对函数求梯度（gradient）。如果你对本节中的数学概念（例如梯度）不是很熟悉，可以参阅附录中[“数学基础”](../chapter_appendix/math.md)一节。本节将介绍如何使用MXNet提供的`autograd`包来自动求梯度。
 
 ```{.python .input  n=2}
 from mxnet import autograd, nd
@@ -37,7 +37,8 @@ y.backward()
 函数 $y = 2\boldsymbol{x}^{\top}\boldsymbol{x}$ 关于$\boldsymbol{x}$ 的梯度应为$4\boldsymbol{x}$。现在我们来验证一下求出来的梯度是正确的。
 
 ```{.python .input}
-x.grad, x.grad == 4 * x  # 1为真，0为假。
+assert (x.grad - 4 * x).norm().asscalar() == 0
+x.grad
 ```
 
 ## 对Python控制流求梯度
