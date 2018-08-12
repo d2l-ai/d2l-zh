@@ -1,6 +1,6 @@
 # 全卷积网络（FCN）
 
-在图片分类里，我们通过卷积层和池化层逐渐减少图片高宽最终得到跟预测类别数长的向量。例如用于ImageNet分类的ResNet 18里，我们将高宽为224的输入图片首先减少到高宽7，然后使用全局池化层得到512维输出，最后使用全连接层输出长为1000的预测向量。
+在图片分类里，我们通过卷积层和池化层逐渐减少图片高宽最终得到跟预测类别数一样长的向量。例如用于ImageNet分类的ResNet 18里，我们将高宽为224的输入图片首先减少到高宽7，然后使用全局池化层得到512维输出，最后使用全连接层输出长为1000的预测向量。
 
 但在语义分割里，我们需要对每个像素预测类别，也就是需要输出形状需要是$1000\times 224\times 224$。如果仍然使用全连接层作为输出，那么这一层权重将多达数百GB。本小节我们将介绍利用卷积神经网络解决语义分割的一个开创性工作之一：全卷积网络（fully convolutional network，简称FCN）[1]。FCN里将最后的全连接层修改称转置卷积层（transposed convolution）来得到所需大小的输出。
 
@@ -31,7 +31,7 @@ y = conv(x)
 y.shape
 ```
 
-使用同样的卷积窗、填充和步幅的转置卷积层，我们可以得到和`x`一样的输出。
+使用同样的卷积窗、填充和步幅的转置卷积层，我们可以得到和`x`形状一样的输出。
 
 ```{.python .input  n=4}
 conv_trans = nn.Conv2DTranspose(3, kernel_size=4, padding=1, strides=2)
@@ -54,7 +54,7 @@ pretrained_net = model_zoo.vision.resnet18_v2(pretrained=True)
 pretrained_net.features[-4:], pretrained_net.output
 ```
 
-可以看到`feature`模块最后两层是`GlobalAvgPool2D`和`Flatten`，在FCN里均不需要，`output`模块里的全连接层也需要舍去。下面我们定义一个新的网络，它复制除了`feature`里除去最后两层的所有神经层以及权重。
+可以看到`feature`模块最后两层是`GlobalAvgPool2D`和`Flatten`，在FCN里均不需要，`output`模块里的全连接层也需要舍去。下面我们定义一个新的网络，它复制`feature`里除去最后两层的所有神经层以及权重。
 
 ```{.python .input  n=6}
 net = nn.HybridSequential()
@@ -69,7 +69,7 @@ x = nd.random.uniform(shape=(1, 3, 224, 224))
 net(x).shape
 ```
 
-为了是的输出跟输入有同样的高宽，我们构建一个步幅为32的转置卷积层，卷积核的窗口高宽设置成步幅的2倍，并补充适当的填充。在转置卷积层之前，我们加上$1\times 1$卷积层来将通道数从512降到标注类别数，对Pascal VOC数据集来说是21。
+为了使得输出跟输入有同样的高宽，我们构建一个步幅为32的转置卷积层，卷积核的窗口高宽设置成步幅的2倍，并补充适当的填充。在转置卷积层之前，我们加上$1\times 1$卷积层来将通道数从512降到标注类别数，对Pascal VOC数据集来说是21。
 
 ```{.python .input  n=8}
 num_classes = 21
@@ -82,7 +82,7 @@ net.add(
 
 ## 模型初始化
 
-模型`net`中的最后两层需要对权重进行初始化，通常我们会使用随机初始化。但新加入的转置卷积层的功能有些类似于将输入调整到更大的尺寸。在图片处理里面，我们可以通过有适当卷积核的卷积运算符来完成这个操作。常用的包括双线性差值核，下面函数构造核权重。
+模型`net`中的最后两层需要对权重进行初始化，通常我们会使用随机初始化。但新加入的转置卷积层的功能有些类似于将输入调整到更大的尺寸。在图片处理里面，我们可以通过有适当卷积核的卷积运算符来完成这个操作。常用的包括双线性插值核，以下函数构造核权重。
 
 ```{.python .input  n=9}
 def bilinear_kernel(in_channels, out_channels, kernel_size):
@@ -101,7 +101,7 @@ def bilinear_kernel(in_channels, out_channels, kernel_size):
     return nd.array(weight)
 ```
 
-接下来我们构造一个步幅为2的转置卷积层，将其权重初始化成双线性差值核。
+接下来我们构造一个步幅为2的转置卷积层，将其权重初始化为双线性插值核。
 
 ```{.python .input  n=10}
 conv_trans = nn.Conv2DTranspose(3, kernel_size=4, padding=1, strides=2)
@@ -121,7 +121,7 @@ print('output', y.shape)
 gb.plt.imshow(y.asnumpy());
 ```
 
-下面对`net`的最后两层进行初始化。其中$1\times 1$卷积层使用Xavier，转置卷积层则使用双线性差值核。
+下面对`net`的最后两层进行初始化。其中$1\times 1$卷积层使用Xavier，转置卷积层则使用双线性插值核。
 
 ```{.python .input  n=12}
 trans_conv_weights = bilinear_kernel(num_classes, num_classes, 64)
@@ -152,7 +152,7 @@ test_iter = gdata.DataLoader(
 
 ## 训练
 
-这时候我们可以真正开始训练了。因为我们使用转置卷积层的通道来预测像素的类别，所以在做softmax是作用在通道这个维度（维度1），所以在`SoftmaxCrossEntropyLoss`里加入了额外了`axis=1`选项。
+这时候我们可以开始训练了。因为我们使用转置卷积层的通道来预测像素的类别，所以softmax是作用在通道这个维度（维度1）上的。于是，我们在`SoftmaxCrossEntropyLoss`里加入了额外的`axis=1`选项。
 
 ```{.python .input  n=12}
 ctx = gb.try_all_gpus()
@@ -202,12 +202,12 @@ gb.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n);
 
 ## 小结
 
-* FCN通过使用转置卷积层来为每个像素预测类别。
+* FCN通过转置卷积层来为每个像素预测类别。
 
 ## 练习
 
 * 试着改改最后的转置卷积层的参数设定。
-* 看看双线性差值初始化是不是必要的。
+* 看看双线性插值初始化是不是必要的。
 * 试着改改训练参数来使得收敛更好些。
 * FCN论文中提到了不只是使用主体卷积网络输出，还可以考虑其中间层的输出 [1]。试着实现这个想法。
 
