@@ -118,7 +118,7 @@ pip uninstall mxnet
 第二步：更新依赖为GPU版本的MXNet。使用文本编辑器打开之前文件夹下的文件`environment.yml`，将里面的“mxnet”替换成对应的GPU版本。例如，如果你电脑上装的是8.0版本的CUDA，将该文件中的字符串“mxnet”改为“mxnet-cu80”。如果电脑上安装了其他版本的CUDA（比如7.5、9.0、9.2等），对该文件中的字符串“mxnet”做类似修改（比如改为“mxnet-cu75”、“mxnet-cu90”、“mxnet-cu92”等）。保存文件后退出。
 
 
-第三步：更新虚拟环境。同时运行
+第三步：更新虚拟环境。同前一样执行
 
 ```
 conda env update -f environment.yml
