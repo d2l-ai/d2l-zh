@@ -41,6 +41,24 @@ assert (x.grad - 4 * x).norm().asscalar() == 0
 x.grad
 ```
 
+## 训练模式和预测模式
+从上面可以看出在调用`record`后，Mxnet会记录并计算梯度。调用`record`后，`autograd`还会默认将运行模式从预测模式转换成训练模式，可以通过`autograd.is_training()`来查看
+```{.python .input}
+print(autograd.is_training())
+with autograd.record():
+    print(autograd.is_training())
+```
+除了调用`record`来切换运行模式外，还可以显示的使用`autograd.set_training()`来设定运行模式
+```{.python .input}
+# 设置为训练模式
+autograd.set_training(train_mode=True)
+print(autograd.is_training())
+
+# 设置为预测模式
+autograd.set_training(train_mode=False)
+print(autograd.is_training())
+```
+
 ## 对Python控制流求梯度
 
 使用MXNet的一个便利之处是，即使函数的计算图包含了Python的控制流（例如条件和循环控制），我们也有可能对变量求梯度。
@@ -79,10 +97,12 @@ a.grad == c / a
 
 * MXNet提供`autograd`包来自动化求导过程。
 * MXNet的`autograd`包可以对正常的命令式程序进行求导。
+* MXNet通过`autograd.is_training()`来判断运行模式，并可以使用`autograd.set_training()`来设定运行模式
 
 ## 练习
 
 * 在本节对控制流求梯度的例子中，把变量`a`改成一个随机向量或矩阵。此时计算结果`c`不再是标量，运行结果将有何变化？该如何分析此结果？
+* 思考一下，为什么会有训练模式和预测模式，尝试从本书后续的章节寻找答案。
 * 自己重新设计一个对控制流求梯度的例子。运行并分析结果。
 
 
