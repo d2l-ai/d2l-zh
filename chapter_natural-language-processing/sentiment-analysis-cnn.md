@@ -72,7 +72,8 @@ def readIMDB(dir_url, seg='train'):
     for label in pos_or_neg:
         files = os.listdir(os.path.join('../data/',dir_url, seg, label))
         for file in files:
-            with open(os.path.join('../data/',dir_url, seg, label, file), 'r', encoding='utf8') as rf:
+            with open(os.path.join('../data/',dir_url, seg, label, file), 'r',
+                      encoding='utf8') as rf:
                 review = rf.read().replace('\n', '')
                 if label == 'pos':
                     data.append([review, 1])
@@ -229,7 +230,8 @@ $$ y(i)=\sum_m \sum_{n\in\{0, 1, 2\}} C(i-m,j-n)K(m,n) $$
 
 ```{.python .input  n=10}
 class TextCNN(nn.Block):
-    def __init__(self, vocab, embedding_size, ngram_kernel_sizes, nums_channels, **kwargs):
+    def __init__(self, vocab, embedding_size, ngram_kernel_sizes,
+                 nums_channels, **kwargs):
         super(TextCNN, self).__init__(**kwargs)
         self.ngram_kernel_sizes = ngram_kernel_sizes
         self.nums_channels = nums_channels
@@ -311,7 +313,8 @@ loss = gloss.SoftmaxCrossEntropyLoss()
 ```{.python .input  n=30}
 train_set = gdata.ArrayDataset(train_features, train_labels)
 test_set = gdata.ArrayDataset(test_features, test_labels)
-train_loader = gdata.DataLoader(train_set, batch_size=batch_size, shuffle=True)
+train_loader = gdata.DataLoader(train_set, batch_size=batch_size,
+                                shuffle=True)
 test_loader = gdata.DataLoader(test_set, batch_size=batch_size, shuffle=False)
 ```
 
