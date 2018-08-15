@@ -34,9 +34,7 @@ $$
 
 Softmax运算（softmax operator）提出正是为了解决这两个问题。它通过下式将输出值变换成值为正且和为1的概率分布：
 
-$$
-\hat{y}_1, \hat{y}_2, \hat{y}_3 = \text{softmax}(o_1, o_2, o_3),
-$$
+$$\hat{y}_1, \hat{y}_2, \hat{y}_3 = \text{softmax}(o_1, o_2, o_3),$$
 其中
 $$
 \hat{y}_1 = \frac{ \exp(o_1)}{\sum_{i=1}^3 \exp(o_i)},\quad
@@ -46,14 +44,14 @@ $$
 
 容易看出$\hat{y}_1 + \hat{y}_2 + \hat{y}_3 = 1$且$\hat{y}_1 > 0, \hat{y}_2 > 0, \hat{y}_3 > 0$，因此$\hat{y}_1, \hat{y}_2, \hat{y}_3$是一个合法的概率分布。这时候，如果$\hat y_2=0.8$，不管其他两个值多少，我们都知道有80%概率图片里是猫。此外，可以注意到
 
-$$
-\operatorname*{argmax}_i o_i = \operatorname*{argmax}_i \hat y_i,
-$$
+$$\operatorname*{argmax}_i o_i = \operatorname*{argmax}_i \hat y_i,$$
+
 因此softmax运算不改变预测类别输出。
 
 ## 单样本分类的矢量计算表达式
 
 为了提高计算效率，我们可以将单样本分类通过矢量计算来表达。在上面的图片分类问题中，假设softmax回归的权重和偏差参数分别为
+
 $$
 \boldsymbol{W} = 
 \begin{bmatrix}
@@ -72,21 +70,15 @@ $$
 
 设$2 \times 2$图片样本$i$的特征为
 
-$$
-\boldsymbol{x}^{(i)} = \begin{bmatrix}x_1^{(i)} & x_2^{(i)} & x_3^{(i)} & x_4^{(i)}\end{bmatrix},
-$$
+$$\boldsymbol{x}^{(i)} = \begin{bmatrix}x_1^{(i)} & x_2^{(i)} & x_3^{(i)} & x_4^{(i)}\end{bmatrix},$$
 
 输出层输出为
 
-$$
-\boldsymbol{o}^{(i)} = \begin{bmatrix}o_1^{(i)} & o_2^{(i)} & o_3^{(i)}\end{bmatrix},
-$$
+$$\boldsymbol{o}^{(i)} = \begin{bmatrix}o_1^{(i)} & o_2^{(i)} & o_3^{(i)}\end{bmatrix},$$
 
 预测为狗、猫或鸡的概率分布为
 
-$$
-\boldsymbol{\hat{y}}^{(i)} = \begin{bmatrix}\hat{y}_1^{(i)} & \hat{y}_2^{(i)} & \hat{y}_3^{(i)}\end{bmatrix}.
-$$
+$$\boldsymbol{\hat{y}}^{(i)} = \begin{bmatrix}\hat{y}_1^{(i)} & \hat{y}_2^{(i)} & \hat{y}_3^{(i)}\end{bmatrix}.$$
 
 
 我们对样本$i$分类的矢量计算表达式为
@@ -120,17 +112,13 @@ $$
 我们可以跟线性回归那样使用平方损失函数$\frac{1}{2}\|\boldsymbol{\hat y}^{(i)}-\boldsymbol{y}^{(i)}\|^2$。但注意到想要预测分类结果正确，我们不需要预测概率完全等于标注概率，例如在图片分类的例子里，如果$y^{(i)}=2$，那么我们只需要$\hat y^{(i)}_2$比其他两个预测值大就行了。即使其值为0.5，不管其他两个值为多少，类别预测均正确。而平方损失则过于严格，例如$\hat y^{(i)}_0=\hat y^{(i)}_1=0.1$比$\hat y^{(i)}_0=0, \hat y^{(i)}_1=.2$的损失要小很多，虽然两者都有同样正确的分类预测结果。
 
 改善这一问题是一个方法是使用更适合衡量两个概率分布不同的测量函数，其中交叉熵（ cross entropy）是一个常用的衡量方法：
-$$
-h\left(\boldsymbol y^{(i)}, \boldsymbol {\hat y}^{(i)}\right ) = \sum_{j=1}^q y_j^{(i)} \log \hat y_j^{(i)} .
-$$
+$$h\left(\boldsymbol y^{(i)}, \boldsymbol {\hat y}^{(i)}\right ) = \sum_{j=1}^q y_j^{(i)} \log \hat y_j^{(i)}.$$
 在这里，我们知道$\boldsymbol y^{(i)}$中只有第$ y^{(i)}$个元素为1，其余全为0，于是$h(\boldsymbol y^{(i)}, \boldsymbol {\hat y}^{(i)}) = \log \hat y_{y^{(i)}}^{(i)}$。也就是说，交叉熵只关心对正确类别的预测概率，因为只要其值足够大，我们就可以确保分类结果正确，这跟其他值无关。当然，遇到一个样本有多个标号时，例如图片里含有不止一个物体，我们不能做这一步简化。但对于这种情况，交叉熵同样只关心对图片中出现的类别的预测概率。
 
 
 
 假设训练数据集的样本数为$n$，交叉熵损失函数定义为
-$$
-\ell(\boldsymbol{\Theta}) = -\frac{1}{n} \sum_{i=1}^n h\left(\boldsymbol y^{(i)}, \boldsymbol {\hat y}^{(i)}\right ),
-$$
+$$\ell(\boldsymbol{\Theta}) = -\frac{1}{n} \sum_{i=1}^n h\left(\boldsymbol y^{(i)}, \boldsymbol {\hat y}^{(i)}\right ),$$
 
 其中$\boldsymbol{\Theta}$代表模型参数。同样的，如果每个样本只有一个标号，那么交叉熵损失可以简写成$\ell(\boldsymbol{\Theta}) = -\frac 1n  \sum_{i=1}^n \log \hat y_{y^{(i)}}^{(i)}$。从另一个角度来看，我们知道最小化$\ell(\boldsymbol{\Theta})$，等价于最大化$-e^{\ell(\boldsymbol{\Theta})}=\prod_{i=1}^n \hat y_{y^{(i)}}^{(i)} $，也就是说最小化交叉熵损失函数等价于最大化在对训练数据集所有标签类别的联合预测概率。
 
@@ -154,7 +142,3 @@ $$
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6403)
 
 ![](../img/qr_softmax-regression.svg)
-
-```{.python .input}
-
-```
