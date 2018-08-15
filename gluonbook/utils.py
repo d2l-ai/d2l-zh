@@ -129,6 +129,12 @@ def _get_batch(batch, ctx):
             features.shape[0])
 
 
+def get_fashion_mnist_labels(labels):
+    """get text label for fashion mnist"""
+    text_labels = ['t-shirt', 'trouser', 'pullover', 'dress', 'coat',
+                   'sandal', 'shirt', 'sneaker', 'bag', 'ankle boot']
+    return [text_labels[int(i)] for i in labels]
+
 def grad_clipping(params, theta, ctx):
     """Clip the gradient."""
     if theta is not None:
@@ -358,7 +364,7 @@ def show_images(imgs, num_rows, num_cols, scale=2):
 
 def show_fashion_mnist(images, labels):
     use_svg_display()
-    _, figs = gb.plt.subplots(1, len(images), figsize=(12, 12))
+    _, figs = plt.subplots(1, len(images), figsize=(12, 12))
     for f, img, lbl in zip(figs, images, labels):
         f.imshow(img.reshape((28, 28)).asnumpy())
         f.set_title(lbl)

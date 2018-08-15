@@ -57,7 +57,7 @@ def get_fashion_mnist_labels(labels):
     return [text_labels[int(i)] for i in labels]
 ```
 
-下面定义一个可以在一行里画出多张图片和对应标签的函数，其将保存在`gluonbook`里方面后面再次调用。
+下面定义一个可以在一行里画出多张图片和对应标签的函数。
 
 ```{.python .input}
 def show_fashion_mnist(images, labels):
@@ -77,6 +77,8 @@ def show_fashion_mnist(images, labels):
 X, y = mnist_train[0:9]
 show_fashion_mnist(X, get_fashion_mnist_labels(y))
 ```
+
+这里`get_fashion_mnist_labels`和`show_fashion_mnist`均将保存在`gluonbook`里方面后面再次调用。
 
 ## 小批量读取
 
