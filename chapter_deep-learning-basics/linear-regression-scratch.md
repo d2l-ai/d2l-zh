@@ -8,7 +8,7 @@
 %matplotlib inline
 import random
 from matplotlib import pyplot as plt
-from IPython.display import set_matplotlib_formats
+from IPython import display
 from mxnet import autograd, nd
 ```
 
@@ -39,9 +39,11 @@ features[0], labels[0]
 通过生成第二个特征`features[:, 1]`和标签 `labels` 的散点图，我们可以更直观地观察两者间的线性关系。
 
 ```{.python .input  n=4}
-def set_figsize(figsize=(3.5, 2.5)):
-    set_matplotlib_formats('svg')  # 打印矢量图。
-    plt.rcParams['figure.figsize'] = figsize  # 设置图的尺寸。
+def use_svg_display(): # 用矢量图显示。
+    display.set_matplotlib_formats('svg') 
+def set_figsize(figsize=(3.5, 2.5)): # 设置图的尺寸。
+    use_svg_display()
+    plt.rcParams['figure.figsize'] = figsize  # 设置
 
 set_figsize()
 plt.scatter(features[:, 1].asnumpy(), labels.asnumpy(), 1); 
