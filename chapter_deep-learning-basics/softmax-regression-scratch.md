@@ -39,6 +39,7 @@ feature.shape, feature.dtype
 
 ```{.python .input}
 def show_fashion_imgs(images):
+    # 这里的 _ 表示我们忽略（不使用）的变量。
     _, figs = gb.plt.subplots(1, len(images), figsize=(15, 15))
     for f, img in zip(figs, images):
         f.imshow(img.reshape((28, 28)).asnumpy())
