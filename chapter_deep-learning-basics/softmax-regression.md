@@ -37,9 +37,11 @@ Softmax运算（softmax operator）提出正是为了解决这两个问题。它
 $$\hat{y}_1, \hat{y}_2, \hat{y}_3 = \text{softmax}(o_1, o_2, o_3),$$
 其中
 $$
-\hat{y}_1 = \frac{ \exp(o_1)}{\sum_{i=1}^3 \exp(o_i)},\quad
-\hat{y}_2 = \frac{ \exp(o_2)}{\sum_{i=1}^3 \exp(o_i)},\quad
+\begin{aligned}
+\hat{y}_1 = \frac{ \exp(o_1)}{\sum_{i=1}^3 \exp(o_i)},\\
+\hat{y}_2 = \frac{ \exp(o_2)}{\sum_{i=1}^3 \exp(o_i)},\\
 \hat{y}_3 = \frac{ \exp(o_3)}{\sum_{i=1}^3 \exp(o_i)}.
+\end{aligned}
 $$
 
 容易看出$\hat{y}_1 + \hat{y}_2 + \hat{y}_3 = 1$且$\hat{y}_1 > 0, \hat{y}_2 > 0, \hat{y}_3 > 0$，因此$\hat{y}_1, \hat{y}_2, \hat{y}_3$是一个合法的概率分布。这时候，如果$\hat y_2=0.8$，不管其他两个值多少，我们都知道有80%概率图片里是猫。此外，可以注意到
