@@ -11,8 +11,10 @@
 
    word2vec
    glove-fasttext
+   embedding-training
    similarity-analogy
    sentiment-analysis
+   sentiment-analysis-cnn
    seq2seq
    beam-search
    attention
