@@ -95,9 +95,9 @@ if sys.platform.startswith('win'):
     num_workers = 0  # 0 表示不用额外的进程来加速读取。
 else:
     num_workers = 4
-    
+
 train_iter = gdata.DataLoader(mnist_train.transform_first(transformer),
-                              batch_size, shuffle=True, 
+                              batch_size, shuffle=True,
                               num_workers=num_workers)
 test_iter = gdata.DataLoader(mnist_test.transform_first(transformer),
                              batch_size, shuffle=False,
@@ -113,13 +113,13 @@ start = time.time()
 
 for X, y in train_iter:
     continue
-    
+
 '%.2f sec' % (time.time() - start)
 ```
 
 ## 小结
 
-FashionMNIST是一个10类服饰分类数据集，之后章节里我们将使用它来测试不同算法的表现。
+* FashionMNIST是一个10类服饰分类数据集，之后章节里我们将使用它来测试不同算法的表现。
 
 ## 练习
 
@@ -128,9 +128,9 @@ FashionMNIST是一个10类服饰分类数据集，之后章节里我们将使用
 * `gdata.vision`里还提供了哪些别的数据集？
 * `gdata.vision.transforms`里还有哪些别的变换方法？
 
-## 扫码直达讨论区
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7760)
 
-TODO
+![](../img/qr_fashion-mnist.svg)
 
 
 ## 参考文献

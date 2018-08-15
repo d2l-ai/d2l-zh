@@ -26,6 +26,7 @@
 | `set_figsize`|[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)|
 | `sgd`|[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)|
 | `show_bboxes`|[锚框](../chapter_computer-vision/anchor.md)|
+| `show_fashion_mnist`|[多类图片分类数据集（Fashion-MNIST）](../chapter_deep-learning-basics/fashion-mnist.md)|
 | `show_images`|[图片增广](../chapter_computer-vision/image-augmentation.md)|
 | `squared_loss`|[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)|
 | `to_onehot`|[循环神经网络](../chapter_recurrent-neural-networks/rnn.md)|
@@ -35,10 +36,9 @@
 | `train_ch5`|[卷积神经网络（LeNet）](../chapter_convolutional-neural-networks/lenet.md)|
 | `try_all_gpus`|[图片增广](../chapter_computer-vision/image-augmentation.md)|
 | `try_gpu`|[卷积神经网络（LeNet）](../chapter_convolutional-neural-networks/lenet.md)|
+| `use_svg_display`|[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)|
 | `voc_classes`|[语义分割和数据集](../chapter_computer-vision/semantic-segmentation-and-dataset.md)|
 | `voc_colormap`|[语义分割和数据集](../chapter_computer-vision/semantic-segmentation-and-dataset.md)|
 | `voc_label_indices`|[语义分割和数据集](../chapter_computer-vision/semantic-segmentation-and-dataset.md)|
 | `voc_rand_crop`|[语义分割和数据集](../chapter_computer-vision/semantic-segmentation-and-dataset.md)|
 | `VOCSegDataset`|[语义分割和数据集](../chapter_computer-vision/semantic-segmentation-and-dataset.md)|
-
-
