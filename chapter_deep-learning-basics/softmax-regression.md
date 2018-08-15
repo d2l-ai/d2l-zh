@@ -13,11 +13,13 @@
 
 Softmax回归跟线性回归一样将输入特征与权重做线性叠加，一个主要不同在于softmax回归的输出值个数等于标签里的类别数。因为我们特征为4，且有3种动物，所以权重里包含12个标量，偏移有3个标量，且对每个输入计算$o_1, o_2, o_3$这三个输出：
 
-\begin{aligned*}
+$$
+\begin{aligned}
 o_1 &= x_1 w_{11} + x_2 w_{21} + x_3 w_{31} + x_4 w_{41} + b_1,\\
 o_2 &= x_1 w_{12} + x_2 w_{22} + x_3 w_{32} + x_4 w_{42} + b_2,\\
 o_3 &= x_1 w_{13} + x_2 w_{23} + x_3 w_{33} + x_4 w_{43} + b_3.
-\end{aligned*}
+\end{aligned}
+$$
 
 
 图3.2用神经网络图描绘了上面的计算，其同线性回归一样，也是一个单层神经网络。因为$o_1, o_2, o_3$的计算都要依赖于$x_1, x_2, x_3, x_4$。所以，softmax回归的输出层也是一个全连接层。
@@ -89,21 +91,24 @@ $$
 
 我们对样本$i$分类的矢量计算表达式为
 
-\begin{aligned*}
+$$
+\begin{aligned}
 \boldsymbol{o}^{(i)} &= \boldsymbol{x}^{(i)} \boldsymbol{W} + \boldsymbol{b},\\
 \boldsymbol{\hat{y}}^{(i)} &= \text{softmax}(\boldsymbol{o}^{(i)}).
-\end{aligned*}
-
+\end{aligned}
+$$
 
 ## 小批量样本分类的矢量计算表达式
 
 
 为了进一步提升计算效率，我们通常对小批量数据做矢量计算。广义上，给定一个小批量样本，其批量大小为$n$，输入个数（特征数）为$d$，输出个数（类别数）为$q$。设批量特征为$\boldsymbol{X} \in \mathbb{R}^{n \times d}$。假设softmax回归的权重和偏差参数分别为$\boldsymbol{W} \in \mathbb{R}^{d \times q}, \boldsymbol{b} \in \mathbb{R}^{1 \times q}$。Softmax回归的矢量计算表达式为
 
-\begin{aligned*}
+$$
+\begin{aligned}
 \boldsymbol{O} &= \boldsymbol{X} \boldsymbol{W} + \boldsymbol{b},\\
 \boldsymbol{\hat{Y}} &= \text{softmax}(\boldsymbol{O}),
-\end{aligned*}
+\end{aligned}
+$$
 
 其中的加法运算使用了广播机制，$\boldsymbol{O}, \boldsymbol{\hat{Y}} \in \mathbb{R}^{n \times q}$且这两个矩阵的第$i$行分别为$\boldsymbol{o}^{(i)}$和$\boldsymbol{\hat{y}}^{(i)}$。
 
@@ -149,3 +154,7 @@ $$
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6403)
 
 ![](../img/qr_softmax-regression.svg)
+
+```{.python .input}
+
+```
