@@ -353,13 +353,12 @@ def show_bboxes(axes, bboxes, labels=None, colors=None):
 
 def show_fashion_mnist(images, labels):
     use_svg_display()
-    _, figs = gb.plt.subplots(1, len(images), figsize=(12, 12))
+    _, figs = plt.subplots(1, len(images), figsize=(12, 12))
     for f, img, lbl in zip(figs, images, labels):
         f.imshow(img.reshape((28, 28)).asnumpy())
         f.set_title(lbl)
         f.axes.get_xaxis().set_visible(False)
         f.axes.get_yaxis().set_visible(False)
-
 
 def show_images(imgs, num_rows, num_cols, scale=2):
     """Plot a list of images."""
@@ -371,15 +370,6 @@ def show_images(imgs, num_rows, num_cols, scale=2):
             axes[i][j].axes.get_xaxis().set_visible(False)
             axes[i][j].axes.get_yaxis().set_visible(False)
     return axes
-
-def show_fashion_mnist(images, labels):
-    use_svg_display()
-    _, figs = plt.subplots(1, len(images), figsize=(12, 12))
-    for f, img, lbl in zip(figs, images, labels):
-        f.imshow(img.reshape((28, 28)).asnumpy())
-        f.set_title(lbl)
-        f.axes.get_xaxis().set_visible(False)
-        f.axes.get_yaxis().set_visible(False)
 
 def squared_loss(y_hat, y):
     """Squared loss."""
