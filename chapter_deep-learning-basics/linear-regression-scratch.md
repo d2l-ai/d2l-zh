@@ -39,9 +39,12 @@ features[0], labels[0]
 通过生成第二个特征`features[:, 1]`和标签 `labels` 的散点图，我们可以更直观地观察两者间的线性关系。
 
 ```{.python .input  n=4}
-def use_svg_display(): # 用矢量图显示。
-    display.set_matplotlib_formats('svg') 
-def set_figsize(figsize=(3.5, 2.5)): # 设置图的尺寸。
+def use_svg_display():
+    # 用矢量图显示。
+    display.set_matplotlib_formats('svg')
+
+def set_figsize(figsize=(3.5, 2.5)):
+    # 设置图的尺寸。
     use_svg_display()
     plt.rcParams['figure.figsize'] = figsize  # 设置
 
@@ -49,7 +52,7 @@ set_figsize()
 plt.scatter(features[:, 1].asnumpy(), labels.asnumpy(), 1); 
 ```
 
-我们将上面的`plt`作图函数，`use_svg_display`和`set_figsize`函数定义在`gluonbook`包里。以后在作图时，我们将直接调用`gluonbook.plt`。由于`plt`在`gluonbook`包中是一个全局变量，我们在作图前只需要调用`gluonbook.set_figsize()`即可打印高清图并设置图的尺寸。
+我们将上面的`plt`作图函数以及`use_svg_display`和`set_figsize`函数定义在`gluonbook`包里。以后在作图时，我们将直接调用`gluonbook.plt`。由于`plt`在`gluonbook`包中是一个全局变量，我们在作图前只需要调用`gluonbook.set_figsize()`即可打印高清图并设置图的尺寸。
 
 
 ## 读取数据
