@@ -4,7 +4,7 @@ import sys
 import tarfile
 from time import time
 
-from IPython.display import set_matplotlib_formats
+from IPython import display
 from matplotlib import pyplot as plt
 import mxnet as mx
 from mxnet import autograd, gluon, image, nd
@@ -26,7 +26,7 @@ voc_colormap = [[0, 0, 0], [128, 0, 0], [0, 128, 0], [128, 128, 0],
                 [0, 64, 128]]
 
 
-def accuracy(y_hat, y): 
+def accuracy(y_hat, y):
     """Get accuracy."""
     return (y_hat.argmax(axis=1) == y.astype('float32')).mean().asscalar()
 
@@ -166,11 +166,11 @@ def load_data_fashion_mnist(batch_size, resize=None,
                                   num_workers=num_workers)
     test_iter = gdata.DataLoader(mnist_test.transform_first(transformer),
                                  batch_size, shuffle=False,
-                                 num_workers=num_workers)                                                              
+                                 num_workers=num_workers)
     return train_iter, test_iter
 
 
-def load_data_pikachu(batch_size, edge_size=256):                                                                                
+def load_data_pikachu(batch_size, edge_size=256):
     """Download the pikachu dataest and then load into memory."""
     data_dir = '../data/pikachu'
     _download_pikachu(data_dir)
@@ -246,7 +246,7 @@ def predict_rnn(rnn, prefix, num_chars, params, num_hiddens, vocab_size, ctx,
     return ''.join([idx_to_char[i] for i in output])
 
 
-def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):                                                               
+def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):
     """Read VOC images."""
     txt_fname = '%s/ImageSets/Segmentation/%s' % (
         root, 'train.txt' if train else 'val.txt')
@@ -320,17 +320,17 @@ def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
 
 def set_figsize(figsize=(3.5, 2.5)):
     """Set matplotlib figure size."""
-    set_matplotlib_formats('svg')
+    use_svg_display()
     plt.rcParams['figure.figsize'] = figsize
 
 
-def sgd(params, lr, batch_size):                                                                                                 
+def sgd(params, lr, batch_size):
     """Mini-batch stochastic gradient descent."""
     for param in params:
         param[:] = param - lr * param.grad / batch_size
 
 
-def show_bboxes(axes, bboxes, labels=None, colors=None):                                                                         
+def show_bboxes(axes, bboxes, labels=None, colors=None):
     """Show bounding boxes."""
     labels = _make_list(labels)
     colors = _make_list(colors, ['b', 'g', 'r', 'm', 'k'])
@@ -345,7 +345,7 @@ def show_bboxes(axes, bboxes, labels=None, colors=None):
                       bbox=dict(facecolor=color, lw=0))
 
 
-def show_images(imgs, num_rows, num_cols, scale=2):                                                                              
+def show_images(imgs, num_rows, num_cols, scale=2):
     """Plot a list of images."""
     figsize = (num_cols * scale, num_rows * scale)
     _, axes = plt.subplots(num_rows, num_cols, figsize=figsize)
@@ -356,6 +356,14 @@ def show_images(imgs, num_rows, num_cols, scale=2):
             axes[i][j].axes.get_yaxis().set_visible(False)
     return axes
 
+def show_fashion_mnist(images, labels):
+    use_svg_display()
+    _, figs = gb.plt.subplots(1, len(images), figsize=(12, 12))
+    for f, img, lbl in zip(figs, images, labels):
+        f.imshow(img.reshape((28, 28)).asnumpy())
+        f.set_title(lbl)
+        f.axes.get_xaxis().set_visible(False)
+        f.axes.get_yaxis().set_visible(False)
 
 def squared_loss(y_hat, y):
     """Squared loss."""
@@ -396,7 +404,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
                  time() - start))
 
 
-def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,                                                            
+def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
                           num_hiddens, lr, clipping_theta, batch_size,
                           vocab_size, pred_period, pred_len, prefixes,
                           get_params, get_inputs, ctx, corpus_indices,
@@ -475,7 +483,7 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
 
 def train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
               num_epochs):
-    """Train and evaluate a model on CPU or GPU."""	
+    """Train and evaluate a model on CPU or GPU."""
     print('training on', ctx)
     for epoch in range(1, num_epochs + 1):
         train_l_sum = 0
@@ -522,6 +530,9 @@ def try_gpu():
         ctx = mx.cpu()
     return ctx
 
+def use_svg_display():
+    """Use svg format to display plot in jupyter"""
+    display.set_matplotlib_formats('svg')
 
 def voc_label_indices(img, colormap2label):
     """Assig label indices for Pascal VOC2012 Dataset."""
@@ -542,16 +553,16 @@ class VOCSegDataset(gdata.Dataset):
     def __init__(self, train, crop_size, voc_dir, colormap2label):
         self.rgb_mean = nd.array([0.485, 0.456, 0.406])
         self.rgb_std = nd.array([0.229, 0.224, 0.225])
-        self.crop_size = crop_size        
+        self.crop_size = crop_size
         data, label = read_voc_images(root=voc_dir, train=train)
         self.data = [self.normalize_image(im) for im in self.filter(data)]
         self.label = self.filter(label)
         self.colormap2label = colormap2label
         print('read ' + str(len(self.data)) + ' examples')
-        
+
     def normalize_image(self, data):
         return (data.astype('float32') / 255 - self.rgb_mean) / self.rgb_std
-    
+
     def filter(self, images):
         return [im for im in images if (
             im.shape[0] >= self.crop_size[0] and
@@ -565,4 +576,3 @@ class VOCSegDataset(gdata.Dataset):
 
     def __len__(self):
         return len(self.data)
-
