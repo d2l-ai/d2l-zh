@@ -49,7 +49,7 @@ set_figsize()
 plt.scatter(features[:, 1].asnumpy(), labels.asnumpy(), 1); 
 ```
 
-我们将上面的`plt`作图函数和`set_figsize`函数定义在`gluonbook`包里。以后在作图时，我们将直接调用`gluonbook.plt`。由于`plt`在`gluonbook`包中是一个全局变量，我们在作图前只需要调用`gluonbook.set_figsize()`即可打印高清图并设置图的尺寸。
+我们将上面的`plt`作图函数，`use_svg_display`和`set_figsize`函数定义在`gluonbook`包里。以后在作图时，我们将直接调用`gluonbook.plt`。由于`plt`在`gluonbook`包中是一个全局变量，我们在作图前只需要调用`gluonbook.set_figsize()`即可打印高清图并设置图的尺寸。
 
 
 ## 读取数据
