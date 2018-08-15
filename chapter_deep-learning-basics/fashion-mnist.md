@@ -51,7 +51,7 @@ label, type(label), label.dtype
 Fashion-MNIST中一共包括了10个类别，分别为：t-shirt（T恤）、trouser（裤子）、pullover（套衫）、dress（连衣裙）、coat（外套）、sandal（凉鞋）、shirt（衬衫）、sneaker（运动鞋）、bag（包）和ankle boot（短靴）。以下函数可以将数值标签转成相应的文本标签。
 
 ```{.python .input  n=25}
-def get_text_labels(labels):
+def get_fashion_mnist_labels(labels):
     text_labels = ['t-shirt', 'trouser', 'pullover', 'dress', 'coat',
                    'sandal', 'shirt', 'sneaker', 'bag', 'ankle boot']
     return [text_labels[int(i)] for i in labels]
@@ -75,7 +75,7 @@ def show_fashion_mnist(images, labels):
 
 ```{.python .input  n=27}
 X, y = mnist_train[0:9]
-show_fashion_mnist(X, get_text_labels(y))
+show_fashion_mnist(X, get_fashion_mnist_labels(y))
 ```
 
 ## 小批量读取
