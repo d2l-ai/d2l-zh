@@ -360,10 +360,10 @@ get_sentiment(vocab, ['the', 'show', 'is', 'terribly', 'boring'])
 
 
 
-## 扫码直达[讨论区]()
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7762)
 
 
-![](../img/qr_sentiment-analysis_cnn.svg)
+![](../img/qr_sentiment-analysis-cnn.svg)
 
 
 ## 参考文献

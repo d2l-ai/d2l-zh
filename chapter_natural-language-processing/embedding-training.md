@@ -1,4 +1,4 @@
-# 训练词嵌入模型
+# 训练词嵌入
 
 #TODO(@astonzhang) Need edit.
 
@@ -332,6 +332,13 @@ def train_embedding(num_epochs):
 ```{.python .input  n=13}
 train_embedding(num_epochs=5)
 ```
+
+
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7761)
+
+![](../img/qr_embedding-training.svg)
+
 
 [1] word2vec工具. https://code.google.com/archive/p/word2vec/
 

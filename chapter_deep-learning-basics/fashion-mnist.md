@@ -57,7 +57,7 @@ def get_fashion_mnist_labels(labels):
     return [text_labels[int(i)] for i in labels]
 ```
 
-下面定义一个可以在一行里画出多张图片和对应标签的函数，其将保存在`gluonbook`里方面后面再次调用。
+下面定义一个可以在一行里画出多张图片和对应标签的函数。我们将它保存在`gluonbook`里方面之后再次调用。
 
 ```{.python .input}
 def show_fashion_mnist(images, labels):
@@ -117,7 +117,7 @@ for X, y in train_iter:
 
 ## 小结
 
-FashionMNIST是一个10类服饰分类数据集，之后章节里我们将使用它来测试不同算法的表现。
+* FashionMNIST是一个10类服饰分类数据集，之后章节里我们将使用它来测试不同算法的表现。
 
 ## 练习
 
@@ -126,9 +126,9 @@ FashionMNIST是一个10类服饰分类数据集，之后章节里我们将使用
 * `gdata.vision`里还提供了哪些别的数据集？
 * `gdata.vision.transforms`里还有哪些别的变换方法？
 
-## 扫码直达讨论区
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7760)
 
-TODO
+![](../img/qr_fashion-mnist.svg)
 
 
 ## 参考文献
