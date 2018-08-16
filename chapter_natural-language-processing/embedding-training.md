@@ -177,19 +177,7 @@ all_centers, all_contexts = get_center_context_arrays(subsampled_dataset,
 
 ## 负采样
 
-Remember that the loss function for negative sampling is defined as
-
-$$ - \text{log} \mathbb{P} (w_o \mid w_c) = -\text{log} \frac{1}{1+\text{exp}(-\mathbf{u}_o^\top \mathbf{v}_c)}  - \sum_{k=1, w_k \sim \mathbb{P}(w)}^K \text{log} \frac{1}{1+\text{exp}(\mathbf{u}_{i_k}^\top \mathbf{v}_c)}. $$
-
-Consequently for training the model we need to sample negatives from the unigram
-token frequency distribution. The distribution is typically distorted by raising it elementwise to the  
-power 0.75.
-
-Note that while sampling from the unigram distribution is simple, we may
-accidentally sample a word as a negative that is actually in the current context
-of the center word. To improve training stability, we mask such accidental hits.
-
-Here we directly sample negatives for every context precomputed before.
+在负采样中，对任意事件“中心词和背景词同时出现在时间窗口”，我们假设存在$K$个相互独立事件“中心词和某噪声词不同时出现在时间窗口”（这里设$K=5$）。根据[“词嵌入：word2vec”](word2vec.md)一节中练习的建议，噪声词采样概率$\mathbb{P}(w)$被设为$w$词频与总词频的比的3/4次方。由于噪声词和中心词不同时出现在时间窗口，如果采样的噪声词恰好是当前中心词的背景词之一，该噪声词将被丢弃。
 
 ```{.python .input  n=10}
 def get_negatives(negatives_shape, all_contexts, negatives_weights):
@@ -199,16 +187,14 @@ def get_negatives(negatives_shape, all_contexts, negatives_weights):
     negatives = random.choices(population, weights=negatives_weights, k=k)
     negatives = [negatives[i : i + negatives_shape[1]]
                  for i in range(0, k, negatives_shape[1])]
-    # 如果负采样的词是当前中心词的背景词之一，丢弃该负采样的词。
+    # 如果噪声词是当前中心词的背景词之一，丢弃该噪声词。
     negatives = [
         [negative for negative in negatives_batch
         if negative not in set(all_contexts[i])]
         for i, negatives_batch in enumerate(negatives)
     ]
     return negatives
-```
 
-```{.python .input  n=11}
 num_negatives = 5
 negatives_weights = [counter[w]**0.75 for w in idx_to_token]
 negatives_shape = (len(all_contexts), max_window_size * 2 * num_negatives)
@@ -287,12 +273,12 @@ Finally we train the word2vec model. We first shuffle our dataset
 
 ```{.python .input  n=15}
 def batchify_fn(data):
-    # data 是一个长度为 batch_size 的 list，其中每个元素为 (中心词, 背景词, 负采样词)。
+    # data 是一个长度为 batch_size 的 list，其中每个元素为 (中心词, 背景词, 噪声词)。
     centers, contexts, negatives = zip(*data)
     batch_size = len(centers)
 
-    # 每个中心词的背景词 contexts 和负采样词 negatives 的长度不一，我们将当前批量每个中
-    # 心词的背景词和负采样词连结在一起，并填充 0 至相同长度 max_len。
+    # 每个中心词的背景词 contexts 和噪声词 negatives 的长度不一，我们将当前批量每个中
+    # 心词的背景词和噪声词连结在一起，并填充 0 至相同长度 max_len。
     max_len = max(len(c) + len(n) for c, n in zip(contexts, negatives))    
     contexts_negatives = []
     masks = []
@@ -300,7 +286,7 @@ def batchify_fn(data):
     for context, negative in zip(contexts, negatives):
         cur_len = len(context) + len(negative)
         context_negative = context + negative + [0] * (max_len - cur_len)
-        # mask 用来区分非填充（背景词和负采样词）和填充。
+        # mask 用来区分非填充（背景词和噪声词）和填充。
         mask = [1] * cur_len + [0] * (max_len - cur_len)
         # label 用来区分背景词和非背景词。
         label = [1] * len(context) + [0] * (max_len - len(context))
