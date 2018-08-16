@@ -56,10 +56,10 @@
 <g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
   <use xlink:href="#glyph0-2" x="103.997314" y="16.102783"/>
 </g>
-<path style="fill:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 191.601562 72.492188 L 199.332031 60.355469 " transform="matrix(1,0,0,1,-105,-28)"/>
-<path style="fill:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 203.628906 53.609375 L 199.332031 60.355469 M 196.800781 58.746094 L 203.628906 53.609375 L 201.859375 61.96875 " transform="matrix(1,0,0,1,-105,-28)"/>
-<path style="fill:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 233.046875 72.726562 L 224.296875 59.941406 " transform="matrix(1,0,0,1,-105,-28)"/>
-<path style="fill:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 219.777344 53.339844 L 224.296875 59.941406 M 221.820312 61.636719 L 219.777344 53.339844 L 226.769531 58.246094 " transform="matrix(1,0,0,1,-105,-28)"/>
+<path style="fill:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 191.601562 72.492188 L 201.480469 56.984375 " transform="matrix(1,0,0,1,-105,-28)"/>
+<path style="fill:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 203.628906 53.609375 L 201.480469 56.984375 M 200.214844 56.175781 L 203.628906 53.609375 L 202.746094 57.789062 " transform="matrix(1,0,0,1,-105,-28)"/>
+<path style="fill:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 233.046875 72.726562 L 222.035156 56.640625 " transform="matrix(1,0,0,1,-105,-28)"/>
+<path style="fill:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 219.777344 53.339844 L 222.035156 56.640625 M 220.796875 57.488281 L 219.777344 53.339844 L 223.273438 55.792969 " transform="matrix(1,0,0,1,-105,-28)"/>
 <g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
   <use xlink:href="#glyph2-1" x="5.5" y="58"/>
   <use xlink:href="#glyph2-2" x="14.5" y="58"/>
