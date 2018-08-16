@@ -109,34 +109,9 @@ subsampled_dataset = [[
 
 ### 提取中心词和背景词
 
-The skip-gram objective with negative sampling is based on sampled center,
-context and negative data. 在跳字模型中，我们用一个词来预测它在文本序列周围的词。
-举个例子，假设文本序列是“the”、“man”、“hit”、“his”和“son”。跳字模型所关心的是，
-给定“hit”生成邻近词“the”、“man”、“his”和“son”的条件概率。在这个例子中，“hit”叫中
-心词，“the”、“man”、“his”和“son”叫背景词。由于“hit”只生成与它距离不超过2的背景词，
-该时间窗口的大小为2。
+让我们先回顾一下跳字模型。在跳字模型中，我们用一个词（中心词）来预测它在文本序列周围的词，即与该中心词在相同时间窗口内的背景词。设最大时间窗口大小为`max_window_size`。我们先在整数1和`max_window_size`之间均匀随机采样一个正整数$h$作为时间窗口大小。在同一个句子中，与中心词的词间距不超过$h$的词均为该中心词的背景词。举个例子，考虑句子“the man loves his son a lot”。假设中心词为“loves”且$h$为2，那么该中心词的背景词为“the”、“man”、“his”和“son”。假设中心词为“lot”且$h$为3，那么该中心词的背景词为“his”、“son”和“a”。
 
-In general it is common to chose a maximum context size of for example 5 and to
-uniformly sample a smaller context size from the interval [1, 5] independently
-for each center word. So if we sample a random reduced context size of 1 在这个
-例子中，只“man”和“his”叫背景词。
-
-To train our Word2Vec model with batches of data we need to make sure that all
-elements of a batch have the same shape, ie. the same context length. However
-due to sampling a random reduced context size and as it is not guaranteed that a
-sufficient number of words precedes or follows a given center word (as it may be
-at the beginning or end of a sentence) the number of context words for a given
-center word is not constant. Consequently we pad the context arrays and
-introduce a mask that tells the model which of the words in the context array
-are real context words and which are just padding.
-
-For big datasets it is important to sample center and context words in a
-streaming manner. Here for simplicity and as we use a small dataset we transform
-the whole dataset at once into center words with respective contexts so that
-during training we only need to iterate over the pre-computed arrays.
-
-
-我们先随机得到不大于 `max_window_size` 的正整数作为窗口大小，设为$h$。中心词的每个背景词与该中心词在同一个句子中的词间距不超过$h$。
+下面的`get_center_context_arrays`函数根据最大时间窗口`max_window_size`从数据集`coded_sentences`中提取出全部中心词及其背景词。这是通过调用辅助函数`get_one_context`实现的。
 
 ```{.python .input  n=7}
 def get_center_context_arrays(coded_sentences, max_window_size):
@@ -152,7 +127,6 @@ def get_center_context_arrays(coded_sentences, max_window_size):
         contexts += context
     return centers, contexts
 
-
 def get_one_context(sentence, word_idx, max_window_size):
     # 从 1 和 max_window_size 之间均匀随机生成整数（包括 1 和 max_window_size）。
     window_size = random.randint(1, max_window_size)
@@ -167,11 +141,9 @@ def get_one_context(sentence, word_idx, max_window_size):
     if word_idx + 1 != end_idx: 
         context += sentence[word_idx + 1 : end_idx]
     return context
-
-max_window_size = 5
-all_centers, all_contexts = get_center_context_arrays(subsampled_dataset,
-                                                      max_window_size)
 ```
+
+下面我们生成一个人工数据集，其中含有词数分别为10和3的两个句子。设最大时间窗口为2。打印所有中心词和它们的背景词。
 
 ```{.python .input  n=8}
 my_subsampled_dataset = [list(range(10)), list(range(10, 13))]
@@ -190,9 +162,17 @@ for i in range(13):
  {
   "name": "stdout",
   "output_type": "stream",
-  "text": "[[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [10, 11, 12]]\ncenter 0 has contexts [1]\ncenter 1 has contexts [0, 2, 3]\ncenter 2 has contexts [0, 1, 3, 4]\ncenter 3 has contexts [1, 2, 4, 5]\ncenter 4 has contexts [2, 3, 5, 6]\ncenter 5 has contexts [3, 4, 6, 7]\ncenter 6 has contexts [4, 5, 7, 8]\ncenter 7 has contexts [6, 8]\ncenter 8 has contexts [6, 7, 9]\ncenter 9 has contexts [8]\ncenter 10 has contexts [11, 12]\ncenter 11 has contexts [10, 12]\ncenter 12 has contexts [11]\n"
+  "text": "[[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [10, 11, 12]]\ncenter 0 has contexts [1, 2]\ncenter 1 has contexts [0, 2, 3]\ncenter 2 has contexts [0, 1, 3, 4]\ncenter 3 has contexts [1, 2, 4, 5]\ncenter 4 has contexts [2, 3, 5, 6]\ncenter 5 has contexts [4, 6]\ncenter 6 has contexts [5, 7]\ncenter 7 has contexts [5, 6, 8, 9]\ncenter 8 has contexts [6, 7, 9]\ncenter 9 has contexts [8]\ncenter 10 has contexts [11]\ncenter 11 has contexts [10, 12]\ncenter 12 has contexts [10, 11]\n"
  }
 ]
+```
+
+在本节的实验中，我们设最大时间窗口为5。下面提取数据集中所有的中心词及其背景词。
+
+```{.python .input  n=9}
+max_window_size = 5
+all_centers, all_contexts = get_center_context_arrays(subsampled_dataset,
+                                                      max_window_size)
 ```
 
 ## 负采样
@@ -211,7 +191,7 @@ of the center word. To improve training stability, we mask such accidental hits.
 
 Here we directly sample negatives for every context precomputed before.
 
-```{.python .input  n=9}
+```{.python .input  n=10}
 def get_negatives(negatives_shape, all_contexts, negatives_weights):
     population = list(range(len(negatives_weights)))
     k = negatives_shape[0] * negatives_shape[1]
@@ -228,7 +208,7 @@ def get_negatives(negatives_shape, all_contexts, negatives_weights):
     return negatives
 ```
 
-```{.python .input  n=10}
+```{.python .input  n=11}
 num_negatives = 5
 negatives_weights = [counter[w]**0.75 for w in idx_to_token]
 negatives_shape = (len(all_contexts), max_window_size * 2 * num_negatives)
@@ -244,7 +224,7 @@ learned successfully.
 
 考虑将norm_vecs_by_row放进gb，供“求近似词和类比词”调用。
 
-```{.python .input  n=11}
+```{.python .input  n=12}
 def norm_vecs_by_row(x):
     # 分母中添加的 1e-10 是为了数值稳定性。
     return x / (nd.sum(x * x, axis=1) + 1e-10).sqrt().reshape((-1, 1))
@@ -264,7 +244,7 @@ def get_k_closest_tokens(token_to_idx, idx_to_token, embedding, k, word):
 
 We then define the model and initialize it randomly. Here we denote the model containing the weights $\mathbf{v}$ as `embedding` and respectively the model for $\mathbf{u}$ as `embedding_out`.
 
-```{.python .input  n=12}
+```{.python .input  n=13}
 ctx = gb.try_gpu()
 print('running on:', ctx)
 
@@ -287,7 +267,7 @@ example_token = 'chip'
 get_k_closest_tokens(token_to_idx, idx_to_token, embedding, 10, example_token)
 ```
 
-```{.json .output n=12}
+```{.json .output n=13}
 [
  {
   "name": "stdout",
@@ -299,13 +279,13 @@ get_k_closest_tokens(token_to_idx, idx_to_token, embedding, 10, example_token)
 
 The gluon `SigmoidBinaryCrossEntropyLoss` corresponds to the loss function introduced above.
 
-```{.python .input  n=13}
+```{.python .input  n=14}
 loss = gloss.SigmoidBinaryCrossEntropyLoss()
 ```
 
 Finally we train the word2vec model. We first shuffle our dataset
 
-```{.python .input  n=14}
+```{.python .input  n=15}
 def batchify_fn(data):
     # data 是一个长度为 batch_size 的 list，其中每个元素为 (中心词, 背景词, 负采样词)。
     centers, contexts, negatives = zip(*data)
@@ -342,7 +322,7 @@ data_iter = gdata.DataLoader(dataset, batch_size=batch_size, shuffle=True,
                              batchify_fn=batchify_fn, num_workers=num_workers)
 ```
 
-```{.python .input  n=15}
+```{.python .input  n=16}
 def train_embedding(num_epochs):
     for epoch in range(1, num_epochs + 1):
         start_time = time.time()
@@ -374,16 +354,16 @@ def train_embedding(num_epochs):
                              example_token)
 ```
 
-```{.python .input  n=16}
+```{.python .input  n=17}
 train_embedding(num_epochs=5)
 ```
 
-```{.json .output n=16}
+```{.json .output n=17}
 [
  {
   "name": "stdout",
   "output_type": "stream",
-  "text": "epoch 1, time 4.88s, train loss nan\nclosest tokens to \"chip\": <unk>, N, years, old, will, join, the, board, as, a\nepoch 2, time 4.43s, train loss nan\nclosest tokens to \"chip\": <unk>, N, years, old, will, join, the, board, as, a\nepoch 3, time 4.46s, train loss nan\nclosest tokens to \"chip\": <unk>, N, years, old, will, join, the, board, as, a\nepoch 4, time 5.17s, train loss nan\nclosest tokens to \"chip\": <unk>, N, years, old, will, join, the, board, as, a\nepoch 5, time 4.40s, train loss nan\nclosest tokens to \"chip\": <unk>, N, years, old, will, join, the, board, as, a\n"
+  "text": "epoch 1, time 4.73s, train loss 0.30\nclosest tokens to \"chip\": intel, computers, computer, microprocessor, audio, compaq, bugs, tandem, apple, mips\nepoch 2, time 4.65s, train loss 0.25\nclosest tokens to \"chip\": intel, microprocessor, microprocessors, computer, risc, manufactures, computers, memory, newest, flaws\nepoch 3, time 4.47s, train loss 0.21\nclosest tokens to \"chip\": intel, microprocessor, microprocessors, computer, chips, user, computers, robots, micro, risc\nepoch 4, time 4.47s, train loss 0.20\nclosest tokens to \"chip\": intel, microprocessors, microprocessor, computer, user, instructions, computers, chips, printers, computing\nepoch 5, time 4.96s, train loss 0.19\nclosest tokens to \"chip\": intel, microprocessors, computers, microprocessor, computer, user, target, robots, mips, printers\n"
  }
 ]
 ```
