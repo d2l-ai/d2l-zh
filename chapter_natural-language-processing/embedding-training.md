@@ -1,6 +1,6 @@
 # 训练词嵌入模型
 
-前两节描述了不同的词嵌入模型和近似训练法。本节中，我们将以[“词嵌入：word2vec”](word2vec.md)一节中的跳字模型和负采样为例，介绍在语料库上训练词嵌入模型的实现。我们还会介绍一些实现中的技巧，例如二次采样（subsampling）。
+前两节描述了不同的词嵌入模型和近似训练法。本节中，我们将以[“词嵌入：word2vec”](word2vec.md)一节中的跳字模型和负采样为例，介绍在语料库上训练词嵌入模型的实现。我们还会介绍一些实现中的技巧，例如二次采样（subsampling）和掩码（mask）变量。
 
 首先导入实验所需的包或模块。
 
@@ -22,7 +22,7 @@ import time
 import zipfile
 ```
 
-## 读取和处理数据集
+## 处理数据集
 
 我们将在[“循环神经网络——使用Gluon”](../chapter_recurrent-neural-networks/rnn-gluon.md)一节中介绍的Penn Tree Bank数据集（训练集）上训练词嵌入模型。该数据集的每一行为一个句子。句子中的每个词由空格隔开。
 
@@ -41,31 +41,11 @@ with open('../data/ptb/ptb.train.txt', 'r') as f:
 print('# sentences:', len(dataset))
 ```
 
-```{.json .output n=3}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "# sentences: 42068\n"
- }
-]
-```
-
 对于数据集的前三个句子，打印每个句子的词数和前五个词。
 
 ```{.python .input  n=4}
 for sentence in dataset[:3]:
     print('# tokens:', len(sentence), sentence[:5])
-```
-
-```{.json .output n=4}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "# tokens: 24 ['aer', 'banknote', 'berlitz', 'calloway', 'centrust']\n# tokens: 15 ['pierre', '<unk>', 'N', 'years', 'old']\n# tokens: 11 ['mr.', '<unk>', 'is', 'chairman', 'of']\n"
- }
-]
 ```
 
 ### 建立词语索引
@@ -94,7 +74,7 @@ coded_dataset = [[token_to_idx[token] for token in sentence
 
 $$ \mathbb{P}(w_i) = \max\left(1 - \sqrt{\frac{t}{f(w_i)}}, 0\right),$$ 
 
-其中 $f(w_i)$ 是数据集中词$w_i$的个数与总词数之比，常数$t$是一个超参数：我们在此将它设为$10^{-4}$。
+其中 $f(w_i)$ 是数据集中词$w_i$的个数与总词数之比，常数$t$是一个超参数：我们在此将它设为$10^{-4}$。可见，越高频的词在二次采样中被丢弃的概率越大。
 
 ```{.python .input  n=6}
 idx_to_count = [counter[w] for w in idx_to_token]
@@ -157,16 +137,6 @@ for i in range(13):
     print('center', my_all_centers[i], 'has contexts', my_all_contexts[i])
 ```
 
-```{.json .output n=8}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "[[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [10, 11, 12]]\ncenter 0 has contexts [1, 2]\ncenter 1 has contexts [0, 2, 3]\ncenter 2 has contexts [0, 1, 3, 4]\ncenter 3 has contexts [1, 2, 4, 5]\ncenter 4 has contexts [2, 3, 5, 6]\ncenter 5 has contexts [4, 6]\ncenter 6 has contexts [5, 7]\ncenter 7 has contexts [5, 6, 8, 9]\ncenter 8 has contexts [6, 7, 9]\ncenter 9 has contexts [8]\ncenter 10 has contexts [11]\ncenter 11 has contexts [10, 12]\ncenter 12 has contexts [10, 11]\n"
- }
-]
-```
-
 在本节的实验中，我们设最大时间窗口为5。下面提取数据集中所有的中心词及其背景词。
 
 ```{.python .input  n=9}
@@ -177,7 +147,7 @@ all_centers, all_contexts = get_center_context_arrays(subsampled_dataset,
 
 ## 负采样
 
-在负采样中，对任意事件“中心词和背景词同时出现在时间窗口”，我们假设存在$K$个相互独立事件“中心词和某噪声词不同时出现在时间窗口”（这里设$K=5$）。根据[“词嵌入：word2vec”](word2vec.md)一节中练习的建议，噪声词采样概率$\mathbb{P}(w)$被设为$w$词频与总词频的比的3/4次方。由于噪声词和中心词不同时出现在时间窗口，如果采样的噪声词恰好是当前中心词的背景词之一，该噪声词将被丢弃。
+在负采样中，对于同一时间窗口中的一对中心词$w_c$和背景词$w_o$，我们假设存在$K+1$个相互独立事件：中心词$w_c$和背景词$w_o$同时出现在时间窗口、中心词$w_c$和第1个噪声词$w_1$不同时出现在该时间窗口、……、中心词$w_c$和第$K$个噪声词$w_K$不同时出现在该时间窗口。这里设$K=5$。根据[“词嵌入：word2vec”](word2vec.md)一节中练习的建议，噪声词采样概率$\mathbb{P}(w)$可设为$w$词频与总词频的比的3/4次方。由于我们假设噪声词和中心词不同时出现在时间窗口，如果采样的噪声词恰好是当前中心词的某个背景词，该噪声词将被丢弃。
 
 ```{.python .input  n=10}
 def get_negatives(negatives_shape, all_contexts, negatives_weights):
@@ -187,7 +157,7 @@ def get_negatives(negatives_shape, all_contexts, negatives_weights):
     negatives = random.choices(population, weights=negatives_weights, k=k)
     negatives = [negatives[i : i + negatives_shape[1]]
                  for i in range(0, k, negatives_shape[1])]
-    # 如果噪声词是当前中心词的背景词之一，丢弃该噪声词。
+    # 如果噪声词是当前中心词的某个背景词，丢弃该噪声词。
     negatives = [
         [negative for negative in negatives_batch
         if negative not in set(all_contexts[i])]
@@ -202,13 +172,9 @@ all_negatives = get_negatives(negatives_shape, all_contexts,
                               negatives_weights)
 ```
 
-## 训练和评价跳字模型
+## 训练跳字模型
 
-First we define a helper function `get_knn` to obtain the k closest words to for
-a given word according to our trained word embedding model to evaluate if it
-learned successfully.
-
-考虑将norm_vecs_by_row放进gb，供“求近似词和类比词”调用。
+当我们训练好词嵌入模型后，我们可以根据两个词向量的余弦相似度表示词与词之间在语义上的相似度。由此，给定一个词，我们可以通过`get_k_closest_tokens`函数从所有被索引词中找出与该词最接近的`k`个词。
 
 ```{.python .input  n=12}
 def norm_vecs_by_row(x):
@@ -228,7 +194,9 @@ def get_k_closest_tokens(token_to_idx, idx_to_token, embedding, k, word):
     print('closest tokens to "%s": %s' % (word, ", ".join(result)))
 ```
 
-We then define the model and initialize it randomly. Here we denote the model containing the weights $\mathbf{v}$ as `embedding` and respectively the model for $\mathbf{u}$ as `embedding_out`.
+### 初始化词嵌入模型
+
+我们设每个词向量的长度为300，并对它们随机初始化。变量`embedding`和`embedding_out`分别代表中心词和背景词的向量。
 
 ```{.python .input  n=13}
 ctx = gb.try_gpu()
@@ -239,7 +207,6 @@ embedding = nn.Embedding(input_dim=len(idx_to_token),
                          output_dim=embedding_size)
 embedding_out = nn.Embedding(input_dim=len(idx_to_token),
                              output_dim=embedding_size)
-
 embedding.initialize(ctx=ctx)
 embedding_out.initialize(ctx=ctx)
 embedding.hybridize()
@@ -248,28 +215,46 @@ embedding_out.hybridize()
 params = list(embedding.collect_params().values()) + list(
     embedding_out.collect_params().values())
 trainer = gluon.Trainer(params, 'adam', {'learning_rate': 0.01})
+```
 
+使用随机初始化的词向量，与词“chip”最接近的10个词看上去只是随机产生的几个词。
+
+```{.python .input}
 example_token = 'chip'
 get_k_closest_tokens(token_to_idx, idx_to_token, embedding, 10, example_token)
 ```
 
-```{.json .output n=13}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "running on: gpu(0)\nclosest tokens to \"chip\": operational, triggering, resolved, market-share, bar, paul, iron, exploded, lies, wastewater\n"
- }
-]
-```
+### 掩码变量
 
-The gluon `SigmoidBinaryCrossEntropyLoss` corresponds to the loss function introduced above.
+根据[“词嵌入：word2vec”](word2vec.md)一节中负采样损失函数的定义，我们使用Gluon的二元交叉熵损失函数`SigmoidBinaryCrossEntropyLoss`。
 
-```{.python .input  n=14}
+```{.python .input}
 loss = gloss.SigmoidBinaryCrossEntropyLoss()
 ```
 
-Finally we train the word2vec model. We first shuffle our dataset
+值得一提的是，我们可以通过掩码变量指定小批量中参与损失函数计算的部分预测值和标签：当掩码为1时，相应位置的预测值和标签将参与损失函数的计算；当掩码为0时，相应位置的预测值和标签则不参与损失函数的计算。
+
+```{.python .input  n=14}
+my_pred = nd.array([[1.5, 0.3, -1, 2], [1.1, -0.6, 2.2, 0.4]])
+# 标签中的 1 和 0 分别代表背景词和噪声词。
+my_label = nd.array([[1, 0, 0, 0], [1, 1, 0, 0]])
+# 掩码变量。
+my_mask = nd.array([[1, 1, 1, 1], [1, 1, 1, 0]])
+loss(my_pred, my_label, my_mask) * my_mask.shape[1] / my_mask.sum(axis=1)
+```
+
+作为比较，我们从零开始实现二元交叉熵损失函数的计算，并根据掩码变量`my_mask`计算掩码为1的预测值和标签的损失函数。
+
+```{.python .input}
+sigmoid = lambda x : -math.log(1 / (1 + math.exp(-x)))
+printfloat = lambda x : print('%.7f' % (x))
+printfloat((sigmoid(1.5) + sigmoid(-0.3) + sigmoid(1) + sigmoid(-2)) / 4)
+printfloat((sigmoid(1.1) + sigmoid(-0.6) + sigmoid(-2.2)) / 3)
+```
+
+### 读取小批量
+
+在一个小批量数据中，每个样本包括一个中心词、若干个背景词和噪声词。既然每个样本中背景词与噪声词数量之和不同，我们不妨将这些背景词和噪声词连结在一起，并填充0至相同长度。我们通过掩码变量区分非填充（背景词和噪声词）和填充。填充不会参与损失函数的计算。
 
 ```{.python .input  n=15}
 def batchify_fn(data):
@@ -302,11 +287,14 @@ def batchify_fn(data):
 
 batch_size = 512
 num_workers = 0 if sys.platform.startswith('win32') else 4
-
 dataset = gdata.ArrayDataset(all_centers, all_contexts, all_negatives)
 data_iter = gdata.DataLoader(dataset, batch_size=batch_size, shuffle=True,
                              batchify_fn=batchify_fn, num_workers=num_workers)
 ```
+
+### 训练模型
+
+下面我们定义跳字模型的训练函数。我们使用掩码变量避免填充对损失函数计算的影响。
 
 ```{.python .input  n=16}
 def train_embedding(num_epochs):
@@ -340,28 +328,26 @@ def train_embedding(num_epochs):
                              example_token)
 ```
 
+现在我们可以训练使用负采样的跳字模型了。可以看到，使用训练得到的词嵌入模型时，与词“chip”近似的词大多与芯片有关。
+
 ```{.python .input  n=17}
 train_embedding(num_epochs=5)
 ```
 
-```{.json .output n=17}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "epoch 1, time 4.73s, train loss 0.30\nclosest tokens to \"chip\": intel, computers, computer, microprocessor, audio, compaq, bugs, tandem, apple, mips\nepoch 2, time 4.65s, train loss 0.25\nclosest tokens to \"chip\": intel, microprocessor, microprocessors, computer, risc, manufactures, computers, memory, newest, flaws\nepoch 3, time 4.47s, train loss 0.21\nclosest tokens to \"chip\": intel, microprocessor, microprocessors, computer, chips, user, computers, robots, micro, risc\nepoch 4, time 4.47s, train loss 0.20\nclosest tokens to \"chip\": intel, microprocessors, microprocessor, computer, user, instructions, computers, chips, printers, computing\nepoch 5, time 4.96s, train loss 0.19\nclosest tokens to \"chip\": intel, microprocessors, computers, microprocessor, computer, user, target, robots, mips, printers\n"
- }
-]
-```
-
 ## 小结
 
-* 
+* 我们使用Gluon通过负采样训练了跳字模型。
+* 二次采样试图尽可能减轻高频词对训练词嵌入模型的影响。
+* 我们可以将长度不同的样本填充至长度相同的小批量，并通过掩码变量区分非填充和填充，然后只令非填充参与损失函数的计算。
 
 
 ## 练习
 
-* 
+* 调一调超参数，试着找出其他词的近似词，观察并分析实验结果。
+
+* 当数据集较大时，我们通常在迭代模型参数时才对当前小批量里的中心词采样背景词和噪声词。也就是说，同一个中心词在不同的迭代周期可能会有不同的背景词或噪声词。这样训练有哪些好处？
+
+* 实现上述训练方法。
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7761)
