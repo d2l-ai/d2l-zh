@@ -1,57 +1,83 @@
-# 训练词嵌入
+# 训练词嵌入模型
 
-#TODO(@astonzhang) Need edit.
+前两节描述了不同的词嵌入模型和近似训练法。本节中，我们将以[“词嵌入：word2vec”](word2vec.md)一节中的跳字模型和负采样为例，介绍在语料库上训练词嵌入模型的实现。我们还会介绍一些实现中的技巧，例如二次采样（subsampling）。
 
-我们在[“词向量：word2vec”](./word2vec.md)introduced the word2vec word embedding model. In this notebook we will show how to train a word2vec model with Gluon. We will introduce training the model with the skip-gram objective and negative sampling. Besides mxnet Gluon we will only use standard Python language features but note that specific  toolkits for Natural Language Processing, such as the Gluon-NLP toolkit exist.
+首先导入实验所需的包或模块。
 
-首先导入实验所需的包或模块，并抽取数据集。
-
-```{.python .input  n=2}
+```{.python .input  n=1}
 import sys
 sys.path.insert(0, '..')
 
-
-from mxnet import autograd, nd, gluon
-from mxnet.gluon import data as gdata, loss as gloss, nn
 import collections
 import functools
 import gluonbook as gb
 import itertools
 import math
 import mxnet as mx
+from mxnet import autograd, nd, gluon
+from mxnet.gluon import data as gdata, loss as gloss, nn
 import random
 import sys
 import time
+import zipfile
 ```
 
-## Data
+## 读取和处理数据集
 
-We then load a corpus for training the word embedding model. Like for training the language model in [“循环神经网络——使用Gluon”](../chapter_recurrent-neural-networks/rnn-gluon.md), we use the Penn Tree Bank（PTB）[1]。它包括训练集、验证集和测试集 。We directly split the datasets into sentences and tokens, considering newlines as paragraph delimeters and whitespace as token delimiter. We print the first five words of the first three sentences of the dataset.
+我们将在[“循环神经网络——使用Gluon”](../chapter_recurrent-neural-networks/rnn-gluon.md)一节中介绍的Penn Tree Bank数据集（训练集）上训练词嵌入模型。该数据集的每一行为一个句子。句子中的每个词由空格隔开。
 
-```{.python .input  n=3}
-import zipfile
-
+```{.python .input  n=2}
 with zipfile.ZipFile('../data/ptb.zip', 'r') as zin:
     zin.extractall('../data/')
 
 with open('../data/ptb/ptb.train.txt', 'r') as f:
     dataset = f.readlines()
     dataset = [sentence.split() for sentence in dataset]
+```
 
+查看该数据集中句子个数。
+
+```{.python .input  n=3}
+print('# sentences:', len(dataset))
+```
+
+```{.json .output n=3}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "# sentences: 42068\n"
+ }
+]
+```
+
+对于数据集的前三个句子，打印每个句子的词数和前五个词。
+
+```{.python .input  n=4}
 for sentence in dataset[:3]:
-    print(sentence[:5] + ['...'])
+    print('# tokens:', len(sentence), sentence[:5])
+```
+
+```{.json .output n=4}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "# tokens: 24 ['aer', 'banknote', 'berlitz', 'calloway', 'centrust']\n# tokens: 15 ['pierre', '<unk>', 'N', 'years', 'old']\n# tokens: 11 ['mr.', '<unk>', 'is', 'chairman', 'of']\n"
+ }
+]
 ```
 
 ### 建立词语索引
 
-下面定义了`Dictionary`类来映射词语和整数索引。We first count all tokens in the dataset and assign integer indices to all tokens that occur more than five times in the corpus. We also construct the reverse mapping token to integer index `token_to_idx` and finally replace all tokens in the dataset with their respective indices.
+我们为数据集中至少出现5次的词建立整数索引。处理后的数据集只包含被索引词的索引。
 
-```{.python .input  n=3}
+```{.python .input  n=5}
 min_count = 5
 
 # 将 dataset 中所有词拼接起来，统计 dataset 中各个词出现的频率。
 counter = collections.Counter(itertools.chain.from_iterable(dataset))
-# 只为词频不小于 min_count 的词建立索引。
+# 只为词频不低于 min_count 的词建立索引。
 idx_to_token = list(token_count[0] for token_count in 
                     filter(lambda token_count: token_count[1] >= min_count,
                            counter.items()))
@@ -62,27 +88,26 @@ coded_dataset = [[token_to_idx[token] for token in sentence
                   if token in token_to_idx] for sentence in dataset]
 ```
 
-### Dataset subsampling
+### 二次采样
 
-One important trick applied when training word2vec is to subsample the dataset
-according to the token frequencies. [2] proposes to discards individual
-occurences of words from the dataset with probability $$ P(w_i) = 1 -
-\sqrt{\frac{t}{f(w_i)}}$$ where $f(w_i)$ is the frequency ratio with which a word is
-observed in a dataset and $t$ is a subsampling constant typically chosen around
-$10^{-5}$. We are using a very small dataset here and found results in this case to be better with
-$10^{-4}$.
+在一般的文本数据集中，有些词的词频可能过高，例如英文中的“the”、“a”和“in”。通常来说，一个句子中，词“China”和较低频词“Beijing”同时出现比和较高频词“the”同时出现对训练词嵌入更加有帮助。这是因为，绝大多数词都和词“the”同时出现在一个句子里。因此，训练词嵌入模型时可以对词进行二次采样 [1]。具体来说，数据集中每个被索引词$w_i$将有一定概率被丢弃：该概率为
 
-```{.python .input  n=4}
+$$ \mathbb{P}(w_i) = \max\left(1 - \sqrt{\frac{t}{f(w_i)}}, 0\right),$$ 
+
+其中 $f(w_i)$ 是数据集中词$w_i$的个数与总词数之比，常数$t$是一个超参数：我们在此将它设为$10^{-4}$。
+
+```{.python .input  n=6}
 idx_to_count = [counter[w] for w in idx_to_token]
 total_count =  sum(idx_to_count)
 idx_to_pdiscard = [1 - math.sqrt(1e-4 / (count / total_count))
                    for count in idx_to_count]
 
-pruned_dataset = [[t for t in s if random.uniform(0, 1) > idx_to_pdiscard[t]]
-                  for s in coded_dataset]
+subsampled_dataset = [[
+    t for t in s if random.uniform(0, 1) > idx_to_pdiscard[t]]
+    for s in coded_dataset]
 ```
 
-### Transformation of data
+### 配对中心词和背景词
 
 The skip-gram objective with negative sampling is based on sampled center,
 context and negative data. 在跳字模型中，我们用一个词来预测它在文本序列周围的词。
@@ -113,12 +138,12 @@ during training we only need to iterate over the pre-computed arrays.
 
 我们先随机得到不大于 `max_window_size` 的正整数作为窗口大小，设为$h$。中心词的每个背景词与该中心词在同一个句子中的词间距不超过$h$。
 
-```{.python .input  n=5}
+```{.python .input  n=7}
 def get_center_context_arrays(coded_sentences, max_window_size):
     centers = []
     contexts = []
     for sentence in coded_sentences:
-        # 每句话至少要有 2 个词才可能组成一对“中心词-背景词”。
+        # 每个句子至少要有 2 个词才可能组成一对“中心词-背景词”。
         if len(sentence) < 2:
             continue
         centers += sentence
@@ -144,23 +169,33 @@ def get_one_context(sentence, word_idx, max_window_size):
     return context
 
 max_window_size = 5
-all_centers, all_contexts = get_center_context_arrays(pruned_dataset,
+all_centers, all_contexts = get_center_context_arrays(subsampled_dataset,
                                                       max_window_size)
 ```
 
-```{.python .input}
-my_pruned_dataset = [list(range(10)), list(range(10, 13))]
+```{.python .input  n=8}
+my_subsampled_dataset = [list(range(10)), list(range(10, 13))]
 
 my_max_window_size = 2
 my_all_centers, my_all_contexts = get_center_context_arrays(
-    my_pruned_dataset, my_max_window_size)
+    my_subsampled_dataset, my_max_window_size)
 
-print(my_pruned_dataset)
+print(my_subsampled_dataset)
 for i in range(13):
     print('center', my_all_centers[i], 'has contexts', my_all_contexts[i])
 ```
 
-### 负采样
+```{.json .output n=8}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "[[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [10, 11, 12]]\ncenter 0 has contexts [1, 2]\ncenter 1 has contexts [0, 2]\ncenter 2 has contexts [0, 1, 3, 4]\ncenter 3 has contexts [2, 4]\ncenter 4 has contexts [3, 5]\ncenter 5 has contexts [3, 4, 6, 7]\ncenter 6 has contexts [5, 7]\ncenter 7 has contexts [5, 6, 8, 9]\ncenter 8 has contexts [6, 7, 9]\ncenter 9 has contexts [8]\ncenter 10 has contexts [11]\ncenter 11 has contexts [10, 12]\ncenter 12 has contexts [11]\n"
+ }
+]
+```
+
+## 负采样
 
 Remember that the loss function for negative sampling is defined as
 
@@ -176,7 +211,7 @@ of the center word. To improve training stability, we mask such accidental hits.
 
 Here we directly sample negatives for every context precomputed before.
 
-```{.python .input  n=6}
+```{.python .input  n=9}
 def get_negatives(negatives_shape, all_contexts, negatives_weights):
     population = list(range(len(negatives_weights)))
     k = negatives_shape[0] * negatives_shape[1]
@@ -193,7 +228,7 @@ def get_negatives(negatives_shape, all_contexts, negatives_weights):
     return negatives
 ```
 
-```{.python .input  n=7}
+```{.python .input  n=10}
 num_negatives = 5
 negatives_weights = [counter[w]**0.75 for w in idx_to_token]
 negatives_shape = (len(all_contexts), max_window_size * 2 * num_negatives)
@@ -201,7 +236,7 @@ all_negatives = get_negatives(negatives_shape, all_contexts,
                               negatives_weights)
 ```
 
-## Model
+## 训练和评价跳字模型
 
 First we define a helper function `get_knn` to obtain the k closest words to for
 a given word according to our trained word embedding model to evaluate if it
@@ -209,7 +244,7 @@ learned successfully.
 
 考虑将norm_vecs_by_row放进gb，供“求近似词和类比词”调用。
 
-```{.python .input  n=8}
+```{.python .input  n=11}
 def norm_vecs_by_row(x):
     # 分母中添加的 1e-10 是为了数值稳定性。
     return x / (nd.sum(x * x, axis=1) + 1e-10).sqrt().reshape((-1, 1))
@@ -229,7 +264,7 @@ def get_k_closest_tokens(token_to_idx, idx_to_token, embedding, k, word):
 
 We then define the model and initialize it randomly. Here we denote the model containing the weights $\mathbf{v}$ as `embedding` and respectively the model for $\mathbf{u}$ as `embedding_out`.
 
-```{.python .input  n=9}
+```{.python .input  n=12}
 ctx = gb.try_gpu()
 print('running on:', ctx)
 
@@ -252,15 +287,25 @@ example_token = 'chip'
 get_k_closest_tokens(token_to_idx, idx_to_token, embedding, 10, example_token)
 ```
 
+```{.json .output n=12}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "running on: gpu(0)\nclosest tokens to \"chip\": operational, triggering, resolved, market-share, bar, paul, iron, exploded, lies, wastewater\n"
+ }
+]
+```
+
 The gluon `SigmoidBinaryCrossEntropyLoss` corresponds to the loss function introduced above.
 
-```{.python .input  n=10}
+```{.python .input  n=13}
 loss = gloss.SigmoidBinaryCrossEntropyLoss()
 ```
 
 Finally we train the word2vec model. We first shuffle our dataset
 
-```{.python .input  n=11}
+```{.python .input  n=14}
 def batchify_fn(data):
     # data 是一个长度为 batch_size 的 list，其中每个元素为 (中心词, 背景词, 负采样词)。
     centers, contexts, negatives = zip(*data)
@@ -297,7 +342,7 @@ data_iter = gdata.DataLoader(dataset, batch_size=batch_size, shuffle=True,
                              batchify_fn=batchify_fn, num_workers=num_workers)
 ```
 
-```{.python .input  n=12}
+```{.python .input  n=15}
 def train_embedding(num_epochs):
     for epoch in range(1, num_epochs + 1):
         start_time = time.time()
@@ -329,10 +374,28 @@ def train_embedding(num_epochs):
                              example_token)
 ```
 
-```{.python .input  n=13}
+```{.python .input  n=16}
 train_embedding(num_epochs=5)
 ```
 
+```{.json .output n=16}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "epoch 1, time 3.53s, train loss 0.30\nclosest tokens to \"chip\": flaws, intel, microprocessor, microprocessors, displayed, compact, laptop, high-end, convex, tax-loss\nepoch 2, time 3.53s, train loss nan\nclosest tokens to \"chip\": <unk>, N, years, old, will, join, the, board, as, a\nepoch 3, time 3.55s, train loss nan\nclosest tokens to \"chip\": <unk>, N, years, old, will, join, the, board, as, a\nepoch 4, time 3.49s, train loss nan\nclosest tokens to \"chip\": <unk>, N, years, old, will, join, the, board, as, a\nepoch 5, time 3.83s, train loss nan\nclosest tokens to \"chip\": <unk>, N, years, old, will, join, the, board, as, a\n"
+ }
+]
+```
+
+## 小结
+
+* 
+
+
+## 练习
+
+* 
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7761)
@@ -340,6 +403,6 @@ train_embedding(num_epochs=5)
 ![](../img/qr_embedding-training.svg)
 
 
-[1] word2vec工具. https://code.google.com/archive/p/word2vec/
+## 参考文献
 
-[2] Mikolov, Tomas, et al. “Distributed representations of words and phrases and their compositionality.” Advances in neural information processing systems. 2013.
+[1] Mikolov, T., Sutskever, I., Chen, K., Corrado, G. S., & Dean, J. (2013). Distributed representations of words and phrases and their compositionality. In Advances in neural information processing systems (pp. 3111-3119).

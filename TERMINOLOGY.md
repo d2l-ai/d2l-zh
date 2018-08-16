@@ -46,6 +46,8 @@
 
 二元分类，binary classification
 
+二次采样，subsample
+
 发散，diverge
 
 泛化，generalization
