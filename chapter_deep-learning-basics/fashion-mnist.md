@@ -110,10 +110,8 @@ test_iter = gdata.DataLoader(mnist_test.transform_first(transformer),
 
 ```{.python .input}
 start = time.time()
-
 for X, y in train_iter:
     continue
-
 '%.2f sec' % (time.time() - start)
 ```
 
