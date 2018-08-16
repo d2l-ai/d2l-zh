@@ -10,8 +10,8 @@
    linear-regression
    linear-regression-scratch
    linear-regression-gluon
-   fashion-mnist
    softmax-regression
+   fashion-mnist
    softmax-regression-scratch
    softmax-regression-gluon
    mlp
