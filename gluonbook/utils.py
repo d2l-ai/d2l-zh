@@ -360,6 +360,7 @@ def show_fashion_mnist(images, labels):
         f.axes.get_xaxis().set_visible(False)
         f.axes.get_yaxis().set_visible(False)
 
+
 def show_images(imgs, num_rows, num_cols, scale=2):
     """Plot a list of images."""
     figsize = (num_cols * scale, num_rows * scale)
@@ -370,6 +371,7 @@ def show_images(imgs, num_rows, num_cols, scale=2):
             axes[i][j].axes.get_xaxis().set_visible(False)
             axes[i][j].axes.get_yaxis().set_visible(False)
     return axes
+
 
 def squared_loss(y_hat, y):
     """Squared loss."""

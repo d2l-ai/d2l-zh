@@ -107,7 +107,7 @@ subsampled_dataset = [[
     for s in coded_dataset]
 ```
 
-### 配对中心词和背景词
+### 提取中心词和背景词
 
 The skip-gram objective with negative sampling is based on sampled center,
 context and negative data. 在跳字模型中，我们用一个词来预测它在文本序列周围的词。
@@ -190,7 +190,7 @@ for i in range(13):
  {
   "name": "stdout",
   "output_type": "stream",
-  "text": "[[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [10, 11, 12]]\ncenter 0 has contexts [1, 2]\ncenter 1 has contexts [0, 2]\ncenter 2 has contexts [0, 1, 3, 4]\ncenter 3 has contexts [2, 4]\ncenter 4 has contexts [3, 5]\ncenter 5 has contexts [3, 4, 6, 7]\ncenter 6 has contexts [5, 7]\ncenter 7 has contexts [5, 6, 8, 9]\ncenter 8 has contexts [6, 7, 9]\ncenter 9 has contexts [8]\ncenter 10 has contexts [11]\ncenter 11 has contexts [10, 12]\ncenter 12 has contexts [11]\n"
+  "text": "[[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [10, 11, 12]]\ncenter 0 has contexts [1]\ncenter 1 has contexts [0, 2, 3]\ncenter 2 has contexts [0, 1, 3, 4]\ncenter 3 has contexts [1, 2, 4, 5]\ncenter 4 has contexts [2, 3, 5, 6]\ncenter 5 has contexts [3, 4, 6, 7]\ncenter 6 has contexts [4, 5, 7, 8]\ncenter 7 has contexts [6, 8]\ncenter 8 has contexts [6, 7, 9]\ncenter 9 has contexts [8]\ncenter 10 has contexts [11, 12]\ncenter 11 has contexts [10, 12]\ncenter 12 has contexts [11]\n"
  }
 ]
 ```
@@ -383,7 +383,7 @@ train_embedding(num_epochs=5)
  {
   "name": "stdout",
   "output_type": "stream",
-  "text": "epoch 1, time 3.53s, train loss 0.30\nclosest tokens to \"chip\": flaws, intel, microprocessor, microprocessors, displayed, compact, laptop, high-end, convex, tax-loss\nepoch 2, time 3.53s, train loss nan\nclosest tokens to \"chip\": <unk>, N, years, old, will, join, the, board, as, a\nepoch 3, time 3.55s, train loss nan\nclosest tokens to \"chip\": <unk>, N, years, old, will, join, the, board, as, a\nepoch 4, time 3.49s, train loss nan\nclosest tokens to \"chip\": <unk>, N, years, old, will, join, the, board, as, a\nepoch 5, time 3.83s, train loss nan\nclosest tokens to \"chip\": <unk>, N, years, old, will, join, the, board, as, a\n"
+  "text": "epoch 1, time 4.88s, train loss nan\nclosest tokens to \"chip\": <unk>, N, years, old, will, join, the, board, as, a\nepoch 2, time 4.43s, train loss nan\nclosest tokens to \"chip\": <unk>, N, years, old, will, join, the, board, as, a\nepoch 3, time 4.46s, train loss nan\nclosest tokens to \"chip\": <unk>, N, years, old, will, join, the, board, as, a\nepoch 4, time 5.17s, train loss nan\nclosest tokens to \"chip\": <unk>, N, years, old, will, join, the, board, as, a\nepoch 5, time 4.40s, train loss nan\nclosest tokens to \"chip\": <unk>, N, years, old, will, join, the, board, as, a\n"
  }
 ]
 ```
