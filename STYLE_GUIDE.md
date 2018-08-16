@@ -72,6 +72,7 @@
     * 粗细：
         * StickArrow
         * 1pt
+		* arrow head size: 50%
     * 字体：
         * 英文：Arial, 9pt（下标：7pt）
         * 中文：PingFang SC, 9pt
