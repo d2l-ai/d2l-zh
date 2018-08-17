@@ -63,7 +63,7 @@ def download_imdb(data_dir='../data'):
 imdb_dir = download_imdb()
 ```
 
-```{.json .output n=None}
+```{.json .output n=2}
 [
  {
   "name": "stdout",
