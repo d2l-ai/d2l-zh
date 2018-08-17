@@ -63,16 +63,6 @@ def download_imdb(data_dir='../data'):
 imdb_dir = download_imdb()
 ```
 
-```{.json .output n=2}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "Downloading ../data\\aclImdb_v1.tar.gz from http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz...\n"
- }
-]
-```
-
 下面，读取训练和测试数据集。
 
 ```{.python .input  n=3}
