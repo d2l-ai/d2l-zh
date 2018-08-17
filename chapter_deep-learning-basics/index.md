@@ -19,7 +19,6 @@
    mlp-gluon
    underfit-overfit
    weight-decay
-   weight-decay-gluon
    dropout
    dropout-gluon
    backprop
