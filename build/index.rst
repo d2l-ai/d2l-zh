@@ -7,7 +7,7 @@
 
    本项目针对愿意了解深度学习的在校学生、工程师和研究人员。你无须有任何深度学习或者机器学习背景，我们将从头开始解释各个概念。我们的目标是让你在完成学习后不仅从概念上理解深度学习，同时能将它应用到实际项目和研究中去。
 
-   本项目是一个开源项目，主要由 `Aston Zhang <https://astonzhang.github.io/>`_（亚马逊云服务应用科学家），`李沐 <http://www.cs.cmu.edu/~muli/>`_（亚马逊云服务首席科学家）， `Zack Lipton <http://zacklipton.com/>`_ （亚马逊云服务应用科学家，卡内基梅陇大学机器学习系助理教授）， `Alex Smola <https://alex.smola.org/>`_ （亚马逊云服务总监）和 `来自社区的几十位贡献者 <https://github.com/mli/gluon-tutorials-zh/graphs/contributors>`_ 一起完成。
+   本项目是一个开源项目，主要由 `Aston Zhang <https://astonzhang.github.io/>`_ （亚马逊云服务应用科学家），`李沐 <http://www.cs.cmu.edu/~muli/>`_（亚马逊云服务首席科学家）， `Zack Lipton <http://zacklipton.com/>`_ （亚马逊云服务应用科学家，卡内基梅陇大学机器学习系助理教授）， `Alex Smola <https://alex.smola.org/>`_ （亚马逊云服务总监）和 `来自社区的几十位贡献者 <https://github.com/mli/gluon-tutorials-zh/graphs/contributors>`_ 一起完成。
 
    - `成为《动手学深度学习》贡献者，获得专享版赠书并被致谢 <https://discuss.gluon.ai/t/topic/7571>`_。
 
