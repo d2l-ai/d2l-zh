@@ -36,29 +36,26 @@ import tarfile
 
 ```{.python .input  n=4}
 def download_imdb(data_dir='../data'):
-    """Download the IMDb Dataset."""
-    imdb_dir = os.path.join(data_dir, 'aclImdb')
     url = ('http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz')
     sha1 = '01ada507287d82875905620988597833ad4e0903'
     fname = gutils.download(url, data_dir, sha1_hash=sha1)
     with tarfile.open(fname, 'r') as f:
         f.extractall(data_dir)
-    return imdb_dir
 
-imdb_dir = download_imdb()
+download_imdb()
 ```
 
 下面，读取训练和测试数据集。
 
 ```{.python .input  n=5}
-def readIMDB(dir_url, seg='train'):
+def read_imdb(dir_url, seg='train'):
     pos_or_neg = ['pos', 'neg']
     data = []
     for label in pos_or_neg:
-        files = os.listdir(os.path.join('../data/',dir_url, seg, label))
+        files = os.listdir(os.path.join('../data/', dir_url, seg, label))
         for file in files:
-            with open(os.path.join('../data/',dir_url, seg, label, file), 'r',
-                      encoding='utf8') as rf:
+            with open(os.path.join('../data/', dir_url, seg, label, file),
+                      'r', encoding='utf8') as rf:
                 review = rf.read().replace('\n', '')
                 if label == 'pos':
                     data.append([review, 1])
@@ -66,9 +63,8 @@ def readIMDB(dir_url, seg='train'):
                     data.append([review, 0])
     return data
 
-train_data = readIMDB('aclImdb', 'train')
-test_data = readIMDB('aclImdb', 'test')
-
+train_data = read_imdb('aclImdb', 'train')
+test_data = read_imdb('aclImdb', 'test')
 random.shuffle(train_data)
 random.shuffle(test_data)
 ```
@@ -78,15 +74,19 @@ random.shuffle(test_data)
 接下来我们对每条评论做分词，从而得到分好词的评论。这里使用最简单的方法：基于空格进行分词。我们将在本节练习中探究其他的分词方法。
 
 ```{.python .input  n=6}
-def tokenizer(text):
-    return [tok.lower() for tok in text.split(' ')]
+def get_tokenized_imdb(train_data, test_data):
+    def tokenizer(text):
+        return [tok.lower() for tok in text.split(' ')]
 
-train_tokenized = []
-for review, score in train_data:
-    train_tokenized.append(tokenizer(review))
-test_tokenized = []
-for review, score in test_data:
-    test_tokenized.append(tokenizer(review))
+    train_tokenized = []
+    for review, score in train_data:
+        train_tokenized.append(tokenizer(review))
+    test_tokenized = []
+    for review, score in test_data:
+        test_tokenized.append(tokenizer(review))
+    return train_tokenized, test_tokenized
+
+train_tokenized, test_tokenized = get_tokenized_imdb(train_data, test_data)
 ```
 
 ## 创建词典
@@ -94,16 +94,17 @@ for review, score in test_data:
 现在，我们可以根据分好词的训练数据集来创建词典了。这里我们设置了特殊符号“&lt;unk&gt;”（unknown）。它将表示一切不存在于训练数据集词典中的词。
 
 ```{.python .input  n=7}
-token_counter = collections.Counter()
-def count_token(train_tokenized):
-    for sample in train_tokenized:
+def count_tokens(samples):
+    token_counter = collections.Counter()
+    for sample in samples:
         for token in sample:
             if token not in token_counter:
                 token_counter[token] = 1
             else:
                 token_counter[token] += 1
+    return token_counter
 
-count_token(train_tokenized)
+token_counter = count_tokens(train_tokenized)
 vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>',
                               reserved_tokens=None)
 ```
@@ -113,37 +114,43 @@ vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>',
 下面，我们继续对数据进行预处理。每个不定长的评论将被特殊符号`PAD`补成长度为`maxlen`的序列，并用NDArray表示。
 
 ```{.python .input  n=8}
-def encode_samples(tokenized_samples, vocab):
-    features = []
-    for sample in tokenized_samples:
-        feature = []
-        for token in sample:
-            if token in vocab.token_to_idx:
-                feature.append(vocab.token_to_idx[token])
+def preprocess_imdb(train_tokenized, test_tokenized, train_data, test_data,
+                    vocab):
+    def encode_samples(tokenized_samples, vocab):
+        features = []
+        for sample in tokenized_samples:
+            feature = []
+            for token in sample:
+                if token in vocab.token_to_idx:
+                    feature.append(vocab.token_to_idx[token])
+                else:
+                    feature.append(0)
+            features.append(feature)         
+        return features
+
+    def pad_samples(features, maxlen=500, PAD=0):
+        padded_features = []
+        for feature in features:
+            if len(feature) > maxlen:
+                padded_feature = feature[:maxlen]
             else:
-                feature.append(0)
-        features.append(feature)         
-    return features
+                padded_feature = feature
+                # 添加 PAD 符号使每个序列等长（长度为 maxlen）。
+                while len(padded_feature) < maxlen:
+                    padded_feature.append(PAD)
+            padded_features.append(padded_feature)
+        return padded_features
 
-def pad_samples(features, maxlen=500, PAD=0):
-    padded_features = []
-    for feature in features:
-        if len(feature) > maxlen:
-            padded_feature = feature[:maxlen]
-        else:
-            padded_feature = feature
-            # 添加 PAD 符号使每个序列等长（长度为 maxlen）。
-            while len(padded_feature) < maxlen:
-                padded_feature.append(PAD)
-        padded_features.append(padded_feature)
-    return padded_features
+    train_features = encode_samples(train_tokenized, vocab)
+    test_features = encode_samples(test_tokenized, vocab)
+    train_features = nd.array(pad_samples(train_features, 500, 0))
+    test_features = nd.array(pad_samples(test_features, 500, 0))
+    train_labels = nd.array([score for _, score in train_data])
+    test_labels = nd.array([score for _, score in test_data])
+    return train_features, test_features, train_labels, test_labels
 
-train_features = encode_samples(train_tokenized, vocab)
-test_features = encode_samples(test_tokenized, vocab)
-train_features = nd.array(pad_samples(train_features, 500, 0))
-test_features = nd.array(pad_samples(test_features, 500, 0))
-train_labels = nd.array([score for _, score in train_data])
-test_labels = nd.array([score for _, score in test_data])
+train_features, test_features, train_labels, test_labels = preprocess_imdb(
+    train_tokenized, test_tokenized, train_data, test_data, vocab)
 ```
 
 ## 加载预训练的词向量
@@ -220,17 +227,17 @@ gb.train(train_loader, test_loader, net, loss, trainer, ctx, num_epochs)
 下面我们使用训练好的模型对两个简单句子的情感进行分类。
 
 ```{.python .input  n=18}
-def get_sentiment(vocab, sentence):
+def predict_sentiment(net, vocab, sentence):
     sentence = nd.array([vocab.token_to_idx[token] for token in sentence],
                         ctx=gb.try_gpu())
     label = nd.argmax(net(nd.reshape(sentence, shape=(1, -1))), axis=1)
     return 'positive' if label.asscalar() == 1 else 'negative'
 
-get_sentiment(vocab, ['i', 'think', 'this', 'movie', 'is', 'great'])
+predict_sentiment(net, vocab, ['i', 'think', 'this', 'movie', 'is', 'great'])
 ```
 
 ```{.python .input}
-get_sentiment(vocab, ['the', 'show', 'is', 'terribly', 'boring'])
+predict_sentiment(net, vocab, ['the', 'show', 'is', 'terribly', 'boring'])
 ```
 
 ## 小结
@@ -244,7 +251,7 @@ get_sentiment(vocab, ['the', 'show', 'is', 'terribly', 'boring'])
 
 * 使用更大的预训练词向量，例如300维的GloVe词向量，能否提升分类准确率？
 
-* 使用spacy分词工具，能否提升分类准确率？。你需要安装spacy：`pip install spacy`，并且安装英文包：`python -m spacy download en`。在代码中，先导入spacy：`import spacy`。然后加载spacy英文包：`spacy_en = spacy.load('en')`。最后定义函数：`def tokenizer(text): return [tok.text for tok in spacy_en.tokenizer(text)]`替换原来的基于空格分词的`tokenizer`函数。需要注意的是，GloVe的词向量对于名词词组的存储方式是用“-”连接各个单词，例如词组“new york”在GloVe中的表示为“new-york”。而使用spacy分词之后“new york”的存储可能是“new york”。
+* 使用spaCy分词工具，能否提升分类准确率？。你需要安装spaCy：`pip install spacy`，并且安装英文包：`python -m spacy download en`。在代码中，先导入spacy：`import spacy`。然后加载spacy英文包：`spacy_en = spacy.load('en')`。最后定义函数：`def tokenizer(text): return [tok.text for tok in spacy_en.tokenizer(text)]`替换原来的基于空格分词的`tokenizer`函数。需要注意的是，GloVe的词向量对于名词词组的存储方式是用“-”连接各个单词，例如词组“new york”在GloVe中的表示为“new-york”。而使用spacy分词之后“new york”的存储可能是“new york”。
 
 * 通过上面三种方法，你能使模型在测试集上的准确率提高到0.85以上吗？
 
