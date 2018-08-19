@@ -1,6 +1,5 @@
 # 文本情感分类：使用卷积神经网络（textCNN）
 
-
 在之前的章节中介绍了卷积神经网络用于计算机视觉领域。
 在本节将介绍如何将卷积神经网络应用于自然语言处理领域。以及参考textCNN模型使用Gluon创建一个卷积神经网络用于文本情感分类。
 
@@ -45,6 +44,24 @@ $$ y(i)=\sum_m \sum_{n\in\{0, 1, 2\}} C(i-m,j-n)K(m,n) $$
 ![](../img/conv1d-channel.svg)
 
 ![](../img/conv1d-2d.svg)
+
+
+在实验开始前，导入所需的包或模块。
+
+```{.python .input}
+import sys
+sys.path.insert(0, '..')
+
+import collections
+import gluonbook as gb
+from mxnet import autograd, gluon, init, metric, nd
+from mxnet.contrib import text
+from mxnet.gluon import data as gdata, loss as gloss, nn, utils as gutils
+import os
+import random
+import tarfile
+from time import time
+```
 
 ```{.python .input}
 def corr1d(X, K):
@@ -91,23 +108,6 @@ corr1d_multi_in(X, K)
 3. 再进行 Max-over-time pooling，得到的矩阵维度分别是(4，1)、(5，1)。
 4. 压平上述三个矩阵，并连结，得到一个（4+5）维度的向量
 5. 再通过一个全连接层降低维度。
-
-在实验开始前，导入所需的包或模块。
-
-```{.python .input  n=3}
-import sys
-sys.path.insert(0, '..')
-
-import collections
-import gluonbook as gb
-from mxnet import autograd, gluon, init, metric, nd
-from mxnet.contrib import text
-from mxnet.gluon import data as gdata, loss as gloss, nn, utils as gutils
-import os
-import random
-import tarfile
-from time import time
-```
 
 ## 读取IMDb数据集
 
