@@ -17,10 +17,10 @@ TODO(@astonzhang): edits
 
 
 我们来描述一下这个过程：
-1. 我们假设有一个文本，长度 n 为 11 ，词嵌入维度为 7 。此时词嵌入矩阵维度为（11， 7）。
-2. 设有三组卷积核，卷积核的宽度为7（词嵌入的维度），卷积宽度f分别是2、3、4，卷积核的数目分别为 4、4、5 。卷积后得到的矩阵维度分别是，（10，4）、（9，4）、（8，5）。即（n-f+1，nums_channels）
-3. 再进行 Max-over-time pooling，得到的矩阵维度分别是(4，1)、(4，1)、(5，1)。
-4. 压平上述三个矩阵，并连结，得到一个（4+4+5）维度的向量
+1. 我们假设有一个文本，长度 n 为 11 ，词嵌入维度为 6 。此时词嵌入矩阵维度为（11， 6）。
+2. 设有三组卷积核，卷积核的高度为6（词嵌入的维度），卷积宽度f分别是2、4，通道数分别为 4、5 。卷积后得到的矩阵维度分别是，（10，4）、（8，5）。即（n-f+1，nums_channels）
+3. 再进行 Max-over-time pooling，得到的矩阵维度分别是(4，1)、(5，1)。
+4. 压平上述三个矩阵，并连结，得到一个（4+5）维度的向量
 5. 再通过一个全连接层降低维度。
 
 在实验开始前，导入所需的包或模块。
@@ -167,12 +167,13 @@ class TextCNN(nn.Block):
         self.embedding_non_static = nn.Embedding(len(vocab), embedding_size)
         for i in range(len(ngram_kernel_sizes)):
             conv = nn.Conv1D(nums_channels[i],
-                kernel_size=ngram_kernel_sizes[i],
-                strides=1,
-                activation='relu')
+                             kernel_size=ngram_kernel_sizes[i], strides=1,
+                             activation='relu')
             pool = nn.GlobalMaxPool1D()
-            setattr(self, 'conv_{i}', conv)  #将self.conv_{i}置为第i个conv
-            setattr(self, 'pool_{i}', pool)  #将self.pool_{i}置为第i个pool
+            # 将 self.conv_{i} 置为第 i 个 conv。
+            setattr(self, 'conv_{i}', conv)
+            # 将 self.pool_{i} 置为第 i 个 pool。
+            setattr(self, 'pool_{i}', pool)
         self.dropout = nn.Dropout(0.5)
         self.decoder = nn.Dense(num_outputs)
 
@@ -256,7 +257,8 @@ gb.train(train_loader, test_loader, net, loss, trainer, ctx, num_epochs)
 下面我们使用训练好的模型对两个简单句子的情感进行分类。
 
 ```{.python .input}
-gb.predict_sentiment(net, vocab, ['i', 'think', 'this', 'movie', 'is', 'great'])
+gb.predict_sentiment(net, vocab, ['i', 'think', 'this', 'movie', 'is',
+                                  'great'])
 ```
 
 ```{.python .input}
