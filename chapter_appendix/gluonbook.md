@@ -32,7 +32,7 @@
 | `set_figsize`|[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)|
 | `sgd`|[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)|
 | `show_bboxes`|[锚框](../chapter_computer-vision/anchor.md)|
-| `show_fashion_mnist`|[多类图片分类数据集（Fashion-MNIST）](../chapter_deep-learning-basics/fashion-mnist.md)|
+| `show_fashion_mnist`|[图片分类数据集（Fashion-MNIST）](../chapter_deep-learning-basics/fashion-mnist.md)|
 | `show_images`|[图片增广](../chapter_computer-vision/image-augmentation.md)|
 | `squared_loss`|[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)|
 | `to_onehot`|[循环神经网络](../chapter_recurrent-neural-networks/rnn.md)|
