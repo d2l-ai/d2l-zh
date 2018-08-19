@@ -155,7 +155,7 @@ train_features, test_features, train_labels, test_labels = preprocess_imdb(
 
 ## 加载预训练的词向量
 
-这里，我们为词典`vocab`中的每个词加载GloVe词向量（每个词向量长度为100）。稍后，我们将用这些词向量作为评论中每个词的特征向量。
+这里，我们为词典`vocab`中的每个词加载GloVe词向量（每个词向量为100维向量）。稍后，我们将用这些词向量作为评论中每个词的特征向量。
 
 ```{.python .input  n=9}
 glove_embedding = text.embedding.create(
