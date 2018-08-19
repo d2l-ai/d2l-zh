@@ -1,6 +1,6 @@
 # 丢弃法
 
-除了前一节介绍的权重衰减以外，深度学习模型常常使用丢弃法（dropout）来应对过拟合问题。丢弃法有一些不同的变体。本节中提到的丢弃法特指倒置丢弃法（inverted dropout）。
+除了前一节介绍的权重衰减以外，深度学习模型常常使用丢弃法（dropout）[1] 来应对过拟合问题。丢弃法有一些不同的变体。本节中提到的丢弃法特指倒置丢弃法（inverted dropout）。
 
 ## 方法和原理
 
@@ -161,3 +161,7 @@ gb.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1278)
 
 ![](../img/qr_dropout.svg)
+
+## 参考文献
+
+[1] Srivastava, N., Hinton, G., Krizhevsky, A., Sutskever, I., & Salakhutdinov, R. (2014). Dropout: a simple way to prevent neural networks from overfitting. JMLR
