@@ -20,7 +20,6 @@
    underfit-overfit
    weight-decay
    dropout
-   dropout-gluon
    backprop
    kaggle-house-price
 
