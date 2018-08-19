@@ -1,3 +1,4 @@
+import collections
 import random
 import os
 import sys
@@ -36,6 +37,18 @@ def bbox_to_rect(bbox, color):
     return plt.Rectangle(xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0],
                          height=bbox[3]-bbox[1], fill=False, edgecolor=color,
                          linewidth=2)
+
+
+def count_tokens(samples):
+    """Count tokens in the data set."""
+    token_counter = collections.Counter()
+    for sample in samples:
+        for token in sample:
+            if token not in token_counter:
+                token_counter[token] = 1
+            else:
+                token_counter[token] += 1
+    return token_counter
 
 
 def data_iter(batch_size, features, labels):
@@ -79,6 +92,15 @@ def data_iter_random(corpus_indices, batch_size, num_steps, ctx=None):
         Y = nd.array(
             [_data(j * num_steps + 1) for j in batch_indices], ctx=ctx)
         yield X, Y
+
+
+def download_imdb(data_dir='../data'):
+    """Download the IMDB data set for sentiment analysis."""
+    url = ('http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz')
+    sha1 = '01ada507287d82875905620988597833ad4e0903'
+    fname = gutils.download(url, data_dir, sha1_hash=sha1)
+    with tarfile.open(fname, 'r') as f:
+        f.extractall(data_dir)
 
 
 def _download_pikachu(data_dir):
@@ -134,6 +156,21 @@ def get_fashion_mnist_labels(labels):
     text_labels = ['t-shirt', 'trouser', 'pullover', 'dress', 'coat',
                    'sandal', 'shirt', 'sneaker', 'bag', 'ankle boot']
     return [text_labels[int(i)] for i in labels]
+
+
+def get_tokenized_imdb(train_data, test_data):
+    """Get the tokenized IMDB data set for sentiment analysis."""
+    def tokenizer(text):
+        return [tok.lower() for tok in text.split(' ')]
+
+    train_tokenized = []
+    for review, score in train_data:
+        train_tokenized.append(tokenizer(review))
+    test_tokenized = []
+    for review, score in test_data:
+        test_tokenized.append(tokenizer(review))
+    return train_tokenized, test_tokenized
+
 
 def grad_clipping(params, theta, ctx):
     """Clip the gradient."""
@@ -252,6 +289,50 @@ def predict_rnn(rnn, prefix, num_chars, params, num_hiddens, vocab_size, ctx,
     return ''.join([idx_to_char[i] for i in output])
 
 
+def predict_sentiment(net, vocab, sentence):
+    """Predict the sentiment of a given sentence."""
+    sentence = nd.array([vocab.token_to_idx[token] for token in sentence],
+                        ctx=try_gpu())
+    label = nd.argmax(net(nd.reshape(sentence, shape=(1, -1))), axis=1)
+    return 'positive' if label.asscalar() == 1 else 'negative'
+
+
+def preprocess_imdb(train_tokenized, test_tokenized, train_data, test_data,
+                    vocab):
+    """Preprocess the IMDB data set for sentiment analysis."""
+    def encode_samples(tokenized_samples, vocab):
+        features = []
+        for sample in tokenized_samples:
+            feature = []
+            for token in sample:
+                if token in vocab.token_to_idx:
+                    feature.append(vocab.token_to_idx[token])
+                else:
+                    feature.append(0)
+            features.append(feature)         
+        return features
+
+    def pad_samples(features, maxlen=500, PAD=0):
+        padded_features = []
+        for feature in features:
+            if len(feature) > maxlen:
+                padded_feature = feature[:maxlen]
+            else:
+                padded_feature = feature
+                while len(padded_feature) < maxlen:
+                    padded_feature.append(PAD)
+            padded_features.append(padded_feature)
+        return padded_features
+
+    train_features = encode_samples(train_tokenized, vocab)
+    test_features = encode_samples(test_tokenized, vocab)
+    train_features = nd.array(pad_samples(train_features, 500, 0))
+    test_features = nd.array(pad_samples(test_features, 500, 0))
+    train_labels = nd.array([score for _, score in train_data])
+    test_labels = nd.array([score for _, score in test_data])
+    return train_features, test_features, train_labels, test_labels
+
+
 def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):
     """Read VOC images."""
     txt_fname = '%s/ImageSets/Segmentation/%s' % (
@@ -263,6 +344,23 @@ def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):
         data[i] = image.imread('%s/JPEGImages/%s.jpg' % (root, fname))
         label[i] = image.imread('%s/SegmentationClass/%s.png' % (root, fname))
     return data, label
+
+
+def read_imdb(dir_url, seg='train'):
+    """Read the IMDB data set for sentiment analysis."""
+    pos_or_neg = ['pos', 'neg']
+    data = []
+    for label in pos_or_neg:
+        files = os.listdir(os.path.join('../data/', dir_url, seg, label))
+        for file in files:
+            with open(os.path.join('../data/', dir_url, seg, label, file),
+                      'r', encoding='utf8') as rf:
+                review = rf.read().replace('\n', '')
+                if label == 'pos':
+                    data.append([review, 1])
+                elif label == 'neg':
+                    data.append([review, 0])
+    return data
 
 
 class Residual(nn.Block):

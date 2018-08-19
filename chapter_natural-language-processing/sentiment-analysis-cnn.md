@@ -17,10 +17,10 @@ TODO(@astonzhang): edits
 
 
 我们来描述一下这个过程：
-1. 我们假设有一个文本，长度 n 为 11 ，词嵌入维度为 7 。此时词嵌入矩阵维度为（11， 7）。
-2. 设有三组卷积核，卷积核的宽度为7（词嵌入的维度），卷积宽度f分别是2、3、4，卷积核的数目分别为 4、4、5 。卷积后得到的矩阵维度分别是，（10，4）、（9，4）、（8，5）。即（n-f+1，nums_channels）
-3. 再进行 Max-over-time pooling，得到的矩阵维度分别是(4，1)、(4，1)、(5，1)。
-4. 压平上述三个矩阵，并连结，得到一个（4+4+5）维度的向量
+1. 我们假设有一个文本，长度 n 为 11 ，词嵌入维度为 6 。此时词嵌入矩阵维度为（11， 6）。
+2. 设有三组卷积核，卷积核的高度为6（词嵌入的维度），卷积宽度f分别是2、4，通道数分别为 4、5 。卷积后得到的矩阵维度分别是，（10，4）、（8，5）。即（n-f+1，nums_channels）
+3. 再进行 Max-over-time pooling，得到的矩阵维度分别是(4，1)、(5，1)。
+4. 压平上述三个矩阵，并连结，得到一个（4+5）维度的向量
 5. 再通过一个全连接层降低维度。
 
 在实验开始前，导入所需的包或模块。
@@ -50,40 +50,14 @@ import tarfile
 我们首先下载这个数据集到`../data`下。压缩包大小是 81MB，下载解压需要一定时间。解压之后这个数据集将会放置在`../data/aclImdb`下。
 
 ```{.python .input  n=2}
-def download_imdb(data_dir='../data'):
-    """Download the IMDb Dataset."""
-    imdb_dir = os.path.join(data_dir, 'aclImdb')
-    url = ('http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz')
-    sha1 = '01ada507287d82875905620988597833ad4e0903'
-    fname = gutils.download(url, data_dir, sha1_hash=sha1)
-    with tarfile.open(fname, 'r') as f:
-        f.extractall(data_dir)
-    return imdb_dir
-
-imdb_dir = download_imdb()
+gb.download_imdb()
 ```
 
 下面，读取训练和测试数据集。
 
 ```{.python .input  n=3}
-def readIMDB(dir_url, seg='train'):
-    pos_or_neg = ['pos', 'neg']
-    data = []
-    for label in pos_or_neg:
-        files = os.listdir(os.path.join('../data/',dir_url, seg, label))
-        for file in files:
-            with open(os.path.join('../data/',dir_url, seg, label, file), 'r',
-                      encoding='utf8') as rf:
-                review = rf.read().replace('\n', '')
-                if label == 'pos':
-                    data.append([review, 1])
-                elif label == 'neg':
-                    data.append([review, 0])
-    return data
-
-train_data = readIMDB('aclImdb', 'train')
-test_data = readIMDB('aclImdb', 'test')
-
+train_data = gb.read_imdb('aclImdb', 'train')
+test_data = gb.read_imdb('aclImdb', 'test')
 random.shuffle(train_data)
 random.shuffle(test_data)
 ```
@@ -93,15 +67,7 @@ random.shuffle(test_data)
 接下来我们对每条评论做分词，从而得到分好词的评论。这里使用最简单的方法：基于空格进行分词。我们将在本节练习中探究其他的分词方法。
 
 ```{.python .input  n=4}
-def tokenizer(text):
-    return [tok.lower() for tok in text.split(' ')]
-
-train_tokenized = []
-for review, score in train_data:
-    train_tokenized.append(tokenizer(review))
-test_tokenized = []
-for review, score in test_data:
-    test_tokenized.append(tokenizer(review))
+train_tokenized, test_tokenized = gb.get_tokenized_imdb(train_data, test_data)
 ```
 
 ## 创建词典
@@ -109,16 +75,7 @@ for review, score in test_data:
 现在，我们可以根据分好词的训练数据集来创建词典了。这里我们设置了特殊符号“&lt;unk&gt;”（unknown）。它将表示一切不存在于训练数据集词典中的词。
 
 ```{.python .input  n=5}
-token_counter = collections.Counter()
-def count_token(train_tokenized):
-    for sample in train_tokenized:
-        for token in sample:
-            if token not in token_counter:
-                token_counter[token] = 1
-            else:
-                token_counter[token] += 1
-
-count_token(train_tokenized)
+token_counter = gb.count_tokens(train_tokenized)
 vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>',
                               reserved_tokens=None)
 ```
@@ -128,37 +85,8 @@ vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>',
 下面，我们继续对数据进行预处理。每个不定长的评论将被特殊符号`PAD`补成长度为`maxlen`的序列，并用NDArray表示。在这里由于模型使用了最大池化层，只取卷积后最大的一个值，所以补0不会对结果产生影响。
 
 ```{.python .input  n=6}
-def encode_samples(tokenized_samples, vocab):
-    features = []
-    for sample in tokenized_samples:
-        feature = []
-        for token in sample:
-            if token in vocab.token_to_idx:
-                feature.append(vocab.token_to_idx[token])
-            else:
-                feature.append(0)
-        features.append(feature)         
-    return features
-
-def pad_samples(features, maxlen=500, PAD=0):
-    padded_features = []
-    for feature in features:
-        if len(feature) > maxlen:
-            padded_feature = feature[:maxlen]
-        else:
-            padded_feature = feature
-            # 添加 PAD 符号使每个序列等长（长度为 maxlen ）。
-            while len(padded_feature) < maxlen:
-                padded_feature.append(PAD)
-        padded_features.append(padded_feature)
-    return padded_features
-
-train_features = encode_samples(train_tokenized, vocab)
-test_features = encode_samples(test_tokenized, vocab)
-train_features = nd.array(pad_samples(train_features, 1000, 0))
-test_features = nd.array(pad_samples(test_features, 1000, 0))
-train_labels = nd.array([score for _, score in train_data])
-test_labels = nd.array([score for _, score in test_data])
+train_features, test_features, train_labels, test_labels = gb.preprocess_imdb(
+    train_tokenized, test_tokenized, train_data, test_data, vocab)
 ```
 
 ## 加载预训练的词向量
@@ -239,14 +167,16 @@ class TextCNN(nn.Block):
         self.embedding_non_static = nn.Embedding(len(vocab), embedding_size)
         for i in range(len(ngram_kernel_sizes)):
             conv = nn.Conv1D(nums_channels[i],
-                kernel_size=ngram_kernel_sizes[i],
-                strides=1,
-                activation='relu')
+                             kernel_size=ngram_kernel_sizes[i], strides=1,
+                             activation='relu')
             pool = nn.GlobalMaxPool1D()
-            setattr(self, 'conv_{i}', conv)  #将self.conv_{i}置为第i个conv
-            setattr(self, 'pool_{i}', pool)  #将self.pool_{i}置为第i个pool
+            # 将 self.conv_{i} 置为第 i 个 conv。
+            setattr(self, 'conv_{i}', conv)
+            # 将 self.pool_{i} 置为第 i 个 pool。
+            setattr(self, 'pool_{i}', pool)
         self.dropout = nn.Dropout(0.5)
         self.decoder = nn.Dense(num_outputs)
+
     def forward(self, inputs):
         #inputs 输入的维度为(batch_size, 句子长度) ，转换为(句子长度, batch_size)
         inputs = inputs.T
@@ -327,17 +257,12 @@ gb.train(train_loader, test_loader, net, loss, trainer, ctx, num_epochs)
 下面我们使用训练好的模型对两个简单句子的情感进行分类。
 
 ```{.python .input}
-def get_sentiment(vocab, sentence):
-    sentence = nd.array([vocab.token_to_idx[token] for token in sentence],
-                        ctx=gb.try_gpu())
-    label = nd.argmax(net(nd.reshape(sentence, shape=(1, -1))), axis=1)
-    return 'positive' if label.asscalar() == 1 else 'negative'
-
-get_sentiment(vocab, ['i', 'think', 'this', 'movie', 'is', 'great'])
+gb.predict_sentiment(net, vocab, ['i', 'think', 'this', 'movie', 'is',
+                                  'great'])
 ```
 
 ```{.python .input}
-get_sentiment(vocab, ['the', 'show', 'is', 'terribly', 'boring'])
+gb.predict_sentiment(net, vocab, ['the', 'show', 'is', 'terribly', 'boring'])
 ```
 
 ## 小结
@@ -349,13 +274,7 @@ get_sentiment(vocab, ['the', 'show', 'is', 'terribly', 'boring'])
 
 ## 练习
 
-* 使用IMDb完整数据集，把迭代周期改为 5。你的模型能在训练和测试数据集上得到怎样的准确率？通过调节超参数，你能进一步提升分类准确率吗？
-
-* 使用更大的预训练词向量，例如300维的GloVe词向量，能否提升分类准确率？
-
-* 使用spacy分词工具，能否提升分类准确率？。你需要安装spacy：`pip install spacy`，并且安装英文包：`python -m spacy download en`。在代码中，先导入spacy：`import spacy`。然后加载spacy英文包：`spacy_en = spacy.load('en')`。最后定义函数：`def tokenizer(text): return [tok.text for tok in spacy_en.tokenizer(text)]`替换原来的基于空格分词的`tokenizer`函数。需要注意的是，GloVe的词向量对于名词词组的存储方式是用“-”连接各个单词，例如词组“new york”在GloVe中的表示为“new-york”。而使用spacy分词之后“new york”的存储可能是“new york”。
-
-* 通过上面三种方法，你能使模型在测试集上的准确率提高到0.87以上吗？
+* 使用上一节练习中介绍的三种方法：调节超参数、使用更大的预训练词向量和使用spacy分词工具，你能使模型在测试集上的准确率提高到0.87以上吗？
 
 
 
