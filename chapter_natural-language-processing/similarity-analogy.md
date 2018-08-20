@@ -1,8 +1,8 @@
-# 求近似词和类比词
+# 求近义词和类比词
 
-上一节中，我们在一个较小的语料上训练词嵌入模型并求近似词。对于很多自然语言处理任务，我们还可以直接使用在大规模语料上预训练的词向量。
+上一节中，我们在一个较小的语料上训练词嵌入模型并求近义词。对于很多自然语言处理任务，我们还可以直接使用在大规模语料上预训练的词向量。
 
-本节主要介绍如何获取并应用在大规模语料上预训练的词向量。我们还将进一步探究求近似词问题，并实验求类比词的方法。本节使用的预训练的GloVe和fastText词向量分别来自它们的项目网站 [1,2]。
+本节主要介绍如何获取并应用在大规模语料上预训练的词向量。我们还将进一步探究求近义词问题，并实验求类比词的方法。本节使用的预训练的GloVe和fastText词向量分别来自它们的项目网站 [1,2]。
 
 首先导入实验所需的包或模块。
 
@@ -131,7 +131,7 @@ z = nd.array([-1, -2])
 cos_sim(x, y), cos_sim(x, z)
 ```
 
-### 求近似词
+### 求近义词
 
 给定任意词，我们可以从GloVe的整个词典（大小40万，不含未知词符号）中找出与它最接近的$k$个词。[“词嵌入：word2vec”](word2vec.md)一节中已经提到，词与词之间的相似度可以用两个词向量的余弦相似度表示。
 
@@ -151,7 +151,7 @@ def get_knn(token_embedding, k, word):
     return token_embedding.to_tokens(indices[1:])
 ```
 
-查找词典中与“baby”最近似的5个词。
+查找词典中与“baby”语义最接近的5个词。
 
 ```{.python .input}
 get_knn(glove_6b50d, 5, 'baby')
@@ -164,19 +164,19 @@ cos_sim(glove_6b50d.get_vecs_by_tokens('baby'),
         glove_6b50d.get_vecs_by_tokens('babies'))
 ```
 
-查找词典中与“computers”最近似的5个词。
+查找词典中与“computers”语义最接近的5个词。
 
 ```{.python .input}
 get_knn(glove_6b50d, 5, 'computers')
 ```
 
-查找词典中与“run”最近似的5个词。
+查找词典中与“run”语义最接近的5个词。
 
 ```{.python .input}
 get_knn(glove_6b50d, 5, 'run')
 ```
 
-查找词典中与“beautiful”最近似的5个词。
+查找词典中与“beautiful”语义最接近的5个词。
 
 ```{.python .input}
 get_knn(glove_6b50d, 5, 'beautiful')
@@ -184,7 +184,7 @@ get_knn(glove_6b50d, 5, 'beautiful')
 
 ### 求类比词
 
-除近似词以外，我们还可以使用预训练词向量求词与词之间的类比关系。例如，man（男人）: woman（女人）:: son（儿子） : daughter（女儿）是一个类比例子：“man”之于“woman”相当于“son”之于“daughter”。求类比词问题可以定义为：对于类比关系中的四个词 $a : b :: c : d$，给定前三个词$a$、$b$和$c$，求$d$。设词$w$的词向量为$\text{vec}(w)$。而解类比词的思路是，找到和$\text{vec}(c)+\text{vec}(b)-\text{vec}(a)$的结果向量最相似的词向量。
+除了求近义词以外，我们还可以使用预训练词向量求词与词之间的类比关系。例如，man（男人）: woman（女人）:: son（儿子） : daughter（女儿）是一个类比例子：“man”之于“woman”相当于“son”之于“daughter”。求类比词问题可以定义为：对于类比关系中的四个词 $a : b :: c : d$，给定前三个词$a$、$b$和$c$，求$d$。设词$w$的词向量为$\text{vec}(w)$。而解类比词的思路是，找到和$\text{vec}(c)+\text{vec}(b)-\text{vec}(a)$的结果向量最相似的词向量。
 
 本例中，我们将从整个词典（大小40万，不含未知词符号）中搜索类比词。
 
@@ -238,12 +238,12 @@ get_top_k_by_analogy(glove_6b50d, 1, 'do', 'did', 'go')
 ## 小结
 
 
-* 我们可以应用预训练的词向量求近似词和类比词。
+* 我们可以应用预训练的词向量求近义词和类比词。
 
 
 ## 练习
 
-* 将近似词和类比词应用中的$k$调大一些，观察结果。
+* 将近义词和类比词应用中的$k$调大一些，观察结果。
 * 测试一下fastText的中文词向量（pretrained_file_name='wiki.zh.vec'）。
 * 如果在[“循环神经网络的Gluon实现”](../chapter_recurrent-neural-networks/rnn-gluon.md)一节中将Embedding实例里的参数初始化为预训练的词向量，效果如何？
 
