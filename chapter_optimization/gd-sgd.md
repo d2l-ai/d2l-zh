@@ -2,6 +2,8 @@
 
 本节中，我们将介绍梯度下降（gradient descent）的工作原理，并随后引出（小批量）随机梯度下降（(mini-batch) stochastic gradient descent）这一深度学习中最常用的优化算法。
 
+本节中，我们假设目标函数连续可导。
+
 
 ## 一维梯度下降
 
@@ -11,7 +13,7 @@ $$f(x + \epsilon) \approx f(x) + \epsilon f'(x) .$$
 
 这里$f'(x)$是函数$f$在$x$处的梯度。一维函数的梯度是一个标量，也称导数。
 
-接下来我们找一个正常数$\eta$，使得$|\eta f'(x)|$足够小，那么可以将$\epsilon$替换为$-\eta f'(x)$得到
+接下来我们找一个常数$\eta > 0$，使得$\left|\eta f'(x)\right|$足够小，那么可以将$\epsilon$替换为$-\eta f'(x)$得到
 
 $$f(x - \eta f'(x)) \approx f(x) -  \eta f'(x)^2.$$
 
@@ -19,15 +21,15 @@ $$f(x - \eta f'(x)) \approx f(x) -  \eta f'(x)^2.$$
 
 $$f(x - \eta f'(x)) \lesssim f(x).$$
 
-这样意味这如果我们通过下面规则来更新$x$，
+这意味着，如果我们通过以下规则来更新$x$：
 
 $$x \leftarrow x - \eta f'(x),$$
 
-我们可以降低$f(x)$的值。一般来说，我们选取一个初始值$x$和正常数$\eta$，然后不断的通过上式来更新$x$，直到达到停止条件，例如$f'(x)^2$的值已经足够小。
+函数$f(x)$的值可能被降低。一般来说，我们选取一个初始值$x$和常数$\eta > 0$，然后不断的通过上式来迭代$x$，直到达到停止条件，例如$f'(x)^2$的值已经足够小。
 
-下面我们以$f(x)=x^2$为例来看梯度下降是如何执行的。虽然我们知道最小化$f(x)$的解为$x=0$，这里我们使用这个简单函数来观察$x$是如何被更新的。首先导入本小节需要的包。
+下面我们以目标函数$f(x)=x^2$为例来看一看梯度下降是如何执行的。虽然我们知道最小化$f(x)$的解为$x=0$，这里我们依然使用这个简单函数来观察$x$是如何被迭代的。首先，导入本节实验所需的包或模块。
 
-```{.python .input}
+```{.python .input  n=1}
 import sys
 sys.path.insert(0, '..')
 
@@ -38,15 +40,15 @@ import numpy as np
 import random
 ```
 
-接下来我们使用$x=10$作为初始值，固定$\eta=0.2$，并对$x$更新10次，可以看到最后$x$的值已经很接近了最优解。
+接下来我们使用$x=10$作为初始值，设$\eta=0.2$。使用梯度下降对$x$迭代10次，可见最后$x$的值较接近最优解。
 
-```{.python .input}
+```{.python .input  n=2}
 f = lambda x: x**2
 f_grad = lambda x: 2*x
     
 def gd(eta):    
     x = 10    
-    res = []
+    res = [x]
     for i in range(10):
         x = x - eta * f_grad(x)
         res.append(x)        
@@ -56,39 +58,34 @@ res = gd(0.2)
 res[-1]
 ```
 
-下面我们画出$x$是如何被更新的。
+下面将绘制出$x$的迭代过程。
 
 ```{.python .input}
-def show(res):
+def plot_iterate(res):
     n = max(abs(min(res)), abs(max(res)), 10)
     f_line = np.arange(-n, n, .1)
-    gb.set_figsize((3.5, 2.5))
+    gb.set_figsize()
     gb.plt.plot(f_line, [f(x) for x in f_line])
     gb.plt.plot(res, [f(x) for x in res], '-o')
     gb.plt.xlabel('x')
     gb.plt.ylabel('f(x)')
-    
-show(res)
+
+plot_iterate(res)
 ```
 
 ## 学习率
 
-上述梯度下降算法中的正数$\eta$通常叫做学习率。这是一个超参数，需要人工设定。如果使用过小的学习率，会导致$x$更新缓慢从而使得需要更多的迭代才能得到需要的解。例如下面展示了使用$\eta=0.05$的情况。
+上述梯度下降算法中的正数$\eta$通常叫做学习率。这是一个超参数，需要人工设定。如果使用过小的学习率，会导致$x$更新缓慢从而使得需要更多的迭代才能得到较好的解。下面展示了使用$\eta=0.05$时$x$的迭代过程。
 
-```{.python .input}
-show(gd(.05))
+```{.python .input  n=4}
+plot_iterate(gd(0.05))
 ```
 
-如果使用过大的学习率，可能会使得$|\eta f'(x)|$过大从而前面提到的一阶泰勒展开公式不再成立，这时我们不能保证每次更新还能降低$f(x)$的值。例如如果使用$\eta=0.9$，可以看到$x$不断的越过（overshoot）最优解$x=0$。
+如果使用过大的学习率，$\left|\eta f'(x)\right|$可能会过大从而使前面提到的一阶泰勒展开公式不再成立：这时我们无法保证迭代$x$会
+降低$f(x)$的值。举个例子，当我们设$\eta=1.1$时，可以看到$x$不断越过（overshoot）最优解$x=0$并逐渐发散。
 
-```{.python .input}
-show(gd(.9))
-```
-
-而使用$\eta=1.1$则使得更新不再收敛。
-
-```{.python .input}
-show(gd(1.1))
+```{.python .input  n=6}
+plot_iterate(gd(1.1))
 ```
 
 ## 多维梯度下降
@@ -117,48 +114,49 @@ $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f(\boldsymbol{x}).$$
 
 ## 随机梯度下降
 
-在深度学习中，我们一般不知道$f$的具体定义，而是多个训练数据的平均来近似它。例如
+然而，当训练数据集很大时，梯度下降算法可能会难以使用。为了解释这个问题，考虑目标函数
 
 $$f(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n f_i(\boldsymbol{x}),$$
 
-其中$f_i(\boldsymbol{x})$是有关索引为$i$的训练数据样本的目标函数，$n$是训练数据样本数。那么在$\boldsymbol{x}$处的导数计算为
+其中$f_i(\boldsymbol{x})$是有关索引为$i$的训练数据样本的损失函数，$n$是训练数据样本数。那么在$\boldsymbol{x}$处的梯度计算为
 
 $$\nabla f(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_i(\boldsymbol{x}).$$
 
-可以看到，梯度下降每次迭代的计算开销随着$n$线性增长。因此，当训练数据样本数很大时，梯度下降每次迭代的计算开销很高。一个降低计算复杂度的方法是每次使用更少的样本来估计$f$。如果我们假设训练数据样本是随机采样而来，那么我们这里是通过$n$个样本的平均来近似$f$在整个样本空间上的期望，记为$\mathbb{E} f$。通常我们希望使用的更大的训练数据集，因为增加$n$可以使得近似方差变小。但即使使用很小的$n$，只要样本是随机采样而来，我们仍然可以得到无偏的估计。
-
-
-随机梯度下降正是使用了上述观察。每次更新中，我们随机均匀采样样本$i$，并用$f_i(\boldsymbol{x})$来近似目标函数。如果训练集包含了样本空间内所有样本，那么我们有$\mathbb{E}_i(\boldsymbol{x}) = \mathbb{E} f(\boldsymbol{x})$，即这是一个无偏估计。当然，实际中我们一般只有有限个样本，即使我们每次是从$n$个样本中随机选取，我们仍然有$\mathbb{E}_i f_i(\boldsymbol{x}) = f(\boldsymbol{x})$，这是对$f$的一个无偏估计。同样知道梯度的估计也是无偏的，即$\mathbb{E}_i \nabla f_i(\boldsymbol{x}) = \nabla f(\boldsymbol{x})$。这时候，随机梯度下降中的更新为：
+可以看到，梯度下降每次迭代的计算开销随着$n$线性增长。因此，当训练数据样本数很大时，梯度下降每次迭代的计算开销很高。给定学习率$\eta$（取正数），在每次迭代时，随机梯度下降算法随机均匀采样$i$并计算$\nabla f_i(\boldsymbol{x})$来迭代$\boldsymbol{x}$：
 
 $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f_i(\boldsymbol{x}).$$
 
 
+事实上，随机梯度$\nabla f_i(\boldsymbol{x})$是对梯度$\nabla f(\boldsymbol{x})$的无偏估计：
+
+$$\mathbb{E}_i \nabla f_i(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_i(\boldsymbol{x}) = \nabla f(\boldsymbol{x}).$$
+
+
 ## 小批量随机梯度下降
 
-梯度下降中每次更新使用所有样本来计算梯度，而随机梯度下降则随机选取一个样本来计算梯度。深度学习中真正常用的是小批量（mini-batch）随机梯度下降，其每次随机均匀采样一个由训练数据样本索引所组成的小批量（mini-batch）$\mathcal{B}$来计算梯度。我们可以通过重复采样（sampling with replacement）或者不重复采样（sampling without replacement）得到同一个小批量中的各个样本。前者允许同一个小批量中出现重复的样本，后者则不允许如此，且更常见。对于这两者间的任一种方式，我们可以使用
+梯度下降中每次更新使用所有样本来计算梯度，而随机梯度下降则随机选取一个样本来计算梯度。深度学习中真正常用的是小批量随机梯度下降。它每次随机均匀采样一个由训练数据样本索引所组成的小批量（mini-batch）$\mathcal{B}$来计算梯度。我们可以通过重复采样（sampling with replacement）或者不重复采样（sampling without replacement）得到同一个小批量中的各个样本。前者允许同一个小批量中出现重复的样本，后者则不允许如此，且更常见。对于这两者间的任一种方式，我们可以使用
 
 $$\nabla f_\mathcal{B}(\boldsymbol{x}) = \frac{1}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}\nabla f_i(\boldsymbol{x})$$ 
 
-来计算当前小批量上的梯度。这里$|\mathcal{B}|$代表样本批量大小，是一个超参数。容易看出小批量随机梯度$\nabla f_\mathcal{B}(\boldsymbol{x})$也是对梯度$\nabla f(\boldsymbol{x})$的无偏估计。对$\boldsymbol{x}$的更新如下：
+来计算当前小批量上的梯度。这里$|\mathcal{B}|$代表样本批量大小，是一个超参数。同随机梯度一样，小批量随机梯度$\nabla f_\mathcal{B}(\boldsymbol{x})$也是对梯度$\nabla f(\boldsymbol{x})$的无偏估计。给定学习率$\eta$（取正数），在每次迭代时，小批量随机梯度下降对$\boldsymbol{x}$的迭代如下：
 
 $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f_\mathcal{B}(\boldsymbol{x}).$$
 
-小批量随机梯度下降中每次迭代的计算开销为$\mathcal{O}(|\mathcal{B}|)$。当批量大小为1时，该算法即随机梯度下降；当批量大小等于训练数据样本数，该算法即梯度下降。批量大小的选取通常是计算效率和收敛快慢的权衡。当批量较小时，每次迭代中使用的样本少，这会导致并行处理和内存使用效率变低。从而使得在计算同样多样本的情况下比使用更大批量大小时所花时间更多。但另一方面边，当批量大小较大时，每次梯度里含有更多的冗余信息从而使得更新效率变低，从而收敛（即处理的样本数对比目标函数值）变慢。
+小批量随机梯度下降中每次迭代的计算开销为$\mathcal{O}(|\mathcal{B}|)$。当批量大小为1时，该算法即随机梯度下降；当批量大小等于训练数据样本数，该算法即梯度下降。当批量较小时，每次迭代中使用的样本少，这会导致并行处理和内存使用效率变低。这使得在计算同样数目样本的情况下比使用更大批量时所花时间更多。当批量较大时，每个小批量梯度里可能含有更多的冗余信息，因此可能需要计算更多数目的样本，例如增大迭代周期数。
 
 
+## 实验
 
-## 小批量随机梯度下降的收敛实验
+接下来我们构造一个数据集来实验小批量随机梯度下降。我们以之前介绍过的线性回归为例。下面直接调用`gluonbook`中的线性回归模型和平方损失函数。它们已在[“线性回归的从零开始实现”](../chapter_deep-learning-basics/linear-regression-scratch.md)一节中实现过了。
 
-接下来我们构造一个数据集来观察批量大小和学习率对收敛的影响。我们以之前介绍过的线性回归为例。我们直接调用`gluonbook`中的线性回归模型和平方损失函数。它们已在[“线性回归的从零开始实现”](../chapter_deep-learning-basics/linear-regression-scratch.md)一节中实现过了。
-
-```{.python .input}
+```{.python .input  n=7}
 net = gb.linreg
 loss = gb.squared_loss
 ```
 
-设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。该模型的平方损失函数即所需优化的目标函数，模型参数即目标函数自变量。
+设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。所需学习的模型在整个数据集上的平方损失函数即我们需要优化的目标函数。模型参数即目标函数自变量。
 
-```{.python .input  n=2}
+```{.python .input  n=8}
 # 生成数据集。
 num_inputs = 2
 num_examples = 1000
@@ -178,17 +176,17 @@ def init_params():
     return params
 ```
 
-模型参数更新同样在[“线性回归的从零开始实现”](../chapter_deep-learning-basics/linear-regression-scratch.md)一节中介绍过，但这里为了阅读方便我们重复实现一次。
+小批量随机梯度下降算法同样在[“线性回归的从零开始实现”](../chapter_deep-learning-basics/linear-regression-scratch.md)一节中实现过。为了阅读方便，在这里我们重复实现一次。
 
-```{.python .input}
+```{.python .input  n=9}
 def sgd(params, lr, batch_size):
     for param in params:
         param[:] = param - lr * param.grad / batch_size
 ```
 
-由于随机梯度的方差在迭代过程中无法减小，（小批量）随机梯度下降的学习率通常会采用自我衰减的方式。如此一来，学习率和随机梯度乘积的方差会衰减来帮助收敛。在下面定义的优化函数`optimize`中，每`decay_epoch`次迭代周期将学习率减少10倍。在迭代过程中，每当`log_interval`个样本被采样过后，模型当前的损失函数值（`loss`）被记录下并用于作图。例如，当`batch_size`和`log_interval`都为10时，每次迭代后的损失函数值都被用来作图。
+由于随机梯度的方差在迭代过程中无法减小，（小批量）随机梯度下降的学习率通常会采用自我衰减的方式。如此一来，学习率和随机梯度乘积的方差会衰减。实验中，当迭代周期（`epoch`）大于2时，（小批量）随机梯度下降的学习率在每个迭代周期开始时自乘0.1作自我衰减。而梯度下降在迭代过程中一直使用目标函数的真实梯度，无需自我衰减学习率。在迭代过程中，每当`log_interval`个样本被采样过后，模型当前的损失函数值（`loss`）被记录下并用于作图。例如，当`batch_size`和`log_interval`都为10时，每次迭代后的损失函数值都被用来作图。
 
-```{.python .input  n=3}
+```{.python .input  n=10}
 def optimize(batch_size, lr, num_epochs, log_interval, decay_epoch):
     w, b = init_params()
     ls = [loss(net(features, w, b), labels).mean().asnumpy()]
@@ -205,41 +203,41 @@ def optimize(batch_size, lr, num_epochs, log_interval, decay_epoch):
             sgd([w, b], lr, batch_size)
             if batch_i * batch_size % log_interval == 0:
                 ls.append(loss(net(features, w, b), labels).mean().asnumpy())
-    print('w[0]=%f, w[1]=%f, b=%f'%(w[0].asscalar(), 
-                                    w[1].asscalar(), b.asscalar()))
+    print('w[0]=%f, w[1]=%f, b=%f' % (w[0].asscalar(),
+                                      w[1].asscalar(), b.asscalar()))
     es = np.linspace(0, num_epochs, len(ls), endpoint=True)
     gb.semilogy(es, ls, 'epoch', 'loss')
 ```
 
 当批量大小为1时，优化使用的是随机梯度下降。在当前学习率下，损失函数值在早期快速下降后略有波动。这是由于随机梯度的方差在迭代过程中无法减小。当迭代周期大于2，学习率自我衰减后，损失函数值下降后较平稳。最终，优化所得的模型参数值`w`和`b`与它们的真实值[2, -3.4]和4.2较接近。
 
-```{.python .input  n=4}
+```{.python .input  n=11}
 optimize(batch_size=1, lr=0.2, num_epochs=3, decay_epoch=2, log_interval=10)
 ```
 
-当批量大小为1000时，由于数据样本总数也是1000，优化使用的是梯度下降。梯度下降无需自我衰减学习率（`decay_epoch=None`）。最终，优化所得的模型参数值与它们的真实值较接近。需要注意的是，梯度下降的1个迭代周期对模型参数只迭代1次。而随机梯度下降的批量大小为1，它在1个迭代周期对模型参数迭代了1000次。我们观察到，1个迭代周期后，梯度下降所得的损失函数值比随机梯度下降所得的损失函数值略大。而在3个迭代周期后，这两个算法所得的损失函数值很接近。
+当批量大小为1000时，由于数据样本总数也是1000，优化使用的是梯度下降。梯度下降无需自我衰减学习率（`decay_epoch=None`）。最终，优化所得的模型参数值与它们的真实值较接近。需要注意的是，梯度下降的1个迭代周期对模型参数只迭代1次。而随机梯度下降的批量大小为1，它在1个迭代周期对模型参数迭代了1000次。我们观察到，1个迭代周期后，梯度下降所得的损失函数值比随机梯度下降所得的损失函数值略大。这很可能是由于基于1000个样本计算得到的梯度里含有较多的冗余信息。因此，我们需要计算更多数目的样本继续迭代模型参数。而在3个迭代周期后，梯度下降和随机梯度下降得到的损失函数值较接近。
 
-```{.python .input  n=5}
+```{.python .input  n=12}
 optimize(batch_size=1000, lr=0.999, num_epochs=3, decay_epoch=None, 
          log_interval=1000)
 ```
 
 当批量大小为10时，由于数据样本总数也是1000，优化使用的是小批量随机梯度下降。最终，优化所得的模型参数值与它们的真实值较接近。
 
-```{.python .input  n=6}
+```{.python .input  n=13}
 optimize(batch_size=10, lr=0.2, num_epochs=3, decay_epoch=2, log_interval=10)
 ```
 
 同样是批量大小为10，我们把学习率改大。这时损失函数值不断增大，直到出现“nan”（not a number，非数）。
 这是因为，过大的学习率造成了模型参数越过最优解并发散。最终学到的模型参数也是“nan”。
 
-```{.python .input  n=7}
+```{.python .input  n=14}
 optimize(batch_size=10, lr=5, num_epochs=3, decay_epoch=2, log_interval=10)
 ```
 
 同样是批量大小为10，我们把学习率改小。这时我们观察到损失函数值下降较慢，直到3个迭代周期模型参数也没能接近它们的真实值。
 
-```{.python .input  n=8}
+```{.python .input  n=15}
 optimize(batch_size=10, lr=0.002, num_epochs=3, decay_epoch=2,
          log_interval=10)
 ```
