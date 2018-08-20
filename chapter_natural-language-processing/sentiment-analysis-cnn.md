@@ -1,9 +1,95 @@
 # 文本情感分类：使用卷积神经网络（textCNN）
 
-TODO(@astonzhang): edits
-
 在之前的章节中介绍了卷积神经网络用于计算机视觉领域。
 在本节将介绍如何将卷积神经网络应用于自然语言处理领域。以及参考textCNN模型使用Gluon创建一个卷积神经网络用于文本情感分类。
+
+
+## 一维卷积
+
+一维卷积即将一个一维核（kernel）数组作用在一个一维输入数据上来计算一个一维数组输出。下图演示了如何对一个长度为7的输入X作用宽为2的核K来计算输出Y。
+
+
+可以看到输出Y是一个6维的向量，且第一个元素是由X的最左侧宽为2的子数组与核数组按元素相乘后再相加得来。即Y[0] = (X[0:2] * K).sum()。卷积后输出的数据维度仍遵循n-f+1，即 7-2+1=6
+
+一维卷积常用于序列模型，比如自然语言处理领域中。
+
+下面我们将上述过程实现在corr1d函数里，它接受X和K，输出Y。
+
+
+![](../img/conv1d.svg)
+
+一维卷积多通道输入的卷积运算与二维卷积的多通道运算类似。将每个单通道与对应的filter进行卷积运算求和，然后再将多个通道的和相加，得到输出的一个数值。
+
+解释上图，假设存在三个通道$ c_0, c_1, c_2 $，存在一组卷积核$ k_0, k_1, k_2 $
+
+$$ y(i)=\sum_m c_0(i-m)k_0(m) + \sum_m c_1(i-m)k_1(m) + \sum_m c_2(i-m)k_2(m) \\
+=\sum_m \sum_{n\in\{0, 1, 2\}} c_n(i-m)k_n(m) $$
+
+
+我们将$ c_0, c_1, c_2 $三个向量连结成矩阵C，将$ k_0, k_1, k_2 $连结成矩阵K
+
+$$ y(i)=\sum_m \sum_{n\in\{0, 1, 2\}} C(i-m,j-n)K(m,n) $$
+
+上式与二维卷积的定义等价。
+
+故：多通道一维卷积计算可以等价于单通道二维卷积计算。
+
+类比到图像上，我们可以用一个三维的向量（R, G, B）来表达一个像素点。在做卷积时将R、G、B作为三个通道来进行运算。
+
+在文本任务上，我们可以用一个k维的向量来表达一个词，即词向量。这个k即嵌入层维度embed_size。同样的，在做卷积时也将这k维作为k个通道来进行计算。
+
+所以，对于自然语言处理任务而言，输入的通道数等于嵌入层维度embed_size。
+
+
+![](../img/conv1d-channel.svg)
+
+![](../img/conv1d-2d.svg)
+
+
+在实验开始前，导入所需的包或模块。
+
+```{.python .input}
+import sys
+sys.path.insert(0, '..')
+
+import collections
+import gluonbook as gb
+from mxnet import autograd, gluon, init, metric, nd
+from mxnet.contrib import text
+from mxnet.gluon import data as gdata, loss as gloss, nn, utils as gutils
+import os
+import random
+import tarfile
+from time import time
+```
+
+```{.python .input}
+def corr1d(X, K):
+    w = K.shape[0]
+    Y = nd.zeros((X.shape[0] - w + 1))
+    for i in range(Y.shape[0]):
+        Y[i] = (X[i : i + w] * K).sum()
+    return Y
+```
+
+```{.python .input}
+X = nd.array([0, 1, 2, 3, 4, 5, 6])
+K = nd.array([1, 2])
+corr1d(X, K)
+```
+
+```{.python .input}
+def corr1d_multi_in(X, K):
+    # 我们首先沿着 X 和 K 的第 0 维（通道维）遍历。然后使用 * 将结果列表 (list) 变成
+    # add_n 的位置参数（positional argument）来进行相加。
+    return nd.add_n(*[corr1d(x, k) for x, k in zip(X, K)])
+
+X = nd.array([[0, 1, 2, 3, 4, 5, 6],
+              [1, 2, 3, 4, 5, 6, 7],
+              [2, 3, 4, 5, 6, 7, 8]])
+K = nd.array([[1, 2], [3, 4], [-1, -3]])
+corr1d_multi_in(X, K)
+```
 
 ## 模型设计
 
@@ -22,23 +108,6 @@ TODO(@astonzhang): edits
 3. 再进行 Max-over-time pooling，得到的矩阵维度分别是(4，1)、(5，1)。
 4. 压平上述三个矩阵，并连结，得到一个（4+5）维度的向量
 5. 再通过一个全连接层降低维度。
-
-在实验开始前，导入所需的包或模块。
-
-```{.python .input  n=2}
-import sys
-sys.path.insert(0, '..')
-
-import collections
-import gluonbook as gb
-from mxnet import autograd, gluon, init, metric, nd
-from mxnet.contrib import text
-from mxnet.gluon import data as gdata, loss as gloss, nn, utils as gutils
-import os
-import random
-from time import time
-import tarfile
-```
 
 ## 读取IMDb数据集
 
@@ -98,63 +167,11 @@ glove_embedding = text.embedding.create(
     'glove', pretrained_file_name='glove.6B.100d.txt', vocabulary=vocab)
 ```
 
-## 一维卷积
-
-一维卷积即将一个一维核（kernel）数组作用在一个一维输入数据上来计算一个一维数组输出。下图演示了如何对一个长度为7的输入X作用宽为2的核K来计算输出Y。
-
-![](../img/Conv1D.svg)
-
-可以看到输出Y是一个6维的向量，且第一个元素是由X的最左侧宽为2的子数组与核数组按元素相乘后再相加得来。即Y[0] = (X[0:2] * K).sum()。卷积后输出的数据维度仍遵循n-f+1，即 7-2+1=6
-
-一维卷积常用于序列模型，比如自然语言处理领域中。
-
-下面我们将上述过程实现在corr1d函数里，它接受X和K，输出Y。
-
-```{.python .input  n=8}
-def corr1d(X, K):
-    w = K.shape[0]
-    Y = nd.zeros((X.shape[0] - w + 1))
-    for i in range(Y.shape[0]):
-        Y[i] = (X[i : i + w] * K).sum()
-    return Y
-```
-
-构造上图中的数据来测试实现的正确性。
-
-```{.python .input  n=9}
-X = nd.array([0 ,1 ,2, 3, 4 ,5 ,6])
-K = nd.array([1 ,2])
-corr1d(X, K)
-```
-
-一维卷积多通道输入的卷积运算与二维卷积的多通道运算类似。将每个单通道与对应的filter进行卷积运算求和，然后再将多个通道的和相加，得到输出的一个数值。
-
-![](../img/Conv1D-channel.svg)
-
-解释上图，假设存在三个通道$ c_0, c_1, c_2 $，存在一组卷积核$ k_0, k_1, k_2 $
-
-$$ y(i)=\sum_m c_0(i-m)k_0(m) + \sum_m c_1(i-m)k_1(m) + \sum_m c_2(i-m)k_2(m) \\
-=\sum_m \sum_{n\in\{0, 1, 2\}} c_n(i-m)k_n(m) $$
-
-![](../img/Conv1D-flatten.svg)
-
-我们将$ c_0, c_1, c_2 $三个向量连结成矩阵C，将$ k_0, k_1, k_2 $连结成矩阵K
-
-$$ y(i)=\sum_m \sum_{n\in\{0, 1, 2\}} C(i-m,j-n)K(m,n) $$
-
-上式与二维卷积的定义等价。
-
-故：多通道一维卷积计算可以等价于单通道二维卷积计算。
-
-类比到图像上，我们可以用一个三维的向量（R, G, B）来表达一个像素点。在做卷积时将R、G、B作为三个通道来进行运算。
-
-在文本任务上，我们可以用一个k维的向量来表达一个词，即词向量。这个k即嵌入层维度embed_size。同样的，在做卷积时也将这k维作为k个通道来进行计算。
-
-所以，对于自然语言处理任务而言，输入的通道数等于嵌入层维度embed_size。
-
 ## 定义模型
 
 下面我们根据模型设计里的描述定义情感分类模型。其中的`Embedding`实例即嵌入层，在实验中，我们使用了两个嵌入层。`Conv1D`实例即为卷积层，`GlobalMaxPool1D`实例为池化层，卷积层和池化层用于抽取文本中重要的特征。`Dense`实例即生成分类结果的输出层。
+
+按照模型设计，每个卷积核都应用于两个嵌入层，此时卷积核为的核数组。将卷积核在多个嵌入层的运算结果求和，即得到一次卷积结果。这等价于直接连结这两个嵌入层，再将卷积核变成（ngram_kernel_sizes, nums_channels * 2 ），所得结果相同。dim = 1 的意思是从 in_channels 这个维度进行连结。连结后的维度是（batch_size, in_channels*2, width）
 
 ```{.python .input  n=10}
 class TextCNN(nn.Block):
@@ -162,7 +179,6 @@ class TextCNN(nn.Block):
                  nums_channels, **kwargs):
         super(TextCNN, self).__init__(**kwargs)
         self.ngram_kernel_sizes = ngram_kernel_sizes
-        self.nums_channels = nums_channels
         self.embedding_static = nn.Embedding(len(vocab), embedding_size)
         self.embedding_non_static = nn.Embedding(len(vocab), embedding_size)
         for i in range(len(ngram_kernel_sizes)):
@@ -178,37 +194,33 @@ class TextCNN(nn.Block):
         self.decoder = nn.Dense(num_outputs)
 
     def forward(self, inputs):
-        #inputs 输入的维度为(batch_size, 句子长度) ，转换为(句子长度, batch_size)
+        # 将 inputs 的形状由（批量大小，词数）变换为（词数，批量大小）。
         inputs = inputs.T
-        #embeddings_static 的维度为（句子长度, batch_size, embed_size） 
-        embeddings_static = self.embedding_static(inputs)
-        
-        #Conv1D 要求的输入是（batch_size, in_channels, width），故需要做transpose((1,2,0))
-        embeddings_static = embeddings_static.transpose((1,2,0))  
-        
-        #embeddings_non_static 的维度同上
-        embeddings_non_static = self.embedding_non_static(inputs).transpose((1,2,0))
-        
-        #按照模型设计，每个卷积核都应用于两个嵌入层，此时卷积核为的核数组。将卷积核在多个嵌入层的运算结果求和，即得到一次卷积结果。
-        #这等价于直接连结这两个嵌入层，再将卷积核变成（ngram_kernel_sizes, nums_channels * 2 ），所得结果相同。
-        #dim = 1 的意思是从 in_channels 这个维度进行连结。连结后的维度是（batch_size, in_channels*2, width）
-        embeddings = nd.concat(embeddings_static, embeddings_non_static, dim=1)
-        
-        #对于卷积核[i]，在池化之后会形成一个（nums_channels[i],1）的矩阵，需要使用flatten压平成nums_channels[i]维的向量
+        # 根据 Conv1D 要求的输入形状，embeddings_static 和 embeddings_non_static
+        # 的形状由（词数，批量大小，词向量维度）变换为（批量大小，词向量维度，词数）。
+        embeddings_static = self.embedding_static(inputs).transpose((1, 2, 0))
+        embeddings_non_static = self.embedding_non_static(
+            inputs).transpose((1, 2, 0))
+        # 将 embeddings_static 和 embeddings_non_static 按词向量维度连结。
+        embeddings = nd.concat(embeddings_static, embeddings_non_static,
+                               dim=1)
+        # 对于第 i 个卷积核，在时序最大池化后会得到一个形状为
+        # （批量大小，nums_channels[i]，1）的矩阵。使用 flatten 函数将它形状压成
+        # （批量大小，nums_channels[i]）。
         encoding = [
             nd.flatten(self.get_pool(i)(self.get_conv(i)(embeddings)))
             for i in range(len(self.ngram_kernel_sizes))]
-        
-        #在此之前， encoding 有多个元素，每个元素维度是（batch_size, nums_channels[i]）。
-        #需要将它连结成一个维度为（batch_size, nums_channels的和）的矩阵
+        # 将批量按各通道的输出连结。encoding的形状：
+        # （批量大小，nums_channels 各元素之和）。
         encoding = nd.concat(*encoding, dim=1)
-        
         outputs = self.decoder(self.dropout(encoding))
         return outputs
-    #调用self.get_conv(i)，即返回self.conv_{i}
+
+    # 返回 self.conv_{i}。
     def get_conv(self, i):
         return getattr(self, 'conv_{i}')
-    #调用self.get_pool(i)，即返回self.pool_{i}
+
+    # 返回 self.pool_{i}。
     def get_pool(self, i):
         return getattr(self, 'pool_{i}')
 ```
@@ -224,13 +236,15 @@ embed_size = 100
 ngram_kernel_sizes = [3, 4, 5]
 nums_channels = [100, 100, 100]
 ctx = gb.try_all_gpus()
+```
 
+```{.python .input}
 net = TextCNN(vocab, embed_size, ngram_kernel_sizes, nums_channels)
 net.initialize(init.Xavier(), ctx=ctx)
-# 设置两个embedding 层的 weight 为预训练的词向量。
+# embedding_static 和 embedding_non_static 均使用预训练的词向量。
 net.embedding_static.weight.set_data(glove_embedding.idx_to_vec)
 net.embedding_non_static.weight.set_data(glove_embedding.idx_to_vec)
-# 训练中不更新embedding_static的词向量（net.embedding中的模型参数）。
+# 训练中不更新 embedding_static 的词向量，即不更新 embedding_static 的模型参数。
 net.embedding_static.collect_params().setattr('grad_req', 'null')
 trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': lr})
 loss = gloss.SoftmaxCrossEntropyLoss()
@@ -238,7 +252,7 @@ loss = gloss.SoftmaxCrossEntropyLoss()
 
 ## 训练并评价模型
 
-使用gluon的DataLoader加载数据
+使用gluon的DataLoader加载数据。下面开始训练模型。
 
 ```{.python .input  n=30}
 train_set = gdata.ArrayDataset(train_features, train_labels)
@@ -246,11 +260,6 @@ test_set = gdata.ArrayDataset(test_features, test_labels)
 train_loader = gdata.DataLoader(train_set, batch_size=batch_size,
                                 shuffle=True)
 test_loader = gdata.DataLoader(test_set, batch_size=batch_size, shuffle=False)
-```
-
-下面开始训练模型。
-
-```{.python .input}
 gb.train(train_loader, test_loader, net, loss, trainer, ctx, num_epochs)
 ```
 

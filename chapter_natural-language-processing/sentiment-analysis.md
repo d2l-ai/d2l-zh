@@ -240,6 +240,9 @@ predict_sentiment(net, vocab, ['i', 'think', 'this', 'movie', 'is', 'great'])
 predict_sentiment(net, vocab, ['the', 'show', 'is', 'terribly', 'boring'])
 ```
 
+本节介绍的`download_imdb`、`read_imdb`、`get_tokenized_imdb`、`count_tokens`、`preprocess_imdb`和`predict_sentiment`函数均定义在`gluonbook`包中供后面章节调用。
+
+
 ## 小结
 
 * 我们可以应用预训练的词向量和循环神经网络对文本的情感进行分类。
