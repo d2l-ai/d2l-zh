@@ -6,18 +6,59 @@
 
 ## 梯度下降的问题
 
-给定目标函数，在梯度下降中，自变量的迭代方向仅仅取决于自变量当前位置。这可能会带来一些问题。
+给定目标函数，在梯度下降中，自变量的迭代方向仅仅取决于自变量当前位置。这可能会带来一些问题。考虑一个输入和输出分别为二维向量$\boldsymbol{x} = [x_1, x_2]^\top$和标量的目标函数$f(\boldsymbol{x})=0.1x_1^2+2x_2$。下面我们观察梯度下降是如何执行的。首先，导入本节中实验所需的包或模块。
 
-考虑一个输入和输出分别为二维向量$\boldsymbol{x} = [x_1, x_2]^\top$和标量的目标函数$f: \mathbb{R}^2 \rightarrow \mathbb{R}$。图7.2展示了该函数的等高线示意图。
+```{.python .input}
+import sys
+sys.path.insert(0, '..')
 
-![目标函数$f$的等高线图和自变量$[x_1, x_2]$在梯度下降中的迭代。每条等高线（椭圆实线）代表所有函数值相同的自变量的坐标。实心圆代表自变量初始坐标。每个箭头头部代表自变量在每次迭代后的坐标。](../img/gd-move.svg)
+%matplotlib inline
+import gluonbook as gb
+from mxnet import autograd, nd
+import numpy as np
+```
+
+接下来我们实现梯度下降和图示函数。跟上一小节不同在于输入有两个维度，在作图中我们不是换出函数曲线而是等高线。然后我们演示了使用学习率$\eta=0.9$时的更新轨迹。
+
+```{.python .input}
+f = lambda x1, x2: 0.1*x1**2 + 2*x2**2
+f_grad = lambda x1, x2: (0.2*x1, 2*x2)
+
+def gd(eta):    
+    x1, x2 = -5, -2
+    res = []
+    for i in range(15):
+        gx1, gx2 = f_grad(x1, x2)
+        x1 = x1 - eta * gx1
+        x2 = x2 - eta * gx2
+        res.append((x1, x2))
+    return res
+
+def show(res):
+    x1, x2 = zip(*res)
+    gb.set_figsize((3.5, 2.5))
+    gb.plt.plot(x1, x2, '-o')
+    
+    x1 = np.arange(-5.0, 1.0, .1)
+    x2 = np.arange(min(-3.0, min(x2)-1), max(3.0, max(x2)+1), .1)
+    x1, x2 = np.meshgrid(x1, x2)
+    gb.plt.contour(x1, x2, f(x1, x2), colors='g')
+    
+    gb.plt.xlabel('x1')
+    gb.plt.ylabel('x2')
+    
+show(gd(.9))
+```
 
 同一位置上，目标函数在竖直方向（$x_2$轴方向）比在水平方向（$x_1$轴方向）的斜率的绝对值更大。因此，给定学习率，梯度下降迭代自变量时会使自变量在竖直方向比在水平方向移动幅度更大。因此，我们需要一个较小的学习率从而避免自变量在竖直方向上越过目标函数最优解。然而，这造成了图7.2中自变量向最优解移动较慢。
 
+```{.python .input}
+show(gd(1.1))
+```
 
 ## 动量法
 
-动量法的提出是为了应对梯度下降的上述问题。广义上，以小批量随机梯度下降为例（当批量大小等于训练集样本数时，该算法即为梯度下降；批量大小为1时即为随机梯度下降），我们对小批量随机梯度算法在每次迭代的步骤做如下修改：
+动量法的提出是为了应对梯度下降的上述问题。以小批量随机梯度下降为例，动量法对每次迭代的步骤做如下修改：
 
 
 $$
@@ -27,13 +68,36 @@ $$
 \end{aligned}
 $$
 
-
 其中$\boldsymbol{v}$是速度变量，动量超参数$\gamma$满足$0 \leq \gamma \leq 1$。动量法中的学习率$\eta$和有关小批量$\mathcal{B}$的随机梯度$\nabla f_\mathcal{B}(\boldsymbol{x})$已在[“梯度下降和随机梯度下降”](gd-sgd.md)一节中描述。
 
+在解释其原理前让我们从实验中观察是否动量法解决了之前的问题。
+
+```{.python .input  n=77}
+def momentum(eta, mom):
+    x, y = -5, -2
+    res = []
+    v_x, v_y = 0, 0
+    for i in range(15):
+        gx, gy = f_grad(x, y)
+        v_x = mom * v_x + eta * gx
+        v_y = mom * v_y + eta * gy        
+        x = x - v_x
+        y = y - v_y
+        res.append((x, y))
+    return res
+
+show(momentum(0.9, .2))
+```
+
+可以看到使用$\eta=0.9$和动量参数$\gamma=0.2$，动量法在垂直方向上更加平滑，且加速了水平方向的进度。使用更大的$\eta=1.1$也不会使得收敛发散。
+
+```{.python .input}
+show(momentum(1.1, .2))
+```
 
 ### 指数加权移动平均
 
-为了更清晰地理解动量法，让我们先解释指数加权移动平均（exponentially weighted moving average）。给定超参数$\gamma$且$0 \leq \gamma < 1$，当前时刻$t$的变量$y^{(t)}$是上一时刻$t-1$的变量$y^{(t-1)}$和当前时刻另一变量$x^{(t)}$的线性组合：
+为了数学上理解动量法，让我们先解释指数加权移动平均（exponentially weighted moving average）。给定超参数$\gamma$且$0 \leq \gamma < 1$，当前时刻$t$的变量$y^{(t)}$是上一时刻$t-1$的变量$y^{(t-1)}$和当前时刻另一变量$x^{(t)}$的线性组合：
 
 $$y^{(t)} = \gamma y^{(t-1)} + (1-\gamma) x^{(t)}.$$
 
@@ -68,39 +132,13 @@ $$\boldsymbol{v} \leftarrow \gamma \boldsymbol{v} + (1 - \gamma) \frac{\eta \nab
 由指数加权移动平均的形式可得，速度变量$\boldsymbol{v}$实际上对$(\eta\nabla f_\mathcal{B}(\boldsymbol{x})) /(1-\gamma)$做了指数加权移动平均。给定动量超参数$\gamma$和学习率$\eta$，含动量法的小批量随机梯度下降可被看作使用了特殊梯度来迭代目标函数的自变量。这个特殊梯度是最近$1/(1-\gamma)$个时刻的$\nabla f_\mathcal{B}(\boldsymbol{x})/(1-\gamma)$的加权平均。
 
 
-给定目标函数，在动量法的每次迭代中，自变量在各个方向上的移动幅度不仅取决当前梯度，还取决过去各个梯度在各个方向上是否一致。图7.3展示了使用动量法的梯度下降迭代图7.2中目标函数自变量的情景。我们将每个梯度代表的箭头方向在水平方向和竖直方向做分解。由于所有梯度的水平方向为正（向右）、在竖直上时正（向上）时负（向下），自变量在水平方向移动幅度逐渐增大，而在竖直方向移动幅度逐渐减小。这样，我们就可以使用较大的学习率，从而使自变量向最优解更快移动。
-
-![目标函数$f$的等高线图和自变量$[x_1, x_2]$在使用动量法的梯度下降中的迭代。每条等高线（椭圆实线）代表所有函数值相同的自变量的坐标。实心圆代表自变量初始坐标。每个箭头头部代表自变量在每次迭代后的坐标。](../img/momentum-move.svg)
-
-
-## 动量法的实现
-
-动量法的实现也很简单。我们在小批量随机梯度下降的基础上添加速度变量。
-
-```{.python .input  n=1}
-def sgd_momentum(params, vs, lr, mom, batch_size):
-    for param, v in zip(params, vs):
-        v[:] = mom * v + lr * param.grad / batch_size
-        param[:] -= v
-```
+给定目标函数，在动量法的每次迭代中，自变量在各个方向上的移动幅度不仅取决当前梯度，还取决过去各个梯度在各个方向上是否一致。在上面示例中，由于所有梯度的水平方向为正（向右）、在竖直上时正（向上）时负（向下），自变量在水平方向移动幅度逐渐增大，而在竖直方向移动幅度逐渐减小。这样，我们就可以使用较大的学习率，从而使自变量向最优解更快移动。
 
 ## 实验
 
-首先，导入本节中实验所需的包或模块。
+实验中，我们以之前介绍过的线性回归为例。设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。模型的平方损失函数即所需优化的目标函数，模型参数即目标函数自变量。
 
-```{.python .input}
-import sys
-sys.path.insert(0, '..')
-
-%matplotlib inline
-import gluonbook as gb
-from mxnet import autograd, nd
-import numpy as np
-```
-
-实验中，我们以之前介绍过的线性回归为例。设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。该模型的平方损失函数即所需优化的目标函数，模型参数即目标函数自变量。
-
-```{.python .input  n=2}
+```{.python .input  n=69}
 # 生成数据集。
 num_inputs = 2
 num_examples = 1000
@@ -121,6 +159,15 @@ def init_params():
         # 把速度项初始化为和参数形状相同的零张量。
         vs.append(param.zeros_like())
     return params, vs
+```
+
+动量法的实现也很简单。我们在小批量随机梯度下降的基础上添加速度变量。
+
+```{.python .input}
+def sgd_momentum(params, vs, lr, mom, batch_size):
+    for param, v in zip(params, vs):
+        v[:] = mom * v + lr * param.grad / batch_size
+        param[:] -= v
 ```
 
 优化函数`optimize`与[“梯度下降和随机梯度下降”](gd-sgd.md)一节中的类似。
