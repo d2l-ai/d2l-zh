@@ -11,6 +11,7 @@
    linear-regression-scratch
    linear-regression-gluon
    softmax-regression
+   fashion-mnist
    softmax-regression-scratch
    softmax-regression-gluon
    mlp
@@ -18,9 +19,7 @@
    mlp-gluon
    underfit-overfit
    weight-decay
-   weight-decay-gluon
    dropout
-   dropout-gluon
    backprop
    kaggle-house-price
 

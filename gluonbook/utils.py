@@ -1,10 +1,11 @@
+import collections
 import random
 import os
 import sys
 import tarfile
 from time import time
 
-from IPython.display import set_matplotlib_formats
+from IPython import display
 from matplotlib import pyplot as plt
 import mxnet as mx
 from mxnet import autograd, gluon, image, nd
@@ -26,7 +27,7 @@ voc_colormap = [[0, 0, 0], [128, 0, 0], [0, 128, 0], [128, 128, 0],
                 [0, 64, 128]]
 
 
-def accuracy(y_hat, y): 
+def accuracy(y_hat, y):
     """Get accuracy."""
     return (y_hat.argmax(axis=1) == y.astype('float32')).mean().asscalar()
 
@@ -36,6 +37,18 @@ def bbox_to_rect(bbox, color):
     return plt.Rectangle(xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0],
                          height=bbox[3]-bbox[1], fill=False, edgecolor=color,
                          linewidth=2)
+
+
+def count_tokens(samples):
+    """Count tokens in the data set."""
+    token_counter = collections.Counter()
+    for sample in samples:
+        for token in sample:
+            if token not in token_counter:
+                token_counter[token] = 1
+            else:
+                token_counter[token] += 1
+    return token_counter
 
 
 def data_iter(batch_size, features, labels):
@@ -79,6 +92,15 @@ def data_iter_random(corpus_indices, batch_size, num_steps, ctx=None):
         Y = nd.array(
             [_data(j * num_steps + 1) for j in batch_indices], ctx=ctx)
         yield X, Y
+
+
+def download_imdb(data_dir='../data'):
+    """Download the IMDB data set for sentiment analysis."""
+    url = ('http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz')
+    sha1 = '01ada507287d82875905620988597833ad4e0903'
+    fname = gutils.download(url, data_dir, sha1_hash=sha1)
+    with tarfile.open(fname, 'r') as f:
+        f.extractall(data_dir)
 
 
 def _download_pikachu(data_dir):
@@ -129,6 +151,27 @@ def _get_batch(batch, ctx):
             features.shape[0])
 
 
+def get_fashion_mnist_labels(labels):
+    """get text label for fashion mnist"""
+    text_labels = ['t-shirt', 'trouser', 'pullover', 'dress', 'coat',
+                   'sandal', 'shirt', 'sneaker', 'bag', 'ankle boot']
+    return [text_labels[int(i)] for i in labels]
+
+
+def get_tokenized_imdb(train_data, test_data):
+    """Get the tokenized IMDB data set for sentiment analysis."""
+    def tokenizer(text):
+        return [tok.lower() for tok in text.split(' ')]
+
+    train_tokenized = []
+    for review, score in train_data:
+        train_tokenized.append(tokenizer(review))
+    test_tokenized = []
+    for review, score in test_data:
+        test_tokenized.append(tokenizer(review))
+    return train_tokenized, test_tokenized
+
+
 def grad_clipping(params, theta, ctx):
     """Clip the gradient."""
     if theta is not None:
@@ -166,11 +209,11 @@ def load_data_fashion_mnist(batch_size, resize=None,
                                   num_workers=num_workers)
     test_iter = gdata.DataLoader(mnist_test.transform_first(transformer),
                                  batch_size, shuffle=False,
-                                 num_workers=num_workers)                                                              
+                                 num_workers=num_workers)
     return train_iter, test_iter
 
 
-def load_data_pikachu(batch_size, edge_size=256):                                                                                
+def load_data_pikachu(batch_size, edge_size=256):
     """Download the pikachu dataest and then load into memory."""
     data_dir = '../data/pikachu'
     _download_pikachu(data_dir)
@@ -246,7 +289,51 @@ def predict_rnn(rnn, prefix, num_chars, params, num_hiddens, vocab_size, ctx,
     return ''.join([idx_to_char[i] for i in output])
 
 
-def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):                                                               
+def predict_sentiment(net, vocab, sentence):
+    """Predict the sentiment of a given sentence."""
+    sentence = nd.array([vocab.token_to_idx[token] for token in sentence],
+                        ctx=try_gpu())
+    label = nd.argmax(net(nd.reshape(sentence, shape=(1, -1))), axis=1)
+    return 'positive' if label.asscalar() == 1 else 'negative'
+
+
+def preprocess_imdb(train_tokenized, test_tokenized, train_data, test_data,
+                    vocab):
+    """Preprocess the IMDB data set for sentiment analysis."""
+    def encode_samples(tokenized_samples, vocab):
+        features = []
+        for sample in tokenized_samples:
+            feature = []
+            for token in sample:
+                if token in vocab.token_to_idx:
+                    feature.append(vocab.token_to_idx[token])
+                else:
+                    feature.append(0)
+            features.append(feature)         
+        return features
+
+    def pad_samples(features, maxlen=500, PAD=0):
+        padded_features = []
+        for feature in features:
+            if len(feature) > maxlen:
+                padded_feature = feature[:maxlen]
+            else:
+                padded_feature = feature
+                while len(padded_feature) < maxlen:
+                    padded_feature.append(PAD)
+            padded_features.append(padded_feature)
+        return padded_features
+
+    train_features = encode_samples(train_tokenized, vocab)
+    test_features = encode_samples(test_tokenized, vocab)
+    train_features = nd.array(pad_samples(train_features, 500, 0))
+    test_features = nd.array(pad_samples(test_features, 500, 0))
+    train_labels = nd.array([score for _, score in train_data])
+    test_labels = nd.array([score for _, score in test_data])
+    return train_features, test_features, train_labels, test_labels
+
+
+def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):
     """Read VOC images."""
     txt_fname = '%s/ImageSets/Segmentation/%s' % (
         root, 'train.txt' if train else 'val.txt')
@@ -257,6 +344,23 @@ def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):
         data[i] = image.imread('%s/JPEGImages/%s.jpg' % (root, fname))
         label[i] = image.imread('%s/SegmentationClass/%s.png' % (root, fname))
     return data, label
+
+
+def read_imdb(dir_url, seg='train'):
+    """Read the IMDB data set for sentiment analysis."""
+    pos_or_neg = ['pos', 'neg']
+    data = []
+    for label in pos_or_neg:
+        files = os.listdir(os.path.join('../data/', dir_url, seg, label))
+        for file in files:
+            with open(os.path.join('../data/', dir_url, seg, label, file),
+                      'r', encoding='utf8') as rf:
+                review = rf.read().replace('\n', '')
+                if label == 'pos':
+                    data.append([review, 1])
+                elif label == 'neg':
+                    data.append([review, 0])
+    return data
 
 
 class Residual(nn.Block):
@@ -320,17 +424,17 @@ def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
 
 def set_figsize(figsize=(3.5, 2.5)):
     """Set matplotlib figure size."""
-    set_matplotlib_formats('svg')
+    use_svg_display()
     plt.rcParams['figure.figsize'] = figsize
 
 
-def sgd(params, lr, batch_size):                                                                                                 
+def sgd(params, lr, batch_size):
     """Mini-batch stochastic gradient descent."""
     for param in params:
         param[:] = param - lr * param.grad / batch_size
 
 
-def show_bboxes(axes, bboxes, labels=None, colors=None):                                                                         
+def show_bboxes(axes, bboxes, labels=None, colors=None):
     """Show bounding boxes."""
     labels = _make_list(labels)
     colors = _make_list(colors, ['b', 'g', 'r', 'm', 'k'])
@@ -345,7 +449,17 @@ def show_bboxes(axes, bboxes, labels=None, colors=None):
                       bbox=dict(facecolor=color, lw=0))
 
 
-def show_images(imgs, num_rows, num_cols, scale=2):                                                                              
+def show_fashion_mnist(images, labels):
+    use_svg_display()
+    _, figs = plt.subplots(1, len(images), figsize=(12, 12))
+    for f, img, lbl in zip(figs, images, labels):
+        f.imshow(img.reshape((28, 28)).asnumpy())
+        f.set_title(lbl)
+        f.axes.get_xaxis().set_visible(False)
+        f.axes.get_yaxis().set_visible(False)
+
+
+def show_images(imgs, num_rows, num_cols, scale=2):
     """Plot a list of images."""
     figsize = (num_cols * scale, num_rows * scale)
     _, axes = plt.subplots(num_rows, num_cols, figsize=figsize)
@@ -396,7 +510,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
                  time() - start))
 
 
-def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,                                                            
+def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
                           num_hiddens, lr, clipping_theta, batch_size,
                           vocab_size, pred_period, pred_len, prefixes,
                           get_params, get_inputs, ctx, corpus_indices,
@@ -475,7 +589,7 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
 
 def train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
               num_epochs):
-    """Train and evaluate a model on CPU or GPU."""	
+    """Train and evaluate a model on CPU or GPU."""
     print('training on', ctx)
     for epoch in range(1, num_epochs + 1):
         train_l_sum = 0
@@ -522,6 +636,9 @@ def try_gpu():
         ctx = mx.cpu()
     return ctx
 
+def use_svg_display():
+    """Use svg format to display plot in jupyter"""
+    display.set_matplotlib_formats('svg')
 
 def voc_label_indices(img, colormap2label):
     """Assig label indices for Pascal VOC2012 Dataset."""
@@ -542,16 +659,16 @@ class VOCSegDataset(gdata.Dataset):
     def __init__(self, train, crop_size, voc_dir, colormap2label):
         self.rgb_mean = nd.array([0.485, 0.456, 0.406])
         self.rgb_std = nd.array([0.229, 0.224, 0.225])
-        self.crop_size = crop_size        
+        self.crop_size = crop_size
         data, label = read_voc_images(root=voc_dir, train=train)
         self.data = [self.normalize_image(im) for im in self.filter(data)]
         self.label = self.filter(label)
         self.colormap2label = colormap2label
         print('read ' + str(len(self.data)) + ' examples')
-        
+
     def normalize_image(self, data):
         return (data.astype('float32') / 255 - self.rgb_mean) / self.rgb_std
-    
+
     def filter(self, images):
         return [im for im in images if (
             im.shape[0] >= self.crop_size[0] and
@@ -565,4 +682,3 @@ class VOCSegDataset(gdata.Dataset):
 
     def __len__(self):
         return len(self.data)
-

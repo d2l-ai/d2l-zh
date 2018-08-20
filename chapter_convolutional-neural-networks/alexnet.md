@@ -48,7 +48,7 @@ AlextNet与LeNet的设计理念非常相似。但也有非常显著的区别。
 
 4. 引入了大量的图片增广，例如翻转、裁剪和颜色变化，进一步扩大数据集来减小过拟合。我们将在后面的[“图片增广”](chapter_computer-vision/image-augmentation.md)的小节来详细讨论。
 
-下面我们实现（稍微简化过的）Alexnet：
+下面我们实现（稍微简化过的）AlexNet：
 
 ```{.python .input  n=1}
 import sys
@@ -95,7 +95,7 @@ for layer in net:
 
 ## 读取数据
 
-虽然论文中Alexnet使用Imagenet数据，但因为Imagenet数据训练时间较长，我们仍用前面的Fashion-MNIST来演示。读取数据的时候我们额外做了一步将图片高宽扩大到原版Alexnet使用的224，这个可以通过`Resize`来实现。即我们在`ToTenor`前使用`Resize`，然后使用`Compose`来将这两个变化合并成一个来方便调用。数据读取的其他部分跟前面一致。
+虽然论文中AlexNet使用ImageNet数据，但因为ImageNet数据训练时间较长，我们仍用前面的Fashion-MNIST来演示。读取数据的时候我们额外做了一步将图片高宽扩大到原版AlexNet使用的224，这个可以通过`Resize`来实现。即我们在`ToTenor`前使用`Resize`，然后使用`Compose`来将这两个变化合并成一个来方便调用。数据读取的其他部分跟前面一致。
 
 ```{.python .input  n=3}
 def load_data_fashion_mnist(batch_size, resize=None,
@@ -142,12 +142,12 @@ gb.train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
 
 ## 小结
 
-* AlexNet跟LeNet结构类似，但使用了更多的卷积层和更大的参数空间来拟合大规模数据集ImageNet。它是浅层神经网络和深度神经网络的分界线。虽然看上去AlexNet的实现比LeNet也就就多了几行而已。但这个观念上的转变和真正优秀实验结果的产生，学术界整整花了20年。
+* AlexNet跟LeNet结构类似，但使用了更多的卷积层和更大的参数空间来拟合大规模数据集ImageNet。它是浅层神经网络和深度神经网络的分界线。虽然看上去AlexNet的实现比LeNet也就多了几行而已。但这个观念上的转变和真正优秀实验结果的产生，学术界整整花了20年。
 
 ## 练习
 
 - 多迭代几轮训练看看？跟LeNet比有什么区别？为什么？
-- AlexNet对于FashionMNIST过于复杂，试着简化模型来使得训练更快，同时保证精度不明显下降。
+- AlexNet对于Fashion-MNIST过于复杂，试着简化模型来使得训练更快，同时保证精度不明显下降。
 - 修改批量大小，观察性能和GPU内存的变化。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1258)

@@ -66,7 +66,7 @@ for blk in net:
 
 ## 模型训练
 
-因为VGG 11计算上比AlexNet更加复杂，出于测试的目的我们构造一个通道数更小，或者说更窄的网络来训练FashionMNIST。
+因为VGG 11计算上比AlexNet更加复杂，出于测试的目的我们构造一个通道数更小，或者说更窄的网络来训练Fashion-MNIST。
 
 ```{.python .input}
 ratio = 4
@@ -97,7 +97,7 @@ gb.train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
 ## 练习
 
 - VGG的计算比AlexNet慢很多，也需要很多的GPU内存。请分析下原因。
-- 尝试将FashionMNIST的高宽由224改成96，实验其带来的影响。
+- 尝试将Fashion-MNIST的高宽由224改成96，实验其带来的影响。
 - 参考VGG论文里的表1来构造VGG其他常用模型，例如VGG16和VGG19 [1]。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1277)

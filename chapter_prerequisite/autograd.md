@@ -1,6 +1,6 @@
 # 自动求梯度
 
-在深度学习中，我们经常需要对函数求梯度（gradient）。如果你对本节中的数学概念（例如梯度）不是很熟悉，可以参阅附录中[“数学基础”](../chapter_appendix/math.md)一节。本小节将介绍如何使用MXNet提供的`autograd`包来自动求梯度。
+在深度学习中，我们经常需要对函数求梯度（gradient）。如果你对本节中的数学概念（例如梯度）不是很熟悉，可以参阅附录中[“数学基础”](../chapter_appendix/math.md)一节。本节将介绍如何使用MXNet提供的`autograd`包来自动求梯度。
 
 ```{.python .input  n=2}
 from mxnet import autograd, nd
@@ -37,8 +37,34 @@ y.backward()
 函数 $y = 2\boldsymbol{x}^{\top}\boldsymbol{x}$ 关于$\boldsymbol{x}$ 的梯度应为$4\boldsymbol{x}$。现在我们来验证一下求出来的梯度是正确的。
 
 ```{.python .input}
-x.grad, x.grad == 4 * x  # 1为真，0为假。
+assert (x.grad - 4 * x).norm().asscalar() == 0
+x.grad
 ```
+
+## 训练模式和预测模式
+
+从上面可以看出，在调用`record`函数后，MXNet会记录并计算梯度。此外，默认下`autograd`还会将运行模式从预测模式转为训练模式。这可以通过调用`is_training`函数来查看。
+
+```{.python .input}
+print(autograd.is_training())
+with autograd.record():
+    print(autograd.is_training())
+```
+
+除了调用`record`函数来切换运行模式以外，我们还可以使用`set_training`函数来设定运行模式。
+
+```{.python .input}
+# 设置为训练模式。
+autograd.set_training(train_mode=True)
+print(autograd.is_training())
+
+# 设置为预测模式。
+autograd.set_training(train_mode=False)
+print(autograd.is_training())
+```
+
+在有些情况下，同一个模型在训练模式和预测模式下的行为并不相同。我们会在后面的章节详细介绍这些区别。
+
 
 ## 对Python控制流求梯度
 
@@ -78,6 +104,7 @@ a.grad == c / a
 
 * MXNet提供`autograd`包来自动化求导过程。
 * MXNet的`autograd`包可以对正常的命令式程序进行求导。
+* 我们可以通过`autograd.is_training()`来判断运行模式，并使用`autograd.set_training()`来设定运行模式。
 
 ## 练习
 

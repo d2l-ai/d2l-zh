@@ -49,11 +49,6 @@ cp build/_build/html/gluon_tutorials_zh.tar.gz build/_build/html/gluon_tutorials
 cp build/_build/html/gluon_tutorials_zh.zip build/_build/html/gluon_tutorials_zh-1.0.zip
 
 
-cd build
-
-bash ipynb2mdd.sh
-cp mdd.zip _build/html/mdd.zip
-
-cd ..
+# cd build && bash ipynb2mdd.sh && rm -rf _build/html/mdd.zip && cp mdd.zip _build/html/mdd.zip && cd ..
 
 aws s3 sync --delete build/_build/html/ s3://zh.gluon.ai/ --acl public-read

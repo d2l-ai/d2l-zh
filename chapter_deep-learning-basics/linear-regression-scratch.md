@@ -1,20 +1,20 @@
 # 线性回归的从零开始实现
 
-在了解了线性回归的背景知识之后，现在我们可以动手实现它了。
-尽管强大的深度学习框架可以减少大量重复性工作，但若过于依赖它提供的便利，我们就会很难深入理解深度学习是如何工作的。因此，本节将介绍如何只利用NDArray和`autograd`来实现一个线性回归的训练。
+在了解了线性回归的背景知识之后，现在我们可以动手实现它了。尽管强大的深度学习框架可以减少大量重复性工作，但若过于依赖它提供的便利，会导致我们很难深入理解深度学习是如何工作的。因此，本节将介绍如何只利用NDArray和`autograd`来实现一个线性回归的训练。
 
-首先，导入本节中实验所需的包或模块，其中的matplotlib包可用于作图。
+首先，导入本节中实验所需的包或模块，其中的matplotlib包可用于作图，且设置成嵌入显示。
 
 ```{.python .input  n=1}
-from IPython.display import set_matplotlib_formats
-from matplotlib import pyplot as plt
-from mxnet import autograd, nd
+%matplotlib inline
 import random
+from matplotlib import pyplot as plt
+from IPython import display
+from mxnet import autograd, nd
 ```
 
 ## 生成数据集
 
-我们在这里描述用来生成人工训练数据集的真实模型。使用人工训练数据集将使我们能够比较学到的参数和真实的模型参数。设训练数据集样本数为1000，输入个数为2。给定随机生成的批量样本特征$\boldsymbol{X} \in \mathbb{R}^{1000 \times 2}$，我们使用线性回归模型真实权重$\boldsymbol{w} = [2, -3.4]^\top$和偏差$b = 4.2$，以及一个随机噪音项$\epsilon$来生成标签
+我们构造一个简单的人工训练数据集，它可以使我们能够直观比较学到的参数和真实的模型参数的区别。设训练数据集样本数为1000，输入特征个数为2。给定随机生成的批量样本特征$\boldsymbol{X} \in \mathbb{R}^{1000 \times 2}$，我们使用线性回归模型真实权重$\boldsymbol{w} = [2, -3.4]^\top$和偏差$b = 4.2$，以及一个随机噪音项$\epsilon$来生成标签
 
 $$\boldsymbol{y} = \boldsymbol{X}\boldsymbol{w} + b + \epsilon,$$
 
@@ -39,16 +39,20 @@ features[0], labels[0]
 通过生成第二个特征`features[:, 1]`和标签 `labels` 的散点图，我们可以更直观地观察两者间的线性关系。
 
 ```{.python .input  n=4}
+def use_svg_display():
+    # 用矢量图显示。
+    display.set_matplotlib_formats('svg')
+
 def set_figsize(figsize=(3.5, 2.5)):
-    set_matplotlib_formats('svg')  # 打印矢量图。
-    plt.rcParams['figure.figsize'] = figsize  # 设置图的尺寸。
+    # 设置图的尺寸。
+    use_svg_display()
+    plt.rcParams['figure.figsize'] = figsize  # 设置
 
 set_figsize()
-plt.scatter(features[:, 1].asnumpy(), labels.asnumpy(), 1)
-plt.show()
+plt.scatter(features[:, 1].asnumpy(), labels.asnumpy(), 1); 
 ```
 
-我们将上面的`plt`作图函数和`set_figsize`函数定义在`gluonbook`包里。以后在作图时，我们将直接调用`gluonbook.plt`。由于`plt`在`gluonbook`包中是一个全局变量，我们在作图前只需要调用`gluonbook.set_figsize()`即可打印高清图并设置图的尺寸。
+我们将上面的`plt`作图函数以及`use_svg_display`和`set_figsize`函数定义在`gluonbook`包里。以后在作图时，我们将直接调用`gluonbook.plt`。由于`plt`在`gluonbook`包中是一个全局变量，我们在作图前只需要调用`gluonbook.set_figsize()`即可打印高清图并设置图的尺寸。
 
 
 ## 读取数据
@@ -56,21 +60,20 @@ plt.show()
 在训练模型的时候，我们需要遍历数据集并不断读取小批量数据样本。这里我们定义一个函数：它每次返回`batch_size`（批量大小）个随机样本的特征和标签。
 
 ```{.python .input  n=5}
-batch_size = 10
 def data_iter(batch_size, features, labels):
     num_examples = len(features)
     indices = list(range(num_examples))
-    # 样本的读取顺序是随机的。
-    random.shuffle(indices)
+    random.shuffle(indices)  # 样本的读取顺序是随机的。
     for i in range(0, num_examples, batch_size):
-        j = nd.array(indices[i: min(i + batch_size, num_examples)])
-        # take 函数根据索引返回对应元素。
-        yield features.take(j), labels.take(j)
+        j = nd.array(indices[i: min(i + batch_size, num_examples)])        
+        yield features.take(j), labels.take(j) # take 函数根据索引返回对应元素。
 ```
 
 让我们读取第一个小批量数据样本并打印。每个批量的特征形状为（10， 2），分别对应批量大小和输入个数；标签形状为批量大小。
 
 ```{.python .input  n=6}
+batch_size = 10
+
 for X, y in data_iter(batch_size, features, labels):
     print(X, y)
     break
@@ -83,14 +86,13 @@ for X, y in data_iter(batch_size, features, labels):
 ```{.python .input  n=7}
 w = nd.random.normal(scale=0.01, shape=(num_inputs, 1))
 b = nd.zeros(shape=(1,))
-params = [w, b]
 ```
 
 之后训练时我们需要对这些参数求梯度来迭代它们的值，因此我们需要创建它们的梯度。
 
 ```{.python .input  n=8}
-for param in params:
-    param.attach_grad()
+w.attach_grad()
+b.attach_grad()
 ```
 
 ## 定义模型
@@ -113,7 +115,7 @@ def squared_loss(y_hat, y):
 
 ## 定义优化算法
 
-以下的`sgd`函数实现了上一节中介绍的小批量随机梯度下降算法。它通过不断更新模型参数来优化损失函数。
+以下的`sgd`函数实现了上一节中介绍的小批量随机梯度下降算法。它通过不断更新模型参数来优化损失函数。这里自动求导模块计算得来的梯度是一个批量样本的梯度和，我们除以批量大小来得到平均值。这样使用不同批量大小`batch_size`的时候对优化算法的影响将变小，例如学习率`lr`将不会过于敏感。
 
 ```{.python .input  n=11}
 def sgd(params, lr, batch_size):
@@ -134,20 +136,16 @@ num_epochs = 3
 net = linreg
 loss = squared_loss
 
-# 训练模型一共需要 num_epochs 个迭代周期。
-for epoch in range(1, num_epochs + 1):
+for epoch in range(num_epochs): # 训练模型一共需要 num_epochs 个迭代周期。
     # 在一个迭代周期中，使用训练数据集中所有样本一次（假设样本数能够被批量大小整除）。
     # X 和 y 分别是小批量样本的特征和标签。
     for X, y in data_iter(batch_size, features, labels):
-        with autograd.record():
-            # l 是有关小批量 X 和 y 的损失。
-            l = loss(net(X, w, b), y)
-        # 小批量的损失对模型参数求导。
-        l.backward()
-        # 使用小批量随机梯度下降迭代模型参数。
-        sgd([w, b], lr, batch_size)
-    print('epoch %d, loss %f'
-          % (epoch, loss(net(features, w, b), labels).mean().asnumpy()))
+        with autograd.record():            
+            l = loss(net(X, w, b), y) # l 是有关小批量 X 和 y 的损失。        
+        l.backward() # 小批量的损失对模型参数求导。        
+        sgd([w, b], lr, batch_size) # 使用小批量随机梯度下降迭代模型参数。
+    l = loss(net(features, w, b), labels)
+    print('epoch %d, loss %f' % (epoch+1, l.mean().asnumpy()))
 ```
 
 训练完成后，我们可以比较学到的参数和用来生成训练集的真实参数。它们应该很接近。
@@ -162,14 +160,15 @@ true_b, b
 
 ## 小结
 
-* 我们现在看到，仅使用NDArray和`autograd`就可以很容易地实现一个模型。在接下来的章节中，我们会在此基础上描述更多深度学习模型，并介绍怎样使用更简洁的代码（例如下一节）实现它们。
+我们现在看到，仅使用NDArray和`autograd`就可以很容易地实现一个模型。在接下来的章节中，我们会在此基础上描述更多深度学习模型，并介绍怎样使用更简洁的代码（例如下一节）实现它们。
 
 
 ## 练习
 
+* 为什么`squared_loss`函数中需要使用`reshape`?
 * 尝试用不同的学习率查看损失函数值的下降速度。
-
 * 回顾[“自动求梯度”](../chapter_prerequisite/autograd.md)一节。本节代码中变量`l`并不是一个标量，运行`l.backward()`将如何对模型参数求梯度？
+* 如果样本个数不能被批量大小整除时会怎么样？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/743)

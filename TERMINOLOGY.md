@@ -46,6 +46,8 @@
 
 二元分类，binary classification
 
+二次采样，subsample
+
 发散，diverge
 
 泛化，generalization
@@ -97,6 +99,8 @@
 均匀采样，uniform sampling
 
 困惑度，perplexity
+
+连结，concatenate
 
 类，class
 

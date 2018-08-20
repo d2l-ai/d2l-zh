@@ -39,7 +39,7 @@ gb.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
 
 ## 小结
 
-* 通过Gluon我们可以更方便地构造多层感知机。
+通过Gluon我们可以更方便地构造多层感知机。
 
 ## 练习
 

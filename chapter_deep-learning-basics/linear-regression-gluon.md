@@ -20,18 +20,17 @@ labels += nd.random.normal(scale=0.01, shape=labels.shape)
 
 ## 读取数据
 
-这里，我们使用Gluon提供的`data`模块来读取数据。该模块提供了有关数据处理的工具。由于`data`常用作变量名，我们将导入的`data`模块用添加了Gluon首字母的假名`gdata`代替。在每一次迭代中，我们将随机读取包含10个数据样本的小批量。
+Gluon提供了`data`模块来读取数据。由于`data`常用作变量名，我们将导入的`data`模块用添加了Gluon首字母的假名`gdata`代替。在每一次迭代中，我们将随机读取包含10个数据样本的小批量。
 
 ```{.python .input  n=3}
 from mxnet.gluon import data as gdata
 
 batch_size = 10
-# 将训练数据的特征和标签组合。
-dataset = gdata.ArrayDataset(features, labels)
-data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
+dataset = gdata.ArrayDataset(features, labels) # 将训练数据的特征和标签组合。
+data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True) # 随机小批量读取
 ```
 
-和上一节一样，让我们读取并打印第一个小批量数据样本。
+`data_iter`的使用跟上一节一样，让我们读取并打印第一个小批量数据样本。
 
 ```{.python .input  n=5}
 for X, y in data_iter:
@@ -62,7 +61,7 @@ net.add(nn.Dense(1))
 
 ## 初始化模型参数
 
-在使用`net`前，我们需要初始化模型参数，例如线性回归模型中的权重和偏差。我们从MXNet导入`initializer`模块。该模块提供了模型参数初始化的各种方法。这里的`init`是`initializer`的缩写形式。我们通过`init.Normal(sigma=0.01)`指定权重参数每个元素将在初始化时随机采样于均值为0标准差为0.01的正态分布。偏差参数全部元素初始化为零。
+在使用`net`前，我们需要初始化模型参数，例如线性回归模型中的权重和偏差。我们从MXNet导入`initializer`模块。该模块提供了模型参数初始化的各种方法。这里的`init`是`initializer`的缩写形式。我们通过`init.Normal(sigma=0.01)`指定权重参数每个元素将在初始化时随机采样于均值为0标准差为0.01的正态分布。偏差参数默认会初始化为零。
 
 ```{.python .input  n=7}
 from mxnet import init
@@ -77,12 +76,12 @@ net.initialize(init.Normal(sigma=0.01))
 ```{.python .input  n=8}
 from mxnet.gluon import loss as gloss
 
-loss = gloss.L2Loss()
+loss = gloss.L2Loss() # 平方损失又称 L2 norm 损失
 ```
 
 ## 定义优化算法
 
-同样，我们也无需实现小批量随机梯度下降。在导入Gluon后，我们创建一个Trainer实例，并指定学习率为0.03的小批量随机梯度下降（`sgd`）为优化算法。该优化算法将用来迭代`net`实例所有通过`add`函数嵌套的层所包含的所有参数。
+同样，我们也无需实现小批量随机梯度下降。在导入Gluon后，我们创建一个Trainer实例，并指定学习率为0.03的小批量随机梯度下降（`sgd`）为优化算法。该优化算法将用来迭代`net`实例所有通过`add`函数嵌套的层所包含的所有参数，其可以通过`collect_params`获取。
 
 ```{.python .input  n=9}
 from mxnet import gluon
@@ -92,7 +91,7 @@ trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.03})
 
 ## 训练模型
 
-在使用Gluon训练模型时，我们通过调用`Trainer`实例的`step`函数来迭代模型参数。由于变量`l`是长度为`batch_size`的一维NDArray，执行`l.backward()`等价于`l.sum().backward()`。按照小批量随机梯度下降的定义，我们在`step`函数中指明批量大小，以确保小批量随机梯度是该批量中每个样本梯度的平均。
+在使用Gluon训练模型时，我们通过调用`Trainer`实例的`step`函数来迭代模型参数。由于变量`l`是长度为`batch_size`的一维NDArray，执行`l.backward()`等价于`l.sum().backward()`。按照小批量随机梯度下降的定义，我们在`step`函数中指明批量大小，其跟上一节实现的`sgd`函数那样会对样本梯度做平均。
 
 ```{.python .input  n=10}
 num_epochs = 3
@@ -102,8 +101,8 @@ for epoch in range(1, num_epochs + 1):
             l = loss(net(X), y)
         l.backward()
         trainer.step(batch_size)
-    print('epoch %d, loss: %f'
-          % (epoch, loss(net(features), labels).mean().asnumpy()))
+    l = loss(net(features), labels)
+    print('epoch %d, loss: %f' % (epoch, l.mean().asnumpy()))
 ```
 
 下面我们分别比较学到的和真实的模型参数。我们从`net`获得需要的层，并访问其权重（`weight`）和位移（`bias`）。学到的和真实的参数很接近。
@@ -127,6 +126,8 @@ true_b, dense.bias.data()
 ## 练习
 
 * 如果将`l = loss(output, y)`替换成`l = loss(output, y).mean()`，我们需要将`trainer.step(batch_size)`相应地改成`trainer.step(1)`。这是为什么呢？
+* 查看`gloss`和`init`里面提供了哪些其他的损失函数和初始方法。
+* 如何访问`dense.weight`的梯度？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/742)

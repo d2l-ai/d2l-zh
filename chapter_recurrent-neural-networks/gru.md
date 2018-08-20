@@ -29,7 +29,7 @@ $$
 
 其中$\boldsymbol{W}_{xr}, \boldsymbol{W}_{xz} \in \mathbb{R}^{d \times h}$和$\boldsymbol{W}_{hr}, \boldsymbol{W}_{hz} \in \mathbb{R}^{h \times h}$是权重参数，$\boldsymbol{b}_r, \boldsymbol{b}_z \in \mathbb{R}^{1 \times h}$是偏移参数。激活函数$\sigma$是sigmoid函数。[“多层感知机”](../chapter_deep-learning-basics/mlp.md)一节中介绍过，sigmoid函数可以将元素的值变换到0和1之间。因此，重置门$\boldsymbol{R}_t$和更新门$\boldsymbol{Z}_t$中每个元素的值域都是$[0, 1]$。
 
-我们可以通过元素值域在$[0, 1]$的更新门和重置门来控制隐藏状态中信息的流动：这通常可以应用按元素乘法符$\odot$。
+我们可以通过元素值域在$[0, 1]$的更新门和重置门来控制隐藏状态中信息的流动：这一般通过使用按元素乘法（$\odot$）来实现。
 
 
 ### 候选隐藏状态
@@ -174,7 +174,7 @@ gb.train_and_predict_rnn(gru_rnn, False, num_epochs, num_steps, num_hiddens,
 
 ## 小结
 
-* 门控循环神经网络的可以更好地捕捉时间序列中时间步距离较大的依赖关系，它包括门控循环单元和长短期记忆。
+* 门控循环神经网络可以更好地捕捉时间序列中时间步距离较大的依赖关系，它包括门控循环单元和长短期记忆。
 * 门控循环单元引入了门的概念，从而修改了循环神经网络中隐藏状态的计算方式。它包括重置门、更新门、候选隐藏状态和隐藏状态。
 * 重置门有助于捕捉时间序列里短期的依赖关系。
 * 更新门有助于捕捉时间序列里长期的依赖关系。

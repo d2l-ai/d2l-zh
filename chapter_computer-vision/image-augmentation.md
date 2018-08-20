@@ -52,7 +52,7 @@ def apply(img, aug, num_rows=2, num_cols=4, scale=1.5):
 
 ### 变形
 
-左右翻转图片通常不物体的类别，它是最早也是最广泛使用的一种增广。下面我们使用transform模块里的`RandomFlipLeftRight`类来实现按0.5的概率左右翻转图片：
+左右翻转图片通常不改变物体的类别，它是最早也是最广泛使用的一种增广。下面我们使用transform模块里的`RandomFlipLeftRight`类来实现按0.5的概率左右翻转图片：
 
 ```{.python .input  n=25}
 apply(img, gdata.vision.transforms.RandomFlipLeftRight())
