@@ -53,7 +53,7 @@ $$\frac{\partial J}{\partial L} = 1, \quad \frac{\partial J}{\partial s} = 1.$$
 其次，我们依据链式法则计算目标函数有关输出层变量的梯度$\partial J/\partial \boldsymbol{o} \in \mathbb{R}^q$：
 
 $$
-\frac{\partial J}{\partial \boldsymbol{o}} 
+\frac{\partial J}{\partial \boldsymbol{o}}
 = \text{prod}\left(\frac{\partial J}{\partial L}, \frac{\partial L}{\partial \boldsymbol{o}}\right)
 = \frac{\partial L}{\partial \boldsymbol{o}}.
 $$
@@ -67,7 +67,7 @@ $$\frac{\partial s}{\partial \boldsymbol{W}^{(1)}} = \lambda \boldsymbol{W}^{(1)
 现在，我们可以计算最靠近输出层的模型参数的梯度$\partial J/\partial \boldsymbol{W}^{(2)} \in \mathbb{R}^{q \times h}$。依据链式法则，我们得到
 
 $$
-\frac{\partial J}{\partial \boldsymbol{W}^{(2)}} 
+\frac{\partial J}{\partial \boldsymbol{W}^{(2)}}
 = \text{prod}\left(\frac{\partial J}{\partial \boldsymbol{o}}, \frac{\partial \boldsymbol{o}}{\partial \boldsymbol{W}^{(2)}}\right) + \text{prod}\left(\frac{\partial J}{\partial s}, \frac{\partial s}{\partial \boldsymbol{W}^{(2)}}\right)
 = \frac{\partial J}{\partial \boldsymbol{o}} \boldsymbol{h}^\top + \lambda \boldsymbol{W}^{(2)}.
 $$
@@ -76,7 +76,7 @@ $$
 沿着输出层向隐藏层继续反向传播，隐藏层变量的梯度$\partial J/\partial \boldsymbol{h} \in \mathbb{R}^h$可以这样计算：
 
 $$
-\frac{\partial J}{\partial \boldsymbol{h}} 
+\frac{\partial J}{\partial \boldsymbol{h}}
 = \text{prod}\left(\frac{\partial J}{\partial \boldsymbol{o}}, \frac{\partial \boldsymbol{o}}{\partial \boldsymbol{h}}\right)
 = {\boldsymbol{W}^{(2)}}^\top \frac{\partial J}{\partial \boldsymbol{o}}.
 $$
@@ -85,7 +85,7 @@ $$
 其中，激活函数$\phi$是按元素操作的。中间变量$\boldsymbol{z}$的梯度$\partial J/\partial \boldsymbol{z} \in \mathbb{R}^h$的计算需要使用按元素乘法符$\odot$：
 
 $$
-\frac{\partial J}{\partial \boldsymbol{z}} 
+\frac{\partial J}{\partial \boldsymbol{z}}
 = \text{prod}\left(\frac{\partial J}{\partial \boldsymbol{h}}, \frac{\partial \boldsymbol{h}}{\partial \boldsymbol{z}}\right)
 = \frac{\partial J}{\partial \boldsymbol{h}} \odot \phi'\left(\boldsymbol{z}\right).
 $$
@@ -93,7 +93,7 @@ $$
 最终，我们可以得到最靠近输入层的模型参数的梯度$\partial J/\partial \boldsymbol{W}^{(1)} \in \mathbb{R}^{h \times d}$。依据链式法则，我们得到
 
 $$
-\frac{\partial J}{\partial \boldsymbol{W}^{(1)}} 
+\frac{\partial J}{\partial \boldsymbol{W}^{(1)}}
 = \text{prod}\left(\frac{\partial J}{\partial \boldsymbol{z}}, \frac{\partial \boldsymbol{z}}{\partial \boldsymbol{W}^{(1)}}\right) + \text{prod}\left(\frac{\partial J}{\partial s}, \frac{\partial s}{\partial \boldsymbol{W}^{(1)}}\right)
 = \frac{\partial J}{\partial \boldsymbol{z}} \boldsymbol{x}^\top + \lambda \boldsymbol{W}^{(1)}.
 $$
@@ -117,8 +117,6 @@ $$
 * 对于具体的激活函数ReLU或sigmoid，如果计算它们的导数。
 * 试着加上偏差项后再求导。
 
-
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/3710)
-
 
 ![](../img/qr_backprop.svg)
