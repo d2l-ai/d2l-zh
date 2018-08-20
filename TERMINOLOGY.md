@@ -100,6 +100,8 @@
 
 困惑度，perplexity
 
+连结，concatenate
+
 类，class
 
 交叉熵，cross-entropy
