@@ -1,54 +1,28 @@
 # 文本情感分类：使用卷积神经网络（textCNN）
 
-在之前的章节中介绍了卷积神经网络用于计算机视觉领域。
-在本节将介绍如何将卷积神经网络应用于自然语言处理领域。以及参考textCNN模型使用Gluon创建一个卷积神经网络用于文本情感分类。
+在早先的章节中，我们探究了各式各样的计算机视觉任务，例如图像分类、物体检测、语义分割和样式迁移。由于图像中每个像素和它周围的像素高度相关，而卷积神经网络恰好善于抓取空间相关性，因此我们发现这类网络在计算机视觉领域有着出众的表现。
+
+在自然语言处理领域中，文本序列可以被看作是时序数据。能不能将时序数据当作一维的图像，并使用卷积神经网络分析这类数据呢？答案是肯定的：Kim在2014年提出的基于卷积神经网络的短文本分类模型可谓这一领域的开山之作 [1]。该模型也称为textCNN。本节将基于textCNN介绍如何使用卷积神经网络对文本情感进行分类。
+
+本节所有卷积操作的步幅均为1。
 
 
-## 一维卷积
+## 一维卷积层
 
-一维卷积即将一个一维核（kernel）数组作用在一个一维输入数据上来计算一个一维数组输出。下图演示了如何对一个长度为7的输入X作用宽为2的核K来计算输出Y。
-
-
-可以看到输出Y是一个6维的向量，且第一个元素是由X的最左侧宽为2的子数组与核数组按元素相乘后再相加得来。即Y[0] = (X[0:2] * K).sum()。卷积后输出的数据维度仍遵循n-f+1，即 7-2+1=6
-
-一维卷积常用于序列模型，比如自然语言处理领域中。
-
-下面我们将上述过程实现在corr1d函数里，它接受X和K，输出Y。
+在“卷积神经网络”篇章中，我们介绍了如何使用二维卷积层处理图像。既然我们将时序数据与一维图像做类比，不妨先介绍一维卷积层的计算。
 
 
-![](../img/conv1d.svg)
+### 一维相关运算符
 
-一维卷积多通道输入的卷积运算与二维卷积的多通道运算类似。将每个单通道与对应的filter进行卷积运算求和，然后再将多个通道的和相加，得到输出的一个数值。
+和二维卷积一样，我们也常用一维相关运算符实现一维卷积。图10.2演示了如何对一个宽为7的输入作用宽为2的核来计算输出。
 
-解释上图，假设存在三个通道$ c_0, c_1, c_2 $，存在一组卷积核$ k_0, k_1, k_2 $
+![一维相关运算符的计算。高亮部分为第一个输出元素及其计算所使用的输入和核数组元素：$0\times1+1\times2=2$。](../img/conv1d.svg)
 
-$$ y(i)=\sum_m c_0(i-m)k_0(m) + \sum_m c_1(i-m)k_1(m) + \sum_m c_2(i-m)k_2(m) \\
-=\sum_m \sum_{n\in\{0, 1, 2\}} c_n(i-m)k_n(m) $$
+可以看到输出的宽度为$7-2+1=6$，且第一个元素是由输入的最左边的宽为2的子数组与核数组按元素相乘后再相加得来。设输入、核以及输出分别为`X`、`K`和`Y`，即`Y[0] = (X[0:2] * K).sum()`，这里`X`、`K`和`Y`的类型都是NDArray。接下来我们将输入中高亮部分的宽为2的窗口向右滑动一列来计算`Y`的第二个元素。输出中其他元素的计算以此类推。
 
+下面我们将上述过程实现在`corr1`函数里，它接受`X`和`K`，输出`Y`。
 
-我们将$ c_0, c_1, c_2 $三个向量连结成矩阵C，将$ k_0, k_1, k_2 $连结成矩阵K
-
-$$ y(i)=\sum_m \sum_{n\in\{0, 1, 2\}} C(i-m,j-n)K(m,n) $$
-
-上式与二维卷积的定义等价。
-
-故：多通道一维卷积计算可以等价于单通道二维卷积计算。
-
-类比到图像上，我们可以用一个三维的向量（R, G, B）来表达一个像素点。在做卷积时将R、G、B作为三个通道来进行运算。
-
-在文本任务上，我们可以用一个k维的向量来表达一个词，即词向量。这个k即嵌入层维度embed_size。同样的，在做卷积时也将这k维作为k个通道来进行计算。
-
-所以，对于自然语言处理任务而言，输入的通道数等于嵌入层维度embed_size。
-
-
-![](../img/conv1d-channel.svg)
-
-![](../img/conv1d-2d.svg)
-
-
-在实验开始前，导入所需的包或模块。
-
-```{.python .input}
+```{.python .input  n=13}
 import sys
 sys.path.insert(0, '..')
 
@@ -61,9 +35,7 @@ import os
 import random
 import tarfile
 from time import time
-```
 
-```{.python .input}
 def corr1d(X, K):
     w = K.shape[0]
     Y = nd.zeros((X.shape[0] - w + 1))
@@ -72,13 +44,23 @@ def corr1d(X, K):
     return Y
 ```
 
-```{.python .input}
+让我们重现图10.2中一维相关计算的结果。
+
+```{.python .input  n=11}
 X = nd.array([0, 1, 2, 3, 4, 5, 6])
 K = nd.array([1, 2])
 corr1d(X, K)
 ```
 
-```{.python .input}
+### 多输入通道的一维相关计算
+
+多输入通道的一维相关计算也与多输入通道的二维相关计算类似：在每个通道上，将核与相应的输入做一维相关计算，并将通道之间的结果相加得到输出结果。图10.3展示了含3个输入通道的一维相关计算。
+
+![含3个输入通道的一维相关计算。高亮部分为第一个输出元素及其计算所使用的输入和核数组元素：$0\times1+1\times2+1\times3+2\times4+2\times(-1)+3\times(-3)=2$。](../img/conv1d-channel.svg)
+
+让我们重现图10.3中多输入通道的一维相关计算的结果。
+
+```{.python .input  n=12}
 def corr1d_multi_in(X, K):
     # 我们首先沿着 X 和 K 的第 0 维（通道维）遍历。然后使用 * 将结果列表 (list) 变成
     # add_n 的位置参数（positional argument）来进行相加。
@@ -91,87 +73,75 @@ K = nd.array([[1, 2], [3, 4], [-1, -3]])
 corr1d_multi_in(X, K)
 ```
 
-## 模型设计
+由二维相关计算的定义可知，多输入通道的一维相关计算可以看作是单输入通道的二维相关计算。如图10.4所示，我们也可以将图10.3中多输入通道的一维相关计算以等价的单输入通道的二维相关计算呈现。
 
-卷积神经网络在自然语言处理上的应用，可以类比其图像任务上的应用，即把一个文本用二维图像的方式来表达。每个文本是一个矩阵，将文本中每个词的词向量按顺序纵向排列，即这个矩阵的每一行分别是一个词向量。
-
-在卷积层中，使用不同的卷积核获取不同窗口大小内词的关系；而与计算机视觉中的二维卷积不同的是，自然语言处理任务中一般用的是一维卷积，即卷积核的宽度是词嵌入的维度。因为我们需要获取的是不同窗口内的词所带来的信息。然后，我们应用一个最大池化层，这里采用的是Max-over-time pooling，即对一个feature map选取一个最大值保留，这个最大值可以理解为是这个feature map最重要的特征。将这些取到的最大值连结成一个向量。而由于只取最大值，在做padding时补0，并不会影响结果。
-
-最后，我们将连结得到的向量通过全连接层变换为输出。我们在全连接层前加一个Dropout层，用于减轻过拟合。
-
-![](../img/textcnn.svg)
+![单输入通道的二维相关计算。高亮部分为第一个输出元素及其计算所使用的输入和核数组元素：$2\times(-1)+3\times(-3)+1\times3+2\times4+0\times1+1\times2=2$。](../img/conv1d-2d.svg)
 
 
-我们来描述一下这个过程：
-1. 我们假设有一个文本，长度 n 为 11 ，词嵌入维度为 6 。此时词嵌入矩阵维度为（11， 6）。
-2. 设有三组卷积核，卷积核的高度为6（词嵌入的维度），卷积宽度f分别是2、4，通道数分别为 4、5 。卷积后得到的矩阵维度分别是，（10，4）、（8，5）。即（n-f+1，nums_channels）
-3. 再进行 Max-over-time pooling，得到的矩阵维度分别是(4，1)、(5，1)。
-4. 压平上述三个矩阵，并连结，得到一个（4+5）维度的向量
-5. 再通过一个全连接层降低维度。
+图10.2和图10.3中的输出都只有一个通道。我们在[“多输入和输出通道”](../chapter_convolutional-neural-networks/channels.md)一节中介绍了如何在二维卷积层中指定多个输出通道。类似地，我们也可以在一维卷积层指定多个输出通道，从而拓展卷积层中的模型参数。
 
-## 读取IMDb数据集
+## 时序最大池化层
 
-我们使用Stanford's Large Movie Review Dataset作为情感分析的数据集 [1]。它的下载地址是
+时序最大池化层（max-over-time pooling）实际上是最大池化层在时序数据上的应用：假设输入包含多个通道，各通道由不同时间步上的数值组成，各通道的输出即该通道所有时间步中最大的数值。因此，时序最大池化层的输入在各个通道上的时间步数可以不同。
 
-> http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz 。
+为提升计算性能，我们常常将不同长度的时序样本组成一个小批量，并通过在较短序列后附加特殊字符（例如0）令批量中各时序样本长度相同。这些人为添加的特殊字符当然是无意义的。由于时序最大池化的主要目的是抓取时序中最重要的特征，它通常能使模型不受人为添加字符的影响。
 
-这个数据集分为训练和测试用的两个数据集，分别有25,000条从IMDb下载的关于电影的评论。在每个数据集中，标签为“正面”（1）和“负面”（0）的评论数量相等。
-我们首先下载这个数据集到`../data`下。压缩包大小是 81MB，下载解压需要一定时间。解压之后这个数据集将会放置在`../data/aclImdb`下。
+
+## textCNN的设计
+
+textCNN主要使用了一维卷积层和时序最大池化层。假设输入的文本序列由$n$个词组成，每个词用$d$维的词向量表示。那么输入序列的宽为$n$，输入通道数为$d$。textCNN的计算主要分为以下几步：
+
+1. 定义多个一维卷积核，并使用这些卷积核对输入分别做卷积计算。
+2. 对输出的所有通道分别做时序最大池化，再将这些通道的池化输出值连结为向量。
+3. 通过全连接层将连结后的向量变换为有关各类别的输出。这一步可以使用丢弃层应对过拟合。
+
+![textCNN的设计。](../img/textcnn.svg)
+
+图10.5用一个例子解释了textCNN的设计。这里的输入是一个有11个词的句子，每个词用6维词向量表示。因此输入序列的宽为11，输入通道数为6。给定2个一维卷积核，核宽分别为2和4，输出通道数分别设为4和5。因此，一维卷积计算后，4个输出通道的宽为$11-2+1=10$，而其他5个通道的宽为$11-4+1=8$。尽管每个通道的宽不同，我们依然可以对各个通道做时序最大池化，并将9个通道的池化输出连结成一个9维向量。最终，我们使用全连接将9维向量变换为2维输出：正面情感和负面情感的预测。
+
+下面我们来实现textCNN模型并用它对文本情感进行分类。
+
+
+## 获取和处理IMDb数据集
+
+我们依然使用和上一节中相同的IMDb数据集做情感分析。以下获取和处理数据集的步骤与上一节中的相同。
 
 ```{.python .input  n=2}
+# 下载数据集。
 gb.download_imdb()
-```
 
-下面，读取训练和测试数据集。
-
-```{.python .input  n=3}
+# 读取训练和测试数据集。
 train_data = gb.read_imdb('aclImdb', 'train')
 test_data = gb.read_imdb('aclImdb', 'test')
 random.shuffle(train_data)
 random.shuffle(test_data)
-```
 
-## 分词
-
-接下来我们对每条评论做分词，从而得到分好词的评论。这里使用最简单的方法：基于空格进行分词。我们将在本节练习中探究其他的分词方法。
-
-```{.python .input  n=4}
+# 使用空格分词。
 train_tokenized, test_tokenized = gb.get_tokenized_imdb(train_data, test_data)
-```
 
-## 创建词典
-
-现在，我们可以根据分好词的训练数据集来创建词典了。这里我们设置了特殊符号“&lt;unk&gt;”（unknown）。它将表示一切不存在于训练数据集词典中的词。
-
-```{.python .input  n=5}
+# 创建词典。
 token_counter = gb.count_tokens(train_tokenized)
 vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>',
                               reserved_tokens=None)
-```
 
-## 预处理数据
-
-下面，我们继续对数据进行预处理。每个不定长的评论将被特殊符号`PAD`补成长度为`maxlen`的序列，并用NDArray表示。在这里由于模型使用了最大池化层，只取卷积后最大的一个值，所以补0不会对结果产生影响。
-
-```{.python .input  n=6}
+# 预处理数据。
 train_features, test_features, train_labels, test_labels = gb.preprocess_imdb(
     train_tokenized, test_tokenized, train_data, test_data, vocab)
 ```
 
 ## 加载预训练的词向量
 
-这里，我们为词典`vocab`中的每个词加载预训练的GloVe词向量（每个词向量长度为100）。稍后，我们将用这些词向量作为评论中每个词的特征向量。
+我们加载预训练的100维GloVe词向量。
 
 ```{.python .input  n=7}
+# 加载预训练的词向量。
 glove_embedding = text.embedding.create(
     'glove', pretrained_file_name='glove.6B.100d.txt', vocabulary=vocab)
 ```
 
 ## 定义模型
 
-下面我们根据模型设计里的描述定义情感分类模型。其中的`Embedding`实例即嵌入层，在实验中，我们使用了两个嵌入层。`Conv1D`实例即为卷积层，`GlobalMaxPool1D`实例为池化层，卷积层和池化层用于抽取文本中重要的特征。`Dense`实例即生成分类结果的输出层。
-
-按照模型设计，每个卷积核都应用于两个嵌入层，此时卷积核为的核数组。将卷积核在多个嵌入层的运算结果求和，即得到一次卷积结果。这等价于直接连结这两个嵌入层，再将卷积核变成（ngram_kernel_sizes, nums_channels * 2 ），所得结果相同。dim = 1 的意思是从 in_channels 这个维度进行连结。连结后的维度是（batch_size, in_channels*2, width）
+下面我们来实现textCNN模型。实验中，每个词的词向量由两套词向量连结而成：`embedding_static`设为100维GloVe词向量且训练中不更新；`embedding_non_static`初始化为100维GloVe词向量并在训练中不断迭代。模型定义中的`Conv1D`即一维卷积层，`GlobalMaxPool1D`即时序最大池化层。
 
 ```{.python .input  n=10}
 class TextCNN(nn.Block):
@@ -182,9 +152,11 @@ class TextCNN(nn.Block):
         self.embedding_static = nn.Embedding(len(vocab), embedding_size)
         self.embedding_non_static = nn.Embedding(len(vocab), embedding_size)
         for i in range(len(ngram_kernel_sizes)):
+            # 一维卷积层。
             conv = nn.Conv1D(nums_channels[i],
                              kernel_size=ngram_kernel_sizes[i], strides=1,
                              activation='relu')
+            # 时序最大池化层。
             pool = nn.GlobalMaxPool1D()
             # 将 self.conv_{i} 置为第 i 个 conv。
             setattr(self, 'conv_{i}', conv)
@@ -225,7 +197,9 @@ class TextCNN(nn.Block):
         return getattr(self, 'pool_{i}')
 ```
 
-我们使用在更大规模语料上预训练的词向量作为每个词的特征向量。本实验有两个嵌入层，其中嵌入层`Embedding_non_static`的词向量可以在训练过程中被更新，另一个嵌入层`Embedding_static`的词向量在训练过程中不能被更新。
+## 实验设置
+
+我们定义3个卷积核，它们的核宽分别为3、4和5，输出通道数均为100。
 
 ```{.python .input  n=11}
 num_outputs = 2
@@ -237,6 +211,8 @@ ngram_kernel_sizes = [3, 4, 5]
 nums_channels = [100, 100, 100]
 ctx = gb.try_all_gpus()
 ```
+
+接下来，我们用预训练的100维GloVe词向量初始化`embedding_static`和`embedding_non_static`。其中只有`embedding_static`在训练中不更新模型参数。
 
 ```{.python .input}
 net = TextCNN(vocab, embed_size, ngram_kernel_sizes, nums_channels)
@@ -252,7 +228,7 @@ loss = gloss.SoftmaxCrossEntropyLoss()
 
 ## 训练并评价模型
 
-使用gluon的DataLoader加载数据。下面开始训练模型。
+现在我们可以加载数据并训练模型了。
 
 ```{.python .input  n=30}
 train_set = gdata.ArrayDataset(train_features, train_labels)
@@ -276,20 +252,20 @@ gb.predict_sentiment(net, vocab, ['the', 'show', 'is', 'terribly', 'boring'])
 
 ## 小结
 
-* 我们可以使用一维卷积来处理时序序列任务，如自然语言处理。
-
-* 多通道一维卷积运算可以等价于单通道二维卷积计算。
+* 我们可以使用一维卷积来处理时序数据。
+* 多输入通道的一维相关计算可以看作是单输入通道的二维相关计算。
+* 时序最大池化层的输入在各个通道上的时间步数可以不同。
+* textCNN主要使用了一维卷积层和时序最大池化层。
 
 
 ## 练习
 
+* 动手调参，从准确率和运行效率比较情感分析的两类方法：使用循环神经网络和使用卷积神经网络。
 * 使用上一节练习中介绍的三种方法：调节超参数、使用更大的预训练词向量和使用spacy分词工具，你能使模型在测试集上的准确率提高到0.87以上吗？
-
-
+* 你还能将textCNN应用于自然语言处理的哪些任务中？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7762)
-
 
 ![](../img/qr_sentiment-analysis-cnn.svg)
 
