@@ -120,7 +120,8 @@ def optimize(batch_size, lr, num_epochs, log_interval):
             adam([w, b], vs, sqrs, lr, batch_size, t)
             if batch_i * batch_size % log_interval == 0:
                 ls.append(loss(net(features, w, b), labels).mean().asnumpy())
-    print('w:', w, '\nb:', b, '\n')
+    print('w[0]=%.2f, w[1]=%.2f, b=%.2f' 
+          % (w[0].asscalar(), w[1].asscalar(), b.asscalar()))
     es = np.linspace(0, num_epochs, len(ls), endpoint=True)
     gb.semilogy(es, ls, 'epoch', 'loss')
 ```
