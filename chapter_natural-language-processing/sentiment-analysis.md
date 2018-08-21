@@ -16,12 +16,11 @@ sys.path.insert(0, '..')
 
 import collections
 import gluonbook as gb
-from mxnet import autograd, gluon, init, metric, nd
+from mxnet import gluon, init, nd
 from mxnet.contrib import text
 from mxnet.gluon import data as gdata, loss as gloss, nn, rnn, utils as gutils
 import os
 import random
-from time import time
 import tarfile
 ```
 

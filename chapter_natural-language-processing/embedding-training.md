@@ -9,11 +9,9 @@ import sys
 sys.path.insert(0, '..')
 
 import collections
-import functools
 import gluonbook as gb
 import itertools
 import math
-import mxnet as mx
 from mxnet import autograd, nd, gluon
 from mxnet.gluon import data as gdata, loss as gloss, nn
 import random

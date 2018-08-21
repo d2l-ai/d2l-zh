@@ -26,15 +26,11 @@
 import sys
 sys.path.insert(0, '..')
 
-import collections
 import gluonbook as gb
-from mxnet import autograd, gluon, init, metric, nd
+from mxnet import gluon, init, nd
 from mxnet.contrib import text
-from mxnet.gluon import data as gdata, loss as gloss, nn, utils as gutils
-import os
+from mxnet.gluon import data as gdata, loss as gloss, nn
 import random
-import tarfile
-from time import time
 
 def corr1d(X, K):
     w = K.shape[0]
