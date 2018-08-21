@@ -102,11 +102,10 @@ class Encoder(nn.Block):
     def __init__(self, num_inputs, embed_size, num_hiddens, num_layers,
                  drop_prob, **kwargs):
         super(Encoder, self).__init__(**kwargs)
-        with self.name_scope():
-            self.embedding = nn.Embedding(num_inputs, embed_size)
-            self.dropout = nn.Dropout(drop_prob)
-            self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
-                               input_size=embed_size)
+        self.embedding = nn.Embedding(num_inputs, embed_size)
+        self.dropout = nn.Dropout(drop_prob)
+        self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
+                           input_size=embed_size)
 
     def forward(self, inputs, state):
         embedding = self.embedding(inputs).swapaxes(0, 1)
@@ -131,26 +130,23 @@ class Decoder(nn.Block):
         self.encoder_num_hiddens = encoder_num_hiddens
         self.hidden_size = num_hiddens
         self.num_layers = num_layers
-        with self.name_scope():
-            self.embedding = nn.Embedding(num_outputs, num_hiddens)
-            self.dropout = nn.Dropout(drop_prob)
-            # 注意力机制。
-            self.attention = nn.Sequential()
-            with self.attention.name_scope():
-                self.attention.add(
-                    nn.Dense(alignment_size,
-                             in_units=num_hiddens + encoder_num_hiddens,
-                             activation='tanh', flatten=False))
-                self.attention.add(nn.Dense(1, in_units=alignment_size,
-                                            flatten=False))
-
-            self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
-                               input_size=num_hiddens)
-            self.out = nn.Dense(num_outputs, in_units=num_hiddens,
-                                flatten=False)
-            self.rnn_concat_input = nn.Dense(
-                num_hiddens, in_units=num_hiddens + encoder_num_hiddens,
-                flatten=False)
+        self.embedding = nn.Embedding(num_outputs, num_hiddens)
+        self.dropout = nn.Dropout(drop_prob)
+        # 注意力机制。
+        self.attention = nn.Sequential()
+        self.attention.add(
+            nn.Dense(alignment_size,
+                     in_units=num_hiddens + encoder_num_hiddens,
+                     activation='tanh', flatten=False))
+        self.attention.add(nn.Dense(1, in_units=alignment_size,
+                                    flatten=False))
+        self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
+                           input_size=num_hiddens)
+        self.out = nn.Dense(num_outputs, in_units=num_hiddens,
+                            flatten=False)
+        self.rnn_concat_input = nn.Dense(
+            num_hiddens, in_units=num_hiddens + encoder_num_hiddens,
+            flatten=False)
 
     def forward(self, cur_input, state, encoder_outputs):
         # 当循环神经网络有多个隐藏层时，取最靠近输出层的单层隐藏状态。
@@ -190,10 +186,9 @@ class Decoder(nn.Block):
 class DecoderInitState(nn.Block):
     def __init__(self, encoder_num_hiddens, decoder_num_hiddens, **kwargs):
         super(DecoderInitState, self).__init__(**kwargs)
-        with self.name_scope():
-            self.dense = nn.Dense(decoder_num_hiddens,
-                                  in_units=encoder_num_hiddens,
-                                  activation="tanh", flatten=False)
+        self.dense = nn.Dense(decoder_num_hiddens,
+                              in_units=encoder_num_hiddens,
+                              activation="tanh", flatten=False)
 
     def forward(self, encoder_state):
         return [self.dense(encoder_state)]
@@ -315,8 +310,8 @@ decoder_init_state = DecoderInitState(encoder_num_hiddens,
 给定简单的法语和英语序列，我们可以观察模型的训练结果。打印的结果中，input、output和expect分别代表输入序列、输出序列和正确序列。我们可以比较output和expect，观察输出序列是否符合预期。
 
 ```{.python .input}
-eval_fr_ens =[['elle est japonaise .', 'she is japanese .'],
-              ['ils regardent .', 'they are watching .']]
+eval_fr_ens = [['elle est japonaise .', 'she is japanese .'],
+               ['ils regardent .', 'they are watching .']]
 train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens)
 ```
 

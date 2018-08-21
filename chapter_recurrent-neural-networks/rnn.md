@@ -131,8 +131,10 @@ def data_iter_random(corpus_indices, batch_size, num_steps, ctx=None):
     epoch_size = num_examples // batch_size
     example_indices = list(range(num_examples))
     random.shuffle(example_indices)
+    
     def _data(pos):
         return corpus_indices[pos: pos + num_steps]
+
     for i in range(epoch_size):
         # 每次读取 batch_size 个随机样本。
         i = i * batch_size

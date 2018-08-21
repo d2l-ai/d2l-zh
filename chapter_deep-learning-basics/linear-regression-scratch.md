@@ -66,7 +66,7 @@ def data_iter(batch_size, features, labels):
     random.shuffle(indices)  # 样本的读取顺序是随机的。
     for i in range(0, num_examples, batch_size):
         j = nd.array(indices[i: min(i + batch_size, num_examples)])        
-        yield features.take(j), labels.take(j) # take 函数根据索引返回对应元素。
+        yield features.take(j), labels.take(j)  # take 函数根据索引返回对应元素。
 ```
 
 让我们读取第一个小批量数据样本并打印。每个批量的特征形状为（10， 2），分别对应批量大小和输入个数；标签形状为批量大小。
@@ -136,14 +136,14 @@ num_epochs = 3
 net = linreg
 loss = squared_loss
 
-for epoch in range(num_epochs): # 训练模型一共需要 num_epochs 个迭代周期。
+for epoch in range(num_epochs):  # 训练模型一共需要 num_epochs 个迭代周期。
     # 在一个迭代周期中，使用训练数据集中所有样本一次（假设样本数能够被批量大小整除）。
     # X 和 y 分别是小批量样本的特征和标签。
     for X, y in data_iter(batch_size, features, labels):
         with autograd.record():            
-            l = loss(net(X, w, b), y) # l 是有关小批量 X 和 y 的损失。        
-        l.backward() # 小批量的损失对模型参数求导。        
-        sgd([w, b], lr, batch_size) # 使用小批量随机梯度下降迭代模型参数。
+            l = loss(net(X, w, b), y)  # l 是有关小批量 X 和 y 的损失。        
+        l.backward()  # 小批量的损失对模型参数求导。        
+        sgd([w, b], lr, batch_size)  # 使用小批量随机梯度下降迭代模型参数。
     l = loss(net(features, w, b), labels)
     print('epoch %d, loss %f' % (epoch+1, l.mean().asnumpy()))
 ```

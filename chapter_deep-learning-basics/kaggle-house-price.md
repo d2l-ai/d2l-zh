@@ -4,7 +4,7 @@
 
 ## Kaggle比赛
 
-Kaggle（网站地址：https://www.kaggle.com ）是一个著名的供机器学习爱好者交流的平台。图3.8展示了Kaggle网站首页。为了便于提交结果，请注册Kaggle账号。
+Kaggle（网站地址：https://www.kaggle.com ）是一个著名的供机器学习爱好者交流的平台。图3.8展示了Kaggle网站首页。为了便于提交结果，请大家注册Kaggle账号。
 
 ![Kaggle网站首页。](../img/kaggle.png)
 
@@ -180,7 +180,7 @@ def train(net, train_features, train_labels, test_features, test_labels,
         if epoch >= verbose_epoch:
             print('epoch %d, train loss: %f' % (epoch, cur_train_l))
         train_ls.append(cur_train_l)
-        if test_features is not None:    
+        if test_features is not None:
             cur_test_l = get_rmse_log(net, test_features, test_labels)
             test_ls.append(cur_test_l)
     if test_features is not None:
@@ -222,7 +222,7 @@ def k_fold_cross_valid(k, epochs, verbose_epoch, X_train, y_train,
                     y_val_train = nd.concat(y_val_train, y_cur_fold, dim=0)
         net = get_net()
         train_l, test_l = train(
-            net, X_val_train, y_val_train, X_val_test, y_val_test, 
+            net, X_val_train, y_val_train, X_val_test, y_val_test,
             epochs, verbose_epoch, learning_rate, weight_decay, batch_size)
         train_l_sum += train_l
         print('test loss: %f' % test_l)
@@ -275,7 +275,7 @@ train_and_pred(num_epochs, verbose_epoch, train_features, test_features,
                train_labels, test_data, lr, weight_decay, batch_size)
 ```
 
-上述代码执行完之后会生成一个“submission.csv”文件。这个文件是符合Kaggle比赛要求的提交格式的。这时，我们可以在Kaggle上把我们预测得出的结果进行提交，并且查看与测试数据集上真实房价（标签）的误差。具体来说有以下几个步骤：你需要登录Kaggle网站，访问房价预测比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮。然后，点击页面下方“Upload Submission File”选择需要提交的预测结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。如图3.9所示。
+上述代码执行完之后会生成一个“submission.csv”文件。这个文件是符合Kaggle比赛要求的提交格式的。这时，我们可以在Kaggle上把我们预测得出的结果进行提交，并且查看与测试数据集上真实房价（标签）的误差。具体来说有以下几个步骤：你需要登录Kaggle网站，访问房价预测比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮。然后，点击页面下方“Upload Submission File”选择需要提交的预测结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。如图3.10所示。
 
 ![Kaggle预测房价比赛的预测结果提交页面。](../img/kaggle_submit2.png)
 

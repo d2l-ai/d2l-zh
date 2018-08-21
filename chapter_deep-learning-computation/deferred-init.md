@@ -27,7 +27,7 @@ net.initialize(init=MyInit())
 注意到MyInit在调用时会打印信息，但当前我们并没有看到相应的日志。下面我们执行前向计算。
 
 ```{.python .input  n=25}
-x = nd.random.uniform(shape=(2,20))
+x = nd.random.uniform(shape=(2, 20))
 y = net(x)
 ```
 

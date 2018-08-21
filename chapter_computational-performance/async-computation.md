@@ -143,7 +143,7 @@ net.add(
 )
 net.initialize()
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
-                        {'learning_rate':0.005})
+                        {'learning_rate': 0.005})
 loss = gloss.L2Loss()
 ```
 

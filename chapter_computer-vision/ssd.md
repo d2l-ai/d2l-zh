@@ -148,7 +148,7 @@ def single_scale_forward(x, blk, size, ratio, cls_predictor, bbox_predictor):
 num_anchors = 4
 sizes = [[0.2, 0.272], [0.37, 0.447], [0.54, 0.619], [0.71, 0.79],
          [0.88, 0.961]]
-ratios = [[1,2, 0.5]] * 5
+ratios = [[1, 2, 0.5]] * 5
 ```
 
 完整的模型定义如下。
@@ -204,7 +204,7 @@ train_data.reshape(label_shape=(3, 5))
 
 ```{.python .input  n=16}
 ctx = gb.try_gpu()
-net = TinySSD(num_classes = 2)
+net = TinySSD(num_classes=2)
 net.initialize(init=init.Xavier(), ctx=ctx)
 trainer = gluon.Trainer(net.collect_params(),
                         'sgd', {'learning_rate': 0.1, 'wd': 5e-4})
@@ -255,7 +255,7 @@ for epoch in range(1, 21):
             anchors, cls_preds, bbox_preds = net(X)
             # 对每个锚框生成标号。
             bbox_labels, bbox_masks, cls_labels = contrib.nd.MultiBoxTarget(
-                anchors, Y, cls_preds.transpose(axes=(0,2,1)))
+                anchors, Y, cls_preds.transpose(axes=(0, 2, 1)))
             # 计算类别预测和边界框预测损失。
             l = calc_loss(cls_preds, cls_labels,
                              bbox_preds, bbox_labels, bbox_masks)
@@ -341,7 +341,7 @@ lines = ['-', '--', '-.']
 x = nd.arange(-2, 2, 0.1)
 gb.set_figsize()
 
-for l,s in zip(lines, sigmas):
+for l, s in zip(lines, sigmas):
     y = nd.smooth_l1(x, scalar=s)
     gb.plt.plot(x.asnumpy(), y.asnumpy(), l, label='sigma=%.1f' % s)
 gb.plt.legend();

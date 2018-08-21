@@ -135,7 +135,7 @@ def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
         features, labels, _ = _get_batch(batch, ctx)
         for X, y in zip(features, labels):
             y = y.astype('float32')
-            acc += (net(X).argmax(axis=1)==y).sum().copyto(mx.cpu())
+            acc += (net(X).argmax(axis=1) == y).sum().copyto(mx.cpu())
             n += y.size
         acc.wait_to_read()
     return acc.asscalar() / n
@@ -151,8 +151,20 @@ def _get_batch(batch, ctx):
             features.shape[0])
 
 
+def get_data_ch7():
+    """Get the data set used in Chapter 7."""
+    num_inputs = 2
+    num_examples = 1000
+    true_w = [2, -3.4]
+    true_b = 4.2
+    features = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
+    labels = true_w[0] * features[:, 0] + true_w[1] * features[:, 1] + true_b
+    labels += nd.random.normal(scale=0.01, shape=labels.shape)
+    return num_inputs, num_examples, true_w, true_b, features, labels
+
+
 def get_fashion_mnist_labels(labels):
-    """get text label for fashion mnist"""
+    """Get text label for fashion mnist."""
     text_labels = ['t-shirt', 'trouser', 'pullover', 'dress', 'coat',
                    'sandal', 'shirt', 'sneaker', 'bag', 'ankle boot']
     return [text_labels[int(i)] for i in labels]
@@ -242,8 +254,8 @@ def _make_list(obj, default_values=None):
     return obj
 
 
-def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval,
-             features, labels, net):
+def optimize_with_trainer(batch_size, trainer, num_epochs, decay_epoch,
+                          log_interval, features, labels, net):
     """Optimize an objective function."""
     dataset = gdata.ArrayDataset(features, labels)
     data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
@@ -260,8 +272,10 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval,
             trainer.step(batch_size)
             if batch_i * batch_size % log_interval == 0:
                 ls.append(loss(net(features), labels).mean().asnumpy())
-    # To print more conveniently, use numpy.
-    print('w:', net[0].weight.data(), '\nb:', net[0].bias.data(), '\n')
+    print('w[0]=%.2f, w[1]=%.2f, b=%.2f' 
+          % (net[0].weight.data()[0][0].asscalar(),
+             net[0].weight.data()[0][1].asscalar(),
+             net[0].bias.data().asscalar()))
     es = np.linspace(0, num_epochs, len(ls), endpoint=True)
     semilogy(es, ls, 'epoch', 'loss')
 
@@ -333,19 +347,6 @@ def preprocess_imdb(train_tokenized, test_tokenized, train_data, test_data,
     return train_features, test_features, train_labels, test_labels
 
 
-def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):
-    """Read VOC images."""
-    txt_fname = '%s/ImageSets/Segmentation/%s' % (
-        root, 'train.txt' if train else 'val.txt')
-    with open(txt_fname, 'r') as f:
-        images = f.read().split()
-    data, label = [None] * len(images), [None] * len(images)
-    for i, fname in enumerate(images):
-        data[i] = image.imread('%s/JPEGImages/%s.jpg' % (root, fname))
-        label[i] = image.imread('%s/SegmentationClass/%s.png' % (root, fname))
-    return data, label
-
-
 def read_imdb(dir_url, seg='train'):
     """Read the IMDB data set for sentiment analysis."""
     pos_or_neg = ['pos', 'neg']
@@ -361,6 +362,19 @@ def read_imdb(dir_url, seg='train'):
                 elif label == 'neg':
                     data.append([review, 0])
     return data
+
+
+def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):
+    """Read VOC images."""
+    txt_fname = '%s/ImageSets/Segmentation/%s' % (
+        root, 'train.txt' if train else 'val.txt')
+    with open(txt_fname, 'r') as f:
+        images = f.read().split()
+    data, label = [None] * len(images), [None] * len(images)
+    for i, fname in enumerate(images):
+        data[i] = image.imread('%s/JPEGImages/%s.jpg' % (root, fname))
+        label[i] = image.imread('%s/SegmentationClass/%s.png' % (root, fname))
+    return data, label
 
 
 class Residual(nn.Block):
@@ -636,9 +650,11 @@ def try_gpu():
         ctx = mx.cpu()
     return ctx
 
+
 def use_svg_display():
     """Use svg format to display plot in jupyter"""
     display.set_matplotlib_formats('svg')
+
 
 def voc_label_indices(img, colormap2label):
     """Assig label indices for Pascal VOC2012 Dataset."""
@@ -682,3 +698,4 @@ class VOCSegDataset(gdata.Dataset):
 
     def __len__(self):
         return len(self.data)
+

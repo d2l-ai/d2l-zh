@@ -35,27 +35,6 @@ $$\boldsymbol{g}_t' \leftarrow \frac{\eta \hat{\boldsymbol{v}}_t}{\sqrt{\hat{\bo
 
 $$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \boldsymbol{g}_t'. $$
 
-
-## Adam的实现
-
-
-Adam的实现很简单。我们只需要把上面的数学公式翻译成代码。
-
-```{.python .input}
-def adam(params, vs, sqrs, lr, batch_size, t):
-    beta1 = 0.9
-    beta2 = 0.999
-    eps_stable = 1e-8
-    for param, v, sqr in zip(params, vs, sqrs):      
-        g = param.grad / batch_size
-        v[:] = beta1 * v + (1 - beta1) * g
-        sqr[:] = beta2 * sqr + (1 - beta2) * g.square()
-        v_bias_corr = v / (1 - beta1 ** t)
-        sqr_bias_corr = sqr / (1 - beta2 ** t)    
-        param[:] = param - lr * v_bias_corr / (
-            sqr_bias_corr.sqrt() + eps_stable)  
-```
-
 ## 实验
 
 首先，导入实验所需的包或模块。
@@ -66,7 +45,8 @@ sys.path.insert(0, '..')
 
 %matplotlib inline
 import gluonbook as gb
-from mxnet import autograd, nd
+from mxnet import autograd, gluon, init, nd
+from mxnet.gluon import nn
 import numpy as np
 ```
 
@@ -76,13 +56,7 @@ import numpy as np
 
 ```{.python .input  n=1}
 # 生成数据集。
-num_inputs = 2
-num_examples = 1000
-true_w = [2, -3.4]
-true_b = 4.2
-features = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
-labels = true_w[0] * features[:, 0] + true_w[1] * features[:, 1] + true_b
-labels += nd.random.normal(scale=0.01, shape=labels.shape)
+num_inputs, num_examples, true_w, true_b, features, labels = gb.get_data_ch7()
 
 # 初始化模型参数。
 def init_params():
@@ -99,6 +73,23 @@ def init_params():
     return params, vs, sqrs
 ```
 
+接下来基于NDArray实现Adam算法。
+
+```{.python .input}
+def adam(params, vs, sqrs, lr, batch_size, t):
+    beta1 = 0.9
+    beta2 = 0.999
+    eps_stable = 1e-8
+    for param, v, sqr in zip(params, vs, sqrs):      
+        g = param.grad / batch_size
+        v[:] = beta1 * v + (1 - beta1) * g
+        sqr[:] = beta2 * sqr + (1 - beta2) * g.square()
+        v_bias_corr = v / (1 - beta1 ** t)
+        sqr_bias_corr = sqr / (1 - beta2 ** t)    
+        param[:] = param - lr * v_bias_corr / (
+            sqr_bias_corr.sqrt() + eps_stable)  
+```
+
 优化函数`optimize`与[“Adagrad”](adagrad.md)一节中的类似。
 
 ```{.python .input  n=2}
@@ -110,8 +101,8 @@ def optimize(batch_size, lr, num_epochs, log_interval):
     ls = [loss(net(features, w, b), labels).mean().asnumpy()]
     t = 0
     for epoch in range(1, num_epochs + 1):
-        for batch_i, (X, y) in enumerate(
-            gb.data_iter(batch_size, features, labels)):
+        for batch_i, (X, y) in enumerate(gb.data_iter(batch_size, features,
+                                                      labels)):
             with autograd.record():
                 l = loss(net(X, w, b), y)
             l.backward()
@@ -120,7 +111,8 @@ def optimize(batch_size, lr, num_epochs, log_interval):
             adam([w, b], vs, sqrs, lr, batch_size, t)
             if batch_i * batch_size % log_interval == 0:
                 ls.append(loss(net(features, w, b), labels).mean().asnumpy())
-    print('w:', w, '\nb:', b, '\n')
+    print('w[0]=%.2f, w[1]=%.2f, b=%.2f' 
+          % (w[0].asscalar(), w[1].asscalar(), b.asscalar()))
     es = np.linspace(0, num_epochs, len(ls), endpoint=True)
     gb.semilogy(es, ls, 'epoch', 'loss')
 ```
@@ -131,15 +123,33 @@ def optimize(batch_size, lr, num_epochs, log_interval):
 optimize(batch_size=10, lr=0.1, num_epochs=3, log_interval=10)
 ```
 
+## 使用Gluon的实现
+
+下面我们展示如何使用Gluon实验Adam算法。我们可以在Trainer中定义优化算法名称`adam`并定义初始学习率。以下实验重现了本节中使用NDArray实现Adam的实验结果。该结果有一定的随机性。
+
+```{.python .input}
+net = nn.Sequential()
+net.add(nn.Dense(1))
+
+net.initialize(init.Normal(sigma=0.01), force_reinit=True)
+trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': 0.1})
+gb.optimize_with_trainer(batch_size=10, trainer=trainer, num_epochs=3,
+                         decay_epoch=None, log_interval=10, features=features,
+                         labels=labels, net=net)
+```
+
 ## 小结
 
 * Adam组合了动量法和RMSProp。
 * Adam使用了偏差修正。
+* 使用Gluon的`Trainer`可以方便地使用Adam。
 
 
 ## 练习
 
 * 使用其他初始学习率，观察并分析实验结果。
+* 总结本章各个优化算法的异同。
+* 回顾前面几章中你感兴趣的模型，将训练部分的优化算法替换成其他算法，观察并分析实验现象。
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2279)

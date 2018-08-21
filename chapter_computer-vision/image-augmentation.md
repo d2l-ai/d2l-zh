@@ -179,7 +179,7 @@ def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
         features, labels, _ = _get_batch(batch, ctx)
         for X, y in zip(features, labels):
             y = y.astype('float32')
-            acc += (net(X).argmax(axis=1)==y).sum().copyto(mx.cpu())
+            acc += (net(X).argmax(axis=1) == y).sum().copyto(mx.cpu())
             n += y.size
         acc.wait_to_read()
     return acc.asscalar() / n

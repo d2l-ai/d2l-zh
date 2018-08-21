@@ -164,7 +164,7 @@ cls_probs = nd.array([[0] * 4,  # 是背景的概率。
 ```{.python .input  n=49}
 fig = gb.plt.imshow(img)
 show_bboxes(fig.axes, anchors * bbox_scale,
-            ['dog=0.9', 'dog=0.8', 'dog=0.7',' cat=0.9'])
+            ['dog=0.9', 'dog=0.8', 'dog=0.7', 'cat=0.9'])
 ```
 
 我们使用`contrib.nd`模块的`MultiBoxDetection`函数来执行NMS，这里为NDArray输入都增加了批量维。

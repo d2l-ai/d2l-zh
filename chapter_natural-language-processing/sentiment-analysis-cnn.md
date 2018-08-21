@@ -26,15 +26,11 @@
 import sys
 sys.path.insert(0, '..')
 
-import collections
 import gluonbook as gb
-from mxnet import autograd, gluon, init, metric, nd
+from mxnet import gluon, init, nd
 from mxnet.contrib import text
-from mxnet.gluon import data as gdata, loss as gloss, nn, utils as gutils
-import os
+from mxnet.gluon import data as gdata, loss as gloss, nn
 import random
-import tarfile
-from time import time
 
 def corr1d(X, K):
     w = K.shape[0]
@@ -146,7 +142,7 @@ glove_embedding = text.embedding.create(
 ```{.python .input  n=10}
 class TextCNN(nn.Block):
     def __init__(self, vocab, embedding_size, ngram_kernel_sizes,
-                 nums_channels, **kwargs):
+                 nums_channels, num_outputs, **kwargs):
         super(TextCNN, self).__init__(**kwargs)
         self.ngram_kernel_sizes = ngram_kernel_sizes
         self.embedding_static = nn.Embedding(len(vocab), embedding_size)
@@ -215,7 +211,8 @@ ctx = gb.try_all_gpus()
 接下来，我们用预训练的100维GloVe词向量初始化`embedding_static`和`embedding_non_static`。其中只有`embedding_static`在训练中不更新模型参数。
 
 ```{.python .input}
-net = TextCNN(vocab, embed_size, ngram_kernel_sizes, nums_channels)
+net = TextCNN(vocab, embed_size, ngram_kernel_sizes, nums_channels,
+              num_outputs)
 net.initialize(init.Xavier(), ctx=ctx)
 # embedding_static 和 embedding_non_static 均使用预训练的词向量。
 net.embedding_static.weight.set_data(glove_embedding.idx_to_vec)

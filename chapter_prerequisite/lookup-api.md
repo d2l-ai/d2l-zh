@@ -25,7 +25,7 @@ help(nd.ones_like)
 从文档信息我们了解到，`ones_like`函数会创建和输入NDArray形状相同且元素为1的新的NDArray。我们可以验证一下：
 
 ```{.python .input}
-x = nd.array([[0,0,0], [2,2,2]])
+x = nd.array([[0, 0, 0], [2, 2, 2]])
 y = x.ones_like()
 y
 ```

@@ -52,6 +52,7 @@ class MLP(nn.Block):
         super(MLP, self).__init__(**kwargs)
         self.hidden = nn.Dense(256, activation='relu')
         self.output = nn.Dense(10)
+
     def forward(self, x):
         return self.output(self.hidden(x))
 

@@ -95,28 +95,27 @@ class RNNModel(nn.Block):
     def __init__(self, mode, vocab_size, embed_size, num_hiddens,
                  num_layers, drop_prob=0.5, **kwargs):
         super(RNNModel, self).__init__(**kwargs)
-        with self.name_scope():
-            self.dropout = nn.Dropout(drop_prob)
-            # 将词索引变换成词向量。这些词向量也是模型参数。
-            self.embedding = nn.Embedding(
-                vocab_size, embed_size, weight_initializer=init.Uniform(0.1))
-            if mode == 'rnn_relu':
-                self.rnn = rnn.RNN(num_hiddens, num_layers, activation='relu',
-                                   dropout=drop_prob, input_size=embed_size)
-            elif mode == 'rnn_tanh':
-                self.rnn = rnn.RNN(num_hiddens, num_layers, activation='tanh',
-                                   dropout=drop_prob, input_size=embed_size)
-            elif mode == 'lstm':
-                self.rnn = rnn.LSTM(num_hiddens, num_layers,
-                                    dropout=drop_prob, input_size=embed_size)
-            elif mode == 'gru':
-                self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
-                                   input_size=embed_size)
-            else:
-                raise ValueError('Invalid mode %s. Options are rnn_relu, '
-                                 'rnn_tanh, lstm, and gru' % mode)
-            self.dense = nn.Dense(vocab_size, in_units=num_hiddens)
-            self.num_hiddens = num_hiddens
+        self.dropout = nn.Dropout(drop_prob)
+        # 将词索引变换成词向量。这些词向量也是模型参数。
+        self.embedding = nn.Embedding(
+            vocab_size, embed_size, weight_initializer=init.Uniform(0.1))
+        if mode == 'rnn_relu':
+            self.rnn = rnn.RNN(num_hiddens, num_layers, activation='relu',
+                               dropout=drop_prob, input_size=embed_size)
+        elif mode == 'rnn_tanh':
+            self.rnn = rnn.RNN(num_hiddens, num_layers, activation='tanh',
+                               dropout=drop_prob, input_size=embed_size)
+        elif mode == 'lstm':
+            self.rnn = rnn.LSTM(num_hiddens, num_layers,
+                                dropout=drop_prob, input_size=embed_size)
+        elif mode == 'gru':
+            self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
+                               input_size=embed_size)
+        else:
+            raise ValueError('Invalid mode %s. Options are rnn_relu, '
+                             'rnn_tanh, lstm, and gru' % mode)
+        self.dense = nn.Dense(vocab_size, in_units=num_hiddens)
+        self.num_hiddens = num_hiddens
 
     def forward(self, inputs, state):
         embedding = self.dropout(self.embedding(inputs))
@@ -172,8 +171,8 @@ test_data = batchify(corpus.test, batch_size).as_in_context(ctx)
 
 def get_batch(source, i):
     seq_len = min(num_steps, source.shape[0] - 1 - i)
-    X = source[i : i + seq_len]
-    Y = source[i + 1 : i + 1 + seq_len]
+    X = source[i: i + seq_len]
+    Y = source[i + 1: i + 1 + seq_len]
     return X, Y.reshape((-1,))
 ```
 
@@ -214,9 +213,9 @@ def train_rnn():
         train_l_sum = nd.array([0], ctx=ctx)
         start_time = time.time()
         state = model.begin_state(func=nd.zeros, batch_size=batch_size,
-                                   ctx=ctx)
+                                  ctx=ctx)
         for batch_i, idx in enumerate(range(0, train_data.shape[0] - 1,
-                                          num_steps)):
+                                            num_steps)):
             X, y = get_batch(train_data, idx)
             # 从计算图分离隐藏状态变量（包括 LSTM 的记忆细胞）。
             state = detach(state)

@@ -102,7 +102,7 @@ def allreduce(data):
 简单测试一下`allreduce`函数。
 
 ```{.python .input}
-data = [nd.ones((1,2), ctx=mx.gpu(i)) * (i + 1) for i in range(2)]
+data = [nd.ones((1, 2), ctx=mx.gpu(i)) * (i + 1) for i in range(2)]
 print('before allreduce:', data)
 allreduce(data)
 print('after allreduce:', data)
@@ -140,7 +140,7 @@ def train_batch(X, y, gpu_params, ctx, lr):
     gpu_ys = split_and_load(y, ctx)
     # 在各个 GPU 上计算损失。
     with autograd.record():
-        ls = [loss(lenet(gpu_X, gpu_W), gpu_y) 
+        ls = [loss(lenet(gpu_X, gpu_W), gpu_y)
               for gpu_X, gpu_y, gpu_W in zip(gpu_Xs, gpu_ys, gpu_params)]
     # 在各个 GPU 上反向传播。
     for l in ls:

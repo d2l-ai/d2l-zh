@@ -16,12 +16,11 @@ sys.path.insert(0, '..')
 
 import collections
 import gluonbook as gb
-from mxnet import autograd, gluon, init, metric, nd
+from mxnet import gluon, init, nd
 from mxnet.contrib import text
 from mxnet.gluon import data as gdata, loss as gloss, nn, rnn, utils as gutils
 import os
 import random
-from time import time
 import tarfile
 ```
 
@@ -167,16 +166,15 @@ glove_embedding = text.embedding.create(
 下面我们根据模型设计里的描述定义情感分类模型。其中的`Embedding`实例即嵌入层，`LSTM`实例即对句子编码信息的隐藏层，`Dense`实例即生成分类结果的输出层。
 
 ```{.python .input  n=10}
-class SentimentNet(nn.Block):
+class BiRNN(nn.Block):
     def __init__(self, vocab, embed_size, num_hiddens, num_layers,
-                 bidirectional, **kwargs):
-        super(SentimentNet, self).__init__(**kwargs)
-        with self.name_scope():
-            self.embedding = nn.Embedding(len(vocab), embed_size)
-            self.encoder = rnn.LSTM(num_hiddens, num_layers=num_layers,
-                                    bidirectional=bidirectional,
-                                    input_size=embed_size)
-            self.decoder = nn.Dense(num_outputs, flatten=False)
+                 bidirectional, num_outputs, **kwargs):
+        super(BiRNN, self).__init__(**kwargs)
+        self.embedding = nn.Embedding(len(vocab), embed_size)
+        self.encoder = rnn.LSTM(num_hiddens, num_layers=num_layers,
+                                bidirectional=bidirectional,
+                                input_size=embed_size)
+        self.decoder = nn.Dense(num_outputs, flatten=False)
 
     def forward(self, inputs):
         embeddings = self.embedding(inputs.T)
@@ -200,7 +198,8 @@ num_layers = 2
 bidirectional = True
 ctx = gb.try_all_gpus()
 
-net = SentimentNet(vocab, embed_size, num_hiddens, num_layers, bidirectional)
+net = BiRNN(vocab, embed_size, num_hiddens, num_layers, bidirectional,
+            num_outputs)
 net.initialize(init.Xavier(), ctx=ctx)
 # 设置 embedding 层的 weight 为预训练的词向量。
 net.embedding.weight.set_data(glove_embedding.idx_to_vec)

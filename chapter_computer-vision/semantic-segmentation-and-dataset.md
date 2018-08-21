@@ -88,13 +88,13 @@ voc_classes = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
 这样给定一个标号图片，我们就可以将每个像素对应的物体标号找出来。
 
 ```{.python .input  n=6}
-colormap2label = nd.zeros(256**3)
+colormap2label = nd.zeros(256 ** 3)
 for i, cm in enumerate(voc_colormap):
     colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i
 
 def voc_label_indices(img, colormap2label):
     data = img.astype('int32')
-    idx = (data[:,:,0] * 256 + data[:,:,1]) * 256 + data[:,:,2]
+    idx = (data[:, :, 0] * 256 + data[:, :, 1]) * 256 + data[:, :, 2]
     return colormap2label[idx]
 ```
 

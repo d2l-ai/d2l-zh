@@ -9,11 +9,9 @@ import sys
 sys.path.insert(0, '..')
 
 import collections
-import functools
 import gluonbook as gb
 import itertools
 import math
-import mxnet as mx
 from mxnet import autograd, nd, gluon
 from mxnet.gluon import data as gdata, loss as gloss, nn
 import random
@@ -78,7 +76,7 @@ $$ \mathbb{P}(w_i) = \max\left(1 - \sqrt{\frac{t}{f(w_i)}}, 0\right),$$
 
 ```{.python .input  n=6}
 idx_to_count = [counter[w] for w in idx_to_token]
-total_count =  sum(idx_to_count)
+total_count = sum(idx_to_count)
 idx_to_pdiscard = [1 - math.sqrt(1e-4 / (count / total_count))
                    for count in idx_to_count]
 
@@ -119,7 +117,7 @@ def get_one_context(sentence, word_idx, max_window_size):
         context += sentence[start_idx:word_idx]
     # 添加中心词右边的背景词。
     if word_idx + 1 != end_idx: 
-        context += sentence[word_idx + 1 : end_idx]
+        context += sentence[word_idx + 1: end_idx]
     return context
 ```
 
@@ -155,7 +153,7 @@ def get_negatives(negatives_shape, all_contexts, negatives_weights):
     k = negatives_shape[0] * negatives_shape[1]
     # 根据每个词的权重（negatives_weights）随机生成 k 个词的索引。
     negatives = random.choices(population, weights=negatives_weights, k=k)
-    negatives = [negatives[i : i + negatives_shape[1]]
+    negatives = [negatives[i: i + negatives_shape[1]]
                  for i in range(0, k, negatives_shape[1])]
     # 如果噪声词是当前中心词的某个背景词，丢弃该噪声词。
     negatives = [
@@ -246,8 +244,8 @@ loss(my_pred, my_label, my_mask) * my_mask.shape[1] / my_mask.sum(axis=1)
 作为比较，我们从零开始实现二元交叉熵损失函数的计算，并根据掩码变量`my_mask`计算掩码为1的预测值和标签的损失函数。
 
 ```{.python .input}
-sigmoid = lambda x : -math.log(1 / (1 + math.exp(-x)))
-printfloat = lambda x : print('%.7f' % (x))
+sigmoid = lambda x: -math.log(1 / (1 + math.exp(-x)))
+printfloat = lambda x: print('%.7f' % (x))
 printfloat((sigmoid(1.5) + sigmoid(-0.3) + sigmoid(1) + sigmoid(-2)) / 4)
 printfloat((sigmoid(1.1) + sigmoid(-0.6) + sigmoid(-2.2)) / 3)
 ```
