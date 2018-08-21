@@ -95,28 +95,27 @@ class RNNModel(nn.Block):
     def __init__(self, mode, vocab_size, embed_size, num_hiddens,
                  num_layers, drop_prob=0.5, **kwargs):
         super(RNNModel, self).__init__(**kwargs)
-        with self.name_scope():
-            self.dropout = nn.Dropout(drop_prob)
-            # 将词索引变换成词向量。这些词向量也是模型参数。
-            self.embedding = nn.Embedding(
-                vocab_size, embed_size, weight_initializer=init.Uniform(0.1))
-            if mode == 'rnn_relu':
-                self.rnn = rnn.RNN(num_hiddens, num_layers, activation='relu',
-                                   dropout=drop_prob, input_size=embed_size)
-            elif mode == 'rnn_tanh':
-                self.rnn = rnn.RNN(num_hiddens, num_layers, activation='tanh',
-                                   dropout=drop_prob, input_size=embed_size)
-            elif mode == 'lstm':
-                self.rnn = rnn.LSTM(num_hiddens, num_layers,
-                                    dropout=drop_prob, input_size=embed_size)
-            elif mode == 'gru':
-                self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
-                                   input_size=embed_size)
-            else:
-                raise ValueError('Invalid mode %s. Options are rnn_relu, '
-                                 'rnn_tanh, lstm, and gru' % mode)
-            self.dense = nn.Dense(vocab_size, in_units=num_hiddens)
-            self.num_hiddens = num_hiddens
+        self.dropout = nn.Dropout(drop_prob)
+        # 将词索引变换成词向量。这些词向量也是模型参数。
+        self.embedding = nn.Embedding(
+            vocab_size, embed_size, weight_initializer=init.Uniform(0.1))
+        if mode == 'rnn_relu':
+            self.rnn = rnn.RNN(num_hiddens, num_layers, activation='relu',
+                               dropout=drop_prob, input_size=embed_size)
+        elif mode == 'rnn_tanh':
+            self.rnn = rnn.RNN(num_hiddens, num_layers, activation='tanh',
+                               dropout=drop_prob, input_size=embed_size)
+        elif mode == 'lstm':
+            self.rnn = rnn.LSTM(num_hiddens, num_layers,
+                                dropout=drop_prob, input_size=embed_size)
+        elif mode == 'gru':
+            self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
+                               input_size=embed_size)
+        else:
+            raise ValueError('Invalid mode %s. Options are rnn_relu, '
+                             'rnn_tanh, lstm, and gru' % mode)
+        self.dense = nn.Dense(vocab_size, in_units=num_hiddens)
+        self.num_hiddens = num_hiddens
 
     def forward(self, inputs, state):
         embedding = self.dropout(self.embedding(inputs))

@@ -53,8 +53,10 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval,
             trainer.step(batch_size)
             if batch_i * batch_size % log_interval == 0:
                 ls.append(loss(net(features), labels).mean().asnumpy())
-    # 为了便于打印，改变输出形状并转化成NumPy数组。
-    print('w:', net[0].weight.data(), '\nb:', net[0].bias.data(), '\n')
+    print('w[0]=%.2f, w[1]=%.2f, b=%.2f' 
+          % (net[0].weight.data()[0][0].asscalar(),
+             net[0].weight.data()[0][1].asscalar(),
+             net[0].bias.data().asscalar()))
     es = np.linspace(0, num_epochs, len(ls), endpoint=True)
     gb.semilogy(es, ls, 'epoch', 'loss')
 ```
