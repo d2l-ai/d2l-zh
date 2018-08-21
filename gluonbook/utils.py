@@ -265,7 +265,7 @@ def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval,
              net[0].weight.data()[0][1].asscalar(),
              net[0].bias.data().asscalar()))
     es = np.linspace(0, num_epochs, len(ls), endpoint=True)
-    gb.semilogy(es, ls, 'epoch', 'loss')
+    semilogy(es, ls, 'epoch', 'loss')
 
 
 def predict_rnn(rnn, prefix, num_chars, params, num_hiddens, vocab_size, ctx,
