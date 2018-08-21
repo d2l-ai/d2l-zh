@@ -186,7 +186,7 @@ def k_fold(k, X_train, y_train, num_epochs,
         if i == 0:
             gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'rmse',
                         range(1, num_epochs+1), test_ls, ['train', 'test'])
-        print('fold %d, train loss: %f, test loss: %f' % (
+        print('fold %d, train rmse: %f, test rmse: %f' % (
             i, train_ls[-1], test_ls[-1]))
     return train_l_sum / k, test_l_sum / k
 ```
@@ -205,7 +205,7 @@ batch_size = 64
 
 train_l, test_l = k_fold(k, train_features, train_labels,
                          num_epochs, lr, weight_decay, batch_size)
-print('%d-fold validation: avg train loss: %f, avg test loss: %f'
+print('%d-fold validation: avg train rmse: %f, avg test rmse: %f'
       % (k, train_l, test_l))
 ```
 
@@ -222,13 +222,14 @@ def train_and_pred(train_features, test_feature, train_labels, test_data,
     train_ls, _ = train(net, train_features, train_labels, None, None,
                         num_epochs, lr, weight_decay, batch_size)
     gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'rmse')
+    print('train rmse %f' % train_ls[-1])
     preds = net(test_features).asnumpy()
     test_data['SalePrice'] = pd.Series(preds.reshape(1, -1)[0])
     submission = pd.concat([test_data['Id'], test_data['SalePrice']], axis=1)
     submission.to_csv('submission.csv', index=False)
 ```
 
-设计好模型并调好超参数之后，下一步就是对测试数据集上的房屋样本做价格预测，并在Kaggle上提交结果。
+设计好模型并调好超参数之后，下一步就是对测试数据集上的房屋样本做价格预测。如果我们得到跟交叉验证时差不多的训练误差，那么这个结果很可能是好的，可以在Kaggle上提交结果。
 
 ```{.python .input  n=19}
 train_and_pred(train_features, test_features, train_labels, test_data,
