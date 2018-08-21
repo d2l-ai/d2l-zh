@@ -26,6 +26,7 @@ Kaggle（网站地址：https://www.kaggle.com ）是一个著名的供机器学
 ```{.python .input  n=3}
 # 如果没有安装pandas，请反注释下面一行。
 # !pip install pandas
+
 import sys
 sys.path.insert(0, '..')
 
@@ -37,7 +38,7 @@ import numpy as np
 import pandas as pd
 ```
 
-数据解压放在`../data`目录里，它包括两个csv文件。下面使用pands读取着这两个文件
+数据解压放在`../data`目录里，它包括两个csv文件。下面使用pandas读取着这两个文件
 
 ```{.python .input  n=14}
 train_data = pd.read_csv('../data/kaggle_house_pred_train.csv')
@@ -50,189 +51,149 @@ test_data = pd.read_csv('../data/kaggle_house_pred_test.csv')
 train_data.shape
 ```
 
-```{.json .output n=11}
-[
- {
-  "data": {
-   "text/plain": "(1460, 81)"
-  },
-  "execution_count": 11,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 测试数据集包括1459个样本和80个特征。我们需要预测测试数据集上每个样本的标签。
 
 ```{.python .input  n=5}
 test_data.shape
 ```
 
-让我们来前4个样本的前4个特征和最后的标签：
+让我们来前4个样本的前4个特征、后2个特征和标签（SalePrice）：
 
 ```{.python .input  n=28}
-train_data.iloc[0:4, [0,1,2,3,4,-1]]
+train_data.iloc[0:4, [0,1,2,3,-3,-2,-1]]
 ```
 
-```{.json .output n=28}
-[
- {
-  "data": {
-   "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Id</th>\n      <th>MSSubClass</th>\n      <th>MSZoning</th>\n      <th>LotFrontage</th>\n      <th>LotArea</th>\n      <th>SalePrice</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>1</td>\n      <td>60</td>\n      <td>RL</td>\n      <td>65.0</td>\n      <td>8450</td>\n      <td>208500</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>2</td>\n      <td>20</td>\n      <td>RL</td>\n      <td>80.0</td>\n      <td>9600</td>\n      <td>181500</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>3</td>\n      <td>60</td>\n      <td>RL</td>\n      <td>68.0</td>\n      <td>11250</td>\n      <td>223500</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>4</td>\n      <td>70</td>\n      <td>RL</td>\n      <td>60.0</td>\n      <td>9550</td>\n      <td>140000</td>\n    </tr>\n  </tbody>\n</table>\n</div>",
-   "text/plain": "   Id  MSSubClass MSZoning  LotFrontage  LotArea  SalePrice\n0   1          60       RL         65.0     8450     208500\n1   2          20       RL         80.0     9600     181500\n2   3          60       RL         68.0    11250     223500\n3   4          70       RL         60.0     9550     140000"
-  },
-  "execution_count": 28,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
-我们将训练数据的前80维特征和测试数据放在一起，可以得到整个数据的特征。
+可以看到第一个特征是Id，它能帮助模型记住每个训练样本，但难以推广到测试样本，所以我们不使用它来训练。我们将训练数据剩下的79维特征和测试数据对应的特征放在一起，得到整个数据的特征。
 
 ```{.python .input  n=30}
-all_features = pd.concat((train_data.iloc[:, :-1], test_data))
+all_features = pd.concat((train_data.iloc[:, 1:-1], test_data.iloc[:, 1:]))
 ```
 
 ## 预处理数据
 
-我们对连续数值的特征做标准化处理。如果一个特征的值是连续的，设该特征在训练数据集和测试数据集上的均值为$\mu$，标准差为$\sigma$。那么，我们可以将该特征的每个值先减去$\mu$再除以$\sigma$得到标准化后的每个特征值。
+我们对连续数值的特征做标准化处理：设该特征在训练数据集和测试数据集上的均值为$\mu$，标准差为$\sigma$。那么，我们可以将该特征的每个值先减去$\mu$再除以$\sigma$得到标准化后的每个特征值。对于值为NaN的特征，我们将其替换成特征均值，即为0。
 
 ```{.python .input  n=6}
 numeric_features = all_features.dtypes[all_features.dtypes != 'object'].index
 all_features[numeric_features] = all_features[numeric_features].apply(
     lambda x: (x - x.mean()) / (x.std()))
-```
-
-现在，我们对离散数值的特征进一步处理，并把缺失数据值用本特征的平均值进行估计。
-
-```{.python .input  n=7}
-all_features = pd.get_dummies(all_features, dummy_na=True)
 all_features = all_features.fillna(all_features.mean())
 ```
 
-接下来，我们把数据转换一下格式。
+接下来将离散数值转成指示特征。例如假设特征MSZoning里面有两个不同的离散值RL和RM，那么这一步转换将去掉MSZoning特征，并新加两个特征MSZoning\_RL和MSZoning\_RM，其值为0或1。如果一个样本在MSZoning里的值为RL，那么有MSZoning\_RL=0且MSZoning\_RM=1。
+
+```{.python .input  n=7}
+# dummy_na=True 将 NaN 也当做合法的特征值并为其创建指示特征。
+all_features = pd.get_dummies(all_features, dummy_na=True)
+all_features.shape
+```
+
+可以看到这一步转换将特征数从79增加到了331。
+
+最后，通过`values`属性得到Numpy格式的数据，并接下来转成NDArray方便后面的训练。
 
 ```{.python .input  n=9}
 n_train = train_data.shape[0]
-train_features = all_features[:n_train].values
-test_features = all_features[n_train:].values
-train_labels = train_data.SalePrice.values
+train_features = nd.array(all_features[:n_train].values)
+test_features = nd.array(all_features[n_train:].values)
+train_labels = nd.array(train_data.SalePrice.values).reshape((-1, 1))
 ```
 
-## 导入NDArray格式数据
+## 模型训练
 
-为了便于和``Gluon``交互，我们将数据以NDArray的格式导入。
-
-```{.python .input  n=10}
-train_features = nd.array(train_features)
-train_labels = nd.array(train_labels)
-train_labels.reshape((n_train, 1))
-test_features = nd.array(test_features)
-```
-
-我们使用平方损失函数训练模型，并定义比赛用来评价模型的函数。
-
-```{.python .input  n=11}
-loss = gloss.L2Loss()
-def get_rmse_log(net, train_features, train_labels):
-    clipped_preds = nd.clip(net(train_features), 1, float('inf'))
-    return nd.sqrt(2 * loss(clipped_preds.log(),
-                            train_labels.log()).mean()).asnumpy()
-```
-
-## 定义模型
-
-我们将模型的定义放在一个函数里供多次调用。在此我们使用一个基本的线性回归模型，并对模型参数做Xavier随机初始化。
+我们使用一个基本的线性回归模型和平方损失函数来训练模型。
 
 ```{.python .input  n=13}
+loss = gloss.L2Loss()
+
 def get_net():
     net = nn.Sequential()
     net.add(nn.Dense(1))
-    net.initialize(init=init.Xavier())
+    net.initialize()
     return net
 ```
 
-## 定义训练函数
+下面定义比赛用来评价模型的对数均方根误差。给定预测值$\hat y_1, \ldots, \hat y_n$和对应的真实标签$y_1,\ldots, y_n$，它的定义为
 
-下面定义模型的训练函数。和本章中前几节不同，这里使用了Adam优化算法。我们将在之后的“优化算法”一章里详细介绍它。
+$$\left[\frac{1}{n}\sum_{i=1}^n\left(\log(y_i)-\log(\hat y_i)\right)^2\right]^{\frac{1}{2}}.$$
+
+```{.python .input  n=11}
+def log_rmse(net, train_features, train_labels):
+    # 将小于 1 的预测值设成 1，使得取对数时数值更稳定。
+    clipped_preds = nd.clip(net(train_features), 1, float('inf'))
+    rmse = nd.sqrt(2 * loss(clipped_preds.log(), train_labels.log()).mean())
+    return rmse.asscalar()
+```
+
+下面的训练函数跟本章中前几节的不同在于使用了Adam优化算法，相对之前使用的SGD，它对学习率相对不那么敏感。我们将在之后的“优化算法”一章里详细介绍它。
 
 ```{.python .input  n=14}
 def train(net, train_features, train_labels, test_features, test_labels,
-          num_epochs, verbose_epoch, learning_rate, weight_decay, batch_size):
-    train_ls = []
-    if test_features is not None:
-        test_ls = []
+          num_epochs, learning_rate, weight_decay, batch_size):
+    train_ls, test_ls = [], []
     train_iter = gdata.DataLoader(gdata.ArrayDataset(
         train_features, train_labels), batch_size, shuffle=True)
     # 这里使用了 Adam 优化算法。
     trainer = gluon.Trainer(net.collect_params(), 'adam', {
         'learning_rate': learning_rate, 'wd': weight_decay})
-    net.initialize(init=init.Xavier(), force_reinit=True)
-    for epoch in range(1, num_epochs + 1):
+    for epoch in range(num_epochs):
         for X, y in train_iter:
             with autograd.record():
                 l = loss(net(X), y)
             l.backward()
             trainer.step(batch_size)
-            cur_train_l = get_rmse_log(net, train_features, train_labels)
-        if epoch >= verbose_epoch:
-            print('epoch %d, train loss: %f' % (epoch, cur_train_l))
-        train_ls.append(cur_train_l)
-        if test_features is not None:
-            cur_test_l = get_rmse_log(net, test_features, test_labels)
-            test_ls.append(cur_test_l)
-    if test_features is not None:
-        gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'loss',
-                    range(1, num_epochs+1), test_ls, ['train', 'test'])
-    else:
-        gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'loss')
-    if test_features is not None:
-        return cur_train_l, cur_test_l
-    else:
-        return cur_train_l
+        train_ls.append(log_rmse(net, train_features, train_labels))
+        if test_labels is not None:
+            test_ls.append(log_rmse(net, test_features, test_labels))                
+    return train_ls, test_ls
 ```
 
-## 定义$K$折交叉验证
+## $K$折交叉验证
 
-我们在[“欠拟合、过拟合和模型选择”](underfit-overfit.md)一节中介绍了$K$折交叉验证。下面，我们将定义$K$折交叉验证函数，并根据$K$折交叉验证的结果选择模型设计并调参。
+我们在[“欠拟合、过拟合和模型选择”](underfit-overfit.md)一节中介绍了$K$折交叉验证。我们将使用它来选择模型设计并调参。首先实现一个函数它能返回第$i$折交叉验证时需要的训练和验证数据。
+
+```{.python .input}
+def get_k_fold_data(k, i, X, y):
+    assert k > 1
+    fold_size = X.shape[0] // k
+    X_train, y_train = None, None
+    for j in range(k):
+        idx = slice(j * fold_size, (j + 1) * fold_size)
+        X_part, y_part = X[idx, :], y[idx]        
+        if j == i:
+            X_test, y_test = X_part, y_part
+        elif X_train is None:
+            X_train, y_train = X_part, y_part
+        else:
+            X_train = nd.concat(X_train, X_part, dim=0)
+            y_train = nd.concat(y_train, y_part, dim=0)
+    return X_train, y_train, X_test, y_test
+```
+
+在$K$折交叉验证中我们训练$K$次并返回平均训练和测试误差。
 
 ```{.python .input  n=15}
-def k_fold_cross_valid(k, epochs, verbose_epoch, X_train, y_train,
-                       learning_rate, weight_decay, batch_size):
-    assert k > 1
-    fold_size = X_train.shape[0] // k
-    train_l_sum = 0.0
-    test_l_sum = 0.0
-    for test_i in range(k):
-        X_val_test = X_train[test_i * fold_size: (test_i + 1) * fold_size, :]
-        y_val_test = y_train[test_i * fold_size: (test_i + 1) * fold_size]
-        val_train_defined = False
-        for i in range(k):
-            if i != test_i:
-                X_cur_fold = X_train[i * fold_size: (i + 1) * fold_size, :]
-                y_cur_fold = y_train[i * fold_size: (i + 1) * fold_size]
-                if not val_train_defined:
-                    X_val_train = X_cur_fold
-                    y_val_train = y_cur_fold
-                    val_train_defined = True
-                else:
-                    X_val_train = nd.concat(X_val_train, X_cur_fold, dim=0)
-                    y_val_train = nd.concat(y_val_train, y_cur_fold, dim=0)
+def k_fold(k, X_train, y_train, num_epochs, 
+           learning_rate, weight_decay, batch_size):
+    train_l_sum, test_l_sum = 0, 0
+    for i in range(k):
+        data = get_k_fold_data(k, i, X_train, y_train)
         net = get_net()
-        train_l, test_l = train(
-            net, X_val_train, y_val_train, X_val_test, y_val_test,
-            epochs, verbose_epoch, learning_rate, weight_decay, batch_size)
-        train_l_sum += train_l
-        print('test loss: %f' % test_l)
-        test_l_sum += test_l
+        train_ls, test_ls = train(net, *data, num_epochs, learning_rate, 
+                                  weight_decay, batch_size)
+        train_l_sum += train_ls[-1]        
+        test_l_sum += test_ls[-1]
+        if i == 0:
+            gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'log rmse',
+                        range(1, num_epochs+1), test_ls, ['train', 'test'])
+        print('fold %d, train loss: %f, test loss: %f' % (
+            i, train_ls[-1], test_ls[-1]))
     return train_l_sum / k, test_l_sum / k
 ```
 
-## 交叉验证模型
+## 模型选择
 
-现在，我们可以交叉验证模型了。以下的超参数都是可以调节的。
+我们使用一组简单的超参数并计算交叉验证误差。你可以改动这些超参数来尽可能减小平均测试误差。
 
 ```{.python .input  n=16}
 k = 5
@@ -242,26 +203,25 @@ lr = 5
 weight_decay = 0
 batch_size = 64
 
-train_l, test_l = k_fold_cross_valid(k, num_epochs, verbose_epoch,
-                                     train_features, train_labels, lr,
-                                     weight_decay, batch_size)
+train_l, test_l = k_fold(k, train_features, train_labels, 
+                         num_epochs, lr, weight_decay, batch_size)
 print('%d-fold validation: avg train loss: %f, avg test loss: %f'
       % (k, train_l, test_l))
 ```
 
-在设定了一组参数后，即便训练误差可以达到很低，但是在$K$折交叉验证上的误差可能反而较高。这种现象这很可能是由于过拟合造成的。因此，当训练误差特别低时，我们要观察$K$折交叉验证上的误差是否同时降低，以避免模型的过拟合。
-
+有时候你会发现一组参数的训练误差可以达到很低，但是在$K$折交叉验证上的误差可能反而较高。这种现象这很可能是由于过拟合造成的。因此，当训练误差特别低时，我们要观察$K$折交叉验证上的误差是否同时降低，以避免模型的过拟合。
 
 ## 预测并在Kaggle提交结果
 
-我们首先定义预测函数。在预测之前，我们会使用完整的训练数据集来重新训练模型。
+我们首先定义预测函数。在预测之前，我们会使用完整的训练数据集来重新训练模型，并将预测结果存成提交需要的格式。
 
 ```{.python .input  n=18}
-def train_and_pred(num_epochs, verbose_epoch, train_features, test_feature,
-                   train_labels, test_data, lr, weight_decay, batch_size):
+def train_and_pred(train_features, test_feature, train_labels, test_data, 
+                   num_epochs, lr, weight_decay, batch_size):
     net = get_net()
-    train(net, train_features, train_labels, None, None, num_epochs,
-          verbose_epoch, lr, weight_decay, batch_size)
+    train_ls, _ = train(net, train_features, train_labels, None, None, 
+                        num_epochs, lr, weight_decay, batch_size)
+    gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'log rmse')
     preds = net(test_features).asnumpy()
     test_data['SalePrice'] = pd.Series(preds.reshape(1, -1)[0])
     submission = pd.concat([test_data['Id'], test_data['SalePrice']], axis=1)
@@ -271,11 +231,11 @@ def train_and_pred(num_epochs, verbose_epoch, train_features, test_feature,
 设计好模型并调好超参数之后，下一步就是对测试数据集上的房屋样本做价格预测，并在Kaggle上提交结果。
 
 ```{.python .input  n=19}
-train_and_pred(num_epochs, verbose_epoch, train_features, test_features,
-               train_labels, test_data, lr, weight_decay, batch_size)
+train_and_pred(train_features, test_features, train_labels, test_data, 
+               num_epochs, lr, weight_decay, batch_size)
 ```
 
-上述代码执行完之后会生成一个“submission.csv”文件。这个文件是符合Kaggle比赛要求的提交格式的。这时，我们可以在Kaggle上把我们预测得出的结果进行提交，并且查看与测试数据集上真实房价（标签）的误差。具体来说有以下几个步骤：你需要登录Kaggle网站，访问房价预测比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮。然后，点击页面下方“Upload Submission File”选择需要提交的预测结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。如图3.10所示。
+上述代码执行完之后会生成一个“submission.csv”文件。这个文件是符合Kaggle比赛要求的提交格式的。这时，我们可以在Kaggle上把我们预测得出的结果进行提交，并且查看与测试数据集上真实房价（标签）的误差。具体来说有以下几个步骤：你需要登录Kaggle网站，访问房价预测比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮。然后，点击页面下方“Upload Submission File”选择需要提交的预测结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。如图3.11所示。
 
 ![Kaggle预测房价比赛的预测结果提交页面。](../img/kaggle_submit2.png)
 
@@ -292,7 +252,6 @@ train_and_pred(num_epochs, verbose_epoch, train_features, test_features,
 * 对照$K$折交叉验证结果，不断修改模型（例如添加隐藏层）和调参，你能提高Kaggle上的分数吗？
 * 如果不使用本节中对连续数值特征的标准化处理，结果会有什么变化?
 * 扫码直达讨论区，在社区交流方法和结果。你能发掘出其他更好的技巧吗？
-
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1039)
 
