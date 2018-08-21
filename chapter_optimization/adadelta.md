@@ -24,23 +24,6 @@ $$\Delta\boldsymbol{x} \leftarrow \rho \Delta\boldsymbol{x} + (1 - \rho) \boldsy
 
 $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \boldsymbol{g}'. $$
 
-
-## Adadelta的实现
-
-Adadelta的实现很简单。我们只需要把上面的数学公式翻译成代码。
-
-```{.python .input}
-def adadelta(params, sqrs, deltas, rho, batch_size):
-    eps_stable = 1e-5
-    for param, sqr, delta in zip(params, sqrs, deltas):
-        g = param.grad / batch_size
-        sqr[:] = rho * sqr + (1 - rho) * g.square()
-        cur_delta = ((delta + eps_stable).sqrt()
-                     / (sqr + eps_stable).sqrt() * g)
-        delta[:] = rho * delta + (1 - rho) * cur_delta * cur_delta
-        param[:] -= cur_delta
-```
-
 ## 实验
 
 首先，导入本节中实验所需的包或模块。
@@ -51,7 +34,8 @@ sys.path.insert(0, '..')
 
 %matplotlib inline
 import gluonbook as gb
-from mxnet import autograd, nd
+from mxnet import autograd, gluon, init, nd
+from mxnet.gluon import nn
 import numpy as np
 ```
 
@@ -61,13 +45,7 @@ import numpy as np
 
 ```{.python .input  n=1}
 # 生成数据集。
-num_inputs = 2
-num_examples = 1000
-true_w = [2, -3.4]
-true_b = 4.2
-features = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
-labels = true_w[0] * features[:, 0] + true_w[1] * features[:, 1] + true_b
-labels += nd.random.normal(scale=0.01, shape=labels.shape)
+num_inputs, num_examples, true_w, true_b, features, labels = gb.get_data_ch7()
 
 # 初始化模型参数。
 def init_params():
@@ -82,6 +60,20 @@ def init_params():
         sqrs.append(param.zeros_like())
         deltas.append(param.zeros_like())
     return params, sqrs, deltas
+```
+
+接下来基于NDArray实现Adadelta算法。
+
+```{.python .input}
+def adadelta(params, sqrs, deltas, rho, batch_size):
+    eps_stable = 1e-5
+    for param, sqr, delta in zip(params, sqrs, deltas):
+        g = param.grad / batch_size
+        sqr[:] = rho * sqr + (1 - rho) * g.square()
+        cur_delta = ((delta + eps_stable).sqrt()
+                     / (sqr + eps_stable).sqrt() * g)
+        delta[:] = rho * delta + (1 - rho) * cur_delta * cur_delta
+        param[:] -= cur_delta
 ```
 
 优化函数`optimize`与[“Adagrad”](adagrad.md)一节中的类似。
@@ -114,15 +106,31 @@ def optimize(batch_size, rho, num_epochs, log_interval):
 optimize(batch_size=10, rho=0.9999, num_epochs=3, log_interval=10)
 ```
 
+## 使用Gluon的实现
+
+下面我们展示如何使用Gluon实验Adadelta算法。我们可以在Trainer中定义优化算法名称`adadelta`并定义$\rho$超参数`rho`。以下实验重现了本节中使用NDArray实现Adadelta的实验结果。该结果有一定的随机性。
+
+```{.python .input}
+net = nn.Sequential()
+net.add(nn.Dense(1))
+
+net.initialize(init.Normal(sigma=0.01), force_reinit=True)
+trainer = gluon.Trainer(net.collect_params(), 'adadelta', {'rho': 0.9999})
+gb.optimize_with_trainer(batch_size=10, trainer=trainer, num_epochs=3,
+                         decay_epoch=None, log_interval=10, features=features,
+                         labels=labels, net=net)
+```
+
 ## 小结
 
 * Adadelta没有学习率参数。
+* 使用Gluon的`Trainer`可以方便地使用Adadelta。
 
 
 ## 练习
 
 * Adadelta为什么不需要设置学习率超参数？它被什么代替了？
-
+* 如果把试验中的参数$\rho$改小会怎样？观察并分析实验结果。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2277)
 

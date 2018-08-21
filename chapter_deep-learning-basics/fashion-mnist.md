@@ -78,7 +78,7 @@ X, y = mnist_train[0:9]
 show_fashion_mnist(X, get_fashion_mnist_labels(y))
 ```
 
-这里`get_fashion_mnist_labels`和`show_fashion_mnist`均将保存在`gluonbook`里方面后面再次调用。
+这里的`get_fashion_mnist_labels`和`show_fashion_mnist`函数均将保存在`gluonbook`里方面后面再次调用。
 
 ## 小批量读取
 

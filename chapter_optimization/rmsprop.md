@@ -25,20 +25,6 @@ $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \boldsymbol{g}'. $$
 
 需要强调的是，RMSProp只在Adagrad的基础上修改了变量$\boldsymbol{s}$的更新方法：对平方项$\boldsymbol{g} \odot \boldsymbol{g}$从累加变成了指数加权移动平均。由于变量$\boldsymbol{s}$可看作是最近$1/(1-\gamma)$个时刻的平方项$\boldsymbol{g} \odot \boldsymbol{g}$的加权平均，自变量每个元素的学习率在迭代过程中避免了“直降不升”的问题。
 
-
-## RMSProp的实现
-
-RMSProp的实现很简单。我们只需要把上面的数学公式翻译成代码。
-
-```{.python .input}
-def rmsprop(params, sqrs, lr, gamma, batch_size):
-    eps_stable = 1e-8
-    for param, sqr in zip(params, sqrs):
-        g = param.grad / batch_size
-        sqr[:] = gamma * sqr + (1 - gamma) * g.square()
-        param[:] -= lr * g / (sqr + eps_stable).sqrt()
-```
-
 ## 实验
 
 首先，导入本节中实验所需的包或模块。
@@ -49,7 +35,8 @@ sys.path.insert(0, '..')
 
 %matplotlib inline
 import gluonbook as gb
-from mxnet import autograd, nd
+from mxnet import autograd, gluon, init, nd
+from mxnet.gluon import nn
 import numpy as np
 ```
 
@@ -59,13 +46,7 @@ import numpy as np
 
 ```{.python .input  n=1}
 # 生成数据集。
-num_inputs = 2
-num_examples = 1000
-true_w = [2, -3.4]
-true_b = 4.2
-features = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
-labels = true_w[0] * features[:, 0] + true_w[1] * features[:, 1] + true_b
-labels += nd.random.normal(scale=0.01, shape=labels.shape)
+num_inputs, num_examples, true_w, true_b, features, labels = gb.get_data_ch7()
 
 # 初始化模型参数。
 def init_params():
@@ -78,6 +59,17 @@ def init_params():
         # 把梯度按元素平方的指数加权移动平均变量初始化为和参数形状相同的零张量。
         sqrs.append(param.zeros_like())
     return params, sqrs
+```
+
+接下来基于NDArray实现RMSProp算法。
+
+```{.python .input}
+def rmsprop(params, sqrs, lr, gamma, batch_size):
+    eps_stable = 1e-8
+    for param, sqr in zip(params, sqrs):
+        g = param.grad / batch_size
+        sqr[:] = gamma * sqr + (1 - gamma) * g.square()
+        param[:] -= lr * g / (sqr + eps_stable).sqrt()
 ```
 
 优化函数`optimize`与[“Adagrad”](adagrad.md)一节中的类似。
@@ -116,15 +108,42 @@ optimize(batch_size=10, lr=0.03, gamma=0.9, num_epochs=3, log_interval=10)
 optimize(batch_size=10, lr=0.03, gamma=0.999, num_epochs=3, log_interval=10)
 ```
 
+## 使用Gluon的实现
+
+下面我们展示如何使用Gluon实验RMSProp算法。我们可以在Trainer中定义优化算法名称`rmsprop`并定义$\gamma$超参数`gamma1`。以下几组实验分别重现了本节中使用NDArray实现RMSProp的实验结果。这些结果有一定的随机性。
+
+```{.python .input}
+net = nn.Sequential()
+net.add(nn.Dense(1))
+
+net.initialize(init.Normal(sigma=0.01), force_reinit=True)
+trainer = gluon.Trainer(net.collect_params(), 'rmsprop',
+                        {'learning_rate': 0.03, 'gamma1': 0.9})
+gb.optimize_with_trainer(batch_size=10, trainer=trainer, num_epochs=3,
+                         decay_epoch=None, log_interval=10, features=features,
+                         labels=labels, net=net)
+```
+
+```{.python .input}
+net.initialize(init.Normal(sigma=0.01), force_reinit=True)
+trainer = gluon.Trainer(net.collect_params(), 'rmsprop',
+                        {'learning_rate': 0.03, 'gamma1': 0.999})
+gb.optimize_with_trainer(batch_size=10, trainer=trainer, num_epochs=3,
+                         decay_epoch=None, log_interval=10, features=features,
+                         labels=labels, net=net)
+```
+
 ## 小结
 
 * RMSProp和Adagrad的不同在于，RMSProp使用了小批量随机梯度按元素平方的指数加权移动平均变量来调整学习率。
 * 理解指数加权移动平均有助于我们调节RMSProp算法中的超参数，例如$\gamma$。
+* 使用Gluon的`Trainer`可以方便地使用RMSProp。
 
 
 ## 练习
 
 * 把$\gamma$的值设为0或1，观察并分析实验结果。
+* 试着使用其他的初始学习率和$\gamma$超参数的组合，观察并分析实验结果。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2275)
 

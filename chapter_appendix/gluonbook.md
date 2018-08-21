@@ -14,12 +14,14 @@
 | `download_imdb`|[文本情感分类：使用循环神经网络](../chapter_natural-language-processing/sentiment-analysis.md)|
 | `download_voc_pascal`|[语义分割和数据集](../chapter_computer-vision/semantic-segmentation-and-dataset.md)|
 | `evaluate_accuracy`|[图片增广](../chapter_computer-vision/image-augmentation.md)|
+| `get_data_ch7`|[梯度下降和随机梯度下降](../chapter_optimization/gd-sgd.md)|
+| `get_fashion_mnist_labels`|[图片分类数据集（Fashion-MNIST）](../chapter_deep-learning-basics/fashion-mnist.md)|
 | `get_tokenized_imdb`|[文本情感分类：使用循环神经网络](../chapter_natural-language-processing/sentiment-analysis.md)|
 | `grad_clipping`|[循环神经网络](../chapter_recurrent-neural-networks/rnn.md)|
 | `linreg`|[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)|
 | `load_data_fashion_mnist`|[深度卷积神经网络（AlexNet）](../chapter_convolutional-neural-networks/alexnet.md)|
 | `load_data_pikachu`|[物体检测数据集](../chapter_computer-vision/object-detection-dataset.md)|
-| `optimize`|[梯度下降和随机梯度下降的Gluon实现](../chapter_optimization/gd-sgd-gluon.md)|
+| `optimize_with_trainer`|[梯度下降和随机梯度下降](../chapter_optimization/gd-sgd.md)|
 | `plt`|[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)|
 | `predict_rnn`|[循环神经网络](../chapter_recurrent-neural-networks/rnn.md)|
 | `predict_sentiment`|[文本情感分类：使用循环神经网络](../chapter_natural-language-processing/sentiment-analysis.md)|

@@ -14,7 +14,8 @@ sys.path.insert(0, '..')
 
 %matplotlib inline
 import gluonbook as gb
-from mxnet import autograd, nd
+from mxnet import autograd, gluon, init, nd
+from mxnet.gluon import nn
 import numpy as np
 ```
 
@@ -146,13 +147,7 @@ $$\boldsymbol{v} \leftarrow \gamma \boldsymbol{v} + (1 - \gamma) \frac{\eta \nab
 
 ```{.python .input  n=7}
 # 生成数据集。
-num_inputs = 2
-num_examples = 1000
-true_w = [2, -3.4]
-true_b = 4.2
-features = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
-labels = true_w[0] * features[:, 0] + true_w[1] * features[:, 1] + true_b
-labels += nd.random.normal(scale=0.01, shape=labels.shape)
+num_inputs, num_examples, true_w, true_b, features, labels = gb.get_data_ch7()
 
 # 初始化模型参数。
 def init_params():
@@ -221,14 +216,50 @@ optimize(batch_size=10, lr=0.2, mom=0.9, num_epochs=3, log_interval=10)
 optimize(batch_size=10, lr=0.2, mom=0.5, num_epochs=3, log_interval=10)
 ```
 
+## 使用Gluon的实现
+
+下面我们展示如何使用Gluon实验动量法。我们可以在`Trainer`中定义动量超参数`momentum`来使用动量法。以下几组实验分别重现了本节中使用NDArray实现动量法的实验结果。这些结果有一定的随机性。
+
+```{.python .input}
+net = nn.Sequential()
+net.add(nn.Dense(1))
+
+net.initialize(init.Normal(sigma=0.01), force_reinit=True)
+trainer = gluon.Trainer(net.collect_params(), 'sgd',
+                        {'learning_rate': 0.2, 'momentum': 0.99})
+gb.optimize_with_trainer(batch_size=10, trainer=trainer, num_epochs=3,
+                         decay_epoch=2, log_interval=10, features=features,
+                         labels=labels, net=net)
+```
+
+```{.python .input}
+net.initialize(init.Normal(sigma=0.01), force_reinit=True)
+trainer = gluon.Trainer(net.collect_params(), 'sgd',
+                        {'learning_rate': 0.2, 'momentum': 0.9})
+gb.optimize_with_trainer(batch_size=10, trainer=trainer, num_epochs=3,
+                         decay_epoch=2, log_interval=10, features=features,
+                         labels=labels, net=net)
+```
+
+```{.python .input}
+net.initialize(init.Normal(sigma=0.01), force_reinit=True)
+trainer = gluon.Trainer(net.collect_params(), 'sgd',
+                        {'learning_rate': 0.2, 'momentum': 0.5})
+gb.optimize_with_trainer(batch_size=10, trainer=trainer, num_epochs=3,
+                         decay_epoch=2, log_interval=10, features=features,
+                         labels=labels, net=net)
+```
+
 ## 小结
 
 * 动量法使用了指数加权移动平均的思想。
+* 使用Gluon的`Trainer`可以方便地使用动量法。
 
 
 ## 练习
 
 * 使用其他动量超参数和学习率的组合，观察实验结果。
+* 如果想用本节中Gluon实现动量法的代码重现小批量随机梯度下降，应该把动量参数改为多少？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1879)
