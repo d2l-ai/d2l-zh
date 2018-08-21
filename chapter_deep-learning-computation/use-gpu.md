@@ -17,7 +17,7 @@ import mxnet as mx
 from mxnet import nd
 from mxnet.gluon import nn
 
-[mx.cpu(), mx.gpu(), mx.gpu(1)]
+mx.cpu(), mx.gpu(), mx.gpu(1)
 ```
 
 ## NDArray的GPU计算
