@@ -254,9 +254,41 @@ def _make_list(obj, default_values=None):
     return obj
 
 
+def optimize(optimizer_fn, batch_size, num_epochs, log_interval,
+             params_vars, hyperparams, features, labels, decay_epoch=None,
+             is_adam=False):
+    """Optimize an objective function."""
+    dataset = gdata.ArrayDataset(features, labels)
+    data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
+    w, b = params_vars[0]
+    net = linreg
+    loss = squared_loss                                                                                                 
+    ls = [loss(net(features, w, b), labels).mean().asnumpy()]
+    if is_adam:
+        t = 0 
+    for epoch in range(1, num_epochs + 1): 
+        if decay_epoch and decay_epoch and epoch > decay_epoch:
+            hyperparams['lr'] *= 0.1 
+        for batch_i, (X, y) in enumerate(data_iter):
+            with autograd.record():
+                l = loss(net(X, w, b), y)
+            l.backward()
+            if is_adam:
+                t += 1
+                optimizer_fn(params_vars, hyperparams, batch_size, t)
+            else:
+                optimizer_fn(params_vars, hyperparams, batch_size)
+            if batch_i * batch_size % log_interval == 0:
+                ls.append(loss(net(features, w, b), labels).mean().asnumpy())
+    print('w[0]=%.2f, w[1]=%.2f, b=%.2f' 
+          % (w[0].asscalar(), w[1].asscalar(), b.asscalar()))
+    es = np.linspace(0, num_epochs, len(ls), endpoint=True)
+    semilogy(es, ls, 'epoch', 'loss') 
+
+
 def optimize_with_trainer(batch_size, trainer, num_epochs, decay_epoch,
                           log_interval, features, labels, net):
-    """Optimize an objective function."""
+    """Optimize an objective function with a Gluon trainer."""
     dataset = gdata.ArrayDataset(features, labels)
     data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
     loss = gloss.L2Loss()

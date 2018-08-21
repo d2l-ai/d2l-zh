@@ -170,43 +170,58 @@ def get_data_ch7():
 num_inputs, num_examples, true_w, true_b, features, labels = get_data_ch7()
 
 # 初始化模型参数。
-def init_params():
+def init_params_vars():
     w = nd.random.normal(scale=0.01, shape=(num_inputs, 1))
     b = nd.zeros(shape=(1,))
     params = [w, b]
     for param in params:
         param.attach_grad()
-    return params
+    return [params]
 ```
 
 小批量随机梯度下降算法同样在[“线性回归的从零开始实现”](../chapter_deep-learning-basics/linear-regression-scratch.md)一节中实现过。为了阅读方便，在这里我们重复实现一次。
 
 ```{.python .input  n=8}
-def sgd(params, lr, batch_size):
-    for param in params:
+def sgd(params_vars, hyperparams, batch_size):
+    lr = hyperparams['lr']
+    [w, b] = params_vars[0]
+    for param in [w, b]:
         param[:] = param - lr * param.grad / batch_size
 ```
 
 由于随机梯度的方差在迭代过程中无法减小，（小批量）随机梯度下降的学习率通常会采用自我衰减的方式。如此一来，学习率和随机梯度乘积的方差会衰减。实验中，当迭代周期（`epoch`）大于2时，（小批量）随机梯度下降的学习率在每个迭代周期开始时自乘0.1作自我衰减。而梯度下降在迭代过程中一直使用目标函数的真实梯度，无需自我衰减学习率。在迭代过程中，每当`log_interval`个样本被采样过后，模型当前的损失函数值（`loss`）被记录下并用于作图。例如，当`batch_size`和`log_interval`都为10时，每次迭代后的损失函数值都被用来作图。
 
 ```{.python .input  n=9}
-def optimize(batch_size, lr, num_epochs, log_interval, decay_epoch):
-    w, b = init_params()
+def optimize(optimizer_fn, batch_size, num_epochs, log_interval,
+             params_vars, hyperparams, features, labels, decay_epoch=None,
+             is_adam=False):
+    dataset = gdata.ArrayDataset(features, labels)
+    data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
+    w, b = params_vars[0]
+    net = gb.linreg
+    loss = gb.squared_loss                                                                                                 
     ls = [loss(net(features, w, b), labels).mean().asnumpy()]
+    # 当优化算法为 Adam 时才会用到（后面章节会介绍），本节可以忽略。
+    if is_adam:
+        t = 0 
     for epoch in range(1, num_epochs + 1):
         # 学习率自我衰减。
-        if decay_epoch and epoch > decay_epoch:
-            lr *= 0.1
-        for batch_i, (X, y) in enumerate(gb.data_iter(batch_size, features,
-                                                      labels)):
+        if decay_epoch and decay_epoch and epoch > decay_epoch:
+            hyperparams['lr'] *= 0.1 
+        for batch_i, (X, y) in enumerate(data_iter):
             with autograd.record():
                 l = loss(net(X, w, b), y)
-            # 先对 l 中元素求和，得到小批量损失之和，然后求参数的梯度。
+            # 先对变量 l 中元素求和，得到小批量损失之和，然后求参数的梯度。
             l.backward()
-            sgd([w, b], lr, batch_size)
+            # 当优化算法为 Adam 时才会用到（后面章节会介绍），本节可以忽略。
+            if is_adam:
+                t += 1
+                optimizer_fn(params_vars, hyperparams, batch_size, t)
+            else:
+                optimizer_fn(params_vars, hyperparams, batch_size)
             if batch_i * batch_size % log_interval == 0:
                 ls.append(loss(net(features, w, b), labels).mean().asnumpy())
-    print('w[0]=%.2f, w[1]=%.2f, b=%.2f' 
+    print('w[0]=%.2f, w[1]=%.2f, b=%.2f'
           % (w[0].asscalar(), w[1].asscalar(), b.asscalar()))
     es = np.linspace(0, num_epochs, len(ls), endpoint=True)
     gb.semilogy(es, ls, 'epoch', 'loss')
@@ -215,34 +230,42 @@ def optimize(batch_size, lr, num_epochs, log_interval, decay_epoch):
 当批量大小为1时，优化使用的是随机梯度下降。在当前学习率下，损失函数值在早期快速下降后略有波动。这是由于随机梯度的方差在迭代过程中无法减小。当迭代周期大于2，学习率自我衰减后，损失函数值下降后较平稳。最终，优化所得的模型参数值`w`和`b`与它们的真实值[2, -3.4]和4.2较接近。
 
 ```{.python .input  n=10}
-optimize(batch_size=1, lr=0.2, num_epochs=3, decay_epoch=2, log_interval=10)
+optimize(optimizer_fn=sgd, batch_size=1, num_epochs=3, log_interval=10,
+         params_vars=init_params_vars(), hyperparams={'lr': 0.2},
+         features=features, labels=labels, decay_epoch=2)
 ```
 
 当批量大小为1000时，由于数据样本总数也是1000，优化使用的是梯度下降。梯度下降无需自我衰减学习率（`decay_epoch=None`）。最终，优化所得的模型参数值与它们的真实值较接近。需要注意的是，梯度下降的1个迭代周期对模型参数只迭代1次。而随机梯度下降的批量大小为1，它在1个迭代周期对模型参数迭代了1000次。我们观察到，1个迭代周期后，梯度下降所得的损失函数值比随机梯度下降所得的损失函数值略大。而在3个迭代周期后，梯度下降和随机梯度下降得到的损失函数值较接近。
 
 ```{.python .input  n=11}
-optimize(batch_size=1000, lr=0.999, num_epochs=3, decay_epoch=None, 
-         log_interval=1000)
+optimize(optimizer_fn=sgd, batch_size=1000, num_epochs=3, log_interval=1000,
+         params_vars=init_params_vars(), hyperparams={'lr': 0.999},
+         features=features, labels=labels, decay_epoch=None)
 ```
 
 当批量大小为10时，由于数据样本总数也是1000，优化使用的是小批量随机梯度下降。最终，优化所得的模型参数值与它们的真实值较接近。
 
 ```{.python .input  n=12}
-optimize(batch_size=10, lr=0.2, num_epochs=3, decay_epoch=2, log_interval=10)
+optimize(optimizer_fn=sgd, batch_size=10, num_epochs=3, log_interval=10,
+         params_vars=init_params_vars(), hyperparams={'lr': 0.2},
+         features=features, labels=labels, decay_epoch=2)
 ```
 
 同样是批量大小为10，我们把学习率改大。这时损失函数值不断增大，直到出现“nan”（not a number，非数）。
 这是因为，过大的学习率造成了模型参数越过最优解并发散。最终学到的模型参数也是“nan”。
 
 ```{.python .input  n=13}
-optimize(batch_size=10, lr=5, num_epochs=3, decay_epoch=2, log_interval=10)
+optimize(optimizer_fn=sgd, batch_size=10, num_epochs=3, log_interval=10,
+         params_vars=init_params_vars(), hyperparams={'lr': 5},
+         features=features, labels=labels, decay_epoch=2)
 ```
 
 同样是批量大小为10，我们把学习率改小。这时我们观察到损失函数值下降较慢，直到3个迭代周期模型参数也没能接近它们的真实值。
 
 ```{.python .input  n=14}
-optimize(batch_size=10, lr=0.002, num_epochs=3, decay_epoch=2,
-         log_interval=10)
+optimize(optimizer_fn=sgd, batch_size=10, num_epochs=3, log_interval=10,
+         params_vars=init_params_vars(), hyperparams={'lr': 0.002},
+         features=features, labels=labels, decay_epoch=2)
 ```
 
 ## 使用Gluon的实现
@@ -306,7 +329,7 @@ optimize_with_trainer(batch_size=10, trainer=trainer, num_epochs=3,
                       labels=labels, net=net)
 ```
 
-本节使用的`get_data_ch7`和`optimize_with_trainer`函数被定义在`gluonbook`包中供后面章节调用。
+本节使用的`get_data_ch7`、`optimize`和`optimize_with_trainer`函数被定义在`gluonbook`包中供后面章节调用。
 
 
 ## 小结

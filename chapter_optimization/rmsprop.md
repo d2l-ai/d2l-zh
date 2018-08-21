@@ -40,16 +40,14 @@ from mxnet.gluon import nn
 import numpy as np
 ```
 
-实验中，我们依然以线性回归为例。设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。该模型的平方损失函数即所需优化的目标函数，模型参数即目标函数自变量。
-
-我们把小批量随机梯度按元素平方的指数加权移动平均变量$\boldsymbol{s}$初始化为和模型参数形状相同的零张量。
+实验中，我们依然以线性回归为例。设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。该模型的平方损失函数即所需优化的目标函数，模型参数即目标函数自变量。我们把小批量随机梯度按元素平方的指数加权移动平均变量$\boldsymbol{s}$初始化为和模型参数形状相同的零张量。
 
 ```{.python .input  n=1}
 # 生成数据集。
 num_inputs, num_examples, true_w, true_b, features, labels = gb.get_data_ch7()
 
-# 初始化模型参数。
-def init_params():
+# 初始化模型参数和中间变量。
+def init_params_vars():
     w = nd.random.normal(scale=0.01, shape=(num_inputs, 1))
     b = nd.zeros(shape=(1,))
     params = [w, b]
@@ -58,54 +56,39 @@ def init_params():
         param.attach_grad()
         # 把梯度按元素平方的指数加权移动平均变量初始化为和参数形状相同的零张量。
         sqrs.append(param.zeros_like())
-    return params, sqrs
+    return [params, sqrs]
 ```
 
 接下来基于NDArray实现RMSProp算法。
 
 ```{.python .input}
-def rmsprop(params, sqrs, lr, gamma, batch_size):
+def rmsprop(params_vars, hyperparams, batch_size):
+    lr = hyperparams['lr']
+    gamma = hyperparams['gamma']
+    [w, b], sqrs = params_vars
     eps_stable = 1e-8
-    for param, sqr in zip(params, sqrs):
+    for param, sqr in zip([w, b], sqrs):
         g = param.grad / batch_size
         sqr[:] = gamma * sqr + (1 - gamma) * g.square()
         param[:] -= lr * g / (sqr + eps_stable).sqrt()
 ```
 
-优化函数`optimize`与[“Adagrad”](adagrad.md)一节中的类似。
-
-```{.python .input  n=2}
-net = gb.linreg
-loss = gb.squared_loss
-
-def optimize(batch_size, lr, gamma, num_epochs, log_interval):
-    [w, b], sqrs = init_params()
-    ls = [loss(net(features, w, b), labels).mean().asnumpy()]
-    for epoch in range(1, num_epochs + 1):
-        for batch_i, (X, y) in enumerate(gb.data_iter(batch_size, features,
-                                                      labels)):
-            with autograd.record():
-                l = loss(net(X, w, b), y)
-            l.backward()
-            rmsprop([w, b], sqrs, lr, gamma, batch_size)
-            if batch_i * batch_size % log_interval == 0:
-                ls.append(loss(net(features, w, b), labels).mean().asnumpy())
-    print('w[0]=%.2f, w[1]=%.2f, b=%.2f' 
-          % (w[0].asscalar(), w[1].asscalar(), b.asscalar()))
-    es = np.linspace(0, num_epochs, len(ls), endpoint=True)
-    gb.semilogy(es, ls, 'epoch', 'loss')
-```
-
 我们将初始学习率设为0.03，并将$\gamma$（`gamma`）设为0.9。此时，变量$\boldsymbol{s}$可看作是最近$1/(1-0.9) = 10$个时刻的平方项$\boldsymbol{g} \odot \boldsymbol{g}$的加权平均。我们观察到，损失函数在迭代后期较震荡。
 
 ```{.python .input  n=3}
-optimize(batch_size=10, lr=0.03, gamma=0.9, num_epochs=3, log_interval=10)
+gb.optimize(optimizer_fn=rmsprop, batch_size=10, num_epochs=3,
+            log_interval=10, params_vars=init_params_vars(),
+            hyperparams={'lr': 0.03, 'gamma': 0.9}, features=features,
+            labels=labels)
 ```
 
 我们将$\gamma$调大一点，例如0.999。此时，变量$\boldsymbol{s}$可看作是最近$1/(1-0.999) = 1000$个时刻的平方项$\boldsymbol{g} \odot \boldsymbol{g}$的加权平均。这时损失函数在迭代后期较平滑。
 
 ```{.python .input}
-optimize(batch_size=10, lr=0.03, gamma=0.999, num_epochs=3, log_interval=10)
+gb.optimize(optimizer_fn=rmsprop, batch_size=10, num_epochs=3,
+            log_interval=10, params_vars=init_params_vars(),
+            hyperparams={'lr': 0.03, 'gamma': 0.999}, features=features,
+            labels=labels)
 ```
 
 ## 使用Gluon的实现

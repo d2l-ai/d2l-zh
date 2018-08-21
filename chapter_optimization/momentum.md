@@ -143,14 +143,14 @@ $$\boldsymbol{v} \leftarrow \gamma \boldsymbol{v} + (1 - \gamma) \frac{\eta \nab
 
 ## 实验
 
-实验中，我们以之前介绍过的线性回归为例。设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。模型的平方损失函数即所需优化的目标函数，模型参数即目标函数自变量。
+实验中，我们以之前介绍过的线性回归为例。设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。模型的平方损失函数即所需优化的目标函数，模型参数即目标函数自变量。我们把速度项$\boldsymbol{v}$初始化为和参数形状相同的零张量。
 
 ```{.python .input  n=7}
 # 生成数据集。
 num_inputs, num_examples, true_w, true_b, features, labels = gb.get_data_ch7()
 
-# 初始化模型参数。
-def init_params():
+# 初始化模型参数和中间变量。
+def init_params_vars():
     w = nd.random.normal(scale=0.01, shape=(num_inputs, 1))
     b = nd.zeros(shape=(1,))
     params = [w, b]
@@ -159,61 +159,46 @@ def init_params():
         param.attach_grad()
         # 把速度项初始化为和参数形状相同的零张量。
         vs.append(param.zeros_like())
-    return params, vs
+    return [params, vs]
 ```
 
 动量法的实现也很简单。我们在小批量随机梯度下降的基础上添加速度变量。
 
 ```{.python .input  n=8}
-def sgd_momentum(params, vs, lr, mom, batch_size):
-    for param, v in zip(params, vs):
+def sgd_momentum(params_vars, hyperparams, batch_size):
+    lr = hyperparams['lr']
+    mom = hyperparams['mom']
+    [w, b], vs = params_vars
+    for param, v in zip([w, b], vs):
         v[:] = mom * v + lr * param.grad / batch_size
         param[:] -= v
-```
-
-优化函数`optimize`与[“梯度下降和随机梯度下降”](gd-sgd.md)一节中的类似。
-
-```{.python .input  n=9}
-net = gb.linreg
-loss = gb.squared_loss
-
-def optimize(batch_size, lr, mom, num_epochs, log_interval):
-    [w, b], vs = init_params()
-    ls = [loss(net(features, w, b), labels).mean().asnumpy()]
-    for epoch in range(1, num_epochs + 1):
-        # 学习率自我衰减。
-        if epoch > 2:
-            lr *= 0.1
-        for batch_i, (X, y) in enumerate(gb.data_iter(batch_size, features,
-                                                      labels)):
-            with autograd.record():
-                l = loss(net(X, w, b), y)
-            l.backward()
-            sgd_momentum([w, b], vs, lr, mom, batch_size)
-            if batch_i * batch_size % log_interval == 0:
-                ls.append(loss(net(features, w, b), labels).mean().asnumpy())
-    print('w[0]=%.2f, w[1]=%.2f, b=%.2f' 
-          % (w[0].asscalar(), w[1].asscalar(), b.asscalar()))
-    es = np.linspace(0, num_epochs, len(ls), endpoint=True)
-    gb.semilogy(es, ls, 'epoch', 'loss')
 ```
 
 我们先将动量超参数$\gamma$（`mom`）设0.99。此时，小梯度随机梯度下降可被看作使用了特殊梯度：这个特殊梯度是最近100个时刻的$100\nabla f_\mathcal{B}(\boldsymbol{x})$的加权平均。我们观察到，损失函数值在3个迭代周期后上升。这很可能是由于特殊梯度中较大的系数100造成的。
 
 ```{.python .input  n=10}
-optimize(batch_size=10, lr=0.2, mom=0.99, num_epochs=3, log_interval=10)
+gb.optimize(optimizer_fn=sgd_momentum, batch_size=10, num_epochs=3,
+            log_interval=10, params_vars=init_params_vars(),
+            hyperparams={'lr': 0.2, 'mom': 0.99}, features=features,
+            labels=labels, decay_epoch=2)
 ```
 
 假设学习率不变，为了降低上述特殊梯度中的系数，我们将动量超参数$\gamma$（`mom`）设0.9。此时，上述特殊梯度变成最近10个时刻的$10\nabla f_\mathcal{B}(\boldsymbol{x})$的加权平均。我们观察到，损失函数值在3个迭代周期后下降。
 
 ```{.python .input  n=11}
-optimize(batch_size=10, lr=0.2, mom=0.9, num_epochs=3, log_interval=10)
+gb.optimize(optimizer_fn=sgd_momentum, batch_size=10, num_epochs=3,
+            log_interval=10, params_vars=init_params_vars(),
+            hyperparams={'lr': 0.2, 'mom': 0.9}, features=features,
+            labels=labels, decay_epoch=2)
 ```
 
 继续保持学习率不变，我们将动量超参数$\gamma$（`mom`）设0.5。此时，小梯度随机梯度下降可被看作使用了新的特殊梯度：这个特殊梯度是最近2个时刻的$2\nabla f_\mathcal{B}(\boldsymbol{x})$的加权平均。我们观察到，损失函数值在3个迭代周期后下降，且下降曲线较平滑。最终，优化所得的模型参数值与它们的真实值较接近。
 
 ```{.python .input  n=12}
-optimize(batch_size=10, lr=0.2, mom=0.5, num_epochs=3, log_interval=10)
+gb.optimize(optimizer_fn=sgd_momentum, batch_size=10, num_epochs=3,
+            log_interval=10, params_vars=init_params_vars(),
+            hyperparams={'lr': 0.2, 'mom': 0.5}, features=features,
+            labels=labels, decay_epoch=2)
 ```
 
 ## 使用Gluon的实现

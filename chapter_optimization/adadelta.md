@@ -39,16 +39,14 @@ from mxnet.gluon import nn
 import numpy as np
 ```
 
-实验中，我们依然以线性回归为例。设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。该模型的平方损失函数即所需优化的目标函数，模型参数即目标函数自变量。
-
-我们把算法中变量$\boldsymbol{s}$和$\Delta\boldsymbol{x}$初始化为和模型参数形状相同的零张量。
+实验中，我们依然以线性回归为例。设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。该模型的平方损失函数即所需优化的目标函数，模型参数即目标函数自变量。我们把算法中变量$\boldsymbol{s}$和$\Delta\boldsymbol{x}$初始化为和模型参数形状相同的零张量。
 
 ```{.python .input  n=1}
 # 生成数据集。
 num_inputs, num_examples, true_w, true_b, features, labels = gb.get_data_ch7()
 
-# 初始化模型参数。
-def init_params():
+# 初始化模型参数和中间变量。
+def init_params_vars():
     w = nd.random.normal(scale=0.01, shape=(num_inputs, 1))
     b = nd.zeros(shape=(1,))
     params = [w, b]
@@ -59,15 +57,17 @@ def init_params():
         # 把算法中基于指数加权移动平均的变量初始化为和参数形状相同的零张量。
         sqrs.append(param.zeros_like())
         deltas.append(param.zeros_like())
-    return params, sqrs, deltas
+    return [params, sqrs, deltas]
 ```
 
 接下来基于NDArray实现Adadelta算法。
 
 ```{.python .input}
-def adadelta(params, sqrs, deltas, rho, batch_size):
+def adadelta(params_vars, hyperparams, batch_size):
+    rho = hyperparams['rho']
+    [w, b], sqrs, deltas = params_vars
     eps_stable = 1e-5
-    for param, sqr, delta in zip(params, sqrs, deltas):
+    for param, sqr, delta in zip([w, b], sqrs, deltas):
         g = param.grad / batch_size
         sqr[:] = rho * sqr + (1 - rho) * g.square()
         cur_delta = ((delta + eps_stable).sqrt()
@@ -76,34 +76,12 @@ def adadelta(params, sqrs, deltas, rho, batch_size):
         param[:] -= cur_delta
 ```
 
-优化函数`optimize`与[“Adagrad”](adagrad.md)一节中的类似。
-
-```{.python .input  n=2}
-net = gb.linreg
-loss = gb.squared_loss
-
-def optimize(batch_size, rho, num_epochs, log_interval):
-    [w, b], sqrs, deltas = init_params()
-    ls = [loss(net(features, w, b), labels).mean().asnumpy()]
-    for epoch in range(1, num_epochs + 1):
-        for batch_i, (X, y) in enumerate(gb.data_iter(batch_size, features,
-                                                      labels)):
-            with autograd.record():
-                l = loss(net(X, w, b), y)
-            l.backward()
-            adadelta([w, b], sqrs, deltas, rho, batch_size)
-            if batch_i * batch_size % log_interval == 0:
-                ls.append(loss(net(features, w, b), labels).mean().asnumpy())
-    print('w[0]=%.2f, w[1]=%.2f, b=%.2f' 
-          % (w[0].asscalar(), w[1].asscalar(), b.asscalar()))
-    es = np.linspace(0, num_epochs, len(ls), endpoint=True)
-    gb.semilogy(es, ls, 'epoch', 'loss')
-```
-
-最终，优化所得的模型参数值与它们的真实值较接近。
+可以看出，优化所得的模型参数值与它们的真实值较接近。
 
 ```{.python .input  n=3}
-optimize(batch_size=10, rho=0.9999, num_epochs=3, log_interval=10)
+gb.optimize(optimizer_fn=adadelta, batch_size=10, num_epochs=3,
+            log_interval=10, params_vars=init_params_vars(),
+            hyperparams={'rho': 0.9999}, features=features, labels=labels)
 ```
 
 ## 使用Gluon的实现

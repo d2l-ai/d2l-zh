@@ -52,16 +52,14 @@ import numpy as np
 import math
 ```
 
-实验中，我们以之前介绍过的线性回归为例。设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。该模型的平方损失函数即所需优化的目标函数，模型参数即目标函数自变量。
-
-我们把梯度按元素平方的累加变量初始化为和模型参数形状相同的零张量。
+实验中，我们以之前介绍过的线性回归为例。设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。该模型的平方损失函数即所需优化的目标函数，模型参数即目标函数自变量。我们把梯度按元素平方的累加变量$\boldsymbol{s}$初始化为和模型参数形状相同的零张量。
 
 ```{.python .input  n=2}
 # 生成数据集。
 num_inputs, num_examples, true_w, true_b, features, labels = gb.get_data_ch7()
 
-# 初始化模型参数。
-def init_params():
+# 初始化模型参数和中间变量。
+def init_params_vars():
     w = nd.random.normal(scale=0.01, shape=(num_inputs, 1))
     b = nd.zeros(shape=(1,))
     params = [w, b]
@@ -70,48 +68,28 @@ def init_params():
         param.attach_grad()
         # 把梯度按元素平方的累加变量初始化为和参数形状相同的零张量。
         sqrs.append(param.zeros_like())
-    return params, sqrs
+    return [params, sqrs]
 ```
 
 接下来基于NDArray实现Adagrad算法。
 
 ```{.python .input  n=1}
-def adagrad(params, sqrs, lr, batch_size):
+def adagrad(params_vars, hyperparams, batch_size):
+    lr = hyperparams['lr']
+    [w, b], sqrs = params_vars
     eps_stable = 1e-7
-    for param, sqr in zip(params, sqrs):
+    for param, sqr in zip([w, b], sqrs):
         g = param.grad / batch_size
         sqr[:] += g.square()
         param[:] -= lr * g / (sqr + eps_stable).sqrt()
 ```
 
-优化函数`optimize`与[“梯度下降和随机梯度下降”](gd-sgd.md)一节中的类似。需要指出的是，这里的初始学习率`lr`无需自我衰减。
-
-```{.python .input  n=3}
-net = gb.linreg
-loss = gb.squared_loss
-
-def optimize(batch_size, lr, num_epochs, log_interval):
-    [w, b], sqrs = init_params()
-    ls = [loss(net(features, w, b), labels).mean().asnumpy()]
-    for epoch in range(1, num_epochs + 1):
-        for batch_i, (X, y) in enumerate(gb.data_iter(batch_size, features,
-                                                      labels)):
-            with autograd.record():
-                l = loss(net(X, w, b), y)
-            l.backward()
-            adagrad([w, b], sqrs, lr, batch_size)
-            if batch_i * batch_size % log_interval == 0:
-                ls.append(loss(net(features, w, b), labels).mean().asnumpy())
-    print('w[0]=%.2f, w[1]=%.2f, b=%.2f'
-          % (w[0].asscalar(), w[1].asscalar(), b.asscalar()))
-    es = np.linspace(0, num_epochs, len(ls), endpoint=True)
-    gb.semilogy(es, ls, 'epoch', 'loss')
-```
-
-最终，优化所得的模型参数值与它们的真实值较接近。
+实验中的初始学习率`lr`未作自我衰减。最终，优化所得的模型参数值与它们的真实值较接近。
 
 ```{.python .input  n=4}
-optimize(batch_size=10, lr=0.9, num_epochs=3, log_interval=10)
+gb.optimize(optimizer_fn=adagrad, batch_size=10, num_epochs=3,
+            log_interval=10, params_vars=init_params_vars(),
+            hyperparams={'lr': 0.9}, features=features, labels=labels)
 ```
 
 ## 使用Gluon的实现

@@ -50,16 +50,14 @@ from mxnet.gluon import nn
 import numpy as np
 ```
 
-实验中，我们依然以线性回归为例。设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。该模型的平方损失函数即所需优化的目标函数，模型参数即目标函数自变量。
-
-我们把算法中变量$\boldsymbol{v}$和$\boldsymbol{s}$初始化为和模型参数形状相同的零张量。
+实验中，我们依然以线性回归为例。设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。该模型的平方损失函数即所需优化的目标函数，模型参数即目标函数自变量。我们把算法中变量$\boldsymbol{v}$和$\boldsymbol{s}$初始化为和模型参数形状相同的零张量。
 
 ```{.python .input  n=1}
 # 生成数据集。
 num_inputs, num_examples, true_w, true_b, features, labels = gb.get_data_ch7()
 
-# 初始化模型参数。
-def init_params():
+# 初始化模型参数和中间变量。
+def init_params_vars():
     w = nd.random.normal(scale=0.01, shape=(num_inputs, 1))
     b = nd.zeros(shape=(1,))
     params = [w, b]
@@ -70,17 +68,19 @@ def init_params():
         # 把算法中基于指数加权移动平均的变量初始化为和参数形状相同的零张量。
         vs.append(param.zeros_like())
         sqrs.append(param.zeros_like())
-    return params, vs, sqrs
+    return [params, vs, sqrs]
 ```
 
 接下来基于NDArray实现Adam算法。
 
 ```{.python .input}
-def adam(params, vs, sqrs, lr, batch_size, t):
+def adam(params_vars, hyperparams, batch_size, t):
+    lr = hyperparams['lr']
+    [w, b], vs, sqrs = params_vars
     beta1 = 0.9
     beta2 = 0.999
     eps_stable = 1e-8
-    for param, v, sqr in zip(params, vs, sqrs):      
+    for param, v, sqr in zip([w, b], vs, sqrs):      
         g = param.grad / batch_size
         v[:] = beta1 * v + (1 - beta1) * g
         sqr[:] = beta2 * sqr + (1 - beta2) * g.square()
@@ -90,37 +90,12 @@ def adam(params, vs, sqrs, lr, batch_size, t):
             sqr_bias_corr.sqrt() + eps_stable)  
 ```
 
-优化函数`optimize`与[“Adagrad”](adagrad.md)一节中的类似。
-
-```{.python .input  n=2}
-net = gb.linreg
-loss = gb.squared_loss
-
-def optimize(batch_size, lr, num_epochs, log_interval):
-    [w, b], vs, sqrs = init_params()
-    ls = [loss(net(features, w, b), labels).mean().asnumpy()]
-    t = 0
-    for epoch in range(1, num_epochs + 1):
-        for batch_i, (X, y) in enumerate(gb.data_iter(batch_size, features,
-                                                      labels)):
-            with autograd.record():
-                l = loss(net(X, w, b), y)
-            l.backward()
-            # 必须在调用Adam前。
-            t += 1
-            adam([w, b], vs, sqrs, lr, batch_size, t)
-            if batch_i * batch_size % log_interval == 0:
-                ls.append(loss(net(features, w, b), labels).mean().asnumpy())
-    print('w[0]=%.2f, w[1]=%.2f, b=%.2f' 
-          % (w[0].asscalar(), w[1].asscalar(), b.asscalar()))
-    es = np.linspace(0, num_epochs, len(ls), endpoint=True)
-    gb.semilogy(es, ls, 'epoch', 'loss')
-```
-
-最终，优化所得的模型参数值与它们的真实值较接近。
+可以看出，优化所得的模型参数值与它们的真实值较接近。
 
 ```{.python .input  n=3}
-optimize(batch_size=10, lr=0.1, num_epochs=3, log_interval=10)
+gb.optimize(optimizer_fn=adam, batch_size=10, num_epochs=3, log_interval=10,
+            params_vars=init_params_vars(), hyperparams={'lr': 0.1},
+            features=features, labels=labels, decay_epoch=None, is_adam=True)
 ```
 
 ## 使用Gluon的实现
