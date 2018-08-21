@@ -144,7 +144,7 @@ def train(net, train_features, train_labels, test_features, test_labels,
             trainer.step(batch_size)
         train_ls.append(log_rmse(net, train_features, train_labels))
         if test_labels is not None:
-            test_ls.append(log_rmse(net, test_features, test_labels))                
+            test_ls.append(log_rmse(net, test_features, test_labels))
     return train_ls, test_ls
 ```
 
@@ -159,7 +159,7 @@ def get_k_fold_data(k, i, X, y):
     X_train, y_train = None, None
     for j in range(k):
         idx = slice(j * fold_size, (j + 1) * fold_size)
-        X_part, y_part = X[idx, :], y[idx]        
+        X_part, y_part = X[idx, :], y[idx]
         if j == i:
             X_test, y_test = X_part, y_part
         elif X_train is None:
@@ -173,18 +173,18 @@ def get_k_fold_data(k, i, X, y):
 在$K$折交叉验证中我们训练$K$次并返回平均训练和测试误差。
 
 ```{.python .input  n=15}
-def k_fold(k, X_train, y_train, num_epochs, 
+def k_fold(k, X_train, y_train, num_epochs,
            learning_rate, weight_decay, batch_size):
     train_l_sum, test_l_sum = 0, 0
     for i in range(k):
         data = get_k_fold_data(k, i, X_train, y_train)
         net = get_net()
-        train_ls, test_ls = train(net, *data, num_epochs, learning_rate, 
+        train_ls, test_ls = train(net, *data, num_epochs, learning_rate,
                                   weight_decay, batch_size)
-        train_l_sum += train_ls[-1]        
+        train_l_sum += train_ls[-1]
         test_l_sum += test_ls[-1]
         if i == 0:
-            gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'log rmse',
+            gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'rmse',
                         range(1, num_epochs+1), test_ls, ['train', 'test'])
         print('fold %d, train loss: %f, test loss: %f' % (
             i, train_ls[-1], test_ls[-1]))
@@ -203,7 +203,7 @@ lr = 5
 weight_decay = 0
 batch_size = 64
 
-train_l, test_l = k_fold(k, train_features, train_labels, 
+train_l, test_l = k_fold(k, train_features, train_labels,
                          num_epochs, lr, weight_decay, batch_size)
 print('%d-fold validation: avg train loss: %f, avg test loss: %f'
       % (k, train_l, test_l))
@@ -216,12 +216,12 @@ print('%d-fold validation: avg train loss: %f, avg test loss: %f'
 我们首先定义预测函数。在预测之前，我们会使用完整的训练数据集来重新训练模型，并将预测结果存成提交需要的格式。
 
 ```{.python .input  n=18}
-def train_and_pred(train_features, test_feature, train_labels, test_data, 
+def train_and_pred(train_features, test_feature, train_labels, test_data,
                    num_epochs, lr, weight_decay, batch_size):
     net = get_net()
-    train_ls, _ = train(net, train_features, train_labels, None, None, 
+    train_ls, _ = train(net, train_features, train_labels, None, None,
                         num_epochs, lr, weight_decay, batch_size)
-    gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'log rmse')
+    gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'rmse')
     preds = net(test_features).asnumpy()
     test_data['SalePrice'] = pd.Series(preds.reshape(1, -1)[0])
     submission = pd.concat([test_data['Id'], test_data['SalePrice']], axis=1)
@@ -231,7 +231,7 @@ def train_and_pred(train_features, test_feature, train_labels, test_data,
 设计好模型并调好超参数之后，下一步就是对测试数据集上的房屋样本做价格预测，并在Kaggle上提交结果。
 
 ```{.python .input  n=19}
-train_and_pred(train_features, test_features, train_labels, test_data, 
+train_and_pred(train_features, test_features, train_labels, test_data,
                num_epochs, lr, weight_decay, batch_size)
 ```
 
