@@ -13,7 +13,7 @@ net.add(nn.Dense(256, activation='relu'))
 net.add(nn.Dense(10))
 net.initialize()
 
-x = nd.random.uniform(shape=(2,20))
+x = nd.random.uniform(shape=(2, 20))
 y = net(x)
 ```
 
@@ -111,7 +111,7 @@ net.add(nn.Dense(8, activation='relu'),
         nn.Dense(10))
 net.initialize()
 
-x = nd.random.uniform(shape=(2,20))
+x = nd.random.uniform(shape=(2, 20))
 net(x)
 
 net[1].weight.data()[0] == net[2].weight.data()[0]

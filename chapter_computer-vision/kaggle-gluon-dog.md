@@ -50,9 +50,9 @@ demo = True
 data_dir = '../data/kaggle_dog'
 
 if demo:
-    zipfiles= ['train_valid_test_tiny.zip']
+    zipfiles = ['train_valid_test_tiny.zip']
 else:
-    zipfiles= ['train.zip', 'test.zip', 'labels.csv.zip']
+    zipfiles = ['train.zip', 'test.zip', 'labels.csv.zip']
 
 for f in zipfiles:
     with zipfile.ZipFile(data_dir + '/' + f, 'r') as z:

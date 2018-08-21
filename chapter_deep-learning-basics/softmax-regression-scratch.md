@@ -44,7 +44,7 @@ b.attach_grad()
 在介绍如何定义Softmax回归之前，我们先描述一下对如何对多维NDArray按维度操作。在下面例子中，给定一个NDArray矩阵`X`。我们可以只对其中每一列（`axis=0`）或每一行（`axis=1`）求和，并在结果中保留行和列这两个维度（`keepdims=True`）。
 
 ```{.python .input  n=11}
-X = nd.array([[1,2,3], [4,5,6]])
+X = nd.array([[1, 2, 3], [4, 5, 6]])
 X.sum(axis=0, keepdims=True), X.sum(axis=1, keepdims=True)
 ```
 

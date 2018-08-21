@@ -30,7 +30,7 @@ class MLP(nn.Block):
 我们可以实例化MLP类得到`net`，其使用跟[“多层感知机的Gluon实现”](../chapter_deep-learning-basics/mlp-gluon.md)一节中通过Sequential类构造的`net`一致。下面代码初始化`net`并传入输入数据`x`做一次前向计算。
 
 ```{.python .input  n=2}
-x = nd.random.uniform(shape=(2,20))
+x = nd.random.uniform(shape=(2, 20))
 net = MLP()
 net.initialize()
 net(x)

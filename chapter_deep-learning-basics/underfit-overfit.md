@@ -115,7 +115,7 @@ def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
 
 ```{.python .input}
 a = []
-a+= [1]
+a += [1]
 ```
 
 ```{.python .input}

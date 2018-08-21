@@ -315,7 +315,7 @@ for X, _ in test_data:
     y_hat = net(X.as_in_context(ctx))
     preds.extend(y_hat.argmax(axis=1).astype(int).asnumpy())
 sorted_ids = list(range(1, len(test_ds) + 1))
-sorted_ids.sort(key=lambda x:str(x))
+sorted_ids.sort(key=lambda x: str(x))
 df = pd.DataFrame({'id': sorted_ids, 'label': preds})
 df['label'] = df['label'].apply(lambda x: train_valid_ds.synsets[x])
 df.to_csv('submission.csv', index=False)

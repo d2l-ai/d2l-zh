@@ -102,7 +102,7 @@ def allreduce(data):
 简单测试一下`allreduce`函数。
 
 ```{.python .input}
-data = [nd.ones((1,2), ctx=mx.gpu(i)) * (i + 1) for i in range(2)]
+data = [nd.ones((1, 2), ctx=mx.gpu(i)) * (i + 1) for i in range(2)]
 print('before allreduce:', data)
 allreduce(data)
 print('after allreduce:', data)

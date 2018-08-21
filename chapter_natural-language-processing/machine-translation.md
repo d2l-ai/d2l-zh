@@ -310,8 +310,8 @@ decoder_init_state = DecoderInitState(encoder_num_hiddens,
 给定简单的法语和英语序列，我们可以观察模型的训练结果。打印的结果中，input、output和expect分别代表输入序列、输出序列和正确序列。我们可以比较output和expect，观察输出序列是否符合预期。
 
 ```{.python .input}
-eval_fr_ens =[['elle est japonaise .', 'she is japanese .'],
-              ['ils regardent .', 'they are watching .']]
+eval_fr_ens = [['elle est japonaise .', 'she is japanese .'],
+               ['ils regardent .', 'they are watching .']]
 train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens)
 ```
 
