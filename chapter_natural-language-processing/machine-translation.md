@@ -102,11 +102,10 @@ class Encoder(nn.Block):
     def __init__(self, num_inputs, embed_size, num_hiddens, num_layers,
                  drop_prob, **kwargs):
         super(Encoder, self).__init__(**kwargs)
-        with self.name_scope():
-            self.embedding = nn.Embedding(num_inputs, embed_size)
-            self.dropout = nn.Dropout(drop_prob)
-            self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
-                               input_size=embed_size)
+        self.embedding = nn.Embedding(num_inputs, embed_size)
+        self.dropout = nn.Dropout(drop_prob)
+        self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
+                           input_size=embed_size)
 
     def forward(self, inputs, state):
         embedding = self.embedding(inputs).swapaxes(0, 1)
@@ -131,26 +130,23 @@ class Decoder(nn.Block):
         self.encoder_num_hiddens = encoder_num_hiddens
         self.hidden_size = num_hiddens
         self.num_layers = num_layers
-        with self.name_scope():
-            self.embedding = nn.Embedding(num_outputs, num_hiddens)
-            self.dropout = nn.Dropout(drop_prob)
-            # 注意力机制。
-            self.attention = nn.Sequential()
-            with self.attention.name_scope():
-                self.attention.add(
-                    nn.Dense(alignment_size,
-                             in_units=num_hiddens + encoder_num_hiddens,
-                             activation='tanh', flatten=False))
-                self.attention.add(nn.Dense(1, in_units=alignment_size,
-                                            flatten=False))
-
-            self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
-                               input_size=num_hiddens)
-            self.out = nn.Dense(num_outputs, in_units=num_hiddens,
-                                flatten=False)
-            self.rnn_concat_input = nn.Dense(
-                num_hiddens, in_units=num_hiddens + encoder_num_hiddens,
-                flatten=False)
+        self.embedding = nn.Embedding(num_outputs, num_hiddens)
+        self.dropout = nn.Dropout(drop_prob)
+        # 注意力机制。
+        self.attention = nn.Sequential()
+        self.attention.add(
+            nn.Dense(alignment_size,
+                     in_units=num_hiddens + encoder_num_hiddens,
+                     activation='tanh', flatten=False))
+        self.attention.add(nn.Dense(1, in_units=alignment_size,
+                                    flatten=False))
+        self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
+                           input_size=num_hiddens)
+        self.out = nn.Dense(num_outputs, in_units=num_hiddens,
+                            flatten=False)
+        self.rnn_concat_input = nn.Dense(
+            num_hiddens, in_units=num_hiddens + encoder_num_hiddens,
+            flatten=False)
 
     def forward(self, cur_input, state, encoder_outputs):
         # 当循环神经网络有多个隐藏层时，取最靠近输出层的单层隐藏状态。
@@ -190,10 +186,9 @@ class Decoder(nn.Block):
 class DecoderInitState(nn.Block):
     def __init__(self, encoder_num_hiddens, decoder_num_hiddens, **kwargs):
         super(DecoderInitState, self).__init__(**kwargs)
-        with self.name_scope():
-            self.dense = nn.Dense(decoder_num_hiddens,
-                                  in_units=encoder_num_hiddens,
-                                  activation="tanh", flatten=False)
+        self.dense = nn.Dense(decoder_num_hiddens,
+                              in_units=encoder_num_hiddens,
+                              activation="tanh", flatten=False)
 
     def forward(self, encoder_state):
         return [self.dense(encoder_state)]
