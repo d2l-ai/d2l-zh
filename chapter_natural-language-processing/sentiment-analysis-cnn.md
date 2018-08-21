@@ -215,7 +215,8 @@ ctx = gb.try_all_gpus()
 接下来，我们用预训练的100维GloVe词向量初始化`embedding_static`和`embedding_non_static`。其中只有`embedding_static`在训练中不更新模型参数。
 
 ```{.python .input}
-net = TextCNN(vocab, embed_size, ngram_kernel_sizes, nums_channels, num_outputs)
+net = TextCNN(vocab, embed_size, ngram_kernel_sizes, nums_channels,
+              num_outputs)
 net.initialize(init.Xavier(), ctx=ctx)
 # embedding_static 和 embedding_non_static 均使用预训练的词向量。
 net.embedding_static.weight.set_data(glove_embedding.idx_to_vec)

@@ -199,7 +199,8 @@ num_layers = 2
 bidirectional = True
 ctx = gb.try_all_gpus()
 
-net = BiRNN(vocab, embed_size, num_hiddens, num_layers, bidirectional, num_outputs)
+net = BiRNN(vocab, embed_size, num_hiddens, num_layers, bidirectional,
+            num_outputs)
 net.initialize(init.Xavier(), ctx=ctx)
 # 设置 embedding 层的 weight 为预训练的词向量。
 net.embedding.weight.set_data(glove_embedding.idx_to_vec)
