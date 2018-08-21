@@ -93,9 +93,9 @@ def adam(params_vars, hyperparams, batch_size, t):
 可以看出，优化所得的模型参数值与它们的真实值较接近。
 
 ```{.python .input  n=3}
-gb.optimize(optimizer_fn=adam, batch_size=10, num_epochs=3, log_interval=10,
-            params_vars=init_params_vars(), hyperparams={'lr': 0.1},
-            features=features, labels=labels, decay_epoch=None, is_adam=True)
+gb.optimize(optimizer_fn=adam, params_vars=init_params_vars(),
+            hyperparams={'lr': 0.1}, features=features, labels=labels,
+            is_adam=True)
 ```
 
 ## 使用Gluon的实现
@@ -108,9 +108,8 @@ net.add(nn.Dense(1))
 
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': 0.1})
-gb.optimize_with_trainer(batch_size=10, trainer=trainer, num_epochs=3,
-                         decay_epoch=None, log_interval=10, features=features,
-                         labels=labels, net=net)
+gb.optimize_with_trainer(trainer=trainer, features=features, labels=labels,
+                         net=net)
 ```
 
 ## 小结

@@ -254,8 +254,8 @@ def _make_list(obj, default_values=None):
     return obj
 
 
-def optimize(optimizer_fn, batch_size, num_epochs, log_interval,
-             params_vars, hyperparams, features, labels, decay_epoch=None,
+def optimize(optimizer_fn, params_vars, hyperparams, features, labels, 
+             decay_epoch=None, batch_size=10, log_interval=10, num_epochs=3, 
              is_adam=False):
     """Optimize an objective function."""
     dataset = gdata.ArrayDataset(features, labels)
@@ -286,8 +286,8 @@ def optimize(optimizer_fn, batch_size, num_epochs, log_interval,
     semilogy(es, ls, 'epoch', 'loss') 
 
 
-def optimize_with_trainer(batch_size, trainer, num_epochs, decay_epoch,
-                          log_interval, features, labels, net):
+def optimize_with_trainer(trainer, features, labels, net, decay_epoch=None,
+                          batch_size=10, log_interval=10, num_epochs=3):
     """Optimize an objective function with a Gluon trainer."""
     dataset = gdata.ArrayDataset(features, labels)
     data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)

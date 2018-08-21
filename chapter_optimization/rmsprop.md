@@ -76,8 +76,7 @@ def rmsprop(params_vars, hyperparams, batch_size):
 我们将初始学习率设为0.03，并将$\gamma$（`gamma`）设为0.9。此时，变量$\boldsymbol{s}$可看作是最近$1/(1-0.9) = 10$个时刻的平方项$\boldsymbol{g} \odot \boldsymbol{g}$的加权平均。我们观察到，损失函数在迭代后期较震荡。
 
 ```{.python .input  n=3}
-gb.optimize(optimizer_fn=rmsprop, batch_size=10, num_epochs=3,
-            log_interval=10, params_vars=init_params_vars(),
+gb.optimize(optimizer_fn=rmsprop, params_vars=init_params_vars(),
             hyperparams={'lr': 0.03, 'gamma': 0.9}, features=features,
             labels=labels)
 ```
@@ -85,8 +84,7 @@ gb.optimize(optimizer_fn=rmsprop, batch_size=10, num_epochs=3,
 我们将$\gamma$调大一点，例如0.999。此时，变量$\boldsymbol{s}$可看作是最近$1/(1-0.999) = 1000$个时刻的平方项$\boldsymbol{g} \odot \boldsymbol{g}$的加权平均。这时损失函数在迭代后期较平滑。
 
 ```{.python .input}
-gb.optimize(optimizer_fn=rmsprop, batch_size=10, num_epochs=3,
-            log_interval=10, params_vars=init_params_vars(),
+gb.optimize(optimizer_fn=rmsprop, params_vars=init_params_vars(),
             hyperparams={'lr': 0.03, 'gamma': 0.999}, features=features,
             labels=labels)
 ```
@@ -102,18 +100,16 @@ net.add(nn.Dense(1))
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'rmsprop',
                         {'learning_rate': 0.03, 'gamma1': 0.9})
-gb.optimize_with_trainer(batch_size=10, trainer=trainer, num_epochs=3,
-                         decay_epoch=None, log_interval=10, features=features,
-                         labels=labels, net=net)
+gb.optimize_with_trainer(trainer=trainer, features=features, labels=labels,
+                         net=net)
 ```
 
 ```{.python .input}
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'rmsprop',
                         {'learning_rate': 0.03, 'gamma1': 0.999})
-gb.optimize_with_trainer(batch_size=10, trainer=trainer, num_epochs=3,
-                         decay_epoch=None, log_interval=10, features=features,
-                         labels=labels, net=net)
+gb.optimize_with_trainer(trainer=trainer, features=features, labels=labels,
+                         net=net)
 ```
 
 ## 小结
