@@ -57,13 +57,26 @@ net[1].bias.data()
 net.collect_params()
 ```
 
+这个函数可以通过正则表达式来匹配参数名，从而筛选需要的参数：
+
+```{.python .input}
+net.collect_params('.*weight')
+```
+
 ## 初始化模型参数
 
-当使用默认的模型初始化，Gluon会将权重参数元素初始化为[-0.07, 0.07]之间均匀分布的随机数，偏差参数则全为0. 但经常我们需要使用其他的方法来初始话权重，MXNet的`init`模块里提供了多种预设的初始化方法。例如下面例子我们将权重参数初始化成均值为0，标准差为0.01的正态分布随机数。
+当使用默认的模型初始化，Gluon会将权重参数元素初始化为[-0.07, 0.07]（一个之前流行的初始化区间）之间均匀分布的随机数，偏差参数则全为0。但经常我们需要使用其他的方法来初始话权重，MXNet的`init`模块里提供了多种预设的初始化方法。例如下面例子我们将权重参数初始化成均值为0，标准差为0.01的正态分布随机数。
 
 ```{.python .input  n=7}
 # 非首次对模型初始化需要指定 force_reinit。
 net.initialize(init=init.Normal(sigma=0.01), force_reinit=True)
+net[0].weight.data()[0]
+```
+
+或者初始成常数。
+
+```{.python .input}
+net.initialize(init=init.Constant(1), force_reinit=True)
 net[0].weight.data()[0]
 ```
 
