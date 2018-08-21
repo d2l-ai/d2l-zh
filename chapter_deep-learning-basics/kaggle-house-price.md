@@ -1,21 +1,10 @@
 # 实战Kaggle比赛：房价预测
 
-
-作为深度学习基础篇章的总结，我们将对本章内容学以致用。下面，让我们动手实战一个Kaggle比赛：房价预测。
-
-在这个房价预测比赛中，我们还将以`pandas`为工具，介绍如何对真实世界中的数据进行重要的预处理，例如：
-
-* 处理离散数据；
-* 处理丢失的数据特征；
-* 对数据进行标准化。
-
-需要注意的是，本节中对于数据的预处理、模型的设计和超参数的选择等，我们特意只提供最基础的版本。我们希望大家通过动手实战、仔细观察实验现象、认真分析实验结果并不断调整方法，从而得到令自己满意的结果。
-
-
+作为深度学习基础篇章的总结，我们将对本章内容学以致用。下面，让我们动手实战一个Kaggle比赛：房价预测。本节将提供简单的数据的预处理、模型的设计和超参数的选择。我们希望你通过动手实战、仔细观察实验现象、认真分析实验结果并不断调整方法，从而得到令自己满意的结果。
 
 ## Kaggle比赛
 
-Kaggle（网站地址：https://www.kaggle.com ）是一个著名的供机器学习爱好者交流的平台。图3.7展示了Kaggle网站首页。为了便于提交结果，请大家注册Kaggle账号。
+Kaggle（网站地址：https://www.kaggle.com ）是一个著名的供机器学习爱好者交流的平台。图3.8展示了Kaggle网站首页。为了便于提交结果，请注册Kaggle账号。
 
 ![Kaggle网站首页。](../img/kaggle.png)
 
@@ -24,19 +13,19 @@ Kaggle（网站地址：https://www.kaggle.com ）是一个著名的供机器学
 > https://www.kaggle.com/c/house-prices-advanced-regression-techniques
 
 
-图3.8展示了房价预测比赛的网页信息。
+图3.9展示了房价预测比赛的网页信息。
 
 ![房价预测比赛的网页信息。比赛数据集可通过点击“Data”标签获取。](../img/house_pricing.png)
 
-
-
 ## 获取和读取数据集
 
-比赛数据分为训练数据集和测试数据集。两个数据集都包括每栋房子的特征，例如街道类型、建造年份、房顶类型、地下室状况等特征值。这些特征值有连续的数字、离散的标签甚至是缺失值“na”。只有训练数据集包括了每栋房子的价格。我们可以访问比赛网页，点击图3.8中的“Data”标签，并下载这些数据集。
+比赛数据分为训练数据集和测试数据集。两个数据集都包括每栋房子的特征，例如街道类型、建造年份、房顶类型、地下室状况等特征值。这些特征值有连续的数字、离散的标签甚至是缺失值“na”。只有训练数据集包括了每栋房子的价格。我们可以访问比赛网页，点击图3.9中的“Data”标签，并下载这些数据集。
 
-下面，我们通过使用`pandas`读入数据。请确保已安装`pandas` (命令行执行`pip install pandas`)。
+下面，我们通过使用`pandas`读入数据，请简单介绍如何处理离散数据、处理丢失的数据特征和对数据进行标准化。在导入本节需要的包前请确保已安装`pandas`，否则请参考下面代码注释。
 
-```{.python .input  n=1}
+```{.python .input  n=3}
+# 如果没有安装pandas，请反注释下面一行。
+# !pip install pandas
 import sys
 sys.path.insert(0, '..')
 
@@ -46,23 +35,64 @@ from mxnet import autograd, init, gluon, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
 import numpy as np
 import pandas as pd
+```
 
+数据解压放在`../data`目录里，它包括两个csv文件。下面使用pands读取着这两个文件
+
+```{.python .input  n=14}
 train_data = pd.read_csv('../data/kaggle_house_pred_train.csv')
 test_data = pd.read_csv('../data/kaggle_house_pred_test.csv')
-all_features = pd.concat((train_data.loc[:, 'MSSubClass':'SaleCondition'],
-                          test_data.loc[:, 'MSSubClass':'SaleCondition']))
 ```
 
 训练数据集包括1460个样本、80个特征和1个标签。
 
-```{.python .input  n=4}
+```{.python .input  n=11}
 train_data.shape
+```
+
+```{.json .output n=11}
+[
+ {
+  "data": {
+   "text/plain": "(1460, 81)"
+  },
+  "execution_count": 11,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
 测试数据集包括1459个样本和80个特征。我们需要预测测试数据集上每个样本的标签。
 
 ```{.python .input  n=5}
 test_data.shape
+```
+
+让我们来前4个样本的前4个特征和最后的标签：
+
+```{.python .input  n=28}
+train_data.iloc[0:4, [0,1,2,3,4,-1]]
+```
+
+```{.json .output n=28}
+[
+ {
+  "data": {
+   "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Id</th>\n      <th>MSSubClass</th>\n      <th>MSZoning</th>\n      <th>LotFrontage</th>\n      <th>LotArea</th>\n      <th>SalePrice</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>1</td>\n      <td>60</td>\n      <td>RL</td>\n      <td>65.0</td>\n      <td>8450</td>\n      <td>208500</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>2</td>\n      <td>20</td>\n      <td>RL</td>\n      <td>80.0</td>\n      <td>9600</td>\n      <td>181500</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>3</td>\n      <td>60</td>\n      <td>RL</td>\n      <td>68.0</td>\n      <td>11250</td>\n      <td>223500</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>4</td>\n      <td>70</td>\n      <td>RL</td>\n      <td>60.0</td>\n      <td>9550</td>\n      <td>140000</td>\n    </tr>\n  </tbody>\n</table>\n</div>",
+   "text/plain": "   Id  MSSubClass MSZoning  LotFrontage  LotArea  SalePrice\n0   1          60       RL         65.0     8450     208500\n1   2          20       RL         80.0     9600     181500\n2   3          60       RL         68.0    11250     223500\n3   4          70       RL         60.0     9550     140000"
+  },
+  "execution_count": 28,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
+我们将训练数据的前80维特征和测试数据放在一起，可以得到整个数据的特征。
+
+```{.python .input  n=30}
+all_features = pd.concat((train_data.iloc[:, :-1], test_data))
 ```
 
 ## 预处理数据
