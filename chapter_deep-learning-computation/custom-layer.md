@@ -36,9 +36,8 @@ layer(nd.array([1, 2, 3, 4, 5]))
 
 ```{.python .input  n=3}
 net = nn.Sequential()
-net.add(nn.Dense(128))
-net.add(nn.Dense(10))
-net.add(CenteredLayer())
+net.add(nn.Dense(128), 
+        CenteredLayer())
 ```
 
 打印自定义层输出的均值。由于均值是浮点数，它的值是个很接近0的数。
@@ -46,7 +45,7 @@ net.add(CenteredLayer())
 ```{.python .input  n=4}
 net.initialize()
 y = net(nd.random.uniform(shape=(4, 8)))
-y.mean()
+y.mean().asscalar()
 ```
 
 ## 含模型参数的自定义层
@@ -63,6 +62,7 @@ params
 
 ```{.python .input  n=19}
 class MyDense(nn.Block):
+    # units：该层的输出个数；in_units：该层的输入个数。
     def __init__(self, units, in_units, **kwargs):
         super(MyDense, self).__init__(**kwargs)
         self.weight = self.params.get('weight', shape=(in_units, units))
@@ -76,7 +76,6 @@ class MyDense(nn.Block):
 下面，我们实例化MyDense类来看下它的模型参数。
 
 ```{.python .input}
-# units：该层的输出个数；in_units：该层的输入个数。
 dense = MyDense(units=5, in_units=10)
 dense.params
 ```
@@ -92,8 +91,8 @@ dense(nd.random.uniform(shape=(2, 10)))
 
 ```{.python .input  n=19}
 net = nn.Sequential()
-net.add(MyDense(32, in_units=64))
-net.add(MyDense(2, in_units=32))
+net.add(MyDense(32, in_units=64),
+        MyDense(2, in_units=32))
 net.initialize()
 net(nd.random.uniform(shape=(2, 64)))
 ```
