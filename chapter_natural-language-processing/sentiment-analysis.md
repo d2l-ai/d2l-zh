@@ -169,7 +169,7 @@ glove_embedding = text.embedding.create(
 ```{.python .input  n=10}
 class BiRNN(nn.Block):
     def __init__(self, vocab, embed_size, num_hiddens, num_layers,
-                 bidirectional, **kwargs):
+                 bidirectional, num_outputs, **kwargs):
         super(BiRNN, self).__init__(**kwargs)
         self.embedding = nn.Embedding(len(vocab), embed_size)
         self.encoder = rnn.LSTM(num_hiddens, num_layers=num_layers,
@@ -199,7 +199,7 @@ num_layers = 2
 bidirectional = True
 ctx = gb.try_all_gpus()
 
-net = BiRNN(vocab, embed_size, num_hiddens, num_layers, bidirectional)
+net = BiRNN(vocab, embed_size, num_hiddens, num_layers, bidirectional, num_outputs)
 net.initialize(init.Xavier(), ctx=ctx)
 # 设置 embedding 层的 weight 为预训练的词向量。
 net.embedding.weight.set_data(glove_embedding.idx_to_vec)
