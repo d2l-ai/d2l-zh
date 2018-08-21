@@ -204,7 +204,7 @@ train_data.reshape(label_shape=(3, 5))
 
 ```{.python .input  n=16}
 ctx = gb.try_gpu()
-net = TinySSD(num_classes = 2)
+net = TinySSD(num_classes=2)
 net.initialize(init=init.Xavier(), ctx=ctx)
 trainer = gluon.Trainer(net.collect_params(),
                         'sgd', {'learning_rate': 0.1, 'wd': 5e-4})

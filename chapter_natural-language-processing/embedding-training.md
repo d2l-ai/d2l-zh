@@ -76,7 +76,7 @@ $$ \mathbb{P}(w_i) = \max\left(1 - \sqrt{\frac{t}{f(w_i)}}, 0\right),$$
 
 ```{.python .input  n=6}
 idx_to_count = [counter[w] for w in idx_to_token]
-total_count =  sum(idx_to_count)
+total_count = sum(idx_to_count)
 idx_to_pdiscard = [1 - math.sqrt(1e-4 / (count / total_count))
                    for count in idx_to_count]
 
@@ -117,7 +117,7 @@ def get_one_context(sentence, word_idx, max_window_size):
         context += sentence[start_idx:word_idx]
     # 添加中心词右边的背景词。
     if word_idx + 1 != end_idx: 
-        context += sentence[word_idx + 1 : end_idx]
+        context += sentence[word_idx + 1: end_idx]
     return context
 ```
 
@@ -153,7 +153,7 @@ def get_negatives(negatives_shape, all_contexts, negatives_weights):
     k = negatives_shape[0] * negatives_shape[1]
     # 根据每个词的权重（negatives_weights）随机生成 k 个词的索引。
     negatives = random.choices(population, weights=negatives_weights, k=k)
-    negatives = [negatives[i : i + negatives_shape[1]]
+    negatives = [negatives[i: i + negatives_shape[1]]
                  for i in range(0, k, negatives_shape[1])]
     # 如果噪声词是当前中心词的某个背景词，丢弃该噪声词。
     negatives = [

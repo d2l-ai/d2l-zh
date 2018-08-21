@@ -26,8 +26,10 @@ Gluon提供了`data`模块来读取数据。由于`data`常用作变量名，我
 from mxnet.gluon import data as gdata
 
 batch_size = 10
-dataset = gdata.ArrayDataset(features, labels) # 将训练数据的特征和标签组合。
-data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True) # 随机小批量读取
+# 将训练数据的特征和标签组合。
+dataset = gdata.ArrayDataset(features, labels)
+# 随机小批量读取。
+data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
 ```
 
 `data_iter`的使用跟上一节一样，让我们读取并打印第一个小批量数据样本。
@@ -76,7 +78,7 @@ net.initialize(init.Normal(sigma=0.01))
 ```{.python .input  n=8}
 from mxnet.gluon import loss as gloss
 
-loss = gloss.L2Loss() # 平方损失又称 L2 norm 损失
+loss = gloss.L2Loss()  # 平方损失又称 L2 norm 损失。
 ```
 
 ## 定义优化算法
@@ -95,7 +97,7 @@ trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.03})
 
 ```{.python .input  n=10}
 num_epochs = 3
-for epoch in range(1, num_epochs + 1): 
+for epoch in range(1, num_epochs + 1):
     for X, y in data_iter:
         with autograd.record():
             l = loss(net(X), y)

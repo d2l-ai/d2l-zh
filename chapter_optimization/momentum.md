@@ -184,8 +184,8 @@ def optimize(batch_size, lr, mom, num_epochs, log_interval):
         # 学习率自我衰减。
         if epoch > 2:
             lr *= 0.1
-        for batch_i, (X, y) in enumerate(
-            gb.data_iter(batch_size, features, labels)):
+        for batch_i, (X, y) in enumerate(gb.data_iter(batch_size, features,
+                                                      labels)):
             with autograd.record():
                 l = loss(net(X, w, b), y)
             l.backward()

@@ -207,7 +207,7 @@ class Residual(nn.HybridBlock):
         if self.conv3:
             X = self.conv3(X)
         return F.relu(Y + X)
-    
+
 def resnet18(num_classes):
     net = nn.HybridSequential()
     net.add(nn.Conv2D(64, kernel_size=3, strides=1, padding=1),
@@ -223,11 +223,11 @@ def resnet18(num_classes):
         return blk 
 
     net.add(resnet_block(64, 2, first_block=True),
-            resnet_block(128, 2), 
-            resnet_block(256, 2), 
-            resnet_block(512, 2)) 
+            resnet_block(128, 2),
+            resnet_block(256, 2),
+            resnet_block(512, 2))
     net.add(nn.GlobalAvgPool2D(), nn.Dense(num_classes))
-    return net 
+    return net
 
 def get_net(ctx):
     num_classes = 10

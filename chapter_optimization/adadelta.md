@@ -86,8 +86,8 @@ def optimize(batch_size, rho, num_epochs, log_interval):
     [w, b], sqrs, deltas = init_params()
     ls = [loss(net(features, w, b), labels).mean().asnumpy()]
     for epoch in range(1, num_epochs + 1):
-        for batch_i, (X, y) in enumerate(
-            gb.data_iter(batch_size, features, labels)):
+        for batch_i, (X, y) in enumerate(gb.data_iter(batch_size, features,
+                                                      labels)):
             with autograd.record():
                 l = loss(net(X, w, b), y)
             l.backward()

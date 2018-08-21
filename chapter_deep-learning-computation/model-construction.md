@@ -23,6 +23,7 @@ class MLP(nn.Block):
         # 输出层。
         self.output = nn.Dense(10)
     # 定义模型的前向计算，即如何根据输入计算输出。
+
     def forward(self, x):
         return self.output(self.hidden(x))
 ```

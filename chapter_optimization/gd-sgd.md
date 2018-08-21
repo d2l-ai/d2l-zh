@@ -44,7 +44,7 @@ import random
 ```{.python .input  n=2}
 f = lambda x: x ** 2
 f_grad = lambda x: 2 * x
-    
+
 def gd(eta):    
     x = 10    
     res = [x]
@@ -197,8 +197,8 @@ def optimize(batch_size, lr, num_epochs, log_interval, decay_epoch):
         # 学习率自我衰减。
         if decay_epoch and epoch > decay_epoch:
             lr *= 0.1
-        for batch_i, (X, y) in enumerate(
-            gb.data_iter(batch_size, features, labels)):
+        for batch_i, (X, y) in enumerate(gb.data_iter(batch_size, features,
+                                                      labels)):
             with autograd.record():
                 l = loss(net(X, w, b), y)
             # 先对 l 中元素求和，得到小批量损失之和，然后求参数的梯度。

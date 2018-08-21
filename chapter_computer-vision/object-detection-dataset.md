@@ -36,7 +36,7 @@ def load_data_pikachu(batch_size, edge_size=256):
     data_dir = '../data/pikachu'
     _download_pikachu(data_dir)                                                                                                                 
     train_iter = image.ImageDetIter(
-        path_imgrec =os.path.join(data_dir, 'train.rec'),
+        path_imgrec=os.path.join(data_dir, 'train.rec'),
         # 每张图片在rec中的位置，使用随机顺序时需要。
         path_imgidx=os.path.join(data_dir, 'train.idx'), 
         batch_size=batch_size,

@@ -171,8 +171,8 @@ test_data = batchify(corpus.test, batch_size).as_in_context(ctx)
 
 def get_batch(source, i):
     seq_len = min(num_steps, source.shape[0] - 1 - i)
-    X = source[i : i + seq_len]
-    Y = source[i + 1 : i + 1 + seq_len]
+    X = source[i: i + seq_len]
+    Y = source[i + 1: i + 1 + seq_len]
     return X, Y.reshape((-1,))
 ```
 
@@ -213,9 +213,9 @@ def train_rnn():
         train_l_sum = nd.array([0], ctx=ctx)
         start_time = time.time()
         state = model.begin_state(func=nd.zeros, batch_size=batch_size,
-                                   ctx=ctx)
+                                  ctx=ctx)
         for batch_i, idx in enumerate(range(0, train_data.shape[0] - 1,
-                                          num_steps)):
+                                            num_steps)):
             X, y = get_batch(train_data, idx)
             # 从计算图分离隐藏状态变量（包括 LSTM 的记忆细胞）。
             state = detach(state)
