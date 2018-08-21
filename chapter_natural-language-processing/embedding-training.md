@@ -244,8 +244,8 @@ loss(my_pred, my_label, my_mask) * my_mask.shape[1] / my_mask.sum(axis=1)
 作为比较，我们从零开始实现二元交叉熵损失函数的计算，并根据掩码变量`my_mask`计算掩码为1的预测值和标签的损失函数。
 
 ```{.python .input}
-sigmoid = lambda x : -math.log(1 / (1 + math.exp(-x)))
-printfloat = lambda x : print('%.7f' % (x))
+sigmoid = lambda x: -math.log(1 / (1 + math.exp(-x)))
+printfloat = lambda x: print('%.7f' % (x))
 printfloat((sigmoid(1.5) + sigmoid(-0.3) + sigmoid(1) + sigmoid(-2)) / 4)
 printfloat((sigmoid(1.1) + sigmoid(-0.6) + sigmoid(-2.2)) / 3)
 ```
