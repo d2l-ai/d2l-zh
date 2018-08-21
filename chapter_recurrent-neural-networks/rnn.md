@@ -1,5 +1,7 @@
 # 循环神经网络
 
+（这一节应该叫做 基于字符循环神经网络的语言模型）
+
 前两节介绍了语言模型和循环神经网络的设计。在本节中，我们将从零开始实现一个基于循环神经网络的语言模型，并应用它创作歌词。循环神经网络还有更广泛的应用。我们将在“自然语言处理”篇章中使用循环神经网络对不定长的文本序列分类，或把它翻译成不定长的另一语言的文本序列。
 
 
@@ -16,6 +18,7 @@ $$
 
 其中隐藏层的权重$\boldsymbol{W}_{xh} \in \mathbb{R}^{d \times h}, \boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$和偏差 $\boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$，以及输出层的权重$\boldsymbol{W}_{hy} \in \mathbb{R}^{h \times q}$和偏差$\boldsymbol{b}_y \in \mathbb{R}^{1 \times q}$为循环神经网络的模型参数。有些文献所指的循环神经网络只含隐藏状态$\boldsymbol{H}_t$的计算表达式。
 
+（跟上节重复了）
 
 
 
@@ -70,6 +73,7 @@ import zipfile
 
 下面我们读取这个数据集，看看前50个字符是什么样的。
 
+(可以直接 zin.read('jaychou_lyrics.txt')，而不是解压）
 ```{.python .input  n=1}
 with zipfile.ZipFile('../data/jaychou_lyrics.txt.zip', 'r') as zin:
     zin.extractall('../data/')
@@ -95,6 +99,8 @@ corpus_chars = corpus_chars[0:20000]
 
 ## 建立字符索引
 
+（第一次描述vocab，建议多解释下为什么要这么搞）
+
 我们将数据集里面所有不同的字符取出来做成词典。打印`vocab_size`，即词典中不同字符的个数。
 
 ```{.python .input  n=4}
@@ -119,13 +125,18 @@ print('\nindices: \n', sample)
 
 我们有两种方式对时序数据采样，分别是随机采样和相邻采样。
 
+(因为还没讲到如何初始hidden status，这里讲区别有点早）
+
 ### 随机采样
 
 下面代码每次从数据里随机采样一个小批量。其中批量大小`batch_size`指每个小批量的样本数，`num_steps`为每个样本所包含的时间步数。
+（“任意截取的一段序列”描述不准确，这里是先固定截成num_steps长度的example后在随机取，所以开始位置都是固定的，而非随机生成）
 在随机采样中，每个样本是原始序列上任意截取的一段序列。相邻的两个随机小批量在原始序列上的位置不一定相毗邻。因此，我们无法用一个小批量最终时间步的隐藏状态来初始化下一个小批量的隐藏状态。在训练模型时，每次随机采样前都需要重新初始化隐藏状态。
+
 
 ```{.python .input  n=6}
 def data_iter_random(corpus_indices, batch_size, num_steps, ctx=None):
+    （不是很明白）
     # 减一是因为输出的索引是相应输入的索引加一。
     num_examples = (len(corpus_indices) - 1) // num_steps
     epoch_size = num_examples // batch_size
@@ -187,6 +198,7 @@ for X, Y in data_iter_consecutive(my_seq, batch_size=2, num_steps=3):
 
 为了用向量表示词，一个简单的办法是使用one-hot向量。
 假设词典中不同字符的数量为$N$，每个字符可以和从0到$N-1$的连续整数一一对应。这些与字符对应的整数也叫字符的索引。
+（$i$后用了英文标点）
 如果一个字符的索引是整数$i$, 那么我们创建一个全0的长为`vocab_size`的向量，并将其位置为$i$的元素设成1。该向量就是对原字符的one-hot向量。因此，本节实验中循环神经网络的输入个数$x$是任意词的特征向量长度`vocab_size`。
 
 下面分别展示了索引为0和2的one-hot向量。
@@ -194,7 +206,7 @@ for X, Y in data_iter_consecutive(my_seq, batch_size=2, num_steps=3):
 ```{.python .input  n=10}
 nd.one_hot(nd.array([0, 2]), vocab_size)
 ```
-
+（第二个形状里num_step -> vocab_size）
 我们每次采样的小批量的形状是（`batch_size`, `num_steps`）。下面这个函数将其转换成`num_steps`个可以输入进网络的形状为（`batch_size`, `num_steps`）的矩阵。对于一个时间步数为`num_steps`的序列，每个批量输入$\boldsymbol{X} \in \mathbb{R}^{n \times x}$，其中$n=$ `batch_size`，$x=$`vocab_size`（one-hot向量长度）。
 
 ```{.python .input  n=11}
@@ -267,8 +279,10 @@ len(outputs), outputs[0].shape, state_new.shape
 
 ## 定义预测函数
 
+（解释prefix是什么）
 以下函数预测基于前缀`prefix`接下来的`num_chars`个字符。我们将用它根据训练得到的循环神经网络`rnn`来创作歌词。
 
+（下面这个函数过于复杂。这一节本身很长，读到这里已经开始比较累。建议简化这个函数，可以在后面小节里面再实现一个完整的。这里可以删掉rnn, get_inputs, is_lstm, 这些arg。）
 ```{.python .input  n=15}
 def predict_rnn(rnn, prefix, num_chars, params, num_hiddens, vocab_size, ctx,
                 idx_to_char, char_to_idx, get_inputs, is_lstm=False):
@@ -303,6 +317,7 @@ $$ \min\left(\frac{\theta}{\|\boldsymbol{g}\|}, 1\right)\boldsymbol{g}$$
 
 的$L_2$范数不超过$\theta$。
 
+（不需要ctx，可以从params[0].context拿。另外，为什么要state_h, Y？）
 ```{.python .input  n=16}
 def grad_clipping(params, state_h, Y, theta, ctx):
     if theta is not None:
@@ -323,6 +338,7 @@ def grad_clipping(params, state_h, Y, theta, ctx):
 2. 在迭代模型参数前裁剪梯度。
 3. 对时序数据采用不同采样方法将导致隐藏状态初始化的不同。
 
+（这个函数过于复杂。建议只讲随机采样，或顺序采样。把没讲的放做练习。另外，最好使用 l.sum().asscalar() 来强制每个batch同步，这样减小内容使用。）
 ```{.python .input  n=17}
 def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
                           num_hiddens, lr, clipping_theta, batch_size,
@@ -388,6 +404,7 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
 
 ### 困惑度
 
+（放到训练函数前。最好写个定义。prep的主要作用其实是让数值变大，使得人看起来方便。）
 回忆一下[“Softmax回归”](../chapter_deep-learning-basics/softmax-regression.md)一节中交叉熵损失函数的定义。困惑度是对交叉熵损失函数做指数运算后得到的值。特别地，
 
 * 最佳情况下，模型总是把标签类别的概率预测为1。此时困惑度为1。

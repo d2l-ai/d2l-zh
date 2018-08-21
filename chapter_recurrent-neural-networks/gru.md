@@ -7,6 +7,8 @@
 
 ## 门控循环单元
 
+(建议仿照 http://colah.github.io/posts/2015-08-Understanding-LSTMs/ 多画点图。文字描述很难得到一个直观的解释）
+
 下面将介绍门控循环单元的设计。它引入了门的概念，从而修改了循环神经网络中隐藏状态的计算方式。输出层的设计不变。
 
 
@@ -96,6 +98,7 @@ vocab_size = len(char_to_idx)
 
 以下部分对模型参数进行初始化。超参数`num_hiddens`定义了隐藏单元的个数。
 
+（换行用ctx=ctx很奇怪，可以后面加一行 `params = [p.copyto(ctx) for p in params]`）
 ```{.python .input  n=3}
 ctx = gb.try_gpu()
 num_inputs = vocab_size
