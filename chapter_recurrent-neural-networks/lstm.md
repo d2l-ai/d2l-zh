@@ -113,8 +113,8 @@ def get_params():
     W_xo, W_ho, b_o = _three()  # 输出门参数。
     W_xc, W_hc, b_c = _three()  # 候选细胞参数。
     # 输出层参数。
-    W_hy = _one((num_hiddens, output_dim))
-    b_y = nd.zeros(output_dim, ctx=ctx)
+    W_hy = _one((num_hiddens, num_outputs))
+    b_y = nd.zeros(num_outputs, ctx=ctx)
     # 创建梯度。
     params = [W_xi, W_hi, b_i, W_xf, W_hf, b_f, W_xo, W_ho, b_o, W_xc, W_hc,
               b_c, W_hy, b_y]
