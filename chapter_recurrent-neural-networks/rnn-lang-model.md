@@ -148,23 +148,20 @@ len(inputs), inputs[0].shape
 接下来，我们初始化模型参数。隐藏单元个数 `num_hiddens`是一个超参数。
 
 ```{.python .input  n=37}
-ctx = gb.try_gpu()
-print('will use', ctx)
-
 num_inputs = vocab_size
 num_hiddens = 256
 num_outputs = vocab_size
+ctx = gb.try_gpu()
+print('will use', ctx)
 
 def get_params():
+    _one = lambda shape: nd.random.normal(scale=0.01, shape=shape, ctx=ctx)
     # 隐藏层参数。
-    W_xh = nd.random.normal(
-        scale=0.01, shape=(num_inputs, num_hiddens), ctx=ctx)
-    W_hh = nd.random.normal(
-        scale=0.01, shape=(num_hiddens, num_hiddens), ctx=ctx)
+    W_xh = _one((num_inputs, num_hiddens))
+    W_hh = _one((num_hiddens, num_hiddens))
     b_h = nd.zeros(num_hiddens, ctx=ctx)
     # 输出层参数。
-    W_hy = nd.random.normal(
-        scale=0.01, shape=(num_hiddens, num_outputs), ctx=ctx)
+    W_hy = _one((num_hiddens, num_outputs))
     b_y = nd.zeros(num_outputs, ctx=ctx)
     # 附上梯度。
     params = [W_xh, W_hh, b_h, W_hy, b_y]
