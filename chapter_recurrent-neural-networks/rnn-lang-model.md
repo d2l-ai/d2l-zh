@@ -1,12 +1,12 @@
 # 基于循环神经网络的语言模型
 
-前两节介绍了语言模型和循环神经网络的设计。在本节中，我们将从零开始实现一个基于循环神经网络的语言模型，并应用它创作歌词。在这个应用中，我们收集了周杰伦从第一张专辑《Jay》到第十张专辑《跨时代》中的歌词，并应用循环神经网络来训练一个语言模型。当模型训练好后，我们将以一种简单的方式创作歌词：根据给定的前缀，输出预测概率最大的下一个词；然后将该词附在前缀后继续输出预测概率最大的下一个词；如此循环。
+前两节介绍了语言模型和循环神经网络的设计。在本节中，我们将从零开始实现一个基于循环神经网络的语言模型，并应用它创作歌词。在这个应用中，我们收集了周杰伦从第一张专辑《Jay》到第十张专辑《跨时代》中的歌词，并应用循环神经网络来训练一个语言模型。当模型训练好后，我们将以一种简单的方式创作歌词：给定开头的几个词，输出预测概率最大的下一个词；然后将该词附在开头后继续输出预测概率最大的下一个词；如此循环。
 
 ## 字符级循环神经网络
 
-本节实验中的循环神经网络将每个字符视作词。我们有时将该模型称为字符级循环神经网络（character-level recurrent neural network）。因为不同字符的个数远小于不同词的个数，对于英文尤其如此，所以字符级循环神经网络的主要优点在于计算简单。
+本节实验中的循环神经网络将每个字符视作词，该模型被称为字符级循环神经网络（character-level recurrent neural network）。因为不同字符的个数远小于不同词的个数（对于英文尤其如此），所以字符级循环神经网络通常计算更加简单。
 
-设小批量中样本数$n=1$，文本序列为“想”、“要”、“直”、“升”、“机”（《Jay》中第一曲《可爱女人》的第一句，由徐若瑄填词）。图6.2演示了如何使用字符级循环神经网络来给定当前字符预测下一个字符。在训练时，我们对每个时间步的输出作用Softmax，然后使用交叉熵损失函数来计算预测的下一个字符与真实字符的误差。
+设小批量中样本数$n=1$，文本序列为“想”、“要”、“直”、“升”、“机”（《Jay》中第一曲《可爱女人》的第一句，由徐若瑄填词）。图6.2演示了如何使用字符级循环神经网络来给定当前字符预测下一个字符。在训练时，我们对每个时间步的输出作用Softmax，然后使用交叉熵损失函数来计算它与标签的误差。
 
 ![基于字符级循环神经网络的语言模型。输入序列和标签序列分别为“想”、“要”、“直”、“升”和“要”、“直”、“升”、“机”。](../img/rnn-train.svg)
 
@@ -34,13 +34,7 @@ with zipfile.ZipFile('../data/jaychou_lyrics.txt.zip') as zin:
 corpus_chars[0:40]
 ```
 
-看一下数据集中文本序列的长度。
-
-```{.python .input  n=8}
-len(corpus_chars)
-```
-
-接着我们稍微处理下数据集。为了打印方便，我们把换行符替换成空格。我们使用序列的前两万个字符训练模型，这样可以使得训练更快一些。
+这个数据集有五万多个字符。为了打印方便，我们把换行符替换成空格。然后使用前两万个字符来训练模型，这样可以使得训练更快一些。
 
 ```{.python .input  n=14}
 corpus_chars = corpus_chars.replace('\n', ' ').replace('\r', ' ')
@@ -69,9 +63,7 @@ print('indices:', sample)
 
 ## 时序数据的采样
 
-在训练中我们需要每次随机读取小批量样本和标签。但这里不同的是，时序数据的一个样本通常包含连续的字符。假设时间步数为5，样本序列为5个字符：“想”、“要”、“有”、“直”、“升”。那么该样本的标签序列为这些字符分别在训练集中的下一个字符：“要”、“有”、“直”、“升”、“机”。
-
-我们有两种方式对时序数据采样，分别是随机采样和相邻采样。
+在训练中我们需要每次随机读取小批量样本和标签。这里不同的是时序数据的一个样本通常包含连续的字符。假设时间步数为5，样本序列为5个字符：“想”、“要”、“有”、“直”、“升”。且该样本的标签序列为这些字符分别在训练集中的下一个字符：“要”、“有”、“直”、“升”、“机”。我们有两种方式对时序数据采样，分别是随机采样和相邻采样。
 
 ### 随机采样
 
@@ -135,9 +127,7 @@ for X, Y in data_iter_consecutive(my_seq, batch_size=2, num_steps=6):
 
 ## One-hot向量
 
-为了用向量表示词，一个简单的办法是使用one-hot向量。假设词典中不同字符的数量为$N$（即`vocab_size`），每个字符已经同一个从0到$N-1$的连续整数值索引一一对应。如果一个字符的索引是整数$i$, 那么我们创建一个全0的长为$N$的向量，并将其位置为$i$的元素设成1。该向量就是对原字符的one-hot向量。
-
-下面分别展示了索引为0和2的one-hot向量。
+为了将词表示成向量来输入进神经网络，一个简单的办法是使用one-hot向量。假设词典中不同字符的数量为$N$（即`vocab_size`），每个字符已经同一个从0到$N-1$的连续整数值索引一一对应。如果一个字符的索引是整数$i$, 那么我们创建一个全0的长为$N$的向量，并将其位置为$i$的元素设成1。该向量就是对原字符的one-hot向量。下面分别展示了索引为0和2的one-hot向量。
 
 ```{.python .input  n=21}
 nd.one_hot(nd.array([0, 2]), vocab_size)
@@ -167,14 +157,14 @@ num_outputs = vocab_size
 
 def get_params():
     # 隐藏层参数。
-    W_xh = nd.random.normal(scale=0.01, shape=(num_inputs, num_hiddens),
-                            ctx=ctx)
-    W_hh = nd.random.normal(scale=0.01, shape=(num_hiddens, num_hiddens),
-                            ctx=ctx)
+    W_xh = nd.random.normal(
+        scale=0.01, shape=(num_inputs, num_hiddens), ctx=ctx)
+    W_hh = nd.random.normal(
+        scale=0.01, shape=(num_hiddens, num_hiddens), ctx=ctx)
     b_h = nd.zeros(num_hiddens, ctx=ctx)
     # 输出层参数。
-    W_hy = nd.random.normal(scale=0.01, shape=(num_hiddens, num_outputs),
-                            ctx=ctx)
+    W_hy = nd.random.normal(
+        scale=0.01, shape=(num_hiddens, num_outputs), ctx=ctx)
     b_y = nd.zeros(num_outputs, ctx=ctx)
     # 附上梯度。
     params = [W_xh, W_hh, b_h, W_hy, b_y]
@@ -185,13 +175,21 @@ def get_params():
 
 ## 定义模型
 
-我们根据循环神经网络的表达式实现该模型。这里的激活函数使用了tanh函数。[“多层感知机”](../chapter_deep-learning-basics/mlp.md)一节中介绍过，当元素在实数域上均匀分布时，tanh函数值的均值为0。
+我们根据循环神经网络的表达式实现该模型。首先定义`init_rnn_state`函数来返回初始化的隐藏状态。这里隐藏状态是一个形状为（`batch_size`, `num_hiddens`）的矩阵。
 
-以下`rnn`函数的`inputs`和`outputs`皆为`num_steps` 个形状为（`batch_size`, `vocab_size`）的矩阵，隐藏状态`state`是一个形状为（`batch_size`, `num_hiddens`）的矩阵。
+```{.python .input}
+def init_rnn_state(batch_size, num_hiddens, ctx, is_lstm=False):
+    state = [nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx), ]
+    if is_lstm: # 初始化记忆细胞，在后面介绍 LSTM 的章节时使用，本节可以忽略。        
+        state.append(nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx))
+    return state
+```
+
+下面定义在一个时间步里如何计算隐藏状态和输出。这里的激活函数使用了tanh函数。[“多层感知机”](../chapter_deep-learning-basics/mlp.md)一节中介绍过，当元素在实数域上均匀分布时，tanh函数值的均值为0。
 
 ```{.python .input  n=38}
-def rnn(inputs, state, *params):
-    H = state
+def rnn(inputs, H, *params):
+    # inputs 和 outputs 皆为 num_steps 个形状为（batch_size, vocab_size）的矩阵。
     W_xh, W_hh, b_h, W_hy, b_y = params
     outputs = []
     for X in inputs:
@@ -204,25 +202,16 @@ def rnn(inputs, state, *params):
 做个简单的测试来观察输出结果的个数，第一个输出的形状，和新状态的形状。
 
 ```{.python .input  n=39}
-state = nd.zeros(shape=(X.shape[0], num_hiddens), ctx=ctx)
+state = init_rnn_state(X.shape[0], num_hiddens, ctx=ctx)
 inputs = to_onehot(X.as_in_context(ctx), vocab_size)
 params = get_params()
-outputs, state_new = rnn(inputs, state, *params)
-len(outputs), outputs[0].shape, state_new.shape
+outputs, H_new = rnn(inputs, *state, *params)
+len(outputs), outputs[0].shape, H_new.shape
 ```
 
 ## 定义预测函数
 
 以下函数基于前缀`prefix`（含有数个字符的字符串）来预测接下来的`num_chars`个字符。这个函数稍显复杂，主要因为我们将循环神经单元`rnn`和输入索引变换网络输入的函数`get_inputs`设置成了可变项，这样在后面小节介绍其他循环神经网络（例如LSTM）和特征表示方法（例如Embedding）时能重复使用这个函数。
-
-```{.python .input}
-def init_rnn_state(batch_size, num_hiddens, ctx, is_lstm):
-    state = [nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx), ]
-    if is_lstm:
-        # 初始化记忆细胞，在后面介绍 LSTM 的章节时使用，本节可以忽略。
-        state.append(nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx))
-    return state
-```
 
 ```{.python .input  n=15}
 def predict_rnn(rnn, prefix, num_chars, params, num_hiddens, vocab_size, ctx,
@@ -338,11 +327,11 @@ def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
                     ctx, idx_to_char, char_to_idx, get_inputs, is_lstm))
 ```
 
-以上介绍的`to_onehot`、`init_rnn_state`、`data_iter_random`、`data_iter_consecutive`、`grad_clipping`、`predict_rnn`和`train_and_predict_rnn`函数均定义在`gluonbook`包中供后面章节调用。有了这些函数以后，我们就可以训练模型了。
+以上介绍的函数，除去`get_params`外，均定义在`gluonbook`包中供后面章节调用。有了这些函数以后，我们就可以训练模型了。
 
 ## 训练模型并创作歌词
 
-首先，设置模型超参数。我们将根据前缀“分开”和“不分开”分别创作长度为100个字符的一段歌词。我们每过40个迭代周期便根据当前训练的模型创作一段歌词。
+首先，设置模型超参数。我们将根据前缀“分开”和“不分开”分别创作长度为50个字符的一段歌词。我们每过50个迭代周期便根据当前训练的模型创作一段歌词。
 
 ```{.python .input}
 num_epochs = 200
@@ -351,7 +340,7 @@ batch_size = 32
 lr = 0.2
 clipping_theta = 5
 prefixes = ['分开', '不分开']
-pred_period = 40
+pred_period = 50
 pred_len = 50
 ```
 
