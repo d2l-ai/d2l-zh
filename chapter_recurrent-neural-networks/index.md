@@ -12,8 +12,8 @@
    :maxdepth: 2
 
    lang-model
-   hidden-state
    rnn
+   rnn-lang-model
    bptt
    gru
    lstm
