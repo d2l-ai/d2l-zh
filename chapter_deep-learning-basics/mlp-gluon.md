@@ -17,8 +17,8 @@ from mxnet.gluon import loss as gloss, nn
 
 ```{.python .input  n=5}
 net = nn.Sequential()
-net.add(nn.Dense(256, activation='relu'))
-net.add(nn.Dense(10))
+net.add(nn.Dense(256, activation='relu'),
+        nn.Dense(10))
 net.initialize(init.Normal(sigma=0.01))
 ```
 

@@ -177,8 +177,7 @@ def sgd_momentum(params_vars, hyperparams, batch_size):
 我们先将动量超参数$\gamma$（`mom`）设0.99。此时，小梯度随机梯度下降可被看作使用了特殊梯度：这个特殊梯度是最近100个时刻的$100\nabla f_\mathcal{B}(\boldsymbol{x})$的加权平均。我们观察到，损失函数值在3个迭代周期后上升。这很可能是由于特殊梯度中较大的系数100造成的。
 
 ```{.python .input  n=10}
-gb.optimize(optimizer_fn=sgd_momentum, batch_size=10, num_epochs=3,
-            log_interval=10, params_vars=init_params_vars(),
+gb.optimize(optimizer_fn=sgd_momentum, params_vars=init_params_vars(),
             hyperparams={'lr': 0.2, 'mom': 0.99}, features=features,
             labels=labels, decay_epoch=2)
 ```
@@ -186,8 +185,7 @@ gb.optimize(optimizer_fn=sgd_momentum, batch_size=10, num_epochs=3,
 假设学习率不变，为了降低上述特殊梯度中的系数，我们将动量超参数$\gamma$（`mom`）设0.9。此时，上述特殊梯度变成最近10个时刻的$10\nabla f_\mathcal{B}(\boldsymbol{x})$的加权平均。我们观察到，损失函数值在3个迭代周期后下降。
 
 ```{.python .input  n=11}
-gb.optimize(optimizer_fn=sgd_momentum, batch_size=10, num_epochs=3,
-            log_interval=10, params_vars=init_params_vars(),
+gb.optimize(optimizer_fn=sgd_momentum, params_vars=init_params_vars(),
             hyperparams={'lr': 0.2, 'mom': 0.9}, features=features,
             labels=labels, decay_epoch=2)
 ```
@@ -195,8 +193,7 @@ gb.optimize(optimizer_fn=sgd_momentum, batch_size=10, num_epochs=3,
 继续保持学习率不变，我们将动量超参数$\gamma$（`mom`）设0.5。此时，小梯度随机梯度下降可被看作使用了新的特殊梯度：这个特殊梯度是最近2个时刻的$2\nabla f_\mathcal{B}(\boldsymbol{x})$的加权平均。我们观察到，损失函数值在3个迭代周期后下降，且下降曲线较平滑。最终，优化所得的模型参数值与它们的真实值较接近。
 
 ```{.python .input  n=12}
-gb.optimize(optimizer_fn=sgd_momentum, batch_size=10, num_epochs=3,
-            log_interval=10, params_vars=init_params_vars(),
+gb.optimize(optimizer_fn=sgd_momentum, params_vars=init_params_vars(),
             hyperparams={'lr': 0.2, 'mom': 0.5}, features=features,
             labels=labels, decay_epoch=2)
 ```
@@ -212,27 +209,24 @@ net.add(nn.Dense(1))
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate': 0.2, 'momentum': 0.99})
-gb.optimize_with_trainer(batch_size=10, trainer=trainer, num_epochs=3,
-                         decay_epoch=2, log_interval=10, features=features,
-                         labels=labels, net=net)
+gb.optimize_with_trainer(trainer=trainer, features=features, labels=labels,
+                         net=net, decay_epoch=2)
 ```
 
 ```{.python .input}
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate': 0.2, 'momentum': 0.9})
-gb.optimize_with_trainer(batch_size=10, trainer=trainer, num_epochs=3,
-                         decay_epoch=2, log_interval=10, features=features,
-                         labels=labels, net=net)
+gb.optimize_with_trainer(trainer=trainer, features=features, labels=labels,
+                         net=net, decay_epoch=2)
 ```
 
 ```{.python .input}
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate': 0.2, 'momentum': 0.5})
-gb.optimize_with_trainer(batch_size=10, trainer=trainer, num_epochs=3,
-                         decay_epoch=2, log_interval=10, features=features,
-                         labels=labels, net=net)
+gb.optimize_with_trainer(trainer=trainer, features=features, labels=labels,
+                         net=net, decay_epoch=2)
 ```
 
 ## 小结

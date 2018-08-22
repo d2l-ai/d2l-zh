@@ -79,8 +79,7 @@ def adadelta(params_vars, hyperparams, batch_size):
 可以看出，优化所得的模型参数值与它们的真实值较接近。
 
 ```{.python .input  n=3}
-gb.optimize(optimizer_fn=adadelta, batch_size=10, num_epochs=3,
-            log_interval=10, params_vars=init_params_vars(),
+gb.optimize(optimizer_fn=adadelta, params_vars=init_params_vars(),
             hyperparams={'rho': 0.9999}, features=features, labels=labels)
 ```
 
@@ -94,9 +93,8 @@ net.add(nn.Dense(1))
 
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'adadelta', {'rho': 0.9999})
-gb.optimize_with_trainer(batch_size=10, trainer=trainer, num_epochs=3,
-                         decay_epoch=None, log_interval=10, features=features,
-                         labels=labels, net=net)
+gb.optimize_with_trainer(trainer=trainer, features=features, labels=labels,
+                         net=net)
 ```
 
 ## 小结
