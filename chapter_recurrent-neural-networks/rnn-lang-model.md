@@ -360,7 +360,7 @@ pred_len = 50
 ```{.python .input  n=18}
 train_and_predict_rnn(rnn, True, num_epochs, num_steps, num_hiddens, lr,
                       clipping_theta, batch_size, vocab_size, pred_period,
-                      pred_len, prefixes, get_params, get_inputs, ctx,
+                      pred_len, prefixes, get_params, to_onehot, ctx,
                       corpus_indices, idx_to_char, char_to_idx)
 ```
 
@@ -369,7 +369,7 @@ train_and_predict_rnn(rnn, True, num_epochs, num_steps, num_hiddens, lr,
 ```{.python .input  n=19}
 train_and_predict_rnn(rnn, False, num_epochs, num_steps, num_hiddens, lr,
                       clipping_theta, batch_size, vocab_size, pred_period,
-                      pred_len, prefixes, get_params, get_inputs, ctx,
+                      pred_len, prefixes, get_params, to_onehot, ctx,
                       corpus_indices, idx_to_char, char_to_idx)
 ```
 
