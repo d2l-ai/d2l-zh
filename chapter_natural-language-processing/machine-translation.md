@@ -201,7 +201,7 @@ Sutskever等人发现贪婪搜索也可以在机器翻译中也可以取得不�
 ```{.python .input}
 def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
     for fr_en in fr_ens:
-        print('[input] ', fr_en[0])
+        print('[input] ', fr_en[0], '[expect]', fr_en[1])
         input_tokens = fr_en[0].split(' ') + [EOS]
         # 添加 PAD 符号使每个序列等长（长度为 max_seq_len）。
         while len(input_tokens) < max_seq_len:
@@ -227,8 +227,7 @@ def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
             else:
                 output_tokens.append(output_vocab.idx_to_token[pred_i])
             decoder_input = nd.array([pred_i], ctx=ctx)
-        print('[output]', ' '.join(output_tokens))
-        print('[expect]', fr_en[1], '\n')
+        print('[output]', ' '.join(output_tokens), '\n')
 ```
 
 下面定义模型训练函数。为了初始化解码器的隐藏状态，我们通过一层全连接网络来变换编码器最早时间步的输出隐藏状态。解码器中，当前时间步的预测词将作为下一时间步的输入。其实，我们也可以使用样本输出序列在当前时间步的词作为下一时间步的输入。这叫作强制教学（teacher forcing）。
