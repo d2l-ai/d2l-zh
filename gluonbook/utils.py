@@ -606,7 +606,7 @@ def train_and_predict_rnn(
     for epoch in range(num_epochs):
         if not is_random_iter:
             state = init_rnn_state(batch_size, num_hiddens, ctx)
-        loss_sum = 0.0
+        loss_sum, start = 0.0, time()
         data_iter = data_iter_fn(corpus_indices, batch_size, num_steps, ctx)
         for t, (X, Y) in enumerate(data_iter):
             if is_random_iter:
@@ -626,8 +626,8 @@ def train_and_predict_rnn(
             loss_sum += l.asscalar()
 
         if (epoch+1) % pred_period == 0:
-            print('epoch %d, perplexity %f' % (
-                epoch + 1, math.exp(loss_sum / (t+1))))
+            print('epoch %d, perplexity %f, time %.2f sec' % (
+                epoch + 1, math.exp(loss_sum / (t+1)), time() - start))
             for prefix in prefixes:
                 print(' -', predict_rnn(
                     prefix, pred_len, rnn, params, init_rnn_state,
@@ -644,7 +644,7 @@ def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
                             {'learning_rate': lr, 'momentum': 0, 'wd': 0})
 
     for epoch in range(num_epochs):
-        loss_sum = 0.0
+        loss_sum, start = 0.0, time()
         data_iter = data_iter_consecutive(
             corpus_indices, batch_size, num_steps, ctx)
         state = model.begin_state(batch_size=batch_size, ctx=ctx)
@@ -662,8 +662,8 @@ def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
             loss_sum += l.asscalar()
 
         if (epoch+1) % pred_period == 0:
-            print('epoch %d, perplexity %f' % (
-                epoch + 1, math.exp(loss_sum / (t+1))))
+            print('epoch %d, perplexity %f, time %.2f sec' % (
+                epoch + 1, math.exp(loss_sum / (t+1)), time() - start))
             for prefix in prefixes:
                 print(' -', predict_rnn_gluon(
                     prefix, pred_len, model, vocab_size,

@@ -128,7 +128,7 @@ def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
             loss_sum += l.asscalar()
 
         if (epoch+1) % pred_period == 0:
-            print('epoch %d, perplexity %f, time %.2f sec99' % (
+            print('epoch %d, perplexity %f, time %.2f sec' % (
                 epoch + 1, math.exp(loss_sum / (t+1)), time.time() - start))
             for prefix in prefixes:
                 print(' -', predict_rnn_gluon(
