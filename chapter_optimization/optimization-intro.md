@@ -1,11 +1,6 @@
-# 优化算法概述
+# 优化与深度学习
 
-本节将讨论优化与深度学习的关系以及优化在深度学习中的挑战。
-
-
-## 优化与深度学习
-
-在一个深度学习问题中，通常我们会预先定义一个损失函数。有了损失函数以后，我们就可以使用优化算法试图使其最小化。在优化中，这样的损失函数通常被称作优化问题的目标函数（objective function）。依据惯例，优化算法通常只考虑最小化目标函数。其实，任何最大化问题都可以很容易地转化为最小化问题：我们只需把目标函数前面的正号或负号取相反。
+本节将讨论优化与深度学习的关系以及优化在深度学习中的挑战。在一个深度学习问题中，通常我们会预先定义一个损失函数。有了损失函数以后，我们就可以使用优化算法试图使其最小化。在优化中，这样的损失函数通常被称作优化问题的目标函数（objective function）。依据惯例，优化算法通常只考虑最小化目标函数。其实，任何最大化问题都可以很容易地转化为最小化问题：我们只需把目标函数前面的正号或负号取相反。
 
 虽然优化为深度学习提供了最小化损失函数的方法，但本质上，这两者之间的目标是有区别的。
 在[“欠拟合、过拟合和模型选择”](../chapter_deep-learning-basics/underfit-overfit.md)一节中，我们区分了训练误差和泛化误差。
@@ -14,7 +9,6 @@
 为了降低泛化误差，除了使用优化算法降低训练误差以外，我们还需要注意应对过拟合。
 
 本章中，我们只关注优化算法在最小化目标函数上的表现，而不关注模型的泛化误差。
-
 
 
 ## 优化在深度学习中的挑战
@@ -49,19 +43,16 @@ def f(x):
 
 gb.set_figsize((4.5, 2.5))
 x = np.arange(-1.0, 2.0, 0.1)
-fig = gb.plt.figure()
-subplt = fig.add_subplot(111)
-subplt.annotate('local minimum', xy=(-0.3, -0.25), xytext=(-0.77, -1.0),
-                arrowprops=dict(facecolor='black', shrink=0.05))
-subplt.annotate('global minimum', xy=(1.1, -0.9), xytext=(0.6, 0.8),
-                arrowprops=dict(facecolor='black', shrink=0.05))
-gb.plt.plot(x, f(x))
+fig,  = gb.plt.plot(x, f(x))
+fig.axes.annotate('local minimum', xy=(-0.3, -0.25), xytext=(-0.77, -1.0),
+                  arrowprops=dict(arrowstyle='->'))
+fig.axes.annotate('global minimum', xy=(1.1, -0.95), xytext=(0.6, 0.8),
+                  arrowprops=dict(arrowstyle='->'))
 gb.plt.xlabel('x')
 gb.plt.ylabel('f(x)');
 ```
 
 深度学习模型的目标函数可能有若干局部最优值。当一个优化问题的数值解在局部最优解附近时，由于目标函数有关解的梯度接近或变成零，最终迭代求得的数值解可能只令目标函数局部最小化而非全局最小化。
-
 
 ### 鞍点
 
@@ -73,11 +64,9 @@ $$f(x) = x^3,$$
 
 ```{.python .input  n=3}
 x = np.arange(-2.0, 2.0, 0.1)
-fig = gb.plt.figure()
-subplt = fig.add_subplot(111)
-subplt.annotate('saddle point', xy=(0, -0.2), xytext=(-0.52, -5.0),
-                arrowprops=dict(facecolor='black', shrink=0.05))
-gb.plt.plot(x, x**3)
+fig, = gb.plt.plot(x, x**3)
+fig.axes.annotate('saddle point', xy=(0, -0.2), xytext=(-0.52, -5.0),
+                  arrowprops=dict(arrowstyle='->'))
 gb.plt.xlabel('x')
 gb.plt.ylabel('f(x)');
 ```
@@ -89,16 +78,16 @@ $$f(x, y) = x^2 - y^2.$$
 我们可以找出该函数的鞍点位置。也许你已经发现了，该函数看起来像一个马鞍，而鞍点恰好是马鞍上可坐区域的中心。
 
 ```{.python .input  n=4}
-fig = gb.plt.figure()
-ax = fig.add_subplot(111, projection='3d')
 x, y = np.mgrid[-1:1:31j, -1:1:31j]
 z = x**2 - y**2
-ax.plot_surface(x, y, z, **{'rstride': 1, 'cstride': 1, 'cmap': "Greens_r"})
-ax.plot([0], [0], [0], 'ro')
-ax.view_init(azim=-50, elev=20)
-gb.plt.xticks([-1, -0.5, 0, 0.5, 1])
-gb.plt.yticks([-1, -0.5, 0, 0.5, 1])
-ax.set_zticks([-1, -0.5, 0, 0.5, 1])
+
+ax = gb.plt.figure().add_subplot(111, projection='3d')
+ax.plot_wireframe(x, y, z, **{'rstride':2, 'cstride':2})
+ax.plot([0], [0], [0], 'rx')
+ticks = [-1,  0, 1]
+gb.plt.xticks(ticks)
+gb.plt.yticks(ticks)
+ax.set_zticks(ticks)
 gb.plt.xlabel('x')
 gb.plt.ylabel('y');
 ```
