@@ -7,9 +7,9 @@
 首先导入本节所需的包和模块。
 
 ```{.python .input  n=1}
+from mxnet import nd
 import random
 import zipfile
-from mxnet import nd
 ```
 
 然后读取这个数据集，看看前50个字符是什么样的。
@@ -114,13 +114,18 @@ for X, Y in data_iter_consecutive(my_seq, batch_size=2, num_steps=6):
     print('X: ', X, '\nY:', Y, '\n')
 ```
 
-同样，`data_iter_random`和`data_iter_consecutive`也保存在GluonBook里以供后面章节需要。
+本节定义的`data_iter_random`和`data_iter_consecutive`函数被保存在`gluonbook`包里以供后面章节调用。
+
 
 ## 小结
 
-时序数据采样方式包括随机采样和相邻采样。使用这两种方式的循环神经网络训练略有不同。
+* 时序数据采样方式包括随机采样和相邻采样。使用这两种方式的循环神经网络训练略有不同。
 
 ## 练习
 
 * 你还能想到哪些采样小批量数据的办法？
 * 如果我们想让一个序列样本就是一个完整的句子，这会给小批量采样带来什么样的问题？
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7876)
+
+![](../img/qr_lang-model-dataset.svg)
