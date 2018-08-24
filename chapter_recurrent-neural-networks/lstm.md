@@ -66,13 +66,9 @@ $$\boldsymbol{H}_t = \boldsymbol{O}_t \odot \text{tanh}(\boldsymbol{C}_t).$$
 ![长短期记忆中隐藏状态的计算。这里的乘号是按元素乘法。](../img/lstm_3.svg)
 
 
-## 实验
+## 载入数据集
 
 和前几节中的实验一样，我们依然使用周杰伦歌词数据集来训练模型作词。
-
-### 处理数据
-
-我们先读取并简单处理数据集。
 
 ```{.python .input  n=1}
 import sys
@@ -80,24 +76,19 @@ sys.path.insert(0, '..')
 
 import gluonbook as gb
 from mxnet import nd
-import zipfile
+from mxnet.gluon import rnn
 
-with zipfile.ZipFile('../data/jaychou_lyrics.txt.zip') as zin:
-    with zin.open('jaychou_lyrics.txt') as f:
-        corpus_chars = f.read().decode('utf-8')
-corpus_chars = corpus_chars.replace('\n', ' ').replace('\r', ' ')
-corpus_chars = corpus_chars[0:20000]
-idx_to_char = list(set(corpus_chars))
-char_to_idx = dict([(char, i) for i, char in enumerate(idx_to_char)])
-corpus_indices = [char_to_idx[char] for char in corpus_chars]
-vocab_size = len(char_to_idx)
+corpus_indices, char_to_idx, idx_to_char, vocab_size = gb.load_data_jay_lyrics()
 ```
+
+## LSTM的从零开始实现
+
 
 ### 初始化模型参数
 
 以下部分对模型参数进行初始化。超参数`num_hiddens`定义了隐藏单元的个数。
 
-```{.python .input  n=3}
+```{.python .input  n=2}
 num_inputs = vocab_size
 num_hiddens = 256
 num_outputs = vocab_size
@@ -125,12 +116,21 @@ def get_params():
 
 ## 定义模型
 
-下面根据长短期记忆的计算表达式定义模型。
+LSTM的隐藏状态需要返回额外的形状为（batch_size，num_hiddens）的值为0的记忆细胞。
+
+```{.python .input  n=3}
+def init_lstm_state(batch_size, num_hiddens, ctx):
+    return (nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx), 
+            nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx))
+```
+
+根据长短期记忆的计算表达式定义模型。
 
 ```{.python .input  n=4}
-def lstm_rnn(inputs, H, C, *params):
+def lstm(inputs, state, params):
     [W_xi, W_hi, b_i, W_xf, W_hf, b_f, W_xo, W_ho, b_o, W_xc, W_hc, b_c,
      W_hy, b_y] = params
+    (H, C) = state
     outputs = []
     for X in inputs:        
         I = nd.sigmoid(nd.dot(X, W_xi) + nd.dot(H, W_hi) + b_i)
@@ -141,29 +141,47 @@ def lstm_rnn(inputs, H, C, *params):
         H = O * C.tanh()
         Y = nd.dot(H, W_hy) + b_y
         outputs.append(Y)
-    return (outputs, H, C)
+    return outputs, (H, C)
 ```
 
 ### 训练模型并创作歌词
 
-设置好超参数后，我们将训练模型并跟据前缀“分开”和“不分开”分别创作长度为50个字符的一段歌词。我们每过30个迭代周期便根据当前训练的模型创作一段歌词。训练模型时采用了相邻采样。
+使用同前一样的超参数。
 
 ```{.python .input  n=5}
 get_inputs = gb.to_onehot
-num_epochs = 150
+num_epochs = 160
 num_steps = 35
 batch_size = 32
-lr = 0.25
-clipping_theta = 5
+lr = 1e2
+clipping_theta = 1e-2
 prefixes = ['分开', '不分开']
-pred_period = 30
+pred_period = 40
 pred_len = 50
+```
 
-gb.train_and_predict_rnn(lstm_rnn, False, num_epochs, num_steps, num_hiddens,
-                         lr, clipping_theta, batch_size, vocab_size,
-                         pred_period, pred_len, prefixes, get_params,
-                         get_inputs, ctx, corpus_indices, idx_to_char,
-                         char_to_idx, is_lstm=True)
+开始模型训练。
+
+```{.python .input}
+gb.train_and_predict_rnn(
+    lstm, get_params, init_lstm_state, num_hiddens, vocab_size, ctx, 
+    corpus_indices, idx_to_char, char_to_idx, False, 
+    num_epochs, num_steps, lr, clipping_theta, batch_size, 
+    pred_period, pred_len, prefixes)
+```
+
+## LSTM的Gluon实现
+
+我们直接调用rnn包里的LSTM类。
+
+```{.python .input  n=6}
+lstm_layer = rnn.LSTM(num_hiddens)
+model = gb.RNNModel(lstm_layer, vocab_size)
+
+gb.train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx, 
+                              corpus_indices, idx_to_char, char_to_idx, 
+                              num_epochs, num_steps, lr, clipping_theta, 
+                              batch_size, pred_period, pred_len, prefixes)
 ```
 
 ## 小结

@@ -22,7 +22,7 @@ import zipfile
 
 ## 处理数据集
 
-我们将在[“循环神经网络——使用Gluon”](../chapter_recurrent-neural-networks/rnn-gluon.md)一节中介绍的Penn Tree Bank数据集（训练集）上训练词嵌入模型。该数据集的每一行为一个句子。句子中的每个词由空格隔开。
+Penn Tree Bank（PTB）是一个常用的小型语料库 [1]。它包括训练集、验证集和测试集。我们将在Penn Tree Bank的训练集上训练词嵌入模型。该数据集的每一行为一个句子。句子中的每个词由空格隔开。
 
 ```{.python .input  n=2}
 with zipfile.ZipFile('../data/ptb.zip', 'r') as zin:
@@ -68,7 +68,7 @@ coded_dataset = [[token_to_idx[token] for token in sentence
 
 ### 二次采样
 
-在一般的文本数据集中，有些词的词频可能过高，例如英文中的“the”、“a”和“in”。通常来说，一个句子中，词“China”和较低频词“Beijing”同时出现比和较高频词“the”同时出现对训练词嵌入更加有帮助。这是因为，绝大多数词都和词“the”同时出现在一个句子里。因此，训练词嵌入模型时可以对词进行二次采样 [1]。具体来说，数据集中每个被索引词$w_i$将有一定概率被丢弃：该概率为
+在一般的文本数据集中，有些词的词频可能过高，例如英文中的“the”、“a”和“in”。通常来说，一个句子中，词“China”和较低频词“Beijing”同时出现比和较高频词“the”同时出现对训练词嵌入更加有帮助。这是因为，绝大多数词都和词“the”同时出现在一个句子里。因此，训练词嵌入模型时可以对词进行二次采样 [2]。具体来说，数据集中每个被索引词$w_i$将有一定概率被丢弃：该概率为
 
 $$ \mathbb{P}(w_i) = \max\left(1 - \sqrt{\frac{t}{f(w_i)}}, 0\right),$$ 
 
@@ -355,4 +355,6 @@ train_embedding(num_epochs=5)
 
 ## 参考文献
 
-[1] Mikolov, T., Sutskever, I., Chen, K., Corrado, G. S., & Dean, J. (2013). Distributed representations of words and phrases and their compositionality. In Advances in neural information processing systems (pp. 3111-3119).
+[1] Penn Tree Bank. https://catalog.ldc.upenn.edu/ldc99t42
+
+[2] Mikolov, T., Sutskever, I., Chen, K., Corrado, G. S., & Dean, J. (2013). Distributed representations of words and phrases and their compositionality. In Advances in neural information processing systems (pp. 3111-3119).

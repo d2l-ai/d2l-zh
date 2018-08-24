@@ -17,7 +17,6 @@
    nin
    googlenet
    batch-norm
-   batch-norm-gluon
    resnet
    densenet
 ```

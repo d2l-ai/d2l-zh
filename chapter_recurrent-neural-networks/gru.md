@@ -59,40 +59,29 @@ $$\boldsymbol{H}_t = \boldsymbol{Z}_t \odot \boldsymbol{H}_{t-1}  + (1 - \boldsy
 * 重置门有助于捕捉时间序列里短期的依赖关系。
 * 更新门有助于捕捉时间序列里长期的依赖关系。
 
-## 实验
+## 载入数据集
 
+为了实现并展示门控循环单元，我们依然使用周杰伦歌词数据集来训练模型作词。这里除门控循环单元以外的实现已在[“循环神经网络”](rnn.md)一节中介绍。我们先导入包和模块，并读取数据集。
 
-为了实现并展示门控循环单元，我们依然使用周杰伦歌词数据集来训练模型作词。这里除门控循环单元以外的实现已在[“循环神经网络”](rnn.md)一节中介绍。
-
-
-### 处理数据
-
-我们先读取并简单处理数据集。
-
-```{.python .input  n=2}
+```{.python .input  n=1}
 import sys
 sys.path.insert(0, '..')
 
 import gluonbook as gb
 from mxnet import nd
-import zipfile
+from mxnet.gluon import rnn
 
-with zipfile.ZipFile('../data/jaychou_lyrics.txt.zip') as zin:
-    with zin.open('jaychou_lyrics.txt') as f:
-        corpus_chars = f.read().decode('utf-8')
-corpus_chars = corpus_chars.replace('\n', ' ').replace('\r', ' ')
-corpus_chars = corpus_chars[0:20000]
-idx_to_char = list(set(corpus_chars))
-char_to_idx = dict([(char, i) for i, char in enumerate(idx_to_char)])
-corpus_indices = [char_to_idx[char] for char in corpus_chars]
-vocab_size = len(char_to_idx)
+corpus_indices, char_to_idx, idx_to_char, vocab_size = gb.load_data_jay_lyrics()
 ```
+
+## GRU的从零开始实现
+
 
 ### 初始化模型参数
 
 以下部分对模型参数进行初始化。超参数`num_hiddens`定义了隐藏单元的个数。
 
-```{.python .input  n=3}
+```{.python .input  n=2}
 num_inputs = vocab_size
 num_hiddens = 256
 num_outputs = vocab_size
@@ -116,13 +105,21 @@ def get_params():
     return params
 ```
 
-## 定义模型
+### 定义模型
+
+首先定义隐藏状态初始化函数，同`init_rnn_state`一样它返回由一个形状为（`batch_size`，`num_hiddens`）的值为0的NDArray组成的列表。
+
+```{.python .input  n=3}
+def init_gru_state(batch_size, num_hiddens, ctx):
+    return (nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx), )
+```
 
 下面根据门控循环单元的计算表达式定义模型。
 
 ```{.python .input  n=4}
-def gru_rnn(inputs, H, *params):
+def gru(inputs, state, params):
     W_xz, W_hz, b_z, W_xr, W_hr, b_r, W_xh, W_hh, b_h, W_hy, b_y = params
+    H, = state
     outputs = []
     for X in inputs:        
         Z = nd.sigmoid(nd.dot(X, W_xz) + nd.dot(H, W_hz) + b_z)
@@ -131,28 +128,47 @@ def gru_rnn(inputs, H, *params):
         H = Z * H + (1 - Z) * H_tilda
         Y = nd.dot(H, W_hy) + b_y
         outputs.append(Y)
-    return (outputs, H)
+    return outputs, (H,)
 ```
 
 ### 训练模型并创作歌词
 
-设置好超参数后，我们将训练模型并跟据前缀“分开”和“不分开”分别创作长度为50个字符的一段歌词。我们每过30个迭代周期便根据当前训练的模型创作一段歌词。训练模型时采用了相邻采样。
+使用同前一节类似的超参数训练，但我们这里减少了迭代周期数，且训练模型时只采用了相邻采样。
+
 
 ```{.python .input  n=5}
-num_epochs = 150
+num_epochs = 160
 num_steps = 35
 batch_size = 32
-lr = 0.25
-clipping_theta = 5
+lr = 1e2
+clipping_theta = 1e-2
 prefixes = ['分开', '不分开']
-pred_period = 30
+pred_period = 40
 pred_len = 50
+```
 
-gb.train_and_predict_rnn(gru_rnn, False, num_epochs, num_steps, num_hiddens,
-                         lr, clipping_theta, batch_size, vocab_size,
-                         pred_period, pred_len, prefixes, get_params,
-                         gb.to_onehot, ctx, corpus_indices, idx_to_char,
-                         char_to_idx)
+设置好超参数后，我们将训练模型并跟据前缀“分开”和“不分开”分别创作长度为50个字符的一段歌词。我们每过30个迭代周期便根据当前训练的模型创作一段歌词。。
+
+```{.python .input}
+gb.train_and_predict_rnn(
+    gru, get_params, init_gru_state, num_hiddens, vocab_size, ctx, 
+    corpus_indices, idx_to_char, char_to_idx, False, 
+    num_epochs, num_steps, lr, clipping_theta, batch_size, 
+    pred_period, pred_len, prefixes)
+```
+
+## GRU的Gluon实现
+
+在Gluon中我们直接调用rnn模块中的GRU类即可。
+
+```{.python .input  n=6}
+gru_layer = rnn.GRU(num_hiddens)
+model = gb.RNNModel(gru_layer, vocab_size)
+
+gb.train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx, 
+                              corpus_indices, idx_to_char, char_to_idx, 
+                              num_epochs, num_steps, lr, clipping_theta, 
+                              batch_size, pred_period, pred_len, prefixes)
 ```
 
 ## 小结
