@@ -9,8 +9,8 @@
 | `bbox_to_rect`|[物体检测和边界框](../chapter_computer-vision/bounding-box.md)|
 | `count_tokens`|[文本情感分类：使用循环神经网络](../chapter_natural-language-processing/sentiment-analysis.md)|
 | `data_iter`|[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)|
-| `data_iter_consecutive`|[循环神经网络](../chapter_recurrent-neural-networks/rnn.md)|
-| `data_iter_random`|[循环神经网络](../chapter_recurrent-neural-networks/rnn.md)|
+| `data_iter_consecutive`|[语言模型数据集（周杰伦专辑歌词）](../chapter_recurrent-neural-networks/lang-model-dataset.md)|
+| `data_iter_random`|[语言模型数据集（周杰伦专辑歌词）](../chapter_recurrent-neural-networks/lang-model-dataset.md)|
 | `download_imdb`|[文本情感分类：使用循环神经网络](../chapter_natural-language-processing/sentiment-analysis.md)|
 | `download_voc_pascal`|[语义分割和数据集](../chapter_computer-vision/semantic-segmentation-and-dataset.md)|
 | `evaluate_accuracy`|[图片增广](../chapter_computer-vision/image-augmentation.md)|
@@ -20,7 +20,7 @@
 | `grad_clipping`|[循环神经网络](../chapter_recurrent-neural-networks/rnn.md)|
 | `linreg`|[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)|
 | `load_data_fashion_mnist`|[深度卷积神经网络（AlexNet）](../chapter_convolutional-neural-networks/alexnet.md)|
-| `load_data_pikachu`|[物体检测数据集](../chapter_computer-vision/object-detection-dataset.md)|
+| `load_data_pikachu`|[物体检测数据集（皮卡丘）](../chapter_computer-vision/object-detection-dataset.md)|
 | `optimize`|[梯度下降和随机梯度下降](../chapter_optimization/gd-sgd.md)|
 | `optimize_with_trainer`|[梯度下降和随机梯度下降](../chapter_optimization/gd-sgd.md)|
 | `plt`|[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)|
