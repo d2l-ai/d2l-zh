@@ -42,7 +42,7 @@ class DenseBlock(nn.Block):
             Y = blk(X)
             # 在通道维上将输入和输出合并。
             X = nd.concat(X, Y, dim=1)
-        return Y
+        return X
 ```
 
 下面例子中我们定义一个有两个输出通道数为10的卷积块，使用通道数为3的输入时，我们会得到通道数为$3+2\times 10=23$的输出。卷积块的通道数控制了输出通道数相对于输入通道数的增长，因此也被称为增长率（growth rate）。
@@ -137,7 +137,7 @@ gb.train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
 
 ## 练习
 
-- DenseNet论文中提交的一个优点是其模型参数比ResNet更小，这是为什么？
+- DenseNet论文中提到的一个优点是其模型参数比ResNet更小，这是为什么？
 - DenseNet被人诟病的一个问题是内存消耗过多。真的会这样吗？可以把输入换成$224\times 224$，来看看实际（GPU）内存消耗。
 - 实现DenseNet论文中的表1提出的各个DenseNet版本 [1]。
 
