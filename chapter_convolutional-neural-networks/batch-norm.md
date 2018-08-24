@@ -165,7 +165,7 @@ gb.train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
 net[1].gamma.data().reshape((-1,)), net[1].beta.data().reshape((-1,))
 ```
 
-# 批量归一化的Gluon实现
+## 批量归一化的Gluon实现
 
 相比于我们刚刚自己定义的`BatchNorm`类，`nn`模块定义的`BatchNorm`类使用更加简单。它不需要指定输出数据的维度和特征维的大小，这些都将通过延后初始化来获取。下面我们用Gluon实现批量归一化的LeNet。
 
