@@ -14,7 +14,7 @@
    lang-model
    rnn
    lang-model-dataset
-   rnn-scatch
+   rnn-scratch
    rnn-gluon
    bptt
    gru
