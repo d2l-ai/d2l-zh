@@ -1,274 +1,161 @@
 # 循环神经网络的Gluon实现
 
-本节介绍如何使用Gluon训练循环神经网络。
-
-
-## Penn Tree Bank数据集
-
-我们以英文单词为单元来训练基于循环神经网络的语言模型。Penn Tree Bank（PTB）是一个标准的文本序列数据集 [1]。它包括训练集、验证集和测试集 。
-
-首先导入实验所需的包或模块，并抽取数据集。
+本节将使用Gluon来实现基于循环神经网络的语言模型。首先导入本节需要的包和模块，并读取周杰伦专辑歌词数据集。
 
 ```{.python .input  n=1}
 import sys
 sys.path.insert(0, '..')
 
+import math
 import gluonbook as gb
-from mxnet import autograd, gluon, init, nd
-from mxnet.gluon import loss as gloss, nn, rnn, utils as gutils
-import numpy as np
-import time
-import zipfile
+from mxnet import autograd, nd, gluon, init
+from mxnet.gluon import rnn, nn, loss as gloss
 
-with zipfile.ZipFile('../data/ptb.zip', 'r') as zin:
-    zin.extractall('../data/')
+corpus_indices, char_to_idx, idx_to_char, vocab_size  = gb.load_data_jay_lyrics()
 ```
 
-## 建立词语索引
+## 定义模型
 
-下面定义了`Dictionary`类来映射词语和整数索引。
+Gluon的`rnn`模块提供了循环神经网络的实现。下面构造一个单隐藏层的且隐藏单元个数为256的循环神经网络层`rnn_layer`，并对权重做初始化。
 
-```{.python .input  n=2}
-class Dictionary(object):
-    def __init__(self):
-        self.word_to_idx = {}
-        self.idx_to_word = []
-
-    def add_word(self, word):
-        if word not in self.word_to_idx:
-            self.idx_to_word.append(word)
-            self.word_to_idx[word] = len(self.idx_to_word) - 1
-        return self.word_to_idx[word]
-
-    def __len__(self):
-        return len(self.idx_to_word)
+```{.python .input  n=26}
+num_hiddens = 256
+rnn_layer = rnn.RNN(num_hiddens)
+rnn_layer.initialize()
 ```
 
-以下的`Corpus`类按照读取的文本数据集建立映射词语和索引的词典，并将文本转换成词语索引的序列。这样，每个文本数据集就变成了NDArray格式的整数序列。
+接下来调用`rnn_layer`的成员函数`begin_state`来返回初始化的隐藏状态列表。它有一个形状为（1，`batch_size`，`num_hiddens`）的元素，其中1表示只有一个隐藏层。
 
-```{.python .input  n=3}
-class Corpus(object):
-    def __init__(self, path):
-        self.dictionary = Dictionary()
-        self.train = self.tokenize(path + 'train.txt')
-        self.valid = self.tokenize(path + 'valid.txt')
-        self.test = self.tokenize(path + 'test.txt')
-
-    def tokenize(self, path):
-        # 将词语添加至词典。
-        with open(path, 'r') as f:
-            num_words = 0
-            for line in f:
-                words = line.split() + ['<eos>']
-                num_words += len(words)
-                for word in words:
-                    self.dictionary.add_word(word)
-        # 将文本转换成词语索引的序列（ NDArray 格式）。
-        with open(path, 'r') as f:
-            indices = np.zeros((num_words,), dtype='int32')
-            idx = 0
-            for line in f:
-                words = line.split() + ['<eos>']
-                for word in words:
-                    indices[idx] = self.dictionary.word_to_idx[word]
-                    idx += 1
-        return nd.array(indices, dtype='int32')
+```{.python .input  n=37}
+batch_size = 2
+state = rnn_layer.begin_state(batch_size=batch_size)
+state[0].shape
 ```
 
-看一下词典的大小。
+与上一节里我们实现的循环神经网络不同，这里`rnn_layer`的输入格式为（`num_steps`，`batch_size`，`vocab_size`）。
 
-```{.python .input  n=4}
-data = '../data/ptb/ptb.'
-corpus = Corpus(data)
-vocab_size = len(corpus.dictionary)
-vocab_size
+```{.python .input  n=38}
+num_steps = 35
+X = nd.random.uniform(shape=(num_steps, batch_size, vocab_size))
+Y, state_new = rnn_layer(X, state)
+Y.shape
 ```
 
-## 定义循环神经网络模型库
+返回的输出是形状为（`num_steps`，`batch_size`，`num_hiddens`）的NDArray（上一节实现是`num_steps`个（`batch_size`，`num_hiddens`）形状的NDArray），它可以之后被输入到输出层里。
 
-我们可以定义一个循环神经网络模型库。这样我们就可以使用以ReLU或tanh函数为激活函数的循环神经网络，以及长短期记忆和门控循环单元。和本章中其他实验不同，这里使用了Embedding实例将每个词索引变换成一个长度为`embed_size`的词向量。这些词向量实际上也是模型参数。在随机初始化后，它们会在模型训练结束时被学到。此外，我们使用了丢弃法来应对过拟合。
+接下来我们继承Block类来定义一个完整的循环神经网络，它首先将输入数据使用one-hot表示后输入到`rnn_layer`中，然后使用全连接输出层得到输出。
 
-这里的Embedding实例也叫嵌入层。我们会在“自然语言处理”篇章介绍如何用在大规模语料上预训练的词向量初始化嵌入层参数。
-
-```{.python .input  n=5}
+```{.python .input  n=39}
 class RNNModel(nn.Block):
-    def __init__(self, mode, vocab_size, embed_size, num_hiddens,
-                 num_layers, drop_prob=0.5, **kwargs):
+    def __init__(self, rnn_layer, vocab_size, **kwargs):
         super(RNNModel, self).__init__(**kwargs)
-        self.dropout = nn.Dropout(drop_prob)
-        # 将词索引变换成词向量。这些词向量也是模型参数。
-        self.embedding = nn.Embedding(
-            vocab_size, embed_size, weight_initializer=init.Uniform(0.1))
-        if mode == 'rnn_relu':
-            self.rnn = rnn.RNN(num_hiddens, num_layers, activation='relu',
-                               dropout=drop_prob, input_size=embed_size)
-        elif mode == 'rnn_tanh':
-            self.rnn = rnn.RNN(num_hiddens, num_layers, activation='tanh',
-                               dropout=drop_prob, input_size=embed_size)
-        elif mode == 'lstm':
-            self.rnn = rnn.LSTM(num_hiddens, num_layers,
-                                dropout=drop_prob, input_size=embed_size)
-        elif mode == 'gru':
-            self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
-                               input_size=embed_size)
-        else:
-            raise ValueError('Invalid mode %s. Options are rnn_relu, '
-                             'rnn_tanh, lstm, and gru' % mode)
-        self.dense = nn.Dense(vocab_size, in_units=num_hiddens)
-        self.num_hiddens = num_hiddens
-
+        self.rnn = rnn_layer
+        self.vocab_size = vocab_size
+        self.dense = nn.Dense(vocab_size)
+        
     def forward(self, inputs, state):
-        embedding = self.dropout(self.embedding(inputs))
-        output, state = self.rnn(embedding, state)
-        output = self.dropout(output)
-        output = self.dense(output.reshape((-1, self.num_hiddens)))
+        # 将输入转置成（num_steps，batch_size）后获取 one-hot 表示。
+        X = nd.one_hot(inputs.T, self.vocab_size)
+        Y, state = self.rnn(X, state)
+        # 全连接层会首先将 Y 形状变形成（num_steps * batch_size，num_hiddens），
+        # 它的输出形状为（num_steps * batch_size，vocab_size）。
+        output = self.dense(Y.reshape((-1, Y.shape[-1])))
         return output, state
 
     def begin_state(self, *args, **kwargs):
         return self.rnn.begin_state(*args, **kwargs)
 ```
 
-## 设置超参数
+## 模型训练
 
-我们接着设置超参数。这里选择使用以ReLU为激活函数的循环神经网络。它包含2个隐藏层。为了得到更好的实验结果，这些超参数还需要重新设置。
+首先同前一节一样定义一个预测函数，这里的实现区别在于前向计算和初始化隐藏状态的函数接口稍有不同。
 
-```{.python .input  n=6}
-model_name = 'rnn_relu'
-embed_size = 100
-num_hiddens = 100
-num_layers = 2
-lr = 0.5
-clipping_theta = 0.2
-num_epochs = 2
-batch_size = 32
-num_steps = 5
-drop_prob = 0.2
-eval_period = 1000
+```{.python .input  n=41}
+def predict_rnn_gluon(prefix, num_chars, model, vocab_size, ctx,
+                      idx_to_char, char_to_idx):
+    # 使用 model 的成员函数来初始化隐藏状态。
+    state = model.begin_state(batch_size=1, ctx=ctx)
+    output = [char_to_idx[prefix[0]]]
+    for t in range(num_chars + len(prefix)):
+        X = nd.array([output[-1]], ctx=ctx).reshape((1,1))
+        (Y, state) = model(X, state)  # 前向计算不需要传入模型参数。
+        if t < len(prefix) - 1:
+            output.append(char_to_idx[prefix[t + 1]])
+        else:
+            output.append(int(Y.argmax(axis=1).asscalar()))
+    return ''.join([idx_to_char[i] for i in output])
+```
 
+让我们使用权重为随机值的模型来预测一次。
+
+```{.python .input  n=42}
 ctx = gb.try_gpu()
-model = RNNModel(model_name, vocab_size, embed_size, num_hiddens, num_layers,
-                 drop_prob)
-model.initialize(init.Xavier(), ctx=ctx)
-trainer = gluon.Trainer(model.collect_params(), 'sgd',
-                        {'learning_rate': lr, 'momentum': 0, 'wd': 0})
-loss = gloss.SoftmaxCrossEntropyLoss()
+model = RNNModel(rnn_layer, vocab_size)
+model.initialize(force_reinit=True, ctx=ctx)
+predict_rnn_gluon('分开', 10, model, vocab_size, ctx, idx_to_char, char_to_idx)
 ```
 
-## 相邻采样
+接下来实现训练函数，它的算法同上一节一样，但这里只使用了随机采样来读取数据。
 
-我们将在实验中使用相邻采样。
-
-```{.python .input  n=7}
-def batchify(data, batch_size):
-    num_batches = data.shape[0] // batch_size
-    data = data[: num_batches * batch_size]
-    data = data.reshape((batch_size, num_batches)).T
-    return data
-
-train_data = batchify(corpus.train, batch_size).as_in_context(ctx)
-val_data = batchify(corpus.valid, batch_size).as_in_context(ctx)
-test_data = batchify(corpus.test, batch_size).as_in_context(ctx)
-
-def get_batch(source, i):
-    seq_len = min(num_steps, source.shape[0] - 1 - i)
-    X = source[i: i + seq_len]
-    Y = source[i + 1: i + 1 + seq_len]
-    return X, Y.reshape((-1,))
-```
-
-[“循环神经网络”](rnn.md)一节里已经解释了，相邻采样应在每次读取小批量前将隐藏状态从计算图分离出来。
-
-```{.python .input  n=8}
-def detach(state):
-    if isinstance(state, (tuple, list)):
-        state = [i.detach() for i in state]
-    else:
-        state = state.detach()
-    return state
-```
-
-## 训练和评价模型
-
-以下定义了模型评价函数。
-
-```{.python .input  n=9}
-def eval_rnn(data_source):
-    l_sum = nd.array([0], ctx=ctx)
-    n = 0
-    state = model.begin_state(func=nd.zeros, batch_size=batch_size, ctx=ctx)
-    for i in range(0, data_source.shape[0] - 1, num_steps):
-        X, y = get_batch(data_source, i)
-        output, state = model(X, state)
-        l = loss(output, y)
-        l_sum += l.sum()
-        n += l.size
-    return l_sum / n
-```
-
-下面的`train_rnn`函数将训练模型并在每个迭代周期结束时评价模型在验证集上的表现。我们可以参考验证集上的结果调节超参数。
-
-```{.python .input  n=10}
-def train_rnn():
-    for epoch in range(1, num_epochs + 1):
-        train_l_sum = nd.array([0], ctx=ctx)
-        start_time = time.time()
-        state = model.begin_state(func=nd.zeros, batch_size=batch_size,
-                                  ctx=ctx)
-        for batch_i, idx in enumerate(range(0, train_data.shape[0] - 1,
-                                            num_steps)):
-            X, y = get_batch(train_data, idx)
-            # 从计算图分离隐藏状态变量（包括 LSTM 的记忆细胞）。
-            state = detach(state)
+```{.python .input  n=18}
+def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx, 
+                                corpus_indices, idx_to_char, char_to_idx, 
+                                num_epochs, num_steps, lr, clipping_theta, 
+                                batch_size, pred_period, pred_len, prefixes):
+    loss = gloss.SoftmaxCrossEntropyLoss()
+    model.initialize(ctx=ctx, force_reinit=True, init=init.Normal(0.01))
+    trainer = gluon.Trainer(model.collect_params(), 'sgd',
+                            {'learning_rate': lr, 'momentum': 0, 'wd': 0})
+    
+    for epoch in range(num_epochs):
+        loss_sum = 0.0
+        data_iter = gb.data_iter_consecutive(
+            corpus_indices, batch_size, num_steps, ctx)
+        state = model.begin_state(batch_size=batch_size, ctx=ctx)
+        for t, (X, Y) in enumerate(data_iter):
+            for s in state:
+                s.detach()
             with autograd.record():
-                output, state = model(X, state)
-                # l 形状：(batch_size * num_steps,)。
-                l = loss(output, y).sum() / (batch_size * num_steps)
+                (output, state) = model(X, state)
+                y = Y.T.reshape((-1,))
+                l = loss(output, y).mean()
             l.backward()
-            grads = [p.grad(ctx) for p in model.collect_params().values()]
-            # 梯度裁剪。需要注意的是，这里的梯度是整个批量的梯度。 因此我们将
-            # clipping_theta 乘以 num_steps 和 batch_size。
-            gutils.clip_global_norm(
-                grads, clipping_theta * num_steps * batch_size)
-            trainer.step(1)
-            train_l_sum += l
-            if batch_i % eval_period == 0 and batch_i > 0:
-                cur_l = train_l_sum / eval_period
-                print('epoch %d, batch %d, train loss %.2f, perplexity %.2f'
-                      % (epoch, batch_i, cur_l.asscalar(),
-                         cur_l.exp().asscalar()))
-                train_l_sum = nd.array([0], ctx=ctx)
-        val_l = eval_rnn(val_data)
-        print('epoch %d, time %.2fs, valid loss %.2f, perplexity %.2f'
-              % (epoch, time.time() - start_time, val_l.asscalar(),
-                 val_l.exp().asscalar()))
+            # 梯度剪裁。
+            params = [p.data() for p in model.collect_params().values()]
+            gb.grad_clipping(params, clipping_theta, ctx)
+            trainer.step(1)  # 因为已经误差取过均值，梯度不用再做平均。
+            loss_sum += l.asscalar()
+
+        if (epoch+1) % pred_period == 0:
+            print('epoch %d, perplexity %f' % (
+                epoch + 1, math.exp(loss_sum / (t+1))))
+            for prefix in prefixes:
+                print(' -', predict_rnn_gluon(
+                    prefix, pred_len, model, vocab_size, 
+                    ctx, idx_to_char, char_to_idx))
 ```
 
-训练完模型以后，我们就可以在测试集上评价模型了。
+使用和上一节一样的超参数来训练模型。
 
-```{.python .input  n=11}
-train_rnn()
-test_l = eval_rnn(test_data)
-print('test loss %.2f, perplexity %.2f'
-      % (test_l.asscalar(), test_l.exp().asscalar()))
+```{.python .input  n=19}
+num_epochs = 200
+batch_size = 32
+lr = 1e2
+clipping_theta = 1e-2
+prefixes = ['分开', '不分开']
+pred_period = 50
+pred_len = 50
+
+train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx, 
+                            corpus_indices, idx_to_char, char_to_idx, 
+                            num_epochs, num_steps, lr, clipping_theta, 
+                            batch_size, pred_period, pred_len, prefixes)
 ```
 
 ## 小结
 
-* 我们可以使用Gluon训练循环神经网络。它更简洁，例如无需我们手动实现含有多个隐藏层的复杂模型。
-* 在训练语言模型时，我们可以将词索引变换成词向量，并将这些词向量视为模型参数。
-
+Gluon的rnn模块提供了循环神经网络层的实现。
 
 ## 练习
 
-* 回忆[“模型参数的访问、初始化和共享”](../chapter_deep-learning-computation/parameters.md)一节中有关共享模型参数的描述。将本节中RNNModel类里的`self.dense`的定义改为`nn.Dense(vocab_size, in_units = num_hiddens, params=self.embedding.params)`并运行本节实验。这里为什么可以共享词向量参数？有哪些好处？
-
-* 调调超参数，观察并分析对运行时间以及训练集、验证集和测试集上困惑度的影响。
-
-
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4089)
-
-![](../img/qr_rnn-gluon.svg)
-
-## 参考文献
-
-[1] Penn Tree Bank. https://catalog.ldc.upenn.edu/ldc99t42
+- 比较跟前一节的实现，看看Gluon的版本是不是运行速度更快？如果你觉得差别明显，试着找找原因。

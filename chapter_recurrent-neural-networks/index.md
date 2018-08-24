@@ -13,11 +13,12 @@
 
    lang-model
    rnn
-   rnn-lang-model
+   lang-model-dataset
+   rnn-scatch
+   rnn-gluon
    bptt
    gru
    lstm
    deep-rnn
    bi-rnn
-   rnn-gluon
 ```

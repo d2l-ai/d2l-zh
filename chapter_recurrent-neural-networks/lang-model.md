@@ -33,9 +33,9 @@ $$\mathbb{P}(w_1, w_2, \ldots, w_T) \approx \prod_{t=1}^T \mathbb{P}(w_t \mid w_
 
 $$
 \begin{aligned}
-\textrm{unigram:}\quad\mathbb{P}(w_1, w_2, w_3, w_4) &=  \mathbb{P}(w_1) \mathbb{P}(w_2) \textrm{bigram:}\quad\mathbb{P}(w_3) \mathbb{P}(w_4) ,\\
-\textrm{trigram:}\quad\mathbb{P}(w_1, w_2, w_3, w_4) &=  \mathbb{P}(w_1) \mathbb{P}(w_2 \mid w_1) \mathbb{P}(w_3 \mid w_2) \mathbb{P}(w_4 \mid w_3) ,\\
-\textrm{4-grams:}\quad\mathbb{P}(w_1, w_2, w_3, w_4) &=  \mathbb{P}(w_1) \mathbb{P}(w_2 \mid w_1) \mathbb{P}(w_3 \mid w_1, w_2) \mathbb{P}(w_4 \mid w_2, w_3) .
+\textrm{unigram:}\quad\mathbb{P}(w_1, w_2, w_3, w_4) &=  \mathbb{P}(w_1) \mathbb{P}(w_2) \mathbb{P}(w_3) \mathbb{P}(w_4) ,\\
+\textrm{bigram:}\quad\mathbb{P}(w_1, w_2, w_3, w_4) &=  \mathbb{P}(w_1) \mathbb{P}(w_2 \mid w_1) \mathbb{P}(w_3 \mid w_2) \mathbb{P}(w_4 \mid w_3) ,\\
+\textrm{trigrams:}\quad\mathbb{P}(w_1, w_2, w_3, w_4) &=  \mathbb{P}(w_1) \mathbb{P}(w_2 \mid w_1) \mathbb{P}(w_3 \mid w_1, w_2) \mathbb{P}(w_4 \mid w_2, w_3) .
 \end{aligned}
 $$
 
