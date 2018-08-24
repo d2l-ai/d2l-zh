@@ -9,6 +9,7 @@
 ```{.python .input  n=1}
 import random
 import zipfile
+from mxnet import nd
 ```
 
 然后读取这个数据集，看看前50个字符是什么样的。
