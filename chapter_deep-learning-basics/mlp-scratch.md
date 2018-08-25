@@ -14,7 +14,7 @@ from mxnet.gluon import loss as gloss
 
 ## 获取和读取数据
 
-我们继续使用Fashion-MNIST数据集。我们将使用多层感知机对图片进行分类。
+我们继续使用Fashion-MNIST数据集。我们将使用多层感知机对图像进行分类。
 
 ```{.python .input  n=2}
 batch_size = 256
@@ -23,7 +23,7 @@ train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
 
 ## 定义模型参数
 
-我们在[“Softmax回归的从零开始实现”](softmax-regression-scratch.md)一节里已经介绍了，Fashion-MNIST数据集中图片尺寸为$28 \times 28$，类别数为10。本节中我们依然使用长度为$28 \times 28 = 784$的向量表示每一张图片。因此，输入个数为784，输出个数为10。实验中，我们设超参数隐藏单元个数为256。
+我们在[“Softmax回归的从零开始实现”](softmax-regression-scratch.md)一节里已经介绍了，Fashion-MNIST数据集中图像尺寸为$28 \times 28$，类别数为10。本节中我们依然使用长度为$28 \times 28 = 784$的向量表示每一张图像。因此，输入个数为784，输出个数为10。实验中，我们设超参数隐藏单元个数为256。
 
 ```{.python .input  n=3}
 num_inputs = 784
@@ -51,7 +51,7 @@ def relu(X):
 
 ## 定义模型
 
-同Softmax回归一样，我们通过`reshape`函数将每张原始图片改成长度为`num_inputs`的向量。然后我们将上一节多层感知机的矢量计算表达式翻译成代码。
+同Softmax回归一样，我们通过`reshape`函数将每张原始图像改成长度为`num_inputs`的向量。然后我们将上一节多层感知机的矢量计算表达式翻译成代码。
 
 ```{.python .input  n=5}
 def net(X):

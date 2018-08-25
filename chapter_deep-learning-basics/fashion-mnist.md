@@ -1,6 +1,6 @@
-# 图片分类数据集（Fashion-MNIST）
+# 图像分类数据集（Fashion-MNIST）
 
-在介绍softmax回归的实现前我们先引入一个多类图片分类数据集。它将多次在后面的章节中使用，方便我们观察比较算法之间的模型精度、计算速度和收敛率的区别。图片分类数据集中最常用的是手写数字识别数据集MNIST [1]。但由于大部分模型在MNIST上的分类精度都超过了95%，这里我们将使用一个图片内容更加复杂的变种 Fashion-MNIST [2]来使得算法之间的差异更加明显。
+在介绍softmax回归的实现前我们先引入一个多类图像分类数据集。它将多次在后面的章节中使用，方便我们观察比较算法之间的模型精度、计算速度和收敛率的区别。图像分类数据集中最常用的是手写数字识别数据集MNIST [1]。但由于大部分模型在MNIST上的分类精度都超过了95%，这里我们将使用一个图像内容更加复杂的变种 Fashion-MNIST [2]来使得算法之间的差异更加明显。
 
 ## 获取数据集
 
@@ -24,25 +24,25 @@ mnist_train = gdata.vision.FashionMNIST(train=True)
 mnist_test = gdata.vision.FashionMNIST(train=False)
 ```
 
-训练集中和测试集中的每个类别的图片数分别为6,000和1,000。因为有10个类别，所以训练集和测试集样本数分别为60,000和10,000。
+训练集中和测试集中的每个类别的图像数分别为6,000和1,000。因为有10个类别，所以训练集和测试集样本数分别为60,000和10,000。
 
 ```{.python .input}
 len(mnist_train), len(mnist_test)
 ```
 
-我们可以通过`[]`来访问任意一个样本，下面获取第一个样本和图片和标签。
+我们可以通过`[]`来访问任意一个样本，下面获取第一个样本和图像和标签。
 
 ```{.python .input  n=24}
 feature, label = mnist_train[0]
 ```
 
-`feature`对应高和宽均为28像素的图片。每个像素的数值为0到255之间8位无符号整数（uint8）。它使用3维的NDArray储存。其中的最后一维是通道数。因为是灰度图片，所以通道数为1。
+`feature`对应高和宽均为28像素的图像。每个像素的数值为0到255之间8位无符号整数（uint8）。它使用3维的NDArray储存。其中的最后一维是通道数。因为是灰度图像，所以通道数为1。
 
 ```{.python .input}
 feature.shape, feature.dtype
 ```
 
-图片的标签使用NumPy的标量表示。它的类型为32位整数。
+图像的标签使用NumPy的标量表示。它的类型为32位整数。
 
 ```{.python .input}
 label, type(label), label.dtype
@@ -57,7 +57,7 @@ def get_fashion_mnist_labels(labels):
     return [text_labels[int(i)] for i in labels]
 ```
 
-下面定义一个可以在一行里画出多张图片和对应标签的函数。
+下面定义一个可以在一行里画出多张图像和对应标签的函数。
 
 ```{.python .input}
 def show_fashion_mnist(images, labels):
@@ -71,7 +71,7 @@ def show_fashion_mnist(images, labels):
         f.axes.get_yaxis().set_visible(False)
 ```
 
-现在，我们看一下训练数据集中前9个样本的图片内容和文本标签。
+现在，我们看一下训练数据集中前9个样本的图像内容和文本标签。
 
 ```{.python .input  n=27}
 X, y = mnist_train[0:9]
@@ -86,7 +86,7 @@ show_fashion_mnist(X, get_fashion_mnist_labels(y))
 
 在实际中，数据读取经常是训练的性能瓶颈，特别当模型较简单或者计算硬件性能较高时。Gluon的`DataLoader`中一个很方便的功能是允许使用多进程来加速数据读取（暂不支持Windows操作系统）。这里我们通过参数`num_workers`来设置4个进程读取数据。
 
-此外，我们通过`ToTensor`将图片数据从uint8格式变换成32位浮点数格式，并除以255使得所有像素的数值均在0到1之间。`ToTensor`还将图片通道从最后一维调整到最前一维来方便之后介绍的卷积神经网络使用。通过数据集的`transform_first`函数，我们将`ToTensor`的变换应用在每个数据样本（图片和标签）的第一个元素，也即图片之上。
+此外，我们通过`ToTensor`将图像数据从uint8格式变换成32位浮点数格式，并除以255使得所有像素的数值均在0到1之间。`ToTensor`还将图像通道从最后一维调整到最前一维来方便之后介绍的卷积神经网络使用。通过数据集的`transform_first`函数，我们将`ToTensor`的变换应用在每个数据样本（图像和标签）的第一个元素，也即图像之上。
 
 ```{.python .input  n=28}
 batch_size = 256

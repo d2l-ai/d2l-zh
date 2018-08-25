@@ -27,7 +27,7 @@ import shutil
 
 ## 获取数据集
 
-比赛数据分为训练集和测试集。训练集包含5万张图片。测试集包含30万张图片：其中有1万张图片用来计分，其他29万张不计分的图片是为了防止人工标注测试集。两个数据集中的图片格式都是png，高和宽均为32像素，并含有RGB三个通道（彩色）。图片一共涵盖10个类别，分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车，如图9.16所示。
+比赛数据分为训练集和测试集。训练集包含5万张图像。测试集包含30万张图像：其中有1万张图像用来计分，其他29万张不计分的图像是为了防止人工标注测试集。两个数据集中的图像格式都是png，高和宽均为32像素，并含有RGB三个通道（彩色）。图像一共涵盖10个类别，分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车，如图9.16所示。
 
 ![CIFAR-10图像的类别分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车。](../img/cifar10.png)
 
@@ -59,7 +59,7 @@ if demo:
 
 ### 整理数据集
 
-我们接下来定义`reorg_cifar10_data`函数来整理数据集。整理后，同一类图片将被放在同一个文件夹下，便于我们稍后读取。该函数中的参数`valid_ratio`是验证集样本数与原始训练集样本数之比。以`valid_ratio=0.1`为例，由于原始训练数据集有50,000张图片，调参时将有45,000张图片用于训练并存放在路径“`input_dir/train`”，而另外5,000张图片为验证集并存放在路径“`input_dir/valid`”。
+我们接下来定义`reorg_cifar10_data`函数来整理数据集。整理后，同一类图像将被放在同一个文件夹下，便于我们稍后读取。该函数中的参数`valid_ratio`是验证集样本数与原始训练集样本数之比。以`valid_ratio=0.1`为例，由于原始训练数据集有50,000张图像，调参时将有45,000张图像用于训练并存放在路径“`input_dir/train`”，而另外5,000张图像为验证集并存放在路径“`input_dir/valid`”。
 
 ```{.python .input  n=2}
 def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
@@ -129,24 +129,24 @@ reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
                    valid_ratio)
 ```
 
-## 图片增广
+## 图像增广
 
-为应对过拟合，我们在这里使用`transforms`来增广数据。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图片做镜面反转。我们也通过`transforms.Normalize()`对彩色图像RGB三个通道分别做标准化。以下列举了部分操作。这些操作可以根据需求来决定是否使用或修改。
+为应对过拟合，我们在这里使用`transforms`来增广数据。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图像做镜面反转。我们也通过`transforms.Normalize()`对彩色图像RGB三个通道分别做标准化。以下列举了部分操作。这些操作可以根据需求来决定是否使用或修改。
 
 ```{.python .input  n=4}
 transform_train = gdata.vision.transforms.Compose([
-    # 将图片放大成高和宽各为 40 像素的正方形。
+    # 将图像放大成高和宽各为 40 像素的正方形。
     gdata.vision.transforms.Resize(40),
-    # 随机对高和宽各为 40 像素的正方形图片裁剪出面积为原图片面积 0.64 到 1 倍之间的小正方
+    # 随机对高和宽各为 40 像素的正方形图像裁剪出面积为原图像面积 0.64 到 1 倍之间的小正方
     # 形，再放缩为高和宽各为 32 像素的正方形。
     gdata.vision.transforms.RandomResizedCrop(32, scale=(0.64, 1.0),
                                               ratio=(1.0, 1.0)),
-    # 随机左右翻转图片。
+    # 随机左右翻转图像。
     gdata.vision.transforms.RandomFlipLeftRight(),
-    # 将图片像素值按比例缩小到 0 和 1 之间，并将数据格式从“高 * 宽 * 通道”改为
+    # 将图像像素值按比例缩小到 0 和 1 之间，并将数据格式从“高 * 宽 * 通道”改为
     # “通道 * 高 * 宽”。
     gdata.vision.transforms.ToTensor(),
-    # 对图片的每个通道做标准化。
+    # 对图像的每个通道做标准化。
     gdata.vision.transforms.Normalize([0.4914, 0.4822, 0.4465],
                                       [0.2023, 0.1994, 0.2010])
 ])
@@ -159,7 +159,7 @@ transform_test = gdata.vision.transforms.Compose([
 ])
 ```
 
-接下来，我们可以使用`ImageFolderDataset`类来读取整理后的数据集，其中每个数据样本包括图像和标签。需要注意的是，我们要在`DataLoader`中调用刚刚定义好的图片增广函数。其中`transform_first`函数指明对每个数据样本中的图像做数据增广。
+接下来，我们可以使用`ImageFolderDataset`类来读取整理后的数据集，其中每个数据样本包括图像和标签。需要注意的是，我们要在`DataLoader`中调用刚刚定义好的图像增广函数。其中`transform_first`函数指明对每个数据样本中的图像做数据增广。
 
 ```{.python .input  n=5}
 # 读取原始图像文件。flag=1 说明输入图像有三个通道（彩色）。
@@ -327,7 +327,7 @@ df.to_csv('submission.csv', index=False)
 ## 小结
 
 * CIFAR-10是计算机视觉领域的一个重要的数据集。
-* 我们可以应用卷积神经网络、图片增广和混合式编程来实战图像分类比赛。
+* 我们可以应用卷积神经网络、图像增广和混合式编程来实战图像分类比赛。
 
 
 ## 练习
