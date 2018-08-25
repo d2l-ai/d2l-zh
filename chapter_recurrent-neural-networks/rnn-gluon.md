@@ -160,3 +160,7 @@ Gluon的rnn模块提供了循环神经网络层的实现。
 ## 练习
 
 - 比较跟前一节的实现，看看Gluon的版本是不是运行速度更快？如果你觉得差别明显，试着找找原因。
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4089)
+
+![](../img/qr_rnn-gluon.svg)
