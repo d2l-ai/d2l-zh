@@ -1,4 +1,4 @@
-# 通过MXNet/Gluon来动手学习深度学习
+# 动手来学深度学习
 
 [![Build Status](http://ci.mxnet.io/job/gluon-tutorials-zh/badge/icon)](http://ci.mxnet.io/job/gluon-tutorials-zh/)
 
