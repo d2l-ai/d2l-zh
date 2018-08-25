@@ -155,11 +155,13 @@ train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
 
 ## 小结
 
-Gluon的rnn模块提供了循环神经网络层的实现。
+* Gluon的`rnn`模块提供了循环神经网络层的实现。
 
 ## 练习
 
-- 比较跟前一节的实现，看看Gluon的版本是不是运行速度更快？如果你觉得差别明显，试着找找原因。
+* 比较跟前一节的实现，看看Gluon的版本是不是运行速度更快？如果你觉得差别明显，试着找找原因。
+
+>>>>>>> add links to rnn gluon
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4089)
 
