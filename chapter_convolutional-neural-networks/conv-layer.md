@@ -30,6 +30,7 @@ $$
 from mxnet import autograd, nd
 from mxnet.gluon import nn
 
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def corr2d(X, K):
     h, w = K.shape
     Y = nd.zeros((X.shape[0] - h + 1, X.shape[1] - w + 1))

@@ -31,8 +31,10 @@ from mxnet.gluon import nn
 # 定义一个便利函数来计算卷积层。它初始化卷积层权重，并对输入和输出做相应的升维和降维。
 def comp_conv2d(conv2d, X):
     conv2d.initialize()
+    # （1，1）代表批量大小和通道数（后面章节将介绍）均为 1。
     X = X.reshape((1, 1) + X.shape)
     Y = conv2d(X)
+    # 我们不关心前两维：批量大小和通道数。
     return Y.reshape(Y.shape[2:])
 
 X = nd.random.uniform(shape=(8, 8))

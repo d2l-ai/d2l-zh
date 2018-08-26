@@ -4,6 +4,7 @@
 |:--|:-:|
 | `accuracy`|[Softmax回归的从零开始实现](../chapter_deep-learning-basics/softmax-regression-scratch.md)|
 | `bbox_to_rect`|[物体检测和边界框](../chapter_computer-vision/bounding-box.md)|
+| `corr2d`|[二维卷积层](../chapter_convolutional-neural-networks/conv-layer.md)|
 | `count_tokens`|[文本情感分类：使用循环神经网络](../chapter_natural-language-processing/sentiment-analysis.md)|
 | `data_iter`|[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)|
 | `data_iter_consecutive`|[语言模型数据集（周杰伦专辑歌词）](../chapter_recurrent-neural-networks/lang-model-dataset.md)|
