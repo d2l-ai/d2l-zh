@@ -20,17 +20,20 @@
 | `grad_clipping`|[基于循环神经网络的语言模型](../chapter_recurrent-neural-networks/rnn.md)|
 | `linreg`|[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)|
 | `load_data_fashion_mnist`|[深度卷积神经网络（AlexNet）](../chapter_convolutional-neural-networks/alexnet.md)|
+|`load_data_jay_lyrics`|[语言模型数据集（周杰伦专辑歌词）](../chapter_recurrent-neural-networks/lang-model-dataset.md)|
 | `load_data_pikachu`|[物体检测数据集（皮卡丘）](../chapter_computer-vision/object-detection-dataset.md)|
 | `optimize`|[梯度下降和随机梯度下降](../chapter_optimization/gd-sgd.md)|
-| `optimize_with_trainer`|[梯度下降和随机梯度下降](../chapter_optimization/gd-sgd.md)|
+| `optimize_gluon`|[梯度下降和随机梯度下降](../chapter_optimization/gd-sgd.md)|
 | `plt`|[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)|
 | `predict_rnn`|[基于循环神经网络的语言模型](../chapter_recurrent-neural-networks/rnn.md)|
+| `predict_rnn_gluon`|[循环神经网络的Gluon实现](../chapter_recurrent-neural-networks/rnn-gluon.md)|
 | `predict_sentiment`|[文本情感分类：使用循环神经网络](../chapter_natural-language-processing/sentiment-analysis.md)|
 | `preprocess_imdb`|[文本情感分类：使用循环神经网络](../chapter_natural-language-processing/sentiment-analysis.md)|
 | `read_imdb`|[文本情感分类：使用循环神经网络](../chapter_natural-language-processing/sentiment-analysis.md)|
 | `read_voc_images`|[语义分割和数据集](../chapter_computer-vision/semantic-segmentation-and-dataset.md)|
 | `Residual`|[残差网络（ResNet）](../chapter_convolutional-neural-networks/resnet.md)|
 | `resnet18`|[多GPU计算的Gluon实现](../chapter_computational-performance/multiple-gpus-gluon.md)|
+| `RNNModel`|[循环神经网络的Gluon实现](../chapter_recurrent-neural-networks/rnn-gluon.md)|
 | `semilogy`|[欠拟合、过拟合和模型选择](../chapter_deep-learning-basics/underfit-overfit.md)|
 | `set_figsize`|[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)|
 | `sgd`|[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)|
@@ -41,6 +44,7 @@
 | `to_onehot`|[基于循环神经网络的语言模型](../chapter_recurrent-neural-networks/rnn.md)|
 | `train`|[图像增广](../chapter_computer-vision/image-augmentation.md)|
 | `train_and_predict_rnn`|[基于循环神经网络的语言模型](../chapter_recurrent-neural-networks/rnn.md)|
+| `train_and_predict_rnn_gluon `|[循环神经网络的Gluon实现](../chapter_recurrent-neural-networks/rnn-gluon.md)|
 | `train_ch3`|[Softmax回归的从零开始实现](../chapter_deep-learning-basics/softmax-regression-scratch.md)|
 | `train_ch5`|[卷积神经网络（LeNet）](../chapter_convolutional-neural-networks/lenet.md)|
 | `try_all_gpus`|[图像增广](../chapter_computer-vision/image-augmentation.md)|

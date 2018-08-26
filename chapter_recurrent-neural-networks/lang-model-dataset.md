@@ -48,7 +48,7 @@ print('chars:', ''.join([idx_to_char[idx] for idx in sample]))
 print('indices:', sample)
 ```
 
-我们将上面代码放置在GluonBook包的`load_data_jay_lyrics`函数里，调用它后会依次得到`corpus_indices`、`char_to_idx`、`idx_to_char`和`vocab_size`。
+我们将以上代码封装在`gluonbook`包里的`load_data_jay_lyrics`函数中以供后面章节调用。调用该函数后会依次得到`corpus_indices`、`char_to_idx`、`idx_to_char`和`vocab_size`四个变量。
 
 ## 时序数据的采样
 
@@ -114,7 +114,7 @@ for X, Y in data_iter_consecutive(my_seq, batch_size=2, num_steps=6):
     print('X: ', X, '\nY:', Y, '\n')
 ```
 
-本节定义的`data_iter_random`和`data_iter_consecutive`函数被保存在`gluonbook`包里以供后面章节调用。
+本节定义的`data_iter_random`和`data_iter_consecutive`函数也被保存在`gluonbook`包里。
 
 
 ## 小结

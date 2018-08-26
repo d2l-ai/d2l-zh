@@ -93,8 +93,7 @@ net.add(nn.Dense(1))
 
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'adadelta', {'rho': 0.9999})
-gb.optimize_with_trainer(trainer=trainer, features=features, labels=labels,
-                         net=net)
+gb.optimize_gluon(trainer=trainer, features=features, labels=labels, net=net)
 ```
 
 ## 小结

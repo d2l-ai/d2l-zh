@@ -277,8 +277,8 @@ optimize(optimizer_fn=sgd, params_vars=init_params_vars(),
 net = nn.Sequential()
 net.add(nn.Dense(1))
 
-def optimize_with_trainer(trainer, features, labels, net, decay_epoch=None,
-                          batch_size=10, log_interval=10, num_epochs=3):
+def optimize_gluon(trainer, features, labels, net, decay_epoch=None,
+                   batch_size=10, log_interval=10, num_epochs=3):
     dataset = gdata.ArrayDataset(features, labels)
     data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
     loss = gloss.L2Loss()
@@ -307,26 +307,25 @@ def optimize_with_trainer(trainer, features, labels, net, decay_epoch=None,
 ```{.python .input}
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.2})
-optimize_with_trainer(trainer=trainer, features=features, labels=labels, 
-                      net=net, decay_epoch=2, batch_size=1)
+optimize_gluon(trainer=trainer, features=features, labels=labels, net=net,
+               decay_epoch=2, batch_size=1)
 ```
 
 ```{.python .input}
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.999})
-optimize_with_trainer(trainer=trainer, features=features, labels=labels, 
-                      net=net, decay_epoch=None, batch_size=1000,
-                      log_interval=1000)
+optimize_gluon(trainer=trainer, features=features, labels=labels, net=net,
+               decay_epoch=None, batch_size=1000, log_interval=1000)
 ```
 
 ```{.python .input}
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.2})
-optimize_with_trainer(trainer=trainer, features=features, labels=labels, 
-                      net=net, decay_epoch=2, batch_size=10)
+optimize_gluon(trainer=trainer, features=features, labels=labels, net=net,
+               decay_epoch=2, batch_size=10)
 ```
 
-本节使用的`get_data_ch7`、`optimize`和`optimize_with_trainer`函数被定义在`gluonbook`包中供后面章节调用。
+本节使用的`get_data_ch7`、`optimize`和`optimize_gluon`函数被定义在`gluonbook`包中供后面章节调用。
 
 
 ## 小结

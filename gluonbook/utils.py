@@ -201,22 +201,11 @@ def linreg(X, w, b):
     """Linear regression."""
     return nd.dot(X, w) + b
 
-def load_data_jay_lyrics():
-    with zipfile.ZipFile('../data/jaychou_lyrics.txt.zip') as zin:
-        with zin.open('jaychou_lyrics.txt') as f:
-            corpus_chars = f.read().decode('utf-8')
-    corpus_chars = corpus_chars.replace('\n', ' ').replace('\r', ' ')
-    corpus_chars = corpus_chars[0:10000]
-    idx_to_char = list(set(corpus_chars))
-    char_to_idx = dict([(char, i) for i, char in enumerate(idx_to_char)])
-    vocab_size = len(char_to_idx)
-    corpus_indices = [char_to_idx[char] for char in corpus_chars]
-    return corpus_indices, char_to_idx, idx_to_char, vocab_size
 
 def load_data_fashion_mnist(batch_size, resize=None,
                             root=os.path.join('~', '.mxnet', 'datasets',
                                               'fashion-mnist')):
-    """Download the fashion mnist dataest and then load into memory."""
+    """Download the fashion mnist dataset and then load into memory."""
     root = os.path.expanduser(root)
     transformer = []
     if resize:
@@ -235,6 +224,20 @@ def load_data_fashion_mnist(batch_size, resize=None,
                                  batch_size, shuffle=False,
                                  num_workers=num_workers)
     return train_iter, test_iter
+
+
+def load_data_jay_lyrics():
+    """Load the Jay Chou lyric data set."""
+    with zipfile.ZipFile('../data/jaychou_lyrics.txt.zip') as zin:
+        with zin.open('jaychou_lyrics.txt') as f:
+            corpus_chars = f.read().decode('utf-8')
+    corpus_chars = corpus_chars.replace('\n', ' ').replace('\r', ' ')
+    corpus_chars = corpus_chars[0:10000]
+    idx_to_char = list(set(corpus_chars))
+    char_to_idx = dict([(char, i) for i, char in enumerate(idx_to_char)])
+    vocab_size = len(char_to_idx)
+    corpus_indices = [char_to_idx[char] for char in corpus_chars]
+    return corpus_indices, char_to_idx, idx_to_char, vocab_size
 
 
 def load_data_pikachu(batch_size, edge_size=256):
@@ -298,8 +301,8 @@ def optimize(optimizer_fn, params_vars, hyperparams, features, labels,
     semilogy(es, ls, 'epoch', 'loss')
 
 
-def optimize_with_trainer(trainer, features, labels, net, decay_epoch=None,
-                          batch_size=10, log_interval=10, num_epochs=3):
+def optimize_gluon(trainer, features, labels, net, decay_epoch=None,
+                   batch_size=10, log_interval=10, num_epochs=3):
     """Optimize an objective function with a Gluon trainer."""
     dataset = gdata.ArrayDataset(features, labels)
     data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
@@ -324,8 +327,7 @@ def optimize_with_trainer(trainer, features, labels, net, decay_epoch=None,
     semilogy(es, ls, 'epoch', 'loss')
 
 
-
-def predict_rnn(prefix, num_chars, rnn, params, init_rnn_state,
+def predict_rnn(prefix, num_chars, rnn, params, nnit_rnn_state,
                 num_hiddens, vocab_size, ctx, idx_to_char, char_to_idx):
     """Predict next chars with a RNN model"""
     state = init_rnn_state(1, num_hiddens, ctx)
@@ -340,19 +342,20 @@ def predict_rnn(prefix, num_chars, rnn, params, init_rnn_state,
     return ''.join([idx_to_char[i] for i in output])
 
 
-def predict_rnn_gluon(prefix, num_chars, model, vocab_size, ctx,
-                      idx_to_char, char_to_idx):
+def predict_rnn_gluon(prefix, num_chars, model, vocab_size, ctx, idx_to_char,
+                      char_to_idx):
     """Precit next chars with a Gluon RNN model"""
     state = model.begin_state(batch_size=1, ctx=ctx)
     output = [char_to_idx[prefix[0]]]
     for t in range(num_chars + len(prefix)):
-        X = nd.array([output[-1]], ctx=ctx).reshape((1,1))
+        X = nd.array([output[-1]], ctx=ctx).reshape((1, 1))
         (Y, state) = model(X, state)
         if t < len(prefix) - 1:
             output.append(char_to_idx[prefix[t + 1]])
         else:
             output.append(int(Y.argmax(axis=1).asscalar()))
     return ''.join([idx_to_char[i] for i in output])
+
 
 def predict_sentiment(net, vocab, sentence):
     """Predict the sentiment of a given sentence."""
@@ -473,8 +476,9 @@ def resnet18(num_classes):
     net.add(nn.GlobalAvgPool2D(), nn.Dense(num_classes))
     return net
 
+
 class RNNModel(nn.Block):
-    """RNN model"""
+    """RNN model."""
     def __init__(self, rnn_layer, vocab_size, **kwargs):
         super(RNNModel, self).__init__(**kwargs)
         self.rnn = rnn_layer
@@ -489,6 +493,7 @@ class RNNModel(nn.Block):
 
     def begin_state(self, *args, **kwargs):
         return self.rnn.begin_state(*args, **kwargs)
+
 
 def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
              legend=None, figsize=(3.5, 2.5)):
@@ -590,11 +595,12 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
               % (epoch, train_l_sum / n, train_acc_sum / m, test_acc,
                  time() - start))
 
-def train_and_predict_rnn(
-    rnn, get_params, init_rnn_state, num_hiddens, vocab_size, ctx,
-    corpus_indices, idx_to_char, char_to_idx, is_random_iter,
-    num_epochs, num_steps, lr, clipping_theta, batch_size,
-    pred_period, pred_len, prefixes):
+
+def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
+                          vocab_size, ctx, corpus_indices, idx_to_char,
+                          char_to_idx, is_random_iter, num_epochs, num_steps,
+                          lr, clipping_theta, batch_size, pred_period,
+                          pred_len, prefixes):
     """Train an RNN model and predict the next item in the sequence."""
     if is_random_iter:
         data_iter_fn = data_iter_random
@@ -625,13 +631,14 @@ def train_and_predict_rnn(
             sgd(params, lr, 1)
             loss_sum += l.asscalar()
 
-        if (epoch+1) % pred_period == 0:
+        if (epoch + 1) % pred_period == 0:
             print('epoch %d, perplexity %f, time %.2f sec' % (
-                epoch + 1, math.exp(loss_sum / (t+1)), time() - start))
+                epoch + 1, math.exp(loss_sum / (t + 1)), time() - start))
             for prefix in prefixes:
                 print(' -', predict_rnn(
                     prefix, pred_len, rnn, params, init_rnn_state,
                     num_hiddens, vocab_size, ctx, idx_to_char, char_to_idx))
+
 
 def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
                                 corpus_indices, idx_to_char, char_to_idx,
@@ -661,13 +668,14 @@ def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
             trainer.step(1)
             loss_sum += l.asscalar()
 
-        if (epoch+1) % pred_period == 0:
+        if (epoch + 1) % pred_period == 0:
             print('epoch %d, perplexity %f, time %.2f sec' % (
-                epoch + 1, math.exp(loss_sum / (t+1)), time() - start))
+                epoch + 1, math.exp(loss_sum / (t + 1)), time() - start))
             for prefix in prefixes:
                 print(' -', predict_rnn_gluon(
                     prefix, pred_len, model, vocab_size,
                     ctx, idx_to_char, char_to_idx))
+
 
 def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
               params=None, lr=None, trainer=None):
@@ -789,3 +797,4 @@ class VOCSegDataset(gdata.Dataset):
 
     def __len__(self):
         return len(self.data)
+
