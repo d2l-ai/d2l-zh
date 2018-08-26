@@ -1,7 +1,6 @@
 # 梯度下降和随机梯度下降
 
-本节中，我们将介绍梯度下降（gradient descent）的工作原理，并随后引出（小批量）随机梯度下降（(mini-batch) stochastic gradient descent）这一深度学习中最常用的优化算法。
-
+本节中，我们将介绍梯度下降（gradient descent）的工作原理。虽然在深度学习中很少直接使用梯度下降，但理解梯度的意义和为什么沿着梯度反方向更新模型参数可以降低目标函数值是学习后续优化算法的基础。随后我们引出随机梯度下降（stochastic gradient descent），这是深度学习中常用的优化算法的最简单形式。
 
 ## 一维梯度下降
 
@@ -27,40 +26,39 @@ $$x \leftarrow x - \eta f'(x),$$
 
 下面我们以目标函数$f(x)=x^2$为例来看一看梯度下降是如何执行的。虽然我们知道最小化$f(x)$的解为$x=0$，这里我们依然使用这个简单函数来观察$x$是如何被迭代的。首先，导入本节实验所需的包或模块。
 
-```{.python .input  n=1}
+```{.python .input  n=2}
 import sys
 sys.path.insert(0, '..')
 
 %matplotlib inline
-import gluonbook as gb
-from mxnet import autograd, gluon, init, nd
-from mxnet.gluon import nn, data as gdata, loss as gloss
+import math
 import numpy as np
-import random
+import gluonbook as gb
+from mxnet import nd
 ```
 
 接下来我们使用$x=10$作为初始值，设$\eta=0.2$。使用梯度下降对$x$迭代10次，可见最后$x$的值较接近最优解。
 
-```{.python .input  n=2}
+```{.python .input  n=3}
 f = lambda x: x ** 2
 f_grad = lambda x: 2 * x
 
-def gd(eta):    
-    x = 10    
+def gd(eta):
+    x = 10
     res = [x]
     for i in range(10):
         x = x - eta * f_grad(x)
-        res.append(x)        
+        res.append(x)
+    print('epoch 10, x:', x)
     return res
 
 res = gd(0.2)
-res[-1]
 ```
 
 下面将绘制出$x$的迭代过程。
 
-```{.python .input  n=3}
-def plot_iterate(res):
+```{.python .input  n=4}
+def show_trace(res):
     n = max(abs(min(res)), abs(max(res)), 10)
     f_line = np.arange(-n, n, 0.1)
     gb.set_figsize()
@@ -69,22 +67,22 @@ def plot_iterate(res):
     gb.plt.xlabel('x')
     gb.plt.ylabel('f(x)')
 
-plot_iterate(res)
+show_trace(res)
 ```
 
 ## 学习率
 
 上述梯度下降算法中的正数$\eta$通常叫做学习率。这是一个超参数，需要人工设定。如果使用过小的学习率，会导致$x$更新缓慢从而使得需要更多的迭代才能得到较好的解。下面展示了使用$\eta=0.05$时$x$的迭代过程。
 
-```{.python .input  n=4}
-plot_iterate(gd(0.05))
+```{.python .input  n=5}
+show_trace(gd(0.05))
 ```
 
 如果使用过大的学习率，$\left|\eta f'(x)\right|$可能会过大从而使前面提到的一阶泰勒展开公式不再成立：这时我们无法保证迭代$x$会
 降低$f(x)$的值。举个例子，当我们设$\eta=1.1$时，可以看到$x$不断越过（overshoot）最优解$x=0$并逐渐发散。
 
-```{.python .input  n=5}
-plot_iterate(gd(1.1))
+```{.python .input  n=6}
+show_trace(gd(1.1))
 ```
 
 ## 多维梯度下降
@@ -111,244 +109,93 @@ $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f(\boldsymbol{x}).$$
 
 相同地，其中$\eta$（取正数）称作学习率。
 
+下面我们构造一个输入为二维向量$\boldsymbol{x} = [x_1, x_2]^\top$和输出为标量的目标函$f(\boldsymbol{x})=x_1^2+2x_2$。可以知道$\nabla f(\boldsymbol{x}) = [2x_1, 4x_2]^\top$。然后观察梯度下降从初始点$[5,2]$开始对$\boldsymbol{x}$的更新轨迹。
+
+```{.python .input  n=25}
+f_2d = lambda x1, x2: x1 ** 2 + 2 * x2 ** 2
+f_2d_grad = lambda x1, x2: (2 * x1, 4 * x2)
+
+def gd_2d(eta):    
+    x1, x2 = -5, -2
+    res = [(x1, x2)]
+    for i in range(20):
+        gx1, gx2 = f_2d_grad(x1, x2)
+        x1 = x1 - eta * gx1
+        x2 = x2 - eta * gx2
+        res.append((x1, x2))
+    print('epoch %d, x1 %f, x2 %f' % (i+1, x1, x2))
+    return res
+
+def show_trace_2d(res):  # 将保存在 GluonBook 方便之后使用。
+    x1, x2 = zip(*res)
+    gb.plt.plot(x1, x2, '-o', color='#ff7f0e')
+    x1, x2 = np.meshgrid(np.arange(-5.5, 1.0, 0.1), np.arange(-3.0, 1.0, 0.1))
+    gb.plt.contour(x1, x2, f_2d(x1, x2), colors='#1f77b4')
+    gb.plt.xlabel('x1')
+    gb.plt.ylabel('x2')
+    
+show_trace_2d(gd_2d(0.1))
+```
+
 ## 随机梯度下降
 
-然而，当训练数据集很大时，梯度下降算法可能会难以使用。为了解释这个问题，考虑目标函数
+在深度学习里，通常目标函数是训练样本上损失函数的平均。设$f_i(\boldsymbol{x})$是有关索引为$i$的训练数据样本的损失函数，$n$是训练数据样本数，那么目标函数定义为
 
-$$f(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n f_i(\boldsymbol{x}),$$
+$$f(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n f_i(\boldsymbol{x}).$$
 
-其中$f_i(\boldsymbol{x})$是有关索引为$i$的训练数据样本的损失函数，$n$是训练数据样本数。那么在$\boldsymbol{x}$处的梯度计算为
+目标函数在$\boldsymbol{x}$处的梯度计算为
 
 $$\nabla f(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_i(\boldsymbol{x}).$$
 
-可以看到，梯度下降每次迭代的计算开销随着$n$线性增长。因此，当训练数据样本数很大时，梯度下降每次迭代的计算开销很高。给定学习率$\eta$（取正数），在每次迭代时，随机梯度下降算法随机均匀采样$i$并计算$\nabla f_i(\boldsymbol{x})$来迭代$\boldsymbol{x}$：
+如果使用梯度下降，每次迭代（参数更新）的计算开销随着$n$线性增长。因此，当训练数据样本数很大时，梯度下降每次迭代的计算开销很高。随机梯度下降（stochastic gradient descent，简称SGD）的提出是为了减少每次迭代的计算开销，以此来使得达到同样质量（例如目标函数值）模型参数时总计算量比梯度下降要小。
+
+在随机梯度下降中，每次迭代我们随机均匀采样$i\in[1,n]$，并计算随机梯度$\nabla f_i(\boldsymbol{x})$来迭代$\boldsymbol{x}$：
 
 $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f_i(\boldsymbol{x}).$$
 
-
-事实上，随机梯度$\nabla f_i(\boldsymbol{x})$是对梯度$\nabla f(\boldsymbol{x})$的无偏估计：
+这里$\eta$同样是学习率。可以看到每次迭代的开销从梯度下降的$n$降到了常数$1$。接下来的问题是，在合适的学习率情况下，随机梯度是否也能保证每次降低目标函数值。事实上，随机梯度$\nabla f_i(\boldsymbol{x})$是对梯度$\nabla f(\boldsymbol{x})$的无偏估计：
 
 $$\mathbb{E}_i \nabla f_i(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_i(\boldsymbol{x}) = \nabla f(\boldsymbol{x}).$$
 
+这里的期望是对随机变量$i$。这个意味着平均上来说随机梯度是一个对梯度很好的估计。
 
-## 小批量随机梯度下降
+下面我们通过在梯度中加入均值为0的随机噪音来模拟随机梯度下降，以此来比较它与梯度下降的区别。
 
-梯度下降中每次更新使用所有样本来计算梯度，而随机梯度下降则随机选取一个样本来计算梯度。深度学习中真正常用的是小批量随机梯度下降。它每次随机均匀采样一个由训练数据样本索引所组成的小批量（mini-batch）$\mathcal{B}$来计算梯度。我们可以通过重复采样（sampling with replacement）或者不重复采样（sampling without replacement）得到同一个小批量中的各个样本。前者允许同一个小批量中出现重复的样本，后者则不允许如此，且更常见。对于这两者间的任一种方式，我们可以使用
+```{.python .input  n=32}
+noise = 1
+f_2d_noise_grad = lambda x1, x2: (2 * x1 + np.random.normal(noise),
+                                 4 * x2 + np.random.normal(noise))
 
-$$\nabla f_\mathcal{B}(\boldsymbol{x}) = \frac{1}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}\nabla f_i(\boldsymbol{x})$$ 
+def sgd_2d(eta):
+    x1, x2 = -5, -2
+    res = [(x1, x2)]
+    for i in range(20):
+        gx1, gx2 = f_2d_noise_grad(x1, x2)
+        x1 = x1 - eta * gx1
+        x2 = x2 - eta * gx2
+        res.append((x1, x2))
+    print('epoch %d, x1 %f, x2 %f' % (i+1, x1, x2))
+    return res
 
-来计算当前小批量上的梯度。这里$|\mathcal{B}|$代表样本批量大小，是一个超参数。同随机梯度一样，小批量随机梯度$\nabla f_\mathcal{B}(\boldsymbol{x})$也是对梯度$\nabla f(\boldsymbol{x})$的无偏估计。给定学习率$\eta$（取正数），在每次迭代时，小批量随机梯度下降对$\boldsymbol{x}$的迭代如下：
-
-$$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f_\mathcal{B}(\boldsymbol{x}).$$
-
-小批量随机梯度下降中每次迭代的计算开销为$\mathcal{O}(|\mathcal{B}|)$。当批量大小为1时，该算法即随机梯度下降；当批量大小等于训练数据样本数，该算法即梯度下降。当批量较小时，每次迭代中使用的样本少，这会导致并行处理和内存使用效率变低。这使得在计算同样数目样本的情况下比使用更大批量时所花时间更多。当批量较大时，每个小批量梯度里可能含有更多的冗余信息。为了得到较好的解，批量较大时比批量较小时可能需要计算更多数目的样本，例如增大迭代周期数。
-
-
-## 实验
-
-接下来我们构造一个数据集来实验小批量随机梯度下降。我们以之前介绍过的线性回归为例。下面直接调用`gluonbook`中的线性回归模型和平方损失函数。它们已在[“线性回归的从零开始实现”](../chapter_deep-learning-basics/linear-regression-scratch.md)一节中实现过了。
-
-```{.python .input  n=6}
-net = gb.linreg
-loss = gb.squared_loss
+show_trace_2d(sgd_2d(0.1))
 ```
 
-设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。所需学习的模型在整个数据集上的平方损失函数即我们需要优化的目标函数。模型参数即目标函数自变量。
-
-```{.python .input  n=7}
-# 生成数据集。
-def get_data_ch7():
-    num_inputs = 2
-    num_examples = 1000
-    true_w = [2, -3.4]
-    true_b = 4.2
-    features = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
-    labels = true_w[0] * features[:, 0] + true_w[1] * features[:, 1] + true_b
-    labels += nd.random.normal(scale=0.01, shape=labels.shape)
-    return num_inputs, num_examples, true_w, true_b, features, labels
-
-num_inputs, num_examples, true_w, true_b, features, labels = get_data_ch7()
-
-# 初始化模型参数。
-def init_params_vars():
-    w = nd.random.normal(scale=0.01, shape=(num_inputs, 1))
-    b = nd.zeros(shape=(1,))
-    params = [w, b]
-    for param in params:
-        param.attach_grad()
-    return [params]
-```
-
-小批量随机梯度下降算法同样在[“线性回归的从零开始实现”](../chapter_deep-learning-basics/linear-regression-scratch.md)一节中实现过。为了阅读方便，在这里我们重复实现一次。
-
-```{.python .input  n=8}
-def sgd(params_vars, hyperparams, batch_size):
-    lr = hyperparams['lr']
-    [w, b] = params_vars[0]
-    for param in [w, b]:
-        param[:] = param - lr * param.grad / batch_size
-```
-
-由于随机梯度的方差在迭代过程中无法减小，（小批量）随机梯度下降的学习率通常会采用自我衰减的方式。如此一来，学习率和随机梯度乘积的方差会衰减。实验中，当迭代周期（`epoch`）大于2时，（小批量）随机梯度下降的学习率在每个迭代周期开始时自乘0.1作自我衰减。而梯度下降在迭代过程中一直使用目标函数的真实梯度，无需自我衰减学习率。在迭代过程中，每当`log_interval`个样本被采样过后，模型当前的损失函数值（`loss`）被记录下并用于作图。例如，当`batch_size`和`log_interval`都为10时，每次迭代后的损失函数值都被用来作图。
-
-```{.python .input  n=9}
-def optimize(optimizer_fn, params_vars, hyperparams, features, labels, 
-             decay_epoch=None, batch_size=10, log_interval=10, num_epochs=3, 
-             is_adam=False):
-    dataset = gdata.ArrayDataset(features, labels)
-    data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
-    w, b = params_vars[0]
-    net = gb.linreg
-    loss = gb.squared_loss                                                                                                 
-    ls = [loss(net(features, w, b), labels).mean().asnumpy()]
-    # 当优化算法为 Adam 时才会用到（后面章节会介绍），本节可以忽略。
-    if is_adam:
-        t = 0 
-    for epoch in range(1, num_epochs + 1):
-        # 学习率自我衰减。
-        if decay_epoch and decay_epoch and epoch > decay_epoch:
-            hyperparams['lr'] *= 0.1 
-        for batch_i, (X, y) in enumerate(data_iter):
-            with autograd.record():
-                l = loss(net(X, w, b), y)
-            # 先对变量 l 中元素求和，得到小批量损失之和，然后求参数的梯度。
-            l.backward()
-            # 当优化算法为 Adam 时才会用到（后面章节会介绍），本节可以忽略。
-            if is_adam:
-                t += 1
-                optimizer_fn(params_vars, hyperparams, batch_size, t)
-            else:
-                optimizer_fn(params_vars, hyperparams, batch_size)
-            if batch_i * batch_size % log_interval == 0:
-                ls.append(loss(net(features, w, b), labels).mean().asnumpy())
-    print('w[0]=%.2f, w[1]=%.2f, b=%.2f'
-          % (w[0].asscalar(), w[1].asscalar(), b.asscalar()))
-    es = np.linspace(0, num_epochs, len(ls), endpoint=True)
-    gb.semilogy(es, ls, 'epoch', 'loss')
-```
-
-当批量大小为1时，优化使用的是随机梯度下降。在当前学习率下，损失函数值在早期快速下降后略有波动。这是由于随机梯度的方差在迭代过程中无法减小。当迭代周期大于2，学习率自我衰减后，损失函数值下降后较平稳。最终，优化所得的模型参数值`w`和`b`与它们的真实值[2, -3.4]和4.2较接近。
-
-```{.python .input  n=10}
-optimize(optimizer_fn=sgd, params_vars=init_params_vars(),
-         hyperparams={'lr': 0.2}, features=features, labels=labels,
-         decay_epoch=2, batch_size=1)
-```
-
-当批量大小为1000时，由于数据样本总数也是1000，优化使用的是梯度下降。梯度下降无需自我衰减学习率（`decay_epoch=None`）。最终，优化所得的模型参数值与它们的真实值较接近。需要注意的是，梯度下降的1个迭代周期对模型参数只迭代1次。而随机梯度下降的批量大小为1，它在1个迭代周期对模型参数迭代了1000次。我们观察到，1个迭代周期后，梯度下降所得的损失函数值比随机梯度下降所得的损失函数值略大。而在3个迭代周期后，梯度下降和随机梯度下降得到的损失函数值较接近。
-
-```{.python .input  n=11}
-optimize(optimizer_fn=sgd, params_vars=init_params_vars(),
-         hyperparams={'lr': 0.999}, features=features, labels=labels,
-         decay_epoch=None, batch_size=1000, log_interval=1000)
-```
-
-当批量大小为10时，由于数据样本总数也是1000，优化使用的是小批量随机梯度下降。最终，优化所得的模型参数值与它们的真实值较接近。
-
-```{.python .input  n=12}
-optimize(optimizer_fn=sgd, params_vars=init_params_vars(),
-         hyperparams={'lr': 0.2}, features=features, labels=labels,
-         decay_epoch=2, batch_size=10)
-```
-
-同样是批量大小为10，我们把学习率改大。这时损失函数值不断增大，直到出现“nan”（not a number，非数）。
-这是因为，过大的学习率造成了模型参数越过最优解并发散。最终学到的模型参数也是“nan”。
-
-```{.python .input  n=13}
-optimize(optimizer_fn=sgd, params_vars=init_params_vars(),
-         hyperparams={'lr': 5}, features=features, labels=labels,
-         decay_epoch=2, batch_size=10)
-```
-
-同样是批量大小为10，我们把学习率改小。这时我们观察到损失函数值下降较慢，直到3个迭代周期模型参数也没能接近它们的真实值。
-
-```{.python .input  n=14}
-optimize(optimizer_fn=sgd, params_vars=init_params_vars(),
-         hyperparams={'lr': 0.002}, features=features, labels=labels,
-         decay_epoch=2, batch_size=10)
-```
-
-## 使用Gluon的实现
-
-在Gluon里，使用小批量随机梯度下降很方便，我们无需重新实现该算法。特别地，当批量大小等于数据集样本数时，该算法即为梯度下降；批量大小为1即为随机梯度下降。为了使学习率能够自我衰减，我们需要访问`gluon.Trainer`的`learning_rate`属性并使用`set_learning_rate`函数。
-
-```{.python .input}
-# 线性回归模型。
-net = nn.Sequential()
-net.add(nn.Dense(1))
-
-def optimize_with_trainer(trainer, features, labels, net, decay_epoch=None,
-                          batch_size=10, log_interval=10, num_epochs=3):
-    dataset = gdata.ArrayDataset(features, labels)
-    data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
-    loss = gloss.L2Loss()
-    ls = [loss(net(features), labels).mean().asnumpy()]
-    for epoch in range(1, num_epochs + 1):
-        # 学习率自我衰减。
-        if decay_epoch and epoch > decay_epoch:
-            trainer.set_learning_rate(trainer.learning_rate * 0.1)
-        for batch_i, (X, y) in enumerate(data_iter):
-            with autograd.record():
-                l = loss(net(X), y)
-            l.backward()
-            trainer.step(batch_size)
-            if batch_i * batch_size % log_interval == 0:
-                ls.append(loss(net(features), labels).mean().asnumpy())
-    print('w[0]=%.2f, w[1]=%.2f, b=%.2f' 
-          % (net[0].weight.data()[0][0].asscalar(),
-             net[0].weight.data()[0][1].asscalar(),
-             net[0].bias.data().asscalar()))
-    es = np.linspace(0, num_epochs, len(ls), endpoint=True)
-    gb.semilogy(es, ls, 'epoch', 'loss')
-```
-
-以下使用Gluon分别实验了随机梯度下降、梯度下降和小批量随机梯度下降（批量大小为10）。这几组实验分别重现了本节中使用NDArray实现优化算法的前三组实验结果。这些结果有一定的随机性。
-
-```{.python .input}
-net.initialize(init.Normal(sigma=0.01), force_reinit=True)
-trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.2})
-optimize_with_trainer(trainer=trainer, features=features, labels=labels, 
-                      net=net, decay_epoch=2, batch_size=1)
-```
-
-```{.python .input}
-net.initialize(init.Normal(sigma=0.01), force_reinit=True)
-trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.999})
-optimize_with_trainer(trainer=trainer, features=features, labels=labels, 
-                      net=net, decay_epoch=None, batch_size=1000,
-                      log_interval=1000)
-```
-
-```{.python .input}
-net.initialize(init.Normal(sigma=0.01), force_reinit=True)
-trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.2})
-optimize_with_trainer(trainer=trainer, features=features, labels=labels, 
-                      net=net, decay_epoch=2, batch_size=10)
-```
-
-本节使用的`get_data_ch7`、`optimize`和`optimize_with_trainer`函数被定义在`gluonbook`包中供后面章节调用。
+可以看到随机梯度下降的更新轨迹相对于梯度下降更加曲折。因为噪音使得梯度的准确度下降，所以在使用同样的超参数的情况下，随机梯度下降收敛到的参数里最优值相对梯度下降来说更远。但因为随机梯度下降每一次迭代的计算比梯度下降更加简单，在同样运行时间下，随机梯度下降可以进行更多次的参数迭代，它最终得到的参数质量可能会比梯度下降更优。
 
 
 ## 小结
 
-* 当训练数据较大，梯度下降每次迭代计算开销较大，因而（小批量）随机梯度下降更受青睐。
+* 使用适当的学习率，沿着梯度反方向更新模型参数可以降低目标函数值。梯度下降重复这一参数更新过程直到得到满足要求的模型参数。
 * 学习率过大过小都有问题。一个合适的学习率通常是需要通过多次实验找到的。
-* 使用Gluon的`Trainer`可以方便地使用小批量随机梯度下降。
-* 访问`gluon.Trainer`的`learning_rate`属性并使用`set_learning_rate`函数可以在迭代过程中调整学习率。
-
+* 当训练数据较大，梯度下降每次迭代计算开销较大，因而随机梯度下降更受青睐。
 
 ## 练习
 
-* 运行本节中实验代码。比较一下随机梯度下降和梯度下降的运行时间。
-* 梯度下降和随机梯度下降虽然看上去有效，但可能会有哪些问题？
-* 查阅网络或书本资料，了解学习率自我衰减的其他方法。
+* 使用一个不同的目标函数来观察收敛。
+* 在二维目标函数例子中实验下不同的学习率，看看其对收敛的影响。
+* 随机梯度下降中我们通常会对学习率进行衰减，例如假设当前为第$i$次迭代，$i=1,2,\ldots$，尝试使用$\eta/\sqrt{i}$或者$\eta/i$作为学习率。
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1877)
 
 ![](../img/qr_gd-sgd.svg)
-
-
-## 参考文献
-
-[1] Stewart, J. (2010). Calculus: Early Transcendentals (7th Edition). Brooks Cole.
