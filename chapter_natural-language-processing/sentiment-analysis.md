@@ -238,11 +238,11 @@ def predict_sentiment(net, vocab, sentence):
     label = nd.argmax(net(nd.reshape(sentence, shape=(1, -1))), axis=1)
     return 'positive' if label.asscalar() == 1 else 'negative'
 
-predict_sentiment(net, vocab, ['i', 'think', 'this', 'movie', 'is', 'great'])
+predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'great'])
 ```
 
 ```{.python .input}
-predict_sentiment(net, vocab, ['the', 'show', 'is', 'terribly', 'boring'])
+predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'bad'])
 ```
 
 ## 小结

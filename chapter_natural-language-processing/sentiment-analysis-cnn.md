@@ -239,12 +239,11 @@ gb.train(train_loader, test_loader, net, loss, trainer, ctx, num_epochs)
 下面我们使用训练好的模型对两个简单句子的情感进行分类。
 
 ```{.python .input}
-gb.predict_sentiment(net, vocab, ['i', 'think', 'this', 'movie', 'is',
-                                  'great'])
+gb.predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'great'])
 ```
 
 ```{.python .input}
-gb.predict_sentiment(net, vocab, ['the', 'show', 'is', 'terribly', 'boring'])
+gb.predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'bad'])
 ```
 
 ## 小结
