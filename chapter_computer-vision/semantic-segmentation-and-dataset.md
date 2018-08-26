@@ -93,7 +93,7 @@ VOC_CLASSES = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
 
 ```{.python .input  n=6}
 colormap2label = nd.zeros(256 ** 3)
-for i, cm in enumerate(voc_colormap):
+for i, cm in enumerate(VOC_COLORMAP):
     colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i
 
 # 本函数已保存在 gluonbook 包中方便以后使用。
@@ -107,7 +107,7 @@ def voc_label_indices(img, colormap2label):
 
 ```{.python .input  n=7}
 y = voc_label_indices(train_labels[0], colormap2label)
-y[105:115, 130:140], voc_classes[1]
+y[105:115, 130:140], VOC_CLASSES[1]
 ```
 
 ### 数据预处理
