@@ -64,6 +64,9 @@ class Conv2D(nn.Block):
         return corr2d(x, self.weight.data()) + self.bias.data()
 ```
 
+卷积窗口形状为$p \times q$的卷积层称为$p \times q$卷积层。同样，$p \times q$卷积或$p \times q$卷积核说明卷积核的高和宽分别为$p$和$q$。在有些文献中，卷积核也称过滤器（filter）。
+
+
 ## 图像中物体边缘检测
 
 下面我们来看一个应用卷积层的简单应用：检测图像中物体的边缘，即找到像素变化的位置。首先我们构造一张$6\times 8$的图像（即高和宽分别为6和8像素的图像）。它中间4列为黑（0），其余为白（1）。
