@@ -27,9 +27,10 @@ img = image.imread('../img/cat1.jpg')
 gb.plt.imshow(img.asnumpy())
 ```
 
-下面定义绘图函数`show_images`。该函数也被定义在`gluonbook`包中供后面章节调用。
+下面定义绘图函数`show_images`。
 
 ```{.python .input  n=23}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def show_images(imgs, num_rows, num_cols, scale=2):                                                                              
     """Plot a list of images."""
     figsize = (num_cols * scale, num_rows * scale)
@@ -144,6 +145,7 @@ def load_cifar10(is_train, augs, batch_size):
 首先，我们定义`try_all_gpus`函数，从而能够使用所有可用的GPU。
 
 ```{.python .input  n=35}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def try_all_gpus():
     ctxes = []
     try:
@@ -170,6 +172,7 @@ def _get_batch(batch, ctx):
             gutils.split_and_load(labels, ctx),
             features.shape[0])
 
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
     if isinstance(ctx, mx.Context):
         ctx = [ctx]
@@ -188,6 +191,7 @@ def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
 接下来，我们定义`train`函数使用多GPU训练并评价模型。
 
 ```{.python .input  n=37}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
     print('training on', ctx)
     if isinstance(ctx, mx.Context):
@@ -246,8 +250,6 @@ train_with_data_aug(test_augs, test_augs)
 ```
 
 可以看到，即使添加了简单的随机翻转也会对训练产生一定的影响。图像增广通常会使训练准确率变低，但有可能提高测试准确率。
-
-本节中描述的`try_all_gpus`、`evaluate_accuracy`和`train`函数被定义在`gluonbook`包中供后面章节调用。
 
 ## 小结
 

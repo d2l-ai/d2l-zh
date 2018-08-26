@@ -5,7 +5,7 @@
 
 ## 二维互相关运算
 
-虽然卷积层得名于卷积（convolution）运算，但我们通常在卷积层中使用更加直观的互相关运算（cross-correlation）。
+虽然卷积层得名于卷积（convolution）运算，但我们通常在卷积层中使用更加直观的互相关（cross-correlation）运算。
 
 
 ![二维互相关运算。阴影部分为第一个输出元素及其计算所使用的输入和核数组元素：$0\times0+1\times1+3\times2+4\times3=19$。](../img/correlation.svg)

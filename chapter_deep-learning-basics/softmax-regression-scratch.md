@@ -98,6 +98,7 @@ def cross_entropy(y_hat, y):
 下面定义`accuracy`函数。其中`y_hat.argmax(axis=1)`返回矩阵`y_hat`每行中最大元素的索引，且返回结果与`y`形状相同。我们在[“数据操作”](../chapter_prerequisite/ndarray.md)一节介绍过，条件判断式`(y_hat.argmax(axis=1) == y)`是一个值为0或1的NDArray。由于标签类型为整数，我们先将其变换为浮点数再进行比较。
 
 ```{.python .input  n=17}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def accuracy(y_hat, y):
     return (y_hat.argmax(axis=1) == y.astype('float32')).mean().asscalar()
 ```
@@ -111,6 +112,8 @@ accuracy(y_hat, y)
 类似地，我们可以评价模型`net`在数据集`data_iter`上的准确率。
 
 ```{.python .input  n=19}
+# 本函数已保存在 gluonbook 包中方便以后使用。该函数将被逐步改进：它的完整实现将在“图像增
+# 广”一节中描述。
 def evaluate_accuracy(data_iter, net):
     acc = 0
     for X, y in data_iter:
@@ -132,6 +135,7 @@ evaluate_accuracy(test_iter, net)
 num_epochs = 5
 lr = 0.1
 
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
               params=None, lr=None, trainer=None):
     for epoch in range(num_epochs):
@@ -171,9 +175,6 @@ titles = [true+'\n'+pred for true, pred in zip(true_labels, pred_labels)]
 
 gb.show_fashion_mnist(X[0:9], titles[0:9])
 ```
-
-本节中的`accuracy`、`evaluate_accuracy`和`train_ch3`函数被定义在`gluonbook`包中供后面章节调用。其中的`evaluate_accuracy`函数将被逐步改进：它的完整实现将在[“图像增广”](../chapter_computer-vision/image-augmentation.md)一节中描述。
-
 
 ## 小结
  

@@ -48,6 +48,7 @@ Y.shape
 接下来我们继承Block类来定义一个完整的循环神经网络，它首先将输入数据使用one-hot表示后输入到`rnn_layer`中，然后使用全连接输出层得到输出。
 
 ```{.python .input  n=39}
+# 本类已保存在 gluonbook 包中方便以后使用。
 class RNNModel(nn.Block):
     def __init__(self, rnn_layer, vocab_size, **kwargs):
         super(RNNModel, self).__init__(**kwargs)
@@ -73,6 +74,7 @@ class RNNModel(nn.Block):
 首先同前一节一样定义一个预测函数，这里的实现区别在于前向计算和初始化隐藏状态的函数接口稍有不同。
 
 ```{.python .input  n=41}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def predict_rnn_gluon(prefix, num_chars, model, vocab_size, ctx, idx_to_char,
                       char_to_idx):
     # 使用 model 的成员函数来初始化隐藏状态。
@@ -100,6 +102,7 @@ predict_rnn_gluon('分开', 10, model, vocab_size, ctx, idx_to_char, char_to_idx
 接下来实现训练函数，它的算法同上一节一样，但这里只使用了随机采样来读取数据。
 
 ```{.python .input  n=18}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx, 
                                 corpus_indices, idx_to_char, char_to_idx, 
                                 num_epochs, num_steps, lr, clipping_theta, 
