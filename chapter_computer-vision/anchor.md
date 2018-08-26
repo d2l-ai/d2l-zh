@@ -42,9 +42,10 @@ boxes = y.reshape((h, w, 5, 4))
 boxes[250, 250, 0, :]
 ```
 
-在画出这些锚框的具体样子前，我们需要定义`show_bboxes`函数在图上画出多个边界框。我们将该函数定义在`gluonbook`包中供后面章节调用。
+在画出这些锚框的具体样子前，我们需要定义`show_bboxes`函数在图上画出多个边界框。
 
 ```{.python .input  n=11}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def show_bboxes(axes, bboxes, labels=None, colors=None):
     def _make_list(obj, default_values=None):
         if obj is None:

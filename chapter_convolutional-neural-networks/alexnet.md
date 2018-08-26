@@ -98,6 +98,7 @@ for layer in net:
 虽然论文中AlexNet使用ImageNet数据，但因为ImageNet数据训练时间较长，我们仍用前面的Fashion-MNIST来演示。读取数据的时候我们额外做了一步将图像高宽扩大到原版AlexNet使用的224，这个可以通过`Resize`来实现。即我们在`ToTenor`前使用`Resize`，然后使用`Compose`来将这两个变化合并成一个来方便调用。数据读取的其他部分跟前面一致。
 
 ```{.python .input  n=3}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def load_data_fashion_mnist(batch_size, resize=None,
                             root=os.path.join('~', '.mxnet', 'datasets',
                                               'fashion-mnist')):
@@ -122,8 +123,6 @@ batch_size = 128
 train_iter, test_iter = load_data_fashion_mnist(batch_size=batch_size,
                                                 resize=224)
 ```
-
-我们将`load_data_fashion_mnist`函数定义在`gluonbook`包中供后面章节调用。
 
 ## 训练
 

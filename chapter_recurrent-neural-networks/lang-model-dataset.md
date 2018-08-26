@@ -48,7 +48,7 @@ print('chars:', ''.join([idx_to_char[idx] for idx in sample]))
 print('indices:', sample)
 ```
 
-我们将以上代码封装在`gluonbook`包里的`load_data_jay_lyrics`函数中以供后面章节调用。调用该函数后会依次得到`corpus_indices`、`char_to_idx`、`idx_to_char`和`vocab_size`四个变量。
+我们将以上代码封装在`gluonbook`包里的`load_data_jay_lyrics`函数中以方便后面章节调用。调用该函数后会依次得到`corpus_indices`、`char_to_idx`、`idx_to_char`和`vocab_size`四个变量。
 
 ## 时序数据的采样
 
@@ -60,6 +60,7 @@ print('indices:', sample)
 在随机采样中，每个样本是原始序列上任意截取的一段序列。相邻的两个随机小批量在原始序列上的位置不一定相毗邻。因此，我们无法用一个小批量最终时间步的隐藏状态来初始化下一个小批量的隐藏状态。在训练模型时，每次随机采样前都需要重新初始化隐藏状态。
 
 ```{.python .input  n=25}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def data_iter_random(corpus_indices, batch_size, num_steps, ctx=None):
     # 减一是因为输出的索引是相应输入的索引加一。
     num_examples = (len(corpus_indices) - 1) // num_steps
@@ -93,6 +94,7 @@ for X, Y in data_iter_random(my_seq, batch_size=2, num_steps=6):
 为了使模型参数的梯度计算只依赖一次迭代读取的小批量序列，我们可以在每次读取小批量前将隐藏状态从计算图分离出来。
 
 ```{.python .input  n=32}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def data_iter_consecutive(corpus_indices, batch_size, num_steps, ctx=None):
     corpus_indices = nd.array(corpus_indices, ctx=ctx)
     data_len = len(corpus_indices)
@@ -113,9 +115,6 @@ def data_iter_consecutive(corpus_indices, batch_size, num_steps, ctx=None):
 for X, Y in data_iter_consecutive(my_seq, batch_size=2, num_steps=6):
     print('X: ', X, '\nY:', Y, '\n')
 ```
-
-本节定义的`data_iter_random`和`data_iter_consecutive`函数也被保存在`gluonbook`包里。
-
 
 ## 小结
 

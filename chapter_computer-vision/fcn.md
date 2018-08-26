@@ -137,7 +137,7 @@ net[-2].initialize(init=init.Xavier())
 input_shape = (320, 480)
 batch_size = 32
 colormap2label = nd.zeros(256**3)
-for i, cm in enumerate(gb.voc_colormap):
+for i, cm in enumerate(gb.VOC_COLORMAP):
     colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i 
 voc_dir = gb.download_voc_pascal(data_dir='../data')
 
@@ -180,7 +180,7 @@ def predict(im):
 
 ```{.python .input  n=14}
 def label2image(pred):
-    colormap = nd.array(gb.voc_colormap, ctx=ctx[0], dtype='uint8')
+    colormap = nd.array(gb.VOC_COLORMAP, ctx=ctx[0], dtype='uint8')
     x = pred.astype('int32')
     return colormap[x, :]
 ```

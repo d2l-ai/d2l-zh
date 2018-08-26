@@ -33,12 +33,13 @@ dog_bbox = [60, 45, 378, 516]
 cat_bbox = [400, 112, 655, 493]
 ```
 
-我们可以在图中将边框画出来检查其准确性。画之前我们定义一个辅助函数`bbox_to_rect`。它将边界框表示成matplotlib的边框格式。我们将该函数定义在`gluonbook`包中供后面章节调用。
+我们可以在图中将边框画出来检查其准确性。画之前我们定义一个辅助函数`bbox_to_rect`。它将边界框表示成matplotlib的边框格式。
 
 ```{.python .input  n=3}
-# 将边界框（左上 x、左上 y，右下 x，右下 y）格式转换成 matplotlib 格式：
-# （（左上 x，左上 y），宽，高）。
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def bbox_to_rect(bbox, color):
+    # 将边界框（左上 x、左上 y，右下 x，右下 y）格式转换成 matplotlib 格式：
+    # （（左上 x，左上 y），宽，高）。
     return gb.plt.Rectangle(
         xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0], height=bbox[3]-bbox[1],
         fill=False, edgecolor=color, linewidth=2)

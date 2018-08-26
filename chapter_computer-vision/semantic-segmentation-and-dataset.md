@@ -29,6 +29,7 @@ import tarfile
 我们首先下载这个数据集到`../data`下。压缩包大小是2GB，下载需要一定时间。解压之后这个数据集将会放置在`../data/VOCdevkit/VOC2012`下。
 
 ```{.python .input  n=2}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def download_voc_pascal(data_dir='../data'):
     """Download the Pascal VOC2012 Dataset."""
     voc_dir = os.path.join(data_dir, 'VOCdevkit/VOC2012')
@@ -48,6 +49,7 @@ voc_dir = download_voc_pascal()
 下面定义函数将图像和标注全部读进内存。
 
 ```{.python .input  n=3}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def read_voc_images(root=voc_dir, train=True):
     txt_fname = '%s/ImageSets/Segmentation/%s' % (
         root, 'train.txt' if train else 'val.txt')
@@ -73,13 +75,15 @@ gb.show_images(imgs, 2, n);
 接下来我们列出标注中每个 RGB 颜色值对应的类别。
 
 ```{.python .input  n=5}
-voc_colormap = [[0, 0, 0], [128, 0, 0], [0, 128, 0], [128, 128, 0],
+# 该常量已保存在 gluonbook 包中方便以后使用。
+VOC_COLORMAP = [[0, 0, 0], [128, 0, 0], [0, 128, 0], [128, 128, 0],
                 [0, 0, 128], [128, 0, 128], [0, 128, 128], [128, 128, 128],
                 [64, 0, 0], [192, 0, 0], [64, 128, 0], [192, 128, 0],
                 [64, 0, 128], [192, 0, 128], [64, 128, 128], [192, 128, 128],
                 [0, 64, 0], [128, 64, 0], [0, 192, 0], [128, 192, 0],
                 [0, 64, 128]]
-voc_classes = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
+# 该常量已保存在 gluonbook 包中方便以后使用。
+VOC_CLASSES = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
                'bottle', 'bus', 'car', 'cat', 'chair', 'cow',
                'diningtable', 'dog', 'horse', 'motorbike', 'person',
                'potted plant', 'sheep', 'sofa', 'train', 'tv/monitor']
@@ -92,6 +96,7 @@ colormap2label = nd.zeros(256 ** 3)
 for i, cm in enumerate(voc_colormap):
     colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i
 
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def voc_label_indices(img, colormap2label):
     data = img.astype('int32')
     idx = (data[:, :, 0] * 256 + data[:, :, 1]) * 256 + data[:, :, 2]
@@ -112,6 +117,7 @@ y[105:115, 130:140], voc_classes[1]
 为了避免这个困难，这里我们将图像剪裁成固定大小而不是缩放。特别的，我们使用随机剪裁来附加图像增广。下面定义随机剪裁函数，其对样本图像和标注使用同样的剪裁。
 
 ```{.python .input  n=8}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def voc_rand_crop(data, label, height, width):
     data, rect = image.random_crop(data, (width, height))
     label = image.fixed_crop(label, *rect)
@@ -128,6 +134,7 @@ gb.show_images(imgs[::2] + imgs[1::2], 2, n);
 下面我们定义Gluon可以使用的数据集类，它可以返回任意的第$i$个样本图像和标号。除了随机剪裁外，这里我们将样本图像进行了归一化，同时过滤了小于剪裁尺寸的图像。
 
 ```{.python .input  n=9}
+# 本类已保存在 gluonbook 包中方便以后使用。
 class VOCSegDataset(gdata.Dataset):
     def __init__(self, train, crop_size, voc_dir, colormap2label):
         self.rgb_mean = nd.array([0.485, 0.456, 0.406])
@@ -184,8 +191,6 @@ for X, Y in train_iter:
     print(Y.shape)
     break
 ```
-
-我们将本节中描述的`voc_classes`和`voc_colormap`变量、`download_voc_pascal`、`read_voc_images`、`voc_label_indices`和`voc_rand_crop`函数，以及`VOCSegDataset`类定义在`gluonbook`包中供后面章节使用。
 
 ## 小结
 

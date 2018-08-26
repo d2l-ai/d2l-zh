@@ -28,11 +28,12 @@ def _download_pikachu(data_dir):
 
 ## 读取数据集
 
-我们使用`image.ImageDetIter`来读取数据。这是针对物体检测的迭代器，(“Det”表示Detection)。在读取训练图像时我们做了随机剪裁。我们将读取数据集的`load_data_pikachu`函数定义在`gluonbook`包中供后面章节调用。
+我们使用`image.ImageDetIter`来读取数据。这是针对物体检测的迭代器，(“Det”表示Detection)。在读取训练图像时我们做了随机剪裁。
 
 ```{.python .input  n=2}
-# edge_size：输出图像的宽和高。
-def load_data_pikachu(batch_size, edge_size=256): 
+# 本函数已保存在 gluonbook 包中方便以后使用。
+def load_data_pikachu(batch_size, edge_size=256):
+    # edge_size：输出图像的宽和高。
     data_dir = '../data/pikachu'
     _download_pikachu(data_dir)                                                                                                                 
     train_iter = image.ImageDetIter(

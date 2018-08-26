@@ -46,7 +46,7 @@ def use_svg_display():
 def set_figsize(figsize=(3.5, 2.5)):
     # 设置图的尺寸。
     use_svg_display()
-    plt.rcParams['figure.figsize'] = figsize  # 设置
+    plt.rcParams['figure.figsize'] = figsize
 
 set_figsize()
 plt.scatter(features[:, 1].asnumpy(), labels.asnumpy(), 1); 
@@ -60,6 +60,7 @@ plt.scatter(features[:, 1].asnumpy(), labels.asnumpy(), 1);
 在训练模型的时候，我们需要遍历数据集并不断读取小批量数据样本。这里我们定义一个函数：它每次返回`batch_size`（批量大小）个随机样本的特征和标签。
 
 ```{.python .input  n=5}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def data_iter(batch_size, features, labels):
     num_examples = len(features)
     indices = list(range(num_examples))
@@ -100,6 +101,7 @@ b.attach_grad()
 下面是线性回归的矢量计算表达式的实现。我们使用`dot`函数做矩阵乘法。
 
 ```{.python .input  n=9}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def linreg(X, w, b): 
     return nd.dot(X, w) + b 
 ```
@@ -109,6 +111,7 @@ def linreg(X, w, b):
 我们使用上一节描述的平方损失来定义线性回归的损失函数。在实现中，我们需要把真实值`y`变形成预测值`y_hat`的形状。以下函数返回的结果也将和`y_hat`的形状相同。
 
 ```{.python .input  n=10}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def squared_loss(y_hat, y): 
     return (y_hat - y.reshape(y_hat.shape)) ** 2 / 2
 ```
@@ -118,13 +121,11 @@ def squared_loss(y_hat, y):
 以下的`sgd`函数实现了上一节中介绍的小批量随机梯度下降算法。它通过不断更新模型参数来优化损失函数。这里自动求导模块计算得来的梯度是一个批量样本的梯度和，我们除以批量大小来得到平均值。这样使用不同批量大小`batch_size`的时候对优化算法的影响将变小，例如学习率`lr`将不会过于敏感。
 
 ```{.python .input  n=11}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def sgd(params, lr, batch_size):
     for param in params:
         param[:] = param - lr * param.grad / batch_size
 ```
-
-我们将`data_iter`、`linreg`、`squared_loss`和`sgd`函数定义在`gluonbook`包中供后面章节调用。
-
 
 ## 训练模型
 

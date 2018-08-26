@@ -126,7 +126,8 @@ def gd_2d(eta):
     print('epoch %d, x1 %f, x2 %f' % (i+1, x1, x2))
     return res
 
-def show_trace_2d(f, res):  # 将保存在 GluonBook 方便之后使用。
+# 本函数已保存在 gluonbook 包中方便以后使用。
+def show_trace_2d(f, res):  
     x1, x2 = zip(*res)
     gb.plt.plot(x1, x2, '-o', color='#ff7f0e')
     x1, x2 = np.meshgrid(np.arange(-5.5, 1.0, 0.1), np.arange(-3.0, 1.0, 0.1))
@@ -164,7 +165,7 @@ $$\mathbb{E}_i \nabla f_i(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_
 ```{.python .input  n=32}
 noise = 1
 f_2d_noise_grad = lambda x1, x2: (2 * x1 + np.random.normal(noise),
-                                 4 * x2 + np.random.normal(noise))
+                                  4 * x2 + np.random.normal(noise))
 
 def sgd_2d(eta):
     x1, x2 = -5, -2
