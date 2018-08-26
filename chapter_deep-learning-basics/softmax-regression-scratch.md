@@ -22,7 +22,7 @@ train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
 
 ## 初始化模型参数
 
-跟线性回归中的例子一样，我们将使用向量表示每个样本。已知每个样本是高和宽均为28像素的图片。模型的输入向量的长度是$28 \times 28 = 784$：该向量的每个元素对应图片中每个像素。由于图片有10个类别，单层神经网络输出层的输出个数为10。所以Softmax回归的权重和偏差参数分别为$784 \times 10$和$1 \times 10$的矩阵。
+跟线性回归中的例子一样，我们将使用向量表示每个样本。已知每个样本是高和宽均为28像素的图像。模型的输入向量的长度是$28 \times 28 = 784$：该向量的每个元素对应图像中每个像素。由于图像有10个类别，单层神经网络输出层的输出个数为10。所以Softmax回归的权重和偏差参数分别为$784 \times 10$和$1 \times 10$的矩阵。
 
 ```{.python .input  n=9}
 num_inputs = 784
@@ -67,7 +67,7 @@ X_prob, X_prob.sum(axis=1)
 
 ## 定义模型
 
-有了Softmax运算，我们可以定义上节描述的Softmax回归模型了。这里通过`reshape`函数将每张原始图片改成长度为`num_inputs`的向量。
+有了Softmax运算，我们可以定义上节描述的Softmax回归模型了。这里通过`reshape`函数将每张原始图像改成长度为`num_inputs`的向量。
 
 ```{.python .input  n=14}
 def net(X):
@@ -159,7 +159,7 @@ train_ch3(net, train_iter, test_iter, cross_entropy, num_epochs,
 
 ## 预测
 
-训练完成后，现在我们可以演示如何对图片进行分类。给定一系列图片，我们比较一下它们的真实标签和模型预测结果。
+训练完成后，现在我们可以演示如何对图像进行分类。给定一系列图像，我们比较一下它们的真实标签和模型预测结果。
 
 ```{.python .input}
 for X, y in test_iter:
@@ -172,7 +172,7 @@ titles = [true+'\n'+pred for true, pred in zip(true_labels, pred_labels)]
 gb.show_fashion_mnist(X[0:9], titles[0:9])
 ```
 
-本节中的`accuracy`、`evaluate_accuracy`和`train_ch3`函数被定义在`gluonbook`包中供后面章节调用。其中的`evaluate_accuracy`函数将被逐步改进：它的完整实现将在[“图片增广”](../chapter_computer-vision/image-augmentation.md)一节中描述。
+本节中的`accuracy`、`evaluate_accuracy`和`train_ch3`函数被定义在`gluonbook`包中供后面章节调用。其中的`evaluate_accuracy`函数将被逐步改进：它的完整实现将在[“图像增广”](../chapter_computer-vision/image-augmentation.md)一节中描述。
 
 
 ## 小结

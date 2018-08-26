@@ -115,7 +115,7 @@ $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f(\boldsymbol{x}).$$
 f_2d = lambda x1, x2: x1 ** 2 + 2 * x2 ** 2
 f_2d_grad = lambda x1, x2: (2 * x1, 4 * x2)
 
-def gd_2d(eta):    
+def gd_2d(eta):
     x1, x2 = -5, -2
     res = [(x1, x2)]
     for i in range(20):
@@ -133,7 +133,7 @@ def show_trace_2d(res):  # 将保存在 GluonBook 方便之后使用。
     gb.plt.contour(x1, x2, f_2d(x1, x2), colors='#1f77b4')
     gb.plt.xlabel('x1')
     gb.plt.ylabel('x2')
-    
+
 show_trace_2d(gd_2d(0.1))
 ```
 
@@ -181,7 +181,6 @@ show_trace_2d(sgd_2d(0.1))
 ```
 
 可以看到随机梯度下降的更新轨迹相对于梯度下降更加曲折。因为噪音使得梯度的准确度下降，所以在使用同样的超参数的情况下，随机梯度下降收敛到的参数里最优值相对梯度下降来说更远。但因为随机梯度下降每一次迭代的计算比梯度下降更加简单，在同样运行时间下，随机梯度下降可以进行更多次的参数迭代，它最终得到的参数质量可能会比梯度下降更优。
-
 
 ## 小结
 
