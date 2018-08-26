@@ -12,7 +12,8 @@ import gluonbook as gb
 from mxnet import autograd, nd
 from mxnet.gluon import loss as gloss
 
-corpus_indices, char_to_idx, idx_to_char, vocab_size = gb.load_data_jay_lyrics()
+(corpus_indices, char_to_idx, idx_to_char,
+ vocab_size) = gb.load_data_jay_lyrics()
 ```
 
 ## One-hot向量
@@ -120,8 +121,8 @@ def predict_rnn(prefix, num_chars, rnn, params, init_rnn_state,
 验证一下这个函数。因为模型参数为随机值，所以预测结果也是随机的。
 
 ```{.python .input  n=9}
-predict_rnn('分开', 10, rnn, params, init_rnn_state, 
-            num_hiddens, vocab_size, ctx, idx_to_char, char_to_idx)
+predict_rnn('分开', 10, rnn, params, init_rnn_state, num_hiddens, vocab_size,
+            ctx, idx_to_char, char_to_idx)
 ```
 
 ## 裁剪梯度
@@ -205,8 +206,9 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
             loss_sum += l.asscalar()
         
         if (epoch + 1) % pred_period == 0:
-            print('epoch %d, perplexity %f, time %.2f sec' % (
-                epoch + 1, math.exp(loss_sum / (t + 1)), time.time() - start))
+            print('epoch %d, perplexity %f, time %.2f sec'  % (
+                epoch + 1, math.exp(loss_sum / (t + 1)),
+                     time.time() - start))
             for prefix in prefixes:
                 print(' -', predict_rnn(
                     prefix, pred_len, rnn, params, init_rnn_state,
@@ -233,21 +235,21 @@ pred_len = 50
 下面采用随机采样训练模型并创作歌词。
 
 ```{.python .input  n=13}
-train_and_predict_rnn(
-    rnn, get_params, init_rnn_state, num_hiddens, vocab_size, ctx, 
-    corpus_indices, idx_to_char, char_to_idx, True, 
-    num_epochs, num_steps, lr, clipping_theta, batch_size, 
-    pred_period, pred_len, prefixes)
+train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
+                      vocab_size, ctx, corpus_indices, idx_to_char,
+                      char_to_idx, True, num_epochs, num_steps, lr,
+                      clipping_theta, batch_size, pred_period, pred_len,
+                      prefixes)
 ```
 
 接下来采用相邻采样训练模型并创作歌词。
 
 ```{.python .input  n=19}
-train_and_predict_rnn(
-    rnn, get_params, init_rnn_state, num_hiddens, vocab_size, ctx, 
-    corpus_indices, idx_to_char, char_to_idx, False, 
-    num_epochs, num_steps, lr, clipping_theta, batch_size, 
-    pred_period, pred_len, prefixes)
+train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
+                      vocab_size, ctx, corpus_indices, idx_to_char,
+                      char_to_idx, False, num_epochs, num_steps, lr,
+                      clipping_theta, batch_size, pred_period, pred_len,
+                      prefixes)
 ```
 
 ## 小结

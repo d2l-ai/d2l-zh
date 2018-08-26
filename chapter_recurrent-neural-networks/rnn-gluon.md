@@ -12,7 +12,8 @@ import gluonbook as gb
 from mxnet import autograd, nd, gluon, init
 from mxnet.gluon import rnn, nn, loss as gloss
 
-corpus_indices, char_to_idx, idx_to_char, vocab_size  = gb.load_data_jay_lyrics()
+(corpus_indices, char_to_idx, idx_to_char,
+ vocab_size) = gb.load_data_jay_lyrics()
 ```
 
 ## 定义模型

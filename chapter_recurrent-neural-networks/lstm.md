@@ -78,7 +78,8 @@ import gluonbook as gb
 from mxnet import nd
 from mxnet.gluon import rnn
 
-corpus_indices, char_to_idx, idx_to_char, vocab_size = gb.load_data_jay_lyrics()
+(corpus_indices, char_to_idx, idx_to_char,
+ vocab_size) = gb.load_data_jay_lyrics()
 ```
 
 ## LSTM的从零开始实现
@@ -163,11 +164,11 @@ pred_len = 50
 开始模型训练。
 
 ```{.python .input}
-gb.train_and_predict_rnn(
-    lstm, get_params, init_lstm_state, num_hiddens, vocab_size, ctx, 
-    corpus_indices, idx_to_char, char_to_idx, False, 
-    num_epochs, num_steps, lr, clipping_theta, batch_size, 
-    pred_period, pred_len, prefixes)
+gb.train_and_predict_rnn(lstm, get_params, init_lstm_state, num_hiddens,
+                         vocab_size, ctx, corpus_indices, idx_to_char,
+                         char_to_idx, False, num_epochs, num_steps, lr,
+                         clipping_theta, batch_size, pred_period, pred_len,
+                         prefixes)
 ```
 
 ## LSTM的Gluon实现
@@ -178,10 +179,10 @@ gb.train_and_predict_rnn(
 lstm_layer = rnn.LSTM(num_hiddens)
 model = gb.RNNModel(lstm_layer, vocab_size)
 
-gb.train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx, 
-                              corpus_indices, idx_to_char, char_to_idx, 
-                              num_epochs, num_steps, lr, clipping_theta, 
-                              batch_size, pred_period, pred_len, prefixes)
+gb.train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
+                               corpus_indices, idx_to_char, char_to_idx, 
+                               num_epochs, num_steps, lr, clipping_theta,
+                               batch_size, pred_period, pred_len, prefixes)
 ```
 
 ## 小结

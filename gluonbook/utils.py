@@ -327,7 +327,7 @@ def optimize_gluon(trainer, features, labels, net, decay_epoch=None,
     semilogy(es, ls, 'epoch', 'loss')
 
 
-def predict_rnn(prefix, num_chars, rnn, params, nnit_rnn_state,
+def predict_rnn(prefix, num_chars, rnn, params, init_rnn_state,
                 num_hiddens, vocab_size, ctx, idx_to_char, char_to_idx):
     """Predict next chars with a RNN model"""
     state = init_rnn_state(1, num_hiddens, ctx)
