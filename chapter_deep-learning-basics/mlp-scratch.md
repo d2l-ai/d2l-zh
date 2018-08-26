@@ -79,16 +79,6 @@ gb.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
              params, lr)
 ```
 
-```{.json .output n=7}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "epoch 1, loss 0.8016, train acc 0.701, test acc 0.827, time 1.7 sec\nepoch 2, loss 0.4897, train acc 0.817, test acc 0.848, time 1.7 sec\nepoch 3, loss 0.4302, train acc 0.841, test acc 0.859, time 1.7 sec\nepoch 4, loss 0.3945, train acc 0.854, test acc 0.866, time 1.7 sec\nepoch 5, loss 0.3745, train acc 0.861, test acc 0.865, time 1.7 sec\n"
- }
-]
-```
-
 ## 小结
 
 * 我们可以通过手动定义模型及其参数来实现简单的多层感知机。
