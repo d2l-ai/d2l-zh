@@ -556,6 +556,7 @@ def show_images(imgs, num_rows, num_cols, scale=2):
             axes[i][j].axes.get_yaxis().set_visible(False)
     return axes
 
+
 def show_trace_2d(f, res):
     x1, x2 = zip(*res)
     set_figsize()
@@ -566,6 +567,7 @@ def show_trace_2d(f, res):
     plt.contour(x1, x2, f(x1, x2), colors='#1f77b4')
     plt.xlabel('x1')
     plt.ylabel('x2')
+
 
 def squared_loss(y_hat, y):
     """Squared loss."""
