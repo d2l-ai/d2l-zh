@@ -34,7 +34,7 @@ def comp_conv2d(conv2d, X):
     # （1，1）代表批量大小和通道数（后面章节将介绍）均为 1。
     X = X.reshape((1, 1) + X.shape)
     Y = conv2d(X)
-    # 我们不关心前两维：批量大小和通道数。
+    # 我们不关心前两维：批量和通道。
     return Y.reshape(Y.shape[2:])
 
 X = nd.random.uniform(shape=(8, 8))
