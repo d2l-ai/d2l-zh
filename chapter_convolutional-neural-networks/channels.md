@@ -38,19 +38,6 @@ K = nd.array([[[0, 1], [2, 3]], [[1, 2], [3, 4]]])
 corr2d_multi_in(X, K)
 ```
 
-```{.json .output n=2}
-[
- {
-  "data": {
-   "text/plain": "\n[[ 56.  72.]\n [104. 120.]]\n<NDArray 2x2 @cpu(0)>"
-  },
-  "execution_count": 2,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 ## 多输出通道
 
 当输入通道有多个时，由于我们对各个通道的结果做了累加，所以不论输入通道数是多少，输出通道数总是为1。设卷积核输入通道数和输出通道数分别为$c_i$和$c_o$，高和宽分别为$k_h$和$k_w$。如果我们希望得到含多个通道的输出，我们可以为每个输出通道分别创建形状为$c_i\times k_h\times k_w$的核数组。将它们在在输出通道维上连结，卷积核的形状即$c_o\times c_i\times k_h\times k_w$。在互相关运算时，每个输出通道上的结果由卷积核在相同输出通道上的核数组与整个输入数组计算而来。
@@ -70,36 +57,10 @@ K = nd.stack(K, K + 1, K + 2)
 K.shape
 ```
 
-```{.json .output n=4}
-[
- {
-  "data": {
-   "text/plain": "(3, 2, 2, 2)"
-  },
-  "execution_count": 4,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 下面我们对输入数组`X`与核数组`K`做互相关运算。此时的输出含有3个通道。其中第一个通道的结果与之前输入数组`X`与多输入通道单输出通道核的计算结果一致。
 
 ```{.python .input  n=5}
 corr2d_multi_in_out(X, K)
-```
-
-```{.json .output n=5}
-[
- {
-  "data": {
-   "text/plain": "\n[[[ 56.  72.]\n  [104. 120.]]\n\n [[ 76. 100.]\n  [148. 172.]]\n\n [[ 96. 128.]\n  [192. 224.]]]\n<NDArray 3x2x2 @cpu(0)>"
-  },
-  "execution_count": 5,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 ## $1\times 1$卷积层
@@ -130,19 +91,6 @@ Y1 = corr2d_multi_in_out_1x1(X, K)
 Y2 = corr2d_multi_in_out(X, K)
 
 (Y1 - Y2).norm().asscalar() < 1e-6
-```
-
-```{.json .output n=7}
-[
- {
-  "data": {
-   "text/plain": "True"
-  },
-  "execution_count": 7,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 在之后的模型里我们将会看到$1\times 1$卷积层被当做保持高宽维形状不变的全连接层使用。这可以通过调整网络层之间的通道数来控制模型复杂度。
