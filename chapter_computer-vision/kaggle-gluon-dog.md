@@ -31,7 +31,7 @@ import zipfile
 
 ## 获取数据集
 
-比赛数据分为训练数据集和测试数据集。训练集包含10,222张图片。测试集包含10,357张图片。两个数据集中的图片格式都是jpg。这些图片都含有RGB三个通道（彩色），高和宽的大小不一。训练集中狗的类别共有120种，例如拉布拉多、贵宾、腊肠、萨摩耶、哈士奇、吉娃娃和约克夏。
+比赛数据分为训练数据集和测试数据集。训练集包含10,222张图像。测试集包含10,357张图像。两个数据集中的图像格式都是jpg。这些图像都含有RGB三个通道（彩色），高和宽的大小不一。训练集中狗的类别共有120种，例如拉布拉多、贵宾、腊肠、萨摩耶、哈士奇、吉娃娃和约克夏。
 
 ### 下载数据集
 
@@ -61,7 +61,7 @@ for f in zipfiles:
 
 ### 整理数据集
 
-我们定义下面的`reorg_dog_data`函数来整理Kaggle比赛的完整数据集。整理后，同一类狗的图片将被放在同一个文件夹下，便于我们稍后读取。
+我们定义下面的`reorg_dog_data`函数来整理Kaggle比赛的完整数据集。整理后，同一类狗的图像将被放在同一个文件夹下，便于我们稍后读取。
 该函数中的参数`valid_ratio`是验证集中每类狗的样本数与原始训练集中数量最少一类的狗的样本数（66）之比。
 
 ```{.python .input  n=2}
@@ -128,17 +128,17 @@ else:
                    valid_ratio)
 ```
 
-## 图片增广
+## 图像增广
 
-为应对过拟合，我们在这里使用`transforms`来增广数据集。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图片做镜面反转。我们也通过`transforms.Normalize()`对彩色图像RGB三个通道分别做标准化。以下列举了部分操作。这些操作可以根据需求来决定是否使用或修改。
+为应对过拟合，我们在这里使用`transforms`来增广数据集。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图像做镜面反转。我们也通过`transforms.Normalize()`对彩色图像RGB三个通道分别做标准化。以下列举了部分操作。这些操作可以根据需求来决定是否使用或修改。
 
 ```{.python .input  n=4}
 transform_train = gdata.vision.transforms.Compose([
-    # 随机对图片裁剪出面积为原图片面积 0.08 到 1 倍之间、且高和宽之比在 3/4 和 4/3 之间
-    # 的图片，再放缩为高和宽均为 224 像素的新图片。
+    # 随机对图像裁剪出面积为原图像面积 0.08 到 1 倍之间、且高和宽之比在 3/4 和 4/3 之间
+    # 的图像，再放缩为高和宽均为 224 像素的新图像。
     gdata.vision.transforms.RandomResizedCrop(224, scale=(0.08, 1.0),
                                               ratio=(3.0/4.0, 4.0/3.0)),
-    # 随机左右翻转图片。
+    # 随机左右翻转图像。
     gdata.vision.transforms.RandomFlipLeftRight(),
     # 随机抖动亮度、对比度和饱和度。
     gdata.vision.transforms.RandomColorJitter(brightness=0.4, contrast=0.4,
@@ -146,10 +146,10 @@ transform_train = gdata.vision.transforms.Compose([
     # 随机加噪音。
     gdata.vision.transforms.RandomLighting(0.1),
     
-    # 将图片像素值按比例缩小到 0 和 1 之间，并将数据格式从“高 * 宽 * 通道”改为
+    # 将图像像素值按比例缩小到 0 和 1 之间，并将数据格式从“高 * 宽 * 通道”改为
     # “通道 * 高 * 宽”。
     gdata.vision.transforms.ToTensor(),
-    # 对图片的每个通道做标准化。
+    # 对图像的每个通道做标准化。
     gdata.vision.transforms.Normalize([0.485, 0.456, 0.406],
                                       [0.229, 0.224, 0.225])
 ])
@@ -157,7 +157,7 @@ transform_train = gdata.vision.transforms.Compose([
 # 测试时，只使用确定性的图像预处理操作。
 transform_test = gdata.vision.transforms.Compose([
     gdata.vision.transforms.Resize(256),
-    # 将图片中央的高和宽均为 224 的正方形区域裁剪出来。
+    # 将图像中央的高和宽均为 224 的正方形区域裁剪出来。
     gdata.vision.transforms.CenterCrop(224),
     gdata.vision.transforms.ToTensor(),
     gdata.vision.transforms.Normalize([0.485, 0.456, 0.406],
@@ -165,7 +165,7 @@ transform_test = gdata.vision.transforms.Compose([
 ])
 ```
 
-接下来，我们可以使用`ImageFolderDataset`类来读取整理后的数据集，其中每个数据样本包括图像和标签。需要注意的是，我们要在`DataLoader`中调用刚刚定义好的图片增广函数。其中`transform_first`函数指明对每个数据样本中的图像做数据增广。
+接下来，我们可以使用`ImageFolderDataset`类来读取整理后的数据集，其中每个数据样本包括图像和标签。需要注意的是，我们要在`DataLoader`中调用刚刚定义好的图像增广函数。其中`transform_first`函数指明对每个数据样本中的图像做数据增广。
 
 ```{.python .input  n=5}
 # 读取原始图像文件。flag=1 说明输入图像有三个通道（彩色）。
@@ -192,7 +192,7 @@ test_data = gdata.DataLoader(test_ds.transform_first(transform_test),
 
 这个比赛的数据属于ImageNet数据集的子集，因此我们可以应用[“微调”](fine-tuning.md)一节中介绍的思路，选用在ImageNet完整数据集上预训练过的模型，并通过微调在比赛数据集上进行训练。Gluon提供了丰富的预训练模型，我们在这里以预训练过的ResNet-34模型为例。由于比赛数据集属于预训练数据集的子集，我们可以重用预训练模型在输出层的输入（即特征），并将原输出层替换成新的可以训练的小规模输出网络，例如两个串联的全连接层。由于预训练模型的参数在训练中是固定的，我们既节约了它们的训练时间，又节省了存储它们梯度所需的空间。
 
-需要注意的是，我们在图片增广中使用了ImageNet数据集上RGB三个通道的均值和标准差做标准化，这和预训练模型所做的标准化是一致的。
+需要注意的是，我们在图像增广中使用了ImageNet数据集上RGB三个通道的均值和标准差做标准化，这和预训练模型所做的标准化是一致的。
 
 ```{.python .input  n=6}
 def get_net(ctx):

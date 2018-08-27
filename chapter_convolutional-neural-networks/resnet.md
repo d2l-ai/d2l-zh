@@ -14,7 +14,7 @@ ResNet的基础块叫做残差块 (Residual Block) 。如图5.9所示，它将�
 
 ResNet沿用了VGG全$3\times 3$卷积层设计。残差块里首先是两个有同样输出通道的$3\times 3$卷积层，每个卷积层后跟一个批量归一化层和ReLU激活层。然后我们将输入跳过这两个卷积层后直接加在最后的ReLU激活层前。这样的设计要求两个卷积层的输出与输入形状一样，从而可以相加。如果想改变输出的通道数，我们需要引入一个额外的$1\times 1$卷积层来将输入变换成需要的形状后再相加。
 
-残差块的实现如下。它可以设定输出通道数，是否使用额外的卷积层来修改输入通道数，以及卷积层的步幅大小。我们将`Residual`类定义在`gluonbook`包中供后面章节调用。
+残差块的实现如下。它可以设定输出通道数，是否使用额外的卷积层来修改输入通道数，以及卷积层的步幅大小。
 
 ```{.python .input  n=1}
 import sys
@@ -24,6 +24,7 @@ import gluonbook as gb
 from mxnet import nd, gluon, init
 from mxnet.gluon import loss as gloss, nn
 
+# 本类已保存在 gluonbook 包中方便以后使用。
 class Residual(nn.Block):
     def __init__(self, num_channels, use_1x1conv=False, strides=1, **kwargs):
         super(Residual, self).__init__(**kwargs)

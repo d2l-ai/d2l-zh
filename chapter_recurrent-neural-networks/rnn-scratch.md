@@ -7,11 +7,13 @@ import sys
 sys.path.insert(0, '..')
 
 import math
+import time
 import gluonbook as gb
 from mxnet import autograd, nd
 from mxnet.gluon import loss as gloss
 
-corpus_indices, char_to_idx, idx_to_char, vocab_size = gb.load_data_jay_lyrics()
+(corpus_indices, char_to_idx, idx_to_char,
+ vocab_size) = gb.load_data_jay_lyrics()
 ```
 
 ## One-hot向量
@@ -25,6 +27,7 @@ nd.one_hot(nd.array([0, 2]), vocab_size)
 我们每次采样的小批量的形状是（`batch_size`, `num_steps`）。下面这个函数将其转换成`num_steps`个可以输入进网络的形状为（`batch_size`, `vocab_size`）的矩阵。也就是总时间步$T=$`num_steps`，时间步$t$的输入$\boldsymbol{X_t} \in \mathbb{R}^{n \times d}$，其中$n=$`batch_size`，$d=$`vocab_size`（one-hot向量长度）。
 
 ```{.python .input  n=3}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def to_onehot(X, size):
     return [nd.one_hot(x, size) for x in X.T]
 
@@ -99,6 +102,7 @@ len(outputs), outputs[0].shape, state_new[0].shape
 以下函数基于前缀`prefix`（含有数个字符的字符串）来预测接下来的`num_chars`个字符。这个函数稍显复杂，主要因为我们将循环神经单元`rnn`和输入索引变换网络输入的函数`get_inputs`设置成了可变项，这样在后面小节介绍其他循环神经网络（例如LSTM）和特征表示方法（例如Embedding）时能重复使用这个函数。
 
 ```{.python .input  n=8}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def predict_rnn(prefix, num_chars, rnn, params, init_rnn_state,
                 num_hiddens, vocab_size, ctx, idx_to_char, char_to_idx):
     state = init_rnn_state(1, num_hiddens, ctx)
@@ -119,8 +123,8 @@ def predict_rnn(prefix, num_chars, rnn, params, init_rnn_state,
 验证一下这个函数。因为模型参数为随机值，所以预测结果也是随机的。
 
 ```{.python .input  n=9}
-predict_rnn('分开', 10, rnn, params, init_rnn_state, 
-            num_hiddens, vocab_size, ctx, idx_to_char, char_to_idx)
+predict_rnn('分开', 10, rnn, params, init_rnn_state, num_hiddens, vocab_size,
+            ctx, idx_to_char, char_to_idx)
 ```
 
 ## 裁剪梯度
@@ -132,6 +136,7 @@ $$ \min\left(\frac{\theta}{\|\boldsymbol{g}\|}, 1\right)\boldsymbol{g}$$
 的$L_2$范数不超过$\theta$。
 
 ```{.python .input  n=10}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def grad_clipping(params, theta, ctx):
     norm = nd.array([0.0], ctx)
     for param in params:
@@ -163,23 +168,23 @@ def grad_clipping(params, theta, ctx):
 同样这个函数由于考虑到后面将介绍的循环神经网络，所以实现更长一些。
 
 ```{.python .input  n=11}
-def train_and_predict_rnn(
-    rnn, get_params, init_rnn_state, num_hiddens, vocab_size, ctx, 
-    corpus_indices, idx_to_char, char_to_idx, is_random_iter, 
-    num_epochs, num_steps, lr, clipping_theta, batch_size, 
-    pred_period, pred_len, prefixes):
-    
+# 本函数已保存在 gluonbook 包中方便以后使用。
+def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
+                          vocab_size, ctx, corpus_indices, idx_to_char,
+                          char_to_idx, is_random_iter, num_epochs, num_steps,
+                          lr, clipping_theta, batch_size, pred_period,
+                          pred_len, prefixes):
     if is_random_iter:
         data_iter_fn = gb.data_iter_random
     else:
         data_iter_fn = gb.data_iter_consecutive     
     params = get_params()
     loss = gloss.SoftmaxCrossEntropyLoss()
-    
+
     for epoch in range(num_epochs):
         if not is_random_iter:  # 如使用相邻采样，在 epoch 开始时初始化隐藏变量。
             state = init_rnn_state(batch_size, num_hiddens, ctx)
-        loss_sum = 0.0
+        loss_sum, start = 0.0, time.time()
         data_iter = data_iter_fn(corpus_indices, batch_size, num_steps, ctx)
         for t, (X, Y) in enumerate(data_iter):
             if is_random_iter: # 如使用随机采样，在每个小批量更新前初始化隐藏变量。
@@ -204,20 +209,19 @@ def train_and_predict_rnn(
             gb.sgd(params, lr, 1)  # 因为已经误差取过均值，梯度不用再做平均。
             loss_sum += l.asscalar()
         
-        if (epoch+1) % pred_period == 0:
-            print('epoch %d, perplexity %f' % (
-                epoch + 1, math.exp(loss_sum / (t+1))))
+        if (epoch + 1) % pred_period == 0:
+            print('epoch %d, perplexity %f, time %.2f sec'  % (
+                epoch + 1, math.exp(loss_sum / (t + 1)),
+                     time.time() - start))
             for prefix in prefixes:
                 print(' -', predict_rnn(
                     prefix, pred_len, rnn, params, init_rnn_state,
                     num_hiddens, vocab_size, ctx, idx_to_char, char_to_idx))
 ```
 
-以上介绍的函数，除去`get_params`外，均定义在`gluonbook`包中供后面章节调用。有了这些函数以后，我们就可以训练模型了。
-
 ## 训练模型并创作歌词
 
-首先，设置模型超参数。我们将根据前缀“分开”和“不分开”分别创作长度为50个字符的一段歌词。我们每过50个迭代周期便根据当前训练的模型创作一段歌词。
+现在我们可以训练模型了。首先，设置模型超参数。我们将根据前缀“分开”和“不分开”分别创作长度为50个字符的一段歌词。我们每过50个迭代周期便根据当前训练的模型创作一段歌词。
 
 ```{.python .input  n=12}
 num_epochs = 200
@@ -233,21 +237,21 @@ pred_len = 50
 下面采用随机采样训练模型并创作歌词。
 
 ```{.python .input  n=13}
-train_and_predict_rnn(
-    rnn, get_params, init_rnn_state, num_hiddens, vocab_size, ctx, 
-    corpus_indices, idx_to_char, char_to_idx, True, 
-    num_epochs, num_steps, lr, clipping_theta, batch_size, 
-    pred_period, pred_len, prefixes)
+train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
+                      vocab_size, ctx, corpus_indices, idx_to_char,
+                      char_to_idx, True, num_epochs, num_steps, lr,
+                      clipping_theta, batch_size, pred_period, pred_len,
+                      prefixes)
 ```
 
 接下来采用相邻采样训练模型并创作歌词。
 
 ```{.python .input  n=19}
-train_and_predict_rnn(
-    rnn, get_params, init_rnn_state, num_hiddens, vocab_size, ctx, 
-    corpus_indices, idx_to_char, char_to_idx, False, 
-    num_epochs, num_steps, lr, clipping_theta, batch_size, 
-    pred_period, pred_len, prefixes)
+train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
+                      vocab_size, ctx, corpus_indices, idx_to_char,
+                      char_to_idx, False, num_epochs, num_steps, lr,
+                      clipping_theta, batch_size, pred_period, pred_len,
+                      prefixes)
 ```
 
 ## 小结

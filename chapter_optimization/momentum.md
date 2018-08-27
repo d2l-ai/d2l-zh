@@ -209,24 +209,24 @@ net.add(nn.Dense(1))
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate': 0.2, 'momentum': 0.99})
-gb.optimize_with_trainer(trainer=trainer, features=features, labels=labels,
-                         net=net, decay_epoch=2)
+gb.optimize_gluon(trainer=trainer, features=features, labels=labels, net=net,
+                  decay_epoch=2)
 ```
 
 ```{.python .input}
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate': 0.2, 'momentum': 0.9})
-gb.optimize_with_trainer(trainer=trainer, features=features, labels=labels,
-                         net=net, decay_epoch=2)
+gb.optimize_gluon(trainer=trainer, features=features, labels=labels, net=net,
+                  decay_epoch=2)
 ```
 
 ```{.python .input}
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate': 0.2, 'momentum': 0.5})
-gb.optimize_with_trainer(trainer=trainer, features=features, labels=labels,
-                         net=net, decay_epoch=2)
+gb.optimize_gluon(trainer=trainer, features=features, labels=labels, net=net,
+                  decay_epoch=2)
 ```
 
 ## 小结

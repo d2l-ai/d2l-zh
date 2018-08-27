@@ -100,16 +100,14 @@ net.add(nn.Dense(1))
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'rmsprop',
                         {'learning_rate': 0.03, 'gamma1': 0.9})
-gb.optimize_with_trainer(trainer=trainer, features=features, labels=labels,
-                         net=net)
+gb.optimize_gluon(trainer=trainer, features=features, labels=labels, net=net)
 ```
 
 ```{.python .input}
 net.initialize(init.Normal(sigma=0.01), force_reinit=True)
 trainer = gluon.Trainer(net.collect_params(), 'rmsprop',
                         {'learning_rate': 0.03, 'gamma1': 0.999})
-gb.optimize_with_trainer(trainer=trainer, features=features, labels=labels,
-                         net=net)
+gb.optimize_gluon(trainer=trainer, features=features, labels=labels, net=net)
 ```
 
 ## 小结
