@@ -66,7 +66,7 @@ $$\lfloor(n_h-k_h+p_h+s_h)/s_h\rfloor \times \lfloor(n_w-k_w+p_w+s_w)/s_w\rfloor
 
 如果我们设置$p_h=k_h-1$和$p_w=k_w-1$，那么输出形状将简化为$\lfloor(n_h+s_h-1)/s_h\rfloor \times \lfloor(n_w+s_w-1)/s_w\rfloor$。更进一步，如果输出高宽能分别被高宽上的步幅整除，那么输出形状将是$n_h/s_h \times n_w/s_w$。
 
-下面我们使用步幅2（高和宽上步幅均为2）令输入的高宽减半。
+下面我们令高和宽上的步幅均为2，从而使输入的高和宽减半。
 
 ```{.python .input}
 conv2d = nn.Conv2D(1, kernel_size=3, padding=1, strides=2)
@@ -79,6 +79,10 @@ comp_conv2d(conv2d, X).shape
 conv2d = nn.Conv2D(1, kernel_size=(3, 5), padding=(0, 1), strides=(3, 4))
 comp_conv2d(conv2d, X).shape
 ```
+
+为了表述简洁，当输入的高和宽两侧的填充数分别为$p_h$和$p_w$时，我们称填充为$(p_h, p_w)$。特别地，当$p_h = p_w = p$时，填充为$p$。当在高和宽上的步幅分别为$s_h$和$s_w$时，我们称步幅为$(s_h, s_w)$。特别地，当$s_h = s_w = s$时，步幅为$s$。
+
+
 
 ## 小结
 
