@@ -1,6 +1,6 @@
 # 梯度下降和随机梯度下降
 
-本节中，我们将介绍梯度下降（gradient descent）的工作原理。虽然在深度学习中很少直接使用梯度下降，但理解梯度的意义和为什么沿着梯度反方向更新模型参数可以降低目标函数值是学习后续优化算法的基础。随后我们引出随机梯度下降（stochastic gradient descent），这是深度学习中常用的优化算法的最简单形式。
+本节中，我们将介绍梯度下降（gradient descent）的工作原理。虽然梯度下降在深度学习中很少被直接使用，但理解梯度的意义和为什么沿着梯度反方向更新自变量可以降低目标函数值是学习后续优化算法的基础。随后我们引出随机梯度下降（stochastic gradient descent），这是深度学习中常用的优化算法的最简单形式。
 
 ## 一维梯度下降
 
@@ -40,17 +40,14 @@ from mxnet import nd
 接下来我们使用$x=10$作为初始值，设$\eta=0.2$。使用梯度下降对$x$迭代10次，可见最后$x$的值较接近最优解。
 
 ```{.python .input  n=4}
-f = lambda x: x ** 2
-f_grad = lambda x: 2 * x
-
 def gd(eta):
     x = 10
-    res = [x]
+    results = [x]
     for i in range(10):
-        x -= eta * f_grad(x)
-        res.append(x)
+        x -= eta * 2 * x  # f(x) = x*x 的导数为 f'(x) = 2x
+        results.append(x)
     print('epoch 10, x:', x)
-    return res
+    return results
 
 res = gd(0.2)
 ```
@@ -62,8 +59,8 @@ def show_trace(res):
     n = max(abs(min(res)), abs(max(res)), 10)
     f_line = np.arange(-n, n, 0.1)
     gb.set_figsize()
-    gb.plt.plot(f_line, [f(x) for x in f_line])
-    gb.plt.plot(res, [f(x) for x in res], '-o')
+    gb.plt.plot(f_line, [x*x for x in f_line])
+    gb.plt.plot(res, [x*x for x in res], '-o')
     gb.plt.xlabel('x')
     gb.plt.ylabel('f(x)')
 
@@ -72,14 +69,13 @@ show_trace(res)
 
 ## 学习率
 
-上述梯度下降算法中的正数$\eta$通常叫做学习率。这是一个超参数，需要人工设定。如果使用过小的学习率，会导致$x$更新缓慢从而使得需要更多的迭代才能得到较好的解。下面展示了使用$\eta=0.05$时$x$的迭代过程。
+上述梯度下降算法中的正数$\eta$通常叫做学习率。这是一个超参数，需要人工设定。如果使用过小的学习率，会导致$x$更新缓慢从而需要更多的迭代才能得到较好的解。下面展示了使用$\eta=0.05$时$x$的迭代过程。
 
 ```{.python .input  n=6}
 show_trace(gd(0.05))
 ```
 
-如果使用过大的学习率，$\left|\eta f'(x)\right|$可能会过大从而使前面提到的一阶泰勒展开公式不再成立：这时我们无法保证迭代$x$会
-降低$f(x)$的值。举个例子，当我们设$\eta=1.1$时，可以看到$x$不断越过（overshoot）最优解$x=0$并逐渐发散。
+如果使用过大的学习率，$\left|\eta f'(x)\right|$可能会过大从而使前面提到的一阶泰勒展开公式不再成立：这时我们无法保证迭代$x$会降低$f(x)$的值。举个例子，当我们设$\eta=1.1$时，可以看到$x$不断越过（overshoot）最优解$x=0$并逐渐发散。
 
 ```{.python .input  n=7}
 show_trace(gd(1.1))
@@ -103,28 +99,26 @@ $$D_{\boldsymbol{u}} f(\boldsymbol{x}) = \nabla f(\boldsymbol{x}) \cdot \boldsym
 方向导数$D_{\boldsymbol{u}} f(\boldsymbol{x})$给出了$f$在$\boldsymbol{x}$上沿着所有可能方向的变化率。为了最小化$f$，我们希望找到$f$能被降低最快的方向。因此，我们可以通过单位向量$\boldsymbol{u}$来最小化方向导数$D_{\boldsymbol{u}} f(\boldsymbol{x})$。
 
 由于$D_{\boldsymbol{u}} f(\boldsymbol{x}) = \|\nabla f(\boldsymbol{x})\| \cdot \|\boldsymbol{u}\|  \cdot \text{cos} (\theta) = \|\nabla f(\boldsymbol{x})\|  \cdot \text{cos} (\theta)$，
-其中$\theta$为梯度$\nabla f(\boldsymbol{x})$和单位向量$\boldsymbol{u}$之间的夹角，当$\theta = \pi$，$\text{cos}(\theta)$取得最小值-1。因此，当$\boldsymbol{u}$在梯度方向$\nabla f(\boldsymbol{x})$的相反方向时，方向导数$D_{\boldsymbol{u}} f(\boldsymbol{x})$被最小化。所以，我们可能通过下面的梯度下降算法来不断降低目标函数$f$的值：
+其中$\theta$为梯度$\nabla f(\boldsymbol{x})$和单位向量$\boldsymbol{u}$之间的夹角，当$\theta = \pi$，$\text{cos}(\theta)$取得最小值$-1$。因此，当$\boldsymbol{u}$在梯度方向$\nabla f(\boldsymbol{x})$的相反方向时，方向导数$D_{\boldsymbol{u}} f(\boldsymbol{x})$被最小化。所以，我们可能通过下面的梯度下降算法来不断降低目标函数$f$的值：
 
 $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f(\boldsymbol{x}).$$
 
 相同地，其中$\eta$（取正数）称作学习率。
 
-下面我们构造一个输入为二维向量$\boldsymbol{x} = [x_1, x_2]^\top$和输出为标量的目标函$f(\boldsymbol{x})=x_1^2+2x_2$。可以知道$\nabla f(\boldsymbol{x}) = [2x_1, 4x_2]^\top$。然后观察梯度下降从初始点$[5,2]$开始对$\boldsymbol{x}$的更新轨迹。首先定义两个辅助函数，第一个使用传入的自变量更新函数来从初始点$[5,2]$开始迭代20次，第二个函数可视化自变量更新轨迹。
+下面我们构造一个输入为二维向量$\boldsymbol{x} = [x_1, x_2]^\top$和输出为标量的目标函$f(\boldsymbol{x})=x_1^2+2x_2$。可以知道$\nabla f(\boldsymbol{x}) = [2x_1, 4x_2]^\top$。然后观察梯度下降从初始点$[5,2]$开始对$\boldsymbol{x}$的更新轨迹。首先定义两个辅助函数，第一个使用给定的自变量更新函数来从初始点$[5,2]$开始迭代$\boldsymbol{x}$20次，第二个函数可视化$\boldsymbol{x}$的更新轨迹。
 
 ```{.python .input  n=10}
 def train_2d(trainer):  # 本函数将保存在 GluonBook 包中方便以后使用。
-    x1, x2 = -5, -2
-    s_x1, s_x2 = 0, 0  # 自变量状态，之后会使用
-    res = [(x1, x2)]
+    x1, x2, s1, s2 = -5, -2, 0, 0  # s1 和 s2 是自变量状态，之后章节会使用。
+    results = [(x1, x2)]
     for i in range(20):
-        x1, x2, s_x1, s_x2 = trainer(x1, x2, s_x1, s_x2)
-        res.append((x1, x2))
+        x1, x2, s1, s2 = trainer(x1, x2, s1, s2)
+        results.append((x1, x2))
     print('epoch %d, x1 %f, x2 %f' % (i+1, x1, x2))
-    return res
+    return results
 
-def show_trace_2d(f, res):  # 本函数将保存在 GluonBook 包中方便以后使用。
-    x1, x2 = zip(*res)
-    gb.plt.plot(x1, x2, '-o', color='#ff7f0e')
+def show_trace_2d(f, results):  # 本函数将保存在 GluonBook 包中方便以后使用。
+    gb.plt.plot(*zip(*results), '-o', color='#ff7f0e')
     x1, x2 = np.meshgrid(np.arange(-5.5, 1.0, 0.1), np.arange(-3.0, 1.0, 0.1))
     gb.plt.contour(x1, x2, f(x1, x2), colors='#1f77b4')
     gb.plt.xlabel('x1')
@@ -135,9 +129,8 @@ def show_trace_2d(f, res):  # 本函数将保存在 GluonBook 包中方便以后
 
 ```{.python .input  n=15}
 eta = 0.1
-f_2d = lambda x1, x2: x1 ** 2 + 2 * x2 ** 2
-gd_2d = lambda x1, x2, s_x1, s_x2: (
-    x1 - eta * 2 * x1, x2 - eta * 4 * x2, None, None)
+f_2d = lambda x1, x2: x1 ** 2 + 2 * x2 ** 2  # 目标函数。
+gd_2d = lambda x1, x2, s1, s2: (x1 - eta * 2 * x1, x2 - eta * 4 * x2, 0, 0)
 show_trace_2d(f_2d, train_2d(gd_2d))
 ```
 
@@ -151,41 +144,40 @@ $$f(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n f_i(\boldsymbol{x}).$$
 
 $$\nabla f(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_i(\boldsymbol{x}).$$
 
-如果使用梯度下降，每次迭代（自变量更新）的计算开销为$\mathcal{O}(n)$，它随着$n$线性增长。因此，当训练数据样本数很大时，梯度下降每次迭代的计算开销很高。随机梯度下降（stochastic gradient descent，简称SGD）的提出是为了减少每次迭代的计算开销，以此来使得达到同样质量（例如目标函数值）模型参数时总计算量比梯度下降要小。
+如果使用梯度下降，每次自变量迭代的计算开销为$\mathcal{O}(n)$，它随着$n$线性增长。因此，当训练数据样本数很大时，梯度下降每次迭代的计算开销很高。
 
-在随机梯度下降中，每次迭代我们随机均匀采样$i\in[1,n]$，并计算随机梯度$\nabla f_i(\boldsymbol{x})$来迭代$\boldsymbol{x}$：
+随机梯度下降（stochastic gradient descent，简称SGD）减少了每次迭代的计算开销。在随机梯度下降中，每次迭代我们随机均匀采样一个样本索引$i\in[1,n]$，并计算梯度$\nabla f_i(\boldsymbol{x})$来迭代$\boldsymbol{x}$：
 
 $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f_i(\boldsymbol{x}).$$
 
-这里$\eta$同样是学习率。可以看到每次迭代的开销从梯度下降的$\mathcal{O}(n)$降到了常数$\mathcal{O}(1)$。接下来的问题是，在合适的学习率情况下，随机梯度是否也能保证每次降低目标函数值。事实上，随机梯度$\nabla f_i(\boldsymbol{x})$是对梯度$\nabla f(\boldsymbol{x})$的无偏估计：
+这里$\eta$同样是学习率。可以看到每次迭代的开销从梯度下降的$\mathcal{O}(n)$降到了常数$\mathcal{O}(1)$。因为随机梯度$\nabla f_i(\boldsymbol{x})$是对梯度$\nabla f(\boldsymbol{x})$的无偏估计：
 
 $$\mathbb{E}_i \nabla f_i(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_i(\boldsymbol{x}) = \nabla f(\boldsymbol{x}).$$
 
-这里的期望是对随机变量$i$。这个意味着平均上来说随机梯度是一个对梯度很好的估计。
+这里的期望是对随机变量$i$。这个意味着平均上来说随机梯度是一个对梯度很好的估计。同梯度下降一样，如果选取合适的学习率，平均上每次迭代可以下降目标函数值。
 
 下面我们通过在梯度中加入均值为0的随机噪音来模拟随机梯度下降，以此来比较它与梯度下降的区别。
 
 ```{.python .input  n=17}
-sgd_2d = lambda x1, x2, s_x1, s_x2: (
+sgd_2d = lambda x1, x2, s1, s2: (
     x1 - eta * (2 * x1 + + np.random.normal(0.1)), 
-    x2 - eta * (4 * x2 + + np.random.normal(0.1)), None, None)
-
+    x2 - eta * (4 * x2 + + np.random.normal(0.1)), 0, 0)
 show_trace_2d(f_2d, train_2d(sgd_2d))
 ```
 
-可以看到随机梯度下降的更新轨迹相对于梯度下降更加曲折。因为噪音使得梯度的准确度下降，所以在使用同样的超参数的情况下，随机梯度下降收敛到的参数里最优值相对梯度下降来说更远。但因为随机梯度下降每一次迭代的计算比梯度下降更加简单，在同样运行时间下，随机梯度下降可以进行更多次的自变量迭代，它最终得到的模型参数质量可能会比梯度下降更优。
+可以看到随机梯度下降的更新轨迹相对于梯度下降更加曲折。因为加入的噪音（实际中，它来自样本的噪音）使得梯度的准确度下降，所以在使用同样的超参数的情况下，随机梯度下降收敛到的值相对梯度下降来说更最优值远。但因为随机梯度下降每一次迭代的计算比梯度下降更加简单，在同样运行时间下，随机梯度下降可以进行更多次的自变量迭代，它最终得到的解的质量可能会比梯度下降更优。
 
 
 ## 小结
 
-* 使用适当的学习率，沿着梯度反方向更新自变量可以降低目标函数值。梯度下降重复这一参数更新过程直到得到满足要求的模型参数。
+* 使用适当的学习率，沿着梯度反方向更新自变量可以降低目标函数值。梯度下降重复这一更新过程直到得到满足要求的解。
 * 学习率过大过小都有问题。一个合适的学习率通常是需要通过多次实验找到的。
-* 当训练数据较大，梯度下降每次迭代计算开销较大，因而随机梯度下降更受青睐。
+* 当训练数据较大，梯度下降每次迭代计算开销较大，因而随机梯度下降可能更受青睐。
 
 ## 练习
 
 * 使用一个不同的目标函数来观察收敛。
-* 在二维目标函数例子中实验下不同的学习率，看看其对收敛的影响。
+* 在二维目标函数例子中尝试不同的学习率，看看其对收敛的影响。
 * 随机梯度下降中我们通常会对学习率进行衰减，例如假设当前为第$i$次迭代，$i=1,2,\ldots$，尝试使用$\eta/\sqrt{i}$或者$\eta/i$作为学习率。
 
 
