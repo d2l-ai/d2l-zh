@@ -5,25 +5,20 @@
 
 ## RMSProp算法
 
-我们在[“动量法”](momentum.md)一节里介绍过指数加权移动平均。事实上，RMSProp算法使用了小批量随机梯度按元素平方的指数加权移动平均变量$\boldsymbol{s}$，并将其中每个元素初始化为0。
-给定超参数$\gamma$且$0 \leq \gamma < 1$，
-在每次迭代中，RMSProp首先计算小批量随机梯度$\boldsymbol{g}$，然后对该梯度按元素平方项$\boldsymbol{g} \odot \boldsymbol{g}$做指数加权移动平均，记为$\boldsymbol{s}$：
+我们在[“动量法”](momentum.md)一节里介绍过指数加权移动平均。事实上，RMSProp算法使用了小批量随机梯度按元素平方的指数加权移动平均变量$\boldsymbol{s}$。在迭代前$\boldsymbol{s}$的每个元素初始化为0。
+给定超参数$\gamma$且$0 \leq \gamma < 1$，在每次迭代中，RMSProp首先计算小批量随机梯度$\boldsymbol{g}$，然后对该梯度按元素平方项$\boldsymbol{g} \odot \boldsymbol{g}$做指数加权移动平均：
 
 $$\boldsymbol{s} \leftarrow \gamma \boldsymbol{s} + (1 - \gamma) \boldsymbol{g} \odot \boldsymbol{g}. $$
 
-然后，和Adagrad一样，将目标函数自变量中每个元素的学习率通过按元素运算重新调整一下：
+然后，和Adagrad一样，将目标函数自变量中每个元素的学习率通过按元素运算重新调整一下，然后更新自变量。
 
-$$\boldsymbol{g}' \leftarrow \frac{\eta}{\sqrt{\boldsymbol{s} + \epsilon}} \odot \boldsymbol{g}, $$
+$$\boldsymbol{x} \leftarrow \boldsymbol{x} - \frac{\eta}{\sqrt{\boldsymbol{s} + \epsilon}} \odot \boldsymbol{g}, $$
 
-其中$\eta$是初始学习率且$\eta > 0$，$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-6}$。和Adagrad一样，模型参数中每个元素都分别拥有自己的学习率。同样地，最后的自变量迭代步骤与小批量随机梯度下降类似：
-
-$$\boldsymbol{x} \leftarrow \boldsymbol{x} - \boldsymbol{g}'. $$
+其中$\eta$是初始学习率且$\eta > 0$，$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-6}$。和Adagrad一样，模型参数中每个元素都分别拥有自己的学习率。
 
 需要强调的是，RMSProp只在Adagrad的基础上修改了变量$\boldsymbol{s}$的更新方法：对平方项$\boldsymbol{g} \odot \boldsymbol{g}$从累加变成了指数加权移动平均。由于变量$\boldsymbol{s}$可看作是最近$1/(1-\gamma)$个时刻的平方项$\boldsymbol{g} \odot \boldsymbol{g}$的加权平均，自变量每个元素的学习率在迭代过程中避免了“直降不升”的问题。
 
-## 实验
-
-首先，导入本节中实验所需的包或模块。
+照例，让我们先观察RMSProp对目标函数$f(\boldsymbol{x})=0.1x_1^2+2x_2$中自变量的更新轨迹。首先，导入本节中实验所需的包或模块。
 
 ```{.python .input  n=1}
 import sys
@@ -35,15 +30,16 @@ import gluonbook as gb
 from mxnet import nd
 ```
 
+回忆在[“Adagrad”](adagrad.md)一节使用$0.4$的学习率，Adagrad对自变量的更新很缓慢。但在同样的学习率下，RMSProp可以快速的接近最优解。
+
 ```{.python .input  n=3}
-def rmsprop_2d(x1, x2, s_x1, s_x2):    
-    eps = 1e-6
-    g_x1, g_x2 = 0.2 * x1, 4 * x2
-    s_x1 = gamma * s_x1 + (1 - gamma) * g_x1 ** 2
-    s_x2 = gamma * s_x2 + (1 - gamma) * g_x2 ** 2        
-    x1 -= eta / math.sqrt(s_x1 + eps) * g_x1
-    x2 -= eta / math.sqrt(s_x2 + eps) * g_x2
-    return x1, x2, s_x1, s_x2
+def rmsprop_2d(x1, x2, s1, s2):
+    g1, g2, eps = 0.2 * x1, 4 * x2, 1e-6
+    s1 = gamma * s1 + (1 - gamma) * g1 ** 2
+    s2 = gamma * s2 + (1 - gamma) * g2 ** 2
+    x1 -= eta / math.sqrt(s1 + eps) * g1
+    x2 -= eta / math.sqrt(s2 + eps) * g2
+    return x1, x2, s1, s2
 
 eta, gamma = 0.4, 0.9
 f_2d = lambda x1, x2: 0.1 * x1 ** 2 + 2 * x2 ** 2
@@ -52,19 +48,18 @@ gb.show_trace_2d(f_2d, gb.train_2d(rmsprop_2d))
 
 ## 从零开始实现
 
+接下来按照公式实现RMSProp。
+
 ```{.python .input  n=22}
-# 生成数据集。
 features, labels = gb.get_data_ch7()
 
-# 初始化模型参数和中间变量。
 def init_rmsprop_states():
     s_w = nd.zeros((features.shape[1], 1))
     s_b = nd.zeros(1)
     return (s_w, s_b)
 
 def rmsprop(params, states, hyperparams):
-    hp = hyperparams
-    eps = 1e-6
+    hp, eps = hyperparams, 1e-6
     for p, s in zip(params, states):
         s[:] = hp['gamma'] * s + (1 - hp['gamma']) * p.grad.square()
         p[:] -= hp['lr'] * p.grad / (s + eps).sqrt()
@@ -74,7 +69,8 @@ def rmsprop(params, states, hyperparams):
 
 ```{.python .input  n=24}
 features, labels = gb.get_data_ch7()
-gb.train_ch7(rmsprop, init_rmsprop_states(), {'lr': .01, 'gamma':0.9}, features, labels)
+gb.train_ch7(rmsprop, init_rmsprop_states(), 
+             {'lr': 0.01, 'gamma':0.9}, features, labels)
 ```
 
 ## 使用Gluon的实现
@@ -82,7 +78,8 @@ gb.train_ch7(rmsprop, init_rmsprop_states(), {'lr': .01, 'gamma':0.9}, features,
 使用名称`rmsprop`可以获取Gluon中预实现的RMSProp算法。注意超参数$\gamma$此时通过`gamma1`指定。
 
 ```{.python .input  n=29}
-gb.train_gluon_ch7('rmsprop', {'learning_rate': 0.01,'gamma1': 0.9}, features, labels)
+gb.train_gluon_ch7('rmsprop', {'learning_rate': 0.01,'gamma1': 0.9}, 
+                   features, labels)
 ```
 
 ## 小结
