@@ -5,7 +5,7 @@ import math
 import os
 import sys
 import tarfile
-from time import time
+import time
 
 from IPython import display
 from matplotlib import pyplot as plt
@@ -152,7 +152,6 @@ def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
         acc.wait_to_read()
     return acc.asscalar() / n
 
-
 def _get_batch(batch, ctx):
     """Return features and labels on ctx."""
     features, labels = batch
@@ -164,14 +163,9 @@ def _get_batch(batch, ctx):
 
 def get_data_ch7():
     """Get the data set used in Chapter 7."""
-    num_inputs = 2
-    num_examples = 1000
-    true_w = [2, -3.4]
-    true_b = 4.2
-    features = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
-    labels = true_w[0] * features[:, 0] + true_w[1] * features[:, 1] + true_b
-    labels += nd.random.normal(scale=0.01, shape=labels.shape)
-    return num_inputs, num_examples, true_w, true_b, features, labels
+    data = np.genfromtxt('../data/airfoil_self_noise.dat', delimiter='\t')
+    data = (data - data.mean(axis=0)) / data.std(axis=0)
+    return nd.array(data[:, :-2]), nd.array(data[:,-1])
 
 
 def get_fashion_mnist_labels(labels):
@@ -277,65 +271,6 @@ def _make_list(obj, default_values=None):
     elif not isinstance(obj, (list, tuple)):
         obj = [obj]
     return obj
-
-
-def optimize(optimizer_fn, params_vars, hyperparams, features, labels,
-             decay_epoch=None, batch_size=10, log_interval=10, num_epochs=3,
-             is_adam=False):
-    """Optimize an objective function."""
-    dataset = gdata.ArrayDataset(features, labels)
-    data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
-    w, b = params_vars[0]
-    net = linreg
-    loss = squared_loss
-    ls = [loss(net(features, w, b), labels).mean().asnumpy()]
-    if is_adam:
-        t = 0
-    for epoch in range(1, num_epochs + 1):
-        if decay_epoch and decay_epoch and epoch > decay_epoch:
-            hyperparams['lr'] *= 0.1
-        for batch_i, (X, y) in enumerate(data_iter):
-            with autograd.record():
-                l = loss(net(X, w, b), y)
-            l.backward()
-            if is_adam:
-                t += 1
-                optimizer_fn(params_vars, hyperparams, batch_size, t)
-            else:
-                optimizer_fn(params_vars, hyperparams, batch_size)
-            if batch_i * batch_size % log_interval == 0:
-                ls.append(loss(net(features, w, b), labels).mean().asnumpy())
-    print('w[0]=%.2f, w[1]=%.2f, b=%.2f'
-          % (w[0].asscalar(), w[1].asscalar(), b.asscalar()))
-    es = np.linspace(0, num_epochs, len(ls), endpoint=True)
-    semilogy(es, ls, 'epoch', 'loss')
-
-
-def optimize_gluon(trainer, features, labels, net, decay_epoch=None,
-                   batch_size=10, log_interval=10, num_epochs=3):
-    """Optimize an objective function with a Gluon trainer."""
-    dataset = gdata.ArrayDataset(features, labels)
-    data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
-    loss = gloss.L2Loss()
-    ls = [loss(net(features), labels).mean().asnumpy()]
-    for epoch in range(1, num_epochs + 1):
-        # Decay the learning rate.
-        if decay_epoch and epoch > decay_epoch:
-            trainer.set_learning_rate(trainer.learning_rate * 0.1)
-        for batch_i, (X, y) in enumerate(data_iter):
-            with autograd.record():
-                l = loss(net(X), y)
-            l.backward()
-            trainer.step(batch_size)
-            if batch_i * batch_size % log_interval == 0:
-                ls.append(loss(net(features), labels).mean().asnumpy())
-    print('w[0]=%.2f, w[1]=%.2f, b=%.2f'
-          % (net[0].weight.data()[0][0].asscalar(),
-             net[0].weight.data()[0][1].asscalar(),
-             net[0].bias.data().asscalar()))
-    es = np.linspace(0, num_epochs, len(ls), endpoint=True)
-    semilogy(es, ls, 'epoch', 'loss')
-
 
 def predict_rnn(prefix, num_chars, rnn, params, init_rnn_state,
                 num_hiddens, vocab_size, ctx, idx_to_char, char_to_idx):
@@ -596,7 +531,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
         ctx = [ctx]
     for epoch in range(1, num_epochs + 1):
         train_l_sum, train_acc_sum, n, m = 0.0, 0.0, 0.0, 0.0
-        start = time()
+        start = time.time()
         for i, batch in enumerate(train_iter):
             Xs, ys, batch_size = _get_batch(batch, ctx)
             ls = []
@@ -615,8 +550,18 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
               'time %.1f sec'
               % (epoch, train_l_sum / n, train_acc_sum / m, test_acc,
-                 time() - start))
+                 time.time() - start))
 
+def train_2d(trainer):
+    """Train a 2d object function with a customized trainer"""
+    x1, x2 = -5, -2
+    s_x1, s_x2 = 0, 0
+    res = [(x1, x2)]
+    for i in range(20):
+        x1, x2, s_x1, s_x2 = trainer(x1, x2, s_x1, s_x2)
+        res.append((x1, x2))
+    print('epoch %d, x1 %f, x2 %f' % (i+1, x1, x2))
+    return res
 
 def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
                           vocab_size, ctx, corpus_indices, idx_to_char,
@@ -634,7 +579,7 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
     for epoch in range(num_epochs):
         if not is_random_iter:
             state = init_rnn_state(batch_size, num_hiddens, ctx)
-        loss_sum, start = 0.0, time()
+        loss_sum, start = 0.0, time.time()
         data_iter = data_iter_fn(corpus_indices, batch_size, num_steps, ctx)
         for t, (X, Y) in enumerate(data_iter):
             if is_random_iter:
@@ -655,7 +600,7 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
 
         if (epoch + 1) % pred_period == 0:
             print('epoch %d, perplexity %f, time %.2f sec' % (
-                epoch + 1, math.exp(loss_sum / (t + 1)), time() - start))
+                epoch + 1, math.exp(loss_sum / (t + 1)), time.time() - start))
             for prefix in prefixes:
                 print(' -', predict_rnn(
                     prefix, pred_len, rnn, params, init_rnn_state,
@@ -673,7 +618,7 @@ def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
                             {'learning_rate': lr, 'momentum': 0, 'wd': 0})
 
     for epoch in range(num_epochs):
-        loss_sum, start = 0.0, time()
+        loss_sum, start = 0.0, time.time()
         data_iter = data_iter_consecutive(
             corpus_indices, batch_size, num_steps, ctx)
         state = model.begin_state(batch_size=batch_size, ctx=ctx)
@@ -692,7 +637,7 @@ def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
 
         if (epoch + 1) % pred_period == 0:
             print('epoch %d, perplexity %f, time %.2f sec' % (
-                epoch + 1, math.exp(loss_sum / (t + 1)), time() - start))
+                epoch + 1, math.exp(loss_sum / (t + 1)), time.time() - start))
             for prefix in prefixes:
                 print(' -', predict_rnn_gluon(
                     prefix, pred_len, model, vocab_size,
@@ -729,7 +674,7 @@ def train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
     for epoch in range(1, num_epochs + 1):
         train_l_sum = 0
         train_acc_sum = 0
-        start = time()
+        start = time.time()
         for X, y in train_iter:
             X = X.as_in_context(ctx)
             y = y.as_in_context(ctx)
@@ -744,8 +689,62 @@ def train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
               'time %.1f sec'
               % (epoch, train_l_sum / len(train_iter),
-                 train_acc_sum / len(train_iter), test_acc, time() - start))
+                 train_acc_sum / len(train_iter), test_acc, time.time() - start))
 
+
+def train_ch7(trainer_fn, states, hyperparams,
+              features, labels, batch_size=10, num_epochs=2):
+    """Train a linear regression model with a given trainer"""
+    net, loss = linreg, squared_loss
+    w, b = nd.random.normal(scale=0.01, shape=(features.shape[1], 1)), nd.zeros(1)
+    w.attach_grad()
+    b.attach_grad()
+    eval_loss = lambda : loss(net(features, w, b), labels).mean().asscalar()
+    ls = [eval_loss()]
+    data_iter = gdata.DataLoader(
+        gdata.ArrayDataset(features, labels), batch_size, shuffle=True)
+    for epoch in range(num_epochs):
+        start = time.time()
+        for batch_i, (X, y) in enumerate(data_iter):
+            with autograd.record():
+                l = loss(net(X, w, b), y).mean()
+            l.backward()
+            trainer_fn([w, b], states, hyperparams)
+            if (batch_i+1) * batch_size % 100 == 0:
+                ls.append(eval_loss())
+    print('loss: %f, %f sec per epoch' % (ls[-1], time.time() - start))
+    set_figsize()
+    plt.plot(np.linspace(0, num_epochs, len(ls)), ls)
+    plt.xlabel('epoch')
+    plt.ylabel('loss')
+
+def train_gluon_ch7(trainer_name, trainer_hyperparams, features, labels,
+                    batch_size=10, num_epochs=2):
+    """Train a linear regression model with a given Gluon trainer"""
+    net = nn.Sequential()
+    net.add(nn.Dense(1))
+    net.initialize(init.Normal(sigma=0.01))
+    loss = gloss.L2Loss()
+    eval_loss = lambda : loss(net(features), labels).mean().asscalar()
+    ls = [eval_loss()]
+    data_iter = gdata.DataLoader(
+        gdata.ArrayDataset(features, labels), batch_size, shuffle=True)
+    trainer = gluon.Trainer(net.collect_params(),
+                            trainer_name, trainer_hyperparams)
+    for epoch in range(1, num_epochs + 1):
+        start = time.time()
+        for batch_i, (X, y) in enumerate(data_iter):
+            with autograd.record():
+                l = loss(net(X), y)
+            l.backward()
+            trainer.step(batch_size)
+            if (batch_i+1) * batch_size % 100 == 0:
+                ls.append(eval_loss())
+    print('loss: %f, %f sec per epoch' % (ls[-1], time.time() - start))
+    set_figsize()
+    plt.plot(np.linspace(0, num_epochs, len(ls)), ls)
+    plt.xlabel('epoch')
+    plt.ylabel('loss')
 
 def try_all_gpus():
     """Return all available GPUs, or [mx.cpu()] if there is no GPU."""

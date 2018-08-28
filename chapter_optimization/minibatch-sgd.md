@@ -1,6 +1,6 @@
 # 小批量随机梯度下降
 
-在每一轮参数迭代里，梯度下降使用整个训练数据集来计算梯度，通常也称为批量梯度下降（batch gradient descent），而随机梯度下降则只随机采样一个样本。深度学习中的常用算法在这两个极端之间：每次随机采样多个样本来组成一个小批量（mini-batch），然后对它计算梯度。这个算法被称为小批量随机梯度下降（mini-batch stochastic gradient descent）。
+在每一轮自变量迭代里，梯度下降使用整个训练数据集来计算梯度，通常也称为批量梯度下降（batch gradient descent），而随机梯度下降则只随机采样一个样本。深度学习中的常用算法在这两个极端之间：每次随机采样多个样本来组成一个小批量（mini-batch），然后对它计算梯度。这个算法被称为小批量随机梯度下降（mini-batch stochastic gradient descent）。
 
 具体来说，在每一轮迭代里，小批量随机梯度下降随机均匀采样一个由训练数据样本索引所组成的小批量（mini-batch）$\mathcal{B}$。我们可以通过重复采样（sampling with replacement）或者不重复采样（sampling without replacement）得到同一个小批量中的各个样本。前者允许同一个小批量中出现重复的样本，后者则不允许如此，且更常见。对于这两者间的任一种方式，我们可以使用
 
@@ -16,13 +16,12 @@ $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f_\mathcal{B}(\boldsymb
 
 首先导入本节需要的包和模块。
 
-```{.python .input}
+```{.python .input  n=1}
 import sys
 sys.path.insert(0, '..')
 
 %matplotlib inline
 import time
-import random
 import numpy as np
 import gluonbook as gb
 from mxnet import autograd, gluon, init, nd
@@ -32,11 +31,11 @@ from mxnet.gluon import nn, data as gdata, loss as gloss
 
 这一章里我们将使用一个来自NASA的测试不同[飞机机翼噪音](https://archive.ics.uci.edu/ml/datasets/Airfoil+Self-Noise)的数据集。这个数据集有1503个样本和4个特征，然后我们使用标准化对它进行预处理。
 
-```{.python .input}
+```{.python .input  n=2}
 def get_data_ch7():  # 将保存在 GluonBook 中方便之后使用。
     data = np.genfromtxt('../data/airfoil_self_noise.dat', delimiter='\t')
     data = (data - data.mean(axis=0)) / data.std(axis=0)
-    return nd.array(data[:1500, :-2]), nd.array(data[:1500,-1])  # 取整
+    return nd.array(data[:1500, :-2]), nd.array(data[:1500, -1])  # 取整。
 
 features, labels = get_data_ch7()
 features.shape
@@ -89,7 +88,7 @@ def train_ch7(trainer_fn, states, hyperparams,
 
 当批量大小为样本总数的1500时，优化使用的是梯度下降。梯度下降的1个迭代周期对模型参数只迭代1次。可以看到仅仅6次迭代训练损失就趋向平稳。
 
-```{.python .input  n=13}
+```{.python .input  n=5}
 def train_sgd(lr, batch_size, epoch_size=2):
     train_ch7(sgd, None, {'lr': lr}, features, labels, batch_size, epoch_size)
 
@@ -98,15 +97,15 @@ train_sgd(1, 1500, 6)
 
 当批量大小为1时，优化使用的是随机梯度下降。这时候由于梯度中有大量噪音，我们一般使用较小的学习率。由于每处理一个样本会更新一次权重，一个周期里面会对权重进行1500次更新。所以可以看到训练损失下降非常迅速，而且一个周期后训练损失就很平缓。
 
-虽然随机梯度下降和梯度下降在一个周期里面有同样的运算复杂度，因为它们都处理了1500个样本。但实际上随机梯度下降的一个周期耗时要多，这是因为有更多的参数更新，以及但样本梯度计算难以有效平行计算。
+虽然随机梯度下降和梯度下降在一个周期里面有同样的运算复杂度，因为它们都处理了1500个样本。但实际上随机梯度下降的一个周期耗时要多，这是因为有更多的自变量更新，以及但样本梯度计算难以有效平行计算。
 
-```{.python .input  n=5}
+```{.python .input  n=6}
 train_sgd(.005, 1)
 ```
 
 当批量大小为10时，优化使用的是小批量随机梯度下降。它跟随机梯度下降一样能很快的降低训练损失，但每一个周期的计算要更加迅速。
 
-```{.python .input  n=10}
+```{.python .input  n=7}
 train_sgd(.05, 10)
 ```
 
@@ -151,7 +150,7 @@ def train_gluon_ch7(trainer_name, trainer_hyperparams, features, labels,
 
 以下重复上一个实验：
 
-```{.python .input  n=14}
+```{.python .input  n=9}
 train_gluon_ch7('sgd', {'learning_rate': .05}, features, labels, 10)
 ```
 
@@ -159,7 +158,6 @@ train_gluon_ch7('sgd', {'learning_rate': .05}, features, labels, 10)
 
 * 小批量随机梯度每次随机均匀采样一个小批量训练样本来计算梯度。
 * 可以通过调整的批量大小来权衡计算效率和训练误差下降速度。
-
 
 ## 练习
 

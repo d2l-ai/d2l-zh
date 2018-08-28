@@ -26,7 +26,7 @@ $$x \leftarrow x - \eta f'(x),$$
 
 下面我们以目标函数$f(x)=x^2$为例来看一看梯度下降是如何执行的。虽然我们知道最小化$f(x)$的解为$x=0$，这里我们依然使用这个简单函数来观察$x$是如何被迭代的。首先，导入本节实验所需的包或模块。
 
-```{.python .input  n=2}
+```{.python .input  n=3}
 import sys
 sys.path.insert(0, '..')
 
@@ -39,7 +39,7 @@ from mxnet import nd
 
 接下来我们使用$x=10$作为初始值，设$\eta=0.2$。使用梯度下降对$x$迭代10次，可见最后$x$的值较接近最优解。
 
-```{.python .input  n=3}
+```{.python .input  n=4}
 f = lambda x: x ** 2
 f_grad = lambda x: 2 * x
 
@@ -47,7 +47,7 @@ def gd(eta):
     x = 10
     res = [x]
     for i in range(10):
-        x = x - eta * f_grad(x)
+        x -= eta * f_grad(x)
         res.append(x)
     print('epoch 10, x:', x)
     return res
@@ -57,7 +57,7 @@ res = gd(0.2)
 
 下面将绘制出$x$的迭代过程。
 
-```{.python .input  n=4}
+```{.python .input  n=5}
 def show_trace(res):
     n = max(abs(min(res)), abs(max(res)), 10)
     f_line = np.arange(-n, n, 0.1)
@@ -74,14 +74,14 @@ show_trace(res)
 
 上述梯度下降算法中的正数$\eta$通常叫做学习率。这是一个超参数，需要人工设定。如果使用过小的学习率，会导致$x$更新缓慢从而使得需要更多的迭代才能得到较好的解。下面展示了使用$\eta=0.05$时$x$的迭代过程。
 
-```{.python .input  n=5}
+```{.python .input  n=6}
 show_trace(gd(0.05))
 ```
 
 如果使用过大的学习率，$\left|\eta f'(x)\right|$可能会过大从而使前面提到的一阶泰勒展开公式不再成立：这时我们无法保证迭代$x$会
 降低$f(x)$的值。举个例子，当我们设$\eta=1.1$时，可以看到$x$不断越过（overshoot）最优解$x=0$并逐渐发散。
 
-```{.python .input  n=6}
+```{.python .input  n=7}
 show_trace(gd(1.1))
 ```
 
@@ -109,33 +109,36 @@ $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f(\boldsymbol{x}).$$
 
 相同地，其中$\eta$（取正数）称作学习率。
 
-下面我们构造一个输入为二维向量$\boldsymbol{x} = [x_1, x_2]^\top$和输出为标量的目标函$f(\boldsymbol{x})=x_1^2+2x_2$。可以知道$\nabla f(\boldsymbol{x}) = [2x_1, 4x_2]^\top$。然后观察梯度下降从初始点$[5,2]$开始对$\boldsymbol{x}$的更新轨迹。
+下面我们构造一个输入为二维向量$\boldsymbol{x} = [x_1, x_2]^\top$和输出为标量的目标函$f(\boldsymbol{x})=x_1^2+2x_2$。可以知道$\nabla f(\boldsymbol{x}) = [2x_1, 4x_2]^\top$。然后观察梯度下降从初始点$[5,2]$开始对$\boldsymbol{x}$的更新轨迹。首先定义两个辅助函数，第一个使用传入的自变量更新函数来从初始点$[5,2]$开始迭代20次，第二个函数可视化自变量更新轨迹。
 
-```{.python .input  n=25}
-f_2d = lambda x1, x2: x1 ** 2 + 2 * x2 ** 2
-f_2d_grad = lambda x1, x2: (2 * x1, 4 * x2)
-
-def gd_2d(eta):    
+```{.python .input  n=10}
+def train_2d(trainer):  # 本函数将保存在 GluonBook 包中方便以后使用。
     x1, x2 = -5, -2
+    s_x1, s_x2 = 0, 0  # 自变量状态，之后会使用
     res = [(x1, x2)]
     for i in range(20):
-        gx1, gx2 = f_2d_grad(x1, x2)
-        x1 = x1 - eta * gx1
-        x2 = x2 - eta * gx2
+        x1, x2, s_x1, s_x2 = trainer(x1, x2, s_x1, s_x2)
         res.append((x1, x2))
     print('epoch %d, x1 %f, x2 %f' % (i+1, x1, x2))
     return res
 
-# 本函数已保存在 gluonbook 包中方便以后使用。
-def show_trace_2d(f, res):  
+def show_trace_2d(f, res):  # 本函数将保存在 GluonBook 包中方便以后使用。
     x1, x2 = zip(*res)
     gb.plt.plot(x1, x2, '-o', color='#ff7f0e')
     x1, x2 = np.meshgrid(np.arange(-5.5, 1.0, 0.1), np.arange(-3.0, 1.0, 0.1))
     gb.plt.contour(x1, x2, f(x1, x2), colors='#1f77b4')
     gb.plt.xlabel('x1')
     gb.plt.ylabel('x2')
-    
-show_trace_2d(f_2d, gd_2d(0.1))
+```
+
+然后观察学习率为$0.1$的自变量更新。
+
+```{.python .input  n=15}
+eta = 0.1
+f_2d = lambda x1, x2: x1 ** 2 + 2 * x2 ** 2
+gd_2d = lambda x1, x2, s_x1, s_x2: (
+    x1 - eta * 2 * x1, x2 - eta * 4 * x2, None, None)
+show_trace_2d(f_2d, train_2d(gd_2d))
 ```
 
 ## 随机梯度下降
@@ -148,13 +151,13 @@ $$f(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n f_i(\boldsymbol{x}).$$
 
 $$\nabla f(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_i(\boldsymbol{x}).$$
 
-如果使用梯度下降，每次迭代（参数更新）的计算开销随着$n$线性增长。因此，当训练数据样本数很大时，梯度下降每次迭代的计算开销很高。随机梯度下降（stochastic gradient descent，简称SGD）的提出是为了减少每次迭代的计算开销，以此来使得达到同样质量（例如目标函数值）模型参数时总计算量比梯度下降要小。
+如果使用梯度下降，每次迭代（自变量更新）的计算开销为$\mathcal{O}(n)$，它随着$n$线性增长。因此，当训练数据样本数很大时，梯度下降每次迭代的计算开销很高。随机梯度下降（stochastic gradient descent，简称SGD）的提出是为了减少每次迭代的计算开销，以此来使得达到同样质量（例如目标函数值）模型参数时总计算量比梯度下降要小。
 
 在随机梯度下降中，每次迭代我们随机均匀采样$i\in[1,n]$，并计算随机梯度$\nabla f_i(\boldsymbol{x})$来迭代$\boldsymbol{x}$：
 
 $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f_i(\boldsymbol{x}).$$
 
-这里$\eta$同样是学习率。可以看到每次迭代的开销从梯度下降的$n$降到了常数$1$。接下来的问题是，在合适的学习率情况下，随机梯度是否也能保证每次降低目标函数值。事实上，随机梯度$\nabla f_i(\boldsymbol{x})$是对梯度$\nabla f(\boldsymbol{x})$的无偏估计：
+这里$\eta$同样是学习率。可以看到每次迭代的开销从梯度下降的$\mathcal{O}(n)$降到了常数$\mathcal{O}(1)$。接下来的问题是，在合适的学习率情况下，随机梯度是否也能保证每次降低目标函数值。事实上，随机梯度$\nabla f_i(\boldsymbol{x})$是对梯度$\nabla f(\boldsymbol{x})$的无偏估计：
 
 $$\mathbb{E}_i \nabla f_i(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_i(\boldsymbol{x}) = \nabla f(\boldsymbol{x}).$$
 
@@ -162,31 +165,20 @@ $$\mathbb{E}_i \nabla f_i(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_
 
 下面我们通过在梯度中加入均值为0的随机噪音来模拟随机梯度下降，以此来比较它与梯度下降的区别。
 
-```{.python .input  n=32}
-noise = 1
-f_2d_noise_grad = lambda x1, x2: (2 * x1 + np.random.normal(noise),
-                                  4 * x2 + np.random.normal(noise))
+```{.python .input  n=17}
+sgd_2d = lambda x1, x2, s_x1, s_x2: (
+    x1 - eta * (2 * x1 + + np.random.normal(0.1)), 
+    x2 - eta * (4 * x2 + + np.random.normal(0.1)), None, None)
 
-def sgd_2d(eta):
-    x1, x2 = -5, -2
-    res = [(x1, x2)]
-    for i in range(20):
-        gx1, gx2 = f_2d_noise_grad(x1, x2)
-        x1 = x1 - eta * gx1
-        x2 = x2 - eta * gx2
-        res.append((x1, x2))
-    print('epoch %d, x1 %f, x2 %f' % (i+1, x1, x2))
-    return res
-
-show_trace_2d(f_2d, sgd_2d(0.1))
+show_trace_2d(f_2d, train_2d(sgd_2d))
 ```
 
-可以看到随机梯度下降的更新轨迹相对于梯度下降更加曲折。因为噪音使得梯度的准确度下降，所以在使用同样的超参数的情况下，随机梯度下降收敛到的参数里最优值相对梯度下降来说更远。但因为随机梯度下降每一次迭代的计算比梯度下降更加简单，在同样运行时间下，随机梯度下降可以进行更多次的参数迭代，它最终得到的参数质量可能会比梯度下降更优。
+可以看到随机梯度下降的更新轨迹相对于梯度下降更加曲折。因为噪音使得梯度的准确度下降，所以在使用同样的超参数的情况下，随机梯度下降收敛到的参数里最优值相对梯度下降来说更远。但因为随机梯度下降每一次迭代的计算比梯度下降更加简单，在同样运行时间下，随机梯度下降可以进行更多次的自变量迭代，它最终得到的模型参数质量可能会比梯度下降更优。
 
 
 ## 小结
 
-* 使用适当的学习率，沿着梯度反方向更新模型参数可以降低目标函数值。梯度下降重复这一参数更新过程直到得到满足要求的模型参数。
+* 使用适当的学习率，沿着梯度反方向更新自变量可以降低目标函数值。梯度下降重复这一参数更新过程直到得到满足要求的模型参数。
 * 学习率过大过小都有问题。一个合适的学习率通常是需要通过多次实验找到的。
 * 当训练数据较大，梯度下降每次迭代计算开销较大，因而随机梯度下降更受青睐。
 

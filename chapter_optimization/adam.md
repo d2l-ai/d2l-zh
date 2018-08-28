@@ -39,84 +39,52 @@ $$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \boldsymbol{g}_t'. $$
 
 首先，导入实验所需的包或模块。
 
-```{.python .input}
+```{.python .input  n=1}
 import sys
 sys.path.insert(0, '..')
 
 %matplotlib inline
 import gluonbook as gb
-from mxnet import autograd, gluon, init, nd
-from mxnet.gluon import nn
-import numpy as np
+from mxnet import nd
 ```
 
-实验中，我们依然以线性回归为例。设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。该模型的平方损失函数即所需优化的目标函数，模型参数即目标函数自变量。我们把算法中变量$\boldsymbol{v}$和$\boldsymbol{s}$初始化为和模型参数形状相同的零张量。
+```{.python .input  n=2}
+features, labels = gb.get_data_ch7()
 
-```{.python .input  n=1}
-# 生成数据集。
-num_inputs, num_examples, true_w, true_b, features, labels = gb.get_data_ch7()
+def init_adam_states():
+    v_w, s_w = nd.zeros((features.shape[1], 1)), nd.zeros((features.shape[1], 1)), 
+    v_b, s_b = nd.zeros(1), nd.zeros(1), 
+    return ((v_w, s_w), (v_b, s_b))
 
-# 初始化模型参数和中间变量。
-def init_params_vars():
-    w = nd.random.normal(scale=0.01, shape=(num_inputs, 1))
-    b = nd.zeros(shape=(1,))
-    params = [w, b]
-    vs = []
-    sqrs = []
-    for param in params:
-        param.attach_grad()
-        # 把算法中基于指数加权移动平均的变量初始化为和参数形状相同的零张量。
-        vs.append(param.zeros_like())
-        sqrs.append(param.zeros_like())
-    return [params, vs, sqrs]
-```
-
-接下来基于NDArray实现Adam算法。
-
-```{.python .input}
-def adam(params_vars, hyperparams, batch_size, t):
-    lr = hyperparams['lr']
-    [w, b], vs, sqrs = params_vars
+def adam(params, states, hyperparams):
+    hp = hyperparams
     beta1 = 0.9
     beta2 = 0.999
-    eps_stable = 1e-8
-    for param, v, sqr in zip([w, b], vs, sqrs):      
-        g = param.grad / batch_size
-        v[:] = beta1 * v + (1 - beta1) * g
-        sqr[:] = beta2 * sqr + (1 - beta2) * g.square()
-        v_bias_corr = v / (1 - beta1 ** t)
-        sqr_bias_corr = sqr / (1 - beta2 ** t)    
-        param[:] = param - lr * v_bias_corr / (
-            sqr_bias_corr.sqrt() + eps_stable)  
+    eps = 1e-6
+    for p, (v, s) in zip(params, states):
+        v[:] = beta1 * v + (1 - beta1) * p.grad
+        s[:] = beta2 * s + (1 - beta2) * p.grad.square()
+        v_bias_corr = v / (1 - beta1 ** hp['t'])
+        s_bias_corr = s / (1 - beta2 ** hp['t'])    
+        p[:] -= hp['lr'] * v_bias_corr / (s_bias_corr.sqrt() + eps)
+    hp['t'] += 1
 ```
 
-可以看出，优化所得的模型参数值与它们的真实值较接近。
-
-```{.python .input  n=3}
-gb.optimize(optimizer_fn=adam, params_vars=init_params_vars(),
-            hyperparams={'lr': 0.1}, features=features, labels=labels,
-            is_adam=True)
+```{.python .input  n=5}
+gb.train_ch7(adam, init_adam_states(), {'lr': 0.01, 't': 1}, features, labels)
 ```
 
 ## 使用Gluon的实现
 
-下面我们展示如何使用Gluon实验Adam算法。我们可以在Trainer中定义优化算法名称`adam`并定义初始学习率。以下实验重现了本节中使用NDArray实现Adam的实验结果。该结果有一定的随机性。
+```{.python .input  n=11}
+gb.train_gluon_ch7('adam', {'learning_rate': 0.01}, features, labels)
 
-```{.python .input}
-net = nn.Sequential()
-net.add(nn.Dense(1))
-
-net.initialize(init.Normal(sigma=0.01), force_reinit=True)
-trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': 0.1})
-gb.optimize_gluon(trainer=trainer, features=features, labels=labels, net=net)
 ```
 
 ## 小结
 
 * Adam组合了动量法和RMSProp。
 * Adam使用了偏差修正。
-* 使用Gluon的`Trainer`可以方便地使用Adam。
-
 
 ## 练习
 
