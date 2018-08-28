@@ -100,6 +100,8 @@
 
 均匀采样，uniform sampling
 
+块，block
+
 困惑度，perplexity
 
 连结，concatenate
