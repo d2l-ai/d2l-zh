@@ -1,8 +1,8 @@
 # 小批量随机梯度下降
 
-在每一轮自变量迭代里，梯度下降使用整个训练数据集来计算梯度，通常也称为批量梯度下降（batch gradient descent），而随机梯度下降则只随机采样一个样本。深度学习中的常用算法在这两个极端之间：每次随机采样多个样本来组成一个小批量（mini-batch），然后对它计算梯度。这个算法被称为小批量随机梯度下降（mini-batch stochastic gradient descent）。
+在每一轮自变量迭代里，梯度下降使用整个训练数据集来计算梯度，因此它通常也称为批量梯度下降（batch gradient descent）。另一个极端是随机梯度下降，它每次只随机采样一个样本来计算梯度。但深度学习中的常用算法在这两个极端之间：每一轮迭代里我们随机采样多个样本来组成一个小批量（mini-batch），然后对它计算梯度。这个算法被称为小批量随机梯度下降（mini-batch stochastic gradient descent）。
 
-具体来说，在每一轮迭代里，小批量随机梯度下降随机均匀采样一个由训练数据样本索引所组成的小批量（mini-batch）$\mathcal{B}$。我们可以通过重复采样（sampling with replacement）或者不重复采样（sampling without replacement）得到同一个小批量中的各个样本。前者允许同一个小批量中出现重复的样本，后者则不允许如此，且更常见。对于这两者间的任一种方式，我们可以使用
+具体来说，在每一轮迭代里，小批量随机梯度下降随机均匀采样一个由训练数据样本索引所组成的小批量（mini-batch）$\mathcal{B}$。我们可以通过重复采样（sampling with replacement）或者不重复采样（sampling without replacement）得到一个小批量中的各个样本。前者允许同一个小批量中出现重复的样本，后者则不允许如此，且更常见。对于这两者间的任一种方式，我们可以使用
 
 $$\nabla f_\mathcal{B}(\boldsymbol{x}) = \frac{1}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}\nabla f_i(\boldsymbol{x})$$
 
@@ -10,11 +10,11 @@ $$\nabla f_\mathcal{B}(\boldsymbol{x}) = \frac{1}{|\mathcal{B}|} \sum_{i \in \ma
 
 $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f_\mathcal{B}(\boldsymbol{x}).$$
 
-小批量随机梯度下降中每次迭代的计算开销为$\mathcal{O}(|\mathcal{B}|)$。当批量大小为1时，该算法即随机梯度下降；当批量大小等于训练数据样本数，该算法即梯度下降。当批量较小时，每次迭代中使用的样本少，这会导致并行处理和内存使用效率变低。这使得在计算同样数目样本的情况下比使用更大批量时所花时间更多。当批量较大时，每个小批量梯度里可能含有更多的冗余信息。为了得到较好的解，批量较大时比批量较小时可能需要计算更多数目的样本，例如增大迭代周期数。
+小批量随机梯度下降中每次迭代的计算开销为$\mathcal{O}(|\mathcal{B}|)$。当批量大小为1时，该算法即随机梯度下降；当批量大小等于训练数据样本数时，该算法即梯度下降。当批量较小时，每次迭代中使用的样本少，这会导致并行处理和内存使用效率变低。这使得在计算同样数目样本的情况下比使用更大批量时所花时间更多。当批量较大时，每个小批量梯度里可能含有更多的冗余信息，且在处理了同样多样本的情况下，它比批量较小的情况下对自变量的迭代次数更少，这两个因素共同导致了它靠近解的速度更慢。为了得到较好的解，批量较大时比批量较小时可能需要计算更多数目的样本。因此批量大小是一个重要的用来权衡计算效率和靠近解速度的超参数。
 
 ## 读取数据
 
-首先导入本节需要的包和模块。
+这一章里我们将使用一个来自NASA的测试不同[飞机机翼噪音](https://archive.ics.uci.edu/ml/datasets/Airfoil+Self-Noise)的数据集比比较各个不同的优化算法。首先导入本节需要的包和模块。
 
 ```{.python .input  n=1}
 import sys
@@ -26,10 +26,9 @@ import numpy as np
 import gluonbook as gb
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import nn, data as gdata, loss as gloss
-
 ```
 
-这一章里我们将使用一个来自NASA的测试不同[飞机机翼噪音](https://archive.ics.uci.edu/ml/datasets/Airfoil+Self-Noise)的数据集。这个数据集有1503个样本和4个特征，然后我们使用标准化对它进行预处理。
+然后读取这个数据集。这个数据集有1503个样本和4个特征，我们使用标准化对它进行预处理。
 
 ```{.python .input  n=2}
 def get_data_ch7():  # 将保存在 GluonBook 中方便之后使用。
@@ -43,7 +42,7 @@ features.shape
 
 ## 从零开始实现
 
-小批量随机梯度下降算法在[“线性回归的从零开始实现”](../chapter_deep-learning-basics/linear-regression-scratch.md)一节中实现过。我们这里加入了一个状态`states`输入和将超参数放在一个字典里，这样本章后面介绍的其他优化算法也可以使用同样的输入。此外，我们将使用平均损失，所以这里梯度不需要除以批量大小。
+小批量随机梯度下降算法在[“线性回归的从零开始实现”](../chapter_deep-learning-basics/linear-regression-scratch.md)一节中已经实现过。我们这里修改了它的输入参数方便本章后面介绍的其他优化算法也可以使用同样的输入。具体的，我们加入了一个状态`states`输入和将超参数放在字典`hyperparams`里。此外，我们将使用平均损失，所以这里梯度不需要除以批量大小。
 
 ```{.python .input  n=3}
 def sgd(params, states, hyperparams):
@@ -51,10 +50,10 @@ def sgd(params, states, hyperparams):
         p[:] -= hyperparams['lr'] * p.grad
 ```
 
-下面实现一个同样的训练的函数，它初始化一个线性回归模型，然后可以使用小批量随机梯度下降以及后续小节介绍的其它算法来训练模型。
+下面实现一个通用的训练的函数，它初始化一个线性回归模型，然后可以使用小批量随机梯度下降以及后续小节介绍的其它算法来训练模型。
 
 ```{.python .input  n=4}
-# 将保存在 GluonBook 中方便之后使用。
+# train_ch7 将保存在 GluonBook 中方便之后使用。
 def train_ch7(trainer_fn, states, hyperparams,
               features, labels, batch_size=10, num_epochs=2):
     # 初始化模型。
@@ -63,10 +62,9 @@ def train_ch7(trainer_fn, states, hyperparams,
     b = nd.zeros(1)
     w.attach_grad()
     b.attach_grad()
-    # 纪录训练误差。
+    # 记录训练误差和读取数据后开始迭代。
     eval_loss = lambda : loss(net(features, w, b), labels).mean().asscalar()
     ls = [eval_loss()]
-    # 读取数据。
     data_iter = gdata.DataLoader(
         gdata.ArrayDataset(features, labels), batch_size, shuffle=True)
     for epoch in range(num_epochs):
@@ -77,7 +75,7 @@ def train_ch7(trainer_fn, states, hyperparams,
             l.backward()
             trainer_fn([w, b], states, hyperparams)  # 模型更新。
             if (batch_i+1) * batch_size % 100 == 0:
-                ls.append(eval_loss())
+                ls.append(eval_loss())  # 每 100 个样本记录下当前训练误差。
     # 打印结果和作图。
     print('loss: %f, %f sec per epoch' % (ls[-1], time.time() - start))
     gb.set_figsize()
@@ -86,7 +84,7 @@ def train_ch7(trainer_fn, states, hyperparams,
     gb.plt.ylabel('loss')
 ```
 
-当批量大小为样本总数的1500时，优化使用的是梯度下降。梯度下降的1个迭代周期对模型参数只迭代1次。可以看到仅仅6次迭代训练损失就趋向平稳。
+当批量大小为样本总数的1500时，优化使用的是梯度下降。梯度下降的1个迭代周期对模型参数只迭代1次。可以看到6次迭代后训练损失下降趋向了平稳。
 
 ```{.python .input  n=5}
 def train_sgd(lr, batch_size, epoch_size=2):
@@ -95,9 +93,9 @@ def train_sgd(lr, batch_size, epoch_size=2):
 train_sgd(1, 1500, 6)
 ```
 
-当批量大小为1时，优化使用的是随机梯度下降。这时候由于梯度中有大量噪音，我们一般使用较小的学习率。由于每处理一个样本会更新一次权重，一个周期里面会对权重进行1500次更新。所以可以看到训练损失下降非常迅速，而且一个周期后训练损失就很平缓。
+当批量大小为1时，优化使用的是随机梯度下降。这时候由于梯度中有大量噪音，我们一般使用较小的学习率。这里每处理一个样本会更新一次自变量（权重），一个周期里面会对自变量进行1500次更新。所以可以看到训练损失下降非常迅速，而且一个周期后训练损失下降就变得平缓。
 
-虽然随机梯度下降和梯度下降在一个周期里面有同样的运算复杂度，因为它们都处理了1500个样本。但实际上随机梯度下降的一个周期耗时要多，这是因为有更多的自变量更新，以及但样本梯度计算难以有效平行计算。
+虽然随机梯度下降和梯度下降在一个周期里面有同样的运算复杂度，因为它们都处理了1500个样本。但实际上随机梯度下降的一个周期耗时要多，这是因为有更多的自变量更新，以及单样本的梯度计算难以有效的平行计算。
 
 ```{.python .input  n=6}
 train_sgd(.005, 1)
@@ -114,7 +112,7 @@ train_sgd(.05, 10)
 在Gluon里我们可以通过`Trainer`类来调用预实现好的优化算法。下面实现一个通用的训练函数，它通过训练器的名字`trainer_name`和超参数`trainer_hyperparams`来构建Trainer类实例。
 
 ```{.python .input  n=8}
-# 将保存在 GluonBook 中方便之后使用。
+# train_gluon_ch7 将保存在 GluonBook 中方便之后使用。
 def train_gluon_ch7(trainer_name, trainer_hyperparams, features, labels,
                     batch_size=10, num_epochs=2):
     # 初始化模型。
@@ -122,13 +120,12 @@ def train_gluon_ch7(trainer_name, trainer_hyperparams, features, labels,
     net.add(nn.Dense(1))
     net.initialize(init.Normal(sigma=0.01))
     loss = gloss.L2Loss()
-    # 纪录训练误差。
+    # 记录训练误差和读取数据。
     eval_loss = lambda : loss(net(features), labels).mean().asscalar()
     ls = [eval_loss()]
-    # 读取数据。
     data_iter = gdata.DataLoader(
         gdata.ArrayDataset(features, labels), batch_size, shuffle=True)
-    # 使用 Trainer 来更新权重。
+    # 创建 Trainer 类实例来更新权重，然后开始迭代。
     trainer = gluon.Trainer(
         net.collect_params(), trainer_name, trainer_hyperparams)
     for epoch in range(1, num_epochs + 1):
@@ -137,7 +134,7 @@ def train_gluon_ch7(trainer_name, trainer_hyperparams, features, labels,
             with autograd.record():
                 l = loss(net(X), y)
             l.backward()
-            trainer.step(batch_size)
+            trainer.step(batch_size)  # 在 Trainer 里做梯度平均。
             if (batch_i+1) * batch_size % 100 == 0:
                 ls.append(eval_loss())
     # 打印结果和作图。
