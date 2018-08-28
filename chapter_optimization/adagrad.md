@@ -19,18 +19,13 @@ $$\boldsymbol{s} \leftarrow \boldsymbol{s} + \boldsymbol{g} \odot \boldsymbol{g}
 
 其中$\odot$是按元素相乘（请参见[“数学基础”](../chapter_appendix/math.md)一节）。接着，我们将目标函数自变量中每个元素的学习率通过按元素运算重新调整一下：
 
-$$\boldsymbol{g}' \leftarrow \frac{\eta}{\sqrt{\boldsymbol{s} + \epsilon}} \odot \boldsymbol{g},$$
+$$\boldsymbol{x} \leftarrow \boldsymbol{x} - \frac{\eta}{\sqrt{\boldsymbol{s} + \epsilon}} \odot \boldsymbol{g},$$
 
-其中$\eta$是初始学习率且$\eta > 0$，$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-6}$。我们需要注意，其中开方、除法和乘法的运算都是按元素进行的。这些按元素运算使得目标函数自变量中每个元素都分别拥有自己的学习率。
-
-最后，自变量的迭代步骤与小批量随机梯度下降类似。只是这里梯度前的学习率已经被调整过了：
-
-$$\boldsymbol{x} \leftarrow \boldsymbol{x} - \boldsymbol{g}'.$$
-
+其中$\eta$是初始学习率且$\eta > 0$，$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-6}$。这里开方、除法和乘法的运算都是按元素进行的。这些按元素运算使得目标函数自变量中每个元素都分别拥有自己的学习率。
 
 ## Adagrad的特点
 
-需要强调的是，小批量随机梯度按元素平方的累加变量$\boldsymbol{s}$出现在含调整后学习率的梯度$\boldsymbol{g}'$的分母项。因此，如果目标函数有关自变量中某个元素的偏导数一直都较大，那么就让该元素的学习率下降快一点；反之，如果目标函数有关自变量中某个元素的偏导数一直都较小，那么就让该元素的学习率下降慢一点。然而，由于$\boldsymbol{s}$一直在累加按元素平方的梯度，自变量中每个元素的学习率在迭代过程中一直在降低（或不变）。所以，当学习率在迭代早期降得较快且当前解依然不佳时，Adagrad在迭代后期由于学习率过小，可能较难找到一个有用的解。
+需要强调的是，小批量随机梯度按元素平方的累加变量$\boldsymbol{s}$出现在学习率的分母项中。因此，如果目标函数有关自变量中某个元素的偏导数一直都较大，那么就让该元素的学习率下降快一点；反之，如果目标函数有关自变量中某个元素的偏导数一直都较小，那么就让该元素的学习率下降慢一点。然而，由于$\boldsymbol{s}$一直在累加按元素平方的梯度，自变量中每个元素的学习率在迭代过程中一直在降低（或不变）。所以，当学习率在迭代早期降得较快且当前解依然不佳时，Adagrad在迭代后期由于学习率过小，可能较难找到一个有用的解。
 
 下面我们仍然以目标函数$f(\boldsymbol{x})=0.1x_1^2+2x_2$为例观察Adagrad对自变量的迭代过程。先导入实验所需的包或模块。
 
@@ -44,17 +39,16 @@ import gluonbook as gb
 from mxnet import nd
 ```
 
-下面实现AdaGrad并用同前一样的学习率$0.4$进行训练。可以看到自变量的轨迹更加平滑，其在$x_2$轴上没有抖动。但由于$\boldsymbol{s}$的累加效果使得学习率快速衰减，自变量在后期前进不够迅速。
+下面实现Adagrad并用同前一样的学习率$0.4$进行训练。可以看到自变量的更新轨迹更加平滑，且在$x_2$轴上没有抖动。但由于$\boldsymbol{s}$的累加效果使得学习率快速衰减，自变量在后期前进不够迅速。
 
 ```{.python .input  n=2}
-def adagrad_2d(x1, x2, s_x1, s_x2):    
-    eps = 1e-6
-    g_x1, g_x2 = 0.2 * x1, 4 * x2
-    s_x1 += g_x1 ** 2
-    s_x2 += g_x2 ** 2        
-    x1 -= eta / math.sqrt(s_x1 + eps) * g_x1
-    x2 -= eta / math.sqrt(s_x2 + eps) * g_x2
-    return x1, x2, s_x1, s_x2
+def adagrad_2d(x1, x2, s1, s2):    
+    g1, g2, eps = 0.2 * x1, 4 * x2, 1e-6  # 前两项为自变量梯度。
+    s1 += g1 ** 2
+    s2 += g2 ** 2        
+    x1 -= eta / math.sqrt(s1 + eps) * g1
+    x2 -= eta / math.sqrt(s2 + eps) * g2
+    return x1, x2, s1, s2
 
 eta = 0.4
 f_2d = lambda x1, x2: 0.1 * x1 ** 2 + 2 * x2 ** 2
@@ -70,7 +64,7 @@ gb.show_trace_2d(f_2d, gb.train_2d(adagrad_2d))
 
 ## 从零开始实现
 
-同动量法一样，AdaGrad需要对每个自变量维护同它一样形状的状态变量$\boldsymbol{s}$。接下来根据公式实现AdaGrad。
+同动量法一样，Adagrad需要对每个自变量维护同它一样形状的状态变量$\boldsymbol{s}$。接下来根据公式实现Adagrad。
 
 ```{.python .input  n=4}
 features, labels = gb.get_data_ch7()
@@ -81,14 +75,13 @@ def init_adagrad_states():
     return (s_w, s_b)
 
 def adagrad(params, states, hyperparams):
-    hp = hyperparams 
-    eps = 1e-6
+    hp, eps = hyperparams, 1e-6
     for p, s in zip(params, states):
         s[:] += p.grad.square()
         p[:] -= hp['lr'] * p.grad / (s + eps).sqrt()
 ```
 
-接下来使用$0.1$的学习率训练模型。
+接下来使用$0.1$的学习率来训练模型，它是[“梯度下降和随机梯度下降”](./gd-sgd.md)一节中使用的2倍。
 
 ```{.python .input  n=5}
 gb.train_ch7(adagrad, init_adagrad_states(), {'lr': 0.1}, features, labels)
