@@ -1,111 +1,81 @@
 # Adadelta
 
-我们在[“RMSProp”](rmsprop.md)一节中描述了，RMSProp针对Adagrad在迭代后期可能较难找到有用解的问题，对小批量随机梯度按元素平方项做指数加权移动平均而不是累加。另一种应对该问题的优化算法叫做Adadelta [1]。有意思的是，它没有学习率超参数。
+我们在[“RMSProp”](rmsprop.md)一节中描述了RMSProp针对Adagrad在迭代后期可能较难找到有用解的问题。RMSProp对小批量随机梯度按元素平方项做指数加权移动平均而不是累加。另一种应对该问题的优化算法叫做Adadelta [1]。有意思的是，它没有学习率这一超参数。
+
+Adadelta算法也像RMSProp一样，使用了小批量随机梯度按元素平方的指数加权移动平均变量$\boldsymbol{s}$，它的时间步0时被初始化为0。
+给定超参数$\rho$且$0 \leq \rho < 1$（对应RMSProp中的$\gamma$），在时间步$t>0$，同RMSPro一样计算
+
+$$\boldsymbol{s}_t \leftarrow \rho \boldsymbol{s}_{t-1} + (1 - \rho) \boldsymbol{g}_t \odot \boldsymbol{g}_t. $$
+
+不同的在于Adadelta算法还维护一个额外的状态变量$\Delta\boldsymbol{x}\in\mathbb{R}^d$，其元素同样在时间步0时被初始化为0。然后使用它来计算自变量的变化量：
+
+$$ \boldsymbol{g}_t' \leftarrow \sqrt{\frac{\Delta\boldsymbol{x}_{t-1} + \epsilon}{\boldsymbol{s}_t + \epsilon}}   \odot \boldsymbol{g}_t, $$
+
+这里$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-5}$（注意我们不是使用前面常用的$10^{-6}$）。接着更新自变量：
+
+$$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \boldsymbol{g}'_t. $$
+
+最后，我们使用$\Delta\boldsymbol{x}$来记录$\boldsymbol{g}'$按元素平方的指数加权移动平均：
+
+$$\Delta\boldsymbol{x}_t \leftarrow \rho \Delta\boldsymbol{x}_{t-1} + (1 - \rho) \boldsymbol{g}'_t \odot \boldsymbol{g}'_t. $$
+
+可以看到，Adadelta跟RMSProp不同的地方在于使用$\Delta\boldsymbol{x}_t$来替代了超参数$\eta_t$，因此它的主要优势在于不需要手动选取学习率。
 
 
-## Adadelta算法
-
-Adadelta算法也像RMSProp一样，使用了小批量随机梯度按元素平方的指数加权移动平均变量$\boldsymbol{s}$，并将其中每个元素初始化为0。
-给定超参数$\rho$且$0 \leq \rho < 1$，
-在每次迭代中，RMSProp首先计算小批量随机梯度$\boldsymbol{g}$，然后对该梯度按元素平方项$\boldsymbol{g} \odot \boldsymbol{g}$做指数加权移动平均，记为$\boldsymbol{s}$：
-
-$$\boldsymbol{s} \leftarrow \rho \boldsymbol{s} + (1 - \rho) \boldsymbol{g} \odot \boldsymbol{g}. $$
-
-然后，计算当前需要迭代的目标函数自变量的变化量$\boldsymbol{g}'$：
-
-$$ \boldsymbol{g}' \leftarrow \frac{\sqrt{\Delta\boldsymbol{x} + \epsilon}}{\sqrt{\boldsymbol{s} + \epsilon}}   \odot \boldsymbol{g}, $$
-
-
-其中$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-5}$。和Adagrad与RMSProp一样，目标函数自变量中每个元素都分别拥有自己的学习率。上式中$\Delta\boldsymbol{x}$初始化为零张量，并记录$\boldsymbol{g}'$按元素平方的指数加权移动平均：
-
-$$\Delta\boldsymbol{x} \leftarrow \rho \Delta\boldsymbol{x} + (1 - \rho) \boldsymbol{g}' \odot \boldsymbol{g}'. $$
-
-同样地，最后的自变量迭代步骤与小批量随机梯度下降类似：
-
-$$\boldsymbol{x} \leftarrow \boldsymbol{x} - \boldsymbol{g}'. $$
-
-## 实验
+## 从零开始的实现
 
 首先，导入本节中实验所需的包或模块。
 
-```{.python .input}
+```{.python .input  n=1}
 import sys
 sys.path.insert(0, '..')
 
 %matplotlib inline
 import gluonbook as gb
-from mxnet import autograd, gluon, init, nd
-from mxnet.gluon import nn
-import numpy as np
+from mxnet import nd
 ```
 
-实验中，我们依然以线性回归为例。设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。该模型的平方损失函数即所需优化的目标函数，模型参数即目标函数自变量。我们把算法中变量$\boldsymbol{s}$和$\Delta\boldsymbol{x}$初始化为和模型参数形状相同的零张量。
+AdeDelta需要对每个自变量维护两个状态变量，$\boldsymbol{s}$和$\Delta\boldsymbol{x}$。按上面公式显示AdeDelta：
 
-```{.python .input  n=1}
-# 生成数据集。
-num_inputs, num_examples, true_w, true_b, features, labels = gb.get_data_ch7()
+```{.python .input  n=11}
+features, labels = gb.get_data_ch7()
 
-# 初始化模型参数和中间变量。
-def init_params_vars():
-    w = nd.random.normal(scale=0.01, shape=(num_inputs, 1))
-    b = nd.zeros(shape=(1,))
-    params = [w, b]
-    sqrs = []
-    deltas = []
-    for param in params:
-        param.attach_grad()
-        # 把算法中基于指数加权移动平均的变量初始化为和参数形状相同的零张量。
-        sqrs.append(param.zeros_like())
-        deltas.append(param.zeros_like())
-    return [params, sqrs, deltas]
+def init_adadelta_states():
+    s_w, s_b = nd.zeros((features.shape[1], 1)), nd.zeros(1)
+    delta_w, delta_b = nd.zeros((features.shape[1], 1)), nd.zeros(1)
+    return ((s_w, delta_w), (s_b, delta_b))
+
+def adadelta(params, states, hyperparams):
+    rho, eps = hyperparams['rho'], 1e-5
+    for p, (s, delta) in zip(params, states):
+        s[:] = rho * s + (1 - rho) * p.grad.square()
+        g = ((delta + eps).sqrt() / (s + eps).sqrt()) * p.grad
+        p[:] -= g
+        delta[:] = rho * delta + (1 - rho) * g * g        
 ```
 
-接下来基于NDArray实现Adadelta算法。
+使用$\rho=0.9$来训练模型。
 
-```{.python .input}
-def adadelta(params_vars, hyperparams, batch_size):
-    rho = hyperparams['rho']
-    [w, b], sqrs, deltas = params_vars
-    eps_stable = 1e-5
-    for param, sqr, delta in zip([w, b], sqrs, deltas):
-        g = param.grad / batch_size
-        sqr[:] = rho * sqr + (1 - rho) * g.square()
-        cur_delta = ((delta + eps_stable).sqrt()
-                     / (sqr + eps_stable).sqrt() * g)
-        delta[:] = rho * delta + (1 - rho) * cur_delta * cur_delta
-        param[:] -= cur_delta
-```
-
-可以看出，优化所得的模型参数值与它们的真实值较接近。
-
-```{.python .input  n=3}
-gb.optimize(optimizer_fn=adadelta, params_vars=init_params_vars(),
-            hyperparams={'rho': 0.9999}, features=features, labels=labels)
+```{.python .input  n=12}
+gb.train_ch7(adadelta, init_adadelta_states(), {'rho': .9}, features, labels)
 ```
 
 ## 使用Gluon的实现
 
-下面我们展示如何使用Gluon实验Adadelta算法。我们可以在Trainer中定义优化算法名称`adadelta`并定义$\rho$超参数`rho`。以下实验重现了本节中使用NDArray实现Adadelta的实验结果。该结果有一定的随机性。
+AdeDelta在Gluon中名称为`adadelta`，其超参数可以通过`rho`来指定。
 
-```{.python .input}
-net = nn.Sequential()
-net.add(nn.Dense(1))
-
-net.initialize(init.Normal(sigma=0.01), force_reinit=True)
-trainer = gluon.Trainer(net.collect_params(), 'adadelta', {'rho': 0.9999})
-gb.optimize_gluon(trainer=trainer, features=features, labels=labels, net=net)
+```{.python .input  n=9}
+gb.train_gluon_ch7('adadelta', {'rho': .9}, features, labels)
 ```
 
 ## 小结
 
-* Adadelta没有学习率参数。
-* 使用Gluon的`Trainer`可以方便地使用Adadelta。
-
+* AdaDelta没有学习率参数，它通过使用自变量更新量平方的指数加权移动平均来替代学习率。
 
 ## 练习
 
-* Adadelta为什么不需要设置学习率超参数？它被什么代替了？
 * 如果把试验中的参数$\rho$改小会怎样？观察并分析实验结果。
+* 如果将`eps`改成前面使用的`1e-6`会怎么样？分析观察的结果。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2277)
 
