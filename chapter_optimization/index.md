@@ -20,4 +20,5 @@
    rmsprop
    adadelta
    adam
+   summary
 ```
