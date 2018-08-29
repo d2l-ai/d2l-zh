@@ -2,26 +2,24 @@
 
 我们在[“RMSProp”](rmsprop.md)一节中描述了RMSProp针对Adagrad在迭代后期可能较难找到有用解的问题。RMSProp对小批量随机梯度按元素平方项做指数加权移动平均而不是累加。另一种应对该问题的优化算法叫做Adadelta [1]。有意思的是，它没有学习率这一超参数。
 
+Adadelta算法也像RMSProp一样，使用了小批量随机梯度按元素平方的指数加权移动平均变量$\boldsymbol{s}$，它的时间步0时被初始化为0。
+给定超参数$\rho$且$0 \leq \rho < 1$（对应RMSProp中的$\gamma$），在时间步$t>0$，同RMSPro一样计算
 
-## Adadelta算法
+$$\boldsymbol{s}_t \leftarrow \rho \boldsymbol{s}_{t-1} + (1 - \rho) \boldsymbol{g}_t \odot \boldsymbol{g}_t. $$
 
-Adadelta算法也像RMSProp一样，使用了小批量随机梯度按元素平方的指数加权移动平均变量$\boldsymbol{s}$，它的每个元素在迭代前被初始化为0。
-给定超参数$\rho$且$0 \leq \rho < 1$（对应RMSProp中的$\gamma$），
-在每次迭代中，同RMSPro一样首先计算小批量随机梯度$\boldsymbol{g}$，然后对该梯度按元素平方项$\boldsymbol{g} \odot \boldsymbol{g}$做指数加权移动平均，记为$\boldsymbol{s}$：
+不同的在于Adadelta算法还维护一个额外的状态变量$\Delta\boldsymbol{x}\in\mathbb{R}^d$，其元素同样在时间步0时被初始化为0。然后使用它来计算自变量的变化量：
 
-$$\boldsymbol{s} \leftarrow \rho \boldsymbol{s} + (1 - \rho) \boldsymbol{g} \odot \boldsymbol{g}. $$
-
-不同的在于Adadelta算法还维护一个额外的状态变量$\Delta\boldsymbol{x}$，其元素同样在迭代前被初始化为0。然后使用它来计算自变量的变化量$\boldsymbol{g}'$：
-
-$$ \boldsymbol{g}' \leftarrow \frac{\sqrt{\Delta\boldsymbol{x} + \epsilon}}{\sqrt{\boldsymbol{s} + \epsilon}}   \odot \boldsymbol{g}, $$
+$$ \boldsymbol{g}_t' \leftarrow \sqrt{\frac{\Delta\boldsymbol{x}_{t-1} + \epsilon}{\boldsymbol{s}_t + \epsilon}}   \odot \boldsymbol{g}_t, $$
 
 这里$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-5}$（注意我们不是使用前面常用的$10^{-6}$）。接着更新自变量：
 
-$$\boldsymbol{x} \leftarrow \boldsymbol{x} - \boldsymbol{g}'. $$
+$$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \boldsymbol{g}'_t. $$
 
 最后，我们使用$\Delta\boldsymbol{x}$来记录$\boldsymbol{g}'$按元素平方的指数加权移动平均：
 
-$$\Delta\boldsymbol{x} \leftarrow \rho \Delta\boldsymbol{x} + (1 - \rho) \boldsymbol{g}' \odot \boldsymbol{g}'. $$
+$$\Delta\boldsymbol{x}_t \leftarrow \rho \Delta\boldsymbol{x}_{t-1} + (1 - \rho) \boldsymbol{g}'_t \odot \boldsymbol{g}'_t. $$
+
+可以看到，Adadelta跟RMSProp不同的地方在于使用$\Delta\boldsymbol{x}_t$来替代了超参数$\eta_t$，因此它的主要优势在于不需要手动选取学习率。
 
 
 ## 从零开始的实现

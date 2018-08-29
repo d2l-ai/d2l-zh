@@ -5,18 +5,17 @@
 
 ## RMSProp算法
 
-我们在[“动量法”](momentum.md)一节里介绍过指数加权移动平均。事实上，RMSProp算法使用了小批量随机梯度按元素平方的指数加权移动平均变量$\boldsymbol{s}$。在迭代前$\boldsymbol{s}$的每个元素初始化为0。
-给定超参数$\gamma$且$0 \leq \gamma < 1$，在每次迭代中，RMSProp首先计算小批量随机梯度$\boldsymbol{g}$，然后对该梯度按元素平方项$\boldsymbol{g} \odot \boldsymbol{g}$做指数加权移动平均：
+我们在[“动量法”](momentum.md)一节里介绍过指数加权移动平均。不同于Adagrad里状态变量$\boldsymbol{s}$是到目前时间步里所有梯度按元素平方和，RMSProp将过去时间步里梯度按元素平方做指数加权移动平均。具体来说，给定超参数$\gamma$且$0 \leq \gamma < 1$，RMSProp在时间步$t>0$里计算
 
-$$\boldsymbol{s} \leftarrow \gamma \boldsymbol{s} + (1 - \gamma) \boldsymbol{g} \odot \boldsymbol{g}. $$
+$$\boldsymbol{s}_t \leftarrow \gamma \boldsymbol{s}_{t-1} + (1 - \gamma) \boldsymbol{g}_t \odot \boldsymbol{g}_t. $$
 
-然后，和Adagrad一样，将目标函数自变量中每个元素的学习率通过按元素运算重新调整一下，然后更新自变量。
+和Adagrad一样，RMSProp将目标函数自变量中每个元素的学习率通过按元素运算重新调整一下，然后更新自变量。
 
-$$\boldsymbol{x} \leftarrow \boldsymbol{x} - \frac{\eta}{\sqrt{\boldsymbol{s} + \epsilon}} \odot \boldsymbol{g}, $$
+$$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \frac{\eta_t}{\sqrt{\boldsymbol{s}_t + \epsilon}} \odot \boldsymbol{g}_t, $$
 
-其中$\eta$是初始学习率且$\eta > 0$，$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-6}$。和Adagrad一样，模型参数中每个元素都分别拥有自己的学习率。
+其中$\eta_t$是学习率，$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-6}$。
 
-需要强调的是，RMSProp只在Adagrad的基础上修改了变量$\boldsymbol{s}$的更新方法：对平方项$\boldsymbol{g} \odot \boldsymbol{g}$从累加变成了指数加权移动平均。由于变量$\boldsymbol{s}$可看作是最近$1/(1-\gamma)$个时刻的平方项$\boldsymbol{g} \odot \boldsymbol{g}$的加权平均，自变量每个元素的学习率在迭代过程中避免了“直降不升”的问题。
+因为RMSProp的状态变量是对平方项$\boldsymbol{g}_t \odot \boldsymbol{g}_t$的指数加权移动平均，因此可以看作是最近$1/(1-\gamma)$个时刻的梯度平方项的加权平均，这样自变量每个元素的学习率在迭代过程中避免了“直降不升”的问题。
 
 照例，让我们先观察RMSProp对目标函数$f(\boldsymbol{x})=0.1x_1^2+2x_2$中自变量的更新轨迹。首先，导入本节中实验所需的包或模块。
 

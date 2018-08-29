@@ -6,7 +6,7 @@
 
 假设我们的目标是最小化连续可导的目标函数$f(\boldsymbol{x}):\mathbb{R}^d \rightarrow \mathbb{R}$。在更新开始前，即时间步$0$，随机初始化自变量$\boldsymbol{x}_{0}\in \mathbb{R}$。在时间步$t=1,2,\ldots$，首先随机均匀采样由训练数据样本索引所组成的小批量$\mathcal{B}_t$，然后基于它计算目标函数在$\boldsymbol{x}_{t-1}$处的梯度：
 
-$$\boldsymbol{g}_t \leftarrow \frac{1}{|\mathcal{B}_t|}\nabla f_{\mathcal{B}_t}(\boldsymbol{x}_{t-1}) = \frac{1}{|\mathcal{B}_t|}\sum_{i\in\mathcal{B}_t} \nabla f_i(\boldsymbol{x}_{t-1}),$$
+$$\boldsymbol{g}_t \leftarrow \nabla f_{\mathcal{B}_t}(\boldsymbol{x}_{t-1}) = \frac{1}{|\mathcal{B}_t|}\sum_{i\in\mathcal{B}_t} \nabla f_i(\boldsymbol{x}_{t-1}),$$
 
 这里$|\mathcal{B}_t|$是小批量里的样本数，是一个超参数，且一般在时间步之间保持不变。
 
@@ -14,7 +14,7 @@ $$\boldsymbol{g}_t \leftarrow \frac{1}{|\mathcal{B}_t|}\nabla f_{\mathcal{B}_t}(
 
 $$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \eta_t \boldsymbol{g}_t.$$
 
-过大或者过小的学习率都会带来问题。我们可以根据实验效果将其固定成一个正常数$\eta_t=\eta$，或者随着时间减小，例如$\eta_t=\eta t^\alpha$（通常$\alpha=-1$或者$-0.5$）或者$\eta_t = \eta \alpha^t$（例如$\alpha=0.95$）。
+过大或者过小的学习率都会带来问题。我们可以根据实验效果将其固定成一个正常数$\eta_t=\eta$，或者随着时间减小。
 
 
 ## 动量法
@@ -46,7 +46,7 @@ $$
 
 ## RMSProp
 
-Adagrad的状态变量随着时间非递减，其容易导致训练后期学习率过小。RMSProp使用指数加权移动平均来更新状态变量，通过超参数$0\le\gamma\le 1$来控制作用移动平均的时间窗。
+Adagrad的状态变量随着时间非递减，其容易导致训练后期学习率过小。RMSProp使用指数加权移动平均来更新状态变量，通过超参数$0\le\gamma< 1$来控制作用移动平均的时间窗。
 
 $$
 \begin{aligned}
@@ -87,4 +87,4 @@ $$
 ## 练习
 
 - 深度学习优化算法一直是研究的热点。查阅最近论文了解最新的进展。例如如何在使用特别大的批量大小的时候仍保证靠近解的速度，以及$\eta_t$是关于时间$t$的周期函数而不是非递增函数。
-
+- 换一个更加复杂的数据集来比较本章介绍的各个算法。例如去掉标准化这一预处理步骤。

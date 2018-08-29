@@ -13,15 +13,15 @@ $$
 
 ## Adagrad算法
 
-Adagrad的算法会使用一个小批量随机梯度按元素平方的累加变量$\boldsymbol{s}$，其形状与自变量形状相同。开始时将变量$\boldsymbol{s}$中每个元素初始化为0。在每次迭代中，首先计算小批量随机梯度$\boldsymbol{g}$，然后将该梯度按元素平方后累加到变量$\boldsymbol{s}$：
+Adagrad的算法会使用一个小批量随机梯度按元素平方的累加变量$\boldsymbol{s}\in\mathbb{R}^d$。在时间步0，adagrad将$\boldsymbol{s}_0$中每个元素初始化为0。在每次迭代中，首先将梯度$\boldsymbol{g}_t$按元素平方后累加到变量$\boldsymbol{s}_t$：
 
-$$\boldsymbol{s} \leftarrow \boldsymbol{s} + \boldsymbol{g} \odot \boldsymbol{g},$$
+$$\boldsymbol{s}_t \leftarrow \boldsymbol{s}_t + \boldsymbol{g}_t \odot \boldsymbol{g}_t,$$
 
 其中$\odot$是按元素相乘（请参见[“数学基础”](../chapter_appendix/math.md)一节）。接着，我们将目标函数自变量中每个元素的学习率通过按元素运算重新调整一下：
 
-$$\boldsymbol{x} \leftarrow \boldsymbol{x} - \frac{\eta}{\sqrt{\boldsymbol{s} + \epsilon}} \odot \boldsymbol{g},$$
+$$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \frac{\eta_t}{\sqrt{\boldsymbol{s}_t + \epsilon}} \odot \boldsymbol{g}_t,$$
 
-其中$\eta$是初始学习率且$\eta > 0$，$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-6}$。这里开方、除法和乘法的运算都是按元素进行的。这些按元素运算使得目标函数自变量中每个元素都分别拥有自己的学习率。
+其中$\eta_t$是学习率且一般为常数，$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-6}$。这里开方、除法和乘法的运算都是按元素进行的。这些按元素运算使得目标函数自变量中每个元素都分别拥有自己的学习率。
 
 ## Adagrad的特点
 
