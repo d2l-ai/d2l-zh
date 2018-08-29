@@ -6,7 +6,7 @@
 
 ## 继承Block类来构造模型
 
-Block类是`nn`模块里提供的一个模型构造类，我们可以继承它来定义我们想要的模型。我们在这里构造一个同前提到的相同的多层感知机。这里定义的MLP类重载了Block类的两个函数：`__init__`和`forward`，分别对应创建模型参数和定义前向计算。
+Block类是`nn`模块里提供的一个模型构造类，我们可以继承它来定义我们想要的模型。我们在这里构造一个同前面提到的相同的多层感知机。这里定义的MLP类重载了Block类的两个函数：`__init__`和`forward`，分别对应创建模型参数和定义前向计算。
 
 ```{.python .input  n=1}
 from mxnet import nd
@@ -34,15 +34,28 @@ net.initialize()
 net(x)
 ```
 
-其中，`net(x)`会调用了MLP继承至Block的`__call__`函数，这个函数将调用MLP定义的`forward`函数来完成前向计算。
+```{.json .output n=2}
+[
+ {
+  "data": {
+   "text/plain": "\n[[ 0.09543004  0.04614332 -0.00286654 -0.07790349 -0.05130243  0.02942037\n   0.08696642 -0.0190793  -0.04122177  0.05088576]\n [ 0.0769287   0.03099705  0.00856576 -0.04467199 -0.06926839  0.09132434\n   0.06786595 -0.06187842 -0.03436673  0.04234694]]\n<NDArray 2x10 @cpu(0)>"
+  },
+  "execution_count": 2,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
+其中，`net(x)`会调用了MLP继承自Block的`__call__`函数，这个函数将调用MLP定义的`forward`函数来完成前向计算。
 
 我们无需在这里定义反向传播函数，系统将通过自动求导，参考[“自动求梯度”](../chapter_prerequisite/autograd.md)一节，来自动生成`backward`函数。
 
-注意到我们不是将Block叫做层或者模型之类的名字，这是因为它是一个可以自由组建的部件。它的子类既可以一个层，例如Gluon提供的Dense类；也可以是一个模型，例如这里定义的MLP类；或者是模型的一个部分。我们下面通过两个例子来展示它的灵活性。
+注意到我们不是将Block叫做层或者模型之类的名字，这是因为它是一个可以自由组建的部件。它的子类既可以是一个层，例如Gluon提供的Dense类；也可以是一个模型，例如这里定义的MLP类；或者是模型的一个部分。我们下面通过两个例子来展示它的灵活性。
 
 ## Sequential类继承自Block类
 
-当模型的前向计算就是简单串行计算模型里面各个层的时候，我们可以将模型定义变得更加简单，这个就是Sequential类的目的，它通过`add`函数来添加Block子类实例，前向计算时就是将添加的实例逐一运行。下面我们实现一个跟Sequential类有相同功能的类，这样你可以看的更加清楚它的运行机制。
+当模型的前向计算就是简单串行计算模型里面各个层的时候，我们可以将模型定义变得更加简单，这个就是Sequential类的目的，它通过`add`函数来添加Block子类实例，前向计算时就是将添加的实例逐一运行。下面我们实现一个跟Sequential类有相同功能的类，这样可以帮助你更加清晰地理解它的运行机制。
 
 ```{.python .input  n=3}
 class MySequential(nn.Block):
@@ -72,11 +85,24 @@ net.initialize()
 net(x)
 ```
 
+```{.json .output n=4}
+[
+ {
+  "data": {
+   "text/plain": "\n[[ 0.00362228  0.00633332  0.03201144 -0.01369375  0.10336449 -0.03508018\n  -0.00032164 -0.01676023  0.06978628  0.01303309]\n [ 0.03871715  0.02608213  0.03544959 -0.02521311  0.11005433 -0.0143066\n  -0.03052466 -0.03852827  0.06321152  0.0038594 ]]\n<NDArray 2x10 @cpu(0)>"
+  },
+  "execution_count": 4,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
 可以观察到这里MySequential类的使用跟[“多层感知机的Gluon实现”](../chapter_deep-learning-basics/mlp-gluon.md)一节中Sequential类使用一致。
 
 ## 构造复杂的模型
 
-虽然Sequential类可以使得模型构造更加简单，不需要定义`forward`函数，但直接继承Block类可以极大的拓展灵活性。下面我们构造一个稍微复杂点的网络。在这个网络中，我们通过`get_constant`函数创建训练中不被迭代的参数，即常数参数。在前向计算中，除了使用创建的常数参数外，我们还使用NDArray的函数和Python的控制流，并多次调用同一层。
+虽然Sequential类可以使得模型构造更加简单，不需要定义`forward`函数，但直接继承Block类可以极大地拓展灵活性。下面我们构造一个稍微复杂点的网络。在这个网络中，我们通过`get_constant`函数创建训练中不被迭代的参数，即常数参数。在前向计算中，除了使用创建的常数参数外，我们还使用NDArray的函数和Python的控制流，并多次调用同一层。
 
 ```{.python .input  n=5}
 class FancyMLP(nn.Block):
@@ -109,6 +135,19 @@ net.initialize()
 net(x)
 ```
 
+```{.json .output n=6}
+[
+ {
+  "data": {
+   "text/plain": "\n[ 18.57195282]\n<NDArray 1 @cpu(0)>"
+  },
+  "execution_count": 6,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
 由于FancyMLP和Sequential都是Block的子类，我们可以嵌套调用他们。
 
 ```{.python .input  n=7}
@@ -128,6 +167,19 @@ net.add(NestMLP(), nn.Dense(20), FancyMLP())
 
 net.initialize()
 net(x)
+```
+
+```{.json .output n=7}
+[
+ {
+  "data": {
+   "text/plain": "\n[ 24.86621094]\n<NDArray 1 @cpu(0)>"
+  },
+  "execution_count": 7,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
 ## 小结
