@@ -72,7 +72,6 @@ net.initialize()
 net(x)
 ```
 
-
 可以观察到这里MySequential类的使用跟[“多层感知机的Gluon实现”](../chapter_deep-learning-basics/mlp-gluon.md)一节中Sequential类使用一致。
 
 ## 构造复杂的模型
