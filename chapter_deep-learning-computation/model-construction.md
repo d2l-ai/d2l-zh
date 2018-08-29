@@ -33,8 +33,8 @@ net = MLP()
 net.initialize()
 net(x)
 ```
-其中，`net(x)`会调用了MLP继承自Block的`__call__`函数，这个函数将调用MLP定义的`forward`函数来完成前向计算。
 
+其中，`net(x)`会调用了MLP继承自Block的`__call__`函数，这个函数将调用MLP定义的`forward`函数来完成前向计算。
 
 我们无需在这里定义反向传播函数，系统将通过自动求导，参考[“自动求梯度”](../chapter_prerequisite/autograd.md)一节，来自动生成`backward`函数。
 
@@ -72,18 +72,6 @@ net.initialize()
 net(x)
 ```
 
-```{.json .output n=4}
-[
- {
-  "data": {
-   "text/plain": "\n[[ 0.00362228  0.00633332  0.03201144 -0.01369375  0.10336449 -0.03508018\n  -0.00032164 -0.01676023  0.06978628  0.01303309]\n [ 0.03871715  0.02608213  0.03544959 -0.02521311  0.11005433 -0.0143066\n  -0.03052466 -0.03852827  0.06321152  0.0038594 ]]\n<NDArray 2x10 @cpu(0)>"
-  },
-  "execution_count": 4,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
 
 可以观察到这里MySequential类的使用跟[“多层感知机的Gluon实现”](../chapter_deep-learning-basics/mlp-gluon.md)一节中Sequential类使用一致。
 
@@ -122,19 +110,6 @@ net.initialize()
 net(x)
 ```
 
-```{.json .output n=6}
-[
- {
-  "data": {
-   "text/plain": "\n[ 18.57195282]\n<NDArray 1 @cpu(0)>"
-  },
-  "execution_count": 6,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 由于FancyMLP和Sequential都是Block的子类，我们可以嵌套调用他们。
 
 ```{.python .input  n=7}
@@ -154,19 +129,6 @@ net.add(NestMLP(), nn.Dense(20), FancyMLP())
 
 net.initialize()
 net(x)
-```
-
-```{.json .output n=7}
-[
- {
-  "data": {
-   "text/plain": "\n[ 24.86621094]\n<NDArray 1 @cpu(0)>"
-  },
-  "execution_count": 7,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 ## 小结
