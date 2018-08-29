@@ -14,6 +14,7 @@
 
    optimization-intro
    gd-sgd
+   minibatch-sgd
    momentum
    adagrad
    rmsprop
