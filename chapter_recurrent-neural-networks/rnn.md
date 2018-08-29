@@ -31,7 +31,7 @@ $$\boldsymbol{H}_t = \phi(\boldsymbol{X}_t \boldsymbol{W}_{xh} + \boldsymbol{H}_
 
 $$\boldsymbol{O}_t = \boldsymbol{H}_t \boldsymbol{W}_{hy} + \boldsymbol{b}_y.$$
 
-如果输入序列有$T$个时间步，我们会在计算开始前先将隐藏状态全部元素初始化为0，然后依次计算$\boldsymbol{H}_t$和$\boldsymbol{O}_t$，$t=1,\ldots,T$。因为神经网络下一时间步的隐藏状态的输出既取决于下一时间步的输入，又取决于当前时间步的隐藏状态我。我们将此类神经网络称作循环神经网络。
+如果输入序列有$T$个时间步，我们会在计算开始前先将隐藏状态全部元素初始化为0，然后依次计算$\boldsymbol{H}_t$和$\boldsymbol{O}_t$，$t=1,\ldots,T$。因为神经网络下一时间步的隐藏状态的输出既取决于下一时间步的输入，又取决于当前时间步的隐藏状态。我们将此类神经网络称作循环神经网络。
 
 循环神经网络的参数包括隐藏层的权重$\boldsymbol{W}_{xh} \in \mathbb{R}^{d \times h}, \boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$和偏差 $\boldsymbol{b}_h \in \mathbb{R}^{1 \times h}$，以及输出层的权重$\boldsymbol{W}_{hy} \in \mathbb{R}^{h \times q}$和偏差$\boldsymbol{b}_y \in \mathbb{R}^{1 \times q}$。值得一提的是，即便在不同时间步，循环神经网络始终使用这些模型参数。因此，循环神经网络模型参数的数量不随历史增长而增长。
 
