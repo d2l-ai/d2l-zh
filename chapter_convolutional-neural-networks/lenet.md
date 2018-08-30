@@ -13,7 +13,7 @@
 
 LeNet分为卷积层块和全连接层块两个部分。下面我们分别介绍这两个模块。
 
-卷积层块里的基本单位是卷积层后接最大池化层：卷积层用来识别图像里的空间模式，例如线条和物体局部，之后的最大池化层则用来降低卷积层对位置的敏感性。卷积层块由两个这样的基本单位重复堆叠构成。在卷积层块中，每个卷积层都使用$5\times 5$的窗口，并在输出上使用sigmoid激活函数。第一个卷积层输出通道数为6，第二个卷积层输出通道数则增加到16。这是因为第二个卷积层的输入高宽比第一个卷积层要小，所以增加输出通道使两个卷积层的参数尺寸类似。卷积层块的两个最大池化层的窗口形状均为$2\times 2$，且步幅为2。由于池化窗口与步幅形状相同，池化窗口在输入上每次滑动所覆盖的区域互不重叠。
+卷积层块里的基本单位是卷积层后接最大池化层：卷积层用来识别图像里的空间模式，例如线条和物体局部，之后的最大池化层则用来降低卷积层对位置的敏感性。卷积层块由两个这样的基本单位重复堆叠构成。在卷积层块中，每个卷积层都使用$5\times 5$的窗口，并在输出上使用sigmoid激活函数。第一个卷积层输出通道数为6，第二个卷积层输出通道数则增加到16。这是因为第二个卷积层的输入高宽比第一个卷积层要小，所以增加输出通道使两个卷积层的参数数量类似。卷积层块的两个最大池化层的窗口形状均为$2\times 2$，且步幅为2。由于池化窗口与步幅形状相同，池化窗口在输入上每次滑动所覆盖的区域互不重叠。
 
 卷积层块的输出形状为（批量大小，通道，高，宽）。当卷积层块的输出传入全连接层块时，全连接层块会将小批量中每个样本变平（flatten）。也就是说，全连接层的输入形状将变成二维，其中第一维为小批量中的样本，第二维为每个样本变平后的向量表示，且向量长度为通道、高和宽的乘积。全连接层块含三个全连接层。它们的输出个数分别是120、84和10（输出的类别数为10）。
 
@@ -24,23 +24,21 @@ import sys
 sys.path.insert(0, '..')
 
 import gluonbook as gb
+import time
 import mxnet as mx
 from mxnet import autograd, nd, gluon, init
 from mxnet.gluon import loss as gloss, nn
-from time import time
 
 net = nn.Sequential()
-net.add(
-    nn.Conv2D(channels=6, kernel_size=5, activation='sigmoid'),
-    nn.MaxPool2D(pool_size=2, strides=2),
-    nn.Conv2D(channels=16, kernel_size=5, activation='sigmoid'),
-    nn.MaxPool2D(pool_size=2, strides=2),
-    # Dense 会默认将（批量大小，通道，高，宽）形状的输入转换成
-    #（批量大小，通道 * 高 * 宽）形状的输入。
-    nn.Dense(120, activation='sigmoid'),
-    nn.Dense(84, activation='sigmoid'),
-    nn.Dense(10)
-)
+net.add(nn.Conv2D(channels=6, kernel_size=5, activation='sigmoid'),
+        nn.MaxPool2D(pool_size=2, strides=2),
+        nn.Conv2D(channels=16, kernel_size=5, activation='sigmoid'),
+        nn.MaxPool2D(pool_size=2, strides=2),
+        # Dense 会默认将（批量大小，通道，高，宽）形状的输入转换成
+        #（批量大小，通道 * 高 * 宽）形状的输入。
+        nn.Dense(120, activation='sigmoid'),
+        nn.Dense(84, activation='sigmoid'),
+        nn.Dense(10))
 ```
 
 接下来我们构造一个高和宽均为28的单通道数据样本，并逐层进行前向计算来查看每个层的输出大小。
@@ -68,8 +66,7 @@ train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=batch_size)
 因为卷积神经网络计算比多层感知机要复杂，建议使用GPU来加速计算。我们尝试在GPU 0上创建NDArray，如果成功则使用GPU 0，否则仍然使用CPU。
 
 ```{.python .input}
-# 本函数已保存在 gluonbook 包中方便以后使用。
-def try_gpu():
+def try_gpu():  # try_gluon 以保存在 gluonbook 包中方便以后使用。
     try:
         ctx = mx.gpu()
         _ = nd.zeros((1,), ctx=ctx)
@@ -84,14 +81,13 @@ ctx
 相应地，我们对[“Softmax回归的从零开始实现”](../chapter_deep-learning-basics/softmax-regression-scratch.md)一节中描述的`evaluate_accuracy`函数略作修改。由于数据刚开始存在CPU的内存上，当`ctx`变量为GPU时，我们通过[“GPU计算”](../chapter_deep-learning-computation/use-gpu.md)一节中介绍的`as_in_context`函数将数据复制到GPU上（例如GPU 0）。
 
 ```{.python .input}
-# 本函数已保存在 gluonbook 包中方便以后使用。该函数将被逐步改进：它的完整实现将在“图像增
+# 本函数以保存在 gluonbook 包中方便以后使用。该函数将被逐步改进：它的完整实现将在“图像增
 # 广”一节中描述。
 def evaluate_accuracy(data_iter, net, ctx):
     acc = nd.array([0], ctx=ctx)
     for X, y in data_iter:
         # 如果 ctx 是 GPU，将数据复制到 GPU 上。
-        X = X.as_in_context(ctx)
-        y = y.as_in_context(ctx)
+        X, y = X.as_in_context(ctx), y.as_in_context(ctx)
         acc += gb.accuracy(net(X), y)
     return acc.asscalar() / len(data_iter)
 ```
@@ -100,17 +96,14 @@ def evaluate_accuracy(data_iter, net, ctx):
 
 ```{.python .input}
 # 本函数已保存在 gluonbook 包中方便以后使用。
-def train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
-              num_epochs):
+def train_ch5(net, train_iter, test_iter, loss,
+              batch_size, trainer, ctx, num_epochs):
     print('training on', ctx)
-    for epoch in range(1, num_epochs + 1):
-        train_l_sum = 0
-        train_acc_sum = 0
-        start = time()
+    loss = gloss.SoftmaxCrossEntropyLoss()
+    for epoch in range(num_epochs):
+        train_l_sum, train_acc_sum, start = 0, 0, time.time()
         for X, y in train_iter:
-            # 如果 ctx 是 GPU，将数据复制到 GPU 上。
-            X = X.as_in_context(ctx)
-            y = y.as_in_context(ctx)
+            X, y  = X.as_in_context(ctx), y.as_in_context(ctx)
             with autograd.record():
                 y_hat = net(X)
                 l = loss(y_hat, y)
@@ -120,21 +113,18 @@ def train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
             train_acc_sum += gb.accuracy(y_hat, y)
         test_acc = evaluate_accuracy(test_iter, net, ctx)
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
-              'time %.1f sec'
-              % (epoch, train_l_sum / len(train_iter),
-                 train_acc_sum / len(train_iter), test_acc, time() - start))
+              'time %.1f sec' % (epoch + 1, train_l_sum / len(train_iter),
+                                 train_acc_sum / len(train_iter),
+                                 test_acc, time.time() - start))
 ```
 
 我们重新将模型参数初始化到`ctx`之上，并使用Xavier随机初始化。损失函数和训练算法则依然使用交叉熵损失函数和小批量随机梯度下降。
 
 ```{.python .input}
-lr = 0.8
-num_epochs = 5
+lr, num_epochs = 0.8, 5
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-loss = gloss.SoftmaxCrossEntropyLoss()
-train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
-          num_epochs)
+train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
 ```
 
 ## 小结

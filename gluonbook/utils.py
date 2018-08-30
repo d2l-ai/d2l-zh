@@ -667,10 +667,10 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
                  train_acc_sum / len(train_iter), test_acc))
 
 
-def train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
-              num_epochs):
+def train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs):
     """Train and evaluate a model on CPU or GPU."""
     print('training on', ctx)
+    loss = gloss.SoftmaxCrossEntropyLoss()
     for epoch in range(1, num_epochs + 1):
         train_l_sum = 0
         train_acc_sum = 0

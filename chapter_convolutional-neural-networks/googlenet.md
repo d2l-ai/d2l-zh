@@ -19,7 +19,7 @@ sys.path.insert(0, '..')
 
 import gluonbook as gb
 from mxnet import nd, init, gluon
-from mxnet.gluon import loss as gloss, nn
+from mxnet.gluon import nn
 
 class Inception(nn.Block):
     # c1 - c4 为每条线路里的层的输出通道数。
@@ -43,9 +43,8 @@ class Inception(nn.Block):
         p1 = self.p1_1(x)
         p2 = self.p2_2(self.p2_1(x))
         p3 = self.p3_2(self.p3_1(x))
-        p4 = self.p4_2(self.p4_1(x))
-        # 在通道维上合并输出。
-        return nd.concat(p1, p2, p3, p4, dim=1)
+        p4 = self.p4_2(self.p4_1(x))        
+        return nd.concat(p1, p2, p3, p4, dim=1)  # 在通道维上合并输出。
 ```
 
 ## GoogLeNet模型
@@ -54,57 +53,47 @@ GoogLeNet跟VGG一样，在主体卷积部分中使用五个模块，每个模�
 
 ```{.python .input  n=2}
 b1 = nn.Sequential()
-b1.add(
-    nn.Conv2D(64, kernel_size=7, strides=2, padding=3, activation='relu'),
-    nn.MaxPool2D(pool_size=3, strides=2, padding=1)
-)
+b1.add(nn.Conv2D(64, kernel_size=7, strides=2, padding=3, activation='relu'),
+       nn.MaxPool2D(pool_size=3, strides=2, padding=1))
 ```
 
 第二模块使用两个卷积层，首先是64通道的$1\times 1$卷积层，然后是将通道增大3倍的$3\times 3$卷积层。它对应Inception块中的第二线路。
 
 ```{.python .input  n=3}
 b2 = nn.Sequential()
-b2.add(
-    nn.Conv2D(64, kernel_size=1),
-    nn.Conv2D(192, kernel_size=3, padding=1),
-    nn.MaxPool2D(pool_size=3, strides=2, padding=1)
-)
+b2.add(nn.Conv2D(64, kernel_size=1),
+       nn.Conv2D(192, kernel_size=3, padding=1),
+       nn.MaxPool2D(pool_size=3, strides=2, padding=1))
 ```
 
 第三模块串联两个完整的Inception块。第一个Inception块的输出通道数为256,其中四个线路的输出通道比例为2：4：1：1。且第二、三线路先分别将输入通道减小2倍和12倍后再进入第二层卷积层。第二个Inception块输出通道数增至480，每个线路的通道比例为4：6：3：2。且第二、三线路先分别减少2倍和8倍通道数。
 
 ```{.python .input  n=4}
 b3 = nn.Sequential()
-b3.add(
-    Inception(64, (96, 128), (16, 32), 32),
-    Inception(128, (128, 192), (32, 96), 64),
-    nn.MaxPool2D(pool_size=3, strides=2, padding=1)
-)
+b3.add(Inception(64, (96, 128), (16, 32), 32),
+       Inception(128, (128, 192), (32, 96), 64),
+       nn.MaxPool2D(pool_size=3, strides=2, padding=1))
 ```
 
 第四模块更加复杂，它串联了五个Inception块，其输出通道分别是512、512、512、528和832。其线路的通道分配类似之前，$3\times 3$卷积层线路输出最多通道，其次是$1\times 1$卷积层线路，之后是$5\times 5$卷积层和$3\times 3$最大池化层线路。其中前两个线路都会先按比例减小通道数。这些比例在各个Inception块中都略有不同。
 
 ```{.python .input  n=5}
 b4 = nn.Sequential()
-b4.add(
-    Inception(192, (96, 208), (16, 48), 64),
-    Inception(160, (112, 224), (24, 64), 64),
-    Inception(128, (128, 256), (24, 64), 64),
-    Inception(112, (144, 288), (32, 64), 64),
-    Inception(256, (160, 320), (32, 128), 128),
-    nn.MaxPool2D(pool_size=3, strides=2, padding=1)
-)
+b4.add(Inception(192, (96, 208), (16, 48), 64),
+       Inception(160, (112, 224), (24, 64), 64),
+       Inception(128, (128, 256), (24, 64), 64),
+       Inception(112, (144, 288), (32, 64), 64),
+       Inception(256, (160, 320), (32, 128), 128),
+       nn.MaxPool2D(pool_size=3, strides=2, padding=1))
 ```
 
 第五模块有输出通道数为832和1024的两个Inception块，每个线路的通道分配使用同前的原则，但具体数字又是不同。因为这个模块后面紧跟输出层，所以它同NiN一样使用全局平均池化层来将每个通道高宽变成1。最后我们将输出变成二维数组后加上一个输出大小为标签类数的全连接层作为输出。
 
 ```{.python .input  n=6}
 b5 = nn.Sequential()
-b5.add(
-    Inception(256, (160, 320), (32, 128), 128),
-    Inception(384, (192, 384), (48, 128), 128),
-    nn.GlobalAvgPool2D()
-)
+b5.add(Inception(256, (160, 320), (32, 128), 128),
+       Inception(384, (192, 384), (48, 128), 128),
+       nn.GlobalAvgPool2D())
 
 net = nn.Sequential()
 net.add(b1, b2, b3, b4, b5, nn.Dense(10))
@@ -125,17 +114,11 @@ for layer in net:
 我们使用高宽为96的数据来训练。
 
 ```{.python .input  n=8}
-lr = 0.1
-num_epochs = 5
-batch_size = 128
-ctx = gb.try_gpu()
+lr, num_epochs, batch_size, ctx = 0.1, 5, 128, gb.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=batch_size,
-                                                   resize=96)
-loss = gloss.SoftmaxCrossEntropyLoss()
-gb.train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
-             num_epochs)
+train_iter, test_iter = gb.load_data_fashion_mnist(batch_size, resize=96)
+gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
 ```
 
 ## 小结
