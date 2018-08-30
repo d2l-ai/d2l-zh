@@ -24,10 +24,10 @@ import sys
 sys.path.insert(0, '..')
 
 import gluonbook as gb
-import time
 import mxnet as mx
 from mxnet import autograd, nd, gluon, init
 from mxnet.gluon import loss as gloss, nn
+import time
 
 net = nn.Sequential()
 net.add(nn.Conv2D(channels=6, kernel_size=5, activation='sigmoid'),
@@ -66,7 +66,7 @@ train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=batch_size)
 因为卷积神经网络计算比多层感知机要复杂，建议使用GPU来加速计算。我们尝试在GPU 0上创建NDArray，如果成功则使用GPU 0，否则仍然使用CPU。
 
 ```{.python .input}
-def try_gpu():  # try_gluon 以保存在 gluonbook 包中方便以后使用。
+def try_gpu():  # try_gluon 已保存在 gluonbook 包中方便以后使用。
     try:
         ctx = mx.gpu()
         _ = nd.zeros((1,), ctx=ctx)
@@ -96,8 +96,7 @@ def evaluate_accuracy(data_iter, net, ctx):
 
 ```{.python .input}
 # 本函数已保存在 gluonbook 包中方便以后使用。
-def train_ch5(net, train_iter, test_iter, 
-              batch_size, trainer, ctx, num_epochs):
+def train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs):
     print('training on', ctx)
     loss = gloss.SoftmaxCrossEntropyLoss()
     for epoch in range(num_epochs):
