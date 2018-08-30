@@ -34,7 +34,7 @@ net.initialize()
 net(x)
 ```
 
-其中，`net(x)`会调用了MLP继承自Block的`__call__`函数，这个函数将调用MLP定义的`forward`函数来完成前向计算。
+其中，`net(x)`会调用MLP继承自Block的`__call__`函数，这个函数将调用MLP定义的`forward`函数来完成前向计算。
 
 我们无需在这里定义反向传播函数，系统将通过自动求导，参考[“自动求梯度”](../chapter_prerequisite/autograd.md)一节，来自动生成`backward`函数。
 
