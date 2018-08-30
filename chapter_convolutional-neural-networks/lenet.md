@@ -96,7 +96,7 @@ def evaluate_accuracy(data_iter, net, ctx):
 
 ```{.python .input}
 # 本函数已保存在 gluonbook 包中方便以后使用。
-def train_ch5(net, train_iter, test_iter, loss,
+def train_ch5(net, train_iter, test_iter, 
               batch_size, trainer, ctx, num_epochs):
     print('training on', ctx)
     loss = gloss.SoftmaxCrossEntropyLoss()
