@@ -66,7 +66,7 @@ train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=batch_size)
 因为卷积神经网络计算比多层感知机要复杂，建议使用GPU来加速计算。我们尝试在GPU 0上创建NDArray，如果成功则使用GPU 0，否则仍然使用CPU。
 
 ```{.python .input}
-def try_gpu():  # try_gluon 以保存在 gluonbook 包中方便以后使用。
+def try_gpu():  # try_gluon 已保存在 gluonbook 包中方便以后使用。
     try:
         ctx = mx.gpu()
         _ = nd.zeros((1,), ctx=ctx)
