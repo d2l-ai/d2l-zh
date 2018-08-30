@@ -24,10 +24,10 @@ import sys
 sys.path.insert(0, '..')
 
 import gluonbook as gb
-import time
 import mxnet as mx
 from mxnet import autograd, nd, gluon, init
 from mxnet.gluon import loss as gloss, nn
+import time
 
 net = nn.Sequential()
 net.add(nn.Conv2D(channels=6, kernel_size=5, activation='sigmoid'),
@@ -96,8 +96,7 @@ def evaluate_accuracy(data_iter, net, ctx):
 
 ```{.python .input}
 # 本函数已保存在 gluonbook 包中方便以后使用。
-def train_ch5(net, train_iter, test_iter, 
-              batch_size, trainer, ctx, num_epochs):
+def train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs):
     print('training on', ctx)
     loss = gloss.SoftmaxCrossEntropyLoss()
     for epoch in range(num_epochs):
