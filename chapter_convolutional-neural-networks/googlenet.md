@@ -5,11 +5,11 @@
 
 ## Inception 块
 
-GoogLeNet中的基础卷积块叫做Inception，得名于同名电影《盗梦空间》（Inception）。比较上一节介绍的NiN，这个基础块在结构上更加复杂。
+GoogLeNet中的基础卷积块叫做Inception，得名于同名电影《盗梦空间》（Inception）。与上一节介绍的NiN块相比，这个基础块在结构上更加复杂。
 
 ![Inception块的结构。](../img/inception.svg)
 
-由图5.8可以看出，Inception里有四个并行的线路。前三个线路里使用窗口大小分别是$1\times 1$、$3\times 3$和$5\times 5$的卷积层来抽取不同空间尺寸下的信息。其中中间两个线路会对输入先作用$1\times 1$卷积来减小输入通道数，以此降低模型复杂度。第四条线路则是使用$3\times 3$最大池化层，后接$1\times 1$卷积层来变换通道。四条线路都使用了合适的填充来使得输入输出高宽一致。最后我们将每条线路的输出在通道维上合并，输入到接下来的层中去。
+由图5.8可以看出，Inception块里有四条并行的线路。前三条线路使用窗口大小分别是$1\times 1$、$3\times 3$和$5\times 5$的卷积层来抽取不同空间尺寸下的信息。其中中间两个线路会对输入先做$1\times 1$卷积来减少输入通道数，以降低模型复杂度。第四条线路则使用$3\times 3$最大池化层，后接$1\times 1$卷积层来改变通道数。四条线路都使用了合适的填充来使得输入输出高宽一致。最后我们将每条线路的输出在通道维上连结，并输入到接下来的层中去。
 
 Inception块中可以自定义的超参数是每个层的输出通道数，我们以此来控制模型复杂度。
 
@@ -44,7 +44,7 @@ class Inception(nn.Block):
         p2 = self.p2_2(self.p2_1(x))
         p3 = self.p3_2(self.p3_1(x))
         p4 = self.p4_2(self.p4_1(x))        
-        return nd.concat(p1, p2, p3, p4, dim=1)  # 在通道维上合并输出。
+        return nd.concat(p1, p2, p3, p4, dim=1)  # 在通道维上连结输出。
 ```
 
 ## GoogLeNet模型
@@ -129,7 +129,7 @@ gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
 
 * GoogLeNet有数个后续版本，尝试实现他们并运行看看有什么不一样。这些后续版本包括加入批量归一化层（后一小节将介绍）[2]、对Inception块做调整 [3] 和加入残差连接（后面小节将介绍）[4]。
 
-* 对比AlexNet、VGG和NiN、GoogLeNet的模型参数大小。分析为什么后两个网络可以显著减小模型大小。
+* 对比AlexNet、VGG和NiN、GoogLeNet的模型参数尺寸。分析为什么后两个网络可以显著减小模型大小。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1662)
 
