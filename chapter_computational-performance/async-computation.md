@@ -28,11 +28,13 @@ c
 首先实现一个简单计时类：
 
 ```{.python .input}
-class Benchmark():  # Benchmark 类已保存在 gluonbook 里方便以后使用。
+class Benchmark():  # 本类已保存在 gluonbook 包中方便以后使用。
     def __init__(self, prefix=None):
         self.prefix = prefix + ' ' if prefix else ''
+
     def __enter__(self):
         self.start = time.time()
+
     def __exit__(self, *args):
         print('%stime: %.4f sec' % (self.prefix, time.time() - self.start))
 ```

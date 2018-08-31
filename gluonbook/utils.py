@@ -34,20 +34,23 @@ def accuracy(y_hat, y):
     return (y_hat.argmax(axis=1) == y.astype('float32')).mean().asscalar()
 
 
-class Benchmark():
-    """benchmark a piece of codes"""
-    def __init__(self, prefix=None):
-        self.prefix = prefix + ' ' if prefix else ''
-    def __enter__(self):
-        self.start = time.time()
-    def __exit__(self, *args):
-        print('%stime: %.4f sec' % (self.prefix, time.time() - self.start))
-
 def bbox_to_rect(bbox, color):
     """Convert bounding box to matplotlib format."""
     return plt.Rectangle(xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0],
                          height=bbox[3]-bbox[1], fill=False, edgecolor=color,
                          linewidth=2)
+
+
+class Benchmark():
+    """benchmark a piece of codes"""
+    def __init__(self, prefix=None):
+        self.prefix = prefix + ' ' if prefix else ''
+
+    def __enter__(self):
+        self.start = time.time()
+
+    def __exit__(self, *args):
+        print('%stime: %.4f sec' % (self.prefix, time.time() - self.start))
 
 
 def corr2d(X, K):
@@ -701,9 +704,9 @@ def train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs):
                  train_acc_sum / len(train_iter), test_acc, time.time() - start))
 
 
-def train_ch7(trainer_fn, states, hyperparams,
-              features, labels, batch_size=10, num_epochs=2):
-    """Train a linear regression model with a given trainer"""
+def train_ch7(trainer_fn, states, hyperparams, features, labels,
+              batch_size=10, num_epochs=2):
+    """Train a linear regression model."""
     net, loss = linreg, squared_loss
     w, b = nd.random.normal(scale=0.01, shape=(features.shape[1], 1)), nd.zeros(1)
     w.attach_grad()
@@ -719,7 +722,7 @@ def train_ch7(trainer_fn, states, hyperparams,
                 l = loss(net(X, w, b), y).mean()
             l.backward()
             trainer_fn([w, b], states, hyperparams)
-            if (batch_i+1) * batch_size % 100 == 0:
+            if (batch_i + 1) * batch_size % 100 == 0:
                 ls.append(eval_loss())
     print('loss: %f, %f sec per epoch' % (ls[-1], time.time() - start))
     set_figsize()
@@ -727,9 +730,10 @@ def train_ch7(trainer_fn, states, hyperparams,
     plt.xlabel('epoch')
     plt.ylabel('loss')
 
+
 def train_gluon_ch7(trainer_name, trainer_hyperparams, features, labels,
                     batch_size=10, num_epochs=2):
-    """Train a linear regression model with a given Gluon trainer"""
+    """Train a linear regression model with a given Gluon trainer."""
     net = nn.Sequential()
     net.add(nn.Dense(1))
     net.initialize(init.Normal(sigma=0.01))
@@ -747,13 +751,14 @@ def train_gluon_ch7(trainer_name, trainer_hyperparams, features, labels,
                 l = loss(net(X), y)
             l.backward()
             trainer.step(batch_size)
-            if (batch_i+1) * batch_size % 100 == 0:
+            if (batch_i + 1) * batch_size % 100 == 0:
                 ls.append(eval_loss())
     print('loss: %f, %f sec per epoch' % (ls[-1], time.time() - start))
     set_figsize()
     plt.plot(np.linspace(0, num_epochs, len(ls)), ls)
     plt.xlabel('epoch')
     plt.ylabel('loss')
+
 
 def try_all_gpus():
     """Return all available GPUs, or [mx.cpu()] if there is no GPU."""

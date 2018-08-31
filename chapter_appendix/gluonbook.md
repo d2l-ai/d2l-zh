@@ -47,7 +47,7 @@
 | `train_ch3`|[Softmax回归的从零开始实现](../chapter_deep-learning-basics/softmax-regression-scratch.md)|
 | `train_ch5`|[卷积神经网络（LeNet）](../chapter_convolutional-neural-networks/lenet.md)|
 | `train_ch7`|[小批量随机梯度下降](../chapter_optimization/minibatch-sgd.md)|
-| `train_ch7_gluon`|[小批量随机梯度下降](../chapter_optimization/minibatch-sgd.md)|
+| `train_gluon_ch7`|[小批量随机梯度下降](../chapter_optimization/minibatch-sgd.md)|
 | `try_all_gpus`|[图像增广](../chapter_computer-vision/image-augmentation.md)|
 | `try_gpu`|[卷积神经网络（LeNet）](../chapter_convolutional-neural-networks/lenet.md)|
 | `use_svg_display`|[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)|
