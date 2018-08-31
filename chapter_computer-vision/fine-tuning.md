@@ -51,7 +51,7 @@ with zipfile.ZipFile(fname, 'r') as z:
     z.extractall(data_dir)
 ```
 
-我们使用使用`ImageFolderDataset`类来读取数据。它将每个文件夹当做一个类，并读取下面所有的图像。
+我们使用`ImageFolderDataset`类来读取数据。它将每个文件夹当做一个类，并读取下面所有的图像。
 
 ```{.python .input  n=6}
 train_imgs = gdata.vision.ImageFolderDataset(
