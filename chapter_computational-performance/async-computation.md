@@ -28,23 +28,23 @@ c
 首先实现一个简单计时类：
 
 ```{.python .input}
-class Benchmark():
-    def __init__(self, prefix=''):
-        self.prefix = prefix
+class Benchmark():  # Benchmark 类已保存在 gluonbook 里方便以后使用。
+    def __init__(self, prefix=None):
+        self.prefix = prefix + ' ' if prefix else ''
     def __enter__(self):
         self.start = time.time()
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, *args):
         print('%stime: %.4f sec' % (self.prefix, time.time() - self.start))
 ```
 
 下面的例子通过计时来展示异步计算的效果。可以看到，当`y = nd.dot(x, x).sum()`返回的时候并没有等待它真正被计算完。
 
 ```{.python .input  n=4}
-with Benchmark('workloads are queued. '):
+with Benchmark('workloads are queued.'):
     x = nd.random.uniform(shape=(2000, 2000))
     y = nd.dot(x, x).sum()
     
-with Benchmark('workloads are finished '):
+with Benchmark('workloads are finished.'):
     print('sum =', y)
 ```
 

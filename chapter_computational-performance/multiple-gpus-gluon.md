@@ -1,8 +1,6 @@
 # 多GPU计算的Gluon实现
 
-在Gluon中，我们可以很方便地使用数据并行进行多GPU计算。比方说，我们并不需要自己实现[“多GPU计算”](multiple-gpus.md)一节里介绍的多GPU之间同步数据的辅助函数。
-
-先导入本节实验需要的包或模块。同上一节，运行本节中的程序需要至少两块GPU。
+在Gluon中，我们可以很方便地使用数据并行进行多GPU计算。比方说，我们并不需要自己实现[“多GPU计算”](multiple-gpus.md)一节里介绍的多GPU之间同步数据的辅助函数。先导入本节实验需要的包或模块。同上一节，运行本节中的程序需要至少两块GPU。
 
 ```{.python .input  n=1}
 import sys
@@ -12,7 +10,7 @@ import gluonbook as gb
 import mxnet as mx
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import loss as gloss, nn, utils as gutils
-from time import time
+import time
 ```
 
 ## 多GPU上初始化模型参数
@@ -22,21 +20,19 @@ from time import time
 ```{.python .input  n=2}
 # 本函数已保存在 gluonbook 包中方便以后使用。
 def resnet18(num_classes):
-    net = nn.Sequential()
-    # 这里使用了较小的卷积核、步幅和填充，并去掉了最大池化层。
-    net.add(nn.Conv2D(64, kernel_size=3, strides=1, padding=1),
-            nn.BatchNorm(), nn.Activation('relu'))                 
-
     def resnet_block(num_channels, num_residuals, first_block=False):
         blk = nn.Sequential()
         for i in range(num_residuals):
             if i == 0 and not first_block:
-                blk.add(gb.Residual(num_channels, use_1x1conv=True,
-                                    strides=2))
+                blk.add(gb.Residual(
+                    num_channels, use_1x1conv=True, strides=2))
             else:
                 blk.add(gb.Residual(num_channels))
-        return blk 
-
+        return blk
+    net = nn.Sequential()
+    # 这里使用了较小的卷积核、步幅和填充，并去掉了最大池化层。
+    net.add(nn.Conv2D(64, kernel_size=3, strides=1, padding=1),
+            nn.BatchNorm(), nn.Activation('relu'))
     net.add(resnet_block(64, 2, first_block=True),
             resnet_block(128, 2), 
             resnet_block(256, 2), 
@@ -75,12 +71,6 @@ weight.data(ctx[0])[0], weight.data(ctx[1])[0]
 
 ## 多GPU训练模型
 
-我们先定义交叉熵损失函数。
-
-```{.python .input  n=6}
-loss = gloss.SoftmaxCrossEntropyLoss()
-```
-
 当我们使用多个GPU来训练模型时，`gluon.Trainer`会自动做数据并行，例如划分小批量数据样本并复制到各个GPU上，对各个GPU上的梯度求和再广播到所有GPU上。这样，我们就可以很方便地实现训练函数了。
 
 ```{.python .input  n=7}
@@ -91,8 +81,9 @@ def train(num_gpus, batch_size, lr):
     net.initialize(init=init.Normal(sigma=0.01), ctx=ctx, force_reinit=True)
     trainer = gluon.Trainer(
         net.collect_params(), 'sgd', {'learning_rate': lr})
-    for epoch in range(1, 6):
-        start = time()
+    loss = gloss.SoftmaxCrossEntropyLoss()
+    for epoch in range(4):
+        start = time.time()
         for X, y in train_iter:
             gpu_Xs = gutils.split_and_load(X, ctx)
             gpu_ys = gutils.split_and_load(y, ctx)
@@ -103,15 +94,22 @@ def train(num_gpus, batch_size, lr):
                 l.backward()
             trainer.step(batch_size)
         nd.waitall()
-        print('epoch %d, training time: %.1f sec' % (epoch, time() - start))
+        train_time = time.time() - start        
         test_acc = gb.evaluate_accuracy(test_iter, net, ctx[0])
-        print('validation accuracy: %.4f' % (test_acc))
+        print('epoch %d, training time: %.1f sec, test_acc %.2f' % (
+            epoch, train_time, test_acc))
 ```
 
-我们在2个GPU上训练模型。
+首先在单GPU上训练。
+
+```{.python .input}
+train(num_gpus=1, batch_size=256, lr=0.1)
+```
+
+然后尝试2个GPU。比上一节使用的LeNet，ResNet-18计算更加复杂，其并行效果更佳。
 
 ```{.python .input  n=10}
-train(num_gpus=2, batch_size=512, lr=0.3)
+train(num_gpus=2, batch_size=512, lr=0.2)
 ```
 
 ## 小结

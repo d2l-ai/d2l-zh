@@ -34,6 +34,15 @@ def accuracy(y_hat, y):
     return (y_hat.argmax(axis=1) == y.astype('float32')).mean().asscalar()
 
 
+class Benchmark():
+    """benchmark a piece of codes"""
+    def __init__(self, prefix=None):
+        self.prefix = prefix + ' ' if prefix else ''
+    def __enter__(self):
+        self.start = time.time()
+    def __exit__(self, *args):
+        print('%stime: %.4f sec' % (self.prefix, time.time() - self.start))
+
 def bbox_to_rect(bbox, color):
     """Convert bounding box to matplotlib format."""
     return plt.Rectangle(xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0],
