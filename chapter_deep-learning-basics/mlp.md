@@ -19,7 +19,7 @@ $$
 \begin{aligned}
 \boldsymbol{H} &= \boldsymbol{X} \boldsymbol{W}_h + \boldsymbol{b}_h,\\
 \boldsymbol{O} &= \boldsymbol{H} \boldsymbol{W}_o + \boldsymbol{b}_o,
-\end{aligned}      ************
+\end{aligned}
 $$
 
 也就是我们将这两个全连接层放置在一起，隐藏全连接层的输入直接进入输出全连接层。但如果我们将两个式子联立起来，就会发现
