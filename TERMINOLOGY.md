@@ -76,6 +76,8 @@
 
 过拟合，underfitting
 
+恒等映射，identity mapping
+
 假设，hypothesis
 
 基准，baseline
