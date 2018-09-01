@@ -5,7 +5,7 @@
 
 ## 残差块
 
-让我们聚焦于神经网络局部。如图5.9所示，设输入为$\boldsymbol{x}$。假设图5.9中最上方ReLU的理想映射为$f(\boldsymbol{x})$。左图虚线框中部分需要直接拟合出该映射$f(\boldsymbol{x})$。而右图虚线框中部分需要拟合出残差（residual）映射$f(\boldsymbol{x})-\boldsymbol{x}$。残差映射在实际中往往更容易优化。以本节开头提到的恒等映射作为我们希望学出的理想映射$f(\boldsymbol{x})$，并以ReLU作为激活函数。我们只需将图5.9中右图最上方加权运算（例如仿射）的权重和偏差参数学成零，最上方ReLU的输出就会与输入$\boldsymbol{x}$恒等。图5.9右图也是ResNet的基础块，即残差块（residual block）。在残差块中，输入可通过跨层的数据线路更快地向前传播。
+让我们聚焦于神经网络局部。如图5.9所示，设输入为$\boldsymbol{x}$。假设图5.9中最上方ReLU的理想映射（我们希望学出的）为$f(\boldsymbol{x})$。左图虚线框中部分需要直接拟合出该映射$f(\boldsymbol{x})$。而右图虚线框中部分需要拟合出残差（residual）映射$f(\boldsymbol{x})-\boldsymbol{x}$。残差映射在实际中往往更容易优化。以本节开头提到的恒等映射作为我们希望学出的理想映射$f(\boldsymbol{x})$，并以ReLU作为激活函数。我们只需将图5.9中右图最上方加权运算（例如仿射）的权重和偏差参数学成零，最上方ReLU的输出就会与输入$\boldsymbol{x}$恒等。图5.9右图也是ResNet的基础块，即残差块（residual block）。在残差块中，输入可通过跨层的数据线路更快地向前传播。
 
 ![设输入为$\boldsymbol{x}$。假设图中最上方ReLU的理想映射为$f(\boldsymbol{x})$。左图虚线框中部分需要直接拟合出该映射$f(\boldsymbol{x})$。而右图虚线框中部分需要拟合出残差映射$f(\boldsymbol{x})-\boldsymbol{x}$。](../img/residual-block.svg)
 
