@@ -52,7 +52,7 @@ true_b = 0.05
 
 features = nd.random.normal(shape=(n_train + n_test, num_inputs))
 labels = nd.dot(features, true_w) + true_b
-labels += nd.random.normal(scale=0.01, shape=labels.shape)
+labels += nd.random.normal(scale=0.1, shape=labels.shape)
 train_features, test_features = features[:n_train, :], features[n_train:, :]
 train_labels, test_labels = labels[:n_train], labels[n_train:]
 ```
