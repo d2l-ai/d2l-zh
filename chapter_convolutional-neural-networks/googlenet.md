@@ -99,7 +99,7 @@ net = nn.Sequential()
 net.add(b1, b2, b3, b4, b5, nn.Dense(10))
 ```
 
-GoogLeNet模型的计算复杂，而且不如VGG那样便于修改通道数。本节里我们将输入高宽从224降到96来加速计算。下面演示各个块之间的输出的形状变化。
+GoogLeNet模型的计算复杂，而且不如VGG那样便于修改通道数。本节里我们将输入高宽从224降到96来简化计算。下面演示各个块之间的输出的形状变化。
 
 ```{.python .input  n=7}
 X = nd.random.uniform(shape=(1, 1, 96, 96))
