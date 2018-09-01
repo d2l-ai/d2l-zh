@@ -21,7 +21,7 @@ net.add(nn.Dense(256, activation='relu'),
         nn.Dense(10))
 net.initialize(init.Normal(sigma=0.01))
 ```
-******
+
 ## 读取数据并训练模型
 
 我们使用和训练Softmax回归几乎相同的步骤来读取数据并训练模型。
