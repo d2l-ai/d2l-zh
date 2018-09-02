@@ -1,41 +1,31 @@
 # Adam
 
-Adam是一个组合了动量法和RMSProp的优化算法 [1]。下面我们来介绍Adam算法。
-
-
-## Adam算法
-
-Adam算法使用了动量变量$\boldsymbol{v}$和RMSProp中小批量随机梯度按元素平方的指数加权移动平均变量$\boldsymbol{s}$，并将它们中每个元素初始化为0。在每次迭代中，时刻$t$的小批量随机梯度记作$\boldsymbol{g}_t$。
-
-
-和动量法类似，给定超参数$\beta_1$且满足$0 \leq \beta_1 < 1$（算法作者建议设为0.9），将小批量随机梯度的指数加权移动平均记作动量变量$\boldsymbol{v}$，并将它在时刻$t$的值记作$\boldsymbol{v}_t$：
+Adam是另一个对RMSProp的改进算法 [1]。但一个不同点在于Adam对梯度做了指数加权移动平均。首先将动量变量$\boldsymbol{v}\in\mathbb{R}^d$的元素在时间步0时初始化成0。
+给定超参数$\beta_1$且满足$0 \leq \beta_1 < 1$（算法作者建议设为0.9），在时间步$t$计算
 
 $$\boldsymbol{v}_t \leftarrow \beta_1 \boldsymbol{v}_{t-1} + (1 - \beta_1) \boldsymbol{g}_t. $$
 
-和RMSProp中一样，给定超参数$\beta_2$且满足$0 \leq \beta_2 < 1$（算法作者建议设为0.999），
-将小批量随机梯度按元素平方后做指数加权移动平均得到$\boldsymbol{s}$，并将它在时刻$t$的值记作$\boldsymbol{s}_t$：
+将其展开我们得到$\boldsymbol{v}_t =  (1-\beta_1) \sum_{i=1}^t \beta_1^{t-i} \boldsymbol{g}_i$。考虑一个简单情况：假设$\boldsymbol{g}_i=\boldsymbol{g}$对所有$i$成立，那么$\boldsymbol{v}_t = \left((1-\beta_1)\sum_{i=1}^t \beta_1^{t-i}\right)\boldsymbol{g} = \left(1 - \beta_1^t\right)\boldsymbol{g}$。
+
+当$t$较小时，$1 - \beta_1^t$会较小。例如当$\beta_1 = 0.9$时且$t=1$是，$\boldsymbol{v}_1 = 0.1\boldsymbol{g}$，当$t=10$时，$\boldsymbol{v}_{10} = 0.65\boldsymbol{g}$。为了消除这样的影响，我们可以将$\boldsymbol{v}_t$再除以$1 - \beta_1^t$，从而使得过去各时刻小批量随机梯度权值之和为1。这也叫做偏差修正。也就是：
+
+$$\boldsymbol{v}'_t \leftarrow \frac{\boldsymbol{v}_t}{1 - \beta_1^t}.$$
+
+接下来和RMSProp中一样，给定超参数$\beta_2$且满足$0 \leq \beta_2 < 1$（算法作者建议设为0.999），更新状态变量$\boldsymbol{s}$：
 
 $$\boldsymbol{s}_t \leftarrow \beta_2 \boldsymbol{s}_{t-1} + (1 - \beta_2) \boldsymbol{g}_t \odot \boldsymbol{g}_t. $$
 
-由于我们将$\boldsymbol{v}$和$\boldsymbol{s}$中的元素都初始化为0，
-在时刻$t$我们得到$\boldsymbol{v}_t =  (1-\beta_1) \sum_{i=1}^t \beta_1^{t-i} \boldsymbol{g}_i$。将过去各时刻小批量随机梯度的权值相加，得到 $(1-\beta_1) \sum_{i=1}^t \beta_1^{t-i} = 1 - \beta_1^t$。需要注意的是，当$t$较小时，过去各时刻小批量随机梯度权值之和会较小。例如当$\beta_1 = 0.9$时，$\boldsymbol{v}_1 = 0.1\boldsymbol{g}_1$。为了消除这样的影响，对于任意时刻$t$，我们可以将$\boldsymbol{v}_t$再除以$1 - \beta_1^t$，从而使得过去各时刻小批量随机梯度权值之和为1。这也叫做偏差修正。在Adam算法中，我们对变量$\boldsymbol{v}$和$\boldsymbol{s}$均作偏差修正：
+且同样做偏差修正：
 
-$$\hat{\boldsymbol{v}}_t \leftarrow \frac{\boldsymbol{v}_t}{1 - \beta_1^t}, $$
+$$\boldsymbol{s}'_t \leftarrow \frac{\boldsymbol{s}_t}{1 - \beta_2^t}. $$
 
-$$\hat{\boldsymbol{s}}_t \leftarrow \frac{\boldsymbol{s}_t}{1 - \beta_2^t}. $$
+最后使用修正后的变量$\boldsymbol{v}'_t$和$\boldsymbol{s}'_t$来更新自变量：
 
+$$\boldsymbol{x}_{t} \leftarrow \boldsymbol{x}_{t-1} - \frac{\eta}{\sqrt{\boldsymbol{s}_{t}'+\epsilon}}\odot\boldsymbol{v}_{t}'$$
 
-接下来，Adam算法使用以上偏差修正后的变量$\hat{\boldsymbol{v}}_t$和$\hat{\boldsymbol{s}}_t$，将模型参数中每个元素的学习率通过按元素运算重新调整：
+其中$\eta_t>0$是学习率且$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-6}$。
 
-$$\boldsymbol{g}_t' \leftarrow \frac{\eta \hat{\boldsymbol{v}}_t}{\sqrt{\hat{\boldsymbol{s}}_t + \epsilon}},$$
-
-其中$\eta$是初始学习率且$\eta > 0$，$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-8}$。和Adagrad、RMSProp以及Adadelta一样，目标函数自变量中每个元素都分别拥有自己的学习率。
-
-最后，时刻$t$的自变量$\boldsymbol{x}_t$的迭代步骤与小批量随机梯度下降类似：
-
-$$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \boldsymbol{g}_t'. $$
-
-## 实验
+## 从零开始实现
 
 首先，导入实验所需的包或模块。
 
@@ -48,19 +38,18 @@ import gluonbook as gb
 from mxnet import nd
 ```
 
+按照公式实现Adam，时间步$t$通过`hyperparams`传入：
+
 ```{.python .input  n=2}
 features, labels = gb.get_data_ch7()
 
 def init_adam_states():
-    v_w, s_w = nd.zeros((features.shape[1], 1)), nd.zeros((features.shape[1], 1)), 
-    v_b, s_b = nd.zeros(1), nd.zeros(1), 
+    v_w, v_b = nd.zeros((features.shape[1], 1)), nd.zeros(1)
+    s_w, s_b = nd.zeros((features.shape[1], 1)), nd.zeros(1)
     return ((v_w, s_w), (v_b, s_b))
 
 def adam(params, states, hyperparams):
-    hp = hyperparams
-    beta1 = 0.9
-    beta2 = 0.999
-    eps = 1e-6
+    hp, beta1, beta2, eps = hyperparams, 0.9, 0.999, 1e-6
     for p, (v, s) in zip(params, states):
         v[:] = beta1 * v + (1 - beta1) * p.grad
         s[:] = beta2 * s + (1 - beta2) * p.grad.square()
@@ -70,27 +59,28 @@ def adam(params, states, hyperparams):
     hp['t'] += 1
 ```
 
+使用学习率$0.01$来训练
+
 ```{.python .input  n=5}
 gb.train_ch7(adam, init_adam_states(), {'lr': 0.01, 't': 1}, features, labels)
 ```
 
 ## 使用Gluon的实现
 
+通过名称`adam`可以获取Gluon中的实现：
+
 ```{.python .input  n=11}
 gb.train_gluon_ch7('adam', {'learning_rate': 0.01}, features, labels)
-
 ```
 
 ## 小结
 
-* Adam组合了动量法和RMSProp。
+* Adam在RMSProp基础上对梯度也做了指数加权移动平均。
 * Adam使用了偏差修正。
 
 ## 练习
 
 * 使用其他初始学习率，观察并分析实验结果。
-* 总结本章各个优化算法的异同。
-* 回顾前面几章中你感兴趣的模型，将训练部分的优化算法替换成其他算法，观察并分析实验现象。
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2279)

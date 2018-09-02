@@ -33,14 +33,12 @@ def comp_conv2d(conv2d, X):
     conv2d.initialize()
     # （1，1）代表批量大小和通道数（后面章节将介绍）均为 1。
     X = X.reshape((1, 1) + X.shape)
-    Y = conv2d(X)
-    # 我们不关心前两维：批量和通道。
-    return Y.reshape(Y.shape[2:])
-
-X = nd.random.uniform(shape=(8, 8))
+    Y = conv2d(X)    
+    return Y.reshape(Y.shape[2:]) # 去掉不关心前两维：批量和通道。
 
 # 注意这里是两侧分别填充 1 行或列，所以在两侧一共填充 2 行或列。
 conv2d = nn.Conv2D(1, kernel_size=3, padding=1)
+X = nd.random.uniform(shape=(8, 8))
 comp_conv2d(conv2d, X).shape
 ```
 

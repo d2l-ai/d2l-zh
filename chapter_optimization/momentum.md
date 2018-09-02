@@ -35,16 +35,16 @@ gb.show_trace_2d(f_2d, gb.train_2d(gd_2d))
 
 ## 动量法
 
-动量法的提出是为了应对梯度下降的上述问题。以小批量随机梯度下降为例，动量法对每次迭代的步骤做如下修改：
+动量法的提出是为了应对梯度下降的上述问题。在时间步$0$，动量法创建速度变量$\boldsymbol{v}_0\in\mathbb{R}^d$，并将其元素初始化成0。在时间步$t>0$，动量法对每次迭代的步骤做如下修改：
 
 $$
 \begin{aligned}
-\boldsymbol{v} &\leftarrow \gamma \boldsymbol{v} + \eta \nabla f_\mathcal{B}(\boldsymbol{x}),\\
-\boldsymbol{x} &\leftarrow \boldsymbol{x} - \boldsymbol{v}.
+\boldsymbol{v}_t &\leftarrow \gamma \boldsymbol{v}_{t-1} + \eta_t \boldsymbol{g}_t \\
+\boldsymbol{x}_t &\leftarrow \boldsymbol{x}_{t-1} - \boldsymbol{v}_t,
 \end{aligned}
 $$
 
-其中$\boldsymbol{v}$是速度变量，动量超参数$\gamma$满足$0 \leq \gamma < 1$。当$\gamma=0$时，动量法等价于小批量随机梯度下降。动量法中的学习率$\eta$和有关小批量$\mathcal{B}$的随机梯度$\nabla f_\mathcal{B}(\boldsymbol{x})$已在[“梯度下降和随机梯度下降”](gd-sgd.md)一节中描述。
+其中，动量超参数$\gamma$满足$0 \leq \gamma < 1$。当$\gamma=0$时，动量法等价于小批量随机梯度下降。动量法中的学习率$\eta_t$和梯度$\boldsymbol{g_t}$已在[“小批量随机梯度下降”](minibatch-sgd.md)一节中描述。
 
 在解释动量法的数学原理前，让我们先从实验中观察梯度下降在使用动量法后的迭代过程。
 
@@ -67,17 +67,17 @@ gb.show_trace_2d(f_2d, gb.train_2d(momentum_2d))
 
 ### 指数加权移动平均
 
-为了从数学上理解动量法，让我们先解释指数加权移动平均（exponentially weighted moving average）。给定超参数$\gamma$且$0 \leq \gamma < 1$，当前时刻$t$的变量$y^{(t)}$是上一时刻$t-1$的变量$y^{(t-1)}$和当前时刻另一变量$x^{(t)}$的线性组合：
+为了从数学上理解动量法，让我们先解释指数加权移动平均（exponentially weighted moving average）。给定超参数$\gamma$且$0 \leq \gamma < 1$，当前时刻$t$的变量$y_t$是上一时刻$t-1$的变量$y_{t-1}$和当前时刻另一变量$x_t$的线性组合：
 
-$$y^{(t)} = \gamma y^{(t-1)} + (1-\gamma) x^{(t)}.$$
+$$y_t = \gamma y_{t-1} + (1-\gamma) x_t.$$
 
-我们可以对$y^{(t)}$展开：
+我们可以对$y_t$展开：
 
 $$
 \begin{aligned}
-y^{(t)}  &= (1-\gamma) x^{(t)} + \gamma y^{(t-1)}\\
-         &= (1-\gamma)x^{(t)} + (1-\gamma) \cdot \gamma x^{(t-1)} + \gamma^2y^{(t-2)}\\
-         &= (1-\gamma)x^{(t)} + (1-\gamma) \cdot \gamma x^{(t-1)} + (1-\gamma) \cdot \gamma^2x^{(t-2)} + \gamma^3y^{(t-3)}\\
+y_t  &= (1-\gamma) x_t + \gamma y_{t-1}\\
+         &= (1-\gamma)x_t + (1-\gamma) \cdot \gamma x_{t-1} + \gamma^2y_{t-2}\\
+         &= (1-\gamma)x_t + (1-\gamma) \cdot \gamma x_{t-1} + (1-\gamma) \cdot \gamma^2x_{t-2} + \gamma^3y_{t-3}\\
          &\ldots
 \end{aligned}
 $$
@@ -88,7 +88,7 @@ $$ \lim_{n \rightarrow \infty}  \left(1-\frac{1}{n}\right)^n = \exp(-1) \approx 
 
 令$n = 1/(1-\gamma)$，那么有 $\left(1-1/n\right)^n = \gamma^{1/(1-\gamma)}$。所以当$\gamma \rightarrow 1$时，$\gamma^{1/(1-\gamma)}=\exp(-1)$。例如$0.95^{20} = 0.358 \approx \exp(-1)$。如果把$\exp(-1)$当做一个比较小的数，我们可以在近似中忽略所有含$\gamma^{1/(1-\gamma)}$和比$\gamma^{1/(1-\gamma)}$更高阶的系数的项。例如，当$\gamma=0.95$时，
 
-$$y^{(t)} \approx 0.05 \sum_{i=0}^{19} 0.95^i x^{(t-i)}.$$
+$$y_t \approx 0.05 \sum_{i=0}^{19} 0.95^i x_{t-i}.$$
 
 因此，在实际中，我们常常将$y$看作是对最近$1/(1-\gamma)$个时刻的$x$值的加权平均。例如，当$\gamma = 0.95$时，$y$可以被看作是对最近20个时刻的$x$值的加权平均；当$\gamma = 0.9$时，$y$可以看作是对最近10个时刻的$x$值的加权平均。且离当前时刻越近的$x$值获得的权重越大（越接近1）。
 
@@ -97,12 +97,9 @@ $$y^{(t)} \approx 0.05 \sum_{i=0}^{19} 0.95^i x^{(t-i)}.$$
 
 现在，我们对动量法的速度变量做变形：
 
-$$\boldsymbol{v} \leftarrow \gamma \boldsymbol{v} + (1 - \gamma) \left[\frac{\eta \nabla f_\mathcal{B}(\boldsymbol{x})}{1 - \gamma}\right]. $$
+$$\boldsymbol{v}_t \leftarrow \gamma \boldsymbol{v}_{t-1} + (1 - \gamma) \left(\frac{\eta_t}{1 - \gamma} \boldsymbol{g}_t\right). $$
 
-由指数加权移动平均的形式可得，速度变量$\boldsymbol{v}$实际上对$(\eta\nabla f_\mathcal{B}(\boldsymbol{x})) /(1-\gamma)$做了指数加权移动平均。给定动量超参数$\gamma$和学习率$\eta$，含动量法的小批量随机梯度下降可被看作使用了特殊梯度来迭代目标函数的自变量。这个特殊梯度是最近$1/(1-\gamma)$个时刻的$\nabla f_\mathcal{B}(\boldsymbol{x})/(1-\gamma)$的加权平均。
-
-
-给定目标函数，在动量法的每次迭代中，自变量在各个方向上的移动幅度不仅取决当前梯度，还取决过去各个梯度在各个方向上是否一致。在本节之前示例的优化问题中，由于所有梯度在水平方向上为正（向右）、而在竖直方向上时正（向上）时负（向下），自变量在水平方向的移动幅度逐渐增大，而在竖直方向的移动幅度逐渐减小。这样，我们就可以使用较大的学习率，从而使自变量向最优解更快移动。
+由指数加权移动平均的形式可得，速度变量$\boldsymbol{v}_t$实际上对序列$\{\eta_{t-i}\boldsymbol{g}_{t-i} /(1-\gamma):i=0,\ldots,1/(1-\gamma)-1\}$做了指数加权移动平均。换句话说，相比于小批量随机梯度下降，动量法在每个时间步的自变量更新量近似于将前者对应的最近$1/(1-\gamma)$个时间步的更新量做了指数加权移动平均后再除以$1-\gamma$。所以动量法中，自变量在各个方向上的移动幅度不仅取决当前梯度，还取决过去各个梯度在各个方向上是否一致。在本节之前示例的优化问题中，由于所有梯度在水平方向上为正（向右）、而在竖直方向上时正（向上）时负（向下），自变量在水平方向的移动幅度逐渐增大，而在竖直方向的移动幅度逐渐减小。这样，我们就可以使用较大的学习率，从而使自变量向最优解更快移动。
 
 
 ## 从零开始实现
