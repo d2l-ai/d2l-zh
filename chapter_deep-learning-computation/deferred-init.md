@@ -8,7 +8,7 @@
 
 让我们使用上节定义的MyInit类来清楚地演示这一个过程。下面我们创建多层感知机，然后使用MyInit实例来进行初始化。
 
-```{.python .input  n=1}
+```{.python .input  n=22}
 from mxnet import init, nd
 from mxnet.gluon import nn
 
@@ -26,19 +26,9 @@ net.initialize(init=MyInit())
 
 注意到MyInit在调用时会打印信息，但当前我们并没有看到相应的日志。下面我们执行前向计算。
 
-```{.python .input  n=2}
+```{.python .input  n=25}
 x = nd.random.uniform(shape=(2, 20))
 y = net(x)
-```
-
-```{.json .output n=2}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "Init dense0_weight (256, 20)\nInit dense1_weight (10, 256)\n"
- }
-]
 ```
 
 这时候系统根据输入`x`的形状自动推测出所有层参数形状，例如隐藏层大小是`(256，20)`，并创建参数。之后调用MyInit实例来进行初始化，然后再进行前向计算。
