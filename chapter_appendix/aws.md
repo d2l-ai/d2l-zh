@@ -1,6 +1,6 @@
 # 使用AWS运行代码
 
-当本地机器的计算资源有限时，我们可以通过云计算服务获取更强大的计算资源来运行本书中的深度学习代码。本节将介绍如何在AWS（亚马逊的云计算服务）上申请实例并通过Jupyter notebook运行代码。本节中的例子基于申请含一个K80 GPU的“p2.xlarge”实例和安装CUDA及相应GPU版本的MXNet。申请其他类型的实例或安装其他版本的MXNet的方法同本节类似。
+当本地机器的计算资源有限时，我们可以通过云计算服务获取更强大的计算资源来运行本书中的深度学习代码。本节将介绍如何在AWS（亚马逊的云计算服务）上申请实例并通过Jupyter笔记本运行代码。本节中的例子基于申请含一个K80 GPU的“p2.xlarge”实例和安装CUDA及相应GPU版本的MXNet。申请其他类型的实例或安装其他版本的MXNet的方法同本节类似。
 
 
 ## 申请账号并登陆
@@ -46,7 +46,7 @@ EC2提供了大量的有着不同配置的实例。如图11.11所示，在第二
 
 如图11.16所示，当实例状态（Instance State）变绿后，右击实例并选择“Connect”，这时就可以看到访问该实例的方法了。例如在命令行输入
 
-```bash
+```{.python .input}
 ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com
 ```
 
@@ -59,7 +59,7 @@ ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com
 
 如果你登录的是一个GPU实例，需要下载并安装CUDA。首先，更新并安装编译需要的包：
 
-```bash
+```{.python .input}
 sudo apt-get update && sudo apt-get install -y build-essential git libgfortran3
 ```
 
@@ -70,14 +70,14 @@ Nvidia一般每年会更新一次CUDA大版本。这里我们下载作者写本�
 
 获取下载地址后，我们将下载并安装CUDA9.0，例如
 
-```bash
+```{.python .input}
 wget https://developer.download.nvidia.com/compute/cuda/9.1/secure/Prod/local_installers/cuda_9.1.85_387.26_linux.run
 sudo sh cuda_9.1.85_387.26_linux.run
 ```
 
 点击“Ctrl+C”跳出文档浏览，并回答以下几个问题。
 
-```bash
+```{.python .input}
 accept/decline/quit: accept
 Install NVIDIA Accelerated Graphics Driver for Linux-x86_64 387.26?
 (y)es/(n)o/(q)uit: y
@@ -97,13 +97,13 @@ Install the CUDA 9.1 Samples?
 
 当安装完成后，运行下面的命令就可以看到该实例的GPU了。
 
-```bash
+```{.python .input}
 nvidia-smi
 ```
 
 最后，将CUDA加入到库的路径中，以方便其他库找到它。
 
-```bash
+```{.python .input}
 echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-9.1/lib64" >>.bashrc
 ```
 
@@ -111,14 +111,14 @@ echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-9.1/lib64" >>.b
 
 我们已在[“安装和运行”](../chapter_prerequisite/install.md)一节中介绍了Linux用户获取本书代码并安装运行环境的方法。首先，安装Linux版的Miniconda（网址：https://conda.io/miniconda.html ），例如
 
-```bash
+```{.python .input}
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 bash Miniconda3-latest-Linux-x86_64.sh
 ```
 
 这时需要回答下面几个问题：
 
-```bash
+```{.python .input}
 Do you accept the license terms? [yes|no]
 [no] >>> yes
 Do you wish the installer to prepend the Miniconda3 install location
@@ -128,7 +128,7 @@ to PATH in your /home/ubuntu/.bashrc ? [yes|no]
 
 安装完成后，运行一次`source ~/.bashrc`让CUDA和conda生效。接下来，下载本书代码、安装并激活conda环境
 
-```bash
+```{.python .input}
 mkdir gluon_tutorials_zh && cd gluon_tutorials_zh
 curl https://zh.gluon.ai/gluon_tutorials_zh.tar.gz -o tutorials.tar.gz
 tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
@@ -138,31 +138,31 @@ source activate gluon
 
 默认环境里安装了CPU版本的MXNet。现在我们将它替换成GPU版本的MXNet。因为CUDA的版本是9.1，所以安装`mxnet-cu91`。一般来说，如果CUDA版本是x.y，那么相应安装`mxnet-cuxy`。
 
-```bash
+```{.python .input}
 pip uninstall mxnet
 pip install mxnet-cu91
 ```
 
-## 运行Jupyter notebook
+## 运行Jupyter笔记本
 
-现在，我们可以运行Jupyter notebook了：
+现在，我们可以运行Jupyter笔记本了：
 
-```bash
+```{.python .input}
 jupyter notebook
 ```
 
 图11.18显示了运行后可能的输出，其中最后一行为8888端口下的URL。
 
-![运行Jupyter notebook后的输出，其中最后一行为8888端口下的URL。](../img/jupyter.png)
+![运行Jupyter笔记本后的输出，其中最后一行为8888端口下的URL。](../img/jupyter.png)
 
 由于创建的实例并没有暴露8888端口，我们可以在本地命令行启动ssh从实例映射到本地8889端口。
 
-```bash
+```{.python .input}
 # 该命令须在本地命令行运行。
 ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com -L 8889:localhost:8888
 ```
 
-最后，把图11.18中运行Jupyter notebook后输出的最后一行URL复制到本地浏览器，并将8888改为8889。点击回车键即可从本地浏览器通过Jupyter notebook运行实例上的代码。
+最后，把图11.18中运行Jupyter笔记本后输出的最后一行URL复制到本地浏览器，并将8888改为8889。点击回车键即可从本地浏览器通过Jupyter笔记本运行实例上的代码。
 
 ## 关闭不使用的实例
 
