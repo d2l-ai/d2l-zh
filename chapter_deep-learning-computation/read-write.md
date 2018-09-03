@@ -5,7 +5,7 @@
 
 ## 读写NDArrays
 
-我们首先看如何读写NDArray。我们可以直接使用`save`和`load`函数分别存储和读取NDArray。下面是例子我们创建`x`，并将其存在文件名同为`x`的文件里。
+我们首先看如何读写NDArray。我们可以直接使用`save`和`load`函数分别存储和读取NDArray。下面的例子我们创建`x`，并将其存在文件名同为`x`的文件里。
 
 ```{.python .input}
 from mxnet import nd
@@ -42,7 +42,7 @@ mydict2
 
 ## 读写Gluon模型的参数
 
-Block类提供了`save_parameters`和`load_parameters`函数来读写模型参数。它实际做的事情就是将所有参数保存成一个名称到NDArray的字典到文件。读取的时候会根据参数名称找到对应的NDArray并赋值。下面的例子我们首先创建一个多层感知机，初始化后将模型参数保存到文件里。
+Block类提供了`save_parameters`和`load_parameters`函数来读写模型参数。它实际做的事情就是将所有参数组成的一个名称到NDArray的字典保存到文件。读取的时候会根据参数名称找到对应的NDArray并赋值。下面的例子我们首先创建一个多层感知机，初始化后将模型参数保存到文件里。
 
 下面，我们创建一个多层感知机。
 
@@ -71,7 +71,7 @@ filename = 'mlp.params'
 net.save_parameters(filename)
 ```
 
-然后，我们再实例化一次我们定义的多层感知机。但跟前面不一样是我们不是随机初始化模型参数，而是直接读取保存在文件里的参数。
+然后，我们再实例化一次我们定义的多层感知机。但跟前面不一样的是我们不是随机初始化模型参数，而是直接读取保存在文件里的参数。
 
 ```{.python .input  n=8}
 net2 = MLP()
