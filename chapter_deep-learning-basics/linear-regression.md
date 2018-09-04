@@ -67,12 +67,12 @@ $$
 
 ### 模型预测
 
-模型训练完成后，我们将模型参数$w_1, w_2, b$在优化算法停止时的值分别记作$\hat{w}_1, \hat{w}_2, \hat{b}$。注意这里我们并不一定得到了最小化损失函数的最优解$w_1^*, w_2^*, b^*$，而是对最优解的一个近似。然后，我们就可以使用学出的线性回归模型$x_1 \hat{w}_1 + x_2 \hat{w}_2 + \hat{b}$来估算训练数据集以外任意一栋面积（平方米）为$x_1$、房龄（年）为$x_2$的房屋的价格了。这里的估算也叫做模型预测、模型测试或模型推断。
+模型训练完成后，我们将模型参数$w_1, w_2, b$在优化算法停止时的值分别记作$\hat{w}_1, \hat{w}_2, \hat{b}$。注意这里我们并不一定得到了最小化损失函数的最优解$w_1^*, w_2^*, b^*$，而是对最优解的一个近似。然后，我们就可以使用学出的线性回归模型$x_1 \hat{w}_1 + x_2 \hat{w}_2 + \hat{b}$来估算训练数据集以外任意一栋面积（平方米）为$x_1$、房龄（年）为$x_2$的房屋的价格了。这里的估算也叫做模型预测、模型推断或模型测试。
 
 
 ## 线性回归的表示方法
 
-我们已经阐述了线性回归的模型表示、训练和预测。下面我们解释线性回归与神经网络的联系，以及线性回归的矢量计算表达式。
+我们已经阐述了线性回归的模型表达式、训练和预测。下面我们解释线性回归与神经网络的联系，以及线性回归的矢量计算表达式。
 
 ### 神经网络图
 
@@ -115,9 +115,9 @@ d = a + b
 time() - start
 ```
 
-结果很明显，后者比前者更省时。因此，在深度学习中我们应该尽可能采用矢量计算，以提升计算效率。
+结果很明显，后者比前者更省时。因此，我们应该尽可能采用矢量计算，以提升计算效率。
 
-让我们再次回到本节的房价估算问题。如果我们对训练数据集中3个房屋样本（索引分别为1、2和3）逐一估算价格，将得到
+让我们再次回到本节的房价预测问题。如果我们对训练数据集里的3个房屋样本（索引分别为1、2和3）逐一预测价格，将得到
 
 $$
 \begin{aligned}
@@ -146,10 +146,10 @@ $$
 \begin{bmatrix}
     w_1 \\
     w_2
-\end{bmatrix},
+\end{bmatrix}.
 $$
 
-对3个房屋样本估算价格的矢量计算表达式为$\boldsymbol{\hat{y}} = \boldsymbol{X} \boldsymbol{w} + b,$ 其中的加法运算使用了广播机制（参见[“数据操作”](../chapter_prerequisite/ndarray.md)一节）。例如
+对3个房屋样本预测价格的矢量计算表达式为$\boldsymbol{\hat{y}} = \boldsymbol{X} \boldsymbol{w} + b,$ 其中的加法运算使用了广播机制（参见[“数据操作”](../chapter_prerequisite/ndarray.md)一节）。例如
 
 ```{.python .input  n=4}
 a = nd.ones(shape=3)
@@ -157,20 +157,20 @@ b = 10
 a + b
 ```
 
-广义上，当数据样本数为$n$，特征数为$d$，线性回归的矢量计算表达式为
+广义上，当数据样本数为$n$，特征数为$d$时，线性回归的矢量计算表达式为
 
 $$\boldsymbol{\hat{y}} = \boldsymbol{X} \boldsymbol{w} + b,$$
 
 其中模型输出$\boldsymbol{\hat{y}} \in \mathbb{R}^{n \times 1}$， 批量数据样本特征$\boldsymbol{X} \in \mathbb{R}^{n \times d}$，权重$\boldsymbol{w} \in \mathbb{R}^{d \times 1}$， 偏差$b \in \mathbb{R}$。相应地，批量数据样本标签$\boldsymbol{y} \in \mathbb{R}^{n \times 1}$。设模型参数$\boldsymbol{\theta} = [w_1, w_2, b]^\top$，我们可以重写损失函数为
 
 
-$$\ell(\boldsymbol{w})=\frac{1}{2n}(\boldsymbol{\hat{y}}-\boldsymbol{y})^\top(\boldsymbol{\hat{y}}-\boldsymbol{y})$$
+$$\ell(\boldsymbol{w})=\frac{1}{2n}(\boldsymbol{\hat{y}}-\boldsymbol{y})^\top(\boldsymbol{\hat{y}}-\boldsymbol{y}).$$
 
 小批量随机梯度下降的迭代步骤将相应地改写为
 
 $$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}   \nabla_{\boldsymbol{\theta}} \ell^{(i)}(\boldsymbol{\theta}),$$
 
-其中梯度是损失有关三个标量模型参数的偏导数组成的向量：
+其中梯度是损失有关三个为标量的模型参数的偏导数组成的向量：
 $$
 \nabla_{\boldsymbol{\theta}} \ell^{(i)}(\boldsymbol{\theta})=
 \begin{bmatrix}
@@ -183,18 +183,15 @@ $$
     x_1^{(i)} (x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}) \\
     x_2^{(i)} (x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}) \\
     x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}
-\end{bmatrix}
-=
-[\boldsymbol{x}_i, 1]^\top (\hat{y}^{(i)} - y^{(i)}). 
+\end{bmatrix}. 
 $$
 
-这里$\boldsymbol{x}^{(i)}=[x_1^{(i)}, x_2^{(i)}]$是索引为$i$的样本。
 
 ## 小结
 
 * 和大多数深度学习模型一样，对于线性回归这样一个单层神经网络，它的基本要素包括模型、训练数据、损失函数和优化算法。
 * 我们既可以用神经网络图表示线性回归，又可以用矢量计算表示该模型。
-* 在深度学习中我们应该尽可能采用矢量计算，以提升计算效率。
+* 我们应该尽可能采用矢量计算，以提升计算效率。
 
 
 ## 练习
