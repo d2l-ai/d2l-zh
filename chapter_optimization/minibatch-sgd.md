@@ -35,7 +35,7 @@ from mxnet.gluon import nn, data as gdata, loss as gloss
 然后读取这个数据集。这个数据集有1503个样本和4个特征，我们使用标准化对它进行预处理。
 
 ```{.python .input  n=2}
-def get_data_ch7():  # 将保存在 GluonBook 中方便之后使用。
+def get_data_ch7():  # 本函数已保存在 gluonbook 包中方便以后使用。
     data = np.genfromtxt('../data/airfoil_self_noise.dat', delimiter='\t')
     data = (data - data.mean(axis=0)) / data.std(axis=0)
     return nd.array(data[:1500, :-2]), nd.array(data[:1500, -1])  # 取整。
@@ -57,9 +57,9 @@ def sgd(params, states, hyperparams):
 下面实现一个通用的训练的函数，它初始化一个线性回归模型，然后可以使用小批量随机梯度下降以及后续小节介绍的其它算法来训练模型。
 
 ```{.python .input  n=4}
-# train_ch7 将保存在 GluonBook 中方便之后使用。
-def train_ch7(trainer_fn, states, hyperparams,
-              features, labels, batch_size=10, num_epochs=2):
+# 本函数已保存在 gluonbook 包中方便以后使用。
+def train_ch7(trainer_fn, states, hyperparams, features, labels,
+              batch_size=10, num_epochs=2):
     # 初始化模型。
     net, loss = gb.linreg, gb.squared_loss
     w = nd.random.normal(scale=0.01, shape=(features.shape[1], 1))
@@ -78,7 +78,7 @@ def train_ch7(trainer_fn, states, hyperparams,
                 l = loss(net(X, w, b), y).mean()  # 使用平均损失。
             l.backward()
             trainer_fn([w, b], states, hyperparams)  # 模型更新。
-            if (batch_i+1) * batch_size % 100 == 0:
+            if (batch_i + 1) * batch_size % 100 == 0:
                 ls.append(eval_loss())  # 每 100 个样本记录下当前训练误差。
     # 打印结果和作图。
     print('loss: %f, %f sec per epoch' % (ls[-1], time.time() - start))
@@ -116,7 +116,7 @@ train_sgd(.05, 10)
 在Gluon里我们可以通过`Trainer`类来调用预实现好的优化算法。下面实现一个通用的训练函数，它通过训练器的名字`trainer_name`和超参数`trainer_hyperparams`来构建Trainer类实例。
 
 ```{.python .input  n=8}
-# train_gluon_ch7 将保存在 GluonBook 中方便之后使用。
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def train_gluon_ch7(trainer_name, trainer_hyperparams, features, labels,
                     batch_size=10, num_epochs=2):
     # 初始化模型。
@@ -139,7 +139,7 @@ def train_gluon_ch7(trainer_name, trainer_hyperparams, features, labels,
                 l = loss(net(X), y)
             l.backward()
             trainer.step(batch_size)  # 在 Trainer 里做梯度平均。
-            if (batch_i+1) * batch_size % 100 == 0:
+            if (batch_i + 1) * batch_size % 100 == 0:
                 ls.append(eval_loss())
     # 打印结果和作图。
     print('loss: %f, %f sec per epoch' % (ls[-1], time.time() - start))

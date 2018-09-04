@@ -1,6 +1,6 @@
 # 深度卷积神经网络（AlexNet）
 
-在LeNet提出后的将近二十年里，神经网络一度被其他机器学习方法（例如支持向量机）超越。虽然LeNet可以在早期的小数据集上取得好的成绩，但是在更大的真实数据集上表现并不尽如人意。一方面，神经网络计算复杂。虽然90年代也有过一些针对神经网络的加速硬件，但并没有大量普及。因此，训练一个多通道、多层和有大量参数的卷积神经网络在当年很难完成。另一方面，当年研究者还没有大量深入研究参数初始化和非凸优化算法等诸多领域，导致复杂的神经网络的训练通常较困难。
+在LeNet提出后的将近二十年里，神经网络一度被其他机器学习方法（例如支持向量机）超越。虽然LeNet可以在早期的小数据集上取得好的成绩，但是在更大的真实数据集上表现并不尽如人意。一方面，神经网络计算复杂。虽然90年代也有过一些针对神经网络的加速硬件，但并没有跟之后GPU那样大量普及。因此，训练一个多通道、多层和有大量参数的卷积神经网络在当年很难完成。另一方面，当年研究者还没有大量深入研究参数初始化和非凸优化算法等诸多领域，导致复杂的神经网络的训练通常较困难。
 
 我们在上一节看到，神经网络可以直接基于图像的原始像素进行分类。这种称为端到端（end-to-end）的方法节省了很多中间步奏。然而，在很长一段时间里更流行的是研究者们通过勤劳与智慧所生成的特征。这类图像分类研究的主要流程是：
 
@@ -24,7 +24,7 @@
 
 ### 缺失要素一：数据
 
-包含许多特征的深度模型需要大量的有标签的数据才能表现得比其他经典方法更好。限于早期计算机有限的存储和90年代有限的研究预算，大部分研究只基于小的公开数据集。比如，不少研究论文基于UCI提供的若干个公开数据集。其中许多数据集只有几百至几千张图像。这一状况在2010前后兴起的大数据浪潮中得到改善。特别地，2009年李飞飞团队贡献了ImageNet数据集。它包含了1000大类物体，每类有多达数千张不同的图像。这一规模是当时其他公开数据集无法相提并论的。ImageNet数据集同时推动计算机视觉和机器学习研究进入新的阶段，使得此前的传统方法不再有优势。
+包含许多特征的深度模型需要大量的有标签的数据才能表现得比其他经典方法更好。限于早期计算机有限的存储和90年代有限的研究预算，大部分研究只基于小的公开数据集。比如，不少研究论文基于UCI提供的若干个公开数据集。其中许多数据集只有几百至几千张图像。这一状况在2010前后兴起的大数据浪潮中得到改善。特别地，2009年出世的ImageNet数据集，它包含了1000大类物体，每类有多达数千张不同的图像。这一规模是当时其他公开数据集无法相提并论的。ImageNet数据集同时推动计算机视觉和机器学习研究进入新的阶段，使得此前的传统方法不再有优势。
 
 
 ### 缺失要素二：硬件
@@ -56,33 +56,31 @@ AlextNet与LeNet的设计理念非常相似。但也有显著的区别。
 import sys
 sys.path.insert(0, '..')
 
-import gluonbook as gb
-from mxnet import nd, init, gluon
-from mxnet.gluon import data as gdata, loss as gloss, nn
 import os
 import sys
+import gluonbook as gb
+from mxnet import nd, init, gluon
+from mxnet.gluon import data as gdata, nn
 
 net = nn.Sequential()
-net.add(
-    # 使用较大的 11 x 11 窗口来捕获物体。同时使用步幅 4 来较大减小输出高宽。
-    # 这里使用的输入通道数比 LeNet 也要大很多。
-    nn.Conv2D(96, kernel_size=11, strides=4, activation='relu'),
-    nn.MaxPool2D(pool_size=3, strides=2),
-    # 减小卷积窗口，使用填充为 2 来使得输入输出高宽一致，且增大输出通道数。
-    nn.Conv2D(256, kernel_size=5, padding=2, activation='relu'),
-    nn.MaxPool2D(pool_size=3, strides=2),
-    # 连续三个卷积层，且使用更小的卷积窗口。除了最后的卷积层外，进一步增大了输出通道数。
-    # 前两个卷积层后不使用池化层来减小输入的高宽。
-    nn.Conv2D(384, kernel_size=3, padding=1, activation='relu'),
-    nn.Conv2D(384, kernel_size=3, padding=1, activation='relu'),
-    nn.Conv2D(256, kernel_size=3, padding=1, activation='relu'),
-    nn.MaxPool2D(pool_size=3, strides=2),
-    # 使用比 LeNet 输出个数大数倍的全连接层。使用丢弃层来控制复杂度。
-    nn.Dense(4096, activation="relu"), nn.Dropout(0.5),
-    nn.Dense(4096, activation="relu"), nn.Dropout(0.5),
-    # 输出层。我们这里使用 Fashion-MNIST，所以用类别数 10，而非论文中的 1000。
-    nn.Dense(10)
-)
+net.add(# 使用较大的 11 x 11 窗口来捕获物体。同时使用步幅 4 来较大减小输出高宽。
+        # 这里使用的输入通道数比 LeNet 也要大很多。
+        nn.Conv2D(96, kernel_size=11, strides=4, activation='relu'),
+        nn.MaxPool2D(pool_size=3, strides=2),
+        # 减小卷积窗口，使用填充为 2 来使得输入输出高宽一致，且增大输出通道数。
+        nn.Conv2D(256, kernel_size=5, padding=2, activation='relu'),
+        nn.MaxPool2D(pool_size=3, strides=2),
+        # 连续三个卷积层，且使用更小的卷积窗口。除了最后的卷积层外，进一步增大了输出通道数。
+        # 前两个卷积层后不使用池化层来减小输入的高宽。
+        nn.Conv2D(384, kernel_size=3, padding=1, activation='relu'),
+        nn.Conv2D(384, kernel_size=3, padding=1, activation='relu'),
+        nn.Conv2D(256, kernel_size=3, padding=1, activation='relu'),
+        nn.MaxPool2D(pool_size=3, strides=2),
+        # 使用比 LeNet 输出个数大数倍的全连接层。使用丢弃层来控制复杂度。
+        nn.Dense(4096, activation="relu"), nn.Dropout(0.5),
+        nn.Dense(4096, activation="relu"), nn.Dropout(0.5),
+        # 输出层。我们这里使用 Fashion-MNIST，所以用类别数 10，而非论文中的 1000。
+        nn.Dense(10))
 ```
 
 我们构造一个高和宽均为224像素的单通道数据样本来观察每一层的输出形状。
@@ -101,9 +99,8 @@ for layer in net:
 
 ```{.python .input  n=3}
 # 本函数已保存在 gluonbook 包中方便以后使用。
-def load_data_fashion_mnist(batch_size, resize=None,
-                            root=os.path.join('~', '.mxnet', 'datasets',
-                                              'fashion-mnist')):
+def load_data_fashion_mnist(batch_size, resize=None, root=os.path.join(
+    '~', '.mxnet', 'datasets', 'fashion-mnist')):
     root = os.path.expanduser(root)  # 展开用户路径 '~'。
     transformer = []
     if resize:
@@ -122,8 +119,7 @@ def load_data_fashion_mnist(batch_size, resize=None,
     return train_iter, test_iter
 
 batch_size = 128
-train_iter, test_iter = load_data_fashion_mnist(batch_size=batch_size,
-                                                resize=224)
+train_iter, test_iter = load_data_fashion_mnist(batch_size, resize=224)
 ```
 
 ## 训练
@@ -131,14 +127,10 @@ train_iter, test_iter = load_data_fashion_mnist(batch_size=batch_size,
 这时候我们可以开始训练AlexNet了。相对于上节的LeNet，这里的主要改动是使用了更小的学习率。
 
 ```{.python .input  n=5}
-lr = 0.01
-num_epochs = 5
-ctx = gb.try_gpu()
+lr, num_epochs, ctx = 0.01, 5, gb.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-loss = gloss.SoftmaxCrossEntropyLoss()
-gb.train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
-             num_epochs)
+gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
 ```
 
 ## 小结

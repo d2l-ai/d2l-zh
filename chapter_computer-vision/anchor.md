@@ -67,7 +67,7 @@ def show_bboxes(axes, bboxes, labels=None, colors=None):
                       bbox=dict(facecolor=color, lw=0))
 ```
 
-然后我们画出以（200，200）为中心的所有锚框。
+然后我们画出以（250，250）为中心的所有锚框。
 
 ```{.python .input  n=12}
 gb.set_figsize()

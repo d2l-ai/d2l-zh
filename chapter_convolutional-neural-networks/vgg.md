@@ -14,13 +14,13 @@ sys.path.insert(0, '..')
 
 import gluonbook as gb
 from mxnet import nd, init, gluon
-from mxnet.gluon import loss as gloss, nn
+from mxnet.gluon import nn
 
 def vgg_block(num_convs, num_channels):
     blk = nn.Sequential()
     for _ in range(num_convs):
-        blk.add(nn.Conv2D(
-            num_channels, kernel_size=3, padding=1, activation='relu'))
+        blk.add(nn.Conv2D(num_channels, kernel_size=3, 
+                          padding=1, activation='relu'))
     blk.add(nn.MaxPool2D(pool_size=2, strides=2))
     return blk
 ```
@@ -77,17 +77,11 @@ net = vgg(small_conv_arch)
 除了使用了稍大些的学习率，模型训练过程跟上一节AlexNet中的类似。
 
 ```{.python .input}
-lr = 0.05
-num_epochs = 5
-batch_size = 128
-ctx = gb.try_gpu()
+lr, num_epochs, batch_size, ctx = 0.05, 5, 128, gb.try_gpu()
 net.initialize(ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=batch_size,
-                                                   resize=224)
-loss = gloss.SoftmaxCrossEntropyLoss()
-gb.train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
-             num_epochs)
+train_iter, test_iter = gb.load_data_fashion_mnist(batch_size, resize=224)
+gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
 ```
 
 ## 小结
