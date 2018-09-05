@@ -257,10 +257,10 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
         if valid_data is not None:
             valid_loss = get_loss(valid_data, net, ctx)
             epoch_s = ("epoch %d, train loss %f, valid loss %f, "
-                       % (epoch, train_l / len(train_data), valid_loss))
+                       % (epoch + 1, train_l / len(train_data), valid_loss))
         else:
             epoch_s = ("epoch %d, train loss %f, "
-                       % (epoch, train_l / len(train_data)))
+                       % (epoch + 1, train_l / len(train_data)))
         prev_time = cur_time
         print(epoch_s + time_s + ', lr ' + str(trainer.learning_rate))
 ```

@@ -704,8 +704,8 @@ def train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs):
                  train_acc_sum / len(train_iter), test_acc, time.time() - start))
 
 
-def train_ch7(trainer_fn, states, hyperparams, features, labels,
-              batch_size=10, num_epochs=2):
+def train_ch7(trainer_fn, states, hyperparams, features, labels, batch_size=10,
+              num_epochs=2):
     """Train a linear regression model."""
     net, loss = linreg, squared_loss
     w, b = nd.random.normal(scale=0.01, shape=(features.shape[1], 1)), nd.zeros(1)
@@ -715,7 +715,7 @@ def train_ch7(trainer_fn, states, hyperparams, features, labels,
     ls = [eval_loss()]
     data_iter = gdata.DataLoader(
         gdata.ArrayDataset(features, labels), batch_size, shuffle=True)
-    for epoch in range(num_epochs):
+    for _ in range(num_epochs):
         start = time.time()
         for batch_i, (X, y) in enumerate(data_iter):
             with autograd.record():
@@ -744,7 +744,7 @@ def train_gluon_ch7(trainer_name, trainer_hyperparams, features, labels,
         gdata.ArrayDataset(features, labels), batch_size, shuffle=True)
     trainer = gluon.Trainer(net.collect_params(),
                             trainer_name, trainer_hyperparams)
-    for epoch in range(1, num_epochs + 1):
+    for _ in range(num_epochs):
         start = time.time()
         for batch_i, (X, y) in enumerate(data_iter):
             with autograd.record():
