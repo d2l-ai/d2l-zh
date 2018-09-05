@@ -9,11 +9,9 @@ import sys
 sys.path.insert(0, '..')
 
 import collections
-import functools
 import gluonbook as gb
 import itertools
 import math
-import mxnet as mx
 from mxnet import autograd, nd, gluon
 from mxnet.gluon import data as gdata, loss as gloss, nn
 import random
@@ -24,7 +22,7 @@ import zipfile
 
 ## 处理数据集
 
-我们将在[“循环神经网络——使用Gluon”](../chapter_recurrent-neural-networks/rnn-gluon.md)一节中介绍的Penn Tree Bank数据集（训练集）上训练词嵌入模型。该数据集的每一行为一个句子。句子中的每个词由空格隔开。
+Penn Tree Bank（PTB）是一个常用的小型语料库 [1]。它包括训练集、验证集和测试集。我们将在Penn Tree Bank的训练集上训练词嵌入模型。该数据集的每一行为一个句子。句子中的每个词由空格隔开。
 
 ```{.python .input  n=2}
 with zipfile.ZipFile('../data/ptb.zip', 'r') as zin:
@@ -70,7 +68,7 @@ coded_dataset = [[token_to_idx[token] for token in sentence
 
 ### 二次采样
 
-在一般的文本数据集中，有些词的词频可能过高，例如英文中的“the”、“a”和“in”。通常来说，一个句子中，词“China”和较低频词“Beijing”同时出现比和较高频词“the”同时出现对训练词嵌入更加有帮助。这是因为，绝大多数词都和词“the”同时出现在一个句子里。因此，训练词嵌入模型时可以对词进行二次采样 [1]。具体来说，数据集中每个被索引词$w_i$将有一定概率被丢弃：该概率为
+在一般的文本数据集中，有些词的词频可能过高，例如英文中的“the”、“a”和“in”。通常来说，一个句子中，词“China”和较低频词“Beijing”同时出现比和较高频词“the”同时出现对训练词嵌入更加有帮助。这是因为，绝大多数词都和词“the”同时出现在一个句子里。因此，训练词嵌入模型时可以对词进行二次采样 [2]。具体来说，数据集中每个被索引词$w_i$将有一定概率被丢弃：该概率为
 
 $$ \mathbb{P}(w_i) = \max\left(1 - \sqrt{\frac{t}{f(w_i)}}, 0\right),$$ 
 
@@ -78,7 +76,7 @@ $$ \mathbb{P}(w_i) = \max\left(1 - \sqrt{\frac{t}{f(w_i)}}, 0\right),$$
 
 ```{.python .input  n=6}
 idx_to_count = [counter[w] for w in idx_to_token]
-total_count =  sum(idx_to_count)
+total_count = sum(idx_to_count)
 idx_to_pdiscard = [1 - math.sqrt(1e-4 / (count / total_count))
                    for count in idx_to_count]
 
@@ -119,7 +117,7 @@ def get_one_context(sentence, word_idx, max_window_size):
         context += sentence[start_idx:word_idx]
     # 添加中心词右边的背景词。
     if word_idx + 1 != end_idx: 
-        context += sentence[word_idx + 1 : end_idx]
+        context += sentence[word_idx + 1: end_idx]
     return context
 ```
 
@@ -155,7 +153,7 @@ def get_negatives(negatives_shape, all_contexts, negatives_weights):
     k = negatives_shape[0] * negatives_shape[1]
     # 根据每个词的权重（negatives_weights）随机生成 k 个词的索引。
     negatives = random.choices(population, weights=negatives_weights, k=k)
-    negatives = [negatives[i : i + negatives_shape[1]]
+    negatives = [negatives[i: i + negatives_shape[1]]
                  for i in range(0, k, negatives_shape[1])]
     # 如果噪声词是当前中心词的某个背景词，丢弃该噪声词。
     negatives = [
@@ -246,8 +244,8 @@ loss(my_pred, my_label, my_mask) * my_mask.shape[1] / my_mask.sum(axis=1)
 作为比较，我们从零开始实现二元交叉熵损失函数的计算，并根据掩码变量`my_mask`计算掩码为1的预测值和标签的损失函数。
 
 ```{.python .input}
-sigmoid = lambda x : -math.log(1 / (1 + math.exp(-x)))
-printfloat = lambda x : print('%.7f' % (x))
+sigmoid = lambda x: -math.log(1 / (1 + math.exp(-x)))
+printfloat = lambda x: print('%.7f' % (x))
 printfloat((sigmoid(1.5) + sigmoid(-0.3) + sigmoid(1) + sigmoid(-2)) / 4)
 printfloat((sigmoid(1.1) + sigmoid(-0.6) + sigmoid(-2.2)) / 3)
 ```
@@ -357,4 +355,6 @@ train_embedding(num_epochs=5)
 
 ## 参考文献
 
-[1] Mikolov, T., Sutskever, I., Chen, K., Corrado, G. S., & Dean, J. (2013). Distributed representations of words and phrases and their compositionality. In Advances in neural information processing systems (pp. 3111-3119).
+[1] Penn Tree Bank. https://catalog.ldc.upenn.edu/ldc99t42
+
+[2] Mikolov, T., Sutskever, I., Chen, K., Corrado, G. S., & Dean, J. (2013). Distributed representations of words and phrases and their compositionality. In Advances in neural information processing systems (pp. 3111-3119).

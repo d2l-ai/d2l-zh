@@ -114,7 +114,7 @@ $$
 
 ## 练习
 
-* 对于具体的激活函数ReLU或sigmoid，如果计算它们的导数。
+* 对于具体的激活函数ReLU或sigmoid，如何计算它们的导数。
 * 试着加上偏差项后再求导。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/3710)

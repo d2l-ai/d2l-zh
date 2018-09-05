@@ -72,7 +72,11 @@
 
 归一化，normalization
 
+过滤器，filter
+
 过拟合，underfitting
+
+恒等映射，identity mapping
 
 假设，hypothesis
 
@@ -97,6 +101,8 @@
 均方误差，mean squared error
 
 均匀采样，uniform sampling
+
+块，block
 
 困惑度，perplexity
 
@@ -156,11 +162,13 @@ softmax回归，softmax regression
 
 跳字模型，skip-gram model
 
-调参，tune parameter
+调参，tune hyper-parameter
 
 通道，channel
 
 凸优化，convex optimization
+
+图像，image
 
 未知词符号，unknown token
 

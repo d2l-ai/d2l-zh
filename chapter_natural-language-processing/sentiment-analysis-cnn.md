@@ -12,11 +12,11 @@
 在“卷积神经网络”篇章中，我们介绍了如何使用二维卷积层处理图像。既然我们将时序数据与一维图像做类比，不妨先介绍一维卷积层的计算。
 
 
-### 一维相关运算符
+### 一维互相关运算
 
-和二维卷积一样，我们也常用一维相关运算符实现一维卷积。图10.2演示了如何对一个宽为7的输入作用宽为2的核来计算输出。
+和二维卷积一样，一维卷积通常也使用一维的互相关运算。图10.2演示了如何对一个宽为7的输入作用宽为2的核来计算输出。
 
-![一维相关运算符的计算。高亮部分为第一个输出元素及其计算所使用的输入和核数组元素：$0\times1+1\times2=2$。](../img/conv1d.svg)
+![一维互相关运算。高亮部分为第一个输出元素及其计算所使用的输入和核数组元素：$0\times1+1\times2=2$。](../img/conv1d.svg)
 
 可以看到输出的宽度为$7-2+1=6$，且第一个元素是由输入的最左边的宽为2的子数组与核数组按元素相乘后再相加得来。设输入、核以及输出分别为`X`、`K`和`Y`，即`Y[0] = (X[0:2] * K).sum()`，这里`X`、`K`和`Y`的类型都是NDArray。接下来我们将输入中高亮部分的宽为2的窗口向右滑动一列来计算`Y`的第二个元素。输出中其他元素的计算以此类推。
 
@@ -26,15 +26,11 @@
 import sys
 sys.path.insert(0, '..')
 
-import collections
 import gluonbook as gb
-from mxnet import autograd, gluon, init, metric, nd
+from mxnet import gluon, init, nd
 from mxnet.contrib import text
-from mxnet.gluon import data as gdata, loss as gloss, nn, utils as gutils
-import os
+from mxnet.gluon import data as gdata, loss as gloss, nn
 import random
-import tarfile
-from time import time
 
 def corr1d(X, K):
     w = K.shape[0]
@@ -44,7 +40,7 @@ def corr1d(X, K):
     return Y
 ```
 
-让我们重现图10.2中一维相关计算的结果。
+让我们重现图10.2中一维互相关运算的结果。
 
 ```{.python .input  n=11}
 X = nd.array([0, 1, 2, 3, 4, 5, 6])
@@ -52,13 +48,13 @@ K = nd.array([1, 2])
 corr1d(X, K)
 ```
 
-### 多输入通道的一维相关计算
+### 多输入通道的一维互相关运算
 
-多输入通道的一维相关计算也与多输入通道的二维相关计算类似：在每个通道上，将核与相应的输入做一维相关计算，并将通道之间的结果相加得到输出结果。图10.3展示了含3个输入通道的一维相关计算。
+多输入通道的一维互相关运算也与多输入通道的二维互相关运算类似：在每个通道上，将核与相应的输入做一维互相关运算，并将通道之间的结果相加得到输出结果。图10.3展示了含3个输入通道的一维互相关运算。
 
-![含3个输入通道的一维相关计算。高亮部分为第一个输出元素及其计算所使用的输入和核数组元素：$0\times1+1\times2+1\times3+2\times4+2\times(-1)+3\times(-3)=2$。](../img/conv1d-channel.svg)
+![含3个输入通道的一维互相关运算。高亮部分为第一个输出元素及其计算所使用的输入和核数组元素：$0\times1+1\times2+1\times3+2\times4+2\times(-1)+3\times(-3)=2$。](../img/conv1d-channel.svg)
 
-让我们重现图10.3中多输入通道的一维相关计算的结果。
+让我们重现图10.3中多输入通道的一维互相关运算的结果。
 
 ```{.python .input  n=12}
 def corr1d_multi_in(X, K):
@@ -73,9 +69,9 @@ K = nd.array([[1, 2], [3, 4], [-1, -3]])
 corr1d_multi_in(X, K)
 ```
 
-由二维相关计算的定义可知，多输入通道的一维相关计算可以看作是单输入通道的二维相关计算。如图10.4所示，我们也可以将图10.3中多输入通道的一维相关计算以等价的单输入通道的二维相关计算呈现。
+由二维互相关运算的定义可知，多输入通道的一维互相关运算可以看作是单输入通道的二维互相关运算。如图10.4所示，我们也可以将图10.3中多输入通道的一维互相关运算以等价的单输入通道的二维互相关运算呈现。
 
-![单输入通道的二维相关计算。高亮部分为第一个输出元素及其计算所使用的输入和核数组元素：$2\times(-1)+3\times(-3)+1\times3+2\times4+0\times1+1\times2=2$。](../img/conv1d-2d.svg)
+![单输入通道的二维互相关运算。高亮部分为第一个输出元素及其计算所使用的输入和核数组元素：$2\times(-1)+3\times(-3)+1\times3+2\times4+0\times1+1\times2=2$。](../img/conv1d-2d.svg)
 
 
 图10.2和图10.3中的输出都只有一个通道。我们在[“多输入和输出通道”](../chapter_convolutional-neural-networks/channels.md)一节中介绍了如何在二维卷积层中指定多个输出通道。类似地，我们也可以在一维卷积层指定多个输出通道，从而拓展卷积层中的模型参数。
@@ -146,7 +142,7 @@ glove_embedding = text.embedding.create(
 ```{.python .input  n=10}
 class TextCNN(nn.Block):
     def __init__(self, vocab, embedding_size, ngram_kernel_sizes,
-                 nums_channels, **kwargs):
+                 nums_channels, num_outputs, **kwargs):
         super(TextCNN, self).__init__(**kwargs)
         self.ngram_kernel_sizes = ngram_kernel_sizes
         self.embedding_static = nn.Embedding(len(vocab), embedding_size)
@@ -215,7 +211,8 @@ ctx = gb.try_all_gpus()
 接下来，我们用预训练的100维GloVe词向量初始化`embedding_static`和`embedding_non_static`。其中只有`embedding_static`在训练中不更新模型参数。
 
 ```{.python .input}
-net = TextCNN(vocab, embed_size, ngram_kernel_sizes, nums_channels)
+net = TextCNN(vocab, embed_size, ngram_kernel_sizes, nums_channels,
+              num_outputs)
 net.initialize(init.Xavier(), ctx=ctx)
 # embedding_static 和 embedding_non_static 均使用预训练的词向量。
 net.embedding_static.weight.set_data(glove_embedding.idx_to_vec)
@@ -242,18 +239,17 @@ gb.train(train_loader, test_loader, net, loss, trainer, ctx, num_epochs)
 下面我们使用训练好的模型对两个简单句子的情感进行分类。
 
 ```{.python .input}
-gb.predict_sentiment(net, vocab, ['i', 'think', 'this', 'movie', 'is',
-                                  'great'])
+gb.predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'great'])
 ```
 
 ```{.python .input}
-gb.predict_sentiment(net, vocab, ['the', 'show', 'is', 'terribly', 'boring'])
+gb.predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'bad'])
 ```
 
 ## 小结
 
 * 我们可以使用一维卷积来处理时序数据。
-* 多输入通道的一维相关计算可以看作是单输入通道的二维相关计算。
+* 多输入通道的一维互相关运算可以看作是单输入通道的二维互相关运算。
 * 时序最大池化层的输入在各个通道上的时间步数可以不同。
 * textCNN主要使用了一维卷积层和时序最大池化层。
 

@@ -1,25 +1,27 @@
 import collections
 import random
+import zipfile
+import math
 import os
 import sys
 import tarfile
-from time import time
+import time
 
 from IPython import display
 from matplotlib import pyplot as plt
 import mxnet as mx
-from mxnet import autograd, gluon, image, nd
+from mxnet import autograd, gluon, image, nd, init
 from mxnet.gluon import nn, data as gdata, loss as gloss, utils as gutils
 import numpy as np
 
 
-voc_classes = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
+VOC_CLASSES = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
                'bottle', 'bus', 'car', 'cat', 'chair', 'cow',
                'diningtable', 'dog', 'horse', 'motorbike', 'person',
                'potted plant', 'sheep', 'sofa', 'train', 'tv/monitor']
 
 
-voc_colormap = [[0, 0, 0], [128, 0, 0], [0, 128, 0], [128, 128, 0],
+VOC_COLORMAP = [[0, 0, 0], [128, 0, 0], [0, 128, 0], [128, 128, 0],
                 [0, 0, 128], [128, 0, 128], [0, 128, 128], [128, 128, 128],
                 [64, 0, 0], [192, 0, 0], [64, 128, 0], [192, 128, 0],
                 [64, 0, 128], [192, 0, 128], [64, 128, 128], [192, 128, 128],
@@ -37,6 +39,28 @@ def bbox_to_rect(bbox, color):
     return plt.Rectangle(xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0],
                          height=bbox[3]-bbox[1], fill=False, edgecolor=color,
                          linewidth=2)
+
+
+class Benchmark():
+    """benchmark a piece of codes"""
+    def __init__(self, prefix=None):
+        self.prefix = prefix + ' ' if prefix else ''
+
+    def __enter__(self):
+        self.start = time.time()
+
+    def __exit__(self, *args):
+        print('%stime: %.4f sec' % (self.prefix, time.time() - self.start))
+
+
+def corr2d(X, K):
+    """Compute 2D cross-correlation."""
+    h, w = K.shape
+    Y = nd.zeros((X.shape[0] - h + 1, X.shape[1] - w + 1))
+    for i in range(Y.shape[0]):
+        for j in range(Y.shape[1]):
+            Y[i, j] = (X[i: i + h, j: j + w] * K).sum()
+    return Y
 
 
 def count_tokens(samples):
@@ -135,11 +159,10 @@ def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
         features, labels, _ = _get_batch(batch, ctx)
         for X, y in zip(features, labels):
             y = y.astype('float32')
-            acc += (net(X).argmax(axis=1)==y).sum().copyto(mx.cpu())
+            acc += (net(X).argmax(axis=1) == y).sum().copyto(mx.cpu())
             n += y.size
         acc.wait_to_read()
     return acc.asscalar() / n
-
 
 def _get_batch(batch, ctx):
     """Return features and labels on ctx."""
@@ -150,9 +173,15 @@ def _get_batch(batch, ctx):
             gutils.split_and_load(labels, ctx),
             features.shape[0])
 
+def get_data_ch7():
+    """Get the data set used in Chapter 7."""
+    data = np.genfromtxt('../data/airfoil_self_noise.dat', delimiter='\t')
+    data = (data - data.mean(axis=0)) / data.std(axis=0)
+    return nd.array(data[:, :-2]), nd.array(data[:,-1])
+
 
 def get_fashion_mnist_labels(labels):
-    """get text label for fashion mnist"""
+    """Get text label for fashion mnist."""
     text_labels = ['t-shirt', 'trouser', 'pullover', 'dress', 'coat',
                    'sandal', 'shirt', 'sneaker', 'bag', 'ankle boot']
     return [text_labels[int(i)] for i in labels]
@@ -192,7 +221,7 @@ def linreg(X, w, b):
 def load_data_fashion_mnist(batch_size, resize=None,
                             root=os.path.join('~', '.mxnet', 'datasets',
                                               'fashion-mnist')):
-    """Download the fashion mnist dataest and then load into memory."""
+    """Download the fashion mnist dataset and then load into memory."""
     root = os.path.expanduser(root)
     transformer = []
     if resize:
@@ -211,6 +240,20 @@ def load_data_fashion_mnist(batch_size, resize=None,
                                  batch_size, shuffle=False,
                                  num_workers=num_workers)
     return train_iter, test_iter
+
+
+def load_data_jay_lyrics():
+    """Load the Jay Chou lyric data set."""
+    with zipfile.ZipFile('../data/jaychou_lyrics.txt.zip') as zin:
+        with zin.open('jaychou_lyrics.txt') as f:
+            corpus_chars = f.read().decode('utf-8')
+    corpus_chars = corpus_chars.replace('\n', ' ').replace('\r', ' ')
+    corpus_chars = corpus_chars[0:10000]
+    idx_to_char = list(set(corpus_chars))
+    char_to_idx = dict([(char, i) for i, char in enumerate(idx_to_char)])
+    vocab_size = len(char_to_idx)
+    corpus_indices = [char_to_idx[char] for char in corpus_chars]
+    return corpus_indices, char_to_idx, idx_to_char, vocab_size
 
 
 def load_data_pikachu(batch_size, edge_size=256):
@@ -241,53 +284,33 @@ def _make_list(obj, default_values=None):
         obj = [obj]
     return obj
 
-
-def optimize(batch_size, trainer, num_epochs, decay_epoch, log_interval,
-             features, labels, net):
-    """Optimize an objective function."""
-    dataset = gdata.ArrayDataset(features, labels)
-    data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
-    loss = gloss.L2Loss()
-    ls = [loss(net(features), labels).mean().asnumpy()]
-    for epoch in range(1, num_epochs + 1):
-        # Decay the learning rate.
-        if decay_epoch and epoch > decay_epoch:
-            trainer.set_learning_rate(trainer.learning_rate * 0.1)
-        for batch_i, (X, y) in enumerate(data_iter):
-            with autograd.record():
-                l = loss(net(X), y)
-            l.backward()
-            trainer.step(batch_size)
-            if batch_i * batch_size % log_interval == 0:
-                ls.append(loss(net(features), labels).mean().asnumpy())
-    print('w[0]=%.2f, w[1]=%.2f, b=%.2f' 
-          % (net[0].weight.data()[0][0].asscalar(),
-             net[0].weight.data()[0][1].asscalar(),
-             net[0].bias.data().asscalar()))
-    es = np.linspace(0, num_epochs, len(ls), endpoint=True)
-    gb.semilogy(es, ls, 'epoch', 'loss')
-
-
-def predict_rnn(rnn, prefix, num_chars, params, num_hiddens, vocab_size, ctx,
-                idx_to_char, char_to_idx, get_inputs, is_lstm=False):
-    """Predict the next chars given the prefix."""
-    prefix = prefix.lower()
-    state_h = nd.zeros(shape=(1, num_hiddens), ctx=ctx)
-    if is_lstm:
-        state_c = nd.zeros(shape=(1, num_hiddens), ctx=ctx)
+def predict_rnn(prefix, num_chars, rnn, params, init_rnn_state,
+                num_hiddens, vocab_size, ctx, idx_to_char, char_to_idx):
+    """Predict next chars with a RNN model"""
+    state = init_rnn_state(1, num_hiddens, ctx)
     output = [char_to_idx[prefix[0]]]
-    for i in range(num_chars + len(prefix)):
-        X = nd.array([output[-1]], ctx=ctx)
-        if is_lstm:
-            Y, state_h, state_c = rnn(get_inputs(X, vocab_size), state_h,
-                                      state_c, *params)
+    for t in range(num_chars + len(prefix)):
+        X = to_onehot(nd.array([output[-1]], ctx=ctx), vocab_size)
+        (Y, state) = rnn(X, state, params)
+        if t < len(prefix) - 1:
+            output.append(char_to_idx[prefix[t + 1]])
         else:
-            Y, state_h = rnn(get_inputs(X, vocab_size), state_h, *params)
-        if i < len(prefix) - 1:
-            next_input = char_to_idx[prefix[i + 1]]
+            output.append(int(Y[0].argmax(axis=1).asscalar()))
+    return ''.join([idx_to_char[i] for i in output])
+
+
+def predict_rnn_gluon(prefix, num_chars, model, vocab_size, ctx, idx_to_char,
+                      char_to_idx):
+    """Precit next chars with a Gluon RNN model"""
+    state = model.begin_state(batch_size=1, ctx=ctx)
+    output = [char_to_idx[prefix[0]]]
+    for t in range(num_chars + len(prefix)):
+        X = nd.array([output[-1]], ctx=ctx).reshape((1, 1))
+        (Y, state) = model(X, state)
+        if t < len(prefix) - 1:
+            output.append(char_to_idx[prefix[t + 1]])
         else:
-            next_input = int(Y[0].argmax(axis=1).asscalar())
-        output.append(next_input)
+            output.append(int(Y.argmax(axis=1).asscalar()))
     return ''.join([idx_to_char[i] for i in output])
 
 
@@ -311,7 +334,7 @@ def preprocess_imdb(train_tokenized, test_tokenized, train_data, test_data,
                     feature.append(vocab.token_to_idx[token])
                 else:
                     feature.append(0)
-            features.append(feature)         
+            features.append(feature)
         return features
 
     def pad_samples(features, maxlen=500, PAD=0):
@@ -335,19 +358,6 @@ def preprocess_imdb(train_tokenized, test_tokenized, train_data, test_data,
     return train_features, test_features, train_labels, test_labels
 
 
-def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):
-    """Read VOC images."""
-    txt_fname = '%s/ImageSets/Segmentation/%s' % (
-        root, 'train.txt' if train else 'val.txt')
-    with open(txt_fname, 'r') as f:
-        images = f.read().split()
-    data, label = [None] * len(images), [None] * len(images)
-    for i, fname in enumerate(images):
-        data[i] = image.imread('%s/JPEGImages/%s.jpg' % (root, fname))
-        label[i] = image.imread('%s/SegmentationClass/%s.png' % (root, fname))
-    return data, label
-
-
 def read_imdb(dir_url, seg='train'):
     """Read the IMDB data set for sentiment analysis."""
     pos_or_neg = ['pos', 'neg']
@@ -363,6 +373,19 @@ def read_imdb(dir_url, seg='train'):
                 elif label == 'neg':
                     data.append([review, 0])
     return data
+
+
+def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):
+    """Read VOC images."""
+    txt_fname = '%s/ImageSets/Segmentation/%s' % (
+        root, 'train.txt' if train else 'val.txt')
+    with open(txt_fname, 'r') as f:
+        images = f.read().split()
+    data, label = [None] * len(images), [None] * len(images)
+    for i, fname in enumerate(images):
+        data[i] = image.imread('%s/JPEGImages/%s.jpg' % (root, fname))
+        label[i] = image.imread('%s/SegmentationClass/%s.png' % (root, fname))
+    return data, label
 
 
 class Residual(nn.Block):
@@ -409,6 +432,24 @@ def resnet18(num_classes):
             resnet_block(512, 2))
     net.add(nn.GlobalAvgPool2D(), nn.Dense(num_classes))
     return net
+
+
+class RNNModel(nn.Block):
+    """RNN model."""
+    def __init__(self, rnn_layer, vocab_size, **kwargs):
+        super(RNNModel, self).__init__(**kwargs)
+        self.rnn = rnn_layer
+        self.vocab_size = vocab_size
+        self.dense = nn.Dense(vocab_size)
+
+    def forward(self, inputs, state):
+        X = nd.one_hot(inputs.T, self.vocab_size)
+        Y, state = self.rnn(X, state)
+        output = self.dense(Y.reshape((-1, Y.shape[-1])))
+        return output, state
+
+    def begin_state(self, *args, **kwargs):
+        return self.rnn.begin_state(*args, **kwargs)
 
 
 def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
@@ -473,6 +514,18 @@ def show_images(imgs, num_rows, num_cols, scale=2):
     return axes
 
 
+def show_trace_2d(f, res):
+    x1, x2 = zip(*res)
+    set_figsize()
+    plt.plot(x1, x2, '-o', color='#ff7f0e')
+    x1 = np.arange(-5.5, 1.0, 0.1)
+    x2 = np.arange(min(-3.0, min(x2) - 1), max(1.0, max(x2) + 1), 0.1)
+    x1, x2 = np.meshgrid(x1, x2)
+    plt.contour(x1, x2, f(x1, x2), colors='#1f77b4')
+    plt.xlabel('x1')
+    plt.ylabel('x2')
+
+
 def squared_loss(y_hat, y):
     """Squared loss."""
     return (y_hat - y.reshape(y_hat.shape)) ** 2 / 2
@@ -490,7 +543,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
         ctx = [ctx]
     for epoch in range(1, num_epochs + 1):
         train_l_sum, train_acc_sum, n, m = 0.0, 0.0, 0.0, 0.0
-        start = time()
+        start = time.time()
         for i, batch in enumerate(train_iter):
             Xs, ys, batch_size = _get_batch(batch, ctx)
             ls = []
@@ -509,61 +562,98 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
               'time %.1f sec'
               % (epoch, train_l_sum / n, train_acc_sum / m, test_acc,
-                 time() - start))
+                 time.time() - start))
 
+def train_2d(trainer):
+    """Train a 2d object function with a customized trainer"""
+    x1, x2 = -5, -2
+    s_x1, s_x2 = 0, 0
+    res = [(x1, x2)]
+    for i in range(20):
+        x1, x2, s_x1, s_x2 = trainer(x1, x2, s_x1, s_x2)
+        res.append((x1, x2))
+    print('epoch %d, x1 %f, x2 %f' % (i+1, x1, x2))
+    return res
 
-def train_and_predict_rnn(rnn, is_random_iter, num_epochs, num_steps,
-                          num_hiddens, lr, clipping_theta, batch_size,
-                          vocab_size, pred_period, pred_len, prefixes,
-                          get_params, get_inputs, ctx, corpus_indices,
-                          idx_to_char, char_to_idx, is_lstm=False):
+def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
+                          vocab_size, ctx, corpus_indices, idx_to_char,
+                          char_to_idx, is_random_iter, num_epochs, num_steps,
+                          lr, clipping_theta, batch_size, pred_period,
+                          pred_len, prefixes):
     """Train an RNN model and predict the next item in the sequence."""
     if is_random_iter:
-        data_iter = data_iter_random
+        data_iter_fn = data_iter_random
     else:
-        data_iter = data_iter_consecutive
+        data_iter_fn = data_iter_consecutive
     params = get_params()
     loss = gloss.SoftmaxCrossEntropyLoss()
 
-    for epoch in range(1, num_epochs + 1):
+    for epoch in range(num_epochs):
         if not is_random_iter:
-            state_h = nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx)
-            if is_lstm:
-                state_c = nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx)
-        train_l_sum = nd.array([0], ctx=ctx)
-        train_l_cnt = 0
-        for X, Y in data_iter(corpus_indices, batch_size, num_steps, ctx):
+            state = init_rnn_state(batch_size, num_hiddens, ctx)
+        loss_sum, start = 0.0, time.time()
+        data_iter = data_iter_fn(corpus_indices, batch_size, num_steps, ctx)
+        for t, (X, Y) in enumerate(data_iter):
             if is_random_iter:
-                state_h = nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx)
-                if is_lstm:
-                    state_c = nd.zeros(shape=(batch_size, num_hiddens),
-                                       ctx=ctx)
+                state = init_rnn_state(batch_size, num_hiddens, ctx)
             else:
-                state_h = state_h.detach()
-                if is_lstm:
-                    state_c = state_c.detach()
+                for s in state:
+                    s.detach()
             with autograd.record():
-                if is_lstm:
-                    outputs, state_h, state_c = rnn(
-                        get_inputs(X, vocab_size), state_h, state_c, *params)
-                else:
-                    outputs, state_h = rnn(
-                        get_inputs(X, vocab_size), state_h, *params)
-                y = Y.T.reshape((-1,))
+                inputs = to_onehot(X, vocab_size)
+                (outputs, state) = rnn(inputs, state, params)
                 outputs = nd.concat(*outputs, dim=0)
-                l = loss(outputs, y)
+                y = Y.T.reshape((-1,))
+                l = loss(outputs, y).mean()
             l.backward()
             grad_clipping(params, clipping_theta, ctx)
             sgd(params, lr, 1)
-            train_l_sum = train_l_sum + l.sum()
-            train_l_cnt += l.size
-        if epoch % pred_period == 0:
-            print('\nepoch %d, perplexity %f'
-                  % (epoch, (train_l_sum / train_l_cnt).exp().asscalar()))
+            loss_sum += l.asscalar()
+
+        if (epoch + 1) % pred_period == 0:
+            print('epoch %d, perplexity %f, time %.2f sec' % (
+                epoch + 1, math.exp(loss_sum / (t + 1)), time.time() - start))
             for prefix in prefixes:
-                print(' - ', predict_rnn(
-                    rnn, prefix, pred_len, params, num_hiddens, vocab_size,
-                    ctx, idx_to_char, char_to_idx, get_inputs, is_lstm))
+                print(' -', predict_rnn(
+                    prefix, pred_len, rnn, params, init_rnn_state,
+                    num_hiddens, vocab_size, ctx, idx_to_char, char_to_idx))
+
+
+def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
+                                corpus_indices, idx_to_char, char_to_idx,
+                                num_epochs, num_steps, lr, clipping_theta,
+                                batch_size, pred_period, pred_len, prefixes):
+    """Train an Gluon RNN model and predict the next item in the sequence."""
+    loss = gloss.SoftmaxCrossEntropyLoss()
+    model.initialize(ctx=ctx, force_reinit=True, init=init.Normal(0.01))
+    trainer = gluon.Trainer(model.collect_params(), 'sgd',
+                            {'learning_rate': lr, 'momentum': 0, 'wd': 0})
+
+    for epoch in range(num_epochs):
+        loss_sum, start = 0.0, time.time()
+        data_iter = data_iter_consecutive(
+            corpus_indices, batch_size, num_steps, ctx)
+        state = model.begin_state(batch_size=batch_size, ctx=ctx)
+        for t, (X, Y) in enumerate(data_iter):
+            for s in state:
+                s.detach()
+            with autograd.record():
+                (output, state) = model(X, state)
+                y = Y.T.reshape((-1,))
+                l = loss(output, y).mean()
+            l.backward()
+            params = [p.data() for p in model.collect_params().values()]
+            grad_clipping(params, clipping_theta, ctx)
+            trainer.step(1)
+            loss_sum += l.asscalar()
+
+        if (epoch + 1) % pred_period == 0:
+            print('epoch %d, perplexity %f, time %.2f sec' % (
+                epoch + 1, math.exp(loss_sum / (t + 1)), time.time() - start))
+            for prefix in prefixes:
+                print(' -', predict_rnn_gluon(
+                    prefix, pred_len, model, vocab_size,
+                    ctx, idx_to_char, char_to_idx))
 
 
 def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
@@ -589,14 +679,14 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
                  train_acc_sum / len(train_iter), test_acc))
 
 
-def train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
-              num_epochs):
+def train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs):
     """Train and evaluate a model on CPU or GPU."""
     print('training on', ctx)
+    loss = gloss.SoftmaxCrossEntropyLoss()
     for epoch in range(1, num_epochs + 1):
         train_l_sum = 0
         train_acc_sum = 0
-        start = time()
+        start = time.time()
         for X, y in train_iter:
             X = X.as_in_context(ctx)
             y = y.as_in_context(ctx)
@@ -611,7 +701,63 @@ def train_ch5(net, train_iter, test_iter, loss, batch_size, trainer, ctx,
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
               'time %.1f sec'
               % (epoch, train_l_sum / len(train_iter),
-                 train_acc_sum / len(train_iter), test_acc, time() - start))
+                 train_acc_sum / len(train_iter), test_acc, time.time() - start))
+
+
+def train_ch7(trainer_fn, states, hyperparams, features, labels,
+              batch_size=10, num_epochs=2):
+    """Train a linear regression model."""
+    net, loss = linreg, squared_loss
+    w, b = nd.random.normal(scale=0.01, shape=(features.shape[1], 1)), nd.zeros(1)
+    w.attach_grad()
+    b.attach_grad()
+    eval_loss = lambda : loss(net(features, w, b), labels).mean().asscalar()
+    ls = [eval_loss()]
+    data_iter = gdata.DataLoader(
+        gdata.ArrayDataset(features, labels), batch_size, shuffle=True)
+    for epoch in range(num_epochs):
+        start = time.time()
+        for batch_i, (X, y) in enumerate(data_iter):
+            with autograd.record():
+                l = loss(net(X, w, b), y).mean()
+            l.backward()
+            trainer_fn([w, b], states, hyperparams)
+            if (batch_i + 1) * batch_size % 100 == 0:
+                ls.append(eval_loss())
+    print('loss: %f, %f sec per epoch' % (ls[-1], time.time() - start))
+    set_figsize()
+    plt.plot(np.linspace(0, num_epochs, len(ls)), ls)
+    plt.xlabel('epoch')
+    plt.ylabel('loss')
+
+
+def train_gluon_ch7(trainer_name, trainer_hyperparams, features, labels,
+                    batch_size=10, num_epochs=2):
+    """Train a linear regression model with a given Gluon trainer."""
+    net = nn.Sequential()
+    net.add(nn.Dense(1))
+    net.initialize(init.Normal(sigma=0.01))
+    loss = gloss.L2Loss()
+    eval_loss = lambda : loss(net(features), labels).mean().asscalar()
+    ls = [eval_loss()]
+    data_iter = gdata.DataLoader(
+        gdata.ArrayDataset(features, labels), batch_size, shuffle=True)
+    trainer = gluon.Trainer(net.collect_params(),
+                            trainer_name, trainer_hyperparams)
+    for epoch in range(1, num_epochs + 1):
+        start = time.time()
+        for batch_i, (X, y) in enumerate(data_iter):
+            with autograd.record():
+                l = loss(net(X), y)
+            l.backward()
+            trainer.step(batch_size)
+            if (batch_i + 1) * batch_size % 100 == 0:
+                ls.append(eval_loss())
+    print('loss: %f, %f sec per epoch' % (ls[-1], time.time() - start))
+    set_figsize()
+    plt.plot(np.linspace(0, num_epochs, len(ls)), ls)
+    plt.xlabel('epoch')
+    plt.ylabel('loss')
 
 
 def try_all_gpus():
@@ -638,9 +784,11 @@ def try_gpu():
         ctx = mx.cpu()
     return ctx
 
+
 def use_svg_display():
     """Use svg format to display plot in jupyter"""
     display.set_matplotlib_formats('svg')
+
 
 def voc_label_indices(img, colormap2label):
     """Assig label indices for Pascal VOC2012 Dataset."""

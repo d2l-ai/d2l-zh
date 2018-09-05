@@ -16,12 +16,11 @@ sys.path.insert(0, '..')
 
 import collections
 import gluonbook as gb
-from mxnet import autograd, gluon, init, metric, nd
+from mxnet import gluon, init, nd
 from mxnet.contrib import text
 from mxnet.gluon import data as gdata, loss as gloss, nn, rnn, utils as gutils
 import os
 import random
-from time import time
 import tarfile
 ```
 
@@ -35,6 +34,7 @@ import tarfile
 我们首先下载这个数据集到“../data”路径下。该数据集的压缩包大小是 81MB，下载解压需要一定时间。解压后的数据集将会放置在“../data/aclImdb”路径下。
 
 ```{.python .input  n=4}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def download_imdb(data_dir='../data'):
     url = ('http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz')
     sha1 = '01ada507287d82875905620988597833ad4e0903'
@@ -48,6 +48,7 @@ download_imdb()
 下面，读取训练和测试数据集。
 
 ```{.python .input  n=5}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def read_imdb(dir_url, seg='train'):
     pos_or_neg = ['pos', 'neg']
     data = []
@@ -74,6 +75,7 @@ random.shuffle(test_data)
 接下来我们对每条评论做分词，从而得到分好词的评论。这里使用最简单的方法：基于空格进行分词。我们将在本节练习中探究其他的分词方法。
 
 ```{.python .input  n=6}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def get_tokenized_imdb(train_data, test_data):
     def tokenizer(text):
         return [tok.lower() for tok in text.split(' ')]
@@ -94,6 +96,7 @@ train_tokenized, test_tokenized = get_tokenized_imdb(train_data, test_data)
 现在，我们可以根据分好词的训练数据集来创建词典了。这里我们设置了特殊符号“&lt;unk&gt;”（unknown）。它将表示一切不存在于训练数据集词典中的词。
 
 ```{.python .input  n=7}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def count_tokens(samples):
     token_counter = collections.Counter()
     for sample in samples:
@@ -114,6 +117,7 @@ vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>',
 下面，我们继续对数据进行预处理。每个不定长的评论将被特殊符号`PAD`补成长度为`maxlen`的序列，并用NDArray表示。
 
 ```{.python .input  n=8}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def preprocess_imdb(train_tokenized, test_tokenized, train_data, test_data,
                     vocab):
     def encode_samples(tokenized_samples, vocab):
@@ -169,7 +173,7 @@ glove_embedding = text.embedding.create(
 ```{.python .input  n=10}
 class BiRNN(nn.Block):
     def __init__(self, vocab, embed_size, num_hiddens, num_layers,
-                 bidirectional, **kwargs):
+                 bidirectional, num_outputs, **kwargs):
         super(BiRNN, self).__init__(**kwargs)
         self.embedding = nn.Embedding(len(vocab), embed_size)
         self.encoder = rnn.LSTM(num_hiddens, num_layers=num_layers,
@@ -199,7 +203,8 @@ num_layers = 2
 bidirectional = True
 ctx = gb.try_all_gpus()
 
-net = BiRNN(vocab, embed_size, num_hiddens, num_layers, bidirectional)
+net = BiRNN(vocab, embed_size, num_hiddens, num_layers, bidirectional,
+            num_outputs)
 net.initialize(init.Xavier(), ctx=ctx)
 # 设置 embedding 层的 weight 为预训练的词向量。
 net.embedding.weight.set_data(glove_embedding.idx_to_vec)
@@ -226,21 +231,19 @@ gb.train(train_loader, test_loader, net, loss, trainer, ctx, num_epochs)
 下面我们使用训练好的模型对两个简单句子的情感进行分类。
 
 ```{.python .input  n=18}
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def predict_sentiment(net, vocab, sentence):
     sentence = nd.array([vocab.token_to_idx[token] for token in sentence],
                         ctx=gb.try_gpu())
     label = nd.argmax(net(nd.reshape(sentence, shape=(1, -1))), axis=1)
     return 'positive' if label.asscalar() == 1 else 'negative'
 
-predict_sentiment(net, vocab, ['i', 'think', 'this', 'movie', 'is', 'great'])
+predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'great'])
 ```
 
 ```{.python .input}
-predict_sentiment(net, vocab, ['the', 'show', 'is', 'terribly', 'boring'])
+predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'bad'])
 ```
-
-本节介绍的`download_imdb`、`read_imdb`、`get_tokenized_imdb`、`count_tokens`、`preprocess_imdb`和`predict_sentiment`函数均定义在`gluonbook`包中供后面章节调用。
-
 
 ## 小结
 

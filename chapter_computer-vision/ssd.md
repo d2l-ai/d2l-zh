@@ -15,7 +15,7 @@ import time
 
 ## SSD 模型
 
-图9.3描述了SSD模型。给定输入图片，其首先使用主要由卷积层组成的模块来进行特征抽取。在其特征输出上，我们以每个像素为中心构建多个锚框（往左的箭头），然后使用softmax来对每个锚框判断其包含的物体类别，以及用卷积直接预测它到真实物体边界框的距离。卷积层的输出同时被输入到一个高宽减半模块（往上的箭头）来缩小图片尺寸。这个模块的输入将进入到另一个卷积模块抽取特征，并构建锚框来预测物体类别和边界框。这样设计的目的是在不同的尺度上进行目标检测，例如前一层的锚框主要检测图片中尺寸较小的物体，而这一层我们则检测尺寸稍大的物体。自然的，我们会重复这一过程多次以保证在多种不同的尺度下检测物体。
+图9.3描述了SSD模型。给定输入图像，其首先使用主要由卷积层组成的模块来进行特征抽取。在其特征输出上，我们以每个像素为中心构建多个锚框（往左的箭头），然后使用softmax来对每个锚框判断其包含的物体类别，以及用卷积直接预测它到真实物体边界框的距离。卷积层的输出同时被输入到一个高宽减半模块（往上的箭头）来缩小图像尺寸。这个模块的输出将进入到另一个卷积模块抽取特征，并构建锚框来预测物体类别和边界框。这样设计的目的是在不同的尺度上进行目标检测，例如前一层的锚框主要检测图像中尺寸较小的物体，而这一层我们则检测尺寸稍大的物体。自然的，我们会重复这一过程多次以保证在多种不同的尺度下检测物体。
 
 ![SSD模型。](../img/ssd.svg)
 
@@ -148,7 +148,7 @@ def single_scale_forward(x, blk, size, ratio, cls_predictor, bbox_predictor):
 num_anchors = 4
 sizes = [[0.2, 0.272], [0.37, 0.447], [0.54, 0.619], [0.71, 0.79],
          [0.88, 0.961]]
-ratios = [[1,2, 0.5]] * 5
+ratios = [[1, 2, 0.5]] * 5
 ```
 
 完整的模型定义如下。
@@ -196,7 +196,7 @@ print('output box predictions:', bbox_preds.shape)
 ```{.python .input  n=15}
 batch_size = 32
 train_data, test_data = gb.load_data_pikachu(batch_size)
-# GPU 实现里要求每张图片至少有三个边界框，我们加上两个标号为 -1 的边界框。
+# GPU 实现里要求每张图像至少有三个边界框，我们加上两个标号为 -1 的边界框。
 train_data.reshape(label_shape=(3, 5))
 ```
 
@@ -204,7 +204,7 @@ train_data.reshape(label_shape=(3, 5))
 
 ```{.python .input  n=16}
 ctx = gb.try_gpu()
-net = TinySSD(num_classes = 2)
+net = TinySSD(num_classes=2)
 net.initialize(init=init.Xavier(), ctx=ctx)
 trainer = gluon.Trainer(net.collect_params(),
                         'sgd', {'learning_rate': 0.1, 'wd': 5e-4})
@@ -212,7 +212,7 @@ trainer = gluon.Trainer(net.collect_params(),
 
 ### 损失和评估函数
 
-物体识别有两个损失函数，一是对每个锚框的类别预测，我们可以重用之前图片分类问题里一直使用的Softmax和交叉熵损失。二是正类锚框的偏移预测。它是一个回归问题，但我们这里不使用前面介绍过的L2损失函数，而是使用惩罚相对更小的线性L1损失函数，即$l_1(\hat y, y) = |\hat y - y|$。
+物体识别有两个损失函数，一是对每个锚框的类别预测，我们可以重用之前图像分类问题里一直使用的Softmax和交叉熵损失。二是正类锚框的偏移预测。它是一个回归问题，但我们这里不使用前面介绍过的L2损失函数，而是使用惩罚相对更小的线性L1损失函数，即$l_1(\hat y, y) = |\hat y - y|$。
 
 ```{.python .input  n=17}
 cls_loss = gloss.SoftmaxCrossEntropyLoss()
@@ -255,7 +255,7 @@ for epoch in range(1, 21):
             anchors, cls_preds, bbox_preds = net(X)
             # 对每个锚框生成标号。
             bbox_labels, bbox_masks, cls_labels = contrib.nd.MultiBoxTarget(
-                anchors, Y, cls_preds.transpose(axes=(0,2,1)))
+                anchors, Y, cls_preds.transpose(axes=(0, 2, 1)))
             # 计算类别预测和边界框预测损失。
             l = calc_loss(cls_preds, cls_labels,
                              bbox_preds, bbox_labels, bbox_masks)
@@ -272,7 +272,7 @@ for epoch in range(1, 21):
 
 ## 预测
 
-在预测阶段，我们希望能把图片里面所有感兴趣的物体找出来。我们首先定义一个图片预处理函数，它对图片进行变换然后转成卷积层需要的四维格式。
+在预测阶段，我们希望能把图像里面所有感兴趣的物体找出来。我们首先定义一个图像预处理函数，它对图像进行变换然后转成卷积层需要的四维格式。
 
 ```{.python .input  n=20}
 def process_image(file_name):
@@ -341,7 +341,7 @@ lines = ['-', '--', '-.']
 x = nd.arange(-2, 2, 0.1)
 gb.set_figsize()
 
-for l,s in zip(lines, sigmas):
+for l, s in zip(lines, sigmas):
     y = nd.smooth_l1(x, scalar=s)
     gb.plt.plot(x.asnumpy(), y.asnumpy(), l, label='sigma=%.1f' % s)
 gb.plt.legend();
@@ -366,7 +366,7 @@ gb.plt.legend();
 
 ### 训练和预测
 
-* 当物体在图片中占比很小时，我们通常会使用比较大的输入图片尺寸。
+* 当物体在图像中占比很小时，我们通常会使用比较大的输入图像尺寸。
 * 尝试分析不同尺寸上锚框的大小和比例是如何选取的。
 * 对锚框赋予标号时，通常会有大量的负类锚框。我们可以对负例采样来使得分类时数据更加平衡。这个可以通过设置`MultiBoxTarget`的参数来完成。
 * 分类和回归损失我们直接加起来了，并没有给予各自权重。

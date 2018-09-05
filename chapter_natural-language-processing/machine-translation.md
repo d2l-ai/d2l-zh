@@ -201,7 +201,7 @@ Sutskever等人发现贪婪搜索也可以在机器翻译中也可以取得不�
 ```{.python .input}
 def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
     for fr_en in fr_ens:
-        print('[input] ', fr_en[0])
+        print('[input] ', fr_en[0], '[expect]', fr_en[1])
         input_tokens = fr_en[0].split(' ') + [EOS]
         # 添加 PAD 符号使每个序列等长（长度为 max_seq_len）。
         while len(input_tokens) < max_seq_len:
@@ -227,8 +227,7 @@ def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
             else:
                 output_tokens.append(output_vocab.idx_to_token[pred_i])
             decoder_input = nd.array([pred_i], ctx=ctx)
-        print('[output]', ' '.join(output_tokens))
-        print('[expect]', fr_en[1], '\n')
+        print('[output]', ' '.join(output_tokens), '\n')
 ```
 
 下面定义模型训练函数。为了初始化解码器的隐藏状态，我们通过一层全连接网络来变换编码器最早时间步的输出隐藏状态。解码器中，当前时间步的预测词将作为下一时间步的输入。其实，我们也可以使用样本输出序列在当前时间步的词作为下一时间步的输入。这叫作强制教学（teacher forcing）。
@@ -310,8 +309,8 @@ decoder_init_state = DecoderInitState(encoder_num_hiddens,
 给定简单的法语和英语序列，我们可以观察模型的训练结果。打印的结果中，input、output和expect分别代表输入序列、输出序列和正确序列。我们可以比较output和expect，观察输出序列是否符合预期。
 
 ```{.python .input}
-eval_fr_ens =[['elle est japonaise .', 'she is japanese .'],
-              ['ils regardent .', 'they are watching .']]
+eval_fr_ens = [['elle est japonaise .', 'she is japanese .'],
+               ['ils regardent .', 'they are watching .']]
 train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens)
 ```
 
@@ -324,7 +323,7 @@ train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens)
 
 设$k$为我们希望评价的$n$个连续词的最大长度，例如$k=4$。设$n$个连续词的精度为$p_n$。它是模型预测序列与样本标签序列匹配$n$个连续词的数量与模型预测序列中$n$个连续词数量之比。举个例子，假设标签序列为$ABCDEF$，预测序列为$ABBCD$。那么$p_1 = 4/5, p_2 = 3/4, p_3 = 1/3, p_4 = 0$。设$len_{\text{label}}$和$len_{\text{pred}}$分别为标签序列和模型预测序列的词数。那么，BLEU的定义为
 
-$$ \exp(\min(0, 1 - \frac{len_{\text{label}}}{len_{\text{pred}}})) \prod_{i=1}^k p_n^{1/2^n}.$$
+$$ \exp(\min(0, 1 - \frac{len_{\text{label}}}{len_{\text{pred}}})) \prod_{n=1}^k p_n^{1/2^n}.$$
 
 需要注意的是，匹配较长连续词比匹配较短连续词更难。因此，一方面，匹配较长连续词应被赋予更大权重。而上式中$p_n^{1/2^n}$的指数相当于权重。随着$n$的提高，$n$个连续词的精度的权重随着$1/2^n$的减小而增大。例如$0.5^{1/2} \approx 0.7, 0.5^{1/4} \approx 0.84, 0.5^{1/8} \approx 0.92, 0.5^{1/16} \approx 0.96$。另一方面，模型预测较短序列往往会得到较高的$n$个连续词的精度。因此，上式中连乘项前面的系数是为了惩罚较短的输出。举个例子，当$k=2$时，假设标签序列为$ABCDEF$，而预测序列为$AB$。虽然$p_1 = p_2 = 1$，但惩罚系数$\exp(1-6/2) \approx 0.14$，因此BLEU也接近0.14。当预测序列和标签序列完全一致时，BLEU为1。
 
