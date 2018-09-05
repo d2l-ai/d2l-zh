@@ -250,7 +250,7 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx,
 
     data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
     l_sum = 0
-    for epoch in range(1, num_epochs + 1):
+    for epoch in range(num_epochs):
         for x, y in data_iter:
             cur_batch_size = x.shape[0]
             with autograd.record():
@@ -282,13 +282,13 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx,
             decoder_init_state_optimizer.step(1)
             l_sum += l.asscalar() / max_seq_len
 
-        if epoch % eval_interval == 0 or epoch == 1:
-            if epoch == 1:
-                print('epoch %d, loss %f, ' % (epoch, l_sum / len(data_iter)))
+        if (epoch + 1) % eval_interval == 0 or epoch == 0:
+            if epoch == 0:
+                print('epoch %d, loss %f, ' % (epoch + 1, l_sum / len(data_iter)))
             else:
                 print('epoch %d, loss %f, ' 
-                      % (epoch, l_sum / eval_interval / len(data_iter)))
-            if epoch != 1:
+                      % (epoch + 1, l_sum / eval_interval / len(data_iter)))
+            if epoch != 0:
                 l_sum = 0
             translate(encoder, decoder, decoder_init_state, eval_fr_ens, ctx,
                       max_seq_len)

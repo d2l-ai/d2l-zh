@@ -196,7 +196,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
     print('training on', ctx)
     if isinstance(ctx, mx.Context):
         ctx = [ctx]
-    for epoch in range(1, num_epochs + 1):
+    for epoch in range(num_epochs):
         train_l_sum, train_acc_sum, n, m = 0.0, 0.0, 0.0, 0.0
         start = time()
         for i, batch in enumerate(train_iter):
@@ -216,7 +216,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
         test_acc = evaluate_accuracy(test_iter, net, ctx)
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
               'time %.1f sec'
-              % (epoch, train_l_sum / n, train_acc_sum / m, test_acc,
+              % (epoch + 1, train_l_sum / n, train_acc_sum / m, test_acc,
                  time() - start))
 ```
 
@@ -229,12 +229,11 @@ def train_with_data_aug(train_augs, test_augs, lr=0.001):
     net = gb.resnet18(10)
     net.initialize(ctx=ctx, init=init.Xavier())
     # 这里使用了 Adam 优化算法。
-    trainer = gluon.Trainer(net.collect_params(), 'adam',
-                            {'learning_rate': lr})
+    trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': lr})
     loss = gloss.SoftmaxCrossEntropyLoss()
     train_iter = load_cifar10(True, train_augs, batch_size)
     test_iter = load_cifar10(False, test_augs, batch_size)
-    train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=15)
+    train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=10)
 ```
 
 我们先观察使用了图像增广的结果。

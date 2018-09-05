@@ -21,7 +21,7 @@
 * 工具或部件
     * Gluon, MXNet, NumPy, spaCy, NDArray, Symbol, Block, HybridBlock, ResNet-18, Fashion-MNIST
         * 这些都作为词，不要带重音符
-    * Dense类/实例, Sequential类/实例, HybridSequential类/实例
+    * Sequential类/实例, HybridSequential类/实例
         * 不要带重音符
     * `backward`函数
         * 不是“`backward()`函数” （不要带括号）

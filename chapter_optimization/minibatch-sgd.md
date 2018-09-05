@@ -25,11 +25,11 @@ import sys
 sys.path.insert(0, '..')
 
 %matplotlib inline
-import time
-import numpy as np
 import gluonbook as gb
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import nn, data as gdata, loss as gloss
+import numpy as np
+import time
 ```
 
 然后读取这个数据集。这个数据集有1503个样本和4个特征，我们使用标准化对它进行预处理。
@@ -58,8 +58,8 @@ def sgd(params, states, hyperparams):
 
 ```{.python .input  n=4}
 # 本函数已保存在 gluonbook 包中方便以后使用。
-def train_ch7(trainer_fn, states, hyperparams, features, labels,
-              batch_size=10, num_epochs=2):
+def train_ch7(trainer_fn, states, hyperparams, features, labels, batch_size=10,
+              num_epochs=2):
     # 初始化模型。
     net, loss = gb.linreg, gb.squared_loss
     w = nd.random.normal(scale=0.01, shape=(features.shape[1], 1))
@@ -71,7 +71,7 @@ def train_ch7(trainer_fn, states, hyperparams, features, labels,
     ls = [eval_loss()]
     data_iter = gdata.DataLoader(
         gdata.ArrayDataset(features, labels), batch_size, shuffle=True)
-    for epoch in range(num_epochs):
+    for _ in range(num_epochs):
         start = time.time()
         for batch_i, (X, y) in enumerate(data_iter):
             with autograd.record():
@@ -91,8 +91,8 @@ def train_ch7(trainer_fn, states, hyperparams, features, labels,
 当批量大小为样本总数的1500时，优化使用的是梯度下降。梯度下降的1个迭代周期对模型参数只迭代1次。可以看到6次迭代后训练损失下降趋向了平稳。
 
 ```{.python .input  n=5}
-def train_sgd(lr, batch_size, epoch_size=2):
-    train_ch7(sgd, None, {'lr': lr}, features, labels, batch_size, epoch_size)
+def train_sgd(lr, batch_size, num_epochs=2):
+    train_ch7(sgd, None, {'lr': lr}, features, labels, batch_size, num_epochs)
 
 train_sgd(1, 1500, 6)
 ```
@@ -102,13 +102,13 @@ train_sgd(1, 1500, 6)
 虽然随机梯度下降和梯度下降在一个周期里面有同样的运算复杂度，因为它们都处理了1500个样本。但实际上随机梯度下降的一个周期耗时要多，这是因为有更多的自变量更新，以及单样本的梯度计算难以有效的平行计算。
 
 ```{.python .input  n=6}
-train_sgd(.005, 1)
+train_sgd(0.005, 1)
 ```
 
 当批量大小为10时，优化使用的是小批量随机梯度下降。它跟随机梯度下降一样能很快的降低训练损失，但每一个周期的计算要更加迅速。
 
 ```{.python .input  n=7}
-train_sgd(.05, 10)
+train_sgd(0.05, 10)
 ```
 
 ## 使用Gluon的实现
@@ -129,10 +129,10 @@ def train_gluon_ch7(trainer_name, trainer_hyperparams, features, labels,
     ls = [eval_loss()]
     data_iter = gdata.DataLoader(
         gdata.ArrayDataset(features, labels), batch_size, shuffle=True)
-    # 创建 Trainer 类实例来更新权重，然后开始迭代。
+    # 创建 Trainer 实例来更新权重，然后开始迭代。
     trainer = gluon.Trainer(
         net.collect_params(), trainer_name, trainer_hyperparams)
-    for epoch in range(1, num_epochs + 1):
+    for _ in range(num_epochs):
         start = time.time()
         for batch_i, (X, y) in enumerate(data_iter):
             with autograd.record():
@@ -152,7 +152,7 @@ def train_gluon_ch7(trainer_name, trainer_hyperparams, features, labels,
 以下重复上一个实验：
 
 ```{.python .input  n=9}
-train_gluon_ch7('sgd', {'learning_rate': .05}, features, labels, 10)
+train_gluon_ch7('sgd', {'learning_rate': 0.05}, features, labels, 10)
 ```
 
 ## 小结
@@ -164,3 +164,7 @@ train_gluon_ch7('sgd', {'learning_rate': .05}, features, labels, 10)
 
 * 试着修改批量大小和学习率，观察训练误差下降速度和计算性能。
 * 通常我们会在训练中逐渐减小学习率，正文中介绍了两种，另外还可以每$k$个（这是一个超参数）周期将学习率减小到1/10（另外一个超参数）。试着实现几个方法，并查看实际效果（Trainer类的`set_learning_rate`函数可以在迭代过程中调整学习率）。
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1877)
+
+![](../img/qr_minibatch-sgd.svg)

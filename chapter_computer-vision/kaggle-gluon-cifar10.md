@@ -269,11 +269,11 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
         if valid_data is not None:
             valid_acc = gb.evaluate_accuracy(valid_data, net, ctx)
             epoch_s = ("epoch %d, loss %f, train acc %f, valid acc %f, "
-                       % (epoch, train_l / len(train_data),
+                       % (epoch + 1, train_l / len(train_data),
                           train_acc / len(train_data), valid_acc))
         else:
             epoch_s = ("epoch %d, loss %f, train acc %f, " %
-                       (epoch, train_l / len(train_data),
+                       (epoch + 1, train_l / len(train_data),
                         train_acc / len(train_data)))
         prev_time = cur_time
         print(epoch_s + time_s + ', lr ' + str(trainer.learning_rate))

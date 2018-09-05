@@ -97,7 +97,7 @@ def train(num_gpus, batch_size, lr):
         train_time = time.time() - start        
         test_acc = gb.evaluate_accuracy(test_iter, net, ctx[0])
         print('epoch %d, training time: %.1f sec, test_acc %.2f' % (
-            epoch, train_time, test_acc))
+            epoch + 1, train_time, test_acc))
 ```
 
 首先在单GPU上训练。

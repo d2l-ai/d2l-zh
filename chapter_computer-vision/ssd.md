@@ -242,7 +242,7 @@ def bbox_metric(bbox_preds, bbox_labels, bbox_masks):
 训练函数跟前面的不一样在于网络会有多个输出，而且有两个损失函数。为了代码简单起见我们没有评估测试数据集。
 
 ```{.python .input  n=22}
-for epoch in range(1, 21):
+for epoch in range(20):
     acc, mae = 0, 0
     train_data.reset()  # 从头读取数据。
     tic = time.time()
@@ -265,9 +265,9 @@ for epoch in range(1, 21):
         # 更新类别预测和边界框预测评估。
         acc += cls_metric(cls_preds, cls_labels)
         mae += bbox_metric(bbox_preds, bbox_labels, bbox_masks)
-    if epoch % 5 == 0:
+    if (epoch + 1) % 5 == 0:
         print('epoch %2d, class err %.2e, bbox mae %.2e, time %.1f sec' % (
-            epoch, 1 - acc / (i + 1), mae / (i + 1), time.time() - tic))
+            epoch + 1, 1 - acc / (i + 1), mae / (i + 1), time.time() - tic))
 ```
 
 ## 预测

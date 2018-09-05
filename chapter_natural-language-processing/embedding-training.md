@@ -296,7 +296,7 @@ data_iter = gdata.DataLoader(dataset, batch_size=batch_size, shuffle=True,
 
 ```{.python .input  n=16}
 def train_embedding(num_epochs):
-    for epoch in range(1, num_epochs + 1):
+    for epoch in range(num_epochs):
         start_time = time.time()
         train_l_sum = 0
         for center, context_and_negative, mask, label in data_iter:
@@ -320,7 +320,7 @@ def train_embedding(num_epochs):
             trainer.step(batch_size)
             train_l_sum += l.mean().asscalar()
         print('epoch %d, time %.2fs, train loss %.2f' 
-              % (epoch, time.time() - start_time,
+              % (epoch + 1, time.time() - start_time,
                  train_l_sum / len(data_iter)))
         get_k_closest_tokens(token_to_idx, idx_to_token, embedding, 10,
                              example_token)

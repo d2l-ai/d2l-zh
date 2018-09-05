@@ -14,7 +14,7 @@ from mxnet import autograd, nd
 
 ## 生成数据集
 
-我们构造一个简单的人工训练数据集，它可以使我们能够直观比较学到的参数和真实的模型参数的区别。设训练数据集样本数为1000，输入特征个数为2。给定随机生成的批量样本特征$\boldsymbol{X} \in \mathbb{R}^{1000 \times 2}$，我们使用线性回归模型真实权重$\boldsymbol{w} = [2, -3.4]^\top$和偏差$b = 4.2$，以及一个随机噪音项$\epsilon$来生成标签
+我们构造一个简单的人工训练数据集，它可以使我们能够直观比较学到的参数和真实的模型参数的区别。设训练数据集样本数为1000，输入个数（特征数）为2。给定随机生成的批量样本特征$\boldsymbol{X} \in \mathbb{R}^{1000 \times 2}$，我们使用线性回归模型真实权重$\boldsymbol{w} = [2, -3.4]^\top$和偏差$b = 4.2$，以及一个随机噪音项$\epsilon$来生成标签
 
 $$\boldsymbol{y} = \boldsymbol{X}\boldsymbol{w} + b + \epsilon,$$
 
@@ -44,15 +44,15 @@ def use_svg_display():
     display.set_matplotlib_formats('svg')
 
 def set_figsize(figsize=(3.5, 2.5)):
-    # 设置图的尺寸。
     use_svg_display()
+    # 设置图的尺寸。
     plt.rcParams['figure.figsize'] = figsize
 
 set_figsize()
 plt.scatter(features[:, 1].asnumpy(), labels.asnumpy(), 1); 
 ```
 
-我们将上面的`plt`作图函数以及`use_svg_display`和`set_figsize`函数定义在`gluonbook`包里。以后在作图时，我们将直接调用`gluonbook.plt`。由于`plt`在`gluonbook`包中是一个全局变量，我们在作图前只需要调用`gluonbook.set_figsize()`即可打印高清图并设置图的尺寸。
+我们将上面的`plt`作图函数以及`use_svg_display`和`set_figsize`函数定义在`gluonbook`包里。以后在作图时，我们将直接调用`gluonbook.plt`。由于`plt`在`gluonbook`包中是一个全局变量，我们在作图前只需要调用`gluonbook.set_figsize()`即可打印矢量图并设置图的尺寸。
 
 
 ## 读取数据
@@ -82,14 +82,14 @@ for X, y in data_iter(batch_size, features, labels):
 
 ## 初始化模型参数
 
-我们将权重初始化成均值0标准差为0.01的正态随机数，偏差则初始化成0。
+我们将权重初始化成均值为0标准差为0.01的正态随机数，偏差则初始化成0。
 
 ```{.python .input  n=7}
 w = nd.random.normal(scale=0.01, shape=(num_inputs, 1))
 b = nd.zeros(shape=(1,))
 ```
 
-之后训练时我们需要对这些参数求梯度来迭代它们的值，因此我们需要创建它们的梯度。
+之后的模型训练中，我们需要对这些参数求梯度来迭代参数的值，因此我们需要创建它们的梯度。
 
 ```{.python .input  n=8}
 w.attach_grad()
@@ -101,8 +101,7 @@ b.attach_grad()
 下面是线性回归的矢量计算表达式的实现。我们使用`dot`函数做矩阵乘法。
 
 ```{.python .input  n=9}
-# 本函数已保存在 gluonbook 包中方便以后使用。
-def linreg(X, w, b): 
+def linreg(X, w, b):  # 本函数已保存在 gluonbook 包中方便以后使用。
     return nd.dot(X, w) + b 
 ```
 
@@ -111,25 +110,25 @@ def linreg(X, w, b):
 我们使用上一节描述的平方损失来定义线性回归的损失函数。在实现中，我们需要把真实值`y`变形成预测值`y_hat`的形状。以下函数返回的结果也将和`y_hat`的形状相同。
 
 ```{.python .input  n=10}
-# 本函数已保存在 gluonbook 包中方便以后使用。
-def squared_loss(y_hat, y): 
+def squared_loss(y_hat, y):  # 本函数已保存在 gluonbook 包中方便以后使用。
     return (y_hat - y.reshape(y_hat.shape)) ** 2 / 2
 ```
 
 ## 定义优化算法
 
-以下的`sgd`函数实现了上一节中介绍的小批量随机梯度下降算法。它通过不断更新模型参数来优化损失函数。这里自动求导模块计算得来的梯度是一个批量样本的梯度和，我们除以批量大小来得到平均值。这样使用不同批量大小`batch_size`的时候对优化算法的影响将变小，例如学习率`lr`将不会过于敏感。
+以下的`sgd`函数实现了上一节中介绍的小批量随机梯度下降算法。它通过不断迭代模型参数来优化损失函数。这里自动求导模块计算得来的梯度是一个批量样本的梯度和。我们将它除以批量大小来得到平均值。
 
 ```{.python .input  n=11}
-# 本函数已保存在 gluonbook 包中方便以后使用。
-def sgd(params, lr, batch_size):
+def sgd(params, lr, batch_size):  # 本函数已保存在 gluonbook 包中方便以后使用。
     for param in params:
         param[:] = param - lr * param.grad / batch_size
 ```
 
 ## 训练模型
 
-现在我们可以开始训练模型了。在训练中，我们将有限次地迭代模型参数。在每次迭代中，我们根据当前读取的小批量数据样本（特征`features`和标签`label`），通过调用反向函数`backward`计算小批量随机梯度，并调用优化算法`sgd`迭代模型参数。在一个迭代周期（epoch）中，我们将完整遍历一遍`data_iter`函数，并对训练数据集中所有样本都使用一次（假设样本数能够被批量大小整除）。这里的迭代周期数`num_epochs`和学习率`lr`都是超参数，分别设3和0.03。在实践中，大多超参数都需要通过反复试错来不断调节。当迭代周期数设的越大时，虽然模型可能更有效，但是训练时间可能过长。而有关学习率对模型的影响，我们会在后面“优化算法”一章中详细介绍。
+在训练中，我们将多次迭代模型参数。在每次迭代中，我们根据当前读取的小批量数据样本（特征`X`和标签`y`），通过调用反向函数`backward`计算小批量随机梯度，并调用优化算法`sgd`迭代模型参数。由于我们之前设批量大小`batch_size`为10，每个小批量的损失`l`的形状为（10，1）。回忆一下[“自动求梯度”](../chapter_prerequisite/autograd.md)一节。由于变量`l`并不是一个标量，运行`l.backward()`将对`l`中元素求和得到新的变量，再求该变量有关模型参数的梯度。
+
+在一个迭代周期（epoch）中，我们将完整遍历一遍`data_iter`函数，并对训练数据集中所有样本都使用一次（假设样本数能够被批量大小整除）。这里的迭代周期个数`num_epochs`和学习率`lr`都是超参数，分别设3和0.03。在实践中，大多超参数都需要通过反复试错来不断调节。当迭代周期数设的越大时，虽然模型可能更有效，但是训练时间可能过长。而有关学习率对模型的影响，我们会在后面“优化算法”一章中详细介绍。
 
 ```{.python .input  n=12}
 lr = 0.03
@@ -142,11 +141,11 @@ for epoch in range(num_epochs):  # 训练模型一共需要 num_epochs 个迭代
     # X 和 y 分别是小批量样本的特征和标签。
     for X, y in data_iter(batch_size, features, labels):
         with autograd.record():            
-            l = loss(net(X, w, b), y)  # l 是有关小批量 X 和 y 的损失。        
-        l.backward()  # 小批量的损失对模型参数求导。        
+            l = loss(net(X, w, b), y)  # l 是有关小批量 X 和 y 的损失。
+        l.backward()  # 小批量的损失对模型参数求梯度。        
         sgd([w, b], lr, batch_size)  # 使用小批量随机梯度下降迭代模型参数。
-    l = loss(net(features, w, b), labels)
-    print('epoch %d, loss %f' % (epoch+1, l.mean().asnumpy()))
+    train_l = loss(net(features, w, b), labels)
+    print('epoch %d, loss %f' % (epoch + 1, train_l.mean().asnumpy()))
 ```
 
 训练完成后，我们可以比较学到的参数和用来生成训练集的真实参数。它们应该很接近。
@@ -161,15 +160,14 @@ true_b, b
 
 ## 小结
 
-我们现在看到，仅使用NDArray和`autograd`就可以很容易地实现一个模型。在接下来的章节中，我们会在此基础上描述更多深度学习模型，并介绍怎样使用更简洁的代码（例如下一节）实现它们。
+* 可以看出，仅使用NDArray和`autograd`就可以很容易地实现一个模型。在接下来的章节中，我们会在此基础上描述更多深度学习模型，并介绍怎样使用更简洁的代码（例如下一节）来实现它们。
 
 
 ## 练习
 
-* 为什么`squared_loss`函数中需要使用`reshape`?
-* 尝试用不同的学习率查看损失函数值的下降速度。
-* 回顾[“自动求梯度”](../chapter_prerequisite/autograd.md)一节。本节代码中变量`l`并不是一个标量，运行`l.backward()`将如何对模型参数求梯度？
-* 如果样本个数不能被批量大小整除时会怎么样？
+* 为什么`squared_loss`函数中需要使用`reshape`函数?
+* 尝试使用不同的学习率，观察损失函数值的下降快慢。
+* 如果样本个数不能被批量大小整除，`data_iter`函数的行为会有什么变化？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/743)
