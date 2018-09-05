@@ -183,7 +183,14 @@ $$
     x_1^{(i)} (x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}) \\
     x_2^{(i)} (x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}) \\
     x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}
-\end{bmatrix}. 
+\end{bmatrix}
+=
+\begin{bmatrix}
+    x_1^{(i)} \\
+    x_2^{(i)} \\
+    1
+\end{bmatrix}
+(\hat{y}^{(i)} - y^{(i)}).
 $$
 
 
