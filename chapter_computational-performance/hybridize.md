@@ -2,7 +2,7 @@
 
 本书到目前为止一直都在使用命令式编程，它使用编程语句改变程序状态。考虑下面这段简单的命令式编程代码。
 
-```{.python .input  n=1}
+```{.python .input}
 def add(a, b):
     return a + b
 
@@ -27,7 +27,7 @@ fancy_func(1, 2, 3, 4)
 
 下面我们用符号式编程重新实现本节开头给出的命令式编程代码。
 
-```{.python .input  n=2}
+```{.python .input}
 def add_str():
     return '''
 def add(a, b):
@@ -71,7 +71,7 @@ exec(y)
 
 本节将通过实验展示混合式编程的魅力。首先，导入本节中实验所需的包或模块。
 
-```{.python .input  n=3}
+```{.python .input}
 from mxnet import nd, sym
 from mxnet.gluon import nn
 import time
@@ -81,7 +81,7 @@ import time
 
 我们之前学习了如何使用Sequential类来串联多个层。为了使用混合式编程，下面我们将Sequential类替换成HybridSequential类。
 
-```{.python .input  n=4}
+```{.python .input}
 def get_net():
     net = nn.HybridSequential()  # 跟前唯一不同在于这里使用 HybridSequential 类 。
     net.add(nn.Dense(256, activation='relu'),
@@ -97,7 +97,7 @@ net(x)
 
 我们可以通过调用`hybridize`函数来编译和优化HybridSequential实例中串联的层的计算。模型的计算结果不变。
 
-```{.python .input  n=5}
+```{.python .input}
 net.hybridize()
 net(x)
 ```
@@ -109,7 +109,7 @@ net(x)
 
 我们比较调用`hybridize`函数前后的计算时间来展示符号式编程的性能提升。这里我们计时1000次`net`模型计算。在`net`调用`hybridize`函数前后，它分别依据命令式编程和符号式编程做模型计算。
 
-```{.python .input  n=6}
+```{.python .input}
 def benchmark(net, x):
     start = time.time()
     for i in range(1000):
@@ -149,7 +149,7 @@ net(x)
 
 前面我们展示了调用`hybridize`函数后的模型可以获得更好的计算性能和移植性。另一方面，调用`hybridize`后的模型会影响灵活性。为了解释这一点，我们先使用HybridBlock构造模型。
 
-```{.python .input  n=7}
+```{.python .input}
 class HybridNet(nn.HybridBlock):
     def __init__(self, **kwargs):
         super(HybridNet, self).__init__(**kwargs)
@@ -168,7 +168,7 @@ class HybridNet(nn.HybridBlock):
 
 下面创建了一个HybridBlock实例。可以看到默认下`F`使用NDArray。而且，我们打印出了输入`x`和使用ReLU激活函数的隐藏层的输出。
 
-```{.python .input  n=8}
+```{.python .input}
 net = HybridNet()
 net.initialize()
 x = nd.random.normal(shape=(1, 4))
@@ -177,13 +177,13 @@ net(x)
 
 再运行一次会得到同样的结果。
 
-```{.python .input  n=9}
+```{.python .input}
 net(x)
 ```
 
 接下来看看调用`hybridize`函数后会发生什么。
 
-```{.python .input  n=10}
+```{.python .input}
 net.hybridize()
 net(x)
 ```
@@ -192,7 +192,7 @@ net(x)
 
 再运行一次看看。
 
-```{.python .input  n=11}
+```{.python .input}
 net(x)
 ```
 
