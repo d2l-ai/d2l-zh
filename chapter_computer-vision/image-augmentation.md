@@ -224,8 +224,12 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
 
 ```{.python .input  n=38}
 def train_with_data_aug(train_augs, test_augs, lr=0.001):
-    batch_size = 256
-    ctx = try_all_gpus()
+    batch_size = 200
+    ctxs = try_all_gpus()
+	n=len(ctxs)
+    while(50000%n):
+        n=n-1
+    ctx=ctxs[0:n]
     net = gb.resnet18(10)
     net.initialize(ctx=ctx, init=init.Xavier())
     # 这里使用了 Adam 优化算法。
