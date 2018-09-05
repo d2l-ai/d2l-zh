@@ -102,7 +102,7 @@ net.hybridize()
 net(x)
 ```
 
-需要注意的是，只有继承HybridBlock的层才会被优化。例如，HybridSequential类和Gluon提供的Dense类都是HybridBlock的子类，它们都会被优化计算。如果一个层只是继承自Block而不是HybridBlock类（之后会讨论），那么它将不会被优化。
+需要注意的是，只有继承HybridBlock的层才会被优化。例如，HybridSequential类和Gluon提供的`Dense`类都是HybridBlock的子类，它们都会被优化计算。如果一个层只是继承自Block而不是HybridBlock类（之后会讨论），那么它将不会被优化。
 
 
 ### 性能
