@@ -83,7 +83,7 @@ loss = gloss.L2Loss()  # 平方损失又称 L2 范数损失。
 
 ## 定义优化算法
 
-同样，我们也无需实现小批量随机梯度下降。在导入Gluon后，我们创建一个Trainer实例，并指定学习率为0.03的小批量随机梯度下降（`sgd`）为优化算法。该优化算法将用来迭代`net`实例所有通过`add`函数嵌套的层所包含的所有参数，其可以通过`collect_params`获取。
+同样，我们也无需实现小批量随机梯度下降。在导入Gluon后，我们创建一个`Trainer`实例，并指定学习率为0.03的小批量随机梯度下降（`sgd`）为优化算法。该优化算法将用来迭代`net`实例所有通过`add`函数嵌套的层所包含的全部参数。这些参数可以通过`collect_params`函数获取。
 
 ```{.python .input  n=9}
 from mxnet import gluon
@@ -93,7 +93,7 @@ trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.03})
 
 ## 训练模型
 
-在使用Gluon训练模型时，我们通过调用`Trainer`实例的`step`函数来迭代模型参数。由于变量`l`是长度为`batch_size`的一维NDArray，执行`l.backward()`等价于`l.sum().backward()`。按照小批量随机梯度下降的定义，我们在`step`函数中指明批量大小，其跟上一节实现的`sgd`函数那样会对样本梯度做平均。
+在使用Gluon训练模型时，我们通过调用`Trainer`实例的`step`函数来迭代模型参数。上一节中我们提到，由于变量`l`是长度为`batch_size`的一维NDArray，执行`l.backward()`等价于执行`l.sum().backward()`。按照小批量随机梯度下降的定义，我们在`step`函数中指明批量大小，从而对批量中样本梯度求平均。
 
 ```{.python .input  n=10}
 num_epochs = 3
@@ -107,7 +107,7 @@ for epoch in range(1, num_epochs + 1):
     print('epoch %d, loss: %f' % (epoch, l.mean().asnumpy()))
 ```
 
-下面我们分别比较学到的和真实的模型参数。我们从`net`获得需要的层，并访问其权重（`weight`）和位移（`bias`）。学到的和真实的参数很接近。
+下面我们分别比较学到的和真实的模型参数。我们从`net`获得需要的层，并访问其权重（`weight`）和偏差（`bias`）。学到的和真实的参数很接近。
 
 ```{.python .input  n=12}
 dense = net[0]
@@ -128,7 +128,7 @@ true_b, dense.bias.data()
 ## 练习
 
 * 如果将`l = loss(output, y)`替换成`l = loss(output, y).mean()`，我们需要将`trainer.step(batch_size)`相应地改成`trainer.step(1)`。这是为什么呢？
-* 查看`gloss`和`init`里面提供了哪些其他的损失函数和初始方法。
+* 查阅MXNet文档，看看`gluon.loss`和`init`模块里提供了哪些损失函数和初始化方法。
 * 如何访问`dense.weight`的梯度？
 
 
