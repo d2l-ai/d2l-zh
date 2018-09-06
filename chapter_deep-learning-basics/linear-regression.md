@@ -97,16 +97,6 @@ a = nd.ones(shape=1000)
 b = nd.ones(shape=1000)
 ```
 
-```{.json .output n=1}
-[
- {
-  "name": "stderr",
-  "output_type": "stream",
-  "text": "C:\\ProgramData\\Anaconda3\\lib\\site-packages\\h5py\\__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.\n  from ._conv import register_converters as _register_converters\n"
- }
-]
-```
-
 向量相加的一种方法是，将这两个向量按元素逐一做标量加法：
 
 ```{.python .input  n=2}
@@ -117,38 +107,12 @@ for i in range(1000):
 time() - start
 ```
 
-```{.json .output n=2}
-[
- {
-  "data": {
-   "text/plain": "0.18845438957214355"
-  },
-  "execution_count": 2,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 向量相加的另一种方法是，将这两个向量直接做矢量加法：
 
 ```{.python .input  n=3}
 start = time()
 d = a + b
 time() - start
-```
-
-```{.json .output n=3}
-[
- {
-  "data": {
-   "text/plain": "0.0004947185516357422"
-  },
-  "execution_count": 3,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 结果很明显，后者比前者更省时。因此，我们应该尽可能采用矢量计算，以提升计算效率。
