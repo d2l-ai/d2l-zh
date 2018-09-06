@@ -18,10 +18,10 @@
 优化在深度学习中有很多挑战。以下描述了其中的两个挑战：局部最小值和鞍点。为了更好地描述问题，我们先导入本节中实验需要的包或模块。
 
 ```{.python .input  n=1}
-%matplotlib inline
 import sys
 sys.path.insert(0, '..')
 
+%matplotlib inline
 import gluonbook as gb
 from mpl_toolkits import mplot3d
 import numpy as np
@@ -78,7 +78,7 @@ $$f(x, y) = x^2 - y^2.$$
 我们可以找出该函数的鞍点位置。也许你已经发现了，该函数看起来像一个马鞍，而鞍点恰好是马鞍上可坐区域的中心。
 
 ```{.python .input  n=4}
-x, y = np.mgrid[-1:1:31j, -1:1:31j]
+x, y = np.mgrid[-1: 1: 31j, -1: 1: 31j]
 z = x**2 - y**2
 
 ax = gb.plt.figure().add_subplot(111, projection='3d')

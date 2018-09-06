@@ -55,7 +55,7 @@ class RNNModel(nn.Block):
         self.rnn = rnn_layer
         self.vocab_size = vocab_size
         self.dense = nn.Dense(vocab_size)
-        
+
     def forward(self, inputs, state):
         # 将输入转置成（num_steps，batch_size）后获取 one-hot 表示。
         X = nd.one_hot(inputs.T, self.vocab_size)

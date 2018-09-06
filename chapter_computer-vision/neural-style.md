@@ -189,7 +189,6 @@ def train(x, content_y, style_y, ctx, lr, max_epochs, lr_decay_epoch):
                   % (i, nd.add_n(*content_L).asscalar(),
                      nd.add_n(*style_L).asscalar(), tv_L.asscalar(),
                      time.time() - tic))
-            
         if i % lr_decay_epoch == 0:
             lr *= 0.1
             print('change lr to %.1e' % lr)

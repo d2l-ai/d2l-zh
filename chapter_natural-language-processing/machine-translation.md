@@ -284,7 +284,8 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx,
 
         if (epoch + 1) % eval_interval == 0 or epoch == 0:
             if epoch == 0:
-                print('epoch %d, loss %f, ' % (epoch + 1, l_sum / len(data_iter)))
+                print('epoch %d, loss %f, '
+                      % (epoch + 1, l_sum / len(data_iter)))
             else:
                 print('epoch %d, loss %f, ' 
                       % (epoch + 1, l_sum / eval_interval / len(data_iter)))

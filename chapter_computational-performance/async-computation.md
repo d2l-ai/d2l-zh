@@ -45,7 +45,7 @@ class Benchmark():  # 本类已保存在 gluonbook 包中方便以后使用。
 with Benchmark('workloads are queued.'):
     x = nd.random.uniform(shape=(2000, 2000))
     y = nd.dot(x, x).sum()
-    
+
 with Benchmark('workloads are finished.'):
     print('sum =', y)
 ```
@@ -60,7 +60,7 @@ with Benchmark('workloads are finished.'):
 下面是使用`wait_to_read`的例子。输出用时包含了`y`的计算时间。
 
 ```{.python .input  n=5}
-with Benchmark():    
+with Benchmark():
     y = nd.dot(x, x)
     y.wait_to_read()
 ```
@@ -101,7 +101,7 @@ with Benchmark('synchronous. '):
         y = x + 1
         y.wait_to_read()
 
-with Benchmark('asynchronous. '):        
+with Benchmark('asynchronous. '):
     for _ in range(1000):
         y = x + 1
     nd.waitall()

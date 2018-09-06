@@ -229,7 +229,8 @@ def train_with_data_aug(train_augs, test_augs, lr=0.001):
     net = gb.resnet18(10)
     net.initialize(ctx=ctx, init=init.Xavier())
     # 这里使用了 Adam 优化算法。
-    trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': lr})
+    trainer = gluon.Trainer(net.collect_params(), 'adam',
+                            {'learning_rate': lr})
     loss = gloss.SoftmaxCrossEntropyLoss()
     train_iter = load_cifar10(True, train_augs, batch_size)
     test_iter = load_cifar10(False, test_augs, batch_size)

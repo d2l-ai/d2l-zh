@@ -113,7 +113,7 @@ net(x)
 def benchmark(net, x):
     start = time.time()
     for i in range(1000):
-        _ = net(x)    
+        _ = net(x)
     nd.waitall()  # 等待所有计算完成方便计时。
     return time.time() - start
 
