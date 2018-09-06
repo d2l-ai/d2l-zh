@@ -112,6 +112,6 @@
 * 端到端的训练方法还可以用在哪里？物理学？工程学？或是经济学？
 * 为什么我们应该让深度网络模仿人脑结构？为什么我们不该让深度网络模仿人脑结构？
 
-## 扫码直达 [论坛](https://discuss.gluon.ai/t/topic/746)
+## 扫码直达 [讨论区](https://discuss.gluon.ai/t/topic/746)
 
 ![](../img/qr_deep-learning-intro.svg)
