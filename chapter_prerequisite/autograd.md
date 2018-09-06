@@ -1,6 +1,6 @@
 # 自动求梯度
 
-在深度学习中，我们经常需要对函数求梯度（gradient）。本节将介绍如何使用MXNet提供的`autograd`包来自动求梯度。如果你对本节中的数学概念（例如梯度）不是很熟悉，可以参阅附录中[“数学基础”](../chapter_appendix/math.md)一节。
+在深度学习中，我们经常需要对函数求梯度（gradient）。本节将介绍如何使用 MXNet 提供的`autograd`包来自动求梯度。如果你对本节中的数学概念（例如梯度）不是很熟悉，可以参阅附录中[“数学基础”](../chapter_appendix/math.md)一节。
 
 ```{.python .input  n=2}
 from mxnet import autograd, nd
@@ -21,14 +21,14 @@ x
 x.attach_grad()
 ```
 
-下面定义有关变量`x`的函数。为了减少计算和内存开销，默认条件下MXNet不会记录用于求梯度的计算。我们需要调用`record`函数来要求MXNet记录与求梯度有关的计算。
+下面定义有关变量`x`的函数。为了减少计算和内存开销，默认条件下 MXNet 不会记录用于求梯度的计算。我们需要调用`record`函数来要求 MXNet 记录与求梯度有关的计算。
 
 ```{.python .input}
 with autograd.record():
     y = 2 * nd.dot(x.T, x)
 ```
 
-由于`x`的形状为（4, 1），`y`是一个标量。接下来我们可以通过调用`backward`函数自动求梯度。需要注意的是，如果`y`不是一个标量，MXNet将默认先对`y`中元素求和得到新的变量，再求该变量有关`x`的梯度。
+由于`x`的形状为（4, 1），`y`是一个标量。接下来我们可以通过调用`backward`函数自动求梯度。需要注意的是，如果`y`不是一个标量，MXNet 将默认先对`y`中元素求和得到新的变量，再求该变量有关`x`的梯度。
 
 ```{.python .input}
 y.backward()
@@ -43,7 +43,7 @@ x.grad
 
 ## 训练模式和预测模式
 
-从上面可以看出，在调用`record`函数后，MXNet会记录并计算梯度。此外，默认下`autograd`还会将运行模式从预测模式转为训练模式。这可以通过调用`is_training`函数来查看。
+从上面可以看出，在调用`record`函数后，MXNet 会记录并计算梯度。此外，默认下`autograd`还会将运行模式从预测模式转为训练模式。这可以通过调用`is_training`函数来查看。
 
 ```{.python .input}
 print(autograd.is_training())
@@ -54,11 +54,11 @@ with autograd.record():
 在有些情况下，同一个模型在训练模式和预测模式下的行为并不相同。我们会在后面的章节详细介绍这些区别。
 
 
-## 对Python控制流求梯度
+## 对 Python 控制流求梯度
 
-使用MXNet的一个便利之处是，即使函数的计算图包含了Python的控制流（例如条件和循环控制），我们也有可能对变量求梯度。
+使用 MXNet 的一个便利之处是，即使函数的计算图包含了 Python 的控制流（例如条件和循环控制），我们也有可能对变量求梯度。
 
-考虑下面程序，其中包含Python的条件和循环控制。需要强调的是，这里循环（while循环）迭代的次数和条件判断（if语句）的执行都取决于输入`b`的值。
+考虑下面程序，其中包含 Python 的条件和循环控制。需要强调的是，这里循环（while 循环）迭代的次数和条件判断（if 语句）的执行都取决于输入`b`的值。
 
 ```{.python .input  n=3}
 def f(a):
@@ -90,9 +90,9 @@ a.grad == c / a
 
 ## 小结
 
-* MXNet提供`autograd`包来自动化求导过程。
-* MXNet的`autograd`包可以对一般的命令式程序进行求导。
-* MXNet的运行模式包括训练模式和预测模式。我们可以通过`autograd.is_training()`来判断运行模式。
+* MXNet 提供`autograd`包来自动化求导过程。
+* MXNet 的`autograd`包可以对一般的命令式程序进行求导。
+* MXNet 的运行模式包括训练模式和预测模式。我们可以通过`autograd.is_training()`来判断运行模式。
 
 ## 练习
 

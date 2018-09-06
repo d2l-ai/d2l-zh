@@ -1,4 +1,4 @@
-# 查阅MXNet文档
+# 查阅 MXNet 文档
 
 受篇幅所限，本书无法对所有用到的MXNet函数一一详细介绍。我们可以主动查找相关文档来做更深入的了解。
 
@@ -12,48 +12,86 @@ from mxnet import nd
 print(dir(nd.random))
 ```
 
-通常我们可以忽略掉由`__`开头和结尾的函数（Python的特别对象）或者由单`_`开头的函数（一般为内部函数）。通过其余成员的名字我们大致猜测出这个模块提供了各种随机数的生成方法，包括从均匀分布采样（`uniform`）、从正态分布采样（`normal`）、从泊松分布采样（`poisson`）等。
+```{.json .output n=1}
+[
+ {
+  "name": "stderr",
+  "output_type": "stream",
+  "text": "C:\\ProgramData\\Anaconda3\\lib\\site-packages\\h5py\\__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.\n  from ._conv import register_converters as _register_converters\n"
+ },
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "['NDArray', '_Null', '__all__', '__builtins__', '__cached__', '__doc__', '__file__', '__loader__', '__name__', '__package__', '__spec__', '_internal', '_random_helper', 'current_context', 'exponential', 'gamma', 'generalized_negative_binomial', 'multinomial', 'negative_binomial', 'normal', 'numeric_types', 'poisson', 'shuffle', 'uniform']\n"
+ }
+]
+```
+
+通常我们可以忽略掉由`__`开头和结尾的函数（Python 的特别对象）或者由单`_`开头的函数（一般为内部函数）。通过其余成员的名字我们大致猜测出这个模块提供了各种随机数的生成方法，包括从均匀分布采样（`uniform`）、从正态分布采样（`normal`）、从泊松分布采样（`poisson`）等。
 
 ## 查找特定函数和类的使用
 
-当我们想了解某个函数或者类的具体用法时，可以使用`help`函数。让我们以NDArray中的`ones_like`函数为例，查阅它的用法。
+当我们想了解某个函数或者类的具体用法时，可以使用`help`函数。让我们以 NDArray 中的`ones_like`函数为例，查阅它的用法。
 
-```{.python .input}
+```{.python .input  n=2}
 from mxnet import nd
 help(nd.ones_like) 
 ```
 
-从文档信息我们了解到，`ones_like`函数会创建和输入NDArray形状相同且元素为1的新的NDArray。我们可以验证一下：
+```{.json .output n=2}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Help on function ones_like:\n\nones_like(data=None, out=None, name=None, **kwargs)\n    Return an array of ones with the same shape and type\n    as the input array.\n    \n    Examples::\n    \n      x = [[ 0.,  0.,  0.],\n           [ 0.,  0.,  0.]]\n    \n      ones_like(x) = [[ 1.,  1.,  1.],\n                      [ 1.,  1.,  1.]]\n    \n    \n    \n    Parameters\n    ----------\n    data : NDArray\n        The input\n    \n    out : NDArray, optional\n        The output NDArray to hold the result.\n    \n    Returns\n    -------\n    out : NDArray or list of NDArrays\n        The output of this function.\n\n"
+ }
+]
+```
 
-```{.python .input}
+从文档信息我们了解到，`ones_like`函数会创建和输入 NDArray 形状相同且元素为 1 的新的 NDArray。我们可以验证一下：
+
+```{.python .input  n=3}
 x = nd.array([[0, 0, 0], [2, 2, 2]])
 y = x.ones_like()
 y
 ```
 
+```{.json .output n=3}
+[
+ {
+  "data": {
+   "text/plain": "\n[[1. 1. 1.]\n [1. 1. 1.]]\n<NDArray 2x3 @cpu(0)>"
+  },
+  "execution_count": 3,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
 在Jupyter笔记本里，我们可以使用`?`来将文档显示在另外一个窗口中。例如`nd.ones_like?`将得到与`help(nd.ones_like)`几乎一样的内容，但会显示在额外窗口里。此外，如果使用两个`nd.ones_like??`，那么会额外显示该函数实现的代码。
 
 
-## 在MXNet网站上查阅
+## 在 MXNet 网站上查阅
 
-我们也可以在MXNet的网站上查阅相关文档。访问MXNet网站 [http://mxnet.apache.org/](http://mxnet.apache.org/) （如图2.1所示），点击网页顶部的下拉菜单“API”可查阅各个前端语言的接口。此外，我们也可以在网页右上方含“Search”字样的搜索框中直接搜索函数或类名称。
+我们也可以在 MXNet 的网站上查阅相关文档。访问 MXNet 网站 [http://mxnet.apache.org/](http://mxnet.apache.org/) （如图 2.1 所示），点击网页顶部的下拉菜单“API”可查阅各个前端语言的接口。此外，我们也可以在网页右上方含“Search”字样的搜索框中直接搜索函数或类名称。
 
-![MXNet官方网站（mxnet.apache.org）。点击顶部的下拉菜单“API”可查阅各个前端语言的API。在右上方含“Search”字样的搜索框中也可直接搜索API名称。](../img/mxnet-website.png)
+![MXNet 官方网站（mxnet.apache.org）。点击顶部的下拉菜单“API”可查阅各个前端语言的 API。在右上方含“Search”字样的搜索框中也可直接搜索 API 名称。](../img/mxnet-website.png)
 
-图2.2展示了MXNet网站上有关`ones_like`函数的文档。
+图2.2展示了 MXNet 网站上有关`ones_like`函数的文档。
 
 ![MXNet网站上有关`ones_like`函数的文档。](../img/ones_like.png)
 
 
 ## 小结
 
-* 每当遇到不熟悉的MXNet API时，我们可以主动查阅它的相关文档。
-* 查阅MXNet文档可以使用`dir`和`help`函数，或访问MXNet官网。
+* 每当遇到不熟悉的 MXNet API 时，我们可以主动查阅它的相关文档。
+* 查阅 MXNet 文档可以使用`dir`和`help`函数，或访问 MXNet 官网。
 
 
 ## 练习
 
-* 查阅NDArray支持的其他操作。
+* 查阅 NDArray 支持的其他操作。
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7116)
