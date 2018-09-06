@@ -40,7 +40,7 @@ def rmsprop_2d(x1, x2, s1, s2):
     x2 -= eta / math.sqrt(s2 + eps) * g2
     return x1, x2, s1, s2
 
-def f_2d(x1, x2)
+def f_2d(x1, x2):
     return 0.1 * x1 ** 2 + 2 * x2 ** 2
 
 eta, gamma = 0.4, 0.9
