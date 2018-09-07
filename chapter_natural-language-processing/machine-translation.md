@@ -102,11 +102,10 @@ class Encoder(nn.Block):
     def __init__(self, num_inputs, embed_size, num_hiddens, num_layers,
                  drop_prob, **kwargs):
         super(Encoder, self).__init__(**kwargs)
-        with self.name_scope():
-            self.embedding = nn.Embedding(num_inputs, embed_size)
-            self.dropout = nn.Dropout(drop_prob)
-            self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
-                               input_size=embed_size)
+        self.embedding = nn.Embedding(num_inputs, embed_size)
+        self.dropout = nn.Dropout(drop_prob)
+        self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
+                           input_size=embed_size)
 
     def forward(self, inputs, state):
         embedding = self.embedding(inputs).swapaxes(0, 1)
@@ -131,26 +130,23 @@ class Decoder(nn.Block):
         self.encoder_num_hiddens = encoder_num_hiddens
         self.hidden_size = num_hiddens
         self.num_layers = num_layers
-        with self.name_scope():
-            self.embedding = nn.Embedding(num_outputs, num_hiddens)
-            self.dropout = nn.Dropout(drop_prob)
-            # 注意力机制。
-            self.attention = nn.Sequential()
-            with self.attention.name_scope():
-                self.attention.add(
-                    nn.Dense(alignment_size,
-                             in_units=num_hiddens + encoder_num_hiddens,
-                             activation='tanh', flatten=False))
-                self.attention.add(nn.Dense(1, in_units=alignment_size,
-                                            flatten=False))
-
-            self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
-                               input_size=num_hiddens)
-            self.out = nn.Dense(num_outputs, in_units=num_hiddens,
-                                flatten=False)
-            self.rnn_concat_input = nn.Dense(
-                num_hiddens, in_units=num_hiddens + encoder_num_hiddens,
-                flatten=False)
+        self.embedding = nn.Embedding(num_outputs, num_hiddens)
+        self.dropout = nn.Dropout(drop_prob)
+        # 注意力机制。
+        self.attention = nn.Sequential()
+        self.attention.add(
+            nn.Dense(alignment_size,
+                     in_units=num_hiddens + encoder_num_hiddens,
+                     activation='tanh', flatten=False))
+        self.attention.add(nn.Dense(1, in_units=alignment_size,
+                                    flatten=False))
+        self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
+                           input_size=num_hiddens)
+        self.out = nn.Dense(num_outputs, in_units=num_hiddens,
+                            flatten=False)
+        self.rnn_concat_input = nn.Dense(
+            num_hiddens, in_units=num_hiddens + encoder_num_hiddens,
+            flatten=False)
 
     def forward(self, cur_input, state, encoder_outputs):
         # 当循环神经网络有多个隐藏层时，取最靠近输出层的单层隐藏状态。
@@ -190,10 +186,9 @@ class Decoder(nn.Block):
 class DecoderInitState(nn.Block):
     def __init__(self, encoder_num_hiddens, decoder_num_hiddens, **kwargs):
         super(DecoderInitState, self).__init__(**kwargs)
-        with self.name_scope():
-            self.dense = nn.Dense(decoder_num_hiddens,
-                                  in_units=encoder_num_hiddens,
-                                  activation="tanh", flatten=False)
+        self.dense = nn.Dense(decoder_num_hiddens,
+                              in_units=encoder_num_hiddens,
+                              activation="tanh", flatten=False)
 
     def forward(self, encoder_state):
         return [self.dense(encoder_state)]
@@ -206,7 +201,7 @@ Sutskever等人发现贪婪搜索也可以在机器翻译中也可以取得不�
 ```{.python .input}
 def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
     for fr_en in fr_ens:
-        print('[input] ', fr_en[0])
+        print('[input] ', fr_en[0], '[expect]', fr_en[1])
         input_tokens = fr_en[0].split(' ') + [EOS]
         # 添加 PAD 符号使每个序列等长（长度为 max_seq_len）。
         while len(input_tokens) < max_seq_len:
@@ -232,8 +227,7 @@ def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
             else:
                 output_tokens.append(output_vocab.idx_to_token[pred_i])
             decoder_input = nd.array([pred_i], ctx=ctx)
-        print('[output]', ' '.join(output_tokens))
-        print('[expect]', fr_en[1], '\n')
+        print('[output]', ' '.join(output_tokens), '\n')
 ```
 
 下面定义模型训练函数。为了初始化解码器的隐藏状态，我们通过一层全连接网络来变换编码器最早时间步的输出隐藏状态。解码器中，当前时间步的预测词将作为下一时间步的输入。其实，我们也可以使用样本输出序列在当前时间步的词作为下一时间步的输入。这叫作强制教学（teacher forcing）。
@@ -256,7 +250,7 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx,
 
     data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
     l_sum = 0
-    for epoch in range(1, num_epochs + 1):
+    for epoch in range(num_epochs):
         for x, y in data_iter:
             cur_batch_size = x.shape[0]
             with autograd.record():
@@ -288,13 +282,14 @@ def train(encoder, decoder, decoder_init_state, max_seq_len, ctx,
             decoder_init_state_optimizer.step(1)
             l_sum += l.asscalar() / max_seq_len
 
-        if epoch % eval_interval == 0 or epoch == 1:
-            if epoch == 1:
-                print('epoch %d, loss %f, ' % (epoch, l_sum / len(data_iter)))
+        if (epoch + 1) % eval_interval == 0 or epoch == 0:
+            if epoch == 0:
+                print('epoch %d, loss %f, '
+                      % (epoch + 1, l_sum / len(data_iter)))
             else:
                 print('epoch %d, loss %f, ' 
-                      % (epoch, l_sum / eval_interval / len(data_iter)))
-            if epoch != 1:
+                      % (epoch + 1, l_sum / eval_interval / len(data_iter)))
+            if epoch != 0:
                 l_sum = 0
             translate(encoder, decoder, decoder_init_state, eval_fr_ens, ctx,
                       max_seq_len)
@@ -315,8 +310,8 @@ decoder_init_state = DecoderInitState(encoder_num_hiddens,
 给定简单的法语和英语序列，我们可以观察模型的训练结果。打印的结果中，input、output和expect分别代表输入序列、输出序列和正确序列。我们可以比较output和expect，观察输出序列是否符合预期。
 
 ```{.python .input}
-eval_fr_ens =[['elle est japonaise .', 'she is japanese .'],
-              ['ils regardent .', 'they are watching .']]
+eval_fr_ens = [['elle est japonaise .', 'she is japanese .'],
+               ['ils regardent .', 'they are watching .']]
 train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens)
 ```
 
@@ -329,7 +324,7 @@ train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens)
 
 设$k$为我们希望评价的$n$个连续词的最大长度，例如$k=4$。设$n$个连续词的精度为$p_n$。它是模型预测序列与样本标签序列匹配$n$个连续词的数量与模型预测序列中$n$个连续词数量之比。举个例子，假设标签序列为$ABCDEF$，预测序列为$ABBCD$。那么$p_1 = 4/5, p_2 = 3/4, p_3 = 1/3, p_4 = 0$。设$len_{\text{label}}$和$len_{\text{pred}}$分别为标签序列和模型预测序列的词数。那么，BLEU的定义为
 
-$$ \exp(\min(0, 1 - \frac{len_{\text{label}}}{len_{\text{pred}}})) \prod_{i=1}^k p_n^{1/2^n}.$$
+$$ \exp(\min(0, 1 - \frac{len_{\text{label}}}{len_{\text{pred}}})) \prod_{n=1}^k p_n^{1/2^n}.$$
 
 需要注意的是，匹配较长连续词比匹配较短连续词更难。因此，一方面，匹配较长连续词应被赋予更大权重。而上式中$p_n^{1/2^n}$的指数相当于权重。随着$n$的提高，$n$个连续词的精度的权重随着$1/2^n$的减小而增大。例如$0.5^{1/2} \approx 0.7, 0.5^{1/4} \approx 0.84, 0.5^{1/8} \approx 0.92, 0.5^{1/16} \approx 0.96$。另一方面，模型预测较短序列往往会得到较高的$n$个连续词的精度。因此，上式中连乘项前面的系数是为了惩罚较短的输出。举个例子，当$k=2$时，假设标签序列为$ABCDEF$，而预测序列为$AB$。虽然$p_1 = p_2 = 1$，但惩罚系数$\exp(1-6/2) \approx 0.14$，因此BLEU也接近0.14。当预测序列和标签序列完全一致时，BLEU为1。
 

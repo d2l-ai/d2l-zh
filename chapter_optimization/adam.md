@@ -1,141 +1,82 @@
 # Adam
 
-Adam是一个组合了动量法和RMSProp的优化算法 [1]。下面我们来介绍Adam算法。
-
-
-## Adam算法
-
-Adam算法使用了动量变量$\boldsymbol{v}$和RMSProp中小批量随机梯度按元素平方的指数加权移动平均变量$\boldsymbol{s}$，并将它们中每个元素初始化为0。在每次迭代中，时刻$t$的小批量随机梯度记作$\boldsymbol{g}_t$。
-
-
-和动量法类似，给定超参数$\beta_1$且满足$0 \leq \beta_1 < 1$（算法作者建议设为0.9），将小批量随机梯度的指数加权移动平均记作动量变量$\boldsymbol{v}$，并将它在时刻$t$的值记作$\boldsymbol{v}_t$：
+Adam是另一个对RMSProp的改进算法 [1]。但一个不同点在于Adam对梯度做了指数加权移动平均。首先将动量变量$\boldsymbol{v}\in\mathbb{R}^d$的元素在时间步0时初始化成0。
+给定超参数$\beta_1$且满足$0 \leq \beta_1 < 1$（算法作者建议设为0.9），在时间步$t$计算
 
 $$\boldsymbol{v}_t \leftarrow \beta_1 \boldsymbol{v}_{t-1} + (1 - \beta_1) \boldsymbol{g}_t. $$
 
-和RMSProp中一样，给定超参数$\beta_2$且满足$0 \leq \beta_2 < 1$（算法作者建议设为0.999），
-将小批量随机梯度按元素平方后做指数加权移动平均得到$\boldsymbol{s}$，并将它在时刻$t$的值记作$\boldsymbol{s}_t$：
+将其展开我们得到$\boldsymbol{v}_t =  (1-\beta_1) \sum_{i=1}^t \beta_1^{t-i} \boldsymbol{g}_i$。考虑一个简单情况：假设$\boldsymbol{g}_i=\boldsymbol{g}$对所有$i$成立，那么$\boldsymbol{v}_t = \left((1-\beta_1)\sum_{i=1}^t \beta_1^{t-i}\right)\boldsymbol{g} = \left(1 - \beta_1^t\right)\boldsymbol{g}$。
+
+当$t$较小时，$1 - \beta_1^t$会较小。例如当$\beta_1 = 0.9$时且$t=1$是，$\boldsymbol{v}_1 = 0.1\boldsymbol{g}$，当$t=10$时，$\boldsymbol{v}_{10} = 0.65\boldsymbol{g}$。为了消除这样的影响，我们可以将$\boldsymbol{v}_t$再除以$1 - \beta_1^t$，从而使得过去各时刻小批量随机梯度权值之和为1。这也叫做偏差修正。也就是：
+
+$$\boldsymbol{v}'_t \leftarrow \frac{\boldsymbol{v}_t}{1 - \beta_1^t}.$$
+
+接下来和RMSProp中一样，给定超参数$\beta_2$且满足$0 \leq \beta_2 < 1$（算法作者建议设为0.999），更新状态变量$\boldsymbol{s}$：
 
 $$\boldsymbol{s}_t \leftarrow \beta_2 \boldsymbol{s}_{t-1} + (1 - \beta_2) \boldsymbol{g}_t \odot \boldsymbol{g}_t. $$
 
-由于我们将$\boldsymbol{v}$和$\boldsymbol{s}$中的元素都初始化为0，
-在时刻$t$我们得到$\boldsymbol{v}_t =  (1-\beta_1) \sum_{i=1}^t \beta_1^{t-i} \boldsymbol{g}_i$。将过去各时刻小批量随机梯度的权值相加，得到 $(1-\beta_1) \sum_{i=1}^t \beta_1^{t-i} = 1 - \beta_1^t$。需要注意的是，当$t$较小时，过去各时刻小批量随机梯度权值之和会较小。例如当$\beta_1 = 0.9$时，$\boldsymbol{v}_1 = 0.1\boldsymbol{g}_1$。为了消除这样的影响，对于任意时刻$t$，我们可以将$\boldsymbol{v}_t$再除以$1 - \beta_1^t$，从而使得过去各时刻小批量随机梯度权值之和为1。这也叫做偏差修正。在Adam算法中，我们对变量$\boldsymbol{v}$和$\boldsymbol{s}$均作偏差修正：
+且同样做偏差修正：
 
-$$\hat{\boldsymbol{v}}_t \leftarrow \frac{\boldsymbol{v}_t}{1 - \beta_1^t}, $$
+$$\boldsymbol{s}'_t \leftarrow \frac{\boldsymbol{s}_t}{1 - \beta_2^t}. $$
 
-$$\hat{\boldsymbol{s}}_t \leftarrow \frac{\boldsymbol{s}_t}{1 - \beta_2^t}. $$
+最后使用修正后的变量$\boldsymbol{v}'_t$和$\boldsymbol{s}'_t$来更新自变量：
 
+$$\boldsymbol{x}_{t} \leftarrow \boldsymbol{x}_{t-1} - \frac{\eta}{\sqrt{\boldsymbol{s}_{t}'+\epsilon}}\odot\boldsymbol{v}_{t}'$$
 
-接下来，Adam算法使用以上偏差修正后的变量$\hat{\boldsymbol{v}}_t$和$\hat{\boldsymbol{s}}_t$，将模型参数中每个元素的学习率通过按元素运算重新调整：
+其中$\eta_t>0$是学习率且$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-6}$。
 
-$$\boldsymbol{g}_t' \leftarrow \frac{\eta \hat{\boldsymbol{v}}_t}{\sqrt{\hat{\boldsymbol{s}}_t + \epsilon}},$$
-
-其中$\eta$是初始学习率且$\eta > 0$，$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-8}$。和Adagrad、RMSProp以及Adadelta一样，目标函数自变量中每个元素都分别拥有自己的学习率。
-
-最后，时刻$t$的自变量$\boldsymbol{x}_t$的迭代步骤与小批量随机梯度下降类似：
-
-$$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \boldsymbol{g}_t'. $$
-
-
-## Adam的实现
-
-
-Adam的实现很简单。我们只需要把上面的数学公式翻译成代码。
-
-```{.python .input}
-def adam(params, vs, sqrs, lr, batch_size, t):
-    beta1 = 0.9
-    beta2 = 0.999
-    eps_stable = 1e-8
-    for param, v, sqr in zip(params, vs, sqrs):      
-        g = param.grad / batch_size
-        v[:] = beta1 * v + (1 - beta1) * g
-        sqr[:] = beta2 * sqr + (1 - beta2) * g.square()
-        v_bias_corr = v / (1 - beta1 ** t)
-        sqr_bias_corr = sqr / (1 - beta2 ** t)    
-        param[:] = param - lr * v_bias_corr / (
-            sqr_bias_corr.sqrt() + eps_stable)  
-```
-
-## 实验
+## 从零开始实现
 
 首先，导入实验所需的包或模块。
 
-```{.python .input}
+```{.python .input  n=1}
 import sys
 sys.path.insert(0, '..')
 
 %matplotlib inline
 import gluonbook as gb
-from mxnet import autograd, nd
-import numpy as np
+from mxnet import nd
 ```
 
-实验中，我们依然以线性回归为例。设数据集的样本数为1000，我们使用权重`w`为[2, -3.4]，偏差`b`为4.2的线性回归模型来生成数据集。该模型的平方损失函数即所需优化的目标函数，模型参数即目标函数自变量。
-
-我们把算法中变量$\boldsymbol{v}$和$\boldsymbol{s}$初始化为和模型参数形状相同的零张量。
-
-```{.python .input  n=1}
-# 生成数据集。
-num_inputs = 2
-num_examples = 1000
-true_w = [2, -3.4]
-true_b = 4.2
-features = nd.random.normal(scale=1, shape=(num_examples, num_inputs))
-labels = true_w[0] * features[:, 0] + true_w[1] * features[:, 1] + true_b
-labels += nd.random.normal(scale=0.01, shape=labels.shape)
-
-# 初始化模型参数。
-def init_params():
-    w = nd.random.normal(scale=0.01, shape=(num_inputs, 1))
-    b = nd.zeros(shape=(1,))
-    params = [w, b]
-    vs = []
-    sqrs = []
-    for param in params:
-        param.attach_grad()
-        # 把算法中基于指数加权移动平均的变量初始化为和参数形状相同的零张量。
-        vs.append(param.zeros_like())
-        sqrs.append(param.zeros_like())
-    return params, vs, sqrs
-```
-
-优化函数`optimize`与[“Adagrad”](adagrad.md)一节中的类似。
+按照公式实现Adam，时间步$t$通过`hyperparams`传入：
 
 ```{.python .input  n=2}
-net = gb.linreg
-loss = gb.squared_loss
+features, labels = gb.get_data_ch7()
 
-def optimize(batch_size, lr, num_epochs, log_interval):
-    [w, b], vs, sqrs = init_params()
-    ls = [loss(net(features, w, b), labels).mean().asnumpy()]
-    t = 0
-    for epoch in range(1, num_epochs + 1):
-        for batch_i, (X, y) in enumerate(
-            gb.data_iter(batch_size, features, labels)):
-            with autograd.record():
-                l = loss(net(X, w, b), y)
-            l.backward()
-            # 必须在调用Adam前。
-            t += 1
-            adam([w, b], vs, sqrs, lr, batch_size, t)
-            if batch_i * batch_size % log_interval == 0:
-                ls.append(loss(net(features, w, b), labels).mean().asnumpy())
-    print('w:', w, '\nb:', b, '\n')
-    es = np.linspace(0, num_epochs, len(ls), endpoint=True)
-    gb.semilogy(es, ls, 'epoch', 'loss')
+def init_adam_states():
+    v_w, v_b = nd.zeros((features.shape[1], 1)), nd.zeros(1)
+    s_w, s_b = nd.zeros((features.shape[1], 1)), nd.zeros(1)
+    return ((v_w, s_w), (v_b, s_b))
+
+def adam(params, states, hyperparams):
+    hp, beta1, beta2, eps = hyperparams, 0.9, 0.999, 1e-6
+    for p, (v, s) in zip(params, states):
+        v[:] = beta1 * v + (1 - beta1) * p.grad
+        s[:] = beta2 * s + (1 - beta2) * p.grad.square()
+        v_bias_corr = v / (1 - beta1 ** hp['t'])
+        s_bias_corr = s / (1 - beta2 ** hp['t'])    
+        p[:] -= hp['lr'] * v_bias_corr / (s_bias_corr.sqrt() + eps)
+    hp['t'] += 1
 ```
 
-最终，优化所得的模型参数值与它们的真实值较接近。
+使用学习率$0.01$来训练
 
-```{.python .input  n=3}
-optimize(batch_size=10, lr=0.1, num_epochs=3, log_interval=10)
+```{.python .input  n=5}
+gb.train_ch7(adam, init_adam_states(), {'lr': 0.01, 't': 1}, features, labels)
+```
+
+## 使用Gluon的实现
+
+通过名称`adam`可以获取Gluon中的实现：
+
+```{.python .input  n=11}
+gb.train_gluon_ch7('adam', {'learning_rate': 0.01}, features, labels)
 ```
 
 ## 小结
 
-* Adam组合了动量法和RMSProp。
+* Adam在RMSProp基础上对梯度也做了指数加权移动平均。
 * Adam使用了偏差修正。
-
 
 ## 练习
 

@@ -14,15 +14,11 @@
 
    optimization-intro
    gd-sgd
-   gd-sgd-gluon
+   minibatch-sgd
    momentum
-   momentum-gluon
    adagrad
-   adagrad-gluon
    rmsprop
-   rmsprop-gluon
    adadelta
-   adadelta-gluon
    adam
-   adam-gluon
+   optimization-summary
 ```

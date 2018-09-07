@@ -46,6 +46,8 @@
 
 二元分类，binary classification
 
+二次采样，subsample
+
 发散，diverge
 
 泛化，generalization
@@ -70,7 +72,11 @@
 
 归一化，normalization
 
+过滤器，filter
+
 过拟合，underfitting
+
+恒等映射，identity mapping
 
 假设，hypothesis
 
@@ -96,7 +102,11 @@
 
 均匀采样，uniform sampling
 
+块，block
+
 困惑度，perplexity
+
+连结，concatenate
 
 类，class
 
@@ -120,7 +130,7 @@ softmax回归，softmax regression
 
 批量，batch
 
-平均池化层，mean pooling layer
+平均池化层，average pooling layer
 
 欠拟合，overfitting
 
@@ -128,9 +138,11 @@ softmax回归，softmax regression
 
 全连接层，fully connected layer
 
+权重，weight
+
 实例，instance
 
-收敛速度，convergence rate
+收敛，converge
 
 数值方法，numerical method
 
@@ -152,15 +164,19 @@ softmax回归，softmax regression
 
 跳字模型，skip-gram model
 
-调参，tune parameter
+调参，tune hyper-parameter
 
 通道，channel
 
 凸优化，convex optimization
 
+图像，image
+
 未知词符号，unknown token
 
 无偏估计，unbiased estimate
+
+误差，error
 
 小批量，mini-batch
 

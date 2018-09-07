@@ -17,11 +17,10 @@ from mxnet.gluon import loss as gloss, nn
 
 ```{.python .input  n=5}
 net = nn.Sequential()
-net.add(nn.Dense(256, activation='relu'))
-net.add(nn.Dense(10))
+net.add(nn.Dense(256, activation='relu'),
+        nn.Dense(10))
 net.initialize(init.Normal(sigma=0.01))
 ```
-
 ## 读取数据并训练模型
 
 我们使用和训练Softmax回归几乎相同的步骤来读取数据并训练模型。
@@ -39,7 +38,7 @@ gb.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
 
 ## 小结
 
-* 通过Gluon我们可以更方便地构造多层感知机。
+通过Gluon我们可以更方便地构造多层感知机。
 
 ## 练习
 

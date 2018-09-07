@@ -147,7 +147,7 @@ $$a_{i1}b_{1j}  + a_{i2}b_{2j} + \ldots + a_{ip}b_{pj} = \sum_{k=1}^p a_{ik}b_{k
 
 设$n$维向量$\boldsymbol{x}$中的元素为$x_1, \ldots, x_n$。向量$\boldsymbol{x}$的$L_p$范数为
 
-$$\|\boldsymbol{x}\|_p = (\sum_{i=1}^n |x_i|^p)^{1/p}.$$
+$$\|\boldsymbol{x}\|_p = \left(\sum_{i=1}^n |x_i|^p \right)^{1/p}.$$
 
 例如，$\boldsymbol{x}$的$L_1$范数是该向量元素绝对值的和：
 

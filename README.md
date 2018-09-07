@@ -1,4 +1,4 @@
-# 通过MXNet/Gluon来动手学习深度学习
+# 动手学深度学习
 
 [![Build Status](http://ci.mxnet.io/job/gluon-tutorials-zh/badge/icon)](http://ci.mxnet.io/job/gluon-tutorials-zh/)
 
@@ -6,9 +6,10 @@
 
 请使用 [https://discuss.gluon.ai](https://discuss.gluon.ai) 讨论或报告问题。
 
+
 ## 如何贡献
 
-所有notebook是用markdown格式存储，这样方便merge改动。jupyter可以通过notedown来直接使用markdown，[参考这里安装](./chapter_preface/install.md#使用notedown插件来读写github源文件)
+所有notebook是用markdown格式存储，这样方便merge改动。jupyter可以通过notedown来直接使用markdown，[参考这里安装](./chapter_appendix/jupyter.md#用jupyter-notebook读写github源文件)
 
 build服务器在 http://ci.mxnet.io 。这台服务器有两块Nvidia M60。
 

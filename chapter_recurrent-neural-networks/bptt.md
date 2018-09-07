@@ -7,9 +7,7 @@
 
 ## 定义模型
 
-为了简洁，我们考虑一个无偏差项的循环神经网络，且激活函数的输入输出相同。
-
-设时间步$t$的输入为$\boldsymbol{x}_t \in \mathbb{R}^d$，标签为$y_t$，隐藏状态$\boldsymbol{h}_t \in \mathbb{R}^h$的计算表达式为
+为了简单起见，我们考虑一个无偏差项的循环神经网络，且激活函数的输入输出相同（$\phi(x)=x$）。设时间步$t$的输入为单样本$\boldsymbol{x}_t \in \mathbb{R}^d$，标签为$y_t$，那么隐藏状态$\boldsymbol{h}_t \in \mathbb{R}^h$的计算表达式为
 
 $$\boldsymbol{h}_t = \boldsymbol{W}_{hx} \boldsymbol{x}_t + \boldsymbol{W}_{hh} \boldsymbol{h}_{t-1},$$
 
@@ -29,14 +27,12 @@ $$L = \frac{1}{T} \sum_{t=1}^T \ell (\boldsymbol{o}_t, y_t).$$
 为了可视化模型变量和参数之间在计算中的依赖关系，我们可以绘制模型计算图，如图6.3所示。例如，时间步3的隐藏状态$\boldsymbol{h}_3$的计算依赖模型参数$\boldsymbol{W}_{hx}, \boldsymbol{W}_{hh}$、上一时间步隐藏状态$\boldsymbol{h}_2$以及当前时间步输入$\boldsymbol{x}_3$。
 
 
-![时间步数为3的循环神经网络模型计算中的依赖关系。方框中字母代表变量，圆圈中字母代表数据样本特征和标签，无边框的字母代表模型参数。](../img/rnn-bptt.svg)
+![时间步数为3的循环神经网络模型计算中的依赖关系。方框代表变量，圆圈代表运算符，从左到右为一个时间步里的正向传播，从下到上为时间步的递进。](../img/rnn-bptt.svg)
 
 ## 通过时间反向传播
 
 刚刚提到，图6.3中模型的参数是$\boldsymbol{W}_{hx}$、$\boldsymbol{W}_{hh}$和$\boldsymbol{W}_{yh}$。与[“正向传播和反向传播”](../chapter_deep-learning-basics/backprop.md)一节中类似，训练模型通常需要模型参数的梯度$\partial L/\partial \boldsymbol{W}_{hx}$、$\partial L/\partial \boldsymbol{W}_{hh}$和$\partial L/\partial \boldsymbol{W}_{yh}$。
-根据图6.3中的依赖关系，我们可以按照其中箭头所指的反方向依次计算并存储梯度。
-
-为了表述方便，我们依然使用[“正向传播和反向传播”](../chapter_deep-learning-basics/backprop.md)一节中表达链式法则的操作符prod。
+根据图6.3中的依赖关系，我们可以按照其中箭头所指的反方向依次计算并存储梯度。为了表述方便，我们依然使用[“正向传播和反向传播”](../chapter_deep-learning-basics/backprop.md)一节中表达链式法则的操作符prod。
 
 首先，目标函数有关各时间步输出层变量的梯度$\partial L/\partial \boldsymbol{o}_t \in \mathbb{R}^q$可以很容易地计算：
 

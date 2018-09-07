@@ -17,7 +17,7 @@ import mxnet as mx
 from mxnet import nd
 from mxnet.gluon import nn
 
-[mx.cpu(), mx.gpu(), mx.gpu(1)]
+mx.cpu(), mx.gpu(), mx.gpu(1)
 ```
 
 ## NDArray的GPU计算
@@ -25,7 +25,7 @@ from mxnet.gluon import nn
 默认情况下，NDArray存在CPU上。因此，之前我们每次打印NDArray的时候都会看到`@cpu(0)`这个标识。
 
 ```{.python .input  n=4}
-x = nd.array([1,2,3])
+x = nd.array([1, 2, 3])
 x
 ```
 
