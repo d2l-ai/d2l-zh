@@ -59,8 +59,8 @@ def show_trace(res):
     n = max(abs(min(res)), abs(max(res)), 10)
     f_line = np.arange(-n, n, 0.1)
     gb.set_figsize()
-    gb.plt.plot(f_line, [x*x for x in f_line])
-    gb.plt.plot(res, [x*x for x in res], '-o')
+    gb.plt.plot(f_line, [x * x for x in f_line])
+    gb.plt.plot(res, [x * x for x in res], '-o')
     gb.plt.xlabel('x')
     gb.plt.ylabel('f(x)')
 
@@ -114,7 +114,7 @@ def train_2d(trainer):  # 本函数将保存在 GluonBook 包中方便以后使�
     for i in range(20):
         x1, x2, s1, s2 = trainer(x1, x2, s1, s2)
         results.append((x1, x2))
-    print('epoch %d, x1 %f, x2 %f' % (i+1, x1, x2))
+    print('epoch %d, x1 %f, x2 %f' % (i + 1, x1, x2))
     return results
 
 def show_trace_2d(f, results):  # 本函数将保存在 GluonBook 包中方便以后使用。
@@ -129,8 +129,13 @@ def show_trace_2d(f, results):  # 本函数将保存在 GluonBook 包中方便�
 
 ```{.python .input  n=15}
 eta = 0.1
-f_2d = lambda x1, x2: x1 ** 2 + 2 * x2 ** 2  # 目标函数。
-gd_2d = lambda x1, x2, s1, s2: (x1 - eta * 2 * x1, x2 - eta * 4 * x2, 0, 0)
+
+def f_2d(x1, x2):  # 目标函数。
+    return x1 ** 2 + 2 * x2 ** 2
+
+def gd_2d(x1, x2, s1, s2):
+    return (x1 - eta * 2 * x1, x2 - eta * 4 * x2, 0, 0)
+
 show_trace_2d(f_2d, train_2d(gd_2d))
 ```
 
@@ -159,9 +164,10 @@ $$\mathbb{E}_i \nabla f_i(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_
 下面我们通过在梯度中加入均值为0的随机噪音来模拟随机梯度下降，以此来比较它与梯度下降的区别。
 
 ```{.python .input  n=17}
-sgd_2d = lambda x1, x2, s1, s2: (
-    x1 - eta * (2 * x1 + + np.random.normal(0.1)), 
-    x2 - eta * (4 * x2 + + np.random.normal(0.1)), 0, 0)
+def sgd_2d(x1, x2, s1, s2):
+    return (x1 - eta * (2 * x1 + np.random.normal(0.1)),
+            x2 - eta * (4 * x2 + np.random.normal(0.1)), 0, 0)
+
 show_trace_2d(f_2d, train_2d(sgd_2d))
 ```
 

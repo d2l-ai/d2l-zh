@@ -20,6 +20,7 @@ class MLP(nn.Block):
         super(MLP, self).__init__(**kwargs)
         self.hidden = nn.Dense(256, activation='relu')  # 隐藏层。
         self.output = nn.Dense(10)  # 输出层。
+
     # 定义模型的前向计算，即如何根据输入计算输出。
     def forward(self, x):
         return self.output(self.hidden(x))
@@ -38,7 +39,7 @@ net(x)
 
 我们无需在这里定义反向传播函数，系统将通过自动求导，参考[“自动求梯度”](../chapter_prerequisite/autograd.md)一节，来自动生成`backward`函数。
 
-注意到我们不是将Block叫做层或者模型之类的名字，这是因为它是一个可以自由组建的部件。它的子类既可以是一个层，例如Gluon提供的Dense类；也可以是一个模型，例如这里定义的MLP类；或者是模型的一个部分。我们下面通过两个例子来展示它的灵活性。
+注意到我们不是将Block叫做层或者模型之类的名字，这是因为它是一个可以自由组建的部件。它的子类既可以是一个层，例如Gluon提供的`Dense`类；也可以是一个模型，例如这里定义的MLP类；或者是模型的一个部分。我们下面通过两个例子来展示它的灵活性。
 
 ## Sequential类继承自Block类
 

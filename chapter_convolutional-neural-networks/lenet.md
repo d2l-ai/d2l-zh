@@ -35,7 +35,7 @@ net.add(nn.Conv2D(channels=6, kernel_size=5, activation='sigmoid'),
         nn.Conv2D(channels=16, kernel_size=5, activation='sigmoid'),
         nn.MaxPool2D(pool_size=2, strides=2),
         # Dense 会默认将（批量大小，通道，高，宽）形状的输入转换成
-        #（批量大小，通道 * 高 * 宽）形状的输入。
+        # （批量大小，通道 * 高 * 宽）形状的输入。
         nn.Dense(120, activation='sigmoid'),
         nn.Dense(84, activation='sigmoid'),
         nn.Dense(10))
@@ -96,13 +96,14 @@ def evaluate_accuracy(data_iter, net, ctx):
 
 ```{.python .input}
 # 本函数已保存在 gluonbook 包中方便以后使用。
-def train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs):
+def train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
+              num_epochs):
     print('training on', ctx)
     loss = gloss.SoftmaxCrossEntropyLoss()
     for epoch in range(num_epochs):
         train_l_sum, train_acc_sum, start = 0, 0, time.time()
         for X, y in train_iter:
-            X, y  = X.as_in_context(ctx), y.as_in_context(ctx)
+            X, y = X.as_in_context(ctx), y.as_in_context(ctx)
             with autograd.record():
                 y_hat = net(X)
                 l = loss(y_hat, y)

@@ -67,7 +67,7 @@ def show_bboxes(axes, bboxes, labels=None, colors=None):
                       bbox=dict(facecolor=color, lw=0))
 ```
 
-然后我们画出以（200，200）为中心的所有锚框。
+然后我们画出以（250，250）为中心的所有锚框。
 
 ```{.python .input  n=12}
 gb.set_figsize()
@@ -107,7 +107,7 @@ anchors = nd.array([[0, 0.1, 0.2, 0.3], [0.15, 0.2, 0.5, 0.6],
 
 fig = gb.plt.imshow(img)
 show_bboxes(fig.axes, ground_truth[:, 1:] * bbox_scale, ['dog', 'cat'], 'k')
-show_bboxes(fig.axes, anchors * bbox_scale, ['0', '1', '2', '3'] );
+show_bboxes(fig.axes, anchors * bbox_scale, ['0', '1', '2', '3']);
 ```
 
 我们可以通过`contrib.nd`模块中的MultiBoxTarget函数来对锚框生成标号。我们把锚框和真实边界框加上批量维（实际中我们会批量处理数据），然后构造一个任意的锚框预测结果，其形状为（批量大小，类别数+1，锚框数），其中第0类为背景。

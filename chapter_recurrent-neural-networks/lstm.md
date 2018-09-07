@@ -95,11 +95,15 @@ num_hiddens = 256
 num_outputs = vocab_size
 ctx = gb.try_gpu()
 
-def get_params():
-    _one = lambda shape: nd.random.normal(scale=0.01, shape=shape, ctx=ctx)
-    _three = lambda : (_one((num_inputs, num_hiddens)), 
-                       _one((num_hiddens, num_hiddens)), 
-                       nd.zeros(num_hiddens, ctx=ctx))         
+def get_params():    
+    def _one(shape):
+        return nd.random.normal(scale=0.01, shape=shape, ctx=ctx)
+    
+    def _three():
+        return (_one((num_inputs, num_hiddens)),
+                _one((num_hiddens, num_hiddens)),
+                nd.zeros(num_hiddens, ctx=ctx)) 
+       
     W_xi, W_hi, b_i = _three()  # 输入门参数。
     W_xf, W_hf, b_f = _three()  # 遗忘门参数。
     W_xo, W_ho, b_o = _three()  # 输出门参数。

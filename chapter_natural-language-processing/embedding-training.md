@@ -156,11 +156,9 @@ def get_negatives(negatives_shape, all_contexts, negatives_weights):
     negatives = [negatives[i: i + negatives_shape[1]]
                  for i in range(0, k, negatives_shape[1])]
     # 如果噪声词是当前中心词的某个背景词，丢弃该噪声词。
-    negatives = [
-        [negative for negative in negatives_batch
-        if negative not in set(all_contexts[i])]
-        for i, negatives_batch in enumerate(negatives)
-    ]
+    negatives = [[negative for negative in negatives_batch
+                  if negative not in set(all_contexts[i])]
+                 for i, negatives_batch in enumerate(negatives)]
     return negatives
 
 num_negatives = 5
@@ -236,16 +234,19 @@ loss = gloss.SigmoidBinaryCrossEntropyLoss()
 my_pred = nd.array([[1.5, 0.3, -1, 2], [1.1, -0.6, 2.2, 0.4]])
 # 标签中的 1 和 0 分别代表背景词和噪声词。
 my_label = nd.array([[1, 0, 0, 0], [1, 1, 0, 0]])
-# 掩码变量。
-my_mask = nd.array([[1, 1, 1, 1], [1, 1, 1, 0]])
+my_mask = nd.array([[1, 1, 1, 1], [1, 1, 1, 0]])  # 掩码变量。
 loss(my_pred, my_label, my_mask) * my_mask.shape[1] / my_mask.sum(axis=1)
 ```
 
 作为比较，我们从零开始实现二元交叉熵损失函数的计算，并根据掩码变量`my_mask`计算掩码为1的预测值和标签的损失函数。
 
 ```{.python .input}
-sigmoid = lambda x: -math.log(1 / (1 + math.exp(-x)))
-printfloat = lambda x: print('%.7f' % (x))
+def sigmoid(x):
+    return -math.log(1 / (1 + math.exp(-x)))
+
+def printfloat(x):
+    print('%.7f' % (x))
+
 printfloat((sigmoid(1.5) + sigmoid(-0.3) + sigmoid(1) + sigmoid(-2)) / 4)
 printfloat((sigmoid(1.1) + sigmoid(-0.6) + sigmoid(-2.2)) / 3)
 ```
@@ -256,7 +257,7 @@ printfloat((sigmoid(1.1) + sigmoid(-0.6) + sigmoid(-2.2)) / 3)
 
 ```{.python .input  n=15}
 def batchify_fn(data):
-    # data 是一个长度为 batch_size 的 list，其中每个元素为 (中心词, 背景词, 噪声词)。
+    # data 是一个长度为 batch_size 的 list，其中每个元素为（中心词，背景词，噪声词）。
     centers, contexts, negatives = zip(*data)
     batch_size = len(centers)
 
@@ -296,7 +297,7 @@ data_iter = gdata.DataLoader(dataset, batch_size=batch_size, shuffle=True,
 
 ```{.python .input  n=16}
 def train_embedding(num_epochs):
-    for epoch in range(1, num_epochs + 1):
+    for epoch in range(num_epochs):
         start_time = time.time()
         train_l_sum = 0
         for center, context_and_negative, mask, label in data_iter:
@@ -305,14 +306,14 @@ def train_embedding(num_epochs):
             mask = mask.as_in_context(ctx)
             label = label.as_in_context(ctx)
             with autograd.record():
-                # emb_in 形状：（batch_size, 1, embedding_size）。
+                # emb_in 形状：（batch_size，1，embedding_size）。
                 emb_in = embedding(center)
                 # embedding_out(context_and_negative) 形状：
-                #（batch_size, max_len, embedding_size）。
+                # （batch_size，max_len，embedding_size）。
                 emb_out = embedding_out(context_and_negative)
-                # pred 形状：（batch_size, 1, max_len）。
+                # pred 形状：（batch_size，1，max_len）。
                 pred = nd.batch_dot(emb_in, emb_out.swapaxes(1, 2))
-                # mask 和 label 形状：（batch_size, max_len）。
+                # mask 和 label 形状：（batch_size，max_len）。
                 # 避免填充对损失函数计算的影响。
                 l = (loss(pred.reshape(label.shape), label, mask) *
                      mask.shape[1] / mask.sum(axis=1))
@@ -320,7 +321,7 @@ def train_embedding(num_epochs):
             trainer.step(batch_size)
             train_l_sum += l.mean().asscalar()
         print('epoch %d, time %.2fs, train loss %.2f' 
-              % (epoch, time.time() - start_time,
+              % (epoch + 1, time.time() - start_time,
                  train_l_sum / len(data_iter)))
         get_k_closest_tokens(token_to_idx, idx_to_token, embedding, 10,
                              example_token)

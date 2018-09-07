@@ -13,7 +13,6 @@ sys.path.insert(0, '..')
 import gluonbook as gb
 import mxnet as mx
 from mxnet import nd
-import time
 ```
 
 ## CPU和GPU的并行计算

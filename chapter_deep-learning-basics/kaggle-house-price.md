@@ -60,7 +60,7 @@ test_data.shape
 让我们来前4个样本的前4个特征、后2个特征和标签（SalePrice）：
 
 ```{.python .input  n=28}
-train_data.iloc[0:4, [0,1,2,3,-3,-2,-1]]
+train_data.iloc[0:4, [0, 1, 2, 3, -3, -2, -1]]
 ```
 
 可以看到第一个特征是Id，它能帮助模型记住每个训练样本，但难以推广到测试样本，所以我们不使用它来训练。我们将训练数据剩下的79维特征和测试数据对应的特征放在一起，得到整个数据的特征。
@@ -184,8 +184,8 @@ def k_fold(k, X_train, y_train, num_epochs,
         train_l_sum += train_ls[-1]
         test_l_sum += test_ls[-1]
         if i == 0:
-            gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'rmse',
-                        range(1, num_epochs+1), test_ls, ['train', 'test'])
+            gb.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'rmse',
+                        range(1, num_epochs + 1), test_ls, ['train', 'test'])
         print('fold %d, train rmse: %f, test rmse: %f' % (
             i, train_ls[-1], test_ls[-1]))
     return train_l_sum / k, test_l_sum / k
@@ -221,7 +221,7 @@ def train_and_pred(train_features, test_feature, train_labels, test_data,
     net = get_net()
     train_ls, _ = train(net, train_features, train_labels, None, None,
                         num_epochs, lr, weight_decay, batch_size)
-    gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'rmse')
+    gb.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'rmse')
     print('train rmse %f' % train_ls[-1])
     preds = net(test_features).asnumpy()
     test_data['SalePrice'] = pd.Series(preds.reshape(1, -1)[0])

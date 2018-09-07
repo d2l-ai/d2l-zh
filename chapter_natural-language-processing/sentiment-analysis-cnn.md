@@ -36,7 +36,7 @@ def corr1d(X, K):
     w = K.shape[0]
     Y = nd.zeros((X.shape[0] - w + 1))
     for i in range(Y.shape[0]):
-        Y[i] = (X[i : i + w] * K).sum()
+        Y[i] = (X[i: i + w] * K).sum()
     return Y
 ```
 

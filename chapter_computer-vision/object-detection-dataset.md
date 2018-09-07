@@ -35,11 +35,11 @@ def _download_pikachu(data_dir):
 def load_data_pikachu(batch_size, edge_size=256):
     # edge_size：输出图像的宽和高。
     data_dir = '../data/pikachu'
-    _download_pikachu(data_dir)                                                                                                                 
+    _download_pikachu(data_dir)
     train_iter = image.ImageDetIter(
         path_imgrec=os.path.join(data_dir, 'train.rec'),
         # 每张图像在rec中的位置，使用随机顺序时需要。
-        path_imgidx=os.path.join(data_dir, 'train.idx'), 
+        path_imgidx=os.path.join(data_dir, 'train.idx'),
         batch_size=batch_size,
         data_shape=(3, edge_size, edge_size),  # 输出图像形状。
         shuffle=True,  # 用随机顺序访问。
@@ -65,11 +65,11 @@ batch = train_iter.next()
 batch.data[0].shape, batch.label[0].shape
 ```
 
-可以看到图像的形状跟之前图像分类时一样，但标签的形状是（批量大小，每张图像中最大边界框数，5）。每个边界框的由长为5的数组表示，第一个元素是其对用物体的标号，其中`-1`表示非法，仅做填充使用。后面4个元素表示边界框位置。这里使用的数据相对简单，每张图像只有一个边界框。实际使用的物体检测数据集中每张图像可能会有多个边界框，但我们要求每张图像有相同数量的边界框使得多张图可以放在一个批量里高效处理。所以我们会使用一个最大边界框数，对于物体数量偏少的图像填充非法边界框直到最大边界框数。
+可以看到图像的形状跟之前图像分类时一样，但标签的形状是（批量大小，每张图像中最大边界框数，5）。每个边界框由长为5的数组表示，第一个元素是其对应物体的标号，其中`-1`表示非法，仅做填充使用。后面4个元素表示边界框位置。这里使用的数据相对简单，每张图像只有一个边界框。实际使用的物体检测数据集中每张图像可能会有多个边界框，但我们要求每张图像有相同数量的边界框使得多张图像可以放在一个批量里高效处理。所以我们会使用一个最大边界框数，对于物体数量偏少的图像，则使用若干个非法边界框填充，使图像的边界框数量与最大边界框数一致。
 
 ## 图示数据
 
-我们画出几张图像和其对应的标号。可以看到比卡丘的角度大小位置在每张图图像都不一样。当然，这是一个简单的人工数据集，物体和背景的区别较大。实际中遇到的数据集通常会复杂很多。
+我们画出几张图像和其对应的标号。可以看到皮卡丘的角度大小位置在每张图像都不一样。当然，这是一个简单的人工数据集，物体和背景的区别较大。实际中遇到的数据集通常会复杂很多。
 
 ```{.python .input  n=4}
 imgs = (batch.data[0][0:10].transpose((0, 2, 3, 1))).clip(0, 254) / 254
@@ -80,11 +80,11 @@ for ax, label in zip(axes, batch.label[0][0:10]):
 
 ## 小结
 
-* 物体识别的数据读取跟图像分类类似，但引入了边界框后导致标注形状和图像增强均有所不同。
+* 物体检测的数据读取跟图像分类的数据读取类似，但引入了边界框后导致标签形状和图像增强均有所不同。
 
 ## 练习
 
-* 了解下`image.ImageDetIter`和`image.CreateDetAugmenter`这两个类的创建参数。
+* 了解下`image.ImageDetIter`和`image.CreateDetAugmenter`这两个类的构造函数参数。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7022)
 

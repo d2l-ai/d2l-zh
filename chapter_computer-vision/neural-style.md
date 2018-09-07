@@ -162,7 +162,7 @@ def train(x, content_y, style_y, ctx, lr, max_epochs, lr_decay_epoch):
     x = x.as_in_context(ctx)
     x.attach_grad()
     style_y_gram = [gram(y) for y in style_y]
-    for i in range(1, max_epochs + 1):
+    for i in range(max_epochs):
         tic = time.time()
         with autograd.record():
             # 对 x 抽取样式和内容特征。
@@ -189,7 +189,6 @@ def train(x, content_y, style_y, ctx, lr, max_epochs, lr_decay_epoch):
                   % (i, nd.add_n(*content_L).asscalar(),
                      nd.add_n(*style_L).asscalar(), tv_L.asscalar(),
                      time.time() - tic))
-            
         if i % lr_decay_epoch == 0:
             lr *= 0.1
             print('change lr to %.1e' % lr)

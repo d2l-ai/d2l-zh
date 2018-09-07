@@ -89,10 +89,14 @@ num_outputs = vocab_size
 ctx = gb.try_gpu()
 
 def get_params():
-    _one = lambda shape: nd.random.normal(scale=0.01, shape=shape, ctx=ctx)
-    _three = lambda : (_one((num_inputs, num_hiddens)), 
-                       _one((num_hiddens, num_hiddens)), 
-                       nd.zeros(num_hiddens, ctx=ctx))    
+    def _one(shape):
+        return nd.random.normal(scale=0.01, shape=shape, ctx=ctx)
+    
+    def _three():
+        return (_one((num_inputs, num_hiddens)),
+                _one((num_hiddens, num_hiddens)),
+                nd.zeros(num_hiddens, ctx=ctx))  
+ 
     W_xz, W_hz, b_z = _three()  # 更新门参数。    
     W_xr, W_hr, b_r = _three()  # 重置门参数。    
     W_xh, W_hh, b_h = _three()  # 候选隐藏状态参数。

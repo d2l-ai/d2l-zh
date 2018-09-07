@@ -1,6 +1,6 @@
 # 自动求梯度
 
-在深度学习中，我们经常需要对函数求梯度（gradient）。如果你对本节中的数学概念（例如梯度）不是很熟悉，可以参阅附录中[“数学基础”](../chapter_appendix/math.md)一节。本节将介绍如何使用MXNet提供的`autograd`包来自动求梯度。
+在深度学习中，我们经常需要对函数求梯度（gradient）。本节将介绍如何使用MXNet提供的`autograd`包来自动求梯度。如果你对本节中的数学概念（例如梯度）不是很熟悉，可以参阅附录中[“数学基础”](../chapter_appendix/math.md)一节。
 
 ```{.python .input  n=2}
 from mxnet import autograd, nd
@@ -28,7 +28,7 @@ with autograd.record():
     y = 2 * nd.dot(x.T, x)
 ```
 
-由于`x`的形状为(4, 1)，`y`是一个标量。接下来我们可以通过调用`backward`函数自动求梯度。需要注意的是，如果`y`不是一个标量，MXNet将默认先对`y`中元素求和得到新的变量，再求该变量有关`x`的梯度。
+由于`x`的形状为（4, 1），`y`是一个标量。接下来我们可以通过调用`backward`函数自动求梯度。需要注意的是，如果`y`不是一个标量，MXNet将默认先对`y`中元素求和得到新的变量，再求该变量有关`x`的梯度。
 
 ```{.python .input}
 y.backward()
@@ -49,18 +49,6 @@ x.grad
 print(autograd.is_training())
 with autograd.record():
     print(autograd.is_training())
-```
-
-除了调用`record`函数来切换运行模式以外，我们还可以使用`set_training`函数来设定运行模式。
-
-```{.python .input}
-# 设置为训练模式。
-autograd.set_training(train_mode=True)
-print(autograd.is_training())
-
-# 设置为预测模式。
-autograd.set_training(train_mode=False)
-print(autograd.is_training())
 ```
 
 在有些情况下，同一个模型在训练模式和预测模式下的行为并不相同。我们会在后面的章节详细介绍这些区别。
@@ -94,7 +82,7 @@ with autograd.record():
 c.backward()
 ```
 
-让我们仔细观察上面定义的$f$函数。事实上，给定任意输入`a`，其输出必然是 $f(a)= xa$的形式，且标量系数$x$的值取决于输入`a`。由于`c`有关`a`的梯度为$x =  c / a$，我们可以像下面这样验证对本例中控制流求梯度的结果是正确的。
+我们来分析一下上面定义的`f`函数。事实上，给定任意输入`a`，其输出必然是 `f(a) = x * a`的形式，其中标量系数`x`的值取决于输入`a`。由于`c = f(a)`有关`a`的梯度为`x`，且值为`c / a`，我们可以像下面这样验证对本例中控制流求梯度的结果的正确性。
 
 ```{.python .input  n=8}
 a.grad == c / a
@@ -103,13 +91,13 @@ a.grad == c / a
 ## 小结
 
 * MXNet提供`autograd`包来自动化求导过程。
-* MXNet的`autograd`包可以对正常的命令式程序进行求导。
-* 我们可以通过`autograd.is_training()`来判断运行模式，并使用`autograd.set_training()`来设定运行模式。
+* MXNet的`autograd`包可以对一般的命令式程序进行求导。
+* MXNet的运行模式包括训练模式和预测模式。我们可以通过`autograd.is_training()`来判断运行模式。
 
 ## 练习
 
-* 在本节对控制流求梯度的例子中，把变量`a`改成一个随机向量或矩阵。此时计算结果`c`不再是标量，运行结果将有何变化？该如何分析此结果？
-* 自己重新设计一个对控制流求梯度的例子。运行并分析结果。
+* 在本节对控制流求梯度的例子中，把变量`a`改成一个随机向量或矩阵。此时计算结果`c`不再是标量，运行结果将有何变化？该如何分析该结果？
+* 重新设计一个对控制流求梯度的例子。运行并分析结果。
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/744)

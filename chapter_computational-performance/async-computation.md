@@ -28,11 +28,13 @@ c
 首先实现一个简单计时类：
 
 ```{.python .input}
-class Benchmark():  # Benchmark 类已保存在 gluonbook 里方便以后使用。
+class Benchmark():  # 本类已保存在 gluonbook 包中方便以后使用。
     def __init__(self, prefix=None):
         self.prefix = prefix + ' ' if prefix else ''
+
     def __enter__(self):
         self.start = time.time()
+
     def __exit__(self, *args):
         print('%stime: %.4f sec' % (self.prefix, time.time() - self.start))
 ```
@@ -43,7 +45,7 @@ class Benchmark():  # Benchmark 类已保存在 gluonbook 里方便以后使用�
 with Benchmark('workloads are queued.'):
     x = nd.random.uniform(shape=(2000, 2000))
     y = nd.dot(x, x).sum()
-    
+
 with Benchmark('workloads are finished.'):
     print('sum =', y)
 ```
@@ -58,7 +60,7 @@ with Benchmark('workloads are finished.'):
 下面是使用`wait_to_read`的例子。输出用时包含了`y`的计算时间。
 
 ```{.python .input  n=5}
-with Benchmark():    
+with Benchmark():
     y = nd.dot(x, x)
     y.wait_to_read()
 ```
@@ -99,7 +101,7 @@ with Benchmark('synchronous. '):
         y = x + 1
         y.wait_to_read()
 
-with Benchmark('asynchronous. '):        
+with Benchmark('asynchronous. '):
     for _ in range(1000):
         y = x + 1
     nd.waitall()
@@ -175,7 +177,7 @@ nd.waitall()
 print('increased memory: %f MB' % (get_mem() - mem))
 ```
 
-如果去掉同步函数，虽然每个小批量的生成间隔较短，训练过程中可能会导致内存开销过大。这是因为默认异步计算下，前端会将所有小批量计算在短时间内全部丢给后端，其可能挤压大量中间结果不能释放。例如我们看到，不到一秒所有数据（`X`和`y`）都产生了出来，但因为训练速度没有跟上，所以这些数据只能放在内存里不能及时清除，从而暂用额外内存。
+如果去掉同步函数，虽然每个小批量的生成间隔较短，训练过程中可能会导致内存开销过大。这是因为默认异步计算下，前端会将所有小批量计算在短时间内全部丢给后端，其可能积压大量中间结果不能释放。例如我们看到，不到一秒所有数据（`X`和`y`）都产生了出来，但因为训练速度没有跟上，所以这些数据只能放在内存里不能及时清除，从而暂用额外内存。
 
 ```{.python .input  n=18}
 mem = get_mem()
