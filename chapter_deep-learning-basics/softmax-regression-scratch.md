@@ -3,10 +3,10 @@
 这一节我们来动手实现Softmax回归。首先导入本节实现所需的包或模块。
 
 ```{.python .input}
-%matplotlib inline
 import sys
 sys.path.insert(0, '..')
 
+%matplotlib inline
 import gluonbook as gb
 from mxnet import autograd, nd
 ```

@@ -1,42 +1,42 @@
 # 图像分类数据集（Fashion-MNIST）
 
-在介绍softmax回归的实现前我们先引入一个多类图像分类数据集。它将多次在后面的章节中使用，方便我们观察比较算法之间的模型精度、计算速度和收敛率的区别。图像分类数据集中最常用的是手写数字识别数据集MNIST [1]。但由于大部分模型在MNIST上的分类精度都超过了95%，这里我们将使用一个图像内容更加复杂的变种 Fashion-MNIST [2]来使得算法之间的差异更加明显。
+在介绍softmax回归的实现前我们先引入一个多类图像分类数据集。它将在后面的章节中被多次使用，以方便我们观察比较算法之间在模型精度和计算效率上的区别。图像分类数据集中最常用的是手写数字识别数据集MNIST [1]。但大部分模型在MNIST上的分类精度都超过了95%。为了更直观地观察算法之间的差异，我们将使用一个图像内容更加复杂的数据集Fashion-MNIST [2]。
 
 ## 获取数据集
 
-首先导入本节需要的包。
+首先导入本节需要的包或模块。
 
 ```{.python .input}
-%matplotlib inline
 import sys
 sys.path.insert(0, '..')
 
-import sys
-import time
+%matplotlib inline
 import gluonbook as gb
 from mxnet.gluon import data as gdata
+import sys
+import time
 ```
 
-下面，我们通过Gluon的`data`包来下载这个数据集，第一次调用时其自动从网上获取数据。我们通过`train`来指定获取训练集还是测试集（test dataset）。
+下面，我们通过Gluon的`data`包来下载这个数据集。第一次调用时会自动从网上获取数据。我们通过参数`train`来指定获取训练数据集或测试数据集（testing data set）。
 
 ```{.python .input  n=23}
 mnist_train = gdata.vision.FashionMNIST(train=True)
 mnist_test = gdata.vision.FashionMNIST(train=False)
 ```
 
-训练集中和测试集中的每个类别的图像数分别为6,000和1,000。因为有10个类别，所以训练集和测试集样本数分别为60,000和10,000。
+训练集中和测试集中的每个类别的图像数分别为6,000和1,000。因为有10个类别，所以训练集和测试集的样本数分别为60,000和10,000。
 
 ```{.python .input}
 len(mnist_train), len(mnist_test)
 ```
 
-我们可以通过`[]`来访问任意一个样本，下面获取第一个样本和图像和标签。
+我们可以通过`[]`来访问任意一个样本，下面获取第一个样本的图像和标签。
 
 ```{.python .input  n=24}
 feature, label = mnist_train[0]
 ```
 
-`feature`对应高和宽均为28像素的图像。每个像素的数值为0到255之间8位无符号整数（uint8）。它使用3维的NDArray储存。其中的最后一维是通道数。因为是灰度图像，所以通道数为1。
+变量`feature`对应高和宽均为28像素的图像。每个像素的数值为0到255之间8位无符号整数（uint8）。它使用3维的NDArray储存。其中的最后一维是通道数。因为数据集中是灰度图像，所以通道数为1。
 
 ```{.python .input}
 feature.shape, feature.dtype
@@ -80,19 +80,19 @@ X, y = mnist_train[0:9]
 show_fashion_mnist(X, get_fashion_mnist_labels(y))
 ```
 
-## 小批量读取
+## 读取小批量
 
-我们将在训练数据集上训练模型，并将训练好的模型在测试数据集上评价模型的表现。虽然我们可以像[“线性回归的从零开始实现”](linear-regression-scratch.md)一节中那样通过`yield`来定义读取小批量数据样本的函数。为了代码简洁，这里我们直接创建DataLoader实例，其每次读取一个样本数为`batch_size`的小批量。这里的批量大小`batch_size`是一个超参数。
+我们将在训练数据集上训练模型，并将训练好的模型在测试数据集上评价模型的表现。虽然我们可以像[“线性回归的从零开始实现”](linear-regression-scratch.md)一节中那样通过`yield`来定义读取小批量数据样本的函数，但为了代码简洁，这里我们直接创建`DataLoader`实例。该实例每次读取一个样本数为`batch_size`的小批量数据。这里的批量大小`batch_size`是一个超参数。
 
-在实际中，数据读取经常是训练的性能瓶颈，特别当模型较简单或者计算硬件性能较高时。Gluon的`DataLoader`中一个很方便的功能是允许使用多进程来加速数据读取（暂不支持Windows操作系统）。这里我们通过参数`num_workers`来设置4个进程读取数据。
+在实践中，数据读取经常是训练的性能瓶颈，特别当模型较简单或者计算硬件性能较高时。Gluon的`DataLoader`中一个很方便的功能是允许使用多进程来加速数据读取（暂不支持Windows操作系统）。这里我们通过参数`num_workers`来设置4个进程读取数据。
 
-此外，我们通过`ToTensor`将图像数据从uint8格式变换成32位浮点数格式，并除以255使得所有像素的数值均在0到1之间。`ToTensor`还将图像通道从最后一维调整到最前一维来方便之后介绍的卷积神经网络使用。通过数据集的`transform_first`函数，我们将`ToTensor`的变换应用在每个数据样本（图像和标签）的第一个元素，也即图像之上。
+此外，我们通过`ToTensor`类将图像数据从uint8格式变换成32位浮点数格式，并除以255使得所有像素的数值均在0到1之间。`ToTensor`类还将图像通道从最后一维移到最前一维来方便之后介绍的卷积神经网络计算。通过数据集的`transform_first`函数，我们将`ToTensor`的变换应用在每个数据样本（图像和标签）的第一个元素，即图像之上。
 
 ```{.python .input  n=28}
 batch_size = 256
 transformer = gdata.vision.transforms.ToTensor()
 if sys.platform.startswith('win'):
-    num_workers = 0  # 0 表示不用额外的进程来加速读取。
+    num_workers = 0  # 0 表示不用额外的进程来加速读取数据。
 else:
     num_workers = 4
 
@@ -117,14 +117,15 @@ for X, y in train_iter:
 
 ## 小结
 
-* FashionMNIST是一个10类服饰分类数据集，之后章节里我们将使用它来测试不同算法的表现。
+* Fashion-MNIST是一个10类服饰分类数据集，之后章节里我们将使用它来检验不同算法的表现。
 
 ## 练习
 
 * 减小`batch_size`（例如到1）会影响读取性能吗？
 * 非Windows用户请尝试修改`num_workers`来查看它对读取性能的影响。
-* `gdata.vision`里还提供了哪些别的数据集？
-* `gdata.vision.transforms`里还有哪些别的变换方法？
+* 查看MXNet文档，`gdata.vision`里还提供了哪些别的数据集？
+* 查看MXNet文档，`gdata.vision.transforms`还提供了哪些别的变换方法？
+
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7760)
 
