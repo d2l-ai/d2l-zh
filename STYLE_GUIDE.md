@@ -15,6 +15,8 @@
     * 使用中文双引号
 * 符号描述
     * 时刻t（不是t时刻）
+	* 形状使用中文标点
+		*（10，20）不是(10, 20)
 * 人称
     * 第一人称 → 我们
     * 第二人称 → 你、大家
@@ -100,6 +102,8 @@
 * Python规范一致
     * PEP8
         * 二元操作符换行：操作符和后一元一起换行 (https://www.python.org/dev/peps/pep-0008/#should-a-line-break-before-or-after-a-binary-operator)
+* 将相邻赋值语句尽可能合并为同一行
+	* 如 num_epochs, lr = 5, 0.1
 * 变量名一致
     * num_epochs
         * 迭代周期

@@ -35,8 +35,8 @@ import sys
 sys.path.insert(0, '..')
 
 import gluonbook as gb
-from mxnet import autograd, nd, gluon, init
-from mxnet.gluon import nn, loss as gloss
+from mxnet import autograd, gluon, init, nd
+from mxnet.gluon import loss as gloss, nn
 
 def dropout(X, drop_prob):
     assert 0 <= drop_prob <= 1

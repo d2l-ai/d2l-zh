@@ -6,10 +6,10 @@
 
 ```{.python .input  n=1}
 %matplotlib inline
-import random
-from matplotlib import pyplot as plt
 from IPython import display
+from matplotlib import pyplot as plt
 from mxnet import autograd, nd
+import random
 ```
 
 ## 生成数据集

@@ -10,7 +10,7 @@
 首先，导入本节中实验需要的包或模块。
 
 ```{.python .input}
-from mxnet import nd, gluon
+from mxnet import gluon, nd
 from mxnet.gluon import nn
 ```
 

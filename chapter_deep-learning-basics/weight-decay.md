@@ -38,7 +38,7 @@ sys.path.insert(0, '..')
 
 %matplotlib inline
 import gluonbook as gb
-from mxnet import autograd, gluon, nd, init
+from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
 
 n_train, n_test, num_inputs,  = 20, 100, 200

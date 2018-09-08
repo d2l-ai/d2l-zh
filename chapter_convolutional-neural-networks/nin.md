@@ -16,7 +16,7 @@ import sys
 sys.path.insert(0, '..')
 
 import gluonbook as gb
-from mxnet import nd, gluon, init
+from mxnet import gluon, init, nd
 from mxnet.gluon import nn
 
 def nin_block(num_channels, kernel_size, strides, padding):
