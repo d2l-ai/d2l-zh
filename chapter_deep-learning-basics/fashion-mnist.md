@@ -36,7 +36,7 @@ len(mnist_train), len(mnist_test)
 feature, label = mnist_train[0]
 ```
 
-变量`feature`对应高和宽均为28像素的图像。每个像素的数值为0到255之间8位无符号整数（uint8）。它使用3维的NDArray储存。其中的最后一维是通道数。因为数据集中是灰度图像，所以通道数为1。
+变量`feature`对应高和宽均为28像素的图像。每个像素的数值为0到255之间8位无符号整数（uint8）。它使用3维的NDArray储存。其中的最后一维是通道数。因为数据集中是灰度图像，所以通道数为1。为了表述简洁，我们将高和宽分别为$h$和$w$像素的图像的形状记为$h \times w$或`（h，w）`。
 
 ```{.python .input}
 feature.shape, feature.dtype
@@ -118,6 +118,7 @@ for X, y in train_iter:
 ## 小结
 
 * Fashion-MNIST是一个10类服饰分类数据集，之后章节里我们将使用它来检验不同算法的表现。
+* 我们将高和宽分别为$h$和$w$像素的图像的形状记为$h \times w$或`（h，w）`。
 
 ## 练习
 

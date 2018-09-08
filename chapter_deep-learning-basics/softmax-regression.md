@@ -140,7 +140,7 @@ $$\ell(\boldsymbol{\Theta}) = \frac{1}{n} \sum_{i=1}^n H\left(\boldsymbol y^{(i)
 
 ## 练习
 
-* 如果按本节softmax运算的定义来实现该运算，在计算时可能会有什么问题？提示：想想$\exp(50)$的大小。
+* 查阅资料，了解最大似然估计。它与最小化交叉熵损失函数有哪些异曲同工之妙？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6403)
