@@ -113,17 +113,12 @@ def reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir,
 
 ```{.python .input  n=3}
 if demo:
-    # 注意：此处使用小数据集。
-    input_dir = 'train_valid_test_tiny'
-    # 注意：此处将批量大小相应设小。使用 Kaggle 比赛的完整数据集时可设较大整数。
-    batch_size = 1
+    # 注意：此处使用小数据集并将批量大小相应设小。使用 Kaggle 比赛的完整数据集时可设批量大
+    # 小为较大整数。
+    input_dir, batch_size = 'train_valid_test_tiny', 1
 else:
-    label_file = 'labels.csv'
-    train_dir = 'train'
-    test_dir = 'test'
-    input_dir = 'train_valid_test'
-    batch_size = 128
-    valid_ratio = 0.1
+    label_file, train_dir, test_dir = 'labels.csv', 'train', 'test'
+    input_dir, batch_size, valid_ratio = 'train_valid_test', 128, 0.1
     reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir, 
                    valid_ratio)
 ```
@@ -151,8 +146,7 @@ transform_train = gdata.vision.transforms.Compose([
     gdata.vision.transforms.ToTensor(),
     # 对图像的每个通道做标准化。
     gdata.vision.transforms.Normalize([0.485, 0.456, 0.406],
-                                      [0.229, 0.224, 0.225])
-])
+                                      [0.229, 0.224, 0.225])])
 
 # 测试时，只使用确定性的图像预处理操作。
 transform_test = gdata.vision.transforms.Compose([
@@ -161,8 +155,7 @@ transform_test = gdata.vision.transforms.Compose([
     gdata.vision.transforms.CenterCrop(224),
     gdata.vision.transforms.ToTensor(),
     gdata.vision.transforms.Normalize([0.485, 0.456, 0.406],
-                                      [0.229, 0.224, 0.225])
-])
+                                      [0.229, 0.224, 0.225])])
 ```
 
 接下来，我们可以使用`ImageFolderDataset`类来读取整理后的数据集，其中每个数据样本包括图像和标签。需要注意的是，我们要在`DataLoader`中调用刚刚定义好的图像增广函数。其中`transform_first`函数指明对每个数据样本中的图像做数据增广。
@@ -267,20 +260,11 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
 
 ## 训练并验证模型
 
-现在，我们可以训练并验证模型了。以下的超参数都是可以调节的，例如增加迭代周期。
+现在，我们可以训练并验证模型了。以下的超参数都是可以调节的，例如增加迭代周期。由于`lr_period`和`lr_decay`分别设10和0.1，优化算法的学习率将在每10个迭代周期时自乘0.1。
 
 ```{.python .input  n=9}
-ctx = gb.try_gpu()
-num_epochs = 1
-# 学习率。
-lr = 0.01
-# 权重衰减参数。
-wd = 1e-4
-# 优化算法的学习率将在每 10 个迭代周期时自乘 0.1。
-lr_period = 10
-lr_decay = 0.1
-
-net = get_net(ctx)
+ctx, num_epochs, lr, wd = gb.try_gpu(), 1, 0.01, 1e-4
+lr_period, lr_decay, net = 10, 0.1, get_net(ctx)
 net.hybridize()
 train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
       lr_decay)

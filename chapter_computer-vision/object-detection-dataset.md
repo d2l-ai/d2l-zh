@@ -53,8 +53,7 @@ def load_data_pikachu(batch_size, edge_size=256):
         shuffle=False)
     return train_iter, val_iter
 
-batch_size = 32
-edge_size = 256
+batch_size, edge_size = 32, 256
 train_iter, _ = load_data_pikachu(batch_size, edge_size)
 ```
 

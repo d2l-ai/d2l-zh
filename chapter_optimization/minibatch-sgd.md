@@ -58,8 +58,8 @@ def sgd(params, states, hyperparams):
 
 ```{.python .input  n=4}
 # 本函数已保存在 gluonbook 包中方便以后使用。
-def train_ch7(trainer_fn, states, hyperparams, features, labels, batch_size=10,
-              num_epochs=2):
+def train_ch7(trainer_fn, states, hyperparams, features, labels,
+              batch_size=10, num_epochs=2):
     # 初始化模型。
     net, loss = gb.linreg, gb.squared_loss
     w = nd.random.normal(scale=0.01, shape=(features.shape[1], 1))

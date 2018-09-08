@@ -83,9 +83,7 @@ from mxnet.gluon import rnn
 以下部分对模型参数进行初始化。超参数`num_hiddens`定义了隐藏单元的个数。
 
 ```{.python .input  n=2}
-num_inputs = vocab_size
-num_hiddens = 256
-num_outputs = vocab_size
+num_inputs, num_hiddens, num_outputs = vocab_size, 256, vocab_size
 ctx = gb.try_gpu()
 
 def get_params():
@@ -141,14 +139,8 @@ def gru(inputs, state, params):
 使用同前一节类似的超参数训练，但我们这里减少了迭代周期数，且训练模型时只采用了相邻采样。
 
 ```{.python .input  n=5}
-num_epochs = 160
-num_steps = 35
-batch_size = 32
-lr = 1e2
-clipping_theta = 1e-2
-prefixes = ['分开', '不分开']
-pred_period = 40
-pred_len = 50
+num_epochs, num_steps, batch_size, lr, clipping_theta = 160, 35, 32, 1e2, 1e-2
+pred_period, pred_len, prefixes = 40, 50, ['分开', '不分开']
 ```
 
 设置好超参数后，我们将训练模型并跟据前缀“分开”和“不分开”分别创作长度为50个字符的一段歌词。我们每过30个迭代周期便根据当前训练的模型创作一段歌词。。
@@ -168,7 +160,6 @@ gb.train_and_predict_rnn(gru, get_params, init_gru_state, num_hiddens,
 ```{.python .input  n=6}
 gru_layer = rnn.GRU(num_hiddens)
 model = gb.RNNModel(gru_layer, vocab_size)
-
 gb.train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
                                corpus_indices, idx_to_char, char_to_idx,
                                num_epochs, num_steps, lr, clipping_theta,

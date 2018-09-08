@@ -10,7 +10,7 @@ sys.path.insert(0, '..')
 
 %matplotlib inline
 import gluonbook as gb
-from mxnet import gluon, init, nd, image
+from mxnet import gluon, image, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, model_zoo, nn
 import numpy as np
 import sys
@@ -74,10 +74,9 @@ net(x).shape
 ```{.python .input  n=8}
 num_classes = 21
 
-net.add(
-    nn.Conv2D(num_classes, kernel_size=1),
-    nn.Conv2DTranspose(num_classes, kernel_size=64, padding=16, strides=32)
-)
+net.add(nn.Conv2D(num_classes, kernel_size=1),
+        nn.Conv2DTranspose(num_classes, kernel_size=64, padding=16,
+                           strides=32))
 ```
 
 ## 模型初始化
@@ -134,9 +133,7 @@ net[-2].initialize(init=init.Xavier())
 我们使用较大的输入图像尺寸，其值选成了32的倍数。数据的读取方法已在上一节描述。
 
 ```{.python .input  n=13}
-input_shape = (320, 480)
-batch_size = 32
-colormap2label = nd.zeros(256**3)
+input_shape, batch_size, colormap2label = (320, 480), 32, nd.zeros(256**3)
 for i, cm in enumerate(gb.VOC_COLORMAP):
     colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i
 voc_dir = gb.download_voc_pascal(data_dir='../data')

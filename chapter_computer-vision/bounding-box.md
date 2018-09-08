@@ -29,8 +29,7 @@ gb.plt.imshow(img);  # 加分号只显示图。
 
 ```{.python .input  n=2}
 # 注意坐标轴原点是图像的左上角。bbox 是 bounding box 的缩写。
-dog_bbox = [60, 45, 378, 516]
-cat_bbox = [400, 112, 655, 493]
+dog_bbox, cat_bbox = [60, 45, 378, 516], [400, 112, 655, 493]
 ```
 
 我们可以在图中将边框画出来检查其准确性。画之前我们定义一个辅助函数`bbox_to_rect`。它将边界框表示成matplotlib的边框格式。

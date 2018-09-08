@@ -224,9 +224,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
 
 ```{.python .input  n=38}
 def train_with_data_aug(train_augs, test_augs, lr=0.001):
-    batch_size = 256
-    ctx = try_all_gpus()
-    net = gb.resnet18(10)
+    batch_size, ctx, net = 256, try_all_gpus(), gb.resnet18(10)
     net.initialize(ctx=ctx, init=init.Xavier())
     # 这里使用了 Adam 优化算法。
     trainer = gluon.Trainer(net.collect_params(), 'adam',

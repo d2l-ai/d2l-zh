@@ -67,8 +67,7 @@ train_images, train_labels = read_voc_images()
 我们画出前面五张图像和它们对应的标注。在标注，白色代表边框黑色代表背景，其他不同的颜色对应不同物体类别。
 
 ```{.python .input  n=4}
-n = 5
-imgs = train_images[0:n] + train_labels[0:n]
+n, imgs = 5, train_images[0:n] + train_labels[0:n]
 gb.show_images(imgs, 2, n);
 ```
 
