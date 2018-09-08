@@ -1,6 +1,6 @@
 # 残差网络（ResNet）
 
-让我们先思考一个问题。假设神经网络模型使用批量归一化提供数值稳定性。对神经网络模型添加新的层，充分训练后的模型是否只可能更有效地降低训练误差？理论上，原模型解的空间只是新模型解的空间的子空间。也就是说，如果我们能将新添加的层训练成恒等映射（identity mapping）$f(x) = x$，新模型和原模型将同样有效。由于新模型可能得出更优的解来拟合训练数据集，添加层似乎有益而无害。然而在实践中，添加过多的层后训练误差不降反升。针对这一问题，何恺明等人提出了残差网络（ResNet） [1]。它在2015年的ImageNet图像识别挑战赛夺魁，并深刻影响了后来的深度神经网络的设计。
+让我们先思考一个问题：对神经网络模型添加新的层，充分训练后的模型是否只可能更有效地降低训练误差？理论上，原模型解的空间只是新模型解的空间的子空间。也就是说，如果我们能将新添加的层训练成恒等映射（identity mapping）$f(x) = x$，新模型和原模型将同样有效。由于新模型可能得出更优的解来拟合训练数据集，添加层似乎有益而无害。然而在实践中，添加过多的层后训练误差不降反升，即使使用了批量归一化提供数值稳定性使得训练深层模型更加容易，但这个问题仍然存在。针对这一问题，何恺明等人提出了残差网络（ResNet） [1]。它在2015年的ImageNet图像识别挑战赛夺魁，并深刻影响了后来的深度神经网络的设计。
 
 
 ## 残差块
@@ -18,11 +18,10 @@ import sys
 sys.path.insert(0, '..')
 
 import gluonbook as gb
-from mxnet import nd, gluon, init
+from mxnet import gluon, init, nd
 from mxnet.gluon import nn
 
-# 本类已保存在 gluonbook 包中方便以后使用。
-class Residual(nn.Block):
+class Residual(nn.Block):  # 本类已保存在 gluonbook 包中方便以后使用。
     def __init__(self, num_channels, use_1x1conv=False, strides=1, **kwargs):
         super(Residual, self).__init__(**kwargs)
         self.conv1 = nn.Conv2D(num_channels, kernel_size=3, padding=1,
@@ -119,7 +118,7 @@ for layer in net:
 下面我们在Fashion-MNIST上训练ResNet。
 
 ```{.python .input}
-lr, num_epochs, batch_size, ctx  = 0.05, 5, 256, gb.try_gpu()
+lr, num_epochs, batch_size, ctx = 0.05, 5, 256, gb.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 train_iter, test_iter = gb.load_data_fashion_mnist(batch_size, resize=96)

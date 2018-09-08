@@ -2,7 +2,7 @@
 
 在图像分类里，我们通过卷积层和池化层逐渐减少图像高宽最终得到跟预测类别数一样长的向量。例如用于ImageNet分类的ResNet 18里，我们将高宽为224的输入图像首先减少到高宽7，然后使用全局池化层得到512维输出，最后使用全连接层输出长为1000的预测向量。
 
-但在语义分割里，我们需要对每个像素预测类别，也就是需要输出形状需要是$1000\times 224\times 224$。如果仍然使用全连接层作为输出，那么这一层权重将多达数百GB。本小节我们将介绍利用卷积神经网络解决语义分割的一个开创性工作之一：全卷积网络（fully convolutional network，简称FCN）[1]。FCN里将最后的全连接层修改称转置卷积层（transposed convolution）来得到所需大小的输出。
+但在语义分割里，我们需要对每个像素预测类别，也就是需要输出形状需要是$1000\times 224\times 224$。如果仍然使用全连接层作为输出，那么这一层权重将多达数百GB。本小节我们将介绍利用卷积神经网络解决语义分割的一个开创性工作之一：全卷积网络（fully convolutional network，简称FCN）[1]。FCN里将最后的全连接层修改成转置卷积层（transposed convolution）来得到所需大小的输出。
 
 ```{.python .input  n=2}
 import sys
@@ -10,7 +10,7 @@ sys.path.insert(0, '..')
 
 %matplotlib inline
 import gluonbook as gb
-from mxnet import gluon, init, nd, image
+from mxnet import gluon, image, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, model_zoo, nn
 import numpy as np
 import sys
@@ -74,10 +74,9 @@ net(x).shape
 ```{.python .input  n=8}
 num_classes = 21
 
-net.add(
-    nn.Conv2D(num_classes, kernel_size=1),
-    nn.Conv2DTranspose(num_classes, kernel_size=64, padding=16, strides=32)
-)
+net.add(nn.Conv2D(num_classes, kernel_size=1),
+        nn.Conv2DTranspose(num_classes, kernel_size=64, padding=16,
+                           strides=32))
 ```
 
 ## 模型初始化
@@ -134,11 +133,9 @@ net[-2].initialize(init=init.Xavier())
 我们使用较大的输入图像尺寸，其值选成了32的倍数。数据的读取方法已在上一节描述。
 
 ```{.python .input  n=13}
-input_shape = (320, 480)
-batch_size = 32
-colormap2label = nd.zeros(256**3)
+input_shape, batch_size, colormap2label = (320, 480), 32, nd.zeros(256**3)
 for i, cm in enumerate(gb.VOC_COLORMAP):
-    colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i 
+    colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i
 voc_dir = gb.download_voc_pascal(data_dir='../data')
 
 num_workers = 0 if sys.platform.startswith('win32') else 4
@@ -147,7 +144,7 @@ train_iter = gdata.DataLoader(
     shuffle=True, last_batch='discard', num_workers=num_workers)
 test_iter = gdata.DataLoader(
     gb.VOCSegDataset(False, input_shape, voc_dir, colormap2label), batch_size,
-    last_batch='discard', num_workers=num_workers) 
+    last_batch='discard', num_workers=num_workers)
 ```
 
 ## 训练

@@ -3,11 +3,11 @@
 MXNet使用异步计算来提升计算性能。理解它的工作原理既有助于开发更高效的程序，又有助于在内存资源有限的情况下主动降低计算性能从而减小内存开销。我们先导入本节中实验需要的包或模块。
 
 ```{.python .input  n=1}
-import os
-import time
-import subprocess
 from mxnet import autograd, gluon, nd
 from mxnet.gluon import loss as gloss, nn
+import os
+import subprocess
+import time
 ```
 
 ## MXNet中的异步计算
@@ -45,7 +45,7 @@ class Benchmark():  # 本类已保存在 gluonbook 包中方便以后使用。
 with Benchmark('workloads are queued.'):
     x = nd.random.uniform(shape=(2000, 2000))
     y = nd.dot(x, x).sum()
-    
+
 with Benchmark('workloads are finished.'):
     print('sum =', y)
 ```
@@ -60,7 +60,7 @@ with Benchmark('workloads are finished.'):
 下面是使用`wait_to_read`的例子。输出用时包含了`y`的计算时间。
 
 ```{.python .input  n=5}
-with Benchmark():    
+with Benchmark():
     y = nd.dot(x, x)
     y.wait_to_read()
 ```
@@ -101,7 +101,7 @@ with Benchmark('synchronous. '):
         y = x + 1
         y.wait_to_read()
 
-with Benchmark('asynchronous. '):        
+with Benchmark('asynchronous. '):
     for _ in range(1000):
         y = x + 1
     nd.waitall()
@@ -177,7 +177,7 @@ nd.waitall()
 print('increased memory: %f MB' % (get_mem() - mem))
 ```
 
-如果去掉同步函数，虽然每个小批量的生成间隔较短，训练过程中可能会导致内存开销过大。这是因为默认异步计算下，前端会将所有小批量计算在短时间内全部丢给后端，其可能挤压大量中间结果不能释放。例如我们看到，不到一秒所有数据（`X`和`y`）都产生了出来，但因为训练速度没有跟上，所以这些数据只能放在内存里不能及时清除，从而暂用额外内存。
+如果去掉同步函数，虽然每个小批量的生成间隔较短，训练过程中可能会导致内存开销过大。这是因为默认异步计算下，前端会将所有小批量计算在短时间内全部丢给后端，其可能积压大量中间结果不能释放。例如我们看到，不到一秒所有数据（`X`和`y`）都产生了出来，但因为训练速度没有跟上，所以这些数据只能放在内存里不能及时清除，从而暂用额外内存。
 
 ```{.python .input  n=18}
 mem = get_mem()

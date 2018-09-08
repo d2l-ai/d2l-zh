@@ -10,7 +10,7 @@
 首先，导入本节中实验需要的包或模块。
 
 ```{.python .input}
-from mxnet import nd, gluon
+from mxnet import gluon, nd
 from mxnet.gluon import nn
 ```
 
@@ -73,7 +73,7 @@ class MyDense(nn.Block):
         return nd.relu(linear)
 ```
 
-下面，我们实例化MyDense类来看下它的模型参数。
+下面，我们实例化`MyDense`类来看下它的模型参数。
 
 ```{.python .input}
 dense = MyDense(units=5, in_units=10)

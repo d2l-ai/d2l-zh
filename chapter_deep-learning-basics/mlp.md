@@ -44,10 +44,10 @@ $$\text{relu}(x) = \max(x, 0).$$
 可以看出，ReLU函数只保留正数元素，并将负数元素清零。为了直观地观察这一非线性变换，我们先定义一个绘图函数`xyplot`。
 
 ```{.python .input  n=6}
-%matplotlib inline
 import sys
 sys.path.insert(0, '..')
 
+%matplotlib inline
 import gluonbook as gb
 from mxnet import nd
 
@@ -99,7 +99,7 @@ $$
 \boldsymbol{O} &= \boldsymbol{H} \boldsymbol{W}_o + \boldsymbol{b}_o,
 \end{aligned}
 $$
-
+ 
 这里$\phi$表示按元素的激活函数。在分类问题中，我们可以对输出$\boldsymbol{O}$做Softmax运算，并使用Softmax回归中的交叉熵损失函数。
 在回归问题中，我们将输出层的输出个数设为1，并将输出$\boldsymbol{O}$直接提供给线性回归中使用的平方损失函数。
 

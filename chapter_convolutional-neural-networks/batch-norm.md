@@ -61,7 +61,7 @@ import sys
 sys.path.insert(0, '..')
 
 import gluonbook as gb
-from mxnet import nd, gluon, init, autograd
+from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import nn
 
 def batch_norm(X, gamma, beta, moving_mean, moving_var, eps, momentum):    

@@ -19,8 +19,13 @@ from mxnet import nd
 
 ```{.python .input  n=3}
 eta = 0.4
-f_2d = lambda x1, x2: 0.1 * x1 ** 2 + 2 * x2 ** 2
-gd_2d = lambda x1, x2, s1, s2: (x1 - eta * 0.2 * x1, x2 - eta * 4 * x2, 0, 0)
+
+def f_2d(x1, x2):
+    return 0.1 * x1 ** 2 + 2 * x2 ** 2
+
+def gd_2d(x1, x2, s1, s2):
+    return (x1 - eta * 0.2 * x1, x2 - eta * 4 * x2, 0, 0)
+
 gb.show_trace_2d(f_2d, gb.train_2d(gd_2d))
 ```
 
@@ -124,15 +129,15 @@ def sgd_momentum(params, states, hyperparams):
 我们先将动量超参数`mom`设0.5，这时可以看成是使用最近2个时刻的$2\nabla f_\mathcal{B}(\boldsymbol{x})$的加权平均作为梯度的随机梯度下降，因此我们需要对应调下学习率（从上节的0.5减小到了0.02）。
 
 ```{.python .input  n=15}
-gb.train_ch7(sgd_momentum, init_momentum_states(), 
-             {'lr': 0.02, 'mom': 0.5}, features, labels)
+gb.train_ch7(sgd_momentum, init_momentum_states(),  {'lr': 0.02, 'mom': 0.5},
+             features, labels)
 ```
 
 将动量超参数`mom`增大到了0.9时，这个特殊梯度是最近10个时刻的$10\nabla f_\mathcal{B}(\boldsymbol{x})$的加权平均。因此我们需要进一步调低学习率。
 
 ```{.python .input  n=8}
-gb.train_ch7(sgd_momentum, init_momentum_states(), 
-             {'lr': 0.004, 'mom': 0.9}, features, labels)
+gb.train_ch7(sgd_momentum, init_momentum_states(), {'lr': 0.004, 'mom': 0.9},
+             features, labels)
 ```
 
 ## 使用Gluon的实现
@@ -140,8 +145,8 @@ gb.train_ch7(sgd_momentum, init_momentum_states(),
 在Gluon中，只需要在随机梯度下降的训练器中通过`momentum`来指定动量超参数即可得到动量法。
 
 ```{.python .input  n=9}
-gb.train_gluon_ch7('sgd', {'learning_rate': 0.02, 'momentum': 0.5},
-                   features, labels)
+gb.train_gluon_ch7('sgd', {'learning_rate': 0.02, 'momentum': 0.5}, features,
+                   labels)
 ```
 
 ## 小结

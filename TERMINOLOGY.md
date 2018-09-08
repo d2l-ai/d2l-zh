@@ -130,7 +130,7 @@ softmax回归，softmax regression
 
 批量，batch
 
-平均池化层，mean pooling layer
+平均池化层，average pooling layer
 
 欠拟合，overfitting
 
@@ -138,9 +138,11 @@ softmax回归，softmax regression
 
 全连接层，fully connected layer
 
+权重，weight
+
 实例，instance
 
-收敛速度，convergence rate
+收敛，converge
 
 数值方法，numerical method
 
@@ -173,6 +175,8 @@ softmax回归，softmax regression
 未知词符号，unknown token
 
 无偏估计，unbiased estimate
+
+误差，error
 
 小批量，mini-batch
 

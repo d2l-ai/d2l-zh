@@ -18,7 +18,7 @@ import sys
 sys.path.insert(0, '..')
 
 import gluonbook as gb
-from mxnet import nd, init, gluon
+from mxnet import gluon, init, nd
 from mxnet.gluon import nn
 
 class Inception(nn.Block):

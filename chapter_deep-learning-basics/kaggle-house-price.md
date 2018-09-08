@@ -24,7 +24,7 @@ Kaggle（网站地址：https://www.kaggle.com ）是一个著名的供机器学
 下面，我们通过使用`pandas`读入数据，请简单介绍如何处理离散数据、处理丢失的数据特征和对数据进行标准化。在导入本节需要的包前请确保已安装`pandas`，否则请参考下面代码注释。
 
 ```{.python .input  n=3}
-# 如果没有安装pandas，请反注释下面一行。
+# 如果没有安装 pandas，请反注释下面一行。
 # !pip install pandas
 
 import sys
@@ -32,7 +32,7 @@ sys.path.insert(0, '..')
 
 %matplotlib inline
 import gluonbook as gb
-from mxnet import autograd, init, gluon, nd
+from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
 import numpy as np
 import pandas as pd
@@ -60,7 +60,7 @@ test_data.shape
 让我们来前4个样本的前4个特征、后2个特征和标签（SalePrice）：
 
 ```{.python .input  n=28}
-train_data.iloc[0:4, [0,1,2,3,-3,-2,-1]]
+train_data.iloc[0:4, [0, 1, 2, 3, -3, -2, -1]]
 ```
 
 可以看到第一个特征是Id，它能帮助模型记住每个训练样本，但难以推广到测试样本，所以我们不使用它来训练。我们将训练数据剩下的79维特征和测试数据对应的特征放在一起，得到整个数据的特征。
@@ -184,8 +184,8 @@ def k_fold(k, X_train, y_train, num_epochs,
         train_l_sum += train_ls[-1]
         test_l_sum += test_ls[-1]
         if i == 0:
-            gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'rmse',
-                        range(1, num_epochs+1), test_ls, ['train', 'test'])
+            gb.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'rmse',
+                        range(1, num_epochs + 1), test_ls, ['train', 'test'])
         print('fold %d, train rmse: %f, test rmse: %f' % (
             i, train_ls[-1], test_ls[-1]))
     return train_l_sum / k, test_l_sum / k
@@ -196,15 +196,10 @@ def k_fold(k, X_train, y_train, num_epochs,
 我们使用一组简单的超参数并计算交叉验证误差。你可以改动这些超参数来尽可能减小平均测试误差。
 
 ```{.python .input  n=16}
-k = 5
-num_epochs = 100
+k, num_epochs, lr, weight_decay, batch_size = 5, 100, 5, 0, 64
 verbose_epoch = num_epochs - 2
-lr = 5
-weight_decay = 0
-batch_size = 64
-
-train_l, test_l = k_fold(k, train_features, train_labels,
-                         num_epochs, lr, weight_decay, batch_size)
+train_l, test_l = k_fold(k, train_features, train_labels, num_epochs, lr,
+                         weight_decay, batch_size)
 print('%d-fold validation: avg train rmse: %f, avg test rmse: %f'
       % (k, train_l, test_l))
 ```
@@ -221,7 +216,7 @@ def train_and_pred(train_features, test_feature, train_labels, test_data,
     net = get_net()
     train_ls, _ = train(net, train_features, train_labels, None, None,
                         num_epochs, lr, weight_decay, batch_size)
-    gb.semilogy(range(1, num_epochs+1), train_ls, 'epochs', 'rmse')
+    gb.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'rmse')
     print('train rmse %f' % train_ls[-1])
     preds = net(test_features).asnumpy()
     test_data['SalePrice'] = pd.Series(preds.reshape(1, -1)[0])
