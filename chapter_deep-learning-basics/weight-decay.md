@@ -41,11 +41,8 @@ import gluonbook as gb
 from mxnet import autograd, gluon, nd, init
 from mxnet.gluon import data as gdata, loss as gloss, nn
 
-n_train = 20
-n_test = 100
-num_inputs = 200
-true_w = nd.ones((num_inputs, 1)) * 0.01
-true_b = 0.05
+n_train, n_test, num_inputs,  = 20, 100, 200
+true_w, true_b = nd.ones((num_inputs, 1)) * 0.01, 0.05
 
 features = nd.random.normal(shape=(n_train + n_test, num_inputs))
 labels = nd.dot(features, true_w) + true_b
@@ -85,14 +82,10 @@ def l2_penalty(w):
 下面定义如何在训练数据集和测试数据集上分别训练和测试模型。和前面几节中不同的是，这里在计算最终的损失函数时添加了$L_2$范数惩罚项。
 
 ```{.python .input  n=7}
-batch_size = 1
-num_epochs = 100
-lr = 0.003
+batch_size, num_epochs, lr = 1, 100, 0.003
+net, loss = gb.linreg, gb.squared_loss
 train_iter = gdata.DataLoader(gdata.ArrayDataset(
     train_features, train_labels), batch_size, shuffle=True)
-
-net = gb.linreg
-loss = gb.squared_loss
 
 def fit_and_plot(lambd):
     w, b = init_params()

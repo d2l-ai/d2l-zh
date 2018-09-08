@@ -76,11 +76,7 @@ $$y = 1.2x - 3.4x^2 + 5.6x^3 + 5 + \epsilon,$$
 其中噪音项$\epsilon$服从均值为0和标准差为0.1的正态分布。训练数据集和测试数据集的样本数都设为100。
 
 ```{.python .input}
-n_train = 100
-n_test = 100
-true_w = [1.2, -3.4, 5.6]
-true_b = 5
-
+n_train, n_test, true_w, true_b = 100, 100, [1.2, -3.4, 5.6], 5
 features = nd.random.normal(shape=(n_train + n_test, 1))
 poly_features = nd.concat(features, nd.power(features, 2),
                           nd.power(features, 3))
@@ -120,8 +116,7 @@ a += [1]
 ```
 
 ```{.python .input}
-num_epochs = 100
-loss = gloss.L2Loss()
+num_epochs, loss = 100, gloss.L2Loss()
 
 def fit_and_plot(train_features, test_features, train_labels, test_labels):
     net = nn.Sequential()

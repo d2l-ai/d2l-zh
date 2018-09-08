@@ -68,10 +68,7 @@ dropout(X, 1)
 实验中，我们依然使用[“Softmax回归——从零开始”](softmax-regression-scratch.md)一节中介绍的Fashion-MNIST数据集。我们将定义一个包含两个隐藏层的多层感知机。其中两个隐藏层的输出个数都是256。
 
 ```{.python .input}
-num_inputs = 784
-num_outputs = 10
-num_hiddens1 = 256
-num_hiddens2 = 256
+num_inputs, num_outputs, num_hiddens1, num_hiddens2 = 784, 10, 256, 256
 
 W1 = nd.random.normal(scale=0.01, shape=(num_inputs, num_hiddens1))
 b1 = nd.zeros(num_hiddens1)
@@ -90,20 +87,16 @@ for param in params:
 我们的模型就是将全连接层和激活函数ReLU串起来，并对激活函数的输出使用丢弃法。我们可以分别设置各个层的丢弃概率。通常，建议把靠近输入层的丢弃概率设的小一点。在这个实验中，我们把第一个隐藏层的丢弃概率设为0.2，把第二个隐藏层的丢弃概率设为0.5。我们只需在训练模型时使用丢弃法。
 
 ```{.python .input}
-drop_prob1 = 0.2
-drop_prob2 = 0.5
+drop_prob1, drop_prob2 = 0.2, 0.5
 
 def net(X):
     X = X.reshape((-1, num_inputs))
     H1 = (nd.dot(X, W1) + b1).relu()
-    # 只在训练模型时使用丢弃法。
-    if autograd.is_training():
-        # 在第一层全连接后添加丢弃层。
-        H1 = dropout(H1, drop_prob1)
+    if autograd.is_training():  # 只在训练模型时使用丢弃法。
+        H1 = dropout(H1, drop_prob1)  # 在第一层全连接后添加丢弃层。
     H2 = (nd.dot(H1, W2) + b2).relu()
     if autograd.is_training():
-        # 在第二层全连接后添加丢弃层。
-        H2 = dropout(H2, drop_prob2)
+        H2 = dropout(H2, drop_prob2)  # 在第二层全连接后添加丢弃层。
     return nd.dot(H2, W3) + b3
 ```
 
@@ -112,9 +105,7 @@ def net(X):
 这部分和之前多层感知机的训练与测试类似。
 
 ```{.python .input}
-num_epochs = 5
-lr = 0.5
-batch_size = 256
+num_epochs, lr, batch_size = 5, 0.5, 256
 loss = gloss.SoftmaxCrossEntropyLoss()
 train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
 gb.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size, params,
@@ -128,11 +119,9 @@ gb.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size, params,
 ```{.python .input}
 net = nn.Sequential()
 net.add(nn.Dense(256, activation="relu"),
-        # 在第一个全连接层后添加丢弃层。
-        nn.Dropout(drop_prob1),
+        nn.Dropout(drop_prob1),  # 在第一个全连接层后添加丢弃层。
         nn.Dense(256, activation="relu"),
-        # 在第二个全连接层后添加丢弃层。
-        nn.Dropout(drop_prob2),
+        nn.Dropout(drop_prob2),  # 在第二个全连接层后添加丢弃层。
         nn.Dense(10))
 net.initialize(init.Normal(sigma=0.01))
 ```

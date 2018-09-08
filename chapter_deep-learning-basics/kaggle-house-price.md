@@ -24,7 +24,7 @@ Kaggle（网站地址：https://www.kaggle.com ）是一个著名的供机器学
 下面，我们通过使用`pandas`读入数据，请简单介绍如何处理离散数据、处理丢失的数据特征和对数据进行标准化。在导入本节需要的包前请确保已安装`pandas`，否则请参考下面代码注释。
 
 ```{.python .input  n=3}
-# 如果没有安装pandas，请反注释下面一行。
+# 如果没有安装 pandas，请反注释下面一行。
 # !pip install pandas
 
 import sys
@@ -196,15 +196,10 @@ def k_fold(k, X_train, y_train, num_epochs,
 我们使用一组简单的超参数并计算交叉验证误差。你可以改动这些超参数来尽可能减小平均测试误差。
 
 ```{.python .input  n=16}
-k = 5
-num_epochs = 100
+k, num_epochs, lr, weight_decay, batch_size = 5, 100, 5, 0, 64
 verbose_epoch = num_epochs - 2
-lr = 5
-weight_decay = 0
-batch_size = 64
-
-train_l, test_l = k_fold(k, train_features, train_labels,
-                         num_epochs, lr, weight_decay, batch_size)
+train_l, test_l = k_fold(k, train_features, train_labels, num_epochs, lr,
+                         weight_decay, batch_size)
 print('%d-fold validation: avg train rmse: %f, avg test rmse: %f'
       % (k, train_l, test_l))
 ```

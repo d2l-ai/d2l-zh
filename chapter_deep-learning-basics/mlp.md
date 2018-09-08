@@ -44,10 +44,10 @@ $$\text{relu}(x) = \max(x, 0).$$
 可以看出，ReLU函数只保留正数元素，并将负数元素清零。为了直观地观察这一非线性变换，我们先定义一个绘图函数`xyplot`。
 
 ```{.python .input  n=6}
-%matplotlib inline
 import sys
 sys.path.insert(0, '..')
 
+%matplotlib inline
 import gluonbook as gb
 from mxnet import nd
 
