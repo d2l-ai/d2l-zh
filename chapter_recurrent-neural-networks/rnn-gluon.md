@@ -6,11 +6,11 @@
 import sys
 sys.path.insert(0, '..')
 
-import math
-import time
 import gluonbook as gb
-from mxnet import autograd, nd, gluon, init
-from mxnet.gluon import rnn, nn, loss as gloss
+import math
+from mxnet import autograd, gluon, init, nd
+from mxnet.gluon import loss as gloss, nn, rnn
+import time
 
 (corpus_indices, char_to_idx, idx_to_char,
  vocab_size) = gb.load_data_jay_lyrics()
@@ -143,14 +143,8 @@ def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
 使用和上一节一样的超参数来训练模型。
 
 ```{.python .input  n=19}
-num_epochs = 200
-batch_size = 32
-lr = 1e2
-clipping_theta = 1e-2
-prefixes = ['分开', '不分开']
-pred_period = 50
-pred_len = 50
-
+num_epochs, batch_size, lr, clipping_theta = 200, 32, 1e2, 1e-2
+pred_period, pred_len, prefixes = 50, 50, ['分开', '不分开']
 train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx, 
                             corpus_indices, idx_to_char, char_to_idx, 
                             num_epochs, num_steps, lr, clipping_theta, 

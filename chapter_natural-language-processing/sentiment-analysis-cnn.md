@@ -43,8 +43,7 @@ def corr1d(X, K):
 让我们重现图10.2中一维互相关运算的结果。
 
 ```{.python .input  n=11}
-X = nd.array([0, 1, 2, 3, 4, 5, 6])
-K = nd.array([1, 2])
+X, K = nd.array([0, 1, 2, 3, 4, 5, 6]), nd.array([1, 2])
 corr1d(X, K)
 ```
 
@@ -198,13 +197,8 @@ class TextCNN(nn.Block):
 我们定义3个卷积核，它们的核宽分别为3、4和5，输出通道数均为100。
 
 ```{.python .input  n=11}
-num_outputs = 2
-lr = 0.001
-num_epochs = 5
-batch_size = 64
-embed_size = 100
-ngram_kernel_sizes = [3, 4, 5]
-nums_channels = [100, 100, 100]
+num_outputs, lr, num_epochs, batch_size, embed_size = 2, 0.001, 5, 64, 100
+ngram_kernel_sizes, nums_channels = [3, 4, 5], [100, 100, 100]
 ctx = gb.try_all_gpus()
 ```
 

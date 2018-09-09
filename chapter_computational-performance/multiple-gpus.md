@@ -169,8 +169,8 @@ def train(num_gpus, batch_size, lr):
         train_time = time.time() - start
         net = lambda x: lenet(x, gpu_params[0])  # 在 GPU 0 上验证模型。
         test_acc = gb.evaluate_accuracy(test_iter, net, ctx[0])
-        print('epoch %d, time: %.1f sec, test acc: %.2f' % (
-            epoch + 1, train_time, test_acc))
+        print('epoch %d, time: %.1f sec, test acc: %.2f'
+              % (epoch + 1, train_time, test_acc))
 ```
 
 ## 多GPU训练训练实验

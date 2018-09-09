@@ -19,28 +19,16 @@ from mxnet.gluon import data as gdata, loss as gloss, nn, rnn
 下面定义一些特殊符号。其中“&lt;pad&gt;”（padding）符号使每个序列等长。我们已经在前面几节介绍了，“&lt;bos&gt;”和“&lt;eos&gt;”符号分别表示序列的开始和结束。
 
 ```{.python .input}
-PAD = '<pad>'
-BOS = '<bos>'
-EOS = '<eos>'
+PAD, BOS, EOS = '<pad>', '<bos>', '<eos>'
 ```
 
 以下设置了模型超参数。我们在编码器和解码器中分别使用了一层和两层的循环神经网络。实验中，我们选取长度不超过5的输入和输出序列，并将预测时输出序列的最大长度设为20。这些序列长度考虑了句末添加的“&lt;eos&gt;”符号。
 
 ```{.python .input}
-num_epochs = 40
-eval_interval = 10
-lr = 0.005
-batch_size = 2
-max_seq_len = 5
-max_test_output_len = 20
-encoder_num_layers = 1
-decoder_num_layers = 2
-encoder_drop_prob = 0.1
-decoder_drop_prob = 0.1
-encoder_embed_size = 256
-encoder_num_hiddens = 256
-decoder_num_hiddens = 256
-alignment_size = 25
+num_epochs, eval_interval, lr, batch_size, max_seq_len = 40, 10, 0.005, 2, 5
+max_test_output_len, encoder_num_layers, decoder_num_layers = 20, 1, 2
+encoder_drop_prob, decoder_drop_prob, encoder_embed_size = 0.1, 0.1, 256
+encoder_num_hiddens, decoder_num_hiddens, alignment_size = 256, 256, 25
 ctx = mx.cpu(0)
 ```
 
@@ -50,10 +38,7 @@ ctx = mx.cpu(0)
 
 ```{.python .input}
 def read_data(max_seq_len):
-    input_tokens = []
-    output_tokens = []
-    input_seqs = []
-    output_seqs = []
+    input_tokens, output_tokens, input_seqs, output_seqs = [], [], [], []
     with io.open('../data/fr-en-small.txt') as f:
         lines = f.readlines()
         for line in lines:
@@ -63,8 +48,7 @@ def read_data(max_seq_len):
             if len(cur_input_tokens) < max_seq_len and \
                     len(cur_output_tokens) < max_seq_len:
                 input_tokens.extend(cur_input_tokens)
-                # 句末附上 EOS 符号。
-                cur_input_tokens.append(EOS)
+                cur_input_tokens.append(EOS)  # 句末附上 EOS 符号。
                 # 添加 PAD 符号使每个序列等长（长度为 max_seq_len）。
                 while len(cur_input_tokens) < max_seq_len:
                     cur_input_tokens.append(PAD)
@@ -142,8 +126,7 @@ class Decoder(nn.Block):
                                     flatten=False))
         self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob,
                            input_size=num_hiddens)
-        self.out = nn.Dense(num_outputs, in_units=num_hiddens,
-                            flatten=False)
+        self.out = nn.Dense(num_outputs, in_units=num_hiddens, flatten=False)
         self.rnn_concat_input = nn.Dense(
             num_hiddens, in_units=num_hiddens + encoder_num_hiddens,
             flatten=False)
@@ -233,8 +216,7 @@ def translate(encoder, decoder, decoder_init_state, fr_ens, ctx, max_seq_len):
 下面定义模型训练函数。为了初始化解码器的隐藏状态，我们通过一层全连接网络来变换编码器最早时间步的输出隐藏状态。解码器中，当前时间步的预测词将作为下一时间步的输入。其实，我们也可以使用样本输出序列在当前时间步的词作为下一时间步的输入。这叫作强制教学（teacher forcing）。
 
 ```{.python .input}
-loss = gloss.SoftmaxCrossEntropyLoss()
-eos_id = output_vocab.token_to_idx[EOS]
+loss, eos_id = gloss.SoftmaxCrossEntropyLoss(), output_vocab.token_to_idx[EOS]
 
 def train(encoder, decoder, decoder_init_state, max_seq_len, ctx,
           eval_fr_ens):
@@ -324,7 +306,7 @@ train(encoder, decoder, decoder_init_state, max_seq_len, ctx, eval_fr_ens)
 
 设$k$为我们希望评价的$n$个连续词的最大长度，例如$k=4$。设$n$个连续词的精度为$p_n$。它是模型预测序列与样本标签序列匹配$n$个连续词的数量与模型预测序列中$n$个连续词数量之比。举个例子，假设标签序列为$ABCDEF$，预测序列为$ABBCD$。那么$p_1 = 4/5, p_2 = 3/4, p_3 = 1/3, p_4 = 0$。设$len_{\text{label}}$和$len_{\text{pred}}$分别为标签序列和模型预测序列的词数。那么，BLEU的定义为
 
-$$ \exp(\min(0, 1 - \frac{len_{\text{label}}}{len_{\text{pred}}})) \prod_{n=1}^k p_n^{1/2^n}.$$
+$$ \exp\left(\min\left(0, 1 - \frac{len_{\text{label}}}{len_{\text{pred}}}\right)\right) \prod_{n=1}^k p_n^{1/2^n}.$$
 
 需要注意的是，匹配较长连续词比匹配较短连续词更难。因此，一方面，匹配较长连续词应被赋予更大权重。而上式中$p_n^{1/2^n}$的指数相当于权重。随着$n$的提高，$n$个连续词的精度的权重随着$1/2^n$的减小而增大。例如$0.5^{1/2} \approx 0.7, 0.5^{1/4} \approx 0.84, 0.5^{1/8} \approx 0.92, 0.5^{1/16} \approx 0.96$。另一方面，模型预测较短序列往往会得到较高的$n$个连续词的精度。因此，上式中连乘项前面的系数是为了惩罚较短的输出。举个例子，当$k=2$时，假设标签序列为$ABCDEF$，而预测序列为$AB$。虽然$p_1 = p_2 = 1$，但惩罚系数$\exp(1-6/2) \approx 0.14$，因此BLEU也接近0.14。当预测序列和标签序列完全一致时，BLEU为1。
 

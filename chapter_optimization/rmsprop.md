@@ -24,8 +24,8 @@ import sys
 sys.path.insert(0, '..')
 
 %matplotlib inline
-import math
 import gluonbook as gb
+import math
 from mxnet import nd
 ```
 
@@ -70,8 +70,8 @@ def rmsprop(params, states, hyperparams):
 
 ```{.python .input  n=24}
 features, labels = gb.get_data_ch7()
-gb.train_ch7(rmsprop, init_rmsprop_states(), 
-             {'lr': 0.01, 'gamma': 0.9}, features, labels)
+gb.train_ch7(rmsprop, init_rmsprop_states(), {'lr': 0.01, 'gamma': 0.9},
+             features, labels)
 ```
 
 ## 使用Gluon的实现
@@ -79,7 +79,7 @@ gb.train_ch7(rmsprop, init_rmsprop_states(),
 使用名称`rmsprop`可以获取Gluon中预实现的RMSProp算法。注意超参数$\gamma$此时通过`gamma1`指定。
 
 ```{.python .input  n=29}
-gb.train_gluon_ch7('rmsprop', {'learning_rate': 0.01, 'gamma1': 0.9}, 
+gb.train_gluon_ch7('rmsprop', {'learning_rate': 0.01, 'gamma1': 0.9},
                    features, labels)
 ```
 

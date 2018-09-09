@@ -18,7 +18,7 @@ import sys
 sys.path.insert(0, '..')
 
 import gluonbook as gb
-from mxnet import nd, gluon, init
+from mxnet import gluon, init, nd
 from mxnet.gluon import nn
 
 def conv_block(num_channels):
@@ -92,8 +92,7 @@ net.add(nn.Conv2D(64, kernel_size=7, strides=2, padding=3),
 ResNet里通过步幅为2的残差块在每个模块之间减小高和宽。这里我们则使用过渡层来减半高和宽，并减半通道数。
 
 ```{.python .input  n=5}
-num_channels = 64  # 当前的数据通道数。
-growth_rate = 32
+num_channels, growth_rate = 64, 32  # num_channels：当前的数据通道数。
 num_convs_in_dense_blocks = [4, 4, 4, 4]
 
 for i, num_convs in enumerate(num_convs_in_dense_blocks):

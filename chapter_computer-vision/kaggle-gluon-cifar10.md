@@ -19,7 +19,7 @@ sys.path.insert(0, '..')
 import datetime
 import gluonbook as gb
 from mxnet import autograd, gluon, init
-from mxnet.gluon import data as gdata, nn, loss as gloss
+from mxnet.gluon import data as gdata, loss as gloss, nn
 import os
 import pandas as pd
 import shutil
@@ -110,21 +110,14 @@ def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
 
 ```{.python .input  n=3}
 if demo:
-    # 注意：此处使用小训练集。
-    train_dir = 'train_tiny'
-    # 注意：此处使用小测试集。
-    test_dir = 'test_tiny'
-    # 注意：此处将批量大小相应设小。使用 Kaggle 比赛的完整数据集时可设较大整数。
-    batch_size = 1
+    # 注意：此处使用小训练集和小测试集并将批量大小相应设小。
+    # 使用 Kaggle 比赛的完整数据集时可设批量大小为较大整数。
+    train_dir, test_dir, batch_size = 'train_tiny', 'test_tiny', 1
 else:
-    train_dir = 'train'
-    test_dir = 'test'
-    batch_size = 128
+    train_dir, test_dir, batch_size = 'train', 'test', 128
 
-data_dir = '../data/kaggle_cifar10'
-label_file = 'trainLabels.csv'
-input_dir = 'train_valid_test'
-valid_ratio = 0.1
+data_dir, label_file = '../data/kaggle_cifar10', 'trainLabels.csv'
+input_dir, valid_ratio = 'train_valid_test', 0.1
 reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
                    valid_ratio)
 ```
@@ -148,15 +141,13 @@ transform_train = gdata.vision.transforms.Compose([
     gdata.vision.transforms.ToTensor(),
     # 对图像的每个通道做标准化。
     gdata.vision.transforms.Normalize([0.4914, 0.4822, 0.4465],
-                                      [0.2023, 0.1994, 0.2010])
-])
+                                      [0.2023, 0.1994, 0.2010])])
 
 # 测试时，无需对图像做标准化以外的增强数据处理。
 transform_test = gdata.vision.transforms.Compose([
     gdata.vision.transforms.ToTensor(),
     gdata.vision.transforms.Normalize([0.4914, 0.4822, 0.4465],
-                                      [0.2023, 0.1994, 0.2010])
-])
+                                      [0.2023, 0.1994, 0.2010])])
 ```
 
 接下来，我们可以使用`ImageFolderDataset`类来读取整理后的数据集，其中每个数据样本包括图像和标签。需要注意的是，我们要在`DataLoader`中调用刚刚定义好的图像增广函数。其中`transform_first`函数指明对每个数据样本中的图像做数据增广。
@@ -249,8 +240,7 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
                             {'learning_rate': lr, 'momentum': 0.9, 'wd': wd})
     prev_time = datetime.datetime.now()
     for epoch in range(num_epochs):
-        train_l = 0.0
-        train_acc = 0.0
+        train_l, train_acc = 0.0, 0.0
         if epoch > 0 and epoch % lr_period == 0:
             trainer.set_learning_rate(trainer.learning_rate * lr_decay)
         for X, y in train_data:
@@ -281,20 +271,11 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
 
 ## 训练并验证模型
 
-现在，我们可以训练并验证模型了。以下的超参数都是可以调节的，例如增加迭代周期。
+现在，我们可以训练并验证模型了。以下的超参数都是可以调节的，例如增加迭代周期。由于`lr_period`和`lr_decay`分别设80和0.1，优化算法的学习率将在每80个迭代周期时自乘0.1。
 
 ```{.python .input  n=8}
-ctx = gb.try_gpu()
-num_epochs = 1
-# 学习率。
-lr = 0.1
-# 权重衰减参数。
-wd = 5e-4
-# 优化算法的学习率将在每 80 个迭代周期时自乘 0.1。
-lr_period = 80
-lr_decay = 0.1
-
-net = get_net(ctx)
+ctx, num_epochs, lr, wd = gb.try_gpu(), 1, 0.1, 5e-4, 
+lr_period, lr_decay, net = 80, 0.1, get_net(ctx)
 net.hybridize()
 train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
       lr_decay)

@@ -12,7 +12,7 @@ import collections
 import gluonbook as gb
 import itertools
 import math
-from mxnet import autograd, nd, gluon
+from mxnet import autograd, gluon, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
 import random
 import sys
@@ -93,8 +93,7 @@ subsampled_dataset = [[
 
 ```{.python .input  n=7}
 def get_center_context_arrays(coded_sentences, max_window_size):
-    centers = []
-    contexts = []
+    centers, contexts = [], []
     for sentence in coded_sentences:
         # 每个句子至少要有 2 个词才可能组成一对“中心词-背景词”。
         if len(sentence) < 2:
