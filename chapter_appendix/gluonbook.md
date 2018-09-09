@@ -31,7 +31,7 @@
 | `Residual`|[残差网络（ResNet）](../chapter_convolutional-neural-networks/resnet.md)|
 | `resnet18`|[多GPU计算的Gluon实现](../chapter_computational-performance/multiple-gpus-gluon.md)|
 | `RNNModel`|[循环神经网络的Gluon实现](../chapter_recurrent-neural-networks/rnn-gluon.md)|
-| `semilogy`|[欠拟合、过拟合和模型选择](../chapter_deep-learning-basics/underfit-overfit.md)|
+| `semilogy`|[模型选择、欠拟合和过拟合](../chapter_deep-learning-basics/underfit-overfit.md)|
 | `set_figsize`|[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)|
 | `sgd`|[线性回归的从零开始实现](../chapter_deep-learning-basics/linear-regression-scratch.md)|
 | `show_bboxes`|[锚框](../chapter_computer-vision/anchor.md)|

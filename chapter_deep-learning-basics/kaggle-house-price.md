@@ -150,7 +150,7 @@ def train(net, train_features, train_labels, test_features, test_labels,
 
 ## $K$折交叉验证
 
-我们在[“欠拟合、过拟合和模型选择”](underfit-overfit.md)一节中介绍了$K$折交叉验证。我们将使用它来选择模型设计并调参。首先实现一个函数它能返回第$i$折交叉验证时需要的训练和验证数据。
+我们在[“模型选择、欠拟合和过拟合”](underfit-overfit.md)一节中介绍了$K$折交叉验证。我们将使用它来选择模型设计并调参。首先实现一个函数它能返回第$i$折交叉验证时需要的训练和验证数据。
 
 ```{.python .input}
 def get_k_fold_data(k, i, X, y):
