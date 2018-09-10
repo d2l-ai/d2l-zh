@@ -24,7 +24,7 @@ $$L = \ell(\boldsymbol{o}, y).$$
 
 $$s = \frac{\lambda}{2} \left(\|\boldsymbol{W}^{(1)}\|_F^2 + \|\boldsymbol{W}^{(2)}\|_F^2\right),$$
 
-其中矩阵的Frobenius范数等价于将矩阵压成向量后计算$L_2$范数。最终，模型在给定的数据样本上带正则化的损失为
+其中矩阵的Frobenius范数等价于将矩阵变平为向量后计算$L_2$范数。最终，模型在给定的数据样本上带正则化的损失为
 
 $$J = L + s.$$
 
