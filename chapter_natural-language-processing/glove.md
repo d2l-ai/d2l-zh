@@ -1,10 +1,5 @@
-# 词嵌入：GloVe和fastText
 
-
-在word2vec被提出以后，很多其他词嵌入模型也陆续发表。本节介绍其中比较有代表性的两个模型。它们分别是由斯坦福团队发表的GloVe和由Facebook团队发表的fastText。
-
-
-## GloVe
+## 使用了词与词之间的共现信息（GloVe）
 
 GloVe使用了词与词之间的共现（co-occurrence）信息。我们定义$\boldsymbol{X}$为共现词频矩阵，其中元素$x_{ij}$为词$j$出现在词$i$的背景的次数。这里的“背景”有多种可能的定义。举个例子，在一段文本序列中，如果词$j$出现在词$i$左边或者右边不超过10个词的距离，我们可以认为词$j$出现在词$i$的背景一次。令$x_i = \sum_k x_{ik}$为任意词出现在词$i$的背景的次数。那么，
 
@@ -89,38 +84,16 @@ $$\sum_{i \in \mathcal{V}, j \in \mathcal{V}} h(x_{ij}) \left(\boldsymbol{v}_i^\
 
 
 
-## fastText
-
-我们在上一节介绍了word2vec的跳字模型和负采样。fastText以跳字模型为基础，将每个中心词视为子词（subword）的集合，并使用负采样学习子词的词向量。因此，fastText是一个子词嵌入模型。
-
-举个例子，设子词长度为3个字符，“where”的子词包括“&lt;wh”、“whe”、“her”、“ere”、“re&gt;”和特殊子词（整词）“&lt;where&gt;”。这些子词中的“&lt;”和“&gt;”符号是为了将作为前后缀的子词区分出来。并且，这里的子词“her”与整词“&lt;her&gt;”也可被区分开。给定一个词$w$，我们通常可以把字符长度在3到6之间的所有子词和特殊子词的并集$\mathcal{G}_w$取出。假设词典中任意子词$g$的子词向量为$\boldsymbol{z}_g$，我们可以把使用负采样的跳字模型的损失函数
-
-
-$$ - \text{log} \mathbb{P} (w_o \mid w_c) = -\text{log} \frac{1}{1+\text{exp}(-\boldsymbol{u}_o^\top \boldsymbol{v}_c)}  - \sum_{k=1, w_k \sim \mathbb{P}(w)}^K \text{log} \frac{1}{1+\text{exp}(\boldsymbol{u}_{i_k}^\top \boldsymbol{v}_c)} $$
-
-直接替换成
-
-$$ - \text{log} \mathbb{P} (w_o \mid w_c) = -\text{log} \frac{1}{1+\text{exp}\left(-\boldsymbol{u}_o^\top \sum_{g \in \mathcal{G}_{w_c}} \boldsymbol{z}_g\right)}  - \sum_{k=1, w_k \sim \mathbb{P}(w)}^K \text{log} \frac{1}{1+\text{exp}\left(\boldsymbol{u}_{i_k}^\top \sum_{g \in \mathcal{G}_{w_c}} \boldsymbol{z}_g\right)}. $$
-
-可以看到，原中心词向量被替换成了中心词的子词向量之和。与word2vec和GloVe不同，词典以外的新词的词向量可以使用fastText中相应的子词向量之和。
-
-fastText对于一些语言较重要，例如阿拉伯语、德语和俄语。例如，德语中有很多复合词，例如乒乓球（英文table tennis）在德语中叫“Tischtennis”。fastText可以通过子词表达两个词的相关性，例如“Tischtennis”和“Tennis”。
-
-
-由于词是自然语言的基本表义单元，词向量广泛应用于各类自然语言处理的场景中。例如，我们可以在之前介绍的语言模型中使用在更大规模语料上预训练的词向量，从而提升语言模型的准确性。
-
 
 ## 小结
 
 * GloVe用词向量表达共现词频的对数。
-* fastText用子词向量之和表达整词。它能表示词典以外的新词。
 
 
 ## 练习
 
 * GloVe中，如果一个词出现在另一个词的背景中，是否可以利用它们之间在文本序列的距离重新设计词频计算方式？提示：可参考Glove论文4.2节 [1]。
 * 如果丢弃GloVe中的偏差项，是否也可以满足任意一对词共现的对称性？
-* 在fastText中，子词过多怎么办（例如，6字英文组合数为$26^6$）？提示：可参考fastText论文3.2节 [2]。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4372)
 
@@ -129,5 +102,3 @@ fastText对于一些语言较重要，例如阿拉伯语、德语和俄语。例
 ## 参考文献
 
 [1] Pennington, J., Socher, R., & Manning, C. (2014). Glove: Global vectors for word representation. In Proceedings of the 2014 conference on empirical methods in natural language processing (EMNLP) (pp. 1532-1543).
-
-[2] Bojanowski, P., Grave, E., Joulin, A., & Mikolov, T. (2016). Enriching word vectors with subword information. arXiv preprint arXiv:1607.04606.
