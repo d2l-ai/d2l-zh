@@ -3,11 +3,11 @@
 MXNet使用异步计算来提升计算性能。理解它的工作原理既有助于开发更高效的程序，又有助于在内存资源有限的情况下主动降低计算性能从而减小内存开销。我们先导入本节中实验需要的包或模块。
 
 ```{.python .input  n=1}
-import os
-import time
-import subprocess
 from mxnet import autograd, gluon, nd
 from mxnet.gluon import loss as gloss, nn
+import os
+import subprocess
+import time
 ```
 
 ## MXNet中的异步计算
@@ -45,7 +45,7 @@ class Benchmark():  # 本类已保存在 gluonbook 包中方便以后使用。
 with Benchmark('workloads are queued.'):
     x = nd.random.uniform(shape=(2000, 2000))
     y = nd.dot(x, x).sum()
-    
+
 with Benchmark('workloads are finished.'):
     print('sum =', y)
 ```
@@ -60,7 +60,7 @@ with Benchmark('workloads are finished.'):
 下面是使用`wait_to_read`的例子。输出用时包含了`y`的计算时间。
 
 ```{.python .input  n=5}
-with Benchmark():    
+with Benchmark():
     y = nd.dot(x, x)
     y.wait_to_read()
 ```
@@ -101,7 +101,7 @@ with Benchmark('synchronous. '):
         y = x + 1
         y.wait_to_read()
 
-with Benchmark('asynchronous. '):        
+with Benchmark('asynchronous. '):
     for _ in range(1000):
         y = x + 1
     nd.waitall()

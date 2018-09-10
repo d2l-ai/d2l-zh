@@ -50,8 +50,7 @@ download_imdb()
 ```{.python .input  n=5}
 # 本函数已保存在 gluonbook 包中方便以后使用。
 def read_imdb(dir_url, seg='train'):
-    pos_or_neg = ['pos', 'neg']
-    data = []
+    pos_or_neg, data = ['pos', 'neg'], []
     for label in pos_or_neg:
         files = os.listdir(os.path.join('../data/', dir_url, seg, label))
         for file in files:
@@ -193,16 +192,8 @@ class BiRNN(nn.Block):
 由于情感分类的训练数据集并不是很大，为应对过拟合现象，我们将直接使用在更大规模语料上预训练的词向量作为每个词的特征向量。在训练中，我们不再更新这些词向量，即不再迭代模型嵌入层中的参数。
 
 ```{.python .input  n=11}
-num_outputs = 2
-lr = 0.8
-num_epochs = 5
-batch_size = 64
-embed_size = 100
-num_hiddens = 100
-num_layers = 2
-bidirectional = True
-ctx = gb.try_all_gpus()
-
+num_outputs, lr, num_epochs, batch_size, embed_size = 2, 0.8, 5, 64, 100
+num_hiddens, num_layers, bidirectional, ctx = 100, 2, True, gb.try_all_gpus()
 net = BiRNN(vocab, embed_size, num_hiddens, num_layers, bidirectional,
             num_outputs)
 net.initialize(init.Xavier(), ctx=ctx)

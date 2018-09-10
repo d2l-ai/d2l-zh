@@ -56,16 +56,16 @@ AlextNet与LeNet的设计理念非常相似。但也有显著的区别。
 import sys
 sys.path.insert(0, '..')
 
+import gluonbook as gb
+from mxnet import gluon, init, nd
+from mxnet.gluon import data as gdata, nn
 import os
 import sys
-import gluonbook as gb
-from mxnet import nd, init, gluon
-from mxnet.gluon import data as gdata, nn
 
 net = nn.Sequential()
-net.add(# 使用较大的 11 x 11 窗口来捕获物体。同时使用步幅 4 来较大减小输出高宽。
-        # 这里使用的输入通道数比 LeNet 也要大很多。
-        nn.Conv2D(96, kernel_size=11, strides=4, activation='relu'),
+# 使用较大的 11 x 11 窗口来捕获物体。同时使用步幅 4 来较大减小输出高宽。
+# 这里使用的输入通道数比 LeNet 也要大很多。
+net.add(nn.Conv2D(96, kernel_size=11, strides=4, activation='relu'),
         nn.MaxPool2D(pool_size=3, strides=2),
         # 减小卷积窗口，使用填充为 2 来使得输入输出高宽一致，且增大输出通道数。
         nn.Conv2D(256, kernel_size=5, padding=2, activation='relu'),
@@ -100,7 +100,7 @@ for layer in net:
 ```{.python .input  n=3}
 # 本函数已保存在 gluonbook 包中方便以后使用。
 def load_data_fashion_mnist(batch_size, resize=None, root=os.path.join(
-    '~', '.mxnet', 'datasets', 'fashion-mnist')):
+        '~', '.mxnet', 'datasets', 'fashion-mnist')):
     root = os.path.expanduser(root)  # 展开用户路径 '~'。
     transformer = []
     if resize:

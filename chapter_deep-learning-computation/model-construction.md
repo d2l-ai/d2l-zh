@@ -20,6 +20,7 @@ class MLP(nn.Block):
         super(MLP, self).__init__(**kwargs)
         self.hidden = nn.Dense(256, activation='relu')  # 隐藏层。
         self.output = nn.Dense(10)  # 输出层。
+
     # 定义模型的前向计算，即如何根据输入计算输出。
     def forward(self, x):
         return self.output(self.hidden(x))

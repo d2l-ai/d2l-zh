@@ -218,9 +218,8 @@ def linreg(X, w, b):
     return nd.dot(X, w) + b
 
 
-def load_data_fashion_mnist(batch_size, resize=None,
-                            root=os.path.join('~', '.mxnet', 'datasets',
-                                              'fashion-mnist')):
+def load_data_fashion_mnist(batch_size, resize=None, root=os.path.join(
+        '~', '.mxnet', 'datasets', 'fashion-mnist')):
     """Download the fashion mnist dataset and then load into memory."""
     root = os.path.expanduser(root)
     transformer = []
@@ -679,7 +678,8 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
                  train_acc_sum / len(train_iter), test_acc))
 
 
-def train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs):
+def train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
+              num_epochs):
     """Train and evaluate a model on CPU or GPU."""
     print('training on', ctx)
     loss = gloss.SoftmaxCrossEntropyLoss()
@@ -688,8 +688,7 @@ def train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs):
         train_acc_sum = 0
         start = time.time()
         for X, y in train_iter:
-            X = X.as_in_context(ctx)
-            y = y.as_in_context(ctx)
+            X, y = X.as_in_context(ctx), y.as_in_context(ctx)
             with autograd.record():
                 y_hat = net(X)
                 l = loss(y_hat, y)
@@ -711,7 +710,10 @@ def train_ch7(trainer_fn, states, hyperparams, features, labels, batch_size=10,
     w, b = nd.random.normal(scale=0.01, shape=(features.shape[1], 1)), nd.zeros(1)
     w.attach_grad()
     b.attach_grad()
-    eval_loss = lambda : loss(net(features, w, b), labels).mean().asscalar()
+
+    def eval_loss():
+        return loss(net(features, w, b), labels).mean().asscalar()
+
     ls = [eval_loss()]
     data_iter = gdata.DataLoader(
         gdata.ArrayDataset(features, labels), batch_size, shuffle=True)
@@ -738,7 +740,10 @@ def train_gluon_ch7(trainer_name, trainer_hyperparams, features, labels,
     net.add(nn.Dense(1))
     net.initialize(init.Normal(sigma=0.01))
     loss = gloss.L2Loss()
-    eval_loss = lambda : loss(net(features), labels).mean().asscalar()
+
+    def eval_loss():
+        return loss(net(features), labels).mean().asscalar()
+
     ls = [eval_loss()]
     data_iter = gdata.DataLoader(
         gdata.ArrayDataset(features, labels), batch_size, shuffle=True)

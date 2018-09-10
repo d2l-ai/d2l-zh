@@ -6,11 +6,11 @@
 import sys
 sys.path.insert(0, '..')
 
-import math
-import time
 import gluonbook as gb
+import math
 from mxnet import autograd, nd
 from mxnet.gluon import loss as gloss
+import time
 
 (corpus_indices, char_to_idx, idx_to_char,
  vocab_size) = gb.load_data_jay_lyrics()
@@ -24,7 +24,7 @@ from mxnet.gluon import loss as gloss
 nd.one_hot(nd.array([0, 2]), vocab_size)
 ```
 
-我们每次采样的小批量的形状是（`batch_size`, `num_steps`）。下面这个函数将其转换成`num_steps`个可以输入进网络的形状为（`batch_size`, `vocab_size`）的矩阵。也就是总时间步$T=$`num_steps`，时间步$t$的输入$\boldsymbol{X_t} \in \mathbb{R}^{n \times d}$，其中$n=$`batch_size`，$d=$`vocab_size`（one-hot向量长度）。
+我们每次采样的小批量的形状是（`batch_size`, `num_steps`）。下面这个函数将其转换成`num_steps`个可以输入进网络的形状为（`batch_size`, `vocab_size`）的矩阵。也就是总时间步$T=$`num_steps`，时间步$t$的输入$\boldsymbol{X}_t \in \mathbb{R}^{n \times d}$，其中$n=$`batch_size`，$d=$`vocab_size`（one-hot向量长度）。
 
 ```{.python .input  n=3}
 # 本函数已保存在 gluonbook 包中方便以后使用。
@@ -41,14 +41,14 @@ len(inputs), inputs[0].shape
 接下来，我们初始化模型参数。隐藏单元个数 `num_hiddens`是一个超参数。
 
 ```{.python .input  n=4}
-num_inputs = vocab_size
-num_hiddens = 256
-num_outputs = vocab_size
+num_inputs, num_hiddens, num_outputs = vocab_size, 256, vocab_size
 ctx = gb.try_gpu()
 print('will use', ctx)
 
 def get_params():
-    _one = lambda shape: nd.random.normal(scale=0.01, shape=shape, ctx=ctx)
+    def _one(shape):
+        return nd.random.normal(scale=0.01, shape=shape, ctx=ctx)
+
     # 隐藏层参数。
     W_xh = _one((num_inputs, num_hiddens))
     W_hh = _one((num_hiddens, num_hiddens))
@@ -76,7 +76,7 @@ def init_rnn_state(batch_size, num_hiddens, ctx):
 
 ```{.python .input  n=6}
 def rnn(inputs, state, params):
-    # inputs 和 outputs 皆为 num_steps 个形状为（batch_size, vocab_size）的矩阵。
+    # inputs 和 outputs 皆为 num_steps 个形状为（batch_size，vocab_size）的矩阵。
     W_xh, W_hh, b_h, W_hy, b_y = params
     H, = state
     outputs = []
@@ -187,18 +187,18 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
         loss_sum, start = 0.0, time.time()
         data_iter = data_iter_fn(corpus_indices, batch_size, num_steps, ctx)
         for t, (X, Y) in enumerate(data_iter):
-            if is_random_iter: # 如使用随机采样，在每个小批量更新前初始化隐藏变量。
+            if is_random_iter:  # 如使用随机采样，在每个小批量更新前初始化隐藏变量。
                 state = init_rnn_state(batch_size, num_hiddens, ctx)
             else:  # 否则需要使用 detach 函数从计算图分离隐藏状态变量。
                 for s in state:
                     s.detach()
             with autograd.record():
                 inputs = to_onehot(X, vocab_size)
-                # outputs 有 num_steps 个形状为 (batch_size, vocab_size) 的矩阵。
+                # outputs 有 num_steps 个形状为（batch_size，vocab_size）的矩阵。
                 (outputs, state) = rnn(inputs, state, params)
-                # 拼接之后形状为 (num_steps * batch_size, vocab_size)。
+                # 拼接之后形状为（num_steps * batch_size，vocab_size）。
                 outputs = nd.concat(*outputs, dim=0)
-                # Y 的形状是 (batch_size, num_steps)，转置后再变成长
+                # Y 的形状是（batch_size，num_steps），转置后再变成长
                 # batch * num_steps 的向量，这样跟输出的行一一对应。
                 y = Y.T.reshape((-1,))
                 # 使用交叉熵损失计算平均分类误差。
@@ -208,11 +208,10 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
             grad_clipping(params, clipping_theta, ctx)
             gb.sgd(params, lr, 1)  # 因为已经误差取过均值，梯度不用再做平均。
             loss_sum += l.asscalar()
-        
+
         if (epoch + 1) % pred_period == 0:
-            print('epoch %d, perplexity %f, time %.2f sec'  % (
-                epoch + 1, math.exp(loss_sum / (t + 1)),
-                     time.time() - start))
+            print('epoch %d, perplexity %f, time %.2f sec' % (
+                epoch + 1, math.exp(loss_sum / (t + 1)), time.time() - start))
             for prefix in prefixes:
                 print(' -', predict_rnn(
                     prefix, pred_len, rnn, params, init_rnn_state,
@@ -224,14 +223,8 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
 现在我们可以训练模型了。首先，设置模型超参数。我们将根据前缀“分开”和“不分开”分别创作长度为50个字符的一段歌词。我们每过50个迭代周期便根据当前训练的模型创作一段歌词。
 
 ```{.python .input  n=12}
-num_epochs = 200
-num_steps = 35
-batch_size = 32
-lr = 1e2 
-clipping_theta = 1e-2 
-prefixes = ['分开', '不分开']
-pred_period = 50
-pred_len = 50
+num_epochs, num_steps, batch_size, lr, clipping_theta = 200, 35, 32, 1e2, 1e-2
+pred_period, pred_len, prefixes = 50, 50, ['分开', '不分开']
 ```
 
 下面采用随机采样训练模型并创作歌词。

@@ -176,6 +176,8 @@ softmax回归，softmax regression
 
 无偏估计，unbiased estimate
 
+误差，error
+
 小批量，mini-batch
 
 小批量梯度，mini-batch gradient

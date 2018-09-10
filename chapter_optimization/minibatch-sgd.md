@@ -58,16 +58,19 @@ def sgd(params, states, hyperparams):
 
 ```{.python .input  n=4}
 # 本函数已保存在 gluonbook 包中方便以后使用。
-def train_ch7(trainer_fn, states, hyperparams, features, labels, batch_size=10,
-              num_epochs=2):
+def train_ch7(trainer_fn, states, hyperparams, features, labels,
+              batch_size=10, num_epochs=2):
     # 初始化模型。
     net, loss = gb.linreg, gb.squared_loss
     w = nd.random.normal(scale=0.01, shape=(features.shape[1], 1))
     b = nd.zeros(1)
     w.attach_grad()
     b.attach_grad()
+
+    def eval_loss():
+        return loss(net(features, w, b), labels).mean().asscalar()
+    
     # 记录训练误差和读取数据后开始迭代。
-    eval_loss = lambda : loss(net(features, w, b), labels).mean().asscalar()
     ls = [eval_loss()]
     data_iter = gdata.DataLoader(
         gdata.ArrayDataset(features, labels), batch_size, shuffle=True)
@@ -124,8 +127,11 @@ def train_gluon_ch7(trainer_name, trainer_hyperparams, features, labels,
     net.add(nn.Dense(1))
     net.initialize(init.Normal(sigma=0.01))
     loss = gloss.L2Loss()
+
+    def eval_loss():
+        return loss(net(features), labels).mean().asscalar()
+
     # 记录训练误差和读取数据。
-    eval_loss = lambda : loss(net(features), labels).mean().asscalar()
     ls = [eval_loss()]
     data_iter = gdata.DataLoader(
         gdata.ArrayDataset(features, labels), batch_size, shuffle=True)

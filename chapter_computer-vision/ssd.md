@@ -203,11 +203,10 @@ train_data.reshape(label_shape=(3, 5))
 模型和训练器的初始化跟之前类似。
 
 ```{.python .input  n=16}
-ctx = gb.try_gpu()
-net = TinySSD(num_classes=2)
+ctx, net = gb.try_gpu(), TinySSD(num_classes=2)
 net.initialize(init=init.Xavier(), ctx=ctx)
-trainer = gluon.Trainer(net.collect_params(),
-                        'sgd', {'learning_rate': 0.1, 'wd': 5e-4})
+trainer = gluon.Trainer(net.collect_params(), 'sgd',
+                        {'learning_rate': 0.1, 'wd': 5e-4})
 ```
 
 ### 损失和评估函数

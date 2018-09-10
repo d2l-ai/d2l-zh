@@ -34,12 +34,12 @@ import sys
 sys.path.insert(0, '..')
 
 %matplotlib inline
-import zipfile
 import gluonbook as gb
 from mxnet import gluon, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, model_zoo
 from mxnet.gluon import utils as gutils
 import os
+import zipfile
 
 data_dir = '../data'
 base_url = 'https://apache-mxnet.s3-accelerate.amazonaws.com/'

@@ -18,7 +18,7 @@ import sys
 sys.path.insert(0, '..')
 
 import gluonbook as gb
-from mxnet import nd, gluon, init
+from mxnet import gluon, init, nd
 from mxnet.gluon import nn
 
 class Residual(nn.Block):  # 本类已保存在 gluonbook 包中方便以后使用。
@@ -118,7 +118,7 @@ for layer in net:
 下面我们在Fashion-MNIST上训练ResNet。
 
 ```{.python .input}
-lr, num_epochs, batch_size, ctx  = 0.05, 5, 256, gb.try_gpu()
+lr, num_epochs, batch_size, ctx = 0.05, 5, 256, gb.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 train_iter, test_iter = gb.load_data_fashion_mnist(batch_size, resize=96)
