@@ -74,7 +74,7 @@
 
 过滤器，filter
 
-过拟合，underfitting
+过拟合，overfitting
 
 恒等映射，identity mapping
 
@@ -132,7 +132,7 @@ softmax回归，softmax regression
 
 平均池化层，average pooling layer
 
-欠拟合，overfitting
+欠拟合，underfitting
 
 情感分析，sentiment analysis
 
