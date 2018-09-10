@@ -69,13 +69,13 @@
 
 * 并行计算的能力也为强化学习（至少在可以采用模拟的情况下）的发展贡献了力量。并行计算帮助计算机在围棋、雅达利游戏、星际争霸和物理模拟上达到了超过人类的水准。
 
-* 深度学习框架也在传播深度学习思想的过程中扮演了重要角色。例如[Caffe](https://github.com/BVLC/caffe), [Torch](https://github.com/torch), 和 [Theano](https://github.com/Theano/Theano)这样的第一代框架使得建模变得简单，许多开创性的论文都用到了这些框架。如今它们已经被[TensorFlow](https://github.com/tensorflow/tensorflow) (经常是以高层API[Keras](https://github.com/keras-team/keras)的形式被使用）、[CNTK](https://github.com/Microsoft/CNTK)、 [Caffe 2](https://github.com/caffe2/caffe2) 和 [Apache MxNet](https://github.com/apache/incubator-mxnet)。第三代，即命令式深度学习框架，是由用类似Numpy的语法来定义模型的 [Chainer](https://github.com/chainer/chainer) 开创。这样的思想后来被[PyTorch](https://github.com/pytorch/pytorch) 和 MXNet的[Gluon API](https://github.com/apache/incubator-mxnet) 采用，后者也正是本书用来教学深度学习的工具。
+* 深度学习框架也在传播深度学习思想的过程中扮演了重要角色。例如[Caffe](https://github.com/BVLC/caffe), [Torch](https://github.com/torch) 和 [Theano](https://github.com/Theano/Theano)这样的第一代框架使得建模变得简单，许多开创性的论文都用到了这些框架。如今它们已经被[TensorFlow](https://github.com/tensorflow/tensorflow) (经常是以高层API [Keras](https://github.com/keras-team/keras)的形式被使用）、[CNTK](https://github.com/Microsoft/CNTK)、 [Caffe 2](https://github.com/caffe2/caffe2) 和 [Apache MxNet](https://github.com/apache/incubator-mxnet)所取代。第三代，即命令式深度学习框架，是由用类似Numpy的语法来定义模型的 [Chainer](https://github.com/chainer/chainer) 开创。这样的思想后来被[PyTorch](https://github.com/pytorch/pytorch) 和 MXNet的[Gluon API](https://github.com/apache/incubator-mxnet) 采用，后者也正是本书用来教学深度学习的工具。
 
-系统研究者负责构建更好的工具，统计学家建立更好的模型，这样的分工使得工作大大简化。举例来说，在2014年时，训练一个逻辑回归模型曾是卡耐基梅隆大学布置给机器学习方向的新入学博士生的作业问题。时至今日，这个问题只需要少于10行的代码便可以完成，普通的程序员都可以完成。
+系统研究者负责构建更好的工具，统计学家建立更好的模型，这样的分工使得工作大大简化。举例来说，在2014年时，训练一个逻辑回归模型曾是卡耐基梅隆大学布置给机器学习方向的新入学博士生的作业问题。时至今日，这个问题只需要少于10行的代码便可以完成，普通的程序员都可以做到。
 
 ## 成功案例
 
-长期以来机器学习都能达成其他方法难以达成的目的，例如，自上世纪90年代起，邮件的分拣就开始使用光学字符识别（实际上这正是知名的MNIST和USPS手写数字数据集的来源）。机器学习也是电子支付系统的支柱，可以用于读取银行支票、进行授信评分以及防止金融欺诈。机器学习算法在网络上被用来提供搜索结果、个性化推荐和网页排序。尽管长期处于公众视野之外，机器学习已经渗透到了方方面面。直到近年来在此前认为无法被解决的问题以及直接关系到消费者的问题上的突破性进展，机器学习才逐渐变成公众的焦点。这些进展的基本归功于深度学习：
+长期以来机器学习都能达成其他方法难以达成的目的，例如，自上世纪90年代起，邮件的分拣就开始使用光学字符识别（实际上这正是知名的MNIST和USPS手写数字数据集的来源）。机器学习也是电子支付系统的支柱，可以用于读取银行支票、进行授信评分以及防止金融欺诈。机器学习算法在网络上被用来提供搜索结果、个性化推荐和网页排序。尽管长期处于公众视野之外，机器学习已经渗透到了方方面面。直到近年来在此前认为无法被解决的问题以及直接关系到消费者的问题上的突破性进展，机器学习才逐渐变成公众的焦点。这些进展基本归功于深度学习：
 
 * 诸如苹果公司的Siri、亚马逊的Alexa和谷歌助手一类的智能助手能以可观的准确率回答口头提出的问题，甚至包括从简单的开关灯具（对残疾群体帮助很大）到提供语音对话帮助。智能助手的出现或许可以作为人工智能开始影响我们生活的标志。
 
