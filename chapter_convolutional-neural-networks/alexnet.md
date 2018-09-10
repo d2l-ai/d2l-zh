@@ -95,7 +95,7 @@ for layer in net:
 
 ## 读取数据
 
-虽然论文中AlexNet使用ImageNet数据，但因为ImageNet数据训练时间较长，我们仍用前面的Fashion-MNIST来演示AlexNet。读取数据的时候我们额外做了一步将图像高宽扩大到AlexNet使用的图像高宽224。这个可以通过`Resize`类来实现。即我们在`ToTenor`类前使用`Resize`类，然后使用`Compose`类来将这两个变化串联以方便调用。
+虽然论文中AlexNet使用ImageNet数据，但因为ImageNet数据训练时间较长，我们仍用前面的Fashion-MNIST来演示AlexNet。读取数据的时候我们额外做了一步将图像高宽扩大到AlexNet使用的图像高宽224。这个可以通过`Resize`类来实现。即我们在`ToTensor`类前使用`Resize`类，然后使用`Compose`类来将这两个变化串联以方便调用。
 
 ```{.python .input  n=3}
 # 本函数已保存在 gluonbook 包中方便以后使用。
