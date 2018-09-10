@@ -47,7 +47,7 @@ $$f(\boldsymbol{v}_i - \boldsymbol{v}_j, \tilde{\boldsymbol{v}}_k) = \frac{p_{ik
 
 由于共现概率比值是一个标量，我们可以使用向量之间的内积把函数$f$的自变量进一步改写，得到
 
-$$f((\boldsymbol{v}_i - \boldsymbol{v}_j)^\top \tilde{\boldsymbol{v}}_k) = \frac{p_{ik}}{p_{jk}}.$$
+$$f\left((\boldsymbol{v}_i - \boldsymbol{v}_j)^\top \tilde{\boldsymbol{v}}_k\right) = \frac{p_{ik}}{p_{jk}}.$$
 
 由于任意一对词共现的对称性，我们希望以下两个性质可以同时被满足：
 
@@ -56,7 +56,7 @@ $$f((\boldsymbol{v}_i - \boldsymbol{v}_j)^\top \tilde{\boldsymbol{v}}_k) = \frac
 
 为了满足以上两个性质，一方面，我们令
 
-$$f((\boldsymbol{v}_i - \boldsymbol{v}_j)^\top \tilde{\boldsymbol{v}}_k) = \frac{f(\boldsymbol{v}_i^\top \tilde{\boldsymbol{v}}_k)}{f(\boldsymbol{v}_j^\top \tilde{\boldsymbol{v}}_k)},$$
+$$f\left((\boldsymbol{v}_i - \boldsymbol{v}_j)^\top \tilde{\boldsymbol{v}}_k\right) = \frac{f(\boldsymbol{v}_i^\top \tilde{\boldsymbol{v}}_k)}{f(\boldsymbol{v}_j^\top \tilde{\boldsymbol{v}}_k)},$$
 
 并得到$f(x) = \text{exp}(x)$。以上两式的右边联立，
 
@@ -100,7 +100,7 @@ $$ - \text{log} \mathbb{P} (w_o \mid w_c) = -\text{log} \frac{1}{1+\text{exp}(-\
 
 直接替换成
 
-$$ - \text{log} \mathbb{P} (w_o \mid w_c) = -\text{log} \frac{1}{1+\text{exp}(-\boldsymbol{u}_o^\top \sum_{g \in \mathcal{G}_{w_c}} \boldsymbol{z}_g)}  - \sum_{k=1, w_k \sim \mathbb{P}(w)}^K \text{log} \frac{1}{1+\text{exp}(\boldsymbol{u}_{i_k}^\top \sum_{g \in \mathcal{G}_{w_c}} \boldsymbol{z}_g)}. $$
+$$ - \text{log} \mathbb{P} (w_o \mid w_c) = -\text{log} \frac{1}{1+\text{exp}\left(-\boldsymbol{u}_o^\top \sum_{g \in \mathcal{G}_{w_c}} \boldsymbol{z}_g\right)}  - \sum_{k=1, w_k \sim \mathbb{P}(w)}^K \text{log} \frac{1}{1+\text{exp}\left(\boldsymbol{u}_{i_k}^\top \sum_{g \in \mathcal{G}_{w_c}} \boldsymbol{z}_g\right)}. $$
 
 可以看到，原中心词向量被替换成了中心词的子词向量之和。与word2vec和GloVe不同，词典以外的新词的词向量可以使用fastText中相应的子词向量之和。
 

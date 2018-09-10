@@ -3,7 +3,7 @@
 本节将讨论优化与深度学习的关系以及优化在深度学习中的挑战。在一个深度学习问题中，通常我们会预先定义一个损失函数。有了损失函数以后，我们就可以使用优化算法试图使其最小化。在优化中，这样的损失函数通常被称作优化问题的目标函数（objective function）。依据惯例，优化算法通常只考虑最小化目标函数。其实，任何最大化问题都可以很容易地转化为最小化问题：我们只需把目标函数前面的正号或负号取相反。
 
 虽然优化为深度学习提供了最小化损失函数的方法，但本质上，这两者之间的目标是有区别的。
-在[“欠拟合、过拟合和模型选择”](../chapter_deep-learning-basics/underfit-overfit.md)一节中，我们区分了训练误差和泛化误差。
+在[“模型选择、欠拟合和过拟合”](../chapter_deep-learning-basics/underfit-overfit.md)一节中，我们区分了训练误差和泛化误差。
 由于优化算法的目标函数通常是一个基于训练数据集的损失函数，优化的目标在于降低训练误差。
 而深度学习的目标在于降低泛化误差。
 为了降低泛化误差，除了使用优化算法降低训练误差以外，我们还需要注意应对过拟合。
@@ -18,10 +18,10 @@
 优化在深度学习中有很多挑战。以下描述了其中的两个挑战：局部最小值和鞍点。为了更好地描述问题，我们先导入本节中实验需要的包或模块。
 
 ```{.python .input  n=1}
-%matplotlib inline
 import sys
 sys.path.insert(0, '..')
 
+%matplotlib inline
 import gluonbook as gb
 from mpl_toolkits import mplot3d
 import numpy as np
@@ -78,7 +78,7 @@ $$f(x, y) = x^2 - y^2.$$
 我们可以找出该函数的鞍点位置。也许你已经发现了，该函数看起来像一个马鞍，而鞍点恰好是马鞍上可坐区域的中心。
 
 ```{.python .input  n=4}
-x, y = np.mgrid[-1:1:31j, -1:1:31j]
+x, y = np.mgrid[-1: 1: 31j, -1: 1: 31j]
 z = x**2 - y**2
 
 ax = gb.plt.figure().add_subplot(111, projection='3d')

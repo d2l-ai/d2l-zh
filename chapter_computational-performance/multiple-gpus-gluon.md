@@ -34,11 +34,11 @@ def resnet18(num_classes):
     net.add(nn.Conv2D(64, kernel_size=3, strides=1, padding=1),
             nn.BatchNorm(), nn.Activation('relu'))
     net.add(resnet_block(64, 2, first_block=True),
-            resnet_block(128, 2), 
-            resnet_block(256, 2), 
-            resnet_block(512, 2)) 
+            resnet_block(128, 2),
+            resnet_block(256, 2),
+            resnet_block(512, 2))
     net.add(nn.GlobalAvgPool2D(), nn.Dense(num_classes))
-    return net 
+    return net
 
 net = resnet18(10)
 ```
@@ -94,10 +94,10 @@ def train(num_gpus, batch_size, lr):
                 l.backward()
             trainer.step(batch_size)
         nd.waitall()
-        train_time = time.time() - start        
+        train_time = time.time() - start
         test_acc = gb.evaluate_accuracy(test_iter, net, ctx[0])
         print('epoch %d, training time: %.1f sec, test_acc %.2f' % (
-            epoch, train_time, test_acc))
+            epoch + 1, train_time, test_acc))
 ```
 
 首先在单GPU上训练。

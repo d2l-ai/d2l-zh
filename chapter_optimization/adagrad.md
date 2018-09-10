@@ -34,8 +34,8 @@ import sys
 sys.path.insert(0, '..')
 
 %matplotlib inline
-import math
 import gluonbook as gb
+import math
 from mxnet import nd
 ```
 
@@ -50,8 +50,10 @@ def adagrad_2d(x1, x2, s1, s2):
     x2 -= eta / math.sqrt(s2 + eps) * g2
     return x1, x2, s1, s2
 
+def f_2d(x1, x2):
+    return 0.1 * x1 ** 2 + 2 * x2 ** 2
+
 eta = 0.4
-f_2d = lambda x1, x2: 0.1 * x1 ** 2 + 2 * x2 ** 2
 gb.show_trace_2d(f_2d, gb.train_2d(adagrad_2d))
 ```
 

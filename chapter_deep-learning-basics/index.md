@@ -21,6 +21,7 @@
    weight-decay
    dropout
    backprop
+   numerical-stability-and-init
    kaggle-house-price
 
 ```

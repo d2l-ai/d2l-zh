@@ -17,7 +17,7 @@ fancy_func(1, 2, 3, 4)
 
 和我们预期的一样，在运行`e = add(a, b)`时，Python会做加法运算并将结果存储在变量`e`，从而令程序的状态发生了改变。类似地，后面的两个语句`f = add(c, d)`和`g = add(e, f)`会依次做加法运算并存储变量。
 
-虽然使用命令式编程很方便，但它的运行可能会慢。一方面，即使`fancy_func`函数中的`add`是被重复调用的函数，Python也会逐一执行这三个函数调用语句。另一方面，我们需要保存变量`e`和`f`的值直到`fancy_func`中所有语句执行结束。这是因为在执行`e = add(a, b)`和`f = add(c, d)`之前我们并不知道变量`e`和`f`是否会被程序的其他部分使用。
+虽然使用命令式编程很方便，但它的运行可能会慢。一方面，即使`fancy_func`函数中的`add`是被重复调用的函数，Python也会逐一执行这三个函数调用语句。另一方面，我们需要保存变量`e`和`f`的值直到`fancy_func`中所有语句执行结束。这是因为在执行`e = add(a, b)`和`f = add(c, d)`之后我们并不知道变量`e`和`f`是否会被程序的其他部分使用。
 
 与命令式编程不同，符号式编程通常在计算流程完全定义好后才被执行。多个深度学习框架，例如Theano和TensorFlow，都使用了符号式编程。通常，符号式编程的程序需要下面三个步骤：
 
@@ -102,7 +102,7 @@ net.hybridize()
 net(x)
 ```
 
-需要注意的是，只有继承HybridBlock的层才会被优化。例如，HybridSequential类和Gluon提供的Dense类都是HybridBlock的子类，它们都会被优化计算。如果一个层只是继承自Block而不是HybridBlock类（之后会讨论），那么它将不会被优化。
+需要注意的是，只有继承HybridBlock的层才会被优化。例如，HybridSequential类和Gluon提供的`Dense`类都是HybridBlock的子类，它们都会被优化计算。如果一个层只是继承自Block而不是HybridBlock类（之后会讨论），那么它将不会被优化。
 
 
 ### 性能
@@ -113,7 +113,7 @@ net(x)
 def benchmark(net, x):
     start = time.time()
     for i in range(1000):
-        _ = net(x)    
+        _ = net(x)
     nd.waitall()  # 等待所有计算完成方便计时。
     return time.time() - start
 
