@@ -11,7 +11,7 @@
 
 ### 重置门和更新门
 
-如图6.4所示，门控循环单元中的重置门（reset gate）和更新门（update gate）均由输入为当前时间步输入$\boldsymbol{X}_t$与上一时间步隐藏状态$\boldsymbol{H}_{t-1}$，且激活函数为sigmoid函数的全连接层计算得出。
+如图6.4所示，门控循环单元中的重置门（reset gate）和更新门（update gate）的输入均为当前时间步输入$\boldsymbol{X}_t$与上一时间步隐藏状态$\boldsymbol{H}_{t-1}$，且激活函数为sigmoid函数的全连接层计算得出。
 
 
 ![门控循环单元中重置门和更新门的计算。](../img/gru_1.svg)
