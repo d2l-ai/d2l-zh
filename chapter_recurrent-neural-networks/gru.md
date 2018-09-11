@@ -143,7 +143,7 @@ num_epochs, num_steps, batch_size, lr, clipping_theta = 160, 35, 32, 1e2, 1e-2
 pred_period, pred_len, prefixes = 40, 50, ['分开', '不分开']
 ```
 
-设置好超参数后，我们将训练模型并跟据前缀“分开”和“不分开”分别创作长度为50个字符的一段歌词。我们每过30个迭代周期便根据当前训练的模型创作一段歌词。。
+设置好超参数后，我们将训练模型并跟据前缀“分开”和“不分开”分别创作长度为50个字符的一段歌词。我们每过30个迭代周期便根据当前训练的模型创作一段歌词。
 
 ```{.python .input}
 gb.train_and_predict_rnn(gru, get_params, init_gru_state, num_hiddens,
