@@ -17,7 +17,7 @@ import sys
 import time
 ```
 
-下面，我们通过Gluon的`data`包来下载这个数据集。第一次调用时会自动从网上获取数据。我们通过参数`train`来指定获取训练数据集或测试数据集（testing data set）。
+下面，我们通过Gluon的`data`包来下载这个数据集。第一次调用时会自动从网上获取数据。我们通过参数`train`来指定获取训练数据集或测试数据集（testing data set）。测试数据集也叫测试集（testing set），只用来评价模型的表现，并不用来训练模型。
 
 ```{.python .input  n=23}
 mnist_train = gdata.vision.FashionMNIST(train=True)
