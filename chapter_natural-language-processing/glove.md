@@ -1,5 +1,4 @@
-
-## 使用了词与词之间的共现信息（GloVe）
+# 使用共现信息的词嵌入（GloVe）
 
 GloVe使用了词与词之间的共现（co-occurrence）信息。我们定义$\boldsymbol{X}$为共现词频矩阵，其中元素$x_{ij}$为词$j$出现在词$i$的背景的次数。这里的“背景”有多种可能的定义。举个例子，在一段文本序列中，如果词$j$出现在词$i$左边或者右边不超过10个词的距离，我们可以认为词$j$出现在词$i$的背景一次。令$x_i = \sum_k x_{ik}$为任意词出现在词$i$的背景的次数。那么，
 
@@ -8,7 +7,7 @@ $$p_{ij} = \mathbb{P}(j \mid i) = \frac{x_{ij}}{x_i}$$
 为词$j$在词$i$的背景中出现的条件概率。这一条件概率也称词$i$和词$j$的共现概率。
 
 
-### 共现概率比值
+## 共现概率比值
 
 GloVe论文里展示了以下词对的共现概率与比值 [1]：
 
@@ -26,7 +25,7 @@ GloVe论文里展示了以下词对的共现概率与比值 [1]：
 
 由此可见，共现概率比值能比较直观地表达词与词之间的关系。GloVe试图用有关词向量的函数来表达共现概率比值。
 
-### 用词向量表达共现概率比值
+## 用词向量表达共现概率比值
 
 GloVe的核心思想在于使用词向量表达共现概率比值。而任意一个这样的比值需要三个词$i$、$j$和$k$的词向量。对于共现概率$p_{ij} = \mathbb{P}(j \mid i)$，我们称词$i$和词$j$分别为中心词和背景词。我们使用$\boldsymbol{v}_i$和$\tilde{\boldsymbol{v}}_i$分别表示词$i$作为中心词和背景词的词向量。
 
@@ -71,7 +70,7 @@ $$\boldsymbol{v}_i^\top \tilde{\boldsymbol{v}}_k = \log(x_{ik}) - b_i - \tilde{b
 $$\boldsymbol{v}_i^\top \tilde{\boldsymbol{v}}_j + b_i + \tilde{b}_j = \log(x_{ij}).$$
 
 
-### 损失函数
+## 损失函数
 
 GloVe中的共现词频是直接在训练数据上统计得到的。为了学习词向量和相应的偏差项，我们希望上式中的左边与右边尽可能接近。给定词典$\mathcal{V}$和权重函数$h(x_{ij})$，GloVe的损失函数为
 
@@ -97,7 +96,7 @@ $$\sum_{i \in \mathcal{V}, j \in \mathcal{V}} h(x_{ij}) \left(\boldsymbol{v}_i^\
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4372)
 
-![](../img/qr_glove-fasttext.svg)
+![](../img/qr_glove.svg)
 
 ## 参考文献
 
