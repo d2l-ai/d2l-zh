@@ -79,7 +79,7 @@ train_augs = gdata.vision.transforms.Compose([
     gdata.vision.transforms.RandomResizedCrop(224),
     gdata.vision.transforms.RandomFlipLeftRight(),
     gdata.vision.transforms.ToTensor(),
-    normalize,
+    normalize
 ])
 
 test_augs = gdata.vision.transforms.Compose([
@@ -158,8 +158,8 @@ train_fine_tuning(scratch_net, 0.1)
 ## 练习
 
 - 试着增大`finetune_net`的学习率看看收敛变化。
-- 多跑几个`num_epochs`直到收敛（其他参数可能也需要微调），看看`scratch_net`和`finetune_net`最后的精度是不是有区别
-- 这里`finetune_net`重用了`pretrained_net`除最后全连接外的所有权重，试试少重用些权重，有会有什么区别
+- 多跑几个`num_epochs`直到收敛（其他参数可能也需要微调），看看`scratch_net`和`finetune_net`最后的精度是不是有区别。
+- 这里`finetune_net`重用了`pretrained_net`除最后全连接外的所有权重，试试少重用些权重，又会有什么区别？
 - 事实上`ImageNet`里也有`hotdog`这个类，它对应的输出层参数可以用如下代码拿到。试试如何使用它。
 
 ```{.python .input  n=16}
