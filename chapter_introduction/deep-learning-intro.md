@@ -30,11 +30,11 @@
 
 现代统计学在20世纪的真正起飞要归功于数据的收集和发布。统计学巨匠之一[罗纳德·费雪 (1890-1962)](https://en.wikipedia.org/wiki/Ronald_Fisher)对于统计学理论和统计学在基因学中的应用功不可没。许多他发明的算法（例如线性判别分析）和公式（例如费希尔信息矩阵）仍经常被使用（即使是他在1936年发布的Iris数据集，仍然偶尔被用于展示机器学习算法）。
 
-信息论 [(克劳德·香农, 1916-2001)](https://en.wikipedia.org/wiki/Claude_Shannon) 以及 [阿兰·图灵 (1912-1954)](https://en.wikipedia.org/wiki/Allan_Turing)的计算理论也对机器学习有深远影响。图灵在他著名的论文[计算机器与智能](https://www.jstor.org/stable/2251299) (Mind, October 1950)[1]中提出了“机器可以思考吗？”这样一个问题。在他称为“图灵测试”的测验中，如果一个人类评审在对话的过程中不能区分他的对话对象到底是人类还是机器的话，那么即可认为这台机器是有智能的。时至今日，智能机器的发展日新月异。
+信息论 [(克劳德·香农, 1916-2001)](https://en.wikipedia.org/wiki/Claude_Shannon) 以及 [阿兰·图灵 (1912-1954)](https://en.wikipedia.org/wiki/Allan_Turing)的计算理论也对机器学习有深远影响。图灵在他著名的论文[计算机器与智能](https://www.jstor.org/stable/2251299) (Mind, October 1950) [1] 中提出了“机器可以思考吗？”这样一个问题。在他称为“图灵测试”的测验中，如果一个人类评审在对话的过程中不能区分他的对话对象到底是人类还是机器的话，那么即可认为这台机器是有智能的。时至今日，智能机器的发展日新月异。
 
 另一个对深度学习有重大影响的领域是神经科学与心理学。既然人类显然能够展现出智能，那么对于解释并逆向工程人类智能机理的探究也是合情合理的。最早的算法之一是由[唐纳德·赫布 (1904-1985)](https://en.wikipedia.org/wiki/Donald_O._Hebb)正式提出的。
 
-在他开创性的著作[《行为的组织》](http://s-f-walker.org.uk/pubsebooks/pdfs/The_Organization_of_Behavior-Donald_O._Hebb.pdf) (John Wiley & Sons, 1949)[2]中，他提出神经是通过正向强化来学习的，即赫布理论。赫布理论是感知机学习算法的原型，并成为支撑今日深度学习的许许多多的随机梯度下降算法的基石：强化合意的行为、惩罚不合意的行为，最终获得优良的神经网络参数。
+在他开创性的著作[《行为的组织》](http://s-f-walker.org.uk/pubsebooks/pdfs/The_Organization_of_Behavior-Donald_O._Hebb.pdf) (John Wiley & Sons, 1949) [2] 中，他提出神经是通过正向强化来学习的，即赫布理论。赫布理论是感知机学习算法的原型，并成为支撑今日深度学习的许许多多的随机梯度下降算法的基石：强化合意的行为、惩罚不合意的行为，最终获得优良的神经网络参数。
 
 来源于生物学的灵感是神经网络名字的由来。研究者们（可以追溯到超过一世纪前Alexander Bain, 1873 和 James Sherrington, 1890的模型）尝试组建模仿神经元互动的计算电路。随着时间发展，神经网络的生物学解释被稀释，但仍保留了这个名字。时至今日，绝大多数网络都包含以下的核心原则：
 
@@ -57,19 +57,19 @@
 
 近年来在统计模型、应用和算法上的进展常被拿来与寒武纪大爆发（历史上物种数量大爆发的一个时期）做比较。但这些进展不仅仅是因为可用资源变多了让我们得以用新瓶装旧酒，下面的列表仅仅能涵盖近十年来深度学习长足发展的部分原因：
 
-* 优秀的容量控制方法，例如丢弃层 [(Srivastava et al., 2014)](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)[3] 使得大型网络的训练不再受制于过拟合（大型神经网络学会记忆大部分训练数据的行为）。这是靠在整个网络中注入噪音（训练时随机将权重替换为随机的数字）[(Bishop, 1995)](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/bishop-tikhonov-nc-95.pdf)[4]来达到的。
+* 优秀的容量控制方法，例如丢弃层 [(Srivastava et al., 2014)](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf) [3] 使得大型网络的训练不再受制于过拟合（大型神经网络学会记忆大部分训练数据的行为）。这是靠在整个网络中注入噪音（训练时随机将权重替换为随机的数字）[(Bishop, 1995)](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/bishop-tikhonov-nc-95.pdf) [4] 来达到的。
 
 * 注意力机制解决了另一个困扰统计学超过一个世纪的问题：如何在不增加参数的情况下扩展一个系统的记忆容量和复杂度。注意力机制[Bahdanau, Cho and Bengio, in 2014](https://arxiv.org/pdf/1409.0473.pdf)[5] 使用了一个可学习的指针结构来构建出一个精妙的解决方法。也就是说，与其在例如机器翻译这样的任务中记忆整个句子，不如记忆指向翻译的中间状态的指针。由于生成译文前不需要再存储整句原文的信息，这样的结构使准确翻译长句变得可能。
 
-* 例如记忆网络[(Sukhbataar et al., 2015)](https://arxiv.org/pdf/1503.08895.pdf)[6]和神经编码器-解释器[(Reed and de Freitas, 2016)](https://arxiv.org/abs/1511.06279)[7]这样的多阶设计使得针对推理过程的迭代建模方法变得可能。这些模型允许重复修改深度网络的内部状态，这样就能模拟出推理链条上的各个步骤，就好像处理器在计算过程中修改内存一样。
+* 例如记忆网络[(Sukhbataar et al., 2015)](https://arxiv.org/pdf/1503.08895.pdf) [6] 和神经编码器-解释器[(Reed and de Freitas, 2016)](https://arxiv.org/abs/1511.06279) [7] 这样的多阶设计使得针对推理过程的迭代建模方法变得可能。这些模型允许重复修改深度网络的内部状态，这样就能模拟出推理链条上的各个步骤，就好像处理器在计算过程中修改内存一样。
 
-* 另一个重大发展是对抗生成网络[(Goodfellow et al., 2014)](https://papers.nips.cc/paper/5423-generative-adversarial-nets.pdf)[8]的发明。传统上，用在概率分布估计和生成模型上的统计方法更多地关注于找寻正确的概率分布，以及正确的采样算法。对抗生成网络的关键创新在于将采样部分替换成了任意的含有可微参数的算法，这些参数将被训练到使得辨别器不能再分辨真的和生成的样本。对抗生成网络可使用任意算法来生成输出的特性为许多技巧打开了新的大门。像是生成奔跑的斑马[(Zhu et al., 2017)](https://junyanz.github.io/CycleGAN/)[9]和生成名流的照片[(Karras et al., 2018)](http://research.nvidia.com/publication/2017-10_Progressive-Growing-of)[10]都是对抗生成网络发展的见证。
+* 另一个重大发展是对抗生成网络[(Goodfellow et al., 2014)](https://papers.nips.cc/paper/5423-generative-adversarial-nets.pdf) [8] 的发明。传统上，用在概率分布估计和生成模型上的统计方法更多地关注于找寻正确的概率分布，以及正确的采样算法。对抗生成网络的关键创新在于将采样部分替换成了任意的含有可微参数的算法，这些参数将被训练到使得辨别器不能再分辨真的和生成的样本。对抗生成网络可使用任意算法来生成输出的特性为许多技巧打开了新的大门。像是生成奔跑的斑马[(Zhu et al., 2017)](https://junyanz.github.io/CycleGAN/)[9]和生成名流的照片[(Karras et al., 2018)](http://research.nvidia.com/publication/2017-10_Progressive-Growing-of) [10] 都是对抗生成网络发展的见证。
 
 * 许多情况下单个GPU已经不能满足在大型数据集上训练的需要。过去十年内我们构建分布式并行训练算法的能力已经有了极大的提升。设计可扩展算法的最大瓶颈在于深度学习优化算法的核心——随机梯度下降需要相对更小的批量。与此同时，更小的批量也会降低GPU的效率。如果我们使用1024个GPU，每个GPU的批量大小为32个样例，那么单步训练的批量大小将是32000个以上。近年来[Li, 2016](https://www.cs.cmu.edu/~muli/file/mu-thesis.pdf) [11]、 [You et al, 2017](https://arxiv.org/pdf/1708.03888.pdf)[12] 及 [Jia et al, 2018](https://arxiv.org/pdf/1807.11205.pdf)[13]的工作将批量大小推向多达64000个样例，并将在ImageNet数据集上训练ResNet50的时间降到了7分钟。与之对比，最初的训练时间需要以天来计算。
 
 * 并行计算的能力也为强化学习（至少在可以采用模拟的情况下）的发展贡献了力量。并行计算帮助计算机在围棋、雅达利游戏、星际争霸和物理模拟上达到了超过人类的水准。
 
-* 深度学习框架也在传播深度学习思想的过程中扮演了重要角色。例如[Caffe](https://github.com/BVLC/caffe), [Torch](https://github.com/torch) 和 [Theano](https://github.com/Theano/Theano)这样的第一代框架使得建模变得简单，许多开创性的论文都用到了这些框架。如今它们已经被[TensorFlow](https://github.com/tensorflow/tensorflow) (经常是以高层API [Keras](https://github.com/keras-team/keras)的形式被使用）、[CNTK](https://github.com/Microsoft/CNTK)、 [Caffe 2](https://github.com/caffe2/caffe2) 和 [Apache MxNet](https://github.com/apache/incubator-mxnet)所取代。第三代，即命令式深度学习框架，是由用类似Numpy的语法来定义模型的 [Chainer](https://github.com/chainer/chainer) 开创。这样的思想后来被[PyTorch](https://github.com/pytorch/pytorch) 和 MXNet的[Gluon API](https://github.com/apache/incubator-mxnet) 采用，后者也正是本书用来教学深度学习的工具。
+* 深度学习框架也在传播深度学习思想的过程中扮演了重要角色。例如[Caffe](https://github.com/BVLC/caffe), [Torch](https://github.com/torch) 和 [Theano](https://github.com/Theano/Theano)这样的第一代框架使得建模变得简单，许多开创性的论文都用到了这些框架。如今它们已经被[TensorFlow](https://github.com/tensorflow/tensorflow) (经常是以高层API [Keras](https://github.com/keras-team/keras)的形式被使用）、[CNTK](https://github.com/Microsoft/CNTK)、 [Caffe 2](https://github.com/caffe2/caffe2) 和 [Apache MxNet](https://github.com/apache/incubator-mxnet)所取代。第三代，即命令式深度学习框架，是由用类似Numpy的语法来定义模型的 [Chainer](https://github.com/chainer/chainer) 开创。这样的思想后来被 [PyTorch](https://github.com/pytorch/pytorch) 和 MXNet的 [Gluon API](https://github.com/apache/incubator-mxnet) 采用，后者也正是本书用来教学深度学习的工具。
 
 系统研究者负责构建更好的工具，统计学家建立更好的模型，这样的分工使得工作大大简化。举例来说，在2014年时，训练一个逻辑回归模型曾是卡耐基梅隆大学布置给机器学习方向的新入学博士生的作业问题。时至今日，这个问题只需要少于10行的代码便可以完成，普通的程序员都可以做到。
 
@@ -79,11 +79,11 @@
 
 * 诸如苹果公司的Siri、亚马逊的Alexa和谷歌助手一类的智能助手能以可观的准确率回答口头提出的问题，甚至包括从简单的开关灯具（对残疾群体帮助很大）到提供语音对话帮助。智能助手的出现或许可以作为人工智能开始影响我们生活的标志。
 
-* 智能助手的关键是需要能够精确识别语音，而这类系统在某些应用上的精确度已经渐渐增长到可以与人类并肩[(Xiong et al., 2017)](https://arxiv.org/abs/1708.06073)[14]。
+* 智能助手的关键是需要能够精确识别语音，而这类系统在某些应用上的精确度已经渐渐增长到可以与人类并肩[(Xiong et al., 2017)](https://arxiv.org/abs/1708.06073) [14]。
 
-* 物体识别也经历了漫长的发展过程。在2010年从图像中识别出物体的类别仍是一个相当有挑战性的任务。当年在ImageNet基准测试上 [Lin et al., 2010](http://www.image-net.org/challenges/LSVRC/2010/ILSVRC2010_NEC-UIUC.pdf)[15] 取得了28%的top-5错误率。到2017年 [Hu et al.](https://arxiv.org/abs/1709.01507)[16] 将这个数字降低到了2.25%。在鸟类辨别和皮肤癌诊断上，也取得了同样惊世骇俗的成绩。
+* 物体识别也经历了漫长的发展过程。在2010年从图像中识别出物体的类别仍是一个相当有挑战性的任务。当年在ImageNet基准测试上 [Lin et al., 2010](http://www.image-net.org/challenges/LSVRC/2010/ILSVRC2010_NEC-UIUC.pdf) [15] 取得了28%的top-5错误率。到2017年 [Hu et al.](https://arxiv.org/abs/1709.01507) [16] 将这个数字降低到了2.25%。在鸟类辨别和皮肤癌诊断上，也取得了同样惊世骇俗的成绩。
 
-* 游戏曾被认为是人类智能最后的堡垒。自使用时间差分强化学习玩双陆棋的TDGammon之始，算法和算力的发展催生了一系列在游戏上使用的新算法。与双陆棋不同，国际象棋有更复杂的状态空间和更多的可选动作。“深蓝”用大量的并行、专用硬件和游戏树的高效搜索打败了加里·卡斯帕罗夫 [(Campbell et al., 2002)](https://dl.acm.org/citation.cfm?id=512152)[17]。围棋因其庞大的状态空间被认为是更难的游戏，AlphaGo在2015年[Silver et al.](https://www.nature.com/articles/nature16961)[18]用结合深度学习与蒙特卡洛树采样的方法达到了人类水准。对德州扑克游戏而言，除了巨大的状态空间之外，更大的挑战是游戏的信息并不完全可见（看不到对手的牌）。“冷扑大师”[(Brown and Sandholm, 2017)](https://www.cs.cmu.edu/~noamb/papers/17-IJCAI-Libratus.pdf)[19]用高效的策略体系超越了人类玩家的表现。以上的例子都体现出了先进的算法是人工智能在游戏上的表现提升的重要原因。
+* 游戏曾被认为是人类智能最后的堡垒。自使用时间差分强化学习玩双陆棋的TDGammon之始，算法和算力的发展催生了一系列在游戏上使用的新算法。与双陆棋不同，国际象棋有更复杂的状态空间和更多的可选动作。“深蓝”用大量的并行、专用硬件和游戏树的高效搜索打败了加里·卡斯帕罗夫 [(Campbell et al., 2002)](https://dl.acm.org/citation.cfm?id=512152) [17]。围棋因其庞大的状态空间被认为是更难的游戏，AlphaGo在2015年[Silver et al.](https://www.nature.com/articles/nature16961) [18] 用结合深度学习与蒙特卡洛树采样的方法达到了人类水准。对德州扑克游戏而言，除了巨大的状态空间之外，更大的挑战是游戏的信息并不完全可见（看不到对手的牌）。“冷扑大师”[(Brown and Sandholm, 2017)](https://www.cs.cmu.edu/~noamb/papers/17-IJCAI-Libratus.pdf) [19] 用高效的策略体系超越了人类玩家的表现。以上的例子都体现出了先进的算法是人工智能在游戏上的表现提升的重要原因。
 
 * 机器学习进步的另一个标志是自动驾驶汽车的发展。尽管距离完全的自主驾驶还有很长的路要走，但诸如 [Momenta](http://www.momenta.com)、 [Tesla](http://www.tesla.com)、 [NVIDIA](http://www.nvidia.com)、 [MobilEye](http://www.mobileye.com) 和 [Waymo](http://www.waymo.com) 这样的公司交出的具有部分自主驾驶功能的产品展示出了这个领域巨大的进步。完全自主驾驶的难点在于它需要将感知、思考和规则整合在同一个系统中。目前，深度学习主要被应用在计算机视觉的部分，剩余的部分还是需要工程师们的大量调试。
 
@@ -93,9 +93,9 @@
 
 因为算法和应用都多到让人眼花缭乱，所以很难说清深度学习的核心组成部分应该是什么，正像是我们也很难说清披萨饼的组成部分应该是什么——每一个部分都是可以被替换的。例如，也许有人认为多层感知机是一个必要的组成部分，但实际上也有完全由卷积层组成的计算机视觉模型。
 
-所有方法最主要的共同点应该说是端到端的训练。也就是说，并不是将单独调试的部分拼凑起来组成一个系统，而是将整个系统组建好之后一起训练。比如说，计算机视觉科学家们之前曾一度将特征构造与机器学习模型的构建分开处理，像是 Canny 边缘探测 [(Canny, 1986)](https://ieeexplore.ieee.org/document/4767851/)[20] 和 SIFT 特征提取 [(Lowe, 2004)](https://www.cs.ubc.ca/~lowe/papers/ijcv04.pdf)[21] 曾占据统治性地位达10年以上，但这也就是人类能找到的最好方法了。当深度学习进入这个领域，这些特征提取方法就被性能更强的自动优化的滤波器替代了。
+所有方法最主要的共同点应该说是端到端的训练。也就是说，并不是将单独调试的部分拼凑起来组成一个系统，而是将整个系统组建好之后一起训练。比如说，计算机视觉科学家们之前曾一度将特征构造与机器学习模型的构建分开处理，像是 Canny 边缘探测 [(Canny, 1986)](https://ieeexplore.ieee.org/document/4767851/) [20] 和 SIFT 特征提取 [(Lowe, 2004)](https://www.cs.ubc.ca/~lowe/papers/ijcv04.pdf) [21] 曾占据统治性地位达10年以上，但这也就是人类能找到的最好方法了。当深度学习进入这个领域，这些特征提取方法就被性能更强的自动优化的滤波器替代了。
 
-相似地，在自然语言处理领域，词袋模型[(Salton and McGill, 1993)](https://dl.acm.org/citation.cfm?id=576628)[22]多年来都被认为是不二之选。词袋模型是将一个句子映射到一个词频向量的模型，但这样的做法完全忽视了单词的排列顺序或者是句中的标点符号。不幸的是，我们也没有能力来手工构建更好的特征。但是自动化的算法反而可以从所有可能的特征设计中搜寻最好的那个，这也带来了极大的进步。例如，语义相关的词嵌入能够在向量空间中完成如下推理：“Berlin - Germany + Italy = Rome”。可以看出，这些都是端到端训练整个系统带来的效果。
+相似地，在自然语言处理领域，词袋模型[(Salton and McGill, 1993)](https://dl.acm.org/citation.cfm?id=576628) [22]多年来都被认为是不二之选。词袋模型是将一个句子映射到一个词频向量的模型，但这样的做法完全忽视了单词的排列顺序或者是句中的标点符号。不幸的是，我们也没有能力来手工构建更好的特征。但是自动化的算法反而可以从所有可能的特征设计中搜寻最好的那个，这也带来了极大的进步。例如，语义相关的词嵌入能够在向量空间中完成如下推理：“Berlin - Germany + Italy = Rome”。可以看出，这些都是端到端训练整个系统带来的效果。
 
 除了端到端的训练以外，我们也正在经历从含参数统计描述向完全无参数的模型。当数据非常稀缺时，我们需要通过简化对现实的假设来得到实用的模型。当数据充足时，我们就可以用能更好地拟合现实的无参数模型来替代这些含参数模型。这也使得我们可以得到更精确的模型，尽管需要牺牲一些可解释性。
 
