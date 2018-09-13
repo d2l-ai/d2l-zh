@@ -212,7 +212,7 @@ embed(x)
 
 ### 小批量乘法
 
-我们可以将背景词向量和噪音词向量合并起来，然后使用一次矩阵乘法来计算中心词向量来计算它们的内积$\boldsymbol{v}_{c}^\top\left[\boldsymbol{u}_{o_1}, \ldots, \boldsymbol{u}_{o_{n+m}}\right]$。我们需要对小批量里的每个中心词逐一做此运算，虽然可以用for循环来实现，但使用`batch_dot`通常可以得到更好的性能。假设$\boldsymbol{X}=\left[\boldsymbol{X}_1,\ldots,\boldsymbol{X}_n\right]$且$\boldsymbol{Y}=\left[\boldsymbol{Y}_1,\ldots,\boldsymbol{Y}_n\right]$，如果$\boldsymbol{Z}=\text{batch_dot}(\boldsymbol{X}, \boldsymbol{Y})$，那么$\boldsymbol{Z}=\left[\boldsymbol{X}_1\boldsymbol{Y}_1,\ldots,\boldsymbol{X}_n\boldsymbol{Y}_n\right]$。
+我们可以将背景词向量和噪音词向量合并起来，然后使用一次矩阵乘法来计算中心词向量来计算它们的内积$\boldsymbol{v}_{c}^\top\left[\boldsymbol{u}_{o_1},\ldots,\boldsymbol{u}_{o_{n+m}}\right]$。我们需要对小批量里的每个中心词逐一做此运算，虽然可以用for循环来实现，但使用`batch_dot`通常可以得到更好的性能。假设$\boldsymbol{X}=\left[\boldsymbol{X}_1,\ldots,\boldsymbol{X}_n\right]$且$\boldsymbol{Y}=\left[\boldsymbol{Y}_1,\ldots,\boldsymbol{Y}_n\right]$，如果$\boldsymbol{Z}=\text{batch_dot}(\boldsymbol{X},\boldsymbol{Y})$，那么$\boldsymbol{Z}=\left[\boldsymbol{X}_1\boldsymbol{Y}_1,\ldots,\boldsymbol{X}_n\boldsymbol{Y}_n\right]$。
 
 ```{.python .input  n=259}
 X = nd.ones((2, 3, 4))
