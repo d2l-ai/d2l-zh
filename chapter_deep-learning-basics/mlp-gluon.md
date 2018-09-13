@@ -3,9 +3,6 @@
 下面我们使用Gluon来实现上一节中的多层感知机。首先我们导入所需的包或模块。
 
 ```{.python .input}
-import sys
-sys.path.insert(0, '..')
-
 import gluonbook as gb
 from mxnet import gluon, init
 from mxnet.gluon import loss as gloss, nn
