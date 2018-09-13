@@ -58,6 +58,8 @@
 
 方差，variance
 
+访问参数，access parameters
+
 非凸优化，non-convex optimization
 
 分桶，bucketing
@@ -145,6 +147,8 @@ softmax回归，softmax regression
 实例，instance
 
 收敛，converge
+
+属性，property
 
 数值方法，numerical method
 
