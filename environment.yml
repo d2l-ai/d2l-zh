@@ -1,9 +1,9 @@
 name: gluon
 dependencies:
-- python
-- jupyter
-- matplotlib
-- pandas
+- python>=3.6
+- jupyter=1.0.0
+- matplotlib=2.2.2
+- pandas=0.23.2
 - pip:
-  - requests
-  - mxnet>=0.11.1b20171003
+  - requests==2.18.4
+  - mxnet==1.3.0

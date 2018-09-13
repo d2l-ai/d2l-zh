@@ -7,3 +7,10 @@ code, .rst-content tt, .rst-content code {
     margin-left: auto;
     margin-right: auto;
 }
+
+.rst-content div.figure p.caption {
+    font-style: normal;
+    text-align: center;
+    margin-top: 10px;
+    font-size: 15px;
+}

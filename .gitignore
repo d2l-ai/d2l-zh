@@ -4,3 +4,11 @@ data/
 build/
 *.json
 *.params
+*.DS_Store
+*.csv
+/chapter_gluon-basics/x
+/chapter_gluon-basics/xy
+/chapter_gluon-basics/mydict
+*egg-info*
+dist*
+utils.py

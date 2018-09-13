@@ -1,7 +1,7 @@
 FROM ubuntu:16.04
 
 # install python and conda
-RUN apt-get update && apt-get install -y python3 git wget bzip2 libgfortran
+RUN apt-get update && apt-get install -y python3 git wget bzip2 
 RUN wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
      bash Miniconda3-latest-Linux-x86_64.sh -b
 ENV PATH /root/miniconda3/bin:$PATH
@@ -27,7 +27,7 @@ RUN  mkdir /gluon-tutorials-zh
 COPY / /gluon-tutorials-zh/
 
 # sanity check
-RUN source activate gluon && notedown --run /gluon-tutorials-zh/chapter_crashcourse/ndarray.md
+# RUN source activate gluon && notedown --run /gluon-tutorials-zh/chapter_crashcourse/ndarray.md
 
 # for chinese supports
 ENV LANG C.UTF-8
