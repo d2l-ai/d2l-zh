@@ -1,6 +1,6 @@
 # 图像增广
 
-在[“深度卷积神经网络：AlexNet”](../chapter_convolutional-neural-networks/alexnet.md)小节里我们提到过，大规模数据集是成功使用深度网络的前提。图像增广（image augmentation）技术通过对训练图像做一系列随机变化，来产生相似但又有不同的训练样本，从而扩大训练数据集规模。图像增广的另一种解释是，通过对训练样本做一些随机变形，可以降低模型对某些属性的依赖，从而提高泛化能力。例如我们可以对图像进行不同的裁剪，使得感兴趣的物体出现在不同的位置中，从而使得模型减小对物体出现位置的依赖性。也可以调整亮度色彩等因素来降低模型对色彩的敏感度。在AlexNet的成功中，图像增广技术功不可没。本小节我们将讨论这个在计算机视觉里被广泛使用的技术。
+在[“深度卷积神经网络：AlexNet”](../chapter_convolutional-neural-networks/alexnet.md)小节里我们提到过，大规模数据集是成功使用深度网络的前提。图像增广（image augmentation）技术通过对训练图像做一系列随机改变，来产生相似但又有不同的训练样本，从而扩大训练数据集规模。图像增广的另一种解释是，通过对训练样本做一些随机改变，可以降低模型对某些属性的依赖，从而提高模型的泛化能力。例如我们可以对图像进行不同的裁剪，使得感兴趣的物体出现在不同的位置，从而使得模型减小对物体出现位置的依赖性。我们也可以调整亮度色彩等因素来降低模型对色彩的敏感度。在AlexNet的成功中，图像增广技术功不可没。本小节我们将讨论这个在计算机视觉里被广泛使用的技术。
 
 首先，导入本节实验所需的包或模块。
 
@@ -65,7 +65,7 @@ apply(img, gdata.vision.transforms.RandomFlipLeftRight())
 apply(img, gdata.vision.transforms.RandomFlipTopBottom())
 ```
 
-我们使用的样例图像里，猫在图像正中间，但一般情况下可能不是这样。[“池化层”](../chapter_convolutional-neural-networks/pooling.md)一节里我们解释了池化层能弱化卷积层对目标位置的敏感度，另一方面我们可以通过对图像随机剪裁来让物体以不同的比例出现在不同位置。
+在我们使用的样例图像里，猫在图像正中间，但一般情况下可能不是这样。在[“池化层”](../chapter_convolutional-neural-networks/pooling.md)一节里我们解释了池化层能弱化卷积层对目标位置的敏感度，除此之外我们还可以通过对图像随机剪裁来让物体以不同的比例出现在图像的不同位置，这同样能够降低模型对位置的敏感性。
 
 下面代码里我们每次随机裁剪一片面积为原面积10%到100%的区域，其宽和高的比例在0.5和2之间，然后再将高宽缩放到200像素大小。
 
@@ -77,19 +77,19 @@ apply(img, shape_aug)
 
 ### 颜色变化
 
-另一类增广方法是变化颜色。我们可以从四个维度改变图像的颜色：亮度、对比、饱和度和色相。在下面的例子里，我们将随机亮度改为原图的50%到150%。
+另一类增广方法是变化颜色。我们可以从四个维度改变图像的颜色：亮度、对比度、饱和度和色调。在下面的例子里，我们将随机亮度改为原图的50%到150%。
 
 ```{.python .input  n=28}
 apply(img, gdata.vision.transforms.RandomBrightness(0.5))
 ```
 
-类似的，我们可以修改色相。
+类似的，我们也可以修改图像的色调。
 
 ```{.python .input  n=29}
 apply(img, gdata.vision.transforms.RandomHue(0.5))
 ```
 
-或者用使用`RandomColorJitter`来一起使用。
+或者配合`RandomColorJitter`一起使用。
 
 ```{.python .input  n=30}
 color_aug = gdata.vision.transforms.RandomColorJitter(
@@ -109,13 +109,13 @@ apply(img, augs)
 
 ## 使用图像增广来训练
 
-接下来我们来看一个将图像增广应用在实际训练中的例子，并比较其与不使用时的区别。这里我们使用CIFAR-10数据集，而不是之前我们一直使用的Fashion-MNIST。原因在于Fashion-MNIST中物体位置和尺寸都已经归一化了，而CIFAR-10中物体颜色和大小区别更加显著。下面我们展示CIFAR-10中的前32张训练图像。
+接下来我们看一个将图像增广应用在实际训练中的例子，并比较其与不使用时的区别。这里我们使用CIFAR-10数据集，而不是之前我们一直使用的Fashion-MNIST。原因在于Fashion-MNIST中物体位置和尺寸都已经经过归一化处理，而在CIFAR-10中物体的颜色和大小区别更加显著。下面我们展示CIFAR-10中的前32张训练图像。
 
 ```{.python .input  n=32}
 show_images(gdata.vision.CIFAR10(train=True)[0:32][0], 4, 8, scale=0.8);
 ```
 
-我们通常将图像增广用在训练样本上，但是在预测的时候并不使用随机增广。这里我们仅仅使用最简单的随机水平翻转。此外，我们使用`ToTensor`变换来将图像转成MXNet需要的格式，即格式为（批量，通道，高，宽）以及类型为32位浮点数。
+我们通常只将图像增广用在训练样本上，在在预测的时候并不使用随机增广。在这里我们仅仅使用最简单的随机水平翻转。此外，我们使用`ToTensor`变换来将图像转成MXNet需要的格式，即格式为（批量，通道，高，宽）、类型为32位浮点数。
 
 ```{.python .input  n=33}
 train_augs = gdata.vision.transforms.Compose([
@@ -128,7 +128,7 @@ test_augs = gdata.vision.transforms.Compose([
 ])
 ```
 
-接下来我们定义一个辅助函数来方便读取图像并应用增广。Gluon的数据集提供`transform_first`函数来对数据里面的第一项（数据一般有图像和标签两项）来应用增广。另外图像增广将增加计算复杂度，这里使用4个进程来加速读取（暂不支持 Windows 操作系统）。
+接下来我们定义一个辅助函数来方便读取图像并应用增广。Gluon的数据集提供`transform_first`函数来对数据里面的第一项（数据一般有图像和标签两项）来应用增广。另外图像增广将会增加计算复杂度，因此这里使用4个进程来加速读取（暂不支持 Windows 操作系统）。
 
 ```{.python .input  n=34}
 num_workers = 0 if sys.platform.startswith('win32') else 4
@@ -160,7 +160,7 @@ def try_all_gpus():
     return ctxes
 ```
 
-然后，我们定义`evaluate_accuracy`函数评价模型的分类准确率。与[“Softmax回归的从零开始实现”](../chapter_deep-learning-basics/softmax-regression-scratch.md)和[“卷积神经网络（LeNet）”](../chapter_convolutional-neural-networks/lenet.md)两节中描述的`evaluate_accuracy`函数不同，当`ctx`包含多个GPU时，这里定义的函数通过辅助函数`_get_batch`将小批量数据样本划分并复制到各个GPU上。
+然后，我们定义`evaluate_accuracy`函数评价模型的分类准确率。与[“Softmax回归的从零开始实现”](../chapter_deep-learning-basics/softmax-regression-scratch.md)和[“卷积神经网络（LeNet）”](../chapter_convolutional-neural-networks/lenet.md)两节中描述的`evaluate_accuracy`函数不同，当`ctx`包含多个GPU时，我们需要通过这里定义的辅助函数`_get_batch`将小批量数据样本划分并复制到各个GPU上。
 
 ```{.python .input  n=36}
 def _get_batch(batch, ctx):
