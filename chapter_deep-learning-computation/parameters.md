@@ -11,88 +11,85 @@ from mxnet.gluon import nn
 net = nn.Sequential()
 net.add(nn.Dense(256, activation='relu'))
 net.add(nn.Dense(10))
-net.initialize()
+net.initialize()  # 使用默认初始化方式。
 
 x = nd.random.uniform(shape=(2, 20))
-y = net(x)
+y = net(x)  # 前向计算。
 ```
 
 ## 访问模型参数
 
-我们知道可以通过`[]`来访问Sequential类构造出来的网络的特定层。对于带有模型参数的层，我们可以通过Block类的`params`属性来得到它包含的所有参数。例如我们查看隐藏层的参数：
+对于使用Sequential类构造的神经网络，我们可以通过方括号`[]`来访问网络的任一层。回忆一下上一节中提到的Sequential类与Block类的继承关系。对于Sequential实例中含模型参数的层，我们可以通过Block类的`params`属性来访问该层包含的所有参数。下面，访问多层感知机`net`中隐藏层的所有参数。索引0表示隐藏层为Sequential实例最先添加的层。
 
 ```{.python .input  n=2}
-net[0].params
+net[0].params, type(net[0].params)
 ```
 
-可以看到我们得到了一个由参数名称映射到参数实例的字典。第一个参数的名称为`dense0_weight`，它由`net[0]`的名称（`dense0_`）和自己的变量名（`weight`）组成。而且可以看到它参数的形状为`（256，20）`，且数据类型为32位浮点数。
-
-为了访问特定参数，我们既可以通过名字来访问字典里的元素，也可以直接使用它的变量名。下面两种方法是等价的，但通常后者的代码可读性更好。
+可以看到，我们得到了一个由参数名称映射到参数实例的字典（类型为`ParameterDict`类）。其中权重参数的名称为`dense0_weight`，它由`net[0]`的名称（`dense0_`）和自己的变量名（`weight`）组成。而且可以看到，该参数的形状为`（256，20）`，且数据类型为32位浮点数（`float32`）。为了访问特定参数，我们既可以通过名字来访问字典里的元素，也可以直接使用它的变量名。下面两种方法是等价的，但通常后者的代码可读性更好。
 
 ```{.python .input  n=3}
 net[0].params['dense0_weight'], net[0].weight
 ```
 
-Gluon里参数类型为Parameter类，其包含参数权重和它对应的梯度，它们可以分别通过`data`和`grad`函数来访问。因为我们随机初始化了权重，所以它是一个由随机数组成的形状为`(256, 20)`的NDArray.
+Gluon里参数类型为Parameter类，它包含参数和梯度的数值，可以分别通过`data`和`grad`函数来访问。因为我们随机初始化了权重，所以权重参数是一个由随机数组成的形状为`(256, 20)`的NDArray.
 
 ```{.python .input  n=4}
 net[0].weight.data()
 ```
 
-梯度的形状跟权重一样。但由于我们还没有进行反向传播计算，所以它的值全为0.
+梯度的形状跟权重的一样。由于我们还没有进行反向传播计算，所以梯度的值全为0.
 
 ```{.python .input  n=5}
 net[0].weight.grad()
 ```
 
-类似我们可以访问其他的层的参数。例如输出层的偏差权重：
+类似地，我们可以访问其他层的参数，例如输出层的偏差值。
 
 ```{.python .input  n=6}
 net[1].bias.data()
 ```
 
-最后，我们可以使用`collect_params`函数来获取`net`实例所有嵌套（例如通过`add`函数嵌套）的层所包含的所有参数。它返回的同样是一个参数名称到参数实例的字典。
+最后，我们可以使用`collect_params`函数来获取`net`变量所有嵌套（例如通过`add`函数嵌套）的层所包含的所有参数。它返回的同样是一个由参数名称到参数实例的字典。
 
-```{.python .input  n=11}
+```{.python .input  n=7}
 net.collect_params()
 ```
 
-这个函数可以通过正则表达式来匹配参数名，从而筛选需要的参数：
+这个函数可以通过正则表达式来匹配参数名，从而筛选需要的参数。
 
-```{.python .input}
+```{.python .input  n=8}
 net.collect_params('.*weight')
 ```
 
 ## 初始化模型参数
 
+我们在[“数值稳定性和模型初始化”](../chapter_deep-learning-basics/numerical-stability-and-init.md)一节中描述了模型的默认初始化方法：权重参数元素为[-0.07, 0.07]之间均匀分布的随机数，偏差参数则全为0。但我们经常需要使用其他的方法来初始化权重。MXNet的`init`模块里提供了多种预设的初始化方法。在下面的例子中，我们将权重参数初始化成均值为0、标准差为0.01的正态分布随机数，并依然将偏差参数清零。
 
-当使用默认的模型初始化，Gluon会将权重参数元素初始化为[-0.07, 0.07]（一个之前流行的初始化区间）之间均匀分布的随机数，偏差参数则全为0。但我们经常需要使用其他的方法来初始化权重，MXNet的`init`模块里提供了多种预设的初始化方法。例如下面例子我们将权重参数初始化成均值为0，标准差为0.01的正态分布随机数。
-
-```{.python .input  n=7}
-# 非首次对模型初始化需要指定 force_reinit。
+```{.python .input  n=9}
+# 非首次对模型初始化需要指定 force_reinit 为真。
 net.initialize(init=init.Normal(sigma=0.01), force_reinit=True)
 net[0].weight.data()[0]
 ```
 
-或者初始成常数。
+以下使用了常数来初始化权重参数。
 
-```{.python .input}
+```{.python .input  n=10}
 net.initialize(init=init.Constant(1), force_reinit=True)
 net[0].weight.data()[0]
 ```
 
-如果想只对某个特定参数进行初始化，我们可以调用`Paramter`类的`initialize`函数，它的使用跟Block类提供的一致。下例中我们对第一个隐藏层的权重使用Xavier初始化方法。
+如果想只对某个特定参数进行初始化，我们可以调用`Paramter`类的`initialize`函数，它与Block类提供的`initialize`函数的使用方法一致。下例中我们对隐藏层的权重使用Xavier初始化方法。
 
-```{.python .input  n=8}
+```{.python .input  n=11}
 net[0].weight.initialize(init=init.Xavier(), force_reinit=True)
 net[0].weight.data()[0]
 ```
 
 ## 自定义初始化方法
 
-有时候我们需要的初始化方法并没有在`init`模块中提供。这时，我们可以实现一个Initializer类的子类使得我们可以跟前面使用`init.Normal`那样使用它。通常，我们只需要实现`_init_weight`这个函数，将其传入的NDArray修改成需要的内容。下面例子里我们把权重初始化成`[-10,-5]`和`[5,10]`两个区间里均匀分布的随机数。
+有时候我们需要的初始化方法并没有在`init`模块中提供。这时，我们可以实现一个`Initializer`类的子类，从而能够像使用其他初始化方法那样使用它。通常，我们只需要实现`_init_weight`这个函数，并将其传入的NDArray修改成初始化的结果。在下面的例子里，我们令权重有一半概率初始化为0，有另一半概率初始化为$[-10,-5]$和$[5,10]$两个区间里均匀分布的随机数。
 
-```{.python .input  n=9}
+```{.python .input  n=12}
 class MyInit(init.Initializer):
     def _init_weight(self, name, data):
         print('Init', name, data.shape)
@@ -105,18 +102,16 @@ net[0].weight.data()[0]
 
 此外，我们还可以通过`Parameter`类的`set_data`函数来直接改写模型参数。例如下例中我们将隐藏层参数在现有的基础上加1。
 
-```{.python .input  n=10}
+```{.python .input  n=13}
 net[0].weight.set_data(net[0].weight.data() + 1)
 net[0].weight.data()[0]
 ```
 
 ## 共享模型参数
 
-在有些情况下，我们希望在多个层之间共享模型参数。我们在[“模型构造”](model-construction.md)这一节看到了如何在Block类里`forward`函数里多次调用同一个类来完成。这里将介绍另外一个方法，它在构造层的时候指定使用特定的参数。如果不同层使用同一份参数，那么它们不管是在前向计算还是反向传播时都会共享共同的参数。
+在有些情况下，我们希望在多个层之间共享模型参数。[“模型构造”](model-construction.md)一节介绍了如何在Block类的`forward`函数里多次调用同一个层来计算。这里再介绍另外一个方法，它在构造层的时候指定使用特定的参数。如果不同层使用同一份参数，那么它们在前向计算和反向传播时都会共享相同的参数。在下面例子里，我们让模型的第二隐藏层（`shared`变量）和第三隐藏层共享模型参数。
 
-在下面例子里，我们让模型的第二隐藏层和第三隐藏层共享模型参数。
-
-```{.python .input}
+```{.python .input  n=14}
 net = nn.Sequential()
 shared = nn.Dense(8, activation='relu')
 net.add(nn.Dense(8, activation='relu'),
@@ -137,12 +132,14 @@ net[1].weight.data()[0] == net[2].weight.data()[0]
 ## 小结
 
 * 我们有多种方法来访问、初始化和共享模型参数。
+* 我们可以自定义初始化方法。
+
 
 ## 练习
 
-* 查阅[MXNet文档](https://mxnet.incubator.apache.org/api/python/model.html#initializer-api-reference)，了解不同的参数初始化方式。
-* 尝试在`net.initialize()`后和`net(x)`前访问模型参数，看看会发生什么。
-* 构造一个含共享参数层的多层感知机并训练。观察每一层的模型参数和梯度计算。
+* 查阅有关`init`模块的MXNet文档，了解不同的参数初始化方法。
+* 尝试在`net.initialize()`后和`net(x)`前访问模型参数，观察结果。
+* 构造一个含共享参数层的多层感知机并训练。在训练过程中，观察每一层的模型参数和梯度。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/987)
 
