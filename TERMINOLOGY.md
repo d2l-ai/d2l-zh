@@ -44,6 +44,8 @@
 
 端到端，end-to-end
 
+多层感知机，multilayer perceptron
+
 二元分类，binary classification
 
 二次采样，subsample
