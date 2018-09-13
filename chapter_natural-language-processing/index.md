@@ -10,6 +10,7 @@
    :maxdepth: 2
 
    word2vec
+   word2vec_approx_train
    word2vec_gluon
    fasttext
    glove
