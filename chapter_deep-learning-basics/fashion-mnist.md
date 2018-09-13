@@ -7,9 +7,6 @@
 首先导入本节需要的包或模块。
 
 ```{.python .input}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 from mxnet.gluon import data as gdata
