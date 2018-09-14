@@ -182,9 +182,7 @@ def predict_sentiment(net, vocab, sentence):
     return 'positive' if label.asscalar() == 1 else 'negative'
 ```
 
-```{.python .input}
 然后使用训练好的模型对两个简单句子的情感进行分类。
-```
 
 ```{.python .input  n=50}
 predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'great'])
