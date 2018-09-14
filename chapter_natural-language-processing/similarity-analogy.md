@@ -114,7 +114,7 @@ def get_analogy(token_a, token_b, token_c, embed):
 验证下“男-女”类比：
 
 ```{.python .input  n=18}
-get_top_k_by_analogy(glove_6b50d, 1, 'man', 'woman', 'son')
+get_analogy('man', 'woman', 'son', glove_6b50d)
 ```
 
 “首都-国家”类比：“beijing”（北京）之于“china”（中国）相当于“tokyo”（东京）之于什么？答案应该是“japan”（日本）。
