@@ -125,13 +125,13 @@ class BiRNN(nn.Block):
         self.decoder = nn.Dense(2)
 
     def forward(self, inputs):
-        # inputs 形状是（batch_size, seq_len=500），因为 LSTM 需要将序列作为第一维，
-        # 所以将输入转置后再提取词特征，输出形状为（seq_len, batch_size, embed_size）。
+        # inputs 形状是（批量大小，词数），因为 LSTM 需要将序列作为第一维，
+        # 所以将输入转置后再提取词特征，输出形状为（词数，批量大小，词向量长度）。
         embeddings = self.embedding(inputs.T)
-        # states 形状是（seq_len, batch_size, 2*num_hiddens）。
+        # states 形状是（词数，批量大小，2*隐藏单元个数）。
         states = self.encoder(embeddings)
         # 连结初始时间步和最终时间步的隐藏状态作为全连接层输入。
-        # 它的形状为（batch_size, 4*num_hiddens）。
+        # 它的形状为（批量大小，2*隐藏单元个数）。
         encoding = nd.concat(states[0], states[-1])
         outputs = self.decoder(encoding)
         return outputs
