@@ -89,7 +89,7 @@ train_iter = gdata.DataLoader(gdata.ArrayDataset(
 def fit_and_plot(lambd):
     w, b = init_params()
     train_ls, test_ls = [], []
-    for _ in range(num_epochs):        
+    for _ in range(num_epochs):
         for X, y in train_iter:
             with autograd.record():
                 # 添加了 L2 范数惩罚项。
@@ -151,7 +151,7 @@ def fit_and_plot_gluon(wd):
                             test_labels).mean().asscalar())
     gb.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'loss',
                 range(1, num_epochs + 1), test_ls, ['train', 'test'])
-    print('L2 norm of w:', net[0].weight.data().norm().asscalar())    
+    print('L2 norm of w:', net[0].weight.data().norm().asscalar())
 ```
 
 与从零开始实现权重衰减的实验现象类似，使用权重衰减可以在一定程度上缓解过拟合问题。

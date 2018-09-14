@@ -47,7 +47,7 @@ a
 假设你至少有两块GPU，下面代码将会在`gpu(1)`上创建随机数组。
 
 ```{.python .input}
-b = nd.random.uniform(shape=(2, 3), ctx=mx.gpu(1)) 
+b = nd.random.uniform(shape=(2, 3), ctx=mx.gpu(1))
 b
 ```
 

@@ -19,7 +19,7 @@ class MyInit(init.Initializer):
         # 实际的初始化逻辑在此省略了。
 
 net = nn.Sequential()
-net.add(nn.Dense(256, activation='relu'), 
+net.add(nn.Dense(256, activation='relu'),
         nn.Dense(10))
 
 net.initialize(init=MyInit())
