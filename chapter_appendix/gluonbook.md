@@ -56,13 +56,3 @@
 | `voc_label_indices`|[语义分割和数据集](../chapter_computer-vision/semantic-segmentation-and-dataset.md)|
 | `voc_rand_crop`|[语义分割和数据集](../chapter_computer-vision/semantic-segmentation-and-dataset.md)|
 | `VOCSegDataset`|[语义分割和数据集](../chapter_computer-vision/semantic-segmentation-and-dataset.md)|
-
-
-
-
-
-|   | 1970  | 1980 | 1990  | 2000 | 2010 | 2020  |
-|:--|:-:|:-:|:-:|:-:|:-:|:-:|
-| 数据样本个数 | 100 (Iris)         | 1 K（波士顿房价） | 10 K（手写字符识别） | 10 M（网页）     | 10 G（广告）       | 1 T （社交网络）   |
-| 内存            | 1 KB               | 100 KB            | 10 MB                | 100 MB           | 1 GB               | 100 GB             |
-| 每秒浮点计算数  | 100 K (Intel 8080) | 1M (Intel 80186)  | 10 M (Intel 80486)   | 1 G (Intel Core) | 1 T (Nvidia C2050) | 1 P (Nvidia DGX-2) |
