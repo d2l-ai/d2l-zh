@@ -106,22 +106,16 @@ textCNN主要使用了一维卷积层和时序最大池化层。假设输入的�
 gb.download_imdb()
 
 # 读取训练和测试数据集。
-train_data = gb.read_imdb('aclImdb', 'train')
-test_data = gb.read_imdb('aclImdb', 'test')
-random.shuffle(train_data)
-random.shuffle(test_data)
-
-# 使用空格分词。
-train_tokenized, test_tokenized = gb.get_tokenized_imdb(train_data, test_data)
+train_data, test_data = gb.read_imdb('train'), gb.read_imdb('test')
 
 # 创建词典。
-token_counter = gb.count_tokens(train_tokenized)
-vocab = text.vocab.Vocabulary(token_counter, unknown_token='<unk>',
-                              reserved_tokens=None)
+vocab = gb.get_vocab_imdb(train_data)
 
 # 预处理数据。
-train_features, test_features, train_labels, test_labels = gb.preprocess_imdb(
-    train_tokenized, test_tokenized, train_data, test_data, vocab)
+
+train_features, train_labels = gb.preprocess_imdb(train_data, vocab)
+test_features, test_labels = gb.preprocess_imdb(test_data, vocab)
+
 ```
 
 ## 加载预训练的词向量
