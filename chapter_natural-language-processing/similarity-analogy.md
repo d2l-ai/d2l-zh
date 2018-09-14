@@ -66,7 +66,7 @@ cos_sim(x, y), cos_sim(x, z)
 ```{.python .input}
 def knn(W, x, k):
     cos = nd.dot(W, x.reshape((-1,))) / (
-        nd.sum(W*W, axis=1).sqrt() * nd.sum(x*x).sqrt())
+        nd.sum(W * W, axis=1).sqrt() * nd.sum(x * x).sqrt())
     topk = nd.topk(cos, k=k, ret_typ='indices').asnumpy().astype('int32')
     return topk, [cos[i].asscalar() for i in topk]
 ```
@@ -79,8 +79,6 @@ def get_similar_tokens(query_token, k, embed):
                     embed.get_vecs_by_tokens([query_token]), k+2)
     for i, c in zip(topk[2:], cos[2:]):  # 除去输入词和未知词。
         print('similarity=%.3f: %s' % (c, (embed.idx_to_token[i])))
-        
-
 ```
 
 先试一下“chip”的近义词。

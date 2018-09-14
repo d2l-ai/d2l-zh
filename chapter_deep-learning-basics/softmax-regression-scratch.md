@@ -164,7 +164,7 @@ train_ch3(net, train_iter, test_iter, cross_entropy, num_epochs,
 ```{.python .input}
 for X, y in test_iter:
     break
-    
+
 true_labels = gb.get_fashion_mnist_labels(y.asnumpy())
 pred_labels = gb.get_fashion_mnist_labels(net(X).argmax(axis=1).asnumpy())
 titles = [true + '\n' + pred for true, pred in zip(true_labels, pred_labels)]

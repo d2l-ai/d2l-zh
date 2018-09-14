@@ -303,8 +303,8 @@ train(net, 0.005, 8)
 ```{.python .input  n=235}
 def get_similar_tokens(query_token, k, embed):
     W = embed.weight.data()
-    x = w[token_to_idx[query_token]]
-    cos = nd.dot(W, x) / nd.sum(W*W, axis=1).sqrt() / nd.sum(x*x).sqrt()
+    x = W[token_to_idx[query_token]]
+    cos = nd.dot(W, x) / nd.sum(W * W, axis=1).sqrt() / nd.sum(x * x).sqrt()
     topk = nd.topk(cos, k=k+1, ret_typ='indices').asnumpy().astype('int32')
     for i in topk[1:]:  # 除去输入词。
         print('similarity=%.3f: %s' % (cos[i].asscalar(), (idx_to_token[i])))

@@ -30,7 +30,7 @@ layer(nd.array([1, 2, 3, 4, 5]))
 
 ```{.python .input  n=3}
 net = nn.Sequential()
-net.add(nn.Dense(128), 
+net.add(nn.Dense(128),
         CenteredLayer())
 ```
 
