@@ -87,7 +87,7 @@ def get_similar_tokens(query_token, k, embed):
 get_similar_tokens('chip', 3, glove_6b50d)
 ```
 
-查找“baby”和“beautiful”的近义词个词。
+查找“baby”和“beautiful”的近义词。
 
 ```{.python .input}
 get_similar_tokens('baby', 3, glove_6b50d)
