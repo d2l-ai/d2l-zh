@@ -24,7 +24,7 @@ word2vec [1, 2] 的提出是为了解决上面这个问题。它将每个词表�
 
 $$\mathbb{P}(\textrm{the},\textrm{man},\textrm{his},\textrm{son}\mid\textrm{loves}),$$
 
-假设给定中心词下背景词是相互独立，那么上式可以改写成：
+假设给定中心词的情况下背景词相互独立，那么上式可以改写成：
 
 $$\mathbb{P}(\textrm{the}\mid\textrm{loves})\cdot\mathbb{P}(\textrm{man}\mid\textrm{loves})\cdot\mathbb{P}(\textrm{his}\mid\textrm{loves})\cdot\mathbb{P}(\textrm{son}\mid\textrm{loves}).$$
 
