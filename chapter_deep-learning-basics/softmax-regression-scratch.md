@@ -3,9 +3,6 @@
 这一节我们来动手实现Softmax回归。首先导入本节实现所需的包或模块。
 
 ```{.python .input}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 from mxnet import autograd, nd
@@ -167,7 +164,7 @@ train_ch3(net, train_iter, test_iter, cross_entropy, num_epochs,
 ```{.python .input}
 for X, y in test_iter:
     break
-    
+
 true_labels = gb.get_fashion_mnist_labels(y.asnumpy())
 pred_labels = gb.get_fashion_mnist_labels(net(X).argmax(axis=1).asnumpy())
 titles = [true + '\n' + pred for true, pred in zip(true_labels, pred_labels)]

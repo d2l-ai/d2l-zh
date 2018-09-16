@@ -1,6 +1,6 @@
 # 查阅MXNet文档
 
-受篇幅所限，本书无法对所有用到的MXNet函数一一详细介绍。我们可以主动查找相关文档来做更深入的了解。
+受篇幅所限，本书无法对所有用到的MXNet函数和类一一详细介绍。我们可以主动查找相关文档来做更深入的了解。
 
 ## 查找模块里的所有函数和类
 
@@ -19,8 +19,7 @@ print(dir(nd.random))
 当我们想了解某个函数或者类的具体用法时，可以使用`help`函数。让我们以NDArray中的`ones_like`函数为例，查阅它的用法。
 
 ```{.python .input}
-from mxnet import nd
-help(nd.ones_like) 
+help(nd.ones_like)
 ```
 
 从文档信息我们了解到，`ones_like`函数会创建和输入NDArray形状相同且元素为1的新的NDArray。我们可以验证一下：

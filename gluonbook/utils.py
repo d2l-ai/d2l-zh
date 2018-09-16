@@ -11,6 +11,7 @@ from IPython import display
 from matplotlib import pyplot as plt
 import mxnet as mx
 from mxnet import autograd, gluon, image, nd, init
+from mxnet.contrib import text
 from mxnet.gluon import nn, data as gdata, loss as gloss, utils as gutils
 import numpy as np
 
@@ -187,19 +188,17 @@ def get_fashion_mnist_labels(labels):
     return [text_labels[int(i)] for i in labels]
 
 
-def get_tokenized_imdb(train_data, test_data):
+def get_tokenized_imdb(data):
     """Get the tokenized IMDB data set for sentiment analysis."""
     def tokenizer(text):
         return [tok.lower() for tok in text.split(' ')]
+    return [tokenizer(review) for review, _ in data]
 
-    train_tokenized = []
-    for review, score in train_data:
-        train_tokenized.append(tokenizer(review))
-    test_tokenized = []
-    for review, score in test_data:
-        test_tokenized.append(tokenizer(review))
-    return train_tokenized, test_tokenized
-
+def get_vocab_imdb(data):
+    """Get the vocab for the IMBD data set for sentiment analysis."""
+    tokenized_data = get_tokenized_imdb(data)
+    counter = collections.Counter([tk for st in tokenized_data for tk in st])
+    return text.vocab.Vocabulary(counter, min_freq=5)
 
 def grad_clipping(params, theta, ctx):
     """Clip the gradient."""
@@ -315,64 +314,30 @@ def predict_rnn_gluon(prefix, num_chars, model, vocab_size, ctx, idx_to_char,
 
 def predict_sentiment(net, vocab, sentence):
     """Predict the sentiment of a given sentence."""
-    sentence = nd.array([vocab.token_to_idx[token] for token in sentence],
-                        ctx=try_gpu())
-    label = nd.argmax(net(nd.reshape(sentence, shape=(1, -1))), axis=1)
+    sentence = nd.array(vocab.to_indices(sentence), ctx=try_gpu())
+    label = nd.argmax(net(sentence.reshape((1, -1))), axis=1)
     return 'positive' if label.asscalar() == 1 else 'negative'
 
-
-def preprocess_imdb(train_tokenized, test_tokenized, train_data, test_data,
-                    vocab):
+def preprocess_imdb(data, vocab):
     """Preprocess the IMDB data set for sentiment analysis."""
-    def encode_samples(tokenized_samples, vocab):
-        features = []
-        for sample in tokenized_samples:
-            feature = []
-            for token in sample:
-                if token in vocab.token_to_idx:
-                    feature.append(vocab.token_to_idx[token])
-                else:
-                    feature.append(0)
-            features.append(feature)
-        return features
+    max_l = 500
+    pad = lambda x: x[:max_l] if len(x) > max_l else x + [0] * (max_l-len(x))
+    tokenized_data = get_tokenized_imdb(data)
+    features = nd.array([pad(vocab.to_indices(x)) for x in tokenized_data])
+    labels = nd.array([score for _, score in data])
+    return features, labels
 
-    def pad_samples(features, maxlen=500, PAD=0):
-        padded_features = []
-        for feature in features:
-            if len(feature) > maxlen:
-                padded_feature = feature[:maxlen]
-            else:
-                padded_feature = feature
-                while len(padded_feature) < maxlen:
-                    padded_feature.append(PAD)
-            padded_features.append(padded_feature)
-        return padded_features
-
-    train_features = encode_samples(train_tokenized, vocab)
-    test_features = encode_samples(test_tokenized, vocab)
-    train_features = nd.array(pad_samples(train_features, 500, 0))
-    test_features = nd.array(pad_samples(test_features, 500, 0))
-    train_labels = nd.array([score for _, score in train_data])
-    test_labels = nd.array([score for _, score in test_data])
-    return train_features, test_features, train_labels, test_labels
-
-
-def read_imdb(dir_url, seg='train'):
+def read_imdb(folder='train'):
     """Read the IMDB data set for sentiment analysis."""
-    pos_or_neg = ['pos', 'neg']
     data = []
-    for label in pos_or_neg:
-        files = os.listdir(os.path.join('../data/', dir_url, seg, label))
-        for file in files:
-            with open(os.path.join('../data/', dir_url, seg, label, file),
-                      'r', encoding='utf8') as rf:
-                review = rf.read().replace('\n', '')
-                if label == 'pos':
-                    data.append([review, 1])
-                elif label == 'neg':
-                    data.append([review, 0])
+    for label in ['pos', 'neg']:
+        folder_name = os.path.join('../data/aclImdb/', folder, label)
+        for file in os.listdir(folder_name):
+            with open(os.path.join(folder_name, file), 'r') as f:
+                review = f.read().replace('\n', '').lower()
+                data.append([review, 1 if label == 'pos' else 0])
+    random.shuffle(data)
     return data
-
 
 def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):
     """Read VOC images."""

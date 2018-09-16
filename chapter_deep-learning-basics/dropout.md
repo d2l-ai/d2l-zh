@@ -26,9 +26,6 @@ $$\mathbb{E}(h_i') = \frac{\mathbb{E}(\xi_i)}{1-p}h_i = h_i.$$
 根据丢弃法的定义，我们可以很容易地实现它。下面的`dropout`函数将以`drop_prob`的概率丢弃NDArray输入`X`中的元素。
 
 ```{.python .input}
-import sys
-sys.path.insert(0, '..')
-
 import gluonbook as gb
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import loss as gloss, nn

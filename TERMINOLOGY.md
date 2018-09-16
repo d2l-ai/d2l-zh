@@ -44,6 +44,8 @@
 
 端到端，end-to-end
 
+多层感知机，multilayer perceptron
+
 二元分类，binary classification
 
 二次采样，subsample
@@ -55,6 +57,8 @@
 泛化误差，generalization error
 
 方差，variance
+
+访问参数，access parameters
 
 非凸优化，non-convex optimization
 
@@ -143,6 +147,8 @@ softmax回归，softmax regression
 实例，instance
 
 收敛，converge
+
+属性，property
 
 数值方法，numerical method
 

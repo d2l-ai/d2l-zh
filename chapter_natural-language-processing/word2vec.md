@@ -20,7 +20,7 @@ word2vec [1, 2] 的提出是为了解决上面这个问题。它将每个词表�
 ## 跳字模型
 
 
-在跳字模型中，我们用一个词来预测它在文本序列周围的词。举个例子，假设文本序列是“the”、“man”、“loves”、“his”和“son”。以“loves”作为中心词，设时间窗口大小为2。跳字模型所关心的是，给定中心词“loves”生成与它距离不超过2个词的背景词“the”、“man”、“his”和“son”的条件概率。也就是
+在跳字模型中，我们用一个词来预测它在文本序列周围的词。举个例子，假设文本序列是“the”、“man”、“loves”、“his”和“son”。以“loves”作为中心词，设上下文窗口大小为2。跳字模型所关心的是，给定中心词“loves”生成与它距离不超过2个词的背景词“the”、“man”、“his”和“son”的条件概率。也就是
 
 $$\mathbb{P}(\textrm{the},\textrm{man},\textrm{his},\textrm{son}\mid\textrm{loves}),$$
 
@@ -28,66 +28,67 @@ $$\mathbb{P}(\textrm{the},\textrm{man},\textrm{his},\textrm{son}\mid\textrm{love
 
 $$\mathbb{P}(\textrm{the}\mid\textrm{loves})\cdot\mathbb{P}(\textrm{man}\mid\textrm{loves})\cdot\mathbb{P}(\textrm{his}\mid\textrm{loves})\cdot\mathbb{P}(\textrm{son}\mid\textrm{loves}).$$
 
-![时间窗口大小为2的跳字模型。](../img/skip-gram.svg)
+![上下文窗口大小为2的跳字模型。](../img/skip-gram.svg)
 
 
-在跳字模型中，每个词被表示成两个$d$维向量用来计算条件概率。假设这个词在词典中索引为$i$，当它为中心词时表示为$\mathbf{v}_i\in\mathbb{R}^d$，而为背景词是表示为$\mathbf{u}_i\in\mathbb{R}^d$。设中心词$w_c$在词典中索引为$c$，背景词$w_o$在词典中索引为$o$，给定中心词生成背景词的条件概率可以通过softmax函数定义为
+在跳字模型中，每个词被表示成两个$d$维向量用来计算条件概率。假设这个词在词典中索引为$i$，当它为中心词时表示为$\boldsymbol{v}_i\in\mathbb{R}^d$，而为背景词是表示为$\boldsymbol{u}_i\in\mathbb{R}^d$。设中心词$w_c$在词典中索引为$c$，背景词$w_o$在词典中索引为$o$，给定中心词生成背景词的条件概率可以通过softmax函数定义为
 
-$$\mathbb{P}(w_o \mid w_c) = \frac{\text{exp}(\mathbf{u}_o^\top \mathbf{v}_c)}{ \sum_{i \in \mathcal{V}} \text{exp}(\mathbf{u}_i^\top \mathbf{v}_c)},$$
+$$\mathbb{P}(w_o \mid w_c) = \frac{\text{exp}(\boldsymbol{u}_o^\top \boldsymbol{v}_c)}{ \sum_{i \in \mathcal{V}} \text{exp}(\boldsymbol{u}_i^\top \boldsymbol{v}_c)},$$
 
 这里词典索引集$\mathcal{V}$的定义是$\mathcal{V} = \{0, 1, \ldots, |\mathcal{V}|-1\}$。
 
-一般来说，假设给定一个长度为$T$的文本序列，时间步$t$的词为$w^{(t)}$。当时间窗口大小为$m$时，且假设给定中心词下背景词是相互独立，跳字模型的似然估计是给定任一中心词生成所有背景词的概率：
+一般来说，假设给定一个长度为$T$的文本序列，时间步$t$的词为$w^{(t)}$。当上下文窗口大小为$m$时，且假设给定中心词下背景词是相互独立，跳字模型的似然估计是给定任一中心词生成所有背景词的概率：
 
-$$ \prod_{t=m+1}^{T-m} \prod_{-m \leq j \leq m, j \neq 0} \mathbb{P}(w^{(t+j)} \mid w^{(t)}).$$
+$$ \prod_{t=1}^{T} \prod_{-m \leq j \leq m,\ j \neq 0} \mathbb{P}(w^{(t+j)} \mid w^{(t)}),$$
 
+这里比$0$前和比$T$后的时间步自动忽略了。
 
 ### 跳字模型训练
 
 跳字模型的模型参数是每个词对应的中心词向量和背景词向量。训练中我们通过最大化似然估计来学习模型参数。我们知道最大似然估计与最小化它的负对数函数等价，也就是最下化以下损失函数：
 
-$$ - \sum_{t=m+1}^{T-m} \sum_{-m \leq j \leq m, j \neq 0} \text{log}\, \mathbb{P}(w^{(t+j)} \mid w^{(t)}).$$
+$$ - \sum_{t=1}^{T} \sum_{-m \leq j \leq m,\ j \neq 0} \text{log}\, \mathbb{P}(w^{(t+j)} \mid w^{(t)}).$$
 
 
 如果使用随机梯度下降，那么在每一个时间步里我们随机采样一个较短的子序列来计算有关该子序列的损失，然后计算梯度来更新模型参数。梯度计算的关键是对数条件概率有关中心词向量和背景词向量的梯度。根据定义，首先看到
 
 
 $$\log \mathbb{P}(w_o \mid w_c) =
-\mathbf{u}_o^\top \mathbf{v}_c - \log\left(\sum_{i \in \mathcal{V}} \text{exp}(\mathbf{u}_i^\top \mathbf{v}_c)\right)$$
+\boldsymbol{u}_o^\top \boldsymbol{v}_c - \log\left(\sum_{i \in \mathcal{V}} \text{exp}(\boldsymbol{u}_i^\top \boldsymbol{v}_c)\right)$$
 
-通过微分，我们可以得到上式中$\mathbf{v}_c$的梯度为：
+通过微分，我们可以得到上式中$\boldsymbol{v}_c$的梯度为：
 
 $$
 \begin{aligned}
-\frac{\partial \text{log}\, \mathbb{P}(w_o \mid w_c)}{\partial \mathbf{v}_c} &= \mathbf{u}_o - \frac{\sum_{j \in \mathcal{V}} \exp(\mathbf{u}_j^\top \mathbf{v}_c)\mathbf{u}_j}{\sum_{i \in \mathcal{V}} \exp(\mathbf{u}_i^\top \mathbf{v}_c)}\\& = \mathbf{u}_o - \sum_{j \in \mathcal{V}} \left(\frac{\text{exp}(\mathbf{u}_j^\top \mathbf{v}_c)}{ \sum_{i \in \mathcal{V}} \text{exp}(\mathbf{u}_i^\top \mathbf{v}_c)}\right) \mathbf{u}_j = \mathbf{u}_o - \sum_{j \in \mathcal{V}} \mathbb{P}(w_j \mid w_c) \mathbf{u}_j.
+\frac{\partial \text{log}\, \mathbb{P}(w_o \mid w_c)}{\partial \boldsymbol{v}_c} &= \boldsymbol{u}_o - \frac{\sum_{j \in \mathcal{V}} \exp(\boldsymbol{u}_j^\top \boldsymbol{v}_c)\boldsymbol{u}_j}{\sum_{i \in \mathcal{V}} \exp(\boldsymbol{u}_i^\top \boldsymbol{v}_c)}\\& = \boldsymbol{u}_o - \sum_{j \in \mathcal{V}} \left(\frac{\text{exp}(\boldsymbol{u}_j^\top \boldsymbol{v}_c)}{ \sum_{i \in \mathcal{V}} \text{exp}(\boldsymbol{u}_i^\top \boldsymbol{v}_c)}\right) \boldsymbol{u}_j = \boldsymbol{u}_o - \sum_{j \in \mathcal{V}} \mathbb{P}(w_j \mid w_c) \boldsymbol{u}_j.
 \end{aligned}
 $$
 
-它的计算需要字典中所有词以$w_c$为中心词的条件概率。同理，$\mathbf{u}_o$的梯度为：
+它的计算需要字典中所有词以$w_c$为中心词的条件概率。同理，$\boldsymbol{u}_o$的梯度为：
 
-$$\frac{\partial \text{log}\, \mathbb{P}(w_o \mid w_c)}{\partial \mathbf{u}_o} = \mathbf{v}_c - \frac{\exp(\mathbf{u}_o^\top \mathbf{v}_c)\mathbf{v}_c}{\sum_{i \in \mathcal{V}} \exp(\mathbf{u}_i^\top \mathbf{v}_c)} = \mathbf{v}_c - \mathbb{P}(w_o \mid w_c)\mathbf{v}_c. $$
+$$\frac{\partial \text{log}\, \mathbb{P}(w_o \mid w_c)}{\partial \boldsymbol{u}_o} = \boldsymbol{v}_c - \frac{\exp(\boldsymbol{u}_o^\top \boldsymbol{v}_c)\boldsymbol{v}_c}{\sum_{i \in \mathcal{V}} \exp(\boldsymbol{u}_i^\top \boldsymbol{v}_c)} = \boldsymbol{v}_c - \mathbb{P}(w_o \mid w_c)\boldsymbol{v}_c. $$
 
-训练结束后，对于词典中的任一索引为$i$的词，我们均得到该词作为中心词和背景词的两组词向量$\mathbf{v}_i$和$\mathbf{u}_i$。我们通常使用中心词向量$\mathbf{v}$作为每个词的表征向量用在其他应用里。
+训练结束后，对于词典中的任一索引为$i$的词，我们均得到该词作为中心词和背景词的两组词向量$\boldsymbol{v}_i$和$\boldsymbol{u}_i$。我们通常使用中心词向量$\boldsymbol{v}$作为每个词的表征向量用在其他应用里。
 
 ## 连续词袋模型
 
-连续词袋模型与跳字模型类似。与跳字模型最大的不同是，连续词袋模型用一个中心词在文本序列前后的背景词来预测该中心词。在同样的文本序列“the”、 “man”、“loves”、“his”和“son”里，以“loves”作为中心词，且时间窗口大小为2时，连续词袋模型关心的是以背景词“the”、“man”、“his”和“son”为条件的中心词“loves”的条件概率，也就是
+连续词袋模型与跳字模型类似。与跳字模型最大的不同是，连续词袋模型用一个中心词在文本序列前后的背景词来预测该中心词。在同样的文本序列“the”、 “man”、“loves”、“his”和“son”里，以“loves”作为中心词，且上下文窗口大小为2时，连续词袋模型关心的是以背景词“the”、“man”、“his”和“son”为条件的中心词“loves”的条件概率，也就是
 
 $$\mathbb{P}(\textrm{loves}\mid\textrm{the},\textrm{man},\textrm{his},\textrm{son}).$$
 
-![时间窗口大小为2的连续词袋模型。](../img/cbow.svg)
+![上下文窗口大小为2的连续词袋模型。](../img/cbow.svg)
 
-因为连续词袋模型的背景词有多个，我们将这些背景词向量取平均，然后使用和跳字模型一样的方法来计算计算条件概率。设$\mathbf{v_i}\in\mathbb{R}^d$和$\mathbf{u_i}\in\mathbb{R}^d$分别表示词典中索引为$i$的词的作为背景词和中心词的向量（注意符号和跳字模型中是相反）。设中心词$w_c$在词典中索引为$c$，背景词$w_{o_1}, \ldots, w_{o_{2m}}$在词典中索引为$o_1, \ldots, o_{2m}$，那么条件概率通过如下计算：
+因为连续词袋模型的背景词有多个，我们将这些背景词向量取平均，然后使用和跳字模型一样的方法来计算计算条件概率。设$\boldsymbol{v_i}\in\mathbb{R}^d$和$\boldsymbol{u_i}\in\mathbb{R}^d$分别表示词典中索引为$i$的词的作为背景词和中心词的向量（注意符号和跳字模型中是相反）。设中心词$w_c$在词典中索引为$c$，背景词$w_{o_1}, \ldots, w_{o_{2m}}$在词典中索引为$o_1, \ldots, o_{2m}$，那么条件概率通过如下计算：
 
-$$\mathbb{P}(w_c \mid w_{o_1}, \ldots, w_{o_{2m}}) = \frac{\text{exp}\left(\frac{1}{2m}\mathbf{u}_c^\top (\mathbf{v}_{o_1} + \ldots + \mathbf{v}_{o_{2m}}) \right)}{ \sum_{i \in \mathcal{V}} \text{exp}\left(\frac{1}{2m}\mathbf{u}_i^\top (\mathbf{v}_{o_1} + \ldots + \mathbf{v}_{o_{2m}}) \right)}.$$
+$$\mathbb{P}(w_c \mid w_{o_1}, \ldots, w_{o_{2m}}) = \frac{\text{exp}\left(\frac{1}{2m}\boldsymbol{u}_c^\top (\boldsymbol{v}_{o_1} + \ldots + \boldsymbol{v}_{o_{2m}}) \right)}{ \sum_{i \in \mathcal{V}} \text{exp}\left(\frac{1}{2m}\boldsymbol{u}_i^\top (\boldsymbol{v}_{o_1} + \ldots + \boldsymbol{v}_{o_{2m}}) \right)}.$$
 
-为了让符号更加简单，我们记$\mathbf{w}_o=\{w_{o_1}, \ldots, w_{o_{2m}}\}$，且$\bar{\mathbf{v}}_o = \left(\mathbf{v}_{o_1} + \ldots + \mathbf{v}_{o_{2m}} \right)/(2m)$，那么上式可以简写成
+为了让符号更加简单，我们记$\boldsymbol{w}_o=\{w_{o_1}, \ldots, w_{o_{2m}}\}$，且$\bar{\boldsymbol{v}}_o = \left(\boldsymbol{v}_{o_1} + \ldots + \boldsymbol{v}_{o_{2m}} \right)/(2m)$，那么上式可以简写成
 
-$$\mathbb{P}(w_c \mid \mathbf{w}_o) = \frac{\exp\left(\mathbf{u}_c^\top \bar{\mathbf{v}}_o\right)}{\sum_{i \in \mathcal{V}} \exp\left(\mathbf{u}_i^\top \bar{\mathbf{v}}_o\right)}.$$
+$$\mathbb{P}(w_c \mid \boldsymbol{w}_o) = \frac{\exp\left(\boldsymbol{u}_c^\top \bar{\boldsymbol{v}}_o\right)}{\sum_{i \in \mathcal{V}} \exp\left(\boldsymbol{u}_i^\top \bar{\boldsymbol{v}}_o\right)}.$$
 
-这样条件概率的计算形式同跳字模型一致。最后，给定一个长度为$T$的文本序列，设时间步$t$的词为$w^{(t)}$，时间窗口大小为$m$，连续词袋模型目标是最大化由背景词生成任一中心词的概率
+这样条件概率的计算形式同跳字模型一致。最后，给定一个长度为$T$的文本序列，设时间步$t$的词为$w^{(t)}$，上下文窗口大小为$m$，连续词袋模型目标是最大化由背景词生成任一中心词的概率
 
-$$ \prod_{t=m+1}^{T-m}  \mathbb{P}(w^{(t)} \mid  w^{(t-m)}, \ldots,  w^{(t-1)},  w^{(t+1)}, \ldots,  w^{(t+m)}).$$
+$$ \prod_{t=1}^{T}  \mathbb{P}(w^{(t)} \mid  w^{(t-m)}, \ldots,  w^{(t-1)},  w^{(t+1)}, \ldots,  w^{(t+m)}).$$
 
 ### 连续词袋模型训练
 
@@ -97,17 +98,17 @@ $$  -\sum_{t=1}^T  \text{log}\, \mathbb{P}(w^{(t)} \mid  w^{(t-m)}, \ldots,  w^{
 
 接下来看到
 
-$$\log\,\mathbb{P}(w_c \mid \mathbf{w}_o) = \mathbf{u}_c^\top \bar{\mathbf{v}}_o - \log\,\left(\sum_{i \in \mathcal{V}} \exp\left(\mathbf{u}_i^\top \bar{\mathbf{v}}_o\right)\right)$$
+$$\log\,\mathbb{P}(w_c \mid \boldsymbol{w}_o) = \boldsymbol{u}_c^\top \bar{\boldsymbol{v}}_o - \log\,\left(\sum_{i \in \mathcal{V}} \exp\left(\boldsymbol{u}_i^\top \bar{\boldsymbol{v}}_o\right)\right)$$
 
-通过微分，我们可以计算出上式中条件概率的对数有关任一背景词向量$\mathbf{v}_{o_i}$($i = 1, \ldots, 2m$)的梯度为：
+通过微分，我们可以计算出上式中条件概率的对数有关任一背景词向量$\boldsymbol{v}_{o_i}$($i = 1, \ldots, 2m$)的梯度为：
 
-$$\frac{\partial \log\, \mathbb{P}(w_c \mid \mathbf{w}_o)}{\partial \mathbf{v}_o} = \frac{1}{2m} \left(\mathbf{u}_c - \sum_{j \in \mathcal{V}} \frac{\exp(\mathbf{u}_j^\top \bar{\mathbf{v}}_o)\mathbf{u}_j}{ \sum_{i \in \mathcal{V}} \text{exp}(\mathbf{u}_j^\top \bar{\mathbf{v}}_o)} \right) = \frac{1}{2m}\left(\mathbf{u}_c - \sum_{j \in \mathcal{V}} \mathbb{P}(w_j \mid \mathbf{w}_o) \mathbf{u}_j \right).$$
+$$\frac{\partial \log\, \mathbb{P}(w_c \mid \boldsymbol{w}_o)}{\partial \boldsymbol{v}_o} = \frac{1}{2m} \left(\boldsymbol{u}_c - \sum_{j \in \mathcal{V}} \frac{\exp(\boldsymbol{u}_j^\top \bar{\boldsymbol{v}}_o)\boldsymbol{u}_j}{ \sum_{i \in \mathcal{V}} \text{exp}(\boldsymbol{u}_j^\top \bar{\boldsymbol{v}}_o)} \right) = \frac{1}{2m}\left(\boldsymbol{u}_c - \sum_{j \in \mathcal{V}} \mathbb{P}(w_j \mid \boldsymbol{w}_o) \boldsymbol{u}_j \right).$$
 
-关于中心词向量$\mathbf{u}_c$梯度为：
+关于中心词向量$\boldsymbol{u}_c$梯度为：
 
-$$\frac{\partial \text{log}\, \mathbb{P}(w_c \mid \mathbf{w}_o)}{\partial \mathbf{u}_{c}} = \bar{\mathbf{v}}_o - \frac{\exp(\mathbf{u}_c^\top \bar{\mathbf{v}}_o)\mathbf{u}_c}{\sum_{i \in \mathcal{V}} \exp(\mathbf{u}_j^\top \bar{\mathbf{v}}_o)} = \bar{\mathbf{v}}_o - \mathbb{P}(w_c \mid \mathbf{w}_o)\bar{\mathbf{v}}_o.$$
+$$\frac{\partial \text{log}\, \mathbb{P}(w_c \mid \boldsymbol{w}_o)}{\partial \boldsymbol{u}_{c}} = \bar{\boldsymbol{v}}_o - \frac{\exp(\boldsymbol{u}_c^\top \bar{\boldsymbol{v}}_o)\boldsymbol{u}_c}{\sum_{i \in \mathcal{V}} \exp(\boldsymbol{u}_j^\top \bar{\boldsymbol{v}}_o)} = \bar{\boldsymbol{v}}_o - \mathbb{P}(w_c \mid \boldsymbol{w}_o)\bar{\boldsymbol{v}}_o.$$
 
-同跳字模型不一样的一点在于，我们通常使用背景词向量$\mathbf{v}$作为每个词的表征向量用在其他应用里。
+同跳字模型不一样的一点在于，我们通常使用背景词向量$\boldsymbol{v}$作为每个词的表征向量用在其他应用里。
 
 ## 小结
 
