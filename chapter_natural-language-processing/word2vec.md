@@ -86,7 +86,7 @@ $$\mathbb{P}(w_c \mid w_{o_1}, \ldots, w_{o_{2m}}) = \frac{\text{exp}\left(\frac
 
 $$\mathbb{P}(w_c \mid \boldsymbol{w}_o) = \frac{\exp\left(\boldsymbol{u}_c^\top \bar{\boldsymbol{v}}_o\right)}{\sum_{i \in \mathcal{V}} \exp\left(\boldsymbol{u}_i^\top \bar{\boldsymbol{v}}_o\right)}.$$
 
-这样条件概率的计算形式同跳字模型一致。最后，给定一个长度为$T$的文本序列，设时间步$t$的词为$w^{(t)}$，上下文窗口大小为$m$，连续词袋模型目标是最大化由背景词生成任一中心词的概率
+这样条件概率的计算形式同跳字模型一致。最后，给定一个长度为$T$的文本序列，设时间步$t$的词为$w^{(t)}$，上下文窗口大小为$m$，连续词袋模型的目标是最大化由背景词生成任一中心词的概率
 
 $$ \prod_{t=1}^{T}  \mathbb{P}(w^{(t)} \mid  w^{(t-m)}, \ldots,  w^{(t-1)},  w^{(t+1)}, \ldots,  w^{(t+m)}).$$
 
