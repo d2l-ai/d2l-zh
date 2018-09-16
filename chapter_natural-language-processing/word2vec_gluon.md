@@ -21,7 +21,7 @@ import zipfile
 
 ## 处理数据集
 
-Penn Tree Bank（PTB）是一个常用的小型语料库 [1]。它采样自华尔街日报的文章，训练集、验证集和测试集。我们将在PTB的训练集上训练词嵌入模型。该数据集的每一行为一个句子。句子中的每个词由空格隔开。
+Penn Tree Bank（PTB）是一个常用的小型语料库 [1]。它采样自华尔街日报的文章，包括训练集、验证集和测试集。我们将在PTB的训练集上训练词嵌入模型。该数据集的每一行为一个句子。句子中的每个词由空格隔开。
 
 ```{.python .input  n=264}
 with zipfile.ZipFile('../data/ptb.zip', 'r') as zin:
@@ -62,7 +62,7 @@ num_tokens = sum([len(st) for st in dataset])
 
 ### 二次采样
 
-本文数据中通常会出现高频词，例如英文中的“the”、“a”和“in”。通常来说，一个词，例如“China”，和较低频词，例如“Beijing”，同时出现比和较高频词，例如“the”，同时出现对训练词嵌入更加有帮助。但由于高频出现机会更高，它们对模型训练影响更大。因此训练词嵌入模型时常对高频词进行采样，来降低它们的影响度。word2vec中使用的一个方法是按照一定概率丢弃每个词。对于词$w_i$，它的丢弃概率为：
+本文数据中通常会出现高频词，例如英文中的“the”、“a”和“in”。通常来说，一个词（如“China”）和较低频词（如“Beijing”）同时出现，比和较高频词（如“the”）同时出现，对训练词嵌入更加有帮助。但由于高频出现机会更高，它们对模型训练影响更大。因此训练词嵌入模型时常对高频词进行采样，来降低它们的影响度。word2vec中使用的一个方法是按照一定概率丢弃每个词。对于词$w_i$，它的丢弃概率为：
 
 $$ \mathbb{P}(w_i) = \max\left(1 - \sqrt{\frac{tN}{c_i}}, 0\right),$$ 
 
@@ -75,7 +75,7 @@ subsampled_dataset = [[tk for tk in st if not discard(tk)] for st in dataset]
 '#tokens: %d' % sum([len(st) for st in subsampled_dataset])
 ```
 
-可以看到二次采样后我们去掉了几乎一半的词。下面比较一个词采样前后出现的次数，可以看到高频词“the”采样到了1/20一下，
+可以看到二次采样后我们去掉了几乎一半的词。下面比较一个词采样前后出现的次数，可以看到高频词“the”采样到了1/20以下，
 
 ```{.python .input  n=269}
 get_count = lambda token: '%s: before=%d, after=%d' % (
@@ -127,7 +127,7 @@ all_centers, all_contexts = get_centers_and_contexts(subsampled_dataset, 5)
 
 ## 负采样
 
-我们将使用上节介绍的负采样来进行近似训练。对每个上下文窗口中的中心词，我们随机采样$K$乘以这个窗口中背景词个数个噪音词。噪声词采样概率$\mathbb{P}(w)$设为word2vec中使用的$w$词频与总词频的比的3/4次方。且保证每个噪音词不在这个上下文窗口中出现。然后使用$K=5$来生产噪音词。
+我们将使用上节介绍的负采样来进行近似训练。对每个上下文窗口中的中心词，我们随机采样$K$乘以这个窗口中背景词个数个噪音词。噪音词采样概率$\mathbb{P}(w)$设为word2vec中使用的$w$词频与总词频的比的3/4次方。且保证每个噪音词不在这个上下文窗口中出现。然后使用$K=5$来生产噪音词。
 
 ```{.python .input  n=274}
 sampling_weights = [counter[w]**0.75 for w in idx_to_token]
@@ -156,9 +156,9 @@ all_negatives = get_negatives(all_centers, all_contexts, sampling_weights, 5)
 
 我们从数据集中提取了所有中心词`all_centers`，和每个中心词对应的背景词`all_contexts`和噪音词`all_negatives`。接下来我们使用随机小批量来读取它们。
 
-在一个小批量数据中，第$i$个样本包括一个中心词和它对应的$n_i$个背景词和$m_i$个噪声词。但由于每个样本的上下文窗口大小可能不一样，这样背景词与噪声词数量和$n_i+m_i$也会不同。在构造小批量时，我们将每个样本的背景词和噪声词连结在一起，并将长度固定为$l=\max_i n_i+m_i$，也就是形状为（批量大小，$l$）。如果某个样本的长度不够，我们添加0来补齐长度。同时我们构造同样形状的标号：1表示背景词，0表示其他。以及同样形状的掩码，1表示背景词或噪声词，0表示填充。
+在一个小批量数据中，第$i$个样本包括一个中心词和它对应的$n_i$个背景词和$m_i$个噪音词。但由于每个样本的上下文窗口大小可能不一样，这样背景词与噪音词数量和$n_i+m_i$也会不同。在构造小批量时，我们将每个样本的背景词和噪音词连结在一起，并将长度固定为$l=\max_i n_i+m_i$，也就是形状为（批量大小，$l$）。如果某个样本的长度不够，我们添加0来补齐长度。同时我们构造同样形状的标号：1表示背景词，0表示其他。以及同样形状的掩码，1表示背景词或噪音词，0表示填充。
 
-下面实现给定一个长度为批量大小的序列，其中每个元素为（中心词，背景词，噪声词），返回我们需要的小批量数据格式。
+下面实现给定一个长度为批量大小的序列，其中每个元素为（中心词，背景词，噪音词），返回我们需要的小批量数据格式。
 
 ```{.python .input  n=277}
 def batchify(data):
@@ -212,7 +212,7 @@ embed(x)
 
 ### 小批量乘法
 
-我们可以将背景词向量和噪音词向量合并起来，然后使用一次矩阵乘法来计算中心词向量来计算它们的内积$\boldsymbol{v}_{c}^\top\left[\boldsymbol{u}_{o_1},\ldots,\boldsymbol{u}_{o_{n+m}}\right]$。我们需要对小批量里的每个中心词逐一做此运算，虽然可以用for循环来实现，但使用`batch_dot`（用$\text{bd}$表示）通常可以得到更好的性能。假设$\boldsymbol{X}=\left[\boldsymbol{X}_1,\ldots,\boldsymbol{X}_n\right]$且$\boldsymbol{Y}=\left[\boldsymbol{Y}_1,\ldots,\boldsymbol{Y}_n\right]$，如果$\boldsymbol{Z}=\text{bd}(\boldsymbol{X},\boldsymbol{Y})$，那么$\boldsymbol{Z}=\left[\boldsymbol{X}_1\boldsymbol{Y}_1,\ldots,\boldsymbol{X}_n\boldsymbol{Y}_n\right]$。
+我们可以将背景词向量和噪音词向量合并起来，然后使用一次矩阵乘法来计算中心词向量和它们的内积$\boldsymbol{v}_{c}^\top\left[\boldsymbol{u}_{o_1},\ldots,\boldsymbol{u}_{o_{n+m}}\right]$。我们需要对小批量里的每个中心词逐一做此运算，虽然可以用for循环来实现，但使用`batch_dot`（用$\text{bd}$表示）通常可以得到更好的性能。假设$\boldsymbol{X}=\left[\boldsymbol{X}_1,\ldots,\boldsymbol{X}_n\right]$且$\boldsymbol{Y}=\left[\boldsymbol{Y}_1,\ldots,\boldsymbol{Y}_n\right]$，如果$\boldsymbol{Z}=\text{bd}(\boldsymbol{X},\boldsymbol{Y})$，那么$\boldsymbol{Z}=\left[\boldsymbol{X}_1\boldsymbol{Y}_1,\ldots,\boldsymbol{X}_n\boldsymbol{Y}_n\right]$。
 
 ```{.python .input  n=259}
 X = nd.ones((2, 3, 4))
@@ -240,7 +240,7 @@ def skip_gram(center, contexts_and_negatives, embed_v, embed_u):
 
 $$\sum_{k=1}^n\log\,\sigma(\boldsymbol{u}_{o_k}^\top\boldsymbol{v}_c) + \sum_{k=n+1}^{n+m}\log\,\sigma(-\boldsymbol{u}_{o_k}^\top\boldsymbol{v}_c),$$
 
-这里$\sigma(x)=1/(1+\exp(-x))$是sigmoid函数。这个等价于一个使用叉熵损失函数的两类softmax回归，又称logistic回归。如果构造标签$y_1,\ldots, y_{n+m}$，使得 $y_1=\ldots=y_n=1$，$y_{n+1}=\ldots=y_{n+m}=0$，那么我们可以重写上面损失函数为标准的logistic回归目标函数：
+这里$\sigma(x)=1/(1+\exp(-x))$是sigmoid函数。这个等价于一个使用交叉熵损失函数的两类softmax回归，又称logistic回归。如果构造标签$y_1,\ldots, y_{n+m}$，使得 $y_1=\ldots=y_n=1$，$y_{n+1}=\ldots=y_{n+m}=0$，那么我们可以重写上面损失函数为标准的logistic回归目标函数：
 
 $$\sum_{k=1}^{n+m}y_k\log\,\sigma(\boldsymbol{u}_{o_k}^\top\boldsymbol{v}_c) + (1-y_k)\log\,\sigma(-\boldsymbol{u}_{o_k}^\top\boldsymbol{v}_c)$$
 
@@ -322,7 +322,7 @@ get_similar_tokens(b'chip', 3, net[0])
 
 * 调一调模型和训练超参数。
 * 试着找出其他词的近义词。
-* 当数据集较大时，我们通常在迭代模型参数时才对当前小批量里的中心词采样背景词和噪声词。也就是说，同一个中心词在不同的迭代周期可能会有不同的背景词或噪声词。这样训练有哪些好处？尝试实现上述训练方法。
+* 当数据集较大时，我们通常在迭代模型参数时才对当前小批量里的中心词采样背景词和音词。也就是说，同一个中心词在不同的迭代周期可能会有不同的背景词或噪音词。这样训练有哪些好处？尝试实现上述训练方法。
 * 事实上`SigmoidBinaryCrossEntropyLoss`的实现不是本节给出的目标函数。找出它的实现，并分析为什么要这么做。
 
 
