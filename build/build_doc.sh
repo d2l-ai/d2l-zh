@@ -2,7 +2,7 @@
 # Build and publish all docs into Pulish all notebooks to mxnet.
 set -x
 set -e
-make clean
+
 # Clean build/chapter*/*ipynb and build/chapter*/*md that are no longer needed.
 cd build
 for ch in chapter*; do
