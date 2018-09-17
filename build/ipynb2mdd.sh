@@ -65,7 +65,6 @@ done
 
 # Convert matplotlib-generated svg to pdf.
 for f in $MD/*_files/*svg; do
-	echo "===$f"
 	rsvg-convert -f pdf -z 0.80 -o "${f%%.*}.pdf" $f
 	rm $f
 done
@@ -75,4 +74,4 @@ rm $MD/index.rst
 # zip files.
 [ -e "$MD.zip" ] && rm "$MD.zip"
 zip -r "$MD.zip" $MD 
-#[ -e $MD ] && rm -rf $MD 
+[ -e $MD ] && rm -rf $MD 
