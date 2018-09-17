@@ -72,7 +72,7 @@ $$\boldsymbol{u}_j^\top \tilde{\boldsymbol{v}}_i + b_i + c_j \approx \log(x_{ij}
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4372)
 
-![](../img/qr_glove-fasttext.svg)
+![](../img/qr_glove.svg)
 
 ## 参考文献
 
