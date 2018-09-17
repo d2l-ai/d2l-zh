@@ -7,7 +7,7 @@ CH="ch.md"
 mkdir $MD
 
 # Collect files.
-cp index.md $MD/
+cp index.rst $MD/
 cp -R img $MD/
 for f in chapter*/*; do
 	dir=$(dirname "$f")
@@ -52,7 +52,7 @@ for f in $MD/chapter*/index.md; do
 	perl -i -0777 -pe 's/```eval_rst[^`]+```//ge' $chapter
 done
 
-chapters=$(python -c 'import mdd_utils; print(mdd_utils.get_chapters())' $MD/index.md)
+chapters=$(python -c 'import mdd_utils; print(mdd_utils.get_chapters())' $MD/index.rst)
 i=1
 for chapter in $chapters; do
 	# Move matplotlib plots outside.
@@ -65,13 +65,14 @@ done
 
 # Convert matplotlib-generated svg to pdf.
 for f in $MD/*_files/*svg; do
+	echo "===$f"
 	rsvg-convert -f pdf -z 0.80 -o "${f%%.*}.pdf" $f
 	rm $f
 done
 
-rm $MD/index.md
+rm $MD/index.rst
 
 # zip files.
 [ -e "$MD.zip" ] && rm "$MD.zip"
 zip -r "$MD.zip" $MD 
-[ -e $MD ] && rm -rf $MD 
+#[ -e $MD ] && rm -rf $MD 
