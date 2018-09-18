@@ -7,9 +7,6 @@
 首先导入本节需要的包或模块。
 
 ```{.python .input}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 from mxnet.gluon import data as gdata
@@ -30,7 +27,7 @@ mnist_test = gdata.vision.FashionMNIST(train=False)
 len(mnist_train), len(mnist_test)
 ```
 
-我们可以通过`[]`来访问任意一个样本，下面获取第一个样本的图像和标签。
+我们可以通过方括号`[]`来访问任意一个样本，下面获取第一个样本的图像和标签。
 
 ```{.python .input  n=24}
 feature, label = mnist_train[0]

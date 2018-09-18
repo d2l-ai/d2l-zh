@@ -61,9 +61,6 @@ $$\hat{y} = b + \sum_{k=1}^K x^k w_k$$
 为了理解模型复杂度和训练数据集大小对欠拟合和过拟合的影响，下面我们以多项式函数拟合为例来实验。首先导入实验需要的包或模块。
 
 ```{.python .input  n=1}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 from mxnet import autograd, gluon, nd
@@ -139,7 +136,7 @@ def fit_and_plot(train_features, test_features, train_labels, test_labels):
     print('final epoch: train loss', train_ls[-1], 'test loss', test_ls[-1])
     semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'loss',
              range(1, num_epochs + 1), test_ls, ['train', 'test'])
-    print('weight:', net[0].weight.data().asnumpy(), 
+    print('weight:', net[0].weight.data().asnumpy(),
           '\nbias:', net[0].bias.data().asnumpy())
 ```
 

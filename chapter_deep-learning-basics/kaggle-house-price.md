@@ -27,9 +27,6 @@ Kaggle（网站地址：https://www.kaggle.com ）是一个著名的供机器学
 # 如果没有安装 pandas，请反注释下面一行。
 # !pip install pandas
 
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 from mxnet import autograd, gluon, init, nd
