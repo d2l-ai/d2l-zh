@@ -1,6 +1,6 @@
 # 实战Kaggle比赛：图像分类（CIFAR-10）
 
-CIFAR-10是计算机视觉领域的一个重要的数据集。本节中，我们将动手实战一个有关它的Kaggle比赛：CIFAR-10图像分类问题。该比赛的网页地址是
+CIFAR-10是一个计算机视觉领域的重要数据集。本节中，我们将动手实战一个有关它的Kaggle比赛：CIFAR-10图像分类问题。该比赛的网页地址是
 
 > https://www.kaggle.com/c/cifar-10
 
@@ -27,7 +27,7 @@ import shutil
 
 ## 获取数据集
 
-比赛数据分为训练集和测试集。训练集包含5万张图像。测试集包含30万张图像：其中有1万张图像用来计分，其他29万张不计分的图像是为了防止人工标注测试集。两个数据集中的图像格式都是png，高和宽均为32像素，并含有RGB三个通道（彩色）。图像一共涵盖10个类别，分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车，如图9.16所示。
+比赛数据分为训练集和测试集。训练集包含5万张图像。测试集包含30万张图像，其中有1万张图像用来计分，其他29万张不计分的图像是为了防止人工标注测试集。两个数据集中的图像格式都是png，高和宽均为32像素，并含有RGB三个通道（彩色）。如图9.16所示，图像一共涵盖10个类别，分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车。
 
 ![CIFAR-10图像的类别分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车。](../img/cifar10.png)
 
@@ -45,7 +45,7 @@ import shutil
 * ../data/kaggle_cifar10/test/[1-300000].png
 * ../data/kaggle_cifar10/trainLabels.csv
 
-为方便快速上手，我们提供了上述数据集的小规模采样，例如仅含100个训练样本的“train_tiny.zip”和1个测试样本的“test_tiny.zip”。它们解压后的文件夹名称分别为“train_tiny”和“test_tiny”。此外，训练数据集标签的压缩文件解压后得到“trainLabels.csv”。如果你将使用上述Kaggle比赛的完整数据集，还需要把下面`demo`变量改为`False`。
+为方便快速上手，我们提供了上述数据集的小规模采样，其中“train_tiny.zip”包含100个训练样本，而“test_tiny.zip” 仅包含1个测试样本。它们解压后的文件夹名称分别为“train_tiny”和“test_tiny”。此外，将训练数据集标签的压缩文件解压后得到“trainLabels.csv”。如果你将使用上述Kaggle比赛的完整数据集，还需要把下面`demo`变量改为`False`。
 
 ```{.python .input}
 # 如果使用下载的 Kaggle 比赛的完整数据集，把下面 demo 变量改为 False。
@@ -59,7 +59,7 @@ if demo:
 
 ### 整理数据集
 
-我们接下来定义`reorg_cifar10_data`函数来整理数据集。整理后，同一类图像将被放在同一个文件夹下，便于我们稍后读取。该函数中的参数`valid_ratio`是验证集样本数与原始训练集样本数之比。以`valid_ratio=0.1`为例，由于原始训练数据集有50,000张图像，调参时将有45,000张图像用于训练并存放在路径“`input_dir/train`”，而另外5,000张图像为验证集并存放在路径“`input_dir/valid`”。
+我们接下来定义`reorg_cifar10_data`函数来整理数据集。经过整理后，同一类图像将被放在同一个文件夹下，便于我们稍后读取。该函数中的参数`valid_ratio`是验证集样本数与原始训练集样本数之比。以`valid_ratio=0.1`为例，由于原始训练数据集有50,000张图像，调参时将有45,000张图像用于训练并存放在路径“`input_dir/train`”，而另外5,000张图像为验证集并存放在路径“`input_dir/valid`”。
 
 ```{.python .input  n=2}
 def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
@@ -124,7 +124,7 @@ reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
 
 ## 图像增广
 
-为应对过拟合，我们在这里使用`transforms`来增广数据。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图像做镜面反转。我们也通过`transforms.Normalize()`对彩色图像RGB三个通道分别做标准化。以下列举了部分操作。这些操作可以根据需求来决定是否使用或修改。
+为应对过拟合，我们在这里使用`transforms`来增广数据。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图像做镜面翻转。我们也可以通过`transforms.Normalize()`对彩色图像RGB三个通道分别做标准化。以下列举了其中的部分操作，你可以根据需求来决定是否使用或修改这些操作。
 
 ```{.python .input  n=4}
 transform_train = gdata.vision.transforms.Compose([
@@ -150,7 +150,7 @@ transform_test = gdata.vision.transforms.Compose([
                                       [0.2023, 0.1994, 0.2010])])
 ```
 
-接下来，我们可以使用`ImageFolderDataset`类来读取整理后的数据集，其中每个数据样本包括图像和标签。需要注意的是，我们要在`DataLoader`中调用刚刚定义好的图像增广函数。其中`transform_first`函数指明对每个数据样本中的图像做数据增广。
+接下来，我们可以使用`ImageFolderDataset`类来读取整理后的数据集，其中每个数据样本包括图像和标签。需要注意的是，我们要在`DataLoader`中调用刚刚定义好的图像增广函数，其中的`transform_first`函数指明对每个数据样本中的图像做数据增广。
 
 ```{.python .input  n=5}
 # 读取原始图像文件。flag=1 说明输入图像有三个通道（彩色）。
@@ -229,7 +229,7 @@ def get_net(ctx):
 
 ## 定义训练函数
 
-我们将根据模型在验证集上的表现来选择模型并调节超参数。下面定义了模型的训练函数`train`。我们记录了每个迭代周期的训练时间。这有助于比较不同模型的时间开销。
+我们将根据模型在验证集上的表现来选择模型并调节超参数。下面定义了模型的训练函数`train`。我们记录了每个迭代周期的训练时间，这有助于比较不同模型的时间开销。
 
 ```{.python .input  n=7}
 loss = gloss.SoftmaxCrossEntropyLoss()
@@ -271,7 +271,7 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
 
 ## 训练并验证模型
 
-现在，我们可以训练并验证模型了。以下的超参数都是可以调节的，例如增加迭代周期。由于`lr_period`和`lr_decay`分别设80和0.1，优化算法的学习率将在每80个迭代周期时自乘0.1。
+现在，我们可以训练并验证模型了。以下的超参数都是可以调节的，例如增加迭代周期等。由于`lr_period`和`lr_decay`分别设为80和0.1，优化算法的学习率将在每80个迭代周期后自乘0.1。
 
 ```{.python .input  n=8}
 ctx, num_epochs, lr, wd = gb.try_gpu(), 1, 0.1, 5e-4, 
@@ -283,7 +283,7 @@ train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
 
 ## 对测试集分类并在Kaggle提交结果
 
-当得到一组满意的模型设计和超参数后，我们使用所有训练数据集（含验证集）重新训练模型，并对测试集分类。
+当得到一组满意的模型设计和超参数后，我们使用所有训练数据集（含验证集）重新训练模型，并对测试集进行分类。
 
 ```{.python .input  n=9}
 net = get_net(ctx)
@@ -302,7 +302,7 @@ df['label'] = df['label'].apply(lambda x: train_valid_ds.synsets[x])
 df.to_csv('submission.csv', index=False)
 ```
 
-执行完上述代码后，会生成一个“submission.csv”文件。这个文件符合Kaggle比赛要求的提交格式。这时我们可以在Kaggle上把对测试集分类的结果提交并查看分类准确率。你需要登录Kaggle网站，访问CIFAR-10比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮。然后，点击页面下方“Upload Submission File”选择需要提交的分类结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。
+执行完上述代码后，我们会得到一个“submission.csv”文件。这个文件符合Kaggle比赛要求的提交格式。这时我们可以在Kaggle上提交对测试集分类的结果并查看分类准确率。你需要登录Kaggle网站，访问CIFAR-10比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮。然后，点击页面下方“Upload Submission File”选择需要提交的分类结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。
 
 
 ## 小结
