@@ -10,9 +10,10 @@
    :maxdepth: 2
 
    word2vec
+   word2vec-approx-train
+   word2vec-gluon
    fasttext
    glove
-   embedding-training
    similarity-analogy
    sentiment-analysis
    sentiment-analysis-cnn

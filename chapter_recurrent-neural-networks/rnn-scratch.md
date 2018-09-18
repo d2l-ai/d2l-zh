@@ -265,4 +265,4 @@ train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/989)
 
-![](../img/qr_rnn.svg)
+![](../img/qr_rnn-scratch.svg)

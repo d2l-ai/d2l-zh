@@ -96,7 +96,7 @@ gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1277)
 
-![](../img/qr_vgg-gluon.svg)
+![](../img/qr_vgg.svg)
 
 ## 参考文献
 

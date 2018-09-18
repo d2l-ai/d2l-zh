@@ -35,9 +35,6 @@ $$y = 0.05 + \sum_{i = 1}^p 0.01x_i +  \epsilon,$$
 其中噪音项$\epsilon$服从均值为0和标准差为0.01的正态分布。为了较容易地观察过拟合，我们考虑高维线性回归问题，例如设维度$p=200$；同时，我们特意把训练数据集的样本数设低，例如20。
 
 ```{.python .input  n=2}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 from mxnet import autograd, gluon, init, nd
@@ -92,7 +89,7 @@ train_iter = gdata.DataLoader(gdata.ArrayDataset(
 def fit_and_plot(lambd):
     w, b = init_params()
     train_ls, test_ls = [], []
-    for _ in range(num_epochs):        
+    for _ in range(num_epochs):
         for X, y in train_iter:
             with autograd.record():
                 # 添加了 L2 范数惩罚项。
@@ -154,7 +151,7 @@ def fit_and_plot_gluon(wd):
                             test_labels).mean().asscalar())
     gb.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'loss',
                 range(1, num_epochs + 1), test_ls, ['train', 'test'])
-    print('L2 norm of w:', net[0].weight.data().norm().asscalar())    
+    print('L2 norm of w:', net[0].weight.data().norm().asscalar())
 ```
 
 与从零开始实现权重衰减的实验现象类似，使用权重衰减可以在一定程度上缓解过拟合问题。

@@ -3,9 +3,6 @@
 我们已经从上一节里了解了多层感知机的原理。下面，我们一起来动手实现一个多层感知机。首先导入实现所需的包或模块。
 
 ```{.python .input  n=9}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 from mxnet import nd

@@ -17,7 +17,7 @@ $$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \frac{\eta_t}{\sqrt{\boldsy
 
 因为RMSProp的状态变量是对平方项$\boldsymbol{g}_t \odot \boldsymbol{g}_t$的指数加权移动平均，因此可以看作是最近$1/(1-\gamma)$个时刻的梯度平方项的加权平均，这样自变量每个元素的学习率在迭代过程中避免了“直降不升”的问题。
 
-照例，让我们先观察RMSProp对目标函数$f(\boldsymbol{x})=0.1x_1^2+2x_2$中自变量的更新轨迹。首先，导入本节中实验所需的包或模块。
+照例，让我们先观察RMSProp对目标函数$f(\boldsymbol{x})=0.1x_1^2+2x_2^2$中自变量的更新轨迹。首先，导入本节中实验所需的包或模块。
 
 ```{.python .input  n=1}
 import sys
