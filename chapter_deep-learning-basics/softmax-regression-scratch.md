@@ -2,7 +2,7 @@
 
 这一节我们来动手实现Softmax回归。首先导入本节实现所需的包或模块。
 
-```{.python .input}
+```{.python .input  n=1}
 %matplotlib inline
 import gluonbook as gb
 from mxnet import autograd, nd
@@ -12,7 +12,7 @@ from mxnet import autograd, nd
 
 我们将使用Fashion-MNIST数据集，并设置批量大小为256。
 
-```{.python .input}
+```{.python .input  n=2}
 batch_size = 256
 train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
 ```
@@ -21,7 +21,7 @@ train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
 
 跟线性回归中的例子一样，我们将使用向量表示每个样本。已知每个样本输入是高和宽均为28像素的图像。模型的输入向量的长度是$28 \times 28 = 784$：该向量的每个元素对应图像中每个像素。由于图像有10个类别，单层神经网络输出层的输出个数为10。所以Softmax回归的权重和偏差参数分别为$784 \times 10$和$1 \times 10$的矩阵。
 
-```{.python .input  n=9}
+```{.python .input  n=3}
 num_inputs = 784
 num_outputs = 10
 
@@ -31,7 +31,7 @@ b = nd.zeros(num_outputs)
 
 同之前一样，我们要对模型参数附上梯度。
 
-```{.python .input  n=10}
+```{.python .input  n=4}
 W.attach_grad()
 b.attach_grad()
 ```
@@ -40,14 +40,14 @@ b.attach_grad()
 
 在介绍如何定义Softmax回归之前，我们先描述一下对如何对多维NDArray按维度操作。在下面例子中，给定一个NDArray矩阵`X`。我们可以只对其中同一列（`axis=0`）或同一行（`axis=1`）的元素求和，并在结果中保留行和列这两个维度（`keepdims=True`）。
 
-```{.python .input  n=11}
+```{.python .input  n=5}
 X = nd.array([[1, 2, 3], [4, 5, 6]])
 X.sum(axis=0, keepdims=True), X.sum(axis=1, keepdims=True)
 ```
 
 下面我们就可以定义前面小节里介绍的softmax运算了。在下面的函数中，矩阵`X`的行数是样本数，列数是输出个数。为了表达样本预测各个输出的概率，softmax运算会先通过`exp`函数对每个元素做指数运算，再对`exp`矩阵同行元素求和，最后令矩阵每行各元素与该行元素之和相除。这样一来，最终得到的矩阵每行元素和为1且非负。因此，该矩阵每行都是合法的概率分布。Softmax运算的输出矩阵中的任意一行元素代表了一个样本在各个输出类别上的预测概率。
 
-```{.python .input  n=12}
+```{.python .input  n=6}
 def softmax(X):
     X_exp = X.exp()
     partition = X_exp.sum(axis=1, keepdims=True)
@@ -56,7 +56,7 @@ def softmax(X):
 
 可以看到，对于随机输入，我们将每个元素变成了非负数，且每一行和为1。
 
-```{.python .input  n=13}
+```{.python .input  n=7}
 X = nd.random.normal(shape=(2, 5))
 X_prob = softmax(X)
 X_prob, X_prob.sum(axis=1)
@@ -66,7 +66,7 @@ X_prob, X_prob.sum(axis=1)
 
 有了softmax运算，我们可以定义上节描述的softmax回归模型了。这里通过`reshape`函数将每张原始图像改成长度为`num_inputs`的向量。
 
-```{.python .input  n=14}
+```{.python .input  n=8}
 def net(X):
     return softmax(nd.dot(X.reshape((-1, num_inputs)), W) + b)
 ```
@@ -75,7 +75,7 @@ def net(X):
 
 上一节中，我们介绍了softmax回归使用的交叉熵损失函数。为了得到标签的预测概率，我们可以使用`pick`函数。在下面例子中，变量`y_hat`是2个样本在3个类别的预测概率，变量`y`是这2个样本的标签类别。通过使用`pick`函数，我们得到了2个样本的标签的预测概率。与[“Softmax回归”](softmax-regression.md)一节数学表述中标签类别离散值从1开始逐一递增不同，在代码中，标签类别的离散值是从0开始逐一递增的。
 
-```{.python .input  n=15}
+```{.python .input  n=9}
 y_hat = nd.array([[0.1, 0.3, 0.6], [0.3, 0.2, 0.5]])
 y = nd.array([0, 2])
 nd.pick(y_hat, y)
@@ -83,7 +83,7 @@ nd.pick(y_hat, y)
 
 以下实现了[“Softmax回归”](softmax-regression.md)一节中介绍的交叉熵损失函数。
 
-```{.python .input  n=16}
+```{.python .input  n=10}
 def cross_entropy(y_hat, y):
     return - nd.pick(y_hat, y).log()
 ```
@@ -94,7 +94,7 @@ def cross_entropy(y_hat, y):
 
 下面定义准确率`accuracy`函数。其中`y_hat.argmax(axis=1)`返回矩阵`y_hat`每行中最大元素的索引，且返回结果与变量`y`形状相同。我们在[“数据操作”](../chapter_prerequisite/ndarray.md)一节介绍过，相等条件判断式`(y_hat.argmax(axis=1) == y)`是一个值为0（相等为假）或1（相等为真）的NDArray。由于标签类型为整数，我们先将变量`y`变换为浮点数再进行相等条件判断。
 
-```{.python .input  n=17}
+```{.python .input  n=11}
 # 本函数已保存在 gluonbook 包中方便以后使用。
 def accuracy(y_hat, y):
     return (y_hat.argmax(axis=1) == y.astype('float32')).mean().asscalar()
@@ -102,13 +102,13 @@ def accuracy(y_hat, y):
 
 让我们继续使用在演示`pick`函数时定义的变量`y_hat`和`y`，并将它们分别作为预测概率分布和标签。可以看到，第一个样本预测类别为2（该行最大元素0.6在本行的索引为2），与真实标签0不一致；第二个样本预测类别为2（该行最大元素0.5在本行的索引为2），与真实标签2一致。因此，这两个样本上的分类准确率为0.5。
 
-```{.python .input  n=18}
+```{.python .input  n=12}
 accuracy(y_hat, y)
 ```
 
 类似地，我们可以评价模型`net`在数据集`data_iter`上的准确率。
 
-```{.python .input  n=19}
+```{.python .input  n=13}
 # 本函数已保存在 gluonbook 包中方便以后使用。该函数将被逐步改进：它的完整实现将在“图像增
 # 广”一节中描述。
 def evaluate_accuracy(data_iter, net):
@@ -120,7 +120,7 @@ def evaluate_accuracy(data_iter, net):
 
 因为我们随机初始化了模型`net`，所以这个随机模型的准确率应该接近于类别个数10的倒数0.1。
 
-```{.python .input  n=20}
+```{.python .input  n=14}
 evaluate_accuracy(test_iter, net)
 ```
 
