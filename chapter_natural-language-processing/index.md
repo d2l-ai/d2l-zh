@@ -10,8 +10,8 @@
    :maxdepth: 2
 
    word2vec
-   word2vec_approx_train
-   word2vec_gluon
+   word2vec-approx-train
+   word2vec-gluon
    fasttext
    glove
    similarity-analogy

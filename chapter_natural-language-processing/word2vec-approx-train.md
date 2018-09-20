@@ -62,9 +62,9 @@ $$\sum_{w_o \in \mathcal{V}} \mathbb{P}(w_o \mid w_c) = 1.$$
 * 推导为什么最后一个公式成立。
 * 负采样和层序softmax如何作用到连续词袋模型。
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7761)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/8135)
 
-![](../img/qr_word2vec.svg)
+![](../img/qr_word2vec-approx-train.svg)
 
 ## 参考文献
 

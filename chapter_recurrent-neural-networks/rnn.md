@@ -61,4 +61,4 @@ $$\boldsymbol{O}_t = \boldsymbol{H}_t \boldsymbol{W}_{hy} + \boldsymbol{b}_y.$$
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6669)
 
-![](../img/qr_hidden-state.svg)
+![](../img/qr_rnn.svg)
