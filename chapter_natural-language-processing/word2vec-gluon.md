@@ -328,7 +328,7 @@ get_similar_tokens(b'chip', 3, net[0])
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7761)
 
-![](../img/qr_embedding-training.svg)
+![](../img/qr_word2vec-gluon.svg)
 
 
 ## 参考文献

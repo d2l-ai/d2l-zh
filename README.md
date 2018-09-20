@@ -100,4 +100,3 @@ python -m spacy download en # 需已 pip install spacy
 
 翻译请参照[中英文术语对照](TERMINOLOGY.md)。
 
-
