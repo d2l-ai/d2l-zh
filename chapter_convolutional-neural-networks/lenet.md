@@ -121,7 +121,7 @@ def train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
 我们重新将模型参数初始化到设备变量`ctx`之上，并使用Xavier随机初始化。损失函数和训练算法则依然使用交叉熵损失函数和小批量随机梯度下降。
 
 ```{.python .input}
-lr, num_epochs = 0.8, 5
+lr, num_epochs = 0.9, 5
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
