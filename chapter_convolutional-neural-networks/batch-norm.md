@@ -57,9 +57,6 @@ $${\boldsymbol{y}}^{(i)} \leftarrow \boldsymbol{\gamma} \odot \hat{\boldsymbol{x
 下面我们通过NDArray来实现批量归一化层。
 
 ```{.python .input  n=72}
-import sys
-sys.path.insert(0, '..')
-
 import gluonbook as gb
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import nn

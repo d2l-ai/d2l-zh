@@ -20,9 +20,6 @@ LeNet分为卷积层块和全连接层块两个部分。下面我们分别介绍
 下面我们通过Sequential类来实现LeNet模型。
 
 ```{.python .input}
-import sys
-sys.path.insert(0, '..')
-
 import gluonbook as gb
 import mxnet as mx
 from mxnet import autograd, gluon, init, nd 

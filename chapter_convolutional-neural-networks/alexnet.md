@@ -53,9 +53,6 @@ AlexNet第一层中的卷积窗口形状是$11\times11$。因为ImageNet中绝�
 下面我们实现稍微简化过的AlexNet。
 
 ```{.python .input  n=1}
-import sys
-sys.path.insert(0, '..')
-
 import gluonbook as gb
 from mxnet import gluon, init, nd
 from mxnet.gluon import data as gdata, nn
