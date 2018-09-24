@@ -44,11 +44,11 @@ AlexNet第一层中的卷积窗口形状是$11\times11$。因为ImageNet中绝�
 
 紧接着最后一个卷积层的是两个输出个数为4096的全连接层。这两个巨大的全连接层带来将近1GB的模型参数。由于早期GPU显存的限制，最早的AlexNet使用双数据流的设计使得一个GPU只需要处理一半模型。幸运的是GPU内存在过去几年得到了长足的发展，通常我们不再需要这样的特别设计了。
 
-第二，AlextNet将sigmoid激活函数改成了更加简单的ReLU激活函数。一方面，ReLU激活函数的计算更简单，例如无sigmoid激活函数中的求幂运算。另一方面，ReLU激活函数在不同的参数初始化方法下使模型更容易训练。这是由于当sigmoid激活函数输出极接近0或1时，这些区域的梯度几乎为0，从而造成反向传播无法继续更新部分模型参数；而ReLU激活函数在正区间的梯度恒为1。
+第二，AlextNet将sigmoid激活函数改成了更加简单的ReLU激活函数。一方面，ReLU激活函数的计算更简单，例如它并没有sigmoid激活函数中的求幂运算。另一方面，ReLU激活函数在不同的参数初始化方法下使模型更容易训练。这是由于当sigmoid激活函数输出极接近0或1时，这些区域的梯度几乎为0，从而造成反向传播无法继续更新部分模型参数；而ReLU激活函数在正区间的梯度恒为1。因此，如模型参数初始化不当，sigmoid函数可能在正区间得到几乎为0的梯度，从而令模型无法得到有效训练。
 
-第三，通过丢弃法（参见[“丢弃法”](../chapter_deep-learning-basics/dropout.md)一节）来控制全连接层的模型复杂度。
+第三，AlextNet通过丢弃法（参见[“丢弃法”](../chapter_deep-learning-basics/dropout.md)一节）来控制全连接层的模型复杂度。而LeNet并没有使用丢弃法。
 
-第四，引入了大量的图像增广，例如翻转、裁剪和颜色变化，进一步扩大数据集来缓解过拟合。我们将在后面的[“图像增广”](chapter_computer-vision/image-augmentation.md)一节详细介绍这些方法。
+第四，AlextNet引入了大量的图像增广，例如翻转、裁剪和颜色变化，从而进一步扩大数据集来缓解过拟合。我们将在后面的[“图像增广”](chapter_computer-vision/image-augmentation.md)一节详细介绍这个方法。
 
 下面我们实现稍微简化过的AlexNet。
 
@@ -63,27 +63,27 @@ import os
 import sys
 
 net = nn.Sequential()
-# 使用较大的 11 x 11 窗口来捕获物体。同时使用步幅 4 来较大减小输出高宽。
-# 这里使用的输入通道数比 LeNet 也要大很多。
+# 使用较大的 11 x 11 窗口来捕获物体。同时使用步幅 4 来较大减小输出高和宽。
+# 这里使用的输入通道数比 LeNet 中的也要大很多。
 net.add(nn.Conv2D(96, kernel_size=11, strides=4, activation='relu'),
         nn.MaxPool2D(pool_size=3, strides=2),
         # 减小卷积窗口，使用填充为 2 来使得输入输出高宽一致，且增大输出通道数。
         nn.Conv2D(256, kernel_size=5, padding=2, activation='relu'),
         nn.MaxPool2D(pool_size=3, strides=2),
         # 连续三个卷积层，且使用更小的卷积窗口。除了最后的卷积层外，进一步增大了输出通道数。
-        # 前两个卷积层后不使用池化层来减小输入的高宽。
+        # 前两个卷积层后不使用池化层来减小输入的高和宽。
         nn.Conv2D(384, kernel_size=3, padding=1, activation='relu'),
         nn.Conv2D(384, kernel_size=3, padding=1, activation='relu'),
         nn.Conv2D(256, kernel_size=3, padding=1, activation='relu'),
         nn.MaxPool2D(pool_size=3, strides=2),
-        # 使用比 LeNet 输出个数大数倍的全连接层。使用丢弃层来控制复杂度。
+        # 这里全连接层的输出个数比 LeNet 中的大数倍。使用丢弃层来缓解过拟合。
         nn.Dense(4096, activation="relu"), nn.Dropout(0.5),
         nn.Dense(4096, activation="relu"), nn.Dropout(0.5),
-        # 输出层。我们这里使用 Fashion-MNIST，所以用类别数 10，而非论文中的 1000。
+        # 输出层。由于这里使用 Fashion-MNIST，所以用类别数为 10，而非论文中的 1000。
         nn.Dense(10))
 ```
 
-我们构造一个高和宽均为224像素的单通道数据样本来观察每一层的输出形状。
+我们构造一个高和宽均为224的单通道数据样本来观察每一层的输出形状。
 
 ```{.python .input  n=2}
 X = nd.random.uniform(shape=(1, 1, 224, 224))
@@ -95,7 +95,7 @@ for layer in net:
 
 ## 读取数据
 
-虽然论文中AlexNet使用ImageNet数据，但因为ImageNet数据训练时间较长，我们仍用前面的Fashion-MNIST来演示AlexNet。读取数据的时候我们额外做了一步将图像高宽扩大到AlexNet使用的图像高宽224。这个可以通过`Resize`类来实现。即我们在`ToTensor`类前使用`Resize`类，然后使用`Compose`类来将这两个变化串联以方便调用。
+虽然论文中AlexNet使用ImageNet数据，但因为ImageNet数据训练时间较长，我们仍用前面的Fashion-MNIST数据集来演示AlexNet。读取数据的时候我们额外做了一步将图像高和宽扩大到AlexNet使用的图像高和宽224。这个可以通过`Resize`类来实现。也就是说，我们在`ToTensor`类前使用`Resize`类，然后使用`Compose`类来将这两个变化串联以方便调用。
 
 ```{.python .input  n=3}
 # 本函数已保存在 gluonbook 包中方便以后使用。
@@ -135,12 +135,14 @@ gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
 
 ## 小结
 
-* AlexNet跟LeNet结构类似，但使用了更多的卷积层和更大的参数空间来拟合大规模数据集ImageNet。它是浅层神经网络和深度神经网络的分界线。虽然看上去AlexNet的实现比LeNet也就多了几行而已，但这个观念上的转变和真正优秀实验结果的产生，学术界为之整整花了20年。
+* AlexNet跟LeNet结构类似，但使用了更多的卷积层和更大的参数空间来拟合大规模数据集ImageNet。它是浅层神经网络和深度神经网络的分界线。
+
+* 虽然看上去AlexNet的实现比LeNet也就多了几行而已，但这个观念上的转变和真正优秀实验结果的产生，学术界为之花了很多年。
 
 ## 练习
 
 * 尝试增加迭代周期。跟LeNet相比，结果有什么区别？为什么？
-* AlexNet对于Fashion-MNIST可能过于复杂。试着简化模型来使得训练更快，同时保证准确率不明显下降。
+* AlexNet对于Fashion-MNIST数据集来说可能过于复杂。试着简化模型来使得训练更快，同时保证准确率不明显下降。
 * 修改批量大小，观察准确率和GPU内存的变化。
 
 
