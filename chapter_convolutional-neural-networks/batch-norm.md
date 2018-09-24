@@ -81,7 +81,7 @@ def batch_norm(X, gamma, beta, moving_mean, moving_var, eps, momentum):
         X_hat = (X - mean) / nd.sqrt(var + eps)
         # 更新移动平均的均值和方差。
         moving_mean = momentum * moving_mean + (1.0 - momentum) * mean
-        moving_var = momentum * moving_var + (1.0 - momentum) * var     
+        moving_var = momentum * moving_var + (1.0 - momentum) * var
     Y = gamma * X_hat + beta  # 拉升和偏移。
     return Y, moving_mean, moving_var
 ```

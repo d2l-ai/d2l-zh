@@ -16,7 +16,7 @@ from mxnet.gluon import nn
 def vgg_block(num_convs, num_channels):
     blk = nn.Sequential()
     for _ in range(num_convs):
-        blk.add(nn.Conv2D(num_channels, kernel_size=3, 
+        blk.add(nn.Conv2D(num_channels, kernel_size=3,
                           padding=1, activation='relu'))
     blk.add(nn.MaxPool2D(pool_size=2, strides=2))
     return blk

@@ -40,7 +40,7 @@ class Inception(nn.Block):
         p1 = self.p1_1(x)
         p2 = self.p2_2(self.p2_1(x))
         p3 = self.p3_2(self.p3_1(x))
-        p4 = self.p4_2(self.p4_1(x))        
+        p4 = self.p4_2(self.p4_1(x))
         return nd.concat(p1, p2, p3, p4, dim=1)  # 在通道维上连结输出。
 ```
 
