@@ -4,9 +4,9 @@ ResNet中的跨层连接设计引申出了数个后续工作。这一节我们�
 
 ![ResNet（左）与DenseNet（右）在跨层连接上的主要区别：使用相加和使用连结。](../img/densenet.svg)
 
-图5.10中将部分前后相邻的运算抽象为层$A$和层$B$。与ResNet的主要区别在于，DenseNet里层$B$的输出不是像ResNet那样和层$A$的输出相加，而是在通道维上连结。这样层$A$的输出可以直接传入层$B$后面的层。这个设计里，层$A$直接跟层$B$后面的所有层连接在了一起。这也是它被称为“稠密连接“的原因。
+图5.10中将部分前后相邻的运算抽象为模块$A$和模块$B$。与ResNet的主要区别在于，DenseNet里模块$B$的输出不是像ResNet那样和模块$A$的输出相加，而是在通道维上连结。这样模块$A$的输出可以直接传入模块$B$后面的层。在这个设计里，模块$A$直接跟模块$B$后面的所有层连接在了一起。这也是它被称为“稠密连接”的原因。
 
-DenseNet的主要构建模块是稠密块（dense block）和过渡层（transition layer），前者定义了输入和输出是如何连结的，后者则用来控制通道数，使之不过大。
+DenseNet的主要构建模块是稠密块（dense block）和过渡层（transition layer）。前者定义了输入和输出是如何连结的，后者则用来控制通道数，使之不过大。
 
 
 ## 稠密块
@@ -54,7 +54,7 @@ Y.shape
 
 ## 过渡层
 
-由于每个稠密块都会带来通道数的增加，使用过多则会导致过于复杂的模型。过渡层则用来控制模型复杂度。它通过$1\times1$卷积层来减小通道数，并使用步幅为2的平均池化层减半高和宽，从而进一步降低模型复杂度。
+由于每个稠密块都会带来通道数的增加，使用过多则会带来过于复杂的模型。过渡层则用来控制模型复杂度。它通过$1\times1$卷积层来减小通道数，并使用步幅为2的平均池化层减半高和宽，从而进一步降低模型复杂度。
 
 ```{.python .input  n=3}
 def transition_block(num_channels):
@@ -84,12 +84,12 @@ net.add(nn.Conv2D(64, kernel_size=7, strides=2, padding=3),
         nn.MaxPool2D(pool_size=3, strides=2, padding=1))
 ```
 
-类似于ResNet接下来使用的四个残差块，DenseNet使用的是四个稠密块。同ResNet一样我们可以设置每个稠密块使用多少个卷积层。这里我们设成4，跟上一节的ResNet-18保持一致。稠密块里的卷积层通道数（即增长率）设为32，所以每个稠密块将增加128个通道。
+类似于ResNet接下来使用的四个残差块，DenseNet使用的是四个稠密块。同ResNet一样，我们可以设置每个稠密块使用多少个卷积层。这里我们设成4，跟上一节的ResNet-18保持一致。稠密块里的卷积层通道数（即增长率）设为32，所以每个稠密块将增加128个通道。
 
 ResNet里通过步幅为2的残差块在每个模块之间减小高和宽。这里我们则使用过渡层来减半高和宽，并减半通道数。
 
 ```{.python .input  n=5}
-num_channels, growth_rate = 64, 32  # num_channels：当前的数据通道数。
+num_channels, growth_rate = 64, 32  # num_channels：当前的通道数。
 num_convs_in_dense_blocks = [4, 4, 4, 4]
 
 for i, num_convs in enumerate(num_convs_in_dense_blocks):
