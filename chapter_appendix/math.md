@@ -190,25 +190,25 @@ $$f'(x) = \lim_{h \rightarrow 0} \frac{f(x+h) - f(x)}{h},$$
 
 且假定该极限存在。给定$y = f(x)$，其中$x$和$y$分别是函数$f$的自变量和因变量。以下有关导数和微分的表达式等价：
 
-$$f'(x) = y' = \frac{dy}{dx} = \frac{df}{dx} = \frac{d}{dx} f(x) = Df(x) = D_x f(x),$$
+$$f'(x) = y' = \frac{\text{d}y}{\text{d}x} = \frac{\text{d}f}{\text{d}x} = \frac{\text{d}}{\text{d}x} f(x) = \text{D}f(x) = \text{D}_x f(x),$$
 
-其中符号$D$和$d/dx$也叫微分运算符。常见的微分演算有$DC = 0$（$C$为常数）、$Dx^n = nx^{n-1}$（$n$为常数）、$De^x = e^x$、$D\ln(x) = 1/x$等。
+其中符号$\text{D}$和$\text{d}/\text{d}x$也叫微分运算符。常见的微分演算有$\text{D}C = 0$（$C$为常数）、$\text{D}x^n = nx^{n-1}$（$n$为常数）、$\text{D}e^x = e^x$、$\text{D}\ln(x) = 1/x$等。
 
 如果函数$f$和$g$都可导，设$C$为常数，那么
 
 $$
 \begin{aligned}
-\frac{d}{dx} [Cf(x)] &= C \frac{d}{dx} f(x),\\
-\frac{d}{dx} [f(x) + g(x)] &= \frac{d}{dx} f(x) + \frac{d}{dx} g(x),\\ 
-\frac{d}{dx} [f(x)g(x)] &= f(x) \frac{d}{dx} [g(x)] + g(x) \frac{d}{dx} [f(x)],\\
-\frac{d}{dx} \left[\frac{f(x)}{g(x)}\right] &= \frac{g(x) \frac{d}{dx} [f(x)] - f(x) \frac{d}{dx} [g(x)]}{[g(x)]^2}.
+\frac{\text{d}}{\text{d}x} [Cf(x)] &= C \frac{\text{d}}{\text{d}x} f(x),\\
+\frac{\text{d}}{\text{d}x} [f(x) + g(x)] &= \frac{\text{d}}{\text{d}x} f(x) + \frac{\text{d}}{\text{d}x} g(x),\\ 
+\frac{\text{d}}{\text{d}x} [f(x)g(x)] &= f(x) \frac{\text{d}}{\text{d}x} [g(x)] + g(x) \frac{\text{d}}{\text{d}x} [f(x)],\\
+\frac{\text{d}}{\text{d}x} \left[\frac{f(x)}{g(x)}\right] &= \frac{g(x) \frac{\text{d}}{\text{d}x} [f(x)] - f(x) \frac{\text{d}}{\text{d}x} [g(x)]}{[g(x)]^2}.
 \end{aligned}
 $$
 
 
 如果$y=f(u)$和$u=g(x)$都是可导函数，依据链式法则，
 
-$$\frac{dy}{dx} = \frac{dy}{du} \frac{du}{dx}.$$
+$$\frac{\text{d}y}{\text{d}x} = \frac{\text{d}y}{\text{d}u} \frac{\text{d}u}{\text{d}x}.$$
 
 
 ### 泰勒展开
