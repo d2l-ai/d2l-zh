@@ -145,15 +145,15 @@ $$a_{i1}b_{1j}  + a_{i2}b_{2j} + \ldots + a_{ip}b_{pj} = \sum_{k=1}^p a_{ik}b_{k
 
 ### 范数
 
-设$n$维向量$\boldsymbol{x}$中的元素为$x_1, \ldots, x_n$。向量$\boldsymbol{x}$的$\ell_p$范数为
+设$n$维向量$\boldsymbol{x}$中的元素为$x_1, \ldots, x_n$。向量$\boldsymbol{x}$的$L_p$范数为
 
 $$\|\boldsymbol{x}\|_p = \left(\sum_{i=1}^n |x_i|^p \right)^{1/p}.$$
 
-例如，$\boldsymbol{x}$的$\ell_1$范数是该向量元素绝对值的和：
+例如，$\boldsymbol{x}$的$L_1$范数是该向量元素绝对值的和：
 
 $$\|\boldsymbol{x}\|_1 = \sum_{i=1}^n |x_i|.$$
 
-而$\boldsymbol{x}$的$\ell_2$范数是该向量元素平方和的平方根：
+而$\boldsymbol{x}$的$L_2$范数是该向量元素平方和的平方根：
 
 $$\|\boldsymbol{x}\|_2 = \sqrt{\sum_{i=1}^n x_i^2}.$$
 
@@ -161,7 +161,7 @@ $$\|\boldsymbol{x}\|_2 = \sqrt{\sum_{i=1}^n x_i^2}.$$
 
 设$\boldsymbol{X}$是一个$m$行$n$列矩阵。矩阵$\boldsymbol{X}$的Frobenius范数为该矩阵元素平方和的平方根：
 
-$$\|\boldsymbol{X}\|_{\text{F}} = \sqrt{\sum_{i=1}^m \sum_{j=1}^n x_{ij}^2},$$
+$$\|\boldsymbol{X}\|_F = \sqrt{\sum_{i=1}^m \sum_{j=1}^n x_{ij}^2},$$
 
 其中$x_{ij}$为矩阵$\boldsymbol{X}$在第$i$行第$j$列的元素。
 
@@ -264,7 +264,7 @@ $$
 $$
 
 类似地，假设$\boldsymbol{X}$是一个矩阵，那么
-$$\nabla_{\boldsymbol{X}} \|\boldsymbol{X} \|_\text{F}^2 = 2\boldsymbol{X}.$$
+$$\nabla_{\boldsymbol{X}} \|\boldsymbol{X} \|_F^2 = 2\boldsymbol{X}.$$
 
 
 
