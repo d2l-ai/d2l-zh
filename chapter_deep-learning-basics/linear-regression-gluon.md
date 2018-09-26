@@ -127,7 +127,7 @@ true_b, dense.bias.data()
 
 ## 练习
 
-* 如果将`l = loss(output, y)`替换成`l = loss(output, y).mean()`，我们需要将`trainer.step(batch_size)`相应地改成`trainer.step(1)`。这是为什么呢？
+* 如果将`l = loss(net(X), y)`替换成`l = loss(net(X), y).mean()`，我们需要将`trainer.step(batch_size)`相应地改成`trainer.step(1)`。这是为什么呢？
 * 查阅MXNet文档，看看`gluon.loss`和`init`模块里提供了哪些损失函数和初始化方法。
 * 如何访问`dense.weight`的梯度？
 

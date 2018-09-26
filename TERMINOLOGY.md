@@ -44,6 +44,8 @@
 
 端到端，end-to-end
 
+多层感知机，multilayer perceptron
+
 二元分类，binary classification
 
 二次采样，subsample
@@ -55,6 +57,8 @@
 泛化误差，generalization error
 
 方差，variance
+
+访问参数，access parameters
 
 非凸优化，non-convex optimization
 
@@ -74,7 +78,7 @@
 
 过滤器，filter
 
-过拟合，underfitting
+过拟合，overfitting
 
 恒等映射，identity mapping
 
@@ -132,7 +136,7 @@ softmax回归，softmax regression
 
 平均池化层，average pooling layer
 
-欠拟合，overfitting
+欠拟合，underfitting
 
 情感分析，sentiment analysis
 
@@ -143,6 +147,8 @@ softmax回归，softmax regression
 实例，instance
 
 收敛，converge
+
+属性，property
 
 数值方法，numerical method
 
@@ -175,6 +181,8 @@ softmax回归，softmax regression
 未知词符号，unknown token
 
 无偏估计，unbiased estimate
+
+误差，error
 
 小批量，mini-batch
 

@@ -95,4 +95,4 @@ $$
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2277)
 
-![](../img/qr_adadelta.svg)
+![](../img/qr_optimization-summary.svg)

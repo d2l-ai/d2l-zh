@@ -2,7 +2,7 @@
 
 在深度学习中，我们通常会频繁地对数据进行操作。作为动手学深度学习的基础，本节将介绍如何对内存中的数据进行操作。
 
-在MXNet中，NDArray是存储和变换数据的主要工具。如果你之前用过NumPy，你会发现NDArray和NumPy的多维数组非常类似。然而，NDArray提供GPU计算和自动求导等更多功能，这些使得NDArray更加适合深度学习。
+在MXNet中，NDArray是存储和变换数据的主要工具。如果你之前用过NumPy，你会发现NDArray和NumPy的多维数组非常类似。然而，NDArray提供GPU计算和自动求梯度等更多功能，这些使得NDArray更加适合深度学习。
 
 
 ## 创建NDArray

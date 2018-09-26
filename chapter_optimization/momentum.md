@@ -4,7 +4,7 @@
 
 ## 梯度下降的问题
 
-让我们考虑一个输入和输出分别为二维向量$\boldsymbol{x} = [x_1, x_2]^\top$和标量的目标函数$f(\boldsymbol{x})=0.1x_1^2+2x_2$。跟[“梯度下降和随机梯度下降”](./gd-sgd.md)一节中不同的在于我们将$x_1^2$系数从$1$减小到了$0.1$。然后观察梯度下降优化该目标函数的迭代过程。先导入实验所需的包或模块。
+让我们考虑一个输入和输出分别为二维向量$\boldsymbol{x} = [x_1, x_2]^\top$和标量的目标函数$f(\boldsymbol{x})=0.1x_1^2+2x_2^2$。跟[“梯度下降和随机梯度下降”](./gd-sgd.md)一节中不同的在于我们将$x_1^2$系数从$1$减小到了$0.1$。然后观察梯度下降优化该目标函数的迭代过程。先导入实验所需的包或模块。
 
 ```{.python .input  n=2}
 import sys
@@ -129,15 +129,15 @@ def sgd_momentum(params, states, hyperparams):
 我们先将动量超参数`mom`设0.5，这时可以看成是使用最近2个时刻的$2\nabla f_\mathcal{B}(\boldsymbol{x})$的加权平均作为梯度的随机梯度下降，因此我们需要对应调下学习率（从上节的0.5减小到了0.02）。
 
 ```{.python .input  n=15}
-gb.train_ch7(sgd_momentum, init_momentum_states(), 
-             {'lr': 0.02, 'mom': 0.5}, features, labels)
+gb.train_ch7(sgd_momentum, init_momentum_states(),  {'lr': 0.02, 'mom': 0.5},
+             features, labels)
 ```
 
 将动量超参数`mom`增大到了0.9时，这个特殊梯度是最近10个时刻的$10\nabla f_\mathcal{B}(\boldsymbol{x})$的加权平均。因此我们需要进一步调低学习率。
 
 ```{.python .input  n=8}
-gb.train_ch7(sgd_momentum, init_momentum_states(), 
-             {'lr': 0.004, 'mom': 0.9}, features, labels)
+gb.train_ch7(sgd_momentum, init_momentum_states(), {'lr': 0.004, 'mom': 0.9},
+             features, labels)
 ```
 
 ## 使用Gluon的实现
@@ -145,8 +145,8 @@ gb.train_ch7(sgd_momentum, init_momentum_states(),
 在Gluon中，只需要在随机梯度下降的训练器中通过`momentum`来指定动量超参数即可得到动量法。
 
 ```{.python .input  n=9}
-gb.train_gluon_ch7('sgd', {'learning_rate': 0.02, 'momentum': 0.5},
-                   features, labels)
+gb.train_gluon_ch7('sgd', {'learning_rate': 0.02, 'momentum': 0.5}, features,
+                   labels)
 ```
 
 ## 小结

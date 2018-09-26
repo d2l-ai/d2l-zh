@@ -64,8 +64,7 @@ pretrained_net = model_zoo.vision.vgg19(pretrained=True)
 我们知道VGG使用了五个卷积块来构建网络，块之间使用最大池化层来做间隔（参考[“使用重复元素的网络（VGG）”](../chapter_convolutional-neural-networks/vgg.md)小节）。原论文中使用每个卷积块的第一个卷积层输出来匹配样式（称之为样式层），和第四块中的最后一个卷积层来匹配内容（称之为内容层）[1]。我们可以打印`pretrained_net`来获取这些层的具体位置。
 
 ```{.python .input  n=11}
-style_layers = [0, 5, 10, 19, 28]
-content_layers = [25]
+style_layers, content_layers = [0, 5, 10, 19, 28], [25]
 ```
 
 当然，样式层和内容层有多种选取方法。通常越靠近输入层越容易匹配内容和样式的细节信息，越靠近输出则越倾向于语义的内容和全局的样式。这里我们选取比较靠后的内容层来避免合成图像过于保留内容图像细节，使用多个位置的样式层来匹配局部和全局样式。
@@ -149,8 +148,7 @@ def tv_loss(y_hat):
 ```{.python .input  n=12}
 style_channels = [net[l].weight.shape[0] for l in style_layers]
 style_weights = [1e4 / c**2 for c in style_channels]
-content_weights = [1]
-tv_weight = 10
+content_weights, tv_weight = [1], 10
 ```
 
 ## 训练
@@ -198,9 +196,7 @@ def train(x, content_y, style_y, ctx, lr, max_epochs, lr_decay_epoch):
 现在我们可以真正开始训练了。首先我们将图像调整到高为300宽200来进行训练，这样使得训练更加快速。合成图像的初始值设成了内容图像，使得初始值能尽可能接近训练输出来加速收敛。
 
 ```{.python .input  n=19}
-image_shape = (300, 200)
-ctx = gb.try_gpu()
-
+ctx, image_shape = gb.try_gpu(), (300, 200)
 net.collect_params().reset_ctx(ctx)
 content_x, content_y = get_contents(image_shape, ctx)
 style_x, style_y = get_styles(image_shape, ctx)

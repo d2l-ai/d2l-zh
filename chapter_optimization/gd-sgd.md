@@ -31,10 +31,10 @@ import sys
 sys.path.insert(0, '..')
 
 %matplotlib inline
-import math
-import numpy as np
 import gluonbook as gb
+import math
 from mxnet import nd
+import numpy as np
 ```
 
 接下来我们使用$x=10$作为初始值，设$\eta=0.2$。使用梯度下降对$x$迭代10次，可见最后$x$的值较接近最优解。
@@ -105,10 +105,10 @@ $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f(\boldsymbol{x}).$$
 
 相同地，其中$\eta$（取正数）称作学习率。
 
-下面我们构造一个输入为二维向量$\boldsymbol{x} = [x_1, x_2]^\top$和输出为标量的目标函$f(\boldsymbol{x})=x_1^2+2x_2$。可以知道$\nabla f(\boldsymbol{x}) = [2x_1, 4x_2]^\top$。然后观察梯度下降从初始点$[5,2]$开始对$\boldsymbol{x}$的更新轨迹。首先定义两个辅助函数，第一个使用给定的自变量更新函数来从初始点$[5,2]$开始迭代$\boldsymbol{x}$20次，第二个函数可视化$\boldsymbol{x}$的更新轨迹。
+下面我们构造一个输入为二维向量$\boldsymbol{x} = [x_1, x_2]^\top$和输出为标量的目标函$f(\boldsymbol{x})=x_1^2+2x_2^2$。可以知道$\nabla f(\boldsymbol{x}) = [2x_1, 4x_2]^\top$。然后观察梯度下降从初始点$[5,2]$开始对$\boldsymbol{x}$的更新轨迹。首先定义两个辅助函数，第一个使用给定的自变量更新函数来从初始点$[5,2]$开始迭代$\boldsymbol{x}$20次，第二个函数可视化$\boldsymbol{x}$的更新轨迹。
 
 ```{.python .input  n=10}
-def train_2d(trainer):  # 本函数将保存在 GluonBook 包中方便以后使用。
+def train_2d(trainer):  # 本函数将保存在 gluonbook 包中方便以后使用。
     x1, x2, s1, s2 = -5, -2, 0, 0  # s1 和 s2 是自变量状态，之后章节会使用。
     results = [(x1, x2)]
     for i in range(20):
@@ -117,7 +117,7 @@ def train_2d(trainer):  # 本函数将保存在 GluonBook 包中方便以后使�
     print('epoch %d, x1 %f, x2 %f' % (i + 1, x1, x2))
     return results
 
-def show_trace_2d(f, results):  # 本函数将保存在 GluonBook 包中方便以后使用。
+def show_trace_2d(f, results):  # 本函数将保存在 gluonbook 包中方便以后使用。
     gb.plt.plot(*zip(*results), '-o', color='#ff7f0e')
     x1, x2 = np.meshgrid(np.arange(-5.5, 1.0, 0.1), np.arange(-3.0, 1.0, 0.1))
     gb.plt.contour(x1, x2, f(x1, x2), colors='#1f77b4')
@@ -141,7 +141,7 @@ show_trace_2d(f_2d, train_2d(gd_2d))
 
 ## 随机梯度下降
 
-在深度学习里，通常目标函数是训练样本上损失函数的平均。设$f_i(\boldsymbol{x})$是有关索引为$i$的训练数据样本的损失函数，$n$是训练数据样本数，那么目标函数定义为
+在深度学习里，通常目标函数是训练样本上损失函数的平均。设$f_i(\boldsymbol{x})$是有关索引为$i$的训练数据样本的损失函数，$n$是训练数据样本数，$\boldsymbol{x}$是模型的参数向量，那么目标函数定义为
 
 $$f(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n f_i(\boldsymbol{x}).$$
 
@@ -171,7 +171,7 @@ def sgd_2d(x1, x2, s1, s2):
 show_trace_2d(f_2d, train_2d(sgd_2d))
 ```
 
-可以看到随机梯度下降的更新轨迹相对于梯度下降更加曲折。因为加入的噪音（实际中，它来自样本的噪音）使得梯度的准确度下降，所以在使用同样的超参数的情况下，随机梯度下降收敛到的值相对梯度下降来说更最优值远。但因为随机梯度下降每一次迭代的计算比梯度下降更加简单，在同样运行时间下，随机梯度下降可以进行更多次的自变量迭代，它最终得到的解的质量可能会比梯度下降更优。
+可以看到随机梯度下降的更新轨迹相对于梯度下降更加曲折。因为加入的噪音（实际中，它来自样本的噪音）使得梯度的准确度下降，所以在使用同样的超参数的情况下，随机梯度下降收敛到的值相对梯度下降来说离最优值更远。但因为随机梯度下降每一次迭代的计算比梯度下降更加简单，在同样运行时间下，随机梯度下降可以进行更多次的自变量迭代，它最终得到的解的质量可能会比梯度下降更优。
 
 
 ## 小结

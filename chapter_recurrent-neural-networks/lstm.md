@@ -11,7 +11,7 @@ LSTM 中引入了三个门：输入门（input gate）、遗忘门（forget gate
 
 ### 输入门、遗忘门和输出门
 
-同门控循环单元中的重置门和更新门一样，如图6.7所示，LSTM的门均由输入为当前时间步输入$\boldsymbol{X}_t$与上一时间步隐藏状态$\boldsymbol{H}_{t-1}$，且激活函数为sigmoid函数的全连接层计算得出。如此一来，这三个门元素的值域均为$[0,1]$。
+同门控循环单元中的重置门和更新门一样，如图6.7所示，LSTM的门的输入均为当前时间步输入$\boldsymbol{X}_t$与上一时间步隐藏状态$\boldsymbol{H}_{t-1}$，且激活函数为sigmoid函数的全连接层计算得出。如此一来，这三个门元素的值域均为$[0,1]$。
 
 ![长短期记忆中输入门、遗忘门和输出门的计算。](../img/lstm_0.svg)
 
@@ -90,9 +90,7 @@ from mxnet.gluon import rnn
 以下部分对模型参数进行初始化。超参数`num_hiddens`定义了隐藏单元的个数。
 
 ```{.python .input  n=2}
-num_inputs = vocab_size
-num_hiddens = 256
-num_outputs = vocab_size
+num_inputs, num_hiddens, num_outputs = vocab_size, 256, vocab_size
 ctx = gb.try_gpu()
 
 def get_params():    
@@ -154,15 +152,8 @@ def lstm(inputs, state, params):
 使用同前一样的超参数。
 
 ```{.python .input  n=5}
-get_inputs = gb.to_onehot
-num_epochs = 160
-num_steps = 35
-batch_size = 32
-lr = 1e2
-clipping_theta = 1e-2
-prefixes = ['分开', '不分开']
-pred_period = 40
-pred_len = 50
+num_epochs, num_steps, batch_size, lr, clipping_theta = 160, 35, 32, 1e2, 1e-2
+pred_period, pred_len, prefixes = 40, 50, ['分开', '不分开']
 ```
 
 开始模型训练。
@@ -182,7 +173,6 @@ gb.train_and_predict_rnn(lstm, get_params, init_lstm_state, num_hiddens,
 ```{.python .input  n=6}
 lstm_layer = rnn.LSTM(num_hiddens)
 model = gb.RNNModel(lstm_layer, vocab_size)
-
 gb.train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
                                corpus_indices, idx_to_char, char_to_idx, 
                                num_epochs, num_steps, lr, clipping_theta,
