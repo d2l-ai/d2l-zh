@@ -20,12 +20,9 @@ LeNet分为卷积层块和全连接层块两个部分。下面我们分别介绍
 下面我们通过Sequential类来实现LeNet模型。
 
 ```{.python .input}
-import sys
-sys.path.insert(0, '..')
-
 import gluonbook as gb
 import mxnet as mx
-from mxnet import autograd, gluon, init, nd 
+from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import loss as gloss, nn
 import time
 
@@ -66,15 +63,15 @@ train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=batch_size)
 因为卷积神经网络计算比多层感知机要复杂，建议使用GPU来加速计算。我们尝试在`gpu(0)`上创建NDArray，如果成功则使用`gpu(0)`，否则仍然使用CPU。
 
 ```{.python .input}
-def try_gpu():  # 本函数已保存在 gluonbook 包中方便以后使用。
+def try_gpu4():  # 本函数已保存在 gluonbook 包中方便以后使用。
     try:
         ctx = mx.gpu()
         _ = nd.zeros((1,), ctx=ctx)
-    except:
+    except mx.base.MXNetError:
         ctx = mx.cpu()
     return ctx
 
-ctx = try_gpu()
+ctx = try_gpu4()
 ctx
 ```
 
@@ -121,7 +118,7 @@ def train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
 我们重新将模型参数初始化到设备变量`ctx`之上，并使用Xavier随机初始化。损失函数和训练算法则依然使用交叉熵损失函数和小批量随机梯度下降。
 
 ```{.python .input}
-lr, num_epochs = 0.8, 5
+lr, num_epochs = 0.9, 5
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
