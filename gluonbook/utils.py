@@ -738,7 +738,7 @@ def try_all_gpus():
             ctx = mx.gpu(i)
             _ = nd.array([0], ctx=ctx)
             ctxes.append(ctx)
-    except:
+    except mx.base.MXNetError:
         pass
     if not ctxes:
         ctxes = [mx.cpu()]
@@ -750,7 +750,7 @@ def try_gpu():
     try:
         ctx = mx.gpu()
         _ = nd.array([0], ctx=ctx)
-    except:
+    except mx.base.MXNetError:
         ctx = mx.cpu()
     return ctx
 

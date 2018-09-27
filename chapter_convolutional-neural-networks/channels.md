@@ -16,9 +16,6 @@
 接下来我们实现含多个输入通道的互相关运算。我们只需要对每个通道做互相关运算，然后通过`add_n`函数来进行累加。
 
 ```{.python .input  n=1}
-import sys
-sys.path.insert(0, '..')
-
 import gluonbook as gb
 from mxnet import nd
 
