@@ -83,7 +83,7 @@ show_trace(gd(1.1))
 
 ## 多维梯度下降
 
-接下来考虑一个更广义的情况：目标函数的输入为向量，输出为标量。假设目标函数$f: \mathbb{R}^d \rightarrow \mathbb{R}$的输入是一个$d$维向量$\boldsymbol{x} = [x_1, x_2, \ldots, x_d]^\top$。目标函数$f(\boldsymbol{x})$有关$\boldsymbol{x}$的梯度是一个由$d$个偏导数组成的向量：
+接下来考虑一种更广义的情况：目标函数的输入为向量，输出为标量。假设目标函数$f: \mathbb{R}^d \rightarrow \mathbb{R}$的输入是一个$d$维向量$\boldsymbol{x} = [x_1, x_2, \ldots, x_d]^\top$。目标函数$f(\boldsymbol{x})$有关$\boldsymbol{x}$的梯度是一个由$d$个偏导数组成的向量：
 
 $$\nabla_{\boldsymbol{x}} f(\boldsymbol{x}) = \bigg[\frac{\partial f(\boldsymbol{x})}{\partial x_1}, \frac{\partial f(\boldsymbol{x})}{\partial x_2}, \ldots, \frac{\partial f(\boldsymbol{x})}{\partial x_d}\bigg]^\top.$$
 
@@ -105,7 +105,7 @@ $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f(\boldsymbol{x}).$$
 
 相同地，其中$\eta$（取正数）称作学习率。
 
-下面我们构造一个输入为二维向量$\boldsymbol{x} = [x_1, x_2]^\top$和输出为标量的目标函$f(\boldsymbol{x})=x_1^2+2x_2^2$。可以知道$\nabla f(\boldsymbol{x}) = [2x_1, 4x_2]^\top$。然后观察梯度下降从初始点$[5,2]$开始对$\boldsymbol{x}$的更新轨迹。首先定义两个辅助函数，第一个使用给定的自变量更新函数来从初始点$[5,2]$开始迭代$\boldsymbol{x}$20次，第二个函数可视化$\boldsymbol{x}$的更新轨迹。
+下面我们构造一个输入为二维向量$\boldsymbol{x} = [x_1, x_2]^\top$和输出为标量的目标函数$f(\boldsymbol{x})=x_1^2+2x_2^2$。可以知道$\nabla f(\boldsymbol{x}) = [2x_1, 4x_2]^\top$。然后观察梯度下降从初始点$[5,2]$开始对$\boldsymbol{x}$的更新轨迹。首先定义两个辅助函数，第一个使用给定的自变量更新函数来从初始点$[5,2]$开始迭代$\boldsymbol{x}$20次，第二个函数可视化$\boldsymbol{x}$的更新轨迹。
 
 ```{.python .input  n=10}
 def train_2d(trainer):  # 本函数将保存在 gluonbook 包中方便以后使用。
@@ -151,7 +151,7 @@ $$\nabla f(\boldsymbol{x}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_i(\boldsymbol{x
 
 如果使用梯度下降，每次自变量迭代的计算开销为$\mathcal{O}(n)$，它随着$n$线性增长。因此，当训练数据样本数很大时，梯度下降每次迭代的计算开销很高。
 
-随机梯度下降（stochastic gradient descent，简称SGD）减少了每次迭代的计算开销。在随机梯度下降中，每次迭代我们随机均匀采样一个样本索引$i\in[1,n]$，并计算梯度$\nabla f_i(\boldsymbol{x})$来迭代$\boldsymbol{x}$：
+随机梯度下降（stochastic gradient descent，简称SGD）减少了每次迭代的计算开销。在随机梯度下降中，每次迭代我们随机均匀采样的一个样本索引$i\in[1,n]$，并计算梯度$\nabla f_i(\boldsymbol{x})$来迭代$\boldsymbol{x}$：
 
 $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f_i(\boldsymbol{x}).$$
 
