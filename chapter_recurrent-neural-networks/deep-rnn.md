@@ -21,9 +21,9 @@ $$\boldsymbol{H}_t^{(l)} = \phi(\boldsymbol{H}_t^{(l-1)} \boldsymbol{W}_{xh}^{(l
 
 最终，输出层的输出只需基于第$L$隐藏层的隐藏状态：
 
-$$\boldsymbol{O}_t = \boldsymbol{H}_t^{(L)} \boldsymbol{W}_{hy} + \boldsymbol{b}_y,$$
+$$\boldsymbol{O}_t = \boldsymbol{H}_t^{(L)} \boldsymbol{W}_{hq} + \boldsymbol{b}_q,$$
 
-其中权重$\boldsymbol{W}_{hy} \in \mathbb{R}^{h \times q}$和偏差$\boldsymbol{b}_y \in \mathbb{R}^{1 \times q}$为输出层的模型参数。
+其中权重$\boldsymbol{W}_{hq} \in \mathbb{R}^{h \times q}$和偏差$\boldsymbol{b}_q \in \mathbb{R}^{1 \times q}$为输出层的模型参数。
 
 同多层感知机一样，隐藏层个数$L$和第$l$层的隐藏单元数$h$都是超参数。此外，如果将隐藏状态的计算换成GRU或者LSTM的计算，我们可以得到深度门控循环神经网络。
 

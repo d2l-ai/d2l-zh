@@ -54,10 +54,10 @@ def get_params():
     W_hh = _one((num_hiddens, num_hiddens))
     b_h = nd.zeros(num_hiddens, ctx=ctx)
     # 输出层参数。
-    W_hy = _one((num_hiddens, num_outputs))
-    b_y = nd.zeros(num_outputs, ctx=ctx)
+    W_hq = _one((num_hiddens, num_outputs))
+    b_q = nd.zeros(num_outputs, ctx=ctx)
     # 附上梯度。
-    params = [W_xh, W_hh, b_h, W_hy, b_y]
+    params = [W_xh, W_hh, b_h, W_hq, b_q]
     for param in params:
         param.attach_grad()
     return params
@@ -77,12 +77,12 @@ def init_rnn_state(batch_size, num_hiddens, ctx):
 ```{.python .input  n=6}
 def rnn(inputs, state, params):
     # inputs 和 outputs 皆为 num_steps 个形状为（batch_size，vocab_size）的矩阵。
-    W_xh, W_hh, b_h, W_hy, b_y = params
+    W_xh, W_hh, b_h, W_hq, b_q = params
     H, = state
     outputs = []
     for X in inputs:
         H = nd.tanh(nd.dot(X, W_xh) + nd.dot(H, W_hh) + b_h)
-        Y = nd.dot(H, W_hy) + b_y
+        Y = nd.dot(H, W_hq) + b_q
         outputs.append(Y)
     return outputs, (H,)
 ```

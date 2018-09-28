@@ -107,11 +107,11 @@ def get_params():
     W_xo, W_ho, b_o = _three()  # 输出门参数。
     W_xc, W_hc, b_c = _three()  # 候选细胞参数。
     # 输出层参数。
-    W_hy = _one((num_hiddens, num_outputs))
-    b_y = nd.zeros(num_outputs, ctx=ctx)
+    W_hq = _one((num_hiddens, num_outputs))
+    b_q = nd.zeros(num_outputs, ctx=ctx)
     # 创建梯度。
     params = [W_xi, W_hi, b_i, W_xf, W_hf, b_f, W_xo, W_ho, b_o, W_xc, W_hc,
-              b_c, W_hy, b_y]
+              b_c, W_hq, b_q]
     for param in params:
         param.attach_grad()
     return params
@@ -132,7 +132,7 @@ def init_lstm_state(batch_size, num_hiddens, ctx):
 ```{.python .input  n=4}
 def lstm(inputs, state, params):
     [W_xi, W_hi, b_i, W_xf, W_hf, b_f, W_xo, W_ho, b_o, W_xc, W_hc, b_c,
-     W_hy, b_y] = params
+     W_hq, b_q] = params
     (H, C) = state
     outputs = []
     for X in inputs:        
@@ -142,7 +142,7 @@ def lstm(inputs, state, params):
         C_tilda = nd.tanh(nd.dot(X, W_xc) + nd.dot(H, W_hc) + b_c)
         C = F * C + I * C_tilda
         H = O * C.tanh()
-        Y = nd.dot(H, W_hy) + b_y
+        Y = nd.dot(H, W_hq) + b_q
         outputs.append(Y)
     return outputs, (H, C)
 ```

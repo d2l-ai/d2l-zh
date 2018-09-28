@@ -99,10 +99,10 @@ def get_params():
     W_xr, W_hr, b_r = _three()  # 重置门参数。    
     W_xh, W_hh, b_h = _three()  # 候选隐藏状态参数。
     # 输出层参数。
-    W_hy = _one((num_hiddens, num_outputs))
-    b_y = nd.zeros(num_outputs, ctx=ctx)
+    W_hq = _one((num_hiddens, num_outputs))
+    b_q = nd.zeros(num_outputs, ctx=ctx)
     # 创建梯度。
-    params = [W_xz, W_hz, b_z, W_xr, W_hr, b_r, W_xh, W_hh, b_h, W_hy, b_y]
+    params = [W_xz, W_hz, b_z, W_xr, W_hr, b_r, W_xh, W_hh, b_h, W_hq, b_q]
     for param in params:
         param.attach_grad()
     return params
@@ -121,7 +121,7 @@ def init_gru_state(batch_size, num_hiddens, ctx):
 
 ```{.python .input  n=4}
 def gru(inputs, state, params):
-    W_xz, W_hz, b_z, W_xr, W_hr, b_r, W_xh, W_hh, b_h, W_hy, b_y = params
+    W_xz, W_hz, b_z, W_xr, W_hr, b_r, W_xh, W_hh, b_h, W_hq, b_q = params
     H, = state
     outputs = []
     for X in inputs:        
@@ -129,7 +129,7 @@ def gru(inputs, state, params):
         R = nd.sigmoid(nd.dot(X, W_xr) + nd.dot(H, W_hr) + b_r)
         H_tilda = nd.tanh(nd.dot(X, W_xh) + R * nd.dot(H, W_hh) + b_h)
         H = Z * H + (1 - Z) * H_tilda
-        Y = nd.dot(H, W_hy) + b_y
+        Y = nd.dot(H, W_hq) + b_q
         outputs.append(Y)
     return outputs, (H,)
 ```
