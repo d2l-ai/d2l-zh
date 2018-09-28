@@ -24,29 +24,29 @@ $$\mathbb{P}(w_1, w_2, w_3, w_4) =  \mathbb{P}(w_1) \mathbb{P}(w_2 \mid w_1) \ma
 
 ## $N$元语法
 
-当序列长度增加时，计算和存储多个词共同出现的概率会指数增加。$N$元语法通过马尔可夫假设（虽然并不一定成立）简化了语言模型的计算。马尔可夫假设是指一个词的出现只与前面$n$个词相关，即$n$阶马尔可夫假设。如果$n=1$，那么我们有$\mathbb{P}(w_3 \mid w_1, w_2) = \mathbb{P}(w_3 \mid w_2)$。如果基于$n-1$阶马尔可夫假设，我们将语言模型改写为
+当序列长度增加时，计算和存储多个词共同出现的概率会呈指数级增加。$N$元语法通过马尔可夫假设（虽然并不一定成立）简化了语言模型的计算。这里的马尔可夫假设是指一个词的出现只与前面$n$个词相关，即$n$阶马尔可夫链（Markov chain of order $n$）。如果$n=1$，那么我们有$\mathbb{P}(w_3 \mid w_1, w_2) = \mathbb{P}(w_3 \mid w_2)$。如果基于$n-1$阶马尔可夫链，我们可以将语言模型改写为
 
 $$\mathbb{P}(w_1, w_2, \ldots, w_T) \approx \prod_{t=1}^T \mathbb{P}(w_t \mid w_{t-(n-1)}, \ldots, w_{t-1}) .$$
 
 
-以上也叫$n$元语法（$n$-grams）。它是基于$n - 1$阶马尔可夫链的概率语言模型。当$n$分别为1、2和3时，我们将其分别称作一元语法（unigram）、二元语法（bigram）和三元语法（trigram）。例如，$w_1, w_2, w_3, w_4$在一元、二元和三元语法中的概率分别为
+以上也叫$n$元语法（$n$-grams）。它是基于$n - 1$阶马尔可夫链的概率语言模型。当$n$分别为1、2和3时，我们将其分别称作一元语法（unigram）、二元语法（bigram）和三元语法（trigram）。例如，长度为4的序列$w_1, w_2, w_3, w_4$在一元、二元和三元语法中的概率分别为
 
 $$
 \begin{aligned}
-\textrm{unigram:}\quad\mathbb{P}(w_1, w_2, w_3, w_4) &=  \mathbb{P}(w_1) \mathbb{P}(w_2) \mathbb{P}(w_3) \mathbb{P}(w_4) ,\\
-\textrm{bigram:}\quad\mathbb{P}(w_1, w_2, w_3, w_4) &=  \mathbb{P}(w_1) \mathbb{P}(w_2 \mid w_1) \mathbb{P}(w_3 \mid w_2) \mathbb{P}(w_4 \mid w_3) ,\\
-\textrm{trigrams:}\quad\mathbb{P}(w_1, w_2, w_3, w_4) &=  \mathbb{P}(w_1) \mathbb{P}(w_2 \mid w_1) \mathbb{P}(w_3 \mid w_1, w_2) \mathbb{P}(w_4 \mid w_2, w_3) .
+\mathbb{P}(w_1, w_2, w_3, w_4) &=  \mathbb{P}(w_1) \mathbb{P}(w_2) \mathbb{P}(w_3) \mathbb{P}(w_4) ,\\
+\mathbb{P}(w_1, w_2, w_3, w_4) &=  \mathbb{P}(w_1) \mathbb{P}(w_2 \mid w_1) \mathbb{P}(w_3 \mid w_2) \mathbb{P}(w_4 \mid w_3) ,\\
+\mathbb{P}(w_1, w_2, w_3, w_4) &=  \mathbb{P}(w_1) \mathbb{P}(w_2 \mid w_1) \mathbb{P}(w_3 \mid w_1, w_2) \mathbb{P}(w_4 \mid w_2, w_3) .
 \end{aligned}
 $$
 
-当$n$较小时，单$n$元语法往往并不准确。例如，在一元语法中，由三个词组成的句子“你走先”和“你先走”的概率是一样的。然而，当$n$较大时，$n$元语法需要计算并存储大量的词频和多词相邻频率。
+当$n$较小时，$n$元语法往往并不准确。例如，在一元语法中，由三个词组成的句子“你走先”和“你先走”的概率是一样的。然而，当$n$较大时，$n$元语法需要计算并存储大量的词频和多词相邻频率。
 
 那么，有没有方法在语言模型中更好地平衡以上这两点呢？我们将在本章探究这样的方法。
 
 ## 小结
 
 * 语言模型是自然语言处理的重要技术。
-* $N$元语法是基于$n-1$阶马尔可夫链的概率语言模型，$n$权衡计算复杂度和模型准确性。
+* $N$元语法是基于$n-1$阶马尔可夫链的概率语言模型，其中$n$权衡了计算复杂度和模型准确性。
 
 
 ## 练习
