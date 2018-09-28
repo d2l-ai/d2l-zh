@@ -43,7 +43,6 @@ from mxnet import nd
 
 X, W_xh = nd.random.normal(shape=(3, 1)), nd.random.normal(shape=(1, 4))
 H, W_hh = nd.random.normal(shape=(3, 2)), nd.random.normal(shape=(2, 4))
-
 nd.dot(X, W_xh) + nd.dot(H, W_hh)
 ```
 
