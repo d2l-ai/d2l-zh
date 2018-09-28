@@ -109,7 +109,7 @@ $$\boldsymbol{v}_t \leftarrow \gamma \boldsymbol{v}_{t-1} + (1 - \gamma) \left(\
 
 ## 从零开始实现
 
-相对于随机梯度下降，动量法需要对每个自变量维护同它一样形状的状态变量$\boldsymbol{v}$，且超参数里多了动量超参数。
+相对于随机梯度下降，动量法需要对每一个自变量向量维护一个同它一样形状的状态变量向量$\boldsymbol{v}$，且超参数里多了动量超参数。
 
 ```{.python .input  n=13}
 features, labels = gb.get_data_ch7()
@@ -152,7 +152,7 @@ gb.train_gluon_ch7('sgd', {'learning_rate': 0.02, 'momentum': 0.5}, features,
 ## 小结
 
 * 动量法使用了指数加权移动平均的思想，其将过去时刻的梯度做了加权平均，且权重按时间指数衰减。
-* 动量法使得相邻时间步之间的自变量更新在方向更加一致。
+* 动量法使得相邻时间步的自变量更新在方向上更加一致。
 
 ## 练习
 
