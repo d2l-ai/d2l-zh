@@ -3,7 +3,7 @@
 我们在[“RMSProp”](rmsprop.md)一节中描述了RMSProp针对Adagrad在迭代后期可能较难找到有用解的问题。RMSProp对小批量随机梯度按元素平方项做指数加权移动平均而不是累加。另一种应对该问题的优化算法叫做Adadelta [1]。有意思的是，它没有学习率这一超参数。
 
 Adadelta算法也像RMSProp一样，使用了小批量随机梯度按元素平方的指数加权移动平均变量$\boldsymbol{s}$，它的时间步0时被初始化为0。
-给定超参数$\rho$且$0 \leq \rho < 1$（对应RMSProp中的$\gamma$），在时间步$t>0$，同RMSPro一样计算
+给定超参数$\rho$且$0 \leq \rho < 1$（对应RMSProp中的$\gamma$），在时间步$t>0$，同RMSProp一样计算
 
 $$\boldsymbol{s}_t \leftarrow \rho \boldsymbol{s}_{t-1} + (1 - \rho) \boldsymbol{g}_t \odot \boldsymbol{g}_t. $$
 
@@ -35,7 +35,7 @@ import gluonbook as gb
 from mxnet import nd
 ```
 
-AdeDelta需要对每个自变量维护两个状态变量，$\boldsymbol{s}$和$\Delta\boldsymbol{x}$。按上面公式显示AdeDelta：
+Adadelta需要对每个自变量维护两个状态变量，$\boldsymbol{s}$和$\Delta\boldsymbol{x}$。按上面公式显示Adadelta：
 
 ```{.python .input  n=11}
 features, labels = gb.get_data_ch7()
@@ -62,7 +62,7 @@ gb.train_ch7(adadelta, init_adadelta_states(), {'rho': .9}, features, labels)
 
 ## 使用Gluon的实现
 
-AdeDelta在Gluon中名称为`adadelta`，其超参数可以通过`rho`来指定。
+Adadelta在Gluon中名称为`adadelta`，其超参数可以通过`rho`来指定。
 
 ```{.python .input  n=9}
 gb.train_gluon_ch7('adadelta', {'rho': .9}, features, labels)
@@ -70,7 +70,7 @@ gb.train_gluon_ch7('adadelta', {'rho': .9}, features, labels)
 
 ## 小结
 
-* AdaDelta没有学习率参数，它通过使用自变量更新量平方的指数加权移动平均来替代学习率。
+* Adadelta没有学习率参数，它通过使用自变量更新量平方的指数加权移动平均来替代学习率。
 
 ## 练习
 
