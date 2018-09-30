@@ -1,18 +1,18 @@
 import collections
-import random
-import zipfile
 import math
 import os
+import random
 import sys
 import tarfile
 import time
+import zipfile
 
 from IPython import display
 from matplotlib import pyplot as plt
 import mxnet as mx
-from mxnet import autograd, gluon, image, nd, init
+from mxnet import autograd, gluon, image, init, nd
 from mxnet.contrib import text
-from mxnet.gluon import nn, data as gdata, loss as gloss, utils as gutils
+from mxnet.gluon import data as gdata, loss as gloss, nn, utils as gutils
 import numpy as np
 
 
@@ -165,6 +165,7 @@ def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
         acc.wait_to_read()
     return acc.asscalar() / n
 
+
 def _get_batch(batch, ctx):
     """Return features and labels on ctx."""
     features, labels = batch
@@ -173,6 +174,7 @@ def _get_batch(batch, ctx):
     return (gutils.split_and_load(features, ctx),
             gutils.split_and_load(labels, ctx),
             features.shape[0])
+
 
 def get_data_ch7():
     """Get the data set used in Chapter 7."""
@@ -194,11 +196,13 @@ def get_tokenized_imdb(data):
         return [tok.lower() for tok in text.split(' ')]
     return [tokenizer(review) for review, _ in data]
 
+
 def get_vocab_imdb(data):
-    """Get the vocab for the IMBD data set for sentiment analysis."""
+    """Get the vocab for the IMDB data set for sentiment analysis."""
     tokenized_data = get_tokenized_imdb(data)
     counter = collections.Counter([tk for st in tokenized_data for tk in st])
     return text.vocab.Vocabulary(counter, min_freq=5)
+
 
 def grad_clipping(params, theta, ctx):
     """Clip the gradient."""
@@ -282,12 +286,13 @@ def _make_list(obj, default_values=None):
         obj = [obj]
     return obj
 
+
 def predict_rnn(prefix, num_chars, rnn, params, init_rnn_state,
                 num_hiddens, vocab_size, ctx, idx_to_char, char_to_idx):
     """Predict next chars with a RNN model"""
     state = init_rnn_state(1, num_hiddens, ctx)
     output = [char_to_idx[prefix[0]]]
-    for t in range(num_chars + len(prefix)):
+    for t in range(num_chars + len(prefix) - 1):
         X = to_onehot(nd.array([output[-1]], ctx=ctx), vocab_size)
         (Y, state) = rnn(X, state, params)
         if t < len(prefix) - 1:
@@ -318,6 +323,7 @@ def predict_sentiment(net, vocab, sentence):
     label = nd.argmax(net(sentence.reshape((1, -1))), axis=1)
     return 'positive' if label.asscalar() == 1 else 'negative'
 
+
 def preprocess_imdb(data, vocab):
     """Preprocess the IMDB data set for sentiment analysis."""
     max_l = 500
@@ -326,6 +332,7 @@ def preprocess_imdb(data, vocab):
     features = nd.array([pad(vocab.to_indices(x)) for x in tokenized_data])
     labels = nd.array([score for _, score in data])
     return features, labels
+
 
 def read_imdb(folder='train'):
     """Read the IMDB data set for sentiment analysis."""
@@ -338,6 +345,7 @@ def read_imdb(folder='train'):
                 data.append([review, 1 if label == 'pos' else 0])
     random.shuffle(data)
     return data
+
 
 def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):
     """Read VOC images."""
@@ -528,6 +536,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
               % (epoch, train_l_sum / n, train_acc_sum / m, test_acc,
                  time.time() - start))
 
+
 def train_2d(trainer):
     """Train a 2d object function with a customized trainer"""
     x1, x2 = -5, -2
@@ -538,6 +547,7 @@ def train_2d(trainer):
         res.append((x1, x2))
     print('epoch %d, x1 %f, x2 %f' % (i+1, x1, x2))
     return res
+
 
 def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
                           vocab_size, ctx, corpus_indices, idx_to_char,
@@ -802,3 +812,4 @@ class VOCSegDataset(gdata.Dataset):
 
     def __len__(self):
         return len(self.data)
+

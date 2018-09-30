@@ -15,7 +15,7 @@
    fasttext
    glove
    similarity-analogy
-   sentiment-analysis
+   sentiment-analysis-rnn
    sentiment-analysis-cnn
    seq2seq
    beam-search

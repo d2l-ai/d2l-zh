@@ -106,7 +106,7 @@ def predict_rnn(prefix, num_chars, rnn, params, init_rnn_state,
                 num_hiddens, vocab_size, ctx, idx_to_char, char_to_idx):
     state = init_rnn_state(1, num_hiddens, ctx)
     output = [char_to_idx[prefix[0]]]    
-    for t in range(num_chars + len(prefix)):
+    for t in range(num_chars + len(prefix) - 1):
         # 将上一时间步的输出作为当前时间步的输入。
         X = to_onehot(nd.array([output[-1]], ctx=ctx), vocab_size)
         # 计算输出和更新隐藏状态。
@@ -119,7 +119,7 @@ def predict_rnn(prefix, num_chars, rnn, params, init_rnn_state,
     return ''.join([idx_to_char[i] for i in output])
 ```
 
-测试一下这个函数。因为模型参数为随机值，所以预测结果也是随机的。
+我们先测试一下`predict_rnn`函数。我们以“分开”作为前缀依次生成10个字符来创作歌词。因为模型参数为随机值，所以预测结果也是随机的。
 
 ```{.python .input  n=9}
 predict_rnn('分开', 10, rnn, params, init_rnn_state, num_hiddens, vocab_size,

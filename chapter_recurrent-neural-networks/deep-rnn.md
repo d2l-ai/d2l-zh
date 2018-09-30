@@ -34,7 +34,7 @@ $$\boldsymbol{O}_t = \boldsymbol{H}_t^{(L)} \boldsymbol{W}_{hq} + \boldsymbol{b}
 
 ## 练习
 
-* 将[“基于循环神经网络的语言模型”](rnn-lang-model.md)一节中的模型改为含有2个隐藏层的循环神经网络。观察并分析实验现象。
+* 将[“循环神经网络的从零开始实现”](rnn-scratch.md)一节中的模型改为含有2个隐藏层的循环神经网络。观察并分析实验现象。
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6730)
