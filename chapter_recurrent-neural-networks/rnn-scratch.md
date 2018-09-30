@@ -119,7 +119,7 @@ def predict_rnn(prefix, num_chars, rnn, params, init_rnn_state,
     return ''.join([idx_to_char[i] for i in output])
 ```
 
-我们先测试一下`predict_rnn`函数。我们以“分开”作为前缀依次生成10个字符来创作歌词。因为模型参数为随机值，所以预测结果也是随机的。
+我们先测试一下`predict_rnn`函数。我们将根据前缀“分开”创作长度为10个字符（不考虑前缀长度）的一段歌词。因为模型参数为随机值，所以预测结果也是随机的。
 
 ```{.python .input  n=9}
 predict_rnn('分开', 10, rnn, params, init_rnn_state, num_hiddens, vocab_size,
@@ -128,7 +128,7 @@ predict_rnn('分开', 10, rnn, params, init_rnn_state, num_hiddens, vocab_size,
 
 ## 裁剪梯度
 
-循环神经网络中较容易出现梯度衰减或爆炸，其原因我们会在[下一节](bptt.md)解释。为了应对梯度爆炸，我们可以裁剪梯度（clipping gradient）。假设我们把所有模型参数梯度的元素拼接成一个向量 $\boldsymbol{g}$，并设裁剪的阈值是$\theta$。裁剪后梯度
+循环神经网络中较容易出现梯度衰减或爆炸。我们会在本章后面的小节中解释这个原因。为了应对梯度爆炸，我们可以裁剪梯度（clip gradient）。假设我们把所有模型参数梯度的元素拼接成一个向量 $\boldsymbol{g}$，并设裁剪的阈值是$\theta$。裁剪后的梯度
 
 $$ \min\left(\frac{\theta}{\|\boldsymbol{g}\|}, 1\right)\boldsymbol{g}$$
 
@@ -148,23 +148,23 @@ def grad_clipping(params, theta, ctx):
 
 ## 困惑度
 
-语言模型里我们通常使用困惑度（perplexity）来评价模型的好坏。回忆一下[“Softmax回归”](../chapter_deep-learning-basics/softmax-regression.md)一节中交叉熵损失函数的定义。困惑度是对交叉熵损失函数做指数运算后得到的值。特别地，
+我们通常使用困惑度（perplexity）来评价语言模型的好坏。回忆一下[“Softmax回归”](../chapter_deep-learning-basics/softmax-regression.md)一节中交叉熵损失函数的定义。困惑度是对交叉熵损失函数做指数运算后得到的值。特别地，
 
 * 最佳情况下，模型总是把标签类别的概率预测为1。此时困惑度为1。
 * 最坏情况下，模型总是把标签类别的概率预测为0。此时困惑度为正无穷。
-* 基线情况下，模型总是预测所有类别的概率都相同。此时困惑度为类别数。
+* 基线情况下，模型总是预测所有类别的概率都相同。此时困惑度为类别个数。
 
-显然，任何一个有效模型的困惑度必须小于类别数。在本例中，困惑度必须小于词典中不同的字符数`vocab_size`。相对于交叉熵损失，困惑度的值更大，使得模型比较时更加清楚。例如“模型一比模型二的困惑度小1”比“模型一比模型二的交叉熵损失小0.01”感官上更加清楚一些。
+显然，任何一个有效模型的困惑度必须小于类别个数。在本例中，困惑度必须小于词典大小`vocab_size`。
 
 ## 定义模型训练函数
 
-跟之前章节的训练模型函数相比，这里有以下几个不同。
+跟之前章节的模型训练函数相比，这里的模型训练函数有以下几个不同。
 
 1. 使用困惑度（perplexity）评价模型。
 2. 在迭代模型参数前裁剪梯度。
-3. 对时序数据采用不同采样方法将导致隐藏状态初始化的不同。
+3. 对时序数据采用不同采样方法将导致隐藏状态初始化的不同。相关的讨论可参考[“语言模型数据集（周杰伦专辑歌词）”](lang-model-dataset.md)一节。
 
-同样这个函数由于考虑到后面将介绍的循环神经网络，所以实现更长一些。
+另外，考虑到后面将介绍的其它循环神经网络，为了更通用，这里的函数实现更长一些。
 
 ```{.python .input  n=11}
 # 本函数已保存在 gluonbook 包中方便以后使用。
@@ -181,14 +181,14 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
     loss = gloss.SoftmaxCrossEntropyLoss()
 
     for epoch in range(num_epochs):
-        if not is_random_iter:  # 如使用相邻采样，在 epoch 开始时初始化隐藏变量。
+        if not is_random_iter:  # 如使用相邻采样，在 epoch 开始时初始化隐藏状态。
             state = init_rnn_state(batch_size, num_hiddens, ctx)
         loss_sum, start = 0.0, time.time()
         data_iter = data_iter_fn(corpus_indices, batch_size, num_steps, ctx)
         for t, (X, Y) in enumerate(data_iter):
-            if is_random_iter:  # 如使用随机采样，在每个小批量更新前初始化隐藏变量。
+            if is_random_iter:  # 如使用随机采样，在每个小批量更新前初始化隐藏状态。
                 state = init_rnn_state(batch_size, num_hiddens, ctx)
-            else:  # 否则需要使用 detach 函数从计算图分离隐藏状态变量。
+            else:  # 否则需要使用 detach 函数从计算图分离隐藏状态。
                 for s in state:
                     s.detach()
             with autograd.record():
@@ -197,15 +197,14 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
                 (outputs, state) = rnn(inputs, state, params)
                 # 拼接之后形状为（num_steps * batch_size，vocab_size）。
                 outputs = nd.concat(*outputs, dim=0)
-                # Y 的形状是（batch_size，num_steps），转置后再变成长
+                # Y 的形状是（batch_size，num_steps），转置后再变成长度为
                 # batch * num_steps 的向量，这样跟输出的行一一对应。
                 y = Y.T.reshape((-1,))
                 # 使用交叉熵损失计算平均分类误差。
                 l = loss(outputs, y).mean()
             l.backward()
-            # 裁剪梯度后使用 SGD 更新权重。
-            grad_clipping(params, clipping_theta, ctx)
-            gb.sgd(params, lr, 1)  # 因为已经误差取过均值，梯度不用再做平均。
+            grad_clipping(params, clipping_theta, ctx)  # 裁剪梯度。
+            gb.sgd(params, lr, 1)  # 因为误差已经取过均值，梯度不用再做平均。
             loss_sum += l.asscalar()
 
         if (epoch + 1) % pred_period == 0:
@@ -219,7 +218,7 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
 
 ## 训练模型并创作歌词
 
-现在我们可以训练模型了。首先，设置模型超参数。我们将根据前缀“分开”和“不分开”分别创作长度为50个字符的一段歌词。我们每过50个迭代周期便根据当前训练的模型创作一段歌词。
+现在我们可以训练模型了。首先，设置模型超参数。我们将根据前缀“分开”和“不分开”分别创作长度为50个字符（不考虑前缀长度）的一段歌词。我们每过50个迭代周期便根据当前训练的模型创作一段歌词。
 
 ```{.python .input  n=12}
 num_epochs, num_steps, batch_size, lr, clipping_theta = 200, 35, 32, 1e2, 1e-2
@@ -248,16 +247,16 @@ train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
 
 ## 小结
 
-* 我们可以应用基于字符级循环神经网络的语言模型来创作歌词。
+* 我们可以应用基于字符级循环神经网络的语言模型来生成为本序列，例如创作歌词。
 * 当训练循环神经网络时，为了应对梯度爆炸，我们可以裁剪梯度。
 * 困惑度是对交叉熵损失函数做指数运算后得到的值。
+
 
 ## 练习
 
 * 调调超参数，观察并分析对运行时间、困惑度以及创作歌词的结果造成的影响。
 * 不裁剪梯度，运行本节代码。结果会怎样？
-* 如果变化梯度裁剪阈值，需要对学习率做怎样的相应变化？
-* 将`pred_period`改为1，观察未充分训练的模型（困惑度高）是如何创作歌词的。你获得了什么启发？
+* 将`pred_period`变量设为1，观察未充分训练的模型（困惑度高）是如何创作歌词的。你获得了什么启发？
 * 将相邻采样改为不从计算图分离隐藏状态，运行时间有没有变化？
 * 将本节中使用的激活函数替换成ReLU，重复本节的实验。
 
