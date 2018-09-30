@@ -307,7 +307,7 @@ def predict_rnn_gluon(prefix, num_chars, model, vocab_size, ctx, idx_to_char,
     """Precit next chars with a Gluon RNN model"""
     state = model.begin_state(batch_size=1, ctx=ctx)
     output = [char_to_idx[prefix[0]]]
-    for t in range(num_chars + len(prefix)):
+    for t in range(num_chars + len(prefix) - 1):
         X = nd.array([output[-1]], ctx=ctx).reshape((1, 1))
         (Y, state) = model(X, state)
         if t < len(prefix) - 1:

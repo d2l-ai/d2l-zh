@@ -1,6 +1,6 @@
 # 循环神经网络的Gluon实现
 
-本节将使用Gluon来实现基于循环神经网络的语言模型。首先导入本节需要的包和模块，并读取周杰伦专辑歌词数据集。
+本节将使用Gluon来实现基于循环神经网络的语言模型。首先，我们读取周杰伦专辑歌词数据集。
 
 ```{.python .input  n=1}
 import sys
@@ -18,7 +18,7 @@ import time
 
 ## 定义模型
 
-Gluon的`rnn`模块提供了循环神经网络的实现。下面构造一个单隐藏层的且隐藏单元个数为256的循环神经网络层`rnn_layer`，并对权重做初始化。
+Gluon的`rnn`模块提供了循环神经网络的实现。下面构造一个单隐藏层、隐藏单元个数为256的循环神经网络层`rnn_layer`，并对权重做初始化。
 
 ```{.python .input  n=26}
 num_hiddens = 256
@@ -26,7 +26,7 @@ rnn_layer = rnn.RNN(num_hiddens)
 rnn_layer.initialize()
 ```
 
-接下来调用`rnn_layer`的成员函数`begin_state`来返回初始化的隐藏状态列表。它有一个形状为（1，`batch_size`，`num_hiddens`）的元素，其中1表示只有一个隐藏层。
+接下来调用`rnn_layer`的成员函数`begin_state`来返回初始化的隐藏状态列表。它有一个形状为（隐藏层个数，批量大小，隐藏单元个数）的元素。
 
 ```{.python .input  n=37}
 batch_size = 2
@@ -34,7 +34,7 @@ state = rnn_layer.begin_state(batch_size=batch_size)
 state[0].shape
 ```
 
-与上一节里我们实现的循环神经网络不同，这里`rnn_layer`的输入格式为（`num_steps`，`batch_size`，`vocab_size`）。
+与上一节里实现的循环神经网络不同，这里`rnn_layer`的输入形状为（时间步数，批量大小，输入个数）。其中输入个数即one-hot向量长度（词典大小）。此外，Gluon的`rnn.RNN`类在前向计算后会返回输出和隐藏状态。其中的“输出”通常作为后续输出层的输入。需要强调的是，该“输出”本身并不涉及输出层计算，其形状为（时间步数，批量大小，隐藏单元个数）。我们需要将Gluon的`rnn.RNN`类的前向计算与上一节中包含输出层的`rnn`函数区分。
 
 ```{.python .input  n=38}
 num_steps = 35
@@ -42,8 +42,6 @@ X = nd.random.uniform(shape=(num_steps, batch_size, vocab_size))
 Y, state_new = rnn_layer(X, state)
 Y.shape
 ```
-
-返回的输出是形状为（`num_steps`，`batch_size`，`num_hiddens`）的NDArray（上一节实现是`num_steps`个（`batch_size`，`num_hiddens`）形状的NDArray），它可以之后被输入到输出层里。
 
 接下来我们继承Block类来定义一个完整的循环神经网络，它首先将输入数据使用one-hot表示后输入到`rnn_layer`中，然后使用全连接输出层得到输出。
 
@@ -80,7 +78,7 @@ def predict_rnn_gluon(prefix, num_chars, model, vocab_size, ctx, idx_to_char,
     # 使用 model 的成员函数来初始化隐藏状态。
     state = model.begin_state(batch_size=1, ctx=ctx)
     output = [char_to_idx[prefix[0]]]
-    for t in range(num_chars + len(prefix)):
+    for t in range(num_chars + len(prefix) - 1):
         X = nd.array([output[-1]], ctx=ctx).reshape((1, 1))
         (Y, state) = model(X, state)  # 前向计算不需要传入模型参数。
         if t < len(prefix) - 1:

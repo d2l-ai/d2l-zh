@@ -24,7 +24,7 @@ import time
 nd.one_hot(nd.array([0, 2]), vocab_size)
 ```
 
-我们每次采样的小批量的形状是（`batch_size`, `num_steps`）。下面的函数将这样的小批量转换成`num_steps`个可以输入进网络的形状为（`batch_size`, `vocab_size`）的矩阵。也就是总时间步$T=$ `num_steps`，时间步$t$的输入$\boldsymbol{X}_t \in \mathbb{R}^{n \times d}$，其中$n=$ `batch_size`，$d=$ `vocab_size`（one-hot向量长度）。
+我们每次采样的小批量的形状是（批量大小，时间步数）。下面的函数将这样的小批量变换成数个可以输入进网络的形状为（批量大小，词典大小）的矩阵，总数与时间步数相等。也就是说，时间步$t$的输入$\boldsymbol{X}_t \in \mathbb{R}^{n \times d}$，其中$n$为批量大小，$d$为输入个数，即one-hot向量长度（词典大小）。
 
 ```{.python .input  n=3}
 def to_onehot(X, size):  # 本函数已保存在 gluonbook 包中方便以后使用。
@@ -64,7 +64,7 @@ def get_params():
 
 ## 定义模型
 
-我们根据循环神经网络的计算表达式实现该模型。首先定义`init_rnn_state`函数来返回初始化的隐藏状态。它返回由一个形状为（`batch_size`，`num_hiddens`）的值为0的NDArray组成的元组。使用元组是为了更方便处理隐藏状态含有多个NDArray的情况。
+我们根据循环神经网络的计算表达式实现该模型。首先定义`init_rnn_state`函数来返回初始化的隐藏状态。它返回由一个形状为（批量大小，隐藏单元个数）的值为0的NDArray组成的元组。使用元组是为了更方便处理隐藏状态含有多个NDArray的情况。
 
 ```{.python .input  n=5}
 def init_rnn_state(batch_size, num_hiddens, ctx):
@@ -86,7 +86,7 @@ def rnn(inputs, state, params):
     return outputs, (H,)
 ```
 
-做个简单的测试来观察输出结果的个数（时间步个数），以及第一个时间步的输出层输出形状和隐藏状态形状。
+做个简单的测试来观察输出结果的个数（时间步数），以及第一个时间步的输出层输出形状和隐藏状态形状。
 
 ```{.python .input  n=7}
 state = init_rnn_state(X.shape[0], num_hiddens, ctx)
