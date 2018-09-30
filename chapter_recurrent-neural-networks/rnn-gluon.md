@@ -34,16 +34,16 @@ state = rnn_layer.begin_state(batch_size=batch_size)
 state[0].shape
 ```
 
-与上一节里实现的循环神经网络不同，这里`rnn_layer`的输入形状为（时间步数，批量大小，输入个数）。其中输入个数即one-hot向量长度（词典大小）。此外，Gluon的`rnn.RNN`类在前向计算后会返回输出和隐藏状态。其中的“输出”通常作为后续输出层的输入。需要强调的是，该“输出”本身并不涉及输出层计算，其形状为（时间步数，批量大小，隐藏单元个数）。我们需要将Gluon的`rnn.RNN`类的前向计算与上一节中包含输出层的`rnn`函数区分。
+与上一节里实现的循环神经网络不同，这里`rnn_layer`的输入形状为（时间步数，批量大小，输入个数）。其中输入个数即one-hot向量长度（词典大小）。此外，`rnn_layer`作为Gluon的`rnn.RNN`实例，在前向计算后会分别返回输出和隐藏状态。其中的输出指的是隐藏层在各个时间步上计算并输出的隐藏状态，它们通常作为后续输出层的输入。需要强调的是，该“输出”本身并不涉及输出层计算，形状为（时间步数，批量大小，隐藏单元个数）。而`rnn.RNN`实例在前向计算返回的隐藏状态指的是隐藏层在最后时间步的可用于初始化下一时间步的隐藏状态：当隐藏层有多层时，每一层的隐藏状态都会记录在该变量中；对于像长短期记忆这样的循环神经网络，该变量还会包含其他信息。我们会在本章后面的小节介绍长短期记忆和深度循环神经网络。
 
 ```{.python .input  n=38}
 num_steps = 35
 X = nd.random.uniform(shape=(num_steps, batch_size, vocab_size))
 Y, state_new = rnn_layer(X, state)
-Y.shape
+Y.shape, len(state_new), state_new[0].shape
 ```
 
-接下来我们继承Block类来定义一个完整的循环神经网络，它首先将输入数据使用one-hot表示后输入到`rnn_layer`中，然后使用全连接输出层得到输出。
+接下来我们继承Block类来定义一个完整的循环神经网络。它首先将输入数据使用one-hot向量表示后输入到`rnn_layer`中，然后使用全连接输出层得到输出。输出个数等于词典大小`vocab_size`。
 
 ```{.python .input  n=39}
 # 本类已保存在 gluonbook 包中方便以后使用。
@@ -55,10 +55,10 @@ class RNNModel(nn.Block):
         self.dense = nn.Dense(vocab_size)
 
     def forward(self, inputs, state):
-        # 将输入转置成（num_steps，batch_size）后获取 one-hot 表示。
+        # 将输入转置成（num_steps，batch_size）后获取 one-hot 向量表示。
         X = nd.one_hot(inputs.T, self.vocab_size)
         Y, state = self.rnn(X, state)
-        # 全连接层会首先将 Y 形状变形成（num_steps * batch_size，num_hiddens），
+        # 全连接层会首先将 Y 的形状变成（num_steps * batch_size，num_hiddens），
         # 它的输出形状为（num_steps * batch_size，vocab_size）。
         output = self.dense(Y.reshape((-1, Y.shape[-1])))
         return output, state
@@ -69,7 +69,7 @@ class RNNModel(nn.Block):
 
 ## 模型训练
 
-首先同前一节一样定义一个预测函数，这里的实现区别在于前向计算和初始化隐藏状态的函数接口稍有不同。
+同前一节一样，以下定义了一个预测函数。这里的实现区别在于前向计算和初始化隐藏状态的函数接口。
 
 ```{.python .input  n=41}
 # 本函数已保存在 gluonbook 包中方便以后使用。
@@ -97,7 +97,7 @@ model.initialize(force_reinit=True, ctx=ctx)
 predict_rnn_gluon('分开', 10, model, vocab_size, ctx, idx_to_char, char_to_idx)
 ```
 
-接下来实现训练函数，它的算法同上一节一样，但这里只使用了随机采样来读取数据。
+接下来实现训练函数。它的算法同上一节一样，但这里只使用了随机采样来读取数据。
 
 ```{.python .input  n=18}
 # 本函数已保存在 gluonbook 包中方便以后使用。
@@ -138,7 +138,7 @@ def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
                     ctx, idx_to_char, char_to_idx))
 ```
 
-使用和上一节一样的超参数来训练模型。
+使用和上一节实验中一样的超参数来训练模型。
 
 ```{.python .input  n=19}
 num_epochs, batch_size, lr, clipping_theta = 200, 32, 1e2, 1e-2
@@ -152,10 +152,11 @@ train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
 ## 小结
 
 * Gluon的`rnn`模块提供了循环神经网络层的实现。
+* Gluon的`rnn.RNN`实例在前向计算后会分别返回输出和隐藏状态。该前向计算并不涉及输出层计算。
 
 ## 练习
 
-* 比较跟前一节的实现，看看Gluon的版本是不是运行速度更快？如果你觉得差别明显，试着找找原因。
+* 比较跟前一节的实现。看看Gluon的实现是不是运行速度更快？如果你觉得差别明显，试着找找原因。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4089)
 
