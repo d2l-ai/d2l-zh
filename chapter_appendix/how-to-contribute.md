@@ -22,7 +22,7 @@
 
 第三步，点击图11.21右方的“Clone or download”绿色按钮，并点击红框中的按钮复制位于你用户名下的代码库地址。按[“获取和运行本书代码”](../chapter_prerequisite/install.md)一节中介绍的方法进入命令行模式。假设我们希望将代码库保存在本地的“~/repo”路径之下。进入该路径，键入`git clone `并粘贴位于你用户名下的代码库地址。执行命令
 
-```{.python .input}
+```
 # 将 your_Github_ID 替换成你的 Github 用户名。
 git clone https://github.com/your_Github_ID/gluon-tutorials-zh.git
 ```
@@ -32,7 +32,7 @@ git clone https://github.com/your_Github_ID/gluon-tutorials-zh.git
 
 第四步，编辑本地路径下的本书代码库。假设我们修改了`~/repo/gluon-tutorials-zh/chapter_deep-learning-basics/linear-regression.md`文件中的一个错别字。在命令行模式中进入路径`~/repo/gluon-tutorials-zh`，执行命令
 
-```{.python .input}
+```
 git status
 ```
 
@@ -42,7 +42,7 @@ git status
 
 确认将提交该修改的文件后，执行以下命令
 
-```{.python .input}
+```
 git add chapter_deep-learning-basics/linear-regression.md
 git commit -m 'fix typo in linear-regression.md'
 git push
