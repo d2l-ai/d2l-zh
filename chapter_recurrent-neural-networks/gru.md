@@ -26,11 +26,11 @@ $$
 \end{aligned}
 $$
 
-其中$\boldsymbol{W}_{xr}, \boldsymbol{W}_{xz} \in \mathbb{R}^{d \times h}$和$\boldsymbol{W}_{hr}, \boldsymbol{W}_{hz} \in \mathbb{R}^{h \times h}$是权重参数，$\boldsymbol{b}_r, \boldsymbol{b}_z \in \mathbb{R}^{1 \times h}$是偏差参数，激活函数$\sigma$是sigmoid函数。[“多层感知机”](../chapter_deep-learning-basics/mlp.md)一节中介绍过，sigmoid函数可以将元素的值变换到0和1之间。因此，重置门$\boldsymbol{R}_t$和更新门$\boldsymbol{Z}_t$中每个元素的值域都是$[0, 1]$。
+其中$\boldsymbol{W}_{xr}, \boldsymbol{W}_{xz} \in \mathbb{R}^{d \times h}$和$\boldsymbol{W}_{hr}, \boldsymbol{W}_{hz} \in \mathbb{R}^{h \times h}$是权重参数，$\boldsymbol{b}_r, \boldsymbol{b}_z \in \mathbb{R}^{1 \times h}$是偏差参数。[“多层感知机”](../chapter_deep-learning-basics/mlp.md)一节中介绍过，sigmoid函数可以将元素的值变换到0和1之间。因此，重置门$\boldsymbol{R}_t$和更新门$\boldsymbol{Z}_t$中每个元素的值域都是$[0, 1]$。
 
 ### 候选隐藏状态
 
-接下来，门控循环单元将计算候选隐藏状态来辅助稍后的隐藏状态计算。如图6.5所示，我们将当前时间步重置门的输出与上一时间步隐藏状态做按元素乘法。如果重置门中元素值接近0，那么意味着重置对应隐藏状态元素为0，即丢弃上一时间步的隐藏状态。如果元素值接近1，那么表示保留上一时间步的隐藏状态。然后，将按元素乘法的结果与当前时间步的输入连结，再通过含tanh激活函数的全连接层计算出候选隐藏状态，其所有元素的值域为$[-1, 1]$。
+接下来，门控循环单元将计算候选隐藏状态来辅助稍后的隐藏状态计算。如图6.5所示，我们将当前时间步重置门的输出与上一时间步隐藏状态做按元素乘法（符号为$\odot$）。如果重置门中元素值接近0，那么意味着重置对应隐藏状态元素为0，即丢弃上一时间步的隐藏状态。如果元素值接近1，那么表示保留上一时间步的隐藏状态。然后，将按元素乘法的结果与当前时间步的输入连结，再通过含激活函数tanh的全连接层计算出候选隐藏状态，其所有元素的值域为$[-1, 1]$。
 
 ![门控循环单元中候选隐藏状态的计算。这里的乘号是按元素乘法。](../img/gru_2.svg)
 
@@ -57,7 +57,7 @@ $$\boldsymbol{H}_t = \boldsymbol{Z}_t \odot \boldsymbol{H}_{t-1}  + (1 - \boldsy
 * 重置门有助于捕捉时间序列里短期的依赖关系。
 * 更新门有助于捕捉时间序列里长期的依赖关系。
 
-## 载入数据集
+## 读取数据集
 
 为了实现并展示门控循环单元，我们依然使用周杰伦歌词数据集来训练模型作词。这里除门控循环单元以外的实现已在[“循环神经网络”](rnn.md)一节中介绍。以下为读取数据集部分。
 
@@ -174,7 +174,7 @@ gb.train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
 
 * 假设时间步$t' < t$。如果我们只希望用时间步$t'$的输入来预测时间步$t$的输出，每个时间步的重置门和更新门的值最好是多少？
 * 调节超参数，观察并分析对运行时间、困惑度以及创作歌词的结果造成的影响。
-* 在相同条件下，比较门控循环单元和前面小节里实现的循环神经网络的运行时间。
+* 在相同条件下，比较门控循环单元和不带门控的循环神经网络的运行时间。
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4042)
