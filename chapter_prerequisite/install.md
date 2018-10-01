@@ -20,7 +20,7 @@
 
 第三步：使用Conda创建并激活环境。Conda默认使用国外站点来下载软件，以下可选项配置使用国内镜像加速下载:
 
-```{.python .input}
+```
 # 使用清华 conda 镜像。
 conda config --prepend channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
 
@@ -30,19 +30,19 @@ conda config --prepend channels http://mirrors.ustc.edu.cn/anaconda/pkgs/free/
 
 接下来使用conda创建虚拟环境并安装本书需要的软件。这里`environment.yml`是放置在代码压缩包中的文件，它指定了执行本书代码所需要的软件。
 
-```{.python .input}
+```
 conda env create -f environment.yml
 ```
 
 第四步：激活之前创建的环境。
 
-```{.python .input}
+```
 activate gluon
 ```
 
 第五步：打开Juputer笔记本。
 
-```{.python .input}
+```
 jupyter notebook
 ```
 
@@ -50,7 +50,7 @@ jupyter notebook
 
 本书中若干章节的代码会自动下载数据集和预训练模型，并默认使用美国站点下载。我们可以在运行Jupyter前指定MXNet使用国内站点下载书中的数据和模型。
 
-```{.python .input}
+```
 set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter notebook
 ```
 
@@ -58,13 +58,13 @@ set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyte
 
 第一步：根据操作系统下载Miniconda（网址：https://conda.io/miniconda.html ），它是一个sh文件。打开Terminal应用进入命令行来执行这个sh文件，例如
 
-```{.python .input}
+```
 sh Miniconda3-latest-Linux-x86_64.sh
 ```
 
 安装时会显示使用条款，按“↓”继续阅读，按“Q”退出阅读。之后需要回答下面几个问题：
 
-```{.python .input}
+```
 Do you accept the license terms? [yes|no]
 [no] >>> yes
 Do you wish the installer to prepend the Miniconda3 install location
@@ -76,7 +76,7 @@ to PATH in your /home/your_name/.conda ? [yes|no]
 
 第二步：下载包含本书全部代码的压缩包，解压后进入文件夹。运行以下命令。
 
-```{.python .input}
+```
 mkdir gluon_tutorials_zh-1.0 && cd gluon_tutorials_zh-1.0
 curl https://zh.gluon.ai/gluon_tutorials_zh-1.0.tar.gz -o tutorials.tar.gz
 tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
@@ -84,7 +84,7 @@ tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
 
 第三至五步请参考前面Windows下的安装步骤。其中第四步需将命令替换为
 
-```{.python .input}
+```
 source activate gluon
 ```
 
@@ -101,7 +101,7 @@ source activate gluon
 
 第二步，使用下面命令更新运行环境。
 
-```{.python .input}
+```
 conda env update -f environment.yml
 ```
 
@@ -114,7 +114,7 @@ conda env update -f environment.yml
 
 第一步：卸载CPU版本MXNet。如果你没有安装虚拟环境，可以跳过此步。如已安装虚拟环境，需要先激活运行环境，再卸载CPU版本的MXNet：
 
-```{.python .input}
+```
 pip uninstall mxnet
 ```
 
@@ -124,7 +124,7 @@ pip uninstall mxnet
 
 第三步：更新虚拟环境，执行命令
 
-```{.python .input}
+```
 conda env update -f environment.yml
 ```
 
