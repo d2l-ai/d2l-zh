@@ -79,7 +79,7 @@ $$
 $$
 
 
-两个相同形状的矩阵的加法实际上是按元素做加法：
+两个相同形状的矩阵的加法是将两个矩阵按元素做加法：
 
 $$
 \boldsymbol{A} + \boldsymbol{B} = 
@@ -147,11 +147,11 @@ $$a_{i1}b_{1j}  + a_{i2}b_{2j} + \ldots + a_{ip}b_{pj} = \sum_{k=1}^p a_{ik}b_{k
 
 设$n$维向量$\boldsymbol{x}$中的元素为$x_1, \ldots, x_n$。向量$\boldsymbol{x}$的$L_p$范数为
 
-$$\|\boldsymbol{x}\|_p = \left(\sum_{i=1}^n |x_i|^p \right)^{1/p}.$$
+$$\|\boldsymbol{x}\|_p = \left(\sum_{i=1}^n \left|x_i \right|^p \right)^{1/p}.$$
 
-例如，$\boldsymbol{x}$的$L_1$范数是该向量元素绝对值的和：
+例如，$\boldsymbol{x}$的$L_1$范数是该向量元素绝对值之和：
 
-$$\|\boldsymbol{x}\|_1 = \sum_{i=1}^n |x_i|.$$
+$$\|\boldsymbol{x}\|_1 = \sum_{i=1}^n \left|x_i \right|.$$
 
 而$\boldsymbol{x}$的$L_2$范数是该向量元素平方和的平方根：
 

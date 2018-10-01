@@ -8,7 +8,7 @@
 
 |||
 |:--|:-:|
-|$x$| 标量（整数或实数）|
+|$x$| 标量|
 |$\boldsymbol{x}$|向量|
 |$\boldsymbol{X}$|矩阵|
 |$\mathsf{X}$|张量|
@@ -21,7 +21,7 @@
 |$\mathcal{X}$|集合|
 |$\mathbb{R}$|实数集合|
 |$\mathbb{R}^n$|$n$维的实数向量集合|
-|$\mathbb{R}^{x \times y}$|$x \times y$维的实数矩阵集合|
+|$\mathbb{R}^{x \times y}$|$x$行$y$列的实数矩阵集合|
 
 
 ## 操作符
