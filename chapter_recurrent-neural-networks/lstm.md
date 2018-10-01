@@ -91,15 +91,15 @@ from mxnet.gluon import rnn
 num_inputs, num_hiddens, num_outputs = vocab_size, 256, vocab_size
 ctx = gb.try_gpu()
 
-def get_params():    
+def get_params():
     def _one(shape):
         return nd.random.normal(scale=0.01, shape=shape, ctx=ctx)
-    
+
     def _three():
         return (_one((num_inputs, num_hiddens)),
                 _one((num_hiddens, num_hiddens)),
-                nd.zeros(num_hiddens, ctx=ctx)) 
-       
+                nd.zeros(num_hiddens, ctx=ctx))
+
     W_xi, W_hi, b_i = _three()  # 输入门参数。
     W_xf, W_hf, b_f = _three()  # 遗忘门参数。
     W_xo, W_ho, b_o = _three()  # 输出门参数。
@@ -121,7 +121,7 @@ def get_params():
 
 ```{.python .input  n=3}
 def init_lstm_state(batch_size, num_hiddens, ctx):
-    return (nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx), 
+    return (nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx),
             nd.zeros(shape=(batch_size, num_hiddens), ctx=ctx))
 ```
 
@@ -133,7 +133,7 @@ def lstm(inputs, state, params):
      W_hq, b_q] = params
     (H, C) = state
     outputs = []
-    for X in inputs:        
+    for X in inputs:
         I = nd.sigmoid(nd.dot(X, W_xi) + nd.dot(H, W_hi) + b_i)
         F = nd.sigmoid(nd.dot(X, W_xf) + nd.dot(H, W_hf) + b_f)
         O = nd.sigmoid(nd.dot(X, W_xo) + nd.dot(H, W_ho) + b_o)
@@ -172,7 +172,7 @@ gb.train_and_predict_rnn(lstm, get_params, init_lstm_state, num_hiddens,
 lstm_layer = rnn.LSTM(num_hiddens)
 model = gb.RNNModel(lstm_layer, vocab_size)
 gb.train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
-                               corpus_indices, idx_to_char, char_to_idx, 
+                               corpus_indices, idx_to_char, char_to_idx,
                                num_epochs, num_steps, lr, clipping_theta,
                                batch_size, pred_period, pred_len, prefixes)
 ```

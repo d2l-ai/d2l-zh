@@ -102,7 +102,7 @@ len(outputs), outputs[0].shape, state_new[0].shape
 def predict_rnn(prefix, num_chars, rnn, params, init_rnn_state,
                 num_hiddens, vocab_size, ctx, idx_to_char, char_to_idx):
     state = init_rnn_state(1, num_hiddens, ctx)
-    output = [char_to_idx[prefix[0]]]    
+    output = [char_to_idx[prefix[0]]]
     for t in range(num_chars + len(prefix) - 1):
         # 将上一时间步的输出作为当前时间步的输入。
         X = to_onehot(nd.array([output[-1]], ctx=ctx), vocab_size)
@@ -173,7 +173,7 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
     if is_random_iter:
         data_iter_fn = gb.data_iter_random
     else:
-        data_iter_fn = gb.data_iter_consecutive     
+        data_iter_fn = gb.data_iter_consecutive
     params = get_params()
     loss = gloss.SoftmaxCrossEntropyLoss()
 

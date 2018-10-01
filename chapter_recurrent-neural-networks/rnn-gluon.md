@@ -101,9 +101,9 @@ predict_rnn_gluon('分开', 10, model, vocab_size, ctx, idx_to_char, char_to_idx
 
 ```{.python .input  n=18}
 # 本函数已保存在 gluonbook 包中方便以后使用。
-def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx, 
-                                corpus_indices, idx_to_char, char_to_idx, 
-                                num_epochs, num_steps, lr, clipping_theta, 
+def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
+                                corpus_indices, idx_to_char, char_to_idx,
+                                num_epochs, num_steps, lr, clipping_theta,
                                 batch_size, pred_period, pred_len, prefixes):
     loss = gloss.SoftmaxCrossEntropyLoss()
     model.initialize(ctx=ctx, force_reinit=True, init=init.Normal(0.01))
@@ -134,7 +134,7 @@ def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
                 epoch + 1, math.exp(loss_sum / (t + 1)), time.time() - start))
             for prefix in prefixes:
                 print(' -', predict_rnn_gluon(
-                    prefix, pred_len, model, vocab_size, 
+                    prefix, pred_len, model, vocab_size,
                     ctx, idx_to_char, char_to_idx))
 ```
 
@@ -143,9 +143,9 @@ def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
 ```{.python .input  n=19}
 num_epochs, batch_size, lr, clipping_theta = 200, 32, 1e2, 1e-2
 pred_period, pred_len, prefixes = 50, 50, ['分开', '不分开']
-train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx, 
-                            corpus_indices, idx_to_char, char_to_idx, 
-                            num_epochs, num_steps, lr, clipping_theta, 
+train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
+                            corpus_indices, idx_to_char, char_to_idx,
+                            num_epochs, num_steps, lr, clipping_theta,
                             batch_size, pred_period, pred_len, prefixes)
 ```
 

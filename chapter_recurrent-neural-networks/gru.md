@@ -85,14 +85,14 @@ ctx = gb.try_gpu()
 def get_params():
     def _one(shape):
         return nd.random.normal(scale=0.01, shape=shape, ctx=ctx)
-    
+
     def _three():
         return (_one((num_inputs, num_hiddens)),
                 _one((num_hiddens, num_hiddens)),
-                nd.zeros(num_hiddens, ctx=ctx))  
- 
-    W_xz, W_hz, b_z = _three()  # 更新门参数。    
-    W_xr, W_hr, b_r = _three()  # 重置门参数。    
+                nd.zeros(num_hiddens, ctx=ctx))
+
+    W_xz, W_hz, b_z = _three()  # 更新门参数。
+    W_xr, W_hr, b_r = _three()  # 重置门参数。
     W_xh, W_hh, b_h = _three()  # 候选隐藏状态参数。
     # 输出层参数。
     W_hq = _one((num_hiddens, num_outputs))
@@ -120,7 +120,7 @@ def gru(inputs, state, params):
     W_xz, W_hz, b_z, W_xr, W_hr, b_r, W_xh, W_hh, b_h, W_hq, b_q = params
     H, = state
     outputs = []
-    for X in inputs:        
+    for X in inputs:
         Z = nd.sigmoid(nd.dot(X, W_xz) + nd.dot(H, W_hz) + b_z)
         R = nd.sigmoid(nd.dot(X, W_xr) + nd.dot(H, W_hr) + b_r)
         H_tilda = nd.tanh(nd.dot(X, W_xh) + R * nd.dot(H, W_hh) + b_h)
