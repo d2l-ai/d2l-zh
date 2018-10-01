@@ -71,9 +71,6 @@ $$\boldsymbol{H}_t = \boldsymbol{O}_t \odot \text{tanh}(\boldsymbol{C}_t).$$
 和前几节中的实验一样，我们依然使用周杰伦歌词数据集来训练模型作词。
 
 ```{.python .input  n=1}
-import sys
-sys.path.insert(0, '..')
-
 import gluonbook as gb
 from mxnet import nd
 from mxnet.gluon import rnn
