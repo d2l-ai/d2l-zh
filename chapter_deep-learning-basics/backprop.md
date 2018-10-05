@@ -22,7 +22,7 @@ $$L = \ell(\boldsymbol{o}, y).$$
 
 根据$L_2$范数正则化的定义，给定超参数$\lambda$，正则化项即
 
-$$s = \frac{\lambda}{2} \left(\|\boldsymbol{W}^{(1)}\|_F^2 + \|\boldsymbol{W}^{(2)}\|_F^2\right),$$
+$$s = \frac{\lambda}{2} L_2 = \frac{\lambda}{2} \left(\|\boldsymbol{W}^{(1)}\|_F^2 + \|\boldsymbol{W}^{(2)}\|_F^2\right),$$
 
 其中矩阵的Frobenius范数等价于将矩阵变平为向量后计算$L_2$范数。最终，模型在给定的数据样本上带正则化的损失为
 
