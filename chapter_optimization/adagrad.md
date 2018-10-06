@@ -89,7 +89,7 @@ def adagrad(params, states, hyperparams):
 gb.train_ch7(adagrad, init_adagrad_states(), {'lr': 0.1}, features, labels)
 ```
 
-## 使用Gluon的实现
+## Gluon实现
 
 使用名称`adagrad`可以获得Gluon对AdaGrad的实现。
 

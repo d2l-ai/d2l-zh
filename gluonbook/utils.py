@@ -180,7 +180,7 @@ def get_data_ch7():
     """Get the data set used in Chapter 7."""
     data = np.genfromtxt('../data/airfoil_self_noise.dat', delimiter='\t')
     data = (data - data.mean(axis=0)) / data.std(axis=0)
-    return nd.array(data[:, :-2]), nd.array(data[:,-1])
+    return nd.array(data[:, :-1]), nd.array(data[:, -1])
 
 
 def get_fashion_mnist_labels(labels):

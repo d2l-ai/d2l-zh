@@ -154,6 +154,8 @@ softmax回归，softmax regression
 
 数据集，data set
 
+数据样本，data instance
+
 损失函数，loss function
 
 双向循环神经网络，bidirectional recurrent neural network

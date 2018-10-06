@@ -140,7 +140,7 @@ gb.train_ch7(sgd_momentum, init_momentum_states(), {'lr': 0.004, 'mom': 0.9},
              features, labels)
 ```
 
-## 使用Gluon的实现
+## Gluon实现
 
 在Gluon中，只需要在随机梯度下降的训练器中通过`momentum`来指定动量超参数即可得到动量法。
 

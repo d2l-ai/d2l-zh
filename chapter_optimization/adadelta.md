@@ -22,7 +22,7 @@ $$\Delta\boldsymbol{x}_t \leftarrow \rho \Delta\boldsymbol{x}_{t-1} + (1 - \rho)
 可以看到，Adadelta跟RMSProp不同的地方在于使用$\Delta\boldsymbol{x}_t$来替代了超参数$\eta_t$，因此它的主要优势在于不需要手动选取学习率。
 
 
-## 从零开始的实现
+## 从零开始实现
 
 首先，导入本节中实验所需的包或模块。
 
@@ -60,7 +60,7 @@ def adadelta(params, states, hyperparams):
 gb.train_ch7(adadelta, init_adadelta_states(), {'rho': .9}, features, labels)
 ```
 
-## 使用Gluon的实现
+## Gluon实现
 
 Adadelta在Gluon中名称为`adadelta`，其超参数可以通过`rho`来指定。
 

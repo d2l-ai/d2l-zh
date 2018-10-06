@@ -74,7 +74,7 @@ gb.train_ch7(rmsprop, init_rmsprop_states(), {'lr': 0.01, 'gamma': 0.9},
              features, labels)
 ```
 
-## 使用Gluon的实现
+## Gluon实现
 
 使用名称`rmsprop`可以获取Gluon中预实现的RMSProp算法。注意超参数$\gamma$此时通过`gamma1`指定。
 

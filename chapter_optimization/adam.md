@@ -65,7 +65,7 @@ def adam(params, states, hyperparams):
 gb.train_ch7(adam, init_adam_states(), {'lr': 0.01, 't': 1}, features, labels)
 ```
 
-## 使用Gluon的实现
+## Gluon实现
 
 通过名称`adam`可以获取Gluon中的实现：
 
