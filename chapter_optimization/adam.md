@@ -7,7 +7,7 @@ $$\boldsymbol{v}_t \leftarrow \beta_1 \boldsymbol{v}_{t-1} + (1 - \beta_1) \bold
 
 将其展开我们得到$\boldsymbol{v}_t =  (1-\beta_1) \sum_{i=1}^t \beta_1^{t-i} \boldsymbol{g}_i$。考虑一个简单情况：假设$\boldsymbol{g}_i=\boldsymbol{g}$对所有$i$成立，那么$\boldsymbol{v}_t = \left((1-\beta_1)\sum_{i=1}^t \beta_1^{t-i}\right)\boldsymbol{g} = \left(1 - \beta_1^t\right)\boldsymbol{g}$。
 
-当$t$较小时，$1 - \beta_1^t$会较小。例如当$\beta_1 = 0.9$时且$t=1$时，$\boldsymbol{v}_1 = 0.1\boldsymbol{g}$，当$t=10$时，$\boldsymbol{v}_{10} = 0.65\boldsymbol{g}$。为了消除这样的影响，我们可以将$\boldsymbol{v}_t$再除以$1 - \beta_1^t$，从而使得过去各时刻小批量随机梯度权值之和为1。这也叫做偏差修正。也就是：
+当$t$较小时，$1 - \beta_1^t$会较小。例如当$\beta_1 = 0.9$时且$t=1$时，$\boldsymbol{v}_1 = 0.1\boldsymbol{g}$，当$t=10$时，$\boldsymbol{v}_{10} = 0.65\boldsymbol{g}$。为了消除这样的影响，我们可以将$\boldsymbol{v}_t$再除以$1 - \beta_1^t$，从而使得过去各时间步小批量随机梯度权值之和为1。这也叫做偏差修正。也就是：
 
 $$\boldsymbol{v}'_t \leftarrow \frac{\boldsymbol{v}_t}{1 - \beta_1^t}.$$
 
@@ -49,14 +49,14 @@ def init_adam_states():
     return ((v_w, s_w), (v_b, s_b))
 
 def adam(params, states, hyperparams):
-    hp, beta1, beta2, eps = hyperparams, 0.9, 0.999, 1e-6
+    beta1, beta2, eps = 0.9, 0.999, 1e-6
     for p, (v, s) in zip(params, states):
         v[:] = beta1 * v + (1 - beta1) * p.grad
         s[:] = beta2 * s + (1 - beta2) * p.grad.square()
-        v_bias_corr = v / (1 - beta1 ** hp['t'])
-        s_bias_corr = s / (1 - beta2 ** hp['t'])    
-        p[:] -= hp['lr'] * v_bias_corr / (s_bias_corr.sqrt() + eps)
-    hp['t'] += 1
+        v_bias_corr = v / (1 - beta1 ** hyperparams['t'])
+        s_bias_corr = s / (1 - beta2 ** hyperparams['t'])    
+        p[:] -= hyperparams['lr'] * v_bias_corr / (s_bias_corr.sqrt() + eps)
+    hyperparams['t'] += 1
 ```
 
 使用学习率$0.01$来训练

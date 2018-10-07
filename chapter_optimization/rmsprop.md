@@ -15,7 +15,7 @@ $$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \frac{\eta_t}{\sqrt{\boldsy
 
 其中$\eta_t$是学习率，$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-6}$。
 
-因为RMSProp的状态变量是对平方项$\boldsymbol{g}_t \odot \boldsymbol{g}_t$的指数加权移动平均，因此可以看作是最近$1/(1-\gamma)$个时刻的梯度平方项的加权平均，这样自变量每个元素的学习率在迭代过程中避免了“直降不升”的问题。
+因为RMSProp的状态变量是对平方项$\boldsymbol{g}_t \odot \boldsymbol{g}_t$的指数加权移动平均，因此可以看作是最近$1/(1-\gamma)$个时间步的梯度平方项的加权平均，这样自变量每个元素的学习率在迭代过程中避免了“直降不升”的问题。
 
 照例，让我们先观察RMSProp对目标函数$f(\boldsymbol{x})=0.1x_1^2+2x_2^2$中自变量的更新轨迹。首先，导入本节中实验所需的包或模块。
 
@@ -60,13 +60,13 @@ def init_rmsprop_states():
     return (s_w, s_b)
 
 def rmsprop(params, states, hyperparams):
-    hp, eps = hyperparams, 1e-6
+    gamma, eps = hyperparams['gamma'], 1e-6
     for p, s in zip(params, states):
-        s[:] = hp['gamma'] * s + (1 - hp['gamma']) * p.grad.square()
-        p[:] -= hp['lr'] * p.grad / (s + eps).sqrt()
+        s[:] = gamma * s + (1 - gamma) * p.grad.square()
+        p[:] -= hyperparams['lr'] * p.grad / (s + eps).sqrt()
 ```
 
-我们将初始学习率设为0.01，并将$\gamma$（`gamma`）设为0.9。此时，变量$\boldsymbol{s}$可看作是最近$1/(1-0.9) = 10$个时刻的平方项$\boldsymbol{g} \odot \boldsymbol{g}$的加权平均。我们观察到，损失函数在迭代后期较震荡。
+我们将初始学习率设为0.01，并将$\gamma$（`gamma`）设为0.9。此时，变量$\boldsymbol{s}$可看作是最近$1/(1-0.9) = 10$个时间步的平方项$\boldsymbol{g} \odot \boldsymbol{g}$的加权平均。我们观察到，损失函数在迭代后期较震荡。
 
 ```{.python .input  n=24}
 features, labels = gb.get_data_ch7()

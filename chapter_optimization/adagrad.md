@@ -1,7 +1,7 @@
 # Adagrad
 
 
-在我们之前介绍过的优化算法中，无论是梯度下降、（小批量）随机梯度下降还是使用动量法，目标函数自变量的每一个元素在相同时刻都使用同一个学习率来自我迭代。举个例子，假设目标函数为$f$，自变量为一个多维向量$[x_1, x_2]^\top$，该向量中每一个元素在更新时都使用相同的学习率。例如在学习率为$\eta$的梯度下降中，元素$x_1$和$x_2$都使用相同的学习率$\eta$来自我迭代：
+在我们之前介绍过的优化算法中，无论是梯度下降、（小批量）随机梯度下降还是使用动量法，目标函数自变量的每一个元素在相同时间步都使用同一个学习率来自我迭代。举个例子，假设目标函数为$f$，自变量为一个多维向量$[x_1, x_2]^\top$，该向量中每一个元素在更新时都使用相同的学习率。例如在学习率为$\eta$的梯度下降中，元素$x_1$和$x_2$都使用相同的学习率$\eta$来自我迭代：
 
 $$
 x_1 \leftarrow x_1 - \eta \frac{\partial{f}}{\partial{x_1}}, \quad
@@ -77,10 +77,10 @@ def init_adagrad_states():
     return (s_w, s_b)
 
 def adagrad(params, states, hyperparams):
-    hp, eps = hyperparams, 1e-6
+    eps = 1e-6
     for p, s in zip(params, states):
         s[:] += p.grad.square()
-        p[:] -= hp['lr'] * p.grad / (s + eps).sqrt()
+        p[:] -= hyperparams['lr'] * p.grad / (s + eps).sqrt()
 ```
 
 接下来使用$0.1$的学习率来训练模型，它是[“梯度下降和随机梯度下降”](./gd-sgd.md)一节中使用的2倍。
