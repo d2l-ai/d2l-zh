@@ -76,7 +76,7 @@ def train_ch7(trainer_fn, states, hyperparams, features, labels,
             with autograd.record():
                 l = loss(net(X, w, b), y).mean()  # 使用平均损失。
             l.backward()
-            trainer_fn([w, b], states, hyperparams)  # 模型更新。
+            trainer_fn([w, b], states, hyperparams)  # 迭代模型参数。
             if (batch_i + 1) * batch_size % 100 == 0:
                 ls.append(eval_loss())  # 每 100 个样本记录下当前训练误差。
     # 打印结果和作图。

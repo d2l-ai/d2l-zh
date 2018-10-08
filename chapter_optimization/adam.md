@@ -1,6 +1,10 @@
 # Adam
 
-Adam是另一个对RMSProp的改进算法 [1]。但一个不同点在于Adam对梯度做了指数加权移动平均。首先将动量变量$\boldsymbol{v}\in\mathbb{R}^d$的元素在时间步0时初始化成0。
+Adam是另一个对RMSProp的改进算法 [1]。但一个不同点在于Adam对梯度做了指数加权移动平均。
+
+## 算法
+
+首先将动量变量$\boldsymbol{v}\in\mathbb{R}^d$的元素在时间步0时初始化成0。
 给定超参数$\beta_1$且满足$0 \leq \beta_1 < 1$（算法作者建议设为0.9），在时间步$t$计算
 
 $$\boldsymbol{v}_t \leftarrow \beta_1 \boldsymbol{v}_{t-1} + (1 - \beta_1) \boldsymbol{g}_t. $$

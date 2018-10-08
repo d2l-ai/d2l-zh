@@ -2,6 +2,8 @@
 
 我们在[“RMSProp”](rmsprop.md)一节中描述了RMSProp针对Adagrad在迭代后期可能较难找到有用解的问题。RMSProp对小批量随机梯度按元素平方项做指数加权移动平均而不是累加。另一种应对该问题的优化算法叫做Adadelta [1]。有意思的是，它没有学习率这一超参数。
 
+## 算法
+
 Adadelta算法也像RMSProp一样，使用了小批量随机梯度按元素平方的指数加权移动平均变量$\boldsymbol{s}$，它的时间步0时被初始化为0。
 给定超参数$\rho$且$0 \leq \rho < 1$（对应RMSProp中的$\gamma$），在时间步$t>0$，同RMSProp一样计算
 
@@ -19,7 +21,7 @@ $$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \boldsymbol{g}'_t. $$
 
 $$\Delta\boldsymbol{x}_t \leftarrow \rho \Delta\boldsymbol{x}_{t-1} + (1 - \rho) \boldsymbol{g}'_t \odot \boldsymbol{g}'_t. $$
 
-可以看到，Adadelta跟RMSProp不同的地方在于使用$\Delta\boldsymbol{x}_t$来替代了超参数$\eta_t$，因此它的主要优势在于不需要手动选取学习率。
+可以看到，Adadelta跟RMSProp不同的地方在于使用$\Delta\boldsymbol{x}_t$来替代了超参数$\eta$，因此它的主要优势在于不需要手动选取学习率。
 
 
 ## 从零开始实现
@@ -35,7 +37,7 @@ import gluonbook as gb
 from mxnet import nd
 ```
 
-Adadelta需要对每个自变量维护两个状态变量，$\boldsymbol{s}$和$\Delta\boldsymbol{x}$。按上面公式显示Adadelta：
+Adadelta需要对每个自变量维护两个状态变量，$\boldsymbol{s}_t$和$\Delta\boldsymbol{x}_t$。按上面公式显示Adadelta：
 
 ```{.python .input  n=11}
 features, labels = gb.get_data_ch7()
