@@ -41,7 +41,7 @@ def gd(eta):
     x = 10
     results = [x]
     for i in range(10):
-        x -= eta * 2 * x  # f(x) = x * x 的导数为 f'(x) = 2 * x
+        x -= eta * 2 * x  # f(x) = x * x 的导数为 f'(x) = 2 * x。
         results.append(x)
     print('epoch 10, x:', x)
     return results
