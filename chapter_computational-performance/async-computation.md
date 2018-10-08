@@ -42,11 +42,11 @@ class Benchmark():  # 本类已保存在 gluonbook 包中方便以后使用。
 下面的例子通过计时来展示异步计算的效果。可以看到，当`y = nd.dot(x, x).sum()`返回的时候并没有等待变量`y`真正被计算完。只有当`print`函数需要打印变量`y`时才必须等待它计算完。
 
 ```{.python .input  n=4}
-with Benchmark('workloads are queued.'):
+with Benchmark('Workloads are queued.'):
     x = nd.random.uniform(shape=(2000, 2000))
     y = nd.dot(x, x).sum()
 
-with Benchmark('workloads are finished.'):
+with Benchmark('Workloads are finished.'):
     print('sum =', y)
 ```
 

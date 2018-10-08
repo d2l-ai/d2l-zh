@@ -1,8 +1,8 @@
 # 自动并行计算
 
-在[“异步计算”](async-computation.md)一节里我们提到MXNet后端会自动构建计算图。通过计算图，系统可以知道所有计算的依赖关系，并可以选择将没有依赖关系的多个任务并行执行来获得性能的提升。例如[“异步计算”](async-computation.md)一节的第一个例子里依次执行了`a = nd.ones((1, 2))`和`b = nd.ones((1, 2))`。这两步计算之间并没有依赖关系，因此系统可以选择并行执行它们。
+MXNet后端会自动构建计算图。通过计算图，系统可以知道所有计算的依赖关系，并可以选择将没有依赖关系的多个任务并行执行来获得计算性能的提升。例如[“异步计算”](async-computation.md)一节的第一个例子里依次执行了`a = nd.ones((1, 2))`和`b = nd.ones((1, 2))`。这两步计算之间并没有依赖关系，因此系统可以选择并行执行它们。
 
-通常一个运算符会用到所有CPU或单个GPU上全部的计算资源。例如，`dot`操作符会用到所有CPU（即使是一台机器上有多个CPU处理器）或单个GPU上所有线程。如果每个操作符的计算量足够，单纯在CPU或者GPU上并行运行多个运算符可能效果并不明显。本节中探讨的自动并行计算主要关注同时使用CPU和GPU的并行计算，以及计算和通讯的并行。
+通常，一个运算符会用到所有CPU或单个GPU上全部的计算资源。例如，`dot`操作符会用到所有CPU（即使是一台机器上有多个CPU处理器）或单个GPU上所有的线程。如果每个操作符的计算量足够大，只在CPU上或者单个GPU上并行运行多个运算符时，每个运算符的运行只分到CPU或单个GPU上部分计算资源。即使这些计算可以并行，最终计算性能的提升可能并不明显。本节中探讨的自动并行计算主要关注同时使用CPU和GPU的并行计算，以及计算和通讯的并行。
 
 首先导入本节中实验所需的包或模块。注意，我们需要至少一个GPU才能运行本节实验。
 
@@ -14,7 +14,7 @@ from mxnet import nd
 
 ## CPU和GPU的并行计算
 
-我们先介绍CPU和GPU的并行计算，例如程序中的计算既发生在CPU，又发生在GPU之上。先定义一个函数，令它做10次矩阵乘法。
+我们先介绍CPU和GPU的并行计算，例如程序中的计算既发生在CPU上，又发生在GPU上。先定义`run`函数，令它做10次矩阵乘法。
 
 ```{.python .input}
 def run(x):
@@ -35,11 +35,11 @@ run(x_cpu)  # 预热开始。
 run(x_gpu)
 nd.waitall()  # 预热结束。
 
-with gb.Benchmark('run on CPU.'):
+with gb.Benchmark('Run on CPU.'):
     run(x_cpu)
     nd.waitall()
 
-with gb.Benchmark('then run on GPU.'):
+with gb.Benchmark('Then run on GPU.'):
     run(x_gpu)
     nd.waitall()
 ```
@@ -47,7 +47,7 @@ with gb.Benchmark('then run on GPU.'):
 我们去掉`run(x_cpu)`和`run(x_gpu)`两个计算任务之间的`nd.waitall()`，希望系统能自动并行这两个任务。
 
 ```{.python .input}
-with gb.Benchmark('run on both CPU and GPU in parallel.'):
+with gb.Benchmark('Run on both CPU and GPU in parallel.'):
     run(x_cpu)
     run(x_gpu)
     nd.waitall()
@@ -58,17 +58,17 @@ with gb.Benchmark('run on both CPU and GPU in parallel.'):
 
 ## 计算和通讯的并行计算
 
-在同时使用CPU和GPU的计算中，我们经常需要在CPU和GPU之间复制数据，造成数据的通讯。举个例子，在下面例子中，我们在GPU上计算，然后将结果复制回CPU。我们分别打印GPU上计算时间和GPU到CPU的通讯时间。
+在同时使用CPU和GPU的计算中，我们经常需要在CPU和GPU之间复制数据，造成数据的通讯。在下面例子中，我们在GPU上计算，然后将结果复制回CPU。我们分别打印GPU上计算时间和GPU到CPU的通讯时间。
 
 ```{.python .input}
 def copy_to_cpu(x):
     return [y.copyto(mx.cpu()) for y in x]
 
-with gb.Benchmark('run on GPU.'):
+with gb.Benchmark('Run on GPU.'):
     y = run(x_gpu)
     nd.waitall()
 
-with gb.Benchmark('then copy to CPU.'):
+with gb.Benchmark('Then copy to CPU.'):
     copy_to_cpu(y)
     nd.waitall()
 ```
@@ -76,7 +76,7 @@ with gb.Benchmark('then copy to CPU.'):
 我们去掉计算和通讯之间的`waitall`函数，打印这两个任务完成的总时间。
 
 ```{.python .input}
-with gb.Benchmark('run and copy in parallel.'):
+with gb.Benchmark('Run and copy in parallel.'):
     y = run(x_gpu)
     copy_to_cpu(y)
     nd.waitall()
@@ -86,14 +86,14 @@ with gb.Benchmark('run and copy in parallel.'):
 
 ## 小结
 
-* MXNet能够通过自动并行计算提升计算性能，例如CPU和GPU的并行以及计算和通讯的并行。
+* MXNet能够通过自动并行计算提升计算性能，例如CPU和GPU的并行计算以及计算和通讯的并行。
 
 
 ## 练习
 
-* 本节中定义的`run`函数里做了10次运算。它们之间也没有依赖关系。看看MXNet有没有自动并行执行它们。
-* 试试包含更加复杂的数据依赖的计算任务。MXNet能不能得到正确结果并提升计算性能？
-* 当运算符足够小时（例如批量大小为1的预测），在CPU或单GPU上并行运行也可能提升效果，实验是否如此。
+* 本节中定义的`run`函数里做了10次运算。它们之间也没有依赖关系。设计实验，看看MXNet有没有自动并行执行它们。
+* 设计包含更加复杂的数据依赖的计算任务，通过实验观察MXNet能否得到正确结果并提升计算性能。
+* 当运算符的计算量足够小时，仅在CPU或单GPU上并行计算也可能提升计算性能。设计实验来验证这一点。
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1883)
