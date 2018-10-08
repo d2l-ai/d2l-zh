@@ -19,5 +19,4 @@
    rmsprop
    adadelta
    adam
-   optimization-summary
 ```
