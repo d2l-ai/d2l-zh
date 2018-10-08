@@ -34,10 +34,10 @@ import gluonbook as gb
 import math
 from mxnet import nd
 
-def adagrad_2d(x1, x2, s1, s2):    
+def adagrad_2d(x1, x2, s1, s2):
     g1, g2, eps = 0.2 * x1, 4 * x2, 1e-6  # 前两项为自变量梯度。
     s1 += g1 ** 2
-    s2 += g2 ** 2        
+    s2 += g2 ** 2
     x1 -= eta / math.sqrt(s1 + eps) * g1
     x2 -= eta / math.sqrt(s2 + eps) * g2
     return x1, x2, s1, s2

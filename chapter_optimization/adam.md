@@ -51,7 +51,7 @@ def adam(params, states, hyperparams):
         v[:] = beta1 * v + (1 - beta1) * p.grad
         s[:] = beta2 * s + (1 - beta2) * p.grad.square()
         v_bias_corr = v / (1 - beta1 ** hyperparams['t'])
-        s_bias_corr = s / (1 - beta2 ** hyperparams['t'])    
+        s_bias_corr = s / (1 - beta2 ** hyperparams['t'])
         p[:] -= hyperparams['lr'] * v_bias_corr / (s_bias_corr.sqrt() + eps)
     hyperparams['t'] += 1
 ```

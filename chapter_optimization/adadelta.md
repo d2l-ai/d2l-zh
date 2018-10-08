@@ -46,7 +46,7 @@ def adadelta(params, states, hyperparams):
         s[:] = rho * s + (1 - rho) * p.grad.square()
         g = ((delta + eps).sqrt() / (s + eps).sqrt()) * p.grad
         p[:] -= g
-        delta[:] = rho * delta + (1 - rho) * g * g        
+        delta[:] = rho * delta + (1 - rho) * g * g
 ```
 
 使用超参数$\rho=0.9$来训练模型。

@@ -133,10 +133,10 @@ print('output:', splitted)
 ```{.python .input  n=10}
 def train_batch(X, y, gpu_params, ctx, lr):
     # 当 ctx 包含多个 GPU 时，划分小批量数据样本并复制到各个 GPU 上。
-    gpu_Xs, gpu_ys = split_and_load(X, ctx), split_and_load(y, ctx)     
+    gpu_Xs, gpu_ys = split_and_load(X, ctx), split_and_load(y, ctx) 
     with autograd.record():  # 在各个 GPU 上分别计算损失。
         ls = [loss(lenet(gpu_X, gpu_W), gpu_y)
-              for gpu_X, gpu_y, gpu_W in zip(gpu_Xs, gpu_ys, gpu_params)]    
+              for gpu_X, gpu_y, gpu_W in zip(gpu_Xs, gpu_ys, gpu_params)]
     for l in ls:  # 在各个 GPU 上分别反向传播。
         l.backward()
     # 把各个 GPU 上的梯度加起来，然后再广播到所有 GPU 上。
@@ -164,7 +164,10 @@ def train(num_gpus, batch_size, lr):
             train_batch(X, y, gpu_params, ctx, lr)
             nd.waitall()
         train_time = time.time() - start
-        net = lambda x: lenet(x, gpu_params[0])  # 在 GPU 0 上验证模型。
+
+        def net(x):  # 在 GPU 0 上验证模型。
+            return lenet(x, gpu_params[0])
+
         test_acc = gb.evaluate_accuracy(test_iter, net, ctx[0])
         print('epoch %d, time: %.1f sec, test acc: %.2f'
               % (epoch + 1, train_time, test_acc))

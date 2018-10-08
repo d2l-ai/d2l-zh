@@ -81,7 +81,7 @@ x, y = np.mgrid[-1: 1: 31j, -1: 1: 31j]
 z = x**2 - y**2
 
 ax = gb.plt.figure().add_subplot(111, projection='3d')
-ax.plot_wireframe(x, y, z, **{'rstride':2, 'cstride':2})
+ax.plot_wireframe(x, y, z, **{'rstride': 2, 'cstride': 2})
 ax.plot([0], [0], [0], 'rx')
 ticks = [-1,  0, 1]
 gb.plt.xticks(ticks)

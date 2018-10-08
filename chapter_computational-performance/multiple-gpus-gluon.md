@@ -61,9 +61,10 @@ net(gpu_x[0]), net(gpu_x[1])
 
 ```{.python .input  n=5}
 weight = net[0].params.get('weight')
+
 try:
     weight.data()
-except:
+except RuntimeError:
     print('not initialized on', mx.cpu())
 weight.data(ctx[0])[0], weight.data(ctx[1])[0]
 ```
