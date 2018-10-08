@@ -1,6 +1,8 @@
 # 多GPU计算的Gluon实现
 
-在Gluon中，我们可以很方便地使用数据并行进行多GPU计算。比方说，我们并不需要自己实现[“多GPU计算”](multiple-gpus.md)一节里介绍的多GPU之间同步数据的辅助函数。先导入本节实验需要的包或模块。同上一节，运行本节中的程序需要至少两块GPU。
+在Gluon中，我们可以很方便地使用数据并行进行多GPU计算。例如，我们并不需要自己实现[“多GPU计算”](multiple-gpus.md)一节里介绍的多GPU之间同步数据的辅助函数。
+
+首先导入本节实验所需的包或模块。运行本节中的程序需要至少两块GPU。
 
 ```{.python .input  n=1}
 import gluonbook as gb
@@ -15,8 +17,7 @@ import time
 我们使用ResNet-18来作为本节的样例模型。由于本节的输入图像使用原尺寸（未放大），这里的模型构造与[“残差网络（ResNet）”](../chapter_convolutional-neural-networks/resnet.md)一节中的ResNet-18构造稍有不同。这里的模型在一开始使用了较小的卷积核、步幅和填充，并去掉了最大池化层。
 
 ```{.python .input  n=2}
-# 本函数已保存在 gluonbook 包中方便以后使用。
-def resnet18(num_classes):
+def resnet18(num_classes):  # 本函数已保存在 gluonbook 包中方便以后使用。
     def resnet_block(num_channels, num_residuals, first_block=False):
         blk = nn.Sequential()
         for i in range(num_residuals):
@@ -26,6 +27,7 @@ def resnet18(num_classes):
             else:
                 blk.add(gb.Residual(num_channels))
         return blk
+
     net = nn.Sequential()
     # 这里使用了较小的卷积核、步幅和填充，并去掉了最大池化层。
     net.add(nn.Conv2D(64, kernel_size=3, strides=1, padding=1),
@@ -40,14 +42,14 @@ def resnet18(num_classes):
 net = resnet18(10)
 ```
 
-之前我们介绍了如何使用`initialize`函数的`ctx`参数在CPU或单个GPU上初始化模型参数。事实上，`ctx`可以接受一系列的CPU/GPU，从而使初始化好的模型参数复制到`ctx`里所有的CPU/GPU上。
+之前我们介绍了如何使用`initialize`函数的`ctx`参数在CPU或单个GPU上初始化模型参数。事实上，`ctx`可以接受一系列的CPU和GPU，从而使初始化好的模型参数复制到`ctx`里所有的CPU和GPU上。
 
 ```{.python .input  n=3}
 ctx = [mx.gpu(0), mx.gpu(1)]
 net.initialize(init=init.Normal(sigma=0.01), ctx=ctx)
 ```
 
-Gluon提供了上一节中实现的`split_and_load`函数。它可以划分一个小批量的数据样本并复制到各个CPU/GPU上。之后，根据输入数据所在的CPU/GPU，模型计算会发生在相同的CPU/GPU上。
+Gluon提供了上一节中实现的`split_and_load`函数。它可以划分一个小批量的数据样本并复制到各个CPU或GPU上。之后，根据输入数据所在的CPU或GPU，模型计算会发生在相同的CPU或GPU上。
 
 ```{.python .input  n=4}
 x = nd.random.uniform(shape=(4, 1, 28, 28))
@@ -55,7 +57,7 @@ gpu_x = gutils.split_and_load(x, ctx)
 net(gpu_x[0]), net(gpu_x[1])
 ```
 
-回忆一下[“模型参数的延后初始化”](../chapter_deep-learning-computation/deferred-init.md)一节中介绍的延后的初始化。现在，我们可以通过`data`访问初始化好的模型参数值了。需要注意的是，默认下`weight.data()`会返回CPU上的参数值。由于我们指定了2个GPU来初始化模型参数，我们需要指定GPU访问。我们看到，相同参数在不同的GPU上的值一样。
+现在，我们可以通过`data`访问已初始化好的模型参数值。需要注意的是，默认下`weight.data()`会返回CPU上的参数值。由于我们指定了2个GPU来初始化模型参数，我们需要指定GPU来访问参数值。我们看到，相同参数在不同的GPU上的值一样。
 
 ```{.python .input  n=5}
 weight = net[0].params.get('weight')
@@ -68,7 +70,7 @@ weight.data(ctx[0])[0], weight.data(ctx[1])[0]
 
 ## 多GPU训练模型
 
-当我们使用多个GPU来训练模型时，`gluon.Trainer`会自动做数据并行，例如划分小批量数据样本并复制到各个GPU上，对各个GPU上的梯度求和再广播到所有GPU上。这样，我们就可以很方便地实现训练函数了。
+当我们使用多个GPU来训练模型时，`Trainer`实例会自动做数据并行，例如划分小批量数据样本并复制到各个GPU上，以及对各个GPU上的梯度求和再广播到所有GPU上。这样，我们就可以很方便地实现训练函数了。
 
 ```{.python .input  n=7}
 def train(num_gpus, batch_size, lr):
@@ -103,7 +105,7 @@ def train(num_gpus, batch_size, lr):
 train(num_gpus=1, batch_size=256, lr=0.1)
 ```
 
-然后尝试2个GPU。比上一节使用的LeNet，ResNet-18计算更加复杂，其并行效果更佳。
+然后尝试在2个GPU上训练。与上一节使用的LeNet相比，ResNet-18的计算更加复杂，通讯时间与计算时间相比更短，因此ResNet-18的并行计算所获得的性能提升更佳。
 
 ```{.python .input  n=10}
 train(num_gpus=2, batch_size=512, lr=0.2)
@@ -116,7 +118,7 @@ train(num_gpus=2, batch_size=512, lr=0.2)
 ## 练习
 
 * 本节使用了ResNet-18。试试不同的迭代周期、批量大小和学习率。如果条件允许，使用更多GPU计算。
-* 有时候，不同的CPU/GPU的计算能力不一样，例如同时使用CPU和GPU，或者GPU之间型号不一样。这时候应该怎么办？
+* 有时候，不同设备的计算能力不一样，例如同时使用CPU和GPU，或者不同GPU之间型号不一样。这时候应该如何划分小批量到不同的CPU或GPU？
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1885)
 
