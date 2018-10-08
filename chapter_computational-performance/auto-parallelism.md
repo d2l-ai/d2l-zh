@@ -7,9 +7,6 @@
 首先导入本节中实验所需的包或模块。注意，我们需要至少一个GPU才能运行本节实验。
 
 ```{.python .input}
-import sys
-sys.path.insert(0, '..')
-
 import gluonbook as gb
 import mxnet as mx
 from mxnet import nd

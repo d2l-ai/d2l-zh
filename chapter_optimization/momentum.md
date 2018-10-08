@@ -8,9 +8,6 @@
 让我们考虑一个输入和输出分别为二维向量$\boldsymbol{x} = [x_1, x_2]^\top$和标量的目标函数$f(\boldsymbol{x})=0.1x_1^2+2x_2^2$。跟[“梯度下降和随机梯度下降”](./gd-sgd.md)一节中不同，这里将$x_1^2$系数从$1$减小到了$0.1$。下面实现基于这个目标函数的梯度下降，并演示使用学习率为$0.4$时自变量的迭代轨迹。
 
 ```{.python .input  n=3}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 from mxnet import nd

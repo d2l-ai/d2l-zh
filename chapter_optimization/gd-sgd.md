@@ -27,9 +27,6 @@ $$x \leftarrow x - \eta f'(x)$$
 下面我们以目标函数$f(x)=x^2$为例来看一看梯度下降是如何执行的。虽然我们知道最小化$f(x)$的解为$x=0$，这里我们依然使用这个简单函数来观察$x$是如何被迭代的。首先，导入本节实验所需的包或模块。
 
 ```{.python .input  n=3}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 import math

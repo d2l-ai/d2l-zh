@@ -3,9 +3,6 @@
 在Gluon中，我们可以很方便地使用数据并行进行多GPU计算。比方说，我们并不需要自己实现[“多GPU计算”](multiple-gpus.md)一节里介绍的多GPU之间同步数据的辅助函数。先导入本节实验需要的包或模块。同上一节，运行本节中的程序需要至少两块GPU。
 
 ```{.python .input  n=1}
-import sys
-sys.path.insert(0, '..')
-
 import gluonbook as gb
 import mxnet as mx
 from mxnet import autograd, gluon, init, nd

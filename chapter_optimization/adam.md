@@ -34,9 +34,6 @@ $$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \boldsymbol{g}_t'. $$
 我们按照算法中的公式实现Adam。其中时间步$t$通过`hyperparams`参数传入`adam`函数。
 
 ```{.python .input  n=2}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 from mxnet import nd

@@ -22,9 +22,6 @@ $$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \eta_t \boldsymbol{g}_t.$$
 这一章里我们将使用一个来自NASA的测试不同飞机机翼噪音的数据集来比较各个优化算法 [1]。我们使用该数据集的前1500个样本和5个特征，并使用标准化对数据进行预处理。
 
 ```{.python .input  n=1}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 from mxnet import autograd, gluon, init, nd

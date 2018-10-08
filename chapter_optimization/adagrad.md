@@ -29,9 +29,6 @@ $$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \frac{\eta}{\sqrt{\boldsymb
 下面我们仍然以目标函数$f(\boldsymbol{x})=0.1x_1^2+2x_2^2$为例观察Adagrad对自变量的迭代轨迹。我们实现Adagrad并使用和上一节实验中相同的学习率0.4。可以看到，自变量的迭代轨迹较平滑。但由于$\boldsymbol{s}_t$的累加效果使得学习率不断衰减，自变量在迭代后期的移动幅度较小。
 
 ```{.python .input  n=2}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 import math

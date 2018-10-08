@@ -17,9 +17,6 @@ $$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \frac{\eta}{\sqrt{\boldsymb
 照例，让我们先观察RMSProp对目标函数$f(\boldsymbol{x})=0.1x_1^2+2x_2^2$中自变量的迭代轨迹。回忆在[“Adagrad”](adagrad.md)一节使用学习率为0.4的Adagrad，自变量在迭代后期的移动幅度较小。但在同样的学习率下，RMSProp可以较快逼近最优解。
 
 ```{.python .input  n=3}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 import math
