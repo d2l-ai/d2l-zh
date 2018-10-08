@@ -11,9 +11,9 @@ $$\boldsymbol{s}_t \leftarrow \gamma \boldsymbol{s}_{t-1} + (1 - \gamma) \boldsy
 
 和Adagrad一样，RMSProp将目标函数自变量中每个元素的学习率通过按元素运算重新调整一下，然后更新自变量。
 
-$$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \frac{\eta_t}{\sqrt{\boldsymbol{s}_t + \epsilon}} \odot \boldsymbol{g}_t, $$
+$$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \frac{\eta}{\sqrt{\boldsymbol{s}_t + \epsilon}} \odot \boldsymbol{g}_t, $$
 
-其中$\eta_t$是学习率，$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-6}$。
+其中$\eta$是学习率，$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-6}$。
 
 因为RMSProp的状态变量是对平方项$\boldsymbol{g}_t \odot \boldsymbol{g}_t$的指数加权移动平均，因此可以看作是最近$1/(1-\gamma)$个时间步的梯度平方项的加权平均，这样自变量每个元素的学习率在迭代过程中避免了“直降不升”的问题。
 

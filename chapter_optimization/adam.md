@@ -23,7 +23,7 @@ $$\boldsymbol{s}'_t \leftarrow \frac{\boldsymbol{s}_t}{1 - \beta_2^t}. $$
 
 $$\boldsymbol{x}_{t} \leftarrow \boldsymbol{x}_{t-1} - \frac{\eta}{\sqrt{\boldsymbol{s}_{t}'+\epsilon}}\odot\boldsymbol{v}_{t}'$$
 
-其中$\eta_t>0$是学习率且$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-6}$。
+其中$\eta>0$是学习率且$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-6}$。
 
 ## 从零开始实现
 
