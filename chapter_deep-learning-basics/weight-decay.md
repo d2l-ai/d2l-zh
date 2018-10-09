@@ -50,7 +50,7 @@ train_features, test_features = features[:n_train, :], features[n_train:, :]
 train_labels, test_labels = labels[:n_train], labels[n_train:]
 ```
 
-## 权重衰减的从零开始实现
+## 从零开始实现
 
 下面先介绍从零开始实现权重衰减的方法。我们通过在目标函数后添加$L_2$范数惩罚项来实现权重衰减。
 
@@ -121,7 +121,7 @@ fit_and_plot(lambd=0)
 fit_and_plot(lambd=3)
 ```
 
-## 权重衰减的Gluon来实现
+## Gluon实现
 
 这里我们直接在构造`Trainer`实例时通过`wd`参数来指定权重衰减超参数。默认下，Gluon会对权重和偏差同时衰减。我们可以分别对权重和偏差构造`Trainer`实例，从而只对权重衰减。
 

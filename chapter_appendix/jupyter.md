@@ -1,6 +1,6 @@
 # 使用Jupyter笔记本
 
-本节介绍如何使用Jypyter笔记本编辑和运行本书代码。请确保你已按照[“安装和运行”](../chapter_prerequisite/install.md)一节中的步骤安装好Jupyter笔记本并获取了本书代码。
+本节介绍如何使用Jupyter笔记本编辑和运行本书代码。请确保你已按照[“获取和运行本书代码”](../chapter_prerequisite/install.md)一节中的步骤安装好Jupyter笔记本并获取了本书代码。
 
 
 ## 在本地编辑和运行本书代码
@@ -74,13 +74,13 @@ jupyter notebook --NotebookApp.contents_manager_class='notedown.NotedownContents
 jupyter notebook --generate-config
 ```
 
-然后，将下面这一行加入到Jupyter笔记本配置文件的末尾（Linux/macOS上一般在`~/.jupyter/jupyter_notebook_config.py`)
+然后，将下面这一行加入到Jupyter笔记本配置文件的末尾（Linux/macOS上一般在路径`~/.jupyter/jupyter_notebook_config.py`)
 
 ```
 c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'
 ```
 
-之后，我们只需要运行`jupyter notebook`即可默认开启notedown插件。
+之后，我们只需要运行`jupyter notebook`命令即可默认开启notedown插件。
 
 
 ### 在远端服务器上运行Jupyter笔记本
