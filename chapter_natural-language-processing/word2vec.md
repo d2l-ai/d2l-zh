@@ -1,21 +1,22 @@
 # 词嵌入（word2vec）
 
 
-自然语言是一套用来表达含义的复杂系统。在这套系统中，词是表义的基本单元。顾名思义，词向量是用来表示词的向量，也可被认为是词的特征向量。把词映射为实数域上向量的技术也叫词嵌入（word embedding）。近年来，词嵌入已逐渐成为自然语言处理的基础知识。
+自然语言是一套用来表达含义的复杂系统。在这套系统中，词是表义的基本单元。顾名思义，词向量是用来表示词的向量，也可被认为是词的特征向量。把词映射为实数域向量的技术也叫词嵌入（word embedding）。近年来，词嵌入已逐渐成为自然语言处理的基础知识。
 
 
 ## 为何不采用one-hot向量
 
-我们在[“循环神经网络”](../chapter_recurrent-neural-networks/rnn.md)一节中使用one-hot向量表示词（字符为词）。回忆一下，假设词典中不同词的数量（词典大小）为$N$，每个词可以和从0到$N-1$的连续整数一一对应。这些与词对应的整数也叫词的索引。
-假设一个词的索引为$i$，为了得到该词的one-hot向量表示，我们创建一个全0的长为$N$的向量，并将其第$i$位设成1。这样将每个词表示成了一个长度为$N$的向量，可以直接被神经网络使用。
+我们在[“循环神经网络的从零开始实现”](../chapter_recurrent-neural-networks/rnn-scratch.md)一节中使用one-hot向量表示词（字符为词）。回忆一下，假设词典中不同词的数量（词典大小）为$N$，每个词可以和从0到$N-1$的连续整数一一对应。这些与词对应的整数叫做词的索引。
+假设一个词的索引为$i$，为了得到该词的one-hot向量表示，我们创建一个全0的长为$N$的向量，并将其第$i$位设成1。这样一来，每个词就表示成了一个长度为$N$的向量，可以直接被神经网络使用。
 
-虽然one-hot词向量构造简单，但通常不是一个好选择。一个主要的原因是它忽略了词与词之间的相关性。我们无法从one-hot词向量本身推测词与词之间的相关性。例如我们通常使用余弦相似度来衡量一对向量的相似度。对于向量$\boldsymbol{x}, \boldsymbol{y} \in \mathbb{R}^d$，余弦相似度为
+虽然one-hot词向量构造起来很容易，但通常并不是一个好选择。一个主要的原因是，one-hot词向量无法准确表达不同词之间的相似度，例如我们常常使用的余弦相似度。对于向量$\boldsymbol{x}, \boldsymbol{y} \in \mathbb{R}^d$，它们的余弦相似度是它们之间夹角的余弦值
 
-$$\frac{\boldsymbol{x}^\top \boldsymbol{y}}{\|\boldsymbol{x}\| \|\boldsymbol{y}\|} \in [-1, 1],$$
+$$\frac{\boldsymbol{x}^\top \boldsymbol{y}}{\|\boldsymbol{x}\| \|\boldsymbol{y}\|} \in [-1, 1].$$
 
-其对应这两个向量之间夹角的余弦值。但对于任何一对词的one-hot向量，它们的余弦相似度都为0，所以我们无法从中得到有用信息。
+由于任何两个不同词的one-hot向量的余弦相似度都为0，多个不同词之间的相似度难以通过one-hot向量准确地体现出来。
 
-word2vec [1, 2] 的提出是为了解决上面这个问题。它将每个词表示成一个定长的向量，并使得这些向量能较好地表达不同词之间的相似和类比关系。word2vec里包含了两个模型：跳字模型（skip-gram）[1]和连续词袋模型（continuous bag of words，简称CBOW）[2]。，接下来让我们分别介绍这两个模型以及它们的训练方法。
+Word2vec工具的提出正是为了解决上面这个问题 [1]。它将每个词表示成一个定长的向量，并使得这些向量能较好地表达不同词之间的相似和类比关系。Word2vec工具包含了两个模型：跳字模型（skip-gram）[2] 和连续词袋模型（continuous bag of words，简称CBOW）[3]。接下来让我们分别介绍这两个模型以及它们的训练方法。
+
 
 ## 跳字模型
 
@@ -129,8 +130,8 @@ $$\frac{\partial \text{log}\, \mathbb{P}(w_c \mid \boldsymbol{w}_o)}{\partial \b
 
 ## 参考文献
 
-[1] Mikolov, T., Sutskever, I., Chen, K., Corrado, G. S., & Dean, J. (2013). Distributed representations of words and phrases and their compositionality. In Advances in neural information processing systems (pp. 3111-3119).
+[1] Word2vec工具。https://code.google.com/archive/p/word2vec/
 
+[2] Mikolov, T., Sutskever, I., Chen, K., Corrado, G. S., & Dean, J. (2013). Distributed representations of words and phrases and their compositionality. In Advances in neural information processing systems (pp. 3111-3119).
 
-[2] Mikolov, T., Chen, K., Corrado, G., & Dean, J. (2013). Efficient estimation
-of word representations in vector space. arXiv:1301.3781.
+[3] Mikolov, T., Chen, K., Corrado, G., & Dean, J. (2013). Efficient estimation of word representations in vector space. arXiv preprint arXiv:1301.3781.
