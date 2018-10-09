@@ -20,16 +20,15 @@ Word2vec工具的提出正是为了解决上面这个问题 [1]。它将每个�
 
 ## 跳字模型
 
+在跳字模型中，我们用一个词来预测它在文本序列周围的词。举个例子，假设文本序列是“the”、“man”、“loves”、“his”和“son”。以“loves”作为中心词，设背景窗口大小为2。如图10.1所示，跳字模型所关心的是，给定中心词“loves”，生成与它距离不超过2个词的背景词“the”、“man”、“his”和“son”的条件概率，即
 
-在跳字模型中，我们用一个词来预测它在文本序列周围的词。举个例子，假设文本序列是“the”、“man”、“loves”、“his”和“son”。以“loves”作为中心词，设背景窗口大小为2。跳字模型所关心的是，给定中心词“loves”，生成与它距离不超过2个词的背景词“the”、“man”、“his”和“son”的条件概率。也就是
-
-$$\mathbb{P}(\textrm{the},\textrm{man},\textrm{his},\textrm{son}\mid\textrm{loves}),$$
+$$\mathbb{P}(\textrm{the},\textrm{man},\textrm{his},\textrm{son}\mid\textrm{loves}).$$
 
 假设给定中心词的情况下背景词相互独立，那么上式可以改写成：
 
 $$\mathbb{P}(\textrm{the}\mid\textrm{loves})\cdot\mathbb{P}(\textrm{man}\mid\textrm{loves})\cdot\mathbb{P}(\textrm{his}\mid\textrm{loves})\cdot\mathbb{P}(\textrm{son}\mid\textrm{loves}).$$
 
-![背景窗口大小为2的跳字模型。](../img/skip-gram.svg)
+![跳字模型关心给定中心词生成背景词的条件概率。](../img/skip-gram.svg)
 
 
 在跳字模型中，每个词被表示成两个$d$维向量用来计算条件概率。假设这个词在词典中索引为$i$，当它为中心词时表示为$\boldsymbol{v}_i\in\mathbb{R}^d$，而为背景词时表示为$\boldsymbol{u}_i\in\mathbb{R}^d$。设中心词$w_c$在词典中索引为$c$，背景词$w_o$在词典中索引为$o$，给定中心词生成背景词的条件概率可以通过softmax函数定义为
@@ -77,7 +76,7 @@ $$\frac{\partial \text{log}\, \mathbb{P}(w_o \mid w_c)}{\partial \boldsymbol{u}_
 
 $$\mathbb{P}(\textrm{loves}\mid\textrm{the},\textrm{man},\textrm{his},\textrm{son}).$$
 
-![背景窗口大小为2的连续词袋模型。](../img/cbow.svg)
+![连续词袋模型关心给定背景词生成中心词的条件概率。](../img/cbow.svg)
 
 因为连续词袋模型的背景词有多个，我们将这些背景词向量取平均，然后使用和跳字模型一样的方法来计算条件概率。设$\boldsymbol{v_i}\in\mathbb{R}^d$和$\boldsymbol{u_i}\in\mathbb{R}^d$分别表示词典中索引为$i$的词的作为背景词和中心词的向量（注意符号和跳字模型中是相反的）。设中心词$w_c$在词典中索引为$c$，背景词$w_{o_1}, \ldots, w_{o_{2m}}$在词典中索引为$o_1, \ldots, o_{2m}$，那么条件概率通过如下计算：
 
