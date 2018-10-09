@@ -92,7 +92,7 @@ get_count(b'join')
 
 ### 提取中心词和背景词
 
-在跳字模型中，我们将每个离中心词不超过固定距离的词作为它的背景词。下面定义获取所有中心词——背景词对的函数。它每次在整数1和`max_window_size`之间均匀随机采样一个整数作为上下文窗口大小。
+在跳字模型中，我们将每个离中心词不超过固定距离的词作为它的背景词。下面定义获取所有中心词——背景词对的函数。它每次在整数1和`max_window_size`之间均匀随机采样一个整数作为背景窗口大小。
 
 ```{.python .input  n=271}
 def get_centers_and_contexts(dataset, max_window_size):
@@ -111,7 +111,7 @@ def get_centers_and_contexts(dataset, max_window_size):
     return centers, contexts
 ```
 
-下面我们生成一个人工数据集，其中含有词数分别为3和2的两个句子。设最大上下文窗口为2，然后打印所有中心词和它们的背景词。
+下面我们生成一个人工数据集，其中含有词数分别为3和2的两个句子。设最大背景窗口为2，然后打印所有中心词和它们的背景词。
 
 ```{.python .input  n=272}
 tiny_dataset = [list(range(4)), list(range(5, 7))]
@@ -119,7 +119,7 @@ for center, context in zip(*get_centers_and_contexts(tiny_dataset, 2)):
     print('center', center, 'has contexts', context)
 ```
 
-在本节的实验中，我们设最大上下文窗口大小为5。下面提取数据集中所有的中心词及其背景词。
+在本节的实验中，我们设最大背景窗口大小为5。下面提取数据集中所有的中心词及其背景词。
 
 ```{.python .input  n=273}
 all_centers, all_contexts = get_centers_and_contexts(subsampled_dataset, 5)
@@ -127,7 +127,7 @@ all_centers, all_contexts = get_centers_and_contexts(subsampled_dataset, 5)
 
 ## 负采样
 
-我们将使用上节介绍的负采样来进行近似训练。对每个上下文窗口中的中心词，我们随机采样$K$乘以这个窗口中背景词个数个噪音词。噪音词采样概率$\mathbb{P}(w)$设为word2vec中使用的$w$词频与总词频的比的3/4次方。且保证每个噪音词不在这个上下文窗口中出现。然后使用$K=5$来生产噪音词。
+我们将使用上节介绍的负采样来进行近似训练。对每个背景窗口中的中心词，我们随机采样$K$乘以这个窗口中背景词个数个噪音词。噪音词采样概率$\mathbb{P}(w)$设为word2vec中使用的$w$词频与总词频的比的3/4次方。且保证每个噪音词不在这个背景窗口中出现。然后使用$K=5$来生产噪音词。
 
 ```{.python .input  n=274}
 sampling_weights = [counter[w]**0.75 for w in idx_to_token]
@@ -156,7 +156,7 @@ all_negatives = get_negatives(all_centers, all_contexts, sampling_weights, 5)
 
 我们从数据集中提取了所有中心词`all_centers`，和每个中心词对应的背景词`all_contexts`和噪音词`all_negatives`。接下来我们使用随机小批量来读取它们。
 
-在一个小批量数据中，第$i$个样本包括一个中心词和它对应的$n_i$个背景词和$m_i$个噪音词。但由于每个样本的上下文窗口大小可能不一样，这样背景词与噪音词数量和$n_i+m_i$也会不同。在构造小批量时，我们将每个样本的背景词和噪音词连结在一起，并将长度固定为$l=\max_i n_i+m_i$，也就是形状为（批量大小，$l$）。如果某个样本的长度不够，我们添加0来补齐长度。同时我们构造同样形状的标号：1表示背景词，0表示其他。以及同样形状的掩码，1表示背景词或噪音词，0表示填充。
+在一个小批量数据中，第$i$个样本包括一个中心词和它对应的$n_i$个背景词和$m_i$个噪音词。但由于每个样本的背景窗口大小可能不一样，这样背景词与噪音词数量和$n_i+m_i$也会不同。在构造小批量时，我们将每个样本的背景词和噪音词连结在一起，并将长度固定为$l=\max_i n_i+m_i$，也就是形状为（批量大小，$l$）。如果某个样本的长度不够，我们添加0来补齐长度。同时我们构造同样形状的标号：1表示背景词，0表示其他。以及同样形状的掩码，1表示背景词或噪音词，0表示填充。
 
 下面实现给定一个长度为批量大小的序列，其中每个元素为（中心词，背景词，噪音词），返回我们需要的小批量数据格式。
 
