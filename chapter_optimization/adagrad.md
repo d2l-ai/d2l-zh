@@ -58,7 +58,7 @@ gb.show_trace_2d(f_2d, gb.train_2d(adagrad_2d))
 
 ## 从零开始实现
 
-同动量法一样，Adagrad需要对每个自变量维护同它一样形状的状态变量。我们根据算法中的公式实现Adagrad。
+同动量法一样，Adagrad需要对每个自变量维护同它一样形状的状态变量。我们根据算法中的公式来实现Adagrad。
 
 ```{.python .input  n=4}
 features, labels = gb.get_data_ch7()
