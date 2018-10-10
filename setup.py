@@ -1,11 +1,10 @@
 #!/usr/bin/env python
-import os
 import io
+import os
 import re
+from setuptools import setup, find_packages
 import shutil
 import sys
-import math
-from setuptools import setup, find_packages
 
 def read(*names, **kwargs):
     with io.open(
