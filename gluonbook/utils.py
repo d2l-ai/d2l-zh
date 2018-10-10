@@ -43,7 +43,7 @@ def bbox_to_rect(bbox, color):
 
 
 class Benchmark():
-    """benchmark a piece of codes"""
+    """Benchmark programs."""
     def __init__(self, prefix=None):
         self.prefix = prefix + ' ' if prefix else ''
 
@@ -107,8 +107,10 @@ def data_iter_random(corpus_indices, batch_size, num_steps, ctx=None):
     epoch_size = num_examples // batch_size
     example_indices = list(range(num_examples))
     random.shuffle(example_indices)
+
     def _data(pos):
         return corpus_indices[pos : pos + num_steps]
+
     for i in range(epoch_size):
         i = i * batch_size
         batch_indices = example_indices[i : i + batch_size]
@@ -327,7 +329,10 @@ def predict_sentiment(net, vocab, sentence):
 def preprocess_imdb(data, vocab):
     """Preprocess the IMDB data set for sentiment analysis."""
     max_l = 500
-    pad = lambda x: x[:max_l] if len(x) > max_l else x + [0] * (max_l-len(x))
+
+    def pad(x):
+        return x[:max_l] if len(x) > max_l else x + [0] * (max_l - len(x))
+
     tokenized_data = get_tokenized_imdb(data)
     features = nd.array([pad(vocab.to_indices(x)) for x in tokenized_data])
     labels = nd.array([score for _, score in data])

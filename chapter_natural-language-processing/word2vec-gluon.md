@@ -1,8 +1,8 @@
-# 词嵌入的实现
+# Word2vec的实现
 
-前两节描述了不同的词嵌入模型和近似训练法。本节中，我们将以[“词嵌入：word2vec”](word2vec.md)一节中的跳字模型和负采样为例，介绍在语料库上训练词嵌入模型的实现。我们还会介绍一些实现中的技巧，例如二次采样（subsampling）和掩码（mask）变量。
+本节是对前两节内容的实践。我们以[“词嵌入（word2vec）”](word2vec.md)一节中的跳字模型和[“近似训练”](approx-training.md)一节中的负采样为例，介绍在语料库上训练词嵌入模型的实现。我们还会介绍一些实现中的技巧，例如二次采样（subsampling）和掩码（mask）变量。
 
-首先导入实验所需的包或模块。
+首先让我们导入实验所需的包或模块。
 
 ```{.python .input  n=263}
 import sys
@@ -21,18 +21,21 @@ import zipfile
 
 ## 处理数据集
 
-Penn Tree Bank（PTB）是一个常用的小型语料库 [1]。它采样自华尔街日报的文章，包括训练集、验证集和测试集。我们将在PTB的训练集上训练词嵌入模型。该数据集的每一行为一个句子。句子中的每个词由空格隔开。
+Penn Tree Bank（PTB）是一个常用的小型语料库 [1]。它采样自华尔街日报的文章，包括训练集、验证集和测试集。我们将在PTB的训练集上训练词嵌入模型。该数据集的每一行作为一个句子。句子中的每个词由空格隔开。
 
 ```{.python .input  n=264}
 with zipfile.ZipFile('../data/ptb.zip', 'r') as zin:
-    with zin.open('ptb/ptb.train.txt', 'r') as f:
-        lines = f.readlines()
-        # st 是 sentence 在循环中的缩写。
-        raw_dataset = [st.split() for st in lines]  
+    zin.extractall('../data/')
+
+with open('../data/ptb/ptb.train.txt', 'r') as f:
+    lines = f.readlines()
+    # st 是 sentence 在循环中的缩写。
+    raw_dataset = [st.split() for st in lines]
+
 '# sentences: %d' % len(raw_dataset)
 ```
 
-对于数据集的前三个句子，打印每个句子的词数和前五个词。这个数据集中句尾符被表示成`<eos>`，生僻词表示成`<unk>`，数字则被替换成了`N`。
+对于数据集的前三个句子，打印每个句子的词数和前五个词。这个数据集中句尾符为“<eos>”，生僻词全用“<unk>”表示，数字则被替换成了“N”。
 
 ```{.python .input  n=265}
 for st in raw_dataset[:3]:
@@ -62,15 +65,18 @@ num_tokens = sum([len(st) for st in dataset])
 
 ### 二次采样
 
-本文数据中通常会出现高频词，例如英文中的“the”、“a”和“in”。通常来说，一个词（如“China”）和较低频词（如“Beijing”）同时出现，比和较高频词（如“the”）同时出现，对训练词嵌入更加有帮助。但由于高频出现机会更高，它们对模型训练影响更大。因此训练词嵌入模型时常对高频词进行采样，来降低它们的影响度。word2vec中使用的一个方法是按照一定概率丢弃每个词。对于词$w_i$，它的丢弃概率为：
+文本数据中一般会出现一些高频词，例如英文中的“the”、“a”和“in”。通常来说，在一个背景窗口中，一个词（如“chip”）和较低频词（如“microprocessor”）同时出现，比和较高频词（如“the”）同时出现，对训练词嵌入模型更加有帮助。因此，训练词嵌入模型时可以对词进行二次采样 [2]。具体来说，数据集中每个被索引词$w_i$将有一定概率被丢弃，该丢弃概率为
 
-$$ \mathbb{P}(w_i) = \max\left(1 - \sqrt{\frac{tN}{c_i}}, 0\right),$$ 
 
-这里$N$是数据集的总词数（`num_tokens`），$c_i$是词$w_i$在数据集中出现的次数，常数$t$是一个超参数。可以看到，当$c_i>tN$时，我们将对其进行丢弃，而且出现次数越多，丢弃概率越大。这里我们设$t=10^{-4}$，那么$tN=88.71$。
+$$ \mathbb{P}(w_i) = \max\left(1 - \sqrt{\frac{t}{f(w_i)}}, 0\right),$$ 
+
+其中 $f(w_i)$ 是数据集中词$w_i$的个数与总词数之比，常数$t$是一个超参数，例如设为$10^{-4}$。可见，只有当$f(w_i) > t$时，我们才有可能在二次采样中丢弃词$w_i$，并且越高频的词被丢弃的概率越大。
 
 ```{.python .input  n=268}
-discard = lambda idx: random.uniform(0, 1) < 1 - math.sqrt(
-    1e-4 / counter[idx_to_token[idx]] * num_tokens)  # 判断是否保留。
+def discard(idx):
+    return random.uniform(0, 1) < 1 - math.sqrt(
+        1e-4 / counter[idx_to_token[idx]] * num_tokens)
+
 subsampled_dataset = [[tk for tk in st if not discard(tk)] for st in dataset]
 '#tokens: %d' % sum([len(st) for st in subsampled_dataset])
 ```
@@ -78,16 +84,18 @@ subsampled_dataset = [[tk for tk in st if not discard(tk)] for st in dataset]
 可以看到二次采样后我们去掉了几乎一半的词。下面比较一个词采样前后出现的次数，可以看到高频词“the”采样到了1/20以下，
 
 ```{.python .input  n=269}
-get_count = lambda token: '%s: before=%d, after=%d' % (
-    token, sum([st.count(token_to_idx[token]) for st in dataset]), 
-    sum([st.count(token_to_idx[token]) for st in subsampled_dataset]))
-get_count(b'the')
+def get_count(token):
+    return '%s: before=%d, after=%d' % (token, sum(
+        [st.count(token_to_idx[token]) for st in dataset]), sum(
+        [st.count(token_to_idx[token]) for st in subsampled_dataset]))
+
+get_count('the')
 ```
 
 但低频词则完整保留了下来。
 
 ```{.python .input  n=270}
-get_count(b'join')
+get_count('join')
 ```
 
 ### 提取中心词和背景词
@@ -308,7 +316,7 @@ def get_similar_tokens(query_token, k, embed):
     topk = nd.topk(cos, k=k+1, ret_typ='indices').asnumpy().astype('int32')
     for i in topk[1:]:  # 除去输入词。
         print('similarity=%.3f: %s' % (cos[i].asscalar(), (idx_to_token[i])))
-get_similar_tokens(b'chip', 3, net[0])
+get_similar_tokens('chip', 3, net[0])
 ```
 
 ## 小结
