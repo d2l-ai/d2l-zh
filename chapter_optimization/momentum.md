@@ -78,6 +78,7 @@ $$
 y_t  &= (1-\gamma) x_t + \gamma y_{t-1}\\
          &= (1-\gamma)x_t + (1-\gamma) \cdot \gamma x_{t-1} + \gamma^2y_{t-2}\\
          &= (1-\gamma)x_t + (1-\gamma) \cdot \gamma x_{t-1} + (1-\gamma) \cdot \gamma^2x_{t-2} + \gamma^3y_{t-3}\\
+         &= (1-\gamma) \sum_{i=0}^{n} \gamma^i x_{t-i} + \gamma^{i+1} y_{t-i-1} \\
          &\ldots
 \end{aligned}
 $$
