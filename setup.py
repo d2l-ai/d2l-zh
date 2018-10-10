@@ -4,6 +4,7 @@ import io
 import re
 import shutil
 import sys
+import math
 from setuptools import setup, find_packages
 
 def read(*names, **kwargs):
