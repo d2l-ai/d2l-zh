@@ -22,11 +22,11 @@ Word2vec工具的提出正是为了解决上面这个问题 [1]。它将每个�
 
 跳字模型假设基于某个词来生成它在文本序列周围的词。举个例子，假设文本序列是“the”、“man”、“loves”、“his”和“son”。以“loves”作为中心词，设背景窗口大小为2。如图10.1所示，跳字模型所关心的是，给定中心词“loves”，生成与它距离不超过2个词的背景词“the”、“man”、“his”和“son”的条件概率，即
 
-$$\mathbb{P}(\textrm{"the"},\textrm{"man"},\textrm{"his"},\textrm{"son"}\mid\textrm{"loves"}).$$
+$$\mathbb{P}(\textrm{``the"},\textrm{``man"},\textrm{``his"},\textrm{``son"}\mid\textrm{``loves"}).$$
 
 假设给定中心词的情况下，背景词的生成是相互独立的，那么上式可以改写成
 
-$$\mathbb{P}(\textrm{"the"}\mid\textrm{"loves"})\cdot\mathbb{P}(\textrm{"man"}\mid\textrm{"loves"})\cdot\mathbb{P}(\textrm{"his"}\mid\textrm{"loves"})\cdot\mathbb{P}(\textrm{"son"}\mid\textrm{"loves"}).$$
+$$\mathbb{P}(\textrm{``the"}\mid\textrm{``loves"})\cdot\mathbb{P}(\textrm{``man"}\mid\textrm{``loves"})\cdot\mathbb{P}(\textrm{``his"}\mid\textrm{``loves"})\cdot\mathbb{P}(\textrm{``son"}\mid\textrm{``loves"}).$$
 
 ![跳字模型关心给定中心词生成背景词的条件概率。](../img/skip-gram.svg)
 
@@ -74,7 +74,7 @@ $$
 
 连续词袋模型与跳字模型类似。与跳字模型最大的不同在于，连续词袋模型假设基于某中心词在文本序列前后的背景词来生成该中心词。在同样的文本序列“the”、 “man”、“loves”、“his”和“son”里，以“loves”作为中心词，且背景窗口大小为2时，连续词袋模型关心的是，给定背景词“the”、“man”、“his”和“son”生成中心词“loves”的条件概率，也就是
 
-$$\mathbb{P}(\textrm{"loves"}\mid\textrm{"the"},\textrm{"man"},\textrm{"his"},\textrm{"son"}).$$
+$$\mathbb{P}(\textrm{``loves"}\mid\textrm{``the"},\textrm{``man"},\textrm{``his"},\textrm{``son"}).$$
 
 ![连续词袋模型关心给定背景词生成中心词的条件概率。](../img/cbow.svg)
 
