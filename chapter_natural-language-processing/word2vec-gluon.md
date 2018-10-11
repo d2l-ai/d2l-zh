@@ -35,7 +35,7 @@ with open('../data/ptb/ptb.train.txt', 'r') as f:
 '# sentences: %d' % len(raw_dataset)
 ```
 
-对于数据集的前三个句子，打印每个句子的词数和前五个词。这个数据集中句尾符为“<eos>”，生僻词全用“<unk>”表示，数字则被替换成了“N”。
+对于数据集的前三个句子，打印每个句子的词数和前五个词。这个数据集中句尾符为“&lt;eos&gt;”，生僻词全用“&lt;unk&gt;”表示，数字则被替换成了“N”。
 
 ```{.python .input  n=265}
 for st in raw_dataset[:3]:
@@ -60,17 +60,16 @@ token_to_idx = {tk: idx for idx, tk in enumerate(idx_to_token)}
 dataset = [[token_to_idx[tk] for tk in st if tk in token_to_idx] 
            for st in raw_dataset]
 num_tokens = sum([len(st) for st in dataset])
-'#tokens: %d' % num_tokens
+'# tokens: %d' % num_tokens
 ```
 
 ### 二次采样
 
-文本数据中一般会出现一些高频词，例如英文中的“the”、“a”和“in”。通常来说，在一个背景窗口中，一个词（如“chip”）和较低频词（如“microprocessor”）同时出现，比和较高频词（如“the”）同时出现，对训练词嵌入模型更加有帮助。因此，训练词嵌入模型时可以对词进行二次采样 [2]。具体来说，数据集中每个被索引词$w_i$将有一定概率被丢弃，该丢弃概率为
-
+文本数据中一般会出现一些高频词，例如英文中的“the”、“a”和“in”。通常来说，在一个背景窗口中，一个词（如“chip”）和较低频词（如“microprocessor”）同时出现比和较高频词（如“the”）同时出现对训练词嵌入模型更有益。因此，训练词嵌入模型时可以对词进行二次采样 [2]。具体来说，数据集中每个被索引词$w_i$将有一定概率被丢弃，该丢弃概率为
 
 $$ \mathbb{P}(w_i) = \max\left(1 - \sqrt{\frac{t}{f(w_i)}}, 0\right),$$ 
 
-其中 $f(w_i)$ 是数据集中词$w_i$的个数与总词数之比，常数$t$是一个超参数，例如设为$10^{-4}$。可见，只有当$f(w_i) > t$时，我们才有可能在二次采样中丢弃词$w_i$，并且越高频的词被丢弃的概率越大。
+其中 $f(w_i)$ 是数据集中词$w_i$的个数与总词数之比，常数$t$是一个超参数（实验中设为$10^{-4}$）。可见，只有当$f(w_i) > t$时，我们才有可能在二次采样中丢弃词$w_i$，并且越高频的词被丢弃的概率越大。
 
 ```{.python .input  n=268}
 def discard(idx):
@@ -78,29 +77,29 @@ def discard(idx):
         1e-4 / counter[idx_to_token[idx]] * num_tokens)
 
 subsampled_dataset = [[tk for tk in st if not discard(tk)] for st in dataset]
-'#tokens: %d' % sum([len(st) for st in subsampled_dataset])
+'# tokens: %d' % sum([len(st) for st in subsampled_dataset])
 ```
 
-可以看到二次采样后我们去掉了几乎一半的词。下面比较一个词采样前后出现的次数，可以看到高频词“the”采样到了1/20以下，
+可以看到，二次采样后我们去掉了一半左右的词。下面比较一个词在二次采样前后出现在数据集中的次数。可见高频词“the”的采样率不足1/20。
 
 ```{.python .input  n=269}
-def get_count(token):
-    return '%s: before=%d, after=%d' % (token, sum(
+def compare_counts(token):
+    return '# %s: before=%d, after=%d' % (token, sum(
         [st.count(token_to_idx[token]) for st in dataset]), sum(
         [st.count(token_to_idx[token]) for st in subsampled_dataset]))
 
-get_count('the')
+compare_counts('the')
 ```
 
-但低频词则完整保留了下来。
+但低频词“join”则完整地保留了下来。
 
 ```{.python .input  n=270}
-get_count('join')
+compare_counts('join')
 ```
 
 ### 提取中心词和背景词
 
-在跳字模型中，我们将每个离中心词不超过固定距离的词作为它的背景词。下面定义获取所有中心词——背景词对的函数。它每次在整数1和`max_window_size`之间均匀随机采样一个整数作为背景窗口大小。
+我们将与中心词距离不超过背景窗口大小的词作为它的背景词。下面定义函数提取出所有中心词和它们的背景词。它每次在整数1和`max_window_size`（最大背景窗口）之间均匀随机采样一个整数作为背景窗口大小。
 
 ```{.python .input  n=271}
 def get_centers_and_contexts(dataset, max_window_size):
@@ -109,25 +108,25 @@ def get_centers_and_contexts(dataset, max_window_size):
         if len(st) < 2:  # 每个句子至少要有 2 个词才可能组成一对“中心词-背景词”。
             continue
         centers += st
-        for centor in range(len(st)):
-            # 均匀随机生成窗口大小（包括 1 和 max_window_size）。
+        for center_i in range(len(st)):
             window_size = random.randint(1, max_window_size)
-            indices = list(range(max(0, centor - window_size),
-                                 min(len(st), centor + 1 + window_size)))
-            indices.remove(centor)
+            indices = list(range(max(0, center_i - window_size),
+                                 min(len(st), center_i + 1 + window_size)))
+            indices.remove(center_i)  # 将中心词排除在背景词之外。
             contexts.append([st[idx] for idx in indices])
     return centers, contexts
 ```
 
-下面我们生成一个人工数据集，其中含有词数分别为3和2的两个句子。设最大背景窗口为2，然后打印所有中心词和它们的背景词。
+下面我们创建一个人工数据集，其中含有词数分别为7和3的两个句子。设最大背景窗口为2，打印所有中心词和它们的背景词。
 
 ```{.python .input  n=272}
-tiny_dataset = [list(range(4)), list(range(5, 7))]
+tiny_dataset = [list(range(7)), list(range(7, 10))]
+print('dataset', tiny_dataset)
 for center, context in zip(*get_centers_and_contexts(tiny_dataset, 2)):
     print('center', center, 'has contexts', context)
 ```
 
-在本节的实验中，我们设最大背景窗口大小为5。下面提取数据集中所有的中心词及其背景词。
+实验中，我们设最大背景窗口大小为5。下面提取数据集中所有的中心词及其背景词。
 
 ```{.python .input  n=273}
 all_centers, all_contexts = get_centers_and_contexts(subsampled_dataset, 5)
@@ -135,29 +134,29 @@ all_centers, all_contexts = get_centers_and_contexts(subsampled_dataset, 5)
 
 ## 负采样
 
-我们将使用上节介绍的负采样来进行近似训练。对每个背景窗口中的中心词，我们随机采样$K$乘以这个窗口中背景词个数个噪音词。噪音词采样概率$\mathbb{P}(w)$设为word2vec中使用的$w$词频与总词频的比的3/4次方。且保证每个噪音词不在这个背景窗口中出现。然后使用$K=5$来生产噪音词。
+我们使用负采样来进行近似训练。对于一对中心词和背景词，我们随机采样$K$个噪音词（实验中设$K=5$）。根据word2vec论文的建议，噪音词采样概率$\mathbb{P}(w)$设为$w$词频与总词频之比的0.75次方 [2]。
 
 ```{.python .input  n=274}
-sampling_weights = [counter[w]**0.75 for w in idx_to_token]
-
-def get_negatives(all_centers, all_contexts, sampling_weights, K):
-    all_negatives, candidates, i = [], [], 0
-    for center, contexts in zip(all_centers, all_contexts):
+def get_negatives(all_contexts, sampling_weights, K):
+    all_negatives, neg_candidates, i = [], [], 0
+    population = list(range(len(sampling_weights)))
+    for contexts in all_contexts:
         negatives = []
         while len(negatives) < len(contexts) * K:
-            if i == len(candidates):
-                # 一次采样多个词，可以使得计算更快。
-                population = list(range(len(sampling_weights)))
-                i, candidates = 0, random.choices(
-                    population, sampling_weights, k=K*len(all_centers))                        
-            neg, i = candidates[i], i + 1
-            # 确保噪音词既不是中心词也不是背景词。
-            if neg != center and neg not in contexts:
+            if i == len(neg_candidates):
+                # 根据每个词的权重（sampling_weights）随机生成 k 个词的索引作为噪音
+                # 词。为了高效计算，可以将 k 设的稍大一点。
+                i, neg_candidates = 0, random.choices(
+                    population, sampling_weights, k=int(1e5))
+            neg, i = neg_candidates[i], i + 1
+            # 噪音词不能是背景词。
+            if neg not in set(contexts):
                 negatives.append(neg)
         all_negatives.append(negatives)
     return all_negatives
-    
-all_negatives = get_negatives(all_centers, all_contexts, sampling_weights, 5)
+
+sampling_weights = [counter[w]**0.75 for w in idx_to_token]
+all_negatives = get_negatives(all_contexts, sampling_weights, 5)
 ```
 
 ## 数据读取
