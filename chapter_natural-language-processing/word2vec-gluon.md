@@ -198,38 +198,38 @@ for batch in data_iter:
 
 ## 跳字模型
 
-给定中心词$w_c$，和其对应的$n$个背景词$w_{o_1}, \ldots, w_{o_n}$，以及采样得到的$m$个噪音词$w_{o_{n+1}}, \ldots, w_{o_{n+m}}$。在跳字模型我们首先要得到它们对应的词嵌入$\boldsymbol{v}_c$, $\boldsymbol{u}_{o_1}, \ldots, \boldsymbol{u}_{o_n}$, $\boldsymbol{u}_{o_{n+1}}, \ldots, \boldsymbol{u}_{o_{n+m}}$。
+我们将通过使用嵌入层和小批量乘法来实现跳字模型。它们也常常用于实现其他自然语言处理的应用。
 
 ### 嵌入层
 
-获取词嵌入的层被称为嵌入层。嵌入层的权重是一个（词典大小，嵌入向量长度$d$）的矩阵。输入一个词的索引$i$，它返回权重的第$i$行作为它的词嵌入向量。在Gluon中可以通过`nn.Embedding`类来得到嵌入层。
+获取词嵌入的层称为嵌入层，在Gluon中可以通过创建`nn.Embedding`实例得到。嵌入层的权重是一个矩阵，其行数为词典大小（`input_dim`），列数为每个词向量的维度（`output_dim`）。我们设词典大小为20，词向量的维度为4。
 
 ```{.python .input  n=15}
-embed = nn.Embedding(input_dim=20, output_dim=2)
+embed = nn.Embedding(input_dim=20, output_dim=4)
 embed.initialize()
 embed.weight
 ```
 
-嵌入层输入为词索引。假设输入形状为（批量大小，$l$），那么输出的形状为（批量大小，$l$，$d$），最后一个维度用来放置嵌入向量。
+嵌入层的输入为词的索引。输入一个词的索引$i$，嵌入层返回权重矩阵的第$i$行作为它的词向量。下面我们将形状为（2，3）的索引输入进嵌入层，由于词向量的维度为4，我们得到形状为（2，3，4）的词向量。
 
 ```{.python .input  n=16}
-x = nd.array([[1,2,3]])
+x = nd.array([[1, 2, 3], [4, 5, 6]])
 embed(x)
 ```
 
 ### 小批量乘法
 
-我们可以将背景词向量和噪音词向量合并起来，然后使用一次矩阵乘法来计算中心词向量和它们的内积$\boldsymbol{v}_{c}^\top\left[\boldsymbol{u}_{o_1},\ldots,\boldsymbol{u}_{o_{n+m}}\right]$。我们需要对小批量里的每个中心词逐一做此运算，虽然可以用for循环来实现，但使用`batch_dot`（用$\text{bd}$表示）通常可以得到更好的性能。假设$\boldsymbol{X}=\left[\boldsymbol{X}_1,\ldots,\boldsymbol{X}_n\right]$且$\boldsymbol{Y}=\left[\boldsymbol{Y}_1,\ldots,\boldsymbol{Y}_n\right]$，如果$\boldsymbol{Z}=\text{bd}(\boldsymbol{X},\boldsymbol{Y})$，那么$\boldsymbol{Z}=\left[\boldsymbol{X}_1\boldsymbol{Y}_1,\ldots,\boldsymbol{X}_n\boldsymbol{Y}_n\right]$。
+我们可以使用小批量乘法运算`batch_dot`对两个小批量中的矩阵一一做乘法。假设第一个批量中包含$n$个形状为$a\times b$的矩阵$\boldsymbol{X}_1, \ldots, \boldsymbol{X}_n$，第二个批量中包含$n$个形状为$b\times c$的矩阵$\boldsymbol{Y}_1, \ldots, \boldsymbol{Y}_n$。这两个批量的矩阵乘法输出为$n$个形状为$a\times c$的矩阵$\boldsymbol{X}_1\boldsymbol{Y}_1, \ldots, \boldsymbol{X}_n\boldsymbol{Y}_n$。因此，给定两个形状分别为（$n$，$a$，$b$）和（$n$，$b$，$c$）的NDArray，小批量乘法输出的形状为（$n$，$a$，$c$）。
 
 ```{.python .input  n=17}
-X = nd.ones((2, 3, 4))
+X = nd.ones((2, 1, 4))
 Y = nd.ones((2, 4, 6))
 nd.batch_dot(X, Y).shape
 ```
 
 ### 跳字模型前向计算
 
-在前向计算中，跳字模型的输入是形状为（批量大小，1）的中心词索引，形状为（批量大小，$n+m$）的背景词和噪音词索引，以及对应的嵌入层。输出形状为（批量大小，1，$n+m$），每个元素是一对嵌入向量的内积。
+在前向计算中，跳字模型的输入包含中心词索引`center`以及连结的背景词与噪音词索引`contexts_and_negatives`。其中`center`变量的形状为（批量大小，1），而`contexts_and_negatives`变量的形状为（批量大小，`max_len`）。这两个变量先通过词嵌入层分别由词索引变换为词向量，再通过小批量乘法得到形状为（批量大小，1，`max_len`）的输出。输出中的每个元素是中心词向量与背景词向量或噪音词向量的内积。
 
 ```{.python .input  n=18}
 def skip_gram(center, contexts_and_negatives, embed_v, embed_u):
@@ -239,27 +239,42 @@ def skip_gram(center, contexts_and_negatives, embed_v, embed_u):
     return pred
 ```
 
-## 模型训练
+## 训练模型
+
+在训练词嵌入模型之前，我们需要定义模型的损失函数。
+
 
 ### 二元交叉熵损失函数
 
-我们知道负采样的损失函数为：
-
-$$\sum_{k=1}^n\log\,\sigma(\boldsymbol{u}_{o_k}^\top\boldsymbol{v}_c) + \sum_{k=n+1}^{n+m}\log\,\sigma(-\boldsymbol{u}_{o_k}^\top\boldsymbol{v}_c),$$
-
-这里$\sigma(x)=1/(1+\exp(-x))$是sigmoid函数。这个等价于一个使用交叉熵损失函数的两类softmax回归，又称logistic回归。如果构造标签$y_1,\ldots, y_{n+m}$，使得 $y_1=\ldots=y_n=1$，$y_{n+1}=\ldots=y_{n+m}=0$，那么我们可以重写上面损失函数为标准的logistic回归目标函数：
-
-$$\sum_{k=1}^{n+m}y_k\log\,\sigma(\boldsymbol{u}_{o_k}^\top\boldsymbol{v}_c) + (1-y_k)\log\,\sigma(-\boldsymbol{u}_{o_k}^\top\boldsymbol{v}_c)$$
-
-从而我们可以直接使用Gluon提供的`SigmoidBinaryCrossEntropyLoss`。
+根据负采样中损失函数的定义，我们可以直接使用Gluon的二元交叉熵损失函数`SigmoidBinaryCrossEntropyLoss`。
 
 ```{.python .input  n=19}
 loss = gloss.SigmoidBinaryCrossEntropyLoss()
 ```
 
+值得一提的是，我们可以通过掩码变量指定小批量中参与损失函数计算的部分预测值和标签：当掩码为1时，相应位置的预测值和标签将参与损失函数的计算；当掩码为0时，相应位置的预测值和标签则不参与损失函数的计算。我们之前提到，掩码变量可用于避免填充项对损失函数计算的影响。
+
+```{.python .input}
+pred = nd.array([[1.5, 0.3, -1, 2], [1.1, -0.6, 2.2, 0.4]])
+# 标签变量 label 中的 1 和 0 分别代表背景词和噪声词。
+label = nd.array([[1, 0, 0, 0], [1, 1, 0, 0]])
+mask = nd.array([[1, 1, 1, 1], [1, 1, 1, 0]])  # 掩码变量。
+loss(pred, label, mask) * mask.shape[1] / mask.sum(axis=1)
+```
+
+作为比较，下面将从零开始实现二元交叉熵损失函数的计算，并根据掩码变量`mask`计算掩码为1的预测值和标签的损失。
+
+```{.python .input}
+def sigmd(x):
+    return -math.log(1 / (1 + math.exp(-x)))
+
+print('%.7f' % ((sigmd(1.5) + sigmd(-0.3) + sigmd(1) + sigmd(-2)) / 4))
+print('%.7f' % ((sigmd(1.1) + sigmd(-0.6) + sigmd(-2.2)) / 3))
+```
+
 ### 初始化模型参数
 
-我们构造中心词和背景词对应的嵌入层，并将超参数嵌入向量长度设置成100。
+我们分别构造中心词和背景词的嵌入层，并将超参数词向量维度`embed_size`设置成100。
 
 ```{.python .input  n=20}
 embed_size = 100
@@ -270,7 +285,7 @@ net.add(nn.Embedding(input_dim=len(idx_to_token), output_dim=embed_size),
 
 ### 训练
 
-下面定义训练函数。注意由于填充的关系，在计算损失处跟之前的训练函数略微不同。
+下面定义训练函数。由于填充项的存在，跟之前的训练函数相比，损失函数的计算稍有不同。
 
 ```{.python .input  n=21}
 def train(net, lr, num_epochs):
@@ -279,33 +294,32 @@ def train(net, lr, num_epochs):
     trainer = gluon.Trainer(net.collect_params(), 'adam',
                             {'learning_rate': lr})
     for epoch in range(num_epochs):
-        start_time, train_l = time.time(), 0
+        start_time, train_l_sum = time.time(), 0
         for batch in data_iter:
             center, context_negative, mask, label = [
                 data.as_in_context(ctx) for data in batch]
             with autograd.record():
                 pred = skip_gram(center, context_negative, net[0], net[1])
-                # 将 mask 通过 loss 的权重选项来过滤掉填充。
-                l = loss(pred.reshape(label.shape), label, mask)
-                # l[i] 是第 i 个样本背景词和噪音词损失的均值。但由于填充关系，这个均值
-                # 不正确。这里我们修改 l 为对小批量中所有背景词和噪音词的平均损失。
-                l = l.sum() * mask.shape[1] / mask.sum()
+                # 使用掩码变量 mask 来避免填充项对损失函数计算的影响。
+                l = (loss(pred.reshape(label.shape), label, mask) *
+                     mask.shape[1] / mask.sum(axis=1))
             l.backward()
-            trainer.step(1)  # l 已经做过了平均，这里不需要传入 batch_size。
-            train_l += l.asscalar()
-        print('epoch %d, train loss %.2f, time %.2fs' % (
-            epoch + 1, train_l / len(data_iter), time.time() - start_time))
+            trainer.step(batch_size)
+            train_l_sum += l.mean().asscalar()
+        print('epoch %d, train loss %.2f, time %.2fs'
+              % (epoch + 1, train_l_sum / len(data_iter),
+                 time.time() - start_time))
 ```
 
-现在我们可以训练使用负采样的跳字模型了。可以看到，使用训练得到的词嵌入模型时，与词“chip”语义最接近的词大多与芯片有关。
+现在我们可以训练使用负采样的跳字模型了。
 
 ```{.python .input  n=22}
 train(net, 0.005, 8)
 ```
 
-## 模型预测
+## 应用词嵌入模型
 
-当我们训练好词嵌入模型后，我们可以根据两个词向量的余弦相似度表示词与词之间在语义上的相似度。
+当训练好词嵌入模型后，我们可以根据两个词向量的余弦相似度表示词与词之间在语义上的相似度。可以看到，使用训练得到的词嵌入模型时，与词“chip”语义最接近的词大多与芯片有关。
 
 ```{.python .input  n=23}
 def get_similar_tokens(query_token, k, embed):
@@ -314,23 +328,24 @@ def get_similar_tokens(query_token, k, embed):
     cos = nd.dot(W, x) / nd.sum(W * W, axis=1).sqrt() / nd.sum(x * x).sqrt()
     topk = nd.topk(cos, k=k+1, ret_typ='indices').asnumpy().astype('int32')
     for i in topk[1:]:  # 除去输入词。
-        print('similarity=%.3f: %s' % (cos[i].asscalar(), (idx_to_token[i])))
+        print('cosine sim=%.3f: %s' % (cos[i].asscalar(), (idx_to_token[i])))
+
 get_similar_tokens('chip', 3, net[0])
 ```
 
 ## 小结
 
-* 我们使用Gluon通过负采样训练了跳字模型。
+* 我们可以使用Gluon通过负采样训练跳字模型。
 * 二次采样试图尽可能减轻高频词对训练词嵌入模型的影响。
 * 我们可以将长度不同的样本填充至长度相同的小批量，并通过掩码变量区分非填充和填充，然后只令非填充参与损失函数的计算。
 
 
 ## 练习
 
-* 调一调模型和训练超参数。
+* 我们用`batchify`函数指定`DataLoader`实例中小批量的读取方式，并打印了读取的第一个批量中各个变量的形状。这些形状该如何计算得到？
 * 试着找出其他词的近义词。
-* 当数据集较大时，我们通常在迭代模型参数时才对当前小批量里的中心词采样背景词和音词。也就是说，同一个中心词在不同的迭代周期可能会有不同的背景词或噪音词。这样训练有哪些好处？尝试实现上述训练方法。
-* 事实上`SigmoidBinaryCrossEntropyLoss`的实现不是本节给出的目标函数。找出它的实现，并分析为什么要这么做。
+* 调一调超参数，观察并分析实验结果。
+* 当数据集较大时，我们通常在迭代模型参数时才对当前小批量里的中心词采样背景词和噪音词。也就是说，同一个中心词在不同的迭代周期可能会有不同的背景词或噪音词。这样训练有哪些好处？尝试实现该训练方法。
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7761)
