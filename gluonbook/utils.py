@@ -345,8 +345,8 @@ def read_imdb(folder='train'):
     for label in ['pos', 'neg']:
         folder_name = os.path.join('../data/aclImdb/', folder, label)
         for file in os.listdir(folder_name):
-            with open(os.path.join(folder_name, file), 'r') as f:
-                review = f.read().replace('\n', '').lower()
+            with open(os.path.join(folder_name, file), 'rb') as f:
+                review = f.read().decode('utf-8').replace('\n', '').lower()
                 data.append([review, 1 if label == 'pos' else 0])
     random.shuffle(data)
     return data
