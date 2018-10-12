@@ -276,8 +276,8 @@ net.add(nn.Embedding(input_dim=len(idx_to_token), output_dim=embed_size),
 def train(net, lr, num_epochs):
     ctx = gb.try_gpu()
     net.initialize(ctx=ctx, force_reinit=True)
-    trainer = gluon.Trainer(net.collect_params(),
-                            'adam', {'learning_rate': lr})
+    trainer = gluon.Trainer(net.collect_params(), 'adam',
+                            {'learning_rate': lr})
     for epoch in range(num_epochs):
         start_time, train_l = time.time(), 0
         for batch in data_iter:
