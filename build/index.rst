@@ -9,7 +9,7 @@
 
    本项目是一个开源项目，主要由 `Aston Zhang <https://astonzhang.github.io/>`_ （亚马逊云服务应用科学家）、`李沐 <http://www.cs.cmu.edu/~muli/>`_ （亚马逊云服务首席科学家）、 `Zack Lipton <http://zacklipton.com/>`_ （亚马逊云服务应用科学家，卡内基梅隆大学机器学习系助理教授）、 `Alex Smola <https://alex.smola.org/>`_ （亚马逊云服务总监）和 `来自社区的几十位贡献者 <https://github.com/mli/gluon-tutorials-zh/graphs/contributors>`_ 一起完成。
 
-   - `【已有80+贡献者，别忘了提供联系方式】成为本书贡献者，获得专享版赠书并被致谢 <https://discuss.gluon.ai/t/topic/7571>`_。
+   - `【已有85+贡献者，别忘了提供联系方式】成为本书贡献者，获得专享版赠书并被致谢 <https://discuss.gluon.ai/t/topic/7571>`_。
 
    - `第一季十九课视频汇总 <https://discuss.gluon.ai/t/topic/753>`_ （本教程在不断改进中。最接近视频中的版本是 `v0.6.1 <https://github.com/mli/gluon-tutorials-zh/releases/tag/v0.61>`_）。
 
