@@ -1,4 +1,4 @@
-# 全局向量的词表示（GloVe）
+# 基于全局向量的词嵌入（GloVe）
 
 在介绍GloVe模型前让我们重新来看一下word2vec中的跳字模型。记$q_{ij}$是跳字模型中使用softmax函数拟合的条件概率$p_{ij}=\mathbb{P}(w_j\mid w_i)$。也就是$q_{ij}=\frac{\exp(\mathbf{u}_j^\top \mathbf{v}_i)}{ \sum_{k \in \mathcal{V}} \text{exp}(\mathbf{u}_k^\top \mathbf{v}_i)}$，这里$\mathbf{v}_i$和$\mathbf{u}_i$分别是词$w_i$作为中心词和背景词时的向量表示。
 
@@ -6,7 +6,7 @@
 
 $$L = -\sum_{i\in\mathcal{V}}\sum_{j\in\mathcal{C}_i} \log\,q_{ij},$$
 
-这里$\mathcal{C}_i$是词$w_i$在序列中每次出现的背景窗口中的词索引的合集，且允许重复元素。记条件词频$x_{ij}$是词$w_j$作为背景词出现在$w_i$背景窗口中的次数，那么$x_{ij} = |\{j:j\in\mathcal{C}_i\}|$。同时记词频$x_i=|\mathcal{C}_i|$，那么有$p_{ij} = x_{ij}/x_i$。我们可以改写跳字模型的目标函数为：
+这里$\mathcal{C}_i$是词$w_i$在序列中每次出现的背景窗口中的词索引的合集，且允许重复元素。记条件词频$x_{ij}$是词$w_j$作为背景词出现在$w_i$背景窗口中的次数，那么$x_{ij} = \left|\{j:j\in\mathcal{C}_i\}\right|$。同时记词频$x_i=\left|\mathcal{C}_i\right|$，那么有$p_{ij} = x_{ij}/x_i$。我们可以改写跳字模型的目标函数为：
 
 $$L = -\sum_{i\in\mathcal{V}}\sum_{j\in\mathcal{V}} x_{ij} \log\,q_{ij} =
 -\sum_{i\in\mathcal{V}} x_i \sum_{j\in\mathcal{V}} p_{ij} \log\,q_{ij}$$
@@ -23,7 +23,7 @@ $$L = -\sum_{i\in\mathcal{V}}\sum_{j\in\mathcal{V}} x_{ij} \log\,q_{ij} =
 
 这样，GloVe的目标是最小化下面目标函数：
 
-$$-\sum_{i\in\mathcal{V},\ j\in\mathcal{V}} h(x_{ij}) \left(\mathbf{u}_j^\top \mathbf{v}_i + b_i + c_j - \log\,x_{ij}\right)^2.$$
+$$\sum_{i\in\mathcal{V},\ j\in\mathcal{V}} h(x_{ij}) \left(\mathbf{u}_j^\top \mathbf{v}_i + b_i + c_j - \log\,x_{ij}\right)^2.$$
 
 其中权重函数$h(x)$的一个建议选择是：当$x < c$（例如$c = 100$），令$h(x) = (x/c)^\alpha$（例如$\alpha = 0.75$），反之令$h(x) = 1$。因为$h(0)=0$，所以对于$x_{ij}=0$的平方损失项可以直接忽略。当使用小批量随机梯度下降来训练时，每个时间步我们随机采样小批量非零$x_{ij}$，然后计算梯度来迭代模型参数。
 
@@ -55,7 +55,7 @@ $$f(\boldsymbol{u}_j, \boldsymbol{u}_k, {\boldsymbol{v}}_i) = \frac{\exp\left(\b
 
 满足最右边约等号的一个可能是$\exp\left(\boldsymbol{u}_j^\top {\boldsymbol{v}}_i\right) \approx \alpha p_{ij}$，这里$\alpha$是一个常数。考虑到$p_{ij}=x_{ij}/x_i$，取对数后$\boldsymbol{u}_j^\top {\boldsymbol{v}}_i \approx \log\,\alpha + \log\,x_{ij} - \log\,x_i$。我们使用额外的偏移来拟合$- \log\,\alpha + \log\,x_k$，为了对称性，我们同时使用中心词和背景词偏移，那么：
 
-$$\boldsymbol{u}_j^\top \tilde{\boldsymbol{v}}_i + b_i + c_j \approx \log(x_{ij}).$$
+$$\boldsymbol{u}_j^\top \boldsymbol{v}_i + b_i + c_j \approx \log(x_{ij}).$$
 
 之后使用加权的平方误差我们可以得到GloVe的目标函数。
 
