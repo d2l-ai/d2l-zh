@@ -22,7 +22,7 @@ $$-\sum_{i\in\mathcal{V}} x_i \sum_{j\in\mathcal{V}} p_{ij} \log\,q_{ij}.$$
 
 ## GloVe模型
 
-有鉴于此，GloVe词嵌入模型采用了平方损失，并基于该损失对跳字模型做了三点改动 [1]：
+有鉴于此，作为在word2vec之后提出的词嵌入模型，GloVe采用了平方损失，并基于该损失对跳字模型做了三点改动 [1]：
 
 1. 使用非概率分布的变量$p'_{ij}=x_{ij}$和$q'_{ij}=\exp(\mathbf{u}_j^\top \mathbf{v}_i)$，并对它们取对数。因此平方损失项是$\left(\log\,p'_{ij} - \log\,q'_{ij}\right)^2 = \left(\mathbf{u}_j^\top \mathbf{v}_i - \log\,x_{ij}\right)^2$。
 2. 为每个词$w_i$增加两个为标量的模型参数：中心词偏差项$b_i$和背景词偏差项$c_i$。
@@ -32,51 +32,53 @@ $$-\sum_{i\in\mathcal{V}} x_i \sum_{j\in\mathcal{V}} p_{ij} \log\,q_{ij}.$$
 
 $$\sum_{i\in\mathcal{V}} \sum_{j\in\mathcal{V}} h(x_{ij}) \left(\mathbf{u}_j^\top \mathbf{v}_i + b_i + c_j - \log\,x_{ij}\right)^2.$$
 
-其中权重函数$h(x)$的一个建议选择是：当$x < c$（例如$c = 100$），令$h(x) = (x/c)^\alpha$（例如$\alpha = 0.75$），反之令$h(x) = 1$。因为$h(0)=0$，所以对于$x_{ij}=0$的平方损失项可以直接忽略。当使用小批量随机梯度下降来训练时，每个时间步我们随机采样小批量非零$x_{ij}$，然后计算梯度来迭代模型参数。这些非零$x_{ij}$是预先基于整个数据集计算得到的，包含了数据集的全局信息。因此，GloVe的命名使用了“全局向量”（“Global Vector”）。
+其中权重函数$h(x)$的一个建议选择是：当$x < c$（例如$c = 100$），令$h(x) = (x/c)^\alpha$（例如$\alpha = 0.75$），反之令$h(x) = 1$。因为$h(0)=0$，所以对于$x_{ij}=0$的平方损失项可以直接忽略。当使用小批量随机梯度下降来训练时，每个时间步我们随机采样小批量非零$x_{ij}$，然后计算梯度来迭代模型参数。这些非零$x_{ij}$是预先基于整个数据集计算得到的，包含了数据集的全局统计信息。因此，GloVe的命名取“全局向量”（“Global Vectors”）之意。
 
 需要强调的是，如果词$w_i$出现在词$w_j$的背景窗口里，那么词$w_j$也会出现在词$w_i$的背景窗口里。也就是说，$x_{ij}=x_{ji}$。不同于word2vec中拟合的是非对称的条件概率$p_{ij}$，GloVe拟合的是对称的$\log\, x_{ij}$。因此，任意词的中心词向量和背景词向量在GloVe中是等价的。但由于初始化值的不同，同一个词最终学习到的两组词向量可能不同。当学习得到所有词向量以后，GloVe使用中心词向量与背景词向量之和作为该词的最终词向量。
 
 
-## 使用条件概率比值的解释
+## 从条件概率比值理解GloVe
 
-我们可以从另外一个方向出发来理解GloVe模型。首先我们来看下面几组条件概率（[1]中称为共现概率）以及它们之间的比值($w_k$or $k$)：
+我们还可以从另外一个角度来理解GloVe词嵌入。沿用本节前面的符号，$\mathbb{P}(w_j \mid w_i)$表示数据集中以$w_i$为中心词生成背景词$w_j$的条件概率，并记作$p_{ij}$。作为源于某大型语料库的真实例子，以下列举了两组分别以“ice”（“冰”）和“steam”（“蒸汽”）为中心词的条件概率以及它们之间的比值 [1]：
 
-* $\mathbb{P}(k \mid \text{ice})$：0.00019（$k$= solid），0.000066（$k$= gas），0.003（$k$= water），0.000017（$k$= fashion）
-* $\mathbb{P}(k \mid \text{steam})$：0.000022（$k$= solid），0.00078（$k$= gas），0.0022（$k$= water），0.000018（$k$= fashion）
-* $\mathbb{P}(k \mid \text{ice}) / \mathbb{P}(k \mid \text{steam})$：8.9（$k$= solid），0.085（$k$= gas），1.36（$k$= water），0.96（$k$= fashion）
-
+|$w_k$=|“solid”|“gas”|“water”|“fashion”|
+|--:|:-:|:-:|:-:|
+|$p_1=\mathbb{P}(w_k\mid\text{``ice"})$|0.00019|0.000066|0.003|0.000017|
+|$p_2=\mathbb{P}(w_k\mid\text{``steam"})$|0.000022|0.00078|0.0022|0.000018|
+|$p_1/p_2$|8.9|0.085|1.36|0.96|
 
 我们可以观察到以下现象：
 
-* 对于与ice（冰）相关而与steam（蒸汽）不相关的词$k$，例如$k=$solid（固体），我们期望条件概率比值较大，例如上面最后一行结果中的值8.9。
-* 对于与ice不相关而与steam相关的词$k$，例如$k=$gas（气体），我们期望条件概率比值较小，例如上面最后一行结果中的值0.085。
-* 对于与ice和steam都相关的词$k$，例如$k=$water（水），我们期望条件概率比值接近1，例如上面最后一行结果中的值1.36。
-* 对于与ice和steam都不相关的词$k$，例如$k=$fashion（时尚），我们期望条件概率比值接近1，例如上面最后一行结果中的值0.96。
+* 对于与“ice”相关而与“steam”不相关的词$w_k$，例如$w_k=$“solid”（“固体”），我们期望条件概率比值较大，例如上表最后一行中的值8.9；
+* 对于与“ice”不相关而与steam相关的词$w_k$，例如$w_k=$“gas”（“气体”），我们期望条件概率比值较小，例如上表最后一行中的值0.085；
+* 对于与“ice”和“steam”都相关的词$w_k$，例如$w_k=$“water”（“水”），我们期望条件概率比值接近1，例如上表最后一行中的值1.36；
+* 对于与“ice”和“steam”都不相关的词$w_k$，例如$w_k=$“fashion”（“时尚”），我们期望条件概率比值接近1，例如上表最后一行中的值0.96。
 
-由此可见，条件概率比值能比较直观地表达词与词之间的关系。我们可以构造一个词向量函数使得它能有效拟合条件概率比值。我们知道，任意一个这样的比值需要三个词$w_i$、$w_j$和$w_k$。以$w_i$作为中心词的条件概率比值为${p_{ij}}/{p_{ik}}$。我们可以找一个函数，它使用词向量来拟合这个条件概率比值：
+由此可见，条件概率比值能比较直观地表达词与词之间的关系。我们可以构造一个词向量函数使得它能有效拟合条件概率比值。我们知道，任意一个这样的比值需要三个词$w_i$、$w_j$和$w_k$。以$w_i$作为中心词的条件概率比值为${p_{ij}}/{p_{ik}}$。我们可以找一个函数，它使用词向量来拟合这个条件概率比值
 
 $$f(\boldsymbol{u}_j, \boldsymbol{u}_k, {\boldsymbol{v}}_i) \approx \frac{p_{ij}}{p_{ik}}.$$
 
-这里函数$f$可能的设计并不唯一，我们只需考虑一种较为合理的可能性。注意到条件概率比值是一个标量，我们可以将$f$限制为一个标量函数：$f(\boldsymbol{u}_j, \boldsymbol{u}_k, {\boldsymbol{v}}_i) = f\left((\boldsymbol{u}_j - \boldsymbol{u}_k)^\top {\boldsymbol{v}}_i\right)$。交换$j$和$k$后可以看到$f$应该满足$f(x)f(-x)=1$，因此一个可能是$f(x)=\exp(x)$，于是
+这里函数$f$可能的设计并不唯一，我们只需考虑一种较为合理的可能性。注意到条件概率比值是一个标量，我们可以将$f$限制为一个标量函数：$f(\boldsymbol{u}_j, \boldsymbol{u}_k, {\boldsymbol{v}}_i) = f\left((\boldsymbol{u}_j - \boldsymbol{u}_k)^\top {\boldsymbol{v}}_i\right)$。交换索引$j$和$k$后可以看到函数$f$应该满足$f(x)f(-x)=1$，因此一个可能是$f(x)=\exp(x)$，于是
 
 $$f(\boldsymbol{u}_j, \boldsymbol{u}_k, {\boldsymbol{v}}_i) = \frac{\exp\left(\boldsymbol{u}_j^\top {\boldsymbol{v}}_i\right)}{\exp\left(\boldsymbol{u}_k^\top {\boldsymbol{v}}_i\right)} \approx \frac{p_{ij}}{p_{ik}}.$$
 
-满足最右边约等号的一个可能是$\exp\left(\boldsymbol{u}_j^\top {\boldsymbol{v}}_i\right) \approx \alpha p_{ij}$，这里$\alpha$是一个常数。考虑到$p_{ij}=x_{ij}/x_i$，取对数后$\boldsymbol{u}_j^\top {\boldsymbol{v}}_i \approx \log\,\alpha + \log\,x_{ij} - \log\,x_i$。我们使用额外的偏移来拟合$- \log\,\alpha + \log\,x_k$，为了对称性，我们同时使用中心词和背景词偏移，那么：
+满足最右边约等号的一个可能是$\exp\left(\boldsymbol{u}_j^\top {\boldsymbol{v}}_i\right) \approx \alpha p_{ij}$，这里$\alpha$是一个常数。考虑到$p_{ij}=x_{ij}/x_i$，取对数后$\boldsymbol{u}_j^\top {\boldsymbol{v}}_i \approx \log\,\alpha + \log\,x_{ij} - \log\,x_i$。我们使用额外的偏差项来拟合$- \log\,\alpha + \log\,x_i$，例如中心词偏差项$b_i$和背景词偏差项$c_j$：
 
 $$\boldsymbol{u}_j^\top \boldsymbol{v}_i + b_i + c_j \approx \log(x_{ij}).$$
 
-之后使用加权的平方误差我们可以得到GloVe的目标函数。
+对上式左右两边取平方误差并加权，我们可以得到GloVe的损失函数。
+
 
 ## 小结
 
-
-* GloVe用词向量表达条件词频的对数，并通过加权平方误差来构建目标函数。
+* 在有些情况下，交叉熵损失函数有劣势。GloVe采用了平方损失，并通过词向量拟合预先基于整个数据集计算得到的全局统计信息。
+* 任意词的中心词向量和背景词向量在GloVe中是等价的。
 
 
 ## 练习
 
-* GloVe中，如果一个词出现在另一个词的背景中，是否可以利用它们之间在文本序列的距离重新设计词频计算方式？提示：可参考Glove论文4.2节 [1]。
-* 如果丢弃GloVe中的偏差项，是否也可以满足任意一对词条件的对称性？
+* 如果一个词出现在另一个词的背景窗口中，如何利用它们之间在文本序列的距离重新设计条件概率$p_{ij}$的计算方式？提示：可参考GloVe论文4.2节 [1]。
+* 对于任意词，它在GloVe的中心词偏差项和背景词偏差项是否等价？为什么？
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4372)
 
