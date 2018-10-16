@@ -102,7 +102,7 @@ $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f(\boldsymbol{x}).$$
 
 相同地，其中$\eta$（取正数）称作学习率。
 
-下面我们构造一个输入为二维向量$\boldsymbol{x} = [x_1, x_2]^\top$和输出为标量的目标函数$f(\boldsymbol{x})=x_1^2+2x_2^2$。那么，梯度$\nabla f(\boldsymbol{x}) = [2x_1, 4x_2]^\top$。我们将观察梯度下降从初始位置$[5,2]$开始对自变量$\boldsymbol{x}$的迭代轨迹。我们先定义两个辅助函数。第一个函数使用给定的自变量更新函数，从初始位置$[5,2]$开始迭代自变量$\boldsymbol{x}$共20次。第二个函数将可视化自变量$\boldsymbol{x}$的迭代轨迹。
+下面我们构造一个输入为二维向量$\boldsymbol{x} = [x_1, x_2]^\top$和输出为标量的目标函数$f(\boldsymbol{x})=x_1^2+2x_2^2$。那么，梯度$\nabla f(\boldsymbol{x}) = [2x_1, 4x_2]^\top$。我们将观察梯度下降从初始位置$[-5,-2]$开始对自变量$\boldsymbol{x}$的迭代轨迹。我们先定义两个辅助函数。第一个函数使用给定的自变量更新函数，从初始位置$[-5,-2]$开始迭代自变量$\boldsymbol{x}$共20次。第二个函数将可视化自变量$\boldsymbol{x}$的迭代轨迹。
 
 ```{.python .input  n=10}
 def train_2d(trainer):  # 本函数将保存在 gluonbook 包中方便以后使用。

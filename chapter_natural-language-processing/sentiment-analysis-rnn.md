@@ -46,8 +46,8 @@ def read_imdb(folder='train'):  # 本函数已保存在 gluonbook 包中方便�
     for label in ['pos', 'neg']:
         folder_name = os.path.join('../data/aclImdb/', folder, label)
         for file in os.listdir(folder_name):
-            with open(os.path.join(folder_name, file), 'r') as f:
-                review = f.read().replace('\n', '').lower()
+            with open(os.path.join(folder_name, file), 'rb') as f:
+                review = f.read().decode('utf-8').replace('\n', '').lower()
                 data.append([review, 1 if label == 'pos' else 0])
     random.shuffle(data)
     return data
@@ -83,7 +83,10 @@ vocab = get_vocab_imdb(train_data)
 ```{.python .input  n=44}
 def preprocess_imdb(data, vocab):  # 本函数已保存在 gluonbook 包中方便以后使用。
     max_l = 500  # 将每条评论通过截断或者补 0 来使得长固定。
-    pad = lambda x: x[:max_l] if len(x) > max_l else x + [0] * (max_l-len(x))
+
+    def pad(x):
+        return x[:max_l] if len(x) > max_l else x + [0] * (max_l - len(x))
+
     tokenized_data = get_tokenized_imdb(data)
     features = nd.array([pad(vocab.to_indices(x)) for x in tokenized_data])
     labels = nd.array([score for _, score in data])
