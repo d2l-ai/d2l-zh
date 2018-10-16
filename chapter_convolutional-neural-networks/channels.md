@@ -20,8 +20,8 @@ import gluonbook as gb
 from mxnet import nd
 
 def corr2d_multi_in(X, K):
-    # 我们首先沿着 X 和 K 的第 0 维（通道维）遍历。然后使用 * 将结果列表变成 add_n 函数的位
-    # 置参数（positional argument）来进行相加。
+    # 我们首先沿着 X 和 K 的第 0 维（通道维）遍历。然后使用 * 将结果列表变成 add_n 函数
+    # 的位置参数（positional argument）来进行相加。
     return nd.add_n(*[gb.corr2d(x, k) for x, k in zip(X, K)])
 ```
 
