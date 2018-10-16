@@ -116,6 +116,7 @@ $$\frac{\partial \log\, \mathbb{P}(w_c \mid \mathcal{W}_o)}{\partial \boldsymbol
 
 * 每次梯度的计算复杂度是多少？当词典很大时，会有什么问题？
 * 英语中有些固定短语由多个词组成，例如“new york”。如何训练它们的词向量？提示：可参考word2vec论文第4节 [2]。
+* 让我们以跳字模型为例思考word2vec模型的设计。跳字模型中两个词向量的内积与余弦相似度有什么关系？对于语义相近的一对词来说，为什么它们的词向量的余弦相似度可能会高？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4203)
