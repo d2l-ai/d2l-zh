@@ -14,7 +14,7 @@ $$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \frac{\eta}{\sqrt{\boldsymb
 
 其中$\eta$是学习率，$\epsilon$是为了维持数值稳定性而添加的常数，例如$10^{-6}$。因为RMSProp的状态变量是对平方项$\boldsymbol{g}_t \odot \boldsymbol{g}_t$的指数加权移动平均，所以可以看作是最近$1/(1-\gamma)$个时间步的小批量随机梯度平方项的加权平均。如此一来，自变量每个元素的学习率在迭代过程中不再一直降低（或不变）。
 
-照例，让我们先观察RMSProp对目标函数$f(\boldsymbol{x})=0.1x_1^2+2x_2^2$中自变量的迭代轨迹。回忆在[“Adagrad”](adagrad.md)一节使用学习率为0.4的Adagrad，自变量在迭代后期的移动幅度较小。但在同样的学习率下，RMSProp可以较快逼近最优解。
+照例，让我们先观察在使用RMSProp对目标函数$f(\boldsymbol{x})=0.1x_1^2+2x_2^2$进行优化时自变量的迭代轨迹。回忆在[“Adagrad”](adagrad.md)一节使用学习率为0.4的Adagrad，自变量在迭代后期的移动幅度较小。但在同样的学习率下，RMSProp可以较快逼近最优解。
 
 ```{.python .input  n=3}
 %matplotlib inline
