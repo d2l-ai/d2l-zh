@@ -1,10 +1,10 @@
 # 求近义词和类比词
 
-在[“Word2vec的实现”](./word2vec-gluon.md)一节中，我们在小规模数据集上训练了一个word2vec词嵌入模型，并通过词向量的余弦相似度搜索近义词。实际中，在大规模语料上预训练的词嵌入模型常常可以被应用于下游自然语言处理任务中。本节将演示如何用这些预训练的词向量来求近义词和类比词。我们还将在后面的章节中继续应用预训练的词向量。
+在[“Word2vec的实现”](./word2vec-gluon.md)一节中，我们在小规模数据集上训练了一个word2vec词嵌入模型，并通过词向量的余弦相似度搜索近义词。实际中，在大规模语料上预训练的词向量常常可以应用于下游自然语言处理任务中。本节将演示如何用这些预训练的词向量来求近义词和类比词。我们还将在后面的章节中继续应用预训练的词向量。
 
 ## 使用预训练的词向量
 
-MXNet的`contrib.text`提供了跟自然语言处理相关的函数和类。下面查看它目前提供的有预训练模型的词向量模型：
+MXNet的`contrib.text`包提供了跟自然语言处理相关的函数和类（更多请参见GluonNLP工具包 [1]）。下面查看它目前提供的预训练词嵌入的名称。
 
 ```{.python .input}
 from mxnet import nd
@@ -14,13 +14,13 @@ from mxnet.gluon import nn
 text.embedding.get_pretrained_file_names().keys()
 ```
 
-给定一个模型，我们可以查看它提供了在哪些数据集上训练好的模型。
+给定词嵌入名称，我们可以查看该词嵌入提供了哪些预训练的模型。每个模型的词向量维度可能不同，或是在不同数据集上预训练得到的。
 
 ```{.python .input  n=35}
 print(text.embedding.get_pretrained_file_names('glove'))
 ```
 
-这里的命名规范大致是“模型.数据集词数.词向量长度.txt”，更多信息可以参考GloVe [1]和fastText [2]项目信息。下面我们使用数据集`glove.6B.50d.txt`，它是基于维基百科的一个子集。使用模型名和数据集名可以创建一个词向量实例，创建时会自动下载对应的预训练模型。
+预训练的GloVe模型的命名规范大致是“模型.（数据集.）数据集词数.词向量维度.txt”。更多信息可以参考GloVe和fastText的项目网站 [2,3]。下面我们使用基于维基百科子集预训练的50维GloVe词向量。第一次创建预训练词向量实例时会自动下载相应的词向量。
 
 ```{.python .input  n=11}
 glove_6b50d = text.embedding.create(
@@ -33,7 +33,7 @@ glove_6b50d = text.embedding.create(
 len(glove_6b50d)
 ```
 
-我们可以通过词来得到它在词典中的索引，反之也可以。
+我们可以通过词来获取它在词典中的索引，也可以通过索引获取词。
 
 ```{.python .input  n=12}
 glove_6b50d.token_to_idx['beautiful'], glove_6b50d.idx_to_token[3367]
@@ -41,25 +41,11 @@ glove_6b50d.token_to_idx['beautiful'], glove_6b50d.idx_to_token[3367]
 
 ## 应用预训练词向量
 
-下面我们以GloVe为例，展示预训练词向量的应用。首先，我们定义余弦相似度，并用它表示两个向量之间的相似度。
-
-```{.python .input  n=13}
-def cos_sim(x, y):
-    return nd.dot(x, y) / (x.norm() * y.norm())
-```
-
-余弦相似度的值域在-1到1之间。两个余弦相似度越大的向量越相似。
-
-```{.python .input  n=14}
-x = nd.array([1, 2])
-y = nd.array([10, 20])
-z = nd.array([-1, -2])
-cos_sim(x, y), cos_sim(x, z)
-```
+下面我们以GloVe为例，展示预训练词向量的应用。
 
 ### 求近义词
 
-这里重新实现[“word2vec 的实现”](./word2vec_gluon.md)一节中介绍过的使用余弦相似度来寻找近义词。首先定义一个通过余弦相似度来求$k$近邻。
+这里重新实现[“Word2vec的实现”](./word2vec-gluon.md)一节中介绍过的使用余弦相似度来搜索近义词的算法。为了在求类比词时重用其中的求$k$近邻的逻辑，我们将这部分逻辑单独封装在`knn`（$k$-nearest neighbors）函数中。
 
 ```{.python .input}
 def knn(W, x, k):
@@ -69,23 +55,23 @@ def knn(W, x, k):
     return topk, [cos[i].asscalar() for i in topk]
 ```
 
-然后通过预训练好的模型寻找近义词。
+然后，我们通过预训练词向量实例`embed`来搜索近义词。
 
 ```{.python .input}
 def get_similar_tokens(query_token, k, embed):
     topk, cos = knn(embed.idx_to_vec, 
                     embed.get_vecs_by_tokens([query_token]), k+2)
     for i, c in zip(topk[2:], cos[2:]):  # 除去输入词和未知词。
-        print('similarity=%.3f: %s' % (c, (embed.idx_to_token[i])))
+        print('cosine sim=%.3f: %s' % (c, (embed.idx_to_token[i])))
 ```
 
-先试一下“chip”的近义词。
+已创建的预训练词向量实例`glove_6b50d`的词典中含40万个词和一个特殊的未知词。除去输入词和未知词，我们从中搜索与“chip”语义最相近的3个词。
 
 ```{.python .input}
 get_similar_tokens('chip', 3, glove_6b50d)
 ```
 
-查找“baby”和“beautiful”的近义词。
+接下来查找“baby”和“beautiful”的近义词。
 
 ```{.python .input}
 get_similar_tokens('baby', 3, glove_6b50d)
@@ -97,7 +83,7 @@ get_similar_tokens('beautiful', 3, glove_6b50d)
 
 ### 求类比词
 
-除了求近义词以外，我们还可以使用预训练词向量求词与词之间的类比关系。例如，man（男人）: woman（女人）:: son（儿子） : daughter（女儿）是一个类比例子：“man”之于“woman”相当于“son”之于“daughter”。求类比词问题可以定义为：对于类比关系中的四个词 $a : b :: c : d$，给定前三个词$a$、$b$和$c$，求$d$。设词$w$的词向量为$\text{vec}(w)$。而解类比词的思路是，找到和$\text{vec}(c)+\text{vec}(b)-\text{vec}(a)$的结果向量最相似的词向量。
+除了求近义词以外，我们还可以使用预训练词向量求词与词之间的类比关系。例如，“man”（“男人”）: “woman”（“女人”）:: “son”（“儿子”） : “daughter”（“女儿”）是一个类比例子：“man”之于“woman”相当于“son”之于“daughter”。求类比词问题可以定义为：对于类比关系中的四个词 $a : b :: c : d$，给定前三个词$a$、$b$和$c$，求$d$。设词$w$的词向量为$\text{vec}(w)$。解类比词的思路是，搜索与$\text{vec}(c)+\text{vec}(b)-\text{vec}(a)$的结果向量最相似的词向量。
 
 ```{.python .input}
 def get_analogy(token_a, token_b, token_c, embed):
@@ -107,25 +93,25 @@ def get_analogy(token_a, token_b, token_c, embed):
     return embed.idx_to_token[topk[1]]  # 除去未知词。
 ```
 
-验证下“男-女”类比：
+验证下“男-女”类比。
 
 ```{.python .input  n=18}
 get_analogy('man', 'woman', 'son', glove_6b50d)
 ```
 
-“首都-国家”类比：“beijing”（北京）之于“china”（中国）相当于“tokyo”（东京）之于什么？答案应该是“japan”（日本）。
+“首都-国家”类比：“beijing”（“北京”）之于“china”（“中国”）相当于“tokyo”（“东京”）之于什么？答案应该是“japan”（“日本”）。
 
 ```{.python .input  n=19}
 get_analogy('beijing', 'china', 'tokyo', glove_6b50d)
 ```
 
-“形容词-形容词最高级”类比：“bad”（坏的）之于“worst”（最坏的）相当于“big”（大的）之于什么？答案应该是“biggest”（最大的）。
+“形容词-形容词最高级”类比：“bad”（“坏的”）之于“worst”（“最坏的”）相当于“big”（“大的”）之于什么？答案应该是“biggest”（“最大的”）。
 
 ```{.python .input  n=20}
 get_analogy('bad', 'worst', 'big', glove_6b50d)
 ```
 
-“动词一般时-动词过去时”类比：“do”（做）之于“did”（做过）相当于“go”（去）之于什么？答案应该是“went”（去过）。
+“动词一般时-动词过去时”类比：“do”（“做”）之于“did”（“做过”）相当于“go”（“去”）之于什么？答案应该是“went”（“去过”）。
 
 ```{.python .input  n=21}
 get_analogy('do', 'did', 'go', glove_6b50d)
@@ -133,14 +119,15 @@ get_analogy('do', 'did', 'go', glove_6b50d)
 
 ## 小结
 
-
+* 在大规模语料上预训练的词向量常常可以应用于下游自然语言处理任务中。
 * 我们可以应用预训练的词向量求近义词和类比词。
 
 
 ## 练习
 
-* 测试一下fastText的结果。特别的，fastText有中文词向量（pretrained_file_name='wiki.zh.vec'）。
-* 如果词典大小特别大，如何提升寻找速度？
+* 测试一下fastText的结果。值得一提的是，fastText有预训练的中文词向量（pretrained_file_name='wiki.zh.vec'）。
+* 如果词典特别大，如何提升近义词或类比词的搜索速度？
+
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4373)
 
@@ -148,6 +135,8 @@ get_analogy('do', 'did', 'go', glove_6b50d)
 
 ## 参考文献
 
-[1] GloVe项目网站. https://nlp.stanford.edu/projects/glove/
+[1] GluonNLP工具包。 https://gluon-nlp.mxnet.io/
 
-[2] fastText项目网站. https://fasttext.cc/
+[2] GloVe项目网站。 https://nlp.stanford.edu/projects/glove/
+
+[3] fastText项目网站。 https://fasttext.cc/
