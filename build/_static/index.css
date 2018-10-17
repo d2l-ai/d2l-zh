@@ -1,0 +1,234 @@
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  /* font-family: 'Helvetica', 'Arial', 'Microsoft YaHei', 'STXihei', 'sans-serif'; */
+    /* font-family: 'STSong', 'SimSun', 'serif'; */
+    font-family: sans-serif;
+
+}
+
+a {
+    color: #447FB4;
+  -webkit-transition: all .35s;
+  transition: all .35s;
+}
+
+a:hover, a:focus {
+  color: black;
+}
+
+hr {
+  max-width: 100px;
+  margin: 25px auto 0;
+  border-width: 1px;
+  border-color: rgba(34, 34, 34, 0.1);
+}
+
+hr.light {
+  border-color: white;
+}
+
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  /* font-weight: 200; */
+  /* letter-spacing: 2px; */
+}
+
+p {
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+section {
+  padding: 100px 0;
+}
+
+section h2 {
+  font-size: 50px;
+}
+
+
+/* header section */
+header.masthead {
+  position: relative;
+  width: 100%;
+  padding-top: 150px;
+  padding-bottom: 100px;
+  margin: 150px 0 0 0;
+  /* color: white; */
+}
+
+header.masthead .header-content {
+  max-width: 500px;
+  margin-bottom: 100px;
+  text-align: center;
+}
+
+header.masthead .header-content h1 {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+header.masthead .header-content p {
+  font-size: 24px;
+  padding: 0 0 20px;
+  letter-spacing: 1px;
+}
+header.masthead .device-container {
+  max-width: 325px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+header.masthead .device-container .screen img {
+  border-radius: 3px;
+}
+
+@media (min-width: 992px) {
+  header.masthead {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  header.masthead .header-content {
+    margin-bottom: 0;
+    text-align: middle;
+  }
+  header.masthead .header-content h1 {
+    font-size: 50px;
+  }
+  header.masthead .device-container {
+    max-width: 325px;
+  }
+}
+
+
+/* author section */
+section.authors {
+    padding: 100px 0px 0 0px;
+}
+section.authors .author-item {
+  padding-top: 50px;
+  padding-bottom: 50px;
+  text-align: center;
+}
+
+section.authors .author-item img {
+    width: 120px;
+}
+
+section.authors .author-item h3 {
+    padding-top: 25px;
+    padding-bottom: 10px;
+    font-size: 22px;
+}
+
+section.authors h3 {
+    font-size: 25px;
+}
+
+section.authors .author-item p {
+    font-size: 16px;
+}
+
+
+
+/* TOC */
+
+section.toc .toc-content {
+  max-width: 600px;
+  margin-bottom: 50px;
+  text-align: center;
+}
+
+section.toc .toc-content h2 {
+    padding-bottom: 30px;
+    font-size: 38px;
+}
+
+section.toc h3 {
+    font-size: 26px;
+    padding-top: 20px;
+    padding-bottom: 15px;
+}
+
+/* features */
+
+section.features .features-content {
+  max-width: 600px;
+  margin-bottom: 50px;
+  text-align: center;
+}
+
+section.features .features-content h2 {
+    padding-bottom: 30px;
+    font-size: 38px;
+}
+
+section.features img {
+    width: 350px;
+}
+
+
+
+/* notebook section */
+section.notebook img{
+    max-width: 550px;
+}
+
+section.notebook .content {
+  text-align: right;
+}
+section.notebook .content h2 {
+    padding: 0 30px 0 0px;
+    font-size: 38px;
+}
+
+section.notebook .content p {
+    padding: 30px 30px 0 0px;
+}
+/* community */
+
+section.community img{
+    max-width: 550px;
+}
+
+section.community .content {
+  text-align: left;
+}
+section.community .content h2 {
+    padding: 0 0 0 30px;
+    font-size: 38px;
+}
+
+section.community .content p {
+    padding: 30px 0 0 30px;
+}
+
+
+
+.btn-outline:hover, .btn-outline:focus, .btn-outline:active, .btn-outline.active {
+  /* color: white; */
+  color: white;
+  background-color: #447FB4;
+}
+
+.btn {
+  /* border-radius: 300px; */
+  color: black;
+  border: 1px solid;
+  letter-spacing: 2px;
+  font-size: 14px;
+  padding: 10px 30px;
+  margin: 0px 10px;
+}
