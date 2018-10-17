@@ -33,24 +33,14 @@ build/%: %
 
 html: $(DEPS) $(OBJ)
 	make -C build html
-	bash build/htaccess.sh build/_build/html/
-	cp build/tencent1668843323268181422.txt build/_build/html/tencent1668843323268181422.txt
+	cp build/index.html build/_build/html/
+	cp -r img/frontpage/ build/_build/html/_images/
 
 TEX=build/_build/latex/gluon_tutorials_zh.tex
 
 SVG=$(wildcard img/*.svg)
-GIF=$(wildcard img/*.gif)
 
-build/_build/latex/%.pdf: img/%.svg
-	@mkdir -p $(@D)
-	rsvg-convert -f pdf -z 0.80 -o $@ $<
-
-build/_build/latex/%_00.pdf: img/%_00.pdf
-	@mkdir -p $(@D)
-	cp $< $@
-
-PDFIMG = $(patsubst img/%.svg, build/_build/latex/%.pdf, $(SVG)) \
-	$(patsubst img/%.gif, build/_build/latex/%_00.pdf, $(GIF))
+PDFIMG = $(patsubst img/%.svg, build/_build/latex/%.pdf, $(SVG))
 
 pdf: $(DEPS) $(OBJ) $(PDFIMG)
 	@echo $(PDFIMG)
