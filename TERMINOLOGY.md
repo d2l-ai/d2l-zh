@@ -2,6 +2,8 @@
 
 鞍点，saddle point
 
+背景变量，context variable
+
 背景窗口，context window
 
 背景词，context word
