@@ -38,6 +38,10 @@ html: $(DEPS) $(OBJ)
 
 TEX=build/_build/latex/gluon_tutorials_zh.tex
 
+build/_build/latex/%.pdf: img/%.svg
+	@mkdir -p $(@D)
+	rsvg-convert -f pdf -z 0.80 -o $@ $<
+
 SVG=$(wildcard img/*.svg)
 
 PDFIMG = $(patsubst img/%.svg, build/_build/latex/%.pdf, $(SVG))
