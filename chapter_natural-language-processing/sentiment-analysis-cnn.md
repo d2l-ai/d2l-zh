@@ -3,9 +3,6 @@
 在“卷积神经网络”一章中我们探究了如何使用二维卷积神经网络来处理二维图像数据。在之前的语言模型和文本分类任务中，我们将文本数据看作是只有一个维度的时间序列，并很自然地使用循环神经网络来处理这样的数据。其实，我们也可以将文本当做是一维图像，从而可以用一维卷积神经网络来捕捉临近词之间的关联。本节将介绍将卷积神经网络应用到文本分析的开创性工作之一：textCNN [1]。首先导入实验所需的包和模块。
 
 ```{.python .input  n=2}
-import sys
-sys.path.insert(0, '..')
-
 import gluonbook as gb
 from mxnet import gluon, init, nd
 from mxnet.contrib import text

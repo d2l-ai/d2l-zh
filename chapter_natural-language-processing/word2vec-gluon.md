@@ -5,9 +5,6 @@
 首先让我们导入实验所需的包或模块。
 
 ```{.python .input  n=1}
-import sys
-sys.path.insert(0, '..')
-
 import collections
 import gluonbook as gb
 import math

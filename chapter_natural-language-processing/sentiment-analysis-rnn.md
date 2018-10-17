@@ -5,9 +5,6 @@
 同搜索近义词和类比词一样，文本分类也属于词嵌入的下游应用。本节中，我们将应用预训练的词向量和含多个隐藏层的双向循环神经网络。我们将用它们来判断一段不定长的文本序列中包含的是正面还是负面的情绪。在实验开始前，导入所需的包或模块。
 
 ```{.python .input  n=2}
-import sys
-sys.path.insert(0, '..')
-
 import collections
 import gluonbook as gb
 from mxnet import gluon, init, nd
