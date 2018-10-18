@@ -1,35 +1,33 @@
 # 机器翻译
 
-机器翻译是指将文字从一种语言自动翻译到另一种语言。因为一个句子在不同语言中长度不一定相同，所以我们使用机器翻译为例来介绍编码器—解码器和注意力机制的应用。首先，导入实现所需的包或模块。
+机器翻译是指将一段文本从一种语言自动翻译到另一种语言。因为一段文本序列在不同语言中长度不一定相同，所以我们使用机器翻译为例来介绍编码器—解码器和注意力机制的应用。
 
-```{.python .input  n=26}
+## 读取和预处理数据
+
+我们先定义一些特殊符号。其中“&lt;pad&gt;”（padding）符号用来添加在较短序列后，直到每个序列等长，而“&lt;bos&gt;”和“&lt;eos&gt;”符号分别表示序列的开始和结束。
+
+```{.python .input  n=2}
 import collections
 import io
 import math
 from mxnet import autograd, gluon, init, nd
 from mxnet.contrib import text
 from mxnet.gluon import data as gdata, loss as gloss, nn, rnn
-```
 
-## 读取数据
-
-首先定义一些特殊符号。其中“&lt;pad&gt;”（padding）符号使每个序列等长。我们已经在前面几节介绍了，“&lt;bos&gt;”和“&lt;eos&gt;”符号分别表示序列的开始和结束。
-
-```{.python .input  n=2}
 PAD, BOS, EOS = '<pad>', '<bos>', '<eos>'
 ```
 
-接着定义两个辅助函数来对数据进行预处理。
+接着定义两个辅助函数对后面读取的数据进行预处理。
 
 ```{.python .input}
-# 对一个序列，记录所有的词在 all_tokens 中以便之后构造词典。
-# 然后将其补长成 max_seq_len 长，并记录在 all_seqs 中。
+# 对一个序列，记录所有的词在 all_tokens 中以便之后构造词典，然后将该序列后添加 PAD 直到
+# 长度变为 max_seq_len，并记录在 all_seqs 中。
 def process_one_seq(seq_tokens, all_tokens, all_seqs, max_seq_len):
     all_tokens.extend(seq_tokens)
     seq_tokens += [EOS] + [PAD] * (max_seq_len - len(seq_tokens) - 1)
     all_seqs.append(seq_tokens)
 
-# 使用所有的词来构造词典。并将所有序列中的词换成词索引后构造 NDArray 实例。
+# 使用所有的词来构造词典。并将所有序列中的词变换为词索引后构造 NDArray 实例。
 def build_data(all_tokens, all_seqs):
     vocab = text.vocab.Vocabulary(collections.Counter(all_tokens),
                                   reserved_tokens=[PAD, BOS, EOS])
@@ -37,7 +35,7 @@ def build_data(all_tokens, all_seqs):
     return vocab, nd.array(indicies)
 ```
 
-为了演示方便，这里使用了一个很小的法语—英语数据集。这个数据集里，每一行是一对英语句子和它对应的法语句子，中间使用`\t`隔开。在读取数据时，我们在句末附上“&lt;eos&gt;”符号，并可能通过添加“&lt;pad&gt;”符号使每个序列的长度均为`max_seq_len`。
+为了演示方便，我们在这里使用一个很小的法语—英语数据集。这个数据集里，每一行是一对法语句子和它对应的英语句子，中间使用“\t”隔开。在读取数据时，我们在句末附上“&lt;eos&gt;”符号，并可能通过添加“&lt;pad&gt;”符号使每个序列的长度均为`max_seq_len`。我们为法语词和英语词分别创建词典。法语词的索引和英语词的索引相互独立。
 
 ```{.python .input  n=31}
 def read_data(max_seq_len):
@@ -58,7 +56,7 @@ def read_data(max_seq_len):
     return in_vocab, out_vocab, gdata.ArrayDataset(in_data, out_data)
 ```
 
-将最大长度设成7，然后查看读取到的第一个样本。
+将序列的最大长度设成7，然后查看读取到的第一个样本。该样本分别包含法语词索引序列和英语词索引序列。
 
 ```{.python .input  n=181}
 max_seq_len = 7
@@ -68,7 +66,7 @@ dataset[0]
 
 ## 含注意力机制的编码器—解码器
 
-下面我们介绍模型的实现。
+我们将使用含注意力机制的编码器—解码器来将一段法语翻译成英语。下面我们来介绍模型的实现。
 
 ### 编码器
 
