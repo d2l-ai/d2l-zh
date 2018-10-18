@@ -5,8 +5,6 @@ body {
 }
 
 body {
-  /* font-family: 'Helvetica', 'Arial', 'Microsoft YaHei', 'STXihei', 'sans-serif'; */
-    /* font-family: 'STSong', 'SimSun', 'serif'; */
     font-family: sans-serif;
 
 }
@@ -21,28 +19,6 @@ a:hover, a:focus {
   color: black;
 }
 
-hr {
-  max-width: 100px;
-  margin: 25px auto 0;
-  border-width: 1px;
-  border-color: rgba(34, 34, 34, 0.1);
-}
-
-hr.light {
-  border-color: white;
-}
-
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  /* font-weight: 200; */
-  /* letter-spacing: 2px; */
-}
-
 p {
   font-size: 16px;
   line-height: 1.5;
@@ -50,24 +26,30 @@ p {
 }
 
 section {
-  padding: 100px 0;
+  padding: 150px 0 0 0;
 }
+
 
 section h2 {
-  font-size: 50px;
+    font-size: 38px;
 }
 
+
+section h3 {
+    font-size: 26px;
+}
 
 /* header section */
 header.masthead {
   position: relative;
   width: 100%;
-  padding-top: 150px;
-  padding-bottom: 100px;
-  margin: 150px 0 0 0;
+  margin: 100px 0 0 0;
   /* color: white; */
 }
 
+header.masthead img {
+    max-width: 350px;
+}
 header.masthead .header-content {
   max-width: 500px;
   margin-bottom: 100px;
@@ -85,41 +67,10 @@ header.masthead .header-content p {
   padding: 0 0 20px;
   letter-spacing: 1px;
 }
-header.masthead .device-container {
-  max-width: 325px;
-  margin-right: auto;
-  margin-left: auto;
-}
-
-header.masthead .device-container .screen img {
-  border-radius: 3px;
-}
-
-@media (min-width: 992px) {
-  header.masthead {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-  header.masthead .header-content {
-    margin-bottom: 0;
-    text-align: middle;
-  }
-  header.masthead .header-content h1 {
-    font-size: 50px;
-  }
-  header.masthead .device-container {
-    max-width: 325px;
-  }
-}
-
 
 /* author section */
-section.authors {
-    padding: 100px 0px 0 0px;
-}
 section.authors .author-item {
-  padding-top: 50px;
-  padding-bottom: 50px;
+  max-width: 300px;
   text-align: center;
 }
 
@@ -130,15 +81,11 @@ section.authors .author-item img {
 section.authors .author-item h3 {
     padding-top: 25px;
     padding-bottom: 10px;
-    font-size: 22px;
 }
+
 
 section.authors h3 {
-    font-size: 25px;
-}
-
-section.authors .author-item p {
-    font-size: 16px;
+    padding-top: 25px;
 }
 
 
@@ -146,18 +93,16 @@ section.authors .author-item p {
 /* TOC */
 
 section.toc .toc-content {
-  max-width: 600px;
+    max-width: 600px;
   margin-bottom: 50px;
   text-align: center;
 }
 
 section.toc .toc-content h2 {
     padding-bottom: 30px;
-    font-size: 38px;
 }
 
 section.toc h3 {
-    font-size: 26px;
     padding-top: 20px;
     padding-bottom: 15px;
 }
@@ -231,4 +176,44 @@ section.community .content p {
   font-size: 14px;
   padding: 10px 30px;
   margin: 0px 10px;
+}
+
+@media (max-width: 1000px) {
+  header.masthead {
+      margin-top: 50px;
+  }
+  header.masthead img {
+      max-width: 300px;
+  }
+
+  header.masthead .header-content {
+      padding-top: 50px;
+  }
+  header.masthead .btn {
+      width: 150px;
+      margin: 10px 100px;
+  }
+
+  section {
+      padding: 50px 0;
+  }
+
+
+  section.authors .author-item {
+      padding-top: 30px;
+  }
+
+  section.features .feature-item {
+      padding-top: 25px;
+  }
+
+  section.community .content,
+  section.notebook .content {
+      text-align: center;
+      padding: 25px 0;
+  }
+  section.notebook img,
+  section.community img {
+      max-width: 400px;
+  }
 }
