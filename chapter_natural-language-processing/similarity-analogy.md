@@ -9,7 +9,6 @@ MXNet的`contrib.text`包提供了跟自然语言处理相关的函数和类（�
 ```{.python .input}
 from mxnet import nd
 from mxnet.contrib import text
-from mxnet.gluon import nn
 
 text.embedding.get_pretrained_file_names().keys()
 ```
@@ -59,7 +58,7 @@ def knn(W, x, k):
 
 ```{.python .input}
 def get_similar_tokens(query_token, k, embed):
-    topk, cos = knn(embed.idx_to_vec, 
+    topk, cos = knn(embed.idx_to_vec,
                     embed.get_vecs_by_tokens([query_token]), k+2)
     for i, c in zip(topk[2:], cos[2:]):  # 除去输入词和未知词。
         print('cosine sim=%.3f: %s' % (c, (embed.idx_to_token[i])))

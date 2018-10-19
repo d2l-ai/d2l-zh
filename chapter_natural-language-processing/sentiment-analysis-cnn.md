@@ -106,11 +106,11 @@ class TextCNN(nn.Block):
         self.dropout = nn.Dropout(0.5)
         self.decoder = nn.Dense(2)
         # 时序最大池化层没有权重，所以可以共用一个实例。
-        self.pool = nn.GlobalMaxPool1D()  
+        self.pool = nn.GlobalMaxPool1D()
         self.convs = nn.Sequential()  # 创建多个一维卷积层。
         for c, k in zip(num_channels, kernel_sizes):
             self.convs.add(nn.Conv1D(c, k, activation='relu'))
-            
+
     def forward(self, inputs):
         # 将两个形状是（批量大小，词数，词向量维度）的嵌入层的输出按词向量连结。
         embeddings = nd.concat(

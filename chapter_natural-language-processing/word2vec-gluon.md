@@ -54,7 +54,7 @@ counter = dict(filter(lambda x: x[1] >= 5, counter.items()))
 ```{.python .input  n=5}
 idx_to_token = [tk for tk, _ in counter.items()]
 token_to_idx = {tk: idx for idx, tk in enumerate(idx_to_token)}
-dataset = [[token_to_idx[tk] for tk in st if tk in token_to_idx] 
+dataset = [[token_to_idx[tk] for tk in st if tk in token_to_idx]
            for st in raw_dataset]
 num_tokens = sum([len(st) for st in dataset])
 '# tokens: %d' % num_tokens

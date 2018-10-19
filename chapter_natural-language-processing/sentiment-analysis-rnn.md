@@ -31,7 +31,7 @@ def download_imdb(data_dir='../data'):
     fname = gutils.download(url, data_dir, sha1_hash=sha1)
     with tarfile.open(fname, 'r') as f:
         f.extractall(data_dir)
-        
+
 download_imdb()
 ```
 

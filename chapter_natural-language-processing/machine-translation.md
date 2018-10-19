@@ -35,7 +35,7 @@ def build_data(all_tokens, all_seqs):
     return vocab, nd.array(indicies)
 ```
 
-为了演示方便，我们在这里使用一个很小的法语—英语数据集。这个数据集里，每一行是一对法语句子和它对应的英语句子，中间使用“\t”隔开。在读取数据时，我们在句末附上“&lt;eos&gt;”符号，并可能通过添加“&lt;pad&gt;”符号使每个序列的长度均为`max_seq_len`。我们为法语词和英语词分别创建词典。法语词的索引和英语词的索引相互独立。
+为了演示方便，我们在这里使用一个很小的法语—英语数据集。这个数据集里，每一行是一对法语句子和它对应的英语句子，中间使用`'\t'`隔开。在读取数据时，我们在句末附上“&lt;eos&gt;”符号，并可能通过添加“&lt;pad&gt;”符号使每个序列的长度均为`max_seq_len`。我们为法语词和英语词分别创建词典。法语词的索引和英语词的索引相互独立。
 
 ```{.python .input  n=31}
 def read_data(max_seq_len):
@@ -46,8 +46,7 @@ def read_data(max_seq_len):
     for line in lines:
         in_seq, out_seq = line.rstrip().split('\t')
         in_seq_tokens, out_seq_tokens = in_seq.split(' '), out_seq.split(' ')
-        if (len(in_seq_tokens) > max_seq_len - 1 or
-            len(out_seq_tokens) > max_seq_len - 1):
+        if max(len(in_seq_tokens), len(out_seq_tokens)) > max_seq_len - 1:
             continue  # 如果加上 EOS 后长于 max_seq_len，则忽略掉此样本。
         process_one_seq(in_seq_tokens, in_tokens, in_seqs, max_seq_len)
         process_one_seq(out_seq_tokens, out_tokens, out_seqs, max_seq_len)
@@ -113,7 +112,7 @@ dense(nd.zeros((3, 5, 7))).shape
 ```{.python .input  n=167}
 def attention_model(attention_size):
     model = nn.Sequential()
-    model.add(nn.Dense(attention_size, activation='tanh', use_bias=False, 
+    model.add(nn.Dense(attention_size, activation='tanh', use_bias=False,
                        flatten=False),
               nn.Dense(1, use_bias=False, flatten=False))
     return model
@@ -122,7 +121,7 @@ def attention_model(attention_size):
 注意力模型的输入包括查询项、键项和值项。设编码器和解码器的隐藏单元个数相同。这里的查询项为解码器在上一时间步的隐藏状态，形状为（批量大小，隐藏单元个数）；键项和值项均为编码器在所有时间步的隐藏状态，形状为（时间步数，批量大小，隐藏单元个数）。注意力模型返回当前时间步的背景变量，形状为（批量大小，隐藏单元个数）。
 
 ```{.python .input  n=168}
-def attention_forward(model, enc_states, dec_state): 
+def attention_forward(model, enc_states, dec_state):
     # 将解码器隐藏状态广播到跟编码器隐藏状态形状相同后进行连结。
     dec_states = nd.broadcast_axis(
         dec_state.expand_dims(0), axis=0, size=enc_states.shape[0])
@@ -151,12 +150,12 @@ attention_forward(model, enc_states, dec_state).shape
 
 ```{.python .input  n=170}
 class Decoder(nn.Block):
-    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers, 
+    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers,
                  attention_size, drop_prob=0, **kwargs):
         super(Decoder, self).__init__(**kwargs)
         self.embedding = nn.Embedding(vocab_size, embed_size)
         self.attention = attention_model(attention_size)
-        self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob)        
+        self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob)
         self.out = nn.Dense(vocab_size, flatten=False)
 
     def forward(self, cur_input, state, enc_states):
@@ -172,7 +171,7 @@ class Decoder(nn.Block):
 
     def begin_state(self, enc_state):
         # 直接将编码器最终时间步的隐藏状态作为解码器的初始隐藏状态。
-        return enc_state 
+        return enc_state
 ```
 
 ## 训练
@@ -221,7 +220,7 @@ def train(encoder, decoder, dataset, lr, batch_size, num_epochs):
             l.backward()
             enc_trainer.step(1)
             dec_trainer.step(1)
-            l_sum += l.asscalar() 
+            l_sum += l.asscalar()
         if (epoch + 1) % 10 == 0:
             print("epoch %d, loss %.3f" % (epoch + 1, l_sum / len(data_iter)))
 ```
@@ -244,13 +243,11 @@ train(encoder, decoder, dataset, lr, batch_size, num_epochs)
 
 ```{.python .input  n=177}
 def translate(encoder, decoder, input_seq, max_seq_len):
-    # 编码部分。
-    in_tokens = input_seq.split(' ') 
+    in_tokens = input_seq.split(' ')
     in_tokens += [EOS] + [PAD] * (max_seq_len - len(in_tokens) - 1)
     enc_input = nd.array([in_vocab.to_indices(in_tokens)])
     enc_state = encoder.begin_state(batch_size=1)
     enc_output, enc_state = encoder(enc_input, enc_state)
-    # 解码部分。
     dec_input = nd.array([out_vocab.token_to_idx[BOS]])
     dec_state = decoder.begin_state(enc_state)
     output_tokens = []
