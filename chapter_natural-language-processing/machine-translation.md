@@ -81,7 +81,7 @@ class Encoder(nn.Block):
         self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob)
 
     def forward(self, inputs, state):
-        # 输入形状是（批量大小，时间步个数）。将输出互换批量维和时间步维。
+        # 输入形状是（批量大小，时间步数）。将输出互换样本维和时间步维。
         embedding = self.embedding(inputs).swapaxes(0, 1)
         return self.rnn(embedding, state)
 
@@ -89,7 +89,7 @@ class Encoder(nn.Block):
         return self.rnn.begin_state(*args, **kwargs)
 ```
 
-下面我们来创建一个批量大小为4，时间步个数为7的小批量序列输入。设门控循环单元的隐藏层个数为2，隐藏单元个数为16。编码器对该输入执行前向计算后返回的输出形状为（时间步个数，批量大小，隐藏单元个数）。门控循环单元在最终时间步的多层隐藏状态的形状为（隐藏层个数，批量大小，隐藏单元个数）。对于门控循环单元来说，`state`列表中只含一个元素，即隐藏状态；如果使用长短期记忆，`state`列表中还将包含另一个元素，即记忆细胞。
+下面我们来创建一个批量大小为4，时间步数为7的小批量序列输入。设门控循环单元的隐藏层个数为2，隐藏单元个数为16。编码器对该输入执行前向计算后返回的输出形状为（时间步数，批量大小，隐藏单元个数）。门控循环单元在最终时间步的多层隐藏状态的形状为（隐藏层个数，批量大小，隐藏单元个数）。对于门控循环单元来说，`state`列表中只含一个元素，即隐藏状态；如果使用长短期记忆，`state`列表中还将包含另一个元素，即记忆细胞。
 
 ```{.python .input  n=166}
 encoder = Encoder(num_inputs=10, embed_size=8, num_hiddens=16, num_layers=2)
@@ -100,7 +100,7 @@ output.shape, state[0].shape
 
 ### 注意力机制
 
-由于循环网络中的输入输出有额外的序列维，我们先介绍Dense类的一个选项`flatten=False`， 它将不自动的将输入转成二维矩阵，而是保持输入的维数，并将最后一维当做特征维。例如下例中，对三维输入做前向运算后只改变了最后一维的大小。
+在介绍如何实现注意力机制的矢量化计算之前，我们先了解一下`Dense`实例的`flatten`选项。当输入的维度大于2时，默认情况下，`Dense`实例会将除了第一维（样本维）以外的维度均视作需要仿射变换的特征维，并将输入自动转成行为样本、列为特征的二维矩阵。计算后，输出矩阵的形状为（样本数，输出个数）。如果我们希望全连接层只对输入的最后一维做仿射变换，而保持其他维度上的形状不变，便需要将`Dense`实例的`flatten`选项设为`False`。在下面例子中，全连接层只对输入的最后一维做仿射变换，因此输出形状中只有最后一维变为全连接层的输出个数2。
 
 ```{.python .input}
 dense = nn.Dense(2, flatten=False)
@@ -108,7 +108,7 @@ dense.initialize()
 dense(nd.zeros((3, 5, 7))).shape
 ```
 
-回忆[“注意力机制”](./attention.md)一节中的公式定义，函数$a$可以看做是连续作用两个全连接层，第一个的输入是解码器的隐藏状态和编码器的所有隐藏状态的拼接，且使用tanh作为激活函数，第二个则输出个数为1。两个全连接层均不使用偏差，而且不将三维输入转换成二维矩阵。这里$a$中$\boldsymbol{v}$的长度是一个超参数。
+我们将实现[“注意力机制”](./attention.md)一节中定义的函数$a$：将输入连结后通过含单隐藏层的多层感知机变换。其中隐藏层的输入是解码器的隐藏状态与编码器在所有时间步上隐藏状态的一一连结，且使用tanh作为激活函数。输出层的输出个数为1。两个`Dense`实例均不使用偏差，且设`flatten=False`。其中函数$a$定义里向量$\boldsymbol{v}$的长度是一个超参数，即`attention_size`。
 
 ```{.python .input  n=167}
 def attention_model(attention_size):
@@ -119,20 +119,20 @@ def attention_model(attention_size):
     return model
 ```
 
-注意力机制的输入包括形状为（序列长，批量大小，隐藏单元大小）的编码器所有时间步的隐藏状态，和形状为（批量大小，隐藏单元大小）的当前时间步的解码器隐藏状态。它返回背景变量，其形状为（批量大小，隐藏单元个数）。
+注意力模型的输入包括查询项、键项和值项。设编码器和解码器的隐藏单元个数相同。这里的查询项为解码器在上一时间步的隐藏状态，形状为（批量大小，隐藏单元个数）；键项和值项均为编码器在所有时间步的隐藏状态，形状为（时间步数，批量大小，隐藏单元个数）。注意力模型返回当前时间步的背景变量，形状为（批量大小，隐藏单元个数）。
 
 ```{.python .input  n=168}
 def attention_forward(model, enc_states, dec_state): 
-    # 将解码器状态广播到跟编码器状态一样的形状后进行拼接，然后输入到 model 中。
+    # 将解码器隐藏状态广播到跟编码器隐藏状态形状相同后进行连结。
     dec_states = nd.broadcast_axis(
         dec_state.expand_dims(0), axis=0, size=enc_states.shape[0])
     enc_and_dec_states = nd.concat(enc_states, dec_states, dim=2)
-    e = model(enc_and_dec_states)  # e 的形状为（序列长，批量大小，1）。
-    alpha = nd.softmax(e, axis=0)  # 在序列维度做 softmax。
+    e = model(enc_and_dec_states)  # 形状为（时间步数，批量大小，1）。
+    alpha = nd.softmax(e, axis=0)  # 在时间步维度做 softmax 运算。
     return (alpha * enc_states).sum(axis=0)  # 返回背景变量。
 ```
 
-下面具体来看一下注意力机制的输入和输出的形状。
+在下面的例子中，编码器的时间步数为10，批量大小为4，编码器和解码器的隐藏单元个数均为8。注意力模型返回一个小批量的背景向量，每个背景向量的长度等于编码器的隐藏单元个数。因此输出的形状为（4，8）。
 
 ```{.python .input  n=169}
 seq_len, batch_size, num_hiddens = 10, 4, 8
