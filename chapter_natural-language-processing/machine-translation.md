@@ -66,11 +66,11 @@ dataset[0]
 
 ## 含注意力机制的编码器—解码器
 
-我们将使用含注意力机制的编码器—解码器来将一段法语翻译成英语。下面我们来介绍模型的实现。
+我们将使用含注意力机制的编码器—解码器来将一段简短的法语翻译成英语。下面我们来介绍模型的实现。
 
 ### 编码器
 
-在编码器中，我们将词索引通过词嵌入层得到特征表达后输入到一个多层的循环神经网络里。我们使用Gluon的rnn包中的循环神经网络的实现，它们的前向计算输出是最后一层在每个时间步中的状态，这个不同于“循环神经网络”一章中的实现里输出是输出层的输出。因此我们可以直接使用输入来计算注意力机制权重。
+在编码器中，我们将词索引通过词嵌入层得到特征表达后输入到一个多层门控循环单元中。正如我们在[“循环神经网络的Gluon实现”](../chapter_recurrent-neural-networks/rnn-gluon.md)一节提到的，Gluon的`rnn.GRU`实例在前向计算后也会分别返回输出和最终时间步的多层隐藏状态。其中的输出指的是最后一层的隐藏层在各个时间步的隐藏状态，并不涉及输出层计算。注意力机制将这些输出作为键项和值项。
 
 ```{.python .input  n=165}
 class Encoder(nn.Block):
@@ -81,15 +81,15 @@ class Encoder(nn.Block):
         self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob)
 
     def forward(self, inputs, state):
-        # 输入形状是（批量大小，序列长）。将输出互换批量维和序列维。
-        embedding = self.embedding(inputs).swapaxes(0, 1)        
+        # 输入形状是（批量大小，时间步个数）。将输出互换批量维和时间步维。
+        embedding = self.embedding(inputs).swapaxes(0, 1)
         return self.rnn(embedding, state)
-                                 
+
     def begin_state(self, *args, **kwargs):
         return self.rnn.begin_state(*args, **kwargs)
 ```
 
-编码器前向计算返回输出和最后时间步隐藏状态。输出形状是（序列长，批量大小，隐藏单元个数）。状态是一个列表，由于这里使用GRU单元，这个列表只有一个元素，其形状为（层数，批量大小，隐藏单元个数）。
+下面我们来创建一个批量大小为4，时间步个数为7的小批量序列输入。设门控循环单元的隐藏层个数为2，隐藏单元个数为16。编码器对该输入执行前向计算后返回的输出形状为（时间步个数，批量大小，隐藏单元个数）。门控循环单元在最终时间步的多层隐藏状态的形状为（隐藏层个数，批量大小，隐藏单元个数）。对于门控循环单元来说，`state`列表中只含一个元素，即隐藏状态；如果使用长短期记忆，`state`列表中还将包含另一个元素，即记忆细胞。
 
 ```{.python .input  n=166}
 encoder = Encoder(num_inputs=10, embed_size=8, num_hiddens=16, num_layers=2)
@@ -127,7 +127,7 @@ def attention_forward(model, enc_states, dec_state):
     dec_states = nd.broadcast_axis(
         dec_state.expand_dims(0), axis=0, size=enc_states.shape[0])
     enc_and_dec_states = nd.concat(enc_states, dec_states, dim=2)
-    e = model(enc_and_dec_states)  # e 的形状为（序列长，批量大小，1）
+    e = model(enc_and_dec_states)  # e 的形状为（序列长，批量大小，1）。
     alpha = nd.softmax(e, axis=0)  # 在序列维度做 softmax。
     return (alpha * enc_states).sum(axis=0)  # 返回背景变量。
 ```
@@ -183,7 +183,7 @@ class Decoder(nn.Block):
 ```{.python .input}
 def batch_forward(encoder, decoder, X, Y, loss):
     batch_size = X.shape[0]
-    # 编码
+    # 编码。
     enc_state = encoder.begin_state(batch_size=batch_size)
     enc_outputs, enc_state = encoder(X, enc_state)
     # 初始解码器状态。它时间步 1 的输入是 BOS。
@@ -223,7 +223,7 @@ def train(encoder, decoder, dataset, lr, batch_size, num_epochs):
             enc_trainer.step(1)
             dec_trainer.step(1)
             loss_sum += batch_loss.asscalar() 
-        if (epoch+1) % 10 == 0:
+        if (epoch + 1) % 10 == 0:
             print("epoch %d, loss %.3f" % (
                 epoch + 1, loss_sum / len(data_iter)))
 ```
@@ -299,11 +299,11 @@ $$ \exp\left(\min\left(0, 1 - \frac{len_{\text{label}}}{len_{\text{pred}}}\right
 ```{.python .input}
 def bleu(pred_tokens, label_tokens, k):
     l_pred, l_label = len(pred_tokens), len(label_tokens)
-    score = math.exp(min(0, 1-l_label/l_pred))
-    for n in range(1, k+1):
+    score = math.exp(min(0, 1 - l_label / l_pred))
+    for n in range(1, k + 1):
         p_n = 0
         for i in range(l_pred - n + 1):
-            if ' '.join(pred_tokens[i: i+n]) in ' '.join(label_tokens):
+            if ' '.join(pred_tokens[i: i + n]) in ' '.join(label_tokens):
                 p_n += 1
         score *= p_n / (l_pred - n + 1)
     return score
@@ -315,7 +315,8 @@ def bleu(pred_tokens, label_tokens, k):
 def score(input_seq, label_seq, k):
     pred_tokens = translate(encoder, decoder, input_seq, max_seq_len)
     label_tokens = label_seq.split(' ')
-    print('bleu %.1f, predict: %s'%(bleu(pred_tokens, label_tokens, k), ' '.join(pred_tokens)))
+    print('bleu %.1f, predict: %s' % (bleu(pred_tokens, label_tokens, k),
+                                      ' '.join(pred_tokens)))
 ```
 
 预测正确是分数为1。
