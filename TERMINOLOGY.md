@@ -128,11 +128,11 @@
 
 流水线，pipeline
 
-softmax回归，softmax regression
-
 模型参数，model parameter
 
 模型复杂度，model complexity
+
+目标检测，object detection
 
 偏差，bias
 
@@ -161,6 +161,8 @@ softmax回归，softmax regression
 数据集，data set
 
 数据样本，data instance
+
+softmax回归，softmax regression
 
 损失函数，loss function
 
