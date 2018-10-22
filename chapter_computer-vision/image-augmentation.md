@@ -52,13 +52,13 @@ def apply(img, aug, num_rows=2, num_cols=4, scale=1.5):
 
 ### 翻转和裁剪
 
-左右翻转图像通常不改变物体的类别。它是最早也是最广泛使用的一种图像增广方法。下面我们使用`transforms`模块里的`RandomFlipLeftRight`类来实现一半几率的图像左右翻转。
+左右翻转图像通常不改变物体的类别。它是最早也是最广泛使用的一种图像增广方法。下面我们通过`transforms`模块创建`RandomFlipLeftRight`实例来实现一半几率的图像左右翻转。
 
 ```{.python .input  n=25}
 apply(img, gdata.vision.transforms.RandomFlipLeftRight())
 ```
 
-上下翻转不如左右翻转通用。但是至少对于样例图像，上下翻转不会造成识别障碍。下面我们通过`RandomFlipTopBottom`类来实现一半几率的图像上下翻转。
+上下翻转不如左右翻转通用。但是至少对于样例图像，上下翻转不会造成识别障碍。下面我们创建`RandomFlipTopBottom`实例来实现一半几率的图像上下翻转。
 
 ```{.python .input  n=26}
 apply(img, gdata.vision.transforms.RandomFlipTopBottom())
@@ -82,13 +82,13 @@ apply(img, shape_aug)
 apply(img, gdata.vision.transforms.RandomBrightness(0.5))
 ```
 
-类似的，我们也可以随机变化图像的色调。
+类似地，我们也可以随机变化图像的色调。
 
 ```{.python .input  n=29}
 apply(img, gdata.vision.transforms.RandomHue(0.5))
 ```
 
-我们也可以通过`RandomColorJitter`类同时设置如何随机变化图像的亮度（`brightness`）、对比度（`contrast`）、饱和度（`saturation`）和色调（`hue`）。
+我们也可以创建`RandomColorJitter`实例并同时设置如何随机变化图像的亮度（`brightness`）、对比度（`contrast`）、饱和度（`saturation`）和色调（`hue`）。
 
 ```{.python .input  n=30}
 color_aug = gdata.vision.transforms.RandomColorJitter(
@@ -98,7 +98,7 @@ apply(img, color_aug)
 
 ### 叠加多个图像增广方法
 
-实际应用中我们会将多个图像增广方法叠加使用。我们可以通过`Compose`类将以上定义的多个图像增广方法叠加起来，再应用到每个图像之上。
+实际应用中我们会将多个图像增广方法叠加使用。我们可以通过`Compose`实例将以上定义的多个图像增广方法叠加起来，再应用到每个图像之上。
 
 ```{.python .input  n=31}
 augs = gdata.vision.transforms.Compose([
@@ -106,28 +106,26 @@ augs = gdata.vision.transforms.Compose([
 apply(img, augs)
 ```
 
-## 使用图像增广来训练
+## 使用图像增广训练模型
 
-接下来我们看一个将图像增广应用在实际训练中的例子，并比较其与不使用时的区别。这里我们使用CIFAR-10数据集，而不是之前我们一直使用的Fashion-MNIST。原因在于Fashion-MNIST中物体位置和尺寸都已经经过归一化处理，而在CIFAR-10中物体的颜色和大小区别更加显著。下面我们展示CIFAR-10中的前32张训练图像。
+下面，我们来看一个将图像增广应用在实际训练中的例子。这里我们使用CIFAR-10数据集，而不是之前我们一直使用的Fashion-MNIST数据集。这是因为Fashion-MNIST数据集中物体的位置和尺寸都已经经过归一化处理，而在CIFAR-10数据集中物体的颜色和大小区别更加显著。以下展示了CIFAR-10数据集中前32张训练图像。
 
 ```{.python .input  n=32}
 show_images(gdata.vision.CIFAR10(train=True)[0:32][0], 4, 8, scale=0.8);
 ```
 
-我们通常只将图像增广用在训练样本上，在在预测的时候并不使用随机增广。在这里我们仅仅使用最简单的随机水平翻转。此外，我们使用`ToTensor`变换来将图像转成MXNet需要的格式，即格式为（批量，通道，高，宽）、类型为32位浮点数。
+为了在预测时得到确定的结果，我们通常只将图像增广应用在训练样本上，而不在预测时使用含随机操作的图像增广。在这里我们仅仅使用最简单的随机左右翻转。此外，我们使用`ToTensor`实例将小批量图像转成MXNet需要的格式，即形状为（批量大小，通道数，高，宽）、值域在0到1之间且类型为32位浮点数。
 
 ```{.python .input  n=33}
 train_augs = gdata.vision.transforms.Compose([
     gdata.vision.transforms.RandomFlipLeftRight(),
-    gdata.vision.transforms.ToTensor(),
-])
+    gdata.vision.transforms.ToTensor()])
 
 test_augs = gdata.vision.transforms.Compose([
-    gdata.vision.transforms.ToTensor(),
-])
+    gdata.vision.transforms.ToTensor()])
 ```
 
-接下来我们定义一个辅助函数来方便读取图像并应用增广。Gluon的数据集提供`transform_first`函数来对数据里面的第一项（数据一般有图像和标签两项）来应用增广。另外图像增广将会增加计算复杂度，因此这里使用4个进程来加速读取（暂不支持 Windows 操作系统）。
+接下来我们定义一个辅助函数来方便读取图像并应用图像增广。Gluon的数据集提供的`transform_first`函数将图像增广应用在每个训练样本（图像和标签）的第一个元素，即图像之上。有关`DataLoader`的详细介绍，可参考更早的[“图像分类数据集（Fashion-MNIST）”](fashion-mnist.md)一节。
 
 ```{.python .input  n=34}
 num_workers = 0 if sys.platform.startswith('win32') else 4
@@ -139,16 +137,15 @@ def load_cifar10(is_train, augs, batch_size):
 
 ### 使用多GPU训练模型
 
-我们在CIFAR-10数据集上训练[“残差网络：ResNet”](../chapter_convolutional-neural-networks/resnet.md)一节介绍的ResNet-18模型。我们将应用[“多GPU计算的Gluon实现”](../chapter_computational-performance/multiple-gpus-gluon.md)一节中介绍的方法，使用多GPU训练模型。
+我们在CIFAR-10数据集上训练[“残差网络（ResNet）”](../chapter_convolutional-neural-networks/resnet.md)一节介绍的ResNet-18模型。我们还将应用[“多GPU计算的Gluon实现”](../chapter_computational-performance/multiple-gpus-gluon.md)一节中介绍的方法，使用多GPU训练模型。
 
-首先，我们定义`try_all_gpus`函数，从而能够使用所有可用的GPU。
+首先，我们定义`try_all_gpus`函数，从而能够获取所有可用的GPU。
 
 ```{.python .input  n=35}
-# 本函数已保存在 gluonbook 包中方便以后使用。
-def try_all_gpus():
+def try_all_gpus():  # 本函数已保存在 gluonbook 包中方便以后使用。
     ctxes = []
     try:
-        for i in range(16):
+        for i in range(16):  # 假设一台机器上 GPU 的个数不超过 16。
             ctx = mx.gpu(i)
             _ = nd.array([0], ctx=ctx)
             ctxes.append(ctx)
@@ -159,18 +156,22 @@ def try_all_gpus():
     return ctxes
 ```
 
-然后，我们定义`evaluate_accuracy`函数评价模型的分类准确率。与[“Softmax回归的从零开始实现”](../chapter_deep-learning-basics/softmax-regression-scratch.md)和[“卷积神经网络（LeNet）”](../chapter_convolutional-neural-networks/lenet.md)两节中描述的`evaluate_accuracy`函数不同，当`ctx`包含多个GPU时，我们需要通过这里定义的辅助函数`_get_batch`将小批量数据样本划分并复制到各个GPU上。
+以下定义的辅助函数`_get_batch`将小批量数据样本`batch`划分并复制到`ctx`变量所包含的各个GPU上。
 
-```{.python .input  n=36}
+```{.python .input}
 def _get_batch(batch, ctx):
     features, labels = batch
     if labels.dtype != features.dtype:
         labels = labels.astype(features.dtype)
-    # 当 ctx 包含多个GPU时，划分小批量数据样本并复制到各个 GPU 上。
+    # 当 ctx 包含多个 GPU 时，划分小批量数据样本并复制到各个 GPU 上。
     return (gutils.split_and_load(features, ctx),
             gutils.split_and_load(labels, ctx),
             features.shape[0])
+```
 
+然后，我们定义`evaluate_accuracy`函数评价模型的分类准确率。与[“Softmax回归的从零开始实现”](../chapter_deep-learning-basics/softmax-regression-scratch.md)和[“卷积神经网络（LeNet）”](../chapter_convolutional-neural-networks/lenet.md)两节中描述的`evaluate_accuracy`函数不同，这里定义的函数更加通用：它通过辅助函数`_get_batch`使用`ctx`变量所包含的所有GPU来评价模型。
+
+```{.python .input  n=36}
 # 本函数已保存在 gluonbook 包中方便以后使用。
 def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
     if isinstance(ctx, mx.Context):
@@ -219,13 +220,12 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
                  time() - start))
 ```
 
-现在，我们可以定义函数使用图像增广来训练模型了。
+现在，我们可以定义`train_with_data_aug`函数使用图像增广来训练模型了。该函数获取了所有可用的GPU，并将Adam作为训练使用的优化算法，然后将图像增广应用于训练数据集之上，最后调用刚才定义的`train`函数训练并评价模型。
 
 ```{.python .input  n=38}
 def train_with_data_aug(train_augs, test_augs, lr=0.001):
     batch_size, ctx, net = 256, try_all_gpus(), gb.resnet18(10)
     net.initialize(ctx=ctx, init=init.Xavier())
-    # 这里使用了 Adam 优化算法。
     trainer = gluon.Trainer(net.collect_params(), 'adam',
                             {'learning_rate': lr})
     loss = gloss.SoftmaxCrossEntropyLoss()
@@ -233,6 +233,8 @@ def train_with_data_aug(train_augs, test_augs, lr=0.001):
     test_iter = load_cifar10(False, test_augs, batch_size)
     train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=10)
 ```
+
+### 关于图像增广的对比实验
 
 我们先观察使用了图像增广的结果。
 
@@ -246,15 +248,18 @@ train_with_data_aug(train_augs, test_augs)
 train_with_data_aug(test_augs, test_augs)
 ```
 
-可以看到，即使添加了简单的随机翻转也会对训练产生一定的影响。图像增广通常会使训练准确率变低，但有可能提高测试准确率。
+可以看到，即使添加了简单的随机翻转也可能对训练产生一定的影响。图像增广通常会使训练准确率变低，但有可能提高测试准确率。它可以用来应对过拟合。
 
 ## 小结
 
-* 图像增广基于现有训练数据生成大量随机图像来有效避免过拟合。
+* 图像增广基于现有训练数据生成随机图像从而应对过拟合。
+* 为了在预测时得到确定的结果，我们通常只将图像增广应用在训练样本上，而不在预测时使用含随机操作的图像增广。
+* 我们可以从Gluon的`transforms`模块中获取有关图片增广的类。
 
 ## 练习
 
-* 尝试在CIFAR-10训练中增加不同的增广方法。
+* 在基于CIFAR-10数据集的模型训练中增加不同的图像增广方法。观察实现结果。
+* 查阅MXNet文档，Gluon的`transforms`模块还提供了哪些图像增广方法？
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1666)
 
