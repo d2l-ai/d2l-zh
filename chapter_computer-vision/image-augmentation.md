@@ -1,6 +1,6 @@
 # 图像增广
 
-在[“深度卷积神经网络：AlexNet”](../chapter_convolutional-neural-networks/alexnet.md)小节里我们提到过，大规模数据集是成功使用深度网络的前提。图像增广（image augmentation）技术通过对训练图像做一系列随机改变，来产生相似但又有不同的训练样本，从而扩大训练数据集规模。图像增广的另一种解释是，通过对训练样本做一些随机改变，可以降低模型对某些属性的依赖，从而提高模型的泛化能力。例如我们可以对图像进行不同的裁剪，使得感兴趣的物体出现在不同的位置，从而使得模型减小对物体出现位置的依赖性。我们也可以调整亮度色彩等因素来降低模型对色彩的敏感度。在AlexNet的成功中，图像增广技术功不可没。本小节我们将讨论这个在计算机视觉里被广泛使用的技术。
+在[“深度卷积神经网络（AlexNet）”](../chapter_convolutional-neural-networks/alexnet.md)小节里我们提到过，大规模数据集是成功应用深度神经网络的前提。图像增广（image augmentation）技术通过对训练图像做一系列随机改变，来产生相似但又不同的训练样本，从而扩大训练数据集的规模。图像增广的另一种解释是，随机改变训练样本可以降低模型对某些属性的依赖，从而提高模型的泛化能力。例如，我们可以对图像进行不同方式的裁剪，使得感兴趣的物体出现在不同位置，从而让模型减轻对物体出现位置的依赖性。我们也可以调整亮度、色彩等因素来降低模型对色彩的敏感度。可以说，在当年AlexNet的成功中，图像增广技术功不可没。本小节我们将讨论这个在计算机视觉里被广泛使用的技术。
 
 首先，导入本节实验所需的包或模块。
 
@@ -17,9 +17,9 @@ import sys
 from time import time
 ```
 
-## 常用增广方法
+## 常用的图像增广方法
 
-我们先读取一张$400\times 500$的图像作为样例。
+我们来读取一张形状为$400\times 500$的图像作为实验中的样例。
 
 ```{.python .input  n=22}
 gb.set_figsize()
@@ -32,7 +32,6 @@ gb.plt.imshow(img.asnumpy())
 ```{.python .input  n=23}
 # 本函数已保存在 gluonbook 包中方便以后使用。
 def show_images(imgs, num_rows, num_cols, scale=2):                                                                              
-    """Plot a list of images."""
     figsize = (num_cols * scale, num_rows * scale)
     _, axes = gb.plt.subplots(num_rows, num_cols, figsize=figsize)
     for i in range(num_rows):
@@ -43,7 +42,7 @@ def show_images(imgs, num_rows, num_cols, scale=2):
     return axes
 ```
 
-因为大部分的增广方法都有一定的随机性。接下来我们定义一个辅助函数，它对输入图像`img`运行多次增广方法`aug`并显示所有结果。
+大部分的图像增广方法都有一定的随机性。为了方便我们观察图像增广的效果，接下来我们定义一个辅助函数`apply`。该函数对输入图像`img`多次运行图像增广方法`aug`并展示所有的结果。
 
 ```{.python .input  n=24}
 def apply(img, aug, num_rows=2, num_cols=4, scale=1.5):
@@ -51,23 +50,23 @@ def apply(img, aug, num_rows=2, num_cols=4, scale=1.5):
     show_images(Y, num_rows, num_cols, scale)
 ```
 
-### 变形
+### 翻转和裁剪
 
-左右翻转图像通常不改变物体的类别，它是最早也是最广泛使用的一种增广。下面我们使用transform模块里的`RandomFlipLeftRight`类来实现按0.5的概率左右翻转图像：
+左右翻转图像通常不改变物体的类别。它是最早也是最广泛使用的一种图像增广方法。下面我们使用`transforms`模块里的`RandomFlipLeftRight`类来实现一半几率的图像左右翻转。
 
 ```{.python .input  n=25}
 apply(img, gdata.vision.transforms.RandomFlipLeftRight())
 ```
 
-上下翻转不如水平翻转通用，但是至少对于样例图像，上下翻转不会造成识别障碍。
+上下翻转不如左右翻转通用。但是至少对于样例图像，上下翻转不会造成识别障碍。下面我们通过`RandomFlipTopBottom`类来实现一半几率的图像上下翻转。
 
 ```{.python .input  n=26}
 apply(img, gdata.vision.transforms.RandomFlipTopBottom())
 ```
 
-在我们使用的样例图像里，猫在图像正中间，但一般情况下可能不是这样。在[“池化层”](../chapter_convolutional-neural-networks/pooling.md)一节里我们解释了池化层能弱化卷积层对目标位置的敏感度，除此之外我们还可以通过对图像随机剪裁来让物体以不同的比例出现在图像的不同位置，这同样能够降低模型对位置的敏感性。
+在我们使用的样例图像里，猫在图像正中间，但一般情况下可能不是这样。在[“池化层”](../chapter_convolutional-neural-networks/pooling.md)一节里我们解释了池化层能降低卷积层对目标位置的敏感度。除此之外，我们还可以通过对图像随机剪裁来让物体以不同的比例出现在图像的不同位置，这同样能够降低模型对目标位置的敏感性。
 
-下面代码里我们每次随机裁剪一片面积为原面积10%到100%的区域，其宽和高的比例在0.5和2之间，然后再将高宽缩放到200像素大小。
+在下面的代码里，我们每次随机裁剪出一块面积为原面积10%到100%的区域，且该区域的宽和高之比随机取自0.5和2之间，然后再将该区域的宽和高分别缩放到200像素。如无特殊说明，本节中$a$和$b$之间的随机数指的是从区间$[a,b]$中均匀采样所得到的连续值。
 
 ```{.python .input  n=27}
 shape_aug = gdata.vision.transforms.RandomResizedCrop(
@@ -75,21 +74,21 @@ shape_aug = gdata.vision.transforms.RandomResizedCrop(
 apply(img, shape_aug)
 ```
 
-### 颜色变化
+### 变化颜色
 
-另一类增广方法是变化颜色。我们可以从四个维度改变图像的颜色：亮度、对比度、饱和度和色调。在下面的例子里，我们将随机亮度改为原图的50%到150%。
+另一类增广方法是变化颜色。我们可以从四个方面改变图像的颜色：亮度、对比度、饱和度和色调。在下面的例子里，我们将图像的亮度随机变化为原图亮度的50%（$1-0.5$）到150%（$1+0.5$）之间。
 
 ```{.python .input  n=28}
 apply(img, gdata.vision.transforms.RandomBrightness(0.5))
 ```
 
-类似的，我们也可以修改图像的色调。
+类似的，我们也可以随机变化图像的色调。
 
 ```{.python .input  n=29}
 apply(img, gdata.vision.transforms.RandomHue(0.5))
 ```
 
-或者配合`RandomColorJitter`一起使用。
+我们也可以通过`RandomColorJitter`类同时设置如何随机变化图像的亮度（`brightness`）、对比度（`contrast`）、饱和度（`saturation`）和色调（`hue`）。
 
 ```{.python .input  n=30}
 color_aug = gdata.vision.transforms.RandomColorJitter(
@@ -97,9 +96,9 @@ color_aug = gdata.vision.transforms.RandomColorJitter(
 apply(img, color_aug)
 ```
 
-### 使用多个增广
+### 叠加多个图像增广方法
 
-实际应用中我们会将多个增广叠加使用。`Compose`类可以将多个增广串联起来。
+实际应用中我们会将多个图像增广方法叠加使用。我们可以通过`Compose`类将以上定义的多个图像增广方法叠加起来，再应用到每个图像之上。
 
 ```{.python .input  n=31}
 augs = gdata.vision.transforms.Compose([
