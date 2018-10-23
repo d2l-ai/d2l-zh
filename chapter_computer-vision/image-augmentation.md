@@ -234,7 +234,7 @@ def train_with_data_aug(train_augs, test_augs, lr=0.001):
     train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=10)
 ```
 
-### 关于图像增广的对比实验
+### 有关图像增广的对比实验
 
 我们先观察使用了图像增广的结果。
 
