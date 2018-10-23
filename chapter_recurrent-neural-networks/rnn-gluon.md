@@ -123,7 +123,7 @@ def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
                 y = Y.T.reshape((-1,))
                 l = loss(output, y).mean()
             l.backward()
-            # 梯度剪裁。
+            # 梯度裁剪。
             params = [p.data() for p in model.collect_params().values()]
             gb.grad_clipping(params, clipping_theta, ctx)
             trainer.step(1)  # 因为已经误差取过均值，梯度不用再做平均。
