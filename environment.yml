@@ -1,6 +1,6 @@
 name: gluon
 dependencies:
-- python>=3.6
+- python=3.6
 - jupyter=1.0.0
 - matplotlib=2.2.2
 - pandas=0.23.2

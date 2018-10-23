@@ -1,6 +1,6 @@
 name: gluon_zh_docs
 dependencies:
-- python>=3.6
+- python=3.6
 - jupyter=1.0.0
 - sphinx=1.6.3
 - sphinx_rtd_theme=0.4.0
