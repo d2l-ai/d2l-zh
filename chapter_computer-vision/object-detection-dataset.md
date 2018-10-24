@@ -28,7 +28,7 @@ def _download_pikachu(data_dir):
 
 ## 读取数据集
 
-我们使用`image.ImageDetIter`来读取数据。这是一个针对目标检测的迭代器，函数中的“Det”表示Detection。在读取训练图像时我们使用了随机剪裁。
+我们使用`image.ImageDetIter`来读取数据。这是一个针对目标检测的迭代器，函数中的“Det”表示Detection。在读取训练图像时我们使用了随机裁剪。
 
 ```{.python .input  n=2}
 # 本函数已保存在 gluonbook 包中方便以后使用。
@@ -43,10 +43,10 @@ def load_data_pikachu(batch_size, edge_size=256):
         batch_size=batch_size,
         data_shape=(3, edge_size, edge_size),  # 输出图像形状。
         shuffle=True,  # 用随机顺序访问。
-        rand_crop=1,  # 一定使用随机剪裁。
-        min_object_covered=0.95,  # 剪裁出的图像至少覆盖每个目标 95% 的区域。
-        max_attempts=200)  # 最多尝试 200 次随机剪裁。如果失败则不进行剪裁。
-    val_iter = image.ImageDetIter(  # 测试图像则去除了随机访问和随机剪裁。
+        rand_crop=1,  # 一定使用随机裁剪。
+        min_object_covered=0.95,  # 裁剪出的图像至少覆盖每个目标 95% 的区域。
+        max_attempts=200)  # 最多尝试 200 次随机裁剪。如果失败则不进行裁剪。
+    val_iter = image.ImageDetIter(  # 测试图像则去除了随机访问和随机裁剪。
         path_imgrec=os.path.join(data_dir, 'val.rec'),
         batch_size=batch_size,
         data_shape=(3, edge_size, edge_size),

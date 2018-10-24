@@ -10,10 +10,10 @@
 
 本小节我们介绍迁移学习中的一个常用技术：微调。如图9.1所示，微调由以下四步构成：
 
-1. 在源数据集（例如ImageNet数据集）上训练一个神经网络模型$A$。
-2. 创建一个新的神经网络模型$B$，它复制了模型$A$上除了输出层外的所有模型设计及其参数。我们假设这些模型参数包含了源数据集上学习到的知识，且这些知识同样适用于目标数据集。我们还假设模型$A$的输出层跟源数据集的标签紧密相关，因此不予采用。
-3. 为模型$B$添加一个输出大小为目标数据集类别个数的输出层，并对该层的权重参数做随机初始化。
-4. 在目标数据集（例如椅子数据集）上训练模型$B$。我们将从头开始学习输出层，而其余层的参数都是基于模型$A$的参数进行微调得到的。
+1. 在源数据集（例如ImageNet数据集）上预训练一个神经网络模型，即源模型。
+2. 创建一个新的神经网络模型，即目标模型。它复制了源模型上除了输出层外的所有模型设计及其参数。我们假设这些模型参数包含了源数据集上学习到的知识，且这些知识同样适用于目标数据集。我们还假设源模型的输出层跟源数据集的标签紧密相关，因此在目标模型中不予采用。
+3. 为目标模型添加一个输出大小为目标数据集类别个数的输出层，并随机初始化该层的模型参数。
+4. 在目标数据集（例如椅子数据集）上训练目标模型。我们将从头训练输出层，而其余层的参数都是基于源模型的参数微调得到的。
 
 ![微调。](../img/finetune.svg)
 
@@ -24,7 +24,7 @@
 
 首先，导入实验所需的包或模块。Gluon的`model_zoo`包提供了常用的预训练模型。如果你希望获取更多的计算机视觉的预训练模型，可以使用GluonCV工具包 [1]。
 
-```{.python .input}
+```{.python .input  n=1}
 import sys
 sys.path.insert(0, '..')
 
@@ -41,39 +41,38 @@ import zipfile
 
 我们使用的热狗数据集是从网上抓取的，它含有1400张包含热狗的正例图像，和同样多包含其他食品的负例图像。各类的1000张图像被用作训练，其余则用于测试。
 
-我们首先将数据下载到`../data`。在下载目录将下载好的数据集进行解压后得到`hotdog/train`和`hotdog/test`这两个文件夹。在这两个文件夹下面均有`hotdog`和`not-hotdog`两个类别文件夹，每个类别文件夹里面是对应的图像文件。
+我们首先将压缩后的数据集下载到路径`../data`之下。然后在该路径将下载好的数据集解压，得到两个文件夹`hotdog/train`和`hotdog/test`。这两个文件夹下面均有`hotdog`和`not-hotdog`两个类别文件夹，每个类别文件夹里面是对应的图像文件。
 
-```{.python .input  n=4}
+```{.python .input  n=2}
 data_dir = '../data'
 base_url = 'https://apache-mxnet.s3-accelerate.amazonaws.com/'
 fname = gutils.download(
     base_url + 'gluon/dataset/hotdog.zip',
     path=data_dir, sha1_hash='fba480ffa8aa7e0febbb511d181409f899b9baa5')
-
 with zipfile.ZipFile(fname, 'r') as z:
     z.extractall(data_dir)
 ```
 
-我们使用`ImageFolderDataset`类来读取数据。它将每个文件夹当做一个类，并读取下面所有的图像。
+我们创建两个`ImageFolderDataset`实例来分别读取训练数据集和测试数据集中的所有图像文件。
 
-```{.python .input  n=6}
+```{.python .input  n=3}
 train_imgs = gdata.vision.ImageFolderDataset(
     os.path.join(data_dir, 'hotdog/train'))
 test_imgs = gdata.vision.ImageFolderDataset(
     os.path.join(data_dir, 'hotdog/test'))
 ```
 
-下面画出前8张正例图像和最后的8张负例图像，可以看到它们的大小和长宽比各不相同。
+下面画出前8张正例图像和最后8张负例图像。可以看到，它们的大小和高宽比各不相同。
 
-```{.python .input}
+```{.python .input  n=4}
 hotdogs = [train_imgs[i][0] for i in range(8)]
 not_hotdogs = [train_imgs[-i - 1][0] for i in range(8)]
 gb.show_images(hotdogs + not_hotdogs, 2, 8, scale=1.4);
 ```
 
-在训练时，我们先从图像中剪裁出随机大小和随机长宽比的一块，然后将它们统一缩放为长宽都是224的输入。测试时，则使用简单的中心剪裁。此外，我们对输入的RGB通道数值进行了归一化。
+在训练时，我们先从图像中裁剪出随机大小和随机高宽比的一块随机区域，然后将该区域缩放为高和宽均为224像素的输入。测试时，我们将图像的高和宽均缩放为256像素，然后从中裁剪出高和宽均为224像素的中心区域作为输入。此外，我们对RGB（红、绿、蓝）三个颜色通道的数值做标准化：每个数值减去该通道所有数值的平均值，再除以该通道所有数值的标准差作为输出。
 
-```{.python .input  n=3}
+```{.python .input  n=5}
 # 指定 RGB 三个通道的均值和方差来将图像通道归一化。
 normalize = gdata.vision.transforms.Normalize(
     [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
@@ -82,52 +81,49 @@ train_augs = gdata.vision.transforms.Compose([
     gdata.vision.transforms.RandomResizedCrop(224),
     gdata.vision.transforms.RandomFlipLeftRight(),
     gdata.vision.transforms.ToTensor(),
-    normalize
-])
+    normalize])
 
 test_augs = gdata.vision.transforms.Compose([
     gdata.vision.transforms.Resize(256),
     gdata.vision.transforms.CenterCrop(224),
     gdata.vision.transforms.ToTensor(),
-    normalize
-])
+    normalize])
 ```
 
-### 微调模型
+### 定义和初始化模型
 
-我们用在ImageNet上预先训练的ResNet-18作为基础模型。这里指定`pretrained=True`来自动下载并加载预先训练的权重。
+我们使用在ImageNet数据集上预训练的ResNet-18作为源模型。这里指定`pretrained=True`来自动下载并加载预训练的模型参数。
 
 ```{.python .input  n=6}
 pretrained_net = model_zoo.vision.resnet18_v2(pretrained=True)
 ```
 
-预训练好的模型由两部分构成：`features`和`output`。前者包含从输入开始的所有卷积和全连接层，后者主要包括最后一层全连接层。这样划分的主要目的是为了更方便做微调。我们来看一下`output`的内容：
+预训练的源模型实例含有两个成员变量：`features`和`output`。前者包含模型除输出层以外的所有层，后者为模型的输出层。这样划分的主要目的是为了方便微调除输出层以外所有层的模型参数。下面打印源模型的成员变量`output`。作为一个全连接层，它将ResNet最终的全局平均池化层输出变换成ImageNet数据集上1000类的输出。
 
 ```{.python .input  n=7}
 pretrained_net.output
 ```
 
-它将ResNet最后的全局平均池化层输出转化成1000类的输出。
-
-在微调中，我们新建一个网络，它的定义跟之前训练好的网络一样，但是最后的输出数等于当前数据的类别数。也就是说新网络的`features`被初始化成前面训练好网络的权重，而`output`则是从头开始训练的。
+我们新建一个神经网络作为目标模型。它的定义跟预训练的源模型一样，但最后的输出个数等于目标数据集的类别数。在下面的代码中，目标模型实例`finetune_net`的成员变量`features`中的模型参数被初始化为源模型相应层的模型参数。由于`features`中的模型参数是在ImageNet数据集上预训练得到的，已经足够好，因此一般只需使用较小的学习率来“微调”这些参数。而成员变量`output`中的模型参数采用了随机初始化，一般需要更大的学习率从头训练。假设`Trainer`实例中的学习率为$\eta$，我们设成员变量`output`中的模型参数在迭代中使用$10\eta$的学习率。
 
 ```{.python .input  n=9}
 finetune_net = model_zoo.vision.resnet18_v2(classes=2)
 finetune_net.features = pretrained_net.features
 finetune_net.output.initialize(init.Xavier())
+# output 中的模型参数将在迭代中使用 10 倍大的学习率。
+finetune_net.output.collect_params().setattr('lr_mult', 10)
 ```
 
-### 训练模型
+### 微调模型
 
-我们先定义一个可以重复使用的训练函数。
+我们先定义一个使用微调的训练函数`train_fine_tuning`以便多次调用。
 
-```{.python .input  n=12}
+```{.python .input  n=10}
 def train_fine_tuning(net, learning_rate, batch_size=128, num_epochs=5):
     train_iter = gdata.DataLoader(
         train_imgs.transform_first(train_augs), batch_size, shuffle=True)
     test_iter = gdata.DataLoader(
         test_imgs.transform_first(test_augs), batch_size)
-
     ctx = gb.try_all_gpus()
     net.collect_params().reset_ctx(ctx)
     net.hybridize()
@@ -137,41 +133,49 @@ def train_fine_tuning(net, learning_rate, batch_size=128, num_epochs=5):
     gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs)
 ```
 
-因为微调的网络中的主要层已经训练的足够好，所以一般采用比较小的学习率，以防止过大的步长对其产生过多影响。
+我们将`Trainer`实例中的学习率设的小一点，例如0.01，以便微调预训练得到的模型参数。根据前面的设置，我们将以10倍的学习率从头训练目标模型的输出层参数。
 
-```{.python .input  n=13}
+```{.python .input  n=11}
 train_fine_tuning(finetune_net, 0.01)
 ```
 
-作为对比，我们训练一个同样的模型，但将所有参数都初始化为随机值。我们使用较大的学习率来加速收敛。
+作为对比，我们定义一个相同的模型，但将它所有的模型参数都初始化为随机值。由于整个模型都需要从头训练，我们可以使用较大的学习率。
 
-```{.python .input  n=14}
+```{.python .input  n=12}
 scratch_net = model_zoo.vision.resnet18_v2(classes=2)
 scratch_net.initialize(init=init.Xavier())
 train_fine_tuning(scratch_net, 0.1)
 ```
 
-可以看到，微调的模型因为初始值更好，在相同迭代周期下能够取得更好的结果。在很多情况下，微调的模型最终都会比非微调的模型取得更好的结果。
+可以看到，微调的模型因为参数初始值更好，往往在相同迭代周期下取得更高的精度。
 
 
 ## 小结
 
-* 微调通过将模型部分权重初始化成在源数据集上预训练的模型权重，从而将模型在源数据集上学到的知识迁移到目标数据上。
+
+* 迁移学习将从源数据集学到的知识迁移到目标数据集上。微调是迁移学习的一种常用技术。
+* 目标模型复制了源模型上除了输出层外的所有模型设计及其参数，并基于目标数据集微调这些参数。而目标模型的输出层需要从头训练。
+* 一般来说，微调参数会使用较小的学习率，而从头训练输出层可以使用较大的学习率。
+
 
 ## 练习
 
-- 试着增大`finetune_net`的学习率看看收敛变化。
-- 多跑几个`num_epochs`直到收敛（其他参数可能也需要微调），看看`scratch_net`和`finetune_net`最后的精度是不是有区别。
-- 这里`finetune_net`重用了`pretrained_net`除最后全连接外的所有权重，试试少重用些权重，又会有什么区别？
-- 事实上`ImageNet`里也有`hotdog`这个类，它对应的输出层参数可以用如下代码拿到。试试如何使用它。
+* 不断增大`finetune_net`的学习率。精度会有什么变化？
+* 进一步调节对比试验中`finetune_net`和`scratch_net`的超参数。它们的精度是不是依然有区别？
+* 将`finetune_net.features`中的参数固定为源模型的参数而不在训练中迭代，结果会怎样？你可能会用到以下代码。
 
-```{.python .input  n=16}
+```{.python .input}
+finetune_net.features.collect_params().setattr('grad_req', 'null')
+```
+
+* 事实上`ImageNet`数据集里也有“hotdog”（“热狗”）这个类。它在输出层对应的权重参数可以用以下代码获取。我们可以怎样使用这个参数？
+
+```{.python .input  n=13}
 weight = pretrained_net.output.weight
 hotdog_w = nd.split(weight.data(), 1000, axis=0)[713]
 hotdog_w.shape
 ```
 
-- 试试不让`finetune_net`里重用的权重参与训练，也就是不更新他们的权重。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2272)
 
