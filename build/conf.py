@@ -69,7 +69,7 @@ source_suffix = ['.rst', '.ipynb', '.md']
 #source_encoding = 'utf-8-sig'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = 'toc'
 
 # General information about the project.
 project = '动手学深度学习'
@@ -155,7 +155,7 @@ html_theme = 'sphinx_rtd_theme'
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = '_static/gluon_white.png'
+# html_logo = '_static/gluon_white.png'
 
 # The name of an image file (relative to this directory) to use as a favicon of
 # the docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
