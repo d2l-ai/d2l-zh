@@ -310,7 +310,7 @@ def display(img, out, threshold=0.5):
         bbox = [row[2:6] * nd.array(img.shape[0:2] * 2, ctx=row.context)]
         gb.show_bboxes(fig.axes, bbox, '%.2f' % score, 'w')
 
-display(img, out, threshold=0.3)
+display(img, out, threshold=0.01)
 ```
 
 ## 小结
