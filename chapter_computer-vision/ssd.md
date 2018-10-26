@@ -85,11 +85,11 @@ concat_preds([y1, y2]).shape
 减半模块将输入高宽减半来得到不同尺度的特征，这是通过步幅2的$2\times2$最大池化层来完成。我们前面提到因为预测层的窗口为3，所以我们需要额外卷积层来扩大其作用窗口来有效覆盖锚框区域。为此我们加入两个$3\times3$卷积层，每个卷积层后接批量归一化层和ReLU激活层。这样，一个尺度上的$3\times3$窗口覆盖了上一个尺度上的$10\times10$窗口。
 
 ```{.python .input  n=8}
-def down_sample_blk(num_filters):
+def down_sample_blk(num_channels):
     blk = nn.HybridSequential()
     for _ in range(2):
-        blk.add(nn.Conv2D(num_filters, kernel_size=3, padding=1),
-                nn.BatchNorm(in_channels=num_filters),
+        blk.add(nn.Conv2D(num_channels, kernel_size=3, padding=1),
+                nn.BatchNorm(in_channels=num_channels),
                 nn.Activation('relu'))
     blk.add(nn.MaxPool2D(2))
     blk.hybridize()
@@ -170,17 +170,18 @@ class TinySSD(nn.Block):
             x, anchors[i], cls_preds[i], bbox_preds[i] = single_scale_forward(
                 x, getattr(self, 'blk_%d' % i), sizes[i], ratios[i],
                 getattr(self, 'cls_%d' % i), getattr(self, 'bbox_%d' % i))
+        # 每个模块的锚框需要连结。
         return (nd.concat(*anchors, dim=1),
                 concat_preds(cls_preds).reshape(
-                    (0, -1, self.num_classes + 1)),
-                concat_preds(bbox_preds))
+                    (0, -1, self.num_classes + 1)), concat_preds(bbox_preds))
 
-net = TinySSD(num_classes=2, verbose=True)
+
+net = TinySSD(num_classes=1, verbose=True)
 net.initialize()
 x = nd.zeros((2, 3, 256, 256))
 anchors, cls_preds, bbox_preds = net(x)
 
-print('output achors:', anchors.shape)
+print('output anchors:', anchors.shape)
 print('output class predictions:', cls_preds.shape)
 print('output box predictions:', bbox_preds.shape)
 ```
@@ -203,10 +204,10 @@ train_data.reshape(label_shape=(3, 5))
 模型和训练器的初始化跟之前类似。
 
 ```{.python .input  n=16}
-ctx, net = gb.try_gpu(), TinySSD(num_classes=2)
+ctx, net = gb.try_gpu(), TinySSD(num_classes=1)
 net.initialize(init=init.Xavier(), ctx=ctx)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
-                        {'learning_rate': 0.1, 'wd': 5e-4})
+                        {'learning_rate': 0.2, 'wd': 5e-4})
 ```
 
 ### 损失和评估函数
@@ -244,7 +245,7 @@ def bbox_metric(bbox_preds, bbox_labels, bbox_masks):
 for epoch in range(20):
     acc, mae = 0, 0
     train_data.reset()  # 从头读取数据。
-    tic = time.time()
+    start = time.time()
     for i, batch in enumerate(train_data):
         # 复制数据到 GPU。
         X = batch.data[0].as_in_context(ctx)
@@ -256,8 +257,8 @@ for epoch in range(20):
             bbox_labels, bbox_masks, cls_labels = contrib.nd.MultiBoxTarget(
                 anchors, Y, cls_preds.transpose(axes=(0, 2, 1)))
             # 计算类别预测和边界框预测损失。
-            l = calc_loss(cls_preds, cls_labels,
-                             bbox_preds, bbox_labels, bbox_masks)
+            l = calc_loss(cls_preds, cls_labels, bbox_preds, bbox_labels,
+                          bbox_masks)
         # 计算梯度和更新模型。
         l.backward()
         trainer.step(batch_size)
@@ -266,7 +267,7 @@ for epoch in range(20):
         mae += bbox_metric(bbox_preds, bbox_labels, bbox_masks)
     if (epoch + 1) % 5 == 0:
         print('epoch %2d, class err %.2e, bbox mae %.2e, time %.1f sec' % (
-            epoch + 1, 1 - acc / (i + 1), mae / (i + 1), time.time() - tic))
+            epoch + 1, 1 - acc / (i + 1), mae / (i + 1), time.time() - start))
 ```
 
 ## 预测
@@ -309,7 +310,7 @@ def display(img, out, threshold=0.5):
         bbox = [row[2:6] * nd.array(img.shape[0:2] * 2, ctx=row.context)]
         gb.show_bboxes(fig.axes, bbox, '%.2f' % score, 'w')
 
-display(img, out, threshold=0.4)
+display(img, out, threshold=0.3)
 ```
 
 ## 小结
