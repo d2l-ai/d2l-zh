@@ -277,8 +277,8 @@ for epoch in range(20):
 ```{.python .input  n=20}
 def process_image(file_name):
     img = image.imread(file_name)
-    data = image.imresize(img, 256, 256).astype('float32')
-    return data.transpose((2, 0, 1)).expand_dims(axis=0), img
+    feature = image.imresize(img, 256, 256).astype('float32')
+    return feature.transpose((2, 0, 1)).expand_dims(axis=0), img
 
 x, img = process_image('../img/pikachu.jpg')
 ```
@@ -310,7 +310,7 @@ def display(img, out, threshold=0.5):
         bbox = [row[2:6] * nd.array(img.shape[0:2] * 2, ctx=row.context)]
         gb.show_bboxes(fig.axes, bbox, '%.2f' % score, 'w')
 
-display(img, out, threshold=0.01)
+display(img, out, threshold=0.3)
 ```
 
 ## 小结

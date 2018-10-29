@@ -50,25 +50,26 @@ voc_dir = download_voc_pascal()
 
 ```{.python .input  n=3}
 # 本函数已保存在 gluonbook 包中方便以后使用。
-def read_voc_images(root=voc_dir, train=True):
+def read_voc_images(root=voc_dir, is_train=True):
     txt_fname = '%s/ImageSets/Segmentation/%s' % (
-        root, 'train.txt' if train else 'val.txt')
+        root, 'train.txt' if is_train else 'val.txt')
     with open(txt_fname, 'r') as f:
         images = f.read().split()
-    data, label = [None] * len(images), [None] * len(images)
+    features, labels = [None] * len(images), [None] * len(images)
     for i, fname in enumerate(images):
-        data[i] = image.imread('%s/JPEGImages/%s.jpg' % (root, fname))
-        label[i] = image.imread('%s/SegmentationClass/%s.png' % (root, fname))
-    return data, label
+        features[i] = image.imread('%s/JPEGImages/%s.jpg' % (root, fname))
+        labels[i] = image.imread(
+            '%s/SegmentationClass/%s.png' % (root, fname))
+    return features, labels
 
-train_images, train_labels = read_voc_images()
+train_features, train_labels = read_voc_images()
 ```
 
 我们画出前面五张图像和它们对应的标注。在标注，白色代表边框黑色代表背景，其他不同的颜色对应不同目标类别。
 
 ```{.python .input  n=4}
 n = 5
-imgs = train_images[0:n] + train_labels[0:n]
+imgs = train_features[0:n] + train_labels[0:n]
 gb.show_images(imgs, 2, n);
 ```
 
@@ -93,13 +94,14 @@ VOC_CLASSES = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
 
 ```{.python .input  n=6}
 colormap2label = nd.zeros(256 ** 3)
-for i, cm in enumerate(VOC_COLORMAP):
-    colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i
+for i, colormap in enumerate(VOC_COLORMAP):
+    colormap2label[(colormap[0] * 256 + colormap[1]) * 256 + colormap[2]] = i
 
 # 本函数已保存在 gluonbook 包中方便以后使用。
-def voc_label_indices(img, colormap2label):
-    data = img.astype('int32')
-    idx = (data[:, :, 0] * 256 + data[:, :, 1]) * 256 + data[:, :, 2]
+def voc_label_indices(colormap, colormap2label):
+    colormap = colormap.astype('int32')
+    idx = ((colormap[:, :, 0] * 256 + colormap[:, :, 1]) * 256
+           + colormap[:, :, 2])
     return colormap2label[idx]
 ```
 
@@ -118,14 +120,14 @@ y[105:115, 130:140], VOC_CLASSES[1]
 
 ```{.python .input  n=8}
 # 本函数已保存在 gluonbook 包中方便以后使用。
-def voc_rand_crop(data, label, height, width):
-    data, rect = image.random_crop(data, (width, height))
+def voc_rand_crop(feature, label, height, width):
+    feature, rect = image.random_crop(feature, (width, height))
     label = image.fixed_crop(label, *rect)
-    return data, label
+    return feature, label
 
 imgs = []
 for _ in range(n):
-    imgs += voc_rand_crop(train_images[0], train_labels[0], 200, 300)
+    imgs += voc_rand_crop(train_features[0], train_labels[0], 200, 300)
 gb.show_images(imgs[::2] + imgs[1::2], 2, n);
 ```
 
@@ -136,32 +138,33 @@ gb.show_images(imgs[::2] + imgs[1::2], 2, n);
 ```{.python .input  n=9}
 # 本类已保存在 gluonbook 包中方便以后使用。
 class VOCSegDataset(gdata.Dataset):
-    def __init__(self, train, crop_size, voc_dir, colormap2label):
+    def __init__(self, is_train, crop_size, voc_dir, colormap2label):
         self.rgb_mean = nd.array([0.485, 0.456, 0.406])
         self.rgb_std = nd.array([0.229, 0.224, 0.225])
         self.crop_size = crop_size        
-        data, label = read_voc_images(root=voc_dir, train=train)
-        self.data = [self.normalize_image(im) for im in self.filter(data)]
-        self.label = self.filter(label)
+        features, labels = read_voc_images(root=voc_dir, is_train=is_train)
+        self.features = [self.normalize_image(feature)
+                         for feature in self.filter(features)]
+        self.labels = self.filter(labels)
         self.colormap2label = colormap2label
-        print('read ' + str(len(self.data)) + ' examples')
+        print('read ' + str(len(self.features)) + ' examples')
         
-    def normalize_image(self, data):
-        return (data.astype('float32') / 255 - self.rgb_mean) / self.rgb_std
+    def normalize_image(self, img):
+        return (img.astype('float32') / 255 - self.rgb_mean) / self.rgb_std
     
-    def filter(self, images):
-        return [im for im in images if (
-            im.shape[0] >= self.crop_size[0] and
-            im.shape[1] >= self.crop_size[1])]
+    def filter(self, imgs):
+        return [img for img in imgs if (
+            img.shape[0] >= self.crop_size[0] and
+            img.shape[1] >= self.crop_size[1])]
 
     def __getitem__(self, idx):
-        data, label = voc_rand_crop(self.data[idx], self.label[idx],
-                                    *self.crop_size)
-        return (data.transpose((2, 0, 1)),
+        feature, label = voc_rand_crop(self.features[idx], self.labels[idx],
+                                       *self.crop_size)
+        return (feature.transpose((2, 0, 1)),
                 voc_label_indices(label, self.colormap2label))
 
     def __len__(self):
-        return len(self.data)
+        return len(self.features)
 ```
 
 假设我们裁剪$320\times 480$图像来进行训练，我们可以查看训练和测试各保留了多少图像。

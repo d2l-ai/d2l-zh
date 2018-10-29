@@ -352,17 +352,18 @@ def read_imdb(folder='train'):
     return data
 
 
-def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):
+def read_voc_images(root='../data/VOCdevkit/VOC2012', is_train=True):
     """Read VOC images."""
     txt_fname = '%s/ImageSets/Segmentation/%s' % (
-        root, 'train.txt' if train else 'val.txt')
+        root, 'train.txt' if is_train else 'val.txt')
     with open(txt_fname, 'r') as f:
         images = f.read().split()
-    data, label = [None] * len(images), [None] * len(images)
+    features, labels = [None] * len(images), [None] * len(images)
     for i, fname in enumerate(images):
-        data[i] = image.imread('%s/JPEGImages/%s.jpg' % (root, fname))
-        label[i] = image.imread('%s/SegmentationClass/%s.png' % (root, fname))
-    return data, label
+        features[i] = image.imread('%s/JPEGImages/%s.jpg' % (root, fname))
+        labels[i] = image.imread(
+            '%s/SegmentationClass/%s.png' % (root, fname))
+    return features, labels
 
 
 class Residual(nn.Block):
@@ -775,29 +776,30 @@ def use_svg_display():
     display.set_matplotlib_formats('svg')
 
 
-def voc_label_indices(img, colormap2label):
+def voc_label_indices(colormap, colormap2label):
     """Assig label indices for Pascal VOC2012 Dataset."""
-    data = img.astype('int32')
-    idx = (data[:,:,0] * 256 + data[:,:,1]) * 256 + data[:,:,2]
+    colormap = colormap.astype('int32')
+    idx = ((colormap[:, :, 0] * 256 + colormap[:, :, 1]) * 256
+           + colormap[:, :, 2])
     return colormap2label[idx]
 
 
-def voc_rand_crop(data, label, height, width):
+def voc_rand_crop(feature, label, height, width):
     """Random cropping for images of the Pascal VOC2012 Dataset."""
-    data, rect = image.random_crop(data, (width, height))
+    feature, rect = image.random_crop(feature, (width, height))
     label = image.fixed_crop(label, *rect)
-    return data, label
+    return feature, label
 
 
 class VOCSegDataset(gdata.Dataset):
     """The Pascal VOC2012 Dataset."""
-    def __init__(self, train, crop_size, voc_dir, colormap2label):
+    def __init__(self, is_train, crop_size, voc_dir, colormap2label):
         self.rgb_mean = nd.array([0.485, 0.456, 0.406])
         self.rgb_std = nd.array([0.229, 0.224, 0.225])
         self.crop_size = crop_size
-        data, label = read_voc_images(root=voc_dir, train=train)
+        data, labels = read_voc_images(root=voc_dir, is_train=is_train)
         self.data = [self.normalize_image(im) for im in self.filter(data)]
-        self.label = self.filter(label)
+        self.labels = self.filter(labels)
         self.colormap2label = colormap2label
         print('read ' + str(len(self.data)) + ' examples')
 
@@ -810,10 +812,10 @@ class VOCSegDataset(gdata.Dataset):
             im.shape[1] >= self.crop_size[1])]
 
     def __getitem__(self, idx):
-        data, label = voc_rand_crop(self.data[idx], self.label[idx],
-                                    *self.crop_size)
+        data, labels = voc_rand_crop(self.data[idx], self.labels[idx],
+                                     *self.crop_size)
         return (data.transpose((2, 0, 1)),
-                voc_label_indices(label, self.colormap2label))
+                voc_label_indices(labels, self.colormap2label))
 
     def __len__(self):
         return len(self.data)

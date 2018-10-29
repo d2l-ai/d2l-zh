@@ -165,11 +165,10 @@ gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
 预测一张新图像时，我们只需要将其归一化并转成卷积网络需要的4D格式。
 
 ```{.python .input  n=13}
-def predict(im):
-    data = test_iter._dataset.normalize_image(im)
-    data = data.transpose((2, 0, 1)).expand_dims(axis=0)
-    yhat = net(data.as_in_context(ctx[0]))
-    pred = nd.argmax(yhat, axis=1)
+def predict(img):
+    x = test_iter._dataset.normalize_image(img)
+    x = x.transpose((2, 0, 1)).expand_dims(axis=0)
+    pred = nd.argmax(net(x.as_in_context(ctx[0])), axis=1)
     return pred.reshape((pred.shape[1], pred.shape[2]))
 ```
 
@@ -185,7 +184,7 @@ def label2image(pred):
 现在我们读取前几张测试图像并对其进行预测。
 
 ```{.python .input  n=15}
-test_images, test_labels = gb.read_voc_images(train=False)
+test_images, test_labels = gb.read_voc_images(is_train=False)
 
 n = 5
 imgs = []
