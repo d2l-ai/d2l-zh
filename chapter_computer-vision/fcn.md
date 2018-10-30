@@ -20,6 +20,28 @@ import sys
 
 假设$f$是一个卷积层，给定输入$x$，我们可以计算前向输出$y=f(x)$。在反向求导$z=\frac{\partial\, y}{\partial\,x}$时，我们知道$z$会得到跟$x$一样形状的输出。因为卷积运算的导数是自己本身，我们可以合法定义转置卷积层，记为$g$，为交换了前向和反向求导函数的卷积层。也就是$z=g(y)$。
 
+```{.python .input}
+from mxnet import nd
+from mxnet.gluon import nn
+
+from mxnet import init
+
+
+X = nd.arange(1, 17).reshape((1, 1, 4, 4))
+K = nd.arange(1, 10).reshape((1, 1, 3, 3))
+conv = nn.Conv2D(channels=1, kernel_size=3)
+conv.initialize(init.Constant(K))
+
+conv(X), conv.weight.data()
+```
+
+```{.python .input}
+W, k = nd.zeros((4, 16)), nd.zeros(11)
+k[:3], k[4:7], k[8:] = K[0,0,0,:], K[0,0,1,:], K[0,0,2,:]
+W[0, 0:11], W[1, 1:12], W[2, 4:15], W[3, 5:16] = k, k, k, k
+nd.dot(W, X.reshape(16)).reshape((1, 1, 2, 2)), W
+```
+
 下面我们构造一个卷积层并打印它的输出形状。
 
 ```{.python .input  n=3}
