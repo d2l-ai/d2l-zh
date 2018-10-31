@@ -54,3 +54,4 @@ cp build/_build/html/gluon_tutorials_zh.zip build/_build/html/gluon_tutorials_zh
 # cd build && bash ipynb2mdd.sh && rm -rf _build/html/mdd.zip && cp mdd.zip _build/html/mdd.zip && cd ..
 
 aws s3 sync --delete build/_build/html/ s3://zh.gluon.ai/ --acl public-read
+aws s3 sync --delete build/_build/html/ s3://zh.diveintodeeplearning.org/ --acl public-read
