@@ -12,6 +12,7 @@ sys.path.insert(0, '..')
 import gluonbook as gb
 from mxnet import gluon, image, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, model_zoo, nn
+from mxnet import nd
 import numpy as np
 import sys
 ```
@@ -21,12 +22,6 @@ import sys
 假设$f$是一个卷积层，给定输入$x$，我们可以计算前向输出$y=f(x)$。在反向求导$z=\frac{\partial\, y}{\partial\,x}$时，我们知道$z$会得到跟$x$一样形状的输出。因为卷积运算的导数是自己本身，我们可以合法定义转置卷积层，记为$g$，为交换了前向和反向求导函数的卷积层。也就是$z=g(y)$。
 
 ```{.python .input}
-from mxnet import nd
-from mxnet.gluon import nn
-
-from mxnet import init
-
-
 X = nd.arange(1, 17).reshape((1, 1, 4, 4))
 K = nd.arange(1, 10).reshape((1, 1, 3, 3))
 conv = nn.Conv2D(channels=1, kernel_size=3)
