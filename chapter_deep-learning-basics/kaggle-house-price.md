@@ -54,7 +54,7 @@ train_data.shape
 test_data.shape
 ```
 
-让我们来前4个样本的前4个特征、后2个特征和标签（SalePrice）：
+让我们来查看前4个样本的前4个特征、后2个特征和标签（SalePrice）：
 
 ```{.python .input  n=28}
 train_data.iloc[0:4, [0, 1, 2, 3, -3, -2, -1]]
