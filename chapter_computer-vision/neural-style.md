@@ -55,7 +55,7 @@ def postprocess(img):
 
 ## 抽取特征
 
-我们使用原论文使用的VGG 19模型，并下载在Imagenet上训练好的权重 [1]。
+我们使用原论文使用的VGG-19模型，并下载在Imagenet上训练好的权重 [1]。
 
 ```{.python .input  n=5}
 pretrained_net = model_zoo.vision.vgg19(pretrained=True)
@@ -67,7 +67,7 @@ pretrained_net = model_zoo.vision.vgg19(pretrained=True)
 style_layers, content_layers = [0, 5, 10, 19, 28], [25]
 ```
 
-当然，样式层和内容层有多种选取方法。通常越靠近输入层越容易匹配内容和样式的细节信息，越靠近输出则越倾向于语义的内容和全局的样式。这里我们选取比较靠后的内容层来避免合成图像过于保留内容图像细节，使用多个位置的样式层来匹配局部和全局样式。
+当然，样式层和内容层有多种选取方法。通常越靠近输入层越容易匹配内容和样式的细节信息，越靠近输出则越倾向于语义的内容和全局的样式。这里我们选取比较靠后的内容层，以避免合成图像保留过多内容图像的细节。使用多个位置的样式层来匹配局部和全局样式。
 
 下面构建一个新的网络使其只保留我们需要预留的层。
 
@@ -77,7 +77,7 @@ for i in range(max(content_layers + style_layers) + 1):
     net.add(pretrained_net.features[i])
 ```
 
-给定输入`x`，简单使用`net(x)`只能拿到最后的输出，而这里我们还需要中间层输出。因此我们我们逐层计算，并保留样式层和内容层的输出。
+给定输入`x`，简单使用`net(x)`只能拿到最后的输出，而这里我们还需要中间层输出。因此我们逐层计算，并保留样式层和内容层的输出。
 
 ```{.python .input  n=8}
 def extract_features(x, content_layers, style_layers):
@@ -92,7 +92,7 @@ def extract_features(x, content_layers, style_layers):
     return contents, styles
 ```
 
-最后我们定义函数分别对内容图像和样式图像抽取对应的特征。因为在训练时我们不修改网络的权重，所以我们可以在训练开始之前提取出所要的特征。
+最后我们定义函数分别对内容图像和样式图像抽取对应的特征。因为在训练时我们不修改网络的权重，所以可以在训练开始之前就提取出所要的特征。
 
 ```{.python .input  n=9}
 def get_contents(image_shape, ctx):
@@ -153,7 +153,7 @@ content_weights, tv_weight = [1], 10
 
 ## 训练
 
-这里的训练跟前面章节的主要不同在于我们只对输入`x`进行更新。此外我们将`x`的梯度除以了它的绝对平均值来降低对学习率的敏感度，而且每隔一定的批量我们减小一次学习率。
+这里的训练跟前面章节的主要不同在于我们只对输入`x`进行更新。此外我们将`x`的梯度除以它的绝对平均值来降低对学习率的敏感度，而且每隔一定的批量我们减小一次学习率。
 
 ```{.python .input  n=15}
 class TransferredImage(nn.Block):
@@ -204,7 +204,7 @@ def train(x, content_y, style_y, ctx, lr, max_epochs, lr_decay_epoch):
     return net()
 ```
 
-现在我们可以真正开始训练了。首先我们将图像调整到高为300宽200来进行训练，这样使得训练更加快速。合成图像的初始值设成了内容图像，使得初始值能尽可能接近训练输出来加速收敛。
+现在我们可以真正开始训练了。首先将图像调整到高300宽200，这样能使训练更加快速。合成图像的初始值设成了内容图像，使得初始值能尽可能接近训练输出，从而加速收敛。
 
 ```{.python .input  n=16}
 ctx, image_shape = gb.try_gpu(), (300, 200)
