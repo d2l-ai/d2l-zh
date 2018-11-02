@@ -3,9 +3,6 @@
 本节将使用Gluon来实现基于循环神经网络的语言模型。首先，我们读取周杰伦专辑歌词数据集。
 
 ```{.python .input  n=1}
-import sys
-sys.path.insert(0, '..')
-
 import gluonbook as gb
 import math
 from mxnet import autograd, gluon, init, nd
