@@ -1,10 +1,11 @@
 # 目标检测数据集（皮卡丘）
 
-在目标检测领域并没有类似MNIST那样的小数据集方便我们快速测试模型，为此我们合成了一个小的人工数据集。我们首先使用一个开源的皮卡丘3D模型生成了1000张不同角度和大小的皮卡丘图像。然后我们收集了一系列背景图像，并在每张图的随机位置放置一张皮卡丘图像。我们使用MXNet提供的[tools/im2rec.py](https://github.com/apache/incubator-mxnet/blob/master/tools/im2rec.py)来将图像打包成二进制rec文件。rec格式是在Gluon开发出来之前MXNet常用的数据格式。目前GluonCV已经提供了更简单的，类似之前读取图像时的函数，从而可以省略打包图像的步骤。但由于这个工具包目前仍处在快速开发迭代中，这里我们仍使用rec格式。
+在目标检测领域并没有类似MNIST或Fashion-MNIST那样的小数据集。为了快速测试模型，我们合成了一个小的数据集。我们首先使用一个开源的皮卡丘3D模型生成了1000张不同角度和大小的皮卡丘图像。然后我们收集了一系列背景图像，并在每张图的随机位置放置一张随机的皮卡丘图像。我们使用MXNet提供的im2rec工具将图像转换成二进制的RecordIO格式 [1]。该格式既可以降低数据集在磁盘上的存储开销，又能提高读取效率。如果你想了解更多的图像读取方法，可以查阅GluonCV工具包的文档 [2]。
+
 
 ## 下载数据集
 
-打包好的数据集可以直接在网上下载。下载数据集的操作定义在`_download_pikachu`函数中。
+RecordIO格式的皮卡丘数据集可以直接在网上下载。下载数据集的操作定义在`_download_pikachu`函数中。
 
 ```{.python .input  n=1}
 import sys
@@ -28,38 +29,32 @@ def _download_pikachu(data_dir):
 
 ## 读取数据集
 
-我们使用`image.ImageDetIter`来读取数据。这是一个针对目标检测的迭代器，函数中的“Det”表示Detection。在读取训练图像时我们使用了随机裁剪。
+我们通过创建`ImageDetIter`实例来读取目标检测数据集。其中名称里的“Det”表示Detection（检测）。我们将以随机顺序读取训练数据集。由于数据集的格式为RecordIO，我们需要提供图像索引文件`'train.idx'`以随机读取小批量。此外，对于训练集的每张图像，我们将采用随机裁剪，并要求裁剪出的图像至少覆盖每个目标95%的区域。由于裁剪是随机的，这个要求不一定总被满足。我们设定最多尝试200次随机裁剪：如果都不符合要求则不裁剪图像。为保证输出结果的确定性，我们不随机裁剪测试数据集中的图像。我们也无需按随机顺序读取测试数据集。
 
 ```{.python .input  n=2}
 # 本函数已保存在 gluonbook 包中方便以后使用。
-def load_data_pikachu(batch_size, edge_size=256):
-    # edge_size：输出图像的宽和高。
+def load_data_pikachu(batch_size, edge_size=256):  # edge_size：输出图像的宽和高。    
     data_dir = '../data/pikachu'
     _download_pikachu(data_dir)
     train_iter = image.ImageDetIter(
         path_imgrec=os.path.join(data_dir, 'train.rec'),
-        # 每张图像在 rec 中的位置，使用随机顺序时需要。
         path_imgidx=os.path.join(data_dir, 'train.idx'),
         batch_size=batch_size,
-        data_shape=(3, edge_size, edge_size),  # 输出图像形状。
-        shuffle=True,  # 用随机顺序访问。
-        rand_crop=1,  # 一定使用随机裁剪。
-        min_object_covered=0.95,  # 裁剪出的图像至少覆盖每个目标 95% 的区域。
-        max_attempts=200)  # 最多尝试 200 次随机裁剪。如果失败则不进行裁剪。
-    val_iter = image.ImageDetIter(  # 测试图像则去除了随机访问和随机裁剪。
-        path_imgrec=os.path.join(data_dir, 'val.rec'),
-        batch_size=batch_size,
-        data_shape=(3, edge_size, edge_size),
-        shuffle=False)
+        data_shape=(3, edge_size, edge_size),  # 输出图像的形状。
+        shuffle=True,  # 以随机顺序读取数据集。
+        rand_crop=1,  # 随机裁剪的概率为 1。
+        min_object_covered=0.95, max_attempts=200)
+    val_iter = image.ImageDetIter(
+        path_imgrec=os.path.join(data_dir, 'val.rec'), batch_size=batch_size,
+        data_shape=(3, edge_size, edge_size), shuffle=False)
     return train_iter, val_iter
-
-batch_size, edge_size = 32, 256
-train_iter, _ = load_data_pikachu(batch_size, edge_size)
 ```
 
-下面我们读取一个批量。
+下面我们读取一个小批量并打印图像和标签的形状。
 
 ```{.python .input  n=3}
+batch_size, edge_size = 32, 256
+train_iter, _ = load_data_pikachu(batch_size, edge_size)
 batch = train_iter.next()
 batch.data[0].shape, batch.label[0].shape
 ```
@@ -88,3 +83,9 @@ for ax, label in zip(axes, batch.label[0][0:10]):
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7022)
 
 ![](../img/qr_object-detection-dataset.svg)
+
+## 参考文献
+
+[1] im2rec工具。https://github.com/apache/incubator-mxnet/blob/master/tools/im2rec.py
+
+[2] GluonCV 工具包。https://gluon-cv.mxnet.io/
