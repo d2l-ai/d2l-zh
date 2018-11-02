@@ -138,6 +138,8 @@
 
 偏导数，partial derivative
 
+偏移量，offset
+
 批量，batch
 
 平均池化层，average pooling layer
