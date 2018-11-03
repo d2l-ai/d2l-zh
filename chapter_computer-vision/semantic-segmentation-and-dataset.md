@@ -26,7 +26,7 @@ import sys
 import tarfile
 ```
 
-我们首先下载这个数据集到`../data`下。压缩包大小是2GB，下载需要一定时间。解压之后这个数据集将会放置在`../data/VOCdevkit/VOC2012`下。
+我们首先下载这个数据集到`../data`路径下。压缩包大小是2GB，下载需要一定时间。解压之后这个数据集将会放置在`../data/VOCdevkit/VOC2012`路径下。
 
 ```{.python .input  n=2}
 # 本函数已保存在 gluonbook 包中方便以后使用。
