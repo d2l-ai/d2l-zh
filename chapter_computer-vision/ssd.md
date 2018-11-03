@@ -1,19 +1,9 @@
 # 单发多框检测（SSD）
 
-我们将介绍的第一个模型是单发多框检测（single shot multibox detection，简称SSD）[1]。它并不是第一个提出来的基于深度学习的目标检测模型，也不是精度最高的，但因为其简单快速而被大量使用。我们将使用SSD来详解目标检测的实现细节。
+我们在前几节分别介绍了边界框、锚框、数据集等背景知识，下面我们来构造一个目标检测模型：单发多框检测（single shot multibox detection，简称SSD）[1]。它简单、快速，并得到了广泛使用。本节也将通过单发多框检测来详解目标检测的实现细节。
 
-```{.python .input  n=1}
-import sys
-sys.path.insert(0, '..')
 
-%matplotlib inline
-import gluonbook as gb
-from mxnet import autograd, contrib, gluon, image, init, nd
-from mxnet.gluon import loss as gloss, nn
-import time
-```
-
-## SSD 模型
+## 模型
 
 图9.4描述了SSD模型。给定输入图像，其首先使用主要由卷积层组成的模块来进行特征抽取。在其特征输出上，我们以每个像素为中心构建多个锚框（往左的箭头），然后使用softmax来对每个锚框判断其包含的目标类别，以及用卷积直接预测它到真实目标边界框的距离。卷积层的输出同时被输入到一个高宽减半模块（往上的箭头）来缩小图像尺寸。这个模块的输出将进入到另一个卷积模块抽取特征，并构建锚框来预测目标类别和边界框。这样设计的目的是在不同的尺度上进行目标检测，例如前一层的锚框主要检测图像中尺寸较小的目标，而这一层我们则检测尺寸稍大的目标。自然的，我们会重复这一过程多次以保证在多种不同的尺度下检测目标。
 
@@ -30,6 +20,15 @@ import time
 下面我们定义一个这样的类别分类器，指定$a$和$n$后，它使用一个填充为1的$3\times3$卷积层。注意到我们使用了较小的卷积窗口，它可能不能覆盖锚框定义的区域。所以我们需要保证前面的卷积层能有效的将较大的锚框区域的特征浓缩到一个$3\times3$的窗口里。
 
 ```{.python .input  n=2}
+import sys
+sys.path.insert(0, '..')
+
+%matplotlib inline
+import gluonbook as gb
+from mxnet import autograd, contrib, gluon, image, init, nd
+from mxnet.gluon import loss as gloss, nn
+import time
+
 def cls_predictor(num_anchors, num_classes):
     return nn.Conv2D(num_anchors * (num_classes + 1), kernel_size=3,
                      padding=1)
@@ -64,7 +63,7 @@ y2 = forward(nd.zeros((2, 16, 10, 10)), cls_predictor(3, 10))
 
 ```{.python .input  n=5}
 def flatten_pred(pred):
-    return pred.transpose(axes=(0, 2, 3, 1)).flatten()
+    return pred.transpose((0, 2, 3, 1)).flatten()
 ```
 
 拼接就是简单将在维度1上合并结果。
@@ -86,13 +85,12 @@ concat_preds([y1, y2]).shape
 
 ```{.python .input  n=8}
 def down_sample_blk(num_channels):
-    blk = nn.HybridSequential()
+    blk = nn.Sequential()
     for _ in range(2):
         blk.add(nn.Conv2D(num_channels, kernel_size=3, padding=1),
                 nn.BatchNorm(in_channels=num_channels),
                 nn.Activation('relu'))
     blk.add(nn.MaxPool2D(2))
-    blk.hybridize()
     return blk
 ```
 
@@ -108,7 +106,7 @@ forward(nd.zeros((2, 3, 20, 20)), down_sample_blk(10)).shape
 
 ```{.python .input  n=10}
 def body_blk():
-    blk = nn.HybridSequential()
+    blk = nn.Sequential()
     for num_filters in [16, 32, 64]:
         blk.add(down_sample_blk(num_filters))
     return blk
@@ -134,12 +132,12 @@ def get_blk(i):
 接下来我们定义每个模块如何进行前向计算。它跟之前的卷积神经网络不同在于，我们不仅输出卷积块的输出，而且还返回在输出上生成的锚框，以及每个锚框的类别预测和偏移预测。
 
 ```{.python .input  n=12}
-def single_scale_forward(x, blk, size, ratio, cls_predictor, bbox_predictor):
-    y = blk(x)
-    anchor = contrib.ndarray.MultiBoxPrior(y, sizes=size, ratios=ratio)
-    cls_pred = cls_predictor(y)
-    bbox_pred = bbox_predictor(y)
-    return (y, anchor, cls_pred, bbox_pred)
+def single_scale_forward(X, blk, size, ratio, cls_predictor, bbox_predictor):
+    Y = blk(X)
+    anchor = contrib.ndarray.MultiBoxPrior(Y, sizes=size, ratios=ratio)
+    cls_pred = cls_predictor(Y)
+    bbox_pred = bbox_predictor(Y)
+    return (Y, anchor, cls_pred, bbox_pred)
 ```
 
 对每个模块我们要定义其输出上的锚框如何生成。比例固定成1、2和0.5，但大小上则不同，用于覆盖不同的尺度。
@@ -155,7 +153,7 @@ ratios = [[1, 2, 0.5]] * 5
 
 ```{.python .input  n=14}
 class TinySSD(nn.Block):
-    def __init__(self, num_classes, verbose=False, **kwargs):
+    def __init__(self, num_classes, **kwargs):
         super(TinySSD, self).__init__(**kwargs)
         self.num_classes = num_classes
         for i in range(5):
@@ -164,11 +162,11 @@ class TinySSD(nn.Block):
                                                       num_classes))
             setattr(self, 'bbox_%d' % i, bbox_predictor(num_anchors))
 
-    def forward(self, x):
+    def forward(self, X):
         anchors, cls_preds, bbox_preds = [None] * 5, [None] * 5, [None] * 5
         for i in range(5):
-            x, anchors[i], cls_preds[i], bbox_preds[i] = single_scale_forward(
-                x, getattr(self, 'blk_%d' % i), sizes[i], ratios[i],
+            X, anchors[i], cls_preds[i], bbox_preds[i] = single_scale_forward(
+                X, getattr(self, 'blk_%d' % i), sizes[i], ratios[i],
                 getattr(self, 'cls_%d' % i), getattr(self, 'bbox_%d' % i))
         # 每个模块的锚框需要连结。
         return (nd.concat(*anchors, dim=1),
@@ -176,10 +174,10 @@ class TinySSD(nn.Block):
                     (0, -1, self.num_classes + 1)), concat_preds(bbox_preds))
 
 
-net = TinySSD(num_classes=1, verbose=True)
+net = TinySSD(num_classes=1)
 net.initialize()
-x = nd.zeros((2, 3, 256, 256))
-anchors, cls_preds, bbox_preds = net(x)
+X = nd.zeros((2, 3, 256, 256))
+anchors, cls_preds, bbox_preds = net(X)
 
 print('output anchors:', anchors.shape)
 print('output class predictions:', cls_preds.shape)
@@ -234,7 +232,7 @@ def cls_metric(cls_preds, cls_labels):
     return (cls_preds.argmax(axis=-1) == cls_labels).mean().asscalar()
 
 def bbox_metric(bbox_preds, bbox_labels, bbox_masks):
-    return (bbox_labels - bbox_preds * bbox_masks).abs().mean().asscalar()
+    return ((bbox_labels - bbox_preds) * bbox_masks).abs().mean().asscalar()
 ```
 
 ### 训练模型
@@ -255,7 +253,7 @@ for epoch in range(20):
             anchors, cls_preds, bbox_preds = net(X)
             # 对每个锚框生成标号。
             bbox_labels, bbox_masks, cls_labels = contrib.nd.MultiBoxTarget(
-                anchors, Y, cls_preds.transpose(axes=(0, 2, 1)))
+                anchors, Y, cls_preds.transpose((0, 2, 1)))
             # 计算类别预测和边界框预测损失。
             l = calc_loss(cls_preds, cls_labels, bbox_preds, bbox_labels,
                           bbox_masks)
@@ -378,3 +376,7 @@ gb.plt.legend();
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2511)
 
 ![](../img/qr_ssd.svg)
+
+## 参考文献
+
+[1] Liu, W., Anguelov, D., Erhan, D., Szegedy, C., Reed, S., Fu, C. Y., & Berg, A. C. (2016, October). Ssd: Single shot multibox detector. In European conference on computer vision (pp. 21-37). Springer, Cham.
