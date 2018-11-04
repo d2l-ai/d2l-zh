@@ -30,15 +30,15 @@ $$(s_1, r_1), (s_1, r_2), \ldots, (s_1, r_m), (s_2, r_1), (s_3, r_1), \ldots, (s
 ```{.python .input  n=2}
 img = image.imread('../img/catdog.jpg').asnumpy()
 h, w = img.shape[0:2]
-x = nd.random.uniform(shape=(1, 3, h, w))  # 构造输入数据。
-y = contrib.nd.MultiBoxPrior(x, sizes=[0.75, 0.5, 0.25], ratios=[1, 2, 0.5])
-y.shape
+X = nd.random.uniform(shape=(1, 3, h, w))  # 构造输入数据。
+Y = contrib.nd.MultiBoxPrior(X, sizes=[0.75, 0.5, 0.25], ratios=[1, 2, 0.5])
+Y.shape
 ```
 
 我们看到，返回锚框变量`y`的形状为（批量大小，锚框个数，4）。将锚框变量`y`的形状变为（图像高，图像宽，以相同像素为中心的锚框个数，4）后，我们就可以通过指定像素位置来获取所有以该像素为中心的锚框了。下面例子里我们访问以（250，250）为中心的第一个锚框。它有四个元素，分别是锚框左上角和右下角的$x$和$y$轴坐标。其中$x$和$y$轴的坐标值分别已除以图像的宽和高，因此值域均为0和1之间。
 
 ```{.python .input  n=3}
-boxes = y.reshape((h, w, 5, 4))
+boxes = Y.reshape((h, w, 5, 4))
 boxes[250, 250, 0, :]
 ```
 
@@ -137,18 +137,18 @@ show_bboxes(fig.axes, ground_truth[:, 1:] * bbox_scale, ['dog', 'cat'], 'k')
 show_bboxes(fig.axes, anchors * bbox_scale, ['0', '1', '2', '3', '4']);
 ```
 
-我们可以通过`contrib.nd`模块中的`MultiBoxTarget`函数来为锚框标注类别和偏移量。该函数将背景类别设为0，并令从零开始的目标类别的整数索引自加1（1为狗，2为猫）。我们通过`expand_dims`函数为锚框和真实边界框添加样本维，并构造形状为（批量大小，含背景的类别个数，锚框数）的任意预测结果。
+我们可以通过`contrib.nd`模块中的`MultiBoxTarget`函数来为锚框标注类别和偏移量。该函数将背景类别设为0，并令从零开始的目标类别的整数索引自加1（1为狗，2为猫）。我们通过`expand_dims`函数为锚框和真实边界框添加样本维，并构造形状为（批量大小，包括背景的类别个数，锚框数）的任意预测结果。
 
 ```{.python .input  n=7}
-out = contrib.nd.MultiBoxTarget(anchors.expand_dims(axis=0),
-                                ground_truth.expand_dims(axis=0),
-                                nd.zeros((1, 3, 5)))
+labels = contrib.nd.MultiBoxTarget(anchors.expand_dims(axis=0),
+                                   ground_truth.expand_dims(axis=0),
+                                   nd.zeros((1, 3, 5)))
 ```
 
 返回的结果里有三项，均为NDArray。第三项表示为锚框标注的类别。
 
 ```{.python .input  n=8}
-out[2]
+labels[2]
 ```
 
 我们根据锚框与真实边界框在图像中的位置来分析这些标注的类别。首先，在所有的“锚框—真实边界框”的配对中，锚框$A_4$与猫的真实边界框的交并比最大，因此锚框$A_4$的类别标注为猫。不考虑锚框$A_4$或猫的真实边界框，在剩余的“锚框—真实边界框”的配对中，最大交并比的配对为锚框$A_1$和狗的真实边界框，因此锚框$A_1$的类别标注为狗。接下来遍历未标注的剩余三个锚框：与锚框$A_0$交并比最大的真实边界框的类别为狗，但交并比小于阈值（默认为0.5），因此类别标注为背景；与锚框$A_2$交并比最大的真实边界框的类别为猫，且交并比大于阈值，因此类别标注为猫；与锚框$A_3$交并比最大的真实边界框的类别为猫，但交并比小于阈值，因此类别标注为背景。
@@ -158,13 +158,13 @@ out[2]
 由于我们不关心对背景的检测，有关负类的偏移量不应影响目标函数。通过按元素乘法，掩码变量中的0可以在计算目标函数之前过滤掉负类的偏移量。
 
 ```{.python .input  n=9}
-out[1]
+labels[1]
 ```
 
 返回的第一项是为每个锚框标注的四个偏移量，其中负类锚框的偏移量标注为0。
 
 ```{.python .input  n=10}
-out[0]
+labels[0]
 ```
 
 ## 输出预测边界框
@@ -196,17 +196,17 @@ show_bboxes(fig.axes, anchors * bbox_scale,
 我们使用`contrib.nd`模块的`MultiBoxDetection`函数来执行非极大值抑制并设阈值为0.5。这里为NDArray输入都增加了样本维。我们看到，返回结果的形状为（批量大小，锚框个数，6）。其中每一行的6个元素代表同一个预测边界框的输出信息。第一个元素是索引从0开始计数的预测类别（0为狗，1为猫），其中-1表示背景或在非极大值抑制中被移除。第二个元素是预测边界框的置信度。剩余的四个元素分别是预测边界框左上角和右下角的$x$和$y$轴坐标（值域在0到1之间）。
 
 ```{.python .input  n=13}
-ret = contrib.ndarray.MultiBoxDetection(
+output = contrib.ndarray.MultiBoxDetection(
     cls_probs.expand_dims(axis=0), offset_preds.expand_dims(axis=0),
     anchors.expand_dims(axis=0), nms_threshold=0.5)
-ret
+output
 ```
 
 我们移除掉类别为-1的预测边界框，并可视化非极大值抑制保留的结果。
 
 ```{.python .input  n=14}
 fig = gb.plt.imshow(img)
-for i in ret[0].asnumpy():
+for i in output[0].asnumpy():
     if i[0] == -1:
         continue
     label = ('dog=', 'cat=')[int(i[0])] + str(i[1])
@@ -227,7 +227,7 @@ for i in ret[0].asnumpy():
 
 * 改变`contrib.nd.MultiBoxPrior`中`sizes`和`ratios`的取值，观察生成锚框的变化。
 * 构造交并比为0.5的两个边界框，观察它们的重合度。
-* 按本节定义的为锚框标注偏移量的方法（常数采用默认值），验证偏移量`out[0]`的输出结果。
+* 按本节定义的为锚框标注偏移量的方法（常数采用默认值），验证偏移量`labels[0]`的输出结果。
 * 在“标注训练集的锚框”与“输出预测边界框”两小节中修改变量`anchors`，结果有什么变化？
 
 

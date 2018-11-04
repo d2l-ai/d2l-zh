@@ -19,7 +19,7 @@
 
 下面我们定义一个这样的类别分类器，指定$a$和$n$后，它使用一个填充为1的$3\times3$卷积层。注意到我们使用了较小的卷积窗口，它可能不能覆盖锚框定义的区域。所以我们需要保证前面的卷积层能有效的将较大的锚框区域的特征浓缩到一个$3\times3$的窗口里。
 
-```{.python .input  n=2}
+```{.python .input}
 import sys
 sys.path.insert(0, '..')
 
@@ -29,6 +29,26 @@ from mxnet import autograd, contrib, gluon, image, init, nd
 from mxnet.gluon import loss as gloss, nn
 import time
 
+img = image.imread('../img/pikachu.jpg')
+bbox_scale = nd.array(img.shape[0:2] * 2)
+
+def display_anchors(fmap_w, fmap_h, s):
+    fmap = nd.zeros((1, 3, fmap_w, fmap_h))
+    anchors = contrib.nd.MultiBoxPrior(fmap, sizes=s, ratios=[1, 2, 0.5])
+    gb.show_bboxes(gb.plt.imshow(img.asnumpy()).axes, anchors[0] * bbox_scale)
+
+display_anchors(fmap_w=1, fmap_h=1, s=[0.8])
+```
+
+```{.python .input}
+display_anchors(fmap_w=2, fmap_h=2, s=[0.3])
+```
+
+```{.python .input}
+display_anchors(fmap_w=4, fmap_h=4, s=[0.15])
+```
+
+```{.python .input  n=2}
 def cls_predictor(num_anchors, num_classes):
     return nn.Conv2D(num_anchors * (num_classes + 1), kernel_size=3,
                      padding=1)
@@ -132,7 +152,7 @@ def get_blk(i):
 接下来我们定义每个模块如何进行前向计算。它跟之前的卷积神经网络不同在于，我们不仅输出卷积块的输出，而且还返回在输出上生成的锚框，以及每个锚框的类别预测和偏移预测。
 
 ```{.python .input  n=12}
-def single_scale_forward(X, blk, size, ratio, cls_predictor, bbox_predictor):
+def blk_forward(X, blk, size, ratio, cls_predictor, bbox_predictor):
     Y = blk(X)
     anchor = contrib.ndarray.MultiBoxPrior(Y, sizes=size, ratios=ratio)
     cls_pred = cls_predictor(Y)
@@ -143,10 +163,10 @@ def single_scale_forward(X, blk, size, ratio, cls_predictor, bbox_predictor):
 对每个模块我们要定义其输出上的锚框如何生成。比例固定成1、2和0.5，但大小上则不同，用于覆盖不同的尺度。
 
 ```{.python .input  n=13}
-num_anchors = 4
 sizes = [[0.2, 0.272], [0.37, 0.447], [0.54, 0.619], [0.71, 0.79],
          [0.88, 0.961]]
 ratios = [[1, 2, 0.5]] * 5
+num_anchors = len(sizes[0]) + len(ratios[0]) - 1
 ```
 
 完整的模型定义如下。
@@ -165,7 +185,7 @@ class TinySSD(nn.Block):
     def forward(self, X):
         anchors, cls_preds, bbox_preds = [None] * 5, [None] * 5, [None] * 5
         for i in range(5):
-            X, anchors[i], cls_preds[i], bbox_preds[i] = single_scale_forward(
+            X, anchors[i], cls_preds[i], bbox_preds[i] = blk_forward(
                 X, getattr(self, 'blk_%d' % i), sizes[i], ratios[i],
                 getattr(self, 'cls_%d' % i), getattr(self, 'bbox_%d' % i))
         # 每个模块的锚框需要连结。
@@ -176,7 +196,7 @@ class TinySSD(nn.Block):
 
 net = TinySSD(num_classes=1)
 net.initialize()
-X = nd.zeros((2, 3, 256, 256))
+X = nd.zeros((32, 3, 256, 256))
 anchors, cls_preds, bbox_preds = net(X)
 
 print('output anchors:', anchors.shape)
@@ -273,25 +293,21 @@ for epoch in range(20):
 在预测阶段，我们希望能把图像里面所有感兴趣的目标找出来。我们首先定义一个图像预处理函数，它对图像进行变换然后转成卷积层需要的四维格式。
 
 ```{.python .input  n=20}
-def process_image(file_name):
-    img = image.imread(file_name)
-    feature = image.imresize(img, 256, 256).astype('float32')
-    return feature.transpose((2, 0, 1)).expand_dims(axis=0), img
-
-x, img = process_image('../img/pikachu.jpg')
+feature = image.imresize(img, 256, 256).astype('float32')
+X = feature.transpose((2, 0, 1)).expand_dims(axis=0)
 ```
 
 在预测的时候，我们通过`MultiBoxDetection`函数来合并预测偏移和锚框得到预测边界框，并使用NMS去除重复的预测边界框。
 
 ```{.python .input  n=33}
-def predict(x):
-    anchors, cls_preds, bbox_preds = net(x.as_in_context(ctx))
+def predict(X):
+    anchors, cls_preds, bbox_preds = net(X.as_in_context(ctx))
     cls_probs = cls_preds.softmax().transpose((0, 2, 1))
-    out = contrib.nd.MultiBoxDetection(cls_probs, bbox_preds, anchors)
-    idx = [i for i, row in enumerate(out[0]) if row[0].asscalar() != -1]
-    return out[0, idx]
+    output = contrib.nd.MultiBoxDetection(cls_probs, bbox_preds, anchors)
+    idx = [i for i, row in enumerate(output[0]) if row[0].asscalar() != -1]
+    return output[0, idx]
 
-out = predict(x)
+output = predict(X)
 ```
 
 最后我们将预测出置信度超过某个阈值的边框画出来：
@@ -299,16 +315,16 @@ out = predict(x)
 ```{.python .input  n=34}
 gb.set_figsize((5, 5))
 
-def display(img, out, threshold=0.5):
+def display(img, output, threshold):
     fig = gb.plt.imshow(img.asnumpy())
-    for row in out:
+    for row in output:
         score = row[1].asscalar()
         if score < threshold:
             continue
         bbox = [row[2:6] * nd.array(img.shape[0:2] * 2, ctx=row.context)]
         gb.show_bboxes(fig.axes, bbox, '%.2f' % score, 'w')
 
-display(img, out, threshold=0.3)
+display(img, output, threshold=0.3)
 ```
 
 ## 小结
