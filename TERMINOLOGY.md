@@ -78,6 +78,8 @@
 
 负采样，negative sampling
 
+感受野，receptive field
+
 共现词频，co-occurrence frequency
 
 归一化，normalization
@@ -171,6 +173,8 @@ softmax回归，softmax regression
 双向循环神经网络，bidirectional recurrent neural network
 
 特征，feature
+
+特征图，feature map
 
 特征值，eigenvalue
 
