@@ -37,24 +37,6 @@ Y = contrib.nd.MultiBoxPrior(X, sizes=[0.75, 0.5, 0.25], ratios=[1, 2, 0.5])
 Y.shape
 ```
 
-```{.json .output n=2}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "561 728\n"
- },
- {
-  "data": {
-   "text/plain": "(1, 2042040, 4)"
-  },
-  "execution_count": 2,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 我们看到，返回锚框变量`y`的形状为（批量大小，锚框个数，4）。将锚框变量`y`的形状变为（图像高，图像宽，以相同像素为中心的锚框个数，4）后，我们就可以通过指定像素位置来获取所有以该像素为中心的锚框了。下面例子里我们访问以（250，250）为中心的第一个锚框。它有四个元素，分别是锚框左上角和右下角的$x$和$y$轴坐标。其中$x$和$y$轴的坐标值分别已除以图像的宽和高，因此值域均为0和1之间。
 
 ```{.python .input  n=3}
