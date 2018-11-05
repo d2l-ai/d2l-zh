@@ -13,6 +13,7 @@
    fine-tuning
    bounding-box
    anchor
+   multiscale-object-detection
    object-detection-dataset
    ssd
    rcnn
