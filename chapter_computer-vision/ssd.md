@@ -34,8 +34,7 @@ def display_anchors(fmap_w, fmap_h, s):
     bbox_scale = nd.array(img.shape[0:2] * 2)
     gb.show_bboxes(gb.plt.imshow(img.asnumpy()).axes, anchors[0] * bbox_scale)
 ```
-
-我们先关注小目标的检测。设锚框大小为0.15，特征图的高和宽分别为4。可以看出，图像上4行4列的锚框中心分布均匀。
+我们先关注小目标的检测。为了在显示时更容易分辨，这里令不同中心的锚框不重合：设锚框大小为0.15，特征图的高和宽分别为4。可以看出，图像上4行4列的锚框中心分布均匀。
 
 ```{.python .input}
 display_anchors(fmap_w=4, fmap_h=4, s=[0.15])
