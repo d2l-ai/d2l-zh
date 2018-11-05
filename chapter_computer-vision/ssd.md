@@ -1,6 +1,6 @@
 # 单发多框检测（SSD）
 
-我们在前几节分别介绍了边界框、锚框、数据集等背景知识，下面我们来构造一个目标检测模型：单发多框检测（single shot multibox detection，简称SSD）[1]。它简单、快速，并得到了广泛使用。该模型的部分设计思想和实现细节同样适用于其他目标检测模型。
+我们在前几节分别介绍了边界框、锚框、数据集等背景知识，下面我们来构造一个目标检测模型：单发多框检测（single shot multibox detection，简称SSD）[1]。它简单、快速，并得到了广泛使用。该模型的一些设计思想和实现细节也适用于其他大多数目标检测模型。
 
 
 ## 多尺度检测目标
@@ -25,23 +25,32 @@ img = image.imread('../img/pikachu.jpg')
 img.shape[0:2]
 ```
 
-```{.python .input}
-bbox_scale = nd.array(img.shape[0:2] * 2)
+我们可以通过特征图的形状来确定图像上均匀采样的锚框中心。下面定义`display_anchors`函数。当特征图的宽和高分别设为`fmap_w`和`fmap_h`时，该函数将在图像上均匀采样`fmap_h`行`fmap_w`列个像素，并分别以它们为中心生成大小为`s`（假设列表长度为1）的三个不同宽高比（`ratios`）的锚框。
 
+```{.python .input}
 def display_anchors(fmap_w, fmap_h, s):
     fmap = nd.zeros((1, 3, fmap_w, fmap_h))
     anchors = contrib.nd.MultiBoxPrior(fmap, sizes=s, ratios=[1, 2, 0.5])
+    bbox_scale = nd.array(img.shape[0:2] * 2)
     gb.show_bboxes(gb.plt.imshow(img.asnumpy()).axes, anchors[0] * bbox_scale)
-
-display_anchors(fmap_w=1, fmap_h=1, s=[0.8])
 ```
 
-```{.python .input}
-display_anchors(fmap_w=2, fmap_h=2, s=[0.3])
-```
+我们先关注小目标的检测。设锚框大小为0.15，特征图的高和宽分别为4。可以看出，图像上4行4列的锚框中心分布均匀。
 
 ```{.python .input}
 display_anchors(fmap_w=4, fmap_h=4, s=[0.15])
+```
+
+我们将特征图的高和宽分别减半，并用更大的锚框检测更大的目标。当锚框大小设0.4时，有些锚框的区域有重合。
+
+```{.python .input}
+display_anchors(fmap_w=2, fmap_h=2, s=[0.4])
+```
+
+最后，我们将特征图的高和宽进一步减半至1，并将锚框大小增至0.8。此时我们将图像中心作为锚框的中心。
+
+```{.python .input}
+display_anchors(fmap_w=1, fmap_h=1, s=[0.8])
 ```
 
 ## 模型
