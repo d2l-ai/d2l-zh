@@ -3,12 +3,11 @@
 set -x
 set -e
 
-
 # Clean build/chapter*/*ipynb and build/chapter*/*md that are no longer needed.
 cd build
 for ch in chapter*; do
     if ! [ -e "../$ch" ]; then
-        rm -rf $ch 
+        rm -rf $ch
     else
         shopt -s nullglob
         for f in $ch/*.md $ch/*.ipynb; do
@@ -17,18 +16,19 @@ for ch in chapter*; do
             md=${base%%.*}.md
             if ! [ -e "../$ch/$md" ]; then
                 rm $f
-            fi  
+            fi
         done
-    fi  
+    fi
 done
 cd ..
 
 # prepare the env
 conda env update -f build/build.yml
-
 conda activate gluon_zh_docs
 
 pip list
+
+rm -rf build/_build/
 
 make html
 
@@ -51,12 +51,7 @@ cp build/_build/html/gluon_tutorials_zh.tar.gz build/_build/html/gluon_tutorials
 cp build/_build/html/gluon_tutorials_zh.zip build/_build/html/gluon_tutorials_zh-1.0.zip
 
 
-
-cd build
-
-bash ipynb2mdd.sh
-cp mdd.zip _build/html/mdd.zip
-
-cd ..
+# cd build && bash ipynb2mdd.sh && rm -rf _build/html/mdd.zip && cp mdd.zip _build/html/mdd.zip && cd ..
 
 aws s3 sync --delete build/_build/html/ s3://zh.gluon.ai/ --acl public-read
+aws s3 sync --delete build/_build/html/ s3://zh.diveintodeeplearning.org/ --acl public-read

@@ -8,7 +8,7 @@
 
 |||
 |:--|:-:|
-|$x$| 标量（整数或实数）|
+|$x$| 标量|
 |$\boldsymbol{x}$|向量|
 |$\boldsymbol{X}$|矩阵|
 |$\mathsf{X}$|张量|
@@ -21,7 +21,7 @@
 |$\mathcal{X}$|集合|
 |$\mathbb{R}$|实数集合|
 |$\mathbb{R}^n$|$n$维的实数向量集合|
-|$\mathbb{R}^{x \times y}$|$x \times y$维的实数矩阵集合|
+|$\mathbb{R}^{x \times y}$|$x$行$y$列的实数矩阵集合|
 
 
 ## 操作符
@@ -62,7 +62,7 @@
 |$\mathbb{P}(\cdot)$|概率分布|
 |$\cdot \sim \mathbb{P}$|随机变量$\cdot$的概率分布是$\mathbb{P}$|
 |$\mathbb{P}(\cdot \mid \cdot)$|条件概率分布|
-|$\mathbb{E}_\cdot(f(\cdot))$|函数$f(\cdot)$对$\cdot$的数学期望|
+|$\mathbb{E}_\cdot\left(f(\cdot)\right)$|函数$f(\cdot)$对$\cdot$的数学期望|
 
 
 ## 复杂度

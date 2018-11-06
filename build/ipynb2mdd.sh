@@ -7,7 +7,7 @@ CH="ch.md"
 mkdir $MD
 
 # Collect files.
-cp index.md $MD/
+cp toc.rst $MD/
 cp -R img $MD/
 for f in chapter*/*; do
 	dir=$(dirname "$f")
@@ -29,7 +29,7 @@ for f in $MD/chapter*/*md; do
 	# Remove inner link. 
 	sed -i 's/\[\([^]]*\)\]([^\)]*.md)/\1/g' $f
 	# Refer pdf instead of svg.
-	sed -i s/\.svg/\.pdf/g $f
+	sed -i s/\\.svg/.pdf/g $f
 	# Refer img in the same level. 
 	sed -i 's/\](..\/img/\](img/g' $f
 	if [ "$f" != "$dir/index.md" ]; then
@@ -39,7 +39,7 @@ done
 
 # Convert svg to pdf.
 for f in $MD/img/*svg; do
-	rsvg-convert -f pdf -o "${f%%.*}.pdf" $f
+	rsvg-convert -f pdf -z 0.80 -o "${f%%.*}.pdf" $f
 	rm $f
 done
 
@@ -52,7 +52,7 @@ for f in $MD/chapter*/index.md; do
 	perl -i -0777 -pe 's/```eval_rst[^`]+```//ge' $chapter
 done
 
-chapters=$(python -c 'import mdd_utils; print(mdd_utils.get_chapters())' $MD/index.md)
+chapters=$(python -c 'import mdd_utils; print(mdd_utils.get_chapters())' $MD/toc.rst)
 i=1
 for chapter in $chapters; do
 	# Move matplotlib plots outside.
@@ -63,7 +63,13 @@ for chapter in $chapters; do
 	i=$((i + 1))		
 done
 
-rm $MD/index.md
+# Convert matplotlib-generated svg to pdf.
+for f in $MD/*_files/*svg; do
+	rsvg-convert -f pdf -z 0.80 -o "${f%%.*}.pdf" $f
+	rm $f
+done
+
+rm $MD/toc.rst
 
 # zip files.
 [ -e "$MD.zip" ] && rm "$MD.zip"

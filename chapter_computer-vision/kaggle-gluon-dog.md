@@ -5,9 +5,9 @@
 
 > https://www.kaggle.com/c/dog-breed-identification
 
-在这个比赛中，我们将识别120类不同品种的狗。这个比赛的数据集实际上是著名的ImageNet的子集数据集。和上一节CIFAR-10数据集中的图像不同，ImageNet数据集中的图像的高和宽更大，且大小不一。
+在这个比赛中，我们将识别120类不同品种的狗。这个比赛的数据集实际上是著名的ImageNet的子集数据集。和上一节的CIFAR-10数据集中的图像不同，ImageNet数据集中的图像更高更宽，且大小不一。
 
-图9.17展示了该比赛的网页信息。为了便于提交结果，请先在Kaggle网站上注册账号。
+图9.18展示了该比赛的网页信息。为了便于提交结果，请先在Kaggle网站上注册账号。
 
 ![狗的品种识别比赛的网页信息。比赛数据集可通过点击“Data”标签获取](../img/kaggle-dog.png)
 
@@ -15,6 +15,9 @@
 首先，导入实验所需的包或模块。
 
 ```{.python .input}
+import sys
+sys.path.insert(0, '..')
+
 import collections
 import datetime
 import gluonbook as gb
@@ -28,18 +31,18 @@ import zipfile
 
 ## 获取数据集
 
-比赛数据分为训练数据集和测试数据集。训练集包含10,222张图片。测试集包含10,357张图片。两个数据集中的图片格式都是jpg。这些图片都含有RGB三个通道（彩色），高和宽的大小不一。训练集中狗的类别共有120种，例如拉布拉多、贵宾、腊肠、萨摩耶、哈士奇、吉娃娃和约克夏。
+比赛数据分为训练数据集和测试数据集。训练集了包含10,222张图像，测试集了包含10,357张图像。两个数据集中的图像格式都是JPEG。这些图像都含有RGB三个通道（彩色），高和宽的大小不一。训练集中狗的类别共有120种，例如拉布拉多、贵宾、腊肠、萨摩耶、哈士奇、吉娃娃和约克夏等。
 
 ### 下载数据集
 
-登录Kaggle后，我们可以点击图9.17所示的狗的品种识别比赛网页上的“Data”标签，并分别下载训练数据集“train.zip”、测试数据集“test.zip”和训练数据集标签“label.csv.zip”。下载完成后，将它们分别存放在以下路径：
+登录Kaggle后，我们可以点击图9.18所示的狗的品种识别比赛网页上的“Data”标签，并分别下载训练数据集“train.zip”、测试数据集“test.zip”和训练数据集标签“label.csv.zip”。下载完成后，将它们分别存放在以下路径：
 
 * ../data/kaggle_dog/train.zip
 * ../data/kaggle_dog/test.zip
 * ../data/kaggle_dog/labels.csv.zip
 
 
-为方便快速上手，我们提供了上述数据集的小规模采样“train_valid_test_tiny.zip”。如果你将使用上述Kaggle比赛的完整数据集，还需要把下面`demo`变量改为`False`。
+为方便快速上手，我们提供了上述数据集的小规模采样“train_valid_test_tiny.zip”。如果你要使用上述Kaggle比赛的完整数据集，还需要把下面`demo`变量改为`False`。
 
 ```{.python .input  n=1}
 # 如果使用下载的 Kaggle 比赛的完整数据集，把下面改为 False。
@@ -47,9 +50,9 @@ demo = True
 data_dir = '../data/kaggle_dog'
 
 if demo:
-    zipfiles= ['train_valid_test_tiny.zip']
+    zipfiles = ['train_valid_test_tiny.zip']
 else:
-    zipfiles= ['train.zip', 'test.zip', 'labels.csv.zip']
+    zipfiles = ['train.zip', 'test.zip', 'labels.csv.zip']
 
 for f in zipfiles:
     with zipfile.ZipFile(data_dir + '/' + f, 'r') as z:
@@ -58,7 +61,7 @@ for f in zipfiles:
 
 ### 整理数据集
 
-我们定义下面的`reorg_dog_data`函数来整理Kaggle比赛的完整数据集。整理后，同一类狗的图片将被放在同一个文件夹下，便于我们稍后读取。
+我们定义下面的`reorg_dog_data`函数来整理Kaggle比赛的完整数据集。经过整理后，同一类狗的图像将被放在同一个文件夹下，便于我们稍后读取。
 该函数中的参数`valid_ratio`是验证集中每类狗的样本数与原始训练集中数量最少一类的狗的样本数（66）之比。
 
 ```{.python .input  n=2}
@@ -106,36 +109,31 @@ def reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir,
                     os.path.join(data_dir, input_dir, 'test', 'unknown'))
 ```
 
-由于我们在这里仅仅使用小数据集，于是将批量大小设为1。在实际训练和测试时，我们应使用Kaggle比赛的完整数据集并调用`reorg_dog_data`函数整理数据集。相应地，我们也需要将批量大小`batch_size`设为一个较大的整数，例如128。
+由于我们在这里使用了小数据集，所以将批量大小设为1。在实际训练和测试时，我们应使用Kaggle比赛的完整数据集并调用`reorg_dog_data`函数整理数据集。相应地，我们也需要将批量大小`batch_size`设为一个较大的整数，例如128。
 
 ```{.python .input  n=3}
 if demo:
-    # 注意：此处使用小数据集。
-    input_dir = 'train_valid_test_tiny'
-    # 注意：此处将批量大小相应设小。使用 Kaggle 比赛的完整数据集时可设较大整数。
-    batch_size = 1
+    # 注意：此处使用小数据集并将批量大小相应设小。使用 Kaggle 比赛的完整数据集时可设批量大
+    # 小为较大整数。
+    input_dir, batch_size = 'train_valid_test_tiny', 1
 else:
-    label_file = 'labels.csv'
-    train_dir = 'train'
-    test_dir = 'test'
-    input_dir = 'train_valid_test'
-    batch_size = 128
-    valid_ratio = 0.1
+    label_file, train_dir, test_dir = 'labels.csv', 'train', 'test'
+    input_dir, batch_size, valid_ratio = 'train_valid_test', 128, 0.1
     reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir, 
                    valid_ratio)
 ```
 
-## 图片增广
+## 图像增广
 
-为应对过拟合，我们在这里使用`transforms`来增广数据集。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图片做镜面反转。我们也通过`transforms.Normalize()`对彩色图像RGB三个通道分别做标准化。以下列举了部分操作。这些操作可以根据需求来决定是否使用或修改。
+为应对过拟合，我们在这里使用`transforms`来增广数据集。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图像做镜面翻转。我们也通过`transforms.Normalize()`对彩色图像的RGB三个通道分别做标准化。以下列举了其中的部分操作。你可以根据需求来决定是否使用或修改这些操作。
 
 ```{.python .input  n=4}
 transform_train = gdata.vision.transforms.Compose([
-    # 随机对图片裁剪出面积为原图片面积 0.08 到 1 倍之间、且高和宽之比在 3/4 和 4/3 之间
-    # 的图片，再放缩为高和宽均为 224 像素的新图片。
+    # 随机对图像裁剪出面积为原图像面积 0.08 到 1 倍之间、且高和宽之比在 3/4 和 4/3 之间
+    # 的图像，再放缩为高和宽均为 224 像素的新图像。
     gdata.vision.transforms.RandomResizedCrop(224, scale=(0.08, 1.0),
                                               ratio=(3.0/4.0, 4.0/3.0)),
-    # 随机左右翻转图片。
+    # 随机左右翻转图像。
     gdata.vision.transforms.RandomFlipLeftRight(),
     # 随机抖动亮度、对比度和饱和度。
     gdata.vision.transforms.RandomColorJitter(brightness=0.4, contrast=0.4,
@@ -143,26 +141,24 @@ transform_train = gdata.vision.transforms.Compose([
     # 随机加噪音。
     gdata.vision.transforms.RandomLighting(0.1),
     
-    # 将图片像素值按比例缩小到 0 和 1 之间，并将数据格式从“高 * 宽 * 通道”改为
+    # 将图像像素值按比例缩小到 0 和 1 之间，并将数据格式从“高 * 宽 * 通道”改为
     # “通道 * 高 * 宽”。
     gdata.vision.transforms.ToTensor(),
-    # 对图片的每个通道做标准化。
+    # 对图像的每个通道做标准化。
     gdata.vision.transforms.Normalize([0.485, 0.456, 0.406],
-                                      [0.229, 0.224, 0.225])
-])
+                                      [0.229, 0.224, 0.225])])
 
 # 测试时，只使用确定性的图像预处理操作。
 transform_test = gdata.vision.transforms.Compose([
     gdata.vision.transforms.Resize(256),
-    # 将图片中央的高和宽均为 224 的正方形区域裁剪出来。
+    # 将图像中央的高和宽均为 224 的正方形区域裁剪出来。
     gdata.vision.transforms.CenterCrop(224),
     gdata.vision.transforms.ToTensor(),
     gdata.vision.transforms.Normalize([0.485, 0.456, 0.406],
-                                      [0.229, 0.224, 0.225])
-])
+                                      [0.229, 0.224, 0.225])])
 ```
 
-接下来，我们可以使用`ImageFolderDataset`类来读取整理后的数据集，其中每个数据样本包括图像和标签。需要注意的是，我们要在`DataLoader`中调用刚刚定义好的图片增广函数。其中`transform_first`函数指明对每个数据样本中的图像做数据增广。
+接下来，我们可以使用`ImageFolderDataset`类来读取整理后的数据集，其中的每个数据样本均包括图像和标签。需要注意的是，我们要在`DataLoader`中调用刚刚定义好的图像增广函数，其中的`transform_first`函数指明对每个数据样本中的图像做数据增广。
 
 ```{.python .input  n=5}
 # 读取原始图像文件。flag=1 说明输入图像有三个通道（彩色）。
@@ -187,9 +183,9 @@ test_data = gdata.DataLoader(test_ds.transform_first(transform_test),
 
 ## 定义模型并使用微调
 
-这个比赛的数据属于ImageNet数据集的子集，因此我们可以应用[“微调”](fine-tuning.md)一节中介绍的思路，选用在ImageNet完整数据集上预训练过的模型，并通过微调在比赛数据集上进行训练。Gluon提供了丰富的预训练模型，我们在这里以预训练过的ResNet-34模型为例。由于比赛数据集属于预训练数据集的子集，我们可以重用预训练模型在输出层的输入（即特征），并将原输出层替换成新的可以训练的小规模输出网络，例如两个串联的全连接层。由于预训练模型的参数在训练中是固定的，我们既节约了它们的训练时间，又节省了存储它们梯度所需的空间。
+这个比赛的数据属于ImageNet数据集的子集，因此我们可以使用[“微调”](fine-tuning.md)一节中介绍的思路，选用在ImageNet完整数据集上预训练过的模型，并通过微调在比赛数据集上进行训练。Gluon提供了丰富的预训练模型，我们在这里以预训练过的ResNet-34模型为例。由于比赛数据集属于预训练数据集的子集，因此我们可以重用预训练模型在输出层的输入（即特征），并将原输出层替换成新的可以训练的小规模输出网络，例如两个串联的全连接层。由于预训练模型的参数在训练中是固定的，我们既节省了训练它们的时间，又节省了存储它们的梯度所需的空间。
 
-需要注意的是，我们在图片增广中使用了ImageNet数据集上RGB三个通道的均值和标准差做标准化，这和预训练模型所做的标准化是一致的。
+需要注意的是，我们在图像增广中使用了ImageNet数据集上RGB三个通道的均值和标准差做标准化，这和预训练模型所做的标准化是一致的。
 
 ```{.python .input  n=6}
 def get_net(ctx):
@@ -209,7 +205,7 @@ def get_net(ctx):
 
 ## 定义训练函数
 
-我们将依赖模型在验证集上的表现来选择模型并调节超参数。模型的训练函数`train`只会训练我们定义的输出网络。我们记录了每个迭代周期的训练时间。这有助于比较不同模型的时间开销。
+我们将依赖模型在验证集上的表现来选择模型并调节超参数。模型的训练函数`train`只会训练我们定义的输出网络。我们记录了每个迭代周期的训练时间，这有助于比较不同模型的时间开销。
 
 ```{.python .input  n=7}
 loss = gloss.SoftmaxCrossEntropyLoss()
@@ -254,30 +250,21 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
         if valid_data is not None:
             valid_loss = get_loss(valid_data, net, ctx)
             epoch_s = ("epoch %d, train loss %f, valid loss %f, "
-                       % (epoch, train_l / len(train_data), valid_loss))
+                       % (epoch + 1, train_l / len(train_data), valid_loss))
         else:
             epoch_s = ("epoch %d, train loss %f, "
-                       % (epoch, train_l / len(train_data)))
+                       % (epoch + 1, train_l / len(train_data)))
         prev_time = cur_time
         print(epoch_s + time_s + ', lr ' + str(trainer.learning_rate))
 ```
 
 ## 训练并验证模型
 
-现在，我们可以训练并验证模型了。以下的超参数都是可以调节的，例如增加迭代周期。
+现在，我们可以训练并验证模型了。以下的超参数都是可以调节的，例如增加迭代周期等。由于`lr_period`和`lr_decay`分别设为10和0.1，优化算法的学习率将在每10个迭代周期后自乘0.1。
 
 ```{.python .input  n=9}
-ctx = gb.try_gpu()
-num_epochs = 1
-# 学习率。
-lr = 0.01
-# 权重衰减参数。
-wd = 1e-4
-# 优化算法的学习率将在每 10 个迭代周期时自乘 0.1。
-lr_period = 10
-lr_decay = 0.1
-
-net = get_net(ctx)
+ctx, num_epochs, lr, wd = gb.try_gpu(), 1, 0.01, 1e-4
+lr_period, lr_decay, net = 10, 0.1, get_net(ctx)
 net.hybridize()
 train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
       lr_decay)

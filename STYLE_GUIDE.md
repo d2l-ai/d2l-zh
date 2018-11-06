@@ -15,13 +15,15 @@
     * 使用中文双引号
 * 符号描述
     * 时刻t（不是t时刻）
+	* 形状使用中文标点
+		*（10，20）不是(10, 20)
 * 人称
     * 第一人称 → 我们
     * 第二人称 → 你、大家
 * 工具或部件
-    * Gluon, MXNet, NumPy, NDArray, Symbol, Block, HybridBlock, ResNet-18, Fashion-MNIST
+    * Gluon, MXNet, NumPy, spaCy, NDArray, Symbol, Block, HybridBlock, ResNet-18, Fashion-MNIST, matplotlib
         * 这些都作为词，不要带重音符
-    * Dense类/实例, Sequential类/实例, HybridSequential类/实例
+    * Sequential类/实例, HybridSequential类/实例
         * 不要带重音符
     * `backward`函数
         * 不是“`backward()`函数” （不要带括号）
@@ -60,7 +62,7 @@
 ## 图片
 
 * 软件
-    * 使用OmniGraffle制图，以80%的大小导出pdf（infinite canvas），再使用pdf2svg转成svg
+    * 使用OmniGraffle制图，以100%的大小导出pdf（infinite canvas），再使用pdf2svg转成svg
 * 样式
     * 格式：
         * svg
@@ -72,6 +74,7 @@
     * 粗细：
         * StickArrow
         * 1pt
+		* arrow head size: 50%
     * 字体：
         * 英文：Arial, 9pt（下标：7pt）
         * 中文：PingFang SC, 9pt
@@ -79,8 +82,8 @@
         * 非填充深蓝色（与黑相近）：
             * 5B7DAA
         * 填充蓝色（与黑对比）
-            * 深：C9E2FF
-            * 淡：EFF6FD
+            * 深：66BFFF
+            * 淡：B2D9FF
 * 版权
     * 不使用网络图片
 * 位置
@@ -99,6 +102,8 @@
 * Python规范一致
     * PEP8
         * 二元操作符换行：操作符和后一元一起换行 (https://www.python.org/dev/peps/pep-0008/#should-a-line-break-before-or-after-a-binary-operator)
+* 将相邻赋值语句尽可能合并为同一行
+	* 如 num_epochs, lr = 5, 0.1
 * 变量名一致
     * num_epochs
         * 迭代周期

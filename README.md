@@ -1,4 +1,4 @@
-# 通过MXNet/Gluon来动手学习深度学习
+# 动手学深度学习
 
 [![Build Status](http://ci.mxnet.io/job/gluon-tutorials-zh/badge/icon)](http://ci.mxnet.io/job/gluon-tutorials-zh/)
 
@@ -6,9 +6,10 @@
 
 请使用 [https://discuss.gluon.ai](https://discuss.gluon.ai) 讨论或报告问题。
 
+
 ## 如何贡献
 
-所有notebook是用markdown格式存储，这样方便merge改动。jupyter可以通过notedown来直接使用markdown，[参考这里安装](./chapter_preface/install.md#使用notedown插件来读写github源文件)
+所有notebook是用markdown格式存储，这样方便merge改动。jupyter可以通过notedown来直接使用markdown，[参考这里安装](./chapter_appendix/jupyter.md#用jupyter-notebook读写github源文件)
 
 build服务器在 http://ci.mxnet.io 。这台服务器有两块Nvidia M60。
 
@@ -20,7 +21,7 @@ build服务器在 http://ci.mxnet.io 。这台服务器有两块Nvidia M60。
 
 在本地可以如下build html（需要GPU支持）
 
-```{.python .input}
+```
 conda env update -f build/build.yml
 source activate gluon_zh_docs
 make html
@@ -30,7 +31,7 @@ make html
 
 如果没有改动notebook里面源代码，所以不想执行notebook，可以使用
 
-```{.python .input}
+```
 make html EVAL=0
 ```
 
@@ -40,12 +41,12 @@ make html EVAL=0
 
 编译pdf版本需要xelatex、librsvg2-bin（svg图片转pdf）和思源字体。在Ubuntu可以这样安装。
 
-```{.python .input}
+```
 sudo apt-get install texlive-full
 sudo apt-get install librsvg2-bin
 ```
 
-```{.python .input}
+```
 wget https://github.com/adobe-fonts/source-han-sans/raw/release/OTF/SourceHanSansSC.zip
 wget https://github.com/adobe-fonts/source-han-serif/raw/release/OTF/SourceHanSerifSC_SB-H.zip
 wget https://github.com/adobe-fonts/source-han-serif/raw/release/OTF/SourceHanSerifSC_EL-M.zip
@@ -80,21 +81,19 @@ sudo fc-cache -f -v
 
 然后可以编译了。
 
-```{.python .input}
+```
 make pdf
 ```
 
 ## 其他安装
 
-
-```{.python .input}
+```
 python -m spacy download en # 需已 pip install spacy
 ```
 
 ## 样式规范
 
 贡献请遵照本教程的[样式规范](STYLE_GUIDE.md)。
-
 
 ## 中英文术语对照
 

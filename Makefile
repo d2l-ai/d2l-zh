@@ -33,30 +33,24 @@ build/%: %
 
 html: $(DEPS) $(OBJ)
 	make -C build html
-	bash build/htaccess.sh build/_build/html/
-	cp build/tencent1668843323268181422.txt build/_build/html/tencent1668843323268181422.txt
+	cp build/index.html build/_build/html/
+	cp -r img/frontpage/ build/_build/html/_images/
 
 TEX=build/_build/latex/gluon_tutorials_zh.tex
 
-SVG=$(wildcard img/*.svg)
-GIF=$(wildcard img/*.gif)
-
 build/_build/latex/%.pdf: img/%.svg
 	@mkdir -p $(@D)
-	rsvg-convert -f pdf -o $@ $<
+	rsvg-convert -f pdf -z 0.80 -o $@ $<
 
-build/_build/latex/%_00.pdf: img/%_00.pdf
-	@mkdir -p $(@D)
-	cp $< $@
+SVG=$(wildcard img/*.svg)
 
-PDFIMG = $(patsubst img/%.svg, build/_build/latex/%.pdf, $(SVG)) \
-	$(patsubst img/%.gif, build/_build/latex/%_00.pdf, $(GIF))
+PDFIMG = $(patsubst img/%.svg, build/_build/latex/%.pdf, $(SVG))
 
 pdf: $(DEPS) $(OBJ) $(PDFIMG)
 	@echo $(PDFIMG)
 	make -C build latex
-	sed -i s/\.svg/\.pdf/g $(TEX)
-	sed -i s/\}\.gif/\_00\}.pdf/g $(TEX)
+	sed -i s/\\.svg/.pdf/g ${TEX}
+	sed -i s/\}\\.gif/\_00\}.pdf/g $(TEX)
 	sed -i s/{tocdepth}{0}/{tocdepth}{1}/g $(TEX)
 	sed -i s/{\\\\releasename}{发布}/{\\\\releasename}{}/g $(TEX)
 	sed -i s/{OriginalVerbatim}\\\[commandchars=\\\\\\\\\\\\{\\\\}\\\]/{OriginalVerbatim}\\\[commandchars=\\\\\\\\\\\\{\\\\},formatcom=\\\\footnotesize\\\]/g $(TEX)
@@ -66,6 +60,7 @@ pdf: $(DEPS) $(OBJ) $(PDFIMG)
 	sed -i /\\\\sphinxtablecontinued{Continued\ on\ next\ page}/d $(TEX)
 	sed -i /{\\\\tablename\\\\\ \\\\thetable{}\ --\ continued\ from\ previous\ page}/d $(TEX)
 	cd build/_build/latex && \
+	bash ../../convert_output_svg.sh && \
 	buf_size=10000000 xelatex gluon_tutorials_zh.tex && \
 	buf_size=10000000 xelatex gluon_tutorials_zh.tex
 
