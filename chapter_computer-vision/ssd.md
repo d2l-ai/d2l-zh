@@ -5,7 +5,7 @@
 
 ## 模型
 
-图9.4描述了SSD模型的设计。它主要由一个基础网络块和若干个多尺度特征块串联而成。其中基础网络块可以是一个卷积神经网络，例如在分类层之前截断的VGG。我们可以设计基础网络，使它输出的高和宽较大。这样一来，基于该特征图生成的锚框数量较多，可以用来检测尺寸较小的目标。接下来的每个多尺度特征块将上一层提供的特征图的高和宽缩小（例如减半），并使特征图中每个单元在输入图像上的感受野变得更广阔。如此一来，图9.4中越靠近顶部的多尺度特征块输出的特征图越小，基于特征图生成的锚框故而也越少，加之特征图中每个单元感受野越大，因此更适合检测尺寸较大的目标。由于SSD基于基础网络块和各个多尺度特征块生成不同数量和不同大小的锚框，并通过预测锚框的类别和偏移量（即预测边界框）检测不同大小的目标，因此SSD是一个多尺度的目标检测模型。
+图9.4描述了SSD模型的设计。它主要由一个基础网络块和若干个多尺度特征块串联而成。其中基础网络块用来从原始图像抽取特征，一般会选择常用的深度卷积神经网络。SSD论文中选用了在分类层之前截断的VGG [1]，现在也常用ResNet替代。我们可以设计基础网络，使它输出的高和宽较大。这样一来，基于该特征图生成的锚框数量较多，可以用来检测尺寸较小的目标。接下来的每个多尺度特征块将上一层提供的特征图的高和宽缩小（例如减半），并使特征图中每个单元在输入图像上的感受野变得更广阔。如此一来，图9.4中越靠近顶部的多尺度特征块输出的特征图越小，基于特征图生成的锚框故而也越少，加之特征图中每个单元感受野越大，因此更适合检测尺寸较大的目标。由于SSD基于基础网络块和各个多尺度特征块生成不同数量和不同大小的锚框，并通过预测锚框的类别和偏移量（即预测边界框）检测不同大小的目标，因此SSD是一个多尺度的目标检测模型。
 
 ![SSD模型主要由一个基础网络块和若干多尺度特征块串联而成。](../img/ssd.svg)
 
@@ -99,7 +99,7 @@ forward(nd.zeros((2, 3, 20, 20)), down_sample_blk(10)).shape
 
 ### 基础网络块
 
-基础网络块用来从原始图像抽取特征，一般会选择常用的深度卷积神经网络。SSD论文中选用了在分类层之前截断的VGG [1]，现在也常用ResNet替代。为了计算简洁，我们在这里构造一个小的基础网络。该网络串联三个高和宽减半块，并逐步将通道数翻倍。当输入的原始图像的形状为$256\times256$时，基础网络块输出的特征图的形状为$32 \times 32$。
+基础网络块用来从原始图像抽取特征。为了计算简洁，我们在这里构造一个小的基础网络。该网络串联三个高和宽减半块，并逐步将通道数翻倍。当输入的原始图像的形状为$256\times256$时，基础网络块输出的特征图的形状为$32 \times 32$。
 
 ```{.python .input  n=9}
 def base_net():
@@ -113,7 +113,7 @@ forward(nd.zeros((2, 3, 256, 256)), base_net()).shape
 
 ### 完整的模型
 
-我们已经介绍了SSD模型中的各个功能模块，现在我们将构建整个模型。这个模型有五个模块，每个模块对输入进行特征抽取，并且预测锚框的类和偏移。第一个模块使用主体网络，第二到四模块使用减半模块，最后一个模块则使用全局的最大池化层来将高宽降到1。下面函数定义如何构建这些模块。
+SSD模型一共包含五个模块，每个模块输出的特征图既用来生成锚框，又用来预测这些锚框的类别和偏移量。第一模块为基础网络块，第二至第四模块为高和宽减半块，第五模块使用全局最大池化层将高和宽降到1。因此第二至第五模块均为图9.4中的多尺度特征块。
 
 ```{.python .input  n=10}
 def get_blk(i):
@@ -126,18 +126,18 @@ def get_blk(i):
     return blk
 ```
 
-接下来我们定义每个模块如何进行前向计算。它跟之前的卷积神经网络不同在于，我们不仅输出卷积块的输出，而且还返回在输出上生成的锚框，以及每个锚框的类别预测和偏移预测。
+接下来我们定义每个模块如何进行前向计算。跟之前介绍的卷积神经网络不同，这里不仅返回卷积计算输出的特征图`Y`，还返回根据`Y`生成的当前尺度的锚框，以及基于`Y`预测的锚框类别和偏移量。
 
 ```{.python .input  n=11}
 def blk_forward(X, blk, size, ratio, cls_predictor, bbox_predictor):
     Y = blk(X)
-    anchor = contrib.ndarray.MultiBoxPrior(Y, sizes=size, ratios=ratio)
-    cls_pred = cls_predictor(Y)
-    bbox_pred = bbox_predictor(Y)
-    return (Y, anchor, cls_pred, bbox_pred)
+    anchors = contrib.ndarray.MultiBoxPrior(Y, sizes=size, ratios=ratio)
+    cls_preds = cls_predictor(Y)
+    bbox_preds = bbox_predictor(Y)
+    return (Y, anchors, cls_preds, bbox_preds)
 ```
 
-对每个模块我们要定义其输出上的锚框如何生成。比例固定成1、2和0.5，但大小上则不同，用于覆盖不同的尺度。
+我们提到，图9.4中较靠近顶部的多尺度特征块用来检测尺寸较大的目标，因此需要生成较大的锚框。我们在这里先将0.2到1.05之间均分五份，以确定不同尺度下锚框大小的较小值0.2、0.37、0.54等，再按$\sqrt{0.2 \times 0.37} = 0.272$、$\sqrt{0.37 \times 0.54} = 0.447$等确定不同尺度下锚框大小的较大值。
 
 ```{.python .input  n=12}
 sizes = [[0.2, 0.272], [0.37, 0.447], [0.54, 0.619], [0.71, 0.79],
@@ -146,7 +146,7 @@ ratios = [[1, 2, 0.5]] * 5
 num_anchors = len(sizes[0]) + len(ratios[0]) - 1
 ```
 
-完整的模型定义如下。
+现在，我们可以定义出完整的模型`TinySSD`了。
 
 ```{.python .input  n=13}
 class TinySSD(nn.Block):
@@ -154,6 +154,7 @@ class TinySSD(nn.Block):
         super(TinySSD, self).__init__(**kwargs)
         self.num_classes = num_classes
         for i in range(5):
+            # 即赋值语句 self.blk_i = get_blk(i)。
             setattr(self, 'blk_%d' % i, get_blk(i))
             setattr(self, 'cls_%d' % i, cls_predictor(num_anchors,
                                                       num_classes))
@@ -162,41 +163,45 @@ class TinySSD(nn.Block):
     def forward(self, X):
         anchors, cls_preds, bbox_preds = [None] * 5, [None] * 5, [None] * 5
         for i in range(5):
+            # getattr(self, 'blk_%d' % i) 即访问 self.blk_i。
             X, anchors[i], cls_preds[i], bbox_preds[i] = blk_forward(
                 X, getattr(self, 'blk_%d' % i), sizes[i], ratios[i],
                 getattr(self, 'cls_%d' % i), getattr(self, 'bbox_%d' % i))
-        # 每个模块的锚框需要连结。
+        # reshape 函数中的 0 表示保持批量大小不变。
         return (nd.concat(*anchors, dim=1),
                 concat_preds(cls_preds).reshape(
                     (0, -1, self.num_classes + 1)), concat_preds(bbox_preds))
+```
 
+我们创建SSD模型实例并对一个高和宽均为256像素的小批量图像`X`做前向计算。我们在之前验证过，第一模块输出的特征图的形状为$32 \times 32$。由于第二至第四模块为高和宽减半块、第五模块为全局池化层，并且以特征图每个单元为中心生成4个锚框，每个图像在5个尺度下生成的锚框总数为$(32^2 + 16^2 + 8^2 + 4^2 + 1)\times 4 = 5444$。
 
+```{.python .input}
 net = TinySSD(num_classes=1)
 net.initialize()
 X = nd.zeros((32, 3, 256, 256))
 anchors, cls_preds, bbox_preds = net(X)
 
 print('output anchors:', anchors.shape)
-print('output class predictions:', cls_preds.shape)
-print('output box predictions:', bbox_preds.shape)
+print('output class preds:', cls_preds.shape)
+print('output bbox preds:', bbox_preds.shape)
 ```
 
 ## 训练
 
 下面我们描述如何一步步训练SSD模型来进行目标检测。
 
-### 读取数据和初始化训练
+### 读取数据和初始化
 
-我们使用之前构造的皮卡丘数据集。
+我们读取之前构造的皮卡丘数据集。
 
 ```{.python .input  n=14}
 batch_size = 32
 train_data, test_data = gb.load_data_pikachu(batch_size)
-# GPU 实现里要求每张图像至少有三个边界框，我们加上两个标号为 -1 的边界框。
+# 为保证 GPU 计算效率，这里为每张训练图像填充了两个标签为 -1 的边界框。
 train_data.reshape(label_shape=(3, 5))
 ```
 
-模型和训练器的初始化跟之前类似。
+在皮卡丘数据集中，目标的类别数为1。定义好模型以后，我们需要初始化模型参数并定义优化算法。
 
 ```{.python .input  n=15}
 ctx, net = gb.try_gpu(), TinySSD(num_classes=1)
@@ -205,36 +210,34 @@ trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate': 0.2, 'wd': 5e-4})
 ```
 
-### 损失和评估函数
+### 定义损失和评价函数
 
-目标检测有两个损失函数，一是对每个锚框的类别预测，我们可以重用之前图像分类问题里一直使用的Softmax和交叉熵损失。二是正类锚框的偏移预测。它是一个回归问题，但我们这里不使用前面介绍过的L2损失函数，而是使用惩罚相对更小的线性L1损失函数，即$l_1(\hat y, y) = |\hat y - y|$。
+目标检测有两个损失。一是有关锚框类别的损失。我们可以重用之前图像分类问题里一直使用的交叉熵损失函数。二是有关正类锚框偏移量的损失。预测偏移量是一个回归问题，但这里不使用前面介绍过的平方损失，而使用$L_1$范数损失，即预测值与真实值之间差的绝对值。掩码变量`bbox_masks`令负类锚框和填充锚框不参与损失的计算。最后，我们将有关锚框类别和偏移量的损失相加得到模型的最终损失函数。
 
 ```{.python .input  n=16}
 cls_loss = gloss.SoftmaxCrossEntropyLoss()
 bbox_loss = gloss.L1Loss()
-```
 
-```{.python .input  n=17}
 def calc_loss(cls_preds, cls_labels, bbox_preds, bbox_labels, bbox_masks):
     cls = cls_loss(cls_preds, cls_labels)
     bbox = bbox_loss(bbox_preds * bbox_masks, bbox_labels * bbox_masks)
     return cls + bbox
 ```
 
-对于分类好坏我们可以沿用之前的分类精度。因为使用了L1损失，我们用平均绝对误差评估边框预测的性能。
+我们可以沿用准确率评价分类结果。因为使用了$L_1$范数损失，我们用平均绝对误差评价边界框的预测结果。
 
 ```{.python .input  n=18}
-def cls_metric(cls_preds, cls_labels):
-    # 注意这里类别预测结果放在最后一维，argmax 的时候指定使用最后一维。
+def cls_eval(cls_preds, cls_labels):
+    # 由于类别预测结果放在最后一维，argmax 需要指定最后一维。
     return (cls_preds.argmax(axis=-1) == cls_labels).mean().asscalar()
 
-def bbox_metric(bbox_preds, bbox_labels, bbox_masks):
+def bbox_eval(bbox_preds, bbox_labels, bbox_masks):
     return ((bbox_labels - bbox_preds) * bbox_masks).abs().mean().asscalar()
 ```
 
 ### 训练模型
 
-训练函数跟前面的不一样在于网络会有多个输出，而且有两个损失函数。为了代码简单起见我们没有评估测试数据集。
+在训练模型时，我们需要在模型的前向计算过程中生成多尺度的锚框`anchors`，并为每个锚框预测类别`cls_preds`和偏移量`bbox_preds`。之后，我们根据标签信息`Y`为生成的每个锚框标注类别`cls_labels`和偏移量`bbox_labels`。最后，我们根据类别和偏移量的预测和标注值计算损失函数。为了代码简洁，这里没有评价测试数据集。
 
 ```{.python .input  n=19}
 for epoch in range(20):
@@ -242,24 +245,21 @@ for epoch in range(20):
     train_data.reset()  # 从头读取数据。
     start = time.time()
     for i, batch in enumerate(train_data):
-        # 复制数据到 GPU。
         X = batch.data[0].as_in_context(ctx)
         Y = batch.label[0].as_in_context(ctx)
         with autograd.record():
-            # 对每个锚框预测输出。
+            # 生成多尺度的锚框，为每个锚框预测类别和偏移量。
             anchors, cls_preds, bbox_preds = net(X)
-            # 对每个锚框生成标号。
+            # 为每个锚框标注类别和偏移量。
             bbox_labels, bbox_masks, cls_labels = contrib.nd.MultiBoxTarget(
                 anchors, Y, cls_preds.transpose((0, 2, 1)))
-            # 计算类别预测和边界框预测损失。
+            # 根据类别和偏移量的预测和标注值计算损失函数。
             l = calc_loss(cls_preds, cls_labels, bbox_preds, bbox_labels,
                           bbox_masks)
-        # 计算梯度和更新模型。
         l.backward()
         trainer.step(batch_size)
-        # 更新类别预测和边界框预测评估。
-        acc += cls_metric(cls_preds, cls_labels)
-        mae += bbox_metric(bbox_preds, bbox_labels, bbox_masks)
+        acc += cls_eval(cls_preds, cls_labels)
+        mae += bbox_eval(bbox_preds, bbox_labels, bbox_masks)
     if (epoch + 1) % 5 == 0:
         print('epoch %2d, class err %.2e, bbox mae %.2e, time %.1f sec' % (
             epoch + 1, 1 - acc / (i + 1), mae / (i + 1), time.time() - start))
@@ -267,7 +267,7 @@ for epoch in range(20):
 
 ## 预测
 
-在预测阶段，我们希望能把图像里面所有感兴趣的目标找出来。我们首先定义一个图像预处理函数，它对图像进行变换然后转成卷积层需要的四维格式。
+在预测阶段，我们希望能把图像里面所有感兴趣的目标检测出来。下面读取测试图像，将其变换尺寸，然后转成卷积层需要的四维格式。
 
 ```{.python .input  n=20}
 img = image.imread('../img/pikachu.jpg')
@@ -275,7 +275,7 @@ feature = image.imresize(img, 256, 256).astype('float32')
 X = feature.transpose((2, 0, 1)).expand_dims(axis=0)
 ```
 
-在预测的时候，我们通过`MultiBoxDetection`函数来合并预测偏移和锚框得到预测边界框，并使用NMS去除重复的预测边界框。
+我们通过`MultiBoxDetection`函数根据锚框及其预测偏移量得到预测边界框，并通过非极大值抑制移除相似的预测边界框。
 
 ```{.python .input  n=21}
 def predict(X):
@@ -288,7 +288,7 @@ def predict(X):
 output = predict(X)
 ```
 
-最后我们将预测出置信度超过某个阈值的边框画出来：
+最后，我们将置信度不低于0.3的边界框筛选为最终输出用以展示。
 
 ```{.python .input  n=22}
 gb.set_figsize((5, 5))
@@ -308,25 +308,29 @@ display(img, output, threshold=0.3)
 
 ## 小结
 
-* SSD在多尺度上对每个锚框同时预测类别以及与真实边界框的位移来进行目标检测。
+* SSD是一个多尺度的目标检测模型。该模型基于基础网络块和各个多尺度特征块生成不同数量和不同大小的锚框，并通过预测锚框的类别和偏移量检测不同大小的目标。
+* SSD在训练中根据类别和偏移量的预测和标注值计算损失函数。
+
+
 
 ## 练习
 
-* 限于篇幅原因我们忽略了SSD实现的许多细节。我们将选取其中数个作为练习。
+* 限于篇幅原因，实验中忽略了SSD的一些实现细节。你能从以下几个方面进一步改进模型吗？
+
 
 ### 损失函数
 
-边界框预测时使用了$L_1$损失，但这个函数在0点处导数不唯一，因此可能会影响收敛。一个常用改进是在0点附近使用平方函数使得它更加平滑。它被称之为平滑$L_1$损失函数。它通过一个参数$\sigma$来控制平滑的区域：
+将预测偏移量用到的$L_1$范数损失替换为平滑$L_1$范数损失。它在零点附近使用平方函数从而更加平滑：这是通过一个超参数$\sigma$来控制平滑区域的：
 
 $$
 f(x) =
     \begin{cases}
-    (\sigma x)^2/2,& \text{if }x < 1/\sigma^2\\
+    (\sigma x)^2/2,& \text{if }|x| < 1/\sigma^2\\
     |x|-0.5/\sigma^2,& \text{otherwise}
     \end{cases}
 $$
 
-当$\sigma$很大时它类似于$L_1$损失，变小时函数更加平滑。
+当$\sigma$很大时该损失类似于$L_1$范数损失。当它较小时，损失函数较平滑。
 
 ```{.python .input  n=23}
 sigmas = [10, 1, 0.5]
@@ -340,11 +344,11 @@ for l, s in zip(lines, sigmas):
 gb.plt.legend();
 ```
 
-对于类别预测我们使用了交叉熵损失。假设对真实类别$j$的概率预测是$p_j$，交叉熵损失为$\log(p_j)$。我们可以使用一个被称为关注损失（focal loss）的函数来对之稍微变形。给定正的$\gamma$和$\alpha$，它的定义是
+在类别预测时，实验中使用了交叉熵损失：设真实类别$j$的预测概率是$p_j$，交叉熵损失为$-\log p_j$。我们还可以使用焦点损失（focal loss）[2]：给定正的超参数$\gamma$和$\alpha$，该损失的定义为
 
-$$ - \alpha (1-p_j)^{\gamma} \log(p_j) $$
+$$ - \alpha (1-p_j)^{\gamma} \log p_j.$$
 
-可以看到，增加$\gamma$可以减小正类预测值比较大时的损失。
+可以看到，增大$\gamma$可以有效减小正类预测概率较大时的损失。
 
 ```{.python .input  n=24}
 def focal_loss(gamma, x):
@@ -359,13 +363,10 @@ gb.plt.legend();
 
 ### 训练和预测
 
-* 当目标在图像中占比很小时，我们通常会使用比较大的输入图像尺寸。
-* 尝试分析不同尺寸上锚框的大小和比例是如何选取的。
-* 对锚框赋予标号时，通常会有大量的负类锚框。我们可以对负例采样来使得分类时数据更加平衡。这个可以通过设置`MultiBoxTarget`的参数来完成。
-* 分类和回归损失我们直接加起来了，并没有给予各自权重。
-* 训练中我们没有实现验证数据集的评估。
-* 目标检测算法好坏通常用用mAP（mean Average Precision）来评估，查找它的定义。
-* 在展示的时候如何选取阈值，特别是在修改训练算法时（例如增加迭代周期）。
+* 当目标在图像中占比较小时，模型通常会采用比较大的输入图像尺寸。
+* 为锚框标注类别时，通常会产生大量的负类锚框。我们可以对负类锚框采样，从而使数据类别更加平衡。这个可以通过设置`MultiBoxTarget`函数的`negative_mining_ratio`参数来完成。
+* 在损失函数中为有关锚框类别和有关正类锚框偏移量的损失分别赋予不同的权重。
+* 参考SSD论文，还有哪些方法可以评价目标检测模型的精度 [1]？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2511)
@@ -375,3 +376,5 @@ gb.plt.legend();
 ## 参考文献
 
 [1] Liu, W., Anguelov, D., Erhan, D., Szegedy, C., Reed, S., Fu, C. Y., & Berg, A. C. (2016, October). Ssd: Single shot multibox detector. In European conference on computer vision (pp. 21-37). Springer, Cham.
+
+[2] Lin, T. Y., Goyal, P., Girshick, R., He, K., & Dollár, P. (2018). Focal loss for dense object detection. IEEE transactions on pattern analysis and machine intelligence.
