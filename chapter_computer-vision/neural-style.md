@@ -55,7 +55,7 @@ def postprocess(img):
 
 ## 抽取特征
 
-我们使用原论文使用的VGG-19模型，并下载在Imagenet上训练好的权重 [1]。
+我们使用原论文使用的VGG-19模型，并下载在ImageNet上训练好的权重 [1]。
 
 ```{.python .input  n=5}
 pretrained_net = model_zoo.vision.vgg19(pretrained=True)
