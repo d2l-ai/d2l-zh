@@ -83,10 +83,7 @@ Faster R-CNN 对Fast R-CNN做了进一步改进，它将Fast R-CNN中的选择�
 
 注意到RPN输出的是实数坐标的提议区域，在输入到RoI池化层时我们将实数坐标定点化成整数来确定区域中的像素。在计算过程中，我们将每个区域分割成多块然后同样定点化区域边缘到最近的像素上。这两步定点化会使得定点化后的边缘和原始区域中定义的有数个像素的偏差，这个对于边界框预测来说问题不大，但在像素级别的预测上则会带来麻烦。
 
-Mask R-CNN中提出了RoI对齐层（RoI Align）。它去掉了RoI池化层中的定点化过程，从而使得不管是输入的提议区域还是其分割区域的坐标均使用实数。如果边界不是整数，那么其元素值则通过相邻像素插值而来。例如假设对于整数$x$和$y$，坐标$(x,y)$上的值为$f(x,y)$。对于一般的实数坐标，我们先计算$f(x,\lfloor y \rfloor)$和$f(x,\lfloor y \rfloor+1)$，
-
-$$f(x,\lfloor y \rfloor) = (\lfloor x \rfloor + 1-x)f(\lfloor x \rfloor, \lfloor y \rfloor) + (x-\lfloor x \rfloor)f(\lfloor x \rfloor + 1, \lfloor y \rfloor),$$
-$$f(x,\lfloor y \rfloor+1) = (\lfloor x \rfloor + 1-x)f(\lfloor x \rfloor, \lfloor y \rfloor+1) + (x-\lfloor x \rfloor)f(\lfloor x \rfloor + 1, \lfloor y \rfloor+1).$$
+Mask R-CNN中提出了RoI对齐层（RoI Align）。它去掉了RoI池化层中的定点化过程，从而使得不管是输入的提议区域还是其分割区域的坐标均使用实数。如果边界不是整数，那么其元素值则通过相邻像素插值而来。
 
 然后有
 
