@@ -1,6 +1,6 @@
 # 全卷积网络（FCN）
 
-在图像分类里，我们通过卷积层和池化层逐渐减少图像高宽最终得到跟预测类别数一样长的向量。例如用于ImageNet分类的ResNet 18里，我们将高宽为224的输入图像首先减少到高宽7，然后使用全局池化层得到512维输出，最后使用全连接层输出长为1000的预测向量。
+在图像分类里，我们通过卷积层和池化层逐渐减少图像高宽最终得到跟预测类别数一样长的向量。例如用于ImageNet分类的ResNet-18里，我们将高宽为224的输入图像首先减少到高宽7，然后使用全局池化层得到512维输出，最后使用全连接层输出长为1000的预测向量。
 
 但在语义分割里，我们需要对每个像素预测类别，也就是需要输出形状需要是$1000\times 224\times 224$。如果仍然使用全连接层作为输出，那么这一层权重将多达数百GB。本小节我们将介绍利用卷积神经网络解决语义分割的一个开创性工作之一：全卷积网络（fully convolutional network，简称FCN）[1]。FCN里将最后的全连接层修改成转置卷积层（transposed convolution）来得到所需大小的输出。
 
@@ -12,6 +12,7 @@ sys.path.insert(0, '..')
 import gluonbook as gb
 from mxnet import gluon, image, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, model_zoo, nn
+from mxnet import nd
 import numpy as np
 import sys
 ```
@@ -19,6 +20,24 @@ import sys
 ## 转置卷积层
 
 假设$f$是一个卷积层，给定输入$x$，我们可以计算前向输出$y=f(x)$。在反向求导$z=\frac{\partial\, y}{\partial\,x}$时，我们知道$z$会得到跟$x$一样形状的输出。因为卷积运算的导数是自己本身，我们可以合法定义转置卷积层，记为$g$，为交换了前向和反向求导函数的卷积层。也就是$z=g(y)$。
+
+下面的例子描述我们如何将卷积计算转换成矩阵乘法。
+
+```{.python .input}
+X = nd.arange(1, 17).reshape((1, 1, 4, 4))
+K = nd.arange(1, 10).reshape((1, 1, 3, 3))
+conv = nn.Conv2D(channels=1, kernel_size=3)
+conv.initialize(init.Constant(K))
+
+conv(X), conv.weight.data()
+```
+
+```{.python .input}
+W, k = nd.zeros((4, 16)), nd.zeros(11)
+k[:3], k[4:7], k[8:] = K[0,0,0,:], K[0,0,1,:], K[0,0,2,:]
+W[0, 0:11], W[1, 1:12], W[2, 4:15], W[3, 5:16] = k, k, k, k
+nd.dot(W, X.reshape(16)).reshape((1, 1, 2, 2)), W
+```
 
 下面我们构造一个卷积层并打印它的输出形状。
 
@@ -43,11 +62,11 @@ conv_trans(y).shape
 
 ## FCN模型
 
-FCN的核心思想是将一个卷积网络的最后全连接输出层替换成转置卷积层来获取对每个输入像素的预测。具体来说，它去掉了过于损失空间信息的全局池化层，并将最后的全连接层替换成输出通道是原全连接层输出大小的$1\times 1$卷积层，最后接上转置卷积层来得到需要形状的输出。图9.10描述了FCN模型。
+FCN的核心思想是将一个卷积网络的最后全连接输出层替换成转置卷积层来获取对每个输入像素的预测。具体来说，它去掉了过于损失空间信息的全局池化层，并将最后的全连接层替换成输出通道是原全连接层输出大小的$1\times 1$卷积层，最后接上转置卷积层来得到需要形状的输出。图9.11描述了FCN模型。
 
 ![FCN模型。](../img/fcn.svg)
 
-下面我们基于ResNet 18来创建FCN。首先我们下载一个预先训练好的模型，并打印其最后的数个神经层。
+下面我们基于ResNet-18来创建FCN。首先我们下载一个预先训练好的模型，并打印其最后的数个神经层。
 
 ```{.python .input  n=5}
 pretrained_net = model_zoo.vision.resnet18_v2(pretrained=True)
@@ -62,7 +81,7 @@ for layer in pretrained_net.features[:-2]:
     net.add(layer)
 ```
 
-给定高宽为224的输入，`net`的输出将输入高宽减少了32倍。
+给定高宽为224的输入，`net`的输出将减少为输入高宽的$1/32$。
 
 ```{.python .input  n=7}
 x = nd.random.uniform(shape=(1, 3, 224, 224))
@@ -165,11 +184,10 @@ gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
 预测一张新图像时，我们只需要将其归一化并转成卷积网络需要的4D格式。
 
 ```{.python .input  n=13}
-def predict(im):
-    data = test_iter._dataset.normalize_image(im)
-    data = data.transpose((2, 0, 1)).expand_dims(axis=0)
-    yhat = net(data.as_in_context(ctx[0]))
-    pred = nd.argmax(yhat, axis=1)
+def predict(img):
+    x = test_iter._dataset.normalize_image(img)
+    x = x.transpose((2, 0, 1)).expand_dims(axis=0)
+    pred = nd.argmax(net(x.as_in_context(ctx[0])), axis=1)
     return pred.reshape((pred.shape[1], pred.shape[2]))
 ```
 
@@ -185,7 +203,7 @@ def label2image(pred):
 现在我们读取前几张测试图像并对其进行预测。
 
 ```{.python .input  n=15}
-test_images, test_labels = gb.read_voc_images(train=False)
+test_images, test_labels = gb.read_voc_images(is_train=False)
 
 n = 5
 imgs = []

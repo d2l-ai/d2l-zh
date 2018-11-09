@@ -95,7 +95,6 @@ python -m spacy download en # 需已 pip install spacy
 
 贡献请遵照本教程的[样式规范](STYLE_GUIDE.md)。
 
-
 ## 中英文术语对照
 
 翻译请参照[中英文术语对照](TERMINOLOGY.md)。

@@ -1,18 +1,18 @@
 import collections
-import random
-import zipfile
 import math
 import os
+import random
 import sys
 import tarfile
 import time
+import zipfile
 
 from IPython import display
 from matplotlib import pyplot as plt
 import mxnet as mx
-from mxnet import autograd, gluon, image, nd, init
+from mxnet import autograd, gluon, image, init, nd
 from mxnet.contrib import text
-from mxnet.gluon import nn, data as gdata, loss as gloss, utils as gutils
+from mxnet.gluon import data as gdata, loss as gloss, nn, utils as gutils
 import numpy as np
 
 
@@ -43,7 +43,7 @@ def bbox_to_rect(bbox, color):
 
 
 class Benchmark():
-    """benchmark a piece of codes"""
+    """Benchmark programs."""
     def __init__(self, prefix=None):
         self.prefix = prefix + ' ' if prefix else ''
 
@@ -107,8 +107,10 @@ def data_iter_random(corpus_indices, batch_size, num_steps, ctx=None):
     epoch_size = num_examples // batch_size
     example_indices = list(range(num_examples))
     random.shuffle(example_indices)
+
     def _data(pos):
         return corpus_indices[pos : pos + num_steps]
+
     for i in range(epoch_size):
         i = i * batch_size
         batch_indices = example_indices[i : i + batch_size]
@@ -165,6 +167,7 @@ def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
         acc.wait_to_read()
     return acc.asscalar() / n
 
+
 def _get_batch(batch, ctx):
     """Return features and labels on ctx."""
     features, labels = batch
@@ -174,11 +177,12 @@ def _get_batch(batch, ctx):
             gutils.split_and_load(labels, ctx),
             features.shape[0])
 
+
 def get_data_ch7():
     """Get the data set used in Chapter 7."""
     data = np.genfromtxt('../data/airfoil_self_noise.dat', delimiter='\t')
     data = (data - data.mean(axis=0)) / data.std(axis=0)
-    return nd.array(data[:, :-2]), nd.array(data[:,-1])
+    return nd.array(data[:, :-1]), nd.array(data[:, -1])
 
 
 def get_fashion_mnist_labels(labels):
@@ -194,11 +198,13 @@ def get_tokenized_imdb(data):
         return [tok.lower() for tok in text.split(' ')]
     return [tokenizer(review) for review, _ in data]
 
+
 def get_vocab_imdb(data):
-    """Get the vocab for the IMBD data set for sentiment analysis."""
+    """Get the vocab for the IMDB data set for sentiment analysis."""
     tokenized_data = get_tokenized_imdb(data)
     counter = collections.Counter([tk for st in tokenized_data for tk in st])
     return text.vocab.Vocabulary(counter, min_freq=5)
+
 
 def grad_clipping(params, theta, ctx):
     """Clip the gradient."""
@@ -282,12 +288,13 @@ def _make_list(obj, default_values=None):
         obj = [obj]
     return obj
 
+
 def predict_rnn(prefix, num_chars, rnn, params, init_rnn_state,
                 num_hiddens, vocab_size, ctx, idx_to_char, char_to_idx):
     """Predict next chars with a RNN model"""
     state = init_rnn_state(1, num_hiddens, ctx)
     output = [char_to_idx[prefix[0]]]
-    for t in range(num_chars + len(prefix)):
+    for t in range(num_chars + len(prefix) - 1):
         X = to_onehot(nd.array([output[-1]], ctx=ctx), vocab_size)
         (Y, state) = rnn(X, state, params)
         if t < len(prefix) - 1:
@@ -302,7 +309,7 @@ def predict_rnn_gluon(prefix, num_chars, model, vocab_size, ctx, idx_to_char,
     """Precit next chars with a Gluon RNN model"""
     state = model.begin_state(batch_size=1, ctx=ctx)
     output = [char_to_idx[prefix[0]]]
-    for t in range(num_chars + len(prefix)):
+    for t in range(num_chars + len(prefix) - 1):
         X = nd.array([output[-1]], ctx=ctx).reshape((1, 1))
         (Y, state) = model(X, state)
         if t < len(prefix) - 1:
@@ -318,14 +325,19 @@ def predict_sentiment(net, vocab, sentence):
     label = nd.argmax(net(sentence.reshape((1, -1))), axis=1)
     return 'positive' if label.asscalar() == 1 else 'negative'
 
+
 def preprocess_imdb(data, vocab):
     """Preprocess the IMDB data set for sentiment analysis."""
     max_l = 500
-    pad = lambda x: x[:max_l] if len(x) > max_l else x + [0] * (max_l-len(x))
+
+    def pad(x):
+        return x[:max_l] if len(x) > max_l else x + [0] * (max_l - len(x))
+
     tokenized_data = get_tokenized_imdb(data)
     features = nd.array([pad(vocab.to_indices(x)) for x in tokenized_data])
     labels = nd.array([score for _, score in data])
     return features, labels
+
 
 def read_imdb(folder='train'):
     """Read the IMDB data set for sentiment analysis."""
@@ -333,23 +345,25 @@ def read_imdb(folder='train'):
     for label in ['pos', 'neg']:
         folder_name = os.path.join('../data/aclImdb/', folder, label)
         for file in os.listdir(folder_name):
-            with open(os.path.join(folder_name, file), 'r') as f:
-                review = f.read().replace('\n', '').lower()
+            with open(os.path.join(folder_name, file), 'rb') as f:
+                review = f.read().decode('utf-8').replace('\n', '').lower()
                 data.append([review, 1 if label == 'pos' else 0])
     random.shuffle(data)
     return data
 
-def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):
+
+def read_voc_images(root='../data/VOCdevkit/VOC2012', is_train=True):
     """Read VOC images."""
     txt_fname = '%s/ImageSets/Segmentation/%s' % (
-        root, 'train.txt' if train else 'val.txt')
+        root, 'train.txt' if is_train else 'val.txt')
     with open(txt_fname, 'r') as f:
         images = f.read().split()
-    data, label = [None] * len(images), [None] * len(images)
+    features, labels = [None] * len(images), [None] * len(images)
     for i, fname in enumerate(images):
-        data[i] = image.imread('%s/JPEGImages/%s.jpg' % (root, fname))
-        label[i] = image.imread('%s/SegmentationClass/%s.png' % (root, fname))
-    return data, label
+        features[i] = image.imread('%s/JPEGImages/%s.jpg' % (root, fname))
+        labels[i] = image.imread(
+            '%s/SegmentationClass/%s.png' % (root, fname))
+    return features, labels
 
 
 class Residual(nn.Block):
@@ -528,6 +542,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
               % (epoch, train_l_sum / n, train_acc_sum / m, test_acc,
                  time.time() - start))
 
+
 def train_2d(trainer):
     """Train a 2d object function with a customized trainer"""
     x1, x2 = -5, -2
@@ -538,6 +553,7 @@ def train_2d(trainer):
         res.append((x1, x2))
     print('epoch %d, x1 %f, x2 %f' % (i+1, x1, x2))
     return res
+
 
 def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
                           vocab_size, ctx, corpus_indices, idx_to_char,
@@ -760,29 +776,30 @@ def use_svg_display():
     display.set_matplotlib_formats('svg')
 
 
-def voc_label_indices(img, colormap2label):
+def voc_label_indices(colormap, colormap2label):
     """Assig label indices for Pascal VOC2012 Dataset."""
-    data = img.astype('int32')
-    idx = (data[:,:,0] * 256 + data[:,:,1]) * 256 + data[:,:,2]
+    colormap = colormap.astype('int32')
+    idx = ((colormap[:, :, 0] * 256 + colormap[:, :, 1]) * 256
+           + colormap[:, :, 2])
     return colormap2label[idx]
 
 
-def voc_rand_crop(data, label, height, width):
+def voc_rand_crop(feature, label, height, width):
     """Random cropping for images of the Pascal VOC2012 Dataset."""
-    data, rect = image.random_crop(data, (width, height))
+    feature, rect = image.random_crop(feature, (width, height))
     label = image.fixed_crop(label, *rect)
-    return data, label
+    return feature, label
 
 
 class VOCSegDataset(gdata.Dataset):
     """The Pascal VOC2012 Dataset."""
-    def __init__(self, train, crop_size, voc_dir, colormap2label):
+    def __init__(self, is_train, crop_size, voc_dir, colormap2label):
         self.rgb_mean = nd.array([0.485, 0.456, 0.406])
         self.rgb_std = nd.array([0.229, 0.224, 0.225])
         self.crop_size = crop_size
-        data, label = read_voc_images(root=voc_dir, train=train)
+        data, labels = read_voc_images(root=voc_dir, is_train=is_train)
         self.data = [self.normalize_image(im) for im in self.filter(data)]
-        self.label = self.filter(label)
+        self.labels = self.filter(labels)
         self.colormap2label = colormap2label
         print('read ' + str(len(self.data)) + ' examples')
 
@@ -795,10 +812,11 @@ class VOCSegDataset(gdata.Dataset):
             im.shape[1] >= self.crop_size[1])]
 
     def __getitem__(self, idx):
-        data, label = voc_rand_crop(self.data[idx], self.label[idx],
-                                    *self.crop_size)
+        data, labels = voc_rand_crop(self.data[idx], self.labels[idx],
+                                     *self.crop_size)
         return (data.transpose((2, 0, 1)),
-                voc_label_indices(label, self.colormap2label))
+                voc_label_indices(labels, self.colormap2label))
 
     def __len__(self):
         return len(self.data)
+

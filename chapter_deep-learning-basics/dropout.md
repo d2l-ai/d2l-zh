@@ -21,7 +21,7 @@ $$\mathbb{E}(h_i') = \frac{\mathbb{E}(\xi_i)}{1-p}h_i = h_i.$$
 
 ![隐藏层使用了丢弃法的多层感知机。](../img/dropout.svg)
 
-## 丢弃法从零开始实现
+## 从零开始实现
 
 根据丢弃法的定义，我们可以很容易地实现它。下面的`dropout`函数将以`drop_prob`的概率丢弃NDArray输入`X`中的元素。
 
@@ -104,7 +104,7 @@ gb.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size, params,
              lr)
 ```
 
-## 丢弃法的Gluon实现
+## Gluon实现
 
 在Gluon中，我们只需要在全连接层后添加`Dropout`层并指定丢弃概率。在训练模型时，`Dropout`层将以指定的丢弃概率随机丢弃上一层的输出元素；在测试模型时，`Dropout`层并不发挥作用。
 

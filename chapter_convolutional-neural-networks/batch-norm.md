@@ -115,7 +115,7 @@ class BatchNorm(nn.Block):
         return Y
 ```
 
-## 使用批量归一化层的LeNet
+### 使用批量归一化层的LeNet
 
 下面我们修改[“卷积神经网络（LeNet）”](lenet.md)这一节介绍的LeNet模型，从而应用批量归一化层。我们在所有的卷积层和全连接层之后、激活层之前加入批量归一化层。
 
@@ -154,7 +154,7 @@ gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
 net[1].gamma.data().reshape((-1,)), net[1].beta.data().reshape((-1,))
 ```
 
-## 批量归一化的Gluon实现
+## Gluon实现
 
 相比于我们刚刚自己定义的`BatchNorm`类，Gluon中`nn`模块定义的`BatchNorm`类使用起来更加简单。它不需要指定自己定义的`BatchNorm`类中所需的`num_features`和`num_dims`参数值。在Gluon中，这些参数值都将通过延后初始化来自动获取。下面我们用Gluon实现使用批量归一化的LeNet。
 

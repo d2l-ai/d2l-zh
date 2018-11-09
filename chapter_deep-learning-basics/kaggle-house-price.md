@@ -54,7 +54,7 @@ train_data.shape
 test_data.shape
 ```
 
-让我们来前4个样本的前4个特征、后2个特征和标签（SalePrice）：
+让我们来查看前4个样本的前4个特征、后2个特征和标签（SalePrice）：
 
 ```{.python .input  n=28}
 train_data.iloc[0:4, [0, 1, 2, 3, -3, -2, -1]]
@@ -77,7 +77,7 @@ all_features[numeric_features] = all_features[numeric_features].apply(
 all_features = all_features.fillna(all_features.mean())
 ```
 
-接下来将离散数值转成指示特征。举个例子，假设特征MSZoning里面有两个不同的离散值RL和RM，那么这一步转换将去掉MSZoning特征，并新加两个特征MSZoning\_RL和MSZoning\_RM，其值为0或1。如果一个样本原来在MSZoning里的值为RL，那么有MSZoning\_RL=0且MSZoning\_RM=1。
+接下来将离散数值转成指示特征。举个例子，假设特征MSZoning里面有两个不同的离散值RL和RM，那么这一步转换将去掉MSZoning特征，并新加两个特征MSZoning\_RL和MSZoning\_RM，其值为0或1。如果一个样本原来在MSZoning里的值为RL，那么有MSZoning\_RL=1且MSZoning\_RM=0。
 
 ```{.python .input  n=7}
 # dummy_na=True 将缺失值也当做合法的特征值并为其创建指示特征。

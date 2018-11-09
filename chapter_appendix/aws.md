@@ -2,7 +2,7 @@
 
 当本地机器的计算资源有限时，我们可以通过云计算服务获取更强大的计算资源来运行本书中的深度学习代码。本节将介绍如何在AWS（亚马逊的云计算服务）上申请实例并通过Jupyter笔记本运行代码。本节中的例子有如下两个步骤:  
 
-1. 申请含一个K80 GPU的“p2.xlarge”实例；
+1. 申请含一个K80 GPU的“p2.xlarge”实例。
 2. 安装CUDA及相应GPU版本的MXNet。
 
 申请其他类型的实例或安装其他版本的MXNet的方法同本节类似。
@@ -19,7 +19,7 @@
 
 ## 创建并运行EC2实例
 
-图11.9展示了EC2面板的界面。在图11.9右上角红框处选择离我们较近的数据中心来减低延迟。我们可以选离国内较近的亚太地区，例如Asia Pacific（Seoul）。注意，有些数据中心可能没有GPU实例。点击图11.9下方红框内“Launch Instance”启动实例。
+图11.9展示了EC2面板的界面。在图11.9右上角红框处选择离我们较近的数据中心来减低延迟。我们可以选离国内较近的亚太地区，例如Asia Pacific（Seoul）。注意，有些数据中心可能没有GPU实例。点击图11.9下方红框内“Launch Instance”按钮启动实例。
 
 ![EC2面板。](../img/ec2.png)
 
@@ -32,7 +32,7 @@ EC2提供了大量不同配置的实例。如图11.11所示，在第二步“2. 
 
 ![选择实例。](../img/p2x.png)
 
-我们建议在选择实例前先在图11.9左栏“Limits”里检查下有无数量限制。如图11.12所示，该账号的限制是最多在一个区域开一个“p2.xlarge”实例。如果需要开更多实例，可以通过点击右边“Request limit increase”来申请更大的实例容量。这通常需要一个工作日来处理。
+我们建议在选择实例前先在图11.9左栏“Limits”标签里检查下有无数量限制。如图11.12所示，该账号的限制是最多在一个区域开一个“p2.xlarge”实例。如果需要开更多实例，可以通过点击右边“Request limit increase”链接来申请更大的实例容量。这通常需要一个工作日来处理。
 
 ![实例的数量限制。](../img/limits.png)
 
@@ -41,7 +41,7 @@ EC2提供了大量不同配置的实例。如图11.11所示，在第二步“2. 
 ![修改实例的硬盘大小。](../img/disk.png)
 
 
-最后，在第七步“7. Review”中点击“Launch”来启动配置好的实例。这时候会提示我们选择用来访问实例的密钥。如果没有的话，可以选择图11.14中第一个下拉菜单的“Create a new key pair”选项来生成秘钥。之后，我们通过该下拉菜单的“Choose an existing key pair”选项选择生成好的密钥。点击“Launch Instance”启动创建好的实例。
+最后，在第七步“7. Review”中点击“Launch”来启动配置好的实例。这时候会提示我们选择用来访问实例的密钥。如果没有的话，可以选择图11.14中第一个下拉菜单的“Create a new key pair”选项来生成秘钥。之后，我们通过该下拉菜单的“Choose an existing key pair”选项选择生成好的密钥。点击“Launch Instances”按钮启动创建好的实例。
 
 ![选择密钥。](../img/keypair.png)
 
@@ -70,10 +70,10 @@ sudo apt-get update && sudo apt-get install -y build-essential git libgfortran3
 
 Nvidia一般每年会更新一次CUDA大版本。这里我们下载作者写本书时的最新版本CUDA 9.1。访问Nvidia官网（https://developer.nvidia.com/cuda-91-download-archive ）获取正确 版本的CUDA 9.1的下载地址，如图11.17所示。
 
-![获取CUDA9.0的下载地址。](../img/cuda.png)
+![获取CUDA9.1的下载地址。](../img/cuda.png)
 
 
-获取下载地址后，我们将下载并安装CUDA9.0，例如
+获取下载地址后，我们将下载并安装CUDA9.1，例如
 
 ```
 wget https://developer.download.nvidia.com/compute/cuda/9.1/secure/Prod/local_installers/cuda_9.1.85_387.26_linux.run
@@ -109,12 +109,12 @@ nvidia-smi
 最后，将CUDA加入到库的路径中，以方便其他库找到它。
 
 ```
-echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-9.1/lib64" >>.bashrc
+echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-9.1/lib64" >> .bashrc
 ```
 
 ## 获取本书代码并安装GPU版的MXNet
 
-我们已在[“安装和运行”](../chapter_prerequisite/install.md)一节中介绍了Linux用户获取本书代码并安装运行环境的方法。首先，安装Linux版的Miniconda（网址：https://conda.io/miniconda.html ），例如
+我们已在[“获取和运行本书代码”](../chapter_prerequisite/install.md)一节中介绍了Linux用户获取本书代码并安装运行环境的方法。首先，安装Linux版的Miniconda（网址：https://conda.io/miniconda.html ），例如
 
 ```
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
@@ -131,7 +131,7 @@ to PATH in your /home/ubuntu/.bashrc ? [yes|no]
 [no] >>> yes
 ```
 
-安装完成后，运行一次`source ~/.bashrc`让CUDA和conda生效。接下来，下载本书代码、安装并激活conda环境
+安装完成后，运行一次`source ~/.bashrc`让CUDA和conda生效。接下来，下载本书代码、安装并激活conda环境。
 
 ```
 mkdir gluon_tutorials_zh && cd gluon_tutorials_zh
@@ -175,7 +175,7 @@ ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com -L 8
 
 如果较短时间内还将重新开启实例，右击图11.16中的示例，选择“Instance State” $\rightarrow$ “Stop”将实例停止，等下次使用时选择“Instance State” $\rightarrow$ “Start”重新开启实例。这种情况下，开启的实例将保留其停止前硬盘上的存储（例如无需再安装CUDA和其他运行环境）。然而，停止状态的实例也会因其所保留的硬盘空间而产生少量计费。
 
-如果较长时间内不会重新开启实例，右击图11.16中的示例，选择“Image” $\rightarrow$ “Create”创建镜像。然后，选择“Instance State” $\rightarrow$ “Terminate”将实例终结（硬盘不再产生计费）。当下次使用时，我们可按本节中创建并运行EC2实例的步骤重新创建一个基于保存镜像的实例。唯一的区别在于，在图11.10的第一步“1. Chosse AMI”中，我们需要通过左栏“My AMIs”选择之前保存的镜像。这样创建的实例将保留镜像上硬盘的存储（例如无需再安装CUDA和其他运行环境）。
+如果较长时间内不会重新开启实例，右击图11.16中的示例，选择“Image” $\rightarrow$ “Create”创建镜像。然后，选择“Instance State” $\rightarrow$ “Terminate”将实例终结（硬盘不再产生计费）。当下次使用时，我们可按本节中创建并运行EC2实例的步骤重新创建一个基于保存镜像的实例。唯一的区别在于，在图11.10的第一步“1. Chosse AMI”中，我们需要通过左栏“My AMIs”选择之前保存的镜像。这样创建的实例将保留镜像上硬盘的存储，例如无需再安装CUDA和其他运行环境。
 
 ## 小结
 
