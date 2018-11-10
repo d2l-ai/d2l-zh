@@ -1,7 +1,7 @@
 # 区域卷积神经网络（R-CNN）系列
 
 
-区域卷积神经网络（region-based CNN或regions with CNN features，简称R-CNN）是将深度模型应用于目标检测的开创性工作之一 [1]。本节中，我们将介绍R-CNN和它的一系列改进方法：快速的R-CNN（fast R-CNN）[3]、更快的R-CNN（faster R-CNN）[4] 以及掩码R-CNN（mask R-CNN）[5]。限于篇幅，这里只介绍这些模型的设计思路。
+区域卷积神经网络（region-based CNN或regions with CNN features，简称R-CNN）是将深度模型应用于目标检测的开创性工作之一 [1]。本节中，我们将介绍R-CNN和它的一系列改进方法：快速的R-CNN（Fast R-CNN）[3]、更快的R-CNN（Faster R-CNN）[4] 以及掩码R-CNN（Mask R-CNN）[5]。限于篇幅，这里只介绍这些模型的设计思路。
 
 
 ## R-CNN
@@ -60,13 +60,15 @@ rois = nd.array([[0, 0, 0, 20, 20], [0, 0, 10, 30, 30]])
 nd.ROIPooling(X, rois, pooled_size=(2, 2), spatial_scale=0.1)
 ```
 
-## Faster R-CNN：更快速的区域卷积神经网络
+## Faster R-CNN
 
-Faster R-CNN 对Fast R-CNN做了进一步改进，它将Fast R-CNN中的选择性搜索替换成区域提议网络（region proposal network，简称RPN）[4]。RPN以锚框为起始点，通过一个小神经网络来选择提议区域。图9.8描述了Faster R-CNN模型。
+Fast R-CNN通常需要在选择性搜索中生成较多的提议区域，以获得较精确的目标检测结果。Faster R-CNN提出将选择性搜索替换成区域提议网络（region proposal network），从而减少提议区域的生成数量，并保证目标检测的精度。
+
 
 ![Faster R-CNN模型。](../img/faster-rcnn.svg)
 
-具体来说，RPN里面有四个神经层。
+
+图9.8描述了Faster R-CNN模型。与Fast R-CNN相比，这里只有生成提议区域的方法从选择性搜索变成了区域提议网络，而其他部分均保持不变。具体来说，区域提议网络：
 
 1. 卷积网络抽取的特征首先进入一个填充数为1、通道数为256的 $3\times 3$ 卷积层，这样每个像素得到一个256长度的特征表示。
 1. 以每个像素为中心，生成多个大小和比例不同的锚框和对应的标注。每个锚框使用其中心像素对应的256维特征来表示。
