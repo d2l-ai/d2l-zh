@@ -12,7 +12,6 @@ sys.path.insert(0, '..')
 import gluonbook as gb
 from mxnet import gluon, image, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, model_zoo, nn
-from mxnet import nd
 import numpy as np
 import sys
 ```
@@ -34,7 +33,7 @@ conv(X), conv.weight.data()
 
 ```{.python .input}
 W, k = nd.zeros((4, 16)), nd.zeros(11)
-k[:3], k[4:7], k[8:] = K[0,0,0,:], K[0,0,1,:], K[0,0,2,:]
+k[:3], k[4:7], k[8:] = K[0, 0, 0, :], K[0, 0, 1, :], K[0, 0, 2, :]
 W[0, 0:11], W[1, 1:12], W[2, 4:15], W[3, 5:16] = k, k, k, k
 nd.dot(W, X.reshape(16)).reshape((1, 1, 2, 2)), W
 ```
@@ -45,9 +44,9 @@ nd.dot(W, X.reshape(16)).reshape((1, 1, 2, 2)), W
 conv = nn.Conv2D(10, kernel_size=4, padding=1, strides=2)
 conv.initialize()
 
-x = nd.random.uniform(shape=(1, 3, 64, 64))
-y = conv(x)
-y.shape
+X = nd.random.uniform(shape=(1, 3, 64, 64))
+Y = conv(X)
+Y.shape
 ```
 
 使用同样的卷积窗、填充和步幅的转置卷积层，我们可以得到和`x`形状一样的输出。
@@ -55,7 +54,7 @@ y.shape
 ```{.python .input  n=4}
 conv_trans = nn.Conv2DTranspose(3, kernel_size=4, padding=1, strides=2)
 conv_trans.initialize()
-conv_trans(y).shape
+conv_trans(Y).shape
 ```
 
 简单来说，卷积层通常使得输入高宽变小，而转置卷积层则一般用来将高宽增大。
@@ -84,15 +83,14 @@ for layer in pretrained_net.features[:-2]:
 给定高宽为224的输入，`net`的输出将减少为输入高宽的$1/32$。
 
 ```{.python .input  n=7}
-x = nd.random.uniform(shape=(1, 3, 224, 224))
-net(x).shape
+X = nd.random.uniform(shape=(1, 3, 224, 224))
+net(X).shape
 ```
 
 为了使得输出跟输入有同样的高宽，我们构建一个步幅为32的转置卷积层，卷积核的窗口高宽设置成步幅的2倍，并补充适当的填充。在转置卷积层之前，我们加上$1\times 1$卷积层来将通道数从512降到标注类别数，对Pascal VOC数据集来说是21。
 
 ```{.python .input  n=8}
 num_classes = 21
-
 net.add(nn.Conv2D(num_classes, kernel_size=1),
         nn.Conv2DTranspose(num_classes, kernel_size=64, padding=16,
                            strides=32))
@@ -112,31 +110,32 @@ def bilinear_kernel(in_channels, out_channels, kernel_size):
     og = np.ogrid[:kernel_size, :kernel_size]
     filt = (1 - abs(og[0] - center) / factor) * \
            (1 - abs(og[1] - center) / factor)
-    weight = np.zeros(
-        (in_channels, out_channels, kernel_size, kernel_size),
-        dtype='float32')
+    weight = np.zeros((in_channels, out_channels, kernel_size, kernel_size),
+                      dtype='float32')
     weight[range(in_channels), range(out_channels), :, :] = filt
     return nd.array(weight)
 ```
 
 接下来我们构造一个步幅为2的转置卷积层，将其权重初始化为双线性插值核。
 
-```{.python .input  n=10}
-conv_trans = nn.Conv2DTranspose(3, kernel_size=4, padding=1, strides=2)
-conv_trans.initialize(init.Constant(bilinear_kernel(3, 3, 4)))
-```
-
 可以看到这个转置卷积层的前向函数的效果是将输入图像高宽扩大2倍。
 
 ```{.python .input  n=11}
-gb.set_figsize()
+conv_trans = nn.Conv2DTranspose(3, kernel_size=4, padding=1, strides=2)
+conv_trans.initialize(init.Constant(bilinear_kernel(3, 3, 4)))
+
 img = image.imread('../img/catdog.jpg')
-print('input', img.shape)
-x = img.astype('float32').transpose((2, 0, 1)).expand_dims(axis=0) / 255
-y = conv_trans(x)
-y = y[0].clip(0, 1).transpose((1, 2, 0))
-print('output', y.shape)
-gb.plt.imshow(y.asnumpy());
+X = img.astype('float32').transpose((2, 0, 1)).expand_dims(axis=0) / 255
+Y = conv_trans(X)
+out_img = Y[0].transpose((1, 2, 0))
+```
+
+```{.python .input}
+gb.set_figsize()
+print('input image shape:', img.shape)
+gb.plt.imshow(img.asnumpy());
+print('output image shape:', out_img.shape)
+gb.plt.imshow(out_img.asnumpy());
 ```
 
 下面对`net`的最后两层进行初始化。其中$1\times 1$卷积层使用Xavier，转置卷积层则使用双线性插值核。
@@ -174,8 +173,8 @@ test_iter = gdata.DataLoader(
 ctx = gb.try_all_gpus()
 loss = gloss.SoftmaxCrossEntropyLoss(axis=1)
 net.collect_params().reset_ctx(ctx)
-trainer = gluon.Trainer(net.collect_params(), 'sgd',
-                        {'learning_rate': 0.1, 'wd': 1e-3})
+trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.1,
+                                                      'wd': 1e-3})
 gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
 ```
 
@@ -204,14 +203,11 @@ def label2image(pred):
 
 ```{.python .input  n=15}
 test_images, test_labels = gb.read_voc_images(is_train=False)
-
-n = 5
-imgs = []
+n, imgs = 5, []
 for i in range(n):
-    x = test_images[i]
-    pred = label2image(predict(x))
-    imgs += [x, pred, test_labels[i]]
-
+    X = test_images[i]
+    pred = label2image(predict(X))
+    imgs += [X, pred, test_labels[i]]
 gb.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n);
 ```
 
