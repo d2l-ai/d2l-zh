@@ -171,9 +171,9 @@ class VOCSegDataset(gdata.Dataset):
 我们通过自定义的`VOCSegDataset`类来分别创建训练集和测试集的实例。假设我们指定随机裁剪的输出图像的形状为$320\times 480$。下面我们可以查看训练集和测试集所保留的样本个数。
 
 ```{.python .input  n=10}
-output_shape = (320, 480)
-voc_train = VOCSegDataset(True, output_shape, voc_dir, colormap2label)
-voc_test = VOCSegDataset(False, output_shape, voc_dir, colormap2label)
+crop_size = (320, 480)
+voc_train = VOCSegDataset(True, crop_size, voc_dir, colormap2label)
+voc_test = VOCSegDataset(False, crop_size, voc_dir, colormap2label)
 ```
 
 设批量大小为64，分别定义训练集和测试集的迭代器。

@@ -60,7 +60,10 @@ conv_trans.initialize()
 conv_trans(Y).shape
 ```
 
-## 模型
+在有些文献中，转置卷积也被称为分数步卷积（fractionally-strided convolution）[2]。
+
+
+## 构造模型
 
 我们在这里给出全卷积网络模型最基本的设计。如图9.11所示，全卷积网络先使用卷积神经网络抽取图像特征，然后通过$1\times 1$卷积层将通道数变换为类别个数，最后通过转置卷积层将特征图的高和宽变换为输入图像的尺寸。模型输出与输入图像的高和宽相同，并在空间位置上一一对应：最终输出的通道包含了该空间位置像素的类别预测。
 
@@ -88,7 +91,7 @@ X = nd.random.uniform(shape=(1, 3, 320, 480))
 net(X).shape
 ```
 
-接下来，我们通过$1\times 1$卷积层将输出通道数变换为Pascal VOC2012的类别个数21。最后，我们需要将特征图的高和宽放大32倍，从而变回输入图像的高和宽。回忆一下[“填充和步幅”](../chapter_convolutional-neural-networks/padding-and-strides.md)一节中描述的卷积层输出形状的计算方法。由于$(320-64+16\times2+32)/32=10$且$(480-64+16\times2+32)/32=15$，我们构造一个步幅为32的转置卷积层，并将卷积核的高和宽设为64、填充设为16。
+接下来，我们通过$1\times 1$卷积层将输出通道数变换为Pascal VOC2012的类别个数21。最后，我们需要将特征图的高和宽放大32倍，从而变回输入图像的高和宽。回忆一下[“填充和步幅”](../chapter_convolutional-neural-networks/padding-and-strides.md)一节中描述的卷积层输出形状的计算方法。由于$(320-64+16\times2+32)/32=10$且$(480-64+16\times2+32)/32=15$，我们构造一个步幅为32的转置卷积层，并将卷积核的高和宽设为64、填充设为16。不难发现，如果步幅为$s$、填充为$s/2$（假设$s/2$为整数）、卷积核的高和宽为$2s$，转置卷积核将输入的高和宽分别放大$s$倍。
 
 ```{.python .input  n=8}
 num_classes = 21
@@ -97,9 +100,9 @@ net.add(nn.Conv2D(num_classes, kernel_size=1),
                            strides=32))
 ```
 
-## 模型初始化
+## 初始化转置卷积层
 
-模型`net`中的最后两层需要对权重进行初始化，通常我们会使用随机初始化。但新加入的转置卷积层的功能有些类似于将输入调整到更大的尺寸。在图像处理里面，我们可以通过有适当卷积核的卷积运算符来完成这个操作。常用的包括双线性插值核，以下函数构造核权重。
+我们已经知道，转置卷积层可以放大特征图。在图像处理中，我们有时需要将图像放大，即上采样（upsample）。上采样的方法有很多，常用的有双线性插值。简单来说，为了得到输出图像在坐标$(x,y)$上的像素，先将该坐标映射到输入图像的坐标$(x',y')$，例如根据输入与输出的尺寸之比来映射。映射后的$x'$和$y'$通常是实数。然后，在输入图像上找到与坐标$(x',y')$最近的四个像素。最后，输出图像在坐标$(x,y)$上的像素依据输入图像上这四个像素及其与$(x',y')$的相对距离来计算。双线性插值的上采样可以通过由以下`bilinear_kernel`函数构造的卷积核的转置卷积层来实现。限于篇幅，我们只给出`bilinear_kernel`函数的实现，不再讨论算法的原理。
 
 ```{.python .input  n=9}
 def bilinear_kernel(in_channels, out_channels, kernel_size):
@@ -117,19 +120,23 @@ def bilinear_kernel(in_channels, out_channels, kernel_size):
     return nd.array(weight)
 ```
 
-接下来我们构造一个步幅为2的转置卷积层，将其权重初始化为双线性插值核。
-
-可以看到这个转置卷积层的前向函数的效果是将输入图像高宽扩大2倍。
+我们来实验一下用转置卷积层实现的双线性插值上采样。构造一个将输入的高和宽放大2倍的转置卷积层，并将其卷积核用`bilinear_kernel`函数初始化。
 
 ```{.python .input  n=11}
 conv_trans = nn.Conv2DTranspose(3, kernel_size=4, padding=1, strides=2)
 conv_trans.initialize(init.Constant(bilinear_kernel(3, 3, 4)))
+```
 
+读取图像`X`，将上采样的结果记作`Y`。为了打印图像，我们需要调整通道维的位置。
+
+```{.python .input}
 img = image.imread('../img/catdog.jpg')
 X = img.astype('float32').transpose((2, 0, 1)).expand_dims(axis=0) / 255
 Y = conv_trans(X)
 out_img = Y[0].transpose((1, 2, 0))
 ```
+
+可以看到，转置卷积层将图像的高和宽分别放大2倍。值得一提的是，除了坐标刻度不同，双线性插值放大的图像和[“目标检测和边界框”](bounding-box.md)一节中打印出的原图看上去没什么两样。
 
 ```{.python .input}
 gb.set_figsize()
@@ -139,36 +146,36 @@ print('output image shape:', out_img.shape)
 gb.plt.imshow(out_img.asnumpy());
 ```
 
-下面对`net`的最后两层进行初始化。其中$1\times 1$卷积层使用Xavier，转置卷积层则使用双线性插值核。
+在全卷积网络中，我们将转置卷积层初始化为双线性插值的上采样。对于$1\times 1$卷积层，我们采用Xavier随机初始化。
 
 ```{.python .input  n=12}
-trans_conv_weights = bilinear_kernel(num_classes, num_classes, 64)
-net[-1].initialize(init.Constant(trans_conv_weights))
+net[-1].initialize(init.Constant(bilinear_kernel(num_classes, num_classes,
+                                                 64)))
 net[-2].initialize(init=init.Xavier())
 ```
 
-## 读取数据
+## 读取数据集
 
-我们使用较大的输入图像尺寸，其值选成了32的倍数。数据的读取方法已在上一节描述。
+我们用上一节介绍的方法读取数据集。这里指定随机裁剪的输出图像的形状为$320\times 480$：高和宽都可以被32整除。
 
 ```{.python .input  n=13}
-input_shape, batch_size, colormap2label = (320, 480), 32, nd.zeros(256**3)
+crop_size, batch_size, colormap2label = (320, 480), 32, nd.zeros(256**3)
 for i, cm in enumerate(gb.VOC_COLORMAP):
     colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i
 voc_dir = gb.download_voc_pascal(data_dir='../data')
 
 num_workers = 0 if sys.platform.startswith('win32') else 4
 train_iter = gdata.DataLoader(
-    gb.VOCSegDataset(True, input_shape, voc_dir, colormap2label), batch_size,
+    gb.VOCSegDataset(True, crop_size, voc_dir, colormap2label), batch_size,
     shuffle=True, last_batch='discard', num_workers=num_workers)
 test_iter = gdata.DataLoader(
-    gb.VOCSegDataset(False, input_shape, voc_dir, colormap2label), batch_size,
+    gb.VOCSegDataset(False, crop_size, voc_dir, colormap2label), batch_size,
     last_batch='discard', num_workers=num_workers)
 ```
 
 ## 训练
 
-这时候我们可以开始训练了。因为我们使用转置卷积层的通道来预测像素的类别，所以softmax是作用在通道这个维度（维度1）上的。于是，我们在`SoftmaxCrossEntropyLoss`里加入了额外的`axis=1`选项。
+现在我们可以开始训练模型了。这里的损失函数和准确率计算与图像分类中的并没有本质上的不同。因为我们使用转置卷积层的通道来预测像素的类别，所以在`SoftmaxCrossEntropyLoss`里指定了`axis=1`（通道维）选项。此外，模型基于每个像素的预测类别是否正确来计算准确率。
 
 ```{.python .input  n=12}
 ctx = gb.try_all_gpus()
@@ -181,7 +188,7 @@ gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
 
 ## 预测
 
-预测一张新图像时，我们只需要将其归一化并转成卷积网络需要的4D格式。
+在预测时，我们需要将输入图像在各个通道做标准化，并转成卷积神经网络所需要的四维输入格式。
 
 ```{.python .input  n=13}
 def predict(img):
@@ -191,7 +198,7 @@ def predict(img):
     return pred.reshape((pred.shape[1], pred.shape[2]))
 ```
 
-同时我们根据每个像素预测的类别找出其RGB颜色以便画图。
+为了可视化每个像素的预测类别，我们将预测类别映射回它们在数据集中的标注颜色。
 
 ```{.python .input  n=14}
 def label2image(pred):
@@ -200,7 +207,9 @@ def label2image(pred):
     return colormap[X, :]
 ```
 
-现在我们读取前几张测试图像并对其进行预测。
+测试数据集中的图像大小和形状各异。由于模型使用了步幅为32的转置卷积层，当输入图像的高或宽无法被32整除时，转置卷积层输出的高或宽会与输入图像的尺寸有偏差。为了解决这个问题，我们可以在图像中截取多块高和宽为32整数倍的矩形区域，并分别对这些区域中的像素做前向计算。这些区域的并集需要完整覆盖输入图像。当一个像素被多个区域所覆盖时，它在不同区域前向计算中转置卷积层输出的平均值可以作为softmax运算的输入，从而预测类别。
+
+为了简单起见，我们只读取几张较大的测试图像，并从图像的左上角开始截取形状为$320\times480$的区域：只有该区域用来预测。对于输入图像，我们先打印截取的区域，再打印预测结果，最后打印标注的类别。
 
 ```{.python .input  n=15}
 test_images, test_labels = gb.read_voc_images(is_train=False)
@@ -215,15 +224,18 @@ gb.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n);
 
 ## 小结
 
-* FCN通过转置卷积层来为每个像素预测类别。
+* 我们可以通过矩阵乘法来实现卷积运算。
+* 全卷积网络先使用卷积神经网络抽取图像特征，然后通过$1\times 1$卷积层将通道数变换为类别个数，最后通过转置卷积层将特征图的高和宽变换为输入图像的尺寸，从而输出每个像素的类别。
+* 在全卷积网络中，我们将转置卷积层初始化为双线性插值的上采样。
+
 
 ## 练习
 
 * 用矩阵乘法来实现卷积运算是否高效？为什么？
-* 试着改改最后的转置卷积层的参数设定。
-* 看看双线性插值初始化是不是必要的。
-* 试着改改训练参数来使得收敛更好些。
-* FCN论文中提到了不只是使用主体卷积网络输出，还可以考虑其中间层的输出 [1]。试着实现这个想法。
+* 如果将转置卷积层改用Xavier随机初始化，结果有什么变化？
+* 调节超参数，你能进一步提升模型的精度吗？
+* 预测测试图像中所有像素的类别。
+* 全卷积网络的论文中还使用了卷积神经网络的某些中间层的输出 [1]。试着实现这个想法。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/3041)
 
@@ -233,3 +245,5 @@ gb.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n);
 ## 参考文献
 
 [1] Long, J., Shelhamer, E., & Darrell, T. (2015). Fully convolutional networks for semantic segmentation. In Proceedings of the IEEE conference on computer vision and pattern recognition (pp. 3431-3440).
+
+[2] Dumoulin, V., & Visin, F. (2016). A guide to convolution arithmetic for deep learning. arXiv preprint arXiv:1603.07285.

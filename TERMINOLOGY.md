@@ -154,6 +154,8 @@
 
 权重，weight
 
+上采样，upsample
+
 实例，instance
 
 收敛，converge
