@@ -386,5 +386,4 @@ def setup(app):
     app.add_transform(AutoStructify)
     app.add_config_value('recommonmark_config', {
     }, True)
-    app.add_javascript('baidu_tongji.js')
     app.add_javascript('google_analytics.js')
