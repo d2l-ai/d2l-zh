@@ -60,20 +60,20 @@ conv_trans.initialize()
 conv_trans(Y).shape
 ```
 
-## FCN模型
+## 模型
 
-FCN的核心思想是将一个卷积网络的最后全连接输出层替换成转置卷积层来获取对每个输入像素的预测。具体来说，它去掉了过于损失空间信息的全局池化层，并将最后的全连接层替换成输出通道是原全连接层输出大小的$1\times 1$卷积层，最后接上转置卷积层来得到需要形状的输出。图9.11描述了FCN模型。
+我们在这里给出全卷积网络模型最基本的设计。如图9.11所示，全卷积网络先使用卷积神经网络抽取图像特征，然后通过$1\times 1$卷积层将通道数变换为类别个数，最后通过转置卷积层将特征图的高和宽变换为输入图像的尺寸。模型输出与输入图像的高和宽相同，并在空间位置上一一对应：最终输出的通道包含了该空间位置像素的类别预测。
 
-![FCN模型。](../img/fcn.svg)
+![全卷积网络。](../img/fcn.svg)
 
-下面我们基于ResNet-18来创建FCN。首先我们下载一个预先训练好的模型，并打印其最后的数个神经层。
+下面我们使用一个预训练的ResNet-18来抽取图像特征，并将该网络实例记为`pretrained_net`。可以看到，该模型成员变量`features`的最后两层分别是全局最大池化层`GlobalAvgPool2D`和样本变平层`Flatten`，而`output`模块包含了输出用的全连接层。全卷积网络不需要使用这些层。
 
 ```{.python .input  n=5}
 pretrained_net = model_zoo.vision.resnet18_v2(pretrained=True)
 pretrained_net.features[-4:], pretrained_net.output
 ```
 
-可以看到`feature`模块最后两层是`GlobalAvgPool2D`和`Flatten`，在FCN里均不需要，`output`模块里的全连接层也需要舍去。下面我们定义一个新的网络，它复制`feature`里除去最后两层的所有神经层以及权重。
+下面我们创建全卷积网络实例`net`。它复制了`pretrained_net`实例成员变量`features`里除去最后两层的所有神经层以及预训练得到的模型参数。
 
 ```{.python .input  n=6}
 net = nn.HybridSequential()
@@ -81,14 +81,14 @@ for layer in pretrained_net.features[:-2]:
     net.add(layer)
 ```
 
-给定高宽为224的输入，`net`的输出将减少为输入高宽的$1/32$。
+给定高和宽分别为320和480的输入，`net`的前向计算将输入的高和宽减小至原来的$1/32$，即10和15。
 
 ```{.python .input  n=7}
-X = nd.random.uniform(shape=(1, 3, 224, 224))
+X = nd.random.uniform(shape=(1, 3, 320, 480))
 net(X).shape
 ```
 
-为了使得输出跟输入有同样的高宽，我们构建一个步幅为32的转置卷积层，卷积核的窗口高宽设置成步幅的2倍，并补充适当的填充。在转置卷积层之前，我们加上$1\times 1$卷积层来将通道数从512降到标注类别数，对Pascal VOC数据集来说是21。
+接下来，我们通过$1\times 1$卷积层将输出通道数变换为Pascal VOC2012的类别个数21。最后，我们需要将特征图的高和宽放大32倍，从而变回输入图像的高和宽。回忆一下[“填充和步幅”](../chapter_convolutional-neural-networks/padding-and-strides.md)一节中描述的卷积层输出形状的计算方法。由于$(320-64+16\times2+32)/32=10$且$(480-64+16\times2+32)/32=15$，我们构造一个步幅为32的转置卷积层，并将卷积核的高和宽设为64、填充设为16。
 
 ```{.python .input  n=8}
 num_classes = 21
@@ -185,9 +185,9 @@ gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
 
 ```{.python .input  n=13}
 def predict(img):
-    x = test_iter._dataset.normalize_image(img)
-    x = x.transpose((2, 0, 1)).expand_dims(axis=0)
-    pred = nd.argmax(net(x.as_in_context(ctx[0])), axis=1)
+    X = test_iter._dataset.normalize_image(img)
+    X = X.transpose((2, 0, 1)).expand_dims(axis=0)
+    pred = nd.argmax(net(X.as_in_context(ctx[0])), axis=1)
     return pred.reshape((pred.shape[1], pred.shape[2]))
 ```
 
@@ -196,19 +196,20 @@ def predict(img):
 ```{.python .input  n=14}
 def label2image(pred):
     colormap = nd.array(gb.VOC_COLORMAP, ctx=ctx[0], dtype='uint8')
-    x = pred.astype('int32')
-    return colormap[x, :]
+    X = pred.astype('int32')
+    return colormap[X, :]
 ```
 
 现在我们读取前几张测试图像并对其进行预测。
 
 ```{.python .input  n=15}
 test_images, test_labels = gb.read_voc_images(is_train=False)
-n, imgs = 5, []
+n, imgs = 4, []
 for i in range(n):
-    X = test_images[i]
+    crop_rect = (0, 0, 480, 320)
+    X = image.fixed_crop(test_images[i], *crop_rect)
     pred = label2image(predict(X))
-    imgs += [X, pred, test_labels[i]]
+    imgs += [X, pred, image.fixed_crop(test_labels[i], *crop_rect)]
 gb.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n);
 ```
 
