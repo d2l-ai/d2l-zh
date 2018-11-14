@@ -15,7 +15,7 @@ h2, h3, h4 {
     padding: 150px 0 0 0;
 }
 
-#id2 h2 {
+h2.toc {
     padding: 150px 0 0 0;
 }
 
