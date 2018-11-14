@@ -6,9 +6,9 @@
 
 在fastText中，每个中心词被表示成子词的集合。下面我们用单词“where”作为例子来了解子词是如何产生的。首先，我们在单词的首尾分别添加特殊字符“&lt;”和“&gt;”以区分作为前后缀的子词。然后，将单词当成一个由字符构成的序列来提取$n$元语法。例如当$n=3$时，我们得到所有长度为3的子词：
 
-$$\textrm{``<wh"}, \ \textrm{``whe"}, \ \textrm{``her"}, \ \textrm{``ere"}, \ \textrm{``re>"},$$
+$$\textrm{<wh}, \ \textrm{whe}, \ \textrm{her}, \ \textrm{ere}, \ \textrm{re>},$$
 
-以及特殊子词$\textrm{``<where>"}$。
+以及特殊子词$\textrm{<where>}$。
 
 在fastText中，对于一个词$w$，我们将它所有长度在3到6的子词和特殊子词的并集记为$\mathcal{G}_w$。那么词典则是所有词的子词集合的并集。假设词典中子词$g$的向量为$\boldsymbol{z}_g$，那么跳字模型中词$w$的作为中心词的向量$\boldsymbol{v}_w$则表示成
 
