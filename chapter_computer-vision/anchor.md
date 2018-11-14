@@ -5,9 +5,6 @@
 首先，导入本小节需要的包或模块。这里我们新引入了`contrib`包，并修改了NumPy的打印精度。由于NDArray的打印实际调用NumPy的打印函数，本节打印出的NDArray中的浮点数更简洁一些。
 
 ```{.python .input  n=1}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 from mxnet import contrib, gluon, image, nd

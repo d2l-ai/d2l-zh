@@ -18,9 +18,6 @@
 语义分割的一个重要数据集叫做Pascal VOC2012 [1]。为了更好地了解这个数据集，我们先导入实验所需的包或模块。
 
 ```{.python .input  n=1}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 from mxnet import gluon, image, nd

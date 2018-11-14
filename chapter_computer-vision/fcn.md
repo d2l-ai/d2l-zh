@@ -5,9 +5,6 @@
 我们先导入实验所需的包或模块，然后解释什么是转置卷积层。
 
 ```{.python .input  n=2}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 from mxnet import gluon, image, init, nd

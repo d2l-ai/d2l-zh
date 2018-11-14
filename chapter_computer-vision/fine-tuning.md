@@ -25,9 +25,6 @@
 首先，导入实验所需的包或模块。Gluon的`model_zoo`包提供了常用的预训练模型。如果你希望获取更多的计算机视觉的预训练模型，可以使用GluonCV工具包 [1]。
 
 ```{.python .input  n=1}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 from mxnet import gluon, init, nd
@@ -175,7 +172,6 @@ weight = pretrained_net.output.weight
 hotdog_w = nd.split(weight.data(), 1000, axis=0)[713]
 hotdog_w.shape
 ```
-
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2272)
 

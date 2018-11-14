@@ -7,9 +7,6 @@
 为了演示如何多尺度生成锚框，我们先读取一张图像。它的高和宽分别为561和728像素。
 
 ```{.python .input  n=1}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 from mxnet import contrib, image, nd

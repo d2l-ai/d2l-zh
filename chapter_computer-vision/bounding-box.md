@@ -7,9 +7,6 @@
 在接下来的几节里，我们将介绍目标检测里的多个深度学习模型。在此之前，让我们先介绍目标位置这个概念。下面加载本节将使用的示例图像。可以看到图像左边是一只狗，右边是一只猫。它们是这张图像里的两个主要目标。
 
 ```{.python .input}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 from mxnet import image
