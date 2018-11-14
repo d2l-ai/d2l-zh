@@ -31,6 +31,7 @@ h2.toc {
     padding-bottom: 10px;
 }
 
+
 .header img {
     max-width: 350px;
 }
@@ -73,19 +74,17 @@ h2.toc {
 
 
 @media (max-width: 1000px) {
-    .mdl-grid, #id2 h2 {
+    .mdl-grid, h2.toc {
         padding: 50px 0 0 0;
-    }
-
-    .header .mdl-button {
-        width: 150px;
-        margin: 10px 100px;
     }
 
     .header img, .features-2 img {
         max-width: 300px;
     }
 
+    .header .mdl-cell--1-col {
+        display: none;
+    }
     .features img {
         max-width: 350px;
     }
