@@ -19,7 +19,7 @@ stage("Publish") {
     ws('workspace/d2l-zh') {
       sh """#!/bin/bash
       set -ex
-      if [[ ${zhv.BRANCH_NAME} == master ]]; then
+      if [[ ${env.BRANCH_NAME} == master ]]; then
           aws s3 sync --delete build/_build/html/ s3://zh.diveintodeeplearning.org/ --acl public-read
       fi
       """
