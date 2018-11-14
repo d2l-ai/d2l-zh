@@ -17,15 +17,12 @@ OBJ = $(patsubst %.md, build/%.md, $(MARKDOWN)) \
 ORIGN_DEPS = $(wildcard img/* data/* gluonbook/*) environment.yml README.md
 DEPS = $(patsubst %, build/%, $(ORIGN_DEPS))
 
-PKG = build/_build/html/d2l-zh.tar.gz build/_build/html/d2l-zh.zip
+PKG = build/_build/html/d2l-zh.zip
 
 pkg: $(PKG)
 
 build/_build/html/d2l-zh.zip: $(OBJ) $(DEPS)
 	cd build; zip -r $(patsubst build/%, %, $@ $(DEPS)) chapter*
-
-build/_build/html/d2l-zh.tar.gz: $(OBJ) $(DEPS)
-	cd build; tar -zcvf $(patsubst build/%, %, $@ $(DEPS)) chapter*
 
 build/%: %
 	@mkdir -p $(@D)
@@ -34,7 +31,7 @@ build/%: %
 html: $(DEPS) $(OBJ)
 	make -C build html
 	cp -r img/frontpage/ build/_build/html/_images/
-	
+
 TEX=build/_build/latex/d2l-zh.tex
 
 build/_build/latex/%.pdf: img/%.svg
