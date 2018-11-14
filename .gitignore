@@ -8,6 +8,8 @@ build/environment.yml
 build/gluonbook
 build/data
 build/README.md
+build/build
+build/mdd.zip
 *.json
 *.params
 *.DS_Store
