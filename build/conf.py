@@ -69,10 +69,10 @@ source_suffix = ['.rst', '.ipynb', '.md']
 #source_encoding = 'utf-8-sig'
 
 # The master toctree document.
-master_doc = 'toc'
+master_doc = 'index'
 
 # General information about the project.
-project = '动手学深度学习'
+project = '《动手学深度学习》'
 copyright = '2017--2018, Contributors'
 author = "MXNet Community"
 
@@ -102,7 +102,8 @@ language = 'zh_CN'
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**.ipynb_checkpoints']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**.ipynb_checkpoints',
+                    'mx-theme', 'sphinx_materialdesign_theme']
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
@@ -136,7 +137,21 @@ todo_include_todos = True
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'sphinx_rtd_theme'
+# html_theme = 'sphinx_rtd_theme'
+
+html_theme_path = ['mx-theme']
+html_theme = 'sphinx_materialdesign_theme'
+html_theme_options = {
+    'primary_color': 'blue',
+    'accent_color': 'deep_orange',
+    'header_links' : [
+        ('PDF', './d2l-zh.pdf', True, 'fas fa-download'),
+        ('论坛', 'https://discuss.gluon.ai/c/lecture?order=views', True, 'fab fa-discourse'),
+        ('Github', 'https://github.com/diveintodeeplearning/d2l-zh', True, 'fab fa-github'),
+        ('English Version', 'https://diveintodeeplearning.org', True, 'fas fa-external-link-alt'),
+    ],
+    'show_footer': True
+}
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -287,7 +302,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'gluon_tutorials_zh.tex', '动手学深度学习',
+    (master_doc, 'd2l-zh.tex', '动手学深度学习',
      author, 'manual'),
 ]
 
@@ -372,4 +387,3 @@ def setup(app):
     }, True)
     app.add_javascript('baidu_tongji.js')
     app.add_javascript('google_analytics.js')
-    app.add_stylesheet('gluon.css')
