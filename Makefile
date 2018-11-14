@@ -17,14 +17,14 @@ OBJ = $(patsubst %.md, build/%.md, $(MARKDOWN)) \
 ORIGN_DEPS = $(wildcard img/* data/* gluonbook/*) environment.yml README.md
 DEPS = $(patsubst %, build/%, $(ORIGN_DEPS))
 
-PKG = build/_build/html/gluon_tutorials_zh.tar.gz build/_build/html/gluon_tutorials_zh.zip
+PKG = build/_build/html/d2l-zh.tar.gz build/_build/html/d2l-zh.zip
 
 pkg: $(PKG)
 
-build/_build/html/gluon_tutorials_zh.zip: $(OBJ) $(DEPS)
+build/_build/html/d2l-zh.zip: $(OBJ) $(DEPS)
 	cd build; zip -r $(patsubst build/%, %, $@ $(DEPS)) chapter*
 
-build/_build/html/gluon_tutorials_zh.tar.gz: $(OBJ) $(DEPS)
+build/_build/html/d2l-zh.tar.gz: $(OBJ) $(DEPS)
 	cd build; tar -zcvf $(patsubst build/%, %, $@ $(DEPS)) chapter*
 
 build/%: %
@@ -33,10 +33,9 @@ build/%: %
 
 html: $(DEPS) $(OBJ)
 	make -C build html
-	cp build/index.html build/_build/html/
 	cp -r img/frontpage/ build/_build/html/_images/
-
-TEX=build/_build/latex/gluon_tutorials_zh.tex
+	
+TEX=build/_build/latex/d2l-zh.tex
 
 build/_build/latex/%.pdf: img/%.svg
 	@mkdir -p $(@D)
@@ -61,8 +60,8 @@ pdf: $(DEPS) $(OBJ) $(PDFIMG)
 	sed -i /{\\\\tablename\\\\\ \\\\thetable{}\ --\ continued\ from\ previous\ page}/d $(TEX)
 	cd build/_build/latex && \
 	bash ../../convert_output_svg.sh && \
-	buf_size=10000000 xelatex gluon_tutorials_zh.tex && \
-	buf_size=10000000 xelatex gluon_tutorials_zh.tex
+	buf_size=10000000 xelatex d2l-zh.tex && \
+	buf_size=10000000 xelatex d2l-zh.tex
 
 clean:
 	rm -rf build/chapter* build/_build $(DEPS) $(PKG)

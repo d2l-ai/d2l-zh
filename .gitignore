@@ -1,7 +1,13 @@
 **/.ipynb_checkpoints
 **/__pycache__
 data/
-build/
+build/chapter*
+build/_build
+build/img
+build/environment.yml
+build/gluonbook
+build/data
+build/README.md
 *.json
 *.params
 *.DS_Store
