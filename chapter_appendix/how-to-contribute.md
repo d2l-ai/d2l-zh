@@ -86,9 +86,9 @@ git push
 
 ## 参考文献
 
-[1] 本书贡献者列表。https://github.com/mli/gluon-tutorials-zh/graphs/contributors
+[1] 本书贡献者列表。https://github.com/diveintodeeplearning/d2l-zh/graphs/contributors
 
-[2] 本书代码库地址。https://github.com/mli/gluon-tutorials-zh
+[2] 本书代码库地址。https://github.com/diveintodeeplearning/d2l-zh
 
 [3] 安装Git。https://git-scm.com/book/zh/v2
 
