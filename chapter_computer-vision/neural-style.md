@@ -12,19 +12,21 @@
 
 ![基于卷积神经网络的样式迁移。实线箭头和虚线箭头分别表示正向传播和反向传播。](../img/neural-style.svg)
 
-下面，我们通过实验来进一步了解样式迁移的技术细节。
+下面，我们通过实验来进一步了解样式迁移的技术细节。实验需要用到一些导入的包或模块。
+
+```{.python .input}
+%matplotlib inline
+import gluonbook as gb
+from mxnet import autograd, gluon, image, init, nd
+from mxnet.gluon import model_zoo, nn
+import time
+```
 
 ## 读取内容图像和样式图像
 
 首先，我们分别读取内容图像和样式图像。从打印出的图像坐标轴可以看出，它们的尺寸并不一样。
 
 ```{.python .input  n=1}
-%matplotlib inline
-import gluonbook as gb
-from mxnet import autograd, gluon, image, init, nd
-from mxnet.gluon import model_zoo, nn
-import time
-
 gb.set_figsize()
 content_img = image.imread('../img/rainier.jpg')
 gb.plt.imshow(content_img.asnumpy());
