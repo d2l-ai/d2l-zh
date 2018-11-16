@@ -1,29 +1,30 @@
 # 样式迁移
 
-喜欢拍照的同学可能都接触过滤镜，它们能改变照片的颜色风格，可以使得风景照更加锐利或者人像更加美白。但一个滤镜通常只能改变照片的某个方面，达到想要的风格经常需要大量组合尝试，其复杂程度不亚于模型调参。
+如果你是一位摄影爱好者，你也许接触过滤镜。它能改变照片的颜色样式，从而使风景照更加锐利或者令人像更加美白。但一个滤镜通常只能改变照片的某个方面。如果要照片达到理想中的样式，这经常需要尝试大量不同的组合：其复杂程度不亚于模型调参。
 
-本小节我们将介绍如何使用神经网络来自动化这个过程 [1]。这里我们需要两张输入图像，一张是内容图像，另一张是样式图像，我们将使用神经网络修改内容图像使得其样式接近样式图像。图9.12中的内容图像为本书作者在西雅图郊区的雷尼尔山国家公园（Mount Rainier National Park）拍摄的风景照，样式图像则为一副主题为秋天橡树的油画，其合成图像在保留了内容图像中物体主体形状的情况下加入了样式图像的油画笔触，同时也让整体颜色更加鲜艳。
+在本节中，我们将介绍如何使用卷积神经网络自动将某图像中的样式应用在另一图像之上，即样式迁移（style transfer）[1]。这里我们需要两张输入图像，一张是内容图像，另一张是样式图像：我们将使用神经网络修改内容图像使得其样式接近样式图像。图9.12中的内容图像为本书作者在西雅图郊区的雷尼尔山国家公园（Mount Rainier National Park）拍摄的风景照，而样式图像则是一副主题为秋天橡树的油画。最终输出的合成图像在保留了内容图像中物体主体形状的情况下应用了样式图像的油画笔触，同时也让整体颜色更加鲜艳。
 
 ![输入内容图像和样式图像，输出样式迁移后的合成图像。](../img/style-transfer.svg)
 
+## 方法
 
-使用神经网络进行样式迁移的过程如图9.13所示。在图中我们选取一个有三个卷积层的神经网络为例，来提取特征。对于样式图像，我们选取第一和第三层输出作为样式特征。对于内容图像则选取第二层输出作为内容特征。给定一个合成图像的初始值，我们通过不断的迭代直到其与样式图像输入到同一神经网络时，第一和第三层输出能很好地匹配样式特征，并且合成图像与初始内容图像输入到神经网络时在第二层输出能匹配到内容特征。
+图9.13用一个例子来阐述基于卷积神经网络的样式迁移方法。首先，我们初始化合成图像，例如将其初始化成内容图像。该合成图像是样式迁移过程中唯一需要更新的变量，即所需迭代的模型参数。然后，我们选择一个预训练的卷积神经网络来抽取图像的特征，其中的模型参数在训练中无需更新。深度卷积神经网络凭借多个神经层逐级抽取图像的特征。我们可以选择其中某些层的输出作为样式特征或内容特征。以图9.13为例，这里选取的预训练的神经网络含有三个卷积层，其中第一层和第三层的输出被作为图像的样式特征，而第二层则输出图像的内容特征。接下来，我们通过正向传播（实线箭头方向）计算样式迁移的损失函数，并通过反向传播（虚线箭头方向）迭代模型参数，即不断更新合成图像。样式迁移常用的损失函数由三部分组成：样式损失（style loss）令合成图像与样式图像在样式特征上接近；内容损失（content loss）使合成图像与内容图像在内容特征上接近；而总变差损失（total variation loss）有助于减少合成图像中的噪点。最后，当模型训练结束时，我们输出样式迁移的模型参数，即得到最终的合成图像。
 
-![使用神经网络进行样式迁移。](../img/neural-style.svg)
+![基于卷积神经网络的样式迁移。实线箭头和虚线箭头分别表示正向传播和反向传播。](../img/neural-style.svg)
 
-```{.python .input  n=1}
+下面，我们通过实验来进一步了解样式迁移的技术细节。
+
+## 读取和处理图像
+
+我们分别读取样式和内容图像。
+
+```{.python .input  n=2}
 %matplotlib inline
 import gluonbook as gb
 from mxnet import autograd, gluon, image, init, nd
 from mxnet.gluon import model_zoo, nn
 import time
-```
 
-## 数据
-
-我们分别读取样式和内容图像。
-
-```{.python .input  n=2}
 gb.set_figsize()
 style_img = image.imread('../img/autumn_oak.jpg')
 gb.plt.imshow(style_img.asnumpy());
@@ -163,9 +164,9 @@ def compute_loss(X, content_Y_hat, style_Y_hat, content_Y, style_Y_gram):
 ## 定义输出图像
 
 ```{.python .input}
-class TransferredImage(nn.Block):
+class GeneratedImage(nn.Block):
     def __init__(self, img_shape, **kwargs):
-        super(TransferredImage, self).__init__(**kwargs)
+        super(GeneratedImage, self).__init__(**kwargs)
         self.weight = self.params.get('weight', shape=img_shape)
 
     def forward(self):
@@ -174,7 +175,7 @@ class TransferredImage(nn.Block):
 
 ```{.python .input}
 def get_inits(X, ctx, lr, style_Y):
-    net = TransferredImage(X.shape)
+    net = GeneratedImage(X.shape)
     net.initialize(init.Constant(X), ctx=ctx, force_reinit=True)
     trainer = gluon.Trainer(net.collect_params(), 'adam',
                             {'learning_rate': lr})
@@ -199,7 +200,7 @@ def train(X, content_Y, style_Y, ctx, lr, max_epochs, lr_decay_epoch):
                 X, content_Y_hat, style_Y_hat, content_Y, style_Y_gram)
         l.backward()     
         trainer.step(1)
-        # 如果不加的话会导致每50轮迭代才同步一次，可能导致过大内存使用。
+        # 如果不加的话会导致每 50 轮迭代才同步一次，可能导致过大内存使用。
         nd.waitall()
         if i % 50 == 0 and i != 0:
             print('epoch %3d, content loss %.2f, style loss %.2f, '
