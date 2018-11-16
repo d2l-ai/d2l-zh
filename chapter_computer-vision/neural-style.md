@@ -2,7 +2,7 @@
 
 如果你是一位摄影爱好者，你也许接触过滤镜。它能改变照片的颜色样式，从而使风景照更加锐利或者令人像更加美白。但一个滤镜通常只能改变照片的某个方面。如果要照片达到理想中的样式，这经常需要尝试大量不同的组合：其复杂程度不亚于模型调参。
 
-在本节中，我们将介绍如何使用卷积神经网络自动将某图像中的样式应用在另一图像之上，即样式迁移（style transfer）[1]。这里我们需要两张输入图像，一张是内容图像，另一张是样式图像：我们将使用神经网络修改内容图像使得其样式接近样式图像。图9.12中的内容图像为本书作者在西雅图郊区的雷尼尔山国家公园（Mount Rainier National Park）拍摄的风景照，而样式图像则是一副主题为秋天橡树的油画。最终输出的合成图像在保留了内容图像中物体主体形状的情况下应用了样式图像的油画笔触，同时也让整体颜色更加鲜艳。
+在本节中，我们将介绍如何使用卷积神经网络自动将某图像中的样式应用在另一图像之上，即样式迁移（style transfer）[1]。这里我们需要两张输入图像，一张是内容图像，另一张是样式图像：我们将使用神经网络修改内容图像使得其在样式上接近样式图像。图9.12中的内容图像为本书作者在西雅图郊区的雷尼尔山国家公园（Mount Rainier National Park）拍摄的风景照，而样式图像则是一副主题为秋天橡树的油画。最终输出的合成图像在保留了内容图像中物体主体形状的情况下应用了样式图像的油画笔触，同时也让整体颜色更加鲜艳。
 
 ![输入内容图像和样式图像，输出样式迁移后的合成图像。](../img/style-transfer.svg)
 
@@ -106,12 +106,18 @@ def get_styles(image_shape, ctx):
 
 ## 定义损失函数
 
-下面我们来描述样式迁移的损失函数。它由内容损失、样式损失和总变差损失三部分组成。与线性回归中的损失函数类似，内容损失通过平方误差函数衡量合成图像与内容图像在内容特征上的差异。平方误差函数的两个输入均为`extract_features`函数计算所得到的内容层的输出。
+下面我们来描述样式迁移的损失函数。它由内容损失、样式损失和总变差损失三部分组成。
+
+### 内容损失
+
+与线性回归中的损失函数类似，内容损失通过平方误差函数衡量合成图像与内容图像在内容特征上的差异。平方误差函数的两个输入均为`extract_features`函数计算所得到的内容层的输出。
 
 ```{.python .input  n=9}
 def content_loss(Y_hat, Y):
     return (Y_hat - Y).square().mean()
 ```
+
+### 样式损失
 
 样式损失也一样通过平方误差函数衡量合成图像与样式图像在样式上的差异。为了表达样式层输出的样式，我们先通过`extract_features`函数计算样式层的输出。假设该输出的样本数为1，通道数为$c$，高和宽分别为$h$和$w$，我们可以把输出变换成$c$行$h \cdot w$列的矩阵$\boldsymbol{X}$。矩阵$\boldsymbol{X}$可以看作是由$c$个长度为$hw$的向量$\boldsymbol{x}_1, \ldots, \boldsymbol{x}_c$组成的。其中向量$\boldsymbol{x}_i$代表了通道$i$上的样式特征。这些向量的格拉姆矩阵（Gram matrix）$\boldsymbol{X}\boldsymbol{X}^\top \in \mathbb{R}^{c \times c}$中$i$行$j$列的元素$x_{ij}$即向量$\boldsymbol{x}_i$与$\boldsymbol{x}_j$的内积：它表达了通道$i$和通道$j$上样式特征的相关性。我们用这样的格拉姆矩阵表达样式层输出的样式。需要注意的是，当$h \cdot w$的值较大时，格拉姆矩阵中的元素容易出现较大的值。此外，格拉姆矩阵的高和宽皆为通道数$c$。为了让样式损失不受这些值的大小影响，以下定义的`gram`函数将格拉姆矩阵除以了矩阵中元素的个数，即$c \cdot h \cdot w$。
 
@@ -129,6 +135,8 @@ def style_loss(Y_hat, gram_Y):
     return (gram(Y_hat) - gram_Y).square().mean()
 ```
 
+### 总变差损失
+
 有时候，我们学到的合成图像里面有大量高频噪点，即有特别亮或者暗的颗粒像素。一种常用的降噪方法是总变差降噪（total variation denoising）。假设$x_{i,j}$表示坐标为$(i,j)$的像素值，总变差损失
 
 $$\sum_{i,j} \left|x_{i,j} - x_{i+1,j}\right| + \left|x_{i,j} - x_{i,j+1}\right|$$
@@ -140,6 +148,8 @@ def tv_loss(Y_hat):
     return 0.5 * ((Y_hat[:, :, 1:, :] - Y_hat[:, :, :-1, :]).abs().mean() +
                   (Y_hat[:, :, :, 1:] - Y_hat[:, :, :, :-1]).abs().mean())
 ```
+
+### 损失函数
 
 样式迁移的损失函数即内容损失、样式损失和总变差损失的加权和。通过调节这些权值超参数，我们可以权衡合成图像在保留内容、迁移样式以及降噪三方面的相对重要性。
 
@@ -159,11 +169,11 @@ def compute_loss(X, contents_Y_hat, styles_Y_hat, contents_Y, styles_Y_gram):
     return contents_l, styles_l, tv_l, l
 ```
 
-## 定义合成图像
+## 创建和初始化合成图像
 
+在样式迁移中，合成图像是唯一需要更新的变量。因此，我们可以定义一个简单的模型`GeneratedImage`，并将合成图像视为模型参数。模型的前向计算只需返回模型参数即可。
 
-
-```{.python .input  n=15}
+```{.python .input  n=14}
 class GeneratedImage(nn.Block):
     def __init__(self, img_shape, **kwargs):
         super(GeneratedImage, self).__init__(**kwargs)
@@ -173,7 +183,9 @@ class GeneratedImage(nn.Block):
         return self.weight.data()
 ```
 
-```{.python .input  n=16}
+下面，我们定义`get_inits`函数。该函数创建了合成图像的模型实例，并将其初始化为图像`X`。样式图像在各个样式层的格拉姆矩阵`styles_Y_gram`将在训练前预先计算好。
+
+```{.python .input  n=15}
 def get_inits(X, ctx, lr, styles_Y):
     gen_img = GeneratedImage(X.shape)
     gen_img.initialize(init.Constant(X), ctx=ctx, force_reinit=True)
@@ -185,22 +197,20 @@ def get_inits(X, ctx, lr, styles_Y):
 
 ## 训练
 
-这里的训练跟前面章节的主要不同在于我们只对输入`x`进行更新。此外我们将`x`的梯度除以它的绝对平均值来降低对学习率的敏感度，而且每隔一定的批量我们减小一次学习率。
+在训练模型时，我们不断抽取合成图像的内容和样式特征，并计算损失函数。回忆[“异步计算”](../chapter_computational-performance/async-computation.md)一节中有关用同步函数让前端等待计算结果的讨论。由于我们每隔50个迭代周期才调用同步函数`asscalar`，很容易造成内存占用过高，因此我们在每个迭代周期都调用一次同步函数`waitall`。
 
-```{.python .input  n=17}
+```{.python .input  n=16}
 def train(X, contents_Y, styles_Y, ctx, lr, max_epochs, lr_decay_epoch):
     X, styles_Y_gram, trainer = get_inits(X, ctx, lr, styles_Y)
     for i in range(max_epochs):
         start = time.time()
         with autograd.record():
-            # 对合成图像 X 抽取样式和内容特征。
             contents_Y_hat, styles_Y_hat = extract_features(
                 X, content_layers, style_layers)
             contents_l, styles_l, tv_l, l = compute_loss(
                 X, contents_Y_hat, styles_Y_hat, contents_Y, styles_Y_gram)
-        l.backward()     
+        l.backward()
         trainer.step(1)
-        # 如果不加的话会导致每 50 轮迭代才同步一次，可能导致过大内存使用。
         nd.waitall()
         if i % 50 == 0 and i != 0:
             print('epoch %3d, content loss %.2f, style loss %.2f, '
@@ -214,9 +224,9 @@ def train(X, contents_Y, styles_Y, ctx, lr, max_epochs, lr_decay_epoch):
     return X
 ```
 
-现在我们可以真正开始训练了。首先将图像调整到高300宽200，这样能使训练更加快速。合成图像的初始值设成了内容图像，使得初始值能尽可能接近训练输出，从而加速收敛。
+下面我们开始训练模型。首先将内容和样式图像的高和宽分别调整为200和300像素。合成图像将由内容图像来初始化。
 
-```{.python .input  n=18}
+```{.python .input  n=17}
 ctx, image_shape = gb.try_gpu(), (300, 200)
 net.collect_params().reset_ctx(ctx)
 content_X, contents_Y = get_contents(image_shape, ctx)
@@ -224,17 +234,17 @@ style_X, styles_Y = get_styles(image_shape, ctx)
 output = train(content_X, contents_Y, styles_Y, ctx, 0.01, 500, 200)
 ```
 
-因为使用了内容图像作为初始值，所以一开始内容误差远小于样式误差。随着迭代的进行样式误差迅速减少，最终它们值在相近的范围。下面我们将训练好的合成图像保存下来。
+下面我们将训练好的合成图像保存起来。可以看到图9.14中的合成图像保留了内容图像的风景和物体，并同时迁移了样式图像的色彩。由于图像尺寸较小，所以细节上依然比较模糊。
 
-```{.python .input  n=19}
+```{.python .input  n=18}
 gb.plt.imsave('../img/neural-style-1.png', postprocess(output).asnumpy())
 ```
 
-![$300 \times 200$ 尺寸的合成图像。](../img/neural-style-1.png)
+![$200 \times 300$尺寸的合成图像。](../img/neural-style-1.png)
 
-可以看到图9.14中的合成图像保留了样式图像的风景物体，同时借鉴了样式图像的色彩。由于图像尺寸较小，所以细节上比较模糊。下面我们在更大的$1200 \times 800$的尺寸上训练，希望可以得到更加清晰的合成图像。为了加速收敛，我们将训练到的合成图像高宽放大4倍来作为初始值。
+为了得到更加清晰的合成图像，下面我们在更大的$800 \times 1200$尺寸上训练。我们将图9.14的高和宽放大4倍，以初始化更大尺寸的合成图像。
 
-```{.python .input  n=20}
+```{.python .input  n=19}
 image_shape = (1200, 800)
 content_X, content_Y = get_contents(image_shape, ctx)
 style_X, style_Y = get_styles(image_shape, ctx)
@@ -243,22 +253,24 @@ output = train(X, content_Y, style_Y, ctx, 0.01, 300, 100)
 gb.plt.imsave('../img/neural-style-2.png', postprocess(output).asnumpy())
 ```
 
-可以看到这一次由于初始值离最终输出更近使得收敛更加迅速。但同时由于图像尺寸更大，每一次迭代需要花费更多的时间和内存。
+可以看到，由于图像尺寸更大，每一次迭代需要花费更多的时间。从训练得到的图9.15中可以看到，此时的合成图像由于尺寸更大，保留了更多的细节。合成图像里面不仅有大块的类似样式图像的油画色彩块，色彩块中甚至出现了细微的纹理。
 
-![$1200 \times 800$ 尺寸的合成图像。](../img/neural-style-2.png)
+![$1200 \times 800$尺寸的合成图像。](../img/neural-style-2.png)
 
-从训练得到的图9.15中的可以看到它保留了更多的细节，里面不仅有大块的类似样式图像的油画色彩块，色彩块里面也有细微的纹理。
 
 ## 小结
 
-* 通过匹配神经网络的中间层输出可以有效的融合不同图像的内容和样式。
+* 样式迁移常用的损失函数由三部分组成：内容损失使合成图像与内容图像在内容特征上接近，样式损失令合成图像与样式图像在样式特征上接近，而总变差损失则有助于减少合成图像中的噪点。
+* 我们可以通过预训练的卷积神经网络来抽取图像的特征，并通过最小化损失函数来不断更新合成图像。
+* 我们用格拉姆矩阵表达样式层输出的样式。
+
 
 ## 练习
 
-* 选择不同的内容和样式层。
-* 使用不同的损失权重来得到更偏向内容或样式或平滑的输出。
-* 一个得到更加干净的合成图的办法是使用更大的尺寸。
-* 换别的样式和内容图像试试。
+* 选择不同的内容和样式层，输出有什么变化？
+* 调整损失函数中的权值超参数，输出是否保留更多内容或减少更多噪点？
+* 将合成图像的尺寸进一步放大，是否可以得到更细致的输出？
+* 替换实验中的内容和样式图像，你能创作出更有趣的合成图像吗？
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/3273)
 
