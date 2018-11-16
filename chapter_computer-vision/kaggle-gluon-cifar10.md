@@ -1,33 +1,30 @@
 # 实战Kaggle比赛：图像分类（CIFAR-10）
 
-CIFAR-10是一个计算机视觉领域的重要数据集。本节中，我们将动手实战一个有关它的Kaggle比赛：CIFAR-10图像分类问题。该比赛的网页地址是
+到目前为止，我们一直在用Gluon的`data`包直接获取NDArray格式的图像数据集。然而，实际中的图像数据集往往是以图像文件的形式存在的。本节中，我们将从原始的图像文件开始，一步步整理、读取并变换为NDArray格式。
+
+我们曾在[“图像增广”](image-augmentation.md)一节中实验过CIFAR-10数据集。它是计算机视觉领域的一个重要数据集。现在我们将应用前面章节所学到的知识，动手实战CIFAR-10图像分类问题的Kaggle比赛。该比赛的网页地址是
 
 > https://www.kaggle.com/c/cifar-10
 
-
 图9.16展示了该比赛的网页信息。为了便于提交结果，请先在Kaggle网站上注册账号。
 
-![CIFAR-10图像分类比赛的网页信息。比赛数据集可通过点击“Data”标签获取。](../img/kaggle_cifar10.png)
-
+![CIFAR-10图像分类比赛的网页信息（来源：www.kaggle.com/c/cifar-10）。比赛数据集可通过点击“Data”标签获取。](../img/kaggle_cifar10.png)
 
 首先，导入实验所需的包或模块。
 
-```{.python .input}
-import datetime
+```{.python .input  n=1}
 import gluonbook as gb
 from mxnet import autograd, gluon, init
 from mxnet.gluon import data as gdata, loss as gloss, nn
 import os
 import pandas as pd
 import shutil
+import time
 ```
 
-## 获取数据集
+## 获取和整理数据集
 
-比赛数据分为训练集和测试集。训练集包含5万张图像。测试集包含30万张图像，其中有1万张图像用来计分，其他29万张不计分的图像是为了防止人工标注测试集。两个数据集中的图像格式都是png，高和宽均为32像素，并含有RGB三个通道（彩色）。如图9.17所示，图像一共涵盖10个类别，分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车。
-
-![CIFAR-10图像的类别分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车。](../img/cifar10.png)
-
+比赛数据分为训练集和测试集。训练集包含5万张图像。测试集包含30万张图像，其中有1万张图像用来计分，其他29万张不计分的图像是为了防止人工标注测试集并提交标注结果。两个数据集中的图像格式都是png，高和宽均为32像素，并含有RGB三个通道（彩色）。图像一共涵盖10个类别，分别为飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船和卡车。图9.16的左上角展示了数据集中部分飞机、汽车和鸟的图像。
 
 ### 下载数据集
 
@@ -36,16 +33,16 @@ import shutil
 
 ### 解压数据集
 
-下载完训练数据集“train.7z”和测试数据集“test.7z”后请解压缩。解压缩后，将训练数据集、测试数据集和训练数据集标签分别存放在以下路径：
+下载完训练数据集“train.7z”和测试数据集“test.7z”后需要解压缩。解压缩后，将训练数据集、测试数据集以及训练数据集标签分别存放在以下三个路径：
 
 * ../data/kaggle_cifar10/train/[1-50000].png
 * ../data/kaggle_cifar10/test/[1-300000].png
 * ../data/kaggle_cifar10/trainLabels.csv
 
-为方便快速上手，我们提供了上述数据集的小规模采样，其中“train_tiny.zip”包含100个训练样本，而“test_tiny.zip” 仅包含1个测试样本。它们解压后的文件夹名称分别为“train_tiny”和“test_tiny”。此外，将训练数据集标签的压缩文件解压后得到“trainLabels.csv”。如果你将使用上述Kaggle比赛的完整数据集，还需要把下面`demo`变量改为`False`。
+为方便快速上手，我们提供了上述数据集的小规模采样，其中“train_tiny.zip”包含100个训练样本，而“test_tiny.zip”仅包含1个测试样本。它们解压后的文件夹名称分别为“train_tiny”和“test_tiny”。此外，将训练数据集标签的压缩文件解压，并得到“trainLabels.csv”。如果你将使用上述Kaggle比赛的完整数据集，还需要把下面`demo`变量改为`False`。
 
-```{.python .input}
-# 如果使用下载的 Kaggle 比赛的完整数据集，把下面 demo 变量改为 False。
+```{.python .input  n=2}
+# 如果使用下载的 Kaggle 比赛的完整数据集，把 demo 变量改为 False。
 demo = True
 if demo:
     import zipfile
@@ -56,30 +53,36 @@ if demo:
 
 ### 整理数据集
 
-我们接下来定义`reorg_cifar10_data`函数来整理数据集。经过整理后，同一类图像将被放在同一个文件夹下，便于我们稍后读取。该函数中的参数`valid_ratio`是验证集样本数与原始训练集样本数之比。以`valid_ratio=0.1`为例，由于原始训练数据集有50,000张图像，调参时将有45,000张图像用于训练并存放在路径“`input_dir/train`”，而另外5,000张图像为验证集并存放在路径“`input_dir/valid`”。
+我们需要整理数据集，以方便训练和测试模型。以下的`read_label_file`函数将用来读取训练数据集的标签文件。该函数中的参数`valid_ratio`是验证集样本数与原始训练集样本数之比。
 
-```{.python .input  n=2}
-def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
-                       valid_ratio):
-    # 读取训练数据集标签。
+```{.python .input  n=3}
+def read_label_file(data_dir, label_file, train_dir, valid_ratio):
     with open(os.path.join(data_dir, label_file), 'r') as f:
         # 跳过文件头行（栏名称）。
         lines = f.readlines()[1:]
         tokens = [l.rstrip().split(',') for l in lines]
         idx_label = dict(((int(idx), label) for idx, label in tokens))
     labels = set(idx_label.values())
-
     n_train_valid = len(os.listdir(os.path.join(data_dir, train_dir)))
     n_train = int(n_train_valid * (1 - valid_ratio))
     assert 0 < n_train < n_train_valid
-    n_train_per_label = n_train // len(labels)
+    return n_train // len(labels), idx_label
+```
+
+下面定义一个辅助函数，从而仅在路径不存在的情况下创建路径。
+
+```{.python .input  n=4}
+def mkdir_if_not_exist(path):  # 本函数已保存在 gluonbook 包中方便以后使用。
+    if not os.path.exists(os.path.join(*path)):
+        os.makedirs(os.path.join(*path))
+```
+
+我们接下来定义`reorg_train_valid`函数来整理训练和验证集。经过整理后，同一类图像将被放在同一个文件夹下，便于我们稍后读取。以`valid_ratio=0.1`为例，由于原始训练数据集有50,000张图像，调参时将有45,000张图像用于训练并存放在路径“`input_dir/train`”下，而另外5,000张图像为验证集并存放在路径“`input_dir/valid`”下。
+
+```{.python .input  n=5}
+def reorg_train_valid(data_dir, train_dir, input_dir, n_train_per_label,
+                      idx_label):
     label_count = {}
-
-    def mkdir_if_not_exist(path):
-        if not os.path.exists(os.path.join(*path)):
-            os.makedirs(os.path.join(*path))
-
-    # 整理训练和验证集。
     for train_file in os.listdir(os.path.join(data_dir, train_dir)):
         idx = int(train_file.split('.')[0])
         label = idx_label[idx]
@@ -95,24 +98,39 @@ def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
             mkdir_if_not_exist([data_dir, input_dir, 'valid', label])
             shutil.copy(os.path.join(data_dir, train_dir, train_file),
                         os.path.join(data_dir, input_dir, 'valid', label))
+```
 
-    # 整理测试集。
+下面的`reorg_test`函数用来整理测试集，从而方便预测时的读取。
+
+```{.python .input  n=6}
+def reorg_test(data_dir, test_dir, input_dir):
     mkdir_if_not_exist([data_dir, input_dir, 'test', 'unknown'])
     for test_file in os.listdir(os.path.join(data_dir, test_dir)):
         shutil.copy(os.path.join(data_dir, test_dir, test_file),
                     os.path.join(data_dir, input_dir, 'test', 'unknown'))
 ```
 
-我们在这里仅仅使用100个训练样本和1个测试样本。训练和测试数据集的文件夹名称分别为“train_tiny”和“test_tiny”。相应地，我们仅将批量大小设为1。实际训练和测试时应使用Kaggle比赛的完整数据集，并将批量大小`batch_size`设为一个较大的整数，例如128。我们将10%的训练样本作为调参时的验证集。
+最后，我们用一个函数分别调用前面定义的`reorg_test`、`reorg_train_valid`以及`reorg_test`函数。
 
-```{.python .input  n=3}
+```{.python .input  n=7}
+def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
+                       valid_ratio):
+    n_train_per_label, idx_label = read_label_file(data_dir, label_file,
+                                                   train_dir, valid_ratio)
+    reorg_train_valid(data_dir, train_dir, input_dir, n_train_per_label,
+                      idx_label)
+    reorg_test(data_dir, test_dir, input_dir)
+```
+
+我们在这里仅仅使用100个训练样本和1个测试样本。训练和测试数据集的文件夹名称分别为“train_tiny”和“test_tiny”。相应地，我们仅将批量大小设为1。实际训练和测试时应使用Kaggle比赛的完整数据集，并将批量大小`batch_size`设为一个较大的整数，例如128。我们将10%的训练样本作为调参所使用的验证集。
+
+```{.python .input  n=8}
 if demo:
-    # 注意：此处使用小训练集和小测试集并将批量大小相应设小。
-    # 使用 Kaggle 比赛的完整数据集时可设批量大小为较大整数。
+    # 注意：此处使用小训练集和小测试集并将批量大小相应设小。使用 Kaggle 比赛的完整数据集时
+    # 可设批量大小为较大整数。
     train_dir, test_dir, batch_size = 'train_tiny', 'test_tiny', 1
 else:
     train_dir, test_dir, batch_size = 'train', 'test', 128
-
 data_dir, label_file = '../data/kaggle_cifar10', 'trainLabels.csv'
 input_dir, valid_ratio = 'train_valid_test', 0.1
 reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
@@ -121,9 +139,9 @@ reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
 
 ## 图像增广
 
-为应对过拟合，我们在这里使用`transforms`来增广数据。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图像做镜面翻转。我们也可以通过`transforms.Normalize()`对彩色图像RGB三个通道分别做标准化。以下列举了其中的部分操作，你可以根据需求来决定是否使用或修改这些操作。
+为应对过拟合，我们使用图像增广。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图像做镜面翻转。我们也可以通过`transforms.Normalize()`对彩色图像RGB三个通道分别做标准化。以下列举了其中的部分操作，你可以根据需求来决定是否使用或修改这些操作。
 
-```{.python .input  n=4}
+```{.python .input  n=9}
 transform_train = gdata.vision.transforms.Compose([
     # 将图像放大成高和宽各为 40 像素的正方形。
     gdata.vision.transforms.Resize(40),
@@ -131,25 +149,25 @@ transform_train = gdata.vision.transforms.Compose([
     # 形，再放缩为高和宽各为 32 像素的正方形。
     gdata.vision.transforms.RandomResizedCrop(32, scale=(0.64, 1.0),
                                               ratio=(1.0, 1.0)),
-    # 随机左右翻转图像。
     gdata.vision.transforms.RandomFlipLeftRight(),
-    # 将图像像素值按比例缩小到 0 和 1 之间，并将数据格式从“高 * 宽 * 通道”改为
-    # “通道 * 高 * 宽”。
     gdata.vision.transforms.ToTensor(),
     # 对图像的每个通道做标准化。
     gdata.vision.transforms.Normalize([0.4914, 0.4822, 0.4465],
                                       [0.2023, 0.1994, 0.2010])])
+```
 
-# 测试时，无需对图像做标准化以外的增强数据处理。
+测试时，为保证输出的确定性，我们仅对图像做标准化。
+
+```{.python .input}
 transform_test = gdata.vision.transforms.Compose([
     gdata.vision.transforms.ToTensor(),
     gdata.vision.transforms.Normalize([0.4914, 0.4822, 0.4465],
                                       [0.2023, 0.1994, 0.2010])])
 ```
 
-接下来，我们可以使用`ImageFolderDataset`类来读取整理后的数据集，其中每个数据样本包括图像和标签。需要注意的是，我们要在`DataLoader`中调用刚刚定义好的图像增广函数，其中的`transform_first`函数指明对每个数据样本中的图像做数据增广。
+接下来，我们可以通过创建`ImageFolderDataset`实例来读取整理后的含原始图像文件的数据集，其中每个数据样本包括图像和标签。
 
-```{.python .input  n=5}
+```{.python .input  n=10}
 # 读取原始图像文件。flag=1 说明输入图像有三个通道（彩色）。
 train_ds = gdata.vision.ImageFolderDataset(
     os.path.join(data_dir, input_dir, 'train'), flag=1)
@@ -159,7 +177,11 @@ train_valid_ds = gdata.vision.ImageFolderDataset(
     os.path.join(data_dir, input_dir, 'train_valid'), flag=1)
 test_ds = gdata.vision.ImageFolderDataset(
     os.path.join(data_dir, input_dir, 'test'), flag=1)
+```
 
+我们在`DataLoader`中指明定义好的图像增广操作。在训练时，我们仅用验证集评价模型，因此需要保证输出的确定性。在预测时，我们将在训练集和验证集的并集上训练模型，以充分利用所有标注的数据。
+
+```{.python .input}
 train_data = gdata.DataLoader(train_ds.transform_first(transform_train),
                               batch_size, shuffle=True, last_batch='keep')
 valid_data = gdata.DataLoader(valid_ds.transform_first(transform_test),
@@ -172,9 +194,9 @@ test_data = gdata.DataLoader(test_ds.transform_first(transform_test),
 
 ## 定义模型
 
-我们在这里定义ResNet-18模型，并使用混合式编程来提升执行效率。
+与[“残差网络（ResNet）”](../chapter_convolutional-neural-networks/resnet.md)一节中的实现稍有不同，这里基于HybridBlock类构建残差块。这是为了提升执行效率。
 
-```{.python .input  n=6}
+```{.python .input  n=11}
 class Residual(nn.HybridBlock):
     def __init__(self, num_channels, use_1x1conv=False, strides=1, **kwargs):
         super(Residual, self).__init__(**kwargs)
@@ -195,7 +217,11 @@ class Residual(nn.HybridBlock):
         if self.conv3:
             X = self.conv3(X)
         return F.relu(Y + X)
+```
 
+下面定义ResNet-18模型。
+
+```{.python .input}
 def resnet18(num_classes):
     net = nn.HybridSequential()
     net.add(nn.Conv2D(64, kernel_size=3, strides=1, padding=1),
@@ -216,28 +242,31 @@ def resnet18(num_classes):
             resnet_block(512, 2))
     net.add(nn.GlobalAvgPool2D(), nn.Dense(num_classes))
     return net
+```
 
+CIFAR-10图像分类问题的类别个数为10。我们将在训练开始前对模型进行Xavier随机初始化。
+
+```{.python .input}
 def get_net(ctx):
     num_classes = 10
     net = resnet18(num_classes)
     net.initialize(ctx=ctx, init=init.Xavier())
     return net
+
+loss = gloss.SoftmaxCrossEntropyLoss()
 ```
 
 ## 定义训练函数
 
 我们将根据模型在验证集上的表现来选择模型并调节超参数。下面定义了模型的训练函数`train`。我们记录了每个迭代周期的训练时间，这有助于比较不同模型的时间开销。
 
-```{.python .input  n=7}
-loss = gloss.SoftmaxCrossEntropyLoss()
-
+```{.python .input  n=12}
 def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
           lr_decay):
     trainer = gluon.Trainer(net.collect_params(), 'sgd',
                             {'learning_rate': lr, 'momentum': 0.9, 'wd': wd})
-    prev_time = datetime.datetime.now()
     for epoch in range(num_epochs):
-        train_l, train_acc = 0.0, 0.0
+        train_l, train_acc, start = 0.0, 0.0, time.time()
         if epoch > 0 and epoch % lr_period == 0:
             trainer.set_learning_rate(trainer.learning_rate * lr_decay)
         for X, y in train_data:
@@ -249,10 +278,7 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
             trainer.step(batch_size)
             train_l += l.mean().asscalar()
             train_acc += gb.accuracy(y_hat, y)
-        cur_time = datetime.datetime.now()
-        h, remainder = divmod((cur_time - prev_time).seconds, 3600)
-        m, s = divmod(remainder, 60)
-        time_s = "time %02d:%02d:%02d" % (h, m, s)
+        time_s = "time %.2f sec" % (time.time() - start)
         if valid_data is not None:
             valid_acc = gb.evaluate_accuracy(valid_data, net, ctx)
             epoch_s = ("epoch %d, loss %f, train acc %f, valid acc %f, "
@@ -262,15 +288,14 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
             epoch_s = ("epoch %d, loss %f, train acc %f, " %
                        (epoch + 1, train_l / len(train_data),
                         train_acc / len(train_data)))
-        prev_time = cur_time
         print(epoch_s + time_s + ', lr ' + str(trainer.learning_rate))
 ```
 
 ## 训练并验证模型
 
-现在，我们可以训练并验证模型了。以下的超参数都是可以调节的，例如增加迭代周期等。由于`lr_period`和`lr_decay`分别设为80和0.1，优化算法的学习率将在每80个迭代周期后自乘0.1。
+现在，我们可以训练并验证模型了。以下的超参数都是可以调节的，例如增加迭代周期等。由于`lr_period`和`lr_decay`分别设为80和0.1，优化算法的学习率将在每80个迭代周期后自乘0.1。为简单起见，这里仅训练1个迭代周期。
 
-```{.python .input  n=8}
+```{.python .input  n=13}
 ctx, num_epochs, lr, wd = gb.try_gpu(), 1, 0.1, 5e-4, 
 lr_period, lr_decay, net = 80, 0.1, get_net(ctx)
 net.hybridize()
@@ -282,13 +307,12 @@ train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
 
 当得到一组满意的模型设计和超参数后，我们使用所有训练数据集（含验证集）重新训练模型，并对测试集进行分类。
 
-```{.python .input  n=9}
-net = get_net(ctx)
+```{.python .input  n=14}
+net, preds = get_net(ctx), []
 net.hybridize()
 train(net, train_valid_data, None, num_epochs, lr, wd, ctx, lr_period,
       lr_decay)
 
-preds = []
 for X, _ in test_data:
     y_hat = net(X.as_in_context(ctx))
     preds.extend(y_hat.argmax(axis=1).astype(int).asnumpy())
@@ -299,19 +323,19 @@ df['label'] = df['label'].apply(lambda x: train_valid_ds.synsets[x])
 df.to_csv('submission.csv', index=False)
 ```
 
-执行完上述代码后，我们会得到一个“submission.csv”文件。这个文件符合Kaggle比赛要求的提交格式。这时我们可以在Kaggle上提交对测试集分类的结果并查看分类准确率。你需要登录Kaggle网站，访问CIFAR-10比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮。然后，点击页面下方“Upload Submission File”选择需要提交的分类结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。
+执行完上述代码后，我们会得到一个“submission.csv”文件。这个文件符合Kaggle比赛要求的提交格式。这时我们可以在Kaggle上提交对测试集分类的结果并查看分类准确率。这需要登录Kaggle网站，访问CIFAR-10比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮。然后，点击页面下方“Upload Submission File”选择需要提交的分类结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。
 
 
 ## 小结
 
-* CIFAR-10是计算机视觉领域的一个重要的数据集。
+* 我们可以通过创建`ImageFolderDataset`实例来读取含原始图像文件的数据集。
 * 我们可以应用卷积神经网络、图像增广和混合式编程来实战图像分类比赛。
 
 
 ## 练习
 
 * 使用Kaggle比赛的完整CIFAR-10数据集。把批量大小`batch_size`和迭代周期数`num_epochs`分别改为128和100。看看你可以在这个比赛中拿到什么样的准确率和名次？
-* 如果不使用增强数据的方法能拿到什么样的准确率？
+* 如果不使用图像增广的方法能拿到什么样的准确率？
 * 扫码直达讨论区，在社区交流方法和结果。你能发掘出其他更好的技巧吗？
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1545/)
