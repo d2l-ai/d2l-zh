@@ -85,7 +85,7 @@ def reorg_train_valid(data_dir, train_dir, input_dir, valid_ratio, idx_label):
 下面的`reorg_dog_data`函数用来读取训练数据标签、切分验证集并整理测试集。
 
 ```{.python .input  n=2}
-def reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir, 
+def reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir,
                    valid_ratio):
     # 读取训练数据标签。
     with open(os.path.join(data_dir, label_file), 'r') as f:
@@ -111,7 +111,7 @@ if demo:
 else:
     label_file, train_dir, test_dir = 'labels.csv', 'train', 'test'
     input_dir, batch_size, valid_ratio = 'train_valid_test', 128, 0.1
-    reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir, 
+    reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir,
                    valid_ratio)
 ```
 

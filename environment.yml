@@ -7,4 +7,4 @@ dependencies:
 - pip:
   - requests==2.18.4
   - mxnet==1.2.1
-  - gluonbook==0.8.4
+  - gluonbook==0.8.5

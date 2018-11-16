@@ -159,10 +159,10 @@ content_weight, style_weight, tv_weight = 1, 1e3, 10
 
 def compute_loss(X, contents_Y_hat, styles_Y_hat, contents_Y, styles_Y_gram):
     # 分别计算内容、样式和总变差损失。
-    contents_l = [content_loss(Y_hat, Y) * content_weight
-                 for Y_hat, Y in zip(contents_Y_hat, contents_Y)]
-    styles_l = [style_loss(Y_hat, Y) * style_weight
-               for Y_hat, Y in zip(styles_Y_hat, styles_Y_gram)] 
+    contents_l = [content_loss(Y_hat, Y) * content_weight for Y_hat, Y in zip(
+        contents_Y_hat, contents_Y)]
+    styles_l = [style_loss(Y_hat, Y) * style_weight for Y_hat, Y in zip(
+        styles_Y_hat, styles_Y_gram)]
     tv_l = tv_loss(X) * tv_weight
     # 对所有损失求和。
     l = nd.add_n(*styles_l) + nd.add_n(*contents_l) + tv_l

@@ -8,7 +8,7 @@
 %matplotlib inline
 import gluonbook as gb
 import mxnet as mx
-from mxnet import autograd, gluon, image, init, nd 
+from mxnet import autograd, gluon, image, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, utils as gutils
 import sys
 from time import time
@@ -28,7 +28,7 @@ gb.plt.imshow(img.asnumpy())
 
 ```{.python .input  n=23}
 # 本函数已保存在 gluonbook 包中方便以后使用。
-def show_images(imgs, num_rows, num_cols, scale=2):                                                                              
+def show_images(imgs, num_rows, num_cols, scale=2):
     figsize = (num_cols * scale, num_rows * scale)
     _, axes = gb.plt.subplots(num_rows, num_cols, figsize=figsize)
     for i in range(num_rows):

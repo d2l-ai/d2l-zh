@@ -236,7 +236,7 @@ def resnet18(num_classes):
                 blk.add(Residual(num_channels, use_1x1conv=True, strides=2))
             else:
                 blk.add(Residual(num_channels))
-        return blk 
+        return blk
 
     net.add(resnet_block(64, 2, first_block=True),
             resnet_block(128, 2),
@@ -298,7 +298,7 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
 现在，我们可以训练并验证模型了。以下的超参数都是可以调节的，例如增加迭代周期等。由于`lr_period`和`lr_decay`分别设为80和0.1，优化算法的学习率将在每80个迭代周期后自乘0.1。为简单起见，这里仅训练1个迭代周期。
 
 ```{.python .input  n=13}
-ctx, num_epochs, lr, wd = gb.try_gpu(), 1, 0.1, 5e-4, 
+ctx, num_epochs, lr, wd = gb.try_gpu(), 1, 0.1, 5e-4
 lr_period, lr_decay, net = 80, 0.1, get_net(ctx)
 net.hybridize()
 train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
@@ -326,7 +326,6 @@ df.to_csv('submission.csv', index=False)
 ```
 
 执行完上述代码后，我们会得到一个“submission.csv”文件。这个文件符合Kaggle比赛要求的提交格式。提交结果的方法与[“实战Kaggle比赛：房价预测”](../chapter_deep-learning-basics/kaggle-house-price.md)一节中的类似。
-
 
 ## 小结
 
