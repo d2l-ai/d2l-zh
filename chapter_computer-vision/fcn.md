@@ -66,7 +66,7 @@ conv_trans(Y).shape
 
 ![全卷积网络。](../img/fcn.svg)
 
-下面我们使用一个预训练的ResNet-18来抽取图像特征，并将该网络实例记为`pretrained_net`。可以看到，该模型成员变量`features`的最后两层分别是全局最大池化层`GlobalAvgPool2D`和样本变平层`Flatten`，而`output`模块包含了输出用的全连接层。全卷积网络不需要使用这些层。
+下面我们使用一个基于ImageNet数据集预训练的ResNet-18模型来抽取图像特征，并将该网络实例记为`pretrained_net`。可以看到，该模型成员变量`features`的最后两层分别是全局最大池化层`GlobalAvgPool2D`和样本变平层`Flatten`，而`output`模块包含了输出用的全连接层。全卷积网络不需要使用这些层。
 
 ```{.python .input  n=5}
 pretrained_net = model_zoo.vision.resnet18_v2(pretrained=True)
