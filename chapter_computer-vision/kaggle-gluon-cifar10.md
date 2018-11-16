@@ -8,9 +8,9 @@
 
 图9.16展示了该比赛的网页信息。为了便于提交结果，请先在Kaggle网站上注册账号。
 
-![CIFAR-10图像分类比赛的网页信息（来源：www.kaggle.com/c/cifar-10）。比赛数据集可通过点击“Data”标签获取。](../img/kaggle_cifar10.png)
+![CIFAR-10图像分类比赛的网页信息。比赛数据集可通过点击“Data”标签获取。（来源：www.kaggle.com/c/cifar-10）](../img/kaggle_cifar10.png)
 
-首先，导入实验所需的包或模块。
+首先，导入比赛所需的包或模块。
 
 ```{.python .input  n=1}
 import gluonbook as gb
@@ -77,7 +77,7 @@ def mkdir_if_not_exist(path):  # 本函数已保存在 gluonbook 包中方便以
         os.makedirs(os.path.join(*path))
 ```
 
-我们接下来定义`reorg_train_valid`函数来整理训练和验证集。经过整理后，同一类图像将被放在同一个文件夹下，便于我们稍后读取。以`valid_ratio=0.1`为例，由于原始训练数据集有50,000张图像，调参时将有45,000张图像用于训练并存放在路径“`input_dir/train`”下，而另外5,000张图像为验证集并存放在路径“`input_dir/valid`”下。
+我们接下来定义`reorg_train_valid`函数来从原始训练集中切分出验证集。以`valid_ratio=0.1`为例，由于原始训练集有50,000张图像，调参时将有45,000张图像用于训练并存放在路径“`input_dir/train`”下，而另外5,000张图像将作为验证集并存放在路径“`input_dir/valid`”下。经过整理后，同一类图像将被放在同一个文件夹下，便于我们稍后读取。
 
 ```{.python .input  n=5}
 def reorg_train_valid(data_dir, train_dir, input_dir, n_train_per_label,
@@ -164,6 +164,8 @@ transform_test = gdata.vision.transforms.Compose([
     gdata.vision.transforms.Normalize([0.4914, 0.4822, 0.4465],
                                       [0.2023, 0.1994, 0.2010])])
 ```
+
+## 读取数据集
 
 接下来，我们可以通过创建`ImageFolderDataset`实例来读取整理后的含原始图像文件的数据集，其中每个数据样本包括图像和标签。
 
@@ -323,7 +325,7 @@ df['label'] = df['label'].apply(lambda x: train_valid_ds.synsets[x])
 df.to_csv('submission.csv', index=False)
 ```
 
-执行完上述代码后，我们会得到一个“submission.csv”文件。这个文件符合Kaggle比赛要求的提交格式。这时我们可以在Kaggle上提交对测试集分类的结果并查看分类准确率。这需要登录Kaggle网站，访问CIFAR-10比赛网页，并点击右侧“Submit Predictions”或“Late Submission”按钮。然后，点击页面下方“Upload Submission File”选择需要提交的分类结果文件。最后，点击页面最下方的“Make Submission”按钮就可以查看结果了。
+执行完上述代码后，我们会得到一个“submission.csv”文件。这个文件符合Kaggle比赛要求的提交格式。提交结果的方法与[“实战Kaggle比赛：房价预测”](../chapter_deep-learning-basics/kaggle-house-price.md)一节中的类似。
 
 
 ## 小结

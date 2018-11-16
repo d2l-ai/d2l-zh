@@ -89,7 +89,7 @@ test_augs = gdata.vision.transforms.Compose([
 
 ### 定义和初始化模型
 
-我们使用在ImageNet数据集上预训练的ResNet-18作为源模型。这里指定`pretrained=True`来自动下载并加载预训练的模型参数。
+我们使用在ImageNet数据集上预训练的ResNet-18作为源模型。这里指定`pretrained=True`来自动下载并加载预训练的模型参数。在第一次使用时需要联网下载模型参数。
 
 ```{.python .input  n=6}
 pretrained_net = model_zoo.vision.resnet18_v2(pretrained=True)
