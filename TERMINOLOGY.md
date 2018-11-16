@@ -80,6 +80,8 @@
 
 感受野，receptive field
 
+格拉姆矩阵，Gram matrix
+
 共现词频，co-occurrence frequency
 
 归一化，normalization

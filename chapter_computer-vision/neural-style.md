@@ -95,45 +95,45 @@ def extract_features(X, content_layers, style_layers):
 ```{.python .input  n=8}
 def get_contents(image_shape, ctx):
     content_X = preprocess(content_img, image_shape).copyto(ctx)
-    content_Y, _ = extract_features(content_X, content_layers, style_layers)
-    return content_X, content_Y
+    contents_Y, _ = extract_features(content_X, content_layers, style_layers)
+    return content_X, contents_Y
 
 def get_styles(image_shape, ctx):
     style_X = preprocess(style_img, image_shape).copyto(ctx)
-    _, style_Y = extract_features(style_X, content_layers, style_layers)
-    return style_X, style_Y
+    _, styles_Y = extract_features(style_X, content_layers, style_layers)
+    return style_X, styles_Y
 ```
 
-## 损失函数
+## 定义损失函数
 
-在训练时，我们需要定义如何比较合成图像和内容图像的内容层输出（内容损失函数），以及比较和样式图像的样式层输出（样式损失函数）。内容损失函数可以使用回归用的均方误差。
+下面我们来描述样式迁移的损失函数。它由内容损失、样式损失和总变差损失三部分组成。与线性回归中的损失函数类似，内容损失通过平方误差函数衡量合成图像与内容图像在内容特征上的差异。平方误差函数的两个输入均为`extract_features`函数计算所得到的内容层的输出。
 
 ```{.python .input  n=9}
 def content_loss(Y_hat, Y):
     return (Y_hat - Y).square().mean()
 ```
 
-对于样式，我们可以简单将它看成是像素点在每个通道的统计分布。例如要匹配两张图像的样式，我们可以匹配这两张图像在RGB这三个通道上的直方图。更一般的，假设卷积层的输出格式是$c \times h \times w$，既（通道，高，宽）。那么我们可以把它变形成 $c \times hw$ 的二维数组，并将它看成是一个维度为$c$ 的随机变量采样到的 $hw$ 个点。所谓的样式匹配就是使得两个 $c$ 维随机变量统计分布一致。
-
-匹配统计分布常用的做法是冲量匹配，就是说使得他们有一样的均值，协方差，和其他高维的冲量。为了计算简单起见，我们只匹配二阶信息，即协方差。下面定义如何计算协方差矩阵，
+样式损失也一样通过平方误差函数衡量合成图像与样式图像在样式上的差异。为了表达样式层输出的样式，我们先通过`extract_features`函数计算样式层的输出。假设该输出的样本数为1，通道数为$c$，高和宽分别为$h$和$w$，我们可以把输出变换成$c$行$h \cdot w$列的矩阵$\boldsymbol{X}$。矩阵$\boldsymbol{X}$可以看作是由$c$个长度为$hw$的向量$\boldsymbol{x}_1, \ldots, \boldsymbol{x}_c$组成的。其中向量$\boldsymbol{x}_i$代表了通道$i$上的样式特征。这些向量的格拉姆矩阵（Gram matrix）$\boldsymbol{X}\boldsymbol{X}^\top \in \mathbb{R}^{c \times c}$中$i$行$j$列的元素$x_{ij}$即向量$\boldsymbol{x}_i$与$\boldsymbol{x}_j$的内积：它表达了通道$i$和通道$j$上样式特征的相关性。我们用这样的格拉姆矩阵表达样式层输出的样式。需要注意的是，当$h \cdot w$的值较大时，格拉姆矩阵中的元素容易出现较大的值。此外，格拉姆矩阵的高和宽皆为通道数$c$。为了让样式损失不受这些值的大小影响，以下定义的`gram`函数将格拉姆矩阵除以了矩阵中元素的个数，即$c \cdot h \cdot w$。
 
 ```{.python .input  n=10}
 def gram(X):
-    c, n = X.shape[1], X.size // X.shape[1]
-    Y = X.reshape((c, n))
-    return nd.dot(Y, Y.T) / (c * n)
+    num_channels, n = X.shape[1], X.size // X.shape[1]
+    X = X.reshape((num_channels, n))
+    return nd.dot(X, X.T) / (num_channels * n)
 ```
 
-和对应的损失函数，这里假设样式图像的样式特征协方差已经预先计算好了。
+自然地，样式损失的平方误差函数的两个格拉姆矩阵输入分别基于合成图像与样式图像的样式层输出。这里假设基于样式图像的格拉姆矩阵`gram_Y`已经预先计算好了。
 
 ```{.python .input  n=11}
 def style_loss(Y_hat, gram_Y):
     return (gram(Y_hat) - gram_Y).square().mean()
 ```
 
-当我们使用靠近输出层的神经层输出来匹配时，经常可以观察到学到的合成图像里面有大量高频噪音，即有特别亮或者暗的颗粒像素。一种常用的降噪方法是总变差降噪（total variation denoising）。假设 $x_{i,j}$ 表示像素 $(i,j)$的值，总变差损失使得邻近的像素值相似：
+有时候，我们学到的合成图像里面有大量高频噪点，即有特别亮或者暗的颗粒像素。一种常用的降噪方法是总变差降噪（total variation denoising）。假设$x_{i,j}$表示坐标为$(i,j)$的像素值，总变差损失
 
-$$\sum_{i,j} \left|x_{i,j} - x_{i+1,j}\right| + \left|x_{i,j} - x_{i,j+1}\right|.$$
+$$\sum_{i,j} \left|x_{i,j} - x_{i+1,j}\right| + \left|x_{i,j} - x_{i,j+1}\right|$$
+
+尽可能使得邻近的像素值相似。
 
 ```{.python .input  n=12}
 def tv_loss(Y_hat):
@@ -141,27 +141,27 @@ def tv_loss(Y_hat):
                   (Y_hat[:, :, :, 1:] - Y_hat[:, :, :, :-1]).abs().mean())
 ```
 
-训练中我们将上述三个损失函数加权求和。通过调整权重值我们可以控制学到的图像是否保留更多样式，更多内容，还是更加干净。
+样式迁移的损失函数即内容损失、样式损失和总变差损失的加权和。通过调节这些权值超参数，我们可以权衡合成图像在保留内容、迁移样式以及降噪三方面的相对重要性。
 
 ```{.python .input  n=13}
 style_channels = [net[l].weight.shape[0] for l in style_layers]
 content_weight, style_weight, tv_weight = 1, 1e3, 10
-```
 
-```{.python .input  n=14}
-def compute_loss(X, content_Y_hat, style_Y_hat, content_Y, style_Y_gram):
-    # 分别计算内容、样式和噪音损失。
-    content_l = [content_loss(y_hat, y) * content_weight
-                 for y_hat, y in zip(content_Y_hat, content_Y)]
-    style_l = [style_loss(y_hat, y) * style_weight
-               for y_hat, y in zip(style_Y_hat, style_Y_gram)] 
+def compute_loss(X, contents_Y_hat, styles_Y_hat, contents_Y, styles_Y_gram):
+    # 分别计算内容、样式和总变差损失。
+    contents_l = [content_loss(Y_hat, Y) * content_weight
+                 for Y_hat, Y in zip(contents_Y_hat, contents_Y)]
+    styles_l = [style_loss(Y_hat, Y) * style_weight
+               for Y_hat, Y in zip(styles_Y_hat, styles_Y_gram)] 
     tv_l = tv_loss(X) * tv_weight
     # 对所有损失求和。
-    l = nd.add_n(*style_l) + nd.add_n(*content_l) + tv_l
-    return content_l, style_l, tv_l, l
+    l = nd.add_n(*styles_l) + nd.add_n(*contents_l) + tv_l
+    return contents_l, styles_l, tv_l, l
 ```
 
-## 定义输出图像
+## 定义合成图像
+
+
 
 ```{.python .input  n=15}
 class GeneratedImage(nn.Block):
@@ -174,13 +174,13 @@ class GeneratedImage(nn.Block):
 ```
 
 ```{.python .input  n=16}
-def get_inits(X, ctx, lr, style_Y):
+def get_inits(X, ctx, lr, styles_Y):
     gen_img = GeneratedImage(X.shape)
     gen_img.initialize(init.Constant(X), ctx=ctx, force_reinit=True)
     trainer = gluon.Trainer(gen_img.collect_params(), 'adam',
                             {'learning_rate': lr})
-    style_Y_gram = [gram(Y) for Y in style_Y]
-    return gen_img(), style_Y_gram, trainer
+    styles_Y_gram = [gram(Y) for Y in styles_Y]
+    return gen_img(), styles_Y_gram, trainer
 ```
 
 ## 训练
@@ -188,16 +188,16 @@ def get_inits(X, ctx, lr, style_Y):
 这里的训练跟前面章节的主要不同在于我们只对输入`x`进行更新。此外我们将`x`的梯度除以它的绝对平均值来降低对学习率的敏感度，而且每隔一定的批量我们减小一次学习率。
 
 ```{.python .input  n=17}
-def train(X, content_Y, style_Y, ctx, lr, max_epochs, lr_decay_epoch):
-    X, style_Y_gram, trainer = get_inits(X, ctx, lr, style_Y)
+def train(X, contents_Y, styles_Y, ctx, lr, max_epochs, lr_decay_epoch):
+    X, styles_Y_gram, trainer = get_inits(X, ctx, lr, styles_Y)
     for i in range(max_epochs):
         start = time.time()
         with autograd.record():
-            # 对 X 抽取样式和内容特征。
-            content_Y_hat, style_Y_hat = extract_features(
+            # 对合成图像 X 抽取样式和内容特征。
+            contents_Y_hat, styles_Y_hat = extract_features(
                 X, content_layers, style_layers)
-            content_l, style_l, tv_l, l = compute_loss(
-                X, content_Y_hat, style_Y_hat, content_Y, style_Y_gram)
+            contents_l, styles_l, tv_l, l = compute_loss(
+                X, contents_Y_hat, styles_Y_hat, contents_Y, styles_Y_gram)
         l.backward()     
         trainer.step(1)
         # 如果不加的话会导致每 50 轮迭代才同步一次，可能导致过大内存使用。
@@ -205,8 +205,8 @@ def train(X, content_Y, style_Y, ctx, lr, max_epochs, lr_decay_epoch):
         if i % 50 == 0 and i != 0:
             print('epoch %3d, content loss %.2f, style loss %.2f, '
                   'TV loss %.2f, %.2f sec'
-                  % (i, nd.add_n(*content_l).asscalar(),
-                     nd.add_n(*style_l).asscalar(), tv_l.asscalar(),
+                  % (i, nd.add_n(*contents_l).asscalar(),
+                     nd.add_n(*styles_l).asscalar(), tv_l.asscalar(),
                      time.time() - start))
         if i % lr_decay_epoch == 0 and i != 0:
             trainer.set_learning_rate(trainer.learning_rate * 0.1)
@@ -219,9 +219,9 @@ def train(X, content_Y, style_Y, ctx, lr, max_epochs, lr_decay_epoch):
 ```{.python .input  n=18}
 ctx, image_shape = gb.try_gpu(), (300, 200)
 net.collect_params().reset_ctx(ctx)
-content_X, content_Y = get_contents(image_shape, ctx)
-style_X, style_Y = get_styles(image_shape, ctx)
-output = train(content_X, content_Y, style_Y, ctx, 0.01, 500, 200)
+content_X, contents_Y = get_contents(image_shape, ctx)
+style_X, styles_Y = get_styles(image_shape, ctx)
+output = train(content_X, contents_Y, styles_Y, ctx, 0.01, 500, 200)
 ```
 
 因为使用了内容图像作为初始值，所以一开始内容误差远小于样式误差。随着迭代的进行样式误差迅速减少，最终它们值在相近的范围。下面我们将训练好的合成图像保存下来。
