@@ -79,7 +79,7 @@ sudo mv source-code-pro /usr/share/fonts/opentype/
 sudo fc-cache -f -v
 ```
 
-然后可以编译了。
+然后就可以编译了。
 
 ```
 make pdf
