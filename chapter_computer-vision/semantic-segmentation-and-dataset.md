@@ -137,17 +137,17 @@ class VOCSegDataset(gdata.Dataset):
     def __init__(self, is_train, crop_size, voc_dir, colormap2label):
         self.rgb_mean = nd.array([0.485, 0.456, 0.406])
         self.rgb_std = nd.array([0.229, 0.224, 0.225])
-        self.crop_size = crop_size        
+        self.crop_size = crop_size
         features, labels = read_voc_images(root=voc_dir, is_train=is_train)
         self.features = [self.normalize_image(feature)
                          for feature in self.filter(features)]
         self.labels = self.filter(labels)
         self.colormap2label = colormap2label
         print('read ' + str(len(self.features)) + ' examples')
-        
+
     def normalize_image(self, img):
         return (img.astype('float32') / 255 - self.rgb_mean) / self.rgb_std
-    
+
     def filter(self, imgs):
         return [img for img in imgs if (
             img.shape[0] >= self.crop_size[0] and

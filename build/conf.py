@@ -145,10 +145,11 @@ html_theme_options = {
     'primary_color': 'blue',
     'accent_color': 'deep_orange',
     'header_links' : [
-        ('PDF', './d2l-zh.pdf', True, 'fas fa-download'),
-        ('论坛', 'https://discuss.gluon.ai/c/lecture?order=views', True, 'fab fa-discourse'),
+        ('PDF 版本', 'http://zh.diveintodeeplearning.org/d2l-zh.pdf', True, 'fas fa-file-pdf'),
+        ('Jupyter 记事本版本', 'http://zh.diveintodeeplearning.org/d2l-zh.zip', True, 'fas fa-download'),
+        ('参与讨论', 'https://discuss.gluon.ai/c/lecture?order=views', True, 'fab fa-discourse'),
         ('Github', 'https://github.com/diveintodeeplearning/d2l-zh', True, 'fab fa-github'),
-        ('English Version', 'https://diveintodeeplearning.org', True, 'fas fa-external-link-alt'),
+        ('English version', 'https://diveintodeeplearning.org', True, 'fas fa-external-link-alt'),
     ],
     'show_footer': True
 }
@@ -385,5 +386,4 @@ def setup(app):
     app.add_transform(AutoStructify)
     app.add_config_value('recommonmark_config', {
     }, True)
-    app.add_javascript('baidu_tongji.js')
     app.add_javascript('google_analytics.js')

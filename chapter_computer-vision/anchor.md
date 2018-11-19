@@ -28,7 +28,7 @@ $$(s_1, r_1), (s_1, r_2), \ldots, (s_1, r_m), (s_2, r_1), (s_3, r_1), \ldots, (s
 img = image.imread('../img/catdog.jpg').asnumpy()
 h, w = img.shape[0:2]
 
-print(h,w)
+print(h, w)
 X = nd.random.uniform(shape=(1, 3, h, w))  # 构造输入数据。
 Y = contrib.nd.MultiBoxPrior(X, sizes=[0.75, 0.5, 0.25], ratios=[1, 2, 0.5])
 Y.shape

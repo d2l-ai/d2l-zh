@@ -55,13 +55,7 @@
 |$\nabla_{\cdot} y$|$y$关于$\cdot$的梯度|
 
 
-## 概率和统计
-|||
-|:--|:-:|
-|$\mathbb{P}(\cdot)$|概率分布|
-|$\cdot \sim \mathbb{P}$|随机变量$\cdot$的概率分布是$\mathbb{P}$|
-|$\mathbb{P}(\cdot \mid \cdot)$|条件概率分布|
-|$\mathbb{E}_\cdot\left(f(\cdot)\right)$|函数$f(\cdot)$对$\cdot$的数学期望|
+
 
 ## 复杂度
 
