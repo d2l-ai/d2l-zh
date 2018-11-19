@@ -92,7 +92,7 @@ def cross_entropy(y_hat, y):
 
 给定一个类别的预测概率分布`y_hat`，我们把预测概率最大的类别作为输出类别。如果它与真实类别`y`一致，说明这次预测是正确的。分类准确率即正确预测数量与总预测数量之比。
 
-下面定义准确率`accuracy`函数。其中`y_hat.argmax(axis=1)`返回矩阵`y_hat`每行中最大元素的索引，且返回结果与变量`y`形状相同。我们在[“数据操作”](../chapter_prerequisite/ndarray.md)一节介绍过，相等条件判断式`(y_hat.argmax(axis=1) == y)`是一个值为0（不等为假）或1（相等为真）的NDArray。由于标签类型为整数，我们先将变量`y`变换为浮点数再进行相等条件判断。
+下面定义准确率`accuracy`函数。其中`y_hat.argmax(axis=1)`返回矩阵`y_hat`每行中最大元素的索引，且返回结果与变量`y`形状相同。我们在[“数据操作”](../chapter_prerequisite/ndarray.md)一节介绍过，相等条件判断式`(y_hat.argmax(axis=1) == y)`是一个值为0（相等为假）或1（相等为真）的NDArray。由于标签类型为整数，我们先将变量`y`变换为浮点数再进行相等条件判断。
 
 ```{.python .input  n=11}
 # 本函数已保存在 gluonbook 包中方便以后使用。
