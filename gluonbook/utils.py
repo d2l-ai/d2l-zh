@@ -289,6 +289,12 @@ def _make_list(obj, default_values=None):
     return obj
 
 
+def mkdir_if_not_exist(path):
+    """Make a directory if it does not exist."""
+    if not os.path.exists(os.path.join(*path)):
+        os.makedirs(os.path.join(*path))
+
+
 def predict_rnn(prefix, num_chars, rnn, params, init_rnn_state,
                 num_hiddens, vocab_size, ctx, idx_to_char, char_to_idx):
     """Predict next chars with a RNN model"""

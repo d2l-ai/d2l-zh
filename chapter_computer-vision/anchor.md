@@ -5,9 +5,6 @@
 首先，导入本小节需要的包或模块。这里我们新引入了`contrib`包，并修改了NumPy的打印精度。由于NDArray的打印实际调用NumPy的打印函数，本节打印出的NDArray中的浮点数更简洁一些。
 
 ```{.python .input  n=1}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 from mxnet import contrib, gluon, image, nd
@@ -31,7 +28,7 @@ $$(s_1, r_1), (s_1, r_2), \ldots, (s_1, r_m), (s_2, r_1), (s_3, r_1), \ldots, (s
 img = image.imread('../img/catdog.jpg').asnumpy()
 h, w = img.shape[0:2]
 
-print(h,w)
+print(h, w)
 X = nd.random.uniform(shape=(1, 3, h, w))  # 构造输入数据。
 Y = contrib.nd.MultiBoxPrior(X, sizes=[0.75, 0.5, 0.25], ratios=[1, 2, 0.5])
 Y.shape

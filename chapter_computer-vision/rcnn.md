@@ -1,7 +1,7 @@
 # 区域卷积神经网络（R-CNN）系列
 
 
-区域卷积神经网络（region-based CNN或regions with CNN features，简称R-CNN）是将深度模型应用于目标检测的开创性工作之一 [1]。本节中，我们将介绍R-CNN和它的一系列改进方法：快速的R-CNN（fast R-CNN）[3]、更快的R-CNN（faster R-CNN）[4] 以及掩码R-CNN（mask R-CNN）[5]。限于篇幅，这里只介绍这些模型的设计思路。
+区域卷积神经网络（region-based CNN或regions with CNN features，简称R-CNN）是将深度模型应用于目标检测的开创性工作之一 [1]。本节中，我们将介绍R-CNN和它的一系列改进方法：快速的R-CNN（Fast R-CNN）[3]、更快的R-CNN（Faster R-CNN）[4] 以及掩码R-CNN（Mask R-CNN）[5]。限于篇幅，这里只介绍这些模型的设计思路。
 
 
 ## R-CNN
@@ -29,8 +29,8 @@ R-CNN的主要性能瓶颈在于需要对每个提议区域独立抽取特征。
 图9.6描述了Fast R-CNN模型。它的主要计算步骤如下：
 
 1. 与R-CNN相比，Fast R-CNN用来提取特征的卷积神经网络的输入是整个图像，而不是各个提议区域。而且，这个网络通常会参与训练，即更新模型参数。设输入为一张图像，将卷积神经网络的输出的形状记为$1 \times c \times h_1 \times w_1$。
-1. 假设选择性搜索生成$n$个提议区域。这些形状各异的提议区域在卷积神经网络的输出上分别标出形状各异的兴趣区域。这些兴趣区域需要抽取出形状相同的特征（假设高和宽均分别指定为$h_2,w_2$），从而便于连结。Fast R-CNN引入兴趣区域池化层（Region of Interest Pooling，简称RoI池化层），将卷积神经网络的输出和提议区域作为输入，输出连结后的各个提议区域抽取的特征，形状为$n \times c \times h_2 \times w_2$。
-1. 通过全连接层将输出形状变换为$n \times d$，其中$d$是超参数。
+1. 假设选择性搜索生成$n$个提议区域。这些形状各异的提议区域在卷积神经网络的输出上分别标出形状各异的兴趣区域。这些兴趣区域需要抽取出形状相同的特征（假设高和宽均分别指定为$h_2,w_2$）。Fast R-CNN引入兴趣区域池化层（Region of Interest Pooling，简称RoI池化层），将卷积神经网络的输出和提议区域作为输入，输出连结后的各个提议区域抽取的特征，形状为$n \times c \times h_2 \times w_2$。
+1. 通过全连接层将输出形状变换为$n \times d$，其中$d$取决于模型设计。
 1. 类别预测时，将全连接层的输出的形状再变换为$n \times q$并使用softmax回归（$q$为类别个数）。边界框预测时，将全连接层的输出的形状再变换为$n \times 4$。也就是说，我们为每个提议区域预测类别和边界框。
 
 Fast R-CNN中提出的兴趣区域池化层跟我们之前介绍过的池化层有所不同。在池化层中，我们通过设置池化窗口、填充和步幅来控制输出形状。而兴趣区域池化层对每个区域的输出形状是可以直接指定的，例如指定每个区域输出的高和宽分别为$h_2,w_2$。假设某一兴趣区域窗口的高和宽分别为$h$和$w$，该窗口将被划分为形状为$h_2 \times w_2$的子窗口网格，且每个子窗口的大小大约为$(h/h_2) \times (w/w_2)$。任一子窗口的高和宽要取整，其中的最大元素作为该子窗口的输出。因此，兴趣区域池化层可从形状各异的兴趣区域中均抽取出形状相同的特征。
@@ -60,50 +60,46 @@ rois = nd.array([[0, 0, 0, 20, 20], [0, 0, 10, 30, 30]])
 nd.ROIPooling(X, rois, pooled_size=(2, 2), spatial_scale=0.1)
 ```
 
-## Faster R-CNN：更快速的区域卷积神经网络
+## Faster R-CNN
 
-Faster R-CNN 对Fast R-CNN做了进一步改进，它将Fast R-CNN中的选择性搜索替换成区域提议网络（region proposal network，简称RPN）[4]。RPN以锚框为起始点，通过一个小神经网络来选择提议区域。图9.8描述了Faster R-CNN模型。
+Fast R-CNN通常需要在选择性搜索中生成较多的提议区域，以获得较精确的目标检测结果。Faster R-CNN提出将选择性搜索替换成区域提议网络（region proposal network），从而减少提议区域的生成数量，并保证目标检测的精度。
+
 
 ![Faster R-CNN模型。](../img/faster-rcnn.svg)
 
-具体来说，RPN里面有四个神经层。
 
-1. 卷积网络抽取的特征首先进入一个填充数为1、通道数为256的 $3\times 3$ 卷积层，这样每个像素得到一个256长度的特征表示。
-1. 以每个像素为中心，生成多个大小和比例不同的锚框和对应的标注。每个锚框使用其中心像素对应的256维特征来表示。
-1. 在锚框特征和标注上面训练一个两类分类器，判断其含有感兴趣目标还是只有背景。
-1. 对每个被判断成含有目标的锚框，进一步预测其边界框，然后进入RoI池化层。
+图9.8描述了Faster R-CNN模型。与Fast R-CNN相比，只有生成提议区域的方法从选择性搜索变成了区域提议网络，而其他部分均保持不变。具体来说，区域提议网络的计算步骤如下：
 
-可以看到RPN通过标注来学习预测跟真实边界框更相近的提议区域，从而减小提议区域的数量同时保证最终模型的预测精度。
+1. 使用填充为1的$3\times 3$卷积层变换卷积神经网络的输出，并将输出通道数记为$c$。这样，卷积神经网络为图像抽取的特征图中的每个单元均得到一个长度为$c$的新特征。
+1. 以特征图每个单元为中心，生成多个不同大小和宽高比的锚框并标注它们。
+1. 用锚框中心单元长度为$c$的特征分别预测该锚框的二元类别（含目标还是背景）和边界框。
+1. 使用非极大值抑制，从预测类别为目标的预测边界框中移除相似的结果。最终输出的预测边界框即兴趣区域池化层所需要的提议区域。
 
-## Mask R-CNN：使用全连接卷积网络的Faster RCNN
 
-如果训练数据中我们标注了每个目标的精确边框，而不是一个简单的方形边界框，那么Mask R-CNN能有效的利用这些详尽的标注信息来进一步提升目标识别精度 [5]。具体来说，Mask R-CNN使用额外的全连接卷积网络来利用像素级别标注信息，这个网络将在稍后的[“语义分割”](fcn.md)这一节做详细介绍。图9.9描述了Mask R-CNN模型。
+值得一提的是，区域提议网络作为Faster R-CNN的一部分，是和整个模型一起训练得到的。也就是说，Faster R-CNN的目标函数既包括目标检测中的类别和边界框预测，又包括区域提议网络中锚框的二元类别和边界框预测。最终，区域提议网络能够学习到如何生成高质量的提议区域，从而在减少提议区域数量的情况下也能保证目标检测的精度。
+
+
+## Mask R-CNN
+
+如果训练数据还标注了每个目标在图像上的像素级位置，那么Mask R-CNN能有效利用这些详尽的标注信息进一步提升目标检测的精度。
 
 ![Mask R-CNN模型。](../img/mask-rcnn.svg)
 
-注意到RPN输出的是实数坐标的提议区域，在输入到RoI池化层时我们将实数坐标定点化成整数来确定区域中的像素。在计算过程中，我们将每个区域分割成多块然后同样定点化区域边缘到最近的像素上。这两步定点化会使得定点化后的边缘和原始区域中定义的有数个像素的偏差，这个对于边界框预测来说问题不大，但在像素级别的预测上则会带来麻烦。
+如图9.9所示，Mask R-CNN在Faster R-CNN的基础上做了修改。Mask R-CNN将兴趣区域池化层替换成了兴趣区域对齐层，即通过双线性插值（bilinear interpolation）来保留特征图上的空间信息，从而更适于像素级预测。兴趣区域对齐层的输出包含了所有兴趣区域的形状相同的特征图。它们既用来预测兴趣区域的类别和边界框，又通过额外的全卷积网络预测目标的像素级位置。我们将在本章稍后小节介绍如何使用全卷积网络预测图像中像素级的语义。
 
-Mask R-CNN中提出了RoI对齐层（RoI Align）。它去掉了RoI池化层中的定点化过程，从而使得不管是输入的提议区域还是其分割区域的坐标均使用实数。如果边界不是整数，那么其元素值则通过相邻像素插值而来。例如假设对于整数$x$和$y$，坐标$(x,y)$上的值为$f(x,y)$。对于一般的实数坐标，我们先计算$f(x,\lfloor y \rfloor)$和$f(x,\lfloor y \rfloor+1)$，
-
-$$f(x,\lfloor y \rfloor) = (\lfloor x \rfloor + 1-x)f(\lfloor x \rfloor, \lfloor y \rfloor) + (x-\lfloor x \rfloor)f(\lfloor x \rfloor + 1, \lfloor y \rfloor),$$
-$$f(x,\lfloor y \rfloor+1) = (\lfloor x \rfloor + 1-x)f(\lfloor x \rfloor, \lfloor y \rfloor+1) + (x-\lfloor x \rfloor)f(\lfloor x \rfloor + 1, \lfloor y \rfloor+1).$$
-
-然后有
-
-$$f(x,y) = (\lfloor y \rfloor + 1-y)f(x, \lfloor y \rfloor) + (y-\lfloor y \rfloor)f(x, \lfloor y \rfloor + 1).$$
 
 
 ## 小结
 
-* R-CNN对每张图像选取多个提议区域，然后使用卷积层来对每个区域抽取特征，之后对每个区域进行目标分类和真实边界框预测。
-* Fast R-CNN对整个图像进行特征抽取后再选取提议区域来提升计算性能，它引入了兴趣区域池化层将每个提议区域提取同样大小的输出以便输入之后的神经层。
-* Faster R-CNN引入区域提议网络来进一步简化区域提议流程。
-* Mask R-CNN在Faster R-CNN基础上进入一个全卷积网络可以借助像素粒度的标注来进一步提升模型精度。
+* R-CNN对图像选取若干提议区域，然后用卷积神经网络对每个提议区域做前向计算抽取特征，再用这些特征预测提议区域的类别和边界框。
+* Fast R-CNN对R-CNN的一个主要改进在于只对整个图像做卷积神经网络的前向计算。它引入了兴趣区域池化层，从而令兴趣区域能够抽取出形状相同的特征。
+* Faster R-CNN将Fast R-CNN中的选择性搜索替换成区域提议网络，从而减少提议区域的生成数量，并保证目标检测的精度。
+* Mask R-CNN在Faster R-CNN基础上引入一个全卷积网络，从而借助目标的像素级位置进一步提升目标检测的精度。
 
 
 ## 练习
 
-* 介于篇幅原因这里没有提供R-CNN系列模型的实现。有兴趣的读者可以参考Gluon CV工具包（https://gluon-cv.mxnet.io/ ）来学习它们的实现。
+* 了解GluonCV工具包中有关本节中各个模型的实现 [6]。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7219)
 
@@ -122,3 +118,5 @@ $$f(x,y) = (\lfloor y \rfloor + 1-y)f(x, \lfloor y \rfloor) + (y-\lfloor y \rflo
 [4] Ren, S., He, K., Girshick, R., & Sun, J. (2015). Faster r-cnn: Towards real-time object detection with region proposal networks. In Advances in neural information processing systems (pp. 91-99).
 
 [5] He, K., Gkioxari, G., Dollár, P., & Girshick, R. (2017, October). Mask r-cnn. In Computer Vision (ICCV), 2017 IEEE International Conference on (pp. 2980-2988). IEEE.
+
+[6] GluonCV 工具包。https://gluon-cv.mxnet.io/

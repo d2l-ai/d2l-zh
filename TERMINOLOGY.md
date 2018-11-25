@@ -80,6 +80,8 @@
 
 感受野，receptive field
 
+格拉姆矩阵，Gram matrix
+
 共现词频，co-occurrence frequency
 
 归一化，normalization
@@ -153,6 +155,8 @@
 全连接层，fully connected layer
 
 权重，weight
+
+上采样，upsample
 
 实例，instance
 

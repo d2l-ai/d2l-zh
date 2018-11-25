@@ -1,5 +1,8 @@
-目录
-===============
+《动手学深度学习》
+====================
+
+.. raw:: html
+   :file: frontpage.html
 
 .. toctree::
    :maxdepth: 2

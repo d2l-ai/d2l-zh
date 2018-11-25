@@ -25,9 +25,6 @@
 首先，导入实验所需的包或模块。Gluon的`model_zoo`包提供了常用的预训练模型。如果你希望获取更多的计算机视觉的预训练模型，可以使用GluonCV工具包 [1]。
 
 ```{.python .input  n=1}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
 import gluonbook as gb
 from mxnet import gluon, init, nd
@@ -92,7 +89,7 @@ test_augs = gdata.vision.transforms.Compose([
 
 ### 定义和初始化模型
 
-我们使用在ImageNet数据集上预训练的ResNet-18作为源模型。这里指定`pretrained=True`来自动下载并加载预训练的模型参数。
+我们使用在ImageNet数据集上预训练的ResNet-18作为源模型。这里指定`pretrained=True`来自动下载并加载预训练的模型参数。在第一次使用时需要联网下载模型参数。
 
 ```{.python .input  n=6}
 pretrained_net = model_zoo.vision.resnet18_v2(pretrained=True)
@@ -175,7 +172,6 @@ weight = pretrained_net.output.weight
 hotdog_w = nd.split(weight.data(), 1000, axis=0)[713]
 hotdog_w.shape
 ```
-
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2272)
 
