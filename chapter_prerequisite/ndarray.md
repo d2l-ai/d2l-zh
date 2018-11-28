@@ -123,7 +123,7 @@ X.sum()
 我们可以通过`asscalar`函数将结果变换为Python中的标量。下面例子中`X`的$L_2$范数结果同上例一样是单元素NDArray，但最后结果变换成了Python中标量。
 
 ```{.python .input}
-x.norm().asscalar()
+X.norm().asscalar()
 ```
 
 我们也可以把`Y.exp()`、`X.sum()`、`X.norm()`等分别改写为`nd.exp(Y)`、`nd.sum(X)`、`nd.norm(X)`等。
