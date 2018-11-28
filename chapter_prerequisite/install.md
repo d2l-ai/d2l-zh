@@ -14,9 +14,9 @@
 
 第二步：下载包含本书全部代码的压缩包。我们可以在浏览器的地址栏中输入以下地址并按回车键进行下载：
 
-> https://zh.gluon.ai/gluon_tutorials_zh-1.0.zip
+> https://zh.diveintodeeplearning.org/d2l-zh-1.0.zip
 
-下载完成后，创建文件夹“gluon_tutorials_zh-1.0”并将以上压缩包解压到这个文件夹。在该目录文件资源管理器的地址栏输入`cmd`进入命令行模式。
+下载完成后，创建文件夹“d2l-zh”并将以上压缩包解压到这个文件夹。在该目录文件资源管理器的地址栏输入`cmd`进入命令行模式。
 
 第三步：使用Conda创建并激活环境。Conda默认使用国外站点来下载软件，以下可选项配置使用国内镜像加速下载:
 
@@ -77,9 +77,9 @@ to PATH in your /home/your_name/.conda ? [yes|no]
 第二步：下载包含本书全部代码的压缩包，解压后进入文件夹。运行以下命令。
 
 ```
-mkdir gluon_tutorials_zh-1.0 && cd gluon_tutorials_zh-1.0
-curl https://zh.gluon.ai/gluon_tutorials_zh-1.0.tar.gz -o tutorials.tar.gz
-tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
+mkdir d2l-zh && cd d2l-zh
+curl https://zh.diveintodeeplearning.org/d2l-zh-1.0.zip -o d2l-zh.zip
+unzip d2l-zh.zip && rm d2l-zh.zip
 ```
 
 第三至五步请参考前面Windows下的安装步骤。其中第四步需将命令替换为
@@ -92,12 +92,11 @@ source activate gluon
 
 为了适应深度学习和MXNet的快速发展，本书的开源内容将定期发布新版本。我们推荐大家定期更新本书的开源内容（例如代码）和相应的运行环境（例如新版MXNet）。以下是更新的具体步骤。
 
-第一步，重新下载最新的包含本书全部代码的压缩包。下载地址可以从以下二者之间选择。
+第一步，重新下载最新的包含本书全部代码的压缩包。下载地址：
 
-* https://zh.gluon.ai/gluon_tutorials_zh.zip
-* https://zh.gluon.ai/gluon_tutorials_zh.tar.gz
+* https://zh.diveintodeeplearning.org/d2l-zh.zip
 
-解压后进入文件夹“gluon_tutorials_zh”。
+解压后进入文件夹“d2l-zh”。
 
 第二步，使用下面命令更新运行环境。
 

@@ -1,6 +1,6 @@
 # 动手学深度学习
 
-[![Build Status](http://ci.mxnet.io/job/gluon-tutorials-zh/badge/icon)](http://ci.mxnet.io/job/gluon-tutorials-zh/)
+[![Build Status](http://ci.diveintodeeplearning.org/job/zh/job/master/badge/icon)](http://ci.diveintodeeplearning.org/job/zh/job/master/)
 
 主页在 [https://zh.gluon.ai/](https://zh.gluon.ai/)。
 
@@ -13,7 +13,8 @@
 
 build服务器在 http://ci.mxnet.io 。这台服务器有两块Nvidia M60。
 
-可以使用 http://zh.gluon.ai.s3-website-us-west-2.amazonaws.com/ 来访问没有加载过 CDN 的版本，对代码的改动刷新更快。
+可以使用 https://zh.diveintodeeplearning.org.s3-website-us-west-2.amazonaws.com/ 来访问没有加载过 CDN 的版本，对代码的改动刷新更快。
+
 
 ## 编译HTML版本
 
