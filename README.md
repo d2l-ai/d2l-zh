@@ -2,10 +2,7 @@
 
 [![Build Status](http://ci.diveintodeeplearning.org/job/zh/job/master/badge/icon)](http://ci.diveintodeeplearning.org/job/zh/job/master/)
 
-主页在 [https://zh.gluon.ai/](https://zh.gluon.ai/)。
-
 请使用 [https://discuss.gluon.ai](https://discuss.gluon.ai) 讨论或报告问题。
-
 
 ## 如何贡献
 
