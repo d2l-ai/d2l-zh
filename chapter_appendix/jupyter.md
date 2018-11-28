@@ -5,7 +5,7 @@
 
 ## 在本地编辑和运行本书代码
 
-下面我们介绍如何在本地使用Jupyter笔记本来编辑和运行本书代码。假设本书代码所在的本地路径为“xx/yy/gluon_tutorials_zh-1.0/”。在命令行模式下进入该路径（`cd xx/yy/gluon_tutorials_zh-1.0`），然后运行命令`jupyter notebook`。这时在浏览器打开 http://localhost:8888 （通常会自动打开）就可以看到Jupyter笔记本的界面和本书代码所在的各个文件夹，如图11.1所示。
+下面我们介绍如何在本地使用Jupyter笔记本来编辑和运行本书代码。假设本书代码所在的本地路径为“xx/yy/d2l-zh/”。在命令行模式下进入该路径（`cd xx/yy/d2l-zh`），然后运行命令`jupyter notebook`。这时在浏览器打开 http://localhost:8888 （通常会自动打开）就可以看到Jupyter笔记本的界面和本书代码所在的各个文件夹，如图11.1所示。
 
 ![本书代码所在的各个文件夹。](../img/jupyter00.png)
 
@@ -53,8 +53,8 @@
 如果你希望为本书内容做贡献，需要修改在GitHub上markdown格式的源文件（.md文件非.ipynb文件）。通过notedown插件，我们就可以使用Jupyter笔记本修改并运行markdown格式的源代码。Linux/macOS用户可以执行以下命令获得GitHub源文件并激活运行环境。
 
 ```
-git clone https://github.com/mli/gluon-tutorials-zh
-cd gluon-tutorials-zh
+git clone https://github.com/diveintodeeplearning/d2l-zh.git
+cd d2l-zh
 conda env create -f environment.yml
 source activate gluon # Windows 用户运行 activate gluon
 ```

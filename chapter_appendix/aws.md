@@ -1,6 +1,6 @@
 # 使用AWS运行代码
 
-当本地机器的计算资源有限时，我们可以通过云计算服务获取更强大的计算资源来运行本书中的深度学习代码。本节将介绍如何在AWS（亚马逊的云计算服务）上申请实例并通过Jupyter笔记本运行代码。本节中的例子有如下两个步骤:  
+当本地机器的计算资源有限时，我们可以通过云计算服务获取更强大的计算资源来运行本书中的深度学习代码。本节将介绍如何在AWS（亚马逊的云计算服务）上申请实例并通过Jupyter笔记本运行代码。本节中的例子有如下两个步骤:
 
 1. 申请含一个K80 GPU的“p2.xlarge”实例。
 2. 安装CUDA及相应GPU版本的MXNet。
@@ -134,9 +134,9 @@ to PATH in your /home/ubuntu/.bashrc ? [yes|no]
 安装完成后，运行一次`source ~/.bashrc`让CUDA和conda生效。接下来，下载本书代码、安装并激活conda环境。
 
 ```
-mkdir gluon_tutorials_zh && cd gluon_tutorials_zh
-curl https://zh.gluon.ai/gluon_tutorials_zh.tar.gz -o tutorials.tar.gz
-tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
+mkdir d2l-zh && cd d2l-zh
+curl https://zh.diveintodeeplearning.org/d2l-zh-1.0.zip -o d2l-zh.zip
+unzip d2l-zh.zip && rm d2l-zh.zip
 conda env create -f environment.yml
 source activate gluon
 ```
