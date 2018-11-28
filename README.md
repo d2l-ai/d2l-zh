@@ -1,6 +1,6 @@
 # 动手学深度学习
 
-[![Build Status](http://ci.mxnet.io/job/gluon-tutorials-zh/badge/icon)](http://ci.mxnet.io/job/gluon-tutorials-zh/)
+[![Build Status](http://ci.diveintodeeplearning.org/job/zh/badge/icon)](http://ci.diveintodeeplearning.org/job/zh/job/master/)
 
 主页在 [https://zh.gluon.ai/](https://zh.gluon.ai/)。
 
