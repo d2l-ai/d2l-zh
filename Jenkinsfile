@@ -28,8 +28,7 @@ stage("Publish") {
       sh """#!/bin/bash
       set -ex
       if [[ ${env.BRANCH_NAME} == master ]]; then
-          conda activate d2l-zh-build
-          aws s3 sync --delete build/_build/html/ s3://zh.diveintodeeplearning.org/ --acl public-read
+          build/upload.sh
       fi
       """
     }
