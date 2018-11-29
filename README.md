@@ -2,9 +2,9 @@
 
 [![Build Status](http://ci.diveintodeeplearning.org/job/zh/job/master/badge/icon)](http://ci.diveintodeeplearning.org/job/zh/job/master/)
 
-请使用 [https://discuss.gluon.ai](https://discuss.gluon.ai) 讨论或报告问题。
+英文版（*Dive into Deep Learning*）：[https://github.com/diveintodeeplearning/d2l-en](https://github.com/diveintodeeplearning/d2l-en)
 
-英文 repo（Dive into Deep Learning）：[https://github.com/diveintodeeplearning/d2l-en](https://github.com/diveintodeeplearning/d2l-en)
+请使用 [https://discuss.gluon.ai](https://discuss.gluon.ai) 讨论或报告问题。
 
 ## 如何贡献
 
