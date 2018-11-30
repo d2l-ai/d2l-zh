@@ -103,7 +103,7 @@ language = 'zh_CN'
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**.ipynb_checkpoints',
-                    'mx-theme', 'sphinx_materialdesign_theme']
+                    'mx-theme']
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
@@ -140,7 +140,7 @@ todo_include_todos = True
 # html_theme = 'sphinx_rtd_theme'
 
 html_theme_path = ['mx-theme']
-html_theme = 'sphinx_materialdesign_theme'
+html_theme = 'mxtheme'
 html_theme_options = {
     'primary_color': 'blue',
     'accent_color': 'deep_orange',
