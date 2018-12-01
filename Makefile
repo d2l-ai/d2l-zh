@@ -14,7 +14,10 @@ NOTEBOOK = $(filter-out $(MARKDOWN), $(wildcard chapter*/*.md))
 OBJ = $(patsubst %.md, build/%.md, $(MARKDOWN)) \
 	$(patsubst %.md, build/%.ipynb, $(NOTEBOOK))
 
-ORIGN_DEPS = $(wildcard img/* data/* gluonbook/*) environment.yml README.md
+FRONTPAGE = $(wildcard img/frontpage/*)
+IMG_NOTEBOOK = $(filter-out $(FRONTPAGE), $(wildcard img/*))
+
+ORIGN_DEPS = $(IMG_NOTEBOOK) $(wildcard data/*) environment.yml README.md
 DEPS = $(patsubst %, build/%, $(ORIGN_DEPS))
 
 PKG = build/_build/html/d2l-zh.zip
