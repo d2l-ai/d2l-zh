@@ -37,7 +37,7 @@ setup(
     version=VERSION,
     author='Contributors',
     author_email='mli@amazon.com',
-    url='https://github.com/mli/gluon-tutorials-zh',
+    url='http://www.diveintodeeplearning.org',
     description='Gluon Book Utils',
     long_description='Gluon Book Utilities',
     license='Apache-2.0',
