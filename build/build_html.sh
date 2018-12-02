@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+make clean
 # Clean build/chapter*/*ipynb and build/chapter*/*md that are no longer needed.
 cd build
 for ch in chapter*; do
