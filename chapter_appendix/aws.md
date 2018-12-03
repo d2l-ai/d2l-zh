@@ -1,6 +1,6 @@
 # 使用AWS运行代码
 
-当本地机器的计算资源有限时，我们可以通过云计算服务获取更强大的计算资源来运行本书中的深度学习代码。本节将介绍如何在AWS（亚马逊的云计算服务）上申请实例并通过Jupyter笔记本运行代码。本节中的例子有如下两个步骤:
+当本地机器的计算资源有限时，我们可以通过云计算服务获取更强大的计算资源来运行本书中的深度学习代码。本节将介绍如何在AWS（亚马逊的云计算服务）上申请实例并通过Jupyter记事本运行代码。本节中的例子有如下两个步骤:
 
 1. 申请含一个K80 GPU的“p2.xlarge”实例。
 2. 安装CUDA及相应GPU版本的MXNet。
@@ -148,9 +148,9 @@ pip uninstall mxnet
 pip install mxnet-cu91
 ```
 
-## 运行Jupyter笔记本
+## 运行Jupyter记事本
 
-现在，我们可以运行Jupyter笔记本了：
+现在，我们可以运行Jupyter记事本了：
 
 ```
 jupyter notebook
@@ -158,7 +158,7 @@ jupyter notebook
 
 图11.18显示了运行后可能的输出，其中最后一行为8888端口下的URL。
 
-![运行Jupyter笔记本后的输出，其中最后一行为8888端口下的URL。](../img/jupyter.png)
+![运行Jupyter记事本后的输出，其中最后一行为8888端口下的URL。](../img/jupyter.png)
 
 由于创建的实例并没有暴露8888端口，我们可以在本地命令行启动ssh从实例映射到本地8889端口。
 
@@ -167,7 +167,7 @@ jupyter notebook
 ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com -L 8889:localhost:8888
 ```
 
-最后，把图11.18中运行Jupyter笔记本后输出的最后一行URL复制到本地浏览器，并将8888改为8889。点击回车键即可从本地浏览器通过Jupyter笔记本运行实例上的代码。
+最后，把图11.18中运行Jupyter记事本后输出的最后一行URL复制到本地浏览器，并将8888改为8889。点击回车键即可从本地浏览器通过Jupyter记事本运行实例上的代码。
 
 ## 关闭不使用的实例
 

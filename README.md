@@ -10,10 +10,7 @@
 
 所有notebook是用markdown格式存储，这样方便merge改动。jupyter可以通过notedown来直接使用markdown，[参考这里安装](./chapter_appendix/jupyter.md#用jupyter-notebook读写github源文件)
 
-build服务器在 http://ci.mxnet.io 。这台服务器有两块Nvidia M60。
-
 可以使用 https://zh.diveintodeeplearning.org.s3-website-us-west-2.amazonaws.com/ 来访问没有加载过 CDN 的版本，对代码的改动刷新更快。
-
 
 ## 编译HTML版本
 
@@ -22,8 +19,8 @@ build服务器在 http://ci.mxnet.io 。这台服务器有两块Nvidia M60。
 在本地可以如下build html（需要GPU支持）
 
 ```
-conda env update -f build/build.yml
-source activate gluon_zh_docs
+conda env update -f build/env.yml
+source activate d2l-zh-build
 make html
 ```
 
