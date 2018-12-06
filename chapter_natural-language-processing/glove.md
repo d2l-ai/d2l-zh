@@ -2,9 +2,9 @@
 
 让我们先回顾一下word2vec中的跳字模型。将跳字模型中使用softmax运算表达的条件概率$\mathbb{P}(w_j\mid w_i)$记作$q_{ij}$，即
 
-$$q_{ij}=\frac{\exp(\mathbf{u}_j^\top \mathbf{v}_i)}{ \sum_{k \in \mathcal{V}} \text{exp}(\mathbf{u}_k^\top \mathbf{v}_i)},$$
+$$q_{ij}=\frac{\exp(\boldsymbol{u}_j^\top \boldsymbol{v}_i)}{ \sum_{k \in \mathcal{V}} \text{exp}(\boldsymbol{u}_k^\top \boldsymbol{v}_i)},$$
 
-其中$\mathbf{v}_i$和$\mathbf{u}_i$分别是索引为$i$的词$w_i$作为中心词和背景词时的向量表示，$\mathcal{V} = \{0, 1, \ldots, |\mathcal{V}|-1\}$为词典索引集。
+其中$\boldsymbol{v}_i$和$\boldsymbol{u}_i$分别是索引为$i$的词$w_i$作为中心词和背景词时的向量表示，$\mathcal{V} = \{0, 1, \ldots, |\mathcal{V}|-1\}$为词典索引集。
 
 对于词$w_i$，它在数据集中可能多次出现。我们将每一次以它作为中心词的所有背景词全部汇总并保留重复元素，记作多重集（multiset）$\mathcal{C}_i$。一个元素在多重集中的个数称为该元素的重数（multiplicity）。举例来说，假设词$w_i$在数据集中出现2次：文本序列中以这2个$w_i$作为中心词的背景窗口分别包含背景词索引$2,1,5,2$和$2,3,2,1$。那么多重集$\mathcal{C}_i = \{1,1,2,2,2,2,3,5\}$，其中元素1的重数为2，元素2的重数为4，元素3和5的重数均为1。将多重集$\mathcal{C}_i$中元素$j$的重数记作$x_{ij}$：它表示了整个数据集中所有以$w_i$为中心词的背景窗口中词$w_j$的个数。那么，跳字模型的损失函数还可以用另一种方式表达：
 
@@ -24,13 +24,13 @@ $$-\sum_{i\in\mathcal{V}} x_i \sum_{j\in\mathcal{V}} p_{ij} \log\,q_{ij}.$$
 
 有鉴于此，作为在word2vec之后提出的词嵌入模型，GloVe采用了平方损失，并基于该损失对跳字模型做了三点改动 [1]：
 
-1. 使用非概率分布的变量$p'_{ij}=x_{ij}$和$q'_{ij}=\exp(\mathbf{u}_j^\top \mathbf{v}_i)$，并对它们取对数。因此平方损失项是$\left(\log\,p'_{ij} - \log\,q'_{ij}\right)^2 = \left(\mathbf{u}_j^\top \mathbf{v}_i - \log\,x_{ij}\right)^2$。
+1. 使用非概率分布的变量$p'_{ij}=x_{ij}$和$q'_{ij}=\exp(\boldsymbol{u}_j^\top \boldsymbol{v}_i)$，并对它们取对数。因此平方损失项是$\left(\log\,p'_{ij} - \log\,q'_{ij}\right)^2 = \left(\boldsymbol{u}_j^\top \boldsymbol{v}_i - \log\,x_{ij}\right)^2$。
 2. 为每个词$w_i$增加两个为标量的模型参数：中心词偏差项$b_i$和背景词偏差项$c_i$。
 3. 将每个损失项的权重替换成函数$h(x_{ij})$。权重函数$h(x)$是值域在$[0,1]$的单调递增函数。
 
 如此一来，GloVe的目标是最小化损失函数
 
-$$\sum_{i\in\mathcal{V}} \sum_{j\in\mathcal{V}} h(x_{ij}) \left(\mathbf{u}_j^\top \mathbf{v}_i + b_i + c_j - \log\,x_{ij}\right)^2.$$
+$$\sum_{i\in\mathcal{V}} \sum_{j\in\mathcal{V}} h(x_{ij}) \left(\boldsymbol{u}_j^\top \boldsymbol{v}_i + b_i + c_j - \log\,x_{ij}\right)^2.$$
 
 其中权重函数$h(x)$的一个建议选择是：当$x < c$（例如$c = 100$），令$h(x) = (x/c)^\alpha$（例如$\alpha = 0.75$），反之令$h(x) = 1$。因为$h(0)=0$，所以对于$x_{ij}=0$的平方损失项可以直接忽略。当使用小批量随机梯度下降来训练时，每个时间步我们随机采样小批量非零$x_{ij}$，然后计算梯度来迭代模型参数。这些非零$x_{ij}$是预先基于整个数据集计算得到的，包含了数据集的全局统计信息。因此，GloVe的命名取“全局向量”（“Global Vectors”）之意。
 
