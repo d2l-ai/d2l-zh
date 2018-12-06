@@ -253,7 +253,7 @@ loss = gloss.SigmoidBinaryCrossEntropyLoss()
 
 ```{.python .input}
 pred = nd.array([[1.5, 0.3, -1, 2], [1.1, -0.6, 2.2, 0.4]])
-# 标签变量 label 中的 1 和 0 分别代表背景词和噪声词。
+# 标签变量 label 中的 1 和 0 分别代表背景词和噪音词。
 label = nd.array([[1, 0, 0, 0], [1, 1, 0, 0]])
 mask = nd.array([[1, 1, 1, 1], [1, 1, 1, 0]])  # 掩码变量。
 loss(pred, label, mask) * mask.shape[1] / mask.sum(axis=1)
