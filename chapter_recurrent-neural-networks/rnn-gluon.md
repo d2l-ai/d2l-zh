@@ -94,7 +94,7 @@ model.initialize(force_reinit=True, ctx=ctx)
 predict_rnn_gluon('分开', 10, model, vocab_size, ctx, idx_to_char, char_to_idx)
 ```
 
-接下来实现训练函数。它的算法同上一节一样，但这里只使用了随机采样来读取数据。
+接下来实现训练函数。它的算法同上一节一样，但这里只使用了相邻采样来读取数据。
 
 ```{.python .input  n=18}
 # 本函数已保存在 gluonbook 包中方便以后使用。
