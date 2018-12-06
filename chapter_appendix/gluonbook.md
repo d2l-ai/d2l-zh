@@ -2,6 +2,7 @@
 
 
 函数、类等名称：定义所在章节
+
 * `accuracy`：[Softmax回归的从零开始实现](../chapter_deep-learning-basics/softmax-regression-scratch.md)
 * `bbox_to_rect`：[物体检测和边界框](../chapter_computer-vision/bounding-box.md)
 * `Benchmark`：[异步计算](../chapter_computational-performance/async-computation.md)
