@@ -48,7 +48,7 @@ AlexNet第一层中的卷积窗口形状是$11\times11$。因为ImageNet中绝�
 
 第三，AlextNet通过丢弃法（参见[“丢弃法”](../chapter_deep-learning-basics/dropout.md)一节）来控制全连接层的模型复杂度。而LeNet并没有使用丢弃法。
 
-第四，AlextNet引入了大量的图像增广，例如翻转、裁剪和颜色变化，从而进一步扩大数据集来缓解过拟合。我们将在后面的[“图像增广”](chapter_computer-vision/image-augmentation.md)一节详细介绍这个方法。
+第四，AlextNet引入了大量的图像增广，例如翻转、裁剪和颜色变化，从而进一步扩大数据集来缓解过拟合。我们将在后面的[“图像增广”](../chapter_computer-vision/image-augmentation.md)一节详细介绍这个方法。
 
 下面我们实现稍微简化过的AlexNet。
 
