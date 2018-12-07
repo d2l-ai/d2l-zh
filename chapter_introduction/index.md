@@ -8,7 +8,6 @@
    :maxdepth: 2
 
    preface
-   why
    deep-learning-intro
    how-to-use
 
