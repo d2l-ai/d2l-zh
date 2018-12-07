@@ -44,7 +44,7 @@ print('chars:', ''.join([idx_to_char[idx] for idx in sample]))
 print('indices:', sample)
 ```
 
-我们将以上代码封装在`gluonbook`包里的`load_data_jay_lyrics`函数中以方便后面章节调用。调用该函数后会依次得到`corpus_indices`、`char_to_idx`、`idx_to_char`和`vocab_size`四个变量。
+由于`set(corpus_chars)`每次运行可能会得到不同的结果，故上述输出的`indices:`也可能不同，读者以本地运行结果为准即可。我们将以上代码封装在`gluonbook`包里的`load_data_jay_lyrics`函数中以方便后面章节调用。调用该函数后会依次得到`corpus_indices`、`char_to_idx`、`idx_to_char`和`vocab_size`四个变量。
 
 ## 时序数据的采样
 
