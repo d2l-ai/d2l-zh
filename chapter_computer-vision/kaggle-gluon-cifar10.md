@@ -339,6 +339,6 @@ df.to_csv('submission.csv', index=False)
 * 如果不使用图像增广的方法能拿到什么样的准确率？
 * 扫码直达讨论区，在社区交流方法和结果。你能发掘出其他更好的技巧吗？
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1545/)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1545)
 
 ![](../img/qr_kaggle-gluon-cifar10.svg)
