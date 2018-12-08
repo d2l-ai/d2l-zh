@@ -31,8 +31,8 @@ def process_one_seq(seq_tokens, all_tokens, all_seqs, max_seq_len):
 def build_data(all_tokens, all_seqs):
     vocab = text.vocab.Vocabulary(collections.Counter(all_tokens),
                                   reserved_tokens=[PAD, BOS, EOS])
-    indicies = [vocab.to_indices(seq) for seq in all_seqs]
-    return vocab, nd.array(indicies)
+    indices = [vocab.to_indices(seq) for seq in all_seqs]
+    return vocab, nd.array(indices)
 ```
 
 为了演示方便，我们在这里使用一个很小的法语—英语数据集。这个数据集里，每一行是一对法语句子和它对应的英语句子，中间使用`'\t'`隔开。在读取数据时，我们在句末附上“&lt;eos&gt;”符号，并可能通过添加“&lt;pad&gt;”符号使每个序列的长度均为`max_seq_len`。我们为法语词和英语词分别创建词典。法语词的索引和英语词的索引相互独立。
