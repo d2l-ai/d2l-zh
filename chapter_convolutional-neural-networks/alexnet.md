@@ -116,6 +116,7 @@ def load_data_fashion_mnist(batch_size, resize=None, root=os.path.join(
     return train_iter, test_iter
 
 batch_size = 128
+# 如果出现cudaMalloc failed: out of memory的错误，可以通过减小resize或者batch_size来避免
 train_iter, test_iter = load_data_fashion_mnist(batch_size, resize=224)
 ```
 
