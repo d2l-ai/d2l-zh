@@ -48,11 +48,11 @@
 
 ## 致谢
 
-我们感谢本书中英文版稿件的数百名贡献者。他们帮助增添或改进了书中内容并提供了有价值的反馈。特别地，我们要感谢每一位为这本中文版开源书提交内容改动的贡献者们：（TODO@astonzhang, list all github id and name）。谢谢你们让这本书变得更好。
+我们无比感谢本书中英文版稿件的数百名贡献者。他们帮助增添或改进了书中内容并提供了有价值的反馈。特别地，我们要感谢每一位为这本中文版开源书提交内容改动的贡献者们。这些贡献者的Github用户名和姓名（如提供）是：aa12356jm（崔永明）、aaronzs（Aaron Sun）、alues、Andiedie、Angzz（李昂）、cgraywang（王晨光）、ChaiBapchya、daizuozhuo（戴作卓）、danteliujie（刘捷）、daquexian（张建浩）、DarkWings520（梓善）、delphi-tang（唐佐林）、DHRUV536、DL-85（郭晶博）、duanhong169、eric-haibin-lin（林海滨）、Evensgn、fcbruce（李律）、Feywell（李阳）、fierceX（夏鲁豫）、foreversailor（张鹏）、gcaxuxi（徐曦）、Ghostish（Kangel Zenn）、GYingchao（Richard CUI）、gyp03（郭云鹏）、haojin2（金颢）、hardfish82、hetong007（何通）、hlnull、htoooth、hukun01（Kun Hu）、ibyte2011（刘俊朋）、icemelon9（沈海晨）、inkydragon、Jerryzcn（张钟越）、Jing-Luo（罗晶）、jiqirer、Jonariguez、jwwthu（姜蔚蔚）、kaonashi-tyc（田宇琛）、kevinthesun（王曜）、kli-nlpr、lanking520（兰青）、Laurawly（王乐园）、leezu（Leonard Lausen）、leizhag、leocvml（鄭宇翔）、linbojin、lingss0918、LinkHS（杨大卫）、liujia1（刘佳）、loveisp（戴玮）、MachineIntellect（贾老坏）、mingloo、MoodMAX（张亚鹏）、mzchtx、nlpjoe（周俊佐）、noobbull（Liang Jinzheng）、omg2hei、pengyuanzhuo（彭远卓）、PeterHuang2015（黄焖鸡）、piiswrong（解浚源）、Ramlinbird、rebounding（刘铭）、reminisce（吴俊）、rliu054（刘睿）、rongruosong（张绍明）、SnailTyan（刘天池）、starsdeep、sxjscience（施行健）、SyunSiu（孙畔勇）、szha（查晟）、szhengac（郑帅）、Tom-Ren（任杰骥）、wangx404（王鑫）、wangzhe258369、wangzhenhui1992、WenmuZhou（周军）、wlbksy（汪磊）、wudayo、xcnick（徐驰）、XiaGenYuan（夏根源）、xiaotinghe（何孝霆）、XieGuochao（谢国超）、xinetzone（刘新伟）、xmfbit（肖梅峰）、xwind-h（黄晓烽）、yanwenlei、yidawang（王贻达）、yifeim（马逸飞）、yixuan（邱怡轩）、yongwww（吴勇）、ypwhs（杨培文）、yufengwhy（余峰）、yupbank、yuweiw823（王雨薇）、yuxiangw（王宇翔）、yxyphoebe（喻心悦）、yzhao30、yzhliu（刘忆智）、zhanghang1989（张航）、zheng-da（郑达）、zhiics（陈志）、zhouhang95（周航）、zhreshold（张帜）、zijie0。谢谢你们让这本书变得更好。
 
 此外，我们感谢Amazon Web Services在撰写本书时给予的慷慨支持。如果没有可用的时间、资源以及来自同事的讨论和鼓励，就没有这本书的项目。特别地，经过MXNet团队的校勘，本书的质量得到了极大的提升。在此我们一一列出章节和校勘人，以表示我们由衷的感谢！引言：金颢；预备知识：吴俊；深度学习基础：张航、王晨光、林海滨；深度学习计算：查晟；卷积神经网络：张帜、何通；循环神经网络：查晟；优化算法：郑帅；计算性能：郑达、吴俊；计算机视觉：解浚源、张帜、何通、张航；自然语言处理：王晨光；附录：金颢。
 
-感谢将门创投，特别是王慧和高欣欣为本书的两位中国作者提供在线讲授《动手学深度学习》系列课程的平台。感谢所有参与这一系列课程的数千名同学们。感谢Amazon Web Services中国团队的同事们，特别是费良宏和王晨对作者的支持与鼓励。感谢本书论坛的三位版主：王鑫（yulangwx）、夏鲁豫（fiercex）和杨培文（ypw）。他们牺牲了自己宝贵的休息时间来回复大家的提问。感谢人民邮电出版社的杨海玲老师不断为我们提供各种帮助。
+感谢将门创投，特别是王慧和高欣欣为本书的两位中国作者提供在线讲授《动手学深度学习》系列课程的平台。感谢所有参与这一系列课程的数千名同学们。感谢Amazon Web Services中国团队的同事们，特别是费良宏和王晨对作者的支持与鼓励。感谢本书论坛的三位版主：王鑫（论坛ID：yulangwx）、夏鲁豫（论坛ID：fiercex）和杨培文（论坛ID：ypw）。他们牺牲了自己宝贵的休息时间来回复大家的提问。感谢人民邮电出版社的杨海玲老师不断为我们提供各种帮助。
 
 最后，我们要感谢我们的家人。谢谢你们一直陪伴着我们。
 
