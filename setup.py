@@ -3,8 +3,7 @@ import io
 import os
 import re
 from setuptools import setup, find_packages
-import shutil
-import sys
+
 
 def read(*names, **kwargs):
     with io.open(
