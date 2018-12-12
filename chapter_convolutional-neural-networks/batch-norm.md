@@ -9,7 +9,7 @@
 
 ## 批量归一化层
 
-对全连接层和卷积层做批量归一化的方法稍有不同，下面我们将分别介绍这两种情况下的批量归一化。
+对全连接层和卷积层做批量归一化的方法稍有不同。下面我们将分别介绍这两种情况下的批量归一化。
 
 ### 对全连接层做批量归一化
 
@@ -156,7 +156,7 @@ net[1].gamma.data().reshape((-1,)), net[1].beta.data().reshape((-1,))
 
 ## Gluon实现
 
-相比于我们刚刚自己定义的`BatchNorm`类，Gluon中`nn`模块定义的`BatchNorm`类使用起来更加简单，它不需要指定自己定义的`BatchNorm`类中所需的`num_features`和`num_dims`参数值。在Gluon中，这些参数值都将通过延后初始化来自动获取，下面我们用Gluon实现使用批量归一化的LeNet。
+相比于我们刚刚自己定义的`BatchNorm`类，Gluon中`nn`模块定义的`BatchNorm`类使用起来更加简单。它不需要指定自己定义的`BatchNorm`类中所需的`num_features`和`num_dims`参数值。在Gluon中，这些参数值都将通过延后初始化来自动获取。下面我们用Gluon实现使用批量归一化的LeNet。
 
 ```{.python .input}
 net = nn.Sequential()
