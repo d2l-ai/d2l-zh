@@ -137,13 +137,13 @@ net = linreg
 loss = squared_loss
 
 for epoch in range(num_epochs):  # 训练模型一共需要 num_epochs 个迭代周期。
-    # 在一个迭代周期中，使用训练数据集中所有样本一次（假设样本数能够被批量大小整除）。
+    # 在每一个迭代周期中，会使用训练数据集中所有样本一次（假设样本数能够被批量大小整除）。
     # X 和 y 分别是小批量样本的特征和标签。
     for X, y in data_iter(batch_size, features, labels):
         with autograd.record():
             l = loss(net(X, w, b), y)  # l 是有关小批量 X 和 y 的损失。
-        l.backward()  # 小批量的损失对模型参数求梯度。  
-        sgd([w, b], lr, batch_size)  # 使用小批量随机梯度下降迭代模型参数。
+        l.backward()  # 小批量的损失对模型参数求梯度。
+        sgd([w, b], lr, batch_size)  # 使用小批量随机梯度下降法迭代更新模型参数。
     train_l = loss(net(features, w, b), labels)
     print('epoch %d, loss %f' % (epoch + 1, train_l.mean().asnumpy()))
 ```
@@ -165,7 +165,7 @@ true_b, b
 
 ## 练习
 
-* 为什么`squared_loss`函数中需要使用`reshape`函数?
+* 为什么`squared_loss`函数中需要使用`reshape`函数？
 * 尝试使用不同的学习率，观察损失函数值的下降快慢。
 * 如果样本个数不能被批量大小整除，`data_iter`函数的行为会有什么变化？
 
