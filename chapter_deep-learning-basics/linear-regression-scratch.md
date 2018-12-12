@@ -40,12 +40,12 @@ features[0], labels[0]
 
 ```{.python .input  n=4}
 def use_svg_display():
-    # 用矢量图显示
+    # 用矢量图显示。
     display.set_matplotlib_formats('svg')
 
 def set_figsize(figsize=(3.5, 2.5)):
     use_svg_display()
-    # 设置图的尺寸
+    # 设置图的尺寸。
     plt.rcParams['figure.figsize'] = figsize
 
 set_figsize()
@@ -60,15 +60,15 @@ plt.scatter(features[:, 1].asnumpy(), labels.asnumpy(), 1);
 在训练模型的时候，我们需要遍历数据集并不断读取小批量数据样本。这里我们定义一个函数：它每次返回`batch_size`（批量大小）个随机样本的特征和标签。
 
 ```{.python .input  n=5}
-# 本函数已保存在 gluonbook 包中方便以后使用
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def data_iter(batch_size, features, labels):
     num_examples = len(features)
     indices = list(range(num_examples))
-    # 样本的读取顺序是随机的
+    # 样本的读取顺序是随机的。
     random.shuffle(indices)
     for i in range(0, num_examples, batch_size):
         j = nd.array(indices[i: min(i + batch_size, num_examples)])
-        # take 函数根据索引返回对应元素
+        # take 函数根据索引返回对应元素。
         yield features.take(j), labels.take(j)
 ```
 
@@ -103,7 +103,7 @@ b.attach_grad()
 下面是线性回归的矢量计算表达式的实现。我们使用`dot`函数做矩阵乘法。
 
 ```{.python .input  n=9}
-# 本函数已保存在 gluonbook 包中方便以后使用
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def linreg(X, w, b):
     return nd.dot(X, w) + b
 ```
@@ -113,7 +113,7 @@ def linreg(X, w, b):
 我们使用上一节描述的平方损失来定义线性回归的损失函数。在实现中，我们需要把真实值`y`变形成预测值`y_hat`的形状。以下函数返回的结果也将和`y_hat`的形状相同。
 
 ```{.python .input  n=10}
-# 本函数已保存在 gluonbook 包中方便以后使用
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def squared_loss(y_hat, y):
     return (y_hat - y.reshape(y_hat.shape)) ** 2 / 2
 ```
@@ -123,7 +123,7 @@ def squared_loss(y_hat, y):
 以下的`sgd`函数实现了上一节中介绍的小批量随机梯度下降算法。它通过不断迭代模型参数来优化损失函数。这里自动求梯度模块计算得来的梯度是一个批量样本的梯度和。我们将它除以批量大小来得到平均值。
 
 ```{.python .input  n=11}
-# 本函数已保存在 gluonbook 包中方便以后使用
+# 本函数已保存在 gluonbook 包中方便以后使用。
 def sgd(params, lr, batch_size):
     for param in params:
         param[:] = param - lr * param.grad / batch_size
@@ -142,14 +142,14 @@ net = linreg
 loss = squared_loss
 
 for epoch in range(num_epochs):
-    # 训练模型一共需要 num_epochs 个迭代周期
-    # 在每一个迭代周期中，会使用训练数据集中所有样本一次（假设样本数能够被批量大小整除）
+    # 训练模型一共需要 num_epochs 个迭代周期。
+    # 在每一个迭代周期中，会使用训练数据集中所有样本一次（假设样本数能够被批量大小整除）。
     for X, y in data_iter(batch_size, features, labels):
-        # X 和 y 分别是小批量样本的特征和标签
+        # X 和 y 分别是小批量样本的特征和标签。
         with autograd.record():
-            l = loss(net(X, w, b), y)   # l 是有关小批量 X 和 y 的损失
-        l.backward()                    # 小批量的损失对模型参数求梯度
-        sgd([w, b], lr, batch_size)     # 使用小批量随机梯度下降法迭代更新模型参数
+            l = loss(net(X, w, b), y)   # l 是有关小批量 X 和 y 的损失。
+        l.backward()                    # 小批量的损失对模型参数求梯度。
+        sgd([w, b], lr, batch_size)     # 使用小批量随机梯度下降法迭代更新模型参数。
     train_l = loss(net(features, w, b), labels)
     print('epoch %d, loss %f' % (epoch + 1, train_l.mean().asnumpy()))
 ```
