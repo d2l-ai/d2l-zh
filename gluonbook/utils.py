@@ -247,7 +247,7 @@ def load_data_fashion_mnist(batch_size, resize=None, root=os.path.join(
 
 
 def load_data_jay_lyrics():
-    """Load the Jay Chou lyric data set."""
+    """Load the Jay Chou lyric data set (available in the Chinese book)."""
     with zipfile.ZipFile('../data/jaychou_lyrics.txt.zip') as zin:
         with zin.open('jaychou_lyrics.txt') as f:
             corpus_chars = f.read().decode('utf-8')
@@ -282,7 +282,7 @@ def load_data_pikachu(batch_size, edge_size=256):
 
 
 def load_data_time_machine():
-    """Load the time machine data set."""
+    """Load the time machine data set (available in the English book)."""
     with open('../data/timemachine.txt') as f:
         corpus_chars = f.read()
     corpus_chars = corpus_chars.replace('\n', ' ').replace('\r', ' ').lower()
