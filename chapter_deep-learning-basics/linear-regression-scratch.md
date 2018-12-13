@@ -143,7 +143,7 @@ for epoch in range(num_epochs):  # 训练模型一共需要 num_epochs 个迭代
         with autograd.record():
             l = loss(net(X, w, b), y)  # l 是有关小批量 X 和 y 的损失。
         l.backward()  # 小批量的损失对模型参数求梯度。
-        sgd([w, b], lr, batch_size)  # 使用小批量随机梯度下降法迭代更新模型参数。
+        sgd([w, b], lr, batch_size)  # 使用小批量随机梯度下降迭代模型参数。
     train_l = loss(net(features, w, b), labels)
     print('epoch %d, loss %f' % (epoch + 1, train_l.mean().asnumpy()))
 ```

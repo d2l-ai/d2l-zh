@@ -145,7 +145,7 @@ def grad_clipping(params, theta, ctx):
 
 ## 困惑度
 
-我们通常使用困惑度（perplexity）来评价语言模型的好坏，可以回忆一下[“Softmax回归”](../chapter_deep-learning-basics/softmax-regression.md)一节中交叉熵损失函数的定义。困惑度是对交叉熵损失函数做指数运算后得到的值，特别的：
+我们通常使用困惑度（perplexity）来评价语言模型的好坏。回忆一下[“Softmax回归”](../chapter_deep-learning-basics/softmax-regression.md)一节中交叉熵损失函数的定义。困惑度是对交叉熵损失函数做指数运算后得到的值。特别地，
 
 * 最佳情况下，模型总是把标签类别的概率预测为1。此时困惑度为1。
 * 最坏情况下，模型总是把标签类别的概率预测为0。此时困惑度为正无穷。

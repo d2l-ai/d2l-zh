@@ -244,7 +244,7 @@ train_and_pred(train_features, test_features, train_labels, test_data,
 
 * 在Kaggle提交本教程的预测结果。观察一下，这个结果在Kaggle上能拿到什么样的分数？
 * 对照$K$折交叉验证结果，不断修改模型（例如添加隐藏层）和调参，你能提高Kaggle上的分数吗？
-* 如果不使用本节中对连续数值特征的标准化处理，结果会有什么变化?
+* 如果不使用本节中对连续数值特征的标准化处理，结果会有什么变化？
 * 扫码直达讨论区，在社区交流方法和结果。你能发掘出其他更好的技巧吗？
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1039)
