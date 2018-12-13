@@ -19,7 +19,7 @@ FRONTPAGE = $(wildcard $(FRONTPAGE_DIR)/*)
 FRONTPAGE_DEP = $(patsubst %, build/%, $(FRONTPAGE))
 
 IMG_NOTEBOOK = $(filter-out $(FRONTPAGE_DIR), $(wildcard img/*))
-ORIGIN_DEPS = $(IMG_NOTEBOOK) $(wildcard data/*) environment.yml README.md
+ORIGIN_DEPS = $(IMG_NOTEBOOK) $(wildcard data/* gluonbook/*) environment.yml README.md
 DEPS = $(patsubst %, build/%, $(ORIGIN_DEPS))
 
 PKG = build/_build/html/d2l-zh.zip
@@ -29,7 +29,7 @@ pkg: $(PKG)
 build/_build/html/d2l-zh.zip: $(OBJ) $(DEPS)
 	cd build; zip -r $(patsubst build/%, %, $@ $(DEPS)) chapter*
 
-# Copy everything to build/.
+# Copy XX to build/XX if build/XX is depended (e.g., $(DEPS))
 build/%: %
 	@mkdir -p $(@D)
 	@cp -r $< $@

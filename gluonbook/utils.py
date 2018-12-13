@@ -281,6 +281,19 @@ def load_data_pikachu(batch_size, edge_size=256):
     return train_iter, val_iter
 
 
+def load_data_time_machine():
+    """Load the time machine data set."""
+    with open('../data/timemachine.txt') as f:
+        corpus_chars = f.read()
+    corpus_chars = corpus_chars.replace('\n', ' ').replace('\r', ' ').lower()
+    corpus_chars = corpus_chars[0:10000]
+    idx_to_char = list(set(corpus_chars))
+    char_to_idx = dict([(char, i) for i, char in enumerate(idx_to_char)])
+    vocab_size = len(char_to_idx)
+    corpus_indices = [char_to_idx[char] for char in corpus_chars]
+    return corpus_indices, char_to_idx, idx_to_char, vocab_size
+
+
 def _make_list(obj, default_values=None):
     if obj is None:
         obj = default_values
