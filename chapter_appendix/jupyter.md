@@ -56,7 +56,7 @@
 git clone https://github.com/diveintodeeplearning/d2l-zh.git
 cd d2l-zh
 conda env create -f environment.yml
-source activate gluon # Windows 用户运行 activate gluon
+source activate gluon  # Windows 用户运行 activate gluon。
 ```
 
 下面安装notedown插件，运行Jupyter记事本并加载插件：

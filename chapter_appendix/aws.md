@@ -68,35 +68,37 @@ ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com
 sudo apt-get update && sudo apt-get install -y build-essential git libgfortran3
 ```
 
-Nvidia一般每年会更新一次CUDA大版本。这里我们下载作者写本书时的最新版本CUDA 9.1。访问Nvidia官网（https://developer.nvidia.com/cuda-91-download-archive ）获取正确 版本的CUDA 9.1的下载地址，如图11.17所示。
+Nvidia一般每年会更新一次CUDA主版本。这里我们下载作者写本书时的最新主版本CUDA 9.0（也可使用MXNet支持的其他版本）。访问Nvidia官网（https://developer.nvidia.com/cuda-90-download-archive ）获取正确版本的CUDA 9.0的下载地址，如图11.17所示。
 
-![获取CUDA9.1的下载地址。](../img/cuda.png)
+![获取CUDA9.0的下载地址。](../img/cuda.png)
 
 
-获取下载地址后，我们将下载并安装CUDA9.1，例如
+获取下载地址后，我们将下载并安装CUDA9.0，例如
 
 ```
-wget https://developer.download.nvidia.com/compute/cuda/9.1/secure/Prod/local_installers/cuda_9.1.85_387.26_linux.run
-sudo sh cuda_9.1.85_387.26_linux.run
+wget https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda_9.0.176_384.81_linux-run
+sudo sh cuda_9.0.176_384.81_linux-run
 ```
 
 点击“Ctrl+C”跳出文档浏览，并回答以下几个问题。
 
 ```
+Do you accept the previously read EULA?
 accept/decline/quit: accept
-Install NVIDIA Accelerated Graphics Driver for Linux-x86_64 387.26?
+Install NVIDIA Accelerated Graphics Driver for Linux-x86_64 384.81?
 (y)es/(n)o/(q)uit: y
 Do you want to install the OpenGL libraries?
 (y)es/(n)o/(q)uit [ default is yes ]: y
 Do you want to run nvidia-xconfig?
+This will ... vendors.
 (y)es/(n)o/(q)uit [ default is no ]: n
-Install the CUDA 9.1 Toolkit?
+Install the CUDA 9.0 Toolkit?
 (y)es/(n)o/(q)uit: y
 Enter Toolkit Location
- [ default is /usr/local/cuda-9.1 ]:
+ [ default is /usr/local/cuda-9.0 ]:
 Do you want to install a symbolic link at /usr/local/cuda?
 (y)es/(n)o/(q)uit: y
-Install the CUDA 9.1 Samples?
+Install the CUDA 9.0 Samples?
 (y)es/(n)o/(q)uit: n
 ```
 
@@ -106,10 +108,10 @@ Install the CUDA 9.1 Samples?
 nvidia-smi
 ```
 
-最后，将CUDA加入到库的路径中，以方便其他库找到它。
+最后，将CUDA加入到库的路径中，以方便其他库找到它。如果你使用其他版本或其他路径，需要修改以下命令中的字符串“/usr/local/cuda-9.0”。
 
 ```
-echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-9.1/lib64" >> .bashrc
+echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-9.0/lib64" >> ~/.bashrc
 ```
 
 ## 获取本书代码并安装GPU版的MXNet
@@ -131,7 +133,7 @@ to PATH in your /home/ubuntu/.bashrc ? [yes|no]
 [no] >>> yes
 ```
 
-安装完成后，运行一次`source ~/.bashrc`让CUDA和conda生效。接下来，下载本书代码、安装并激活conda环境。
+安装完成后，运行一次`source ~/.bashrc`让CUDA和conda生效。接下来，下载本书代码、安装并激活conda环境。如未安装`unzip`，可运行命令`sudo apt install unzip`安装。
 
 ```
 mkdir d2l-zh && cd d2l-zh
@@ -141,11 +143,11 @@ conda env create -f environment.yml
 source activate gluon
 ```
 
-默认环境里安装了CPU版本的MXNet。现在我们将它替换成GPU版本的MXNet。因为CUDA的版本是9.1，所以安装`mxnet-cu91`。一般来说，如果CUDA版本是x.y，那么相应安装`mxnet-cuxy`。
+默认环境里安装了CPU版本的MXNet。现在我们将它替换成GPU版本的MXNet。因为CUDA的版本是9.0，所以安装`mxnet-cu90`。一般来说，如果CUDA版本是x.y，那么相应安装`mxnet-cuxy`。
 
 ```
 pip uninstall mxnet
-pip install mxnet-cu91
+pip install mxnet-cu90==1.2.1  # 1.2.1是本书代码依赖的版本号。
 ```
 
 ## 运行Jupyter记事本
