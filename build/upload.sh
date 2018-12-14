@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-set -x
 
 conda activate d2l-zh-build
 
