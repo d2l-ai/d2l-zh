@@ -27,7 +27,7 @@ PKG = build/_build/html/d2l-zh.zip
 pkg: $(PKG)
 
 build/_build/html/d2l-zh.zip: $(OBJ) $(DEPS)
-	cd build; zip -r $(patsubst build/%, %, $@ $(DEPS)) chapter*
+	cd build; zip -r $(patsubst build/%, %, $@ $(DEPS)) chapter*/*md chapter*/*ipynb
 
 # Copy XX to build/XX if build/XX is depended (e.g., $(DEPS))
 build/%: %
