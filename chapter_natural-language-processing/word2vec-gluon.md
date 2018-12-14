@@ -311,7 +311,7 @@ def train(net, lr, num_epochs):
 现在我们可以训练使用负采样的跳字模型了。
 
 ```{.python .input  n=22}
-train(net, 0.0005, 8)
+train(net, 0.00005, 8)
 ```
 
 ## 应用词嵌入模型
