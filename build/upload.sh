@@ -19,7 +19,7 @@ DIR=build/_build/html/
 
 aws s3 sync --exclude '*.*' --include '*.woff' --include '*.woff2' \
       --expires "$(date -d '+24 months' --utc +'%Y-%m-%dT%H:%M:%SZ')" \
-      --acl 'public-read' \
+      --acl 'public-read' --quiet \
       $DIR $BUCKET
 
 #aws s3 sync --exclude '*.*' --include '*.js' \
@@ -28,4 +28,4 @@ aws s3 sync --exclude '*.*' --include '*.woff' --include '*.woff2' \
 #      --acl 'public-read' \
 #      $DIR $BUCKET
 
-aws s3 sync --delete $DIR $BUCKET --acl 'public-read'
+aws s3 sync --delete $DIR $BUCKET --acl 'public-read' --quiet
