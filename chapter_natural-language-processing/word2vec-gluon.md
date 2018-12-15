@@ -6,8 +6,8 @@
 
 ```{.python .input  n=1}
 import collections
-import gluonbook as gb
 import math
+import mxnet as mx
 from mxnet import autograd, gluon, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
 import random
@@ -286,7 +286,7 @@ net.add(nn.Embedding(input_dim=len(idx_to_token), output_dim=embed_size),
 
 ```{.python .input  n=23}
 def train(net, lr, num_epochs):
-    ctx = gb.try_gpu()
+    ctx = mx.cpu()
     net.initialize(ctx=ctx, force_reinit=True)
     trainer = gluon.Trainer(net.collect_params(), 'adam',
                             {'learning_rate': lr})
@@ -311,7 +311,7 @@ def train(net, lr, num_epochs):
 现在我们可以训练使用负采样的跳字模型了。
 
 ```{.python .input  n=24}
-train(net, 0.005, 8)
+train(net, 0.005, 3)
 ```
 
 ## 应用词嵌入模型
