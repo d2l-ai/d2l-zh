@@ -34,7 +34,7 @@ conda config --prepend channels http://mirrors.ustc.edu.cn/anaconda/pkgs/free/
 conda env create -f environment.yml
 ```
 
-第四步：激活之前创建的环境。在当前路径下激活该环境是能够运行本书代码的前提。如需退出虚拟环境，可使用命令`deactivate`。
+第四步：激活之前创建的环境。激活该环境是能够运行本书代码的前提。如需退出虚拟环境，可使用命令`deactivate`。
 
 ```
 activate gluon
