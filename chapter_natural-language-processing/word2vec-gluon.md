@@ -286,15 +286,13 @@ net.add(nn.Embedding(input_dim=len(idx_to_token), output_dim=embed_size),
 
 ```{.python .input  n=23}
 def train(net, lr, num_epochs):
-    ctx = mx.cpu()
-    net.initialize(ctx=ctx, force_reinit=True)
+    net.initialize(force_reinit=True)
     trainer = gluon.Trainer(net.collect_params(), 'adam',
                             {'learning_rate': lr})
     for epoch in range(num_epochs):
         start_time, train_l_sum = time.time(), 0
         for batch in data_iter:
-            center, context_negative, mask, label = [
-                data.as_in_context(ctx) for data in batch]
+            center, context_negative, mask, label = batch
             with autograd.record():
                 pred = skip_gram(center, context_negative, net[0], net[1])
                 # 使用掩码变量 mask 来避免填充项对损失函数计算的影响。
