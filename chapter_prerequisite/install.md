@@ -10,7 +10,7 @@
 
 第一次运行需要完整完成下面五个步骤。如果是再次运行，可以忽略掉前面三步的下载和安装，直接跳转到第四和第五步。
 
-第一步：根据操作系统下载并安装Miniconda（网址：https://conda.io/miniconda.html ），在安装过程中需要勾选“Add Anaconda to my PATH environment variable”选项。
+第一步：根据操作系统下载并安装Miniconda（网址：https://conda.io/miniconda.html ），在安装过程中需要勾选“Add Anaconda to the system PATH environment variable”选项。
 
 第二步：下载包含本书全部代码的压缩包。我们可以在浏览器的地址栏中输入以下地址并按回车键进行下载：
 
@@ -34,7 +34,7 @@ conda config --prepend channels http://mirrors.ustc.edu.cn/anaconda/pkgs/free/
 conda env create -f environment.yml
 ```
 
-第四步：激活之前创建的环境。激活该环境是能够运行本书代码的前提。如需退出虚拟环境，可使用命令`deactivate`。
+第四步：激活之前创建的环境。在当前路径下激活该环境是能够运行本书代码的前提。如需退出虚拟环境，可使用命令`deactivate`。
 
 ```
 activate gluon
