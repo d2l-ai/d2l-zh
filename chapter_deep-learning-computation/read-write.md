@@ -42,7 +42,7 @@ mydict2
 
 ## 读写Gluon模型的参数
 
-除了NDArray以外，我们还可以读写Gluon模型的参数。Gluon的Block类提供了`save_parameters`和`load_parameters`函数来读写模型参数。为了演示方便，我们先创建一个多层感知机，并将其初始化。回忆[“模型参数的延后初始化”](deferred-init.md)一节，由于延后初始化，我们需要先运行一次前向计算才能实际初始化模型参数。
+除了NDArray以外，我们还可以读写Gluon模型的参数。Gluon的Block类提供了`save_params`和`load_params`函数来读写模型参数（较新版本的MXNet，如1.2.1版，则使用`save_parameters`和`load_parameters`函数）。为了演示方便，我们先创建一个多层感知机，并将其初始化。回忆[“模型参数的延后初始化”](deferred-init.md)一节，由于延后初始化，我们需要先运行一次前向计算才能实际初始化模型参数。
 
 ```{.python .input  n=6}
 class MLP(nn.Block):
@@ -64,14 +64,14 @@ y = net(x)
 
 ```{.python .input}
 filename = 'mlp.params'
-net.save_parameters(filename)
+net.save_params(filename)
 ```
 
 接下来，我们再实例化一次定义好的多层感知机。跟随机初始化模型参数不同，我们在这里直接读取保存在文件里的参数。
 
 ```{.python .input  n=8}
 net2 = MLP()
-net2.load_parameters(filename)
+net2.load_params(filename)
 ```
 
 因为这两个实例都有同样的模型参数，那么对同一个输入`x`的计算结果将会是一样。我们来验证一下。
@@ -83,8 +83,7 @@ y2 == y
 
 ## 小结
 
-* 通过`save`和`load`函数可以很方便地读写NDArray。
-* 通过`load_parameters`和`save_parameters`函数可以很方便地读写Gluon模型的参数。
+* 我们可以很方便地读写NDArray和Gluon模型的参数。
 
 ## 练习
 
