@@ -4,7 +4,7 @@
 
 ## 获取代码并安装运行环境
 
-本书的内容和代码均可在网上免费获取。我们推荐使用Conda来安装运行代码的依赖软件。Conda是一个流行的Python包管理软件。Windows和Linux/macOS用户请分别参照以下对应内容。
+本书的内容和代码均可在网上免费获取。我们推荐使用conda来安装运行代码的依赖软件。Conda是一个流行的Python包管理软件。Windows和Linux/macOS用户请分别参照以下对应内容。
 
 ### Windows用户
 
@@ -18,7 +18,7 @@
 
 下载完成后，创建文件夹“d2l-zh”并将以上压缩包解压到这个文件夹。在该目录文件资源管理器的地址栏输入`cmd`进入命令行模式。
 
-第三步：使用Conda创建并激活环境。Conda默认使用国外站点来下载软件，以下可选项配置使用国内镜像加速下载:
+第三步：使用conda创建并激活环境。Conda默认使用国外站点来下载软件，以下可选项配置使用国内镜像加速下载:
 
 ```
 # 使用清华 conda 镜像。
@@ -74,7 +74,7 @@ to PATH in your /home/your_name/your_file ? [yes|no]
 [no] >>> yes
 ```
 
-安装完成后，我们需要让Conda生效。Linux用户需要运行一次`source ~/.bashrc`或重启命令行应用；macOS用户需要运行一次`source ~/.bash_profile`或重启命令行应用。
+安装完成后，我们需要让conda生效。Linux用户需要运行一次`source ~/.bashrc`或重启命令行应用；macOS用户需要运行一次`source ~/.bash_profile`或重启命令行应用。
 
 第二步：下载包含本书全部代码的压缩包，解压后进入文件夹。运行以下命令。如未安装`unzip`，可运行命令`sudo apt install unzip`安装。
 
