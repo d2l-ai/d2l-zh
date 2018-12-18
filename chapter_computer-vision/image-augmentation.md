@@ -125,11 +125,10 @@ no_aug = gdata.vision.transforms.Compose([
 接下来我们定义一个辅助函数来方便读取图像并应用图像增广。Gluon的数据集提供的`transform_first`函数将图像增广应用在每个训练样本（图像和标签）的第一个元素，即图像之上。有关`DataLoader`的详细介绍，可参考更早的[“图像分类数据集（Fashion-MNIST）”](../chapter_deep-learning-basics/fashion-mnist.md)一节。
 
 ```{.python .input  n=34}
-num_workers = 0 if sys.platform.startswith('win32') else 4
 def load_cifar10(is_train, augs, batch_size):
     return gdata.DataLoader(
         gdata.vision.CIFAR10(train=is_train).transform_first(augs),
-        batch_size=batch_size, shuffle=is_train, num_workers=num_workers)
+        batch_size=batch_size, shuffle=is_train, num_workers=4)
 ```
 
 ### 使用多GPU训练模型
