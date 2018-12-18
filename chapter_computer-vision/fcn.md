@@ -161,13 +161,12 @@ for i, cm in enumerate(gb.VOC_COLORMAP):
     colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i
 voc_dir = gb.download_voc_pascal(data_dir='../data')
 
-num_workers = 0 if sys.platform.startswith('win32') else 4
 train_iter = gdata.DataLoader(
     gb.VOCSegDataset(True, crop_size, voc_dir, colormap2label), batch_size,
-    shuffle=True, last_batch='discard', num_workers=num_workers)
+    shuffle=True, last_batch='discard', num_workers=4)
 test_iter = gdata.DataLoader(
     gb.VOCSegDataset(False, crop_size, voc_dir, colormap2label), batch_size,
-    last_batch='discard', num_workers=num_workers)
+    last_batch='discard', num_workers=4)
 ```
 
 ## 训练
