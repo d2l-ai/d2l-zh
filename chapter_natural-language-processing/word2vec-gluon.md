@@ -6,6 +6,7 @@
 
 ```{.python .input  n=1}
 import collections
+import gluonbook as gb
 import math
 from mxnet import autograd, gluon, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
@@ -285,13 +286,15 @@ net.add(nn.Embedding(input_dim=len(idx_to_token), output_dim=embed_size),
 
 ```{.python .input  n=23}
 def train(net, lr, num_epochs):
-    net.initialize(force_reinit=True)
+    ctx = gb.try_gpu()
+    net.initialize(ctx=ctx, force_reinit=True)
     trainer = gluon.Trainer(net.collect_params(), 'adam',
                             {'learning_rate': lr})
     for epoch in range(num_epochs):
         start_time, train_l_sum = time.time(), 0
         for batch in data_iter:
-            center, context_negative, mask, label = batch
+            center, context_negative, mask, label = [
+                data.as_in_context(ctx) for data in batch]
             with autograd.record():
                 pred = skip_gram(center, context_negative, net[0], net[1])
                 # 使用掩码变量 mask 来避免填充项对损失函数计算的影响。
@@ -319,7 +322,8 @@ train(net, 0.005, 3)
 def get_similar_tokens(query_token, k, embed):
     W = embed.weight.data()
     x = W[token_to_idx[query_token]]
-    cos = nd.dot(W, x) / nd.sum(W * W, axis=1).sqrt() / nd.sum(x * x).sqrt()
+    # # 添加的 1e-9 是为了数值稳定性。
+    cos = nd.dot(W, x) / (nd.sum(W * W, axis=1) * nd.sum(x * x) + 1e-9).sqrt()
     topk = nd.topk(cos, k=k+1, ret_typ='indices').asnumpy().astype('int32')
     for i in topk[1:]:  # 除去输入词。
         print('cosine sim=%.3f: %s' % (cos[i].asscalar(), (idx_to_token[i])))
@@ -336,6 +340,7 @@ get_similar_tokens('chip', 3, net[0])
 
 ## 练习
 
+* 在创建`nn.Embedding`实例时设参数`sparse_grad=True`，训练是否可以加速？查阅MXNet文档，了解该参数的意义。
 * 我们用`batchify`函数指定`DataLoader`实例中小批量的读取方式，并打印了读取的第一个批量中各个变量的形状。这些形状该如何计算得到？
 * 试着找出其他词的近义词。
 * 调一调超参数，观察并分析实验结果。

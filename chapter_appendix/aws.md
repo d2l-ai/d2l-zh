@@ -147,7 +147,7 @@ source activate gluon
 
 ```
 pip uninstall mxnet
-pip install mxnet-cu90==1.2.0  # 指定本书代码依赖的版本号。
+pip install mxnet-cu90==X.Y.Z  # X.Y.Z 应替换为本书代码依赖的版本号。
 ```
 
 ## 运行Jupyter记事本

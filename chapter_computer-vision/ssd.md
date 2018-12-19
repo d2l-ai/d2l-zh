@@ -194,8 +194,6 @@ print('output bbox preds:', bbox_preds.shape)
 ```{.python .input  n=14}
 batch_size = 32
 train_data, test_data = gb.load_data_pikachu(batch_size)
-# 为保证 GPU 计算效率，这里为每张训练图像填充了两个标签为 -1 的边界框。
-train_data.reshape(label_shape=(3, 5))
 ```
 
 在皮卡丘数据集中，目标的类别数为1。定义好模型以后，我们需要初始化模型参数并定义优化算法。

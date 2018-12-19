@@ -28,7 +28,7 @@ conda config --prepend channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pk
 conda config --prepend channels http://mirrors.ustc.edu.cn/anaconda/pkgs/free/
 ```
 
-接下来使用conda创建虚拟（运行）环境并安装本书需要的软件。这里`environment.yml`是放置在代码压缩包中的文件，它指定了执行本书代码所需要的软件。
+接下来使用conda创建虚拟（运行）环境并安装本书需要的软件。这里`environment.yml`是放置在代码压缩包中的文件，它指定了运行本书（代码压缩包中）代码所依赖的软件及版本号。
 
 ```
 conda env create -f environment.yml
