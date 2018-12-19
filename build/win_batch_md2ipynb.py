@@ -27,7 +27,7 @@ for chap in glob.glob('chapter_*'):
     for md in mds:
         if md != 'index.md':
             in_md = os.path.join(chap, md)
-            out_nb = os.path.join('build', in_md[:-2] + '.ipynb')
+            out_nb = os.path.join('build', 'win_ipynb', in_md[:-2] + '.ipynb')
             print('---', in_md)
             # read
             with open(in_md, 'r', encoding="utf8") as f:
