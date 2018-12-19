@@ -24,13 +24,14 @@ reader = notedown.MarkdownReader(match='strict')
 
 do_eval = int(os.environ.get('EVAL', True))
 
+
 for chap in glob.glob(os.path.join('..', 'chapter_*')):
-    mkdir_if_not_exist(['build', 'win_ipynb', chap])
+    mkdir_if_not_exist(['win_ipynb', chap[3:]])
     mds = filter(lambda x: x.endswith('md'), os.listdir(chap))
     for md in mds:
         if md != 'index.md':
             in_md = os.path.join(chap, md)
-            out_nb = os.path.join('win_ipynb', in_md[3:-2] + '.ipynb')
+            out_nb = os.path.join('win_ipynb', in_md[3:-2] + 'ipynb')
             print('---', in_md[3:])
             # read
             with open(in_md, 'r', encoding="utf8") as f:
