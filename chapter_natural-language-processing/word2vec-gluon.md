@@ -6,7 +6,6 @@
 
 ```{.python .input  n=1}
 import collections
-import gluonbook as gb
 import math
 from mxnet import autograd, gluon, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
@@ -182,9 +181,10 @@ def batchify(data):
 
 ```{.python .input  n=14}
 batch_size = 512
+num_workers = 0 if sys.platform.startswith('win32') else 4
 dataset = gdata.ArrayDataset(all_centers, all_contexts, all_negatives)
 data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True,
-                             batchify_fn=batchify, num_workers=4)
+                             batchify_fn=batchify, num_workers=num_workers)
 for batch in data_iter:
     for name, data in zip(['centers', 'contexts_negatives', 'masks',
                            'labels'], batch):
@@ -275,10 +275,8 @@ print('%.7f' % ((sigmd(1.1) + sigmd(-0.6) + sigmd(-2.2)) / 3))
 ```{.python .input  n=22}
 embed_size = 100
 net = nn.Sequential()
-net.add(nn.Embedding(input_dim=len(idx_to_token), output_dim=embed_size,
-                     sparse_grad=True),
-        nn.Embedding(input_dim=len(idx_to_token), output_dim=embed_size,
-                     sparse_grad=True))
+net.add(nn.Embedding(input_dim=len(idx_to_token), output_dim=embed_size),
+        nn.Embedding(input_dim=len(idx_to_token), output_dim=embed_size))
 ```
 
 ### 训练
@@ -287,15 +285,13 @@ net.add(nn.Embedding(input_dim=len(idx_to_token), output_dim=embed_size,
 
 ```{.python .input  n=23}
 def train(net, lr, num_epochs):
-    ctx = gb.try_gpu()
-    net.initialize(ctx=ctx, force_reinit=True)
+    net.initialize(force_reinit=True)
     trainer = gluon.Trainer(net.collect_params(), 'adam',
                             {'learning_rate': lr})
     for epoch in range(num_epochs):
         start_time, train_l_sum = time.time(), 0
         for batch in data_iter:
-            center, context_negative, mask, label = [
-                data.as_in_context(ctx) for data in batch]
+            center, context_negative, mask, label = batch
             with autograd.record():
                 pred = skip_gram(center, context_negative, net[0], net[1])
                 # 使用掩码变量 mask 来避免填充项对损失函数计算的影响。

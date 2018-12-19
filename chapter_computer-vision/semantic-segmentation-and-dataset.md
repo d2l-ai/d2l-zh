@@ -177,10 +177,11 @@ voc_test = VOCSegDataset(False, crop_size, voc_dir, colormap2label)
 
 ```{.python .input  n=11}
 batch_size = 64
+num_workers = 0 if sys.platform.startswith('win32') else 4
 train_iter = gdata.DataLoader(voc_train, batch_size, shuffle=True,
-                              last_batch='discard', num_workers=4)
+                              last_batch='discard', num_workers=num_workers)
 test_iter = gdata.DataLoader(voc_test, batch_size, last_batch='discard',
-                             num_workers=4)
+                             num_workers=num_workers)
 ```
 
 打印第一个小批量的形状。不同于图像分类和目标识别，这里的标签是一个三维的数组。

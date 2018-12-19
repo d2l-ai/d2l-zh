@@ -88,12 +88,17 @@ show_fashion_mnist(X, get_fashion_mnist_labels(y))
 ```{.python .input  n=28}
 batch_size = 256
 transformer = gdata.vision.transforms.ToTensor()
+if sys.platform.startswith('win'):
+    num_workers = 0  # 0 表示不用额外的进程来加速读取数据。
+else:
+    num_workers = 4
+
 train_iter = gdata.DataLoader(mnist_train.transform_first(transformer),
                               batch_size, shuffle=True,
-                              num_workers=4)
+                              num_workers=num_workers)
 test_iter = gdata.DataLoader(mnist_test.transform_first(transformer),
                              batch_size, shuffle=False,
-                             num_workers=4)
+                             num_workers=num_workers)
 ```
 
 我们将获取并读取Fashion-MNIST数据集的逻辑封装在`gluonbook.load_data_fashion_mnist`函数中供后面章节调用。该函数将返回`train_iter`和`test_iter`两个变量。随着本书内容的不断深入，我们会进一步改进该函数。它的完整实现将在[“深度卷积神经网络（AlexNet）”](../chapter_convolutional-neural-networks/alexnet.md)一节中描述。

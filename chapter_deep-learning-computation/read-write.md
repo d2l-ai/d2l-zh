@@ -64,14 +64,14 @@ y = net(x)
 
 ```{.python .input}
 filename = 'mlp.params'
-net.save_parameters(filename)
+net.save_params(filename)
 ```
 
 接下来，我们再实例化一次定义好的多层感知机。跟随机初始化模型参数不同，我们在这里直接读取保存在文件里的参数。
 
 ```{.python .input  n=8}
 net2 = MLP()
-net2.load_parameters(filename)
+net2.load_params(filename)
 ```
 
 因为这两个实例都有同样的模型参数，那么对同一个输入`x`的计算结果将会是一样。我们来验证一下。
