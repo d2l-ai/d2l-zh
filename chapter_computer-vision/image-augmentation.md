@@ -228,7 +228,7 @@ def train_with_data_aug(train_augs, test_augs, lr=0.001):
     loss = gloss.SoftmaxCrossEntropyLoss()
     train_iter = load_cifar10(True, train_augs, batch_size)
     test_iter = load_cifar10(False, test_augs, batch_size)
-    train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=6)
+    train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
 ```
 
 ### 有关图像增广的对比实验
