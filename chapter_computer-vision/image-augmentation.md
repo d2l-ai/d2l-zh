@@ -228,24 +228,14 @@ def train_with_data_aug(train_augs, test_augs, lr=0.001):
     loss = gloss.SoftmaxCrossEntropyLoss()
     train_iter = load_cifar10(True, train_augs, batch_size)
     test_iter = load_cifar10(False, test_augs, batch_size)
-    train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
+    train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=10)
 ```
 
-### 有关图像增广的对比实验
-
-我们先观察使用了图像增广的结果。
+下面使用随机左右翻转的图像增广来训练模型。
 
 ```{.python .input  n=39}
 train_with_data_aug(flip_aug, no_aug)
 ```
-
-作为对比，下面我们尝试不使用图像增广。
-
-```{.python .input  n=40}
-train_with_data_aug(no_aug, no_aug)
-```
-
-可以看到，即使添加了简单的随机翻转也可能对训练产生一定的影响。图像增广通常会使训练准确率变低，但有可能提高测试准确率。它可以用来应对过拟合。
 
 ## 小结
 
@@ -255,6 +245,7 @@ train_with_data_aug(no_aug, no_aug)
 
 ## 练习
 
+* 不使用图像增广训练模型：`train_with_data_aug(no_aug, no_aug)`。比较有无图像增广时的训练和测试准确率。该对比实验是否能支持图像增广可以应对过拟合这一论断？为什么？
 * 在基于CIFAR-10数据集的模型训练中增加不同的图像增广方法。观察实现结果。
 * 查阅MXNet文档，Gluon的`transforms`模块还提供了哪些图像增广方法？
 
