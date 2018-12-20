@@ -182,9 +182,10 @@ def batchify(data):
 
 ```{.python .input  n=14}
 batch_size = 512
+num_workers = 0 if sys.platform.startswith('win32') else 4
 dataset = gdata.ArrayDataset(all_centers, all_contexts, all_negatives)
 data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True,
-                             batchify_fn=batchify, num_workers=4)
+                             batchify_fn=batchify, num_workers=num_workers)
 for batch in data_iter:
     for name, data in zip(['centers', 'contexts_negatives', 'masks',
                            'labels'], batch):

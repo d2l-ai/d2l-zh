@@ -2,6 +2,7 @@ import collections
 import math
 import os
 import random
+import sys
 import tarfile
 import time
 import zipfile
@@ -234,11 +235,14 @@ def load_data_fashion_mnist(batch_size, resize=None, root=os.path.join(
 
     mnist_train = gdata.vision.FashionMNIST(root=root, train=True)
     mnist_test = gdata.vision.FashionMNIST(root=root, train=False)
+    num_workers = 0 if sys.platform.startswith('win32') else 4
 
     train_iter = gdata.DataLoader(mnist_train.transform_first(transformer),
-                                  batch_size, shuffle=True, num_workers=4)
+                                  batch_size, shuffle=True,
+                                  num_workers=num_workers)
     test_iter = gdata.DataLoader(mnist_test.transform_first(transformer),
-                                 batch_size, shuffle=False, num_workers=4)
+                                 batch_size, shuffle=False,
+                                 num_workers=num_workers)
     return train_iter, test_iter
 
 

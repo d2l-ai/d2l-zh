@@ -10,6 +10,7 @@
 %matplotlib inline
 import gluonbook as gb
 from mxnet.gluon import data as gdata
+import sys
 import time
 ```
 
@@ -80,17 +81,24 @@ show_fashion_mnist(X, get_fashion_mnist_labels(y))
 
 我们将在训练数据集上训练模型，并将训练好的模型在测试数据集上评价模型的表现。虽然我们可以像[“线性回归的从零开始实现”](linear-regression-scratch.md)一节中那样通过`yield`来定义读取小批量数据样本的函数，但为了代码简洁，这里我们直接创建`DataLoader`实例。该实例每次读取一个样本数为`batch_size`的小批量数据。这里的批量大小`batch_size`是一个超参数。
 
-在实践中，数据读取经常是训练的性能瓶颈，特别当模型较简单或者计算硬件性能较高时。Gluon的`DataLoader`中一个很方便的功能是允许使用多进程来加速数据读取。这里我们通过参数`num_workers`来设置4个进程读取数据。
+在实践中，数据读取经常是训练的性能瓶颈，特别当模型较简单或者计算硬件性能较高时。Gluon的`DataLoader`中一个很方便的功能是允许使用多进程来加速数据读取（暂不支持Windows操作系统）。这里我们通过参数`num_workers`来设置4个进程读取数据。
 
 此外，我们通过`ToTensor`类将图像数据从uint8格式变换成32位浮点数格式，并除以255使得所有像素的数值均在0到1之间。`ToTensor`类还将图像通道从最后一维移到最前一维来方便之后介绍的卷积神经网络计算。通过数据集的`transform_first`函数，我们将`ToTensor`的变换应用在每个数据样本（图像和标签）的第一个元素，即图像之上。
 
 ```{.python .input  n=28}
 batch_size = 256
 transformer = gdata.vision.transforms.ToTensor()
+if sys.platform.startswith('win'):
+    num_workers = 0  # 0 表示不用额外的进程来加速读取数据。
+else:
+    num_workers = 4
+
 train_iter = gdata.DataLoader(mnist_train.transform_first(transformer),
-                              batch_size, shuffle=True, num_workers=4)
+                              batch_size, shuffle=True,
+                              num_workers=num_workers)
 test_iter = gdata.DataLoader(mnist_test.transform_first(transformer),
-                             batch_size, shuffle=False, num_workers=4)
+                             batch_size, shuffle=False,
+                             num_workers=num_workers)
 ```
 
 我们将获取并读取Fashion-MNIST数据集的逻辑封装在`gluonbook.load_data_fashion_mnist`函数中供后面章节调用。该函数将返回`train_iter`和`test_iter`两个变量。随着本书内容的不断深入，我们会进一步改进该函数。它的完整实现将在[“深度卷积神经网络（AlexNet）”](../chapter_convolutional-neural-networks/alexnet.md)一节中描述。
@@ -112,7 +120,7 @@ for X, y in train_iter:
 ## 练习
 
 * 减小`batch_size`（例如到1）会影响读取性能吗？
-* 修改`num_workers`，查看它对读取性能的影响。
+* 非Windows用户请尝试修改`num_workers`来查看它对读取性能的影响。
 * 查看MXNet文档，`gdata.vision`里还提供了哪些别的数据集？
 * 查看MXNet文档，`gdata.vision.transforms`还提供了哪些别的变换方法？
 
