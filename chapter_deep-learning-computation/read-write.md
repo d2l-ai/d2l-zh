@@ -83,7 +83,8 @@ y2 == y
 
 ## 小结
 
-* 我们可以很方便地读写NDArray和Gluon模型的参数。
+* 通过`save`和`load`函数可以很方便地读写NDArray。
+* 通过`load_parameters`和`save_parameters`函数可以很方便地读写Gluon模型的参数。
 
 ## 练习
 

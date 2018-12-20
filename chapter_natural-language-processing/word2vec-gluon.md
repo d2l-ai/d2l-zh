@@ -322,7 +322,7 @@ train(net, 0.005, 5)
 def get_similar_tokens(query_token, k, embed):
     W = embed.weight.data()
     x = W[token_to_idx[query_token]]
-    # # 添加的 1e-9 是为了数值稳定性。
+    # 添加的 1e-9 是为了数值稳定性。
     cos = nd.dot(W, x) / (nd.sum(W * W, axis=1) * nd.sum(x * x) + 1e-9).sqrt()
     topk = nd.topk(cos, k=k+1, ret_typ='indices').asnumpy().astype('int32')
     for i in topk[1:]:  # 除去输入词。
