@@ -20,7 +20,6 @@
 
 感谢[社区贡献者们](https://github.com/diveintodeeplearning/d2l-zh/graphs/contributors)使这本开源书为每一位读者变得更好。
 
-[如何贡献](https://zh.diveintodeeplearning.org/chapter_appendix/how-to-contribute.html)]
+[如何贡献](https://zh.diveintodeeplearning.org/chapter_appendix/how-to-contribute.html)
 
-
-## [其他](INFO.md)
+[其他](INFO.md)
