@@ -4,9 +4,9 @@
 
 ## 英文版 *Dive into Deep Learning*
 
-加州大学伯克利分校 2019 年春学期“深度学习”课程教材。（更多教学资源将陆续发布）
+加州大学伯克利分校 2019 年春学期“深度学习”课程教材。
 
-[https://github.com/diveintodeeplearning/d2l-en](https://github.com/diveintodeeplearning/d2l-en)
+开源地址：[https://github.com/diveintodeeplearning/d2l-en](https://github.com/diveintodeeplearning/d2l-en) （亲，给个好评加颗星）
 
 
 ## 讨论和报告问题
