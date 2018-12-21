@@ -2,9 +2,16 @@
 
 [![Build Status](http://ci.diveintodeeplearning.org/job/zh/job/master/badge/icon)](http://ci.diveintodeeplearning.org/job/zh/job/master/)
 
-英文版（*Dive into Deep Learning*）：[https://github.com/diveintodeeplearning/d2l-en](https://github.com/diveintodeeplearning/d2l-en)
+## 英文版（*Dive into Deep Learning*）
+
+2019年春学期加州大学伯克利分校“深度学习”课程教材。
+[https://github.com/diveintodeeplearning/d2l-en](https://github.com/diveintodeeplearning/d2l-en)
+
+
+## 讨论和报告问题
 
 请使用 [https://discuss.gluon.ai](https://discuss.gluon.ai) 讨论或报告问题。
+
 
 ## 如何贡献
 
