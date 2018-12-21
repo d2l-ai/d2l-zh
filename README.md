@@ -11,9 +11,7 @@
 
 ## 讨论和报告问题
 
-本书的网站是 [https://zh.diveintodeeplearning.org/](https://zh.diveintodeeplearning.org/)。
-
-请使用 [https://discuss.gluon.ai](https://discuss.gluon.ai) 讨论或报告问题。
+[[本书网站](https://zh.diveintodeeplearning.org/)]  [[讨论或报告问题](https://discuss.gluon.ai) ]
 
 
 ## 贡献
