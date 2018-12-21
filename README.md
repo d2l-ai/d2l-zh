@@ -1,6 +1,8 @@
 # 动手学深度学习
 
-[![Build Status](http://ci.diveintodeeplearning.org/job/zh/job/master/badge/icon)](http://ci.diveintodeeplearning.org/job/zh/job/master/)  [[本书网址](https://zh.diveintodeeplearning.org/)]
+[![Build Status](http://ci.diveintodeeplearning.org/job/zh/job/master/badge/icon)](http://ci.diveintodeeplearning.org/job/zh/job/master/)  
+
+[[本书网址](https://zh.diveintodeeplearning.org/)]
 
  
 
