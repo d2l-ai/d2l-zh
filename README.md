@@ -2,9 +2,10 @@
 
 [![Build Status](http://ci.diveintodeeplearning.org/job/zh/job/master/badge/icon)](http://ci.diveintodeeplearning.org/job/zh/job/master/)
 
-## 英文版（*Dive into Deep Learning*）
+## 英文版 *Dive into Deep Learning*
 
-2019年春学期加州大学伯克利分校“深度学习”课程教材。
+加州大学伯克利分校2019年春学期“深度学习”课程教材。
+
 [https://github.com/diveintodeeplearning/d2l-en](https://github.com/diveintodeeplearning/d2l-en)
 
 
