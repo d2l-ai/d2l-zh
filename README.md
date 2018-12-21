@@ -13,9 +13,9 @@
 请使用 [https://discuss.gluon.ai](https://discuss.gluon.ai) 讨论或报告问题。
 
 
-## 如何贡献
+## [如何贡献](https://zh.diveintodeeplearning.org/chapter_appendix/how-to-contribute.html)
 
-所有notebook是用markdown格式存储，这样方便merge改动。jupyter可以通过notedown来直接使用markdown，[参考这里安装](./chapter_appendix/jupyter.md#用jupyter-notebook读写github源文件)
+所有notebook是用markdown格式存储，这样方便merge改动。jupyter可以通过notedown来直接使用markdown，[参考这里安装](https://zh.diveintodeeplearning.org/chapter_appendix/jupyter.html#%E7%94%A8-Jupyter-%E8%AE%B0%E4%BA%8B%E6%9C%AC%E8%AF%BB%E5%86%99-GitHub-%E6%BA%90%E6%96%87%E4%BB%B6)
 
 可以使用 https://zh.diveintodeeplearning.org.s3-website-us-west-2.amazonaws.com/ 来访问没有加载过 CDN 的版本，对代码的改动刷新更快。
 
