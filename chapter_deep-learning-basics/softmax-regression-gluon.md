@@ -54,6 +54,16 @@ gb.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size, None,
              None, trainer)
 ```
 
+```{.json .output n=6}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "epoch 1, loss 0.7873, train acc 0.749, test acc 0.800\nepoch 2, loss 0.5727, train acc 0.811, test acc 0.819\nepoch 3, loss 0.5291, train acc 0.824, test acc 0.832\nepoch 4, loss 0.5039, train acc 0.832, test acc 0.836\nepoch 5, loss 0.4893, train acc 0.835, test acc 0.838\n"
+ }
+]
+```
+
 ## 小结
 
 * Gluon提供的函数往往具有更好的数值稳定性。

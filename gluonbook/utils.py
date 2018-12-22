@@ -30,9 +30,13 @@ VOC_COLORMAP = [[0, 0, 0], [128, 0, 0], [0, 128, 0], [128, 128, 0],
                 [0, 64, 128]]
 
 
-def accuracy(y_hat, y):
+def accuracy(y_hat, y, reduce=True):
     """Get accuracy."""
-    return (y_hat.argmax(axis=1) == y.astype('float32')).mean().asscalar()
+    acc = y_hat.argmax(axis=1) == y.astype('float32')
+    if reduce:
+        return acc.mean().asscalar()
+    else:
+        return acc.sum().asscalar()
 
 
 def bbox_to_rect(bbox, color):
@@ -670,12 +674,13 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
                 sgd(params, lr, batch_size)
             else:
                 trainer.step(batch_size)
-            train_l_sum += l.mean().asscalar()
-            train_acc_sum += accuracy(y_hat, y)
+            train_l_sum += l.sum().asscalar()
+            train_acc_sum += accuracy(y_hat, y, reduce=False)
         test_acc = evaluate_accuracy(test_iter, net)
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f'
-              % (epoch, train_l_sum / len(train_iter),
-                 train_acc_sum / len(train_iter), test_acc))
+              % (epoch, train_l_sum / len(train_iter._dataset),
+                 train_acc_sum / len(train_iter._dataset), test_acc))
+
 
 
 def train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
