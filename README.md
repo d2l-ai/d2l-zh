@@ -9,7 +9,7 @@
 
 加州大学伯克利分校 2019 年春学期 *Introduction to Deep Learning* 课程教材。
 
-开源地址：[https://github.com/diveintodeeplearning/d2l-en](https://github.com/diveintodeeplearning/d2l-en) （亲，给个好评加颗星）
+开源地址：[https://github.com/diveintodeeplearning/d2l-en](https://github.com/diveintodeeplearning/d2l-en)
 
 
 ## 贡献
