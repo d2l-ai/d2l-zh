@@ -3,16 +3,13 @@
 [![Build Status](http://ci.diveintodeeplearning.org/job/zh/job/master/badge/icon)](http://ci.diveintodeeplearning.org/job/zh/job/master/)  
 
 [[本书网址](https://zh.diveintodeeplearning.org/)]
-
  
 
 ## 英文版 *Dive into Deep Learning*
 
-加州大学伯克利分校 2019 年春学期“深度学习”课程教材。
+加州大学伯克利分校 2019 年春学期 *Introduction to Deep Learning* 课程教材。
 
 开源地址：[https://github.com/diveintodeeplearning/d2l-en](https://github.com/diveintodeeplearning/d2l-en) （亲，给个好评加颗星）
-
-
 
 
 ## 贡献
