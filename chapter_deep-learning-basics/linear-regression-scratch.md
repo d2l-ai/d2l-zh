@@ -18,7 +18,7 @@ import random
 
 $$\boldsymbol{y} = \boldsymbol{X}\boldsymbol{w} + b + \epsilon,$$
 
-其中噪音项$\epsilon$服从均值为0和标准差为0.01的正态分布。下面，让我们生成数据集。
+其中噪音项$\epsilon$服从均值为0和标准差为0.01的正态分布。噪音（noise）代表了数据集中无意义的干扰。下面，让我们生成数据集。
 
 ```{.python .input  n=2}
 num_inputs = 2
