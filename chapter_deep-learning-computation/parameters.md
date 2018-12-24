@@ -13,8 +13,8 @@ net.add(nn.Dense(256, activation='relu'))
 net.add(nn.Dense(10))
 net.initialize()  # 使用默认初始化方式。
 
-x = nd.random.uniform(shape=(2, 20))
-y = net(x)  # 前向计算。
+X = nd.random.uniform(shape=(2, 20))
+Y = net(X)  # 前向计算。
 ```
 
 ## 访问模型参数
@@ -120,8 +120,8 @@ net.add(nn.Dense(8, activation='relu'),
         nn.Dense(10))
 net.initialize()
 
-x = nd.random.uniform(shape=(2, 20))
-net(x)
+X = nd.random.uniform(shape=(2, 20))
+net(X)
 
 net[1].weight.data()[0] == net[2].weight.data()[0]
 ```
@@ -138,7 +138,7 @@ net[1].weight.data()[0] == net[2].weight.data()[0]
 ## 练习
 
 * 查阅有关`init`模块的MXNet文档，了解不同的参数初始化方法。
-* 尝试在`net.initialize()`后、`net(x)`前访问模型参数，观察模型参数的形状。
+* 尝试在`net.initialize()`后、`net(X)`前访问模型参数，观察模型参数的形状。
 * 构造一个含共享参数层的多层感知机并训练。在训练过程中，观察每一层的模型参数和梯度。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/987)

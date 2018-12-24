@@ -27,13 +27,13 @@ class MLP(nn.Block):
 
 以上的`MLP`类中无需定义反向传播函数。系统将通过自动求梯度，从而自动生成反向传播所需要的`backward`函数。
 
-我们可以实例化`MLP`类得到模型变量`net`。下面代码初始化`net`并传入输入数据`x`做一次前向计算。其中，`net(x)`会调用`MLP`继承自Block类的`__call__`函数，这个函数将调用`MLP`类定义的`forward`函数来完成前向计算。
+我们可以实例化`MLP`类得到模型变量`net`。下面代码初始化`net`并传入输入数据`X`做一次前向计算。其中，`net(X)`会调用`MLP`继承自Block类的`__call__`函数，这个函数将调用`MLP`类定义的`forward`函数来完成前向计算。
 
 ```{.python .input  n=2}
-x = nd.random.uniform(shape=(2, 20))
+X = nd.random.uniform(shape=(2, 20))
 net = MLP()
 net.initialize()
-net(x)
+net(X)
 ```
 
 注意到我们并没有将Block类命名为层（Layer）或者模型（Model）之类的名字，这是因为该类是一个可供自由组建的部件。它的子类既可以是一个层（例如Gluon提供的`Dense`类），又可以是一个模型（例如这里定义的MLP类），或者是模型的一个部分。我们下面通过两个例子来展示它的灵活性。
@@ -69,7 +69,7 @@ net = MySequential()
 net.add(nn.Dense(256, activation='relu'))
 net.add(nn.Dense(10))
 net.initialize()
-net(x)
+net(X)
 ```
 
 可以观察到这里`MySequential`类的使用跟[“多层感知机的Gluon实现”](../chapter_deep-learning-basics/mlp-gluon.md)一节中Sequential类的使用没什么区别。
@@ -107,7 +107,7 @@ class FancyMLP(nn.Block):
 ```{.python .input  n=6}
 net = FancyMLP()
 net.initialize()
-net(x)
+net(X)
 ```
 
 由于`FancyMLP`和Sequential类都是Block类的子类，我们可以嵌套调用它们。
@@ -128,7 +128,7 @@ net = nn.Sequential()
 net.add(NestMLP(), nn.Dense(20), FancyMLP())
 
 net.initialize()
-net(x)
+net(X)
 ```
 
 ## 小结
