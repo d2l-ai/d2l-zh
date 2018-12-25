@@ -61,7 +61,7 @@ import sys
 
 net = nn.Sequential()
 # 使用较大的 11 x 11 窗口来捕获物体。同时使用步幅 4 来较大减小输出高和宽。
-# 这里使用的输入通道数比 LeNet 中的也要大很多。
+# 这里使用的输出通道数比 LeNet 中的也要大很多。
 net.add(nn.Conv2D(96, kernel_size=11, strides=4, activation='relu'),
         nn.MaxPool2D(pool_size=3, strides=2),
         # 减小卷积窗口，使用填充为 2 来使得输入输出高宽一致，且增大输出通道数。
