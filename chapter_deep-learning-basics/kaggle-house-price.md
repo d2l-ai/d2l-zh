@@ -115,10 +115,10 @@ def get_net():
 $$\sqrt{\frac{1}{n}\sum_{i=1}^n\left(\log(y_i)-\log(\hat y_i)\right)^2}.$$
 
 ```{.python .input  n=11}
-def log_rmse(net, train_features, train_labels):
+def log_rmse(net, features, labels):
     # 将小于 1 的值设成 1，使得取对数时数值更稳定。
-    clipped_preds = nd.clip(net(train_features), 1, float('inf'))
-    rmse = nd.sqrt(2 * loss(clipped_preds.log(), train_labels.log()).mean())
+    clipped_preds = nd.clip(net(features), 1, float('inf'))
+    rmse = nd.sqrt(2 * loss(clipped_preds.log(), labels.log()).mean())
     return rmse.asscalar()
 ```
 
