@@ -42,7 +42,7 @@ conda env create -f environment.yml
 activate gluon
 ```
 
-第五步：打开Juputer记事本。
+第五步：打开Jupyter记事本。
 
 ```
 jupyter notebook
