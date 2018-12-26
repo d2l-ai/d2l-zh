@@ -1,6 +1,6 @@
 # 模型构造
 
-让我们回顾一下在[“多层感知机的Gluon实现”](../chapter_deep-learning-basics/mlp-gluon.md)一节中含单隐藏层的多层感知机的实现方法。我们首先构造Sequential实例，然后依次添加两个全连接层。其中第一层的输出大小为256，即隐藏层单元个数是256；第二层的输出大小为10，即输出层单元个数是10。我们在上一章的其他小节中也使用了Sequential类构造模型。这里我们介绍另外一种基于Block类的模型构造方法：它让模型构造更加灵活。
+让我们回顾一下在[“多层感知机的简洁实现”](../chapter_deep-learning-basics/mlp-gluon.md)一节中含单隐藏层的多层感知机的实现方法。我们首先构造Sequential实例，然后依次添加两个全连接层。其中第一层的输出大小为256，即隐藏层单元个数是256；第二层的输出大小为10，即输出层单元个数是10。我们在上一章的其他小节中也使用了Sequential类构造模型。这里我们介绍另外一种基于Block类的模型构造方法：它让模型构造更加灵活。
 
 
 ## 继承Block类来构造模型
@@ -72,7 +72,7 @@ net.initialize()
 net(X)
 ```
 
-可以观察到这里`MySequential`类的使用跟[“多层感知机的Gluon实现”](../chapter_deep-learning-basics/mlp-gluon.md)一节中Sequential类的使用没什么区别。
+可以观察到这里`MySequential`类的使用跟[“多层感知机的简洁实现”](../chapter_deep-learning-basics/mlp-gluon.md)一节中Sequential类的使用没什么区别。
 
 
 ## 构造复杂的模型

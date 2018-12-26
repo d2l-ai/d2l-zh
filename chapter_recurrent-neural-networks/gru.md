@@ -149,7 +149,7 @@ gb.train_and_predict_rnn(gru, get_params, init_gru_state, num_hiddens,
                          prefixes)
 ```
 
-## Gluon实现
+## 简洁实现
 
 在Gluon中我们直接调用`rnn`模块中的`GRU`类即可。
 

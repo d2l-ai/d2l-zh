@@ -164,7 +164,7 @@ gb.train_and_predict_rnn(lstm, get_params, init_lstm_state, num_hiddens,
                          prefixes)
 ```
 
-## Gluon实现
+## 简洁实现
 
 在Gluon中我们可以直接调用`rnn`模块中的`LSTM`类。
 

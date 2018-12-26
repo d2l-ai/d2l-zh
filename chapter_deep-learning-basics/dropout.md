@@ -104,7 +104,7 @@ gb.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size, params,
              lr)
 ```
 
-## Gluon实现
+## 简洁实现
 
 在Gluon中，我们只需要在全连接层后添加`Dropout`层并指定丢弃概率。在训练模型时，`Dropout`层将以指定的丢弃概率随机丢弃上一层的输出元素；在测试模型时，`Dropout`层并不发挥作用。
 

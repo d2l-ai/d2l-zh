@@ -107,7 +107,7 @@ train_sgd(0.005, 1)
 train_sgd(0.05, 10)
 ```
 
-## Gluon实现
+## 简洁实现
 
 在Gluon里我们可以通过`Trainer`类来调用优化算法。下面实现一个通用的训练函数，它通过优化算法的名字`trainer_name`和超参数`trainer_hyperparams`来创建`Trainer`实例。
 

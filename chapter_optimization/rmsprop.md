@@ -64,9 +64,9 @@ gb.train_ch7(rmsprop, init_rmsprop_states(), {'lr': 0.01, 'gamma': 0.9},
              features, labels)
 ```
 
-## Gluon实现
+## 简洁实现
 
-通过算法名称为“rmsprop”的`Trainer`实例，我们便可使用Gluon实现的RMSProp算法来训练模型。注意超参数$\gamma$通过`gamma1`指定。
+通过算法名称为“rmsprop”的`Trainer`实例，我们便可使用Gluon提供的RMSProp算法来训练模型。注意超参数$\gamma$通过`gamma1`指定。
 
 ```{.python .input  n=29}
 gb.train_gluon_ch7('rmsprop', {'learning_rate': 0.01, 'gamma1': 0.9},

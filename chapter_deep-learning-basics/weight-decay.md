@@ -121,7 +121,7 @@ fit_and_plot(lambd=0)
 fit_and_plot(lambd=3)
 ```
 
-## Gluon实现
+## 简洁实现
 
 这里我们直接在构造`Trainer`实例时通过`wd`参数来指定权重衰减超参数。默认下，Gluon会对权重和偏差同时衰减。我们可以分别对权重和偏差构造`Trainer`实例，从而只对权重衰减。
 

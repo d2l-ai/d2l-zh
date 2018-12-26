@@ -141,7 +141,7 @@ gb.train_ch7(sgd_momentum, init_momentum_states(),
              {'lr': 0.004, 'momentum': 0.9}, features, labels)
 ```
 
-## Gluon实现
+## 简洁实现
 
 在Gluon中，只需要在`Trainer`实例中通过`momentum`来指定动量超参数即可使用动量法。
 

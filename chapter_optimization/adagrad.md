@@ -81,7 +81,7 @@ def adagrad(params, states, hyperparams):
 gb.train_ch7(adagrad, init_adagrad_states(), {'lr': 0.1}, features, labels)
 ```
 
-## Gluon实现
+## 简洁实现
 
 通过算法名称为“adagrad”的`Trainer`实例，我们便可使用Gluon实现的Adagrad算法来训练模型。
 

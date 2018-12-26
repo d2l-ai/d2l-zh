@@ -1,4 +1,4 @@
-# 多层感知机的Gluon实现
+# 多层感知机的简洁实现
 
 下面我们使用Gluon来实现上一节中的多层感知机。首先我们导入所需的包或模块。
 
@@ -36,7 +36,7 @@ gb.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
 
 ## 小结
 
-* 通过Gluon我们可以更方便地构造多层感知机。
+* 通过Gluon我们可以更简洁地实现多层感知机。
 
 ## 练习
 

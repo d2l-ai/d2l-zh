@@ -55,7 +55,7 @@ def adadelta(params, states, hyperparams):
 gb.train_ch7(adadelta, init_adadelta_states(), {'rho': 0.9}, features, labels)
 ```
 
-## Gluon实现
+## 简洁实现
 
 通过算法名称为“adadelta”的`Trainer`实例，我们便可在Gluon中使用Adadelta算法。它的超参数可以通过`rho`来指定。
 

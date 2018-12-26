@@ -62,7 +62,7 @@ def adam(params, states, hyperparams):
 gb.train_ch7(adam, init_adam_states(), {'lr': 0.01, 't': 1}, features, labels)
 ```
 
-## Gluon实现
+## 简洁实现
 
 通过算法名称为“adam”的`Trainer`实例，我们便可在Gluon中使用Adam算法。
 

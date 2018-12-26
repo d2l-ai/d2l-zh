@@ -134,7 +134,7 @@ def load_cifar10(is_train, augs, batch_size):
 
 ### 使用多GPU训练模型
 
-我们在CIFAR-10数据集上训练[“残差网络（ResNet）”](../chapter_convolutional-neural-networks/resnet.md)一节介绍的ResNet-18模型。我们还将应用[“多GPU计算的Gluon实现”](../chapter_computational-performance/multiple-gpus-gluon.md)一节中介绍的方法，使用多GPU训练模型。
+我们在CIFAR-10数据集上训练[“残差网络（ResNet）”](../chapter_convolutional-neural-networks/resnet.md)一节介绍的ResNet-18模型。我们还将应用[“多GPU计算的简洁实现”](../chapter_computational-performance/multiple-gpus-gluon.md)一节中介绍的方法，使用多GPU训练模型。
 
 首先，我们定义`try_all_gpus`函数，从而能够获取所有可用的GPU。
 
