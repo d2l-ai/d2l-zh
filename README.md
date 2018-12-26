@@ -21,4 +21,4 @@
 
 ## 深度学习前沿
 
-[[计算机视觉 GluonCV](https://gluon-cv.mxnet.io/)]  [[自然语言处理 GluonNLP](https://gluon-nlp.mxnet.io/)] [[深度图 DGL](https://www.dgl.ai/)]
+[[计算机视觉 GluonCV](https://gluon-cv.mxnet.io/)]  [[自然语言处理 GluonNLP](https://gluon-nlp.mxnet.io/)] [[图神经网络 DGL](https://www.dgl.ai/)]
