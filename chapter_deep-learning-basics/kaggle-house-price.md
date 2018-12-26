@@ -177,7 +177,7 @@ def k_fold(k, X_train, y_train, num_epochs,
         data = get_k_fold_data(k, i, X_train, y_train)
         net = get_net()
         train_ls, valid_ls = train(net, *data, num_epochs, learning_rate,
-                                  weight_decay, batch_size)
+                                   weight_decay, batch_size)
         train_l_sum += train_ls[-1]
         valid_l_sum += valid_ls[-1]
         if i == 0:
@@ -197,7 +197,7 @@ def k_fold(k, X_train, y_train, num_epochs,
 k, num_epochs, lr, weight_decay, batch_size = 5, 100, 5, 0, 64
 verbose_epoch = num_epochs - 2
 train_l, valid_l = k_fold(k, train_features, train_labels, num_epochs, lr,
-                         weight_decay, batch_size)
+                          weight_decay, batch_size)
 print('%d-fold validation: avg train rmse: %f, avg valid rmse: %f'
       % (k, train_l, valid_l))
 ```
