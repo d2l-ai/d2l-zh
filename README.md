@@ -17,3 +17,8 @@
 感谢[社区贡献者们](https://github.com/diveintodeeplearning/d2l-zh/graphs/contributors)为每一位读者改进这本开源书。
 
 [[如何贡献](https://zh.diveintodeeplearning.org/chapter_appendix/how-to-contribute.html)] [[致谢](https://zh.diveintodeeplearning.org/chapter_introduction/preface.html#%E8%87%B4%E8%B0%A2)]  [[讨论或报告问题](https://discuss.gluon.ai)]  [[其他](INFO.md)]
+
+
+## 更多
+
+[[计算机视觉 GluonCV](https://gluon-cv.mxnet.io/)]  [[自然语言处理 GluonNLP](https://gluon-nlp.mxnet.io/)]
