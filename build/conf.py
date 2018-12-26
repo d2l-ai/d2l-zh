@@ -149,7 +149,8 @@ html_theme_options = {
         ('PDF', 'http://zh.diveintodeeplearning.org/d2l-zh.pdf', True, 'fas fa-file-pdf'),
         ('Jupyter 记事本', 'http://zh.diveintodeeplearning.org/d2l-zh.zip', True, 'fas fa-download'),
         ('讨论', 'https://discuss.gluon.ai/c/lecture?order=views', True, 'fab fa-discourse'),
-        ('English Version', 'https://diveintodeeplearning.org', True, 'fas fa-external-link-alt'),
+		('GitHub', 'https://github.com/diveintodeeplearning/d2l-zh', True, 'fab fa-github'),
+		('English Version', 'https://diveintodeeplearning.org', True, 'fas fa-external-link-alt'),
     ],
     'show_footer': True
 }
