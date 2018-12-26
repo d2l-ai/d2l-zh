@@ -109,10 +109,10 @@ $$
 $$
 k\boldsymbol{A} = 
 \begin{bmatrix}
-    ka_{11} & ka_{21} & \dots  & ka_{m1} \\
-    ka_{12} & ka_{22} & \dots  & ka_{m2} \\
+    ka_{11} & ka_{12} & \dots  & ka_{1n} \\
+    ka_{21} & ka_{22} & \dots  & ka_{2n} \\
     \vdots & \vdots   & \ddots & \vdots \\
-    ka_{1n} & ka_{2n} & \dots  & ka_{mn}
+    ka_{m1} & ka_{m2} & \dots  & ka_{mn}
 \end{bmatrix}.
 $$
 
