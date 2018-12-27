@@ -95,7 +95,7 @@ net.add(nn.Dense(1))
 net.initialize(ctx=mx.gpu())
 ```
 
-当输入是显存上的NDArray时，Gluon会在≈上计算结果。
+当输入是显存上的NDArray时，Gluon会在同一块显卡的显存上计算结果。
 
 ```{.python .input  n=13}
 net(y)
