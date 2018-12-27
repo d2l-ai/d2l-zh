@@ -87,7 +87,7 @@ gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
 
 ## 练习
 
-* 与AlexNet相比，VGG的计算慢很多，也需要很多的GPU内存。试分析原因。
+* 与AlexNet相比，VGG的计算慢很多，也需要很多的内存或显存。试分析原因。
 * 尝试将Fashion-MNIST中图像的高和宽由224改为96。这在实验中有哪些影响？
 * 参考VGG论文里的表1来构造VGG其他常用模型，例如VGG-16和VGG-19 [1]。
 

@@ -68,7 +68,7 @@ ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com
 sudo apt-get update && sudo apt-get install -y build-essential git libgfortran3
 ```
 
-Nvidia一般每年会更新一次CUDA主版本。这里我们下载作者写本书时的最新主版本CUDA 9.0（也可使用MXNet支持的其他版本）。访问Nvidia官网（https://developer.nvidia.com/cuda-90-download-archive ）获取正确版本的CUDA 9.0的下载地址，如图11.17所示。
+NVIDIA一般每年会更新一次CUDA主版本。这里我们下载作者写本书时的最新主版本CUDA 9.0（也可使用MXNet支持的其他版本）。访问NVIDIA官网（https://developer.nvidia.com/cuda-90-download-archive ）获取正确版本的CUDA 9.0的下载地址，如图11.17所示。
 
 ![获取CUDA9.0的下载地址。](../img/cuda.png)
 

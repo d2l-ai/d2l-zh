@@ -128,7 +128,7 @@ gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
 ## 练习
 
 * DenseNet论文中提到的一个优点是模型参数比ResNet的更小，这是为什么？
-* DenseNet被人诟病的一个问题是内存消耗过多。真的会这样吗？可以把输入形状换成$224\times 224$，来看看实际（GPU）内存消耗。
+* DenseNet被人诟病的一个问题是存储空间消耗过多。真的会这样吗？可以把输入形状换成$224\times 224$，来看看实际的消耗。
 * 实现DenseNet论文中的表1提出的各个DenseNet版本 [1]。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1664)

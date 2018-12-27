@@ -113,7 +113,7 @@ conda env update -f environment.yml
 
 ## 使用GPU版的MXNet
 
-通过前面介绍的方式所安装的MXNet只支持CPU计算。本书中部分章节需要或推荐使用GPU来运行。如果你的电脑上有Nvidia显卡并安装了CUDA，建议使用GPU版的MXNet。
+通过前面介绍的方式所安装的MXNet只支持CPU计算。本书中部分章节需要或推荐使用GPU来运行。如果你的电脑上有NVIDIA显卡并安装了CUDA，建议使用GPU版的MXNet。
 
 第一步：卸载CPU版本MXNet。如果你没有安装虚拟环境，可以跳过此步。如已安装虚拟环境，需要先激活该环境，再卸载CPU版本的MXNet：
 
