@@ -17,7 +17,7 @@ with zipfile.ZipFile('../data/jaychou_lyrics.txt.zip') as zin:
 corpus_chars[:40]
 ```
 
-这个数据集有五万多个字符。为了打印方便，我们把换行符替换成空格，然后仅使用前一万个字符来训练模型。
+这个数据集有六万多个字符。为了打印方便，我们把换行符替换成空格，然后仅使用前一万个字符来训练模型。
 
 ```{.python .input  n=14}
 corpus_chars = corpus_chars.replace('\n', ' ').replace('\r', ' ')
