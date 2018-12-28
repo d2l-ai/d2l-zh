@@ -145,12 +145,12 @@ html_theme_options = {
     'primary_color': 'blue',
     'accent_color': 'deep_orange',
     'header_links' : [
-        ('伯克利 2019 深度学习课程', 'http://courses.diveintodeeplearning.org/berkeley-stat-157/', True, 'fas fa-user-graduate'),
-        ('PDF', 'http://zh.diveintodeeplearning.org/d2l-zh.pdf', True, 'fas fa-file-pdf'),
-        ('Jupyter 记事本', 'http://zh.diveintodeeplearning.org/d2l-zh.zip', True, 'fas fa-download'),
+        ('伯克利 2019 深度学习课程', 'https://courses.d2l.ai/berkeley-stat-157/index.html', True, 'fas fa-user-graduate'),
+        ('PDF', 'https://zh.d2l.ai/d2l-zh.pdf', True, 'fas fa-file-pdf'),
+        ('Jupyter 记事本', 'https://zh.d2l.ai/d2l-zh.zip', True, 'fas fa-download'),
         ('讨论', 'https://discuss.gluon.ai/c/lecture?order=views', True, 'fab fa-discourse'),
-		('GitHub', 'https://github.com/diveintodeeplearning/d2l-zh', True, 'fab fa-github'),
-		('English Version', 'https://diveintodeeplearning.org', True, 'fas fa-external-link-alt'),
+		('GitHub', 'https://github.com/d2l-ai/d2l-zh', True, 'fab fa-github'),
+		('English Version', 'https://d2l.ai', True, 'fas fa-external-link-alt'),
     ],
     'show_footer': True
 }
