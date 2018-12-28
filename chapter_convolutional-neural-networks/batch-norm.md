@@ -1,4 +1,4 @@
-# 批量归一化
+﻿# 批量归一化
 
 这一节我们介绍批量归一化（batch normalization）层，它能让较深的神经网络的训练变得更加容易 [1]。在 [“实战Kaggle比赛：预测房价”](../chapter_deep-learning-basics/kaggle-house-price.md) 一节里，我们对输入数据做了标准化处理：处理后的任意一个特征在数据集中所有样本上的均值为0、标准差为1。标准化处理输入数据使各个特征的分布相近：这往往更容易训练出有效的模型。
 
@@ -34,17 +34,17 @@ $$\boldsymbol{\sigma}_\mathcal{B}^2 \leftarrow \frac{1}{m} \sum_{i=1}^{m}(\bolds
 
 $$\hat{\boldsymbol{x}}^{(i)} \leftarrow \frac{\boldsymbol{x}^{(i)} - \boldsymbol{\mu}_\mathcal{B}}{\sqrt{\boldsymbol{\sigma}_\mathcal{B}^2 + \epsilon}},$$
 
-这里$\epsilon > 0$是一个很小的常数，保证分母大于0。在上面标准化的基础上，批量归一化层引入了两个可以学习的模型参数，拉升（scale）参数 $\boldsymbol{\gamma}$ 和偏移（shift）参数 $\boldsymbol{\beta}$。这两个参数和$\boldsymbol{x}^{(i)}$形状相同，皆为$d$维向量。它们与$\boldsymbol{x}^{(i)}$分别做按元素乘法（符号$\odot$）和加法计算：
+这里$\epsilon > 0$是一个很小的常数，保证分母大于0。在上面标准化的基础上，批量归一化层引入了两个可以学习的模型参数，拉伸（scale）参数 $\boldsymbol{\gamma}$ 和偏移（shift）参数 $\boldsymbol{\beta}$。这两个参数和$\boldsymbol{x}^{(i)}$形状相同，皆为$d$维向量。它们与$\boldsymbol{x}^{(i)}$分别做按元素乘法（符号$\odot$）和加法计算：
 
 $${\boldsymbol{y}}^{(i)} \leftarrow \boldsymbol{\gamma} \odot \hat{\boldsymbol{x}}^{(i)} + \boldsymbol{\beta}.$$
 
 至此，我们得到了$\boldsymbol{x}^{(i)}$的批量归一化的输出$\boldsymbol{y}^{(i)}$。
-值得注意的是，可学习的拉升和偏移参数保留了不对$\hat{\boldsymbol{x}}^{(i)}$做批量归一化的可能：此时只需学出$\boldsymbol{\gamma} = \sqrt{\boldsymbol{\sigma}_\mathcal{B}^2 + \epsilon}$和$\boldsymbol{\beta} = \boldsymbol{\mu}_\mathcal{B}$。我们可以对此这样理解：如果批量归一化无益，理论上学出的模型可以不使用批量归一化。
+值得注意的是，可学习的拉伸和偏移参数保留了不对$\hat{\boldsymbol{x}}^{(i)}$做批量归一化的可能：此时只需学出$\boldsymbol{\gamma} = \sqrt{\boldsymbol{\sigma}_\mathcal{B}^2 + \epsilon}$和$\boldsymbol{\beta} = \boldsymbol{\mu}_\mathcal{B}$。我们可以对此这样理解：如果批量归一化无益，理论上学出的模型可以不使用批量归一化。
 
 
 ### 对卷积层做批量归一化
 
-对卷积层来说，批量归一化发生在卷积计算之后、应用激活函数之前。如果卷积计算输出多个通道，我们需要对这些通道的输出分别做批量归一化，且每个通道都拥有独立的拉升和偏移参数，且均为标量。设小批量中有$m$个样本。在单个通道上，假设卷积计算输出的高和宽分别为$p$和$q$。我们需要对该通道中$m \times p \times q$个元素同时做批量归一化。对这些元素做标准化计算时，我们使用相同的均值和方差，即该通道中$m \times p \times q$个元素的均值和方差。
+对卷积层来说，批量归一化发生在卷积计算之后、应用激活函数之前。如果卷积计算输出多个通道，我们需要对这些通道的输出分别做批量归一化，且每个通道都拥有独立的拉伸和偏移参数，且均为标量。设小批量中有$m$个样本。在单个通道上，假设卷积计算输出的高和宽分别为$p$和$q$。我们需要对该通道中$m \times p \times q$个元素同时做批量归一化。对这些元素做标准化计算时，我们使用相同的均值和方差，即该通道中$m \times p \times q$个元素的均值和方差。
 
 
 ### 预测时的批量归一化
@@ -82,11 +82,11 @@ def batch_norm(X, gamma, beta, moving_mean, moving_var, eps, momentum):
         # 更新移动平均的均值和方差。
         moving_mean = momentum * moving_mean + (1.0 - momentum) * mean
         moving_var = momentum * moving_var + (1.0 - momentum) * var
-    Y = gamma * X_hat + beta  # 拉升和偏移。
+    Y = gamma * X_hat + beta  # 拉伸和偏移。
     return Y, moving_mean, moving_var
 ```
 
-接下来我们自定义一个`BatchNorm`层。它保存参与求梯度和迭代的拉升参数`gamma`和偏移参数`beta`，同时也维护移动平均得到的均值和方差，以能够在模型预测时使用。`BatchNorm`实例所需指定的`num_features`参数对于全连接层为输出个数，对于卷积层则为输出通道数。该实例所需指定的`num_dims`参数对于全连接层和卷积层分别为2和4。
+接下来我们自定义一个`BatchNorm`层。它保存参与求梯度和迭代的拉伸参数`gamma`和偏移参数`beta`，同时也维护移动平均得到的均值和方差，以能够在模型预测时使用。`BatchNorm`实例所需指定的`num_features`参数对于全连接层为输出个数，对于卷积层则为输出通道数。该实例所需指定的`num_dims`参数对于全连接层和卷积层分别为2和4。
 
 ```{.python .input  n=73}
 class BatchNorm(nn.Block):
@@ -96,7 +96,7 @@ class BatchNorm(nn.Block):
             shape = (1, num_features)
         else:
             shape = (1, num_features, 1, 1)
-        # 参与求梯度和迭代的拉升和偏移参数，分别初始化成 0 和 1。
+        # 参与求梯度和迭代的拉伸和偏移参数，分别初始化成 0 和 1。
         self.gamma = self.params.get('gamma', shape=shape, init=init.One())
         self.beta = self.params.get('beta', shape=shape, init=init.Zero())
         # 不参与求梯度和迭代的变量，全在 CPU 上初始化成 0。
@@ -148,7 +148,7 @@ train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
 gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
 ```
 
-最后我们查看下第一个批量归一化层学习到的拉升参数`gamma`和偏移参数`beta`。
+最后我们查看下第一个批量归一化层学习到的拉伸参数`gamma`和偏移参数`beta`。
 
 ```{.python .input  n=60}
 net[1].gamma.data().reshape((-1,)), net[1].beta.data().reshape((-1,))
