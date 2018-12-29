@@ -35,13 +35,13 @@ $$\hat{y}^{(i)} = x_1^{(i)} w_1 + x_2^{(i)} w_2 + b.$$
 
 在模型训练中，我们需要衡量价格预测值与真实值之间的误差。通常我们会选取一个非负数作为误差，且数值越小表示误差越小。一个常用的选择是平方函数。它在评估索引为$i$的样本误差的表达式为
 
-$$\ell^{(i)}(w_1, w_2, b) = \frac{1}{2} \left(\hat{y}^{(i)} - y^{(i)}\right)^2,$$
+$$\ell^{(i)}(w_1, w_2, b) = \frac{1}{2} \left(y^{(i)} - \hat{y}^{(i)}\right)^2,$$
 
 其中常数$1/2$使得对平方项求导后的常数系数为1，这样在形式上稍微简单一些。显然，误差越小表示预测价格与真实价格越相近，且当二者相等时误差为0。给定训练数据集，这个误差只与模型参数相关，因此我们将它记为以模型参数为参数的函数。机器学习里，我们将衡量误差的函数称为损失函数（loss function）。这里使用的平方误差函数也被称为平方损失（square loss）。
 
 通常，我们用训练数据集中所有样本误差的平均来衡量模型预测的质量，即
 
-$$\ell(w_1, w_2, b) =\frac{1}{n} \sum_{i=1}^n \ell^{(i)}(w_1, w_2, b) =\frac{1}{n} \sum_{i=1}^n \frac{1}{2}\left(x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}\right)^2.$$
+$$\ell(w_1, w_2, b) =\frac{1}{n} \sum_{i=1}^n \ell^{(i)}(w_1, w_2, b) =\frac{1}{n} \sum_{i=1}^n \frac{1}{2}\left(y^{(i)} - \left(x_1^{(i)} w_1 + x_2^{(i)} w_2 + b\right)\right)^2.$$
 
 在模型训练中，我们希望找出一组模型参数，记为$w_1^*, w_2^*, b^*$，来使得训练样本平均损失最小：
 
@@ -165,7 +165,7 @@ $$\boldsymbol{\hat{y}} = \boldsymbol{X} \boldsymbol{w} + b,$$
 其中模型输出$\boldsymbol{\hat{y}} \in \mathbb{R}^{n \times 1}$， 批量数据样本特征$\boldsymbol{X} \in \mathbb{R}^{n \times d}$，权重$\boldsymbol{w} \in \mathbb{R}^{d \times 1}$， 偏差$b \in \mathbb{R}$。相应地，批量数据样本标签$\boldsymbol{y} \in \mathbb{R}^{n \times 1}$。设模型参数$\boldsymbol{\theta} = [w_1, w_2, b]^\top$，我们可以重写损失函数为
 
 
-$$\ell(\boldsymbol{w})=\frac{1}{2n}(\boldsymbol{\hat{y}}-\boldsymbol{y})^\top(\boldsymbol{\hat{y}}-\boldsymbol{y}).$$
+$$\ell(\boldsymbol{w})=\frac{1}{2n}(\boldsymbol{y} - \boldsymbol{\hat{y}})^\top(\boldsymbol{y}-\boldsymbol{\hat{y}}).$$
 
 小批量随机梯度下降的迭代步骤将相应地改写为
 
