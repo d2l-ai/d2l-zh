@@ -51,7 +51,7 @@ EC2提供了大量不同配置的实例。如图11.11所示，在第二步“2. 
 
 如图11.16所示，当实例状态（Instance State）变绿后，右击实例并选择“Connect”，这时就可以看到访问该实例的方法了。例如在命令行输入
 
-```{.python .input}
+```
 ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com
 ```
 
@@ -64,7 +64,7 @@ ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com
 
 如果你登录的是一个GPU实例，需要下载并安装CUDA。首先，更新并安装编译需要的包：
 
-```{.python .input}
+```
 sudo apt-get update && sudo apt-get install -y build-essential git libgfortran3
 ```
 
@@ -75,14 +75,14 @@ NVIDIA一般每年会更新一次CUDA主版本。这里我们下载作者写本�
 
 获取下载地址后，我们将下载并安装CUDA9.0，例如
 
-```{.python .input}
+```
 wget https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda_9.0.176_384.81_linux-run
 sudo sh cuda_9.0.176_384.81_linux-run
 ```
 
 点击“Ctrl+C”跳出文档浏览，并回答以下几个问题。
 
-```{.python .input}
+```
 Do you accept the previously read EULA?
 accept/decline/quit: accept
 Install NVIDIA Accelerated Graphics Driver for Linux-x86_64 384.81?
@@ -104,13 +104,13 @@ Install the CUDA 9.0 Samples?
 
 当安装完成后，运行下面的命令就可以看到该实例的GPU了。
 
-```{.python .input}
+```
 nvidia-smi
 ```
 
 最后，将CUDA加入到库的路径中，以方便其他库找到它。如果你使用其他版本或其他路径，需要修改以下命令中的字符串“/usr/local/cuda-9.0”。
 
-```{.python .input}
+```
 echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-9.0/lib64" >> ~/.bashrc
 ```
 
@@ -118,14 +118,14 @@ echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-9.0/lib64" >> ~
 
 我们已在[“获取和运行本书代码”](../chapter_prerequisite/install.md)一节中介绍了Linux用户获取本书代码并安装运行环境的方法。首先，安装Linux版的Miniconda（网址：https://conda.io/miniconda.html ），例如
 
-```{.python .input}
+```
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 bash Miniconda3-latest-Linux-x86_64.sh
 ```
 
 这时需要回答下面几个问题：
 
-```{.python .input}
+```
 Do you accept the license terms? [yes|no]
 [no] >>> yes
 Do you wish the installer to prepend the Miniconda3 install location
@@ -135,7 +135,7 @@ to PATH in your /home/ubuntu/.bashrc ? [yes|no]
 
 安装完成后，运行一次`source ~/.bashrc`让CUDA和conda生效。接下来，下载本书代码、安装并激活conda环境。如未安装`unzip`，可运行命令`sudo apt install unzip`安装。
 
-```{.python .input}
+```
 mkdir d2l-zh && cd d2l-zh
 curl https://zh.diveintodeeplearning.org/d2l-zh-1.0.zip -o d2l-zh.zip
 unzip d2l-zh.zip && rm d2l-zh.zip
@@ -145,7 +145,7 @@ source activate gluon
 
 默认环境里安装了CPU版本的MXNet。现在我们将它替换成GPU版本的MXNet。因为CUDA的版本是9.0，所以安装`mxnet-cu90`。一般来说，如果CUDA版本是x.y，那么相应安装`mxnet-cuxy`。
 
-```{.python .input}
+```
 pip uninstall mxnet
 pip install mxnet-cu90==X.Y.Z  # X.Y.Z 应替换为本书代码依赖的版本号。
 ```
@@ -154,7 +154,7 @@ pip install mxnet-cu90==X.Y.Z  # X.Y.Z 应替换为本书代码依赖的版本�
 
 现在，我们可以运行Jupyter记事本了：
 
-```{.python .input}
+```
 jupyter notebook
 ```
 
@@ -164,7 +164,7 @@ jupyter notebook
 
 由于创建的实例并没有暴露8888端口，我们可以在本地命令行启动ssh从实例映射到本地8889端口。
 
-```{.python .input}
+```
 # 该命令须在本地命令行运行。
 ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com -L 8889:localhost:8888
 ```
