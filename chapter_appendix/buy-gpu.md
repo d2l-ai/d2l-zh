@@ -20,10 +20,6 @@ GPU的性能主要由以下三个参数构成：
 
 对于大部分用户来说，只要考虑计算能力就可以了。显存尽量不小于4GB。但如果GPU要同时显示图形界面，那么推荐的显存大小至少为6GB。显存带宽通常相对固定，选择空间较小。
 
-一般来说，若想利用到GPU强大的计算能力，该显卡的CUDA Compute Capability 需不低于3.0，可以到NVIDIA官方网站 (https://developer.nvidia.com/cuda-gpus) 查询自己所用显卡的CUDA Compute Capability。下图是NVIDIA GeForce系列部分显卡的Compute Capability。  
-  
-![](https://i.imgur.com/DwaDMaB.png)  
-
 图11.19描绘了GTX 900和1000系列里各个型号的32位浮点计算能力和价格的对比。其中价格为Wikipedia的建议价格。
 
 ![浮点计算能力和价格的对比。](../img/gtx.png)
