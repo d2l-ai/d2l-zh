@@ -193,7 +193,7 @@ print('output bbox preds:', bbox_preds.shape)
 
 ```{.python .input  n=14}
 batch_size = 32
-train_data, test_data = gb.load_data_pikachu(batch_size)
+train_iter, _ = gb.load_data_pikachu(batch_size)
 ```
 
 在皮卡丘数据集中，目标的类别数为1。定义好模型以后，我们需要初始化模型参数并定义优化算法。
@@ -237,9 +237,9 @@ def bbox_eval(bbox_preds, bbox_labels, bbox_masks):
 ```{.python .input  n=19}
 for epoch in range(20):
     acc, mae = 0, 0
-    train_data.reset()  # 从头读取数据。
+    train_iter.reset()  # 从头读取数据。
     start = time.time()
-    for i, batch in enumerate(train_data):
+    for i, batch in enumerate(train_iter):
         X = batch.data[0].as_in_context(ctx)
         Y = batch.label[0].as_in_context(ctx)
         with autograd.record():
