@@ -483,6 +483,7 @@ def show_bboxes(axes, bboxes, labels=None, colors=None):
 
 
 def show_fashion_mnist(images, labels):
+    """Plot Fashion-MNIST images with labels."""
     use_svg_display()
     _, figs = plt.subplots(1, len(images), figsize=(12, 12))
     for f, img, lbl in zip(figs, images, labels):
@@ -505,6 +506,7 @@ def show_images(imgs, num_rows, num_cols, scale=2):
 
 
 def show_trace_2d(f, res):
+    """Show the trace of 2d variables during optimization."""
     x1, x2 = zip(*res)
     set_figsize()
     plt.plot(x1, x2, '-o', color='#ff7f0e')
@@ -555,7 +557,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
 
 
 def train_2d(trainer):
-    """Train a 2d object function with a customized trainer"""
+    """Optimize the objective function of 2d variables with a customized trainer."""
     x1, x2 = -5, -2
     s_x1, s_x2 = 0, 0
     res = [(x1, x2)]
@@ -790,7 +792,7 @@ def use_svg_display():
 
 
 def voc_label_indices(colormap, colormap2label):
-    """Assig label indices for Pascal VOC2012 Dataset."""
+    """Assign label indices for Pascal VOC2012 Dataset."""
     colormap = colormap.astype('int32')
     idx = ((colormap[:, :, 0] * 256 + colormap[:, :, 1]) * 256
            + colormap[:, :, 2])
@@ -832,4 +834,3 @@ class VOCSegDataset(gdata.Dataset):
 
     def __len__(self):
         return len(self.data)
-
