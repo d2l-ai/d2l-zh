@@ -573,9 +573,9 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
                           pred_len, prefixes):
     """Train an RNN model and predict the next item in the sequence."""
     if is_random_iter:
-        data_iter_fn = gb.data_iter_random
+        data_iter_fn = data_iter_random
     else:
-        data_iter_fn = gb.data_iter_consecutive
+        data_iter_fn = data_iter_consecutive
     params = get_params()
     loss = gloss.SoftmaxCrossEntropyLoss()
 
@@ -598,7 +598,7 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
                 l = loss(outputs, y).mean()
             l.backward()
             grad_clipping(params, clipping_theta, ctx)
-            gb.sgd(params, lr, 1)
+            sgd(params, lr, 1)
             l_sum += l.asscalar() * y.size
             n += y.size
 
@@ -623,7 +623,7 @@ def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
 
     for epoch in range(num_epochs):
         l_sum, n, start = 0.0, 0, time.time()
-        data_iter = gb.data_iter_consecutive(
+        data_iter = data_iter_consecutive(
             corpus_indices, batch_size, num_steps, ctx)
         state = model.begin_state(batch_size=batch_size, ctx=ctx)
         for X, Y in data_iter:
@@ -635,7 +635,7 @@ def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
                 l = loss(output, y).mean()
             l.backward()
             params = [p.data() for p in model.collect_params().values()]
-            gb.grad_clipping(params, clipping_theta, ctx)
+            grad_clipping(params, clipping_theta, ctx)
             trainer.step(1)
             l_sum += l.asscalar() * y.size
             n += y.size
@@ -660,7 +660,7 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
                 l = loss(y_hat, y).sum()
             l.backward()
             if trainer is None:
-                gb.sgd(params, lr, batch_size)
+                sgd(params, lr, batch_size)
             else:
                 trainer.step(batch_size)
             y = y.astype('float32')

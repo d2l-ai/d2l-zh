@@ -5,6 +5,7 @@ stage("Build and Publish") {
       sh "git submodule update --init"
       sh "build/utils/clean_build.sh"
       sh "conda env update -f build/env.yml"
+      sh "pip list"
       sh "build/utils/build_html.sh zh"
       sh "build/utils/build_pdf.sh zh"
       sh "build/utils/build_pkg.sh zh"
