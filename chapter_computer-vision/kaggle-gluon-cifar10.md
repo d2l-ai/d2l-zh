@@ -268,28 +268,28 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, ctx, lr_period,
     trainer = gluon.Trainer(net.collect_params(), 'sgd',
                             {'learning_rate': lr, 'momentum': 0.9, 'wd': wd})
     for epoch in range(num_epochs):
-        train_l, train_acc, start = 0.0, 0.0, time.time()
+        train_l_sum, train_acc_sum, n, start = 0.0, 0.0, 0, time.time()
         if epoch > 0 and epoch % lr_period == 0:
             trainer.set_learning_rate(trainer.learning_rate * lr_decay)
         for X, y in train_iter:
             y = y.astype('float32').as_in_context(ctx)
             with autograd.record():
                 y_hat = net(X.as_in_context(ctx))
-                l = loss(y_hat, y)
+                l = loss(y_hat, y).sum()
             l.backward()
             trainer.step(batch_size)
-            train_l += l.mean().asscalar()
-            train_acc += gb.accuracy(y_hat, y)
+            train_l_sum += l.asscalar()
+            train_acc_sum += (y_hat.argmax(axis=1) == y).sum().asscalar()
+            n += y.size
         time_s = "time %.2f sec" % (time.time() - start)
         if valid_iter is not None:
             valid_acc = gb.evaluate_accuracy(valid_iter, net, ctx)
             epoch_s = ("epoch %d, loss %f, train acc %f, valid acc %f, "
-                       % (epoch + 1, train_l / len(train_iter),
-                          train_acc / len(train_iter), valid_acc))
+                       % (epoch + 1, train_l_sum / n, train_acc_sum / n,
+                       valid_acc))
         else:
             epoch_s = ("epoch %d, loss %f, train acc %f, " %
-                       (epoch + 1, train_l / len(train_iter),
-                        train_acc / len(train_iter)))
+                       (epoch + 1, train_l_sum / n, train_acc_sum / n))
         print(epoch_s + time_s + ', lr ' + str(trainer.learning_rate))
 ```
 

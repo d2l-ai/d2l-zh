@@ -203,14 +203,15 @@ def get_net(ctx):
 ```{.python .input}
 loss = gloss.SoftmaxCrossEntropyLoss()
 
-def get_loss(data, net, ctx):
-    l = 0.0
-    for X, y in data:
+def evaluate_loss(data_iter, net, ctx):
+    l_sum, n = 0.0, 0
+    for X, y in data_iter:
         y = y.as_in_context(ctx)
         output_features = net.features(X.as_in_context(ctx))
         outputs = net.output_new(output_features)
-        l += loss(outputs, y).mean().asscalar()
-    return l / len(data)
+        l_sum += loss(outputs, y).sum().asscalar()
+        n += y.size
+    return l_sum / n
 ```
 
 ## 定义训练函数
@@ -224,26 +225,27 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, ctx, lr_period,
     trainer = gluon.Trainer(net.output_new.collect_params(), 'sgd',
                             {'learning_rate': lr, 'momentum': 0.9, 'wd': wd})
     for epoch in range(num_epochs):
-        train_l, start = 0.0, time.time()
+        train_l_sum, n, start = 0.0, 0, time.time()
         if epoch > 0 and epoch % lr_period == 0:
             trainer.set_learning_rate(trainer.learning_rate * lr_decay)
         for X, y in train_iter:
-            y = y.astype('float32').as_in_context(ctx)
+            y = y.as_in_context(ctx)
             output_features = net.features(X.as_in_context(ctx))
             with autograd.record():
                 outputs = net.output_new(output_features)
-                l = loss(outputs, y)
+                l = loss(outputs, y).sum()
             l.backward()
             trainer.step(batch_size)
-            train_l += l.mean().asscalar()
+            train_l_sum += l.asscalar()
+            n += y.size
         time_s = "time %.2f sec" % (time.time() - start)
         if valid_iter is not None:
-            valid_loss = get_loss(valid_iter, net, ctx)
+            valid_loss = evaluate_loss(valid_iter, net, ctx)
             epoch_s = ("epoch %d, train loss %f, valid loss %f, "
-                       % (epoch + 1, train_l / len(train_iter), valid_loss))
+                       % (epoch + 1, train_l_sum / n, valid_loss))
         else:
             epoch_s = ("epoch %d, train loss %f, "
-                       % (epoch + 1, train_l / len(train_iter)))
+                       % (epoch + 1, train_l_sum / n))
         print(epoch_s + time_s + ', lr ' + str(trainer.learning_rate))
 ```
 

@@ -6,4 +6,4 @@ dependencies:
 - pandas=0.23.2
 - pip:
   - mxnet==1.5.0b20181215
-  - gluonbook==0.8.8
+  - gluonbook==0.8.9

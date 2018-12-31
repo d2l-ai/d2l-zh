@@ -30,11 +30,6 @@ VOC_COLORMAP = [[0, 0, 0], [128, 0, 0], [0, 128, 0], [128, 128, 0],
                 [0, 64, 128]]
 
 
-def accuracy(y_hat, y):
-    """Get accuracy."""
-    return (y_hat.argmax(axis=1) == y.astype('float32')).mean().asscalar()
-
-
 def bbox_to_rect(bbox, color):
     """Convert bounding box to matplotlib format."""
     return plt.Rectangle(xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0],
@@ -156,16 +151,15 @@ def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
     """Evaluate accuracy of a model on the given data set."""
     if isinstance(ctx, mx.Context):
         ctx = [ctx]
-    acc = nd.array([0])
-    n = 0
+    acc_sum, n = nd.array([0]), 0
     for batch in data_iter:
         features, labels, _ = _get_batch(batch, ctx)
         for X, y in zip(features, labels):
             y = y.astype('float32')
-            acc += (net(X).argmax(axis=1) == y).sum().copyto(mx.cpu())
+            acc_sum += (net(X).argmax(axis=1) == y).sum().copyto(mx.cpu())
             n += y.size
-        acc.wait_to_read()
-    return acc.asscalar() / n
+        acc_sum.wait_to_read()
+    return acc_sum.asscalar() / n
 
 
 def _get_batch(batch, ctx):
@@ -174,8 +168,7 @@ def _get_batch(batch, ctx):
     if labels.dtype != features.dtype:
         labels = labels.astype(features.dtype)
     return (gutils.split_and_load(features, ctx),
-            gutils.split_and_load(labels, ctx),
-            features.shape[0])
+            gutils.split_and_load(labels, ctx), features.shape[0])
 
 
 def get_data_ch7():
@@ -209,7 +202,7 @@ def get_vocab_imdb(data):
 def grad_clipping(params, theta, ctx):
     """Clip the gradient."""
     if theta is not None:
-        norm = nd.array([0.0], ctx)
+        norm = nd.array([0], ctx)
         for param in params:
             norm += (param.grad ** 2).sum()
         norm = norm.sqrt().asscalar()
@@ -538,9 +531,8 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
     print('training on', ctx)
     if isinstance(ctx, mx.Context):
         ctx = [ctx]
-    for epoch in range(1, num_epochs + 1):
-        train_l_sum, train_acc_sum, n, m = 0.0, 0.0, 0.0, 0.0
-        start = time.time()
+    for epoch in range(num_epochs):
+        train_l_sum, train_acc_sum, n, m, start = 0.0, 0.0, 0, 0, time.time()
         for i, batch in enumerate(train_iter):
             Xs, ys, batch_size = _get_batch(batch, ctx)
             ls = []
@@ -549,16 +541,16 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
                 ls = [loss(y_hat, y) for y_hat, y in zip(y_hats, ys)]
             for l in ls:
                 l.backward()
+            trainer.step(batch_size)
+            train_l_sum += sum([l.sum().asscalar() for l in ls])
+            n += sum([l.size for l in ls])
             train_acc_sum += sum([(y_hat.argmax(axis=1) == y).sum().asscalar()
                                  for y_hat, y in zip(y_hats, ys)])
-            train_l_sum += sum([l.sum().asscalar() for l in ls])
-            trainer.step(batch_size)
-            n += batch_size
             m += sum([y.size for y in ys])
         test_acc = evaluate_accuracy(test_iter, net, ctx)
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
               'time %.1f sec'
-              % (epoch, train_l_sum / n, train_acc_sum / m, test_acc,
+              % (epoch + 1, train_l_sum / n, train_acc_sum / m, test_acc,
                  time.time() - start))
 
 
@@ -581,18 +573,18 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
                           pred_len, prefixes):
     """Train an RNN model and predict the next item in the sequence."""
     if is_random_iter:
-        data_iter_fn = data_iter_random
+        data_iter_fn = gb.data_iter_random
     else:
-        data_iter_fn = data_iter_consecutive
+        data_iter_fn = gb.data_iter_consecutive
     params = get_params()
     loss = gloss.SoftmaxCrossEntropyLoss()
 
     for epoch in range(num_epochs):
         if not is_random_iter:
             state = init_rnn_state(batch_size, num_hiddens, ctx)
-        l_sum, start = 0.0, time.time()
+        l_sum, n, start = 0.0, 0, time.time()
         data_iter = data_iter_fn(corpus_indices, batch_size, num_steps, ctx)
-        for t, (X, Y) in enumerate(data_iter):
+        for X, Y in data_iter:
             if is_random_iter:
                 state = init_rnn_state(batch_size, num_hiddens, ctx)
             else:
@@ -606,12 +598,13 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
                 l = loss(outputs, y).mean()
             l.backward()
             grad_clipping(params, clipping_theta, ctx)
-            sgd(params, lr, 1)
-            l_sum += l.asscalar()
+            gb.sgd(params, lr, 1)
+            l_sum += l.asscalar() * y.size
+            n += y.size
 
         if (epoch + 1) % pred_period == 0:
             print('epoch %d, perplexity %f, time %.2f sec' % (
-                epoch + 1, math.exp(l_sum / (t + 1)), time.time() - start))
+                epoch + 1, math.exp(l_sum / n), time.time() - start))
             for prefix in prefixes:
                 print(' -', predict_rnn(
                     prefix, pred_len, rnn, params, init_rnn_state,
@@ -629,11 +622,11 @@ def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
                             {'learning_rate': lr, 'momentum': 0, 'wd': 0})
 
     for epoch in range(num_epochs):
-        l_sum, start = 0.0, time.time()
-        data_iter = data_iter_consecutive(
+        l_sum, n, start = 0.0, 0, time.time()
+        data_iter = gb.data_iter_consecutive(
             corpus_indices, batch_size, num_steps, ctx)
         state = model.begin_state(batch_size=batch_size, ctx=ctx)
-        for t, (X, Y) in enumerate(data_iter):
+        for X, Y in data_iter:
             for s in state:
                 s.detach()
             with autograd.record():
@@ -642,65 +635,66 @@ def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
                 l = loss(output, y).mean()
             l.backward()
             params = [p.data() for p in model.collect_params().values()]
-            grad_clipping(params, clipping_theta, ctx)
+            gb.grad_clipping(params, clipping_theta, ctx)
             trainer.step(1)
-            l_sum += l.asscalar()
+            l_sum += l.asscalar() * y.size
+            n += y.size
 
         if (epoch + 1) % pred_period == 0:
             print('epoch %d, perplexity %f, time %.2f sec' % (
-                epoch + 1, math.exp(l_sum / (t + 1)), time.time() - start))
+                epoch + 1, math.exp(l_sum / n), time.time() - start))
             for prefix in prefixes:
                 print(' -', predict_rnn_gluon(
-                    prefix, pred_len, model, vocab_size,
-                    ctx, idx_to_char, char_to_idx))
+                    prefix, pred_len, model, vocab_size, ctx, idx_to_char,
+                    char_to_idx))
 
 
 def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
               params=None, lr=None, trainer=None):
-    """Train and evaluate a model on CPU."""
-    for epoch in range(1, num_epochs + 1):
-        train_l_sum = 0
-        train_acc_sum = 0
+    """Train and evaluate a model with CPU."""
+    for epoch in range(num_epochs):
+        train_l_sum, train_acc_sum, n = 0.0, 0.0, 0
         for X, y in train_iter:
             with autograd.record():
                 y_hat = net(X)
-                l = loss(y_hat, y)
+                l = loss(y_hat, y).sum()
             l.backward()
             if trainer is None:
-                sgd(params, lr, batch_size)
+                gb.sgd(params, lr, batch_size)
             else:
                 trainer.step(batch_size)
-            train_l_sum += l.mean().asscalar()
-            train_acc_sum += accuracy(y_hat, y)
+            y = y.astype('float32')
+            train_l_sum += l.asscalar()
+            train_acc_sum += (y_hat.argmax(axis=1) == y).sum().asscalar()
+            n += y.size
         test_acc = evaluate_accuracy(test_iter, net)
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f'
-              % (epoch, train_l_sum / len(train_iter),
-                 train_acc_sum / len(train_iter), test_acc))
+              % (epoch + 1, train_l_sum / n, train_acc_sum / n, test_acc))
 
 
 def train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
               num_epochs):
-    """Train and evaluate a model on CPU or GPU."""
+    """Train and evaluate a model with CPU or GPU."""
     print('training on', ctx)
     loss = gloss.SoftmaxCrossEntropyLoss()
-    for epoch in range(1, num_epochs + 1):
-        train_l_sum = 0
-        train_acc_sum = 0
-        start = time.time()
+    for epoch in range(num_epochs):
+        train_l_sum, train_acc_sum, n, start = 0.0, 0.0, 0, time.time()
         for X, y in train_iter:
             X, y = X.as_in_context(ctx), y.as_in_context(ctx)
             with autograd.record():
                 y_hat = net(X)
-                l = loss(y_hat, y)
+                l = loss(y_hat, y).sum()
             l.backward()
             trainer.step(batch_size)
-            train_l_sum += l.mean().asscalar()
-            train_acc_sum += accuracy(y_hat, y)
+            y = y.astype('float32')
+            train_l_sum += l.asscalar()
+            train_acc_sum += (y_hat.argmax(axis=1) == y).sum().asscalar()
+            n += y.size
         test_acc = evaluate_accuracy(test_iter, net, ctx)
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
               'time %.1f sec'
-              % (epoch, train_l_sum / len(train_iter),
-                 train_acc_sum / len(train_iter), test_acc, time.time() - start))
+              % (epoch + 1, train_l_sum / n, train_acc_sum / n, test_acc,
+                 time.time() - start))
 
 
 def train_ch7(trainer_fn, states, hyperparams, features, labels, batch_size=10,

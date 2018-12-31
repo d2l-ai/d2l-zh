@@ -77,7 +77,7 @@ def net(X):
 
 ```{.python .input  n=9}
 y_hat = nd.array([[0.1, 0.3, 0.6], [0.3, 0.2, 0.5]])
-y = nd.array([0, 2])
+y = nd.array([0, 2], dtype='int32')
 nd.pick(y_hat, y)
 ```
 
@@ -92,10 +92,9 @@ def cross_entropy(y_hat, y):
 
 给定一个类别的预测概率分布`y_hat`，我们把预测概率最大的类别作为输出类别。如果它与真实类别`y`一致，说明这次预测是正确的。分类准确率即正确预测数量与总预测数量之比。
 
-下面定义准确率`accuracy`函数。其中`y_hat.argmax(axis=1)`返回矩阵`y_hat`每行中最大元素的索引，且返回结果与变量`y`形状相同。我们在[“数据操作”](../chapter_prerequisite/ndarray.md)一节介绍过，相等条件判断式`(y_hat.argmax(axis=1) == y)`是一个值为0（相等为假）或1（相等为真）的NDArray。由于标签类型为整数，我们先将变量`y`变换为浮点数再进行相等条件判断。
+为了演示准确率的计算，下面定义准确率`accuracy`函数。其中`y_hat.argmax(axis=1)`返回矩阵`y_hat`每行中最大元素的索引，且返回结果与变量`y`形状相同。我们在[“数据操作”](../chapter_prerequisite/ndarray.md)一节介绍过，相等条件判断式`(y_hat.argmax(axis=1) == y)`是一个值为0（相等为假）或1（相等为真）的NDArray。由于标签类型为整数，我们先将变量`y`变换为浮点数再进行相等条件判断。
 
 ```{.python .input  n=11}
-# 本函数已保存在 gluonbook 包中方便以后使用。
 def accuracy(y_hat, y):
     return (y_hat.argmax(axis=1) == y.astype('float32')).mean().asscalar()
 ```
@@ -112,10 +111,12 @@ accuracy(y_hat, y)
 # 本函数已保存在 gluonbook 包中方便以后使用。该函数将被逐步改进：它的完整实现将在“图像增
 # 广”一节中描述。
 def evaluate_accuracy(data_iter, net):
-    acc = 0
+    acc_sum, n = 0.0, 0
     for X, y in data_iter:
-        acc += accuracy(net(X), y)
-    return acc / len(data_iter)
+        y = y.astype('float32')
+        acc_sum += (net(X).argmax(axis=1) == y).sum().asscalar()
+        n += y.size
+    return acc_sum / n
 ```
 
 因为我们随机初始化了模型`net`，所以这个随机模型的准确率应该接近于类别个数10的倒数0.1。
@@ -135,23 +136,23 @@ num_epochs, lr = 5, 0.1
 def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
               params=None, lr=None, trainer=None):
     for epoch in range(num_epochs):
-        train_l_sum = 0
-        train_acc_sum = 0
+        train_l_sum, train_acc_sum, n = 0.0, 0.0, 0
         for X, y in train_iter:
             with autograd.record():
                 y_hat = net(X)
-                l = loss(y_hat, y)
+                l = loss(y_hat, y).sum()
             l.backward()
             if trainer is None:
                 gb.sgd(params, lr, batch_size)
             else:
                 trainer.step(batch_size)  # 下一节将用到。
-            train_l_sum += l.mean().asscalar()
-            train_acc_sum += accuracy(y_hat, y)
+            y = y.astype('float32')
+            train_l_sum += l.asscalar()
+            train_acc_sum += (y_hat.argmax(axis=1) == y).sum().asscalar()
+            n += y.size
         test_acc = evaluate_accuracy(test_iter, net)
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f'
-              % (epoch + 1, train_l_sum / len(train_iter),
-                 train_acc_sum / len(train_iter), test_acc))
+              % (epoch + 1, train_l_sum / n, train_acc_sum / n, test_acc))
 
 train_ch3(net, train_iter, test_iter, cross_entropy, num_epochs,
           batch_size, [W, b], lr)

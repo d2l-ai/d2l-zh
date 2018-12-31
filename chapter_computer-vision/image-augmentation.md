@@ -11,7 +11,7 @@ import mxnet as mx
 from mxnet import autograd, gluon, image, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, utils as gutils
 import sys
-from time import time
+import time
 ```
 
 ## 常用的图像增广方法
@@ -162,8 +162,7 @@ def _get_batch(batch, ctx):
         labels = labels.astype(features.dtype)
     # 当 ctx 包含多个 GPU 时，划分小批量数据样本并复制到各个 GPU 上。
     return (gutils.split_and_load(features, ctx),
-            gutils.split_and_load(labels, ctx),
-            features.shape[0])
+            gutils.split_and_load(labels, ctx), features.shape[0])
 ```
 
 然后，我们定义`evaluate_accuracy`函数评价模型的分类准确率。与[“Softmax回归的从零开始实现”](../chapter_deep-learning-basics/softmax-regression-scratch.md)和[“卷积神经网络（LeNet）”](../chapter_convolutional-neural-networks/lenet.md)两节中描述的`evaluate_accuracy`函数不同，这里定义的函数更加通用：它通过辅助函数`_get_batch`使用`ctx`变量所包含的所有GPU来评价模型。
@@ -173,16 +172,15 @@ def _get_batch(batch, ctx):
 def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
     if isinstance(ctx, mx.Context):
         ctx = [ctx]
-    acc = nd.array([0])
-    n = 0
+    acc_sum, n = nd.array([0]), 0
     for batch in data_iter:
         features, labels, _ = _get_batch(batch, ctx)
         for X, y in zip(features, labels):
             y = y.astype('float32')
-            acc += (net(X).argmax(axis=1) == y).sum().copyto(mx.cpu())
+            acc_sum += (net(X).argmax(axis=1) == y).sum().copyto(mx.cpu())
             n += y.size
-        acc.wait_to_read()
-    return acc.asscalar() / n
+        acc_sum.wait_to_read()
+    return acc_sum.asscalar() / n
 ```
 
 接下来，我们定义`train`函数使用多GPU训练并评价模型。
@@ -194,8 +192,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
     if isinstance(ctx, mx.Context):
         ctx = [ctx]
     for epoch in range(num_epochs):
-        train_l_sum, train_acc_sum, n, m = 0.0, 0.0, 0.0, 0.0
-        start = time()
+        train_l_sum, train_acc_sum, n, m, start = 0.0, 0.0, 0, 0, time.time()
         for i, batch in enumerate(train_iter):
             Xs, ys, batch_size = _get_batch(batch, ctx)
             ls = []
@@ -204,17 +201,17 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
                 ls = [loss(y_hat, y) for y_hat, y in zip(y_hats, ys)]
             for l in ls:
                 l.backward()
+            trainer.step(batch_size)
+            train_l_sum += sum([l.sum().asscalar() for l in ls])
+            n += sum([l.size for l in ls])
             train_acc_sum += sum([(y_hat.argmax(axis=1) == y).sum().asscalar()
                                  for y_hat, y in zip(y_hats, ys)])
-            train_l_sum += sum([l.sum().asscalar() for l in ls])
-            trainer.step(batch_size)
-            n += batch_size
             m += sum([y.size for y in ys])
         test_acc = evaluate_accuracy(test_iter, net, ctx)
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
               'time %.1f sec'
               % (epoch + 1, train_l_sum / n, train_acc_sum / m, test_acc,
-                 time() - start))
+                 time.time() - start))
 ```
 
 现在，我们可以定义`train_with_data_aug`函数使用图像增广来训练模型了。该函数获取了所有可用的GPU，并将Adam作为训练使用的优化算法，然后将图像增广应用于训练数据集之上，最后调用刚才定义的`train`函数训练并评价模型。
