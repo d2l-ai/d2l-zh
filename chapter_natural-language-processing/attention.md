@@ -73,6 +73,14 @@ $$
 
 其中含下标的$\boldsymbol{W}$和$\boldsymbol{b}$分别为门控循环单元的权重参数和偏差参数。
 
+
+
+## 发展
+
+本质上，注意力机制能够为特征中较有价值的部分分配较多的计算资源。变换器（Transformer）依靠注意力机制，在不使用卷积神经网络或循环神经网络的前提下，能够有效编码输入序列，并将其解码为输出序列 [2]。之后的BERT预训练模型应用了含注意力机制的变换器编码结构：微调后的模型在多达11项自然语言处理任务中取得了当时最先进的结果 [3]。除了自然语言处理领域，注意力机制还被广泛用于图像分类、自动图像描述、唇语解读以及语音识别。
+
+
+
 ## 小结
 
 * 我们可以在解码器的每个时间步使用不同的背景变量，并对输入序列中不同时间步编码的信息分配不同的注意力。
@@ -96,3 +104,7 @@ $$
 ## 参考文献
 
 [1] Bahdanau, D., Cho, K., & Bengio, Y. (2014). Neural machine translation by jointly learning to align and translate. arXiv preprint arXiv:1409.0473.
+
+[2] Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., ... & Polosukhin, I. (2017). Attention is all you need. In Advances in Neural Information Processing Systems (pp. 5998-6008).
+
+[3] Devlin, J., Chang, M. W., Lee, K., & Toutanova, K. (2018). Bert: Pre-training of deep bidirectional transformers for language understanding. arXiv preprint arXiv:1810.04805.
