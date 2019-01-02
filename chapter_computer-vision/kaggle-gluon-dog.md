@@ -167,13 +167,13 @@ test_ds = gdata.vision.ImageFolderDataset(
 这里创建`DataLoader`实例的方法也与上一节中的相同。
 
 ```{.python .input}
-train_data = gdata.DataLoader(train_ds.transform_first(transform_train),
+train_iter = gdata.DataLoader(train_ds.transform_first(transform_train),
                               batch_size, shuffle=True, last_batch='keep')
-valid_data = gdata.DataLoader(valid_ds.transform_first(transform_test),
+valid_iter = gdata.DataLoader(valid_ds.transform_first(transform_test),
                               batch_size, shuffle=True, last_batch='keep')
-train_valid_data = gdata.DataLoader(train_valid_ds.transform_first(
+train_valid_iter = gdata.DataLoader(train_valid_ds.transform_first(
     transform_train), batch_size, shuffle=True, last_batch='keep')
-test_data = gdata.DataLoader(test_ds.transform_first(transform_test),
+test_iter = gdata.DataLoader(test_ds.transform_first(transform_test),
                              batch_size, shuffle=False, last_batch='keep')
 ```
 
@@ -203,14 +203,15 @@ def get_net(ctx):
 ```{.python .input}
 loss = gloss.SoftmaxCrossEntropyLoss()
 
-def get_loss(data, net, ctx):
-    l = 0.0
-    for X, y in data:
+def evaluate_loss(data_iter, net, ctx):
+    l_sum, n = 0.0, 0
+    for X, y in data_iter:
         y = y.as_in_context(ctx)
         output_features = net.features(X.as_in_context(ctx))
         outputs = net.output_new(output_features)
-        l += loss(outputs, y).mean().asscalar()
-    return l / len(data)
+        l_sum += loss(outputs, y).sum().asscalar()
+        n += y.size
+    return l_sum / n
 ```
 
 ## 定义训练函数
@@ -218,32 +219,33 @@ def get_loss(data, net, ctx):
 我们将依赖模型在验证集上的表现来选择模型并调节超参数。模型的训练函数`train`只训练自定义的小规模输出网络。
 
 ```{.python .input  n=7}
-def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
+def train(net, train_iter, valid_iter, num_epochs, lr, wd, ctx, lr_period,
           lr_decay):
     # 只训练我们定义的小规模输出网络。
     trainer = gluon.Trainer(net.output_new.collect_params(), 'sgd',
                             {'learning_rate': lr, 'momentum': 0.9, 'wd': wd})
     for epoch in range(num_epochs):
-        train_l, start = 0.0, time.time()
+        train_l_sum, n, start = 0.0, 0, time.time()
         if epoch > 0 and epoch % lr_period == 0:
             trainer.set_learning_rate(trainer.learning_rate * lr_decay)
-        for X, y in train_data:
-            y = y.astype('float32').as_in_context(ctx)
+        for X, y in train_iter:
+            y = y.as_in_context(ctx)
             output_features = net.features(X.as_in_context(ctx))
             with autograd.record():
                 outputs = net.output_new(output_features)
-                l = loss(outputs, y)
+                l = loss(outputs, y).sum()
             l.backward()
             trainer.step(batch_size)
-            train_l += l.mean().asscalar()
+            train_l_sum += l.asscalar()
+            n += y.size
         time_s = "time %.2f sec" % (time.time() - start)
-        if valid_data is not None:
-            valid_loss = get_loss(valid_data, net, ctx)
+        if valid_iter is not None:
+            valid_loss = evaluate_loss(valid_iter, net, ctx)
             epoch_s = ("epoch %d, train loss %f, valid loss %f, "
-                       % (epoch + 1, train_l / len(train_data), valid_loss))
+                       % (epoch + 1, train_l_sum / n, valid_loss))
         else:
             epoch_s = ("epoch %d, train loss %f, "
-                       % (epoch + 1, train_l / len(train_data)))
+                       % (epoch + 1, train_l_sum / n))
         print(epoch_s + time_s + ', lr ' + str(trainer.learning_rate))
 ```
 
@@ -255,7 +257,7 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
 ctx, num_epochs, lr, wd = gb.try_gpu(), 1, 0.01, 1e-4
 lr_period, lr_decay, net = 10, 0.1, get_net(ctx)
 net.hybridize()
-train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
+train(net, train_iter, valid_iter, num_epochs, lr, wd, ctx, lr_period,
       lr_decay)
 ```
 
@@ -266,11 +268,11 @@ train(net, train_data, valid_data, num_epochs, lr, wd, ctx, lr_period,
 ```{.python .input  n=8}
 net = get_net(ctx)
 net.hybridize()
-train(net, train_valid_data, None, num_epochs, lr, wd, ctx, lr_period,
+train(net, train_valid_iter, None, num_epochs, lr, wd, ctx, lr_period,
       lr_decay)
 
 preds = []
-for data, label in test_data:
+for data, label in test_iter:
     output_features = net.features(data.as_in_context(ctx))
     output = nd.softmax(net.output_new(output_features))
     preds.extend(output.asnumpy())

@@ -291,7 +291,7 @@ def train(net, lr, num_epochs):
     trainer = gluon.Trainer(net.collect_params(), 'adam',
                             {'learning_rate': lr})
     for epoch in range(num_epochs):
-        start_time, train_l_sum = time.time(), 0
+        start, l_sum, n = time.time(), 0.0, 0
         for batch in data_iter:
             center, context_negative, mask, label = [
                 data.as_in_context(ctx) for data in batch]
@@ -302,10 +302,10 @@ def train(net, lr, num_epochs):
                      mask.shape[1] / mask.sum(axis=1))
             l.backward()
             trainer.step(batch_size)
-            train_l_sum += l.mean().asscalar()
-        print('epoch %d, train loss %.2f, time %.2fs'
-              % (epoch + 1, train_l_sum / len(data_iter),
-                 time.time() - start_time))
+            l_sum += l.sum().asscalar()
+            n += l.size
+        print('epoch %d, loss %.2f, time %.2fs'
+              % (epoch + 1, l_sum / n, time.time() - start))
 ```
 
 现在我们可以训练使用负采样的跳字模型了。

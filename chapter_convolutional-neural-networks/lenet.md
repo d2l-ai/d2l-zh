@@ -81,12 +81,13 @@ ctx
 # 本函数已保存在 gluonbook 包中方便以后使用。该函数将被逐步改进：它的完整实现将在“图像增
 # 广”一节中描述。
 def evaluate_accuracy(data_iter, net, ctx):
-    acc = nd.array([0], ctx=ctx)
+    acc_sum, n = nd.array([0], ctx=ctx), 0
     for X, y in data_iter:
         # 如果 ctx 代表 GPU 及相应的显存，将数据复制到显存上。
-        X, y = X.as_in_context(ctx), y.as_in_context(ctx)
-        acc += gb.accuracy(net(X), y)
-    return acc.asscalar() / len(data_iter)
+        X, y = X.as_in_context(ctx), y.as_in_context(ctx).astype('float32')
+        acc_sum += (net(X).argmax(axis=1) == y).sum()
+        n += y.size
+    return acc_sum.asscalar() / n
 ```
 
 我们同样对[“Softmax回归的从零开始实现”](../chapter_deep-learning-basics/softmax-regression-scratch.md)一节中定义的`train_ch3`函数略作修改，确保计算使用的数据和模型同在内存或显存上。
@@ -98,21 +99,23 @@ def train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
     print('training on', ctx)
     loss = gloss.SoftmaxCrossEntropyLoss()
     for epoch in range(num_epochs):
-        train_l_sum, train_acc_sum, start = 0, 0, time.time()
+        train_l_sum, train_acc_sum, n, start = 0.0, 0.0, 0, time.time()
         for X, y in train_iter:
             X, y = X.as_in_context(ctx), y.as_in_context(ctx)
             with autograd.record():
                 y_hat = net(X)
-                l = loss(y_hat, y)
+                l = loss(y_hat, y).sum()
             l.backward()
             trainer.step(batch_size)
-            train_l_sum += l.mean().asscalar()
-            train_acc_sum += gb.accuracy(y_hat, y)
+            y = y.astype('float32')
+            train_l_sum += l.asscalar()
+            train_acc_sum += (y_hat.argmax(axis=1) == y).sum().asscalar()
+            n += y.size
         test_acc = evaluate_accuracy(test_iter, net, ctx)
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
-              'time %.1f sec' % (epoch + 1, train_l_sum / len(train_iter),
-                                 train_acc_sum / len(train_iter),
-                                 test_acc, time.time() - start))
+              'time %.1f sec'
+              % (epoch + 1, train_l_sum / n, train_acc_sum / n, test_acc,
+                 time.time() - start))
 ```
 
 我们重新将模型参数初始化到设备变量`ctx`之上，并使用Xavier随机初始化。损失函数和训练算法则依然使用交叉熵损失函数和小批量随机梯度下降。

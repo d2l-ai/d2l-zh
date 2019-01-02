@@ -134,7 +134,7 @@ $$ \min\left(\frac{\theta}{\|\boldsymbol{g}\|}, 1\right)\boldsymbol{g}$$
 ```{.python .input  n=10}
 # 本函数已保存在 gluonbook 包中方便以后使用。
 def grad_clipping(params, theta, ctx):
-    norm = nd.array([0.0], ctx)
+    norm = nd.array([0], ctx)
     for param in params:
         norm += (param.grad ** 2).sum()
     norm = norm.sqrt().asscalar()
@@ -180,9 +180,9 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
     for epoch in range(num_epochs):
         if not is_random_iter:  # 如使用相邻采样，在 epoch 开始时初始化隐藏状态。
             state = init_rnn_state(batch_size, num_hiddens, ctx)
-        loss_sum, start = 0.0, time.time()
+        l_sum, n, start = 0.0, 0, time.time()
         data_iter = data_iter_fn(corpus_indices, batch_size, num_steps, ctx)
-        for t, (X, Y) in enumerate(data_iter):
+        for X, Y in data_iter:
             if is_random_iter:  # 如使用随机采样，在每个小批量更新前初始化隐藏状态。
                 state = init_rnn_state(batch_size, num_hiddens, ctx)
             else:  # 否则需要使用 detach 函数从计算图分离隐藏状态。
@@ -202,11 +202,12 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
             l.backward()
             grad_clipping(params, clipping_theta, ctx)  # 裁剪梯度。
             gb.sgd(params, lr, 1)  # 因为误差已经取过均值，梯度不用再做平均。
-            loss_sum += l.asscalar()
+            l_sum += l.asscalar() * y.size
+            n += y.size
 
         if (epoch + 1) % pred_period == 0:
             print('epoch %d, perplexity %f, time %.2f sec' % (
-                epoch + 1, math.exp(loss_sum / (t + 1)), time.time() - start))
+                epoch + 1, math.exp(l_sum / n), time.time() - start))
             for prefix in prefixes:
                 print(' -', predict_rnn(
                     prefix, pred_len, rnn, params, init_rnn_state,

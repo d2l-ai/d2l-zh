@@ -5,6 +5,5 @@ dependencies:
 - matplotlib=2.2.2
 - pandas=0.23.2
 - pip:
-  - requests==2.18.4
   - mxnet==1.5.0b20181215
-  - gluonbook==0.8.8
+  - gluonbook==0.8.10

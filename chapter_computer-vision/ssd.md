@@ -193,7 +193,7 @@ print('output bbox preds:', bbox_preds.shape)
 
 ```{.python .input  n=14}
 batch_size = 32
-train_data, test_data = gb.load_data_pikachu(batch_size)
+train_iter, _ = gb.load_data_pikachu(batch_size)
 ```
 
 在皮卡丘数据集中，目标的类别数为1。定义好模型以后，我们需要初始化模型参数并定义优化算法。
@@ -224,10 +224,10 @@ def calc_loss(cls_preds, cls_labels, bbox_preds, bbox_labels, bbox_masks):
 ```{.python .input  n=18}
 def cls_eval(cls_preds, cls_labels):
     # 由于类别预测结果放在最后一维，argmax 需要指定最后一维。
-    return (cls_preds.argmax(axis=-1) == cls_labels).mean().asscalar()
+    return (cls_preds.argmax(axis=-1) == cls_labels).sum().asscalar()
 
 def bbox_eval(bbox_preds, bbox_labels, bbox_masks):
-    return ((bbox_labels - bbox_preds) * bbox_masks).abs().mean().asscalar()
+    return ((bbox_labels - bbox_preds) * bbox_masks).abs().sum().asscalar()
 ```
 
 ### 训练模型
@@ -236,10 +236,10 @@ def bbox_eval(bbox_preds, bbox_labels, bbox_masks):
 
 ```{.python .input  n=19}
 for epoch in range(20):
-    acc, mae = 0, 0
-    train_data.reset()  # 从头读取数据。
+    acc_sum, mae_sum, n, m = 0.0, 0.0, 0, 0
+    train_iter.reset()  # 从头读取数据。
     start = time.time()
-    for i, batch in enumerate(train_data):
+    for batch in train_iter:
         X = batch.data[0].as_in_context(ctx)
         Y = batch.label[0].as_in_context(ctx)
         with autograd.record():
@@ -253,11 +253,14 @@ for epoch in range(20):
                           bbox_masks)
         l.backward()
         trainer.step(batch_size)
-        acc += cls_eval(cls_preds, cls_labels)
-        mae += bbox_eval(bbox_preds, bbox_labels, bbox_masks)
+        acc_sum += cls_eval(cls_preds, cls_labels)
+        n += cls_labels.size
+        mae_sum += bbox_eval(bbox_preds, bbox_labels, bbox_masks)
+        m += bbox_labels.size
+
     if (epoch + 1) % 5 == 0:
         print('epoch %2d, class err %.2e, bbox mae %.2e, time %.1f sec' % (
-            epoch + 1, 1 - acc / (i + 1), mae / (i + 1), time.time() - start))
+            epoch + 1, 1 - acc_sum / n, mae_sum / m, time.time() - start))
 ```
 
 ## 预测

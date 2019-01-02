@@ -213,7 +213,7 @@ def train(encoder, decoder, dataset, lr, batch_size, num_epochs):
     loss = gloss.SoftmaxCrossEntropyLoss()
     data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
     for epoch in range(num_epochs):
-        l_sum = 0
+        l_sum = 0.0
         for X, Y in data_iter:
             with autograd.record():
                 l = batch_loss(encoder, decoder, X, Y, loss)

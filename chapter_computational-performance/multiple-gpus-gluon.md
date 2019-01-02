@@ -96,7 +96,7 @@ def train(num_gpus, batch_size, lr):
         nd.waitall()
         train_time = time.time() - start
         test_acc = gb.evaluate_accuracy(test_iter, net, ctx[0])
-        print('epoch %d, training time: %.1f sec, test_acc %.2f' % (
+        print('epoch %d, time: %.1f sec, test acc %.2f' % (
             epoch + 1, train_time, test_acc))
 ```
 
