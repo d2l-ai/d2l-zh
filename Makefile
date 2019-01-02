@@ -1,6 +1,6 @@
 all: html
 
-build/%.ipynb: %.md build/env.yml $(wildcard gluonbook/*)
+build/%.ipynb: %.md build/env.yml $(wildcard d2lzh/*)
 	@mkdir -p $(@D)
 	cd $(@D); python ../utils/md2ipynb.py ../../$< ../../$@
 
@@ -19,7 +19,7 @@ FRONTPAGE = $(wildcard $(FRONTPAGE_DIR)/*)
 FRONTPAGE_DEP = $(patsubst %, build/%, $(FRONTPAGE))
 
 IMG_NOTEBOOK = $(filter-out $(FRONTPAGE_DIR), $(wildcard img/*))
-ORIGIN_DEPS = $(IMG_NOTEBOOK) $(wildcard data/* gluonbook/*) environment.yml README.md
+ORIGIN_DEPS = $(IMG_NOTEBOOK) $(wildcard data/* d2lzh/*) environment.yml README.md
 DEPS = $(patsubst %, build/%, $(ORIGIN_DEPS))
 
 PKG = build/_build/html/d2l-zh.zip
