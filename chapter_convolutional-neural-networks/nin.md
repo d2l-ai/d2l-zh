@@ -12,7 +12,7 @@
 NiN块是NiN中的基础块。它由一个卷积层加两个充当全连接层的$1\times 1$卷积层串联而成。其中第一个卷积层的超参数可以自行设置，而第二和第三个卷积层的超参数一般是固定的。
 
 ```{.python .input  n=2}
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import gluon, init, nd
 from mxnet.gluon import nn
 
@@ -62,11 +62,12 @@ for layer in net:
 我们依然使用Fashion-MNIST数据集训练模型。NiN的训练与AlexNet和VGG的类似，但一般使用更大的学习率。
 
 ```{.python .input}
-lr, num_epochs, batch_size, ctx = 0.1, 5, 128, gb.try_gpu()
+lr, num_epochs, batch_size, ctx = 0.1, 5, 128, d2l.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-train_iter, test_iter = gb.load_data_fashion_mnist(batch_size, resize=224)
-gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=224)
+d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
+              num_epochs)
 ```
 
 ## 小结

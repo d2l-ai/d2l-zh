@@ -26,7 +26,7 @@
 
 ```{.python .input  n=1}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import gluon, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, model_zoo
 from mxnet.gluon import utils as gutils
@@ -64,7 +64,7 @@ test_imgs = gdata.vision.ImageFolderDataset(
 ```{.python .input  n=4}
 hotdogs = [train_imgs[i][0] for i in range(8)]
 not_hotdogs = [train_imgs[-i - 1][0] for i in range(8)]
-gb.show_images(hotdogs + not_hotdogs, 2, 8, scale=1.4);
+d2l.show_images(hotdogs + not_hotdogs, 2, 8, scale=1.4);
 ```
 
 在训练时，我们先从图像中裁剪出随机大小和随机高宽比的一块随机区域，然后将该区域缩放为高和宽均为224像素的输入。测试时，我们将图像的高和宽均缩放为256像素，然后从中裁剪出高和宽均为224像素的中心区域作为输入。此外，我们对RGB（红、绿、蓝）三个颜色通道的数值做标准化：每个数值减去该通道所有数值的平均值，再除以该通道所有数值的标准差作为输出。
@@ -121,13 +121,13 @@ def train_fine_tuning(net, learning_rate, batch_size=128, num_epochs=5):
         train_imgs.transform_first(train_augs), batch_size, shuffle=True)
     test_iter = gdata.DataLoader(
         test_imgs.transform_first(test_augs), batch_size)
-    ctx = gb.try_all_gpus()
+    ctx = d2l.try_all_gpus()
     net.collect_params().reset_ctx(ctx)
     net.hybridize()
     loss = gloss.SoftmaxCrossEntropyLoss()
     trainer = gluon.Trainer(net.collect_params(), 'sgd', {
         'learning_rate': learning_rate, 'wd': 0.001})
-    gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs)
+    d2l.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs)
 ```
 
 我们将`Trainer`实例中的学习率设的小一点，例如0.01，以便微调预训练得到的模型参数。根据前面的设置，我们将以10倍的学习率从头训练目标模型的输出层参数。

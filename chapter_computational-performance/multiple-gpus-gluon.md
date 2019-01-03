@@ -5,7 +5,7 @@
 首先导入本节实验所需的包或模块。运行本节中的程序需要至少两块GPU。
 
 ```{.python .input  n=1}
-import gluonbook as gb
+import d2lzh as d2l
 import mxnet as mx
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import loss as gloss, nn, utils as gutils
@@ -17,15 +17,15 @@ import time
 我们使用ResNet-18来作为本节的样例模型。由于本节的输入图像使用原尺寸（未放大），这里的模型构造与[“残差网络（ResNet）”](../chapter_convolutional-neural-networks/resnet.md)一节中的ResNet-18构造稍有不同。这里的模型在一开始使用了较小的卷积核、步幅和填充，并去掉了最大池化层。
 
 ```{.python .input  n=2}
-def resnet18(num_classes):  # 本函数已保存在 gluonbook 包中方便以后使用。
+def resnet18(num_classes):  # 本函数已保存在 d2lzh 包中方便以后使用。
     def resnet_block(num_channels, num_residuals, first_block=False):
         blk = nn.Sequential()
         for i in range(num_residuals):
             if i == 0 and not first_block:
-                blk.add(gb.Residual(
+                blk.add(d2l.Residual(
                     num_channels, use_1x1conv=True, strides=2))
             else:
-                blk.add(gb.Residual(num_channels))
+                blk.add(d2l.Residual(num_channels))
         return blk
 
     net = nn.Sequential()
@@ -75,7 +75,7 @@ weight.data(ctx[0])[0], weight.data(ctx[1])[0]
 
 ```{.python .input  n=7}
 def train(num_gpus, batch_size, lr):
-    train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
+    train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
     ctx = [mx.gpu(i) for i in range(num_gpus)]
     print('running on:', ctx)
     net.initialize(init=init.Normal(sigma=0.01), ctx=ctx, force_reinit=True)
@@ -95,7 +95,7 @@ def train(num_gpus, batch_size, lr):
             trainer.step(batch_size)
         nd.waitall()
         train_time = time.time() - start
-        test_acc = gb.evaluate_accuracy(test_iter, net, ctx[0])
+        test_acc = d2l.evaluate_accuracy(test_iter, net, ctx[0])
         print('epoch %d, time: %.1f sec, test acc %.2f' % (
             epoch + 1, train_time, test_acc))
 ```

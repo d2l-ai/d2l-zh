@@ -8,7 +8,7 @@
 
 ```{.python .input}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet.gluon import data as gdata
 import sys
 import time
@@ -48,7 +48,7 @@ label, type(label), label.dtype
 Fashion-MNIST中一共包括了10个类别，分别为：t-shirt（T恤）、trouser（裤子）、pullover（套衫）、dress（连衣裙）、coat（外套）、sandal（凉鞋）、shirt（衬衫）、sneaker（运动鞋）、bag（包）和ankle boot（短靴）。以下函数可以将数值标签转成相应的文本标签。
 
 ```{.python .input  n=25}
-# 本函数已保存在 gluonbook 包中方便以后使用。
+# 本函数已保存在 d2lzh 包中方便以后使用。
 def get_fashion_mnist_labels(labels):
     text_labels = ['t-shirt', 'trouser', 'pullover', 'dress', 'coat',
                    'sandal', 'shirt', 'sneaker', 'bag', 'ankle boot']
@@ -58,11 +58,11 @@ def get_fashion_mnist_labels(labels):
 下面定义一个可以在一行里画出多张图像和对应标签的函数。
 
 ```{.python .input}
-# 本函数已保存在 gluonbook 包中方便以后使用。
+# 本函数已保存在 d2lzh 包中方便以后使用。
 def show_fashion_mnist(images, labels):
-    gb.use_svg_display()
+    d2l.use_svg_display()
     # 这里的 _ 表示我们忽略（不使用）的变量。
-    _, figs = gb.plt.subplots(1, len(images), figsize=(12, 12))
+    _, figs = d2l.plt.subplots(1, len(images), figsize=(12, 12))
     for f, img, lbl in zip(figs, images, labels):
         f.imshow(img.reshape((28, 28)).asnumpy())
         f.set_title(lbl)
@@ -101,7 +101,7 @@ test_iter = gdata.DataLoader(mnist_test.transform_first(transformer),
                              num_workers=num_workers)
 ```
 
-我们将获取并读取Fashion-MNIST数据集的逻辑封装在`gluonbook.load_data_fashion_mnist`函数中供后面章节调用。该函数将返回`train_iter`和`test_iter`两个变量。随着本书内容的不断深入，我们会进一步改进该函数。它的完整实现将在[“深度卷积神经网络（AlexNet）”](../chapter_convolutional-neural-networks/alexnet.md)一节中描述。
+我们将获取并读取Fashion-MNIST数据集的逻辑封装在`d2lzh.load_data_fashion_mnist`函数中供后面章节调用。该函数将返回`train_iter`和`test_iter`两个变量。随着本书内容的不断深入，我们会进一步改进该函数。它的完整实现将在[“深度卷积神经网络（AlexNet）”](../chapter_convolutional-neural-networks/alexnet.md)一节中描述。
 
 最后我们查看读取一遍训练数据需要的时间。
 

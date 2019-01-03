@@ -36,7 +36,7 @@ $$y = 0.05 + \sum_{i = 1}^p 0.01x_i +  \epsilon,$$
 
 ```{.python .input  n=2}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
 
@@ -82,7 +82,7 @@ def l2_penalty(w):
 
 ```{.python .input  n=7}
 batch_size, num_epochs, lr = 1, 100, 0.003
-net, loss = gb.linreg, gb.squared_loss
+net, loss = d2l.linreg, d2l.squared_loss
 train_iter = gdata.DataLoader(gdata.ArrayDataset(
     train_features, train_labels), batch_size, shuffle=True)
 
@@ -95,13 +95,13 @@ def fit_and_plot(lambd):
                 # 添加了 L2 范数惩罚项。
                 l = loss(net(X, w, b), y) + lambd * l2_penalty(w)
             l.backward()
-            gb.sgd([w, b], lr, batch_size)
+            d2l.sgd([w, b], lr, batch_size)
         train_ls.append(loss(net(train_features, w, b),
                              train_labels).mean().asscalar())
         test_ls.append(loss(net(test_features, w, b),
                             test_labels).mean().asscalar())
-    gb.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'loss',
-                range(1, num_epochs + 1), test_ls, ['train', 'test'])
+    d2l.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'loss',
+                 range(1, num_epochs + 1), test_ls, ['train', 'test'])
     print('L2 norm of w:', w.norm().asscalar())
 ```
 
@@ -149,8 +149,8 @@ def fit_and_plot_gluon(wd):
                              train_labels).mean().asscalar())
         test_ls.append(loss(net(test_features),
                             test_labels).mean().asscalar())
-    gb.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'loss',
-                range(1, num_epochs + 1), test_ls, ['train', 'test'])
+    d2l.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'loss',
+                 range(1, num_epochs + 1), test_ls, ['train', 'test'])
     print('L2 norm of w:', net[0].weight.data().norm().asscalar())
 ```
 

@@ -57,7 +57,7 @@ $${\boldsymbol{y}}^{(i)} \leftarrow \boldsymbol{\gamma} \odot \hat{\boldsymbol{x
 下面我们通过NDArray来实现批量归一化层。
 
 ```{.python .input  n=72}
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import nn
 
@@ -141,11 +141,12 @@ net.add(nn.Conv2D(6, kernel_size=5),
 下面我们训练修改后的模型。
 
 ```{.python .input  n=77}
-lr, num_epochs, batch_size, ctx = 1.0, 5, 256, gb.try_gpu()
+lr, num_epochs, batch_size, ctx = 1.0, 5, 256, d2l.try_gpu()
 net.initialize(ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
-gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
+d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
+              num_epochs)
 ```
 
 最后我们查看下第一个批量归一化层学习到的拉伸参数`gamma`和偏移参数`beta`。
@@ -182,7 +183,8 @@ net.add(nn.Conv2D(6, kernel_size=5),
 ```{.python .input}
 net.initialize(ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
+d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
+              num_epochs)
 ```
 
 ## 小结

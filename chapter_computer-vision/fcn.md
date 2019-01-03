@@ -6,7 +6,7 @@
 
 ```{.python .input  n=2}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import gluon, image, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, model_zoo, nn
 import numpy as np
@@ -136,11 +136,11 @@ out_img = Y[0].transpose((1, 2, 0))
 可以看到，转置卷积层将图像的高和宽分别放大2倍。值得一提的是，除了坐标刻度不同，双线性插值放大的图像和[“目标检测和边界框”](bounding-box.md)一节中打印出的原图看上去没什么两样。
 
 ```{.python .input}
-gb.set_figsize()
+d2l.set_figsize()
 print('input image shape:', img.shape)
-gb.plt.imshow(img.asnumpy());
+d2l.plt.imshow(img.asnumpy());
 print('output image shape:', out_img.shape)
-gb.plt.imshow(out_img.asnumpy());
+d2l.plt.imshow(out_img.asnumpy());
 ```
 
 在全卷积网络中，我们将转置卷积层初始化为双线性插值的上采样。对于$1\times 1$卷积层，我们采用Xavier随机初始化。
@@ -157,16 +157,16 @@ net[-2].initialize(init=init.Xavier())
 
 ```{.python .input  n=13}
 crop_size, batch_size, colormap2label = (320, 480), 32, nd.zeros(256**3)
-for i, cm in enumerate(gb.VOC_COLORMAP):
+for i, cm in enumerate(d2l.VOC_COLORMAP):
     colormap2label[(cm[0] * 256 + cm[1]) * 256 + cm[2]] = i
-voc_dir = gb.download_voc_pascal(data_dir='../data')
+voc_dir = d2l.download_voc_pascal(data_dir='../data')
 
 num_workers = 0 if sys.platform.startswith('win32') else 4
 train_iter = gdata.DataLoader(
-    gb.VOCSegDataset(True, crop_size, voc_dir, colormap2label), batch_size,
+    d2l.VOCSegDataset(True, crop_size, voc_dir, colormap2label), batch_size,
     shuffle=True, last_batch='discard', num_workers=num_workers)
 test_iter = gdata.DataLoader(
-    gb.VOCSegDataset(False, crop_size, voc_dir, colormap2label), batch_size,
+    d2l.VOCSegDataset(False, crop_size, voc_dir, colormap2label), batch_size,
     last_batch='discard', num_workers=num_workers)
 ```
 
@@ -175,12 +175,12 @@ test_iter = gdata.DataLoader(
 现在我们可以开始训练模型了。这里的损失函数和准确率计算与图像分类中的并没有本质上的不同。因为我们使用转置卷积层的通道来预测像素的类别，所以在`SoftmaxCrossEntropyLoss`里指定了`axis=1`（通道维）选项。此外，模型基于每个像素的预测类别是否正确来计算准确率。
 
 ```{.python .input  n=12}
-ctx = gb.try_all_gpus()
+ctx = d2l.try_all_gpus()
 loss = gloss.SoftmaxCrossEntropyLoss(axis=1)
 net.collect_params().reset_ctx(ctx)
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.1,
                                                       'wd': 1e-3})
-gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
+d2l.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
 ```
 
 ## 预测
@@ -199,7 +199,7 @@ def predict(img):
 
 ```{.python .input  n=14}
 def label2image(pred):
-    colormap = nd.array(gb.VOC_COLORMAP, ctx=ctx[0], dtype='uint8')
+    colormap = nd.array(d2l.VOC_COLORMAP, ctx=ctx[0], dtype='uint8')
     X = pred.astype('int32')
     return colormap[X, :]
 ```
@@ -209,14 +209,14 @@ def label2image(pred):
 为了简单起见，我们只读取几张较大的测试图像，并从图像的左上角开始截取形状为$320\times480$的区域：只有该区域用来预测。对于输入图像，我们先打印截取的区域，再打印预测结果，最后打印标注的类别。
 
 ```{.python .input  n=15}
-test_images, test_labels = gb.read_voc_images(is_train=False)
+test_images, test_labels = d2l.read_voc_images(is_train=False)
 n, imgs = 4, []
 for i in range(n):
     crop_rect = (0, 0, 480, 320)
     X = image.fixed_crop(test_images[i], *crop_rect)
     pred = label2image(predict(X))
     imgs += [X, pred, image.fixed_crop(test_labels[i], *crop_rect)]
-gb.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n);
+d2l.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n);
 ```
 
 ## 小结

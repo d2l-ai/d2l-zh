@@ -62,7 +62,7 @@ $$\hat{y} = b + \sum_{k=1}^K x^k w_k$$
 
 ```{.python .input  n=1}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import autograd, gluon, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
 ```
@@ -96,16 +96,16 @@ features[:2], poly_features[:2], labels[:2]
 我们先定义作图函数`semilogy`，其中$y$轴使用了对数尺度。
 
 ```{.python .input  n=4}
-# 本函数已保存在 gluonbook 包中方便以后使用。
+# 本函数已保存在 d2lzh 包中方便以后使用。
 def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
              legend=None, figsize=(3.5, 2.5)):
-    gb.set_figsize(figsize)
-    gb.plt.xlabel(x_label)
-    gb.plt.ylabel(y_label)
-    gb.plt.semilogy(x_vals, y_vals)
+    d2l.set_figsize(figsize)
+    d2l.plt.xlabel(x_label)
+    d2l.plt.ylabel(y_label)
+    d2l.plt.semilogy(x_vals, y_vals)
     if x2_vals and y2_vals:
-        gb.plt.semilogy(x2_vals, y2_vals, linestyle=':')
-        gb.plt.legend(legend)
+        d2l.plt.semilogy(x2_vals, y2_vals, linestyle=':')
+        d2l.plt.legend(legend)
 ```
 
 和线性回归一样，多项式函数拟合也使用平方损失函数。由于我们将尝试使用不同复杂度的模型来拟合生成的数据集，我们把模型定义部分放在`fit_and_plot`函数中。多项式函数拟合的训练和测试步骤与之前介绍的softmax回归中的相关步骤类似。

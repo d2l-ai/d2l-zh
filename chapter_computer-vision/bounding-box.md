@@ -8,16 +8,16 @@
 
 ```{.python .input}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import image
 ```
 
 下面加载本节将使用的示例图像。可以看到图像左边是一只狗，右边是一只猫。它们是这张图像里的两个主要目标。
 
 ```{.python .input}
-gb.set_figsize()
+d2l.set_figsize()
 img = image.imread('../img/catdog.jpg').asnumpy()
-gb.plt.imshow(img);  # 加分号只显示图。
+d2l.plt.imshow(img);  # 加分号只显示图。
 ```
 
 ## 边界框
@@ -32,10 +32,10 @@ dog_bbox, cat_bbox = [60, 45, 378, 516], [400, 112, 655, 493]
 我们可以在图中将边界框画出来，以检查其是否准确。画之前，我们定义一个辅助函数`bbox_to_rect`。它将边界框表示成matplotlib的边界框格式。
 
 ```{.python .input  n=3}
-def bbox_to_rect(bbox, color):  # 本函数已保存在 gluonbook 包中方便以后使用。
+def bbox_to_rect(bbox, color):  # 本函数已保存在 d2lzh 包中方便以后使用。
     # 将边界框（左上 x、左上 y，右下 x，右下 y）格式转换成 matplotlib 格式：
     # （（左上 x，左上 y），宽，高）。
-    return gb.plt.Rectangle(
+    return d2l.plt.Rectangle(
         xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0], height=bbox[3]-bbox[1],
         fill=False, edgecolor=color, linewidth=2)
 ```
@@ -43,7 +43,7 @@ def bbox_to_rect(bbox, color):  # 本函数已保存在 gluonbook 包中方便�
 我们将边界框加载在图像上，可以看到目标的主要轮廓基本在框内。
 
 ```{.python .input}
-fig = gb.plt.imshow(img)
+fig = d2l.plt.imshow(img)
 fig.axes.add_patch(bbox_to_rect(dog_bbox, 'blue'))
 fig.axes.add_patch(bbox_to_rect(cat_bbox, 'red'));
 ```

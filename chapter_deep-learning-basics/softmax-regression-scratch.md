@@ -4,7 +4,7 @@
 
 ```{.python .input  n=1}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import autograd, nd
 ```
 
@@ -14,7 +14,7 @@ from mxnet import autograd, nd
 
 ```{.python .input  n=2}
 batch_size = 256
-train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
 ```
 
 ## 初始化模型参数
@@ -108,8 +108,8 @@ accuracy(y_hat, y)
 类似地，我们可以评价模型`net`在数据集`data_iter`上的准确率。
 
 ```{.python .input  n=13}
-# 本函数已保存在 gluonbook 包中方便以后使用。该函数将被逐步改进：它的完整实现将在“图像增
-# 广”一节中描述。
+# 本函数已保存在 d2lzh 包中方便以后使用。该函数将被逐步改进：它的完整实现将在“图像增广”一节
+# 中描述。
 def evaluate_accuracy(data_iter, net):
     acc_sum, n = 0.0, 0
     for X, y in data_iter:
@@ -132,7 +132,7 @@ evaluate_accuracy(test_iter, net)
 ```{.python .input  n=21}
 num_epochs, lr = 5, 0.1
 
-# 本函数已保存在 gluonbook 包中方便以后使用。
+# 本函数已保存在 d2lzh 包中方便以后使用。
 def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
               params=None, lr=None, trainer=None):
     for epoch in range(num_epochs):
@@ -143,7 +143,7 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
                 l = loss(y_hat, y).sum()
             l.backward()
             if trainer is None:
-                gb.sgd(params, lr, batch_size)
+                d2l.sgd(params, lr, batch_size)
             else:
                 trainer.step(batch_size)  # 下一节将用到。
             y = y.astype('float32')
@@ -166,11 +166,11 @@ train_ch3(net, train_iter, test_iter, cross_entropy, num_epochs,
 for X, y in test_iter:
     break
 
-true_labels = gb.get_fashion_mnist_labels(y.asnumpy())
-pred_labels = gb.get_fashion_mnist_labels(net(X).argmax(axis=1).asnumpy())
+true_labels = d2l.get_fashion_mnist_labels(y.asnumpy())
+pred_labels = d2l.get_fashion_mnist_labels(net(X).argmax(axis=1).asnumpy())
 titles = [true + '\n' + pred for true, pred in zip(true_labels, pred_labels)]
 
-gb.show_fashion_mnist(X[0:9], titles[0:9])
+d2l.show_fashion_mnist(X[0:9], titles[0:9])
 ```
 
 ## 小结

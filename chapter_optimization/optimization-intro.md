@@ -21,7 +21,7 @@
 
 ```{.python .input  n=1}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mpl_toolkits import mplot3d
 import numpy as np
 ```
@@ -40,15 +40,15 @@ $$f(x) = x \cdot \text{cos}(\pi x), \qquad -1.0 \leq x \leq 2.0,$$
 def f(x):
     return x * np.cos(np.pi * x)
 
-gb.set_figsize((4.5, 2.5))
+d2l.set_figsize((4.5, 2.5))
 x = np.arange(-1.0, 2.0, 0.1)
-fig,  = gb.plt.plot(x, f(x))
+fig,  = d2l.plt.plot(x, f(x))
 fig.axes.annotate('local minimum', xy=(-0.3, -0.25), xytext=(-0.77, -1.0),
                   arrowprops=dict(arrowstyle='->'))
 fig.axes.annotate('global minimum', xy=(1.1, -0.95), xytext=(0.6, 0.8),
                   arrowprops=dict(arrowstyle='->'))
-gb.plt.xlabel('x')
-gb.plt.ylabel('f(x)');
+d2l.plt.xlabel('x')
+d2l.plt.ylabel('f(x)');
 ```
 
 深度学习模型的目标函数可能有若干局部最优值。当一个优化问题的数值解在局部最优解附近时，由于目标函数有关解的梯度接近或变成零，最终迭代求得的数值解可能只令目标函数局部最小化而非全局最小化。
@@ -63,11 +63,11 @@ $$f(x) = x^3,$$
 
 ```{.python .input  n=3}
 x = np.arange(-2.0, 2.0, 0.1)
-fig, = gb.plt.plot(x, x**3)
+fig, = d2l.plt.plot(x, x**3)
 fig.axes.annotate('saddle point', xy=(0, -0.2), xytext=(-0.52, -5.0),
                   arrowprops=dict(arrowstyle='->'))
-gb.plt.xlabel('x')
-gb.plt.ylabel('f(x)');
+d2l.plt.xlabel('x')
+d2l.plt.ylabel('f(x)');
 ```
 
 再举个定义在二维空间的函数的例子，例如
@@ -80,15 +80,15 @@ $$f(x, y) = x^2 - y^2.$$
 x, y = np.mgrid[-1: 1: 31j, -1: 1: 31j]
 z = x**2 - y**2
 
-ax = gb.plt.figure().add_subplot(111, projection='3d')
+ax = d2l.plt.figure().add_subplot(111, projection='3d')
 ax.plot_wireframe(x, y, z, **{'rstride': 2, 'cstride': 2})
 ax.plot([0], [0], [0], 'rx')
 ticks = [-1,  0, 1]
-gb.plt.xticks(ticks)
-gb.plt.yticks(ticks)
+d2l.plt.xticks(ticks)
+d2l.plt.yticks(ticks)
 ax.set_zticks(ticks)
-gb.plt.xlabel('x')
-gb.plt.ylabel('y');
+d2l.plt.xlabel('x')
+d2l.plt.ylabel('y');
 ```
 
 在上图的鞍点位置，目标函数在$x$轴方向上是局部最小值，而在$y$轴方向上是局部最大值。

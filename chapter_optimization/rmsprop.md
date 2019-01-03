@@ -18,7 +18,7 @@ $$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \frac{\eta}{\sqrt{\boldsymb
 
 ```{.python .input  n=3}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 import math
 from mxnet import nd
 
@@ -34,7 +34,7 @@ def f_2d(x1, x2):
     return 0.1 * x1 ** 2 + 2 * x2 ** 2
 
 eta, gamma = 0.4, 0.9
-gb.show_trace_2d(f_2d, gb.train_2d(rmsprop_2d))
+d2l.show_trace_2d(f_2d, d2l.train_2d(rmsprop_2d))
 ```
 
 ## 从零开始实现
@@ -42,7 +42,7 @@ gb.show_trace_2d(f_2d, gb.train_2d(rmsprop_2d))
 接下来按照算法中的公式实现RMSProp。
 
 ```{.python .input  n=22}
-features, labels = gb.get_data_ch7()
+features, labels = d2l.get_data_ch7()
 
 def init_rmsprop_states():
     s_w = nd.zeros((features.shape[1], 1))
@@ -59,9 +59,9 @@ def rmsprop(params, states, hyperparams):
 我们将初始学习率设为0.01，并将超参数$\gamma$设为0.9。此时，变量$\boldsymbol{s}_t$可看作是最近$1/(1-0.9) = 10$个时间步的平方项$\boldsymbol{g}_t \odot \boldsymbol{g}_t$的加权平均。
 
 ```{.python .input  n=24}
-features, labels = gb.get_data_ch7()
-gb.train_ch7(rmsprop, init_rmsprop_states(), {'lr': 0.01, 'gamma': 0.9},
-             features, labels)
+features, labels = d2l.get_data_ch7()
+d2l.train_ch7(rmsprop, init_rmsprop_states(), {'lr': 0.01, 'gamma': 0.9},
+              features, labels)
 ```
 
 ## 简洁实现
@@ -69,8 +69,8 @@ gb.train_ch7(rmsprop, init_rmsprop_states(), {'lr': 0.01, 'gamma': 0.9},
 通过算法名称为“rmsprop”的`Trainer`实例，我们便可使用Gluon提供的RMSProp算法来训练模型。注意超参数$\gamma$通过`gamma1`指定。
 
 ```{.python .input  n=29}
-gb.train_gluon_ch7('rmsprop', {'learning_rate': 0.01, 'gamma1': 0.9},
-                   features, labels)
+d2l.train_gluon_ch7('rmsprop', {'learning_rate': 0.01, 'gamma1': 0.9},
+                    features, labels)
 ```
 
 ## 小结

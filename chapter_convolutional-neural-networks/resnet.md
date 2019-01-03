@@ -14,11 +14,11 @@ ResNet沿用了VGG全$3\times 3$卷积层的设计。残差块里首先有两个
 残差块的实现如下。它可以设定输出通道数、是否使用额外的$1\times 1$卷积层来修改通道数以及卷积层的步幅。
 
 ```{.python .input  n=1}
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import gluon, init, nd
 from mxnet.gluon import nn
 
-class Residual(nn.Block):  # 本类已保存在 gluonbook 包中方便以后使用。
+class Residual(nn.Block):  # 本类已保存在 d2lzh 包中方便以后使用。
     def __init__(self, num_channels, use_1x1conv=False, strides=1, **kwargs):
         super(Residual, self).__init__(**kwargs)
         self.conv1 = nn.Conv2D(num_channels, kernel_size=3, padding=1,
@@ -115,11 +115,12 @@ for layer in net:
 下面我们在Fashion-MNIST数据集上训练ResNet。
 
 ```{.python .input}
-lr, num_epochs, batch_size, ctx = 0.05, 5, 256, gb.try_gpu()
+lr, num_epochs, batch_size, ctx = 0.05, 5, 256, d2l.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-train_iter, test_iter = gb.load_data_fashion_mnist(batch_size, resize=96)
-gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=96)
+d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
+              num_epochs)
 ```
 
 ## 小结

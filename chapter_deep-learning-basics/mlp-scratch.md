@@ -4,7 +4,7 @@
 
 ```{.python .input  n=9}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import nd
 from mxnet.gluon import loss as gloss
 ```
@@ -15,7 +15,7 @@ from mxnet.gluon import loss as gloss
 
 ```{.python .input  n=2}
 batch_size = 256
-train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
 ```
 
 ## 定义模型参数
@@ -65,12 +65,12 @@ loss = gloss.SoftmaxCrossEntropyLoss()
 
 ## 训练模型
 
-训练多层感知机的步骤和之前训练softmax回归的步骤没什么区别。我们直接调用`gluonbook`包中的`train_ch3`函数，它的实现已经在[“Softmax回归的从零开始实现”](softmax-regression-scratch.md)一节里介绍了。我们在这里设超参数迭代周期数为5，学习率为0.5。
+训练多层感知机的步骤和之前训练softmax回归的步骤没什么区别。我们直接调用`d2lzh`包中的`train_ch3`函数，它的实现已经在[“Softmax回归的从零开始实现”](softmax-regression-scratch.md)一节里介绍了。我们在这里设超参数迭代周期数为5，学习率为0.5。
 
 ```{.python .input  n=7}
 num_epochs, lr = 5, 0.5
-gb.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
-             params, lr)
+d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
+              params, lr)
 ```
 
 ## 小结

@@ -16,13 +16,13 @@
 接下来我们实现含多个输入通道的互相关运算。我们只需要对每个通道做互相关运算，然后通过`add_n`函数来进行累加。
 
 ```{.python .input  n=1}
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import nd
 
 def corr2d_multi_in(X, K):
     # 我们首先沿着 X 和 K 的第 0 维（通道维）遍历。然后使用 * 将结果列表变成 add_n 函数
     # 的位置参数（positional argument）来进行相加。
-    return nd.add_n(*[gb.corr2d(x, k) for x, k in zip(X, K)])
+    return nd.add_n(*[d2l.corr2d(x, k) for x, k in zip(X, K)])
 ```
 
 我们可以构造图5.4中的输入数组`X`、核数组`K`来验证互相关运算的输出。

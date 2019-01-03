@@ -8,7 +8,7 @@
 
 ```{.python .input  n=1}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import contrib, image, nd
 
 img = image.imread('../img/catdog.jpg')
@@ -22,13 +22,14 @@ h, w
 下面定义`display_anchors`函数。我们在特征图`fmap`上以每个单元（像素）为中心生成锚框`anchors`。由于锚框`anchors`中$x$和$y$轴的坐标值分别已除以特征图`fmap`的宽和高，这些值域在0和1之间的值表达了锚框在特征图中的相对位置。由于锚框`anchors`的中心遍布特征图`fmap`上的所有单元，`anchors`的中心在任一图像的空间相对位置一定是均匀分布的。具体来说，当特征图的宽和高分别设为`fmap_w`和`fmap_h`时，该函数将在任一图像上均匀采样`fmap_h`行`fmap_w`列个像素，并分别以它们为中心生成大小为`s`（假设列表`s`长度为1）的不同宽高比（`ratios`）的锚框。
 
 ```{.python .input  n=2}
-gb.set_figsize()
+d2l.set_figsize()
 
 def display_anchors(fmap_w, fmap_h, s):
     fmap = nd.zeros((1, 10, fmap_w, fmap_h))  # 前两维的取值不影响输出结果。
     anchors = contrib.nd.MultiBoxPrior(fmap, sizes=s, ratios=[1, 2, 0.5])
     bbox_scale = nd.array((w, h, w, h))
-    gb.show_bboxes(gb.plt.imshow(img.asnumpy()).axes, anchors[0] * bbox_scale)
+    d2l.show_bboxes(d2l.plt.imshow(img.asnumpy()).axes,
+                    anchors[0] * bbox_scale)
 ```
 
 我们先关注小目标的检测。为了在显示时更容易分辨，这里令不同中心的锚框不重合：设锚框大小为0.15，特征图的高和宽分别为4。可以看出，图像上4行4列的锚框中心分布均匀。

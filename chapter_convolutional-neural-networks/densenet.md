@@ -14,7 +14,7 @@ DenseNet的主要构建模块是稠密块（dense block）和过渡层（transit
 DenseNet使用了ResNet改良版的“批量归一化、激活和卷积”结构（参见上一节练习），我们首先在`conv_block`函数里实现这个结构。
 
 ```{.python .input  n=1}
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import gluon, init, nd
 from mxnet.gluon import nn
 
@@ -113,11 +113,12 @@ net.add(nn.BatchNorm(), nn.Activation('relu'), nn.GlobalAvgPool2D(),
 由于这里我们使用了比较深的网络，本节里我们将输入高和宽从224降到96来简化计算。
 
 ```{.python .input}
-lr, num_epochs, batch_size, ctx = 0.1, 5, 256, gb.try_gpu()
+lr, num_epochs, batch_size, ctx = 0.1, 5, 256, d2l.try_gpu()
 net.initialize(ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-train_iter, test_iter = gb.load_data_fashion_mnist(batch_size, resize=96)
-gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=96)
+d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
+              num_epochs)
 ```
 
 ## 小结

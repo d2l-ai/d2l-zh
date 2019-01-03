@@ -62,12 +62,12 @@ $$\boldsymbol{H}_t = \boldsymbol{Z}_t \odot \boldsymbol{H}_{t-1}  + (1 - \boldsy
 为了实现并展示门控循环单元，我们依然使用周杰伦歌词数据集来训练模型作词。这里除门控循环单元以外的实现已在[“循环神经网络”](rnn.md)一节中介绍。以下为读取数据集部分。
 
 ```{.python .input  n=1}
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import nd
 from mxnet.gluon import rnn
 
 (corpus_indices, char_to_idx, idx_to_char,
- vocab_size) = gb.load_data_jay_lyrics()
+ vocab_size) = d2l.load_data_jay_lyrics()
 ```
 
 ## 从零开始实现
@@ -80,7 +80,7 @@ from mxnet.gluon import rnn
 
 ```{.python .input  n=2}
 num_inputs, num_hiddens, num_outputs = vocab_size, 256, vocab_size
-ctx = gb.try_gpu()
+ctx = d2l.try_gpu()
 
 def get_params():
     def _one(shape):
@@ -142,11 +142,11 @@ pred_period, pred_len, prefixes = 40, 50, ['分开', '不分开']
 我们每过40个迭代周期便根据当前训练的模型创作一段歌词。
 
 ```{.python .input}
-gb.train_and_predict_rnn(gru, get_params, init_gru_state, num_hiddens,
-                         vocab_size, ctx, corpus_indices, idx_to_char,
-                         char_to_idx, False, num_epochs, num_steps, lr,
-                         clipping_theta, batch_size, pred_period, pred_len,
-                         prefixes)
+d2l.train_and_predict_rnn(gru, get_params, init_gru_state, num_hiddens,
+                          vocab_size, ctx, corpus_indices, idx_to_char,
+                          char_to_idx, False, num_epochs, num_steps, lr,
+                          clipping_theta, batch_size, pred_period, pred_len,
+                          prefixes)
 ```
 
 ## 简洁实现
@@ -155,11 +155,11 @@ gb.train_and_predict_rnn(gru, get_params, init_gru_state, num_hiddens,
 
 ```{.python .input  n=6}
 gru_layer = rnn.GRU(num_hiddens)
-model = gb.RNNModel(gru_layer, vocab_size)
-gb.train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
-                               corpus_indices, idx_to_char, char_to_idx,
-                               num_epochs, num_steps, lr, clipping_theta,
-                               batch_size, pred_period, pred_len, prefixes)
+model = d2l.RNNModel(gru_layer, vocab_size)
+d2l.train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
+                                corpus_indices, idx_to_char, char_to_idx,
+                                num_epochs, num_steps, lr, clipping_theta,
+                                batch_size, pred_period, pred_len, prefixes)
 ```
 
 ## 小结

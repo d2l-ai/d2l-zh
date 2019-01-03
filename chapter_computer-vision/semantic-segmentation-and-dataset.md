@@ -19,7 +19,7 @@
 
 ```{.python .input  n=1}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import gluon, image, nd
 from mxnet.gluon import data as gdata, utils as gutils
 import os
@@ -30,7 +30,7 @@ import tarfile
 我们下载这个数据集的压缩包到`../data`路径下。压缩包大小是2GB，下载需要一定时间。解压之后的数据集将会放置在`../data/VOCdevkit/VOC2012`路径下。
 
 ```{.python .input  n=2}
-# 本函数已保存在 gluonbook 包中方便以后使用。
+# 本函数已保存在 d2lzh 包中方便以后使用。
 def download_voc_pascal(data_dir='../data'):
     voc_dir = os.path.join(data_dir, 'VOCdevkit/VOC2012')
     url = ('http://host.robots.ox.ac.uk/pascal/VOC/voc2012'
@@ -47,7 +47,7 @@ voc_dir = download_voc_pascal()
 进入`../data/VOCdevkit/VOC2012`路径后，我们可以获取数据集的不同组成部分。其中`ImageSets/Segmentation`路径包含了指定训练和测试样本的文本文件，而`JPEGImages`和`SegmentationClass`路径下分别包含了样本的输入图像和标签。这里的标签也是图像格式，其尺寸和它所标注的输入图像的尺寸相同。标签中颜色相同的像素属于同一个语义类别。下面定义`read_voc_images`函数将输入图像和标签全部读进内存。
 
 ```{.python .input  n=3}
-# 本函数已保存在 gluonbook 包中方便以后使用。
+# 本函数已保存在 d2lzh 包中方便以后使用。
 def read_voc_images(root=voc_dir, is_train=True):
     txt_fname = '%s/ImageSets/Segmentation/%s' % (
         root, 'train.txt' if is_train else 'val.txt')
@@ -68,20 +68,20 @@ train_features, train_labels = read_voc_images()
 ```{.python .input  n=4}
 n = 5
 imgs = train_features[0:n] + train_labels[0:n]
-gb.show_images(imgs, 2, n);
+d2l.show_images(imgs, 2, n);
 ```
 
 接下来，我们列出标签中每个RGB颜色的值及其标注的类别。
 
 ```{.python .input  n=5}
-# 该常量已保存在 gluonbook 包中方便以后使用。
+# 该常量已保存在 d2lzh 包中方便以后使用。
 VOC_COLORMAP = [[0, 0, 0], [128, 0, 0], [0, 128, 0], [128, 128, 0],
                 [0, 0, 128], [128, 0, 128], [0, 128, 128], [128, 128, 128],
                 [64, 0, 0], [192, 0, 0], [64, 128, 0], [192, 128, 0],
                 [64, 0, 128], [192, 0, 128], [64, 128, 128], [192, 128, 128],
                 [0, 64, 0], [128, 64, 0], [0, 192, 0], [128, 192, 0],
                 [0, 64, 128]]
-# 该常量已保存在 gluonbook 包中方便以后使用。
+# 该常量已保存在 d2lzh 包中方便以后使用。
 VOC_CLASSES = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
                'bottle', 'bus', 'car', 'cat', 'chair', 'cow',
                'diningtable', 'dog', 'horse', 'motorbike', 'person',
@@ -95,7 +95,7 @@ colormap2label = nd.zeros(256 ** 3)
 for i, colormap in enumerate(VOC_COLORMAP):
     colormap2label[(colormap[0] * 256 + colormap[1]) * 256 + colormap[2]] = i
 
-# 本函数已保存在 gluonbook 包中方便以后使用。
+# 本函数已保存在 d2lzh 包中方便以后使用。
 def voc_label_indices(colormap, colormap2label):
     colormap = colormap.astype('int32')
     idx = ((colormap[:, :, 0] * 256 + colormap[:, :, 1]) * 256
@@ -115,7 +115,7 @@ y[105:115, 130:140], VOC_CLASSES[1]
 在之前的章节中，我们通过缩放图像使其符合模型的输入形状。然而在语义分割里，这样做会需要将预测的像素类别重新映射回原始尺寸的输入图像。这样的映射难以做到精确，尤其在不同语义的分割区域。为了避免这个问题，我们将图像裁剪成固定尺寸而不是缩放。具体来说，我们使用图像增广里的随机裁剪，并对输入图像和标签裁剪相同区域。
 
 ```{.python .input  n=8}
-# 本函数已保存在 gluonbook 包中方便以后使用。
+# 本函数已保存在 d2lzh 包中方便以后使用。
 def voc_rand_crop(feature, label, height, width):
     feature, rect = image.random_crop(feature, (width, height))
     label = image.fixed_crop(label, *rect)
@@ -124,7 +124,7 @@ def voc_rand_crop(feature, label, height, width):
 imgs = []
 for _ in range(n):
     imgs += voc_rand_crop(train_features[0], train_labels[0], 200, 300)
-gb.show_images(imgs[::2] + imgs[1::2], 2, n);
+d2l.show_images(imgs[::2] + imgs[1::2], 2, n);
 ```
 
 ### 自定义语义分割数据集类
@@ -132,7 +132,7 @@ gb.show_images(imgs[::2] + imgs[1::2], 2, n);
 我们通过继承Gluon提供的`Dataset`类自定义了一个语义分割数据集类`VOCSegDataset`。通过实现`__getitem__`函数，我们可以任意访问数据集中索引为`idx`的输入图像及其每个像素的类别索引。由于数据集中有些图像的尺寸可能小于随机裁剪所指定的输出尺寸，这些样本需要通过自定义的`filter`函数所移除。此外，我们还定义了`normalize_image`函数，从而对输入图像的RGB三个通道的值分别做标准化。
 
 ```{.python .input  n=9}
-# 本类已保存在 gluonbook 包中方便以后使用。
+# 本类已保存在 d2lzh 包中方便以后使用。
 class VOCSegDataset(gdata.Dataset):
     def __init__(self, is_train, crop_size, voc_dir, colormap2label):
         self.rgb_mean = nd.array([0.485, 0.456, 0.406])
