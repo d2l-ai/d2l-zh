@@ -7,7 +7,7 @@ MXNet后端会自动构建计算图。通过计算图，系统可以知道所有
 首先导入本节中实验所需的包或模块。注意，我们需要至少一个GPU才能运行本节实验。
 
 ```{.python .input}
-import gluonbook as gb
+import d2lzh as d2l
 import mxnet as mx
 from mxnet import nd
 ```
@@ -35,11 +35,11 @@ run(x_cpu)  # 预热开始。
 run(x_gpu)
 nd.waitall()  # 预热结束。
 
-with gb.Benchmark('Run on CPU.'):
+with d2l.Benchmark('Run on CPU.'):
     run(x_cpu)
     nd.waitall()
 
-with gb.Benchmark('Then run on GPU.'):
+with d2l.Benchmark('Then run on GPU.'):
     run(x_gpu)
     nd.waitall()
 ```
@@ -47,7 +47,7 @@ with gb.Benchmark('Then run on GPU.'):
 我们去掉`run(x_cpu)`和`run(x_gpu)`两个计算任务之间的`nd.waitall()`，希望系统能自动并行这两个任务。
 
 ```{.python .input}
-with gb.Benchmark('Run on both CPU and GPU in parallel.'):
+with d2l.Benchmark('Run on both CPU and GPU in parallel.'):
     run(x_cpu)
     run(x_gpu)
     nd.waitall()
@@ -64,11 +64,11 @@ with gb.Benchmark('Run on both CPU and GPU in parallel.'):
 def copy_to_cpu(x):
     return [y.copyto(mx.cpu()) for y in x]
 
-with gb.Benchmark('Run on GPU.'):
+with d2l.Benchmark('Run on GPU.'):
     y = run(x_gpu)
     nd.waitall()
 
-with gb.Benchmark('Then copy to CPU.'):
+with d2l.Benchmark('Then copy to CPU.'):
     copy_to_cpu(y)
     nd.waitall()
 ```
@@ -76,7 +76,7 @@ with gb.Benchmark('Then copy to CPU.'):
 我们去掉计算和通讯之间的`waitall`函数，打印这两个任务完成的总时间。
 
 ```{.python .input}
-with gb.Benchmark('Run and copy in parallel.'):
+with d2l.Benchmark('Run and copy in parallel.'):
     y = run(x_gpu)
     copy_to_cpu(y)
     nd.waitall()

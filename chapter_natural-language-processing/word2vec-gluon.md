@@ -6,7 +6,7 @@
 
 ```{.python .input  n=1}
 import collections
-import gluonbook as gb
+import d2lzh as d2l
 import math
 from mxnet import autograd, gluon, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
@@ -286,7 +286,7 @@ net.add(nn.Embedding(input_dim=len(idx_to_token), output_dim=embed_size),
 
 ```{.python .input  n=23}
 def train(net, lr, num_epochs):
-    ctx = gb.try_gpu()
+    ctx = d2l.try_gpu()
     net.initialize(ctx=ctx, force_reinit=True)
     trainer = gluon.Trainer(net.collect_params(), 'adam',
                             {'learning_rate': lr})

@@ -9,7 +9,7 @@
 
 ```{.python .input  n=3}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import nd
 
 eta = 0.4
@@ -20,7 +20,7 @@ def f_2d(x1, x2):
 def gd_2d(x1, x2, s1, s2):
     return (x1 - eta * 0.2 * x1, x2 - eta * 4 * x2, 0, 0)
 
-gb.show_trace_2d(f_2d, gb.train_2d(gd_2d))
+d2l.show_trace_2d(f_2d, d2l.train_2d(gd_2d))
 ```
 
 可以看到，同一位置上，目标函数在竖直方向（$x_2$轴方向）比在水平方向（$x_1$轴方向）的斜率的绝对值更大。因此，给定学习率，梯度下降迭代自变量时会使自变量在竖直方向比在水平方向移动幅度更大。那么，我们需要一个较小的学习率从而避免自变量在竖直方向上越过目标函数最优解。然而，这造成自变量在水平方向上朝最优解移动变慢。
@@ -29,7 +29,7 @@ gb.show_trace_2d(f_2d, gb.train_2d(gd_2d))
 
 ```{.python .input  n=4}
 eta = 0.6
-gb.show_trace_2d(f_2d, gb.train_2d(gd_2d))
+d2l.show_trace_2d(f_2d, d2l.train_2d(gd_2d))
 ```
 
 ## 动量法
@@ -55,14 +55,14 @@ def momentum_2d(x1, x2, v1, v2):
     return x1 - v1, x2 - v2, v1, v2
 
 eta, gamma = 0.4, 0.5
-gb.show_trace_2d(f_2d, gb.train_2d(momentum_2d))
+d2l.show_trace_2d(f_2d, d2l.train_2d(momentum_2d))
 ```
 
 可以看到使用较小的学习率$\eta=0.4$和动量超参数$\gamma=0.5$时，动量法在竖直方向上的移动更加平滑，且在水平方向上更快逼近最优解。下面使用较大的学习率$\eta=0.6$，此时自变量也不再发散。
 
 ```{.python .input  n=11}
 eta = 0.6
-gb.show_trace_2d(f_2d, gb.train_2d(momentum_2d))
+d2l.show_trace_2d(f_2d, d2l.train_2d(momentum_2d))
 ```
 
 ### 指数加权移动平均
@@ -107,7 +107,7 @@ $$\boldsymbol{v}_t \leftarrow \gamma \boldsymbol{v}_{t-1} + (1 - \gamma) \left(\
 相对于小批量随机梯度下降，动量法需要对每一个自变量维护一个同它一样形状的速度变量，且超参数里多了动量超参数。实现中，我们将速度变量用更广义的状态变量`states`表示。
 
 ```{.python .input  n=13}
-features, labels = gb.get_data_ch7()
+features, labels = d2l.get_data_ch7()
 
 def init_momentum_states():
     v_w = nd.zeros((features.shape[1], 1))
@@ -123,22 +123,22 @@ def sgd_momentum(params, states, hyperparams):
 我们先将动量超参数`momentum`设0.5，这时可以看成是特殊的小批量随机梯度下降：其小批量随机梯度为最近2个时间步的2倍小批量梯度的加权平均。
 
 ```{.python .input  n=15}
-gb.train_ch7(sgd_momentum, init_momentum_states(),
-             {'lr': 0.02, 'momentum': 0.5}, features, labels)
+d2l.train_ch7(sgd_momentum, init_momentum_states(),
+              {'lr': 0.02, 'momentum': 0.5}, features, labels)
 ```
 
 将动量超参数`momentum`增大到0.9，这时依然可以看成是特殊的小批量随机梯度下降：其小批量随机梯度为最近10个时间步的10倍小批量梯度的加权平均。我们先保持学习率0.02不变。
 
 ```{.python .input  n=8}
-gb.train_ch7(sgd_momentum, init_momentum_states(),
-             {'lr': 0.02, 'momentum': 0.9}, features, labels)
+d2l.train_ch7(sgd_momentum, init_momentum_states(),
+              {'lr': 0.02, 'momentum': 0.9}, features, labels)
 ```
 
 可见目标函数值在后期迭代过程中的变化不够平滑。直觉上，10倍小批量梯度比2倍小批量梯度大了5倍，我们可以试着将学习率减小到原来的1/5。此时目标函数值在下降了一段时间后变化更加平滑。
 
 ```{.python .input}
-gb.train_ch7(sgd_momentum, init_momentum_states(),
-             {'lr': 0.004, 'momentum': 0.9}, features, labels)
+d2l.train_ch7(sgd_momentum, init_momentum_states(),
+              {'lr': 0.004, 'momentum': 0.9}, features, labels)
 ```
 
 ## 简洁实现
@@ -146,8 +146,8 @@ gb.train_ch7(sgd_momentum, init_momentum_states(),
 在Gluon中，只需要在`Trainer`实例中通过`momentum`来指定动量超参数即可使用动量法。
 
 ```{.python .input  n=9}
-gb.train_gluon_ch7('sgd', {'learning_rate': 0.004, 'momentum': 0.9}, features,
-                   labels)
+d2l.train_gluon_ch7('sgd', {'learning_rate': 0.004, 'momentum': 0.9},
+                    features, labels)
 ```
 
 ## 小结

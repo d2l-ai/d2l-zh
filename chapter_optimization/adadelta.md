@@ -30,10 +30,10 @@ Adadelta需要对每个自变量维护两个状态变量，$\boldsymbol{s}_t$和
 
 ```{.python .input  n=11}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import nd
 
-features, labels = gb.get_data_ch7()
+features, labels = d2l.get_data_ch7()
 
 def init_adadelta_states():
     s_w, s_b = nd.zeros((features.shape[1], 1)), nd.zeros(1)
@@ -52,7 +52,8 @@ def adadelta(params, states, hyperparams):
 使用超参数$\rho=0.9$来训练模型。
 
 ```{.python .input  n=12}
-gb.train_ch7(adadelta, init_adadelta_states(), {'rho': 0.9}, features, labels)
+d2l.train_ch7(adadelta, init_adadelta_states(), {'rho': 0.9}, features,
+              labels)
 ```
 
 ## 简洁实现
@@ -60,7 +61,7 @@ gb.train_ch7(adadelta, init_adadelta_states(), {'rho': 0.9}, features, labels)
 通过算法名称为“adadelta”的`Trainer`实例，我们便可在Gluon中使用Adadelta算法。它的超参数可以通过`rho`来指定。
 
 ```{.python .input  n=9}
-gb.train_gluon_ch7('adadelta', {'rho': 0.9}, features, labels)
+d2l.train_gluon_ch7('adadelta', {'rho': 0.9}, features, labels)
 ```
 
 ## 小结

@@ -16,7 +16,7 @@
 
 ```{.python .input  n=1}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import autograd, gluon, image, init, nd
 from mxnet.gluon import model_zoo, nn
 import time
@@ -27,14 +27,14 @@ import time
 首先，我们分别读取内容图像和样式图像。从打印出的图像坐标轴可以看出，它们的尺寸并不一样。
 
 ```{.python .input  n=2}
-gb.set_figsize()
+d2l.set_figsize()
 content_img = image.imread('../img/rainier.jpg')
-gb.plt.imshow(content_img.asnumpy());
+d2l.plt.imshow(content_img.asnumpy());
 ```
 
 ```{.python .input  n=3}
 style_img = image.imread('../img/autumn_oak.jpg')
-gb.plt.imshow(style_img.asnumpy());
+d2l.plt.imshow(style_img.asnumpy());
 ```
 
 ## 预处理和后处理图像
@@ -229,7 +229,7 @@ def train(X, contents_Y, styles_Y, ctx, lr, max_epochs, lr_decay_epoch):
 下面我们开始训练模型。首先将内容和样式图像的高和宽分别调整为150和225像素。合成图像将由内容图像来初始化。
 
 ```{.python .input  n=18}
-ctx, image_shape = gb.try_gpu(), (225, 150)
+ctx, image_shape = d2l.try_gpu(), (225, 150)
 net.collect_params().reset_ctx(ctx)
 content_X, contents_Y = get_contents(image_shape, ctx)
 style_X, styles_Y = get_styles(image_shape, ctx)
@@ -239,7 +239,7 @@ output = train(content_X, contents_Y, styles_Y, ctx, 0.01, 500, 200)
 下面我们将训练好的合成图像保存起来。可以看到图9.14中的合成图像保留了内容图像的风景和物体，并同时迁移了样式图像的色彩。由于图像尺寸较小，所以细节上依然比较模糊。
 
 ```{.python .input  n=19}
-gb.plt.imsave('../img/neural-style-1.png', postprocess(output).asnumpy())
+d2l.plt.imsave('../img/neural-style-1.png', postprocess(output).asnumpy())
 ```
 
 ![$150 \times 225$尺寸的合成图像。](../img/neural-style-1.png)
@@ -252,7 +252,7 @@ content_X, content_Y = get_contents(image_shape, ctx)
 style_X, style_Y = get_styles(image_shape, ctx)
 X = preprocess(postprocess(output) * 255, image_shape)
 output = train(X, content_Y, style_Y, ctx, 0.01, 300, 100)
-gb.plt.imsave('../img/neural-style-2.png', postprocess(output).asnumpy())
+d2l.plt.imsave('../img/neural-style-2.png', postprocess(output).asnumpy())
 ```
 
 可以看到，由于图像尺寸更大，每一次迭代需要花费更多的时间。从训练得到的图9.15中可以看到，此时的合成图像由于尺寸更大，保留了更多的细节。合成图像里面不仅有大块的类似样式图像的油画色彩块，色彩块中甚至出现了细微的纹理。

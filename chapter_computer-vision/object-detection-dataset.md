@@ -9,7 +9,7 @@ RecordIO格式的皮卡丘数据集可以直接在网上下载。下载数据集
 
 ```{.python .input  n=1}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import gluon, image
 from mxnet.gluon import utils as gutils
 import os
@@ -29,7 +29,7 @@ def _download_pikachu(data_dir):
 我们通过创建`ImageDetIter`实例来读取目标检测数据集。其中名称里的“Det”指的是Detection（检测）。我们将以随机顺序读取训练数据集。由于数据集的格式为RecordIO，我们需要提供图像索引文件`'train.idx'`以随机读取小批量。此外，对于训练集的每张图像，我们将采用随机裁剪，并要求裁剪出的图像至少覆盖每个目标95%的区域。由于裁剪是随机的，这个要求不一定总被满足。我们设定最多尝试200次随机裁剪：如果都不符合要求则不裁剪图像。为保证输出结果的确定性，我们不随机裁剪测试数据集中的图像。我们也无需按随机顺序读取测试数据集。
 
 ```{.python .input  n=2}
-# 本函数已保存在 gluonbook 包中方便以后使用。
+# 本函数已保存在 d2lzh 包中方便以后使用。
 def load_data_pikachu(batch_size, edge_size=256):  # edge_size：输出图像的宽和高。
     data_dir = '../data/pikachu'
     _download_pikachu(data_dir)
@@ -62,9 +62,9 @@ batch.data[0].shape, batch.label[0].shape
 
 ```{.python .input  n=4}
 imgs = (batch.data[0][0:10].transpose((0, 2, 3, 1))) / 255
-axes = gb.show_images(imgs, 2, 5).flatten()
+axes = d2l.show_images(imgs, 2, 5).flatten()
 for ax, label in zip(axes, batch.label[0][0:10]):
-    gb.show_bboxes(ax, [label[0][1:5] * edge_size], colors=['w'])
+    d2l.show_bboxes(ax, [label[0][1:5] * edge_size], colors=['w'])
 ```
 
 ## 小结

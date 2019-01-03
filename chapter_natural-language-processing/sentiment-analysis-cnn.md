@@ -3,7 +3,7 @@
 在“卷积神经网络”一章中我们探究了如何使用二维卷积神经网络来处理二维图像数据。在之前的语言模型和文本分类任务中，我们将文本数据看作是只有一个维度的时间序列，并很自然地使用循环神经网络来处理这样的数据。其实，我们也可以将文本当做是一维图像，从而可以用一维卷积神经网络来捕捉临近词之间的关联。本节将介绍将卷积神经网络应用到文本分析的开创性工作之一：textCNN [1]。首先导入实验所需的包和模块。
 
 ```{.python .input  n=2}
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import gluon, init, nd
 from mxnet.contrib import text
 from mxnet.gluon import data as gdata, loss as gloss, nn
@@ -72,13 +72,13 @@ corr1d_multi_in(X, K)
 
 ```{.python .input  n=2}
 batch_size = 64
-gb.download_imdb()
-train_data, test_data = gb.read_imdb('train'), gb.read_imdb('test')
-vocab = gb.get_vocab_imdb(train_data)
+d2l.download_imdb()
+train_data, test_data = d2l.read_imdb('train'), d2l.read_imdb('test')
+vocab = d2l.get_vocab_imdb(train_data)
 train_iter = gdata.DataLoader(gdata.ArrayDataset(
-    *gb.preprocess_imdb(train_data, vocab)), batch_size, shuffle=True)
+    *d2l.preprocess_imdb(train_data, vocab)), batch_size, shuffle=True)
 test_iter = gdata.DataLoader(gdata.ArrayDataset(
-    *gb.preprocess_imdb(test_data, vocab)), batch_size)
+    *d2l.preprocess_imdb(test_data, vocab)), batch_size)
 ```
 
 ## TextCNN模型
@@ -130,7 +130,7 @@ class TextCNN(nn.Block):
 
 ```{.python .input}
 embed_size, kernel_sizes, nums_channels = 100, [3, 4, 5], [100, 100, 100]
-ctx = gb.try_all_gpus()
+ctx = d2l.try_all_gpus()
 net = TextCNN(vocab, embed_size, kernel_sizes, nums_channels)
 net.initialize(init.Xavier(), ctx=ctx)
 ```
@@ -155,17 +155,17 @@ net.constant_embedding.collect_params().setattr('grad_req', 'null')
 lr, num_epochs = 0.001, 5
 trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': lr})
 loss = gloss.SoftmaxCrossEntropyLoss()
-gb.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs)
+d2l.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs)
 ```
 
 下面我们使用训练好的模型对两个简单句子的情感进行分类。
 
 ```{.python .input}
-gb.predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'great'])
+d2l.predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'great'])
 ```
 
 ```{.python .input}
-gb.predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'bad'])
+d2l.predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'bad'])
 ```
 
 ## 小结

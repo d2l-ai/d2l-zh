@@ -28,7 +28,7 @@ c
 为了演示异步计算的性能，我们先实现一个简单的计时类。
 
 ```{.python .input}
-class Benchmark():  # 本类已保存在 gluonbook 包中方便以后使用。
+class Benchmark():  # 本类已保存在 d2lzh 包中方便以后使用。
     def __init__(self, prefix=None):
         self.prefix = prefix + ' ' if prefix else ''
 

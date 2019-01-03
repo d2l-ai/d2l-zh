@@ -53,7 +53,7 @@ AlexNet第一层中的卷积窗口形状是$11\times11$。因为ImageNet中绝�
 下面我们实现稍微简化过的AlexNet。
 
 ```{.python .input  n=1}
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import gluon, init, nd
 from mxnet.gluon import data as gdata, nn
 import os
@@ -95,7 +95,7 @@ for layer in net:
 虽然论文中AlexNet使用ImageNet数据，但因为ImageNet数据训练时间较长，我们仍用前面的Fashion-MNIST数据集来演示AlexNet。读取数据的时候我们额外做了一步将图像高和宽扩大到AlexNet使用的图像高和宽224。这个可以通过`Resize`类来实现。也就是说，我们在`ToTensor`类前使用`Resize`类，然后使用`Compose`类来将这两个变化串联以方便调用。
 
 ```{.python .input  n=3}
-# 本函数已保存在 gluonbook 包中方便以后使用。
+# 本函数已保存在 d2lzh 包中方便以后使用。
 def load_data_fashion_mnist(batch_size, resize=None, root=os.path.join(
         '~', '.mxnet', 'datasets', 'fashion-mnist')):
     root = os.path.expanduser(root)  # 展开用户路径 '~'。
@@ -125,10 +125,10 @@ train_iter, test_iter = load_data_fashion_mnist(batch_size, resize=224)
 这时候我们可以开始训练AlexNet了。相对于上节的LeNet，这里的主要改动是使用了更小的学习率。
 
 ```{.python .input  n=5}
-lr, num_epochs, ctx = 0.01, 5, gb.try_gpu()
+lr, num_epochs, ctx = 0.01, 5, d2l.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
+d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
 ```
 
 ## 小结

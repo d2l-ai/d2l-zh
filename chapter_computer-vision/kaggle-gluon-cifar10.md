@@ -13,7 +13,7 @@
 首先，导入比赛所需的包或模块。
 
 ```{.python .input  n=1}
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import autograd, gluon, init
 from mxnet.gluon import data as gdata, loss as gloss, nn
 import os
@@ -72,7 +72,7 @@ def read_label_file(data_dir, label_file, train_dir, valid_ratio):
 下面定义一个辅助函数，从而仅在路径不存在的情况下创建路径。
 
 ```{.python .input  n=4}
-def mkdir_if_not_exist(path):  # 本函数已保存在 gluonbook 包中方便以后使用。
+def mkdir_if_not_exist(path):  # 本函数已保存在 d2lzh 包中方便以后使用。
     if not os.path.exists(os.path.join(*path)):
         os.makedirs(os.path.join(*path))
 ```
@@ -283,7 +283,7 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, ctx, lr_period,
             n += y.size
         time_s = "time %.2f sec" % (time.time() - start)
         if valid_iter is not None:
-            valid_acc = gb.evaluate_accuracy(valid_iter, net, ctx)
+            valid_acc = d2l.evaluate_accuracy(valid_iter, net, ctx)
             epoch_s = ("epoch %d, loss %f, train acc %f, valid acc %f, "
                        % (epoch + 1, train_l_sum / n, train_acc_sum / n,
                        valid_acc))
@@ -298,7 +298,7 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, ctx, lr_period,
 现在，我们可以训练并验证模型了。以下的超参数都是可以调节的，例如增加迭代周期等。由于`lr_period`和`lr_decay`分别设为80和0.1，优化算法的学习率将在每80个迭代周期后自乘0.1。为简单起见，这里仅训练1个迭代周期。
 
 ```{.python .input  n=13}
-ctx, num_epochs, lr, wd = gb.try_gpu(), 1, 0.1, 5e-4
+ctx, num_epochs, lr, wd = d2l.try_gpu(), 1, 0.1, 5e-4
 lr_period, lr_decay, net = 80, 0.1, get_net(ctx)
 net.hybridize()
 train(net, train_iter, valid_iter, num_epochs, lr, wd, ctx, lr_period,

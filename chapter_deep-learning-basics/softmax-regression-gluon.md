@@ -4,7 +4,7 @@
 
 ```{.python .input  n=1}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import gluon, init
 from mxnet.gluon import loss as gloss, nn
 ```
@@ -15,7 +15,7 @@ from mxnet.gluon import loss as gloss, nn
 
 ```{.python .input  n=2}
 batch_size = 256
-train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
 ```
 
 ## 定义和初始化模型
@@ -50,8 +50,8 @@ trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.1})
 
 ```{.python .input  n=6}
 num_epochs = 5
-gb.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size, None,
-             None, trainer)
+d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size, None,
+              None, trainer)
 ```
 
 ## 小结

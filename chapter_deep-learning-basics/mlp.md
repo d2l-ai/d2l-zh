@@ -45,14 +45,14 @@ $$\text{ReLU}(x) = \max(x, 0).$$
 
 ```{.python .input  n=6}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import autograd, nd
 
 def xyplot(x_vals, y_vals, name):
-    gb.set_figsize(figsize=(5, 2.5))
-    gb.plt.plot(x_vals.asnumpy(), y_vals.asnumpy())
-    gb.plt.xlabel('x')
-    gb.plt.ylabel(name + '(x)')
+    d2l.set_figsize(figsize=(5, 2.5))
+    d2l.plt.plot(x_vals.asnumpy(), y_vals.asnumpy())
+    d2l.plt.xlabel('x')
+    d2l.plt.ylabel(name + '(x)')
 ```
 
 我们接下来通过NDArray提供的`relu`函数来绘制ReLU函数。可以看到，该激活函数是一个两段线性函数。

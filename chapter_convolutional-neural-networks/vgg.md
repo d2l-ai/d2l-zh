@@ -9,7 +9,7 @@ AlexNet在LeNet的基础上增加了三个卷积层。但AlexNet作者对它们�
 VGG块的组成规律是：连续使用数个相同的填充为1、窗口形状为$3\times 3$的卷积层后接上一个步幅为2、窗口形状为$2\times 2$的最大池化层。卷积层保持输入的高和宽不变，而池化层则对其减半。我们使用`vgg_block`函数来实现这个基础的VGG块，它可以指定卷积层的数量`num_convs`和输出通道数`num_channels`。
 
 ```{.python .input  n=1}
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import gluon, init, nd
 from mxnet.gluon import nn
 
@@ -74,11 +74,12 @@ net = vgg(small_conv_arch)
 除了使用了稍大些的学习率，模型训练过程跟上一节AlexNet中的类似。
 
 ```{.python .input}
-lr, num_epochs, batch_size, ctx = 0.05, 5, 128, gb.try_gpu()
+lr, num_epochs, batch_size, ctx = 0.05, 5, 128, d2l.try_gpu()
 net.initialize(ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-train_iter, test_iter = gb.load_data_fashion_mnist(batch_size, resize=224)
-gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=224)
+d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
+              num_epochs)
 ```
 
 ## 小结

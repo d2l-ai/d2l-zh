@@ -6,7 +6,7 @@
 
 ```{.python .input  n=1}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import contrib, gluon, image, nd
 import numpy as np
 np.set_printoptions(2)
@@ -44,7 +44,7 @@ boxes[250, 250, 0, :]
 为了描绘图像中以某个像素为中心的所有锚框，我们先定义`show_bboxes`函数以便在图像上画出多个边界框。
 
 ```{.python .input  n=4}
-# 本函数已保存在 gluonbook 包中方便以后使用。
+# 本函数已保存在 d2lzh 包中方便以后使用。
 def show_bboxes(axes, bboxes, labels=None, colors=None):
     def _make_list(obj, default_values=None):
         if obj is None:
@@ -57,7 +57,7 @@ def show_bboxes(axes, bboxes, labels=None, colors=None):
     colors = _make_list(colors, ['b', 'g', 'r', 'm', 'c'])
     for i, bbox in enumerate(bboxes):
         color = colors[i % len(colors)]
-        rect = gb.bbox_to_rect(bbox.asnumpy(), color)
+        rect = d2l.bbox_to_rect(bbox.asnumpy(), color)
         axes.add_patch(rect)
         if labels and len(labels) > i:
             text_color = 'k' if color == 'w' else 'w'
@@ -69,9 +69,9 @@ def show_bboxes(axes, bboxes, labels=None, colors=None):
 刚刚我们看到，变量`boxes`中$x$和$y$轴的坐标值分别已除以图像的宽和高。在绘图时，我们需要恢复锚框的原始坐标值，并因此定义了变量`bbox_scale`。现在，我们可以画出图像中以（250，250）为中心的所有锚框了。可以看到，大小为0.75且宽高比为1的蓝色锚框较好地覆盖了图像中的狗。
 
 ```{.python .input  n=5}
-gb.set_figsize()
+d2l.set_figsize()
 bbox_scale = nd.array((w, h, w, h))
-fig = gb.plt.imshow(img)
+fig = d2l.plt.imshow(img)
 show_bboxes(fig.axes, boxes[250, 250, :, :] * bbox_scale,
             ['s=0.75, r=1', 's=0.5, r=1', 's=0.25, r=1', 's=0.75, r=2',
              's=0.75, r=0.5'])
@@ -131,7 +131,7 @@ anchors = nd.array([[0, 0.1, 0.2, 0.3], [0.15, 0.2, 0.4, 0.4],
                     [0.63, 0.05, 0.88, 0.98], [0.66, 0.45, 0.8, 0.8],
                     [0.57, 0.3, 0.92, 0.9]])
 
-fig = gb.plt.imshow(img)
+fig = d2l.plt.imshow(img)
 show_bboxes(fig.axes, ground_truth[:, 1:] * bbox_scale, ['dog', 'cat'], 'k')
 show_bboxes(fig.axes, anchors * bbox_scale, ['0', '1', '2', '3', '4']);
 ```
@@ -187,7 +187,7 @@ cls_probs = nd.array([[0] * 4,  # 背景的预测概率。
 在图像上打印预测边界框和它们的置信度。
 
 ```{.python .input  n=12}
-fig = gb.plt.imshow(img)
+fig = d2l.plt.imshow(img)
 show_bboxes(fig.axes, anchors * bbox_scale,
             ['dog=0.9', 'dog=0.8', 'dog=0.7', 'cat=0.9'])
 ```
@@ -204,7 +204,7 @@ output
 我们移除掉类别为-1的预测边界框，并可视化非极大值抑制保留的结果。
 
 ```{.python .input  n=14}
-fig = gb.plt.imshow(img)
+fig = d2l.plt.imshow(img)
 for i in output[0].asnumpy():
     if i[0] == -1:
         continue

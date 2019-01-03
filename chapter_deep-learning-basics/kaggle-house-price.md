@@ -28,7 +28,7 @@ Kaggle（网站地址：https://www.kaggle.com ）是一个著名的供机器学
 # !pip install pandas
 
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
 import numpy as np
@@ -181,9 +181,9 @@ def k_fold(k, X_train, y_train, num_epochs,
         train_l_sum += train_ls[-1]
         valid_l_sum += valid_ls[-1]
         if i == 0:
-            gb.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'rmse',
-                        range(1, num_epochs + 1), valid_ls,
-                        ['train', 'valid'])
+            d2l.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'rmse',
+                         range(1, num_epochs + 1), valid_ls,
+                         ['train', 'valid'])
         print('fold %d, train rmse: %f, valid rmse: %f' % (
             i, train_ls[-1], valid_ls[-1]))
     return train_l_sum / k, valid_l_sum / k
@@ -213,7 +213,7 @@ def train_and_pred(train_features, test_feature, train_labels, test_data,
     net = get_net()
     train_ls, _ = train(net, train_features, train_labels, None, None,
                         num_epochs, lr, weight_decay, batch_size)
-    gb.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'rmse')
+    d2l.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'rmse')
     print('train rmse %f' % train_ls[-1])
     preds = net(test_features).asnumpy()
     test_data['SalePrice'] = pd.Series(preds.reshape(1, -1)[0])
