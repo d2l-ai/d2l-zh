@@ -286,7 +286,7 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, ctx, lr_period,
             valid_acc = d2l.evaluate_accuracy(valid_iter, net, ctx)
             epoch_s = ("epoch %d, loss %f, train acc %f, valid acc %f, "
                        % (epoch + 1, train_l_sum / n, train_acc_sum / n,
-                       valid_acc))
+                          valid_acc))
         else:
             epoch_s = ("epoch %d, loss %f, train acc %f, " %
                        (epoch + 1, train_l_sum / n, train_acc_sum / n))
