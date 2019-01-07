@@ -53,7 +53,7 @@
 如果你希望为本书内容做贡献，需要修改在GitHub上markdown格式的源文件（.md文件非.ipynb文件）。通过notedown插件，我们就可以使用Jupyter记事本修改并运行markdown格式的源代码。Linux/macOS用户可以执行以下命令获得GitHub源文件并激活运行环境。
 
 ```
-git clone https://github.com/diveintodeeplearning/d2l-zh.git
+git clone https://github.com/d2l-ai/d2l-zh.git
 cd d2l-zh
 conda env create -f environment.yml
 source activate gluon  # Windows 用户运行 activate gluon。
