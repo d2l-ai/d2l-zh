@@ -32,7 +32,7 @@ import time
 我们使用[“卷积神经网络（LeNet）”](../chapter_convolutional-neural-networks/lenet.md)一节里介绍的LeNet来作为本节的样例模型。这里的模型实现部分只用到了NDArray。
 
 ```{.python .input  n=3}
-# 初始化模型参数。
+# 初始化模型参数
 scale = 0.01
 W1 = nd.random.normal(scale=scale, shape=(20, 1, 3, 3))
 b1 = nd.zeros(shape=20)
@@ -44,7 +44,7 @@ W4 = nd.random.normal(scale=scale, shape=(128, 10))
 b4 = nd.zeros(shape=10)
 params = [W1, b1, W2, b2, W3, b3, W4, b4]
 
-# 定义模型。
+# 定义模型
 def lenet(X, params):
     h1_conv = nd.Convolution(data=X, weight=params[0], bias=params[1],
                              kernel=(3, 3), num_filter=20)
@@ -62,7 +62,7 @@ def lenet(X, params):
     y_hat = nd.dot(h3, params[6]) + params[7]
     return y_hat
 
-# 交叉熵损失函数。
+# 交叉熵损失函数
 loss = gloss.SoftmaxCrossEntropyLoss()
 ```
 
@@ -110,7 +110,7 @@ print('after allreduce:', data)
 ```{.python .input  n=8}
 def split_and_load(data, ctx):
     n, k = data.shape[0], len(ctx)
-    m = n // k  # 为了简单起见假设整除。
+    m = n // k  # 为了简单起见假设整除
     assert m * k == n, '# examples is not divided by # devices.'
     return [data[i * m: (i + 1) * m].as_in_context(ctx[i]) for i in range(k)]
 ```
@@ -132,18 +132,18 @@ print('output:', splitted)
 
 ```{.python .input  n=10}
 def train_batch(X, y, gpu_params, ctx, lr):
-    # 当 ctx 包含多个 GPU 时，划分小批量数据样本并复制到各个 GPU 上。
+    # 当ctx包含多块GPU及相应的显存时，将小批量数据样本划分并复制到各个显存上
     gpu_Xs, gpu_ys = split_and_load(X, ctx), split_and_load(y, ctx) 
-    with autograd.record():  # 在各个 GPU 上分别计算损失。
+    with autograd.record():  # 在各块GPU上分别计算损失
         ls = [loss(lenet(gpu_X, gpu_W), gpu_y)
               for gpu_X, gpu_y, gpu_W in zip(gpu_Xs, gpu_ys, gpu_params)]
-    for l in ls:  # 在各个 GPU 上分别反向传播。
+    for l in ls:  # 在各块GPU上分别反向传播
         l.backward()
-    # 把各个 GPU 上的梯度加起来，然后再广播到所有 GPU 上。
+    # 把各块显卡的显存上的梯度加起来，然后广播到所有显存上
     for i in range(len(gpu_params[0])):
         allreduce([gpu_params[c][i].grad for c in range(len(ctx))])
-    for param in gpu_params:  # 在各个 GPU 上分别更新模型参数。
-        d2l.sgd(param, lr, X.shape[0])  # 这里使用了完整批量大小。
+    for param in gpu_params:  # 在各块显卡的显存上分别更新模型参数
+        d2l.sgd(param, lr, X.shape[0])  # 这里使用了完整批量大小
 ```
 
 ## 训练函数
@@ -155,21 +155,21 @@ def train(num_gpus, batch_size, lr):
     train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
     ctx = [mx.gpu(i) for i in range(num_gpus)]
     print('running on:', ctx)
-    # 将模型参数复制到 num_gpus 个 GPU 上。
+    # 将模型参数复制到num_gpus块显卡的显存上
     gpu_params = [get_params(params, c) for c in ctx]
     for epoch in range(4):
         start = time.time()
         for X, y in train_iter:
-            # 对单个小批量进行多 GPU 训练。
+            # 对单个小批量进行多GPU训练
             train_batch(X, y, gpu_params, ctx, lr)
             nd.waitall()
         train_time = time.time() - start
 
-        def net(x):  # 在 GPU 0 上验证模型。
+        def net(x):  # 在gpu(0)上验证模型
             return lenet(x, gpu_params[0])
 
         test_acc = d2l.evaluate_accuracy(test_iter, net, ctx[0])
-        print('epoch %d, time: %.1f sec, test acc: %.2f'
+        print('epoch %d, time %.1f sec, test acc %.2f'
               % (epoch + 1, train_time, test_acc))
 ```
 

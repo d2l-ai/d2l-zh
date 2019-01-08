@@ -41,7 +41,7 @@ def gd(eta):
     x = 10
     results = [x]
     for i in range(10):
-        x -= eta * 2 * x  # f(x) = x * x 的导数为 f'(x) = 2 * x。
+        x -= eta * 2 * x  # f(x) = x * x的导数为f'(x) = 2 * x
         results.append(x)
     print('epoch 10, x:', x)
     return results
@@ -105,8 +105,8 @@ $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f(\boldsymbol{x}).$$
 下面我们构造一个输入为二维向量$\boldsymbol{x} = [x_1, x_2]^\top$和输出为标量的目标函数$f(\boldsymbol{x})=x_1^2+2x_2^2$。那么，梯度$\nabla f(\boldsymbol{x}) = [2x_1, 4x_2]^\top$。我们将观察梯度下降从初始位置$[-5,-2]$开始对自变量$\boldsymbol{x}$的迭代轨迹。我们先定义两个辅助函数。第一个函数使用给定的自变量更新函数，从初始位置$[-5,-2]$开始迭代自变量$\boldsymbol{x}$共20次。第二个函数将可视化自变量$\boldsymbol{x}$的迭代轨迹。
 
 ```{.python .input  n=10}
-def train_2d(trainer):  # 本函数将保存在 d2lzh 包中方便以后使用。
-    x1, x2, s1, s2 = -5, -2, 0, 0  # s1 和 s2 是自变量状态，之后章节会使用。
+def train_2d(trainer):  # 本函数将保存在d2lzh包中方便以后使用
+    x1, x2, s1, s2 = -5, -2, 0, 0  # s1和s2是自变量状态，之后章节会使用
     results = [(x1, x2)]
     for i in range(20):
         x1, x2, s1, s2 = trainer(x1, x2, s1, s2)
@@ -114,7 +114,7 @@ def train_2d(trainer):  # 本函数将保存在 d2lzh 包中方便以后使用�
     print('epoch %d, x1 %f, x2 %f' % (i + 1, x1, x2))
     return results
 
-def show_trace_2d(f, results):  # 本函数将保存在 d2lzh 包中方便以后使用。
+def show_trace_2d(f, results):  # 本函数将保存在d2lzh包中方便以后使用
     d2l.plt.plot(*zip(*results), '-o', color='#ff7f0e')
     x1, x2 = np.meshgrid(np.arange(-5.5, 1.0, 0.1), np.arange(-3.0, 1.0, 0.1))
     d2l.plt.contour(x1, x2, f(x1, x2), colors='#1f77b4')
@@ -127,7 +127,7 @@ def show_trace_2d(f, results):  # 本函数将保存在 d2lzh 包中方便以后
 ```{.python .input  n=15}
 eta = 0.1
 
-def f_2d(x1, x2):  # 目标函数。
+def f_2d(x1, x2):  # 目标函数
     return x1 ** 2 + 2 * x2 ** 2
 
 def gd_2d(x1, x2, s1, s2):

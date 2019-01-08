@@ -17,7 +17,7 @@ import time
 我们使用ResNet-18来作为本节的样例模型。由于本节的输入图像使用原尺寸（未放大），这里的模型构造与[“残差网络（ResNet）”](../chapter_convolutional-neural-networks/resnet.md)一节中的ResNet-18构造稍有不同。这里的模型在一开始使用了较小的卷积核、步幅和填充，并去掉了最大池化层。
 
 ```{.python .input  n=2}
-def resnet18(num_classes):  # 本函数已保存在 d2lzh 包中方便以后使用。
+def resnet18(num_classes):  # 本函数已保存在d2lzh包中方便以后使用
     def resnet_block(num_channels, num_residuals, first_block=False):
         blk = nn.Sequential()
         for i in range(num_residuals):
@@ -29,7 +29,7 @@ def resnet18(num_classes):  # 本函数已保存在 d2lzh 包中方便以后使�
         return blk
 
     net = nn.Sequential()
-    # 这里使用了较小的卷积核、步幅和填充，并去掉了最大池化层。
+    # 这里使用了较小的卷积核、步幅和填充，并去掉了最大池化层
     net.add(nn.Conv2D(64, kernel_size=3, strides=1, padding=1),
             nn.BatchNorm(), nn.Activation('relu'))
     net.add(resnet_block(64, 2, first_block=True),
@@ -96,7 +96,7 @@ def train(num_gpus, batch_size, lr):
         nd.waitall()
         train_time = time.time() - start
         test_acc = d2l.evaluate_accuracy(test_iter, net, ctx[0])
-        print('epoch %d, time: %.1f sec, test acc %.2f' % (
+        print('epoch %d, time %.1f sec, test acc %.2f' % (
             epoch + 1, train_time, test_acc))
 ```
 
