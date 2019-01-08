@@ -24,7 +24,7 @@ import tarfile
 我们首先下载这个数据集到“../data”路径下，然后解压至“../data/aclImdb”下。
 
 ```{.python .input  n=3}
-# 本函数已保存在 d2lzh 包中方便以后使用。
+# 本函数已保存在d2lzh包中方便以后使用
 def download_imdb(data_dir='../data'):
     url = ('http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz')
     sha1 = '01ada507287d82875905620988597833ad4e0903'
@@ -38,7 +38,7 @@ download_imdb()
 下面，读取训练和测试数据集。每个样本是一条评论和其对应的标签：1表示“正面”，0表示“负面”。
 
 ```{.python .input  n=13}
-def read_imdb(folder='train'):  # 本函数已保存在 d2lzh 包中方便以后使用。
+def read_imdb(folder='train'):  # 本函数已保存在d2lzh包中方便以后使用
     data = []
     for label in ['pos', 'neg']:
         folder_name = os.path.join('../data/aclImdb/', folder, label)
@@ -57,7 +57,7 @@ train_data, test_data = read_imdb('train'), read_imdb('test')
 我们需要对每条评论做分词，从而得到分好词的评论。这里定义的`get_tokenized_imdb`函数使用最简单的方法：基于空格进行分词。
 
 ```{.python .input  n=14}
-def get_tokenized_imdb(data):  # 本函数已保存在 d2lzh 包中方便以后使用。
+def get_tokenized_imdb(data):  # 本函数已保存在d2lzh包中方便以后使用
     def tokenizer(text):
         return [tok.lower() for tok in text.split(' ')]
     return [tokenizer(review) for review, _ in data]
@@ -66,7 +66,7 @@ def get_tokenized_imdb(data):  # 本函数已保存在 d2lzh 包中方便以后�
 现在，我们可以根据分好词的训练数据集来创建词典了。我们在这里过滤掉了出现次数少于5的词。
 
 ```{.python .input  n=28}
-def get_vocab_imdb(data):  # 本函数已保存在 d2lzh 包中方便以后使用。
+def get_vocab_imdb(data):  # 本函数已保存在d2lzh包中方便以后使用
     tokenized_data = get_tokenized_imdb(data)
     counter = collections.Counter([tk for st in tokenized_data for tk in st])
     return text.vocab.Vocabulary(counter, min_freq=5)
@@ -78,8 +78,8 @@ vocab = get_vocab_imdb(train_data)
 因为每条评论长度不一致使得不能直接组合成小批量，我们定义`preprocess_imdb`函数对每条评论进行分词，并通过词典转换成词索引，然后通过截断或者补0来将每条评论长度固定成500。
 
 ```{.python .input  n=44}
-def preprocess_imdb(data, vocab):  # 本函数已保存在 d2lzh 包中方便以后使用。
-    max_l = 500  # 将每条评论通过截断或者补 0，使得长度变成500。
+def preprocess_imdb(data, vocab):  # 本函数已保存在d2lzh包中方便以后使用
+    max_l = 500  # 将每条评论通过截断或者补0，使得长度变成500
 
     def pad(x):
         return x[:max_l] if len(x) > max_l else x + [0] * (max_l - len(x))
@@ -120,19 +120,19 @@ class BiRNN(nn.Block):
     def __init__(self, vocab, embed_size, num_hiddens, num_layers, **kwargs):
         super(BiRNN, self).__init__(**kwargs)
         self.embedding = nn.Embedding(len(vocab), embed_size)
-        # bidirectional 设 True 即得到双向循环神经网络。
+        # bidirectional设为True即得到双向循环神经网络
         self.encoder = rnn.LSTM(num_hiddens, num_layers=num_layers,
                                 bidirectional=True, input_size=embed_size)
         self.decoder = nn.Dense(2)
 
     def forward(self, inputs):
-        # inputs 的形状是（批量大小，词数），因为 LSTM 需要将序列作为第一维，所以将输入转
-        # 置后再提取词特征，输出形状为（词数，批量大小，词向量维度）。
+        # inputs的形状是(批量大小,词数)，因为LSTM需要将序列作为第一维，所以将输入转置后再
+        # 提取词特征，输出形状为(词数,批量大小,词向量维度)
         embeddings = self.embedding(inputs.T)
-        # states 形状是（词数，批量大小，2 * 隐藏单元个数）。
+        # states形状是(词数,批量大小,2 * 隐藏单元个数)
         states = self.encoder(embeddings)
-        # 连结初始时间步和最终时间步的隐藏状态作为全连接层输入。它的形状为（批量大小，
-        # 4 * 隐藏单元个数）。
+        # 连结初始时间步和最终时间步的隐藏状态作为全连接层输入。它的形状为(批量大小,
+        # 4 * 隐藏单元个数)。
         encoding = nd.concat(states[0], states[-1])
         outputs = self.decoder(encoding)
         return outputs
@@ -176,7 +176,7 @@ d2l.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs)
 最后，定义预测函数。
 
 ```{.python .input  n=49}
-# 本函数已保存在 d2lzh 包中方便以后使用。
+# 本函数已保存在d2lzh包中方便以后使用
 def predict_sentiment(net, vocab, sentence):
     sentence = nd.array(vocab.to_indices(sentence), ctx=d2l.try_gpu())
     label = nd.argmax(net(sentence.reshape((1, -1))), axis=1)

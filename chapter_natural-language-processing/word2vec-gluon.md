@@ -26,7 +26,7 @@ with zipfile.ZipFile('../data/ptb.zip', 'r') as zin:
 
 with open('../data/ptb/ptb.train.txt', 'r') as f:
     lines = f.readlines()
-    # st 是 sentence 在循环中的缩写。
+    # st是sentence在循环中的缩写
     raw_dataset = [st.split() for st in lines]
 
 '# sentences: %d' % len(raw_dataset)
@@ -44,7 +44,7 @@ for st in raw_dataset[:3]:
 为了计算简单，我们只保留在数据集中至少出现5次的词。
 
 ```{.python .input  n=4}
-# tk 是 token 的在循环中的缩写。
+# tk是token的在循环中的缩写
 counter = collections.Counter([tk for st in raw_dataset for tk in st])
 counter = dict(filter(lambda x: x[1] >= 5, counter.items()))
 ```
@@ -102,14 +102,14 @@ compare_counts('join')
 def get_centers_and_contexts(dataset, max_window_size):
     centers, contexts = [], []
     for st in dataset:
-        if len(st) < 2:  # 每个句子至少要有 2 个词才可能组成一对“中心词-背景词”。
+        if len(st) < 2:  # 每个句子至少要有2个词才可能组成一对“中心词-背景词”
             continue
         centers += st
         for center_i in range(len(st)):
             window_size = random.randint(1, max_window_size)
             indices = list(range(max(0, center_i - window_size),
                                  min(len(st), center_i + 1 + window_size)))
-            indices.remove(center_i)  # 将中心词排除在背景词之外。
+            indices.remove(center_i)  # 将中心词排除在背景词之外
             contexts.append([st[idx] for idx in indices])
     return centers, contexts
 ```
@@ -141,12 +141,12 @@ def get_negatives(all_contexts, sampling_weights, K):
         negatives = []
         while len(negatives) < len(contexts) * K:
             if i == len(neg_candidates):
-                # 根据每个词的权重（sampling_weights）随机生成 k 个词的索引作为噪音
-                # 词。为了高效计算，可以将 k 设的稍大一点。
+                # 根据每个词的权重（sampling_weights）随机生成k个词的索引作为噪声词。
+                # 为了高效计算，可以将k设的稍大一点
                 i, neg_candidates = 0, random.choices(
                     population, sampling_weights, k=int(1e5))
             neg, i = neg_candidates[i], i + 1
-            # 噪音词不能是背景词。
+            # 噪声词不能是背景词
             if neg not in set(contexts):
                 negatives.append(neg)
         all_negatives.append(negatives)
@@ -253,9 +253,9 @@ loss = gloss.SigmoidBinaryCrossEntropyLoss()
 
 ```{.python .input  n=20}
 pred = nd.array([[1.5, 0.3, -1, 2], [1.1, -0.6, 2.2, 0.4]])
-# 标签变量 label 中的 1 和 0 分别代表背景词和噪音词。
+# 标签变量label中的1和0分别代表背景词和噪声词
 label = nd.array([[1, 0, 0, 0], [1, 1, 0, 0]])
-mask = nd.array([[1, 1, 1, 1], [1, 1, 1, 0]])  # 掩码变量。
+mask = nd.array([[1, 1, 1, 1], [1, 1, 1, 0]])  # 掩码变量
 loss(pred, label, mask) * mask.shape[1] / mask.sum(axis=1)
 ```
 
@@ -297,7 +297,7 @@ def train(net, lr, num_epochs):
                 data.as_in_context(ctx) for data in batch]
             with autograd.record():
                 pred = skip_gram(center, context_negative, net[0], net[1])
-                # 使用掩码变量 mask 来避免填充项对损失函数计算的影响。
+                # 使用掩码变量mask来避免填充项对损失函数计算的影响
                 l = (loss(pred.reshape(label.shape), label, mask) *
                      mask.shape[1] / mask.sum(axis=1))
             l.backward()
@@ -322,10 +322,10 @@ train(net, 0.005, 5)
 def get_similar_tokens(query_token, k, embed):
     W = embed.weight.data()
     x = W[token_to_idx[query_token]]
-    # 添加的 1e-9 是为了数值稳定性。
+    # 添加的1e-9是为了数值稳定性
     cos = nd.dot(W, x) / (nd.sum(W * W, axis=1) * nd.sum(x * x) + 1e-9).sqrt()
     topk = nd.topk(cos, k=k+1, ret_typ='indices').asnumpy().astype('int32')
-    for i in topk[1:]:  # 除去输入词。
+    for i in topk[1:]:  # 除去输入词
         print('cosine sim=%.3f: %s' % (cos[i].asscalar(), (idx_to_token[i])))
 
 get_similar_tokens('chip', 3, net[0])

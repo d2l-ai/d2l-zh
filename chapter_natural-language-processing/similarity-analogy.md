@@ -48,7 +48,7 @@ glove_6b50d.token_to_idx['beautiful'], glove_6b50d.idx_to_token[3367]
 
 ```{.python .input}
 def knn(W, x, k):
-    # 添加的 1e-9 是为了数值稳定性。
+    # 添加的1e-9是为了数值稳定性
     cos = nd.dot(W, x.reshape((-1,))) / (
         (nd.sum(W * W, axis=1) + 1e-9).sqrt() * nd.sum(x * x).sqrt())
     topk = nd.topk(cos, k=k, ret_typ='indices').asnumpy().astype('int32')
@@ -61,7 +61,7 @@ def knn(W, x, k):
 def get_similar_tokens(query_token, k, embed):
     topk, cos = knn(embed.idx_to_vec,
                     embed.get_vecs_by_tokens([query_token]), k+1)
-    for i, c in zip(topk[1:], cos[1:]):  # 除去输入词。
+    for i, c in zip(topk[1:], cos[1:]):  # 除去输入词
         print('cosine sim=%.3f: %s' % (c, (embed.idx_to_token[i])))
 ```
 

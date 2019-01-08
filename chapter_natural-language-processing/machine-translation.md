@@ -20,14 +20,14 @@ PAD, BOS, EOS = '<pad>', '<bos>', '<eos>'
 接着定义两个辅助函数对后面读取的数据进行预处理。
 
 ```{.python .input}
-# 对于一个序列，记录其所有的词在 all_tokens 中以便之后构造词典，然后将在该序列后面添加 PAD
-# 直到长度变为 max_seq_len，并记录在 all_seqs 中。
+# 将一个序列中所有的词记录在all_tokens中以便之后构造词典，然后在该序列后面添加PAD直到序列
+# 长度变为max_seq_len，然后将序列保存在all_seqs中
 def process_one_seq(seq_tokens, all_tokens, all_seqs, max_seq_len):
     all_tokens.extend(seq_tokens)
     seq_tokens += [EOS] + [PAD] * (max_seq_len - len(seq_tokens) - 1)
     all_seqs.append(seq_tokens)
 
-# 使用所有的词来构造词典。并将所有序列中的词变换为词索引后构造 NDArray 实例。
+# 使用所有的词来构造词典。并将所有序列中的词变换为词索引后构造NDArray实例
 def build_data(all_tokens, all_seqs):
     vocab = text.vocab.Vocabulary(collections.Counter(all_tokens),
                                   reserved_tokens=[PAD, BOS, EOS])
@@ -39,7 +39,7 @@ def build_data(all_tokens, all_seqs):
 
 ```{.python .input  n=31}
 def read_data(max_seq_len):
-    # in 和 out 分别是 input 和 output 的缩写。
+    # in和out分别是input和output的缩写
     in_tokens, out_tokens, in_seqs, out_seqs = [], [], [], []
     with io.open('../data/fr-en-small.txt') as f:
         lines = f.readlines()
@@ -47,7 +47,7 @@ def read_data(max_seq_len):
         in_seq, out_seq = line.rstrip().split('\t')
         in_seq_tokens, out_seq_tokens = in_seq.split(' '), out_seq.split(' ')
         if max(len(in_seq_tokens), len(out_seq_tokens)) > max_seq_len - 1:
-            continue  # 如果加上 EOS 后长于 max_seq_len，则忽略掉此样本。
+            continue  # 如果加上EOS后长于max_seq_len，则忽略掉此样本
         process_one_seq(in_seq_tokens, in_tokens, in_seqs, max_seq_len)
         process_one_seq(out_seq_tokens, out_tokens, out_seqs, max_seq_len)
     in_vocab, in_data = build_data(in_tokens, in_seqs)
@@ -80,7 +80,7 @@ class Encoder(nn.Block):
         self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob)
 
     def forward(self, inputs, state):
-        # 输入形状是（批量大小，时间步数）。将输出互换样本维和时间步维。
+        # 输入形状是（批量大小，时间步数）。将输出互换样本维和时间步维
         embedding = self.embedding(inputs).swapaxes(0, 1)
         return self.rnn(embedding, state)
 
@@ -122,13 +122,13 @@ def attention_model(attention_size):
 
 ```{.python .input  n=168}
 def attention_forward(model, enc_states, dec_state):
-    # 将解码器隐藏状态广播到跟编码器隐藏状态形状相同后进行连结。
+    # 将解码器隐藏状态广播到和编码器隐藏状态形状相同后进行连结
     dec_states = nd.broadcast_axis(
         dec_state.expand_dims(0), axis=0, size=enc_states.shape[0])
     enc_and_dec_states = nd.concat(enc_states, dec_states, dim=2)
-    e = model(enc_and_dec_states)  # 形状为（时间步数，批量大小，1）。
-    alpha = nd.softmax(e, axis=0)  # 在时间步维度做 softmax 运算。
-    return (alpha * enc_states).sum(axis=0)  # 返回背景变量。
+    e = model(enc_and_dec_states)  # 形状为(时间步数,批量大小,1)
+    alpha = nd.softmax(e, axis=0)  # 在时间步维度做softmax运算
+    return (alpha * enc_states).sum(axis=0)  # 返回背景变量
 ```
 
 在下面的例子中，编码器的时间步数为10，批量大小为4，编码器和解码器的隐藏单元个数均为8。注意力模型返回一个小批量的背景向量，每个背景向量的长度等于编码器的隐藏单元个数。因此输出的形状为（4，8）。
@@ -159,18 +159,18 @@ class Decoder(nn.Block):
         self.out = nn.Dense(vocab_size, flatten=False)
 
     def forward(self, cur_input, state, enc_states):
-        # 使用注意力机制计算背景向量。
+        # 使用注意力机制计算背景向量
         c = attention_forward(self.attention, enc_states, state[0][-1])
-        # 将嵌入后的输入和背景向量在特征维连结。
+        # 将嵌入后的输入和背景向量在特征维连结
         input_and_c = nd.concat(self.embedding(cur_input), c, dim=1)
-        # 为输入和背景向量的连结增加时间步维，时间步个数为 1。
+        # 为输入和背景向量的连结增加时间步维，时间步个数为1
         output, state = self.rnn(input_and_c.expand_dims(0), state)
-        # 移除时间步维，输出形状为（批量大小，输出词典大小）。
+        # 移除时间步维，输出形状为(批量大小,输出词典大小)
         output = self.out(output).squeeze(axis=0)
         return output, state
 
     def begin_state(self, enc_state):
-        # 直接将编码器最终时间步的隐藏状态作为解码器的初始隐藏状态。
+        # 直接将编码器最终时间步的隐藏状态作为解码器的初始隐藏状态
         return enc_state
 ```
 
@@ -183,19 +183,19 @@ def batch_loss(encoder, decoder, X, Y, loss):
     batch_size = X.shape[0]
     enc_state = encoder.begin_state(batch_size=batch_size)
     enc_outputs, enc_state = encoder(X, enc_state)
-    # 初始化解码器的隐藏状态。
+    # 初始化解码器的隐藏状态
     dec_state = decoder.begin_state(enc_state)
-    # 解码器在最初时间步的输入是 BOS。
+    # 解码器在最初时间步的输入是BOS
     dec_input = nd.array([out_vocab.token_to_idx[BOS]] * batch_size)
-    # 我们将使用掩码变量 mask 来忽略掉标签为填充项 PAD 的损失。
+    # 我们将使用掩码变量mask来忽略掉标签为填充项PAD的损失
     mask, num_not_pad_tokens = nd.ones(shape=(batch_size,)), 0
     l = nd.array([0])
     for y in Y.T:
         dec_output, dec_state = decoder(dec_input, dec_state, enc_outputs)
         l = l + (mask * loss(dec_output, y)).sum()
-        dec_input = y  # 使用强制教学。
+        dec_input = y  # 使用强制教学
         num_not_pad_tokens += mask.sum().asscalar()
-        # 当遇到 EOS 时，序列后面的词将均为 PAD，相应位置的掩码设成 0。
+        # 当遇到EOS时，序列后面的词将均为PAD，相应位置的掩码设成0
         mask = mask * (y != out_vocab.token_to_idx[EOS])
     return l / num_not_pad_tokens
 ```
@@ -255,7 +255,7 @@ def translate(encoder, decoder, input_seq, max_seq_len):
         dec_output, dec_state = decoder(dec_input, dec_state, enc_output)
         pred = dec_output.argmax(axis=1)
         pred_token = out_vocab.idx_to_token[int(pred.asscalar())]
-        if pred_token == EOS:  # 当任一时间步搜索出 EOS 符号时，输出序列即完成。
+        if pred_token == EOS:  # 当任一时间步搜索出EOS时，输出序列即完成
             break
         else:
             output_tokens.append(pred_token)
