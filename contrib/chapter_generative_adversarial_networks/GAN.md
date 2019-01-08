@@ -1,7 +1,7 @@
 # 生成对抗网络 GAN #
 
 
-这几年深度学习的流行除了卷积神经网络（Convolutional Neural Networks）外，再来有意思的就是生成对抗网路GAN（Generative Adversarial Network），由Ian Goodfellow在2014年提出GAN概念的[[1]](https://arxiv.org/abs/1406.2661)，我们甚至可以用两个不同的**成语**来描述机器学习的两个重要分支判断模型以及生成模型：
+这几年深度学习的流行除了卷积神经网络（Convolutional Neural Networks）外，再来有意思的就是生成对抗网络GAN（Generative Adversarial Network），GAN的概念由Ian Goodfellow在2014年提出[[1]](https://arxiv.org/abs/1406.2661)，我们甚至可以用两个不同的**成语**来描述机器学习的两个重要分支判断模型以及生成模型：
 
 
 #### 化繁为简(判断模型)：
