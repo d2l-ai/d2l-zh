@@ -107,7 +107,7 @@ class TextCNN(nn.Block):
         self.decoder = nn.Dense(2)
         # 时序最大池化层没有权重，所以可以共用一个实例
         self.pool = nn.GlobalMaxPool1D()
-        self.convs = nn.Sequential()  # 创建多个一维卷积层。
+        self.convs = nn.Sequential()  # 创建多个一维卷积层
         for c, k in zip(num_channels, kernel_sizes):
             self.convs.add(nn.Conv1D(c, k, activation='relu'))
 

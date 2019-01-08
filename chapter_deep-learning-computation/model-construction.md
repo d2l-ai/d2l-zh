@@ -52,7 +52,7 @@ class MySequential(nn.Block):
     def add(self, block):
         # block是一个Block子类实例，假设它有一个独一无二的名字。我们将它保存在Block类的
         # 成员变量_children里，其类型是OrderedDict。当MySequential实例调用
-        # initialize函数时，系统会自动对_children里所有成员初始化。
+        # initialize函数时，系统会自动对_children里所有成员初始化
         self._children[block.name] = block
 
     def forward(self, x):

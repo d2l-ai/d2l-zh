@@ -110,7 +110,7 @@ print('after allreduce:', data)
 ```{.python .input  n=8}
 def split_and_load(data, ctx):
     n, k = data.shape[0], len(ctx)
-    m = n // k  # 为了简单起见假设整除
+    m = n // k  # 简单起见，假设整除
     assert m * k == n, '# examples is not divided by # devices.'
     return [data[i * m: (i + 1) * m].as_in_context(ctx[i]) for i in range(k)]
 ```
