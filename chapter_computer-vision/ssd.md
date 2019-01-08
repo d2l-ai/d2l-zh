@@ -151,7 +151,7 @@ class TinySSD(nn.Block):
         super(TinySSD, self).__init__(**kwargs)
         self.num_classes = num_classes
         for i in range(5):
-            # 即赋值语句 self.blk_i = get_blk(i)。
+            # 即赋值语句self.blk_i = get_blk(i)
             setattr(self, 'blk_%d' % i, get_blk(i))
             setattr(self, 'cls_%d' % i, cls_predictor(num_anchors,
                                                       num_classes))
@@ -160,11 +160,11 @@ class TinySSD(nn.Block):
     def forward(self, X):
         anchors, cls_preds, bbox_preds = [None] * 5, [None] * 5, [None] * 5
         for i in range(5):
-            # getattr(self, 'blk_%d' % i) 即访问 self.blk_i。
+            # getattr(self, 'blk_%d' % i)即访问self.blk_i
             X, anchors[i], cls_preds[i], bbox_preds[i] = blk_forward(
                 X, getattr(self, 'blk_%d' % i), sizes[i], ratios[i],
                 getattr(self, 'cls_%d' % i), getattr(self, 'bbox_%d' % i))
-        # reshape 函数中的 0 表示保持批量大小不变。
+        # reshape函数中的0表示保持批量大小不变
         return (nd.concat(*anchors, dim=1),
                 concat_preds(cls_preds).reshape(
                     (0, -1, self.num_classes + 1)), concat_preds(bbox_preds))
@@ -223,7 +223,7 @@ def calc_loss(cls_preds, cls_labels, bbox_preds, bbox_labels, bbox_masks):
 
 ```{.python .input  n=18}
 def cls_eval(cls_preds, cls_labels):
-    # 由于类别预测结果放在最后一维，argmax 需要指定最后一维。
+    # 由于类别预测结果放在最后一维，argmax需要指定最后一维
     return (cls_preds.argmax(axis=-1) == cls_labels).sum().asscalar()
 
 def bbox_eval(bbox_preds, bbox_labels, bbox_masks):
@@ -237,18 +237,18 @@ def bbox_eval(bbox_preds, bbox_labels, bbox_masks):
 ```{.python .input  n=19}
 for epoch in range(20):
     acc_sum, mae_sum, n, m = 0.0, 0.0, 0, 0
-    train_iter.reset()  # 从头读取数据。
+    train_iter.reset()  # 从头读取数据
     start = time.time()
     for batch in train_iter:
         X = batch.data[0].as_in_context(ctx)
         Y = batch.label[0].as_in_context(ctx)
         with autograd.record():
-            # 生成多尺度的锚框，为每个锚框预测类别和偏移量。
+            # 生成多尺度的锚框，为每个锚框预测类别和偏移量
             anchors, cls_preds, bbox_preds = net(X)
-            # 为每个锚框标注类别和偏移量。
+            # 为每个锚框标注类别和偏移量
             bbox_labels, bbox_masks, cls_labels = contrib.nd.MultiBoxTarget(
                 anchors, Y, cls_preds.transpose((0, 2, 1)))
-            # 根据类别和偏移量的预测和标注值计算损失函数。
+            # 根据类别和偏移量的预测和标注值计算损失函数
             l = calc_loss(cls_preds, cls_labels, bbox_preds, bbox_labels,
                           bbox_masks)
         l.backward()

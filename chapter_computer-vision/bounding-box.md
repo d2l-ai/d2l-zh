@@ -17,7 +17,7 @@ from mxnet import image
 ```{.python .input}
 d2l.set_figsize()
 img = image.imread('../img/catdog.jpg').asnumpy()
-d2l.plt.imshow(img);  # 加分号只显示图。
+d2l.plt.imshow(img);  # 加分号只显示图
 ```
 
 ## 边界框
@@ -25,16 +25,15 @@ d2l.plt.imshow(img);  # 加分号只显示图。
 在目标检测里，我们通常使用边界框（bounding box）来描述目标位置。边界框是一个矩形框，可以由矩形左上角的$x$和$y$轴坐标与右下角的$x$和$y$轴坐标确定。我们根据上图坐标信息来定义图中狗和猫的边界框。上图中的坐标原点在图像的左上角，原点往右和往下分别为$x$轴和$y$轴的正方向。
 
 ```{.python .input  n=2}
-# bbox 是 bounding box 的缩写。
+# bbox是bounding box的缩写
 dog_bbox, cat_bbox = [60, 45, 378, 516], [400, 112, 655, 493]
 ```
 
 我们可以在图中将边界框画出来，以检查其是否准确。画之前，我们定义一个辅助函数`bbox_to_rect`。它将边界框表示成matplotlib的边界框格式。
 
 ```{.python .input  n=3}
-def bbox_to_rect(bbox, color):  # 本函数已保存在 d2lzh 包中方便以后使用。
-    # 将边界框（左上 x、左上 y，右下 x，右下 y）格式转换成 matplotlib 格式：
-    # （（左上 x，左上 y），宽，高）。
+def bbox_to_rect(bbox, color):  # 本函数已保存在d2lzh包中方便以后使用
+    # 将边界框（左上x,左上y,右下x,右下y)格式转换成matplotlib格式：((左上x,左上y),宽,高)
     return d2l.plt.Rectangle(
         xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0], height=bbox[3]-bbox[1],
         fill=False, edgecolor=color, linewidth=2)

@@ -27,7 +27,7 @@ d2l.plt.imshow(img.asnumpy())
 下面定义绘图函数`show_images`。
 
 ```{.python .input  n=23}
-# 本函数已保存在 d2lzh 包中方便以后使用。
+# 本函数已保存在d2lzh包中方便以后使用
 def show_images(imgs, num_rows, num_cols, scale=2):
     figsize = (num_cols * scale, num_rows * scale)
     _, axes = d2l.plt.subplots(num_rows, num_cols, figsize=figsize)
@@ -139,10 +139,10 @@ def load_cifar10(is_train, augs, batch_size):
 首先，我们定义`try_all_gpus`函数，从而能够获取所有可用的GPU。
 
 ```{.python .input  n=35}
-def try_all_gpus():  # 本函数已保存在 d2lzh 包中方便以后使用。
+def try_all_gpus():  # 本函数已保存在d2lzh包中方便以后使用
     ctxes = []
     try:
-        for i in range(16):  # 假设一台机器上 GPU 的个数不超过 16。
+        for i in range(16):  # 假设一台机器上GPU的数量不超过16
             ctx = mx.gpu(i)
             _ = nd.array([0], ctx=ctx)
             ctxes.append(ctx)
@@ -160,7 +160,6 @@ def _get_batch(batch, ctx):
     features, labels = batch
     if labels.dtype != features.dtype:
         labels = labels.astype(features.dtype)
-    # 当 ctx 包含多个 GPU 时，划分小批量数据样本并复制到各个 GPU 上。
     return (gutils.split_and_load(features, ctx),
             gutils.split_and_load(labels, ctx), features.shape[0])
 ```
@@ -168,7 +167,7 @@ def _get_batch(batch, ctx):
 然后，我们定义`evaluate_accuracy`函数评价模型的分类准确率。与[“Softmax回归的从零开始实现”](../chapter_deep-learning-basics/softmax-regression-scratch.md)和[“卷积神经网络（LeNet）”](../chapter_convolutional-neural-networks/lenet.md)两节中描述的`evaluate_accuracy`函数不同，这里定义的函数更加通用：它通过辅助函数`_get_batch`使用`ctx`变量所包含的所有GPU来评价模型。
 
 ```{.python .input  n=36}
-# 本函数已保存在 d2lzh 包中方便以后使用。
+# 本函数已保存在d2lzh包中方便以后使用
 def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
     if isinstance(ctx, mx.Context):
         ctx = [ctx]
@@ -186,7 +185,7 @@ def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
 接下来，我们定义`train`函数使用多GPU训练并评价模型。
 
 ```{.python .input  n=37}
-# 本函数已保存在 d2lzh 包中方便以后使用。
+# 本函数已保存在d2lzh包中方便以后使用
 def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
     print('training on', ctx)
     if isinstance(ctx, mx.Context):

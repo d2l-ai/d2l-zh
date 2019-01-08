@@ -43,7 +43,7 @@ import zipfile
 为方便快速上手，我们提供了上述数据集的小规模采样“train_valid_test_tiny.zip”。如果你要使用上述Kaggle比赛的完整数据集，还需要把下面`demo`变量改为`False`。
 
 ```{.python .input  n=1}
-# 如果使用下载的 Kaggle 比赛的完整数据集，把下面改为 False。
+# 如果使用下载的Kaggle比赛的完整数据集，把demo变量改为False
 demo = True
 data_dir = '../data/kaggle_dog'
 if demo:
@@ -61,10 +61,10 @@ for f in zipfiles:
 
 ```{.python .input}
 def reorg_train_valid(data_dir, train_dir, input_dir, valid_ratio, idx_label):
-    # 训练集中数量最少一类的狗的样本数。
+    # 训练集中数量最少一类的狗的样本数
     min_n_train_per_label = (
         collections.Counter(idx_label.values()).most_common()[:-2:-1][0][1])
-    # 验证集中每类狗的样本数。
+    # 验证集中每类狗的样本数
     n_valid_per_label = math.floor(min_n_train_per_label * valid_ratio)
     label_count = {}
     for train_file in os.listdir(os.path.join(data_dir, train_dir)):
@@ -89,14 +89,14 @@ def reorg_train_valid(data_dir, train_dir, input_dir, valid_ratio, idx_label):
 ```{.python .input  n=2}
 def reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir,
                    valid_ratio):
-    # 读取训练数据标签。
+    # 读取训练数据标签
     with open(os.path.join(data_dir, label_file), 'r') as f:
-        # 跳过文件头行（栏名称）。
+        # 跳过文件头行（栏名称）
         lines = f.readlines()[1:]
         tokens = [l.rstrip().split(',') for l in lines]
         idx_label = dict(((idx, label) for idx, label in tokens))
     reorg_train_valid(data_dir, train_dir, input_dir, valid_ratio, idx_label)
-    # 整理测试集。
+    # 整理测试集
     d2l.mkdir_if_not_exist([data_dir, input_dir, 'test', 'unknown'])
     for test_file in os.listdir(os.path.join(data_dir, test_dir)):
         shutil.copy(os.path.join(data_dir, test_dir, test_file),
@@ -107,8 +107,8 @@ def reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir,
 
 ```{.python .input  n=3}
 if demo:
-    # 注意：此处使用小数据集并将批量大小相应设小。使用 Kaggle 比赛的完整数据集时可设批量大
-    # 小为较大整数。
+    # 注意：此处使用小数据集并将批量大小相应设小。使用Kaggle比赛的完整数据集时可设批量大小
+    # 为较大整数
     input_dir, batch_size = 'train_valid_test_tiny', 1
 else:
     label_file, train_dir, test_dir = 'labels.csv', 'train', 'test'
@@ -123,18 +123,18 @@ else:
 
 ```{.python .input  n=4}
 transform_train = gdata.vision.transforms.Compose([
-    # 随机对图像裁剪出面积为原图像面积 0.08 到 1 倍之间、且高和宽之比在 3/4 和 4/3 之间
-    # 的图像，再放缩为高和宽均为 224 像素的新图像。
+    # 随机对图像裁剪出面积为原图像面积0.08到1倍之间、且高和宽之比在3/4和4/3之间的图像，再
+    # 放缩为高和宽均为224像素的新图像
     gdata.vision.transforms.RandomResizedCrop(224, scale=(0.08, 1.0),
                                               ratio=(3.0/4.0, 4.0/3.0)),
     gdata.vision.transforms.RandomFlipLeftRight(),
-    # 随机变化亮度、对比度和饱和度。
+    # 随机变化亮度、对比度和饱和度
     gdata.vision.transforms.RandomColorJitter(brightness=0.4, contrast=0.4,
                                               saturation=0.4),
-    # 随机加噪音。
+    # 随机加噪声
     gdata.vision.transforms.RandomLighting(0.1),
     gdata.vision.transforms.ToTensor(),
-    # 对图像的每个通道做标准化。
+    # 对图像的每个通道做标准化
     gdata.vision.transforms.Normalize([0.485, 0.456, 0.406],
                                       [0.229, 0.224, 0.225])])
 ```
@@ -144,7 +144,7 @@ transform_train = gdata.vision.transforms.Compose([
 ```{.python .input}
 transform_test = gdata.vision.transforms.Compose([
     gdata.vision.transforms.Resize(256),
-    # 将图像中央的高和宽均为 224 的正方形区域裁剪出来。
+    # 将图像中央的高和宽均为224的正方形区域裁剪出来
     gdata.vision.transforms.CenterCrop(224),
     gdata.vision.transforms.ToTensor(),
     gdata.vision.transforms.Normalize([0.485, 0.456, 0.406],
@@ -188,14 +188,14 @@ test_iter = gdata.DataLoader(test_ds.transform_first(transform_test),
 ```{.python .input  n=6}
 def get_net(ctx):
     finetune_net = model_zoo.vision.resnet34_v2(pretrained=True)
-    # 定义新的输出网络。
+    # 定义新的输出网络
     finetune_net.output_new = nn.HybridSequential(prefix='')
     finetune_net.output_new.add(nn.Dense(256, activation='relu'))
-    # 120 是输出的类别数。
+    # 120是输出的类别个数
     finetune_net.output_new.add(nn.Dense(120))
-    # 初始化输出网络。
+    # 初始化输出网络
     finetune_net.output_new.initialize(init.Xavier(), ctx=ctx)
-    # 把模型参数分配到即将用于计算的 CPU 或 GPU 上。
+    # 把模型参数分配到内存或显存上
     finetune_net.collect_params().reset_ctx(ctx)
     return finetune_net
 ```
@@ -223,7 +223,7 @@ def evaluate_loss(data_iter, net, ctx):
 ```{.python .input  n=7}
 def train(net, train_iter, valid_iter, num_epochs, lr, wd, ctx, lr_period,
           lr_decay):
-    # 只训练我们定义的小规模输出网络。
+    # 只训练自定义的小规模输出网络
     trainer = gluon.Trainer(net.output_new.collect_params(), 'sgd',
                             {'learning_rate': lr, 'momentum': 0.9, 'wd': wd})
     for epoch in range(num_epochs):
