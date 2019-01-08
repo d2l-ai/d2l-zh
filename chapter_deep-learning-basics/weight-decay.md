@@ -92,7 +92,7 @@ def fit_and_plot(lambd):
     for _ in range(num_epochs):
         for X, y in train_iter:
             with autograd.record():
-                # 添加了 L2 范数惩罚项。
+                # 添加了L2范数惩罚项
                 l = loss(net(X, w, b), y) + lambd * l2_penalty(w)
             l.backward()
             d2l.sgd([w, b], lr, batch_size)
@@ -130,10 +130,10 @@ def fit_and_plot_gluon(wd):
     net = nn.Sequential()
     net.add(nn.Dense(1))
     net.initialize(init.Normal(sigma=1))
-    # 对权重参数衰减。权重名称一般是以 weight 结尾。
+    # 对权重参数衰减。权重名称一般是以weight结尾
     trainer_w = gluon.Trainer(net.collect_params('.*weight'), 'sgd',
                               {'learning_rate': lr, 'wd': wd})
-    # 不对偏差参数衰减。偏差名称一般是以 bias 结尾。
+    # 不对偏差参数衰减。偏差名称一般是以bias结尾
     trainer_b = gluon.Trainer(net.collect_params('.*bias'), 'sgd',
                               {'learning_rate': lr})
     train_ls, test_ls = [], []
@@ -142,7 +142,7 @@ def fit_and_plot_gluon(wd):
             with autograd.record():
                 l = loss(net(X), y)
             l.backward()
-            # 对两个 Trainer 实例分别调用 step 函数，从而分别更新权重和偏差。
+            # 对两个Trainer实例分别调用step函数，从而分别更新权重和偏差
             trainer_w.step(batch_size)
             trainer_b.step(batch_size)
         train_ls.append(loss(net(train_features),

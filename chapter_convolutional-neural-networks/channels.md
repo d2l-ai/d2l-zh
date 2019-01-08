@@ -20,8 +20,8 @@ import d2lzh as d2l
 from mxnet import nd
 
 def corr2d_multi_in(X, K):
-    # 我们首先沿着 X 和 K 的第 0 维（通道维）遍历。然后使用 * 将结果列表变成 add_n 函数
-    # 的位置参数（positional argument）来进行相加。
+    # 首先沿着X和K的第0维（通道维）遍历。然后使用*将结果列表变成add_n函数的位置参数
+    # （positional argument）来进行相加
     return nd.add_n(*[d2l.corr2d(x, k) for x, k in zip(X, K)])
 ```
 
@@ -43,7 +43,7 @@ corr2d_multi_in(X, K)
 
 ```{.python .input  n=3}
 def corr2d_multi_in_out(X, K):
-    # 对 K 的第 0 维遍历，每次同输入 X 做互相关计算。所有结果使用 stack 函数合并在一起。
+    # 对K的第0维遍历，每次同输入X做互相关计算。所有结果使用stack函数合并在一起
     return nd.stack(*[corr2d_multi_in(X, k) for k in K])
 ```
 
@@ -74,7 +74,7 @@ def corr2d_multi_in_out_1x1(X, K):
     c_o = K.shape[0]
     X = X.reshape((c_i, h * w))
     K = K.reshape((c_o, c_i))
-    Y = nd.dot(K, X)  # 全连接层的矩阵乘法。
+    Y = nd.dot(K, X)  # 全连接层的矩阵乘法
     return Y.reshape((c_o, h, w))
 ```
 

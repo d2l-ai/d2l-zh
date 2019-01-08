@@ -96,7 +96,7 @@ features[:2], poly_features[:2], labels[:2]
 我们先定义作图函数`semilogy`，其中$y$轴使用了对数尺度。
 
 ```{.python .input  n=4}
-# 本函数已保存在 d2lzh 包中方便以后使用。
+# 本函数已保存在d2lzh包中方便以后使用
 def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
              legend=None, figsize=(3.5, 2.5)):
     d2l.set_figsize(figsize)

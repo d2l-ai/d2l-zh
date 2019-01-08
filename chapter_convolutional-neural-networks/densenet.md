@@ -38,7 +38,7 @@ class DenseBlock(nn.Block):
     def forward(self, X):
         for blk in self.net:
             Y = blk(X)
-            X = nd.concat(X, Y, dim=1)  # 在通道维上将输入和输出连结。
+            X = nd.concat(X, Y, dim=1)  # 在通道维上将输入和输出连结
         return X
 ```
 
@@ -89,14 +89,14 @@ net.add(nn.Conv2D(64, kernel_size=7, strides=2, padding=3),
 ResNet里通过步幅为2的残差块在每个模块之间减小高和宽。这里我们则使用过渡层来减半高和宽，并减半通道数。
 
 ```{.python .input  n=5}
-num_channels, growth_rate = 64, 32  # num_channels：当前的通道数。
+num_channels, growth_rate = 64, 32  # num_channels为当前的通道数
 num_convs_in_dense_blocks = [4, 4, 4, 4]
 
 for i, num_convs in enumerate(num_convs_in_dense_blocks):
     net.add(DenseBlock(num_convs, growth_rate))
-    # 上一个稠密的输出通道数。
+    # 上一个稠密块的输出通道数
     num_channels += num_convs * growth_rate
-    # 在稠密块之间加入通道数减半的过渡层。
+    # 在稠密块之间加入通道数减半的过渡层
     if i != len(num_convs_in_dense_blocks) - 1:
         net.add(transition_block(num_channels // 2))
 ```
