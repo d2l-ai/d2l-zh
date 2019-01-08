@@ -80,7 +80,7 @@ class Encoder(nn.Block):
         self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob)
 
     def forward(self, inputs, state):
-        # 输入形状是（批量大小，时间步数）。将输出互换样本维和时间步维
+        # 输入形状是(批量大小,时间步数)。将输出互换样本维和时间步维
         embedding = self.embedding(inputs).swapaxes(0, 1)
         return self.rnn(embedding, state)
 
