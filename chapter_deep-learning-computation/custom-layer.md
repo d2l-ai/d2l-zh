@@ -58,7 +58,7 @@ params
 
 ```{.python .input  n=19}
 class MyDense(nn.Block):
-    # units：该层的输出个数；in_units：该层的输入个数。
+    # units为该层的输出个数，in_units为该层的输入个数
     def __init__(self, units, in_units, **kwargs):
         super(MyDense, self).__init__(**kwargs)
         self.weight = self.params.get('weight', shape=(in_units, units))

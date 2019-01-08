@@ -42,7 +42,7 @@ import time
 为方便快速上手，我们提供了上述数据集的小规模采样，其中“train_tiny.zip”包含100个训练样本，而“test_tiny.zip”仅包含1个测试样本。它们解压后的文件夹名称分别为“train_tiny”和“test_tiny”。此外，将训练数据集标签的压缩文件解压，并得到“trainLabels.csv”。如果你将使用上述Kaggle比赛的完整数据集，还需要把下面`demo`变量改为`False`。
 
 ```{.python .input  n=2}
-# 如果使用下载的 Kaggle 比赛的完整数据集，把 demo 变量改为 False。
+# 如果使用下载的Kaggle比赛的完整数据集，把demo变量改为False
 demo = True
 if demo:
     import zipfile
@@ -58,7 +58,7 @@ if demo:
 ```{.python .input  n=3}
 def read_label_file(data_dir, label_file, train_dir, valid_ratio):
     with open(os.path.join(data_dir, label_file), 'r') as f:
-        # 跳过文件头行（栏名称）。
+        # 跳过文件头行（栏名称）
         lines = f.readlines()[1:]
         tokens = [l.rstrip().split(',') for l in lines]
         idx_label = dict(((int(idx), label) for idx, label in tokens))
@@ -72,7 +72,7 @@ def read_label_file(data_dir, label_file, train_dir, valid_ratio):
 下面定义一个辅助函数，从而仅在路径不存在的情况下创建路径。
 
 ```{.python .input  n=4}
-def mkdir_if_not_exist(path):  # 本函数已保存在 d2lzh 包中方便以后使用。
+def mkdir_if_not_exist(path):  # 本函数已保存在d2lzh包中方便以后使用
     if not os.path.exists(os.path.join(*path)):
         os.makedirs(os.path.join(*path))
 ```
@@ -126,8 +126,8 @@ def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
 
 ```{.python .input  n=8}
 if demo:
-    # 注意：此处使用小训练集和小测试集并将批量大小相应设小。使用 Kaggle 比赛的完整数据集时
-    # 可设批量大小为较大整数。
+    # 注意：此处使用小训练集和小测试集并将批量大小相应设小。使用Kaggle比赛的完整数据集时可
+    # 设批量大小为较大整数
     train_dir, test_dir, batch_size = 'train_tiny', 'test_tiny', 1
 else:
     train_dir, test_dir, batch_size = 'train', 'test', 128
@@ -143,15 +143,15 @@ reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
 
 ```{.python .input  n=9}
 transform_train = gdata.vision.transforms.Compose([
-    # 将图像放大成高和宽各为 40 像素的正方形。
+    # 将图像放大成高和宽各为40像素的正方形
     gdata.vision.transforms.Resize(40),
-    # 随机对高和宽各为 40 像素的正方形图像裁剪出面积为原图像面积 0.64 到 1 倍之间的小正方
-    # 形，再放缩为高和宽各为 32 像素的正方形。
+    # 随机对高和宽各为40像素的正方形图像裁剪出面积为原图像面积0.64到1倍之间的小正方形，再放
+    # 缩为高和宽各为32像素的正方形
     gdata.vision.transforms.RandomResizedCrop(32, scale=(0.64, 1.0),
                                               ratio=(1.0, 1.0)),
     gdata.vision.transforms.RandomFlipLeftRight(),
     gdata.vision.transforms.ToTensor(),
-    # 对图像的每个通道做标准化。
+    # 对图像的每个通道做标准化
     gdata.vision.transforms.Normalize([0.4914, 0.4822, 0.4465],
                                       [0.2023, 0.1994, 0.2010])])
 ```
@@ -170,7 +170,7 @@ transform_test = gdata.vision.transforms.Compose([
 接下来，我们可以通过创建`ImageFolderDataset`实例来读取整理后的含原始图像文件的数据集，其中每个数据样本包括图像和标签。
 
 ```{.python .input  n=10}
-# 读取原始图像文件。flag=1 说明输入图像有三个通道（彩色）。
+# 读取原始图像文件。flag=1说明输入图像有3个通道（彩色）
 train_ds = gdata.vision.ImageFolderDataset(
     os.path.join(data_dir, input_dir, 'train'), flag=1)
 valid_ds = gdata.vision.ImageFolderDataset(

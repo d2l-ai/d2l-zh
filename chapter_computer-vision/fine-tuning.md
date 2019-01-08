@@ -70,7 +70,7 @@ d2l.show_images(hotdogs + not_hotdogs, 2, 8, scale=1.4);
 在训练时，我们先从图像中裁剪出随机大小和随机高宽比的一块随机区域，然后将该区域缩放为高和宽均为224像素的输入。测试时，我们将图像的高和宽均缩放为256像素，然后从中裁剪出高和宽均为224像素的中心区域作为输入。此外，我们对RGB（红、绿、蓝）三个颜色通道的数值做标准化：每个数值减去该通道所有数值的平均值，再除以该通道所有数值的标准差作为输出。
 
 ```{.python .input  n=5}
-# 指定 RGB 三个通道的均值和方差来将图像通道归一化。
+# 指定RGB三个通道的均值和方差来将图像通道归一化
 normalize = gdata.vision.transforms.Normalize(
     [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 
@@ -107,7 +107,7 @@ pretrained_net.output
 finetune_net = model_zoo.vision.resnet18_v2(classes=2)
 finetune_net.features = pretrained_net.features
 finetune_net.output.initialize(init.Xavier())
-# output 中的模型参数将在迭代中使用 10 倍大的学习率。
+# output中的模型参数将在迭代中使用10倍大的学习率
 finetune_net.output.collect_params().setattr('lr_mult', 10)
 ```
 

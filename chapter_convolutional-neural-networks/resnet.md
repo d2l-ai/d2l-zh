@@ -18,7 +18,7 @@ import d2lzh as d2l
 from mxnet import gluon, init, nd
 from mxnet.gluon import nn
 
-class Residual(nn.Block):  # 本类已保存在 d2lzh 包中方便以后使用。
+class Residual(nn.Block):  # 本类已保存在d2lzh包中方便以后使用
     def __init__(self, num_channels, use_1x1conv=False, strides=1, **kwargs):
         super(Residual, self).__init__(**kwargs)
         self.conv1 = nn.Conv2D(num_channels, kernel_size=3, padding=1,

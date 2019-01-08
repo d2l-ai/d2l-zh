@@ -60,23 +60,23 @@ import os
 import sys
 
 net = nn.Sequential()
-# 使用较大的 11 x 11 窗口来捕获物体。同时使用步幅 4 来较大减小输出高和宽。
-# 这里使用的输出通道数比 LeNet 中的也要大很多。
+# 使用较大的11 x 11窗口来捕获物体。同时使用步幅4来较大幅度减小输出高和宽。这里使用的输出通
+# 道数比LeNet中的也要大很多
 net.add(nn.Conv2D(96, kernel_size=11, strides=4, activation='relu'),
         nn.MaxPool2D(pool_size=3, strides=2),
-        # 减小卷积窗口，使用填充为 2 来使得输入输出高宽一致，且增大输出通道数。
+        # 减小卷积窗口，使用填充为2来使得输入与输出的高和宽一致，且增大输出通道数
         nn.Conv2D(256, kernel_size=5, padding=2, activation='relu'),
         nn.MaxPool2D(pool_size=3, strides=2),
-        # 连续三个卷积层，且使用更小的卷积窗口。除了最后的卷积层外，进一步增大了输出通道数。
-        # 前两个卷积层后不使用池化层来减小输入的高和宽。
+        # 连续3个卷积层，且使用更小的卷积窗口。除了最后的卷积层外，进一步增大了输出通道数。
+        # 前两个卷积层后不使用池化层来减小输入的高和宽
         nn.Conv2D(384, kernel_size=3, padding=1, activation='relu'),
         nn.Conv2D(384, kernel_size=3, padding=1, activation='relu'),
         nn.Conv2D(256, kernel_size=3, padding=1, activation='relu'),
         nn.MaxPool2D(pool_size=3, strides=2),
-        # 这里全连接层的输出个数比 LeNet 中的大数倍。使用丢弃层来缓解过拟合。
+        # 这里全连接层的输出个数比LeNet中的大数倍。使用丢弃层来缓解过拟合
         nn.Dense(4096, activation="relu"), nn.Dropout(0.5),
         nn.Dense(4096, activation="relu"), nn.Dropout(0.5),
-        # 输出层。由于这里使用 Fashion-MNIST，所以用类别数为 10，而非论文中的 1000。
+        # 输出层。由于这里使用Fashion-MNIST，所以用类别数为10，而非论文中的1000
         nn.Dense(10))
 ```
 
@@ -95,10 +95,10 @@ for layer in net:
 虽然论文中AlexNet使用ImageNet数据，但因为ImageNet数据训练时间较长，我们仍用前面的Fashion-MNIST数据集来演示AlexNet。读取数据的时候我们额外做了一步将图像高和宽扩大到AlexNet使用的图像高和宽224。这个可以通过`Resize`类来实现。也就是说，我们在`ToTensor`类前使用`Resize`类，然后使用`Compose`类来将这两个变化串联以方便调用。
 
 ```{.python .input  n=3}
-# 本函数已保存在 d2lzh 包中方便以后使用。
+# 本函数已保存在d2lzh包中方便以后使用
 def load_data_fashion_mnist(batch_size, resize=None, root=os.path.join(
         '~', '.mxnet', 'datasets', 'fashion-mnist')):
-    root = os.path.expanduser(root)  # 展开用户路径 '~'。
+    root = os.path.expanduser(root)  # 展开用户路径'~'
     transformer = []
     if resize:
         transformer += [gdata.vision.transforms.Resize(resize)]
@@ -116,7 +116,7 @@ def load_data_fashion_mnist(batch_size, resize=None, root=os.path.join(
     return train_iter, test_iter
 
 batch_size = 128
-# 如出现 out of memory 的报错信息，可减小 batch_size 或 resize。
+# 如出现“out of memory”的报错信息，可减小batch_size或resize
 train_iter, test_iter = load_data_fashion_mnist(batch_size, resize=224)
 ```
 

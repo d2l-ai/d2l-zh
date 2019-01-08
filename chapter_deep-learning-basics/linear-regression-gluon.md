@@ -26,9 +26,9 @@ Gluon提供了`data`模块来读取数据。由于`data`常用作变量名，我
 from mxnet.gluon import data as gdata
 
 batch_size = 10
-# 将训练数据的特征和标签组合。
+# 将训练数据的特征和标签组合
 dataset = gdata.ArrayDataset(features, labels)
-# 随机读取小批量。
+# 随机读取小批量
 data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
 ```
 
@@ -78,7 +78,7 @@ net.initialize(init.Normal(sigma=0.01))
 ```{.python .input  n=8}
 from mxnet.gluon import loss as gloss
 
-loss = gloss.L2Loss()  # 平方损失又称 L2 范数损失。
+loss = gloss.L2Loss()  # 平方损失又称L2范数损失
 ```
 
 ## 定义优化算法

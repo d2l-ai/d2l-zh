@@ -24,7 +24,7 @@ Kaggle（网站地址：https://www.kaggle.com ）是一个著名的供机器学
 我们将通过使用`pandas`读入并处理数据。在导入本节需要的包前请确保已安装`pandas`，否则请参考下面代码注释。
 
 ```{.python .input  n=3}
-# 如果没有安装 pandas，请反注释下面一行。
+# 如果没有安装pandas，请反注释下面一行
 # !pip install pandas
 
 %matplotlib inline
@@ -80,7 +80,7 @@ all_features = all_features.fillna(all_features.mean())
 接下来将离散数值转成指示特征。举个例子，假设特征MSZoning里面有两个不同的离散值RL和RM，那么这一步转换将去掉MSZoning特征，并新加两个特征MSZoning\_RL和MSZoning\_RM，其值为0或1。如果一个样本原来在MSZoning里的值为RL，那么有MSZoning\_RL=1且MSZoning\_RM=0。
 
 ```{.python .input  n=7}
-# dummy_na=True 将缺失值也当做合法的特征值并为其创建指示特征。
+# dummy_na=True将缺失值也当作合法的特征值并为其创建指示特征
 all_features = pd.get_dummies(all_features, dummy_na=True)
 all_features.shape
 ```
@@ -116,7 +116,7 @@ $$\sqrt{\frac{1}{n}\sum_{i=1}^n\left(\log(y_i)-\log(\hat y_i)\right)^2}.$$
 
 ```{.python .input  n=11}
 def log_rmse(net, features, labels):
-    # 将小于 1 的值设成 1，使得取对数时数值更稳定。
+    # 将小于1的值设成1，使得取对数时数值更稳定
     clipped_preds = nd.clip(net(features), 1, float('inf'))
     rmse = nd.sqrt(2 * loss(clipped_preds.log(), labels.log()).mean())
     return rmse.asscalar()
@@ -130,7 +130,7 @@ def train(net, train_features, train_labels, test_features, test_labels,
     train_ls, test_ls = [], []
     train_iter = gdata.DataLoader(gdata.ArrayDataset(
         train_features, train_labels), batch_size, shuffle=True)
-    # 这里使用了 Adam 优化算法。
+    # 这里使用了Adam优化算法
     trainer = gluon.Trainer(net.collect_params(), 'adam', {
         'learning_rate': learning_rate, 'wd': weight_decay})
     for epoch in range(num_epochs):
@@ -184,8 +184,8 @@ def k_fold(k, X_train, y_train, num_epochs,
             d2l.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'rmse',
                          range(1, num_epochs + 1), valid_ls,
                          ['train', 'valid'])
-        print('fold %d, train rmse: %f, valid rmse: %f' % (
-            i, train_ls[-1], valid_ls[-1]))
+        print('fold %d, train rmse: %f, valid rmse: %f'
+              % (i, train_ls[-1], valid_ls[-1]))
     return train_l_sum / k, valid_l_sum / k
 ```
 

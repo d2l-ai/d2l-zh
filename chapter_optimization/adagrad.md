@@ -35,7 +35,7 @@ import math
 from mxnet import nd
 
 def adagrad_2d(x1, x2, s1, s2):
-    g1, g2, eps = 0.2 * x1, 4 * x2, 1e-6  # 前两项为自变量梯度。
+    g1, g2, eps = 0.2 * x1, 4 * x2, 1e-6  # 前两项为自变量梯度
     s1 += g1 ** 2
     s2 += g2 ** 2
     x1 -= eta / math.sqrt(s1 + eps) * g1

@@ -37,10 +37,10 @@ conv_arch = ((1, 64), (1, 128), (2, 256), (2, 512), (2, 512))
 ```{.python .input  n=3}
 def vgg(conv_arch):
     net = nn.Sequential()
-    # 卷积层部分。
+    # 卷积层部分
     for (num_convs, num_channels) in conv_arch:
         net.add(vgg_block(num_convs, num_channels))
-    # 全连接层部分。
+    # 全连接层部分
     net.add(nn.Dense(4096, activation='relu'), nn.Dropout(0.5),
             nn.Dense(4096, activation='relu'), nn.Dropout(0.5),
             nn.Dense(10))

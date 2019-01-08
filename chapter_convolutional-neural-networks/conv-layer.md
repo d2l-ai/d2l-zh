@@ -25,7 +25,7 @@ $$
 from mxnet import autograd, nd
 from mxnet.gluon import nn
 
-def corr2d(X, K):  # 本函数已保存在 d2lzh 包中方便以后使用。
+def corr2d(X, K):  # 本函数已保存在d2lzh包中方便以后使用
     h, w = K.shape
     Y = nd.zeros((X.shape[0] - h + 1, X.shape[1] - w + 1))
     for i in range(Y.shape[0]):
@@ -95,12 +95,12 @@ Y
 虽然我们之前构造了`Conv2D`类，但由于`corr2d`使用了对单个元素赋值（`[i, j]=`）的操作因而无法自动求梯度。下面我们使用Gluon提供的`Conv2D`类来实现这个例子。
 
 ```{.python .input  n=83}
-# 构造一个输出通道数为 1（将在后面小节介绍通道），核数组形状是（1，2）的二维卷积层。
+# 构造一个输出通道数为1（将在5.3节介绍通道），核数组形状是(1,2)的二维卷积层
 conv2d = nn.Conv2D(1, kernel_size=(1, 2))
 conv2d.initialize()
 
-# 二维卷积层使用 4 维输入输出，格式为（样本，通道，高，宽），这里批量大小（批量中的样本数）
-# 和通道数均为 1。
+# 二维卷积层使用4维输入输出，格式为(样本,通道,高,宽)，这里批量大小（批量中的样本数）和通道数
+# 均为1
 X = X.reshape((1, 1, 6, 8))
 Y = Y.reshape((1, 1, 6, 7))
 
@@ -109,7 +109,7 @@ for i in range(10):
         Y_hat = conv2d(X)
         l = (Y_hat - Y) ** 2
     l.backward()
-    # 为了简单起见这里忽略了偏差。
+    # 简单起见，这里忽略了偏差
     conv2d.weight.data()[:] -= 3e-2 * conv2d.weight.grad()
     if (i + 1) % 2 == 0:
         print('batch %d, loss %.3f' % (i + 1, l.sum().asscalar()))

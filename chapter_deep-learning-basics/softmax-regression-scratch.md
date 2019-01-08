@@ -51,7 +51,7 @@ X.sum(axis=0, keepdims=True), X.sum(axis=1, keepdims=True)
 def softmax(X):
     X_exp = X.exp()
     partition = X_exp.sum(axis=1, keepdims=True)
-    return X_exp / partition  # 这里应用了广播机制。
+    return X_exp / partition  # 这里应用了广播机制
 ```
 
 可以看到，对于随机输入，我们将每个元素变成了非负数，且每一行和为1。
@@ -108,8 +108,7 @@ accuracy(y_hat, y)
 类似地，我们可以评价模型`net`在数据集`data_iter`上的准确率。
 
 ```{.python .input  n=13}
-# 本函数已保存在 d2lzh 包中方便以后使用。该函数将被逐步改进：它的完整实现将在“图像增广”一节
-# 中描述。
+# 本函数已保存在d2lzh包中方便以后使用。该函数将被逐步改进：它的完整实现将在9.1节中描述。
 def evaluate_accuracy(data_iter, net):
     acc_sum, n = 0.0, 0
     for X, y in data_iter:
@@ -132,7 +131,7 @@ evaluate_accuracy(test_iter, net)
 ```{.python .input  n=21}
 num_epochs, lr = 5, 0.1
 
-# 本函数已保存在 d2lzh 包中方便以后使用。
+# 本函数已保存在d2lzh包中方便以后使用
 def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
               params=None, lr=None, trainer=None):
     for epoch in range(num_epochs):
@@ -145,7 +144,7 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
             if trainer is None:
                 d2l.sgd(params, lr, batch_size)
             else:
-                trainer.step(batch_size)  # 下一节将用到。
+                trainer.step(batch_size)  # 3.7节将用到
             y = y.astype('float32')
             train_l_sum += l.asscalar()
             train_acc_sum += (y_hat.argmax(axis=1) == y).sum().asscalar()
@@ -154,8 +153,8 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f'
               % (epoch + 1, train_l_sum / n, train_acc_sum / n, test_acc))
 
-train_ch3(net, train_iter, test_iter, cross_entropy, num_epochs,
-          batch_size, [W, b], lr)
+train_ch3(net, train_iter, test_iter, cross_entropy, num_epochs, batch_size,
+          [W, b], lr)
 ```
 
 ## 预测

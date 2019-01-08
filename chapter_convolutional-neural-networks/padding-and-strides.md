@@ -28,15 +28,15 @@ $$(n_h-k_h+p_h+1)\times(n_w-k_w+p_w+1),$$
 from mxnet import nd
 from mxnet.gluon import nn
 
-# 定义一个便利函数来计算卷积层。它初始化卷积层权重，并对输入和输出做相应的升维和降维。
+# 定义一个便利函数来计算卷积层。它初始化卷积层权重，并对输入和输出做相应的升维和降维
 def comp_conv2d(conv2d, X):
     conv2d.initialize()
-    # （1，1）代表批量大小和通道数（后面章节将介绍）均为 1。
+    # (1,1)代表批量大小和通道数（5.3节将介绍）均为1
     X = X.reshape((1, 1) + X.shape)
     Y = conv2d(X)
-    return Y.reshape(Y.shape[2:])  # 排除不关心的前两维：批量和通道。
+    return Y.reshape(Y.shape[2:])  # 排除不关心的前两维：批量和通道
 
-# 注意这里是两侧分别填充 1 行或列，所以在两侧一共填充 2 行或列。
+# 注意这里是两侧分别填充1行或列，所以在两侧一共填充2行或列
 conv2d = nn.Conv2D(1, kernel_size=3, padding=1)
 X = nd.random.uniform(shape=(8, 8))
 comp_conv2d(conv2d, X).shape
@@ -45,7 +45,7 @@ comp_conv2d(conv2d, X).shape
 当卷积核的高和宽不同时，我们也可以通过设置高和宽上不同的填充数使输出和输入具有相同的高和宽。
 
 ```{.python .input  n=2}
-# 使用高为 5、宽为 3 的卷积核。在高和宽两侧的填充数分别为 2 和 1。
+# 使用高为5、宽为3的卷积核。在高和宽两侧的填充数分别为2和1
 conv2d = nn.Conv2D(1, kernel_size=(5, 3), padding=(2, 1))
 comp_conv2d(conv2d, X).shape
 ```

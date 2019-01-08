@@ -81,7 +81,7 @@ from mxnet.gluon import nn
 import time
 
 def get_net():
-    net = nn.HybridSequential()  # 这里使用 HybridSequential 类。
+    net = nn.HybridSequential()  # 这里创建HybridSequential实例
     net.add(nn.Dense(256, activation='relu'),
             nn.Dense(128, activation='relu'),
             nn.Dense(2))
@@ -112,7 +112,7 @@ def benchmark(net, x):
     start = time.time()
     for i in range(1000):
         _ = net(x)
-    nd.waitall()  # 等待所有计算完成方便计时。
+    nd.waitall()  # 等待所有计算完成方便计时
     return time.time() - start
 
 net = get_net()

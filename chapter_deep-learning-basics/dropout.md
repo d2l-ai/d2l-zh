@@ -33,7 +33,7 @@ from mxnet.gluon import loss as gloss, nn
 def dropout(X, drop_prob):
     assert 0 <= drop_prob <= 1
     keep_prob = 1 - drop_prob
-    # 这种情况下把全部元素都丢弃。
+    # 这种情况下把全部元素都丢弃
     if keep_prob == 0:
         return X.zeros_like()
     mask = nd.random.uniform(0, 1, X.shape) < keep_prob
@@ -84,11 +84,11 @@ drop_prob1, drop_prob2 = 0.2, 0.5
 def net(X):
     X = X.reshape((-1, num_inputs))
     H1 = (nd.dot(X, W1) + b1).relu()
-    if autograd.is_training():  # 只在训练模型时使用丢弃法。
-        H1 = dropout(H1, drop_prob1)  # 在第一层全连接后添加丢弃层。
+    if autograd.is_training():  # 只在训练模型时使用丢弃法
+        H1 = dropout(H1, drop_prob1)  # 在第一层全连接后添加丢弃层
     H2 = (nd.dot(H1, W2) + b2).relu()
     if autograd.is_training():
-        H2 = dropout(H2, drop_prob2)  # 在第二层全连接后添加丢弃层。
+        H2 = dropout(H2, drop_prob2)  # 在第二层全连接后添加丢弃层
     return nd.dot(H2, W3) + b3
 ```
 
@@ -111,9 +111,9 @@ d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
 ```{.python .input}
 net = nn.Sequential()
 net.add(nn.Dense(256, activation="relu"),
-        nn.Dropout(drop_prob1),  # 在第一个全连接层后添加丢弃层。
+        nn.Dropout(drop_prob1),  # 在第一个全连接层后添加丢弃层
         nn.Dense(256, activation="relu"),
-        nn.Dropout(drop_prob2),  # 在第二个全连接层后添加丢弃层。
+        nn.Dropout(drop_prob2),  # 在第二个全连接层后添加丢弃层
         nn.Dense(10))
 net.initialize(init.Normal(sigma=0.01))
 ```

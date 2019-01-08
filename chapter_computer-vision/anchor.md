@@ -29,7 +29,7 @@ img = image.imread('../img/catdog.jpg').asnumpy()
 h, w = img.shape[0:2]
 
 print(h, w)
-X = nd.random.uniform(shape=(1, 3, h, w))  # 构造输入数据。
+X = nd.random.uniform(shape=(1, 3, h, w))  # 构造输入数据
 Y = contrib.nd.MultiBoxPrior(X, sizes=[0.75, 0.5, 0.25], ratios=[1, 2, 0.5])
 Y.shape
 ```
@@ -44,7 +44,7 @@ boxes[250, 250, 0, :]
 为了描绘图像中以某个像素为中心的所有锚框，我们先定义`show_bboxes`函数以便在图像上画出多个边界框。
 
 ```{.python .input  n=4}
-# 本函数已保存在 d2lzh 包中方便以后使用。
+# 本函数已保存在d2lzh包中方便以后使用
 def show_bboxes(axes, bboxes, labels=None, colors=None):
     def _make_list(obj, default_values=None):
         if obj is None:
@@ -179,9 +179,9 @@ labels[0]
 anchors = nd.array([[0.1, 0.08, 0.52, 0.92], [0.08, 0.2, 0.56, 0.95],
                     [0.15, 0.3, 0.62, 0.91], [0.55, 0.2, 0.9, 0.88]])
 offset_preds = nd.array([0] * anchors.size)
-cls_probs = nd.array([[0] * 4,  # 背景的预测概率。
-                      [0.9, 0.8, 0.7, 0.1],  # 狗的预测概率。
-                      [0.1, 0.2, 0.3, 0.9]])  # 猫的预测概率。
+cls_probs = nd.array([[0] * 4,  # 背景的预测概率
+                      [0.9, 0.8, 0.7, 0.1],  # 狗的预测概率
+                      [0.1, 0.2, 0.3, 0.9]])  # 猫的预测概率
 ```
 
 在图像上打印预测边界框和它们的置信度。

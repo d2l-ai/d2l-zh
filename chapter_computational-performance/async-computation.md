@@ -28,7 +28,7 @@ c
 为了演示异步计算的性能，我们先实现一个简单的计时类。
 
 ```{.python .input}
-class Benchmark():  # 本类已保存在 d2lzh 包中方便以后使用。
+class Benchmark():  # 本类已保存在d2lzh包中方便以后使用
     def __init__(self, prefix=None):
         self.prefix = prefix + ' ' if prefix else ''
 
@@ -170,7 +170,7 @@ l_sum, mem = 0, get_mem()
 for X, y in data_iter():
     with autograd.record():
         l = loss(y, net(X))
-    l_sum += l.mean().asscalar()  # 使用同步函数 asscalar。
+    l_sum += l.mean().asscalar()  # 使用同步函数asscalar
     l.backward()
     trainer.step(X.shape[0])
 nd.waitall()

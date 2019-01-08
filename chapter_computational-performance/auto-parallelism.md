@@ -31,9 +31,9 @@ x_gpu = nd.random.uniform(shape=(6000, 6000), ctx=mx.gpu(0))
 然后，分别使用它们在CPU和GPU上运行`run`函数并打印所需时间。
 
 ```{.python .input}
-run(x_cpu)  # 预热开始。
+run(x_cpu)  # 预热开始
 run(x_gpu)
-nd.waitall()  # 预热结束。
+nd.waitall()  # 预热结束
 
 with d2l.Benchmark('Run on CPU.'):
     run(x_cpu)

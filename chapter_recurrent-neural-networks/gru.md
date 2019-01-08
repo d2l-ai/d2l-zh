@@ -91,13 +91,13 @@ def get_params():
                 _one((num_hiddens, num_hiddens)),
                 nd.zeros(num_hiddens, ctx=ctx))
 
-    W_xz, W_hz, b_z = _three()  # 更新门参数。
-    W_xr, W_hr, b_r = _three()  # 重置门参数。
-    W_xh, W_hh, b_h = _three()  # 候选隐藏状态参数。
-    # 输出层参数。
+    W_xz, W_hz, b_z = _three()  # 更新门参数
+    W_xr, W_hr, b_r = _three()  # 重置门参数
+    W_xh, W_hh, b_h = _three()  # 候选隐藏状态参数
+    # 输出层参数
     W_hq = _one((num_hiddens, num_outputs))
     b_q = nd.zeros(num_outputs, ctx=ctx)
-    # 创建梯度。
+    # 附上梯度
     params = [W_xz, W_hz, b_z, W_xr, W_hr, b_r, W_xh, W_hh, b_h, W_hq, b_q]
     for param in params:
         param.attach_grad()

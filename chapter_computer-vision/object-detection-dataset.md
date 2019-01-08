@@ -29,17 +29,17 @@ def _download_pikachu(data_dir):
 我们通过创建`ImageDetIter`实例来读取目标检测数据集。其中名称里的“Det”指的是Detection（检测）。我们将以随机顺序读取训练数据集。由于数据集的格式为RecordIO，我们需要提供图像索引文件`'train.idx'`以随机读取小批量。此外，对于训练集的每张图像，我们将采用随机裁剪，并要求裁剪出的图像至少覆盖每个目标95%的区域。由于裁剪是随机的，这个要求不一定总被满足。我们设定最多尝试200次随机裁剪：如果都不符合要求则不裁剪图像。为保证输出结果的确定性，我们不随机裁剪测试数据集中的图像。我们也无需按随机顺序读取测试数据集。
 
 ```{.python .input  n=2}
-# 本函数已保存在 d2lzh 包中方便以后使用。
-def load_data_pikachu(batch_size, edge_size=256):  # edge_size：输出图像的宽和高。
+# 本函数已保存在d2lzh包中方便以后使用
+def load_data_pikachu(batch_size, edge_size=256):  # edge_size：输出图像的宽和高
     data_dir = '../data/pikachu'
     _download_pikachu(data_dir)
     train_iter = image.ImageDetIter(
         path_imgrec=os.path.join(data_dir, 'train.rec'),
         path_imgidx=os.path.join(data_dir, 'train.idx'),
         batch_size=batch_size,
-        data_shape=(3, edge_size, edge_size),  # 输出图像的形状。
-        shuffle=True,  # 以随机顺序读取数据集。
-        rand_crop=1,  # 随机裁剪的概率为 1。
+        data_shape=(3, edge_size, edge_size),  # 输出图像的形状
+        shuffle=True,  # 以随机顺序读取数据集
+        rand_crop=1,  # 随机裁剪的概率为1
         min_object_covered=0.95, max_attempts=200)
     val_iter = image.ImageDetIter(
         path_imgrec=os.path.join(data_dir, 'val.rec'), batch_size=batch_size,
