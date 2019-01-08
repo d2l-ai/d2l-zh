@@ -15,7 +15,7 @@
 ![代码库的页面。](../img/contrib01.png)
 
 
-这时，本书的代码库会复制到你的用户名下，例如图11.21左上方显示的“你的Github ID/gluon-tutorials-zh”。
+这时，本书的代码库会复制到你的用户名下，例如图11.21左上方显示的“你的Github ID/d2l-zh”。
 
 ![复制代码库。](../img/contrib02.png)
 
@@ -24,13 +24,13 @@
 
 ```
 # 将 your_Github_ID 替换成你的 Github 用户名。
-git clone https://github.com/your_Github_ID/gluon-tutorials-zh.git
+git clone https://github.com/your_Github_ID/d2l-zh.git
 ```
 
-这时，本地的“~/repo/gluon-tutorials-zh”路径下将包含本书代码库中的所有文件。
+这时，本地的“~/repo/d2l-zh”路径下将包含本书代码库中的所有文件。
 
 
-第四步，编辑本地路径下的本书代码库。假设我们修改了`~/repo/gluon-tutorials-zh/chapter_deep-learning-basics/linear-regression.md`文件中的一个错别字。在命令行模式中进入路径`~/repo/gluon-tutorials-zh`，执行命令
+第四步，编辑本地路径下的本书代码库。假设我们修改了`~/repo/d2l-zh/chapter_deep-learning-basics/linear-regression.md`文件中的一个错别字。在命令行模式中进入路径`~/repo/d2l-zh`，执行命令
 
 ```
 git status
@@ -51,7 +51,7 @@ git push
 其中的`'fix typo in linear-regression.md'`是描述提交改动的信息，也可以替换为其他有意义的描述信息。
 
 
-第五步，再次在浏览器输入本书代码库地址 [2]。点击图11.20左方红框中的“New pull request”按钮。在弹出的页面中，点击图11.23右方红框中的“compare across forks”链接，再点击下方红框中的“head fork: mli/gluon-tutorials-zh”按钮。在弹出的文本框中输入你的Github ID，在下拉菜单中选择“你的Github-ID/gluon-tutorials-zh”，如图11.23所示。
+第五步，再次在浏览器输入本书代码库地址 [2]。点击图11.20左方红框中的“New pull request”按钮。在弹出的页面中，点击图11.23右方红框中的“compare across forks”链接，再点击下方红框中的“head fork: d2l-ai/d2l-zh”按钮。在弹出的文本框中输入你的Github ID，在下拉菜单中选择“你的Github-ID/d2l-zh”，如图11.23所示。
 
 
 ![选择改动来源所在的代码库。](../img/contrib04.png)
@@ -86,9 +86,9 @@ git push
 
 ## 参考文献
 
-[1] 本书贡献者列表。https://github.com/mli/gluon-tutorials-zh/graphs/contributors
+[1] 本书贡献者列表。https://github.com/d2l-ai/d2l-zh/graphs/contributors
 
-[2] 本书代码库地址。https://github.com/mli/gluon-tutorials-zh
+[2] 本书代码库地址。https://github.com/d2l-ai/d2l-zh
 
 [3] 安装Git。https://git-scm.com/book/zh/v2
 

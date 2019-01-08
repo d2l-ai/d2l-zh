@@ -14,25 +14,25 @@ GoogLeNet中的基础卷积块叫做Inception块，得名于同名电影《盗�
 Inception块中可以自定义的超参数是每个层的输出通道数，我们以此来控制模型复杂度。
 
 ```{.python .input  n=1}
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import gluon, init, nd
 from mxnet.gluon import nn
 
 class Inception(nn.Block):
-    # c1 - c4 为每条线路里的层的输出通道数。
+    # c1 - c4为每条线路里的层的输出通道数
     def __init__(self, c1, c2, c3, c4, **kwargs):
         super(Inception, self).__init__(**kwargs)
-        # 线路 1，单 1 x 1 卷积层。
+        # 线路1，单1 x 1卷积层
         self.p1_1 = nn.Conv2D(c1, kernel_size=1, activation='relu')
-        # 线路 2，1 x 1 卷积层后接 3 x 3 卷积层。
+        # 线路2，1 x 1卷积层后接3 x 3卷积层
         self.p2_1 = nn.Conv2D(c2[0], kernel_size=1, activation='relu')
         self.p2_2 = nn.Conv2D(c2[1], kernel_size=3, padding=1,
                               activation='relu')
-        # 线路 3，1 x 1 卷积层后接 5 x 5 卷积层。
+        # 线路3，1 x 1卷积层后接5 x 5卷积层
         self.p3_1 = nn.Conv2D(c3[0], kernel_size=1, activation='relu')
         self.p3_2 = nn.Conv2D(c3[1], kernel_size=5, padding=2,
                               activation='relu')
-        # 线路 4，3 x 3 最大池化层后接 1 x 1 卷积层。
+        # 线路4，3 x 3最大池化层后接1 x 1卷积层
         self.p4_1 = nn.MaxPool2D(pool_size=3, strides=1, padding=1)
         self.p4_2 = nn.Conv2D(c4, kernel_size=1, activation='relu')
 
@@ -41,7 +41,7 @@ class Inception(nn.Block):
         p2 = self.p2_2(self.p2_1(x))
         p3 = self.p3_2(self.p3_1(x))
         p4 = self.p4_2(self.p4_1(x))
-        return nd.concat(p1, p2, p3, p4, dim=1)  # 在通道维上连结输出。
+        return nd.concat(p1, p2, p3, p4, dim=1)  # 在通道维上连结输出
 ```
 
 ## GoogLeNet模型
@@ -63,7 +63,7 @@ b2.add(nn.Conv2D(64, kernel_size=1),
        nn.MaxPool2D(pool_size=3, strides=2, padding=1))
 ```
 
-第三模块串联两个完整的Inception块。第一个Inception块的输出通道数为$64+128+32+32=256$，其中四条线路的输出通道数比例为$64:128:32:32=2：4：1：1$。其中第二、第三条线路先分别将输入通道数减小至$96/192=1/2$和$16/192=1/12$后，再接上第二层卷积层。第二个Inception块输出通道数增至$128+192+96+64=480$，每条线路的输出通道数之比为$128:192:96:64 = 4：6：3：2$。其中第二、第三条线路先分别将输入通道数减小至$128/256=1/2$和$32/256=1/8$。
+第三模块串联两个完整的Inception块。第一个Inception块的输出通道数为$64+128+32+32=256$，其中四条线路的输出通道数比例为$64:128:32:32=2:4:1:1$。其中第二、第三条线路先分别将输入通道数减小至$96/192=1/2$和$16/192=1/12$后，再接上第二层卷积层。第二个Inception块输出通道数增至$128+192+96+64=480$，每条线路的输出通道数之比为$128:192:96:64 = 4:6:3:2$。其中第二、第三条线路先分别将输入通道数减小至$128/256=1/2$和$32/256=1/8$。
 
 ```{.python .input  n=4}
 b3 = nn.Sequential()
@@ -111,11 +111,12 @@ for layer in net:
 我们使用高和宽均为96像素的图像来训练GoogLeNet模型。训练使用的图像依然来自Fashion-MNIST数据集。
 
 ```{.python .input  n=8}
-lr, num_epochs, batch_size, ctx = 0.1, 5, 128, gb.try_gpu()
+lr, num_epochs, batch_size, ctx = 0.1, 5, 128, d2l.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-train_iter, test_iter = gb.load_data_fashion_mnist(batch_size, resize=96)
-gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=96)
+d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
+              num_epochs)
 ```
 
 ## 小结

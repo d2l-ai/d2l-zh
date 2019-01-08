@@ -1,12 +1,12 @@
 # Word2vec的实现
 
-本节是对前两节内容的实践。我们以[“词嵌入（word2vec）”](word2vec.md)一节中的跳字模型和[“近似训练”](approx-training.md)一节中的负采样为例，介绍在语料库上训练词嵌入模型的实现。我们还会介绍一些实现中的技巧，例如二次采样（subsampling）和掩码（mask）变量。
+本节是对前两节内容的实践。我们以[“词嵌入（word2vec）”](word2vec.md)一节中的跳字模型和[“近似训练”](approx-training.md)一节中的负采样为例，介绍在语料库上训练词嵌入模型的实现。我们还会介绍一些实现中的技巧，例如二次采样（subsampling）。
 
 首先让我们导入实验所需的包或模块。
 
 ```{.python .input  n=1}
 import collections
-import gluonbook as gb
+import d2lzh as d2l
 import math
 from mxnet import autograd, gluon, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
@@ -54,7 +54,7 @@ counter = dict(filter(lambda x: x[1] >= 5, counter.items()))
 ```{.python .input  n=5}
 idx_to_token = [tk for tk, _ in counter.items()]
 token_to_idx = {tk: idx for idx, tk in enumerate(idx_to_token)}
-dataset = [[token_to_idx[tk] for tk in st if tk in token_to_idx] 
+dataset = [[token_to_idx[tk] for tk in st if tk in token_to_idx]
            for st in raw_dataset]
 num_tokens = sum([len(st) for st in dataset])
 '# tokens: %d' % num_tokens
@@ -160,7 +160,7 @@ all_negatives = get_negatives(all_contexts, sampling_weights, 5)
 
 我们从数据集中提取所有中心词`all_centers`，以及每个中心词对应的背景词`all_contexts`和噪音词`all_negatives`。我们将通过随机小批量来读取它们。
 
-在一个小批量数据中，第$i$个样本包括一个中心词以及它所对应的$n_i$个背景词和$m_i$个噪音词。由于每个样本的背景窗口大小可能不一样，其中背景词与噪音词个数之和$n_i+m_i$也会不同。在构造小批量时，我们将每个样本的背景词和噪音词连结在一起，并添加填充项0直至连结后的长度相同，即长度均为$\max_i n_i+m_i$（`max_len`）。为了避免填充项对损失函数计算的影响，我们构造了掩码变量`masks`，其每一个元素分别与连结后的背景词和噪音词`contexts_negatives`中的元素一一对应。当变量`contexts_negatives`中的某个元素为填充项时，相同位置的掩码变量`masks`中的元素取0，否则取1。为了区分正例和负例，我们还需要将`contexts_negatives`变量中的背景词和噪音词区分开来。依据掩码变量的构造思路，我们只需创建与`contexts_negatives`变量形状相同的标签变量`labels`，并将与背景词（正例）对应的元素设1，其余清0。
+在一个小批量数据中，第$i$个样本包括一个中心词以及它所对应的$n_i$个背景词和$m_i$个噪音词。由于每个样本的背景窗口大小可能不一样，其中背景词与噪音词个数之和$n_i+m_i$也会不同。在构造小批量时，我们将每个样本的背景词和噪音词连结在一起，并添加填充项0直至连结后的长度相同，即长度均为$\max_i n_i+m_i$（`max_len`）。为了避免填充项对损失函数计算的影响，我们构造了掩码变量`masks`，其每一个元素分别与连结后的背景词和噪音词`contexts_negatives`中的元素一一对应。当变量`contexts_negatives`中的某个元素为填充项时，相同位置的掩码变量`masks`中的元素取0，否则取1。为了区分正类和负类，我们还需要将`contexts_negatives`变量中的背景词和噪音词区分开来。依据掩码变量的构造思路，我们只需创建与`contexts_negatives`变量形状相同的标签变量`labels`，并将与背景词（正类）对应的元素设1，其余清0。
 
 下面我们将实现这个小批量读取函数`batchify`。它的小批量输入`data`是一个长度为批量大小的列表，其中每个元素分别包含中心词`center`、背景词`context`和噪音词`negative`。该函数返回的小批量数据符合我们所需要的格式，例如包含了掩码变量。
 
@@ -251,9 +251,9 @@ loss = gloss.SigmoidBinaryCrossEntropyLoss()
 
 值得一提的是，我们可以通过掩码变量指定小批量中参与损失函数计算的部分预测值和标签：当掩码为1时，相应位置的预测值和标签将参与损失函数的计算；当掩码为0时，相应位置的预测值和标签则不参与损失函数的计算。我们之前提到，掩码变量可用于避免填充项对损失函数计算的影响。
 
-```{.python .input}
+```{.python .input  n=20}
 pred = nd.array([[1.5, 0.3, -1, 2], [1.1, -0.6, 2.2, 0.4]])
-# 标签变量 label 中的 1 和 0 分别代表背景词和噪声词。
+# 标签变量 label 中的 1 和 0 分别代表背景词和噪音词。
 label = nd.array([[1, 0, 0, 0], [1, 1, 0, 0]])
 mask = nd.array([[1, 1, 1, 1], [1, 1, 1, 0]])  # 掩码变量。
 loss(pred, label, mask) * mask.shape[1] / mask.sum(axis=1)
@@ -261,7 +261,7 @@ loss(pred, label, mask) * mask.shape[1] / mask.sum(axis=1)
 
 作为比较，下面将从零开始实现二元交叉熵损失函数的计算，并根据掩码变量`mask`计算掩码为1的预测值和标签的损失。
 
-```{.python .input}
+```{.python .input  n=21}
 def sigmd(x):
     return -math.log(1 / (1 + math.exp(-x)))
 
@@ -273,7 +273,7 @@ print('%.7f' % ((sigmd(1.1) + sigmd(-0.6) + sigmd(-2.2)) / 3))
 
 我们分别构造中心词和背景词的嵌入层，并将超参数词向量维度`embed_size`设置成100。
 
-```{.python .input  n=20}
+```{.python .input  n=22}
 embed_size = 100
 net = nn.Sequential()
 net.add(nn.Embedding(input_dim=len(idx_to_token), output_dim=embed_size),
@@ -284,14 +284,14 @@ net.add(nn.Embedding(input_dim=len(idx_to_token), output_dim=embed_size),
 
 下面定义训练函数。由于填充项的存在，跟之前的训练函数相比，损失函数的计算稍有不同。
 
-```{.python .input  n=21}
+```{.python .input  n=23}
 def train(net, lr, num_epochs):
-    ctx = gb.try_gpu()
+    ctx = d2l.try_gpu()
     net.initialize(ctx=ctx, force_reinit=True)
     trainer = gluon.Trainer(net.collect_params(), 'adam',
                             {'learning_rate': lr})
     for epoch in range(num_epochs):
-        start_time, train_l_sum = time.time(), 0
+        start, l_sum, n = time.time(), 0.0, 0
         for batch in data_iter:
             center, context_negative, mask, label = [
                 data.as_in_context(ctx) for data in batch]
@@ -302,27 +302,28 @@ def train(net, lr, num_epochs):
                      mask.shape[1] / mask.sum(axis=1))
             l.backward()
             trainer.step(batch_size)
-            train_l_sum += l.mean().asscalar()
-        print('epoch %d, train loss %.2f, time %.2fs'
-              % (epoch + 1, train_l_sum / len(data_iter),
-                 time.time() - start_time))
+            l_sum += l.sum().asscalar()
+            n += l.size
+        print('epoch %d, loss %.2f, time %.2fs'
+              % (epoch + 1, l_sum / n, time.time() - start))
 ```
 
 现在我们可以训练使用负采样的跳字模型了。
 
-```{.python .input  n=22}
-train(net, 0.005, 8)
+```{.python .input  n=24}
+train(net, 0.005, 5)
 ```
 
 ## 应用词嵌入模型
 
 当训练好词嵌入模型后，我们可以根据两个词向量的余弦相似度表示词与词之间在语义上的相似度。可以看到，使用训练得到的词嵌入模型时，与词“chip”语义最接近的词大多与芯片有关。
 
-```{.python .input  n=23}
+```{.python .input  n=25}
 def get_similar_tokens(query_token, k, embed):
     W = embed.weight.data()
     x = W[token_to_idx[query_token]]
-    cos = nd.dot(W, x) / nd.sum(W * W, axis=1).sqrt() / nd.sum(x * x).sqrt()
+    # 添加的 1e-9 是为了数值稳定性。
+    cos = nd.dot(W, x) / (nd.sum(W * W, axis=1) * nd.sum(x * x) + 1e-9).sqrt()
     topk = nd.topk(cos, k=k+1, ret_typ='indices').asnumpy().astype('int32')
     for i in topk[1:]:  # 除去输入词。
         print('cosine sim=%.3f: %s' % (cos[i].asscalar(), (idx_to_token[i])))
@@ -339,6 +340,7 @@ get_similar_tokens('chip', 3, net[0])
 
 ## 练习
 
+* 在创建`nn.Embedding`实例时设参数`sparse_grad=True`，训练是否可以加速？查阅MXNet文档，了解该参数的意义。
 * 我们用`batchify`函数指定`DataLoader`实例中小批量的读取方式，并打印了读取的第一个批量中各个变量的形状。这些形状该如何计算得到？
 * 试着找出其他词的近义词。
 * 调一调超参数，观察并分析实验结果。

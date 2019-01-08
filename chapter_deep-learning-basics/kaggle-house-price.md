@@ -24,11 +24,11 @@ Kaggle（网站地址：https://www.kaggle.com ）是一个著名的供机器学
 我们将通过使用`pandas`读入并处理数据。在导入本节需要的包前请确保已安装`pandas`，否则请参考下面代码注释。
 
 ```{.python .input  n=3}
-# 如果没有安装 pandas，请反注释下面一行。
+# 如果没有安装pandas，请反注释下面一行
 # !pip install pandas
 
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
 import numpy as np
@@ -54,7 +54,7 @@ train_data.shape
 test_data.shape
 ```
 
-让我们来前4个样本的前4个特征、后2个特征和标签（SalePrice）：
+让我们来查看前4个样本的前4个特征、后2个特征和标签（SalePrice）：
 
 ```{.python .input  n=28}
 train_data.iloc[0:4, [0, 1, 2, 3, -3, -2, -1]]
@@ -77,10 +77,10 @@ all_features[numeric_features] = all_features[numeric_features].apply(
 all_features = all_features.fillna(all_features.mean())
 ```
 
-接下来将离散数值转成指示特征。举个例子，假设特征MSZoning里面有两个不同的离散值RL和RM，那么这一步转换将去掉MSZoning特征，并新加两个特征MSZoning\_RL和MSZoning\_RM，其值为0或1。如果一个样本原来在MSZoning里的值为RL，那么有MSZoning\_RL=0且MSZoning\_RM=1。
+接下来将离散数值转成指示特征。举个例子，假设特征MSZoning里面有两个不同的离散值RL和RM，那么这一步转换将去掉MSZoning特征，并新加两个特征MSZoning\_RL和MSZoning\_RM，其值为0或1。如果一个样本原来在MSZoning里的值为RL，那么有MSZoning\_RL=1且MSZoning\_RM=0。
 
 ```{.python .input  n=7}
-# dummy_na=True 将缺失值也当做合法的特征值并为其创建指示特征。
+# dummy_na=True将缺失值也当作合法的特征值并为其创建指示特征
 all_features = pd.get_dummies(all_features, dummy_na=True)
 all_features.shape
 ```
@@ -115,10 +115,10 @@ def get_net():
 $$\sqrt{\frac{1}{n}\sum_{i=1}^n\left(\log(y_i)-\log(\hat y_i)\right)^2}.$$
 
 ```{.python .input  n=11}
-def log_rmse(net, train_features, train_labels):
-    # 将小于 1 的值设成 1，使得取对数时数值更稳定。
-    clipped_preds = nd.clip(net(train_features), 1, float('inf'))
-    rmse = nd.sqrt(2 * loss(clipped_preds.log(), train_labels.log()).mean())
+def log_rmse(net, features, labels):
+    # 将小于1的值设成1，使得取对数时数值更稳定
+    clipped_preds = nd.clip(net(features), 1, float('inf'))
+    rmse = nd.sqrt(2 * loss(clipped_preds.log(), labels.log()).mean())
     return rmse.asscalar()
 ```
 
@@ -130,7 +130,7 @@ def train(net, train_features, train_labels, test_features, test_labels,
     train_ls, test_ls = [], []
     train_iter = gdata.DataLoader(gdata.ArrayDataset(
         train_features, train_labels), batch_size, shuffle=True)
-    # 这里使用了 Adam 优化算法。
+    # 这里使用了Adam优化算法
     trainer = gluon.Trainer(net.collect_params(), 'adam', {
         'learning_rate': learning_rate, 'wd': weight_decay})
     for epoch in range(num_epochs):
@@ -177,15 +177,15 @@ def k_fold(k, X_train, y_train, num_epochs,
         data = get_k_fold_data(k, i, X_train, y_train)
         net = get_net()
         train_ls, valid_ls = train(net, *data, num_epochs, learning_rate,
-                                  weight_decay, batch_size)
+                                   weight_decay, batch_size)
         train_l_sum += train_ls[-1]
         valid_l_sum += valid_ls[-1]
         if i == 0:
-            gb.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'rmse',
-                        range(1, num_epochs + 1), valid_ls,
-                        ['train', 'valid'])
-        print('fold %d, train rmse: %f, valid rmse: %f' % (
-            i, train_ls[-1], valid_ls[-1]))
+            d2l.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'rmse',
+                         range(1, num_epochs + 1), valid_ls,
+                         ['train', 'valid'])
+        print('fold %d, train rmse: %f, valid rmse: %f'
+              % (i, train_ls[-1], valid_ls[-1]))
     return train_l_sum / k, valid_l_sum / k
 ```
 
@@ -195,9 +195,8 @@ def k_fold(k, X_train, y_train, num_epochs,
 
 ```{.python .input  n=16}
 k, num_epochs, lr, weight_decay, batch_size = 5, 100, 5, 0, 64
-verbose_epoch = num_epochs - 2
 train_l, valid_l = k_fold(k, train_features, train_labels, num_epochs, lr,
-                         weight_decay, batch_size)
+                          weight_decay, batch_size)
 print('%d-fold validation: avg train rmse: %f, avg valid rmse: %f'
       % (k, train_l, valid_l))
 ```
@@ -214,7 +213,7 @@ def train_and_pred(train_features, test_feature, train_labels, test_data,
     net = get_net()
     train_ls, _ = train(net, train_features, train_labels, None, None,
                         num_epochs, lr, weight_decay, batch_size)
-    gb.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'rmse')
+    d2l.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'rmse')
     print('train rmse %f' % train_ls[-1])
     preds = net(test_features).asnumpy()
     test_data['SalePrice'] = pd.Series(preds.reshape(1, -1)[0])
@@ -244,7 +243,7 @@ train_and_pred(train_features, test_features, train_labels, test_data,
 
 * 在Kaggle提交本教程的预测结果。观察一下，这个结果在Kaggle上能拿到什么样的分数？
 * 对照$K$折交叉验证结果，不断修改模型（例如添加隐藏层）和调参，你能提高Kaggle上的分数吗？
-* 如果不使用本节中对连续数值特征的标准化处理，结果会有什么变化?
+* 如果不使用本节中对连续数值特征的标准化处理，结果会有什么变化？
 * 扫码直达讨论区，在社区交流方法和结果。你能发掘出其他更好的技巧吗？
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1039)

@@ -1,6 +1,6 @@
 # 使用AWS运行代码
 
-当本地机器的计算资源有限时，我们可以通过云计算服务获取更强大的计算资源来运行本书中的深度学习代码。本节将介绍如何在AWS（亚马逊的云计算服务）上申请实例并通过Jupyter笔记本运行代码。本节中的例子有如下两个步骤:  
+当本地机器的计算资源有限时，我们可以通过云计算服务获取更强大的计算资源来运行本书中的深度学习代码。本节将介绍如何在AWS（亚马逊的云计算服务）上申请实例并通过Jupyter记事本运行代码。本节中的例子有如下两个步骤:
 
 1. 申请含一个K80 GPU的“p2.xlarge”实例。
 2. 安装CUDA及相应GPU版本的MXNet。
@@ -24,11 +24,11 @@
 ![EC2面板。](../img/ec2.png)
 
 
-图11.10的最上面一行显示了配置实例所需的7个步骤。在第一步“1. Chosse AMI”中，选择Ubuntu 16.04作为操作系统。
+图11.10的最上面一行显示了配置实例所需的7个步骤。在第一步“1. Choose AMI”中，选择Ubuntu 16.04作为操作系统。
 
 ![选择操作系统。](../img/os.png)
 
-EC2提供了大量不同配置的实例。如图11.11所示，在第二步“2. Chosse Instance Type”中，选择有一个K80 GPU的“p2.xlarge”实例。我们也可以选择像“p2.16xlarge”这样有多个GPU的实例。如果你想比较不同实例的机器配置和收费，可参考 https://www.ec2instances.info/ 。
+EC2提供了大量不同配置的实例。如图11.11所示，在第二步“2. Choose Instance Type”中，选择有一个K80 GPU的“p2.xlarge”实例。我们也可以选择像“p2.16xlarge”这样有多个GPU的实例。如果你想比较不同实例的机器配置和收费，可参考 https://www.ec2instances.info/ 。
 
 ![选择实例。](../img/p2x.png)
 
@@ -68,35 +68,37 @@ ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com
 sudo apt-get update && sudo apt-get install -y build-essential git libgfortran3
 ```
 
-Nvidia一般每年会更新一次CUDA大版本。这里我们下载作者写本书时的最新版本CUDA 9.1。访问Nvidia官网（https://developer.nvidia.com/cuda-91-download-archive ）获取正确 版本的CUDA 9.1的下载地址，如图11.17所示。
+NVIDIA一般每年会更新一次CUDA主版本。这里我们下载作者写本书时的最新主版本CUDA 9.0（也可使用MXNet支持的其他版本）。访问NVIDIA官网（https://developer.nvidia.com/cuda-90-download-archive ）获取正确版本的CUDA 9.0的下载地址，如图11.17所示。
 
-![获取CUDA9.1的下载地址。](../img/cuda.png)
+![获取CUDA9.0的下载地址。](../img/cuda.png)
 
 
-获取下载地址后，我们将下载并安装CUDA9.1，例如
+获取下载地址后，我们将下载并安装CUDA9.0，例如
 
 ```
-wget https://developer.download.nvidia.com/compute/cuda/9.1/secure/Prod/local_installers/cuda_9.1.85_387.26_linux.run
-sudo sh cuda_9.1.85_387.26_linux.run
+wget https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda_9.0.176_384.81_linux-run
+sudo sh cuda_9.0.176_384.81_linux-run
 ```
 
 点击“Ctrl+C”跳出文档浏览，并回答以下几个问题。
 
 ```
+Do you accept the previously read EULA?
 accept/decline/quit: accept
-Install NVIDIA Accelerated Graphics Driver for Linux-x86_64 387.26?
+Install NVIDIA Accelerated Graphics Driver for Linux-x86_64 384.81?
 (y)es/(n)o/(q)uit: y
 Do you want to install the OpenGL libraries?
 (y)es/(n)o/(q)uit [ default is yes ]: y
 Do you want to run nvidia-xconfig?
+This will ... vendors.
 (y)es/(n)o/(q)uit [ default is no ]: n
-Install the CUDA 9.1 Toolkit?
+Install the CUDA 9.0 Toolkit?
 (y)es/(n)o/(q)uit: y
 Enter Toolkit Location
- [ default is /usr/local/cuda-9.1 ]:
+ [ default is /usr/local/cuda-9.0 ]:
 Do you want to install a symbolic link at /usr/local/cuda?
 (y)es/(n)o/(q)uit: y
-Install the CUDA 9.1 Samples?
+Install the CUDA 9.0 Samples?
 (y)es/(n)o/(q)uit: n
 ```
 
@@ -106,10 +108,10 @@ Install the CUDA 9.1 Samples?
 nvidia-smi
 ```
 
-最后，将CUDA加入到库的路径中，以方便其他库找到它。
+最后，将CUDA加入到库的路径中，以方便其他库找到它。如果你使用其他版本或其他路径，需要修改以下命令中的字符串“/usr/local/cuda-9.0”。
 
 ```
-echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-9.1/lib64" >> .bashrc
+echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-9.0/lib64" >> ~/.bashrc
 ```
 
 ## 获取本书代码并安装GPU版的MXNet
@@ -131,26 +133,26 @@ to PATH in your /home/ubuntu/.bashrc ? [yes|no]
 [no] >>> yes
 ```
 
-安装完成后，运行一次`source ~/.bashrc`让CUDA和conda生效。接下来，下载本书代码、安装并激活conda环境。
+安装完成后，运行一次`source ~/.bashrc`让CUDA和conda生效。接下来，下载本书代码、安装并激活conda环境。如未安装`unzip`，可运行命令`sudo apt install unzip`安装。
 
 ```
-mkdir gluon_tutorials_zh && cd gluon_tutorials_zh
-curl https://zh.gluon.ai/gluon_tutorials_zh.tar.gz -o tutorials.tar.gz
-tar -xzvf tutorials.tar.gz && rm tutorials.tar.gz
+mkdir d2l-zh && cd d2l-zh
+curl https://zh.d2l.ai/d2l-zh-1.0.zip -o d2l-zh.zip
+unzip d2l-zh.zip && rm d2l-zh.zip
 conda env create -f environment.yml
 source activate gluon
 ```
 
-默认环境里安装了CPU版本的MXNet。现在我们将它替换成GPU版本的MXNet。因为CUDA的版本是9.1，所以安装`mxnet-cu91`。一般来说，如果CUDA版本是x.y，那么相应安装`mxnet-cuxy`。
+默认环境里安装了CPU版本的MXNet。现在我们将它替换成GPU版本的MXNet。因为CUDA的版本是9.0，所以安装`mxnet-cu90`。一般来说，如果CUDA版本是x.y，那么相应安装`mxnet-cuxy`。
 
 ```
 pip uninstall mxnet
-pip install mxnet-cu91
+pip install mxnet-cu90==X.Y.Z  # X.Y.Z 应替换为本书代码依赖的版本号。
 ```
 
-## 运行Jupyter笔记本
+## 运行Jupyter记事本
 
-现在，我们可以运行Jupyter笔记本了：
+现在，我们可以运行Jupyter记事本了：
 
 ```
 jupyter notebook
@@ -158,7 +160,7 @@ jupyter notebook
 
 图11.18显示了运行后可能的输出，其中最后一行为8888端口下的URL。
 
-![运行Jupyter笔记本后的输出，其中最后一行为8888端口下的URL。](../img/jupyter.png)
+![运行Jupyter记事本后的输出，其中最后一行为8888端口下的URL。](../img/jupyter.png)
 
 由于创建的实例并没有暴露8888端口，我们可以在本地命令行启动ssh从实例映射到本地8889端口。
 
@@ -167,7 +169,7 @@ jupyter notebook
 ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com -L 8889:localhost:8888
 ```
 
-最后，把图11.18中运行Jupyter笔记本后输出的最后一行URL复制到本地浏览器，并将8888改为8889。点击回车键即可从本地浏览器通过Jupyter笔记本运行实例上的代码。
+最后，把图11.18中运行Jupyter记事本后输出的最后一行URL复制到本地浏览器，并将8888改为8889。点击回车键即可从本地浏览器通过Jupyter记事本运行实例上的代码。
 
 ## 关闭不使用的实例
 
@@ -175,7 +177,7 @@ ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com -L 8
 
 如果较短时间内还将重新开启实例，右击图11.16中的示例，选择“Instance State” $\rightarrow$ “Stop”将实例停止，等下次使用时选择“Instance State” $\rightarrow$ “Start”重新开启实例。这种情况下，开启的实例将保留其停止前硬盘上的存储（例如无需再安装CUDA和其他运行环境）。然而，停止状态的实例也会因其所保留的硬盘空间而产生少量计费。
 
-如果较长时间内不会重新开启实例，右击图11.16中的示例，选择“Image” $\rightarrow$ “Create”创建镜像。然后，选择“Instance State” $\rightarrow$ “Terminate”将实例终结（硬盘不再产生计费）。当下次使用时，我们可按本节中创建并运行EC2实例的步骤重新创建一个基于保存镜像的实例。唯一的区别在于，在图11.10的第一步“1. Chosse AMI”中，我们需要通过左栏“My AMIs”选择之前保存的镜像。这样创建的实例将保留镜像上硬盘的存储，例如无需再安装CUDA和其他运行环境。
+如果较长时间内不会重新开启实例，右击图11.16中的示例，选择“Image” $\rightarrow$ “Create”创建镜像。然后，选择“Instance State” $\rightarrow$ “Terminate”将实例终结（硬盘不再产生计费）。当下次使用时，我们可按本节中创建并运行EC2实例的步骤重新创建一个基于保存镜像的实例。唯一的区别在于，在图11.10的第一步“1. Choose AMI”中，我们需要通过左栏“My AMIs”选择之前保存的镜像。这样创建的实例将保留镜像上硬盘的存储，例如无需再安装CUDA和其他运行环境。
 
 ## 小结
 

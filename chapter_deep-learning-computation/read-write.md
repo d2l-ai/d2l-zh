@@ -56,8 +56,8 @@ class MLP(nn.Block):
 
 net = MLP()
 net.initialize()
-x = nd.random.uniform(shape=(2, 20))
-y = net(x)
+X = nd.random.uniform(shape=(2, 20))
+Y = net(X)
 ```
 
 下面把该模型的参数存成文件，文件名为“mlp.params”。
@@ -74,11 +74,11 @@ net2 = MLP()
 net2.load_parameters(filename)
 ```
 
-因为这两个实例都有同样的模型参数，那么对同一个输入`x`的计算结果将会是一样。我们来验证一下。
+因为这两个实例都有同样的模型参数，那么对同一个输入`X`的计算结果将会是一样。我们来验证一下。
 
 ```{.python .input}
-y2 = net2(x)
-y2 == y
+Y2 = net2(X)
+Y2 == Y
 ```
 
 ## 小结

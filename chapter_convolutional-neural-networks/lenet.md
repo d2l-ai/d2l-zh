@@ -20,7 +20,7 @@ LeNet分为卷积层块和全连接层块两个部分。下面我们分别介绍
 下面我们通过Sequential类来实现LeNet模型。
 
 ```{.python .input}
-import gluonbook as gb
+import d2lzh as d2l
 import mxnet as mx
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import loss as gloss, nn
@@ -31,8 +31,8 @@ net.add(nn.Conv2D(channels=6, kernel_size=5, activation='sigmoid'),
         nn.MaxPool2D(pool_size=2, strides=2),
         nn.Conv2D(channels=16, kernel_size=5, activation='sigmoid'),
         nn.MaxPool2D(pool_size=2, strides=2),
-        # Dense 会默认将（批量大小，通道，高，宽）形状的输入转换成
-        # （批量大小，通道 * 高 * 宽）形状的输入。
+        # Dense会默认将(批量大小,通道,高,宽)形状的输入转换成(批量大小,通道 * 高 * 宽)形
+        # 状的输入。
         nn.Dense(120, activation='sigmoid'),
         nn.Dense(84, activation='sigmoid'),
         nn.Dense(10))
@@ -57,13 +57,13 @@ for layer in net:
 
 ```{.python .input}
 batch_size = 256
-train_iter, test_iter = gb.load_data_fashion_mnist(batch_size=batch_size)
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size=batch_size)
 ```
 
 因为卷积神经网络计算比多层感知机要复杂，建议使用GPU来加速计算。我们尝试在`gpu(0)`上创建NDArray，如果成功则使用`gpu(0)`，否则仍然使用CPU。
 
 ```{.python .input}
-def try_gpu4():  # 本函数已保存在 gluonbook 包中方便以后使用。
+def try_gpu():  # 本函数已保存在 d2lzh 包中方便以后使用
     try:
         ctx = mx.gpu()
         _ = nd.zeros((1,), ctx=ctx)
@@ -71,48 +71,51 @@ def try_gpu4():  # 本函数已保存在 gluonbook 包中方便以后使用。
         ctx = mx.cpu()
     return ctx
 
-ctx = try_gpu4()
+ctx = try_gpu()
 ctx
 ```
 
-相应地，我们对[“Softmax回归的从零开始实现”](../chapter_deep-learning-basics/softmax-regression-scratch.md)一节中描述的`evaluate_accuracy`函数略作修改。由于数据刚开始存在CPU的内存上，当`ctx`变量为GPU时，我们通过[“GPU计算”](../chapter_deep-learning-computation/use-gpu.md)一节中介绍的`as_in_context`函数将数据复制到GPU上，例如`gpu(0)`。
+相应地，我们对[“Softmax回归的从零开始实现”](../chapter_deep-learning-basics/softmax-regression-scratch.md)一节中描述的`evaluate_accuracy`函数略作修改。由于数据刚开始存在CPU使用的内存上，当`ctx`变量代表GPU及相应的显存时，我们通过[“GPU计算”](../chapter_deep-learning-computation/use-gpu.md)一节中介绍的`as_in_context`函数将数据复制到显存上，例如`gpu(0)`。
 
 ```{.python .input}
-# 本函数已保存在 gluonbook 包中方便以后使用。该函数将被逐步改进：它的完整实现将在“图像增
-# 广”一节中描述。
+# 本函数已保存在d2lzh包中方便以后使用。该函数将被逐步改进：它的完整实现将在“图像增广”一节中
+# 描述。
 def evaluate_accuracy(data_iter, net, ctx):
-    acc = nd.array([0], ctx=ctx)
+    acc_sum, n = nd.array([0], ctx=ctx), 0
     for X, y in data_iter:
-        # 如果 ctx 是 GPU，将数据复制到 GPU 上。
-        X, y = X.as_in_context(ctx), y.as_in_context(ctx)
-        acc += gb.accuracy(net(X), y)
-    return acc.asscalar() / len(data_iter)
+        # 如果ctx代表GPU及相应的显存，将数据复制到显存上
+        X, y = X.as_in_context(ctx), y.as_in_context(ctx).astype('float32')
+        acc_sum += (net(X).argmax(axis=1) == y).sum()
+        n += y.size
+    return acc_sum.asscalar() / n
 ```
 
-我们同样对[“Softmax回归的从零开始实现”](../chapter_deep-learning-basics/softmax-regression-scratch.md)一节中定义的`train_ch3`函数略作修改，确保计算使用的数据和模型同在CPU或GPU的内存上。
+我们同样对[“Softmax回归的从零开始实现”](../chapter_deep-learning-basics/softmax-regression-scratch.md)一节中定义的`train_ch3`函数略作修改，确保计算使用的数据和模型同在内存或显存上。
 
 ```{.python .input}
-# 本函数已保存在 gluonbook 包中方便以后使用。
+# 本函数已保存在d2lzh包中方便以后使用
 def train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
               num_epochs):
     print('training on', ctx)
     loss = gloss.SoftmaxCrossEntropyLoss()
     for epoch in range(num_epochs):
-        train_l_sum, train_acc_sum, start = 0, 0, time.time()
+        train_l_sum, train_acc_sum, n, start = 0.0, 0.0, 0, time.time()
         for X, y in train_iter:
             X, y = X.as_in_context(ctx), y.as_in_context(ctx)
             with autograd.record():
                 y_hat = net(X)
-                l = loss(y_hat, y)
+                l = loss(y_hat, y).sum()
             l.backward()
             trainer.step(batch_size)
-            train_l_sum += l.mean().asscalar()
-            train_acc_sum += gb.accuracy(y_hat, y)
+            y = y.astype('float32')
+            train_l_sum += l.asscalar()
+            train_acc_sum += (y_hat.argmax(axis=1) == y).sum().asscalar()
+            n += y.size
         test_acc = evaluate_accuracy(test_iter, net, ctx)
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
-              'time %.1f sec' % (epoch + 1, train_l_sum / len(train_iter),
-                                 train_acc_sum / len(train_iter),
-                                 test_acc, time.time() - start))
+              'time %.1f sec'
+              % (epoch + 1, train_l_sum / n, train_acc_sum / n, test_acc,
+                 time.time() - start))
 ```
 
 我们重新将模型参数初始化到设备变量`ctx`之上，并使用Xavier随机初始化。损失函数和训练算法则依然使用交叉熵损失函数和小批量随机梯度下降。

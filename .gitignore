@@ -1,7 +1,15 @@
 **/.ipynb_checkpoints
 **/__pycache__
 data/
-build/
+build/chapter*
+build/_build
+build/img
+build/environment.yml
+build/d2lzh
+build/data
+build/README.md
+build/build
+build/mdd.zip
 *.json
 *.params
 *.DS_Store
@@ -11,4 +19,3 @@ build/
 /chapter_gluon-basics/mydict
 *egg-info*
 dist*
-utils.py

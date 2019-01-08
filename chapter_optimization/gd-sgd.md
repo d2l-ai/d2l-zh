@@ -28,7 +28,7 @@ $$x \leftarrow x - \eta f'(x)$$
 
 ```{.python .input  n=3}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 import math
 from mxnet import nd
 import numpy as np
@@ -55,11 +55,11 @@ res = gd(0.2)
 def show_trace(res):
     n = max(abs(min(res)), abs(max(res)), 10)
     f_line = np.arange(-n, n, 0.1)
-    gb.set_figsize()
-    gb.plt.plot(f_line, [x * x for x in f_line])
-    gb.plt.plot(res, [x * x for x in res], '-o')
-    gb.plt.xlabel('x')
-    gb.plt.ylabel('f(x)')
+    d2l.set_figsize()
+    d2l.plt.plot(f_line, [x * x for x in f_line])
+    d2l.plt.plot(res, [x * x for x in res], '-o')
+    d2l.plt.xlabel('x')
+    d2l.plt.ylabel('f(x)')
 
 show_trace(res)
 ```
@@ -105,7 +105,7 @@ $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f(\boldsymbol{x}).$$
 下面我们构造一个输入为二维向量$\boldsymbol{x} = [x_1, x_2]^\top$和输出为标量的目标函数$f(\boldsymbol{x})=x_1^2+2x_2^2$。那么，梯度$\nabla f(\boldsymbol{x}) = [2x_1, 4x_2]^\top$。我们将观察梯度下降从初始位置$[-5,-2]$开始对自变量$\boldsymbol{x}$的迭代轨迹。我们先定义两个辅助函数。第一个函数使用给定的自变量更新函数，从初始位置$[-5,-2]$开始迭代自变量$\boldsymbol{x}$共20次。第二个函数将可视化自变量$\boldsymbol{x}$的迭代轨迹。
 
 ```{.python .input  n=10}
-def train_2d(trainer):  # 本函数将保存在 gluonbook 包中方便以后使用。
+def train_2d(trainer):  # 本函数将保存在 d2lzh 包中方便以后使用。
     x1, x2, s1, s2 = -5, -2, 0, 0  # s1 和 s2 是自变量状态，之后章节会使用。
     results = [(x1, x2)]
     for i in range(20):
@@ -114,12 +114,12 @@ def train_2d(trainer):  # 本函数将保存在 gluonbook 包中方便以后使�
     print('epoch %d, x1 %f, x2 %f' % (i + 1, x1, x2))
     return results
 
-def show_trace_2d(f, results):  # 本函数将保存在 gluonbook 包中方便以后使用。
-    gb.plt.plot(*zip(*results), '-o', color='#ff7f0e')
+def show_trace_2d(f, results):  # 本函数将保存在 d2lzh 包中方便以后使用。
+    d2l.plt.plot(*zip(*results), '-o', color='#ff7f0e')
     x1, x2 = np.meshgrid(np.arange(-5.5, 1.0, 0.1), np.arange(-3.0, 1.0, 0.1))
-    gb.plt.contour(x1, x2, f(x1, x2), colors='#1f77b4')
-    gb.plt.xlabel('x1')
-    gb.plt.ylabel('x2')
+    d2l.plt.contour(x1, x2, f(x1, x2), colors='#1f77b4')
+    d2l.plt.xlabel('x1')
+    d2l.plt.ylabel('x2')
 ```
 
 然后，观察学习率为$0.1$时自变量的迭代轨迹。使用梯度下降对自变量$\boldsymbol{x}$迭代20次后，可见最终$\boldsymbol{x}$的值较接近最优解$[0,0]$。

@@ -78,6 +78,10 @@
 
 负采样，negative sampling
 
+感受野，receptive field
+
+格拉姆矩阵，Gram matrix
+
 共现词频，co-occurrence frequency
 
 归一化，normalization
@@ -128,15 +132,17 @@
 
 流水线，pipeline
 
-softmax回归，softmax regression
-
 模型参数，model parameter
 
 模型复杂度，model complexity
 
+目标检测，object detection
+
 偏差，bias
 
 偏导数，partial derivative
+
+偏移量，offset
 
 批量，batch
 
@@ -150,6 +156,8 @@ softmax回归，softmax regression
 
 权重，weight
 
+上采样，upsample
+
 实例，instance
 
 收敛，converge
@@ -162,11 +170,15 @@ softmax回归，softmax regression
 
 数据样本，data instance
 
+softmax回归，softmax regression
+
 损失函数，loss function
 
 双向循环神经网络，bidirectional recurrent neural network
 
 特征，feature
+
+特征图，feature map
 
 特征值，eigenvalue
 

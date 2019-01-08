@@ -16,13 +16,13 @@
 接下来我们实现含多个输入通道的互相关运算。我们只需要对每个通道做互相关运算，然后通过`add_n`函数来进行累加。
 
 ```{.python .input  n=1}
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import nd
 
 def corr2d_multi_in(X, K):
-    # 我们首先沿着 X 和 K 的第 0 维（通道维）遍历。然后使用 * 将结果列表变成 add_n 函数
-    # 的位置参数（positional argument）来进行相加。
-    return nd.add_n(*[gb.corr2d(x, k) for x, k in zip(X, K)])
+    # 首先沿着X和K的第0维（通道维）遍历。然后使用*将结果列表变成add_n函数的位置参数
+    # （positional argument）来进行相加
+    return nd.add_n(*[d2l.corr2d(x, k) for x, k in zip(X, K)])
 ```
 
 我们可以构造图5.4中的输入数组`X`、核数组`K`来验证互相关运算的输出。
@@ -37,13 +37,13 @@ corr2d_multi_in(X, K)
 
 ## 多输出通道
 
-当输入通道有多个时，由于我们对各个通道的结果做了累加，所以不论输入通道数是多少，输出通道数总是为1。设卷积核输入通道数和输出通道数分别为$c_i$和$c_o$，高和宽分别为$k_h$和$k_w$。如果我们希望得到含多个通道的输出，我们可以为每个输出通道分别创建形状为$c_i\times k_h\times k_w$的核数组。将它们在输出通道维上连结，卷积核的形状即$c_o\times c_i\times k_h\times k_w$。在互相关运算时，每个输出通道上的结果由卷积核在相同输出通道上的核数组与整个输入数组计算而来。
+当输入通道有多个时，由于我们对各个通道的结果做了累加，所以不论输入通道数是多少，输出通道数总是为1。设卷积核输入通道数和输出通道数分别为$c_i$和$c_o$，高和宽分别为$k_h$和$k_w$。如果我们希望得到含多个通道的输出，我们可以为每个输出通道分别创建形状为$c_i\times k_h\times k_w$的核数组。将它们在输出通道维上连结，卷积核的形状即$c_o\times c_i\times k_h\times k_w$。在互相关运算时，每个输出通道上的结果由卷积核在该输出通道上的核数组与整个输入数组计算而来。
 
 下面我们实现一个互相关运算函数来计算多个通道的输出。
 
 ```{.python .input  n=3}
 def corr2d_multi_in_out(X, K):
-    # 对 K 的第 0 维遍历，每次同输入 X 做互相关计算。所有结果使用 stack 函数合并在一起。
+    # 对K的第0维遍历，每次同输入X做互相关计算。所有结果使用stack函数合并在一起
     return nd.stack(*[corr2d_multi_in(X, k) for k in K])
 ```
 
@@ -74,7 +74,7 @@ def corr2d_multi_in_out_1x1(X, K):
     c_o = K.shape[0]
     X = X.reshape((c_i, h * w))
     K = K.reshape((c_o, c_i))
-    Y = nd.dot(K, X)  # 全连接层的矩阵乘法。
+    Y = nd.dot(K, X)  # 全连接层的矩阵乘法
     return Y.reshape((c_o, h, w))
 ```
 

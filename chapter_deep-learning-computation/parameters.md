@@ -11,10 +11,10 @@ from mxnet.gluon import nn
 net = nn.Sequential()
 net.add(nn.Dense(256, activation='relu'))
 net.add(nn.Dense(10))
-net.initialize()  # 使用默认初始化方式。
+net.initialize()  # 使用默认初始化方式
 
-x = nd.random.uniform(shape=(2, 20))
-y = net(x)  # 前向计算。
+X = nd.random.uniform(shape=(2, 20))
+Y = net(X)  # 前向计算
 ```
 
 ## 访问模型参数
@@ -66,7 +66,7 @@ net.collect_params('.*weight')
 我们在[“数值稳定性和模型初始化”](../chapter_deep-learning-basics/numerical-stability-and-init.md)一节中描述了模型的默认初始化方法：权重参数元素为[-0.07, 0.07]之间均匀分布的随机数，偏差参数则全为0。但我们经常需要使用其他的方法来初始化权重。MXNet的`init`模块里提供了多种预设的初始化方法。在下面的例子中，我们将权重参数初始化成均值为0、标准差为0.01的正态分布随机数，并依然将偏差参数清零。
 
 ```{.python .input  n=9}
-# 非首次对模型初始化需要指定 force_reinit 为真。
+# 非首次对模型初始化需要指定force_reinit为真
 net.initialize(init=init.Normal(sigma=0.01), force_reinit=True)
 net[0].weight.data()[0]
 ```
@@ -120,8 +120,8 @@ net.add(nn.Dense(8, activation='relu'),
         nn.Dense(10))
 net.initialize()
 
-x = nd.random.uniform(shape=(2, 20))
-net(x)
+X = nd.random.uniform(shape=(2, 20))
+net(X)
 
 net[1].weight.data()[0] == net[2].weight.data()[0]
 ```
@@ -138,7 +138,7 @@ net[1].weight.data()[0] == net[2].weight.data()[0]
 ## 练习
 
 * 查阅有关`init`模块的MXNet文档，了解不同的参数初始化方法。
-* 尝试在`net.initialize()`后、`net(x)`前访问模型参数，观察模型参数的形状。
+* 尝试在`net.initialize()`后、`net(X)`前访问模型参数，观察模型参数的形状。
 * 构造一个含共享参数层的多层感知机并训练。在训练过程中，观察每一层的模型参数和梯度。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/987)

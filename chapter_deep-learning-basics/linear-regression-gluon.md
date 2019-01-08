@@ -1,4 +1,4 @@
-# 线性回归的Gluon实现
+# 线性回归的简洁实现
 
 随着深度学习框架的发展，开发深度学习应用变得越来越便利。实践中，我们通常可以用比上一节中更简洁的代码来实现同样的模型。本节中，我们将介绍如何使用MXNet提供的Gluon接口更方便地实现线性回归的训练。
 
@@ -26,9 +26,9 @@ Gluon提供了`data`模块来读取数据。由于`data`常用作变量名，我
 from mxnet.gluon import data as gdata
 
 batch_size = 10
-# 将训练数据的特征和标签组合。
+# 将训练数据的特征和标签组合
 dataset = gdata.ArrayDataset(features, labels)
-# 随机读取小批量。
+# 随机读取小批量
 data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
 ```
 
@@ -78,7 +78,7 @@ net.initialize(init.Normal(sigma=0.01))
 ```{.python .input  n=8}
 from mxnet.gluon import loss as gloss
 
-loss = gloss.L2Loss()  # 平方损失又称 L2 范数损失。
+loss = gloss.L2Loss()  # 平方损失又称L2范数损失
 ```
 
 ## 定义优化算法

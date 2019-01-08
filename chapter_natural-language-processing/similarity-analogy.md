@@ -9,7 +9,6 @@ MXNet的`contrib.text`包提供了跟自然语言处理相关的函数和类（�
 ```{.python .input}
 from mxnet import nd
 from mxnet.contrib import text
-from mxnet.gluon import nn
 
 text.embedding.get_pretrained_file_names().keys()
 ```
@@ -49,8 +48,9 @@ glove_6b50d.token_to_idx['beautiful'], glove_6b50d.idx_to_token[3367]
 
 ```{.python .input}
 def knn(W, x, k):
+    # 添加的 1e-9 是为了数值稳定性。
     cos = nd.dot(W, x.reshape((-1,))) / (
-        nd.sum(W * W, axis=1).sqrt() * nd.sum(x * x).sqrt())
+        (nd.sum(W * W, axis=1) + 1e-9).sqrt() * nd.sum(x * x).sqrt())
     topk = nd.topk(cos, k=k, ret_typ='indices').asnumpy().astype('int32')
     return topk, [cos[i].asscalar() for i in topk]
 ```
@@ -59,9 +59,9 @@ def knn(W, x, k):
 
 ```{.python .input}
 def get_similar_tokens(query_token, k, embed):
-    topk, cos = knn(embed.idx_to_vec, 
-                    embed.get_vecs_by_tokens([query_token]), k+2)
-    for i, c in zip(topk[2:], cos[2:]):  # 除去输入词和未知词。
+    topk, cos = knn(embed.idx_to_vec,
+                    embed.get_vecs_by_tokens([query_token]), k+1)
+    for i, c in zip(topk[1:], cos[1:]):  # 除去输入词。
         print('cosine sim=%.3f: %s' % (c, (embed.idx_to_token[i])))
 ```
 
@@ -89,8 +89,8 @@ get_similar_tokens('beautiful', 3, glove_6b50d)
 def get_analogy(token_a, token_b, token_c, embed):
     vecs = embed.get_vecs_by_tokens([token_a, token_b, token_c])
     x = vecs[1] - vecs[0] + vecs[2]
-    topk, cos = knn(embed.idx_to_vec, x, 2)
-    return embed.idx_to_token[topk[1]]  # 除去未知词。
+    topk, cos = knn(embed.idx_to_vec, x, 1)
+    return embed.idx_to_token[topk[0]]
 ```
 
 验证下“男-女”类比。

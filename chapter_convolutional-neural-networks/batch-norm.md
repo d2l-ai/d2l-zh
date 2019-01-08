@@ -34,17 +34,17 @@ $$\boldsymbol{\sigma}_\mathcal{B}^2 \leftarrow \frac{1}{m} \sum_{i=1}^{m}(\bolds
 
 $$\hat{\boldsymbol{x}}^{(i)} \leftarrow \frac{\boldsymbol{x}^{(i)} - \boldsymbol{\mu}_\mathcal{B}}{\sqrt{\boldsymbol{\sigma}_\mathcal{B}^2 + \epsilon}},$$
 
-这里$\epsilon > 0$是一个很小的常数，保证分母大于0。在上面标准化的基础上，批量归一化层引入了两个可以学习的模型参数，拉升（scale）参数 $\boldsymbol{\gamma}$ 和偏移（shift）参数 $\boldsymbol{\beta}$。这两个参数和$\boldsymbol{x}^{(i)}$形状相同，皆为$d$维向量。它们与$\boldsymbol{x}^{(i)}$分别做按元素乘法（符号$\odot$）和加法计算：
+这里$\epsilon > 0$是一个很小的常数，保证分母大于0。在上面标准化的基础上，批量归一化层引入了两个可以学习的模型参数，拉伸（scale）参数 $\boldsymbol{\gamma}$ 和偏移（shift）参数 $\boldsymbol{\beta}$。这两个参数和$\boldsymbol{x}^{(i)}$形状相同，皆为$d$维向量。它们与$\boldsymbol{x}^{(i)}$分别做按元素乘法（符号$\odot$）和加法计算：
 
 $${\boldsymbol{y}}^{(i)} \leftarrow \boldsymbol{\gamma} \odot \hat{\boldsymbol{x}}^{(i)} + \boldsymbol{\beta}.$$
 
 至此，我们得到了$\boldsymbol{x}^{(i)}$的批量归一化的输出$\boldsymbol{y}^{(i)}$。
-值得注意的是，可学习的拉升和偏移参数保留了不对$\hat{\boldsymbol{x}}^{(i)}$做批量归一化的可能：此时只需学出$\boldsymbol{\gamma} = \sqrt{\boldsymbol{\sigma}_\mathcal{B}^2 + \epsilon}$和$\boldsymbol{\beta} = \boldsymbol{\mu}_\mathcal{B}$。我们可以对此这样理解：如果批量归一化无益，理论上学出的模型可以不使用批量归一化。
+值得注意的是，可学习的拉伸和偏移参数保留了不对$\hat{\boldsymbol{x}}^{(i)}$做批量归一化的可能：此时只需学出$\boldsymbol{\gamma} = \sqrt{\boldsymbol{\sigma}_\mathcal{B}^2 + \epsilon}$和$\boldsymbol{\beta} = \boldsymbol{\mu}_\mathcal{B}$。我们可以对此这样理解：如果批量归一化无益，理论上学出的模型可以不使用批量归一化。
 
 
 ### 对卷积层做批量归一化
 
-对卷积层来说，批量归一化发生在卷积计算之后、应用激活函数之前。如果卷积计算输出多个通道，我们需要对这些通道的输出分别做批量归一化，且每个通道都拥有独立的拉升和偏移参数，且均为标量。设小批量中有$m$个样本。在单个通道上，假设卷积计算输出的高和宽分别为$p$和$q$。我们需要对该通道中$m \times p \times q$个元素同时做批量归一化。对这些元素做标准化计算时，我们使用相同的均值和方差，即该通道中$m \times p \times q$个元素的均值和方差。
+对卷积层来说，批量归一化发生在卷积计算之后、应用激活函数之前。如果卷积计算输出多个通道，我们需要对这些通道的输出分别做批量归一化，且每个通道都拥有独立的拉伸和偏移参数，且均为标量。设小批量中有$m$个样本。在单个通道上，假设卷积计算输出的高和宽分别为$p$和$q$。我们需要对该通道中$m \times p \times q$个元素同时做批量归一化。对这些元素做标准化计算时，我们使用相同的均值和方差，即该通道中$m \times p \times q$个元素的均值和方差。
 
 
 ### 预测时的批量归一化
@@ -57,36 +57,36 @@ $${\boldsymbol{y}}^{(i)} \leftarrow \boldsymbol{\gamma} \odot \hat{\boldsymbol{x
 下面我们通过NDArray来实现批量归一化层。
 
 ```{.python .input  n=72}
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import nn
 
 def batch_norm(X, gamma, beta, moving_mean, moving_var, eps, momentum):
-    # 通过 autograd 来判断当前模式为训练模式或预测模式。
+    # 通过autograd来判断当前模式是训练模式还是预测模式
     if not autograd.is_training():
-        # 如果是在预测模式下，直接使用传入的移动平均所得的均值和方差。
+        # 如果是在预测模式下，直接使用传入的移动平均所得的均值和方差
         X_hat = (X - moving_mean) / nd.sqrt(moving_var + eps)
     else:
         assert len(X.shape) in (2, 4)
         if len(X.shape) == 2:
-            # 使用全连接层的情况，计算特征维上的均值和方差。
+            # 使用全连接层的情况，计算特征维上的均值和方差
             mean = X.mean(axis=0)
             var = ((X - mean) ** 2).mean(axis=0)
         else:
-            # 使用二维卷积层的情况，计算通道维上（axis=1）的均值和方差。这里我们需要
-            # 保持 X 的形状以便后面可以做广播运算。
+            # 使用二维卷积层的情况，计算通道维上（axis=1）的均值和方差。这里我们需要保持
+            # X的形状以便后面可以做广播运算
             mean = X.mean(axis=(0, 2, 3), keepdims=True)
             var = ((X - mean) ** 2).mean(axis=(0, 2, 3), keepdims=True)
-        # 训练模式下用当前的均值和方差做标准化。
+        # 训练模式下用当前的均值和方差做标准化
         X_hat = (X - mean) / nd.sqrt(var + eps)
-        # 更新移动平均的均值和方差。
+        # 更新移动平均的均值和方差
         moving_mean = momentum * moving_mean + (1.0 - momentum) * mean
         moving_var = momentum * moving_var + (1.0 - momentum) * var
-    Y = gamma * X_hat + beta  # 拉升和偏移。
+    Y = gamma * X_hat + beta  # 拉伸和偏移
     return Y, moving_mean, moving_var
 ```
 
-接下来我们自定义一个`BatchNorm`层。它保存参与求梯度和迭代的拉升参数`gamma`和偏移参数`beta`，同时也维护移动平均得到的均值和方差，以能够在模型预测时使用。`BatchNorm`实例所需指定的`num_features`参数对于全连接层为输出个数，对于卷积层则为输出通道数。该实例所需指定的`num_dims`参数对于全连接层和卷积层分别为2和4。
+接下来我们自定义一个`BatchNorm`层。它保存参与求梯度和迭代的拉伸参数`gamma`和偏移参数`beta`，同时也维护移动平均得到的均值和方差，以能够在模型预测时使用。`BatchNorm`实例所需指定的`num_features`参数对于全连接层为输出个数，对于卷积层则为输出通道数。该实例所需指定的`num_dims`参数对于全连接层和卷积层分别为2和4。
 
 ```{.python .input  n=73}
 class BatchNorm(nn.Block):
@@ -96,19 +96,19 @@ class BatchNorm(nn.Block):
             shape = (1, num_features)
         else:
             shape = (1, num_features, 1, 1)
-        # 参与求梯度和迭代的拉升和偏移参数，分别初始化成 0 和 1。
+        # 参与求梯度和迭代的拉伸和偏移参数，分别初始化成0和1
         self.gamma = self.params.get('gamma', shape=shape, init=init.One())
         self.beta = self.params.get('beta', shape=shape, init=init.Zero())
-        # 不参与求梯度和迭代的变量，全在 CPU 上初始化成 0。
+        # 不参与求梯度和迭代的变量，全在内存上初始化成0
         self.moving_mean = nd.zeros(shape)
         self.moving_var = nd.zeros(shape)
 
     def forward(self, X):
-        # 如果 X 不在 CPU 上，将 moving_mean 和 moving_var 复制到 X 所在设备上。
+        # 如果X不在内存上，将moving_mean和moving_var复制到X所在显存上
         if self.moving_mean.context != X.context:
             self.moving_mean = self.moving_mean.copyto(X.context)
             self.moving_var = self.moving_var.copyto(X.context)
-        # 保存更新过的 moving_mean 和 moving_var。
+        # 保存更新过的moving_mean和moving_var
         Y, self.moving_mean, self.moving_var = batch_norm(
             X, self.gamma.data(), self.beta.data(), self.moving_mean,
             self.moving_var, eps=1e-5, momentum=0.9)
@@ -141,20 +141,21 @@ net.add(nn.Conv2D(6, kernel_size=5),
 下面我们训练修改后的模型。
 
 ```{.python .input  n=77}
-lr, num_epochs, batch_size, ctx = 1.0, 5, 256, gb.try_gpu()
+lr, num_epochs, batch_size, ctx = 1.0, 5, 256, d2l.try_gpu()
 net.initialize(ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-train_iter, test_iter = gb.load_data_fashion_mnist(batch_size)
-gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
+d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
+              num_epochs)
 ```
 
-最后我们查看下第一个批量归一化层学习到的拉升参数`gamma`和偏移参数`beta`。
+最后我们查看下第一个批量归一化层学习到的拉伸参数`gamma`和偏移参数`beta`。
 
 ```{.python .input  n=60}
 net[1].gamma.data().reshape((-1,)), net[1].beta.data().reshape((-1,))
 ```
 
-## Gluon实现
+## 简洁实现
 
 相比于我们刚刚自己定义的`BatchNorm`类，Gluon中`nn`模块定义的`BatchNorm`类使用起来更加简单。它不需要指定自己定义的`BatchNorm`类中所需的`num_features`和`num_dims`参数值。在Gluon中，这些参数值都将通过延后初始化来自动获取。下面我们用Gluon实现使用批量归一化的LeNet。
 
@@ -182,7 +183,8 @@ net.add(nn.Conv2D(6, kernel_size=5),
 ```{.python .input}
 net.initialize(ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
+d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
+              num_epochs)
 ```
 
 ## 小结
@@ -194,7 +196,7 @@ gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
 
 ## 练习
 
-* 我们能否将批量归一化前的全连接仿射变换或卷积计算中的偏差参数去掉？为什么?（提示：回忆批量归一化中标准化的定义。）
+* 我们能否将批量归一化前的全连接仿射变换或卷积计算中的偏差参数去掉？为什么？（提示：回忆批量归一化中标准化的定义。）
 * 尝试调大学习率。跟前面未使用批量归一化的LeNet相比，现在是不是可以使用更大的学习率？
 * 尝试将批量归一化层插入到LeNet的其他地方，观察并分析结果的变化。
 * 尝试下不学习`beta`和`gamma`（构造的时候加入参数`grad_req='null'`来避免计算梯度），观察并分析结果。

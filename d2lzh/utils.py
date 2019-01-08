@@ -30,11 +30,6 @@ VOC_COLORMAP = [[0, 0, 0], [128, 0, 0], [0, 128, 0], [128, 128, 0],
                 [0, 64, 128]]
 
 
-def accuracy(y_hat, y):
-    """Get accuracy."""
-    return (y_hat.argmax(axis=1) == y.astype('float32')).mean().asscalar()
-
-
 def bbox_to_rect(bbox, color):
     """Convert bounding box to matplotlib format."""
     return plt.Rectangle(xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0],
@@ -156,16 +151,15 @@ def evaluate_accuracy(data_iter, net, ctx=[mx.cpu()]):
     """Evaluate accuracy of a model on the given data set."""
     if isinstance(ctx, mx.Context):
         ctx = [ctx]
-    acc = nd.array([0])
-    n = 0
+    acc_sum, n = nd.array([0]), 0
     for batch in data_iter:
         features, labels, _ = _get_batch(batch, ctx)
         for X, y in zip(features, labels):
             y = y.astype('float32')
-            acc += (net(X).argmax(axis=1) == y).sum().copyto(mx.cpu())
+            acc_sum += (net(X).argmax(axis=1) == y).sum().copyto(mx.cpu())
             n += y.size
-        acc.wait_to_read()
-    return acc.asscalar() / n
+        acc_sum.wait_to_read()
+    return acc_sum.asscalar() / n
 
 
 def _get_batch(batch, ctx):
@@ -174,8 +168,7 @@ def _get_batch(batch, ctx):
     if labels.dtype != features.dtype:
         labels = labels.astype(features.dtype)
     return (gutils.split_and_load(features, ctx),
-            gutils.split_and_load(labels, ctx),
-            features.shape[0])
+            gutils.split_and_load(labels, ctx), features.shape[0])
 
 
 def get_data_ch7():
@@ -209,7 +202,7 @@ def get_vocab_imdb(data):
 def grad_clipping(params, theta, ctx):
     """Clip the gradient."""
     if theta is not None:
-        norm = nd.array([0.0], ctx)
+        norm = nd.array([0], ctx)
         for param in params:
             norm += (param.grad ** 2).sum()
         norm = norm.sqrt().asscalar()
@@ -247,7 +240,7 @@ def load_data_fashion_mnist(batch_size, resize=None, root=os.path.join(
 
 
 def load_data_jay_lyrics():
-    """Load the Jay Chou lyric data set."""
+    """Load the Jay Chou lyric data set (available in the Chinese book)."""
     with zipfile.ZipFile('../data/jaychou_lyrics.txt.zip') as zin:
         with zin.open('jaychou_lyrics.txt') as f:
             corpus_chars = f.read().decode('utf-8')
@@ -281,12 +274,31 @@ def load_data_pikachu(batch_size, edge_size=256):
     return train_iter, val_iter
 
 
+def load_data_time_machine():
+    """Load the time machine data set (available in the English book)."""
+    with open('../data/timemachine.txt') as f:
+        corpus_chars = f.read()
+    corpus_chars = corpus_chars.replace('\n', ' ').replace('\r', ' ').lower()
+    corpus_chars = corpus_chars[0:10000]
+    idx_to_char = list(set(corpus_chars))
+    char_to_idx = dict([(char, i) for i, char in enumerate(idx_to_char)])
+    vocab_size = len(char_to_idx)
+    corpus_indices = [char_to_idx[char] for char in corpus_chars]
+    return corpus_indices, char_to_idx, idx_to_char, vocab_size
+
+
 def _make_list(obj, default_values=None):
     if obj is None:
         obj = default_values
     elif not isinstance(obj, (list, tuple)):
         obj = [obj]
     return obj
+
+
+def mkdir_if_not_exist(path):
+    """Make a directory if it does not exist."""
+    if not os.path.exists(os.path.join(*path)):
+        os.makedirs(os.path.join(*path))
 
 
 def predict_rnn(prefix, num_chars, rnn, params, init_rnn_state,
@@ -352,17 +364,18 @@ def read_imdb(folder='train'):
     return data
 
 
-def read_voc_images(root='../data/VOCdevkit/VOC2012', train=True):
+def read_voc_images(root='../data/VOCdevkit/VOC2012', is_train=True):
     """Read VOC images."""
     txt_fname = '%s/ImageSets/Segmentation/%s' % (
-        root, 'train.txt' if train else 'val.txt')
+        root, 'train.txt' if is_train else 'val.txt')
     with open(txt_fname, 'r') as f:
         images = f.read().split()
-    data, label = [None] * len(images), [None] * len(images)
+    features, labels = [None] * len(images), [None] * len(images)
     for i, fname in enumerate(images):
-        data[i] = image.imread('%s/JPEGImages/%s.jpg' % (root, fname))
-        label[i] = image.imread('%s/SegmentationClass/%s.png' % (root, fname))
-    return data, label
+        features[i] = image.imread('%s/JPEGImages/%s.jpg' % (root, fname))
+        labels[i] = image.imread(
+            '%s/SegmentationClass/%s.png' % (root, fname))
+    return features, labels
 
 
 class Residual(nn.Block):
@@ -470,6 +483,7 @@ def show_bboxes(axes, bboxes, labels=None, colors=None):
 
 
 def show_fashion_mnist(images, labels):
+    """Plot Fashion-MNIST images with labels."""
     use_svg_display()
     _, figs = plt.subplots(1, len(images), figsize=(12, 12))
     for f, img, lbl in zip(figs, images, labels):
@@ -492,6 +506,7 @@ def show_images(imgs, num_rows, num_cols, scale=2):
 
 
 def show_trace_2d(f, res):
+    """Show the trace of 2d variables during optimization."""
     x1, x2 = zip(*res)
     set_figsize()
     plt.plot(x1, x2, '-o', color='#ff7f0e')
@@ -518,9 +533,8 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
     print('training on', ctx)
     if isinstance(ctx, mx.Context):
         ctx = [ctx]
-    for epoch in range(1, num_epochs + 1):
-        train_l_sum, train_acc_sum, n, m = 0.0, 0.0, 0.0, 0.0
-        start = time.time()
+    for epoch in range(num_epochs):
+        train_l_sum, train_acc_sum, n, m, start = 0.0, 0.0, 0, 0, time.time()
         for i, batch in enumerate(train_iter):
             Xs, ys, batch_size = _get_batch(batch, ctx)
             ls = []
@@ -529,21 +543,21 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
                 ls = [loss(y_hat, y) for y_hat, y in zip(y_hats, ys)]
             for l in ls:
                 l.backward()
+            trainer.step(batch_size)
+            train_l_sum += sum([l.sum().asscalar() for l in ls])
+            n += sum([l.size for l in ls])
             train_acc_sum += sum([(y_hat.argmax(axis=1) == y).sum().asscalar()
                                  for y_hat, y in zip(y_hats, ys)])
-            train_l_sum += sum([l.sum().asscalar() for l in ls])
-            trainer.step(batch_size)
-            n += batch_size
             m += sum([y.size for y in ys])
         test_acc = evaluate_accuracy(test_iter, net, ctx)
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
               'time %.1f sec'
-              % (epoch, train_l_sum / n, train_acc_sum / m, test_acc,
+              % (epoch + 1, train_l_sum / n, train_acc_sum / m, test_acc,
                  time.time() - start))
 
 
 def train_2d(trainer):
-    """Train a 2d object function with a customized trainer"""
+    """Optimize the objective function of 2d variables with a customized trainer."""
     x1, x2 = -5, -2
     s_x1, s_x2 = 0, 0
     res = [(x1, x2)]
@@ -570,9 +584,9 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
     for epoch in range(num_epochs):
         if not is_random_iter:
             state = init_rnn_state(batch_size, num_hiddens, ctx)
-        loss_sum, start = 0.0, time.time()
+        l_sum, n, start = 0.0, 0, time.time()
         data_iter = data_iter_fn(corpus_indices, batch_size, num_steps, ctx)
-        for t, (X, Y) in enumerate(data_iter):
+        for X, Y in data_iter:
             if is_random_iter:
                 state = init_rnn_state(batch_size, num_hiddens, ctx)
             else:
@@ -587,11 +601,12 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
             l.backward()
             grad_clipping(params, clipping_theta, ctx)
             sgd(params, lr, 1)
-            loss_sum += l.asscalar()
+            l_sum += l.asscalar() * y.size
+            n += y.size
 
         if (epoch + 1) % pred_period == 0:
             print('epoch %d, perplexity %f, time %.2f sec' % (
-                epoch + 1, math.exp(loss_sum / (t + 1)), time.time() - start))
+                epoch + 1, math.exp(l_sum / n), time.time() - start))
             for prefix in prefixes:
                 print(' -', predict_rnn(
                     prefix, pred_len, rnn, params, init_rnn_state,
@@ -609,11 +624,11 @@ def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
                             {'learning_rate': lr, 'momentum': 0, 'wd': 0})
 
     for epoch in range(num_epochs):
-        loss_sum, start = 0.0, time.time()
+        l_sum, n, start = 0.0, 0, time.time()
         data_iter = data_iter_consecutive(
             corpus_indices, batch_size, num_steps, ctx)
         state = model.begin_state(batch_size=batch_size, ctx=ctx)
-        for t, (X, Y) in enumerate(data_iter):
+        for X, Y in data_iter:
             for s in state:
                 s.detach()
             with autograd.record():
@@ -624,63 +639,64 @@ def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
             params = [p.data() for p in model.collect_params().values()]
             grad_clipping(params, clipping_theta, ctx)
             trainer.step(1)
-            loss_sum += l.asscalar()
+            l_sum += l.asscalar() * y.size
+            n += y.size
 
         if (epoch + 1) % pred_period == 0:
             print('epoch %d, perplexity %f, time %.2f sec' % (
-                epoch + 1, math.exp(loss_sum / (t + 1)), time.time() - start))
+                epoch + 1, math.exp(l_sum / n), time.time() - start))
             for prefix in prefixes:
                 print(' -', predict_rnn_gluon(
-                    prefix, pred_len, model, vocab_size,
-                    ctx, idx_to_char, char_to_idx))
+                    prefix, pred_len, model, vocab_size, ctx, idx_to_char,
+                    char_to_idx))
 
 
 def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
               params=None, lr=None, trainer=None):
-    """Train and evaluate a model on CPU."""
-    for epoch in range(1, num_epochs + 1):
-        train_l_sum = 0
-        train_acc_sum = 0
+    """Train and evaluate a model with CPU."""
+    for epoch in range(num_epochs):
+        train_l_sum, train_acc_sum, n = 0.0, 0.0, 0
         for X, y in train_iter:
             with autograd.record():
                 y_hat = net(X)
-                l = loss(y_hat, y)
+                l = loss(y_hat, y).sum()
             l.backward()
             if trainer is None:
                 sgd(params, lr, batch_size)
             else:
                 trainer.step(batch_size)
-            train_l_sum += l.mean().asscalar()
-            train_acc_sum += accuracy(y_hat, y)
+            y = y.astype('float32')
+            train_l_sum += l.asscalar()
+            train_acc_sum += (y_hat.argmax(axis=1) == y).sum().asscalar()
+            n += y.size
         test_acc = evaluate_accuracy(test_iter, net)
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f'
-              % (epoch, train_l_sum / len(train_iter),
-                 train_acc_sum / len(train_iter), test_acc))
+              % (epoch + 1, train_l_sum / n, train_acc_sum / n, test_acc))
 
 
 def train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
               num_epochs):
-    """Train and evaluate a model on CPU or GPU."""
+    """Train and evaluate a model with CPU or GPU."""
     print('training on', ctx)
     loss = gloss.SoftmaxCrossEntropyLoss()
-    for epoch in range(1, num_epochs + 1):
-        train_l_sum = 0
-        train_acc_sum = 0
-        start = time.time()
+    for epoch in range(num_epochs):
+        train_l_sum, train_acc_sum, n, start = 0.0, 0.0, 0, time.time()
         for X, y in train_iter:
             X, y = X.as_in_context(ctx), y.as_in_context(ctx)
             with autograd.record():
                 y_hat = net(X)
-                l = loss(y_hat, y)
+                l = loss(y_hat, y).sum()
             l.backward()
             trainer.step(batch_size)
-            train_l_sum += l.mean().asscalar()
-            train_acc_sum += accuracy(y_hat, y)
+            y = y.astype('float32')
+            train_l_sum += l.asscalar()
+            train_acc_sum += (y_hat.argmax(axis=1) == y).sum().asscalar()
+            n += y.size
         test_acc = evaluate_accuracy(test_iter, net, ctx)
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f, '
               'time %.1f sec'
-              % (epoch, train_l_sum / len(train_iter),
-                 train_acc_sum / len(train_iter), test_acc, time.time() - start))
+              % (epoch + 1, train_l_sum / n, train_acc_sum / n, test_acc,
+                 time.time() - start))
 
 
 def train_ch7(trainer_fn, states, hyperparams, features, labels, batch_size=10,
@@ -775,29 +791,30 @@ def use_svg_display():
     display.set_matplotlib_formats('svg')
 
 
-def voc_label_indices(img, colormap2label):
-    """Assig label indices for Pascal VOC2012 Dataset."""
-    data = img.astype('int32')
-    idx = (data[:,:,0] * 256 + data[:,:,1]) * 256 + data[:,:,2]
+def voc_label_indices(colormap, colormap2label):
+    """Assign label indices for Pascal VOC2012 Dataset."""
+    colormap = colormap.astype('int32')
+    idx = ((colormap[:, :, 0] * 256 + colormap[:, :, 1]) * 256
+           + colormap[:, :, 2])
     return colormap2label[idx]
 
 
-def voc_rand_crop(data, label, height, width):
+def voc_rand_crop(feature, label, height, width):
     """Random cropping for images of the Pascal VOC2012 Dataset."""
-    data, rect = image.random_crop(data, (width, height))
+    feature, rect = image.random_crop(feature, (width, height))
     label = image.fixed_crop(label, *rect)
-    return data, label
+    return feature, label
 
 
 class VOCSegDataset(gdata.Dataset):
     """The Pascal VOC2012 Dataset."""
-    def __init__(self, train, crop_size, voc_dir, colormap2label):
+    def __init__(self, is_train, crop_size, voc_dir, colormap2label):
         self.rgb_mean = nd.array([0.485, 0.456, 0.406])
         self.rgb_std = nd.array([0.229, 0.224, 0.225])
         self.crop_size = crop_size
-        data, label = read_voc_images(root=voc_dir, train=train)
+        data, labels = read_voc_images(root=voc_dir, is_train=is_train)
         self.data = [self.normalize_image(im) for im in self.filter(data)]
-        self.label = self.filter(label)
+        self.labels = self.filter(labels)
         self.colormap2label = colormap2label
         print('read ' + str(len(self.data)) + ' examples')
 
@@ -810,11 +827,10 @@ class VOCSegDataset(gdata.Dataset):
             im.shape[1] >= self.crop_size[1])]
 
     def __getitem__(self, idx):
-        data, label = voc_rand_crop(self.data[idx], self.label[idx],
-                                    *self.crop_size)
+        data, labels = voc_rand_crop(self.data[idx], self.labels[idx],
+                                     *self.crop_size)
         return (data.transpose((2, 0, 1)),
-                voc_label_indices(label, self.colormap2label))
+                voc_label_indices(labels, self.colormap2label))
 
     def __len__(self):
         return len(self.data)
-

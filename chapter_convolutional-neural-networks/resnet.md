@@ -5,20 +5,20 @@
 
 ## 残差块
 
-让我们聚焦于神经网络局部。如图5.9所示，设输入为$\boldsymbol{x}$。假设我们希望学出的理想映射为$f(\boldsymbol{x})$，以作为图5.9上方激活函数的输入。左图虚线框中部分需要直接拟合出该映射$f(\boldsymbol{x})$。而右图虚线框中部分则需要拟合出残差（residual）映射$f(\boldsymbol{x})-\boldsymbol{x}$。残差映射在实际中往往更容易优化。以本节开头提到的恒等映射作为我们希望学出的理想映射$f(\boldsymbol{x})$，并以ReLU作为激活函数。我们只需将图5.9中右图上方加权运算（例如仿射）的权重和偏差参数学成零，那么上方ReLU的输出就会与输入$\boldsymbol{x}$恒等。图5.9右图也是ResNet的基础块，即残差块（residual block）。在残差块中，输入可通过跨层的数据线路更快地向前传播。
+让我们聚焦于神经网络局部。如图5.9所示，设输入为$\boldsymbol{x}$。假设我们希望学出的理想映射为$f(\boldsymbol{x})$，以作为图5.9上方激活函数的输入。左图虚线框中的部分需要直接拟合出该映射$f(\boldsymbol{x})$，而右图虚线框中的部分则需要拟合出有关恒等映射的残差映射$f(\boldsymbol{x})-\boldsymbol{x}$。残差映射在实际中往往更容易优化。以本节开头提到的恒等映射作为我们希望学出的理想映射$f(\boldsymbol{x})$。我们只需将图5.9中右图虚线框内上方的加权运算（如仿射）的权重和偏差参数学成0，那么$f(\boldsymbol{x})$即为恒等映射。实际中，当理想映射$f(\boldsymbol{x})$极接近于恒等映射时，残差映射也易于捕捉与恒等映射之间的细微差异。图5.9右图也是ResNet的基础块，即残差块（residual block）。在残差块中，输入可通过跨层的数据线路更快地向前传播。
 
-![设输入为$\boldsymbol{x}$。假设图中最上方ReLU的理想映射为$f(\boldsymbol{x})$。左图虚线框中部分需要直接拟合出该映射$f(\boldsymbol{x})$。而右图虚线框中部分需要拟合出残差映射$f(\boldsymbol{x})-\boldsymbol{x}$。](../img/residual-block.svg)
+![设输入为$\boldsymbol{x}$。假设图中最上方激活函数输入的理想映射为$f(\boldsymbol{x})$。左图虚线框中的部分需要直接拟合出该映射$f(\boldsymbol{x})$，而右图虚线框中的部分需要拟合出有关恒等映射的残差映射$f(\boldsymbol{x})-\boldsymbol{x}$](../img/residual-block.svg)
 
 ResNet沿用了VGG全$3\times 3$卷积层的设计。残差块里首先有两个有同样输出通道数的$3\times 3$卷积层。每个卷积层后接一个批量归一化层和ReLU激活函数。然后我们将输入跳过这两个卷积运算后直接加在最后的ReLU激活函数前。这样的设计要求两个卷积层的输出与输入形状一样，从而可以相加。如果想改变通道数，我们需要引入一个额外的$1\times 1$卷积层来将输入变换成需要的形状后再做相加运算。
 
 残差块的实现如下。它可以设定输出通道数、是否使用额外的$1\times 1$卷积层来修改通道数以及卷积层的步幅。
 
 ```{.python .input  n=1}
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import gluon, init, nd
 from mxnet.gluon import nn
 
-class Residual(nn.Block):  # 本类已保存在 gluonbook 包中方便以后使用。
+class Residual(nn.Block):  # 本类已保存在d2lzh包中方便以后使用
     def __init__(self, num_channels, use_1x1conv=False, strides=1, **kwargs):
         super(Residual, self).__init__(**kwargs)
         self.conv1 = nn.Conv2D(num_channels, kernel_size=3, padding=1,
@@ -115,11 +115,12 @@ for layer in net:
 下面我们在Fashion-MNIST数据集上训练ResNet。
 
 ```{.python .input}
-lr, num_epochs, batch_size, ctx = 0.05, 5, 256, gb.try_gpu()
+lr, num_epochs, batch_size, ctx = 0.05, 5, 256, d2l.try_gpu()
 net.initialize(force_reinit=True, ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-train_iter, test_iter = gb.load_data_fashion_mnist(batch_size, resize=96)
-gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=96)
+d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
+              num_epochs)
 ```
 
 ## 小结

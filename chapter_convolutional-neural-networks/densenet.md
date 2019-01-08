@@ -14,7 +14,7 @@ DenseNet的主要构建模块是稠密块（dense block）和过渡层（transit
 DenseNet使用了ResNet改良版的“批量归一化、激活和卷积”结构（参见上一节练习），我们首先在`conv_block`函数里实现这个结构。
 
 ```{.python .input  n=1}
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import gluon, init, nd
 from mxnet.gluon import nn
 
@@ -38,7 +38,7 @@ class DenseBlock(nn.Block):
     def forward(self, X):
         for blk in self.net:
             Y = blk(X)
-            X = nd.concat(X, Y, dim=1)  # 在通道维上将输入和输出连结。
+            X = nd.concat(X, Y, dim=1)  # 在通道维上将输入和输出连结
         return X
 ```
 
@@ -89,14 +89,14 @@ net.add(nn.Conv2D(64, kernel_size=7, strides=2, padding=3),
 ResNet里通过步幅为2的残差块在每个模块之间减小高和宽。这里我们则使用过渡层来减半高和宽，并减半通道数。
 
 ```{.python .input  n=5}
-num_channels, growth_rate = 64, 32  # num_channels：当前的通道数。
+num_channels, growth_rate = 64, 32  # num_channels为当前的通道数
 num_convs_in_dense_blocks = [4, 4, 4, 4]
 
 for i, num_convs in enumerate(num_convs_in_dense_blocks):
     net.add(DenseBlock(num_convs, growth_rate))
-    # 上一个稠密的输出通道数。
+    # 上一个稠密块的输出通道数
     num_channels += num_convs * growth_rate
-    # 在稠密块之间加入通道数减半的过渡层。
+    # 在稠密块之间加入通道数减半的过渡层
     if i != len(num_convs_in_dense_blocks) - 1:
         net.add(transition_block(num_channels // 2))
 ```
@@ -113,11 +113,12 @@ net.add(nn.BatchNorm(), nn.Activation('relu'), nn.GlobalAvgPool2D(),
 由于这里我们使用了比较深的网络，本节里我们将输入高和宽从224降到96来简化计算。
 
 ```{.python .input}
-lr, num_epochs, batch_size, ctx = 0.1, 5, 256, gb.try_gpu()
+lr, num_epochs, batch_size, ctx = 0.1, 5, 256, d2l.try_gpu()
 net.initialize(ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-train_iter, test_iter = gb.load_data_fashion_mnist(batch_size, resize=96)
-gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=96)
+d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
+              num_epochs)
 ```
 
 ## 小结
@@ -128,7 +129,7 @@ gb.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
 ## 练习
 
 * DenseNet论文中提到的一个优点是模型参数比ResNet的更小，这是为什么？
-* DenseNet被人诟病的一个问题是内存消耗过多。真的会这样吗？可以把输入形状换成$224\times 224$，来看看实际（GPU）内存消耗。
+* DenseNet被人诟病的一个问题是存储空间消耗过多。真的会这样吗？可以把输入形状换成$224\times 224$，来看看实际的消耗。
 * 实现DenseNet论文中的表1提出的各个DenseNet版本 [1]。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1664)

@@ -5,7 +5,7 @@
 
 ## 训练误差和泛化误差
 
-在解释上面提到的现象之前，我们需要区分训练误差（training error）和泛化误差（generalization error）。通俗来讲，前者指模型在训练数据集上表现出的误差，后者指模型在任意一个测试数据样本上表现出的误差的期望，并常常通过测试数据集上的误差来近似。计算训练误差和泛化误差可以使用之前介绍过的损失函数，例如线性回归用到的平方损失函数和softmax回归用到的交叉熵损失函数。
+在解释上述现象之前，我们需要区分训练误差（training error）和泛化误差（generalization error）。通俗来讲，前者指模型在训练数据集上表现出的误差，后者指模型在任意一个测试数据样本上表现出的误差的期望，并常常通过测试数据集上的误差来近似。计算训练误差和泛化误差可以使用之前介绍过的损失函数，例如线性回归用到的平方损失函数和softmax回归用到的交叉熵损失函数。
 
 让我们以高考为例来直观地解释训练误差和泛化误差这两个概念。训练误差可以认为是做往年高考试题（训练题）时的错误率，泛化误差则可以通过真正参加高考（测试题）时的答题错误率来近似。假设训练题和测试题都随机采样于一个未知的依照相同考纲的巨大试题库。如果让一名未学习中学知识的小学生去答题，那么测试题和训练题的答题错误率可能很相近。但如果换成一名反复练习训练题的高三备考生答题，即使在训练题上做到了错误率为0，也不代表真实的高考成绩会如此。
 
@@ -62,7 +62,7 @@ $$\hat{y} = b + \sum_{k=1}^K x^k w_k$$
 
 ```{.python .input  n=1}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import autograd, gluon, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
 ```
@@ -96,16 +96,16 @@ features[:2], poly_features[:2], labels[:2]
 我们先定义作图函数`semilogy`，其中$y$轴使用了对数尺度。
 
 ```{.python .input  n=4}
-# 本函数已保存在 gluonbook 包中方便以后使用。
+# 本函数已保存在d2lzh包中方便以后使用
 def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
              legend=None, figsize=(3.5, 2.5)):
-    gb.set_figsize(figsize)
-    gb.plt.xlabel(x_label)
-    gb.plt.ylabel(y_label)
-    gb.plt.semilogy(x_vals, y_vals)
+    d2l.set_figsize(figsize)
+    d2l.plt.xlabel(x_label)
+    d2l.plt.ylabel(y_label)
+    d2l.plt.semilogy(x_vals, y_vals)
     if x2_vals and y2_vals:
-        gb.plt.semilogy(x2_vals, y2_vals, linestyle=':')
-        gb.plt.legend(legend)
+        d2l.plt.semilogy(x2_vals, y2_vals, linestyle=':')
+        d2l.plt.legend(legend)
 ```
 
 和线性回归一样，多项式函数拟合也使用平方损失函数。由于我们将尝试使用不同复杂度的模型来拟合生成的数据集，我们把模型定义部分放在`fit_and_plot`函数中。多项式函数拟合的训练和测试步骤与之前介绍的softmax回归中的相关步骤类似。
@@ -158,9 +158,9 @@ fit_and_plot(features[:n_train, :], features[n_train:, :], labels[:n_train],
              labels[n_train:])
 ```
 
-### 训练量不足（过拟合）
+### 训练样本不足（过拟合）
 
-事实上，即便使用与数据生成模型同阶的三阶多项式函数模型，如果训练量不足，该模型依然容易过拟合。让我们仅仅使用两个样本来训练模型。显然，训练样本过少了，甚至少于模型参数的数量。这使模型显得过于复杂，以至于容易被训练数据中的噪音影响。在迭代过程中，即便训练误差较低，但是测试数据集上的误差却很高。这是典型的过拟合现象。
+事实上，即便使用与数据生成模型同阶的三阶多项式函数模型，如果训练样本不足，该模型依然容易过拟合。让我们仅仅使用两个样本来训练模型。显然，训练样本过少了，甚至少于模型参数的数量。这使模型显得过于复杂，以至于容易被训练数据中的噪音影响。在迭代过程中，即便训练误差较低，但是测试数据集上的误差却很高。这是典型的过拟合现象。
 
 ```{.python .input  n=8}
 fit_and_plot(poly_features[0:2, :], poly_features[n_train:, :], labels[0:2],

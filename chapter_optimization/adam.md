@@ -35,10 +35,10 @@ $$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \boldsymbol{g}_t'. $$
 
 ```{.python .input  n=2}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import nd
 
-features, labels = gb.get_data_ch7()
+features, labels = d2l.get_data_ch7()
 
 def init_adam_states():
     v_w, v_b = nd.zeros((features.shape[1], 1)), nd.zeros(1)
@@ -59,15 +59,16 @@ def adam(params, states, hyperparams):
 使用学习率$0.01$的Adam来训练模型。
 
 ```{.python .input  n=5}
-gb.train_ch7(adam, init_adam_states(), {'lr': 0.01, 't': 1}, features, labels)
+d2l.train_ch7(adam, init_adam_states(), {'lr': 0.01, 't': 1}, features,
+              labels)
 ```
 
-## Gluon实现
+## 简洁实现
 
 通过算法名称为“adam”的`Trainer`实例，我们便可在Gluon中使用Adam算法。
 
 ```{.python .input  n=11}
-gb.train_gluon_ch7('adam', {'learning_rate': 0.01}, features, labels)
+d2l.train_gluon_ch7('adam', {'learning_rate': 0.01}, features, labels)
 ```
 
 ## 小结

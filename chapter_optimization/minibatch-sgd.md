@@ -23,13 +23,13 @@ $$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \eta_t \boldsymbol{g}_t.$$
 
 ```{.python .input  n=1}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import nn, data as gdata, loss as gloss
 import numpy as np
 import time
 
-def get_data_ch7():  # 本函数已保存在 gluonbook 包中方便以后使用。
+def get_data_ch7():  # 本函数已保存在 d2lzh 包中方便以后使用。
     data = np.genfromtxt('../data/airfoil_self_noise.dat', delimiter='\t')
     data = (data - data.mean(axis=0)) / data.std(axis=0)
     return nd.array(data[:1500, :-1]), nd.array(data[:1500, -1])
@@ -51,11 +51,11 @@ def sgd(params, states, hyperparams):
 下面实现一个通用的训练函数，以方便本章后面介绍的其他优化算法使用。它初始化一个线性回归模型，然后可以使用小批量随机梯度下降以及后续小节介绍的其它算法来训练模型。
 
 ```{.python .input  n=4}
-# 本函数已保存在 gluonbook 包中方便以后使用。
+# 本函数已保存在 d2lzh 包中方便以后使用。
 def train_ch7(trainer_fn, states, hyperparams, features, labels,
               batch_size=10, num_epochs=2):
     # 初始化模型。
-    net, loss = gb.linreg, gb.squared_loss
+    net, loss = d2l.linreg, d2l.squared_loss
     w = nd.random.normal(scale=0.01, shape=(features.shape[1], 1))
     b = nd.zeros(1)
     w.attach_grad()
@@ -78,10 +78,10 @@ def train_ch7(trainer_fn, states, hyperparams, features, labels,
                 ls.append(eval_loss())  # 每 100 个样本记录下当前训练误差。
     # 打印结果和作图。
     print('loss: %f, %f sec per epoch' % (ls[-1], time.time() - start))
-    gb.set_figsize()
-    gb.plt.plot(np.linspace(0, num_epochs, len(ls)), ls)
-    gb.plt.xlabel('epoch')
-    gb.plt.ylabel('loss')
+    d2l.set_figsize()
+    d2l.plt.plot(np.linspace(0, num_epochs, len(ls)), ls)
+    d2l.plt.xlabel('epoch')
+    d2l.plt.ylabel('loss')
 ```
 
 当批量大小为样本总数1500时，优化使用的是梯度下降。梯度下降的1个迭代周期对模型参数只迭代1次。可以看到6次迭代后目标函数值（训练损失）的下降趋向了平稳。
@@ -107,12 +107,12 @@ train_sgd(0.005, 1)
 train_sgd(0.05, 10)
 ```
 
-## Gluon实现
+## 简洁实现
 
 在Gluon里我们可以通过`Trainer`类来调用优化算法。下面实现一个通用的训练函数，它通过优化算法的名字`trainer_name`和超参数`trainer_hyperparams`来创建`Trainer`实例。
 
 ```{.python .input  n=8}
-# 本函数已保存在 gluonbook 包中方便以后使用。
+# 本函数已保存在 d2lzh 包中方便以后使用。
 def train_gluon_ch7(trainer_name, trainer_hyperparams, features, labels,
                     batch_size=10, num_epochs=2):
     # 初始化模型。
@@ -141,10 +141,10 @@ def train_gluon_ch7(trainer_name, trainer_hyperparams, features, labels,
                 ls.append(eval_loss())
     # 打印结果和作图。
     print('loss: %f, %f sec per epoch' % (ls[-1], time.time() - start))
-    gb.set_figsize()
-    gb.plt.plot(np.linspace(0, num_epochs, len(ls)), ls)
-    gb.plt.xlabel('epoch')
-    gb.plt.ylabel('loss')
+    d2l.set_figsize()
+    d2l.plt.plot(np.linspace(0, num_epochs, len(ls)), ls)
+    d2l.plt.xlabel('epoch')
+    d2l.plt.ylabel('loss')
 ```
 
 使用Gluon重复上一个实验。
@@ -165,7 +165,7 @@ train_gluon_ch7('sgd', {'learning_rate': 0.05}, features, labels, 10)
 * 查阅MXNet文档，使用`Trainer`类的`set_learning_rate`函数，令小批量随机梯度下降的学习率每过一个迭代周期减小到原值的1/10。
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1877)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/8013)
 
 ![](../img/qr_minibatch-sgd.svg)
 

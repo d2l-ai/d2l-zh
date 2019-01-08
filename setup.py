@@ -3,8 +3,7 @@ import io
 import os
 import re
 from setuptools import setup, find_packages
-import shutil
-import sys
+
 
 def read(*names, **kwargs):
     with io.open(
@@ -23,7 +22,7 @@ def find_version(*file_paths):
     raise RuntimeError("Unable to find version string.")
 
 
-VERSION = find_version('gluonbook', '__init__.py')
+VERSION = find_version('d2lzh', '__init__.py')
 
 requirements = [
     'numpy',
@@ -33,13 +32,13 @@ requirements = [
 
 setup(
     # Metadata
-    name='gluonbook',
+    name='d2lzh',
     version=VERSION,
     author='Contributors',
     author_email='mli@amazon.com',
-    url='https://github.com/mli/gluon-tutorials-zh',
-    description='Gluon Book Utils',
-    long_description='Gluon Book Utilities',
+    url='https://zh.d2l.ai',
+    description='Dive into Deep Learning (in Chinese) Utils',
+    long_description='Dive into Deep Learning Book (in Chinese) Utilities',
     license='Apache-2.0',
 
     # Package info

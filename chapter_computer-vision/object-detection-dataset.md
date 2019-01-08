@@ -1,17 +1,15 @@
-# 物体检测数据集（皮卡丘）
+# 目标检测数据集（皮卡丘）
 
-在物体检测领域并没有类似MNIST那样的小数据集方便我们快速测试模型，为此我们合成了一个小的人工数据集。我们首先使用一个开源的皮卡丘3D模型生成了1000张不同角度和大小的皮卡丘图像。然后我们收集了一系列背景图像，并在每张图的随机位置放置一张皮卡丘图像。我们使用MXNet提供的[tools/im2rec.py](https://github.com/apache/incubator-mxnet/blob/master/tools/im2rec.py)来将图像打包成二进制rec文件。（这是在Gluon开发出来之前MXNet常用的数据格式。目前在GluonCV这个包里我们已经提供了更简单的，类似之前我们读取图像时的函数，从而可以省略打包图像的步骤。但由于这个工具包目前仍处在快速开发迭代中，这里我们仍使用rec格式。）
+在目标检测领域并没有类似MNIST或Fashion-MNIST那样的小数据集。为了快速测试模型，我们合成了一个小的数据集。我们首先使用一个开源的皮卡丘3D模型生成了1000张不同角度和大小的皮卡丘图像。然后我们收集了一系列背景图像，并在每张图的随机位置放置一张随机的皮卡丘图像。我们使用MXNet提供的im2rec工具将图像转换成二进制的RecordIO格式 [1]。该格式既可以降低数据集在磁盘上的存储开销，又能提高读取效率。如果你想了解更多的图像读取方法，可以查阅GluonCV工具包的文档 [2]。
+
 
 ## 下载数据集
 
-打包好的数据集可以直接在网上下载。下载数据集的操作定义在`_download_pikachu`函数中。
+RecordIO格式的皮卡丘数据集可以直接在网上下载。下载数据集的操作定义在`_download_pikachu`函数中。
 
 ```{.python .input  n=1}
-import sys
-sys.path.insert(0, '..')
-
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import gluon, image
 from mxnet.gluon import utils as gutils
 import os
@@ -28,63 +26,64 @@ def _download_pikachu(data_dir):
 
 ## 读取数据集
 
-我们使用`image.ImageDetIter`来读取数据。这是一个针对物体检测的迭代器，函数中的“Det”表示Detection。在读取训练图像时我们使用了随机剪裁。
+我们通过创建`ImageDetIter`实例来读取目标检测数据集。其中名称里的“Det”指的是Detection（检测）。我们将以随机顺序读取训练数据集。由于数据集的格式为RecordIO，我们需要提供图像索引文件`'train.idx'`以随机读取小批量。此外，对于训练集的每张图像，我们将采用随机裁剪，并要求裁剪出的图像至少覆盖每个目标95%的区域。由于裁剪是随机的，这个要求不一定总被满足。我们设定最多尝试200次随机裁剪：如果都不符合要求则不裁剪图像。为保证输出结果的确定性，我们不随机裁剪测试数据集中的图像。我们也无需按随机顺序读取测试数据集。
 
 ```{.python .input  n=2}
-# 本函数已保存在 gluonbook 包中方便以后使用。
-def load_data_pikachu(batch_size, edge_size=256):
-    # edge_size：输出图像的宽和高。
+# 本函数已保存在 d2lzh 包中方便以后使用。
+def load_data_pikachu(batch_size, edge_size=256):  # edge_size：输出图像的宽和高。
     data_dir = '../data/pikachu'
     _download_pikachu(data_dir)
     train_iter = image.ImageDetIter(
         path_imgrec=os.path.join(data_dir, 'train.rec'),
-        # 每张图像在rec中的位置，使用随机顺序时需要。
         path_imgidx=os.path.join(data_dir, 'train.idx'),
         batch_size=batch_size,
-        data_shape=(3, edge_size, edge_size),  # 输出图像形状。
-        shuffle=True,  # 用随机顺序访问。
-        rand_crop=1,  # 一定使用随机剪裁。
-        min_object_covered=0.95,  # 剪裁出的图像至少覆盖每个物体95%的区域。
-        max_attempts=200)  # 最多尝试 200 次随机剪裁。如果失败则不进行剪裁。
-    val_iter = image.ImageDetIter(  # 测试图像则去除了随机访问和随机剪裁。
-        path_imgrec=os.path.join(data_dir, 'val.rec'),
-        batch_size=batch_size,
-        data_shape=(3, edge_size, edge_size),
-        shuffle=False)
+        data_shape=(3, edge_size, edge_size),  # 输出图像的形状。
+        shuffle=True,  # 以随机顺序读取数据集。
+        rand_crop=1,  # 随机裁剪的概率为 1。
+        min_object_covered=0.95, max_attempts=200)
+    val_iter = image.ImageDetIter(
+        path_imgrec=os.path.join(data_dir, 'val.rec'), batch_size=batch_size,
+        data_shape=(3, edge_size, edge_size), shuffle=False)
     return train_iter, val_iter
-
-batch_size, edge_size = 32, 256
-train_iter, _ = load_data_pikachu(batch_size, edge_size)
 ```
 
-下面我们读取一个批量。
+下面我们读取一个小批量并打印图像和标签的形状。图像的形状和之前实验中的一样，依然是（批量大小，通道数，高，宽）。而标签的形状则是（批量大小，$m$，5），其中$m$等于数据集中单个图像最多含有的边界框个数。小批量计算虽然高效，但它要求每张图像含有相同数量的边界框，以便放在同一个批量中。由于每张图像含有的边界框个数可能不同，我们为边界框个数小于$m$的图像填充非法边界框，直到每张图像均含有$m$个边界框。这样，我们就可以每次读取小批量的图像了。图像中每个边界框的标签由长度为5的数组表示。数组中第一个元素是边界框所含目标的类别。当值为-1时，该边界框为填充用的非法边界框。数组的剩余4个元素分别表示边界框左上角的$x,y$轴坐标和右下角的$x,y$轴坐标（值域在0到1之间）。这里的皮卡丘数据集中每个图像只有一个边界框，因此$m=1$。
 
 ```{.python .input  n=3}
+batch_size, edge_size = 32, 256
+train_iter, _ = load_data_pikachu(batch_size, edge_size)
 batch = train_iter.next()
 batch.data[0].shape, batch.label[0].shape
 ```
 
-可以看到图像的形状跟之前图像分类时一样，但标签的形状则是（批量大小，每张图像中最大边界框数，5）。每个边界框由长度为5的数组表示。数组中的第一个元素是其对应物体的标号，当其数值为`-1`时表示非法，仅做填充使用。数组后面的4个元素表示边界框位置。这里使用的数据相对简单，每张图像只有一个边界框，而实际使用的物体检测数据集中每张图像可能会有多个边界框。由于我们要求每张图像有相同数量的边界框以便多张图像可以放在一个批量里高效处理，所以我们会使用一个最大边界框数。对于物体数量偏少的图像，则使用若干个非法边界框进行填充，使图像的边界框数量与最大边界框数保持一致。
-
 ## 图示数据
 
-我们画出几张图像和其对应的边界框。可以看到皮卡丘的角度、大小和位置在每张图像都不一样。当然，这是一个简单的人工数据集，物体和背景的区别较大。实际中遇到的数据集通常会复杂很多。
+我们画出十张图像和它们中的边界框。可以看到皮卡丘的角度、大小和位置在每张图像都不一样。当然，这是一个简单的人工数据集。实际中的数据通常会复杂很多。
 
 ```{.python .input  n=4}
-imgs = (batch.data[0][0:10].transpose((0, 2, 3, 1))).clip(0, 254) / 254
-axes = gb.show_images(imgs, 2, 5).flatten()
+imgs = (batch.data[0][0:10].transpose((0, 2, 3, 1))) / 255
+axes = d2l.show_images(imgs, 2, 5).flatten()
 for ax, label in zip(axes, batch.label[0][0:10]):
-    gb.show_bboxes(ax, [label[0][1:5] * edge_size], colors=['w'])
+    d2l.show_bboxes(ax, [label[0][1:5] * edge_size], colors=['w'])
 ```
 
 ## 小结
 
-* 物体检测的数据读取跟图像分类的数据读取类似，但引入了边界框后导致标签形状和图像增强均有所不同。
+* 我们合成的皮卡丘数据集可用于测试目标检测模型。
+* 目标检测的数据读取跟图像分类的类似。然而，在引入边界框后，标签形状和图像增广（例如随机裁剪）发生了变化。
+
 
 ## 练习
 
-* 了解下`image.ImageDetIter`和`image.CreateDetAugmenter`这两个类的构造函数参数。
+* 查阅MXNet文档，`image.ImageDetIter`和`image.CreateDetAugmenter`这两个类的构造函数有哪些参数？它们的意义是什么？
+
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7022)
 
 ![](../img/qr_object-detection-dataset.svg)
+
+## 参考文献
+
+[1] im2rec工具。https://github.com/apache/incubator-mxnet/blob/master/tools/im2rec.py
+
+[2] GluonCV 工具包。https://gluon-cv.mxnet.io/

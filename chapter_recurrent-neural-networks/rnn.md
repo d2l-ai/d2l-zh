@@ -20,7 +20,7 @@ $$\boldsymbol{O} = \boldsymbol{H} \boldsymbol{W}_{hq} + \boldsymbol{b}_q,$$
 
 ## 含隐藏状态的循环神经网络
 
-现在我们考虑输入数据存在时间相关性的情况。假设$\boldsymbol{X}_t \in \mathbb{R}^{n \times d}$是序列中时间步$t$的小批量输入，$\boldsymbol{H}_t  \in \mathbb{R}^{n \times h}$该时间步的隐藏层变量。跟多层感知机不同的是，这里我们保存上一时间步的隐藏变量$\boldsymbol{H}_{t-1}$，并引入一个新的权重参数$\boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$，该参数用来描述在当前时间步如何使用上一时间步的隐藏变量。具体来说，当前时间步的隐藏变量的计算由当前时间步的输入和上一时间步的隐藏变量共同决定：
+现在我们考虑输入数据存在时间相关性的情况。假设$\boldsymbol{X}_t \in \mathbb{R}^{n \times d}$是序列中时间步$t$的小批量输入，$\boldsymbol{H}_t  \in \mathbb{R}^{n \times h}$是该时间步的隐藏层变量。跟多层感知机不同的是，这里我们保存上一时间步的隐藏变量$\boldsymbol{H}_{t-1}$，并引入一个新的权重参数$\boldsymbol{W}_{hh} \in \mathbb{R}^{h \times h}$，该参数用来描述在当前时间步如何使用上一时间步的隐藏变量。具体来说，当前时间步的隐藏变量的计算由当前时间步的输入和上一时间步的隐藏变量共同决定：
 
 $$\boldsymbol{H}_t = \phi(\boldsymbol{X}_t \boldsymbol{W}_{xh} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hh}  + \boldsymbol{b}_h).$$
 
@@ -36,17 +36,17 @@ $$\boldsymbol{O}_t = \boldsymbol{H}_t \boldsymbol{W}_{hq} + \boldsymbol{b}_q.$$
 
 ![含隐藏状态的循环神经网络。](../img/rnn.svg)
 
-我们刚刚提到，隐藏状态中$\boldsymbol{X}_t \boldsymbol{W}_{xh} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hh}$的计算等价于$\boldsymbol{X}_t$与$\boldsymbol{H}_{t-1}$连结后的矩阵乘以$\boldsymbol{W}_{xh}$与$\boldsymbol{W}_{hh}$连结后的矩阵。接下来，我们用一个具体的例子来验证这一点。首先，我们构造矩阵`X`、`W_xh`、`H`和`W_hh`，它们的形状分别为（3，1）、（1，4）、（3，2）和（2，4）。将`X`与`W_xh`、`H`与`W_hh`分别相乘，再把两个相乘的结果相加，得到形状为（3，4）的矩阵。
+我们刚刚提到，隐藏状态中$\boldsymbol{X}_t \boldsymbol{W}_{xh} + \boldsymbol{H}_{t-1} \boldsymbol{W}_{hh}$的计算等价于$\boldsymbol{X}_t$与$\boldsymbol{H}_{t-1}$连结后的矩阵乘以$\boldsymbol{W}_{xh}$与$\boldsymbol{W}_{hh}$连结后的矩阵。接下来，我们用一个具体的例子来验证这一点。首先，我们构造矩阵`X`、`W_xh`、`H`和`W_hh`，它们的形状分别为（3，1）、（1，4）、（3，4）和（4，4）。将`X`与`W_xh`、`H`与`W_hh`分别相乘，再把两个相乘的结果相加，得到形状为（3，4）的矩阵。
 
 ```{.python .input  n=1}
 from mxnet import nd
 
 X, W_xh = nd.random.normal(shape=(3, 1)), nd.random.normal(shape=(1, 4))
-H, W_hh = nd.random.normal(shape=(3, 2)), nd.random.normal(shape=(2, 4))
+H, W_hh = nd.random.normal(shape=(3, 4)), nd.random.normal(shape=(4, 4))
 nd.dot(X, W_xh) + nd.dot(H, W_hh)
 ```
 
-将矩阵`X`和`H`按列（维度1）连结，连结后的矩阵形状为（3，3）。可见，连结后矩阵在维度1的长度为矩阵`X`和`H`在维度1的长度之和（$1+2$）。然后，将矩阵`W_xh`和`W_hh`按行（维度0）连结，连结后的矩阵形状为（3，4）。最后将两个连结后的矩阵相乘，得到和上面代码输出相同的形状为（3，4）的矩阵。
+将矩阵`X`和`H`按列（维度1）连结，连结后的矩阵形状为（3，5）。可见，连结后矩阵在维度1的长度为矩阵`X`和`H`在维度1的长度之和（$1+4$）。然后，将矩阵`W_xh`和`W_hh`按行（维度0）连结，连结后的矩阵形状为（5，4）。最后将两个连结后的矩阵相乘，得到和上面代码输出相同的形状为（3，4）的矩阵。
 
 ```{.python .input  n=2}
 nd.dot(nd.concat(X, H, dim=1), nd.concat(W_xh, W_hh, dim=0))

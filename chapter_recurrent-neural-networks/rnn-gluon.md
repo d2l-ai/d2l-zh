@@ -1,19 +1,16 @@
-# 循环神经网络的Gluon实现
+# 循环神经网络的简洁实现
 
-本节将使用Gluon来实现基于循环神经网络的语言模型。首先，我们读取周杰伦专辑歌词数据集。
+本节将使用Gluon来更简洁地实现基于循环神经网络的语言模型。首先，我们读取周杰伦专辑歌词数据集。
 
 ```{.python .input  n=1}
-import sys
-sys.path.insert(0, '..')
-
-import gluonbook as gb
+import d2lzh as d2l
 import math
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import loss as gloss, nn, rnn
 import time
 
 (corpus_indices, char_to_idx, idx_to_char,
- vocab_size) = gb.load_data_jay_lyrics()
+ vocab_size) = d2l.load_data_jay_lyrics()
 ```
 
 ## 定义模型
@@ -46,7 +43,7 @@ Y.shape, len(state_new), state_new[0].shape
 接下来我们继承Block类来定义一个完整的循环神经网络。它首先将输入数据使用one-hot向量表示后输入到`rnn_layer`中，然后使用全连接输出层得到输出。输出个数等于词典大小`vocab_size`。
 
 ```{.python .input  n=39}
-# 本类已保存在 gluonbook 包中方便以后使用。
+# 本类已保存在 d2lzh 包中方便以后使用。
 class RNNModel(nn.Block):
     def __init__(self, rnn_layer, vocab_size, **kwargs):
         super(RNNModel, self).__init__(**kwargs)
@@ -72,7 +69,7 @@ class RNNModel(nn.Block):
 同前一节一样，以下定义了一个预测函数。这里的实现区别在于前向计算和初始化隐藏状态的函数接口。
 
 ```{.python .input  n=41}
-# 本函数已保存在 gluonbook 包中方便以后使用。
+# 本函数已保存在 d2lzh 包中方便以后使用。
 def predict_rnn_gluon(prefix, num_chars, model, vocab_size, ctx, idx_to_char,
                       char_to_idx):
     # 使用 model 的成员函数来初始化隐藏状态。
@@ -91,16 +88,16 @@ def predict_rnn_gluon(prefix, num_chars, model, vocab_size, ctx, idx_to_char,
 让我们使用权重为随机值的模型来预测一次。
 
 ```{.python .input  n=42}
-ctx = gb.try_gpu()
+ctx = d2l.try_gpu()
 model = RNNModel(rnn_layer, vocab_size)
 model.initialize(force_reinit=True, ctx=ctx)
 predict_rnn_gluon('分开', 10, model, vocab_size, ctx, idx_to_char, char_to_idx)
 ```
 
-接下来实现训练函数。它的算法同上一节一样，但这里只使用了随机采样来读取数据。
+接下来实现训练函数。它的算法同上一节一样，但这里只使用了相邻采样来读取数据。
 
 ```{.python .input  n=18}
-# 本函数已保存在 gluonbook 包中方便以后使用。
+# 本函数已保存在 d2lzh 包中方便以后使用。
 def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
                                 corpus_indices, idx_to_char, char_to_idx,
                                 num_epochs, num_steps, lr, clipping_theta,
@@ -111,11 +108,11 @@ def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
                             {'learning_rate': lr, 'momentum': 0, 'wd': 0})
 
     for epoch in range(num_epochs):
-        loss_sum, start = 0.0, time.time()
-        data_iter = gb.data_iter_consecutive(
+        l_sum, n, start = 0.0, 0, time.time()
+        data_iter = d2l.data_iter_consecutive(
             corpus_indices, batch_size, num_steps, ctx)
         state = model.begin_state(batch_size=batch_size, ctx=ctx)
-        for t, (X, Y) in enumerate(data_iter):
+        for X, Y in data_iter:
             for s in state:
                 s.detach()
             with autograd.record():
@@ -123,19 +120,20 @@ def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
                 y = Y.T.reshape((-1,))
                 l = loss(output, y).mean()
             l.backward()
-            # 梯度剪裁。
+            # 梯度裁剪。
             params = [p.data() for p in model.collect_params().values()]
-            gb.grad_clipping(params, clipping_theta, ctx)
+            d2l.grad_clipping(params, clipping_theta, ctx)
             trainer.step(1)  # 因为已经误差取过均值，梯度不用再做平均。
-            loss_sum += l.asscalar()
+            l_sum += l.asscalar() * y.size
+            n += y.size
 
         if (epoch + 1) % pred_period == 0:
             print('epoch %d, perplexity %f, time %.2f sec' % (
-                epoch + 1, math.exp(loss_sum / (t + 1)), time.time() - start))
+                epoch + 1, math.exp(l_sum / n), time.time() - start))
             for prefix in prefixes:
                 print(' -', predict_rnn_gluon(
-                    prefix, pred_len, model, vocab_size,
-                    ctx, idx_to_char, char_to_idx))
+                    prefix, pred_len, model, vocab_size, ctx, idx_to_char,
+                    char_to_idx))
 ```
 
 使用和上一节实验中一样的超参数来训练模型。

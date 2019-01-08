@@ -30,7 +30,7 @@ $$\boldsymbol{x}_t \leftarrow \boldsymbol{x}_{t-1} - \frac{\eta}{\sqrt{\boldsymb
 
 ```{.python .input  n=2}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 import math
 from mxnet import nd
 
@@ -46,14 +46,14 @@ def f_2d(x1, x2):
     return 0.1 * x1 ** 2 + 2 * x2 ** 2
 
 eta = 0.4
-gb.show_trace_2d(f_2d, gb.train_2d(adagrad_2d))
+d2l.show_trace_2d(f_2d, d2l.train_2d(adagrad_2d))
 ```
 
 下面增大学习率到$2$。可以看到自变量更为迅速地逼近了最优解。
 
 ```{.python .input  n=3}
 eta = 2
-gb.show_trace_2d(f_2d, gb.train_2d(adagrad_2d))
+d2l.show_trace_2d(f_2d, d2l.train_2d(adagrad_2d))
 ```
 
 ## 从零开始实现
@@ -61,7 +61,7 @@ gb.show_trace_2d(f_2d, gb.train_2d(adagrad_2d))
 同动量法一样，Adagrad需要对每个自变量维护同它一样形状的状态变量。我们根据算法中的公式实现Adagrad。
 
 ```{.python .input  n=4}
-features, labels = gb.get_data_ch7()
+features, labels = d2l.get_data_ch7()
 
 def init_adagrad_states():
     s_w = nd.zeros((features.shape[1], 1))
@@ -78,15 +78,15 @@ def adagrad(params, states, hyperparams):
 与[“小批量随机梯度下降”](minibatch-sgd.md)一节中的实验相比，我们在这里使用更大的学习率来训练模型。
 
 ```{.python .input  n=5}
-gb.train_ch7(adagrad, init_adagrad_states(), {'lr': 0.1}, features, labels)
+d2l.train_ch7(adagrad, init_adagrad_states(), {'lr': 0.1}, features, labels)
 ```
 
-## Gluon实现
+## 简洁实现
 
 通过算法名称为“adagrad”的`Trainer`实例，我们便可使用Gluon实现的Adagrad算法来训练模型。
 
 ```{.python .input  n=6}
-gb.train_gluon_ch7('adagrad', {'learning_rate': 0.1}, features, labels)
+d2l.train_gluon_ch7('adagrad', {'learning_rate': 0.1}, features, labels)
 ```
 
 ## 小结

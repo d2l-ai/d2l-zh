@@ -36,7 +36,7 @@ $$y = 0.05 + \sum_{i = 1}^p 0.01x_i +  \epsilon,$$
 
 ```{.python .input  n=2}
 %matplotlib inline
-import gluonbook as gb
+import d2lzh as d2l
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn
 
@@ -82,7 +82,7 @@ def l2_penalty(w):
 
 ```{.python .input  n=7}
 batch_size, num_epochs, lr = 1, 100, 0.003
-net, loss = gb.linreg, gb.squared_loss
+net, loss = d2l.linreg, d2l.squared_loss
 train_iter = gdata.DataLoader(gdata.ArrayDataset(
     train_features, train_labels), batch_size, shuffle=True)
 
@@ -92,16 +92,16 @@ def fit_and_plot(lambd):
     for _ in range(num_epochs):
         for X, y in train_iter:
             with autograd.record():
-                # 添加了 L2 范数惩罚项。
+                # 添加了L2范数惩罚项
                 l = loss(net(X, w, b), y) + lambd * l2_penalty(w)
             l.backward()
-            gb.sgd([w, b], lr, batch_size)
+            d2l.sgd([w, b], lr, batch_size)
         train_ls.append(loss(net(train_features, w, b),
                              train_labels).mean().asscalar())
         test_ls.append(loss(net(test_features, w, b),
                             test_labels).mean().asscalar())
-    gb.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'loss',
-                range(1, num_epochs + 1), test_ls, ['train', 'test'])
+    d2l.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'loss',
+                 range(1, num_epochs + 1), test_ls, ['train', 'test'])
     print('L2 norm of w:', w.norm().asscalar())
 ```
 
@@ -121,7 +121,7 @@ fit_and_plot(lambd=0)
 fit_and_plot(lambd=3)
 ```
 
-## Gluon实现
+## 简洁实现
 
 这里我们直接在构造`Trainer`实例时通过`wd`参数来指定权重衰减超参数。默认下，Gluon会对权重和偏差同时衰减。我们可以分别对权重和偏差构造`Trainer`实例，从而只对权重衰减。
 
@@ -130,10 +130,10 @@ def fit_and_plot_gluon(wd):
     net = nn.Sequential()
     net.add(nn.Dense(1))
     net.initialize(init.Normal(sigma=1))
-    # 对权重参数衰减。权重名称一般是以 weight 结尾。
+    # 对权重参数衰减。权重名称一般是以weight结尾
     trainer_w = gluon.Trainer(net.collect_params('.*weight'), 'sgd',
                               {'learning_rate': lr, 'wd': wd})
-    # 不对偏差参数衰减。偏差名称一般是以 bias 结尾。
+    # 不对偏差参数衰减。偏差名称一般是以bias结尾
     trainer_b = gluon.Trainer(net.collect_params('.*bias'), 'sgd',
                               {'learning_rate': lr})
     train_ls, test_ls = [], []
@@ -142,15 +142,15 @@ def fit_and_plot_gluon(wd):
             with autograd.record():
                 l = loss(net(X), y)
             l.backward()
-            # 对两个 Trainer 实例分别调用 step 函数，从而分别更新权重和偏差。
+            # 对两个Trainer实例分别调用step函数，从而分别更新权重和偏差
             trainer_w.step(batch_size)
             trainer_b.step(batch_size)
         train_ls.append(loss(net(train_features),
                              train_labels).mean().asscalar())
         test_ls.append(loss(net(test_features),
                             test_labels).mean().asscalar())
-    gb.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'loss',
-                range(1, num_epochs + 1), test_ls, ['train', 'test'])
+    d2l.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'loss',
+                 range(1, num_epochs + 1), test_ls, ['train', 'test'])
     print('L2 norm of w:', net[0].weight.data().norm().asscalar())
 ```
 
