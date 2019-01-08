@@ -24,7 +24,7 @@ nd.one_hot(nd.array([0, 2]), vocab_size)
 我们每次采样的小批量的形状是（批量大小，时间步数）。下面的函数将这样的小批量变换成数个可以输入进网络的形状为（批量大小，词典大小）的矩阵，总数与时间步数相等。也就是说，时间步$t$的输入$\boldsymbol{X}_t \in \mathbb{R}^{n \times d}$，其中$n$为批量大小，$d$为输入个数，即one-hot向量长度（词典大小）。
 
 ```{.python .input  n=3}
-def to_onehot(X, size):  # 本函数已保存在 d2lzh 包中方便以后使用。
+def to_onehot(X, size):  # 本函数已保存在d2lzh包中方便以后使用
     return [nd.one_hot(x, size) for x in X.T]
 
 X = nd.arange(10).reshape((2, 5))
@@ -45,14 +45,14 @@ def get_params():
     def _one(shape):
         return nd.random.normal(scale=0.01, shape=shape, ctx=ctx)
 
-    # 隐藏层参数。
+    # 隐藏层参数
     W_xh = _one((num_inputs, num_hiddens))
     W_hh = _one((num_hiddens, num_hiddens))
     b_h = nd.zeros(num_hiddens, ctx=ctx)
-    # 输出层参数。
+    # 输出层参数
     W_hq = _one((num_hiddens, num_outputs))
     b_q = nd.zeros(num_outputs, ctx=ctx)
-    # 附上梯度。
+    # 附上梯度
     params = [W_xh, W_hh, b_h, W_hq, b_q]
     for param in params:
         param.attach_grad()
@@ -72,7 +72,7 @@ def init_rnn_state(batch_size, num_hiddens, ctx):
 
 ```{.python .input  n=6}
 def rnn(inputs, state, params):
-    # inputs 和 outputs 皆为 num_steps 个形状为（batch_size，vocab_size）的矩阵。
+    # inputs和outputs皆为num_steps个形状为(batch_size,vocab_size)的矩阵
     W_xh, W_hh, b_h, W_hq, b_q = params
     H, = state
     outputs = []
@@ -98,17 +98,17 @@ len(outputs), outputs[0].shape, state_new[0].shape
 以下函数基于前缀`prefix`（含有数个字符的字符串）来预测接下来的`num_chars`个字符。这个函数稍显复杂，其中我们将循环神经单元`rnn`设置成了函数参数，这样在后面小节介绍其他循环神经网络时能重复使用这个函数。
 
 ```{.python .input  n=8}
-# 本函数已保存在 d2lzh 包中方便以后使用。
+# 本函数已保存在d2lzh包中方便以后使用
 def predict_rnn(prefix, num_chars, rnn, params, init_rnn_state,
                 num_hiddens, vocab_size, ctx, idx_to_char, char_to_idx):
     state = init_rnn_state(1, num_hiddens, ctx)
     output = [char_to_idx[prefix[0]]]
     for t in range(num_chars + len(prefix) - 1):
-        # 将上一时间步的输出作为当前时间步的输入。
+        # 将上一时间步的输出作为当前时间步的输入
         X = to_onehot(nd.array([output[-1]], ctx=ctx), vocab_size)
-        # 计算输出和更新隐藏状态。
+        # 计算输出和更新隐藏状态
         (Y, state) = rnn(X, state, params)
-        # 下一个时间步的输入是 prefix 里的字符或者当前的最佳预测字符。
+        # 下一个时间步的输入是prefix里的字符或者当前的最佳预测字符
         if t < len(prefix) - 1:
             output.append(char_to_idx[prefix[t + 1]])
         else:
@@ -132,7 +132,7 @@ $$ \min\left(\frac{\theta}{\|\boldsymbol{g}\|}, 1\right)\boldsymbol{g}$$
 的$L_2$范数不超过$\theta$。
 
 ```{.python .input  n=10}
-# 本函数已保存在 d2lzh 包中方便以后使用。
+# 本函数已保存在d2lzh包中方便以后使用
 def grad_clipping(params, theta, ctx):
     norm = nd.array([0], ctx)
     for param in params:
@@ -164,7 +164,7 @@ def grad_clipping(params, theta, ctx):
 另外，考虑到后面将介绍的其它循环神经网络，为了更通用，这里的函数实现更长一些。
 
 ```{.python .input  n=11}
-# 本函数已保存在 d2lzh 包中方便以后使用。
+# 本函数已保存在d2lzh包中方便以后使用
 def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
                           vocab_size, ctx, corpus_indices, idx_to_char,
                           char_to_idx, is_random_iter, num_epochs, num_steps,
@@ -178,30 +178,30 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
     loss = gloss.SoftmaxCrossEntropyLoss()
 
     for epoch in range(num_epochs):
-        if not is_random_iter:  # 如使用相邻采样，在 epoch 开始时初始化隐藏状态。
+        if not is_random_iter:  # 如使用相邻采样，在epoch开始时初始化隐藏状态
             state = init_rnn_state(batch_size, num_hiddens, ctx)
         l_sum, n, start = 0.0, 0, time.time()
         data_iter = data_iter_fn(corpus_indices, batch_size, num_steps, ctx)
         for X, Y in data_iter:
-            if is_random_iter:  # 如使用随机采样，在每个小批量更新前初始化隐藏状态。
+            if is_random_iter:  # 如使用随机采样，在每个小批量更新前初始化隐藏状态
                 state = init_rnn_state(batch_size, num_hiddens, ctx)
-            else:  # 否则需要使用 detach 函数从计算图分离隐藏状态。
+            else:  # 否则需要使用detach函数从计算图分离隐藏状态
                 for s in state:
                     s.detach()
             with autograd.record():
                 inputs = to_onehot(X, vocab_size)
-                # outputs 有 num_steps 个形状为（batch_size，vocab_size）的矩阵。
+                # outputs有num_steps个形状为(batch_size,vocab_size)的矩阵
                 (outputs, state) = rnn(inputs, state, params)
-                # 拼接之后形状为（num_steps * batch_size，vocab_size）。
+                # 拼接之后形状为(num_steps * batch_size,vocab_size)
                 outputs = nd.concat(*outputs, dim=0)
-                # Y 的形状是（batch_size，num_steps），转置后再变成长度为
-                # batch * num_steps 的向量，这样跟输出的行一一对应。
+                # Y的形状是(batch_size,num_steps)，转置后再变成长度为
+                # batch * num_steps 的向量，这样跟输出的行一一对应
                 y = Y.T.reshape((-1,))
-                # 使用交叉熵损失计算平均分类误差。
+                # 使用交叉熵损失计算平均分类误差
                 l = loss(outputs, y).mean()
             l.backward()
-            grad_clipping(params, clipping_theta, ctx)  # 裁剪梯度。
-            d2l.sgd(params, lr, 1)  # 因为误差已经取过均值，梯度不用再做平均。
+            grad_clipping(params, clipping_theta, ctx)  # 裁剪梯度
+            d2l.sgd(params, lr, 1)  # 因为误差已经取过均值，梯度不用再做平均
             l_sum += l.asscalar() * y.size
             n += y.size
 

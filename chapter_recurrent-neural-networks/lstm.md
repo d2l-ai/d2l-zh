@@ -100,14 +100,14 @@ def get_params():
                 _one((num_hiddens, num_hiddens)),
                 nd.zeros(num_hiddens, ctx=ctx))
 
-    W_xi, W_hi, b_i = _three()  # 输入门参数。
-    W_xf, W_hf, b_f = _three()  # 遗忘门参数。
-    W_xo, W_ho, b_o = _three()  # 输出门参数。
-    W_xc, W_hc, b_c = _three()  # 候选细胞参数。
-    # 输出层参数。
+    W_xi, W_hi, b_i = _three()  # 输入门参数
+    W_xf, W_hf, b_f = _three()  # 遗忘门参数
+    W_xo, W_ho, b_o = _three()  # 输出门参数
+    W_xc, W_hc, b_c = _three()  # 候选记忆细胞参数
+    # 输出层参数
     W_hq = _one((num_hiddens, num_outputs))
     b_q = nd.zeros(num_outputs, ctx=ctx)
-    # 创建梯度。
+    # 附上梯度
     params = [W_xi, W_hi, b_i, W_xf, W_hf, b_f, W_xo, W_ho, b_o, W_xc, W_hc,
               b_c, W_hq, b_q]
     for param in params:

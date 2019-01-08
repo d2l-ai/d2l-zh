@@ -56,20 +56,20 @@ print('indices:', sample)
 在随机采样中，每个样本是原始序列上任意截取的一段序列。相邻的两个随机小批量在原始序列上的位置不一定相毗邻。因此，我们无法用一个小批量最终时间步的隐藏状态来初始化下一个小批量的隐藏状态。在训练模型时，每次随机采样前都需要重新初始化隐藏状态。
 
 ```{.python .input  n=25}
-# 本函数已保存在 d2lzh 包中方便以后使用。
+# 本函数已保存在d2lzh包中方便以后使用
 def data_iter_random(corpus_indices, batch_size, num_steps, ctx=None):
-    # 减一是因为输出的索引是相应输入的索引加一。
+    # 减1是因为输出的索引是相应输入的索引加1
     num_examples = (len(corpus_indices) - 1) // num_steps
     epoch_size = num_examples // batch_size
     example_indices = list(range(num_examples))
     random.shuffle(example_indices)
 
-    # 返回从 pos 开始的长为 num_steps 的序列。
+    # 返回从pos开始的长为num_steps的序列
     def _data(pos):
         return corpus_indices[pos: pos + num_steps]
 
     for i in range(epoch_size):
-        # 每次读取 batch_size 个随机样本。
+        # 每次读取batch_size个随机样本
         i = i * batch_size
         batch_indices = example_indices[i: i + batch_size]
         X = [_data(j * num_steps) for j in batch_indices]
@@ -93,7 +93,7 @@ for X, Y in data_iter_random(my_seq, batch_size=2, num_steps=6):
 为了使模型参数的梯度计算只依赖一次迭代读取的小批量序列，我们可以在每次读取小批量前将隐藏状态从计算图分离出来。我们将在后面几节的实现中了解这个处理方式。
 
 ```{.python .input  n=32}
-# 本函数已保存在 d2lzh 包中方便以后使用。
+# 本函数已保存在d2lzh包中方便以后使用
 def data_iter_consecutive(corpus_indices, batch_size, num_steps, ctx=None):
     corpus_indices = nd.array(corpus_indices, ctx=ctx)
     data_len = len(corpus_indices)
