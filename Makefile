@@ -61,6 +61,7 @@ pdf: $(DEPS) $(OBJ) $(PDFIMG)
 	sed -i /\\\\multicolumn{2}{c}\%/d $(TEX)
 	sed -i /\\\\sphinxtablecontinued{Continued\ on\ next\ page}/d $(TEX)
 	sed -i /{\\\\tablename\\\\\ \\\\thetable{}\ --\ continued\ from\ previous\ page}/d $(TEX)
+	sed -i s/\\\\maketitle/\\\\maketitle\ 本书稿为测试版本。访问zh.d2l.ai，获取本书最新版本或正式版本。\\\\newpage/g $(TEX)
 	cd build/_build/latex && \
 	bash ../../utils/convert_output_svg.sh && \
 	buf_size=10000000 xelatex d2l-zh.tex && \
