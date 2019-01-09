@@ -11,7 +11,7 @@
 
 开源地址：[https://github.com/diveintodeeplearning/d2l-en](https://github.com/diveintodeeplearning/d2l-en)
 
-# 使用Colab
+## 使用Colab
 
 Colab 是不久前 Google 公开的一个 Python Notebook 工具，支持包括 TensorFlow、BigQuery、Google Drive 在内的 Google 全家桶。
 
