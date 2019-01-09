@@ -56,7 +56,8 @@ $$\text{softmax}(\boldsymbol{Q}\boldsymbol{K}^\top)\boldsymbol{V}$$
 
 ## 更新隐藏状态
 
-以门控循环单元为例，在解码器中我们可以对门控循环单元的设计稍作修改 [1]。解码器在时间步$t'$的隐藏状态为
+以门控循环单元为例，在解码器中我们可以对门控循环单元的设计稍作修改 [1]。
+解码器在时间步$t'$的隐藏状态为
 
 $$\boldsymbol{s}_{t'} = \boldsymbol{z}_{t'} \odot \boldsymbol{s}_{t'-1}  + (1 - \boldsymbol{z}_{t'}) \odot \tilde{\boldsymbol{s}}_{t'},$$
 
