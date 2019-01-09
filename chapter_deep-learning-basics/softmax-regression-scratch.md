@@ -108,7 +108,8 @@ accuracy(y_hat, y)
 类似地，我们可以评价模型`net`在数据集`data_iter`上的准确率。
 
 ```{.python .input  n=13}
-# 本函数已保存在d2lzh包中方便以后使用。该函数将被逐步改进：它的完整实现将在9.1节中描述。
+# 本函数已保存在d2lzh包中方便以后使用。该函数将被逐步改进：它的完整实现将在“图像增广”一节中
+# 描述。
 def evaluate_accuracy(data_iter, net):
     acc_sum, n = 0.0, 0
     for X, y in data_iter:
@@ -144,7 +145,7 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
             if trainer is None:
                 d2l.sgd(params, lr, batch_size)
             else:
-                trainer.step(batch_size)  # 3.7节将用到
+                trainer.step(batch_size)  # 下一节将用到
             y = y.astype('float32')
             train_l_sum += l.asscalar()
             train_acc_sum += (y_hat.argmax(axis=1) == y).sum().asscalar()
