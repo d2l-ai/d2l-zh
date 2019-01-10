@@ -287,6 +287,7 @@ latex_elements = {
 \makeatother
 
 \CJKsetecglue{}
+\usepackage{zhnumber}
 ''',
 # The paper size ('letterpaper' or 'a4paper').
 #'papersize': 'letterpaper',
