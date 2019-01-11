@@ -21,7 +21,7 @@ mnist_train = gdata.vision.FashionMNIST(train=True)
 mnist_test = gdata.vision.FashionMNIST(train=False)
 ```
 
-训练集中和测试集中的每个类别的图像数分别为6,000和1,000。因为有10个类别，所以训练集和测试集的样本数分别为60,000和10,000。
+训练集中和测试集中有10个类别的图像，因为每个类别的图像数分别为6,000和1,000，所以训练集和测试集的样本数分别为60,000和10,000。
 
 ```{.python .input}
 len(mnist_train), len(mnist_test)
