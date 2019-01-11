@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# The Straight Dope documentation build configuration file, created by
+# The D2L  documentation build configuration file, created by
 # sphinx-quickstart on Tue Jul 18 10:40:45 2017.
 #
 # This file is execfile()d with the current directory set to its
@@ -165,7 +165,7 @@ html_theme_options = {
 
 # The name for this set of Sphinx documents.
 # "<project> v<release> documentation" by default.
-#html_title = 'The Straight Dope v0.1'
+#html_title = 'The D2L v0.1'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = None
@@ -249,7 +249,7 @@ html_search_options = {'dict':jieba_dict}
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'TheStraightDopedoc'
+htmlhelp_basename = 'D2Ldoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -338,7 +338,7 @@ latex_domain_indices = False
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'thestraightdope', 'The Straight Dope Documentation',
+    (master_doc, 'd2l-zh', 'The D2L Documentation',
      [author], 1)
 ]
 
@@ -352,8 +352,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'TheStraightDope', 'The Straight Dope Documentation',
-     author, 'TheStraightDope', 'One line description of project.',
+    (master_doc, 'd2l-zh', 'The D2L Documentation',
+     author, 'd2l-zh', 'One line description of project.',
      'Miscellaneous'),
 ]
 
@@ -372,6 +372,12 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 # intersphinx_mapping = {'https://docs.python.org/': None}
+
+
+numfig = True
+
+numfig_secnum_depth = 1
+
 
 intersphinx_mapping = {
     # 'python': 'https://docs.python.org/3.5',
