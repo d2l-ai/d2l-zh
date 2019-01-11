@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# The D2L  documentation build configuration file, created by
+# The D2L documentation build configuration file, created by
 # sphinx-quickstart on Tue Jul 18 10:40:45 2017.
 #
 # This file is execfile()d with the current directory set to its
@@ -374,8 +374,8 @@ texinfo_documents = [
 # intersphinx_mapping = {'https://docs.python.org/': None}
 
 
+# Figure X.y (1 level)
 numfig = True
-
 numfig_secnum_depth = 1
 
 
