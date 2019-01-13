@@ -21,10 +21,8 @@
     * 第一人称 → 我们
     * 第二人称 → 你、大家
 * 工具或部件
-    * Gluon, MXNet, NumPy, spaCy, NDArray, Symbol, Block, HybridBlock, ResNet-18, Fashion-MNIST, matplotlib
+    * Gluon, MXNet, NumPy, spaCy, ResNet-18, Fashion-MNIST, matplotlib
         * 这些都作为词，不要带重音符
-    * Sequential类/实例, HybridSequential类/实例
-        * 不要带重音符
     * `backward`函数
         * 不是“`backward()`函数” （不要带括号）
     * for循环
