@@ -116,7 +116,7 @@ echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-9.0/lib64" >> ~
 
 ## 获取本书代码并安装GPU版的MXNet
 
-我们已在[“获取和运行本书代码”](../chapter_prerequisite/install.md)一节中介绍了Linux用户获取本书代码并安装运行环境的方法。首先，安装Linux版的Miniconda（网址：https://conda.io/miniconda.html ），例如
+我们已在[“获取和运行本书的代码”](../chapter_prerequisite/install.md)一节中介绍了Linux用户获取本书代码并安装运行环境的方法。首先，安装Linux版的Miniconda（网址：https://conda.io/miniconda.html ），例如
 
 ```
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
@@ -147,7 +147,7 @@ source activate gluon
 
 ```
 pip uninstall mxnet
-pip install mxnet-cu90==X.Y.Z  # X.Y.Z 应替换为本书代码依赖的版本号。
+pip install mxnet-cu90==X.Y.Z  # X.Y.Z应替换为本书代码依赖的版本号
 ```
 
 ## 运行Jupyter记事本
@@ -165,7 +165,7 @@ jupyter notebook
 由于创建的实例并没有暴露8888端口，我们可以在本地命令行启动ssh从实例映射到本地8889端口。
 
 ```
-# 该命令须在本地命令行运行。
+# 该命令须在本地命令行运行
 ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com -L 8889:localhost:8888
 ```
 

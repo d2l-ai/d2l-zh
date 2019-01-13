@@ -1,6 +1,6 @@
 # 使用Jupyter记事本
 
-本节介绍如何使用Jupyter记事本编辑和运行本书代码。请确保你已按照[“获取和运行本书代码”](../chapter_prerequisite/install.md)一节中的步骤安装好Jupyter记事本并获取了本书代码。
+本节介绍如何使用Jupyter记事本编辑和运行本书代码。请确保你已按照[“获取和运行本书的代码”](../chapter_prerequisite/install.md)一节中的步骤安装好Jupyter记事本并获取了本书代码。
 
 
 ## 在本地编辑和运行本书代码
@@ -56,7 +56,7 @@
 git clone https://github.com/d2l-ai/d2l-zh.git
 cd d2l-zh
 conda env create -f environment.yml
-source activate gluon  # Windows 用户运行 activate gluon。
+source activate gluon  # Windows用户运行activate gluon
 ```
 
 下面安装notedown插件，运行Jupyter记事本并加载插件：
