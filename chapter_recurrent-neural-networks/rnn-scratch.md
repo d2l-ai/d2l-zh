@@ -61,7 +61,7 @@ def get_params():
 
 ## 定义模型
 
-我们根据循环神经网络的计算表达式实现该模型。首先定义`init_rnn_state`函数来返回初始化的隐藏状态。它返回由一个形状为（批量大小，隐藏单元个数）的值为0的NDArray组成的元组。使用元组是为了更方便处理隐藏状态含有多个NDArray的情况。
+我们根据循环神经网络的计算表达式实现该模型。首先定义`init_rnn_state`函数来返回初始化的隐藏状态。它返回由一个形状为（批量大小，隐藏单元个数）的值为0的`NDArray`组成的元组。使用元组是为了更方便处理隐藏状态含有多个`NDArray`的情况。
 
 ```{.python .input  n=5}
 def init_rnn_state(batch_size, num_hiddens, ctx):

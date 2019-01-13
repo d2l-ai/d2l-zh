@@ -17,7 +17,7 @@ LeNet分为卷积层块和全连接层块两个部分。下面我们分别介绍
 
 卷积层块的输出形状为（批量大小，通道，高，宽）。当卷积层块的输出传入全连接层块时，全连接层块会将小批量中每个样本变平（flatten）。也就是说，全连接层的输入形状将变成二维，其中第一维为小批量中的样本，第二维为每个样本变平后的向量表示，且向量长度为通道、高和宽的乘积。全连接层块含三个全连接层。它们的输出个数分别是120、84和10。其中10为输出的类别个数。
 
-下面我们通过Sequential类来实现LeNet模型。
+下面我们通过`Sequential`类来实现LeNet模型。
 
 ```{.python .input}
 import d2lzh as d2l
@@ -60,7 +60,7 @@ batch_size = 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size=batch_size)
 ```
 
-因为卷积神经网络计算比多层感知机要复杂，建议使用GPU来加速计算。我们尝试在`gpu(0)`上创建NDArray，如果成功则使用`gpu(0)`，否则仍然使用CPU。
+因为卷积神经网络计算比多层感知机要复杂，建议使用GPU来加速计算。我们尝试在`gpu(0)`上创建`NDArray`，如果成功则使用`gpu(0)`，否则仍然使用CPU。
 
 ```{.python .input}
 def try_gpu():  # 本函数已保存在d2lzh包中方便以后使用

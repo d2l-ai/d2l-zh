@@ -106,7 +106,7 @@ def get_params():
 
 ### 定义模型
 
-以下定义隐藏状态初始化函数`init_gru_state`。同[“循环神经网络的从零开始实现”](rnn-scratch.md)一节中定义的`init_rnn_state`函数一样，它返回由一个形状为（批量大小，隐藏单元个数）的值为0的NDArray组成的元组。
+以下定义隐藏状态初始化函数`init_gru_state`。同[“循环神经网络的从零开始实现”](rnn-scratch.md)一节中定义的`init_rnn_state`函数一样，它返回由一个形状为（批量大小，隐藏单元个数）的值为0的`NDArray`组成的元组。
 
 ```{.python .input  n=3}
 def init_gru_state(batch_size, num_hiddens, ctx):

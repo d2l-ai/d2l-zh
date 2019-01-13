@@ -20,16 +20,16 @@ from mxnet.gluon import nn
 mx.cpu(), mx.gpu(), mx.gpu(1)
 ```
 
-## NDArray的GPU计算
+## `NDArray`的GPU计算
 
-默认情况下，NDArray存在内存上。因此，之前我们每次打印NDArray的时候都会看到`@cpu(0)`这个标识。
+默认情况下，`NDArray`存在内存上。因此，之前我们每次打印`NDArray`的时候都会看到`@cpu(0)`这个标识。
 
 ```{.python .input  n=4}
 x = nd.array([1, 2, 3])
 x
 ```
 
-我们可以通过NDArray的`context`属性来查看该NDArray所在的设备。
+我们可以通过`NDArray`的`context`属性来查看该`NDArray`所在的设备。
 
 ```{.python .input}
 x.context
@@ -37,7 +37,7 @@ x.context
 
 ### GPU上的存储
 
-我们有多种方法将NDArray存储在显存上。例如我们可以在创建NDArray的时候通过`ctx`参数指定存储设备。下面我们将NDArray变量`a`创建在`gpu(0)`上。注意到在打印`a`时，设备信息变成了`@gpu(0)`。创建在显存上的NDArray只消耗同一块显卡的显存。我们可以通过`nvidia-smi`命令查看显存的使用情况。通常，我们需要确保不创建超过显存上限的数据。
+我们有多种方法将`NDArray`存储在显存上。例如我们可以在创建`NDArray`的时候通过`ctx`参数指定存储设备。下面我们将`NDArray`变量`a`创建在`gpu(0)`上。注意到在打印`a`时，设备信息变成了`@gpu(0)`。创建在显存上的`NDArray`只消耗同一块显卡的显存。我们可以通过`nvidia-smi`命令查看显存的使用情况。通常，我们需要确保不创建超过显存上限的数据。
 
 ```{.python .input  n=5}
 a = nd.array([1, 2, 3], ctx=mx.gpu())
@@ -51,7 +51,7 @@ B = nd.random.uniform(shape=(2, 3), ctx=mx.gpu(1))
 B
 ```
 
-除了在创建时指定，我们也可以通过`copyto`和`as_in_context`函数在设备之间传输数据。下面我们将内存上的NDArray变量`x`复制到`gpu(0)`上。
+除了在创建时指定，我们也可以通过`copyto`和`as_in_context`函数在设备之间传输数据。下面我们将内存上的`NDArray`变量`x`复制到`gpu(0)`上。
 
 ```{.python .input  n=7}
 y = x.copyto(mx.gpu())
@@ -83,11 +83,11 @@ MXNet的计算会在数据的`context`所指定的设备上执行。为了使用
 (z + 2).exp() * y
 ```
 
-注意，MXNet要求计算的所有输入数据都在内存或同一块显卡的显存上。这样设计的原因是CPU和不同的GPU之间的数据交互通常比较耗时。因此，MXNet希望用户确切地指明计算的输入数据都在内存或同一块显卡的显存上。例如，如果将内存上的NDArray变量`x`和显存上的NDArray变量`y`做运算，会出现错误信息。当我们打印NDArray或将NDArray转换成NumPy格式时，如果数据不在内存，MXNet会将它先复制到内存，从而造成额外的传输开销。
+注意，MXNet要求计算的所有输入数据都在内存或同一块显卡的显存上。这样设计的原因是CPU和不同的GPU之间的数据交互通常比较耗时。因此，MXNet希望用户确切地指明计算的输入数据都在内存或同一块显卡的显存上。例如，如果将内存上的`NDArray`变量`x`和显存上的`NDArray`变量`y`做运算，会出现错误信息。当我们打印`NDArray`或将`NDArray`转换成NumPy格式时，如果数据不在内存，MXNet会将它先复制到内存，从而造成额外的传输开销。
 
 ## Gluon的GPU计算
 
-同NDArray类似，Gluon的模型可以在初始化时通过`ctx`参数指定设备。下面代码将模型参数初始化在显存上。
+同`NDArray`类似，Gluon的模型可以在初始化时通过`ctx`参数指定设备。下面代码将模型参数初始化在显存上。
 
 ```{.python .input  n=12}
 net = nn.Sequential()
@@ -95,7 +95,7 @@ net.add(nn.Dense(1))
 net.initialize(ctx=mx.gpu())
 ```
 
-当输入是显存上的NDArray时，Gluon会在同一块显卡的显存上计算结果。
+当输入是显存上的`NDArray`时，Gluon会在同一块显卡的显存上计算结果。
 
 ```{.python .input  n=13}
 net(y)

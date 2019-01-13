@@ -19,7 +19,7 @@ Y = net(X)  # 前向计算
 
 ## 访问模型参数
 
-对于使用Sequential类构造的神经网络，我们可以通过方括号`[]`来访问网络的任一层。回忆一下上一节中提到的Sequential类与Block类的继承关系。对于Sequential实例中含模型参数的层，我们可以通过Block类的`params`属性来访问该层包含的所有参数。下面，访问多层感知机`net`中隐藏层的所有参数。索引0表示隐藏层为Sequential实例最先添加的层。
+对于使用`Sequential`类构造的神经网络，我们可以通过方括号`[]`来访问网络的任一层。回忆一下上一节中提到的`Sequential`类与`Block`类的继承关系。对于`Sequential`实例中含模型参数的层，我们可以通过`Block`类的`params`属性来访问该层包含的所有参数。下面，访问多层感知机`net`中隐藏层的所有参数。索引0表示隐藏层为`Sequential`实例最先添加的层。
 
 ```{.python .input  n=2}
 net[0].params, type(net[0].params)
@@ -31,7 +31,7 @@ net[0].params, type(net[0].params)
 net[0].params['dense0_weight'], net[0].weight
 ```
 
-Gluon里参数类型为Parameter类，它包含参数和梯度的数值，可以分别通过`data`和`grad`函数来访问。因为我们随机初始化了权重，所以权重参数是一个由随机数组成的形状为`(256, 20)`的NDArray.
+Gluon里参数类型为`Parameter`类，它包含参数和梯度的数值，可以分别通过`data`和`grad`函数来访问。因为我们随机初始化了权重，所以权重参数是一个由随机数组成的形状为`(256, 20)`的`NDArray`.
 
 ```{.python .input  n=4}
 net[0].weight.data()
@@ -78,7 +78,7 @@ net.initialize(init=init.Constant(1), force_reinit=True)
 net[0].weight.data()[0]
 ```
 
-如果想只对某个特定参数进行初始化，我们可以调用`Paramter`类的`initialize`函数，它与Block类提供的`initialize`函数的使用方法一致。下例中我们对隐藏层的权重使用Xavier初始化方法。
+如果想只对某个特定参数进行初始化，我们可以调用`Paramter`类的`initialize`函数，它与`Block`类提供的`initialize`函数的使用方法一致。下例中我们对隐藏层的权重使用Xavier初始化方法。
 
 ```{.python .input  n=11}
 net[0].weight.initialize(init=init.Xavier(), force_reinit=True)
@@ -87,7 +87,7 @@ net[0].weight.data()[0]
 
 ## 自定义初始化方法
 
-有时候我们需要的初始化方法并没有在`init`模块中提供。这时，我们可以实现一个`Initializer`类的子类，从而能够像使用其他初始化方法那样使用它。通常，我们只需要实现`_init_weight`这个函数，并将其传入的NDArray修改成初始化的结果。在下面的例子里，我们令权重有一半概率初始化为0，有另一半概率初始化为$[-10,-5]$和$[5,10]$两个区间里均匀分布的随机数。
+有时候我们需要的初始化方法并没有在`init`模块中提供。这时，我们可以实现一个`Initializer`类的子类，从而能够像使用其他初始化方法那样使用它。通常，我们只需要实现`_init_weight`这个函数，并将其传入的`NDArray`修改成初始化的结果。在下面的例子里，我们令权重有一半概率初始化为0，有另一半概率初始化为$[-10,-5]$和$[5,10]$两个区间里均匀分布的随机数。
 
 ```{.python .input  n=12}
 class MyInit(init.Initializer):
@@ -109,7 +109,7 @@ net[0].weight.data()[0]
 
 ## 共享模型参数
 
-在有些情况下，我们希望在多个层之间共享模型参数。[“模型构造”](model-construction.md)一节介绍了如何在Block类的`forward`函数里多次调用同一个层来计算。这里再介绍另外一个方法，它在构造层的时候指定使用特定的参数。如果不同层使用同一份参数，那么它们在前向计算和反向传播时都会共享相同的参数。在下面例子里，我们让模型的第二隐藏层（`shared`变量）和第三隐藏层共享模型参数。
+在有些情况下，我们希望在多个层之间共享模型参数。[“模型构造”](model-construction.md)一节介绍了如何在`Block`类的`forward`函数里多次调用同一个层来计算。这里再介绍另外一个方法，它在构造层的时候指定使用特定的参数。如果不同层使用同一份参数，那么它们在前向计算和反向传播时都会共享相同的参数。在下面例子里，我们让模型的第二隐藏层（`shared`变量）和第三隐藏层共享模型参数。
 
 ```{.python .input  n=14}
 net = nn.Sequential()

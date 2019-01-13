@@ -55,7 +55,7 @@ def xyplot(x_vals, y_vals, name):
     d2l.plt.ylabel(name + '(x)')
 ```
 
-我们接下来通过NDArray提供的`relu`函数来绘制ReLU函数。可以看到，该激活函数是一个两段线性函数。
+我们接下来通过`NDArray`提供的`relu`函数来绘制ReLU函数。可以看到，该激活函数是一个两段线性函数。
 
 ```{.python .input  n=7}
 x = nd.arange(-8.0, 8.0, 0.1)

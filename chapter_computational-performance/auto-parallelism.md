@@ -21,7 +21,7 @@ def run(x):
     return [nd.dot(x, x) for _ in range(10)]
 ```
 
-接下来，分别在CPU和GPU上创建NDArray。
+接下来，分别在CPU和GPU上创建`NDArray`。
 
 ```{.python .input}
 x_cpu = nd.random.uniform(shape=(2000, 2000))

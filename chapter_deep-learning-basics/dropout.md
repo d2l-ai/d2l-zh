@@ -23,7 +23,7 @@ $$\mathbb{E}(h_i') = \frac{\mathbb{E}(\xi_i)}{1-p}h_i = h_i.$$
 
 ## 从零开始实现
 
-根据丢弃法的定义，我们可以很容易地实现它。下面的`dropout`函数将以`drop_prob`的概率丢弃NDArray输入`X`中的元素。
+根据丢弃法的定义，我们可以很容易地实现它。下面的`dropout`函数将以`drop_prob`的概率丢弃`NDArray`输入`X`中的元素。
 
 ```{.python .input}
 import d2lzh as d2l

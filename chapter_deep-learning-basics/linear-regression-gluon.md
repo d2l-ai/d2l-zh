@@ -44,7 +44,7 @@ for X, y in data_iter:
 
 在上一节从零开始的实现中，我们需要定义模型参数，并使用它们一步步描述模型是怎样计算的。当模型结构变得更复杂时，这些步骤将变得更加繁琐。其实，Gluon提供了大量预定义的层，这使我们只需关注使用哪些层来构造模型。下面将介绍如何使用Gluon更简洁地定义线性回归。
 
-首先，导入`nn`模块。实际上，“nn”是neural networks（神经网络）的缩写。顾名思义，该模块定义了大量神经网络的层。我们先定义一个模型变量`net`，它是一个Sequential实例。在Gluon中，Sequential实例可以看作是一个串联各个层的容器。在构造模型时，我们在该容器中依次添加层。当给定输入数据时，容器中的每一层将依次计算并将输出作为下一层的输入。
+首先，导入`nn`模块。实际上，“nn”是neural networks（神经网络）的缩写。顾名思义，该模块定义了大量神经网络的层。我们先定义一个模型变量`net`，它是一个`Sequential`实例。在Gluon中，`Sequential`实例可以看作是一个串联各个层的容器。在构造模型时，我们在该容器中依次添加层。当给定输入数据时，容器中的每一层将依次计算并将输出作为下一层的输入。
 
 ```{.python .input  n=5}
 from mxnet.gluon import nn
@@ -93,7 +93,7 @@ trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.03})
 
 ## 训练模型
 
-在使用Gluon训练模型时，我们通过调用`Trainer`实例的`step`函数来迭代模型参数。上一节中我们提到，由于变量`l`是长度为`batch_size`的一维NDArray，执行`l.backward()`等价于执行`l.sum().backward()`。按照小批量随机梯度下降的定义，我们在`step`函数中指明批量大小，从而对批量中样本梯度求平均。
+在使用Gluon训练模型时，我们通过调用`Trainer`实例的`step`函数来迭代模型参数。上一节中我们提到，由于变量`l`是长度为`batch_size`的一维`NDArray`，执行`l.backward()`等价于执行`l.sum().backward()`。按照小批量随机梯度下降的定义，我们在`step`函数中指明批量大小，从而对批量中样本梯度求平均。
 
 ```{.python .input  n=10}
 num_epochs = 3

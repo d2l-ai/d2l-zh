@@ -87,7 +87,7 @@ all_features.shape
 
 可以看到这一步转换将特征数从79增加到了331。
 
-最后，通过`values`属性得到NumPy格式的数据，并转成NDArray方便后面的训练。
+最后，通过`values`属性得到NumPy格式的数据，并转成`NDArray`方便后面的训练。
 
 ```{.python .input  n=9}
 n_train = train_data.shape[0]

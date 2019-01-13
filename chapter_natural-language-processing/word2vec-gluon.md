@@ -217,7 +217,7 @@ embed(x)
 
 ### 小批量乘法
 
-我们可以使用小批量乘法运算`batch_dot`对两个小批量中的矩阵一一做乘法。假设第一个批量中包含$n$个形状为$a\times b$的矩阵$\boldsymbol{X}_1, \ldots, \boldsymbol{X}_n$，第二个批量中包含$n$个形状为$b\times c$的矩阵$\boldsymbol{Y}_1, \ldots, \boldsymbol{Y}_n$。这两个批量的矩阵乘法输出为$n$个形状为$a\times c$的矩阵$\boldsymbol{X}_1\boldsymbol{Y}_1, \ldots, \boldsymbol{X}_n\boldsymbol{Y}_n$。因此，给定两个形状分别为（$n$，$a$，$b$）和（$n$，$b$，$c$）的NDArray，小批量乘法输出的形状为（$n$，$a$，$c$）。
+我们可以使用小批量乘法运算`batch_dot`对两个小批量中的矩阵一一做乘法。假设第一个批量中包含$n$个形状为$a\times b$的矩阵$\boldsymbol{X}_1, \ldots, \boldsymbol{X}_n$，第二个批量中包含$n$个形状为$b\times c$的矩阵$\boldsymbol{Y}_1, \ldots, \boldsymbol{Y}_n$。这两个批量的矩阵乘法输出为$n$个形状为$a\times c$的矩阵$\boldsymbol{X}_1\boldsymbol{Y}_1, \ldots, \boldsymbol{X}_n\boldsymbol{Y}_n$。因此，给定两个形状分别为（$n$，$a$，$b$）和（$n$，$b$，$c$）的`NDArray`，小批量乘法输出的形状为（$n$，$a$，$c$）。
 
 ```{.python .input  n=17}
 X = nd.ones((2, 1, 4))

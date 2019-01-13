@@ -54,7 +54,7 @@ $${\boldsymbol{y}}^{(i)} \leftarrow \boldsymbol{\gamma} \odot \hat{\boldsymbol{x
 
 ## 从零开始实现
 
-下面我们通过NDArray来实现批量归一化层。
+下面我们通过`NDArray`来实现批量归一化层。
 
 ```{.python .input  n=72}
 import d2lzh as d2l

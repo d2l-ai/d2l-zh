@@ -29,7 +29,7 @@ import time
 
 ## 定义模型
 
-我们使用[“卷积神经网络（LeNet）”](../chapter_convolutional-neural-networks/lenet.md)一节里介绍的LeNet来作为本节的样例模型。这里的模型实现部分只用到了NDArray。
+我们使用[“卷积神经网络（LeNet）”](../chapter_convolutional-neural-networks/lenet.md)一节里介绍的LeNet来作为本节的样例模型。这里的模型实现部分只用到了`NDArray`。
 
 ```{.python .input  n=3}
 # 初始化模型参数

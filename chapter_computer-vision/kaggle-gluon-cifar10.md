@@ -1,6 +1,6 @@
 # 实战Kaggle比赛：图像分类（CIFAR-10）
 
-到目前为止，我们一直在用Gluon的`data`包直接获取NDArray格式的图像数据集。然而，实际中的图像数据集往往是以图像文件的形式存在的。本节中，我们将从原始的图像文件开始，一步步整理、读取并变换为NDArray格式。
+到目前为止，我们一直在用Gluon的`data`包直接获取`NDArray`格式的图像数据集。然而，实际中的图像数据集往往是以图像文件的形式存在的。本节中，我们将从原始的图像文件开始，一步步整理、读取并变换为`NDArray`格式。
 
 我们曾在[“图像增广”](image-augmentation.md)一节中实验过CIFAR-10数据集。它是计算机视觉领域的一个重要数据集。现在我们将应用前面章节所学到的知识，动手实战CIFAR-10图像分类问题的Kaggle比赛。该比赛的网页地址是
 
@@ -196,7 +196,7 @@ test_iter = gdata.DataLoader(test_ds.transform_first(transform_test),
 
 ## 定义模型
 
-与[“残差网络（ResNet）”](../chapter_convolutional-neural-networks/resnet.md)一节中的实现稍有不同，这里基于HybridBlock类构建残差块。这是为了提升执行效率。
+与[“残差网络（ResNet）”](../chapter_convolutional-neural-networks/resnet.md)一节中的实现稍有不同，这里基于`HybridBlock`类构建残差块。这是为了提升执行效率。
 
 ```{.python .input  n=11}
 class Residual(nn.HybridBlock):
