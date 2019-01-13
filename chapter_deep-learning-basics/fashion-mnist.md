@@ -33,19 +33,19 @@ len(mnist_train), len(mnist_test)
 feature, label = mnist_train[0]
 ```
 
-变量`feature`对应高和宽均为28像素的图像。每个像素的数值为0到255之间8位无符号整数（uint8）。它使用3维的`NDArray`储存。其中的最后一维是通道数。因为数据集中是灰度图像，所以通道数为1。为了表述简洁，我们将高和宽分别为$h$和$w$像素的图像的形状记为$h \times w$或`（h，w）`。
+变量`feature`对应高和宽均为28像素的图像。每个像素的数值为0到255之间8位无符号整数（uint8）。它使用三维的`NDArray`存储。其中的最后一维是通道数。因为数据集中是灰度图像，所以通道数为1。为了表述简洁，我们将高和宽分别为$h$和$w$像素的图像的形状记为$h \times w$或`（h，w）`。
 
 ```{.python .input}
 feature.shape, feature.dtype
 ```
 
-图像的标签使用NumPy的标量表示。它的类型为32位整数。
+图像的标签使用NumPy的标量表示。它的类型为32位整数（int32）。
 
 ```{.python .input}
 label, type(label), label.dtype
 ```
 
-Fashion-MNIST中一共包括了10个类别，分别为：t-shirt（T恤）、trouser（裤子）、pullover（套衫）、dress（连衣裙）、coat（外套）、sandal（凉鞋）、shirt（衬衫）、sneaker（运动鞋）、bag（包）和ankle boot（短靴）。以下函数可以将数值标签转成相应的文本标签。
+Fashion-MNIST中一共包括了10个类别，分别为t-shirt（T恤）、trouser（裤子）、pullover（套衫）、dress（连衣裙）、coat（外套）、sandal（凉鞋）、shirt（衬衫）、sneaker（运动鞋）、bag（包）和ankle boot（短靴）。以下函数可以将数值标签转成相应的文本标签。
 
 ```{.python .input  n=25}
 # 本函数已保存在d2lzh包中方便以后使用
@@ -83,7 +83,7 @@ show_fashion_mnist(X, get_fashion_mnist_labels(y))
 
 在实践中，数据读取经常是训练的性能瓶颈，特别当模型较简单或者计算硬件性能较高时。Gluon的`DataLoader`中一个很方便的功能是允许使用多进程来加速数据读取（暂不支持Windows操作系统）。这里我们通过参数`num_workers`来设置4个进程读取数据。
 
-此外，我们通过`ToTensor`类将图像数据从uint8格式变换成32位浮点数格式，并除以255使得所有像素的数值均在0到1之间。`ToTensor`类还将图像通道从最后一维移到最前一维来方便之后介绍的卷积神经网络计算。通过数据集的`transform_first`函数，我们将`ToTensor`的变换应用在每个数据样本（图像和标签）的第一个元素，即图像之上。
+此外，我们通过`ToTensor`实例将图像数据从uint8格式变换成32位浮点数格式，并除以255使得所有像素的数值均在0到1之间。`ToTensor`实例还将图像通道从最后一维移到最前一维来方便之后介绍的卷积神经网络计算。通过数据集的`transform_first`函数，我们将`ToTensor`的变换应用在每个数据样本（图像和标签）的第一个元素，即图像之上。
 
 ```{.python .input  n=28}
 batch_size = 256
@@ -114,15 +114,15 @@ for X, y in train_iter:
 
 ## 小结
 
-* Fashion-MNIST是一个10类服饰分类数据集，之后章节里我们将使用它来检验不同算法的表现。
+* Fashion-MNIST是一个10类服饰分类数据集，之后章节里将使用它来检验不同算法的表现。
 * 我们将高和宽分别为$h$和$w$像素的图像的形状记为$h \times w$或`（h，w）`。
 
 ## 练习
 
-* 减小`batch_size`（例如到1）会影响读取性能吗？
+* 减小`batch_size`（如到1）会影响读取性能吗？
 * 非Windows用户请尝试修改`num_workers`来查看它对读取性能的影响。
-* 查看MXNet文档，`gdata.vision`里还提供了哪些别的数据集？
-* 查看MXNet文档，`gdata.vision.transforms`还提供了哪些别的变换方法？
+* 查阅MXNet文档，`mxnet.gluon.data.vision`里还提供了哪些别的数据集？
+* 查阅MXNet文档，`mxnet.gluon.data.vision.transforms`还提供了哪些别的变换方法？
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7760)

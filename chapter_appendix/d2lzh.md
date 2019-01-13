@@ -46,7 +46,7 @@
 * `train_2d`：[梯度下降和随机梯度下降](../chapter_optimization/gd-sgd.md)
 * `train_and_predict_rnn`：[循环神经网络的从零开始实现](../chapter_recurrent-neural-networks/rnn-scratch.md)
 * `train_and_predict_rnn_gluon `：[循环神经网络的简洁实现](../chapter_recurrent-neural-networks/rnn-gluon.md)
-* `train_ch3`：[Softmax回归的从零开始实现](../chapter_deep-learning-basics/softmax-regression-scratch.md)
+* `train_ch3`：[softmax回归的从零开始实现](../chapter_deep-learning-basics/softmax-regression-scratch.md)
 * `train_ch5`：[卷积神经网络（LeNet）](../chapter_convolutional-neural-networks/lenet.md)
 * `train_ch7`：[小批量随机梯度下降](../chapter_optimization/minibatch-sgd.md)
 * `train_gluon_ch7`：[小批量随机梯度下降](../chapter_optimization/minibatch-sgd.md)

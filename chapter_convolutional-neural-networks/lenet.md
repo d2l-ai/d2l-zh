@@ -75,7 +75,7 @@ ctx = try_gpu()
 ctx
 ```
 
-相应地，我们对[“Softmax回归的从零开始实现”](../chapter_deep-learning-basics/softmax-regression-scratch.md)一节中描述的`evaluate_accuracy`函数略作修改。由于数据刚开始存在CPU使用的内存上，当`ctx`变量代表GPU及相应的显存时，我们通过[“GPU计算”](../chapter_deep-learning-computation/use-gpu.md)一节中介绍的`as_in_context`函数将数据复制到显存上，例如`gpu(0)`。
+相应地，我们对[“softmax回归的从零开始实现”](../chapter_deep-learning-basics/softmax-regression-scratch.md)一节中描述的`evaluate_accuracy`函数略作修改。由于数据刚开始存在CPU使用的内存上，当`ctx`变量代表GPU及相应的显存时，我们通过[“GPU计算”](../chapter_deep-learning-computation/use-gpu.md)一节中介绍的`as_in_context`函数将数据复制到显存上，例如`gpu(0)`。
 
 ```{.python .input}
 # 本函数已保存在d2lzh包中方便以后使用。该函数将被逐步改进：它的完整实现将在“图像增广”一节中
@@ -90,7 +90,7 @@ def evaluate_accuracy(data_iter, net, ctx):
     return acc_sum.asscalar() / n
 ```
 
-我们同样对[“Softmax回归的从零开始实现”](../chapter_deep-learning-basics/softmax-regression-scratch.md)一节中定义的`train_ch3`函数略作修改，确保计算使用的数据和模型同在内存或显存上。
+我们同样对[“softmax回归的从零开始实现”](../chapter_deep-learning-basics/softmax-regression-scratch.md)一节中定义的`train_ch3`函数略作修改，确保计算使用的数据和模型同在内存或显存上。
 
 ```{.python .input}
 # 本函数已保存在d2lzh包中方便以后使用
