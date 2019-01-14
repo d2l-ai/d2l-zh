@@ -11,7 +11,7 @@ from mxnet.gluon import loss as gloss
 
 ## 获取和读取数据
 
-我们继续使用Fashion-MNIST数据集。我们将使用多层感知机对图像进行分类。
+这里继续使用Fashion-MNIST数据集。我们将使用多层感知机对图像进行分类。
 
 ```{.python .input  n=2}
 batch_size = 256
@@ -46,7 +46,7 @@ def relu(X):
 
 ## 定义模型
 
-同softmax回归一样，我们通过`reshape`函数将每张原始图像改成长度为`num_inputs`的向量。然后我们实现上一节多层感知机的计算表达式。
+同softmax回归一样，我们通过`reshape`函数将每张原始图像改成长度为`num_inputs`的向量。然后我们实现上一节中多层感知机的计算表达式。
 
 ```{.python .input  n=5}
 def net(X):
@@ -65,7 +65,7 @@ loss = gloss.SoftmaxCrossEntropyLoss()
 
 ## 训练模型
 
-训练多层感知机的步骤和之前训练softmax回归的步骤没什么区别。我们直接调用`d2lzh`包中的`train_ch3`函数，它的实现已经在[“softmax回归的从零开始实现”](softmax-regression-scratch.md)一节里介绍了。我们在这里设超参数迭代周期数为5，学习率为0.5。
+训练多层感知机的步骤和[“softmax回归的从零开始实现”](softmax-regression-scratch.md)一节中训练softmax回归的步骤没什么区别。我们直接调用`d2lzh`包中的`train_ch3`函数，它的实现已经在[“softmax回归的从零开始实现”](softmax-regression-scratch.md)一节里介绍过。我们在这里设超参数迭代周期数为5，学习率为0.5。
 
 ```{.python .input  n=7}
 num_epochs, lr = 5, 0.5
@@ -75,13 +75,13 @@ d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
 
 ## 小结
 
-* 我们可以通过手动定义模型及其参数来实现简单的多层感知机。
-* 当多层感知机的层数较多时，本节的实现方法会显得较繁琐：例如在定义模型参数的时候。
+* 可以通过手动定义模型及其参数来实现简单的多层感知机。
+* 当多层感知机的层数较多时，本节的实现方法会显得较烦琐，例如在定义模型参数的时候。
 
 ## 练习
 
-* 改变超参数`num_hiddens`的值，看看对结果有什么影响。
-* 试着加入一个新的隐藏层，看看对结果有什么影响。
+* 改变超参数`num_hiddens`的值，看看对实验结果有什么影响。
+* 试着加入一个新的隐藏层，看看对实验结果有什么影响。
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/739)
 

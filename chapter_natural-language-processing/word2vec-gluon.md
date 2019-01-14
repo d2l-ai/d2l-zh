@@ -143,7 +143,7 @@ def get_negatives(all_contexts, sampling_weights, K):
         while len(negatives) < len(contexts) * K:
             if i == len(neg_candidates):
                 # 根据每个词的权重（sampling_weights）随机生成k个词的索引作为噪声词。
-                # 为了高效计算，可以将k设的稍大一点
+                # 为了高效计算，可以将k设得稍大一点
                 i, neg_candidates = 0, random.choices(
                     population, sampling_weights, k=int(1e5))
             neg, i = neg_candidates[i], i + 1
