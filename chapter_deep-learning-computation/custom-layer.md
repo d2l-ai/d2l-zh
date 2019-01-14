@@ -5,7 +5,7 @@
 
 ## 不含模型参数的自定义层
 
-我们先介绍如何定义一个不含模型参数的自定义层。事实上，这和[“模型构造”](model-construction.md)一节中介绍的使用`Block`类构造模型类似。以下的`CenteredLayer`类通过继承`Block`类自定义了一个将输入减掉均值后输出的层，并将层的计算定义在了`forward`函数里。这个层里不含模型参数。
+我们先介绍如何定义一个不含模型参数的自定义层。事实上，这和[“模型构造”](model-construction.md)一节中介绍的使用`Block`类构造模型类似。下面的`CenteredLayer`类通过继承`Block`类自定义了一个将输入减掉均值后输出的层，并将层的计算定义在了`forward`函数里。这个层里不含模型参数。
 
 ```{.python .input  n=1}
 from mxnet import gluon, nd
@@ -34,7 +34,7 @@ net.add(nn.Dense(128),
         CenteredLayer())
 ```
 
-下面打印自定义层各个输出的均值。由于均值是浮点数，它的值是个很接近0的数。
+下面打印自定义层各个输出的均值。因为均值是浮点数，所以它的值是一个很接近0的数。
 
 ```{.python .input  n=4}
 net.initialize()
@@ -54,7 +54,7 @@ params.get('param2', shape=(2, 3))
 params
 ```
 
-现在我们尝试实现一个含权重参数和偏差参数的全连接层。它使用ReLU作为激活函数。其中`in_units`和`units`分别是输入个数和输出个数。
+现在我们尝试实现一个含权重参数和偏差参数的全连接层。它使用ReLU函数作为激活函数。其中`in_units`和`units`分别代表输入个数和输出个数。
 
 ```{.python .input  n=19}
 class MyDense(nn.Block):
@@ -95,7 +95,7 @@ net(nd.random.uniform(shape=(2, 64)))
 
 ## 小结
 
-* 我们可以通过`Block`类自定义神经网络中的层，从而可以被重复调用。
+* 可以通过`Block`类自定义神经网络中的层，从而可以被重复调用。
 
 
 ## 练习
