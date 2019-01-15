@@ -126,7 +126,7 @@ def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
 
 ```{.python .input  n=8}
 if demo:
-    # 注意：此处使用小训练集和小测试集并将批量大小相应设小。使用Kaggle比赛的完整数据集时可
+    # 注意，此处使用小训练集和小测试集并将批量大小相应设小。使用Kaggle比赛的完整数据集时可
     # 设批量大小为较大整数
     train_dir, test_dir, batch_size = 'train_tiny', 'test_tiny', 1
 else:
