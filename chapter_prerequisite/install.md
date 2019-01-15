@@ -30,7 +30,7 @@ conda config --prepend channels http://mirrors.ustc.edu.cn/anaconda/pkgs/free/
 conda env create -f environment.yml
 ```
 
-如使用国内镜像后出现安装错误，可取消配置镜像：复制已执行的镜像配置命令，将其中的`--prepend`改为`--remove`再执行。重试以上命令。
+如使用国内镜像后出现安装错误，可取消配置镜像：复制已执行的镜像配置命令，将其中的`--prepend`改为`--remove`再执行。然后重试创建虚拟环境的命令。
 
 第四步是激活之前创建的环境。激活该环境是能够运行本书的代码的前提。如需退出虚拟环境，可使用命令`deactivate`。
 
