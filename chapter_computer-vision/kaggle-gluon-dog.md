@@ -1,15 +1,13 @@
-# 实战Kaggle比赛：狗的品种识别 (ImageNet Dogs)
+# 实战Kaggle比赛：狗的品种识别（ImageNet Dogs）
 
 
-我们将在本节动手实战Kaggle比赛中的狗的品种识别问题。该比赛的网页地址是
+我们将在本节动手实战Kaggle比赛中的狗的品种识别问题。该比赛的网页地址是 https://www.kaggle.com/c/dog-breed-identification 。
 
-> https://www.kaggle.com/c/dog-breed-identification
-
-在这个比赛中，我们将识别120类不同品种的狗。这个比赛的数据集实际上是著名的ImageNet的子集数据集。和上一节的CIFAR-10数据集中的图像不同，ImageNet数据集中的图像更高更宽，且尺寸不一。
+在这个比赛中，将识别120类不同品种的狗。这个比赛的数据集实际上是著名的ImageNet的子集数据集。和上一节的CIFAR-10数据集中的图像不同，ImageNet数据集中的图像更高更宽，且尺寸不一。
 
 图9.17展示了该比赛的网页信息。为了便于提交结果，请先在Kaggle网站上注册账号。
 
-![狗的品种识别比赛的网页信息。比赛数据集可通过点击“Data”标签获取（来源：www.kaggle.com/c/dog-breed-identification）](../img/kaggle-dog.png)
+![狗的品种识别比赛的网页信息。比赛数据集可通过点击“Data”标签获取](../img/kaggle-dog.png)
 
 首先，导入比赛所需的包或模块。
 
@@ -28,19 +26,19 @@ import zipfile
 ## 获取和整理数据集
 
 
-比赛数据分为训练集和测试集。训练集里包含10,222张图像，测试集里包含10,357张图像。两个数据集中的图像格式都是JPEG。这些图像都含有RGB三个通道（彩色），高和宽的大小不一。训练集中狗的类别共有120种，例如拉布拉多、贵宾、腊肠、萨摩耶、哈士奇、吉娃娃和约克夏等。
+比赛数据分为训练集和测试集。训练集包含了10,222张图像，测试集包含了10,357张图像。两个数据集中的图像格式都是JPEG。这些图像都含有RGB三个通道（彩色），高和宽的大小不一。训练集中狗的类别共有120种，如拉布拉多、贵宾、腊肠、萨摩耶、哈士奇、吉娃娃和约克夏等。
 
 
 ### 下载数据集
 
-登录Kaggle后，我们可以点击图9.17所示的狗的品种识别比赛网页上的“Data”标签，并分别下载训练数据集“train.zip”、测试数据集“test.zip”和训练数据集标签“label.csv.zip”。下载完成后，将它们分别存放在以下三个路径：
+登录Kaggle后，我们可以点击图9.17所示的狗的品种识别比赛网页上的“Data”标签，并分别下载训练数据集train.zip、测试数据集test.zip和训练数据集标签label.csv.zip。下载完成后，将它们分别存放在以下3个路径：
 
-* ../data/kaggle_dog/train.zip
-* ../data/kaggle_dog/test.zip
-* ../data/kaggle_dog/labels.csv.zip
+* ../data/kaggle_dog/train.zip；
+* ../data/kaggle_dog/test.zip；
+* ../data/kaggle_dog/labels.csv.zip。
 
 
-为方便快速上手，我们提供了上述数据集的小规模采样“train_valid_test_tiny.zip”。如果你要使用上述Kaggle比赛的完整数据集，还需要把下面`demo`变量改为`False`。
+为方便快速上手，我们提供了上述数据集的小规模采样train_valid_test_tiny.zip。如果要使用上述Kaggle比赛的完整数据集，还需要把下面`demo`变量改为`False`。
 
 ```{.python .input  n=1}
 # 如果使用下载的Kaggle比赛的完整数据集，把demo变量改为False
@@ -57,7 +55,7 @@ for f in zipfiles:
 
 ### 整理数据集
 
-我们定义下面的`reorg_train_valid`函数来从Kaggle比赛的完整原始训练集中切分出验证集。该函数中的参数`valid_ratio`指验证集中每类狗的样本数与原始训练集中数量最少一类的狗的样本数（66）之比。经过整理后，同一类狗的图像将被放在同一个文件夹下，便于我们稍后读取。
+我们定义下面的`reorg_train_valid`函数来从Kaggle比赛的完整原始训练集中切分出验证集。该函数中的参数`valid_ratio`指验证集中每类狗的样本数与原始训练集中数量最少一类的狗的样本数（66）之比。经过整理后，同一类狗的图像将被放在同一个文件夹下，便于稍后读取。
 
 ```{.python .input}
 def reorg_train_valid(data_dir, train_dir, input_dir, valid_ratio, idx_label):
@@ -103,7 +101,7 @@ def reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir,
                     os.path.join(data_dir, input_dir, 'test', 'unknown'))
 ```
 
-由于我们在这里使用了小数据集，所以将批量大小设为1。在实际训练和测试时，我们应使用Kaggle比赛的完整数据集并调用`reorg_dog_data`函数来整理数据集。相应地，我们也需要将批量大小`batch_size`设为一个较大的整数，例如128。
+因为我们在这里使用了小数据集，所以将批量大小设为1。在实际训练和测试时，我们应使用Kaggle比赛的完整数据集并调用`reorg_dog_data`函数来整理数据集。相应地，我们也需要将批量大小`batch_size`设为一个较大的整数，如128。
 
 ```{.python .input  n=3}
 if demo:
@@ -123,8 +121,8 @@ else:
 
 ```{.python .input  n=4}
 transform_train = gdata.vision.transforms.Compose([
-    # 随机对图像裁剪出面积为原图像面积0.08到1倍之间、且高和宽之比在3/4和4/3之间的图像，再
-    # 放缩为高和宽均为224像素的新图像
+    # 随机对图像裁剪出面积为原图像面积0.08~1倍、且高和宽之比在3/4~4/3的图像，再放缩为高和
+    # 宽均为224像素的新图像
     gdata.vision.transforms.RandomResizedCrop(224, scale=(0.08, 1.0),
                                               ratio=(3.0/4.0, 4.0/3.0)),
     gdata.vision.transforms.RandomFlipLeftRight(),
@@ -181,7 +179,7 @@ test_iter = gdata.DataLoader(test_ds.transform_first(transform_test),
 
 ## 定义模型
 
-这个比赛的数据属于ImageNet数据集的子集，因此我们可以使用[“微调”](fine-tuning.md)一节中介绍的思路，选用在ImageNet完整数据集上预训练的模型来抽取图像特征，以作为自定义小规模输出网络的输入。Gluon提供了丰富的预训练模型，我们在这里以预训练的ResNet-34模型为例。由于比赛数据集属于预训练数据集的子集，因此我们直接重用预训练模型在输出层的输入，即抽取的特征。然后，我们可以将原输出层替换成自定义的可训练的小规模输出网络，例如两个串联的全连接层。与[“微调”](fine-tuning.md)一节中的实验不同，这里不再训练用于抽取特征的预训练模型：这样既节省了训练时间，又省去了存储其模型参数的梯度的空间。
+这个比赛的数据属于ImageNet数据集的子集，因此我们可以使用[“微调”](fine-tuning.md)一节中介绍的思路，选用在ImageNet完整数据集上预训练的模型来抽取图像特征，以作为自定义小规模输出网络的输入。Gluon提供了丰富的预训练模型，这里以预训练的ResNet-34模型为例。由于比赛数据集属于预训练数据集的子集，因此我们直接复用预训练模型在输出层的输入，即抽取的特征。然后，我们可以将原输出层替换成自定义的可训练的小规模输出网络，如两个串联的全连接层。与[“微调”](fine-tuning.md)一节中的实验不同，这里不再训练用于抽取特征的预训练模型：这样既节省了训练时间，又省去了存储其模型参数的梯度的空间。
 
 需要注意的是，我们在图像增广中使用了ImageNet数据集上RGB三个通道的均值和标准差做标准化，这和预训练模型所做的标准化是一致的。
 
@@ -200,7 +198,7 @@ def get_net(ctx):
     return finetune_net
 ```
 
-在计算损失时，我们先通过成员变量`features`来获取预训练模型输出层的输入，即抽取的特征。然后，将该特征作为我们自定义的小规模输出网络的输入，并计算输出。
+在计算损失时，我们先通过成员变量`features`来获取预训练模型输出层的输入，即抽取的特征。然后，将该特征作为自定义的小规模输出网络的输入，并计算输出。
 
 ```{.python .input}
 loss = gloss.SoftmaxCrossEntropyLoss()
@@ -253,7 +251,7 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, ctx, lr_period,
 
 ## 训练并验证模型
 
-现在，我们可以训练并验证模型了。以下的超参数都是可以调节的，例如增加迭代周期等。由于`lr_period`和`lr_decay`分别设为10和0.1，优化算法的学习率将在每10个迭代周期后自乘0.1。
+现在，我们可以训练并验证模型了。以下超参数都是可以调节的，如增加迭代周期等。由于`lr_period`和`lr_decay`分别设为10和0.1，优化算法的学习率将在每10个迭代周期后自乘0.1。
 
 ```{.python .input  n=9}
 ctx, num_epochs, lr, wd = d2l.try_gpu(), 1, 0.01, 1e-4
@@ -265,7 +263,7 @@ train(net, train_iter, valid_iter, num_epochs, lr, wd, ctx, lr_period,
 
 ## 对测试集分类并在Kaggle提交结果
 
-当得到一组满意的模型设计和超参数后，我们使用全部训练数据集（含验证集）重新训练模型，并对测试集分类。注意，我们要用刚训练好的输出网络做预测。
+得到一组满意的模型设计和超参数后，我们使用全部训练数据集（含验证集）重新训练模型，并对测试集分类。注意，我们要用刚训练好的输出网络做预测。
 
 ```{.python .input  n=8}
 net = get_net(ctx)
@@ -286,7 +284,7 @@ with open('submission.csv', 'w') as f:
             [str(num) for num in output]) + '\n')
 ```
 
-执行完上述代码后，会生成一个“submission.csv”文件。这个文件符合Kaggle比赛要求的提交格式。提交结果的方法与[“实战Kaggle比赛：房价预测”](../chapter_deep-learning-basics/kaggle-house-price.md)一节中的类似。
+执行完上述代码后，会生成一个submission.csv文件。这个文件符合Kaggle比赛要求的提交格式。提交结果的方法与[“实战Kaggle比赛：房价预测”](../chapter_deep-learning-basics/kaggle-house-price.md)一节中的类似。
 
 
 ## 小结

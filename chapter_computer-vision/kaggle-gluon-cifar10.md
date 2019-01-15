@@ -1,14 +1,12 @@
 # 实战Kaggle比赛：图像分类（CIFAR-10）
 
-到目前为止，我们一直在用Gluon的`data`包直接获取`NDArray`格式的图像数据集。然而，实际中的图像数据集往往是以图像文件的形式存在的。本节中，我们将从原始的图像文件开始，一步步整理、读取并变换为`NDArray`格式。
+到目前为止，我们一直在用Gluon的`data`包直接获取`NDArray`格式的图像数据集。然而，实际中的图像数据集往往是以图像文件的形式存在的。在本节中，我们将从原始的图像文件开始，一步步整理、读取并将其变换为`NDArray`格式。
 
-我们曾在[“图像增广”](image-augmentation.md)一节中实验过CIFAR-10数据集。它是计算机视觉领域的一个重要数据集。现在我们将应用前面章节所学到的知识，动手实战CIFAR-10图像分类问题的Kaggle比赛。该比赛的网页地址是
-
-> https://www.kaggle.com/c/cifar-10
+我们曾在[“图像增广”](image-augmentation.md)一节中实验过CIFAR-10数据集。它是计算机视觉领域的一个重要数据集。现在我们将应用前面所学的知识，动手实战CIFAR-10图像分类问题的Kaggle比赛。该比赛的网页地址是 https://www.kaggle.com/c/cifar-10 。
 
 图9.16展示了该比赛的网页信息。为了便于提交结果，请先在Kaggle网站上注册账号。
 
-![CIFAR-10图像分类比赛的网页信息。比赛数据集可通过点击“Data”标签获取（来源：www.kaggle.com/c/cifar-10）](../img/kaggle_cifar10.png)
+![CIFAR-10图像分类比赛的网页信息。比赛数据集可通过点击“Data”标签获取](../img/kaggle_cifar10.png)
 
 首先，导入比赛所需的包或模块。
 
@@ -28,18 +26,18 @@ import time
 
 ### 下载数据集
 
-登录Kaggle后，我们可以点击图9.16所示的CIFAR-10图像分类比赛网页上的“Data”标签，并分别下载训练数据集“train.7z”、测试数据集“test.7z”和训练数据集标签“trainLabels.csv”。
+登录Kaggle后，可以点击图9.16所示的CIFAR-10图像分类比赛网页上的“Data”标签，并分别下载训练数据集train.7z、测试数据集test.7z和训练数据集标签trainLabels.csv。
 
 
 ### 解压数据集
 
-下载完训练数据集“train.7z”和测试数据集“test.7z”后需要解压缩。解压缩后，将训练数据集、测试数据集以及训练数据集标签分别存放在以下三个路径：
+下载完训练数据集train.7z和测试数据集test.7z后需要解压缩。解压缩后，将训练数据集、测试数据集以及训练数据集标签分别存放在以下3个路径：
 
-* ../data/kaggle_cifar10/train/[1-50000].png
-* ../data/kaggle_cifar10/test/[1-300000].png
-* ../data/kaggle_cifar10/trainLabels.csv
+* ../data/kaggle_cifar10/train/[1-50000].png；
+* ../data/kaggle_cifar10/test/[1-300000].png；
+* ../data/kaggle_cifar10/trainLabels.csv。
 
-为方便快速上手，我们提供了上述数据集的小规模采样，其中“train_tiny.zip”包含100个训练样本，而“test_tiny.zip”仅包含1个测试样本。它们解压后的文件夹名称分别为“train_tiny”和“test_tiny”。此外，将训练数据集标签的压缩文件解压，并得到“trainLabels.csv”。如果你将使用上述Kaggle比赛的完整数据集，还需要把下面`demo`变量改为`False`。
+为方便快速上手，我们提供了上述数据集的小规模采样，其中train_tiny.zip包含100个训练样本，而test_tiny.zip仅包含1个测试样本。它们解压后的文件夹名称分别为train_tiny和test_tiny。此外，将训练数据集标签的压缩文件解压，并得到trainLabels.csv。如果使用上述Kaggle比赛的完整数据集，还需要把下面`demo`变量改为`False`。
 
 ```{.python .input  n=2}
 # 如果使用下载的Kaggle比赛的完整数据集，把demo变量改为False
@@ -77,7 +75,7 @@ def mkdir_if_not_exist(path):  # 本函数已保存在d2lzh包中方便以后使
         os.makedirs(os.path.join(*path))
 ```
 
-我们接下来定义`reorg_train_valid`函数来从原始训练集中切分出验证集。以`valid_ratio=0.1`为例，由于原始训练集有50,000张图像，调参时将有45,000张图像用于训练并存放在路径“`input_dir/train`”下，而另外5,000张图像将作为验证集并存放在路径“`input_dir/valid`”下。经过整理后，同一类图像将被放在同一个文件夹下，便于我们稍后读取。
+我们接下来定义`reorg_train_valid`函数来从原始训练集中切分出验证集。以`valid_ratio=0.1`为例，由于原始训练集有50,000张图像，调参时将有45,000张图像用于训练并存放在路径`input_dir/train`下，而另外5,000张图像将作为验证集并存放在路径`input_dir/valid`下。经过整理后，同一类图像将被放在同一个文件夹下，便于稍后读取。
 
 ```{.python .input  n=5}
 def reorg_train_valid(data_dir, train_dir, input_dir, n_train_per_label,
@@ -110,7 +108,7 @@ def reorg_test(data_dir, test_dir, input_dir):
                     os.path.join(data_dir, input_dir, 'test', 'unknown'))
 ```
 
-最后，我们用一个函数分别调用前面定义的`reorg_test`、`reorg_train_valid`以及`reorg_test`函数。
+最后，我们用一个函数分别调用前面定义的`reorg_test`函数、`reorg_train_valid`函数以及`reorg_test`函数。
 
 ```{.python .input  n=7}
 def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
@@ -122,7 +120,7 @@ def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
     reorg_test(data_dir, test_dir, input_dir)
 ```
 
-我们在这里仅仅使用100个训练样本和1个测试样本。训练和测试数据集的文件夹名称分别为“train_tiny”和“test_tiny”。相应地，我们仅将批量大小设为1。实际训练和测试时应使用Kaggle比赛的完整数据集，并将批量大小`batch_size`设为一个较大的整数，例如128。我们将10%的训练样本作为调参所使用的验证集。
+我们在这里只使用100个训练样本和1个测试样本。训练数据集和测试数据集的文件夹名称分别为train_tiny和test_tiny。相应地，我们仅将批量大小设为1。实际训练和测试时应使用Kaggle比赛的完整数据集，并将批量大小`batch_size`设为一个较大的整数，如128。我们将10%的训练样本作为调参使用的验证集。
 
 ```{.python .input  n=8}
 if demo:
@@ -139,14 +137,14 @@ reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
 
 ## 图像增广
 
-为应对过拟合，我们使用图像增广。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图像做镜面翻转。我们也可以通过`transforms.Normalize()`对彩色图像RGB三个通道分别做标准化。以下列举了其中的部分操作，你可以根据需求来决定是否使用或修改这些操作。
+为应对过拟合，我们使用图像增广。例如，加入`transforms.RandomFlipLeftRight()`即可随机对图像做镜面翻转，也可以通过`transforms.Normalize()`对彩色图像RGB三个通道分别做标准化。下面列举了其中的部分操作，你可以根据需求来决定是否使用或修改这些操作。
 
 ```{.python .input  n=9}
 transform_train = gdata.vision.transforms.Compose([
     # 将图像放大成高和宽各为40像素的正方形
     gdata.vision.transforms.Resize(40),
-    # 随机对高和宽各为40像素的正方形图像裁剪出面积为原图像面积0.64到1倍之间的小正方形，再放
-    # 缩为高和宽各为32像素的正方形
+    # 随机对高和宽各为40像素的正方形图像裁剪出面积为原图像面积0.64~1倍的小正方形，再放缩为
+    # 高和宽各为32像素的正方形
     gdata.vision.transforms.RandomResizedCrop(32, scale=(0.64, 1.0),
                                               ratio=(1.0, 1.0)),
     gdata.vision.transforms.RandomFlipLeftRight(),
@@ -167,7 +165,7 @@ transform_test = gdata.vision.transforms.Compose([
 
 ## 读取数据集
 
-接下来，我们可以通过创建`ImageFolderDataset`实例来读取整理后的含原始图像文件的数据集，其中每个数据样本包括图像和标签。
+接下来，可以通过创建`ImageFolderDataset`实例来读取整理后的含原始图像文件的数据集，其中每个数据样本包括图像和标签。
 
 ```{.python .input  n=10}
 # 读取原始图像文件。flag=1说明输入图像有3个通道（彩色）
@@ -295,7 +293,7 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, ctx, lr_period,
 
 ## 训练并验证模型
 
-现在，我们可以训练并验证模型了。以下的超参数都是可以调节的，例如增加迭代周期等。由于`lr_period`和`lr_decay`分别设为80和0.1，优化算法的学习率将在每80个迭代周期后自乘0.1。为简单起见，这里仅训练1个迭代周期。
+现在，我们可以训练并验证模型了。下面的超参数都是可以调节的，如增加迭代周期等。由于`lr_period`和`lr_decay`分别设为80和0.1，优化算法的学习率将在每80个迭代周期后自乘0.1。简单起见，这里仅训练1个迭代周期。
 
 ```{.python .input  n=13}
 ctx, num_epochs, lr, wd = d2l.try_gpu(), 1, 0.1, 5e-4
@@ -307,7 +305,7 @@ train(net, train_iter, valid_iter, num_epochs, lr, wd, ctx, lr_period,
 
 ## 对测试集分类并在Kaggle提交结果
 
-当得到一组满意的模型设计和超参数后，我们使用所有训练数据集（含验证集）重新训练模型，并对测试集进行分类。
+得到一组满意的模型设计和超参数后，我们使用所有训练数据集（含验证集）重新训练模型，并对测试集进行分类。
 
 ```{.python .input  n=14}
 net, preds = get_net(ctx), []
@@ -325,18 +323,18 @@ df['label'] = df['label'].apply(lambda x: train_valid_ds.synsets[x])
 df.to_csv('submission.csv', index=False)
 ```
 
-执行完上述代码后，我们会得到一个“submission.csv”文件。这个文件符合Kaggle比赛要求的提交格式。提交结果的方法与[“实战Kaggle比赛：房价预测”](../chapter_deep-learning-basics/kaggle-house-price.md)一节中的类似。
+执行完上述代码后，我们会得到一个submission.csv文件。这个文件符合Kaggle比赛要求的提交格式。提交结果的方法与[“实战Kaggle比赛：房价预测”](../chapter_deep-learning-basics/kaggle-house-price.md)一节中的类似。
 
 ## 小结
 
-* 我们可以通过创建`ImageFolderDataset`实例来读取含原始图像文件的数据集。
-* 我们可以应用卷积神经网络、图像增广和混合式编程来实战图像分类比赛。
+* 可以通过创建`ImageFolderDataset`实例来读取含原始图像文件的数据集。
+* 可以应用卷积神经网络、图像增广和混合式编程来实战图像分类比赛。
 
 
 ## 练习
 
-* 使用Kaggle比赛的完整CIFAR-10数据集。把批量大小`batch_size`和迭代周期数`num_epochs`分别改为128和100。看看你可以在这个比赛中拿到什么样的准确率和名次？
-* 如果不使用图像增广的方法能拿到什么样的准确率？
+* 使用Kaggle比赛的完整CIFAR-10数据集。把批量大小`batch_size`和迭代周期数`num_epochs`分别改为128和300。可以在这个比赛中得到什么样的准确率和名次？
+* 如果不使用图像增广的方法能得到什么样的准确率？
 * 扫码直达讨论区，在社区交流方法和结果。你能发掘出其他更好的技巧吗？
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1545)
