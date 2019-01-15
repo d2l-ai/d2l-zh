@@ -28,7 +28,7 @@ $$\mathbb{P}(\textrm{``the"},\textrm{``man"},\textrm{``his"},\textrm{``son"}\mid
 
 $$\mathbb{P}(\textrm{``the"}\mid\textrm{``loves"})\cdot\mathbb{P}(\textrm{``man"}\mid\textrm{``loves"})\cdot\mathbb{P}(\textrm{``his"}\mid\textrm{``loves"})\cdot\mathbb{P}(\textrm{``son"}\mid\textrm{``loves"}).$$
 
-![跳字模型关心给定中心词生成背景词的条件概率。](../img/skip-gram.svg)
+![跳字模型关心给定中心词生成背景词的条件概率](../img/skip-gram.svg)
 
 
 在跳字模型中，每个词被表示成两个$d$维向量用来计算条件概率。假设这个词在词典中索引为$i$，当它为中心词时向量表示为$\boldsymbol{v}_i\in\mathbb{R}^d$，而为背景词时向量表示为$\boldsymbol{u}_i\in\mathbb{R}^d$。设中心词$w_c$在词典中索引为$c$，背景词$w_o$在词典中索引为$o$，给定中心词生成背景词的条件概率可以通过对向量内积做softmax运算而得到：
@@ -76,7 +76,7 @@ $$
 
 $$\mathbb{P}(\textrm{``loves"}\mid\textrm{``the"},\textrm{``man"},\textrm{``his"},\textrm{``son"}).$$
 
-![连续词袋模型关心给定背景词生成中心词的条件概率。](../img/cbow.svg)
+![连续词袋模型关心给定背景词生成中心词的条件概率](../img/cbow.svg)
 
 因为连续词袋模型的背景词有多个，我们将这些背景词向量取平均，然后使用和跳字模型一样的方法来计算条件概率。设$\boldsymbol{v_i}\in\mathbb{R}^d$和$\boldsymbol{u_i}\in\mathbb{R}^d$分别表示词典中索引为$i$的词作为背景词和中心词的向量（注意符号和跳字模型中是相反的）。设中心词$w_c$在词典中索引为$c$，背景词$w_{o_1}, \ldots, w_{o_{2m}}$在词典中索引为$o_1, \ldots, o_{2m}$，那么给定背景词生成中心词的条件概率
 

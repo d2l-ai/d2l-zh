@@ -80,7 +80,7 @@ class Encoder(nn.Block):
         self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=drop_prob)
 
     def forward(self, inputs, state):
-        # 输入形状是(批量大小,时间步数)。将输出互换样本维和时间步维
+        # 输入形状是(批量大小, 时间步数)。将输出互换样本维和时间步维
         embedding = self.embedding(inputs).swapaxes(0, 1)
         return self.rnn(embedding, state)
 
@@ -126,7 +126,7 @@ def attention_forward(model, enc_states, dec_state):
     dec_states = nd.broadcast_axis(
         dec_state.expand_dims(0), axis=0, size=enc_states.shape[0])
     enc_and_dec_states = nd.concat(enc_states, dec_states, dim=2)
-    e = model(enc_and_dec_states)  # 形状为(时间步数,批量大小,1)
+    e = model(enc_and_dec_states)  # 形状为(时间步数, 批量大小, 1)
     alpha = nd.softmax(e, axis=0)  # 在时间步维度做softmax运算
     return (alpha * enc_states).sum(axis=0)  # 返回背景变量
 ```
@@ -165,7 +165,7 @@ class Decoder(nn.Block):
         input_and_c = nd.concat(self.embedding(cur_input), c, dim=1)
         # 为输入和背景向量的连结增加时间步维，时间步个数为1
         output, state = self.rnn(input_and_c.expand_dims(0), state)
-        # 移除时间步维，输出形状为(批量大小,输出词典大小)
+        # 移除时间步维，输出形状为(批量大小, 输出词典大小)
         output = self.out(output).squeeze(axis=0)
         return output, state
 

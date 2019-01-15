@@ -7,38 +7,38 @@
 
 下面我们介绍如何在本地使用Jupyter记事本来编辑和运行本书代码。假设本书代码所在的本地路径为“xx/yy/d2l-zh/”。在命令行模式下进入该路径（`cd xx/yy/d2l-zh`），然后运行命令`jupyter notebook`。这时在浏览器打开 http://localhost:8888 （通常会自动打开）就可以看到Jupyter记事本的界面和本书代码所在的各个文件夹，如图11.1所示。
 
-![本书代码所在的各个文件夹。](../img/jupyter00.png)
+![本书代码所在的各个文件夹](../img/jupyter00.png)
 
 
 我们可以通过点击网页上显示的文件夹访问其中的记事本文件。它们的后缀通常是“ipynb”。
 为了简洁起见，我们创建一个临时的“test.ipynb”文件，点击后所显示的内容如图11.2所示。该记事本包括了格式化文本单元（markdown cell）和代码单元（code cell）。其中格式化文本单元中的内容包括“这是标题”和“这是一段正文。”。代码单元中包括两行Python代码。
 
-![“test.ipynb”文件包括了格式化文本单元和代码单元。](../img/jupyter01.png)
+![“test.ipynb”文件包括了格式化文本单元和代码单元](../img/jupyter01.png)
 
 
 双击格式化文本单元，我们进入了编辑模式。在该单元的末尾添加一段新文本“你好世界。”，如图11.3所示。
 
-![编辑格式化文本单元。](../img/jupyter02.png)
+![编辑格式化文本单元](../img/jupyter02.png)
 
 
 如图11.4所示，点击菜单栏的“Cell” $\rightarrow$ “Run Cells”，运行编辑好的单元。
 
-![运行单元。](../img/jupyter03.png)
+![运行单元](../img/jupyter03.png)
 
 
 运行完以后，图11.5展示了编辑后的格式化文本单元。
 
-![编辑后的格式化文本单元。](../img/jupyter04.png)
+![编辑后的格式化文本单元](../img/jupyter04.png)
 
 
 接下来，点击代码单元。在最后一行代码后添加乘以2的操作 `* 2`，如图11.6所示。
 
-![编辑代码单元。](../img/jupyter05.png)
+![编辑代码单元](../img/jupyter05.png)
 
 
 我们也可以用快捷键运行单元（默认“Ctrl + Enter”），并得到图11.7中的输出结果。
 
-![运行代码单元得到输出结果。](../img/jupyter06.png)
+![运行代码单元得到输出结果](../img/jupyter06.png)
 
 
 当一个记事本包含的单元较多时，我们可以点击菜单栏的“Kernel” $\rightarrow$ “Restart & Run All”，以运行整个记事本中的所有单元。点击菜单栏的“Help” $\rightarrow$ “Edit Keyboard Shortcuts”后可以根据自己的喜好编辑快捷键。

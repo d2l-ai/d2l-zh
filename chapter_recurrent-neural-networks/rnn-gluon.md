@@ -52,11 +52,11 @@ class RNNModel(nn.Block):
         self.dense = nn.Dense(vocab_size)
 
     def forward(self, inputs, state):
-        # 将输入转置成(num_steps,batch_size)后获取one-hot向量表示
+        # 将输入转置成(num_steps, batch_size)后获取one-hot向量表示
         X = nd.one_hot(inputs.T, self.vocab_size)
         Y, state = self.rnn(X, state)
-        # 全连接层会首先将Y的形状变成(num_steps * batch_size,num_hiddens)，它的输出
-        # 形状为(num_steps * batch_size,vocab_size)
+        # 全连接层会首先将Y的形状变成(num_steps * batch_size, num_hiddens)，它的输出
+        # 形状为(num_steps * batch_size, vocab_size)
         output = self.dense(Y.reshape((-1, Y.shape[-1])))
         return output, state
 

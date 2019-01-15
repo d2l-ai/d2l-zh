@@ -145,7 +145,7 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
             if trainer is None:
                 d2l.sgd(params, lr, batch_size)
             else:
-                trainer.step(batch_size)  # 下一节将用到
+                trainer.step(batch_size)  # “softmax回归的简洁实现”一节将用到
             y = y.astype('float32')
             train_l_sum += l.asscalar()
             train_acc_sum += (y_hat.argmax(axis=1) == y).sum().asscalar()

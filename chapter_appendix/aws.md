@@ -14,40 +14,40 @@
 
 登陆AWS账号后，点击图11.8红框中的“EC2”进入EC2面板。
 
-![登陆AWS账号。](../img/aws.png)
+![登陆AWS账号](../img/aws.png)
 
 
 ## 创建并运行EC2实例
 
 图11.9展示了EC2面板的界面。在图11.9右上角红框处选择离我们较近的数据中心来减低延迟。我们可以选离国内较近的亚太地区，例如Asia Pacific（Seoul）。注意，有些数据中心可能没有GPU实例。点击图11.9下方红框内“Launch Instance”按钮启动实例。
 
-![EC2面板。](../img/ec2.png)
+![EC2面板](../img/ec2.png)
 
 
 图11.10的最上面一行显示了配置实例所需的7个步骤。在第一步“1. Choose AMI”中，选择Ubuntu 16.04作为操作系统。
 
-![选择操作系统。](../img/os.png)
+![选择操作系统](../img/os.png)
 
 EC2提供了大量不同配置的实例。如图11.11所示，在第二步“2. Choose Instance Type”中，选择有一个K80 GPU的“p2.xlarge”实例。我们也可以选择像“p2.16xlarge”这样有多个GPU的实例。如果你想比较不同实例的机器配置和收费，可参考 https://www.ec2instances.info/ 。
 
-![选择实例。](../img/p2x.png)
+![选择实例](../img/p2x.png)
 
 我们建议在选择实例前先在图11.9左栏“Limits”标签里检查下有无数量限制。如图11.12所示，该账号的限制是最多在一个区域开一个“p2.xlarge”实例。如果需要开更多实例，可以通过点击右边“Request limit increase”链接来申请更大的实例容量。这通常需要一个工作日来处理。
 
-![实例的数量限制。](../img/limits.png)
+![实例的数量限制](../img/limits.png)
 
 我们将保持第三步“3. Configure Instance”、第五步“5. Add Tags”和第六步“6. Configure Security Group”中的默认配置不变。点击第四步“4.Add Storage”，如图11.13所示，将默认的硬盘大小增大到40GB。注意，安装CUDA需要4GB左右空间。
 
-![修改实例的硬盘大小。](../img/disk.png)
+![修改实例的硬盘大小](../img/disk.png)
 
 
 最后，在第七步“7. Review”中点击“Launch”来启动配置好的实例。这时候会提示我们选择用来访问实例的密钥。如果没有的话，可以选择图11.14中第一个下拉菜单的“Create a new key pair”选项来生成秘钥。之后，我们通过该下拉菜单的“Choose an existing key pair”选项选择生成好的密钥。点击“Launch Instances”按钮启动创建好的实例。
 
-![选择密钥。](../img/keypair.png)
+![选择密钥](../img/keypair.png)
 
 点击图11.15中的实例ID就可以查看该实例的状态了。
 
-![点击实例ID。](../img/launching.png)
+![点击实例ID](../img/launching.png)
 
 如图11.16所示，当实例状态（Instance State）变绿后，右击实例并选择“Connect”，这时就可以看到访问该实例的方法了。例如在命令行输入
 
@@ -70,7 +70,7 @@ sudo apt-get update && sudo apt-get install -y build-essential git libgfortran3
 
 NVIDIA一般每年会更新一次CUDA主版本。这里我们下载作者写本书时的最新主版本CUDA 9.0（也可使用MXNet支持的其他版本）。访问NVIDIA官网（https://developer.nvidia.com/cuda-90-download-archive ）获取正确版本的CUDA 9.0的下载地址，如图11.17所示。
 
-![获取CUDA9.0的下载地址。](../img/cuda.png)
+![获取CUDA9.0的下载地址](../img/cuda.png)
 
 
 获取下载地址后，我们将下载并安装CUDA9.0，例如
@@ -160,7 +160,7 @@ jupyter notebook
 
 图11.18显示了运行后可能的输出，其中最后一行为8888端口下的URL。
 
-![运行Jupyter记事本后的输出，其中最后一行为8888端口下的URL。](../img/jupyter.png)
+![运行Jupyter记事本后的输出，其中最后一行为8888端口下的URL](../img/jupyter.png)
 
 由于创建的实例并没有暴露8888端口，我们可以在本地命令行启动ssh从实例映射到本地8889端口。
 

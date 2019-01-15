@@ -13,7 +13,7 @@ LSTM 中引入了三个门：输入门（input gate）、遗忘门（forget gate
 
 同门控循环单元中的重置门和更新门一样，如图6.7所示，长短期记忆的门的输入均为当前时间步输入$\boldsymbol{X}_t$与上一时间步隐藏状态$\boldsymbol{H}_{t-1}$，输出由激活函数为sigmoid函数的全连接层计算得到。如此一来，这三个门元素的值域均为$[0,1]$。
 
-![长短期记忆中输入门、遗忘门和输出门的计算。](../img/lstm_0.svg)
+![长短期记忆中输入门、遗忘门和输出门的计算](../img/lstm_0.svg)
 
 具体来说，假设隐藏单元个数为$h$，给定时间步$t$的小批量输入$\boldsymbol{X}_t \in \mathbb{R}^{n \times d}$（样本数为$n$，输入个数为$d$）和上一时间步隐藏状态$\boldsymbol{H}_{t-1} \in \mathbb{R}^{n \times h}$。
 时间步$t$的输入门$\boldsymbol{I}_t \in \mathbb{R}^{n \times h}$、遗忘门$\boldsymbol{F}_t \in \mathbb{R}^{n \times h}$和输出门$\boldsymbol{O}_t \in \mathbb{R}^{n \times h}$分别计算如下：
@@ -33,7 +33,7 @@ $$
 
 接下来，长短期记忆需要计算候选记忆细胞$\tilde{\boldsymbol{C}}_t$。它的计算同上面介绍的三个门类似，但使用了值域在$[-1, 1]$的tanh函数做激活函数，如图6.8所示。
 
-![长短期记忆中候选记忆细胞的计算。](../img/lstm_1.svg)
+![长短期记忆中候选记忆细胞的计算](../img/lstm_1.svg)
 
 
 具体来说，时间步$t$的候选记忆细胞$\tilde{\boldsymbol{C}}_t \in \mathbb{R}^{n \times h}$的计算为
@@ -52,7 +52,7 @@ $$\boldsymbol{C}_t = \boldsymbol{F}_t \odot \boldsymbol{C}_{t-1} + \boldsymbol{I
 
 如图6.9所示，遗忘门控制上一时间步的记忆细胞$\boldsymbol{C}_{t-1}$中的信息是否传递到当前时间步，而输入门则可以控制当前时间步的输入$\boldsymbol{X}_t$通过候选记忆细胞$\tilde{\boldsymbol{C}}_t$如何流入当前时间步的记忆细胞。如果遗忘门一直近似1且输入门一直近似0，过去的记忆细胞将一直通过时间保存并传递至当前时间步。这个设计可以应对循环神经网络中的梯度衰减问题，并更好地捕捉时间序列中时间步距离较大的依赖关系。
 
-![长短期记忆中记忆细胞的计算。这里的乘号是按元素乘法。](../img/lstm_2.svg)
+![长短期记忆中记忆细胞的计算。这里的乘号是按元素乘法](../img/lstm_2.svg)
 
 
 ### 隐藏状态
@@ -63,7 +63,7 @@ $$\boldsymbol{H}_t = \boldsymbol{O}_t \odot \text{tanh}(\boldsymbol{C}_t).$$
 
 这里的tanh函数确保隐藏状态元素值在-1到1之间。需要注意的是，当输出门近似1时，记忆细胞信息将传递到隐藏状态供输出层使用；当输出门近似0时，记忆细胞信息只自己保留。图6.10展示了长短期记忆中隐藏状态的计算。
 
-![长短期记忆中隐藏状态的计算。这里的乘号是按元素乘法。](../img/lstm_3.svg)
+![长短期记忆中隐藏状态的计算。这里的乘号是按元素乘法](../img/lstm_3.svg)
 
 
 ## 读取数据集

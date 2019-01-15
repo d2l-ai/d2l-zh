@@ -72,7 +72,7 @@ def init_rnn_state(batch_size, num_hiddens, ctx):
 
 ```{.python .input  n=6}
 def rnn(inputs, state, params):
-    # inputs和outputs皆为num_steps个形状为(batch_size,vocab_size)的矩阵
+    # inputs和outputs皆为num_steps个形状为(batch_size, vocab_size)的矩阵
     W_xh, W_hh, b_h, W_hq, b_q = params
     H, = state
     outputs = []
@@ -190,11 +190,11 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
                     s.detach()
             with autograd.record():
                 inputs = to_onehot(X, vocab_size)
-                # outputs有num_steps个形状为(batch_size,vocab_size)的矩阵
+                # outputs有num_steps个形状为(batch_size, vocab_size)的矩阵
                 (outputs, state) = rnn(inputs, state, params)
-                # 拼接之后形状为(num_steps * batch_size,vocab_size)
+                # 拼接之后形状为(num_steps * batch_size, vocab_size)
                 outputs = nd.concat(*outputs, dim=0)
-                # Y的形状是(batch_size,num_steps)，转置后再变成长度为
+                # Y的形状是(batch_size, num_steps)，转置后再变成长度为
                 # batch * num_steps 的向量，这样跟输出的行一一对应
                 y = Y.T.reshape((-1,))
                 # 使用交叉熵损失计算平均分类误差

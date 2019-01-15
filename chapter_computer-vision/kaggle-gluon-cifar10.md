@@ -8,7 +8,7 @@
 
 图9.16展示了该比赛的网页信息。为了便于提交结果，请先在Kaggle网站上注册账号。
 
-![CIFAR-10图像分类比赛的网页信息。比赛数据集可通过点击“Data”标签获取。（来源：www.kaggle.com/c/cifar-10）](../img/kaggle_cifar10.png)
+![CIFAR-10图像分类比赛的网页信息。比赛数据集可通过点击“Data”标签获取（来源：www.kaggle.com/c/cifar-10）](../img/kaggle_cifar10.png)
 
 首先，导入比赛所需的包或模块。
 

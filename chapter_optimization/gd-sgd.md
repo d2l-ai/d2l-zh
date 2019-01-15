@@ -106,7 +106,7 @@ $$\boldsymbol{x} \leftarrow \boldsymbol{x} - \eta \nabla f(\boldsymbol{x}).$$
 
 ```{.python .input  n=10}
 def train_2d(trainer):  # 本函数将保存在d2lzh包中方便以后使用
-    x1, x2, s1, s2 = -5, -2, 0, 0  # s1和s2是自变量状态，之后章节会使用
+    x1, x2, s1, s2 = -5, -2, 0, 0  # s1和s2是自变量状态，本章后续几节会使用
     results = [(x1, x2)]
     for i in range(20):
         x1, x2, s1, s2 = trainer(x1, x2, s1, s2)

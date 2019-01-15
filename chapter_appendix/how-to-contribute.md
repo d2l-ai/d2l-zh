@@ -12,12 +12,12 @@
 
 第二步，登录Github。在浏览器输入本书代码库地址 [2]。点击图11.20右上方红框中的“Fork”按钮获得一份本书的代码库。
 
-![代码库的页面。](../img/contrib01.png)
+![代码库的页面](../img/contrib01.png)
 
 
 这时，本书的代码库会复制到你的用户名下，例如图11.21左上方显示的“你的Github ID/d2l-zh”。
 
-![复制代码库。](../img/contrib02.png)
+![复制代码库](../img/contrib02.png)
 
 
 第三步，点击图11.21右方的“Clone or download”绿色按钮，并点击红框中的按钮复制位于你用户名下的代码库地址。按[“获取和运行本书的代码”](../chapter_prerequisite/install.md)一节中介绍的方法进入命令行模式。假设我们希望将代码库保存在本地的“~/repo”路径之下。进入该路径，键入`git clone `并粘贴位于你用户名下的代码库地址。执行命令
@@ -38,7 +38,7 @@ git status
 
 此时Git将提示“chapter_deep-learning-basics/linear-regression.md”文件已被修改，如图11.22所示。
 
-![Git提示“chapter_deep-learning-basics/linear-regression.md”文件已被修改。](../img/contrib03.png)
+![Git提示“chapter_deep-learning-basics/linear-regression.md”文件已被修改](../img/contrib03.png)
 
 确认将提交该修改的文件后，执行以下命令
 
@@ -54,17 +54,17 @@ git push
 第五步，再次在浏览器输入本书代码库地址 [2]。点击图11.20左方红框中的“New pull request”按钮。在弹出的页面中，点击图11.23右方红框中的“compare across forks”链接，再点击下方红框中的“head fork: d2l-ai/d2l-zh”按钮。在弹出的文本框中输入你的Github ID，在下拉菜单中选择“你的Github-ID/d2l-zh”，如图11.23所示。
 
 
-![选择改动来源所在的代码库。](../img/contrib04.png)
+![选择改动来源所在的代码库](../img/contrib04.png)
 
 
 第六步，如图11.24所示，在标题和正文的文本框中描述想要提交的pull request。点击红框中的“Create pull request”绿色按钮提交pull request。
 
-![描述并提交pull request。](../img/contrib05.png)
+![描述并提交pull request](../img/contrib05.png)
 
 
 提交完成后，我们会看到图11.25所示的页面中显示pull request已提交。
 
-![显示pull request已提交。](../img/contrib06.png)
+![显示pull request已提交](../img/contrib06.png)
 
 
 
