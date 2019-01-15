@@ -109,7 +109,7 @@ accuracy(y_hat, y)
 
 ```{.python .input  n=13}
 # 本函数已保存在d2lzh包中方便以后使用。该函数将被逐步改进：它的完整实现将在“图像增广”一节中
-# 描述。
+# 描述
 def evaluate_accuracy(data_iter, net):
     acc_sum, n = 0.0, 0
     for X, y in data_iter:
