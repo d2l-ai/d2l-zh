@@ -6,7 +6,7 @@
 !nvidia-smi  # 对Linux/mac OS用户有效
 ```
 
-接下来，我们需要确认安装了MXNet的GPU版本。安装方法见[“获取和运行本书的代码”](../chapter_prerequisite/install.md)一节。运行本节中的程序需要至少两块GPU。
+接下来，我们需要确认安装了MXNet的GPU版本。安装方法见[“获取和运行本书的代码”](../chapter_prerequisite/install.md)一节。运行本节中的程序需要至少2块GPU。
 
 ## 计算设备
 
@@ -44,7 +44,7 @@ a = nd.array([1, 2, 3], ctx=mx.gpu())
 a
 ```
 
-假设至少有两块GPU，下面代码将会在`gpu(1)`上创建随机数组。
+假设至少有2块GPU，下面代码将会在`gpu(1)`上创建随机数组。
 
 ```{.python .input}
 B = nd.random.uniform(shape=(2, 3), ctx=mx.gpu(1))
