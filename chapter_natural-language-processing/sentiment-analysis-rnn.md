@@ -2,7 +2,9 @@
 
 文本分类是自然语言处理的一个常见任务，它把一段不定长的文本序列变换为文本的类别。本节关注它的一个子问题：使用文本情感分类来分析文本作者的情绪。这个问题也叫情感分析，并有着广泛的应用。例如，我们可以分析用户对产品的评论并统计用户的满意度，或者分析用户对市场行情的情绪并用以预测接下来的行情。
 
-同搜索近义词和类比词一样，文本分类也属于词嵌入的下游应用。本节中，我们将应用预训练的词向量和含多个隐藏层的双向循环神经网络。我们将用它们来判断一段不定长的文本序列中包含的是正面还是负面的情绪。在实验开始前，导入所需的包或模块。
+同搜索近义词和类比词一样，文本分类也属于词嵌入的下游应用。在本节中，我们将应用预训练的词向量和含多个隐藏层的双向循环神经网络，来判断一段不定长的文本序列中包含的是正面还是负面的情绪。
+
+在实验开始前，导入所需的包或模块。
 
 ```{.python .input  n=2}
 import collections
@@ -17,11 +19,11 @@ import tarfile
 
 ## 文本情感分类数据
 
-我们使用Stanford's Large Movie Review Dataset作为文本情感分类的数据集 [1]。这个数据集分为训练和测试用的两个数据集，分别包含25,000条从IMDb下载的关于电影的评论。在每个数据集中，标签为”正面”和“负面”的评论数量相等。
+我们使用斯坦福的IMDb数据集（Stanford's Large Movie Review Dataset）作为文本情感分类的数据集 [1]。这个数据集分为训练和测试用的两个数据集，分别包含25,000条从IMDb下载的关于电影的评论。在每个数据集中，标签为“正面”和“负面”的评论数量相等。
 
 ###  读取数据
 
-我们首先下载这个数据集到“../data”路径下，然后解压至“../data/aclImdb”下。
+首先下载这个数据集到`../data`路径下，然后解压至`../data/aclImdb`下。
 
 ```{.python .input  n=3}
 # 本函数已保存在d2lzh包中方便以后使用
@@ -35,7 +37,7 @@ def download_imdb(data_dir='../data'):
 download_imdb()
 ```
 
-下面，读取训练和测试数据集。每个样本是一条评论和其对应的标签：1表示“正面”，0表示“负面”。
+接下来，读取训练数据集和测试数据集。每个样本是一条评论及其对应的标签：1表示“正面”，0表示“负面”。
 
 ```{.python .input  n=13}
 def read_imdb(folder='train'):  # 本函数已保存在d2lzh包中方便以后使用
@@ -75,7 +77,7 @@ vocab = get_vocab_imdb(train_data)
 '# words in vocab:', len(vocab)
 ```
 
-因为每条评论长度不一致使得不能直接组合成小批量，我们定义`preprocess_imdb`函数对每条评论进行分词，并通过词典转换成词索引，然后通过截断或者补0来将每条评论长度固定成500。
+因为每条评论长度不一致所以不能直接组合成小批量，我们定义`preprocess_imdb`函数对每条评论进行分词，并通过词典转换成词索引，然后通过截断或者补0来将每条评论长度固定成500。
 
 ```{.python .input  n=44}
 def preprocess_imdb(data, vocab):  # 本函数已保存在d2lzh包中方便以后使用
@@ -102,7 +104,7 @@ train_iter = gdata.DataLoader(train_set, batch_size, shuffle=True)
 test_iter = gdata.DataLoader(test_set, batch_size)
 ```
 
-打印第一个小批量数据的形状，以及训练集中小批量的个数。
+打印第一个小批量数据的形状以及训练集中小批量的个数。
 
 ```{.python .input}
 for X, y in train_iter:
@@ -113,7 +115,7 @@ for X, y in train_iter:
 
 ## 使用循环神经网络的模型
 
-在这个模型中，每个词先通过嵌入层得到特征向量。然后，我们使用双向循环神经网络对特征序列进一步编码得到序列信息。最后，我们将编码的序列信息通过全连接层变换为输出。具体来说，我们可以将双向长短期记忆在最初时间步和最终时间步的隐藏状态连结，作为特征序列的编码信息传递给输出层分类。在下面实现的`BiRNN`类中，`Embedding`实例即嵌入层，`LSTM`实例即为序列编码的隐藏层，`Dense`实例即生成分类结果的输出层。
+在这个模型中，每个词先通过嵌入层得到特征向量。然后，我们使用双向循环神经网络对特征序列进一步编码得到序列信息。最后，我们将编码的序列信息通过全连接层变换为输出。具体来说，我们可以将双向长短期记忆在最初时间步和最终时间步的隐藏状态连结，作为特征序列的表征传递给输出层分类。在下面实现的`BiRNN`类中，`Embedding`实例即嵌入层，`LSTM`实例即为序列编码的隐藏层，`Dense`实例即生成分类结果的输出层。
 
 ```{.python .input  n=46}
 class BiRNN(nn.Block):
@@ -155,7 +157,7 @@ glove_embedding = text.embedding.create(
     'glove', pretrained_file_name='glove.6B.100d.txt', vocabulary=vocab)
 ```
 
-然后我们将用这些词向量作为评论中每个词的特征向量。注意预训练词向量的维度需要跟创建的模型中的嵌入层输出大小`embed_size`一致。此外，在训练中我们不再更新这些词向量。
+然后，我们将用这些词向量作为评论中每个词的特征向量。注意，预训练词向量的维度需要与创建的模型中的嵌入层输出大小`embed_size`一致。此外，在训练中我们不再更新这些词向量。
 
 ```{.python .input  n=47}
 net.embedding.weight.set_data(glove_embedding.idx_to_vec)
@@ -164,7 +166,7 @@ net.embedding.collect_params().setattr('grad_req', 'null')
 
 ### 训练并评价模型
 
-这时候我们可以开始训练了。
+这时候就可以开始训练模型了。
 
 ```{.python .input  n=48}
 lr, num_epochs = 0.01, 5
@@ -183,7 +185,7 @@ def predict_sentiment(net, vocab, sentence):
     return 'positive' if label.asscalar() == 1 else 'negative'
 ```
 
-然后使用训练好的模型对两个简单句子的情感进行分类。
+下面使用训练好的模型对两个简单句子的情感进行分类。
 
 ```{.python .input  n=50}
 predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'great'])
@@ -196,16 +198,16 @@ predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'bad'])
 ## 小结
 
 * 文本分类把一段不定长的文本序列变换为文本的类别。它属于词嵌入的下游应用。
-* 我们可以应用预训练的词向量和循环神经网络对文本的情感进行分类。
+* 可以应用预训练的词向量和循环神经网络对文本的情感进行分类。
 
 
 ## 练习
 
-* 增加迭代周期。你的模型能在训练和测试数据集上得到怎样的准确率？再调节其他超参数试试？
+* 增加迭代周期。训练后的模型能在训练和测试数据集上得到怎样的准确率？再调节其他超参数试试？
 
-* 使用更大的预训练词向量，例如300维的GloVe词向量，能否提升分类准确率？
+* 使用更大的预训练词向量，如300维的GloVe词向量，能否提升分类准确率？
 
-* 使用spaCy分词工具，能否提升分类准确率？你需要安装spaCy：`pip install spacy`，并且安装英文包：`python -m spacy download en`。在代码中，先导入spacy：`import spacy`。然后加载spacy英文包：`spacy_en = spacy.load('en')`。最后定义函数`def tokenizer(text): return [tok.text for tok in spacy_en.tokenizer(text)]`并替换原来的基于空格分词的`tokenizer`函数。需要注意的是，GloVe的词向量对于名词词组的存储方式是用“-”连接各个单词，例如词组“new york”在GloVe中的表示为“new-york”。而使用spaCy分词之后“new york”的存储可能是“new york”。
+* 使用spaCy分词工具，能否提升分类准确率？你需要安装spaCy（`pip install spacy`），并且安装英文包（`python -m spacy download en`）。在代码中，先导入spacy（`import spacy`）。然后加载spacy英文包（`spacy_en = spacy.load('en')`）。最后定义函数`def tokenizer(text): return [tok.text for tok in spacy_en.tokenizer(text)]`并替换原来的基于空格分词的`tokenizer`函数。需要注意的是，GloVe词向量对于名词词组的存储方式是用“-”连接各个单词，例如，词组“new york”在GloVe词向量中的表示为“new-york”，而使用spaCy分词之后“new york”的存储可能是“new york”。
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6155)
