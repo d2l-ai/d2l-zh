@@ -14,14 +14,14 @@
 
 第二步是下载包含本书全部代码的压缩包。我们可以在浏览器的地址栏中输入 https://zh.d2l.ai/d2l-zh-1.0.zip 并按回车键进行下载。下载完成后，创建文件夹“d2l-zh”并将以上压缩包解压到这个文件夹。在该目录文件资源管理器的地址栏输入`cmd`进入命令行模式。
 
-第三步是使用conda创建并激活环境。conda默认使用国外站点来下载软件，以下可选项配置使用国内镜像加速下载：
+第三步是使用conda创建并激活环境。conda和pip默认使用国外站点来下载软件，我们可以配置使用国内镜像来加速下载：
 
 ```
-# 使用清华conda镜像
-conda config --prepend channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
-
-# 或者选用科大conda镜像
-conda config --prepend channels http://mirrors.ustc.edu.cn/anaconda/pkgs/free/
+# 配置清华conda镜像
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+# 配置清华PyPI镜像（pip版本需要>=10.0.0）
+pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
 接下来使用conda创建虚拟（运行）环境并安装本书需要的软件。这里`environment.yml`是放置在代码压缩包中的文件。使用文本编辑器打开该文件，即可查看运行压缩包中本书的代码所依赖的软件（如MXNet和`d2lzh`包）及版本号。
@@ -30,7 +30,7 @@ conda config --prepend channels http://mirrors.ustc.edu.cn/anaconda/pkgs/free/
 conda env create -f environment.yml
 ```
 
-如使用国内镜像后出现安装错误，可取消配置镜像：复制已执行的镜像配置命令，将其中的`--prepend`改为`--remove`再执行。然后重试创建虚拟环境的命令。
+若使用国内镜像后出现安装错误，首先取消conda镜像配置，即复制已执行的conda镜像配置命令，将其中的`--add`改为`--remove`再分别执行。然后取消PyPI镜像配置，即执行命令`pip config unset global.index-url`。最后重试命令`conda env create -f environment.yml`。
 
 第四步是激活之前创建的环境。激活该环境是能够运行本书的代码的前提。如需退出虚拟环境，可使用命令`deactivate`。
 
