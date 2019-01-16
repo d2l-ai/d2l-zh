@@ -14,13 +14,13 @@
 
 第二步是下载包含本书全部代码的压缩包。我们可以在浏览器的地址栏中输入 https://zh.d2l.ai/d2l-zh-1.0.zip 并按回车键进行下载。下载完成后，创建文件夹“d2l-zh”并将以上压缩包解压到这个文件夹。在该目录文件资源管理器的地址栏输入`cmd`进入命令行模式。
 
-第三步是使用conda创建并激活环境。conda和pip默认使用国外站点来下载软件，我们可以配置使用国内镜像来加速下载：
+第三步是使用conda创建并激活环境。conda和pip默认使用国外站点来下载软件，我们可以配置国内镜像来加速下载（国外用户无需此操作）。
 
 ```
 # 配置清华conda镜像
 conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
 conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
-# 配置清华PyPI镜像（pip版本需要>=10.0.0）
+# 配置清华PyPI镜像（如无法运行，将pip版本升级到>=10.0.0）
 pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
@@ -32,10 +32,10 @@ conda env create -f environment.yml
 
 若使用国内镜像后出现安装错误，首先取消conda镜像配置，即复制已执行的conda镜像配置命令，将其中的`--add`改为`--remove`再分别执行。然后取消PyPI镜像配置，即执行命令`pip config unset global.index-url`。最后重试命令`conda env create -f environment.yml`。
 
-第四步是激活之前创建的环境。激活该环境是能够运行本书的代码的前提。如需退出虚拟环境，可使用命令`deactivate`。
+第四步是激活之前创建的环境。激活该环境是能够运行本书的代码的前提。如需退出虚拟环境，可使用命令`conda deactivate`（若conda版本低于4.4，使用命令`deactivate`）。
 
 ```
-activate gluon
+conda activate gluon  # 若conda版本低于4.4，使用命令activate gluon
 ```
 
 第五步是打开Jupyter记事本。
@@ -46,7 +46,7 @@ jupyter notebook
 
 这时在浏览器打开 http://localhost:8888 （通常会自动打开）就可以查看和运行本书中每一节的代码了。
 
-本书中若干章节的代码会自动下载数据集和预训练模型，并默认使用美国站点下载。我们可以在运行Jupyter前指定MXNet使用国内站点下载书中的数据和模型。
+本书中若干章节的代码会自动下载数据集和预训练模型，并默认使用美国站点下载。我们可以在运行Jupyter前指定MXNet使用国内站点下载书中的数据和模型（国外用户无需此操作）。
 
 ```
 set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter notebook
@@ -80,13 +80,7 @@ curl https://zh.d2l.ai/d2l-zh-1.0.zip -o d2l-zh.zip
 unzip d2l-zh.zip && rm d2l-zh.zip
 ```
 
-第三步至第五步请参考前面Windows下的安装步骤。其中第四步需将命令替换为
-
-```
-source activate gluon
-```
-
-如需退出虚拟环境，可使用命令`source deactivate`。
+第三步至第五步请参考前面Windows下的安装步骤。若conda版本低于4.4，其中第四步需将命令替换为`source activate gluon`，并使用命令`source deactivate`退出虚拟环境。
 
 ## 更新代码和运行环境
 
