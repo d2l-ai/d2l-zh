@@ -1,11 +1,11 @@
 # 数学基础
 
-本节总结了本书中涉及到的有关线性代数、微分和概率的基础知识。为避免赘述本书未涉及的数学背景知识，本节中的少数定义稍有简化。
+本节总结了本书中涉及的有关线性代数、微分和概率的基础知识。为避免赘述本书未涉及的数学背景知识，本节中的少数定义稍有简化。
 
 
 ## 线性代数
 
-以下分别概括了向量、矩阵、运算、范数、特征向量和特征值的概念。
+下面分别概括了向量、矩阵、运算、范数、特征向量和特征值的概念。
 
 ### 向量
 
@@ -116,7 +116,7 @@ k\boldsymbol{A} =
 \end{bmatrix}.
 $$
 
-其它例如标量与矩阵按元素相加、相除等运算与上式中的相乘运算类似。矩阵按元素开根号、取对数等运算也即对矩阵每个元素开根号、取对数等，并得到和原矩阵形状相同的矩阵。
+其他诸如标量与矩阵按元素相加、相除等运算与上式中的相乘运算类似。矩阵按元素开根号、取对数等运算也就是对矩阵每个元素开根号、取对数等，并得到和原矩阵形状相同的矩阵。
 
 矩阵乘法和按元素的乘法不同。设$\boldsymbol{A}$为$m$行$p$列的矩阵，$\boldsymbol{B}$为$p$行$n$列的矩阵。两个矩阵相乘的结果
 
@@ -217,7 +217,7 @@ $$\frac{\text{d}y}{\text{d}x} = \frac{\text{d}y}{\text{d}u} \frac{\text{d}u}{\te
 
 $$f(x) = \sum_{n=0}^\infty \frac{f^{(n)}(a)}{n!} (x-a)^n,$$
 
-其中$f^{(n)}$为函数$f$的$n$阶导数（求$n$次导数），$n!$为$n$的阶乘。假设$\epsilon$是个足够小的数，如果将上式中$x$和$a$分别替换成$x+\epsilon$和$x$，我们可以得到
+其中$f^{(n)}$为函数$f$的$n$阶导数（求$n$次导数），$n!$为$n$的阶乘。假设$\epsilon$是一个足够小的数，如果将上式中$x$和$a$分别替换成$x+\epsilon$和$x$，可以得到
 
 $$f(x + \epsilon) \approx f(x) + f'(x) \epsilon + \mathcal{O}(\epsilon^2).$$
 
@@ -236,9 +236,9 @@ $$ \frac{\partial u}{\partial x_i} = \lim_{h \rightarrow 0} \frac{f(x_1, \ldots,
 
 以下有关偏导数的表达式等价：
 
-$$\frac{\partial u}{\partial x_i} = \frac{\partial f}{\partial x_i} = f_{x_i} = f_i = D_i f = D_{x_i} f.$$
+$$\frac{\partial u}{\partial x_i} = \frac{\partial f}{\partial x_i} = f_{x_i} = f_i = \text{D}_i f = \text{D}_{x_i} f.$$
 
-为了计算$\partial u/\partial x_i$，我们只需将$x_1, \ldots, x_{i-1}, x_{i+1}, \ldots, x_n$视为常数并求$u$有关$x_i$的导数。
+为了计算$\partial u/\partial x_i$，只需将$x_1, \ldots, x_{i-1}, x_{i+1}, \ldots, x_n$视为常数并求$u$有关$x_i$的导数。
 
 
 
@@ -312,7 +312,7 @@ $$\mathbb{P}(A \cap B) = \mathbb{P}(A) \mathbb{P}(B)$$
 
 ### 期望
 
-随机变量$X$的期望（或平均值）
+离散的随机变量$X$的期望（或平均值）为
 
 $$\mathbb{E}(X) = \sum_{x} x \mathbb{P}(X = x).$$
 
@@ -327,7 +327,7 @@ $$\mathbb{E}(X) = \sum_{x} x \mathbb{P}(X = x).$$
 
 ## 小结
 
-* 本节总结了本书中涉及到的有关线性代数、微分和概率的基础知识。
+* 本节总结了本书中涉及的有关线性代数、微分和概率的基础知识。
 
 
 ## 练习
