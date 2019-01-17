@@ -80,7 +80,7 @@ curl https://zh.d2l.ai/d2l-zh-1.0.zip -o d2l-zh.zip
 unzip d2l-zh.zip && rm d2l-zh.zip
 ```
 
-第三步至第五步请参考前面Windows下的安装步骤。若conda版本低于4.4，其中第四步需将命令替换为`source activate gluon`，并使用命令`source deactivate`退出虚拟环境。
+第三步至第五步可参考前面Windows下的安装步骤。若conda版本低于4.4，其中第四步需将命令替换为`source activate gluon`，并使用命令`source deactivate`退出虚拟环境。
 
 ## 更新代码和运行环境
 

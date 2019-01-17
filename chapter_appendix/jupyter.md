@@ -56,7 +56,8 @@
 git clone https://github.com/d2l-ai/d2l-zh.git
 cd d2l-zh
 conda env create -f environment.yml
-source activate gluon  # Windows用户运行activate gluon
+# 若conda版本低于4.4，运行source activate gluon；Windows用户则运行activate gluon
+conda activate gluon
 ```
 
 下面安装notedown插件，运行Jupyter记事本并加载插件：
