@@ -72,7 +72,7 @@ to PATH in your /home/your_name/your_file ? [yes|no]
 
 安装完成后，需要让conda生效。Linux用户需要运行一次`source ~/.bashrc`或重启命令行应用；macOS用户需要运行一次`source ~/.bash_profile`或重启命令行应用。
 
-第二步是下载包含本书全部代码的压缩包，解压后进入文件夹。运行以下命令。如未安装`unzip`，可运行命令`sudo apt install unzip`安装。
+第二步是下载包含本书全部代码的压缩包，解压后进入文件夹。运行以下命令。Linux用户如未安装`unzip`，可运行命令`sudo apt install unzip`安装。
 
 ```
 mkdir d2l-zh && cd d2l-zh
