@@ -46,7 +46,7 @@
 ## 概率和统计
 
 * $P(\cdot)$：概率分布
-* $\cdot\simP$：随机变量$\cdot$的概率分布是$P$
+* $\cdot\sim P$：随机变量$\cdot$的概率分布是$P$
 * $P(\cdot \mid\cdot)$：条件概率分布
 * $E_{\cdot}\left(f(\cdot)\right)$：函数$f(\cdot)$对$\cdot$的数学期望
 

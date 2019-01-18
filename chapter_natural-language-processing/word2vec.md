@@ -26,7 +26,7 @@ $$P(\textrm{``the"},\textrm{``man"},\textrm{``his"},\textrm{``son"}\mid\textrm{`
 
 假设给定中心词的情况下，背景词的生成是相互独立的，那么上式可以改写成
 
-$$P(\textrm{``the"}\mid\textrm{``loves"})\cdotP(\textrm{``man"}\mid\textrm{``loves"})\cdotP(\textrm{``his"}\mid\textrm{``loves"})\cdotP(\textrm{``son"}\mid\textrm{``loves"}).$$
+$$P(\textrm{``the"}\mid\textrm{``loves"})\cdot P(\textrm{``man"}\mid\textrm{``loves"})\cdot P(\textrm{``his"}\mid\textrm{``loves"})\cdot P(\textrm{``son"}\mid\textrm{``loves"}).$$
 
 ![跳字模型关心给定中心词生成背景词的条件概率](../img/skip-gram.svg)
 
