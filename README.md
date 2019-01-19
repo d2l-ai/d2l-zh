@@ -2,7 +2,7 @@
 
 [![Build Status](http://ci.diveintodeeplearning.org/job/zh/job/master/badge/icon)](http://ci.diveintodeeplearning.org/job/zh/job/master/)  
 
-[本书网址](https://zh.diveintodeeplearning.org/)
+[本书网址：zh.d2l.ai](https://zh.d2l.ai/)
  
 
 ## 英文版 *Dive into Deep Learning*
