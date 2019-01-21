@@ -42,6 +42,7 @@ sudo mv SourceHanSansSC SourceHanSerifSC_EL-M SourceHanSerifSC_SB-H /usr/share/f
 sudo fc-cache -f -v
 ```
 
+
 这时候可以通过 `fc-list :lang=zh` 来查看安装的中文字体。
 
 同样的去下载和安装英文字体
