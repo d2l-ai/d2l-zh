@@ -73,7 +73,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = '《动手学深度学习》'
-copyright = '2017--2019, Contributors'
+copyright = '2017--2019'
 author = "A. Zhang, M. Li, Z. C. Lipton, and A. J. Smola"
 
 
