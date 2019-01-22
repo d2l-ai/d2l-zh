@@ -140,7 +140,7 @@ mkdir d2l-zh && cd d2l-zh
 curl https://zh.d2l.ai/d2l-zh-1.0.zip -o d2l-zh.zip
 unzip d2l-zh.zip && rm d2l-zh.zip
 conda env create -f environment.yml
-source activate gluon
+conda activate gluon
 ```
 
 默认conda环境里安装了CPU版本的MXNet。现在我们将它替换成GPU版本的MXNet。因为CUDA的版本是9.0，所以安装`mxnet-cu90`。一般来说，如果CUDA版本是$X.Y$，那么相应安装`mxnet-cuXY`。

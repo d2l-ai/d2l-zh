@@ -295,17 +295,17 @@ $$\frac{\partial^2 f}{\partial x_i \partial x_j} = \frac{\partial }{\partial x_j
 
 ### 条件概率
 
-假设事件$A$和事件$B$的概率分别为$\mathbb{P}(A)$和$\mathbb{P}(B)$，两个事件同时发生的概率记作$\mathbb{P}(A \cap B)$或$\mathbb{P}(A, B)$。给定事件$B$，事件$A$的条件概率
+假设事件$A$和事件$B$的概率分别为$P(A)$和$P(B)$，两个事件同时发生的概率记作$P(A \cap B)$或$P(A, B)$。给定事件$B$，事件$A$的条件概率
 
-$$\mathbb{P}(A \mid B) = \frac{\mathbb{P}(A \cap B)}{\mathbb{P}(B)}.$$
+$$P(A \mid B) = \frac{P(A \cap B)}{P(B)}.$$
 
 也就是说，
 
-$$\mathbb{P}(A \cap B) = \mathbb{P}(B) \mathbb{P}(A \mid B) = \mathbb{P}(A) \mathbb{P}(B \mid A).$$
+$$P(A \cap B) = P(B) P(A \mid B) = P(A) P(B \mid A).$$
 
 当满足
 
-$$\mathbb{P}(A \cap B) = \mathbb{P}(A) \mathbb{P}(B)$$
+$$P(A \cap B) = P(A) P(B)$$
 
 时，事件$A$和事件$B$相互独立。
 
@@ -314,7 +314,7 @@ $$\mathbb{P}(A \cap B) = \mathbb{P}(A) \mathbb{P}(B)$$
 
 离散的随机变量$X$的期望（或平均值）为
 
-$$\mathbb{E}(X) = \sum_{x} x \mathbb{P}(X = x).$$
+$$E(X) = \sum_{x} x P(X = x).$$
 
 
 

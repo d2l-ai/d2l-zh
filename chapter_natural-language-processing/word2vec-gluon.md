@@ -65,7 +65,7 @@ num_tokens = sum([len(st) for st in dataset])
 文本数据中一般会出现一些高频词，如英文中的“the”“a”和“in”。通常来说，在一个背景窗口中，一个词（如“chip”）和较低频词（如“microprocessor”）同时出现比和较高频词（如“the”）同时出现对训练词嵌入模型更有益。因此，训练词嵌入模型时可以对词进行二次采样 [2]。
 具体来说，数据集中每个被索引词$w_i$将有一定概率被丢弃，该丢弃概率为
 
-$$ \mathbb{P}(w_i) = \max\left(1 - \sqrt{\frac{t}{f(w_i)}}, 0\right),$$ 
+$$ P(w_i) = \max\left(1 - \sqrt{\frac{t}{f(w_i)}}, 0\right),$$ 
 
 其中 $f(w_i)$ 是数据集中词$w_i$的个数与总词数之比，常数$t$是一个超参数（实验中设为$10^{-4}$）。可见，只有当$f(w_i) > t$时，我们才有可能在二次采样中丢弃词$w_i$，并且越高频的词被丢弃的概率越大。
 
@@ -132,7 +132,7 @@ all_centers, all_contexts = get_centers_and_contexts(subsampled_dataset, 5)
 
 ## 负采样
 
-我们使用负采样来进行近似训练。对于一对中心词和背景词，我们随机采样$K$个噪声词（实验中设$K=5$）。根据word2vec论文的建议，噪声词采样概率$\mathbb{P}(w)$设为$w$词频与总词频之比的0.75次方 [2]。
+我们使用负采样来进行近似训练。对于一对中心词和背景词，我们随机采样$K$个噪声词（实验中设$K=5$）。根据word2vec论文的建议，噪声词采样概率$P(w)$设为$w$词频与总词频之比的0.75次方 [2]。
 
 ```{.python .input  n=12}
 def get_negatives(all_contexts, sampling_weights, K):

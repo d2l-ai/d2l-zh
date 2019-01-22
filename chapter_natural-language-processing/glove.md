@@ -1,6 +1,6 @@
 # 全局向量的词嵌入（GloVe）
 
-让我们先回顾一下word2vec中的跳字模型。将跳字模型中使用softmax运算表达的条件概率$\mathbb{P}(w_j\mid w_i)$记作$q_{ij}$，即
+让我们先回顾一下word2vec中的跳字模型。将跳字模型中使用softmax运算表达的条件概率$P(w_j\mid w_i)$记作$q_{ij}$，即
 
 $$q_{ij}=\frac{\exp(\boldsymbol{u}_j^\top \boldsymbol{v}_i)}{ \sum_{k \in \mathcal{V}} \text{exp}(\boldsymbol{u}_k^\top \boldsymbol{v}_i)},$$
 
@@ -39,12 +39,12 @@ $$\sum_{i\in\mathcal{V}} \sum_{j\in\mathcal{V}} h(x_{ij}) \left(\boldsymbol{u}_j
 
 ## 从条件概率比值理解GloVe模型
 
-我们还可以从另外一个角度来理解GloVe模型。沿用本节前面的符号，$\mathbb{P}(w_j \mid w_i)$表示数据集中以$w_i$为中心词生成背景词$w_j$的条件概率，并记作$p_{ij}$。作为源于某大型语料库的真实例子，以下列举了两组分别以“ice”（冰）和“steam”（蒸汽）为中心词的条件概率以及它们之间的比值 [1]：
+我们还可以从另外一个角度来理解GloVe模型。沿用本节前面的符号，$P(w_j \mid w_i)$表示数据集中以$w_i$为中心词生成背景词$w_j$的条件概率，并记作$p_{ij}$。作为源于某大型语料库的真实例子，以下列举了两组分别以“ice”（冰）和“steam”（蒸汽）为中心词的条件概率以及它们之间的比值 [1]：
 
 |$w_k$=|“solid”|“gas”|“water”|“fashion”|
 |--:|:-:|:-:|:-:|:-:|
-|$p_1=\mathbb{P}(w_k\mid$ “ice” $)$|0.00019|0.000066|0.003|0.000017|
-|$p_2=\mathbb{P}(w_k\mid$ “steam” $)$|0.000022|0.00078|0.0022|0.000018|
+|$p_1=P(w_k\mid$ “ice” $)$|0.00019|0.000066|0.003|0.000017|
+|$p_2=P(w_k\mid$ “steam” $)$|0.000022|0.00078|0.0022|0.000018|
 |$p_1/p_2$|8.9|0.085|1.36|0.96|
 
 
