@@ -37,6 +37,8 @@ build/%: %
 html: $(DEPS) $(FRONTPAGE_DEP) $(OBJ)
 	make -C build html
 	cp -r img/frontpage/ build/_build/html/_images/
+	# Enable horitontal scrollbar for wide code blocks
+	sed -i s/white-space\:pre-wrap\;//g build/_build/html/_static/sphinx_materialdesign_theme.css
 
 TEX=build/_build/latex/d2l-zh.tex
 
