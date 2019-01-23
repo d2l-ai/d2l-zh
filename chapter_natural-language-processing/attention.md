@@ -93,9 +93,7 @@ $$
 * 不修改[“门控循环单元（GRU）”](../chapter_recurrent-neural-networks/gru.md)一节中的`gru`函数，应如何用它实现本节介绍的解码器？
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6759)
 
-![](../img/qr_attention.svg)
 
 
 ## 参考文献
@@ -105,3 +103,7 @@ $$
 [2] Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., ... & Polosukhin, I. (2017). Attention is all you need. In Advances in Neural Information Processing Systems (pp. 5998-6008).
 
 [3] Devlin, J., Chang, M. W., Lee, K., & Toutanova, K. (2018). Bert: Pre-training of deep bidirectional transformers for language understanding. arXiv preprint arXiv:1810.04805.
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6759)
+
+![](../img/qr_attention.svg)

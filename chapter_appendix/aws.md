@@ -188,6 +188,8 @@ ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com -L 8
 * 云很方便，但不便宜。研究一下它的价格，看看如何节省开销。
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6154)
 
 ![](../img/qr_aws.svg)

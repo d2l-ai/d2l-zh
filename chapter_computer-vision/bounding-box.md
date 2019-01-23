@@ -57,6 +57,8 @@ fig.axes.add_patch(bbox_to_rect(cat_bbox, 'red'));
 * 找一些图像，尝试标注其中目标的边界框。比较标注边界框与标注类别所花时间的差异。
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7023)
 
 ![](../img/qr_bounding-box.svg)

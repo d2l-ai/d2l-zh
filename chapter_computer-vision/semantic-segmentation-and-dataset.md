@@ -203,10 +203,12 @@ for X, Y in train_iter:
 
 * 回忆[“图像增广”](image-augmentation.md)一节中的内容。哪些在图像分类中使用的图像增广方法难以用于语义分割？
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7218)
 
-![](../img/qr_semantic-segmentation-and-dataset.svg)
 
 ##  参考文献
 
 [1] Pascal VOC2012数据集。http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7218)
+
+![](../img/qr_semantic-segmentation-and-dataset.svg)

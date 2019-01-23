@@ -51,6 +51,8 @@
 * 在本书的学习社区 https://discuss.gluon.ai/ 上注册一个账号。搜索关键字Kaggle，浏览其中回复量最大的几个帖子。
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6915)
 
 ![](../img/qr_how-to-use.svg)

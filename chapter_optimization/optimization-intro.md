@@ -116,11 +116,13 @@ d2l.plt.ylabel('y');
 * 对于深度学习中的优化问题，你还能想到哪些其他的挑战？
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1876)
 
-![](../img/qr_optimization-intro.svg)
 
 
 ## 参考文献
 
 [1] Wigner, E. P. (1958). On the distribution of the roots of certain symmetric matrices. Annals of Mathematics, 325-327.
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1876)
+
+![](../img/qr_optimization-intro.svg)

@@ -348,9 +348,7 @@ get_similar_tokens('chip', 3, net[0])
 * 当数据集较大时，我们通常在迭代模型参数时才对当前小批量里的中心词采样背景词和噪声词。也就是说，同一个中心词在不同的迭代周期可能会有不同的背景词或噪声词。这样训练有哪些好处？尝试实现该训练方法。
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7761)
 
-![](../img/qr_word2vec-gluon.svg)
 
 
 ## 参考文献
@@ -358,3 +356,7 @@ get_similar_tokens('chip', 3, net[0])
 [1] Penn Tree Bank. https://catalog.ldc.upenn.edu/ldc99t42
 
 [2] Mikolov, T., Sutskever, I., Chen, K., Corrado, G. S., & Dean, J. (2013). Distributed representations of words and phrases and their compositionality. In Advances in neural information processing systems (pp. 3111-3119).
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7761)
+
+![](../img/qr_word2vec-gluon.svg)

@@ -296,12 +296,13 @@ with open('submission.csv', 'w') as f:
 
 * 使用Kaggle完整数据集，把批量大小`batch_size`和迭代周期数`num_epochs`分别调大些，可以在Kaggle上拿到什么样的结果？
 * 使用更深的预训练模型，你能获得更好的结果吗？
-* 扫码直达讨论区，在社区交流方法和结果。你能发掘出其他更好的技巧吗？
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2399)
 
-![](../img/qr_kaggle-gluon-dog.svg)
 
 ## 参考文献
 
 [1] Kaggle ImageNet Dogs比赛网址。https://www.kaggle.com/c/dog-breed-identification
+
+build chapter_appendix chapter_computational-performance chapter_computer-vision chapter_convolutional-neural-networks chapter_deep-learning-basics chapter_deep-learning-computation chapter_introduction chapter_natural-language-processing chapter_optimization chapter_prerequisite chapter_recurrent-neural-networks contrib d2lzh data Dockerfile environment.yml img INFO.md Jenkinsfile LICENSE Makefile post_html.sh README.md setup.py STYLE_GUIDE.md TERMINOLOGY.md 扫码直达讨论区，在社区交流方法和结果。你能发掘出其他更好的技巧吗？ ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2399)
+
+![](../img/qr_kaggle-gluon-dog.svg)

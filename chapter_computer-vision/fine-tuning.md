@@ -175,10 +175,12 @@ hotdog_w = nd.split(weight.data(), 1000, axis=0)[713]
 hotdog_w.shape
 ```
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2272)
 
-![](../img/qr_fine-tuning.svg)
 
 ## 参考文献
 
 [1] GluonCV工具包。https://gluon-cv.mxnet.io/
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2272)
+
+![](../img/qr_fine-tuning.svg)

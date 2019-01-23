@@ -35,6 +35,8 @@ $$\boldsymbol{O}_t = \boldsymbol{H}_t \boldsymbol{W}_{hq} + \boldsymbol{b}_q,$$
 * 参考图6.11和图6.12，设计含多个隐藏层的双向循环神经网络。
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6732)
 
 ![](../img/qr_bi-rnn.svg)

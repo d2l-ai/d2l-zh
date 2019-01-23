@@ -204,6 +204,8 @@ print('increased memory: %f MB' % (get_mem() - mem))
 * 在“使用异步计算提升计算性能”一节中，我们提到使用异步计算可以使执行1000次计算的总耗时降为$t_1 + 1000 t_2 + t_3$。这里为什么要假设$1000t_2 > 999t_1$？
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1881)
 
 ![](../img/qr_async-computation.svg)

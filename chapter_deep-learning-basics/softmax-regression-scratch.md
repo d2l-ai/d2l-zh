@@ -183,6 +183,8 @@ d2l.show_fashion_mnist(X[0:9], titles[0:9])
 * 本节中的`cross_entropy`函数是按照[“softmax回归”](softmax-regression.md)一节中的交叉熵损失函数的数学定义实现的。这样的实现方式可能有什么问题？（提示：思考一下对数函数的定义域。）
 * 你能想到哪些办法来解决上面的两个问题？
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/741)
 
 ![](../img/qr_softmax-regression-scratch.svg)

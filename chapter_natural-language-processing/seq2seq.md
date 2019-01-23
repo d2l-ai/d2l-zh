@@ -77,12 +77,14 @@ $$- \log P(y_1, \ldots, y_{T'} \mid x_1, \ldots, x_T) = -\sum_{t'=1}^{T'} \log P
 * 有哪些方法可以设计解码器的输出层？
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4523)
 
-![](../img/qr_seq2seq.svg)
 
 ## 参考文献
 
 [1] Cho, K., Van Merriënboer, B., Gulcehre, C., Bahdanau, D., Bougares, F., Schwenk, H., & Bengio, Y. (2014). Learning phrase representations using RNN encoder-decoder for statistical machine translation. arXiv preprint arXiv:1406.1078.
 
 [2] Sutskever, I., Vinyals, O., & Le, Q. V. (2014). Sequence to sequence learning with neural networks. In Advances in neural information processing systems (pp. 3104-3112).
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4523)
+
+![](../img/qr_seq2seq.svg)

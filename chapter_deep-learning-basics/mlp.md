@@ -151,6 +151,8 @@ $$
 * 查阅资料，了解其他的激活函数。
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6447)
 
 ![](../img/qr_mlp.svg)

@@ -170,6 +170,8 @@ true_b, b
 * 如果样本个数不能被批量大小整除，`data_iter`函数的行为会有什么变化？
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/743)
 
 ![](../img/qr_linear-regression-scratch.svg)

@@ -24,9 +24,7 @@ fastText的其余部分同跳字模型一致，不在此重复。可以看到，
 * 子词过多（例如，6字英文组合数约为$3\times 10^8$）会有什么问题？你有什么办法来解决它吗？提示：可参考fastText论文3.2节末尾 [1]。
 * 如何基于连续词袋模型设计子词嵌入模型？
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/8057)
 
-![](../img/qr_fasttext.svg)
 
 
 
@@ -34,3 +32,7 @@ fastText的其余部分同跳字模型一致，不在此重复。可以看到，
 ## 参考文献
 
 [1] Bojanowski, P., Grave, E., Joulin, A., & Mikolov, T. (2016). Enriching word vectors with subword information. arXiv preprint arXiv:1607.04606.
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/8057)
+
+![](../img/qr_fasttext.svg)

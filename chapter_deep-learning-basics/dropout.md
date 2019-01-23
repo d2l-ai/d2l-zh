@@ -138,10 +138,12 @@ d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size, None,
 * 如果将模型改得更加复杂，如增加隐藏层单元，使用丢弃法应对过拟合的效果是否更加明显？
 * 以本节中的模型为例，比较使用丢弃法与权重衰减的效果。如果同时使用丢弃法和权重衰减，效果会如何？
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1278)
 
-![](../img/qr_dropout.svg)
 
 ## 参考文献
 
 [1] Srivastava, N., Hinton, G., Krizhevsky, A., Sutskever, I., & Salakhutdinov, R. (2014). Dropout: a simple way to prevent neural networks from overfitting. JMLR
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1278)
+
+![](../img/qr_dropout.svg)

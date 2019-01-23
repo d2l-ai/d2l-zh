@@ -43,10 +43,12 @@ $$U\left(-\sqrt{\frac{6}{a+b}}, \sqrt{\frac{6}{a+b}}\right).$$
 * 是否可以将线性回归或softmax回归中所有的权重参数都初始化为相同值？
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/8052)
 
-![](../img/qr_numerical-stability-and-init.svg)
 
 ## 参考文献
 
 [1] Glorot, X., & Bengio, Y. (2010, March). Understanding the difficulty of training deep feedforward neural networks. In Proceedings of the thirteenth international conference on artificial intelligence and statistics (pp. 249-256).
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/8052)
+
+![](../img/qr_numerical-stability-and-init.svg)

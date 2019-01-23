@@ -185,11 +185,13 @@ d2l.predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'bad'])
 * 还能将textCNN应用于自然语言处理的哪些任务中？
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7762)
 
-![](../img/qr_sentiment-analysis-cnn.svg)
 
 
 ## 参考文献
 
 [1] Kim, Y. (2014). Convolutional neural networks for sentence classification. arXiv preprint arXiv:1408.5882.
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7762)
+
+![](../img/qr_sentiment-analysis-cnn.svg)

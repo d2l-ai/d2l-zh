@@ -62,6 +62,8 @@ $$ \frac{1}{L^\alpha} \log P(y_1, \ldots, y_{L}) = \frac{1}{L^\alpha} \sum_{t'=1
 * 在[“循环神经网络的从零开始实现”](../chapter_recurrent-neural-networks/rnn-scratch.md)一节中，我们使用语言模型创作歌词。它的输出属于哪种搜索？你能改进它吗？
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6817)
 
 ![](../img/qr_beam-search.svg)

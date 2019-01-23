@@ -146,7 +146,9 @@ net(X)
 * 如果将`NestMLP`类中通过`Sequential`实例定义的`self.net`改为`self.net = [nn.Dense(64, activation='relu'), nn.Dense(32, activation='relu')]`，会有什么问题？
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/986)
 
+
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/986)
 
 ![](../img/qr_model-construction.svg)

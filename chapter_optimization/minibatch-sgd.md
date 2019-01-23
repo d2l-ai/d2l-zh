@@ -165,10 +165,12 @@ train_gluon_ch7('sgd', {'learning_rate': 0.05}, features, labels, 10)
 * 查阅MXNet文档，使用`Trainer`类的`set_learning_rate`函数，令小批量随机梯度下降的学习率每过一个迭代周期减小到原值的1/10。
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/8013)
 
-![](../img/qr_minibatch-sgd.svg)
 
 ## 参考文献
 
 [1] 飞机机翼噪音数据集。https://archive.ics.uci.edu/ml/datasets/Airfoil+Self-Noise
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/8013)
+
+![](../img/qr_minibatch-sgd.svg)

@@ -191,10 +191,12 @@ d2l.train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
 * 既然候选记忆细胞已通过使用tanh函数确保值域在-1到1之间，为什么隐藏状态还需要再次使用tanh函数来确保输出值域在-1到1之间？
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4049)
 
-![](../img/qr_lstm.svg)
 
 ## 参考文献
 
 [1] Hochreiter, S., & Schmidhuber, J. (1997). Long short-term memory. Neural computation, 9(8), 1735-1780.
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4049)
+
+![](../img/qr_lstm.svg)

@@ -109,6 +109,8 @@ Y2 = corr2d_multi_in_out(X, K)
 * 当卷积窗口不为$1\times 1$时，如何用矩阵乘法实现卷积计算？
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6405)
 
 ![](../img/qr_channels.svg)

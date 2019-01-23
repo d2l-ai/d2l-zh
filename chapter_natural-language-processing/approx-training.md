@@ -85,6 +85,8 @@ $$\sum_{w \in \mathcal{V}} P(w \mid w_c) = 1.$$
 * 本节中最后一个公式为什么成立？
 * 如何将负采样或层序softmax用于训练连续词袋模型？
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/8135)
 
 ![](../img/qr_word2vec-approx-train.svg)

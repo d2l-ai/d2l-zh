@@ -123,6 +123,8 @@ for X, Y in data_iter_consecutive(my_seq, batch_size=2, num_steps=6):
 * 你还能想到哪些采样小批量时序数据的方法？
 * 如果我们希望一个序列样本是一个完整的句子，这会给小批量采样带来什么样的问题？
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7876)
 
 ![](../img/qr_lang-model-dataset.svg)

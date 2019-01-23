@@ -141,6 +141,8 @@ net[1].weight.data()[0] == net[2].weight.data()[0]
 * 尝试在`net.initialize()`后、`net(X)`前访问模型参数，观察模型参数的形状。
 * 构造一个含共享参数层的多层感知机并训练。在训练过程中，观察每一层的模型参数和梯度。
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/987)
 
 ![](../img/qr_parameters.svg)

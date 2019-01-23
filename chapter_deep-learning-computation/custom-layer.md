@@ -103,6 +103,8 @@ net(nd.random.uniform(shape=(2, 64)))
 * 自定义一个层，使用它做一次前向计算。
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1256)
 
 ![](../img/qr_custom-layer.svg)

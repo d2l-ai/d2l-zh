@@ -126,9 +126,7 @@
 * 端到端的训练方法还可以用在哪里？物理学，工程学还是经济学？
 * 为什么应该让深度网络模仿人脑结构？为什么不该让深度网络模仿人脑结构？
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/746)
 
-![](../img/qr_deep-learning-intro.svg)
 
 ## 参考文献
 
@@ -175,3 +173,7 @@
 [21] Lowe, D. G. (2004). Distinctive image features from scale-invariant keypoints. International journal of computer vision, 60(2), 91-110.
 
 [22] Salton, G., & McGill, M. J. (1986). Introduction to modern information retrieval.
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/746)
+
+![](../img/qr_deep-learning-intro.svg)

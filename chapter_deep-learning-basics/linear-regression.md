@@ -206,6 +206,8 @@ $$
 * 使用其他包（如NumPy）或其他编程语言（如MATLAB），比较相加两个向量的两种方法的运行时间。
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6321)
 
 ![](../img/qr_linear-regression.svg)

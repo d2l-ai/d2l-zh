@@ -71,10 +71,12 @@ d2l.train_gluon_ch7('adadelta', {'rho': 0.9}, features, labels)
 
 * 调节AdaDelta算法中超参数$\rho$的值，观察实验结果。
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2277)
 
-![](../img/qr_adadelta.svg)
 
 ## 参考文献
 
 [1] Zeiler, M. D. (2012). ADADELTA: an adaptive learning rate method. arXiv preprint arXiv:1212.5701.
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2277)
+
+![](../img/qr_adadelta.svg)

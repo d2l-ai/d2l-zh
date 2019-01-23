@@ -75,9 +75,7 @@ git push
 * 如果觉得本书某些地方可以改进，尝试提交一个pull request。
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7570)
 
-![](../img/qr_how-to-contribute.svg)
 
 
 ## 参考文献
@@ -89,3 +87,7 @@ git push
 [3] 安装Git。https://git-scm.com/book/zh/v2
 
 [4] GitHub网址。https://github.com/
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7570)
+
+![](../img/qr_how-to-contribute.svg)

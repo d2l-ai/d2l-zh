@@ -210,6 +210,8 @@ net(x)
 * 回顾前面几章中你感兴趣的模型，改用`HybridBlock`类或`HybridSequential`类实现。
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1665)
 
 ![](../img/qr_hybridize.svg)

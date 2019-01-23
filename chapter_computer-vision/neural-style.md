@@ -273,10 +273,12 @@ d2l.plt.imsave('../img/neural-style-2.png', postprocess(output).asnumpy())
 * 调整损失函数中的权值超参数，输出是否保留更多内容或减少更多噪点？
 * 替换实验中的内容图像和样式图像，你能创作出更有趣的合成图像吗？
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/3273)
 
-![](../img/qr_neural-style.svg)
 
 ## 参考文献
 
 [1] Gatys, L. A., Ecker, A. S., & Bethge, M. (2016). Image style transfer using convolutional neural networks. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (pp. 2414-2423).
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/3273)
+
+![](../img/qr_neural-style.svg)

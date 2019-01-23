@@ -100,11 +100,13 @@ d2l.train_gluon_ch7('adagrad', {'learning_rate': 0.1}, features, labels)
 * 在实验中尝试使用其他的初始学习率，结果有什么变化？
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2273)
 
-![](../img/qr_adagrad.svg)
 
 
 ## 参考文献
 
 [1] Duchi, J., Hazan, E., & Singer, Y. (2011). Adaptive subgradient methods for online learning and stochastic optimization. Journal of Machine Learning Research, 12(Jul), 2121-2159.
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2273)
+
+![](../img/qr_adagrad.svg)

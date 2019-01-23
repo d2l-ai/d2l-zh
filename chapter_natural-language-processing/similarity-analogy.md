@@ -129,9 +129,7 @@ get_analogy('do', 'did', 'go', glove_6b50d)
 * 如果词典特别大，如何提升近义词或类比词的搜索速度？
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4373)
 
-![](../img/qr_similarity-analogy.svg)
 
 ## 参考文献
 
@@ -140,3 +138,7 @@ get_analogy('do', 'did', 'go', glove_6b50d)
 [2] GloVe项目网站。 https://nlp.stanford.edu/projects/glove/
 
 [3] fastText项目网站。 https://fasttext.cc/
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4373)
+
+![](../img/qr_similarity-analogy.svg)
