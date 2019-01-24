@@ -392,9 +392,21 @@ nbsphinx_execute = 'never'
 # let the source file format to be xxx.ipynb instead of xxx.ipynb.txt
 html_sourcelink_suffix = ''
 
+def image_caption(app, docname, source):
+    for i, src in enumerate(source):
+        out = ''
+        for l in src.split('\n'):
+            if '![' in l and 'img' in l:
+                # Sphinx does not allow very long caption with space, replace space
+                # with a special token
+                l = l.strip().replace(' ', 'Ⓐ')
+            out += l + '\n'
+        source[i] = out
+
 def setup(app):
     app.add_transform(AutoStructify)
     app.add_config_value('recommonmark_config', {
     }, True)
     app.add_javascript('google_analytics.js')
     app.add_javascript('discuss.js')
+	app.connect('source-read', image_caption)
