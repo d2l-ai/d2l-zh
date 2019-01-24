@@ -6,13 +6,13 @@
 
 
 .. toctree::
-   :maxdepth: 0
+   :maxdepth: 1
 
    chapter_preface/preface
 
 
 .. toctree::
-   :maxdepth: 0
+   :maxdepth: 1
 
    chapter_how-to-use/how-to-use
 
