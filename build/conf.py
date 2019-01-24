@@ -149,8 +149,8 @@ html_theme_options = {
         ('PDF', 'https://zh.d2l.ai/d2l-zh.pdf', True, 'fas fa-file-pdf'),
         ('Jupyter 记事本', 'https://zh.d2l.ai/d2l-zh.zip', True, 'fas fa-download'),
         ('讨论', 'https://discuss.gluon.ai/c/lecture?order=views', True, 'fab fa-discourse'),
-		('GitHub', 'https://github.com/d2l-ai/d2l-zh', True, 'fab fa-github'),
-		('English Version', 'https://d2l.ai', True, 'fas fa-external-link-alt'),
+        ('GitHub', 'https://github.com/d2l-ai/d2l-zh', True, 'fab fa-github'),
+        ('English Version', 'https://d2l.ai', True, 'fas fa-external-link-alt'),
     ],
     'show_footer': True
 }
@@ -409,4 +409,4 @@ def setup(app):
     }, True)
     app.add_javascript('google_analytics.js')
     app.add_javascript('discuss.js')
-	app.connect('source-read', image_caption)
+    app.connect('source-read', image_caption)
