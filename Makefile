@@ -66,6 +66,9 @@ pdf: $(DEPS) $(OBJ) $(PDFIMG)
 	sed -i /\\\\sphinxtablecontinued{Continued\ on\ next\ page}/d $(TEX)
 	sed -i /{\\\\tablename\\\\\ \\\\thetable{}\ --\ continued\ from\ previous\ page}/d $(TEX)
 	sed -i s/\\\\maketitle/\\\\maketitle\ \\\\pagebreak\\\\hspace{0pt}\\\\vfill\\\\begin{center}本书稿为测试版本（\ 生成日期：\\\\zhtoday\ ）。\\\\\\\\\ 访问\\\\url{https:\\/\\/zh.d2l.ai}，获取本书的最新版本或正式版本。\\\\end{center}\\\\vfill\\\\hspace{0pt}\\\\pagebreak/g $(TEX)
+
+	python build/utils/post_tex_zh.py
+
 	cd build/_build/latex && \
 	bash ../../utils/convert_output_svg.sh && \
 	buf_size=10000000 xelatex d2l-zh.tex && \
