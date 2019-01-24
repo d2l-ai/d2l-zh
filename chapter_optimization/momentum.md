@@ -160,6 +160,8 @@ d2l.train_gluon_ch7('sgd', {'learning_rate': 0.004, 'momentum': 0.9},
 * 使用其他动量超参数和学习率的组合，观察并分析实验结果。
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1879)
 
 ![](../img/qr_momentum.svg)

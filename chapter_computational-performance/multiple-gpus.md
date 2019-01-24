@@ -198,6 +198,8 @@ train(num_gpus=2, batch_size=256, lr=0.2)
 * 将实验的模型预测部分改为用多GPU预测。
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1884)
 
 ![](../img/qr_multiple-gpus.svg)

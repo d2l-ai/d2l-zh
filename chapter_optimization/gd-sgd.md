@@ -188,6 +188,8 @@ show_trace_2d(f_2d, train_2d(sgd_2d))
 * 在二维梯度下降的实验中尝试使用不同的学习率，观察并分析实验现象。
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1877)
 
 ![](../img/qr_gd-sgd.svg)

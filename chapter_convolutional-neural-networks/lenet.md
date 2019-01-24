@@ -137,10 +137,12 @@ train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
 * 尝试基于LeNet构造更复杂的网络来提高分类准确率。例如，调整卷积窗口大小、输出通道数、激活函数和全连接层输出个数。在优化方面，可以尝试使用不同的学习率、初始化方法以及增加迭代周期。
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/737)
 
-![](../img/qr_lenet.svg)
 
 ## 参考文献
 
 [1] LeCun, Y., Bottou, L., Bengio, Y., & Haffner, P. (1998). Gradient-based learning applied to document recognition. Proceedings of the IEEE, 86(11), 2278-2324.
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/737)
+
+![](../img/qr_lenet.svg)

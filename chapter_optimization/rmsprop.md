@@ -82,11 +82,13 @@ d2l.train_gluon_ch7('rmsprop', {'learning_rate': 0.01, 'gamma1': 0.9},
 * 把$\gamma$的值设为1，实验结果有什么变化？为什么？
 * 试着使用其他的初始学习率和$\gamma$超参数的组合，观察并分析实验结果。
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2275)
 
 
-![](../img/qr_rmsprop.svg)
 
 ## 参考文献
 
 [1] Tieleman, T., & Hinton, G. (2012). Lecture 6.5-rmsprop: Divide the gradient by a running average of its recent magnitude. COURSERA: Neural networks for machine learning, 4(2), 26-31.
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2275)
+
+![](../img/qr_rmsprop.svg)

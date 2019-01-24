@@ -203,10 +203,12 @@ d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
 * 查看`BatchNorm`类的文档来了解更多使用方法，例如，如何在训练时使用基于全局平均的均值和方差。
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1253)
 
-![](../img/qr_batch-norm.svg)
 
 ## 参考文献
 
 [1] Ioffe, S., & Szegedy, C. (2015). Batch normalization: Accelerating deep network training by reducing internal covariate shift. arXiv preprint arXiv:1502.03167.
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1253)
+
+![](../img/qr_batch-norm.svg)

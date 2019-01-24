@@ -103,9 +103,7 @@ Fast R-CNN通常需要在选择性搜索中生成较多的提议区域，以获�
 
 * 了解GluonCV工具包中有关本节中各个模型的实现 [6]。
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7219)
 
-![](../img/qr_rcnn.svg)
 
 
 
@@ -122,3 +120,7 @@ Fast R-CNN通常需要在选择性搜索中生成较多的提议区域，以获�
 [5] He, K., Gkioxari, G., Dollár, P., & Girshick, R. (2017, October). Mask r-cnn. In Computer Vision (ICCV), 2017 IEEE International Conference on (pp. 2980-2988). IEEE.
 
 [6] GluonCV 工具包。https://gluon-cv.mxnet.io/
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7219)
+
+![](../img/qr_rcnn.svg)

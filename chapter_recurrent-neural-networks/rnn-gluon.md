@@ -156,6 +156,8 @@ train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
 
 * 与上一节的实现进行比较。看看Gluon的实现是不是运行速度更快？如果你觉得差别明显，试着找找原因。
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4089)
 
 ![](../img/qr_rnn-gluon.svg)

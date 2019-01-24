@@ -119,9 +119,7 @@ $$\frac{\partial \log\, P(w_c \mid \mathcal{W}_o)}{\partial \boldsymbol{v}_{o_i}
 * 让我们以跳字模型为例思考word2vec模型的设计。跳字模型中两个词向量的内积与余弦相似度有什么关系？对语义相近的一对词来说，为什么它们的词向量的余弦相似度可能会高？
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4203)
 
-![](../img/qr_word2vec.svg)
 
 
 ## 参考文献
@@ -131,3 +129,7 @@ $$\frac{\partial \log\, P(w_c \mid \mathcal{W}_o)}{\partial \boldsymbol{v}_{o_i}
 [2] Mikolov, T., Sutskever, I., Chen, K., Corrado, G. S., & Dean, J. (2013). Distributed representations of words and phrases and their compositionality. In Advances in neural information processing systems (pp. 3111-3119).
 
 [3] Mikolov, T., Chen, K., Corrado, G., & Dean, J. (2013). Efficient estimation of word representations in vector space. arXiv preprint arXiv:1301.3781.
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4203)
+
+![](../img/qr_word2vec.svg)

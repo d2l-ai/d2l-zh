@@ -259,6 +259,8 @@ train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
 * 将本节中使用的激活函数替换成ReLU，重复本节的实验。
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/989)
 
 ![](../img/qr_rnn-scratch.svg)

@@ -234,9 +234,7 @@ d2l.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n);
 * 预测测试图像中所有像素的类别。
 * 全卷积网络的论文中还使用了卷积神经网络的某些中间层的输出 [1]。试着实现这个想法。
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/3041)
 
-![](../img/qr_fcn.svg)
 
 
 ## 参考文献
@@ -244,3 +242,7 @@ d2l.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n);
 [1] Long, J., Shelhamer, E., & Darrell, T. (2015). Fully convolutional networks for semantic segmentation. In Proceedings of the IEEE conference on computer vision and pattern recognition (pp. 3431-3440).
 
 [2] Dumoulin, V., & Visin, F. (2016). A guide to convolution arithmetic for deep learning. arXiv preprint arXiv:1603.07285.
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/3041)
+
+![](../img/qr_fcn.svg)

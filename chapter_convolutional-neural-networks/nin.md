@@ -82,10 +82,12 @@ d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
 * 为什么NiN块里要有两个$1\times 1$卷积层？去除其中的一个，观察并分析实验现象。
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1661)
 
-![](../img/qr_nin.svg)
 
 ## 参考文献
 
 [1] Lin, M., Chen, Q., & Yan, S. (2013). Network in network. arXiv preprint arXiv:1312.4400.
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1661)
+
+![](../img/qr_nin.svg)

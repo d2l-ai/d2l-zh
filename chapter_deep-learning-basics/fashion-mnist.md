@@ -125,9 +125,7 @@ for X, y in train_iter:
 * 查阅MXNet文档，`mxnet.gluon.data.vision.transforms`还提供了哪些别的变换方法？
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7760)
 
-![](../img/qr_fashion-mnist.svg)
 
 
 ## 参考文献
@@ -135,3 +133,7 @@ for X, y in train_iter:
 [1] LeCun, Y., Cortes, C., & Burges, C. http://yann.lecun.com/exdb/mnist/
 
 [2] Xiao, H., Rasul, K., & Vollgraf, R. (2017). Fashion-mnist: a novel image dataset for benchmarking machine learning algorithms. arXiv preprint arXiv:1708.07747.
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7760)
+
+![](../img/qr_fashion-mnist.svg)

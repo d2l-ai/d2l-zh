@@ -184,6 +184,8 @@ fit_and_plot(poly_features[0:2, :], poly_features[n_train:, :], labels[0:2],
 * 在本节提到的三阶多项式拟合问题里，有没有可能把100个样本的训练误差的期望降到0，为什么？（提示：考虑噪声项的存在。）
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/983)
 
 ![](../img/qr_underfit-overfit.svg)

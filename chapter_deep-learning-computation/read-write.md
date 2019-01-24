@@ -90,6 +90,8 @@ Y2 == Y
 
 * 即使无须把训练好的模型部署到不同的设备，存储模型参数在实际中还有哪些好处？
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1255)
 
 ![](../img/qr_read-write.svg)

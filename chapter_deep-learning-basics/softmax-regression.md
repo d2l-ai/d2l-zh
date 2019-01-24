@@ -142,6 +142,8 @@ $$\ell(\boldsymbol{\Theta}) = \frac{1}{n} \sum_{i=1}^n H\left(\boldsymbol y^{(i)
 * 查阅资料，了解最大似然估计。它与最小化交叉熵损失函数有哪些异曲同工之妙？
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6403)
 
 ![](../img/qr_softmax-regression.svg)

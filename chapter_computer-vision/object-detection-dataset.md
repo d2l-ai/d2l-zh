@@ -78,12 +78,14 @@ for ax, label in zip(axes, batch.label[0][0:10]):
 * 查阅MXNet文档，`image.ImageDetIter`和`image.CreateDetAugmenter`这两个类的构造函数有哪些参数？它们的意义是什么？
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7022)
 
-![](../img/qr_object-detection-dataset.svg)
 
 ## 参考文献
 
 [1] im2rec工具。https://github.com/apache/incubator-mxnet/blob/master/tools/im2rec.py
 
 [2] GluonCV 工具包。https://gluon-cv.mxnet.io/
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7022)
+
+![](../img/qr_object-detection-dataset.svg)

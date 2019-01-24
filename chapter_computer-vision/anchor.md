@@ -230,6 +230,8 @@ for i in output[0].asnumpy():
 * 修改“标注训练集的锚框”与“输出预测边界框”两小节中的变量`anchors`，结果有什么变化？
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7024)
 
 ![](../img/qr_anchor.svg)

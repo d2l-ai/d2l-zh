@@ -50,6 +50,8 @@ GPU的性能主要由以下3个参数构成。
 
 * 浏览本节讨论区中大家有关机器配置方面的交流。
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1177)
 
 ![](../img/qr_buy-gpu.svg)

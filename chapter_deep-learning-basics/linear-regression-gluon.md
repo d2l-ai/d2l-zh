@@ -132,6 +132,8 @@ true_b, dense.bias.data()
 * 如何访问`dense.weight`的梯度？
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/742)
 
 ![](../img/qr_linear-regression-gluon.svg)

@@ -73,6 +73,8 @@ nd.dot(nd.concat(X, H, dim=1), nd.concat(W_xh, W_hh, dim=0))
 * 如果使用循环神经网络来预测一段文本序列的下一个词，输出个数应该设为多少？
 * 为什么循环神经网络可以表达某时间步的词基于文本序列中所有过去的词的条件概率？
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6669)
 
 ![](../img/qr_rnn.svg)

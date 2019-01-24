@@ -96,6 +96,8 @@ with d2l.Benchmark('Run and copy in parallel.'):
 * 当运算符的计算量足够小时，仅在CPU或单块GPU上并行计算也可能提升计算性能。设计实验来验证这一点。
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1883)
 
 ![](../img/qr_auto-parallelism.svg)

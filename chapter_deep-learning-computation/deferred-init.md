@@ -75,6 +75,8 @@ net.initialize(init=MyInit())
 
 * 如果在下一次前向计算`net(X)`前改变输入`X`的形状，包括批量大小和输入个数，会发生什么？
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6320)
 
 ![](../img/qr_deferred-init.svg)

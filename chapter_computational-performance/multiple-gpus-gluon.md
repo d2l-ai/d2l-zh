@@ -121,6 +121,8 @@ train(num_gpus=2, batch_size=512, lr=0.2)
 * 本节使用了ResNet-18模型。试试不同的迭代周期、批量大小和学习率。如果条件允许，使用更多GPU来计算。
 * 有时候，不同设备的计算能力不一样，例如，同时使用CPU和GPU，或者不同GPU之间型号不一样。这时候，应该如何将小批量划分到内存或不同显卡的显存？
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1885)
 
 ![](../img/qr_multiple-gpus-gluon.svg)

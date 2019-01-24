@@ -132,10 +132,12 @@ d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
 * DenseNet被人诟病的一个问题是内存或显存消耗过多。真的会这样吗？可以把输入形状换成$224\times 224$，来看看实际的消耗。
 * 实现DenseNet论文中的表1提出的不同版本的DenseNet [1]。
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1664)
 
-![](../img/qr_densenet.svg)
 
 ## 参考文献
 
 [1] Huang, G., Liu, Z., Weinberger, K. Q., & van der Maaten, L. (2017). Densely connected convolutional networks. In Proceedings of the IEEE conference on computer vision and pattern recognition (Vol. 1, No. 2).
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1664)
+
+![](../img/qr_densenet.svg)

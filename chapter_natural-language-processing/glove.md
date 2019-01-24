@@ -81,10 +81,12 @@ $$\boldsymbol{u}_j^\top \boldsymbol{v}_i + b_i + c_j \approx \log(x_{ij}).$$
 * 如果一个词出现在另一个词的背景窗口中，如何利用它们之间在文本序列的距离重新设计条件概率$p_{ij}$的计算方式？（提示：可参考GloVe论文4.2节 [1]。）
 * 对于任意词，它在GloVe模型的中心词偏差项和背景词偏差项是否等价？为什么？
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4372)
 
-![](../img/qr_glove.svg)
 
 ## 参考文献
 
 [1] Pennington, J., Socher, R., & Manning, C. (2014). Glove: Global vectors for word representation. In Proceedings of the 2014 conference on empirical methods in natural language processing (EMNLP) (pp. 1532-1543).
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4372)
+
+![](../img/qr_glove.svg)

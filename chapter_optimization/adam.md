@@ -82,10 +82,12 @@ d2l.train_gluon_ch7('adam', {'learning_rate': 0.01}, features, labels)
 * 有人说Adam算法是RMSProp算法与动量法的结合。想一想，这是为什么？
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2279)
 
-![](../img/qr_adam.svg)
 
 ## 参考文献
 
 [1] Kingma, D. P., & Ba, J. (2014). Adam: A method for stochastic optimization. arXiv preprint arXiv:1412.6980.
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/2279)
+
+![](../img/qr_adam.svg)

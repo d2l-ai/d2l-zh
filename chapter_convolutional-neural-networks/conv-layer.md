@@ -152,6 +152,8 @@ conv2d.weight.data().reshape((1, 2))
 * 如何通过变化输入和核数组将互相关运算表示成一个矩阵乘法？
 * 如何构造一个全连接层来进行物体边缘检测？
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6314)
 
 ![](../img/qr_conv-layer.svg)

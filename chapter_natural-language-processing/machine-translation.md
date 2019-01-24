@@ -331,9 +331,7 @@ score('ils sont canadiens .', 'they are canadian .', k=2)
 * 试着使用更大的翻译数据集来训练模型，如WMT [2] 和Tatoeba Project [3]。
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4689)
 
-![](../img/qr_machine-translation.svg)
 
 ## 参考文献
 
@@ -342,3 +340,7 @@ score('ils sont canadiens .', 'they are canadian .', k=2)
 [2] WMT. http://www.statmt.org/wmt14/translation-task.html
 
 [3] Tatoeba Project. http://www.manythings.org/anki/
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4689)
+
+![](../img/qr_machine-translation.svg)

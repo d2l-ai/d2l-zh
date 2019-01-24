@@ -177,12 +177,14 @@ d2l.train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
 * 在相同条件下，比较门控循环单元和不带门控的循环神经网络的运行时间。
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4042)
 
-![](../img/qr_gru.svg)
 
 ## 参考文献
 
 [1] Cho, K., Van Merriënboer, B., Bahdanau, D., & Bengio, Y. (2014). On the properties of neural machine translation: Encoder-decoder approaches. arXiv preprint arXiv:1409.1259.
 
 [2] Chung, J., Gulcehre, C., Cho, K., & Bengio, Y. (2014). Empirical evaluation of gated recurrent neural networks on sequence modeling. arXiv preprint arXiv:1412.3555.
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4042)
+
+![](../img/qr_gru.svg)

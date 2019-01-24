@@ -143,10 +143,12 @@ d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
 * 修改批量大小，观察准确率和内存或显存的变化。
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1258)
 
-![](../img/qr_alexnet.svg)
 
 ## 参考文献
 
 [1] Krizhevsky, A., Sutskever, I., & Hinton, G. E. (2012). Imagenet classification with deep convolutional neural networks. In Advances in neural information processing systems (pp. 1097-1105).
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1258)
+
+![](../img/qr_alexnet.svg)

@@ -245,6 +245,8 @@ train_with_data_aug(flip_aug, no_aug)
 * 在基于CIFAR-10数据集的模型训练中增加不同的图像增广方法。观察实现结果。
 * 查阅MXNet文档，Gluon的`transforms`模块还提供了哪些图像增广方法？
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1666)
 
 ![](../img/qr_image-augmentation.svg)

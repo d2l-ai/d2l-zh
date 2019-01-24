@@ -210,12 +210,14 @@ predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'bad'])
 * 使用spaCy分词工具，能否提升分类准确率？你需要安装spaCy（`pip install spacy`），并且安装英文包（`python -m spacy download en`）。在代码中，先导入spacy（`import spacy`）。然后加载spacy英文包（`spacy_en = spacy.load('en')`）。最后定义函数`def tokenizer(text): return [tok.text for tok in spacy_en.tokenizer(text)]`并替换原来的基于空格分词的`tokenizer`函数。需要注意的是，GloVe词向量对于名词词组的存储方式是用“-”连接各个单词，例如，词组“new york”在GloVe词向量中的表示为“new-york”，而使用spaCy分词之后“new york”的存储可能是“new york”。
 
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6155)
 
 
-![](../img/qr_sentiment-analysis.svg)
 
 
 ## 参考文献
 
 [1] Maas, A. L., Daly, R. E., Pham, P. T., Huang, D., Ng, A. Y., & Potts, C. (2011, June). Learning word vectors for sentiment analysis. In Proceedings of the 49th annual meeting of the association for computational linguistics: Human language technologies-volume 1 (pp. 142-150). Association for Computational Linguistics.
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6155)
+
+![](../img/qr_sentiment-analysis.svg)

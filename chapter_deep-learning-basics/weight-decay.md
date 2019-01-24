@@ -177,6 +177,8 @@ fit_and_plot_gluon(3)
 * 如果你了解贝叶斯统计，你觉得权重衰减对应贝叶斯统计里的哪个重要概念？
 * 调节实验中的权重衰减超参数，观察并分析实验结果。
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/984)
 
 ![](../img/qr_weight-decay.svg)

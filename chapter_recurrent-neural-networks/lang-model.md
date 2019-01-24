@@ -55,6 +55,8 @@ $$
 * 你还能想到哪些语言模型的应用？
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6650)
 
 ![](../img/qr_lang-model.svg)

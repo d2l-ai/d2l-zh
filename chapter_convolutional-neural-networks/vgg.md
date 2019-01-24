@@ -92,10 +92,12 @@ d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
 * 尝试将Fashion-MNIST中图像的高和宽由224改为96。这在实验中有哪些影响？
 * 参考VGG论文里的表1来构造VGG其他常用模型，如VGG-16和VGG-19 [1]。
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1277)
 
-![](../img/qr_vgg.svg)
 
 ## 参考文献
 
 [1] Simonyan, K., & Zisserman, A. (2014). Very deep convolutional networks for large-scale image recognition. arXiv preprint arXiv:1409.1556.
+
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1277)
+
+![](../img/qr_vgg.svg)

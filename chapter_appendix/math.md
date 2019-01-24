@@ -335,6 +335,8 @@ $$E(X) = \sum_{x} x P(X = x).$$
 * 求函数$f(\boldsymbol{x}) = 3x_1^2 + 5e^{x_2}$的梯度。
 
 
+
+
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6966)
 
 ![](../img/qr_math.svg)
