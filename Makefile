@@ -1,6 +1,6 @@
 all: html
 
-build/%.ipynb: %.md build/env.yml $(wildcard d2lzh/*)
+build/%.ipynb: %.md $(wildcard d2lzh/*)
 	@mkdir -p $(@D)
 	cd $(@D); python ../utils/md2ipynb.py ../../$< ../../$@
 
@@ -36,6 +36,7 @@ build/%: %
 
 html: $(DEPS) $(FRONTPAGE_DEP) $(OBJ)
 	make -C build html
+	python build/utils/post_html.py
 	cp -r img/frontpage/ build/_build/html/_images/
 	# Enable horitontal scrollbar for wide code blocks
 	sed -i s/white-space\:pre-wrap\;//g build/_build/html/_static/sphinx_materialdesign_theme.css
