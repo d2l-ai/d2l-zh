@@ -74,8 +74,7 @@ master_doc = 'index'
 # General information about the project.
 project = '《动手学深度学习》'
 copyright = '2017--2019'
-author = "A. Zhang, M. Li, Z. C. Lipton, and A. J. Smola"
-
+author = "Aston Zhang\\\\Mu Li\\\\Zachary C. Lipton\\\\Alexander J. Smola"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -149,8 +148,8 @@ html_theme_options = {
         ('PDF', 'https://zh.d2l.ai/d2l-zh.pdf', True, 'fas fa-file-pdf'),
         ('Jupyter 记事本', 'https://zh.d2l.ai/d2l-zh.zip', True, 'fas fa-download'),
         ('讨论', 'https://discuss.gluon.ai/c/lecture?order=views', True, 'fab fa-discourse'),
-		('GitHub', 'https://github.com/d2l-ai/d2l-zh', True, 'fab fa-github'),
-		('English Version', 'https://d2l.ai', True, 'fas fa-external-link-alt'),
+        ('GitHub', 'https://github.com/d2l-ai/d2l-zh', True, 'fab fa-github'),
+        ('English Version', 'https://d2l.ai', True, 'fas fa-external-link-alt'),
     ],
     'show_footer': True
 }
@@ -392,9 +391,21 @@ nbsphinx_execute = 'never'
 # let the source file format to be xxx.ipynb instead of xxx.ipynb.txt
 html_sourcelink_suffix = ''
 
+def image_caption(app, docname, source):
+    for i, src in enumerate(source):
+        out = ''
+        for l in src.split('\n'):
+            if '![' in l and 'img' in l:
+                # Sphinx does not allow very long caption with space, replace space
+                # with a special token
+                l = l.strip().replace(' ', 'Ⓐ')
+            out += l + '\n'
+        source[i] = out
+
 def setup(app):
     app.add_transform(AutoStructify)
     app.add_config_value('recommonmark_config', {
     }, True)
     app.add_javascript('google_analytics.js')
     app.add_javascript('discuss.js')
+    app.connect('source-read', image_caption)

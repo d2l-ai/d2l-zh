@@ -10,7 +10,7 @@
 
 第一次运行需要完整完成下面5个步骤。如果是再次运行，可以忽略前面3步的下载和安装，直接跳转到第四步和第五步。
 
-第一步是根据操作系统下载并安装[Miniconda](https://conda.io/miniconda.html)，在安装过程中需要勾选“Add Anaconda to the system PATH environment variable”选项。
+第一步是根据操作系统下载并安装[Miniconda](https://conda.io/en/master/miniconda.html)，在安装过程中需要勾选“Add Anaconda to the system PATH environment variable”选项。
 
 第二步是下载包含本书全部代码的压缩包。我们可以在浏览器的地址栏中输入 https://zh.d2l.ai/d2l-zh-1.0.zip 并按回车键进行下载。下载完成后，创建文件夹“d2l-zh”并将以上压缩包解压到这个文件夹。在该目录文件资源管理器的地址栏输入`cmd`进入命令行模式。
 

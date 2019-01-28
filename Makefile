@@ -36,6 +36,7 @@ build/%: %
 
 html: $(DEPS) $(FRONTPAGE_DEP) $(OBJ)
 	make -C build html
+	python build/utils/post_html.py
 	cp -r img/frontpage/ build/_build/html/_images/
 	# Enable horitontal scrollbar for wide code blocks
 	sed -i s/white-space\:pre-wrap\;//g build/_build/html/_static/sphinx_materialdesign_theme.css
@@ -59,11 +60,16 @@ pdf: $(DEPS) $(OBJ) $(PDFIMG)
 	sed -i s/{\\\\releasename}{发布}/{\\\\releasename}{}/g $(TEX)
 	sed -i s/{OriginalVerbatim}\\\[commandchars=\\\\\\\\\\\\{\\\\}\\\]/{OriginalVerbatim}\\\[commandchars=\\\\\\\\\\\\{\\\\},formatcom=\\\\footnotesize\\\]/g $(TEX)
 	sed -i s/\\\\usepackage{geometry}/\\\\usepackage[paperwidth=187mm,paperheight=235mm,left=20mm,right=20mm,top=20mm,bottom=15mm,includefoot]{geometry}/g $(TEX)
+	# Allow figure captions to include space and autowrap
+	sed -i s/Ⓐ/\ /g ${TEX}
 	# Remove un-translated long table descriptions
 	sed -i /\\\\multicolumn{2}{c}\%/d $(TEX)
 	sed -i /\\\\sphinxtablecontinued{Continued\ on\ next\ page}/d $(TEX)
 	sed -i /{\\\\tablename\\\\\ \\\\thetable{}\ --\ continued\ from\ previous\ page}/d $(TEX)
 	sed -i s/\\\\maketitle/\\\\maketitle\ \\\\pagebreak\\\\hspace{0pt}\\\\vfill\\\\begin{center}本书稿为测试版本（\ 生成日期：\\\\zhtoday\ ）。\\\\\\\\\ 访问\\\\url{https:\\/\\/zh.d2l.ai}，获取本书的最新版本或正式版本。\\\\end{center}\\\\vfill\\\\hspace{0pt}\\\\pagebreak/g $(TEX)
+
+	python build/utils/post_latex.py zh
+
 	cd build/_build/latex && \
 	bash ../../utils/convert_output_svg.sh && \
 	buf_size=10000000 xelatex d2l-zh.tex && \
