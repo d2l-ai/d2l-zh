@@ -116,7 +116,7 @@ echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-9.0/lib64" >> ~
 
 ## 获取本书的代码并安装GPU版的MXNet
 
-我们已在[“获取和运行本书的代码”](../chapter_prerequisite/install.md)一节中介绍了Linux用户获取本书的代码并安装运行环境的方法。首先，安装Linux版的Miniconda（网址：https://conda.io/miniconda.html ），例如
+我们已在[“获取和运行本书的代码”](../chapter_prerequisite/install.md)一节中介绍了Linux用户获取本书的代码并安装运行环境的方法。首先，安装Linux版的[Miniconda](https://conda.io/en/latest/miniconda.html)，例如
 
 ```
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
