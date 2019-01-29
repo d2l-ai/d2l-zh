@@ -14,7 +14,7 @@
 
 第二步是下载包含本书全部代码的压缩包。我们可以在浏览器的地址栏中输入 https://zh.d2l.ai/d2l-zh-1.0.zip 并按回车键进行下载。下载完成后，创建文件夹“d2l-zh”并将以上压缩包解压到这个文件夹。在该目录文件资源管理器的地址栏输入`cmd`进入命令行模式。
 
-第三步是使用conda创建并激活环境。conda和pip默认使用国外站点来下载软件，我们可以配置国内镜像来加速下载（国外用户无需此操作）。
+第三步是使用conda创建虚拟（运行）环境。conda和pip默认使用国外站点来下载软件，我们可以配置国内镜像来加速下载（国外用户无需此操作）。
 
 ```
 # 配置清华conda镜像
@@ -24,7 +24,7 @@ conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/m
 pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
-接下来使用conda创建虚拟（运行）环境并安装本书需要的软件。这里`environment.yml`是放置在代码压缩包中的文件。使用文本编辑器打开该文件，即可查看运行压缩包中本书的代码所依赖的软件（如MXNet和`d2lzh`包）及版本号。
+接下来使用conda创建虚拟环境并安装本书需要的软件。这里`environment.yml`是放置在代码压缩包中的文件。使用文本编辑器打开该文件，即可查看运行压缩包中本书的代码所依赖的软件（如MXNet和`d2lzh`包）及版本号。
 
 ```
 conda env create -f environment.yml
@@ -57,6 +57,7 @@ set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyte
 第一步是根据操作系统下载[Miniconda](https://conda.io/miniconda.html)，它是一个sh文件。打开Terminal应用进入命令行来执行这个sh文件，例如：
 
 ```
+# 以Miniconda官方网站上的安装文件名为准
 sh Miniconda3-latest-Linux-x86_64.sh
 ```
 

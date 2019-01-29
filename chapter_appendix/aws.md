@@ -76,6 +76,7 @@ NVIDIA一般每年会更新一次CUDA主版本。这里我们下载作者写本�
 获取下载地址后，下载并安装CUDA 9.0，例如：
 
 ```
+# 以NVIDIA官方网站上的下载链接和安装文件名为准
 wget https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda_9.0.176_384.81_linux-run
 sudo sh cuda_9.0.176_384.81_linux-run
 ```
@@ -119,8 +120,9 @@ echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-9.0/lib64" >> ~
 我们已在[“获取和运行本书的代码”](../chapter_prerequisite/install.md)一节中介绍了Linux用户获取本书的代码并安装运行环境的方法。首先，安装Linux版的[Miniconda](https://conda.io/en/latest/miniconda.html)，例如
 
 ```
-wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-bash Miniconda3-latest-Linux-x86_64.sh
+# 以Miniconda官方网站上的下载链接和安装文件名为准
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+sudo sh Miniconda3-latest-Linux-x86_64.sh
 ```
 
 这时需要回答下面几个问题。
