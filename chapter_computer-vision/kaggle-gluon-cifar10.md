@@ -335,9 +335,8 @@ df.to_csv('submission.csv', index=False)
 
 * 使用Kaggle比赛的完整CIFAR-10数据集。把批量大小`batch_size`和迭代周期数`num_epochs`分别改为128和300。可以在这个比赛中得到什么样的准确率和名次？
 * 如果不使用图像增广的方法能得到什么样的准确率？
+* 扫码直达讨论区，在社区交流方法和结果。你能发掘出其他更好的技巧吗？ 
 
-
-
-build chapter_appendix chapter_computational-performance chapter_computer-vision chapter_convolutional-neural-networks chapter_deep-learning-basics chapter_deep-learning-computation chapter_introduction chapter_natural-language-processing chapter_optimization chapter_prerequisite chapter_recurrent-neural-networks contrib d2lzh data Dockerfile environment.yml img INFO.md Jenkinsfile LICENSE Makefile post_html.sh README.md setup.py STYLE_GUIDE.md TERMINOLOGY.md 扫码直达讨论区，在社区交流方法和结果。你能发掘出其他更好的技巧吗？ ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1545)
+## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1545)
 
 ![](../img/qr_kaggle-gluon-cifar10.svg)
