@@ -72,7 +72,8 @@ all_features = pd.concat((train_data.iloc[:, 1:-1], test_data.iloc[:, 1:]))
 numeric_features = all_features.dtypes[all_features.dtypes != 'object'].index
 all_features[numeric_features] = all_features[numeric_features].apply(
     lambda x: (x - x.mean()) / (x.std()))
-all_features = all_features.fillna(all_features.mean())
+# 标准化后，每个特征的均值变为0，所以可以直接用0来替换缺失值
+all_features = all_features.fillna(0)
 ```
 
 接下来将离散数值转成指示特征。举个例子，假设特征MSZoning里面有两个不同的离散值RL和RM，那么这一步转换将去掉MSZoning特征，并新加两个特征MSZoning\_RL和MSZoning\_RM，其值为0或1。如果一个样本原来在MSZoning里的值为RL，那么有MSZoning\_RL=1且MSZoning\_RM=0。
@@ -184,7 +185,7 @@ def k_fold(k, X_train, y_train, num_epochs,
             d2l.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'rmse',
                          range(1, num_epochs + 1), valid_ls,
                          ['train', 'valid'])
-        print('fold %d, train rmse: %f, valid rmse: %f'
+        print('fold %d, train rmse %f, valid rmse %f'
               % (i, train_ls[-1], valid_ls[-1]))
     return train_l_sum / k, valid_l_sum / k
 ```
@@ -197,7 +198,7 @@ def k_fold(k, X_train, y_train, num_epochs,
 k, num_epochs, lr, weight_decay, batch_size = 5, 100, 5, 0, 64
 train_l, valid_l = k_fold(k, train_features, train_labels, num_epochs, lr,
                           weight_decay, batch_size)
-print('%d-fold validation: avg train rmse: %f, avg valid rmse: %f'
+print('%d-fold validation: avg train rmse %f, avg valid rmse %f'
       % (k, train_l, valid_l))
 ```
 
