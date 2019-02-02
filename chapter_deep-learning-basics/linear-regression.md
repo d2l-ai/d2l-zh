@@ -164,7 +164,7 @@ $$\boldsymbol{\hat{y}} = \boldsymbol{X} \boldsymbol{w} + b,$$
 其中模型输出$\boldsymbol{\hat{y}} \in \mathbb{R}^{n \times 1}$， 批量数据样本特征$\boldsymbol{X} \in \mathbb{R}^{n \times d}$，权重$\boldsymbol{w} \in \mathbb{R}^{d \times 1}$， 偏差$b \in \mathbb{R}$。相应地，批量数据样本标签$\boldsymbol{y} \in \mathbb{R}^{n \times 1}$。设模型参数$\boldsymbol{\theta} = [w_1, w_2, b]^\top$，我们可以重写损失函数为
 
 
-$$\ell(\boldsymbol{w})=\frac{1}{2n}(\boldsymbol{\hat{y}}-\boldsymbol{y})^\top(\boldsymbol{\hat{y}}-\boldsymbol{y}).$$
+$$\ell(\boldsymbol{\theta})=\frac{1}{2n}(\boldsymbol{\hat{y}}-\boldsymbol{y})^\top(\boldsymbol{\hat{y}}-\boldsymbol{y}).$$
 
 小批量随机梯度下降的迭代步骤将相应地改写为
 
