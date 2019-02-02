@@ -66,13 +66,18 @@ all_features = pd.concat((train_data.iloc[:, 1:-1], test_data.iloc[:, 1:]))
 
 ## 预处理数据
 
-我们对连续数值的特征做标准化（standardization）：设该特征在整个数据集上的均值为$\mu$，标准差为$\sigma$。那么，我们可以将该特征的每个值先减去$\mu$再除以$\sigma$得到标准化后的每个特征值。对于缺失的特征值，我们将其替换成该特征的均值。
+如上所述，数据集中有许多不同的数据类型。在我们将数据输入一个深度神经网络之前，我们需要进行一些预处理。让我们先从数值特征开始。首先我们用特征的均值来替代缺失的数据。同时我们对数据进行变换，使得每个特征中数据的均值为0，方差为1。为达到这个目的，我们可以对数据进行如下的操作：
+
+$$x \leftarrow \frac{x - \mu}{\sigma}$$
+
+为了确认这个操作正确的将数据的均值变为0，方差变为1，我们可以确认分别确认均值为0，即计算$\mathbf{E}[(x-\mu)/\sigma] = (\mu - \mu)/\sigma = 0$。并确认方差为1，即计算$\mathbf{E}[(x-\mu)^2] = \sigma^2$。这样对数据进行归一化（normalization）的原因是，我们无法事先知道哪些特征的重要性比较高，所以将每种特征平等对待是合理的。
 
 ```{.python .input  n=6}
 numeric_features = all_features.dtypes[all_features.dtypes != 'object'].index
 all_features[numeric_features] = all_features[numeric_features].apply(
     lambda x: (x - x.mean()) / (x.std()))
-all_features = all_features.fillna(all_features.mean())
+#在归一化之后，均值变为0，所以我们可以直接用0来替换缺失的数据
+all_features = all_features.fillna(0)
 ```
 
 接下来将离散数值转成指示特征。举个例子，假设特征MSZoning里面有两个不同的离散值RL和RM，那么这一步转换将去掉MSZoning特征，并新加两个特征MSZoning\_RL和MSZoning\_RM，其值为0或1。如果一个样本原来在MSZoning里的值为RL，那么有MSZoning\_RL=1且MSZoning\_RM=0。
