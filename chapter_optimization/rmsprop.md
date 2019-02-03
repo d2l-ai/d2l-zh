@@ -59,7 +59,6 @@ def rmsprop(params, states, hyperparams):
 我们将初始学习率设为0.01，并将超参数$\gamma$设为0.9。此时，变量$\boldsymbol{s}_t$可看作是最近$1/(1-0.9) = 10$个时间步的平方项$\boldsymbol{g}_t \odot \boldsymbol{g}_t$的加权平均。
 
 ```{.python .input  n=24}
-features, labels = d2l.get_data_ch7()
 d2l.train_ch7(rmsprop, init_rmsprop_states(), {'lr': 0.01, 'gamma': 0.9},
               features, labels)
 ```
