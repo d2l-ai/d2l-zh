@@ -108,7 +108,7 @@ def reorg_test(data_dir, test_dir, input_dir):
                     os.path.join(data_dir, input_dir, 'test', 'unknown'))
 ```
 
-最后，我们用一个函数分别调用前面定义的`reorg_test`函数、`reorg_train_valid`函数以及`reorg_test`函数。
+最后，我们用一个函数分别调用前面定义的`read_label_file`函数、`reorg_train_valid`函数以及`reorg_test`函数。
 
 ```{.python .input  n=7}
 def reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
