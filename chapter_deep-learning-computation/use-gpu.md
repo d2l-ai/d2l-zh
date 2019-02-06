@@ -3,7 +3,7 @@
 到目前为止，我们一直在使用CPU计算。对复杂的神经网络和大规模的数据来说，使用CPU来计算可能不够高效。在本节中，我们将介绍如何使用单块NVIDIA GPU来计算。首先，需要确保已经安装好了至少一块NVIDIA GPU。然后，下载CUDA并按照提示设置好相应的路径（可参考附录中[“使用AWS运行代码”](../chapter_appendix/aws.md)一节）。这些准备工作都完成后，下面就可以通过`nvidia-smi`命令来查看显卡信息了。
 
 ```{.python .input  n=1}
-!nvidia-smi  # 对Linux/mac OS用户有效
+!nvidia-smi  # 对Linux/macOS用户有效
 ```
 
 接下来，我们需要确认安装了MXNet的GPU版本。安装方法见[“获取和运行本书的代码”](../chapter_prerequisite/install.md)一节。运行本节中的程序需要至少2块GPU。
