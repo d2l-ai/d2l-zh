@@ -15,11 +15,11 @@
     * 使用中文双引号
 * 符号描述
     * 时刻t（不是t时刻）
-	* 形状使用中文标点
+	* 形状使用英文标点
 		*（10，20）不是(10, 20)
 * 人称
     * 第一人称 → 我们
-    * 第二人称 → 你、大家
+    * 第二人称 → 读者、你、大家
 * 工具或部件
     * Gluon, MXNet, NumPy, spaCy, ResNet-18, Fashion-MNIST, matplotlib
         * 这些都作为词，不要带重音符
@@ -127,12 +127,10 @@
         * DataLoader实例：train_iter, test_iter, data_iter
 * 注释
     * 中文
-    * 中文和英文之间加空格
-    * 句末加句号
+    * 句末不加句号
 * 书本页宽限制
     * 每行不超过79字符
     * 打印结果自动换行
-* utils代码写进附录
 * imports
     * import alphabetically
     * from mxnet.gluon import data as gdata, loss as gloss, nn, utils as gutils
