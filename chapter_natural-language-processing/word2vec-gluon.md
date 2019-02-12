@@ -353,7 +353,7 @@ get_similar_tokens('chip', 3, net[0])
 
 ## 参考文献
 
-[1] Penn Tree Bank. https://catalog.ldc.upenn.edu/ldc99t42
+[1] Penn Tree Bank. https://catalog.ldc.upenn.edu/LDC99T42
 
 [2] Mikolov, T., Sutskever, I., Chen, K., Corrado, G. S., & Dean, J. (2013). Distributed representations of words and phrases and their compositionality. In Advances in neural information processing systems (pp. 3111-3119).
 
