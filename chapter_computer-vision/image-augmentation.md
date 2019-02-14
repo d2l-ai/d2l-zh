@@ -241,7 +241,7 @@ train_with_data_aug(flip_aug, no_aug)
 
 ## 练习
 
-* 不使用图像增广训练模型：`train_with_data_aug(no_aug, no_aug)`。比较有无图像增广时的训练和测试准确率。该对比实验是否能支持图像增广可以应对过拟合这一论断？为什么？
+* 不使用图像增广训练模型：`train_with_data_aug(no_aug, no_aug)`。比较有无图像增广时的训练准确率和测试准确率。该对比实验能否支持图像增广可以应对过拟合这一论断？为什么？
 * 在基于CIFAR-10数据集的模型训练中增加不同的图像增广方法。观察实现结果。
 * 查阅MXNet文档，Gluon的`transforms`模块还提供了哪些图像增广方法？
 
