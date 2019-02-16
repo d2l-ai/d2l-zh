@@ -43,7 +43,7 @@ corr1d(X, K)
 
 ```{.python .input  n=5}
 def corr1d_multi_in(X, K):
-    # 我们首先沿着X和K的第0维（通道维）遍历。然后使用*将结果列表变成add_n函数的位置参数
+    # 首先沿着X和K的第0维（通道维）遍历。然后使用*将结果列表变成add_n函数的位置参数
     #（positional argument）来进行相加
     return nd.add_n(*[corr1d(x, k) for x, k in zip(X, K)])
 

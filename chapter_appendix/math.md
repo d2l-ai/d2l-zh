@@ -269,9 +269,9 @@ $$\nabla_{\boldsymbol{X}} \|\boldsymbol{X} \|_F^2 = 2\boldsymbol{X}.$$
 
 
 
-### 黑塞矩阵
+### 海森矩阵
 
-假设函数$f: \mathbb{R}^n \rightarrow \mathbb{R}$的输入是一个$n$维向量$\boldsymbol{x} = [x_1, x_2, \ldots, x_n]^\top$，输出是标量。假定函数$f$所有的二阶偏导数都存在，$f$的黑塞矩阵$\boldsymbol{H}$是一个$n$行$n$列的矩阵：
+假设函数$f: \mathbb{R}^n \rightarrow \mathbb{R}$的输入是一个$n$维向量$\boldsymbol{x} = [x_1, x_2, \ldots, x_n]^\top$，输出是标量。假定函数$f$所有的二阶偏导数都存在，$f$的海森矩阵$\boldsymbol{H}$是一个$n$行$n$列的矩阵：
 
 $$
 \boldsymbol{H} = 
