@@ -189,7 +189,7 @@ show_trace_2d(f_2d, train_2d(sgd_2d))
 
 ## 参考文献
 
-[1] Stewart, James. "Calculus: early transcendentals." 7th ed. Cengage Learning (2010).
+[1] Stewart, J. (2010). Calculus: early transcendentals. 7th ed. Cengage Learning.
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1877)
