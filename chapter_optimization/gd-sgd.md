@@ -187,7 +187,9 @@ show_trace_2d(f_2d, train_2d(sgd_2d))
 * 使用一个不同的目标函数，观察梯度下降和随机梯度下降中自变量的迭代轨迹。
 * 在二维梯度下降的实验中尝试使用不同的学习率，观察并分析实验现象。
 
+## 参考文献
 
+[1] Stewart, James. "Calculus: early transcendentals." 7th ed. Cengage Learning (2010).
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/1877)
