@@ -46,7 +46,7 @@ y.mean().asscalar()
 
 我们还可以自定义含模型参数的自定义层。其中的模型参数可以通过训练学出。
 
-[“模型参数的访问、初始化和共享”](parameters.md)一节里分别介绍了`Parameter`类和`ParameterDict`类。在自定义含模型参数的层时，我们可以利用`Block`类自带的`ParameterDict`类型的成员变量`params`。它是一个由字符串类型的参数名字映射到Parameter类型的模型参数的字典。我们可以通过`get`函数从`ParameterDict`创建`Parameter`实例。
+[“模型参数的访问、初始化和共享”](parameters.md)一节分别介绍了`Parameter`类和`ParameterDict`类。在自定义含模型参数的层时，我们可以利用`Block`类自带的`ParameterDict`类型的成员变量`params`。它是一个由字符串类型的参数名字映射到Parameter类型的模型参数的字典。我们可以通过`get`函数从`ParameterDict`创建`Parameter`实例。
 
 ```{.python .input  n=7}
 params = gluon.ParameterDict()
