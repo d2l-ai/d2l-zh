@@ -111,7 +111,7 @@ def linreg(X, w, b):  # 本函数已保存在d2lzh包中方便以后使用
 
 ```{.python .input  n=10}
 def squared_loss(y_hat, y):  # 本函数已保存在d2lzh包中方便以后使用
-    return nd.sum((y_hat - y.reshape(y_hat.shape)) ** 2 / 2)
+    return (y_hat - y.reshape(y_hat.shape)) ** 2 / 2
 ```
 
 ## 定义优化算法
