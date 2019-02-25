@@ -325,6 +325,8 @@ df.to_csv('submission.csv', index=False)
 
 执行完上述代码后，我们会得到一个submission.csv文件。这个文件符合Kaggle比赛要求的提交格式。提交结果的方法与[“实战Kaggle比赛：房价预测”](../chapter_deep-learning-basics/kaggle-house-price.md)一节中的类似。
 
+
+
 ## 小结
 
 * 可以通过创建`ImageFolderDataset`实例来读取含原始图像文件的数据集。
