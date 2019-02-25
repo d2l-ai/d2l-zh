@@ -60,15 +60,15 @@ import os
 import sys
 
 net = nn.Sequential()
-# 使用较大的11 x 11窗口来捕获物体。同时使用步幅4来较大幅度减小输出高和宽。这里使用的输出通道
-# 数比LeNet中的也要大很多
+# 使用较大的11 x 11窗口来捕获物体。同时使用步幅4来较大幅度减小输出高和宽。这里使用的输出通
+# 道数比LeNet中的也要大很多
 net.add(nn.Conv2D(96, kernel_size=11, strides=4, activation='relu'),
         nn.MaxPool2D(pool_size=3, strides=2),
         # 减小卷积窗口，使用填充为2来使得输入与输出的高和宽一致，且增大输出通道数
         nn.Conv2D(256, kernel_size=5, padding=2, activation='relu'),
         nn.MaxPool2D(pool_size=3, strides=2),
-        # 连续3个卷积层，且使用更小的卷积窗口。除了最后的卷积层外，进一步增大了输出通道数。前
-        # 两个卷积层后不使用池化层来减小输入的高和宽
+        # 连续3个卷积层，且使用更小的卷积窗口。除了最后的卷积层外，进一步增大了输出通道数。
+        # 前两个卷积层后不使用池化层来减小输入的高和宽
         nn.Conv2D(384, kernel_size=3, padding=1, activation='relu'),
         nn.Conv2D(384, kernel_size=3, padding=1, activation='relu'),
         nn.Conv2D(256, kernel_size=3, padding=1, activation='relu'),
