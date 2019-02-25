@@ -28,7 +28,8 @@ from mxnet.gluon import loss as gloss, nn
 import time
 
 def cls_predictor(num_anchors, num_classes):
-    return nn.Conv2D(num_anchors * (num_classes + 1), kernel_size=3, padding=1)
+    return nn.Conv2D(num_anchors * (num_classes + 1), kernel_size=3,
+                     padding=1)
 ```
 
 ### 边界框预测层
@@ -152,8 +153,8 @@ class TinySSD(nn.Block):
         for i in range(5):
             # 即赋值语句self.blk_i = get_blk(i)
             setattr(self, 'blk_%d' % i, get_blk(i))
-            setattr(self, 'cls_%d' % i,
-                    cls_predictor(num_anchors, num_classes))
+            setattr(self, 'cls_%d' % i, cls_predictor(num_anchors,
+                                                      num_classes))
             setattr(self, 'bbox_%d' % i, bbox_predictor(num_anchors))
 
     def forward(self, X):
@@ -258,8 +259,8 @@ for epoch in range(20):
         m += bbox_labels.size
 
     if (epoch + 1) % 5 == 0:
-        print('epoch %2d, class err %.2e, bbox mae %.2e, time %.1f sec'
-              % (epoch + 1, 1 - acc_sum / n, mae_sum / m, time.time() - start))
+        print('epoch %2d, class err %.2e, bbox mae %.2e, time %.1f sec' % (
+            epoch + 1, 1 - acc_sum / n, mae_sum / m, time.time() - start))
 ```
 
 ## 预测

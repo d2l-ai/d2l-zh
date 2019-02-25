@@ -143,8 +143,8 @@ reorg_cifar10_data(data_dir, label_file, train_dir, test_dir, input_dir,
 transform_train = gdata.vision.transforms.Compose([
     # 将图像放大成高和宽各为40像素的正方形
     gdata.vision.transforms.Resize(40),
-    # 随机对高和宽各为40像素的正方形图像裁剪出面积为原图像面积0.64~1倍的小正方形，再放缩为高
-    # 和宽各为32像素的正方形
+    # 随机对高和宽各为40像素的正方形图像裁剪出面积为原图像面积0.64~1倍的小正方形，再放缩为
+    # 高和宽各为32像素的正方形
     gdata.vision.transforms.RandomResizedCrop(32, scale=(0.64, 1.0),
                                               ratio=(1.0, 1.0)),
     gdata.vision.transforms.RandomFlipLeftRight(),

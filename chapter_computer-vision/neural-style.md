@@ -147,8 +147,8 @@ $$\sum_{i,j} \left|x_{i,j} - x_{i+1,j}\right| + \left|x_{i,j} - x_{i,j+1}\right|
 
 ```{.python .input  n=13}
 def tv_loss(Y_hat):
-    return 0.5 * ((Y_hat[:, :, 1:, :] - Y_hat[:, :, :-1, :]).abs().mean()
-                  + (Y_hat[:, :, :, 1:] - Y_hat[:, :, :, :-1]).abs().mean())
+    return 0.5 * ((Y_hat[:, :, 1:, :] - Y_hat[:, :, :-1, :]).abs().mean() +
+                  (Y_hat[:, :, :, 1:] - Y_hat[:, :, :, :-1]).abs().mean())
 ```
 
 ### 损失函数

@@ -178,8 +178,8 @@ test_iter = gdata.DataLoader(
 ctx = d2l.try_all_gpus()
 loss = gloss.SoftmaxCrossEntropyLoss(axis=1)
 net.collect_params().reset_ctx(ctx)
-trainer = gluon.Trainer(net.collect_params(), 'sgd',
-                        {'learning_rate': 0.1, 'wd': 1e-3})
+trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.1,
+                                                      'wd': 1e-3})
 d2l.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=5)
 ```
 

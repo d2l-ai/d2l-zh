@@ -137,8 +137,8 @@ net = linreg
 loss = squared_loss
 
 for epoch in range(num_epochs):  # 训练模型一共需要num_epochs个迭代周期
-    # 在每一个迭代周期中，会使用训练数据集中所有样本一次（假设样本数能够被批量大小整除）。X和
-    # y分别是小批量样本的特征和标签
+    # 在每一个迭代周期中，会使用训练数据集中所有样本一次（假设样本数能够被批量大小整除）。X
+    # 和y分别是小批量样本的特征和标签
     for X, y in data_iter(batch_size, features, labels):
         with autograd.record():
             l = loss(net(X, w, b), y)  # l是有关小批量X和y的损失
