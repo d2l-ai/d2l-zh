@@ -73,8 +73,8 @@ def batch_norm(X, gamma, beta, moving_mean, moving_var, eps, momentum):
             mean = X.mean(axis=0)
             var = ((X - mean) ** 2).mean(axis=0)
         else:
-            # 使用二维卷积层的情况，计算通道维上（axis=1）的均值和方差。这里我们需要保持
-            # X的形状以便后面可以做广播运算
+            # 使用二维卷积层的情况，计算通道维上（axis=1）的均值和方差。这里我们需要保持X的
+            # 形状以便后面可以做广播运算
             mean = X.mean(axis=(0, 2, 3), keepdims=True)
             var = ((X - mean) ** 2).mean(axis=(0, 2, 3), keepdims=True)
         # 训练模式下用当前的均值和方差做标准化
@@ -145,8 +145,7 @@ lr, num_epochs, batch_size, ctx = 1.0, 5, 256, d2l.try_gpu()
 net.initialize(ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
-d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
-              num_epochs)
+d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
 ```
 
 最后我们查看第一个批量归一化层学习到的拉伸参数`gamma`和偏移参数`beta`。
@@ -183,8 +182,7 @@ net.add(nn.Conv2D(6, kernel_size=5),
 ```{.python .input}
 net.initialize(ctx=ctx, init=init.Xavier())
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
-d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx,
-              num_epochs)
+d2l.train_ch5(net, train_iter, test_iter, batch_size, trainer, ctx, num_epochs)
 ```
 
 ## 小结
