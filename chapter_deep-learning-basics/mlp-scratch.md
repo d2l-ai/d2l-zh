@@ -69,8 +69,8 @@ loss = gloss.SoftmaxCrossEntropyLoss()
 
 ```{.python .input  n=7}
 num_epochs, lr = 5, 0.5
-d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
-              params, lr)
+d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size, params,
+              lr)
 ```
 
 ## 小结

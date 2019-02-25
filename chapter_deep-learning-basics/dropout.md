@@ -33,8 +33,7 @@ from mxnet.gluon import loss as gloss, nn
 def dropout(X, drop_prob):
     assert 0 <= drop_prob <= 1
     keep_prob = 1 - drop_prob
-    # 这种情况下把全部元素都丢弃
-    if keep_prob == 0:
+    if keep_prob == 0:  # 这种情况下把全部元素都丢弃
         return X.zeros_like()
     mask = nd.random.uniform(0, 1, X.shape) < keep_prob
     return mask * X / keep_prob
@@ -100,8 +99,8 @@ def net(X):
 num_epochs, lr, batch_size = 5, 0.5, 256
 loss = gloss.SoftmaxCrossEntropyLoss()
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
-d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
-              params, lr)
+d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size, params,
+              lr)
 ```
 
 ## 简洁实现

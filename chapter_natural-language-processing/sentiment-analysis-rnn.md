@@ -26,8 +26,7 @@ import tarfile
 首先下载这个数据集到`../data`路径下，然后解压至`../data/aclImdb`下。
 
 ```{.python .input  n=3}
-# 本函数已保存在d2lzh包中方便以后使用
-def download_imdb(data_dir='../data'):
+def download_imdb(data_dir='../data'):  # 本函数已保存在d2lzh包中方便以后使用
     url = ('http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz')
     sha1 = '01ada507287d82875905620988597833ad4e0903'
     fname = gutils.download(url, data_dir, sha1_hash=sha1)
@@ -128,8 +127,8 @@ class BiRNN(nn.Block):
         self.decoder = nn.Dense(2)
 
     def forward(self, inputs):
-        # inputs的形状是(批量大小, 词数)，因为LSTM需要将序列作为第一维，所以将输入转置后
-        # 再提取词特征，输出形状为(词数, 批量大小, 词向量维度)
+        # inputs的形状是(批量大小, 词数)，因为LSTM需要将序列作为第一维，所以将输入转置后再
+        # 提取词特征，输出形状为(词数, 批量大小, 词向量维度)
         embeddings = self.embedding(inputs.T)
         # states形状是(词数, 批量大小, 2 * 隐藏单元个数)
         states = self.encoder(embeddings)

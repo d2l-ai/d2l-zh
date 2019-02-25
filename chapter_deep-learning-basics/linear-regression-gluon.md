@@ -26,10 +26,8 @@ Gluon提供了`data`包来读取数据。由于`data`常用作变量名，我们
 from mxnet.gluon import data as gdata
 
 batch_size = 10
-# 将训练数据的特征和标签组合
-dataset = gdata.ArrayDataset(features, labels)
-# 随机读取小批量
-data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)
+dataset = gdata.ArrayDataset(features, labels)  # 将训练数据的特征和标签组合
+data_iter = gdata.DataLoader(dataset, batch_size, shuffle=True)  # 随机读取小批量
 ```
 
 这里`data_iter`的使用跟上一节中的一样。让我们读取并打印第一个小批量数据样本。

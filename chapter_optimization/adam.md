@@ -59,8 +59,7 @@ def adam(params, states, hyperparams):
 使用学习率为0.01的Adam算法来训练模型。
 
 ```{.python .input  n=5}
-d2l.train_ch7(adam, init_adam_states(), {'lr': 0.01, 't': 1}, features,
-              labels)
+d2l.train_ch7(adam, init_adam_states(), {'lr': 0.01, 't': 1}, features, labels)
 ```
 
 ## 简洁实现

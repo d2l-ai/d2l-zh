@@ -175,8 +175,6 @@ hotdog_w = nd.split(weight.data(), 1000, axis=0)[713]
 hotdog_w.shape
 ```
 
-
-
 ## 参考文献
 
 [1] GluonCV工具包。https://gluon-cv.mxnet.io/

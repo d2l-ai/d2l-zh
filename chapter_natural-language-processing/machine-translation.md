@@ -20,8 +20,8 @@ PAD, BOS, EOS = '<pad>', '<bos>', '<eos>'
 接着定义两个辅助函数对后面读取的数据进行预处理。
 
 ```{.python .input}
-# 将一个序列中所有的词记录在all_tokens中以便之后构造词典，然后在该序列后面添加PAD直到序列
-# 长度变为max_seq_len，然后将序列保存在all_seqs中
+# 将一个序列中所有的词记录在all_tokens中以便之后构造词典，然后在该序列后面添加PAD直到序列长
+# 度变为max_seq_len，然后将序列保存在all_seqs中
 def process_one_seq(seq_tokens, all_tokens, all_seqs, max_seq_len):
     all_tokens.extend(seq_tokens)
     seq_tokens += [EOS] + [PAD] * (max_seq_len - len(seq_tokens) - 1)

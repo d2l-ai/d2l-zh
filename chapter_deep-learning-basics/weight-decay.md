@@ -147,8 +147,7 @@ def fit_and_plot_gluon(wd):
             trainer_b.step(batch_size)
         train_ls.append(loss(net(train_features),
                              train_labels).mean().asscalar())
-        test_ls.append(loss(net(test_features),
-                            test_labels).mean().asscalar())
+        test_ls.append(loss(net(test_features), test_labels).mean().asscalar())
     d2l.semilogy(range(1, num_epochs + 1), train_ls, 'epochs', 'loss',
                  range(1, num_epochs + 1), test_ls, ['train', 'test'])
     print('L2 norm of w:', net[0].weight.data().norm().asscalar())

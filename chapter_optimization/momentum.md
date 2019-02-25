@@ -146,8 +146,8 @@ d2l.train_ch7(sgd_momentum, init_momentum_states(),
 在Gluon中，只需要在`Trainer`实例中通过`momentum`来指定动量超参数即可使用动量法。
 
 ```{.python .input  n=9}
-d2l.train_gluon_ch7('sgd', {'learning_rate': 0.004, 'momentum': 0.9},
-                    features, labels)
+d2l.train_gluon_ch7('sgd', {'learning_rate': 0.004, 'momentum': 0.9}, features,
+                    labels)
 ```
 
 ## 小结

@@ -51,8 +51,7 @@ def adadelta(params, states, hyperparams):
 使用超参数$\rho=0.9$来训练模型。
 
 ```{.python .input  n=12}
-d2l.train_ch7(adadelta, init_adadelta_states(), {'rho': 0.9}, features,
-              labels)
+d2l.train_ch7(adadelta, init_adadelta_states(), {'rho': 0.9}, features, labels)
 ```
 
 ## 简洁实现
