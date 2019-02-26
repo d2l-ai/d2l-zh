@@ -139,7 +139,7 @@ def train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
 使用和上一节实验中一样的超参数来训练模型。
 
 ```{.python .input  n=19}
-num_epochs, batch_size, lr, clipping_theta = 200, 32, 1e2, 1e-2
+num_epochs, batch_size, lr, clipping_theta = 250, 32, 1e2, 1e-2
 pred_period, pred_len, prefixes = 50, 50, ['分开', '不分开']
 train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
                             corpus_indices, idx_to_char, char_to_idx,
@@ -155,7 +155,6 @@ train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
 ## 练习
 
 * 与上一节的实现进行比较。看看Gluon的实现是不是运行速度更快？如果你觉得差别明显，试着找找原因。
-
 
 
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/4089)

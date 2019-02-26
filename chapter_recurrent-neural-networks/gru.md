@@ -178,7 +178,6 @@ d2l.train_and_predict_rnn_gluon(model, num_hiddens, vocab_size, ctx,
 
 
 
-
 ## 参考文献
 
 [1] Cho, K., Van Merriënboer, B., Bahdanau, D., & Bengio, Y. (2014). On the properties of neural machine translation: Encoder-decoder approaches. arXiv preprint arXiv:1409.1259.
