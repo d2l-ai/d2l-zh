@@ -219,7 +219,7 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
 现在我们可以训练模型了。首先，设置模型超参数。我们将根据前缀“分开”和“不分开”分别创作长度为50个字符（不考虑前缀长度）的一段歌词。我们每过50个迭代周期便根据当前训练的模型创作一段歌词。
 
 ```{.python .input  n=12}
-num_epochs, num_steps, batch_size, lr, clipping_theta = 200, 35, 32, 1e2, 1e-2
+num_epochs, num_steps, batch_size, lr, clipping_theta = 250, 35, 32, 1e2, 1e-2
 pred_period, pred_len, prefixes = 50, 50, ['分开', '不分开']
 ```
 
@@ -257,7 +257,6 @@ train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
 * 将`pred_period`变量设为1，观察未充分训练的模型（困惑度高）是如何创作歌词的。你获得了什么启发？
 * 将相邻采样改为不从计算图分离隐藏状态，运行时间有没有变化？
 * 将本节中使用的激活函数替换成ReLU，重复本节的实验。
-
 
 
 
