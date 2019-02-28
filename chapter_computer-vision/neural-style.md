@@ -156,7 +156,6 @@ def tv_loss(Y_hat):
 样式迁移的损失函数即内容损失、样式损失和总变差损失的加权和。通过调节这些权值超参数，我们可以权衡合成图像在保留内容、迁移样式以及降噪三方面的相对重要性。
 
 ```{.python .input  n=14}
-style_channels = [net[l].weight.shape[0] for l in style_layers]
 content_weight, style_weight, tv_weight = 1, 1e3, 10
 
 def compute_loss(X, contents_Y_hat, styles_Y_hat, contents_Y, styles_Y_gram):
@@ -232,7 +231,7 @@ def train(X, contents_Y, styles_Y, ctx, lr, max_epochs, lr_decay_epoch):
 ctx, image_shape = d2l.try_gpu(), (225, 150)
 net.collect_params().reset_ctx(ctx)
 content_X, contents_Y = get_contents(image_shape, ctx)
-style_X, styles_Y = get_styles(image_shape, ctx)
+_, styles_Y = get_styles(image_shape, ctx)
 output = train(content_X, contents_Y, styles_Y, ctx, 0.01, 500, 200)
 ```
 
@@ -248,8 +247,8 @@ d2l.plt.imsave('../img/neural-style-1.png', postprocess(output).asnumpy())
 
 ```{.python .input  n=20}
 image_shape = (450, 300)
-content_X, content_Y = get_contents(image_shape, ctx)
-style_X, style_Y = get_styles(image_shape, ctx)
+_, content_Y = get_contents(image_shape, ctx)
+_, style_Y = get_styles(image_shape, ctx)
 X = preprocess(postprocess(output) * 255, image_shape)
 output = train(X, content_Y, style_Y, ctx, 0.01, 300, 100)
 d2l.plt.imsave('../img/neural-style-2.png', postprocess(output).asnumpy())
