@@ -209,7 +209,7 @@ print('%d-fold validation: avg train rmse %f, avg valid rmse %f'
 下面定义预测函数。在预测之前，我们会使用完整的训练数据集来重新训练模型，并将预测结果存成提交所需要的格式。
 
 ```{.python .input  n=18}
-def train_and_pred(train_features, test_feature, train_labels, test_data,
+def train_and_pred(train_features, test_features, train_labels, test_data,
                    num_epochs, lr, weight_decay, batch_size):
     net = get_net()
     train_ls, _ = train(net, train_features, train_labels, None, None,
