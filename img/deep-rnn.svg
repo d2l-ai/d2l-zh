@@ -255,8 +255,6 @@
 <path style="fill:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 128 175.421875 L 128 179.421875 M 126.5 179.421875 L 128 175.421875 L 129.5 179.421875 " transform="matrix(1,0,0,1,-25,-82)"/>
 <path style="fill:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 204.5 193.808594 L 204.5 179.421875 " transform="matrix(1,0,0,1,-25,-82)"/>
 <path style="fill:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 204.5 175.421875 L 204.5 179.421875 M 203 179.421875 L 204.5 175.421875 L 206 179.421875 " transform="matrix(1,0,0,1,-25,-82)"/>
-<path style="fill:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 245.800781 193.808594 L 245.800781 179.421875 " transform="matrix(1,0,0,1,-25,-82)"/>
-<path style="fill:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 245.800781 175.421875 L 245.800781 179.421875 M 244.300781 179.421875 L 245.800781 175.421875 L 247.300781 179.421875 " transform="matrix(1,0,0,1,-25,-82)"/>
 <g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
   <use xlink:href="#glyph3-1" x="98" y="49.86191"/>
 </g>

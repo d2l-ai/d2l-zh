@@ -123,7 +123,7 @@ def gru(inputs, state, params):
     for X in inputs:
         Z = nd.sigmoid(nd.dot(X, W_xz) + nd.dot(H, W_hz) + b_z)
         R = nd.sigmoid(nd.dot(X, W_xr) + nd.dot(H, W_hr) + b_r)
-        H_tilda = nd.tanh(nd.dot(X, W_xh) + R * nd.dot(H, W_hh) + b_h)
+        H_tilda = nd.tanh(nd.dot(X, W_xh) + nd.dot(R * H, W_hh) + b_h)
         H = Z * H + (1 - Z) * H_tilda
         Y = nd.dot(H, W_hq) + b_q
         outputs.append(Y)
