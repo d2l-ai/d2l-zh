@@ -73,7 +73,7 @@ def init_params():
 
 ```{.python .input  n=6}
 def l2_penalty(w):
-    return (w**2).sum() / 2
+    return (w**2).sum() / 20
 ```
 
 ### 定义训练和测试
