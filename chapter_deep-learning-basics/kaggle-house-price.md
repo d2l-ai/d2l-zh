@@ -73,7 +73,7 @@ numeric_features = all_features.dtypes[all_features.dtypes != 'object'].index
 all_features[numeric_features] = all_features[numeric_features].apply(
     lambda x: (x - x.mean()) / (x.std()))
 # 标准化后，每个特征的均值变为0，所以可以直接用0来替换缺失值
-all_features = all_features.fillna(0)
+all_features[numeric_features] = all_features[numeric_features].fillna(0)
 ```
 
 接下来将离散数值转成指示特征。举个例子，假设特征MSZoning里面有两个不同的离散值RL和RM，那么这一步转换将去掉MSZoning特征，并新加两个特征MSZoning\_RL和MSZoning\_RM，其值为0或1。如果一个样本原来在MSZoning里的值为RL，那么有MSZoning\_RL=1且MSZoning\_RM=0。
