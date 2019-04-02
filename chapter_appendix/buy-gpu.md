@@ -6,9 +6,9 @@
 
 目前独立显卡主要有AMD和NVIDIA两家厂商。
 ### AMD与NVIDIA GPU支持深度学习框架对比
-1.AMD
+#### 1.AMD
 目前，AMD 的深度学习解决方案已经官方支持 TensorFlow 和 Caffe 两种框架。
-2.NVIDIA
+#### 2.NVIDIA
 目前，NVIDIA支持的深度学习框架包括Mxnet,Caffe,CNTK,TensorFlow,Theano,Pytorch等框架。
 
 综上，由于NVIDIA在深度学习布局较早，对深度学习框架支持更好。因此，目前大家主要会选择NVIDIA的GPU。
