@@ -27,7 +27,7 @@ GPU的性能主要由以下3个参数构成。
 
 对大部分用户来说，只要考虑计算能力就可以了。显存尽量不小于4 GB。但如果GPU要同时显示图形界面，那么推荐的显存大小至少为6 GB。显存带宽通常相对固定，选择空间较小。
 
-图11.19描绘了GTX 1000,RTX 2000系列以及Titan系列CNN与RNN计算能力和价格的对比（其中的价格为NVIDIA官网价格）。
+图11.19描绘了GTX 1000,RTX 2000系列以及Titan系列CNN与RNN计算能力和价格的对比（其中的价格为Amazon与ebay的均值）。
 
 ![浮点计算能力和价格的对比](https://i1.wp.com/timdettmers.com/wp-content/uploads/2018/08/cost_performance_RTX_GPUs.png)
 
