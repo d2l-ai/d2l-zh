@@ -29,7 +29,7 @@ GPU的性能主要由以下3个参数构成。
 
 图11.19描绘了GTX 1000,RTX 2000系列以及Titan系列CNN与RNN计算能力和价格的对比（其中的价格为NVIDIA官网价格）。
 
-![浮点计算能力和价格的对比](../img/performance_TPU_RTX_GPU.png.png)
+![浮点计算能力和价格的对比](https://i1.wp.com/timdettmers.com/wp-content/uploads/2018/08/cost_performance_RTX_GPUs.png)
 
 我们可以从图11.19中读出以下两点信息。
 
