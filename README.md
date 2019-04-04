@@ -13,15 +13,7 @@
 
 开源地址：[https://github.com/d2l-ai/d2l-en](https://github.com/d2l-ai/d2l-en)
 
-
-## 贡献
-
-感谢[社区贡献者们](https://github.com/d2l-ai/d2l-zh/graphs/contributors)为每一位读者改进这本开源书。
-
-[如何贡献](https://zh.d2l.ai/chapter_appendix/how-to-contribute.html) | [致谢](https://zh.d2l.ai/chapter_preface/preface.html#致谢) | [讨论或报告问题](https://discuss.gluon.ai) | [其他](INFO.md)
-
-
-## 英文版引用
+### 英文版引用
 
 BibTeX entry:
 
@@ -33,3 +25,10 @@ BibTeX entry:
     year={2019}
 }
 ```
+
+
+## 贡献
+
+感谢[社区贡献者们](https://github.com/d2l-ai/d2l-zh/graphs/contributors)为每一位读者改进这本开源书。
+
+[如何贡献](https://zh.d2l.ai/chapter_appendix/how-to-contribute.html) | [致谢](https://zh.d2l.ai/chapter_preface/preface.html#致谢) | [讨论或报告问题](https://discuss.gluon.ai) | [其他](INFO.md)
