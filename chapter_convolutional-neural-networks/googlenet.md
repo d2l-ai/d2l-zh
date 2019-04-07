@@ -58,8 +58,8 @@ b1.add(nn.Conv2D(64, kernel_size=7, strides=2, padding=3, activation='relu'),
 
 ```{.python .input  n=3}
 b2 = nn.Sequential()
-b2.add(nn.Conv2D(64, kernel_size=1),
-       nn.Conv2D(192, kernel_size=3, padding=1),
+b2.add(nn.Conv2D(64, kernel_size=1, activation='relu'),
+       nn.Conv2D(192, kernel_size=3, padding=1, activation='relu'),
        nn.MaxPool2D(pool_size=3, strides=2, padding=1))
 ```
 
