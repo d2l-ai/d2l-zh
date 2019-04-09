@@ -185,7 +185,7 @@ for X, y in data_iter():
     with autograd.record():
         l = loss(y, net(X))
     l.backward()
-    trainer.step(x.shape[0])
+    trainer.step(X.shape[0])
 nd.waitall()
 print('increased memory: %f MB' % (get_mem() - mem))
 ```

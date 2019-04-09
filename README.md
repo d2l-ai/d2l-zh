@@ -13,6 +13,19 @@
 
 开源地址：[https://github.com/d2l-ai/d2l-en](https://github.com/d2l-ai/d2l-en)
 
+### 英文版引用
+
+BibTeX entry:
+
+```
+@book{zhang2019dive,
+    title={Dive into Deep Learning},
+    author={Aston Zhang and Zachary C. Lipton and Mu Li and Alexander J. Smola},
+    note={\url{http://www.d2l.ai}},
+    year={2019}
+}
+```
+
 
 ## 贡献
 
