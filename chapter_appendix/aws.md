@@ -60,7 +60,7 @@ ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com
 ![查看访问开启实例的方法。](../img/connect.png)
 
 
-为了使用GPU版本的MXNet，我们还需要在创建好的实例上安装CUDA（参考“安装CUDA”小节）。实际上，我们也可以直接创建已安装CUDA的实例，例如，在第一步“1. Choose AMI”中，选择“Deep Learning Base AMI (Ubuntu) Version XX.X”（后面步骤均保持不变）。登录实例后，运行`cat README`命令查看实例上已安装的CUDA各版本（假设含CUDA 9.0）。如果希望将CUDA的默认版本设为9.0，依次运行命令`sudo rm /usr/local/cuda`和`sudo ln -s /usr/local/cuda-9.0 /usr/local/cuda`。这样可省去以下的CUDA安装步骤。
+为了使用GPU版本的MXNet，我们还需要在创建好的实例上安装CUDA（参考C.3节）。实际上，我们也可以直接创建已安装CUDA的实例，例如，在第一步“1. Choose AMI”中，选择“Deep Learning Base AMI (Ubuntu) Version XX.X”，并保持后面步骤不变。登录实例后，运行`cat README`命令查看实例上已安装的CUDA各版本（假设含9.0）。如果希望将CUDA的默认版本设为9.0，依次运行命令`sudo rm /usr/local/cuda`和`sudo ln -s /usr/local/cuda-9.0 /usr/local/cuda`。之后，即可跳过C.3节的CUDA安装步骤。
 
 
 
