@@ -1,6 +1,6 @@
 # 动手学深度学习
 
-[![Build Status](http://ci.d2l.ai/job/zh/job/master/badge/icon)](http://ci.d2l.ai/job/zh/job/master/)  
+[![Build Status](http://ci.d2l.ai/job/d2l-zh/job/master/badge/icon)](http://ci.d2l.ai/job/d2l-zh/job/master/)  
 
 [本书网址：zh.d2l.ai](https://zh.d2l.ai/)
 
