@@ -125,7 +125,7 @@ get_analogy('do', 'did', 'go', glove_6b50d)
 
 ## 练习
 
-* 测试一下fastText的结果。值得一提的是，fastText有预训练的中文词向量（pretrained_file_name='wiki.zh.vec'）。
+* 测试一下fastText的结果。值得一提的是，fastText有预训练的中文词向量（`pretrained_file_name='wiki.zh.vec'`）。
 * 如果词典特别大，如何提升近义词或类比词的搜索速度？
 
 
