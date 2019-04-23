@@ -183,11 +183,11 @@ print('output class preds:', cls_preds.shape)
 print('output bbox preds:', bbox_preds.shape)
 ```
 
-## 训练
+## 训练模型
 
 下面我们描述如何一步步训练单发多框检测模型来进行目标检测。
 
-### 读取数据和初始化
+### 读取数据集和初始化
 
 我们读取[“目标检测数据集（皮卡丘）”](object-detection-dataset.md)一节构造的皮卡丘数据集。
 
