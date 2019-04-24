@@ -74,7 +74,7 @@
         * 1pt
 		* arrow head size: 50%
     * 字体：
-        * 英文：Arial, 9pt（下标：7pt）
+        * 英文：STIXGeneral, 9pt（下标：6pt）
         * 中文：PingFang SC, 9pt
     * 颜色：
         * 非填充深蓝色（与黑相近）：
