@@ -98,7 +98,8 @@ for i, num_convs in enumerate(num_convs_in_dense_blocks):
     num_channels += num_convs * growth_rate
     # 在稠密块之间加入通道数减半的过渡层
     if i != len(num_convs_in_dense_blocks) - 1:
-        net.add(transition_block(num_channels // 2))
+        num_channels //= 2
+        net.add(transition_block(num_channels))
 ```
 
 同ResNet一样，最后接上全局池化层和全连接层来输出。
