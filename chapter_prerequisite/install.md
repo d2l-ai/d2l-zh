@@ -58,13 +58,13 @@ set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyte
 sh Miniconda3-latest-Linux-x86_64.sh
 ```
 
-安装时会显示使用条款，按“↓”继续阅读，按“Q”退出阅读。之后需要回答下面几个问题：
+安装时会显示使用条款，按“↓”继续阅读，按“Q”退出阅读。之后需要回答下面几个问题（如conda版本4.6.14）：
 
 ```
 Do you accept the license terms? [yes|no]
 [no] >>> yes
-Do you wish the installer to prepend the Miniconda3 install location
-to PATH in your /home/your_name/your_file ? [yes|no]
+Do you wish the installer to initialize Miniconda3
+by running conda init? [yes|no]
 [no] >>> yes
 ```
 
