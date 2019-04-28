@@ -17,9 +17,6 @@
 第三步是使用conda创建虚拟（运行）环境。conda和pip默认使用国外站点来下载软件，我们可以配置国内镜像来加速下载（国外用户无须此操作）。
 
 ```
-# 配置清华conda镜像
-conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
-conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
 # 配置清华PyPI镜像（如无法运行，将pip版本升级到>=10.0.0）
 pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 ```
@@ -30,7 +27,7 @@ pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 conda env create -f environment.yml
 ```
 
-若使用国内镜像后出现安装错误，首先取消conda镜像配置，即复制已执行的conda镜像配置命令，将其中的`--add`改为`--remove`再分别执行。然后取消PyPI镜像配置，即执行命令`pip config unset global.index-url`。最后重试命令`conda env create -f environment.yml`。
+若使用国内镜像后出现安装错误，首先取消PyPI镜像配置，即执行命令`pip config unset global.index-url`。然后重试命令`conda env create -f environment.yml`。
 
 第四步是激活之前创建的环境。激活该环境是能够运行本书的代码的前提。如需退出虚拟环境，可使用命令`conda deactivate`（若conda版本低于4.4，使用命令`deactivate`）。
 
