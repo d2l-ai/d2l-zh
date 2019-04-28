@@ -1,5 +1,6 @@
 name: gluon
 dependencies:
+- python=3.6
 - pip:
   - mxnet==1.4.0
   - d2lzh==0.8.11
