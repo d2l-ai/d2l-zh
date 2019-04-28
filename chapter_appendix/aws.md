@@ -130,7 +130,7 @@ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 sudo sh Miniconda3-latest-Linux-x86_64.sh
 ```
 
-这时需要回答下面几个问题（如conda版本4.6.14）。
+这时需要回答下面几个问题（如当conda版本为4.6.14时）:
 
 ```
 Do you accept the license terms? [yes|no]
