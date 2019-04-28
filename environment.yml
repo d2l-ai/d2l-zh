@@ -3,7 +3,6 @@ dependencies:
 - pip:
   - mxnet==1.4.0
   - d2lzh==0.8.11
-  - python>=3.6
   - jupyter==1.0.0
   - matplotlib==2.2.2
   - pandas==0.23.4
