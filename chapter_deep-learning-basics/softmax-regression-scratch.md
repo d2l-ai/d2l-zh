@@ -85,7 +85,7 @@ nd.pick(y_hat, y)
 
 ```{.python .input  n=10}
 def cross_entropy(y_hat, y):
-    return - nd.pick(y_hat, y).log()
+    return -nd.pick(y_hat, y).log()
 ```
 
 ## 计算分类准确率
