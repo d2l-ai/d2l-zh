@@ -10,16 +10,13 @@
 
 第一次运行需要完整完成下面5个步骤。如果是再次运行，可以忽略前面3步的下载和安装，直接跳转到第四步和第五步。
 
-第一步是根据操作系统下载并安装[Miniconda](https://conda.io/en/master/miniconda.html)，在安装过程中需要勾选“Add Anaconda to the system PATH environment variable”选项。
+第一步是根据操作系统下载并安装[Miniconda](https://conda.io/en/master/miniconda.html)，在安装过程中需要勾选“Add Anaconda to the system PATH environment variable”选项（如当conda版本为4.6.14时）。
 
 第二步是下载包含本书全部代码的压缩包。我们可以在浏览器的地址栏中输入 https://zh.d2l.ai/d2l-zh-1.0.zip 并按回车键进行下载。下载完成后，创建文件夹“d2l-zh”并将以上压缩包解压到这个文件夹。在该目录文件资源管理器的地址栏输入`cmd`进入命令行模式。
 
 第三步是使用conda创建虚拟（运行）环境。conda和pip默认使用国外站点来下载软件，我们可以配置国内镜像来加速下载（国外用户无须此操作）。
 
 ```
-# 配置清华conda镜像
-conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
-conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
 # 配置清华PyPI镜像（如无法运行，将pip版本升级到>=10.0.0）
 pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 ```
@@ -30,7 +27,7 @@ pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 conda env create -f environment.yml
 ```
 
-若使用国内镜像后出现安装错误，首先取消conda镜像配置，即复制已执行的conda镜像配置命令，将其中的`--add`改为`--remove`再分别执行。然后取消PyPI镜像配置，即执行命令`pip config unset global.index-url`。最后重试命令`conda env create -f environment.yml`。
+若使用国内镜像后出现安装错误，首先取消PyPI镜像配置，即执行命令`pip config unset global.index-url`。然后重试命令`conda env create -f environment.yml`。
 
 第四步是激活之前创建的环境。激活该环境是能够运行本书的代码的前提。如需退出虚拟环境，可使用命令`conda deactivate`（若conda版本低于4.4，使用命令`deactivate`）。
 
@@ -61,13 +58,13 @@ set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyte
 sh Miniconda3-latest-Linux-x86_64.sh
 ```
 
-安装时会显示使用条款，按“↓”继续阅读，按“Q”退出阅读。之后需要回答下面几个问题：
+安装时会显示使用条款，按“↓”继续阅读，按“Q”退出阅读。之后需要回答下面几个问题（如当conda版本为4.6.14时）：
 
 ```
 Do you accept the license terms? [yes|no]
 [no] >>> yes
-Do you wish the installer to prepend the Miniconda3 install location
-to PATH in your /home/your_name/your_file ? [yes|no]
+Do you wish the installer to initialize Miniconda3
+by running conda init? [yes|no]
 [no] >>> yes
 ```
 
