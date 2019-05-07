@@ -5,7 +5,8 @@
 [本书网址：zh.d2l.ai](https://zh.d2l.ai/)
 
 [1.0.0版rc0发布](https://github.com/d2l-ai/d2l-zh/releases/tag/v1.0.0-rc0)
- 
+
+纸质书出版在即，stay tuned.
 
 ## 英文版 *Dive into Deep Learning*
 
