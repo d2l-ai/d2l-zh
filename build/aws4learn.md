@@ -19,4 +19,4 @@
 
 申请链接如下：
 
-https://aws.amazon.com/cn/events/educate_cloud/research-credits/
+[https://aws.amazon.com/cn/events/educate_cloud/research-credits/](https://aws.amazon.com/cn/events/educate_cloud/research-credits/)
