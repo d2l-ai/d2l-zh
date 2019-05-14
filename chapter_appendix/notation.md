@@ -21,7 +21,7 @@
 ## 操作符
 
 * $\boldsymbol{(\cdot)}^\top$：向量或矩阵的转置
-* $\odot$：按元素相乘，即阿达玛（Hadamard）积
+* $\odot$：按元素相乘，即阿达马（Hadamard）积
 * $\lvert\mathcal{X}\rvert$：集合$\mathcal{X}$中元素个数
 * $\|\cdot\|_p$：$L_p$范数
 * $\|\cdot\|$：$L_2$范数
