@@ -8,11 +8,13 @@
 在校学生或老师可申请用于本书学习的免费计算资源（即在校期间每年价值75~100美金的云计算资源）。
 
 如果你有edu邮箱，申请链接如下：
+
 [https://www.awseducate.com/registration#APP_TYPE](https://www.awseducate.com/registration#APP_TYPE)
 
 如果你没有edu邮箱，请发邮件至 edu@awsdemos.cloud 申请。请在邮件的标题和内容分别填写以下内容：
 
 标题：申请用于学习《动手学深度学习》的云计算资源
+
 内容：请提供姓名、电子邮箱、手机号码、学校名称。学生需提供任一可验证本人身份的授课老师的姓名、手机号码和电子邮箱；老师需提供可验证本人身份的同专业任一其他授课老师的姓名、手机号码和电子邮箱。
 
 
@@ -26,4 +28,5 @@
 2. 请描述教学计划，如学生的背景情况、如何使用《动手学深度学习》教学、计算资源的使用要求、课程大纲等。
 
 申请链接如下：
+
 [https://aws.amazon.com/cn/events/educate_cloud/research-credits/](https://aws.amazon.com/cn/events/educate_cloud/research-credits/)
