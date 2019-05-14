@@ -11,7 +11,7 @@
 
 [https://www.awseducate.com/registration#APP_TYPE](https://www.awseducate.com/registration#APP_TYPE)
 
-如果你没有edu邮箱，请发邮件至 [TBA] 申请。请在邮件的标题和内容分别填写以下内容：
+如果你没有edu邮箱，请发邮件至 aws-educate-china@amazon.com 申请。请在邮件的标题和内容分别填写以下内容：
 
 标题：申请用于学习《动手学深度学习》的云计算资源
 
