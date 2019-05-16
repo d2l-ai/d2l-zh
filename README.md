@@ -6,7 +6,7 @@
 
 [1.0.0版rc0发布](https://github.com/d2l-ai/d2l-zh/releases/tag/v1.0.0-rc0)
 
-纸质书出版在即，stay tuned.
+[如何安装和使用书中源代码](http://zh.d2l.ai/chapter_prerequisite/install.html)
 
 ## 英文版 *Dive into Deep Learning*
 
