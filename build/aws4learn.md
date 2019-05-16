@@ -36,6 +36,6 @@
 
 如果你对使用《动手学深度学习》教学有任何问题，欢迎加入微信群与作者、AWS工作人员以及其他老师交流。
 
-由于群人数有限，请扫码添加AWS的邢进老师的微信申请入群。
+由于群人数有限，仅限老师入群：请扫码添加AWS的邢进老师的微信申请入群。
 
 <img alt="" class="img-fluid" src="_images/frontpage/teach_contact.jpg"/>
