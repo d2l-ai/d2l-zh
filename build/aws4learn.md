@@ -1,6 +1,6 @@
 # 申请用于学习或教学《动手学深度学习》的免费计算资源
 
-如果你是学习或教学《动手学深度学习》的在校学生或老师，可通过以下方式申请免费计算资源。AWS的工作人员将尽快审批每份申请。需要注意的是，工作人员不能保证每份申请都能够被批准：提供真实、准确、详细的信息将有助于申请获批。在计算资源上配置环境并运行本书内容的方法可参考：[使用AWS运行代码](http://zh.d2l.ai/chapter_appendix/aws.html)（必读），以及[获取和运行本书的代码](http://zh.d2l.ai/chapter_prerequisite/install.html)和[使用Jupyter记事本](http://zh.d2l.ai/chapter_appendix/jupyter.html)（选读）。
+如果你是学习或教学《动手学深度学习》的在校学生或老师，可通过以下方式申请免费计算资源。AWS的工作人员将尽快审批每份申请。需要注意的是，工作人员不能保证每份申请都能够被批准：提供真实、准确、详细的信息将有助于申请获批。在计算资源上配置环境并运行本书内容的方法可参考：[使用AWS运行代码](../chapter_appendix/aws.html)（必读），以及[获取和运行本书的代码](../chapter_prerequisite/install.html)和[使用Jupyter记事本](../chapter_appendix/jupyter.html)（选读）。
 
 
 ## 用于学习
