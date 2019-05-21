@@ -2,7 +2,7 @@
 
 [![Build Status](http://ci.d2l.ai/job/d2l-zh/job/master/badge/icon)](http://ci.d2l.ai/job/d2l-zh/job/master/)  
 
-![预购](https://imgur.com/hLrj1It)]
+![预购](https://imgur.com/hLrj1It)
 
 
 [本书网址：zh.d2l.ai](https://zh.d2l.ai/)
