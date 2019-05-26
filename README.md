@@ -4,7 +4,7 @@
 
 ## 限时活动：在知乎，邂逅李沐，赢取赠书
 
-![![](https://pic3.zhimg.com/80/v2-bdaaf0f600a721cb1bb3a3a2fb280762_hd.jpg)](https://zhuanlan.zhihu.com/p/66976108)
+[![](https://pic3.zhimg.com/80/v2-bdaaf0f600a721cb1bb3a3a2fb280762_hd.jpg)](https://zhuanlan.zhihu.com/p/66976108)
 
 
 [本书网址：zh.d2l.ai](https://zh.d2l.ai/)
