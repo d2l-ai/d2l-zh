@@ -8,6 +8,12 @@
 
 [如何安装和使用书中源代码](http://zh.d2l.ai/chapter_prerequisite/install.html)
 
+
+## What's New
+
+《动手学深度学习》上市两周已重印8000册。为了感谢大家对纸质书的支持，我们计划在6月29日（周六）上午直播《动手学深度学习》番外篇（第20课）：深度学习中注意力机制的新进展。具体时间和参与方式会在本页面更新。
+
+
 ## 英文版 *Dive into Deep Learning*
 
 加州大学伯克利分校 2019 年春学期 *Introduction to Deep Learning* 课程教材。
