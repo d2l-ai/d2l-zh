@@ -2,11 +2,7 @@
 
 [![Build Status](http://ci.d2l.ai/job/d2l-zh/job/master/badge/icon)](http://ci.d2l.ai/job/d2l-zh/job/master/)  
 
-[本书网址：zh.d2l.ai](https://zh.d2l.ai/)
-
-[1.0.0版rc0发布](https://github.com/d2l-ai/d2l-zh/releases/tag/v1.0.0-rc0)
-
-[如何安装和使用书中源代码](http://zh.d2l.ai/chapter_prerequisite/install.html)
+[本书网址：zh.d2l.ai](https://zh.d2l.ai/) | [1.0.0版rc0发布](https://github.com/d2l-ai/d2l-zh/releases/tag/v1.0.0-rc0) | [如何安装和使用书中源代码](http://zh.d2l.ai/chapter_prerequisite/install.html)
 
 
 ## What's New
