@@ -41,6 +41,7 @@ def f(x):
 
 d2l.set_figsize((4.5, 2.5))
 x = np.arange(-1.0, 2.0, 0.1)
+# 逗号表示只取返回列表中的第一个元素
 fig,  = d2l.plt.plot(x, f(x))
 fig.axes.annotate('local minimum', xy=(-0.3, -0.25), xytext=(-0.77, -1.0),
                   arrowprops=dict(arrowstyle='->'))
