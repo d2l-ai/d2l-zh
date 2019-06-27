@@ -7,7 +7,7 @@
 
 ## 本周直播番外篇+赠全彩精装版（详情点击下方图片）
 
-[![](https://discuss.gluon.ai/uploads/default/original/2X/e/e2824b57b258096203969cfc50622d4f3752f134.jpeg)](https://zhuanlan.zhihu.com/p/71083285)
+[![](https://pic1.zhimg.com/80/v2-acf5fcf3cbe5172df78cb02fa548b7ac_hd.jpg)](https://zhuanlan.zhihu.com/p/71083285)
 
 
 ## 英文版 *Dive into Deep Learning*
