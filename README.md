@@ -5,9 +5,9 @@
 [本书网址：zh.d2l.ai](https://zh.d2l.ai/) | [1.0.0版rc0发布](https://github.com/d2l-ai/d2l-zh/releases/tag/v1.0.0-rc0) | [如何安装和使用书中源代码](http://zh.d2l.ai/chapter_prerequisite/install.html)
 
 
-## 直播番外篇+赠全彩精装版
+## 本周直播番外篇+赠全彩精装版（详情点击下方图片）
 
-纸质书上架4周已重印2次，累计3万+册。为了感谢大家的支持，我们计划在北京时间6月29日（周六）上午10点直播《动手学深度学习》番外篇（第20课）：深度学习中的注意力机制。参与者有机会获得全彩精装版赠书。参与方式及详情点[这里](https://mp.weixin.qq.com/s/A-dqF38yCyzAdmIwqTLMmQ)。
+[![](https://discuss.gluon.ai/uploads/default/optimized/2X/e/e2824b57b258096203969cfc50622d4f3752f134_2_1380x780.jpeg)](https://zhuanlan.zhihu.com/p/71083285)
 
 
 ## 英文版 *Dive into Deep Learning*
