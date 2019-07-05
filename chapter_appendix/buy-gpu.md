@@ -18,8 +18,7 @@ GPU的性能主要由以下3个参数构成。
 2. 显存大小。当模型越大或者训练时的批量越大时，所需要的显存就越多。
 3. 显存带宽。只有当显存带宽足够时才能充分发挥计算能力。
 
-对大部分用户来说，只要考虑计算能力就可以了。NVIDIA为旗下GPU提供了[算力查询](https://developer.nvidia.com/cuda-gpus)，下图是NVIDIA GeForce系列产品的部分算力表。   
-![](https://i.imgur.com/GKTzaoZ.png)
+对大部分用户来说，只要考虑计算能力就可以了。NVIDIA为旗下GPU提供了[算力查询](https://developer.nvidia.com/cuda-gpus)，用户可自行参考。  
 
 显存尽量不小于4 GB，但如果GPU要同时显示图形界面，那么推荐的显存大小至少为6 GB。显存带宽通常相对固定，选择空间较小。
 
