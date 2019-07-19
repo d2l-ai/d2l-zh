@@ -1,13 +1,14 @@
-# 可分解注意力模型用于自然语言推理
+#  可分解注意力模型用于自然语言推理
 
-在上一节中，我们讲到了自然语言推理（Natural language inference）任务，即判断两个句子（分别称为前提句与假设句）之间的推理关系（蕴含、矛盾、中性）。
+在上一节中，我们讲到了自然语言推理任务，即判断两个句子（分别称为前提句与假设句）之间的推理关系（蕴含、矛盾、中性）。
 
-本节将介绍自然语言推断的经典工作：可分解注意力模型（The decomposable attention model）[1]。
+本节将介绍自然语言推理的经典工作：可分解注意力模型（decomposable attention model）[1]。
 
 首先导入实验所需的包和模块。
 
 ```{.python .input  n=2}
 import d2lzh as d2l
+import mxnet as mx
 from mxnet import gluon, init, np, npx
 from mxnet.contrib import text
 from mxnet.gluon import data as gdata, loss as gloss, nn
@@ -23,28 +24,25 @@ npx.set_np()
 - Bob is awake.
 - It is sunny outside.
 
-我们可以很容易得出结论，第二句包含在第一句之中，这是由于cannot sleep和awake具有同等含义。同样的，由于thunder and lightning与sunny互斥，可以推断出第一句和第三句矛盾。
+我们可以很容易得出结论，第二句包含在第一句之中，这是由于cannot sleep和awake具有同等含义。同样的，由于thunder and lightning与sunny互斥，可以推理出第一句和第三句矛盾。
 
 由此我们自然可以想到一个办法，可以把原问题分解开，看成词间的对齐问题。即先找到词间的对齐关系，再通过这些对齐后的词对，来判断两句子间的关系。
 
-### Attend
+### 注意（attend）
 
-在Attend过程中，我们分别输入两句话由词表征得到的矩阵， $ A = (a_1,\ldots,a_{l_A}) $ 和 $B = (b_1,\ldots,b_{l_B})$
+在注意过程中，我们分别输入两句话由词表征得到的矩阵， $ A = (a_1,\ldots,a_{l_A}) $ 和 $B = (b_1,\ldots,b_{l_B})$。
 
-在之前 Attention Mechanism 章节提到，注意力机制在seq2seq模型中，可以学习到目标序列中的标记与源序列中的标记之间的密切关系。所以我们也可以使用注意力机制来学习这种词的对齐关系。
+在之前注意力机制章节提到，注意力机制在seq2seq模型中，可以学习到目标序列中的标记与源序列中的标记之间的密切关系。所以我们也可以使用注意力机制来学习这种词的对齐关系。
 
 首先我们需要分别计算$ {a_1,\ldots,a_{l_A}} $ 与 ${b_1,\ldots,b_{l_B}}$ 任意两个词之间未经过归一化的注意力权重矩阵 $ e $。即分别将 $ a_i $ 和 $ b_j $通过前馈网络变换后，再计算内积注意力。
 
 $$
 e_{ij} = F(a_i)^\top F(b_j)
 $$
-下面我们需要对句子$A$进行软对齐操作。
+下面我们需要对句子$A$进行操作，此时$ \beta_i $ 为B中与$ a_i $相对应的对齐词表示。通俗来说，是将$ a_i $这个词通过$(b_1,\ldots,b_{l_B})$加权组合得到。这种操作叫做软对齐。同样的，也需要对句子$B$进行这种软对齐操作。
 $$
 \beta_i = \sum_{j=1}^{l_B}\frac{\exp(e_{i j})}{ \sum_{k=1}^{l_B} \exp(e_{i k})} b_j,
 $$
-值得注意的是，此时$ \beta_i $ 为B中与$ a_i $相对应的对齐词表示。通俗来说，是将$ a_i $这个词通过$(b_1,\ldots,b_{l_B})$加权组合得到。
-
-同样的，我们也需要对句子$B$进行软对齐操作。
 $$
 \alpha_j = \sum_{i=1}^{l_A}\frac{\exp(e_{i j})}{ \sum_{k=1}^{l_A} \exp(e_{k j})} a_i,
 $$
@@ -54,15 +52,18 @@ $$
 def _ff_layer(in_units, out_units, dropout_layer, flatten=True):
         m = nn.HybridSequential()
         m.add(0.2)
-        m.add(nn.Dense(out_units, in_units=in_units, activation='relu', flatten=flatten))
+        m.add(nn.Dense(out_units, in_units=in_units, activation='relu', 
+                       flatten=flatten))
         m.add(0.2)
-        m.add(nn.Dense(out_units, in_units=out_units, activation='relu', flatten=flatten))
+        m.add(nn.Dense(out_units, in_units=out_units, activation='relu', 
+                       flatten=flatten))
         return m
     
 class Attend(gluon.HybridBlock):
     def __init__(self, hidden_size, **kwargs):
         super(Attend, self).__init__(**kwargs)
-        self.f = _ff_layer(in_units=hidden_size, out_units=hidden_size, flatten=False)
+        self.f = _ff_layer(in_units=hidden_size, out_units=hidden_size, 
+                           flatten=False)
             
     def forward(self, a, b):
         # 分别将两个句子通过前馈神经网络，维度为(批量大小, 句子长度, 隐藏单元数目)
@@ -73,7 +74,7 @@ class Attend(gluon.HybridBlock):
         # 对句子A进行软对齐操作，将句子B对齐到句子A。
         # beta维度为(批量大小, 句子1长度, 隐藏单元数目)
         beta = np.batch_dot(e.softmax(), b)
-        #对句子B进行软对齐操作，将句子A对齐到句子B。
+        # 对句子B进行软对齐操作，将句子A对齐到句子B。
         # alpha维度为(批量大小, 句子2长度, 隐藏单元数目)
         alpha = np.batch_dot(e.transpose([0, 2, 1]).softmax(), a)
         return beta, alpha
@@ -81,13 +82,12 @@ class Attend(gluon.HybridBlock):
 
 经过了这一步，我们就将问题转化成了对齐后词对的比较问题。
 
-### Compare
+### 比较（compare）
 
-在Compare过程中，要比较每个对齐后的词。我们需要拼接每一个词$a_i$和其对齐词表示$\beta_i$，然后使用一个前馈网络进行变换。我们将变换后的向量称为比较向量。
+在比较过程中，要比较每个对齐后的词。我们需要拼接每一个词$a_i$和其对齐词表示$\beta_i$，然后使用一个前馈网络进行变换。我们将变换后的向量称为比较向量。同样的，也对每一个短语$b_i$和其对齐短语表示$\alpha_i$进行同样的操作。
 $$
 v_{1,i} = G([a_i, \beta_i])
 $$
-同样的，对每一个短语$b_i$和其对齐短语表示$\alpha_i$进行同样的操作。
 $$
 v_{2,j} = G([b_i, \alpha_i])
 $$
@@ -96,7 +96,8 @@ $$
 class Compare(gluon.Block):
     def __init__(self, hidden_size, **kwargs):
         super(Compare, self).__init__(**kwargs)
-        self.g = _ff_layer(in_units=hidden_size * 2, out_units=hidden_size, flatten=False)
+        self.g = _ff_layer(in_units=hidden_size * 2, out_units=hidden_size, 
+                           flatten=False)
 
     def forward(self, a, b, beta, alpha):
         # 拼接每一个词和其对齐词表示，并通过前馈神经网络。
@@ -107,7 +108,7 @@ class Compare(gluon.Block):
 ```
 
 
-### Aggregate
+### 合并（aggregate）
 
 现在我们有两个比较向量的集合，在一步中，我们需要将比较向量的集合转化为句子的表示向量。比较容易的办法是对每个集合中的向量取平均作为句子的表示向量。
 
@@ -128,8 +129,9 @@ $$
 class Aggregate(gluon.Block):
     def __init__(self, hidden_size, num_class, **kwargs):
         super(Aggregate, self).__init__(**kwargs)
-        self.h = _ff_layer(in_units=hidden_size * 2, out_units=hidden_size, flatten=True)
-		self.h.add(nn.Dense(num_class, in_units=hidden_size))
+        self.h = _ff_layer(in_units=hidden_size * 2, out_units=hidden_size, 
+                           flatten=True)
+        self.h.add(nn.Dense(num_class, in_units=hidden_size))
             
     def forward(self, feature1, feature2):
         # 对每个集合中的向量取平均作为句子的表示向量。
@@ -163,11 +165,11 @@ class DecomposableAttention(gluon.Block):
         
         a = self.lin_proj(self.embedding(sentence1))
         b = self.lin_proj(self.embedding(sentence2))
-        # Attend过程
+        # 注意（Attend）过程
         beta, alpha = self.attend(a ,b)
-        # Compare过程
+        # 比较（Compare）过程
         v1, v2 = self.compare(a, b, beta, alpha)
-        # Aggregate过程
+        # 合并（Aggregate）过程
         yhat = self.aggregate(v1, v2)
         return yhat
 ```
@@ -177,12 +179,10 @@ class DecomposableAttention(gluon.Block):
 ```{.python .input}
 d2l.download_snli(data_dir='../data')
 train_set = d2l.SNLIDataset("train", 50)
-dev_set = d2l.SNLIDataset("dev", 50, train_set.vocab)
 test_set = d2l.SNLIDataset("test", 50, train_set.vocab)
 
 batch_size = 64
 train_iter = gdata.DataLoader(train_set, batch_size, shuffle=True)
-dev_iter = gdata.DataLoader(dev_set, batch_size)
 test_iter = gdata.DataLoader(test_set, batch_size)
 ```
 
@@ -203,18 +203,18 @@ glove_embedding = text.embedding.create(
 net.embedding.weight.set_data(glove_embedding.idx_to_vec)
 ```
 
-我们对“9.1. 图像增广”一节中定义的_get_batch函数略作修改，这个函数将小批量数据样本batch划分并复制到ctx变量所指定的各个显存上。
+我们对“图像增广”一节中定义的_get_batch函数略作修改，这个函数将小批量数据样本batch划分并复制到ctx变量所指定的各个显存上。
 
 ```{.python .input}
 # Save to the d2l package.
 def _get_batch_snli(batch, ctx):
-    feature1, feature2, labels = batch
-    return (gutils.split_and_load(feature1, ctx),
-            gutils.split_and_load(feature2, ctx),
-            gutils.split_and_load(labels, ctx), feature1.shape[0])
+    premises, hypotheses, labels = batch
+    return (gutils.split_and_load(premises, ctx),
+            gutils.split_and_load(hypotheses, ctx),
+            gutils.split_and_load(labels, ctx), premises.shape[0])
 ```
 
-同样地，我们对“9.1. 图像增广”一节中定义的evaluate_accuracy也略作修改。
+同样地，我们对“图像增广”一节中定义的evaluate_accuracy也略作修改。
 
 ```{.python .input}
 # Save to the d2l package.
@@ -232,7 +232,7 @@ def evaluate_accuracy_snli(data_iter, net, ctx=[mx.cpu()]):
     return acc_sum.asscalar() / n
 ```
 
-接下来，我们修改“9.1. 图像增广”一节中定义的train函数，使用多GPU训练并评价模型。
+接下来，我们修改“图像增广”一节中定义的train函数，使用多GPU训练并评价模型。
 
 ```{.python .input}
 # Save to the d2l package.
@@ -243,7 +243,7 @@ def train_snli(train_iter, dev_iter, net, loss, trainer, ctx, num_epochs):
     for epoch in range(num_epochs):
         train_l_sum, train_acc_sum, n, m, start = 0.0, 0.0, 0, 0, time.time()
         for i, batch in enumerate(train_iter):
-            X1s, X2s, ys, batch_size = _get_batch(batch, ctx)
+            X1s, X2s, ys, batch_size = _get_batch_snli(batch, ctx)
             ls = []
             with autograd.record():
                 y_hats = [net(X1, X2) for X1, X2 in zip(X1s, X2s)]
@@ -278,14 +278,14 @@ train_snli(train_iter, dev_iter, net, loss, trainer, ctx, num_epochs)
 
 ```{.python .input  n=30}
 # Save to the d2l package.
-def predict_snli(net, sentence1, sentence2):
-    sentence1 = np.array(vocab.to_indices(sentence1), ctx=d2l.try_gpu())
-    sentence2 = np.array(vocab.to_indices(sentence2), ctx=d2l.try_gpu())
-    label = np.argmax(net(sentence1.reshape((1, -1)), sentence2.reshape((1, -1))), axis=1)
+def predict_snli(net, premise, hypothesis):
+    premise = np.array(vocab.to_indices(premise), ctx=d2l.try_gpu())
+    hypothesis = np.array(vocab.to_indices(hypothesis), ctx=d2l.try_gpu())
+    label = np.argmax(net(premise.reshape((1, -1)), hypothesis.reshape((1, -1))), axis=1)
     return 'neutral' if label.asscalar() == 0 else 'contradiction' if label.asscalar() == 1 else 'entailment'
 ```
 
-下面使用训练好的模型对两个简单句子间的关系进行推断。
+下面使用训练好的模型对两个简单句子间的关系进行推理。
 
 ```{.python .input  n=30}
 predict_snli(net,
@@ -305,7 +305,7 @@ Compare过程共需要$O(l)$次通过单层全连接层变换，故该过程的�
 ## 小结
 
 * 可以使用注意力机制实现词的软对齐。
-* The decomposable attention model 将自然语言推断问题转化成了对齐后词对的比较问题。
+* 可分解注意力模型将自然语言推理问题转化成了对齐后词对的比较问题。
 
 
 ## 参考文献
