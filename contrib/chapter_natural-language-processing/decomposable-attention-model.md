@@ -9,9 +9,11 @@
 ```{.python .input  n=2}
 import d2lzh as d2l
 import mxnet as mx
-from mxnet import gluon, init, np, npx
+import time
+
+from mxnet import autograd, gluon, init, np, npx
 from mxnet.contrib import text
-from mxnet.gluon import data as gdata, loss as gloss, nn
+from mxnet.gluon import data as gdata, loss as gloss, nn, utils as gutils
 
 npx.set_np()
 ```
@@ -49,12 +51,12 @@ $$
 
 ```{.python .input}
 # 定义前馈神经网络
-def _ff_layer(in_units, out_units, dropout_layer, flatten=True):
+def _ff_layer(in_units, out_units, flatten=True):
         m = nn.HybridSequential()
-        m.add(0.2)
+        m.add(nn.Dropout(0.2))
         m.add(nn.Dense(out_units, in_units=in_units, activation='relu', 
                        flatten=flatten))
-        m.add(0.2)
+        m.add(nn.Dropout(0.2))
         m.add(nn.Dense(out_units, in_units=out_units, activation='relu', 
                        flatten=flatten))
         return m
@@ -178,8 +180,8 @@ class DecomposableAttention(gluon.Block):
 
 ```{.python .input}
 d2l.download_snli(data_dir='../data')
-train_set = d2l.SNLIDataset("train", 50)
-test_set = d2l.SNLIDataset("test", 50, train_set.vocab)
+train_set = d2l.SNLIDataset("train")
+test_set = d2l.SNLIDataset("test", train_set.vocab)
 
 batch_size = 64
 train_iter = gdata.DataLoader(train_set, batch_size, shuffle=True)
@@ -190,7 +192,7 @@ test_iter = gdata.DataLoader(test_set, batch_size)
 
 ```{.python .input}
 embed_size, hidden_size, ctx = 100, 100, d2l.try_all_gpus()
-net = DecomposableAttention(len(vocab), embed_size, hidden_size)
+net = DecomposableAttention(len(train_set.vocab), embed_size, hidden_size)
 net.initialize(init.Xavier(), ctx=ctx)
 ```
 ### 训练模型
@@ -199,7 +201,7 @@ net.initialize(init.Xavier(), ctx=ctx)
 
 ```{.python .input}
 glove_embedding = text.embedding.create(
-    'glove', pretrained_file_name='glove.6B.100d.txt', vocabulary=vocab)
+    'glove', pretrained_file_name='glove.6B.100d.txt', vocabulary=train_set.vocab)
 net.embedding.weight.set_data(glove_embedding.idx_to_vec)
 ```
 

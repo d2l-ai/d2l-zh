@@ -29,10 +29,11 @@
 在本书中，我们将使用斯坦福大学自然语言推理数据集。为了更好地了解这个数据集，我们先导入实验所需的包或模块。
 
 ```{.python .input  n=2}
-import d2lzh as d2l
-from mxnet import gluon, init, np, npx
+import collections
+import os
+from mxnet import np, npx
 from mxnet.contrib import text
-from mxnet.gluon import data as gdata, loss as gloss, nn
+from mxnet.gluon import data as gdata, utils as gutils
 import zipfile
 
 npx.set_np()
@@ -127,9 +128,9 @@ class SNLIDataset(gdata.Dataset):
             return x[:self.max_len] if len(x) > self.max_len \
                                     else x + [0] * (self.max_len - len(x))
 
-        premise = nd.array([pad(vocab.to_indices(x[0])) for x in data])
-        hypothesis = nd.array([pad(vocab.to_indices(x[1])) for x in data])
-        labels = nd.array([LABEL_TO_IDX[x[2]] for x in data])
+        premise = np.array([pad(vocab.to_indices(x[0])) for x in data])
+        hypothesis = np.array([pad(vocab.to_indices(x[1])) for x in data])
+        labels = np.array([LABEL_TO_IDX[x[2]] for x in data])
         return premise, hypothesis, labels
 
     def __getitem__(self, idx):
