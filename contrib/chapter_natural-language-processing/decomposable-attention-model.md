@@ -72,13 +72,13 @@ class Attend(gluon.HybridBlock):
         tilde_a = self.f(a)
         tilde_b = self.f(b)
         # 计算注意力打分e，维度为(批量大小, 句子1长度, 句子2长度)
-        e = np.batch_dot(tilde_a, tilde_b, transpose_b=True)
+        e = npx.batch_dot(tilde_a, tilde_b, transpose_b=True)
         # 对句子A进行软对齐操作，将句子B对齐到句子A。
         # beta维度为(批量大小, 句子1长度, 隐藏单元数目)
-        beta = np.batch_dot(e.softmax(), b)
+        beta = npx.batch_dot(npx.softmax(e), b)
         # 对句子B进行软对齐操作，将句子A对齐到句子B。
         # alpha维度为(批量大小, 句子2长度, 隐藏单元数目)
-        alpha = np.batch_dot(e.transpose([0, 2, 1]).softmax(), a)
+        alpha = npx.batch_dot(npx.softmax(e.transpose(0, 2, 1)), a)
         return beta, alpha
 ```
 
@@ -103,8 +103,8 @@ class Compare(gluon.Block):
 
     def forward(self, a, b, beta, alpha):
         # 拼接每一个词和其对齐词表示，并通过前馈神经网络。
-        v1 = self.g(np.concatenate(a, beta, axis=2))
-        v2 = self.g(np.concatenate(b, alpha, axis=2))
+        v1 = self.g(np.concatenate([a, beta], axis=2))
+        v2 = self.g(np.concatenate([b, alpha], axis=2))
         
         return v1, v2
 ```
@@ -140,7 +140,7 @@ class Aggregate(gluon.Block):
         feature1 = feature1.sum(axis=1)
         feature2 = feature2.sum(axis=1)
         # 拼接每个句子的表示，使用前馈网络进行分类。
-        yhat = self.h(np.concatenate(feature1, feature2, axis=1))
+        yhat = self.h(np.concatenate([feature1, feature2], axis=1))
         return yhat
 ```
 
@@ -213,7 +213,7 @@ def _get_batch_snli(batch, ctx):
     premises, hypotheses, labels = batch
     return (gutils.split_and_load(premises, ctx),
             gutils.split_and_load(hypotheses, ctx),
-            gutils.split_and_load(labels, ctx), premises.shape[0])
+            gutils.split_and_load(labels.astype('float32'), ctx), premises.shape[0])
 ```
 
 同样地，我们对“图像增广”一节中定义的evaluate_accuracy也略作修改。
@@ -225,13 +225,13 @@ def evaluate_accuracy_snli(data_iter, net, ctx=[mx.cpu()]):
         ctx = [ctx]
     acc_sum, n = np.array([0]), 0
     for batch in data_iter:
-        X1s, X2s, ys, batch_size = _get_batch(batch, ctx)
+        X1s, X2s, ys, batch_size = _get_batch_snli(batch, ctx)
         for X1, X2, y in zip(X1s, X2s, ys):
             y = y.astype('float32')
             acc_sum += (net(X1, X2).argmax(axis=1) == y).sum().copyto(mx.cpu())
             n += y.size
         acc_sum.wait_to_read()
-    return acc_sum.asscalar() / n
+    return acc_sum / n
 ```
 
 接下来，我们修改“图像增广”一节中定义的train函数，使用多GPU训练并评价模型。
@@ -253,9 +253,9 @@ def train_snli(train_iter, dev_iter, net, loss, trainer, ctx, num_epochs):
             for l in ls:
                 l.backward()
             trainer.step(batch_size)
-            train_l_sum += sum([l.sum().asscalar() for l in ls])
+            train_l_sum += sum([l.sum() for l in ls])
             n += sum([l.size for l in ls])
-            train_acc_sum += sum([(y_hat.argmax(axis=1) == y).sum().asscalar()
+            train_acc_sum += sum([(y_hat.argmax(axis=1) == y).sum()
                                  for y_hat, y in zip(y_hats, ys)])
             m += sum([y.size for y in ys])
         test_acc = evaluate_accuracy_snli(dev_iter, net, ctx)
@@ -281,10 +281,10 @@ train_snli(train_iter, dev_iter, net, loss, trainer, ctx, num_epochs)
 ```{.python .input  n=30}
 # Save to the d2l package.
 def predict_snli(net, premise, hypothesis):
-    premise = np.array(vocab.to_indices(premise), ctx=d2l.try_gpu())
-    hypothesis = np.array(vocab.to_indices(hypothesis), ctx=d2l.try_gpu())
+    premise = np.array(train_set.vocab.to_indices(premise), ctx=d2l.try_gpu())
+    hypothesis = np.array(train_set.vocab.to_indices(hypothesis), ctx=d2l.try_gpu())
     label = np.argmax(net(premise.reshape((1, -1)), hypothesis.reshape((1, -1))), axis=1)
-    return 'neutral' if label.asscalar() == 0 else 'contradiction' if label.asscalar() == 1 else 'entailment'
+    return 'neutral' if label == 0 else 'contradiction' if label == 1 else 'entailment'
 ```
 
 下面使用训练好的模型对两个简单句子间的关系进行推理。
