@@ -52,20 +52,19 @@ $$
 ```{.python .input}
 # 定义前馈神经网络
 def _ff_layer(in_units, out_units, flatten=True):
-        m = nn.HybridSequential()
+        m = nn.Sequential()
         m.add(nn.Dropout(0.2))
-        m.add(nn.Dense(out_units, in_units=in_units, activation='relu', 
+        m.add(nn.Dense(out_units, activation='relu', 
                        flatten=flatten))
         m.add(nn.Dropout(0.2))
         m.add(nn.Dense(out_units, in_units=out_units, activation='relu', 
                        flatten=flatten))
         return m
     
-class Attend(gluon.HybridBlock):
+class Attend(gluon.Block):
     def __init__(self, hidden_size, **kwargs):
         super(Attend, self).__init__(**kwargs)
-        self.f = _ff_layer(in_units=hidden_size, out_units=hidden_size, 
-                           flatten=False)
+        self.f = _ff_layer(out_units=hidden_size, flatten=False)
             
     def forward(self, a, b):
         # 分别将两个句子通过前馈神经网络，维度为(批量大小, 句子长度, 隐藏单元数目)
@@ -98,8 +97,7 @@ $$
 class Compare(gluon.Block):
     def __init__(self, hidden_size, **kwargs):
         super(Compare, self).__init__(**kwargs)
-        self.g = _ff_layer(in_units=hidden_size * 2, out_units=hidden_size, 
-                           flatten=False)
+        self.g = _ff_layer(out_units=hidden_size, flatten=False)
 
     def forward(self, a, b, beta, alpha):
         # 拼接每一个词和其对齐词表示，并通过前馈神经网络。
@@ -131,8 +129,7 @@ $$
 class Aggregate(gluon.Block):
     def __init__(self, hidden_size, num_class, **kwargs):
         super(Aggregate, self).__init__(**kwargs)
-        self.h = _ff_layer(in_units=hidden_size * 2, out_units=hidden_size, 
-                           flatten=True)
+        self.h = _ff_layer(out_units=hidden_size, flatten=True)
         self.h.add(nn.Dense(num_class, in_units=hidden_size))
             
     def forward(self, feature1, feature2):
@@ -157,16 +154,14 @@ class DecomposableAttention(gluon.Block):
         
         with self.name_scope():
             self.embedding = nn.Embedding(vocab_size, word_embed_size)
-            self.lin_proj = nn.Dense(hidden_size, in_units=word_embed_size,
-                                     flatten=False, use_bias=False)
             self.attend = Attend(hidden_size)
             self.compare = Compare(hidden_size)
             self.aggregate = Aggregate(hidden_size, 3)
         
     def forward(self, sentence1, sentence2):
         
-        a = self.lin_proj(self.embedding(sentence1))
-        b = self.lin_proj(self.embedding(sentence2))
+        a = self.embedding(sentence1)
+        b = self.embedding(sentence2)
         # 注意（Attend）过程
         beta, alpha = self.attend(a ,b)
         # 比较（Compare）过程
