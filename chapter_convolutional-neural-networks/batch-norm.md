@@ -96,7 +96,7 @@ class BatchNorm(nn.Block):
             shape = (1, num_features)
         else:
             shape = (1, num_features, 1, 1)
-        # 参与求梯度和迭代的拉伸和偏移参数，分别初始化成0和1
+        # 参与求梯度和迭代的拉伸和偏移参数，分别初始化成1和0
         self.gamma = self.params.get('gamma', shape=shape, init=init.One())
         self.beta = self.params.get('beta', shape=shape, init=init.Zero())
         # 不参与求梯度和迭代的变量，全在内存上初始化成0
