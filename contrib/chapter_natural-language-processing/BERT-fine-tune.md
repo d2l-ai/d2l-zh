@@ -6,130 +6,50 @@
 ## 下游任务接入方式
 在获得训练好的BERT后，最终只需在BERT的输出层上加简单的多层感知机或线性分类器即可。
 
-对于单句分类任务，直接取“[CLS]”位置的输出表示作为下游任务的输入。
+
+
+### 单句分类任务
+
+单句分类任务如情感分析、文本分类。
+
+> 输入：This movie is great. 
+> 标签：积极
+
+直接取“[CLS]”位置的输出表示接入全连接层作为输出。
+
 【图】
-对于句对分类任务，将两个句子拼接，取“[CLS]”位置的输出表示作为下游任务的输入。
+
+### 句对分类任务
+
+句对分类任务如自然语言推理。
+
+> 前提：Two blond women are hugging one another.
+> 假设：There are women showing affection.
+> 关系：蕴含 （展示爱意可以由互相拥抱推理得出）
+
+需要将两个句子拼接，在每个句子的结束位置加入“[SEP]”标记，最终取“[CLS]”位置的输出表示接入全连接层作为输出。
+
 【图】
+
+### 问答任务
+
+问答是指给定问题和描述文本，这是从描述文本中找到答案。
 对于问答这种抽取式任务，取第二个句子每个位置的输出表示作为下游任务的输入。
+
+> 文本：Input_0: KDD 2019 is held in Anchorage
+> 问题: Where is KDD held
+> 输出: 在文本中标定“Anchorage”
+
 【图】
-对于序列标注任务，取除了“[CLS]”位置外其他位置的输出表示作为下游任务的输入。
+
+### 序列标注任务
+序列标注任务如命名实体识别，确定一个词是否是命名实体，例如人员，组织和位置。
+
+取除了特殊标记外其他位置的输出表示接入全连接层作为输出。
+
+> 输入: Jim bought 3000 shares of Amazon in 2006.
+> 输出: [person]              [organization] [time]
+
 【图】
-
-## BERT预训练
-在上一节中，我们已经写好了BERT的训练函数，我们首先加载“WikiText-103”数据集，并预处理成BERT所需要的形式，再预训练BERT模型。
-
-```{.python .input  n=2}
-import d2lzh as d2l
-import os
-import collections
-import os
-from mxnet import autograd, gluon, init, np, npx
-from mxnet.contrib import text
-from mxnet.gluon import Block
-from mxnet.gluon import data as gdata, nn, utils as gutils
-import mxnet as mx
-import os
-import random
-import time
-import math
-import zipfile
-
-npx.set_np()
-
-bert_train_set = d2l.WikiDataset(128)
-batch_size, ctx = 16, d2l.try_all_gpus()
-bert_train_iter = gdata.DataLoader(bert_train_set, batch_size, shuffle=True)
-
-bert = d2l.BERTModel(len(bert_train_set.vocab), embed_size=128, hidden_size=512, num_heads=2, num_layers=4, dropout=0.1)
-bert.initialize(init.Xavier(), ctx=ctx)
-nsp_loss = mx.gluon.loss.SoftmaxCELoss()
-mlm_loss = mx.gluon.loss.SoftmaxCELoss()
-
-train(bert_train_iter, bert, nsp_loss, mlm_loss, len(bert_train_set.vocab), ctx, 20, 30)
-```
-
-## 在自然语言推理任务上进行微调
-我们以之前介绍过的自然语言推理任务为例，介绍如何将下游任务接入BERT，并在下游任务上微调BERT模型。
-
-### 数据预处理
-
-自然语言推理任务本质上是个句对分类任务，所以我们需要将前提句和假设句拼接成一个序列，并在序列开始位置加入"[CLS]"，在每个句子结束位置加入“[SEP]”标记，在片段标记中使用0和1区分两个句子。这里可以直接使用上一节中定义的“get_tokens_and_segment”函数
-
-我们加载在“自然语言推理及数据集”章节中所提到的斯坦福大学自然语言推理数据集，并重新定义一个自然语言推理数据集类`SNLIBERTDataset`。
-
-```{.python .input  n=2}
-# Save to the d2l package.
-class SNLIBERTDataset(gdata.Dataset):
-    def __init__(self, dataset, vocab=None):
-        self.dataset = dataset
-        self.max_len = 50 # 将每条评论通过截断或者补0，使得长度变成50
-        self.data = d2l.read_file_snli('snli_1.0_'+ dataset + '.txt')
-        self.vocab = vocab
-        self.tokens, self.segment_ids, self.valid_lengths, self.labels =  \
-                                self.preprocess(self.data, self.vocab)
-        print('read ' + str(len(self.tokens)) + ' examples')
-
-
-    def preprocess(self, data, vocab):
-        LABEL_TO_IDX = {'entailment': 0, 'contradiction': 1, 'neutral': 2}
-
-        def pad(x):
-            return x[:self.max_len] if len(x) > self.max_len \
-                                    else x + [0] * (self.max_len - len(x))
-        
-        tokens, segment_ids, valid_lengths, labels = [], [], [], []
-        
-        for x in data:
-            token, segment_id = d2l.get_tokens_and_segment(x[0][:self.max_len], x[1][:self.max_len])
-            valid_length = len(token)
-            tokens.append(vocab.to_indices(pad(token)))
-            segment_ids.append(np.array(pad(segment_id)))
-            valid_lengths.append(np.array([valid_length]))
-            labels.append(np.array([LABEL_TO_IDX[x[2]]]))
-            
-        return tokens, segment_ids, valid_lengths, labels
-
-    def __getitem__(self, idx):
-        return self.tokens[idx], self.segment_ids[idx], self.valid_lengths[idx], self.labels[idx]
-
-    def __len__(self):
-        return len(self.tokens)
-```
-通过自定义的`SNLIBERTDataset`类来分别创建训练集和测试集的实例。我们指定最大文本长度为50。下面我们可以分别查看训练集和测试集所保留的样本个数。
-
-```{.python .input  n=3}
-train_set = SNLIDataset("train", bert_train_set.vocab)
-test_set = SNLIDataset("test", bert_train_set.vocab)
-```
-设批量大小为64，分别定义训练集和测试集的迭代器。
-
-```{.python .input  n=3}
-batch_size = 64
-train_iter = gdata.DataLoader(train_set, batch_size, shuffle=True)
-test_iter = gdata.DataLoader(test_set, batch_size)
-```
-### 用于微调的分类模型
-
-刚才我们已经训练好了BERT模型，我们只需要附加一个额外的层来进行分类。 BERTClassifier类使用BERT模型对句子表示进行编码，然后使用第一个令牌“[CLS]”的编码通过全连接层进行分类。 
-
-```{.python .input  n=3}
-class BERTClassifier(gluon.nn.Block):
-    def __init__(self, bert, num_classes):
-        super(BERTClassifier, self).__init__()
-        self.bert = bert
-        self.classifier = gluon.nn.Dense(num_classes)
-
-    def forward(self, inputs, segment_types, seq_len):
-        seq_encoding, _, _ = self.bert(inputs, segment_types, seq_len)
-        return self.classifier(seq_encoding[:, 0, :])
-```
-初始化网络时要注意的是我们只需要初始化分类层。 因为BERT是使用已经预训练好的权重。
-
-```{.python .input  n=3}
-loss_fn = gluon.loss.SoftmaxCELoss()
-net = BERTClassifier(bert, 2)
-net.classifier.initialize(ctx=ctx)
-```
-……
 
 

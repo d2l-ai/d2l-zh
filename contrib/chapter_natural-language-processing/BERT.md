@@ -8,11 +8,11 @@
 
 首先导入实验所需的包和模块。
 
-```{.python .input  n=2}
+```{.python .input  n=1}
 import d2lzh as d2l
 import os
 from mxnet import gluon, np, npx
-from mxnet.gluon import Block, nn
+from mxnet.gluon import nn
 
 npx.set_np()
 ```
@@ -35,9 +35,10 @@ BERT的输入支持单个句子或一对句子。分别适用于单句任务（�
 对于一个长度为n的输入序列，我们将有令牌嵌入（n，768）用来表示词，片段嵌入（n，768）用来区分两个句子，位置嵌入（n，768）用来学习到顺序。将这三种嵌入按元素相加，得到一个（n，768）的表示，这一表示就是BERT的输入。
 
 我们修改“Transformer”中的TransformerEncoder方法，加入BERT所需要的令牌嵌入、片段嵌入、位置嵌入。
-```{.python .input  n=2}
+
+```{.python .input  n=14}
 # Save to the d2l package.
-class BERTEncoder(gluon.nn.Block):
+class BERTEncoder(nn.Block):
     def __init__(self, vocab_size, units, hidden_size,
                  num_heads, num_layers, dropout, **kwargs):
         super(BERTEncoder, self).__init__(**kwargs)
@@ -55,21 +56,33 @@ class BERTEncoder(gluon.nn.Block):
             X = blk(X, mask)
         return X
 ```
+
 现在我们模拟一个句对数据输入测试这个TransformerEncoder，每个句子对包含8个单词，使用随机整数代表不同的单词。
 
-```{.python .input  n=2}
+```{.python .input  n=15}
 encoder = BERTEncoder(vocab_size=10000, units=768, hidden_size=1024,
                       num_heads=4, num_layers=2, dropout=0.1)
 encoder.initialize()
 
 num_samples, num_words = 2, 8
 # 随机生成单词用于测试
-words = nd.random.randint(low=0, high=30000, shape=(num_samples, num_words)).as_np_ndarray()
+words = np.array([[24070, 25855, 17552, 25326, 9637, 19443, 25959, 23623],
+ [7129, 24248, 23612, 14431, 1140, 10231, 4587, 11968]])
 # 我们使用0来表示对应单词来自第一个句子，使用1表示对应单词第二个句子。
 segments = np.array([[0,0,0,0,1,1,1,1],[0,0,0,1,1,1,1,1]])
 
 encodings = encoder(words, segments, None)
 print(encodings.shape) # (批量大小, 单词数, 嵌入大小)
+```
+
+```{.json .output n=15}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "(2, 8, 768)\n"
+ }
+]
 ```
 
 ## 预训练任务
@@ -83,9 +96,9 @@ BERT包含两个预训练任务：下一句预测、遮蔽语言模型。
 
 创建遮蔽语言模型的预测模型，模型需要重建被掩蔽的单词，我们使用gather_nd来选择代表遮蔽位置令牌的向量。 然后在它们上通过一个前馈网络，以预测词汇表中所有单词的概率分布。
 
-```{.python .input  n=2}
+```{.python .input  n=16}
 # Save to the d2l package.
-class MaskLMDecoder(gluon.nn.Block):
+class MaskLMDecoder(nn.Block):
     def __init__(self, vocab_size, units, **kwargs):
         super(MaskLMDecoder, self).__init__(**kwargs)
         self.decoder = gluon.nn.Sequential()
@@ -113,7 +126,7 @@ class MaskLMDecoder(gluon.nn.Block):
 
 下面我们生成一些随机单词作为演示标签。 我们使用SoftmaxCrossEntropyLoss作为损失函数。 然后将预测结果和真实标签传递给损失函数。
 
-```{.python .input  n=2}
+```{.python .input  n=17}
 mlm_decoder = MaskLMDecoder(vocab_size=30000, units=768)
 mlm_decoder.initialize()
 
@@ -123,6 +136,16 @@ mlm_pred = mlm_decoder(encodings, mlm_positions) # (批量大小, 遮蔽数目, 
 mlm_loss_fn = gluon.loss.SoftmaxCrossEntropyLoss()
 mlm_loss = mlm_loss_fn(mlm_pred, mlm_label)
 print(mlm_pred.shape, mlm_loss.shape)
+```
+
+```{.json .output n=17}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "(2, 2, 30000) (2,)\n"
+ }
+]
 ```
 
 ### 下一句预测
@@ -138,10 +161,11 @@ print(mlm_pred.shape, mlm_loss.shape)
 
 然后将“[CLS]”标记的输出送入一个单层网络，并使用softmax计算“是下一句”标签的概率，以判断句子是否是当前句子的下一句。使用“[CLS]”是因为Transformer是可以把全局信息编码进每个位置，因此“[CLS]”位置的输出表示可以包含整个输入序列的特征。
 
-我们设计下一句预测任务的模型，我们将编码后的结果传递给NSClassifier以获得下一个句子预测。 
-```{.python .input  n=2}
+我们设计下一句预测任务的模型，我们将编码后的结果传递给NSClassifier以获得下一个句子预测。
+
+```{.python .input  n=18}
 # Save to the d2l package.
-class NextSentenceClassifier(gluon.nn.Block):
+class NextSentenceClassifier(nn.Block):
     def __init__(self, units=768, **kwargs):
         super(NextSentenceClassifier, self).__init__(**kwargs)
         self.classifier = gluon.nn.Sequential()
@@ -155,7 +179,7 @@ class NextSentenceClassifier(gluon.nn.Block):
 
 下一句预测是二分类问题，我们依然使用SoftmaxCrossEntropyLoss作为损失函数。 我们将编码结果传递给NSClassifier以获得下一句预测结果。 我们使用1作为真实下一句的标签，否则使用0。 然后将预测结果和真实标签传递给损失函数。
 
-```{.python .input  n=2}
+```{.python .input  n=19}
 ns_classifier = NextSentenceClassifier()
 ns_classifier.initialize()
 
@@ -166,12 +190,23 @@ ns_loss = ns_loss_fn(ns_pred, ns_label)
 print(ns_pred.shape, ns_loss.shape)
 ```
 
+```{.json .output n=19}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "(2, 2) (2,)\n"
+ }
+]
+```
+
 ## 构建模型
 
 我们将上面的从Transfomer中修改得到的TransformerEncoder，以及下一句任务预测模型、遮蔽语言模型合并到一起，得到BERT模型。
-```{.python .input  n=2}
+
+```{.python .input  n=20}
 # Save to the d2l package.
-class BERTModel(Block):
+class BERTModel(nn.Block):
     def __init__(self, vocab_size=None, embed_size=128, hidden_size=512, num_heads=2, num_layers=4, dropout=0.1):
         super(BERTModel, self).__init__()
         self._vocab_size = vocab_size
@@ -191,7 +226,6 @@ class BERTModel(Block):
         
         return seq_out, next_sentence_classifier_out, mlm_decoder_out
 ```
-
 
 ## 小结
 

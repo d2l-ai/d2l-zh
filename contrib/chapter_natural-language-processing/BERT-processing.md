@@ -7,21 +7,17 @@
 本节所用到的数据集“WikiText-103”语言建模数据集，该数据集是从维基百科上经过验证的优秀和精选文章集中提取的。
 我们首先下载这个数据集。
 
-```{.python .input  n=2}
+```{.python .input  n=1}
 import d2lzh as d2l
 import os
 import collections
-import os
 from mxnet import autograd, gluon, init, np, npx
 from mxnet.contrib import text
-from mxnet.gluon import Block
-from mxnet.gluon import data as gdata, nn, utils as gutils
+from mxnet.gluon import data as gdata, utils as gutils
 from mxnet.gluon.model_zoo import model_store
 import mxnet as mx
-import os
 import random
 import time
-import math
 import zipfile
 
 npx.set_np()
@@ -36,6 +32,7 @@ def download_wiki(data_dir='../data/'):
         
 download_wiki()
 ```
+
 然后我们读取这一数据集。文件的每一行是一段文本，我们只保留大于两个句子的行。
 
 ```{.python .input  n=2}
@@ -59,7 +56,8 @@ train_data = read_wiki()
 ### 下一句预测
 
 下一句预测任务需要在每个训练样本选择句子A和B时，50%的概率B是A真实的下一句，有一半的概率使用来自语料库的随机句子替换句子B。
-```{.python .input  n=2}
+
+```{.python .input  n=3}
 # Save to the d2l package.
 def get_next_sentence(sentence, next_sentence, all_documents):
     # 对于每一个句子，有50%的概率使用真实的下一句
@@ -75,8 +73,10 @@ def get_next_sentence(sentence, next_sentence, all_documents):
         is_next = False
     return tokens_a, tokens_b, is_next
 ```
+
 我们在序列开始位置插入“[CLS]”标记，在每个句子结束位置加入"[SEP]"标记。同时在片段标记中使用0和1区分两个句子。
-```{.python .input  n=2}
+
+```{.python .input  n=4}
 # Save to the d2l package.
 def get_tokens_and_segment(tokens_a, tokens_b):
     tokens = []
@@ -103,7 +103,7 @@ def get_tokens_and_segment(tokens_a, tokens_b):
 
 我们从原始的语料里建立下一句任务的输入，在这里我们舍弃超过最大长度的句子。
 
-```{.python .input  n=2}
+```{.python .input  n=5}
 # Save to the d2l package.
 def create_next_sentence(document, all_documents, vocab, max_length):
     instances = []
@@ -134,8 +134,7 @@ def create_next_sentence(document, all_documents, vocab, max_length):
 
 > my dog is hairy → my dog is hairy
 
-
-```{.python .input  n=2}
+```{.python .input  n=6}
 # Save to the d2l package.
 def choice_mask_tokens(tokens, cand_indexes, num_to_predict, vocab):
     output_tokens = list(tokens)
@@ -166,7 +165,7 @@ def choice_mask_tokens(tokens, cand_indexes, num_to_predict, vocab):
 
 随机遮蔽15%的标记，即允许每个样本中15%的标记被预测。将遮蔽后的序列转换为索引表示，同时返回被遮蔽的位置，以及被遮蔽位置真实标记的索引表示。
 
-```{.python .input  n=2}
+```{.python .input  n=7}
 # Save to the d2l package.
 def create_masked_lm(tokens, vocab):
     
@@ -192,7 +191,8 @@ def create_masked_lm(tokens, vocab):
 
 ### 创建样本集
 我们需要将每个样本填充为等长，同时转换成numpy形式。
-```{.python .input  n=2}
+
+```{.python .input  n=8}
 # Save to the d2l package.
 def convert_numpy(instances, max_length):
     input_ids, segment_ids, masked_lm_positions, masked_lm_ids = [], [], [], []
@@ -224,7 +224,7 @@ def convert_numpy(instances, max_length):
 
 依次调用下一句预测任务数据预处理的方法和遮蔽语言模型数据预处理的方法，用来创建样本集。
 
-```{.python .input  n=2}
+```{.python .input  n=9}
 # Save to the d2l package.
 def create_training_instances(train_data, vocab, max_length):
     instances = []
@@ -239,16 +239,18 @@ def create_training_instances(train_data, vocab, max_length):
     return input_ids, masked_lm_ids, masked_lm_positions, masked_lm_weights,\
            next_sentence_labels, segment_ids, valid_lengths
 ```
+
 ### 自定义数据集类
 我们通过继承Gluon提供的`Dataset`类自定义了一个语言模型数据集类`WikiDataset`。同样可以通过`__getitem__`函数，任意访问数据集中索引为idx的样本。在这个数据集类中，我们读取“WikiText-103”语言建模数据集，分别调用下一句任务的数据生成方法和遮蔽语言模型的数据生成方法创建样本集。
-```{.python .input  n=2}
+
+```{.python .input  n=18}
 # Save to the d2l package.
 class WikiDataset(gdata.Dataset):
     def __init__(self, max_length):
         train_data = read_wiki()
-        self.vocab = self.get_vocab(train_data)
+        self.vocab = self.get_vocab(train_data[:len(train_data)//2])
         self.input_ids, self.masked_lm_ids, self.masked_lm_positions, self.masked_lm_weights,\
-           self.next_sentence_labels, self.segment_ids, self.valid_lengths = create_training_instances(train_data, self.vocab, max_length)
+           self.next_sentence_labels, self.segment_ids, self.valid_lengths = create_training_instances(train_data[:len(train_data)//2], self.vocab, max_length)
 
     def get_vocab(self, data):
         # 过滤出现频度小于5的词
@@ -267,21 +269,37 @@ class WikiDataset(gdata.Dataset):
 ### 读取数据集
 
 通过自定义的`WikiDataset`类来创建数据集的实例。
-```{.python .input  n=2}
+
+```{.python .input  n=11}
 train_set = WikiDataset(128)
 ```
+
 设批量大小为16，定义训练集的迭代器。
-```{.python .input  n=2}
+
+```{.python .input  n=12}
 batch_size = 16
 train_iter = gdata.DataLoader(train_set, batch_size, shuffle=True)
 ```
+
 打印第一个小批量。这里的数据依次是令牌索引、遮蔽词的标签、被遮蔽的位置、被遮蔽位置的权重、下一句任务标签、片段索引以及有效句子长度。
-```{.python .input  n=2}
-for data_batch in enumerate(train_iter):
+
+```{.python .input  n=13}
+for _, data_batch in enumerate(train_iter):
     (input_id, masked_id, masked_position, masked_weight, \
      next_sentence_label, segment_id, valid_length) = data_batch
-    print(input_id, masked_id, masked_position, masked_weight, \
-     next_sentence_label, segment_id, valid_length)
+    print(input_id.shape, masked_id.shape, masked_position.shape, masked_weight.shape, \
+     next_sentence_label.shape, segment_id.shape, valid_length.shape)
+    break
+```
+
+```{.json .output n=13}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "(16, 128) (16, 20) (16, 20) (16, 20) (16,) (16, 128) (16,)\n"
+ }
+]
 ```
 
 ## 模型训练
@@ -292,8 +310,8 @@ for data_batch in enumerate(train_iter):
 我们将上一节中的BERT模型初始化，并设置嵌入层尺寸为100.
 下一句预测任务和遮蔽语言模型任务都使用带有softmax的交叉熵作为损失函数。
 
-```{.python .input  n=2}
-net = d2l.BERTModel(len(train_set.vocab), embed_size=128, hidden_size=512, num_heads=2, num_layers=4, dropout=0.1)
+```{.python .input  n=14}
+net = d2l.BERTModel(len(train_set.vocab), embed_size=64, hidden_size=512, num_heads=2, num_layers=4, dropout=0.1)
 ctx = d2l.try_all_gpus()
 net.initialize(init.Xavier(), ctx=ctx)
 nsp_loss = mx.gluon.loss.SoftmaxCELoss()
@@ -302,31 +320,57 @@ mlm_loss = mx.gluon.loss.SoftmaxCELoss()
 
 ### 训练函数
 _get_batch_bert 这个函数将小批量数据样本batch划分并复制到ctx变量所指定的各个显存上。
-```{.python .input  n=2}
+
+```{.python .input  n=15}
 # Save to the d2l package.
 def _get_batch_bert(batch, ctx):
     (input_id, masked_id, masked_position, masked_weight, \
      next_sentence_label, segment_id, valid_length) = batch
     
-    return (gutils.split_and_load(input_id, ctx),
-            gutils.split_and_load(masked_id, ctx),
-            gutils.split_and_load(masked_position, ctx),
-            gutils.split_and_load(masked_weight, ctx),
-            gutils.split_and_load(next_sentence_label, ctx),
-            gutils.split_and_load(segment_id, ctx),
-            gutils.split_and_load(valid_length.astype('float32'), ctx))
+    return (gutils.split_and_load(input_id, ctx, even_split=False),
+            gutils.split_and_load(masked_id, ctx, even_split=False),
+            gutils.split_and_load(masked_position, ctx, even_split=False),
+            gutils.split_and_load(masked_weight, ctx, even_split=False),
+            gutils.split_and_load(next_sentence_label, ctx, even_split=False),
+            gutils.split_and_load(segment_id, ctx, even_split=False),
+            gutils.split_and_load(valid_length.astype('float32'), ctx, even_split=False))
+```
+
+定义batch_loss函数，计算每个批量的损失。
+
+```{.python .input  n=5}
+def batch_loss_bert(net, nsp_loss, mlm_loss, input_id, masked_id, masked_position, masked_weight, next_sentence_label, segment_id, valid_length, vocab_size):
+    ls = []
+    ls_mlm = []
+    ls_nsp = []
+    for i_id, m_id, m_pos, m_w, nsl, s_i, v_l in zip(input_id, \
+            masked_id, masked_position, masked_weight, \
+            next_sentence_label, segment_id, valid_length):
+        num_masks = m_w.sum() + 1e-8
+        _, classified, decoded = net(i_id, s_i, v_l.reshape(-1),
+                              m_pos)
+        l_mlm = mlm_loss(decoded.reshape((-1, vocab_size)),m_id.reshape(-1), m_w.reshape((-1, 1)))
+        l_nsp = nsp_loss(classified, nsl)
+        l_mlm = l_mlm.sum() / num_masks
+        l_nsp = l_nsp.mean()
+        l = l_mlm + l_nsp
+        ls.append(l)
+        ls_mlm.append(l_mlm)
+        ls_nsp.append(l_nsp)
+        return ls, ls_mlm, ls_nsp
 ```
 
 定义train函数，使用多GPU训练模型。
 
-```{.python .input  n=2}
+```{.python .input  n=6}
 # Save to the d2l package.
-def train_bert(data_eval, model, nsp_loss, mlm_loss, vocab_size, ctx, log_interval, num_epochs):
-    trainer = mx.gluon.Trainer(model.collect_params(), 'adam')
-    for epoch in range(num_epochs):
+def train_bert(data_eval, net, nsp_loss, mlm_loss, vocab_size, ctx, log_interval, max_step):
+    trainer = gluon.Trainer(net.collect_params(), 'adam')
+    step_num = 0
+    while step_num < max_step:
         eval_begin_time = time.time()
         begin_time = time.time()
-        step_num = 0
+        
         running_mlm_loss = running_nsp_loss = 0
         total_mlm_loss = total_nsp_loss = 0
         running_num_tks = 0
@@ -336,23 +380,7 @@ def train_bert(data_eval, model, nsp_loss, mlm_loss, vocab_size, ctx, log_interv
             
             step_num += 1
             with autograd.record():
-                ls = []
-                ls_mlm = []
-                ls_nsp = []
-                for i_id, m_id, m_pos, m_w, nsl, s_i, v_l in zip(input_id, \
-                        masked_id, masked_position, masked_weight, \
-                        next_sentence_label, segment_id, valid_length):
-                    num_masks = m_w.sum() + 1e-8
-                    _, classified, decoded = net(i_id, s_i, v_l.reshape(-1),
-                                          m_pos)
-                    l_mlm = mlm_loss(decoded.reshape((-1, vocab_size)),m_id.reshape(-1), m_w.reshape((-1, 1)))
-                    l_nsp = nsp_loss(classified, nsl)
-                    l_mlm = l_mlm.sum() / num_masks
-                    l_nsp = l_nsp.mean()
-                    l = l_mlm + l_nsp
-                    ls.append(l)
-                    ls_mlm.append(l_mlm)
-                    ls_nsp.append(l_nsp)
+                ls, ls_mlm, ls_nsp = batch_loss_bert(net, nsp_loss, mlm_loss, input_id, masked_id, masked_position, masked_weight, next_sentence_label, segment_id, valid_length, vocab_size)
             for l in ls:
                 l.backward()
             
@@ -378,7 +406,13 @@ def train_bert(data_eval, model, nsp_loss, mlm_loss, vocab_size, ctx, log_interv
                              float(total_nsp_loss)))
         print('Eval cost={:.1f}s'.format(eval_end_time - eval_begin_time))
 ```
-现在就可以训练BERT模型了。我们将在下一节运行BERT模型的预训练及介绍如何接入下游任务。
+
+现在就可以训练BERT模型了。我们在这里运行1步训练来验证训练函数。我们将在下一节完整运行BERT模型的预训练及介绍如何接入下游任务。
+
+```{.python .input}
+train_bert(bert_train_iter, bert, nsp_loss, mlm_loss, len(bert_train_set.vocab), ctx, 20, 1)
+```
+
 
 ## 小结
 
