@@ -7,7 +7,7 @@
 
 ## 英文版 *Dive into Deep Learning*
 
-加州大学伯克利分校 2019 年春学期 *Introduction to Deep Learning* 课程教材（[中文版课件（含教学视频地址）](https://github.com/d2l-ai/berkeley-stat-157/tree/master/slides-zh)）。
+加州大学伯克利分校 2019 年春学期 *Introduction to Deep Learning* 课程教材（[中文版课件（内含教学视频地址）](https://github.com/d2l-ai/berkeley-stat-157/tree/master/slides-zh)）。
 
 开源地址：[https://github.com/d2l-ai/d2l-en](https://github.com/d2l-ai/d2l-en)
 
