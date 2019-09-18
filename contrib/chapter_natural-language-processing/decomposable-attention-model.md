@@ -6,7 +6,7 @@
 
 首先导入实验所需的包和模块。
 
-```{.python .input  n=2}
+```{.python .input  n=1}
 import sys
 sys.path.append('../../..')
 import d2l
@@ -52,7 +52,7 @@ $$
 \alpha_j = \sum_{i=1}^{l_A}\frac{\exp(e_{i j})}{ \sum_{k=1}^{l_A} \exp(e_{k j})} a_i,
 $$
 
-```{.python .input}
+```{.python .input  n=2}
 # 定义前馈神经网络
 def _ff_layer(out_units, flatten=True):
         m = nn.Sequential()
@@ -96,7 +96,7 @@ $$
 v_{2,j} = G([b_i, \alpha_i])
 $$
 
-```{.python .input}
+```{.python .input  n=3}
 class Compare(gluon.Block):
     def __init__(self, hidden_size, **kwargs):
         super(Compare, self).__init__(**kwargs)
@@ -127,7 +127,7 @@ $$
 \hat y = H([v_1,v_2])
 $$
 
-```{.python .input}
+```{.python .input  n=4}
 class Aggregate(gluon.Block):
     def __init__(self, hidden_size, num_class, **kwargs):
         super(Aggregate, self).__init__(**kwargs)
@@ -147,7 +147,7 @@ class Aggregate(gluon.Block):
 
 我们将上面三个过程结合起来。
 
-```{.python .input}
+```{.python .input  n=5}
 class DecomposableAttention(gluon.Block):
     def __init__(self, vocab_size, word_embed_size, hidden_size, **kwargs):
         super(DecomposableAttention, self).__init__(**kwargs)
@@ -175,7 +175,7 @@ class DecomposableAttention(gluon.Block):
 
 ### 读取数据集
 
-```{.python .input}
+```{.python .input  n=6}
 d2l.download_snli(data_dir='../data')
 train_set = d2l.SNLIDataset("train")
 test_set = d2l.SNLIDataset("test", train_set.vocab)
@@ -185,12 +185,39 @@ train_iter = gdata.DataLoader(train_set, batch_size, shuffle=True)
 test_iter = gdata.DataLoader(test_set, batch_size)
 ```
 
+```{.json .output n=6}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "read 549367 examples\nread 9824 examples\n"
+ }
+]
+```
+
 创建这个网络。
 
-```{.python .input}
+```{.python .input  n=7}
 embed_size, hidden_size, ctx = 100, 100, d2l.try_all_gpus()
 net = DecomposableAttention(len(train_set.vocab), embed_size, hidden_size)
 net.initialize(init.Xavier(), ctx=ctx)
+```
+
+```{.python .input  n=8}
+train_set[0]
+```
+
+```{.json .output n=8}
+[
+ {
+  "data": {
+   "text/plain": "((array([3.000e+00, 4.500e+01, 8.000e+00, 2.000e+00, 1.930e+02, 2.050e+02,\n         8.100e+01, 2.000e+00, 1.171e+03, 4.000e+01, 8.220e+02, 1.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00]),\n  array([3.000e+00, 4.500e+01, 5.000e+00, 1.175e+03, 2.100e+01, 1.930e+02,\n         3.800e+01, 2.000e+00, 4.560e+02, 1.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00])),\n array(2.))"
+  },
+  "execution_count": 8,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
 ### 训练模型

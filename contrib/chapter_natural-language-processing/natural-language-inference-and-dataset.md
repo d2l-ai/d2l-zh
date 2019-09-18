@@ -134,7 +134,7 @@ class SNLIDataset(gdata.Dataset):
         return premise, hypothesis, labels
 
     def __getitem__(self, idx):
-        return self.premise[idx], self.hypothesis[idx], self.labels[idx]
+        return (self.premise[idx], self.hypothesis[idx]), self.labels[idx]
 
     def __len__(self):
         return len(self.premise)
@@ -152,7 +152,7 @@ test_set = SNLIDataset("test", train_set.vocab)
 设批量大小为64，分别定义训练集和测试集的迭代器。
 
 ```{.python .input  n=3}
-batch_size = 64
+batch_size = 128
 train_iter = gdata.DataLoader(train_set, batch_size, shuffle=True)
 test_iter = gdata.DataLoader(test_set, batch_size)
 ```
@@ -166,9 +166,9 @@ print('Vocab size:', len(train_set.vocab))
 打印第一个小批量的形状。不同于文本分类任务，这里的数据是个三元组（句子1，句子2，标签）。
 
 ```{.python .input  n=3}
-for X1, X2, Y in train_iter:
-    print(X1.shape)
-    print(X2.shape)
+for X, Y in train_iter:
+    print(X[0].shape)
+    print(X[1].shape)
     print(Y.shape)
     break
 ```
