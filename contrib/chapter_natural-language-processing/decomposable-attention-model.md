@@ -1,8 +1,8 @@
 #  可分解注意力模型用于自然语言推理
 
-在上一节中，我们讲到了自然语言推理任务，即判断两个句子（分别称为前提句与假设句）之间的推理关系（蕴含、矛盾、中性）。
+在上一节中，我们介绍了自然语言推理任务。即给定两个句子前提句和假设句，判断这两个句子之间的推理关系。推理关系包含三种：蕴含关系、矛盾关系、中性关系。
 
-本节将介绍自然语言推理的经典工作：可分解注意力模型（decomposable attention model）[1]。
+本节将介绍自然语言推理任务的经典工作之一：可分解注意力模型（decomposable attention model）[1]。
 
 首先导入实验所需的包和模块。
 
@@ -23,19 +23,21 @@ npx.set_np()
 
 ## 模型
 
-在介绍模型前我们先来看如下三个句子：
+在介绍模型前我们先来看下面三个句子：
 
 - Bob is in his room, but because of the thunder and lightning outside, he cannot sleep.
 - Bob is awake.
 - It is sunny outside.
 
-我们可以很容易得出结论，第二句包含在第一句之中，这是由于“cannot sleep”和“awake”具有同等含义。同样地，由于“thunder and lightning”与“sunny”互斥，可以推理出第一句和第三句矛盾。
+由于第一句中的“cannot sleep”和第二句中的“awake”具有同等含义，我们可以很容易的得出结论，第二句蕴含在第一句之中。由于第一句中的“thunder and lightning”与第三句中的“sunny”互斥，我们可以得出第一句和第三句矛盾。
 
-由此我们自然可以想到一个办法，将判断前提句与假设句之间推理关系的任务分解开。首先将前提句中的每个单词和假设句中的单词建立对应关系，这种在单词间建立对应关系操作叫做单词对齐。再通过单词间的对应关系，来判断前提句与假设句间的关系。
+从上面的例子中，我们发现前提句和假设句的单词间往往存在同义或互斥关系，通过这种单词间的关系可以得出前提句和假设句的推理关系。
+
+因此自然可以想到一个办法，我们可以将判断前提句与假设句之间推理关系的任务分解成子问题。首先将前提句中的每个单词和假设句中的每个单词建立对应关系，这种在单词间建立对应关系操作也叫做单词对齐。再比较每个单词对齐关系，通过比较结果来判断前提句与假设句间的推理关系。
 
 ### 注意（attend）
 
-在这个过程中，我们分别输入前提句$\boldsymbol{A} = (a_1,\ldots,a_{l_A})$和假设句$\boldsymbol{B} = (b_1,\ldots,b_{l_B})$，其中$a_i$和$b_i$分别是A和B中单词的词嵌入表示。
+给定前提句的文本序列由$ l_A $个词组成，假设句的文本序列由$ l_B $个词组成。在注意过程中，我们分别输入前提句$\boldsymbol{A}= (a_1,\ldots,a_{l_A})$和假设句$\boldsymbol{B} = (b_1,\ldots,b_{l_B})$，其中$a_i$和$b_i$分别是前提句A和假设句B中单词的词嵌入表示。
 
 在之前注意力机制章节提到，注意力机制在seq2seq模型中，可以学习到目标序列中的标记与源序列中的标记之间的密切关系，这种两个序列间标记的密切关系本质上也是一种单词对齐关系，所以我们可以使用注意力机制来学习到单词对齐关系。
 
@@ -54,7 +56,7 @@ $$
 
 ```{.python .input  n=2}
 # 定义前馈神经网络
-def _ff_layer(out_units, flatten=True):
+def ff_layer(out_units, flatten=True):
         m = nn.Sequential()
         m.add(nn.Dropout(0.2))
         m.add(nn.Dense(out_units, activation='relu', 
@@ -67,7 +69,7 @@ def _ff_layer(out_units, flatten=True):
 class Attend(gluon.Block):
     def __init__(self, hidden_size, **kwargs):
         super(Attend, self).__init__(**kwargs)
-        self.f = _ff_layer(out_units=hidden_size, flatten=False)
+        self.f = ff_layer(out_units=hidden_size, flatten=False)
             
     def forward(self, a, b):
         # 分别将两个句子通过前馈神经网络，维度为(批量大小, 句子长度, 隐藏单元数目)
@@ -100,7 +102,7 @@ $$
 class Compare(gluon.Block):
     def __init__(self, hidden_size, **kwargs):
         super(Compare, self).__init__(**kwargs)
-        self.g = _ff_layer(out_units=hidden_size, flatten=False)
+        self.g = ff_layer(out_units=hidden_size, flatten=False)
 
     def forward(self, a, b, beta, alpha):
         # 拼接每一个词和其对齐词表示，并通过前馈神经网络。
@@ -131,7 +133,7 @@ $$
 class Aggregate(gluon.Block):
     def __init__(self, hidden_size, num_class, **kwargs):
         super(Aggregate, self).__init__(**kwargs)
-        self.h = _ff_layer(out_units=hidden_size, flatten=True)
+        self.h = ff_layer(out_units=hidden_size, flatten=True)
         self.h.add(nn.Dense(num_class, in_units=hidden_size))
             
     def forward(self, feature1, feature2):
@@ -149,16 +151,12 @@ class Aggregate(gluon.Block):
 
 ```{.python .input  n=5}
 class DecomposableAttention(gluon.Block):
-    def __init__(self, vocab_size, word_embed_size, hidden_size, **kwargs):
+    def __init__(self, vocab, embed_size, hidden_size, **kwargs):
         super(DecomposableAttention, self).__init__(**kwargs)
-        self.hidden_size = hidden_size
-        self.word_embed_size = word_embed_size
-        
-        with self.name_scope():
-            self.embedding = nn.Embedding(vocab_size, word_embed_size)
-            self.attend = Attend(hidden_size)
-            self.compare = Compare(hidden_size)
-            self.aggregate = Aggregate(hidden_size, 3)
+        self.embedding = nn.Embedding(len(vocab), embed_size)
+        self.attend = Attend(hidden_size)
+        self.compare = Compare(hidden_size)
+        self.aggregate = Aggregate(hidden_size, 3)
         
     def forward(self, X):
         premise, hypothesis = X
@@ -174,6 +172,8 @@ class DecomposableAttention(gluon.Block):
 ```
 
 ### 读取数据集
+
+我们使用上一节讲到的斯坦福自然语言推理数据集分别创建训练集和测试集的实例，并定义训练集和测试集的迭代器。
 
 ```{.python .input  n=6}
 d2l.download_snli(data_dir='../data')
@@ -195,29 +195,12 @@ test_iter = gdata.DataLoader(test_set, batch_size)
 ]
 ```
 
-创建这个网络。
+创建一个DecomposableAttention实例，并设置嵌入层输出大小为100维，隐藏层输出为100维。
 
 ```{.python .input  n=7}
 embed_size, hidden_size, ctx = 100, 100, d2l.try_all_gpus()
-net = DecomposableAttention(len(train_set.vocab), embed_size, hidden_size)
+net = DecomposableAttention(train_set.vocab, embed_size, hidden_size)
 net.initialize(init.Xavier(), ctx=ctx)
-```
-
-```{.python .input  n=8}
-train_set[0]
-```
-
-```{.json .output n=8}
-[
- {
-  "data": {
-   "text/plain": "((array([3.000e+00, 4.500e+01, 8.000e+00, 2.000e+00, 1.930e+02, 2.050e+02,\n         8.100e+01, 2.000e+00, 1.171e+03, 4.000e+01, 8.220e+02, 1.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00]),\n  array([3.000e+00, 4.500e+01, 5.000e+00, 1.175e+03, 2.100e+01, 1.930e+02,\n         3.800e+01, 2.000e+00, 4.560e+02, 1.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00, 0.000e+00,\n         0.000e+00, 0.000e+00])),\n array(2.))"
-  },
-  "execution_count": 8,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 ### 训练模型
@@ -230,7 +213,7 @@ glove_embedding = text.embedding.create(
 net.embedding.weight.set_data(glove_embedding.idx_to_vec)
 ```
 
-我们定义一个“split_batch_multi”_get_batch函数略作修改，这个函数将小批量数据样本batch划分并复制到ctx变量所指定的各个显存上。
+我们定义一个`split_batch_multi`函数，这个函数将具有多个输入的小批量数据样本batch划分并复制到ctx变量所指定的各个显存上。
 
 ```{.python .input}
 # Save to the d2l package.
