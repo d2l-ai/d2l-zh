@@ -4,12 +4,15 @@
 
 [本书网址：zh.d2l.ai](https://zh.d2l.ai/) | [1.0.0版rc0发布](https://github.com/d2l-ai/d2l-zh/releases/tag/v1.0.0-rc0) | [如何安装和使用书中源代码](http://zh.d2l.ai/chapter_prerequisite/install.html)
 
+## 更新
+
+英文版全面改进了[预备知识](http://numpy.d2l.ai/chapter_preliminaries/index.html)一章，
+新增了[推荐系统](http://numpy.d2l.ai/chapter_recommender-systems/index.html)一章和<a href="http://numpy.d2l.ai/chapter_appendix_math/index.html">深度学习的数学</a>一章。
+关注英文版开源项目：[https://github.com/d2l-ai/d2l-en](https://github.com/d2l-ai/d2l-en)
 
 ## 英文版 *Dive into Deep Learning*
 
-加州大学伯克利分校 2019 年春学期 *Introduction to Deep Learning* 课程教材（[中文版课件（内含教学视频地址）](https://github.com/d2l-ai/berkeley-stat-157/tree/master/slides-zh)）。
-
-开源地址：[https://github.com/d2l-ai/d2l-en](https://github.com/d2l-ai/d2l-en)
+加州大学伯克利分校 2019 年春学期 [*Introduction to Deep Learning* 课程](http://courses.d2l.ai/berkeley-stat-157/index.html)教材（[中文版课件（内含教学视频地址）](https://github.com/d2l-ai/berkeley-stat-157/tree/master/slides-zh)）。
 
 ### 英文版引用
 
