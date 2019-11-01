@@ -8,7 +8,7 @@
 
 英文版全面改进了[预备知识](https://d2l.ai/chapter_preliminaries/index.html)一章，
 新增了[推荐系统](https://d2l.ai/chapter_recommender-systems/index.html)一章和<a href="https://d2l.ai/chapter_appendix_math/index.html">深度学习的数学</a>一章。
-关注英文版开源项目：[https://github.com/d2l-ai/d2l-en](https://github.com/d2l-ai/d2l-en)
+欢迎关注英文版开源项目：[https://github.com/d2l-ai/d2l-en](https://github.com/d2l-ai/d2l-en)
 
 ## 英文版 *Dive into Deep Learning*
 
