@@ -72,9 +72,8 @@ print(vocabs)
 
 ## 编码和解码
 在上一步中，我们已经得到了词表，我们对该词表按词的长度由大到小进行排序。在编码时，输入一段文本序列，对序列中的每个单词，遍历排好序的词表来寻找是否有词表中的词是当前单词的子字符串，如果有则代表这个词是当前单词的一部分。
-对于原始文本序列中的一个单词，当我们在遍历完整个词表后仍然有子字符串没有被替换，则将剩余子字符串替换为特殊ci
+对于原始文本序列中的一个单词，当我们在遍历完整个词表后仍然有子字符串没有被替换，则将剩余子字符串替换为特殊词，如“[unk]”。
 
-在对新句子进行编码世
 
 ## 小结
 - 使用定长词汇表会产生词汇表未登录的词，这称为表外词汇问题。
@@ -86,3 +85,7 @@ print(vocabs)
 [1] Wu, Y., Schuster, M., Chen, Z., Le, Q. V., Norouzi, M., Macherey, W., ... & Klingner, J. (2016). Google's neural machine translation system: Bridging the gap between human and machine translation. arXiv preprint arXiv:1609.08144.
 
 [2] Sennrich, R., Haddow, B., & Birch, A. (2015). Neural machine translation of rare words with subword units. arXiv preprint arXiv:1508.07909.
+
+```{.python .input}
+
+```
