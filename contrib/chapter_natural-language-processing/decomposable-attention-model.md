@@ -1,8 +1,8 @@
 #  可分解注意力模型用于自然语言推理
 
-在上一节中，我们介绍了自然语言推理任务。即给定两个句子前提句和假设句，判断这两个句子之间的推理关系。推理关系包含三种：蕴含关系、矛盾关系、中性关系。
+在上一节中，我们介绍了自然语言推理任务。给定前提句和假设句，该任务判断这两个句子之间的推理关系。推理关系包含三种，即蕴含关系、矛盾关系和中性关系。
 
-本节将介绍自然语言推理任务的经典工作之一：可分解注意力模型（decomposable attention model）[1]。这项工作是由在机器翻译任务中通过注意力机制实现的寻找单词间对应关系所以起到的核心作用带来的启发。可分解注意力模型认为仅依赖于两个句子单词间的对应关系就足够得出两个句子的推理关系。该模型在斯坦福自然语言推理数据集上取得最好的效果，但其参数量相比其他复杂模型低了一个数量级。
+本节将介绍自然语言推理任务的经典工作之一：可分解注意力模型（decomposable attention model）[1]。说到注意力你也想起了，你可能想起了我们曾经将注意力机制应用在机器翻译任务中。在机器翻译任务中，我们可以通过注意力机制来找到寻找单词间对应关系。可分解注意力模型就是从注意力机制在机器翻译任务中起到的核心作用带来的启发。可分解注意力模型认为仅依赖于两个句子单词间的对应关系就足够得出两个句子的推理关系。该模型当时在斯坦福自然语言推理数据集上取得最高的准确率，且其参数量相比其他复杂模型低了一个数量级。
 
 首先导入实验所需的包和模块。
 
@@ -147,7 +147,7 @@ class Aggregate(gluon.Block):
 
 ## 使用可分解注意力模型
 
-我们将上面三个过程注意、比较和合并结合起来。
+我们将上面的三个过程，也就是注意、比较和合并结合起来。
 
 ```{.python .input  n=5}
 class DecomposableAttention(gluon.Block):
@@ -162,11 +162,11 @@ class DecomposableAttention(gluon.Block):
         premise, hypothesis = X
         a = self.embedding(premise)
         b = self.embedding(hypothesis)
-        # 注意（Attend）过程
+        # 注意（attend）过程
         beta, alpha = self.attend(a ,b)
-        # 比较（Compare）过程
+        # 比较（compare）过程
         v1, v2 = self.compare(a, b, beta, alpha)
-        # 合并（Aggregate）过程
+        # 合并（aggregate）过程
         yhat = self.aggregate(v1, v2)
         return yhat
 ```
@@ -183,16 +183,6 @@ test_set = d2l.SNLIDataset("test", train_set.vocab)
 batch_size = 256
 train_iter = gdata.DataLoader(train_set, batch_size, shuffle=True)
 test_iter = gdata.DataLoader(test_set, batch_size)
-```
-
-```{.json .output n=6}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "read 549367 examples\nread 9824 examples\n"
- }
-]
 ```
 
 创建一个`DecomposableAttention`实例，并设置嵌入层输出大小为100维，隐藏层输出为100维。

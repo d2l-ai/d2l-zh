@@ -20,10 +20,8 @@
 > 假设：The man is sleeping.
 
 第三个例子是中立关系，前提句和假设句没有关系。
-> 前提：A boy is jumping on skateboard in the middle of a  red bridge.
+> 前提：A boy is jumping on skateboard in the middle of a red bridge.
 > 假设：The boy skates down the sidewalk.
-
-## 自然语言推理的挑战
 
 
 ## 斯坦福自然语言推理（SNLI）数据集
