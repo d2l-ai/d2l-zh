@@ -1,6 +1,6 @@
 # 微调BERT用于自然语言推理任务
 
-在上一节中，我们介绍了BERT在预训练阶段完成后，要适用于广泛的任务时，如何添加一个额外的输出层，对预训练的 BERT 表示进行微调。即如何将BERT接入下游任务。在这一节我们将介绍，如何通过微调BERT进行自然语言推理。
+在`通过下游任务微调BERT`一节中，我们介绍了BERT在预训练阶段完成后，要适用于广泛的任务时，如何添加一个额外的输出层，对预训练的 BERT 表示进行微调。在这一节我们将介绍一个例子，如何通过微调BERT进行自然语言推理。
 
 
 ## BERT预训练
@@ -31,7 +31,7 @@ d2l.train_bert(bert_train_iter, bert, nsp_loss, mlm_loss, len(bert_train_set.voc
 
 ### 数据预处理
 
-自然语言推理任务本质上是个句对分类任务，所以我们需要将前提句和假设句拼接成一个序列，并在序列开始位置加入"[CLS]"，在每个句子结束位置加入“[SEP]”标记，在片段标记中使用0和1区分两个句子。这里可以直接使用上一节中定义的“get_tokens_and_segment”函数
+自然语言推理任务本质上是个句对分类任务，所以我们需要将前提句和假设句拼接成一个序列，并在序列开始位置加入"[CLS]"，在每个句子结束位置加入“[SEP]”标记，在片段标记中使用0和1区分两个句子。这里可以直接使用`BERT的数据预处理及模型训练`一节中定义的“get_tokens_and_segment”函数
 
 我们加载在“自然语言推理及数据集”章节中所提到的斯坦福大学自然语言推理数据集，并重新定义一个自然语言推理数据集类`SNLIBERTDataset`。
 
@@ -40,7 +40,7 @@ d2l.train_bert(bert_train_iter, bert, nsp_loss, mlm_loss, len(bert_train_set.voc
 class SNLIBERTDataset(gdata.Dataset):
     def __init__(self, dataset, vocab=None):
         self.dataset = dataset
-        self.max_len = 50 # 将每条评论通过截断或者补0，使得长度变成50
+        self.max_len = 50  # 将每条评论通过截断或者补0，使得长度变成50
         self.data = d2l.read_file_snli('snli_1.0_'+ dataset + '.txt')
         self.vocab = vocab
         self.tokens, self.segment_ids, self.valid_lengths, self.labels =  \
@@ -134,3 +134,10 @@ trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': lr})
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
 d2l.train_ch12(net, train_iter, test_iter, loss, trainer, num_epochs, ctx, split_batch_multi_inputs)
 ```
+
+## 小结
+
+- 只需在BERT的输出层上加简单的多层感知机或线性分类器即可接入下游任务。
+- 单句分类任务和句对分类任务取“[CLS]”位置的输出表示接入全连接层作为输出。
+- 问答任务取第二个句子每个位置的输出表示作为下游任务的输入。
+- 序列标注任务取除了特殊标记外其他位置的输出表示接入全连接层作为输出。
