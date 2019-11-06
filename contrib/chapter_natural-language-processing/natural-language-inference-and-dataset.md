@@ -64,7 +64,7 @@ download_snli()
 def read_file_snli(filename):
     label_set = set(["entailment", "contradiction", "neutral"])
     def tokenized(text): 
-        # 括号代表解析树的层级，我们需要去掉括号只保留原始文本，并分词。
+        # 括号代表解析树的层级，我们需要去掉括号只保留原始文本，并分词
         return text.replace("(", "").replace(")", "").strip().split()
     with open(os.path.join('../data/snli_1.0/', filename), 'r') as f:
         examples = [row.split('\t') for row in f.readlines()[1:]]

@@ -105,7 +105,7 @@ class Compare(gluon.Block):
         self.g = ff_layer(out_units=hidden_size, flatten=False)
 
     def forward(self, a, b, beta, alpha):
-        # 拼接每一个词和其对齐词表示，并通过前馈神经网络。
+        # 拼接每一个词和其对齐词表示，并通过前馈神经网络
         v1 = self.g(np.concatenate([a, beta], axis=2))
         v2 = self.g(np.concatenate([b, alpha], axis=2))
         
@@ -137,10 +137,10 @@ class Aggregate(gluon.Block):
         self.h.add(nn.Dense(num_class, in_units=hidden_size))
             
     def forward(self, feature1, feature2):
-        # 对每个集合中的向量取平均作为句子的表示向量。
+        # 对每个集合中的向量取平均作为句子的表示向量
         feature1 = feature1.sum(axis=1)
         feature2 = feature2.sum(axis=1)
-        # 拼接每个句子的表示，使用前馈网络进行分类。
+        # 拼接每个句子的表示，使用前馈网络进行分类
         yhat = self.h(np.concatenate([feature1, feature2], axis=1))
         return yhat
 ```
