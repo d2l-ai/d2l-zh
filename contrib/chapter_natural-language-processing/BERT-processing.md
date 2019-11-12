@@ -1,10 +1,10 @@
 # BERT的数据预处理及模型训练
 
-在上一节中，我们介绍了双向语言表征模型（BERT），在这一节我们将介绍如何预处理BERT所需要的数据，并训练一个BERT模型。
+在上一节中，我们介绍了双向语言表征模型（BERT）。在这一节我们将介绍如何预处理BERT在输入时所需要的数据，并使用这些数据训练一个BERT模型。
 
 ## 语言模型数据集
 
-本节所用到的数据集“WikiText-103”语言建模数据集，该数据集是从维基百科上经过验证的优秀和精选文章集中提取的。
+BERT有一个任务是下一句预测，我们需要在文档中获得真实的“下一个句子”，所以需要是文档级的训练语料。本节所用到的数据集是WikiText语言模型数据集，该数据集是从维基百科上的文章集中提取的。WikiText语言模型数据集分为“wikitext-2”和“wikitext-103”两种，前者的文章数和单词数都远少于后者。
 我们首先下载这个数据集。
 
 ```{.python .input  n=1}
@@ -54,12 +54,11 @@ train_data = read_wiki()
 
 ## 数据预处理
 
-
-之前介绍了BERT包含两个预训练任务：下一句预测、遮蔽语言模型。我们分别介绍如何预处理这两个任务的数据。
+之前介绍了BERT包含两个预训练任务：下一句预测、掩码语言模型。我们分别介绍如何预处理这两个任务的数据。
 
 ### 下一句预测
 
-下一句预测任务需要在每个训练样本选择句子A和B时，50%的概率B是A真实的下一句，有一半的概率使用来自语料库的随机句子替换句子B。
+下一句预测任务在选择文档库中的一个句子A后。以一半的概率将句子A的真实下一句作为句子B，标签设为True。一半概率使用来自语料库的随机句子作为句子B，标签设为False。
 
 ```{.python .input  n=3}
 # Save to the d2l package.
@@ -78,7 +77,7 @@ def get_next_sentence(sentence, next_sentence, all_documents):
     return tokens_a, tokens_b, is_next
 ```
 
-我们在序列开始位置插入“[CLS]”标记，在每个句子结束位置加入"[SEP]"标记。同时在片段标记中使用0和1区分两个句子。
+我们在每个句子结束位置加入"[SEP]"标记，并连结这两个句子作为一个序列。然后，在序列开始位置插入“[CLS]”标记，同时在片段标记中使用0和1区分两个句子。
 
 ```{.python .input  n=4}
 # Save to the d2l package.
@@ -93,6 +92,7 @@ def get_tokens_and_segment(tokens_a, tokens_b):
     for token in tokens_a:
         tokens.append(token)
         segment_ids.append(0)
+    # 在句子结束位置插入“[SEP]”标记
     tokens.append('[SEP]')
     segment_ids.append(0)
 
@@ -105,7 +105,7 @@ def get_tokens_and_segment(tokens_a, tokens_b):
     return tokens, segment_ids
 ```
 
-我们从原始的语料里建立下一句任务的输入，在这里我们舍弃超过最大长度的句子。
+我们从原始的语料里建立下一句任务的输入，在这里我们舍弃超过最大长度的句子。对于句对输入，这里的最大长度是指在连结两句子后包含了特殊标记的序列的长度。
 
 ```{.python .input  n=5}
 # Save to the d2l package.
@@ -122,12 +122,12 @@ def create_next_sentence(document, all_documents, vocab, max_length):
     return instances
 ```
 
-### 遮蔽语言模型
+### 掩码语言模型
 
 
-我们需要随机将一定比例的输入标记选择为被遮蔽标记，在BERT的设计中，在每个序列中随机遮蔽 15% 的标记。
-由于在预训练阶段，我们使用了“[MASK]”这个遮蔽标记，但“[MASK]”在微调阶段并不会出现。这会带来预训练和微调之间的不匹配问题。BERT采用了一些策略来缓解这一问题。在选择了需要被遮蔽的标记后：
-以80％概率：用[MASK]标记替换单词，例如，
+我们需要随机将一定比例的输入标记选择为掩码标记，在BERT原文的设定中，在每个序列随机掩码15%的标记。
+在预训练阶段，我们使用了“[MASK]”这个掩码标记，但“[MASK]”在微调阶段并不会出现。这会带来预训练和微调之间的不匹配问题。BERT原文采用了一些策略来缓解这一问题。在选择了需要被掩码的标记后：
+以80％概率：用“[MASK]“标记替换单词，例如，
 > my dog is hairy → my dog is [MASK]
 
 以10％的概率：用一个随机的单词替换该单词，例如，
@@ -135,7 +135,6 @@ def create_next_sentence(document, all_documents, vocab, max_length):
 > my dog is hairy → my dog is apple
 
 以10％的概率：保持单词不变，例如，
-
 > my dog is hairy → my dog is hairy
 
 ```{.python .input  n=6}
@@ -158,7 +157,7 @@ def choice_mask_tokens(tokens, cand_indexes, num_to_predict, vocab):
                 # 10%的概率保持不变
                 if random.random() < 0.5:
                     masked_token = tokens[index]
-                # 10%的概率使用随机令牌进行替换
+                # 10%的概率使用随机单词进行替换
                 else:
                     masked_token = random.randint(0, len(vocab) - 1)
 
@@ -167,30 +166,33 @@ def choice_mask_tokens(tokens, cand_indexes, num_to_predict, vocab):
     return output_tokens, masked_lms
 ```
 
-随机遮蔽15%的标记，即允许每个样本中15%的标记被预测。将遮蔽后的序列转换为索引表示，同时返回被遮蔽的位置，以及被遮蔽位置真实标记的索引表示。
+通过掩码随机遮挡15%的标记，即允许每个样本中15%的标记被预测。将遮挡后的序列转换为索引表示。作为模型的输入，我们需要获得掩码位置和掩码位置真实标记的索引表示。
 
 ```{.python .input  n=7}
 # Save to the d2l package.
 def create_masked_lm(tokens, vocab):
-    
     cand_indexes = []
     for (i, token) in enumerate(tokens):
         if token in ['[CLS]', '[SEP]']:
             continue
         cand_indexes.append([i])
-   
+        
+    # 计算需要遮挡的标记数目
     num_to_predict = max(1, int(round(len(tokens) * 0.15)))
     
-    output_tokens, masked_lms = choice_mask_tokens(tokens, cand_indexes, num_to_predict, vocab)
+    # 遮挡标记，返回的是遮挡后句子的标记序列，以及掩码位置和掩码位置的真实标记。
+    output_tokens, masked_lms = choice_mask_tokens(tokens, cand_indexes,
+                                                   num_to_predict, vocab)
             
     masked_lms = sorted(masked_lms, key=lambda x: x[0])
-    masked_lm_positions = []
-    masked_lm_labels = []
+    masked_lm_positions = []  # 掩码位置
+    masked_lm_labels = []  # 掩码位置的真实标记
     for p in masked_lms:
         masked_lm_positions.append(p[0])
         masked_lm_labels.append(p[1])
         
-    return vocab.to_indices(output_tokens), masked_lm_positions, vocab.to_indices(masked_lm_labels)
+    return vocab.to_indices(output_tokens), masked_lm_positions,
+           vocab.to_indices(masked_lm_labels)
 ```
 
 ### 创建样本集
@@ -203,14 +205,15 @@ def convert_numpy(instances, max_length):
     masked_lm_weights, next_sentence_labels, valid_lengths = [], [], []
     for instance in instances:
         # instance[0] 输入的索引表示
-        # instance[1] 被遮蔽位置
-        # instance[2] 被遮蔽位置的真实标记
+        # instance[1] 掩码位置
+        # instance[2] 掩码位置的真实标记
         # instance[3] 片段标记
         # instance[4] 下一句预测标签
         input_id = instance[0] + [0] * (max_length - len(instance[0]))
         segment_id = instance[3] + [0] * (max_length - len(instance[3]))
         masked_lm_position = instance[1] + [0] * (20 - len(instance[1]))
         masked_lm_id = instance[2] + [0] * (20 - len(instance[2]))
+        # 通过将非掩码位置的权重置为0，来避免预测非掩码位置的标记
         masked_lm_weight = [1.0] * len(instance[2]) + [0.0] * (20 - len(instance[1]))
         next_sentence_label = instance[4]
         valid_length = len(instance[0])
@@ -226,7 +229,7 @@ def convert_numpy(instances, max_length):
            next_sentence_labels, segment_ids, valid_lengths
 ```
 
-依次调用下一句预测任务数据预处理的方法和遮蔽语言模型数据预处理的方法，用来创建样本集。
+依次调用下一句预测任务和掩码语言模型数据预处理的方法，用来创建样本集。
 
 ```{.python .input  n=9}
 # Save to the d2l package.
@@ -245,7 +248,7 @@ def create_training_instances(train_data, vocab, max_length):
 ```
 
 ### 自定义数据集类
-我们通过继承Gluon提供的`Dataset`类自定义了一个语言模型数据集类`WikiDataset`。同样可以通过`__getitem__`函数，任意访问数据集中索引为idx的样本。在这个数据集类中，我们读取“WikiText-103”语言建模数据集，分别调用下一句任务的数据生成方法和遮蔽语言模型的数据生成方法创建样本集。
+我们通过继承Gluon提供的`Dataset`类自定义了一个语言模型数据集类`WikiDataset`。同样可以通过`__getitem__`函数，任意访问数据集中索引为idx的样本。在这个数据集类中，我们读取“WikiText-103”语言建模数据集，分别调用下一句任务的数据生成方法和掩码语言模型的数据生成方法创建样本集。
 
 ```{.python .input  n=18}
 # Save to the d2l package.
@@ -253,8 +256,9 @@ class WikiDataset(gdata.Dataset):
     def __init__(self, data_set = 'wikitext-2', max_length = 128):
         train_data = read_wiki(data_set)
         self.vocab = self.get_vocab(train_data)
-        self.input_ids, self.masked_lm_ids, self.masked_lm_positions, self.masked_lm_weights,\
-           self.next_sentence_labels, self.segment_ids, self.valid_lengths = create_training_instances(train_data, self.vocab, max_length)
+        self.input_ids, self.masked_lm_ids, self.masked_lm_positions,\
+        self.masked_lm_weights, self.next_sentence_labels, self.segment_ids,\
+        self.valid_lengths = create_training_instances(train_data, self.vocab, max_length)
 
     def get_vocab(self, data):
         # 过滤出现频度小于5的词
@@ -285,14 +289,14 @@ batch_size = 512
 train_iter = gdata.DataLoader(train_set, batch_size, shuffle=True)
 ```
 
-打印第一个小批量。这里的数据依次是令牌索引、遮蔽词的标签、被遮蔽的位置、被遮蔽位置的权重、下一句任务标签、片段索引以及有效句子长度。
+打印第一个小批量。这里的数据依次是词标记索引、掩码位置的真实标记、掩码位置、掩码位置的权重、下一句任务标签、片段索引以及有效句子长度。
 
 ```{.python .input  n=13}
 for _, data_batch in enumerate(train_iter):
     (input_id, masked_id, masked_position, masked_weight, \
      next_sentence_label, segment_id, valid_length) = data_batch
-    print(input_id.shape, masked_id.shape, masked_position.shape, masked_weight.shape, \
-     next_sentence_label.shape, segment_id.shape, valid_length.shape)
+    print(input_id.shape, masked_id.shape, masked_position.shape, masked_weight.shape,\
+          next_sentence_label.shape, segment_id.shape, valid_length.shape)
     break
 ```
 
@@ -302,7 +306,7 @@ for _, data_batch in enumerate(train_iter):
 
 ### 初始化模型
 我们将`双向语言表征模型（BERT）`一节中的BERT模型初始化，并设置嵌入层尺寸为100.
-下一句预测任务和遮蔽语言模型任务都使用带有softmax的交叉熵作为损失函数。
+下一句预测任务和掩码语言模型任务都使用带有softmax的交叉熵作为损失函数。
 
 ```{.python .input  n=14}
 net = d2l.BERTModel(len(train_set.vocab), embed_size=256, hidden_size=256, num_heads=4, num_layers=4, dropout=0.2)
@@ -334,17 +338,18 @@ def _get_batch_bert(batch, ctx):
 
 ```{.python .input  n=5}
 # Save to the d2l package.
-def batch_loss_bert(net, nsp_loss, mlm_loss, input_id, masked_id, masked_position, masked_weight, next_sentence_label, segment_id, valid_length, vocab_size):
+def batch_loss_bert(net, nsp_loss, mlm_loss, input_id, masked_id, masked_position,
+                    masked_weight, next_sentence_label, segment_id, valid_length, vocab_size):
     ls = []
     ls_mlm = []
     ls_nsp = []
-    for i_id, m_id, m_pos, m_w, nsl, s_i, v_l in zip(input_id, \
-            masked_id, masked_position, masked_weight, \
-            next_sentence_label, segment_id, valid_length):
+    for i_id,\ m_id, m_pos, m_w, nsl, s_i, v_l in zip(input_id, masked_id, masked_position, masked_weight,\
+                                                      next_sentence_label, segment_id, valid_length):
         num_masks = m_w.sum() + 1e-8
-        _, classified, decoded = net(i_id, s_i, v_l.reshape(-1),
-                              m_pos)
+        _, classified, decoded = net(i_id, s_i, v_l.reshape(-1),m_pos)
+        # 计算掩码语言模型的损失
         l_mlm = mlm_loss(decoded.reshape((-1, vocab_size)),m_id.reshape(-1), m_w.reshape((-1, 1)))
+        # 计算下一句预测的损失
         l_nsp = nsp_loss(classified, nsl)
         l_mlm = l_mlm.sum() / num_masks
         l_nsp = l_nsp.mean()
@@ -418,3 +423,7 @@ train_bert(bert_train_iter, bert, nsp_loss, mlm_loss, len(bert_train_set.vocab),
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7762)
 
 ![]()
+
+```{.python .input}
+
+```
