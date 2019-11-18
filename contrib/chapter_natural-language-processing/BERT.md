@@ -4,23 +4,29 @@
 
 为了使得词向量能随着不同上下文产生变化，我们可以设计一种能够动态计算词向量的网络。这个网络的输入是一段文本序列中的每个词，输出是每个词在当前文本序列上下文语境的词向量。这个网络类似于词嵌入模型，可以预先在大量的语料中进行训练。
 
-深度语境化词表征（ELMo）就是这样一个动态计算词向量的网络。它是一个双层双向的LSTM语言模型，由一个前向和一个后向语言模型构成，目标函数就是取这两个方向语言模型的最大似然。ELMo充分考虑了词的上下文。但ELMo的一大缺陷是，它所采用的LSTM模型在深层情况下很难训练，这极大影响了ELMo的表达能力。
+为了能根据上下文动态计算词向量，同时可以预先在大量语料中进行训练。一个比较简单的办法是使用双向的LSTM语言模型。深度语境化词表征（ELMo）[2] 采用的就是这个办法。ELMo由一个前向和一个后向语言模型构成，目标函数就是取这两个方向语言模型的最大似然。但受限于LSTM的时间依赖特点，双向的LSTM语言模型无法并行计算每个词。这使得LSTM语言模型训练较慢，难以在大量语料中进行训练。
 
-另一个动态计算词向量网络叫做通用预训练（GPT）。它使用Transformer代替了LSTM作为语言模型，Transformer相对LSTM更加容易在深层情况下训练。GPT使用的是在“语言模型”章节中提到的单向语言模型作为目标函数，即通过前$k-1$个词预测第k个词。但是单向语言模型往往会遗漏下文的信息。如下面两句话：
+另一个动态计算词向量网络叫做通用预训练（GPT）。它使用Transformer代替了LSTM作为语言模型，Transformer相对LSTM更加容易并行计算，从而利于大量语料中进行训练。GPT使用的是在“语言模型”章节中提到的单向语言模型作为目标函数，即通过前$k-1$个词预测第k个词。但是单向语言模型往往会遗漏下文的信息。如下面两句话：
 
 > I went to the bank to deposit some money.
 > I went to the bank to sit down.
 
 单向语言模型在同样读取到“Bank”这个词的时候，由于上文是一样的，所以无法区分“Bank”是指“银行”还是“河岸”。只有根据“Bank”的下文，才能有效的区分。
 
-我们期待有一种模型在动态计算词向量时，能根据同时考虑来自上文和下文的双向信息。另一方面这个模型也能加深，以获得更强的表示能力。
+我们期待有一种模型在动态计算词向量时，能根据同时考虑来自上文和下文的双向信息。
 
 基于Transformer的双向编码器表征（BERT）就是这么一种语言表示模型。该模型首先在大规模语料上来预训练上下文深度双向深度表示，这一阶段叫做预训练阶段。在应用于广泛的下游任务时，只需要少量额外的输出层，就可以对预训练的 BERT 表示进行微调，而无需对特定任务进行大量模型结构的修改。
 
 首先导入实验所需的包和模块。
 
-```{.python .input  n=1}
-import d2lzh as d2l
+```{.python .input  n=2}
+import sys
+sys.path.insert(0,'../../..')
+import d2l_dev as d2l
+```
+
+```{.python .input  n=3}
+#import d2lzh as d2l
 import os
 from mxnet import gluon, np, npx
 from mxnet.gluon import nn
@@ -37,11 +43,11 @@ BERT分为Base和Large两个版本。Base版本包含12层Transformer，有110M�
 
 BERT的输入支持单个句子或一对句子。分别适用于单句任务（如文本分类任务）和句对任务（如自然语言推理任务）。BERT的输入包含三部分，分别是词片嵌入，片段嵌入和位置嵌入。
 
-词片嵌入（Token Embeddings）是将各个词转换成固定维度的向量。首先，对于单句的输入，在句子序列的结束位置加入特殊标记“[SEP]”。对于句对输入，在每个句子序列的结束位置都加入“[SEP]”，同时连结这两个句子序列变成一个序列。然后，在这一个序列的开始位置加入特殊标记“[CLS]”。最后，将每个词转换成固定维度的向量。在本节中，我们遵循BERT原文中的设定，每个词会被转换成768维的向量表示。对于长度为n的输入序列，词片嵌入输出形状是（n，768）。
+词片嵌入（Token Embeddings）是将各个词转换成固定维度的向量。首先，对于单句的输入，在句子序列的结束位置加入特殊标记“[SEP]”。对于句对输入，在每个句子序列的结束位置都加入“[SEP]”，同时连结这两个句子序列变成一个序列。然后，在这一个序列的开始位置加入特殊标记“[CLS]”。最后，将每个词转换成固定维度的向量。在本节中，我们遵循BERT原文中的设定，每个词会被转换成768维的向量表示。词片嵌入层参数的形状是（词表大小，768）。对于长度为n的输入序列，词片嵌入输出形状是（n，768）。
 
-片段嵌入（Segment Embeddings）是为了使BERT能够处理句对的输入。句子对中的两个句子被简单的连结在一起作为输入。因为我们需要使模型能够区分一个句子对中的两个句子，这就是片段嵌入的作用。片段嵌入只有两种向量表示，把向量0分配给第一个句子序列中的每个令牌，把向量1分配给第二个句子序列中的每个令牌。如果是输入仅仅有一个句子，那序列中的每个词片标记的片段嵌入都是向量0。向量0和向量1都是在训练过程中更新得到的。每个向量都是768维，所以片段嵌入层参数的形状是（2，768）。每个词片标记都会对应一个片段嵌入的输出。所以对于长度为n的输入序列，片段嵌入输出形状是（n，768）。
+片段嵌入（Segment Embeddings）是为了使BERT能够处理句对的输入。句子对中的两个句子被简单的连结在一起作为输入。因为我们需要使模型能够区分一个句子对中的两个句子，这就是片段嵌入的作用。片段嵌入只有两种向量表示：向量A和向量B。把向量A分配给第一个句子序列中的每个令牌，把向量B分配给第二个句子序列中的每个令牌。如果是输入仅仅有一个句子，则序列中的每个词片标记的片段嵌入都是向量A。向量A和向量B都是在训练过程中更新得到的。每个向量都是768维，所以片段嵌入层参数的形状是（2，768）。每个词片标记都会对应一个片段嵌入的输出。所以对于长度为n的输入序列，片段嵌入输出形状是（n，768）。
 
-位置嵌入（Position Embeddings）。为了解决Transformer无法编码序列的问题，我们引入了位置嵌入。在BERT中的位置嵌入与Transformer里的位置嵌入稍有不同。Transformer里的位置嵌入是通过公式计算得到的，而BERT中的位置嵌入是在各个位置上学习一个向量表示，从而将顺序的信息编码进来。BERT在原文中设置最大序列长度为512，所以位置嵌入层参数的形状是（512，768）。值得注意的是，对于句对输入，这里的512是指在连结两句子后包含了特殊标记的序列的长度。对于单句输入，这里的512也是指包含了特殊标记的序列的长度。每个词片标记也都会对应一个位置嵌入的输出。所以对于长度为n的输入序列，位置嵌入输出形状也是（n，768）。
+位置嵌入（Position Embeddings）。为了解决编码序列问题，Transformer引入位置嵌入从而将顺序的信息编码进来。BERT在原文中设置最大序列长度为512，所以位置嵌入层参数的形状是（512，768）。值得注意的是，对于句对输入，这里的512是指在连结两句子后包含了特殊标记的序列的长度。对于单句输入，这里的512也是指包含了特殊标记的序列的长度。每个词片标记也都会对应一个位置嵌入的输出。所以对于长度为n的输入序列，位置嵌入输出形状也是（n，768）。
 
 ![输入表示](../img/bert_inputs.svg)
 
@@ -49,14 +55,14 @@ BERT的输入支持单个句子或一对句子。分别适用于单句任务（�
 
 在代码实现中，我们修改“Transformer”中的`TransformerEncoder`类，加入BERT所需要的词片嵌入，片段嵌入和位置嵌入。
 
-```{.python .input  n=14}
+```{.python .input  n=4}
 # Save to the d2l package.
 class BERTEncoder(nn.Block):
     def __init__(self, vocab_size, units, hidden_size,
                  num_heads, num_layers, dropout, **kwargs):
         super(BERTEncoder, self).__init__(**kwargs)
-        self.segment_embed = gluon.nn.Embedding(2, units)
         self.word_embed = gluon.nn.Embedding(vocab_size, units)
+        self.segment_embed = gluon.nn.Embedding(2, units)
         self.pos_encoding = d2l.PositionalEncoding(units, dropout)
         self.blks = gluon.nn.Sequential()
         for i in range(num_layers):
@@ -72,15 +78,14 @@ class BERTEncoder(nn.Block):
 
 为了测试这个BERTEncoder，现在我们模拟一个句对数据输入。每个句子对包含8个单词，不同的单词由不同的整数表示。
 
-```{.python .input  n=15}
+```{.python .input  n=5}
 encoder = BERTEncoder(vocab_size=10000, units=768, hidden_size=1024,
                       num_heads=4, num_layers=2, dropout=0.1)
 encoder.initialize()
 
 num_samples, num_words = 2, 8
 # 随机生成单词用于测试
-words = np.array([[24070, 25855, 17552, 25326, 9637, 19443, 25959, 23623],
-                  [7129, 24248, 23612, 14431, 1140, 10231, 4587, 11968]])
+words = np.random(0, 10000, (2, 8))
 # 我们使用0来表示对应单词来自第一个句子，使用1表示对应单词第二个句子
 segments = np.array([[0, 0, 0, 0, 1, 1, 1, 1],[0,0,0,1,1,1,1,1]])
 
@@ -88,22 +93,33 @@ encodings = encoder(words, segments, None)
 print(encodings.shape)  # (批量大小, 单词数, 嵌入大小)
 ```
 
+```{.json .output n=5}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "(2, 8, 768)\n"
+ }
+]
+```
+
 ## 预训练任务
 
-BERT包含两个预训练任务：下一句预测和掩码语言模型。
+BERT包含两个预训练任务：掩码语言模型和下一句预测。
 
 ### 掩码语言模型
-一般来说语言表示模型只能从左到右或者从右到左的单向训练。因为如果允许双向训练就意味着会使得每个词在多层的网络中间接地“看到自己”。
+一般来说语言表示模型只能从左到右或者从右到左的单向训练。因为如果允许双向训练就意味着会使得每个词在多层的网络中间接地“看到自己”。如下图通过 $ o_2 $来预测“movie”这个词，$ o_2 $可以通过$ h_3 $间接的看到输入$ x_2 $。
 
-![双向语言模型](../img/biLM.svg)
+![双向语言模型](../img/biLM_Leakage.svg)
 
-为了训练深度双向的表示，BERT设计了一种名为掩码语言模型的任务。这个任务类似于完形填空的猜词任务。具体来说，就是随机将一定比例的输入标记替换为掩码标记“[MASK]”，然后预测这些掩码标记。也就是说，掩码标记对应的隐藏向量输入一个单层网络，用softmax计算词汇表中每个单词的概率，以预测被替换掉词的原始词。
-
-创建掩码标记的预测模型，模型需要重建原始的单词，我们使用`gather_nd`来选择代表掩码位置的向量。然后将掩码位置的向量通过一个前馈网络，以预测词汇表中所有单词的概率分布。
-
+为了训练深度双向的表示，BERT设计了一种名为掩码语言模型的任务。这个任务类似于完形填空的猜词任务。具体来说，就是随机将一定比例的输入标记替换为掩码标记“[MASK]”，然后预测这些掩码标记。也就是说，将掩码标记对应的隐藏向量输入一个前馈网络，用softmax计算词汇表中每个单词的概率，以预测被替换掉词的原始词。
 ![遮蔽语言模型](../img/bert_mlm.svg)
 
-```{.python .input  n=16}
+下面我们创建掩码语言模型。
+
+
+
+```{.python .input  n=6}
 # Save to the d2l package.
 class MaskLMDecoder(nn.Block):
     def __init__(self, vocab_size, units, **kwargs):
@@ -114,16 +130,20 @@ class MaskLMDecoder(nn.Block):
         self.decoder.add(gluon.nn.Dense(vocab_size, flatten=False))
 
     def forward(self, X, masked_positions, *args):
-        batch_size = X.shape[0]
-        num_masked_positions = masked_positions.shape[1]
         ctx = masked_positions.context
         dtype = masked_positions.dtype
-        batch_idx = np.arange(0, batch_size, dtype=dtype, ctx=ctx)
-        batch_idx = np.repeat(batch_idx, num_masked_positions)
-        batch_idx = batch_idx.reshape((1, -1))
+        # 首先将表示要选择的掩码位置拉平
+        num_masked_positions = masked_positions.shape[1]
         masked_positions = masked_positions.reshape((1, -1))
-        position_idx = np.concatenate([batch_idx, masked_positions], axis=0)
-        encoded = X[position_idx[0,:], position_idx[1,:]]
+        # 我们是以批量作为输入数据。需要确认每个掩码位置属于批量中的哪个样本
+        batch_size = X.shape[0]
+        batch_size = encodings.shape[0]
+        batch_idx = np.arange(0, batch_size)
+        batch_idx = np.repeat(batch_idx, num_masked_positions)
+        batch_idx = batch_idx.reshape((1, -1))  # 每个掩码位置所属的样本索引
+        # 同时按样本索引和掩码位置选择对应的向量
+        encoded = X[batch_idx, masked_positions]
+        # 变形为（批量大小, 掩码位置数目, 嵌入大小）
         encoded = encoded.reshape((batch_size, num_masked_positions, X.shape[-1]))
         pred = self.decoder(encoded)
         return pred
@@ -131,7 +151,7 @@ class MaskLMDecoder(nn.Block):
 
 下面我们生成一些随机单词作为演示标签。我们使用交叉熵作为损失函数。然后将预测结果和真实标签传递给损失函数。
 
-```{.python .input  n=17}
+```{.python .input  n=30}
 mlm_decoder = MaskLMDecoder(vocab_size=30000, units=768)
 mlm_decoder.initialize()
 
@@ -141,6 +161,16 @@ mlm_pred = mlm_decoder(encodings, mlm_positions)  # (批量大小, 掩码数目,
 mlm_loss_fn = gluon.loss.SoftmaxCrossEntropyLoss()
 mlm_loss = mlm_loss_fn(mlm_pred, mlm_label)
 print(mlm_pred.shape, mlm_loss.shape)
+```
+
+```{.json .output n=30}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "(2, 2, 30000) (2,)\n"
+ }
+]
 ```
 
 ### 下一句预测
@@ -204,7 +234,6 @@ class BERTModel(nn.Block):
         self._vocab_size = vocab_size
         self.encoder = BERTEncoder(vocab_size=vocab_size, units=embed_size, hidden_size=hidden_size,
                                    num_heads=num_heads, num_layers=num_layers, dropout=dropout)
-        
         self.ns_classifier = NextSentenceClassifier()
         self.mlm_decoder = MaskLMDecoder(vocab_size=vocab_size, units=embed_size)
 
@@ -233,7 +262,3 @@ class BERTModel(nn.Block):
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7762)
 
 ![]()
-
-```{.python .input}
-
-```

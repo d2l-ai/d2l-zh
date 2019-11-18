@@ -82,8 +82,8 @@ def get_next_sentence(sentence, next_sentence, all_documents):
 ```{.python .input  n=4}
 # Save to the d2l package.
 def get_tokens_and_segment(tokens_a, tokens_b):
-    tokens = []
-    segment_ids = []
+    tokens = []  # 词片标记
+    segment_ids = []  # 片段索引，使用0和1区分两个句子
 
     # 在序列开始插入“[CLS]”标记
     tokens.append('[CLS]')
@@ -211,7 +211,7 @@ def convert_numpy(instances, max_length):
         # instance[4] 下一句预测标签
         input_id = instance[0] + [0] * (max_length - len(instance[0]))
         segment_id = instance[3] + [0] * (max_length - len(instance[3]))
-        masked_lm_position = instance[1] + [0] * (20 - len(instance[1]))
+        masked_lm_position = instance[1] + [0] * (20 - len(instance[1]))  # 对于每个样本最大掩码数量为20
         masked_lm_id = instance[2] + [0] * (20 - len(instance[2]))
         # 通过将非掩码位置的权重置为0，来避免预测非掩码位置的标记
         masked_lm_weight = [1.0] * len(instance[2]) + [0.0] * (20 - len(instance[1]))
@@ -231,16 +231,17 @@ def convert_numpy(instances, max_length):
 
 依次调用下一句预测任务和掩码语言模型数据预处理的方法，用来创建样本集。
 
-```{.python .input  n=9}
+```{.python .input  n=1}
 # Save to the d2l package.
 def create_training_instances(train_data, vocab, max_length):
+    # 创建下一句任务的样本
     instances = []
     for i, document in enumerate(train_data):
         instances.extend(create_next_sentence(document, train_data, vocab, max_length))
-
+    # 进行掩码语言模型的预处理
     instances = [(create_masked_lm(tokens, vocab) + (segment_ids, is_random_next))
                  for (tokens, segment_ids, is_random_next) in instances]
-    
+    # 转换成numpy形式
     input_ids, masked_lm_ids, masked_lm_positions, masked_lm_weights,\
            next_sentence_labels, segment_ids, valid_lengths = convert_numpy(instances, max_length)
     return input_ids, masked_lm_ids, masked_lm_positions, masked_lm_weights,\
@@ -349,10 +350,11 @@ def batch_loss_bert(net, nsp_loss, mlm_loss, input_id, masked_id, masked_positio
         _, classified, decoded = net(i_id, s_i, v_l.reshape(-1),m_pos)
         # 计算掩码语言模型的损失
         l_mlm = mlm_loss(decoded.reshape((-1, vocab_size)),m_id.reshape(-1), m_w.reshape((-1, 1)))
+        l_mlm = l_mlm.sum() / num_masks
         # 计算下一句预测的损失
         l_nsp = nsp_loss(classified, nsl)
-        l_mlm = l_mlm.sum() / num_masks
         l_nsp = l_nsp.mean()
+        # 掩码语言模型和下一句预测的损失求和
         l = l_mlm + l_nsp
         ls.append(l)
         ls_mlm.append(l_mlm)
@@ -423,7 +425,3 @@ train_bert(bert_train_iter, bert, nsp_loss, mlm_loss, len(bert_train_set.vocab),
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/7762)
 
 ![]()
-
-```{.python .input}
-
-```
