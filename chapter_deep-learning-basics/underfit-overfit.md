@@ -111,7 +111,7 @@ def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
 和线性回归一样，多项式函数拟合也使用平方损失函数。因为我们将尝试使用不同复杂度的模型来拟合生成的数据集，所以我们把模型定义部分放在`fit_and_plot`函数中。多项式函数拟合的训练和测试步骤与[“softmax回归的从零开始实现”](softmax-regression-scratch.md)一节介绍的softmax回归中的相关步骤类似。
 
 ```{.python .input  n=5}
-num_epochs, loss = 100, gloss.L2Loss()
+num_epochs = 100,loss = gloss.L2Loss()
 
 def fit_and_plot(train_features, test_features, train_labels, test_labels):
     net = nn.Sequential()
