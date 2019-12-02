@@ -7,16 +7,16 @@
 在之前的章节中，我们已经写好了BERT的训练函数，我们首先加载“WikiText-103”数据集，并预处理成BERT所需要的形式，再预训练BERT模型。
 
 ```{.python .input  n=1}
-import d2lzh as d2l
+import d2l
 from mxnet import autograd, gluon, init, np, npx
-from mxnet.gluon import data as gdata, nn, utils as gutils
+from mxnet.gluon import nn
 import time
 
 npx.set_np()
 
 bert_train_set = d2l.WikiDataset('wikitext-2', 128)
 batch_size, ctx = 512, d2l.try_all_gpus()
-bert_train_iter = gdata.DataLoader(bert_train_set, batch_size, shuffle=True)
+bert_train_iter = gluon.data.DataLoader(bert_train_set, batch_size, shuffle=True)
 
 bert = d2l.BERTModel(len(bert_train_set.vocab), embed_size=128, hidden_size=256, num_heads=2, num_layers=2, dropout=0.2)
 bert.initialize(init.Xavier(), ctx=ctx)
@@ -36,8 +36,8 @@ d2l.train_bert(bert_train_iter, bert, nsp_loss, mlm_loss, len(bert_train_set.voc
 我们加载在“自然语言推理及数据集”章节中所提到的斯坦福大学自然语言推理数据集，并重新定义一个自然语言推理数据集类`SNLIBERTDataset`。
 
 ```{.python .input  n=65}
-# Save to the d2l package.
-class SNLIBERTDataset(gdata.Dataset):
+# Saved in the d2l package for later use
+class SNLIBERTDataset(gluon.data.Dataset):
     def __init__(self, dataset, vocab=None):
         self.dataset = dataset
         self.max_len = 50  # 将每条评论通过截断或者补0，使得长度变成50
@@ -86,8 +86,8 @@ test_set = SNLIBERTDataset("test", bert_train_set.vocab)
 
 ```{.python .input  n=67}
 batch_size = 512
-train_iter = gdata.DataLoader(train_set, batch_size, shuffle=True)
-test_iter = gdata.DataLoader(test_set, batch_size)
+train_iter = gluon.data.DataLoader(train_set, batch_size, shuffle=True)
+test_iter = gluon.data.DataLoader(test_set, batch_size)
 ```
 
 ### 用于微调的分类模型
@@ -119,7 +119,7 @@ net.classifier.initialize(ctx=ctx)
 我们修改“多GPU计算”中的“split_batch”方法，能够将具有多个输入的小批量数据样本batch划分并复制到ctx变量所指定的各个显存上。
 
 ```{.python .input  n=84}
-# Save to the d2l package.
+# Saved in the d2l package for later use
 def split_batch_multi_inputs(X, y, ctx_list):
     """Split X and y into multiple devices specified by ctx"""
     X = list(zip(*[gluon.utils.split_and_load(feature, ctx_list, even_split=False) for feature in X]))

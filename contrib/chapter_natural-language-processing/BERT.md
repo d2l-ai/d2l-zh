@@ -18,10 +18,10 @@
 首先导入实验所需的包和模块。
 
 ```{.python .input  n=3}
-import d2lzh as d2l
-import os
+import d2l
 from mxnet import gluon, np, npx
 from mxnet.gluon import nn
+import os
 
 npx.set_np()
 ```
@@ -48,7 +48,7 @@ BERT的输入支持单个句子或一对句子。分别适用于单句任务（�
 在代码实现中，我们修改“Transformer”中的`TransformerEncoder`类，加入BERT所需要的词片嵌入，片段嵌入和位置嵌入。
 
 ```{.python .input  n=4}
-# Save to the d2l package.
+# Saved in the d2l package for later use
 class BERTEncoder(nn.Block):
     def __init__(self, vocab_size, units, hidden_size,
                  num_heads, num_layers, dropout, **kwargs):
@@ -110,7 +110,7 @@ BERT包含两个预训练任务：掩码语言模型和下一句预测。
 下面我们创建掩码语言模型。
 
 ```{.python .input  n=6}
-# Save to the d2l package.
+# Saved in the d2l package for later use
 class MaskLMDecoder(nn.Block):
     def __init__(self, vocab_size, units, **kwargs):
         super(MaskLMDecoder, self).__init__(**kwargs)
@@ -217,7 +217,7 @@ print(ns_pred.shape, ns_loss.shape)
 我们将上面的从Transfomer中修改得到的`TransformerEncoder`，下一句任务预测模型和遮蔽语言模型串联到一起，得到BERT模型。
 
 ```{.python .input  n=20}
-# Save to the d2l package.
+# Saved in the d2l package for later use
 class BERTModel(nn.Block):
     def __init__(self, vocab_size=None, embed_size=128, hidden_size=512, num_heads=2, num_layers=4, dropout=0.1):
         super(BERTModel, self).__init__()

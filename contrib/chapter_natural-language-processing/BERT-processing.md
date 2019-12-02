@@ -8,21 +8,19 @@ BERT中有一个任务是下一句预测，我们需要在文档中获得真实�
 我们首先下载这个数据集。
 
 ```{.python .input  n=1}
-import d2lzh as d2l
-import os
 import collections
+import d2l
+import mxnet as mx
 from mxnet import autograd, gluon, init, np, npx
 from mxnet.contrib import text
-from mxnet.gluon import data as gdata, utils as gutils
-from mxnet.gluon.model_zoo import model_store
-import mxnet as mx
+import os
 import random
 import time
 import zipfile
 
 npx.set_np()
 
-# Save to the d2l package.
+# Saved in the d2l package for later use
 def download_wiki(data_set='wikitext-2', data_dir='../data/'):
     if data_set=='wikitext-2':
         url = ('https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-2-v1.zip')
@@ -30,7 +28,7 @@ def download_wiki(data_set='wikitext-2', data_dir='../data/'):
     else:
         url = ('https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-103-v1.zip')
         sha1 = '0aec09a7537b58d4bb65362fee27650eeaba625a'
-    fname = gutils.download(url, data_dir, sha1_hash=sha1)
+    fname = gluon.utils.download(url, data_dir, sha1_hash=sha1)
     with zipfile.ZipFile(fname, 'r') as f:
         f.extractall(data_dir)
         
@@ -40,7 +38,7 @@ download_wiki()
 然后我们读取这一数据集文件。该文件的每一行是一段文本，我们只保留多于两个句子的文本段落。
 
 ```{.python .input  n=2}
-# Save to the d2l package.
+# Saved in the d2l package for later use
 def read_wiki(data_set='wikitext-2'):
     file_name = os.path.join('../data/', data_set, 'wiki.train.tokens')
     with open(file_name, 'r') as f:
@@ -61,7 +59,7 @@ train_data = read_wiki()
 下一句预测任务在选择文档库中的一个句子A后。以一半的概率将句子A的真实下一句作为句子B，标签设为True。一半概率使用来自语料库的随机句子作为句子B，标签设为False。
 
 ```{.python .input  n=3}
-# Save to the d2l package.
+# Saved in the d2l package for later use
 def get_next_sentence(sentence, next_sentence, all_documents):
     # 对于每一个句子，有50%的概率使用真实的下一句
     if random.random() < 0.5:
@@ -80,7 +78,7 @@ def get_next_sentence(sentence, next_sentence, all_documents):
 我们在每个句子结束位置加入"[SEP]"标记，并连结这两个句子作为一个序列。然后，在序列开始位置插入“[CLS]”标记，同时在片段标记中使用0和1区分两个句子。
 
 ```{.python .input  n=4}
-# Save to the d2l package.
+# Saved in the d2l package for later use
 def get_tokens_and_segment(tokens_a, tokens_b):
     tokens = []  # 词片标记
     segment_ids = []  # 片段索引，使用0和1区分两个句子
@@ -108,7 +106,7 @@ def get_tokens_and_segment(tokens_a, tokens_b):
 我们从原始的语料里建立下一句任务的输入，在这里我们舍弃超过最大长度的句子。对于句对输入，这里的最大长度是指在连结两句子后包含了特殊标记的序列的长度。
 
 ```{.python .input  n=5}
-# Save to the d2l package.
+# Saved in the d2l package for later use
 def create_next_sentence(document, all_documents, vocab, max_length):
     instances = []
     for i in range(len(document)-1):
@@ -138,7 +136,7 @@ def create_next_sentence(document, all_documents, vocab, max_length):
 > my dog is hairy → my dog is hairy
 
 ```{.python .input  n=6}
-# Save to the d2l package.
+# Saved in the d2l package for later use
 def choice_mask_tokens(tokens, cand_indexes, num_to_predict, vocab):
     output_tokens = list(tokens)
     masked_lms = []
@@ -169,7 +167,7 @@ def choice_mask_tokens(tokens, cand_indexes, num_to_predict, vocab):
 通过掩码随机遮挡15%的标记，即允许每个样本中15%的标记被预测。将遮挡后的序列转换为索引表示。作为模型的输入，我们需要获得掩码位置和掩码位置真实标记的索引表示。
 
 ```{.python .input  n=7}
-# Save to the d2l package.
+# Saved in the d2l package for later use
 def create_masked_lm(tokens, vocab):
     cand_indexes = []
     for (i, token) in enumerate(tokens):
@@ -199,7 +197,7 @@ def create_masked_lm(tokens, vocab):
 我们需要将每个样本填充为等长，同时转换成numpy形式。
 
 ```{.python .input  n=8}
-# Save to the d2l package.
+# Saved in the d2l package for later use
 def convert_numpy(instances, max_length):
     input_ids, segment_ids, masked_lm_positions, masked_lm_ids = [], [], [], []
     masked_lm_weights, next_sentence_labels, valid_lengths = [], [], []
@@ -232,7 +230,7 @@ def convert_numpy(instances, max_length):
 依次调用下一句预测任务和掩码语言模型数据预处理的方法，用来创建样本集。
 
 ```{.python .input  n=1}
-# Save to the d2l package.
+# Saved in the d2l package for later use
 def create_training_instances(train_data, vocab, max_length):
     # 创建下一句任务的样本
     instances = []
@@ -252,8 +250,8 @@ def create_training_instances(train_data, vocab, max_length):
 我们通过继承Gluon提供的`Dataset`类自定义了一个语言模型数据集类`WikiDataset`。同样可以通过`__getitem__`函数，任意访问数据集中索引为idx的样本。在这个数据集类中，我们读取“WikiText-103”语言建模数据集，分别调用下一句任务的数据生成方法和掩码语言模型的数据生成方法创建样本集。
 
 ```{.python .input  n=18}
-# Save to the d2l package.
-class WikiDataset(gdata.Dataset):
+# Saved in the d2l package for later use
+class WikiDataset(gluon.data.Dataset):
     def __init__(self, data_set = 'wikitext-2', max_length = 128):
         train_data = read_wiki(data_set)
         self.vocab = self.get_vocab(train_data)
@@ -287,7 +285,7 @@ train_set = WikiDataset('wikitext-2', 128)
 
 ```{.python .input  n=12}
 batch_size = 512
-train_iter = gdata.DataLoader(train_set, batch_size, shuffle=True)
+train_iter = gluon.data.DataLoader(train_set, batch_size, shuffle=True)
 ```
 
 打印第一个小批量。这里的数据依次是词标记索引、掩码位置的真实标记、掩码位置、掩码位置的权重、下一句任务标签、片段索引以及有效句子长度。
@@ -321,24 +319,24 @@ mlm_loss = mx.gluon.loss.SoftmaxCELoss()
 _get_batch_bert 这个函数将小批量数据样本batch划分并复制到ctx变量所指定的各个显存上。
 
 ```{.python .input  n=15}
-# Save to the d2l package.
+# Saved in the d2l package for later use
 def _get_batch_bert(batch, ctx):
     (input_id, masked_id, masked_position, masked_weight, \
      next_sentence_label, segment_id, valid_length) = batch
     
-    return (gutils.split_and_load(input_id, ctx, even_split=False),
-            gutils.split_and_load(masked_id, ctx, even_split=False),
-            gutils.split_and_load(masked_position, ctx, even_split=False),
-            gutils.split_and_load(masked_weight, ctx, even_split=False),
-            gutils.split_and_load(next_sentence_label, ctx, even_split=False),
-            gutils.split_and_load(segment_id, ctx, even_split=False),
-            gutils.split_and_load(valid_length.astype('float32'), ctx, even_split=False))
+    return (gluon.utils.split_and_load(input_id, ctx, even_split=False),
+            gluon.utils.split_and_load(masked_id, ctx, even_split=False),
+            gluon.utils.split_and_load(masked_position, ctx, even_split=False),
+            gluon.utils.split_and_load(masked_weight, ctx, even_split=False),
+            gluon.utils.split_and_load(next_sentence_label, ctx, even_split=False),
+            gluon.utils.split_and_load(segment_id, ctx, even_split=False),
+            gluon.utils.split_and_load(valid_length.astype('float32'), ctx, even_split=False))
 ```
 
 定义batch_loss函数，计算每个批量的损失。
 
 ```{.python .input  n=5}
-# Save to the d2l package.
+# Saved in the d2l package for later use
 def batch_loss_bert(net, nsp_loss, mlm_loss, input_id, masked_id, masked_position,
                     masked_weight, next_sentence_label, segment_id, valid_length, vocab_size):
     ls = []
@@ -366,7 +364,7 @@ def batch_loss_bert(net, nsp_loss, mlm_loss, input_id, masked_id, masked_positio
 定义train函数，使用多GPU训练模型。
 
 ```{.python .input  n=6}
-# Save to the d2l package.
+# Saved in the d2l package for later use
 def train_bert(data_eval, net, nsp_loss, mlm_loss, vocab_size, ctx, log_interval, max_step):
     trainer = gluon.Trainer(net.collect_params(), 'adam')
     step_num = 0
