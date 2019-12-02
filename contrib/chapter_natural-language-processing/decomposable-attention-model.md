@@ -16,7 +16,7 @@ import time
 
 from mxnet import autograd, gluon, init, np, npx
 from mxnet.contrib import text
-from mxnet.gluon import data as gdata, loss as gloss, nn, utils as gutils
+from mxnet.gluon import nn
 
 npx.set_np()
 ```
@@ -57,16 +57,16 @@ $$
 ```{.python .input  n=2}
 # 定义前馈神经网络
 def ff_layer(out_units, flatten=True):
-        m = nn.Sequential()
-        m.add(nn.Dropout(0.2))
-        m.add(nn.Dense(out_units, activation='relu', 
-                       flatten=flatten))
-        m.add(nn.Dropout(0.2))
-        m.add(nn.Dense(out_units, in_units=out_units, activation='relu', 
-                       flatten=flatten))
-        return m
+    m = nn.Sequential()
+    m.add(nn.Dropout(0.2))
+    m.add(nn.Dense(out_units, activation='relu', 
+                   flatten=flatten))
+    m.add(nn.Dropout(0.2))
+    m.add(nn.Dense(out_units, in_units=out_units, activation='relu', 
+                   flatten=flatten))
+    return m
     
-class Attend(gluon.Block):
+class Attend(nn.Block):
     def __init__(self, hidden_size, **kwargs):
         super(Attend, self).__init__(**kwargs)
         self.f = ff_layer(out_units=hidden_size, flatten=False)
@@ -99,7 +99,7 @@ v_{2,j} = G([b_i, \alpha_i])
 $$
 
 ```{.python .input  n=3}
-class Compare(gluon.Block):
+class Compare(nn.Block):
     def __init__(self, hidden_size, **kwargs):
         super(Compare, self).__init__(**kwargs)
         self.g = ff_layer(out_units=hidden_size, flatten=False)
@@ -130,7 +130,7 @@ $$
 $$
 
 ```{.python .input  n=4}
-class Aggregate(gluon.Block):
+class Aggregate(nn.Block):
     def __init__(self, hidden_size, num_class, **kwargs):
         super(Aggregate, self).__init__(**kwargs)
         self.h = ff_layer(out_units=hidden_size, flatten=True)
@@ -150,7 +150,7 @@ class Aggregate(gluon.Block):
 我们将上面的“注意”、“比较”和“合并”这三个过程结合起来。
 
 ```{.python .input  n=5}
-class DecomposableAttention(gluon.Block):
+class DecomposableAttention(nn.Block):
     def __init__(self, vocab, embed_size, hidden_size, **kwargs):
         super(DecomposableAttention, self).__init__(**kwargs)
         self.embedding = nn.Embedding(len(vocab), embed_size)
@@ -181,8 +181,8 @@ train_set = d2l.SNLIDataset("train")
 test_set = d2l.SNLIDataset("test", train_set.vocab)
 
 batch_size = 256
-train_iter = gdata.DataLoader(train_set, batch_size, shuffle=True)
-test_iter = gdata.DataLoader(test_set, batch_size)
+train_iter = gluon.data.DataLoader(train_set, batch_size, shuffle=True)
+test_iter = gluon.data.DataLoader(test_set, batch_size)
 ```
 
 创建一个`DecomposableAttention`实例，并设置嵌入层输出大小为100维，隐藏层输出为100维。
@@ -219,7 +219,7 @@ def split_batch_multi_input(X, y, ctx_list):
 ```{.python .input}
 lr, num_epochs = 0.001, 10
 trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': lr})
-loss = gloss.SoftmaxCrossEntropyLoss()
+loss = gluon.loss.SoftmaxCrossEntropyLoss()
 d2l.train_ch12(net, train_iter, test_iter, loss, trainer, num_epochs, ctx, split_batch_multi_input)
 ```
 
@@ -228,7 +228,7 @@ d2l.train_ch12(net, train_iter, test_iter, loss, trainer, num_epochs, ctx, split
 最后，定义预测函数。
 
 ```{.python .input  n=30}
-# Save to the d2l package.
+# Saved in the d2l package for later use
 def predict_snli(net, premise, hypothesis):
     premise = np.array(train_set.vocab.to_indices(premise), ctx=d2l.try_gpu())
     hypothesis = np.array(train_set.vocab.to_indices(hypothesis), ctx=d2l.try_gpu())
