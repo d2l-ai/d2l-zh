@@ -7,12 +7,8 @@
 首先导入实验所需的包和模块。
 
 ```{.python .input  n=1}
-import sys
-sys.path.insert(0, '../../..')
-import d2l
-#import d2lzh as d2l
+import d2lzh as d2l
 import mxnet as mx
-import time
 
 from mxnet import autograd, gluon, init, np, npx
 from mxnet.contrib import text
@@ -73,10 +69,10 @@ class Attend(nn.Block):
             
     def forward(self, a, b):
         # 分别将两个句子通过前馈神经网络，维度为(批量大小, 句子长度, 隐藏单元数目)
-        tilde_a = self.f(a)
-        tilde_b = self.f(b)
+        f_a = self.f(a)
+        f_b = self.f(b)
         # 计算注意力打分e，维度为(批量大小, 句子1长度, 句子2长度)
-        e = npx.batch_dot(tilde_a, tilde_b, transpose_b=True)
+        e = npx.batch_dot(f_a, f_b, transpose_b=True)
         # 对句子A进行软对齐操作，将句子B对齐到句子A。
         # beta维度为(批量大小, 句子1长度, 隐藏单元数目)
         beta = npx.batch_dot(npx.softmax(e), b)
@@ -108,7 +104,6 @@ class Compare(nn.Block):
         # 拼接每一个词和其对齐词表示，并通过前馈神经网络
         v1 = self.g(np.concatenate([a, beta], axis=2))
         v2 = self.g(np.concatenate([b, alpha], axis=2))
-        
         return v1, v2
 ```
 
@@ -206,12 +201,12 @@ net.embedding.weight.set_data(glove_embedding.idx_to_vec)
 我们定义一个`split_batch_multi`函数，这个函数将具有多个输入的小批量数据样本batch划分并复制到ctx变量所指定的各个显存上。
 
 ```{.python .input}
-# Save to the d2l package.
+# Saved in the d2l package for later use
 def split_batch_multi_input(X, y, ctx_list):
     """Split X and y into multiple devices specified by ctx"""
-    X = list(zip(*[gluon.utils.split_and_load(feature, ctx_list, even_split=False) for feature in X]))
-    return (X,
-            gluon.utils.split_and_load(y, ctx_list, even_split=False))
+    X = list(zip(*[gluon.utils.split_and_load(feature, ctx_list, even_split=False)
+                   for feature in X]))
+    return (X, gluon.utils.split_and_load(y, ctx_list, even_split=False))
 ```
 
 现在就可以训练模型了。
@@ -220,7 +215,8 @@ def split_batch_multi_input(X, y, ctx_list):
 lr, num_epochs = 0.001, 10
 trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': lr})
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
-d2l.train_ch12(net, train_iter, test_iter, loss, trainer, num_epochs, ctx, split_batch_multi_input)
+d2l.train_ch12(net, train_iter, test_iter, loss, trainer, num_epochs,
+               ctx, split_batch_multi_input)
 ```
 
 ### 评价模型

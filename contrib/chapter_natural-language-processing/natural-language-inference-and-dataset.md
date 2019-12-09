@@ -148,7 +148,7 @@ train_set = SNLIDataset("train")
 test_set = SNLIDataset("test", train_set.vocab)
 ```
 
-设批量大小为64，分别定义训练集和测试集的迭代器。
+设批量大小为128，分别定义训练集和测试集的迭代器。
 
 ```{.python .input  n=3}
 batch_size = 128
