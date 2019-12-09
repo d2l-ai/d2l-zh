@@ -186,12 +186,13 @@ print(mlm_pred.shape, mlm_loss.shape)
 ![下一句预测](../img/bert_nsp.svg)
 
 ```{.python .input  n=18}
-# Save to the d2l package.
+# Saved in the d2l package for later use
 class NextSentenceClassifier(nn.Block):
     def __init__(self, units=768, **kwargs):
         super(NextSentenceClassifier, self).__init__(**kwargs)
         self.classifier = gluon.nn.Sequential()
-        self.classifier.add(gluon.nn.Dense(units=units, flatten=False, activation='tanh'))
+        self.classifier.add(gluon.nn.Dense(units=units, flatten=False,
+                                           activation='tanh'))
         self.classifier.add(gluon.nn.Dense(units=2, flatten=False))
 
     def forward(self, X, *args):
@@ -219,7 +220,8 @@ print(ns_pred.shape, ns_loss.shape)
 ```{.python .input  n=20}
 # Saved in the d2l package for later use
 class BERTModel(nn.Block):
-    def __init__(self, vocab_size=None, embed_size=128, hidden_size=512, num_heads=2, num_layers=4, dropout=0.1):
+    def __init__(self, vocab_size=None, embed_size=128, hidden_size=512,
+                 num_heads=2, num_layers=4, dropout=0.1):
         super(BERTModel, self).__init__()
         self._vocab_size = vocab_size
         self.encoder = BERTEncoder(vocab_size=vocab_size, units=embed_size, hidden_size=hidden_size,

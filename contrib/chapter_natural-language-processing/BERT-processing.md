@@ -19,7 +19,9 @@ import time
 import zipfile
 
 npx.set_np()
+```
 
+```{.python .input}
 # Saved in the d2l package for later use
 def download_wiki(data_set='wikitext-2', data_dir='../data/'):
     if data_set=='wikitext-2':
@@ -43,7 +45,8 @@ def read_wiki(data_set='wikitext-2'):
     file_name = os.path.join('../data/', data_set, 'wiki.train.tokens')
     with open(file_name, 'r') as f:
         raw = f.readlines()
-    data = [line.strip().lower().split(' . ') for line in raw if len(line.split(' . '))>=2]
+    data = [line.strip().lower().split(' . ')
+            for line in raw if len(line.split(' . '))>=2]
     random.shuffle(data)
     return data
 
@@ -281,10 +284,10 @@ class WikiDataset(gluon.data.Dataset):
 train_set = WikiDataset('wikitext-2', 128)
 ```
 
-设批量大小为16，定义训练集的迭代器。
+设批量大小为128，定义训练集的迭代器。
 
 ```{.python .input  n=12}
-batch_size = 512
+batch_size = 128
 train_iter = gluon.data.DataLoader(train_set, batch_size, shuffle=True)
 ```
 
@@ -304,7 +307,7 @@ for _, data_batch in enumerate(train_iter):
 在预处理好数据后，我们可以进行模型训练了。
 
 ### 初始化模型
-我们将`双向语言表征模型（BERT）`一节中的BERT模型初始化，并设置嵌入层尺寸为100.
+我们将`双向语言表征模型（BERT）`一节中的BERT模型初始化，并设置嵌入层尺寸为256.
 下一句预测任务和掩码语言模型任务都使用带有softmax的交叉熵作为损失函数。
 
 ```{.python .input  n=14}

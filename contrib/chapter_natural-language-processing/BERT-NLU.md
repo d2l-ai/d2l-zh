@@ -18,7 +18,8 @@ bert_train_set = d2l.WikiDataset('wikitext-2', 128)
 batch_size, ctx = 512, d2l.try_all_gpus()
 bert_train_iter = gluon.data.DataLoader(bert_train_set, batch_size, shuffle=True)
 
-bert = d2l.BERTModel(len(bert_train_set.vocab), embed_size=128, hidden_size=256, num_heads=2, num_layers=2, dropout=0.2)
+bert = d2l.BERTModel(len(bert_train_set.vocab), embed_size=128, hidden_size=256, num_heads=2,
+                     num_layers=2, dropout=0.2)
 bert.initialize(init.Xavier(), ctx=ctx)
 nsp_loss = gluon.loss.SoftmaxCELoss()
 mlm_loss = gluon.loss.SoftmaxCELoss()
@@ -82,10 +83,10 @@ train_set = SNLIBERTDataset("train", bert_train_set.vocab)
 test_set = SNLIBERTDataset("test", bert_train_set.vocab)
 ```
 
-设批量大小为64，分别定义训练集和测试集的迭代器。
+设批量大小为256，分别定义训练集和测试集的迭代器。
 
 ```{.python .input  n=67}
-batch_size = 512
+batch_size = 256
 train_iter = gluon.data.DataLoader(train_set, batch_size, shuffle=True)
 test_iter = gluon.data.DataLoader(test_set, batch_size)
 ```
@@ -116,23 +117,13 @@ net = BERTClassifier(bert, 3)
 net.classifier.initialize(ctx=ctx)
 ```
 
-我们修改“多GPU计算”中的“split_batch”方法，能够将具有多个输入的小批量数据样本batch划分并复制到ctx变量所指定的各个显存上。
-
-```{.python .input  n=84}
-# Saved in the d2l package for later use
-def split_batch_multi_inputs(X, y, ctx_list):
-    """Split X and y into multiple devices specified by ctx"""
-    X = list(zip(*[gluon.utils.split_and_load(feature, ctx_list, even_split=False) for feature in X]))
-    return (X, gluon.utils.split_and_load(y, ctx_list, even_split=False))
-```
-
 现在就可以训练模型了。
 
 ```{.python .input  n=87}
 lr, num_epochs = 0.00005, 5
 trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': lr})
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
-d2l.train_ch12(net, train_iter, test_iter, loss, trainer, num_epochs, ctx, split_batch_multi_inputs)
+d2l.train_ch12(net, train_iter, test_iter, loss, trainer, num_epochs, ctx, d2l.split_batch_multi_inputs)
 ```
 
 ## 小结
