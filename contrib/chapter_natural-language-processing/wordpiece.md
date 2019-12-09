@@ -16,7 +16,7 @@
 具体来说是首先将词汇表初始化为符号表，并将每个单词表示为一个字符序列，并加入特殊字符”\_“结尾。
 
 ```{.python .input  n=2}
-import re, collections
+import collections
 
 words = {'l o w _' : 5, 'l o w e r _' : 2,
          'n e w e s t _':6, 'w i d e s t _':3}
@@ -85,7 +85,3 @@ print(vocabs)
 [1] Wu, Y., Schuster, M., Chen, Z., Le, Q. V., Norouzi, M., Macherey, W., ... & Klingner, J. (2016). Google's neural machine translation system: Bridging the gap between human and machine translation. arXiv preprint arXiv:1609.08144.
 
 [2] Sennrich, R., Haddow, B., & Birch, A. (2015). Neural machine translation of rare words with subword units. arXiv preprint arXiv:1508.07909.
-
-```{.python .input}
-
-```
