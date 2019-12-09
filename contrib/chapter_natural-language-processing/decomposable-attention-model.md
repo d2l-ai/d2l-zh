@@ -198,7 +198,7 @@ glove_embedding = text.embedding.create(
 net.embedding.weight.set_data(glove_embedding.idx_to_vec)
 ```
 
-我们定义一个`split_batch_multi`函数，这个函数将具有多个输入的小批量数据样本batch划分并复制到ctx变量所指定的各个显存上。
+我们定义一个`split_batch_multi_input`函数，这个函数将具有多个输入的小批量数据样本batch划分并复制到ctx变量所指定的各个显存上。
 
 ```{.python .input}
 # Saved in the d2l package for later use
