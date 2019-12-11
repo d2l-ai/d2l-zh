@@ -5,7 +5,7 @@
 下面来看一个原始文本和词片序列的示例：
 
 原始文本：Jet makers feud over seat width with big orders at stake
-词片序列： J et_ makers_ fe ud_ over_ seat _ width_ with_ big_ orders_ at_ stake
+词片序列： J et_ makers_ fe ud_ over_ seat _ width_ with_ big_ orders_ at_ stake_
 
 在这个示例中，单词Jet被分成两个单词“J“和“et\_“，单词feud被分成两个单词“fe“ 和 ”ud\_” 。其中“\_”是一个特殊字符，用于标记单词的结尾。
 
@@ -15,38 +15,36 @@
 
 具体来说是首先将词汇表初始化为符号表，并将每个单词表示为一个字符序列，并加入特殊字符”\_“结尾。
 
-```{.python .input  n=2}
+```{.python .input  n=1}
 import collections
 
 words = {'l o w _' : 5, 'l o w e r _' : 2,
          'n e w e s t _':6, 'w i d e s t _':3}
-
+## 用ascii码
 vocabs = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
           'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-
 ```
 
 然后计算所有的相邻符号对，并找到最频繁的符号（“A”，“B”）。
 
 ```{.python .input  n=2}
-def get_max_freq_pair(vocab):
+def get_max_freq_pair(vocab):#改变量名 word
     pairs = collections.defaultdict(int)
     for word, freq in vocab.items():
         symbols = word.split()
-        for i in range(len(symbols)-1):
+        for i in range(len(symbols) - 1):
             # 统计每个相邻单元的出现次数
-            pairs[symbols[i],symbols[i+1]] += freq
+            pairs[symbols[i], symbols[i + 1]] += freq
     max_freq_pair = max(pairs, key=pairs.get)
     return max_freq_pair
 ```
 
 并用新符号”AB“替换最频繁的符号（“A”，“B”），每次合并操作都会产生一个代表字符组合的新符号，频繁的字符组合（或者整个单词）可以合并为单个符号。在合并的过程中，不考虑跨越单词边界。
 
-```{.python .input  n=2}
+```{.python .input  n=3}
 def merge_vocab(max_freq_pair, words, vocabs):
     bigram = ' '.join(max_freq_pair)
     vocabs.append(''.join(max_freq_pair))
-    
     words_out = {}
     for word, freq in words.items():
         new_word = word.replace(bigram, ''.join(max_freq_pair))
@@ -56,14 +54,24 @@ def merge_vocab(max_freq_pair, words, vocabs):
 
 最终符号词表大小=初始大小+合并操作次数。操作次数是算法唯一的超参数。下面我们来运行一下这个算法。
 
-```{.python .input  n=2}
+```{.python .input  n=4}
 num_merges = 10
 for i in range(num_merges):
     max_freq_pair = get_max_freq_pair(words)
     words = merge_vocab(max_freq_pair, words, vocabs)
     print("第%d次合并:" % (i + 1), max_freq_pair)
-print(words)
+print(words) #前面加文字注释
 print(vocabs)
+```
+
+```{.json .output n=4}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "\u7b2c1\u6b21\u5408\u5e76: ('e', 's')\n\u7b2c2\u6b21\u5408\u5e76: ('es', 't')\n\u7b2c3\u6b21\u5408\u5e76: ('est', '_')\n\u7b2c4\u6b21\u5408\u5e76: ('l', 'o')\n\u7b2c5\u6b21\u5408\u5e76: ('lo', 'w')\n\u7b2c6\u6b21\u5408\u5e76: ('n', 'e')\n\u7b2c7\u6b21\u5408\u5e76: ('ne', 'w')\n\u7b2c8\u6b21\u5408\u5e76: ('new', 'est_')\n\u7b2c9\u6b21\u5408\u5e76: ('low', '_')\n\u7b2c10\u6b21\u5408\u5e76: ('w', 'i')\n{'low_': 5, 'low e r _': 2, 'newest_': 6, 'wi d est_': 3}\n['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'es', 'est', 'est_', 'lo', 'low', 'ne', 'new', 'newest_', 'low_', 'wi']\n"
+ }
+]
 ```
 
 如上面的结果，这个例子中，“lower”将被分割成“low”和“er_”。
