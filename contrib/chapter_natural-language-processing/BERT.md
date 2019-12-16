@@ -21,7 +21,6 @@
 import d2l
 from mxnet import gluon, np, npx
 from mxnet.gluon import nn
-import os
 
 npx.set_np()
 ```
@@ -53,15 +52,15 @@ class BERTEncoder(nn.Block):
     def __init__(self, vocab_size, units, hidden_size,
                  num_heads, num_layers, dropout, **kwargs):
         super(BERTEncoder, self).__init__(**kwargs)
-        self.word_embed = gluon.nn.Embedding(vocab_size, units)
-        self.segment_embed = gluon.nn.Embedding(2, units)
+        self.word_embedding = gluon.nn.Embedding(vocab_size, units)
+        self.segment_embedding = gluon.nn.Embedding(2, units)
         self.pos_encoding = d2l.PositionalEncoding(units, dropout)
         self.blks = gluon.nn.Sequential()
         for i in range(num_layers):
             self.blks.add(d2l.EncoderBlock(units, hidden_size, num_heads, dropout))
 
-    def forward(self, words, segments, mask, *args):
-        X = self.word_embed(words) + self.segment_embed(segments)
+    def forward(self, words, segments, mask):
+        X = self.word_embedding(words) + self.segment_embedding(segments)
         X = self.pos_encoding(X)
         for blk in self.blks:
             X = blk(X, mask)
@@ -74,25 +73,13 @@ class BERTEncoder(nn.Block):
 encoder = BERTEncoder(vocab_size=10000, units=768, hidden_size=1024,
                       num_heads=4, num_layers=2, dropout=0.1)
 encoder.initialize()
-
 num_samples, num_words = 2, 8
 # 随机生成单词用于测试
-words = np.random(0, 10000, (2, 8))
+words = np.random.randint(0, 10000, (2, 8))
 # 我们使用0来表示对应单词来自第一个句子，使用1表示对应单词第二个句子
 segments = np.array([[0, 0, 0, 0, 1, 1, 1, 1],[0,0,0,1,1,1,1,1]])
-
 encodings = encoder(words, segments, None)
 print(encodings.shape)  # (批量大小, 单词数, 嵌入大小)
-```
-
-```{.json .output n=5}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "(2, 8, 768)\n"
- }
-]
 ```
 
 ## 预训练任务
@@ -119,7 +106,7 @@ class MaskLMDecoder(nn.Block):
         self.decoder.add(gluon.nn.LayerNorm())
         self.decoder.add(gluon.nn.Dense(vocab_size, flatten=False))
 
-    def forward(self, X, masked_positions, *args):
+    def forward(self, X, masked_positions):
         ctx = masked_positions.context
         dtype = masked_positions.dtype
         # 首先将表示要选择的掩码位置拉平
@@ -139,28 +126,18 @@ class MaskLMDecoder(nn.Block):
         return pred
 ```
 
-下面我们生成一些随机单词作为演示标签。我们使用交叉熵作为损失函数。然后将预测结果和真实标签传递给损失函数。
+下面我们生成一些随机单词作为演示。我们使用交叉熵作为损失函数。然后将预测结果和真实标签传递给损失函数。
 
 ```{.python .input  n=30}
 mlm_decoder = MaskLMDecoder(vocab_size=10000, units=768)
 mlm_decoder.initialize()
 
-mlm_positions = np.array([[0, 1],[4, 8]])
-mlm_label = np.array([[100, 200],[100, 200]])
+mlm_positions = np.array([[0, 1], [4, 8]])
+mlm_label = np.array([[100, 200], [100, 200]])
 mlm_pred = mlm_decoder(encodings, mlm_positions)  # (批量大小, 掩码数目, 词表大小)
 mlm_loss_fn = gluon.loss.SoftmaxCrossEntropyLoss()
 mlm_loss = mlm_loss_fn(mlm_pred, mlm_label)
 print(mlm_pred.shape, mlm_loss.shape)
-```
-
-```{.json .output n=30}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "(2, 2, 30000) (2,)\n"
- }
-]
 ```
 
 ### 下一句预测
@@ -195,7 +172,7 @@ class NextSentenceClassifier(nn.Block):
                                            activation='tanh'))
         self.classifier.add(gluon.nn.Dense(units=2, flatten=False))
 
-    def forward(self, X, *args):
+    def forward(self, X):
         X = X[:, 0, :]  # 获取第一个标记“[CLS]”的编码
         return self.classifier(X)
 ```
@@ -215,7 +192,7 @@ print(ns_pred.shape, ns_loss.shape)
 
 ## 构建模型
 
-我们将上面的从Transfomer中修改得到的`TransformerEncoder`，下一句任务预测模型和遮蔽语言模型串联到一起，得到BERT模型。
+我们将刚才修改得到的`TransformerEncoder`，下一句任务预测模型和遮蔽语言模型串联到一起，得到BERT模型。
 
 ```{.python .input  n=20}
 # Saved in the d2l package for later use
