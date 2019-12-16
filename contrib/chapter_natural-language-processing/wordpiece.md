@@ -67,9 +67,9 @@ for i in range(num_merges):
     max_freq_pair = get_max_freq_pair(words)
     words = merge_vocab(max_freq_pair, words, vocabs)
     print("Merge #%d:" % (i + 1), max_freq_pair)
-print("Words：", list(original_words.keys()))
-print("Wordpieces：", list(words.keys()))
-print("Vocabs：", vocabs)
+print("Words:", list(original_words.keys()))
+print("Wordpieces:", list(words.keys()))
+print("Vocabs:", vocabs)
 ```
 
 如上面这个例子中，“lower”将被分割成“low”和“er_”。
@@ -96,10 +96,10 @@ for word in inputs:
         else:
             end -= 1
     if start < len(word):
-        cur_output.append('[unk]')
+        cur_output.append('[UNK]')
     outputs.append(' '.join(cur_output))
-print('原始单词：', inputs)
-print('切分后单词：', outputs)
+print('Words:', inputs)
+print('Wordpieces:', outputs)
 ```
 
 ## 小结
@@ -112,7 +112,3 @@ print('切分后单词：', outputs)
 [1] Wu, Y., Schuster, M., Chen, Z., Le, Q. V., Norouzi, M., Macherey, W., ... & Klingner, J. (2016). Google's neural machine translation system: Bridging the gap between human and machine translation. arXiv preprint arXiv:1609.08144.
 
 [2] Sennrich, R., Haddow, B., & Birch, A. (2015). Neural machine translation of rare words with subword units. arXiv preprint arXiv:1508.07909.
-
-```{.python .input}
-
-```
