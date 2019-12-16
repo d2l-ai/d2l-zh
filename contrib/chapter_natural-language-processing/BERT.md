@@ -76,8 +76,9 @@ encoder.initialize()
 num_samples, num_words = 2, 8
 # 随机生成单词用于测试
 words = np.random.randint(0, 10000, (2, 8))
-# 我们使用0来表示对应单词来自第一个句子，使用1表示对应单词第二个句子
-segments = np.array([[0, 0, 0, 0, 1, 1, 1, 1],[0,0,0,1,1,1,1,1]])
+# 我们使用0来表示样本中对应位置的单词来自第一个句子，使用1表示对应位置的单词来自第二个句子
+segments = np.array([[0, 0, 0, 0, 1, 1, 1, 1],
+                     [0, 0, 0, 1, 1, 1, 1, 1]])
 encodings = encoder(words, segments, None)
 print(encodings.shape)  # (批量大小, 单词数, 嵌入大小)
 ```
@@ -200,7 +201,6 @@ class BERTModel(nn.Block):
     def __init__(self, vocab_size=None, embed_size=128, hidden_size=512,
                  num_heads=2, num_layers=4, dropout=0.1):
         super(BERTModel, self).__init__()
-        self._vocab_size = vocab_size
         self.encoder = BERTEncoder(vocab_size=vocab_size, units=embed_size, hidden_size=hidden_size,
                                    num_heads=num_heads, num_layers=num_layers, dropout=dropout)
         self.ns_classifier = NextSentenceClassifier()
