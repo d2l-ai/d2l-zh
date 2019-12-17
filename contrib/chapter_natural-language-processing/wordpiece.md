@@ -5,6 +5,7 @@
 下面来看一个原始文本和词片序列的示例：
 
 原始文本：Jet makers feud over seat width with big orders at stake
+
 词片序列： J et_ makers_ fe ud_ over_ seat _ width_ with_ big_ orders_ at_ stake_
 
 在这个示例中，单词Jet被分成两个单词“J“和“et\_“，单词feud被分成两个单词“fe“ 和 ”ud\_” 。其中“\_”是一个特殊字符，用于标记单词的结尾。
@@ -13,29 +14,29 @@
 
 词片模型的一种主要的实现方式叫做字节对编码（Byte-Pair Encoding，BPE）算法[2]。这个算法采用贪心策略。
 
-首先我们将词汇表初始化为符号表。
+首先我们将词汇表初始化为符号表。其中特殊字符”\_“作为单词的结尾，"[UNK]"表示未知字符。
 
 ```{.python .input  n=1}
 import collections
 
-vocabs = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-          'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+vocabs = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+          'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '_', '[UNK]']
 ```
 
-我们给出所有待处理单词及其在语料中出现频率计数。然后，将每个单词表示为字符序列，并在字符序列后加入特殊字符”\_“结尾
+我们给出所有待处理单词及其在语料中出现频率计数。。然后，我们将每个单词表示为字符序列形式。
 
 ```{.python .input}
-original_words = {'low' : 5, 'lower' : 2, 'newest' : 6, 'widest' : 3}
+original_words = {'low_' : 5, 'lower_' : 2, 'newest_' : 6, 'widest_' : 3}
 words = {}
 for word, freq in original_words.items():
-    new_word = ' '.join(list(word) + ['_'])
+    new_word = ' '.join(list(word))
     words[new_word] = original_words[word]
 ```
 
 然后计算所有的相邻符号对，并找到最频繁的符号（“A”，“B”）。
 
 ```{.python .input  n=2}
-def get_max_freq_pair(words):#改变量名 word
+def get_max_freq_pair(words):
     pairs = collections.defaultdict(int)
     for word, freq in words.items():
         symbols = word.split()
@@ -77,15 +78,14 @@ print("Vocabs:", vocabs)
 我们可以通过字节对编码得到更加合适的词表，这个词表可能会出现一些不是单词的组合。而由于英语自身的特点，比如在英语中广泛存在的前缀和后缀。所以这些不是单词的组合本身也是有意义的一种形式，通过这些组合可以使模型有效处理近乎于无限的词汇。
 
 ## 应用过程
-在上一步中，我们已经得到了词表。对于一个待处理的单词，我们设置两个下标start和end，初始分别指向单词的开始和结束位置。我们判断单词下标从start到end的子字符串是否存在于词表中，如果有则代表这个词是当前单词的一部分。然后将start指向end当前位置，将end继续指向单词结束位置。迭代这一个过程，直到单词被遍历完。当我们在遍历完这个单词后仍然有子字符串没有被替换，则将剩余子字符串替换为特殊词，如“[unk]”。
+在上一步中，我们已经得到了词表。对于一个待处理的单词，我们设置两个下标start和end，初始分别指向单词的开始和结束位置。我们判断单词下标从start到end的子字符串是否存在于词表中，如果有则代表这个词是当前单词的一部分。然后将start指向end当前位置，将end继续指向单词结束位置。迭代这一个过程，直到单词被遍历完。当我们在遍历完这个单词后仍然有子字符串没有被替换，则将剩余子字符串替换为特殊词，如“[UNK]”。
 
 下面我们来看一个例子，我们首先给定两个单词“slow”和“slowest”，然后使用上一步中得到的词表对这两个单词进行切分。
 
 ```{.python .input}
-inputs = ['slow', 'slowest']
+inputs = ['slow_', 'slowest_']
 outputs = []
 for word in inputs:
-    word += '_'
     start, end = 0, len(word)
     cur_output = []
     while start < len(word) and start < end:
