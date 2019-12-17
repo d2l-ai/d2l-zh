@@ -68,12 +68,24 @@ for i in range(num_merges):
     max_freq_pair = get_max_freq_pair(words)
     words = merge_vocab(max_freq_pair, words, vocabs)
     print("Merge #%d:" % (i + 1), max_freq_pair)
+```
+
+然后我们打印原始单词和词片序列。
+
+```{.python .input}
 print("Words:", list(original_words.keys()))
 print("Wordpieces:", list(words.keys()))
+```
+
+如上面这个例子中，“widest_”将被分割成“wi“、”d“和”est_“。
+
+然后我们打印词表。
+
+```{.python .input}
 print("Vocabs:", vocabs)
 ```
 
-如上面这个例子中，“lower”将被分割成“low”和“er_”。
+可以看到之前合并的新符号都加入了词表。
 
 我们可以通过字节对编码得到更加合适的词表，这个词表可能会出现一些不是单词的组合。而由于英语自身的特点，比如在英语中广泛存在的前缀和后缀。所以这些不是单词的组合本身也是有意义的一种形式，通过这些组合可以使模型有效处理近乎于无限的词汇。
 
