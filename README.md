@@ -6,7 +6,7 @@
 
 
 
-<h5 align="center"><i>理解深度学习的最好方法是学以致用。</i></h5>
+<h5 align="center"><i>理解深度学习的最佳方法是学以致用。</i></h5>
 
 <p align="center">
   <img width="200"  src="img/frontpage/eq.jpg">
