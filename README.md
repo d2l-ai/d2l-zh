@@ -6,7 +6,7 @@
 
 
 
-<h5 align="center"><i>理解深度学习的最好方法是学以致用.</i></h5>
+<h5 align="center"><i>理解深度学习的最好方法是学以致用。</i></h5>
 
 <p align="center">
   <img width="200"  src="img/frontpage/eq.jpg">
@@ -26,10 +26,10 @@
 
 <h5 align="center">将本书（中英文版）用作教材或参考书的大学</h5>
 <p align="center">
-  <img width="400"  src="static/frontpage/_images/map.png">
+  <img width="400"  src="http://en.d2l.ai.s3-website-us-west-2.amazonaws.com/_images/map.png">
 </p>
 
-如果本书对你有帮助，请 Star (★) 本仓库或引用英文版：
+如果本书对你有帮助，请Star (★) 本仓库或引用本书的英文版：
 
 ```
 @book{zhang2020dive,
