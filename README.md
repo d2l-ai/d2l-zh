@@ -50,6 +50,31 @@
 
 加州大学伯克利分校 2019 年春学期 [*Introduction to Deep Learning* 课程](http://courses.d2l.ai/berkeley-stat-157/index.html)教材（[含教学视频地址的中文版课件](https://github.com/d2l-ai/berkeley-stat-157/tree/master/slides-zh)）。
 
+## 赞誉
+
+> <p>"Dive into this book if you want to dive into deep learning!"</p>
+> <b>&mdash; 韩家炜，ACM 院士、IEEE 院士，美国伊利诺伊大学香槟分校计算机系 Michael Aiken Chair 教授</b>
+
+> <p>"This is a highly welcome addition to the machine learning literature."</p>
+> <b>&mdash; Bernhard Schölkopf，ACM 院士、德国国家科学院院士，德国马克斯•普朗克研究所智能系统院院长</b>
+
+> <p>"书中代码可谓‘所学即所用’。"</p>
+> <b>&mdash; 周志华，ACM 院士、IEEE 院士、AAAS 院士，南京大学计算机科学与技术系主任</b>
+
+> <p>"这本书可以帮助深度学习实践者快速提升自己的能力。"</p>
+> <b>&mdash; 张潼，ASA 院士、IMS 院士，香港科技大学计算机系和数学系教授</b>
+
+> <p>"一本优秀的深度学习教材，值得任何想了解深度学习何以引爆人工智能革命的人关注。"</p>
+> <b>&mdash; 黄仁勋，NVIDIA创始人 & CEO</b>
+
+> <p>"《动手学深度学习》是最适合工业界研发工程师学习的。我毫无保留地向广大的读者们强烈推荐。"</p>
+> <b>&mdash; 余凯，地平线公司创始人 & CEO</b>
+
+> <p>"强烈推荐这本书！我特别赞赏这种手脑一体的学习方式。"</p>
+> <b>&mdash; 漆远，蚂蚁金服副总裁、首席AI科学家</b>
+
+> <p>"《动手学深度学习》是一本很容易让学习者上瘾的书。"</p>
+> <b>&mdash; 沈强，将门创投创始合伙人</b>
 
 ## 贡献
 
