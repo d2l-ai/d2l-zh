@@ -113,7 +113,7 @@ def get_net():
 
 $$\sqrt{\frac{1}{n}\sum_{i=1}^n\left(\log(y_i)-\log(\hat y_i)\right)^2}.$$
 
-对数均方根误差的实现如下。
+对数均方根误差的实现如下：
 
 ```{.python .input  n=11}
 def log_rmse(net, features, labels):

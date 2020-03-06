@@ -159,7 +159,7 @@ train_fine_tuning(scratch_net, 0.1)
 
 ## 练习
 
-* 不断增大`finetune_net`的学习率。精度会有什么变化？
+* 不断增大`finetune_net`的学习率。准确率会有什么变化？
 * 进一步调节对比试验中`finetune_net`和`scratch_net`的超参数。它们的精度是不是依然有区别？
 * 将`finetune_net.features`中的参数固定为源模型的参数而不在训练中迭代，结果会怎样？你可能会用到以下代码。
 
@@ -174,8 +174,6 @@ weight = pretrained_net.output.weight
 hotdog_w = nd.split(weight.data(), 1000, axis=0)[713]
 hotdog_w.shape
 ```
-
-
 
 ## 参考文献
 

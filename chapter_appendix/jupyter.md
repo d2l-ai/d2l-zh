@@ -1,6 +1,6 @@
 # 使用Jupyter记事本
 
-本节介绍如何使用Jupyter记事本编辑和运行本书的代码。请确保你已按照[“获取和运行本书的代码”](../chapter_prerequisite/install.md)一节中的步骤安装好Jupyter记事本并获取了本书的代码。
+本附录介绍如何使用Jupyter记事本编辑和运行本书的代码。请确保你已按照[“获取和运行本书的代码”](../chapter_prerequisite/install.md)一节中的步骤安装好Jupyter记事本并获取了本书的代码。
 
 
 ## 在本地编辑和运行本书的代码
@@ -46,7 +46,7 @@
 
 ## 高级选项
 
-下面介绍有关使用Jupyter记事本的一些高级选项。你可以根据自己的兴趣参考其中的内容。
+下面介绍有关使用Jupyter记事本的一些高级选项。读者可以根据自己的兴趣参考其中的内容。
 
 ### 用Jupyter记事本读写GitHub源文件
 
@@ -60,7 +60,7 @@ conda env create -f environment.yml
 conda activate gluon
 ```
 
-下面安装notedown插件，运行Jupyter记事本并加载插件：
+下面安装notedown插件，运行Jupyter记事本并加载插件。
 
 ```
 pip install https://github.com/mli/notedown/tarball/master
@@ -75,7 +75,7 @@ jupyter notebook --NotebookApp.contents_manager_class='notedown.NotedownContents
 jupyter notebook --generate-config
 ```
 
-然后，将下面这一行加入到Jupyter记事本配置文件（一般在用户主目录下的隐藏文件夹`.jupyter`中的`jupyter_notebook_config.py`）的末尾
+然后，将下面这一行加入到Jupyter记事本配置文件（一般在用户主目录下的隐藏文件夹`.jupyter`中的`jupyter_notebook_config.py`）的末尾：
 
 ```
 c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'
@@ -86,7 +86,7 @@ c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'
 
 ### 在远端服务器上运行Jupyter记事本
 
-有时候，我们希望在远端服务器上运行Jupyter记事本，并通过本地计算机上的浏览器访问。如果本地计算机上安装了Linux或者macOS（Windows通过putty等第三方软件也能支持），那么可以使用端口映射：
+有时候，我们希望在远端服务器上运行Jupyter记事本，并通过本地计算机上的浏览器访问。如果本地计算机上安装了Linux或者macOS（Windows通过putty等第三方软件也能支持），那么可以使用端口映射。
 
 ```
 ssh myserver -L 8888:localhost:8888

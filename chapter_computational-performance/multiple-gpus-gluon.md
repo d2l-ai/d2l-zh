@@ -100,7 +100,7 @@ def train(num_gpus, batch_size, lr):
             epoch + 1, train_time, test_acc))
 ```
 
-首先在单GPU上训练模型。
+首先在单块GPU上训练模型。
 
 ```{.python .input}
 train(num_gpus=1, batch_size=256, lr=0.1)

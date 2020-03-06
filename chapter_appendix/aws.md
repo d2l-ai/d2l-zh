@@ -1,6 +1,6 @@
 # 使用AWS运行代码
 
-当本地机器的计算资源有限时，可以通过云计算服务获取更强大的计算资源来运行本书中的深度学习代码。本节将介绍如何在AWS（亚马逊的云计算服务）上申请实例并通过Jupyter记事本运行代码。本节中的例子有如下两个步骤。
+当本地机器的计算资源有限时，可以通过云计算服务获取更强大的计算资源来运行本书中的深度学习代码。本节将介绍如何在AWS（亚马逊的云计算服务）上申请实例并通过Jupyter记事本运行代码。本附录中的例子有如下两个步骤。
 
 1. 申请含一个K80 GPU的p2.xlarge实例。
 2. 安装CUDA及相应GPU版本的MXNet。
@@ -66,7 +66,7 @@ ssh -i "/path/to/key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com
 
 ## 安装CUDA
 
-下面介绍CUDA的安装步骤。首先，更新并安装编译需要的包：
+下面介绍CUDA的安装步骤。首先，更新并安装编译需要的包。
 
 ```
 sudo apt-get update && sudo apt-get install -y build-essential git libgfortran3
@@ -85,7 +85,7 @@ wget https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda_9.
 sudo sh cuda_9.0.176_384.81_linux-run
 ```
 
-点击Ctrl+C跳出文档浏览，并回答以下几个问题。
+点击Ctrl+C跳出文档浏览，并回答以下几个问题：
 
 ```
 Do you accept the previously read EULA?
@@ -107,22 +107,21 @@ Install the CUDA 9.0 Samples?
 (y)es/(n)o/(q)uit: n
 ```
 
-当安装完成后，运行下面的命令就可以看到该实例的GPU了。
+当安装完成后，运行下面的命令就可以看到该实例的GPU了：
 
 ```
 nvidia-smi
 ```
 
-最后，将CUDA加入到库的路径中，以方便其他库找到它。如果使用其他版本或其他路径，需要修改以下命令中的字符串“/usr/local/cuda-9.0”。
+最后，将CUDA加入到库的路径中，以方便其他库找到它。如果使用其他版本或其他路径，需要修改以下命令中的字符串“/usr/local/cuda-9.0”：
 
 ```
 echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-9.0/lib64" >> ~/.bashrc
 ```
 
-
 ## 获取本书的代码并安装GPU版的MXNet
 
-我们已在[“获取和运行本书的代码”](../chapter_prerequisite/install.md)一节中介绍了Linux用户获取本书的代码并安装运行环境的方法。首先，安装Linux版的[Miniconda](https://conda.io/en/latest/miniconda.html)，例如
+我们已在[“获取和运行本书的代码”](../chapter_prerequisite/install.md)一节中介绍了Linux用户获取本书的代码并安装运行环境的方法。首先，安装Linux版的[Miniconda](https://conda.io/en/latest/miniconda.html)，例如：
 
 ```
 # 以Miniconda官方网站上的下载链接和安装文件名为准
@@ -140,7 +139,7 @@ by running conda init? [yes|no]
 [no] >>> yes
 ```
 
-安装完成后，运行一次`source ~/.bashrc`让CUDA和conda生效。接下来，下载本书的代码，安装并激活conda环境。如未安装`unzip`，可运行命令`sudo apt install unzip`安装。
+安装完成后，运行一次`source ~/.bashrc`让CUDA和conda生效。接下来，下载本书的代码，安装并激活conda环境。（若未安装`unzip`，可运行命令`sudo apt install unzip`安装。）
 
 ```
 mkdir d2l-zh && cd d2l-zh
@@ -159,7 +158,7 @@ pip install mxnet-cu90==X.Y.Z  # X.Y.Z应替换为本书的代码依赖的版本
 
 ## 运行Jupyter记事本
 
-现在就可以运行Jupyter记事本了：
+现在就可以运行Jupyter记事本了。
 
 ```
 jupyter notebook

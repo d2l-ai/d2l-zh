@@ -22,7 +22,7 @@ print(dir(nd.random))
 help(nd.ones_like)
 ```
 
-从文档信息我们了解到，`ones_like`函数会创建和输入`NDArray`形状相同且元素为1的新`NDArray`。我们可以验证一下：
+从文档信息我们了解到，`ones_like`函数会创建和输入`NDArray`形状相同且元素为1的新`NDArray`。我们可以验证一下。
 
 ```{.python .input}
 x = nd.array([[0, 0, 0], [2, 2, 2]])
@@ -35,7 +35,7 @@ y
 
 ## 在MXNet网站上查阅
 
-读者也可以在MXNet的网站上查阅相关文档。访问MXNet网站 [http://mxnet.apache.org/](http://mxnet.apache.org/) （如图2.1所示），点击网页顶部的下拉菜单“API”可查阅各个前端语言的接口。此外，也可以在网页右上方含“Search”字样的搜索框中直接搜索函数或类名称。
+读者也可以在MXNet的网站上查阅相关文档。访问MXNet网站 [https://mxnet.apache.org/](http://mxnet.apache.org/) （如图2.1所示），点击网页顶部的下拉菜单“API”可查阅各个前端语言的接口。此外，也可以在网页右上方含“Search”字样的搜索框中直接搜索函数或类名称。
 
 ![MXNet官方网站](../img/mxnet-website.png)
 

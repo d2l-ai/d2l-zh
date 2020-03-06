@@ -43,7 +43,7 @@ jupyter notebook
 
 这时在浏览器打开 http://localhost:8888 （通常会自动打开）就可以查看和运行本书中每一节的代码了。
 
-本书中若干章节的代码会自动下载数据集和预训练模型，并默认使用美国站点下载。我们可以在运行Jupyter前指定MXNet使用国内站点下载书中的数据和模型（国外用户无须此操作）。
+本书中若干章节的代码会自动下载数据集和预训练模型，并默认使用美国站点下载。我们可以在运行Jupyter记事本前指定MXNet使用国内站点下载书中的数据和模型（国外用户无须此操作）。
 
 ```
 set MXNET_GLUON_REPO=https://apache-mxnet.s3.cn-north-1.amazonaws.com.cn/ jupyter notebook

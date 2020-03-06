@@ -78,19 +78,19 @@ nd.random.normal(0, 1, shape=(3, 4))
 X + Y
 ```
 
-按元素乘法：
+按元素乘法如下：
 
 ```{.python .input  n=11}
 X * Y
 ```
 
-按元素除法：
+按元素除法如下：
 
 ```{.python .input}
 X / Y
 ```
 
-按元素做指数运算：
+按元素做指数运算如下：
 
 ```{.python .input  n=12}
 Y.exp()
@@ -132,7 +132,7 @@ X.norm().asscalar()
 
 前面我们看到如何对两个形状相同的`NDArray`做按元素运算。当对两个形状不同的`NDArray`按元素运算时，可能会触发广播（broadcasting）机制：先适当复制元素使这两个`NDArray`形状相同后再按元素运算。
 
-定义两个`NDArray`：
+先定义两个`NDArray`。
 
 ```{.python .input  n=14}
 A = nd.arange(3).reshape((3, 1))

@@ -196,7 +196,7 @@ def get_inits(X, ctx, lr, styles_Y):
     return gen_img(), styles_Y_gram, trainer
 ```
 
-## 训练
+## 训练模型
 
 在训练模型时，我们不断抽取合成图像的内容特征和样式特征，并计算损失函数。回忆[“异步计算”](../chapter_computational-performance/async-computation.md)一节中有关用同步函数让前端等待计算结果的讨论。由于我们每隔50个迭代周期才调用同步函数`asscalar`，很容易造成内存占用过高，因此我们在每个迭代周期都调用一次同步函数`waitall`。
 

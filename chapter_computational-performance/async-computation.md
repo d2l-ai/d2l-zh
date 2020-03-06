@@ -74,7 +74,7 @@ with Benchmark():
     nd.waitall()
 ```
 
-此外，任何将`NDArray`转换成其他不支持异步计算的数据结构的操作都会让前端等待计算结果。例如，当我们调用`asnumpy`函数和`asscalar`函数时：
+此外，任何将`NDArray`转换成其他不支持异步计算的数据结构的操作都会让前端等待计算结果。例如，当我们调用`asnumpy`函数和`asscalar`函数时。
 
 ```{.python .input  n=7}
 with Benchmark():
