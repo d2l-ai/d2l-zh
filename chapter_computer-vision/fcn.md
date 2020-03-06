@@ -73,7 +73,7 @@ pretrained_net = model_zoo.vision.resnet18_v2(pretrained=True)
 pretrained_net.features[-4:], pretrained_net.output
 ```
 
-下面我们创建全卷积网络实例`net`。它复制了`pretrained_net`实例成员变量`features`里除去最后两层的所有层以及预训练得到的模型参数。
+下面我们创建全卷积网络实例`net`。它复制了`pretrained_net`实例的成员变量`features`里除去最后两层的所有层以及预训练得到的模型参数。
 
 ```{.python .input  n=6}
 net = nn.HybridSequential()

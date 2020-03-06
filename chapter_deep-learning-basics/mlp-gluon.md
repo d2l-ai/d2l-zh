@@ -19,7 +19,7 @@ net.add(nn.Dense(256, activation='relu'),
 net.initialize(init.Normal(sigma=0.01))
 ```
 
-## 读取数据并训练模型
+## 训练模型
 
 我们使用与[“softmax回归的简洁实现”](softmax-regression-gluon.md)一节中训练softmax回归几乎相同的步骤来读取数据并训练模型。
 

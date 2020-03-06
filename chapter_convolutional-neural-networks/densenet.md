@@ -109,7 +109,7 @@ net.add(nn.BatchNorm(), nn.Activation('relu'), nn.GlobalAvgPool2D(),
         nn.Dense(10))
 ```
 
-## 获取数据并训练模型
+## 训练模型
 
 由于这里使用了比较深的网络，本节里我们将输入高和宽从224降到96来简化计算。
 

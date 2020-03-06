@@ -57,7 +57,7 @@ for layer in net:
     print(layer.name, 'output shape:\t', X.shape)
 ```
 
-## 获取数据和训练模型
+## 训练模型
 
 我们依然使用Fashion-MNIST数据集来训练模型。NiN的训练与AlexNet和VGG的类似，但这里使用的学习率更大。
 

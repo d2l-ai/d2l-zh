@@ -10,7 +10,7 @@ $$q_{ij}=\frac{\exp(\boldsymbol{u}_j^\top \boldsymbol{v}_i)}{ \sum_{k \in \mathc
 
 $$-\sum_{i\in\mathcal{V}}\sum_{j\in\mathcal{V}} x_{ij} \log\,q_{ij}.$$
 
-我们将数据集中所有以词$w_i$为中心词的背景词的数量之和$\left|\mathcal{C}_i\right|$记为$x_i$，并将以$w_i$为中心词生成背景词$w_j$的条件概率$x_{ij}/x_i$记作$p_{ij}$。我们可以进一步改写跳字模型的损失函数为
+我们将数据集中所有以词$w_i$为中心词的背景词的数量之和$\left|\mathcal{C}_i\right|$记为$x_i$，并将以$w_i$为中心词生成背景词$w_j$的条件概率$x_{ij}/x_i$记作$p_{ij}$。我们可以进一步将跳字模型的损失函数改写为
 
 $$-\sum_{i\in\mathcal{V}} x_i \sum_{j\in\mathcal{V}} p_{ij} \log\,q_{ij}.$$
 

@@ -164,7 +164,7 @@ class HybridNet(nn.HybridBlock):
 
 在继承`HybridBlock`类时，我们需要在`hybrid_forward`函数中添加额外的输入`F`。我们知道，MXNet既有基于命令式编程的`NDArray`类，又有基于符号式编程的`Symbol`类。由于这两个类的函数基本一致，MXNet会根据输入来决定`F`使用`NDArray`或`Symbol`。
 
-下面创建了一个`HybridBlock`实例。可以看到在默认情况下`F`使用`NDArray`。而且，我们打印出了输入`x`和使用ReLU激活函数的隐藏层的输出。
+下面创建了一个`HybridBlock`实例。可以看到，在默认情况下`F`使用`NDArray`。而且，我们打印出了输入`x`和使用ReLU激活函数的隐藏层的输出。
 
 ```{.python .input}
 net = HybridNet()

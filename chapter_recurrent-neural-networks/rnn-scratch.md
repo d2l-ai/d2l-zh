@@ -155,7 +155,7 @@ def grad_clipping(params, theta, ctx):
 
 ## 定义模型训练函数
 
-跟之前章节的模型训练函数相比，这里的模型训练函数有以下几点不同：
+与之前章节的模型训练函数相比，这里的模型训练函数有以下几点不同：
 
 1. 使用困惑度评价模型。
 2. 在迭代模型参数前裁剪梯度。
@@ -192,7 +192,7 @@ def train_and_predict_rnn(rnn, get_params, init_rnn_state, num_hiddens,
                 inputs = to_onehot(X, vocab_size)
                 # outputs有num_steps个形状为(batch_size, vocab_size)的矩阵
                 (outputs, state) = rnn(inputs, state, params)
-                # 拼接之后形状为(num_steps * batch_size, vocab_size)
+                # 连结之后形状为(num_steps * batch_size, vocab_size)
                 outputs = nd.concat(*outputs, dim=0)
                 # Y的形状是(batch_size, num_steps)，转置后再变成长度为
                 # batch * num_steps 的向量，这样跟输出的行一一对应

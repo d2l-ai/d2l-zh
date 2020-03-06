@@ -106,7 +106,7 @@ for layer in net:
     print(layer.name, 'output shape:\t', X.shape)
 ```
 
-## 获取数据和训练模型
+## 训练模型
 
 我们使用高和宽均为96像素的图像来训练GoogLeNet模型。训练使用的图像依然来自Fashion-MNIST数据集。
 

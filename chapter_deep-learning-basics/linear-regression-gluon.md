@@ -18,7 +18,7 @@ labels = true_w[0] * features[:, 0] + true_w[1] * features[:, 1] + true_b
 labels += nd.random.normal(scale=0.01, shape=labels.shape)
 ```
 
-## 读取数据
+## 读取数据集
 
 Gluon提供了`data`包来读取数据。由于`data`常用作变量名，我们将导入的`data`模块用添加了Gluon首字母的假名`gdata`代替。在每一次迭代中，我们将随机读取包含10个数据样本的小批量。
 

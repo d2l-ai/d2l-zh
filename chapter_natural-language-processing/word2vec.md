@@ -39,7 +39,7 @@ $$P(w_o \mid w_c) = \frac{\text{exp}(\boldsymbol{u}_o^\top \boldsymbol{v}_c)}{ \
 
 $$ \prod_{t=1}^{T} \prod_{-m \leq j \leq m,\ j \neq 0} P(w^{(t+j)} \mid w^{(t)}),$$
 
-这里小于1和大于$T$的时间步可以忽略。
+这里小于1或大于$T$的时间步可以被忽略。
 
 ### 训练跳字模型
 

@@ -9,7 +9,7 @@ from mxnet import nd
 from mxnet.gluon import loss as gloss
 ```
 
-## 获取和读取数据
+## 读取数据集
 
 这里继续使用Fashion-MNIST数据集。我们将使用多层感知机对图像进行分类。
 
@@ -37,7 +37,7 @@ for param in params:
 
 ## 定义激活函数
 
-这里我们使用基础的`maximum`函数来实现ReLU，而非直接调用`relu`函数。
+这里我们使用基础的`maximum`函数来实现ReLU，而非直接调用MXNet的`relu`函数。
 
 ```{.python .input  n=4}
 def relu(X):

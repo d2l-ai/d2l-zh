@@ -4,7 +4,7 @@
 
 ## 使用预训练的词向量
 
-MXNet的`contrib.text`包提供了跟自然语言处理相关的函数和类（更多参见GluonNLP工具包 [1]）。下面查看它目前提供的预训练词嵌入的名称。
+MXNet的`contrib.text`包提供了与自然语言处理相关的函数和类（更多参见GluonNLP工具包 [1]）。下面查看它目前提供的预训练词嵌入的名称。
 
 ```{.python .input}
 from mxnet import nd

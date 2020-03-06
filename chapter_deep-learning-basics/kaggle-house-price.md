@@ -15,11 +15,11 @@
 
 ![房价预测比赛的网页信息。比赛数据集可通过点击“Data”标签获取](../img/house_pricing.png)
 
-## 获取和读取数据集
+## 读取数据集
 
 比赛数据分为训练数据集和测试数据集。两个数据集都包括每栋房子的特征，如街道类型、建造年份、房顶类型、地下室状况等特征值。这些特征值有连续的数字、离散的标签甚至是缺失值“na”。只有训练数据集包括了每栋房子的价格，也就是标签。我们可以访问比赛网页，点击图3.8中的“Data”标签，并下载这些数据集。
 
-我们将通过`pandas`库读入并处理数据。在导入本节需要的包前请确保已安装`pandas`库，否则请参考下面的代码注释。
+我们将通过`pandas`库读取并处理数据。在导入本节需要的包前请确保已安装`pandas`库，否则请参考下面的代码注释。
 
 ```{.python .input  n=3}
 # 如果没有安装pandas，则反注释下面一行
@@ -40,13 +40,13 @@ train_data = pd.read_csv('../data/kaggle_house_pred_train.csv')
 test_data = pd.read_csv('../data/kaggle_house_pred_test.csv')
 ```
 
-训练数据集包括1460个样本、80个特征和1个标签。
+训练数据集包括1,460个样本、80个特征和1个标签。
 
 ```{.python .input  n=11}
 train_data.shape
 ```
 
-测试数据集包括1459个样本和80个特征。我们需要将测试数据集中每个样本的标签预测出来。
+测试数据集包括1,459个样本和80个特征。我们需要将测试数据集中每个样本的标签预测出来。
 
 ```{.python .input  n=5}
 test_data.shape
@@ -64,7 +64,7 @@ train_data.iloc[0:4, [0, 1, 2, 3, -3, -2, -1]]
 all_features = pd.concat((train_data.iloc[:, 1:-1], test_data.iloc[:, 1:]))
 ```
 
-## 预处理数据
+## 预处理数据集
 
 我们对连续数值的特征做标准化（standardization）：设该特征在整个数据集上的均值为$\mu$，标准差为$\sigma$。那么，我们可以将该特征的每个值先减去$\mu$再除以$\sigma$得到标准化后的每个特征值。对于缺失的特征值，我们将其替换成该特征的均值。
 
@@ -123,7 +123,7 @@ def log_rmse(net, features, labels):
     return rmse.asscalar()
 ```
 
-下面的训练函数跟本章中前几节的不同在于使用了Adam优化算法。相对之前使用的小批量随机梯度下降，它对学习率相对不那么敏感。我们将在之后的“优化算法”一章里详细介绍它。
+下面的训练函数与本章中前几节的不同在于使用了Adam优化算法。相对之前使用的小批量随机梯度下降，它对学习率相对不那么敏感。我们将在之后的“优化算法”一章里详细介绍它。
 
 ```{.python .input  n=14}
 def train(net, train_features, train_labels, test_features, test_labels,
@@ -146,7 +146,7 @@ def train(net, train_features, train_labels, test_features, test_labels,
     return train_ls, test_ls
 ```
 
-## $K$折交叉验证
+## $k$折交叉验证
 
 我们在[“模型选择、欠拟合和过拟合”](underfit-overfit.md)一节中介绍了$K$折交叉验证。它将被用来选择模型设计并调节超参数。下面实现了一个函数，它返回第`i`折交叉验证时所需要的训练和验证数据。
 
@@ -168,7 +168,7 @@ def get_k_fold_data(k, i, X, y):
     return X_train, y_train, X_valid, y_valid
 ```
 
-在$K$折交叉验证中我们训练$K$次并返回训练和验证的平均误差。
+在$k$折交叉验证中我们训练$k$次并返回训练和验证的平均误差。
 
 ```{.python .input  n=15}
 def k_fold(k, X_train, y_train, num_epochs,
@@ -202,7 +202,7 @@ print('%d-fold validation: avg train rmse %f, avg valid rmse %f'
       % (k, train_l, valid_l))
 ```
 
-有时候你会发现一组参数的训练误差可以达到很低，但是在$K$折交叉验证上的误差可能反而较高。这种现象很可能是由过拟合造成的。因此，当训练误差降低时，我们要观察$K$折交叉验证上的误差是否也相应降低。
+有时候你会发现一组参数的训练误差可以达到很低，但是在$k$折交叉验证上的误差可能反而较高。这种现象很可能是由过拟合造成的。因此，当训练误差降低时，我们要观察$k$折交叉验证上的误差是否也相应降低。
 
 ## 预测并在Kaggle提交结果
 
@@ -237,13 +237,13 @@ train_and_pred(train_features, test_features, train_labels, test_data,
 ## 小结
 
 * 通常需要对真实数据做预处理。
-* 可以使用$K$折交叉验证来选择模型并调节超参数。
+* 可以使用$k$折交叉验证来选择模型并调节超参数。
 
 
 ## 练习
 
 * 在Kaggle提交本节的预测结果。观察一下，这个结果在Kaggle上能拿到什么样的分数？
-* 对照$K$折交叉验证结果，不断修改模型（例如添加隐藏层）和调参，能提高Kaggle上的分数吗？
+* 对照$k$折交叉验证结果，不断修改模型（例如添加隐藏层）和调参，能提高Kaggle上的分数吗？
 * 如果不使用本节中对连续数值特征的标准化处理，结果会有什么变化？
 * 扫码直达讨论区，在社区交流方法和结果。你能发掘出其他更好的技巧吗？ 
 

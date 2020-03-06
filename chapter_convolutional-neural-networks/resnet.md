@@ -83,7 +83,7 @@ def resnet_block(num_channels, num_residuals, first_block=False):
     return blk
 ```
 
-接着我们为ResNet加入所有残差块。这里每个模块使用两个残差块。
+接着我们为ResNet加入所有残差块。这里每个模块使用2个残差块。
 
 ```{.python .input  n=5}
 net.add(resnet_block(64, 2, first_block=True),
@@ -110,7 +110,7 @@ for layer in net:
     print(layer.name, 'output shape:\t', X.shape)
 ```
 
-## 获取数据和训练模型
+## 训练模型
 
 下面我们在Fashion-MNIST数据集上训练ResNet。
 

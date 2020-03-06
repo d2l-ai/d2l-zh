@@ -17,7 +17,7 @@ import time
 import zipfile
 ```
 
-## 处理数据集
+## 预处理数据集
 
 PTB（Penn Tree Bank）是一个常用的小型语料库 [1]。它采样自《华尔街日报》的文章，包括训练集、验证集和测试集。我们将在PTB训练集上训练词嵌入模型。该数据集的每一行作为一个句子。句子中的每个词由空格隔开。
 
@@ -158,7 +158,7 @@ sampling_weights = [counter[w]**0.75 for w in idx_to_token]
 all_negatives = get_negatives(all_contexts, sampling_weights, 5)
 ```
 
-## 读取数据
+## 读取数据集
 
 我们从数据集中提取所有中心词`all_centers`，以及每个中心词对应的背景词`all_contexts`和噪声词`all_negatives`。我们将通过随机小批量来读取它们。
 
@@ -218,7 +218,7 @@ embed(x)
 
 ### 小批量乘法
 
-我们可以使用小批量乘法运算`batch_dot`对两个小批量中的矩阵一一做乘法。假设第一个小批量中包含$n$个形状为$a\times b$的矩阵$\boldsymbol{X}_1, \ldots, \boldsymbol{X}_n$，第二个小批量中包含$n$个形状为$b\times c$的矩阵$\boldsymbol{Y}_1, \ldots, \boldsymbol{Y}_n$。这两个小批量的矩阵乘法输出为$n$个形状为$a\times c$的矩阵$\boldsymbol{X}_1\boldsymbol{Y}_1, \ldots, \boldsymbol{X}_n\boldsymbol{Y}_n$。因此，给定两个形状分别为($n$, $a$, $b$)和($n$, $b$, $c$)的`NDArray`，小批量乘法输出的形状为($n$, $a$, $c$)。
+我们可以使用小批量乘法运算`batch_dot`对两个小批量中的矩阵一一做乘法。假设第一个小批量包含$n$个形状为$a\times b$的矩阵$\boldsymbol{X}_1, \ldots, \boldsymbol{X}_n$，第二个小批量包含$n$个形状为$b\times c$的矩阵$\boldsymbol{Y}_1, \ldots, \boldsymbol{Y}_n$。这两个小批量的矩阵乘法输出为$n$个形状为$a\times c$的矩阵$\boldsymbol{X}_1\boldsymbol{Y}_1, \ldots, \boldsymbol{X}_n\boldsymbol{Y}_n$。因此，给定两个形状分别为($n$, $a$, $b$)和($n$, $b$, $c$)的`NDArray`，小批量乘法输出的形状为($n$, $a$, $c$)。
 
 ```{.python .input  n=17}
 X = nd.ones((2, 1, 4))
