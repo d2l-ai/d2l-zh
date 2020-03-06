@@ -34,8 +34,8 @@ setup(
     # Metadata
     name='d2lzh',
     version=VERSION,
-    author='Contributors',
-    author_email='mli@amazon.com',
+    author='D2L Developers',
+    author_email='d2l.devs@gmail.com',
     url='https://zh.d2l.ai',
     description='Dive into Deep Learning (in Chinese) Utils',
     long_description='Dive into Deep Learning Book (in Chinese) Utilities',
