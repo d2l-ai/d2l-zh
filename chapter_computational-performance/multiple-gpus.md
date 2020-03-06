@@ -133,7 +133,7 @@ print('output:', splitted)
 ```{.python .input  n=10}
 def train_batch(X, y, gpu_params, ctx, lr):
     # 当ctx包含多块GPU及相应的显存时，将小批量数据样本划分并复制到各个显存上
-    gpu_Xs, gpu_ys = split_and_load(X, ctx), split_and_load(y, ctx) 
+    gpu_Xs, gpu_ys = split_and_load(X, ctx), split_and_load(y, ctx)
     with autograd.record():  # 在各块GPU上分别计算损失
         ls = [loss(lenet(gpu_X, gpu_W), gpu_y)
               for gpu_X, gpu_y, gpu_W in zip(gpu_Xs, gpu_ys, gpu_params)]

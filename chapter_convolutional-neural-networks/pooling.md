@@ -38,7 +38,7 @@ def pool2d(X, pool_size, mode='max'):
             if mode == 'max':
                 Y[i, j] = X[i: i + p_h, j: j + p_w].max()
             elif mode == 'avg':
-                Y[i, j] = X[i: i + p_h, j: j + p_w].mean()       
+                Y[i, j] = X[i: i + p_h, j: j + p_w].mean()
     return Y
 ```
 

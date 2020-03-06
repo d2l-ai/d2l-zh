@@ -295,7 +295,7 @@ def bleu(pred_tokens, label_tokens, k):
         for i in range(len_pred - n + 1):
             if label_subs[''.join(pred_tokens[i: i + n])] > 0:
                 num_matches += 1
-                label_subs[''.join(pred_tokens[i: i + n])] -= 1      
+                label_subs[''.join(pred_tokens[i: i + n])] -= 1
         score *= math.pow(num_matches / (len_pred - n + 1), math.pow(0.5, n))
     return score
 ```
