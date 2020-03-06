@@ -283,7 +283,7 @@ $$
 \end{bmatrix},
 $$
 
-其中二阶偏导数
+其中二阶偏导数为
 
 $$\frac{\partial^2 f}{\partial x_i \partial x_j} = \frac{\partial }{\partial x_j} \left(\frac{\partial f}{ \partial x_i}\right).$$
 

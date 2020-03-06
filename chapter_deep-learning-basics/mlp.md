@@ -86,7 +86,7 @@ with autograd.record():
 xyplot(x, y, 'sigmoid')
 ```
 
-依据链式法则，sigmoid函数的导数
+依据链式法则，sigmoid函数的导数为
 
 $$\text{sigmoid}'(x) = \text{sigmoid}(x)\left(1-\text{sigmoid}(x)\right).$$
 
@@ -112,7 +112,7 @@ with autograd.record():
 xyplot(x, y, 'tanh')
 ```
 
-依据链式法则，tanh函数的导数
+依据链式法则，tanh函数的导数为
 
 $$\text{tanh}'(x) = 1 - \text{tanh}^2(x).$$
 
