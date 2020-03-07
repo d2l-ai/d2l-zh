@@ -194,7 +194,6 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
         train_l_sum, train_acc_sum, n, m, start = 0.0, 0.0, 0, 0, time.time()
         for i, batch in enumerate(train_iter):
             Xs, ys, batch_size = _get_batch(batch, ctx)
-            ls = []
             with autograd.record():
                 y_hats = [net(X) for X in Xs]
                 ls = [loss(y_hat, y) for y_hat, y in zip(y_hats, ys)]

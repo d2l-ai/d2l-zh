@@ -196,7 +196,8 @@ def get_vocab_imdb(data):
     """Get the vocab for the IMDB data set for sentiment analysis."""
     tokenized_data = get_tokenized_imdb(data)
     counter = collections.Counter([tk for st in tokenized_data for tk in st])
-    return text.vocab.Vocabulary(counter, min_freq=5)
+    return text.vocab.Vocabulary(counter, min_freq=5,
+                                 reserved_tokens=['<pad>'])
 
 
 def grad_clipping(params, theta, ctx):
@@ -343,7 +344,8 @@ def preprocess_imdb(data, vocab):
     max_l = 500
 
     def pad(x):
-        return x[:max_l] if len(x) > max_l else x + [0] * (max_l - len(x))
+        return x[:max_l] if len(x) > max_l else x + [
+            vocab.token_to_idx['<pad>']] * (max_l - len(x))
 
     tokenized_data = get_tokenized_imdb(data)
     features = nd.array([pad(vocab.to_indices(x)) for x in tokenized_data])
