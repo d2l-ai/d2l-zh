@@ -12,7 +12,7 @@
 
 第一步是根据操作系统下载并安装[Miniconda](https://conda.io/en/master/miniconda.html)，在安装过程中需要勾选“Add Anaconda to the system PATH environment variable”选项（如当conda版本为4.6.14时）。
 
-第二步是下载包含本书全部代码的压缩包。我们可以在浏览器的地址栏中输入 https://zh.d2l.ai/d2l-zh-1.0.zip 并按回车键进行下载。下载完成后，创建文件夹“d2l-zh”并将以上压缩包解压到这个文件夹。在该目录文件资源管理器的地址栏输入`cmd`进入命令行模式。
+第二步是下载包含本书全部代码的压缩包。我们可以在浏览器的地址栏中输入 https://zh.d2l.ai/d2l-zh-1.1.zip 并按回车键进行下载。下载完成后，创建文件夹“d2l-zh”并将以上压缩包解压到这个文件夹。在该目录文件资源管理器的地址栏输入`cmd`进入命令行模式。
 
 第三步是使用conda创建虚拟（运行）环境。conda和pip默认使用国外站点来下载软件，我们可以配置国内镜像来加速下载（国外用户无须此操作）。
 
@@ -74,7 +74,7 @@ by running conda init? [yes|no]
 
 ```
 mkdir d2l-zh && cd d2l-zh
-curl https://zh.d2l.ai/d2l-zh-1.0.zip -o d2l-zh.zip
+curl https://zh.d2l.ai/d2l-zh-1.1.zip -o d2l-zh.zip
 unzip d2l-zh.zip && rm d2l-zh.zip
 ```
 

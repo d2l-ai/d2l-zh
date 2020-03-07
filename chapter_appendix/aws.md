@@ -143,7 +143,7 @@ by running conda init? [yes|no]
 
 ```
 mkdir d2l-zh && cd d2l-zh
-curl https://zh.d2l.ai/d2l-zh-1.0.zip -o d2l-zh.zip
+curl https://zh.d2l.ai/d2l-zh-1.1.zip -o d2l-zh.zip
 unzip d2l-zh.zip && rm d2l-zh.zip
 conda env create -f environment.yml
 conda activate gluon
