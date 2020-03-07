@@ -1,12 +1,12 @@
 # 文本情感分类：使用循环神经网络
 
-文本分类是自然语言处理的一个常见任务，它把一段不定长的文本序列变换为文本的类别。本节关注它的一个子问题：使用文本情感分类来分析文本作者的情绪。这个问题也叫情感分析（sentiment analysis），并有着广泛的应用。例如，我们可以分析用户对产品的评论并统计用户的满意度，或者分析用户对市场行情的情绪并用以预测接下来的行情。
+文本分类是自然语言处理的一个常见任务，它把一段不定长的文本序列变换为文本的类别。本节关注它的一个子问题：使用文本情感分类来分析文本作者的情绪。这个问题也叫情感分析，并有着广泛的应用。例如，我们可以分析用户对产品的评论并统计用户的满意度，或者分析用户对市场行情的情绪并用以预测接下来的行情。
 
-同求近义词和类比词一样，文本分类也属于词嵌入的下游应用。在本节中，我们将应用预训练的词向量和含多个隐藏层的双向循环神经网络，来判断一段不定长的文本序列中包含的是正面还是负面的情绪。
+同搜索近义词和类比词一样，文本分类也属于词嵌入的下游应用。在本节中，我们将应用预训练的词向量和含多个隐藏层的双向循环神经网络，来判断一段不定长的文本序列中包含的是正面还是负面的情绪。
 
 在实验开始前，导入所需的包或模块。
 
-```{.python .input  n=2}
+```{.python .input  n=1}
 import collections
 import d2lzh as d2l
 from mxnet import gluon, init, nd
@@ -17,13 +17,13 @@ import random
 import tarfile
 ```
 
-## 文本情感分类数据集
+## 文本情感分类数据
 
 我们使用斯坦福的IMDb数据集（Stanford's Large Movie Review Dataset）作为文本情感分类的数据集 [1]。这个数据集分为训练和测试用的两个数据集，分别包含25,000条从IMDb下载的关于电影的评论。在每个数据集中，标签为“正面”和“负面”的评论数量相等。
 
-###  读取数据集
+###  读取数据
 
-首先下载这个数据集到`../data`路径下，然后解压至`../data/aclImdb`路径下。
+首先下载这个数据集到`../data`路径下，然后解压至`../data/aclImdb`下。
 
 ```{.python .input  n=3}
 # 本函数已保存在d2lzh包中方便以后使用
@@ -54,7 +54,7 @@ def read_imdb(folder='train'):  # 本函数已保存在d2lzh包中方便以后�
 train_data, test_data = read_imdb('train'), read_imdb('test')
 ```
 
-### 预处理数据集
+### 预处理数据
 
 我们需要对每条评论做分词，从而得到分好词的评论。这里定义的`get_tokenized_imdb`函数使用最简单的方法：基于空格进行分词。
 
@@ -71,7 +71,8 @@ def get_tokenized_imdb(data):  # 本函数已保存在d2lzh包中方便以后使
 def get_vocab_imdb(data):  # 本函数已保存在d2lzh包中方便以后使用
     tokenized_data = get_tokenized_imdb(data)
     counter = collections.Counter([tk for st in tokenized_data for tk in st])
-    return text.vocab.Vocabulary(counter, min_freq=5)
+    return text.vocab.Vocabulary(counter, min_freq=5,
+                                 reserved_tokens=['<pad>'])
 
 vocab = get_vocab_imdb(train_data)
 '# words in vocab:', len(vocab)
@@ -84,7 +85,8 @@ def preprocess_imdb(data, vocab):  # 本函数已保存在d2lzh包中方便以�
     max_l = 500  # 将每条评论通过截断或者补0，使得长度变成500
 
     def pad(x):
-        return x[:max_l] if len(x) > max_l else x + [0] * (max_l - len(x))
+        return x[:max_l] if len(x) > max_l else x + [
+            vocab.token_to_idx['<pad>']] * (max_l - len(x))
 
     tokenized_data = get_tokenized_imdb(data)
     features = nd.array([pad(vocab.to_indices(x)) for x in tokenized_data])
@@ -165,7 +167,7 @@ net.embedding.weight.set_data(glove_embedding.idx_to_vec)
 net.embedding.collect_params().setattr('grad_req', 'null')
 ```
 
-### 训练模型
+### 训练并评价模型
 
 这时候就可以开始训练模型了。
 
@@ -208,7 +210,7 @@ predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'bad'])
 
 * 使用更大的预训练词向量，如300维的GloVe词向量，能否提升分类准确率？
 
-* 使用spaCy分词工具，能否提升分类准确率？你需要安装spaCy（`pip install spacy`），并且安装英文包（`python -m spacy download en`）。在代码中，先导入spaCy（`import spacy`）。然后加载spaCy英文包（`spacy_en = spacy.load('en')`）。最后定义函数`def tokenizer(text): return [tok.text for tok in spacy_en.tokenizer(text)]`并替换原来的基于空格分词的`tokenizer`函数。需要注意的是，GloVe词向量对于名词词组的存储方式是用“-”连接各个单词，例如，词组“new york”在GloVe词向量中的表示为“new-york”，而使用spaCy分词之后“new york”的存储可能是“new york”。
+* 使用spaCy分词工具，能否提升分类准确率？你需要安装spaCy（`pip install spacy`），并且安装英文包（`python -m spacy download en`）。在代码中，先导入spacy（`import spacy`）。然后加载spacy英文包（`spacy_en = spacy.load('en')`）。最后定义函数`def tokenizer(text): return [tok.text for tok in spacy_en.tokenizer(text)]`并替换原来的基于空格分词的`tokenizer`函数。需要注意的是，GloVe词向量对于名词词组的存储方式是用“-”连接各个单词，例如，词组“new york”在GloVe词向量中的表示为“new-york”，而使用spaCy分词之后“new york”的存储可能是“new york”。
 
 
 
