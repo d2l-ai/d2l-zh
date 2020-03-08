@@ -40,13 +40,15 @@
 }
 ```
 
-## 更新
+## 本书的第二版
 
-英文版全面改进了[预备知识](https://d2l.ai/chapter_preliminaries/index.html)一章，
-新增了[推荐系统](https://d2l.ai/chapter_recommender-systems/index.html)一章和<a href="https://d2l.ai/chapter_appendix_math/index.html">深度学习的数学</a>一章。
-欢迎关注英文版开源项目：[https://github.com/d2l-ai/d2l-en](https://github.com/d2l-ai/d2l-en)
+本书的第一版自出版后产生了一定的影响力，这与本书脱胎于中文开源社区，并从中得到大量帮助是分不开的。虽然纸质书第一版已经出版，但深度学习领域依然在迅速发展。为了得到来自更广泛的英文开源社区的帮助，从而提升本书质量，本书的第二版正在用英文写。当英文版完成并改进后，我们再把它搬回中文版。
 
-## 英文版 *Dive into Deep Learning*
+目前，英文版已超过160节（中文版共96节），例如增加了理论背景（如优化收敛分析）、硬件设计（如参数服务器）、全新篇章（如注意力机制、推荐系统、深度学习的数学、生成对抗网络）、应用种类（如自然语言推理）、模型种类（如Transformer、BERT）等，并优化重组了大量章节（如将自然语言处理篇章按从预训练表征、到模型设计、再到下游应用重构）。
+
+如果你的英文基础较好，欢迎关注本书[第二版的英文开源项目](https://github.com/d2l-ai/d2l-en)。
+
+## 中英文教学资源
 
 加州大学伯克利分校 2019 年春学期 [*Introduction to Deep Learning* 课程](http://courses.d2l.ai/berkeley-stat-157/index.html)教材（[含教学视频地址的中文版课件](https://github.com/d2l-ai/berkeley-stat-157/tree/master/slides-zh)）。
 
