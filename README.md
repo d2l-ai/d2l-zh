@@ -5,7 +5,6 @@
 [本书网址：zh.d2l.ai](https://zh.d2l.ai/) |  [如何安装和使用书中源代码](https://zh.d2l.ai/chapter_prerequisite/install.html)
 
 
-
 <h5 align="center"><i>理解深度学习的最佳方法是学以致用。</i></h5>
 
 <p align="center">
