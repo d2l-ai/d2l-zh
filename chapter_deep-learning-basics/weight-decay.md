@@ -19,8 +19,8 @@ $$\ell(w_1, w_2, b) + \frac{\lambda}{2n} \|\boldsymbol{w}\|^2,$$
 
 $$
 \begin{aligned}
-w_1 &\leftarrow \left(1- \frac{\eta\lambda}{|\mathcal{B}|} \right)w_1 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}x_1^{(i)} \left(x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}\right),\\
-w_2 &\leftarrow \left(1- \frac{\eta\lambda}{|\mathcal{B}|} \right)w_2 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}x_2^{(i)} \left(x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}\right).
+w_1 &\leftarrow \left(1- \eta\lambda \right)w_1 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}x_1^{(i)} \left(x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}\right),\\
+w_2 &\leftarrow \left(1- \eta\lambda \right)w_2 -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}}x_2^{(i)} \left(x_1^{(i)} w_1 + x_2^{(i)} w_2 + b - y^{(i)}\right).
 \end{aligned}
 $$
 
@@ -81,7 +81,7 @@ def l2_penalty(w):
 下面定义如何在训练数据集和测试数据集上分别训练和测试模型。与前面几节中不同的是，这里在计算最终的损失函数时添加了$L_2$范数惩罚项。
 
 ```{.python .input  n=7}
-batch_size, num_epochs, lr = 1, 100, 0.003
+batch_size, num_epochs, lr = 2, 100, 0.003
 net, loss = d2l.linreg, d2l.squared_loss
 train_iter = gdata.DataLoader(gdata.ArrayDataset(
     train_features, train_labels), batch_size, shuffle=True)
@@ -92,7 +92,7 @@ def fit_and_plot(lambd):
     for _ in range(num_epochs):
         for X, y in train_iter:
             with autograd.record():
-                # 添加了L2范数惩罚项
+                # 添加了L2范数惩罚项，广播机制使其变成长度为batch_size的向量
                 l = loss(net(X, w, b), y) + lambd * l2_penalty(w)
             l.backward()
             d2l.sgd([w, b], lr, batch_size)
