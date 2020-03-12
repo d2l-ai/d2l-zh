@@ -81,7 +81,7 @@ def l2_penalty(w):
 下面定义如何在训练数据集和测试数据集上分别训练和测试模型。与前面几节中不同的是，这里在计算最终的损失函数时添加了$L_2$范数惩罚项。
 
 ```{.python .input  n=7}
-batch_size, num_epochs, lr = 2, 100, 0.003
+batch_size, num_epochs, lr = 1, 100, 0.003
 net, loss = d2l.linreg, d2l.squared_loss
 train_iter = gdata.DataLoader(gdata.ArrayDataset(
     train_features, train_labels), batch_size, shuffle=True)
