@@ -139,7 +139,7 @@ def lstm(inputs, state, params):
         O = nd.sigmoid(nd.dot(X, W_xo) + nd.dot(H, W_ho) + b_o)
         C_tilda = nd.tanh(nd.dot(X, W_xc) + nd.dot(H, W_hc) + b_c)
         C = F * C + I * C_tilda
-        H = O * C.tanh()
+        H = O * nd.tanh(C)
         Y = nd.dot(H, W_hq) + b_q
         outputs.append(Y)
     return outputs, (H, C)
