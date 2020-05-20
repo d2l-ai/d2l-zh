@@ -53,6 +53,7 @@ def xyplot(x_vals, y_vals, name):
     d2l.plt.plot(x_vals.asnumpy(), y_vals.asnumpy())
     d2l.plt.xlabel('x')
     d2l.plt.ylabel(name + '(x)')
+    d2l.plt.show()
 ```
 
 我们接下来通过`NDArray`提供的`relu`函数来绘制ReLU函数。可以看到，该激活函数是一个两段线性函数。
