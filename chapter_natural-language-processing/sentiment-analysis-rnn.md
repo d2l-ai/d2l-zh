@@ -77,19 +77,6 @@ vocab = get_vocab_imdb(train_data)
 '# words in vocab:', len(vocab)
 ```
 
-```{.json .output n=5}
-[
- {
-  "data": {
-   "text/plain": "('# words in vocab:', 46152)"
-  },
-  "execution_count": 5,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 因为每条评论长度不一致所以不能直接组合成小批量，我们定义`preprocess_imdb`函数对每条评论进行分词，并通过词典转换成词索引，然后通过截断或者补“&lt;pad&gt;”（padding）符号来将每条评论长度固定成500。
 
 ```{.python .input  n=6}
@@ -125,24 +112,6 @@ for X, y in train_iter:
     print('X', X.shape, 'y', y.shape)
     break
 '#batches:', len(train_iter)
-```
-
-```{.json .output n=8}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "X (64, 500) y (64,)\n"
- },
- {
-  "data": {
-   "text/plain": "('#batches:', 391)"
-  },
-  "execution_count": 8,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 ## 使用循环神经网络的模型
@@ -208,16 +177,6 @@ loss = gloss.SoftmaxCrossEntropyLoss()
 d2l.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs)
 ```
 
-```{.json .output n=13}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "training on [gpu(0), gpu(1), gpu(2), gpu(3)]\nepoch 1, loss 0.6366, train acc 0.609, test acc 0.797, time 54.2 sec\nepoch 2, loss 0.3901, train acc 0.826, test acc 0.839, time 56.3 sec\nepoch 3, loss 0.3362, train acc 0.856, test acc 0.848, time 51.7 sec\nepoch 4, loss 0.2995, train acc 0.874, test acc 0.851, time 57.4 sec\nepoch 5, loss 0.2670, train acc 0.891, test acc 0.843, time 52.5 sec\n"
- }
-]
-```
-
 最后，定义预测函数。
 
 ```{.python .input  n=14}
@@ -234,34 +193,8 @@ def predict_sentiment(net, vocab, sentence):
 predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'great'])
 ```
 
-```{.json .output n=15}
-[
- {
-  "data": {
-   "text/plain": "'positive'"
-  },
-  "execution_count": 15,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 ```{.python .input  n=16}
 predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'bad'])
-```
-
-```{.json .output n=16}
-[
- {
-  "data": {
-   "text/plain": "'negative'"
-  },
-  "execution_count": 16,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
 ```
 
 ## 小结

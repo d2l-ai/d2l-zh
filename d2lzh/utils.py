@@ -14,7 +14,7 @@ from mxnet import autograd, gluon, image, init, nd
 from mxnet.gluon import data as gdata, loss as gloss, nn, utils as gutils
 import numpy as np
 
-d2l = sys.modules[__name__]
+import d2lzh as d2l
 
 VOC_CLASSES = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
                'bottle', 'bus', 'car', 'cat', 'chair', 'cow',
