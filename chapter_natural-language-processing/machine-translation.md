@@ -8,10 +8,10 @@
 
 ```{.python .input  n=2}
 import collections
+import d2lzh as d2l
 import io
 import math
 from mxnet import autograd, gluon, init, nd
-from mxnet.contrib import text
 from mxnet.gluon import data as gdata, loss as gloss, nn, rnn
 
 PAD, BOS, EOS = '<pad>', '<bos>', '<eos>'
@@ -29,10 +29,42 @@ def process_one_seq(seq_tokens, all_tokens, all_seqs, max_seq_len):
 
 # 使用所有的词来构造词典。并将所有序列中的词变换为词索引后构造NDArray实例
 def build_data(all_tokens, all_seqs):
-    vocab = text.vocab.Vocabulary(collections.Counter(all_tokens),
-                                  reserved_tokens=[PAD, BOS, EOS])
-    indices = [vocab.to_indices(seq) for seq in all_seqs]
+    counter = collections.Counter(all_tokens)
+    vocab = d2l.Vocab(counter,
+                      reserved_tokens=[PAD, BOS, EOS])
+    indices = [vocab[seq] for seq in all_seqs]
     return vocab, nd.array(indices)
+```
+
+```{.python .input}
+class Vocab:
+    def __init__(self, counter, min_freq=0, reserved_tokens=None):
+        if reserved_tokens is None:
+            reserved_tokens = []
+        # Sort according to frequencies
+        self.token_freqs = sorted(counter.items(), key=lambda x: x[0])
+        self.token_freqs.sort(key=lambda x: x[1], reverse=True)
+        print(self.token_freqs)
+        self.unk, uniq_tokens = 0, ['<unk>'] + reserved_tokens
+        uniq_tokens += [token for token, freq in self.token_freqs
+                        if freq >= min_freq and token not in uniq_tokens]
+        self.idx_to_token, self.token_to_idx = [], dict()
+        for token in uniq_tokens:
+            self.idx_to_token.append(token)
+            self.token_to_idx[token] = len(self.idx_to_token) - 1
+
+    def __len__(self):
+        return len(self.idx_to_token)
+
+    def __getitem__(self, tokens):
+        if not isinstance(tokens, (list, tuple)):
+            return self.token_to_idx.get(tokens, self.unk)
+        return [self.__getitem__(token) for token in tokens]
+
+    def to_tokens(self, indices):
+        if not isinstance(indices, (list, tuple)):
+            return self.idx_to_token[indices]
+        return [self.idx_to_token[index] for index in indices]
 ```
 
 为了演示方便，我们在这里使用一个很小的法语—英语数据集。在这个数据集里，每一行是一对法语句子和它对应的英语句子，中间使用`'\t'`隔开。在读取数据时，我们在句末附上“&lt;eos&gt;”符号，并可能通过添加“&lt;pad&gt;”符号使每个序列的长度均为`max_seq_len`。我们为法语词和英语词分别创建词典。法语词的索引和英语词的索引相互独立。
@@ -245,7 +277,7 @@ train(encoder, decoder, dataset, lr, batch_size, num_epochs)
 def translate(encoder, decoder, input_seq, max_seq_len):
     in_tokens = input_seq.split(' ')
     in_tokens += [EOS] + [PAD] * (max_seq_len - len(in_tokens) - 1)
-    enc_input = nd.array([in_vocab.to_indices(in_tokens)])
+    enc_input = nd.array([in_vocab[in_tokens]])
     enc_state = encoder.begin_state(batch_size=1)
     enc_output, enc_state = encoder(enc_input, enc_state)
     dec_input = nd.array([out_vocab.token_to_idx[BOS]])
@@ -268,6 +300,15 @@ def translate(encoder, decoder, input_seq, max_seq_len):
 ```{.python .input}
 input_seq = 'ils regardent .'
 translate(encoder, decoder, input_seq, max_seq_len)
+```
+
+```{.python .input}
+in_tokens = input_seq.split(' ')
+in_tokens += [EOS] + [PAD] * (max_seq_len - len(in_tokens) - 1)
+```
+
+```{.python .input}
+nd.array([in_vocab[in_tokens]])
 ```
 
 ## 评价翻译结果

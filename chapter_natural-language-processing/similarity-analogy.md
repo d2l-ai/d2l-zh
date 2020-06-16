@@ -7,23 +7,16 @@
 MXNet的`contrib.text`包提供了与自然语言处理相关的函数和类（更多参见GluonNLP工具包 [1]）。下面查看它目前提供的预训练词嵌入的名称。
 
 ```{.python .input}
+import d2lzh as d2l
 from mxnet import nd
-from mxnet.contrib import text
 
-text.embedding.get_pretrained_file_names().keys()
+d2l.DATA_HUB.keys()
 ```
 
-给定词嵌入名称，可以查看该词嵌入提供了哪些预训练的模型。每个模型的词向量维度可能不同，或是在不同数据集上预训练得到的。
-
-```{.python .input  n=35}
-print(text.embedding.get_pretrained_file_names('glove'))
-```
-
-预训练的GloVe模型的命名规范大致是“模型.（数据集.）数据集词数.词向量维度.txt”。更多信息可以参考GloVe和fastText的项目网站 [2,3]。下面我们使用基于维基百科子集预训练的50维GloVe词向量。第一次创建预训练词向量实例时会自动下载相应的词向量，因此需要联网。
+下面我们使用基于维基百科子集预训练的50维GloVe词向量。第一次创建预训练词向量实例时会自动下载相应的词向量，因此需要联网。
 
 ```{.python .input  n=11}
-glove_6b50d = text.embedding.create(
-    'glove', pretrained_file_name='glove.6B.50d.txt')
+glove_6b50d = d2l.TokenEmbedding('glove.6b.50d')
 ```
 
 打印词典大小。其中含有40万个词和1个特殊的未知词符号。
@@ -60,7 +53,7 @@ def knn(W, x, k):
 ```{.python .input}
 def get_similar_tokens(query_token, k, embed):
     topk, cos = knn(embed.idx_to_vec,
-                    embed.get_vecs_by_tokens([query_token]), k+1)
+                    embed[[query_token]], k+1)
     for i, c in zip(topk[1:], cos[1:]):  # 除去输入词
         print('cosine sim=%.3f: %s' % (c, (embed.idx_to_token[i])))
 ```
@@ -87,7 +80,7 @@ get_similar_tokens('beautiful', 3, glove_6b50d)
 
 ```{.python .input}
 def get_analogy(token_a, token_b, token_c, embed):
-    vecs = embed.get_vecs_by_tokens([token_a, token_b, token_c])
+    vecs = embed[[token_a, token_b, token_c]]
     x = vecs[1] - vecs[0] + vecs[2]
     topk, cos = knn(embed.idx_to_vec, x, 1)
     return embed.idx_to_token[topk[0]]

@@ -11,10 +11,10 @@ from IPython import display
 from matplotlib import pyplot as plt
 import mxnet as mx
 from mxnet import autograd, gluon, image, init, nd
-from mxnet.contrib import text
 from mxnet.gluon import data as gdata, loss as gloss, nn, utils as gutils
 import numpy as np
 
+d2l = sys.modules[__name__]
 
 VOC_CLASSES = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
                'bottle', 'bus', 'car', 'cat', 'chair', 'cow',
@@ -196,8 +196,8 @@ def get_vocab_imdb(data):
     """Get the vocab for the IMDB data set for sentiment analysis."""
     tokenized_data = get_tokenized_imdb(data)
     counter = collections.Counter([tk for st in tokenized_data for tk in st])
-    return text.vocab.Vocabulary(counter, min_freq=5,
-                                 reserved_tokens=['<pad>'])
+    return d2l.Vocab(counter, min_freq=5,
+                          reserved_tokens=['<pad>'])
 
 
 def grad_clipping(params, theta, ctx):
@@ -334,7 +334,7 @@ def predict_rnn_gluon(prefix, num_chars, model, vocab_size, ctx, idx_to_char,
 
 def predict_sentiment(net, vocab, sentence):
     """Predict the sentiment of a given sentence."""
-    sentence = nd.array(vocab.to_indices(sentence), ctx=try_gpu())
+    sentence = nd.array(vocab[sentence], ctx=try_gpu())
     label = nd.argmax(net(sentence.reshape((1, -1))), axis=1)
     return 'positive' if label.asscalar() == 1 else 'negative'
 
@@ -348,7 +348,7 @@ def preprocess_imdb(data, vocab):
             vocab.token_to_idx['<pad>']] * (max_l - len(x))
 
     tokenized_data = get_tokenized_imdb(data)
-    features = nd.array([pad(vocab.to_indices(x)) for x in tokenized_data])
+    features = nd.array([pad(vocab[x]) for x in tokenized_data])
     labels = nd.array([score for _, score in data])
     return features, labels
 

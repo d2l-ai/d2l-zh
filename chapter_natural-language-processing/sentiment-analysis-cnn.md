@@ -4,10 +4,9 @@
 
 首先导入实验所需的包和模块。
 
-```{.python .input  n=2}
+```{.python .input  n=1}
 import d2lzh as d2l
 from mxnet import gluon, init, nd
-from mxnet.contrib import text
 from mxnet.gluon import data as gdata, loss as gloss, nn
 ```
 
@@ -19,7 +18,7 @@ from mxnet.gluon import data as gdata, loss as gloss, nn
 
 下面我们将一维互相关运算实现在`corr1d`函数里。它接受输入数组`X`和核数组`K`，并输出数组`Y`。
 
-```{.python .input  n=3}
+```{.python .input  n=2}
 def corr1d(X, K):
     w = K.shape[0]
     Y = nd.zeros((X.shape[0] - w + 1))
@@ -30,7 +29,7 @@ def corr1d(X, K):
 
 让我们复现图10.4中一维互相关运算的结果。
 
-```{.python .input  n=4}
+```{.python .input  n=3}
 X, K = nd.array([0, 1, 2, 3, 4, 5, 6]), nd.array([1, 2])
 corr1d(X, K)
 ```
@@ -41,7 +40,7 @@ corr1d(X, K)
 
 让我们复现图10.5中多输入通道的一维互相关运算的结果。
 
-```{.python .input  n=5}
+```{.python .input  n=4}
 def corr1d_multi_in(X, K):
     # 首先沿着X和K的第0维（通道维）遍历。然后使用*将结果列表变成add_n函数的位置参数
     #（positional argument）来进行相加
@@ -72,7 +71,7 @@ corr1d_multi_in(X, K)
 
 我们依然使用和上一节中相同的IMDb数据集做情感分析。以下读取和预处理数据集的步骤与上一节中的相同。
 
-```{.python .input  n=2}
+```{.python .input  n=5}
 batch_size = 64
 d2l.download_imdb()
 train_data, test_data = d2l.read_imdb('train'), d2l.read_imdb('test')
@@ -142,10 +141,10 @@ net.initialize(init.Xavier(), ctx=ctx)
 同上一节一样，加载预训练的100维GloVe词向量，并分别初始化嵌入层`embedding`和`constant_embedding`，前者权重参与训练，而后者权重固定。
 
 ```{.python .input  n=7}
-glove_embedding = text.embedding.create(
-    'glove', pretrained_file_name='glove.6B.100d.txt', vocabulary=vocab)
-net.embedding.weight.set_data(glove_embedding.idx_to_vec)
-net.constant_embedding.weight.set_data(glove_embedding.idx_to_vec)
+glove_embedding = d2l.TokenEmbedding('glove.6b.100d')
+embeds = glove_embedding[vocab.idx_to_token]
+net.embedding.weight.set_data(embeds)
+net.constant_embedding.weight.set_data(embeds)
 net.constant_embedding.collect_params().setattr('grad_req', 'null')
 ```
 

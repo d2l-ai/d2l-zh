@@ -10,7 +10,6 @@
 import collections
 import d2lzh as d2l
 from mxnet import gluon, init, nd
-from mxnet.contrib import text
 from mxnet.gluon import data as gdata, loss as gloss, nn, rnn, utils as gutils
 import os
 import random
@@ -25,7 +24,7 @@ import tarfile
 
 首先下载这个数据集到`../data`路径下，然后解压至`../data/aclImdb`路径下。
 
-```{.python .input  n=3}
+```{.python .input  n=2}
 # 本函数已保存在d2lzh包中方便以后使用
 def download_imdb(data_dir='../data'):
     url = ('http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz')
@@ -39,7 +38,7 @@ download_imdb()
 
 接下来，读取训练数据集和测试数据集。每个样本是一条评论及其对应的标签：1表示“正面”，0表示“负面”。
 
-```{.python .input  n=13}
+```{.python .input  n=3}
 def read_imdb(folder='train'):  # 本函数已保存在d2lzh包中方便以后使用
     data = []
     for label in ['pos', 'neg']:
@@ -58,7 +57,7 @@ train_data, test_data = read_imdb('train'), read_imdb('test')
 
 我们需要对每条评论做分词，从而得到分好词的评论。这里定义的`get_tokenized_imdb`函数使用最简单的方法：基于空格进行分词。
 
-```{.python .input  n=14}
+```{.python .input  n=4}
 def get_tokenized_imdb(data):  # 本函数已保存在d2lzh包中方便以后使用
     def tokenizer(text):
         return [tok.lower() for tok in text.split(' ')]
@@ -67,20 +66,33 @@ def get_tokenized_imdb(data):  # 本函数已保存在d2lzh包中方便以后使
 
 现在，我们可以根据分好词的训练数据集来创建词典了。我们在这里过滤掉了出现次数少于5的词。
 
-```{.python .input  n=28}
+```{.python .input  n=5}
 def get_vocab_imdb(data):  # 本函数已保存在d2lzh包中方便以后使用
     tokenized_data = get_tokenized_imdb(data)
     counter = collections.Counter([tk for st in tokenized_data for tk in st])
-    return text.vocab.Vocabulary(counter, min_freq=5,
-                                 reserved_tokens=['<pad>'])
+    return d2l.Vocab(counter, min_freq=5,
+                          reserved_tokens=['<pad>'])
 
 vocab = get_vocab_imdb(train_data)
 '# words in vocab:', len(vocab)
 ```
 
+```{.json .output n=5}
+[
+ {
+  "data": {
+   "text/plain": "('# words in vocab:', 46152)"
+  },
+  "execution_count": 5,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
 因为每条评论长度不一致所以不能直接组合成小批量，我们定义`preprocess_imdb`函数对每条评论进行分词，并通过词典转换成词索引，然后通过截断或者补“&lt;pad&gt;”（padding）符号来将每条评论长度固定成500。
 
-```{.python .input  n=44}
+```{.python .input  n=6}
 def preprocess_imdb(data, vocab):  # 本函数已保存在d2lzh包中方便以后使用
     max_l = 500  # 将每条评论通过截断或者补'<pad>'，使得长度变成500
 
@@ -89,7 +101,7 @@ def preprocess_imdb(data, vocab):  # 本函数已保存在d2lzh包中方便以�
             vocab.token_to_idx['<pad>']] * (max_l - len(x))
 
     tokenized_data = get_tokenized_imdb(data)
-    features = nd.array([pad(vocab.to_indices(x)) for x in tokenized_data])
+    features = nd.array([pad(vocab[x]) for x in tokenized_data])
     labels = nd.array([score for _, score in data])
     return features, labels
 ```
@@ -98,7 +110,7 @@ def preprocess_imdb(data, vocab):  # 本函数已保存在d2lzh包中方便以�
 
 现在，我们创建数据迭代器。每次迭代将返回一个小批量的数据。
 
-```{.python .input}
+```{.python .input  n=7}
 batch_size = 64
 train_set = gdata.ArrayDataset(*preprocess_imdb(train_data, vocab))
 test_set = gdata.ArrayDataset(*preprocess_imdb(test_data, vocab))
@@ -108,18 +120,36 @@ test_iter = gdata.DataLoader(test_set, batch_size)
 
 打印第一个小批量数据的形状以及训练集中小批量的个数。
 
-```{.python .input}
+```{.python .input  n=8}
 for X, y in train_iter:
     print('X', X.shape, 'y', y.shape)
     break
 '#batches:', len(train_iter)
 ```
 
+```{.json .output n=8}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "X (64, 500) y (64,)\n"
+ },
+ {
+  "data": {
+   "text/plain": "('#batches:', 391)"
+  },
+  "execution_count": 8,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
 ## 使用循环神经网络的模型
 
 在这个模型中，每个词先通过嵌入层得到特征向量。然后，我们使用双向循环神经网络对特征序列进一步编码得到序列信息。最后，我们将编码的序列信息通过全连接层变换为输出。具体来说，我们可以将双向长短期记忆在最初时间步和最终时间步的隐藏状态连结，作为特征序列的表征传递给输出层分类。在下面实现的`BiRNN`类中，`Embedding`实例即嵌入层，`LSTM`实例即为序列编码的隐藏层，`Dense`实例即生成分类结果的输出层。
 
-```{.python .input  n=46}
+```{.python .input  n=9}
 class BiRNN(nn.Block):
     def __init__(self, vocab, embed_size, num_hiddens, num_layers, **kwargs):
         super(BiRNN, self).__init__(**kwargs)
@@ -145,7 +175,7 @@ class BiRNN(nn.Block):
 
 创建一个含两个隐藏层的双向循环神经网络。
 
-```{.python .input}
+```{.python .input  n=10}
 embed_size, num_hiddens, num_layers, ctx = 100, 100, 2, d2l.try_all_gpus()
 net = BiRNN(vocab, embed_size, num_hiddens, num_layers)
 net.initialize(init.Xavier(), ctx=ctx)
@@ -155,15 +185,15 @@ net.initialize(init.Xavier(), ctx=ctx)
 
 由于情感分类的训练数据集并不是很大，为应对过拟合，我们将直接使用在更大规模语料上预训练的词向量作为每个词的特征向量。这里，我们为词典`vocab`中的每个词加载100维的GloVe词向量。
 
-```{.python .input  n=45}
-glove_embedding = text.embedding.create(
-    'glove', pretrained_file_name='glove.6B.100d.txt', vocabulary=vocab)
+```{.python .input  n=11}
+glove_embedding = d2l.TokenEmbedding('glove.6b.100d')
+embeds = glove_embedding[vocab.idx_to_token]
 ```
 
 然后，我们将用这些词向量作为评论中每个词的特征向量。注意，预训练词向量的维度需要与创建的模型中的嵌入层输出大小`embed_size`一致。此外，在训练中我们不再更新这些词向量。
 
-```{.python .input  n=47}
-net.embedding.weight.set_data(glove_embedding.idx_to_vec)
+```{.python .input  n=12}
+net.embedding.weight.set_data(embeds)
 net.embedding.collect_params().setattr('grad_req', 'null')
 ```
 
@@ -171,31 +201,67 @@ net.embedding.collect_params().setattr('grad_req', 'null')
 
 这时候就可以开始训练模型了。
 
-```{.python .input  n=48}
+```{.python .input  n=13}
 lr, num_epochs = 0.01, 5
 trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': lr})
 loss = gloss.SoftmaxCrossEntropyLoss()
 d2l.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs)
 ```
 
+```{.json .output n=13}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "training on [gpu(0), gpu(1), gpu(2), gpu(3)]\nepoch 1, loss 0.6366, train acc 0.609, test acc 0.797, time 54.2 sec\nepoch 2, loss 0.3901, train acc 0.826, test acc 0.839, time 56.3 sec\nepoch 3, loss 0.3362, train acc 0.856, test acc 0.848, time 51.7 sec\nepoch 4, loss 0.2995, train acc 0.874, test acc 0.851, time 57.4 sec\nepoch 5, loss 0.2670, train acc 0.891, test acc 0.843, time 52.5 sec\n"
+ }
+]
+```
+
 最后，定义预测函数。
 
-```{.python .input  n=49}
+```{.python .input  n=14}
 # 本函数已保存在d2lzh包中方便以后使用
 def predict_sentiment(net, vocab, sentence):
-    sentence = nd.array(vocab.to_indices(sentence), ctx=d2l.try_gpu())
+    sentence = nd.array(vocab[sentence], ctx=d2l.try_gpu())
     label = nd.argmax(net(sentence.reshape((1, -1))), axis=1)
     return 'positive' if label.asscalar() == 1 else 'negative'
 ```
 
 下面使用训练好的模型对两个简单句子的情感进行分类。
 
-```{.python .input  n=50}
+```{.python .input  n=15}
 predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'great'])
 ```
 
-```{.python .input}
+```{.json .output n=15}
+[
+ {
+  "data": {
+   "text/plain": "'positive'"
+  },
+  "execution_count": 15,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
+```{.python .input  n=16}
 predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'bad'])
+```
+
+```{.json .output n=16}
+[
+ {
+  "data": {
+   "text/plain": "'negative'"
+  },
+  "execution_count": 16,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
 ## 小结
