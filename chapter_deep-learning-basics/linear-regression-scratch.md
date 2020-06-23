@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 from mxnet import autograd, nd
 import random
 
-!pip uninstall -y mxnet-cu100
+!pip uninstall -y mxnet-cu101
 ```
 
 ## 生成数据集
