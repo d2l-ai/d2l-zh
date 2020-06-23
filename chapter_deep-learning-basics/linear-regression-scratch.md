@@ -10,6 +10,8 @@ from IPython import display
 from matplotlib import pyplot as plt
 from mxnet import autograd, nd
 import random
+
+!pip uninstall -y mxnet-cu100
 ```
 
 ## 生成数据集
