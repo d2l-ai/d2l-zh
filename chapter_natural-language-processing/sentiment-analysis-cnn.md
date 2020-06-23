@@ -5,6 +5,10 @@
 首先导入实验所需的包和模块。
 
 ```{.python .input  n=2}
+!pip uninstall -y ..
+!pip uninstall -y d2lzh
+!pip install d2lzh==1.0.0
+
 import d2lzh as d2l
 from mxnet import gluon, init, nd
 from mxnet.contrib import text
