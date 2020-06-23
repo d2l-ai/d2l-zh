@@ -8,7 +8,7 @@ MXNet的`contrib.text`包提供了与自然语言处理相关的函数和类（�
 
 ```{.python .input}
 from mxnet import nd
-from mxnet.contrib import text
+from d2lzh import text
 
 text.embedding.get_pretrained_file_names().keys()
 ```

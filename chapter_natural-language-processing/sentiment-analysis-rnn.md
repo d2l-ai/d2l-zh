@@ -9,8 +9,8 @@
 ```{.python .input  n=1}
 import collections
 import d2lzh as d2l
+from d2lzh import text
 from mxnet import gluon, init, nd
-from mxnet.contrib import text
 from mxnet.gluon import data as gdata, loss as gloss, nn, rnn, utils as gutils
 import os
 import random
@@ -156,7 +156,7 @@ net.initialize(init.Xavier(), ctx=ctx)
 由于情感分类的训练数据集并不是很大，为应对过拟合，我们将直接使用在更大规模语料上预训练的词向量作为每个词的特征向量。这里，我们为词典`vocab`中的每个词加载100维的GloVe词向量。
 
 ```{.python .input  n=45}
-glove_embedding = text.embedding.create(
+glove_embedding = create(
     'glove', pretrained_file_name='glove.6B.100d.txt', vocabulary=vocab)
 ```
 

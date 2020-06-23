@@ -6,8 +6,8 @@
 
 ```{.python .input  n=2}
 import d2lzh as d2l
+from d2lzh import text
 from mxnet import gluon, init, nd
-from mxnet.contrib import text
 from mxnet.gluon import data as gdata, loss as gloss, nn
 ```
 
