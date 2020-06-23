@@ -5,9 +5,6 @@
 首先，导入本节中实验所需的包或模块，其中的matplotlib包可用于作图，且设置成嵌入显示。
 
 ```{.python .input  n=1}
-
-!pip uninstall -y mxnet-cu101
-
 %matplotlib inline
 from IPython import display
 from matplotlib import pyplot as plt
