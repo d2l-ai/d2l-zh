@@ -3,6 +3,10 @@
 在本节中，我们将从零开始实现一个基于字符级循环神经网络的语言模型，并在周杰伦专辑歌词数据集上训练一个模型来进行歌词创作。首先，我们读取周杰伦专辑歌词数据集。
 
 ```{.python .input  n=1}
+!pip uninstall mxnet-cu100
+!pip uninstall mxnet-cu101
+!pip install mxnet-cu101==1.5.0
+
 import d2lzh as d2l
 import math
 from mxnet import autograd, nd
