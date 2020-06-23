@@ -14,8 +14,10 @@ PRETRAINED_FILE['glove']['glove.6b.100d.txt'] = (DATA_URL + 'glove.6B.100d.zip',
                                                  'cd43bfb07e44e6f27cbcc7bc9ae3d80284fdaf5a')
 PRETRAINED_FILE['glove']['glove.42b.300d.txt'] = (DATA_URL + 'glove.42B.300d.zip',
                                                   'b5116e234e9eb9076672cfeabf5469f3eec904fa')
-PRETRAINED_FILE['fasttext']['wiki.en'] = (DATA_URL + 'wiki.en.zip',
+PRETRAINED_FILE['fasttext']['wiki.en.vec'] = (DATA_URL + 'wiki.en.zip',
                                           'c1816da3821ae9f43899be655002f6c723e91b88')
+PRETRAINED_FILE['fasttext']['wiki.zh.vec'] = (DATA_URL + 'wiki.zh.zip',
+                                          'fdf935689027b7eccf32ecef77ce2c5c659174a9')
 
 def mkdir_if_not_exist(path):
     if not isinstance(path, str):
