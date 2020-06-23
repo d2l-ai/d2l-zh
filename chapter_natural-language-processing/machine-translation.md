@@ -8,10 +8,10 @@
 
 ```{.python .input  n=2}
 import collections
+from d2lzh import text
 import io
 import math
 from mxnet import autograd, gluon, init, nd
-from mxnet.contrib import text
 from mxnet.gluon import data as gdata, loss as gloss, nn, rnn
 
 PAD, BOS, EOS = '<pad>', '<bos>', '<eos>'

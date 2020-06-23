@@ -1,4 +1,5 @@
 import collections
+from d2lzh import text
 import math
 import os
 import random
@@ -11,7 +12,6 @@ from IPython import display
 from matplotlib import pyplot as plt
 import mxnet as mx
 from mxnet import autograd, gluon, image, init, nd
-from mxnet.contrib import text
 from mxnet.gluon import data as gdata, loss as gloss, nn, utils as gutils
 import numpy as np
 
