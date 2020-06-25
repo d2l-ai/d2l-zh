@@ -1,15 +1,87 @@
 stage("Build and Publish") {
+  // such as d2l-en and d2l-zh
+  def REPO_NAME = env.JOB_NAME.split('/')[0]
+  // such as en and zh
+  def LANG = REPO_NAME.split('-')[1]
+  // The current branch or the branch this PR will merge into
+  def TARGET_BRANCH = env.CHANGE_TARGET ? env.CHANGE_TARGET : env.BRANCH_NAME
+  // such as d2l-en-master
+  def TASK = REPO_NAME + '-' + TARGET_BRANCH
   node {
-    ws('workspace/d2l-zh') {
-	  checkout scm
-      sh "git submodule update --init --recursive"
-      sh "build/utils/clean_build.sh"
-      sh "conda env update -f build/env.yml"
-      sh "build/utils/build_html.sh zh"
-      sh "build/utils/build_pdf.sh zh"
-      sh "build/utils/build_pkg.sh zh"
-      if (env.BRANCH_NAME == 'master') {
-        sh "build/utils/publish_website.sh zh"
+    ws("workspace/${TASK}") {
+      checkout scm
+      // conda environment
+      def ENV_NAME = "${TASK}-${EXECUTOR_NUMBER}";
+      // assign two GPUs to each build
+      def EID = EXECUTOR_NUMBER.toInteger()
+      def CUDA_VISIBLE_DEVICES=(EID*2).toString() + ',' + (EID*2+1).toString();
+
+      sh label: "Build Environment", script: """set -ex
+      conda env update -n ${ENV_NAME} -f static/build.yml
+      nvidia-smi
+      """
+
+      sh label: "Sanity Check", script: """set -ex
+      conda activate ${ENV_NAME}
+      d2lbook build outputcheck tabcheck
+      """
+
+      sh label: "Execute Notebooks", script: """set -ex
+      conda activate ${ENV_NAME}
+      export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES}
+      ./static/cache.sh restore _build/eval/data
+      ./static/clean_eval.sh
+      d2lbook build eval
+      ./static/cache.sh store _build/eval/data
+      """
+
+      sh label: "Execute Notebooks [Pytorch]", script: """set -ex
+      conda activate ${ENV_NAME}
+      export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES}
+      ./static/cache.sh restore _build/eval_pytorch/data
+      d2lbook build eval --tab pytorch
+      ./static/cache.sh store _build/eval_pytorch/data
+      """
+
+      sh label: "Execute Notebooks [Tensorflow]", script: """set -ex
+      conda activate ${ENV_NAME}
+      export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES}
+      ./static/cache.sh restore _build/eval_tensorflow/data
+      d2lbook build eval --tab tensorflow
+      ./static/cache.sh store _build/eval_tensorflow/data
+      """
+
+      sh label:"Build HTML", script:"""set -ex
+      conda activate ${ENV_NAME}
+      ./static/build_html.sh
+      """
+
+      sh label:"Build PDF", script:"""set -ex
+      conda activate ${ENV_NAME}
+      d2lbook build pdf
+      """
+
+      if (env.BRANCH_NAME == 'release') {
+        sh label:"Release", script:"""set -ex
+        conda activate ${ENV_NAME}
+        d2lbook build pkg
+        d2lbook deploy html pdf pkg colab sagemaker --s3 s3://zh-v2.d2l.ai
+        """
+
+        sh label:"Release d2l", script:"""set -ex
+        conda activate ${ENV_NAME}
+        pip install setuptools wheel twine
+        python setup.py bdist_wheel
+        twine upload dist/*
+        """
+      } else {
+        sh label:"Publish", script:"""set -ex
+        conda activate ${ENV_NAME}
+        d2lbook deploy html pdf --s3 s3://preview.d2l.ai/${JOB_NAME}/
+        """
+        if (env.BRANCH_NAME.startsWith("PR-")) {
+            pullRequest.comment("Job ${JOB_NAME}/${BUILD_NUMBER} is complete. \nCheck the results at http://preview.d2l.ai/${JOB_NAME}/")
+        }
       }
     }
   }
