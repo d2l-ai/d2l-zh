@@ -6,8 +6,6 @@
 
 ![推荐过程的示意图](../img/rec-intro.svg)
 
-图.16.1.1 推荐过程的示意图
-
 ## 协同过滤（CF）
 
 本文从推荐系统的重要概念——协同过滤(collaborative filtering，CF)入手，该概念最早由 Tapestry 系统提出[Goldberg et al., 1992](http://preview.d2l.ai/d2l-en/PR-1080/chapter_references/zreferences.html#goldberg-nichols-oki-ea-1992)，指的是“人们相互协作，帮助彼此执行过滤过程，以处理发布到新闻组的大量邮件和消息”。 这个术语增加了更多的意义。从广义上讲，它是使用涉及多个用户、代理和数据源之间协作的技术筛选信息或模式的过程。自CF诞生以来，它有许多形式和许多CF方法。
