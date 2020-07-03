@@ -5,28 +5,15 @@
  * @Author:  StevenJokes https://github.com/StevenJokes
  * @Date: 2020-07-03 20:53:18
  * @LastEditors:  StevenJokes https://github.com/StevenJokes
- * @LastEditTime: 2020-07-03 20:53:19
+ * @LastEditTime: 2020-07-03 22:36:45
  * @Description:
  * @TODO::
  * @Reference:
 -->
-
-
-
-<!--
- * @version:
- * @Author:  StevenJokes https://github.com/StevenJokes
- * @Date: 2020-07-03 16:25:07
- * @LastEditors:  StevenJokes https://github.com/StevenJokes
- * @LastEditTime: 2020-07-03 17:19:31
- * @Description:
- * @TODO::11.2.2.  FIG CODE
- * @Reference:http://preview.d2l.ai/d2l-en/PR-1102/chapter_optimization/convexity.html
--->
-
 # 凸性
+:label:TODO:
 
-凸性在优化算法设计中起着至关重要的作用。这很大程度上是因为在这种环境下分析和测试算法要容易得多。换句话说，如果算法即使在凸集上也表现不佳，我们就不应该希望看到好的结果。此外，尽管深度学习中的优化问题通常是非凸问题，但它们往往在局部极小点附近表现出凸问题的一些性质。这可能导致令人兴奋的新的优化变体，如 [Izmailov et al., 2018](http://preview.d2l.ai/d2l-en/PR-1102/chapter_references/zreferences.html#izmailov-podoprikhin-garipov-ea-2018)。
+凸性在优化算法设计中起着至关重要的作用。这很大程度上是因为在这种环境下分析和测试算法要容易得多。换句话说，如果算法即使在凸集上也表现不佳，我们就不应该希望看到好的结果。此外，尽管深度学习中的优化问题通常是非凸问题，但它们往往在局部极小点附近表现出凸问题的一些性质。这可能导致令人兴奋的新的优化变体，如:cite: [Izmailov et al., 2018](http://preview.d2l.ai/d2l-en/PR-1102/chapter_references/zreferences.html#izmailov-podoprikhin-garipov-ea-2018)。
 
 ## 基础
 
@@ -111,8 +98,8 @@ TODO:MATH
 
 在深度学习的背景下，凸函数的主要目的是激励优化算法，并帮助我们了解它们的细节。下面我们将看到如何相应地推导梯度下降和随机梯度下降。
 
-- 凸集的交集是凸的。 并集不是。
-- 凸函数的期望大于期望的凸函数（詹森不等式）。
-- 当且仅当其二阶导数在整个过程中仅具有非负特征值时，二次可微函数才是凸函数。
-- 可以通过Lagrange函数添加凸约束。 实际上，只需将它们加到目标函数中即可。
-- 投影映射到（凸）集中最接近原始点的点。
+* 凸集的交集是凸的。 并集不是。
+* 凸函数的期望大于期望的凸函数（詹森不等式）。
+* 当且仅当其二阶导数在整个过程中仅具有非负特征值时，二次可微函数才是凸函数。
+* 可以通过Lagrange函数添加凸约束。 实际上，只需将它们加到目标函数中即可。
+* 投影映射到（凸）集中最接近原始点的点。
