@@ -1,4 +1,9 @@
-《动手学深度学习》
+---
+source: https://github.com/d2l-ai/d2l-en/blob/master/index.md
+commit: 9bf95b1
+---
+
+Dive into Deep Learning
 ========================
 
 ```eval_rst
