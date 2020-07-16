@@ -19,3 +19,4 @@ build/mdd.zip
 /chapter_gluon-basics/mydict
 *egg-info*
 dist*
+_build/
