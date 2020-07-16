@@ -30,7 +30,6 @@ stage("Build and Publish") {
       conda activate ${ENV_NAME}
       export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES}
       ./static/cache.sh restore _build/eval/data
-      ./static/clean_eval.sh
       d2lbook build eval
       ./static/cache.sh store _build/eval/data
       """
