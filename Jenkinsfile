@@ -64,15 +64,9 @@ stage("Build and Publish") {
         sh label:"Release", script:"""set -ex
         conda activate ${ENV_NAME}
         d2lbook build pkg
-        d2lbook deploy html pdf pkg colab sagemaker --s3 s3://zh-v2.d2l.ai
+        d2lbook deploy html pdf --s3 s3://zh-v2.d2l.ai
         """
 
-        sh label:"Release d2l", script:"""set -ex
-        conda activate ${ENV_NAME}
-        pip install setuptools wheel twine
-        python setup.py bdist_wheel
-        twine upload dist/*
-        """
       } else {
         sh label:"Publish", script:"""set -ex
         conda activate ${ENV_NAME}

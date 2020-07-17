@@ -1,6 +1,6 @@
 ---
 source: https://github.com/d2l-ai/d2l-en/blob/master/chapter_preliminaries/index.md
-commit: 9bf95b1
+commit: c991159
 ---
 
 #  Preliminaries
