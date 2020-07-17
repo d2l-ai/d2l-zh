@@ -1,6 +1,6 @@
 ---
 source: https://github.com/d2l-ai/d2l-en/blob/master/chapter_preliminaries/ndarray.md
-commit: 5182024
+commit: c991159
 ---
 
 # Data Manipulation
@@ -11,26 +11,22 @@ Generally, there are two important things we need to do with data: (i) acquire
 them; and (ii) process them once they are inside the computer.  There is no
 point in acquiring data without some way to store it, so let us get our hands
 dirty first by playing with synthetic data.  To start, we introduce the
-$n$-dimensional array. In Numpy and MXNet, such an array is called `ndarray`,
-while it is called Tensor in PyTorch and TensorFlow. Through this book, we use the
-`ndarray` name convention, and `ndarray` is a class and we call any instance "an
-`ndarray`".
+$n$-dimensional array, which is also called the *tensor*.
 
-
-:begin_tab:`mxnet`
 If you have worked with NumPy, the most widely-used
 scientific computing package in Python,
 then you will find this section familiar.
-MXNet's `ndarray` is an extension to NumPy's `ndarray` with a few killer features.
-First, MXNet's `ndarray` supports asynchronous computation
-on CPU, GPU, and distributed cloud architectures,
+No matter which framework you use,
+its *tensor class* (`ndarray` in MXNet,
+`Tensor` in both PyTorch and TensorFlow) is similar to NumPy's `ndarray` with
+a few killer features.
+First, GPU is well-supported to accelerate the computation
 whereas NumPy only supports CPU computation.
-Second, MXNet's `ndarray` supports automatic differentiation.
-These properties make MXNet's `ndarray` suitable for deep learning.
-Throughout the book, when we say `ndarray`,
-we are referring to MXNet's `ndarray` unless otherwise stated.
-:end_tab:
-
+Second, the tensor class
+supports automatic differentiation.
+These properties make the tensor class suitable for deep learning.
+Throughout the book, when we say tensors,
+we are referring to instances of the tensor class unless otherwise stated.
 
 ## Getting Started
 
@@ -50,13 +46,18 @@ To start, we import the `np` (`numpy`) and
 Here, the `np` module includes functions supported by NumPy,
 while the `npx` module contains a set of extensions
 developed to empower deep learning within a NumPy-like environment.
-When using `ndarray`, we almost always invoke the `set_np` function:
-this is for compatibility of `ndarray` processing by other components of MXNet.
+When using tensors, we almost always invoke the `set_np` function:
+this is for compatibility of tensor processing by other components of MXNet.
 :end_tab:
 
 :begin_tab:`pytorch`
-To start, we import `torch`. Note that even it's called PyTorch, we should
+To start, we import `torch`. Note that though it's called PyTorch, we should
 import `torch` instead of `pytorch`.
+:end_tab:
+
+:begin_tab:`tensorflow`
+To start, we import `tensorflow`. As the name is a little long, we often import
+it with a short alias `tf`.
 :end_tab:
 
 ```{.python .input}
@@ -69,18 +70,23 @@ npx.set_np()
 import torch
 ```
 
-An `ndarray` represents a (possibly multi-dimensional) array of numerical values.
-With one axis, an `ndarray` corresponds (in math) to a *vector*.
-With two axes, an `ndarray` corresponds to a *matrix*.
-Arrays with more than two axes do not have special
-mathematical names---we simply call them *tensors*.
+```{.python .input}
+#@tab tensorflow
+import tensorflow as tf
+```
+
+A tensor represents a (possibly multi-dimensional) array of numerical values.
+With one axis, a tensor corresponds (in math) to a *vector*.
+With two axes, a tensor corresponds to a *matrix*.
+Tensors with more than two axes do not have special
+mathematical names.
 
 To start, we can use `arange` to create a row vector `x`
 containing the first 12 integers starting with 0,
 though they are created as floats by default.
-Each of the values in an `ndarray` is called an *element* of the `ndarray`.
-For instance, there are 12 elements in the `ndarray` `x`.
-Unless otherwise specified, a new `ndarray`
+Each of the values in a tensor is called an *element* of the tensor.
+For instance, there are 12 elements in the tensor `x`.
+Unless otherwise specified, a new tensor
 will be stored in main memory and designated for CPU-based computation.
 
 ```{.python .input}
@@ -94,23 +100,25 @@ x = torch.arange(12)
 x
 ```
 
-We can access an `ndarray`'s *shape* (the length along each axis)
+```{.python .input}
+#@tab tensorflow
+x = tf.range(12)
+x
+```
+
+We can access a tensor's *shape* (the length along each axis)
 by inspecting its `shape` property.
 
 ```{.python .input}
+#@tab all
 x.shape
 ```
 
-```{.python .input}
-#@tab pytorch
-x.shape
-```
-
-If we just want to know the total number of elements in an `ndarray`,
+If we just want to know the total number of elements in a tensor,
 i.e., the product of all of the shape elements,
-we can inspect its `size` property.
+we can inspect its size.
 Because we are dealing with a vector here,
-the single element of its `shape` is identical to its `size`.
+the single element of its `shape` is identical to its size.
 
 ```{.python .input}
 x.size
@@ -118,28 +126,34 @@ x.size
 
 ```{.python .input}
 #@tab pytorch
-x.size()
+x.numel()
 ```
 
-To change the shape of an `ndarray` without altering
+```{.python .input}
+#@tab tensorflow
+tf.size(x)
+```
+
+To change the shape of a tensor without altering
 either the number of elements or their values,
 we can invoke the `reshape` function.
-For example, we can transform our `ndarray`, `x`,
+For example, we can transform our tensor, `x`,
 from a row vector with shape (12,) to a matrix with shape (3, 4).
-This new `ndarray` contains the exact same values,
+This new tensor contains the exact same values,
 but views them as a matrix organized as 3 rows and 4 columns.
 To reiterate, although the shape has changed,
 the elements in `x` have not.
-Note that the `size` is unaltered by reshaping.
+Note that the size is unaltered by reshaping.
 
 ```{.python .input}
+#@tab mxnet, pytorch
 x = x.reshape(3, 4)
 x
 ```
 
 ```{.python .input}
-#@tab pytorch
-x = x.reshape((3, 4))
+#@tab tensorflow
+x = tf.reshape(x, (3, 4))
 x
 ```
 
@@ -149,30 +163,16 @@ then after we know the width, the height is given implicitly.
 Why should we have to perform the division ourselves?
 In the example above, to get a matrix with 3 rows,
 we specified both that it should have 3 rows and 4 columns.
-Fortunately, `ndarray` can automatically work out one dimension given the rest.
+Fortunately, tensors can automatically work out one dimension given the rest.
 We invoke this capability by placing `-1` for the dimension
-that we would like `ndarray` to automatically infer.
+that we would like tensors to automatically infer.
 In our case, instead of calling `x.reshape(3, 4)`,
 we could have equivalently called `x.reshape(-1, 4)` or `x.reshape(3, -1)`.
-
-The `empty` method grabs a chunk of memory and hands us back a matrix
-without bothering to change the value of any of its entries.
-This is remarkably efficient but we must be careful because
-the entries might take arbitrary values, including very big ones!
-
-```{.python .input}
-np.empty((3, 4))
-```
-
-```{.python .input}
-#@tab pytorch
-torch.empty(2, 3)
-```
 
 Typically, we will want our matrices initialized
 either with zeros, ones, some other constants,
 or numbers randomly sampled from a specific distribution.
-We can create an `ndarray` representing a tensor with all elements
+We can create a tensor representing a tensor with all elements
 set to 0 and a shape of (2, 3, 4) as follows:
 
 ```{.python .input}
@@ -182,6 +182,11 @@ np.zeros((2, 3, 4))
 ```{.python .input}
 #@tab pytorch
 torch.zeros(2, 3, 4)
+```
+
+```{.python .input}
+#@tab tensorflow
+tf.zeros((2, 3, 4))
 ```
 
 Similarly, we can create tensors with each element set to 1 as follows:
@@ -195,13 +200,18 @@ np.ones((2, 3, 4))
 torch.ones((2, 3, 4))
 ```
 
+```{.python .input}
+#@tab tensorflow
+tf.ones((2, 3, 4))
+```
+
 Often, we want to randomly sample the values
-for each element in an `ndarray`
+for each element in a tensor
 from some probability distribution.
 For example, when we construct arrays to serve
 as parameters in a neural network, we will
 typically initialize their values randomly.
-The following snippet creates an `ndarray` with shape (3, 4).
+The following snippet creates a tensor with shape (3, 4).
 Each of its elements is randomly sampled
 from a standard Gaussian (normal) distribution
 with a mean of 0 and a standard deviation of 1.
@@ -215,7 +225,12 @@ np.random.normal(0, 1, size=(3, 4))
 torch.randn(3, 4)
 ```
 
-We can also specify the exact values for each element in the desired `ndarray`
+```{.python .input}
+#@tab tensorflow
+tf.random.normal(shape=[3, 4])
+```
+
+We can also specify the exact values for each element in the desired tensor
 by supplying a Python list (or list of lists) containing the numerical values.
 Here, the outermost list corresponds to axis 0, and the inner list to axis 1.
 
@@ -226,6 +241,11 @@ np.array([[2, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
 ```{.python .input}
 #@tab pytorch
 torch.tensor([[2, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
+```
+
+```{.python .input}
+#@tab tensorflow
+tf.constant([[2, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
 ```
 
 ## Operations
@@ -283,6 +303,13 @@ y = torch.tensor([2, 2, 2, 2])
 x + y, x - y, x * y, x / y, x ** y  # The ** operator is exponentiation
 ```
 
+```{.python .input}
+#@tab tensorflow
+x = tf.constant([1.0, 2, 4, 8])
+y = tf.constant([2.0, 2, 2, 2])
+x + y, x - y, x * y, x / y, x ** y  # The ** operator is exponentiation
+```
+
 Many more operations can be applied elementwise,
 including unary operators like exponentiation.
 
@@ -295,23 +322,28 @@ np.exp(x)
 torch.exp(x)
 ```
 
+```{.python .input}
+#@tab tensorflow
+tf.exp(x)
+```
+
 In addition to elementwise computations,
 we can also perform linear algebra operations,
 including vector dot products and matrix multiplication.
 We will explain the crucial bits of linear algebra
 (with no assumed prior knowledge) in :numref:`sec_linear-algebra`.
 
-We can also *concatenate* multiple `ndarray`s together,
-stacking them end-to-end to form a larger `ndarray`.
-We just need to provide a list of `ndarray`s
+We can also *concatenate* multiple tensors together,
+stacking them end-to-end to form a larger tensor.
+We just need to provide a list of tensors
 and tell the system along which axis to concatenate.
 The example below shows what happens when we concatenate
 two matrices along rows (axis 0, the first element of the shape)
 vs. columns (axis 1, the second element of the shape).
-We can see that the first output `ndarray`'s axis-0 length ($6$)
-is the sum of the two input `ndarray`s' axis-0 lengths ($3 + 3$);
-while the second output `ndarray`'s axis-1 length ($8$)
-is the sum of the two input `ndarray`s' axis-1 lengths ($4 + 4$).
+We can see that the first output tensor's axis-0 length ($6$)
+is the sum of the two input tensors' axis-0 lengths ($3 + 3$);
+while the second output tensor's axis-1 length ($8$)
+is the sum of the two input tensors' axis-1 lengths ($4 + 4$).
 
 ```{.python .input}
 x = np.arange(12).reshape(3, 4)
@@ -326,47 +358,49 @@ y = torch.tensor([[2.0, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
 torch.cat((x, y), dim=0), torch.cat((x, y), dim=1)
 ```
 
-Sometimes, we want to construct a binary `ndarray` via *logical statements*.
+```{.python .input}
+#@tab tensorflow
+x = tf.reshape(tf.range(12, dtype=tf.float32), (3, 4))
+y = tf.constant([[2.0, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
+tf.concat([x, y], axis=0), tf.concat([x, y], axis=1)
+```
+
+Sometimes, we want to construct a binary tensor via *logical statements*.
 Take `x == y` as an example.
 For each position, if `x` and `y` are equal at that position,
-the corresponding entry in the new `ndarray` takes a value of 1,
+the corresponding entry in the new tensor takes a value of 1,
 meaning that the logical statement `x == y` is true at that position;
 otherwise that position takes 0.
 
 ```{.python .input}
+#@tab all
 x == y
 ```
 
-```{.python .input}
-#@tab pytorch
-x == y
-```
-
-Summing all the elements in the `ndarray` yields an `ndarray` with only one element.
+Summing all the elements in the tensor yields a tensor with only one element.
 
 ```{.python .input}
+#@tab mxnet, pytorch
 x.sum()
 ```
 
 ```{.python .input}
-#@tab pytorch
-x.sum()
+#@tab tensorflow
+tf.reduce_sum(x)
 ```
-
-For stylistic convenience, we can write `x.sum()` as `np.sum(x)`.
 
 ## Broadcasting Mechanism
 :label:`subsec_broadcasting`
 
 In the above section, we saw how to perform elementwise operations
-on two `ndarray`s of the same shape. Under certain conditions,
+on two tensors of the same shape. Under certain conditions,
 even when shapes differ, we can still perform elementwise operations
 by invoking the *broadcasting mechanism*.
 This mechanism works in the following way:
 First, expand one or both arrays
 by copying elements appropriately
 so that after this transformation,
-the two `ndarray`s have the same shape.
+the two tensors have the same shape.
 Second, carry out the elementwise operations
 on the resulting arrays.
 
@@ -386,6 +420,13 @@ b = torch.arange(2).reshape((1, 2))
 a, b
 ```
 
+```{.python .input}
+#@tab tensorflow
+a = tf.reshape(tf.range(3), (3, 1))
+b = tf.reshape(tf.range(2), (1, 2))
+a, b
+```
+
 Since `a` and `b` are $3\times1$ and $1\times2$ matrices respectively,
 their shapes do not match up if we want to add them.
 We *broadcast* the entries of both matrices into a larger $3\times2$ matrix as follows:
@@ -394,17 +435,13 @@ and for matrix `b` it replicates the rows
 before adding up both elementwise.
 
 ```{.python .input}
-a + b
-```
-
-```{.python .input}
-#@tab pytorch
+#@tab all
 a + b
 ```
 
 ## Indexing and Slicing
 
-Just as in any other Python array, elements in an `ndarray` can be accessed by index.
+Just as in any other Python array, elements in a tensor can be accessed by index.
 As in any Python array, the first element has index 0
 and ranges are specified to include the first but *before* the last element.
 As in standard Python lists, we can access elements
@@ -415,25 +452,35 @@ Thus, `[-1]` selects the last element and `[1:3]`
 selects the second and the third elements as follows:
 
 ```{.python .input}
+#@tab all
 x[-1], x[1:3]
 ```
 
-```{.python .input}
-#@tab pytorch
-x[-1], x[1:3]
-```
-
+:begin_tab:`mxnet, pytorch`
 Beyond reading, we can also write elements of a matrix by specifying indices.
+:end_tab:
+
+:begin_tab:`tensorflow`
+`Tensors` in TensorFlow are immutable, and cannot be assigned to.
+`Variables` in TensorFlow are mutable containers of state that support
+assignments. Keep in mind that gradients in TensorFlow do not flow backwards
+through `Variable` assignments.
+
+Beyond assigning a value to the entire `Variable`, we can write elements of a
+`Variable` by specifying indices.
+:end_tab:
 
 ```{.python .input}
+#@tab mxnet, pytorch
 x[1, 2] = 9
 x
 ```
 
 ```{.python .input}
-#@tab pytorch
-x[1, 2] = 9
-x
+#@tab tensorflow
+x_var = tf.Variable(x)
+x_var[1, 2].assign(9)
+x_var
 ```
 
 If we want to assign multiple elements the same value,
@@ -445,14 +492,16 @@ this obviously also works for vectors
 and for tensors of more than 2 dimensions.
 
 ```{.python .input}
+#@tab mxnet, pytorch
 x[0:2, :] = 12
 x
 ```
 
 ```{.python .input}
-#@tab pytorch
-x[0:2, :] = 12
-x
+#@tab tensorflow
+x_var = tf.Variable(x)
+x_var[0:2,:].assign(tf.ones(x_var[0:2,:].shape, dtype = tf.float32)*12)
+x_var
 ```
 
 ## Saving Memory
@@ -460,7 +509,7 @@ x
 Running operations can cause new memory to be
 allocated to host results.
 For example, if we write `y = x + y`,
-we will dereference the `ndarray` that `y` used to point to
+we will dereference the tensor that `y` used to point to
 and instead point `y` at the newly allocated memory.
 In the following example, we demonstrate this with Python's `id()` function,
 which gives us the exact address of the referenced object in memory.
@@ -470,13 +519,7 @@ allocating new memory for the result and then makes `y`
 point to this new location in memory.
 
 ```{.python .input}
-before = id(y)
-y = y + x
-id(y) == before
-```
-
-```{.python .input}
-#@tab pytorch
+#@tab all
 before = id(y)
 y = y + x
 id(y) == before
@@ -494,13 +537,25 @@ If we do not update in place, other references will still point to
 the old memory location, making it possible for parts of our code
 to inadvertently reference stale parameters.
 
-Fortunately, performing in-place operations in MXNet is easy.
+:begin_tab:`mxnet, pytorch`
+Fortunately, performing in-place operations is easy.
 We can assign the result of an operation
 to a previously allocated array with slice notation,
 e.g., `y[:] = <expression>`.
 To illustrate this concept, we first create a new matrix `z`
 with the same shape as another `y`,
 using `zeros_like` to allocate a block of $0$ entries.
+:end_tab:
+
+:begin_tab:`tensorflow`
+`Variables` are mutable containers of state in TensorFlow. They provide
+a way to store your model parameters.
+We can assign the result of an operation
+to a `Variable` with `assign`.
+To illustrate this concept, we create a `Variable` `z`
+with the same shape as another tensor `y`,
+using `zeros_like` to allocate a block of $0$ entries.
+:end_tab:
 
 ```{.python .input}
 z = np.zeros_like(y)
@@ -517,30 +572,63 @@ z[:] = x + y
 print('id(z):', id(z))
 ```
 
+```{.python .input}
+#@tab tensorflow
+z = tf.Variable(tf.zeros_like(y))
+print('id(z):', id(z))
+z.assign(x + y)
+print('id(z):', id(z))
+```
+
+:begin_tab:`mxnet, pytorch`
 If the value of `x` is not reused in subsequent computations,
 we can also use `x[:] = x + y` or `x += y`
 to reduce the memory overhead of the operation.
+:end_tab:
+
+:begin_tab:`tensorflow`
+Even once you store state persistently in a `Variable`, you
+may want to reduce your memory usage further by avoiding excess
+allocations for tensors that are not your model parameters.
+
+Because TensorFlow `Tensors` are immutable and gradients do not flow through
+`Variable` assignments, TensorFlow does not provide an explicit way to run
+an individual operation in-place.
+
+However, TensorFlow provides the `tf.function` decorator to wrap computation
+inside of a TensorFlow graph that gets compiled and optimized before running.
+This allows TensorFlow to prune unused values, and to re-use
+prior allocations that are no longer needed. This minimizes the memory
+overhead of TensorFlow computations.
+:end_tab:
 
 ```{.python .input}
+#@tab mxnet, pytorch
 before = id(x)
 x += y
 id(x) == before
 ```
 
 ```{.python .input}
-#@tab pytorch
-before = id(x)
-x += y
-id(x) == before
+#@tab tensorflow
+@tf.function
+def computation(x, y):
+  z = tf.zeros_like(y)  # This unused value will be pruned out.
+  a = x + y  # Allocations will be re-used when no longer needed.
+  b = a + y
+  c = b + y
+  return c + y
+
+computation(x, y)
 ```
 
 ## Conversion to Other Python Objects
 
-Converting to a NumPy `ndarray`, or vice versa, is easy.
+Converting to a NumPy tensor, or vice versa, is easy.
 The converted result does not share memory.
 This minor inconvenience is actually quite important:
 when you perform operations on the CPU or on GPUs,
-you do not want MXNet to halt computation, waiting to see
+you do not want to halt computation, waiting to see
 whether the NumPy package of Python might want to be doing something else
 with the same chunk of memory.
 
@@ -557,7 +645,14 @@ b = torch.tensor(a)
 type(a), type(b)
 ```
 
-To convert a size-one `ndarray` to a Python scalar,
+```{.python .input}
+#@tab tensorflow
+a = x.numpy()
+b = tf.constant(a)
+type(a), type(b)
+```
+
+To convert a size-1 tensor to a Python scalar,
 we can invoke the `item` function or Python's built-in functions.
 
 ```{.python .input}
@@ -571,16 +666,21 @@ a = torch.tensor([3.5])
 a, a.item(), float(a), int(a)
 ```
 
+```{.python .input}
+#@tab tensorflow
+a = tf.constant([3.5]).numpy()
+a, a.item(), float(a), int(a)
+```
+
 ## Summary
 
-* The main interface to store and manipulate data for deep learning is the $n$-dimensional array. It provides a variety of functionalities including basic mathematics operations, broadcasting, indexing, slicing, memory saving, and conversion to other Python objects.
+* The main interface to store and manipulate data for deep learning is the tensor ($n$-dimensional array). It provides a variety of functionalities including basic mathematics operations, broadcasting, indexing, slicing, memory saving, and conversion to other Python objects.
 
 
 ## Exercises
 
-1. Run the code in this section. Change the conditional statement `x == y` in this section to `x < y` or `x > y`, and then see what kind of `ndarray` you can get.
-1. Replace the two `ndarray`s that operate by element in the broadcasting mechanism with other shapes, e.g., three dimensional tensors. Is the result the same as expected?
-
+1. Run the code in this section. Change the conditional statement `x == y` in this section to `x < y` or `x > y`, and then see what kind of tensor you can get.
+1. Replace the two tensors that operate by element in the broadcasting mechanism with other shapes, e.g., 3-dimensional tensors. Is the result the same as expected?
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/26)
@@ -588,4 +688,8 @@ a, a.item(), float(a), int(a)
 
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/27)
+:end_tab:
+
+:begin_tab:`tensorflow`
+[Discussions](https://discuss.d2l.ai/t/187)
 :end_tab:
