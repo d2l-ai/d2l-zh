@@ -2,6 +2,31 @@
 #    d2lbook build lib
 # Don't edit it directly
 
+# Defined in file: ./chapter_preface/index.md
+import collections
+from collections import defaultdict
+from IPython import display
+import math
+from matplotlib import pyplot as plt
+import os
+import pandas as pd
+import random
+import re
+import shutil
+import sys
+import tarfile
+import time
+import requests
+import zipfile
+import hashlib
+d2l = sys.modules[__name__]
+
+
+# Defined in file: ./chapter_preface/index.md
+import numpy as np
+import tensorflow as tf
+
+
 # Defined in file: ./chapter_preliminaries/pandas.md
 def mkdir_if_not_exist(path):  #@save
     """Make a directory if it does not exist."""
