@@ -1,6 +1,6 @@
 ---
 source: https://github.com/d2l-ai/d2l-en/blob/master/chapter_preliminaries/ndarray.md
-commit: c991159
+commit: 9e55a9c
 ---
 
 # Data Manipulation

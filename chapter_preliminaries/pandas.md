@@ -95,22 +95,24 @@ X, y
 
 ## 摘要
 
-* 与 Python 生态系统中的许多其他扩展包一样，`pandas` 可以与张量一起工作。* 插入和删除可以用于处理丢失的数据。
+* 像庞大的 Python 生态系统中的许多其他扩展包一样，`pandas` 可以与张量一起工作。
+* 输入和删除可用于处理丢失的数据。
 
 ## 练习
 
 创建包含更多行和列的原始数据集。
 
-1.删除缺失值最多的列。2.将预处理的数据集转换为张量格式。
+1. 删除缺失值最多的列。
+2. 将预处理的数据集转换为张量格式。
 
 :begin_tab:`mxnet`
-[讨论](https://discuss.d2l.ai/t/28)
+[Discussions](https://discuss.d2l.ai/t/28)
 :end_tab:
 
 :begin_tab:`pytorch`
-[讨论](https://discuss.d2l.ai/t/29)
+[Discussions](https://discuss.d2l.ai/t/29)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[讨论](https://discuss.d2l.ai/t/195)
+[Discussions](https://discuss.d2l.ai/t/195)
 :end_tab:
