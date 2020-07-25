@@ -1,6 +1,6 @@
 ---
 source: https://github.com/d2l-ai/d2l-en/blob/master/chapter_preliminaries/ndarray.md
-commit: 7240657
+commit: 9e55a9c
 ---
 
 # Data Manipulation
@@ -56,7 +56,7 @@ import `torch` instead of `pytorch`.
 :end_tab:
 
 :begin_tab:`tensorflow`
-To start, we import `tesnorflow`. As the name is a little long, we often import
+To start, we import `tensorflow`. As the name is a little long, we often import
 it with a short alias `tf`.
 :end_tab:
 
@@ -102,7 +102,7 @@ x
 
 ```{.python .input}
 #@tab tensorflow
-x = tf.constant(range(12))
+x = tf.range(12)
 x
 ```
 
@@ -360,7 +360,7 @@ torch.cat((x, y), dim=0), torch.cat((x, y), dim=1)
 
 ```{.python .input}
 #@tab tensorflow
-x = tf.constant(range(12), dtype=tf.float32, shape=(3, 4))
+x = tf.reshape(tf.range(12, dtype=tf.float32), (3, 4))
 y = tf.constant([[2.0, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
 tf.concat([x, y], axis=0), tf.concat([x, y], axis=1)
 ```
@@ -422,8 +422,8 @@ a, b
 
 ```{.python .input}
 #@tab tensorflow
-a = tf.constant(range(3), shape=(3, 1))
-b = tf.constant(range(2), shape=(1, 2))
+a = tf.reshape(tf.range(3), (3, 1))
+b = tf.reshape(tf.range(2), (1, 2))
 a, b
 ```
 
@@ -456,7 +456,19 @@ selects the second and the third elements as follows:
 x[-1], x[1:3]
 ```
 
+:begin_tab:`mxnet, pytorch`
 Beyond reading, we can also write elements of a matrix by specifying indices.
+:end_tab:
+
+:begin_tab:`tensorflow`
+`Tensors` in TensorFlow are immutable, and cannot be assigned to.
+`Variables` in TensorFlow are mutable containers of state that support
+assignments. Keep in mind that gradients in TensorFlow do not flow backwards
+through `Variable` assignments.
+
+Beyond assigning a value to the entire `Variable`, we can write elements of a
+`Variable` by specifying indices.
+:end_tab:
 
 ```{.python .input}
 #@tab mxnet, pytorch
@@ -466,8 +478,9 @@ x
 
 ```{.python .input}
 #@tab tensorflow
-x = tf.convert_to_tensor(tf.Variable(x)[1, 2].assign(9))
-x
+x_var = tf.Variable(x)
+x_var[1, 2].assign(9)
+x_var
 ```
 
 If we want to assign multiple elements the same value,
@@ -487,9 +500,8 @@ x
 ```{.python .input}
 #@tab tensorflow
 x_var = tf.Variable(x)
-x_var[1:2,:].assign(tf.ones(x_var[1:2,:].shape, dtype = tf.float32)*12)
-x = tf.convert_to_tensor(x_var)
-x
+x_var[0:2,:].assign(tf.ones(x_var[0:2,:].shape, dtype = tf.float32)*12)
+x_var
 ```
 
 ## Saving Memory
@@ -525,13 +537,25 @@ If we do not update in place, other references will still point to
 the old memory location, making it possible for parts of our code
 to inadvertently reference stale parameters.
 
-Fortunately, performing in-place operations in MXNet is easy.
+:begin_tab:`mxnet, pytorch`
+Fortunately, performing in-place operations is easy.
 We can assign the result of an operation
 to a previously allocated array with slice notation,
 e.g., `y[:] = <expression>`.
 To illustrate this concept, we first create a new matrix `z`
 with the same shape as another `y`,
 using `zeros_like` to allocate a block of $0$ entries.
+:end_tab:
+
+:begin_tab:`tensorflow`
+`Variables` are mutable containers of state in TensorFlow. They provide
+a way to store your model parameters.
+We can assign the result of an operation
+to a `Variable` with `assign`.
+To illustrate this concept, we create a `Variable` `z`
+with the same shape as another tensor `y`,
+using `zeros_like` to allocate a block of $0$ entries.
+:end_tab:
 
 ```{.python .input}
 z = np.zeros_like(y)
@@ -552,13 +576,31 @@ print('id(z):', id(z))
 #@tab tensorflow
 z = tf.Variable(tf.zeros_like(y))
 print('id(z):', id(z))
-z[:].assign(x + y)
+z.assign(x + y)
 print('id(z):', id(z))
 ```
 
+:begin_tab:`mxnet, pytorch`
 If the value of `x` is not reused in subsequent computations,
 we can also use `x[:] = x + y` or `x += y`
 to reduce the memory overhead of the operation.
+:end_tab:
+
+:begin_tab:`tensorflow`
+Even once you store state persistently in a `Variable`, you
+may want to reduce your memory usage further by avoiding excess
+allocations for tensors that are not your model parameters.
+
+Because TensorFlow `Tensors` are immutable and gradients do not flow through
+`Variable` assignments, TensorFlow does not provide an explicit way to run
+an individual operation in-place.
+
+However, TensorFlow provides the `tf.function` decorator to wrap computation
+inside of a TensorFlow graph that gets compiled and optimized before running.
+This allows TensorFlow to prune unused values, and to re-use
+prior allocations that are no longer needed. This minimizes the memory
+overhead of TensorFlow computations.
+:end_tab:
 
 ```{.python .input}
 #@tab mxnet, pytorch
@@ -569,9 +611,15 @@ id(x) == before
 
 ```{.python .input}
 #@tab tensorflow
-before = id(x)
-tf.Variable(x).assign(x + y)
-id(x) == before
+@tf.function
+def computation(x, y):
+  z = tf.zeros_like(y)  # This unused value will be pruned out.
+  a = x + y  # Allocations will be re-used when no longer needed.
+  b = a + y
+  c = b + y
+  return c + y
+
+computation(x, y)
 ```
 
 ## Conversion to Other Python Objects
@@ -623,56 +671,6 @@ a, a.item(), float(a), int(a)
 a = tf.constant([3.5]).numpy()
 a, a.item(), float(a), int(a)
 ```
-
-## The `d2l` Package
-
-Throughout the online version of this book,
-we will provide implementations of multiple frameworks.
-However, different frameworks may be different in their API names or usage.
-To better reuse the same code block across multiple frameworks,
-we unify a few commonly-used functions in the `d2l` package.
-The comment `#@save` is a special mark where the following function,
-class, or statements are saved in the `d2l` package.
-For instance, later we can directly invoke
-`d2l.numpy(a)` to convert a tensor `a`,
-which can be defined in any supported framework,
-into a NumPy tensor.
-
-```{.python .input}
-#@save
-numpy = lambda a: a.asnumpy()
-size = lambda a: a.size
-reshape = lambda a, *args: a.reshape(*args)
-ones = np.ones
-zeros = np.zeros
-```
-
-```{.python .input}
-#@tab pytorch
-#@save
-numpy = lambda a: a.detach().numpy()
-size = lambda a: a.numel()
-reshape = lambda a, *args: a.reshape(*args)
-ones = torch.ones
-zeros = torch.zeros
-```
-
-```{.python .input}
-#@tab tensorflow
-#@save
-numpy = lambda a: a.numpy()
-size = lambda a: tf.size(a).numpy()
-reshape = tf.reshape
-ones = tf.ones
-zeros = tf.zeros
-```
-
-In the rest of the book,
-we often define more complicated functions or classes.
-For those that can be used later,
-we will also save them in the `d2l` package
-so later they can be directly invoked without being redefined.
-
 
 ## Summary
 

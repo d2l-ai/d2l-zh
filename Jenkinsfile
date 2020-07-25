@@ -30,7 +30,6 @@ stage("Build and Publish") {
       conda activate ${ENV_NAME}
       export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES}
       ./static/cache.sh restore _build/eval/data
-      ./static/clean_eval.sh
       d2lbook build eval
       ./static/cache.sh store _build/eval/data
       """
@@ -58,26 +57,20 @@ stage("Build and Publish") {
 
       sh label:"Build PDF", script:"""set -ex
       conda activate ${ENV_NAME}
-      d2lbook build pdf
+      # d2lbook build pdf
       """
 
       if (env.BRANCH_NAME == 'release') {
         sh label:"Release", script:"""set -ex
         conda activate ${ENV_NAME}
         d2lbook build pkg
-        d2lbook deploy html pdf pkg colab sagemaker --s3 s3://zh-v2.d2l.ai
+        d2lbook deploy html pdf --s3 s3://zh-v2.d2l.ai
         """
 
-        sh label:"Release d2l", script:"""set -ex
-        conda activate ${ENV_NAME}
-        pip install setuptools wheel twine
-        python setup.py bdist_wheel
-        twine upload dist/*
-        """
       } else {
         sh label:"Publish", script:"""set -ex
         conda activate ${ENV_NAME}
-        d2lbook deploy html pdf --s3 s3://preview.d2l.ai/${JOB_NAME}/
+        d2lbook deploy html --s3 s3://preview.d2l.ai/${JOB_NAME}/
         """
         if (env.BRANCH_NAME.startsWith("PR-")) {
             pullRequest.comment("Job ${JOB_NAME}/${BUILD_NUMBER} is complete. \nCheck the results at http://preview.d2l.ai/${JOB_NAME}/")

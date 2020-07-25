@@ -1,0 +1,13 @@
+dependencies:
+  - python=3.7
+  - pip
+  - pip:
+    - ..  # d2l
+    - git+https://github.com/d2l-ai/d2l-book
+    - mxnet-cu101==1.6.0
+    - torchvision
+    - -f https://download.pytorch.org/whl/torch_stable.html
+    - torch==1.5.1+cu101
+    - tensorflow
+    - tensorflow-probability
+    - cloudpickle==1.4.1  # due to https://github.com/tensorflow/probability/issues/991

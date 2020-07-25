@@ -1,6 +1,10 @@
 《动手学深度学习》
 ========================
 
+```eval_rst
+.. raw:: html
+   :file: frontpage.html
+```
 
 
 ```toc
