@@ -1,4 +1,4 @@
-# Softmax回归的从头开始实现
+# Softmax回归从头开始实现
 :label:`sec_softmax_scratch`
 
 就像我们从头开始实现线性回归一样，我们认为 softmax 回归也是类似的基础，你应该知道如何自己实现它的细节。我们将使用刚刚在 :numref:`sec_fashion_mnist` 中引入的Fashion-MNIST据集，设置批量大小为 256 的数据迭代器。
