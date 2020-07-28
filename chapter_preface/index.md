@@ -166,7 +166,7 @@ StevenJokes, Tomer Kaftan, liweiwp, netyster, ypandya, NishantTharani, heiligerl
 
 我们感谢Amazon Web Services，尤其是Swami Sivasubramanian、Raju Gulabani、Charlie Bell,和Andrew Jassy在撰写这本书时给予的慷慨支持。如果没有可用的时间、资源、与同事的讨论以及不断的鼓励，这本书就不会问世。
 
-## 摘要
+## 总结
 
 * 深度学习给模式识别带来了革命性的变化，它引入的技术如今为计算机视觉、自然语言处理、自动语音识别等多种技术提供了动力。
 * 要成功地应用深度学习，你必须了解如何解决问题、数学建模、将模型与数据匹配的算法，以及实现所有这些的工程技术。

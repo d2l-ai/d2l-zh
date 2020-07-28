@@ -319,7 +319,7 @@ b = net.get_weights()[1]
 print('error in estimating b', true_b - b)
 ```
 
-## 摘要
+## 总结
 
 :begin_tab:`mxnet`
 * 我们可以使用Gluon更简洁地实现模型。

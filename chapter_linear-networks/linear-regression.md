@@ -312,7 +312,7 @@ $$-\log P(\mathbf y \mid \mathbf X) = \sum_{i=1}^n \frac{1}{2} \log(2 \pi \sigma
 *Artificial Intelligence: A Modern Approach* :cite:`Russell.Norvig.2016`,
 中所说。虽然飞机可能受到鸟类的启发，但几个世纪以来鸟类学并不是航空创新的主要驱动力。同样地，如今在深度学习中的灵感同样或更多地来自数学、统计学和计算机科学。
 
-## 摘要
+## 总结
 
 * 机器学习模型中的关键要素是训练数据，损失函数，优化算法，很明显，还有模型本身。
 * 向量化使一切更好(主要是数学)和更快(主要是代码)。
