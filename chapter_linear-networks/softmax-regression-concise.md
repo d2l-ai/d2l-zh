@@ -1,4 +1,4 @@
-# 软最大回归的简明实现
+# Softmax 回归的简洁实现
 :label:`sec_softmax_concise`
 
 正如深度学习框架的高级 API 使得在 :numref:`sec_linear_concise` 中实现线性回归变得更加容易一样，我们会发现它类似（或可能更方便）实现分类模型。让我们坚持使用时尚多国主义数据集，并将批量大小保持在 256，如 :numref:`sec_softmax_scratch` 中。
