@@ -1,4 +1,4 @@
-# 自动差异化
+# 自动求导
 :label:`sec_autograd`
 
 正如我们在 :numref:`sec_calculus` 中所解释的那样，差异是几乎所有深度学习优化算法的关键步骤。虽然采用这些衍生物的计算非常简单，只需要一些基本的微积分，但对于复杂的模型，手动完成更新可能是一个痛苦（而且往往容易出错）。
@@ -132,9 +132,9 @@ x.grad  # Overwritten by the newly calculated gradient
 
 ```{.python .input}
 #@tab pytorch
-# PyTorch accumulates the gradient in default, we need to clear the previous 
+# PyTorch accumulates the gradient in default, we need to clear the previous
 # values
-x.grad.zero_() 
+x.grad.zero_()
 y = x.sum()
 y.backward()
 x.grad

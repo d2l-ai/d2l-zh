@@ -1,4 +1,4 @@
-# 从头开始的多层感知器实现
+# 多层感知器的从零开始实现
 :label:`sec_mlp_scratch`
 
 现在我们已经从数学上对多层感知进行了描述，让我们自己尝试实现一个。为了与我们之前使用 softmax 回归 (:numref:`sec_softmax_scratch`) 取得的结果进行比较，我们将继续使用时尚多国主义图像分类数据集 (:numref:`sec_fashion_mnist`)。

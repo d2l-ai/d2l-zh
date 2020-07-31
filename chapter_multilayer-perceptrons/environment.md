@@ -1,4 +1,4 @@
-# 环境和配送转移
+# 环境和分布迁移
 
 在前面的部分中，我们通过了许多机器学习的实践应用程序，将模型适应各种数据集。然而，我们从未停止思考数据来自哪里，或者我们计划最终对模型的输出做什么。拥有数据的机器学习开发人员往往会急于开发模型，而不会暂停考虑这些基本问题。
 
@@ -107,7 +107,7 @@ $$E_{p(\mathbf{x}, y)} [l(f(\mathbf{x}), y)] = \int\int l(f(\mathbf{x}), y) p(\m
 
 $$
 \begin{aligned}
-\int\int l(f(\mathbf{x}), y) p(y \mid \mathbf{x})p(\mathbf{x}) \;d\mathbf{x}dy = 
+\int\int l(f(\mathbf{x}), y) p(y \mid \mathbf{x})p(\mathbf{x}) \;d\mathbf{x}dy =
 \int\int l(f(\mathbf{x}), y) q(y \mid \mathbf{x})q(\mathbf{x})\frac{p(\mathbf{x})}{q(\mathbf{x})} \;d\mathbf{x}dy.
 \end{aligned}
 $$
@@ -151,7 +151,7 @@ $$
 
 $$
 \begin{aligned}
-\int\int l(f(\mathbf{x}), y) p(\mathbf{x} \mid y)p(y) \;d\mathbf{x}dy = 
+\int\int l(f(\mathbf{x}), y) p(\mathbf{x} \mid y)p(y) \;d\mathbf{x}dy =
 \int\int l(f(\mathbf{x}), y) q(\mathbf{x} \mid y)q(y)\frac{p(y)}{q(y)} \;d\mathbf{x}dy.
 \end{aligned}
 $$

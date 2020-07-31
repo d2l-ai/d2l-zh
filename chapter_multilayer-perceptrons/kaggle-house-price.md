@@ -1,4 +1,4 @@
-# 预测 Kaggle 上的房价
+# 实战 Kaggle 比赛：预测房价
 :label:`sec_kaggle_house`
 
 现在，我们已经引入了一些基本工具来构建和培训深度网络，并通过包括体重衰减和丢弃法在内的技术正规化它们，我们已经准备好通过参加 Kaggle 竞赛将所有这些知识付诸实践。房价预测竞争是一个很好的开始。这些数据是相当通用的，不表现出可能需要专门模型的异国情调的结构（音频或视频可能）。这个数据集由巴特·德科克于 2011 年 :cite:`De-Cock.2011` 收集，涵盖了 2006-2010 年期间在爱姆斯的房价。它比著名的哈里森和鲁宾费尔德（1978 年）[Boston housing dataset](https://archive.ics.uci.edu/ml/machine-learning-databases/housing/housing.names) 大得多，拥有更多的例子和更多的功能。

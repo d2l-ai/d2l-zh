@@ -1,4 +1,4 @@
-# 图层和块
+# 层和块
 :label:`sec_model_construction`
 
 当我们第一次引入神经网络时，我们专注于具有单个输出的线性模型。在这里，整个模型只包含一个神经元。请注意，单个神经元 (i) 需要一组输入；(ii) 生成相应的标量输出；(iii) 具有一组相关参数，可以更新以优化某些目标函数。然后，一旦我们开始思考具有多个输出的网络，我们利用矢量化算术来表征整个神经元层。就像单个神经元一样，层 (i) 采用一组输入，(ii) 生成相应的输出，(iii) 由一组可调谐的参数描述。当我们处理 softmax 回归时，单个层本身就是模型。然而，即使我们随后引入了 MLP，我们仍然可以认为该模型保留了同样的基本结构。
@@ -176,7 +176,7 @@ net(X)
 ```{.python .input}
 class MySequential(nn.Block):
     def add(self, block):
-        # Here, `block` is an instance of a `Block` subclass, and we assume 
+        # Here, `block` is an instance of a `Block` subclass, and we assume
         # that it has a unique name. We save it in the member variable
         # `_children` of the `Block` class, and its type is OrderedDict. When
         # the `MySequential` instance calls the `initialize` function, the

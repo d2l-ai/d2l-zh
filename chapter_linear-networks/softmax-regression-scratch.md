@@ -1,4 +1,4 @@
-# 软最大从头开始回归的实现
+# Softmax 回归的从零开始实现
 :label:`sec_softmax_scratch`
 
 就像我们从头开始实现线性回归一样，我们认为 softmax 回归也是类似的基础，你应该知道如何自己实现它的血腥细节。我们将使用刚刚在 :numref:`sec_fashion_mnist` 中引入的时尚 MNist 数据集，设置批量大小为 256 的数据迭代器。
@@ -185,7 +185,7 @@ cross_entropy(y_hat, y)
 def accuracy(y_hat, y):  #@save
     """Compute the number of correct predictions."""
     if len(y_hat.shape) > 1 and y_hat.shape[1] > 1:
-        y_hat = d2l.argmax(y_hat, axis=1)        
+        y_hat = d2l.argmax(y_hat, axis=1)
     cmp = d2l.astype(y_hat, y.dtype) == y
     return float(d2l.reduce_sum(d2l.astype(cmp, y.dtype)))
 ```

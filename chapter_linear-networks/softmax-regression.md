@@ -1,4 +1,4 @@
-# 软最大回归
+# Softmax 回归
 :label:`sec_softmax`
 
 在 :numref:`sec_linear_regression` 中，我们引入了线性回归，在 :numref:`sec_linear_scratch` 中从头开始完成实现，并再次使用 :numref:`sec_linear_concise` 中的深度学习框架的高级 API 来完成繁重的工作。
