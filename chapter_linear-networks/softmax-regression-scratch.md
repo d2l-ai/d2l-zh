@@ -1,7 +1,7 @@
 # softmax回归的从零开始实现
 :label:`sec_softmax_scratch`
 
-就像我们从零开始实现线性回归一样，我们认为softmax回归也是类似的基础，你应该知道如何自己实现它的细节。我们将使用刚刚在 :numref:`sec_fashion_mnist` 中引入的Fashion-MNIST数据集，设置数据迭代器的批量大小为256。
+就像我们从零开始实现线性回归一样，我们认为softmax回归也是重要的基础，你应该知道如何自己实现它的细节。我们使用刚刚在 :numref:`sec_fashion_mnist` 中引入的Fashion-MNIST数据集，并设置数据迭代器的批量大小为256。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -32,7 +32,7 @@ train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
 
 ## 初始化模型参数
 
-与线性回归中的样本一样，这里的每个样本都将用固定长度向量表示。原始数据集中的每个样本都是 $28 \times 28$ 的图像。在本节中，我们将展平每个图像，将它们视为长度为784的向量。在以后的章节中，我们将讨论利用图像空间结构的更复杂策略，但现在我们将每个像素位置视为一个特征。
+这里的每个样本都用固定长度向量表示。原始数据集中的每个样本都是 $28 \times 28$ 的图像。在本节中，我们将展平每个图像，将它们视为长度为784的向量。在以后的章节中，我们将讨论利用图像空间结构的更复杂策略，但现在我们将每个像素位置视为一个特征。
 
 回想一下，在softmax回归中，我们的输出数与类别一样多。因为我们的数据集有10个类别，所以网络输出维度为 10。因此，权重将构成一个 $784 \times 10$ 的矩阵，偏差将构成一个 $1 \times 10$ 的行向量。与线性回归一样，我们将使用正态分布初始化我们的权重 `W`，偏差初始化为0。
 
@@ -83,7 +83,7 @@ d2l.reduce_sum(X, 0, keepdims=True), d2l.reduce_sum(X, 1, keepdims=True)
 
 我们现在已经准备好实现softmax操作了。回想一下，softmax 由三个步骤组成：
 i） 我们对每个项求幂（使用“exp”）；
-ii）我们对每一行求和（批量中每个样本是一行），得到每个样本的归一化常数；
+ii）我们对每一行求和（小批量中每个样本是一行），得到每个样本的归一化常数；
 iii）我们将每一行除以其归一化常数，确保结果和为1。
 在查看代码之前，让我们回顾一下这个表达式：
 
@@ -98,7 +98,7 @@ $$
 def softmax(X):
     X_exp = d2l.exp(X)
     partition = d2l.reduce_sum(X_exp, 1, keepdims=True)
-    return X_exp / partition  # The broadcasting mechanism is applied here
+    return X_exp / partition  # 这里应用了广播机制
 ```
 
 ```{.python .input}
@@ -106,7 +106,7 @@ def softmax(X):
 def softmax(X):
     X_exp = d2l.exp(X)
     partition = d2l.reduce_sum(X_exp, 1, keepdim=True)
-    return X_exp / partition  # The broadcasting mechanism is applied here
+    return X_exp / partition  # 这里应用了广播机制
 ```
 
 正如你所看到的，对于任何随机输入，我们将每个元素变成一个非负数。此外，因为概率的要求，每行总和为1。
