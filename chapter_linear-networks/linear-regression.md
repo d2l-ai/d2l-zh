@@ -96,7 +96,7 @@ $$(\mathbf{w},b) \leftarrow (\mathbf{w},b) - \frac{\eta}{|\mathcal{B}|} \sum_{i 
 $$\begin{aligned} \mathbf{w} &\leftarrow \mathbf{w} -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \partial_{\mathbf{w}} l^{(i)}(\mathbf{w}, b) = \mathbf{w} - \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \mathbf{x}^{(i)} \left(\mathbf{w}^\top \mathbf{x}^{(i)} + b - y^{(i)}\right),\\ b &\leftarrow b -  \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \partial_b l^{(i)}(\mathbf{w}, b)  = b - \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \left(\mathbf{w}^\top \mathbf{x}^{(i)} + b - y^{(i)}\right). \end{aligned}$$
 :eqlabel:`eq_linreg_batch_update`
 
-在公式:eqref:`eq_linreg_batch_update`中的$\mathbf{w}$ 和 $\mathbf{x}$ 都是向量。在这里用向量表示比用数学表示更容易理解，比如 $w_1, w_2, \ldots, w_d$。
+在公式 :eqref:`eq_linreg_batch_update` 中的$\mathbf{w}$ 和 $\mathbf{x}$ 都是向量。在这里用向量表示比用数学表示更容易理解，比如 $w_1, w_2, \ldots, w_d$。
  $|\mathcal{B}|$ 表示每个小批量中的样本数（*批量大小（batch size）*），$\eta$ 表示 *学习率（learning rate）*。批量大小和学习率的值通常不是通过模型训练得到的，而是手动预先指定的。这些可以调整但不在训练迭代中更新的参数称为 *超参数（hyperparameters）*。
 *调参* 是选择超参数的过程。超参数通常是我们根据训练迭代结果来调整的，而训练迭代结果是在独立的*验证数据集（validation dataset）*(*验证集（validation set）*)上评估得到的。
 
@@ -282,20 +282,20 @@ $$-\log P(\mathbf y \mid \mathbf X) = \sum_{i=1}^n \frac{1}{2} \log(2 \pi \sigma
 ### 神经网络图
 
 深度学习从业者喜欢绘制图表来可视化模型中正在发生的事情。
-在:numref:`fig_single_neuron`中，我们将线性回归模型描述为一个神经网络。
+在 :numref:`fig_single_neuron` 中，我们将线性回归模型描述为一个神经网络。
 需要注意的是，该图只显示连接模式，即只显示每个输入如何连接到输出，隐去了权重和偏差的值。
 
 ![Linear regression is a single-layer neural network.](../img/singleneuron.svg)
 :label:`fig_single_neuron`
 
-在 :numref:`fig_single_neuron` 所示的神经网络中，输入为 $x_1, \ldots, x_d$，因此输入图层中的 *输入数*（或 *特征维度*）为 $d$。:numref:`fig_single_neuron` 中网络的输出为$o_1$，因此输出层中的 *输出数* 是 1。需要注意的是，输入值都是*指定的*，只有一个 *计算* 神经元。由于模型重点在发生计算的地方，所以通常我们在计算层数时不考虑输入层。也就是说，:numref:`fig_single_neuron` 中神经网络的 *层数* 为1。我们可以将线性回归模型视为仅由单个人工神经元组成的神经网络，或者说是单层神经网络。
+在 :numref:`fig_single_neuron` 所示的神经网络中，输入为 $x_1, \ldots, x_d$，因此输入图层中的 *输入数*（或 *特征维度*）为 $d$。 :numref:`fig_single_neuron` 中网络的输出为$o_1$，因此输出层中的 *输出数* 是 1。需要注意的是，输入值都是*指定的*，只有一个 *计算* 神经元。由于模型重点在发生计算的地方，所以通常我们在计算层数时不考虑输入层。也就是说， :numref:`fig_single_neuron` 中神经网络的 *层数* 为1。我们可以将线性回归模型视为仅由单个人工神经元组成的神经网络，或者说是单层神经网络。
 
-对于线性回归，每个输入都与每个输出（在本例中只有一个输出）相连，我们将这种变换（:numref:`fig_single_neuron` 中的输出层）称为 *全连接层（fully-connected layer）* 或 *稠密层（dense layer）*。下一章将详细讨论由这些层组成的网络。
+对于线性回归，每个输入都与每个输出（在本例中只有一个输出）相连，我们将这种变换（ :numref:`fig_single_neuron` 中的输出层）称为 *全连接层（fully-connected layer）* 或 *稠密层（dense layer）*。下一章将详细讨论由这些层组成的网络。
 
 ### 生物学
 
 线性回归发明的时间（1795年）早于计算神经科学，所以将线性回归描述为神经网络似乎不合适。
-当控制学家、神经生物学家沃伦·麦库洛奇和沃尔特·皮茨开始开发人工神经元模型时，为什么将线性模型作为一个起点呢？我们来看一张图片:numref:`fig_Neuron`，这是一张由*树突（dendrites）*（输入终端）、*细胞核（nucleus）*（CPU）组成的生物神经元图片。*轴突（axon）*（输出线）和*轴突端子（axon terminals）*（输出端子）通过*突触（synapses）*与其他神经元连接。
+当控制学家、神经生物学家沃伦·麦库洛奇和沃尔特·皮茨开始开发人工神经元模型时，为什么将线性模型作为一个起点呢？我们来看一张图片 :numref:`fig_Neuron` ，这是一张由*树突（dendrites）*（输入终端）、*细胞核（nucleus）*（CPU）组成的生物神经元图片。*轴突（axon）*（输出线）和*轴突端子（axon terminals）*（输出端子）通过*突触（synapses）*与其他神经元连接。
 
 ![The real neuron.](../img/Neuron.svg)
 :label:`fig_Neuron`
@@ -303,7 +303,7 @@ $$-\log P(\mathbf y \mid \mathbf X) = \sum_{i=1}^n \frac{1}{2} \log(2 \pi \sigma
 树突中接收到来自其他神经元（或视网膜等环境传感器）的信息$x_i$。该信息通过*突触权重* $w_i$来加权，以确定输入的影响（例如，通过$x\i w_i$相乘来激活或抑制）。
 来自多个源的加权输入以加权和$y = \sum_i x_i w_i + b$的形式汇聚在细胞核中，然后将这些信息发送到轴突 $y$ 中进一步处理，通常会通过 $\sigma(y)$ 进行一些非线性处理。之后，它要么到达目的地（例如肌肉），要么通过树突进入另一个神经元。
 
-当然，许多这样的单元可以通过正确连接和正确的学习算法拼凑在一起，从而产生的行为会比单独一个神经元所能表达的行为更有趣、更复杂，这种高层次的想法归功于我们对真实生物神经系统的研究。
+当然，许多这样的单元可以通过正确连接和正确的学习算法拼凑在一起，从而产生的行为会比单独一个神经元所能表达的行为更有趣、更复杂，这种想法归功于我们对真实生物神经系统的研究。
 
 当今大多数深度学习的研究几乎没有直接从神经科学中获得灵感。我们援引斯图尔特·罗素和彼得·诺维格谁，在他们的经典AI教科书
 *Artificial Intelligence: A Modern Approach* :cite:`Russell.Norvig.2016`,
