@@ -1,7 +1,7 @@
 # 图像分类数据集
 :label:`sec_fashion_mnist`
 
-目前广泛使用的图像分类数据集之一是 MNIST 数据集 :cite:`LeCun.Bottou.Bengio.ea.1998`。虽然它作为基准数据集运行良好，但按今天的标准，即使是简单的模型也能达到95%以上的分类准确率，因此不适合区分强模型和弱模型。如今，MNIST更像是一个健全检查，而不是一个基准。
+目前广泛使用的图像分类数据集之一是 MNIST 数据集 :cite:`LeCun.Bottou.Bengio.ea.1998`。虽然它是很不错的基准数据集，但按今天的标准，即使是简单的模型也能达到95%以上的分类准确率，因此不适合区分强模型和弱模型。如今，MNIST更像是一个健全检查，而不是一个基准。
 为了提高难度，我们将在接下来的章节中讨论在2017年发布的性质相似但相对复杂的Fashion-MNIST数据集 :cite:`Xiao.Rasul.Vollgraf.2017`。
 
 ```{.python .input}
@@ -59,7 +59,7 @@ mnist_test = torchvision.datasets.FashionMNIST(
 mnist_train, mnist_test = tf.keras.datasets.fashion_mnist.load_data()
 ```
 
-Fashion-MNIST 由 10 个类别的图像组成，每个类别由训练数据集中的 6000 张图像和测试数据集中的 1000 张图像组成。*测试数据集（test dataset）*（或 *测试集（test set）*）不会用于训练，只用于评估模型性能。训练集和测试集分别包含 60000 和 10000 张图像。
+Fashion-MNIST 由 10 个类别的图像组成，每个类别由训练数据集中的 6000 张图像和测试数据集中的 1000 张图像组成。*测试数据集*（test dataset）（或 *测试集*（test set））不会用于训练，只用于评估模型性能。训练集和测试集分别包含 60000 和 10000 张图像。
 
 ```{.python .input}
 #@tab mxnet, pytorch
@@ -71,7 +71,7 @@ len(mnist_train), len(mnist_test)
 len(mnist_train[0]), len(mnist_test[0])
 ```
 
-每个输入图像的高度和宽度均为 28 像素。数据集由灰度图像组成，其通道数为1。为了简洁起见，在这本书中，我们将高度$h$像素，宽度$w$像素图像的形状记为$h \times w$或（$h$，$w$）。
+每个输入图像的高度和宽度均为 28 像素。数据集由灰度图像组成，其通道数为1。为了简洁起见，在这本书中，我们将高度$h$像素，宽度$w$像素图像的形状记为$h \times w$或($h$, $w$)。
 
 ```{.python .input}
 #@tab all
@@ -83,7 +83,7 @@ Fashion-MNIST中包含的10个类别分别为t-shirt（T恤）、trouser（裤�
 ```{.python .input}
 #@tab all
 def get_fashion_mnist_labels(labels):  #@save
-    """Return text labels for the Fashion-MNIST dataset."""
+    """返回Fashion-MNIST数据集的文本标签。"""
     text_labels = ['t-shirt', 'trouser', 'pullover', 'dress', 'coat',
                    'sandal', 'shirt', 'sneaker', 'bag', 'ankle boot']
     return [text_labels[int(i)] for i in labels]
@@ -94,7 +94,7 @@ def get_fashion_mnist_labels(labels):  #@save
 ```{.python .input}
 #@tab all
 def show_images(imgs, num_rows, num_cols, titles=None, scale=1.5):  #@save
-    """Plot a list of images."""
+    """绘制图像列表。"""
     figsize = (num_cols * scale, num_rows * scale)
     _, axes = d2l.plt.subplots(num_rows, num_cols, figsize=figsize)
     axes = axes.flatten()
@@ -131,17 +131,17 @@ show_images(X, 2, 9, titles=get_fashion_mnist_labels(y));
 ## 读取小批量
 
 为了使我们在读取训练集和测试集时更容易，我们使用内置的数据迭代器，而不是从零开始创建一个。
-回顾一下，在每次迭代中，数据加载器每次都会读取一小批量数据，大小为`batch_size`。我们在训练数据迭代器中还对所有样本进行了随机打乱。
+回顾一下，在每次迭代中，数据加载器每次都会读取一小批量数据，大小为`batch_size`。我们在训练数据迭代器中还随机打乱了所有样本。
 
 ```{.python .input}
 batch_size = 256
 
 def get_dataloader_workers():  #@save
-    """Use 4 processes to read the data expect for Windows."""
+    """除Windows外，使用4个进程来读取的数据。"""
     return 0 if sys.platform.startswith('win') else 4
 
-# 通过ToTensor实例将图像数据从uint8格式变换成32位浮点数格式
-# 并除以255使得所有像素的数值均在0到1之间
+# 通过ToTensor实例将图像数据从uint8格式变换成32位浮点数格式，并除以255使得所有像素
+# 的数值均在0到1之间
 transformer = gluon.data.vision.transforms.ToTensor()
 train_iter = gluon.data.DataLoader(mnist_train.transform_first(transformer),
                                    batch_size, shuffle=True,
@@ -153,7 +153,7 @@ train_iter = gluon.data.DataLoader(mnist_train.transform_first(transformer),
 batch_size = 256
 
 def get_dataloader_workers():  #@save
-    """Use 4 processes to read the data."""
+    """使用4个进程来读取的数据。"""
     return 4
 
 train_iter = data.DataLoader(mnist_train, batch_size, shuffle=True,
@@ -183,7 +183,7 @@ f'{timer.stop():.2f} sec'
 
 ```{.python .input}
 def load_data_fashion_mnist(batch_size, resize=None):  #@save
-    """Download the Fashion-MNIST dataset and then load it into memory."""
+    """下载Fashion-MNIST数据集，然后将其加载到内存中。"""
     dataset = gluon.data.vision
     trans = [dataset.transforms.ToTensor()]
     if resize:
@@ -200,7 +200,7 @@ def load_data_fashion_mnist(batch_size, resize=None):  #@save
 ```{.python .input}
 #@tab pytorch
 def load_data_fashion_mnist(batch_size, resize=None):  #@save
-    """Download the Fashion-MNIST dataset and then load it into memory."""
+    """下载Fashion-MNIST数据集，然后将其加载到内存中。"""
     trans = [transforms.ToTensor()]
     if resize:
         trans.insert(0, transforms.Resize(resize))
@@ -218,10 +218,10 @@ def load_data_fashion_mnist(batch_size, resize=None):  #@save
 ```{.python .input}
 #@tab tensorflow
 def load_data_fashion_mnist(batch_size, resize=None):   #@save
-    """Download the Fashion-MNIST dataset and then load it into memory."""
+    """下载Fashion-MNIST数据集，然后将其加载到内存中。"""
     mnist_train, mnist_test = tf.keras.datasets.fashion_mnist.load_data()
-    # Divide all numbers by 255 so that all pixel values are between
-    # 0 and 1, add a batch dimension at the last. And cast label to int32
+    # 将所有数字除以255，使所有像素值介于0和1之间，在最后添加一个批处理维度，
+    # 并将标签转换为int32。
     process = lambda X, y: (tf.expand_dims(X, axis=3) / 255,
                             tf.cast(y, dtype='int32'))
     resize_fn = lambda X, y: (
@@ -242,19 +242,19 @@ for X, y in train_iter:
     break
 ```
 
-我们现在准备在下面的章节中使用Fashion-MNIST数据集。
+我们现在已经准备好在下面的章节中使用Fashion-MNIST数据集。
 
 ## 总结
 
 * Fashion-MNIST是一个服装分类数据集，由10 个类别的图像组成。我们将在后续章节中使用此数据集来评估各种分类算法。
-* 我们将高度$h$像素，宽度$w$像素图像的形状记为$h \times w$或（$h$，$w$）。
+* 我们将高度$h$像素，宽度$w$像素图像的形状记为$h \times w$或($h$, $w$)。
 * 数据迭代器是获得高性能的关键组件。依靠实现良好的数据迭代器，利用高性能计算来避免减慢训练循环。
 
 ## 练习
 
 1. 将减少 `batch_size`（如减少到 1）是否会影响读取性能？
 1. 数据迭代器的性能非常重要。你认为当前的实现足够快吗？探索各种选择来改进它。
-1. 查看框架的在线API文档。还有哪些其他数据集可用？
+1. 查阅框架的在线API文档。还有哪些其他数据集可用？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/48)
