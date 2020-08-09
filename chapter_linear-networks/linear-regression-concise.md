@@ -2,7 +2,7 @@
 :label:`sec_linear_concise`
 
 在过去的几年里，出于对深度学习强烈的兴趣，各个公司、学者和业余爱好者开发了各种成熟的开源框架。通过这些框架可以自动化实现基于梯度的学习算法中重复性的工作。
-在 :numref:`sec_linear_scratch` 中，我们只依赖(i)张量来进行数据存储和线性代数；(ii)自动微分来计算梯度。实际上，由于数据迭代器、损失函数、优化器和神经网络层很常用，现代深度学习库也为我们实现了这些组件。
+在 :numref:`sec_linear_scratch` 中，我们只依赖（i）张量来进行数据存储和线性代数；（ii）自动微分来计算梯度。实际上，由于数据迭代器、损失函数、优化器和神经网络层很常用，现代深度学习库也为我们实现了这些组件。
 
 在本节中，我们将介绍如何通过使用深度学习框架的高级API来简洁地实现 :numref:`sec_linear_scratch` 中的线性回归模型。
 
@@ -44,7 +44,7 @@ features, labels = d2l.synthetic_data(true_w, true_b, 1000)
 
 ```{.python .input}
 def load_array(data_arrays, batch_size, is_train=True):  #@save
-    """Construct a Gluon data iterator."""
+    """构造一个Gluon数据迭代器。"""
     dataset = gluon.data.ArrayDataset(*data_arrays)
     return gluon.data.DataLoader(dataset, batch_size, shuffle=is_train)
 ```
@@ -52,7 +52,7 @@ def load_array(data_arrays, batch_size, is_train=True):  #@save
 ```{.python .input}
 #@tab pytorch
 def load_array(data_arrays, batch_size, is_train=True):  #@save
-    """Construct a PyTorch data iterator."""
+    """构造一个PyTorch数据迭代器。"""
     dataset = data.TensorDataset(*data_arrays)
     return data.DataLoader(dataset, batch_size, shuffle=is_train)
 ```
@@ -60,7 +60,7 @@ def load_array(data_arrays, batch_size, is_train=True):  #@save
 ```{.python .input}
 #@tab tensorflow
 def load_array(data_arrays, batch_size, is_train=True):  #@save
-    """Construct a TensorFlow data iterator."""
+    """构造一个TensorFlow数据迭代器。"""
     dataset = tf.data.Dataset.from_tensor_slices(data_arrays)
     if is_train:
         dataset = dataset.shuffle(buffer_size=1000)
@@ -84,11 +84,11 @@ next(iter(data_iter))
 
 ## 定义模型
 
-当我们在 :numref:`sec_linear_scratch` 中实现线性回归时，我们明确定义了模型参数变量，并编写了计算过程的代码，这样通过基本的线性代数运算得到输出。但是，如果模型变得更加复杂，而且当您几乎每天都需要实现模型时，你会很乐于简化这个过程。这种情况类似于从头开始编写自己的博客。做一两次是有益的、有启发性的，但如果每次你每需要一个博客就花一个月的时间重新发明轮子，那你将是一个糟糕的web开发者。
+当我们在 :numref:`sec_linear_scratch` 中实现线性回归时，我们明确定义了模型参数变量，并编写了计算过程的代码，这样通过基本的线性代数运算得到输出。但是，如果模型变得更加复杂，而且当你几乎每天都需要实现模型时，你会很乐于简化这个过程。这种情况类似于从头开始编写自己的博客。做一两次是有益的、有启发性的，但如果每次你每需要一个博客就花一个月的时间重新发明轮子，那你将是一个糟糕的网页开发者。
 
 对于标准操作，我们可以使用框架的预定义好的层。这使我们只需关注使用哪些层来构造模型，而不必关注实现细节。我们首先定义一个模型变量`net`，它是一个 `Sequential` 类的实例。 `Sequential` 类为串联在一起的多个层定义了一个容器。当给定输入数据， `Sequential` 实例将其传入到第一层，然后将第一层的输出作为第二层的输入，依此类推。在下面的例子中，我们的模型只包含一个层，因此实际上不需要`Sequential`。但是由于以后几乎所有的模型都将涉及到多层，我们使用`Sequential`会让你熟悉最标准的工作流。
 
-回顾 :numref:`fig_single_neuron` 中的单层网络架构，这一单层被称为 *全连接层*，因为它的每一个输入都通过矩阵乘法连接到它的每个输出。
+回顾 :numref:`fig_single_neuron` 中的单层网络架构，这一单层被称为 *全连接层*（fully-connected layer），因为它的每一个输入都通过矩阵-向量乘法连接到它的每个输出。
 
 :begin_tab:`mxnet`
 在 Gluon 中，全连接层在 `Dense` 类中定义。由于我们只想得到一个标量输出，所以我们将该数字设置为 1。
@@ -107,7 +107,7 @@ next(iter(data_iter))
 :end_tab:
 
 ```{.python .input}
-# `nn` is an abbreviation for neural networks
+# `nn` 是神经网络的缩写
 from mxnet.gluon import nn
 net = nn.Sequential()
 net.add(nn.Dense(1))
@@ -115,14 +115,14 @@ net.add(nn.Dense(1))
 
 ```{.python .input}
 #@tab pytorch
-# `nn` is an abbreviation for neural networks
+# `nn` 是神经网络的缩写
 from torch import nn
 net = nn.Sequential(nn.Linear(2, 1))
 ```
 
 ```{.python .input}
 #@tab tensorflow
-# `keras` is the high-level API for TensorFlow
+# `keras` 是TensorFlow的高级API
 net = tf.keras.Sequential()
 net.add(tf.keras.layers.Dense(1))
 ```
@@ -130,11 +130,11 @@ net.add(tf.keras.layers.Dense(1))
 ## 初始化模型参数
 
 在使用`net`之前，我们需要初始化模型参数，如线性回归模型中的权重和偏差。
-深度学习框架通常有一种预定义的方法来初始化参数。
+深度学习框架通常有预先定义的方法来初始化参数。
 在这里，我们指定每个权重参数应该从均值为0，标准差为0.01的正态分布中随机采样，偏差参数将初始化为零。
 
 :begin_tab:`mxnet`
-我们从 MxNet 导入 `initializer` 模块。这个模块提供了各种模型参数初始化方法。Gluon将 `init` 作为访问 `initializer` 包的快捷方式。我们只通过调用 `init.Normal(sigma=0.01)` 来指定如何初始化权重。默认情况下，偏差参数初始化为零。
+我们从 MXNet 导入 `initializer` 模块。这个模块提供了各种模型参数初始化方法。Gluon将 `init` 作为访问 `initializer` 包的快捷方式。我们只通过调用 `init.Normal(sigma=0.01)` 来指定如何初始化权重。默认情况下，偏差参数初始化为零。
 :end_tab:
 
 :begin_tab:`pytorch`
@@ -164,8 +164,8 @@ net.add(tf.keras.layers.Dense(1, kernel_initializer=initializer))
 ```
 
 :begin_tab:`mxnet`
-上面的代码可能看起来很简单，但是您应该注意到这里的一个细节：我们正在为网络初始化参数，而Gluon还不知道输入将有多少维!
-输入可能有2维，也可能有2000维。Gluon让我们避免了这个问题，在后端，初始化实际上是 *推迟（deferred）* 执行的。
+上面的代码可能看起来很简单，但是你应该注意到这里的一个细节：我们正在为网络初始化参数，而Gluon还不知道输入将有多少维!
+网络的输入可能有2维，也可能有2000维。Gluon让我们避免了这个问题，在后端执行时，初始化实际上是 *推迟* （deferred）执行的。
 只有在我们第一次尝试通过网络传递数据时才会进行真正的初始化。只是要记住，因为参数还没有初始化，所以我们不能访问或操作它们。
 :end_tab:
 
@@ -174,8 +174,8 @@ net.add(tf.keras.layers.Dense(1, kernel_initializer=initializer))
 :end_tab:
 
 :begin_tab:`tensorflow`
-上面的代码可能看起来很简单，但是您应该注意到这里的一个细节：我们正在为网络初始化参数，而Keras还不知道输入将有多少维!
-输入可能是2维，也可能是2000维。Keras让我们避免了这个问题，在后端，初始化实际上是 *推迟（deferred）* 执行的。
+上面的代码可能看起来很简单，但是你应该注意到这里的一个细节：我们正在为网络初始化参数，而Keras还不知道输入将有多少维!
+网络的输入可能有2维，也可能有2000维。Keras让我们避免了这个问题，在后端执行时，初始化实际上是 *推迟* （deferred）执行的。
 只有在我们第一次尝试通过网络传递数据时才会进行真正的初始化。只是要记住，因为参数还没有初始化，所以我们不能访问或操作它们。
 :end_tab:
 
@@ -186,7 +186,7 @@ net.add(tf.keras.layers.Dense(1, kernel_initializer=initializer))
 :end_tab:
 
 :begin_tab:`pytorch`
-计算均方误差使用的是`MSELoss` 类，也称为平方 $L_2$ 范数。默认情况下，它返回所有样本损失的平均值。
+计算均方误差使用的是`MSELoss`类，也称为平方 $L_2$ 范数。默认情况下，它返回所有样本损失的平均值。
 :end_tab:
 
 :begin_tab:`tensorflow`
@@ -238,12 +238,12 @@ trainer = tf.keras.optimizers.SGD(learning_rate=0.03)
 
 ## 训练
 
-通过深度学习框架的高级api来实现我们的模型只需要相对较少的代码行。
+通过深度学习框架的高级API来实现我们的模型只需要相对较少的代码。
 我们不必单独分配参数、不必定义我们的损失函数，也不必手动实现小批量随机梯度下降。
-当我们需要更复杂的模型时，高级api的优势将大大增加。
-当我们有了所有的基本组件，训练循环与我们从零开始实现所有东西时所做的非常相似。
+当我们需要更复杂的模型时，高级API的优势将大大增加。
+当我们有了所有的基本组件，训练过程代码与我们从零开始实现所有东西时所做的非常相似。
 
-回顾一下：在迭代周期里，我们将完整遍历一次数据集（`train_data`），迭代地获取一小批量的输入和相应的标签。对于每一个小批量，我们会进行以下程序:
+回顾一下：在迭代周期里，我们将完整遍历一次数据集（`train_data`），反复地从中获取一个小批量的输入和相应的标签。对于每一个小批量，我们会进行以下程序:
 
 * 通过调用 `net(X)` 生成预测并计算损失 `l`（正向传播）。
 * 通过进行反向传播来计算梯度。
@@ -289,31 +289,31 @@ for epoch in range(num_epochs):
     print(f'epoch {epoch + 1}, loss {l:f}')
 ```
 
-下面我们比较生成数据集的真正参数和通过有限数据训练获得的模型参数。
+下面我们比较生成数据集的真实参数和通过有限数据训练获得的模型参数。
 要访问参数，我们首先从 `net` 访问所需的层，然后读取该层的权重和偏差。
 正如在从零开始实现中一样，我们估计的参数与生成它们的真实参数非常接近。
 
 ```{.python .input}
 w = net[0].weight.data()
-print(f'error in estimating w: {true_w - d2l.reshape(w, true_w.shape)}')
+print(f'w的估计误差： {true_w - d2l.reshape(w, true_w.shape)}')
 b = net[0].bias.data()
-print(f'error in estimating b: {true_b - b}')
+print(f'b的估计误差： {true_b - b}')
 ```
 
 ```{.python .input}
 #@tab pytorch
 w = net[0].weight.data
-print('error in estimating w:', true_w - d2l.reshape(w, true_w.shape))
+print('w的估计误差：', true_w - d2l.reshape(w, true_w.shape))
 b = net[0].bias.data
-print('error in estimating b:', true_b - b)
+print('b的估计误差：', true_b - b)
 ```
 
 ```{.python .input}
 #@tab tensorflow
 w = net.get_weights()[0]
-print('error in estimating w', true_w - d2l.reshape(w, true_w.shape))
+print('w的估计误差：', true_w - d2l.reshape(w, true_w.shape))
 b = net.get_weights()[1]
-print('error in estimating b', true_b - b)
+print('b的估计误差：', true_b - b)
 ```
 
 ## 总结
@@ -321,8 +321,8 @@ print('error in estimating b', true_b - b)
 :begin_tab:`mxnet`
 * 我们可以使用Gluon更简洁地实现模型。
 * 在 Gluon 中`data` 模块提供了数据处理工具，`nn` 模块定义了大量的神经网络层，`loss` 模块定义了许多常见的损失函数。
-* MxNet 的 `initializer` 模块提供了各种模型参数初始化方法。
-* 维度和存储可以自动推断，但请注意不要在初始化参数之前尝试访问参数。
+* MXNet 的 `initializer` 模块提供了各种模型参数初始化方法。
+* 维度和存储可以自动推断，但注意不要在初始化参数之前尝试访问参数。
 :end_tab:
 
 :begin_tab:`pytorch`
@@ -335,14 +335,14 @@ print('error in estimating b', true_b - b)
 * 我们可以使用 TensorFlow 的高级 API更简洁地实现模型。
 * 在 TensorFlow 中，`data` 模块提供了数据处理工具，`keras` 模块定义了大量神经网络层和常见损耗函数。
 * TensorFlow的 `initializers` 模块提供了多种模型参数初始化方法。
-* 维度和存储可以自动推断，但请注意不要在初始化参数之前尝试访问参数。
+* 维度和存储可以自动推断，但注意不要在初始化参数之前尝试访问参数。
 :end_tab:
 
 ## 练习
 
 :begin_tab:`mxnet`
 1. 如果我们用 `l = loss(output, y).mean()` 替换 `l = loss(output, y)`。我们为了使代码的行为相同，需要将 `trainer.step(batch_size)` 更改为 `trainer.step(1)`，这是为什么？
-1. 查看 MxNet 文档，了解模块 `gluon.loss` 和 `init` 中提供了哪些损失函数和初始化方法。用Huber损失来代替。
+1. 查看 MXNet 文档，了解模块 `gluon.loss` 和 `init` 中提供了哪些损失函数和初始化方法。用Huber损失来代替。
 1. 你如何访问 `dense.weight` 的梯度？
 
 [Discussions](https://discuss.d2l.ai/t/44)
