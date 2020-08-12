@@ -10,7 +10,7 @@
 
 *线性回归* （Linear regression）在回归的各种标准工具中是最简单且最流行的。它可以追溯到19世纪初。线性回归基于几个简单的假设：首先，假设自变量 $\mathbf{x}$ 和因变量 $y$ 之间的关系是线性的，即$y$可以表示为 $\mathbf{x}$ 中元素的加权和，这里通常允许包含观测值的一些噪声；其次，我们假设任何噪声都比较正常，如噪声遵循正态分布。
 
-为了解释这种方法，我们尝试一个实际的例子：我们希望根据房屋的面积（平方英尺）和房龄（年）来估算房屋价格（美元）。为了得到一个能拟合房价的模型，我们需要收集一个真实的数据集。这个数据集包括了房屋的销售价格、面积和房龄。在机器学习的术语中，该数据集称为 *训练数据集*（training data set） 或 *训练集*（training set），每行数据（这里是与一次交易相对应的数据）称为 *样本*（sample）、 *数据点* （data point）或*数据样本*（data instance）。我们要试图预测的目标（价格）称为 *标签*（label）或 *目标*（target）。预测所依据的自变量（面积和房龄）称为 *特征*（features）或 *协变量*（covariates）。
+为了解释这种方法，我们尝试一个实际的例子：我们希望根据房屋的面积（平方英尺）和房龄（年）来估算房屋价格（美元）。为了得到一个能拟合房价的模型，我们需要收集一个真实的数据集。这个数据集包括了房屋的销售价格、面积和房龄。在机器学习的术语中，该数据集称为 *训练数据集*（training data set）或*训练集* （training set），每行数据（这里是与一次交易相对应的数据）称为*样本*（sample）、*数据点* （data point）或*数据样本*（data instance）。我们要试图预测的目标（价格）称为 *标签*（label）或 *目标*（target）。预测所依据的自变量（面积和房龄）称为 *特征*（features）或 *协变量*（covariates）。
 
 通常，我们使用 $n$ 来表示数据集中的样本数。对索引为 $i$ 的样本，其输入表示为 $\mathbf{x}^{(i)} = [x_1^{(i)}, x_2^{(i)}]^\top$，其对应的标签是 $y^{(i)}$。
 
@@ -187,7 +187,6 @@ class Timer:  #@save
 
 首先，我们使用for循环，每次执行一位的加法。
 
-
 ```{.python .input}
 #@tab mxnet, pytorch
 c = d2l.zeros(n)
@@ -255,7 +254,7 @@ d2l.plot(x, [normal(x, mu, sigma) for mu, sigma in params], xlabel='x',
 
 $$y = \mathbf{w}^\top \mathbf{x} + b + \epsilon \text{ where } \epsilon \sim \mathcal{N}(0, \sigma^2).$$
 
-因此，我们现在可以写出通过给定的$\mathbf{x}观测到特定$y$的*可能性*（likelihood）：
+因此，我们现在可以写出通过给定的$\mathbf{x}$观测到特定$y$的*可能性*（likelihood）：
 
 $$P(y \mid \mathbf{x}) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp\left(-\frac{1}{2 \sigma^2} (y - \mathbf{w}^\top \mathbf{x} - b)^2\right).$$
 
@@ -263,9 +262,9 @@ $$P(y \mid \mathbf{x}) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp\left(-\frac{1}{2 \
 
 $$P(\mathbf y \mid \mathbf X) = \prod_{i=1}^{n} p(y^{(i)}|\mathbf{x}^{(i)}).$$
 
-根据最大似然估计法选择的估计量称为*最大似然估计量*。
+根据最大似然估计法选择的估计量称为*最大似然估计量* 。
 虽然使许多指数函数的乘积最大化看起来很困难，但是我们可以在不改变目标的前提下，通过最大化似然对数来简化。
-由于历史原因，优化通常是说最小化而不是最大化。我们可以 *最小化负对数似然* $-\log P(\mathbf y \mid \mathbf X)$。由此，可以得到的数学公式是：
+由于历史原因，优化通常是说最小化而不是最大化。我们可以 *最小化负对数似然* $-\log P(\mathbf y \mid \mathbf X)$。由此可以得到的数学公式是：
 
 $$-\log P(\mathbf y \mid \mathbf X) = \sum_{i=1}^n \frac{1}{2} \log(2 \pi \sigma^2) + \frac{1}{2 \sigma^2} \left(y^{(i)} - \mathbf{w}^\top \mathbf{x}^{(i)} - b\right)^2.$$
 
@@ -294,12 +293,12 @@ $$-\log P(\mathbf y \mid \mathbf X) = \sum_{i=1}^n \frac{1}{2} \log(2 \pi \sigma
 ### 生物学
 
 线性回归发明的时间（1795年）早于计算神经科学，所以将线性回归描述为神经网络似乎不合适。
-当控制学家、神经生物学家沃伦·麦库洛奇和沃尔特·皮茨开始开发人工神经元模型时，他们为什么将线性模型作为一个起点呢？我们来看一张图片 :numref:`fig_Neuron` ，这是一张由*树突（dendrites）*（输入终端）、*细胞核（nucleus）*（CPU）组成的生物神经元图片。*轴突（axon）*（输出线）和*轴突端子（axon terminals）*（输出端子）通过*突触（synapses）*与其他神经元连接。
+当控制学家、神经生物学家沃伦·麦库洛奇和沃尔特·皮茨开始开发人工神经元模型时，他们为什么将线性模型作为一个起点呢？我们来看一张图片 :numref:`fig_Neuron` ，这是一张由*树突*（dendrites，输入终端）、*细胞核*（nucleus，CPU）组成的生物神经元图片。*轴突*（axon，输出线）和*轴突端子*（axon terminals，输出端子）通过*突触*（synapses）与其他神经元连接。
 
 ![真实的神经元。](../img/Neuron.svg)
 :label:`fig_Neuron`
 
-树突中接收到来自其他神经元（或视网膜等环境传感器）的信息$x_i$。该信息通过*突触权重* $w_i$来加权，以确定输入的影响（例如，通过$x\i w_i$相乘来激活或抑制）。
+树突中接收到来自其他神经元（或视网膜等环境传感器）的信息$x_i$。该信息通过*突触权重* $w_i$来加权，以确定输入的影响（即，通过$x_i w_i$相乘来激活或抑制）。
 来自多个源的加权输入以加权和$y = \sum_i x_i w_i + b$的形式汇聚在细胞核中，然后将这些信息发送到轴突 $y$ 中进一步处理，通常会通过 $\sigma(y)$ 进行一些非线性处理。之后，它要么到达目的地（例如肌肉），要么通过树突进入另一个神经元。
 
 当然，许多这样的单元可以通过正确连接和正确的学习算法拼凑在一起，从而产生的行为会比单独一个神经元所产生的行为更有趣、更复杂，这种想法归功于我们对真实生物神经系统的研究。
@@ -342,3 +341,7 @@ $$-\log P(\mathbf y \mid \mathbf X) = \sum_{i=1}^n \frac{1}{2} \log(2 \pi \sigma
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/259)
 :end_tab:
+
+```{.python .input}
+
+```
