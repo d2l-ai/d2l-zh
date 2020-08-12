@@ -90,7 +90,7 @@ $$ \begin{aligned} \mathbf{O} &= \mathbf{X} \mathbf{W} + \mathbf{b}, \\ \hat{\ma
 
 ## 损失函数
 
-接下来，我们需要一个损失函数来度量预测概率的效果。我们将依赖最大似然估计，这与我们在为线性回归（:numref:`subsec_normal_distribution_and_squared_loss`）中的均方误差目标提供概率证明时遇到的概念完全相同。
+接下来，我们需要一个损失函数来度量预测概率的效果。我们将依赖最大似然估计，这与我们在为线性回归（ :numref:`subsec_normal_distribution_and_squared_loss` ）中的均方误差目标提供概率证明时遇到的概念完全相同。
 
 ### 对数似然
 
