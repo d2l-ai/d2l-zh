@@ -1,21 +1,21 @@
 # 符号
 :label:`chap_notation`
 
-本书中使用的符号概述如下:
+本书中使用的符号概述如下。
 
 ## 数字
 
-* $x$：一个标量
-* $\mathbf{x}$：一个向量
-* $\mathbf{X}$：一个矩阵
-* $\mathsf{X}$：一个张量
+* $x$：标量
+* $\mathbf{x}$：向量
+* $\mathbf{X}$：矩阵
+* $\mathsf{X}$：张量
 * $\mathbf{I}$：单位矩阵
 * $x_i$, $[\mathbf{x}]_i$：向量$\mathbf{x}的第$i^\mathrm{th}$个元素
 * $x_{ij}$, $[\mathbf{X}]_{ij}$：矩阵$\mathbf{X}$第$i$行第$j$列的元素
 
-## 集合
+## 集合论
 
-* $\mathcal{X}$: 一个集合
+* $\mathcal{X}$: 集合
 * $\mathbb{Z}$: 整数的集合
 * $\mathbb{R}$ 实数的集合
 * $\mathbb{R}^n$: $n$维实数向量
@@ -26,13 +26,13 @@
 
 ## 函数和运算符
 
-* $f(\cdot)$：一个函数
+* $f(\cdot)$：函数
 * $\log(\cdot)$：自然对数
 * $\exp(\cdot)$: 指数函数
 * $\mathbf{1}_\mathcal{X}$: 指示函数
 * $\mathbf{(\cdot)}^\top$: 向量或矩阵的转置
 * $\mathbf{X}^{-1}$: 矩阵的逆
-* $\odot$: Hadamard乘积（逐元素乘）
+* $\odot$: 按元素相乘
 * $[\cdot, \cdot]$：连结
 * $\lvert \mathcal{X} \rvert$：集合的基数
 * $\|\cdot\|_p$: ：$L_p$ 正则
