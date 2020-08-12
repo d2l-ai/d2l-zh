@@ -1,7 +1,7 @@
 # softmax回归
 :label:`sec_softmax`
 
-在 :numref:`sec_linear_reception` 中我们介绍了线性回归。随后，在 :numref:`sec_linear_scratch` 中我们从头实现了线性回归。然后在 :numref:`sec_linear_concise` 中我们使用深度学习框架的高级API来完成繁重的工作。
+在 :numref:`sec_linear_regression` 中我们介绍了线性回归。随后，在 :numref:`sec_linear_scratch` 中我们从头实现了线性回归。然后在 :numref:`sec_linear_concise` 中我们使用深度学习框架的高级API来完成繁重的工作。
 
 回归可以用于回答 *多少* 的问题。比如预测房屋将被售出价格，或者棒球队可能获得的胜利数，又或者患者住院的天数。
 
