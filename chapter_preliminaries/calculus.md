@@ -2,12 +2,12 @@
 :label:`sec_calculus`
 
 直到至少2500年前，古希腊人把一个多边形分成三角形，并把它们的面积相加，才找到计算多边形面积的方法。
-为了求出曲线形状（比如圆）的面积，古希腊人在这样的形状上刻内接多边形。如:numrefe: `fig_circle_area` 所示，内接多边形的等长边越多，就越接近圆。这个过程也被称为*逼近法*（method of exhaustion）。
+为了求出曲线形状（比如圆）的面积，古希腊人在这样的形状上刻内接多边形。如 :numref:`fig_circle_area` 所示，内接多边形的等长边越多，就越接近圆。这个过程也被称为*逼近法*（method of exhaustion）。
 
 ![Find the area of a circle with the method of exhaustion.](../img/polygon_circle.svg)
 :label:`fig_circle_area`
 
-事实上，逼近法就是 *积分*（integral calculus）（将在：numrefe：`sec_integral_calculus` 中描述）的起源。2000 多年后，微积分的另一支，*微分*（differential calculus），被发明出来。在微分学最重要的应用中，优化问题考虑如何把事情做到*最好*。正如在：numref:`subsec_norms_and_objectives` 中讨论的那样，这种问题在深度学习中是无处不在的。
+事实上，逼近法就是 *积分*（integral calculus）（将在 :numref:`sec_integral_calculus` 中描述）的起源。2000 多年后，微积分的另一支，*微分*（differential calculus），被发明出来。在微分学最重要的应用中，优化问题考虑如何把事情做到*最好*。正如在:numref:`subsec_norms_and_objectives`中讨论的那样，这种问题在深度学习中是无处不在的。
 
 在深度学习中，我们*训练*模型，不断更新它们，使它们在看到越来越多的数据时变得越来越好。通常情况下，变得更好意味着最小化一个*损失函数*（loss function），即一个衡量“我们的模型有多*糟糕*”这个问题的分数。这个问题比看上去要微妙得多。最终，我们真正关心的是生成一个能够在我们从未见过的数据上表现良好的模型。但我们只能将模型与我们实际能看到的数据相拟合。因此，我们可以将拟合模型的任务分解为两个关键问题：i) *优化*：用模型拟合观测数据的过程；ii) *泛化*：数学原理和实践者的智慧，能够指导我们生成出有效性超出用于训练的数据集本身的模型。
 
@@ -23,7 +23,7 @@
 $$f'(x) = \lim_{h \rightarrow 0} \frac{f(x+h) - f(x)}{h},$$
 :eqlabel:`eq_derivative`
 
-如果这个极限存在。如果$f'(a)$存在，则称$f$在$a$处是*可微*（differentiable）的。如果 $f$ 在一个区间内的每个数上都是可微的，则此函数在此区间中是可微的。我们可以将:eqref:`eq_derivative`中的导数 $f'(x)$ 解释为$f(x)$相对于 $x$ 的 *瞬时*（instantaneous） 变化率。所谓的瞬时变化率是基于$x$中的变化$h$，且$h$接近$0$。
+如果这个极限存在。如果$f'(a)$存在，则称$f$在$a$处是*可微*（differentiable）的。如果 $f$ 在一个区间内的每个数上都是可微的，则此函数在此区间中是可微的。我们可以将 :eqref:`eq_derivative` 中的导数 $f'(x)$ 解释为$f(x)$相对于 $x$ 的 *瞬时*（instantaneous） 变化率。所谓的瞬时变化率是基于$x$中的变化$h$，且$h$接近$0$。
 
 为了更好地解释导数，让我们用一个例子来做实验。
 定义$u = f(x) = 3x^2-4x$.
@@ -61,7 +61,7 @@ def f(x):
     return 3 * x ** 2 - 4 * x
 ```
 
-通过令 $x=1$ 并让 $h$ 接近 $0$，:eqref:`eq_derivative`中$\frac{f(x+h) - f(x)}{h}$ 的数值结果接近 $2$。虽然这个实验不是一个数学证明，但我们稍后会看到，当 $x=1$时，导数 $u'$是 $2$ 。
+通过令 $x=1$ 并让 $h$ 接近 $0$， :eqref:`eq_derivative` 中$\frac{f(x+h) - f(x)}{h}$ 的数值结果接近 $2$。虽然这个实验不是一个数学证明，但我们稍后会看到，当 $x=1$时，导数 $u'$是 $2$ 。
 
 ```{.python .input}
 #@tab all
