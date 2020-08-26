@@ -93,7 +93,7 @@ X, y = tf.constant(inputs.values), tf.constant(outputs.values)
 X, y
 ```
 
-## 摘要
+## 小结
 
 * 像庞大的 Python 生态系统中的许多其他扩展包一样，`pandas` 可以与张量一起工作。
 * 输入和删除可用于处理丢失的数据。
