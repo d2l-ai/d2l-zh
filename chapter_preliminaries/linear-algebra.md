@@ -535,7 +535,7 @@ tf.reduce_sum(x * y)
 
 ## 矩阵-向量积
 
-现在我们知道如何计算点积，我们可以开始理解 *矩阵-向量积*（matrix-vector products）。回顾分别在 :eqref:`eq_matrix_def` 和 :eqref:`eq_vec_def` 中定义和可视化的矩阵 $\mathbf{A} \in \mathbb{R}^{m \times n}$ 和向量 $\mathbf{x} \in \mathbb{R}^n$。让我们从可视化矩阵$\mathbf{A}开始，用它的行向量表示
+现在我们知道如何计算点积，我们可以开始理解 *矩阵-向量积*（matrix-vector products）。回顾分别在 :eqref:`eq_matrix_def` 和 :eqref:`eq_vec_def` 中定义和可视化的矩阵 $\mathbf{A} \in \mathbb{R}^{m \times n}$ 和向量 $\mathbf{x} \in \mathbb{R}^n$。让我们从可视化矩阵$\mathbf{A}$开始，用它的行向量表示
 
 $$\mathbf{A}=
 \begin{bmatrix}
@@ -600,11 +600,8 @@ $$\mathbf{A}=\begin{bmatrix}
 \vdots & \vdots & \ddots & \vdots \\
  b_{k1} & b_{k2} & \cdots & b_{km} \\
 \end{bmatrix}.$$
-用$\mathbf{a}^\top_{i} \在\mathbb{R}^k中表示表示$i^ mathrm{th}$一行的矩阵$\mathbf{a} $，并让$\ mathbb{R}^k中的$ mathbf{b} {j} \是来自矩阵$\mathbf{b} $列的列向量。
 
-
-
-用行向量$\mathbf{a}^\top_{i} \in \mathbb{R}^k$ 表示矩阵$\mathbf{A}$的 $i^\mathrm{th}$ 行，并让 列向量$\mathbf{b}_{j} \in \mathbb{R}^k$ 作为矩阵$\mathbf{B}$的 $j^\mathrm{th}$ 列。要生成矩阵积 $\mathbf{C} = \mathbf{A}\mathbf{B}$，最简单的方法是考虑$\mathbf{A}$的行向量和$\mathbf{B}$的列向量:
+用行向量$\mathbf{a}^\top_{i} \in \mathbb{R}^k$ 表示矩阵$\mathbf{A}$的 $i^\mathrm{th}$ 行，并让列向量$\mathbf{b}_{j} \in \mathbb{R}^k$ 作为矩阵$\mathbf{B}$的 $j^\mathrm{th}$ 列。要生成矩阵积 $\mathbf{C} = \mathbf{A}\mathbf{B}$，最简单的方法是考虑$\mathbf{A}$的行向量和$\mathbf{B}$的列向量:
 
 $$\mathbf{A}=
 \begin{bmatrix}
@@ -682,7 +679,7 @@ $$f(\mathbf{x}) \geq 0.$$
 $$\forall i, [\mathbf{x}]_i = 0 \Leftrightarrow f(\mathbf{x})=0.$$
 
 你可能会注意到，范数听起来很像距离的度量。如果你还记得小学时的欧几里得距离(想想毕达哥拉斯定理)，那么非负性的概念和三角不等式可能会给你一些启发。
-事实上，欧几里得距离是一个范数：具体而言，它是 $L_2$ 范数。假设$n$-维向量$\mathbf{x}$中的元素是$x_1， \ldots, x_n$。$\mathbf{x}$ 的 $L_2$ *范数* 是向量元素平方和的平方根：
+事实上，欧几里得距离是一个范数：具体而言，它是 $L_2$ 范数。假设$n$-维向量$\mathbf{x}$中的元素是$x_1, \ldots, x_n$ 的 $L_2$ *范数* 是向量元素平方和的平方根：
 
 $$\|\mathbf{x}\|_2 = \sqrt{\sum_{i=1}^n x_i^2},$$
 
@@ -780,7 +777,7 @@ tf.norm(tf.ones((4, 9)))
 
 1. 证明一个矩阵 $\mathbf{A}$ 的转置的转置是 $\mathbf{A}$：$(\mathbf{A}^\top)^\top = \mathbf{A}$。
 1. 给出两个矩阵 $\mathbf{A}$ 和 $\mathbf{B}$, 显示转置的和等于和的转置：$\mathbf{A}^\top + \mathbf{B}^\top = (\mathbf{A} + \mathbf{B})^\top$.
-1. 给定任意方矩阵$\mathbf{A}$， $\mathbf{A} + mathbf{A}^\top$总是对称的吗?为什么?
+1. 给定任意方矩阵$\mathbf{A}$， $\mathbf{A} + \mathbf{A}^\top$总是对称的吗?为什么?
 1. 我们在本节中定义了形状（2,3,4）的张量 `X`。`len(X)`的输出结果是什么？
 1. 对于任意形状的张量`X`, `len(X)`是否总是对应于`X`特定轴的长度?这个轴是什么?
 1. 运行 `A / A.sum(axis=1)`，看看会发生什么。你能分析原因吗？
