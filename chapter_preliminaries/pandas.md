@@ -12,7 +12,7 @@
 import os
 
 def mkdir_if_not_exist(path):  #@save
-    """Make a directory if it does not exist."""
+    """如果目录不存在则创建"""
     if not isinstance(path, str):
         path = os.path.join(*path)
     if not os.path.exists(path):
@@ -26,8 +26,8 @@ def mkdir_if_not_exist(path):  #@save
 data_file = '../data/house_tiny.csv'
 mkdir_if_not_exist('../data')
 with open(data_file, 'w') as f:
-    f.write('NumRooms,Alley,Price\n')  # Column names
-    f.write('NA,Pave,127500\n')  # Each row represents a data point
+    f.write('NumRooms,Alley,Price\n')  # 列名
+    f.write('NA,Pave,127500\n')  # 每行表示一个数据点
     f.write('2,NA,106000\n')
     f.write('4,NA,178100\n')
     f.write('NA,NA,140000\n')
