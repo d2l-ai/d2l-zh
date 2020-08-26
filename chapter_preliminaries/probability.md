@@ -8,7 +8,7 @@
 
 在前面的章节中，我们已经提到了概率，但没有明确说明它们是什么，也没有给出具体的例子。现在让我们更认真地考虑第一个例子：根据照片区分猫和狗。这听起来可能很简单，但实际上是一个艰巨的挑战。首先，问题的难度可能取决于图像的分辨率。
 
-![Images of varying resolutions ($10 \times 10$, $20 \times 20$, $40 \times 40$, $80 \times 80$, and $160 \times 160$ pixels).](../img/cat_dog_pixels.png)
+![不同分辨率的图像 ($10 \times 10$, $20 \times 20$, $40 \times 40$, $80 \times 80$, 和 $160 \times 160$ pixels).](../img/cat_dog_pixels.png)
 :width:`300px`
 :label:`fig_cat_dog`
 
@@ -227,7 +227,7 @@ $$P(B) = \sum_{A} P(A, B),$$
 :label:`subsec_probability_hiv_app`
 
 让我们用实战考验一下我们的技能。假设一个医生对患者进行艾滋病测试。这个测试是相当准确的，如果患者健康但测试显示他患病，这样的失败概率只有 1% 。此外，如果患者真正感染HIV，它永远不会检测不出。我们使用 $D_1$ 来表示诊断结果（如果阳性，则为 $1$，如果阴性，则为 $0$），$H$ 来表示感染艾滋病病毒的状态（如果阳性，则为 $1$，如果阴性，则为0）。
-:numref:`conditional_prob_D1` 列出了这样的条件概率。
+在 :numref:`conditional_prob_D1` 中列出了这样的条件概率。
 
 :条件概率为 $P(D_1 \mid H)$。
 
