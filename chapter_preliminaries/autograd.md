@@ -1,9 +1,10 @@
 # 自动求导
 :label:`sec_autograd`
 
-正如我们在 :numref:`sec_calculus` 中所解释的那样，差异是几乎所有深度学习优化算法的关键步骤。虽然采用这些衍生物的计算非常简单，只需要一些基本的微积分，但对于复杂的模型，手动完成更新可能是一个痛苦（而且往往容易出错）。
+正如我们在 :numref:`sec_calculus` 中所说的那样，求导是几乎所有深度学习优化算法的关键步骤。虽然采用虽然求导的计算很简单，只需要一些基本的微积分，对于复杂的模型，手工进行更新是一件很痛苦的事情（而且经常容易出错）。
 
-深度学习框架通过自动计算衍生品（即 * 自动差异 *）来加快这项工作。实际上，根据我们设计的模型，系统构建一个 * 计算图 *，跟踪哪些数据组合哪些操作来生成输出。自动分化使系统能够随后反向传播渐变。在这里，*backpropagate* 只是意味着跟踪计算图，填充相对于每个参数的部分导数。
+深度学习框架通过自动计算导数（即 *自动求导*）来加快这项工作。实际中，根据我们设计的模型，系统会构建一个 *计算图*（computational graph），来跟踪数据通过若干操作组合产生输出。自动求导使系统能够随后反向传播梯度。
+这里，*反向传播*（backpropagate）只是意味着跟踪整个计算图，填充对每个参数的偏导数。
 
 ```{.python .input}
 from mxnet import autograd, np, npx
@@ -22,7 +23,7 @@ import tensorflow as tf
 
 ## 一个简单的例子
 
-作为一个玩具样本，假设我们有兴趣区分函数 $y = 2\mathbf{x}^{\top}\mathbf{x}$ 相对于柱向量 $\mathbf{x}$。首先，让我们创建变量 `x` 并为其分配一个初始值。
+作为一个演示例子，假设我们想对函数 $y = 2\mathbf{x}^{\top}\mathbf{x}$关于列向量 $\mathbf{x}$求导。首先，我们创建变量 `x` 并为其分配一个初始值。
 
 ```{.python .input}
 x = np.arange(4.0)
@@ -41,20 +42,21 @@ x = tf.range(4, dtype=tf.float32)
 x
 ```
 
-在我们甚至计算 $y$ 相对于 $\mathbf{x}$ 的梯度之前，我们需要一个地方来存储它。重要的是，我们不要每次对参数采取衍生物时分配新的内存，因为我们经常会更新相同的参数数千次或数百万次，并且可能会很快耗尽内存。请注意，标量值函数相对于矢量 $\mathbf{x}$ 的梯度本身就是矢量值，并且具有与 $\mathbf{x}$ 相同的形状。
+在我们计算$y$关于$\mathbf{x}$的梯度之前，我们需要一个地方来存储它。
+重要的是，我们不会在每次对一个参数求导时都分配新的内存。因为我们经常会成千上万次地更新相同的参数，每次篼分配新的内存可能很快就会耗尽内存。注意，标量值函数关于向量$\mathbf{x}$的梯度本身是向量值的，并且与$\mathbf{x}$具有相同的形状。
 
 ```{.python .input}
-# We allocate memory for a tensor's gradient by invoking `attach_grad`
+
+# 我们通过调用attach_grad`来为一个张量的梯度分配内存
 x.attach_grad()
-# After we calculate a gradient taken with respect to `x`, we will be able to
-# access it via the `grad` attribute, whose values are initialized with 0s
+# 在我们计算关于`x`的梯度后，我们将能够通过' grad '属性访问它，它的值被初始化为0
 x.grad
 ```
 
 ```{.python .input}
 #@tab pytorch
-x.requires_grad_(True)  # Same as `x = torch.arange(4.0, requires_grad=True)`
-x.grad  # The default value is None
+x.requires_grad_(True)  # 等价于 `x = torch.arange(4.0, requires_grad=True)`
+x.grad  # 默认值是None
 ```
 
 ```{.python .input}
@@ -62,11 +64,10 @@ x.grad  # The default value is None
 x = tf.Variable(x)
 ```
 
-现在让我们计算出 $y$。
+现在让我们计算 $y$。
 
 ```{.python .input}
-# Place our code inside an `autograd.record` scope to build the computational
-# graph
+# 把代码放到`autograd.record`内，以建立计算图
 with autograd.record():
     y = 2 * np.dot(x, x)
 y
@@ -80,13 +81,13 @@ y
 
 ```{.python .input}
 #@tab tensorflow
-# Record all computations onto a tape
+# 把所有计算记录在磁带上
 with tf.GradientTape() as t:
     y = 2 * tf.tensordot(x, x, axes=1)
 y
 ```
 
-由于 `x` 是一个长度为 4 的向量，因此执行了 `x` 和 `x` 的内部积，产生了我们分配给 `y` 的标量输出。接下来，我们可以通过调用反向传播函数并打印梯度来自动计算 `x` 的每个分量 `y` 的梯度。
+`x` 是一个长度为 4 的向量，计算 `x` 和 `x` 的内积，得到了我们赋值给 `y` 的标量输出。接下来，我们可以通过调用反向传播函数来自动计算`y`关于`x` 每个分量的梯度，并打印这些梯度。
 
 ```{.python .input}
 y.backward()
@@ -105,7 +106,7 @@ x_grad = t.gradient(y, x)
 x_grad
 ```
 
-函数 $y = 2\mathbf{x}^{\top}\mathbf{x}$ 的梯度应为 $\mathbf{x}$ 的梯度。让我们快速验证我们想要的梯度是否正确计算。
+函数 $y = 2\mathbf{x}^{\top}\mathbf{x}$ 关于$\mathbf{x}$ 的梯度应为$4\mathbf{x}$。让我们快速验证我们想要的梯度是否正确计算。
 
 ```{.python .input}
 x.grad == 4 * x
@@ -127,13 +128,12 @@ x_grad == 4 * x
 with autograd.record():
     y = x.sum()
 y.backward()
-x.grad  # Overwritten by the newly calculated gradient
+x.grad  # 被新计算的梯度覆盖
 ```
 
 ```{.python .input}
 #@tab pytorch
-# PyTorch accumulates the gradient in default, we need to clear the previous
-# values
+# 在默认情况下，PyTorch会累积梯度，我们需要清除之前的值
 x.grad.zero_()
 y = x.sum()
 y.backward()
@@ -144,34 +144,30 @@ x.grad
 #@tab tensorflow
 with tf.GradientTape() as t:
     y = tf.reduce_sum(x)
-t.gradient(y, x)  # Overwritten by the newly calculated gradient
+t.gradient(y, x)  # 被新计算的梯度覆盖
 ```
 
-## 非标量变量向后
+## 非标量变量的反向传播
 
-从技术上讲，当 `y` 不是标量时，对矢量 `y` 分化的最自然的解释就是一个矩阵。对于高阶和高维 `y` 和 `x`，分析结果可能是高阶张量。
+当 `y` 不是标量时，向量`y`关于向量`x`的导数的最自然解释是一个矩阵。对于高阶和高维的 `y` 和 `x`，求导的结果可以是一个高阶张量。
 
-然而，虽然这些更奇特的对象确实出现在高级机器学习中（包括深度学习中），但当我们向后调用矢量时，我们正在尝试为 * 批次 * 训练示例的每个组成部分计算损失函数的衍生物。在这里，我们的目的不是计算分化矩阵，而是计算批量中每个样本单独计算的部分衍生物的总和。
+然而，虽然这些更奇特的对象确实出现在高级机器学习中（包括深度学习中），但当我们调用向量的反向计算时，我们通常会试图计算一批训练样本中每个组成部分的损失函数的导数。这里，我们的目的不是计算微分矩阵，而是批量中每个样本单独计算的偏导数之和。
 
 ```{.python .input}
-# When we invoke `backward` on a vector-valued variable `y` (function of `x`),
-# a new scalar variable is created by summing the elements in `y`. Then the
-# gradient of that scalar variable with respect to `x` is computed
+# 当我们对向量值变量`y`（关于`x`的函数）调用`backward`时，
+# 将通过对`y`中的元素求和来创建一个新的标量变量。然后计算这个标量变量相对于`x`的梯度
 with autograd.record():
-    y = x * x  # `y` is a vector
+    y = x * x  # `y`是一个向量
 y.backward()
-x.grad  # Equals to y = sum(x * x)
+x.grad  # 等价于y = sum(x * x)
 ```
 
 ```{.python .input}
 #@tab pytorch
-# Invoking `backward` on a non-scalar requires passing in a `gradient` argument
-# which specifies the gradient of the differentiated function w.r.t `self`.
-# In our case, we simply want to sum the partial derivatives, so passing
-# in a gradient of ones is appropriate
+# 对非标量调用`backward`需要传入一个`gradient`参数，该参数指定微分函数关于`self`的梯度。在我们的例子中，我们只想求偏导数的和，所以传递一个1的梯度是合适的
 x.grad.zero_()
 y = x * x
-# y.backward(torch.ones(len(x))) equivalent to the below
+# 等价于y.backward(torch.ones(len(x))) 
 y.sum().backward()
 x.grad
 ```
@@ -180,14 +176,16 @@ x.grad
 #@tab tensorflow
 with tf.GradientTape() as t:
     y = x * x
-t.gradient(y, x)  # Same as `y = tf.reduce_sum(x * x)`
+t.gradient(y, x)  # 等价于 `y = tf.reduce_sum(x * x)`
 ```
 
 ## 分离计算
 
-有时，我们希望将某些计算移动到记录的计算图之外。样本，假设 `y` 被计算为 `x` 的函数，并且随后的 `z` 被计算为 `y` 和 `x` 的函数。现在，想象一下，我们想计算 `z` 相对于 `x` 的梯度，但由于某种原因，希望将 `y` 视为一个常数，并且只考虑到 `x` 在计算后发挥的作用。
+有时，我们希望将某些计算移动到记录的计算图之外。
+例如，假设`y`是作为`x`的函数计算的，而`z`则是作为`y`和`x`的函数计算的。
+现在，想象一下，我们想计算 `z` 关于 `x` 的梯度，但由于某种原因，我们希望将 `y` 视为一个常数，并且只考虑到 `x` 在`y`被计算后发挥的作用。
 
-在这里，我们可以分离 `y` 来返回一个新变量 `u`，该变量与 `y` 具有相同的值，但丢弃有关计算图中如何计算 `y` 的任何信息。换句话说，梯度不会向后流经 `u` 到 `x`。因此，下面的反向传播函数计算 `z = u * x` 相对于 `x` 的偏导数分导数，同时将 `u` 作为常数处理，而不是相对于 `x` 的部分导数。
+在这里，我们可以分离 `y` 来返回一个新变量 `u`，该变量与 `y` 具有相同的值，但丢弃计算图中如何计算 `y` 的任何信息。换句话说，梯度不会向后流经 `u` 到 `x`。因此，下面的反向传播函数计算 `z = u * x` 关于 `x` 的偏导数，同时将 `u` 作为常数处理，而不是`z = x * x * x`关于 `x` 的偏导数。
 
 ```{.python .input}
 with autograd.record():
@@ -211,7 +209,7 @@ x.grad == u
 
 ```{.python .input}
 #@tab tensorflow
-# Set `persistent=True` to run `t.gradient` more than once
+# 设置 `persistent=True` 来运行 `t.gradient`多次
 with tf.GradientTape(persistent=True) as t:
     y = x * x
     u = tf.stop_gradient(y)
@@ -221,7 +219,7 @@ x_grad = t.gradient(z, x)
 x_grad == u
 ```
 
-由于记录了 `y` 的计算结果，我们可以随后在 `y` 上调用反向传播，得到 `y = x * x` 的导数，这是 `2 * x`。
+由于记录了 `y` 的计算结果，我们可以随后在 `y` 上调用反向传播，得到 `y = x * x` 关于的`x`的导数，这里是 `2 * x`。
 
 ```{.python .input}
 y.backward()
@@ -240,9 +238,9 @@ x.grad == 2 * x
 t.gradient(y, x) == 2 * x
 ```
 
-## Python 控制流梯度的计算
+## Python控制流的梯度计算
 
-使用自动区分的一个好处是，即使构建函数的计算图需要通过 Python 控制流的迷宫（例如，条件，循环和任意函数调用），我们仍然可以计算结果变量的梯度。在下面的代码段中，请注意 `while` 循环的迭代次数和 `if` 语句的评估都取决于输入 `a` 的值。
+使用自动求导的一个好处是，即使构建函数的计算图需要通过 Python控制流（例如，条件、循环或任意函数调用），我们仍然可以计算结果变量的梯度。在下面的代码中，`while` 循环的迭代次数和 `if` 语句的结果都取决于输入 `a` 的值。
 
 ```{.python .input}
 def f(a):
@@ -324,17 +322,17 @@ a.grad == d / a
 d_grad == d / a
 ```
 
-## 摘要
+## 小结
 
-* 深度学习框架可以自动计算衍生品。为了使用它，我们首先将渐变附加到我们希望部分导数的变量。然后，我们记录目标值的计算，执行其反向传播函数，并访问生成的梯度。
+* 深度学习框架可以自动计算导数。为了使用它，我们首先给需要偏导数的变量附加梯度。然后我们记录目标值的计算，执行它的反向传播函数，并访问得到的梯度。
 
 ## 练习
 
-1. 为什么第二衍生物比第一衍生物更昂贵？
-1. 运行反向传播函数后，立即再次运行它，看看会发生什么。
-1. 在控制流的样本中，我们计算 `d` 相对于 `a` 的导数，如果我们将变量 `a` 更改为随机向量或矩阵，会发生什么。此时，计算结果 `f(a)` 不再是标量。结果会发生什么？我们如何分析这个？
-1. 重新设计查找控制流梯度的样本。运行并分析结果。
-1. 让我们来吧地块 $f(x)$ 和 $\frac{df(x)}{dx}$，其中后者是在没有利用该地块的情况下计算的。
+1. 为什么二阶导数比一阶导数要开销更大？
+1. 在运行反向传播函数之后，立即再次运行它，看看会发生什么。
+1. 在控制流的例子中，我们计算 `d` 关于 `a` 的导数，如果我们将变量 `a` 更改为随机向量或矩阵，会发生什么？此时，计算结果 `f(a)` 不再是标量。结果会发生什么？我们如何分析这个结果？
+1. 重新设计一个求控制流梯度的例子。运行并分析结果。
+1. 使$f(x) = \sin(x)$，绘制$f(x)$ 和$\frac{df(x)}{dx}$的图像，其中后者不使用$f'(x) = \cos(x)$。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/34)
