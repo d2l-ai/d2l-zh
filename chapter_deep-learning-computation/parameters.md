@@ -1,14 +1,14 @@
 # 参数管理
 
-一旦我们选择了架构并设置了超参数，我们就进入训练循环，我们的目标是找到最小化损耗函数的参数值。训练后，我们将需要这些参数来做出未来的预测。此外，我们有时希望提取参数，以便在其他情况下重复使用它们，将模型保存到磁盘，以便在其他软件中执行，或者进行检查，以期获得科学理解。
+一旦我们选择了一个架构并设置了超参数，我们就进入了训练过程。我们的目标是找到使损失函数最小化的参数值。在训练之后，我们需要这些参数来进行未来的预测。此外，我们有时会希望提取参数，以便在其他环境中复用它们。将我们的模型保存到磁盘，以便可以在其他软件中执行，或者为了获得科学的理解而进行检查。
 
-大多数情况下，我们将能够忽略参数如何声明和操纵的细节，依靠深度学习框架来完成繁重的工作。但是，当我们摆脱具有标准层的堆叠体系结构时，我们有时需要进入声明和操作参数的杂草。在本节中，我们将介绍以下内容：
+大多数时候，我们能够忽略如何声明和操作参数的基本细节，只依靠深度学习框架来完成繁重的工作。然而，当我们不使用具有标准层的网络架构时，我们有时会陷入到声明和操作参数的麻烦中。在本节中，我们将介绍以下内容：
 
 * 访问用于调试、诊断和可视化的参数。
 * 参数初始化。
-* 在不同模型组件之间共享参数。
+* 在不同的模型组件之间共享参数。
 
-我们首先专注于具有一个隐藏层的 MLP。
+我们首先关注一个隐藏层的MLP。
 
 ```{.python .input}
 from mxnet import init, np, npx
@@ -18,10 +18,10 @@ npx.set_np()
 net = nn.Sequential()
 net.add(nn.Dense(8, activation='relu'))
 net.add(nn.Dense(1))
-net.initialize()  # Use the default initialization method
+net.initialize()  # 使用默认的初始化方法
 
 X = np.random.uniform(size=(2, 4))
-net(X)  # Forward computation
+net(X)  # 正向计算
 ```
 
 ```{.python .input}
@@ -51,7 +51,7 @@ net(X)
 
 ## 参数访问
 
-让我们从您已经知道的模型中访问参数开始。当模型通过 `Sequential` 类定义时，我们可以首先通过索引到模型中来访问任何图层，就好像它是一个列表。每个图层的参数都位于其属性中。我们可以检查第二个完全连接层的参数，如下所示。
+让我们从你已经知道的模型中访问参数开始。当一个模型通过`Sequential`类定义时，我们可以通过索引进入到模型中访问其中任何层，就像模型是一个列表一样。每层的参数都位于其属性中。我们可以查看第二个全连接层的参数，如下所示。
 
 ```{.python .input}
 print(net[1].params)
@@ -67,11 +67,11 @@ print(net[2].state_dict())
 print(net.layers[2].weights)
 ```
 
-输出告诉我们一些重要的事情。首先，这个完全连接的图层包含两个参数，分别对应于该图层的权重和偏差。两者都存储为单精度浮点数（浮点数 32）。请注意，参数的名称允许我们唯一标识每个图层的参数，即使在包含数百个图层的网络中也是如此。
+输出告诉我们一些重要的事情。首先，这个全连接层包含两个参数，分别对应于该层的权重和偏差。两者都存储为单精度浮点数（float32）。请注意，参数名称允许我们唯一地标识每个层的参数，即使在包含数百个层的网络中也是如此。
 
 ### 目标参数
 
-请注意，每个参数都表示为参数类的实例。为了对参数执行任何有用的操作，我们首先需要访问基础的数值。有几种方法可以做到这一点。有些更简单，而另一些则更通用。以下代码从第二个神经网络图层中提取偏差，该图层返回参数类实例，并进一步访问该参数的值。
+注意，每个参数都表示为参数类的一个实例。要对参数做任何操作，我们首先需要访问底层的数值。有几种方法可以做到这一点。有些比较简单，有些则比较笼统。下面的代码从第二个神经网络层提取偏差，并返回一个参数类的实例，并进一步访问该参数的值。
 
 ```{.python .input}
 print(type(net[1].bias))
@@ -94,9 +94,9 @@ print(tf.convert_to_tensor(net.layers[2].weights[1]))
 ```
 
 :begin_tab:`mxnet,pytorch`
-参数是复杂的对象，包含值、渐变和附加信息。这就是为什么我们需要明确请求值。
+参数是复杂的对象，包含值、梯度和其他信息。这就是为什么我们需要显式地请求值。
 
-除了值之外，每个参数还允许我们访问渐变。由于我们尚未为此网络调用反向传播，因此它处于初始状态。
+除了值之外，每个参数还允许我们访问梯度。由于我们尚未调用此网络的反向传播，所以它处于初始状态。
 :end_tab:
 
 ```{.python .input}
@@ -108,9 +108,9 @@ net[1].weight.grad()
 net[2].weight.grad == None
 ```
 
-### 一次性所有参数
+### 一次使用所有参数
 
-当我们需要对所有参数执行操作时，逐个访问它们会变得乏味。当我们使用更复杂的块（例如嵌套块）时，这种情况可能会变得特别笨拙，因为我们需要递归遍历整个树来提取每个子块的参数。下面我们演示了访问第一个完全连接图层的参数与访问所有图层的参数。
+当我们需要对所有参数执行操作时，逐个访问它们可能会很麻烦。当我们处理更复杂的块（例如，嵌套块）时，这种情况会变得特别棘手，因为我们需要递归整个树来提取每个子块的参数。下面我们通过演示来对比访问第一个全连接层的参数和访问所有层的参数。
 
 ```{.python .input}
 print(net[0].collect_params())
@@ -147,7 +147,7 @@ net.get_weights()[1]
 
 ### 从嵌套块收集参数
 
-让我们看看如果我们在彼此内嵌多个块，参数命名约定是如何工作的。为此，我们首先定义一个生成块的函数（可以说是块工厂），然后将它们组合在更大的块中。
+让我们看看如果我们将多个块相互嵌套，参数命名约定是如何工作的。为此，我们首先定义一个生成块的函数，然后将这些块组合到更大的块中。
 
 ```{.python .input}
 def block1():
@@ -208,7 +208,7 @@ rgnet.add(tf.keras.layers.Dense(1))
 rgnet(X)
 ```
 
-现在，我们已经设计了这个网络，让我们看看它是如何组织的。
+现在我们已经设计了网络，让我们看看它是如何组织的。
 
 ```{.python .input}
 print(rgnet.collect_params)
@@ -225,7 +225,7 @@ print(rgnet)
 print(rgnet.summary())
 ```
 
-由于图层是分层嵌套的，我们也可以访问它们，就像通过嵌套列表进行索引一样。例如，我们可以访问第一个主要块，其中的第二个子块，以及第一个层的偏置，如下所示。
+因为层是分层嵌套的，所以我们也可以像通过嵌套列表索引一样访问它们。例如，我们可以访问第一个主要块的第二个子块的第一层的偏差：
 
 ```{.python .input}
 rgnet[0][1][0].bias.data()
@@ -243,27 +243,26 @@ rgnet.layers[0].layers[1].layers[1].weights[1]
 
 ## 参数初始化
 
-现在我们知道如何访问参数，让我们看看如何正确初始化它们。我们在 :numref:`sec_numerical_stability` 中讨论了正确初始化的必要性。深度学习框架为其图层提供默认的随机初始化。但是，我们经常希望根据其他各种协议初始化我们的权重。该框架提供了最常用的协议，还允许创建自定义初始化程序。
+既然我们知道了如何访问参数，那么让我们看看如何正确初始化它们。我们在:numref:`sec_numerical_stability`中讨论了正确初始化的必要性。深度学习框架为网络层提供默认的随机初始化。然而，我们经常希望根据各种其他方法来初始化权重。该框架提供了最常用的方法，还允许创建自定义初始化设设置。
 
 :begin_tab:`mxnet`
-默认情况下，MxNet 通过从均匀分布 $U(-0.07, 0.07)$ 中随机绘制权重参数，从而将偏置参数清除为零。MxNet 的 `init` 模块提供了各种预设初始化方法。
+默认情况下，MXNet通过从均匀分布$U(-0.07, 0.07)$中随机采样来初始化权重参数，将偏差参数清除为零。MXNet的`init`模块提供了各种预置的初始化方法。
 :end_tab:
 
 :begin_tab:`pytorch`
-默认情况下，PyTorch 通过从根据输入和输出维度计算的范围进行绘制，均匀初始化权重和偏置矩阵。PyTorch 的 `nn.init` 模块提供了各种预设初始化方法。
+默认情况下，PyTorch通过从根据输入和输出维度计算范围进行随机采样，以初始化权重矩阵和偏差矩阵。PyTorch的`nn.init`模块提供了各种预置的初始化方法。
 :end_tab:
 
 :begin_tab:`tensorflow`
-默认情况下，Keras 通过从根据输入和输出维度计算的范围绘制均匀地初始化权重矩阵，并且偏置参数全部设置为零。TensorFlow 在根模块和 `keras.initializers` 模块中提供了各种初始化方法。
+默认情况下，Keras通过从根据输入和输出维度计算范围进行随机采样，以初始化权重矩阵，并且偏差参数都设置为零。TensorFlow在根模块和`keras.initializers`模块中提供了多种初始化方法。
 :end_tab:
 
 ### 内置初始化
 
-让我们首先调用内置初始化程序。下面的代码将所有权重参数初始化为标准差 0.01 的高斯随机变量，而偏置参数清除为零。
+让我们首先调用内置的初始化器。下面的代码将所有权重参数初始化为标准偏差为0.01的高斯随机变量，而偏差参数被清除为零。
 
 ```{.python .input}
-# Here `force_reinit` ensures that parameters are freshly initialized even if
-# they were already initialized previously
+# 这里的`force_reinit`确保即使之前已经初始化了参数，也会重新初始化。
 net.initialize(init=init.Normal(sigma=0.01), force_reinit=True)
 net[0].weight.data()[0]
 ```
@@ -292,7 +291,7 @@ net(X)
 net.weights[0], net.weights[1]
 ```
 
-我们也可以将所有参数初始化为给定的常量值（例如，1）。
+我们还可以将所有参数初始化为给定的常数值（比如1）。
 
 ```{.python .input}
 net.initialize(init=init.Constant(1), force_reinit=True)
@@ -324,7 +323,7 @@ net(X)
 net.weights[0], net.weights[1]
 ```
 
-我们也可以为某些块应用不同的初始化程序。例如，下面我们使用 Xavier 初始化程序初始化第一个图层，然后将第二个图层初始化为常量值 42。
+我们还可以为某些块应用不同的初始化设置。例如，下面我们用Xavier初始化器初始化第一层，用常数值42初始化第二层。
 
 ```{.python .input}
 net[0].weight.initialize(init=init.Xavier(), force_reinit=True)
@@ -367,7 +366,7 @@ print(net.layers[2].weights[0])
 
 ### 自定义初始化
 
-有时，深度学习框架不提供我们需要的初始化方法。在下面的示例中，我们使用以下奇怪分布为任何权重参数 $w$ 定义一个初始化程序：
+有时，我们需要的初始化方法不是由深度学习框架提供的。在下面的例子中，我们使用以下奇怪的分布为任意权重参数$w$定义初始化设置：
 
 $$
 \begin{aligned}
@@ -380,15 +379,15 @@ $$
 $$
 
 :begin_tab:`mxnet`
-这里我们定义了 `Initializer` 类的子类。通常，我们只需要实现 `_init_weight` 函数，该函数需要一个张量参数 (`data`) 并为其分配所需的初始化值。
+这里我们定义了`Initializer`类的一个子类。通常，我们只需要实现`_init_weight`函数，该函数接受张量参数（`data`），并为其分配所需的初始化值。
 :end_tab:
 
 :begin_tab:`pytorch`
-同样，我们实现了一个适用于 `net` 的函数。
+同样，我们实现了一个`my_init`函数来作用于`net`。
 :end_tab:
 
 :begin_tab:`tensorflow`
-在这里，我们定义了一个 `Initializer` 的子类，并实现 `__call__` 函数，该函数返回给定形状和数据类型的所需张量。
+这里我们定义了`Initializer`的一个子类，并实现了`__call__`函数，该函数返回给定形状和数据类型所需张量。
 :end_tab:
 
 ```{.python .input}
@@ -434,7 +433,7 @@ net(X)
 print(net.layers[1].weights[0])
 ```
 
-请注意，我们总是可以选择直接设置参数。
+注意，我们总是可以选择直接设置参数。
 
 ```{.python .input}
 net[0].weight.data()[:] += 1
@@ -457,17 +456,16 @@ net.layers[1].weights[0]
 ```
 
 :begin_tab:`mxnet`
-高级用户注意事项：如果您想在 `autograd` 范围内调整参数，则需要使用 `set_data` 来避免混淆自动差异机制。
+高级用户注意：如果要在`autograd`范围内调整参数，则需要使用`set_data`以避免混淆自动微分机制。
 :end_tab:
 
-## 绑定参数
+## 参数绑定
 
-通常，我们希望跨多个图层共享参数。让我们看看如何优雅地做到这一点。在下面我们分配一个密集图层，然后使用它的参数专门设置另一个图层的参数。
+通常，我们希望跨多个层共享参数。让我们看看如何优雅地做这件事。下面我们分配一个稠密层，然后使用它的参数来设置另一层的参数。
 
 ```{.python .input}
 net = nn.Sequential()
-# We need to give the shared layer a name so that we can refer to its
-# parameters
+# 我们需要给共享层一个名称，以便我们可以引用它的参数
 shared = nn.Dense(8, activation='relu')
 net.add(nn.Dense(8, activation='relu'),
         shared,
@@ -478,36 +476,32 @@ net.initialize()
 X = np.random.uniform(size=(2, 20))
 net(X)
 
-# Check whether the parameters are the same
+# 检查参数是否相同
 print(net[1].weight.data()[0] == net[2].weight.data()[0])
 net[1].weight.data()[0, 0] = 100
-# Make sure that they are actually the same object rather than just having the
-# same value
+# 确保它们实际上是相同的对象，而不仅仅是具有相同的值
 print(net[1].weight.data()[0] == net[2].weight.data()[0])
 ```
 
 ```{.python .input}
 #@tab pytorch
-# We need to give the shared layer a name so that we can refer to its
-# parameters
+# 我们需要给共享层一个名称，以便我们可以引用它的参数
 shared = nn.Linear(8, 8)
 net = nn.Sequential(nn.Linear(4, 8), nn.ReLU(),
                     shared, nn.ReLU(),
                     shared, nn.ReLU(),
                     nn.Linear(8, 1))
 net(X)
-# Check whether the parameters are the same
+# 检查参数是否相同
 print(net[2].weight.data[0] == net[4].weight.data[0])
 net[2].weight.data[0, 0] = 100
-# Make sure that they are actually the same object rather than just having the
-# same value
+# 确保它们实际上是相同的对象，而不仅仅是具有相同的值
 print(net[2].weight.data[0] == net[4].weight.data[0])
 ```
 
 ```{.python .input}
 #@tab tensorflow
-# tf.keras behaves a bit differently. It removes the duplicate layer
-# automatically
+# tf.keras的行为有点不同，它会自动删除重复的图层
 shared = tf.keras.layers.Dense(4, activation=tf.nn.relu)
 net = tf.keras.models.Sequential([
     tf.keras.layers.Flatten(),
@@ -517,25 +511,25 @@ net = tf.keras.models.Sequential([
 ])
 
 net(X)
-# Check whether the parameters are different
+# 检查参数是否不同
 print(len(net.layers) == 3)
 ```
 
 :begin_tab:`mxnet,pytorch`
-此示例显示第二层和第三层的参数是绑定的。它们不只是平等的，它们由相同的精确张量表示。因此，如果我们改变其中一个参数，另一个参数也会改变。你可能会想知道，当参数绑定时，渐变会发生什么？由于模型参数包含渐变，因此在反向传播期间会将第二个隐藏层和第三个隐藏层的渐变添加到一起。
+此例子中第二层和第三层的参数是绑定的。它们不只是相等，它们由相同的张量表示。因此，如果我们改变其中一个参数，另一个参数也会改变。你可能会想知道，当参数绑定时，梯度会发生什么？由于模型参数包含梯度，所以在反向传播过程中，第二个隐藏层和第三个隐藏层的梯度被加在一起。
 :end_tab:
 
-## 摘要
+## 小结
 
-* 我们有几种方法可以访问、初始化和绑定模型参数。
+* 我们有多种方法来访问、初始化和绑定模型参数。
 * 我们可以使用自定义初始化。
 
 ## 练习
 
-1. 使用 :numref:`sec_model_construction` 中定义的 `FancyMLP` 模型，并访问各层的参数。
-1. 查看初始化模块文档以探索不同的初始化程序。
-1. 构建一个包含共享参数图层的 MLP 并对其进行训练。在训练过程中，观察每个层的模型参数和梯度。
-1. 为什么共享参数是一个好主意？
+1. 使用:numref:`sec_model_construction`中定义的`FancyMLP`模型，并访问各个层的参数。
+1. 查看初始化模块的文档以了解不同的初始化器。
+1. 构造一个包含共享参数层的MLP并对其进行训练。在训练过程中，观察各层的参数和梯度。
+1. 为什么共享参数是个好主意？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/56)
