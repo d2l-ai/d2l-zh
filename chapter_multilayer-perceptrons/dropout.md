@@ -356,7 +356,7 @@ d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 
 ## 小结
 
-* 除了控制权重向量的维数和大小之外，Dropout也是避免过拟合的另一种工具。它们通常是联合使用的。
+* 除了控制权重向量的维数和大小之外，dropout也是避免过拟合的另一种工具。它们通常是联合使用的。
 * dropout将激活值$h$替换为具有期望值$h$的随机变量。
 * dropout仅在训练期间使用。
 
