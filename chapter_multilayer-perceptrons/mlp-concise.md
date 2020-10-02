@@ -1,7 +1,7 @@
 # 多层感知机的简洁实现
 :label:`sec_mlp_concise`
 
-正如你所期待的，我们可以通过高级API可以更简洁地实现MLP。
+正如你所期待的，我们可以通过高级API更简洁地实现MLP。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -25,7 +25,7 @@ import tensorflow as tf
 
 ## 模型
 
-与我们的softmax回归的简洁实现（:numref:`sec_softmax_concise`）相比，唯一的区别是我们添加了
+与我们的softmax回归的简洁实现（ :numref:`sec_softmax_concise`）相比，唯一的区别是我们添加了
 2个全连接层（之前我们只添加了1个全连接层）。第一个层是隐藏层，它包含256个隐藏单元并使用了ReLU激活函数。第二个层是输出层。
 
 ```{.python .input}
