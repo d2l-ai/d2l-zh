@@ -125,20 +125,20 @@ d2l.plot(x.numpy(), y.numpy(), 'x', 'relu(x)', figsize=(5, 2.5))
 
 ```{.python .input}
 y.backward()
-d2l.plot(x, x.grad, 'x', 'relu的梯度', figsize=(5, 2.5))
+d2l.plot(x, x.grad, 'x', 'grad of relu', figsize=(5, 2.5))
 ```
 
 ```{.python .input}
 #@tab pytorch
 y.backward(torch.ones_like(x), retain_graph=True)
-d2l.plot(x.detach(), x.grad, 'x', 'relu的梯度', figsize=(5, 2.5))
+d2l.plot(x.detach(), x.grad, 'x', 'grad of relu', figsize=(5, 2.5))
 ```
 
 ```{.python .input}
 #@tab tensorflow
 with tf.GradientTape() as t:
     y = tf.nn.relu(x)
-d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'relu的梯度',
+d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'grad of relu',
          figsize=(5, 2.5))
 ```
 
@@ -186,7 +186,7 @@ sigmoid函数的导数图像如下所示。注意，当输入为0时，sigmoid�
 
 ```{.python .input}
 y.backward()
-d2l.plot(x, x.grad, 'x', 'sigmoid的梯度', figsize=(5, 2.5))
+d2l.plot(x, x.grad, 'x', 'grad of sigmoid', figsize=(5, 2.5))
 ```
 
 ```{.python .input}
@@ -194,14 +194,14 @@ d2l.plot(x, x.grad, 'x', 'sigmoid的梯度', figsize=(5, 2.5))
 # 清除以前的梯度。
 x.grad.data.zero_()
 y.backward(torch.ones_like(x),retain_graph=True)
-d2l.plot(x.detach(), x.grad, 'x', 'sigmoid的梯度', figsize=(5, 2.5))
+d2l.plot(x.detach(), x.grad, 'x', 'grad of sigmoid', figsize=(5, 2.5))
 ```
 
 ```{.python .input}
 #@tab tensorflow
 with tf.GradientTape() as t:
     y = tf.nn.sigmoid(x)
-d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'sigmoid的梯度',
+d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'grad of sigmoid',
          figsize=(5, 2.5))
 ```
 
@@ -239,7 +239,7 @@ tanh函数的导数图像如下所示。当输入接近0时，tanh函数的导�
 
 ```{.python .input}
 y.backward()
-d2l.plot(x, x.grad, 'x', 'tanh的梯度', figsize=(5, 2.5))
+d2l.plot(x, x.grad, 'x', 'grad of tanh', figsize=(5, 2.5))
 ```
 
 ```{.python .input}
@@ -247,14 +247,14 @@ d2l.plot(x, x.grad, 'x', 'tanh的梯度', figsize=(5, 2.5))
 # 清除以前的梯度。
 x.grad.data.zero_()
 y.backward(torch.ones_like(x),retain_graph=True)
-d2l.plot(x.detach(), x.grad, 'x', 'tanh的梯度', figsize=(5, 2.5))
+d2l.plot(x.detach(), x.grad, 'x', 'grad of tanh', figsize=(5, 2.5))
 ```
 
 ```{.python .input}
 #@tab tensorflow
 with tf.GradientTape() as t:
     y = tf.nn.tanh(x)
-d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'tanh的梯度',
+d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'grad of tanh',
          figsize=(5, 2.5))
 ```
 
