@@ -1,7 +1,7 @@
 # 多层感知机
 :label:`sec_mlp`
 
-在:numref:`chap_linear`，我们介绍了softmax回归（ :numref:`sec_softmax` ），然后我们从零开始实现softmax回归（ :numref:`sec_softmax_scratch` ），接着使用高级API实现了算法（ :numref:`sec_softmax_concise` ），并训练分类器从低分辨率图像中识别10类服装。在这个过程中，我们学习了如何处理数据，将输出转换为有效的概率分布，并应用适当的损失函数，然后根据模型参数最小化损失。既然我们已经在简单的线性模型背景下掌握了这些知识，我们可以开始对深度神经网络的探索，这是本书主要涉及的比较丰富的模型。
+在 :numref:`chap_linear`，我们介绍了softmax回归（ :numref:`sec_softmax` ），然后我们从零开始实现softmax回归（ :numref:`sec_softmax_scratch` ），接着使用高级API实现了算法（ :numref:`sec_softmax_concise` ），并训练分类器从低分辨率图像中识别10类服装。在这个过程中，我们学习了如何处理数据，将输出转换为有效的概率分布，并应用适当的损失函数，然后根据模型参数最小化损失。既然我们已经在简单的线性模型背景下掌握了这些知识，我们可以开始对深度神经网络的探索，这是本书主要涉及的比较丰富的模型。
 
 ## 隐藏层
 
