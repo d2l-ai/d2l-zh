@@ -1,7 +1,7 @@
 # 多层感知机的从零开始实现
 :label:`sec_mlp_scratch`
 
-既然我们已经在数学上描述了多层感知机(MLP)，让我们尝试自己实现一个多层感知机(MLP)。为了与我们之前使用softmax回归（:numref:`sec_softmax_scratch`）获得的结果进行比较，我们将继续使用Fashion-MNIST图像分类数据集（:numref:`sec_fashion_mnist`）。
+我们已经在数学上描述了多层感知机(MLP)，让我们尝试自己实现一个多层感知机(MLP)。为了与我们之前使用softmax回归（ :numref:`sec_softmax_scratch` ）获得的结果进行比较，我们将继续使用Fashion-MNIST图像分类数据集（ :numref:`sec_fashion_mnist`）。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -126,7 +126,7 @@ def net(X):
 
 ## 损失函数
 
-为了确保数值稳定性，同时由于我们已经从零实现过softmax函数（:numref:`sec_softmax_scratch`），因此在这里我们直接使用高级API中的内置函数来计算softmax和交叉熵损失。回想一下我们之前在: numref:`subsec_softmax-implementation-revisited` 中对这些复杂问题的讨论。我们鼓励感兴趣的读者查看损失函数的源代码，以加深对实现细节的了解。
+为了确保数值稳定性，同时由于我们已经从零实现过softmax函数（ :numref:`sec_softmax_scratch` ），因此在这里我们直接使用高级API中的内置函数来计算softmax和交叉熵损失。回想一下我们之前在 :numref:`subsec_softmax-implementation-revisited` 中对这些复杂问题的讨论。我们鼓励感兴趣的读者查看损失函数的源代码，以加深对实现细节的了解。
 
 ```{.python .input}
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
@@ -146,7 +146,7 @@ def loss(y_hat, y):
 
 ## 训练
 
-幸运的是，MLP的训练代码实现与softmax回归的训练代码实现完全相同。可以直接调用`d2l`包的`train_ch3`函数（参见:numref:`sec_softmax_scratch`），将迭代周期数设置为10，并将学习率设置为0.1.
+幸运的是，MLP的训练代码实现与softmax回归的训练代码实现完全相同。可以直接调用`d2l`包的`train_ch3`函数（参见 :numref:`sec_softmax_scratch` ），将迭代周期数设置为10，并将学习率设置为0.1.
 
 ```{.python .input}
 num_epochs, lr = 10, 0.1
