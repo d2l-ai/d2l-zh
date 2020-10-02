@@ -1,7 +1,7 @@
 # 实战 Kaggle 比赛：预测房价
 :label:`sec_kaggle_house`
 
-现在我们已经介绍了一些建立和训练深度网络的基本工具，和权重衰减、Dropout等用于将网络正则化的技术。我们准备通过参加Kaggle比赛来将所有这些知识付诸实践。房价预测大赛是一个很好的起点。这个数据是相当通用的，不会需要用带特殊结构的模型(就像音频或视频可能需要的那样)。此数据集由Bart de Cock于2011年收集:cite:`De-Cock.2011`，涵盖了2006-2010年期间亚利桑那州埃姆斯市的房价。它比著名的哈里森和鲁宾菲尔德(1978年)[Boston housing dataset](https://archive.ics.uci.edu/ml/machine-learning-databases/housing/housing.names)数据集要大得多，相对来说有更多的样本，也有更多的特征。
+现在我们已经介绍了一些建立和训练深度网络的基本工具，和权重衰减、Dropout等用于将网络正则化的技术。我们准备通过参加Kaggle比赛来将所有这些知识付诸实践。房价预测大赛是一个很好的起点。这个数据是相当通用的，不会需要用带特殊结构的模型(就像音频或视频可能需要的那样)。此数据集由Bart de Cock于2011年收集 :cite:`De-Cock.2011` ，涵盖了2006-2010年期间亚利桑那州埃姆斯市的房价。它比著名的哈里森和鲁宾菲尔德（1978年）[Boston housing dataset](https://archive.ics.uci.edu/ml/machine-learning-databases/housing/housing.names)数据集要大得多，相对来说有更多的样本，也有更多的特征。
 
 在本节中，我们将详细介绍数据预处理、模型设计和超参数选择。我们希望通过亲身实践的方式，你将获得一些直觉。这些直觉将指导你数据科学家职业生涯。
 
@@ -75,13 +75,13 @@ def download_all():  #@save
 
 ## Kaggle
 
-[Kaggle](https://www.kaggle.com)是一个现在流行的举办机器学习比赛的平台。每场比赛都以一个数据集为中心。许多比赛都是由利益相关者赞助的，他们为获胜的解决方案提供奖金。该平台帮助用户通过论坛和共享代码进行互动，促进协作和竞争。虽然排行榜的追逐往往失控，研究人员短视地专注于预处理步骤，而不是考虑基础性问题，但一个平台的客观性也有巨大的价值。该平台促进了竞争方法之间的直接定量比较，以及代码共享。这便于每个人都可以了解哪些方法起作用，哪些没有起作用。如果你想参加Kaggle比赛，你首先需要注册一个账户（见:numref:`fig_kaggle`）。
+[Kaggle](https://www.kaggle.com)是一个现在流行的举办机器学习比赛的平台。每场比赛都以一个数据集为中心。许多比赛都是由利益相关者赞助的，他们为获胜的解决方案提供奖金。该平台帮助用户通过论坛和共享代码进行互动，促进协作和竞争。虽然排行榜的追逐往往失控，研究人员短视地专注于预处理步骤，而不是考虑基础性问题，但一个平台的客观性也有巨大的价值。该平台促进了竞争方法之间的直接定量比较，以及代码共享。这便于每个人都可以了解哪些方法起作用，哪些没有起作用。如果你想参加Kaggle比赛，你首先需要注册一个账户（见 :numref:`fig_kaggle` ）。
 
 ![Kaggle网站](../img/kaggle.png)
 :width:`400px`
 :label:`fig_kaggle`
 
-在房价预测竞赛页面，如:numref:`fig_house_pricing`所示，你可以找到数据集（在"Data"选项卡下）。你可以通过下面的网址提交预测，并查看排名：
+在房价预测竞赛页面，如 :numref:`fig_house_pricing` 所示，你可以找到数据集（在"Data"选项卡下）。你可以通过下面的网址提交预测，并查看排名：
 
 >https://www.kaggle.com/c/house-prices-advanced-regression-techniques
 
@@ -91,9 +91,9 @@ def download_all():  #@save
 
 ## 访问和读取数据集
 
-注意，竞赛数据分为训练集和测试集。每条记录都包括房屋的属性值和属性，如街道类型、施工年份、屋顶类型、地下室状况等。这些特征由各种数据类型组成。例如，建筑年份由整数表示，屋顶类型由离散类别表示，其他特征由浮点数表示。这就是现实让事情变得复杂的地方：例如，一些数据完全丢失了，缺失值被简单地标记为“na”。每套房子的价格只出现在训练集中（毕竟这是一场比赛）。我们将希望划分训练集以创建验证集，但是在将预测结果上传到Kaggle之后，我们只能在官方测试集中评估我们的模型。在:numref:`fig_house_pricing`中，"Data"选项卡有下载数据的链接。
+注意，竞赛数据分为训练集和测试集。每条记录都包括房屋的属性值和属性，如街道类型、施工年份、屋顶类型、地下室状况等。这些特征由各种数据类型组成。例如，建筑年份由整数表示，屋顶类型由离散类别表示，其他特征由浮点数表示。这就是现实让事情变得复杂的地方：例如，一些数据完全丢失了，缺失值被简单地标记为“na”。每套房子的价格只出现在训练集中（毕竟这是一场比赛）。我们将希望划分训练集以创建验证集，但是在将预测结果上传到Kaggle之后，我们只能在官方测试集中评估我们的模型。在 :numref:`fig_house_pricing` 中，"Data"选项卡有下载数据的链接。
 
-开始之前，我们将使用`pandas`读入并处理数据，这是我们在:numref:`sec_pandas`中引入的。因此，在继续操作之前，您需要确保已安装`pandas`。幸运的是，如果你正在用Jupyter阅读该书，你可以在不离开笔记本的情况下安装`pandas`。
+开始之前，我们将使用`pandas`读入并处理数据，这是我们在 :numref:`sec_pandas` 中引入的。因此，在继续操作之前，您需要确保已安装`pandas`。幸运的是，如果你正在用Jupyter阅读该书，你可以在不离开笔记本的情况下安装`pandas`。
 
 ```{.python .input}
 # 如果pandas没有被安装，请取消下一句的注释。
@@ -192,7 +192,7 @@ all_features[numeric_features] = all_features[numeric_features].apply(
 all_features[numeric_features] = all_features[numeric_features].fillna(0)
 ```
 
-接下来，我们处理离散值。这包括诸如“MSZoning”之类的特征。我们用一次独热编码替换它们，方法与前面将多类别标签转换为向量的方式相同(请参见:numref:`subsec_classification-problem`)。例如，“MSZoning”包含值“RL”和“Rm”。将创建两个新的指示器特征“MSZoning_RL”和“MSZoning_RM”，其值为0或1。根据独热编码，如果“MSZoning”的原始值为“RL”，则:“MSZoning_RL”为1，“MSZoning_RM”为0。`pandas`软件包会自动为我们实现这一点。
+接下来，我们处理离散值。这包括诸如“MSZoning”之类的特征。我们用一次独热编码替换它们，方法与前面将多类别标签转换为向量的方式相同(请参见 :numref:`subsec_classification-problem` )。例如，“MSZoning”包含值“RL”和“Rm”。将创建两个新的指示器特征“MSZoning_RL”和“MSZoning_RM”，其值为0或1。根据独热编码，如果“MSZoning”的原始值为“RL”，则:“MSZoning_RL”为1，“MSZoning_RM”为0。`pandas`软件包会自动为我们实现这一点。
 
 ```{.python .input}
 #@tab all
@@ -349,7 +349,7 @@ def train(net, train_features, train_labels, test_features, test_labels,
 
 ## $K$折交叉验证
 
-你可能还记得，我们在讨论模型选择的部分中介绍了$K$折交叉验证（:numref:`sec_model_selection`）。这有助于模型选择和超参数调整。我们首先需要一个函数，在$K$折交叉验证过程中返回第$i$折的数据。它选择第$i$个切片作为验证数据，其余部分作为训练数据。注意，这并不是处理数据的最有效方法，如果我们的数据集大得多，我们肯定会做一些更聪明的改变。但是这种改变所增加的复杂性可能会使代码看起来更乱。因此我们可以忽略这些改变，因为我们的问题很简单。
+你可能还记得，我们在讨论模型选择的部分（ :numref:`sec_model_selection` ）中介绍了$K$折交叉验证。这有助于模型选择和超参数调整。我们首先需要一个函数，在$K$折交叉验证过程中返回第$i$折的数据。它选择第$i$个切片作为验证数据，其余部分作为训练数据。注意，这并不是处理数据的最有效方法，如果我们的数据集大得多，我们肯定会做一些更聪明的改变。但是这种改变所增加的复杂性可能会使代码看起来更乱。因此我们可以忽略这些改变，因为我们的问题很简单。
 
 ```{.python .input}
 #@tab all
@@ -438,7 +438,7 @@ train_and_pred(train_features, test_features, train_labels, test_data,
                num_epochs, lr, weight_decay, batch_size)
 ```
 
-接下来，如:numref:`fig_kaggle_submit2`中所示，我们可以提交预测到Kaggle上，并查看预测在测试集上与实际房价(标签)的比较情况。步骤非常简单：
+接下来，如 :numref:`fig_kaggle_submit2` 中所示，我们可以提交预测到Kaggle上，并查看预测在测试集上与实际房价(标签)的比较情况。步骤非常简单：
 
 * 登录Kaggle网站，访问房价预测竞赛页面。
 * 点击“Submit Predictions”或“Late Submission”按钮(在撰写本文时，该按钮位于右侧)。
