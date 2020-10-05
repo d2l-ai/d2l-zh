@@ -261,12 +261,14 @@ def train_epoch_ch3(net, train_iter, loss, updater):  #@save
         y_hat = net(X)
         l = loss(y_hat, y)
         if isinstance(updater, torch.optim.Optimizer):
+            # Using PyTorch in-built optimizer & loss criterion
             updater.zero_grad()
             l.backward()
             updater.step()
             metric.add(float(l) * len(y), accuracy(y_hat, y),
                        y.size().numel())
         else:
+            # Using custom built optimizer & loss criterion
             l.sum().backward()
             updater(X.shape[0])
             metric.add(float(l.sum()), accuracy(y_hat, y), y.numel())
@@ -355,12 +357,8 @@ def evaluate_loss(net, data_iter, loss):  #@save
 
 
 # Defined in file: ./chapter_multilayer-perceptrons/kaggle-house-price.md
-DATA_HUB = dict()  #@save
-DATA_URL = 'http://d2l-data.s3-accelerate.amazonaws.com/'  #@save
-
-
-# Defined in file: ./chapter_multilayer-perceptrons/kaggle-house-price.md
-DATA_URL = 'http://d2l-data.s3-accelerate.amazonaws.com/'  #@save
+DATA_HUB = dict()
+DATA_URL = 'http://d2l-data.s3-accelerate.amazonaws.com/'
 
 
 # Defined in file: ./chapter_multilayer-perceptrons/kaggle-house-price.md
@@ -508,6 +506,7 @@ def train_ch6(net, train_iter, test_iter, num_epochs, lr,
 
 # Defined in file: ./chapter_convolutional-modern/resnet.md
 class Residual(nn.Module):  #@save
+    """The Residual block of ResNet."""
     def __init__(self, input_channels, num_channels,
                  use_1x1conv=False, strides=1):
         super().__init__()
@@ -540,33 +539,36 @@ d2l.DATA_HUB['time_machine'] = (d2l.DATA_URL + 'timemachine.txt',
 
 # Defined in file: ./chapter_recurrent-neural-networks/text-preprocessing.md
 def read_time_machine():  #@save
-    """Load the time machine book into a list of sentences."""
+    """Load the time machine dataset into a list of text lines."""
     with open(d2l.download('time_machine'), 'r') as f:
         lines = f.readlines()
-    return [re.sub('[^A-Za-z]+', ' ', line.strip().lower())
-            for line in lines]
+    return [re.sub('[^A-Za-z]+', ' ', line).strip().lower() for line in lines]
 
 
 # Defined in file: ./chapter_recurrent-neural-networks/text-preprocessing.md
 def tokenize(lines, token='word'):  #@save
-    """Split sentences into word or char tokens."""
+    """Split text lines into word or character tokens."""
     if token == 'word':
-        return [line.split(' ') for line in lines]
+        return [line.split() for line in lines]
     elif token == 'char':
         return [list(line) for line in lines]
     else:
-        print('ERROR: unknown token type '+token)
+        print('ERROR: unknown token type: ' + token)
 
 
 # Defined in file: ./chapter_recurrent-neural-networks/text-preprocessing.md
 class Vocab:  #@save
-    def __init__(self, tokens, min_freq=0, reserved_tokens=None):
+    """Vocabulary for text."""
+    def __init__(self, tokens=None, min_freq=0, reserved_tokens=None):
+        if tokens is None:
+            tokens = []
         if reserved_tokens is None:
-            reserved_tokens = []
+            reserved_tokens = [] 
         # Sort according to frequencies
         counter = count_corpus(tokens)
         self.token_freqs = sorted(counter.items(), key=lambda x: x[0])
         self.token_freqs.sort(key=lambda x: x[1], reverse=True)
+        # The index for the unknown token is 0
         self.unk, uniq_tokens = 0, ['<unk>'] + reserved_tokens
         uniq_tokens += [token for token, freq in self.token_freqs
                         if freq >= min_freq and token not in uniq_tokens]
@@ -590,18 +592,24 @@ class Vocab:  #@save
 
 
 # Defined in file: ./chapter_recurrent-neural-networks/text-preprocessing.md
-def count_corpus(sentences):  #@save
-    # Flatten a list of token lists into a list of tokens
-    tokens = [tk for line in sentences for tk in line]
+def count_corpus(tokens):  #@save
+    """Count token frequencies."""
+    # Here `tokens` is a 1D list or 2D list
+    if len(tokens) == 0 or isinstance(tokens[0], list):
+        # Flatten a list of token lists into a list of tokens
+        tokens = [token for line in tokens for token in line]
     return collections.Counter(tokens)
 
 
 # Defined in file: ./chapter_recurrent-neural-networks/text-preprocessing.md
 def load_corpus_time_machine(max_tokens=-1):  #@save
+    """Return token indices and the vocabulary of the time machine dataset."""
     lines = read_time_machine()
     tokens = tokenize(lines, 'char')
     vocab = Vocab(tokens)
-    corpus = [vocab[tk] for line in tokens for tk in line]
+    # Since each text line in the time machine dataset is not necessarily a
+    # sentence or a paragraph, flatten all the text lines into a single list
+    corpus = [vocab[token] for line in tokens for token in line]
     if max_tokens > 0:
         corpus = corpus[:max_tokens]
     return corpus, vocab
@@ -609,40 +617,45 @@ def load_corpus_time_machine(max_tokens=-1):  #@save
 
 # Defined in file: ./chapter_recurrent-neural-networks/language-models-and-dataset.md
 def seq_data_iter_random(corpus, batch_size, num_steps):  #@save
-    # Offset the iterator over the data for uniform starts
+    """Generate a minibatch of subsequences using random sampling."""
+    # Start with a random offset to partition a sequence
     corpus = corpus[random.randint(0, num_steps):]
-    # Subtract 1 extra since we need to account for label
-    num_examples = ((len(corpus) - 1) // num_steps)
-    example_indices = list(range(0, num_examples * num_steps, num_steps))
-    random.shuffle(example_indices)
+    # Subtract 1 since we need to account for labels
+    num_subseqs = (len(corpus) - 1) // num_steps
+    # The starting indices for subsequences of length `num_steps`
+    initial_indices = list(range(0, num_subseqs * num_steps, num_steps))
+    # In random sampling, the subsequences from two adjacent random
+    # minibatches during iteration are not necessarily adjacent on the
+    # original sequence
+    random.shuffle(initial_indices)
 
     def data(pos):
-        # This returns a sequence of length `num_steps` starting from `pos`
+        # Return a sequence of length `num_steps` starting from `pos`
         return corpus[pos: pos + num_steps]
 
-    # Discard half empty batches
-    num_batches = num_examples // batch_size
-    for i in range(0, batch_size * num_batches, batch_size):
-        # `batch_size` indicates the random examples read each time
-        batch_indices = example_indices[i:(i+batch_size)]
-        X = [data(j) for j in batch_indices]
-        Y = [data(j + 1) for j in batch_indices]
+    num_subseqs_per_example = num_subseqs // batch_size
+    for i in range(0, batch_size * num_subseqs_per_example, batch_size):
+        # Here, `initial_indices` contains randomized starting indices for
+        # subsequences
+        initial_indices_per_batch = initial_indices[i: i + batch_size]
+        X = [data(j) for j in initial_indices_per_batch]
+        Y = [data(j + 1) for j in initial_indices_per_batch]
         yield d2l.tensor(X), d2l.tensor(Y)
 
 
 # Defined in file: ./chapter_recurrent-neural-networks/language-models-and-dataset.md
-def seq_data_iter_consecutive(corpus, batch_size, num_steps):  #@save
-    # Offset for the iterator over the data for uniform starts
+def seq_data_iter_sequential(corpus, batch_size, num_steps):  #@save
+    """Generate a minibatch of subsequences using sequential partitioning."""
+    # Start with a random offset to partition a sequence
     offset = random.randint(0, num_steps)
-    # Slice out data: ignore `num_steps` and just wrap around
-    num_indices = ((len(corpus) - offset - 1) // batch_size) * batch_size
-    Xs = d2l.tensor(corpus[offset:offset+num_indices])
-    Ys = d2l.tensor(corpus[offset+1:offset+1+num_indices])
+    num_tokens = ((len(corpus) - offset - 1) // batch_size) * batch_size
+    Xs = d2l.tensor(corpus[offset: offset + num_tokens])
+    Ys = d2l.tensor(corpus[offset + 1: offset + 1 + num_tokens])
     Xs, Ys = Xs.reshape(batch_size, -1), Ys.reshape(batch_size, -1)
     num_batches = Xs.shape[1] // num_steps
     for i in range(0, num_batches * num_steps, num_steps):
-        X = Xs[:, i:(i+num_steps)]
-        Y = Ys[:, i:(i+num_steps)]
+        X = Xs[:, i: i + num_steps]
+        Y = Ys[:, i: i + num_steps]
         yield X, Y
 
 
@@ -653,7 +666,7 @@ class SeqDataLoader:  #@save
         if use_random_iter:
             self.data_iter_fn = d2l.seq_data_iter_random
         else:
-            self.data_iter_fn = d2l.seq_data_iter_consecutive
+            self.data_iter_fn = d2l.seq_data_iter_sequential
         self.corpus, self.vocab = d2l.load_corpus_time_machine(max_tokens)
         self.batch_size, self.num_steps = batch_size, num_steps
 
@@ -664,6 +677,7 @@ class SeqDataLoader:  #@save
 # Defined in file: ./chapter_recurrent-neural-networks/language-models-and-dataset.md
 def load_data_time_machine(batch_size, num_steps,  #@save
                            use_random_iter=False, max_tokens=10000):
+    """Return the iterator and the vocabulary of the time machine dataset."""
     data_iter = SeqDataLoader(
         batch_size, num_steps, use_random_iter, max_tokens)
     return data_iter, data_iter.vocab
@@ -671,15 +685,15 @@ def load_data_time_machine(batch_size, num_steps,  #@save
 
 # Defined in file: ./chapter_recurrent-neural-networks/rnn-scratch.md
 class RNNModelScratch: #@save
-    """A RNN Model based on scratch implementations."""
+    """A RNN Model implemented from scratch."""
     def __init__(self, vocab_size, num_hiddens, device,
-                 get_params, init_state, forward):
+                 get_params, init_state, forward_fn):
         self.vocab_size, self.num_hiddens = vocab_size, num_hiddens
         self.params = get_params(vocab_size, num_hiddens, device)
-        self.init_state, self.forward_fn = init_state, forward
+        self.init_state, self.forward_fn = init_state, forward_fn
 
     def __call__(self, X, state):
-        X = F.one_hot(X.T.long(), self.vocab_size).type(torch.float32)
+        X = F.one_hot(X.T, self.vocab_size).type(torch.float32)
         return self.forward_fn(X, state, self.params)
 
     def begin_state(self, batch_size, device):
@@ -687,22 +701,24 @@ class RNNModelScratch: #@save
 
 
 # Defined in file: ./chapter_recurrent-neural-networks/rnn-scratch.md
-def predict_ch8(prefix, num_predicts, model, vocab, device):  #@save
+def predict_ch8(prefix, num_preds, model, vocab, device):  #@save
+    """Generate new characters following the `prefix`."""
     state = model.begin_state(batch_size=1, device=device)
     outputs = [vocab[prefix[0]]]
-    get_input = lambda: torch.tensor(
-        [outputs[-1]], device=device).reshape(1, 1)
-    for y in prefix[1:]:  # Warmup state with prefix
+    get_input = lambda: d2l.reshape(d2l.tensor(
+        [outputs[-1]], device=device), (1, 1))
+    for y in prefix[1:]:  # Warm-up period
         _, state = model(get_input(), state)
         outputs.append(vocab[y])
-    for _ in range(num_predicts):  # Predict num_predicts steps
-        Y, state = model(get_input(), state)
-        outputs.append(int(Y.argmax(dim=1).reshape(1)))
+    for _ in range(num_preds):  # Predict `num_preds` steps
+        y, state = model(get_input(), state)
+        outputs.append(int(y.argmax(dim=1).reshape(1)))
     return ''.join([vocab.idx_to_token[i] for i in outputs])
 
 
 # Defined in file: ./chapter_recurrent-neural-networks/rnn-scratch.md
 def grad_clipping(model, theta):  #@save
+    """Clip the gradient."""
     if isinstance(model, nn.Module):
         params = [p for p in model.parameters() if p.requires_grad]
     else:
@@ -716,20 +732,27 @@ def grad_clipping(model, theta):  #@save
 # Defined in file: ./chapter_recurrent-neural-networks/rnn-scratch.md
 def train_epoch_ch8(model, train_iter, loss, updater, device,  #@save
                     use_random_iter):
+    """Train a model within one epoch (defined in Chapter 8)."""
     state, timer = None, d2l.Timer()
-    metric = d2l.Accumulator(2)  # loss_sum, num_examples
+    metric = d2l.Accumulator(2)  # Sum of training loss, no. of tokens
     for X, Y in train_iter:
         if state is None or use_random_iter:
-            # Initialize state when either it is the first iteration or
-            # using random sampling.
+            # Initialize `state` when either it is the first iteration or
+            # using random sampling
             state = model.begin_state(batch_size=X.shape[0], device=device)
         else:
-            for s in state:
-                s.detach_()
+            if isinstance(model, nn.Module) and not isinstance(state, tuple):
+                # `state` is a tensor for `nn.GRU`
+                state.detach_()
+            else:
+                # `state` is a tuple of tensors for `nn.LSTM` and
+                # for our custom scratch implementation 
+                for s in state:
+                    s.detach_()
         y = Y.T.reshape(-1)
         X, y = X.to(device), y.to(device)
-        py, state = model(X, state)
-        l = loss(py, y.long()).mean()
+        y_hat, state = model(X, state)
+        l = loss(y_hat, y.long()).mean()
         if isinstance(updater, torch.optim.Optimizer):
             updater.zero_grad()
             l.backward()
@@ -738,7 +761,8 @@ def train_epoch_ch8(model, train_iter, loss, updater, device,  #@save
         else:
             l.backward()
             grad_clipping(model, 1)
-            updater(batch_size=1)  # Since used mean already
+            # Since the `mean` function has been invoked
+            updater(batch_size=1)
         metric.add(l * d2l.size(y), d2l.size(y))
     return math.exp(metric[0] / metric[1]), metric[1] / timer.stop()
 
@@ -746,26 +770,69 @@ def train_epoch_ch8(model, train_iter, loss, updater, device,  #@save
 # Defined in file: ./chapter_recurrent-neural-networks/rnn-scratch.md
 def train_ch8(model, train_iter, vocab, lr, num_epochs, device,
               use_random_iter=False):
-    # Initialize
+    """Train a model (defined in Chapter 8)."""
     loss = nn.CrossEntropyLoss()
     animator = d2l.Animator(xlabel='epoch', ylabel='perplexity',
                             legend=['train'], xlim=[1, num_epochs])
+    # Initialize
     if isinstance(model, nn.Module):
-        trainer = torch.optim.SGD(model.parameters(), lr)
-        updater = lambda batch_size: trainer.step()
+        updater = torch.optim.SGD(model.parameters(), lr)
     else:
         updater = lambda batch_size: d2l.sgd(model.params, lr, batch_size)
     predict = lambda prefix: predict_ch8(prefix, 50, model, vocab, device)
-    # Train and check the progress.
+    # Train and predict
     for epoch in range(num_epochs):
         ppl, speed = train_epoch_ch8(
             model, train_iter, loss, updater, device, use_random_iter)
         if epoch % 10 == 0:
             print(predict('time traveller'))
-            animator.add(epoch+1, [ppl])
+            animator.add(epoch + 1, [ppl])
     print(f'perplexity {ppl:.1f}, {speed:.1f} tokens/sec on {str(device)}')
     print(predict('time traveller'))
     print(predict('traveller'))
+
+
+# Defined in file: ./chapter_recurrent-neural-networks/rnn-concise.md
+class RNNModel(nn.Module):
+    """The RNN model."""
+    def __init__(self, rnn_layer, vocab_size, **kwargs):
+        super(RNNModel, self).__init__(**kwargs)
+        self.rnn = rnn_layer
+        self.vocab_size = vocab_size
+        self.num_hiddens = self.rnn.hidden_size
+        # If the RNN is bidirectional (to be introduced later),
+        # `num_directions` should be 2, else it should be 1.
+        if not self.rnn.bidirectional:
+            self.num_directions = 1
+            self.linear = nn.Linear(self.num_hiddens, self.vocab_size)
+        else:
+            self.num_directions = 2
+            self.linear = nn.Linear(self.num_hiddens * 2, self.vocab_size)
+
+    def forward(self, inputs, state):
+        X = F.one_hot(inputs.T.long(), self.vocab_size)
+        X = X.to(torch.float32)
+        Y, state = self.rnn(X, state)
+        # The fully connected layer will first change the shape of `Y` to
+        # (`num_steps` * `batch_size`, `num_hiddens`). Its output shape is
+        # (`num_steps` * `batch_size`, `vocab_size`).
+        output = self.linear(Y.reshape((-1, Y.shape[-1])))
+        return output, state
+
+    def begin_state(self, device, batch_size=1):
+        if not isinstance(self.rnn, nn.LSTM):
+            # `nn.GRU` takes a tensor as hidden state
+            return  torch.zeros((self.num_directions * self.rnn.num_layers,
+                                 batch_size, self.num_hiddens), 
+                                device=device)
+        else:
+            # `nn.LSTM` takes a tuple of hidden states
+            return (torch.zeros((
+                self.num_directions * self.rnn.num_layers,
+                batch_size, self.num_hiddens), device=device),
+                    torch.zeros((
+                        self.num_directions * self.rnn.num_layers,
+                        batch_size, self.num_hiddens), device=device))
 
 
 # Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
@@ -886,7 +953,7 @@ class Seq2SeqEncoder(d2l.Encoder):
 
     def forward(self, X, *args):
         X = self.embedding(X)  # X shape: (batch_size, seq_len, embed_size)
-        # RNN needs first axes to be timestep, i.e., seq_len
+        # RNN needs first axes to be time step, i.e., seq_len
         X = X.permute(1, 0, 2)
         out, state = self.rnn(X) # When state is not mentioned, it defaults to zeros
         # out shape: (seq_len, batch_size, num_hiddens)
@@ -917,10 +984,11 @@ class Seq2SeqDecoder(d2l.Decoder):
 
 # Defined in file: ./chapter_recurrent-modern/seq2seq.md
 def sequence_mask(X, valid_len, value=0):
-    output = X.clone()
-    for count, matrix in enumerate(output):
-        matrix[int(valid_len[count]):]=value
-    return output
+    maxlen = X.size(1)
+    mask = torch.arange((maxlen), dtype=torch.float32,
+                        device=X.device)[None, :] < valid_len[:, None]
+    X[~mask] = value
+    return X
 
 
 # Defined in file: ./chapter_recurrent-modern/seq2seq.md
@@ -988,7 +1056,7 @@ def predict_s2s_ch9(model, src_sentence, src_vocab, tgt_vocab, num_steps,
     predict_tokens = []
     for _ in range(num_steps):
         Y, dec_state = model.decoder(dec_X, dec_state)
-        # The token with highest score is used as the next timestep input
+        # The token with highest score is used as the next time step input
         dec_X = Y.argmax(dim=2)
         py = dec_X.squeeze(dim=0).type(torch.int32).item()
         if py == tgt_vocab['<eos>']:
@@ -1051,6 +1119,133 @@ class MLPAttention(nn.Module):
         scores = self.v(features).squeeze(-1)
         attention_weights = self.dropout(masked_softmax(scores, valid_len))
         return torch.bmm(attention_weights, value)
+
+
+# Defined in file: ./chapter_attention-mechanisms/transformer.md
+class MultiHeadAttention(nn.Module):
+    def __init__(self, key_size, query_size, value_size, num_hiddens, num_heads,
+                 dropout, bias=False, **kwargs):
+        super(MultiHeadAttention, self).__init__(**kwargs)
+        self.num_heads = num_heads
+        self.attention = d2l.DotProductAttention(dropout)
+        self.W_q = nn.Linear(query_size, num_hiddens, bias=bias)
+        self.W_k = nn.Linear(key_size, num_hiddens, bias=bias)
+        self.W_v = nn.Linear(value_size, num_hiddens, bias=bias)
+        self.W_o = nn.Linear(num_hiddens, num_hiddens, bias=bias)
+
+    def forward(self, query, key, value, valid_len):
+        # For self-attention, `query`, `key`, and `value` shape:
+        # (`batch_size`, `seq_len`, `dim`), where `seq_len` is the length of
+        # input sequence. `valid_len` shape is either (`batch_size`, ) or
+        # (`batch_size`, `seq_len`).
+
+        # Project and transpose `query`, `key`, and `value` from
+        # (`batch_size`, `seq_len`, `num_hiddens`) to
+        # (`batch_size` * `num_heads`, `seq_len`, `num_hiddens` / `num_heads`)
+        query = transpose_qkv(self.W_q(query), self.num_heads)
+        key = transpose_qkv(self.W_k(key), self.num_heads)
+        value = transpose_qkv(self.W_v(value), self.num_heads)
+
+        if valid_len is not None:
+            valid_len = torch.repeat_interleave(valid_len, repeats=self.num_heads, dim=0)
+
+        # For self-attention, `output` shape:
+        # (`batch_size` * `num_heads`, `seq_len`, `num_hiddens` / `num_heads`)
+        output = self.attention(query, key, value, valid_len)
+
+        # `output_concat` shape: (`batch_size`, `seq_len`, `num_hiddens`)
+        output_concat = transpose_output(output, self.num_heads)
+        return self.W_o(output_concat)
+
+
+# Defined in file: ./chapter_attention-mechanisms/transformer.md
+def transpose_qkv(X, num_heads):
+    # Input `X` shape: (`batch_size`, `seq_len`, `num_hiddens`).
+    # Output `X` shape:
+    # (`batch_size`, `seq_len`, `num_heads`, `num_hiddens` / `num_heads`)
+    X = X.reshape(X.shape[0], X.shape[1], num_heads, -1)
+
+    # `X` shape:
+    # (`batch_size`, `num_heads`, `seq_len`, `num_hiddens` / `num_heads`)
+    X = X.permute(0, 2, 1, 3)
+
+    # `output` shape:
+    # (`batch_size` * `num_heads`, `seq_len`, `num_hiddens` / `num_heads`)
+    output = X.reshape(-1, X.shape[2], X.shape[3])
+    return output
+
+
+
+# Defined in file: ./chapter_attention-mechanisms/transformer.md
+def transpose_output(X, num_heads):
+    # A reversed version of `transpose_qkv`
+    X = X.reshape(-1, num_heads, X.shape[1], X.shape[2])
+    X = X.permute(0, 2, 1, 3)
+    return X.reshape(X.shape[0], X.shape[1], -1)
+
+
+# Defined in file: ./chapter_attention-mechanisms/transformer.md
+class PositionWiseFFN(nn.Module):
+    def __init__(self, ffn_num_input, ffn_num_hiddens, pw_num_outputs, **kwargs):
+        super(PositionWiseFFN, self).__init__(**kwargs)
+        self.dense1 = nn.Linear(ffn_num_input, ffn_num_hiddens)
+        self.relu = nn.ReLU()
+        self.dense2 = nn.Linear(ffn_num_hiddens, pw_num_outputs)
+
+    def forward(self, X):
+        return self.dense2(self.relu(self.dense1(X)))
+
+
+# Defined in file: ./chapter_attention-mechanisms/transformer.md
+class AddNorm(nn.Module):
+    def __init__(self, normalized_shape, dropout, **kwargs):
+        super(AddNorm, self).__init__(**kwargs)
+        self.dropout = nn.Dropout(dropout)
+        self.ln = nn.LayerNorm(normalized_shape)
+
+    def forward(self, X, Y):
+        return self.ln(self.dropout(Y) + X)
+
+
+# Defined in file: ./chapter_attention-mechanisms/transformer.md
+class EncoderBlock(nn.Module):
+    def __init__(self, key_size, query_size, value_size, num_hiddens, norm_shape,
+                 ffn_num_input, ffn_num_hiddens, num_heads, dropout,
+                 use_bias=False, **kwargs):
+        super(EncoderBlock, self).__init__(**kwargs)
+        self.attention = MultiHeadAttention(key_size, query_size, value_size,
+                                            num_hiddens, num_heads, dropout,
+                                            use_bias)
+        self.addnorm1 = AddNorm(norm_shape, dropout)
+        self.ffn = PositionWiseFFN(ffn_num_input, ffn_num_hiddens, num_hiddens)
+        self.addnorm2 = AddNorm(norm_shape, dropout)
+
+    def forward(self, X, valid_len):
+        Y = self.addnorm1(X, self.attention(X, X, X, valid_len))
+        return self.addnorm2(Y, self.ffn(Y))
+
+
+# Defined in file: ./chapter_attention-mechanisms/transformer.md
+class TransformerEncoder(d2l.Encoder):
+    def __init__(self, vocab_size, key_size, query_size, value_size, num_hiddens,
+                 norm_shape, ffn_num_input, ffn_num_hiddens, num_heads,
+                 num_layers, dropout, use_bias=False, **kwargs):
+        super(TransformerEncoder, self).__init__(**kwargs)
+        self.num_hiddens = num_hiddens
+        self.embedding = nn.Embedding(vocab_size, num_hiddens)
+        self.pos_encoding = PositionalEncoding(num_hiddens, dropout)
+        self.blks = nn.Sequential()
+        for i in range(num_layers):
+            self.blks.add_module("block"+str(i),
+                EncoderBlock(key_size, query_size, value_size, num_hiddens,
+                             norm_shape, ffn_num_input, ffn_num_hiddens, num_heads,
+                             dropout, use_bias))
+
+    def forward(self, X, valid_len, *args):
+        X = self.pos_encoding(self.embedding(X) * math.sqrt(self.num_hiddens))
+        for blk in self.blks:
+            X = blk(X, valid_len)
+        return X
 
 
 # Defined in file: ./chapter_optimization/optimization-intro.md
@@ -1160,6 +1355,57 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=4):
                              (d2l.evaluate_loss(net, data_iter, loss)/2,))
                 timer.start()
     print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
+
+
+# Defined in file: ./chapter_computer-vision/bounding-box.md
+def bbox_to_rect(bbox, color):
+    """Convert bounding box to matplotlib format."""
+    # Convert the bounding box (top-left x, top-left y, bottom-right x,
+    # bottom-right y) format to matplotlib format: ((upper-left x,
+    # upper-left y), width, height)
+    return d2l.plt.Rectangle(
+        xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0], height=bbox[3]-bbox[1],
+        fill=False, edgecolor=color, linewidth=2)
+
+
+# Defined in file: ./chapter_generative-adversarial-networks/gan.md
+def update_D(X, Z, net_D, net_G, loss, trainer_D):
+    """Update discriminator."""
+    batch_size = X.shape[0]
+    ones = torch.ones((batch_size,), device=X.device)
+    zeros = torch.zeros((batch_size,), device=X.device)
+    trainer_D.zero_grad()
+    real_Y = net_D(X)
+    fake_X = net_G(Z)
+    # Do not need to compute gradient for `net_G`, detach it from
+    # computing gradients.
+    fake_Y = net_D(fake_X.detach())
+    loss_D = (loss(real_Y, ones.reshape(real_Y.shape)) + 
+              loss(fake_Y, zeros.reshape(fake_Y.shape))) / 2
+    loss_D.backward()
+    trainer_D.step()
+    return loss_D
+
+
+# Defined in file: ./chapter_generative-adversarial-networks/gan.md
+def update_G(Z, net_D, net_G, loss, trainer_G):
+    """Update generator."""
+    batch_size = Z.shape[0]
+    ones = torch.ones((batch_size,), device=Z.device)
+    trainer_G.zero_grad()
+    # We could reuse `fake_X` from `update_D` to save computation
+    fake_X = net_G(Z)
+    # Recomputing `fake_Y` is needed since `net_D` is changed
+    fake_Y = net_D(fake_X)
+    loss_G = loss(fake_Y, ones.reshape(fake_Y.shape))
+    loss_G.backward()
+    trainer_G.step()
+    return loss_G
+
+
+# Defined in file: ./chapter_generative-adversarial-networks/dcgan.md
+d2l.DATA_HUB['pokemon'] = (d2l.DATA_URL + 'pokemon.zip',
+                           'c065c0e2593b8b161a2d7873e42418bf6a21106c')
 
 
 # Alias defined in config.ini
