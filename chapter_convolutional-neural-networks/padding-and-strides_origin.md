@@ -1,6 +1,7 @@
 # Padding and Stride
 :label:`sec_padding`
 
+
 In the previous example of :numref:`fig_correlation`,
 our input had both a height and width of 3
 and our convolution kernel had both a height and width of 2,
