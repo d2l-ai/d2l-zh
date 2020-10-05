@@ -80,7 +80,7 @@ limit the expressivity of our model.
 Strictly speaking, :eqref:`eq_price-area` is an *affine transformation*
 of input features,
 which is characterized by
-a *linear transformation* of features via weighted sum, combined with 
+a *linear transformation* of features via weighted sum, combined with
 a *translation* via the added bias.
 
 Given a dataset, our goal is to choose
@@ -177,7 +177,7 @@ To make things more concrete, consider the example below
 where we plot a regression problem for a one-dimensional case
 as shown in :numref:`fig_fit_linreg`.
 
-![Fit data with a linear model.](../img/fit_linreg.svg)
+![Fit data with a linear model.](../img/fit-linreg.svg)
 :label:`fig_fit_linreg`
 
 Note that large differences between

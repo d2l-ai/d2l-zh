@@ -4,7 +4,7 @@
 直到至少2500年前，古希腊人把一个多边形分成三角形，并把它们的面积相加，才找到计算多边形面积的方法。
 为了求出曲线形状（比如圆）的面积，古希腊人在这样的形状上刻内接多边形。如 :numref:`fig_circle_area` 所示，内接多边形的等长边越多，就越接近圆。这个过程也被称为*逼近法*（method of exhaustion）。
 
-![用穷举法求圆的面积。](../img/polygon_circle.svg)
+![用穷举法求圆的面积。](../img/polygon-circle.svg)
 :label:`fig_circle_area`
 
 事实上，逼近法就是 *积分*（integral calculus）（将在 :numref:`sec_integral_calculus` 中描述）的起源。2000 多年后，微积分的另一支，*微分*（differential calculus），被发明出来。在微分学最重要的应用中，优化问题考虑如何把事情做到*最好*。正如在 :numref:`subsec_norms_and_objectives` 中讨论的那样，这种问题在深度学习中是无处不在的。

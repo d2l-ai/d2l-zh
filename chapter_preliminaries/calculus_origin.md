@@ -14,7 +14,7 @@ As shown in :numref:`fig_circle_area`,
 an inscribed polygon with more sides of equal length better approximates
 the circle. This process is also known as the *method of exhaustion*.
 
-![Find the area of a circle with the method of exhaustion.](../img/polygon_circle.svg)
+![Find the area of a circle with the method of exhaustion.](../img/polygon-circle.svg)
 :label:`fig_circle_area`
 
 In fact, the method of exhaustion is where *integral calculus* (will be described in :numref:`sec_integral_calculus`) originates from.

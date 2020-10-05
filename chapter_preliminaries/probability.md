@@ -8,7 +8,7 @@
 
 在前面的章节中，我们已经提到了概率，但没有明确说明它们是什么，也没有给出具体的例子。现在让我们更认真地考虑第一个例子：根据照片区分猫和狗。这听起来可能很简单，但实际上是一个艰巨的挑战。首先，问题的难度可能取决于图像的分辨率。
 
-![不同分辨率的图像 ($10 \times 10$, $20 \times 20$, $40 \times 40$, $80 \times 80$, 和 $160 \times 160$ pixels).](../img/cat_dog_pixels.png)
+![不同分辨率的图像 ($10 \times 10$, $20 \times 20$, $40 \times 40$, $80 \times 80$, 和 $160 \times 160$ pixels).](../img/cat-dog-pixels.png)
 :width:`300px`
 :label:`fig_cat_dog`
 
