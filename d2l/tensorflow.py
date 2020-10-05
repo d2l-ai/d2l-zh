@@ -359,12 +359,8 @@ def evaluate_loss(net, data_iter, loss):  #@save
 
 
 # Defined in file: ./chapter_multilayer-perceptrons/kaggle-house-price.md
-DATA_HUB = dict()  #@save
-DATA_URL = 'http://d2l-data.s3-accelerate.amazonaws.com/'  #@save
-
-
-# Defined in file: ./chapter_multilayer-perceptrons/kaggle-house-price.md
-DATA_URL = 'http://d2l-data.s3-accelerate.amazonaws.com/'  #@save
+DATA_HUB = dict()
+DATA_URL = 'http://d2l-data.s3-accelerate.amazonaws.com/'
 
 
 # Defined in file: ./chapter_multilayer-perceptrons/kaggle-house-price.md
@@ -504,6 +500,7 @@ def train_ch6(net_fn, train_iter, test_iter, num_epochs, lr,
 
 # Defined in file: ./chapter_convolutional-modern/resnet.md
 class Residual(tf.keras.Model):  #@save
+    """The Residual block of ResNet."""
     def __init__(self, num_channels, use_1x1conv=False, strides=1):
         super().__init__()
         self.conv1 = tf.keras.layers.Conv2D(
@@ -524,6 +521,258 @@ class Residual(tf.keras.Model):  #@save
             X = self.conv3(X)
         Y += X
         return tf.keras.activations.relu(Y)
+
+
+# Defined in file: ./chapter_recurrent-neural-networks/text-preprocessing.md
+d2l.DATA_HUB['time_machine'] = (d2l.DATA_URL + 'timemachine.txt',
+                                '090b5e7e70c295757f55df93cb0a180b9691891a')
+
+
+# Defined in file: ./chapter_recurrent-neural-networks/text-preprocessing.md
+def read_time_machine():  #@save
+    """Load the time machine dataset into a list of text lines."""
+    with open(d2l.download('time_machine'), 'r') as f:
+        lines = f.readlines()
+    return [re.sub('[^A-Za-z]+', ' ', line).strip().lower() for line in lines]
+
+
+# Defined in file: ./chapter_recurrent-neural-networks/text-preprocessing.md
+def tokenize(lines, token='word'):  #@save
+    """Split text lines into word or character tokens."""
+    if token == 'word':
+        return [line.split() for line in lines]
+    elif token == 'char':
+        return [list(line) for line in lines]
+    else:
+        print('ERROR: unknown token type: ' + token)
+
+
+# Defined in file: ./chapter_recurrent-neural-networks/text-preprocessing.md
+class Vocab:  #@save
+    """Vocabulary for text."""
+    def __init__(self, tokens=None, min_freq=0, reserved_tokens=None):
+        if tokens is None:
+            tokens = []
+        if reserved_tokens is None:
+            reserved_tokens = [] 
+        # Sort according to frequencies
+        counter = count_corpus(tokens)
+        self.token_freqs = sorted(counter.items(), key=lambda x: x[0])
+        self.token_freqs.sort(key=lambda x: x[1], reverse=True)
+        # The index for the unknown token is 0
+        self.unk, uniq_tokens = 0, ['<unk>'] + reserved_tokens
+        uniq_tokens += [token for token, freq in self.token_freqs
+                        if freq >= min_freq and token not in uniq_tokens]
+        self.idx_to_token, self.token_to_idx = [], dict()
+        for token in uniq_tokens:
+            self.idx_to_token.append(token)
+            self.token_to_idx[token] = len(self.idx_to_token) - 1
+
+    def __len__(self):
+        return len(self.idx_to_token)
+
+    def __getitem__(self, tokens):
+        if not isinstance(tokens, (list, tuple)):
+            return self.token_to_idx.get(tokens, self.unk)
+        return [self.__getitem__(token) for token in tokens]
+
+    def to_tokens(self, indices):
+        if not isinstance(indices, (list, tuple)):
+            return self.idx_to_token[indices]
+        return [self.idx_to_token[index] for index in indices]
+
+
+# Defined in file: ./chapter_recurrent-neural-networks/text-preprocessing.md
+def count_corpus(tokens):  #@save
+    """Count token frequencies."""
+    # Here `tokens` is a 1D list or 2D list
+    if len(tokens) == 0 or isinstance(tokens[0], list):
+        # Flatten a list of token lists into a list of tokens
+        tokens = [token for line in tokens for token in line]
+    return collections.Counter(tokens)
+
+
+# Defined in file: ./chapter_recurrent-neural-networks/text-preprocessing.md
+def load_corpus_time_machine(max_tokens=-1):  #@save
+    """Return token indices and the vocabulary of the time machine dataset."""
+    lines = read_time_machine()
+    tokens = tokenize(lines, 'char')
+    vocab = Vocab(tokens)
+    # Since each text line in the time machine dataset is not necessarily a
+    # sentence or a paragraph, flatten all the text lines into a single list
+    corpus = [vocab[token] for line in tokens for token in line]
+    if max_tokens > 0:
+        corpus = corpus[:max_tokens]
+    return corpus, vocab
+
+
+# Defined in file: ./chapter_recurrent-neural-networks/language-models-and-dataset.md
+def seq_data_iter_random(corpus, batch_size, num_steps):  #@save
+    """Generate a minibatch of subsequences using random sampling."""
+    # Start with a random offset to partition a sequence
+    corpus = corpus[random.randint(0, num_steps):]
+    # Subtract 1 since we need to account for labels
+    num_subseqs = (len(corpus) - 1) // num_steps
+    # The starting indices for subsequences of length `num_steps`
+    initial_indices = list(range(0, num_subseqs * num_steps, num_steps))
+    # In random sampling, the subsequences from two adjacent random
+    # minibatches during iteration are not necessarily adjacent on the
+    # original sequence
+    random.shuffle(initial_indices)
+
+    def data(pos):
+        # Return a sequence of length `num_steps` starting from `pos`
+        return corpus[pos: pos + num_steps]
+
+    num_subseqs_per_example = num_subseqs // batch_size
+    for i in range(0, batch_size * num_subseqs_per_example, batch_size):
+        # Here, `initial_indices` contains randomized starting indices for
+        # subsequences
+        initial_indices_per_batch = initial_indices[i: i + batch_size]
+        X = [data(j) for j in initial_indices_per_batch]
+        Y = [data(j + 1) for j in initial_indices_per_batch]
+        yield d2l.tensor(X), d2l.tensor(Y)
+
+
+# Defined in file: ./chapter_recurrent-neural-networks/language-models-and-dataset.md
+def seq_data_iter_sequential(corpus, batch_size, num_steps):  #@save
+    """Generate a minibatch of subsequences using sequential partitioning."""
+    # Start with a random offset to partition a sequence
+    offset = random.randint(0, num_steps)
+    num_tokens = ((len(corpus) - offset - 1) // batch_size) * batch_size
+    Xs = d2l.tensor(corpus[offset: offset + num_tokens])
+    Ys = d2l.tensor(corpus[offset + 1: offset + 1 + num_tokens])
+    Xs = d2l.reshape(Xs, (batch_size, -1))
+    Ys = d2l.reshape(Ys, (batch_size, -1))
+    num_batches = Xs.shape[1] // num_steps
+    for i in range(0, num_batches * num_steps, num_steps):
+        X = Xs[:, i: i + num_steps]
+        Y = Ys[:, i: i + num_steps]
+        yield X, Y
+
+
+# Defined in file: ./chapter_recurrent-neural-networks/language-models-and-dataset.md
+class SeqDataLoader:  #@save
+    """An iterator to load sequence data."""
+    def __init__(self, batch_size, num_steps, use_random_iter, max_tokens):
+        if use_random_iter:
+            self.data_iter_fn = d2l.seq_data_iter_random
+        else:
+            self.data_iter_fn = d2l.seq_data_iter_sequential
+        self.corpus, self.vocab = d2l.load_corpus_time_machine(max_tokens)
+        self.batch_size, self.num_steps = batch_size, num_steps
+
+    def __iter__(self):
+        return self.data_iter_fn(self.corpus, self.batch_size, self.num_steps)
+
+
+# Defined in file: ./chapter_recurrent-neural-networks/language-models-and-dataset.md
+def load_data_time_machine(batch_size, num_steps,  #@save
+                           use_random_iter=False, max_tokens=10000):
+    """Return the iterator and the vocabulary of the time machine dataset."""
+    data_iter = SeqDataLoader(
+        batch_size, num_steps, use_random_iter, max_tokens)
+    return data_iter, data_iter.vocab
+
+
+# Defined in file: ./chapter_recurrent-neural-networks/rnn-scratch.md
+class RNNModelScratch: #@save
+    """A RNN Model implemented from scratch."""
+    def __init__(self, vocab_size, num_hiddens,
+                 init_state, forward_fn):
+        self.vocab_size, self.num_hiddens = vocab_size, num_hiddens
+        self.init_state, self.forward_fn = init_state, forward_fn
+
+    def __call__(self, X, state, params):
+        X = tf.one_hot(tf.transpose(X), self.vocab_size)
+        X = tf.cast(X, tf.float32)
+        return self.forward_fn(X, state, params)
+
+    def begin_state(self, batch_size):
+        return self.init_state(batch_size, self.num_hiddens)
+
+
+# Defined in file: ./chapter_recurrent-neural-networks/rnn-scratch.md
+def predict_ch8(prefix, num_preds, model, vocab, params):  #@save
+    """Generate new characters following the `prefix`."""
+    state = model.begin_state(batch_size=1)
+    outputs = [vocab[prefix[0]]]
+    get_input = lambda: d2l.reshape(d2l.tensor([outputs[-1]]), (1, 1)).numpy()
+    for y in prefix[1:]:  # Warm-up period
+        _, state = model(get_input(), state, params)
+        outputs.append(vocab[y])
+    for _ in range(num_preds):  # Predict `num_preds` steps
+        y, state = model(get_input(), state, params)
+        outputs.append(int(y.numpy().argmax(axis=1).reshape(1)))
+    return ''.join([vocab.idx_to_token[i] for i in outputs])
+
+
+# Defined in file: ./chapter_recurrent-neural-networks/rnn-scratch.md
+def grad_clipping(grads, theta): #@save
+    """Clip the gradient."""
+    theta = tf.constant(theta, dtype=tf.float32)
+    norm = tf.math.sqrt(sum((tf.reduce_sum(grad ** 2)).numpy()
+                        for grad in grads))
+    norm = tf.cast(norm, tf.float32)
+    new_grad = []
+    if tf.greater(norm, theta):
+        for grad in grads:
+            new_grad.append(grad * theta / norm)
+    else:
+        for grad in grads:
+            new_grad.append(grad)
+    return new_grad
+
+
+# Defined in file: ./chapter_recurrent-neural-networks/rnn-scratch.md
+def train_epoch_ch8(model, train_iter, loss, updater,   #@save
+                    params, use_random_iter):
+    """Train a model within one epoch (defined in Chapter 8)."""
+    state, timer = None, d2l.Timer()
+    metric = d2l.Accumulator(2)  # Sum of training loss, no. of tokens
+    for X, Y in train_iter:
+        if state is None or use_random_iter:
+            # Initialize `state` when either it is the first iteration or
+            # using random sampling
+            state = model.begin_state(batch_size=X.shape[0])
+        with tf.GradientTape(persistent=True) as g:
+            g.watch(params)
+            y_hat, state= model(X, state, params)
+            y = d2l.reshape(Y, (-1))
+            l = loss(y, y_hat)
+        grads = g.gradient(l, params)
+        grads = grad_clipping(grads, 1)
+        updater.apply_gradients(zip(grads, params))
+        
+        # Keras loss by default returns the average loss in a batch
+        # l_sum = l * float(d2l.size(y)) if isinstance(
+        #     loss, tf.keras.losses.Loss) else tf.reduce_sum(l)
+        metric.add(l * d2l.size(y), d2l.size(y))
+    return math.exp(metric[0] / metric[1]), metric[1] / timer.stop()
+
+
+# Defined in file: ./chapter_recurrent-neural-networks/rnn-scratch.md
+def train_ch8(model, train_iter, vocab, num_hiddens, lr, num_epochs, strategy,
+              use_random_iter=False):
+    """Train a model (defined in Chapter 8)."""
+    with strategy.scope():
+        params = get_params(len(vocab), num_hiddens)
+        loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+        updater = tf.keras.optimizers.SGD(lr)
+    animator = d2l.Animator(xlabel='epoch', ylabel='perplexity',
+                            legend=['train'], xlim=[1, num_epochs])
+    predict = lambda prefix: predict_ch8(prefix, 50, model, vocab, params)
+    # Train and predict
+    for epoch in range(num_epochs):
+        ppl, speed = train_epoch_ch8(
+             model, train_iter, loss, updater, params, use_random_iter)
+        if epoch % 10 == 0:
+            print(predict('time traveller'))
+            animator.add(epoch + 1, [ppl])
+    device = d2l.try_gpu()._device_name
+    print(f'perplexity {ppl:.1f}, {speed:.1f} tokens/sec on {str(device)}')
+    print(predict('time traveller'))
+    print(predict('traveller'))
 
 
 # Defined in file: ./chapter_optimization/optimization-intro.md
@@ -637,6 +886,17 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=2):
                 animator.add(q, r)
                 timer.start()
     print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
+
+
+# Defined in file: ./chapter_computer-vision/bounding-box.md
+def bbox_to_rect(bbox, color):
+    """Convert bounding box to matplotlib format."""
+    # Convert the bounding box (top-left x, top-left y, bottom-right x,
+    # bottom-right y) format to matplotlib format: ((upper-left x,
+    # upper-left y), width, height)
+    return d2l.plt.Rectangle(
+        xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0], height=bbox[3]-bbox[1],
+        fill=False, edgecolor=color, linewidth=2)
 
 
 # Alias defined in config.ini
