@@ -1,7 +1,7 @@
-# 多层感知器的简洁实现
+# 多层感知机的简洁实现
 :label:`sec_mlp_concise`
 
-正如您所期望的那样，通过依靠高级 API，我们可以更简洁地实现 MLP。
+正如你所期待的，我们可以通过高级API更简洁地实现MLP。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -25,9 +25,8 @@ import tensorflow as tf
 
 ## 模型
 
-与我们简明的 softmax 回归实现（:numref:`sec_softmax_concise`）相比，唯一的区别是我们添加
-*两个 * 完全连接的层
-（以前，我们添加了 * 一个 *）。第一个是我们的隐藏层，其中包含 256 个隐藏单位，并应用 RelU 激活函数。第二个是我们的输出图层。
+与我们的softmax回归的简洁实现（ :numref:`sec_softmax_concise`）相比，唯一的区别是我们添加了
+2个全连接层（之前我们只添加了1个全连接层）。第一个层是隐藏层，它包含256个隐藏单元并使用了ReLU激活函数。第二个层是输出层。
 
 ```{.python .input}
 net = nn.Sequential()
@@ -58,7 +57,7 @@ net = tf.keras.models.Sequential([
     tf.keras.layers.Dense(10)])
 ```
 
-训练循环与我们实施 softmax 回归时完全相同。这种模块化使我们能够将有关模型架构的事项与正交考虑分开。
+训练代码实现与我们实现softmax回归时完全相同。这种模块化设计使我们能够将与和模型架构有关的内容分离开。
 
 ```{.python .input}
 batch_size, lr, num_epochs = 256, 0.1, 10
@@ -86,16 +85,16 @@ train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
 d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 ```
 
-## 摘要
+## 小结
 
-* 使用高级 API，我们可以更简洁地实现 MLP。
-* 对于同一分类问题，除了带有激活函数的附加隐藏图层外，MLP 的实现与 softmax 回归的实现相同。
+* 我们可以使用高级API更简洁地实现MLP。
+* 对于相同的分类问题，MLP的实现与softmax回归的实现相同，只是MLP的实现里增加了带有激活函数的隐藏层。
 
 ## 练习
 
-1. 尝试添加不同数量的隐藏图层（您也可以修改学习率）。什么设置最适合？
-1. 尝试不同的激活功能。哪一个最适合？
-1. 尝试初始化权重的不同方案。什么方法最适合？
+1. 尝试添加不同数量的隐藏层（也可以修改学习率）。怎么样设置效果最好？
+1. 尝试不同的激活函数。哪个效果最好？
+1. 尝试不同的方案来初始化权重。什么方法效果最好？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/94)
