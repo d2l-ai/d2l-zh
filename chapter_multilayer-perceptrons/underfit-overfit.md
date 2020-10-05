@@ -93,7 +93,7 @@ $$\hat{y}= \sum_{i=0}^d x^i w_i$$
 
 高阶多项式函数比低阶多项式函数复杂得多，因为高阶多项式具有更多的参数，而且模型函数的选择范围也更宽。修复训练数据集时，较高阶多项式函数应始终实现相对于较低度多项式的训练误差（在最坏情况下，相等）。事实上，每当每个数据点的不同值为 $x$ 时，度等于数据点数的多项式函数就可以完美地拟合训练集。我们在 :numref:`fig_capacity_vs_error` 中对多项式度与欠拟合与过拟合之间的关系进行了可视化。
 
-![Influence of model complexity on underfitting and overfitting](../img/capacity_vs_error.svg)
+![Influence of model complexity on underfitting and overfitting](../img/capacity-vs-error.svg)
 :label:`fig_capacity_vs_error`
 
 ### 数据集大小

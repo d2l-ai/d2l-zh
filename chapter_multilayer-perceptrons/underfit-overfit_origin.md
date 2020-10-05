@@ -361,7 +361,7 @@ can fit the training set perfectly.
 We visualize the relationship between polynomial degree
 and underfitting vs. overfitting in :numref:`fig_capacity_vs_error`.
 
-![Influence of model complexity on underfitting and overfitting](../img/capacity_vs_error.svg)
+![Influence of model complexity on underfitting and overfitting](../img/capacity-vs-error.svg)
 :label:`fig_capacity_vs_error`
 
 ### Dataset Size

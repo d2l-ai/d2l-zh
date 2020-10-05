@@ -84,7 +84,7 @@ def download_all():  #@save
 
 > https://www.kaggle.com/c/house-prices-advanced-regression-techniques
 
-![The house price prediction competition page.](../img/house_pricing.png)
+![The house price prediction competition page.](../img/house-pricing.png)
 :width:`400px`
 :label:`fig_house_pricing`
 
@@ -448,7 +448,7 @@ train_and_pred(train_features, test_features, train_labels, test_data,
 * 点击页面底部虚线框中的 “上传提交文件” 按钮，然后选择要上传的预测文件。
 * 点击页面底部的 “提交” 按钮查看您的结果。
 
-![Submitting data to Kaggle](../img/kaggle_submit2.png)
+![Submitting data to Kaggle](../img/kaggle-submit2.png)
 :width:`400px`
 :label:`fig_kaggle_submit2`
 
