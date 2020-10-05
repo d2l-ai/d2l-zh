@@ -1,66 +1,65 @@
 # Dropout
 :label:`sec_dropout`
 
-在 :numref:`sec_weight_decay` 中，我们引入了通过惩罚权重 $L_2$ 范数来规范统计模型的经典方法。从概率的角度来说，我们可以通过争辩说，我们已经假定权重从均值均为零的高斯分布中获取值来证明这种技术。更直观地说，我们可能会争辩说，我们鼓励模型在许多特征中分散其权重，而不是过分依赖少数潜在的虚假关联。
+在 :numref:`sec_weight_decay` 中，我们介绍了通过惩罚权重的$L_2$范数来正则化统计模型的经典方法。在概率角度看，我们可以通过以下论证来证明这一技术的合理性：我们已经假设了一个先验，即权重的值取自均值为0的高斯分布。更直观的是，我们可能会说，我们鼓励模型将其权重分散到许多特征中，而不是过于依赖少数潜在的虚假关联。
 
-## 重新审视过度拟合
+## 重新审视过拟合
 
-面对比示例更多的特征，线性模型往往过于拟合。但是，给出比特征更多的例子，我们通常可以指望线性模型不会过度拟合。不幸的是，线性模型概括的可靠性需要付出代成本。天真应用的线性模型不考虑要素之间的交互作用。对于每个特征，线性模型必须指定正权重或负权重，忽略上下文。
+当面对更多的特征而样本不足时，线性模型往往会过度拟合。当给出更多样本而不是特征，我们通常可以指望线性模型不会过拟合。不幸的是，线性模型泛化的可靠性是有代价的。简单地说，线性模型没有考虑到特征之间的交互作用。对于每个特征，线性模型必须指定正的或负的权重，而忽略上下文。
 
-在传统文本中，广义性和灵活性之间的这种根本性张力被描述为 * 偏差-方差权衡 *。线性模型具有高偏差：它们只能表示一小类函数。但是，这些模型具有较低的方差：它们在数据的不同随机样本中给出类似的结果。
+在传统说法中，泛化性和灵活性之间的这种基本权衡被描述为*偏差-方差权衡*（bias-variance tradeoff）。线性模型有很高的偏差：它们只能表示一小类函数。然而，这些模型的方差很低：它们在不同的随机数据样本上给出了相似的结果。
 
-深度神经网络位于偏方方差谱的另一端。与线性模型不同，神经网络不局限于单独查看每个特征。他们可以学习要素组之间的交互作用。样本，他们可能推断电子邮件中出现的 “尼日利亚” 和 “Western Union” 表示垃圾邮件，但它们并不表示垃圾邮件。
+深度神经网络位于偏差-方差谱的另一端。与线性模型不同，神经网络并不局限于单独查看每个特征。它们可以学习特征之间的交互。例如，它们可能推断“尼日利亚”和“西联汇款”一起出现在电子邮件中表示垃圾邮件，但单独出现则不表示垃圾邮件。
 
-即使我们有比特征多得多的例子，深度神经网络也能够过拟合。2017 年，一批研究人员通过在随机标记图像上训练深网，展示了神经网络的极端灵活性。尽管没有任何将输入连接到输出的真实模式，但他们发现，通过随机梯度下降优化的神经网络可以完美地标签训练集中的每个图像。考虑这意味着什么。如果标签随机均匀分配，并且有 10 个类，那么没有任何分类器在保持数据上的准确率超过 10%。这里的泛化差距高达 90%。如果我们的模型非常富有表现力，他们可以超过这种情况，那么我们什么时候才能期望它们不会过于适应？
+即使我们有比特征多得多的样本，深度神经网络也有可能过拟合。2017年，一组研究人员通过在随机标记的图像上训练深度网络。这展示了神经网络的极大灵活性。因为没有任何真实的模式将输入和输出联系起来，但他们发现，通过随机梯度下降优化的神经网络可以完美地标记训练集中的每一幅图像。想一想这意味着什么。如果标签是随机均匀分配的，并且有10个类别，那么在保留数据上没有分类器会取得高于10%的准确率。这里的泛化差距高达90%。如果我们的模型具有这么强的表达能力，以至于它们可以如此严重地过拟合，那么我们指望在什么时候它们不会过拟合呢？
 
-深度网络令人费解的泛化特性的数学基础仍然是开放的研究问题，我们鼓励以理论为导向的读者更深入地研究这个主题。现在，我们转而研究实际工具，这些工具往往在经验上改进深网的泛化。
+深度网络有着令人费解的泛化性质，而这种泛化性质的数学基础仍然是悬而未决的研究问题，我们鼓励面向理论的读者更深入地研究这个主题。目前，我们转向对实际工具的探究，这些工具倾向于经验上改进深层网络的泛化性。
 
-## 通过扰动实现的坚固性
+## 扰动的鲁棒性
 
-让我们简要地思考一下我们对一个良好的预测模型的期望。我们希望它能够很好地利用看不见的数据。经典的泛化理论表明，为了缩小训练和测试性能之间的差距，我们应该瞄准一个简单的模型。简单可以在少数尺寸的形式。我们在 :numref:`sec_model_selection` 中讨论线性模型的单项基函数时，对此进行了探讨。此外，正如我们在 :numref:`sec_weight_decay` 中讨论权重衰减（$L_2$ 正则化）时所看到的，参数的（逆）范数也代表了简单性的有用措施。简单的另一个有用的概念是平滑性，即函数不应该对其输入的小变化敏感。实例，当我们对图像进行分类时，我们希望向像素添加一些随机杂色应该大多是无害的。
+让我们简单地思考一下我们对一个好的预测模型的期待。我们期待它能在看不见的数据上有很好的表现。经典泛化理论认为，为了缩小训练和测试性能之间的差距，我们应该以简单的模型为目标。简单性以较小维度的形式出现。我们在 :numref:`sec_model_selection` 讨论线性模型的单项式函数时探讨了这一点。此外，正如我们在 :numref:`sec_weight_decay` 中讨论权重衰减（$L_2$正则化）时看到的那样，参数的范数也代表了一种有用的简单性度量。简单性的另一个有用角度是平滑性，即函数不应该对其输入的微小变化敏感。例如，当我们对图像进行分类时，我们预计向像素添加一些随机噪声应该是基本无影响的。
 
-1995 年，克里斯托弗·毕晓普正规化这一想法时，他证明了与输入噪声的训练相当于季洪诺夫正则化 :cite:`Bishop.1995`。这项工作在函数平滑（因此简单）的要求与其对输入中的扰动具有弹性的要求之间建立了明确的数学联系。
+1995年，克里斯托弗·毕晓普证明了具有输入噪声的训练等价于Tikhonov正则化 :cite:`Bishop.1995` ，从而将这一观点正式化。这项工作在要求函数光滑(因而简单)和要求它对输入中的扰动具有适应性之间有了明确的数学联系。
 
-然后，在 2014 年，斯里瓦斯塔娃等人 :cite:`Srivastava.Hinton.Krizhevsky.ea.2014` 开发了一个聪明的想法，如何将主教的想法应用到网络的内部层，太。也就是说，他们建议在训练期间计算后续层之前向网络的每一层注入噪音。他们意识到，在训练具有多层的深度网络时，注入噪声只会在输入-输出映射上强制平滑。
+然后，在2014年，斯里瓦斯塔瓦等人 :cite:`Srivastava.Hinton.Krizhevsky.ea.2014` 还就如何将毕晓普的想法应用于网络的内部层提出了一个聪明的想法。在训练过程中，他们建议在计算后续层之前向网络的每一层注入噪声。他们意识到，当训练一个有多层的深层网络时，注入噪声只会在输入-输出映射上增强平滑性。
 
-它们的想法被称为 *drop*，涉及在正向传播期间计算每个内部层时注入噪声，并且它已成为训练神经网络的标准技术。该方法被称为 * 退出 *，因为我们从字面上
-*在训练过程中丢弃 * 一些神经元。
-在整个训练过程中，在每次迭代中，标准压差包括在计算后续层之前将每个层中的一部分节点清零。
+他们的想法被称为*丢弃法*（dropout），dropout在正向传播过程中，计算每一内部层的同时注入噪声，这已经成为训练神经网络的标准技术。这种方法之所以被称为 *dropout* ，因为我们从表面上看是在训练过程中丢弃（drop out）一些神经元。
+在整个训练过程的每一次迭代中，dropout包括在计算下一层之前将当前层中的一些节点置零。
 
-显而易见的是，我们将自己的叙述与主教的联系强加在一起。关于辍学的原始论文通过一个令人惊讶的类比性生殖提供了直觉。作者认为神经网络过拟合的特点是一种状态，即每个层依赖于前一层中的特定激活模式，称为这个条件 * 协同适应 *。他们声称，辍学打破了共同适应，就像性生殖被认为打破共同适应的基因一样。
+需要说明的是，我们将自己的叙述与毕晓普联系起来。关于dropout的原始论文出人意料地通过一个有性繁殖类比提供了直觉。作者认为，神经网络过拟合的特征是每一层都依赖于前一层激活值的特定模式，称这种情况为“共适应性”。他们声称，dropout会破坏共适应性，就像有性生殖会破坏共适应的基因一样。
 
-因此，关键的挑战是如何注入这种噪音。一个想法是以 * 无偏 * 的方式注入噪声，以便每个图层的预期值（在固定其他图层的同时）等于它在没有噪声的情况下采取的值。
+那么关键的挑战就是如何注入这种噪声。一种想法是以一种*无偏*的方式注入噪声。这样在固定住其他层时，每一层的期望值等于没有噪音时的值。
 
-在 Bishop 的作品中，他将高斯噪声添加到线性模型的输入中。在每次训练迭代中，他将从 $\epsilon \sim \mathcal{N}(0,\sigma^2)$ 平均值为零的分布中采样的噪声添加到输入 $\mathbf{x}$，从而产生一个扰动点 $\mathbf{x}' = \mathbf{x} + \epsilon$。在预期的情况下，我们将会发出这样的信息。
+在毕晓普的工作中，他将高斯噪声添加到线性模型的输入中。在每次训练迭代中，他将从均值为零的分布$\epsilon \sim \mathcal{N}(0,\sigma^2)$采样噪声添加到输入$\mathbf{x}$，从而产生扰动点$\mathbf{x}' = \mathbf{x} + \epsilon$。预期是$E[\mathbf{x}'] = \mathbf{x}$。
 
-在标准压差正则化中，一个通过按保留（未退出）的节点分数进行标准化来消除每个层的偏差。换句话说，对于 * 辍学概率 * $p$，每个中间激活 $h$ 都被随机变量 $h'$ 取代，如下所示：
+在标准dropout正则化中，通过按保留（未丢弃）的节点的分数进行归一化来消除每一层的偏差。换言之，每个中间激活值$h$以*丢弃概率*$p$由随机变量$h'$替换，如下所示：
 
 $$
 \begin{aligned}
 h' =
 \begin{cases}
-    0 & \text{ with probability } p \\
-    \frac{h}{1-p} & \text{ otherwise}
+    0 & \text{ 概率为 } p \\
+    \frac{h}{1-p} & \text{ 其他情况}
 \end{cases}
 \end{aligned}
 $$
 
-根据设计，预期保持不变，即 $E[h'] = h$。
+根据设计，期望值保持不变，即$E[h'] = h$。
 
-## 实践中的辍学
+## 实践中的dropout
 
-召回一个隐藏层和 5 个隐藏单位的 MLP :numref:`fig_mlp`.当我们将丢弃法应用于隐藏层，将每个隐藏单元归零概率为 $p$ 时，结果可以被视为只包含原始神经元子集的网络。在 :numref:`fig_dropout2` 和 $h_2$ 被删除。因此，输出的计算不再依赖于 $h_2$ 或 $h_5$，在执行反向传播时，它们各自的梯度也会消失。这样，输出图层的计算不能过分依赖于 $h_1, \ldots, h_5$ 的任何一个元素。
+回想一下 :numref:`fig_mlp` 中带有一个隐藏层和5个隐藏单元的MLP。当我们将dropout应用到隐藏层，以$p$的概率将隐藏单元置为零时，结果可以看作是一个只包含原始神经元子集的网络。在 :numref:`fig_dropout2` 中，删除了$h_2$和$h_5$。因此，输出的计算不再依赖于$h_2$或$h_5$，并且它们各自的梯度在执行反向传播时也会消失。这样，输出层的计算不能过度依赖于$h_1, \ldots, h_5$的任何一个元素。
 
-![MLP before and after dropout.](../img/dropout2.svg)
+![dropout前后的MLP。](../img/dropout2.svg)
 :label:`fig_dropout2`
 
-通常情况下，我们在测试时禁用丢弃法。给出一个训练有素的模型和一个新的样本，我们不会丢弃任何节点，因此不需要标准化。但是，也有一些例外：一些研究人员使用测试时的丢弃法作为启发式估计神经网络预测的 * 不确定性 *：如果预测在许多不同的压差掩码之间达成一致，那么我们可能会说网络更有信心。
+通常，我们在测试时禁用dropout。给定一个训练好的模型和一个新的样本，我们不会丢弃任何节点，因此不需要标准化。然而，也有一些例外：一些研究人员使用测试时的dropout作为估计神经网络预测的“不确定性”的启发式方法：如果预测在许多不同的dropout掩码上都是一致的，那么我们可以说网络更有自信心。
 
-## 从头开始实施
+## 从零开始实现
 
-为了实现单一图层的丢弃法函数，我们必须从伯努利（二进制）随机变量中绘制尽可能多的样本，其中随机变量取值 $1$（保持），概率为 $1-p$ 和 $0$（降落），概率为 $p$。实现这一点的一个简单方法是首先从均匀分布 $U[0, 1]$ 中抽取样本。然后我们可以保留相应样本大于 $p$ 的节点，其余的节点。
+要实现单层的dropout函数，我们必须从伯努利（二元）随机变量中提取与我们的层的维度一样多的样本，其中随机变量以概率$1-p$取值$1$（保持），以概率$p$取值$0$（丢弃）。实现这一点的一种简单方式是首先从均匀分布$U[0, 1]$中抽取样本。那么我们可以保留那些对应样本大于$p$的节点，把剩下的丢弃。
 
-在下面的代码中，我们实现了一个 `dropout_layer` 函数，它删除了张量输入 `X` 中的元素，概率为 `dropout`，如上所述重新缩放剩余部分：将幸存者除以 `1.0-dropout`。
+在下面的代码中，我们实现了一个`dropout_layer`函数，该函数以`dropout`的概率丢弃张量输入`X`中的元素，如上所述重新缩放剩余部分：将剩余部分除以`1.0-dropout`。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -70,10 +69,10 @@ npx.set_np()
 
 def dropout_layer(X, dropout):
     assert 0 <= dropout <= 1
-    # In this case, all elements are dropped out
+    # 在本情况中，所有元素都被丢弃。
     if dropout == 1:
         return np.zeros_like(X)
-    # In this case, all elements are kept
+    # 在本情况中，所有元素都被保留。
     if dropout == 0:
         return X
     mask = np.random.uniform(0, 1, X.shape) > dropout
@@ -88,10 +87,10 @@ from torch import nn
 
 def dropout_layer(X, dropout):
     assert 0 <= dropout <= 1
-    # In this case, all elements are dropped out
+    # 在本情况中，所有元素都被丢弃。
     if dropout == 1:
         return torch.zeros_like(X)
-    # In this case, all elements are kept
+    # 在本情况中，所有元素都被保留。
     if dropout == 0:
         return X
     mask = (torch.Tensor(X.shape).uniform_(0, 1) > dropout).float()
@@ -105,10 +104,10 @@ import tensorflow as tf
 
 def dropout_layer(X, dropout):
     assert 0 <= dropout <= 1
-    # In this case, all elements are dropped out
+    # 在本情况中，所有元素都被丢弃。
     if dropout == 1:
         return tf.zeros_like(X)
-    # In this case, all elements are kept
+    # 在本情况中，所有元素都被保留。
     if dropout == 0:
         return X
     mask = tf.random.uniform(
@@ -116,7 +115,7 @@ def dropout_layer(X, dropout):
     return tf.cast(mask, dtype=tf.float32) * X / (1.0 - dropout)
 ```
 
-我们可以通过几个例子来测试 `dropout_layer` 函数。在以下代码行中，我们通过丢弃法操作传递输入 `X`，概率分别为 0，0.5 和 1。
+我们可以通过几个例子来测试`dropout_layer`函数。在下面的代码行中，我们将输入`X`通过dropout操作，丢弃概率分别为0、0.5和1。
 
 ```{.python .input}
 X = np.arange(16).reshape(2, 8)
@@ -145,7 +144,7 @@ print(dropout_layer(X, 1.))
 
 ### 定义模型参数
 
-再次，我们与 :numref:`sec_fashion_mnist` 引入的时尚多国主义数据集合作。我们定义一个 MLP，其中包含两个隐藏图层，每个图层包含 256 个单位。
+同样，我们使用 :numref:`sec_fashion_mnist` 中引入的Fashion-MNIST数据集。我们定义具有两个隐藏层的MLP，每个隐藏层包含256个单元。
 
 ```{.python .input}
 num_inputs, num_outputs, num_hiddens1, num_hiddens2 = 784, 10, 256, 256
@@ -174,7 +173,9 @@ num_outputs, num_hiddens1, num_hiddens2 = 10, 256, 256
 
 ### 定义模型
 
-下面的模型将丢弃法应用于每个隐藏层的输出（遵循激活函数）。我们可以分别为每个图层设置丢弃法概率。一个常见的趋势是将较低的压差概率设置在更靠近输入图层的位置。下面我们将第一个和第二个隐藏图层分别设置为 0.2 和 0.5。我们确保仅在训练期间丢弃法。
+下面的模型将dropout应用于每个隐藏层的输出（在激活函数之后）。我们可以分别为每一层设置丢弃概率。
+一种常见的技巧是在靠近输入层的地方设置较低的丢弃概率。
+下面，我们将第一个和第二个隐藏层的丢弃概率分别设置为0.2和0.5。我们确保dropout只在训练期间有效。
 
 ```{.python .input}
 dropout1, dropout2 = 0.2, 0.5
@@ -182,13 +183,13 @@ dropout1, dropout2 = 0.2, 0.5
 def net(X):
     X = X.reshape(-1, num_inputs)
     H1 = npx.relu(np.dot(X, W1) + b1)
-    # Use dropout only when training the model
+    # 只有在训练模型时才使用dropout
     if autograd.is_training():
-        # Add a dropout layer after the first fully connected layer
+        # 在第一个全连接层之后添加一个dropout层
         H1 = dropout_layer(H1, dropout1)
     H2 = npx.relu(np.dot(H1, W2) + b2)
     if autograd.is_training():
-        # Add a dropout layer after the second fully connected layer
+        # 在第二个全连接层之后添加一个dropout层
         H2 = dropout_layer(H2, dropout2)
     return np.dot(H2, W3) + b3
 ```
@@ -213,13 +214,13 @@ class Net(nn.Module):
 
     def forward(self, X):
         H1 = self.relu(self.lin1(X.reshape((-1, self.num_inputs))))
-        # Use dropout only when training the model
+        # 只有在训练模型时才使用dropout
         if self.training == True:
-            # Add a dropout layer after the first fully connected layer
+            # 在第一个全连接层之后添加一个dropout层
             H1 = dropout_layer(H1, dropout1)
         H2 = self.relu(self.lin2(H1))
         if self.training == True:
-            # Add a dropout layer after the second fully connected layer
+            # 在第二个全连接层之后添加一个dropout层
             H2 = dropout_layer(H2, dropout2)
         out = self.lin3(H2)
         return out
@@ -254,9 +255,9 @@ class Net(tf.keras.Model):
 net = Net(num_outputs, num_hiddens1, num_hiddens2)
 ```
 
-### 培训和测试
+### 训练和测试
 
-这类似于前面描述的 MLP 的培训和测试。
+这类似于前面描述的MLP训练和测试。
 
 ```{.python .input}
 num_epochs, lr, batch_size = 10, 0.5, 256
@@ -284,17 +285,17 @@ trainer = tf.keras.optimizers.SGD(learning_rate=lr)
 d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 ```
 
-## 简明实施
+## 简洁实现
 
-对于高级 API，我们所需要做的就是在每个完全连接的层之后添加一个 `Dropout` 层，将丢弃法概率作为其构造函数的唯一参数传递。在训练过程丢弃法，`Dropout` 图层将根据指定的压差概率随机丢弃前一图层的输出（或相当于后续图层的输入）。如果不在训练模式下，`Dropout` 层只是在测试过程中传递数据。
+对于高级API，我们所需要做的就是在每个全连接层之后添加一个`Dropout`层，将丢弃概率作为唯一的参数传递给它的构造函数。在训练过程中，`Dropout`层将根据指定的丢弃概率随机丢弃上一层的输出（相当于下一层的输入）。当不处于训练模式时，`Dropout`层仅在测试时传递数据。
 
 ```{.python .input}
 net = nn.Sequential()
 net.add(nn.Dense(256, activation="relu"),
-        # Add a dropout layer after the first fully connected layer
+        # 在第一个全连接层之后添加一个dropout层
         nn.Dropout(dropout1),
         nn.Dense(256, activation="relu"),
-        # Add a dropout layer after the second fully connected layer
+        # 在第二个全连接层之后添加一个dropout层
         nn.Dropout(dropout2),
         nn.Dense(10))
 net.initialize(init.Normal(sigma=0.01))
@@ -305,11 +306,11 @@ net.initialize(init.Normal(sigma=0.01))
 net = nn.Sequential(nn.Flatten(),
         nn.Linear(784, 256),
         nn.ReLU(),
-        # Add a dropout layer after the first fully connected layer
+        # 在第一个全连接层之后添加一个dropout层
         nn.Dropout(dropout1),
         nn.Linear(256, 256),
         nn.ReLU(),
-        # Add a dropout layer after the second fully connected layer
+        # 在第二个全连接层之后添加一个dropout层
         nn.Dropout(dropout2),
         nn.Linear(256, 10))
 
@@ -325,16 +326,16 @@ net.apply(init_weights)
 net = tf.keras.models.Sequential([
     tf.keras.layers.Flatten(),
     tf.keras.layers.Dense(256, activation=tf.nn.relu),
-    # Add a dropout layer after the first fully connected layer
+    # 在第一个全连接层之后添加一个dropout层
     tf.keras.layers.Dropout(dropout1),
     tf.keras.layers.Dense(256, activation=tf.nn.relu),
-    # Add a dropout layer after the second fully connected layer
+    # 在第二个全连接层之后添加一个dropout层
     tf.keras.layers.Dropout(dropout2),
     tf.keras.layers.Dense(10),
 ])
 ```
 
-接下来，我们训练和测试模型。
+接下来，我们对模型进行训练和测试。
 
 ```{.python .input}
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
@@ -353,21 +354,21 @@ trainer = tf.keras.optimizers.SGD(learning_rate=lr)
 d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 ```
 
-## 摘要
+## 小结
 
-* 除了控制尺寸数量和权重向量的大小之外，压差也是避免过拟合的另一个工具。通常它们被共同使用。
-* 压差将激活 $h$ 替换为具有预期值 $h$ 的随机变量。
-* 辍学仅在训练期间使用。
+* 除了控制权重向量的维数和大小之外，dropout也是避免过拟合的另一种工具。它们通常是联合使用的。
+* dropout将激活值$h$替换为具有期望值$h$的随机变量。
+* dropout仅在训练期间使用。
 
 ## 练习
 
-1. 如果您更改第一层和第二层的丢弃法概率，会发生什么情况？特别是，如果您切换两个层的图层，会发生什么情况？设计一个实验来回答这些问题，定量描述您的结果，并总结定性。
-1. 增加周期的数量，并将使用丢弃法时获得的结果与不使用时的结果进行比较。
-1. 当丢弃法差和未应用时，每个隐藏层的激活方差是什么？绘制一个图，以显示这两个模型的数量随着时间的推移而变化。
-1. 为什么测试时不通常使用丢弃法？
-1. 以本节中的模型为样本，比较使用丢弃法和体重衰减的影响。当同时使用丢弃法和体重衰减时会发生什么情况？结果是否添加剂？是否有收益减少（或更糟）？他们互相取消吗？
-1. 如果我们将丢弃法应用于体重矩阵的单个权重而不是激活，会发生什么情况？
-1. 发明另一种在每个层注入随机噪声的技术，这种技术与标准丢弃法技术不同。你可以开发一种方法，优于时尚 MNist 数据集（对于固定的架构）？
+1. 如果更改第一层和第二层的dropout概率，会发生什么情况？具体地说，如果交换这两个层，会发生什么情况？设计一个实验来回答这些问题，定量描述你的结果，并总结定性的结论。
+1. 增加迭代周期数，并将使用dropout和不使用dropout时获得的结果进行比较。
+1. 当应用或不应用dropout时，每个隐藏层中激活值的方差是多少？绘制一个曲线图，以显示这两个模型的每个隐藏层中激活值的方差是如何随时间变化的。
+1. 为什么在测试时通常不使用dropout？
+1. 以本节中的模型为例，比较使用dropout和权重衰减的效果。如果同时使用dropout和权重衰减，会发生什么情况？结果是累加的吗？收益是否减少（或者说更糟）？它们互相抵消了吗？
+1. 如果我们将dropout应用到权重矩阵的各个权重，而不是激活值，会发生什么？
+1. 发明另一种用于在每一层注入随机噪声的技术，该技术不同于标准的dropout技术。你能否开发一种在Fashion-MNIST数据集(对于固定结构)上性能优于dropout的方法？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/100)
