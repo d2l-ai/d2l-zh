@@ -176,7 +176,7 @@ $$l(y, y') = \sum_i (y_i - y_i')^2.$$
 
 请注意，最有可能的类不一定是您要用于决策的类。假设你发现这个美丽的蘑菇在你的后院如 :numref:`fig_death_cap` 所示。
 
-![Death cap---do not eat!](../img/death_cap.jpg)
+![Death cap---do not eat!](../img/death-cap.jpg)
 :width:`200px`
 :label:`fig_death_cap`
 
@@ -221,7 +221,7 @@ $$L(\mathrm{action}| x) = E_{y \sim p(y| x)}[\mathrm{loss}(\mathrm{action},y)].$
 
 鉴于这样的模型，那么对于任何给定的用户，我们可以检索分数最大 $y_{ij}$ 的对象集，然后可以推荐给客户。生产系统比较先进，并且在计算此类分数时考虑详细的用户活动和项目特征。:numref:`fig_deeplearning_amazon` 是亚马逊推荐的深度学习书籍样本，基于个性化算法，经过调整，以捕捉作者的偏好。
 
-![Deep learning books recommended by Amazon.](../img/deeplearning_amazon.jpg)
+![Deep learning books recommended by Amazon.](../img/deeplearning-amazon.jpg)
 :label:`fig_deeplearning_amazon`
 
 尽管推荐系统具有巨大的经济价值，但天真地建立在预测模型之上，仍然存在一些严重的概念缺陷。首先，我们只观察 * 审查反馈 *。用户优先评分他们感觉强烈的电影：您可能会注意到项目获得了许多 5 星和 1 星评级，但三星评级显然很少。此外，当前的购买习惯往往是目前使用的推荐算法的结果，但学习算法并不总是考虑到这一细节。因此，反馈循环有可能形成，推荐人系统会优先推荐一个项目，然后由于购买量增加），反过来更频繁地推荐一个项目。许多关于如何处理审查、激励和反馈循环的问题都是重要的开放研究问题。

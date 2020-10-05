@@ -289,7 +289,7 @@ for i in range(10):
     # Update the kernel
     conv2d.weight.data()[:] -= 3e-2 * conv2d.weight.grad()
     if (i + 1) % 2 == 0:
-        print(f'batch {i+1}, loss {float(l.sum()):.3f}')
+        print(f'batch {i + 1}, loss {float(l.sum()):.3f}')
 ```
 
 ```{.python .input}
@@ -312,7 +312,7 @@ for i in range(10):
     # Update the kernel
     conv2d.weight.data[:] -= 3e-2 * conv2d.weight.grad
     if (i + 1) % 2 == 0:
-        print(f'batch {i+1}, loss {l.sum():.3f}')
+        print(f'batch {i + 1}, loss {l.sum():.3f}')
 ```
 
 ```{.python .input}
@@ -339,7 +339,7 @@ for i in range(10):
         weights[0] = conv2d.weights[0] - update
         conv2d.set_weights(weights)
         if (i + 1) % 2 == 0:
-            print(f'batch {i+1}, loss {tf.reduce_sum(l):.3f}')
+            print(f'batch {i + 1}, loss {tf.reduce_sum(l):.3f}')
 ```
 
 Note that the error has dropped to a small value after 10 iterations. Now we will take a look at the kernel tensor we learned.

@@ -269,7 +269,6 @@ e.g., with shape $1024 \times 1024 \times 3$ pixels.
 While the first two of these axes concern spatial relationships,
 the third can be regarded as assigning
 a multidimensional representation to each pixel location.
-
 We thus index $\mathsf{X}$ as $[\mathsf{X}]_{i, j, k}$.
 The convolutional filter has to adapt accordingly.
 Instead of $[\mathbf{V}]_{a,b}$, we now have $[\mathsf{V}]_{a,b,c}$.
