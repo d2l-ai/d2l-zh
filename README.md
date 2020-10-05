@@ -1,4 +1,4 @@
-# 动手学深度学习（Dive into Deep Learning，D2L）
+# 动手学深度学习（Dive into Deep Learning，D2L.ai）
 
 [![Build Status](http://ci.d2l.ai/job/d2l-zh/job/master/badge/icon)](http://ci.d2l.ai/job/d2l-zh/job/master/)
 
