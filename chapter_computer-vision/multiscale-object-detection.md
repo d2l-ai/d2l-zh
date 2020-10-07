@@ -25,7 +25,7 @@ h, w
 d2l.set_figsize()
 
 def display_anchors(fmap_w, fmap_h, s):
-    fmap = nd.zeros((1, 10, fmap_w, fmap_h))  # 前两维的取值不影响输出结果
+    fmap = nd.zeros((1, 10, fmap_h, fmap_w))  # 前两维的取值不影响输出结果
     anchors = contrib.nd.MultiBoxPrior(fmap, sizes=s, ratios=[1, 2, 0.5])
     bbox_scale = nd.array((w, h, w, h))
     d2l.show_bboxes(d2l.plt.imshow(img.asnumpy()).axes,
