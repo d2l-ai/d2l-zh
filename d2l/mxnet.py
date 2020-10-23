@@ -323,7 +323,8 @@ def predict_ch3(net, test_iter, n=6):  #@save
     trues = d2l.get_fashion_mnist_labels(y)
     preds = d2l.get_fashion_mnist_labels(d2l.argmax(net(X), axis=1))
     titles = [true +'\n' + pred for true, pred in zip(trues, preds)]
-    d2l.show_images(d2l.reshape(X[0:n], (n, 28, 28)), 1, n, titles=titles[0:n])
+    d2l.show_images(
+        d2l.reshape(X[0:n], (n, 28, 28)), 1, n, titles=titles[0:n])
 
 
 # Defined in file: ./chapter_multilayer-perceptrons/underfit-overfit.md
@@ -445,15 +446,15 @@ def train_ch6(net, train_iter, test_iter, num_epochs, lr,
     loss = gluon.loss.SoftmaxCrossEntropyLoss()
     trainer = gluon.Trainer(net.collect_params(),
                             'sgd', {'learning_rate': lr})
-    animator = d2l.Animator(xlabel='epoch', xlim=[0, num_epochs],
+    animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs],
                             legend=['train loss', 'train acc', 'test acc'])
-    timer = d2l.Timer()
+    timer, num_batches = d2l.Timer(), len(train_iter)
     for epoch in range(num_epochs):
         # Sum of training loss, sum of training accuracy, no. of examples
         metric = d2l.Accumulator(3)
         for i, (X, y) in enumerate(train_iter):
             timer.start()
-            # Here is the major difference compared with `d2l.train_epoch_ch3`
+            # Here is the major difference from `d2l.train_epoch_ch3`
             X, y = X.as_in_ctx(device), y.as_in_ctx(device)
             with autograd.record():
                 y_hat = net(X)
@@ -462,14 +463,14 @@ def train_ch6(net, train_iter, test_iter, num_epochs, lr,
             trainer.step(X.shape[0])
             metric.add(l.sum(), d2l.accuracy(y_hat, y), X.shape[0])
             timer.stop()
-            train_loss = metric[0] / metric[2]
+            train_l = metric[0] / metric[2]
             train_acc = metric[1] / metric[2]
-            if (i + 1) % 50 == 0:
-                animator.add(epoch + i / len(train_iter),
-                             (train_loss, train_acc, None))
+            if (i + 1) % (num_batches // 5) == 0 or i == num_batches - 1:
+                animator.add(epoch + (i + 1) / num_batches,
+                             (train_l, train_acc, None))
         test_acc = evaluate_accuracy_gpu(net, test_iter)
         animator.add(epoch + 1, (None, None, test_acc))
-    print(f'loss {train_loss:.3f}, train acc {train_acc:.3f}, '
+    print(f'loss {train_l:.3f}, train acc {train_acc:.3f}, '
           f'test acc {test_acc:.3f}')
     print(f'{metric[2] * num_epochs / timer.sum():.1f} examples/sec '
           f'on {str(device)}')
@@ -728,7 +729,7 @@ def train_ch8(model, train_iter, vocab, lr, num_epochs, device,  #@save
     """Train a model (defined in Chapter 8)."""
     loss = gluon.loss.SoftmaxCrossEntropyLoss()
     animator = d2l.Animator(xlabel='epoch', ylabel='perplexity',
-                            legend=['train'], xlim=[1, num_epochs])
+                            legend=['train'], xlim=[10, num_epochs])
     # Initialize
     if isinstance(model, gluon.Block):
         model.initialize(ctx=device, force_reinit=True,
@@ -743,8 +744,7 @@ def train_ch8(model, train_iter, vocab, lr, num_epochs, device,  #@save
     for epoch in range(num_epochs):
         ppl, speed = train_epoch_ch8(
             model, train_iter, loss, updater, device, use_random_iter)
-        if epoch % 10 == 0:
-            print(predict('time traveller'))
+        if (epoch + 1) % 10 == 0:
             animator.add(epoch + 1, [ppl])
     print(f'perplexity {ppl:.1f}, {speed:.1f} tokens/sec on {str(device)}')
     print(predict('time traveller'))
@@ -780,6 +780,7 @@ d2l.DATA_HUB['fra-eng'] = (d2l.DATA_URL + 'fra-eng.zip',
 
 # Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
 def read_data_nmt():
+    """Load the English-French dataset."""
     data_dir = d2l.download_extract('fra-eng')
     with open(os.path.join(data_dir, 'fra.txt'), 'r') as f:
         return f.read()
@@ -787,17 +788,22 @@ def read_data_nmt():
 
 # Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
 def preprocess_nmt(text):
+    """Preprocess the English-French dataset."""
     def no_space(char, prev_char):
-        return char in set(',.!') and prev_char != ' '
+        return char in set(',.!?') and prev_char != ' '
 
+    # Replace non-breaking space with space, and convert uppercase letters to
+    # lowercase ones
     text = text.replace('\u202f', ' ').replace('\xa0', ' ').lower()
-    out = [' ' + char if i > 0 and no_space(char, text[i-1]) else char
+    # Insert space between words and punctuation marks
+    out = [' ' + char if i > 0 and no_space(char, text[i - 1]) else char
            for i, char in enumerate(text)]
     return ''.join(out)
 
 
 # Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
 def tokenize_nmt(text, num_examples=None):
+    """Tokenize the English-French dataset."""
     source, target = [], []
     for i, line in enumerate(text.split('\n')):
         if num_examples and i > num_examples:
@@ -811,37 +817,38 @@ def tokenize_nmt(text, num_examples=None):
 
 # Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
 def truncate_pad(line, num_steps, padding_token):
+    """Truncate or pad sequences."""
     if len(line) > num_steps:
-        return line[:num_steps]  # Trim
+        return line[:num_steps]  # Truncate
     return line + [padding_token] * (num_steps - len(line))  # Pad
 
 
 # Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
-def build_array(lines, vocab, num_steps, is_source):
+def build_array_nmt(lines, vocab, num_steps):
+    """Transform text sequences of machine translation into minibatches."""
     lines = [vocab[l] for l in lines]
-    if not is_source:
-        lines = [[vocab['<bos>']] + l + [vocab['<eos>']] for l in lines]
-    array = np.array([truncate_pad(
+    lines = [l + [vocab['<eos>']] for l in lines]
+    array = d2l.tensor([truncate_pad(
         l, num_steps, vocab['<pad>']) for l in lines])
-    valid_len = (array != vocab['<pad>']).sum(axis=1)
+    valid_len = d2l.reduce_sum(
+        d2l.astype(array != vocab['<pad>'], d2l.int32), 1)
     return array, valid_len
 
 
 # Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
-def load_data_nmt(batch_size, num_steps, num_examples=1000):
+def load_data_nmt(batch_size, num_steps, num_examples=600):
+    """Return the iterator and the vocabularies of the translation dataset."""
     text = preprocess_nmt(read_data_nmt())
     source, target = tokenize_nmt(text, num_examples)
-    src_vocab = d2l.Vocab(source, min_freq=3, 
+    src_vocab = d2l.Vocab(source, min_freq=2,
                           reserved_tokens=['<pad>', '<bos>', '<eos>'])
-    tgt_vocab = d2l.Vocab(target, min_freq=3, 
+    tgt_vocab = d2l.Vocab(target, min_freq=2,
                           reserved_tokens=['<pad>', '<bos>', '<eos>'])
-    src_array, src_valid_len = build_array(
-        source, src_vocab, num_steps, True)
-    tgt_array, tgt_valid_len = build_array(
-        target, tgt_vocab, num_steps, False)
+    src_array, src_valid_len = build_array_nmt(source, src_vocab, num_steps)
+    tgt_array, tgt_valid_len = build_array_nmt(target, tgt_vocab, num_steps)
     data_arrays = (src_array, src_valid_len, tgt_array, tgt_valid_len)
     data_iter = d2l.load_array(data_arrays, batch_size)
-    return src_vocab, tgt_vocab, data_iter
+    return data_iter, src_vocab, tgt_vocab
 
 
 # Defined in file: ./chapter_recurrent-modern/encoder-decoder.md
@@ -883,81 +890,67 @@ class EncoderDecoder(nn.Block):
 
 # Defined in file: ./chapter_recurrent-modern/seq2seq.md
 class Seq2SeqEncoder(d2l.Encoder):
+    """The RNN encoder for sequence to sequence learning."""
     def __init__(self, vocab_size, embed_size, num_hiddens, num_layers,
                  dropout=0, **kwargs):
         super(Seq2SeqEncoder, self).__init__(**kwargs)
+        # Embedding layer
         self.embedding = nn.Embedding(vocab_size, embed_size)
-        self.rnn = rnn.LSTM(num_hiddens, num_layers, dropout=dropout)
+        self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=dropout)
 
     def forward(self, X, *args):
-        # `X` shape: (`batch_size`, `seq_len`, `embed_size`)
+        # The output `X` shape: (`batch_size`, `num_steps`, `embed_size`)
         X = self.embedding(X)
-        # RNN needs first axes to be time step, i.e., `seq_len`
+        # In RNN models, the first axis corresponds to time steps
         X = X.swapaxes(0, 1)
         state = self.rnn.begin_state(batch_size=X.shape[1], ctx=X.ctx)
-        out, state = self.rnn(X, state)
-        # `out` shape: (`seq_len`, `batch_size`, `num_hiddens`)
-        # `state` shape: (`num_layers`, `batch_size`, `num_hiddens`),
-        # where "state" contains the hidden state and the memory cell
-        return out, state
-
-
-# Defined in file: ./chapter_recurrent-modern/seq2seq.md
-class Seq2SeqDecoder(d2l.Decoder):
-    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers,
-                 dropout=0, **kwargs):
-        super(Seq2SeqDecoder, self).__init__(**kwargs)
-        self.embedding = nn.Embedding(vocab_size, embed_size)
-        self.rnn = rnn.LSTM(num_hiddens, num_layers, dropout=dropout)
-        self.dense = nn.Dense(vocab_size, flatten=False)
-
-    def init_state(self, enc_outputs, *args):
-        return enc_outputs[1]
-
-    def forward(self, X, state):
-        X = self.embedding(X).swapaxes(0, 1)
-        out, state = self.rnn(X, state)
-        # Make the batch to be the first dimension to simplify loss computation
-        out = self.dense(out).swapaxes(0, 1)
-        return out, state
+        output, state = self.rnn(X, state)
+        # `output` shape: (`num_steps`, `batch_size`, `num_hiddens`)
+        # `state[0]` shape: (`num_layers`, `batch_size`, `num_hiddens`)
+        return output, state
 
 
 # Defined in file: ./chapter_recurrent-modern/seq2seq.md
 class MaskedSoftmaxCELoss(gluon.loss.SoftmaxCELoss):
-    # `pred` shape: (`batch_size`, `seq_len`, `vocab_size`)
-    # `label` shape: (`batch_size`, `seq_len`)
-    # `valid_len` shape: (`batch_size`, )
+    """The softmax cross-entropy loss with masks."""
+    # `pred` shape: (`batch_size`, `num_steps`, `vocab_size`)
+    # `label` shape: (`batch_size`, `num_steps`)
+    # `valid_len` shape: (`batch_size`,)
     def forward(self, pred, label, valid_len):
-        # weights shape: (batch_size, seq_len, 1)
+        # `weights` shape: (`batch_size`, `num_steps`, 1)
         weights = np.expand_dims(np.ones_like(label), axis=-1)
         weights = npx.sequence_mask(weights, valid_len, True, axis=1)
         return super(MaskedSoftmaxCELoss, self).forward(pred, label, weights)
 
 
 # Defined in file: ./chapter_recurrent-modern/seq2seq.md
-def train_s2s_ch9(model, data_iter, lr, num_epochs, device):
+def train_s2s_ch9(model, data_iter, lr, num_epochs, tgt_vocab, device):
+    """Train a model for sequence to sequence (defined in Chapter 9)."""
     model.initialize(init.Xavier(), force_reinit=True, ctx=device)
-    trainer = gluon.Trainer(model.collect_params(),
-                            'adam', {'learning_rate': lr})
+    trainer = gluon.Trainer(model.collect_params(), 'adam',
+                            {'learning_rate': lr})
     loss = MaskedSoftmaxCELoss()
     animator = d2l.Animator(xlabel='epoch', ylabel='loss',
-                            xlim=[1, num_epochs], ylim=[0, 0.25])
-    for epoch in range(1, num_epochs + 1):
+                            xlim=[10, num_epochs])
+    for epoch in range(num_epochs):
         timer = d2l.Timer()
-        metric = d2l.Accumulator(2)  # loss_sum, num_tokens
+        metric = d2l.Accumulator(2)  # Sum of training loss, no. of tokens
         for batch in data_iter:
-            X, X_vlen, Y, Y_vlen = [x.as_in_ctx(device) for x in batch]
-            Y_input, Y_label, Y_vlen = Y[:, :-1], Y[:, 1:], Y_vlen-1
+            X, X_valid_len, Y, Y_valid_len = [
+                x.as_in_ctx(device) for x in batch]
+            bos = np.array(
+                [tgt_vocab['<bos>']] * Y.shape[0], ctx=device).reshape(-1, 1)
+            dec_input = d2l.concat([bos, Y[:, :-1]], 1)  # Teacher forcing
             with autograd.record():
-                Y_hat, _ = model(X, Y_input, X_vlen, Y_vlen)
-                l = loss(Y_hat, Y_label, Y_vlen)
+                Y_hat, _ = model(X, dec_input, X_valid_len)
+                l = loss(Y_hat, Y, Y_valid_len)
             l.backward()
             d2l.grad_clipping(model, 1)
-            num_tokens = Y_vlen.sum()
+            num_tokens = Y_valid_len.sum()
             trainer.step(num_tokens)
             metric.add(l.sum(), num_tokens)
-        if epoch % 10 == 0:
-            animator.add(epoch, (metric[0]/metric[1],))
+        if (epoch + 1) % 10 == 0:
+            animator.add(epoch + 1, (metric[0] / metric[1],))
     print(f'loss {metric[0] / metric[1]:.3f}, {metric[1] / timer.stop():.1f} '
           f'tokens/sec on {str(device)}')
 
@@ -965,25 +958,58 @@ def train_s2s_ch9(model, data_iter, lr, num_epochs, device):
 # Defined in file: ./chapter_recurrent-modern/seq2seq.md
 def predict_s2s_ch9(model, src_sentence, src_vocab, tgt_vocab, num_steps,
                     device):
-    src_tokens = src_vocab[src_sentence.lower().split(' ')]
+    """Predict sequences (defined in Chapter 9)."""
+    src_tokens = src_vocab[src_sentence.lower().split(' ')] + [
+        src_vocab['<eos>']]
     enc_valid_len = np.array([len(src_tokens)], ctx=device)
     src_tokens = d2l.truncate_pad(src_tokens, num_steps, src_vocab['<pad>'])
-    enc_X = np.array(src_tokens, ctx=device)
-    # Add the  batch size dimension
-    enc_outputs = model.encoder(np.expand_dims(enc_X, axis=0),
-                                enc_valid_len)
+    # Add the batch axis
+    enc_X = np.expand_dims(np.array(src_tokens, ctx=device), axis=0)
+    enc_outputs = model.encoder(enc_X, enc_valid_len)
     dec_state = model.decoder.init_state(enc_outputs, enc_valid_len)
+    # Add the batch axis
     dec_X = np.expand_dims(np.array([tgt_vocab['<bos>']], ctx=device), axis=0)
-    predict_tokens = []
+    output_seq = []
     for _ in range(num_steps):
         Y, dec_state = model.decoder(dec_X, dec_state)
-        # The token with highest score is used as the next time step input
+        # We use the token with the highest prediction likelihood as the input
+        # of the decoder at the next time step
         dec_X = Y.argmax(axis=2)
-        py = dec_X.squeeze(axis=0).astype('int32').item()
-        if py == tgt_vocab['<eos>']:
+        pred = dec_X.squeeze(axis=0).astype('int32').item()
+        # Once the end-of-sequence token is predicted, the generation of
+        # the output sequence is complete
+        if pred == tgt_vocab['<eos>']:
             break
-        predict_tokens.append(py)
-    return ' '.join(tgt_vocab.to_tokens(predict_tokens))
+        output_seq.append(pred)
+    return ' '.join(tgt_vocab.to_tokens(output_seq))
+
+
+# Defined in file: ./chapter_recurrent-modern/seq2seq.md
+def bleu(pred_seq, label_seq, k):  #@save
+    """Compute the BLEU."""
+    pred_tokens, label_tokens = pred_seq.split(' '), label_seq.split(' ')
+    len_pred, len_label = len(pred_tokens), len(label_tokens)
+    score = math.exp(min(0, 1 - len_label / len_pred))
+    for n in range(1, k + 1):
+        num_matches, label_subs = 0, collections.defaultdict(int)
+        for i in range(len_label - n + 1):
+            label_subs[''.join(label_tokens[i: i + n])] += 1
+        for i in range(len_pred - n + 1):
+            if label_subs[''.join(pred_tokens[i: i + n])] > 0:
+                num_matches += 1
+                label_subs[''.join(pred_tokens[i: i + n])] -= 1
+        score *= math.pow(num_matches / (len_pred - n + 1), math.pow(0.5, n))
+    return score
+
+
+# Defined in file: ./chapter_recurrent-modern/seq2seq.md
+def translate(engs, fras, model, src_vocab, tgt_vocab, num_steps, device):
+    """Translate text sequences."""
+    for eng, fra in zip(engs, fras):
+        translation = predict_s2s_ch9(
+            model, eng, src_vocab, tgt_vocab, num_steps, device)
+        print(
+            f'{eng} => {translation}, bleu {bleu(translation, fra, k=2):.3f}')
 
 
 # Defined in file: ./chapter_attention-mechanisms/attention.md
@@ -1046,7 +1072,8 @@ class MLPAttention(nn.Block):
 
 # Defined in file: ./chapter_attention-mechanisms/transformer.md
 class MultiHeadAttention(nn.Block):
-    def __init__(self, num_hiddens, num_heads, dropout, use_bias=False, **kwargs):
+    def __init__(self, num_hiddens, num_heads, dropout, use_bias=False,
+                 **kwargs):
         super(MultiHeadAttention, self).__init__(**kwargs)
         self.num_heads = num_heads
         self.attention = d2l.DotProductAttention(dropout)
@@ -1372,8 +1399,8 @@ def train_batch_ch13(net, features, labels, loss, trainer, devices,
 # Defined in file: ./chapter_computer-vision/image-augmentation.md
 def train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
                devices=d2l.try_all_gpus(), split_f=d2l.split_batch):
-    num_batches, timer = len(train_iter), d2l.Timer()
-    animator = d2l.Animator(xlabel='epoch', xlim=[0, num_epochs], ylim=[0, 1],
+    timer, num_batches = d2l.Timer(), len(train_iter)
+    animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs], ylim=[0, 1],
                             legend=['train loss', 'train acc', 'test acc'])
     for epoch in range(num_epochs):
         # Store training_loss, training_accuracy, num_examples, num_features
@@ -1384,8 +1411,8 @@ def train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
                 net, features, labels, loss, trainer, devices, split_f)
             metric.add(l, acc, labels.shape[0], labels.size)
             timer.stop()
-            if (i + 1) % (num_batches // 5) == 0:
-                animator.add(epoch + i / num_batches,
+            if (i + 1) % (num_batches // 5) == 0 or i == num_batches - 1:
+                animator.add(epoch + (i + 1) / num_batches,
                              (metric[0] / metric[2], metric[1] / metric[3],
                               None))
         test_acc = d2l.evaluate_accuracy_gpus(net, test_iter, split_f)
@@ -2095,51 +2122,6 @@ def _get_batch_loss_bert(net, loss, vocab_size, tokens_X_shards,
         ls.append(mlm_l + nsp_l)
         npx.waitall()
     return mlm_ls, nsp_ls, ls
-
-
-# Defined in file: ./chapter_natural-language-processing-pretraining/bert-pretraining.md
-def train_bert(train_iter, net, loss, vocab_size, devices, log_interval,
-               num_steps):
-    trainer = gluon.Trainer(net.collect_params(), 'adam',
-                            {'learning_rate': 1e-3})
-    step, timer = 0, d2l.Timer()
-    animator = d2l.Animator(xlabel='step', ylabel='loss',
-                            xlim=[1, num_steps], legend=['mlm', 'nsp'])
-    # Sum of masked language modeling losses, sum of next sentence prediction
-    # losses, no. of sentence pairs, count
-    metric = d2l.Accumulator(4)
-    num_steps_reached = False
-    while step < num_steps and not num_steps_reached:
-        for batch in train_iter:
-            (tokens_X_shards, segments_X_shards, valid_lens_x_shards,
-             pred_positions_X_shards, mlm_weights_X_shards,
-             mlm_Y_shards, nsp_y_shards) = [gluon.utils.split_and_load(
-                elem, devices, even_split=False) for elem in batch]
-            timer.start()
-            with autograd.record():
-                mlm_ls, nsp_ls, ls = _get_batch_loss_bert(
-                    net, loss, vocab_size, tokens_X_shards, segments_X_shards,
-                    valid_lens_x_shards, pred_positions_X_shards,
-                    mlm_weights_X_shards, mlm_Y_shards, nsp_y_shards)
-            for l in ls:
-                l.backward()
-            trainer.step(1)
-            mlm_l_mean = sum([float(l) for l in mlm_ls]) / len(mlm_ls)
-            nsp_l_mean = sum([float(l) for l in nsp_ls]) / len(nsp_ls)
-            metric.add(mlm_l_mean, nsp_l_mean, batch[0].shape[0], 1)
-            timer.stop()
-            if (step + 1) % log_interval == 0:
-                animator.add(step + 1,
-                             (metric[0] / metric[3], metric[1] / metric[3]))
-            step += 1
-            if step == num_steps:
-                num_steps_reached = True
-                break
-
-    print(f'MLM loss {metric[0] / metric[3]:.3f}, '
-          f'NSP loss {metric[1] / metric[3]:.3f}')
-    print(f'{metric[2] / timer.sum():.1f} sentence pairs/sec on '
-          f'{str(devices)}')
 
 
 # Defined in file: ./chapter_natural-language-processing-applications/sentiment-analysis-and-dataset.md
