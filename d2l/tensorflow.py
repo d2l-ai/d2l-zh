@@ -345,7 +345,8 @@ def predict_ch3(net, test_iter, n=6):  #@save
     trues = d2l.get_fashion_mnist_labels(y)
     preds = d2l.get_fashion_mnist_labels(d2l.argmax(net(X), axis=1))
     titles = [true +'\n' + pred for true, pred in zip(trues, preds)]
-    d2l.show_images(d2l.reshape(X[0:n], (n, 28, 28)), 1, n, titles=titles[0:n])
+    d2l.show_images(
+        d2l.reshape(X[0:n], (n, 28, 28)), 1, n, titles=titles[0:n])
 
 
 # Defined in file: ./chapter_multilayer-perceptrons/underfit-overfit.md
@@ -456,7 +457,7 @@ class TrainCallback(tf.keras.callbacks.Callback):  #@save
     def __init__(self, net, train_iter, test_iter, num_epochs, device_name):
         self.timer = d2l.Timer()
         self.animator = d2l.Animator(
-            xlabel='epoch', xlim=[0, num_epochs], legend=[
+            xlabel='epoch', xlim=[1, num_epochs], legend=[
                 'train loss', 'train acc', 'test acc'])
         self.net = net
         self.train_iter = train_iter
@@ -470,7 +471,7 @@ class TrainCallback(tf.keras.callbacks.Callback):  #@save
         test_acc = self.net.evaluate(
             self.test_iter, verbose=0, return_dict=True)['accuracy']
         metrics = (logs['loss'], logs['accuracy'], test_acc)
-        self.animator.add(epoch+1, metrics)
+        self.animator.add(epoch + 1, metrics)
         if epoch == self.num_epochs - 1:
             batch_size = next(iter(self.train_iter))[0].shape[0]
             num_examples = batch_size * tf.data.experimental.cardinality(
@@ -760,19 +761,97 @@ def train_ch8(model, train_iter, vocab, num_hiddens, lr, num_epochs, strategy,
         loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
         updater = tf.keras.optimizers.SGD(lr)
     animator = d2l.Animator(xlabel='epoch', ylabel='perplexity',
-                            legend=['train'], xlim=[1, num_epochs])
+                            legend=['train'], xlim=[10, num_epochs])
     predict = lambda prefix: predict_ch8(prefix, 50, model, vocab, params)
     # Train and predict
     for epoch in range(num_epochs):
         ppl, speed = train_epoch_ch8(
              model, train_iter, loss, updater, params, use_random_iter)
-        if epoch % 10 == 0:
+        if (epoch + 1) % 10 == 0:
             print(predict('time traveller'))
             animator.add(epoch + 1, [ppl])
     device = d2l.try_gpu()._device_name
     print(f'perplexity {ppl:.1f}, {speed:.1f} tokens/sec on {str(device)}')
     print(predict('time traveller'))
     print(predict('traveller'))
+
+
+# Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
+d2l.DATA_HUB['fra-eng'] = (d2l.DATA_URL + 'fra-eng.zip',
+                           '94646ad1522d915e7b0f9296181140edcf86a4f5')
+
+
+# Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
+def read_data_nmt():
+    """Load the English-French dataset."""
+    data_dir = d2l.download_extract('fra-eng')
+    with open(os.path.join(data_dir, 'fra.txt'), 'r') as f:
+        return f.read()
+
+
+# Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
+def preprocess_nmt(text):
+    """Preprocess the English-French dataset."""
+    def no_space(char, prev_char):
+        return char in set(',.!?') and prev_char != ' '
+
+    # Replace non-breaking space with space, and convert uppercase letters to
+    # lowercase ones
+    text = text.replace('\u202f', ' ').replace('\xa0', ' ').lower()
+    # Insert space between words and punctuation marks
+    out = [' ' + char if i > 0 and no_space(char, text[i - 1]) else char
+           for i, char in enumerate(text)]
+    return ''.join(out)
+
+
+# Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
+def tokenize_nmt(text, num_examples=None):
+    """Tokenize the English-French dataset."""
+    source, target = [], []
+    for i, line in enumerate(text.split('\n')):
+        if num_examples and i > num_examples:
+            break
+        parts = line.split('\t')
+        if len(parts) == 2:
+            source.append(parts[0].split(' '))
+            target.append(parts[1].split(' '))
+    return source, target
+
+
+# Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
+def truncate_pad(line, num_steps, padding_token):
+    """Truncate or pad sequences."""
+    if len(line) > num_steps:
+        return line[:num_steps]  # Truncate
+    return line + [padding_token] * (num_steps - len(line))  # Pad
+
+
+# Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
+def build_array_nmt(lines, vocab, num_steps):
+    """Transform text sequences of machine translation into minibatches."""
+    lines = [vocab[l] for l in lines]
+    lines = [l + [vocab['<eos>']] for l in lines]
+    array = d2l.tensor([truncate_pad(
+        l, num_steps, vocab['<pad>']) for l in lines])
+    valid_len = d2l.reduce_sum(
+        d2l.astype(array != vocab['<pad>'], d2l.int32), 1)
+    return array, valid_len
+
+
+# Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
+def load_data_nmt(batch_size, num_steps, num_examples=600):
+    """Return the iterator and the vocabularies of the translation dataset."""
+    text = preprocess_nmt(read_data_nmt())
+    source, target = tokenize_nmt(text, num_examples)
+    src_vocab = d2l.Vocab(source, min_freq=2,
+                          reserved_tokens=['<pad>', '<bos>', '<eos>'])
+    tgt_vocab = d2l.Vocab(target, min_freq=2,
+                          reserved_tokens=['<pad>', '<bos>', '<eos>'])
+    src_array, src_valid_len = build_array_nmt(source, src_vocab, num_steps)
+    tgt_array, tgt_valid_len = build_array_nmt(target, tgt_vocab, num_steps)
+    data_arrays = (src_array, src_valid_len, tgt_array, tgt_valid_len)
+    data_iter = d2l.load_array(data_arrays, batch_size)
+    return data_iter, src_vocab, tgt_vocab
 
 
 # Defined in file: ./chapter_optimization/optimization-intro.md
@@ -862,10 +941,9 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=2):
             kernel_initializer=tf.random_normal_initializer(stddev=0.01)))
     optimizer = trainer_fn(**hyperparams)
     loss = tf.keras.losses.MeanSquaredError()
-    # Note: L2 Loss = 1/2 * MSE Loss. TF has MSE Loss which is slightly
-    # different from MXNet's L2Loss by a factor of 2. Hence we halve the loss
-    # value to get L2Loss in TF.
-  
+    # Note: L2 Loss = 1/2 * MSE Loss. TensorFlow has MSE Loss which is 
+    # slightly different from MXNet's L2Loss by a factor of 2. Hence we halve
+    # the loss value to get L2Loss in TensorFlow
     animator = d2l.Animator(xlabel='epoch', ylabel='loss',
                             xlim=[0, num_epochs], ylim=[0.22, 0.35])
     n, timer = 0, d2l.Timer()
