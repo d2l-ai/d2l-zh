@@ -55,7 +55,7 @@
 
 这本书可以大致分为三个部分，这些部分是由不同的颜色在 :numref:`fig_book_org`：
 
-![图1 本书结构](../img/book-org.svg)
+![本书结构](../img/book-org.svg)
 :label:`fig_book_org`
 
 * 第一部分包括基础知识和预赛。
