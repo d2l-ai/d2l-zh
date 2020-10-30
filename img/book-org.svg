@@ -20,14 +20,14 @@
                         <div style="box-sizing: border-box; font-size: 0; text-align: center; ">
                             <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
                                 <font color="#000000" style="font-size: 14px">
-                                    第 1 章 简介
+                                    第 1 章 深度学习简介
                                 </font>
                             </div>
                         </div>
                     </div>
                 </foreignObject>
                 <text x="301" y="19" fill="#000000" font-family="Helvetica" font-size="12px" text-anchor="middle">
-                    第 1 章 简介
+                    第 1 章 深度学习简介
                 </text>
             </switch>
         </g>
