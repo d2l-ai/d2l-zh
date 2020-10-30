@@ -315,12 +315,4 @@
         <path d="M 343.38 418 L 476.08 486.09" fill="none" stroke="#bd7000" stroke-miterlimit="10" pointer-events="stroke"/>
         <path d="M 480.76 488.49 L 472.93 488.41 L 476.08 486.09 L 476.13 482.18 Z" fill="#bd7000" stroke="#bd7000" stroke-miterlimit="10" pointer-events="all"/>
     </g>
-    <switch>
-        <g requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"/>
-        <a transform="translate(0,-5)" xlink:href="https://desk.draw.io/support/solutions/articles/16000042487" target="_blank">
-            <text text-anchor="middle" font-size="10px" x="50%" y="100%">
-                Viewer does not support full SVG 1.1
-            </text>
-        </a>
-    </switch>
 </svg>
