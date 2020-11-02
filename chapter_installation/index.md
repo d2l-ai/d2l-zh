@@ -58,6 +58,10 @@ conda install python=3.7 pip -y
 
 :begin_tab:`mxnet`
 ```bash
+# For Windows users
+pip install mxnet==1.7.0 -f https://dist.mxnet.io/python
+
+# For Linux and macOS users
 pip install mxnet==1.7.0
 ```
 :end_tab:
