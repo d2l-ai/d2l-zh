@@ -5,7 +5,7 @@
 
 ## 安装 Miniconda
 
-最简单的方法就是安装 [Miniconda](https://conda.io/en/latest/miniconda.html)。Python 3.x 版本是必需的。如果已安装 conda，则可以跳过以下步骤。从网站下载相应的 Miniconda sh 文件，然后使用 `sh <FILENAME> -b` 从命令行执行安装。对于 macOS 用户：
+最简单的方法就是安装依赖 Python 3.x 的 [Miniconda](https://conda.io/en/latest/miniconda.html)。如果已安装 conda，则可以跳过以下步骤。从网站下载相应的 Miniconda sh 文件，然后使用 `sh <FILENAME> -b` 从命令行执行安装。对于 macOS 用户：
 
 ```bash
 # The file name is subject to changes
@@ -33,13 +33,15 @@ conda create --name d2l -y
 
 ## 下载 D2L Notebook
 
-接下来，我们需要下载这本书的代码。您可以点击任何 HTML 页面顶部的 “Jupyter 笔记本文件” 选项卡下载并解压代码。或者，如果您有 `unzip`（否则运行 `sudo apt install unzip`）可用：
+接下来，需要下载这本书的代码。你可以点击任何 HTML 页面顶部的 “Jupyter 笔记本文件” 选项卡下载，并解压代码。或者可以按照如下方式进行下载：
 
 ```bash
 mkdir d2l-zh && cd d2l-zh
 curl https://d2l.ai/d2l-zh.zip -o d2l-zh.zip
 unzip d2l-zh.zip && rm d2l-zh.zip
 ```
+
+注意：如果没有安装 `unzip`，则可以通过运行 `sudo apt install unzip` 进行安装。
 
 现在我们要激活 `d2l` 环境并安装 `pip`。在此命令后面的查询中输入 `y`。
 
