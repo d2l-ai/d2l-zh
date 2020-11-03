@@ -1,7 +1,7 @@
 # 安装
 :label:`chap_installation`
 
-为了让您起步并获得动手学习的体验，我们需要为您设置一个运行 Python、Jupyter Notebook、相关库以及运行本书所需的代码的环境。
+我们需要设置一个环境来运行 Python，Jupyter Notebook，相关库以及运行本书所需的代码，以快速入门并获得动手学习经验。
 
 ## 安装 Miniconda
 
@@ -75,7 +75,7 @@ pip install torch torchvision -f https://download.pytorch.org/whl/torch_stable.h
 :end_tab:
 
 :begin_tab:`tensorflow`
-您可以通过以下方式安装，提供 CPU 和 GPU 支持：
+您可以通过以下方式安装具有 CPU 和 GPU 支持的 TensorFlow：
 
 ```bash
 pip install tensorflow tensorflow-probability
