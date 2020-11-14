@@ -10,7 +10,7 @@
 * $\mathbf{X}$：矩阵
 * $\mathsf{X}$：张量
 * $\mathbf{I}$：单位矩阵
-* $x_i$, $[\mathbf{x}]_i$：向量$\mathbf{x}$的第$i^\mathrm{th}$个元素
+* $x_i$, $[\mathbf{x}]_i$：向量$\mathbf{x}$的第$i$个元素
 * $x_{ij}$, $[\mathbf{X}]_{ij}$：矩阵$\mathbf{X}$第$i$行第$j$列的元素
 
 ## 集合论
