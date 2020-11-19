@@ -137,7 +137,7 @@ show_images(X, 2, 9, titles=get_fashion_mnist_labels(y));
 batch_size = 256
 
 def get_dataloader_workers():  #@save
-    """除Windows外，使用4个进程来读取的数据。"""
+    """在非Windows的平台上，使用4个进程来读取的数据。"""
     return 0 if sys.platform.startswith('win') else 4
 
 # 通过ToTensor实例将图像数据从uint8格式变换成32位浮点数格式，并除以255使得所有像素
@@ -177,7 +177,7 @@ for X, y in train_iter:
 f'{timer.stop():.2f} sec'
 ```
 
-## 把所有东西放在一起
+## 整合所有组件
 
 现在我们定义了 `load_data_fashion_mnist` 函数，用于获取和读取Fashion-MNIST数据集。它返回训练集和验证集的数据迭代器。此外，它还接受一个可选参数，用来将图像大小调整为另一种形状。
 
@@ -246,9 +246,9 @@ for X, y in train_iter:
 
 ## 总结
 
-* Fashion-MNIST是一个服装分类数据集，由10 个类别的图像组成。我们将在后续章节中使用此数据集来评估各种分类算法。
+* Fashion-MNIST是一个服装分类数据集，由10个类别的图像组成。我们将在后续章节中使用此数据集来评估各种分类算法。
 * 我们将高度$h$像素，宽度$w$像素图像的形状记为$h \times w$或($h$, $w$)。
-* 数据迭代器是获得高性能的关键组件。依靠实现良好的数据迭代器，利用高性能计算来避免减慢训练循环。
+* 数据迭代器是获得更高性能的关键组件。依靠实现良好的数据迭代器，利用高性能计算来避免减慢训练过程。
 
 ## 练习
 

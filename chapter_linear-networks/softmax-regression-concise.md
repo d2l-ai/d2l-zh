@@ -1,7 +1,7 @@
-# Softmax回归的简洁实现
+# softmax回归的简洁实现
 :label:`sec_softmax_concise`
 
-通过深度学习框架的高级 API能够使在 :numref:`sec_linear_concise` 中实现线性回归变得更加容易。与此相似，我们会发现深度学习框架的高级 API同样能更方便地实现分类模型。让我们继续使用Fashion-MNIST数据集，并保持批量大小为256，就像在:numref:`sec_softmax_scratch` 中一样。
+在 :numref:`sec_linear_concise` 中，我们可以发现通过深度学习框架的高级API能够使实现线性回归变得更加容易。同样地，通过深度学习框架的高级API也能更方便地实现分类模型。让我们继续使用Fashion-MNIST数据集，并保持批量大小为256，就像在:numref:`sec_softmax_scratch` 中一样。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -31,7 +31,7 @@ train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
 
 ## 初始化模型参数
 
-如 :numref:`sec_softmax` 所述，softmax 回归的输出层是一个全连接层。因此，为了实现我们的模型，我们只需在 `Sequential` 中添加一个带有10个输出的全连接层。同样，在这里，`Sequential` 并不是必要的，但我们可能会形成这种习惯。因为在实现深度模型时，`Sequential`将无处不在。我们仍然以均值0和标准差0.01随机初始化权重。
+如我们在 :numref:`sec_softmax` 所述，softmax 回归的输出层是一个全连接层。因此，为了实现我们的模型，我们只需在 `Sequential` 中添加一个带有10个输出的全连接层。同样，在这里，`Sequential` 并不是必要的，但我们可能会形成这种习惯。因为在实现深度模型时，`Sequential`将无处不在。我们仍然以均值0和标准差0.01随机初始化权重。
 
 ```{.python .input}
 net = nn.Sequential()
@@ -66,9 +66,9 @@ net.add(tf.keras.layers.Dense(10, kernel_initializer=weight_initializer))
 ## 重新审视Softmax的实现
 :label:`subsec_softmax-implementation-revisited`
 
-在前面 :numref:`sec_softmax_scratch` 的例子中，我们计算了模型的输出，然后此输出送入交叉熵损失。从数学上讲，这是一件完全合理的事情。然而，从计算角度来看，指数可能会造成数值稳定性问题。
+在前面 :numref:`sec_softmax_scratch` 的例子中，我们计算了模型的输出，然后将此输出送入交叉熵损失。从数学上讲，这是一件完全合理的事情。然而，从计算角度来看，指数可能会造成数值稳定性问题。
 
-回想一下，Softmax函数 $\hat y_j = \frac{\exp(o_j)}{\sum_k \exp(o_k)}$，其中$\hat y_j$是预测的概率分布。$o_j$是未归一化的预测$\mathbf{o}$的第$j$个元素。如果$o_k$中的一些数值非常大，那么 $\exp(o_k)$ 可能大于数据类型容许的最大数字（即 *上溢*（overflow））。这将使分母或分子变为`inf`（无穷大），我们最后遇到的是0、`inf` 或 `nan`（不是数字）的 $\hat y_j$。在这些情况下，我们不能得到一个明确定义的交叉熵的返回值。
+回想一下，softmax函数 $\hat y_j = \frac{\exp(o_j)}{\sum_k \exp(o_k)}$，其中$\hat y_j$是预测的概率分布。$o_j$是未归一化的预测$\mathbf{o}$的第$j$个元素。如果$o_k$中的一些数值非常大，那么 $\exp(o_k)$ 可能大于数据类型容许的最大数字（即 *上溢*（overflow））。这将使分母或分子变为`inf`（无穷大），我们最后遇到的是0、`inf` 或 `nan`（不是数字）的 $\hat y_j$。在这些情况下，我们不能得到一个明确定义的交叉熵的返回值。
 
 解决这个问题的一个技巧是，在继续softmax计算之前，先从所有$o_k$中减去$\max(o_k)$。你可以证明每个 $o_k$ 按常数进行的移动不会改变softmax的返回值。在减法和归一化步骤之后，可能有些 $o_j$ 具有较大的负值。由于精度受限， $\exp(o_j)$ 将有接近零的值（即 *下溢（underflow）*）。这些值可能会四舍五入为零，使 $\hat y_j$ 为零，并且使得 $\log(\hat y_j)$ 的值为 `-inf`。反向传播几步后，我们可能会发现自己面对一屏幕可怕的`nan`结果。
 
@@ -133,7 +133,7 @@ d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 ## 总结
 
 * 使用高级 API，我们可以更简洁地实现 softmax 回归。
-* 从计算的角度来看，实现 softmax 回归具有复杂性。在许多情况下，深度学习框架在这些最著名的技巧之外采取了额外的预防措施确保数值的稳定性，从而使我们避免了在实践中从零开始编写所有模型时可能遇到的陷阱。
+* 从计算的角度来看，实现softmax回归比较复杂。在许多情况下，深度学习框架在这些著名的技巧之外采取了额外的预防措施，来确保数值的稳定性。这使我们避免了在实践中从零开始编写模型时可能遇到的陷阱。
 
 ## 练习
 
