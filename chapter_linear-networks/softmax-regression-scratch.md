@@ -1,7 +1,7 @@
 # softmax回归的从零开始实现
 :label:`sec_softmax_scratch`
 
-就像我们从零开始实现线性回归一样，我们认为softmax回归也是重要的基础，因此你应该知道如何自己实现它的细节节。我们使用刚刚在 :numref:`sec_fashion_mnist` 中引入的Fashion-MNIST数据集，并设置数据迭代器的批量大小为256。
+就像我们从零开始实现线性回归一样，我们认为softmax回归也是重要的基础，因此你应该知道如何自己实现它的细节。我们使用刚刚在 :numref:`sec_fashion_mnist` 中引入的Fashion-MNIST数据集，并设置数据迭代器的批量大小为256。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -32,7 +32,7 @@ train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
 
 ## 初始化模型参数
 
-这里的每个样本都用固定长度向量表示。原始数据集中的每个样本都是 $28 \times 28$ 的图像。在本节中，我们将展平每个图像，将它们视为长度为784的向量。在以后的章节中，我们将讨论利用图像空间结构的更复杂策略，但现在我们将每个像素位置视为一个特征。
+这里的每个样本都用固定长度向量表示。原始数据集中的每个样本都是 $28 \times 28$ 的图像。在本节中，我们将展平每个图像，将它们视为长度为784的向量。在以后的章节中，我们将讨论能够利用图像空间结构的复杂策略，但现在我仅将每个像素位置视为一个特征。
 
 回想一下，在softmax回归中，我们的输出与类别一样多。因为我们的数据集有10个类别，所以网络输出维度为 10。因此，权重将构成一个 $784 \times 10$ 的矩阵，偏差将构成一个 $1 \times 10$ 的行向量。与线性回归一样，我们将使用正态分布初始化我们的权重 `W`，偏差初始化为0。
 
@@ -82,16 +82,16 @@ d2l.reduce_sum(X, 0, keepdims=True), d2l.reduce_sum(X, 1, keepdims=True)
 ```
 
 我们现在已经准备好实现softmax操作了。回想一下，softmax 由三个步骤组成：
-（i） 我们对每个项求幂（使用`exp`）；
-（ii）我们对每一行求和（小批量中每个样本是一行），得到每个样本的归一化常数；
-（iii）我们将每一行除以其归一化常数，确保结果和为1。
+（1）对每个项求幂（使用`exp`）；
+（2）对每一行求和（小批量中每个样本是一行），得到每个样本的归一化常数；
+（3）将每一行除以其归一化常数，确保结果的和为1。
 在查看代码之前，让我们回顾一下这个表达式：
 
 $$
 \mathrm{softmax}(\mathbf{X})_{ij} = \frac{\exp(\mathbf{X}_{ij})}{\sum_k \exp(\mathbf{X}_{ik})}.
 $$
 
-分母或归一化常数，有时也称为*配分函数*（其对数称为对数-配分函数）。该名称的起源来自 [统计物理学](https://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics))中一个模拟粒子群的分布的方程。
+分母或归一化常数，有时也称为*配分函数*（其对数称为对数-配分函数）。该名称的起源来自 [统计物理学](https://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics))中一个模拟粒子群分布的方程。
 
 ```{.python .input}
 #@tab mxnet, tensorflow
@@ -125,11 +125,11 @@ X_prob = softmax(X)
 X_prob, tf.reduce_sum(X_prob, 1)
 ```
 
-注意，虽然这在数学上看起来是正确的，但我们在实现中有点草率，因为我们没有采取措施来防止由于矩阵中的非常大或非常小的元素造成的数值上溢或下溢。
+注意，虽然这在数学上看起来是正确的，但我们在代码实现中有点草率。矩阵中的非常大或非常小的元素可能造成数值上溢或下溢，但我们没有采取措施来防止这点。
 
 ## 定义模型
 
-现在我们已经定义了softmax运算，我们可以实现softmax回归模型。下面的代码定义了输入如何通过网络映射到输出。注意，在将数据传递到我们的模型之前，我们使用 `reshape` 函数将每张原始图像展平为向量。
+现在我们已经定义了softmax操作，我们可以实现softmax回归模型。下面的代码定义了输入如何通过网络映射到输出。注意，在将数据传递到我们的模型之前，我们使用 `reshape` 函数将每张原始图像展平为向量。
 
 ```{.python .input}
 #@tab all
@@ -245,7 +245,7 @@ class Accumulator:  #@save
         return self.data[idx]
 ```
 
-由于我们使用随机权重初始化 `net` 模型，因此该模型的准确率应接近于随机猜测。例如10个类别情况下的准确率为0.1。
+由于我们使用随机权重初始化 `net` 模型，因此该模型的准确率应接近于随机猜测。例如在有10个类别情况下的准确率为0.1。
 
 ```{.python .input}
 #@tab all
@@ -254,7 +254,7 @@ evaluate_accuracy(net, test_iter)
 
 ## 训练
 
-如果你看过 :numref:`sec_linear_scratch` 中的线性回归的实现，softmax回归的训练过程代码应该看起来非常熟悉。在这里，我们重构训练循环的实现以使其可重复使用。首先，我们定义一个函数来训练一个迭代周期。请注意，`updater` 是更新模型参数的常用函数，它接受批量大小作为参数。它可以是封装的`d2l.sgd`函数，也可以是框架的内置优化函数。
+如果你看过 :numref:`sec_linear_scratch` 中的线性回归实现，softmax回归的训练过程代码应该看起来非常熟悉。在这里，我们重构训练过程的实现以使其可重复使用。首先，我们定义一个函数来训练一个迭代周期。请注意，`updater` 是更新模型参数的常用函数，它接受批量大小作为参数。它可以是封装的`d2l.sgd`函数，也可以是框架的内置优化函数。
 
 ```{.python .input}
 def train_epoch_ch3(net, train_iter, loss, updater):  #@save
@@ -289,12 +289,14 @@ def train_epoch_ch3(net, train_iter, loss, updater):  #@save
         y_hat = net(X)
         l = loss(y_hat, y)
         if isinstance(updater, torch.optim.Optimizer):
+            # 使用PyTorch内置的优化器和损失函数
             updater.zero_grad()
             l.backward()
             updater.step()
             metric.add(float(l) * len(y), accuracy(y_hat, y),
                        y.size().numel())
         else:
+            # 使用PyTorch内置的优化器和损失函数
             l.sum().backward()
             updater(X.shape[0])
             metric.add(float(l.sum()), accuracy(y_hat, y), y.numel())
@@ -332,7 +334,7 @@ def train_epoch_ch3(net, train_iter, loss, updater):  #@save
     return metric[0] / metric[2], metric[1] / metric[2]
 ```
 
-在展示训练函数的实现之前，我们定义了一个在动画中绘制数据的实用程序类。它旨在简化本书其余部分的代码。
+在展示训练函数的实现之前，我们定义了一个在动画中绘制数据的实用程序类。它能够简化本书其余部分的代码。
 
 ```{.python .input}
 #@tab all
@@ -377,7 +379,7 @@ class Animator:  #@save
         display.clear_output(wait=True)
 ```
 
-接下来我们实现一个训练函数，它会在`train_iter` 访问到的训练数据集上训练一个模型`net`。它将会运行多个迭代周期（由`num_epochs`指定）。在每个迭代周期结束时，利用 `test_iter` 访问到的测试数据集对模型进行评估。我们将利用 `Animator` 类来可视化训练进度。
+接下来我们实现一个训练函数，它会在`train_iter` 访问到的训练数据集上训练一个模型`net`。该训练函数将会运行多个迭代周期（由`num_epochs`指定）。在每个迭代周期结束时，利用 `test_iter` 访问到的测试数据集对模型进行评估。我们将利用 `Animator` 类来可视化训练进度。
 
 ```{.python .input}
 #@tab all
@@ -440,12 +442,13 @@ def predict_ch3(net, test_iter, n=6):  #@save
     trues = d2l.get_fashion_mnist_labels(y)
     preds = d2l.get_fashion_mnist_labels(d2l.argmax(net(X), axis=1))
     titles = [true +'\n' + pred for true, pred in zip(trues, preds)]
-    d2l.show_images(d2l.reshape(X[0:n], (n, 28, 28)), 1, n, titles=titles[0:n])
+    d2l.show_images(
+        d2l.reshape(X[0:n], (n, 28, 28)), 1, n, titles=titles[0:n])
 
 predict_ch3(net, test_iter)
 ```
 
-## 总结
+## 小结
 
 * 借助 softmax 回归，我们可以训练多分类的模型。
 * softmax 回归的训练循环与线性回归中的训练循环非常相似：读取数据、定义模型和损失函数，然后使用优化算法训练模型。正如你很快就会发现的那样，大多数常见的深度学习模型都有类似的训练过程。
@@ -455,7 +458,7 @@ predict_ch3(net, test_iter)
 1. 在本节中，我们直接实现了基于数学定义softmax运算的`softmax`函数。这可能会导致什么问题？提示：尝试计算 $\exp(50)$ 的大小。
 1. 本节中的函数 `cross_entropy` 是根据交叉熵损失函数的定义实现的。这个实现可能有什么问题？提示：考虑对数的值域。
 1. 你可以想到什么解决方案来解决上述两个问题？
-1. 返回可能性最大的标签总是一个好主意吗？例如，医疗诊断场景下你会这样做吗？
+1. 返回概率最大的标签总是一个好主意吗？例如，医疗诊断场景下你会这样做吗？
 1. 假设我们希望使用softmax回归来基于某些特征预测下一个单词。词汇量大可能会带来哪些问题?
 
 :begin_tab:`mxnet`
