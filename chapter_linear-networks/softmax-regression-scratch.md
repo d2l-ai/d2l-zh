@@ -290,7 +290,6 @@ def train_epoch_ch3(net, train_iter, loss, updater):  #@save
         l = loss(y_hat, y)
         if isinstance(updater, torch.optim.Optimizer):
             # 使用PyTorch内置的优化器和损失函数
-            Using PyTorch in-built optimizer & loss criterion
             updater.zero_grad()
             l.backward()
             updater.step()
