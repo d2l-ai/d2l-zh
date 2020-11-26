@@ -7,9 +7,9 @@
 ## 互相关运算
 
 严格地说，卷积层所表达的运算可以被更准确地描述为*互相关运算*。
-基于:numref:`sec_why-conv`中卷积层的描述，在这样一个层中，输入张量和核张量通过互相关运算产生输出张量。
+基于 :numref:`sec_why-conv` 中卷积层的描述，在这样一个层中，输入张量和核张量通过互相关运算产生输出张量。
 
-首先，看看如何处理二维图像数据和隐藏表示。在:numref:`fig_correlation`中，输入是高度为$3$、宽度为$3$的二维张量（即$3 \times 3$）。内核的高度和宽度都是$2$，而内核窗口（或卷积窗口）的形状由内核的高度和宽度决定（即$2 \times 2$）。
+首先，看看如何处理二维图像数据和隐藏表示。在 :numref:`fig_correlation` 中，输入是高度为$3$、宽度为$3$的二维张量（即$3 \times 3$）。内核的高度和宽度都是$2$，而内核窗口（或卷积窗口）的形状由内核的高度和宽度决定（即$2 \times 2$）。
 
 ![Two-dimensional cross-correlation operation. The shaded portions are the first output element as well as the input and kernel tensor elements used for the output computation: $0\times0+1\times1+3\times2+4\times3=19$.](../img/correlation.svg)
 :label:`fig_correlation`
@@ -50,7 +50,7 @@ from torch import nn
 ```{.python .input}
 #@tab mxnet, pytorch
 def corr2d(X, K):  #@save
-    """Compute 2D cross-correlation."""
+    """计算二维互相关运算。"""
     h, w = K.shape
     Y = d2l.zeros((X.shape[0] - h + 1, X.shape[1] - w + 1))
     for i in range(Y.shape[0]):
@@ -65,7 +65,7 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 
 def corr2d(X, K):  #@save
-    """Compute 2D cross-correlation."""
+    """计算二维互相关运算。"""
     h, w = K.shape
     Y = tf.Variable(tf.zeros((X.shape[0] - h + 1, X.shape[1] - w + 1)))
     for i in range(Y.shape[0]):
@@ -75,7 +75,7 @@ def corr2d(X, K):  #@save
     return Y
 ```
 
-依据:numref:`fig_correlation`的输入张量`X`和卷积核张量`K`，我们来验证一下上述二维互相关运算的输出。
+依据 :numref:`fig_correlation` 的输入张量 `X` 和卷积核张量 `K` ，我们来验证一下上述二维互相关运算的输出。
 
 ```{.python .input}
 #@tab all
@@ -186,14 +186,14 @@ corr2d(d2l.transpose(X), K)
 我们先构造一个卷积层，并将其卷积核初始化为随机张量。接下来，在每次迭代中，我们比较`Y`与卷积层的输出的平方误差，然后计算梯度来更新内核。为了简单起见，我们在此使用内置的二维卷积层，并忽略偏差。
 
 ```{.python .input}
-# Construct a two-dimensional convolutional layer with 1 output channel and a
-# kernel of shape (1, 2). For the sake of simplicity, we ignore the bias here
+# 构造一个二维卷积层，它具有1个输出通道和形状为（1，2）的卷积核
 conv2d = nn.Conv2D(1, kernel_size=(1, 2), use_bias=False)
 conv2d.initialize()
 
-# The two-dimensional convolutional layer uses four-dimensional input and
-# output in the format of (example, channel, height, width), where the batch
-# size (number of examples in the batch) and the number of channels are both 1
+# 这个二维卷积层使用四维输入和输出格式（例如，批量大小、通道、高度、宽度），
+# 其中批量大小和通道数都为1
+
+
 X = X.reshape(1, 1, 6, 8)
 Y = Y.reshape(1, 1, 6, 7)
 
@@ -210,13 +210,11 @@ for i in range(10):
 
 ```{.python .input}
 #@tab pytorch
-# Construct a two-dimensional convolutional layer with 1 output channel and a
-# kernel of shape (1, 2). For the sake of simplicity, we ignore the bias here
+# 构造一个二维卷积层，它具有1个输出通道和形状为（1，2）的卷积核
 conv2d = nn.Conv2d(1,1, kernel_size=(1, 2), bias=False)
 
-# The two-dimensional convolutional layer uses four-dimensional input and
-# output in the format of (example channel, height, width), where the batch
-# size (number of examples in the batch) and the number of channels are both 1
+# 这个二维卷积层使用四维输入和输出格式（例如，批量大小、通道、高度、宽度），
+# 其中批量大小和通道数都为1
 X = X.reshape((1, 1, 6, 8))
 Y = Y.reshape((1, 1, 6, 7))
 
@@ -233,13 +231,11 @@ for i in range(10):
 
 ```{.python .input}
 #@tab tensorflow
-# Construct a two-dimensional convolutional layer with 1 output channel and a
-# kernel of shape (1, 2). For the sake of simplicity, we ignore the bias here
+# 构造一个二维卷积层，它具有1个输出通道和形状为（1，2）的卷积核
 conv2d = tf.keras.layers.Conv2D(1, (1, 2), use_bias=False)
 
-# The two-dimensional convolutional layer uses four-dimensional input and
-# output in the format of (example channel, height, width), where the batch
-# size (number of examples in the batch) and the number of channels are both 1
+# 这个二维卷积层使用四维输入和输出格式（例如，批量大小、通道、高度、宽度），
+# 其中批量大小和通道数都为1
 X = tf.reshape(X, (1, 6, 8, 1))
 Y = tf.reshape(Y, (1, 6, 7, 1))
 
@@ -279,14 +275,14 @@ d2l.reshape(conv2d.get_weights()[0], (1, 2))
 
 ## 互相关和卷积
 
-回想一下我们在:numref:`sec_why-conv`中观察到的互相关和卷积运算之间的对应关系。
-为了得到严格*卷积*运算输出，我们需要执行:eqref:`eq_2d-conv-discrete`中定义的严格卷积运算，而不是互相关运算。
+回想一下我们在 :numref:`sec_why-conv` 中观察到的互相关和卷积运算之间的对应关系。
+为了得到严格*卷积*运算输出，我们需要执行 :eqref:`eq_2d-conv-discrete` 中定义的严格卷积运算，而不是互相关运算。
 幸运的是，它们差别不大，我们只需水平和垂直翻转二维卷积核张量，然后对输入张量执行*互相关*运算。
 
 值得注意的是，由于卷积核是从数据中学习到的，因此无论这些层执行严格的卷积运算还是互相关运算，卷积层的输出都不会受到影响。
-为了说明这一点，假设卷积层执行*互相关*运算并学习:numref:`fig_correlation`中的内核，该内核在这里由矩阵$\mathbf{K}$表示。
-假设其他条件不变，当这个层执行严格的*卷积*时，学习的内核$\mathbf{K}'$在水平和垂直翻转之后将与$\mathbf{K}$相同。
-也就是说，当卷积层对:numref:`fig_correlation`中的输入和$\mathbf{K}'$执行严格*卷积*运算时，将得到与互相关运算:numref:`fig_correlation`中相同的输出。
+为了说明这一点，假设卷积层执行*互相关*运算并学习 :numref:`fig_correlation` 中的内核，该内核在这里由矩阵 $\mathbf{K}$ 表示。
+假设其他条件不变，当这个层执行严格的*卷积*时，学习的内核 $\mathbf{K}'$ 在水平和垂直翻转之后将与 $\mathbf{K}$ 相同。
+也就是说，当卷积层对 :numref:`fig_correlation` 中的输入和 $\mathbf{K}'$ 执行严格*卷积*运算时，将得到与互相关运算 :numref:`fig_correlation` 中相同的输出。
 
 为了与深度学习文献中的标准术语保持一致，我们将继续把“互相关运算”称为卷积运算，尽管严格地说，它们略有不同。
 此外，对于卷积核张量上的权重，我们称其为*元素*。
@@ -295,13 +291,13 @@ d2l.reshape(conv2d.get_weights()[0], (1, 2))
 
 ## 特征映射和接受域（Receptive Field）
 
-如在:numref:`subsec_why-conv-channels`中所述，:numref:`fig_correlation`中输出的卷积层有时被称为*特征映射*，因为它可以被视为一个输入映射到下一层的空间维度的转换器。
+如在 :numref:`subsec_why-conv-channels` 中所述，:numref:`fig_correlation`中输出的卷积层有时被称为*特征映射*，因为它可以被视为一个输入映射到下一层的空间维度的转换器。
 在CNN中，对于某一层的任何元素$x$，其*接受域*是指在前向传播期间可能影响$x$计算的所有元素（来自所有先前层）。
 
-注意，接受域的覆盖率可能大于某层输入的实际区域大小。让我们用:numref:`fig_correlation`为例来解释接受域。
-给定$2 \times 2$卷积核，阴影输出元素（值$19$）的接收域是输入阴影部分的四个元素。
-假设之前输出为$\mathbf{Y}$，其大小为$2 \times 2$，现在我们在其后附加一个卷积层，该卷积层以$\mathbf{Y}$为输入，输出单个元素$z$。
-在这种情况下，$\mathbf{Y}$上的$z$的接收字段包括$\mathbf{Y}$的所有四个元素，而输入的接受域包括最初所有九个输入元素。
+注意，接受域的覆盖率可能大于某层输入的实际区域大小。让我们用 :numref:`fig_correlation` 为例来解释接受域。
+给定 $2 \times 2$ 卷积核，阴影输出元素（值 $19$ ）的接收域是输入阴影部分的四个元素。
+假设之前输出为 $\mathbf{Y}$ ，其大小为 $2 \times 2$ ，现在我们在其后附加一个卷积层，该卷积层以 $\mathbf{Y}$ 为输入，输出单个元素 $z$。
+在这种情况下， $\mathbf{Y}$ 上的 $z$ 的接收字段包括 $\mathbf{Y}$ 的所有四个元素，而输入的接受域包括最初所有九个输入元素。
 因此，当一个特征图中的任何元素需要检测更广区域的输入特征时，我们可以构建一个更深的网络。
 
 
@@ -316,16 +312,16 @@ d2l.reshape(conv2d.get_weights()[0], (1, 2))
 
 ## 练习
 
-1. 构建一个具有对角线边缘的图像`X`。
-    1. 如果将本节中举例的内核`K`应用于`X`，会发生什么情况？
-    1. 如果转置`X`会发生什么？
-    1. 如果转置`K`会发生什么？
-1. 在我们创建的`Conv2D`自动求导时，有什么错误消息？
+1. 构建一个具有对角线边缘的图像 `X`。
+    1. 如果将本节中举例的内核 `K` 应用于 `X`，会发生什么情况？
+    1. 如果转置 `X` 会发生什么？
+    1. 如果转置 `K` 会发生什么？
+1. 在我们创建的 `Conv2D` 自动求导时，有什么错误消息？
 1. 如何通过改变输入张量和卷积核张量，将互相关运算表示为矩阵乘法？
 1. 手工设计一些内核：
     1. 二阶导数的核形式是什么？
     1. 积分的核形式是什么？
-    1. 得到$d$次导数的最小核大小是多少？
+    1. 得到 $d$ 次导数的最小核大小是多少？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/65)
