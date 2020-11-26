@@ -94,7 +94,7 @@ $$(f * g)(i) = \sum_a f(a) g(i-a).$$
 $$(f * g)(i, j) = \sum_a\sum_b f(a, b) g(i-a, j-b).$$
 :eqlabel:`eq_2d-conv-discrete`
 
-这看起来类似于 :eqref:`eq_conv-layer`，但有一个主要区别：这里不是使用 $(i+a, j+b)$ ，而是使用差异。然而，这种区别是可以化简的，因为我们总是可以匹配 :eqref:`eq_conv-layer` 和 :eqref:`eq_2d-conv-discrete` 之间的符号。我们在 :eqref:`eq_conv-layer` 中的原始定义更正确地描述了*互相关*。我们将在下一节中讨论这一问题。
+这看起来类似于 :eqref:`eq_conv-layer`，但有一个主要区别：这里不是使用 $(i+a, j+b)$ ，而是使用差异。然而，这种区别是可以化简的，因为我们总是可以匹配  :eqref:`eq_conv-layer` 和 :eqref:`eq_2d-conv-discrete` 之间的符号。我们在 :eqref:`eq_conv-layer` 中的原始定义更正确地描述了*互相关*。我们将在下一节中讨论这一问题。
 
 
 ## “沃尔多在哪里” 回顾
