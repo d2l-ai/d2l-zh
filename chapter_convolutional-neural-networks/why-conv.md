@@ -40,22 +40,22 @@
 ## 限制MLP
 
 首先，假设以二维图像 $\mathbf{X}$ 作为输入，那么我们MLP的隐藏表示 $\mathbf{H}$ 在数学上是一个矩阵，在代码中则是一个二维张量。
-由于 $\mathbf{X}$ 和$\mathbf{H}$具有相同的二维形状，我们可以得出如下结论：输入 $\mathbf{X}$ 和隐藏表示$\mathbf{H}$都具有空间结构。由此，我们用  $[\mathbf{X}]{i, j}$ 和 $[\mathbf{H}]{i, j}$ 分别表示输入图像和隐藏表示中的（$i$, $j$）元素。
+由于 $\mathbf{X}$ 和$\mathbf{H}$具有相同的二维形状，我们可以得出如下结论：输入 $\mathbf{X}$ 和隐藏表示$\mathbf{H}$都具有空间结构。由此，我们用  $[\mathbf{X}]_{i, j}$ 和 $[\mathbf{H}]_{i, j}$ 分别表示输入图像和隐藏表示中的（$i$, $j$）元素。
 
 为了使每个输入像素都有神经元处理，我们将参数从权重矩阵替换为四阶权重张量 $\mathsf{W}$,如同我们先前在MLP中所做的那样。假设 $\mathbf{U}$ 为偏差参数，我们可以将全连通层表示为
 
 $$\begin{aligned} \left[\mathbf{H}\right]_{i, j} &= [\mathbf{U}]_{i, j} + \sum_k \sum_l[\mathsf{W}]_{i, j, k, l}  [\mathbf{X}]_{k, l}\\ &=  [\mathbf{U}]_{i, j} +
-\sum_a \sum_b [\mathsf{V}]_{i, j, a, b}  [\mathbf{X}]_{i+a, j+b}.\end{aligned},$$
+\sum_a \sum_b [\mathsf{V}]_{i, j, a, b}  [\mathbf{X}]_{i+a, j+b}.\end{aligned}$$
 
 其中，从 $\mathsf{W}$ 到 $\mathsf{V}$ 的转换只是形式的转换，因为在两个四阶张量中，系数之间存在一对一的对应关系。
-我们只需重新索引下标 $(k, l)$，使 $k = i+a$、$l = j+b$， 由此  $[\mathsf{V}]{i, j, a, b} = [\mathsf{W}]{i, j, i+a, j+b}$。
+我们只需重新索引下标 $(k, l)$，使 $k = i+a$、$l = j+b$， 由此  $[\mathsf{V}]_{i, j, a, b} = [\mathsf{W}]_{i, j, i+a, j+b}$。
 这里的索引 $a$ 和 $b$ 覆盖了正偏移和负偏移，覆盖了整个图像。
-综上所述，对于隐藏表示$[\mathbf{H}]{i, j}$中的任何给定位置（$i$, $j$），我们通过对 $x$ 中以 $(i, j)$ 为中心并按 $[\mathsf{V}]{i, j, a, b}$ 权重的像素求和来计算其值。
+综上所述，对于隐藏表示$[\mathbf{H}]_{i, j}$中的任何给定位置（$i$, $j$），我们通过对 $x$ 中以 $(i, j)$ 为中心并按 $[\mathsf{V}]_{i, j, a, b}$ 权重的像素求和来计算其值。
 
 
 ### 平移不变性
 
-现在让我们引用上面的第一个原则：平移不变性。这意味着输入 $\mathbf{X}$ 中的移位应该仅与隐藏表示 $\mathbf{H}$ 中的移位有关， 所以 $\mathsf{V}$ 和 $\mathbf{U}$ 的权重实际上不依赖于 $(i, j)$ 的值。也就是说，$[\mathsf{V}]{i, j, a, b} = [\mathbf{V}]{a, b}$，并且 $\mathbf{U}$ 是一个常数，比如 $u$。因此，我们可以简化 $\mathbf{H}$ 定义为：
+现在让我们引用上面的第一个原则：平移不变性。这意味着输入 $\mathbf{X}$ 中的移位应该仅与隐藏表示 $\mathbf{H}$ 中的移位有关， 所以 $\mathsf{V}$ 和 $\mathbf{U}$ 的权重实际上不依赖于 $(i, j)$ 的值。也就是说，$[\mathsf{V}]_{i, j, a, b} = [\mathbf{V}]_{a, b}$，并且 $\mathbf{U}$ 是一个常数，比如 $u$。因此，我们可以简化 $\mathbf{H}$ 定义为：
 
 
 $$[\mathbf{H}]{i, j} = u + \sum_a\sum_b [\mathbf{V}]{a, b} [\mathbf{X}]_{i+a, j+b}.$$
@@ -66,7 +66,7 @@ $$[\mathbf{H}]{i, j} = u + \sum_a\sum_b [\mathbf{V}]{a, b} [\mathbf{X}]_{i+a, j+
 
 ### 局部性
 
-现在引用上述的第二个原则：局部性。如上所述，为了收集用来训练 $[\mathbf{H}]{i, j}$ 参数的相关信息，我们不应偏离到距 $(i, j)$ 很远的地方。这意味着在 $|a|> \Delta$ 或 $|b| > \Delta$ 的范围之外，我们可以假定 $[\mathbf{V}]{a, b} = 0$。由此，我们可以将 $[\mathbf{H}]_{i, j}$ 重写为
+现在引用上述的第二个原则：局部性。如上所述，为了收集用来训练 $[\mathbf{H}]_{i, j}$ 参数的相关信息，我们不应偏离到距 $(i, j)$ 很远的地方。这意味着在 $|a|> \Delta$ 或 $|b| > \Delta$ 的范围之外，我们可以假定 $[\mathbf{V}]_{a, b} = 0$。由此，我们可以将 $[\mathbf{H}]_{i, j}$ 重写为
 
 $$[\mathbf{H}]{i, j} = u + \sum{a = -\Delta}^{\Delta} \sum_{b = -\Delta}^{\Delta} [\mathbf{V}]{a, b} [\mathbf{X}]{i+a, j+b}.$$ :eqlabel:`eq_conv-layer`
 
