@@ -61,18 +61,19 @@ $$\begin{aligned} \left[\mathbf{H}\right]_{i, j} &= [\mathbf{U}]_{i, j} + \sum_k
 $$[\mathbf{H}]{i, j} = u + \sum_a\sum_b [\mathbf{V}]{a, b} [\mathbf{X}]_{i+a, j+b}.$$
 
 
-这就是卷积！我们使用系数 $(i+a, j+b)$ 有效地加权位置 $(i, j)$ 附近的像素以获得隐藏表示 $[\mathbf{H}]{i, j}$。注意，$[\mathbf{V}]{a, b}$ 的参数比 $[\mathsf{V}]_{i, j, a, b}$ 少很多，因为前者不再依赖于图像中的位置。太棒了，我们已经通过平移不变性取得了重大进展！
+这就是卷积！我们使用系数 $(i+a, j+b)$ 有效地加权位置 $(i, j)$ 附近的像素以获得隐藏表示 $[\mathbf{H}]_{i, j}$。注意，$[\mathbf{V}]_{a, b}$ 的参数比 $[\mathsf{V}]_{i, j, a, b}$ 少很多，因为前者不再依赖于图像中的位置。太棒了，我们已经通过平移不变性取得了重大进展！
 
 
 ### 局部性
 
 现在引用上述的第二个原则：局部性。如上所述，为了收集用来训练 $[\mathbf{H}]_{i, j}$ 参数的相关信息，我们不应偏离到距 $(i, j)$ 很远的地方。这意味着在 $|a|> \Delta$ 或 $|b| > \Delta$ 的范围之外，我们可以假定 $[\mathbf{V}]_{a, b} = 0$。由此，我们可以将 $[\mathbf{H}]_{i, j}$ 重写为
 
-$$[\mathbf{H}]{i, j} = u + \sum{a = -\Delta}^{\Delta} \sum_{b = -\Delta}^{\Delta} [\mathbf{V}]{a, b} [\mathbf{X}]{i+a, j+b}.$$ :eqlabel:`eq_conv-layer`
+$$[\mathbf{H}]_{i, j} = u + \sum_{a = -\Delta}^{\Delta} \sum_{b = -\Delta}^{\Delta} [\mathbf{V}]_{a, b}  [\mathbf{X}]_{i+a, j+b}.$$
+:eqlabel:`eq_conv-layer`
 
-简而言之，:eqref:`eq_conv-layer` 是一个卷积层，而卷积神经网络是包含卷积层的一类特殊的神经网络。
+简而言之， :eqref:`eq_conv-layer` 是一个卷积层，而卷积神经网络是包含卷积层的一类特殊的神经网络。
 在深度学习科研中， $\mathbf{V}$ 被称为卷积核或者过滤器，是可学习的权重。
-当图像处理的局部区域很小时，卷积神经网络CNN与完全连接的网络MLP的训练差异可能是巨大的：以前，MLP可能需要数十亿个参数来表示，而现在CNN通常只需要几百个参数，而且不X需要改变输入或隐藏表示的维数。
+当图像处理的局部区域很小时，卷积神经网络CNN与完全连接的网络MLP的训练差异可能是巨大的：以前，MLP可能需要数十亿个参数来表示，而现在CNN通常只需要几百个参数，而且不需要改变输入或隐藏表示的维数。
 以上所有的权重学习都依赖于归纳偏差，当这种偏差与实际情况相符时，我们就可以得到有效的模型，这些模型能很好地推广到不可见的数据中。
 但如果这些假设与实际情况不符，比如当图像不是平移不变时，我们的模型可能难以学习数据。
 
@@ -99,7 +100,7 @@ $$(f * g)(i, j) = \sum_a\sum_b f(a, b) g(i-a, j-b).$$
 
 ## “沃尔多在哪里” 回顾
 
-回到上面的沃尔多探测器，让我们看看它到底是什么样子。卷积层根据滤波器$\mathsf{V}$选取给定大小的窗口，并加权处理图片，如 :numref:`fig_waldo_mask` 中所示。我们的目标是学习一个模型，以便探测出在“沃尔多”最可能出现的地方。
+回到上面的沃尔多探测器，让我们看看它到底是什么样子。卷积层根据滤波器 $\mathsf{V}$ 选取给定大小的窗口，并加权处理图片，如 :numref:`fig_waldo_mask` 中所示。我们的目标是学习一个模型，以便探测出在“沃尔多”最可能出现的地方。
 
 ![Detect Waldo.](../img/waldo-mask.jpg)
 :width:`400px`
@@ -109,18 +110,18 @@ $$(f * g)(i, j) = \sum_a\sum_b f(a, b) g(i-a, j-b).$$
 ### 通道
 :label:`subsec_why-conv-channels`
 
-然而这种方法有一个问题：我们忽略了图像的 3 原色（红色、绿色和蓝色）的组成。
+然而这种方法有一个问题：我们忽略了图像的三原色（红色、绿色和蓝色）的组成。
 实际上，图像不是二维张量，而是一个由高度、宽度和颜色组成的三维张量，例如形状为 $1024 \times 1024 \times 3$ 的像素。
-因此，我们将 $\mathsf{X}$ 索引为 $[\mathsf{X}]{i, j, k}$ 。由此卷积相应地调整为 $[\mathsf{V}]_{a,b,c}$ ，而不是 $[\mathbf{V}]{a,b}$ 。
+因此，我们将 $\mathsf{X}$ 索引为 $[\mathsf{X}]_{i, j, k}$ 。由此卷积相应地调整为 $[\mathsf{V}]_{a,b,c}$ ，而不是 $[\mathbf{V}]_{a,b}$ 。
 
 此外，由于输入图像是三维的，我们的隐藏表示$\mathsf{H}$也可化为一个三维张量。
 因此，我们可以把隐藏表示想象为一系列具有二维张量的*通道*。
 这些通道有时也被称为*特征映射*，因为每一层都向后续层提供一组空间化的学习特征。
 在靠近输入的较低层，一些通道专门识别边，而其他通道专门识别纹理。
 
-为了支持输入（$\mathsf{X}$）和隐藏表示（$\mathsf{H}$）中的多个通道，我们可以在 $\mathsf{V}$ 中添加第四个坐标，即 $[\mathsf{V}]_{a, b, c, d}$ 。综上所述，
+为了支持输入 $\mathsf{X}$ 和隐藏表示 $\mathsf{H}$ 中的多个通道，我们可以在 $\mathsf{V}$ 中添加第四个坐标，即 $[\mathsf{V}]_{a, b, c, d}$ 。综上所述，
 
-$$[\mathsf{H}]{i,j,d} = \sum{a = -\Delta}^{\Delta} \sum_{b = -\Delta}^{\Delta} \sum_c [\mathsf{V}]{a, b, c, d} [\mathsf{X}]{i+a, j+b, c},$$ 
+$$[\mathsf{H}]_{i,j,d} = \sum_{a = -\Delta}^{\Delta} \sum_{b = -\Delta}^{\Delta} \sum_c [\mathsf{V}]_{a, b, c, d} [\mathsf{X}]_{i+a, j+b, c},$$
 :eqlabel:`eq_conv-layer-channels`
 
 其中隐藏表示 $\mathsf{H}$ 中的 $d$ 索引表示输出通道，而随后的输出将继续以三维张量 $\mathsf{H}$ 作为输入进入下一个卷积层。
@@ -131,7 +132,7 @@ $$[\mathsf{H}]{i,j,d} = \sum{a = -\Delta}^{\Delta} \sum_{b = -\Delta}^{\Delta} \
 
 
 
-## 摘要
+## 小结
 
 - 图像的平移不变性意味着我们可以以相同的方式进行处理。
 - 局部性意味着计算相应的隐藏表示只需一小部分局部图像像素。
@@ -148,6 +149,6 @@ $$[\mathsf{H}]{i,j,d} = \sum{a = -\Delta}^{\Delta} \sum_{b = -\Delta}^{\Delta} \
 1. 当从图像边界像素获取隐藏表示时，我们需要思考哪些问题？
 1. 描述一个类似的音频卷积层的架构。
 1. 卷积层也适用于文本数据吗？为什么？
-1. 证明在 :eqref:`eq_2d-conv-discrete` 中，  $f * g = g * f$  。
+1. 证明在 :eqref:`eq_2d-conv-discrete` 中， $f * g = g * f$  。
 
 [Discussions](https://discuss.d2l.ai/t/64)
