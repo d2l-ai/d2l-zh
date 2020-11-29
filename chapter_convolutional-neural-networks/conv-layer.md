@@ -162,7 +162,7 @@ X
 K = d2l.tensor([[1.0, -1.0]])
 ```
 
-现在，我们对参数`X`（输入）和`K`（内核）执行互相关运算。如下所示，输出`Y`显示$1$代表从白色到黑色的边缘，$-1$代表从黑色到白色的边缘，其他所有输出为$0$。
+现在，我们对参数 `X` （输入）和 `K` （内核）执行互相关运算。如下所示，输出 `Y` 显示 $1$ 代表从白色到黑色的边缘， $-1$ 代表从黑色到白色的边缘，其他所有输出为 $0$ 。
 
 ```{.python .input}
 #@tab all
@@ -202,7 +202,7 @@ for i in range(10):
         Y_hat = conv2d(X)
         l = (Y_hat - Y) ** 2
     l.backward()
-    # Update the kernel
+    # 迭代卷积核
     conv2d.weight.data()[:] -= 3e-2 * conv2d.weight.grad()
     if (i + 1) % 2 == 0:
         print(f'batch {i+1}, loss {float(l.sum()):.3f}')
@@ -223,7 +223,7 @@ for i in range(10):
     l = (Y_hat - Y) ** 2
     conv2d.zero_grad()
     l.sum().backward()
-    # Update the kernel
+    # 迭代卷积核
     conv2d.weight.data[:] -= 3e-2 * conv2d.weight.grad
     if (i + 1) % 2 == 0:
         print(f'batch {i+1}, loss {l.sum():.3f}')
@@ -245,7 +245,7 @@ for i in range(10):
         g.watch(conv2d.weights[0])
         Y_hat = conv2d(X)
         l = (abs(Y_hat - Y)) ** 2
-        # Update the kernel
+        # 迭代卷积核
         update = tf.multiply(3e-2, g.gradient(l, conv2d.weights[0]))
         weights = conv2d.get_weights()
         weights[0] = conv2d.weights[0] - update
