@@ -47,22 +47,17 @@ from mxnet import np, npx
 from mxnet.gluon import nn
 npx.set_np()
 
-# For convenience, we define a function to calculate the convolutional layer.
-# This function initializes the convolutional layer weights and performs
-# corresponding dimensionality elevations and reductions on the input and
-# output
+# 为了方便起见，我们定义了一个计算卷积层的函数。
+# 此函数初始化卷积层权重，并对输入和输出提高和缩减相应的维数
 def comp_conv2d(conv2d, X):
     conv2d.initialize()
-    # Here (1, 1) indicates that the batch size and the number of channels
-    # are both 1
+    # 这里的（1，1）表示批大小和通道数都是1
     X = X.reshape((1, 1) + X.shape)
     Y = conv2d(X)
-    # Exclude the first two dimensions that do not interest us: examples and
-    # channels
+    # 省略前两个维度：批大小和通道
     return Y.reshape(Y.shape[2:])
 
-# Note that here 1 row or column is padded on either side, so a total of 2
-# rows or columns are added
+# 请注意，这里每边都填充了1行或1列，因此总共添加了2行或2列
 conv2d = nn.Conv2D(1, kernel_size=3, padding=1)
 X = np.random.uniform(size=(8, 8))
 comp_conv2d(conv2d, X).shape
@@ -73,20 +68,16 @@ comp_conv2d(conv2d, X).shape
 import torch
 from torch import nn
 
-# We define a convenience function to calculate the convolutional layer. This
-# function initializes the convolutional layer weights and performs
-# corresponding dimensionality elevations and reductions on the input and
-# output
+# 为了方便起见，我们定义了一个计算卷积层的函数。
+# 此函数初始化卷积层权重，并对输入和输出提高和缩减相应的维数
 def comp_conv2d(conv2d, X):
-    # Here (1, 1) indicates that the batch size and the number of channels
-    # are both 1
+    # 这里的（1，1）表示批大小和通道数都是1
     X = X.reshape((1, 1) + X.shape)
     Y = conv2d(X)
-    # Exclude the first two dimensions that do not interest us: examples and
-    # channels
+    # 省略前两个维度：批大小和通道
     return Y.reshape(Y.shape[2:])
-# Note that here 1 row or column is padded on either side, so a total of 2
-# rows or columns are added
+
+# 请注意，这里每边都填充了1行或1列，因此总共添加了2行或2列
 conv2d = nn.Conv2d(1, 1, kernel_size=3, padding=1)
 X = torch.rand(size=(8, 8))
 comp_conv2d(conv2d, X).shape
@@ -96,69 +87,63 @@ comp_conv2d(conv2d, X).shape
 #@tab tensorflow
 import tensorflow as tf
 
-# We define a convenience function to calculate the convolutional layer. This
-# function initializes the convolutional layer weights and performs
-# corresponding dimensionality elevations and reductions on the input and
-# output
+# 为了方便起见，我们定义了一个计算卷积层的函数。
+# 此函数初始化卷积层权重，并对输入和输出提高和缩减相应的维数
 def comp_conv2d(conv2d, X):
-    # Here (1, 1) indicates that the batch size and the number of channels
-    # are both 1
+    # 这里的（1，1）表示批大小和通道数都是1
     X = tf.reshape(X, (1, ) + X.shape + (1, ))
     Y = conv2d(X)
-    # Exclude the first two dimensions that do not interest us: examples and
-    # channels
+    # 省略前两个维度：批大小和通道
     return tf.reshape(Y, Y.shape[1:3])
-# Note that here 1 row or column is padded on either side, so a total of 2
-# rows or columns are added
+
+# 请注意，这里每边都填充了1行或1列，因此总共添加了2行或2列
 conv2d = tf.keras.layers.Conv2D(1, kernel_size=3, padding='same')
 X = tf.random.uniform(shape=(8, 8))
 comp_conv2d(conv2d, X).shape
 ```
 
-当卷积内核的高度和宽度不同时，我们可以通过为高度和宽度设置不同的填充数字来使输出和输入具有相同的高度和宽度。
+当卷积内核的高度和宽度不同时，我们可以填充不同的高度和宽度，使输出和输入具有相同的高度和宽度。在如下示例中，我们使用高度为 $5$，宽度为 $3$ 的卷积核，高度和宽度两边的填充分别为 $2$ 和 $1$。
 
 ```{.python .input}
-# Here, we use a convolution kernel with a height of 5 and a width of 3. The
-# padding numbers on either side of the height and width are 2 and 1,
-# respectively
 conv2d = nn.Conv2D(1, kernel_size=(5, 3), padding=(2, 1))
 comp_conv2d(conv2d, X).shape
 ```
 
 ```{.python .input}
 #@tab pytorch
-# Here, we use a convolution kernel with a height of 5 and a width of 3. The
-# padding numbers on either side of the height and width are 2 and 1,
-# respectively
 conv2d = nn.Conv2d(1, 1, kernel_size=(5, 3), padding=(2, 1))
 comp_conv2d(conv2d, X).shape
 ```
 
 ```{.python .input}
 #@tab tensorflow
-# Here, we use a convolution kernel with a height of 5 and a width of 3. The
-# padding numbers on either side of the height and width are 2 and 1,
-# respectively
 conv2d = tf.keras.layers.Conv2D(1, kernel_size=(5, 3), padding='valid')
 comp_conv2d(conv2d, X).shape
 ```
 
 ## 步幅
 
-在计算互相关时，我们从输入张量左上角的卷积窗口开始，然后向下和向右滑动所有位置。在前面的示例中，我们默认每次滑动一个元素。但是，有时候，无论是为了计算效率还是因为我们希望缩减采样，我们一次移动窗口多个元素，跳过中间位置。
+在计算互相关时，卷积窗口从输入张量的左上角开始，向下和向右滑动。
+在前面的示例中，我们默认每次滑动一个元素。
+但是，有时候为了高效计算或是缩减采样次数，卷积窗口可以跳过中间位置，每次滑动多个元素。
 
-我们将每张幻灯片遍历的行数和列数称为 * stride*。到目前为止，我们已经使用了 1 的步幅，无论是高度还是宽度。有时候，我们可能需要使用较大的步幅。:numref:`img_conv_stride` 显示了二维交叉相关运算，步幅为 3，水平为 2。阴影部分是输出元素以及用于输出计算的输入和内核张量元素：$0\times0+0\times1+1\times2+2\times3=8$、$0\times0+6\times1+0\times2+0\times3=6$。我们可以看到，当输出第一列的第二个元素时，卷积窗口向下滑动三行。当输出第一行的第二个元素时，卷积窗口会向右滑动两列。当卷积窗口继续向输入的右侧滑动两列时，没有输出，因为输入元素无法填充窗口（除非我们添加另一列填充）。
+我们将滑动元素的数量称为 *步幅* （stride）。到目前为止，我们只使用过高度或宽度为 $1$ 的步幅，那么如何使用较大的步幅呢？
+:numref:`img_conv_stride` 是垂直步幅为 $3$，水平步幅为 $2$的二维互相关运算。
+着色部分是输出元素以及用于输出计算的输入和内核张量元素：$0\times0+0\times1+1\times2+2\times3=8$、$0\times0+6\times1+0\times2+0\times3=6$。
+
+如何计算输出中第一列的第二个元素呢？如图所示，卷积窗口向下滑动三行、向右滑动两列。但是，当卷积窗口继续向右滑动两列时，没有输出，因为输入元素无法填充窗口（除非我们添加另一列填充）。
 
 ![Cross-correlation with strides of 3 and 2 for height and width, respectively.](../img/conv-stride.svg)
 :label:`img_conv_stride`
 
-通常，当高度的步幅为 $s_h$ 且宽度的步幅为 $s_w$ 时，输出形状为
+通常，当垂直步幅为 $s_h$ 、水平步幅为 $s_w$ 时，输出形状为
 
 $$\lfloor(n_h-k_h+p_h+s_h)/s_h\rfloor \times \lfloor(n_w-k_w+p_w+s_w)/s_w\rfloor.$$
 
-如果我们设置了 $p_h=k_h-1$ 和 $p_w=k_w-1$，则输出形状将简化为 $\lfloor(n_h+s_h-1)/s_h\rfloor \times \lfloor(n_w+s_w-1)/s_w\rfloor$。更进一步，如果输入高度和宽度可以被高度和宽度的步幅整除，则输出形状将为 $(n_h/s_h) \times (n_w/s_w)$。
+如果我们设置了 $p_h=k_h-1$ 和 $p_w=k_w-1$，则输出形状将简化为 $\lfloor(n_h+s_h-1)/s_h\rfloor \times \lfloor(n_w+s_w-1)/s_w\rfloor$。
+更进一步，如果输入的高度和宽度可以被垂直和水平步幅整除，则输出形状将为 $(n_h/s_h) \times (n_w/s_w)$。
 
-下面，我们将高度和宽度的步幅设置为 2，从而将输入高度和宽度减半。
+下面，我们将高度和宽度的步幅设置为 $2$，从而将输入的高度和宽度减半。
 
 ```{.python .input}
 conv2d = nn.Conv2D(1, kernel_size=3, padding=1, strides=2)
@@ -177,7 +162,7 @@ conv2d = tf.keras.layers.Conv2D(1, kernel_size=3, padding='same', strides=2)
 comp_conv2d(conv2d, X).shape
 ```
 
-接下来，我们将看一个稍微复杂的例子。
+接下来，看一个稍微复杂的例子。
 
 ```{.python .input}
 conv2d = nn.Conv2D(1, kernel_size=(3, 5), padding=(0, 1), strides=(3, 4))
@@ -197,20 +182,21 @@ conv2d = tf.keras.layers.Conv2D(1, kernel_size=(3,5), padding='valid',
 comp_conv2d(conv2d, X).shape
 ```
 
-为了简洁起见，当输入高度和宽度两侧的填充数量分别为 $p_h$ 和 $p_w$ 时，我们称之为填充 $(p_h, p_w)$。具体来说，当 $p_h = p_w = p$ 时，填充是 $p$。当高度和宽度上的步幅分别为 $s_h$ 和 $s_w$ 时，我们称之为步幅 $(s_h, s_w)$。具体而言，当时的步幅为 $s_h = s_w = s$ 时，步幅为 $s$。默认情况下，填充为 0，步幅为 1。在实践中，我们很少使用不均匀的步幅或填充，也就是说，我们通常有 $p_h = p_w$ 和 $s_h = s_w$。
+为了简洁起见，当输入高度和宽度两侧的填充数量分别为 $p_h$ 和 $p_w$ 时，我们称之为填充 $(p_h, p_w)$。当 $p_h = p_w = p$ 时，填充是 $p$。同理，当高度和宽度上的步幅分别为 $s_h$ 和 $s_w$ 时，我们称之为步幅 $(s_h, s_w)$。当时的步幅为 $s_h = s_w = s$ 时，步幅为 $s$。默认情况下，填充为 0，步幅为 1。在实践中，我们很少使用不一致的步幅或填充，也就是说，我们通常有 $p_h = p_w$ 和 $s_h = s_w$。
 
-## 摘要
 
-* 填充可以增加输出的高度和宽度。这通常用于为输出提供与输入相同的高度和宽度。
-* 步幅可以降低输出的分辨率，例如，将输出的高度和宽度降低到输入高度和宽度的 $1/n$（$n$ 是一个大于 $1$ 的整数）。
+## 小结
+
+* 填充可以增加输出的高度和宽度。这常用来使输出与输入具有相同的高和宽。
+* 步幅可以减小输出的高和宽，例如输出的高和宽仅为输入的高和宽的 $1/n$（ $n$ 是一个大于 $1$ 的整数）。
 * 填充和步幅可用于有效地调整数据的维度。
 
 ## 练习
 
-1. 对于本节中的最后一个示例，使用数学计算输出形状，以查看它是否与实验结果一致。
-1. 在本节中的实验中尝试其他填充和步幅组合。
-1. 对于音频信号，步幅 2 对应什么？
-1. 步幅大于 1 的计算优势是什么？
+1. 对于本节中的最后一个示例，计算其输出形状，以查看它是否与实验结果一致。
+1. 在本节中的实验中，试一试其他填充和步幅组合。
+1. 对于音频信号，步幅 $2$ 说明什么？
+1. 步幅大于 $1$ 的计算优势是什么？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/67)
