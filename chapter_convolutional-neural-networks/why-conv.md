@@ -58,7 +58,7 @@ $$\begin{aligned} \left[\mathbf{H}\right]_{i, j} &= [\mathbf{U}]_{i, j} + \sum_k
 现在让我们引用上面的第一个原则：平移不变性。这意味着输入 $\mathbf{X}$ 中的移位应该仅与隐藏表示 $\mathbf{H}$ 中的移位有关， 所以 $\mathsf{V}$ 和 $\mathbf{U}$ 的权重实际上不依赖于 $(i, j)$ 的值。也就是说，$[\mathsf{V}]_{i, j, a, b} = [\mathbf{V}]_{a, b}$，并且 $\mathbf{U}$ 是一个常数，比如 $u$。因此，我们可以简化 $\mathbf{H}$ 定义为：
 
 
-$$[\mathbf{H}]{i, j} = u + \sum_a\sum_b [\mathbf{V}]{a, b} [\mathbf{X}]_{i+a, j+b}.$$
+$$[\mathbf{H}]_{i, j} = u + \sum_a\sum_b [\mathbf{V}]_{a, b} [\mathbf{X}]_{i+a, j+b}.$$
 
 
 这就是卷积！我们使用系数 $(i+a, j+b)$ 有效地加权位置 $(i, j)$ 附近的像素以获得隐藏表示 $[\mathbf{H}]_{i, j}$。注意，$[\mathbf{V}]_{a, b}$ 的参数比 $[\mathsf{V}]_{i, j, a, b}$ 少很多，因为前者不再依赖于图像中的位置。太棒了，我们已经通过平移不变性取得了重大进展！
@@ -102,7 +102,7 @@ $$(f * g)(i, j) = \sum_a\sum_b f(a, b) g(i-a, j-b).$$
 
 回到上面的沃尔多探测器，让我们看看它到底是什么样子。卷积层根据滤波器 $\mathsf{V}$ 选取给定大小的窗口，并加权处理图片，如 :numref:`fig_waldo_mask` 中所示。我们的目标是学习一个模型，以便探测出在“沃尔多”最可能出现的地方。
 
-![Detect Waldo.](../img/waldo-mask.jpg)
+![发现沃尔多。](../img/waldo-mask.jpg)
 :width:`400px`
 :label:`fig_waldo_mask`
 
