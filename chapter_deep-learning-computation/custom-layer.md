@@ -148,7 +148,8 @@ class MyDense(tf.keras.Model):
             initializer=tf.zeros_initializer())
 
     def call(self, X):
-        return tf.matmul(X, self.weight) + self.bias
+        linear = tf.matmul(X, self.weight) + self.bias
+        return tf.nn.relu(linear)
 ```
 
 接下来，我们实例化`MyDense`类并访问其模型参数。
@@ -218,8 +219,8 @@ net(tf.random.uniform((2, 64)))
 
 ## 练习
 
-1. 设计一个接受输入并计算张量缩减的层，它返回$y_k = \sum_{i, j} W_{ijk} x_i x_j$。
-1. 设计一个返回数据傅立叶系数前半部分的层。
+1. 设计一个接受输入并计算张量汇总的层，它返回$y_k = \sum_{i, j} W_{ijk} x_i x_j$。
+1. 设计一个返回输入数据的傅立叶系数前半部分的层。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/58)
