@@ -18,7 +18,7 @@
 例如，在   :numref:`img_conv_pad`  中，我们将 $3 \times 3$ 输入填充到 $5 \times 5$，那么它的输出就增加为 $4 \times 4$。着色部分是第一个输出元素以及用于输出计算的输入和核张量元素：
 $0\times0+0\times1+0\times2+0\times3=0$。
 
-![Two-dimensional cross-correlation with padding.](../img/conv-pad.svg)
+![二维互相关的填充应用。](../img/conv-pad.svg)
 :label:`img_conv_pad`
 
 通常，如果我们添加 $p_h$ 行填充（大约一半在顶部，一半在底部）和 $p_w$ 列填充（左侧大约一半，右侧半），则输出形状将为
@@ -128,12 +128,12 @@ comp_conv2d(conv2d, X).shape
 但是，有时候为了高效计算或是缩减采样次数，卷积窗口可以跳过中间位置，每次滑动多个元素。
 
 我们将滑动元素的数量称为 *步幅* （stride）。到目前为止，我们只使用过高度或宽度为 $1$ 的步幅，那么如何使用较大的步幅呢？
-:numref:`img_conv_stride` 是垂直步幅为 $3$，水平步幅为 $2$的二维互相关运算。
+:numref:`img_conv_stride` 是垂直步幅为 $3$，水平步幅为 $2$ 的二维互相关运算。
 着色部分是输出元素以及用于输出计算的输入和内核张量元素：$0\times0+0\times1+1\times2+2\times3=8$、$0\times0+6\times1+0\times2+0\times3=6$。
 
 如何计算输出中第一列的第二个元素呢？如图所示，卷积窗口向下滑动三行、向右滑动两列。但是，当卷积窗口继续向右滑动两列时，没有输出，因为输入元素无法填充窗口（除非我们添加另一列填充）。
 
-![Cross-correlation with strides of 3 and 2 for height and width, respectively.](../img/conv-stride.svg)
+![垂直步幅为 $3$，水平步幅为 $2$ 的二维互相关运算。](../img/conv-stride.svg)
 :label:`img_conv_stride`
 
 通常，当垂直步幅为 $s_h$ 、水平步幅为 $s_w$ 时，输出形状为
