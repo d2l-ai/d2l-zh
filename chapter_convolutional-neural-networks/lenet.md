@@ -334,7 +334,7 @@ train_ch6(net, train_iter, test_iter, num_epochs, lr)
     1. 调整全连接层的数量。
     1. 调整学习率和其他训练细节（例如，初始化和周期数）。
 1. 在 MNIST 数据集上尝试以上改进的网络。
-1. 显示 LenNet 的第一层和第二层激活输入（例如，毛衣和大衣）。
+1. 显示 LeNet 的第一层和第二层激活输入（例如，毛衣和大衣）。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/73)
