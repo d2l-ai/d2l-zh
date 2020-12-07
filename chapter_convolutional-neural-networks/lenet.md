@@ -1,24 +1,30 @@
-# 卷积神经网络 (Lenet)
+# Lenet
 :label:`sec_lenet`
 
-我们现在拥有组装一个功能齐全的 CNN 所需的所有成分。在我们之前遇到的图像数据中，我们将软最大回归模型 (:numref:`sec_softmax_scratch`) 和 MLP 模型 (:numref:`sec_mlp_scratch`) 应用于时尚多国主义数据集中的服装图片。为了使这些数据适用于 softmax 回归和 MLP，我们首先将 $28\times28$ 矩阵中的每个图像拼合成一个固定长度的 $784$ 维矢量，然后使用完全连接的图层对它们进行处理。现在我们有一个卷积图层的句柄，我们可以保留图像中的空间结构。作为用卷积层替换完全连接的图层的另一个好处，我们将享受更多需要更少参数的偏差模型。
 
-在本节中，我们将介绍 *Lenet*，它是首次发布的 CNN 之一，以吸引人们对其在计算机视觉任务上的性能的广泛关注。该模型由当时的 AT&T 贝尔实验室研究员 Yann Lecun 介绍（并命名），目的是识别图像 :cite:`LeCun.Bottou.Bengio.ea.1998` 中的手写数字。这项工作标志着十年研究开发技术的结果。1989 年，Lecun 公布了第一项通过反向传播成功训练有线电视网络的研究。
+通过之前几节的学习，我们了解了构建一个功能齐全的卷积神经网络所需成分。回顾之前我们将 softmax 回归模型（:numref:`sec_softmax_scratch`）和全连接层模型（:numref:`sec_mlp_scratch`）应用于时装 MNIST 数据集中的服装图片。为此，我们首先将每个大小为 $28\times28$ 的图像展平为一个 $784$ 固定长度的一维向量，然后用全连接层对其进行处理。而现在，我们已经掌握了卷积层的处理方法，我们可以在图像中保留空间结构。同时，用卷积层代替全连接层的另一个好处是前者的更简洁模型需要更少参数的。
 
-当时 LenNet 取得了出色的结果，与支持向量机的性能相匹配，然后是监督学习的主导方法。Lenet 最终被调整为识别数字，用于处理 ATM 机的存款。到目前为止，一些自动取款机仍然运行 Yann 和他的同事莱昂·博图在 20 世纪 90 年代写的代码！
+在本节中，我们将介绍 LeNet ，它是最早发布的卷积神经网络之一，因其在计算机视觉任务中的性能而受到广泛关注。这个模型是由当时 AT&T 贝尔实验室的研究员 Yann LeCun 提出的（并以其命名），目的是识别图像 :cite:`LeCun.Bottou.Bengio.ea.1998` 中的手写数字。1989年，Yann LeCun 发表了第一篇通过反向传播成功训练卷积神经网络的研究，这项工作代表了十多年来研究开发技术的成果。
+
+当时， LeNet 取得了与支持向量机（support vector machines）性能相媲美的成果，成为监督学习的主流方法。LeNet 被广泛用于自动取款机（ATM）机中，帮助识别处理支票的数字。时至今日，一些自动取款机仍在运行 Yann LeCun 和他的同事 Leon Bottou 在上世纪90年代写的代码呢！
+
+
 
 ## Lenet
 
-在高层次上，Lenet (Lenet-5) 由两个部分组成：(i) 卷积编码器由两个卷积层组成; 和 (ii) 由三个完全连接层组成的密集块; 该架构在 :numref:`img_lenet` 中总结。
+总体来看，Lenet (Lenet-5) 由两个部分组成：
+- 由两个卷积层组成的卷积编码器; 
+- 由三个完全连接层组成的全连接层密集块。
+该架构在 :numref:`img_lenet` 中总结。
 
-![Data flow in LeNet. The input is a handwritten digit, the output a probability over 10 possible outcomes.](../img/lenet.svg)
+![LeNet中的数据流。输入是手写数字，输出为10种可能结果的概率。](../img/lenet.svg)
 :label:`img_lenet`
 
-每个卷积块中的基本单位为卷积层、sigmoid 激活函数和后续的平均池操作。请注意，虽然 RelU 和最大汇集工作效果更好，但这些发现在 1990 年代还没有取得。每个卷积层都使用一个 $5\times 5$ 内核和一个符号激活函数。这些图层将空间排列的输入映射到许多二维要素地图，通常会增加通道数。第一个卷积层有 6 个输出通道，而第二个有 16 个输出通道。通过空间缩减采样，每次 $2\times2$ 池化操作（步进 2）将维度降低系数 $4$。卷积块发出形状由（批量大小、通道数、高度、宽度）给定的输出。
+每个卷积块中的基本单元是一个卷积层、一个 sigmoid 激活函数和随后的平均池化层。请注意，虽然 ReLU 和最大池化层更有效，但它们在20世纪90年代还没有出现。每个卷积层使用 $5\times 5$ 内核，这些层将输入映射到多个二维特征输出，通常同时增加通道的数量。第一卷积层有 $6$ 个输出通道，而第二个卷积层有 $16$ 个输出通道。每个 $2\times2$ 池操作（步骤2）通过空间下采样将维数减少 $4$ 倍。卷积的输出形状由批大小、通道数、高度、宽度决定。
 
-为了将卷积块的输出传递给密集块，我们必须将微型批处理中的每个示例平整。换句话说，我们将这个四维输入转换为完全连接图层所期望的二维输入：作为一个提醒，我们希望的二维表示使用第一个维度来索引微批次中的示例，第二个维度给出平坦向量表示每个示例。Lenet 的密集模块有三个完全连接的层，分别有 120、84 和 10 个输出。由于我们仍在执行分类，因此 10 维输出图层对应于可能的输出类的数量。
+为了将卷积块的输出传递给密集块，我们必须在小批量中展平每个示例。换言之，我们将这个四维输入转换成全连接层所期望的二维输入。这里的二维表示的第一个维度索引小批量中的示例，第二个维度给出每个示例的平面向量表示。LeNet 的密集块有三个全连接层，分别有 $120$、$84$ 和 $10$ 个输出。因为我们仍在执行分类，所以 $10$ 维的输出层对应于最后输出结果的数量。
 
-虽然你真正理解 LenNet 内部发生的事情可能需要一些工作，但希望下面的代码片段能够说服你，使用现代深度学习框架实现这些模型非常简单。我们只需要实例化一个 `Sequential` 块，并将适当的层链接在一起。
+通过下面的 Lenet 代码，您会相信用深度学习框架实现此类模型非常简单。我们只需要实例化一个 `Sequential` 块并将适当的层连接在一起。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -31,9 +37,8 @@ net.add(nn.Conv2D(channels=6, kernel_size=5, padding=2, activation='sigmoid'),
         nn.AvgPool2D(pool_size=2, strides=2),
         nn.Conv2D(channels=16, kernel_size=5, activation='sigmoid'),
         nn.AvgPool2D(pool_size=2, strides=2),
-        # `Dense` will transform an input of the shape (batch size, number of
-        # channels, height, width) into an input of the shape (batch size,
-        # number of channels * height * width) automatically by default
+        # 默认情况下，“Dense” 会自动将形状为（批大小、通道数、高度、宽度）的输入，
+        # 转换为形状为（批大小、通道数*高度*宽度）的输入
         nn.Dense(120, activation='sigmoid'),
         nn.Dense(84, activation='sigmoid'),
         nn.Dense(10))
@@ -81,11 +86,11 @@ def net():
         tf.keras.layers.Dense(10)])
 ```
 
-我们采取了一个小的自由与原来的模型, 去除高斯激活在最后一层.除此之外，此网络与原来的 Lenet-5 体系结构相匹配。
+我们对原始模型做了一点小小改动，去掉了最后一层的高斯激活。除此之外，这个网络与最初的 LeNet-5 一致。
 
-通过通过网络传递单通道（黑白）$28 \times 28$ 图像并在每一层打印输出形状，我们可以检查模型，以确保其操作符合我们期望的 :numref:`img_lenet_vert`。
+下面，我们将一个大小为 $28 \times 28$ 的单通道（黑白）图像通过 Lenet。 通过在每一层打印输出形状，我们可以检查模型，以确保其操作与我们期望的 :numref:`img_lenet_vert` 一致。
 
-![Compressed notation for LeNet-5.](../img/lenet-vert.svg)
+![LeNet 的简化版。](../img/lenet-vert.svg)
 :label:`img_lenet_vert`
 
 ```{.python .input}
@@ -112,11 +117,12 @@ for layer in net().layers:
     print(layer.__class__.__name__, 'output shape: \t', X.shape)
 ```
 
-请注意，整个卷积块中每个图层的制图表达的高度和宽度都会减少（与上一层相比）。第一个卷积图层使用 2 个像素的填充来补偿因使用 $5 \times 5$ 内核而导致的高度和宽度减少。相比之下，第二个卷积图层放弃填充，因此高度和宽度都减少了 4 个像素。随着层叠的上升，通道的数量将从输入中的 1 个增加到第一个卷积层后的 6 个，第二个卷积层后的 16 个。但是，每个池化图层将高度和宽度降低一半。最后，每个完全连接的图层都会降低维度，最后发出尺寸与类数相匹配的输出。
+请注意，在整个卷积块中，与上一层相比，每一层的表示的高度和宽度都减小了。第一卷积层使用 $2$ 个像素的填充来补偿由于使用 $5 \times 5$ 内核而导致的高度和宽度的减少。相反，第二卷积层没有填充，因此高度和宽度都减少了 $4$ 个像素。随着层叠的上升，通道的数量从输入时的 $1$ 个，增加到第一卷积层之后的 $6$ 个，再到第二卷积层之后的 $16$ 个。同时，每个池化层的高度和宽度都减半。最后，每个全连接层减少维数，最终输出一个维数与结果分类数相匹配的输出。
 
-## 培训
 
-现在，我们已经实施了模型, 让我们运行一个实验，看看 Lenet 如何在时尚 MNist 票价.
+## 模型训练
+
+现在我们已经实现了 LeNet ，让我们看看这个模型在 MNIST 数据集上的表现。
 
 ```{.python .input}
 #@tab all
@@ -124,19 +130,18 @@ batch_size = 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size=batch_size)
 ```
 
-虽然 CNN 的参数较少，但与类似深度的 MLP 相比，它们的计算成本仍然更高，因为每个参数都参与更多的乘法。如果您有权访问 GPU，现在可能是将其付诸实施以加快培训的好时机。
+虽然卷积神经网络的参数较少，但与类似深度的全连接层相比，它们的计算成本仍然更高，因为每个参数都参与更多的乘法。如果你有机会使用GPU，可以用它加快训练。
 
 :begin_tab:`mxnet, pytorch`
-为了进行评估，我们需要对我们在 :numref:`sec_softmax_scratch` 中描述的 `evaluate_accuracy` 函数进行轻微的修改。由于完整的数据集位于主内存中，因此在模型使用 GPU 计算数据集之前，我们需要将其复制到 GPU 内存中。
+为了进行评估，我们需要对 :numref:`sec_softmax_scratch` 中描述的 `evaluate_accuracy` 函数进行轻微的修改。由于完整的数据集位于主内存中，因此在模型使用 GPU 计算数据集之前，我们需要将其复制到 GPU 内存中。
 :end_tab:
 
 ```{.python .input}
 def evaluate_accuracy_gpu(net, data_iter, device=None):  #@save
     """Compute the accuracy for a model on a dataset using a GPU."""
-    if not device:  # Query the first device where the first parameter is on
+    if not device:  # 查询第一个参数所在的第一个设备
         device = list(net.collect_params().values())[0].list_ctx()[0]
-    # No. of correct predictions, no. of predictions
-    metric = d2l.Accumulator(2)
+    metric = d2l.Accumulator(2)  # 正确预测的数量，总预测的数量
     for X, y in data_iter:
         X, y = X.as_in_ctx(device), y.as_in_ctx(device)
         metric.add(d2l.accuracy(net(X), y), d2l.size(y))
@@ -147,20 +152,19 @@ def evaluate_accuracy_gpu(net, data_iter, device=None):  #@save
 #@tab pytorch
 def evaluate_accuracy_gpu(net, data_iter, device=None): #@save
     """Compute the accuracy for a model on a dataset using a GPU."""
-    net.eval()  # Set the model to evaluation mode
+    net.eval()  # 设置为评估模式
     if not device:
         device = next(iter(net.parameters())).device
-    # No. of correct predictions, no. of predictions
-    metric = d2l.Accumulator(2)
+    metric = d2l.Accumulator(2)  # 正确预测的数量，总预测的数量
     for X, y in data_iter:
         X, y = X.to(device), y.to(device)
         metric.add(d2l.accuracy(net(X), y), d2l.size(y))
     return metric[0] / metric[1]
 ```
 
-我们还需要更新我们的培训功能来处理 GPU。与 :numref:`sec_softmax_scratch` 中定义的 `train_epoch_ch3` 不同，我们现在需要将每个微型数据移动到我们指定的设备（希望是 GPU），然后才能进行前向和向后传播。
+为了使用 GPU，我们还需要一点小小改动。与 :numref:`sec_softmax_scratch` 中定义的 `train_epoch_ch3` 不同，在进行正向和反向传播之前，我们需要将每一小批数据移动到我们指定的设备（例如 GPU）。
 
-训练功能也与第 :numref:`sec_softmax_scratch` 号文件中所定义的训练功能相似。由于我们将实现具有多层次的网络，我们将主要依赖于高级 API。以下训练函数假定从高级 API 创建的模型作为输入，并进行相应优化。我们使用在 :numref:`subsec_xavier` 中引入的 Xavier 初始化，对 `device` 参数指示的设备上的模型参数进行初始化。就像 MLP 一样，我们的损失函数是交叉熵，并且我们通过小批量随机梯度下降最小化它。由于每个时代的运行需要几十秒钟，所以我们更频繁地可视化训练损失。
+如下所示，训练函数 `train_ch6` 也类似于 :numref:`sec_softmax_scratch` 中定义的 `train_ch3` 。由于我们将实现多层网络，因此我们将主要使用高级 API。以下训练函数假定从高级 API 创建的模型作为输入，并进行相应的优化。我们使用在 :numref:`subsec_xavier` 中介绍的 Xavier 随机初始化模型参数。与全连接层一样，我们使用交叉熵损失函数和小批量随机梯度下降。
 
 ```{.python .input}
 #@save
@@ -175,11 +179,10 @@ def train_ch6(net, train_iter, test_iter, num_epochs, lr,
                             legend=['train loss', 'train acc', 'test acc'])
     timer, num_batches = d2l.Timer(), len(train_iter)
     for epoch in range(num_epochs):
-        # Sum of training loss, sum of training accuracy, no. of examples
-        metric = d2l.Accumulator(3)
+        metric = d2l.Accumulator(3)  # 训练损失之和，训练准确率之和，范例数
         for i, (X, y) in enumerate(train_iter):
             timer.start()
-            # Here is the major difference from `d2l.train_epoch_ch3`
+            # 下面是与“d2l.train_epoch_ch3”的主要不同
             X, y = X.as_in_ctx(device), y.as_in_ctx(device)
             with autograd.record():
                 y_hat = net(X)
@@ -219,8 +222,7 @@ def train_ch6(net, train_iter, test_iter, num_epochs, lr,
                             legend=['train loss', 'train acc', 'test acc'])
     timer, num_batches = d2l.Timer(), len(train_iter)
     for epoch in range(num_epochs):
-        # Sum of training loss, sum of training accuracy, no. of examples
-        metric = d2l.Accumulator(3)
+        metric = d2l.Accumulator(3)  # 训练损失之和，训练准确率之和，范例数
         for i, (X, y) in enumerate(train_iter):
             timer.start()
             net.train()
@@ -304,24 +306,24 @@ train_ch6(net, train_iter, test_iter, num_epochs, lr)
 
 ## 摘要
 
-* CNN 是一种使用卷积层的网络。
-* 在 CNN 中，我们交错卷积、非线性和（通常）合并操作。
-* 在 CNN 中，通常对卷积图层进行排列，以便它们逐渐降低制图表达的空间分辨率，同时增加通道数。
-* 在传统的 CNN 中，由卷积块编码的表示在发射输出之前由一个或多个完全连接的层处理。
-* Lenet 可以说是这样一个网络的第一个成功部署。
+* 卷积神经网络（CNN）是一类使用卷积层的网络。
+* 在卷积神经网络中，我们将卷积、非线性和池化层融会贯通。
+* 在卷积神经网络中，通常对卷积图层进行排列，逐渐降低其表示的空间分辨率，同时增加通道数。
+* 传统卷积神经网络由两部分组成：一系列卷积层以及全连接层密集块。
+* Lenet 是最早发布的卷积神经网络之一。
 
 ## 练习
 
-1. 将平均池替换为最大池。会发生什么？
-1. 尝试构建一个更复杂的基于 Lenet 的网络，以提高其准确性。
+1. 将平均池化层替换为最大池化层，会发生什么？
+1. 尝试构建一个基于 Lenet 的更复杂的网络，以提高其准确性。
     1. 调整卷积窗口大小。
     1. 调整输出通道的数量。
-    1. 调整激活功能（如 RELU）。
+    1. 调整激活函数（如 RELU）。
     1. 调整卷积层的数量。
-    1. 调整完全连接的图层的数量。
-    1. 调整学习率和其他培训详细信息（例如，初始化和周期数）。
-1. 在原始 MNIST 数据集上尝试改进的网络。
-1. 显示 LenNet 的第一层和第二层激活不同输入（例如毛衣和大衣）。
+    1. 调整全连接层的数量。
+    1. 调整学习率和其他训练细节（例如，初始化和周期数）。
+1. 在 MNIST 数据集上尝试以上改进的网络。
+1. 显示 LenNet 的第一层和第二层激活输入（例如，毛衣和大衣）。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/73)
