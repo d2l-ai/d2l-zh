@@ -30,4 +30,3 @@ batch-norm
 resnet
 densenet
 ```
-
