@@ -1,55 +1,94 @@
 # 深度卷积神经网络之AlexNet
 :label:`sec_alexnet`
 
-尽管卷积神经网络在LeNet的引入后在计算机视觉和机器学习领域中很有名，但它们并没有立即主导这个领域。虽然LeNet在早期的小数据集上取得了很好的效果，但是在更大、更真实的数据集上训练卷积神经网络的性能和可行性还有待于确定。事实上，在上世纪90年代初到2012年分水岭结果之间的大部分时间里，神经网络往往被其他机器学习方法所超越，比如支持向量机。
+尽管 LeNet （:numref:`sec_lenet`）在计算机视觉领域一鸣惊人，但卷积神经网络并没有因此主导这个领域。
+这是因为虽然 LeNet 在小数据集上取得了很好的效果，但是在更大、更真实的数据集上训练卷积神经网络的性能和可行性还有待考究。
+事实上，直到 2012 年的重大突破之前，神经网络的性能往往不如传统机器学习方法，比如支持向量机（support vector machines）。
 
-对于计算机视觉来说，这种比较也许不公平。也就是说，尽管卷积网络的输入由原始像素值或经过轻微处理（例如通过居中）的像素值组成，但从业者永远不会将原始像素输入到传统模型中。相反，典型的计算机视觉管道由人工工程特征提取管道组成。这些功能不是*学习功能*而是*精心设计的*。大部分的进步来自于对特性有了更聪明的想法，学习算法常常被后置之脑后。
+在计算机视觉中，将上述二者的性能相对比也许不公平。
+卷积神经网络只是轻微处理的原始像素的输入，*端到端*（从像素到分类）“自主学习”其特征。
+然而，传统机器学习的计算机视觉管道由人工提取的特征管道组成，是“精心设计“的。
+具体的说，与训练神经网络不同，经典机器学习方法有以下几个步骤：
 
-虽然上世纪90年代就有了一些神经网络加速器，但它们还不足以制造出具有大量参数的深层多通道多层卷积神经网络。此外，数据集仍然相对较小。除了这些障碍，训练神经网络的关键技巧，包括参数初始化启发式、随机梯度下降的巧妙变体、非压缩激活函数和有效的正则化技术仍然缺失。
+1. 获取一个有趣的数据集。而在早期，这些数据集需要昂贵的传感器（在当时 100 万像素的图像是最先进的）。
+2. 根据光学、几何学和其他的一些知识，以及偶然幸运的发现，研究人员手工对特征数据集进行预处理。
+3. 通过标准的特征提取程序（如SIFT（标度不变特征变换） :cite:`Lowe.2004` 、SURF（加速鲁棒特征） :cite:`Bay.Tuytelaars.Van-Gool.2006` 或任何数量的其他手动调节的管道来输入数据。
+4. 将提取的特征放到最前沿的分类器中（例如线性模型或其它内核方法），以训练分类器。
 
-因此，与训练*端到端*（像素到分类）系统不同，经典管道看起来更像这样：
+显而易见，当年的机器学习工程师永远不会将原始像素输入到传统模型中，所以较为不成熟的“自主学习”算法常常被弃置脑后。
+尽管上世纪90年代就有了一些神经网络加速器，但它们还不足以训练具有大量参数的深层多通道多层卷积神经网络。
+此外，训练数据集仍然相对较小。
+除了这些障碍，训练神经网络的关键技巧，包括初始化参数、随机梯度下降的巧妙变体、非压缩激活函数和有效的正则化技术仍然缺失。
 
-1. 获取一个有趣的数据集。在早期，这些数据集需要昂贵的传感器（当时，100万像素的图像是最先进的）。
-2. 根据光学、几何学和其他分析工具的一些知识，以及偶尔对幸运的研究生的偶然发现，用手工制作的特征对数据集进行预处理。
-3. 通过一组标准的特征提取程序（如SIFT（标度不变特征变换）:cite:`Lowe.2004`、SURF（加速鲁棒特征）:cite:`Bay.Tuytelaars.Van-Gool.2006`或任何数量的其他手动调节的管道来输入数据。
-4. 将结果表示转储到您最喜欢的分类器中，例如线性模型或内核方法，以训练分类器。
+如果你和机器学习研究人员交谈，他们相信机器学习既重要又美丽：优雅的理论证明了各种模型的性质。
+机器学习是一个蓬勃发展、严谨且非常有用的领域。
+然而，如果你和计算机视觉研究人员交谈，你会听到一个完全不同的故事。
+他们会告诉你，图像识别的肮脏事实是，推动领域进步的是数据特征，而不是学习算法。
+计算机视觉研究人员相信，对最终模型精度的影响来说，更大或更干净的数据集、或是稍微改进的特征提取管道，比任何学习算法的进步要大得多。
 
-如果你和机器学习研究人员交谈，他们相信机器学习既重要又美丽。优雅的理论证明了各种量词的性质。机器学习是一个蓬勃发展、严谨且非常有用的领域。然而，如果你和计算机视觉研究人员交谈，你会听到一个完全不同的故事。他们会告诉你，图像识别的肮脏事实是，推动进步的是特征，而不是学习算法。计算机视觉研究人员有理由相信，稍微大一点或更干净一点的数据集或稍微改进的特征提取管道比任何学习算法对最终精度的影响要大得多。
+
 
 ## 学习表征
 
-另一种预测事态发展的方法是，管道最重要的部分是代表性。直到2012年，这种代表性都是机械计算出来的。事实上，设计一套新的特征函数，改进结果，并编写方法是一种突出的论文体裁。SIFT :cite:`Lowe.2004`、SURF :cite:`Bay.Tuytelaars.Van-Gool.2006`、HOG（定向梯度直方图）:cite:`Dalal.Triggs.2005`、[bags of visual words](https://en.wikipedia.org/wiki/Bag-of-words_model_in_computer_vision)和类似的特征提取程序占据了主导地位。
+另一种预测这个领域发展的方法是观察图像特征的提取方法。
+在LeNet提出后的将近20年里（直到2012年前），图像特征都是机械计算出来的。
+事实上，设计一套新的特征函数，改进结果，并编写方法是盛极一时的论文体裁。SIFT :cite:`Lowe.2004`、SURF :cite:`Bay.Tuytelaars.Van-Gool.2006`、HOG（定向梯度直方图）:cite:`Dalal.Triggs.2005`、[bags of visual words](https://en.wikipedia.org/wiki/Bag-of-words_model_in_computer_vision) 和类似的特征提取程序占据了主导地位。
 
-另一组研究人员，包括Yann LeCun、Geoff Hinton、Yoshua Bengio、Andrew Ng、Shun ichi Amari和Juergen Schmidhuber，有不同的计划。他们认为特征本身应该被学习。此外，他们还认为，为了合理地复杂化，特征应该由多个共同学习的层组成，每个层都有可学习的参数。在图像的情况下，最低层可能检测边缘、颜色和纹理。事实上，亚历克斯·克里兹夫斯基、伊利亚·萨茨克弗和杰夫·辛顿提出了一种新的卷积神经网络变体，
-*亚历克内特*，
-在2012年ImageNet挑战赛中取得了优异的表现。AlexNet以Alex Krizhevsky的名字命名，他是ImageNet分类论文:cite:`Krizhevsky.Sutskever.Hinton.2012`的第一作者。
+另一组研究人员，包括Yann LeCun、Geoff Hinton、Yoshua Bengio、Andrew Ng、Shun ichi Amari和Juergen Schmidhuber，则与众不同：他们认为特征本身应该被学习。
+此外，他们还认为，在合理地复杂性前提下，特征应该由多个共同学习的神经网络层组成，每个层都有可学习的参数。
+在机器视觉中，最低层可能检测图像边缘、颜色和纹理。
+事实上，Alex Krizhevsky、Ilya Sutskever和Geoff Hinton提出了一种新的卷积神经网络变体，
+*AlexNet*，在2012年ImageNet挑战赛中取得了轰动一时的成绩。
+AlexNet 以 Alex Krizhevsky 的名字命名，他是论文 :cite:`Krizhevsky.Sutskever.Hinton.2012` 的第一作者。
 
-有趣的是，在网络的最底层，模型学习了一些类似于传统滤波器的特征抽取器。:numref:`fig_filters`是从AlexNet论文:cite:`Krizhevsky.Sutskever.Hinton.2012`复制的，描述了低级图像描述符。
+有趣的是，在网络的最底层，模型学习了一些类似于传统滤波器的特征抽取器。 :numref:`fig_filters` 是从AlexNet论文:cite:`Krizhevsky.Sutskever.Hinton.2012`复制的，描述了低级图像特征。
 
-![Image filters learned by the first layer of AlexNet.](../img/filters.png)
+![AlexNet第一层学习的特征抽取器。](../img/filters.png)
 :width:`400px`
 :label:`fig_filters`
 
-网络中的更高层可能建立在这些表示的基础上，以表示更大的结构，如眼睛、鼻子、草叶等等。更高的层次可能代表整个物体，如人、飞机、狗或飞盘。最终，最终的隐藏状态学习图像的紧凑表示，该图像概括了其内容，从而使属于不同类别的数据易于分离。
+网络中的更高层建立在这些表示的基础上，以表示更大的特征，如眼睛、鼻子、草叶等等。而更高的层次可以检测整个物体，如人、飞机、狗或飞盘。最终的隐藏神经元学习图像的综合表示，从而使属于不同类别的数据易于分离。
 
-虽然多层次卷积神经网络的最终突破出现在2012年，但一组核心研究人员致力于这一想法，多年来一直试图学习视觉数据的分层表示。2012年的最终突破可归因于两个关键因素。
+尽管一直有一群执着的研究者不断钻研，试图学习视觉数据的逐级表征，然而很长一段时间里这些野心都未能实现。深度卷积神经网络的最终突破出现在2012年，可归因于如下两个关键因素。
+
 
 ### 缺失成分：数据
 
-具有多层的深层模型需要大量的数据才能进入这样一种状态：它们显著优于基于凸优化的传统方法（如线性和核方法）。然而，考虑到计算机的存储容量有限，传感器的相对开销，以及90年代相对紧张的研究预算，大多数研究都依赖于微小的数据集。许多论文涉及UCI收集的数据集，其中许多只包含数百或（少数）数千幅在非自然环境下以低分辨率拍摄的图像。
+包含许多特征的深度模型需要大量的有标签的数据，才能显著优于基于凸优化的传统方法（如线性和核方法）。
+然而，限于早期计算机有限的存储和90年代有限的研究预算，大部分研究只基于小的公开数据集。例如，不少研究论文基于加州大学欧文分校（UCI）提供的若干个公开数据集，其中许多数据集只有几百至几千张图像。这一状况在2010年前后兴起的大数据浪潮中得到改善。
+2009年，ImageNet数据集发布，并发起ImageNet挑战赛：要求研究人员从100万个样本中训练模型，以区分1000个不同类别的对象。ImageNet数据集由斯坦福教授李飞飞（Fei-Fei-Li）小组的研究人员开发，利用谷歌图像搜索（Google Image Search）对每一类图像进行预筛选，并利用 Amazon-Mechanical-Turk 众包来标注每张图片的相关类别。这种规模是前所未有的。这项挑战赛同时推动计算机视觉和机器学习研究进入新的阶段，使此前的传统方法不再有优势。
 
-2009年，ImageNet数据集发布，向研究人员提出了挑战，要求他们从100万个样本中学习模型，其中1000个样本来自1000个不同类别的对象。由李飞飞（Fei-Fei-Li）领导的研究人员介绍了这一数据集，利用谷歌图像搜索（Google Image Search）对每一类图像进行预筛选，并利用Amazon-Mechanical-Turk众包管道来确认每张图片是否属于相关类别。这种规模是前所未有的。这项被称为ImageNet挑战赛的相关竞赛推动了计算机视觉和机器学习研究的发展，挑战研究人员确定哪些模型在更大的范围内表现最好，而不是学者们之前所认为的。
 
 ### 缺少的成分：硬件
 
-深度学习模型是计算周期的贪婪消费者。训练可能需要数百个时期，每次迭代都需要通过计算代价高昂的线性代数操作的许多层传递数据。这也是为什么在20世纪90年代和21世纪初，基于更有效优化凸目标的简单算法成为首选的主要原因之一。
+深度学习对计算资源要求很高，训练可能需要数百个迭代周期，每次迭代都需要通过代价高昂的许多线性代数层传递数据。这也是为什么在20世纪90年代至21世纪初，传统机器学习算法是研究人员的首选。
 
-*图形处理单元*（GPU）被证明是一个游戏规则的改变者
-使深度学习成为可能。这些芯片早就被开发用来加速图形处理，从而使电脑游戏受益。特别是，它们被优化为高吞吐量$4 \times 4$矩阵向量产品，这是许多计算机图形任务所需要的。幸运的是，这个数学与计算卷积层所需的数学惊人地相似。大约在那个时候，NVIDIA和ATI已经开始为通用计算操作优化gpu，甚至把它们作为通用gpu*来销售。
+然而，用GPU训练神经网络改变了这一格局。
+这些芯片早就被开发用来加速图形处理，使电脑游戏玩家受益。
+GPU可优化高吞吐量的 $4 \times 4$ 矩阵和向量乘法，从而服务于基本的图形任务。
+幸运的是，这些数学运算与计算卷积层惊人地相似。
+由此，英伟达（NVIDIA）和冶天科技（ATI）开始把它们作为 *通用GPU* 来销售。
 
-为了提供一些直觉，考虑一下现代微处理器（CPU）的核心。每一个核心都是相当强大的运行在一个高时钟频率和运动大型缓存（高达数兆字节的L3）。每个内核都非常适合执行各种指令，具有分支预测器、深管道和其他使其能够运行各种程序的各种各样的功能。然而，这种明显的优势也是它的致命弱点：通用核心的制造成本非常高。它们需要大量的芯片面积、复杂的支持结构（内存接口、内核之间的缓存逻辑、高速互连等等），而且它们在任何单个任务上都相对较差。现代笔记本电脑最多有4核，即使是高端服务器也很少超过64核，仅仅是因为它的性价比不高。
 
-相比之下，gpu由$100 \sim 1000$个小的处理元素组成（NVIDIA、ATI、ARM和其他芯片供应商之间的细节有所不同），通常被分成更大的组（NVIDIA称之为翘曲）。虽然每个内核都相对较弱，有时甚至以低于1GHz的时钟频率运行，但正是这些内核的总数使GPU比CPU快几个数量级。例如，NVIDIA最近一代的Volta为每个芯片提供了高达120 TFlop的专用指令（对于更通用的指令，最高可达24 TFlop），而cpu的浮点性能到目前为止还没有超过1 TFlop。之所以可以这样做，原因其实很简单：首先，功耗往往会随时钟频率呈二次方增长。因此，对于一个运行速度快4倍的CPU内核（一个典型的数字），您可以使用16个GPU内核，其速度是$1/4$，其性能是$16 \times 1/4 = 4$倍。此外，GPU内核要简单得多（事实上，在很长一段时间内，它们甚至不能执行通用代码），这使得它们更节能。最后，深度学习中的许多操作需要高内存带宽。再说一次，gpu在这里闪耀着至少是cpu宽度10倍的总线。
+
+
+
+
+
+
+
+
+
+
+
+为了提供一些直觉，考虑一下现代微处理器（CPU）的核。
+每个核都拥有高时钟频率的运行能力，和高达数兆字节L3的大型缓存。
+它们非常适合执行各种指令，具有分支预测器、深层流水线和其他各种各样的功能。
+然而，这种明显的优势也是它的致命弱点：通用核心的制造成本非常高。
+它们需要大量的芯片面积、复杂的支持结构（内存接口、内核之间的缓存逻辑、高速互连等等），而且它们在任何单个任务上的性能都相对较差。
+现代笔记本电脑最多有4核，即使是高端服务器也很少超过64核，仅仅是因为它的性价比不高。
+
+相比之下，gpu由 $100 \sim 1000$ 个小的处理元素组成（NVIDIA、ATI、ARM和其他芯片供应商之间的细节有所不同），通常被分成更大的组（NVIDIA称之为翘曲）。虽然每个内核都相对较弱，有时甚至以低于1GHz的时钟频率运行，但正是这些内核的总数使GPU比CPU快几个数量级。例如，NVIDIA最近一代的Volta为每个芯片提供了高达120 TFlop的专用指令（对于更通用的指令，最高可达24 TFlop），而cpu的浮点性能到目前为止还没有超过1 TFlop。之所以可以这样做，原因其实很简单：首先，功耗往往会随时钟频率呈二次方增长。因此，对于一个运行速度快4倍的CPU内核（一个典型的数字），您可以使用16个GPU内核，其速度是$1/4$，其性能是$16 \times 1/4 = 4$倍。此外，GPU内核要简单得多（事实上，在很长一段时间内，它们甚至不能执行通用代码），这使得它们更节能。最后，深度学习中的许多操作需要高内存带宽。再说一次，gpu在这里闪耀着至少是cpu宽度10倍的总线。
 
 回到2012年。当亚历克斯·克里兹夫斯基（Alex Krizhevsky）和伊利亚·萨茨克弗（Ilya Sutskever）实现了一个可以在GPU硬件上运行的深度卷积神经网络时，一个重大突破出现了。他们意识到卷积神经网络中的计算瓶颈，卷积和矩阵乘法，都是可以在硬件上并行化的操作。使用两个nvidiagtx580和3GB内存，他们实现了快速卷积。代码[cuda-convnet](https://code.google.com/archive/p/cuda-convnet/)已经足够好了，几年来它一直是行业标准，并推动了深度学习热潮的头几年。
 
@@ -85,33 +124,28 @@ from mxnet.gluon import nn
 npx.set_np()
 
 net = nn.Sequential()
-# Here, we use a larger 11 x 11 window to capture objects. At the same time,
-# we use a stride of 4 to greatly reduce the height and width of the output.
-# Here, the number of output channels is much larger than that in LeNet
-net.add(nn.Conv2D(96, kernel_size=11, strides=4, activation='relu'),
-        nn.MaxPool2D(pool_size=3, strides=2),
-        # Make the convolution window smaller, set padding to 2 for consistent
-        # height and width across the input and output, and increase the
-        # number of output channels
-        nn.Conv2D(256, kernel_size=5, padding=2, activation='relu'),
-        nn.MaxPool2D(pool_size=3, strides=2),
-        # Use three successive convolutional layers and a smaller convolution
-        # window. Except for the final convolutional layer, the number of
-        # output channels is further increased. Pooling layers are not used to
-        # reduce the height and width of input after the first two
-        # convolutional layers
-        nn.Conv2D(384, kernel_size=3, padding=1, activation='relu'),
-        nn.Conv2D(384, kernel_size=3, padding=1, activation='relu'),
-        nn.Conv2D(256, kernel_size=3, padding=1, activation='relu'),
-        nn.MaxPool2D(pool_size=3, strides=2),
-        # Here, the number of outputs of the fully-connected layer is several
-        # times larger than that in LeNet. Use the dropout layer to mitigate
-        # overfitting
-        nn.Dense(4096, activation='relu'), nn.Dropout(0.5),
-        nn.Dense(4096, activation='relu'), nn.Dropout(0.5),
-        # Output layer. Since we are using Fashion-MNIST, the number of
-        # classes is 10, instead of 1000 as in the paper
-        nn.Dense(10))
+
+net.add(
+    # 这里，我们使用一个11x11更大的窗口来搜寻物体对象。
+    # 同时，步幅为4，以减少输出的高度和宽度。
+    # 另外，输出通道的数目远大于LeNet
+    nn.Conv2D(96, kernel_size=11, strides=4, activation='relu'),
+    nn.MaxPool2D(pool_size=3, strides=2),
+    # 减小卷积窗口，使用填充为2来使得输入与输出的高和宽一致，且增大输出通道数
+    nn.Conv2D(256, kernel_size=5, padding=2, activation='relu'),
+    nn.MaxPool2D(pool_size=3, strides=2),
+    # 使用三个连续的卷积层和一个较小的卷积窗口。
+    # 除了最后的卷积层，输出通道的数量进一步增加。
+    # 前两个卷积层后不使用池化层来减小输入的高和宽
+    nn.Conv2D(384, kernel_size=3, padding=1, activation='relu'),
+    nn.Conv2D(384, kernel_size=3, padding=1, activation='relu'),
+    nn.Conv2D(256, kernel_size=3, padding=1, activation='relu'),
+    nn.MaxPool2D(pool_size=3, strides=2),
+    # 这里，全连接层的输出数量是LeNet中的好几倍。使用dropout层来减轻过度拟合
+    nn.Dense(4096, activation='relu'), nn.Dropout(0.5),
+    nn.Dense(4096, activation='relu'), nn.Dropout(0.5),
+    # 最后是输出层。由于这里使用Fashion-MNIST，所以用类别数为10，而非论文中的1000
+    nn.Dense(10))
 ```
 
 ```{.python .input}
@@ -121,35 +155,28 @@ import torch
 from torch import nn
 
 net = nn.Sequential(
-    # Here, we use a larger 11 x 11 window to capture objects. At the same
-    # time, we use a stride of 4 to greatly reduce the height and width of the
-    # output. Here, the number of output channels is much larger than that in
-    # LeNet
+    # 这里，我们使用一个11x11更大的窗口来搜寻物体对象。
+    # 同时，步幅为4，以减少输出的高度和宽度。
+    # 另外，输出通道的数目远大于LeNet
     nn.Conv2d(1, 96, kernel_size=11, stride=4, padding=1), nn.ReLU(),
     nn.MaxPool2d(kernel_size=3, stride=2),
-    # Make the convolution window smaller, set padding to 2 for consistent
-    # height and width across the input and output, and increase the number of
-    # output channels
+    # 减小卷积窗口，使用填充为2来使得输入与输出的高和宽一致，且增大输出通道数
     nn.Conv2d(96, 256, kernel_size=5, padding=2), nn.ReLU(),
     nn.MaxPool2d(kernel_size=3, stride=2),
-    # Use three successive convolutional layers and a smaller convolution
-    # window. Except for the final convolutional layer, the number of output
-    # channels is further increased. Pooling layers are not used to reduce the
-    # height and width of input after the first two convolutional layers
+    # 使用三个连续的卷积层和较小的卷积窗口。
+    # 除了最后的卷积层，输出通道的数量进一步增加。
+    # 在前两个卷积层之后，池化层不用于减少输入的高度和宽度
     nn.Conv2d(256, 384, kernel_size=3, padding=1), nn.ReLU(),
     nn.Conv2d(384, 384, kernel_size=3, padding=1), nn.ReLU(),
     nn.Conv2d(384, 256, kernel_size=3, padding=1), nn.ReLU(),
     nn.MaxPool2d(kernel_size=3, stride=2),
     nn.Flatten(),
-    # Here, the number of outputs of the fully-connected layer is several
-    # times larger than that in LeNet. Use the dropout layer to mitigate
-    # overfitting
+    # 这里，全连接层的输出数量是LeNet中的好几倍。使用dropout层来减轻过度拟合
     nn.Linear(6400, 4096), nn.ReLU(),
     nn.Dropout(p=0.5),
     nn.Linear(4096, 4096), nn.ReLU(),
     nn.Dropout(p=0.5),
-    # Output layer. Since we are using Fashion-MNIST, the number of classes is
-    # 10, instead of 1000 as in the paper
+    # 最后是输出层。由于这里使用Fashion-MNIST，所以用类别数为10，而非论文中的1000
     nn.Linear(4096, 10))
 ```
 
@@ -160,24 +187,19 @@ import tensorflow as tf
 
 def net():
     return tf.keras.models.Sequential([
-        # Here, we use a larger 11 x 11 window to capture objects. At the same
-        # time, we use a stride of 4 to greatly reduce the height and width of
-        # the output. Here, the number of output channels is much larger than
-        # that in LeNet
+        # 这里，我们使用一个11x11更大的窗口来搜寻物体对象。
+        # 同时，步幅为4，以减少输出的高度和宽度。
+        # 另外，输出通道的数目远大于LeNet
         tf.keras.layers.Conv2D(filters=96, kernel_size=11, strides=4,
                                activation='relu'),
         tf.keras.layers.MaxPool2D(pool_size=3, strides=2),
-        # Make the convolution window smaller, set padding to 2 for consistent
-        # height and width across the input and output, and increase the
-        # number of output channels
+        # 减小卷积窗口，使用填充为2来使得输入与输出的高和宽一致，且增大输出通道数
         tf.keras.layers.Conv2D(filters=256, kernel_size=5, padding='same',
                                activation='relu'),
         tf.keras.layers.MaxPool2D(pool_size=3, strides=2),
-        # Use three successive convolutional layers and a smaller convolution
-        # window. Except for the final convolutional layer, the number of
-        # output channels is further increased. Pooling layers are not used to
-        # reduce the height and width of input after the first two
-        # convolutional layers
+        # 使用三个连续的卷积层和较小的卷积窗口。
+        # 除了最后的卷积层，输出通道的数量进一步增加。
+        # 在前两个卷积层之后，池化层不用于减少输入的高度和宽度
         tf.keras.layers.Conv2D(filters=384, kernel_size=3, padding='same',
                                activation='relu'),
         tf.keras.layers.Conv2D(filters=384, kernel_size=3, padding='same',
@@ -186,15 +208,12 @@ def net():
                                activation='relu'),
         tf.keras.layers.MaxPool2D(pool_size=3, strides=2),
         tf.keras.layers.Flatten(),
-        # Here, the number of outputs of the fully-connected layer is several
-        # times larger than that in LeNet. Use the dropout layer to mitigate
-        # overfitting
+        # 这里，全连接层的输出数量是LeNet中的好几倍。使用dropout层来减轻过度拟合
         tf.keras.layers.Dense(4096, activation='relu'),
         tf.keras.layers.Dropout(0.5),
         tf.keras.layers.Dense(4096, activation='relu'),
         tf.keras.layers.Dropout(0.5),
-        # Output layer. Since we are using Fashion-MNIST, the number of
-        # classes is 10, instead of 1000 as in the paper
+        # 最后是输出层。由于这里使用Fashion-MNIST，所以用类别数为10，而非论文中的1000
         tf.keras.layers.Dense(10)
     ])
 ```
