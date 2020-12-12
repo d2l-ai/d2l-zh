@@ -67,7 +67,7 @@ def vgg_block(num_convs, num_channels):
 
 与 AlexNet 和 Lenet 一样，如 :numref:`fig_vgg` 中所示，VGG 网络可以分为两部分：第一部分主要由卷积层和池化层组成，第二部分由完全连接的层组成。
 
-![From AlexNet to VGG that is designed from building blocks.](../img/vgg.svg)
+![从AlexNet到VGG，他们本质上都是卷积块设计。](../img/vgg.svg)
 :width:`400px`
 :label:`fig_vgg`
 
@@ -88,7 +88,7 @@ conv_arch = ((1, 64), (1, 128), (2, 256), (2, 512), (2, 512))
 ```{.python .input}
 def vgg(conv_arch):
     net = nn.Sequential()
-    # The convolutional part
+    # 卷积层部分
     for (num_convs, num_channels) in conv_arch:
         net.add(vgg_block(num_convs, num_channels))
     # The fully-connected part
@@ -103,7 +103,7 @@ net = vgg(conv_arch)
 ```{.python .input}
 #@tab pytorch
 def vgg(conv_arch):
-    # The convolutional part
+    # 卷积层部分
     conv_blks=[]
     in_channels=1
     for (num_convs, out_channels) in conv_arch:
@@ -112,7 +112,7 @@ def vgg(conv_arch):
 
     return nn.Sequential(
         *conv_blks, nn.Flatten(),
-        # The fully-connected part
+        # 全连接层部分
         nn.Linear(out_channels * 7 * 7, 4096), nn.ReLU(), nn.Dropout(0.5),
         nn.Linear(4096, 4096), nn.ReLU(), nn.Dropout(0.5),
         nn.Linear(4096, 10))
@@ -124,10 +124,10 @@ net = vgg(conv_arch)
 #@tab tensorflow
 def vgg(conv_arch):
     net = tf.keras.models.Sequential()
-    # The convulational part
+    # 卷积层部分
     for (num_convs, num_channels) in conv_arch:
         net.add(vgg_block(num_convs, num_channels))
-    # The fully-connected part
+    # 全连接层部分
     net.add(tf.keras.models.Sequential([
         tf.keras.layers.Flatten(),
         tf.keras.layers.Dense(4096, activation='relu'),
@@ -183,9 +183,7 @@ net = vgg(small_conv_arch)
 #@tab tensorflow
 ratio = 4
 small_conv_arch = [(pair[0], pair[1] // ratio) for pair in conv_arch]
-# Recall that this has to be a function that will be passed to
-# `d2l.train_ch6()` so that model building/compiling need to be within
-# `strategy.scope()` in order to utilize the CPU/GPU devices that we have
+# 回想一下，这必须是一个将被放入“d2l.train_ch6（）”的函数，为了利用我们现有的CPU/GPU设备，这样模型构建/编译需要在`strategy.scope()`中
 net = lambda: vgg(small_conv_arch)
 ```
 
