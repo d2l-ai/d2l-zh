@@ -7,7 +7,7 @@
 
 GooGlenet 中的基本卷积块被称为 * 初始块 *，可能是由于电影 * 潜入 *（“我们需要更深入”）引用的引用而命名的（“我们需要更深入”），它推出了一种病毒模因。
 
-![Structure of the Inception block.](../img/inception.svg)
+![Inception块的结构。](../img/inception.svg)
 :label:`fig_inception`
 
 如 :numref:`fig_inception` 所示，初始模块由四条并行路径组成。前三条路径使用窗口大小为 $1\times 1$、$3\times 3$ 和 $5\times 5$ 的卷积图层从不同空间大小中提取信息。中间的两条路径在输入上执行 $1\times 1$ 卷积，以减少通道数，从而降低模型的复杂性。第四条路径使用 $3\times 3$ 最大池层，其次是 $1\times 1$ 卷积层来更改通道数。四个路径都使用适当的填充来为输入和输出提供相同的高度和宽度。最后，沿着每条路径的输出沿通道尺寸串联，并组成块的输出。通常调整的 Uperd 模块的超参数是每个图层的输出通道数。
@@ -22,20 +22,17 @@ class Inception(nn.Block):
     # `c1`--`c4` are the number of output channels for each path
     def __init__(self, c1, c2, c3, c4, **kwargs):
         super(Inception, self).__init__(**kwargs)
-        # Path 1 is a single 1 x 1 convolutional layer
+        # 线路1，单1 x 1卷积层
         self.p1_1 = nn.Conv2D(c1, kernel_size=1, activation='relu')
-        # Path 2 is a 1 x 1 convolutional layer followed by a 3 x 3
-        # convolutional layer
+        # 线路2，1 x 1卷积层后接3 x 3卷积层
         self.p2_1 = nn.Conv2D(c2[0], kernel_size=1, activation='relu')
         self.p2_2 = nn.Conv2D(c2[1], kernel_size=3, padding=1,
                               activation='relu')
-        # Path 3 is a 1 x 1 convolutional layer followed by a 5 x 5
-        # convolutional layer
+        # 线路3，1 x 1卷积层后接5 x 5卷积层
         self.p3_1 = nn.Conv2D(c3[0], kernel_size=1, activation='relu')
         self.p3_2 = nn.Conv2D(c3[1], kernel_size=5, padding=2,
                               activation='relu')
-        # Path 4 is a 3 x 3 maximum pooling layer followed by a 1 x 1
-        # convolutional layer
+        # 线路4，3 x 3最大池化层后接1 x 1卷积层
         self.p4_1 = nn.MaxPool2D(pool_size=3, strides=1, padding=1)
         self.p4_2 = nn.Conv2D(c4, kernel_size=1, activation='relu')
 
@@ -44,7 +41,7 @@ class Inception(nn.Block):
         p2 = self.p2_2(self.p2_1(x))
         p3 = self.p3_2(self.p3_1(x))
         p4 = self.p4_2(self.p4_1(x))
-        # Concatenate the outputs on the channel dimension
+        # 在通道维度上连结输出
         return np.concatenate((p1, p2, p3, p4), axis=1)
 ```
 
@@ -59,18 +56,15 @@ class Inception(nn.Module):
     # `c1`--`c4` are the number of output channels for each path
     def __init__(self, in_channels, c1, c2, c3, c4, **kwargs):
         super(Inception, self).__init__(**kwargs)
-        # Path 1 is a single 1 x 1 convolutional layer
+        # 线路1，单1 x 1卷积层
         self.p1_1 = nn.Conv2d(in_channels, c1, kernel_size=1)
-        # Path 2 is a 1 x 1 convolutional layer followed by a 3 x 3
-        # convolutional layer
+        # 线路2，1 x 1卷积层后接3 x 3卷积层
         self.p2_1 = nn.Conv2d(in_channels, c2[0], kernel_size=1)
         self.p2_2 = nn.Conv2d(c2[0], c2[1], kernel_size=3, padding=1)
-        # Path 3 is a 1 x 1 convolutional layer followed by a 5 x 5
-        # convolutional layer
+        # 线路3，1 x 1卷积层后接5 x 5卷积层
         self.p3_1 = nn.Conv2d(in_channels, c3[0], kernel_size=1)
         self.p3_2 = nn.Conv2d(c3[0], c3[1], kernel_size=5, padding=2)
-        # Path 4 is a 3 x 3 maximum pooling layer followed by a 1 x 1
-        # convolutional layer
+        # 线路4，3 x 3最大池化层后接1 x 1卷积层
         self.p4_1 = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
         self.p4_2 = nn.Conv2d(in_channels, c4, kernel_size=1)
 
@@ -79,7 +73,7 @@ class Inception(nn.Module):
         p2 = F.relu(self.p2_2(F.relu(self.p2_1(x))))
         p3 = F.relu(self.p3_2(F.relu(self.p3_1(x))))
         p4 = F.relu(self.p4_2(self.p4_1(x)))
-        # Concatenate the outputs on the channel dimension
+        # 在通道维度上连结输出
         return torch.cat((p1, p2, p3, p4), dim=1)
 ```
 
@@ -92,20 +86,17 @@ class Inception(tf.keras.Model):
     # `c1`--`c4` are the number of output channels for each path
     def __init__(self, c1, c2, c3, c4):
         super().__init__()
-        # Path 1 is a single 1 x 1 convolutional layer
+        # 线路1，单1 x 1卷积层
         self.p1_1 = tf.keras.layers.Conv2D(c1, 1, activation='relu')
-        # Path 2 is a 1 x 1 convolutional layer followed by a 3 x 3
-        # convolutional layer
+        # 线路2，1 x 1卷积层后接3 x 3卷积层
         self.p2_1 = tf.keras.layers.Conv2D(c2[0], 1, activation='relu')
         self.p2_2 = tf.keras.layers.Conv2D(c2[1], 3, padding='same',
                                            activation='relu')
-        # Path 3 is a 1 x 1 convolutional layer followed by a 5 x 5
-        # convolutional layer
+        # 线路3，1 x 1卷积层后接5 x 5卷积层
         self.p3_1 = tf.keras.layers.Conv2D(c3[0], 1, activation='relu')
         self.p3_2 = tf.keras.layers.Conv2D(c3[1], 5, padding='same',
                                            activation='relu')
-        # Path 4 is a 3 x 3 maximum pooling layer followed by a 1 x 1
-        # convolutional layer
+        # 线路4，3 x 3最大池化层后接1 x 1卷积层
         self.p4_1 = tf.keras.layers.MaxPool2D(3, 1, padding='same')
         self.p4_2 = tf.keras.layers.Conv2D(c4, 1, activation='relu')
 
@@ -115,7 +106,7 @@ class Inception(tf.keras.Model):
         p2 = self.p2_2(self.p2_1(x))
         p3 = self.p3_2(self.p3_1(x))
         p4 = self.p4_2(self.p4_1(x))
-        # Concatenate the outputs on the channel dimension
+        # 在通道维度上连结输出
         return tf.keras.layers.Concatenate()([p1, p2, p3, p4])
 ```
 
@@ -125,7 +116,7 @@ class Inception(tf.keras.Model):
 
 如 :numref:`fig_inception_full` 所示，GooGlenet 使用总共 9 个启动块和全球平均池来生成其估计值。启动模块之间的最大池可降低维度。第一个模块类似于 AlexNet 和 Lenet。块堆栈是从 VGG 继承的，而全局平均池最终避免了一堆完全连接的层。
 
-![The GoogLeNet architecture.](../img/inception-full.svg)
+![GoogLeNet结构。](../img/inception-full.svg)
 :label:`fig_inception_full`
 
 我们现在可以一块一块地实现 Googlenet。第一个模块使用 64 通道 $7\times 7$ 卷积层。
@@ -268,9 +259,9 @@ def b5():
         tf.keras.layers.GlobalAvgPool2D(),
         tf.keras.layers.Flatten()
     ])
-# Recall that this has to be a function that will be passed to
-# `d2l.train_ch6()` so that model building/compiling need to be within
-# `strategy.scope()` in order to utilize the CPU/GPU devices that we have
+
+# “net”必须是一个将被传递给“d2l.train_ch6（）”的函数。
+# 为了利用我们现有的CPU/GPU设备，这样模型构建/编译需要在“strategy.scope()”
 def net():
     return tf.keras.Sequential([b1(), b2(), b3(), b4(), b5(),
                                 tf.keras.layers.Dense(10)])
@@ -313,7 +304,7 @@ train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=96)
 d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 ```
 
-## 摘要
+## 小结
 
 * “启动” 块等效于具有四条路径的子网。它通过不同窗口形状的卷积层和最大池化层并行提取信息。$1 \times 1$ 卷积可降低每像素级别的通道维数。最大池会降低分辨率。
 * Googlenet 将多个精心设计的初始模块与其他层串联。通过在 iMagenet 数据集上进行大量实验，可以获得 “启动” 模块中分配的通道数量的比率。
