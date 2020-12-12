@@ -264,7 +264,7 @@ lr, num_epochs = 0.01, 10
 d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 ```
 
-## 摘要
+## 小结
 
 * AlexNet的结构与LeNet相似，但使用了更多的卷积层和更多的参数来拟合大规模的ImageNet数据集。
 * 今天，AlexNet已经被更有效的体系结构所超越，但它是当今从浅层到深层网络的关键一步。
