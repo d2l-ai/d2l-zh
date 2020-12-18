@@ -1,37 +1,44 @@
 # 稠密连接网络（DenseNet）
 
-ResNet极大地改变了如何参数化深层网络中函数的观点。*DenseNet*（稠密卷积网络）在某种程度上是:cite:`Huang.Liu.Van-Der-Maaten.ea.2017`的逻辑扩展。为了理解如何得到它，让我们绕道去数学。
+ResNet 的跨层连接极大地拓展了如何提升深层网络的性能。
+*稠密连接网络* (DenseNet） :cite:`Huang.Liu.Van-Der-Maaten.ea.2017` 在某种程度上是 ResNet 的逻辑扩展。
+
 
 ## 从ResNet到DenseNet
 
-回想一下函数的泰勒展开式。对于$x = 0$点，可以写为
+回想一下任意函数的泰勒展开式（Taylor expansion），它把这个函数分解成越来越高阶的项。在 $x = 0$ 时，
 
 $$f(x) = f(0) + f'(0) x + \frac{f''(0)}{2!}  x^2 + \frac{f'''(0)}{3!}  x^3 + \ldots.$$
 
-关键是它把一个函数分解成越来越高阶的项。同样，ResNet将函数分解为
+同样，ResNet 将函数展开为
 
 $$f(\mathbf{x}) = \mathbf{x} + g(\mathbf{x}).$$
 
-也就是说，ResNet将$f$分解为一个简单的线性项和一个更复杂的非线性项。如果我们想捕获（不一定要添加）超过两个术语的信息呢？一种解决方案是DenseNet :cite:`Huang.Liu.Van-Der-Maaten.ea.2017`。
+也就是说，ResNet 将 $f$ 分解为两部分：一个简单的线性项和一个更复杂的非线性项。
+那么再向前拓展一步，如果我们想拓展成超过两部分的信息呢？
+一种方案便是 DenseNet :cite:`Huang.Liu.Van-Der-Maaten.ea.2017`。
 
 ![ResNet（左）与 DenseNet（右）在跨层连接上的主要区别：使用相加和使用连结。](../img/densenet-block.svg)
 :label:`fig_densenet_block`
 
-如:numref:`fig_densenet_block`所示，ResNet和DenseNet之间的关键区别在于，在后一种情况下，输出是*连接*（用$[,]$表示）而不是相加的。因此，在应用越来越复杂的函数序列后，我们执行从$\mathbf{x}$到其值的映射：
+如 :numref:`fig_densenet_block` 所示，ResNet 和 DenseNet 之间的关键区别在于，DenseNet 输出是*连接*（用图中的 $[,]$ 表示）而不是如 ResNet 的简单相加。
+因此，在应用越来越复杂的函数序列后，我们执行从 $\mathbf{x}$ 到其展开式的映射：
 
 $$\mathbf{x} \to \left[
 \mathbf{x},
 f_1(\mathbf{x}),
 f_2([\mathbf{x}, f_1(\mathbf{x})]), f_3([\mathbf{x}, f_1(\mathbf{x}), f_2([\mathbf{x}, f_1(\mathbf{x})])]), \ldots\right].$$
 
-最后，将这些功能结合到MLP中，再次减少特征的数量。就实现而言，这非常简单：我们不需要添加术语，而是将它们连接起来。DenseNet这个名字是因为变量之间的依赖关系图变得非常稠密。这样一个链的最后一层与之前的所有层紧密相连。稠密连接如:numref:`fig_densenet`所示。
+最后，将这些展开式结合到 MLP 中，再次减少特征的数量。
+实现起来非常简单：我们不需要添加术语，而是将它们连接起来。
+DenseNet 这个名字由变量之间的稠密连接而得来，链的最后一层与之前的所有层紧密相连。稠密连接如 :numref:`fig_densenet` 所示。
 
 ![稠密连接。](../img/densenet.svg)
 :label:`fig_densenet`
 
-构成致密网的主要组件是*致密块*和*过渡层*。前者定义如何连接输入和输出，而后者则控制通道的数量，以使其不会太大。
+构成稠密网的主要组件是*稠密块*和*过渡层*。前者定义如何连接输入和输出，而后者则控制通道的数量，以使其不会太大。
 
-## 致密块体
+## 稠密块体
 
 DenseNe t使用 ResNet 的“批处理规范化、激活和卷积”结构（参见 :numref:`sec_resnet` 中的练习）。
 首先，我们实现这种卷积块结构：
