@@ -16,7 +16,7 @@ $$f(\mathbf{x}) = \mathbf{x} + g(\mathbf{x}).$$
 
 也就是说，ResNet 将 $f$ 分解为两部分：一个简单的线性项和一个更复杂的非线性项。
 那么再向前拓展一步，如果我们想拓展成超过两部分的信息呢？
-一种方案便是 DenseNet :cite:`Huang.Liu.Van-Der-Maaten.ea.2017`。
+一种方案便是 DenseNet。
 
 ![ResNet（左）与 DenseNet（右）在跨层连接上的主要区别：使用相加和使用连结。](../img/densenet-block.svg)
 :label:`fig_densenet_block`
@@ -36,12 +36,14 @@ DenseNet 这个名字由变量之间的稠密连接而得来，链的最后一�
 ![稠密连接。](../img/densenet.svg)
 :label:`fig_densenet`
 
-构成稠密网的主要组件是*稠密块*和*过渡层*。前者定义如何连接输入和输出，而后者则控制通道的数量，以使其不会太大。
+稠密网络主要由 2 部分构成： *稠密块*（dense block）和 *过渡层* （transition layer）。
+前者定义如何连接输入和输出，而后者则控制通道数量，使其不会太复杂。
+
 
 ## 稠密块体
 
-DenseNe t使用 ResNet 的“批处理规范化、激活和卷积”结构（参见 :numref:`sec_resnet` 中的练习）。
-首先，我们实现这种卷积块结构：
+DenseNet 使用了 ResNet 改良版的“批量归一化、激活和卷积”结构（参见 :numref:`sec_resnet` 中的练习）。
+我们首先实现一下这个结构。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -92,7 +94,8 @@ class ConvBlock(tf.keras.layers.Layer):
         return y
 ```
 
-一个*密集块*由多个卷积块组成，每个卷积块使用相同数量的输出信道。然而，在前向传播中，我们将每个卷积块的输入和输出连接在信道维上。
+一个稠密块由多个卷积块组成，每个卷积块使用相同数量的输出信道。
+然而，在前向传播中，我们将每个卷积块的输入和输出在通道维上连结。
 
 ```{.python .input}
 class DenseBlock(nn.Block):
@@ -144,7 +147,9 @@ class DenseBlock(tf.keras.layers.Layer):
         return x
 ```
 
-在下面的示例中，我们定义了一个`DenseBlock`实例，其中包含10个输出信道的2个卷积块。当使用3个通道的输入时，我们将得到$3+2\times 10=23$个通道的输出。卷积块通道数控制输出通道数相对于输入通道数的增长。这也被称为*增长率*。
+在下面的例子中，我们定义一个有 2 个输出通道数为 10 的 `DenseBlock`。
+使用通道数为 3 的输入时，我们会得到通道数为 $3+2\times 10=23$ 的输出。
+卷积块的通道数控制了输出通道数相对于输入通道数的增长，因此也被称为*增长率*（growth rate）。
 
 ```{.python .input}
 blk = DenseBlock(2, 10)
@@ -172,7 +177,9 @@ Y.shape
 
 ## 过渡层
 
-由于每一个密集的块体都会增加通道的数量，增加过多的通道会导致模型过于复杂。过渡层*用于控制模型的复杂性。它通过使用$1\times 1$卷积层减少了信道数量，并将平均池层的高度和宽度减半，步长为2，进一步降低了模型的复杂性。
+由于每个稠密块都会带来通道数的增加，使用过多则会带来过于复杂的模型。
+过渡层用来控制模型复杂度。
+它通过 $1\times 1$ 卷积层来减小通道数，并使用步幅为 2 的平均池化层减半高和宽，从而进一步降低模型复杂度。
 
 ```{.python .input}
 def transition_block(num_channels):
@@ -209,7 +216,8 @@ class TransitionBlock(tf.keras.layers.Layer):
         return self.avg_pool(x)
 ```
 
-将具有10个通道的过渡层应用于上一个示例中密集块的输出。这将输出通道的数量减少到10个，并将高度和宽度减半。
+对上一个例子中稠密块的输出使用通道数为 10 的过渡层。
+此时输出的通道数减为 10，高和宽均减半。
 
 ```{.python .input}
 blk = transition_block(10)
@@ -229,9 +237,9 @@ blk = TransitionBlock(10)
 blk(Y).shape
 ```
 
-## 登塞纳模型
+## DenseNet模型
 
-接下来，我们将构造一个DenseNet模型。DenseNet首先使用与ResNet中相同的单个卷积层和最大池层。
+我们来构造 DenseNet 模型。DenseNet 首先使用同 ResNet 一样的单卷积层和最大池化层。
 
 ```{.python .input}
 net = nn.Sequential()
@@ -258,9 +266,12 @@ def block_1():
        tf.keras.layers.MaxPool2D(pool_size=3, strides=2, padding='same')])
 ```
 
-然后，与ResNet使用的由剩余块组成的四个模块类似，DenseNet使用四个密集块。与ResNet类似，我们可以设置每个密集块中使用的卷积层的数量。在这里，我们将其设置为4，与:numref:`sec_resnet`中的ResNet-18型号一致。此外，我们将密集块中卷积层的通道数（即增长率）设置为32个，这样每个稠密块将增加128个通道。
+类似于 ResNet 接下来使用的 4 个残差块，DenseNet 使用的是 4 个稠密块。
+与 ResNet 类似，我们可以设置每个稠密块使用多少个卷积层。这里我们设成 4，从而与 :numref:`sec_resnet` 的ResNet-18 保持一致。
+稠密块里的卷积层通道数（即增长率）设为 32，所以每个稠密块将增加 128 个通道。
 
-在ResNet中，每个模块之间的高度和宽度通过一个步长为2的剩余块来减小。在这里，我们使用过渡层将高度和宽度减半，并将通道数减半。
+ResNet 里通过步幅为 2 的残差块在每个模块之间减小高和宽。
+这里我们则使用过渡层来减半高和宽，并减半通道数。
 
 ```{.python .input}
 # `num_channels`为当前的通道数
@@ -312,7 +323,7 @@ def block_2():
     return net
 ```
 
-与ResNet类似，一个全局池层和一个完全连接的层在最后连接以产生输出。
+与ResNet类似，最后接上全局池化层和全连接层来输出。
 
 ```{.python .input}
 net.add(nn.BatchNorm(),
@@ -356,19 +367,20 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 
 ## 小结
 
-* 在跨层连接方面，与ResNet不同，ResNet将输入和输出相加在一起，DenseNet在通道维度上连接输入和输出。
-* 构成致密网的主要成分是致密块体和过渡层。
-* 在组成网络时，我们需要通过添加过渡层来控制网络的维数，从而再次减少信道的数量。
+* 在跨层连接上，不同于 ResNet 中将输入与输出相加，稠密连接网络（DenseNet）在通道维上连结输入与输出。
+* DenseNet 的主要构建模块是稠密块和过渡层。
+* 在构建 DenseNet 时，我们需要通过添加过渡层来控制网络的维数，从而再次减少信道的数量。
+
 
 ## 练习
 
-1. 为什么我们在过渡层使用平均池而不是最大池？
-1. DenseNet的优点之一是其模型参数比ResNet的小。为什么会这样？
-1. DenseNet被批评的一个问题是它的高内存消耗。
-    1. 真的是这样吗？尝试将输入形状更改为 $224\times 224$ 以查看实际的GPU内存消耗。
+1. 为什么我们在过渡层使用平均池化层而不是最大池化层？
+1. DenseNet 的优点之一是其模型参数比 ResNet 小。为什么呢？
+1. DenseNet 被人诟病的一个问题是内存或显存消耗过多。
+    1. 真的会这样吗？可以把输入形状换成 $224×224$ ，来看看实际的 GPU 内存消耗。
     1. 你能想出另一种方法来减少内存消耗吗？你需要如何改变框架？
-1. 实现DenseNet论文:cite:`Huang.Liu.Van-Der-Maaten.ea.2017`表1所示的各种DenseNet版本。
-1. 应用DENP的设计思想，设计了基于DENP的模型。应用于:numref:`sec_kaggle_house`中的房价预测任务。
+1. 实现 DenseNet 论文 :cite:`Huang.Liu.Van-Der-Maaten.ea.2017` 表1所示的不同 DenseNet 版本。
+1. 应用 DENP 的设计思想，设计了基于 DENP 的模型。应用于 :numref:`sec_kaggle_house` 中的房价预测任务。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/87)
