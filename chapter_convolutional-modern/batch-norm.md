@@ -74,33 +74,27 @@ from mxnet.gluon import nn
 npx.set_np()
 
 def batch_norm(X, gamma, beta, moving_mean, moving_var, eps, momentum):
-    # Use `autograd` to determine whether the current mode is training mode or
-    # prediction mode
+    # 通过 `autograd` 来判断当前模式是训练模式还是预测模式
     if not autograd.is_training():
-        # If it is prediction mode, directly use the mean and variance
-        # obtained by moving average
+        # 如果是在预测模式下，直接使用传入的移动平均所得的均值和方差
         X_hat = (X - moving_mean) / np.sqrt(moving_var + eps)
     else:
         assert len(X.shape) in (2, 4)
         if len(X.shape) == 2:
-            # When using a fully-connected layer, calculate the mean and
-            # variance on the feature dimension
+            # 使用全连接层的情况，计算特征维上的均值和方差
             mean = X.mean(axis=0)
             var = ((X - mean) ** 2).mean(axis=0)
         else:
-            # When using a two-dimensional convolutional layer, calculate the
-            # mean and variance on the channel dimension (axis=1). Here we
-            # need to maintain the shape of `X`, so that the broadcasting
-            # operation can be carried out later
+            # 使用二维卷积层的情况，计算通道维上（axis=1）的均值和方差。
+            # 这里我们需要保持X的形状以便后面可以做广播运算
             mean = X.mean(axis=(0, 2, 3), keepdims=True)
             var = ((X - mean) ** 2).mean(axis=(0, 2, 3), keepdims=True)
-        # In training mode, the current mean and variance are used for the
-        # standardization
+        # 训练模式下，用当前的均值和方差做标准化
         X_hat = (X - mean) / np.sqrt(var + eps)
-        # Update the mean and variance using moving average
+        # 更新移动平均的均值和方差
         moving_mean = momentum * moving_mean + (1.0 - momentum) * mean
         moving_var = momentum * moving_var + (1.0 - momentum) * var
-    Y = gamma * X_hat + beta  # Scale and shift
+    Y = gamma * X_hat + beta  # 缩放和移位
     return Y, moving_mean, moving_var
 ```
 
@@ -111,33 +105,27 @@ import torch
 from torch import nn
 
 def batch_norm(X, gamma, beta, moving_mean, moving_var, eps, momentum):
-    # Use `is_grad_enabled` to determine whether the current mode is training
-    # mode or prediction mode
+    # 通过 `is_grad_enabled` 来判断当前模式是训练模式还是预测模式
     if not torch.is_grad_enabled():
-        # If it is prediction mode, directly use the mean and variance
-        # obtained by moving average
+        # 如果是在预测模式下，直接使用传入的移动平均所得的均值和方差
         X_hat = (X - moving_mean) / torch.sqrt(moving_var + eps)
     else:
         assert len(X.shape) in (2, 4)
         if len(X.shape) == 2:
-            # When using a fully-connected layer, calculate the mean and
-            # variance on the feature dimension
+            # 使用全连接层的情况，计算特征维上的均值和方差
             mean = X.mean(dim=0)
             var = ((X - mean) ** 2).mean(dim=0)
         else:
-            # When using a two-dimensional convolutional layer, calculate the
-            # mean and variance on the channel dimension (axis=1). Here we
-            # need to maintain the shape of `X`, so that the broadcasting
-            # operation can be carried out later
+            # 使用二维卷积层的情况，计算通道维上（axis=1）的均值和方差。
+            # 这里我们需要保持X的形状以便后面可以做广播运算
             mean = X.mean(dim=(0, 2, 3), keepdim=True)
             var = ((X - mean) ** 2).mean(dim=(0, 2, 3), keepdim=True)
-        # In training mode, the current mean and variance are used for the
-        # standardization
+        # 训练模式下，用当前的均值和方差做标准化
         X_hat = (X - mean) / torch.sqrt(var + eps)
-        # Update the mean and variance using moving average
+        # 更新移动平均的均值和方差
         moving_mean = momentum * moving_mean + (1.0 - momentum) * mean
         moving_var = momentum * moving_var + (1.0 - momentum) * var
-    Y = gamma * X_hat + beta  # Scale and shift
+    Y = gamma * X_hat + beta  # 缩放和移位
     return Y, moving_mean.data, moving_var.data
 ```
 
@@ -147,9 +135,9 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 
 def batch_norm(X, gamma, beta, moving_mean, moving_var, eps):
-    # Compute reciprocal of square root of the moving variance element-wise
+    # 计算移动方差元平方根的倒数
     inv = tf.cast(tf.math.rsqrt(moving_var + eps), X.dtype)
-    # Scale and shift
+    # 缩放和移位
     inv *= gamma
     Y = X * inv + (beta - moving_mean * inv)
     return Y
@@ -161,30 +149,28 @@ def batch_norm(X, gamma, beta, moving_mean, moving_var, eps):
 
 ```{.python .input}
 class BatchNorm(nn.Block):
-    # `num_features`: the number of outputs for a fully-connected layer
-    # or the number of output channels for a convolutional layer. `num_dims`:
-    # 2 for a fully-connected layer and 4 for a convolutional layer
+    # `num_features`：完全连接层的输出数量或卷积层的输出通道数。
+    # `num_dims`：2表示完全连接层，4表示卷积层
     def __init__(self, num_features, num_dims, **kwargs):
         super().__init__(**kwargs)
         if num_dims == 2:
             shape = (1, num_features)
         else:
             shape = (1, num_features, 1, 1)
-        # The scale parameter and the shift parameter (model parameters) are
-        # initialized to 1 and 0, respectively
+        # 参与求梯度和迭代的拉伸和偏移参数，分别初始化成1和0
         self.gamma = self.params.get('gamma', shape=shape, init=init.One())
         self.beta = self.params.get('beta', shape=shape, init=init.Zero())
-        # The variables that are not model parameters are initialized to 0
+        # 不参与求梯度和迭代的变量，全在内存上初始化成0
         self.moving_mean = np.zeros(shape)
         self.moving_var = np.zeros(shape)
 
     def forward(self, X):
-        # If `X` is not on the main memory, copy `moving_mean` and
-        # `moving_var` to the device where `X` is located
+        # 如果 `X` 不在内存上，将 `moving_mean` 和 `moving_var` 
+        # 复制到 `X` 所在显存上
         if self.moving_mean.ctx != X.ctx:
             self.moving_mean = self.moving_mean.copyto(X.ctx)
             self.moving_var = self.moving_var.copyto(X.ctx)
-        # Save the updated `moving_mean` and `moving_var`
+        # 保存更新过的 `moving_mean` 和 `moving_var`
         Y, self.moving_mean, self.moving_var = batch_norm(
             X, self.gamma.data(), self.beta.data(), self.moving_mean,
             self.moving_var, eps=1e-12, momentum=0.9)
@@ -194,30 +180,28 @@ class BatchNorm(nn.Block):
 ```{.python .input}
 #@tab pytorch
 class BatchNorm(nn.Module):
-    # `num_features`: the number of outputs for a fully-connected layer
-    # or the number of output channels for a convolutional layer. `num_dims`:
-    # 2 for a fully-connected layer and 4 for a convolutional layer
+    # `num_features`：完全连接层的输出数量或卷积层的输出通道数。
+    # `num_dims`：2表示完全连接层，4表示卷积层
     def __init__(self, num_features, num_dims):
         super().__init__()
         if num_dims == 2:
             shape = (1, num_features)
         else:
             shape = (1, num_features, 1, 1)
-        # The scale parameter and the shift parameter (model parameters) are
-        # initialized to 1 and 0, respectively
+        # 参与求梯度和迭代的拉伸和偏移参数，分别初始化成1和0
         self.gamma = nn.Parameter(torch.ones(shape))
         self.beta = nn.Parameter(torch.zeros(shape))
-        # The variables that are not model parameters are initialized to 0
+        # 不参与求梯度和迭代的变量，全在内存上初始化成0
         self.moving_mean = torch.zeros(shape)
         self.moving_var = torch.zeros(shape)
 
     def forward(self, X):
-        # If `X` is not on the main memory, copy `moving_mean` and
-        # `moving_var` to the device where `X` is located
+        # 如果 `X` 不在内存上，将 `moving_mean` 和 `moving_var` 
+        # 复制到 `X` 所在显存上
         if self.moving_mean.device != X.device:
             self.moving_mean = self.moving_mean.to(X.device)
             self.moving_var = self.moving_var.to(X.device)
-        # Save the updated `moving_mean` and `moving_var`
+        # 保存更新过的 `moving_mean` 和 `moving_var`
         Y, self.moving_mean, self.moving_var = batch_norm(
             X, self.gamma, self.beta, self.moving_mean,
             self.moving_var, eps=1e-5, momentum=0.9)
@@ -232,13 +216,12 @@ class BatchNorm(tf.keras.layers.Layer):
 
     def build(self, input_shape):
         weight_shape = [input_shape[-1], ]
-        # The scale parameter and the shift parameter (model parameters) are
-        # initialized to 1 and 0, respectively
+        # 参与求梯度和迭代的拉伸和偏移参数，分别初始化成1和0
         self.gamma = self.add_weight(name='gamma', shape=weight_shape,
             initializer=tf.initializers.ones, trainable=True)
         self.beta = self.add_weight(name='beta', shape=weight_shape,
             initializer=tf.initializers.zeros, trainable=True)
-        # The variables that are not model parameters are initialized to 0
+        # 不参与求梯度和迭代的变量，全在内存上初始化成0
         self.moving_mean = self.add_weight(name='moving_mean',
             shape=weight_shape, initializer=tf.initializers.zeros,
             trainable=False)
@@ -275,7 +258,7 @@ class BatchNorm(tf.keras.layers.Layer):
         return output
 ```
 
-## 在 Lenet 中应用批量规范化
+## 在 Lenet 中应用批量归一化
 
 为了了解如何在上下文中应用 `BatchNorm`，下面我们将其应用于传统的 Lenet 模型 (:numref:`sec_lenet`)。回想一下，批量归一化是在卷积层或完全连接的层之后，但在相应的激活函数之前应用的。
 
@@ -312,9 +295,8 @@ net = nn.Sequential(
 
 ```{.python .input}
 #@tab tensorflow
-# Recall that this has to be a function that will be passed to `d2l.train_ch6`
-# so that model building or compiling need to be within `strategy.scope()` in
-# order to utilize the CPU/GPU devices that we have
+# 回想一下，这个函数必须传递给 `d2l.train_ch6`。
+# 或者说为了利用我们现有的CPU/GPU设备，需要在`战略范围（）`建立模型
 def net():
     return tf.keras.models.Sequential([
         tf.keras.layers.Conv2D(filters=6, kernel_size=5,
