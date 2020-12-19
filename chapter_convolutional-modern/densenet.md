@@ -6,7 +6,7 @@ ResNet 的跨层连接极大地拓展了如何提升深层网络的性能。
 
 ## 从ResNet到DenseNet
 
-回想一下任意函数的泰勒展开式（Taylor expansion），它把这个函数分解成越来越高阶的项。在 $x = 0$ 时，
+回想一下任意函数的泰勒展开式（Taylor expansion），它把这个函数分解成越来越高阶的项。在 $x$ 接近 0 时，
 
 $$f(x) = f(0) + f'(0) x + \frac{f''(0)}{2!}  x^2 + \frac{f'''(0)}{3!}  x^3 + \ldots.$$
 
@@ -15,13 +15,13 @@ $$f(x) = f(0) + f'(0) x + \frac{f''(0)}{2!}  x^2 + \frac{f'''(0)}{3!}  x^3 + \ld
 $$f(\mathbf{x}) = \mathbf{x} + g(\mathbf{x}).$$
 
 也就是说，ResNet 将 $f$ 分解为两部分：一个简单的线性项和一个更复杂的非线性项。
-那么再向前拓展一步，如果我们想拓展成超过两部分的信息呢？
+那么再向前拓展一步，如果我们想将 $f$ 拓展成超过两部分的信息呢？
 一种方案便是 DenseNet。
 
 ![ResNet（左）与 DenseNet（右）在跨层连接上的主要区别：使用相加和使用连结。](../img/densenet-block.svg)
 :label:`fig_densenet_block`
 
-如 :numref:`fig_densenet_block` 所示，ResNet 和 DenseNet 之间的关键区别在于，DenseNet 输出是*连接*（用图中的 $[,]$ 表示）而不是如 ResNet 的简单相加。
+如 :numref:`fig_densenet_block` 所示，ResNet 和 DenseNet 的关键区别在于，DenseNet 输出是*连接*（用图中的 $[,]$ 表示）而不是如 ResNet 的简单相加。
 因此，在应用越来越复杂的函数序列后，我们执行从 $\mathbf{x}$ 到其展开式的映射：
 
 $$\mathbf{x} \to \left[
@@ -31,7 +31,8 @@ f_2([\mathbf{x}, f_1(\mathbf{x})]), f_3([\mathbf{x}, f_1(\mathbf{x}), f_2([\math
 
 最后，将这些展开式结合到 MLP 中，再次减少特征的数量。
 实现起来非常简单：我们不需要添加术语，而是将它们连接起来。
-DenseNet 这个名字由变量之间的稠密连接而得来，链的最后一层与之前的所有层紧密相连。稠密连接如 :numref:`fig_densenet` 所示。
+DenseNet 这个名字由变量之间的“稠密连接”而得来，最后一层与之前的所有层紧密相连。
+稠密连接如 :numref:`fig_densenet` 所示。
 
 ![稠密连接。](../img/densenet.svg)
 :label:`fig_densenet`
@@ -177,8 +178,8 @@ Y.shape
 
 ## 过渡层
 
-由于每个稠密块都会带来通道数的增加，使用过多则会带来过于复杂的模型。
-过渡层用来控制模型复杂度。
+由于每个稠密块都会带来通道数的增加，使用过多则会过于复杂化模型。
+而过渡层可以用来控制模型复杂度。
 它通过 $1\times 1$ 卷积层来减小通道数，并使用步幅为 2 的平均池化层减半高和宽，从而进一步降低模型复杂度。
 
 ```{.python .input}
@@ -266,12 +267,12 @@ def block_1():
        tf.keras.layers.MaxPool2D(pool_size=3, strides=2, padding='same')])
 ```
 
-类似于 ResNet 接下来使用的 4 个残差块，DenseNet 使用的是 4 个稠密块。
-与 ResNet 类似，我们可以设置每个稠密块使用多少个卷积层。这里我们设成 4，从而与 :numref:`sec_resnet` 的ResNet-18 保持一致。
+接下来，类似于 ResNet 使用的 4 个残差块，DenseNet 使用的是 4 个稠密块。
+与 ResNet 类似，我们可以设置每个稠密块使用多少个卷积层。
+这里我们设成 4，从而与 :numref:`sec_resnet` 的 ResNet-18 保持一致。
 稠密块里的卷积层通道数（即增长率）设为 32，所以每个稠密块将增加 128 个通道。
 
-ResNet 里通过步幅为 2 的残差块在每个模块之间减小高和宽。
-这里我们则使用过渡层来减半高和宽，并减半通道数。
+在每个模块之间，ResNet 通过步幅为 2 的残差块减小高和宽，DenseNet 则使用过渡层来减半高和宽，并减半通道数。
 
 ```{.python .input}
 # `num_channels`为当前的通道数
@@ -323,7 +324,7 @@ def block_2():
     return net
 ```
 
-与ResNet类似，最后接上全局池化层和全连接层来输出。
+与 ResNet 类似，最后接上全局池化层和全连接层来输出结果。
 
 ```{.python .input}
 net.add(nn.BatchNorm(),
@@ -376,10 +377,10 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 
 1. 为什么我们在过渡层使用平均池化层而不是最大池化层？
 1. DenseNet 的优点之一是其模型参数比 ResNet 小。为什么呢？
-1. DenseNet 被人诟病的一个问题是内存或显存消耗过多。
-    1. 真的会这样吗？可以把输入形状换成 $224×224$ ，来看看实际的 GPU 内存消耗。
+1. DenseNet 一个诟病的问题是内存或显存消耗过多。
+    1. 真的是这样吗？可以把输入形状换成 $224 \times 224$ ，来看看实际的 GPU 内存消耗。
     1. 你能想出另一种方法来减少内存消耗吗？你需要如何改变框架？
-1. 实现 DenseNet 论文 :cite:`Huang.Liu.Van-Der-Maaten.ea.2017` 表1所示的不同 DenseNet 版本。
+1. 实现 DenseNet 论文 :cite:`Huang.Liu.Van-Der-Maaten.ea.2017` 表 1 所示的不同 DenseNet 版本。
 1. 应用 DENP 的设计思想，设计了基于 DENP 的模型。应用于 :numref:`sec_kaggle_house` 中的房价预测任务。
 
 :begin_tab:`mxnet`
