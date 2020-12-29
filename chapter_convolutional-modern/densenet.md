@@ -1,39 +1,50 @@
-# 密集连接的网络 (DenSet)
+# 稠密连接网络（DenseNet）
 
-ResNet 显著改变了如何在深层网络中参数化功能的观点。* 密度 *（密集卷积网络）在某种程度上是此 :cite:`Huang.Liu.Van-Der-Maaten.ea.2017` 的逻辑扩展。要了解如何到达它，让我们采取一个小绕道数学。
+ResNet 的跨层连接极大地拓展了如何提升深层网络的性能。
+*稠密连接网络* (DenseNet） :cite:`Huang.Liu.Van-Der-Maaten.ea.2017` 在某种程度上是 ResNet 的逻辑扩展。
 
-## 从资源信息网到密森网
 
-回想一下功能的泰勒扩展。对于点 $x = 0$，它可以写为
+## 从ResNet到DenseNet
+
+回想一下任意函数的泰勒展开式（Taylor expansion），它把这个函数分解成越来越高阶的项。在 $x$ 接近 0 时，
 
 $$f(x) = f(0) + f'(0) x + \frac{f''(0)}{2!}  x^2 + \frac{f'''(0)}{3!}  x^3 + \ldots.$$
 
-关键点在于它将函数分解为越来越高阶项。同样，ResNet 将函数分解为
+同样，ResNet 将函数展开为
 
 $$f(\mathbf{x}) = \mathbf{x} + g(\mathbf{x}).$$
 
-也就是说，RENet 将 $f$ 分解为一个简单的线性项和一个更复杂的非线性项。如果我们想捕获（不一定添加）超出两个术语的信息，该怎么办？其中一个解决方案是密森网 :cite:`Huang.Liu.Van-Der-Maaten.ea.2017`。
+也就是说，ResNet 将 $f$ 分解为两部分：一个简单的线性项和一个更复杂的非线性项。
+那么再向前拓展一步，如果我们想将 $f$ 拓展成超过两部分的信息呢？
+一种方案便是 DenseNet。
 
-![The main difference between ResNet (left) and DenseNet (right) in cross-layer connections: use of addition and use of concatenation. ](../img/densenet-block.svg)
+![ResNet（左）与 DenseNet（右）在跨层连接上的主要区别：使用相加和使用连结。](../img/densenet-block.svg)
 :label:`fig_densenet_block`
 
-如 :numref:`fig_densenet_block` 所示，信息网和电子信息网之间的主要区别在于，在后一种情况下，输出是 * 连接 *（用 $[,]$ 表示）而不是添加的。因此，在应用越来越复杂的函数序列之后，我们将执行从 $\mathbf{x}$ 到其值的映射：
+如 :numref:`fig_densenet_block` 所示，ResNet 和 DenseNet 的关键区别在于，DenseNet 输出是*连接*（用图中的 $[,]$ 表示）而不是如 ResNet 的简单相加。
+因此，在应用越来越复杂的函数序列后，我们执行从 $\mathbf{x}$ 到其展开式的映射：
 
 $$\mathbf{x} \to \left[
 \mathbf{x},
 f_1(\mathbf{x}),
 f_2([\mathbf{x}, f_1(\mathbf{x})]), f_3([\mathbf{x}, f_1(\mathbf{x}), f_2([\mathbf{x}, f_1(\mathbf{x})])]), \ldots\right].$$
 
-最后，所有这些函数都在 MLP 中进行组合，以便再次减少特征的数量。在实现方面，这很简单：我们不是添加术语，而是连接它们。这个名字 DenSenet 源于变量之间的依赖关系图变得相当密集的事实。这样一个链的最后一层密集连接到所有以前的层。密集连接如 :numref:`fig_densenet` 所示。
+最后，将这些展开式结合到 MLP 中，再次减少特征的数量。
+实现起来非常简单：我们不需要添加术语，而是将它们连接起来。
+DenseNet 这个名字由变量之间的“稠密连接”而得来，最后一层与之前的所有层紧密相连。
+稠密连接如 :numref:`fig_densenet` 所示。
 
-![Dense connections in DenseNet.](../img/densenet.svg)
+![稠密连接。](../img/densenet.svg)
 :label:`fig_densenet`
 
-构成 DensenNet 的主要组件是 * 密集块 * 和 * 过渡层 *。前者定义输入和输出的串联方式，而后者控制通道的数量，以避免过大。
+稠密网络主要由 2 部分构成： *稠密块*（dense block）和 *过渡层* （transition layer）。
+前者定义如何连接输入和输出，而后者则控制通道数量，使其不会太复杂。
 
-## 密集块
 
-DenSet 使用经过修改的 RENet “批量规范化、激活和卷积” 结构（参见 :numref:`sec_resnet` 中的练习）。首先，我们实现这个卷积块结构。
+## 稠密块体
+
+DenseNet 使用了 ResNet 改良版的“批量归一化、激活和卷积”结构（参见 :numref:`sec_resnet` 中的练习）。
+我们首先实现一下这个结构。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -84,7 +95,8 @@ class ConvBlock(tf.keras.layers.Layer):
         return y
 ```
 
-* 密集块 * 由多个卷积块组成，每个块使用相同数量的输出通道。然而，在正向传播中，我们在通道维度上连接每个卷积块的输入和输出。
+一个稠密块由多个卷积块组成，每个卷积块使用相同数量的输出信道。
+然而，在前向传播中，我们将每个卷积块的输入和输出在通道维上连结。
 
 ```{.python .input}
 class DenseBlock(nn.Block):
@@ -97,8 +109,7 @@ class DenseBlock(nn.Block):
     def forward(self, X):
         for blk in self.net:
             Y = blk(X)
-            # Concatenate the input and output of each block on the channel
-            # dimension
+            # 连接通道维度上每个块的输入和输出
             X = np.concatenate((X, Y), axis=1)
         return X
 ```
@@ -117,8 +128,7 @@ class DenseBlock(nn.Module):
     def forward(self, X):
         for blk in self.net:
             Y = blk(X)
-            # Concatenate the input and output of each block on the channel
-            # dimension
+            # 连接通道维度上每个块的输入和输出
             X = torch.cat((X, Y), dim=1)
         return X
 ```
@@ -138,7 +148,9 @@ class DenseBlock(tf.keras.layers.Layer):
         return x
 ```
 
-在下面的示例中，我们定义了一个 `DenseBlock` 实例，该实例具有 2 个卷积块，包含 10 个输出通道。当使用带有 3 个通道的输入时，我们将获得一个带有 $3+2\times 10=23$ 通道的输出。卷积块通道的数量控制输出通道数量相对于输入通道数量的增长。这也称为 * 增长率 *。
+在下面的例子中，我们定义一个有 2 个输出通道数为 10 的 `DenseBlock`。
+使用通道数为 3 的输入时，我们会得到通道数为 $3+2\times 10=23$ 的输出。
+卷积块的通道数控制了输出通道数相对于输入通道数的增长，因此也被称为*增长率*（growth rate）。
 
 ```{.python .input}
 blk = DenseBlock(2, 10)
@@ -166,7 +178,9 @@ Y.shape
 
 ## 过渡层
 
-由于每个密集块都会增加通道的数量，因此添加过多的信道将导致模型过于复杂。* 过渡层 * 用于控制模型的复杂性。它通过使用 $1\times 1$ 卷积层减少了通道数，并将平均池层的高度和宽度减半，步幅为 2，进一步降低了模型的复杂性。
+由于每个稠密块都会带来通道数的增加，使用过多则会过于复杂化模型。
+而过渡层可以用来控制模型复杂度。
+它通过 $1\times 1$ 卷积层来减小通道数，并使用步幅为 2 的平均池化层减半高和宽，从而进一步降低模型复杂度。
 
 ```{.python .input}
 def transition_block(num_channels):
@@ -203,7 +217,8 @@ class TransitionBlock(tf.keras.layers.Layer):
         return self.avg_pool(x)
 ```
 
-将具有 10 个通道的过渡层应用于上一个示例中的密集块的输出。这将输出通道的数量减少到 10，并将高度和宽度降低一半。
+对上一个例子中稠密块的输出使用通道数为 10 的过渡层。
+此时输出的通道数减为 10，高和宽均减半。
 
 ```{.python .input}
 blk = transition_block(10)
@@ -223,9 +238,9 @@ blk = TransitionBlock(10)
 blk(Y).shape
 ```
 
-## 密森网模型
+## DenseNet模型
 
-接下来，我们将构建一个 DenSet 模型。DenSet 首先使用与 ResNet 中相同的单卷积层和最大池池层。
+我们来构造 DenseNet 模型。DenseNet 首先使用同 ResNet 一样的单卷积层和最大池化层。
 
 ```{.python .input}
 net = nn.Sequential()
@@ -252,21 +267,23 @@ def block_1():
        tf.keras.layers.MaxPool2D(pool_size=3, strides=2, padding='same')])
 ```
 
-然后，与 ResNet 使用的残余块组成的四个模块类似，DensenNet 使用四个密集块。与 ResNet 类似，我们可以设置每个密集块中使用的卷积层数。在这里，我们将其设置为 4，与 :numref:`sec_resnet` 中的瑞士网 18 型号保持一致。此外，我们将密集块中卷积层的通道数量（即增长速率）设置为 32，因此每个密集块将添加 128 个通道。
+接下来，类似于 ResNet 使用的 4 个残差块，DenseNet 使用的是 4 个稠密块。
+与 ResNet 类似，我们可以设置每个稠密块使用多少个卷积层。
+这里我们设成 4，从而与 :numref:`sec_resnet` 的 ResNet-18 保持一致。
+稠密块里的卷积层通道数（即增长率）设为 32，所以每个稠密块将增加 128 个通道。
 
-在 ResNet 中，每个模块之间的高度和宽度会减少一个残余块，步幅为 2。在这里，我们使用过渡层将高度和宽度减半，并将通道数量减半。
+在每个模块之间，ResNet 通过步幅为 2 的残差块减小高和宽，DenseNet 则使用过渡层来减半高和宽，并减半通道数。
 
 ```{.python .input}
-# `num_channels`: the current number of channels
+# `num_channels`为当前的通道数
 num_channels, growth_rate = 64, 32
 num_convs_in_dense_blocks = [4, 4, 4, 4]
 
 for i, num_convs in enumerate(num_convs_in_dense_blocks):
     net.add(DenseBlock(num_convs, growth_rate))
-    # This is the number of output channels in the previous dense block
+    # 上一个稠密块的输出通道数
     num_channels += num_convs * growth_rate
-    # A transition layer that halves the number of channels is added between
-    # the dense blocks
+    # 在稠密块之间加入通道数减半的过渡层
     if i != len(num_convs_in_dense_blocks) - 1:
         num_channels //= 2
         net.add(transition_block(num_channels))
@@ -274,16 +291,15 @@ for i, num_convs in enumerate(num_convs_in_dense_blocks):
 
 ```{.python .input}
 #@tab pytorch
-# `num_channels`: the current number of channels
+# `num_channels`为当前的通道数
 num_channels, growth_rate = 64, 32
 num_convs_in_dense_blocks = [4, 4, 4, 4]
 blks = []
 for i, num_convs in enumerate(num_convs_in_dense_blocks):
     blks.append(DenseBlock(num_convs, num_channels, growth_rate))
-    # This is the number of output channels in the previous dense block
+    # 上一个稠密块的输出通道数
     num_channels += num_convs * growth_rate
-    # A transition layer that haves the number of channels is added between
-    # the dense blocks
+    # 在稠密块之间加入通道数减半的过渡层
     if i != len(num_convs_in_dense_blocks) - 1:
         blks.append(transition_block(num_channels, num_channels // 2))
         num_channels = num_channels // 2
@@ -293,23 +309,22 @@ for i, num_convs in enumerate(num_convs_in_dense_blocks):
 #@tab tensorflow
 def block_2():
     net = block_1()
-    # `num_channels`: the current number of channels
+    # `num_channels`为当前的通道数
     num_channels, growth_rate = 64, 32
     num_convs_in_dense_blocks = [4, 4, 4, 4]
 
     for i, num_convs in enumerate(num_convs_in_dense_blocks):
         net.add(DenseBlock(num_convs, growth_rate))
-        # This is the number of output channels in the previous dense block
+        # 上一个稠密块的输出通道数
         num_channels += num_convs * growth_rate
-        # A transition layer that haves the number of channels is added
-        # between the dense blocks
+        # 在稠密块之间加入通道数减半的过渡层
         if i != len(num_convs_in_dense_blocks) - 1:
             num_channels //= 2
             net.add(TransitionBlock(num_channels))
     return net
 ```
 
-与 ResNet 类似，全局池层和完全连接的层在末端连接以生成输出。
+与 ResNet 类似，最后接上全局池化层和全连接层来输出结果。
 
 ```{.python .input}
 net.add(nn.BatchNorm(),
@@ -340,9 +355,9 @@ def net():
     return net
 ```
 
-## 培训
+## 训练模型
 
-由于我们在这里使用更深层次的网络，因此在本节中，我们将将输入高度和宽度从 224 减少到 96 以简化计算。
+由于这里使用了比较深的网络，本节里我们将输入高和宽从 224 降到 96 来简化计算。
 
 ```{.python .input}
 #@tab all
@@ -351,21 +366,22 @@ train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=96)
 d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 ```
 
-## 摘要
+## 小结
 
-* 在跨层连接方面，与 RENet 不同，将输入和输出相加在一起，DenSENet 在通道尺寸上连接输入和输出。
-* 构成 DenSENet 的主要组件是密集块和过渡层。
-* 在合成网络时，我们需要通过添加过渡层，再次缩小通道数量，从而保持对维度的控制。
+* 在跨层连接上，不同于 ResNet 中将输入与输出相加，稠密连接网络（DenseNet）在通道维上连结输入与输出。
+* DenseNet 的主要构建模块是稠密块和过渡层。
+* 在构建 DenseNet 时，我们需要通过添加过渡层来控制网络的维数，从而再次减少信道的数量。
+
 
 ## 练习
 
-1. 为什么我们在过渡层中使用平均池而不是最大池？
-1. DensenNet 文件中提到的一个优点是，其模型参数比 ResNet 的参数小。为什么会出现这种情况？
-1. DenSenet 受到批评的一个问题是其高内存消耗。
-    1. 这真的是这样吗？尝试将输入形状更改为 $224\times 224$ 以查看实际 GPU 内存消耗量。
-    1. 你能想到一种减少内存消耗的替代方法吗？你需要如何改变框架？
-1. 实施电子邮件 :cite:`Huang.Liu.Van-Der-Maaten.ea.2017` 号文件表 1 中提供的各种密码网版本。
-1. 通过应用 Densenet 想法设计一个基于 MLP 的模型。将其应用于住房价格预测任务在 :numref:`sec_kaggle_house`.
+1. 为什么我们在过渡层使用平均池化层而不是最大池化层？
+1. DenseNet 的优点之一是其模型参数比 ResNet 小。为什么呢？
+1. DenseNet 一个诟病的问题是内存或显存消耗过多。
+    1. 真的是这样吗？可以把输入形状换成 $224 \times 224$ ，来看看实际的 GPU 内存消耗。
+    1. 你能想出另一种方法来减少内存消耗吗？你需要如何改变框架？
+1. 实现 DenseNet 论文 :cite:`Huang.Liu.Van-Der-Maaten.ea.2017` 表 1 所示的不同 DenseNet 版本。
+1. 应用 DENP 的设计思想，设计了基于 DENP 的模型。应用于 :numref:`sec_kaggle_house` 中的房价预测任务。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/87)
