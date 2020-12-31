@@ -2,11 +2,11 @@
 :label:`sec_googlenet`
 
 在2014年的ImageNet图像识别挑战赛中，一个名叫GoogLeNet :cite:`Szegedy.Liu.Jia.ea.2015` 的网络结构大放异彩。
-GoogLeNet吸收了NiN中串联网络的思想，并在此基础上做了很大改进。
-这篇论文的一个重点是解决了“什么样大小的卷积核最合适”的问题。
+GoogLeNet吸收了NiN中网络串联网络的思想，并在此基础上做了很大改进。
+这篇论文的一个重点是解决了什么样大小的卷积核最合适的问题。
 毕竟，以前流行的网络使用小到 $1 \times 1$ ，大到 $11 \times 11$ 的卷积核。
 本文的一个观点是，有时使用不同大小的卷积核组合是有利的。
-在本节中，我们将介绍一个稍微简化的GoogLeNet版本：我们省略了一些为稳定训练而添加的特殊特性，但是现在有了更好的训练算法，这些特性不是必要的。
+在本节中，我们将介绍个稍微简化的GoogLeNet版本：我们省略了一些为稳定训练而添加的特殊特性，但是现在有了更好的训练算法，这些特性不是必要的。
 
 
 ## Inception块
@@ -21,7 +21,6 @@ GoogLeNet吸收了NiN中串联网络的思想，并在此基础上做了很大�
 中间的两条路径在输入上执行 $1\times 1$ 卷积，以减少通道数，从而降低模型的复杂性。
 第四条路径使用 $3\times 3$ 最大池化层，然后是 $1\times 1$ 卷积层来改变通道数。
 这四条路径都使用合适的填充来使输入与输出的高和宽一致，最后我们将每条线路的输出在通道维度上连结，并构成Inception块的输出。初始块的通常调整的超参数是每层输出通道的数量。
-
 在Inception块中，通常调整的超参数是每层输出通道的数量。
 
 ```{.python .input}
@@ -123,19 +122,19 @@ class Inception(tf.keras.Model):
 ```
 
 那么为什么GoogLeNet这个网络如此有效呢？
-首先我们考虑一下滤波器（filter）的组合，他们可以探索各种滤波器尺寸的图像，这意味着不同大小的滤波器可以有效地识别不同范围的图像细节。
+首先我们考虑一下滤波器（filter）的组合，他们可以探索各种滤波器尺寸的图像，这意味着不同大小的滤波器可以有效地识别不同范围的细节。
 同时，我们可以为不同的滤波器分配不同数量的参数。
 
 
 ## GoogLeNet 模型
 
 如 :numref:`fig_inception_full` 所示，GoogLeNet 一共使用 9 个Inception块和全局平均池化层的堆叠来生成其估计值。Inception块之间的最大池化层可降低维度。
-第一个模块类似于 AlexNet 和 LeNet，全局平均池化层避免在最后使用全连接层。
+第一个模块类似于 AlexNet 和 LeNet，Inception块的栈从VGG继承，全局平均池化层避免在最后使用全连接层。
 
 ![GoogLeNet结构。](../img/inception-full.svg)
 :label:`fig_inception_full`
 
-现在，我们逐一实现GoogLeNet的每个模块。第一个模块使用 64 个通道、 $7\times 7$ 卷积层。
+我们现在可以一块一块地实现GoogLeNet的模块。第一个模块使用 64 个通道、 $7\times 7$ 卷积层。
 
 ```{.python .input}
 b1 = nn.Sequential()
@@ -158,7 +157,6 @@ def b1():
                                activation='relu'),
         tf.keras.layers.MaxPool2D(pool_size=3, strides=2, padding='same')])
 ```
-
 
 第二个模块使用两个卷积层：第一个卷积层是 64个通道、 $1\times 1$ 卷积层；第二个卷积层使用将通道数量增加三倍的 $3\times 3$ 卷积层。
 这对应于 Inception 块中的第二条路径。
@@ -336,9 +334,11 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 
 ## 小结
 
-* Inception 块相当于一个有4条路径的子网络。它通过不同窗口形状的卷积层和最大池化层来并行抽取信息，并使用 $1×1$ 卷积层减少通道维数从而降低模型复杂度。
-* GoogLeNet将多个设计精细的Inception块与其他层（卷积层、全连接层）串联起来。其中Inception块的通道数分配之比是在 ImageNet 数据集上通过大量的实验得来的。
+
+* Inception 块相当于一个有4条路径的子网络。它通过不同窗口形状的卷积层和最大池化层来并行抽取信息，并使用 $1×1$ 卷积层减少每像素级别上的通道维数从而降低模型复杂度。
+* GoogLeNet将多个设计精细的 Inception 块和其他层连接起来。其中 Inception 块的通道数分配之比是在ImageNet 数据集上通过大量的实验得来的。
 * GoogLeNet 和它的后继者们一度是 ImageNet 上最有效的模型之一：它以较低的计算复杂度提供了类似的测试精度。
+
 
 ## 练习
 
