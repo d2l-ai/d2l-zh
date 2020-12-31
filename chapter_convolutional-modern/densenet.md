@@ -1,7 +1,7 @@
 # 稠密连接网络（DenseNet）
 
 ResNet 的跨层连接极大地拓展了如何提升深层网络的性能。
-*稠密连接网络* (DenseNet） :cite:`Huang.Liu.Van-Der-Maaten.ea.2017` 在某种程度上是 ResNet 的逻辑扩展。
+*稠密连接网络* (DenseNet） :cite:`Huang.Liu.Van-Der-Maaten.ea.2017` 在某种程度上是 ResNet 的逻辑扩展。让我们先从数学上了解一下。
 
 
 ## 从ResNet到DenseNet
