@@ -364,7 +364,3 @@ GoogLeNet有数个后续版本。尝试实现并运行它们，然后观察实�
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/316)
 :end_tab:
-
-```{.python .input}
-
-```
