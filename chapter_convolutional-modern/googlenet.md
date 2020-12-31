@@ -2,11 +2,11 @@
 :label:`sec_googlenet`
 
 在2014年的ImageNet图像识别挑战赛中，一个名叫GoogLeNet :cite:`Szegedy.Liu.Jia.ea.2015` 的网络结构大放异彩。
-GoogLeNet吸收了NiN中网络串联网络的思想，并在此基础上做了很大改进。
+GoogLeNet吸收了NiN中串联网络的思想，并在此基础上做了很大改进。
 这篇论文的一个重点是解决了什么样大小的卷积核最合适的问题。
 毕竟，以前流行的网络使用小到 $1 \times 1$ ，大到 $11 \times 11$ 的卷积核。
 本文的一个观点是，有时使用不同大小的卷积核组合是有利的。
-在本节中，我们将介绍个稍微简化的GoogLeNet版本：我们省略了一些为稳定训练而添加的特殊特性，但是现在有了更好的训练算法，这些特性不是必要的。
+在本节中，我们将介绍一个稍微简化的GoogLeNet版本：我们省略了一些为稳定训练而添加的特殊特性，但是现在有了更好的训练算法，这些特性不是必要的。
 
 
 ## Inception块
@@ -122,7 +122,7 @@ class Inception(tf.keras.Model):
 ```
 
 那么为什么GoogLeNet这个网络如此有效呢？
-首先我们考虑一下滤波器（filter）的组合，他们可以探索各种滤波器尺寸的图像，这意味着不同大小的滤波器可以有效地识别不同范围的细节。
+首先我们考虑一下滤波器（filter）的组合，他们可以探索各种滤波器尺寸的图像，这意味着不同大小的滤波器可以有效地识别不同范围的图像细节。
 同时，我们可以为不同的滤波器分配不同数量的参数。
 
 
@@ -134,7 +134,7 @@ class Inception(tf.keras.Model):
 ![GoogLeNet结构。](../img/inception-full.svg)
 :label:`fig_inception_full`
 
-我们现在可以一块一块地实现GoogLeNet的模块。第一个模块使用 64 个通道、 $7\times 7$ 卷积层。
+现在，我们逐一实现GoogLeNet的每个模块。第一个模块使用 64 个通道、 $7\times 7$ 卷积层。
 
 ```{.python .input}
 b1 = nn.Sequential()
@@ -336,7 +336,7 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 
 
 * Inception 块相当于一个有4条路径的子网络。它通过不同窗口形状的卷积层和最大池化层来并行抽取信息，并使用 $1×1$ 卷积层减少每像素级别上的通道维数从而降低模型复杂度。
-* GoogLeNet将多个设计精细的 Inception 块和其他层连接起来。其中 Inception 块的通道数分配之比是在ImageNet 数据集上通过大量的实验得来的。
+*  GoogLeNet将多个设计精细的Inception块与其他层（卷积层、全连接层）串联起来。其中Inception块的通道数分配之比是在 ImageNet 数据集上通过大量的实验得来的。
 * GoogLeNet 和它的后继者们一度是 ImageNet 上最有效的模型之一：它以较低的计算复杂度提供了类似的测试精度。
 
 
