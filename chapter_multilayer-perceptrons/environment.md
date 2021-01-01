@@ -124,7 +124,7 @@ $$\mathop{\mathrm{minimize}}_f \frac{1}{n} \sum_{i=1}^n \beta_i l(f(\mathbf{x}_i
 
 在这种情况下，有一种非常有效的方法可以得到几乎与原始方法一样好的结果：logistic回归，这是用于二元分类的softmax回归（见 :numref:`sec_softmax` ）的一个特例。这就是计算估计的概率比所需的全部内容。我们学习了一个分类器来区分从$p(\mathbf{x})$抽取的数据和从$q(\mathbf{x})$抽取的数据。如果无法区分这两个分布，则意味着想相关的样本同样可能来自这两个分布中的任何一个。另一方面，任何可以很好区分的样本都应该相应地显著增加或减少权重。
 
-为了简单起见，假设我们分别从$p(\mathbf{x})$和$q(\mathbf{x})$两个分布中拥有相同数量的样本。现在用$z$标签表示从$p抽取的数据为$1$，从$q抽取的数据为$-1$。然后，混合数据集中的概率由下式给出
+为了简单起见，假设我们分别从$p(\mathbf{x})$和$q(\mathbf{x})$两个分布中拥有相同数量的样本。现在用$z$标签表示从$p$抽取的数据为$1$，从$q$抽取的数据为$-1$。然后，混合数据集中的概率由下式给出
 
 $$P(z=1 \mid \mathbf{x}) = \frac{p(\mathbf{x})}{p(\mathbf{x})+q(\mathbf{x})} \text{ and hence } \frac{P(z=1 \mid \mathbf{x})}{P(z=-1 \mid \mathbf{x})} = \frac{p(\mathbf{x})}{q(\mathbf{x})}.$$
 
