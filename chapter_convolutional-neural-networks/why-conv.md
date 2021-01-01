@@ -92,7 +92,7 @@ $$[\mathbf{H}]_{i, j} = u + \sum_{a = -\Delta}^{\Delta} \sum_{b = -\Delta}^{\Del
 $$(f * g)(\mathbf{x}) = \int f(\mathbf{z}) g(\mathbf{x}-\mathbf{z}) d\mathbf{z}.$$
 
 也就是说，卷积是测量 $f$ 和 $g$ 之间（把函数“翻转”并移位 $\mathbf{x}$ 时）的重叠。
-当我们有离散对象时（即定义域为 $\mathbb{Z}$ ），积分就变成和，我们得到以下定义：
+当我们有离散对象时（即定义域为 $\mathbb{Z}$ ），积分就变成求和，我们得到以下定义：
 
 $$(f * g)(i) = \sum_a f(a) g(i-a).$$
 
