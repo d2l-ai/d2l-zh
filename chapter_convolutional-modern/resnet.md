@@ -229,7 +229,7 @@ b1 = tf.keras.models.Sequential([
     tf.keras.layers.MaxPool2D(pool_size=3, strides=2, padding='same')])
 ```
 
-GoogLeNet 在后面接了 4 个由初始块组成的模块。
+GoogLeNet 在后面接了 4 个由Inception块组成的模块。
 ResNet 则使用 4 个由残差块组成的模块，每个模块使用若干个同样输出通道数的残差块。
 第一个模块的通道数同输入通道数一致。
 由于之前已经使用了步幅为 2 的最大池化层，所以无须减小高和宽。
@@ -400,7 +400,7 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 
 ## 练习
 
-1. :numref:`fig_inception` 中的初始块与残差块之间的主要区别是什么？在删除了初始块中的一些路径之后，它们是如何相互关联的？
+1. :numref:`fig_inception` 中的Inception块与残差块之间的主要区别是什么？在删除了Inception块中的一些路径之后，它们是如何相互关联的？
 1. 参考 ResNet 论文 :cite:`He.Zhang.Ren.ea.2016` 中的表 1，以实现不同的变体。
 1. 对于更深层次的网络，ResNet 引入了“bottleneck”架构来降低模型复杂性。请你试着去实现它。
 1. 在 ResNet 的后续版本中，作者将“卷积层、批量归一化层和激活层”结构更改为“批量归一化层、激活层和卷积层”结构。请你做这个改进。详见 :cite:`He.Zhang.Ren.ea.2016*1` 中的图 1。
