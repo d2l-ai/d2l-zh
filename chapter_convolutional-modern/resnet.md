@@ -1,31 +1,63 @@
-# 残余网络
+# 残差网络（ResNet）
 :label:`sec_resnet`
 
-随着我们设计越来越深入的网络，必须了解添加图层如何增加网络的复杂性和表现力。更重要的是设计网络的能力，其中添加图层可使网络更具表现力，而不仅仅是不同。为了取得一些进展，我们需要一些数学。
+随着我们设计越来越深的网络，深刻理解“新添加的层如何提升神经网络的性能”变得至关重要。更重要的是设计网络的能力，在这种网络中，添加层会使网络更具表现力，
+为了取得质的突破，我们需要一些数学基础知识。
+
 
 ## 函数类
 
-考虑 $\mathcal{F}$，即特定网络架构（以及学习速率和其他超参数设置）可以达到的功能类别。也就是说，对于所有 $f \in \mathcal{F}$，存在一些参数集（例如，权重和偏差），可以通过对合适的数据集进行培训来获得。让我们假设 $f^*$ 是我们真正想找到的 “真相” 功能。如果它是在 $\mathcal{F}$, 我们是在良好的状态，但通常我们不会很幸运.相反，我们会尝试找到一些 $f^*_\mathcal{F}$，这是我们在 $\mathcal{F}$ 内最好的选择。例如，给定一个包含要素 $\mathbf{X}$ 和标签 $\mathbf{y}$ 的数据集，我们可能会尝试通过解决以下优化问题来找到它：
+首先，假设有一类特定的神经网络结构 $\mathcal{F}$，它包括学习速率和其他超参数设置。
+对于所有 $f \in \mathcal{F}$，存在一些参数集（例如权重和偏差），这些参数可以通过在合适的数据集上进行训练而获得。
+现在假设 $f^*$ 是我们真正想要找到的函数，如果是 $f^* \in \mathcal{F}$，那我们的可以轻而易举的训练得到它，但通常我们不会那么幸运。
+相反，我们将尝试找到一个函数 $f^*_\mathcal{F}$，这是我们在 $\mathcal{F}$ 中的最佳选择。
+例如，给定一个具有 $\mathbf{X}$ 特性和 $\mathbf{y}$ 标签的数据集，我们可以尝试通过解决以下优化问题来找到它：
 
-$$f^*_\mathcal{F} \stackrel{\mathrm{def}}{=} \mathop{\mathrm{argmin}}_f L(\mathbf{X}, \mathbf{y}, f) \text{ subject to } f \in \mathcal{F}.$$
+$$f^*_\mathcal{F} := \mathop{\mathrm{argmin}}_f L(\mathbf{X}, \mathbf{y}, f) \text{ subject to } f \in \mathcal{F}.$$
 
-只有合理的假设是，如果我们设计一个不同和更强大的架构 $\mathcal{F}'$，我们应该得到更好的结果。换句话说，我们预计 $f^*_{\mathcal{F}'}$ 比 $f^*_{\mathcal{F}}$ “更好”。但是，如果 $\mathcal{F} \not\subseteq \mathcal{F}'$ 没有保证，甚至会发生这种情况。事实上，$f^*_{\mathcal{F}'}$ 可能更糟糕。如 :numref:`fig_functionclasses` 所示，对于非嵌套函数类，较大的函数类并不总是靠近 “真实” 函数 $f^*$。例如，在 :numref:`fig_functionclasses` 的左侧，虽然 $\mathcal{F}_3$ 比 $\mathcal{F}_3$ 接近 $f^*$，但是 $\mathcal{F}_6$ 会移动，并且不能保证进一步增加复杂性可以减少从 $f^*$ 的距离。使用嵌套函数类，其中 $\mathcal{F}_1 \subseteq \ldots \subseteq \mathcal{F}_6$ 位于 :numref:`fig_functionclasses` 的右侧，我们可以避免非嵌套函数类中的上述问题。
+那么，怎样得到“更近似”真正 $f^*$ 的函数呢？
+唯一合理的可能性是，我们需要设计一个更强大的体系结构 $\mathcal{F}'$。
+换句话说，我们预计 $f^*_{\mathcal{F}'}$ 比 $f^*_{\mathcal{F}}$ “更近似”。
+然而，如果 $\mathcal{F} \not\subseteq \mathcal{F}'$，则无法保证新的体系“更近似”。
+事实上， $f^*_{\mathcal{F}'}$ 可能更糟：
+如 :numref:`fig_functionclasses` 所示，对于非嵌套函数（non-nested function）类，较复杂的函数类并不总是向“真”函数 $f^*$ 靠拢（复杂度由 $\mathcal{F}_1$ 向 $\mathcal{F}_6$ 递增）。
+在 :numref:`fig_functionclasses` 的左边，虽然 $\mathcal{F}_3$ 比 $f^*$ 更接近 $f^*$，但$\mathcal{F}_6$ 却离的更远了。
+相反对于 :numref:`fig_functionclasses` 右侧的嵌套函数（nested function）类 $\mathcal{F}_1 \subseteq \ldots \subseteq \mathcal{F}_6$，我们可以避免上述问题。
 
-![For non-nested function classes, a larger (indicated by area) function class does not guarantee to get closer to the "truth" function ($f^*$). This does not happen in nested function classes.](../img/functionclasses.svg)
+![对于非嵌套函数类，较复杂（由较大区域表示）的函数类不能保证更接近“真”函数（ $f^*$ ）。这种现象在嵌套函数类中不会发生。](../img/functionclasses.svg)
 :label:`fig_functionclasses`
 
-因此，只有当较大的函数类包含较小的函数类时，我们才能保证增加它们会严格增加网络的表达能力。对于深度神经网络，如果我们可以将新添加的层训练成一个身份函数 $f(\mathbf{x}) = \mathbf{x}$，新模型将与原始模型一样有效。由于新模型可能会得到更好的解决方案来拟合训练数据集，因此添加的图层可能会更轻松地减少训练错误。
+因此，只有当较复杂的函数类包含较小的函数类时，我们才能确保提高它们的性能。
+对于深度神经网络，如果我们能将新添加的层训练成 *恒等映射*（identity function） $f(\mathbf{x}) = \mathbf{x}$ ，新模型和原模型将同样有效。
+同时，由于新模型可能得出更优的解来拟合训练数据集，因此添加层似乎更容易降低训练误差。
 
-这是他等人的问题. 在工作非常深的计算机视觉模型 :cite:`He.Zhang.Ren.ea.2016` 时考虑.他们提出的 * 残留网络 * (*Resnet*) 的核心是，每个额外的图层都应更容易地包含身份函数作为其元素之一。这些考虑相当深刻，但它们导致了一个令人惊讶的简单解决方案，一个 * 残余块 *。凭借它，RESnet 在 2015 年赢得了 iMageNet 大规模视觉识别挑战赛。该设计对如何构建深度神经网络具有深远的影响。
+针对这一问题，何恺明等人提出了*残差网络*（ResNet） :cite:`He.Zhang.Ren.ea.2016`。
+它在2015年的ImageNet图像识别挑战赛夺魁，并深刻影响了后来的深度神经网络的设计。
+残差网络的核心思想是：每个附加层都应该更容易地包含原始函数作为其元素之一。
+于是，*残差块* （residual blocks） 便诞生了，这个设计对如何建立深层神经网络产生了深远的影响。
+凭借它，ResNet 赢得了 2015 年 ImageNet 大规模视觉识别挑战赛。。
 
-## 残余块
 
-让我们专注于神经网络的局部部分，如 :numref:`fig_residual_block` 所示。用 $\mathbf{x}$ 表示输入。我们假设我们想要通过学习获得的所需底层映射是 $f(\mathbf{x})$，用作顶部激活函数的输入。在 :numref:`fig_residual_block` 的左侧，虚线框中的部分必须直接了解映射 $f(\mathbf{x})$。在右侧，点线框中的部分需要了解 * 残差映射 * $f(\mathbf{x}) - \mathbf{x}$，这是残差块如何派生其名称。如果身份映射 $f(\mathbf{x}) = \mathbf{x}$ 是所需的底层映射，残差映射就更容易学习：我们只需要将上层权重层（例如，完全连接的层和卷积层）的权重和偏差推到零。:numref:`fig_residual_block` 中的右图显示了 ResNet 的 * 残余块 *，其中将层输入 $\mathbf{x}$ 传送到加法运算符的实线称为 * 残差连接 *（或 * 快捷连接 *）。使用残余块时，输入可以通过跨层的残余连接更快地传播。
+## 残差块
 
-![A regular block (left) and a residual block (right).](../img/residual-block.svg)
+让我们聚焦于神经网络局部：如图 :numref:`fig_residual_block` 所示，假设我们的原始输入为 $x$ ，而希望学出的理想映射为 $f(\mathbf{x})$ （作为 :numref:`fig_residual_block` 上方激活函数的输入）。
+:numref:`fig_residual_block` 左图虚线框中的部分需要直接拟合出该映射 $f(\mathbf{x})$ ，而右图虚线框中的部分则需要拟合出残差映射 $f(\mathbf{x}) - \mathbf{x}$ 。
+残差映射在现实中往往更容易优化。
+以本节开头提到的恒等映射作为我们希望学出的理想映射 $f(\mathbf{x})$ ，我们只需将 :numref:`fig_residual_block` 中右图虚线框内上方的加权运算（如仿射）的权重和偏差参数设成 0，那么 $f(\mathbf{x})$ 即为恒等映射。
+实际中，当理想映射 $f(\mathbf{x})$ 极接近于恒等映射时，残差映射也易于捕捉恒等映射的细微波动。
+:numref:`fig_residual_block` 右图是 ResNet 的基础结构-- *残差块*（residual block）。
+在残差块中，输入可通过跨层数据线路更快地向前传播。
+
+![一个正常块（左图）和一个残差块（右图）。](../img/residual-block.svg)
 :label:`fig_residual_block`
 
-RENet 采用 VGG 的完整卷积层设计。残余模块具有两个 $3\times 3$ 卷积层，具有相同数量的输出通道。每个卷积层后跟一个批量归一化层和一个 RELU 激活函数。然后，我们跳过这两个卷积操作，直接在最终的 RELU 激活函数之前添加输入。这种设计要求两个卷积图层的输出必须与输入的形状相同，以便它们可以相加在一起。如果我们想要更改通道数量，我们需要引入额外的 $1\times 1$ 卷积层，以便将输入转换为加法操作所需的形状。让我们看看下面的代码。
+ResNet 沿用了 VGG 完整的 $3\times 3$ 卷积层设计。
+残差块里首先有 2 个有相同输出通道数的 $3\times 3$ 卷积层。
+每个卷积层后接一个批量归一化层和 ReLU 激活函数。
+然后我们通过跨层数据线路，跳过这 2 个卷积运算，将输入直接加在最后的 ReLU 激活函数前。
+这样的设计要求 2 个卷积层的输出与输入形状一样，从而可以相加。
+如果想改变通道数，就需要引入一个额外的 $1\times 1$ 卷积层来将输入变换成需要的形状后再做相加运算。
+残差块的实现如下：
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -34,7 +66,6 @@ from mxnet.gluon import nn
 npx.set_np()
 
 class Residual(nn.Block):  #@save
-    """The Residual block of ResNet."""
     def __init__(self, num_channels, use_1x1conv=False, strides=1, **kwargs):
         super().__init__(**kwargs)
         self.conv1 = nn.Conv2D(num_channels, kernel_size=3, padding=1,
@@ -64,7 +95,6 @@ from torch import nn
 from torch.nn import functional as F
 
 class Residual(nn.Module):  #@save
-    """The Residual block of ResNet."""
     def __init__(self, input_channels, num_channels,
                  use_1x1conv=False, strides=1):
         super().__init__()
@@ -96,7 +126,6 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 
 class Residual(tf.keras.Model):  #@save
-    """The Residual block of ResNet."""
     def __init__(self, num_channels, use_1x1conv=False, strides=1):
         super().__init__()
         self.conv1 = tf.keras.layers.Conv2D(
@@ -119,12 +148,14 @@ class Residual(tf.keras.Model):  #@save
         return tf.keras.activations.relu(Y)
 ```
 
-此代码生成两种类型的网络：一种是在 `use_1x1conv=False` 应用 RELU 非线性度之前将输入添加到输出中，另一种是我们在添加前通过 $1 \times 1$ 卷积调整通道和分辨率。:numref:`fig_resnet_block` 说明了这一点：
+如图 :numref:`fig_resnet_block` 所示，此代码生成两种类型的网络：
+一种是在 `use_1x1conv=False` 、应用 ReLU 非线性函数之前，将输入添加到输出。
+另一种是在 `use_1x1conv=True` 时，添加通过 $1 \times 1$ 卷积调整通道和分辨率。
 
-![ResNet block with and without $1 \times 1$ convolution.](../img/resnet-block.svg)
+![包含以及不包含 $1 \times 1$ 卷积层的残差块。](../img/resnet-block.svg)
 :label:`fig_resnet_block`
 
-现在让我们看一下输入和输出形状相同的情况。
+下面我们来查看输入和输出形状一致的情况。
 
 ```{.python .input}
 blk = Residual(3)
@@ -149,7 +180,7 @@ Y = blk(X)
 Y.shape
 ```
 
-我们还可以选择将输出高度和宽度减半，同时增加输出通道的数量。
+我们也可以在增加输出通道数的同时减半输出的高和宽。
 
 ```{.python .input}
 blk = Residual(6, use_1x1conv=True, strides=2)
@@ -169,9 +200,11 @@ blk = Residual(6, use_1x1conv=True, strides=2)
 blk(X).shape
 ```
 
-## 资源网模型
+## ResNet模型
 
-RENet 的前两层与我们前面描述的 Googlenet 相同：$7\times 7$ 卷积层有 64 个输出通道，步幅为 2 的最大池层后面是 $3\times 3$，步幅为 2。不同之处在于在 ResNet 中每个卷积图层之后添加的批量归一化图层。
+ResNet 的前两层跟之前介绍的 GoogLeNet 中的一样：
+在输出通道数为 64、步幅为 2 的 $7 \times 7$ 卷积层后，接步幅为 2 的 $3 \times 3$ 的最大池化层。
+不同之处在于 ResNet 每个卷积层后增加了批量归一化层。
 
 ```{.python .input}
 net = nn.Sequential()
@@ -196,9 +229,13 @@ b1 = tf.keras.models.Sequential([
     tf.keras.layers.MaxPool2D(pool_size=3, strides=2, padding='same')])
 ```
 
-Googlenet 使用四个模块组成的模块。然而，ResNet 使用由残余块组成的四个模块，每个模块都使用具有相同数量输出通道的几个残余块。第一个模块中的通道数与输入通道数相同。由于已经使用了步幅为 2 的最大池层，因此没有必要减少高度和宽度。在每个后续模块的第一个残余块中，通道数量与前一个模块相比增加了一倍，并且高度和宽度减半。
+GoogLeNet 在后面接了 4 个由Inception块组成的模块。
+ResNet 则使用 4 个由残差块组成的模块，每个模块使用若干个同样输出通道数的残差块。
+第一个模块的通道数同输入通道数一致。
+由于之前已经使用了步幅为 2 的最大池化层，所以无须减小高和宽。
+之后的每个模块在第一个残差块里将上一个模块的通道数翻倍，并将高和宽减半。
 
-现在，我们实现这个模块。请注意，在第一个模块上执行了特殊处理。
+下面我们来实现这个模块。注意，我们对第一个模块做了特别处理。
 
 ```{.python .input}
 def resnet_block(num_channels, num_residuals, first_block=False):
@@ -245,7 +282,7 @@ class ResnetBlock(tf.keras.layers.Layer):
         return X
 ```
 
-然后，我们将所有模块添加到 ResNet 中。在这里，每个模块使用两个残余块。
+接着在 ResNet 加入所有残差块，这里每个模块使用 2 个残差块。
 
 ```{.python .input}
 net.add(resnet_block(64, 2, first_block=True),
@@ -270,7 +307,7 @@ b4 = ResnetBlock(256, 2)
 b5 = ResnetBlock(512, 2)
 ```
 
-最后，就像 Googlenet 一样，我们添加了一个全局平均池图层，然后是完全连接的图层输出。
+最后，与 GoogLeNet 一样，在 ResNet 中加入全局平均池化层，以及全连接层输出。
 
 ```{.python .input}
 net.add(nn.GlobalAvgPool2D(), nn.Dense(10))
@@ -285,11 +322,9 @@ net = nn.Sequential(b1, b2, b3, b4, b5,
 
 ```{.python .input}
 #@tab tensorflow
-# Recall that we define this as a function so we can reuse later and run it
-# within `tf.distribute.MirroredStrategy`'s scope to utilize various
-# computational resources, e.g. GPUs. Also note that even though we have
-# created b1, b2, b3, b4, b5 but we will recreate them inside this function's
-# scope instead
+# 回想之前我们定义一个函数，以便用它在 `tf.distribute.MirroredStrategy` 的范围，
+# 来利用各种计算资源，例如gpu。另外，尽管我们已经创建了b1、b2、b3、b4、b5，
+# 但是我们将在这个函数的作用域内重新创建它们
 def net():
     return tf.keras.Sequential([
         # The following layers are the same as b1 that we created earlier
@@ -307,12 +342,18 @@ def net():
         tf.keras.layers.Dense(units=10)])
 ```
 
-每个模块中有 4 个卷积层（不包括 $1\times 1$ 卷积层）。再加上第一个 $7\times 7$ 卷积层和最后一个完全连接的层，共有 18 个层。因此，这种模式通常被称为 RENET-18。通过在模块中配置不同数量的通道和残余块，我们可以创建不同的 ResNet 模型，例如更深的 152 层 Resnet-152。虽然 ResNet 的主要体系结构与 Googlenet 的体系结构相似，但 ResNet 的结构更简单、更容易修改。所有这些因素都导致人们迅速和广泛地使用了资源信息网。
+每个模块有 4 个卷积层（不包括恒等映射的 $1\times 1$ 卷积层）。
+加上第一个 $7\times 7$ 卷积层和最后一个全连接层，共有 18 层。
+因此，这种模型通常被称为 ResNet-18。
+通过配置不同的通道数和模块里的残差块数可以得到不同的 ResNet 模型，例如更深的含 152 层的 ResNet-152。
+虽然 ResNet 的主体架构跟 GoogLeNet 的类似，但 ResNet 结构更简单，修改也更方便。这些因素都导致了 ResNet 迅速被广泛使用。
+:numref:`fig_resnet18` 描述了完整的 ResNet-18。
 
-![The ResNet-18 architecture.](../img/resnet18.svg)
+![ResNet-18 架构](../img/resnet18.svg)
 :label:`fig_resnet18`
 
-在培训 ResNet 之前，让我们观察在 ResNet 中不同模块之间输入形状如何变化。与之前的所有体系结构一样，分辨率随着通道数量的增加而降低，直到全局平均池图层聚合所有要素为止。
+在训练 ResNet 之前，让我们观察一下 ResNet 中不同模块的输入形状是如何变化的。
+在之前所有架构中，分辨率降低，通道数量增加，直到全局平均池化层聚集所有特征。
 
 ```{.python .input}
 X = np.random.uniform(size=(1, 1, 224, 224))
@@ -338,9 +379,9 @@ for layer in net().layers:
     print(layer.__class__.__name__,'output shape:\t', X.shape)
 ```
 
-## 培训
+## 训练 ResNet
 
-我们训练 Resnet 上的时尚 MNist 数据集, 就像以前一样.
+同之前一样，我们在 Fashion-MNIST 数据集上训练 ResNet。
 
 ```{.python .input}
 #@tab all
@@ -349,21 +390,22 @@ train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=96)
 d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 ```
 
-## 摘要
+## 小结
 
-* 嵌套函数类是可取的。在深度神经网络中学习一个额外的层作为身份函数（尽管这是一个极端情况）应该很容易。
-* 残差映射可以更容易地学习身份函数，例如将权重层中的参数推到零。
-* 我们可以通过具有残余块来训练一个有效的深度神经网络。输入可以通过跨层的残余连接更快地向前传播。
-* ResNet 对后续深度神经网络的设计具有重大影响，无论是卷积性还是顺序性质。
+* 学习嵌套函数（nested function）是训练神经网络的理想情况。在深层神经网络中，学习另一层作为恒等映射（identity function）较容易（尽管这是一个极端情况）。
+* 残差映射可以更容易地学习同一函数，例如将权重层中的参数近似为零。
+* 利用残差块（residual blocks）可以训练出一个有效的深层神经网络：输入可以通过层间的残余连接更快地向前传播。
+* 残差网络（ResNet）对随后的深层神经网络设计产生了深远影响，无论是卷积类网络还是全连接类网络。
+
 
 ## 练习
 
-1. :numref:`fig_inception` 中的 “启动” 块与剩余块之间的主要区别是什么？删除 “启动” 块中的某些路径后，它们彼此之间的关系如何？
-1. 请参阅 RENet 文件 :cite:`He.Zhang.Ren.ea.2016` 中的表 1，以实现不同的变体。
-1. 对于更深层次的网络，ResNet 引入了一种 “瓶颈” 体系结构，以降低模型复杂性。尝试实现它。
-1. 在后续版本的 ResNet 中，作者将 “卷积、批量规范化和激活” 结构更改为 “批量规范化、激活和卷积” 结构。自己做这一改进。有关详细信息，请参阅 :cite:`He.Zhang.Ren.ea.2016*1` 中的图 1。
-1. 为什么我们不能在没有绑定的情况下增加函数的复杂性，即使函数类是嵌套的？
-
+1. :numref:`fig_inception` 中的Inception块与残差块之间的主要区别是什么？在删除了Inception块中的一些路径之后，它们是如何相互关联的？
+1. 参考 ResNet 论文 :cite:`He.Zhang.Ren.ea.2016` 中的表 1，以实现不同的变体。
+1. 对于更深层次的网络，ResNet 引入了“bottleneck”架构来降低模型复杂性。请你试着去实现它。
+1. 在 ResNet 的后续版本中，作者将“卷积层、批量归一化层和激活层”结构更改为“批量归一化层、激活层和卷积层”结构。请你做这个改进。详见 :cite:`He.Zhang.Ren.ea.2016*1` 中的图 1。
+1. 为什么即使函数类是嵌套的，我们仍然要限制增加函数的复杂性呢？
+ 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/85)
 :end_tab:

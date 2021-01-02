@@ -1,17 +1,26 @@
-# 网络中的网络 (Nn)
+# 网络中的网络（NiN）
 :label:`sec_nin`
 
-Lenet、AlexNet 和 VGG 都有一个共同的设计模式：通过卷积和池化层序列利用 * 空间 * 结构提取要素，然后通过完全连接的图层对表示进行后处理。AlexNet 和 VGG 对 Lenet 的改进主要在于以后这些网络如何扩大和深化这两个模块。或者，人们可以想象在此过程中早期使用完全连接的图层。然而, 不小心地使用密集层可能完全放弃表示的空间结构,
-*网络中的网络 * (*NIN*) 块提供了一种替代方案。
-他们提出了基于一个非常简单的洞察力：使用 MLP 在每个像素的通道上分别 :cite:`Lin.Chen.Yan.2013`
+LeNet、AlexNet 和 VGG 都有一个共同的设计模式：通过一系列的卷积层与池化层利用空间结构提取特征；然后通过全连接层对表示进行处理。
+AlexNet 和 VGG 对 LeNet 的改进主要在于如何扩大和深化这两个模块。
+或者，可以想象在这个过程的早期使用全连接层。
+然而，如果不小心使用稠密层，可能会完全放弃表示的空间结构。
+*网络中的网络* (*NiN*) 提供了一个非常简单的解决方案：在每个像素的通道上分别使用多层感知机 :cite:`Lin.Chen.Yan.2013`
 
-## Nn 块
+## NiN 块
 
-回想一下，卷积层的输入和输出由四维张量组成，轴对应于示例、通道、高度和宽度。还要记住，完全连接图层的输入和输出通常是与示例和特征相对应的二维张量。NIn 背后的想法是在每个像素位置（针对每个高度和宽度）应用一个完全连接的图层。如果我们将权重连接到每个空间位置，我们可以将其视为 $1\times 1$ 卷积图层（如 :numref:`sec_channels` 中所述），或作为在每个像素位置上独立作用的完全连接图层。另一种查看方法是将空间维度（高度和宽度）中的每个元素视为等同于示例和通道等效于某个要素。
+回想一下，卷积层的输入和输出由四维张量组成，每个轴对应样本、通道、高度和宽度。
+另外，全连接层的输入和输出通常是对应于样本和特征的二维张量。
+NiN 的想法是在每个像素位置（针对每个高度和宽度）应用一个全连接层。
+如果我们将权重连接到每个空间位置，我们可以将其视为 $1\times 1$ 卷积层（如 :numref:`sec_channels` 中所述），或作为在每个像素位置上独立作用的全连接层。
+从另一个角度看，即将空间维度中的每个像素视为单个样本，将通道维度视为不同特征（feature）。
 
-:numref:`fig_nin` 说明了 VGG 和 NIn 及其区块之间的主要结构差异。NIn 块由一个卷积层组成，后面是两个 $1\times 1$ 卷积图层，这些卷积图层充当每像素完全连接的层，具有 RELU 激活功能。第一层的卷积窗口形状通常由用户设置。随后的窗口形状固定为 $1 \times 1$。
+:numref:`fig_nin` 说明了 VGG 和 NiN 及它们的块之间主要结构差异。
+NiN 块以一个普通卷积层开始，后面是两个 $1\times 1$ 的卷积层。这两个$1\times 1$ 卷积层充当带有 ReLU 激活功能的逐像素全连接层。
+第一层的卷积窗口形状通常由用户设置。
+随后的卷积层窗口形状固定为 $1 \times 1$。
 
-![Comparing architectures of VGG and NiN, and their blocks.](../img/nin.svg)
+![对比 VGG 和 NiN 及它们区块之间的主要结构差异。](../img/nin.svg)
 :width:`600px`
 :label:`fig_nin`
 
@@ -59,11 +68,14 @@ def nin_block(num_channels, kernel_size, strides, padding):
                                activation='relu')])
 ```
 
-## Nn 模型
+## NiN 模型
 
-原来的 NInn 网络是在 AlexNet 后不久提出的，并显然吸引了一些灵感。NIN 使用卷积图层，窗口形状为 $11\times 11$、$5\times 5$ 和 $3\times 3$，输出通道的相应数量与 AlexNet 中的相同。每个 NINn 块后跟一个最大池化层，步幅为 2，窗口形状为 $3\times 3$。
+最初的 NiN 网络是在 AlexNet 后不久提出的，显然从中得到了一些启示。
+NiN使用窗口形状为 $11\times 11$、$5\times 5$ 和 $3\times 3$的卷积层，输出通道数量与 AlexNet 中的相同。
+每个 NiN 块后有一个最大池化层，池化窗口形状为 $3\times 3$，步幅为 2。
 
-NIn 和 AlexNet 之间的一个显著区别是 NIn 完全避免了完全连接的层。相反，NIN 使用 NIN 块，其输出通道数量等于标注分类的数量，后跟一个 * 全局 * 平均池图层，从而产生一个 login 向量。Nit 设计的一个优点是，它显著减少了所需模型参数的数量。然而，在实践中，这种设计有时需要增加模型训练时间。
+NiN 和 AlexNet 之间的一个显著区别是 NiN 完全取消了全连接层。
+相反，NiN 使用一个 NiN块，其输出通道数等于标签类别的数量。最后放一个 *全局平均池化层*，生成一个多元逻辑向量（logits）。NiN 设计的一个优点是，它显著减少了模型所需参数的数量。然而，在实践中，这种设计有时会增加训练模型的时间。
 
 ```{.python .input}
 net = nn.Sequential()
@@ -74,13 +86,11 @@ net.add(nin_block(96, kernel_size=11, strides=4, padding=0),
         nin_block(384, kernel_size=3, strides=1, padding=1),
         nn.MaxPool2D(pool_size=3, strides=2),
         nn.Dropout(0.5),
-        # There are 10 label classes
+        # 标签类别数是10
         nin_block(10, kernel_size=3, strides=1, padding=1),
-        # The global average pooling layer automatically sets the window shape
-        # to the height and width of the input
+        # 全局平均池化层将窗口形状自动设置成输入的高和宽
         nn.GlobalAvgPool2D(),
-        # Transform the four-dimensional output into two-dimensional output
-        # with a shape of (batch size, 10)
+        # 将四维的输出转成二维的输出，其形状为(批量大小, 10)
         nn.Flatten())
 ```
 
@@ -94,11 +104,10 @@ net = nn.Sequential(
     nin_block(256, 384, kernel_size=3, strides=1, padding=1),
     nn.MaxPool2d(3, stride=2),
     nn.Dropout(0.5),
-    # There are 10 label classes
+    # 标签类别数是10
     nin_block(384, 10, kernel_size=3, strides=1, padding=1),
     nn.AdaptiveAvgPool2d((1, 1)),
-    # Transform the four-dimensional output into two-dimensional output with a
-    # shape of (batch size, 10)
+    # 将四维的输出转成二维的输出，其形状为(批量大小, 10)
     nn.Flatten())
 ```
 
@@ -113,12 +122,11 @@ def net():
         nin_block(384, kernel_size=3, strides=1, padding='same'),
         tf.keras.layers.MaxPool2D(pool_size=3, strides=2),
         tf.keras.layers.Dropout(0.5),
-        # There are 10 label classes
+        # 标签类别数是10
         nin_block(10, kernel_size=3, strides=1, padding='same'),
         tf.keras.layers.GlobalAveragePooling2D(),
         tf.keras.layers.Reshape((1, 1, 10)),
-        # Transform the four-dimensional output into two-dimensional output
-        # with a shape of (batch size, 10)
+        # 将四维的输出转成二维的输出，其形状为(批量大小, 10)
         tf.keras.layers.Flatten(),
         ])
 ```
@@ -149,9 +157,9 @@ for layer in net().layers:
     print(layer.__class__.__name__,'output shape:\t', X.shape)
 ```
 
-## 培训
+## 训练
 
-和以前一样，我们使用时尚 MNist 来训练模型。NIn 的培训与 AlexNet 和 VGG 的培训相似。
+和以前一样，我们使用 Fashion-MNIST 来训练模型。训练 NiN 与训练 AlexNet、VGG时相似。
 
 ```{.python .input}
 #@tab all
@@ -160,23 +168,23 @@ train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=224)
 d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 ```
 
-## 摘要
+## 小结
 
-* NIn 使用由卷积层和多个 $1\times 1$ 卷积层组成的块。这可以在卷积堆栈中使用，以允许更多的每像素非线性度。
-* NIn 删除完全连接的图层，并将它们替换为全局平均池（即在所有位置上进行求和），然后将通道数量减少到所需的输出数量（例如，10 对于 Fashion-MNist）。
-* 移除完全连接的层可减少过度拟合。NNn 的参数显著减少。
-* NInn 设计影响了许多后续 CNN 设计。
+* NiN使用由一个卷积层和多个 $1\times 1$ 卷积层组成的块。这可以在卷积中使用，以允许更多的每像素非线性。
+* NiN去除了容易造成过拟合的全连接层，将它们替换为全局平均池化层（即在所有位置上进行求和）。这些池化层通道数量为所需的输出数量（例如，Fashion-MNIST的输出为10）。
+* 移除全连接层可减少过拟合，同时显著减少NiN的参数。
+* NiN的设计影响了许多后续卷积神经网络的设计。
 
 ## 练习
 
-1. 调整超参数以提高分类准确性。
-1. 为什么 Ny 块中有两个 $1\times 1$ 卷积层？删除其中一个，然后观察和分析实验现象。
-1. 计算 NNn 的资源使用情况。
+1. 调整NiN的超参数，以提高分类准确性。
+1. 为什么NiN块中有两个 $1\times 1$ 卷积层？删除其中一个，然后观察和分析实验现象。
+1. 计算NiN的资源使用情况。
     1. 参数的数量是多少？
     1. 计算量是多少？
     1. 训练期间需要多少内存？
-    1. 预测过程中需要的内存量是多少？
-1. 通过一步将 $384 \times 5 \times 5$ 表示缩减为 $10 \times 5 \times 5$ 表示可能存在哪些问题？
+    1. 预测期间需要多少内存？
+1. 一次直接将 $384 \times 5 \times 5$ 的表示缩减为 $10 \times 5 \times 5$ 的表示可能存在哪些问题？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/79)
