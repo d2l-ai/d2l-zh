@@ -1,9 +1,9 @@
-# 卷积神经网络之LeNet
+# 卷积神经网络（LeNet）
 :label:`sec_lenet`
 
 
 通过之前几节，我们学习了构建一个完整卷积神经网络的所需组件。
-回想一下，之前我们将 softmax 回归模型（:numref:`sec_softmax_scratch`）和全连接层模型（:numref:`sec_mlp_scratch`）应用于 Fashion-MNIST 数据集中的服装图片上。
+回想一下，之前我们将 softmax 回归模型（ :numref:`sec_softmax_scratch` ）和多层感知机模型（ :numref:`sec_mlp_scratch` ）应用于 Fashion-MNIST 数据集中的服装图片上。
 为了能够应用 softmax 回归和多层感知机，我们首先将每个大小为 $28\times28$ 的图像展平为一个 784 固定长度的一维向量，然后用全连接层对其进行处理。
 而现在，我们已经掌握了卷积层的处理方法，我们可以在图像中保留空间结构。
 同时，用卷积层代替全连接层的另一个好处是：更简洁的模型所需的参数更少。
@@ -95,7 +95,7 @@ def net():
 
 我们对原始模型做了一点小改动，去掉了最后一层的高斯激活。除此之外，这个网络与最初的 LeNet-5 一致。
 
-下面，我们将一个大小为 $28 \times 28$ 的单通道（黑白）图像通过 Lenet。 通过在每一层打印输出的形状，我们可以检查模型，以确保其操作与我们期望的 :numref:`img_lenet_vert` 一致。
+下面，我们将一个大小为 $28 \times 28$ 的单通道（黑白）图像通过 LeNet。 通过在每一层打印输出的形状，我们可以检查模型，以确保其操作与我们期望的 :numref:`img_lenet_vert` 一致。
 
 ![LeNet 的简化版。](../img/lenet-vert.svg)
 :label:`img_lenet_vert`
