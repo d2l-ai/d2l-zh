@@ -1,6 +1,6 @@
 # 稠密连接网络（DenseNet）
 
-ResNet 的跨层连接极大地拓展了如何提升深层网络的性能。
+ResNet极大地改变了如何参数化深层网络中函数的观点。
 *稠密连接网络* (DenseNet） :cite:`Huang.Liu.Van-Der-Maaten.ea.2017` 在某种程度上是 ResNet 的逻辑扩展。让我们先从数学上了解一下。
 
 
@@ -95,7 +95,7 @@ class ConvBlock(tf.keras.layers.Layer):
         return y
 ```
 
-一个稠密块由多个卷积块组成，每个卷积块使用相同数量的输出信道。
+一个*稠密块*由多个卷积块组成，每个卷积块使用相同数量的输出信道。
 然而，在前向传播中，我们将每个卷积块的输入和输出在通道维上连结。
 
 ```{.python .input}
@@ -378,10 +378,11 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 1. 为什么我们在过渡层使用平均池化层而不是最大池化层？
 1. DenseNet 的优点之一是其模型参数比 ResNet 小。为什么呢？
 1. DenseNet 一个诟病的问题是内存或显存消耗过多。
-    1. 真的是这样吗？可以把输入形状换成 $224 \times 224$ ，来看看实际的 GPU 内存消耗。
-    1. 你能想出另一种方法来减少内存消耗吗？你需要如何改变框架？
+    1. 真的是这样吗？可以把输入形状换成 $224 \times 224$ ，来看看实际的显存消耗。
+    1. 你能想出另一种方法来减少显存消耗吗？你需要如何改变框架？
 1. 实现 DenseNet 论文 :cite:`Huang.Liu.Van-Der-Maaten.ea.2017` 表 1 所示的不同 DenseNet 版本。
-1. 应用 DENP 的设计思想，设计了基于 DENP 的模型。应用于 :numref:`sec_kaggle_house` 中的房价预测任务。
+1. 应用DenseNet的思想设计一个基于多层感知机的模型。将其应用于:numref:`sec_kaggle_house`中的房价预测任务。
+
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/87)

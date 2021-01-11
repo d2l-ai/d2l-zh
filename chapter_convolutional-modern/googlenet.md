@@ -1,8 +1,8 @@
 # 含并行连结的网络（GoogLeNet）
 :label:`sec_googlenet`
 
-在2014年的ImageNet图像识别挑战赛中，一个名叫GoogLeNet :cite:`Szegedy.Liu.Jia.ea.2015` 的网络结构大放异彩。
-GoogLeNet吸收了NiN中串联网络的思想，并在此基础上做了很大改进。
+在2014年的ImageNet图像识别挑战赛中，一个名叫*GoogLeNet* :cite:`Szegedy.Liu.Jia.ea.2015` 的网络结构大放异彩。
+GoogLeNet吸收了NiN中串联网络的思想，并在此基础上做了改进。
 这篇论文的一个重点是解决了什么样大小的卷积核最合适的问题。
 毕竟，以前流行的网络使用小到 $1 \times 1$ ，大到 $11 \times 11$ 的卷积核。
 本文的一个观点是，有时使用不同大小的卷积核组合是有利的。
@@ -11,7 +11,7 @@ GoogLeNet吸收了NiN中串联网络的思想，并在此基础上做了很大�
 
 ## Inception块
 
-在GoogLeNet中，基本的卷积块被称为*Inception块*（Inception block），很可能得名于电影《盗梦空间》（Inception）。
+在GoogLeNet中，基本的卷积块被称为*Inception块*（Inception block）。这很可能得名于电影《盗梦空间》（Inception），因为电影中的一句话“我们需要走得更深”（“We need to go deeper”）。
 
 ![Inception块的结构。](../img/inception.svg)
 :label:`fig_inception`
@@ -19,9 +19,8 @@ GoogLeNet吸收了NiN中串联网络的思想，并在此基础上做了很大�
 如 :numref:`fig_inception` 所示，Inception块由四条并行路径组成。
 前三条路径使用窗口大小为 $1\times 1$、$3\times 3$ 和 $5\times 5$ 的卷积层，从不同空间大小中提取信息。
 中间的两条路径在输入上执行 $1\times 1$ 卷积，以减少通道数，从而降低模型的复杂性。
-第四条路径使用 $3\times 3$ 最大池化层，然后是 $1\times 1$ 卷积层来改变通道数。
-这四条路径都使用合适的填充来使输入与输出的高和宽一致，最后我们将每条线路的输出在通道维度上连结，并构成Inception块的输出。初始块的通常调整的超参数是每层输出通道的数量。
-在Inception块中，通常调整的超参数是每层输出通道的数量。
+第四条路径使用 $3\times 3$ 最大池化层，然后使用 $1\times 1$ 卷积层来改变通道数。
+这四条路径都使用合适的填充来使输入与输出的高和宽一致，最后我们将每条线路的输出在通道维度上连结，并构成Inception块的输出。在Inception块中，通常调整的超参数是每层输出通道的数量。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -122,14 +121,14 @@ class Inception(tf.keras.Model):
 ```
 
 那么为什么GoogLeNet这个网络如此有效呢？
-首先我们考虑一下滤波器（filter）的组合，他们可以探索各种滤波器尺寸的图像，这意味着不同大小的滤波器可以有效地识别不同范围的图像细节。
+首先我们考虑一下滤波器（filter）的组合，它们可以用各种滤波器尺寸探索图像，这意味着不同大小的滤波器可以有效地识别不同范围的图像细节。
 同时，我们可以为不同的滤波器分配不同数量的参数。
 
 
 ## GoogLeNet 模型
 
 如 :numref:`fig_inception_full` 所示，GoogLeNet 一共使用 9 个Inception块和全局平均池化层的堆叠来生成其估计值。Inception块之间的最大池化层可降低维度。
-第一个模块类似于 AlexNet 和 LeNet，Inception块的栈从VGG继承，全局平均池化层避免在最后使用全连接层。
+第一个模块类似于 AlexNet 和 LeNet，Inception块的栈从VGG继承，全局平均池化层避免了在最后使用全连接层。
 
 ![GoogLeNet结构。](../img/inception-full.svg)
 :label:`fig_inception_full`
@@ -252,7 +251,7 @@ def b4():
 ```
 
 第五模块包含输出通道数为 $256+320+128+128=832$ 和 $384+384+128+128=1024$ 的两个Inception块。
-其中每条路径的通道数的分配思路和第三、第四模块中的一致，只是在具体数值上有所不同。
+其中每条路径通道数的分配思路和第三、第四模块中的一致，只是在具体数值上有所不同。
 需要注意的是，第五模块的后面紧跟输出层，该模块同 NiN 一样使用全局平均池化层，将每个通道的高和宽变成1。
 最后我们将输出变成二维数组，再接上一个输出个数为标签类别数的全连接层。
 
@@ -294,8 +293,7 @@ def net():
 ```
 
 GoogLeNet 模型的计算复杂，而且不如 VGG 那样便于修改通道数。
-本节里我们将输入的高和宽从 224 降到 96 来简化计算。下
-面演示各个模块之间的输出的形状变化。
+为了在Fashion-MNIST上有一个合理的训练时间，我们将输入的高和宽从 224 降到 96，这简化了计算。下面演示各个模块输出的形状变化。
 
 ```{.python .input}
 X = np.random.uniform(size=(1, 1, 96, 96))
@@ -321,9 +319,9 @@ for layer in net().layers:
     print(layer.__class__.__name__, 'output shape:\t', X.shape)
 ```
 
-## 训练模型
+## 训练
 
-和以前一样，我们使用 Fashion-MNIST 数据集来训练我们的模型。在训练过程之前，我们将其图片转换为 $96 \times 96$ 分辨率。
+和以前一样，我们使用 Fashion-MNIST 数据集来训练我们的模型。在训练之前，我们将图片转换为 $96 \times 96$ 分辨率。
 
 ```{.python .input}
 #@tab all
@@ -343,12 +341,12 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 ## 练习
 
 1. GoogLeNet 有数个后续版本。尝试实现并运行它们，然后观察实验结果。这些后续版本包括：
-    * 添加批量归一化层 :cite:`Ioffe.Szegedy.2015`，（下一节将介绍）。
+    * 添加批量归一化层 :cite:`Ioffe.Szegedy.2015`（batch normalization），在 :numref:`sec_batch_norm`中将介绍）。
     * 对 Inception 模块进行调整。
     * 使用标签平滑（label smoothing）进行模型正则化 :cite:`Szegedy.Vanhoucke.Ioffe.ea.2016`。
     * 加入残差连接 :cite:`Szegedy.Ioffe.Vanhoucke.ea.2017` ，（:numref:`sec_resnet`一节将介绍）。
 1. 使用 GoogLeNet 的最小图像大小是多少？
-1. 将 AlexNet、VGG 和 NiN 的模型参数大小与 GoogLeNet 进行比较。后两个网络架构是如何显著减少模型参数大小的？
+1. 将 AlexNet、VGG 和 NiN 的模型参数大小与 GoogLeNet 进行比较。后两个网络结构是如何显著减少模型参数大小的？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/81)
