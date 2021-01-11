@@ -29,7 +29,7 @@ $$\mathbf{x} \to \left[
 f_1(\mathbf{x}),
 f_2([\mathbf{x}, f_1(\mathbf{x})]), f_3([\mathbf{x}, f_1(\mathbf{x}), f_2([\mathbf{x}, f_1(\mathbf{x})])]), \ldots\right].$$
 
-最后，将这些展开式结合到 MLP 中，再次减少特征的数量。
+最后，将这些展开式结合到多层感知机中，再次减少特征的数量。
 实现起来非常简单：我们不需要添加术语，而是将它们连接起来。
 DenseNet 这个名字由变量之间的“稠密连接”而得来，最后一层与之前的所有层紧密相连。
 稠密连接如 :numref:`fig_densenet` 所示。
@@ -381,7 +381,7 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
     1. 真的是这样吗？可以把输入形状换成 $224 \times 224$ ，来看看实际的显存消耗。
     1. 你能想出另一种方法来减少显存消耗吗？你需要如何改变框架？
 1. 实现 DenseNet 论文 :cite:`Huang.Liu.Van-Der-Maaten.ea.2017` 表 1 所示的不同 DenseNet 版本。
-1. 应用DenseNet的思想设计一个基于多层感知机的模型。将其应用于:numref:`sec_kaggle_house`中的房价预测任务。
+1. 应用DenseNet的思想设计一个基于多层感知机的模型。将其应用于 :numref:`sec_kaggle_house` 中的房价预测任务。
 
 
 :begin_tab:`mxnet`

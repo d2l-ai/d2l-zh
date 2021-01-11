@@ -13,7 +13,7 @@
 
 ## 实例化网络
 
-首先，让我们实例化一个MLP。
+首先，让我们实例化一个多层感知机。
 
 ```{.python .input}
 from mxnet import init, np, npx

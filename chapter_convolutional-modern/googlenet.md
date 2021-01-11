@@ -344,7 +344,7 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
     * 添加批量归一化层 :cite:`Ioffe.Szegedy.2015`（batch normalization），在 :numref:`sec_batch_norm`中将介绍）。
     * 对 Inception 模块进行调整。
     * 使用标签平滑（label smoothing）进行模型正则化 :cite:`Szegedy.Vanhoucke.Ioffe.ea.2016`。
-    * 加入残差连接 :cite:`Szegedy.Ioffe.Vanhoucke.ea.2017` ，（:numref:`sec_resnet`一节将介绍）。
+    * 加入残差连接 :cite:`Szegedy.Ioffe.Vanhoucke.ea.2017` ，（ :numref:`sec_resnet` 将介绍）。
 1. 使用 GoogLeNet 的最小图像大小是多少？
 1. 将 AlexNet、VGG 和 NiN 的模型参数大小与 GoogLeNet 进行比较。后两个网络结构是如何显著减少模型参数大小的？
 
