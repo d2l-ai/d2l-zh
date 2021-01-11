@@ -68,7 +68,7 @@ print(inputs)
 
 ## 转换为张量格式
 
-现在 `inputs` 和 `outputs` 中的所有条目都是数值类型，它们可以转换为张量格式。当数据采用张量格式后，可以通过在:numref:`sec_ndarray` 中引入的那些张量函数来进一步操作。
+现在 `inputs` 和 `outputs` 中的所有条目都是数值类型，它们可以转换为张量格式。当数据采用张量格式后，可以通过在 :numref:`sec_ndarray` 中引入的那些张量函数来进一步操作。
 
 ```{.python .input}
 from mxnet import np

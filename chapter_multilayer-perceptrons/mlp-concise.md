@@ -1,7 +1,7 @@
 # 多层感知机的简洁实现
 :label:`sec_mlp_concise`
 
-正如你所期待的，我们可以通过高级API更简洁地实现MLP。
+正如你所期待的，我们可以通过高级API更简洁地实现多层感知机。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -86,8 +86,8 @@ d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 
 ## 小结
 
-* 我们可以使用高级API更简洁地实现MLP。
-* 对于相同的分类问题，MLP的实现与softmax回归的实现相同，只是MLP的实现里增加了带有激活函数的隐藏层。
+* 我们可以使用高级API更简洁地实现多层感知机。
+* 对于相同的分类问题，多层感知机的实现与softmax回归的实现相同，只是多层感知机的实现里增加了带有激活函数的隐藏层。
 
 ## 练习
 
