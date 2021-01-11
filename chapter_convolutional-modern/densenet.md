@@ -383,7 +383,6 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 1. 实现 DenseNet 论文 :cite:`Huang.Liu.Van-Der-Maaten.ea.2017` 表 1 所示的不同 DenseNet 版本。
 1. 应用DenseNet的思想设计一个基于多层感知机的模型。将其应用于 :numref:`sec_kaggle_house` 中的房价预测任务。
 
-
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/87)
 :end_tab:
