@@ -8,7 +8,7 @@
 * 参数初始化。
 * 在不同模型组件间共享参数。
 
-我们首先关注具有一个隐藏层的MLP。
+我们首先关注具有单隐藏层的多层感知机。
 
 ```{.python .input}
 from mxnet import init, np, npx
@@ -526,9 +526,9 @@ print(len(net.layers) == 3)
 
 ## 练习
 
-1. 使用:numref:`sec_model_construction`中定义的`FancyMLP`模型，访问各个层的参数。
+1. 使用 :numref:`sec_model_construction` 中定义的`FancyMLP`模型，访问各个层的参数。
 1. 查看初始化模块文档以了解不同的初始化方法。
-1. 构建包含共享参数层的MLP并对其进行训练。在训练过程中，观察模型各层的参数和梯度。
+1. 构建包含共享参数层的多层感知机并对其进行训练。在训练过程中，观察模型各层的参数和梯度。
 1. 为什么共享参数是个好主意？
 
 :begin_tab:`mxnet`

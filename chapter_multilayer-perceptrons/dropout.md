@@ -48,9 +48,9 @@ $$
 
 ## 实践中的dropout
 
-回想一下 :numref:`fig_mlp` 中带有一个隐藏层和5个隐藏单元的MLP。当我们将dropout应用到隐藏层，以$p$的概率将隐藏单元置为零时，结果可以看作是一个只包含原始神经元子集的网络。在 :numref:`fig_dropout2` 中，删除了$h_2$和$h_5$。因此，输出的计算不再依赖于$h_2$或$h_5$，并且它们各自的梯度在执行反向传播时也会消失。这样，输出层的计算不能过度依赖于$h_1, \ldots, h_5$的任何一个元素。
+回想一下 :numref:`fig_mlp` 中带有一个隐藏层和5个隐藏单元的多层感知机。当我们将dropout应用到隐藏层，以$p$的概率将隐藏单元置为零时，结果可以看作是一个只包含原始神经元子集的网络。在 :numref:`fig_dropout2` 中，删除了$h_2$和$h_5$。因此，输出的计算不再依赖于$h_2$或$h_5$，并且它们各自的梯度在执行反向传播时也会消失。这样，输出层的计算不能过度依赖于$h_1, \ldots, h_5$的任何一个元素。
 
-![dropout前后的MLP。](../img/dropout2.svg)
+![dropout前后的多层感知机。](../img/dropout2.svg)
 :label:`fig_dropout2`
 
 通常，我们在测试时禁用dropout。给定一个训练好的模型和一个新的样本，我们不会丢弃任何节点，因此不需要标准化。然而，也有一些例外：一些研究人员使用测试时的dropout作为估计神经网络预测的“不确定性”的启发式方法：如果预测在许多不同的dropout掩码上都是一致的，那么我们可以说网络更有自信心。
@@ -144,7 +144,7 @@ print(dropout_layer(X, 1.))
 
 ### 定义模型参数
 
-同样，我们使用 :numref:`sec_fashion_mnist` 中引入的Fashion-MNIST数据集。我们定义具有两个隐藏层的MLP，每个隐藏层包含256个单元。
+同样，我们使用 :numref:`sec_fashion_mnist` 中引入的Fashion-MNIST数据集。我们定义具有两个隐藏层的多层感知机，每个隐藏层包含256个单元。
 
 ```{.python .input}
 num_inputs, num_outputs, num_hiddens1, num_hiddens2 = 784, 10, 256, 256
@@ -257,7 +257,7 @@ net = Net(num_outputs, num_hiddens1, num_hiddens2)
 
 ### 训练和测试
 
-这类似于前面描述的MLP训练和测试。
+这类似于前面描述的多层感知机训练和测试。
 
 ```{.python .input}
 num_epochs, lr, batch_size = 10, 0.5, 256

@@ -1,7 +1,7 @@
 # softmax回归的简洁实现
 :label:`sec_softmax_concise`
 
-在 :numref:`sec_linear_concise` 中，我们可以发现通过深度学习框架的高级API能够使实现线性回归变得更加容易。同样地，通过深度学习框架的高级API也能更方便地实现分类模型。让我们继续使用Fashion-MNIST数据集，并保持批量大小为256，就像在:numref:`sec_softmax_scratch` 中一样。
+在 :numref:`sec_linear_concise` 中，我们可以发现通过深度学习框架的高级API能够使实现线性回归变得更加容易。同样地，通过深度学习框架的高级API也能更方便地实现分类模型。让我们继续使用Fashion-MNIST数据集，并保持批量大小为256，就像在 :numref:`sec_softmax_scratch` 中一样。
 
 ```{.python .input}
 from d2l import mxnet as d2l
