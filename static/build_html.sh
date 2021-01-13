@@ -4,9 +4,9 @@ set -e
 
 rm -rf _build/rst _build/html
 d2lbook build rst --tab all
-# cp static/frontpage/frontpage.html _build/rst_all/
+cp static/frontpage/frontpage.html _build/rst_all/
 d2lbook build html --tab all
-# cp -r static/frontpage/_images/* _build/html/_images/
+cp -r static/frontpage/_images/* _build/html/_images/
 
 for fn in `find _build/html/_images/ -iname '*.svg' `; do
     if [[ $fn == *'qr_'* ]] ; then # || [[ $fn == *'output_'* ]]
