@@ -1,4 +1,4 @@
-# 多层感知机的从零开始实现
+# 多层感知机的从零实现
 :label:`sec_mlp_scratch`
 
 我们已经在数学上描述了多层感知机（MLP），现在让我们尝试自己实现一个多层感知机。为了与我们之前使用softmax回归（ :numref:`sec_softmax_scratch` ）获得的结果进行比较，我们将继续使用Fashion-MNIST图像分类数据集（ :numref:`sec_fashion_mnist`）。
