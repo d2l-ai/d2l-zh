@@ -384,13 +384,13 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 1. 应用DenseNet的思想设计一个基于多层感知机的模型。将其应用于 :numref:`sec_kaggle_house` 中的房价预测任务。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/87)
+[Discussions](https://discuss.d2l.ai/t/densenet/1882)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/88)
+[Discussions](https://discuss.d2l.ai/t/densenet/1880)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/331)
+[Discussions](https://discuss.d2l.ai/t/densenet/1881)
 :end_tab:
