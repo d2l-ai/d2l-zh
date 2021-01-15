@@ -1,4 +1,4 @@
-# 多层感知机的从零实现
+# 多层感知机的从零开始实现
 :label:`sec_mlp_scratch`
 
 我们已经在数学上描述了多层感知机（MLP），现在让我们尝试自己实现一个多层感知机。为了与我们之前使用softmax回归（ :numref:`sec_softmax_scratch` ）获得的结果进行比较，我们将继续使用Fashion-MNIST图像分类数据集（ :numref:`sec_fashion_mnist`）。
@@ -190,13 +190,13 @@ d2l.predict_ch3(net, test_iter)
 1. 如果要构建多个超参数的搜索方法，你能想到的最聪明的策略是什么？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/92)
+[Discussions](https://discuss.d2l.ai/t/topic/1800)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/93)
+[Discussions](https://discuss.d2l.ai/t/topic/1804)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/227)
+[Discussions](https://discuss.d2l.ai/t/topic/1798)
 :end_tab:
