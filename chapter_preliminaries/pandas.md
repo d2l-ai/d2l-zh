@@ -106,13 +106,13 @@ X, y
 2. 将预处理后的数据集转换为张量格式。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/28)
+[Discussions](https://discuss.d2l.ai/t/1749)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/29)
+[Discussions](https://discuss.d2l.ai/t/1750)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/195)
+[Discussions](https://discuss.d2l.ai/t/1748)
 :end_tab:

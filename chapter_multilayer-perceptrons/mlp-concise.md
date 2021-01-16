@@ -96,13 +96,13 @@ d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 1. 尝试不同的方案来初始化权重。什么方法效果最好？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/94)
+[Discussions](https://discuss.d2l.ai/t/1803)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/95)
+[Discussions](https://discuss.d2l.ai/t/1802)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/262)
+[Discussions](https://discuss.d2l.ai/t/1801)
 :end_tab:

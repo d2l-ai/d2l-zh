@@ -176,7 +176,6 @@ b = tf.Variable(tf.zeros(1), trainable=True)
 接下来，我们必须定义模型，将模型的输入和参数同模型的输出关联起来。
 回想一下，要计算线性模型的输出，我们只需计算输入特征 $\mathbf{X}$ 和模型权重$\mathbf{w}$的矩阵-向量乘法后加上偏差$b$。注意，上面的$\mathbf{Xw}$ 是一个向量，而$b$是一个标量。回想一下 :numref:`subsec_broadcasting` 中描述的广播机制。当我们用一个向量加一个标量时，标量会被加到向量的每个分量上。
 
-
 ```{.python .input}
 #@tab all
 def linreg(X, w, b):  #@save
@@ -324,13 +323,13 @@ print(f'b的估计误差: {true_b - b}')
 1. 如果样本个数不能被批量大小整除，`data_iter`函数的行为会有什么变化？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/42)
+[Discussions](https://discuss.d2l.ai/t/1779)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/43)
+[Discussions](https://discuss.d2l.ai/t/1778)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/201)
+[Discussions](https://discuss.d2l.ai/t/1777)
 :end_tab:

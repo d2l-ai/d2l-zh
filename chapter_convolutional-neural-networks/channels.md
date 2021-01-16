@@ -169,13 +169,13 @@ assert float(d2l.reduce_sum(d2l.abs(Y1 - Y2))) < 1e-6
 1. 当卷积窗口不是 $1\times 1$ 时，如何使用矩阵乘法实现卷积？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/69)
+[Discussions](https://discuss.d2l.ai/t/1855)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/70)
+[Discussions](https://discuss.d2l.ai/t/1854)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/273)
+[Discussions](https://discuss.d2l.ai/t/1853)
 :end_tab:

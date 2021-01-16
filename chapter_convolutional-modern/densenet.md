@@ -385,13 +385,13 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/87)
+[Discussions](https://discuss.d2l.ai/t/1882)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/88)
+[Discussions](https://discuss.d2l.ai/t/1880)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/331)
+[Discussions](https://discuss.d2l.ai/t/1881)
 :end_tab:

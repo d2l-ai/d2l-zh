@@ -195,4 +195,4 @@ $$H[P] = \sum_j - P(j) \log P(j).$$
     1. soft-min会是什么样子？
     1. 将其扩展到两个以上的数字。
 
-[Discussions](https://discuss.d2l.ai/t/46)
+[Discussions](https://discuss.d2l.ai/t/1785)

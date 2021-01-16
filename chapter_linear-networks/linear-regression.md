@@ -331,15 +331,15 @@ $$-\log P(\mathbf y \mid \mathbf X) = \sum_{i=1}^n \frac{1}{2} \log(2 \pi \sigma
 
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/40)
+[Discussions](https://discuss.d2l.ai/t/1774)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/258)
+[Discussions](https://discuss.d2l.ai/t/1775)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/259)
+[Discussions](https://discuss.d2l.ai/t/1776)
 :end_tab:
 
 ```{.python .input}

@@ -371,13 +371,13 @@ d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 1. 发明另一种用于在每一层注入随机噪声的技术，该技术不同于标准的dropout技术。你能否开发一种在Fashion-MNIST数据集(对于固定结构)上性能优于dropout的方法？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/100)
+[Discussions](https://discuss.d2l.ai/t/1812)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/101)
+[Discussions](https://discuss.d2l.ai/t/1813)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/261)
+[Discussions](https://discuss.d2l.ai/t/1811)
 :end_tab:

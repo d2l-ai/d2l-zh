@@ -1,4 +1,4 @@
- # 微分
+# 微分
 :label:`sec_calculus`
 
 直到至少2500年前，古希腊人把一个多边形分成三角形，并把它们的面积相加，才找到计算多边形面积的方法。
@@ -246,13 +246,13 @@ $$\frac{dy}{dx_i} = \frac{dy}{du_1} \frac{du_1}{dx_i} + \frac{dy}{du_2} \frac{du
 1. 你可以写出函数$u = f(x, y, z)$，其中$x = x(a, b)$，$y = y(a, b)$，$z = z(a, b)$的链式法则吗?
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/32)
+[Discussions](https://discuss.d2l.ai/t/1755)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/33)
+[Discussions](https://discuss.d2l.ai/t/1756)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/197)
+[Discussions](https://discuss.d2l.ai/t/1754)
 :end_tab:

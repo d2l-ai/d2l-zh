@@ -71,13 +71,13 @@ tf.ones(4)
 1. 在深度学习框架中查找任何函数或类的文档。你能在这个框架的官方网站上找到文档吗?
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/38)
+[Discussions](https://discuss.d2l.ai/t/1764)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/39)
+[Discussions](https://discuss.d2l.ai/t/1765)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/199)
+[Discussions](https://discuss.d2l.ai/t/1763)
 :end_tab:

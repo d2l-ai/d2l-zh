@@ -327,13 +327,13 @@ d2l.reshape(conv2d.get_weights()[0], (1, 2))
     1. 得到 $d$ 次导数的最小核大小是多少？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/65)
+[Discussions](https://discuss.d2l.ai/t/1849)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/66)
+[Discussions](https://discuss.d2l.ai/t/1848)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/271)
+[Discussions](https://discuss.d2l.ai/t/1847)
 :end_tab:

@@ -226,13 +226,13 @@ Y_clone == Y
 1. 如何同时保存网络结构和参数？你会对结构加上什么限制？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/60)
+[Discussions](https://discuss.d2l.ai/t/1840)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/61)
+[Discussions](https://discuss.d2l.ai/t/1839)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/327)
+[Discussions](https://discuss.d2l.ai/t/1838)
 :end_tab:

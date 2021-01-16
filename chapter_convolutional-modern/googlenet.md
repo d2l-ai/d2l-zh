@@ -349,13 +349,13 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 1. 将 AlexNet、VGG 和 NiN 的模型参数大小与 GoogLeNet 进行比较。后两个网络结构是如何显著减少模型参数大小的？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/81)
+[Discussions](https://discuss.d2l.ai/t/1873)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/82)
+[Discussions](https://discuss.d2l.ai/t/1871)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/316)
+[Discussions](https://discuss.d2l.ai/t/1872)
 :end_tab:

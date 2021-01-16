@@ -187,13 +187,13 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 1. 一次性直接将 $384 \times 5 \times 5$ 的表示缩减为 $10 \times 5 \times 5$ 的表示，会存在哪些问题？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/79)
+[Discussions](https://discuss.d2l.ai/t/1870)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/80)
+[Discussions](https://discuss.d2l.ai/t/1869)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/332)
+[Discussions](https://discuss.d2l.ai/t/1868)
 :end_tab:
