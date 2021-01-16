@@ -183,7 +183,13 @@ d2l.train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs)
 ```{.python .input  n=49}
 # 本函数已保存在d2lzh包中方便以后使用
 def predict_sentiment(net, vocab, sentence):
-    sentence = nd.array(vocab.to_indices(sentence), ctx=d2l.try_gpu())
+    max_l = 500  # 将每条评论通过截断或者补'<pad>'，使得长度变成500
+
+    def pad(x):
+        return x[:max_l] if len(x) > max_l else x + [vocab.token_to_idx['<pad>']] * (max_l - len(x))
+
+    #输入的评论需要补齐长度，以便于训练模型一致
+    sentence = nd.array(pad(vocab.to_indices(sentence)), ctx=d2l.try_gpu())
     label = nd.argmax(net(sentence.reshape((1, -1))), axis=1)
     return 'positive' if label.asscalar() == 1 else 'negative'
 ```
