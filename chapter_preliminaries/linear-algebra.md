@@ -788,13 +788,13 @@ tf.norm(tf.ones((4, 9)))
 1. 向 `linalg.norm` 函数提供 3 个或更多轴的张量，并观察其输出。对于任意形状的张量这个函数计算什么?
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/topic/1752)
+[Discussions](https://discuss.d2l.ai/t/1752)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/topic/1751)
+[Discussions](https://discuss.d2l.ai/t/1751)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/topic/1753)
+[Discussions](https://discuss.d2l.ai/t/1753)
 :end_tab:

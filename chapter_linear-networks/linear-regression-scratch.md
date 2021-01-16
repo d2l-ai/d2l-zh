@@ -323,13 +323,13 @@ print(f'b的估计误差: {true_b - b}')
 1. 如果样本个数不能被批量大小整除，`data_iter`函数的行为会有什么变化？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/topic/1779)
+[Discussions](https://discuss.d2l.ai/t/1779)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/topic/1778)
+[Discussions](https://discuss.d2l.ai/t/1778)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/topic/1777)
+[Discussions](https://discuss.d2l.ai/t/1777)
 :end_tab:

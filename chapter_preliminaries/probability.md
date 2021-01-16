@@ -336,13 +336,13 @@ $$\mathrm{Var}[f(x)] = E\left[\left(f(x) - E[f(x)]\right)^2\right].$$
 4. 在 :numref:`subsec_probability_hiv_app` 中，第一个测试更准确。为什么不将这个测试再运行一次？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/topic/1761)
+[Discussions](https://discuss.d2l.ai/t/1761)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/topic/1762)
+[Discussions](https://discuss.d2l.ai/t/1762)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/topic/1760)
+[Discussions](https://discuss.d2l.ai/t/1760)
 :end_tab:

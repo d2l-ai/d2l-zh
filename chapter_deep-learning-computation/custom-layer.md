@@ -223,13 +223,13 @@ net(tf.random.uniform((2, 64)))
 1. 设计一个返回输入数据的傅立叶系数前半部分的层。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/topic/1837)
+[Discussions](https://discuss.d2l.ai/t/1837)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/topic/1835)
+[Discussions](https://discuss.d2l.ai/t/1835)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/topic/1836)
+[Discussions](https://discuss.d2l.ai/t/1836)
 :end_tab:

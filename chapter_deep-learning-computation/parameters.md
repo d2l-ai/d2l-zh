@@ -532,13 +532,13 @@ print(len(net.layers) == 3)
 1. 为什么共享参数是个好主意？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/topic/1831)
+[Discussions](https://discuss.d2l.ai/t/1831)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/topic/1829)
+[Discussions](https://discuss.d2l.ai/t/1829)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/topic/1830)
+[Discussions](https://discuss.d2l.ai/t/1830)
 :end_tab:

@@ -346,13 +346,13 @@ train_concise(3)
 1. 在贝叶斯统计中，我们使用先验和似然的乘积，通过公式$P(w \mid x) \propto P(x \mid w) P(w)$得到后验。如何得到带正则化的$P(w)$？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/topic/1810)
+[Discussions](https://discuss.d2l.ai/t/1810)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/topic/1808)
+[Discussions](https://discuss.d2l.ai/t/1808)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/topic/1809)
+[Discussions](https://discuss.d2l.ai/t/1809)
 :end_tab:
