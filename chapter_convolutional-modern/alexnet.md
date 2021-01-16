@@ -279,13 +279,13 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 1. 将dropout和ReLU应用于LeNet-5，效果有提升吗？再试试预处理会怎么样？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/alexnet/1864)
+[Discussions](https://discuss.d2l.ai/t/1864)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/alexnet/1863)
+[Discussions](https://discuss.d2l.ai/t/1863)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/alexnet/1862)
+[Discussions](https://discuss.d2l.ai/t/1862)
 :end_tab:

@@ -511,13 +511,13 @@ Ali Rahimi 在接受 2017 年 NeurIPS 大会的“接受时间考验奖”（Tes
 1. 研究思路：想想你可以应用的其他“归一化”转换？你可以应用概率积分变换吗？全秩协方差估计如何？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/topic/1876)
+[Discussions](https://discuss.d2l.ai/t/1876)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/topic/1874)
+[Discussions](https://discuss.d2l.ai/t/1874)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/topic/1875)
+[Discussions](https://discuss.d2l.ai/t/1875)
 :end_tab:

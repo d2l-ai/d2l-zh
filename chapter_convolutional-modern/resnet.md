@@ -407,13 +407,13 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 1. 为什么即使函数类是嵌套的，我们仍然要限制增加函数的复杂性呢？
  
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/resnet/1879)
+[Discussions](https://discuss.d2l.ai/t/1879)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/resnet/1877)
+[Discussions](https://discuss.d2l.ai/t/1877)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/resnet/1878)
+[Discussions](https://discuss.d2l.ai/t/1878)
 :end_tab:
