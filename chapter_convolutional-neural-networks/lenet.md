@@ -345,13 +345,13 @@ train_ch6(net, train_iter, test_iter, num_epochs, lr)
 1. 显示不同输入（例如毛衣和外套）时，LeNet 第一层和第二层的激活值。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/lenet/1861)
+[Discussions](https://discuss.d2l.ai/t/1861)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/lenet/1860)
+[Discussions](https://discuss.d2l.ai/t/1860)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/lenet/1859)
+[Discussions](https://discuss.d2l.ai/t/1859)
 :end_tab:
