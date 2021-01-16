@@ -257,13 +257,13 @@ for X, y in train_iter:
 1. 查阅框架的在线API文档。还有哪些其他数据集可用？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/48)
+[Discussions](https://discuss.d2l.ai/t/1788)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/49)
+[Discussions](https://discuss.d2l.ai/t/1787)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/224)
+[Discussions](https://discuss.d2l.ai/t/1786)
 :end_tab:

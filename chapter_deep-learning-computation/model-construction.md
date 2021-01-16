@@ -417,13 +417,13 @@ Python解释器在第一次调用块时执行它。Gluon运行时记录正在发
 1. 假设你想要连接同一网络的多个实例。实现一个工厂函数，该函数生成同一个块的多个实例，并在此基础上构建更大的网络。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/54)
+[Discussions](https://discuss.d2l.ai/t/1828)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/55)
+[Discussions](https://discuss.d2l.ai/t/1827)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/264)
+[Discussions](https://discuss.d2l.ai/t/1826)
 :end_tab:

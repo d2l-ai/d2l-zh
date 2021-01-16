@@ -190,13 +190,13 @@ d2l.predict_ch3(net, test_iter)
 1. 如果要构建多个超参数的搜索方法，你能想到的最聪明的策略是什么？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/92)
+[Discussions](https://discuss.d2l.ai/t/1800)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/93)
+[Discussions](https://discuss.d2l.ai/t/1804)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/227)
+[Discussions](https://discuss.d2l.ai/t/1798)
 :end_tab:

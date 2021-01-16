@@ -331,13 +331,13 @@ net.layers[0].weights[0].device, net.layers[0].weights[1].device
 1. 测量同时在两个GPU上执行两个矩阵乘法与在一个GPU上按顺序执行两个矩阵乘法所需的时间。提示：你应该看到近乎线性的缩放。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/62)
+[Discussions](https://discuss.d2l.ai/t/1843)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/63)
+[Discussions](https://discuss.d2l.ai/t/1841)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/270)
+[Discussions](https://discuss.d2l.ai/t/1842)
 :end_tab:

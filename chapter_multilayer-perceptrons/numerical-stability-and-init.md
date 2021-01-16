@@ -169,13 +169,13 @@ $$U\left(-\sqrt{\frac{6}{n_\mathrm{in} + n_\mathrm{out}}}, \sqrt{\frac{6}{n_\mat
 4. 如果我们知道某些项是发散的，我们能在事后修正吗？看看关于分层自适应速率缩放的论文 :cite:`You.Gitman.Ginsburg.2017` 。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/103)
+[Discussions](https://discuss.d2l.ai/t/1819)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/104)
+[Discussions](https://discuss.d2l.ai/t/1818)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/235)
+[Discussions](https://discuss.d2l.ai/t/1817)
 :end_tab:

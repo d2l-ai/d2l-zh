@@ -201,13 +201,13 @@ comp_conv2d(conv2d, X).shape
 1. 步幅大于 $1$ 的计算优势是什么？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/67)
+[Discussions](https://discuss.d2l.ai/t/1852)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/68)
+[Discussions](https://discuss.d2l.ai/t/1851)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/272)
+[Discussions](https://discuss.d2l.ai/t/1850)
 :end_tab:

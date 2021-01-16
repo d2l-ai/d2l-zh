@@ -352,6 +352,7 @@ A.shape, A.sum()
 #@tab tensorflow
 A.shape, tf.reduce_sum(A)
 ```
+
 默认情况下，调用求和函数会将一个张量在所有轴上汇总为一个标量。
 我们还可以指定求和汇总张量的轴。以矩阵为例。为了通过求和所有行的元素来汇总行维度（轴0），我们可以在调用函数时指定`axis=0`。
 由于输入矩阵沿0轴汇总以生成输出向量，因此输入的轴0的维数在输出形状中丢失。
@@ -391,7 +392,9 @@ A_sum_axis1, A_sum_axis1.shape
 A_sum_axis1 = tf.reduce_sum(A, axis=1)
 A_sum_axis1, A_sum_axis1.shape
 ```
+
 沿着行和列对矩阵求和，等价于对矩阵的所有元素进行求和。
+
 ```{.python .input}
 A.sum(axis=[0, 1])  # Same as `A.sum()`
 ```
@@ -785,13 +788,13 @@ tf.norm(tf.ones((4, 9)))
 1. 向 `linalg.norm` 函数提供 3 个或更多轴的张量，并观察其输出。对于任意形状的张量这个函数计算什么?
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/30)
+[Discussions](https://discuss.d2l.ai/t/1752)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/31)
+[Discussions](https://discuss.d2l.ai/t/1751)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/196)
+[Discussions](https://discuss.d2l.ai/t/1753)
 :end_tab:

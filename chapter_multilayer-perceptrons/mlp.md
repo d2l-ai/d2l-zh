@@ -272,13 +272,13 @@ d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'grad of tanh',
 1. 假设我们有一个非线性单元，将它一次应用于一个小批量的数据。你认为这会导致什么样的问题？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/90)
+[Discussions](https://discuss.d2l.ai/t/1797)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/91)
+[Discussions](https://discuss.d2l.ai/t/1796)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/226)
+[Discussions](https://discuss.d2l.ai/t/1795)
 :end_tab:

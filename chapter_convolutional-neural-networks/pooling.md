@@ -235,13 +235,13 @@ pool2d(X)
 1. 除了平均池化层和最大池化层，是否有其它函数可以考虑（提示：回忆 `softmax` ）？为什么它可能不受欢迎？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/71)
+[Discussions](https://discuss.d2l.ai/t/1858)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/72)
+[Discussions](https://discuss.d2l.ai/t/1857)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/274)
+[Discussions](https://discuss.d2l.ai/t/1856)
 :end_tab:

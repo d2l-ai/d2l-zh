@@ -467,13 +467,13 @@ train_and_pred(train_features, test_features, train_labels, test_data,
 1. 如果我们没有像本节所做的那样标准化连续的数值特征，会发生什么？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/106)
+[Discussions](https://discuss.d2l.ai/t/1823)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/107)
+[Discussions](https://discuss.d2l.ai/t/1824)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/237)
+[Discussions](https://discuss.d2l.ai/t/1825)
 :end_tab:

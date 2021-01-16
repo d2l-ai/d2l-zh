@@ -141,13 +141,13 @@ d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 1. 增加迭代周期的数量。为什么测试准确率会在一段时间后降低？我们怎么解决这个问题？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/52)
+[Discussions](https://discuss.d2l.ai/t/1794)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/53)
+[Discussions](https://discuss.d2l.ai/t/1793)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/260)
+[Discussions](https://discuss.d2l.ai/t/1792)
 :end_tab:
