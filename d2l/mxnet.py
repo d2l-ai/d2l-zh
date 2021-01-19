@@ -764,6 +764,489 @@ class RNNModel(nn.Block):
         return self.rnn.begin_state(*args, **kwargs)
 
 
+# Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
+d2l.DATA_HUB['fra-eng'] = (d2l.DATA_URL + 'fra-eng.zip',
+                           '94646ad1522d915e7b0f9296181140edcf86a4f5')
+
+
+def read_data_nmt():
+    """Load the English-French dataset."""
+    data_dir = d2l.download_extract('fra-eng')
+    with open(os.path.join(data_dir, 'fra.txt'), 'r') as f:
+        return f.read()
+
+
+# Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
+def preprocess_nmt(text):
+    """Preprocess the English-French dataset."""
+    def no_space(char, prev_char):
+        return char in set(',.!?') and prev_char != ' '
+
+    # Replace non-breaking space with space, and convert uppercase letters to
+    # lowercase ones
+    text = text.replace('\u202f', ' ').replace('\xa0', ' ').lower()
+    # Insert space between words and punctuation marks
+    out = [
+        ' ' + char if i > 0 and no_space(char, text[i - 1]) else char
+        for i, char in enumerate(text)]
+    return ''.join(out)
+
+
+# Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
+def tokenize_nmt(text, num_examples=None):
+    """Tokenize the English-French dataset."""
+    source, target = [], []
+    for i, line in enumerate(text.split('\n')):
+        if num_examples and i > num_examples:
+            break
+        parts = line.split('\t')
+        if len(parts) == 2:
+            source.append(parts[0].split(' '))
+            target.append(parts[1].split(' '))
+    return source, target
+
+
+# Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
+def truncate_pad(line, num_steps, padding_token):
+    """Truncate or pad sequences."""
+    if len(line) > num_steps:
+        return line[:num_steps]  # Truncate
+    return line + [padding_token] * (num_steps - len(line))  # Pad
+
+
+# Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
+def build_array_nmt(lines, vocab, num_steps):
+    """Transform text sequences of machine translation into minibatches."""
+    lines = [vocab[l] for l in lines]
+    lines = [l + [vocab['<eos>']] for l in lines]
+    array = d2l.tensor([
+        truncate_pad(l, num_steps, vocab['<pad>']) for l in lines])
+    valid_len = d2l.reduce_sum(d2l.astype(array != vocab['<pad>'], d2l.int32),
+                               1)
+    return array, valid_len
+
+
+# Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
+def load_data_nmt(batch_size, num_steps, num_examples=600):
+    """Return the iterator and the vocabularies of the translation dataset."""
+    text = preprocess_nmt(read_data_nmt())
+    source, target = tokenize_nmt(text, num_examples)
+    src_vocab = d2l.Vocab(source, min_freq=2,
+                          reserved_tokens=['<pad>', '<bos>', '<eos>'])
+    tgt_vocab = d2l.Vocab(target, min_freq=2,
+                          reserved_tokens=['<pad>', '<bos>', '<eos>'])
+    src_array, src_valid_len = build_array_nmt(source, src_vocab, num_steps)
+    tgt_array, tgt_valid_len = build_array_nmt(target, tgt_vocab, num_steps)
+    data_arrays = (src_array, src_valid_len, tgt_array, tgt_valid_len)
+    data_iter = d2l.load_array(data_arrays, batch_size)
+    return data_iter, src_vocab, tgt_vocab
+
+
+# Defined in file: ./chapter_recurrent-modern/encoder-decoder.md
+class Encoder(nn.Block):
+    """The base encoder interface for the encoder-decoder architecture."""
+    def __init__(self, **kwargs):
+        super(Encoder, self).__init__(**kwargs)
+
+    def forward(self, X, *args):
+        raise NotImplementedError
+
+
+# Defined in file: ./chapter_recurrent-modern/encoder-decoder.md
+class Decoder(nn.Block):
+    """The base decoder interface for the encoder-decoder architecture."""
+    def __init__(self, **kwargs):
+        super(Decoder, self).__init__(**kwargs)
+
+    def init_state(self, enc_outputs, *args):
+        raise NotImplementedError
+
+    def forward(self, X, state):
+        raise NotImplementedError
+
+
+# Defined in file: ./chapter_recurrent-modern/encoder-decoder.md
+class EncoderDecoder(nn.Block):
+    """The base class for the encoder-decoder architecture."""
+    def __init__(self, encoder, decoder, **kwargs):
+        super(EncoderDecoder, self).__init__(**kwargs)
+        self.encoder = encoder
+        self.decoder = decoder
+
+    def forward(self, enc_X, dec_X, *args):
+        enc_outputs = self.encoder(enc_X, *args)
+        dec_state = self.decoder.init_state(enc_outputs, *args)
+        return self.decoder(dec_X, dec_state)
+
+
+# Defined in file: ./chapter_recurrent-modern/seq2seq.md
+class Seq2SeqEncoder(d2l.Encoder):
+    """The RNN encoder for sequence to sequence learning."""
+    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers,
+                 dropout=0, **kwargs):
+        super(Seq2SeqEncoder, self).__init__(**kwargs)
+        # Embedding layer
+        self.embedding = nn.Embedding(vocab_size, embed_size)
+        self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=dropout)
+
+    def forward(self, X, *args):
+        # The output `X` shape: (`batch_size`, `num_steps`, `embed_size`)
+        X = self.embedding(X)
+        # In RNN models, the first axis corresponds to time steps
+        X = X.swapaxes(0, 1)
+        state = self.rnn.begin_state(batch_size=X.shape[1], ctx=X.ctx)
+        output, state = self.rnn(X, state)
+        # `output` shape: (`num_steps`, `batch_size`, `num_hiddens`)
+        # `state[0]` shape: (`num_layers`, `batch_size`, `num_hiddens`)
+        return output, state
+
+
+# Defined in file: ./chapter_recurrent-modern/seq2seq.md
+class MaskedSoftmaxCELoss(gluon.loss.SoftmaxCELoss):
+    """The softmax cross-entropy loss with masks."""
+
+    # `pred` shape: (`batch_size`, `num_steps`, `vocab_size`)
+    # `label` shape: (`batch_size`, `num_steps`)
+    # `valid_len` shape: (`batch_size`,)
+    def forward(self, pred, label, valid_len):
+        # `weights` shape: (`batch_size`, `num_steps`, 1)
+        weights = np.expand_dims(np.ones_like(label), axis=-1)
+        weights = npx.sequence_mask(weights, valid_len, True, axis=1)
+        return super(MaskedSoftmaxCELoss, self).forward(pred, label, weights)
+
+
+# Defined in file: ./chapter_recurrent-modern/seq2seq.md
+def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
+    """Train a model for sequence to sequence."""
+    net.initialize(init.Xavier(), force_reinit=True, ctx=device)
+    trainer = gluon.Trainer(net.collect_params(), 'adam',
+                            {'learning_rate': lr})
+    loss = MaskedSoftmaxCELoss()
+    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
+                            xlim=[10, num_epochs])
+    for epoch in range(num_epochs):
+        timer = d2l.Timer()
+        metric = d2l.Accumulator(2)  # Sum of training loss, no. of tokens
+        for batch in data_iter:
+            X, X_valid_len, Y, Y_valid_len = [
+                x.as_in_ctx(device) for x in batch]
+            bos = np.array([tgt_vocab['<bos>']] * Y.shape[0],
+                           ctx=device).reshape(-1, 1)
+            dec_input = d2l.concat([bos, Y[:, :-1]], 1)  # Teacher forcing
+            with autograd.record():
+                Y_hat, _ = net(X, dec_input, X_valid_len)
+                l = loss(Y_hat, Y, Y_valid_len)
+            l.backward()
+            d2l.grad_clipping(net, 1)
+            num_tokens = Y_valid_len.sum()
+            trainer.step(num_tokens)
+            metric.add(l.sum(), num_tokens)
+        if (epoch + 1) % 10 == 0:
+            animator.add(epoch + 1, (metric[0] / metric[1],))
+    print(f'loss {metric[0] / metric[1]:.3f}, {metric[1] / timer.stop():.1f} '
+          f'tokens/sec on {str(device)}')
+
+
+# Defined in file: ./chapter_recurrent-modern/seq2seq.md
+def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
+                    device, save_attention_weights=False):
+    """Predict for sequence to sequence."""
+    src_tokens = src_vocab[src_sentence.lower().split(' ')] + [
+        src_vocab['<eos>']]
+    enc_valid_len = np.array([len(src_tokens)], ctx=device)
+    src_tokens = d2l.truncate_pad(src_tokens, num_steps, src_vocab['<pad>'])
+    # Add the batch axis
+    enc_X = np.expand_dims(np.array(src_tokens, ctx=device), axis=0)
+    enc_outputs = net.encoder(enc_X, enc_valid_len)
+    dec_state = net.decoder.init_state(enc_outputs, enc_valid_len)
+    # Add the batch axis
+    dec_X = np.expand_dims(np.array([tgt_vocab['<bos>']], ctx=device), axis=0)
+    output_seq, attention_weight_seq = [], []
+    for _ in range(num_steps):
+        Y, dec_state = net.decoder(dec_X, dec_state)
+        # We use the token with the highest prediction likelihood as the input
+        # of the decoder at the next time step
+        dec_X = Y.argmax(axis=2)
+        pred = dec_X.squeeze(axis=0).astype('int32').item()
+        # Save attention weights (to be covered later)
+        if save_attention_weights:
+            attention_weight_seq.append(net.decoder.attention_weights)
+        # Once the end-of-sequence token is predicted, the generation of the
+        # output sequence is complete
+        if pred == tgt_vocab['<eos>']:
+            break
+        output_seq.append(pred)
+    return ' '.join(tgt_vocab.to_tokens(output_seq)), attention_weight_seq
+
+
+# Defined in file: ./chapter_recurrent-modern/seq2seq.md
+def bleu(pred_seq, label_seq, k):
+    """Compute the BLEU."""
+    pred_tokens, label_tokens = pred_seq.split(' '), label_seq.split(' ')
+    len_pred, len_label = len(pred_tokens), len(label_tokens)
+    score = math.exp(min(0, 1 - len_label / len_pred))
+    for n in range(1, k + 1):
+        num_matches, label_subs = 0, collections.defaultdict(int)
+        for i in range(len_label - n + 1):
+            label_subs[''.join(label_tokens[i:i + n])] += 1
+        for i in range(len_pred - n + 1):
+            if label_subs[''.join(pred_tokens[i:i + n])] > 0:
+                num_matches += 1
+                label_subs[''.join(pred_tokens[i:i + n])] -= 1
+        score *= math.pow(num_matches / (len_pred - n + 1), math.pow(0.5, n))
+    return score
+
+
+# Defined in file: ./chapter_attention-mechanisms/attention-cues.md
+def show_heatmaps(matrices, xlabel, ylabel, titles=None, figsize=(2.5, 2.5),
+                  cmap='Reds'):
+    d2l.use_svg_display()
+    num_rows, num_cols = matrices.shape[0], matrices.shape[1]
+    fig, axes = d2l.plt.subplots(num_rows, num_cols, figsize=figsize,
+                                 sharex=True, sharey=True, squeeze=False)
+    for i, (row_axes, row_matrices) in enumerate(zip(axes, matrices)):
+        for j, (ax, matrix) in enumerate(zip(row_axes, row_matrices)):
+            pcm = ax.imshow(d2l.numpy(matrix), cmap=cmap)
+            if i == num_rows - 1:
+                ax.set_xlabel(xlabel)
+            if j == 0:
+                ax.set_ylabel(ylabel)
+            if titles:
+                ax.set_title(titles[j])
+    fig.colorbar(pcm, ax=axes, shrink=0.6)
+
+
+# Defined in file: ./chapter_attention-mechanisms/attention-scoring-functions.md
+def masked_softmax(X, valid_lens):
+    """Perform softmax operation by masking elements on the last axis."""
+    # `X`: 3D tensor, `valid_lens`: 1D or 2D tensor
+    if valid_lens is None:
+        return npx.softmax(X)
+    else:
+        shape = X.shape
+        if valid_lens.ndim == 1:
+            valid_lens = valid_lens.repeat(shape[1])
+        else:
+            valid_lens = valid_lens.reshape(-1)
+        # On the last axis, replace masked elements with a very large negative
+        # value, whose exponentiation outputs 0
+        X = npx.sequence_mask(X.reshape(-1, shape[-1]), valid_lens, True,
+                              value=-1e6, axis=1)
+        return npx.softmax(X).reshape(shape)
+
+
+# Defined in file: ./chapter_attention-mechanisms/attention-scoring-functions.md
+class AdditiveAttention(nn.Block):
+    """Additive attention."""
+    def __init__(self, num_hiddens, dropout, **kwargs):
+        super(AdditiveAttention, self).__init__(**kwargs)
+        # Use `flatten=False` to only transform the last axis so that the
+        # shapes for the other axes are kept the same
+        self.W_k = nn.Dense(num_hiddens, use_bias=False, flatten=False)
+        self.W_q = nn.Dense(num_hiddens, use_bias=False, flatten=False)
+        self.w_v = nn.Dense(1, use_bias=False, flatten=False)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, queries, keys, values, valid_lens):
+        queries, keys = self.W_q(queries), self.W_k(keys)
+        # After dimension expansion, shape of `queries`: (`batch_size`, no. of
+        # queries, 1, `num_hiddens`) and shape of `keys`: (`batch_size`, 1,
+        # no. of key-value pairs, `num_hiddens`). Sum them up with
+        # broadcasting
+        features = np.expand_dims(queries, axis=2) + np.expand_dims(
+            keys, axis=1)
+        features = np.tanh(features)
+        # There is only one output of `self.w_v`, so we remove the last
+        # one-dimensional entry from the shape. Shape of `scores`:
+        # (`batch_size`, no. of queries, no. of key-value pairs)
+        scores = np.squeeze(self.w_v(features), axis=-1)
+        self.attention_weights = masked_softmax(scores, valid_lens)
+        # Shape of `values`: (`batch_size`, no. of key-value pairs, value
+        # dimension)
+        return npx.batch_dot(self.dropout(self.attention_weights), values)
+
+
+# Defined in file: ./chapter_attention-mechanisms/attention-scoring-functions.md
+class DotProductAttention(nn.Block):
+    """Scaled dot product attention."""
+    def __init__(self, dropout, **kwargs):
+        super(DotProductAttention, self).__init__(**kwargs)
+        self.dropout = nn.Dropout(dropout)
+
+    # Shape of `queries`: (`batch_size`, no. of queries, `d`)
+    # Shape of `keys`: (`batch_size`, no. of key-value pairs, `d`)
+    # Shape of `values`: (`batch_size`, no. of key-value pairs, value
+    # dimension)
+    # Shape of `valid_lens`: (`batch_size`,) or (`batch_size`, no. of queries)
+    def forward(self, queries, keys, values, valid_lens=None):
+        d = queries.shape[-1]
+        # Set `transpose_b=True` to swap the last two dimensions of `keys`
+        scores = npx.batch_dot(queries, keys, transpose_b=True) / math.sqrt(d)
+        self.attention_weights = masked_softmax(scores, valid_lens)
+        return npx.batch_dot(self.dropout(self.attention_weights), values)
+
+
+# Defined in file: ./chapter_attention-mechanisms/bahdanau-attention.md
+class AttentionDecoder(d2l.Decoder):
+    """The base attention-based decoder interface."""
+    def __init__(self, **kwargs):
+        super(AttentionDecoder, self).__init__(**kwargs)
+
+    @property
+    def attention_weights(self):
+        raise NotImplementedError
+
+
+# Defined in file: ./chapter_attention-mechanisms/multihead-attention.md
+class MultiHeadAttention(nn.Block):
+    def __init__(self, num_hiddens, num_heads, dropout, use_bias=False,
+                 **kwargs):
+        super(MultiHeadAttention, self).__init__(**kwargs)
+        self.num_heads = num_heads
+        self.attention = d2l.DotProductAttention(dropout)
+        self.W_q = nn.Dense(num_hiddens, use_bias=use_bias, flatten=False)
+        self.W_k = nn.Dense(num_hiddens, use_bias=use_bias, flatten=False)
+        self.W_v = nn.Dense(num_hiddens, use_bias=use_bias, flatten=False)
+        self.W_o = nn.Dense(num_hiddens, use_bias=use_bias, flatten=False)
+
+    def forward(self, queries, keys, values, valid_lens):
+        # Shape of `queries`, `keys`, or `values`:
+        # (`batch_size`, no. of queries or key-value pairs, `num_hiddens`)
+        # Shape of `valid_lens`:
+        # (`batch_size`,) or (`batch_size`, no. of queries)
+        # After transposing, shape of output `queries`, `keys`, or `values`:
+        # (`batch_size` * `num_heads`, no. of queries or key-value pairs,
+        # `num_hiddens` / `num_heads`)
+        queries = transpose_qkv(self.W_q(queries), self.num_heads)
+        keys = transpose_qkv(self.W_k(keys), self.num_heads)
+        values = transpose_qkv(self.W_v(values), self.num_heads)
+
+        if valid_lens is not None:
+            # On axis 0, copy the first item (scalar or vector) for
+            # `num_heads` times, then copy the next item, and so on
+            valid_lens = valid_lens.repeat(self.num_heads, axis=0)
+
+        # Shape of `output`: (`batch_size` * `num_heads`, no. of queries,
+        # `num_hiddens` / `num_heads`)
+        output = self.attention(queries, keys, values, valid_lens)
+
+        # Shape of `output_concat`:
+        # (`batch_size`, no. of queries, `num_hiddens`)
+        output_concat = transpose_output(output, self.num_heads)
+        return self.W_o(output_concat)
+
+
+# Defined in file: ./chapter_attention-mechanisms/multihead-attention.md
+def transpose_qkv(X, num_heads):
+    # Shape of input `X`:
+    # (`batch_size`, no. of queries or key-value pairs, `num_hiddens`).
+    # Shape of output `X`:
+    # (`batch_size`, no. of queries or key-value pairs, `num_heads`,
+    # `num_hiddens` / `num_heads`)
+    X = X.reshape(X.shape[0], X.shape[1], num_heads, -1)
+
+    # Shape of output `X`:
+    # (`batch_size`, `num_heads`, no. of queries or key-value pairs,
+    # `num_hiddens` / `num_heads`)
+    X = X.transpose(0, 2, 1, 3)
+
+    # Shape of `output`:
+    # (`batch_size` * `num_heads`, no. of queries or key-value pairs,
+    # `num_hiddens` / `num_heads`)
+    return X.reshape(-1, X.shape[2], X.shape[3])
+
+
+def transpose_output(X, num_heads):
+    """Reverse the operation of `transpose_qkv`"""
+    X = X.reshape(-1, num_heads, X.shape[1], X.shape[2])
+    X = X.transpose(0, 2, 1, 3)
+    return X.reshape(X.shape[0], X.shape[1], -1)
+
+
+# Defined in file: ./chapter_attention-mechanisms/self-attention-and-positional-encoding.md
+class PositionalEncoding(nn.Block):
+    def __init__(self, num_hiddens, dropout, max_len=1000):
+        super(PositionalEncoding, self).__init__()
+        self.dropout = nn.Dropout(dropout)
+        # Create a long enough `P`
+        self.P = d2l.zeros((1, max_len, num_hiddens))
+        X = d2l.arange(max_len).reshape(-1, 1) / np.power(
+            10000,
+            np.arange(0, num_hiddens, 2) / num_hiddens)
+        self.P[:, :, 0::2] = np.sin(X)
+        self.P[:, :, 1::2] = np.cos(X)
+
+    def forward(self, X):
+        X = X + self.P[:, :X.shape[1], :].as_in_ctx(X.ctx)
+        return self.dropout(X)
+
+
+# Defined in file: ./chapter_attention-mechanisms/transformer.md
+class PositionWiseFFN(nn.Block):
+    def __init__(self, ffn_num_hiddens, ffn_num_outputs, **kwargs):
+        super(PositionWiseFFN, self).__init__(**kwargs)
+        self.dense1 = nn.Dense(ffn_num_hiddens, flatten=False,
+                               activation='relu')
+        self.dense2 = nn.Dense(ffn_num_outputs, flatten=False)
+
+    def forward(self, X):
+        return self.dense2(self.dense1(X))
+
+
+# Defined in file: ./chapter_attention-mechanisms/transformer.md
+class AddNorm(nn.Block):
+    def __init__(self, dropout, **kwargs):
+        super(AddNorm, self).__init__(**kwargs)
+        self.dropout = nn.Dropout(dropout)
+        self.ln = nn.LayerNorm()
+
+    def forward(self, X, Y):
+        return self.ln(self.dropout(Y) + X)
+
+
+# Defined in file: ./chapter_attention-mechanisms/transformer.md
+class EncoderBlock(nn.Block):
+    def __init__(self, num_hiddens, ffn_num_hiddens, num_heads, dropout,
+                 use_bias=False, **kwargs):
+        super(EncoderBlock, self).__init__(**kwargs)
+        self.attention = d2l.MultiHeadAttention(num_hiddens, num_heads,
+                                                dropout, use_bias)
+        self.addnorm1 = AddNorm(dropout)
+        self.ffn = PositionWiseFFN(ffn_num_hiddens, num_hiddens)
+        self.addnorm2 = AddNorm(dropout)
+
+    def forward(self, X, valid_lens):
+        Y = self.addnorm1(X, self.attention(X, X, X, valid_lens))
+        return self.addnorm2(Y, self.ffn(Y))
+
+
+# Defined in file: ./chapter_attention-mechanisms/transformer.md
+class TransformerEncoder(d2l.Encoder):
+    def __init__(self, vocab_size, num_hiddens, ffn_num_hiddens, num_heads,
+                 num_layers, dropout, use_bias=False, **kwargs):
+        super(TransformerEncoder, self).__init__(**kwargs)
+        self.num_hiddens = num_hiddens
+        self.embedding = nn.Embedding(vocab_size, num_hiddens)
+        self.pos_encoding = d2l.PositionalEncoding(num_hiddens, dropout)
+        self.blks = nn.Sequential()
+        for _ in range(num_layers):
+            self.blks.add(
+                EncoderBlock(num_hiddens, ffn_num_hiddens, num_heads, dropout,
+                             use_bias))
+
+    def forward(self, X, valid_lens, *args):
+        # Since positional encoding values are between -1 and 1, the embedding
+        # values are multiplied by the square root of the embedding dimension
+        # to rescale before they are summed up
+        X = self.pos_encoding(self.embedding(X) * math.sqrt(self.num_hiddens))
+        self.attention_weights = [None] * len(self.blks)
+        for i, blk in enumerate(self.blks):
+            X = blk(X, valid_lens)
+            self.attention_weights[
+                i] = blk.attention.attention.attention_weights
+        return X
+
+
 # Alias defined in config.ini
 size = lambda a: a.size
 transpose = lambda a: a.T
