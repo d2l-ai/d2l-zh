@@ -21,7 +21,7 @@ of the encoder-decoder architecture,
 the RNN encoder can
 take a variable-length sequence as the input and transforms it into a fixed-shape hidden state.
 In other words,
-information of the input sequence
+information of the input (source) sequence
 is *encoded* in the hidden state of the RNN encoder.
 To generate the output sequence token by token,
 a separate RNN decoder
@@ -51,7 +51,7 @@ to initiate the hidden state of the decoder.
 In designs such as :cite:`Sutskever.Vinyals.Le.2014`,
 this is exactly
 how the encoded input sequence information
-is fed into the decoder for generating the output sequence.
+is fed into the decoder for generating the output (target) sequence.
 In some other designs such as :cite:`Cho.Van-Merrienboer.Gulcehre.ea.2014`,
 the final hidden state of the encoder
 is also fed into the decoder as
@@ -67,7 +67,7 @@ shifted by one token:
 
 In the following,
 we will explain the design of :numref:`fig_seq2seq`
-in greater details.
+in greater detail.
 We will train this model for machine translation
 on the English-French dataset as introduced in
 :numref:`sec_machine_translation`.
@@ -268,9 +268,10 @@ them and
 the previous hidden state $\mathbf{s}_{t^\prime-1}$
 into the
 hidden state $\mathbf{s}_{t^\prime}$ at the current time step.
-As a result, we can use a function $f$ to express the transformation of the decoder's hidden layer:
+As a result, we can use a function $g$ to express the transformation of the decoder's hidden layer:
 
 $$\mathbf{s}_{t^\prime} = g(y_{t^\prime-1}, \mathbf{c}, \mathbf{s}_{t^\prime-1}).$$
+:eqlabel:`eq_seq2seq_s_t`
 
 After obtaining the hidden state of the decoder,
 we can use an output layer and the softmax operation to compute the conditional probability distribution
@@ -525,10 +526,10 @@ as the current input to the decoder.
 
 ```{.python .input}
 #@save
-def train_s2s_ch9(model, data_iter, lr, num_epochs, tgt_vocab, device):
-    """Train a model for sequence to sequence (defined in Chapter 9)."""
-    model.initialize(init.Xavier(), force_reinit=True, ctx=device)
-    trainer = gluon.Trainer(model.collect_params(), 'adam',
+def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
+    """Train a model for sequence to sequence."""
+    net.initialize(init.Xavier(), force_reinit=True, ctx=device)
+    trainer = gluon.Trainer(net.collect_params(), 'adam',
                             {'learning_rate': lr})
     loss = MaskedSoftmaxCELoss()
     animator = d2l.Animator(xlabel='epoch', ylabel='loss',
@@ -543,10 +544,10 @@ def train_s2s_ch9(model, data_iter, lr, num_epochs, tgt_vocab, device):
                 [tgt_vocab['<bos>']] * Y.shape[0], ctx=device).reshape(-1, 1)
             dec_input = d2l.concat([bos, Y[:, :-1]], 1)  # Teacher forcing
             with autograd.record():
-                Y_hat, _ = model(X, dec_input, X_valid_len)
+                Y_hat, _ = net(X, dec_input, X_valid_len)
                 l = loss(Y_hat, Y, Y_valid_len)
             l.backward()
-            d2l.grad_clipping(model, 1)
+            d2l.grad_clipping(net, 1)
             num_tokens = Y_valid_len.sum()
             trainer.step(num_tokens)
             metric.add(l.sum(), num_tokens)
@@ -559,20 +560,20 @@ def train_s2s_ch9(model, data_iter, lr, num_epochs, tgt_vocab, device):
 ```{.python .input}
 #@tab pytorch
 #@save
-def train_s2s_ch9(model, data_iter, lr, num_epochs, tgt_vocab, device):
-    """Train a model for sequence to sequence (defined in Chapter 9)."""
+def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
+    """Train a model for sequence to sequence."""
     def xavier_init_weights(m):
         if type(m) == nn.Linear:
-            torch.nn.init.xavier_uniform_(m.weight)
+            nn.init.xavier_uniform_(m.weight)
         if type(m) == nn.GRU:
             for param in m._flat_weights_names:
                 if "weight" in param:
-                    torch.nn.init.xavier_uniform_(m._parameters[param])
-    model.apply(xavier_init_weights)
-    model.to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+                    nn.init.xavier_uniform_(m._parameters[param])
+    net.apply(xavier_init_weights)
+    net.to(device)
+    optimizer = torch.optim.Adam(net.parameters(), lr=lr)
     loss = MaskedSoftmaxCELoss()
-    model.train()
+    net.train()
     animator = d2l.Animator(xlabel='epoch', ylabel='loss',
                             xlim=[10, num_epochs])
     for epoch in range(num_epochs):
@@ -583,10 +584,10 @@ def train_s2s_ch9(model, data_iter, lr, num_epochs, tgt_vocab, device):
             bos = torch.tensor([tgt_vocab['<bos>']] * Y.shape[0],
                                device=device).reshape(-1, 1)
             dec_input = d2l.concat([bos, Y[:, :-1]], 1)  # Teacher forcing
-            Y_hat, _ = model(X, dec_input, X_valid_len)
+            Y_hat, _ = net(X, dec_input, X_valid_len)
             l = loss(Y_hat, Y, Y_valid_len)
             l.sum().backward()  # Make the loss scalar for `backward`
-            d2l.grad_clipping(model, 1)
+            d2l.grad_clipping(net, 1)
             num_tokens = Y_valid_len.sum()
             optimizer.step()
             with torch.no_grad():
@@ -611,8 +612,8 @@ encoder = Seq2SeqEncoder(
     len(src_vocab), embed_size, num_hiddens, num_layers, dropout)
 decoder = Seq2SeqDecoder(
     len(tgt_vocab), embed_size, num_hiddens, num_layers, dropout)
-model = d2l.EncoderDecoder(encoder, decoder)
-train_s2s_ch9(model, train_iter, lr, num_epochs, tgt_vocab, device)
+net = d2l.EncoderDecoder(encoder, decoder)
+train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
 ```
 
 ## Prediction
@@ -641,40 +642,45 @@ strategies for sequence generation in
 
 ```{.python .input}
 #@save
-def predict_s2s_ch9(model, src_sentence, src_vocab, tgt_vocab, num_steps,
-                    device):
-    """Predict sequences (defined in Chapter 9)."""
+def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
+                    device, save_attention_weights=False):
+    """Predict for sequence to sequence."""
     src_tokens = src_vocab[src_sentence.lower().split(' ')] + [
         src_vocab['<eos>']]
     enc_valid_len = np.array([len(src_tokens)], ctx=device)
     src_tokens = d2l.truncate_pad(src_tokens, num_steps, src_vocab['<pad>'])
     # Add the batch axis
     enc_X = np.expand_dims(np.array(src_tokens, ctx=device), axis=0)
-    enc_outputs = model.encoder(enc_X, enc_valid_len)
-    dec_state = model.decoder.init_state(enc_outputs, enc_valid_len)
+    enc_outputs = net.encoder(enc_X, enc_valid_len)
+    dec_state = net.decoder.init_state(enc_outputs, enc_valid_len)
     # Add the batch axis
     dec_X = np.expand_dims(np.array([tgt_vocab['<bos>']], ctx=device), axis=0)
-    output_seq = []
+    output_seq, attention_weight_seq = [], []
     for _ in range(num_steps):
-        Y, dec_state = model.decoder(dec_X, dec_state)
+        Y, dec_state = net.decoder(dec_X, dec_state)
         # We use the token with the highest prediction likelihood as the input
         # of the decoder at the next time step
         dec_X = Y.argmax(axis=2)
         pred = dec_X.squeeze(axis=0).astype('int32').item()
-        # Once the end-of-sequence token is predicted, the generation of
-        # the output sequence is complete
+        # Save attention weights (to be covered later)
+        if save_attention_weights:
+            attention_weight_seq.append(net.decoder.attention_weights)
+        # Once the end-of-sequence token is predicted, the generation of the
+        # output sequence is complete
         if pred == tgt_vocab['<eos>']:
             break
         output_seq.append(pred)
-    return ' '.join(tgt_vocab.to_tokens(output_seq))
+    return ' '.join(tgt_vocab.to_tokens(output_seq)), attention_weight_seq
 ```
 
 ```{.python .input}
 #@tab pytorch
 #@save
-def predict_s2s_ch9(model, src_sentence, src_vocab, tgt_vocab, num_steps,
-                    device):
-    """Predict sequences (defined in Chapter 9)."""
+def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
+                    device, save_attention_weights=False):
+    """Predict for sequence to sequence."""
+    # Set `net` to eval mode for inference
+    net.eval()
     src_tokens = src_vocab[src_sentence.lower().split(' ')] + [
         src_vocab['<eos>']]
     enc_valid_len = torch.tensor([len(src_tokens)], device=device)
@@ -682,24 +688,27 @@ def predict_s2s_ch9(model, src_sentence, src_vocab, tgt_vocab, num_steps,
     # Add the batch axis
     enc_X = torch.unsqueeze(
         torch.tensor(src_tokens, dtype=torch.long, device=device), dim=0)
-    enc_outputs = model.encoder(enc_X, enc_valid_len)
-    dec_state = model.decoder.init_state(enc_outputs, enc_valid_len)
+    enc_outputs = net.encoder(enc_X, enc_valid_len)
+    dec_state = net.decoder.init_state(enc_outputs, enc_valid_len)
     # Add the batch axis
     dec_X = torch.unsqueeze(torch.tensor(
         [tgt_vocab['<bos>']], dtype=torch.long, device=device), dim=0)
-    output_seq = []
+    output_seq, attention_weight_seq = [], []
     for _ in range(num_steps):
-        Y, dec_state = model.decoder(dec_X, dec_state)
+        Y, dec_state = net.decoder(dec_X, dec_state)
         # We use the token with the highest prediction likelihood as the input
         # of the decoder at the next time step
         dec_X = Y.argmax(dim=2)
         pred = dec_X.squeeze(dim=0).type(torch.int32).item()
-        # Once the end-of-sequence token is predicted, the generation of
-        # the output sequence is complete
+        # Save attention weights (to be covered later)
+        if save_attention_weights:
+            attention_weight_seq.append(net.decoder.attention_weights)
+        # Once the end-of-sequence token is predicted, the generation of the
+        # output sequence is complete
         if pred == tgt_vocab['<eos>']:
             break
         output_seq.append(pred)
-    return ' '.join(tgt_vocab.to_tokens(output_seq))
+    return ' '.join(tgt_vocab.to_tokens(output_seq)), attention_weight_seq
 ```
 
 ## Evaluation of Predicted Sequences
@@ -726,8 +735,8 @@ to
 the number of $n$-grams in the predicted sequence.
 To explain,
 given a label sequence $A$, $B$, $C$, $D$, $E$, $F$,
-and a predicted sequence $A$, $B$, $B$, $C$, $D$.
-We have $p_1 = 4/5$,  $p_2 = 3/4$, $p_3 = 1/3$, and $p_4 = 0$.
+and a predicted sequence $A$, $B$, $B$, $C$, $D$,
+we have $p_1 = 4/5$,  $p_2 = 3/4$, $p_3 = 1/3$, and $p_4 = 0$.
 Besides,
 let $\mathrm{len}_{\text{label}}$ and $\mathrm{len}_{\text{pred}}$
 be
@@ -746,7 +755,7 @@ since matching longer $n$-grams is more difficult,
 BLEU assigns a greater weight
 to a longer $n$-gram precision.
 Specifically, when $p_n$ is fixed,
-$p_n^{1/2^n}$ increases as $n$ grows.
+$p_n^{1/2^n}$ increases as $n$ grows (the original paper uses $p_n^{1/n}$).
 Furthermore,
 since
 predicting shorter sequences
@@ -785,18 +794,12 @@ and compute the BLEU of the results.
 
 ```{.python .input}
 #@tab all
-#@save
-def translate(engs, fras, model, src_vocab, tgt_vocab, num_steps, device):
-    """Translate text sequences."""
-    for eng, fra in zip(engs, fras):
-        translation = predict_s2s_ch9(
-            model, eng, src_vocab, tgt_vocab, num_steps, device)
-        print(
-            f'{eng} => {translation}, bleu {bleu(translation, fra, k=2):.3f}')
-
-engs = ['go .', "i lost .", 'i\'m home .', 'he\'s calm .']
-fras = ['va !', 'j\'ai perdu .', 'je suis chez moi .', 'il est calme .']
-translate(engs, fras, model, src_vocab, tgt_vocab, num_steps, device)
+engs = ['go .', "i lost .", 'he\'s calm .', 'i\'m home .']
+fras = ['va !', 'j\'ai perdu .', 'il est calme .', 'je suis chez moi .']
+for eng, fra in zip(engs, fras):
+    translation, attention_weight_seq = predict_seq2seq(
+        net, eng, src_vocab, tgt_vocab, num_steps, device)
+    print(f'{eng} => {translation}, bleu {bleu(translation, fra, k=2):.3f}')
 ```
 
 ## Summary
@@ -824,4 +827,3 @@ translate(engs, fras, model, src_vocab, tgt_vocab, num_steps, device)
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/1062)
 :end_tab:
-
