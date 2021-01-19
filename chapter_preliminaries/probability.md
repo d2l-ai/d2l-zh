@@ -79,6 +79,7 @@ multinomial.Multinomial(1, fair_probs).sample()
 fair_probs = tf.ones(6) / 6
 tfp.distributions.Multinomial(1, fair_probs).sample()
 ```
+
 如果你运行采样器很多次，你会发现每次你都得到随机的值。在估计一个骰子的公平性时，我们经常希望从同一分布中生成多个样本。如果用Python的for循环来完成这个任务，速度会慢得令人难以忍受，因此我们使用的函数支持同时抽取多个样本，返回我们想要的任意形状的独立样本数组。
 
 ```{.python .input}
@@ -114,6 +115,7 @@ counts / 1000  # 相对频率作为估计值
 counts = tfp.distributions.Multinomial(1000, fair_probs).sample()
 counts / 1000
 ```
+
 因为我们是从一个公平的骰子中生成的数据，我们知道每个结果都有真实的概率$\frac{1}{6}$，大约是$0.167$，所以上面输出的估计值看起来不错。
 
 我们也可以看到这些概率如何随着时间的推移收敛到真实概率。让我们进行500组实验，每组抽取10个样本。
@@ -334,13 +336,13 @@ $$\mathrm{Var}[f(x)] = E\left[\left(f(x) - E[f(x)]\right)^2\right].$$
 4. 在 :numref:`subsec_probability_hiv_app` 中，第一个测试更准确。为什么不将这个测试再运行一次？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/36)
+[Discussions](https://discuss.d2l.ai/t/1761)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/37)
+[Discussions](https://discuss.d2l.ai/t/1762)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/198)
+[Discussions](https://discuss.d2l.ai/t/1760)
 :end_tab:

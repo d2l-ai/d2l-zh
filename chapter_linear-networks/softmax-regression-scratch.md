@@ -462,13 +462,13 @@ predict_ch3(net, test_iter)
 1. 假设我们希望使用softmax回归来基于某些特征预测下一个单词。词汇量大可能会带来哪些问题?
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/50)
+[Discussions](https://discuss.d2l.ai/t/1791)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/51)
+[Discussions](https://discuss.d2l.ai/t/1789)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/225)
+[Discussions](https://discuss.d2l.ai/t/1790)
 :end_tab:

@@ -1,0 +1,2054 @@
+<?xml version="1.0"?>
+
+<svg
+ xmlns="http://www.w3.org/2000/svg"
+ version="1.2"
+ baseProfile="tiny"
+ viewBox="-110 -110 220 220"
+>
+
+
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+<!--                                                             //-->
+<!--   THIS FILE HAS BEEN MANUALLY CREATED WITH A TEXT EDITOR.   //-->
+<!--                                                             //-->
+<!--   (EXCEPT SOME DATA FOR THE OUTSIDE RIBBON WHICH HAS         //-->
+<!--   BEEN CALCULATED WITH A VECTOR GRAPHICS PROGRAM)           //-->
+<!--                                                             //-->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+<!--                                                             //-->
+<!--   THIS FILE ALSO CONTAINS LOTS OF TEXT COMMENTS TO MAKE IT  //-->
+<!--   EASIER TO MANUALLY MODIFY IT.                             //-->
+<!--                                                             //-->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+
+
+
+<title>
+ The seal of the University of California, Santa Cruz (UCSC)
+</title>
+
+
+
+<desc>
+ This is the seal of the University of California, Santa Cruz (UCSC) ;
+ it contains the following text:
+ THE UNIVERSITY OF CALIFORNIA
+ 1868
+ LET THERE BE LIGHT ;
+ see
+ http://commons.wikimedia.org/wiki/File:The_University_of_California_1868_UCSC.svg
+ for more information.
+</desc>
+
+
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+<!-- WHITE BACKGROUND BEHIND SEAL:                               //-->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+
+<circle
+ r="100"
+ fill="white"
+/>
+
+
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+<!-- DOTS FOR THE LARGE OUTSIDE CIRCLE:                          //-->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(0.00)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(2.86)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(5.71)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(8.57)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(11.43)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(14.29)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(17.14)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(20.00)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(22.86)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(25.71)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(28.57)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(31.43)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(34.29)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(37.14)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(40.00)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(42.86)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(45.71)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(48.57)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(51.43)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(54.29)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(57.14)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(60.00)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(62.86)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(65.71)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(68.57)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(71.43)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(74.29)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(77.14)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(80.00)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(82.86)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(85.71)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(88.57)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(91.43)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(94.29)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(97.14)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(100.00)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(102.86)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(105.71)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(108.57)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(111.43)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(114.29)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(117.14)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(120.00)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(122.86)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(125.71)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(128.57)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(131.43)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(134.29)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(137.14)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(140.00)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(142.86)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(145.71)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(148.57)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(151.43)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(154.29)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(157.14)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(160.00)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(162.86)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(165.71)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(168.57)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(171.43)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(174.29)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(177.14)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(180.00)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(182.86)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(185.71)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(188.57)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(191.43)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(194.29)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(197.14)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(200.00)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(202.86)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(205.71)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(208.57)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(211.43)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(214.29)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(217.14)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(220.00)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(222.86)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(225.71)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(228.57)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(231.43)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(234.29)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(237.14)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(240.00)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(242.86)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(245.71)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(248.57)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(251.43)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(254.29)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(257.14)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(260.00)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(262.86)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(265.71)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(268.57)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(271.43)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(274.29)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(277.14)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(280.00)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(282.86)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(285.71)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(288.57)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(291.43)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(294.29)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(297.14)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(300.00)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(302.86)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(305.71)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(308.57)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(311.43)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(314.29)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(317.14)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(320.00)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(322.86)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(325.71)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(328.57)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(331.43)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(334.29)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(337.14)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(340.00)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(342.86)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(345.71)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(348.57)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(351.43)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(354.29)" />
+<circle r="2.1" cy="100" fill="#003c6c" transform="rotate(357.14)" />
+
+
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+<!-- LIGHT-RAYS COMING FROM THE STAR:                            //-->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+
+<!-- 1st light-ray from left side: //-->
+<path d="M-15 -63 L-32 -62.5" stroke="#003c6c" stroke-width="1" />
+
+<!-- 2nd light-ray from left side: //-->
+<path d="M-13 -61 L-50 -50" stroke="#003c6c" stroke-width="1" />
+
+<!-- 3rd light-ray from left side: //-->
+<path d="M-11 -59 L-64 -23" stroke="#003c6c" stroke-width="1" />
+
+<!-- 4th light-ray from left side: //-->
+<path d="M-10 -56 L-70 -1.5" stroke="#003c6c" stroke-width="1" />
+
+<!-- 5th light-ray from left side: //-->
+<path d="M-10 -51.5 L-67 13" stroke="#003c6c" stroke-width="1" />
+
+<!-- 6th light-ray from left side: //-->
+<path d="M-8 -49 L-62.5 30" stroke="#003c6c" stroke-width="1" />
+
+<!-- 7 th light-ray from left side //-->
+<path d="M-7 -45 L-46 55" stroke="#003c6c" stroke-width="1" />
+
+<!-- 8th light-ray from left side: //-->
+<path d="M-3.5 -49 L-35 62" stroke="#003c6c" stroke-width="1" />
+
+<!-- 9th light-ray from left side: //-->
+<path d="M-1 -50.5 L-23 60" stroke="#003c6c" stroke-width="1" />
+
+<!-- 10th light-ray from left side: //-->
+<path d="M-9 55 L-11 70.5" stroke="#003c6c" stroke-width="1" />
+
+<!-- 1st light-ray from right side: //-->
+<path d="M13.5 -61 L32 -59.5" stroke="#003c6c" stroke-width="1" />
+
+<!-- 2nd light-ray from right side: //-->
+<path d="M12 -59 L54 -42" stroke="#003c6c" stroke-width="1" />
+
+<!-- 3nd light-ray from right side: //-->
+<path d="M12 -56 L66 -23" stroke="#003c6c" stroke-width="1" />
+
+<!-- 4th light-ray from right side: //-->
+<path d="M12 -53 L69 -6" stroke="#003c6c" stroke-width="1" />
+
+<!-- 5th light-ray from right side: //-->
+<path d="M10 -50 L68 14" stroke="#003c6c" stroke-width="1" />
+
+<!-- 6th light-ray from right side: //-->
+<path d="M14 -40 L65 27" stroke="#003c6c" stroke-width="1" />
+
+<!-- 7th light-ray from right side: //-->
+<path d="M24 -20 L58 39" stroke="#003c6c" stroke-width="1" />
+
+<!-- 8 light-ray from right side: //-->
+<path d="M6 -50 L47 53" stroke="#003c6c" stroke-width="1" />
+
+<!-- 9th light-ray from right side: //-->
+<path d="M1.5 -50.5 L31.5 58.5" stroke="#003c6c" stroke-width="1" />
+
+<!-- 10th light-ray from right side: //-->
+<path d="M15.5 55 L16 67.5" stroke="#003c6c" stroke-width="1" />
+
+<!-- 11th light-ray from right side: //-->
+<path d="M2 55 L2.5 71" stroke="#003c6c" stroke-width="1" />
+
+
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+<!-- RIBBON BEHIND BOOK ON THE LEFT SIDE:                        //-->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+
+<path
+ d="
+ M -52 28
+ c -3 3 -5.5 4 -5.5 9
+ s 5.5 5 6.5 5
+ s 5 -1 5 4.5
+ s 8 7 8 12.5
+ c 0.5 3 1 -5 -1 -7
+ c 1 -1 0.5 -1 1.5 -3
+ c 1 1 8 7 9 7
+ c 3 0 1.5 -6.5 -2 -3
+ C -32 51.5 -32 48.5 -34 48.5
+ c -2 0 -2 -2 -2 -4
+ s 0 -8.5 -14 -8.5
+ c -3 0 -3 0 -3 -2
+ s 1 -4 1 -5
+ z
+ "
+ stroke="#003c6c"
+ stroke-width="1"
+ fill="white"
+/>
+
+
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+<!-- THE BOOK IN THE CENTER OF THE SEAL:                         //-->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+
+<!-- outside line of book: //-->
+<path
+ d="
+ M -47.5 -45.5
+ h 41.5
+ c 3 0 5 4 6 5
+ c 1 -1 3 -5 6 -5
+ h 41.5
+ v 89
+ h -43.5
+ c 0 2 -8 2 -8 0
+ h -43.5
+ z
+ "
+ stroke="#003c6c"
+ stroke-width="1"
+ fill="white"
+/>
+
+<!-- 1st (inner most) pair (left and right) of pages: //-->
+<path
+ d="
+ M -35.5 -45.5
+ v 82
+ h 29.5
+ c 3 0 5 4 6 5
+ c 1 -1 3 -5 6 -5
+ h 29.5
+ v -82
+ "
+ stroke="#003c6c"
+ stroke-width="1"
+ fill="none"
+/>
+
+<!-- 2nd pair of pages: //-->
+<path
+ d="
+ M -38.5 -45.5
+ v 83.75
+ h 32.5
+ c 3 0 5 4 6 5
+ c 1 -1 3 -5 6 -5
+ h 32.5
+ v -83.75
+ "
+ stroke="#003c6c"
+ stroke-width="1"
+ fill="none"
+/>
+
+<!-- 3rd pair of pages: //-->
+<path
+ d="
+ M -41.5 -45.5
+ v 85.5
+ h 35.5
+ c 3 0 5 2.5 6 3.5
+ c 1 -1 3 -3.5 6 -3.5
+ h 35.5
+ v -85.5
+ "
+ stroke="#003c6c"
+ stroke-width="1"
+ fill="none"
+/>
+
+<!-- 4th pair of pages: //-->
+<path
+ d="
+ M -44.5 -45.5
+ v 87.25
+ h 38.5
+ c 3 0 5 0.75 6 1.75
+ c 1 -1 3 -1.75 6 -1.75
+ h 38.5
+ v -87.25
+ "
+ stroke="#003c6c"
+ stroke-width="1"
+ fill="none"
+/>
+
+<!-- dark line in middle of book: //-->
+<path
+ d="
+ M 0 -40.5
+ v 82
+ "
+ stroke="#003c6c"
+ stroke-width="1"
+/>
+
+<!-- hole between pages and back at bottom of book: //-->
+<path
+ d="
+ M -4 43.5
+ c 0 -6 8 -6 8 0
+ c 0 2 -8 2 -8 0
+ z
+ "
+ stroke="#003c6c"
+ stroke-width="1"
+ fill="white"
+/>
+
+<!-- text in book: //-->
+<path
+ d="
+ M6 -41.35 h3 m3 0 h2 m1 0 h3 m3 0 h7 m1 0 h4 m-27 3.2 h1 m1
+ 0 h13 m3 0 h9 m-27 3.2 h4 m1 0 h3 m3 0 h7 m1 0 h4 m1 0 h3
+ m-27 3.2 h27 m-27 3.2 h1 m1 0 h9 m1 0 h5 m1 0 h9 m-27 3.2
+ h5 m1 0 h7 m1 0 h7 m3 0 h3 m-27 3.2 h1 m3 0 h5 m1 0 h3 m3 0
+ h7 m1 0 h3 m-27 3.2 h4 m3 0 h6 m1 0 h4 m3 0 h6 m-27 3.2 h1
+ m1 0 h9 m1 0 h5 m1 0 h9 m-27 3.2 h2 m1 0 h3 m3 0 h1 m1 0 h3
+ m3 0 h1 m1 0 h3 m3 0 h2 m-27 3.2 h2 m1 0 h5 m1 0 h3 m3 0 h6
+ m1 0 h5 m-27 3.2 h10 m1 0 h16 m-27 3.2 h2 m1 0 h12 m3 0 h9
+ m-27 3.2 h4 m1 0 h5 m3 0 h7 m1 0 h6 m-27 3.2 h27 m-27 3.2
+ h9 m3 0 h15 m-27 3.2 h3 m1 0 h2 m1 0 h6 m1 0 h4 m1 0 h8
+ m-27 3.2 h10 m1 0 h16 m-27 3.2 h27 m-27 3.2 h9 m3 0 h15
+ m-27 3.2 h1.5 m1 0 h19.2 m3 0 h0.6 m1 0 h0.7 m-27 3.2 h0.5
+ m1 0 h25.5 m-27 3.2 h1.2 m1 0 h24.8 m-27 3.2 h27 m-27 3.2
+ m -39 -76.8 h3 m3 0 h4 m1 0 h5 m1 0 h5 m1 0 h4 m-27 3.2 h18
+ m1 0 h8 m-27 3.2 h15 m1 0 h5 m3 0 h3 m-27 3.2 h18 m3 0 h6
+ m-27 3.2 h27 m-27.1 3.2 h3 m3 0 h4 m1 0 h4 m3 0 h7 m1 0 h1
+ m-27 3.2 h5 m1 0 h15 m3 0 h3 m-27 3.2 h4 m1 0 h3 m3 0 h7 m1
+ 0 h5 m1 0 h2 m-27 3.2 h2 m1 0 h3 m3 0 h1.5 m1 0 h3 m3 0 h1
+ m1 0 h4 m3 0 h0.5 m-27 3.2 h27 m-27 3.2 h6 m3 0 h8 m3 0 h5
+ m1 0 h1 m-27 3.2 h2 m3 0 h7 m3 0 h6 m3 0 h3 m-27 3.2 h27
+ m-27 3.2 h5 m1 0 h9 m1 0 h8 m1 0 h2 m-27 3.2 h11 m3 0 h13
+ m-27 3.2 h10 m1 0 h8 m3 0 h5 m-27 3.2 h5 m3 0 h17 m1 0 h1
+ m-27 3.2 h2 m1 0 h5 m1 0 h3 m3 0 h8 m1 0 h3 m-27 3.2 h3 m3
+ 0 h8 m3 0 h5 m3 0 h2 m-27 3.2 h7 m1 0 h5 m3 0 h7 m1 0 h3
+ m-27 3.2 h9 m3 0 h5 m1 0 h7 m1 0 h1 m-27 3.2 h9.5 m1 0 h1
+ m3 0 h1 m1 0 h1 m3 0 h1 m1 0 h1 m3 0 h0.5 m-27 3.2 h27 m-27
+ 3.2 h27 m-27 3.2 m 26.5 -76.8 h0.5 c3 0 5 4 6 5 1 -1 3 -5 6
+ -5 h0.5 m-13 3.2 h0.5 c3 0 5 4 6 5 1 -1 3 -5 6 -5 h0.5 m-13
+ 3.2 h0.5 c3 0 5 4 6 5 1 -1 3 -5 6 -5 h0.5 m-13 3.2 h0.5 c3
+ 0 5 4 6 5 1 -1 3 -5 6 -5 h0.5 m-13 3.2 h0.5 c3 0 5 4 6 5 1
+ -1 3 -5 6 -5 h0.5 m-13 3.2 h0.5 c3 0 5 4 6 5 1 -1 3 -5 6 -5
+ h0.5 m-13 3.2 h0.5 c3 0 5 4 6 5 1 -1 3 -5 6 -5 h0.5 m-13
+ 3.2 h0.5 c3 0 5 4 6 5 1 -1 3 -5 6 -5 h0.5 m-13 3.2 h0.5 c3
+ 0 5 4 6 5 1 -1 3 -5 6 -5 h0.5 m-13 3.2 h0.5 c3 0 5 4 6 5 1
+ -1 3 -5 6 -5 h0.5 m-13 3.2 h0.5 c3 0 5 4 6 5 1 -1 3 -5 6 -5
+ h0.5 m-13 3.2 h0.5 c3 0 5 4 6 5 1 -1 3 -5 6 -5 h0.5 m-13
+ 3.2 h0.5 c3 0 5 4 6 5 1 -1 3 -5 6 -5 h0.5 m-13 3.2 h0.5 c3
+ 0 5 4 6 5 1 -1 3 -5 6 -5 h0.5 m-13 3.2 h0.5 c3 0 5 4 6 5 1
+ -1 3 -5 6 -5 h0.5 m-13 3.2 h0.5 c3 0 5 4 6 5 1 -1 3 -5 6 -5
+ h0.5 m-13 3.2 h0.5 c3 0 5 4 6 5 1 -1 3 -5 6 -5 h0.5 m-13
+ 3.2 h0.5 c3 0 5 4 6 5 1 -1 3 -5 6 -5 h0.5 m-13 3.2 h0.5 c3
+ 0 5 4 6 5 1 -1 3 -5 6 -5 h0.5 m-13 3.2 h0.5 c3 0 5 4 6 5 1
+ -1 3 -5 6 -5 h0.5 m-13 3.2 h0.5 c3 0 5 4 6 5 1 -1 3 -5 6 -5
+ h0.5 m-13 3.2 h0.5 c3 0 5 4 6 5 1 -1 3 -5 6 -5 h0.5 m-13
+ 3.2 h0.5 c3 0 5 4 6 5 1 -1 3 -5 6 -5 h0.5 m-13 3.2 h0.5 c3
+ 0 5 4 6 5 1 -1 3 -5 6 -5 h0.5 m-13 3.2
+ "
+ stroke="#003c6c"
+ stroke-width="1"
+ fill="none"
+/>
+
+<!-- the letter "A" in a box on the upper left side of book: //-->
+<g>
+<path
+ d="
+ M -32.5 -38.15
+ v 9.6
+ h 9.6
+ v -9.6
+ z
+ "
+ stroke="white"
+ stroke-width="4"
+ fill="white"
+/>
+<path
+ d="
+ M -32.5 -38.15
+ v 9.6
+ h 9.6
+ v -9.6
+ z
+ m 1.5 8.5
+ l 3.3 -6.6
+ l 3.3 6.6
+ m -4.95 -3.3
+ h 3.3
+ "
+ stroke="#003c6c"
+ stroke-width="1"
+ fill="none"
+/>
+</g>
+
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+<!-- INSIDE RIBBON IN FRONT OF THE BOOK:                         //-->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+
+<!-- inside ribbon: small ribbon in front of book on right side: //-->
+<path
+ d="
+ M 21 45
+ c -7 -5 -6 -12 1 -13
+ l -7 -2
+ c -15 6 -9 14.5 4 15
+ z
+ "
+ stroke="#003c6c"
+ stroke-width="1"
+ fill="white"
+/>
+
+<!-- inside ribbon: in front of book on left side: //-->
+<path
+ d="
+ M -37 19
+ c 5 0 7 3 10 6
+ s 3.5 2.5 7 5
+ s 4.5 6 9 12
+ s 13 7 15 7
+ s 8 0.5 10 -1
+ s 2 -4.5 5.5 -4.5
+ s 4.5 5 4.5 7
+ s -2 14 -22 13.5
+ s -25 -13 -28.5 -18
+ s -2 -16 -27 -16
+ c 0 -2 0.5 -3 0.5 -5
+ s 0 -4 7 -5
+ S -42 19 -37 19
+ z
+ "
+ stroke="#003c6c"
+ stroke-width="1"
+ fill="white"
+/>
+
+<!-- inside ribbon: big ribbon in front of book on right side: //-->
+<path
+ d="
+ M 9.5 28
+ c 0 2 1 3 1 4
+ s 3 0.5 4 1.5
+ s 20 6 30 6
+ s 13 -4 17.5 -14
+ C 63.1 23 62 20 59 16.5
+ s -5.5 -5.5 -8 -5.5
+ s -9 2 -10 2.5
+ s -10 3 -11 -3.5
+ s 7.5 -7 10 -5
+ s 5.5 3 8.5 3
+ s 6 -2.5 8 -4.5
+ s 6.5 -3 6.5 -6.5
+ s -2 -4 -2 -7
+ c -1 -2 1 5.5 -3 6.5
+ s -3.5 2 -3.5 2
+ c -0.5 -3 2 -7.5 -4.5 -9.5
+ c 4 -5 -5 -5 -3 0
+ l 2.5 3
+ c 0.5 1 1 1 1.5 4.5
+ c -1.5 1 -1.5 1.5 -2.5 3.5
+ s -7 -0.5 -10 1
+ s -3 -3 0.5 -3.5
+ s 2.5 0 3.5 -1.5
+ s -3 0 -4 -1
+ s -3 0.5 -4 1
+ s -7.5 5 -7 12
+ s 1.5 13.5 10 13
+ S 49 12 54 17
+ c 1.5 1.5 0 9.5 -4 9.5
+ c -25 0 -20 -5 -35 -5
+ c -6 0 -5.5 3 -5.5 5
+ z
+ "
+ stroke="#003c6c"
+ stroke-width="1"
+ fill="white"
+/>
+
+<!-- inside ribbon: shadow on it in front of book on right side: //-->
+<path
+ d="
+ M 59 16.5
+ L 54 17
+ "
+ stroke="#003c6c"
+ stroke-width="1"
+/>
+
+
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+<!-- OUTSIDE RIBBON WHICH FORMS A CIRCLE AROUND THE BOOK:        //-->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+
+<!-- outside ribbon: tiny pieces at bottom left side: //-->
+<path
+ d="
+ M -35.14 68.46 c 4.31 -13.21 4.89 -11.29 7.83 -7.65 1.52
+ 1.89 4.51 -0.38 4.42 1.67 -0.14 3.20 -2.86 4.64 -3.64 13.55
+ -4.87 2.56 -8.01 0.52 -8.62 -7.57 z
+ "
+ stroke="#003c6c"
+ stroke-width="1"
+ fill="white"
+/>
+
+<!-- outside ribbon: tiny pieces at bottom right side: //-->
+<path
+ d="
+ M 33.82 77.47 c -22.43 5.28 -10.21 -0.22 -10.89 -4.35
+ -2.43 -14.83 -0.88 -10.35 4.48 -12.64 2.80 -1.19 5.88
+ -2.37 6.56 -0.48 5.58 21.88 5.97 16.15 -0.16 17.47 z
+ "
+ stroke="#003c6c"
+ stroke-width="1"
+ fill="white"
+/>
+
+<!-- outside ribbon: small piece at bottom left side: //-->
+<path
+ d="
+ M -34.24 81.01 c -25.29 -5.73 4.13 -11.49 3.34 -14.84 -2.60
+ -11.03 1.35 -8.99 3.59 -6.41 1.59 1.84 4.51 0.68 4.42 2.73
+ -0.14 3.20 -5.24 0.63 -4.70 4.35 1.08 12.63 6.27 18.25
+ -6.65 14.17 z
+ "
+ stroke="#003c6c"
+ stroke-width="1"
+ fill="white"
+/>
+
+<!-- outside ribbon: small piece at bottom right side: //-->
+<path
+ d="
+ M 35.06 80.48 c -22.43 5.28 -4.47 -9.65 -10.10 -13.96 -6.35
+ -4.86 -2.29 -5.19 2.70 -6.41 2.95 -0.72 5.63 -2.00 6.31
+ -0.11 0.92 2.55 -2.05 1.49 -3.48 5.32 -1.02 2.72 29.49 7.13
+ 4.56 15.16 z
+ "
+ stroke="#003c6c"
+ stroke-width="1"
+ fill="white"
+/>
+
+<!-- outside ribbon: piece at bottom: //-->
+<path
+ d="
+ M -33.14 81.84 c 0.03 -3.32 5.67 -9.86 5.20 -10.75 -2.94
+ -5.62 1.75 -3.55 7.17 -2.67 3.46 0.56 15.30 3.95 20.84 3.53
+ 1.40 -0.11 5.09 0.62 9.69 -1.69 8.33 -4.16 8.98 -0.32 13.60
+ -2.78 5.21 -2.78 5.02 0.51 5.15 3.10 0.17 3.66 -0.56 0.16
+ 0.61 4.67 0.63 2.42 4.50 3.19 3.88 7.37 -0.64 4.39 -4.15
+ 5.10 -14.89 7.29 -9.62 1.96 -6.09 2.70 -17.38 2.76 -8.81
+ 0.05 -6.00 -2.53 -23.36 -2.74 -7.05 -0.08 -10.56 -2.80
+ -10.50 -8.08 z
+ "
+ stroke="#003c6c"
+ stroke-width="1"
+ fill="white"
+/>
+
+<!-- outside ribbon: large piece at top: //-->
+<path
+ d="
+ M 70.44 -55.07 c 1.57 4.27 4.57 4.97 7.17 8.62 2.61 3.65
+ 5.64 12.14 6.85 15.99 2.58 8.22 5.97 12.80 5.96 20.64 -0.02
+ 9.25 0.47 20.47 -0.66 23.78 -1.13 3.31 -4.17 11.47 -5.63
+ 20.85 -1.36 8.73 -8.95 15.95 -10.02 17.18 -1.07 1.23 -4.20
+ 9.73 -12.41 16.15 -3.62 2.83 -8.80 6.32 -13.23 9.54 -3.99
+ 2.90 -5.88 5.68 -8.22 5.35 -2.34 -0.33 -3.94 -3.18 -4.40
+ -6.78 -0.29 -2.25 -0.73 -3.91 -3.82 -7.58 -2.67 -3.17 -3.39
+ -4.15 2.39 -4.82 4.14 -0.48 9.90 -8.72 13.28 -9.78 3.38
+ -1.06 10.22 -11.40 16.58 -25.10 4.62 -9.98 7.28 -23.95 4.66
+ -42.19 -2.47 -17.20 -5.83 -18.57 -11.29 -26.84 -4.41 -6.68
+ -7.52 -11.62 -13.50 -14.80 -0.94 -0.50 -3.62 -1.14 -6.98
+ -4.27 -1.94 -1.81 -4.82 -2.95 -7.35 -4.41 -2.53 -1.46
+ -19.85 -7.84 -29.32 -8.11 -7.81 -0.22 -19.21 1.43 -37.15
+ 11.16 -6.11 3.32 -11.99 8.28 -19.60 16.88 -3.14 3.55 -4.09
+ 7.93 -5.88 11.74 -0.99 2.12 -2.86 3.82 -4.05 5.69 -4.52
+ 7.12 -5.43 20.02 -5.44 25.85 -0.03 9.80 3.61 16.83 3.71
+ 21.52 0.16 7.17 4.23 12.06 9.27 20.65 2.99 5.10 9.20 10.91
+ 12.73 13.27 3.73 2.48 5.55 5.63 10.61 8.05 8.41 4.02 1.87
+ 5.24 0.49 9.46 -0.76 2.33 -1.57 13.24 -8.02 9.13 -3.14
+ -2.00 -8.42 -4.63 -13.35 -8.69 -1.49 -1.23 -9.60 -6.39
+ -12.87 -13.36 -0.99 -2.11 -5.77 -7.14 -9.95 -13.68 -3.75
+ -5.86 -5.74 -12.05 -8.85 -19.54 -3.15 -7.60 -2.93 -18.99
+ -3.66 -26.78 -1.63 -17.56 4.62 -23.34 4.62 -24.78 0.00
+ -5.00 4.95 -17.01 6.62 -19.25 1.67 -2.25 2.62 -4.85 7.52
+ -11.86 1.12 -1.60 10.72 -10.05 15.24 -14.36 7.21 -6.87
+ 29.22 -16.96 33.52 -17.02 6.79 -0.10 11.18 -3.15 21.49
+ -3.72 6.68 -0.37 22.30 4.02 29.61 5.51 13.30 2.71 12.02
+ 5.79 23.95 12.28 11.94 6.48 16.91 11.76 19.38 18.46 z
+ "
+ stroke="#003c6c"
+ stroke-width="1"
+ fill="white"
+/>
+
+
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+<!-- THE STAR                                                    //-->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+
+<g transform="translate(0, -62) scale(15)">
+
+<!-- outside lines of the star: //-->
+<polygon
+ stroke="#003c6c"
+ stroke-width="0.05"
+ fill="white"
+ points="
+ 0.00000 , -1.00000  0.29389 , -0.40451
+ 0.95106 , -0.30902  0.47553 , 0.15451
+ 0.58779 , 0.80902  0.00000 , 0.50000
+ -0.58779 , 0.80902  -0.47553 , 0.15451
+ -0.95106 , -0.30902  -0.29389 , -0.40451
+ "
+/>
+
+<!-- shadow on top ray of star: //-->
+<polygon
+ fill="#003c6c"
+ points="
+ 0, 0
+ 0.00000 , -1.00000
+ 0.29389 , -0.40451
+ "
+/>
+
+<!-- shadow on upper right ray of star: //-->
+<polygon
+ fill="#003c6c"
+ points="
+ 0, 0
+ 0.95106 , -0.30902
+ 0.71329 , -0.07725
+ "
+/>
+
+<!-- shadow on lower right ray of star: //-->
+<polygon
+ fill="#003c6c"
+ points="
+ 0, 0
+ 0.47553 , 0.15451
+ 0.58779 , 0.80902
+ "
+/>
+
+<!-- shadow on lower left ray of star: //-->
+<polygon
+ fill="#003c6c"
+ points="
+ 0, 0
+ 0.00000 , 0.50000
+ -0.58779 , 0.80902
+ "
+/>
+
+<!-- shadow on upper left ray of star: //-->
+<polygon
+ fill="#003c6c"
+ points="
+ 0, 0
+ -0.95106 , -0.30902
+ -0.29389 , -0.40451
+ "
+/>
+
+</g>
+
+
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+<!-- THE DOTS IN THE OUTSIDE RIBBON:                             //-->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+
+<circle r="2.1" cy="81" fill="#003c6c" transform="rotate(18)" />
+<circle r="2.1" cy="81" fill="#003c6c" transform="rotate(-18)" />
+<circle r="2.1" cy="81" fill="#003c6c" transform="rotate(37.5)" />
+<circle r="2.1" cy="81" fill="#003c6c" transform="rotate(-37.5)" />
+<circle r="2.1" cy="81" fill="#003c6c" transform="rotate(82.5)" />
+<circle r="2.1" cy="81" fill="#003c6c" transform="rotate(-145)" />
+<circle r="2.1" cy="81" fill="#003c6c" transform="rotate(-176.5)" />
+
+
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+<!-- TEXT SAYING "THE UNIVERSITY OF CALIFORNIA":                 //-->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+
+<!-- letter "T" in "T"HE //-->
+<g transform="rotate(-129.8) translate(0, -81)">
+<polygon
+ fill="#003c6c"
+ points="
+ -1.3 5.5
+ -1.8 5.8
+ -1.8 6
+ 1.8 6
+ 1.8 5.8
+ 1.3 5.5
+ 1.3 -3.4
+ 5 -3.4
+ 5.3 -2.9
+ 5.5 -2.9
+ 5.5 -6
+ -5.5 -6
+ -5.5 -2.9
+ -5.3 -2.9
+ -5 -3.4
+ -1.3 -3.4
+ "
+/>
+</g>
+
+<!-- letter "H" in T"H"E //-->
+<g transform="rotate(-119.3) translate(0, -81)">
+<polygon
+ fill="#003c6c"
+ points="
+ -5.5 5.5
+ -6 5.8
+ -6 6
+ -2.4 6
+ -2.4 5.8
+ -2.9 5.5
+ -2.9 -5.5
+ -2.4 -5.8
+ -2.4 -6
+ -6 -6
+ -6 -5.8
+ -5.5 -5.5
+ "
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ 5.5 5.5
+ 6 5.8
+ 6 6
+ 2.4 6
+ 2.4 5.8
+ 2.9 5.5
+ 2.9 -5.5
+ 2.4 -5.8
+ 2.4 -6
+ 6 -6
+ 6 -5.8
+ 5.5 -5.5
+ "
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ -5 -1.3
+ -5 1.3
+ 5 1.3
+ 5 -1.3
+ "
+/>
+</g>
+
+<!-- letter "E" in TH"E" //-->
+<g transform="rotate(-108.2) translate(0, -81)">
+<polygon
+ fill="#003c6c"
+ points="
+ -4.5 5.5
+ -5 5.8
+ -5 6
+ 4.5 6
+ 4.5 2.9
+ 4.3 2.9
+ 4 3.4
+ -1.9 3.4
+ -1.9 1.3
+ 2.5 1.3
+ 2.5 -1.3
+ -1.9 -1.3
+ -1.9 -3.4
+ 4 -3.4
+ 4.3 -2.9
+ 4.5 -2.9
+ 4.5 -6
+ -5 -6
+ -5 -5.8
+ -4.5 -5.5
+ "
+/>
+</g>
+
+<!-- letter "U" in "U"NIVERSITY //-->
+<g transform="rotate(-87.3) translate(0, -81)">
+<path
+ d="
+ M-4.2 -6
+ V0
+ C-4.2 6.3 4.2 6.3 4.2 0
+ V-6
+ "
+ stroke="#003c6c"
+ stroke-width="2.6"
+ fill="none"
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ -5.5 -5.5
+ -6 -5.8
+ -6 -6
+ -2.4 -6
+ -2.4 -5.8
+ -2.9 -5.5
+ "
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ 5.5 -5.5
+ 6 -5.8
+ 6 -6
+ 2.4 -6
+ 2.4 -5.8
+ 2.9 -5.5
+ "
+/>
+</g>
+
+<!-- letter "N" in U"N"IVERSITY //-->
+<g transform="rotate(-76.5) translate(0, -81)">
+<polygon
+ fill="#003c6c"
+ points="
+ -5.5 5.5
+ -6 5.8
+ -6 6
+ -2.9 6
+ -2.9 -6
+ -6 -6
+ -6 -5.8
+ -5.5 -5.5
+ "
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ 5.5 5.5
+ 6 5.8
+ 6 6
+ 2.9 6
+ 2.9 -6
+ 6 -6
+ 6 -5.8
+ 5.5 -5.5
+ "
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ -5.5 -6
+ 2.9 6
+ 5.5 6
+ -2.9 -6
+ "
+/>
+</g>
+
+<!-- letter "I" in UN"I"VERSITY //-->
+<g transform="rotate(-68.2) translate(0, -81)">
+<polygon
+ fill="#003c6c"
+ points="
+ -1.3 5.5
+ -1.8 5.8
+ -1.8 6
+ 1.8 6
+ 1.8 5.8
+ 1.3 5.5
+ 1.3 -5.5
+ 1.8 -5.8
+ 1.8 -6
+ -1.8 -6
+ -1.8 -5.8
+ -1.3 -5.5
+ "
+/>
+</g>
+
+<!-- letter "V" in UNI"V"ERSITY //-->
+<g transform="rotate(-60.6) translate(0, -81)">
+<polygon
+ fill="#003c6c"
+ points="
+ -7 -6
+ -1.3 6
+ 1.3 6
+ 7 -6
+ 4.4 -6
+ -1.3 6
+ 1.3 6
+ -4.4 -6
+ "
+/>
+</g>
+
+<!-- letter "E" in UNIV"E"RSITY //-->
+<g transform="rotate(-50) translate(0, -81)">
+<polygon
+ fill="#003c6c"
+ points="
+ -4.5 5.5
+ -5 5.8
+ -5 6
+ 4.5 6
+ 4.5 2.9
+ 4.3 2.9
+ 4 3.4
+ -1.9 3.4
+ -1.9 1.3
+ 2.5 1.3
+ 2.5 -1.3
+ -1.9 -1.3
+ -1.9 -3.4
+ 4 -3.4
+ 4.3 -2.9
+ 4.5 -2.9
+ 4.5 -6
+ -5 -6
+ -5 -5.8
+ -4.5 -5.5
+ "
+/>
+</g>
+
+<!-- letter "R" in UNIVE"R"SITY //-->
+<g transform="rotate(-40) translate(0, -81)">
+<path
+ d="
+ M-4.2 6
+ V-4.7
+ H0
+ C5.5 -4.7 5.5 0 0 0
+ H-4.2
+ M-0.5 0
+ L 3.7 4.7
+ "
+ stroke="#003c6c"
+ stroke-width="2.6"
+ fill="none"
+/>
+<circle
+ cx="3.7"
+ cy="4.7"
+ r="1.3"
+ fill="#003c6c"
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ -5.5 5.5
+ -6 5.8
+ -6 6
+ -2.4 6
+ -2.4 5.8
+ -2.9 5.5
+ "
+/>
+</g>
+
+<!-- letter "S" in UNIVER"S"ITY //-->
+<g transform="rotate(-30.2) translate(0, -81)">
+<path
+ d="
+ M-3.7 3.3
+ C-3.7 3.3 -5 4.7 0 4.7
+ C5 4.7 5 0 0 0
+ C-5 0 -5 -4.7 0 -4.7
+ C5 -4.7 3.7 -3.3 3.7 -3.3
+ "
+ stroke="#003c6c"
+ stroke-width="2.6"
+ fill="none"
+/>
+<circle
+ cx="-3.7"
+ cy="3.3"
+ r="1.3"
+ fill="#003c6c"
+/>
+<circle
+ cx="3.7"
+ cy="-3.3"
+ r="1.3"
+ fill="#003c6c"
+/>
+</g>
+
+<!-- letter "I" in UNIVERS"I"TY //-->
+<g transform="rotate(-23) translate(0, -81)">
+<polygon
+ fill="#003c6c"
+ points="
+ -1.3 5.5
+ -1.8 5.8
+ -1.8 6
+ 1.8 6
+ 1.8 5.8
+ 1.3 5.5
+ 1.3 -5.5
+ 1.8 -5.8
+ 1.8 -6
+ -1.8 -6
+ -1.8 -5.8
+ -1.3 -5.5
+ "
+/>
+</g>
+
+<!-- letter "T" in UNIVERSI"T"Y //-->
+<g transform="rotate(-15.7) translate(0, -81)">
+<polygon
+ fill="#003c6c"
+ points="
+ -1.3 5.5
+ -1.8 5.8
+ -1.8 6
+ 1.8 6
+ 1.8 5.8
+ 1.3 5.5
+ 1.3 -3.4
+ 5 -3.4
+ 5.3 -2.9
+ 5.5 -2.9
+ 5.5 -6
+ -5.5 -6
+ -5.5 -2.9
+ -5.3 -2.9
+ -5 -3.4
+ -1.3 -3.4
+ "
+/>
+</g>
+
+<!-- letter "Y" in UNIVERSIT"Y" //-->
+<g transform="rotate(-6) translate(0, -81)">
+<polygon
+ fill="#003c6c"
+ points="
+ -6 -6
+ -6 -5.8
+ -5 -5.2
+ -5.5 -6
+ -1.3 1.5
+ 1.3 1.5
+ -2.9 -6
+ -2.9 -5.5
+ -2.4 -5.8
+ -2.4 -6
+ "
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ 6 -6
+ 6 -5.8
+ 5 -5.2
+ 5.5 -6
+ 1.3 1.5
+ -1.3 1.5
+ 2.9 -6
+ 2.9 -5.5
+ 2.4 -5.8
+ 2.4 -6
+ "
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ -1.3 1.4
+ -1.3 5.5
+ -1.8 5.8
+ -1.8 6
+ 1.8 6
+ 1.8 5.8
+ 1.3 5.5
+ 1.3 1.4
+ "
+/>
+</g>
+
+<!-- letter "O" in "O"F //-->
+<g transform="rotate(14.4) translate(0, -81)">
+<circle
+ r="4.7"
+ stroke="#003c6c"
+ stroke-width="2.6"
+ fill="none"
+/>
+</g>
+
+<!-- letter "F" in O"F" //-->
+<g transform="rotate(25.2) translate(0, -81)">
+<polygon
+ fill="#003c6c"
+ points="
+ -4.5 5.5
+ -5 5.8
+ -5 6
+ -1.4 6
+ -1.4 5.8
+ -1.9 5.5
+ -1.9 1.8
+ 3.5 1.8
+ 3.5 -0.8
+ -1.9 -0.8
+ -1.9 -3.4
+ 4 -3.4
+ 4.3 -2.9
+ 4.5 -2.9
+ 4.5 -6
+ -5 -6
+ -5 -5.8
+ -4.5 -5.5
+ "
+/>
+</g>
+
+<!-- letter "C" in "C"ALIFORNIA //-->
+<g transform="rotate(45.4) translate(0, -81)">
+<circle
+ r="4.7"
+ stroke="#003c6c"
+ stroke-width="2.6"
+ fill="none"
+/>
+<rect
+ y="-2"
+ width="6.5"
+ height="4"
+ fill="white"
+/>
+</g>
+
+<!-- letter "A" in C"A"LIFORNIA //-->
+<g transform="rotate(55.7) translate(0, -81)">
+<polygon
+ fill="#003c6c"
+ points="
+ -6 6
+ -5.5 5.2
+ -6.5 5.8
+ -6.5 6
+ -2.9 6
+ -2.9 5.8
+ -3.9 5.2
+ -3.4 6
+ -2.5 2.7
+ 0.1 2.7
+ 0.1 0.1
+ -1.433 0.1
+ 0.6 -6
+ -2.5 -6
+ -2.5 -5.8
+ -1.5 -5.2
+ -2 -6
+ "
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ 6 6
+ 5.5 5.2
+ 6.5 5.8
+ 6.5 6
+ 2.9 6
+ 2.9 5.8
+ 3.9 5.2
+ 3.4 6
+ 2.5 2.7
+ -0.1 2.7
+ -0.1 0.1
+ 1.433 0.1
+ -0.6 -6
+ 2.5 -6
+ 2.5 -5.8
+ 1.5 -5.2
+ 2 -6
+ "
+/>
+</g>
+
+<!-- letter "L" in CA"L"IFORNIA //-->
+<g transform="rotate(66.8) translate(0, -81)">
+<polygon
+ fill="#003c6c"
+ points="
+ -5 5.5
+ -5.5 5.8
+ -5.5 6
+ 5 6
+ 5 2.9
+ 4.8 2.9
+ 4.5 3.4
+ -2.4 3.4
+ -2.4 -6
+ -5.5 -6
+ -5.5 -5.8
+ -5 -5.5
+ "
+/>
+</g>
+
+<!-- letter "I" in CAL"I"FORNIA //-->
+<g transform="rotate(73.7) translate(0, -81)">
+<polygon
+ fill="#003c6c"
+ points="
+ -1.3 5.5
+ -1.8 5.8
+ -1.8 6
+ 1.8 6
+ 1.8 5.8
+ 1.3 5.5
+ 1.3 -5.5
+ 1.8 -5.8
+ 1.8 -6
+ -1.8 -6
+ -1.8 -5.8
+ -1.3 -5.5
+ "
+/>
+</g>
+
+<!-- letter "F" in CALI"F"ORNIA //-->
+<g transform="rotate(81.5) translate(0, -81)">
+<polygon
+ fill="#003c6c"
+ points="
+ -4.5 5.5
+ -5 5.8
+ -5 6
+ -1.4 6
+ -1.4 5.8
+ -1.9 5.5
+ -1.9 1.8
+ 3.5 1.8
+ 3.5 -0.8
+ -1.9 -0.8
+ -1.9 -3.4
+ 4 -3.4
+ 4.3 -2.9
+ 4.5 -2.9
+ 4.5 -6
+ -5 -6
+ -5 -5.8
+ -4.5 -5.5
+ "
+/>
+</g>
+
+<!-- letter "O" in CALIF"O"RNIA //-->
+<g transform="rotate(91.2) translate(0, -81)">
+<circle
+ r="4.7"
+ stroke="#003c6c"
+ stroke-width="2.6"
+ fill="none"
+/>
+</g>
+
+<!-- letter "R" in CALIFO"R"NIA //-->
+<g transform="rotate(102.8) translate(0, -81)">
+<path
+ d="
+ M-4.2 6
+ V-4.7
+ H0
+ C5.5 -4.7 5.5 0 0 0
+ H-4.2
+ M-0.5 0
+ L 3.7 4.7
+ "
+ stroke="#003c6c"
+ stroke-width="2.6"
+ fill="none"
+/>
+<circle
+ cx="3.7"
+ cy="4.7"
+ r="1.3"
+ fill="#003c6c"
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ -5.5 5.5
+ -6 5.8
+ -6 6
+ -2.4 6
+ -2.4 5.8
+ -2.9 5.5
+ "
+/>
+</g>
+
+<!-- letter "N" in CALIFOR"N"IA //-->
+<g transform="rotate(114.6) translate(0, -81)">
+<polygon
+ fill="#003c6c"
+ points="
+ -5.5 5.5
+ -6 5.8
+ -6 6
+ -2.9 6
+ -2.9 -6
+ -6 -6
+ -6 -5.8
+ -5.5 -5.5
+ "
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ 5.5 5.5
+ 6 5.8
+ 6 6
+ 2.9 6
+ 2.9 -6
+ 6 -6
+ 6 -5.8
+ 5.5 -5.5
+ "
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ -5.5 -6
+ 2.9 6
+ 5.5 6
+ -2.9 -6
+ "
+/>
+</g>
+
+<!-- letter "I" in CALIFORN"I"A //-->
+<g transform="rotate(123) translate(0, -81)">
+<polygon
+ fill="#003c6c"
+ points="
+ -1.3 5.5
+ -1.8 5.8
+ -1.8 6
+ 1.8 6
+ 1.8 5.8
+ 1.3 5.5
+ 1.3 -5.5
+ 1.8 -5.8
+ 1.8 -6
+ -1.8 -6
+ -1.8 -5.8
+ -1.3 -5.5
+ "
+/>
+</g>
+
+<!-- letter "A" in CALIFORNI"A" //-->
+<g transform="rotate(131.2) translate(0, -81)">
+<polygon
+ fill="#003c6c"
+ points="
+ -6 6
+ -5.5 5.2
+ -6.5 5.8
+ -6.5 6
+ -2.9 6
+ -2.9 5.8
+ -3.9 5.2
+ -3.4 6
+ -2.5 2.7
+ 0.1 2.7
+ 0.1 0.1
+ -1.433 0.1
+ 0.6 -6
+ -2.5 -6
+ -2.5 -5.8
+ -1.5 -5.2
+ -2 -6
+ "
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ 6 6
+ 5.5 5.2
+ 6.5 5.8
+ 6.5 6
+ 2.9 6
+ 2.9 5.8
+ 3.9 5.2
+ 3.4 6
+ 2.5 2.7
+ -0.1 2.7
+ -0.1 0.1
+ 1.433 0.1
+ -0.6 -6
+ 2.5 -6
+ 2.5 -5.8
+ 1.5 -5.2
+ 2 -6
+ "
+/>
+</g>
+
+
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+<!-- TEXT SAYING "1868":                                         //-->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+
+<!-- number "1"  in "1"868 //-->
+<g transform="rotate(13) translate(0, 81)">
+<polygon
+ fill="#003c6c"
+ points="
+ -1.3 5.5
+ -1.8 5.8
+ -1.8 6
+ 1.8 6
+ 1.8 5.8
+ 1.3 5.5
+ 1.3 -6
+ -1.9 -2.8
+ -1.3 -2.8
+ "
+/>
+</g>
+
+<!-- number "8" in 1"8"68 //-->
+<g transform="rotate(6.5) translate(0, 81)">
+<ellipse
+ cy="-2.5"
+ rx="2.5"
+ ry="2.2"
+ stroke="#003c6c"
+ stroke-width="2.6"
+ fill="none"
+/>
+<ellipse
+ cy="2.2"
+ rx="3.5"
+ ry="2.5"
+ stroke="#003c6c"
+ stroke-width="2.6"
+ fill="none"
+/>
+</g>
+
+<!-- number "6" in 18"6"8 //-->
+<g transform="rotate(-2.1) translate(0, 81)">
+<ellipse
+ cy="2.2"
+ rx="3.5"
+ ry="2.5"
+ stroke="#003c6c"
+ stroke-width="2.6"
+ fill="none"
+/>
+<path
+ d="
+ M-3.5 2.2
+ C-3.5 -6 2 -5.5 4 -3.5
+ "
+ stroke="#003c6c"
+ stroke-width="2.6"
+ fill="none"
+/>
+</g>
+
+<!-- number "8" in 186"8" //-->
+<g transform="rotate(-10.8) translate(0, 81)">
+<ellipse
+ cy="-2.5"
+ rx="2.5"
+ ry="2.2"
+ stroke="#003c6c"
+ stroke-width="2.6"
+ fill="none"
+/>
+<ellipse
+ cy="2.2"
+ rx="3.5"
+ ry="2.5"
+ stroke="#003c6c"
+ stroke-width="2.6"
+ fill="none"
+/>
+</g>
+
+
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+<!-- TEXT SAYING "LET THERE BE LIGHT":                           //-->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+
+<!-- letter "L" in "L"ET //-->
+<g transform="translate(-36.5, 26) rotate(23) scale(0.55)">
+<polygon
+ fill="#003c6c"
+ points="
+ -5 5.5
+ -5.5 5.8
+ -5.5 6
+ 5 6
+ 5 2.9
+ 4.8 2.9
+ 4.5 3.4
+ -2.4 3.4
+ -2.4 -6
+ -5.5 -6
+ -5.5 -5.8
+ -5 -5.5
+ "
+/>
+</g>
+
+<!-- letter "E" in L"E"T //-->
+<g transform="translate(-30.5, 29.3) rotate(37) scale(0.55)">
+<polygon
+ fill="#003c6c"
+ points="
+ -4.5 5.5
+ -5 5.8
+ -5 6
+ 4.5 6
+ 4.5 2.9
+ 4.3 2.9
+ 4 3.4
+ -1.9 3.4
+ -1.9 1.3
+ 2.5 1.3
+ 2.5 -1.3
+ -1.9 -1.3
+ -1.9 -3.4
+ 4 -3.4
+ 4.3 -2.9
+ 4.5 -2.9
+ 4.5 -6
+ -5 -6
+ -5 -5.8
+ -4.5 -5.5
+ "
+/>
+</g>
+
+<!-- letter "T" LE"T" //-->
+<g transform="translate(-26, 34) rotate(54) scale(0.55)">
+<polygon
+ fill="#003c6c"
+ points="
+ -1.3 5.5
+ -1.8 5.8
+ -1.8 6
+ 1.8 6
+ 1.8 5.8
+ 1.3 5.5
+ 1.3 -3.4
+ 5 -3.4
+ 5.3 -2.9
+ 5.5 -2.9
+ 5.5 -6
+ -5.5 -6
+ -5.5 -2.9
+ -5.3 -2.9
+ -5 -3.4
+ -1.3 -3.4
+ "
+/>
+</g>
+
+<!-- letter "T" "T"HERE //-->
+<g transform="translate(-20.5, 42.5) rotate(55) scale(0.55)">
+<polygon
+ fill="#003c6c"
+ points="
+ -1.3 5.5
+ -1.8 5.8
+ -1.8 6
+ 1.8 6
+ 1.8 5.8
+ 1.3 5.5
+ 1.3 -3.4
+ 5 -3.4
+ 5.3 -2.9
+ 5.5 -2.9
+ 5.5 -6
+ -5.5 -6
+ -5.5 -2.9
+ -5.3 -2.9
+ -5 -3.4
+ -1.3 -3.4
+ "
+/>
+</g>
+
+<!-- letter "H" in T"H"ERE //-->
+<g transform="translate(-16.5, 48.2) rotate(50) scale(0.55)">
+<polygon
+ fill="#003c6c"
+ points="
+ -5.5 5.5
+ -6 5.8
+ -6 6
+ -2.4 6
+ -2.4 5.8
+ -2.9 5.5
+ -2.9 -5.5
+ -2.4 -5.8
+ -2.4 -6
+ -6 -6
+ -6 -5.8
+ -5.5 -5.5
+ "
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ 5.5 5.5
+ 6 5.8
+ 6 6
+ 2.4 6
+ 2.4 5.8
+ 2.9 5.5
+ 2.9 -5.5
+ 2.4 -5.8
+ 2.4 -6
+ 6 -6
+ 6 -5.8
+ 5.5 -5.5
+ "
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ -5 -1.3
+ -5 1.3
+ 5 1.3
+ 5 -1.3
+ "
+/>
+</g>
+
+<!-- letter "E" in TH"E"RE //-->
+<g transform="translate(-10.7, 53.3) rotate(32) scale(0.55)">
+<polygon
+ fill="#003c6c"
+ points="
+ -4.5 5.5
+ -5 5.8
+ -5 6
+ 4.5 6
+ 4.5 2.9
+ 4.3 2.9
+ 4 3.4
+ -1.9 3.4
+ -1.9 1.3
+ 2.5 1.3
+ 2.5 -1.3
+ -1.9 -1.3
+ -1.9 -3.4
+ 4 -3.4
+ 4.3 -2.9
+ 4.5 -2.9
+ 4.5 -6
+ -5 -6
+ -5 -5.8
+ -4.5 -5.5
+ "
+/>
+</g>
+
+<!-- letter "R" in THE"R"E //-->
+<g transform="translate(-4, 56) rotate(15) scale(0.55)">
+<path
+ d="
+ M-4.2 6
+ V-4.7
+ H0
+ C5.5 -4.7 5.5 0 0 0
+ H-4.2
+ M-0.5 0
+ L 3.7 4.7
+ "
+ stroke="#003c6c"
+ stroke-width="2.6"
+ fill="none"
+/>
+<circle
+ cx="3.7"
+ cy="4.7"
+ r="1.3"
+ fill="#003c6c"
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ -5.5 5.5
+ -6 5.8
+ -6 6
+ -2.4 6
+ -2.4 5.8
+ -2.9 5.5
+ "
+/>
+</g>
+
+<!-- letter "E" in THER"E" //-->
+<g transform="translate(2.5, 57) rotate(5) scale(0.55)">
+<polygon
+ fill="#003c6c"
+ points="
+ -4.5 5.5
+ -5 5.8
+ -5 6
+ 4.5 6
+ 4.5 2.9
+ 4.3 2.9
+ 4 3.4
+ -1.9 3.4
+ -1.9 1.3
+ 2.5 1.3
+ 2.5 -1.3
+ -1.9 -1.3
+ -1.9 -3.4
+ 4 -3.4
+ 4.3 -2.9
+ 4.5 -2.9
+ 4.5 -6
+ -5 -6
+ -5 -5.8
+ -4.5 -5.5
+ "
+/>
+</g>
+
+<!-- letter "B" in "B"E //-->
+<g transform="translate(11.9, 55.5) rotate(-22) scale(0.55)">
+<path
+ d="
+ M-4.2 1.3
+ V-4.7
+ H0
+ C5.5 -4.7 5.5 0 0 0
+ H-4.2
+ M-4.2 -1.3
+ V4.7
+ H0
+ C5.5 4.7 5.5 0 0 0
+ H-4.2
+ "
+ stroke="#003c6c"
+ stroke-width="2.6"
+ fill="none"
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ -5.5 5.5
+ -6 5.8
+ -6 6
+ -4.2 6
+ "
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ -5.5 -5.5
+ -6 -5.8
+ -6 -6
+ -4.2 -6
+ "
+/>
+</g>
+
+<!-- letter "E" in B"E" //-->
+<g transform="translate(18, 52.3) rotate(-32) scale(0.55)">
+<polygon
+ fill="#003c6c"
+ points="
+ -4.5 5.5
+ -5 5.8
+ -5 6
+ 4.5 6
+ 4.5 2.9
+ 4.3 2.9
+ 4 3.4
+ -1.9 3.4
+ -1.9 1.3
+ 2.5 1.3
+ 2.5 -1.3
+ -1.9 -1.3
+ -1.9 -3.4
+ 4 -3.4
+ 4.3 -2.9
+ 4.5 -2.9
+ 4.5 -6
+ -5 -6
+ -5 -5.8
+ -4.5 -5.5
+ "
+/>
+</g>
+
+<!-- letter "L" in "L"IGHT //-->
+<g transform="translate(25, 30) rotate(8) scale(0.55)">
+<polygon
+ fill="#003c6c"
+ points="
+ -5 5.5
+ -5.5 5.8
+ -5.5 6
+ 5 6
+ 5 2.9
+ 4.8 2.9
+ 4.5 3.4
+ -2.4 3.4
+ -2.4 -6
+ -5.5 -6
+ -5.5 -5.8
+ -5 -5.5
+ "
+/>
+</g>
+
+<!-- letter "I" in L"I"GHT //-->
+<g transform="translate(30, 30.7) rotate(10) scale(0.55)">
+<polygon
+ fill="#003c6c"
+ points="
+ -1.3 5.5
+ -1.8 5.8
+ -1.8 6
+ 1.8 6
+ 1.8 5.8
+ 1.3 5.5
+ 1.3 -5.5
+ 1.8 -5.8
+ 1.8 -6
+ -1.8 -6
+ -1.8 -5.8
+ -1.3 -5.5
+ "
+/>
+</g>
+
+<!-- letter "G" in LI"G"HT //-->
+<g transform="translate(35.4, 32.3) rotate(8) scale(0.55)">
+<path
+ d="
+ M4 -3.5
+ C-3 -9   -7 4.7   0 4.7
+ L3.5 4.7
+ L3.5 0
+ "
+ stroke="#003c6c"
+ stroke-width="2.6"
+ fill="none"
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ 2.2 0.5
+ 1.7 0.2
+ 1.7 0
+ 5.3 0
+ 5.3 0.2
+ 4.8 0.5
+ "
+/>
+</g>
+
+<!-- letter "H" in LIG"H"T //-->
+<g transform="translate(43.3, 33) rotate(0) scale(0.55)">
+<polygon
+ fill="#003c6c"
+ points="
+ -5.5 5.5
+ -6 5.8
+ -6 6
+ -2.4 6
+ -2.4 5.8
+ -2.9 5.5
+ -2.9 -5.5
+ -2.4 -5.8
+ -2.4 -6
+ -6 -6
+ -6 -5.8
+ -5.5 -5.5
+ "
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ 5.5 5.5
+ 6 5.8
+ 6 6
+ 2.4 6
+ 2.4 5.8
+ 2.9 5.5
+ 2.9 -5.5
+ 2.4 -5.8
+ 2.4 -6
+ 6 -6
+ 6 -5.8
+ 5.5 -5.5
+ "
+/>
+<polygon
+ fill="#003c6c"
+ points="
+ -5 -1.3
+ -5 1.3
+ 5 1.3
+ 5 -1.3
+ "
+/>
+</g>
+
+<!-- letter "T" in LIGH"T" //-->
+<g transform="translate(50.5, 32.5) rotate(-5) scale(0.55)">
+<polygon
+ fill="#003c6c"
+ points="
+ -1.3 5.5
+ -1.8 5.8
+ -1.8 6
+ 1.8 6
+ 1.8 5.8
+ 1.3 5.5
+ 1.3 -3.4
+ 5 -3.4
+ 5.3 -2.9
+ 5.5 -2.9
+ 5.5 -6
+ -5.5 -6
+ -5.5 -2.9
+ -5.3 -2.9
+ -5 -3.4
+ -1.3 -3.4
+ "
+/>
+</g>
+
+
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+<!-- END TAG OF THE SVG FILE:                                    //-->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //-->
+
+</svg>

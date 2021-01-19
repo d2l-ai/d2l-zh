@@ -326,13 +326,13 @@ train(poly_features[:n_train, :], poly_features[n_train:, :],
 1. 你能期待看到泛化误差为零吗？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/96)
+[Discussions](https://discuss.d2l.ai/t/1807)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/97)
+[Discussions](https://discuss.d2l.ai/t/1806)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/234)
+[Discussions](https://discuss.d2l.ai/t/1805)
 :end_tab:

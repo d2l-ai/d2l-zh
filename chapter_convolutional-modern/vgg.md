@@ -210,13 +210,13 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 1. 请参考 VGG 论文 :cite:`Simonyan.Zisserman.2014` 中的表1构建其他常见模型，如 VGG-16 或 VGG-19。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/77)
+[Discussions](https://discuss.d2l.ai/t/1867)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/78)
+[Discussions](https://discuss.d2l.ai/t/1866)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/277)
+[Discussions](https://discuss.d2l.ai/t/1865)
 :end_tab:

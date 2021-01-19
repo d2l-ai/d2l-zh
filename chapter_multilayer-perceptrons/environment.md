@@ -246,4 +246,4 @@ $$
 3. 实现协变量偏移纠正。
 4. 除了分布偏移，还有什么会影响经验风险接近真实风险的程度？
 
-[Discussions](https://discuss.d2l.ai/t/105)
+[Discussions](https://discuss.d2l.ai/t/1822)

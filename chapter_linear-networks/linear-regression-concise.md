@@ -345,7 +345,7 @@ print('b的估计误差：', true_b - b)
 1. 查看 MXNet 文档，了解模块 `gluon.loss` 和 `init` 中提供了哪些损失函数和初始化方法。用Huber损失来代替。
 1. 你如何访问 `dense.weight` 的梯度？
 
-[Discussions](https://discuss.d2l.ai/t/44)
+[Discussions](https://discuss.d2l.ai/t/1782)
 :end_tab:
 
 :begin_tab:`pytorch`
@@ -353,11 +353,11 @@ print('b的估计误差：', true_b - b)
 1. 查看 PyTorch 文档，了解提供了哪些损失函数和初始化方法。用Huber损失来代替。
 1. 你如何访问 `net[0].weight` 的梯度？
 
-[Discussions](https://discuss.d2l.ai/t/45)
+[Discussions](https://discuss.d2l.ai/t/1781)
 :end_tab:
 
 :begin_tab:`tensorflow`
 1. 查看 TensorFlow 文档，了解提供了哪些损失函数和初始化方法。用Huber损失来代替。
 
-[Discussions](https://discuss.d2l.ai/t/204)
+[Discussions](https://discuss.d2l.ai/t/1780)
 :end_tab:

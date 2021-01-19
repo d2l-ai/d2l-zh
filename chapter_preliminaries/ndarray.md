@@ -64,6 +64,7 @@ x
 #@tab all
 x.shape
 ```
+
 如果我们只想知道张量中元素的总数，即所有形状元素的乘积，我们可以检查它的大小（size）。
 因为这里在处理的是一个向量，所以它的`shape`与它的大小相同。
 
@@ -413,7 +414,6 @@ computation(X, Y)
 
 转换为 NumPy 张量很容易，反之也很容易。转换后的结果不共享内存。这个小的不便实际上是非常重要的：当等待Python的NumPy包希望使用相同的内存块执行其他操作时，且在 CPU 或 GPU 上执行操作时，你不希望停止计算。
 
-
 ```{.python .input}
 A = X.asnumpy()
 B = np.array(A)
@@ -463,13 +463,13 @@ a, a.item(), float(a), int(a)
 1. 用其他形状（例如三维张量）替换广播机制中逐元素操作的两个张量。结果是否与预期相同？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/26)
+[Discussions](https://discuss.d2l.ai/t/1745)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/27)
+[Discussions](https://discuss.d2l.ai/t/1747)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/187)
+[Discussions](https://discuss.d2l.ai/t/1746)
 :end_tab:

@@ -335,13 +335,13 @@ d_grad == d / a
 1. 使$f(x) = \sin(x)$，绘制$f(x)$ 和$\frac{df(x)}{dx}$的图像，其中后者不使用$f'(x) = \cos(x)$。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/34)
+[Discussions](https://discuss.d2l.ai/t/1758)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/35)
+[Discussions](https://discuss.d2l.ai/t/1759)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/200)
+[Discussions](https://discuss.d2l.ai/t/1757)
 :end_tab:

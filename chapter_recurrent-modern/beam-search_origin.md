@@ -137,7 +137,7 @@ What if only accuracy matters?
 Obviously, exhaustive search.
 What if only computational cost matters?
 Clearly, greedy search.
-A real-world applications usually asks
+A real-world application usually asks
 a complicated question,
 somewhere in between those two extremes.
 

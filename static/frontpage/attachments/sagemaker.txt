@@ -1,0 +1,7 @@
+If you plan to use D2L to teach your class in the 2021 Spring semester, you may apply for free computing resources on AWS for your class, such as Amazon SageMaker and other AWS ML/AI services.
+
+Please email to sagemaker-edu@amazon.com by 11/22/2020 with
+
+i) your name, email, title, department, and school;
+ii) your course name/level, class start/end date, and the number of students;
+iii) course content and how D2L and Amazon SageMaker will be used in teaching.
