@@ -59,7 +59,7 @@ stage("Build and Publish") {
 
       sh label:"Build PDF", script:"""set -ex
       conda activate ${ENV_NAME}
-      # d2lbook build pdf
+      d2lbook build pdf
       """
 
       if (env.BRANCH_NAME == 'release') {
