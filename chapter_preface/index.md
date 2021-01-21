@@ -80,11 +80,11 @@ d2l = sys.modules[__name__]
 ```
 
 :begin_tab:`mxnet`
-本书中的大部分代码都基于 Apache MxNet。MxNet 是深度学习的开源框架，是 AWS（Amazon Web 服务）以及许多学院和公司的首选选择。本书中的所有代码都通过了最新 MxNet 版本的测试。然而，由于深度学习的快速发展，一些代码
-*在未来版本的 MxNet 中可能无法正常工作。
+本书中的大部分代码都基于 Apache MXNet。MXNet 是深度学习的开源框架，是 AWS（Amazon Web 服务）以及许多学院和公司的首选选择。本书中的所有代码都通过了最新 MXNet 版本的测试。然而，由于深度学习的快速发展，一些代码
+*在未来版本的 MXNet 中可能无法正常工作。
 但是，我们计划保持在线版本最新。如果您遇到任何此类问题，请咨询 :ref:`chap_installation` 以更新您的代码和运行时环境。
 
-以下是我们如何从 MxNet 导入模块。
+以下是我们如何从 MXNet 导入模块。
 :end_tab:
 
 :begin_tab:`pytorch`
