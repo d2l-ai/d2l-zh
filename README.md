@@ -7,10 +7,10 @@
 <h5 align="center"><i>理解深度学习的最佳方法是学以致用。</i></h5>
 
 <p align="center">
-  <img width="200"  src="img/frontpage/eq.jpg">
-  <img width="200"  src="img/frontpage/figure.jpg">
-  <img width="200"  src="img/frontpage/code.jpg">
-  <img width="200"  src="img/frontpage/notebook.gif">
+  <img width="200"  src="static/frontpage/_images/eq.jpg">
+  <img width="200"  src="static/frontpage/_images/figure.jpg">
+  <img width="200"  src="static/frontpage/_images/code.jpg">
+  <img width="200"  src="static/frontpage/_images/notebook.gif">
 </p>
 
 本开源项目代表了我们的一种尝试：我们将教给读者概念、背景知识和代码；我们将在同一个地方阐述剖析问题所需的批判性思维、解决问题所需的数学知识，以及实现解决方案所需的工程技能。
