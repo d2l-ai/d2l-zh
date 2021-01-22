@@ -163,12 +163,10 @@ net(X)
 ```{.python .input}
 class MySequential(nn.Block):
     def add(self, block):
-        '''
-        这里，`block`是`nn.Block`子类的一个实例，我们假设它有一个唯一的名称。
-        我们把它保存在`nn.Block`类的成员变量 `_children` 中。
-        `block`的类型是 OrderedDict。当`MySequential`实例调用`initialize`
-        函数时，系统会自动初始化`_children`的所有成员
-        '''
+        # 这里，`block`是`nn.Block`子类的一个实例，我们假设它有一个唯一的名称。
+        # 我们把它保存在`nn.Block`类的成员变量 `_children` 中。
+        # `block`的类型是 OrderedDict。当`MySequential`实例调用`initialize`
+        # 函数时，系统会自动初始化`_children`的所有成员
         self._children[block.name] = block
 
     def forward(self, X):
