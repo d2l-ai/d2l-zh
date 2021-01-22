@@ -8,6 +8,7 @@
 
 ```{.python .input}
 from mxnet import gluon, np, npx
+from mxnet.gluon.parameter import Parameter
 from mxnet.gluon import nn
 npx.set_np()
 
@@ -111,12 +112,12 @@ tf.reduce_mean(Y)
 class MyDense(nn.Block):
     def __init__(self, units, in_units, **kwargs):
         super().__init__(**kwargs)
-        self.weight = self.params.get('weight', shape=(in_units, units))
-        self.bias = self.params.get('bias', shape=(units,))
+        self.weight = Parameter('weight', shape=(in_units, units))
+        self.bias = Parameter('bias', shape=(units,))
 
     def forward(self, x):
-        linear = np.dot(x, self.weight.data(ctx=x.ctx)) + self.bias.data(
-            ctx=x.ctx)
+        linear = np.dot(x, self.weight.data(ctx=x.ctx)) + \
+            self.bias.data(ctx=x.ctx)
         return npx.relu(linear)
 ```
 
