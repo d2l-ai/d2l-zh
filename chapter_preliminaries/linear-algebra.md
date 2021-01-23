@@ -586,7 +586,7 @@ A.shape, x.shape, tf.linalg.matvec(A, x)
 
 ## 矩阵-矩阵乘法
 
-如果你已经掌握了点积和矩阵-向量积的知识，那么 *矩阵-矩阵乘法*（matrix-matrix multiplication） 应该很简单。
+如果你已经掌握了点积和矩阵-向量积的知识，那么 **矩阵-矩阵乘法**（matrix-matrix multiplication） 应该很简单。
 
 假设我们有两个矩阵$\mathbf{A} \in \mathbb{R}^{n \times k}$和$\mathbf{B} \in \mathbb{R}^{k \times m}$：
 
@@ -655,7 +655,7 @@ B = tf.ones((4, 3), tf.float32)
 tf.matmul(A, B)
 ```
 
-矩阵矩阵乘法可以简单地称为 * 矩阵乘法 *，不应与 Hadamard 产品混淆。
+矩阵矩阵乘法可以简单地称为 **矩阵乘法**，不应与 哈达玛积 混淆。
 
 ## 范数
 :label:`subsec_lin-algebra-norms`

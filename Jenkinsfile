@@ -12,9 +12,6 @@ stage("Build and Publish") {
       checkout scm
       // conda environment
       def ENV_NAME = "${TASK}-${EXECUTOR_NUMBER}";
-      // assign two GPUs to each build
-      def EID = EXECUTOR_NUMBER.toInteger()
-      def CUDA_VISIBLE_DEVICES=(EID*2).toString() + ',' + (EID*2+1).toString();
 
       sh label: "Build Environment", script: """set -ex
       conda env update -n ${ENV_NAME} -f static/build.yml
@@ -29,7 +26,6 @@ stage("Build and Publish") {
 
       sh label: "Execute Notebooks", script: """set -ex
       conda activate ${ENV_NAME}
-      export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES}
       ./static/cache.sh restore _build/eval/data
       d2lbook build eval
       ./static/cache.sh store _build/eval/data
@@ -37,7 +33,6 @@ stage("Build and Publish") {
 
       sh label: "Execute Notebooks [Pytorch]", script: """set -ex
       conda activate ${ENV_NAME}
-      export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES}
       ./static/cache.sh restore _build/eval_pytorch/data
       d2lbook build eval --tab pytorch
       ./static/cache.sh store _build/eval_pytorch/data
@@ -45,7 +40,6 @@ stage("Build and Publish") {
 
       sh label: "Execute Notebooks [Tensorflow]", script: """set -ex
       conda activate ${ENV_NAME}
-      export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES}
       ./static/cache.sh restore _build/eval_tensorflow/data
       export TF_CPP_MIN_LOG_LEVEL=3
       d2lbook build eval --tab tensorflow
@@ -59,7 +53,7 @@ stage("Build and Publish") {
 
       sh label:"Build PDF", script:"""set -ex
       conda activate ${ENV_NAME}
-      # d2lbook build pdf
+      d2lbook build pdf
       """
 
       if (env.BRANCH_NAME == 'release') {
@@ -72,7 +66,7 @@ stage("Build and Publish") {
       } else {
         sh label:"Publish", script:"""set -ex
         conda activate ${ENV_NAME}
-        d2lbook deploy html --s3 s3://preview.d2l.ai/${JOB_NAME}/
+        d2lbook deploy html pdf --s3 s3://preview.d2l.ai/${JOB_NAME}/
         """
         if (env.BRANCH_NAME.startsWith("PR-")) {
             pullRequest.comment("Job ${JOB_NAME}/${BUILD_NUMBER} is complete. \nCheck the results at http://preview.d2l.ai/${JOB_NAME}/")

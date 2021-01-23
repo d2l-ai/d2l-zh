@@ -86,7 +86,6 @@ print('features:', features[0],'\nlabel:', labels[0])
 ```{.python .input}
 #@tab all
 d2l.set_figsize()
-# 分号仅用于显示绘图
 d2l.plt.scatter(d2l.numpy(features[:, 1]), d2l.numpy(labels), 1);
 ```
 
