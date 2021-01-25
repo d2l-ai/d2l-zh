@@ -207,7 +207,7 @@ class BatchNorm(nn.Block):
         self.moving_var = np.zeros(shape)
 
     def forward(self, X):
-        # 如果 `X` 不在内存上，将 `moving_mean` 和 `moving_var` 
+        # 如果 `X` 不在内存上，将 `moving_mean` 和 `moving_var`
         # 复制到 `X` 所在显存上
         if self.moving_mean.ctx != X.ctx:
             self.moving_mean = self.moving_mean.copyto(X.ctx)
@@ -238,7 +238,7 @@ class BatchNorm(nn.Module):
         self.moving_var = torch.zeros(shape)
 
     def forward(self, X):
-        # 如果 `X` 不在内存上，将 `moving_mean` 和 `moving_var` 
+        # 如果 `X` 不在内存上，将 `moving_mean` 和 `moving_var`
         # 复制到 `X` 所在显存上
         if self.moving_mean.device != X.device:
             self.moving_mean = self.moving_mean.to(X.device)
@@ -369,14 +369,14 @@ def net():
 #@tab mxnet, pytorch
 lr, num_epochs, batch_size = 1.0, 10, 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
-d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
+d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 ```
 
 ```{.python .input}
 #@tab tensorflow
 lr, num_epochs, batch_size = 1.0, 10, 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
-net = d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
+net = d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 ```
 
 让我们来看看从第一个批量归一化层中学到的拉伸参数 `gamma` 和偏移参数 `beta`。
@@ -460,7 +460,7 @@ def net():
 
 ```{.python .input}
 #@tab all
-d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
+d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 ```
 
 ## 争议

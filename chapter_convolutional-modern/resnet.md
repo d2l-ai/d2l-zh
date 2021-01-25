@@ -387,7 +387,7 @@ for layer in net().layers:
 #@tab all
 lr, num_epochs, batch_size = 0.05, 10, 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=96)
-d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
+d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 ```
 
 ## 小结
@@ -405,7 +405,7 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 1. 对于更深层次的网络，ResNet 引入了“bottleneck”架构来降低模型复杂性。请你试着去实现它。
 1. 在 ResNet 的后续版本中，作者将“卷积层、批量归一化层和激活层”结构更改为“批量归一化层、激活层和卷积层”结构。请你做这个改进。详见 :cite:`He.Zhang.Ren.ea.2016*1` 中的图 1。
 1. 为什么即使函数类是嵌套的，我们仍然要限制增加函数的复杂性呢？
- 
+
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/1879)
 :end_tab:

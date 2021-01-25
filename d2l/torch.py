@@ -4,21 +4,23 @@
 
 # Defined in file: ./chapter_preface/index.md
 import collections
-from collections import defaultdict
-from IPython import display
+import hashlib
 import math
-from matplotlib import pyplot as plt
 import os
-import pandas as pd
 import random
 import re
 import shutil
 import sys
 import tarfile
 import time
-import requests
 import zipfile
-import hashlib
+from collections import defaultdict
+
+import pandas as pd
+import requests
+from IPython import display
+from matplotlib import pyplot as plt
+
 d2l = sys.modules[__name__]
 
 
@@ -462,8 +464,7 @@ def evaluate_accuracy_gpu(net, data_iter, device=None):
 
 
 # Defined in file: ./chapter_convolutional-neural-networks/lenet.md
-def train_ch6(net, train_iter, test_iter, num_epochs, lr,
-              device=d2l.try_gpu()):
+def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
     """Train a model with a GPU (defined in Chapter 6)."""
     def init_weights(m):
         if type(m) == nn.Linear or type(m) == nn.Conv2d:
@@ -1366,12 +1367,14 @@ linspace = torch.linspace
 exp = torch.exp
 log = torch.log
 normal = torch.normal
+rand = torch.rand
 matmul = torch.matmul
 int32 = torch.int32
 float32 = torch.float32
 concat = torch.cat
 stack = torch.stack
 abs = torch.abs
+eye = torch.eye
 numpy = lambda x, *args, **kwargs: x.detach().numpy(*args, **kwargs)
 size = lambda x, *args, **kwargs: x.numel(*args, **kwargs)
 reshape = lambda x, *args, **kwargs: x.reshape(*args, **kwargs)
