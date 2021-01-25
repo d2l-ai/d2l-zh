@@ -1,14 +1,14 @@
 #  顺序到序列学习
 :label:`sec_seq2seq`
 
-正如我们在 :numref:`sec_machine_translation` 中看到的那样，在机器翻译中，输入和输出都是一个可变长度的序列。为了解决这类问题，我们在 :numref:`sec_encoder-decoder` 中设计了一种通用的编码器解码器架构。在本节中，我们将使用两个 RNN 来设计此架构的编码器和解码器，并将其应用于机器翻译 :cite:`Sutskever.Vinyals.Le.2014,Cho.Van-Merrienboer.Gulcehre.ea.2014` 的 * 序列到序列 * 学习。
+正如我们在 :numref:`sec_machine_translation` 中看到的那样，在机器翻译中，输入和输出都是一个可变长度的序列。为了解决这类问题，我们在 :numref:`sec_encoder-decoder` 中设计了一种通用的编码器解码器架构。在本节中，我们将使用两类 RNN 来设计此架构的编码器和解码器，并将其应用于机器翻译 :cite:`Sutskever.Vinyals.Le.2014,Cho.Van-Merrienboer.Gulcehre.ea.2014` 的 **序列到序列**（sequence to sequence） 学习。
 
-遵循编码器解码器架构的设计原理，RNN 编码器可以采用可变长度序列作为输入，并将其转换为固定形状的隐藏状态。换句话说，输入（源）序列的信息是 * encoded* 处于 RNN 编码器的隐藏状态。要通过令牌生成输出序列令牌，单独的 RNN 解码器可以根据已看到的（例如在语言建模中）或生成的令牌以及输入序列的编码信息来预测下一个令牌。:numref:`fig_seq2seq` 说明了如何使用两个 rnN 进行序列顺序学习机器翻译。
+遵循编码器解码器架构的设计原理，RNN 编码器可以采用可变长度序列作为输入，并将其转换为固定形状的隐藏状态。换句话说，输入（源）序列的信息被编码 RNN 编码器的隐藏状态。要通过令牌生成输出序列令牌，单独的 RNN 解码器可以根据已看到的（例如在语言建模中）或生成的令牌以及输入序列的编码信息来预测下一个令牌。:numref:`fig_seq2seq` 说明了如何使用两个 RNN 进行序列顺序学习机器翻译。
 
 ![Sequence to sequence learning with an RNN encoder and an RNN decoder.](../img/seq2seq.svg)
 :label:`fig_seq2seq`
 
-在 :numref:`fig_seq2seq` 中，特殊的 “<eos>” 令牌标志着序列的结束。生成此令牌后，模型可以停止进行预测。在 RNN 解码器的初始时间步骤，有两个特殊的设计决策。首先，特殊的序列开始 “<bos>” 令牌是输入。其次，RNN 编码器的最终隐藏状态用于启动解码器的隐藏状态。在 :cite:`Sutskever.Vinyals.Le.2014` 等设计中，这正是将编码输入序列信息输入解码器以生成输出（目标）序列的方式。在其他一些设计中，如 :cite:`Cho.Van-Merrienboer.Gulcehre.ea.2014`，编码器的最终隐藏状态也会作为每个时间步骤的输入的一部分送入解码器，如 :numref:`fig_seq2seq` 所示。与 :numref:`sec_language_model` 中的语言模型训练类似，我们可以允许标签成为原始输出序列，由一个标记移动：<bos> ““”、“Ils”、“观察”、“。” $\rightarrow$ “Ils”，“无视”，”。“，” <eos>”。
+在 :numref:`fig_seq2seq` 中，特殊的 “&lt;eos>” 令牌标志着序列的结束。生成此令牌后，模型可以停止进行预测。在 RNN 解码器的初始时间步，有两个特殊的设计决策。首先，特殊的序列开始 “&lt;bos>” 令牌是输入。其次，RNN 编码器的最终隐藏状态用于启动解码器的隐藏状态。在 :cite:`Sutskever.Vinyals.Le.2014` 等设计中，这正是将编码输入序列信息输入解码器以生成输出（目标）序列的方式。在其他一些设计中，如 :cite:`Cho.Van-Merrienboer.Gulcehre.ea.2014`，编码器的最终隐藏状态也会作为每个时间步的输入的一部分送入解码器，如 :numref:`fig_seq2seq` 所示。与 :numref:`sec_language_model` 中的语言模型训练类似，我们可以允许标签成为原始输出序列，由一个标记移动：“&lt;bos>”、“Ils”、“regardent”、“.” $\rightarrow$ “Ils”，“regardent”，“.”， “&lt;eos>”。
 
 在下面，我们将更详细地解释 :numref:`fig_seq2seq` 的设计。我们将在 :numref:`sec_machine_translation` 中引入的英法数据集上训练这种模型，用于机器翻译。
 
