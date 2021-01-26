@@ -117,7 +117,6 @@ x_train_col = x_train.reshape(-1, 1)
 x_test_col = x_test.reshape(-1, 1)
 # 利用广播
 attention_weights = npx.softmax(-(x_test_col - x_train_col.T)**2 / 2)
-attention_weights = npx.softmax(-(X_repeat - x_train)**2 / 2)
 # Each element of `y_hat` is weighted average of values, where weights are
 # attention weights
 y_hat = d2l.matmul(attention_weights, y_train)
