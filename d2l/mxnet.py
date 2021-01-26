@@ -4,21 +4,23 @@
 
 # Defined in file: ./chapter_preface/index.md
 import collections
-from collections import defaultdict
-from IPython import display
+import hashlib
 import math
-from matplotlib import pyplot as plt
 import os
-import pandas as pd
 import random
 import re
 import shutil
 import sys
 import tarfile
 import time
-import requests
 import zipfile
-import hashlib
+from collections import defaultdict
+
+import pandas as pd
+import requests
+from IPython import display
+from matplotlib import pyplot as plt
+
 d2l = sys.modules[__name__]
 
 
@@ -433,8 +435,7 @@ def evaluate_accuracy_gpu(net, data_iter, device=None):
 
 
 # Defined in file: ./chapter_convolutional-neural-networks/lenet.md
-def train_ch6(net, train_iter, test_iter, num_epochs, lr,
-              device=d2l.try_gpu()):
+def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
     """Train a model with a GPU (defined in Chapter 6)."""
     net.initialize(force_reinit=True, ctx=device, init=init.Xavier())
     loss = gluon.loss.SoftmaxCrossEntropyLoss()
@@ -1265,12 +1266,14 @@ exp = np.exp
 log = np.log
 tensor = np.array
 normal = np.random.normal
+rand = np.random.rand
 matmul = np.dot
 int32 = np.int32
 float32 = np.float32
 concat = np.concatenate
 stack = np.stack
 abs = np.abs
+eye = np.eye
 numpy = lambda x, *args, **kwargs: x.asnumpy(*args, **kwargs)
 reshape = lambda x, *args, **kwargs: x.reshape(*args, **kwargs)
 to = lambda x, *args, **kwargs: x.as_in_context(*args, **kwargs)

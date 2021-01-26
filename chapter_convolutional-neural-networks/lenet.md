@@ -20,7 +20,7 @@ LeNet 被广泛用于自动取款机（ATM）机中，帮助识别处理支票�
 
 总体来看，LeNet (LeNet-5) 由两个部分组成：
 
-* 卷积编码器：由两个卷积层组成; 
+* 卷积编码器：由两个卷积层组成;
 * 全连接层密集块：由三个全连接层组成。
 
 该结构在 :numref:`img_lenet` 中所展示。
@@ -187,8 +187,7 @@ def evaluate_accuracy_gpu(net, data_iter, device=None): #@save
 
 ```{.python .input}
 #@save
-def train_ch6(net, train_iter, test_iter, num_epochs, lr,
-              device=d2l.try_gpu()):
+def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
     """Train a model with a GPU (defined in Chapter 6)."""
     net.initialize(force_reinit=True, ctx=device, init=init.Xavier())
     loss = gluon.loss.SoftmaxCrossEntropyLoss()
@@ -226,8 +225,7 @@ def train_ch6(net, train_iter, test_iter, num_epochs, lr,
 ```{.python .input}
 #@tab pytorch
 #@save
-def train_ch6(net, train_iter, test_iter, num_epochs, lr,
-              device=d2l.try_gpu()):
+def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
     """Train a model with a GPU (defined in Chapter 6)."""
     def init_weights(m):
         if type(m) == nn.Linear or type(m) == nn.Conv2d:
@@ -299,8 +297,7 @@ class TrainCallback(tf.keras.callbacks.Callback):  #@save
                   f'{str(self.device_name)}')
 
 #@save
-def train_ch6(net_fn, train_iter, test_iter, num_epochs, lr,
-              device=d2l.try_gpu()):
+def train_ch6(net_fn, train_iter, test_iter, num_epochs, lr, device):
     """Train a model with a GPU (defined in Chapter 6)."""
     device_name = device._device_name
     strategy = tf.distribute.OneDeviceStrategy(device_name)
@@ -320,7 +317,7 @@ def train_ch6(net_fn, train_iter, test_iter, num_epochs, lr,
 ```{.python .input}
 #@tab all
 lr, num_epochs = 0.9, 10
-train_ch6(net, train_iter, test_iter, num_epochs, lr)
+train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 ```
 
 ## 小结
