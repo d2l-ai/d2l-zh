@@ -1,7 +1,7 @@
-# 注意力集中：Nadaraya-Watson 内核回归
+# 注意力池化：Nadaraya-Watson 核回归
 :label:`sec_nadaraya-waston`
 
-现在你知道了 :numref:`fig_qkv` 框架下关注机制的主要组成部分。概括一下，查询（名义提示）和键（非自豪提示）之间的交互导致了 * 注意力集中 *。注意力集中有选择性地聚合了值（感官输入）以产生产出。在本节中，我们将更详细地介绍注意力集中，以便让您从高层次了解注意力机制在实践中的运作方式。具体来说，1964 年提出的 Nadaraya-Watson 内核回归模型是一个简单而完整的示例，用于演示具有注意机制的机器学习。
+现在你知道了 :numref:`fig_qkv` 框架下注意力机制的主要组成部分。概括一下，查询（自主提示）和键（非自主提示）之间的交互导致了 **注意力池化**。注意力池化有选择性地聚合了值（感官输入）以生成输出。在本节中，我们将更详细地介绍注意力池化，以便让您从高层次了解注意力机制在实践中的运作方式。具体来说，1964 年提出的 Nadaraya-Watson 核回归模型是一个简单而完整的示例，用于演示具有注意机制的机器学习方法。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -20,13 +20,13 @@ from torch import nn
 
 ## 生成数据集
 
-为了简单起见，让我们考虑以下回归问题：给定输入-产出对 $\{(x_1, y_1), \ldots, (x_n, y_n)\}$ 的数据集，如何学习 $f$ 来预测任何新输入 $\hat{y} = f(x)$ 的输出 $\hat{y} = f(x)$？
+为了简单起见，让我们考虑以下回归问题：给定输入-输出对 $\{(x_1, y_1), \ldots, (x_n, y_n)\}$ 的数据集，如何学习 $f$ 来预测任何新输入 $x$ 的输出 $\hat{y} = f(x)$？
 
-在这里，我们根据以下非线性函数生成一个人工数据集，噪声术语 $\epsilon$：
+在这里，我们根据以下非线性函数生成一个人工数据集，噪声项 $\epsilon$：
 
 $$y_i = 2\sin(x_i) + x_i^{0.8} + \epsilon,$$
 
-其中 $\epsilon$ 服从平均值和标准差 0.5 的正态分布。同时生成了 50 个培训示例和 50 个测试示例。为了以后更好地直观地显示注意力模式，训练输入将进行排序。
+其中 $\epsilon$ 服从平均值为 0 和标准差为 0.5 的正态分布。同时生成了 50 个训练示例和 50 个测试示例。为了以后更好地直观地显示注意力模式，训练输入将被排序。
 
 ```{.python .input}
 n_train = 50  # No. of training examples
@@ -61,9 +61,9 @@ def plot_kernel_reg(y_hat):
     d2l.plt.plot(x_train, y_train, 'o', alpha=0.5);
 ```
 
-## 平均池
+## 平均池化
 
-我们首先可能是世界上对这个回归问题的 “最愚蠢” 的估算器：使用平均汇集来计算所有训练输出的平均值：
+我们首先可能是世界上对这个回归问题的 “最愚蠢” 的估算器：使用平均池化来计算所有训练输出的平均值：
 
 $$f(x) = \frac{1}{n}\sum_{i=1}^n y_i,$$
 :eqlabel:`eq_avg-pooling`
@@ -81,35 +81,35 @@ y_hat = torch.repeat_interleave(y_train.mean(), n_test)
 plot_kernel_reg(y_hat)
 ```
 
-## 非参数化注意力池
+## 非参数的注意力池化
 
 显然，平均池忽略了输入 $x_i$。Nadaraya :cite:`Nadaraya.1964` 和 Waston :cite:`Watson.1964` 提出了一个更好的想法，根据输入位置对输出 $y_i$ 进行权衡：
 
 $$f(x) = \sum_{i=1}^n \frac{K(x - x_i)}{\sum_{j=1}^n K(x - x_j)} y_i,$$
 :eqlabel:`eq_nadaraya-waston`
 
-其中 $K$ 是 * 内核 *。:eqref:`eq_nadaraya-waston` 中的估计器被称为 *Nadaraya-Watson 内核回归 *。在这里我们不会深入研究内核的细节。回想一下 :numref:`fig_qkv` 中的关注机制框架。从注意力的角度来看，我们可以用更广泛的 * 注意力集合 * 的形式重写 :eqref:`eq_nadaraya-waston`：
+其中 $K$ 是 **核函数**。:eqref:`eq_nadaraya-waston` 中的估计器被称为 **Nadaraya-Watson 核回归**。在这里我们不会深入研究核的细节。回想一下 :numref:`fig_qkv` 中的注意力机制框架。从注意力的角度来看，我们可以用更广泛的 **注意力池化** 的形式重写 :eqref:`eq_nadaraya-waston`：
 
 $$f(x) = \sum_{i=1}^n \alpha(x, x_i) y_i,$$
 :eqlabel:`eq_attn-pooling`
 
-其中 $x$ 是查询，$(x_i, y_i)$ 是键值对。比较 :eqref:`eq_attn-pooling` 和 :eqref:`eq_avg-pooling`，这里的注意力集中是 $y_i$ 的加权平均值。根据查询 $x$ 和 $\alpha$ 建模的密钥 $x_i$ 之间的交互作用，将 :eqref:`eq_attn-pooling` 中的 * 注意力权重 * $\alpha(x, x_i)$ 分配给相应的值 $y_i$。对于任何查询，它在所有键值对上的注意力权重都是有效的概率分布：它们是非负数的，总和为一。
+其中 $x$ 是查询，$(x_i, y_i)$ 是键值对。比较 :eqref:`eq_attn-pooling` 和 :eqref:`eq_avg-pooling`，这里的注意力池化是 $y_i$ 的加权平均值。根据查询 $x$ 和 $\alpha$ 建模的键 $x_i$ 之间的交互作用，将 :eqref:`eq_attn-pooling` 中的 *注意力权重* $\alpha(x, x_i)$ 分配给相应的值 $y_i$。对于任何查询，它在所有键值对上的注意力权重都是有效的概率分布：它们是非负数的，总和为一。
 
-要获得注意力集中的直觉，只需考虑一个 * 高斯内核 * 定义为
+要获得注意力池化的直观，只需考虑一个 **高斯核** 定义为
 
 $$
 K(u) = \frac{1}{\sqrt{2\pi}} \exp(-\frac{u^2}{2}).
 $$
 
-将高斯内核插入 :eqref:`eq_attn-pooling` 和 :eqref:`eq_nadaraya-waston` 就会给出
+将高斯核插入 :eqref:`eq_attn-pooling` 和 :eqref:`eq_nadaraya-waston` 就会给出
 
 $$\begin{aligned} f(x) &=\sum_{i=1}^n \alpha(x, x_i) y_i\\ &= \sum_{i=1}^n \frac{\exp\left(-\frac{1}{2}(x - x_i)^2\right)}{\sum_{j=1}^n \exp\left(-\frac{1}{2}(x - x_j)^2\right)} y_i \\&= \sum_{i=1}^n \mathrm{softmax}\left(-\frac{1}{2}(x - x_i)^2\right) y_i. \end{aligned}$$
 :eqlabel:`eq_nadaraya-waston-gaussian`
 
-在 :eqref:`eq_nadaraya-waston-gaussian` 中，接近给定查询 $x$ 的密钥 $x_i$ 将得到
-*通过分配给密钥的相应值 $y_i$ 的 * 更大的注意力重量 * 来进一步注意 *。
+在 :eqref:`eq_nadaraya-waston-gaussian` 中，接近给定查询 $x$ 的键 $x_i$ 将得到
+*通过分配给键的相应值 $y_i$ 的* 更大的注意力权重而获得更多的关注。
 
-值得注意的是，Nadaraya-Watson 内核回归是一个非参数模型；因此，:eqref:`eq_nadaraya-waston-gaussian` 就是 * 非参数化注意力池 * 的示例。在下面，我们基于此非参数化关注模型绘制预测。预测的线是平稳的，并且比普通集中产生的线更接近地面真相。
+值得注意的是，Nadaraya-Watson 核回归是一个非参数模型；因此，:eqref:`eq_nadaraya-waston-gaussian` 就是 **非参数化注意力池化** 的示例。在下面，我们基于此非参数化注意力模型绘制预测。预测的线是平稳的，并且比普通集中产生的线更接近地面真相。
 
 ```{.python .input}
 # Shape of `X_repeat`: (`n_test`, `n_train`), where each row contains the
@@ -157,7 +157,7 @@ d2l.show_heatmaps(attention_weights.unsqueeze(0).unsqueeze(0),
 
 ## 参数化注意力池
 
-非参数 Nadaraya-Watson 内核回归具有 * 一致性 * 的好处：如果有足够的数据，此模型会收敛到最佳解决方案。尽管如此，我们可以轻松地将可学习的参数集成到注意力池中。
+非参数 Nadaraya-Watson 核回归具有 * 一致性 * 的好处：如果有足够的数据，此模型会收敛到最佳解决方案。尽管如此，我们可以轻松地将可学习的参数集成到注意力池中。
 
 例如，与 :eqref:`eq_nadaraya-waston-gaussian` 略有不同，在下面的查询 $x$ 和键 $x_i$ 之间的距离乘以可学习参数 $w$：
 
@@ -203,7 +203,7 @@ torch.bmm(weights.unsqueeze(1), values.unsqueeze(-1))
 
 ### 定义模型
 
-使用微型批量矩阵乘法，下面我们根据 :eqref:`eq_nadaraya-waston-gaussian-para` 中的参数关注池定义 Nadaraya-Watson 内核回归的参数化版本。
+使用微型批量矩阵乘法，下面我们根据 :eqref:`eq_nadaraya-waston-gaussian-para` 中的参数关注池定义 Nadaraya-Watson 核回归的参数化版本。
 
 ```{.python .input}
 class NWKernelRegression(nn.Block):
@@ -353,16 +353,16 @@ d2l.show_heatmaps(net.attention_weights.unsqueeze(0).unsqueeze(0),
 
 ## 摘要
 
-* Nadaraya-Watson 内核回归是具有注意机制的机器学习示例。
-* Nadaraya-Watson 内核回归的注意力集中是训练输出的加权平均值。从注意力的角度来看，根据查询的函数和与值配对的键，将注意力权重分配给值。
+* Nadaraya-Watson 核回归是具有注意机制的机器学习示例。
+* Nadaraya-Watson 核回归的注意力集中是训练输出的加权平均值。从注意力的角度来看，根据查询的函数和与值配对的键，将注意力权重分配给值。
 * 注意力池可以是非参数化的，也可以是参数化的。
 
 ## 练习
 
-1. 增加培训示例的数量。你能更好地学习非参数 Nadaraya-Watson 内核回归吗？
+1. 增加培训示例的数量。你能更好地学习非参数 Nadaraya-Watson 核回归吗？
 1. 我们在参数化注意力池实验中学到的 $w$ 的价值是什么？为什么在可视化注意力权重时，它会使加权区域更加锐利？
-1. 我们如何将超参数添加到非参数 Nadaraya-Watson 内核回归中以更好地预测？
-1. 为本节的内核回归设计另一个参数化注意力池。训练这个新模型并可视化其注意力重量。
+1. 我们如何将超参数添加到非参数 Nadaraya-Watson 核回归中以更好地预测？
+1. 为本节的核回归设计另一个参数化注意力池。训练这个新模型并可视化其注意力重量。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/1598)
