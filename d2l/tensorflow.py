@@ -4,21 +4,23 @@
 
 # Defined in file: ./chapter_preface/index.md
 import collections
-from collections import defaultdict
-from IPython import display
+import hashlib
 import math
-from matplotlib import pyplot as plt
 import os
-import pandas as pd
 import random
 import re
 import shutil
 import sys
 import tarfile
 import time
-import requests
 import zipfile
-import hashlib
+from collections import defaultdict
+
+import pandas as pd
+import requests
+from IPython import display
+from matplotlib import pyplot as plt
+
 d2l = sys.modules[__name__]
 
 
@@ -477,8 +479,7 @@ class TrainCallback(tf.keras.callbacks.Callback):
                   f'{str(self.device_name)}')
 
 
-def train_ch6(net_fn, train_iter, test_iter, num_epochs, lr,
-              device=d2l.try_gpu()):
+def train_ch6(net_fn, train_iter, test_iter, num_epochs, lr, device):
     """Train a model with a GPU (defined in Chapter 6)."""
     device_name = device._device_name
     strategy = tf.distribute.OneDeviceStrategy(device_name)
@@ -878,6 +879,8 @@ cosh = tf.cosh
 tanh = tf.tanh
 linspace = tf.linspace
 exp = tf.exp
+normal = tf.random.normal
+rand = tf.random.uniform
 matmul = tf.matmul
 reduce_sum = tf.reduce_sum
 argmax = tf.argmax
@@ -889,7 +892,7 @@ float32 = tf.float32
 transpose = tf.transpose
 concat = tf.concat
 stack = tf.stack
-normal = tf.random.normal
 abs = tf.abs
+eye = tf.eye
 numpy = lambda x, *args, **kwargs: x.numpy(*args, **kwargs)
 
