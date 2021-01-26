@@ -112,12 +112,11 @@ $$\begin{aligned} f(x) &=\sum_{i=1}^n \alpha(x, x_i) y_i\\ &= \sum_{i=1}^n \frac
 值得注意的是，Nadaraya-Watson 核回归是一个非参数模型；因此，:eqref:`eq_nadaraya-waston-gaussian` 就是 **非参数化注意力池化** 的示例。在下面，我们基于此非参数化注意力模型绘制预测。预测的线是平稳的，并且比普通集中产生的线更接近地面真相。
 
 ```{.python .input}
-# Shape of `X_repeat`: (`n_test`, `n_train`), where each row contains the
-# same testing inputs (i.e., same queries)
-X_repeat = d2l.reshape(x_test.repeat(n_train), (-1, n_train))
-# Note that `x_train` contains the keys. Shape of `attention_weights`:
-# (`n_test`, `n_train`), where each row contains attention weights to be
-# assigned among the values (`y_train`) given each query
+# 将数据转换为列向量
+x_train_col = x_train.reshape(-1, 1)
+x_test_col = x_test.reshape(-1, 1)
+# 利用广播
+attention_weights = npx.softmax(-(x_test_col - x_train_col.T)**2 / 2)
 attention_weights = npx.softmax(-(X_repeat - x_train)**2 / 2)
 # Each element of `y_hat` is weighted average of values, where weights are
 # attention weights
@@ -140,7 +139,7 @@ y_hat = d2l.matmul(attention_weights, y_train)
 plot_kernel_reg(y_hat)
 ```
 
-现在让我们来看看注意力的权重。这里测试输入是查询，而训练输入是关键。由于两个输入都是排序的，我们可以看到查询键对越接近，注意力集中的注意力就越高。
+现在让我们来看看注意力的权重。这里测试输入是查询，而训练输入是键。由于两个输入都是已被排序的，我们可以看到查询键对越接近，注意力池化的注意力就越高。
 
 ```{.python .input}
 d2l.show_heatmaps(np.expand_dims(np.expand_dims(attention_weights, 0), 0),
@@ -155,23 +154,23 @@ d2l.show_heatmaps(attention_weights.unsqueeze(0).unsqueeze(0),
                   ylabel='Sorted testing inputs')
 ```
 
-## 参数化注意力池
+## 参数化注意力池化
 
-非参数 Nadaraya-Watson 核回归具有 * 一致性 * 的好处：如果有足够的数据，此模型会收敛到最佳解决方案。尽管如此，我们可以轻松地将可学习的参数集成到注意力池中。
+非参数 Nadaraya-Watson 核回归具有 **一致性** 的好处：如果有足够的数据，此模型会收敛得到最佳解决方案。尽管如此，我们可以轻松地将可学习的参数集成到注意力池化中。
 
 例如，与 :eqref:`eq_nadaraya-waston-gaussian` 略有不同，在下面的查询 $x$ 和键 $x_i$ 之间的距离乘以可学习参数 $w$：
 
 $$\begin{aligned}f(x) &= \sum_{i=1}^n \alpha(x, x_i) y_i \\&= \sum_{i=1}^n \frac{\exp\left(-\frac{1}{2}((x - x_i)w)^2\right)}{\sum_{j=1}^n \exp\left(-\frac{1}{2}((x - x_i)w)^2\right)} y_i \\&= \sum_{i=1}^n \mathrm{softmax}\left(-\frac{1}{2}((x - x_i)w)^2\right) y_i.\end{aligned}$$
 :eqlabel:`eq_nadaraya-waston-gaussian-para`
 
-在本节的其余部分中，我们将通过学习 :eqref:`eq_nadaraya-waston-gaussian-para` 中注意力集中的参数来训练此模型。
+在本节的其余部分中，我们将通过学习 :eqref:`eq_nadaraya-waston-gaussian-para` 中注意力池化的参数来训练此模型。
 
 ### 批量矩阵乘法
 :label:`subsec_batch_dot`
 
 为了更有效地计算小批次的注意力，我们可以利用深度学习框架提供的批量矩阵乘法实用程序。
 
-假设第一个微型批次包含 $n$ 矩阵 $n$，形状为 $a\times b$，第二个微型批次包含 $n$ 矩阵 $\mathbf{Y}_1, \ldots, \mathbf{Y}_n$，形状为 73229363620。它们的批量矩阵乘法得出 $n$ 矩阵 $\mathbf{X}_1\mathbf{Y}_1, \ldots, \mathbf{X}_n\mathbf{Y}_n$，形状为 $a\times c$。因此，假定两个张量的形状（$n$、$a$、$b$）和（$b$，$c$）的形状，它们的批量矩阵乘法输出的形状为（$n$、$a$、$c$）。
+假设第一个微型批次包含 $n$ 个形状为 $a\times b$ 的矩阵列 $\mathbf{X}_1, \ldots, \mathbf{X}_n$，第二个微型批次包含 $n$ 个形状为 $b\times c$ 的矩阵列 $\mathbf{Y}_1, \ldots, \mathbf{Y}_n$。它们的批量矩阵乘法得出 $n$ 个形状为 $a\times c$ 的矩阵列 $\mathbf{X}_1\mathbf{Y}_1, \ldots, \mathbf{X}_n\mathbf{Y}_n$。因此，假定两个张量的形状分别为$(n, a, b)$ 和 $(n, b, c)$，它们的批量矩阵乘法输出的形状为 $(n, a, c)$。
 
 ```{.python .input}
 X = d2l.ones((2, 1, 4))
@@ -203,7 +202,7 @@ torch.bmm(weights.unsqueeze(1), values.unsqueeze(-1))
 
 ### 定义模型
 
-使用微型批量矩阵乘法，下面我们根据 :eqref:`eq_nadaraya-waston-gaussian-para` 中的参数关注池定义 Nadaraya-Watson 核回归的参数化版本。
+使用微型批量矩阵乘法，下面我们根据 :eqref:`eq_nadaraya-waston-gaussian-para` 中的参数注意力池化定义 Nadaraya-Watson 核回归的参数化版本。
 
 ```{.python .input}
 class NWKernelRegression(nn.Block):
@@ -242,9 +241,9 @@ class NWKernelRegression(nn.Module):
                          values.unsqueeze(-1)).reshape(-1)
 ```
 
-### 培训
+### 训练过程
 
-在以下内容中，我们将训练数据集转换为键和值，以训练注意力模型。在参数化注意力池中，任何训练输入都会从所有训练示例中获取键值对，但用于预测其输出。
+在以下内容中，我们将训练数据集转换为键和值，以训练注意力模型。在参数化注意力池化中，任何训练输入都会从所有训练示例中获取键值对，以用于预测其输出。
 
 ```{.python .input}
 # Shape of `X_tile`: (`n_train`, `n_train`), where each column contains the
@@ -354,15 +353,15 @@ d2l.show_heatmaps(net.attention_weights.unsqueeze(0).unsqueeze(0),
 ## 摘要
 
 * Nadaraya-Watson 核回归是具有注意机制的机器学习示例。
-* Nadaraya-Watson 核回归的注意力集中是训练输出的加权平均值。从注意力的角度来看，根据查询的函数和与值配对的键，将注意力权重分配给值。
+* Nadaraya-Watson 核回归的注意力池化是训练输出的加权平均值。从注意力的角度来看，根据查询的函数和与值配对的键，将注意力权重分配给值。
 * 注意力池可以是非参数化的，也可以是参数化的。
 
 ## 练习
 
-1. 增加培训示例的数量。你能更好地学习非参数 Nadaraya-Watson 核回归吗？
+1. 增加训练示例的数量。你能更好地学习非参数 Nadaraya-Watson 核回归吗？
 1. 我们在参数化注意力池实验中学到的 $w$ 的价值是什么？为什么在可视化注意力权重时，它会使加权区域更加锐利？
 1. 我们如何将超参数添加到非参数 Nadaraya-Watson 核回归中以更好地预测？
-1. 为本节的核回归设计另一个参数化注意力池。训练这个新模型并可视化其注意力重量。
+1. 为本节的核回归设计另一个参数化注意力池化。训练这个新模型并可视化其注意力权重。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/1598)
