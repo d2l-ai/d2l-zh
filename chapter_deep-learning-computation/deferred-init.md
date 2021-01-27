@@ -16,7 +16,7 @@
 首先，让我们实例化一个多层感知机。
 
 ```{.python .input}
-from mxnet import init, np, npx
+from mxnet import np, npx
 from mxnet.gluon import nn
 npx.set_np()
 

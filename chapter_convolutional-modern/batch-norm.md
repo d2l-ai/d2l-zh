@@ -202,9 +202,9 @@ class BatchNorm(nn.Block):
         # 参与求梯度和迭代的拉伸和偏移参数，分别初始化成1和0
         self.gamma = self.params.get('gamma', shape=shape, init=init.One())
         self.beta = self.params.get('beta', shape=shape, init=init.Zero())
-        # 不参与求梯度和迭代的变量，全在内存上初始化成0
+        # 非模型参数的变量初始化为0和1
         self.moving_mean = np.zeros(shape)
-        self.moving_var = np.zeros(shape)
+        self.moving_var = np.ones(shape)
 
     def forward(self, X):
         # 如果 `X` 不在内存上，将 `moving_mean` 和 `moving_var`
@@ -233,9 +233,9 @@ class BatchNorm(nn.Module):
         # 参与求梯度和迭代的拉伸和偏移参数，分别初始化成1和0
         self.gamma = nn.Parameter(torch.ones(shape))
         self.beta = nn.Parameter(torch.zeros(shape))
-        # 不参与求梯度和迭代的变量，全在内存上初始化成0
+        # 非模型参数的变量初始化为0和1
         self.moving_mean = torch.zeros(shape)
-        self.moving_var = torch.zeros(shape)
+        self.moving_var = torch.ones(shape)
 
     def forward(self, X):
         # 如果 `X` 不在内存上，将 `moving_mean` 和 `moving_var`
@@ -263,12 +263,12 @@ class BatchNorm(tf.keras.layers.Layer):
             initializer=tf.initializers.ones, trainable=True)
         self.beta = self.add_weight(name='beta', shape=weight_shape,
             initializer=tf.initializers.zeros, trainable=True)
-        # 不参与求梯度和迭代的变量，全在内存上初始化成0
+        # 非模型参数的变量初始化为0和1
         self.moving_mean = self.add_weight(name='moving_mean',
             shape=weight_shape, initializer=tf.initializers.zeros,
             trainable=False)
         self.moving_variance = self.add_weight(name='moving_variance',
-            shape=weight_shape, initializer=tf.initializers.zeros,
+            shape=weight_shape, initializer=tf.initializers.ones,
             trainable=False)
         super(BatchNorm, self).build(input_shape)
 

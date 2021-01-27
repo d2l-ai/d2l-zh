@@ -7,7 +7,7 @@
 首先，我们构造一个没有任何参数的自定义层。如果你还记得我们在 :numref:`sec_model_construction` 对块的介绍，这应该看起来很眼熟。下面的`CenteredLayer`类要从其输入中减去均值。要构建它，我们只需继承基础层类并实现正向传播功能。
 
 ```{.python .input}
-from mxnet import gluon, np, npx
+from mxnet import np, npx
 from mxnet.gluon import nn
 npx.set_np()
 

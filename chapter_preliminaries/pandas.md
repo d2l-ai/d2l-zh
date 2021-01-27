@@ -7,24 +7,14 @@
 
 举一个例子，我们首先创建一个人工数据集，并存储在csv（逗号分隔值）文件 `../data/house_tiny.csv` 中。以其他格式存储的数据也可以通过类似的方式进行处理。下面的`mkdir_if_not_exist` 函数可确保目录 `../data` 存在。注意，注释 `#@save`是一个特殊的标记，该标记下面的函数、类或语句将保存在 `d2l` 软件包中，以便以后可以直接调用它们（例如 `d2l.mkdir_if_not_exist(path)`）而无需重新定义。
 
-```{.python .input}
-#@tab all
-import os
-
-def mkdir_if_not_exist(path):  #@save
-    """如果目录不存在则创建"""
-    if not isinstance(path, str):
-        path = os.path.join(*path)
-    if not os.path.exists(path):
-        os.makedirs(path)
-```
-
 下面我们将数据集按行写入 csv 文件中。
 
 ```{.python .input}
 #@tab all
-data_file = '../data/house_tiny.csv'
-mkdir_if_not_exist('../data')
+import os
+
+os.makedirs(os.path.join('..', 'data'), exist_ok=True)
+data_file = os.path.join('..', 'data', 'house_tiny.csv')
 with open(data_file, 'w') as f:
     f.write('NumRooms,Alley,Price\n')  # 列名
     f.write('NA,Pave,127500\n')  # 每行表示一个数据样本
@@ -104,6 +94,7 @@ X, y
 
 1. 删除缺失值最多的列。
 2. 将预处理后的数据集转换为张量格式。
+
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/1749)

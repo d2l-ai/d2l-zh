@@ -34,15 +34,6 @@ from torch.utils import data
 from torchvision import transforms
 
 
-# Defined in file: ./chapter_preliminaries/pandas.md
-def mkdir_if_not_exist(path):
-    """如果目录不存在则创建"""
-    if not isinstance(path, str):
-        path = os.path.join(*path)
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-
 # Defined in file: ./chapter_preliminaries/calculus.md
 def use_svg_display():
     """使用svg格式在Jupyter中显示绘图。"""
@@ -156,9 +147,10 @@ def squared_loss(y_hat, y):
 # Defined in file: ./chapter_linear-networks/linear-regression-scratch.md
 def sgd(params, lr, batch_size):
     """小批量随机梯度下降。"""
-    for param in params:
-        param.data.sub_(lr * param.grad / batch_size)
-        param.grad.data.zero_()
+    with torch.no_grad():
+        for param in params:
+            param -= lr * param.grad / batch_size
+            param.grad.zero_()
 
 
 # Defined in file: ./chapter_linear-networks/linear-regression-concise.md
@@ -179,12 +171,17 @@ def get_fashion_mnist_labels(labels):
 
 # Defined in file: ./chapter_linear-networks/image-classification-dataset.md
 def show_images(imgs, num_rows, num_cols, titles=None, scale=1.5):
-    """绘制图像列表。"""
+    """Plot a list of images."""
     figsize = (num_cols * scale, num_rows * scale)
     _, axes = d2l.plt.subplots(num_rows, num_cols, figsize=figsize)
     axes = axes.flatten()
     for i, (ax, img) in enumerate(zip(axes, imgs)):
-        ax.imshow(d2l.numpy(img))
+        if torch.is_tensor(img):
+            # 图片张量
+            ax.imshow(img.numpy())
+        else:
+            # PIL图片
+            ax.imshow(img)
         ax.axes.get_xaxis().set_visible(False)
         ax.axes.get_yaxis().set_visible(False)
         if titles:
@@ -234,7 +231,7 @@ def evaluate_accuracy(net, data_iter):
     if isinstance(net, torch.nn.Module):
         net.eval()  # 将模型设置为评估模式
     metric = Accumulator(2)  # 正确预测数、预测总数
-    for _, (X, y) in enumerate(data_iter):
+    for X, y in data_iter:
         metric.add(accuracy(net(X), y), d2l.size(y))
     return metric[0] / metric[1]
 
@@ -375,7 +372,7 @@ def download(name, cache_dir=os.path.join('..', 'data')):
     """下载一个DATA_HUB中的文件，返回本地文件名。"""
     assert name in DATA_HUB, f"{name} 不存在于 {DATA_HUB}."
     url, sha1_hash = DATA_HUB[name]
-    d2l.mkdir_if_not_exist(cache_dir)
+    os.makedirs(cache_dir, exist_ok=True)
     fname = os.path.join(cache_dir, url.split('/')[-1])
     if os.path.exists(fname):
         sha1 = hashlib.sha1()
@@ -409,7 +406,6 @@ def download_extract(name, folder=None):
     fp.extractall(base_dir)
     return os.path.join(base_dir, folder) if folder else data_dir
 
-
 def download_all():
     """下载DATA_HUB中的所有文件。"""
     for name in DATA_HUB:
@@ -431,7 +427,6 @@ def try_gpu(i=0):
         return torch.device(f'cuda:{i}')
     return torch.device('cpu')
 
-
 def try_all_gpus():
     """返回所有可用的GPU，如果没有GPU，则返回[cpu(),]。"""
     devices = [
@@ -452,13 +447,20 @@ def corr2d(X, K):
 
 # Defined in file: ./chapter_convolutional-neural-networks/lenet.md
 def evaluate_accuracy_gpu(net, data_iter, device=None):
-    """Compute the accuracy for a model on a dataset using a GPU."""
-    net.eval()  # 设置为评估模式
-    if not device:
-        device = next(iter(net.parameters())).device
-    metric = d2l.Accumulator(2)  # 正确预测的数量，总预测的数量
+    """使用GPU计算模型在数据集上的精度。"""
+    if isinstance(net, torch.nn.Module):
+        net.eval()  # 设置为评估模式
+        if not device:
+            device = next(iter(net.parameters())).device
+    # 正确预测的数量，总预测的数量
+    metric = d2l.Accumulator(2)
     for X, y in data_iter:
-        X, y = X.to(device), y.to(device)
+        if isinstance(X, list):
+            # BERT微调所需的（之后将介绍）
+            X = [x.to(device) for x in X]
+        else:
+            X = X.to(device)
+        y = y.to(device)
         metric.add(d2l.accuracy(net(X), y), d2l.size(y))
     return metric[0] / metric[1]
 
@@ -468,7 +470,7 @@ def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
     """Train a model with a GPU (defined in Chapter 6)."""
     def init_weights(m):
         if type(m) == nn.Linear or type(m) == nn.Conv2d:
-            torch.nn.init.xavier_uniform_(m.weight)
+            nn.init.xavier_uniform_(m.weight)
 
     net.apply(init_weights)
     print('training on', device)
@@ -479,10 +481,11 @@ def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
                             legend=['train loss', 'train acc', 'test acc'])
     timer, num_batches = d2l.Timer(), len(train_iter)
     for epoch in range(num_epochs):
-        metric = d2l.Accumulator(3)  # 训练损失之和，训练准确率之和，范例数
+        # 训练损失之和，训练准确率之和，范例数
+        metric = d2l.Accumulator(3)
+        net.train()
         for i, (X, y) in enumerate(train_iter):
             timer.start()
-            net.train()
             optimizer.zero_grad()
             X, y = X.to(device), y.to(device)
             y_hat = net(X)
@@ -536,7 +539,6 @@ class Residual(nn.Module):
 d2l.DATA_HUB['time_machine'] = (d2l.DATA_URL + 'timemachine.txt',
                                 '090b5e7e70c295757f55df93cb0a180b9691891a')
 
-
 def read_time_machine():
     """Load the time machine dataset into a list of text lines."""
     with open(d2l.download('time_machine'), 'r') as f:
@@ -589,7 +591,6 @@ class Vocab:
         if not isinstance(indices, (list, tuple)):
             return self.idx_to_token[indices]
         return [self.idx_to_token[index] for index in indices]
-
 
 def count_corpus(tokens):
     """Count token frequencies."""
@@ -836,7 +837,6 @@ class RNNModel(nn.Module):
 # Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
 d2l.DATA_HUB['fra-eng'] = (d2l.DATA_URL + 'fra-eng.zip',
                            '94646ad1522d915e7b0f9296181140edcf86a4f5')
-
 
 def read_data_nmt():
     """Load the English-French dataset."""
@@ -1248,7 +1248,6 @@ def transpose_qkv(X, num_heads):
     # (`batch_size` * `num_heads`, no. of queries or key-value pairs,
     # `num_hiddens` / `num_heads`)
     return X.reshape(-1, X.shape[2], X.shape[3])
-
 
 def transpose_output(X, num_heads):
     """Reverse the operation of `transpose_qkv`"""

@@ -29,15 +29,6 @@ from mxnet import autograd, context, gluon, image, init, np, npx
 from mxnet.gluon import nn, rnn
 
 
-# Defined in file: ./chapter_preliminaries/pandas.md
-def mkdir_if_not_exist(path):
-    """如果目录不存在则创建"""
-    if not isinstance(path, str):
-        path = os.path.join(*path)
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-
 # Defined in file: ./chapter_preliminaries/calculus.md
 def use_svg_display():
     """使用svg格式在Jupyter中显示绘图。"""
@@ -221,7 +212,7 @@ def accuracy(y_hat, y):
 def evaluate_accuracy(net, data_iter):
     """计算在指定数据集上模型的精度。"""
     metric = Accumulator(2)  # 正确预测数、预测总数
-    for _, (X, y) in enumerate(data_iter):
+    for X, y in data_iter:
         metric.add(accuracy(net(X), y), d2l.size(y))
     return metric[0] / metric[1]
 
@@ -350,7 +341,7 @@ def download(name, cache_dir=os.path.join('..', 'data')):
     """下载一个DATA_HUB中的文件，返回本地文件名。"""
     assert name in DATA_HUB, f"{name} 不存在于 {DATA_HUB}."
     url, sha1_hash = DATA_HUB[name]
-    d2l.mkdir_if_not_exist(cache_dir)
+    os.makedirs(cache_dir, exist_ok=True)
     fname = os.path.join(cache_dir, url.split('/')[-1])
     if os.path.exists(fname):
         sha1 = hashlib.sha1()
@@ -384,7 +375,6 @@ def download_extract(name, folder=None):
     fp.extractall(base_dir)
     return os.path.join(base_dir, folder) if folder else data_dir
 
-
 def download_all():
     """下载DATA_HUB中的所有文件。"""
     for name in DATA_HUB:
@@ -403,7 +393,6 @@ DATA_HUB['kaggle_house_test'] = (DATA_URL + 'kaggle_house_pred_test.csv',
 def try_gpu(i=0):
     """如果存在，则返回gpu(i)，否则返回cpu()。"""
     return npx.gpu(i) if npx.num_gpus() >= i + 1 else npx.cpu()
-
 
 def try_all_gpus():
     """返回所有可用的GPU，如果没有GPU，则返回[cpu()]。"""
@@ -497,7 +486,6 @@ class Residual(nn.Block):
 d2l.DATA_HUB['time_machine'] = (d2l.DATA_URL + 'timemachine.txt',
                                 '090b5e7e70c295757f55df93cb0a180b9691891a')
 
-
 def read_time_machine():
     """Load the time machine dataset into a list of text lines."""
     with open(d2l.download('time_machine'), 'r') as f:
@@ -550,7 +538,6 @@ class Vocab:
         if not isinstance(indices, (list, tuple)):
             return self.idx_to_token[indices]
         return [self.idx_to_token[index] for index in indices]
-
 
 def count_corpus(tokens):
     """Count token frequencies."""
@@ -768,7 +755,6 @@ class RNNModel(nn.Block):
 # Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
 d2l.DATA_HUB['fra-eng'] = (d2l.DATA_URL + 'fra-eng.zip',
                            '94646ad1522d915e7b0f9296181140edcf86a4f5')
-
 
 def read_data_nmt():
     """Load the English-French dataset."""
@@ -1155,7 +1141,6 @@ def transpose_qkv(X, num_heads):
     # (`batch_size` * `num_heads`, no. of queries or key-value pairs,
     # `num_hiddens` / `num_heads`)
     return X.reshape(-1, X.shape[2], X.shape[3])
-
 
 def transpose_output(X, num_heads):
     """Reverse the operation of `transpose_qkv`"""

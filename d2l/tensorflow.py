@@ -29,15 +29,6 @@ import numpy as np
 import tensorflow as tf
 
 
-# Defined in file: ./chapter_preliminaries/pandas.md
-def mkdir_if_not_exist(path):
-    """如果目录不存在则创建"""
-    if not isinstance(path, str):
-        path = os.path.join(*path)
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-
 # Defined in file: ./chapter_preliminaries/calculus.md
 def use_svg_display():
     """使用svg格式在Jupyter中显示绘图。"""
@@ -221,7 +212,7 @@ def accuracy(y_hat, y):
 def evaluate_accuracy(net, data_iter):
     """计算在指定数据集上模型的精度。"""
     metric = Accumulator(2)  # 正确预测数、预测总数
-    for _, (X, y) in enumerate(data_iter):
+    for X, y in data_iter:
         metric.add(accuracy(net(X), y), d2l.size(y))
     return metric[0] / metric[1]
 
@@ -371,7 +362,7 @@ def download(name, cache_dir=os.path.join('..', 'data')):
     """下载一个DATA_HUB中的文件，返回本地文件名。"""
     assert name in DATA_HUB, f"{name} 不存在于 {DATA_HUB}."
     url, sha1_hash = DATA_HUB[name]
-    d2l.mkdir_if_not_exist(cache_dir)
+    os.makedirs(cache_dir, exist_ok=True)
     fname = os.path.join(cache_dir, url.split('/')[-1])
     if os.path.exists(fname):
         sha1 = hashlib.sha1()
@@ -405,7 +396,6 @@ def download_extract(name, folder=None):
     fp.extractall(base_dir)
     return os.path.join(base_dir, folder) if folder else data_dir
 
-
 def download_all():
     """下载DATA_HUB中的所有文件。"""
     for name in DATA_HUB:
@@ -426,7 +416,6 @@ def try_gpu(i=0):
     if len(tf.config.experimental.list_physical_devices('GPU')) >= i + 1:
         return tf.device(f'/GPU:{i}')
     return tf.device('/CPU:0')
-
 
 def try_all_gpus():
     """返回所有可用的GPU，如果没有GPU，则返回[cpu(),]。"""
@@ -478,8 +467,8 @@ class TrainCallback(tf.keras.callbacks.Callback):
             print(f'{num_examples / self.timer.avg():.1f} examples/sec on '
                   f'{str(self.device_name)}')
 
-
-def train_ch6(net_fn, train_iter, test_iter, num_epochs, lr, device):
+def train_ch6(net_fn, train_iter, test_iter, num_epochs, lr,
+              device=d2l.try_gpu()):
     """Train a model with a GPU (defined in Chapter 6)."""
     device_name = device._device_name
     strategy = tf.distribute.OneDeviceStrategy(device_name)
@@ -521,7 +510,6 @@ class Residual(tf.keras.Model):
 # Defined in file: ./chapter_recurrent-neural-networks/text-preprocessing.md
 d2l.DATA_HUB['time_machine'] = (d2l.DATA_URL + 'timemachine.txt',
                                 '090b5e7e70c295757f55df93cb0a180b9691891a')
-
 
 def read_time_machine():
     """Load the time machine dataset into a list of text lines."""
@@ -575,7 +563,6 @@ class Vocab:
         if not isinstance(indices, (list, tuple)):
             return self.idx_to_token[indices]
         return [self.idx_to_token[index] for index in indices]
-
 
 def count_corpus(tokens):
     """Count token frequencies."""
@@ -771,7 +758,6 @@ def train_ch8(model, train_iter, vocab, num_hiddens, lr, num_epochs, strategy,
 # Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
 d2l.DATA_HUB['fra-eng'] = (d2l.DATA_URL + 'fra-eng.zip',
                            '94646ad1522d915e7b0f9296181140edcf86a4f5')
-
 
 def read_data_nmt():
     """Load the English-French dataset."""

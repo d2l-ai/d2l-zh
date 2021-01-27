@@ -15,7 +15,17 @@
 1. 非线性激活函数，如ReLU；
 1. 池化层，如最大池化层。
 
-而一个 VGG 块与之类似，由一系列卷积层组成，后面再加上用于空间下采样的最大池化层。在最初的 VGG 论文 :cite:`Simonyan.Zisserman.2014` 中，作者使用了带有 $3\times3$ 卷积核、填充为 1（保持高度和宽度）的卷积层，和带有 $2 \times 2$ 池化窗口、步幅为 2（每个块后的分辨率减半）的最大池化层。在下面的代码中，我们定义了一个名为 `vgg_block` 的函数来实现一个 VGG 块。该函数有两个参数，分别对应于卷积层的数量 `num_convs` 和输出通道的数量 `num_channels`.
+而一个 VGG 块与之类似，由一系列卷积层组成，后面再加上用于空间下采样的最大池化层。在最初的 VGG 论文 :cite:`Simonyan.Zisserman.2014` 中，作者使用了带有 $3\times3$ 卷积核、填充为 1（保持高度和宽度）的卷积层，和带有 $2 \times 2$ 池化窗口、步幅为 2（每个块后的分辨率减半）的最大池化层。在下面的代码中，我们定义了一个名为 `vgg_block` 的函数来实现一个 VGG 块。
+
+:begin_tab:`mxnet,tensorflow`
+该函数有两个参数，分别对应于卷积层的数量 `num_convs` 和输出通道的数量 `num_channels`.
+:end_tab:
+
+:begin_tab:`pytorch`
+该函数有三个参数，分别对应于卷积层的数量 `num_convs`、输入通道的数量 `in_channels`
+和输出通道的数量  `out_channels`.
+:end_tab:
+
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -39,7 +49,7 @@ import torch
 from torch import nn
 
 def vgg_block(num_convs, in_channels, out_channels):
-    layers=[]
+    layers = []
     for _ in range(num_convs):
         layers.append(nn.Conv2d(in_channels, out_channels,
                                 kernel_size=3, padding=1))
@@ -103,9 +113,9 @@ net = vgg(conv_arch)
 ```{.python .input}
 #@tab pytorch
 def vgg(conv_arch):
+    conv_blks = []
+    in_channels = 1
     # 卷积层部分
-    conv_blks=[]
-    in_channels=1
     for (num_convs, out_channels) in conv_arch:
         conv_blks.append(vgg_block(num_convs, in_channels, out_channels))
         in_channels = out_channels
