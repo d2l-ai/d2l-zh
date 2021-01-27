@@ -60,7 +60,7 @@ net(X)
 :end_tab:
 
 :begin_tab:`pytorch`
-在这个例子中，我们通过实例化`nn.Sequential`来构建我们的模型，层的执行顺序是作为参数传递的。简而言之，`nn.Sequential`定义了一种特殊的`Module`，即在PyTorch中表示一个块的类。它维护了一个由`Module`组成的有序列表，注意，两个全连接层都是`Linear`类的实例，`Linear`类本身就是`Module`的子类。正向传播（`forward`）函数也非常简单：它将列表中的每个块连接在一起，将每个块的输出作为下一个块的输入。注意，到目前为止，我们一直在通过`net(X)`调用我们的模型来获得模型的输出。这实际上是`net.forward(X)`的简写，这是通过`Block`类的`__call__`函数实现的一个Python技巧。
+在这个例子中，我们通过实例化`nn.Sequential`来构建我们的模型，层的执行顺序是作为参数传递的。简而言之，`nn.Sequential`定义了一种特殊的`Module`，即在PyTorch中表示一个块的类。它维护了一个由`Module`组成的有序列表，注意，两个全连接层都是`Linear`类的实例，`Linear`类本身就是`Module`的子类。正向传播（`forward`）函数也非常简单：它将列表中的每个块连接在一起，将每个块的输出作为下一个块的输入。注意，到目前为止，我们一直在通过`net(X)`调用我们的模型来获得模型的输出。这实际上是`net.__call__(X)`的简写。
 :end_tab:
 
 :begin_tab:`tensorflow`
