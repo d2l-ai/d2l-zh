@@ -283,7 +283,7 @@ for i, num_convs in enumerate(num_convs_in_dense_blocks):
     net.add(DenseBlock(num_convs, growth_rate))
     # 上一个稠密块的输出通道数
     num_channels += num_convs * growth_rate
-    # 在稠密块之间加入通道数减半的过渡层
+    # 在稠密块之间添加一个转换层，使通道数量减半
     if i != len(num_convs_in_dense_blocks) - 1:
         num_channels //= 2
         net.add(transition_block(num_channels))
@@ -299,7 +299,7 @@ for i, num_convs in enumerate(num_convs_in_dense_blocks):
     blks.append(DenseBlock(num_convs, num_channels, growth_rate))
     # 上一个稠密块的输出通道数
     num_channels += num_convs * growth_rate
-    # 在稠密块之间加入通道数减半的过渡层
+    # 在稠密块之间添加一个转换层，使通道数量减半
     if i != len(num_convs_in_dense_blocks) - 1:
         blks.append(transition_block(num_channels, num_channels // 2))
         num_channels = num_channels // 2
@@ -317,7 +317,7 @@ def block_2():
         net.add(DenseBlock(num_convs, growth_rate))
         # 上一个稠密块的输出通道数
         num_channels += num_convs * growth_rate
-        # 在稠密块之间加入通道数减半的过渡层
+        # 在稠密块之间添加一个转换层，使通道数量减半
         if i != len(num_convs_in_dense_blocks) - 1:
             num_channels //= 2
             net.add(TransitionBlock(num_channels))
