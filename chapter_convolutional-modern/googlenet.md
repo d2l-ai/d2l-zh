@@ -269,7 +269,7 @@ net.add(b1, b2, b3, b4, b5, nn.Dense(10))
 #@tab pytorch
 b5 = nn.Sequential(Inception(832, 256, (160, 320), (32, 128), 128),
                    Inception(832, 384, (192, 384), (48, 128), 128),
-                   nn.AdaptiveMaxPool2d((1,1)),
+                   nn.AdaptiveAvgPool2d((1,1)),
                    nn.Flatten())
 
 net = nn.Sequential(b1, b2, b3, b4, b5, nn.Linear(1024, 10))

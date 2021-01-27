@@ -41,18 +41,15 @@ net.initialize(init.Normal(sigma=0.01))
 
 ```{.python .input}
 #@tab pytorch
-# PyTorch不会隐式地调整输入的形状。因此，我们定义了一个层来调整网络输入的形状
-class Reshape(torch.nn.Module):
-    def forward(self, x):
-        return x.view(-1,784)
-
-net = nn.Sequential(Reshape(), nn.Linear(784, 10))
+# PyTorch不会隐式地调整输入的形状。
+# 因此，我们定义了展平层（flatten）在线性层前调整网络输入的形状
+net = nn.Sequential(nn.Flatten(), nn.Linear(784, 10))
 
 def init_weights(m):
     if type(m) == nn.Linear:
-        torch.nn.init.normal_(m.weight, std=0.01)
+        nn.init.normal_(m.weight, std=0.01)
 
-net.apply(init_weights)
+net.apply(init_weights);
 ```
 
 ```{.python .input}
