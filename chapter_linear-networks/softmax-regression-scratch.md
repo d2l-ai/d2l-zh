@@ -141,7 +141,10 @@ def net(X):
 
 接下来，我们需要实现 :numref:`sec_softmax` 中引入的交叉熵损失函数。这可能是深度学习中最常见的损失函数，因为目前分类问题的数量远远超过回归问题。
 
-回顾一下，交叉熵采用真实标签的预测概率的负对数似然。我们不需要使用Python的for循环迭代预测（这往往是低效的）。我们可以通过一个运算符选择所有元素。下面，我们创建一个演示数据 `y_hat`，其中包含2个样本在3个类别的预测概率。然后我们选择第一个样本中第一个类的概率和第二个样本中第三个类的概率。
+回顾一下，交叉熵采用真实标签的预测概率的负对数似然。我们不需要使用Python的for循环迭代预测（这往往是低效的）。我们可以通过一个运算符选择所有元素。
+下面，我们一个演示数据，其中包含2个样本在3个类别的预测概率`y_hat`。以及它们对应的标签`y`。
+有了`y`，我们知道在第一个样本中，第一类是正确的预测，而在第二个样本中，第三类是正确的预测。
+然后使用`y`作为`y_hat`中概率的索引，我们选择第一个样本中第一个类的概率和第二个样本中第三个类的概率。
 
 ```{.python .input}
 #@tab mxnet, pytorch
@@ -208,7 +211,7 @@ accuracy(y_hat, y) / len(y)
 def evaluate_accuracy(net, data_iter):  #@save
     """计算在指定数据集上模型的精度。"""
     metric = Accumulator(2)  # 正确预测数、预测总数
-    for _, (X, y) in enumerate(data_iter):
+    for X, y in data_iter:
         metric.add(accuracy(net(X), y), d2l.size(y))
     return metric[0] / metric[1]
 ```
@@ -220,7 +223,7 @@ def evaluate_accuracy(net, data_iter):  #@save
     if isinstance(net, torch.nn.Module):
         net.eval()  # 将模型设置为评估模式
     metric = Accumulator(2)  # 正确预测数、预测总数
-    for _, (X, y) in enumerate(data_iter):
+    for X, y in data_iter:
         metric.add(accuracy(net(X), y), d2l.size(y))
     return metric[0] / metric[1]
 ```
