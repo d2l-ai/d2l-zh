@@ -30,7 +30,7 @@ def download(name, cache_dir=os.path.join('..', 'data')):  #@save
     """下载一个DATA_HUB中的文件，返回本地文件名。"""
     assert name in DATA_HUB, f"{name} 不存在于 {DATA_HUB}."
     url, sha1_hash = DATA_HUB[name]
-    d2l.mkdir_if_not_exist(cache_dir)
+    os.makedirs(cache_dir, exist_ok=True)
     fname = os.path.join(cache_dir, url.split('/')[-1])
     if os.path.exists(fname):
         sha1 = hashlib.sha1()
@@ -115,7 +115,7 @@ npx.set_np()
 %matplotlib inline
 from d2l import torch as d2l
 import torch
-import torch.nn as nn
+from torch import nn
 import pandas as pd
 import numpy as np
 ```

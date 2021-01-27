@@ -37,7 +37,6 @@ net(X)
 ```{.python .input}
 #@tab tensorflow
 import tensorflow as tf
-import numpy as np
 
 net = tf.keras.models.Sequential([
     tf.keras.layers.Flatten(),
@@ -336,10 +335,10 @@ print(net[1].weight.data())
 #@tab pytorch
 def xavier(m):
     if type(m) == nn.Linear:
-        torch.nn.init.xavier_uniform_(m.weight)
+        nn.init.xavier_uniform_(m.weight)
 def init_42(m):
     if type(m) == nn.Linear:
-        torch.nn.init.constant_(m.weight, 42)
+        nn.init.constant_(m.weight, 42)
 
 net[0].apply(xavier)
 net[2].apply(init_42)
@@ -418,7 +417,10 @@ net[0].weight[:2]
 #@tab tensorflow
 class MyInit(tf.keras.initializers.Initializer):
     def __call__(self, shape, dtype=None):
-        return tf.random.uniform(shape, dtype=dtype)
+        data=tf.random.uniform(shape, -10, 10, dtype=dtype)
+        factor=(tf.abs(data) >= 5)
+        factor=tf.cast(factor, tf.float32)
+        return data * factor
 
 net = tf.keras.models.Sequential([
     tf.keras.layers.Flatten(),
