@@ -1,22 +1,17 @@
+---
+source: https://github.com/d2l-ai/d2l-en/blob/master/chapter_preliminaries/lookup-api.md
+commit: 9e55a9c
+---
+
 # Documentation
-:begin_tab:`mxnet`
+
 Due to constraints on the length of this book, we cannot possibly introduce every single MXNet function and class (and you probably would not want us to). The API documentation and additional tutorials and examples provide plenty of documentation beyond the book. In this section we provide you with some guidance to exploring the MXNet API.
-:end_tab:
-
-:begin_tab:`pytorch`
-Due to constraints on the length of this book, we cannot possibly introduce every single PyTorch function and class (and you probably would not want us to). The API documentation and additional tutorials and examples provide plenty of documentation beyond the book. In this section we provide you with some guidance to exploring the PyTorch API.
-:end_tab:
-
-:begin_tab:`tensorflow`
-Due to constraints on the length of this book, we cannot possibly introduce every single TensorFlow function and class (and you probably would not want us to). The API documentation and additional tutorials and examples provide plenty of documentation beyond the book. In this section we provide you with some guidance to exploring the TensorFlow API.
-:end_tab:
-
 
 ## Finding All the Functions and Classes in a Module
 
 In order to know which functions and classes can be called in a module, we
-invoke the `dir` function. For instance, (**we can query all properties in the
-module for generating random numbers**):
+invoke the `dir` function. For instance, we can query all properties in the
+module for generating random numbers:
 
 ```{.python .input  n=1}
 from mxnet import np
@@ -39,7 +34,7 @@ Generally, we can ignore functions that start and end with `__` (special objects
 
 ## Finding the Usage of Specific Functions and Classes
 
-For more specific instructions on how to use a given function or class, we can invoke the  `help` function. As an example, [**let us explore the usage instructions for tensors' `ones` function**].
+For more specific instructions on how to use a given function or class, we can invoke the  `help` function. As an example, let us explore the usage instructions for tensors' `ones` function.
 
 ```{.python .input}
 help(np.ones)
@@ -55,7 +50,7 @@ help(torch.ones)
 help(tf.ones)
 ```
 
-From the documentation, [**we can see that the `ones` function creates a new tensor with the specified shape and sets all the elements to the value of 1.**] Whenever possible, (**you should run a quick test to confirm your interpretation**):
+From the documentation, we can see that the `ones` function creates a new tensor with the specified shape and sets all the elements to the value of 1. Whenever possible, you should run a quick test to confirm your interpretation:
 
 ```{.python .input}
 np.ones(4)
