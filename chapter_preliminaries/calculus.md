@@ -18,15 +18,15 @@
 我们首先讨论导数的计算，这是几乎所有深度学习优化算法的关键步骤。在深度学习中，我们通常选择对于模型参数可微的损失函数。简而言之，这意味着，对于每个参数，
 如果我们把这个参数*增加*或*减少*一个无穷小的量，我们可以知道损失会以多快的速度增加或减少，
 
-假设我们有一个函数 $f: \mathbb{R} \rightarrow \mathbb{R}$，其输入和输出都是标量。$f$ 的 *导数* 被定义为
+假设我们有一个函数 $f: \mathbb{R} \rightarrow \mathbb{R}$，其输入和输出都是标量。(**$f$ 的 *导数* 被定义为**)
 
-$$f'(x) = \lim_{h \rightarrow 0} \frac{f(x+h) - f(x)}{h},$$
+(**$$f'(x) = \lim_{h \rightarrow 0} \frac{f(x+h) - f(x)}{h},$$**)
 :eqlabel:`eq_derivative`
 
 如果这个极限存在。如果$f'(a)$存在，则称$f$在$a$处是*可微*（differentiable）的。如果 $f$ 在一个区间内的每个数上都是可微的，则此函数在此区间中是可微的。我们可以将 :eqref:`eq_derivative` 中的导数 $f'(x)$ 解释为$f(x)$相对于 $x$ 的 *瞬时*（instantaneous） 变化率。所谓的瞬时变化率是基于$x$中的变化$h$，且$h$接近$0$。
 
 为了更好地解释导数，让我们用一个例子来做实验。
-定义$u = f(x) = 3x^2-4x$.
+(**定义$u = f(x) = 3x^2-4x$.**)
 
 ```{.python .input}
 %matplotlib inline
@@ -61,7 +61,7 @@ def f(x):
     return 3 * x ** 2 - 4 * x
 ```
 
-通过令 $x=1$ 并让 $h$ 接近 $0$， :eqref:`eq_derivative` 中$\frac{f(x+h) - f(x)}{h}$ 的数值结果接近 $2$。虽然这个实验不是一个数学证明，但我们稍后会看到，当 $x=1$时，导数 $u'$是 $2$ 。
+[**通过令 $x=1$ 并让 $h$ 接近 $0$，**] :eqref:`eq_derivative` 中$(**\frac{f(x+h) - f(x)}{h}$ 的数值结果接近 $2$**)。虽然这个实验不是一个数学证明，但我们稍后会看到，当 $x=1$时，导数 $u'$是 $2$ 。
 
 ```{.python .input}
 #@tab all
@@ -104,7 +104,7 @@ $$\frac{d}{dx} \left[\frac{f(x)}{g(x)}\right] = \frac{g(x) \frac{d}{dx} [f(x)] -
 
 现在我们可以应用上述几个法则来计算 $u' = f'(x) = 3 \frac{d}{dx} x^2-4\frac{d}{dx}x = 6x-4$。因此，通过令 $x = 1$ ，我们有 $u' = 2$ ：这一点得到了我们在本节前面的实验的支持，在这个实验中，数值结果接近$2$。当 $x=1$ 时，此导数也是曲线 $u = f(x)$ 切线的斜率。
 
-为了对导数的这种解释进行可视化，我们将使用 `matplotlib`，一个Python中流行的绘图库。要配置`matplotlib`生成图形的属性，我们需要定义几个函数。
+[**为了对导数的这种解释进行可视化，**]我们将使用 `matplotlib`，一个Python中流行的绘图库。要配置`matplotlib`生成图形的属性，我们需要(**定义几个函数**)。
 在下面，`use_svg_display` 函数指定 `matplotlib` 软件包输出svg图表以获得更清晰的图像。
 
 注意，注释`#@save`是一个特殊的标记，会将对应的函数、类或语句保存在`d2l`包中
@@ -182,7 +182,7 @@ def plot(X, Y=None, xlabel=None, ylabel=None, legend=None, xlim=None,
     set_axes(axes, xlabel, ylabel, xlim, ylim, xscale, yscale, legend)
 ```
 
-现在我们可以绘制函数 $u = f(x)$ 及其在 $x=1$ 处的切线 $y = 2x - 3$，其中系数$2$是切线的斜率。
+现在我们可以[**绘制函数 $u = f(x)$ 及其在 $x=1$ 处的切线 $y = 2x - 3$**]，其中系数$2$是切线的斜率。
 
 ```{.python .input}
 #@tab all

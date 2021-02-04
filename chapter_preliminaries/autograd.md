@@ -6,43 +6,36 @@
 深度学习框架通过自动计算导数（即 *自动求导*（automatic differentiation））来加快这项工作。实际中，根据我们设计的模型，系统会构建一个 *计算图*（computational graph），来跟踪数据通过若干操作组合起来产生输出。自动求导使系统能够随后反向传播梯度。
 这里，*反向传播*（backpropagate）只是意味着跟踪整个计算图，填充关于每个参数的偏导数。
 
-```{.python .input}
-from mxnet import autograd, np, npx
-npx.set_np()
-```
-
-```{.python .input}
-#@tab pytorch
-import torch
-```
-
-```{.python .input}
-#@tab tensorflow
-import tensorflow as tf
-```
 
 ## 一个简单的例子
 
-作为一个演示例子，假设我们想对函数 $y = 2\mathbf{x}^{\top}\mathbf{x}$关于列向量 $\mathbf{x}$求导。首先，我们创建变量 `x` 并为其分配一个初始值。
+作为一个演示例子，(**假设我们想对函数 $y = 2\mathbf{x}^{\top}\mathbf{x}$关于列向量 $\mathbf{x}$求导**)。首先，我们创建变量 `x` 并为其分配一个初始值。
 
 ```{.python .input}
+from mxnet import autograd, np, npx
+npx.set_np()
+
 x = np.arange(4.0)
 x
 ```
 
 ```{.python .input}
 #@tab pytorch
+import torch
+
 x = torch.arange(4.0)
 x
 ```
 
 ```{.python .input}
 #@tab tensorflow
+import tensorflow as tf
+
 x = tf.range(4, dtype=tf.float32)
 x
 ```
 
-在我们计算$y$关于$\mathbf{x}$的梯度之前，我们需要一个地方来存储梯度。
+[**在我们计算$y$关于$\mathbf{x}$的梯度之前，我们需要一个地方来存储梯度。**]
 重要的是，我们不会在每次对一个参数求导时都分配新的内存。因为我们经常会成千上万次地更新相同的参数，每次都分配新的内存可能很快就会将内存耗尽。注意，标量函数关于向量$\mathbf{x}$的梯度是向量，并且与$\mathbf{x}$具有相同的形状。
 
 ```{.python .input}
@@ -64,7 +57,7 @@ x.grad  # 默认值是None
 x = tf.Variable(x)
 ```
 
-现在让我们计算 $y$。
+(**现在让我们计算 $y$。**)
 
 ```{.python .input}
 # 把代码放到`autograd.record`内，以建立计算图
@@ -87,7 +80,7 @@ with tf.GradientTape() as t:
 y
 ```
 
-`x` 是一个长度为 4 的向量，计算 `x` 和 `x` 的内积，得到了我们赋值给 `y` 的标量输出。接下来，我们可以通过调用反向传播函数来自动计算`y`关于`x` 每个分量的梯度，并打印这些梯度。
+`x` 是一个长度为 4 的向量，计算 `x` 和 `x` 的内积，得到了我们赋值给 `y` 的标量输出。接下来，我们可以[**通过调用反向传播函数来自动计算`y`关于`x` 每个分量的梯度**]，并打印这些梯度。
 
 ```{.python .input}
 y.backward()
@@ -122,7 +115,7 @@ x.grad == 4 * x
 x_grad == 4 * x
 ```
 
-现在让我们计算 `x` 的另一个函数。
+[**现在让我们计算 `x` 的另一个函数。**]
 
 ```{.python .input}
 with autograd.record():
@@ -151,7 +144,7 @@ t.gradient(y, x)  # 被新计算的梯度覆盖
 
 当 `y` 不是标量时，向量`y`关于向量`x`的导数的最自然解释是一个矩阵。对于高阶和高维的 `y` 和 `x`，求导的结果可以是一个高阶张量。
 
-然而，虽然这些更奇特的对象确实出现在高级机器学习中（包括深度学习中），但当我们调用向量的反向计算时，我们通常会试图计算一批训练样本中每个组成部分的损失函数的导数。这里，我们的目的不是计算微分矩阵，而是批量中每个样本单独计算的偏导数之和。
+然而，虽然这些更奇特的对象确实出现在高级机器学习中（包括[**深度学习中**]），但当我们调用向量的反向计算时，我们通常会试图计算一批训练样本中每个组成部分的损失函数的导数。这里(**，我们的目的不是计算微分矩阵，而是批量中每个样本单独计算的偏导数之和。**)
 
 ```{.python .input}
 # 当我们对向量值变量`y`（关于`x`的函数）调用`backward`时，
@@ -167,7 +160,7 @@ x.grad  # 等价于y = sum(x * x)
 # 对非标量调用`backward`需要传入一个`gradient`参数，该参数指定微分函数关于`self`的梯度。在我们的例子中，我们只想求偏导数的和，所以传递一个1的梯度是合适的
 x.grad.zero_()
 y = x * x
-# 等价于y.backward(torch.ones(len(x))) 
+# 等价于y.backward(torch.ones(len(x)))
 y.sum().backward()
 x.grad
 ```
@@ -181,7 +174,7 @@ t.gradient(y, x)  # 等价于 `y = tf.reduce_sum(x * x)`
 
 ## 分离计算
 
-有时，我们希望将某些计算移动到记录的计算图之外。
+有时，我们希望[**将某些计算移动到记录的计算图之外**]。
 例如，假设`y`是作为`x`的函数计算的，而`z`则是作为`y`和`x`的函数计算的。
 现在，想象一下，我们想计算 `z` 关于 `x` 的梯度，但由于某种原因，我们希望将 `y` 视为一个常数，并且只考虑到 `x` 在`y`被计算后发挥的作用。
 
