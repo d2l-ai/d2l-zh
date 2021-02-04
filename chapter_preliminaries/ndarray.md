@@ -15,7 +15,7 @@
 :end_tab:
 
 :begin_tab:`pytorch`
-[**首先，我们导入 `torch`。请注意，虽然它被称为PyTorch，但我们应该导入 `torch` 而不是 `pytorch`。**]
+(**首先，我们导入 `torch`。请注意，虽然它被称为PyTorch，但我们应该导入 `torch` 而不是 `pytorch`。**)
 :end_tab:
 
 :begin_tab:`tensorflow`
