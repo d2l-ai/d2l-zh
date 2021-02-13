@@ -290,7 +290,7 @@ train(poly_features[:n_train, :4], poly_features[n_train:, :4],
 
 ```{.python .input}
 #@tab all
-# 从多项式特征中选择前4个维度，即 1, x, x^2/2!, x^3/3!
+# 从多项式特征中选择前2个维度，即 1, x
 train(poly_features[:n_train, :2], poly_features[n_train:, :2],
       labels[:n_train], labels[n_train:])
 ```
