@@ -1,28 +1,20 @@
-# Optimization and Deep Learning
+# 优化与深度学习
 
-In this section, we will discuss the relationship between optimization and deep learning as well as the challenges of using optimization in deep learning.
-For a deep learning problem, we will usually define a *loss function* first. Once we have the loss function, we can use an optimization algorithm in attempt to minimize the loss.
-In optimization, a loss function is often referred to as the *objective function* of the optimization problem. By tradition and convention most optimization algorithms are concerned with *minimization*. If we ever need to maximize an objective there is a simple solution: just flip the sign on the objective.
+在本节中，我们将讨论优化与深度学习之间的关系，以及在深度学习中使用优化所面临的挑战。
+对于深度学习问题，我们通常首先定义一个损失函数，一旦我们有了损失函数，我们就可以使用一个优化算法来尝试最小化损失。
+在最优化中，损失函数通常被称为最优化问题的目标函数。
+根据传统和惯例，大多数优化算法都与“最小化”有关。
+如果我们需要最大化一个目标，有一个简单的解决方案：只要翻转目标上的标志。
 
-## Goal of Optimization
+## 优化与估算
 
-Although optimization provides a way to minimize the loss function for deep
-learning, in essence, the goals of optimization and deep learning are
-fundamentally different.
-The former is primarily concerned with minimizing an
-objective whereas the latter is concerned with finding a suitable model, given a
-finite amount of data.
-In :numref:`sec_model_selection`,
-we discussed the difference between these two goals in detail.
-For instance,
-training error and generalization error generally differ: since the objective
-function of the optimization algorithm is usually a loss function based on the
-training dataset, the goal of optimization is to reduce the training error.
-However, the goal of deep learning (or more broadly, statistical inference) is to
-reduce the generalization error.
-To accomplish the latter we need to pay
-attention to overfitting in addition to using the optimization algorithm to
-reduce the training error.
+虽然优化为深度学习提供了一种最小化损失函数的方法，但从本质上讲，优化和深度学习的目标是完全不同的。
+前者主要关注最小化目标，而后者关注在给定有限数据量的情况下找到合适的模型。
+在 :numref:`sec_model_selection` 中，我们详细讨论了这两个目标之间的差异。
+例如，训练误差和泛化误差一般是不同的：由于优化算法的目标函数通常是基于训练数据集的损失函数，所以优化的目标是减少训练误差。
+然而，统计推断（以及深度学习）的目标是减少泛化误差。
+为了实现后者，除了使用优化算法来减少训练误差外，还需要注意过拟合问题。
+我们首先导入一些深度学习算法库。
 
 ```{.python .input}
 %matplotlib inline
@@ -50,32 +42,15 @@ from mpl_toolkits import mplot3d
 import tensorflow as tf
 ```
 
-To illustrate the aforementioned different goals,
-let us consider 
-the empirical risk and the risk. 
-As described
-in :numref:`subsec_empirical-risk-and-risk`,
-the empirical risk
-is an average loss
-on the training dataset
-while the risk is the expected loss 
-on the entire population of data.
-Below we define two functions:
-the risk function `f`
-and the empirical risk function `g`.
-Suppose that we have only a finite amount of training data.
-As a result, here `g` is less smooth than `f`.
+接下来我们定义两个函数，期望函数 $f$ 和经验函数 $g$ ，来说明这个问题。这里的 $g$ 不如 $f$ 平滑，因为我们只有有限的数据量。
 
 ```{.python .input}
 #@tab all
-def f(x):
-    return x * d2l.cos(np.pi * x)
-
-def g(x):
-    return f(x) + 0.2 * d2l.cos(5 * np.pi * x)
+def f(x): return x * d2l.cos(np.pi * x)
+def g(x): return f(x) + 0.2 * d2l.cos(5 * np.pi * x)
 ```
 
-The graph below illustrates that the minimum of the empirical risk on a training dataset may be at a different location from the minimum of the risk (generalization error).
+下图说明了训练误差的最小值可能与预期误差（或测试误差）的最小值在不同的位置。
 
 ```{.python .input}
 #@tab all
@@ -86,40 +61,30 @@ def annotate(text, xy, xytext):  #@save
 x = d2l.arange(0.5, 1.5, 0.01)
 d2l.set_figsize((4.5, 2.5))
 d2l.plot(x, [f(x), g(x)], 'x', 'risk')
-annotate('min of\nempirical risk', (1.0, -1.2), (0.5, -1.1))
-annotate('min of risk', (1.1, -1.05), (0.95, -0.5))
+annotate('empirical risk', (1.0, -1.2), (0.5, -1.1))
+annotate('expected risk', (1.1, -1.05), (0.95, -0.5))
 ```
 
-## Optimization Challenges in Deep Learning
+## 深度学习中的优化挑战
 
-In this chapter, we are going to focus specifically on the performance of optimization algorithms in minimizing the objective function, rather than a
-model's generalization error. 
-In :numref:`sec_linear_regression`
-we distinguished between analytical solutions and numerical solutions in
-optimization problems. 
-In deep learning, most objective functions are
-complicated and do not have analytical solutions. Instead, we must use numerical
-optimization algorithms. 
-The optimization algorithms in this chapter
-all fall into this
-category.
+在本章中，我们将特别关注优化算法在最小化目标函数方面的性能，而不是模型的泛化误差。
+在 :numref:`sec_linear_regression` 中，我们区分了最优化问题的解析解和数值解。
+在深度学习中，大多数目标函数是复杂的，没有解析解。
+相反，我们必须使用数值优化算法。下面的优化算法都属于这一类。
 
-There are many challenges in deep learning optimization. Some of the most vexing ones are local minima, saddle points, and vanishing gradients. 
-Let us have a look at them.
+深度学习优化面临许多挑战，其中最令人烦恼的是局部极小值、鞍点和消失梯度。
+下面让我们具体了解一下这些挑战。
 
+### 局部最小值
 
-### Local Minima
+对于目标函数 $f(x)$，如果 $x$ 处的 $f(x)$ 值小于 $x$ 附近任何其他点的 $f(x)$ 值，则 $f(x)$ 可以是局部最小值。
+如果 $f(x)$ 在 $x$ 处的值是目标函数在整个域上的最小值，则 $f(x)$ 是全局最小值。
 
-For any objective function $f(x)$,
-if the value of $f(x)$ at $x$ is smaller than the values of $f(x)$ at any other points in the vicinity of $x$, then $f(x)$ could be a local minimum.
-If the value of $f(x)$ at $x$ is the minimum of the objective function over the entire domain,
-then $f(x)$ is the global minimum.
-
-For example, given the function
+例如，给定函数
 
 $$f(x) = x \cdot \text{cos}(\pi x) \text{ for } -1.0 \leq x \leq 2.0,$$
 
-we can approximate the local minimum and global minimum of this function.
+我们可以近似这个函数的局部最小值和全局最小值。
 
 ```{.python .input}
 #@tab all
@@ -129,16 +94,17 @@ annotate('local minimum', (-0.3, -0.25), (-0.77, -1.0))
 annotate('global minimum', (1.1, -0.95), (0.6, 0.8))
 ```
 
-The objective function of deep learning models usually has many local optima. 
-When the numerical solution of an optimization problem is near the local optimum, the numerical solution obtained by the final iteration may only minimize the objective function *locally*, rather than *globally*, as the gradient of the objective function's solutions approaches or becomes zero. 
-Only some degree of noise might knock the parameter out of the local minimum. In fact, this is one of the beneficial properties of
-minibatch stochastic gradient descent where the natural variation of gradients over minibatches is able to dislodge the parameters from local minima.
+深度学习模型的目标函数通常具有许多局部最优解。
+当优化问题的数值解接近局部最优解时，当目标函数解的梯度下降接近零时，通过最终迭代得到的数值解只可能使目标函数局部最小化，而不是全局最小化。
+只有一定程度的噪声才能使参数超出局部极小值。
+事实上，这是随机梯度下降的一个有利性质，在这种情况下，小批量梯度的自然变化能够将参数从局部极小值中去除。
 
+### 鞍点
 
-### Saddle Points
-
-Besides local minima, saddle points are another reason for gradients to vanish. A *saddle point* is any location where all gradients of a function vanish but which is neither a global nor a local minimum. 
-Consider the function $f(x) = x^3$. Its first and second derivative vanish for $x=0$. Optimization might stall at this point, even though it is not a minimum.
+除了局部极小值，*鞍点*（saddle point）是梯度消失的另一个原因。
+鞍点是函数的所有梯度都消失但既不是全局最小值也不是局部最小值的任何位置。
+考虑函数 $f(x) = x^3$，它的一阶导数和二阶导数在 $x=0$ 处消失。
+优化可能会在某个点停止，即使它不是最小值。
 
 ```{.python .input}
 #@tab all
@@ -147,7 +113,9 @@ d2l.plot(x, [x**3], 'x', 'f(x)')
 annotate('saddle point', (0, -0.2), (-0.52, -5.0))
 ```
 
-Saddle points in higher dimensions are even more insidious, as the example below shows. Consider the function $f(x, y) = x^2 - y^2$. It has its saddle point at $(0, 0)$. This is a maximum with respect to $y$ and a minimum with respect to $x$. Moreover, it *looks* like a saddle, which is where this mathematical property got its name.
+更高维度中的鞍点更为隐蔽，如下例所示，考虑函数 $f(x, y) = x^2 - y^2$。
+它的鞍点在 $(0, 0)$，这是 $y$ 的最大值，$x$ 的最小值。
+它看起来像一个马鞍，这就是这个数学性质的由来。
 
 ```{.python .input}
 #@tab all
@@ -166,26 +134,20 @@ d2l.plt.xlabel('x')
 d2l.plt.ylabel('y');
 ```
 
-We assume that the input of a function is a $k$-dimensional vector and its
-output is a scalar, so its Hessian matrix will have $k$ eigenvalues
-(refer to the [online appendix on eigendecompositions](https://d2l.ai/chapter_appendix-mathematics-for-deep-learning/eigendecomposition.html)).
-The solution of the
-function could be a local minimum, a local maximum, or a saddle point at a
-position where the function gradient is zero:
+我们假设一个函数的输入是一个$k$维向量，其输出是一个标量，因此它的Hessian矩阵将有$k$个特征值（参见 :numref:`sec_geometry-linear-algebraic-ops`）。
+函数的解可以是局部最小值、局部最大值或函数梯度为零的位置处的鞍点：
 
-* When the eigenvalues of the function's Hessian matrix at the zero-gradient position are all positive, we have a local minimum for the function.
-* When the eigenvalues of the function's Hessian matrix at the zero-gradient position are all negative, we have a local maximum for the function.
-* When the eigenvalues of the function's Hessian matrix at the zero-gradient position are negative and positive, we have a saddle point for the function.
+* 当函数的Hessian矩阵在零梯度位置的特征值都为正时，我们得到了函数的局部极小值。
+* 当函数的Hessian矩阵在零梯度位置的特征值都为负时，我们得到了函数的局部极大值。
+* 当函数的Hessian矩阵在零梯度位置的特征值为负和正时，我们得到了函数的鞍点。
 
-For high-dimensional problems the likelihood that at least *some* of the eigenvalues are negative is quite high. This makes saddle points more likely than local minima. We will discuss some exceptions to this situation in the next section when introducing convexity. In short, convex functions are those where the eigenvalues of the Hessian are never negative. Sadly, though, most deep learning problems do not fall into this category. Nonetheless it is a great tool to study optimization algorithms.
+对于高维问题，至少某些特征值为负的可能性是相当高的，这使得鞍点比局部极小值更有可能。
+我们将在下一节介绍凸性时讨论这种情况的一些例外情况。简而言之，*凸函数*是那些Hessian函数的特征值从不为负的函数。
+遗憾的是，大多数深层次的学习问题并不属于这一类。然而，它是一个伟大的工具，研究优化算法。
 
-### Vanishing Gradients
+### 消失梯度
 
-Probably the most insidious problem to encounter is the vanishing gradient.
-Recall our commonly-used activation functions and their derivatives in :numref:`subsec_activation-functions`.
-For instance, assume that we want to minimize the function $f(x) = \tanh(x)$ and we happen to get started at $x = 4$. As we can see, the gradient of $f$ is close to nil.
-More specifically, $f'(x) = 1 - \tanh^2(x)$ and thus $f'(4) = 0.0013$.
-Consequently, optimization will get stuck for a long time before we make progress. This turns out to be one of the reasons that training deep learning models was quite tricky prior to the introduction of the ReLU activation function.
+可能遇到的最隐秘的问题是消失梯度。例如，假设我们想最小化函数$f(x) = \tanh(x)$，我们恰好从$x = 4$开始。如我们所见，$f$的梯度接近于零。更具体地说是$f'(x) = 1 - \tanh^2(x)$和$f'(4) = 0.0013$。因此，在我们取得进展之前，优化将被困很长一段时间。这就是为什么在引入ReLU激活函数之前，深度学习模型的训练相当棘手的原因之一。
 
 ```{.python .input}
 #@tab all
@@ -194,29 +156,25 @@ d2l.plot(x, [d2l.tanh(x)], 'x', 'f(x)')
 annotate('vanishing gradient', (4, 1), (2, 0.0))
 ```
 
-As we saw, optimization for deep learning is full of challenges. Fortunately there exists a robust range of algorithms that perform well and that are easy to use even for beginners. Furthermore, it is not really necessary to find *the* best solution. Local optima or even approximate solutions thereof are still very useful.
+正如我们所看到的，深度学习的优化充满了挑战。幸运的是，有一个强大的算法范围，表现良好，易于使用，即使是初学者。此外，其实没有必要找到最佳解决方案。局部最优解甚至近似解仍然非常有用。
 
-## Summary
+## 摘要
 
-* Minimizing the training error does *not* guarantee that we find the best set of parameters to minimize the generalization error.
-* The optimization problems may have many local minima.
-* The problem may have even more saddle points, as generally the problems are not convex.
-* Vanishing gradients can cause optimization to stall. Often a reparameterization of the problem helps. Good initialization of the parameters can be beneficial, too.
+* 最小化训练误差并不能保证我们找到一组最佳的参数来最小化期望误差。
+* 优化问题可能存在许多局部极小值。
+* 这个问题可能有更多的鞍点，因为一般问题都不是凸的。
+* 逐渐消失的梯度会导致优化停滞。通常问题的重新参数化会有所帮助。参数的良好初始化也可能是有益的。
 
+## 练习
 
-## Exercises
-
-1. Consider a simple MLP with a single hidden layer of, say, $d$ dimensions in the hidden layer and a single output. Show that for any local minimum there are at least $d!$ equivalent solutions that behave identically.
-1. Assume that we have a symmetric random matrix $\mathbf{M}$ where the entries
-   $M_{ij} = M_{ji}$ are each drawn from some probability distribution
-   $p_{ij}$. Furthermore assume that $p_{ij}(x) = p_{ij}(-x)$, i.e., that the
-   distribution is symmetric (see e.g., :cite:`Wigner.1958` for details).
-    1. Prove that the distribution over eigenvalues is also symmetric. That is, for any eigenvector $\mathbf{v}$ the probability that the associated eigenvalue $\lambda$ satisfies $P(\lambda > 0) = P(\lambda < 0)$.
-    1. Why does the above *not* imply $P(\lambda > 0) = 0.5$?
-1. What other challenges involved in deep learning optimization can you think of?
-1. Assume that you want to balance a (real) ball on a (real) saddle.
-    1. Why is this hard?
-    1. Can you exploit this effect also for optimization algorithms?
+1. 考虑一个简单的多层感知器，在隐层中有一个$d$维的隐层和一个输出。显示任何当地最低有至少$d！$行为相同的等价解。
+1. 假设我们有一个对称随机矩阵$\mathbf{M}$，其中条目$M_{ij} = M_{ji}$分别来自某个概率分布$p_{ij}$。此外，假设$p_{ij}(x) = p_{ij}(-x)$，即分布是对称的（详见:cite:`Wigner.1958`）。
+    * 证明了特征值上的分布也是对称的。即，对于任何特征向量$\mathbf{v}$，相关特征值$\lambda$满足$P(\lambda > 0) = P(\lambda < 0)$的概率。
+    * 为什么上面的*不是*意味着$P(\lambda > 0) = 0.5$？
+1. 在深度学习优化过程中，你还能想到哪些挑战？
+1. 假设你想在一个（真实的）马鞍上平衡一个（真实的）球。
+    * 为什么这么难？
+    * 你能利用这种效果也优化算法吗？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/349)
