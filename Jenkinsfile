@@ -8,7 +8,7 @@ stage("Build and Publish") {
       sh "build/utils/build_html.sh zh"
       sh "build/utils/build_pdf.sh zh"
       sh "build/utils/build_pkg.sh zh"
-      if (env.BRANCH_NAME == 'master') {
+      if (env.BRANCH_NAME == 'v1') {
         sh "build/utils/publish_website.sh zh"
       }
     }
