@@ -1,49 +1,23 @@
-#!/usr/bin/env python
-import io
-import os
-import re
 from setuptools import setup, find_packages
-
-
-def read(*names, **kwargs):
-    with io.open(
-        os.path.join(os.path.dirname(__file__), *names),
-        encoding=kwargs.get("encoding", "utf8")
-    ) as fp:
-        return fp.read()
-
-
-def find_version(*file_paths):
-    version_file = read(*file_paths)
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              version_file, re.M)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
-
-
-VERSION = find_version('d2lzh', '__init__.py')
+import d2l
 
 requirements = [
+    'jupyter',
     'numpy',
     'matplotlib',
-	'jupyter'
+    'pandas'
 ]
 
 setup(
-    # Metadata
-    name='d2lzh',
-    version=VERSION,
+    name='d2l',
+    version=d2l.__version__,
+    python_requires='>=3.5',
     author='D2L Developers',
     author_email='d2l.devs@gmail.com',
-    url='https://zh.d2l.ai',
-    description='Dive into Deep Learning (in Chinese) Utils',
-    long_description='Dive into Deep Learning Book (in Chinese) Utilities',
-    license='Apache-2.0',
-
-    # Package info
-    packages=find_packages(exclude=('tests',)),
-
+    url='https://d2l.ai',
+    description='Dive into Deep Learning',
+    license='MIT-0',
+    packages=find_packages(),
     zip_safe=True,
     install_requires=requirements,
 )

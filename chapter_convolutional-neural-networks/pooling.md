@@ -1,38 +1,66 @@
 # 池化层
+:label:`sec_pooling`
 
-回忆一下，在[“二维卷积层”](conv-layer.md)一节里介绍的图像物体边缘检测应用中，我们构造卷积核从而精确地找到了像素变化的位置。设任意二维数组`X`的`i`行`j`列的元素为`X[i, j]`。如果我们构造的卷积核输出`Y[i, j]=1`，那么说明输入中`X[i, j]`和`X[i, j+1]`数值不一样。这可能意味着物体边缘通过这两个元素之间。但实际图像里，我们感兴趣的物体不会总出现在固定位置：即使我们连续拍摄同一个物体也极有可能出现像素位置上的偏移。这会导致同一个边缘对应的输出可能出现在卷积输出`Y`中的不同位置，进而对后面的模式识别造成不便。
+通常当我们处理图像时，我们希望逐渐降低隐藏表示的空间分辨率，聚集信息，这样的随着我们在神经网络中层叠的上升，每个神经元对其敏感的感受野（输入）就越大。
 
-在本节中我们介绍池化（pooling）层，它的提出是为了缓解卷积层对位置的过度敏感性。
+而我们的机器学习任务通常会跟全局图像的问题有关（例如，“图像是否包含一只猫呢？”）， 所以我们最后一层的神经元应该对整个输入的全局敏感。通过逐渐聚合信息，生成越来越粗糙的映射，最终实现学习全局表示的目标，同时将卷积图层的所有优势保留在中间层。
 
-## 二维最大池化层和平均池化层
+此外，当检测较底层的特征时（例如 :numref:`sec_conv_layer` 中所讨论的边缘），我们通常希望这些特征保持某种程度上的平移不变性。例如，如果我们拍摄黑白之间轮廓清晰的图像 `X`，并将整个图像向右移动一个像素，即 `Z[i, j] = X[i, j + 1]`，则新图像 `Z` 的输出可能大不相同。而在现实中，随着拍摄角度的移动，任何物体几乎不可能发生在同一像素上。即使用三脚架拍摄一个静止的物体，由于快门的移动而引起的相机振动，可能会使所有物体左右移动一个像素（除了高端相机配备了特殊功能来解决这个问题）。
 
-同卷积层一样，池化层每次对输入数据的一个固定形状窗口（又称池化窗口）中的元素计算输出。不同于卷积层里计算输入和核的互相关性，池化层直接计算池化窗口内元素的最大值或者平均值。该运算也分别叫做最大池化或平均池化。在二维最大池化中，池化窗口从输入数组的最左上方开始，按从左往右、从上往下的顺序，依次在输入数组上滑动。当池化窗口滑动到某一位置时，窗口中的输入子数组的最大值即输出数组中相应位置的元素。
+本节将介绍 *池化*（pooling）层，它具有双重目的：降低卷积层对位置的敏感性，同时降低对空间降采样表示的敏感性。
 
-![池化窗口形状为$2\times 2$的最大池化](../img/pooling.svg)
 
-图5.6展示了池化窗口形状为$2\times 2$的最大池化，阴影部分为第一个输出元素及其计算所使用的输入元素。输出数组的高和宽分别为2，其中的4个元素由取最大值运算$\text{max}$得出：
+## 最大池化层和平均池化层
+
+与卷积层类似，池化层运算符由一个固定形状的窗口组成，该窗口根据其步幅大小在输入的所有区域上滑动，为固定形状窗口（有时称为 *池化窗口*）遍历的每个位置计算一个输出。
+然而，不同于卷积层中的输入与卷积核之间的互相关计算，池化层不包含参数。
+相反，池运算符是确定性的，我们通常计算池化窗口中所有元素的最大值或平均值。这些操作分别称为 *最大池化层* （maximum pooling）和 *平均池化层* （average pooling）。
+
+在这两种情况下，与互相关运算符一样，池化窗口从输入张量的左上角开始，从左到右、从上到下的在输入张量内滑动。在池化窗口到达的每个位置，它计算该窗口中输入子张量的最大值或平均值，具体取决于是使用了最大池化层还是平均池化层。
+
+
+![池化窗口形状为 $2\times 2$ 的最大池化层。着色部分是第一个输出元素，以及用于计算这个输出的输入元素: $\max(0, 1, 3, 4)=4$.](../img/pooling.svg)
+:label:`fig_pooling`
+
+:numref:`fig_pooling` 中的输出张量的高度为 $2$，宽度为 $2$。这四个元素为每个池化窗口中的最大值：
 
 $$
-\max(0,1,3,4)=4,\\
-\max(1,2,4,5)=5,\\
-\max(3,4,6,7)=7,\\
-\max(4,5,7,8)=8.\\
+\max(0, 1, 3, 4)=4,\\
+\max(1, 2, 4, 5)=5,\\
+\max(3, 4, 6, 7)=7,\\
+\max(4, 5, 7, 8)=8.\\
 $$
 
+池化窗口形状为 $p \times q$ 的池化层称为 $p \times q$ 池化层，池化操作称为 $p \times q$ 池化。
 
-二维平均池化的工作原理与二维最大池化类似，但将最大运算符替换成平均运算符。池化窗口形状为$p \times q$的池化层称为$p \times q$池化层，其中的池化运算叫作$p \times q$池化。
+回到本节开头提到的对象边缘检测示例，现在我们将使用卷积层的输出作为 $2\times 2$ 最大池化的输入。
+设置卷积层输入为 `X`，池化层输出为 `Y`。
+无论 `X[i, j]` 和 `X[i, j + 1]` 的值是否不同，或 `X[i, j + 1]` 和 `X[i, j + 2]` 的值是否不同，池化层始终输出 `Y[i, j] = 1`。
+也就是说，使用 $2\times 2$ 最大池化层，即使在高度或宽度上移动一个元素，卷积层仍然可以识别到模式。
 
-让我们再次回到本节开始提到的物体边缘检测的例子。现在我们将卷积层的输出作为$2\times 2$最大池化的输入。设该卷积层输入是`X`、池化层输出为`Y`。无论是`X[i, j]`和`X[i, j+1]`值不同，还是`X[i, j+1]`和`X[i, j+2]`不同，池化层输出均有`Y[i, j]=1`。也就是说，使用$2\times 2$最大池化层时，只要卷积层识别的模式在高和宽上移动不超过一个元素，我们依然可以将它检测出来。
+在下面的代码中的 `pool2d` 函数，实现了池化层的正向传播。
+此功能类似于 :numref:`sec_conv_layer` 中的 `corr2d` 函数。
+然而，这里我们没有卷积核，输出为输入中每个区域的最大值或平均值。
 
-下面把池化层的前向计算实现在`pool2d`函数里。它与[“二维卷积层”](conv-layer.md)一节里`corr2d`函数非常类似，唯一的区别在计算输出`Y`上。
-
-```{.python .input  n=11}
-from mxnet import nd
+```{.python .input}
+from d2l import mxnet as d2l
+from mxnet import np, npx
 from mxnet.gluon import nn
+npx.set_np()
+```
 
+```{.python .input}
+#@tab pytorch
+from d2l import torch as d2l
+import torch
+from torch import nn
+```
+
+```{.python .input}
+#@tab mxnet, pytorch
 def pool2d(X, pool_size, mode='max'):
     p_h, p_w = pool_size
-    Y = nd.zeros((X.shape[0] - p_h + 1, X.shape[1] - p_w + 1))
+    Y = d2l.zeros((X.shape[0] - p_h + 1, X.shape[1] - p_w + 1))
     for i in range(Y.shape[0]):
         for j in range(Y.shape[1]):
             if mode == 'max':
@@ -42,81 +70,178 @@ def pool2d(X, pool_size, mode='max'):
     return Y
 ```
 
-我们可以构造图5.6中的输入数组`X`来验证二维最大池化层的输出。
+```{.python .input}
+#@tab tensorflow
+import tensorflow as tf
 
-```{.python .input  n=13}
-X = nd.array([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
+def pool2d(X, pool_size, mode='max'):
+    p_h, p_w = pool_size
+    Y = tf.Variable(tf.zeros((X.shape[0] - p_h + 1, X.shape[1] - p_w +1)))
+    for i in range(Y.shape[0]):
+        for j in range(Y.shape[1]):
+            if mode == 'max':
+                Y[i, j].assign(tf.reduce_max(X[i: i + p_h, j: j + p_w]))
+            elif mode =='avg':
+                Y[i, j].assign(tf.reduce_mean(X[i: i + p_h, j: j + p_w]))
+    return Y
+```
+
+我们可以构建 :numref:`fig_pooling` 中的输入张量 `X`，验证二维最大池化层的输出。
+
+```{.python .input}
+#@tab all
+X = d2l.tensor([[0.0, 1.0, 2.0], [3.0, 4.0, 5.0], [6.0, 7.0, 8.0]])
 pool2d(X, (2, 2))
 ```
 
-同时我们实验一下平均池化层。
+此外，我们还可以验证平均池化层。
 
-```{.python .input  n=14}
+```{.python .input}
+#@tab all
 pool2d(X, (2, 2), 'avg')
 ```
 
 ## 填充和步幅
 
-同卷积层一样，池化层也可以在输入的高和宽两侧的填充并调整窗口的移动步幅来改变输出形状。池化层填充和步幅与卷积层填充和步幅的工作机制一样。我们将通过`nn`模块里的二维最大池化层MaxPool2D来演示池化层填充和步幅的工作机制。我们先构造一个形状为(1, 1, 4, 4)的输入数据，前两个维度分别是批量和通道。
+与卷积层一样，池化层也可以改变输出形状。和以前一样，我们可以通过填充和步幅以获得所需的输出形状。
+下面，我们用深度学习框架中内置的二维最大池化层，来演示池化层中填充和步幅的使用。
+我们首先构造了一个输入张量 `X`，它有四个维度，其中样本数和通道数都是 1。
 
-```{.python .input  n=15}
-X = nd.arange(16).reshape((1, 1, 4, 4))
+```{.python .input}
+#@tab mxnet, pytorch
+X = d2l.reshape(d2l.arange(16, dtype=d2l.float32), (1, 1, 4, 4))
 X
 ```
 
-默认情况下，`MaxPool2D`实例里步幅和池化窗口形状相同。下面使用形状为(3, 3)的池化窗口，默认获得形状为(3, 3)的步幅。
-
-```{.python .input  n=16}
-pool2d = nn.MaxPool2D(3)
-pool2d(X)  # 因为池化层没有模型参数，所以不需要调用参数初始化函数
+```{.python .input}
+#@tab tensorflow
+X = d2l.reshape(d2l.arange(16, dtype=d2l.float32), (1, 4, 4, 1))
+X
 ```
 
-我们可以手动指定步幅和填充。
+默认情况下，深度学习框架中的步幅与池化窗口的大小相同。
+因此，如果我们使用形状为 `(3, 3)` 的池化窗口，那么默认情况下，我们得到的步幅形状为 `(3, 3)`。
 
-```{.python .input  n=7}
+```{.python .input}
+pool2d = nn.MaxPool2D(3)
+# 由于池化层中没有参数，所以不需要调用初始化函数
+pool2d(X)
+```
+
+```{.python .input}
+#@tab pytorch
+pool2d = nn.MaxPool2d(3)
+pool2d(X)
+```
+
+```{.python .input}
+#@tab tensorflow
+pool2d = tf.keras.layers.MaxPool2D(pool_size=[3, 3])
+pool2d(X)
+```
+
+填充和步幅可以手动设定。
+
+```{.python .input}
 pool2d = nn.MaxPool2D(3, padding=1, strides=2)
 pool2d(X)
 ```
 
-当然，我们也可以指定非正方形的池化窗口，并分别指定高和宽上的填充和步幅。
+```{.python .input}
+#@tab pytorch
+pool2d = nn.MaxPool2d(3, padding=1, stride=2)
+pool2d(X)
+```
 
-```{.python .input  n=8}
+```{.python .input}
+#@tab tensorflow
+pool2d = tf.keras.layers.MaxPool2D(pool_size=[3, 3], padding='same',
+                                   strides=2)
+pool2d(X)
+```
+
+当然，我们可以设定一个任意大小的矩形池化窗口，并分别设定填充和步幅的高度和宽度。
+
+```{.python .input}
 pool2d = nn.MaxPool2D((2, 3), padding=(1, 2), strides=(2, 3))
 pool2d(X)
 ```
 
-## 多通道
+```{.python .input}
+#@tab pytorch
+pool2d = nn.MaxPool2d((2, 3), padding=(1, 1), stride=(2, 3))
+pool2d(X)
+```
 
-在处理多通道输入数据时，池化层对每个输入通道分别池化，而不是像卷积层那样将各通道的输入按通道相加。这意味着池化层的输出通道数与输入通道数相等。下面将数组`X`和`X+1`在通道维上连结来构造通道数为2的输入。
+```{.python .input}
+#@tab tensorflow
+pool2d = tf.keras.layers.MaxPool2D(pool_size=[2, 3], padding='same',
+                                   strides=(2, 3))
+pool2d(X)
+```
 
-```{.python .input  n=9}
-X = nd.concat(X, X + 1, dim=1)
+## 多个通道
+
+在处理多通道输入数据时，池化层在每个输入通道上单独运算，而不是像卷积层一样在通道上对输入进行汇总。
+这意味着池化层的输出通道数与输入通道数相同。
+下面，我们将在通道维度上连结张量 `X` 和 `X + 1`，以构建具有 2 个通道的输入。
+
+```{.python .input}
+#@tab mxnet, pytorch
+X = d2l.concat((X, X + 1), 1)
 X
 ```
 
-池化后，我们发现输出通道数仍然是2。
+```{.python .input}
+#@tab tensorflow
+X = tf.reshape(tf.stack([X, X+1], 0), (1, 2, 4, 4))
+```
 
-```{.python .input  n=10}
+如下所示，池化后输出通道的数量仍然是 2。
+
+```{.python .input}
 pool2d = nn.MaxPool2D(3, padding=1, strides=2)
+pool2d(X)
+```
+
+```{.python .input}
+#@tab pytorch
+pool2d = nn.MaxPool2d(3, padding=1, stride=2)
+pool2d(X)
+```
+
+```{.python .input}
+#@tab tensorflow
+pool2d = tf.keras.layers.MaxPool2D(3, padding='same', strides=2)
 pool2d(X)
 ```
 
 ## 小结
 
-* 最大池化和平均池化分别取池化窗口中输入元素的最大值和平均值作为输出。
-* 池化层的一个主要作用是缓解卷积层对位置的过度敏感性。
-* 可以指定池化层的填充和步幅。
+* 对于给定输入元素，最大池化层会输出该窗口内的最大值，平均池化层会输出该窗口内的平均值。
+* 池化层的主要优点之一是减轻卷积层对位置的过度敏感。
+* 我们可以指定池化层的填充和步幅。
+* 使用最大池化层以及大于 1 的步幅，可减少空间维度（如高度和宽度）。
 * 池化层的输出通道数与输入通道数相同。
 
 
 ## 练习
 
-* 分析池化层的计算复杂度。假设输入形状为$c\times h\times w$，我们使用形状为$p_h\times p_w$的池化窗口，而且使用$(p_h, p_w)$填充和$(s_h, s_w)$步幅。这个池化层的前向计算复杂度有多大？
-* 想一想，最大池化层和平均池化层在作用上可能有哪些区别？
-* 你觉得最小池化层这个想法有没有意义？
+1. 你能将平均池化层作为卷积层的特殊情况实现吗？
+1. 你能将最大池化层作为卷积层的特殊情况实现吗？
+1. 假设池化层的输入大小为 $c\times h\times w$，则池化窗口的形状为 $p_h\times p_w$，填充为 $(p_h, p_w)$，步幅为 $(s_h, s_w)$。这个池化层的计算成本是多少？
+1. 为什么最大池化层和平均池化层的工作方式不同？
+1. 我们是否需要最小池化层？可以用已知函数替换它吗？
+1. 除了平均池化层和最大池化层，是否有其它函数可以考虑（提示：回忆 `softmax` ）？为什么它可能不受欢迎？
 
+:begin_tab:`mxnet`
+[Discussions](https://discuss.d2l.ai/t/1858)
+:end_tab:
 
+:begin_tab:`pytorch`
+[Discussions](https://discuss.d2l.ai/t/1857)
+:end_tab:
 
-## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/6406)
-
-![](../img/qr_pooling.svg)
+:begin_tab:`tensorflow`
+[Discussions](https://discuss.d2l.ai/t/1856)
+:end_tab:
