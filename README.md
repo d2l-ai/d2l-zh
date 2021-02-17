@@ -2,7 +2,7 @@
 
 [![Build Status](http://ci.d2l.ai/job/d2l-zh/job/master/badge/icon)](http://ci.d2l.ai/job/d2l-zh/job/master/)
 
-[本书网址：zh.d2l.ai](https://zh.d2l.ai/) | [本书第二版预览版网址：preview.d2l.ai/d2l-zh/v2](http://preview.d2l.ai/d2l-zh/v2/)  |  [如何安装和使用书中源代码](https://zh.d2l.ai/chapter_prerequisite/install.html)
+[本书网址：zh.d2l.ai](https://zh.d2l.ai/) | [本书第二版预览版网址：preview.d2l.ai/d2l-zh/master](http://preview.d2l.ai/d2l-zh/master/)  |  [如何安装和使用书中源代码](https://zh.d2l.ai/chapter_prerequisite/install.html)
 
 <h5 align="center"><i>理解深度学习的最佳方法是学以致用。</i></h5>
 
