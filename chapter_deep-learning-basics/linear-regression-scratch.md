@@ -171,7 +171,6 @@ true_b, b
 
 
 
-
 ## 扫码直达[讨论区](https://discuss.gluon.ai/t/topic/743)
 
 ![](../img/qr_linear-regression-scratch.svg)
