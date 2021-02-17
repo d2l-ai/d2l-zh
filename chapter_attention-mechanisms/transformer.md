@@ -1,11 +1,11 @@
-# 变压器
+# Transformer
 :label:`sec_transformer`
 
-我们在 :numref:`subsec_cnn-rnn-self-attention` 中比较了 CNN、RNN 和自我注意力。值得注意的是，自我注意力同时享有并行计算和最短的最大路径长度。因此，自然而言，通过使用自我注意力来设计深层架构是很有吸引力的。与之前仍然依赖 RNN 进行输入表示 :cite:`Cheng.Dong.Lapata.2016,Lin.Feng.Santos.ea.2017,Paulus.Xiong.Socher.2017` 的自我注意模型不同，变压器模型完全基于注意机制，没有任何卷积层或循环层 :cite:`Vaswani.Shazeer.Parmar.ea.2017`。尽管最初提议对文本数据进行顺序学习，但变形金刚在各种现代深度学习应用中普遍存在，例如语言、视觉、语音和强化学习领域。
+我们在 :numref:`subsec_cnn-rnn-self-attention` 中比较了 CNN、RNN 和 Self-Attention。值得注意的是，Self-Attention 同时享有并行计算和最短的最大路径长度。因此，自然而言，通过使用 Self-Attention 来设计深层架构是很有吸引力的。与之前仍然依赖 RNN 进行输入表示 :cite:`Cheng.Dong.Lapata.2016,Lin.Feng.Santos.ea.2017,Paulus.Xiong.Socher.2017` 的 Self-Attention 模型不同，Transformer 模型完全基于注意机制，没有任何卷积层或循环层 :cite:`Vaswani.Shazeer.Parmar.ea.2017`。尽管 Transformer 最初是应用于文本数据的序列学习，但在各种现代深度学习应用中它也普遍存在，例如语言、视觉、语音和强化学习领域。
 
 ## 模型
 
-作为编码器解码器架构的一个实例，变压器的整体架构在 :numref:`fig_transformer` 中介绍。正如我们所看到的，变压器由编码器和解码器组成。与 :numref:`fig_s2s_attention_details` 中 Bahdanau 对序列到序列学习的关注不同，输入（源）和输出（目标）序列嵌入在输入（源）和输出（目标）序列嵌入之前将添加到编码器和基于自我注意力堆叠模块的解码器之前。
+作为 encoder-decoder 架构的一个实例，Transformer 的整体架构在图 :numref:`fig_transformer` 中呈现。正如我们所看到的，Transformer 由编码器和解码器组成。与 :numref:`fig_s2s_attention_details` 中 Bahdanau 对序列到序列学习的关注点不同，在将输入（源）和输出（目标）序列嵌入添加到编码器和解码器之前，这些嵌入将被添加到基于 Self-Attention 而堆叠模块的编码器和解码器中。
 
 ![The Transformer architecture.](../img/transformer.svg)
 :width:`500px`
