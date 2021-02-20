@@ -1,5 +1,26 @@
 <link href="_static/frontpage.css" rel="stylesheet">
 
+.collapsible {
+    background-color: #EEE;
+    color: black;
+    cursor: pointer;
+    padding: 6px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 16px;
+}
+.collapsible-active, .collapsible:hover {
+    background-color: #DDD;
+}
+.expansion {
+    padding: 3px 6px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}
+
 <div class = "mdl-grid header">
   <div class = "mdl-cell mdl-cell--4-col">
     <img src="_images/frontpage/front.png" class="img-fluid" alt="">
@@ -381,12 +402,12 @@
     </div>
 -->
 <!--end of logos-->
-<div id="logoimg"><img src="./_images/logos/logoimg1.png" /></div>
-<div id="logoimg"><img src="./_images/logos/logoimg2.png" /></div>
-<div id="logoimg"><img src="./_images/logos/logoimg3.png" /></div>
-<div id="logoimg"><img src="./_images/logos/logoimg4.png" /></div>
-<div id="logoimg"><img src="./_images/logos/logoimg5.png" /></div>
-<div id="mapimg"><img src="./_images/map.png" /></div>
+<div id="logoimg"><img src="./_images/frontpage/logoimg1.png" /></div>
+<div id="logoimg"><img src="./_images/frontpage/logoimg2.png" /></div>
+<div id="logoimg"><img src="./_images/frontpage/logoimg3.png" /></div>
+<div id="logoimg"><img src="./_images/frontpage/logoimg4.png" /></div>
+<div id="logoimg"><img src="./_images/frontpage/logoimg5.png" /></div>
+<div id="mapimg"><img src="./_images/frontpage/map.png" /></div>
 
 
     <!--beginning of the map-->
@@ -819,5 +840,21 @@
 </div>
 
 <h2 class="toc"> 目录 </h2>
+
+<script>
+var coll = document.getElementsByClassName("collapsible");
+var i;
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("click", function() {
+    this.classList.toggle("collapsible-active");
+    var content = this.nextElementSibling;
+    if (content.style.maxHeight){
+      content.style.maxHeight = null;
+    } else {
+      content.style.maxHeight = content.scrollHeight + "px";
+    }
+  });
+}
+</script>
 
 <script async defer src="https://buttons.github.io/buttons.js"></script>
