@@ -109,3 +109,24 @@ h2.toc {
         padding: 0 24px;
     }
 }
+
+.collapsible {
+    background-color: #EEE;
+    color: black;
+    cursor: pointer;
+    padding: 6px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 16px;
+}
+.collapsible-active, .collapsible:hover {
+    background-color: #DDD;
+}
+.expansion {
+    padding: 3px 6px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}
