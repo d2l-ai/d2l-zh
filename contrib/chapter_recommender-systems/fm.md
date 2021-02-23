@@ -95,7 +95,7 @@ loss = gluon.loss.SigmoidBinaryCrossEntropyLoss()
 d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, ctx)
 ```
 
-## 总结
+## 小结
 
 * 因子分解机是一种通用框架，它可以应用在回归、分类和排序等一系列不同的任务上。
 * 对于预测任务来说，特征交互/交叉非常重要，而使用因子分解机可以高效地建模双路特征交互。

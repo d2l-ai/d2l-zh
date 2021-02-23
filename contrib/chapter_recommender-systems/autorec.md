@@ -104,7 +104,7 @@ d2l.train_recsys_rating(net, train_iter, test_iter, loss, trainer, num_epochs,
                         ctx, evaluator, inter_mat=test_inter_mat)
 ```
 
-## 总结
+## 小结
 
 * 我们可以使用自动编码器构建矩阵分解算法，同时还可以在其中整合非线性层和dropout正则化层。
 * MovieLens-100K数据集上的实验表明，自动编码器的性能优于矩阵分解模型。
