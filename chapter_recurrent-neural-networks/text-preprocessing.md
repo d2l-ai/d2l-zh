@@ -167,4 +167,14 @@ len(corpus), len(vocab)
 1. 标记化是一个关键的预处理步骤。它因语言而异。尝试找到另外三种常用的文本标记方法。
 1. 在本节的实验中，将文本标记为单词，并更改`Vocab`实例的`min_freq`参数。这对词汇量有何影响？
 
-[Discussions](https://discuss.d2l.ai/t/115)
+:begin_tab:`mxnet`
+[Discussions](https://discuss.d2l.ai/t/2093)
+:end_tab:
+
+:begin_tab:`pytorch`
+[Discussions](https://discuss.d2l.ai/t/2094)
+:end_tab:
+
+:begin_tab:`tensorflow`
+[Discussions](https://discuss.d2l.ai/t/2095)
+:end_tab:

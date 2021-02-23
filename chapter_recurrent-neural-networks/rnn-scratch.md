@@ -680,13 +680,13 @@ train_ch8(net, train_random_iter, vocab_random_iter, num_hiddens, lr,
 1. 用ReLU替换本节中使用的激活函数，并重复本节中的实验。我们还需要梯度裁剪吗？为什么？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/336)
+[Discussions](https://discuss.d2l.ai/t/2102)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/486)
+[Discussions](https://discuss.d2l.ai/t/2103)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/1052)
+[Discussions](https://discuss.d2l.ai/t/2104)
 :end_tab:

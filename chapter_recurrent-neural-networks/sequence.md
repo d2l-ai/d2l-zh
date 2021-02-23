@@ -365,13 +365,13 @@ d2l.plot([time[tau + i - 1: T - max_steps + i] for i in steps],
 1. 举例说明什么时候可能需要隐变量自回归模型来捕捉数据的动力学模型。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/113)
+[Discussions](https://discuss.d2l.ai/t/2090)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/114)
+[Discussions](https://discuss.d2l.ai/t/2091)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/1048)
+[Discussions](https://discuss.d2l.ai/t/2092)
 :end_tab:
