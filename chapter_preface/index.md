@@ -157,13 +157,13 @@ import tensorflow as tf
 1. 点击论坛部分底部的链接，您将能够寻求帮助和讨论这本书，并通过吸引作者和更广泛的社区来找到问题的答案。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/18)
+[Discussions](https://discuss.d2l.ai/t/2085)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/20)
+[Discussions](https://discuss.d2l.ai/t/2086)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/186)
+[Discussions](https://discuss.d2l.ai/t/2087)
 :end_tab:

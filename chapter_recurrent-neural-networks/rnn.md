@@ -154,13 +154,13 @@ $$\exp\left(-\frac{1}{n} \sum_{t=1}^n \log P(x_t \mid x_{t-1}, \ldots, x_1)\righ
 1. 与本节中描述的语言模型相关的问题有哪些？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/337)
+[Discussions](https://discuss.d2l.ai/t/2099)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1050)
+[Discussions](https://discuss.d2l.ai/t/2100)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/1051)
+[Discussions](https://discuss.d2l.ai/t/2101)
 :end_tab:

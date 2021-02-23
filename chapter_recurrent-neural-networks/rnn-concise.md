@@ -187,9 +187,9 @@ d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, device)
 1. 使用循环神经网络实现 :numref:`sec_sequence` 的自回归模型。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/335)
+[Discussions](https://discuss.d2l.ai/t/2105)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1053)
+[Discussions](https://discuss.d2l.ai/t/2106)
 :end_tab:

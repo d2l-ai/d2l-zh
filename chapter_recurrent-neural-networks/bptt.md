@@ -164,4 +164,4 @@ $$
    1. 上述结果对于循环神经网络中的梯度意味着什么？
 1. 除了梯度裁剪，你还能想到其他方法来应对循环神经网络中的梯度爆炸吗？
 
-[Discussions](https://discuss.d2l.ai/t/334)
+[Discussions](https://discuss.d2l.ai/t/2107)

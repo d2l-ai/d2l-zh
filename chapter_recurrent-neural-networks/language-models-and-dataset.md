@@ -288,13 +288,13 @@ def load_data_time_machine(batch_size, num_steps,  #@save
 1. 如果我们希望一个序列样本是一个完整的句子，那么这在小批量抽样中会带来什么样的问题呢？我们怎样才能解决这个问题呢？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/117)
+[Discussions](https://discuss.d2l.ai/t/2096)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/118)
+[Discussions](https://discuss.d2l.ai/t/2097)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/1049)
+[Discussions](https://discuss.d2l.ai/t/2098)
 :end_tab:
