@@ -70,4 +70,4 @@
 
 * $\mathcal{O}$：大O标记
 
-[Discussions](https://discuss.d2l.ai/t/25)
+[Discussions](https://discuss.d2l.ai/t/2089)

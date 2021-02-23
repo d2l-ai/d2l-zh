@@ -128,13 +128,13 @@ pip install mxnet-cu101==1.7.0
 1. 下载该书的代码并安装运行时环境。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/23)
+[Discussions](https://discuss.d2l.ai/t/2082)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/24)
+[Discussions](https://discuss.d2l.ai/t/2083)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/436)
+[Discussions](https://discuss.d2l.ai/t/2084)
 :end_tab:
