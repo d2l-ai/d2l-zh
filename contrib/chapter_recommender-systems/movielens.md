@@ -140,7 +140,7 @@ def split_and_load_ml100k(split_mode='seq-aware', feedback='explicit',
     return num_users, num_items, train_iter, test_iter
 ```
 
-## 总结
+## 小结
 
 * MovieLens广泛用于推荐系统研究。它是免费且公开可用的。
 * 为了能在后续章节中使用，我们定义了一些函数用来下载和预处理MovieLens-100k数据集。

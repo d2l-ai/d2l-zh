@@ -316,7 +316,7 @@ b = net.get_weights()[1]
 print('b的估计误差：', true_b - b)
 ```
 
-## 总结
+## 小结
 
 :begin_tab:`mxnet`
 * 我们可以使用Gluon更简洁地实现模型。
