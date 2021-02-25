@@ -52,7 +52,7 @@ print(lines[10])
 
 ## 标记化
 
-以下`tokenize`函数将列表作为输入，列表中的每个元素是文本序列（如，文本行）。每个文本序列被拆分成一个标记列表。*标记*（token）是文本的基本单位。最后返回一个标记列表，其中每个标记都是一个字符串（string）。
+以下 `tokenize` 函数将列表作为输入，列表中的每个元素是文本序列（如，文本行）。每个文本序列被拆分成一个标记列表。*标记*（token）是文本的基本单位。最后返回一个标记列表，其中每个标记都是一个字符串（string）。
 
 ```{.python .input}
 #@tab all
@@ -111,7 +111,7 @@ class Vocab:  #@save
 
 def count_corpus(tokens):  #@save
     """Count token frequencies."""
-    # 这里的`tokens`是1D列表或2D列表
+    # 这里的 `tokens` 是1D列表或2D列表
     if len(tokens) == 0 or isinstance(tokens[0], list):
         # 将令牌列表展平
         tokens = [token for line in tokens for token in line]
@@ -137,7 +137,9 @@ for i in [0, 10]:
 
 ## 把所有的东西放在一起
 
-使用上述函数，我们将所有内容打包到`load_corpus_time_machine`函数中，该函数返回`corpus`（标记索引列表）和`vocab`（时光机器语料库的词汇表）。我们在这里所做的修改是：1、我们将文本标记化为字符，而不是单词，以简化后面部分中的训练；2、`corpus`是单个列表，而不是标记列表嵌套，因为时光机器数据集中的每个文本行不一定是句子或段落。
+使用上述函数，我们将所有内容打包到 `load_corpus_time_machine` 函数中，该函数返回 `corpus`（标记索引列表）和 `vocab`（时光机器语料库的词汇表）。我们在这里所做的修改是：
+- 1、我们将文本 标记化为字符，而不是单词，以简化后面部分中的训练；
+- 2、`corpus`是单个列表，而不是标记列表嵌套，因为时光机器数据集中的每个文本行不一定是句子或段落。
 
 ```{.python .input}
 #@tab all
@@ -165,7 +167,7 @@ len(corpus), len(vocab)
 ## 练习
 
 1. 标记化是一个关键的预处理步骤。它因语言而异。尝试找到另外三种常用的文本标记方法。
-1. 在本节的实验中，将文本标记为单词，并更改`Vocab`实例的`min_freq`参数。这对词汇量有何影响？
+1. 在本节的实验中，将文本标记为单词，并更改 `Vocab` 实例的 `min_freq` 参数。这对词汇量有何影响？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/2093)
