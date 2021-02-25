@@ -192,7 +192,7 @@ def get_net():
 loss = tf.keras.losses.MeanSquaredError()
 ```
 
-现在我们准备好训练模型了。下面的代码与前面几节中的训练代码实现基本相同，如:numref:`sec_linear_concise`。因此，我们不会深入探讨太多细节。
+现在我们准备好训练模型了。下面的代码与前面几节中的训练代码实现基本相同，如 :numref:`sec_linear_concise` 。因此，我们不会深入探讨太多细节。
 
 ```{.python .input}
 def train(net, train_iter, loss, epochs, lr):

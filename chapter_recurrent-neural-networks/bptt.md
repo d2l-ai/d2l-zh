@@ -97,7 +97,7 @@ $$L = \frac{1}{T} \sum_{t=1}^T l(\mathbf{o}_t, y_t).$$
 ![显示具有三个时间步的循环神经网络模型依赖关系的计算图。框表示变量（未着色）或参数（着色），圆表示运算符。](../img/rnn-bptt.svg)
 :label:`fig_rnn_bptt`
 
-正如刚才提到的，:numref:`fig_rnn_bptt`中的模型参数是$\mathbf{W}_{hx}$、$\mathbf{W}_{hh}$和$\mathbf{W}_{qh}$。通常，训练该模型需要对这些参数$\partial L/\partial \mathbf{W}_{hx}$、$\partial L/\partial \mathbf{W}_{hh}$和$\partial L/\partial \mathbf{W}_{qh}$进行梯度计算。根据:numref:`fig_rnn_bptt`中的依赖关系，我们可以沿箭头的相反方向遍历，依次计算和存储梯度。为了灵活地表示链式法则中不同形状的矩阵、向量和标量的乘法，我们继续使用$\text{prod}$运算符，如:numref:`sec_backprop`中所述。
+正如刚才提到的， :numref:`fig_rnn_bptt` 中的模型参数是$\mathbf{W}_{hx}$、$\mathbf{W}_{hh}$和$\mathbf{W}_{qh}$。通常，训练该模型需要对这些参数 $\partial L/\partial \mathbf{W}_{hx}$ 、 $\partial L/\partial \mathbf{W}_{hh}$ 和 $\partial L/\partial \mathbf{W}_{qh}$ 进行梯度计算。根据 :numref:`fig_rnn_bptt` 中的依赖关系，我们可以沿箭头的相反方向遍历，依次计算和存储梯度。为了灵活地表示链式法则中不同形状的矩阵、向量和标量的乘法，我们继续使用 $\text{prod}$ 运算符，如 :numref:`sec_backprop` 中所述。
 
 首先，目标函数有关任意时间步$t$的模型输出的梯度很容易计算：
 
@@ -132,7 +132,7 @@ $$\frac{\partial L}{\partial \mathbf{h}_t}= \sum_{i=t}^T {\left(\mathbf{W}_{hh}^
 
 我们可以从 :eqref:`eq_bptt_partial_L_ht` 中看到，这个简单的线性例子已经展现了长序列模型的一些关键问题：它涉及到 $\mathbf{W}_{hh}^\top$ 的潜在非常大的指数。其中，小于1的特征值消失，大于1的特征值发散。这在数值上是不稳定的，表现为梯度消失或梯度爆炸。解决此问题的一种方法是按照计算方便的大小截断时间步长，如 :numref:`subsec_bptt_analysis` 中所述。实际上，这种截断是通过在给定数量的时间步长之后分离梯度来实现的。稍后，我们将看到更复杂的序列模型（如长短期记忆）如何进一步缓解这一问题。
 
-最后，:numref:`fig_rnn_bptt`表明了，目标函数$L$通过隐藏状态$\mathbf{W}_{hx}$和$\mathbf{W}_{hh}$依赖隐藏层中的模型参数$\mathbf{h}_1, \ldots, \mathbf{h}_T$。为了计算有关这些参数的梯度$\partial L / \partial \mathbf{W}_{hx} \in \mathbb{R}^{h \times d}$和$\partial L / \partial \mathbf{W}_{hh} \in \mathbb{R}^{h \times h}$，我们应用链式规则：
+最后， :numref:`fig_rnn_bptt` 表明了，目标函数$L$通过隐藏状态$\mathbf{W}_{hx}$和$\mathbf{W}_{hh}$依赖隐藏层中的模型参数$\mathbf{h}_1, \ldots, \mathbf{h}_T$。为了计算有关这些参数的梯度$\partial L / \partial \mathbf{W}_{hx} \in \mathbb{R}^{h \times d}$和$\partial L / \partial \mathbf{W}_{hh} \in \mathbb{R}^{h \times h}$，我们应用链式规则：
 
 $$
 \begin{aligned}
