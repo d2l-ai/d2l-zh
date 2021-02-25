@@ -244,10 +244,13 @@ class Net(tf.keras.Model):
     def call(self, inputs, training=None):
         x = self.input_layer(inputs)
         x = self.hidden1(x)
+        # 只有在训练模型时才使用dropout
         if training:
+            # 在第一个全连接层之后添加一个dropout层
             x = dropout_layer(x, dropout1)
         x = self.hidden2(x)
         if training:
+            # 在第二个全连接层之后添加一个dropout层
             x = dropout_layer(x, dropout2)
         x = self.output_layer(x)
         return x
