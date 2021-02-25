@@ -42,7 +42,7 @@
 :label:`fig_book_org`
 
 * 第一部分包括基础知识和预赛。
-:numref:`chap_introduction` 提供了深度学习的介绍。然后，在 :numref:`chap_preliminaries` 中，我们可以快速了解深度学习所需的先决条件，例如如何存储和操作数据，以及如何根据线性代数、微积分和概率等基本概念应用各种数值运算。:numref:`chap_linear` 和 :numref:`chap_perceptrons` 涵盖了最多的深度学习的基本概念和技术, 例如线性回归, 多层感知和正则化.
+:numref:`chap_introduction` 提供了深度学习的介绍。然后，在 :numref:`chap_preliminaries` 中，我们可以快速了解深度学习所需的先决条件，例如如何存储和操作数据，以及如何根据线性代数、微积分和概率等基本概念应用各种数值运算。 :numref:`chap_linear` 和 :numref:`chap_perceptrons` 涵盖了最多的深度学习的基本概念和技术, 例如线性回归, 多层感知和正则化.
 
 * 接下来的五章重点介绍现代深度学习技巧。
 :numref:`chap_computation` 描述了深度学习计算的各种关键组成部分，并为我们随后实施更复杂的模型奠定了基础。接下来，在 :numref:`chap_cnn` 和 :numref:`chap_modern_cnn` 中，我们介绍了卷积神经网络（CNN），这些功能强大的工具构成了大多数现代计算机视觉系统的骨干。随后，在 :numref:`chap_rnn` 和 :numref:`chap_modern_rnn` 中，我们引入了循环神经网络 (RNN)，这些模型利用数据中的时间或顺序结构，通常用于自然语言处理和时间序列预测。在 :numref:`chap_attention` 中，我们引入了一类新的模型，它们采用了一种称为注意机制的技术，并且它们最近开始在自然语言处理中取代 RNs。这些部分将帮助您了解大多数现代深度学习应用背后的基本工具。
