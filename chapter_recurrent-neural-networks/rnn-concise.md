@@ -26,7 +26,7 @@ train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 
 ## 定义模型
 
-高级API提供了循环神经网络的实现。我们构造了一个具有256隐藏单元的单隐藏层的循环神经网络层`rnn_layer`。事实上，我们还没有讨论多层的含义——这将在 :numref:`sec_deep_rnn`介绍。现在，只要说多层仅仅相当于一层循环神经网络的输出被用作下一层循环神经网络的输入就足够了。
+高级API提供了循环神经网络的实现。我们构造了一个具有256隐藏单元的单隐藏层的循环神经网络层 `rnn_layer`。事实上，我们还没有讨论多层的含义——这将在 :numref:`sec_deep_rnn`介绍。现在，只要说多层仅仅相当于一层循环神经网络的输出被用作下一层循环神经网络的输入就足够了。
 
 ```{.python .input}
 num_hiddens = 256
@@ -78,7 +78,7 @@ Y, state_new = rnn_layer(X, state)
 Y.shape, state_new.shape
 ```
 
-与 :numref:`sec_rnn_scratch` 类似，我们为一个完整的循环神经网络模型定义了一个`RNNModel`类。注意`rnn_layer`只包含隐藏循环层，我们需要创建一个单独的输出层。
+与 :numref:`sec_rnn_scratch` 类似，我们为一个完整的循环神经网络模型定义了一个 `RNNModel` 类。注意 `rnn_layer` 只包含隐藏循环层，我们需要创建一个单独的输出层。
 
 ```{.python .input}
 #@save
@@ -164,7 +164,7 @@ net = net.to(device)
 d2l.predict_ch8('time traveller', 10, net, vocab, device)
 ```
 
-很明显，这种模型根本不起作用。接下来，我们使用 :numref:`sec_rnn_scratch` 中定义的超参数调用`train_ch8`，并使用高级API训练模型。
+很明显，这种模型根本不起作用。接下来，我们使用 :numref:`sec_rnn_scratch` 中定义的超参数调用 `train_ch8`，并使用高级API训练模型。
 
 ```{.python .input}
 #@tab all

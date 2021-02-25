@@ -152,7 +152,7 @@ d2l.plot([freqs, bigram_freqs, trigram_freqs], xlabel='token: x',
 
 在随机采样中，每个样本都是在原始长序列上任意捕获的子序列。迭代期间来自两个相邻随机小批量的子序列不一定在原始序列上相邻。对于语言建模，目标是根据我们到目前为止看到的标记来预测下一个标记，因此标签是原始序列移位了一个标记。
 
-下面的代码每次从数据随机生成一个小批量。这里，参数`batch_size`指定每个小批量中的子序列样本数目，`num_steps`是每个子序列中预定义的时间步数。
+下面的代码每次从数据随机生成一个小批量。这里，参数 `batch_size` 指定每个小批量中的子序列样本数目， `num_steps` 是每个子序列中预定义的时间步数。
 
 ```{.python .input}
 #@tab all
@@ -241,7 +241,7 @@ for X, Y in seq_data_iter_sequential(my_seq, batch_size=2, num_steps=5):
 ```{.python .input}
 #@tab all
 class SeqDataLoader:  #@save
-    """An iterator to load sequence data."""
+    """加载序列数据的迭代器。"""
     def __init__(self, batch_size, num_steps, use_random_iter, max_tokens):
         if use_random_iter:
             self.data_iter_fn = d2l.seq_data_iter_random
@@ -254,7 +254,7 @@ class SeqDataLoader:  #@save
         return self.data_iter_fn(self.corpus, self.batch_size, self.num_steps)
 ```
 
-最后，我们定义了一个函数`load_data_time_machine`，它同时返回数据迭代器和词表，因此我们可以与其他带有`load_data`前缀的函数（如 :numref:`sec_fashion_mnist` 中定义的`d2l.load_data_fashion_mnist`）类似地使用它。
+最后，我们定义了一个函数 `load_data_time_machine` ，它同时返回数据迭代器和词表，因此我们可以与其他带有 `load_data` 前缀的函数（如 :numref:`sec_fashion_mnist` 中定义的 `d2l.load_data_fashion_mnist` ）类似地使用它。
 
 ```{.python .input}
 #@tab all
