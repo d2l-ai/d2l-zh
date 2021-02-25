@@ -10,7 +10,7 @@ $$P(x_t \mid x_{t-1}, \ldots, x_1) \approx P(x_t \mid h_{t-1}),$$
 $$h_t = f(x_{t}, h_{t-1}).$$
 :eqlabel:`eq_ht_xt`
 
-对于足够强大的函数$f$（:eqref:`eq_ht_xt`），隐变量模型不是近似值。毕竟，$h_t$可能只是存储到目前为止观察到的所有数据。然而，它可能会使计算和存储都变得昂贵。
+对于足够强大的函数$f$（ :eqref:`eq_ht_xt` ），隐变量模型不是近似值。毕竟，$h_t$可能只是存储到目前为止观察到的所有数据。然而，它可能会使计算和存储都变得昂贵。
 
 回想一下，我们在 :numref:`chap_perceptrons` 中讨论过具有隐藏单元的隐藏层。值得注意的是，隐藏层和隐藏状态指的是两个截然不同的概念。如上所述，隐藏层是在从输入到输出的路径上从视图中隐藏的层。从技术上讲，隐藏状态是我们在给定步骤所做的任何事情的“输入”。隐藏状态只能通过查看先前时间点的数据来计算。
 
@@ -41,7 +41,7 @@ $$\mathbf{O} = \mathbf{H} \mathbf{W}_{hq} + \mathbf{b}_q,$$
 $$\mathbf{H}_t = \phi(\mathbf{X}_t \mathbf{W}_{xh} + \mathbf{H}_{t-1} \mathbf{W}_{hh}  + \mathbf{b}_h).$$
 :eqlabel:`rnn_h_with_state`
 
-与 :eqref:`rnn_h_without_state` 相比， :eqref:`rnn_h_with_state` 多添加了一项$\mathbf{H}_{t-1} \mathbf{W}_{hh}$，从而实例化了 :eqref:`eq_ht_xt`。从相邻时间步的隐藏变量$\mathbf{H}_t$和$\mathbf{H}_{t-1}$之间的关系可知，这些变量捕获并保留了序列直到其当前时间步的历史信息，就像神经网络的当前时间步的状态或记忆一样。因此，这样的隐藏变量被称为“隐藏状态”（hidden state）。由于隐藏状态使用与当前时间步中的前一个时间步相同的定义，因此 :eqref:`rnn_h_with_state` 的计算是*循环的*（recurrent）。因此，基于循环计算的隐状态神经网络被命名为*循环神经网络*（recurrent neural networks）。在循环神经网络中执行:eqref:`rnn_h_with_state`计算的层称为“循环层”（recurrent layers）。
+与 :eqref:`rnn_h_without_state` 相比， :eqref:`rnn_h_with_state` 多添加了一项$\mathbf{H}_{t-1} \mathbf{W}_{hh}$，从而实例化了 :eqref:`eq_ht_xt`。从相邻时间步的隐藏变量$\mathbf{H}_t$和$\mathbf{H}_{t-1}$之间的关系可知，这些变量捕获并保留了序列直到其当前时间步的历史信息，就像神经网络的当前时间步的状态或记忆一样。因此，这样的隐藏变量被称为“隐藏状态”（hidden state）。由于隐藏状态使用与当前时间步中的前一个时间步相同的定义，因此 :eqref:`rnn_h_with_state` 的计算是*循环的*（recurrent）。因此，基于循环计算的隐状态神经网络被命名为*循环神经网络*（recurrent neural networks）。在循环神经网络中执行 :eqref:`rnn_h_with_state` 计算的层称为“循环层”（recurrent layers）。
 
 构建循环神经网络有许多不同的方法。具有由 :eqref:`rnn_h_with_state` 定义的隐藏状态的循环神经网络非常常见。对于时间步$t$，输出层的输出类似于多层感知机中的计算：
 
@@ -126,7 +126,7 @@ d2l.matmul(d2l.concat((X, H), 1), d2l.concat((W_xh, W_hh), 0))
 $$\frac{1}{n} \sum_{t=1}^n -\log P(x_t \mid x_{t-1}, \ldots, x_1),$$
 :eqlabel:`eq_avg_ce_for_lm`
 
-其中$P$由语言模型给出，$x_t$是在时间步$t$从该序列观察到的实际标记。这使得在不同长度的文档上的性能具有可比性。由于历史原因，自然语言处理的科学家更喜欢使用一个叫做“困惑度”（perplexity）的量。简而言之，它是:eqref:`eq_avg_ce_for_lm`的指数：
+其中$P$由语言模型给出，$x_t$是在时间步$t$从该序列观察到的实际标记。这使得在不同长度的文档上的性能具有可比性。由于历史原因，自然语言处理的科学家更喜欢使用一个叫做“困惑度”（perplexity）的量。简而言之，它是 :eqref:`eq_avg_ce_for_lm` 的指数：
 
 $$\exp\left(-\frac{1}{n} \sum_{t=1}^n \log P(x_t \mid x_{t-1}, \ldots, x_1)\right).$$
 

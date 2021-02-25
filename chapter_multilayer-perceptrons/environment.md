@@ -90,7 +90,7 @@
 $$\mathop{\mathrm{minimize}}_f \frac{1}{n} \sum_{i=1}^n l(f(\mathbf{x}_i), y_i),$$
 :eqlabel:`eq_empirical-risk-min`
 
-其中$l$是损失函数，用来度量给定响应标签$y_i$，预测$f(\mathbf{x}_i)$的“糟糕程度”。统计学家称:eqref:`eq_empirical-risk-min`中的这一项为 *经验风险*。
+其中$l$是损失函数，用来度量给定响应标签$y_i$，预测$f(\mathbf{x}_i)$的“糟糕程度”。统计学家称 :eqref:`eq_empirical-risk-min` 中的这一项为 *经验风险*。
 *经验风险*是
 为了近似*真实风险*，整个训练数据上的平均损失，即从其真实分布$p(\mathbf{x},y)$中抽取的所有数据的总体损失的期望值：
 

@@ -112,7 +112,7 @@ $$
 = \sum_{t=1}^T \frac{\partial L}{\partial \mathbf{o}_t} \mathbf{h}_t^\top,
 $$
 
-其中$\partial L/\partial \mathbf{o}_t$是由:eqref:`eq_bptt_partial_L_ot`给出的。
+其中$\partial L/\partial \mathbf{o}_t$是由 :eqref:`eq_bptt_partial_L_ot` 给出的。
 
 接下来，如 :numref:`fig_rnn_bptt` 所示，在最后的时间步$T$，目标函数$L$仅通过$\mathbf{o}_T$依赖隐藏状态$\mathbf{h}_T$。因此，我们可以使用链式法则容易地得到梯度$\partial L/\partial \mathbf{h}_T \in \mathbb{R}^h$：
 
@@ -145,7 +145,7 @@ $$
 \end{aligned}
 $$
 
-其中$\partial L/\partial \mathbf{h}_t$是由:eqref:`eq_bptt_partial_L_hT_final_step`和:eqref:`eq_bptt_partial_L_ht_recur`递归计算的，是影响数值稳定性的关键量。
+其中$\partial L/\partial \mathbf{h}_t$是由 :eqref:`eq_bptt_partial_L_hT_final_step` 和 :eqref:`eq_bptt_partial_L_ht_recur` 递归计算的，是影响数值稳定性的关键量。
 
 正如我们在 :numref:`sec_backprop` 中所解释的那样，通过时间反向传播是反向传播在循环神经网络中的应用，训练循环神经网络交替使用通过时间前向传播和反向传播。通过时间的反向传播依次计算并存储上述梯度。具体而言，存储的中间值会被重复使用，以避免重复计算，例如存储 $\partial L/\partial \mathbf{h}_t$，以便在计算 $\partial L / \partial \mathbf{W}_{hx}$ 和 $\partial L / \partial \mathbf{W}_{hh}$ 时使用。
 
