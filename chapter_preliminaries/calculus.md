@@ -2,14 +2,14 @@
 :label:`sec_calculus`
 
 直到至少2500年前，古希腊人把一个多边形分成三角形，并把它们的面积相加，才找到计算多边形面积的方法。
-为了求出曲线形状（比如圆）的面积，古希腊人在这样的形状上刻内接多边形。如 :numref:`fig_circle_area` 所示，内接多边形的等长边越多，就越接近圆。这个过程也被称为*逼近法*（method of exhaustion）。
+为了求出曲线形状（比如圆）的面积，古希腊人在这样的形状上刻内接多边形。如 :numref:`fig_circle_area` 所示，内接多边形的等长边越多，就越接近圆。这个过程也被称为 *穷举法*（method of exhaustion）。
 
 ![用穷举法求圆的面积。](../img/polygon-circle.svg)
 :label:`fig_circle_area`
 
-事实上，逼近法就是 *积分*（integral calculus）（将在 :numref:`sec_integral_calculus` 中描述）的起源。2000 多年后，微积分的另一支，*微分*（differential calculus），被发明出来。在微分学最重要的应用中，优化问题考虑如何把事情做到*最好*。正如在 :numref:`subsec_norms_and_objectives` 中讨论的那样，这种问题在深度学习中是无处不在的。
+事实上，穷举法就是 *积分*（integral calculus）的起源，我们将在 :numref:`sec_integral_calculus` 中详细描述。2000 多年后，微积分的另一支，*微分*（differential calculus），被发明出来。在微分学最重要的应用中，优化问题考虑如何把事情做到最好。正如在 :numref:`subsec_norms_and_objectives` 中讨论的那样，这种问题在深度学习中是无处不在的。
 
-在深度学习中，我们*训练*模型，不断更新它们，使它们在看到越来越多的数据时变得越来越好。通常情况下，变得更好意味着最小化一个*损失函数*（loss function），即一个衡量“我们的模型有多*糟糕*”这个问题的分数。这个问题比看上去要微妙得多。最终，我们真正关心的是生成一个能够在我们从未见过的数据上表现良好的模型。但我们只能将模型与我们实际能看到的数据相拟合。因此，我们可以将拟合模型的任务分解为两个关键问题：i) *优化*：用模型拟合观测数据的过程；ii) *泛化*：数学原理和实践者的智慧，能够指导我们生成出有效性超出用于训练的数据集本身的模型。
+在深度学习中，我们“训练”模型，不断更新它们，使它们在看到越来越多的数据时变得越来越好。通常情况下，变得更好意味着最小化一个 *损失函数*（loss function），即一个衡量“我们的模型有多*糟糕*”这个问题的分数。这个问题比看上去要微妙得多。最终，我们真正关心的是生成一个能够在我们从未见过的数据上表现良好的模型。但我们只能将模型与我们实际能看到的数据相拟合。因此，我们可以将拟合模型的任务分解为两个关键问题：i) *优化*（optimization）：用模型拟合观测数据的过程；ii) *泛化*（generalization）：数学原理和实践者的智慧，能够指导我们生成出有效性超出用于训练的数据集本身的模型。
 
 为了帮助你在后面的章节中更好地理解优化问题和方法，这里我们对深度学习中常用的微分知识提供了一个非常简短的入门教程。
 
@@ -160,7 +160,7 @@ def plot(X, Y=None, xlabel=None, ylabel=None, legend=None, xlim=None,
     set_figsize(figsize)
     axes = axes if axes else d2l.plt.gca()
 
-    # Return True if `X` (tensor or list) has 1 axis
+    # 如果 `X` 有一个轴，输出True
     def has_one_axis(X):
         return (hasattr(X, "ndim") and X.ndim == 1 or isinstance(X, list)
                 and not hasattr(X[0], "__len__"))
@@ -192,7 +192,7 @@ plot(x, [f(x), 2 * x - 3], 'x', 'f(x)', legend=['f(x)', 'Tangent line (x=1)'])
 
 ## 偏导数
 
-到目前为止，我们只讨论了仅含一个变量的函数的微分。在深度学习中，函数通常依赖于*许多*变量。因此，我们需要将微分的思想推广到这些*多元*函数上。
+到目前为止，我们只讨论了仅含一个变量的函数的微分。在深度学习中，函数通常依赖于许多变量。因此，我们需要将微分的思想推广到这些 *多元函数* （multivariate function）上。
 
 设 $y = f(x_1, x_2, \ldots, x_n)$ 是一个具有 $n$ 个变量的函数。$y$ 相对于第$i^\mathrm{th}$ 个参数$x_i$*偏导数*（partial derivative）为：
 
@@ -223,7 +223,7 @@ $$\nabla_{\mathbf{x}} f(\mathbf{x}) = \bigg[\frac{\partial f(\mathbf{x})}{\parti
 ## 链式法则
 
 然而，上面方法可能很难找到梯度。
-这是因为在深度学习中，多元函数通常是*复合*的，所以我们可能没法应用上述任何规则来微分这些函数。
+这是因为在深度学习中，多元函数通常是 *复合*（composite）的，所以我们可能没法应用上述任何规则来微分这些函数。
 幸运的是，链式法则使我们能够微分复合函数。
 
 让我们先考虑单变量函数。假设函数 $y=f(u)$ 和 $u=g(x)$ 都是可微的，根据链式法则：
