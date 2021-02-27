@@ -362,7 +362,7 @@ def predict_ch8(prefix, num_preds, net, vocab, params):  #@save
     return ''.join([vocab.idx_to_token[i] for i in outputs])
 ```
 
-现在我们可以测试`predict_ch8`函数。我们将前缀指定为`time traveller `，并让它生成10个后续字符。鉴于我们没有训练网络，它会产生荒谬的预测。
+现在我们可以测试 `predict_ch8` 函数。我们将前缀指定为 `time traveller ` ，并让它生成10个后续字符。鉴于我们没有训练网络，它会产生荒谬的预测。
 
 ```{.python .input}
 #@tab mxnet,pytorch
@@ -451,7 +451,7 @@ def grad_clipping(grads, theta): #@save
 
 具体地说，当使用顺序分区时，我们只在每个迭代周期的开始处初始化隐藏状态。由于下一个小批量中的$i^\mathrm{th}$子序列样本与当前$i^\mathrm{th}$子序列样本相邻，因此当前小批量末尾的隐藏状态将用于初始化下一个小批量开头的隐藏状态。这样，存储在隐藏状态中的序列历史信息可以在一个迭代周期内流过相邻的子序列。然而，任何一点隐藏状态计算都依赖于同一迭代周期中所有的前一个小批量，这使得梯度计算变得复杂。为了降低计算量，我们在处理任何一个小批量之前先分离梯度，使得隐藏状态的梯度计算总是限制在一个小批量的时间步内。
 
-当使用随机抽样时，我们需要为每个迭代周期重新初始化隐藏状态，因为每个样本都是在一个随机位置抽样的。与 :numref:`sec_softmax_scratch` 中的 `train_epoch_ch3` 函数相同，`updater`是更新模型参数的常用函数。它既可以是从头开始实现的`d2l.sgd`函数，也可以是深度学习框架中的内置优化函数。
+当使用随机抽样时，我们需要为每个迭代周期重新初始化隐藏状态，因为每个样本都是在一个随机位置抽样的。与 :numref:`sec_softmax_scratch` 中的 `train_epoch_ch3` 函数相同，`updater`是更新模型参数的常用函数。它既可以是从头开始实现的 `d2l.sgd` 函数，也可以是深度学习框架中的内置优化函数。
 
 ```{.python .input}
 #@save
