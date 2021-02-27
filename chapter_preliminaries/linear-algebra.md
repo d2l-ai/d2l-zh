@@ -250,14 +250,14 @@ X
 
 ```{.python .input}
 A = np.arange(20).reshape(5, 4)
-B = A.copy()  # 通过分配新内存，将a的一个副本分配给B
+B = A.copy()  # 通过分配新内存，将A的一个副本分配给B
 A, A + B
 ```
 
 ```{.python .input}
 #@tab pytorch
 A = torch.arange(20, dtype=torch.float32).reshape(5, 4)
-B = A.clone()  # 通过分配新内存，将a的一个副本分配给B
+B = A.clone()  # 通过分配新内存，将A的一个副本分配给B
 A, A + B
 ```
 
@@ -536,7 +536,7 @@ torch.sum(x * y)
 tf.reduce_sum(x * y)
 ```
 
-点积在很多场合都很有用。例如，给定一组由向量$\mathbf{x}  \in \mathbb{R}^d$ 表示的值，和一组由 $\mathbf{w} \in \mathbb{R}^d$ 表示的权重。$\mathbf{x}$ 中的值根据权重 $\mathbf{w}$ 的加权和可以表示为点积 $\mathbf{x}^\top \mathbf{w}$。当权重为非负数且和为1（即 $\left(\sum_{i=1}^{d} {w_i} = 1\right)$）时，点积表示 *加权平均*。将两个向量归一化得到单位长度后，点积表示它们夹角的余弦。我们将在本节的后面正式介绍*长度*（length）的概念。
+点积在很多场合都很有用。例如，给定一组由向量$\mathbf{x}  \in \mathbb{R}^d$ 表示的值，和一组由 $\mathbf{w} \in \mathbb{R}^d$ 表示的权重。$\mathbf{x}$ 中的值根据权重 $\mathbf{w}$ 的加权和可以表示为点积 $\mathbf{x}^\top \mathbf{w}$。当权重为非负数且和为1（即 $\left(\sum_{i=1}^{d} {w_i} = 1\right)$）时，点积表示 *加权平均*（weighted average）。将两个向量归一化得到单位长度后，点积表示它们夹角的余弦。我们将在本节的后面正式介绍*长度*（length）的概念。
 
 ## 矩阵-向量积
 
@@ -591,7 +591,7 @@ A.shape, x.shape, tf.linalg.matvec(A, x)
 
 如果你已经掌握了点积和矩阵-向量积的知识，那么 **矩阵-矩阵乘法**（matrix-matrix multiplication） 应该很简单。
 
-假设我们有两个矩阵$\mathbf{A} \in \mathbb{R}^{n \times k}$和$\mathbf{B} \in \mathbb{R}^{k \times m}$：
+假设我们有两个矩阵 $\mathbf{A} \in \mathbb{R}^{n \times k}$ 和 $\mathbf{B} \in \mathbb{R}^{k \times m}$：
 
 $$\mathbf{A}=\begin{bmatrix}
  a_{11} & a_{12} & \cdots & a_{1k} \\
@@ -783,11 +783,11 @@ tf.norm(tf.ones((4, 9)))
 1. 证明一个矩阵 $\mathbf{A}$ 的转置的转置是 $\mathbf{A}$：$(\mathbf{A}^\top)^\top = \mathbf{A}$。
 1. 给出两个矩阵 $\mathbf{A}$ 和 $\mathbf{B}$, 显示转置的和等于和的转置：$\mathbf{A}^\top + \mathbf{B}^\top = (\mathbf{A} + \mathbf{B})^\top$.
 1. 给定任意方矩阵$\mathbf{A}$， $\mathbf{A} + \mathbf{A}^\top$总是对称的吗?为什么?
-1. 我们在本节中定义了形状（2,3,4）的张量 `X`。`len(X)`的输出结果是什么？
+1. 我们在本节中定义了形状（2, 3, 4）的张量 `X`。`len(X)`的输出结果是什么？
 1. 对于任意形状的张量`X`, `len(X)`是否总是对应于`X`特定轴的长度?这个轴是什么?
 1. 运行 `A / A.sum(axis=1)`，看看会发生什么。你能分析原因吗？
 1. 当你在曼哈顿的两点之间旅行时，你需要在坐标上走多远，也就是说，就大街和街道而言？你能斜着走吗？
-1. 考虑一个具有形状(2,3,4)的张量，在轴0,1,2上的求和输出是什么形状?
+1. 考虑一个具有形状（2, 3, 4）的张量，在轴 0,1,2 上的求和输出是什么形状?
 1. 向 `linalg.norm` 函数提供 3 个或更多轴的张量，并观察其输出。对于任意形状的张量这个函数计算什么?
 
 :begin_tab:`mxnet`
