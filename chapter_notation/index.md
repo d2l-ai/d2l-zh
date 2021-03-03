@@ -10,14 +10,14 @@
 * $\mathbf{X}$：矩阵
 * $\mathsf{X}$：张量
 * $\mathbf{I}$：单位矩阵
-* $x_i$, $[\mathbf{x}]_i$：向量$\mathbf{x}$的第$i$个元素
+* $x_i$, $[\mathbf{x}]_i$：向量$\mathbf{x}$第$i$个元素
 * $x_{ij}$, $[\mathbf{X}]_{ij}$：矩阵$\mathbf{X}$第$i$行第$j$列的元素
 
 ## 集合论
 
 * $\mathcal{X}$: 集合
-* $\mathbb{Z}$: 整数的集合
-* $\mathbb{R}$ 实数的集合
+* $\mathbb{Z}$: 整数集合
+* $\mathbb{R}$ 实数集合
 * $\mathbb{R}^n$: $n$维实数向量
 * $\mathbb{R}^{a\times b}$: 包含$a$行和$b$列的实数矩阵
 * $\mathcal{A}\cup\mathcal{B}$: 集合$\mathcal{A}$和$\mathcal{B}$的并集
@@ -47,7 +47,7 @@
 * $\frac{dy}{dx}$：$y$关于$x$的导数
 * $\frac{\partial y}{\partial x}$：$y$关于$x$的偏导数
 * $\nabla_{\mathbf{x}} y$：$y$关于$\mathbf{x}$的梯度
-* $\int_a^b f(x) \;dx$: $f$从$a$到$b$关于$x$的定积分
+* $\int_a^b f(x) \;dx$: $f$在$a$到$b$区间上关于$x$的定积分
 * $\int f(x) \;dx$: $f$关于$x$的不定积分
 
 ## 概率与信息论
