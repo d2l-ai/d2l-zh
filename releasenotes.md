@@ -5,7 +5,7 @@
 
 ## 主要特点
 
-该版本为《动手学深度学习》2.0.0-alpha0 版的预发布版本， 代码包含 MXNet, PyTorch 和 TensorFlow 三部分内容，供读者自由选择。
+该版本为《动手学深度学习》`2.0.0-alpha0` 版的预发布版本， 代码包含 MXNet, PyTorch 和 TensorFlow 三部分内容，供读者自由选择。
 
 此外，同1.0版相比，本书2.0版绝大部分章节的内容（包括文字、数学、图片和代码）都有重新修订，并添加新的内容，详细改进见下。
 
@@ -14,18 +14,18 @@
 
 ## 主要改进
 
-* 将本书的网址由 zh.d2l.ai 改为了zh-v2.d2l.ai；
-* 将本书的常用函数包的名称由d2lzh改为了 d2l ， 并分为 mxnet.py，torch.py 和 tensorflow.py 三个包；
+* 将本书的网址由 zh.d2l.ai 改为了 [zh-v2.d2l.ai](https://zh-v2.d2l.ai)；
+* 将本书的常用函数包的名称由 `d2lzh` 改为了 [d2l](https://github.com/d2l-ai/d2l-zh/tree/master/d2l) ， 并分为 `mxnet.py`，`torch.py` 和 `tensorflow.py` 三个包；
 * 添加 “符号” 章节，便于读者查阅本书常用符号。
-* 丰富第2章“预备知识”内容，如：添加“数据预处理”，“线性代数”，“微分” 和 “概率”小结；
-* 丰富1.0版第3章“深度学习基础”的内容，并分为“线性神经网络”和“多层感知机”两章；
-* 丰富1.0版第5章的“卷积神经网络”的内容，并在2.0版分为“卷积神经网络”和“深度卷积神经网络”两章；
-* 丰富1.0版第6章的“循环神经网络”的内容，并在2.0版分为“循环神经网络”和“循环卷积神经网络”两章(后者还在紧张编写中)；
+* 丰富第2章[预备知识](https://zh-v2.d2l.ai/chapter_preliminaries/index.html)内容，如：添加“数据预处理”，“线性代数”，“微分” 和 “概率”小结；
+* 丰富1.0版第3章“深度学习基础”的内容，并分为[线性神经网络](https://zh-v2.d2l.ai/chapter_linear-networks/index.html)和[多层感知机](https://zh-v2.d2l.ai/chapter_multilayer-perceptrons/index.html)两章；
+* 丰富1.0版第5章的“卷积神经网络”的内容，并在2.0版分为[卷积神经网络](https://zh-v2.d2l.ai/chapter_convolutional-neural-networks/index.html)和[深度卷积神经网络](https://zh-v2.d2l.ai/chapter_convolutional-modern/index.html)两章；
+* 丰富1.0版第6章的“循环神经网络”的内容，并在2.0版分为[循环神经网络](https://zh-v2.d2l.ai/chapter_recurrent-neural-networks/index.html)和“循环卷积神经网络”两章(后者还在紧张编写中)；
 
 
 ## 详细改进
 
-2.0.0-alpha0 版一共含50个小节，并分为以下篇章：
+`2.0.0-alpha0` 版一共含50个小节，并分为以下篇章：
 
 * 第1章： 深度学习前言
 * 第2章： 预备知识
@@ -446,6 +446,7 @@
 
 
 英文版0.16版已发布：https://github.com/d2l-ai/d2l-en/releases/tag/v0.16.0， 欢迎关注[本书第二版的英文开源项目](https://github.com/d2l-ai/d2l-en/)。我们将同时不断更新中文版，翻译其他章节。
+
 
 我们的初衷是让更多人更容易地使用深度学习。为了让大家能够便利地获取这些资源，我们一如既往保留了免费的网站内容，并且通过不收取出版稿费的方式来降低纸质书的价格，使更多人有能力购买。
 
