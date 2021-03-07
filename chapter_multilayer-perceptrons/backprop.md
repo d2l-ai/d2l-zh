@@ -12,7 +12,7 @@
 *正向传播*（forward propagation或forward pass）指的是：按顺序（从输入层到输出层）计算和存储
 神经网络中每层的结果。
 
-我们将一步步研究单隐藏层神经网络的机制，为了简单起见，我们假设输入样本是 $\mathbf{x}\in \mathbb{R}^d$，并且我们的隐藏层不包括偏差项。这里的中间变量是：
+我们将一步步研究单隐藏层神经网络的机制，为了简单起见，我们假设输入样本是 $\mathbf{x}\in \mathbb{R}^d$，并且我们的隐藏层不包括偏置项。这里的中间变量是：
 
 $$\mathbf{z}= \mathbf{W}^{(1)} \mathbf{x},$$
 
@@ -86,7 +86,7 @@ $$
 = {\mathbf{W}^{(2)}}^\top \frac{\partial J}{\partial \mathbf{o}}.
 $$
 
-由于激活函数$\phi$是逐元素计算的，计算中间变量$\mathbf{z}$的梯度$\partial J/\partial \mathbf{z} \in \mathbb{R}^h$需要使用逐元素乘法运算符，我们用$\odot$表示：
+由于激活函数$\phi$是按元素计算的，计算中间变量$\mathbf{z}$的梯度$\partial J/\partial \mathbf{z} \in \mathbb{R}^h$需要使用按元素乘法运算符，我们用$\odot$表示：
 
 $$
 \frac{\partial J}{\partial \mathbf{z}}
@@ -120,7 +120,7 @@ $$
 ## 练习
 
 1. 假设一些标量函数$\mathbf{X}$的输入$\mathbf{X}$是$n \times m$矩阵。$f$相对于$\mathbf{X}$的梯度维数是多少？
-1. 向本节中描述的模型的隐藏层添加偏差项（不需要在正则化项中包含偏差项）。
+1. 向本节中描述的模型的隐藏层添加偏置项（不需要在正则化项中包含偏置项）。
     1. 画出相应的计算图。
     1. 推导正向和后向传播方程。
 1. 计算本节所描述的模型，用于训练和预测的内存占用。
