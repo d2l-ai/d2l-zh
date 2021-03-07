@@ -42,7 +42,7 @@ $\tilde{\mathbf{H}}_t \in \mathbb{R}^{n \times h}$ 在时间步骤 $t$：
 $$\tilde{\mathbf{H}}_t = \tanh(\mathbf{X}_t \mathbf{W}_{xh} + \left(\mathbf{R}_t \odot \mathbf{H}_{t-1}\right) \mathbf{W}_{hh} + \mathbf{b}_h),$$
 :eqlabel:`gru_tilde_H`
 
-其中 $\mathbf{W}_{xh} \in \mathbb{R}^{d \times h}$ 和 $\mathbf{W}_{hh} \in \mathbb{R}^{h \times h}$ 是重量参数，$\mathbf{b}_h \in \mathbb{R}^{1 \times h}$ 是偏差，符号 $\odot$ 是哈达马德（元素）产品运营商。在这里，我们使用 tanh 形式的非线性来确保候选隐藏状态中的值保持在区间 $(-1, 1)$。
+其中 $\mathbf{W}_{xh} \in \mathbb{R}^{d \times h}$ 和 $\mathbf{W}_{hh} \in \mathbb{R}^{h \times h}$ 是重量参数，$\mathbf{b}_h \in \mathbb{R}^{1 \times h}$ 是偏置，符号 $\odot$ 是哈达马德（元素）产品运营商。在这里，我们使用 tanh 形式的非线性来确保候选隐藏状态中的值保持在区间 $(-1, 1)$。
 
 结果是 * 候选人 *，因为我们仍然需要纳入更新门的操作。与 :eqref:`rnn_h_with_state` 相比，现在可以通过 $\mathbf{R}_t$ 和 $\mathbf{H}_{t-1}$ 的元素乘法来降低以前各州的影响力。每当重置门 $\mathbf{R}_t$ 中的条目接近 1 时，我们就会恢复一个香草 RNN，例如 :eqref:`rnn_h_with_state`。对于重置门 $\mathbf{R}_t$ 中接近 0 的所有条目，候选隐藏状态是以 $\mathbf{X}_t$ 作为输入的 MLP 的结果。因此，任何预先存在的隐藏状态都是 * 重置 * 为默认值。
 
@@ -95,7 +95,7 @@ train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 
 ### 初始化模型参数
 
-下一步是初始化模型参数。我们从标准差的高斯分布中绘制权重为 0.01，然后将偏差设置为 0。超参数 `num_hiddens` 定义了隐藏单位的数量。我们实例化与更新门、重置门、候选隐藏状态和输出层相关的所有权重和偏差。
+下一步是初始化模型参数。我们从标准差的高斯分布中绘制权重为 0.01，然后将偏置设置为 0。超参数 `num_hiddens` 定义了隐藏单位的数量。我们实例化与更新门、重置门、候选隐藏状态和输出层相关的所有权重和偏置。
 
 ```{.python .input}
 def get_params(vocab_size, num_hiddens, device):

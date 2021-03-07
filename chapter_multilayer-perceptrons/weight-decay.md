@@ -17,7 +17,7 @@
 
 $$L(\mathbf{w}, b) = \frac{1}{n}\sum_{i=1}^n \frac{1}{2}\left(\mathbf{w}^\top \mathbf{x}^{(i)} + b - y^{(i)}\right)^2.$$
 
-回想一下，$\mathbf{x}^{(i)}$是样本$i$的特征，$y^{(i)}$是样本$i$的标签。$(\mathbf{w}, b)$是权重和偏差参数。为了惩罚权重向量的大小，我们必须以某种方式在损失函数中添加$\| \mathbf{w} \|^2$，但是模型应该如何平衡这个新的额外惩罚的损失？实际上，我们通过*正则化常数*$\lambda$来描述这种权衡，这是一个非负超参数，我们使用验证数据拟合：
+回想一下，$\mathbf{x}^{(i)}$是样本$i$的特征，$y^{(i)}$是样本$i$的标签。$(\mathbf{w}, b)$是权重和偏置参数。为了惩罚权重向量的大小，我们必须以某种方式在损失函数中添加$\| \mathbf{w} \|^2$，但是模型应该如何平衡这个新的额外惩罚的损失？实际上，我们通过*正则化常数*$\lambda$来描述这种权衡，这是一个非负超参数，我们使用验证数据拟合：
 
 $$L(\mathbf{w}, b) + \frac{\lambda}{2} \|\mathbf{w}\|^2,$$
 
@@ -37,7 +37,7 @@ $$
 
 根据之前章节所讲的，我们根据估计值与观测值之间的差异来更新$\mathbf{w}$。然而，我们同时也在试图将$\mathbf{w}$的大小缩小到零。这就是为什么这种方法有时被称为*权重衰减*。我们仅考虑惩罚项，优化算法在训练的每一步*衰减*权重。与特征选择相比，权重衰减为我们提供了一种连续的机制来调整函数的复杂度。较小的$\lambda$值对应较少约束的$\mathbf{w}$，而较大的$\lambda$值对$\mathbf{w}$的约束更大。
 
-是否对相应的偏差$b^2$进行惩罚在不同的实现中会有所不同。在神经网络的不同层中也会有所不同。通常，我们不正则化网络输出层的偏差项。
+是否对相应的偏置$b^2$进行惩罚在不同的实现中会有所不同。在神经网络的不同层中也会有所不同。通常，我们不正则化网络输出层的偏置项。
 
 ## 高维线性回归
 
@@ -226,7 +226,7 @@ train(lambd=3)
 由于权重衰减在神经网络优化中很常用，深度学习框架为了便于使用权重衰减，便将权重衰减集成到优化算法中，以便与任何损失函数结合使用。此外，这种集成还有计算上的好处，允许在不增加任何额外的计算开销的情况下向算法中添加权重衰减。由于更新的权重衰减部分仅依赖于每个参数的当前值，因此优化器必须至少接触每个参数一次。
 
 :begin_tab:`mxnet`
-在下面的代码中，我们在实例化`Trainer`时直接通过`wd`指定weight decay超参数。默认情况下，Gluon同时衰减权重和偏差。注意，更新模型参数时，超参数`wd`将乘以`wd_mult`。因此，如果我们将`wd_mult`设置为零，则偏差参数$b$将不会被衰减。
+在下面的代码中，我们在实例化`Trainer`时直接通过`wd`指定weight decay超参数。默认情况下，Gluon同时衰减权重和偏置。注意，更新模型参数时，超参数`wd`将乘以`wd_mult`。因此，如果我们将`wd_mult`设置为零，则偏置参数$b$将不会被衰减。
 :end_tab:
 
 :begin_tab:`pytorch`
@@ -246,7 +246,7 @@ def train_concise(wd):
     num_epochs, lr = 100, 0.003
     trainer = gluon.Trainer(net.collect_params(), 'sgd',
                             {'learning_rate': lr, 'wd': wd})
-    # 偏差参数没有衰减。偏差名称通常以“Bias”结尾
+    # 偏置参数没有衰减。偏置名称通常以“Bias”结尾
     net.collect_params('.*bias').setattr('wd_mult', 0)
     animator = d2l.Animator(xlabel='epochs', ylabel='loss', yscale='log',
                             xlim=[5, num_epochs], legend=['train', 'test'])
@@ -270,7 +270,7 @@ def train_concise(wd):
         param.data.normal_()
     loss = nn.MSELoss()
     num_epochs, lr = 100, 0.003
-    # 偏差参数没有衰减。
+    # 偏置参数没有衰减。
     trainer = torch.optim.SGD([
         {"params":net[0].weight,'weight_decay': wd},
         {"params":net[0].bias}], lr=lr)
