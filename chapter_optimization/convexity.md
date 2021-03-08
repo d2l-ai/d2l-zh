@@ -203,16 +203,17 @@ $$\begin{aligned} \mathop{\mathrm{minimize~}}_{\mathbf{x}} & f(\mathbf{x}) \\
 
 这里 $f$ 是目标函数， $c_i$ 是约束函数。为了解这是什么，考虑这样的情况 $c_1(\mathbf{x}) = \|\mathbf{x}\|_2 - 1$ 。在这种情况下，参数 $\mathbf{x}$ 被限制为单位球。如果第二个约束是 $c_2(\mathbf{x}) = \mathbf{v}^\top \mathbf{x} + b$ ，那么这对应于半空间上所有的 $\mathbf{x}$ 。同时满足这两个约束等于选择一个球的切片作为约束集。
 
-
+<!-- #region -->
 ### 拉格朗日函数
 
 通常，求解一个有约束的优化问题是困难的。解决这个问题的一种方法来自物理中相当简单的直觉。想象一个球在一个盒子里。球会滚到最低的地方，重力将与盒子两侧对球施加的力平衡。简而言之，目标函数(即重力)的梯度将被约束函数的梯度所抵消（由于墙壁的“推回”作用，需要保持在盒子内）。请注意，任何不起作用的约束（即球不接触壁）都将无法对球施加任何力。 
 
-跳过拉格朗日函数 $L$ 的推导（详见Boyd和Vandenberghe的著作 :cite:`Boyd.Vandenberghe.2004` ），上述推理可以通过以下鞍点优化问题来表示：
+跳过拉格朗日函数 $L$ 的推导，上述推理可以通过以下鞍点优化问题来表示：
 
-$$L(\mathbf{x},\alpha) = f(\mathbf{x}) + \sum_i \alpha_i c_i(\mathbf{x}) \text{ where } \alpha_i \geq 0.$$
 
-这里的变量 $\alpha_i$ 是所谓的*拉格朗日乘数*（Lagrange Multipliers），它确保约束被正确地执行。选择它们的大小足以确保所有 $i$ 的 $c_i(\mathbf{x}) \leq 0$ 。例如，自然地对于 $c_i(\mathbf{x}) < 0$ 中任意 $\mathbf{x}$ ，我们最终会选择 $\alpha_i = 0$ 。 此外，这是一个*鞍点*（saddlepoint）优化问题，在这个问题中，我们想要使 $L$ 相对于 $\alpha$ *最大化*（maximize），同时使它相对于 $\mathbf{x}$ *最小化*（minimize）。有大量的文献解释如何得出函数 $L(\mathbf{x}, \alpha)$ 。 对于我们的目标，知道 $L$ 的鞍点是原始约束优化问题的最优解就足够了。
+$$L(\mathbf{x}, \alpha_1, \ldots, \alpha_n) = f(\mathbf{x}) + \sum_{i=1}^n \alpha_i c_i(\mathbf{x}) \text{ where } \alpha_i \geq 0.$$
+
+这里的变量 $\alpha_i$ ($i=1,\ldots,n$) 是所谓的*拉格朗日乘数*（Lagrange Multipliers），它确保约束被正确地执行。选择它们的大小足以确保所有 $i$ 的 $c_i(\mathbf{x}) \leq 0$ 。例如，对于 $c_i(\mathbf{x}) < 0$ 中任意 $\mathbf{x}$ ，我们最终会选择 $\alpha_i = 0$ 。 此外，这是一个*鞍点*（saddlepoint）优化问题，在这个问题中，我们想要使 $L$ 相对于 $\alpha_i$ *最大化*（maximize），同时使它相对于 $\mathbf{x}$ *最小化*（minimize）。有大量的文献解释如何得出函数 $L(\mathbf{x}, \alpha_1, \ldots, \alpha_n)$ 。 对于我们的目标，知道 $L$ 的鞍点是原始约束优化问题的最优解就足够了。
 
 ### 惩罚
 
@@ -224,28 +225,41 @@ $$L(\mathbf{x},\alpha) = f(\mathbf{x}) + \sum_i \alpha_i c_i(\mathbf{x}) \text{ 
 
 ### 投影
 
-满足约束条件的另一种策略是投影。同样，我们之前也遇到过，例如在处理梯度裁剪 :numref:`sec_rnn_scratch` 时。在这里，我们确保梯度的长度以 $c$ 为界限，通过
+满足约束条件的另一种策略是投影。同样，我们之前也遇到过，例如在处理梯度裁剪 :numref:`sec_rnn_scratch` 时。在这里，我们确保梯度的长度以 $\theta$ 为界限，通过
 
-$$\mathbf{g} \leftarrow \mathbf{g} \cdot \mathrm{min}(1, c/\|\mathbf{g}\|).$$
+$$\mathbf{g} \leftarrow \mathbf{g} \cdot \mathrm{min}(1, \theta/\|\mathbf{g}\|).$$
 
-这就是 $g$ 在半径为 $c$ 的球上的*投影*（projection）。更一般地，在凸集 $\mathcal{X}$ 上的投影被定义为
 
-$$\mathrm{Proj}_\mathcal{X}(\mathbf{x}) = \mathop{\mathrm{argmin}}_{\mathbf{x}' \in \mathcal{X}} \|\mathbf{x} - \mathbf{x}'\|_2.$$
+这就是 $\mathbf{g}$ 在半径为 $\theta$ 的球上的*投影*（projection）。更泛化的说，在凸集 $\mathcal{X}$ 上的投影被定义为
 
-因此，它是 $\mathcal{X}$ 中离 $\mathbf{X}$ 最近的点。这听起来有点抽象，:numref:`fig_projections` 在某种程度上解释得更清楚。其中有两个凸集，一个圆和一个菱形。集合内的点（黄色）保持不变。集合外的点（黑色）被映射到集合内最近的点（红色）。而对于 $L_2$ 的球，这将使方向保持不变，但一般情况下并不需要如此，就像在菱形的例子中所看到的那样。
+$$\mathrm{Proj}_\mathcal{X}(\mathbf{x}) = \mathop{\mathrm{argmin}}_{\mathbf{x}' \in \mathcal{X}} \|\mathbf{x} - \mathbf{x}'\|.$$
+
+它是 $\mathcal{X}$ 中离 $\mathbf{X}$ 最近的点。
 
 ![Convex Projections.](../img/projections.svg)
 :label:`fig_projections`
 
-凸投影的用途之一是计算稀疏权重向量。在本例中，我们将 $\mathbf{w}$ 投射到 $L_1$ 球上（后者是上图中菱形的一般化版本）。
+投影的数学定义听起来可能有点抽象。
+:numref:`fig\u projections` 解释得更清楚一些。
+图中有两个凸集，一个圆和一个菱形。
+两个集合内的点（黄色）在投影期间保持不变。
+两个集合（黑色）之外的点投影到
+集合中接近原始点（黑色）的点（红色）。
+虽然对于 $L_2$ 的球面来说，方向保持不变，但一般情况下不需要这样，从钻石的例子中可以看出。
+
+
+凸投影的一个用途是计算稀疏权重向量。在本例中，我们将权重向量投影到一个$L_1$的球上，
+这是钻石例子的一个广义版本，在 :numref:`fig_projections`。
+
+
 
 ## 小结
 
 在深度学习的背景下，凸函数的主要目的是促进优化算法，并帮助我们详细了解它们。下面我们将看到梯度下降法和随机梯度下降法是如何相应推导出来的。
 
 * 凸集的交点是凸的，并集不是。
-* 凸函数的期望大于期望的凸函数（詹森不等式）。
-* 一个二次可微函数是凸函数当且仅当它的二阶导数始终只有非负特征值。
+* 根据詹森不等式，“一个多变量凸函数的总期望值”大于或等于“用每个变量的期望值计算这个函数的总值“。
+* 一个二次可微函数是凸函数，当且仅当其Hessian（二阶导数矩阵）是半正定的。
 * 凸约束可以通过拉格朗日函数来添加。在实践中，只需在目标函数中加上一个惩罚就可以了。
 * 投影映射到凸集中最接近原始点的点。
 
@@ -258,19 +272,19 @@ $$\mathrm{Proj}_\mathcal{X}(\mathbf{x}) = \mathop{\mathrm{argmin}}_{\mathbf{x}' 
 
 3. 已知凸函数 $f$ 和 $g$ 表明 $\mathrm{max}(f, g)$ 也是凸函数。证明 $\mathrm{min}(f, g)$ 不是凸的。
 
-4. 证明Softmax函数的归一化是凸的。更具体地证明 $f(x) = \log \sum_i \exp(x_i)$ 的凸性。
+4. 证明Softmax函数的归一化是凸的，即 $f(x) = \log \sum_i \exp(x_i)$ 的凸性。
 
-5. 证明线性子空间是凸集，即 $\mathcal{X} = {\mathbf{X} | \mathbf{W} \mathbf{X} = \mathbf{b}}$ 。
+5. 证明线性子空间 $\mathcal{X} = {\mathbf{X} | \mathbf{W} \mathbf{X} = \mathbf{b}}$ 是凸集。
 
-6. 证明在线性子空间 $\mathbf{b} = 0$ 的情况下，对于矩阵 $\mathbf{M}$ 的投影 $\mathrm {Proj} \mathcal{X}$ 可以写成$\mathbf{M} \mathbf{X}$。
+6. 证明在线性子空间 $\mathbf{b} = \mathbf{0}$ 的情况下，对于矩阵 $\mathbf{M}$ 的投影 $\mathrm {Proj} \mathcal{X}$ 可以写成$\mathbf{M} \mathbf{X}$。
 
 7. 证明对于凸二次可微函数 $f$ ，对于 $\xi \in [0, \epsilon]$ ，我们可以写成 $f(x + \epsilon) = f(x) + \epsilon f'(x) + \frac{1}{2} \epsilon^2 f''(x + \xi)$ 。
 
-8. 给定一个向量 $\mathbf{w} \in \mathbb{R}^d$ 与 $|\mathbf{w}| 1 > 1$ 计算在 $\ell_1$ 单位球上的投影。
+8. 给定一个向量 $\mathbf{w} \in \mathbb{R}^d$ 与 $|\mathbf{w}| 1 > 1$ 计算在 $L_1$ 单位球上的投影。
     i. 作为中间步骤，写出惩罚目标 $|\mathbf{w} - \mathbf{w}'|_2^2 + \lambda |\mathbf{w}'|_1$ ，计算给定 $\lambda > 0$ 的解。
     ii. 你能找到 $\lambda$ 的“正确”值而无需大量的试验和错误吗？
 
 9. 给定一个凸集 $\mathcal{X}$ 和两个向量 $\mathbf{X}$ 和 $\mathbf{y}$ 证明了投影不会增加距离，即$\|\mathbf{x} - \mathbf{y}\| \geq \|\mathrm{Proj}_\mathcal{X}(\mathbf{x}) - \mathrm{Proj}_\mathcal{X}(\mathbf{y})\|$。
-
+<!-- #endregion -->
 
 [讨论区](https://discuss.d2l.ai/t/350)
