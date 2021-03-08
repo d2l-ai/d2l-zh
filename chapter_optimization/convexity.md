@@ -107,12 +107,14 @@ $$E_{Y \sim P(Y)}[-\log P(X \mid Y)] \geq -\log P(X),$$
 $$\begin{aligned}
     f(\lambda x^{\ast} + (1-\lambda) x') &\leq \lambda f(x^{\ast}) + (1-\lambda) f(x') \\
     &< \lambda f(x^{\ast}) + (1-\lambda) f(x^{\ast}) \\
-    &< f(x^{\ast}) \\
+    &= f(x^{\ast}) \\
 \end{aligned}$$
 
-存在 $\lambda \in [0, 1)$ ， $\lambda = 1 - \frac{p}{|x^{\ast} - x'|}$ 为例，因此 $0 < |\lambda x^{\ast} + (1-\lambda) x' - x^{\ast}| \leq p$ 。然而，因为 $f(\lambda x^{\ast} + (1-\lambda) x') < f(x^{\ast})$ ，这违反了我们的局部最小值前提声明。因此，对于 $f(x') < f(x^{\ast})$ 不存在 $x' \in \mathcal{X}$ 。局部最小值 $x^{\ast}$ 也是全局最小值。
+由于 $f(\lambda x^{\ast}+(1-\lambda) x') < f(x^{\ast})$，
+这与 $x^{\ast}$ 是局部最小值相矛盾。
+因此，对于 $f(x') < f(x^{\ast})$ 不存在 $x' \in \mathcal{X}$ 。局部最小值 $x^{\ast}$ 也是全局最小值。
 
-例如，对于函数 $f(x) = (x-1)^2$ ，有一个局部最小值 $x=1$ ， 它也是全局最小值。
+例如，对于凸函数 $f(x) = (x-1)^2$ ，有一个局部最小值 $x=1$ ， 它也是全局最小值。
 
 ```{.python .input}
 #@tab all
