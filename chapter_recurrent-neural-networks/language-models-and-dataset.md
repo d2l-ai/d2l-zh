@@ -35,7 +35,7 @@ $$\begin{aligned}
 	\hat{P}(x'' \mid x,x') & = \frac{n(x, x',x'') + \epsilon_3 \hat{P}(x'')}{n(x, x') + \epsilon_3}.
 \end{aligned}$$
 
-其中，$\epsilon_1,\epsilon_2$和$\epsilon_3$是超参数。以$\epsilon_1$为例：当为$\epsilon_1 = 0$时，不应用平滑；当$\epsilon_1$接近正无穷大时，$\hat{P}(x)$接近均匀概率$1/m$。以上是其他技术可以实现的:cite:`Wood.Gasthaus.Archambeau.ea.2011`的一个相当原始的变体。
+其中，$\epsilon_1,\epsilon_2$和$\epsilon_3$是超参数。以$\epsilon_1$为例：当为$\epsilon_1 = 0$时，不应用平滑；当$\epsilon_1$接近正无穷大时，$\hat{P}(x)$接近均匀概率$1/m$。以上是其他技术可以实现的 :cite:`Wood.Gasthaus.Archambeau.ea.2011` 的一个相当原始的变体。
 
 不幸的是，像这样的模型很快就会变得笨拙，原因如下：首先，我们需要存储所有计数。第二，这完全忽略了单词的意思。例如，“猫”和“猫科动物”应该出现在相关的上下文中。很难将这些模型调整到额外的上下文中，而基于深度学习的语言模型很适合考虑到这一点。最后，长单词序列几乎肯定是新出现的，因此简单地统计过往看到单词序列频率的模型肯定表现不佳。
 
@@ -135,24 +135,24 @@ d2l.plot([freqs, bigram_freqs, trigram_freqs], xlabel='token: x',
          legend=['unigram', 'bigram', 'trigram'])
 ```
 
-这个数字相当令人兴奋，原因有很多。首先，除了单字词，单词序列似乎也遵循齐普夫定律，尽管:eqref:`eq_zipf_law`中的指数$\alpha$更小，这取决于序列长度。其次，$n$元组的数量并没有那么大。这给了我们希望，语言中有相当多的结构。第三，很多$n$元组很少出现，这使得拉普拉斯平滑非常不适合语言建模。相反，我们将使用基于深度学习的模型。
+这个数字相当令人兴奋，原因有很多。首先，除了单字词，单词序列似乎也遵循齐普夫定律，尽管 :eqref:`eq_zipf_law` 中的指数$\alpha$更小，这取决于序列长度。其次，$n$元组的数量并没有那么大。这给了我们希望，语言中有相当多的结构。第三，很多$n$元组很少出现，这使得拉普拉斯平滑非常不适合语言建模。相反，我们将使用基于深度学习的模型。
 
 ## 读取长序列数据
 
 由于序列数据本质上是连续的，我们需要解决处理这带来的问题。我们在 :numref:`sec_sequence` 以一种相当特别的方式做到了这一点。当序列变得太长而不能被模型一次全部处理时，我们可能希望拆分这样的序列以供阅读。现在让我们描述一下总体策略。在介绍该模型之前，假设我们将使用神经网络来训练语言模型，其中该网络一次处理具有预定义长度的一小批序列，例如$n$个时间步。现在的问题是如何随机读取小批量的特征和标签。
 
-首先，由于文本序列可以是任意长的，例如整个“时光机器”书，我们可以将这样长的序列划分为具有相同时间步数的子序列。当训练我们的神经网络时，子序列的小批量将被输入到模型中。假设网络一次处理$n$个时间步的子序列。:numref:`fig_timemachine_5gram`画出了从原始文本序列获得子序列的所有不同方式，其中$n=5$和每个时间步的标记对应于一个字符。请注意，我们有相当大的自由度，因为我们可以选择指示初始位置的任意偏移量。
+首先，由于文本序列可以是任意长的，例如整个“时光机器”书，我们可以将这样长的序列划分为具有相同时间步数的子序列。当训练我们的神经网络时，子序列的小批量将被输入到模型中。假设网络一次处理$n$个时间步的子序列。 :numref:`fig_timemachine_5gram` 画出了从原始文本序列获得子序列的所有不同方式，其中$n=5$和每个时间步的标记对应于一个字符。请注意，我们有相当大的自由度，因为我们可以选择指示初始位置的任意偏移量。
 
 ![分割文本时，不同的偏移量会导致不同的子序列。](../img/timemachine-5gram.svg)
 :label:`fig_timemachine_5gram`
 
-因此，我们应该从:numref:`fig_timemachine_5gram`中选择哪一个呢？其实，他们都一样好。然而，如果我们只选择一个偏移量，那么用于训练网络的所有可能子序列的覆盖范围都是有限的。因此，我们可以从随机偏移量开始划分序列，以获得*覆盖*（coverage）和*随机性*（randomness）。在下面，我们将描述如何实现*随机采样*和*顺序分区*策略。
+因此，我们应该从 :numref:`fig_timemachine_5gram` 中选择哪一个呢？其实，他们都一样好。然而，如果我们只选择一个偏移量，那么用于训练网络的所有可能子序列的覆盖范围都是有限的。因此，我们可以从随机偏移量开始划分序列，以获得*覆盖*（coverage）和*随机性*（randomness）。在下面，我们将描述如何实现*随机采样*和*顺序分区*策略。
 
 ### 随机采样
 
 在随机采样中，每个样本都是在原始长序列上任意捕获的子序列。迭代期间来自两个相邻随机小批量的子序列不一定在原始序列上相邻。对于语言建模，目标是根据我们到目前为止看到的标记来预测下一个标记，因此标签是原始序列移位了一个标记。
 
-下面的代码每次从数据随机生成一个小批量。这里，参数`batch_size`指定每个小批量中的子序列样本数目，`num_steps`是每个子序列中预定义的时间步数。
+下面的代码每次从数据随机生成一个小批量。这里，参数 `batch_size` 指定每个小批量中的子序列样本数目， `num_steps` 是每个子序列中预定义的时间步数。
 
 ```{.python .input}
 #@tab all
@@ -241,7 +241,7 @@ for X, Y in seq_data_iter_sequential(my_seq, batch_size=2, num_steps=5):
 ```{.python .input}
 #@tab all
 class SeqDataLoader:  #@save
-    """An iterator to load sequence data."""
+    """加载序列数据的迭代器。"""
     def __init__(self, batch_size, num_steps, use_random_iter, max_tokens):
         if use_random_iter:
             self.data_iter_fn = d2l.seq_data_iter_random
@@ -254,7 +254,7 @@ class SeqDataLoader:  #@save
         return self.data_iter_fn(self.corpus, self.batch_size, self.num_steps)
 ```
 
-最后，我们定义了一个函数`load_data_time_machine`，它同时返回数据迭代器和词表，因此我们可以与其他带有`load_data`前缀的函数（如 :numref:`sec_fashion_mnist` 中定义的`d2l.load_data_fashion_mnist`）类似地使用它。
+最后，我们定义了一个函数 `load_data_time_machine` ，它同时返回数据迭代器和词表，因此我们可以与其他带有 `load_data` 前缀的函数（如 :numref:`sec_fashion_mnist` 中定义的 `d2l.load_data_fashion_mnist` ）类似地使用它。
 
 ```{.python .input}
 #@tab all
@@ -288,13 +288,13 @@ def load_data_time_machine(batch_size, num_steps,  #@save
 1. 如果我们希望一个序列样本是一个完整的句子，那么这在小批量抽样中会带来什么样的问题呢？我们怎样才能解决这个问题呢？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/117)
+[Discussions](https://discuss.d2l.ai/t/2096)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/118)
+[Discussions](https://discuss.d2l.ai/t/2097)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/1049)
+[Discussions](https://discuss.d2l.ai/t/2098)
 :end_tab:

@@ -1,15 +1,15 @@
 # 微分
 :label:`sec_calculus`
 
-直到至少2500年前，古希腊人把一个多边形分成三角形，并把它们的面积相加，才找到计算多边形面积的方法。
-为了求出曲线形状（比如圆）的面积，古希腊人在这样的形状上刻内接多边形。如 :numref:`fig_circle_area` 所示，内接多边形的等长边越多，就越接近圆。这个过程也被称为*逼近法*（method of exhaustion）。
+在2500年前，古希腊人把一个多边形分成三角形，并把它们的面积相加，才找到计算多边形面积的方法。
+为了求出曲线形状（比如圆）的面积，古希腊人在这样的形状上刻内接多边形。如 :numref:`fig_circle_area` 所示，内接多边形的等长边越多，就越接近圆。这个过程也被称为 *逼近法*（method of exhaustion）。
 
-![用穷举法求圆的面积。](../img/polygon-circle.svg)
+![用逼近法求圆的面积。](../img/polygon-circle.svg)
 :label:`fig_circle_area`
 
-事实上，逼近法就是 *积分*（integral calculus）（将在 :numref:`sec_integral_calculus` 中描述）的起源。2000 多年后，微积分的另一支，*微分*（differential calculus），被发明出来。在微分学最重要的应用中，优化问题考虑如何把事情做到*最好*。正如在 :numref:`subsec_norms_and_objectives` 中讨论的那样，这种问题在深度学习中是无处不在的。
+事实上，逼近法就是 *积分*（integral calculus）的起源，我们将在 :numref:`sec_integral_calculus` 中详细描述。2000 多年后，微积分的另一支，*微分*（differential calculus），被发明出来。在微分学最重要的应用是优化问题，即考虑如何把事情做到最好。正如在 :numref:`subsec_norms_and_objectives` 中讨论的那样，这种问题在深度学习中是无处不在的。
 
-在深度学习中，我们*训练*模型，不断更新它们，使它们在看到越来越多的数据时变得越来越好。通常情况下，变得更好意味着最小化一个*损失函数*（loss function），即一个衡量“我们的模型有多*糟糕*”这个问题的分数。这个问题比看上去要微妙得多。最终，我们真正关心的是生成一个能够在我们从未见过的数据上表现良好的模型。但我们只能将模型与我们实际能看到的数据相拟合。因此，我们可以将拟合模型的任务分解为两个关键问题：i) *优化*：用模型拟合观测数据的过程；ii) *泛化*：数学原理和实践者的智慧，能够指导我们生成出有效性超出用于训练的数据集本身的模型。
+在深度学习中，我们“训练”模型，不断更新它们，使它们在看到越来越多的数据时变得越来越好。通常情况下，变得更好意味着最小化一个 *损失函数*（loss function），即一个衡量“我们的模型有多糟糕”这个问题的分数。这个问题比看上去要微妙得多。最终，我们真正关心的是生成一个能够在我们从未见过的数据上表现良好的模型。但我们只能将模型与我们实际能看到的数据相拟合。因此，我们可以将拟合模型的任务分解为两个关键问题：（1）*优化*（optimization）：用模型拟合观测数据的过程；（2）*泛化*（generalization）：数学原理和实践者的智慧，能够指导我们生成出有效性超出用于训练的数据集本身的模型。
 
 为了帮助你在后面的章节中更好地理解优化问题和方法，这里我们对深度学习中常用的微分知识提供了一个非常简短的入门教程。
 
@@ -81,13 +81,15 @@ $$f'(x) = y' = \frac{dy}{dx} = \frac{df}{dx} = \frac{d}{dx} f(x) = Df(x) = D_x f
 
 其中符号 $\frac{d}{dx}$ 和 $D$ 是*微分运算符*，表示*微分*操作。我们可以使用以下规则来对常见函数求微分：
 
-* $DC = 0$ （$C$ 是一个常数）；
-* $Dx^n = nx^{n-1}$ （*幂律*（power rule）, $n$是任意实数）；
-* $De^x = e^x$,
-* $D\ln(x) = 1/x.$
+* $DC = 0$ （$C$ 是一个常数）
+* $Dx^n = nx^{n-1}$ （*幂律*（power rule）, $n$是任意实数）
+* $De^x = e^x$
+* $D\ln(x) = 1/x$
 
 为了微分一个由一些简单函数（如上面的常见函数）组成的函数，下面的法则使用起来很方便。
-假设函数$f$和$g$都是可微的，$C$是一个常数，我们有*常数相乘法则*
+假设函数$f$和$g$都是可微的，$C$是一个常数，我们有：
+
+*常数相乘法则*
 $$\frac{d}{dx} [Cf(x)] = C \frac{d}{dx} f(x),$$
 
 *加法法则*
@@ -104,11 +106,11 @@ $$\frac{d}{dx} \left[\frac{f(x)}{g(x)}\right] = \frac{g(x) \frac{d}{dx} [f(x)] -
 
 现在我们可以应用上述几个法则来计算 $u' = f'(x) = 3 \frac{d}{dx} x^2-4\frac{d}{dx}x = 6x-4$。因此，通过令 $x = 1$ ，我们有 $u' = 2$ ：这一点得到了我们在本节前面的实验的支持，在这个实验中，数值结果接近$2$。当 $x=1$ 时，此导数也是曲线 $u = f(x)$ 切线的斜率。
 
-[**为了对导数的这种解释进行可视化，**]我们将使用 `matplotlib`，一个Python中流行的绘图库。要配置`matplotlib`生成图形的属性，我们需要(**定义几个函数**)。
+[**为了对导数的这种解释进行可视化，**]我们将使用 `matplotlib`，这是一个Python中流行的绘图库。要配置`matplotlib`生成图形的属性，我们需要(**定义几个函数**)。
 在下面，`use_svg_display` 函数指定 `matplotlib` 软件包输出svg图表以获得更清晰的图像。
 
 注意，注释`#@save`是一个特殊的标记，会将对应的函数、类或语句保存在`d2l`包中
-因此，以后无需重新定义就可以直接调用它们（例如，`d2l.use\u svg\u display（）`）。
+因此，以后无需重新定义就可以直接调用它们（例如，`d2l.use_svg_display()`）。
 
 ```{.python .input}
 #@tab all
@@ -117,7 +119,7 @@ def use_svg_display():  #@save
     display.set_matplotlib_formats('svg')
 ```
 
-我们定义 `set_figsize` 函数来指定图表大小。注意，这里我们直接使用 `d2l.plt`，因为导入语句 `from matplotlib import pyplot as plt` 已在`d2l` 软件包的开头被标记为保存。
+我们定义 `set_figsize` 函数来设置图表大小。注意，这里我们直接使用 `d2l.plt`，因为导入语句 `from matplotlib import pyplot as plt` 已在前言中标记为保存到`d2l` 包中。
 
 ```{.python .input}
 #@tab all
@@ -160,7 +162,7 @@ def plot(X, Y=None, xlabel=None, ylabel=None, legend=None, xlim=None,
     set_figsize(figsize)
     axes = axes if axes else d2l.plt.gca()
 
-    # Return True if `X` (tensor or list) has 1 axis
+    # 如果 `X` 有一个轴，输出True
     def has_one_axis(X):
         return (hasattr(X, "ndim") and X.ndim == 1 or isinstance(X, list)
                 and not hasattr(X[0], "__len__"))
@@ -192,13 +194,13 @@ plot(x, [f(x), 2 * x - 3], 'x', 'f(x)', legend=['f(x)', 'Tangent line (x=1)'])
 
 ## 偏导数
 
-到目前为止，我们只讨论了仅含一个变量的函数的微分。在深度学习中，函数通常依赖于*许多*变量。因此，我们需要将微分的思想推广到这些*多元*函数上。
+到目前为止，我们只讨论了仅含一个变量的函数的微分。在深度学习中，函数通常依赖于许多变量。因此，我们需要将微分的思想推广到这些 *多元函数* （multivariate function）上。
 
-设 $y = f(x_1, x_2, \ldots, x_n)$ 是一个具有 $n$ 个变量的函数。$y$ 相对于第$i^\mathrm{th}$ 个参数$x_i$*偏导数*（partial derivative）为：
+设 $y = f(x_1, x_2, \ldots, x_n)$ 是一个具有 $n$ 个变量的函数。$y$ 关于第$i$ 个参数$x_i$的*偏导数*（partial derivative）为：
 
 $$ \frac{\partial y}{\partial x_i} = \lim_{h \rightarrow 0} \frac{f(x_1, \ldots, x_{i-1}, x_i+h, x_{i+1}, \ldots, x_n) - f(x_1, \ldots, x_i, \ldots, x_n)}{h}.$$
 
-为了计算 $\frac{\partial y}{\partial x_i}$，我们可以简单地将 $x_1, \ldots, x_{i-1}, x_{i+1}, \ldots, x_n$ 看作常数，并计算 $y$相对于$x_i$ 的导数。对于偏导数的表示，以下是等价的：
+为了计算 $\frac{\partial y}{\partial x_i}$，我们可以简单地将 $x_1, \ldots, x_{i-1}, x_{i+1}, \ldots, x_n$ 看作常数，并计算 $y$关于$x_i$ 的导数。对于偏导数的表示，以下是等价的：
 
 $$\frac{\partial y}{\partial x_i} = \frac{\partial f}{\partial x_i} = f_{x_i} = f_i = D_i f = D_{x_i} f.$$
 
@@ -213,9 +215,9 @@ $$\nabla_{\mathbf{x}} f(\mathbf{x}) = \bigg[\frac{\partial f(\mathbf{x})}{\parti
 
 假设$\mathbf{x}$为$n$维向量，在微分多元函数时经常使用以下规则:
 
-* 对于所有$\mathbf{A} \in \mathbb{R}^{m \times n}$，都有 $\nabla_{\mathbf{x}} \mathbf{A} \mathbf{x} = \mathbf{A}^\top$,
-* 对于所有$\mathbf{A} \in \mathbb{R}^{n \times m}$，都有 $\nabla_{\mathbf{x}} \mathbf{x}^\top \mathbf{A}  = \mathbf{A}$,
-* 对于所有$\mathbf{A} \in \mathbb{R}^{n \times n}$，都有 $\nabla_{\mathbf{x}} \mathbf{x}^\top \mathbf{A} \mathbf{x}  = (\mathbf{A} + \mathbf{A}^\top)\mathbf{x}$,
+* 对于所有$\mathbf{A} \in \mathbb{R}^{m \times n}$，都有 $\nabla_{\mathbf{x}} \mathbf{A} \mathbf{x} = \mathbf{A}^\top$
+* 对于所有$\mathbf{A} \in \mathbb{R}^{n \times m}$，都有 $\nabla_{\mathbf{x}} \mathbf{x}^\top \mathbf{A}  = \mathbf{A}$
+* 对于所有$\mathbf{A} \in \mathbb{R}^{n \times n}$，都有 $\nabla_{\mathbf{x}} \mathbf{x}^\top \mathbf{A} \mathbf{x}  = (\mathbf{A} + \mathbf{A}^\top)\mathbf{x}$
 * $\nabla_{\mathbf{x}} \|\mathbf{x} \|^2 = \nabla_{\mathbf{x}} \mathbf{x}^\top \mathbf{x} = 2\mathbf{x}$
 
 同样，对于任何矩阵 $\mathbf{X}$，我们都有 $\nabla_{\mathbf{X}} \|\mathbf{X} \|_F^2 = 2\mathbf{X}$。正如我们之后将看到的，梯度对于设计深度学习中的优化算法有很大用处。
@@ -223,7 +225,7 @@ $$\nabla_{\mathbf{x}} f(\mathbf{x}) = \bigg[\frac{\partial f(\mathbf{x})}{\parti
 ## 链式法则
 
 然而，上面方法可能很难找到梯度。
-这是因为在深度学习中，多元函数通常是*复合*的，所以我们可能没法应用上述任何规则来微分这些函数。
+这是因为在深度学习中，多元函数通常是 *复合*（composite）的，所以我们可能没法应用上述任何规则来微分这些函数。
 幸运的是，链式法则使我们能够微分复合函数。
 
 让我们先考虑单变量函数。假设函数 $y=f(u)$ 和 $u=g(x)$ 都是可微的，根据链式法则：

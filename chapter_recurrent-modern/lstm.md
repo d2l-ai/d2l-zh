@@ -94,7 +94,7 @@ train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 
 ### 初始化模型参数
 
-接下来我们需要定义和初始化模型参数。与之前一样，超参数 `num_hiddens` 定义了隐藏单位的数量。我们在使用 0.01 标准差的高斯分布之后初始化权重，然后我们将偏差设置为 0。
+接下来我们需要定义和初始化模型参数。与之前一样，超参数 `num_hiddens` 定义了隐藏单位的数量。我们在使用 0.01 标准差的高斯分布之后初始化权重，然后我们将偏置设置为 0。
 
 ```{.python .input}
 def get_lstm_params(vocab_size, num_hiddens, device):

@@ -87,7 +87,7 @@ train_data[0]
 
 如你所见，这34个字段都是分类特征。每个数值都代表了对应条目的独热索引，标签$0$表示没有被点击。这里的`CTRDataset`也可以用来加载其他的数据集，例如Criteo展示广告挑战赛[数据集](https://labs.criteo.com/2014/02/kaggle-display-advertising-challenge-dataset/)和Avazu点击率预测[数据集](https://www.kaggle.com/c/avazu-ctr-prediction) 。
 
-## 总结
+## 小结
 
 * 点击率是一项很重要的指标，它能用于评估广告系统和推荐系统的性能。
 * 点击率预测经常被转化为二分类问题。该问题的目标是，在给定特征后，预测广告或物品是否会被点击。

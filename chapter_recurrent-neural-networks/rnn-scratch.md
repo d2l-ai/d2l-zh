@@ -44,7 +44,7 @@ train_random_iter, vocab_random_iter = d2l.load_data_time_machine(
 
 ## 独热编码
 
-回想一下，在`train_iter`中，每个标记都表示为一个数字索引。将这些数字直接输入神经网络可能会使学习变得困难。我们通常将每个标记表示为更具表现力的特征向量。最简单的表示称为“独热编码”（One-Hot Encoding），它在:numref:`subsec_classification-problem`中介绍过。
+回想一下，在`train_iter`中，每个标记都表示为一个数字索引。将这些数字直接输入神经网络可能会使学习变得困难。我们通常将每个标记表示为更具表现力的特征向量。最简单的表示称为“独热编码”（One-Hot Encoding），它在 :numref:`subsec_classification-problem` 中介绍过。
 
 简言之，我们将每个索引映射到一个不同的单位向量：假设词表中不同的标记数为$N$（`len(vocab)`），标记索引的范围为0到$N-1$。如果标记的索引是整数$i$，那么我们创建一个长度为$N$的全0向量，并将$i$处的元素设置为1。此向量是原始标记的一个独热向量。索引为0和2的独热向量如下所示。
 
@@ -362,7 +362,7 @@ def predict_ch8(prefix, num_preds, net, vocab, params):  #@save
     return ''.join([vocab.idx_to_token[i] for i in outputs])
 ```
 
-现在我们可以测试`predict_ch8`函数。我们将前缀指定为`time traveller `，并让它生成10个后续字符。鉴于我们没有训练网络，它会产生荒谬的预测。
+现在我们可以测试 `predict_ch8` 函数。我们将前缀指定为 `time traveller ` ，并让它生成10个后续字符。鉴于我们没有训练网络，它会产生荒谬的预测。
 
 ```{.python .input}
 #@tab mxnet,pytorch
@@ -443,7 +443,7 @@ def grad_clipping(grads, theta): #@save
 
 ## 训练
 
-在训练模型之前，让我们定义一个函数来训练只有一个迭代周期的模型。它与我们训练:numref:`sec_softmax_scratch`模型的方式有三个不同之处：
+在训练模型之前，让我们定义一个函数来训练只有一个迭代周期的模型。它与我们训练 :numref:`sec_softmax_scratch` 模型的方式有三个不同之处：
 
 1. 顺序数据的不同采样方法（随机采样和顺序分区）将导致隐藏状态初始化的差异。
 1. 我们在更新模型参数之前裁剪梯度。这确保了即使在训练过程中的某个点上梯度爆炸，模型也不会发散。
@@ -451,7 +451,7 @@ def grad_clipping(grads, theta): #@save
 
 具体地说，当使用顺序分区时，我们只在每个迭代周期的开始处初始化隐藏状态。由于下一个小批量中的$i^\mathrm{th}$子序列样本与当前$i^\mathrm{th}$子序列样本相邻，因此当前小批量末尾的隐藏状态将用于初始化下一个小批量开头的隐藏状态。这样，存储在隐藏状态中的序列历史信息可以在一个迭代周期内流过相邻的子序列。然而，任何一点隐藏状态计算都依赖于同一迭代周期中所有的前一个小批量，这使得梯度计算变得复杂。为了降低计算量，我们在处理任何一个小批量之前先分离梯度，使得隐藏状态的梯度计算总是限制在一个小批量的时间步内。
 
-当使用随机抽样时，我们需要为每个迭代周期重新初始化隐藏状态，因为每个样本都是在一个随机位置抽样的。与 :numref:`sec_softmax_scratch` 中的 `train_epoch_ch3` 函数相同，`updater`是更新模型参数的常用函数。它既可以是从头开始实现的`d2l.sgd`函数，也可以是深度学习框架中的内置优化函数。
+当使用随机抽样时，我们需要为每个迭代周期重新初始化隐藏状态，因为每个样本都是在一个随机位置抽样的。与 :numref:`sec_softmax_scratch` 中的 `train_epoch_ch3` 函数相同，`updater`是更新模型参数的常用函数。它既可以是从头开始实现的 `d2l.sgd` 函数，也可以是深度学习框架中的内置优化函数。
 
 ```{.python .input}
 #@save
@@ -680,13 +680,13 @@ train_ch8(net, train_random_iter, vocab_random_iter, num_hiddens, lr,
 1. 用ReLU替换本节中使用的激活函数，并重复本节中的实验。我们还需要梯度裁剪吗？为什么？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/336)
+[Discussions](https://discuss.d2l.ai/t/2102)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/486)
+[Discussions](https://discuss.d2l.ai/t/2103)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/1052)
+[Discussions](https://discuss.d2l.ai/t/2104)
 :end_tab:

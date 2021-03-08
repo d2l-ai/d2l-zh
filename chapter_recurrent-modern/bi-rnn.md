@@ -72,7 +72,7 @@ $$P(x_j \mid x_{-j}) \propto \sum_{h_j} \pi_j(h_j) \rho_j(h_j) P(x_j \mid h_j).$
 ## 双向模型
 
 如果我们希望在 RNN 中有一种能够提供与隐藏马尔科夫模型相似的预测能力的机制，我们需要修改迄今为止看到的 RNN 设计。幸运的是，这在概念上很容易。我们不是仅在前进模式下从第一个令牌开始运行 RNN，而是从后一个令牌从后到前运行的最后一个令牌启动另一个令牌。
-*双向 rnNS* 添加一个隐藏层，向后传递信息，以便更灵活地处理此类信息。:numref:`fig_birnn` 说明了带有单个隐藏层的双向 RNN 的体系结构。
+*双向 rnNS* 添加一个隐藏层，向后传递信息，以便更灵活地处理此类信息。 :numref:`fig_birnn` 说明了带有单个隐藏层的双向 RNN 的体系结构。
 
 ![Architecture of a bidirectional RNN.](../img/birnn.svg)
 :label:`fig_birnn`
@@ -92,7 +92,7 @@ $$
 \end{aligned}
 $$
 
-其中权重 $\mathbf{W}_{xh}^{(f)} \in \mathbb{R}^{d \times h}, \mathbf{W}_{hh}^{(f)} \in \mathbb{R}^{h \times h}, \mathbf{W}_{xh}^{(b)} \in \mathbb{R}^{d \times h}, \text{ and } \mathbf{W}_{hh}^{(b)} \in \mathbb{R}^{h \times h}$ 和偏差 $\mathbf{b}_h^{(f)} \in \mathbb{R}^{1 \times h} \text{ and } \mathbf{b}_h^{(b)} \in \mathbb{R}^{1 \times h}$ 都是模型参数。
+其中权重 $\mathbf{W}_{xh}^{(f)} \in \mathbb{R}^{d \times h}, \mathbf{W}_{hh}^{(f)} \in \mathbb{R}^{h \times h}, \mathbf{W}_{xh}^{(b)} \in \mathbb{R}^{d \times h}, \text{ and } \mathbf{W}_{hh}^{(b)} \in \mathbb{R}^{h \times h}$ 和偏置 $\mathbf{b}_h^{(f)} \in \mathbb{R}^{1 \times h} \text{ and } \mathbf{b}_h^{(b)} \in \mathbb{R}^{1 \times h}$ 都是模型参数。
 
 接下来，我们连接向前和向后隐藏状态 $\overrightarrow{\mathbf{H}}_t$ 和 $\overleftarrow{\mathbf{H}}_t$ 以获得隐藏状态 $\mathbf{H}_t \in \mathbb{R}^{n \times 2h}$ 进入输出层。在具有多个隐藏层的深双向 RNN 中，此类信息将作为 * 输入 * 传递到下一个双向层。最后，输出层计算输出 $\mathbf{O}_t \in \mathbb{R}^{n \times q}$（输出数：$q$）：
 

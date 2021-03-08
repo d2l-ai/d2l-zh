@@ -5,7 +5,7 @@
 
 ## 隐藏层
 
-我们在 :numref:`subsec_linear_model`中描述了仿射变换，它是一个带有偏差项的线性变换。首先，回想一下如 :numref:`fig_softmaxreg`中所示的softmax回归的模型结构。该模型通过单个仿射变换将我们的输入直接映射到我们的输出，然后进行softmax操作。如果我们的标签确实通过仿射变换后与我们的输入数据相关，那么这种方法就足够了。但是，仿射变换中的*线性*是一个很强的假设。
+我们在 :numref:`subsec_linear_model`中描述了仿射变换，它是一个带有偏置项的线性变换。首先，回想一下如 :numref:`fig_softmaxreg`中所示的softmax回归的模型结构。该模型通过单个仿射变换将我们的输入直接映射到我们的输出，然后进行softmax操作。如果我们的标签确实通过仿射变换后与我们的输入数据相关，那么这种方法就足够了。但是，仿射变换中的*线性*是一个很强的假设。
 
 ### 线性模型可能会出错
 
@@ -32,7 +32,7 @@
 ### 从线性到非线性
 
 跟之前的章节一样，我们通过矩阵$\mathbf{X} \in \mathbb{R}^{n \times d}$来表示$n$个样本的小批量，其中每个样本具有$d$个输入(特征)。对于具有$h$个隐藏单元的单隐藏层多层感知机，用$\mathbf{H} \in \mathbb{R}^{n \times h}$表示隐藏层的输出，称为*隐藏表示*（hidden representations）。在数学或代码中，$\mathbf{H}$也被称为*隐藏层变量*（hidden-layer variable）或*隐藏变量*（hidden variable）。
-因为隐藏层和输出层都是全连接的，所以我们具有隐藏层权重$\mathbf{W}^{(1)} \in \mathbb{R}^{d \times h}$和隐藏层偏差$\mathbf{b}^{(1)} \in \mathbb{R}^{1 \times h}$以及输出层权重$\mathbf{W}^{(2)} \in \mathbb{R}^{h \times q}$和输出层偏差$\mathbf{b}^{(2)} \in \mathbb{R}^{1 \times q}$。形式上，我们按如下方式计算单隐藏层多层感知机的输出$\mathbf{O} \in \mathbb{R}^{n \times q}$：
+因为隐藏层和输出层都是全连接的，所以我们具有隐藏层权重$\mathbf{W}^{(1)} \in \mathbb{R}^{d \times h}$和隐藏层偏置$\mathbf{b}^{(1)} \in \mathbb{R}^{1 \times h}$以及输出层权重$\mathbf{W}^{(2)} \in \mathbb{R}^{h \times q}$和输出层偏置$\mathbf{b}^{(2)} \in \mathbb{R}^{1 \times q}$。形式上，我们按如下方式计算单隐藏层多层感知机的输出$\mathbf{O} \in \mathbb{R}^{n \times q}$：
 
 $$
 \begin{aligned}
@@ -58,7 +58,7 @@ $$
 \end{aligned}
 $$
 
-由于$\mathbf{X}$中的每一行对应于小批量中的一个样本，即我们定义非线性函数$\sigma$以逐行的方式应用于其输入，即，一次计算一个样本。我们在 :numref:`subsec_softmax_vectorization` 中以相同的方式使用了softmax符号来表示逐行操作。但是在本节中，我们应用于隐藏层的激活函数通常不仅仅是逐行的，而且也是逐元素。
+由于$\mathbf{X}$中的每一行对应于小批量中的一个样本，即我们定义非线性函数$\sigma$以按行的方式应用于其输入，即，一次计算一个样本。我们在 :numref:`subsec_softmax_vectorization` 中以相同的方式使用了softmax符号来表示按行操作。但是在本节中，我们应用于隐藏层的激活函数通常不仅仅是按行的，而且也是按元素。
 这意味着在计算每一层的线性部分之后，我们可以计算每个激活值，而不需要查看其他隐藏单元所取的值。对于大多数激活函数都是这样。
 
 为了构建更通用的多层感知机，我们可以继续堆叠这样的隐藏层，例如，$\mathbf{H}^{(1)} = \sigma_1(\mathbf{X} \mathbf{W}^{(1)} + \mathbf{b}^{(1)})$和$\mathbf{H}^{(2)} = \sigma_2(\mathbf{H}^{(1)} \mathbf{W}^{(2)} + \mathbf{b}^{(2)})$，一层叠一层，从而产生更有表达能力的模型。
@@ -92,7 +92,7 @@ import tensorflow as tf
 
 ## 激活函数
 
-激活函数通过计算加权和并加上偏差来确定神经元是否应该被激活。它们是将输入信号转换为输出的可微运算。大多数激活函数都是非线性的。由于激活函数是深度学习的基础，下面简要介绍一些常见的激活函数。
+激活函数通过计算加权和并加上偏置来确定神经元是否应该被激活。它们是将输入信号转换为输出的可微运算。大多数激活函数都是非线性的。由于激活函数是深度学习的基础，下面简要介绍一些常见的激活函数。
 
 ### ReLU函数
 

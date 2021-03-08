@@ -10,7 +10,7 @@ $$P(x_t \mid x_{t-1}, \ldots, x_1) \approx P(x_t \mid h_{t-1}),$$
 $$h_t = f(x_{t}, h_{t-1}).$$
 :eqlabel:`eq_ht_xt`
 
-对于足够强大的函数$f$（:eqref:`eq_ht_xt`），隐变量模型不是近似值。毕竟，$h_t$可能只是存储到目前为止观察到的所有数据。然而，它可能会使计算和存储都变得昂贵。
+对于足够强大的函数$f$（ :eqref:`eq_ht_xt` ），隐变量模型不是近似值。毕竟，$h_t$可能只是存储到目前为止观察到的所有数据。然而，它可能会使计算和存储都变得昂贵。
 
 回想一下，我们在 :numref:`chap_perceptrons` 中讨论过具有隐藏单元的隐藏层。值得注意的是，隐藏层和隐藏状态指的是两个截然不同的概念。如上所述，隐藏层是在从输入到输出的路径上从视图中隐藏的层。从技术上讲，隐藏状态是我们在给定步骤所做的任何事情的“输入”。隐藏状态只能通过查看先前时间点的数据来计算。
 
@@ -41,7 +41,7 @@ $$\mathbf{O} = \mathbf{H} \mathbf{W}_{hq} + \mathbf{b}_q,$$
 $$\mathbf{H}_t = \phi(\mathbf{X}_t \mathbf{W}_{xh} + \mathbf{H}_{t-1} \mathbf{W}_{hh}  + \mathbf{b}_h).$$
 :eqlabel:`rnn_h_with_state`
 
-与 :eqref:`rnn_h_without_state` 相比， :eqref:`rnn_h_with_state` 多添加了一项$\mathbf{H}_{t-1} \mathbf{W}_{hh}$，从而实例化了 :eqref:`eq_ht_xt`。从相邻时间步的隐藏变量$\mathbf{H}_t$和$\mathbf{H}_{t-1}$之间的关系可知，这些变量捕获并保留了序列直到其当前时间步的历史信息，就像神经网络的当前时间步的状态或记忆一样。因此，这样的隐藏变量被称为“隐藏状态”（hidden state）。由于隐藏状态使用与当前时间步中的前一个时间步相同的定义，因此 :eqref:`rnn_h_with_state` 的计算是*循环的*（recurrent）。因此，基于循环计算的隐状态神经网络被命名为*循环神经网络*（recurrent neural networks）。在循环神经网络中执行:eqref:`rnn_h_with_state`计算的层称为“循环层”（recurrent layers）。
+与 :eqref:`rnn_h_without_state` 相比， :eqref:`rnn_h_with_state` 多添加了一项$\mathbf{H}_{t-1} \mathbf{W}_{hh}$，从而实例化了 :eqref:`eq_ht_xt`。从相邻时间步的隐藏变量$\mathbf{H}_t$和$\mathbf{H}_{t-1}$之间的关系可知，这些变量捕获并保留了序列直到其当前时间步的历史信息，就像神经网络的当前时间步的状态或记忆一样。因此，这样的隐藏变量被称为“隐藏状态”（hidden state）。由于隐藏状态使用与当前时间步中的前一个时间步相同的定义，因此 :eqref:`rnn_h_with_state` 的计算是*循环的*（recurrent）。因此，基于循环计算的隐状态神经网络被命名为*循环神经网络*（recurrent neural networks）。在循环神经网络中执行 :eqref:`rnn_h_with_state` 计算的层称为“循环层”（recurrent layers）。
 
 构建循环神经网络有许多不同的方法。具有由 :eqref:`rnn_h_with_state` 定义的隐藏状态的循环神经网络非常常见。对于时间步$t$，输出层的输出类似于多层感知机中的计算：
 
@@ -98,12 +98,12 @@ d2l.matmul(d2l.concat((X, H), 1), d2l.concat((W_xh, W_hh), 0))
 
 ## 基于循环神经网络的字符级语言模型
 
-回想一下，对于 :numref:`sec_language_model` 中的语言模型。我们的目标是根据当前和过去的标记预测下一个标记，因此我们将原始序列移位一个标记作为标签。Bengio等人:cite:`Bengio.Ducharme.Vincent.ea.2003`首先提出使用神经网络进行语言建模。接下来，我们将说明如何使用循环神经网络来构建语言模型。设小批量大小为1，文本序列为"machine"。为了简化后续部分的训练，我们将文本标记化为字符而不是单词，并考虑使用*字符级语言模型*（character-level language model）。:numref:`fig_rnn_train`演示了如何通过用于字符级语言建模的循环神经网络，基于当前字符和先前字符预测下一个字符。
+回想一下，对于 :numref:`sec_language_model` 中的语言模型。我们的目标是根据当前和过去的标记预测下一个标记，因此我们将原始序列移位一个标记作为标签。Bengio等人 :cite:`Bengio.Ducharme.Vincent.ea.2003` 首先提出使用神经网络进行语言建模。接下来，我们将说明如何使用循环神经网络来构建语言模型。设小批量大小为1，文本序列为"machine"。为了简化后续部分的训练，我们将文本标记化为字符而不是单词，并考虑使用*字符级语言模型*（character-level language model）。 :numref:`fig_rnn_train` 演示了如何通过用于字符级语言建模的循环神经网络，基于当前字符和先前字符预测下一个字符。
 
 ![基于循环神经网络的字符级语言模型。输入序列和标签序列分别为“machin”和“achine”。](../img/rnn-train.svg)
 :label:`fig_rnn_train`
 
-在训练过程中，我们对每个时间步长的输出层的输出进行softmax操作，然后利用交叉熵损失计算模型输出和标签之间的误差。由于隐藏层中隐藏状态的循环计算，:numref:`fig_rnn_train`中的时间步骤3的输出$\mathbf{O}_3$由文本序列“m”、“a”和“c”确定。由于训练数据中序列的下一个字符是“h”，因此时间步3的损失将取决于基于该时间步的特征序列“m”、“a”、“c”生成的下一个字符概率分布和标签“h”。
+在训练过程中，我们对每个时间步长的输出层的输出进行softmax操作，然后利用交叉熵损失计算模型输出和标签之间的误差。由于隐藏层中隐藏状态的循环计算， :numref:`fig_rnn_train` 中的时间步骤3的输出$\mathbf{O}_3$由文本序列“m”、“a”和“c”确定。由于训练数据中序列的下一个字符是“h”，因此时间步3的损失将取决于基于该时间步的特征序列“m”、“a”、“c”生成的下一个字符概率分布和标签“h”。
 
 实际上，每个标记都由一个$d$维向量表示，我们使用批量大小$n>1$。因此，输入$\mathbf X_t$在时间步$t$将是$n\times d$矩阵，这与我们在 :numref:`subsec_rnn_w_hidden_states` 中讨论的相同。
 
@@ -121,12 +121,12 @@ d2l.matmul(d2l.concat((X, H), 1), d2l.concat((W_xh, W_hh), 0))
 我们可以通过计算序列的似然概率来衡量模型的质量。不幸的是，这是一个很难理解和难以比较的数字。毕竟，较短的序列比较长的序列更有可能出现，因此在托尔斯泰的巨著《战争与和平》上对该模型进行评估
 不可避免地会比圣埃克苏佩里的中篇小说《小王子》产生的可能性要小得多。缺少的相当于平均数。
 
-信息论在这里派上了用场。。我们在引入softmax回归（:numref:`subsec_info_theory_basics`）时定义了熵、奇异熵和交叉熵，并在[信息论的在线附录](https://d2l.ai/chapter_appendix-mathematics-for-deep-learning/information-theory.html)中讨论了更多的信息论。如果我们想压缩文本，我们可以询问在给定当前标记集的情况下预测下一个标记。一个更好的语言模型应该能让我们更准确地预测下一个标记。因此，它应该允许我们在压缩序列时花费更少的比特。所以我们可以通过一个序列中所有$n$个标记的平均交叉熵损失来衡量：
+信息论在这里派上了用场。。我们在引入softmax回归（ :numref:`subsec_info_theory_basics` ）时定义了熵、奇异熵和交叉熵，并在[信息论的在线附录](https://d2l.ai/chapter_appendix-mathematics-for-deep-learning/information-theory.html)中讨论了更多的信息论。如果我们想压缩文本，我们可以询问在给定当前标记集的情况下预测下一个标记。一个更好的语言模型应该能让我们更准确地预测下一个标记。因此，它应该允许我们在压缩序列时花费更少的比特。所以我们可以通过一个序列中所有$n$个标记的平均交叉熵损失来衡量：
 
 $$\frac{1}{n} \sum_{t=1}^n -\log P(x_t \mid x_{t-1}, \ldots, x_1),$$
 :eqlabel:`eq_avg_ce_for_lm`
 
-其中$P$由语言模型给出，$x_t$是在时间步$t$从该序列观察到的实际标记。这使得在不同长度的文档上的性能具有可比性。由于历史原因，自然语言处理的科学家更喜欢使用一个叫做“困惑度”（perplexity）的量。简而言之，它是:eqref:`eq_avg_ce_for_lm`的指数：
+其中$P$由语言模型给出，$x_t$是在时间步$t$从该序列观察到的实际标记。这使得在不同长度的文档上的性能具有可比性。由于历史原因，自然语言处理的科学家更喜欢使用一个叫做“困惑度”（perplexity）的量。简而言之，它是 :eqref:`eq_avg_ce_for_lm` 的指数：
 
 $$\exp\left(-\frac{1}{n} \sum_{t=1}^n \log P(x_t \mid x_{t-1}, \ldots, x_1)\right).$$
 
@@ -154,13 +154,13 @@ $$\exp\left(-\frac{1}{n} \sum_{t=1}^n \log P(x_t \mid x_{t-1}, \ldots, x_1)\righ
 1. 与本节中描述的语言模型相关的问题有哪些？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/337)
+[Discussions](https://discuss.d2l.ai/t/2099)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1050)
+[Discussions](https://discuss.d2l.ai/t/2100)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/1051)
+[Discussions](https://discuss.d2l.ai/t/2101)
 :end_tab:

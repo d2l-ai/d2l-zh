@@ -59,7 +59,7 @@ mnist_test = torchvision.datasets.FashionMNIST(
 mnist_train, mnist_test = tf.keras.datasets.fashion_mnist.load_data()
 ```
 
-Fashion-MNIST 由 10 个类别的图像组成，每个类别由训练数据集中的 6000 张图像和测试数据集中的 1000 张图像组成。*测试数据集*（test dataset）（或 *测试集*（test set））不会用于训练，只用于评估模型性能。训练集和测试集分别包含 60000 和 10000 张图像。
+Fashion-MNIST 由 10 个类别的图像组成，每个类别由训练数据集中的 6000 张图像和测试数据集中的 1000 张图像组成。*测试数据集*（test dataset）不会用于训练，只用于评估模型性能。训练集和测试集分别包含 60000 和 10000 张图像。
 
 ```{.python .input}
 #@tab mxnet, pytorch
@@ -269,7 +269,7 @@ for X, y in train_iter:
 
 我们现在已经准备好在下面的章节中使用Fashion-MNIST数据集。
 
-## 总结
+## 小结
 
 * Fashion-MNIST是一个服装分类数据集，由10个类别的图像组成。我们将在后续章节中使用此数据集来评估各种分类算法。
 * 我们将高度$h$像素，宽度$w$像素图像的形状记为$h \times w$或($h$, $w$)。
@@ -277,7 +277,7 @@ for X, y in train_iter:
 
 ## 练习
 
-1. 将减少 `batch_size`（如减少到 1）是否会影响读取性能？
+1. 减少 `batch_size`（如减少到 1）是否会影响读取性能？
 1. 数据迭代器的性能非常重要。你认为当前的实现足够快吗？探索各种选择来改进它。
 1. 查阅框架的在线API文档。还有哪些其他数据集可用？
 

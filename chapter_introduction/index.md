@@ -752,4 +752,4 @@ Canny边缘检测器 :cite:`Canny.1987` 和SIFT特征提取器 :cite:`Lowe.2004`
 1. 如果把人工智能的发展看作一场新的工业革命，那么算法和数据之间的关系是什么？它类似于蒸汽机和煤吗？根本区别是什么？
 1. 你还可以在哪里应用端到端的训练方法，比如 :numref:`fig_ml_loop` 、物理、工程和计量经济学？
 
-[Discussions](https://discuss.d2l.ai/t/22)
+[Discussions](https://discuss.d2l.ai/t/2088)

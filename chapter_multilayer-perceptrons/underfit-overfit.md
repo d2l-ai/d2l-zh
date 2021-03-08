@@ -87,7 +87,7 @@
 
 $$\hat{y}= \sum_{i=0}^d x^i w_i$$
 
-这只是一个线性回归问题，我们的特征是$x$的幂给出的，模型的权重是$w_i$给出的，偏差是$w_0$给出的（因为对于所有的$x$都有$x^0 = 1$）。由于这只是一个线性回归问题，我们可以使用平方误差作为我们的损失函数。
+这只是一个线性回归问题，我们的特征是$x$的幂给出的，模型的权重是$w_i$给出的，偏置是$w_0$给出的（因为对于所有的$x$都有$x^0 = 1$）。由于这只是一个线性回归问题，我们可以使用平方误差作为我们的损失函数。
 
 高阶多项式函数比低阶多项式函数复杂得多。高阶多项式的参数较多，模型函数的选择范围较广。因此在固定训练数据集的情况下，高阶多项式函数相对于低阶多项式的训练误差应该始终更低(最坏情况下是相等的)。事实上，当数据样本包含了$x$的不同值时，函数阶数等于数据样本数量的多项式函数就可以很好地拟合训练集。在 :numref:`fig_capacity_vs_error` 中，我们直观地描述了多项式的阶数和欠拟合与过拟合之间的关系。
 
@@ -154,7 +154,7 @@ labels = np.dot(poly_features, true_w)
 labels += np.random.normal(scale=0.1, size=labels.shape)
 ```
 
-同样，存储在`poly_features`中的单项式由gamma函数重新缩放，其中$\Gamma(n)=(n-1)!$。从生成的数据集中查看前2个样本。值1是与偏差相对应的常量特征。
+同样，存储在`poly_features`中的单项式由gamma函数重新缩放，其中$\Gamma(n)=(n-1)!$。从生成的数据集中查看前2个样本。值1是与偏置相对应的常量特征。
 
 ```{.python .input}
 #@tab pytorch, tensorflow
@@ -203,7 +203,7 @@ def train(train_features, test_features, train_labels, test_labels,
           num_epochs=400):
     loss = gluon.loss.L2Loss()
     net = nn.Sequential()
-    # 不设置偏差，因为我们已经在多项式特征中实现了它
+    # 不设置偏置，因为我们已经在多项式特征中实现了它
     net.add(nn.Dense(1, use_bias=False))
     net.initialize()
     batch_size = min(10, train_labels.shape[0])
@@ -229,7 +229,7 @@ def train(train_features, test_features, train_labels, test_labels,
           num_epochs=400):
     loss = nn.MSELoss()
     input_shape = train_features.shape[-1]
-    # 不设置偏差，因为我们已经在多项式特征中实现了它
+    # 不设置偏置，因为我们已经在多项式特征中实现了它
     net = nn.Sequential(nn.Linear(input_shape, 1, bias=False))
     batch_size = min(10, train_labels.shape[0])
     train_iter = d2l.load_array((train_features, train_labels.reshape(-1,1)),
@@ -254,7 +254,7 @@ def train(train_features, test_features, train_labels, test_labels,
           num_epochs=400):
     loss = tf.losses.MeanSquaredError()
     input_shape = train_features.shape[-1]
-    # 不设置偏差，因为我们已经在多项式特征中实现了它
+    # 不设置偏置，因为我们已经在多项式特征中实现了它
     net = tf.keras.Sequential()
     net.add(tf.keras.layers.Dense(1, use_bias=False))
     batch_size = min(10, train_labels.shape[0])
