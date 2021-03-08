@@ -195,7 +195,7 @@ d2l.annotate('x', (-0.5, f(-0.5)), (-1.5, f(-0.5)))
 
 ## 约束
 
-凸优化的一个很好的特性是能够让我们有效地处理约束。也就是说，它使我们能够解决以下形式的问题：
+凸优化的一个很好的特性是能够让我们有效地处理约束。也就是说，它使我们能够解决以下形式 *约束优化*（constrained optimization）的问题：
 
 $$\begin{aligned} \mathop{\mathrm{minimize~}}_{\mathbf{x}} & f(\mathbf{x}) \\
     \text{ subject to } & c_i(\mathbf{x}) \leq 0 \text{ for all } i \in \{1, \ldots, N\}.
