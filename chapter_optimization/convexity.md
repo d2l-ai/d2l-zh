@@ -66,7 +66,7 @@ $$\lambda f(x) + (1-\lambda) f(x') \geq f(\lambda x + (1-\lambda) x').$$
 
 为了说明这一点，让我们绘制一些函数并检查哪些函数满足要求。下面我们定义一些函数，包括凸函数和非凸函数。 
 
-
+<!-- #region -->
 ```{.python .input}
 #@tab all
 f = lambda x: 0.5 * x**2  # Convex
@@ -107,10 +107,9 @@ $$E_{Y \sim P(Y)}[-\log P(X \mid Y)] \geq -\log P(X),$$
 $$\begin{aligned}
     f(\lambda x^{\ast} + (1-\lambda) x') &\leq \lambda f(x^{\ast}) + (1-\lambda) f(x') \\
     &< \lambda f(x^{\ast}) + (1-\lambda) f(x^{\ast}) \\
-    &= f(x^{\ast}) \\
+    &= f(x^{\ast}), \\
 \end{aligned}$$
 
-由于 $f(\lambda x^{\ast}+(1-\lambda) x') < f(x^{\ast})$，
 这与 $x^{\ast}$ 是局部最小值相矛盾。
 因此，对于 $f(x') < f(x^{\ast})$ 不存在 $x' \in \mathcal{X}$ 。局部最小值 $x^{\ast}$ 也是全局最小值。
 
@@ -118,46 +117,45 @@ $$\begin{aligned}
 
 ```{.python .input}
 #@tab all
-f = lambda x: (x-1)**2
+f = lambda x: (x - 1) ** 2
 d2l.set_figsize()
 d2l.plot([x, segment], [f(x), f(segment)], 'x', 'f(x)')
 ```
 
 凸函数的局部极小值同时也是全局极小值这一性质是很方便的。这意味着，如果我们最小化函数，我们就不会“卡住”。但是，请注意，这并不意味着不能有一个以上的全局最小值，甚至可能存在一个。例如，函数 $f(x) = \mathrm{max}(|x|-1, 0)$ 在 $[-1,1]$ 区间上取得其最小值。相反，函数 $f(x) = \exp(x)$ 在 $\mathbb{R}$ 上没有取得最小值。对于 $x \to -\infty$ ，它趋近于 $0$ ，但是没有 $f(x) = 0$ 的 $x$ 。
 
-### 凸函数与凸集
+### 降维集合的凸函数
 
 凸函数将凸集定义为*降维集合*（below-sets）。它们定义为：
 
-$$S_b := \{x | x \in \mathcal{X} \text{ and } f(x) \leq b\}.$$
+$$\mathcal{S}_b := \{x | x \in \mathcal{X} \text{ and } f(x) \leq b\}.$$
 
-这样的集合是凸的。让我们快速证明一下。记住，对于任何 $x, x' \in \mathcal{S}_b$ ，我们需要证明 $\lambda x + (1-\lambda) x' \in \mathcal{S}_b$ 中，只要 $\lambda \in [0, 1]$ 。但是这直接遵循了凸性的定义，因为 $f(\lambda x + (1-\lambda) x') \leq \lambda f(x) + (1-\lambda) f(x') \leq b$。
+这样的集合是凸的。让我们快速证明一下。记住，对于任何 $x, x' \in \mathcal{S}_b$ ，我们需要证明 $\lambda x + (1-\lambda) x' \in \mathcal{S}_b$ 中，只要 $\lambda \in [0, 1]$ 。
 
-看看下面的函数 $f(x, y) = 0.5 x^2 + \cos(2 \pi y)$ 。它显然是非凸的。水平集相应地是非凸的。 实际上，它们通常由不相交的集合组成。
+但这直接来自凸性的定义，因为 $f(\lambda x + (1-\lambda) x') \leq \lambda f(x) + (1-\lambda) f(x') \leq b$。
+看看下面的函数 $f(x, y) = 0.5 x^2 + \cos(2 \pi y)$，它显然是非凸的。
+相应地，水平集是非凸的。事实上，它们通常由不相交的集合组成。
 
-```{.python .input}
-#@tab all
-x, y = d2l.meshgrid(
-    d2l.linspace(-1.0, 1.0, 101), d2l.linspace(-1.0, 1.0, 101))
-z = x**2 + 0.5 * d2l.cos(2 * np.pi * y)
-# Plot the 3D surface
-d2l.set_figsize((6, 4))
-ax = d2l.plt.figure().add_subplot(111, projection='3d')
-ax.plot_wireframe(x, y, z, **{'rstride': 10, 'cstride': 10})
-ax.contour(x, y, z, offset=-1)
-ax.set_zlim(-1, 1.5)
-# Adjust labels
-for func in [d2l.plt.xticks, d2l.plt.yticks, ax.set_zticks]:
-    func([-1, 0, 1])
-```
+$$f(\lambda x + (1-\lambda) x') \leq \lambda f(x) + (1-\lambda) f(x') \leq b.$$
 
-### 导数和凸性
 
-当一个函数的二阶导数存在时，很容易检查它的凸性。我们需要做的就是检查 $\partial_x^2 f(x) \succeq 0$ ，即它的所有特征值是否都是非负的。例如，函数 $f(\mathbf{x}) = \frac{1}{2} \|\mathbf{x}\|^2$ 是凸的，因为 $\partial_{\mathbf{x}}^2 f = \mathbf{1}$ ， 即其导数是单位矩阵。
+### 凸性和二级导数
 
-首先要意识到的是我们只需要证明一维函数的这个性质。毕竟，我们通常总是可以定义一些函数 $g(z) = f(\mathbf{x} + z \cdot \mathbf{v})$ 。这个函数的一阶导数和二阶导数 $g' = (\partial_{\mathbf{x}} f)^\top \mathbf{v}$ 和 $g'' = \mathbf{v}^\top (\partial^2_{\mathbf{x}} f) \mathbf{v}$ 。特别地，无论 $f$ 的海赛矩阵是否为正半定时，即无论它的所有特征值是否都大于等于零时，对所有 $\mathbf{v}$ 有 $g'' \geq 0$ 。回到标量情况。
+当一个函数的二阶导数 $f: \mathbb{R}^n \rightarrow \mathbb{R}$  存在时，我们很容易检查这个函数的凸性。
+我们需要做的就是检查 $\nabla^2f \succeq 0$ ，
+即对于所有 $\mathbf{x} \in \mathbb{R}^n$， $\mathbf{x}^\top \mathbf{H} \mathbf{x} \geq 0$.
 
-为了看到 $f''(x) \geq 0$ 对于凸函数我们使用的事实
+
+
+
+例如，函数 $f(\mathbf{x}) = \frac{1}{2} \|\mathbf{x}\|^2$ 是凸的，因为 $\nabla^2 f = \mathbf{1}$ ， 即其导数是单位矩阵。
+
+更正式的讲，$f$ 为凸函数，当且仅当任意二次可微一维函数 $f: \mathbb{R}^n \rightarrow \mathbb{R}$ 是凸的。
+对于任意二次可微多维函数$f: \mathbb{R}^{n} \rightarrow \mathbb{R}$，
+它是凸的当且仅当它的 Hessian $\nabla^2f\succeq 0$。
+
+首先，我们来证明一下一维情况。
+为了证明凸函数的 $f''(x) \geq 0$，我们使用：
 
 $$\frac{1}{2} f(x + \epsilon) + \frac{1}{2} f(x - \epsilon) \geq f\left(\frac{x + \epsilon}{2} + \frac{x - \epsilon}{2}\right) = f(x).$$
 
@@ -165,35 +163,60 @@ $$\frac{1}{2} f(x + \epsilon) + \frac{1}{2} f(x - \epsilon) \geq f\left(\frac{x 
 
 $$f''(x) = \lim_{\epsilon \to 0} \frac{f(x+\epsilon) + f(x - \epsilon) - 2f(x)}{\epsilon^2} \geq 0.$$
 
-为了证明相反的情况是正确的，我们使用 $f'' \geq 0$ 这一事实表明 $f'$ 是一个单调递增函数。设 $a < x < b$ 是 $\mathbb{R}$ 中的三个点。我们用中值定理来表示
 
-$$\begin{aligned}
-f(x) - f(a) & = (x-a) f'(\alpha) \text{ for some } \alpha \in [a, x] \text{ and } \\
-f(b) - f(x) & = (b-x) f'(\beta) \text{ for some } \beta \in [x, b].
-\end{aligned}$$
+为了证明 $f'' \geq 0$ 可以推导 $f$ 是凸的，
+我们使用这样一个事实：$f'' \geq 0$ 意味着 $f'$ 是一个单调的非递减函数。
+假设 $a < x < b$ 是$\mathbb{R}$中的三个点，
+其中，$x = (1-\lambda)a + \lambda b$ 且 $\lambda \in (0, 1)$.
+根据中值定理，存在 $\alpha \in [a, x]$，$ \beta \in [x, b]$，使得
+$$f'(\alpha) = \frac{f(x) - f(a)}{x-a} \text{ and } f'(\beta) = \frac{f(b) - f(x)}{b-x}.$$
 
 通过单调性 $f'(\beta) \geq f'(\alpha)$ ，因此
 
-$$\begin{aligned}
-    f(b) - f(a) & = f(b) - f(x) + f(x) - f(a) \\
-    & = (b-x) f'(\beta) + (x-a) f'(\alpha) \\
-    & \geq (b-a) f'(\alpha).
+$$\frac{x-a}{b-a}f(b) + \frac{b-x}{b-a}f(a) \geq f(x).$$
+
+由于 $x = (1-\lambda)a + \lambda b$， 所以
+
+$$\lambda f(b) + (1-\lambda)f(a) \geq f((1-\lambda)a + \lambda b),$$
+
+从而证明了凸性。
+
+
+第二，我们需要一个引理证明多维情况：
+$f: \mathbb{R}^n \rightarrow \mathbb{R}$
+是凸的当且仅当对于所有 $\mathbf{x}, \mathbf{y} \in \mathbb{R}^n$
+
+$$g(z) \stackrel{\mathrm{def}}{=} f(z \mathbf{x} + (1-z)  \mathbf{y}) \text{ where } z \in [0,1]$$ 
+
+是凸的。
+
+为了证明 $f$ 的凸性意味着 $g$ 是凸的，
+我们可以证明，对于所有的 $a，b，\lambda，\in[0，1]$，
+$0 \leq \lambda a + (1-\lambda) b \leq 1$。
+
+$$\begin{aligned} &g(\lambda a + (1-\lambda) b)\\
+=&f\left(\left(\lambda a + (1-\lambda) b\right)\mathbf{x} + \left(1-\lambda a - (1-\lambda) b\right)\mathbf{y} \right)\\
+=&f\left(\lambda \left(a \mathbf{x} + (1-a)  \mathbf{y}\right)  + (1-\lambda) \left(b \mathbf{x} + (1-b)  \mathbf{y}\right) \right)\\
+\leq& \lambda f\left(a \mathbf{x} + (1-a)  \mathbf{y}\right)  + (1-\lambda) f\left(b \mathbf{x} + (1-b)  \mathbf{y}\right) \\
+=& \lambda g(a) + (1-\lambda) g(b).
 \end{aligned}$$
 
-从几何上看， $f(x)$ 低于 $f(a)$ 和 $f(b)$ 的连接线，从而证明了它的凸性。我们用下面的图表忽略了更正式的推导。 
+为了证明这一点，我们可以展示给你看
+$[0，1]$ 中所有的 $\lambda$ ：
 
-```{.python .input}
-#@tab all
-f = lambda x: 0.5 * x**2
-x = d2l.arange(-2, 2, 0.01)
-axb, ab = d2l.tensor([-1.5, -0.5, 1]), d2l.tensor([-1.5, 1])
-d2l.set_figsize()
-d2l.plot([x, axb, ab], [f(x) for x in [x, axb, ab]], 'x', 'f(x)')
-d2l.annotate('a', (-1.5, f(-1.5)), (-1.5, 1.5))
-d2l.annotate('b', (1, f(1)), (1, 1.5))
-d2l.annotate('x', (-0.5, f(-0.5)), (-1.5, f(-0.5)))
-```
+$$\begin{aligned} &f(\lambda \mathbf{x} + (1-\lambda) \mathbf{y})\\
+=&g(\lambda \cdot 1 + (1-\lambda) \cdot 0)\\
+\leq& \lambda g(1)  + (1-\lambda) g(0) \\
+=& \lambda f(\mathbf{x}) + (1-\lambda) g(\mathbf{y}).
+\end{aligned}$$
 
+最后，利用上面的引理和一维情况的结果，我们可以证明多维情况：
+多维函数 $f:\mathbb{R}^n\rightarrow\mathbb{R}$ 是凸函数，当且仅当 $g(z) \stackrel{\mathrm{def}}{=} f(z \mathbf{x} + (1-z)  \mathbf{y})$ 是凸的，这里 $z \in [0,1]$，$\mathbf{x}, \mathbf{y} \in \mathbb{R}^n$ 。
+根据一维情况，
+当且仅当对于所有 $\mathbf{x}, \mathbf{y} \in \mathbb{R}^n$，
+$g'' = (\mathbf{x} - \mathbf{y})^\top \mathbf{H}(\mathbf{x} - \mathbf{y}) \geq 0$ ($\mathbf{H} \stackrel{\mathrm{def}}{=} \nabla^2f$)。
+这相当于根据半正定矩阵的定义， $\mathbf{H} \succeq 0$。
+<!-- #endregion -->
 
 ## 约束
 
