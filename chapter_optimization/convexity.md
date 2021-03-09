@@ -2,7 +2,7 @@
 :label:`sec_convexity`
 
 *凸性* （convexity）在优化算法的设计中起到至关重要的作用。这主要是由于在这种情况下对算法进行分析和测试要容易得多。换言之，如果该算法甚至在凸性条件设定下的效果很差，通常我们很难在其他条件下看到好的结果。
-此外，即使深度学习中的优化问题通常是非凸的，它们也经常在局部极小值附近表现出一些凸性。 这可能会产生令人兴奋的新的优化变体，例如 :cite: `Izmailov.Podoprikhin.Garipov.ea.2018` 。 
+此外，即使深度学习中的优化问题通常是非凸的，它们也经常在局部极小值附近表现出一些凸性。 这可能会产生一些像 :cite: `Izmailov.Podoprikhin.Garipov.ea.2018` 这样比较有意思的新的优化变体。 
 
 ```{.python .input}
 %matplotlib inline
@@ -41,7 +41,7 @@ import tensorflow as tf
 $$\lambda  a + (1-\lambda)  b \in \mathcal{X} \text{ whenever } a, b \in \mathcal{X}.$$
 
 
-这听起来有点抽象。思考 :numref:`fig_pacman` 。第一组不是凸的，因为存在线段不包含在集合的内部。另外两组没有这样的问题。 
+这听起来有点抽象，那我们来思考一下 :numref:`fig_pacman` 里的例子。第一组存在不包含在集合内部的线段，所以该集合是非凸的，而另外两组则没有这样的问题。 
 
 ![The first set is nonconvex and the other two are convex.](../img/pacman.svg)
 :label:`fig_pacman`
@@ -98,7 +98,7 @@ $$E_{Y \sim P(Y)}[-\log P(X \mid Y)] \geq -\log P(X),$$
  
 ## 性质
 
-凸函数有一些有用的性质。我们这样描述它们。
+下面我们来看一下凸函数一些有趣的性质。
 
 ### 局部极小值是全局极小值
 
@@ -139,7 +139,7 @@ $$\mathcal{S}_b := \{x | x \in \mathcal{X} \text{ and } f(x) \leq b\}.$$
 $$f(\lambda x + (1-\lambda) x') \leq \lambda f(x) + (1-\lambda) f(x') \leq b.$$
 
 
-### 凸性和二级导数
+### 凸性和二阶导数
 
 当一个函数的二阶导数 $f: \mathbb{R}^n \rightarrow \mathbb{R}$  存在时，我们很容易检查这个函数的凸性。
 我们需要做的就是检查 $\nabla^2f \succeq 0$ ，
@@ -238,7 +238,8 @@ $$\begin{aligned} \mathop{\mathrm{minimize~}}_{\mathbf{x}} & f(\mathbf{x}) \\
 
 $$L(\mathbf{x}, \alpha_1, \ldots, \alpha_n) = f(\mathbf{x}) + \sum_{i=1}^n \alpha_i c_i(\mathbf{x}) \text{ where } \alpha_i \geq 0.$$
 
-这里的变量 $\alpha_i$ ($i=1,\ldots,n$) 是所谓的*拉格朗日乘数*（Lagrange Multipliers），它确保约束被正确地执行。选择它们的大小足以确保所有 $i$ 的 $c_i(\mathbf{x}) \leq 0$ 。例如，对于 $c_i(\mathbf{x}) < 0$ 中任意 $\mathbf{x}$ ，我们最终会选择 $\alpha_i = 0$ 。 此外，这是一个*鞍点*（saddlepoint）优化问题，在这个问题中，我们想要使 $L$ 相对于 $\alpha_i$ *最大化*（maximize），同时使它相对于 $\mathbf{x}$ *最小化*（minimize）。有大量的文献解释如何得出函数 $L(\mathbf{x}, \alpha_1, \ldots, \alpha_n)$ 。 对于我们的目标，知道 $L$ 的鞍点是原始约束优化问题的最优解就足够了。
+这里的变量 $\alpha_i$ ($i=1,\ldots,n$) 是所谓的*拉格朗日乘数*（Lagrange Multipliers），它确保约束被正确地执行。选择它们的大小足以确保所有 $i$ 的 $c_i(\mathbf{x}) \leq 0$ 。例如，对于 $c_i(\mathbf{x}) < 0$ 中任意 $\mathbf{x}$ ，我们最终会选择 $\alpha_i = 0$ 。 此外，这是一个*鞍点*（saddlepoint）优化问题，在这个问题中，我们想要使 $L$ 相对于 $\alpha_i$ *最大化*（maximize），同时使它相对于 $\mathbf{x}$ *最小化*（minimize）。有大量的文献解释如何得出函数 $L(\mathbf{x}, \alpha_1, \ldots, \alpha_n)$ 。
+我们这里只需要知道 $L$ 的鞍点是原始约束优化问题的最优解就足够了。
 
 ### 惩罚
 
@@ -288,14 +289,15 @@ $$\mathrm{Proj}_\mathcal{X}(\mathbf{x}) = \mathop{\mathrm{argmin}}_{\mathbf{x}' 
 * 凸约束可以通过拉格朗日函数来添加。在实践中，只需在目标函数中加上一个惩罚就可以了。
 * 投影映射到凸集中最接近原始点的点。
 
-## 练习题 
+
+## 练习 
 
 1. 假设我们想要通过绘制集合内点之间的所有直线并检查这些直线是否包含来验证集合的凸性。
     i. 证明只检查边界上的点是充分的。
     ii. 证明只检查集合的顶点是充分的。
 2. 用 $p$ -范数表示半径为 $r$ 的球，证明 $\mathcal{B}_p[r] := \{\mathbf{x} | \mathbf{x} \in \mathbb{R}^d \text{ and } \|\mathbf{x}\|_p \leq r\}$ ， $\mathcal{B}_p[r]$ 对于所有 $p \geq 1$ 是凸的。
 
-3. 已知凸函数 $f$ 和 $g$ 表明 $\mathrm{max}(f, g)$ 也是凸函数。证明 $\mathrm{min}(f, g)$ 不是凸的。
+3. 已知凸函数 $f$ 和 $g$ 表明 $\mathrm{max}(f, g)$ 也是凸函数。证明 $\mathrm{min}(f, g)$ 是非凸的。
 
 4. 证明Softmax函数的归一化是凸的，即 $f(x) = \log \sum_i \exp(x_i)$ 的凸性。
 
@@ -307,7 +309,7 @@ $$\mathrm{Proj}_\mathcal{X}(\mathbf{x}) = \mathop{\mathrm{argmin}}_{\mathbf{x}' 
 
 8. 给定一个向量 $\mathbf{w} \in \mathbb{R}^d$ 与 $|\mathbf{w}| 1 > 1$ 计算在 $L_1$ 单位球上的投影。
     i. 作为中间步骤，写出惩罚目标 $|\mathbf{w} - \mathbf{w}'|_2^2 + \lambda |\mathbf{w}'|_1$ ，计算给定 $\lambda > 0$ 的解。
-    ii. 你能找到 $\lambda$ 的“正确”值而无需大量的试验和错误吗？
+    ii. 你能无需反复试错就找到 $\lambda$ 的“正确”值吗？
 
 9. 给定一个凸集 $\mathcal{X}$ 和两个向量 $\mathbf{X}$ 和 $\mathbf{y}$ 证明了投影不会增加距离，即$\|\mathbf{x} - \mathbf{y}\| \geq \|\mathrm{Proj}_\mathcal{X}(\mathbf{x}) - \mathrm{Proj}_\mathcal{X}(\mathbf{y})\|$。
 <!-- #endregion -->
