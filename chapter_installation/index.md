@@ -40,7 +40,7 @@ conda create --name d2l python=3.8 -y
 
 ```bash
 mkdir d2l-zh && cd d2l-zh
-curl https://d2l.ai/d2l-zh.zip -o d2l-zh.zip
+curl https://zh-v2.d2l.ai/d2l-zh.zip -o d2l-zh.zip
 unzip d2l-zh.zip && rm d2l-zh.zip
 ```
 
