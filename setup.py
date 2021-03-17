@@ -5,6 +5,7 @@ requirements = [
     'jupyter',
     'numpy',
     'matplotlib',
+    'requests',
     'pandas'
 ]
 
