@@ -1,7 +1,7 @@
 # softmax回归的从零开始实现
 :label:`sec_softmax_scratch`
 
-就像我们从零开始实现线性回归一样，我们认为softmax回归也是重要的基础，因此你应该知道如何自己实现它的细节。我们使用刚刚在 :numref:`sec_fashion_mnist` 中引入的Fashion-MNIST数据集，并设置数据迭代器的批量大小为256。
+(**就像我们从零开始实现线性回归一样，**)我们认为softmax回归也是重要的基础，因此(**你应该知道实现softmax的细节**)。我们使用刚刚在 :numref:`sec_fashion_mnist` 中引入的Fashion-MNIST数据集，并设置数据迭代器的批量大小为256。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -32,9 +32,9 @@ train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
 
 ## 初始化模型参数
 
-这里的每个样本都用固定长度向量表示。原始数据集中的每个样本都是 $28 \times 28$ 的图像。在本节中，我们将展平每个图像，将它们视为长度为784的向量。在以后的章节中，我们将讨论能够利用图像空间结构的复杂策略，但现在我仅将每个像素位置视为一个特征。
+这里的每个样本都用固定长度向量表示。原始数据集中的每个样本都是 $28 \times 28$ 的图像。在本节中，我们[**将展平每个图像，将它们视为长度为784的向量。**]在以后的章节中，我们将讨论能够利用图像空间结构的复杂策略，但现在我仅将每个像素位置视为一个特征。
 
-回想一下，在softmax回归中，我们的输出与类别一样多。因为我们的数据集有10个类别，所以网络输出维度为 10。因此，权重将构成一个 $784 \times 10$ 的矩阵，偏置将构成一个 $1 \times 10$ 的行向量。与线性回归一样，我们将使用正态分布初始化我们的权重 `W`，偏置初始化为0。
+回想一下，在softmax回归中，我们的输出与类别一样多。(**因为我们的数据集有10个类别，所以网络输出维度为 10**)。因此，权重将构成一个 $784 \times 10$ 的矩阵，偏置将构成一个 $1 \times 10$ 的行向量。与线性回归一样，我们将使用正态分布初始化我们的权重 `W`，偏置初始化为0。
 
 ```{.python .input}
 num_inputs = 784
@@ -67,7 +67,7 @@ b = tf.Variable(tf.zeros(num_outputs))
 
 ## 定义softmax操作
 
-在实现softmax回归模型之前，让我们简要地回顾一下`sum`运算符如何沿着张量中的特定维度工作，如 :numref:`subseq_lin-alg-reduction` 和 :numref:`subseq_lin-alg-non-reduction` 所述。给定一个矩阵`X`，我们可以对所有元素求和（默认情况下），也可以只求同一个轴上的元素，即同一列（轴0）或同一行（轴1）。如果 `X` 是一个形状为 `(2, 3)` 的张量，我们对列进行求和，则结果将是一个具有形状 `(3,)` 的向量。当调用sum运算符时，我们可以指定保持在原始张量的轴数，而不折叠求和的维度。这将产生一个具有形状 `(1, 3)` 的二维张量。
+在实现softmax回归模型之前，让我们简要地回顾一下`sum`运算符如何沿着张量中的特定维度工作，如 :numref:`subseq_lin-alg-reduction` 和 :numref:`subseq_lin-alg-non-reduction` 所述。[**给定一个矩阵`X`，我们可以对所有元素求和**]（默认情况下），也可以只求同一个轴上的元素，即同一列（轴0）或同一行（轴1）。如果 `X` 是一个形状为 `(2, 3)` 的张量，我们对列进行求和，则结果将是一个具有形状 `(3,)` 的向量。当调用sum运算符时，我们可以指定保持在原始张量的轴数，而不折叠求和的维度。这将产生一个具有形状 `(1, 3)` 的二维张量。
 
 ```{.python .input}
 #@tab pytorch
@@ -81,15 +81,17 @@ X = d2l.tensor([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
 d2l.reduce_sum(X, 0, keepdims=True), d2l.reduce_sum(X, 1, keepdims=True)
 ```
 
-我们现在已经准备好实现softmax操作了。回想一下，softmax 由三个步骤组成：
+我们现在已经准备好[**实现softmax**]操作了。回想一下，softmax 由三个步骤组成：
 （1）对每个项求幂（使用`exp`）；
 （2）对每一行求和（小批量中每个样本是一行），得到每个样本的归一化常数；
 （3）将每一行除以其归一化常数，确保结果的和为1。
 在查看代码之前，让我们回顾一下这个表达式：
 
+(**
 $$
 \mathrm{softmax}(\mathbf{X})_{ij} = \frac{\exp(\mathbf{X}_{ij})}{\sum_k \exp(\mathbf{X}_{ik})}.
 $$
+**)
 
 分母或归一化常数，有时也称为*配分函数*（其对数称为对数-配分函数）。该名称的起源来自 [统计物理学](https://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics))中一个模拟粒子群分布的方程。
 
@@ -109,7 +111,7 @@ def softmax(X):
     return X_exp / partition  # 这里应用了广播机制
 ```
 
-正如你所看到的，对于任何随机输入，我们将每个元素变成一个非负数。此外，因为概率的要求，每行总和为1。
+正如你所看到的，对于任何随机输入，[**我们将每个元素变成一个非负数。此外，依据概率原理，每行总和为1**]。
 
 ```{.python .input}
 #@tab mxnet, pytorch
@@ -129,7 +131,7 @@ X_prob, tf.reduce_sum(X_prob, 1)
 
 ## 定义模型
 
-现在我们已经定义了softmax操作，我们可以实现softmax回归模型。下面的代码定义了输入如何通过网络映射到输出。注意，在将数据传递到我们的模型之前，我们使用 `reshape` 函数将每张原始图像展平为向量。
+现在我们已经定义了softmax操作，我们可以[**实现softmax回归模型**]。下面的代码定义了输入如何通过网络映射到输出。注意，在将数据传递到我们的模型之前，我们使用 `reshape` 函数将每张原始图像展平为向量。
 
 ```{.python .input}
 #@tab all
@@ -142,9 +144,9 @@ def net(X):
 接下来，我们需要实现 :numref:`sec_softmax` 中引入的交叉熵损失函数。这可能是深度学习中最常见的损失函数，因为目前分类问题的数量远远超过回归问题。
 
 回顾一下，交叉熵采用真实标签的预测概率的负对数似然。我们不需要使用Python的for循环迭代预测（这往往是低效的）。我们可以通过一个运算符选择所有元素。
-下面，我们一个演示数据，其中包含2个样本在3个类别的预测概率`y_hat`。以及它们对应的标签`y`。
+下面，我们[**创建一个数据`y_hat`，其中包含2个样本在3个类别的预测概率，**]它们对应的标签`y`。
 有了`y`，我们知道在第一个样本中，第一类是正确的预测，而在第二个样本中，第三类是正确的预测。
-然后使用`y`作为`y_hat`中概率的索引，我们选择第一个样本中第一个类的概率和第二个样本中第三个类的概率。
+然后(**使用`y`作为`y_hat`中概率的索引**)，我们选择第一个样本中第一个类的概率和第二个样本中第三个类的概率。
 
 ```{.python .input}
 #@tab mxnet, pytorch
@@ -160,7 +162,7 @@ y = tf.constant([0, 2])
 tf.boolean_mask(y_hat, tf.one_hot(y, depth=y_hat.shape[-1]))
 ```
 
-现在我们只需一行代码就可以实现交叉熵损失函数。
+现在我们只需一行代码就可以[**实现交叉熵损失函数**]。
 
 ```{.python .input}
 #@tab mxnet, pytorch
@@ -185,14 +187,14 @@ cross_entropy(y_hat, y)
 
 当预测与标签分类 `y` 一致时，它们是正确的。分类准确率即正确预测数量与总预测数量之比。虽然直接优化准确率可能很困难（因为准确率的计算不可导），但准确率通常是我们最关心的性能衡量标准，我们在训练分类器时几乎总是会报告它。
 
-为了计算准确率，我们执行以下操作。首先，如果 `y_hat` 是矩阵，第二个维度存储每个类的预测分数。我们使用 `argmax` 获得每行中最大元素的索引来获得预测类别。然后我们将预测类别与真实 `y` 元素进行比较。由于等式运算符 `==` 对数据类型很敏感，因此我们将 `y_hat` 的数据类型转换为与 `y` 的数据类型一致。结果是一个包含 0（错）和 1（对）的张量。进行求和会得到正确预测的数量。
+为了计算准确率，我们执行以下操作。首先，如果 `y_hat` 是矩阵，第二个维度存储每个类的预测分数。我们使用 `argmax` 获得每行中最大元素的索引来获得预测类别。然后我们[**将预测类别与真实 `y` 元素进行比较**]。由于等式运算符 `==` 对数据类型很敏感，因此我们将 `y_hat` 的数据类型转换为与 `y` 的数据类型一致。结果是一个包含 0（错）和 1（对）的张量。进行求和会得到正确预测的数量。
 
 ```{.python .input}
 #@tab all
 def accuracy(y_hat, y):  #@save
     """计算预测正确的数量。"""
     if len(y_hat.shape) > 1 and y_hat.shape[1] > 1:
-        y_hat = d2l.argmax(y_hat, axis=1)        
+        y_hat = d2l.argmax(y_hat, axis=1)
     cmp = d2l.astype(y_hat, y.dtype) == y
     return float(d2l.reduce_sum(d2l.astype(cmp, y.dtype)))
 ```
@@ -204,7 +206,7 @@ def accuracy(y_hat, y):  #@save
 accuracy(y_hat, y) / len(y)
 ```
 
-同样，我们可以评估数据迭代器 `data_iter` 访问的数据集在任意模型 `net` 上的准确率。
+同样，对于任意数据迭代器 `data_iter` 可访问的数据集，[**我们可以评估在任意模型 `net` 的准确率**]。
 
 ```{.python .input}
 #@tab mxnet, tensorflow
@@ -229,7 +231,7 @@ def evaluate_accuracy(net, data_iter):  #@save
 ```
 
 这里 `Accumulator` 是一个实用程序类，用于对多个变量进行累加。
-在上面的 `evaluate_accuracy` 函数中，我们在 `Accumulator` 实例中创建了 2 个变量，用于分别存储正确预测的数量和预测的总数量。当我们遍历数据集时，两者都将随着时间的推移而累加。
+在上面的 `evaluate_accuracy` 函数中，我们在 (**`Accumulator` 实例中创建了 2 个变量，用于分别存储正确预测的数量和预测的总数量**)。当我们遍历数据集时，两者都将随着时间的推移而累加。
 
 ```{.python .input}
 #@tab all
@@ -257,7 +259,7 @@ evaluate_accuracy(net, test_iter)
 
 ## 训练
 
-如果你看过 :numref:`sec_linear_scratch` 中的线性回归实现，softmax回归的训练过程代码应该看起来非常熟悉。在这里，我们重构训练过程的实现以使其可重复使用。首先，我们定义一个函数来训练一个迭代周期。请注意，`updater` 是更新模型参数的常用函数，它接受批量大小作为参数。它可以是封装的`d2l.sgd`函数，也可以是框架的内置优化函数。
+如果你看过 :numref:`sec_linear_scratch` 中的线性回归实现，[**softmax回归的训练**]过程代码应该看起来非常熟悉。在这里，我们重构训练过程的实现以使其可重复使用。首先，我们定义一个函数来训练一个迭代周期。请注意，`updater` 是更新模型参数的常用函数，它接受批量大小作为参数。它可以是封装的`d2l.sgd`函数，也可以是框架的内置优化函数。
 
 ```{.python .input}
 def train_epoch_ch3(net, train_iter, loss, updater):  #@save
@@ -337,7 +339,7 @@ def train_epoch_ch3(net, train_iter, loss, updater):  #@save
     return metric[0] / metric[2], metric[1] / metric[2]
 ```
 
-在展示训练函数的实现之前，我们定义了一个在动画中绘制数据的实用程序类。它能够简化本书其余部分的代码。
+在展示训练函数的实现之前，我们[**定义一个在动画中绘制数据的实用程序类**]。它能够简化本书其余部分的代码。
 
 ```{.python .input}
 #@tab all
@@ -382,7 +384,7 @@ class Animator:  #@save
         display.clear_output(wait=True)
 ```
 
-接下来我们实现一个训练函数，它会在`train_iter` 访问到的训练数据集上训练一个模型`net`。该训练函数将会运行多个迭代周期（由`num_epochs`指定）。在每个迭代周期结束时，利用 `test_iter` 访问到的测试数据集对模型进行评估。我们将利用 `Animator` 类来可视化训练进度。
+接下来我们实现一个[**训练函数**]，它会在`train_iter` 访问到的训练数据集上训练一个模型`net`。该训练函数将会运行多个迭代周期（由`num_epochs`指定）。在每个迭代周期结束时，利用 `test_iter` 访问到的测试数据集对模型进行评估。我们将利用 `Animator` 类来可视化训练进度。
 
 ```{.python .input}
 #@tab all
@@ -400,7 +402,7 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, updater):  #@save
     assert test_acc <= 1 and test_acc > 0.7, test_acc
 ```
 
-作为一个从零开始的实现，我们使用 :numref:`sec_linear_scratch` 中定义的小批量随机梯度下降来优化模型的损失函数，设置学习率为0.1。
+作为一个从零开始的实现，我们使用 :numref:`sec_linear_scratch` 中定义的[**小批量随机梯度下降来优化模型的损失函数**]，设置学习率为0.1。
 
 ```{.python .input}
 #@tab mxnet, pytorch
@@ -424,7 +426,7 @@ class Updater():  #@save
 updater = Updater([W, b], lr=0.1)
 ```
 
-现在，我们训练模型10个迭代周期。请注意，迭代周期（`num_epochs`）和学习率（`lr`）都是可调节的超参数。通过更改它们的值，我们可以提高模型的分类准确率。
+现在，我们[**训练模型10个迭代周期**]。请注意，迭代周期（`num_epochs`）和学习率（`lr`）都是可调节的超参数。通过更改它们的值，我们可以提高模型的分类准确率。
 
 ```{.python .input}
 #@tab all
@@ -434,7 +436,7 @@ train_ch3(net, train_iter, test_iter, cross_entropy, num_epochs, updater)
 
 ## 预测
 
-现在训练已经完成，我们的模型已经准备好对图像进行分类。给定一系列图像，我们将比较它们的实际标签（文本输出的第一行）和模型预测（文本输出的第二行）。
+现在训练已经完成，我们的模型已经准备好[**对图像进行分类预测**]。给定一系列图像，我们将比较它们的实际标签（文本输出的第一行）和模型预测（文本输出的第二行）。
 
 ```{.python .input}
 #@tab all

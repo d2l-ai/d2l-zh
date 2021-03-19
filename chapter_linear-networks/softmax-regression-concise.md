@@ -1,7 +1,9 @@
 # softmax回归的简洁实现
 :label:`sec_softmax_concise`
 
-在 :numref:`sec_linear_concise` 中，我们可以发现通过深度学习框架的高级API能够使实现线性回归变得更加容易。同样地，通过深度学习框架的高级API也能更方便地实现分类模型。让我们继续使用Fashion-MNIST数据集，并保持批量大小为256，就像在 :numref:`sec_softmax_scratch` 中一样。
+在 :numref:`sec_linear_concise` 中，我们可以发现(**通过深度学习框架的高级API能够使实现**)
+(~~softmax~~)
+线性(**回归变得更加容易**)。同样地，通过深度学习框架的高级API也能更方便地实现分类模型。让我们继续使用Fashion-MNIST数据集，并保持批量大小为256，就像在 :numref:`sec_softmax_scratch` 中一样。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -31,7 +33,7 @@ train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
 
 ## 初始化模型参数
 
-如我们在 :numref:`sec_softmax` 所述，softmax 回归的输出层是一个全连接层。因此，为了实现我们的模型，我们只需在 `Sequential` 中添加一个带有10个输出的全连接层。同样，在这里，`Sequential` 并不是必要的，但我们可能会形成这种习惯。因为在实现深度模型时，`Sequential`将无处不在。我们仍然以均值0和标准差0.01随机初始化权重。
+如我们在 :numref:`sec_softmax` 所述，[**softmax 回归的输出层是一个全连接层**]。因此，为了实现我们的模型，我们只需在 `Sequential` 中添加一个带有10个输出的全连接层。同样，在这里，`Sequential` 并不是必要的，但我们可能会形成这种习惯。因为在实现深度模型时，`Sequential`将无处不在。我们仍然以均值0和标准差0.01随机初始化权重。
 
 ```{.python .input}
 net = nn.Sequential()
@@ -81,7 +83,7 @@ $$
 $$
 
 我们也希望保留传统的softmax函数，以备我们需要评估通过模型输出的概率。
-但是，我们没有将softmax概率传递到损失函数中，而是在交叉熵损失函数中传递未归一化的预测并同时计算softmax及其对数，这是一件聪明的事情 ["LogSumExp技巧"](https://en.wikipedia.org/wiki/LogSumExp)。
+但是，我们没有将softmax概率传递到损失函数中，而是[**在交叉熵损失函数中，传递未归一化的预测，并同时计算softmax及其对数**]，这是一件聪明的事情 ["LogSumExp技巧"](https://en.wikipedia.org/wiki/LogSumExp)。
 
 ```{.python .input}
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
@@ -99,7 +101,7 @@ loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 
 ## 优化算法
 
-在这里，我们使用学习率为0.1的小批量随机梯度下降作为优化算法。这与我们在线性回归例子中的相同，这说明了优化器的普适性。
+在这里，我们(**使用学习率为0.1的小批量随机梯度下降作为优化算法**)。这与我们在线性回归例子中的相同，这说明了优化器的普适性。
 
 ```{.python .input}
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.1})
@@ -117,7 +119,7 @@ trainer = tf.keras.optimizers.SGD(learning_rate=.1)
 
 ## 训练
 
-接下来我们调用 :numref:`sec_softmax_scratch` 中定义的训练函数来训练模型。
+接下来我们[**调用**] :numref:`sec_softmax_scratch` 中(~~之前~~)(**定义的训练函数来训练模型**)。
 
 ```{.python .input}
 #@tab all

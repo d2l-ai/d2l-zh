@@ -111,7 +111,7 @@ $$\begin{aligned} \mathbf{w} &\leftarrow \mathbf{w} -   \frac{\eta}{|\mathcal{B}
 
 ## 矢量化加速
 
-在训练我们的模型时，我们经常希望能够同时处理整个小批量的样本。为了实现这一点，需要我们对计算进行矢量化，从而利用好快速线性代数库，而不是在Python中编写开销高昂的for循环。
+在训练我们的模型时，我们经常希望能够同时处理整个小批量的样本。为了实现这一点，需要(**我们对计算进行矢量化，从而利用线性代数库，而不是在Python中编写开销高昂的for循环**)。
 
 ```{.python .input}
 %matplotlib inline
@@ -141,7 +141,7 @@ import numpy as np
 import time
 ```
 
-为了说明矢量化为什么如此重要，我们考虑对两个向量相加的两种方法。
+为了说明矢量化为什么如此重要，我们考虑(**对向量相加的两种方法**)。
 我们实例化两个全1的1000维向量。在一种方法中，我们将使用Python的for循环遍历向量。在另一种方法中，我们将依赖对 `+` 的调用。
 
 ```{.python .input}
@@ -151,7 +151,7 @@ a = d2l.ones(n)
 b = d2l.ones(n)
 ```
 
-由于在本书中我们将频繁地进行运行时间的基准测试，所以让我们定义一个计时器。
+由于在本书中我们将频繁地进行运行时间的基准测试，所以让[**我们定义一个计时器**]。
 
 ```{.python .input}
 #@tab all
@@ -185,7 +185,7 @@ class Timer:  #@save
 
 现在我们可以对工作负载进行基准测试。
 
-首先，我们使用for循环，每次执行一位的加法。
+首先，[**我们使用for循环，每次执行一位的加法**]。
 
 ```{.python .input}
 #@tab mxnet, pytorch
@@ -205,7 +205,7 @@ for i in range(n):
 f'{timer.stop():.5f} sec'
 ```
 
-然后，我们使用重载的 `+` 运算符来计算按元素的和。
+(**或者，我们使用重载的 `+` 运算符来计算按元素的和**)。
 
 ```{.python .input}
 #@tab all
@@ -227,7 +227,7 @@ f'{timer.stop():.5f} sec'
 
 $$p(x) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp\left(-\frac{1}{2 \sigma^2} (x - \mu)^2\right).$$
 
-下面我们定义一个Python函数来计算正态分布。
+下面[**我们定义一个Python函数来计算正态分布**]。
 
 ```{.python .input}
 #@tab all
@@ -236,7 +236,7 @@ def normal(x, mu, sigma):
     return p * np.exp(-0.5 / sigma**2 * (x - mu)**2)
 ```
 
-我们现在可视化正态分布。
+我们现在(**可视化正态分布**)。
 
 ```{.python .input}
 #@tab all
@@ -343,7 +343,3 @@ $$-\log P(\mathbf y \mid \mathbf X) = \sum_{i=1}^n \frac{1}{2} \log(2 \pi \sigma
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1776)
 :end_tab:
-
-```{.python .input}
-
-```
