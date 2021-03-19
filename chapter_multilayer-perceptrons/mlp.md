@@ -69,6 +69,11 @@ $$
 
 而且，虽然一个单隐层网络能学习任何函数，但并不意味着应该尝试使用单隐藏层网络来解决所有问题。事实上，通过使用更深（而不是更广）的网络，我们可以更容易地逼近许多函数。我们将在后面的章节中进行更细致的讨论。
 
+## 激活函数
+:label:`subsec:activation-functions`
+
+激活函数通过计算加权和并加上偏置来确定神经元是否应该被激活。它们是将输入信号转换为输出的可微运算。大多数激活函数都是非线性的。由于激活函数是深度学习的基础，下面(**简要介绍一些常见的激活函数**)。
+
 ```{.python .input}
 %matplotlib inline
 from d2l import mxnet as d2l
@@ -90,15 +95,13 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 ```
 
-## 激活函数
-
-激活函数通过计算加权和并加上偏置来确定神经元是否应该被激活。它们是将输入信号转换为输出的可微运算。大多数激活函数都是非线性的。由于激活函数是深度学习的基础，下面简要介绍一些常见的激活函数。
-
 ### ReLU函数
 
-最受欢迎的选择是*线性整流单元*（Rectified linear unit，*ReLU*），因为它实现简单，同时在各种预测任务中表现良好。ReLU提供了一种非常简单的非线性变换。给定元素$x$，ReLU函数被定义为该元素与$0$的最大值：
+最受欢迎的选择是*线性整流单元*（Rectified linear unit，*ReLU*），因为它实现简单，同时在各种预测任务中表现良好。
+[**ReLU提供了一种非常简单的非线性变换**]。
+给定元素$x$，ReLU函数被定义为该元素与$0$的最大值：
 
-$$\operatorname{ReLU}(x) = \max(x, 0).$$
+（**$$\operatorname{ReLU}(x) = \max(x, 0).$$**）
 
 通俗地说，ReLU函数通过将相应的激活值设为0来仅保留正元素并丢弃所有负元素。为了直观感受一下，我们可以画出函数的曲线图。正如从图中所看到，激活函数是分段线性的。
 
@@ -153,9 +156,9 @@ $$\operatorname{pReLU}(x) = \max(0, x) + \alpha \min(0, x).$$
 
 ### sigmoid函数
 
-*sigmoid函数*将定义域在$\mathbb{R}$中的输入变换为区间(0, 1)上的输出。因此，sigmoid通常称为*挤压函数*（Squashing function）：它将范围(-inf, inf)中的任意输入压缩到区间(0, 1)中的某个值：
+对于一个定义域在$\mathbb{R}$中的输入，[** *sigmoid函数*将输入变换为区间(0, 1)上的输出**]。因此，sigmoid通常称为*挤压函数*（Squashing function）：它将范围(-inf, inf)中的任意输入压缩到区间(0, 1)中的某个值：
 
-$$\operatorname{sigmoid}(x) = \frac{1}{1 + \exp(-x)}.$$
+（**$$\operatorname{sigmoid}(x) = \frac{1}{1 + \exp(-x)}.$$**）
 
 在最早的神经网络中，科学家们感兴趣的是对“激发”或“不激发”的生物神经元进行建模。因此，这一领域的先驱，如人工神经元的发明者麦卡洛克和皮茨。从他们开始就专注于阈值单元。阈值单元在其输入低于某个阈值时取值0，当输入超过阈值时取值1。
 
@@ -210,9 +213,9 @@ d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'grad of sigmoid',
 
 ### tanh函数
 
-与sigmoid函数类似，tanh(双曲正切)函数也能将其输入压缩转换为区间(-1, 1)上。tanh函数的公式如下：
+与sigmoid函数类似，[**tanh(双曲正切)函数也能将其输入压缩转换到区间(-1, 1)上**]。tanh函数的公式如下：
 
-$$\operatorname{tanh}(x) = \frac{1 - \exp(-2x)}{1 + \exp(-2x)}.$$
+（**$$\operatorname{tanh}(x) = \frac{1 - \exp(-2x)}{1 + \exp(-2x)}.$$**）
 
 下面我们绘制tanh函数。注意，当输入在0附近时，tanh函数接近线性变换。函数的形状类似于sigmoid函数，不同的是tanh函数关于坐标系原点中心对称。
 
