@@ -83,7 +83,7 @@ $$
 $$
 
 我们也希望保留传统的softmax函数，以备我们需要评估通过模型输出的概率。
-但是，我们没有将softmax概率传递到损失函数中，而是[**在交叉熵损失函数中，传递未归一化的预测，并同时计算softmax及其对数**]，这是一件聪明的事情 ["LogSumExp技巧"](https://en.wikipedia.org/wiki/LogSumExp)。
+但是，我们没有将softmax概率传递到损失函数中，而是[**在交叉熵损失函数中传递未归一化的预测，并同时计算softmax及其对数**]，这是一件聪明的事情 ["LogSumExp技巧"](https://en.wikipedia.org/wiki/LogSumExp)。
 
 ```{.python .input}
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
