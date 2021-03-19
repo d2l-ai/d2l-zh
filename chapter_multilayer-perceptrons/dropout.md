@@ -59,7 +59,7 @@ $$
 
 要实现单层的dropout函数，我们必须从伯努利（二元）随机变量中提取与我们的层的维度一样多的样本，其中随机变量以概率$1-p$取值$1$（保持），以概率$p$取值$0$（丢弃）。实现这一点的一种简单方式是首先从均匀分布$U[0, 1]$中抽取样本。那么我们可以保留那些对应样本大于$p$的节点，把剩下的丢弃。
 
-在下面的代码中，我们实现了一个`dropout_layer`函数，该函数以`dropout`的概率丢弃张量输入`X`中的元素，如上所述重新缩放剩余部分：将剩余部分除以`1.0-dropout`。
+在下面的代码中，(**我们实现 `dropout_layer` 函数，该函数以`dropout`的概率丢弃张量输入`X`中的元素**)，如上所述重新缩放剩余部分：将剩余部分除以`1.0-dropout`。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -115,7 +115,7 @@ def dropout_layer(X, dropout):
     return tf.cast(mask, dtype=tf.float32) * X / (1.0 - dropout)
 ```
 
-我们可以通过几个例子来测试`dropout_layer`函数。在下面的代码行中，我们将输入`X`通过dropout操作，丢弃概率分别为0、0.5和1。
+我们可以通过几个例子来[**测试`dropout_layer`函数**]。在下面的代码行中，我们将输入`X`通过dropout操作，丢弃概率分别为0、0.5和1。
 
 ```{.python .input}
 X = np.arange(16).reshape(2, 8)
@@ -144,7 +144,7 @@ print(dropout_layer(X, 1.))
 
 ### 定义模型参数
 
-同样，我们使用 :numref:`sec_fashion_mnist` 中引入的Fashion-MNIST数据集。我们定义具有两个隐藏层的多层感知机，每个隐藏层包含256个单元。
+同样，我们使用 :numref:`sec_fashion_mnist` 中引入的Fashion-MNIST数据集。我们[**定义具有两个隐藏层的多层感知机，每个隐藏层包含256个单元**]。
 
 ```{.python .input}
 num_inputs, num_outputs, num_hiddens1, num_hiddens2 = 784, 10, 256, 256
@@ -202,14 +202,11 @@ class Net(nn.Module):
     def __init__(self, num_inputs, num_outputs, num_hiddens1, num_hiddens2,
                  is_training = True):
         super(Net, self).__init__()
-
         self.num_inputs = num_inputs
         self.training = is_training
-
         self.lin1 = nn.Linear(num_inputs, num_hiddens1)
         self.lin2 = nn.Linear(num_hiddens1, num_hiddens2)
         self.lin3 = nn.Linear(num_hiddens2, num_outputs)
-
         self.relu = nn.ReLU()
 
     def forward(self, X):
@@ -258,7 +255,7 @@ class Net(tf.keras.Model):
 net = Net(num_outputs, num_hiddens1, num_hiddens2)
 ```
 
-### 训练和测试
+### [**训练和测试**]
 
 这类似于前面描述的多层感知机训练和测试。
 
@@ -288,7 +285,7 @@ trainer = tf.keras.optimizers.SGD(learning_rate=lr)
 d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 ```
 
-## 简洁实现
+## [**简洁实现**]
 
 对于高级API，我们所需要做的就是在每个全连接层之后添加一个`Dropout`层，将丢弃概率作为唯一的参数传递给它的构造函数。在训练过程中，`Dropout`层将根据指定的丢弃概率随机丢弃上一层的输出（相当于下一层的输入）。当不处于训练模式时，`Dropout`层仅在测试时传递数据。
 
@@ -338,7 +335,7 @@ net = tf.keras.models.Sequential([
 ])
 ```
 
-接下来，我们对模型进行训练和测试。
+接下来，我们[**对模型进行训练和测试**]。
 
 ```{.python .input}
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
