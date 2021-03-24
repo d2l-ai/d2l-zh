@@ -301,7 +301,7 @@ def train_epoch_ch3(net, train_iter, loss, updater):  #@save
             metric.add(float(l) * len(y), accuracy(y_hat, y),
                        y.size().numel())
         else:
-            # 使用PyTorch内置的优化器和损失函数
+            # 使用定制的优化器和损失函数
             l.sum().backward()
             updater(X.shape[0])
             metric.add(float(l.sum()), accuracy(y_hat, y), y.numel())
