@@ -43,8 +43,8 @@ net.initialize(init.Normal(sigma=0.01))
 
 ```{.python .input}
 #@tab pytorch
-# PyTorch不会隐式地调整输入的形状。
-# 因此，我们定义了展平层（flatten）在线性层前调整网络输入的形状
+# PyTorch不会隐式地调整输入的形状。因此，
+# 我们在线性层前定义了展平层（flatten），来调整网络输入的形状
 net = nn.Sequential(nn.Flatten(), nn.Linear(784, 10))
 
 def init_weights(m):
