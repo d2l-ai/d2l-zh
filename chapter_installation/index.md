@@ -106,7 +106,7 @@ pip uninstall mxnet
 ```
 
 
-然后，我们需要找到安装的 CUDA 版本。你可以通过 `nvcc --version` 或 `cat /usr/local/cuda/version.txt` 查看。如果不存在nvcc,ubuntu系统安装命令为`sudo apt update && sudo apt install nvidia-cuda-toolkit -y`。假设你已安装 CUDA 10.1，则可以使用以下命令进行安装：
+然后，我们需要找到安装的 CUDA 版本。你可以通过 `nvcc --version` 或 `cat /usr/local/cuda/version.txt` 查看。如果不存在nvcc，系统安装命令为`sudo apt update && sudo apt install nvidia-cuda-toolkit -y`。假设你已安装 CUDA 10.1，则可以使用以下命令进行安装：
 
 
 ```bash
