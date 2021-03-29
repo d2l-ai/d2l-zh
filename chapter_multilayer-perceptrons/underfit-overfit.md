@@ -154,7 +154,7 @@ labels = np.dot(poly_features, true_w)
 labels += np.random.normal(scale=0.1, size=labels.shape)
 ```
 
-同样，存储在`poly_features`中的单项式由gamma函数重新缩放，其中$\Gamma(n)=(n-1)!$。从生成的数据集中查[**看一下前2个样本**]。值1是与偏置相对应的常量特征。
+同样，存储在`poly_features`中的单项式由gamma函数重新缩放，其中$\Gamma(n)=(n-1)!$。从生成的数据集中查[**看一下前2个样本**]。第一个值是与偏置相对应的常量特征。
 
 ```{.python .input}
 #@tab pytorch, tensorflow

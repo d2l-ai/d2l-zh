@@ -156,7 +156,7 @@ $$\operatorname{pReLU}(x) = \max(0, x) + \alpha \min(0, x).$$
 
 ### sigmoid函数
 
-对于一个定义域在$\mathbb{R}$中的输入，[** *sigmoid函数*将输入变换为区间(0, 1)上的输出**]。因此，sigmoid通常称为*挤压函数*（squashing function）：它将范围(-inf, inf)中的任意输入压缩到区间(0, 1)中的某个值：
+[**对于一个定义域在$\mathbb{R}$中的输入，*sigmoid函数*将输入变换为区间(0, 1)上的输出**]。因此，sigmoid通常称为*挤压函数*（squashing function）：它将范围(-inf, inf)中的任意输入压缩到区间(0, 1)中的某个值：
 
 （**$$\operatorname{sigmoid}(x) = \frac{1}{1 + \exp(-x)}.$$**）
 
