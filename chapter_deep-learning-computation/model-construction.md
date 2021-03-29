@@ -327,7 +327,7 @@ net = FixedHiddenMLP()
 net(X)
 ```
 
-我们可以混合搭配各种组合块的方法。在下面的例子中，我们以一些想到的的方法嵌套块。
+我们可以混合搭配各种组合块的方法。在下面的例子中，我们以一些想到的方法嵌套块。
 
 ```{.python .input}
 class NestMLP(nn.Block):
