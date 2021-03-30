@@ -25,7 +25,8 @@ import tensorflow as tf
 
 ## 模型
 
-与softmax回归的简洁实现（:numref:`sec_softmax_concise`）相比，唯一的区别是我们添加了2个全连接层（之前我们只添加了1个全连接层）。第一层是隐藏层，包含256个隐藏单元，并使用ReLU激活函数；第二层是输出层。
+与softmax回归的简洁实现（:numref:`sec_softmax_concise`）相比，唯一的区别是我们添加了2个全连接层（之前我们只添加了1个全连接层）。
+第一层是[**隐藏层**]，它(**包含256个隐藏单元，并使用了ReLU激活函数**)。第二层是输出层。
 
 ```{.python .input}
 net = nn.Sequential()
