@@ -55,9 +55,9 @@ stage("Build and Publish") {
       ./static/build_html.sh
       """
 
-      sh label:"Build PDF", script:"""set -ex
+      sh label:"Build PDF[PyTorch]", script:"""set -ex
       conda activate ${ENV_NAME}
-      d2lbook build pdf
+      d2lbook build pdf --tab PyTorch
       """
 
       if (env.BRANCH_NAME == 'release') {
