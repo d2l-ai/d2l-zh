@@ -1,21 +1,21 @@
 # Transformer
 :label:`sec_transformer`
 
-我们在 ：numref：`subsec_cnn-rnn-self-attention` 中比较了 CNN、RNN 和自注意力。值得注意的是，自注意力同时具有并行计算和最短的最大路径长度这两个优势。因此，自然而言，通过使用自注意力来设计深层架构是很有吸引力的。与之前仍然依赖 RNN 进行输入表示 ：cite：`Cheng。Dong。Lapata。2016，Lin。Feng。Santos。ea。2017，Paulus。Xiong。Socher。2017` 的自注意力模型不同，Transformer 模型完全基于注意机制，没有任何卷积层或循环层 ：cite：`Vaswani。Shazeer。Parmar。ea。2017`。尽管 Transformer 最初是应用于文本数据的序列学习，但在各种现代深度学习应用中它也得到普遍应用，例如语言、视觉、语音和强化学习领域。
+我们在 :numref:`subsec_cnn-rnn-self-attention` 中比较了 CNN、RNN 和自注意力。值得注意的是，自注意力同时具有并行计算和最短的最大路径长度这两个优势。因此，自然而言，通过使用自注意力来设计深层架构是很有吸引力的。与之前仍然依赖 RNN 进行输入表示 ：cite：`Cheng。Dong。Lapata。2016，Lin。Feng。Santos。ea。2017，Paulus。Xiong。Socher。2017` 的自注意力模型不同，Transformer 模型完全基于注意机制，没有任何卷积层或循环层 ：cite：`Vaswani。Shazeer。Parmar。ea。2017`。尽管 Transformer 最初是应用于文本数据的序列学习，但在各种现代深度学习应用中它也得到普遍应用，例如语言、视觉、语音和强化学习领域。
 
 ## 模型
 
-作为编码器解码器架构的一个实例，Transformer 的整体架构在图 ：numref：`fig_transformer` 中呈现。正如我们所看到的，Transformer 由编码器和解码器组成。与 ：numref：`fig_s2s_attention_details` 中 Bahdanau 注意力对序列到序列的学习不同，Transformer 的编码器和解码器是由基于自注意力的模块叠加而成的，输入（源）和输出（目标）序列的嵌入（embedding）将被叠加上位置编码，再一起输入编码器和解码器。
+作为编码器解码器架构的一个实例，Transformer 的整体架构在图 :numref:`fig_transformer` 中呈现。正如我们所看到的，Transformer 由编码器和解码器组成。与 :numref:`fig_s2s_attention_details` 中 Bahdanau 注意力对序列到序列的学习不同，Transformer 的编码器和解码器是由基于自注意力的模块叠加而成的，输入（源）和输出（目标）序列的嵌入（embedding）将被叠加上位置编码，再一起输入编码器和解码器。
 
 ![The Transformer architecture.](../img/transformer.svg)
 :width:`500px`
 :label:`fig_transformer`
 
-现在我们在 ：numref：`fig_transformer` 中概述了 Transformer 架构。从宏观视角来看，Transformer 编码器是由多个相同的层叠加而成的，每层都有两个子层（子层表示为 $\mathrm{sublayer}$）。第一个是多头自注意力池化，第二个是基于位置的前馈网络（positionwise feed-forward network）。具体来说，在计算编码器的自注意力时，查询、键和值都来自前一个编码器层的输出。受 ：numref：`sec_resnet` ResNet 设计的启发，每个子层都采用了残差连接（residual connection）。在 Transformer 中，对于序列中任何位置的任何输入 $\mathbf{x} \in \mathbb{R}^d$，我们要求满足 $\mathrm{sublayer}（\mathbf{x}）\in \mathbb{R}^d$，以便残差连接 $\mathbf{x} + \mathrm{sublayer}（\mathbf{x}）\in \mathbb{R}^d$ 是可行的。在残差连接的加法计算之后，立即进行层归一化（layer normalization）：cite：`Ba。Kiros。Hinton。2016`。因此，对应输入序列的每个位置，Transformer 编码器输出 $d$ 维向量进行表示。
+现在我们在 :numref:`fig_transformer` 中概述了 Transformer 架构。从宏观视角来看，Transformer 编码器是由多个相同的层叠加而成的，每层都有两个子层（子层表示为 $\mathrm{sublayer}$）。第一个是多头自注意力池化，第二个是基于位置的前馈网络（positionwise feed-forward network）。具体来说，在计算编码器的自注意力时，查询、键和值都来自前一个编码器层的输出。受 :numref:`sec_resnet` ResNet 设计的启发，每个子层都采用了残差连接（residual connection）。在 Transformer 中，对于序列中任何位置的任何输入 $\mathbf{x} \in \mathbb{R}^d$，我们要求满足 $\mathrm{sublayer}（\mathbf{x}）\in \mathbb{R}^d$，以便残差连接 $\mathbf{x} + \mathrm{sublayer}（\mathbf{x}）\in \mathbb{R}^d$ 是可行的。在残差连接的加法计算之后，立即进行层归一化（layer normalization）：cite：`Ba。Kiros。Hinton。2016`。因此，对应输入序列的每个位置，Transformer 编码器输出 $d$ 维向量进行表示。
 
 Transformer 解码器也是由多个相同的使用了残差和层归一化的层叠加而成。除了编码器中描述的两个子层外，解码器还在这两个子层之间插入了第三个子层，称为编码器解码器注意力（encoder-decoder attention）。在编码器解码器注意力中，查询来自前一个解码器层的输出，键和值来自编码器的输出。在解码器自注意力中，查询、键和值都来自上一个解码器层的输出。但是，解码器中的每个位置的注意里只能考虑该位置之前的所有位置。这种 *掩码* 注意力保留了自回归属性，确保预测仅依赖于已生成的输出词符号。
 
-我们已经描述并实现了基于缩放点积 ：numref：`sec_multihead-attention` 和位置编码 ：numref：`subsec_positional-encoding` 的多头注意力。接下来，我们将实现 Transformer 模型的其余部分。
+我们已经描述并实现了基于缩放点积 :numref:`sec_multihead-attention` 和位置编码 :numref:`subsec_positional-encoding` 的多头注意力。接下来，我们将实现 Transformer 模型的其余部分。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -86,7 +86,7 @@ ffn(d2l.ones((2, 3, 4)))[0]
 
 现在让我们关注 :numref:`fig_transformer` 中的 “加法和归一化” 部分。正如我们在本节开头所述，这部分由残差连接和之后的层归一化组成。两者都是有效的深度架构的关键。
 
-在 ：numref：`sec_batch_norm` 中，我们解释了如何在一个小批量内通过批量标准化对样本数据进行重新中心化和重新缩放的调整。层归一化与批量归一化相同，只是前者在特征维度上进行归一化。尽管批量归一化在计算机视觉中被广泛应用，但在自然语言处理任务中（输入通常是变长序列），批量归一化通常不如层归一化的效果好。
+在 :numref:`sec_batch_norm` 中，我们解释了如何在一个小批量内通过批量标准化对样本数据进行重新中心化和重新缩放的调整。层归一化与批量归一化相同，只是前者在特征维度上进行归一化。尽管批量归一化在计算机视觉中被广泛应用，但在自然语言处理任务中（输入通常是变长序列），批量归一化通常不如层归一化的效果好。
 
 以下代码段通过层归一化和批量归一化对比了对不同维度的归一化。
 
@@ -494,7 +494,7 @@ class TransformerDecoder(d2l.AttentionDecoder):
 
 ## 训练
 
-让我们通过以下 Transformer 结构来实例化编码器解码器模型。我们指定 Transformer 编码器和解码器都有 2 层，使用 4 头注意力。与 ：numref：`sec_seq2seq_training` 类似，为了进行序列到序列的学习，我们在英语到法语的机器翻译数据集上训练 Transformer 模型。
+让我们通过以下 Transformer 结构来实例化编码器解码器模型。我们指定 Transformer 编码器和解码器都有 2 层，使用 4 头注意力。与 :numref:`sec_seq2seq_training` 类似，为了进行序列到序列的学习，我们在英语到法语的机器翻译数据集上训练 Transformer 模型。
 
 ```{.python .input}
 num_hiddens, num_layers, dropout, batch_size, num_steps = 32, 2, 0.1, 64, 10
