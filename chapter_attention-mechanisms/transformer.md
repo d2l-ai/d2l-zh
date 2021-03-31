@@ -1,21 +1,21 @@
 # Transformer
 :label:`sec_transformer`
 
-我们在 :numref:`subsec_cnn-rnn-self-attention` 中比较了 CNN、RNN 和 Self-Attention。值得注意的是，Self-Attention 同时享有并行计算和最短的最大路径长度。因此，自然而言，通过使用 Self-Attention 来设计深层架构是很有吸引力的。与之前仍然依赖 RNN 进行输入表示 :cite:`Cheng.Dong.Lapata.2016,Lin.Feng.Santos.ea.2017,Paulus.Xiong.Socher.2017` 的 Self-Attention 模型不同，Transformer 模型完全基于注意机制，没有任何卷积层或循环层 :cite:`Vaswani.Shazeer.Parmar.ea.2017`。尽管 Transformer 最初是应用于文本数据的序列学习，但在各种现代深度学习应用中它也普遍存在，例如语言、视觉、语音和强化学习领域。
+我们在 ：numref：`subsec_cnn-rnn-self-attention` 中比较了 CNN、RNN 和自注意力。值得注意的是，自注意力同时具有并行计算和最短的最大路径长度这两个优势。因此，自然而言，通过使用自注意力来设计深层架构是很有吸引力的。与之前仍然依赖 RNN 进行输入表示 ：cite：`Cheng。Dong。Lapata。2016，Lin。Feng。Santos。ea。2017，Paulus。Xiong。Socher。2017` 的自注意力模型不同，Transformer 模型完全基于注意机制，没有任何卷积层或循环层 ：cite：`Vaswani。Shazeer。Parmar。ea。2017`。尽管 Transformer 最初是应用于文本数据的序列学习，但在各种现代深度学习应用中它也得到普遍应用，例如语言、视觉、语音和强化学习领域。
 
 ## 模型
 
-作为 encoder-decoder 架构的一个实例，Transformer 的整体架构在图 :numref:`fig_transformer` 中呈现。正如我们所看到的，Transformer 由编码器和解码器组成。与 :numref:`fig_s2s_attention_details` 中 Bahdanau 对序列到序列学习的关注点不同，在将输入（源）和输出（目标）序列嵌入添加到编码器和解码器之前，这些嵌入将被添加到基于 Self-Attention 而堆叠模块的编码器和解码器中。
+作为编码器解码器架构的一个实例，Transformer 的整体架构在图 ：numref：`fig_transformer` 中呈现。正如我们所看到的，Transformer 由编码器和解码器组成。与 ：numref：`fig_s2s_attention_details` 中 Bahdanau 注意力对序列到序列的学习不同，Transformer 的编码器和解码器是由基于自注意力的模块叠加而成的，输入（源）和输出（目标）序列的嵌入（embedding）将被叠加上位置编码，再一起输入编码器和解码器。
 
 ![The Transformer architecture.](../img/transformer.svg)
 :width:`500px`
 :label:`fig_transformer`
 
-现在我们在 :numref:`fig_transformer` 中概述了变压器架构。从高层来看，变压器编码器是由多个相同层组成的堆栈，每层都有两个子层（两个子层表示为 $\mathrm{sublayer}$）。第一个是多头自我注意力集中，第二个是位置上的前馈网络。具体来说，在编码器的自我注意中，查询、键和值都来自前一个编码器层的输出。受 :numref:`sec_resnet` ResNet 设计的启发，两个子层周围都采用了残留连接。在变压器中，对于序列中任何位置的任何输入 $\mathbf{x} \in \mathbb{R}^d$，我们要求 $\mathrm{sublayer}(\mathbf{x}) \in \mathbb{R}^d$，以便剩余连接 $\mathbf{x} + \mathrm{sublayer}(\mathbf{x}) \in \mathbb{R}^d$ 是可行的。从残留连接中添加这一点之后立即进行层规范化 :cite:`Ba.Kiros.Hinton.2016`。因此，变压器编码器为输入序列的每个位置输出 $d$ 维矢量表示。
+现在我们在 ：numref：`fig_transformer` 中概述了 Transformer 架构。从宏观视角来看，Transformer 编码器是由多个相同的层叠加而成的，每层都有两个子层（子层表示为 $\mathrm{sublayer}$）。第一个是多头自注意力池化，第二个是基于位置的前馈网络（positionwise feed-forward network）。具体来说，在计算编码器的自注意力时，查询、键和值都来自前一个编码器层的输出。受 ：numref：`sec_resnet` ResNet 设计的启发，每个子层都采用了残差连接（residual connection）。在 Transformer 中，对于序列中任何位置的任何输入 $\mathbf{x} \in \mathbb{R}^d$，我们要求满足 $\mathrm{sublayer}（\mathbf{x}）\in \mathbb{R}^d$，以便残差连接 $\mathbf{x} + \mathrm{sublayer}（\mathbf{x}）\in \mathbb{R}^d$ 是可行的。在残差连接的加法计算之后，立即进行层归一化（layer normalization）：cite：`Ba。Kiros。Hinton。2016`。因此，对应输入序列的每个位置，Transformer 编码器输出 $d$ 维向量进行表示。
 
-变压器解码器也是由多个相同层组成的堆栈，具有残留连接和层标准化。除了编码器中描述的两个子层之外，解码器还在这两个子层之间插入第三个子层，称为编码器解码器注意力。在编码器解码器中，查询来自前一个解码器层的输出，键和值来自 Transcoransder 编码器输出。在解码器中，查询、键和值都来自上一个解码器层的输出。但是，解码器中的每个位置只能处理解码器中直到该位置的所有位置。这种 * 掩码 * 注意力保留了自动回归属性，确保预测仅依赖于已生成的输出令牌。
+Transformer 解码器也是由多个相同的使用了残差和层归一化的层叠加而成。除了编码器中描述的两个子层外，解码器还在这两个子层之间插入了第三个子层，称为编码器解码器注意力（encoder-decoder attention）。在编码器解码器注意力中，查询来自前一个解码器层的输出，键和值来自编码器的输出。在解码器自注意力中，查询、键和值都来自上一个解码器层的输出。但是，解码器中的每个位置的注意里只能考虑该位置之前的所有位置。这种 *掩码* 注意力保留了自回归属性，确保预测仅依赖于已生成的输出词符号。
 
-我们已经描述并实施了基于 :numref:`sec_multihead-attention` 中的缩放点产品和 :numref:`subsec_positional-encoding` 中的位置编码的多头关注。在下面，我们将实现变压器模型的其余部分。
+我们已经描述并实现了基于缩放点积 ：numref：`sec_multihead-attention` 和位置编码 ：numref：`subsec_positional-encoding` 的多头注意力。接下来，我们将实现 Transformer 模型的其余部分。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -35,9 +35,9 @@ import torch
 from torch import nn
 ```
 
-## 定位前馈网络
+## 基于位置的前馈网络
 
-位置向前馈网络使用同一个 MLP 转换所有序列位置的表示形式。这就是为什么我们称之为 * 职位 *。在下面的实现中，带有形状的输入 `X`（批量大小、时间步长或序列长度（标记为单位的序列长度、隐藏单位数或要素维度）将被双层 MLP 转换为形状的输出张量（批量大小、时间步长、`ffn_num_outputs`）。
+基于位置的前馈网络使用同一个多层感知机（MLP）对输入序列每一个位置的表示进行变换。这就是为什么我们称之为 *基于位置的*（positionwise）。在下面的实现中，输入 `X` 的形状为（批量大小, 时间步长或序列长度, 隐单元数或特征维度）将被一个双层感知机转换为形状为（批量大小, 时间步长, `ffn_num_outputs`）的输出张量。
 
 ```{.python .input}
 #@save
@@ -67,7 +67,7 @@ class PositionWiseFFN(nn.Module):
         return self.dense2(self.relu(self.dense1(X)))
 ```
 
-以下示例显示，张量的最内层维度会改变位置向前馈网络中的输出数量。由于相同的 MLP 在所有仓位上都变换，所以当所有这些位置的输入相同时，它们的输出也是相同的。
+以下示例显示，张量的最内层维度的尺寸会改变成基于位置的前馈网络的输出尺寸。由于相同的 MLP 对所有位置上的输入都进行变换，所以当所有这些位置的输入相同时，它们的输出也是相同的。
 
 ```{.python .input}
 ffn = PositionWiseFFN(4, 8)
@@ -82,13 +82,13 @@ ffn.eval()
 ffn(d2l.ones((2, 3, 4)))[0]
 ```
 
-## 剩余连接和层规范化
+## 残差连接和层归一化
 
-现在让我们关注 :numref:`fig_transformer` 中的 “添加和规范” 组件。正如我们在本节开头所述，这是一个残余连接，紧接着是层规范化。两者都是有效的深度架构的关键。
+现在让我们关注 :numref:`fig_transformer` 中的 “加法和归一化” 部分。正如我们在本节开头所述，这部分由残差连接和之后的层归一化组成。两者都是有效的深度架构的关键。
 
-在 :numref:`sec_batch_norm` 中，我们解释了如何在一个小批量内批量标准化最近和重新调整示例。图层规范化与批量规范化相同，只是前者在要素维度上进行规范化。尽管在计算机视觉中广泛应用批量规范化，但在自然语言处理任务中，批量规范化通常不如图层规范化的效果，而自然语言处理任务的输入通常是可变长度的序列。
+在 ：numref：`sec_batch_norm` 中，我们解释了如何在一个小批量内通过批量标准化对样本数据进行重新中心化和重新缩放的调整。层归一化与批量归一化相同，只是前者在特征维度上进行归一化。尽管批量归一化在计算机视觉中被广泛应用，但在自然语言处理任务中（输入通常是变长序列），批量归一化通常不如层归一化的效果好。
 
-以下代码段通过层规范化和批量规范化比较了不同维度的规范化。
+以下代码段通过层归一化和批量归一化对比了对不同维度的归一化。
 
 ```{.python .input}
 ln = nn.LayerNorm()
@@ -110,7 +110,7 @@ X = d2l.tensor([[1, 2], [2, 3]], dtype=torch.float32)
 print('layer norm:', ln(X), '\nbatch norm:', bn(X))
 ```
 
-现在我们可以使用剩余连接实现 `AddNorm` 类，然后再进行层规范化。退学也适用于正规化。
+现在我们可以使用残差连接，再进行层归一化来实现 `AddNorm` 类。Dropout 也被用在这里作为正规化的方法。
 
 ```{.python .input}
 #@save
@@ -137,7 +137,7 @@ class AddNorm(nn.Module):
         return self.ln(self.dropout(Y) + X)
 ```
 
-剩余连接要求两个输入的形状相同，以便在加法操作后输出张量也具有相同的形状。
+残差连接要求两个输入的形状相同，以便在加法操作后输出的张量也具有相同的形状。
 
 ```{.python .input}
 add_norm = AddNorm(0.5)
@@ -154,7 +154,7 @@ add_norm(d2l.ones((2, 3, 4)), d2l.ones((2, 3, 4))).shape
 
 ## 编码器
 
-由于组装变压器所需的所有必要组件，让我们首先在编码器中实现单层。以下 `EncoderBlock` 类包含两个子层：多头自我注意力和定位前馈网络，其中两个子层周围采用残留连接，然后再进行层规范化。
+现在拥有了组成 Transformer 所需的所有必要组件，让我们首先实现编码器中的一个层。以下 `EncoderBlock` 类包含两个子层：多头自注意力和基于位置的前馈网络，其中两个子层分别都采用残差连接，然后进行层归一化。
 
 ```{.python .input}
 #@save
@@ -194,7 +194,7 @@ class EncoderBlock(nn.Module):
         return self.addnorm2(Y, self.ffn(Y))
 ```
 
-正如我们所看到的，变压器编码器中的任何图层都不会改变其输入的形状。
+正如我们所看到的，Transformer 编码器中的任何层都不会改变其输入的形状。
 
 ```{.python .input}
 X = d2l.ones((2, 100, 24))
@@ -213,7 +213,7 @@ encoder_blk.eval()
 encoder_blk(X, valid_lens).shape
 ```
 
-在下面的变压器编码器实现中，我们堆叠上述 `EncoderBlock` 类的 `num_layers` 个实例。由于我们使用的值始终在-1 和 1 之间的固定位置编码，因此我们将可学习输入嵌入的值乘以嵌入维度的平方根，以便在总结输入嵌入和位置编码之前重新缩放。
+在下面 Transformer 编码器的实现中，我们堆叠 `num_layers` 个上述 `EncoderBlock` 类的实例。由于我们使用了值范围在 -1 到 1 之间的固定位置编码，因此我们将可学习的输入嵌入的值乘以嵌入维度的平方根，在与位置编码相加之前进行重新缩放。
 
 ```{.python .input}
 #@save
@@ -274,7 +274,7 @@ class TransformerEncoder(d2l.Encoder):
         return X
 ```
 
-下面我们指定了超参数来创建一个双层变压器编码器。变压器编码器输出的形状是（批量大小、时间步长数、`num_hiddens`）。
+下面我们指定了超参数来创建一个双层 Transformer 编码器。 Transformer 编码器输出的形状是 (批量大小, 时间步长, `num_hiddens`)。
 
 ```{.python .input}
 encoder = TransformerEncoder(200, 24, 48, 8, 2, 0.5)
@@ -292,9 +292,9 @@ encoder(d2l.ones((2, 100), dtype=torch.long), valid_lens).shape
 
 ## 解码器
 
-如 :numref:`fig_transformer` 所示，变压器解码器由多个相同的层组成。每个层都在以下 `DecoderBlock` 类中实现，其中包含三个子层：解码器自我注意、编码器-解码器注意力和定位前馈网络。这些子层周围使用残留连接，然后进行层规范化。
+如 :numref:`fig_transformer` 所示，Transformer 解码器由多个相同的层组成。每个层都在以下 `DecoderBlock` 类中实现，其中包含三个子层：解码器的自注意力、编码器解码器注意力和基于位置的前馈网络。这些子层也都分别都采用残差连接，然后再进行层归一化。
 
-正如我们在本节前面所述，在蒙版的多头解码器自我注意力（第一个子层）中，查询、键和值都来自上一个解码器层的输出。训练顺序到序列模型时，输出序列的所有位置（时间步长）的令牌都是已知的。但是，在预测期间，输出序列是通过令牌生成的；因此，在任何解码器时间步骤中，只有生成的令牌才能用于解码器的自我注意力。为了在解码器中保留自动回归，其蒙版自我注意力指定 `dec_valid_lens`，以便任何查询只参与解码器中直到查询位置的所有位置。
+正如我们在本节前面所述，在解码器的掩码多头自注意力（第一个子层）中，查询、键和值都来自上一个解码器层的输出。在序列到序列模型（sequence-to-sequence models）的训练阶段，输出序列的所有位置（时间步）的词符号都是已知的。但是，在预测期间，输出序列是一个一个词依次生成的；因此，在任何解码器时间步中，只有已经生成的词符号才能用于解码器的自注意力计算。为了在解码器中保留自回归的属性，掩码自注意力指定了参数 `dec_valid_lens`，这样任何查询就只会与所有已生成位置（直到该查询位置为止的）进行注意力的计算。
 
 ```{.python .input}
 class DecoderBlock(nn.Block):
@@ -394,7 +394,7 @@ class DecoderBlock(nn.Module):
         return self.addnorm3(Z, self.ffn(Z)), state
 ```
 
-为了便于在编码器-解码器注意和剩余连接中的加法操作，解码器的特征尺寸 (`num_hiddens`) 与编码器的特征尺寸 (`num_hiddens`) 相同。
+为了便于在编码器解码器注意力中进行缩放点积操作以及在残差连接中进行加法操作，解码器和编码器的特征维度相同，都是（`num_hiddens`）。
 
 ```{.python .input}
 decoder_blk = DecoderBlock(24, 48, 8, 0.5, 0)
@@ -413,7 +413,7 @@ state = [encoder_blk(X, valid_lens), valid_lens, [None]]
 decoder_blk(X, state)[0].shape
 ```
 
-现在我们构建了由 `num_layers` 个 `DecoderBlock` 实例组成的整个变压器解码器。最后，一个完全连接的层计算所有 `vocab_size` 个可能的输出令牌的预测。解码器的自我注意力重量和编码器-解码器的注意权重都被存储，以供日后可视化。
+现在我们构建了由 `num_layers` 个 `DecoderBlock` 实例组成的完整的 Transformer 解码器。最后，通过一个全连接层计算所有 `vocab_size` 个可能的输出词符号的预测值。解码器的自注意力权重和编码器解码器注意力的权重都被存储下来，以供之后进行可视化。
 
 ```{.python .input}
 class TransformerDecoder(d2l.AttentionDecoder):
@@ -492,9 +492,9 @@ class TransformerDecoder(d2l.AttentionDecoder):
         return self._attention_weights
 ```
 
-## 培训
+## 训练
 
-让我们通过遵循变压器架构来实例化编码器解码器模型。在这里，我们指定变压器编码器和变压器解码器都有 2 层，使用 4 头注意力。与 :numref:`sec_seq2seq_training` 类似，我们训练变压器模型，以便在英语-法语机器翻译数据集上进行序列到序列的学习。
+让我们通过以下 Transformer 结构来实例化编码器解码器模型。我们指定 Transformer 编码器和解码器都有 2 层，使用 4 头注意力。与 ：numref：`sec_seq2seq_training` 类似，为了进行序列到序列的学习，我们在英语到法语的机器翻译数据集上训练 Transformer 模型。
 
 ```{.python .input}
 num_hiddens, num_layers, dropout, batch_size, num_steps = 32, 2, 0.1, 64, 10
@@ -535,7 +535,7 @@ net = d2l.EncoderDecoder(encoder, decoder)
 d2l.train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
 ```
 
-训练结束后，我们使用变压器模型将一些英语句子翻译成法语并计算它们的 BLEU 分数。
+训练结束后，我们使用 Transformer 模型将一些英语句子翻译成法语，并计算它们的 BLEU 分数。
 
 ```{.python .input}
 #@tab all
@@ -548,7 +548,7 @@ for eng, fra in zip(engs, fras):
           f'bleu {d2l.bleu(translation, fra, k=2):.3f}')
 ```
 
-让我们在将最后一个英语句子翻译成法语时可视化变压器的注意力重量。编码器自我注意权重的形状为（编码器层数、注意头数、`num_steps` 或查询数、`num_steps` 或键值对的数量）。
+我们在翻译最后一个英语句子时，对 Transformer 的注意力权重进行可视化。编码器自注意力权重的形状为 (编码器层数, 注意力头数, `num_steps` 或查询数, `num_steps` 或键值对数量)。
 
 ```{.python .input}
 #@tab all
@@ -558,7 +558,7 @@ enc_attention_weights = d2l.reshape(
 enc_attention_weights.shape
 ```
 
-在编码器的自我注意中，查询和键来自相同的输入序列。由于填充令牌不具有意义，并且输入序列的指定有效长度，因此没有查询参与填充令牌的位置。在以下内容中，将按行呈现两层多头注意力权重。每位负责人都根据查询、键和值的单独表示子空间独立出席。
+在编码器的自注意力中，查询和键来自相同的输入序列。由于填充的词符号不具有意义，因此通过指定输入序列的有效长度，不会对填充的位置计算注意力。接下来，将逐行呈现两层多头注意力的权重。每个注意力头都根据查询、键和值的不同的表示子空间独立地进行工作。
 
 ```{.python .input}
 d2l.show_heatmaps(
@@ -574,7 +574,7 @@ d2l.show_heatmaps(
     figsize=(7, 3.5))
 ```
 
-为了可视化解码器的自我注意力权重和编码器-解码器的注意权重，我们需要更多的数据操作。例如，我们用零填充蒙面的注意力重量。请注意，解码器自我注意权重和编码器注意权重都有相同的查询：序列开始令牌后跟输出令牌。
+为了对解码器的自注意力权重和编码器解码器注意力的权重进行可视化，我们需要做更多的数据操作。例如，我们需要用零来填充被掩码掩盖的注意力权重。值得注意的是，解码器的自注意力权重和编码器解码器注意力的权重都有相同的查询：即以 BOS 符号开头，后续为逐个生成的词符号的序列。
 
 ```{.python .input}
 dec_attention_weights_2d = [d2l.tensor(head[0]).tolist()
@@ -603,7 +603,7 @@ dec_self_attention_weights, dec_inter_attention_weights = \
 dec_self_attention_weights.shape, dec_inter_attention_weights.shape
 ```
 
-由于解码器自我注意的自动回归属性，查询位置后没有查询参与键值对。
+由于解码器自注意力的自回归属性，查询不会对当前位置之后的键值对进行注意力计算。
 
 ```{.python .input}
 #@tab all
@@ -614,7 +614,7 @@ d2l.show_heatmaps(
     titles=['Head %d' % i for i in range(1, 5)], figsize=(7, 3.5))
 ```
 
-与编码器自我注意的情况类似，通过输入序列的指定有效长度，输出序列中的任何查询都不会参与输入序列中的填充标记。
+与编码器自注意力的情况类似，通过指定输入序列的有效长度，输出序列中的任何查询都不会与输入序列中的填充位置进行计算。
 
 ```{.python .input}
 #@tab all
@@ -624,23 +624,23 @@ d2l.show_heatmaps(
     figsize=(7, 3.5))
 ```
 
-尽管变压器架构最初是为了顺序到序列的学习而提出的，但正如我们将在本书后面发现的那样，变压器编码器或变压器解码器通常被单独用于不同的深度学习任务。
+尽管 Transformer 架构最初是为了序列到序列的学习而提出的，但正如我们将在本书后面提及的那样， Transformer 编码器或 Transformer 解码器通常被单独用于不同的深度学习任务。
 
-## 摘要
+## 小结
 
-* 变压器是编码器解码器架构的一个实例，尽管在实践中可以单独使用编码器或解码器。
-* 在变压器中，多头自我注意力用于表示输入序列和输出序列，尽管解码器必须通过蒙版本保留自动回归属性。
-* 变压器中的残余连接和层标准化对于训练非常深入的模型都很重要。
-* 变压器模型中的向定位前馈网络使用相同的 MLP 转换所有序列位置的表示。
+*  Transformer 是编码器解码器架构的一个实例，尽管在实践中编码器或解码器都可以被单独使用。
+* 在 Transformer 中，多头自注意力都用来对输入序列和输出序列进行表示，尽管解码器必须通过掩码机制来保留其自回归的属性。
+*  Transformer 中的残差连接和层归一化都对于训练非常深度的模型很重要。
+*  在 Transformer 模型中， 基于位置的前馈网络使用相同的 MLP 对序列所有位置的表示进行转换。
 
 ## 练习
 
-1. 在实验中训练更深的变压器。它如何影响培训速度和翻译绩效？
-1. 在变压器中用添加剂注意力取代缩放的点产品注意力是不错的主意吗？为什么？
-1. 对于语言建模，我们应该使用 Transor 编码器、解码器还是两者？如何设计这种方法？
-1. 如果输入序列很长，变形金刚会面临什么挑战？为什么？
-1. 如何提高变形金刚的计算和内存效率？Hind: you may refer to the survey paper by Tay et al. :cite:`Tay.Dehghani.Bahri.ea.2020`。
-1. 我们如何在不使用 CNN 的情况下为图像分类任务设计基于变压器的模型？Hind: you may refer to the Vision Transformer :cite:`Dosovitskiy.Beyer.Kolesnikov.ea.2021`。
+1. 在实验中训练更深的 Transformer。它如何影响训练速度和翻译效果？
+1. 在 Transformer 中用加法注意力取代缩放点积注意力会是不错的主意吗？为什么？
+1. 对于语言模型来说，我们应该使用 Transformer 的编码器、解码器还是两者？如何设计？
+1. 如果输入序列很长，Transformer 会面临什么挑战？为什么？
+1. 如何提高 Transformer 的计算和内存效率？提示: 你可以参考 Tay et al. 的论文 :cite:`Tay.Dehghani.Bahri.ea.2020`。
+1. 我们如何在不使用 CNN 的情况下为图像分类任务设计基于 Transformer 的模型？提示: 你可以参考 Vision Transformer :cite:`Dosovitskiy.Beyer.Kolesnikov.ea.2021`。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/348)
