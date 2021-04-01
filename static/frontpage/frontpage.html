@@ -170,23 +170,40 @@ a {
     transition: max-height 0.2s ease-out;
 }
 
+.cover h2 {
+  font-size: 34px;
+  margin-bottom: 0px;
+  padding-bottom: 20px;
+}
+
+.cover p.version {
+  font-size: 18px;
+  padding: 0 0 9px 0;
+
+}
+
+.cover p {
+  margin: 0;
+  padding:  20px 0 0px 0;
+  font-size: 20px;
+}
+
 </style>
 </head>
 
-
-<div class = "mdl-grid header">
-  <div class = "mdl-cell mdl-cell--3-col">
+<div class="mdl-grid header">
+  <div class="mdl-cell mdl-cell--3-col">
     <img src="_images/front.png" class="img-fluid" alt="">
   </div>
-  <div class = "mdl-cell mdl-cell--1-col">
+  <div class="mdl-cell mdl-cell--1-col">
   </div>
-  <div class = "mdl-cell mdl-cell--5-col mdl-cell--middle">
-    <h2>《动手学深度学习》</h2>
-    <p>面向中文读者的能运行、可讨论的深度学习教科书 <br><br>
-       含<b>NumPy/MXNet</b>、<b>PyTorch</b>和<b>TensorFlow</b>实现<br><br>
-       被全球40个国家175所大学用于教学<br><br>
-       <a href="https://zh.d2l.ai">本书第一版（已出版）</a>
-    </p>
+  <div class="mdl-cell mdl-cell--5-col mdl-cell--middle cover">
+    <h2 class="mdl-color-text--primary">《动手学深度学习》</h2>
+    <p class="version">第二版预览版</p>
+    <p class="version"> 跳转<a href="https://zh.d2l.ai/">第一版</a></p>
+    <p>面向中文读者的能运行、可讨论的深度学习教科书</p>
+    <p>含 NumPy/MXNet、PyTorch 和 TensorFlow 实现</p>
+    <p>被全球 40 个国家 175 所大学用于教学</p>
   </div>
 </div>
 
@@ -195,12 +212,15 @@ a {
     <h3>公告</h3>
     <div align="left">
     <ul>
-    <li><b>【关注更新】</b>
-      英文版的第一章至第八章已翻译完，并含多深度学习框架的实现。
+    <li><b>【在线课程每周直播中】</b>
+      3月20日起北京时间每周六、日下午1:00至2:30直播教学《动手学深度学习》。无需缴费或注册，欢迎<a href="https://courses.d2l.ai/zh-v2/">参加</a>！
+    </li>
+    <li><b>【关注第二版更新】</b>
+      英文版前八章已翻译至中文版第二版，并含多种深度学习框架的实现。
       英文版还新增了<a href="https://d2l.ai/chapter_attention-mechanisms/index.html">注意力机制</a>、
       <a href="https://d2l.ai/chapter_natural-language-processing-pretraining/bert.html">BERT</a>、
       <a href="https://d2l.ai/chapter_natural-language-processing-applications/natural-language-inference-attention.html">自然语言推理</a>、
-      <a href="https://d2l.ai/chapter_recommender-systems/index.html">推荐系统</a>一章和<a href="https://d2l.ai/chapter_appendix-mathematics-for-deep-learning/index.html">深度学习的数学</a>一章。
+      <a href="https://d2l.ai/chapter_recommender-systems/index.html">推荐系统</a>和<a href="https://d2l.ai/chapter_appendix-mathematics-for-deep-learning/index.html">深度学习的数学</a>等。
       如果想及时获取最新修订或增添的信息，
       请关注本书的<a href="https://github.com/d2l-ai/d2l-zh">中文开源项目</a>和<a href="https://github.com/d2l-ai/d2l-en">英文开源项目</a>。
     </li>
@@ -216,7 +236,7 @@ a {
       <a href="http://product.dangdang.com/27871474.html">当当</a>、
       <a href="https://detail.tmall.com/item.htm?id=594658766444">天猫</a>
       购买黑白平装版。
-      [<a href="https://raw.githubusercontent.com/d2l-ai/d2l-zh/master/img/frontpage/jd-190715-zh.png">新书榜</a>]
+      [<a href="https://raw.githubusercontent.com/d2l-ai/d2l-zh/v1/img/frontpage/jd-190715-zh.png">新书榜</a>]
       [<a href="https://zhuanlan.zhihu.com/p/66689123">关于样书</a>]
     </li>
     <li><b>【免费资源（新增中文版课件）】</b>
@@ -1003,7 +1023,7 @@ a {
     </div> <!-- mdl-grid -->
     </div>
 
-    <h4>如果你使用（或计划使用）本书教学并希望收到免费纸质版图书，
+    <h4>如果你使用（或将要使用）本书教学并希望收到免费纸质版图书，
         请<a href="https://raw.githubusercontent.com/d2l-ai/d2l-en/master/static/frontpage/attachments/hardcopy.txt" target="_blank">联系我们</a>。</h4>
 
     <!-- reverse the changes by google map... -->

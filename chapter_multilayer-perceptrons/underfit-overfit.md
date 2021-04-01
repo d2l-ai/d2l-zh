@@ -49,7 +49,7 @@
 
 在本节中，为了给你一些直观的印象，我们将重点介绍几个倾向于影响模型泛化的因素：
 
-1. 可调整参数的数量。当可调整参数（有时称为*自由度*）的数量很大时，模型往往更容易过拟合。
+1. 可调整参数的数量。当可调整参数的数量（有时称为*自由度*）很大时，模型往往更容易过拟合。
 1. 参数采用的值。当权重的取值范围较大时，模型可能更容易过拟合。
 1. 训练样本的数量。即使你的模型很简单，也很容易过拟合只包含一个或两个样本的数据集。但是，过拟合一个数百万个样本数据集需要一个极其灵活的模型。
 
@@ -87,7 +87,7 @@
 
 $$\hat{y}= \sum_{i=0}^d x^i w_i$$
 
-这只是一个线性回归问题，我们的特征是$x$的幂给出的，模型的权重是$w_i$给出的，偏差是$w_0$给出的（因为对于所有的$x$都有$x^0 = 1$）。由于这只是一个线性回归问题，我们可以使用平方误差作为我们的损失函数。
+这只是一个线性回归问题，我们的特征是$x$的幂给出的，模型的权重是$w_i$给出的，偏置是$w_0$给出的（因为对于所有的$x$都有$x^0 = 1$）。由于这只是一个线性回归问题，我们可以使用平方误差作为我们的损失函数。
 
 高阶多项式函数比低阶多项式函数复杂得多。高阶多项式的参数较多，模型函数的选择范围较广。因此在固定训练数据集的情况下，高阶多项式函数相对于低阶多项式的训练误差应该始终更低(最坏情况下是相等的)。事实上，当数据样本包含了$x$的不同值时，函数阶数等于数据样本数量的多项式函数就可以很好地拟合训练集。在 :numref:`fig_capacity_vs_error` 中，我们直观地描述了多项式的阶数和欠拟合与过拟合之间的关系。
 
@@ -101,7 +101,7 @@ $$\hat{y}= \sum_{i=0}^d x^i w_i$$
 
 ## 多项式回归
 
-我们现在可以通过将对数据进行多项式拟合来交互地探索这些概念。
+我们现在可以(**通过多项式拟合来交互地探索这些概念**)。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -130,10 +130,10 @@ import math
 
 ### 生成数据集
 
-首先，我们需要数据。给定$x$，我们将使用以下三阶多项式来生成训练和测试数据的标签：
+首先，我们需要数据。给定$x$，我们将[**使用以下三阶多项式来生成训练和测试数据的标签：**]
 
-$$y = 5 + 1.2x - 3.4\frac{x^2}{2!} + 5.6 \frac{x^3}{3!} + \epsilon \text{ where }
-\epsilon \sim \mathcal{N}(0, 0.1^2).$$
+(**$$y = 5 + 1.2x - 3.4\frac{x^2}{2!} + 5.6 \frac{x^3}{3!} + \epsilon \text{ where }
+\epsilon \sim \mathcal{N}(0, 0.1^2).$$**)
 
 噪声项$\epsilon$服从均值为0且标准差为0.1的正态分布。在优化的过程中，我们通常希望避免非常大的梯度值或损失值。这就是我们将*特征*从$x^i$调整为$\frac{x^i}{i!}$的原因，这样可以避免对于很大的$i$得到特别大的指数值。我们将为训练集和测试集各合成100个样本。
 
@@ -154,7 +154,7 @@ labels = np.dot(poly_features, true_w)
 labels += np.random.normal(scale=0.1, size=labels.shape)
 ```
 
-同样，存储在`poly_features`中的单项式由gamma函数重新缩放，其中$\Gamma(n)=(n-1)!$。从生成的数据集中查看前2个样本。值1是与偏差相对应的常量特征。
+同样，存储在`poly_features`中的单项式由gamma函数重新缩放，其中$\Gamma(n)=(n-1)!$。从生成的数据集中查[**看一下前2个样本**]。第一个值是与偏置相对应的常量特征。
 
 ```{.python .input}
 #@tab pytorch, tensorflow
@@ -170,7 +170,7 @@ features[:2], poly_features[:2, :], labels[:2]
 
 ### 对模型进行训练和测试
 
-首先让我们实现一个函数来评估模型在给定数据集上的损失。
+首先让我们[**实现一个函数来评估模型在给定数据集上的损失**]。
 
 ```{.python .input}
 #@tab mxnet, tensorflow
@@ -196,14 +196,14 @@ def evaluate_loss(net, data_iter, loss):  #@save
     return metric[0] / metric[1]
 ```
 
-现在定义训练函数。
+现在[**定义训练函数**]。
 
 ```{.python .input}
 def train(train_features, test_features, train_labels, test_labels,
           num_epochs=400):
     loss = gluon.loss.L2Loss()
     net = nn.Sequential()
-    # 不设置偏差，因为我们已经在多项式特征中实现了它
+    # 不设置偏置，因为我们已经在多项式特征中实现了它
     net.add(nn.Dense(1, use_bias=False))
     net.initialize()
     batch_size = min(10, train_labels.shape[0])
@@ -229,7 +229,7 @@ def train(train_features, test_features, train_labels, test_labels,
           num_epochs=400):
     loss = nn.MSELoss()
     input_shape = train_features.shape[-1]
-    # 不设置偏差，因为我们已经在多项式特征中实现了它
+    # 不设置偏置，因为我们已经在多项式特征中实现了它
     net = nn.Sequential(nn.Linear(input_shape, 1, bias=False))
     batch_size = min(10, train_labels.shape[0])
     train_iter = d2l.load_array((train_features, train_labels.reshape(-1,1)),
@@ -254,7 +254,7 @@ def train(train_features, test_features, train_labels, test_labels,
           num_epochs=400):
     loss = tf.losses.MeanSquaredError()
     input_shape = train_features.shape[-1]
-    # 不设置偏差，因为我们已经在多项式特征中实现了它
+    # 不设置偏置，因为我们已经在多项式特征中实现了它
     net = tf.keras.Sequential()
     net.add(tf.keras.layers.Dense(1, use_bias=False))
     batch_size = min(10, train_labels.shape[0])
@@ -273,7 +273,7 @@ def train(train_features, test_features, train_labels, test_labels,
     print('weight:', net.get_weights()[0].T)
 ```
 
-### 三阶多项式函数拟合(正态)
+### [**三阶多项式函数拟合(正态)**]
 
 我们将首先使用三阶多项式函数，它与数据生成函数的阶数相同。结果表明，该模型能有效降低训练损失和测试损失。学习到的模型参数也接近真实值$w = [5, 1.2, -3.4, 5.6]$。
 
@@ -284,7 +284,7 @@ train(poly_features[:n_train, :4], poly_features[n_train:, :4],
       labels[:n_train], labels[n_train:])
 ```
 
-### 线性函数拟合(欠拟合)
+### [**线性函数拟合(欠拟合)**]
 
 让我们再看看线性函数拟合。在经历了早期的下降之后，进一步减少该模型的训练损失变得困难。在最后一个迭代周期完成后，训练损失仍然很高。当用来拟合非线性模式（如这里的三阶多项式函数）时，线性模型容易欠拟合。
 
@@ -295,13 +295,13 @@ train(poly_features[:n_train, :2], poly_features[n_train:, :2],
       labels[:n_train], labels[n_train:])
 ```
 
-### 高阶多项式函数拟合(过拟合)
+### [**高阶多项式函数拟合(过拟合)**]
 
 现在，让我们尝试使用一个过于高阶的多项式来训练模型。在这种情况下，没有足够的数据用于学到高阶系数应该具有接近于零的值。因此，这个过于复杂的模型会轻易受到训练数据中噪声的影响。虽然训练损失可以有效地降低，但测试损失仍然很高。结果表明，复杂模型对数据造成了过拟合。
 
 ```{.python .input}
 #@tab all
-# Pick all the dimensions from the polynomial features
+# 从多项式特征中选取所有维度
 train(poly_features[:n_train, :], poly_features[n_train:, :],
       labels[:n_train], labels[n_train:], num_epochs=1500)
 ```

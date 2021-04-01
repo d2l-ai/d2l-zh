@@ -5,11 +5,9 @@ dependencies:
     - ..  # d2l
     - git+https://github.com/d2l-ai/d2l-book
     - mxnet-cu101==1.7.0
-    - torch==1.8.0.dev20201225+cu101
-    - --pre
-    - -f https://download.pytorch.org/whl/nightly/cu101/torch_nightly.html
-    - torchvision==0.9.0.dev20201225+cu101
-    - --pre
-    - -f https://download.pytorch.org/whl/nightly/cu101/torch_nightly.html
+    - torch==1.8.0+cu101
+    - -f https://download.pytorch.org/whl/torch_stable.html
+    - torchvision==0.9.0+cu101
+    - -f https://download.pytorch.org/whl/torch_stable.html
     - tensorflow==2.3.1
     - tensorflow-probability==0.11.1

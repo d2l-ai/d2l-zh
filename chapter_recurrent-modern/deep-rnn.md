@@ -20,7 +20,7 @@
 $$\mathbf{H}_t^{(l)} = \phi_l(\mathbf{H}_t^{(l-1)} \mathbf{W}_{xh}^{(l)} + \mathbf{H}_{t-1}^{(l)} \mathbf{W}_{hh}^{(l)}  + \mathbf{b}_h^{(l)}),$$
 :eqlabel:`eq_deep_rnn_H`
 
-其中权重 $\mathbf{W}_{xh}^{(l)} \in \mathbb{R}^{h \times h}$ 和 $\mathbf{W}_{hh}^{(l)} \in \mathbb{R}^{h \times h}$ 以及偏差 $\mathbf{b}_h^{(l)} \in \mathbb{R}^{1 \times h}$ 是 $l^\mathrm{th}$ 隐藏层的模型参数。
+其中权重 $\mathbf{W}_{xh}^{(l)} \in \mathbb{R}^{h \times h}$ 和 $\mathbf{W}_{hh}^{(l)} \in \mathbb{R}^{h \times h}$ 以及偏置 $\mathbf{b}_h^{(l)} \in \mathbb{R}^{1 \times h}$ 是 $l^\mathrm{th}$ 隐藏层的模型参数。
 
 最后，输出图层的计算仅基于最终 $L^\mathrm{th}$ 隐藏层的隐藏状态：
 
