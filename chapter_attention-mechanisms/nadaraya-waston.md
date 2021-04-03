@@ -1,4 +1,5 @@
 # 注意力池化：Nadaraya-Watson 内核回归
+
 :label:`sec_nadaraya-waston`
 
 在知道了 :numref:`fig_qkv` 框架下注意力机制的主要组成部分。重述要点，查询（自主提示）和键（非自主提示）之间的交互产生了 * 注意力池化 *。注意力池化有选择性地聚合了值（感官输入）以产生产出。在本节中，我们将更详细地介绍注意力池化，以便从高层次上了解注意力机制在实践中的运作方式。具体来说，1964 年提出的 Nadaraya-Watson 核回归模型是一个简单而完整的示例，用于演示具有注意机制的机器学习。
@@ -154,7 +155,7 @@ d2l.show_heatmaps(attention_weights.unsqueeze(0).unsqueeze(0),
                   ylabel='Sorted testing inputs')
 ```
 
-## 参数化注意力池
+## 参数化注意力池化
 
 非参数 Nadaraya-Watson 核回归具有 * 一致性 * 的好处：如果有足够的数据，此模型会收敛到最佳解决方案。尽管如此，我们可以轻松地将可学习的参数集成到注意力池化中。
 
