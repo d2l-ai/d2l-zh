@@ -1,4 +1,4 @@
-# Bahdanau 关注
+# Bahdanau 注意力
 
 :label:`sec_seq2seq_attention`
 
