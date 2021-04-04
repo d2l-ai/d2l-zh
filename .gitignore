@@ -10,3 +10,4 @@ dist*
 _build/
 test*.md
 run.sh
+.history/
