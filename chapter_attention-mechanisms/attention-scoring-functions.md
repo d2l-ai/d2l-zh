@@ -1,5 +1,4 @@
 # 注意力评分函数
-
 :label:`sec_attention-scoring-functions`
 
 在 :numref:`sec_nadaraya-waston` 中，我们使用高斯核来模拟查询和键之间的交互。将 :eqref:`eq_nadaraya-waston-gaussian` 中的高斯核的指数视为 * 注意力评分函数 *（简称 * 评分函数 *），这个函数的结果基本上被输入了 softmax 操作。因此，我们获得了与键配对的值的概率分布（注意力权重）。最后，注意力集中的输出只是基于这些注意力权重的值的加权总和。
@@ -104,7 +103,6 @@ masked_softmax(torch.rand(2, 2, 4), d2l.tensor([[1, 3], [2, 4]]))
 ```
 
 ## 加性注意力
-
 :label:`subsec_additive-attention`
 
 一般来说，当查询和键是不同长度的矢量时，可以使用加性注意力作为评分函数。给定查询 $\mathbf{q} \in \mathbb{R}^q$ 和键 $\mathbf{k} \in \mathbb{R}^k$，* 加性注意力 * 评分函数为
