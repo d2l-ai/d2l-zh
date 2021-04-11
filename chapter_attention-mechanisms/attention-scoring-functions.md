@@ -1,10 +1,9 @@
 # 注意力评分函数
-
 :label:`sec_attention-scoring-functions`
 
-在 :numref:`sec_nadaraya-waston` 中，我们使用高斯核来模拟查询和键之间的交互。将 :eqref:`eq_nadaraya-waston-gaussian` 中的高斯核的指数视为 * 注意力评分函数 *（简称 * 评分函数 *），这个函数的结果基本上被输入了 softmax 操作。因此，我们获得了与键配对的值的概率分布（注意力权重）。最后，注意力集中的输出只是基于这些注意力权重的值的加权总和。
+在 :numref:`sec_nadaraya-waston` 中，我们使用高斯核来模拟查询和键之间的交互。将 :eqref:`eq_nadaraya-waston-gaussian` 中的高斯核的指数视为 * 注意力评分函数 *（简称 * 评分函数 *），这个函数的输出很自然被输入了 softmax 运算。于是，输出的结果为与键配对的值的概率分布（注意力权重）。最终，注意力池化的输出只是基于这些注意力权重的值的加权和。
 
-从较高层面来说，我们可以使用上述算法实例化 :numref:`fig_qkv` 中的注意力机制框架。:numref:`fig_attention_output` 表示 $a$ 的注意力评分函数，说明了如何将注意力池化的输出计算为加权值和。由于注意力权重是概率分布，因此加权和本质上是加权平均值。
+从宏观来看，可以使用上述算法实例化 :numref:`fig_qkv` 中的注意力机制框架。:numref:`fig_attention_output` 表示 $a$ 的注意力评分函数，说明了如何将注意力池化的输出计算为值的加权和。由于注意力权重是概率分布，因此加权和本质上是加权平均值。
 
 ![Computing the output of attention pooling as a weighted average of values.](../img/attention-output.svg)
 :label:`fig_attention_output`
@@ -104,7 +103,6 @@ masked_softmax(torch.rand(2, 2, 4), d2l.tensor([[1, 3], [2, 4]]))
 ```
 
 ## 加性注意力
-
 :label:`subsec_additive-attention`
 
 一般来说，当查询和键是不同长度的矢量时，可以使用加性注意力作为评分函数。给定查询 $\mathbf{q} \in \mathbb{R}^q$ 和键 $\mathbf{k} \in \mathbb{R}^k$，* 加性注意力 * 评分函数为
