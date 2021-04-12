@@ -48,7 +48,7 @@ inputs = inputs.fillna(inputs.mean())
 print(inputs)
 ```
 
-[**对于 `inputs` 中的类别值或离散值，我们将 “NaN” 视为一个类别。**]由于 “巷子”（“Alley”）列只接受两种类型的类别值 “Alley” 和 “NaN”，`pandas` 可以自动将此列转换为两列 “Alley_Pave” 和 “Alley_nan”。巷子类型为 “Pave” 的行会将“Alley_Pave”的值设置为1，“Alley_nan”的值设置为0。缺少巷子类型的行会将“Alley_Pave”和“Alley_nan”分别设置为0和1。
+[**对于 `inputs` 中的类别值或离散值，我们将 “NaN” 视为一个类别。**]由于 “巷子”（“Alley”）列只接受两种类型的类别值 “Pave” 和 “NaN”，`pandas` 可以自动将此列转换为两列 “Alley_Pave” 和 “Alley_nan”。巷子类型为 “Pave” 的行会将“Alley_Pave”的值设置为1，“Alley_nan”的值设置为0。缺少巷子类型的行会将“Alley_Pave”和“Alley_nan”分别设置为0和1。
 
 ```{.python .input}
 #@tab all

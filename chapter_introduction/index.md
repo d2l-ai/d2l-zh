@@ -107,7 +107,7 @@
 ### 数据
 
 毋庸置疑，如果没有数据，那么数据科学毫无用武之地。
-每个数据集由一个个*样本*（example）组成，大多时候，它们遵循独立同分布(idependently and identically distributed, i.i.d.)。
+每个数据集由一个个*样本*（example）组成，大多时候，它们遵循独立同分布(independently and identically distributed, i.i.d.)。
 样本有时也叫做*数据点*（data point）或者*数据实例*（data instance），通常每个样本由一组称为*特征*（features，或*协变量*（covariates））的属性组成。
 机器学习模型会根据这些属性进行预测。
 在上面的监督学习问题中，要预测的是一个特殊的属性，它被称为*标签*（label，或*目标*（target））。
