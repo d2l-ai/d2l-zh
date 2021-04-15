@@ -161,7 +161,7 @@ print(train_data.shape)
 print(test_data.shape)
 ```
 
-让我们看看[**前四个和最后两个特征，以及相应标签（房价）**]。
+让我们看看[**前四个和最后两个特征，以及相应标签**]（房价）。
 
 ```{.python .input}
 #@tab all
