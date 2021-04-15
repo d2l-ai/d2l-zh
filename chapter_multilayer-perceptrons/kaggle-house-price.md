@@ -201,7 +201,7 @@ all_features = pd.get_dummies(all_features, dummy_na=True)
 all_features.shape
 ```
 
-你可以看到，此转换会将特征的数量从79个增加到331个。最后，通过`values`属性，我们可以[**从 `pandas` 格式中提取NumPy格式，并将其转换为张量表示**]用于训练。
+你可以看到，此转换会将特征的数量从79个增加到331个。最后，通过`values`属性，我们可以[**从`pandas`格式中提取NumPy格式，并将其转换为张量表示**]用于训练。
 
 ```{.python .input}
 #@tab all
