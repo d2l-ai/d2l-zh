@@ -15,7 +15,6 @@ import tarfile
 import time
 import zipfile
 from collections import defaultdict
-
 import pandas as pd
 import requests
 from IPython import display
@@ -67,7 +66,7 @@ def plot(X, Y=None, xlabel=None, ylabel=None, legend=None, xlim=None,
     set_figsize(figsize)
     axes = axes if axes else d2l.plt.gca()
 
-    # Return True if `X` (tensor or list) has 1 axis
+    # 如果 `X` 有一个轴，输出True
     def has_one_axis(X):
         return (hasattr(X, "ndim") and X.ndim == 1 or
                 isinstance(X, list) and not hasattr(X[0], "__len__"))
@@ -467,8 +466,7 @@ class TrainCallback(tf.keras.callbacks.Callback):
             print(f'{num_examples / self.timer.avg():.1f} examples/sec on '
                   f'{str(self.device_name)}')
 
-def train_ch6(net_fn, train_iter, test_iter, num_epochs, lr,
-              device=d2l.try_gpu()):
+def train_ch6(net_fn, train_iter, test_iter, num_epochs, lr, device):
     """Train a model with a GPU (defined in Chapter 6)."""
     device_name = device._device_name
     strategy = tf.distribute.OneDeviceStrategy(device_name)
@@ -520,28 +518,28 @@ def read_time_machine():
 
 # Defined in file: ./chapter_recurrent-neural-networks/text-preprocessing.md
 def tokenize(lines, token='word'):
-    """Split text lines into word or character tokens."""
+    """将文本行拆分为单词或字符标记。"""
     if token == 'word':
         return [line.split() for line in lines]
     elif token == 'char':
         return [list(line) for line in lines]
     else:
-        print('ERROR: unknown token type: ' + token)
+        print('错误：未知令牌类型：' + token)
 
 
 # Defined in file: ./chapter_recurrent-neural-networks/text-preprocessing.md
 class Vocab:
-    """Vocabulary for text."""
+    """文本词表"""
     def __init__(self, tokens=None, min_freq=0, reserved_tokens=None):
         if tokens is None:
             tokens = []
         if reserved_tokens is None:
             reserved_tokens = []
-        # Sort according to frequencies
+        # 按出现频率排序
         counter = count_corpus(tokens)
-        self.token_freqs = sorted(counter.items(), key=lambda x: x[0])
-        self.token_freqs.sort(key=lambda x: x[1], reverse=True)
-        # The index for the unknown token is 0
+        self.token_freqs = sorted(counter.items(), key=lambda x: x[1],
+                                  reverse=True)
+        # 未知标记的索引为0
         self.unk, uniq_tokens = 0, ['<unk>'] + reserved_tokens
         uniq_tokens += [
             token for token, freq in self.token_freqs
@@ -566,21 +564,21 @@ class Vocab:
 
 def count_corpus(tokens):
     """Count token frequencies."""
-    # Here `tokens` is a 1D list or 2D list
+    # 这里的 `tokens` 是1D列表或2D列表
     if len(tokens) == 0 or isinstance(tokens[0], list):
-        # Flatten a list of token lists into a list of tokens
+        # 将令牌列表展平
         tokens = [token for line in tokens for token in line]
     return collections.Counter(tokens)
 
 
 # Defined in file: ./chapter_recurrent-neural-networks/text-preprocessing.md
 def load_corpus_time_machine(max_tokens=-1):
-    """Return token indices and the vocabulary of the time machine dataset."""
+    """返回时光机器数据集的令牌索引和词汇表。"""
     lines = read_time_machine()
     tokens = tokenize(lines, 'char')
     vocab = Vocab(tokens)
-    # Since each text line in the time machine dataset is not necessarily a
-    # sentence or a paragraph, flatten all the text lines into a single list
+    # 因为时光机器数据集中的每一个文本行不一定是一个句子或段落，
+    # 所以将所有文本行展平到一个列表中
     corpus = [vocab[token] for line in tokens for token in line]
     if max_tokens > 0:
         corpus = corpus[:max_tokens]
@@ -589,26 +587,23 @@ def load_corpus_time_machine(max_tokens=-1):
 
 # Defined in file: ./chapter_recurrent-neural-networks/language-models-and-dataset.md
 def seq_data_iter_random(corpus, batch_size, num_steps):
-    """Generate a minibatch of subsequences using random sampling."""
-    # Start with a random offset to partition a sequence
-    corpus = corpus[random.randint(0, num_steps):]
-    # Subtract 1 since we need to account for labels
+    """使用随机抽样生成一小批子序列。"""
+    # 从随机偏移量（包括`num_steps - 1`）开始对序列进行分区
+    corpus = corpus[random.randint(0, num_steps - 1):]
+    # 减去1，因为我们需要考虑标签
     num_subseqs = (len(corpus) - 1) // num_steps
-    # The starting indices for subsequences of length `num_steps`
+    # 长度为`num_steps`的子序列的起始索引
     initial_indices = list(range(0, num_subseqs * num_steps, num_steps))
-    # In random sampling, the subsequences from two adjacent random
-    # minibatches during iteration are not necessarily adjacent on the
-    # original sequence
+    # 在随机抽样中，迭代过程中两个相邻随机小批量的子序列不一定在原始序列上相邻
     random.shuffle(initial_indices)
 
     def data(pos):
-        # Return a sequence of length `num_steps` starting from `pos`
+        # 返回从`pos`开始的长度为`num_steps`的序列
         return corpus[pos:pos + num_steps]
 
-    num_subseqs_per_example = num_subseqs // batch_size
-    for i in range(0, batch_size * num_subseqs_per_example, batch_size):
-        # Here, `initial_indices` contains randomized starting indices for
-        # subsequences
+    num_batches = num_subseqs // batch_size
+    for i in range(0, batch_size * num_batches, batch_size):
+        # 这里，`initial_indices`包含子序列的随机起始索引
         initial_indices_per_batch = initial_indices[i:i + batch_size]
         X = [data(j) for j in initial_indices_per_batch]
         Y = [data(j + 1) for j in initial_indices_per_batch]
@@ -617,8 +612,8 @@ def seq_data_iter_random(corpus, batch_size, num_steps):
 
 # Defined in file: ./chapter_recurrent-neural-networks/language-models-and-dataset.md
 def seq_data_iter_sequential(corpus, batch_size, num_steps):
-    """Generate a minibatch of subsequences using sequential partitioning."""
-    # Start with a random offset to partition a sequence
+    """使用顺序分区生成一小批子序列。"""
+    # 从随机偏移量开始划分序列
     offset = random.randint(0, num_steps)
     num_tokens = ((len(corpus) - offset - 1) // batch_size) * batch_size
     Xs = d2l.tensor(corpus[offset:offset + num_tokens])
@@ -634,7 +629,7 @@ def seq_data_iter_sequential(corpus, batch_size, num_steps):
 
 # Defined in file: ./chapter_recurrent-neural-networks/language-models-and-dataset.md
 class SeqDataLoader:
-    """An iterator to load sequence data."""
+    """加载序列数据的迭代器。"""
     def __init__(self, batch_size, num_steps, use_random_iter, max_tokens):
         if use_random_iter:
             self.data_iter_fn = d2l.seq_data_iter_random
@@ -650,7 +645,7 @@ class SeqDataLoader:
 # Defined in file: ./chapter_recurrent-neural-networks/language-models-and-dataset.md
 def load_data_time_machine(batch_size, num_steps, use_random_iter=False,
                            max_tokens=10000):
-    """Return the iterator and the vocabulary of the time machine dataset."""
+    """返回时光机器数据集的迭代器和词表。"""
     data_iter = SeqDataLoader(batch_size, num_steps, use_random_iter,
                               max_tokens)
     return data_iter, data_iter.vocab
@@ -658,7 +653,7 @@ def load_data_time_machine(batch_size, num_steps, use_random_iter=False,
 
 # Defined in file: ./chapter_recurrent-neural-networks/rnn-scratch.md
 class RNNModelScratch:
-    """A RNN Model implemented from scratch."""
+    """从零开始实现的循环神经网络模型"""
     def __init__(self, vocab_size, num_hiddens, init_state, forward_fn):
         self.vocab_size, self.num_hiddens = vocab_size, num_hiddens
         self.init_state, self.forward_fn = init_state, forward_fn
@@ -673,23 +668,23 @@ class RNNModelScratch:
 
 
 # Defined in file: ./chapter_recurrent-neural-networks/rnn-scratch.md
-def predict_ch8(prefix, num_preds, model, vocab, params):
-    """Generate new characters following the `prefix`."""
-    state = model.begin_state(batch_size=1)
+def predict_ch8(prefix, num_preds, net, vocab, params):
+    """在`prefix`后面生成新字符。"""
+    state = net.begin_state(batch_size=1)
     outputs = [vocab[prefix[0]]]
     get_input = lambda: d2l.reshape(d2l.tensor([outputs[-1]]), (1, 1)).numpy()
-    for y in prefix[1:]:  # Warm-up period
-        _, state = model(get_input(), state, params)
+    for y in prefix[1:]:  # 预热期
+        _, state = net(get_input(), state, params)
         outputs.append(vocab[y])
-    for _ in range(num_preds):  # Predict `num_preds` steps
-        y, state = model(get_input(), state, params)
+    for _ in range(num_preds):  # 预测`num_preds`步
+        y, state = net(get_input(), state, params)
         outputs.append(int(y.numpy().argmax(axis=1).reshape(1)))
     return ''.join([vocab.idx_to_token[i] for i in outputs])
 
 
 # Defined in file: ./chapter_recurrent-neural-networks/rnn-scratch.md
 def grad_clipping(grads, theta):
-    """Clip the gradient."""
+    """裁剪梯度。"""
     theta = tf.constant(theta, dtype=tf.float32)
     norm = tf.math.sqrt(
         sum((tf.reduce_sum(grad**2)).numpy() for grad in grads))
@@ -705,26 +700,24 @@ def grad_clipping(grads, theta):
 
 
 # Defined in file: ./chapter_recurrent-neural-networks/rnn-scratch.md
-def train_epoch_ch8(model, train_iter, loss, updater, params,
-                    use_random_iter):
-    """Train a model within one epoch (defined in Chapter 8)."""
+def train_epoch_ch8(net, train_iter, loss, updater, params, use_random_iter):
+    """训练模型一个迭代周期（定义见第8章）。"""
     state, timer = None, d2l.Timer()
-    metric = d2l.Accumulator(2)  # Sum of training loss, no. of tokens
+    metric = d2l.Accumulator(2)  # 训练损失之和, 标记数量
     for X, Y in train_iter:
         if state is None or use_random_iter:
-            # Initialize `state` when either it is the first iteration or
-            # using random sampling
-            state = model.begin_state(batch_size=X.shape[0])
+            # 在第一次迭代或使用随机抽样时初始化`state`
+            state = net.begin_state(batch_size=X.shape[0])
         with tf.GradientTape(persistent=True) as g:
             g.watch(params)
-            y_hat, state = model(X, state, params)
-            y = d2l.reshape(Y, (-1))
+            y_hat, state = net(X, state, params)
+            y = d2l.reshape(tf.transpose(Y), (-1))
             l = loss(y, y_hat)
         grads = g.gradient(l, params)
         grads = grad_clipping(grads, 1)
         updater.apply_gradients(zip(grads, params))
 
-        # Keras loss by default returns the average loss in a batch
+        # Keras默认返回一个批量中的平均损失
         # l_sum = l * float(d2l.size(y)) if isinstance(
         #     loss, tf.keras.losses.Loss) else tf.reduce_sum(l)
         metric.add(l * d2l.size(y), d2l.size(y))
@@ -732,123 +725,40 @@ def train_epoch_ch8(model, train_iter, loss, updater, params,
 
 
 # Defined in file: ./chapter_recurrent-neural-networks/rnn-scratch.md
-def train_ch8(model, train_iter, vocab, num_hiddens, lr, num_epochs, strategy,
+def train_ch8(net, train_iter, vocab, num_hiddens, lr, num_epochs, strategy,
               use_random_iter=False):
-    """Train a model (defined in Chapter 8)."""
+    """训练模型（定义见第8章）。"""
     with strategy.scope():
         params = get_params(len(vocab), num_hiddens)
         loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
         updater = tf.keras.optimizers.SGD(lr)
     animator = d2l.Animator(xlabel='epoch', ylabel='perplexity',
                             legend=['train'], xlim=[10, num_epochs])
-    predict = lambda prefix: predict_ch8(prefix, 50, model, vocab, params)
-    # Train and predict
+    predict = lambda prefix: predict_ch8(prefix, 50, net, vocab, params)
+    # 训练和预测
     for epoch in range(num_epochs):
-        ppl, speed = train_epoch_ch8(model, train_iter, loss, updater, params,
+        ppl, speed = train_epoch_ch8(net, train_iter, loss, updater, params,
                                      use_random_iter)
         if (epoch + 1) % 10 == 0:
             print(predict('time traveller'))
             animator.add(epoch + 1, [ppl])
     device = d2l.try_gpu()._device_name
-    print(f'perplexity {ppl:.1f}, {speed:.1f} tokens/sec on {str(device)}')
+    print(f'困惑度 {ppl:.1f}, {speed:.1f} 标记/秒 {str(device)}')
     print(predict('time traveller'))
     print(predict('traveller'))
 
 
-# Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
-d2l.DATA_HUB['fra-eng'] = (d2l.DATA_URL + 'fra-eng.zip',
-                           '94646ad1522d915e7b0f9296181140edcf86a4f5')
+# Defined in file: ./chapter_computational-performance/hybridize.md
+class Benchmark:
+    def __init__(self, description='Done'):
+        self.description = description
 
-def read_data_nmt():
-    """Load the English-French dataset."""
-    data_dir = d2l.download_extract('fra-eng')
-    with open(os.path.join(data_dir, 'fra.txt'), 'r') as f:
-        return f.read()
+    def __enter__(self):
+        self.timer = d2l.Timer()
+        return self
 
-
-# Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
-def preprocess_nmt(text):
-    """Preprocess the English-French dataset."""
-    def no_space(char, prev_char):
-        return char in set(',.!?') and prev_char != ' '
-
-    # Replace non-breaking space with space, and convert uppercase letters to
-    # lowercase ones
-    text = text.replace('\u202f', ' ').replace('\xa0', ' ').lower()
-    # Insert space between words and punctuation marks
-    out = [
-        ' ' + char if i > 0 and no_space(char, text[i - 1]) else char
-        for i, char in enumerate(text)]
-    return ''.join(out)
-
-
-# Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
-def tokenize_nmt(text, num_examples=None):
-    """Tokenize the English-French dataset."""
-    source, target = [], []
-    for i, line in enumerate(text.split('\n')):
-        if num_examples and i > num_examples:
-            break
-        parts = line.split('\t')
-        if len(parts) == 2:
-            source.append(parts[0].split(' '))
-            target.append(parts[1].split(' '))
-    return source, target
-
-
-# Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
-def truncate_pad(line, num_steps, padding_token):
-    """Truncate or pad sequences."""
-    if len(line) > num_steps:
-        return line[:num_steps]  # Truncate
-    return line + [padding_token] * (num_steps - len(line))  # Pad
-
-
-# Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
-def build_array_nmt(lines, vocab, num_steps):
-    """Transform text sequences of machine translation into minibatches."""
-    lines = [vocab[l] for l in lines]
-    lines = [l + [vocab['<eos>']] for l in lines]
-    array = d2l.tensor([
-        truncate_pad(l, num_steps, vocab['<pad>']) for l in lines])
-    valid_len = d2l.reduce_sum(d2l.astype(array != vocab['<pad>'], d2l.int32),
-                               1)
-    return array, valid_len
-
-
-# Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
-def load_data_nmt(batch_size, num_steps, num_examples=600):
-    """Return the iterator and the vocabularies of the translation dataset."""
-    text = preprocess_nmt(read_data_nmt())
-    source, target = tokenize_nmt(text, num_examples)
-    src_vocab = d2l.Vocab(source, min_freq=2,
-                          reserved_tokens=['<pad>', '<bos>', '<eos>'])
-    tgt_vocab = d2l.Vocab(target, min_freq=2,
-                          reserved_tokens=['<pad>', '<bos>', '<eos>'])
-    src_array, src_valid_len = build_array_nmt(source, src_vocab, num_steps)
-    tgt_array, tgt_valid_len = build_array_nmt(target, tgt_vocab, num_steps)
-    data_arrays = (src_array, src_valid_len, tgt_array, tgt_valid_len)
-    data_iter = d2l.load_array(data_arrays, batch_size)
-    return data_iter, src_vocab, tgt_vocab
-
-
-# Defined in file: ./chapter_attention-mechanisms/attention-cues.md
-def show_heatmaps(matrices, xlabel, ylabel, titles=None, figsize=(2.5, 2.5),
-                  cmap='Reds'):
-    d2l.use_svg_display()
-    num_rows, num_cols = matrices.shape[0], matrices.shape[1]
-    fig, axes = d2l.plt.subplots(num_rows, num_cols, figsize=figsize,
-                                 sharex=True, sharey=True, squeeze=False)
-    for i, (row_axes, row_matrices) in enumerate(zip(axes, matrices)):
-        for j, (ax, matrix) in enumerate(zip(row_axes, row_matrices)):
-            pcm = ax.imshow(d2l.numpy(matrix), cmap=cmap)
-            if i == num_rows - 1:
-                ax.set_xlabel(xlabel)
-            if j == 0:
-                ax.set_ylabel(ylabel)
-            if titles:
-                ax.set_title(titles[j])
-    fig.colorbar(pcm, ax=axes, shrink=0.6)
+    def __exit__(self, *args):
+        print(f'{self.description}: {self.timer.stop():.4f} sec')
 
 
 # Alias defined in config.ini
