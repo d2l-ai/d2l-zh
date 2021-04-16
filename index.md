@@ -10,6 +10,7 @@
 ```toc
 :maxdepth: 1
 
+chapter_preface/index
 chapter_installation/index
 chapter_notation/index
 ```
@@ -27,6 +28,7 @@ chapter_deep-learning-computation/index
 chapter_convolutional-neural-networks/index
 chapter_convolutional-modern/index
 chapter_recurrent-neural-networks/index
+chapter_computational-performance/index
 
 
 ```
