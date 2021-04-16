@@ -133,9 +133,9 @@ import tensorflow as tf
 
 与本书相关，我们已经启动了一个论坛，在[discuss.d2l.ai](https://discuss.d2l.ai/)。当你对本书的任何一节有疑问时，你可以在每一节的末尾找到相关的讨论页链接。
 
-## 确认
+## 致谢
 
-我们感谢数以百计的英文和中文草稿的撰稿人。他们帮助改进了内容或提供了有价值的反馈。特别地，我们要感谢每一位英文稿的撰稿人，感谢他们为大家做得更好。他们的GitHub ID或名称是(没有特定顺序)：alxnorden, avinashingit, bowen0701, brettkoonce, Chaitanya Prakash Bapat,
+我们感谢中英文草稿的数百位撰稿人。他们帮助改进了内容并提供了宝贵的反馈。特别地，我们要感谢这份中文稿的每一位撰稿人，是他们的无私奉献让这本书变得更好。他们的GitHub ID或名称是(没有特定顺序)：alxnorden, avinashingit, bowen0701, brettkoonce, Chaitanya Prakash Bapat,
 cryptonaut, Davide Fiocco, edgarroman, gkutiel, John Mitro, Liang Pu,
 Rahul Agarwal, Mohamed Ali Jamaoui, Michael (Stu) Stewart, Mike Müller,
 NRauschmayr, Prakhar Srivastav, sad-, sfermigier, Sheng Zha, sundeepteki,
@@ -162,7 +162,8 @@ Hoa Nguyen, manuel-arno-korfmann-webentwicklung, aterzis-personal, nxby, Xiaotin
 mathresearch, mzz2017, jroberayalas, iluu, ghejc, BSharmi, vkramdev, simonwardjones, LakshKD,
 TalNeoran, djliden, Nikhil95, Oren Barkan, guoweis, haozhu233, pratikhack, 315930399, tayfununal,
 steinsag, charleybeller, Andrew Lumsdaine, Jiekui Zhang, Deepak Pathak, Florian Donhauser, Tim Gates,
-Adriaan Tijsseling, Ron Medina, Gaurav Saha, Murat Semerci, [Lei Mao](https://github.com/leimao), [Zhu Yuanxiang](https://zhuyuanxiang.github.io)
+Adriaan Tijsseling, Ron Medina, Gaurav Saha, Murat Semerci, [Lei Mao](https://github.com/leimao), [Zhu Yuanxiang](https://zhuyuanxiang.github.io),
+[thebesttv](https://github.com/thebesttv/)。
 
 我们感谢Amazon Web Services，特别是Swami Sivasubramanian、Raju Gulabani、Charlie Bell和Andrew Jassy对撰写本书的慷慨支持。如果没有可用的时间、资源、与同事的讨论和不断的鼓励，这本书就不会出版。
 

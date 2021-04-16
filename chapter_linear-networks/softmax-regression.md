@@ -199,7 +199,7 @@ $$H[P] = \sum_j - P(j) \log P(j).$$
     1. 你能设计一个更好的代码吗？提示：如果我们尝试编码两个独立的观察结果会发生什么？如果我们联合编码 $n$ 个观测值怎么办？
 1. softmax是对上面介绍的映射的误用(但深度学习中的每个人都使用它)。真正的softmax被定义为 $\mathrm{RealSoftMax}(a, b) = \log (\exp(a) + \exp(b))$。
     1. 证明 $\mathrm{RealSoftMax}(a, b) > \mathrm{max}(a, b)$。
-    1. 证明 $\lambda^{-1} \mathrm{RealSoftMax}(\lambda a, \lambda b)$成立，前提是 $\lambda > 0$。
+    1. 证明 $\lambda^{-1} \mathrm{RealSoftMax}(\lambda a, \lambda b) > \mathrm{max}(a, b)$成立，前提是 $\lambda > 0$。
     1. 证明对于 $\lambda \to \infty$ ，有 $\lambda^{-1} \mathrm{RealSoftMax}(\lambda a, \lambda b) \to \mathrm{max}(a, b)$。
     1. soft-min会是什么样子？
     1. 将其扩展到两个以上的数字。
