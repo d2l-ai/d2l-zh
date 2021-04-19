@@ -94,7 +94,7 @@ def net():
 
 我们对原始模型做了一点小改动，去掉了最后一层的高斯激活。除此之外，这个网络与最初的 LeNet-5 一致。
 
-下面，我们将一个大小为 $28 \times 28$ 的单通道（黑白）图像通过 LeNet。 通过在每一层打印输出的形状，我们可以检查模型，以确保其操作与我们期望的 :numref:`img_lenet_vert` 一致。
+下面，我们将一个大小为 $28 \times 28$ 的单通道（黑白）图像通过 LeNet。 通过在每一层打印输出的形状，我们可以[**检查模型**]，以确保其操作与我们期望的 :numref:`img_lenet_vert` 一致。
 
 ![LeNet 的简化版。](../img/lenet-vert.svg)
 :label:`img_lenet_vert`
@@ -132,7 +132,7 @@ for layer in net().layers:
 
 ## 模型训练
 
-现在我们已经实现了 LeNet ，让我们看看这个模型在 Fashion-MNIST 数据集上的表现。
+现在我们已经实现了 LeNet ，让我们看看[**LeNet在Fashion-MNIST数据集上的表现**]。
 
 ```{.python .input}
 #@tab all
@@ -144,7 +144,7 @@ train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size=batch_size)
 如果你有机会使用GPU，可以用它加快训练。
 
 :begin_tab:`mxnet, pytorch`
-为了进行评估，我们需要对 :numref:`sec_softmax_scratch` 中描述的 `evaluate_accuracy` 函数进行轻微的修改。
+为了进行评估，我们需要[**对**] :numref:`sec_softmax_scratch` 中描述的 (**`evaluate_accuracy` 函数进行轻微的修改**)。
 由于完整的数据集位于内存中，因此在模型使用 GPU 计算数据集之前，我们需要将其复制到显存中。
 :end_tab:
 
@@ -181,7 +181,7 @@ def evaluate_accuracy_gpu(net, data_iter, device=None): #@save
     return metric[0] / metric[1]
 ```
 
-为了使用 GPU，我们还需要一点小改动。
+[**为了使用 GPU，我们还需要一点小改动**]。
 与 :numref:`sec_softmax_scratch` 中定义的 `train_epoch_ch3` 不同，在进行正向和反向传播之前，我们需要将每一小批量数据移动到我们指定的设备（例如 GPU）上。
 
 如下所示，训练函数 `train_ch6` 也类似于 :numref:`sec_softmax_scratch` 中定义的 `train_ch3` 。
@@ -318,7 +318,7 @@ def train_ch6(net_fn, train_iter, test_iter, num_epochs, lr, device):
     return net
 ```
 
-现在，我们训练和评估 LeNet-5 模型。
+现在，我们[**训练和评估LeNet-5模型**]。
 
 ```{.python .input}
 #@tab all
