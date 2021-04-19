@@ -42,7 +42,7 @@ $$(n_h-k_h+p_h+1)\times(n_w-k_w+p_w+1)。$$
 3. 输出与输入具有相同高度和宽度
 则可以得出：输出 `Y[i, j]` 是通过以输入 `X[i, j]` 为中心，与卷积核进行互相关计算。
 
-比如，在下面的例子中，我们创建一个高度和宽度为3的二维卷积层，并在所有侧边填充 1 个像素。给定高度和宽度为 $8$ 的输入，则输出的高度和宽度也是 8。
+比如，在下面的例子中，我们(**创建一个高度和宽度为3的二维卷积层，并在所有侧边填充1个像素**)。给定高度和宽度为 $8$ 的输入，则输出的高度和宽度也是 8。
 
 ```{.python .input}
 from mxnet import np, npx
@@ -104,7 +104,7 @@ X = tf.random.uniform(shape=(8, 8))
 comp_conv2d(conv2d, X).shape
 ```
 
-当卷积内核的高度和宽度不同时，我们可以填充不同的高度和宽度，使输出和输入具有相同的高度和宽度。在如下示例中，我们使用高度为 $5$，宽度为 $3$ 的卷积核，高度和宽度两边的填充分别为 $2$ 和 $1$。
+当卷积内核的高度和宽度不同时，我们可以[**填充不同的高度和宽度，使输出和输入具有相同的高度和宽度**]。在如下示例中，我们使用高度为 $5$，宽度为 $3$ 的卷积核，高度和宽度两边的填充分别为 $2$ 和 $1$。
 
 ```{.python .input}
 conv2d = nn.Conv2D(1, kernel_size=(5, 3), padding=(2, 1))
@@ -145,7 +145,7 @@ $$\lfloor(n_h-k_h+p_h+s_h)/s_h\rfloor \times \lfloor(n_w-k_w+p_w+s_w)/s_w\rfloor
 如果我们设置了 $p_h=k_h-1$ 和 $p_w=k_w-1$，则输出形状将简化为 $\lfloor(n_h+s_h-1)/s_h\rfloor \times \lfloor(n_w+s_w-1)/s_w\rfloor$。
 更进一步，如果输入的高度和宽度可以被垂直和水平步幅整除，则输出形状将为 $(n_h/s_h) \times (n_w/s_w)$。
 
-下面，我们将高度和宽度的步幅设置为 $2$，从而将输入的高度和宽度减半。
+下面，我们[**将高度和宽度的步幅设置为2**]，从而将输入的高度和宽度减半。
 
 ```{.python .input}
 conv2d = nn.Conv2D(1, kernel_size=3, padding=1, strides=2)
@@ -164,7 +164,7 @@ conv2d = tf.keras.layers.Conv2D(1, kernel_size=3, padding='same', strides=2)
 comp_conv2d(conv2d, X).shape
 ```
 
-接下来，看一个稍微复杂的例子。
+接下来，看[**一个稍微复杂的例子**]。
 
 ```{.python .input}
 conv2d = nn.Conv2D(1, kernel_size=(3, 5), padding=(0, 1), strides=(3, 4))
