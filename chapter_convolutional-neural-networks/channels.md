@@ -19,7 +19,7 @@
 ![两个输入通道的互相关计算。](../img/conv-multi-in.svg)
 :label:`fig_conv_multi_in`
 
-为了加深理解，我们将多输入通道互相关运算实现一下。
+为了加深理解，我们将(**实现一下多输入通道互相关运算**)。
 简而言之，我们所做的就是对每个通道执行互相关操作，然后将结果相加。
 
 ```{.python .input}
@@ -51,7 +51,7 @@ def corr2d_multi_in(X, K):
     return tf.reduce_sum([d2l.corr2d(x, k) for x, k in zip(X, K)], axis=0)
 ```
 
-我们可以构造与 :numref:`fig_conv_multi_in` 中的值相对应的输入张量 `X` 和核张量 `K`，以验证互相关运算的输出。
+我们可以构造与 :numref:`fig_conv_multi_in` 中的值相对应的输入张量 `X` 和核张量 `K`，以[**验证互相关运算的输出**]。
 
 ```{.python .input}
 #@tab all
@@ -68,7 +68,7 @@ corr2d_multi_in(X, K)
 
 用 $c_i$ 和 $c_o$ 分别表示输入和输出通道的数目，并让 $k_h$ 和 $k_w$ 为卷积核的高度和宽度。为了获得多个通道的输出，我们可以为每个输出通道创建一个形状为 $c_i\times k_h\times k_w$ 的卷积核张量，这样卷积核的形状是 $c_o\times c_i\times k_h\times k_w$。在互相关运算中，每个输出通道先获取所有输入通道，再以对应该输出通道的卷积核计算出结果。
 
-如下所示，我们实现一个计算多个通道的输出的互相关函数。
+如下所示，我们实现一个[**计算多个通道的输出的互相关函数**]。
 
 ```{.python .input}
 #@tab all
@@ -95,7 +95,7 @@ corr2d_multi_in_out(X, K)
 
 ## $1\times 1$ 卷积层
 
-$1 \times 1$ 卷积，即 $k_h = k_w = 1$，看起来似乎没有多大意义。毕竟，卷积的本质是有效提取相邻像素间的相关特征，而 $1 \times 1$ 卷积显然没有此作用。
+[**$1 \times 1$ 卷积**]，即 $k_h = k_w = 1$，看起来似乎没有多大意义。毕竟，卷积的本质是有效提取相邻像素间的相关特征，而 $1 \times 1$ 卷积显然没有此作用。
 尽管如此，$1 \times 1$ 仍然十分流行，时常包含在复杂深层网络的设计中。下面，让我们详细地解读一下它的实际作用。
 
 因为使用了最小窗口，$1\times 1$ 卷积失去了卷积层的特有能力——在高度和宽度维度上，识别相邻元素间相互作用的能力。
@@ -121,7 +121,8 @@ def corr2d_multi_in_out_1x1(X, K):
     c_o = K.shape[0]
     X = d2l.reshape(X, (c_i, h * w))
     K = d2l.reshape(K, (c_o, c_i))
-    Y = d2l.matmul(K, X)  # 全连接层中的矩阵乘法
+    # 全连接层中的矩阵乘法
+    Y = d2l.matmul(K, X)
     return d2l.reshape(Y, (c_o, h, w))
 ```
 
