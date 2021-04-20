@@ -18,9 +18,9 @@ LeNet 被广泛用于自动取款机（ATM）机中，帮助识别处理支票�
 
 ## LeNet
 
-总体来看，(**LeNet（LeNet-5）由两个部分组成：
+总体来看，(**LeNet（LeNet-5）由两个部分组成：**)
 （i）卷积编码器：由两个卷积层组成;
-（ii）全连接层密集块：由三个全连接层组成。**)
+（ii）全连接层密集块：由三个全连接层组成。
 
 该结构在 :numref:`img_lenet` 中所展示。
 
@@ -144,7 +144,7 @@ train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size=batch_size)
 如果你有机会使用GPU，可以用它加快训练。
 
 :begin_tab:`mxnet, pytorch`
-为了进行评估，我们需要[**对**] :numref:`sec_softmax_scratch` 中描述的 (**`evaluate_accuracy` 函数进行轻微的修改**)。
+为了进行评估，我们需要[**对**] :numref:`sec_softmax_scratch` 中描述的 (**`evaluate_accuracy`函数进行轻微的修改**)。
 由于完整的数据集位于内存中，因此在模型使用 GPU 计算数据集之前，我们需要将其复制到显存中。
 :end_tab:
 
