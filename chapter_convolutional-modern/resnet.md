@@ -21,7 +21,7 @@ $$f^*_\mathcal{F} := \mathop{\mathrm{argmin}}_f L(\mathbf{X}, \mathbf{y}, f) \te
 然而，如果 $\mathcal{F} \not\subseteq \mathcal{F}'$，则无法保证新的体系“更近似”。
 事实上， $f^*_{\mathcal{F}'}$ 可能更糟：
 如 :numref:`fig_functionclasses` 所示，对于非嵌套函数（non-nested function）类，较复杂的函数类并不总是向“真”函数 $f^*$ 靠拢（复杂度由 $\mathcal{F}_1$ 向 $\mathcal{F}_6$ 递增）。
-在 :numref:`fig_functionclasses` 的左边，虽然 $\mathcal{F}_3$ 比 $f^*$ 更接近 $f^*$，但$\mathcal{F}_6$ 却离的更远了。
+在 :numref:`fig_functionclasses` 的左边，虽然 $\mathcal{F}_3$ 比 $\mathcal{F}_1$ 更接近 $f^*$，但$\mathcal{F}_6$ 却离的更远了。
 相反对于 :numref:`fig_functionclasses` 右侧的嵌套函数（nested function）类 $\mathcal{F}_1 \subseteq \ldots \subseteq \mathcal{F}_6$，我们可以避免上述问题。
 
 ![对于非嵌套函数类，较复杂（由较大区域表示）的函数类不能保证更接近“真”函数（ $f^*$ ）。这种现象在嵌套函数类中不会发生。](../img/functionclasses.svg)
@@ -35,7 +35,7 @@ $$f^*_\mathcal{F} := \mathop{\mathrm{argmin}}_f L(\mathbf{X}, \mathbf{y}, f) \te
 它在2015年的ImageNet图像识别挑战赛夺魁，并深刻影响了后来的深度神经网络的设计。
 残差网络的核心思想是：每个附加层都应该更容易地包含原始函数作为其元素之一。
 于是，*残差块* （residual blocks） 便诞生了，这个设计对如何建立深层神经网络产生了深远的影响。
-凭借它，ResNet 赢得了 2015 年 ImageNet 大规模视觉识别挑战赛。。
+凭借它，ResNet 赢得了 2015 年 ImageNet 大规模视觉识别挑战赛。
 
 
 ## 残差块
