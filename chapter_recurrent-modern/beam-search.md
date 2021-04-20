@@ -38,8 +38,7 @@ $$y_{t'} = \operatorname*{argmax}_{y \in \mathcal{Y}} P(y \mid y_1, \ldots, y_{t
 *束搜索*（beam search）是贪心搜索的改进版本。它有一个超参数，名为*束宽*（beam size）$k$。
 在时间步1，我们选择具有最高条件概率的$k$个标记。它们中的每一个将分别是$k$个候选输出序列的第一个标记。在随后的每个时间步，基于上一时间步的$k$个候选输出序列，我们继续从$k\left|\mathcal{Y}\right|$个可能的选择中选择具有最高条件概率的$k$个候选输出序列。
 
-![
-束搜索过程（束宽：2，输出序列的最大长度：3）。候选输出序列是$A$、$C$、$AB$、$CE$、$ABD$和$CED$。](../img/beam-search.svg)
+![束搜索过程（束宽：2，输出序列的最大长度：3）。候选输出序列是$A$、$C$、$AB$、$CE$、$ABD$和$CED$。](../img/beam-search.svg)
 :label:`fig_beam-search`
 
 :numref:`fig_beam-search`演示了束搜索的过程。假设输出词表只包含五个元素：$\mathcal{Y} = \{A, B, C, D, E\}$，其中一个是“&lt;eos&gt;”。让束宽为2，输出序列的最大长度为3。在时间步1，假设具有最高条件概率$P(y_1 \mid \mathbf{c})$的标记是$A$和$C$。在时间步2，我们计算所有$y_2 \in \mathcal{Y}$：
