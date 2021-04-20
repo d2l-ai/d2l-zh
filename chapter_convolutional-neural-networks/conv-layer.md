@@ -75,7 +75,7 @@ def corr2d(X, K):  #@save
     return Y
 ```
 
-通过 :numref:`fig_correlation` 的输入张量 `X` 和卷积核张量 `K` ，我们来[**验证一下上述二维互相关运算的输出**]。
+通过 :numref:`fig_correlation` 的输入张量 `X` 和卷积核张量 `K` ，我们来[**验证上述二维互相关运算的输出**]。
 
 ```{.python .input}
 #@tab all
