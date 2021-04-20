@@ -200,7 +200,7 @@ class Seq2SeqDecoder(d2l.Decoder):
         return output, state
 ```
 
-为了说明实现的解码器，下面我们用前面提到的编码器中相同的超参数来实例化它。解码器的输出形状变为（(批量大小, 时间步数, 词表大小)，其中张量的最后一个维度存储预测的标记分布。
+为了说明实现的解码器，下面我们用前面提到的编码器中相同的超参数来实例化它。解码器的输出形状变为（批量大小, 时间步数, 词表大小)，其中张量的最后一个维度存储预测的标记分布。
 
 ```{.python .input}
 decoder = Seq2SeqDecoder(vocab_size=10, embed_size=8, num_hiddens=16,
@@ -436,7 +436,7 @@ def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
     output_seq, attention_weight_seq = [], []
     for _ in range(num_steps):
         Y, dec_state = net.decoder(dec_X, dec_state)
-        # 我们使用具有预测最高可能性的标记作为解码器在下一时间步的输入
+        # 我们使用具有预测最高可能性的标记，作为解码器在下一时间步的输入
         dec_X = Y.argmax(axis=2)
         pred = dec_X.squeeze(axis=0).astype('int32').item()
         # 保存注意力权重（稍后讨论）
@@ -455,7 +455,7 @@ def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
 def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
                     device, save_attention_weights=False):
     """序列到序列模型的预测"""
-    # 在预测时将 `net`设置为评估模式
+    # 在预测时将`net`设置为评估模式
     net.eval()
     src_tokens = src_vocab[src_sentence.lower().split(' ')] + [
         src_vocab['<eos>']]
@@ -472,7 +472,7 @@ def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
     output_seq, attention_weight_seq = [], []
     for _ in range(num_steps):
         Y, dec_state = net.decoder(dec_X, dec_state)
-        # 我们使用具有预测最高可能性的标记作为解码器在下一时间步的输入
+        # 我们使用具有预测最高可能性的标记，作为解码器在下一时间步的输入
         dec_X = Y.argmax(dim=2)
         pred = dec_X.squeeze(dim=0).type(torch.int32).item()
         # 保存注意力权重（稍后讨论）
@@ -533,11 +533,11 @@ for eng, fra in zip(engs, fras):
 
 ## 小结
 
-* 根据编码器-解码器结构的设计，我们可以使用两个循环神经网络来设计一个序列到序列学习的模型。
+* 根据“编码器-解码器”结构的设计，我们可以使用两个循环神经网络来设计一个序列到序列学习的模型。
 * 在实现编码器和解码器时，我们可以使用多层循环神经网络。
 * 我们可以使用遮蔽来过滤不相关的计算，例如在计算损失时。
 * 在编码器-解码器训练中，教师强制方法将原始输出序列（而非预测结果）输入解码器。
-* BLEU是一种常用的评估输出序列的方法，它通过在预测序列和标签序列之间匹配$n$元组来实现。
+* BLEU是一种常用的评估自然语言处理模型的方法，它通过在预测序列和标签序列之间匹配$n$元组来实现。
 
 ## 练习
 
