@@ -1,17 +1,17 @@
 #  序列到序列学习（seq2seq）
 :label:`sec_seq2seq`
 
-正如我们在 :numref:`sec_machine_translation` 中看到的。在机器翻译中，输入和输出都是可变长度的序列。为了解决这类问题，我们在 :numref:`sec_encoder-decoder` 中设计了一个通用的编码器-解码器结构。在本节中，我们将使用两个循环神经网络来设计此编码器-解码器结构，并将其应用于机器翻译 :cite:`Sutskever.Vinyals.Le.2014,Cho.Van-Merrienboer.Gulcehre.ea.2014` 的*序列到序列*（sequence to sequence）学习。
+正如我们在 :numref:`sec_machine_translation` 中看到的。在机器翻译中，输入序列和输出序列都是长度可变的。为了解决这类问题，我们在 :numref:`sec_encoder-decoder` 中设计了一个通用的”编码器－解码器“结构。在本节中，我们将使用两个 RNN 来设计此“编码器－解码器”结构，并将其应用于机器翻译 :cite:`Sutskever.Vinyals.Le.2014,Cho.Van-Merrienboer.Gulcehre.ea.2014` 的*序列到序列*（sequence to sequence）学习。
 
-循环神经网络编码器遵循编码器-解码器结构的设计原则，以可变长度序列作为输入，将其转换为固定形状的隐藏状态。换言之，输入（源）序列的信息在循环神经网络编码器的隐藏状态下被*编码*。为了逐个标记地生成输出序列标记，单独的循环神经网络解码器可以基于已经看到的标记（例如在语言模型任务中）或生成的标记以及输入序列的编码信息来预测下一标记。 :numref:`fig_seq2seq` 演示了如何在机器翻译中使用两个循环神经网络进行序列到序列学习。
+遵循“编码器－解码器”结构的设计原则，RNN 编码器可以使用长度可变的序列作为输入，将其转换为固定形状的隐藏状态。换言之，输入序列（源）的信息被 *编码* 到 RNN 编码器的隐藏状态中。为了一个接着一个的生成输出序列的标记，独立的 RNN 解码器是基于输入序列的编码信息和输出序列已经生成的标记（例如在语言模型的任务中）来预测下一个标记。 :numref:`fig_seq2seq` 演示了如何在机器翻译伤中使用两个 RNN 进行序列到序列学习。
 
 ![使用循环神经网络编码器和循环神经网络解码器的序列到序列学习。](../img/seq2seq.svg)
 :label:`fig_seq2seq`
 
-在 :numref:`fig_seq2seq` 中，特殊的“&lt;eos&gt;”标记表示序列的结束。一旦生成此标记，模型就可以停止进行预测。在循环神经网络解码器的初始时间步，有两个特殊的设计决策。首先，特殊序列开始标记“&lt;bos&gt;”是第一个输入。其次，使用循环神经网络编码器的最终隐藏状态来启动解码器的隐藏状态。在如 :cite:`Sutskever.Vinyals.Le.2014` 的设计中，编码器的最终隐藏状态也作为在每个时间步长的输入的一部分馈送到解码器中，如 :numref:`fig_seq2seq` 所示。类似于 :numref:`sec_language_model` 中的语言模型训练，我们可以允许标签是原始的输出序列，移位一个标“&lt;bos&gt;”、“Ils”、“regardent”、“.” $\rightarrow$
-“Ils”、“regardent”、“.”、“&lt;eos&gt;”。
+在 :numref:`fig_seq2seq` 中，特定的“&lt;eos&gt;”表示*序列结束标记*。一旦输出序列生成此标记，模型就可以停止执行预测。在 RNN 解码器的初始化时间步，有两个特定的设计决定。首先，特定的“&lt;bos&gt;”表示*序列开始标记*，它是解码器的输入序列的第一个标记。其次，使用 RNN 编码器最终的隐藏状态来初始化解码器的隐藏状态。在例如 :cite:`Sutskever.Vinyals.Le.2014` 的设计中，正是基于这种设计将输入序列的编码信息送入到解码器中来生成输出序列（目标）的。在其他一些例如 :cite:`Cho.Van-Merrienboer.Gulcehre.ea.2014` 的设计中，在每个时间步中，编码器最终的隐藏状态都作为解码器的输入序列的一部分，如 :numref:`fig_seq2seq` 所示。类似于 :numref:`sec_language_model` 中训练的语言模型，可以允许标签成为原始的输出序列，基于一个个标记“&lt;bos&gt;”、“Ils”、“regardent”、“.” $\rightarrow$
+“Ils”、“regardent”、“.”、“&lt;eos&gt;”来移动预测的位置。
 
-下面，我们将对 :numref:`fig_seq2seq` 的设计进行更详细的说明。我们将在 :numref:`sec_machine_translation` 中介绍的英-法数据集上训练这个机器翻译模型。
+下面，我们将对 :numref:`fig_seq2seq` 的设计进行更详细的解释，并且将在 :numref:`sec_machine_translation` 中介绍的“英－法”数据集上训练这个机器翻译模型。
 
 ```{.python .input}
 import collections
