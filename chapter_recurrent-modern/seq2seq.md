@@ -3,9 +3,9 @@
 
 正如我们在 :numref:`sec_machine_translation` 中看到的。在机器翻译中，输入序列和输出序列都是长度可变的。为了解决这类问题，我们在 :numref:`sec_encoder-decoder` 中设计了一个通用的”编码器－解码器“结构。在本节中，我们将使用两个 RNN 来设计此“编码器－解码器”结构，并将其应用于机器翻译 :cite:`Sutskever.Vinyals.Le.2014,Cho.Van-Merrienboer.Gulcehre.ea.2014` 的*序列到序列*（sequence to sequence）学习。
 
-遵循“编码器－解码器”结构的设计原则，RNN 编码器可以使用长度可变的序列作为输入，将其转换为固定形状的隐藏状态。换言之，输入序列（源）的信息被 *编码* 到 RNN 编码器的隐藏状态中。为了一个接着一个的生成输出序列的标记，独立的 RNN 解码器是基于输入序列的编码信息和输出序列已经生成的标记（例如在语言模型的任务中）来预测下一个标记。 :numref:`fig_seq2seq` 演示了如何在机器翻译伤中使用两个 RNN 进行序列到序列学习。
+遵循“编码器－解码器”结构的设计原则，RNN 编码器可以使用长度可变的序列作为输入，将其转换为形状固定的隐藏状态。换言之，输入序列（源）的信息被 *编码* 到 RNN 编码器的隐藏状态中。为了一个接着一个的生成输出序列的标记，独立的 RNN 解码器是基于输入序列的编码信息和输出序列已经生成的标记（例如在语言模型的任务中）来预测下一个标记。 :numref:`fig_seq2seq` 演示了如何在机器翻译伤中使用两个 RNN 进行序列到序列学习。
 
-![使用循环神经网络编码器和循环神经网络解码器的序列到序列学习。](../img/seq2seq.svg)
+![使用 RNN 编码器和 RNN 解码器的序列到序列学习。](../img/seq2seq.svg)
 :label:`fig_seq2seq`
 
 在 :numref:`fig_seq2seq` 中，特定的“&lt;eos&gt;”表示*序列结束标记*。一旦输出序列生成此标记，模型就可以停止执行预测。在 RNN 解码器的初始化时间步，有两个特定的设计决定。首先，特定的“&lt;bos&gt;”表示*序列开始标记*，它是解码器的输入序列的第一个标记。其次，使用 RNN 编码器最终的隐藏状态来初始化解码器的隐藏状态。在例如 :cite:`Sutskever.Vinyals.Le.2014` 的设计中，正是基于这种设计将输入序列的编码信息送入到解码器中来生成输出序列（目标）的。在其他一些例如 :cite:`Cho.Van-Merrienboer.Gulcehre.ea.2014` 的设计中，在每个时间步中，编码器最终的隐藏状态都作为解码器的输入序列的一部分，如 :numref:`fig_seq2seq` 所示。类似于 :numref:`sec_language_model` 中训练的语言模型，可以允许标签成为原始的输出序列，基于一个个标记“&lt;bos&gt;”、“Ils”、“regardent”、“.” $\rightarrow$
@@ -33,21 +33,21 @@ from torch import nn
 
 ## 编码器
 
-从技术上讲，编码器将可变长度的输入序列转换成固定形状的*上下文变量*$\mathbf{c}$，并且在该上下文变量中编码输入序列信息。如:numref:`fig_seq2seq`所示，我们可以使用循环神经网络来设计编码器。
+从技术上讲，编码器将长度可变的输入序列转换成形状固定的 *上下文变量* $\mathbf{c}$，并且将输入序列的信息在该上下文变量中进行编码。如:numref:`fig_seq2seq`所示，可以使用 RNN 来设计编码器。
 
-让我们考虑一个序列样本（批量大小：1）。假设输入序列是$x_1, \ldots, x_T$，其中$x_t$是输入文本序列中的第$t$个标记。在时间步$t$，循环神经网络将用于$x_t$的输入特征向量$\mathbf{x}_t$和来自上一时间步的隐藏状态$\mathbf{h} _{t-1}$转换为当前隐藏状态$\mathbf{h}_t$。我们可以用一个函数$f$来表示循环神经网络层所做的变换：
+让我们考虑一个序列样本（批量大小：1）。假设输入序列是 $x_1, \ldots, x_T$，其中 $x_t$ 是输入文本序列中的第 $t$ 个标记。在时间步 $t$， RNN 将 $x_t$（即输入特征向量 $\mathbf{x}_t$）和 $\mathbf{h} _{t-1}$（即上一时间步的隐藏状态）转换为 $\mathbf{h}_t$（即当前隐藏状态）。使用一个函数 $f$ 来描述 RNN 层所做的变换：
 
 $$\mathbf{h}_t = f(\mathbf{x}_t, \mathbf{h}_{t-1}). $$
 
-通常，编码器通过定制函数$q$将所有时间步的隐藏状态转换为上下文变量：
+总之，编码器通过选定的函数 $q$ 将所有时间步的隐藏状态转换为上下文变量：
 
 $$\mathbf{c} =  q(\mathbf{h}_1, \ldots, \mathbf{h}_T).$$
 
-例如，当选择$q(\mathbf{h}_1, \ldots, \mathbf{h}_T) = \mathbf{h}_T$时（例如在:numref:`fig_seq2seq`中），上下文变量仅仅是输入序列在最后时间步的隐藏状态$\mathbf{h}_T$。
+例如，当选择 $q(\mathbf{h}_1, \ldots, \mathbf{h}_T) = \mathbf{h}_T$ 时（例如在:numref:`fig_seq2seq`中），上下文变量仅仅是输入序列在最后时间步的隐藏状态 $\mathbf{h}_T$。
 
-到目前为止，我们已经使用了一个单向循环神经网络来设计编码器，其中隐藏状态只依赖于隐藏状态的时间步处和之前的输入子序列。我们也可以使用双向循环神经网络构造编码器。在这种情况下，隐藏状态取决于时间步前后的子序列（包括当前时间步处的输入），该子序列对整个序列的信息进行编码。
+到目前为止，我们使用的是一个单向 RNN 来设计编码器，其中隐藏状态只依赖于输入子序列，这个子序列是由输入序列的开始位置到隐藏状态所在的时间步的位置（包括隐藏状态所在的时间步）组成。我们也可以使用双向 RNN 构造编码器，其中隐藏状态依赖于两个输入子序列，两个子序列是由隐藏状态所在的时间步的位置之前的序列和之后的序列（包括隐藏状态所在的时间步），因此隐藏状态对整个序列的信息都进行了编码。
 
-现在让我们实现循环神经网络编码器。注意，我们使用*嵌入层*（embedding layer）来获得输入序列中每个标记的特征向量。嵌入层的权重是一个矩阵，其行数等于输入词表的大小（`vocab_size`），列数等于特征向量的维数（`embed_size`）。对于任何输入标记索引$i$，嵌入层获取权重矩阵的第$i$行（从0开始）以返回其特征向量。另外，本文选择了一个多层门控循环单元来实现编码器。
+现在，让我们实现 RNN 编码器。注意，我们使用了 *嵌入层*（embedding layer）来获得输入序列中每个标记的特征向量。嵌入层的权重是一个矩阵，其行数等于输入词表的大小（`vocab_size`），列数等于特征向量的维度（`embed_size`）。对于任何输入标记的索引 $i$，嵌入层获取权重矩阵的第 $i$ 行（从 $0$ 开始）以返回其特征向量。另外，本文选择了一个多层 GRU 来实现编码器。
 
 ```{.python .input}
 #@save
@@ -63,7 +63,7 @@ class Seq2SeqEncoder(d2l.Encoder):
     def forward(self, X, *args):
         # 输出'X'的形状：(`batch_size`, `num_steps`, `embed_size`)
         X = self.embedding(X)
-        # 在循环神经网络模型中，第一个轴对应于时间步长
+        # 在 RNN 模型中，第一个轴对应于时间步
         X = X.swapaxes(0, 1)
         state = self.rnn.begin_state(batch_size=X.shape[1], ctx=X.ctx)
         output, state = self.rnn(X, state)
@@ -88,16 +88,16 @@ class Seq2SeqEncoder(d2l.Encoder):
     def forward(self, X, *args):
         # 输出'X'的形状：(`batch_size`, `num_steps`, `embed_size`)
         X = self.embedding(X)
-        # 在循环神经网络模型中，第一个轴对应于时间步长
+        # 在 RNN 模型中，第一个轴对应于时间步
         X = X.permute(1, 0, 2)
         # 如果未提及状态，则默认为0
         output, state = self.rnn(X)
-        # `output`维度: (`num_steps`, `batch_size`, `num_hiddens`)
-        # `state[0]`维度: (`num_layers`, `batch_size`, `num_hiddens`)
+        # `output`的形状: (`num_steps`, `batch_size`, `num_hiddens`)
+        # `state[0]`的形状: (`num_layers`, `batch_size`, `num_hiddens`)
         return output, state
 ```
 
-循环神经网络层的返回变量已在 :numref:`sec_rnn-concise` 中解释。让我们仍然使用一个具体的例子来说明上述编码器实现。下面我们将实例化一个隐藏单元数为16的两层门控循环单元编码器。给定一小批量序列输入`X`（批量大小：4，时间步：7），所有时间步最后一层的隐藏状态（`output`由编码器的循环神经网络层返回）是形状为(时间步数, 批大小, 隐藏单元数)的张量。
+RNN 层返回变量的解释可以参考 :numref:`sec_rnn-concise` 。让我们使用一个具体的例子来说明上述编码器的实现。下面将实例化一个隐藏单元数为 $16$ 的两层 GRU 编码器。给定一小批量序列输入`X`（批量大小：4，时间步：7），最后一层的隐藏状态在完成所有时间步后输出是一个张量（`output`由编码器的 RNN 层返回），其形状为（时间步数, 批量大小, 隐藏单元数）。
 
 ```{.python .input}
 encoder = Seq2SeqEncoder(vocab_size=10, embed_size=8, num_hiddens=16,
@@ -118,7 +118,7 @@ output, state = encoder(X)
 output.shape
 ```
 
-由于这里使用门控循环单元，所以在最后一个时间步的多层隐藏状态的形状是(隐藏层的数量, 批量大小, 隐藏单元的数量)。如果使用长短期记忆网络，`state`中还将包含记忆单元信息。
+由于这里使用的是 GRU，所以在最后一个时间步的多层隐藏状态的形状是（隐藏层的数量, 批量大小, 隐藏单元的数量）。如果使用 LSTM，`state`中还将包含记忆单元信息。
 
 ```{.python .input}
 len(state), state[0].shape
@@ -134,18 +134,18 @@ state.shape
 
 正如我们刚才提到的，编码器输出的上下文变量$\mathbf{c}$对整个输入序列$x_1, \ldots, x_T$进行编码。给定来自训练数据集的输出序列$y_1, y_2, \ldots, y_{T'}$，对于每个时间步$t'$（与输入序列或编码器的时间步$t$不同），解码器输出$y_{t'}$的概率取决于先前的输出子序列$y_1, \ldots, y_{t'-1}$和上下文变量$\mathbf{c}$，即$P(y_{t'} \mid y_1, \ldots, y_{t'-1}, \mathbf{c})$。
 
-为了在序列上模拟这种条件概率，我们可以使用另一个循环神经网络作为解码器。在输出序列上的任何时间步$t^\prime$，循环神经网络将来自上一时间步的输出$y_{t^\prime-1}$和上下文变量$\mathbf{c}$作为其输入，然后在当前时间步将它们和上一隐藏状态$\mathbf{s}_{t^\prime-1}$转换为隐藏状态$\mathbf{s}_{t^\prime}$。因此，我们可以使用函数$g$来表示解码器的隐藏层的变换：
+为了在序列上模拟这种条件概率，我们可以使用另一个 RNN 作为解码器。在输出序列上的任何时间步$t^\prime$， RNN 将来自上一时间步的输出$y_{t^\prime-1}$和上下文变量$\mathbf{c}$作为其输入，然后在当前时间步将它们和上一隐藏状态$\mathbf{s}_{t^\prime-1}$转换为隐藏状态$\mathbf{s}_{t^\prime}$。因此，我们可以使用函数$g$来表示解码器的隐藏层的变换：
 
 $$\mathbf{s}_{t^\prime} = g(y_{t^\prime-1}, \mathbf{c}, \mathbf{s}_{t^\prime-1}).$$
 :eqlabel:`eq_seq2seq_s_t`
 
 在获得解码器的隐藏状态之后，我们可以使用输出层和softmax操作来计算时间步$t^\prime$处的输出的条件概率分布$P(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \mathbf{c})$。
 
-根据 :numref:`fig_seq2seq`，当实现解码器时，我们直接使用编码器最后一个时间步的隐藏状态来初始化解码器的隐藏状态。这要求循环神经网络编码器和循环神经网络解码器具有相同数量的层和隐藏单元。为了进一步合并经编码的输入序列信息，上下文变量在所有时间步处与解码器输入串联。为了预测输出标记的概率分布，在循环神经网络解码器的最后一层使用全连接层来变换隐藏状态。
+根据 :numref:`fig_seq2seq`，当实现解码器时，我们直接使用编码器最后一个时间步的隐藏状态来初始化解码器的隐藏状态。这要求 RNN 编码器和 RNN 解码器具有相同数量的层和隐藏单元。为了进一步合并经编码的输入序列信息，上下文变量在所有时间步处与解码器输入串联。为了预测输出标记的概率分布，在 RNN 解码器的最后一层使用全连接层来变换隐藏状态。
 
 ```{.python .input}
 class Seq2SeqDecoder(d2l.Decoder):
-    """用于序列到序列学习的循环神经网络解码器。"""
+    """用于序列到序列学习的 RNN 解码器。"""
     def __init__(self, vocab_size, embed_size, num_hiddens, num_layers,
                  dropout=0, **kwargs):
         super(Seq2SeqDecoder, self).__init__(**kwargs)
@@ -221,9 +221,9 @@ output, state = decoder(X, state)
 output.shape, state.shape
 ```
 
-总之，上述循环神经网络编码器-解码器模型中的各层如 :numref:`fig_seq2seq_details` 所示。
+总之，上述 RNN 编码器-解码器模型中的各层如 :numref:`fig_seq2seq_details` 所示。
 
-![循环神经网络编码器-解码器模型中的层。](../img/seq2seq-details.svg)
+![ RNN 编码器-解码器模型中的层。](../img/seq2seq-details.svg)
 :label:`fig_seq2seq_details`
 
 ## 损失函数
@@ -392,7 +392,7 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
           f'tokens/sec on {str(device)}')
 ```
 
-现在在机器翻译数据集上，我们可以创建和训练一个循环神经网络编码器-解码器模型，用于序列到序列的学习。
+现在在机器翻译数据集上，我们可以创建和训练一个 RNN 编码器-解码器模型，用于序列到序列的学习。
 
 ```{.python .input}
 #@tab all
@@ -413,7 +413,7 @@ train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
 
 为了逐个标记地预测输出序列标记，在每个解码器时间步处，将来自前一时间步的预测标记作为输入送入解码器。与训练类似，在初始时间步，序列开始标记（“&lt;bos&gt;”）被馈送到解码器。该预测过程如:numref:`fig_seq2seq_predict`所示。当序列结束标记（“&lt;eos&gt;”）被预测时，输出序列的预测就完成了。
 
-![使用循环神经网络编码器-解码器逐标记地预测输出序列。](../img/seq2seq-predict.svg)
+![使用 RNN 编码器-解码器逐标记地预测输出序列。](../img/seq2seq-predict.svg)
 :label:`fig_seq2seq_predict`
 
 我们将在 :numref:`sec_beam-search` 中介绍不同的序列生成策略。
@@ -519,7 +519,7 @@ def bleu(pred_seq, label_seq, k):  #@save
     return score
 ```
 
-最后，利用训练好的循环神经网络编码器-解码器模型将几个英语句子翻译成法语，并计算结果的BLEU。
+最后，利用训练好的 RNN 编码器-解码器模型将几个英语句子翻译成法语，并计算结果的BLEU。
 
 ```{.python .input}
 #@tab all
@@ -533,8 +533,8 @@ for eng, fra in zip(engs, fras):
 
 ## 小结
 
-* 根据“编码器-解码器”结构的设计，我们可以使用两个循环神经网络来设计一个序列到序列学习的模型。
-* 在实现编码器和解码器时，我们可以使用多层循环神经网络。
+* 根据“编码器-解码器”结构的设计，我们可以使用两个 RNN 来设计一个序列到序列学习的模型。
+* 在实现编码器和解码器时，我们可以使用多层 RNN 。
 * 我们可以使用遮蔽来过滤不相关的计算，例如在计算损失时。
 * 在编码器-解码器训练中，教师强制方法将原始输出序列（而非预测结果）输入解码器。
 * BLEU是一种常用的评估自然语言处理模型的方法，它通过在预测序列和标签序列之间匹配$n$元组来实现。
