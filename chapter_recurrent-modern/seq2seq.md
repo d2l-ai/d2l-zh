@@ -316,7 +316,7 @@ loss(d2l.ones(3, 4, 10), d2l.ones((3, 4), dtype=torch.long),
 ## 训练
 :label:`sec_seq2seq_training`
 
-在下面的训练代码实现中，我们将特殊的序列开始标记和原始输出序列（不包括序列结束标记）连结，作为解码器的输入，如 :numref:`fig_seq2seq` 所示。这被称为“教师强制”（teacher forcing），因为原始输出序列（标记标签）被送入解码器。或者，我们也可以将来自上一时间步的*预测*得到的标记作为当前输入送到解码器。
+在下面的循环训练过程中，如 :numref:`fig_seq2seq` 所示，特定的序列开始标记和原始的输出序列（不包括序列结束标记）拼接在一起作为解码器的输入。这被称为“教师强制”（teacher forcing），因为原始的输出序列（标记标签）被送入解码器。或者，将来自上一个时间步的 *预测* 得到的标记作为解码器的当前输入。
 
 ```{.python .input}
 #@save
@@ -330,13 +330,13 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
                             xlim=[10, num_epochs])
     for epoch in range(num_epochs):
         timer = d2l.Timer()
-        metric = d2l.Accumulator(2)  # 训练损失总和，标记数量
+        metric = d2l.Accumulator(2)  # 训练损失求和，标记数量
         for batch in data_iter:
             X, X_valid_len, Y, Y_valid_len = [
                 x.as_in_ctx(device) for x in batch]
-            bos = np.array(
-                [tgt_vocab['<bos>']] * Y.shape[0], ctx=device).reshape(-1, 1)
-            dec_input = d2l.concat([bos, Y[:, :-1]], 1)  # 教师强制
+            bos = np.array([tgt_vocab['<bos>']] * Y.shape[0], 
+                       ctx=device).reshape(-1, 1)
+            dec_input = np.concatenate([bos, Y[:, :-1]], 1)  # 教师强制
             with autograd.record():
                 Y_hat, _ = net(X, dec_input, X_valid_len)
                 l = loss(Y_hat, Y, Y_valid_len)
@@ -348,7 +348,7 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
         if (epoch + 1) % 10 == 0:
             animator.add(epoch + 1, (metric[0] / metric[1],))
     print(f'loss {metric[0] / metric[1]:.3f}, {metric[1] / timer.stop():.1f} '
-          f'tokens/sec on {str(device)}')
+        f'tokens/sec on {str(device)}')
 ```
 
 ```{.python .input}
@@ -363,24 +363,25 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
             for param in m._flat_weights_names:
                 if "weight" in param:
                     nn.init.xavier_uniform_(m._parameters[param])
+
     net.apply(xavier_init_weights)
     net.to(device)
     optimizer = torch.optim.Adam(net.parameters(), lr=lr)
     loss = MaskedSoftmaxCELoss()
     net.train()
     animator = d2l.Animator(xlabel='epoch', ylabel='loss',
-                            xlim=[10, num_epochs])
+                     xlim=[10, num_epochs])
     for epoch in range(num_epochs):
         timer = d2l.Timer()
         metric = d2l.Accumulator(2)  # 训练损失总和，标记数量
         for batch in data_iter:
             X, X_valid_len, Y, Y_valid_len = [x.to(device) for x in batch]
             bos = torch.tensor([tgt_vocab['<bos>']] * Y.shape[0],
-                               device=device).reshape(-1, 1)
-            dec_input = d2l.concat([bos, Y[:, :-1]], 1)  # 教师强制
+                          device=device).reshape(-1, 1)
+            dec_input = torch.cat([bos, Y[:, :-1]], 1)  # 教师强制
             Y_hat, _ = net(X, dec_input, X_valid_len)
             l = loss(Y_hat, Y, Y_valid_len)
-            l.sum().backward()
+            l.sum().backward()	# 损失函数的标量进行“反传”
             d2l.grad_clipping(net, 1)
             num_tokens = Y_valid_len.sum()
             optimizer.step()
@@ -389,10 +390,10 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
         if (epoch + 1) % 10 == 0:
             animator.add(epoch + 1, (metric[0] / metric[1],))
     print(f'loss {metric[0] / metric[1]:.3f}, {metric[1] / timer.stop():.1f} '
-          f'tokens/sec on {str(device)}')
+        f'tokens/sec on {str(device)}')
 ```
 
-现在在机器翻译数据集上，我们可以创建和训练一个 RNN 编码器-解码器模型，用于序列到序列的学习。
+现在，在机器翻译数据集上，我们可以创建和训练一个 RNN “编码器－解码器”模型用于序列到序列的学习。
 
 ```{.python .input}
 #@tab all
@@ -401,10 +402,10 @@ batch_size, num_steps = 64, 10
 lr, num_epochs, device = 0.005, 300, d2l.try_gpu()
 
 train_iter, src_vocab, tgt_vocab = d2l.load_data_nmt(batch_size, num_steps)
-encoder = Seq2SeqEncoder(
-    len(src_vocab), embed_size, num_hiddens, num_layers, dropout)
-decoder = Seq2SeqDecoder(
-    len(tgt_vocab), embed_size, num_hiddens, num_layers, dropout)
+encoder = Seq2SeqEncoder(len(src_vocab), embed_size, num_hiddens, num_layers, 
+                 　dropout)
+decoder = Seq2SeqDecoder(len(tgt_vocab), embed_size, num_hiddens, num_layers, 
+                  dropout)
 net = d2l.EncoderDecoder(encoder, decoder)
 train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
 ```
