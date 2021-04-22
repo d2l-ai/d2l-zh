@@ -132,14 +132,14 @@ state.shape
 ## 解码器
 :label:`sec_seq2seq_decoder`
 
-正如上文提到的，编码器输出的上下文变量 $\mathbf{c}$ 对整个输入序列 $x_1, \ldots, x_T$ 进行编码。来自训练数据集的输出序列 $y_1, y_2, \ldots, y_{T'}$，对于每个时间步 $t'$（与输入序列或编码器的时间步 $t$ 不同），解码器输出 $y_{t'}$ 的概率取决于先前的输出子序列 $y_1, \ldots, y_{t'-1}$ 和上下文变量 $\mathbf{c}$，即 $P(y_{t'} \mid y_1, \ldots, y_{t'-1}, \mathbf{c})$。
+正如上文提到的，编码器输出的上下文变量 $\mathbf{c}$ 对整个输入序列 $x_1, \ldots, x_T$ 进行编码。来自训练数据集的输出序列 $y_1, y_2, \ldots, y_{T'}$，对于每个时间步 $t'$（与输入序列或编码器的时间步 $t$ 不同），解码器输出 $y_{t'}$ 的概率取决于先前的输出子序列 $y_1, \ldots, y_{t'-1}$ 和上下文变量 $\mathbf{c}$，即 $P(y_{t'} \mid y_1, \ldots, y_{t'-1}, \mathbf{c})$。
 
-为了在序列上将这种条件概率模型化，我们可以使用另一个 RNN 作为解码器。在输出序列上的任何时间步 $t^\prime$， RNN 将来自上一时间步的输出 $y_{t^\prime-1}$ 和上下文变量 $\mathbf{c}$ 作为其输入，然后在当前时间步将它们和上一隐藏状态 $\mathbf{s}_{t^\prime-1}$ 转换为隐藏状态 $\mathbf{s}_{t^\prime}$。因此，可以使用函数 $g$ 来表示解码器的隐藏层的变换：
+为了在序列上将这种条件概率模型化，我们可以使用另一个 RNN 作为解码器。在输出序列上的任何时间步 $t^\prime$， RNN 将来自上一时间步的输出 $y_{t^\prime-1}$ 和上下文变量 $\mathbf{c}$ 作为其输入，然后在当前时间步将它们和上一隐藏状态 $\mathbf{s}_{t^\prime-1}$ 转换为隐藏状态 $\mathbf{s}_{t^\prime}$。因此，可以使用函数 $g$ 来表示解码器的隐藏层的变换：
 
 $$\mathbf{s}_{t^\prime} = g(y_{t^\prime-1}, \mathbf{c}, \mathbf{s}_{t^\prime-1}).$$
 :eqlabel:`eq_seq2seq_s_t`
 
-在获得解码器的隐藏状态之后，我们可以使用输出层和 softmax 操作来计算时间步 $t^\prime$ 处输出的条件概率分布 $P(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \mathbf{c})$。
+在获得解码器的隐藏状态之后，我们可以使用输出层和 softmax 操作来计算时间步 $t^\prime$ 处输出的条件概率分布 $P(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \mathbf{c})$。
 
 根据 :numref:`fig_seq2seq`，当实现解码器时，我们直接使用编码器最后一个时间步的隐藏状态来初始化解码器的隐藏状态。这就要求 RNN 编码器和 RNN 解码器具有相同数量的层和隐藏单元。为了进一步包含经过编码的输入序列的信息，上下文变量在所有的时间步与解码器的输入进行拼接（concatenate）。为了预测输出标记的概率分布，在 RNN 解码器的最后一层使用全连接层来变换隐藏状态。
 
@@ -228,9 +228,9 @@ output.shape, state.shape
 
 ## 损失函数
 
-在每个时间步，解码器预测输出令牌的概率分布。类似于语言模型，我们可以使用softmax来获得分布，并计算交叉熵损失进行优化。回想一下 :numref:`sec_machine_translation` ，特殊的填充标记被附加到序列的末尾，因此不同长度的序列可以以相同形状的小批量加载。但是，应该将填充令牌的预测排除在损失计算之外。
+在每个时间步，解码器预测输出标记的概率分布。类似于语言模型，可以使用 softmax 来获得分布，并计算交叉熵损失函数来进行优化。回想一下 :numref:`sec_machine_translation` ，特定的填充标记被添加到序列的末尾，因此不同长度的序列可以以相同形状的小批量加载。但是，应该将填充标记的预测排除在损失计算之外。
 
-为此，我们可以使用下面的`sequence_mask`函数用零值屏蔽不相关的项，以便以后任何不相关的预测与零的乘积等于零。例如，如果两个序列（不包括填充标记）的有效长度分别为1和2，则第一项和前两项之后的剩余项将被清除为零。
+为此，我们可以使用下面的`sequence_mask`函数用零值屏蔽不相关的项，以便后面计算任何不相关的预测与零的乘积都等于零。例如，如果两个序列的有效长度（不包括填充标记）分别为1和2，则第一项和前两项之后的剩余项将被清除为零。
 
 ```{.python .input}
 X = np.array([[1, 2, 3], [4, 5, 6]])
@@ -252,7 +252,7 @@ X = torch.tensor([[1, 2, 3], [4, 5, 6]])
 sequence_mask(X, torch.tensor([1, 2]))
 ```
 
-我们还可以屏蔽最后几个轴上的所有项。如果愿意，也可以指定用非零值替换这些条目。
+我们还可以屏蔽最后几个轴上的所有项。如果愿意，也可以指定使用用非零值来替换这些条目。
 
 ```{.python .input}
 X = d2l.ones((2, 3, 4))
@@ -265,12 +265,12 @@ X = d2l.ones(2, 3, 4)
 sequence_mask(X, torch.tensor([1, 2]), value=-1)
 ```
 
-现在我们可以扩展softmax交叉熵损失来遮蔽不相关的预测。最初，所有预测标记的掩码都设置为1。一旦给定了有效长度，与填充标记对应的掩码将被设置为0。最后，将所有标记的损失乘以掩码，以过滤掉损失中填充标记的不相关预测。
+现在，我们可以通过扩展 softmax 交叉熵损失函数来遮蔽不相关的预测。最初，所有预测标记的掩码都设置为1。一旦给定了有效长度，与填充标记对应的掩码将被设置为0。最后，将所有标记的损失乘以掩码，以过滤掉损失中填充标记的不相关预测。
 
 ```{.python .input}
 #@save
 class MaskedSoftmaxCELoss(gluon.loss.SoftmaxCELoss):
-    """The softmax cross-entropy loss with masks."""
+    """带遮蔽的 softmax 交叉熵损失函数"""
     # `pred` 的形状：(`batch_size`, `num_steps`, `vocab_size`)
     # `label` 的形状：(`batch_size`, `num_steps`)
     # `valid_len` 的形状：(`batch_size`,)
@@ -285,7 +285,7 @@ class MaskedSoftmaxCELoss(gluon.loss.SoftmaxCELoss):
 #@tab pytorch
 #@save
 class MaskedSoftmaxCELoss(nn.CrossEntropyLoss):
-    """The softmax cross-entropy loss with masks."""
+    """带遮蔽的 softmax 交叉熵损失函数"""
     # `pred` 的形状：(`batch_size`, `num_steps`, `vocab_size`)
     # `label` 的形状：(`batch_size`, `num_steps`)
     # `valid_len` 的形状：(`batch_size`,)
