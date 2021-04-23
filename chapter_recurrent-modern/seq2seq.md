@@ -316,7 +316,7 @@ loss(d2l.ones(3, 4, 10), d2l.ones((3, 4), dtype=torch.long),
 ## 训练
 :label:`sec_seq2seq_training`
 
-在下面的循环训练过程中，如 :numref:`fig_seq2seq` 所示，特定的序列开始标记和原始的输出序列（不包括序列结束标记）拼接在一起作为解码器的输入。这被称为“教师强制”（teacher forcing），因为原始的输出序列（标记标签）被送入解码器。或者，将来自上一个时间步的 *预测* 得到的标记作为解码器的当前输入。
+在下面的循环训练过程中，如 :numref:`fig_seq2seq` 所示，特定的序列开始标记和原始的输出序列（不包括序列结束标记）拼接在一起作为解码器的输入。这被称为“教师强制”（teacher forcing），因为原始的输出序列（标记标签）被送入解码器。或者，将来自上一个时间步的 *预测* 得到的标记作为解码器的当前输入。
 
 ```{.python .input}
 #@save
@@ -412,7 +412,7 @@ train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
 
 ## 预测
 
-为了逐个标记地预测输出序列标记，在每个解码器时间步处，将来自前一时间步的预测标记作为输入送入解码器。与训练类似，在初始时间步，序列开始标记（“&lt;bos&gt;”）被馈送到解码器。该预测过程如:numref:`fig_seq2seq_predict`所示。当序列结束标记（“&lt;eos&gt;”）被预测时，输出序列的预测就完成了。
+为了一个接着一个地预测输出序列的标记，每个解码器当前时间步的输入都将来自于前一时间步的预测标记。与训练类似，序列开始标记（“&lt;bos&gt;”）在初始时间步被输入到解码器中。该预测过程如:numref:`fig_seq2seq_predict`所示。当输出序列的预测遇到序列结束标记（“&lt;eos&gt;”）时，预测就结束了。
 
 ![使用 RNN 编码器-解码器逐标记地预测输出序列。](../img/seq2seq-predict.svg)
 :label:`fig_seq2seq_predict`
