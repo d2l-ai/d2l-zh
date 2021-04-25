@@ -30,7 +30,7 @@ import os
 
 ## 下载和预处理数据集
 
-首先，我们下载一个由[Tatoeba项目的双语句子对](http://www.manythings.org/anki/)组成的英-法数据集。数据集中的每一行都是一对制表符分隔的英文文本序列和翻译后的法语文本序列。请注意，每个文本序列可以是一个句子，也可以是包含多个句子的一段。在这个将英语翻译成法语的机器翻译问题中，英语是“源语言”（source language），法语是“目标语言”（target language）。
+首先，我们下载一个由[Tatoeba项目的双语句子对](http://www.manythings.org/anki/)组成的英－法数据集。数据集中的每一行都是一对制表符分隔的英文文本序列和翻译后的法语文本序列。请注意，每个文本序列可以是一个句子，也可以是包含多个句子的一个段落。在这个将英语翻译成法语的机器翻译问题中，英语是 *源语言*（source language），法语是 *目标语言*（target language）。
 
 ```{.python .input}
 #@tab all
@@ -40,7 +40,7 @@ d2l.DATA_HUB['fra-eng'] = (d2l.DATA_URL + 'fra-eng.zip',
 
 #@save
 def read_data_nmt():
-    """Load the English-French dataset."""
+    """载入“英语－法语”数据集。"""
     data_dir = d2l.download_extract('fra-eng')
     with open(os.path.join(data_dir, 'fra.txt'), 'r') as f:
         return f.read()
@@ -49,20 +49,20 @@ raw_text = read_data_nmt()
 print(raw_text[:75])
 ```
 
-下载数据集后，我们对原始文本数据进行几个预处理步骤。例如，我们用单个空格代替连续多个空格，将大写字母转换为小写字母，并在单词和标点符号之间插入空格。
+下载数据集后，经过几个预处理步骤，我们对原始的文本数据进行处理。例如，我们用空格代替 *不间断空格*（non-breaking space），使用小写字母替换大写字母，并在单词和标点符号之间插入空格。
 
 ```{.python .input}
 #@tab all
 #@save
 def preprocess_nmt(text):
-    """Preprocess the English-French dataset."""
+    """预处理“英语－法语”数据集。"""
     def no_space(char, prev_char):
         return char in set(',.!?') and prev_char != ' '
 
-    # Replace non-breaking space with space, and convert uppercase letters to
-    # lowercase ones
+    # 使用空格替换不间断空格
+    # 使用小写字母替换大写字母
     text = text.replace('\u202f', ' ').replace('\xa0', ' ').lower()
-    # Insert space between words and punctuation marks
+    # 在单词和标点符号之间插入空格
     out = [' ' + char if i > 0 and no_space(char, text[i - 1]) else char
            for i, char in enumerate(text)]
     return ''.join(out)
