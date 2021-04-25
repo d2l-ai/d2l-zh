@@ -229,8 +229,7 @@ def train_batch_ch13(net, features, labels, loss, trainer, devices,
               in zip(pred_shards, y_shards)]
     for l in ls:
         l.backward()
-    # The True flag allows parameters with stale gradients, which is useful
-    # later (e.g., in fine-tuning BERT)
+    # True标志允许使用过时的梯度，这很有用（例如，在微调BERT中）
     trainer.step(labels.shape[0], ignore_stale_grad=True)
     train_loss_sum = sum([float(l.sum()) for l in ls])
     train_acc_sum = sum(d2l.accuracy(pred_shard, y_shard)
@@ -243,7 +242,7 @@ def train_batch_ch13(net, features, labels, loss, trainer, devices,
 #@save
 def train_batch_ch13(net, X, y, loss, trainer, devices):
     if isinstance(X, list):
-        # Required for BERT Fine-tuning (to be covered later)
+        # 微调BERT中所需（稍后讨论）
         X = [x.to(devices[0]) for x in X]
     else:
         X = X.to(devices[0])
@@ -267,7 +266,7 @@ def train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
     animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs], ylim=[0, 1],
                             legend=['train loss', 'train acc', 'test acc'])
     for epoch in range(num_epochs):
-        # Store training_loss, training_accuracy, num_examples, num_features
+        # 储存训练损失, 训练准确度, 实例数, 特点数
         metric = d2l.Accumulator(4)
         for i, (features, labels) in enumerate(train_iter):
             timer.start()
@@ -297,7 +296,7 @@ def train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
                             legend=['train loss', 'train acc', 'test acc'])
     net = nn.DataParallel(net, device_ids=devices).to(devices[0])
     for epoch in range(num_epochs):
-        # Store training_loss, training_accuracy, num_examples, num_features
+        # 储存训练损失, 训练准确度, 实例数, 特点数
         metric = d2l.Accumulator(4)
         for i, (features, labels) in enumerate(train_iter):
             timer.start()
@@ -357,7 +356,7 @@ def train_with_data_aug(train_augs, test_augs, net, lr=0.001):
 train_with_data_aug(train_augs, test_augs, net)
 ```
 
-## 摘要
+## 小结
 
 * 图像增强基于现有的训练数据生成随机图像，以应对过度拟合。
 * 为了在预测过程中得到确切的结果，我们通常对训练样本只进行图像增强，而在预测过程中不使用随机操作的图像增强。
