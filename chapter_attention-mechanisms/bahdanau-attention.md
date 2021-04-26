@@ -1,21 +1,21 @@
 # Bahdanau 注意力
 :label:`sec_seq2seq_attention`
 
-在 :numref:`sec_seq2seq` 中研究机器翻译问题时，我们设计了一个基于两个 RNN 的“编码器－解码器”架构，用于序列到序列的学习。具体来说，RNN 编码器将可变长度序列转换为固定形状的上下文变量（context variable），然后 RNN 解码器每次根据上一步生成的标记和上下文变量，一个一个的生成输出（目标）序列的标记。虽然每步解码中都使用了 * 相同的 * 用于描述整个输入序列的上下文变量，但是并非所有的输入（源）标记都对解码某个特定标记有用。
+在 :numref:`sec_seq2seq` 中研究机器翻译问题时，我们设计了一个基于两个循环神经网络的“编码器－解码器”架构，用于序列到序列的学习。具体来说，循环神经网络编码器将可变长度序列转换为固定形状的上下文变量（context variable），然后循环神经网络解码器每次根据上一步生成的标记和上下文变量，一个一个的生成输出（目标）序列的标记。虽然每步解码中都使用了 * 相同的 * 用于描述整个输入序列的上下文变量，但是并非所有的输入（源）标记都对解码某个特定标记有用。
 
 在另一个相关挑战中，为了对给定文本序列实现手写字符生成操作，Graves 在 :cite:`Graves.2013` 中设计了一种可区分的注意力模型，将文本字符与更长的笔迹进行对齐，其对齐方式仅沿着一个方向移动。受这种通过学习去对齐的想法的启发，Bahdanau 等人在 :cite:`Bahdanau.Cho.Bengio.2014` 中提出了一个没有对齐方向限制的可区分的注意力模型。在预测标记时，如果不是所有输入标记都相关，模型将仅对齐（或注意）输入序列中与当前预测相关的部分。这是通过将上下文变量视为注意力池化的输出来实现的。
 
 ## 模型
 
-在接下来描述的用于 RNN “编码器－解码器”的 Bahdanau 注意力时，我们将遵循与 :numref:`sec_seq2seq` 中的相同的符号。新的基于注意力的模型与 :numref:`sec_seq2seq` 中的模型相同，只不过在每一个解码的时间步 $t'$ 时，公式 :eqref:`eq_seq2seq_s_t` 中的上下文变量 $\mathbf{c}$ 都会被 $\mathbf{c}_{t'}$ 替换。假设输入序列中有 $T$ 个标记，那么解码的时间步长 $t'$ 的上下文变量是注意力池化的输出：
+在接下来描述的用于循环神经网络“编码器－解码器”的 Bahdanau 注意力时，我们将遵循与 :numref:`sec_seq2seq` 中的相同的符号。新的基于注意力的模型与 :numref:`sec_seq2seq` 中的模型相同，只不过在每一个解码的时间步 $t'$ 时，公式 :eqref:`eq_seq2seq_s_t` 中的上下文变量 $\mathbf{c}$ 都会被 $\mathbf{c}_{t'}$ 替换。假设输入序列中有 $T$ 个标记，那么解码的时间步长 $t'$ 的上下文变量是注意力池化的输出：
 
 $$\mathbf{c}_{t'} = \sum_{t=1}^T \alpha(\mathbf{s}_{t' - 1}, \mathbf{h}_t) \mathbf{h}_t,$$
 
 其中，时间步 $t' - 1$ 时解码器的隐藏状态 $\mathbf{s}_{t' - 1}$ 作为查询，编码器的隐藏状态 $\mathbf{h}_t$ 既作为键，也作为值，而注意力权重 $\alpha$ 是通过 :eqref:`eq_attn-scoring-alpha` 所定义的可加性注意力评分函数计算的。
 
-与 :numref:`fig_seq2seq_details` 中的简单的 RNN “编码器－解码器”架构略有不同，:numref:`fig_s2s_attention_details` 描述了应用 Bahdanau 注意力的架构。
+与 :numref:`fig_seq2seq_details` 中的简单的循环神经网络“编码器－解码器”架构略有不同，:numref:`fig_s2s_attention_details` 描述了应用 Bahdanau 注意力的架构。
 
-![Layers in an RNN encoder-decoder model with Bahdanau attention.](../img/seq2seq-attention-details.svg)
+![基于 Bahdanau 注意力的循环神经网络“编码器－解码器”模型中的层。](../img/seq2seq-attention-details.svg)
 :label:`fig_s2s_attention_details`
 
 ```{.python .input}
@@ -34,7 +34,7 @@ from torch import nn
 
 ## 定义包含注意力的解码器
 
-要实现包含 Bahdanau 注意力的 RNN “编码器－解码器”，我们只需重新定义解码器即可。为了更方便地显示学习的注意力权重，在下面的 `AttentionDecoder` 类中定义了具有注意力机制的解码器的基本接口。
+要实现包含 Bahdanau 注意力的循环神经网络“编码器－解码器”，我们只需重新定义解码器即可。为了更方便地显示学习的注意力权重，在下面的 `AttentionDecoder` 类中定义了具有注意力机制的解码器的基本接口。
 
 ```{.python .input}
 #@tab all
@@ -49,7 +49,7 @@ class AttentionDecoder(d2l.Decoder):
         raise NotImplementedError
 ```
 
-接下来，在 `Seq2SeqAttentionDecoder` 类中实现了包含 Bahdanau 注意力的 RNN 解码器。解码器的状态的初始化基于 1) 编码器在所有时间步的最终层隐藏状态（作为注意力的键和值）；2) 编码器在最后一个时间步的所有层的隐藏状态（初始化解码器的隐藏状态）；和 3) 编码器输入的有效长度（排除在注意力池化中用于填充的标记）。在每个解码时间步骤中，解码器的上一个时间步的最终层隐藏状态将作为注意力的查询。因此，RNN 解码器将把注意力池化的输出和这一步输入的嵌入表示（embedding）连接在一起作为输入。
+接下来，在 `Seq2SeqAttentionDecoder` 类中实现了基于 Bahdanau 注意力的循环神经网络解码器。解码器的状态的初始化基于 1) 编码器在所有时间步的最终层隐藏状态（作为注意力的键和值）；2) 编码器在最后一个时间步的所有层的隐藏状态（初始化解码器的隐藏状态）；和 3) 编码器输入的有效长度（排除在注意力池化中用于填充的标记）。在每个解码时间步骤中，解码器的上一个时间步的最终层隐藏状态将作为注意力的查询。因此，循环神经网络解码器将把注意力池化的输出和这一步输入的嵌入表示（embedding）连接在一起作为输入。
 
 ```{.python .input}
 class Seq2SeqAttentionDecoder(AttentionDecoder):
@@ -145,7 +145,7 @@ class Seq2SeqAttentionDecoder(AttentionDecoder):
         return self._attention_weights
 ```
 
-接下来，我们使用小批量数据集来测试刚才实现的包含了 Bahdanau 注意力的解码器，数据集中包含了 $4$ 个输入序列，每个序列有 $7$ 个时间步。
+接下来，我们使用小批量数据集来测试刚才实现的包含了 Bahdanau 注意力的解码器，数据集中包含了 $4$ 个输入序列，每个序列有 $7$ 个时间步。
 
 ```{.python .input}
 encoder = d2l.Seq2SeqEncoder(vocab_size=10, embed_size=8, num_hiddens=16,
@@ -232,8 +232,8 @@ d2l.show_heatmaps(
 
 ## 摘要
 
-* 在预测标记时，如果不是所有输入标记都是相关的，那么具有 Bahdanau 注意力的 RNN 编码器会有选择地聚合输入序列的不同部分。这是通过将上下文变量视为可加性注意力池化的输出来实现的。
-* 在 RNN “编码器－解码器”中，Bahdanau 注意力将解码器的上一个时间步的隐藏状态视为查询，将编码器的所有时间步的隐藏状态同时视为键和值。
+* 在预测标记时，如果不是所有输入标记都是相关的，那么具有 Bahdanau 注意力的循环神经网络编码器会有选择地聚合输入序列的不同部分。这是通过将上下文变量视为可加性注意力池化的输出来实现的。
+* 在循环神经网络“编码器－解码器”中，Bahdanau 注意力将解码器的上一个时间步的隐藏状态视为查询，将编码器的所有时间步的隐藏状态同时视为键和值。
 
 ## 练习
 
