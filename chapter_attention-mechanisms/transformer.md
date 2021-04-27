@@ -213,7 +213,7 @@ encoder_blk.eval()
 encoder_blk(X, valid_lens).shape
 ```
 
-在下面的 Transformer 编码器的实现中，我们堆叠了 `num_layers` 个 `EncoderBlock` 类的实例。由于我们使用的是值范围在-1 和 1 之间的固定位置编码，因此在与位置编码相加之前，将可以学习的输入嵌入的值乘以嵌入维度的平方根进行重新缩放。
+在下面的 Transformer 编码器的实现中，我们堆叠了 `num_layers` 个 `EncoderBlock` 类的实例。由于我们使用的是值范围在-1 和 1 之间的固定位置编码，因此在与位置编码相加之前，将可以学习的输入的嵌入表示的值乘以嵌入维度的平方根进行重新缩放。
 
 ```{.python .input}
 #@save
