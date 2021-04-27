@@ -492,7 +492,7 @@ class TransformerDecoder(d2l.AttentionDecoder):
 
 ## 训练
 
-依照 Transformer 架构来实例化“编码器－解码器”模型。在这里，指定 Transformer 的编码器和解码器都是 2 层，使用 4 头注意力。与 :numref:`sec_seq2seq_training` 类似，为了进行序列到序列的学习，我们在英语到法语的机器翻译数据集上训练 Transformer 模型。
+依照 Transformer 架构来实例化“编码器－解码器”模型。在这里，指定 Transformer 的编码器和解码器都是 2 层，使用 4 头注意力。与 :numref:`sec_seq2seq_training` 类似，为了进行序列到序列的学习，我们在“英语－法语”机器翻译数据集上训练 Transformer 模型。
 
 ```{.python .input}
 num_hiddens, num_layers, dropout, batch_size, num_steps = 32, 2, 0.1, 64, 10
@@ -546,7 +546,7 @@ for eng, fra in zip(engs, fras):
           f'bleu {d2l.bleu(translation, fra, k=2):.3f}')
 ```
 
-在翻译最后一个英语句子时，对 Transformer 的注意力权重进行可视化。编码器自注意力权重的形状为（编码器层数、注意力头数、`num_steps`或查询个数、`num_steps` 或“键－值”对的数量）。
+当进行最后一个英语到法语的句子翻译工作时，让我们对 Transformer 的注意力权重进行可视化。编码器自注意力权重的形状为（编码器层数、注意力头数、`num_steps`或查询的数量、`num_steps` 或“键－值”对的数量）。
 
 ```{.python .input}
 #@tab all
@@ -556,7 +556,7 @@ enc_attention_weights = d2l.reshape(
 enc_attention_weights.shape
 ```
 
-在编码器的自注意力中，查询和键来自相同的输入序列。由于填充的令牌不具有意义，因此通过指定输入序列的有效长度，避免对填充的位置计算注意力。接下来，将逐行呈现两层多头注意力权重。每个注意力头都根据查询、键和值的不同的表示子空间来表示不同的注意力。
+在编码器的自注意力中，查询和键都来自相同的输入序列。因为填充标记是不携带含义的，因此通过指定输入序列的有效长度，避免对使用填充标记的位置计算注意力。接下来，将逐行呈现两层多头注意力的权重。每个注意力头都根据查询、键和值的不同的表示子空间来表示不同的注意力。
 
 ```{.python .input}
 d2l.show_heatmaps(
@@ -572,7 +572,7 @@ d2l.show_heatmaps(
     figsize=(7, 3.5))
 ```
 
-为了可视化解码器的自注意力权重和“编码器－解码器”的注意力权重，我们需要做更多的数据操作。例如，我们用零填充被掩码覆盖的注意力权重。值得注意的是，解码器的自注意力权重和“编码器－解码器”的注意力权重都有相同的查询：即以序列开始令牌 (beginning-of-sequence, BOS) 开头，及后续逐个生成的令牌序列。
+为了可视化解码器的自注意力权重和“编码器－解码器”的注意力权重，我们需要做更多的数据操作。例如，我们用零填充被掩码覆盖的注意力权重。值得注意的是，解码器的自注意力权重和“编码器－解码器”的注意力权重都有相同的查询：即以序列开始标记 (beginning-of-sequence, BOS) 开头，及后续输出的标记序列。
 
 ```{.python .input}
 dec_attention_weights_2d = [d2l.tensor(head[0]).tolist()
@@ -601,7 +601,7 @@ dec_self_attention_weights, dec_inter_attention_weights = \
 dec_self_attention_weights.shape, dec_inter_attention_weights.shape
 ```
 
-由于解码器自注意力的自回归属性，查询不会对当前位置之后的“键－值”对进行注意力计算。
+由于解码器自注意力的自回归（auto-regressive）属性，查询不会对当前位置之后的“键－值”对进行注意力计算。
 
 ```{.python .input}
 #@tab all
@@ -612,7 +612,7 @@ d2l.show_heatmaps(
     titles=['Head %d' % i for i in range(1, 5)], figsize=(7, 3.5))
 ```
 
-与编码器自注意力的情况类似，通过指定输入序列的有效长度，输出序列中的任何查询都不会与输入序列中的填充位置的令牌进行注意力计算。
+与编码器的自注意力的情况类似，通过指定输入序列的有效长度，输出序列没有查询会与输入序列中填充位置的标记进行注意力计算。
 
 ```{.python .input}
 #@tab all
@@ -629,16 +629,16 @@ d2l.show_heatmaps(
 * Transformer 是“编码器－解码器”架构的一个实例，尽管在实践中编码器或解码器可以单独使用。
 * 在 Transformer 中，多头自注意力用于表示输入序列和输出序列，尽管解码器必须通过掩码机制来保留自回归属性。
 * Transformer 中的残差连接和层归一化对于训练非常深度的模型很重要。
-* Transformer 模型中的基于位置的前馈网络使用相同的多层感知机，对序列的所有位置的表示进行转换。
+* Transformer 模型中基于位置的前馈网络使用同一个多层感知机，作用是对所有的序列位置的表示进行转换。
 
 ## 练习
 
 1. 在实验中训练更深的 Transformer 将如何影响训练速度和翻译效果？
 1. 在 Transformer 中用可加性注意力取代缩放的“点－积”注意力是不是个好办法？为什么？
-1. 对于语言模型，我们应该使用 Transformer 的编码器或者解码器还是两者都用？如何设计？
+1. 对于语言模型，我们应该使用 Transformer 的编码器还是解码器，或者两者都用？如何设计？
 1. 如果输入序列很长， Transformer 会面临什么挑战？为什么？
 1. 如何提高 Transformer 的计算和内存效率？提示：可以参考 Tay et al. 的论文 :cite:`Tay.Dehghani.Bahri.ea.2020`。
-1. 如何在不使用 CNN 的情况下为图像分类任务设计基于 Transformer 的模型？提示：可以参考 Vision Transformer :cite:`Dosovitskiy.Beyer.Kolesnikov.ea.2021`。
+1. 如何在不使用卷积神经网络的情况下为图像分类任务设计基于 Transformer 的模型？提示：可以参考 Vision Transformer :cite:`Dosovitskiy.Beyer.Kolesnikov.ea.2021`。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/348)
@@ -647,3 +647,4 @@ d2l.show_heatmaps(
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/1066)
 :end_tab:
+
