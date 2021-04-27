@@ -1,4 +1,4 @@
-# 生成对抗网络
+# Generative Adversarial Networks
 :label:`chap_gans`
 
 ```toc
