@@ -292,9 +292,9 @@ encoder(d2l.ones((2, 100), dtype=torch.long), valid_lens).shape
 
 ## 解码器
 
-如 :numref:`fig_transformer` 所示，Transformer 解码器由多个相同的层组成。`DecoderBlock` 类中包含三个子层：解码器自注意力、“编码器-解码器”注意力和基于位置的前馈网络，每个子层都已经被实现。这些子层也都采用了残差连接和紧随的层归一化。
+如 :numref:`fig_transformer` 所示，Transformer 解码器由多个相同的层组成。`DecoderBlock` 类中包含三个子层：解码器自注意力、“编码器-解码器”注意力和基于位置的前馈网络，每个子层都已经被实现。这些子层也都被残差连接和紧随的层归一化围绕。
 
-正如在本节前面所述，在解码器的掩码多头自注意力（第一个子层）中，查询、键和值都来自上一个解码器层的输出。在序列到序列模型 (sequence-to-sequence models) 的训练阶段，输出序列的所有位置（时间步）的令牌都是已知的。但在预测阶段，输出序列是通过令牌一个接着一个生成的；因此，在任何解码器时间步中，只有生成的令牌才能用于解码器的自注意力计算中。为了在解码器中保留自回归的属性，其掩码自注意力指定了参数 `dec_valid_lens`，以便任何查询只会与解码器已经生成的所有位置（直到该查询位置为止）进行注意力计算。
+正如在本节前面所述，在解码器的掩码多头自注意力（第一个子层）中，查询、键和值都来自上一个解码器层的输出。在序列到序列模型 (sequence-to-sequence models) 的训练阶段，输出序列的所有位置（时间步）的标记都是已知的。但在预测阶段，输出序列的标记是通过一个接着一个生成的；因此，在任何解码器时间步中，只有生成的标记才能用于解码器的自注意力计算中。为了在解码器中保留自回归的属性，其掩码自注意力指定了参数 `dec_valid_lens`，以便任何查询只会与解码器已经生成标记的所有位置（直到该查询位置为止）进行注意力计算。
 
 ```{.python .input}
 class DecoderBlock(nn.Block):
@@ -411,7 +411,7 @@ state = [encoder_blk(X, valid_lens), valid_lens, [None]]
 decoder_blk(X, state)[0].shape
 ```
 
-现在我们构建了由 `num_layers` 个 `DecoderBlock` 实例组成的完整的 Transformer 解码器。最后，通过一个全连接层计算所有 `vocab_size` 个可能的输出令牌的预测值。解码器的自注意力权重和“编码器－解码器”的注意力权重都被存储下来，以供日后可视化。
+现在我们构建了由 `num_layers` 个 `DecoderBlock` 实例组成的完整的 Transformer 解码器。最后，通过一个全连接层计算所有 `vocab_size` 个可能的输出标记的预测值。解码器的自注意力权重和“编码器－解码器”的注意力权重都被存储下来，以供日后可视化。
 
 ```{.python .input}
 class TransformerDecoder(d2l.AttentionDecoder):
