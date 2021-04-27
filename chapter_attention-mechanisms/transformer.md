@@ -1,13 +1,13 @@
 # Transformer
 :label:`sec_transformer`
 
-我们在 :numref:`subsec_cnn-rnn-self-attention` 中比较了 CNN、RNN 和自注意力。值得注意的是，自注意力同时具有并行计算和最短的最大路径长度这两个优势。因此，通过使用自注意力来设计深层架构是很有吸引力的。与之前仍然依赖 RNN 进行输入表示 :cite:`Cheng.Dong.Lapata.2016,Lin.Feng.Santos.ea.2017,Paulus.Xiong.Socher.2017` 的自注意力模型不同，Transformer 模型完全基于注意力机制，没有任何卷积层或循环层 :cite:`Vaswani.Shazeer.Parmar.ea.2017`。尽管 Transformer 最初是应用于文本数据的序列学习，但已经普遍应用在各种现代的深度学习中，例如语言、视觉、语音和强化学习领域。
+我们在 :numref:`subsec_cnn-rnn-self-attention` 中比较了卷积神经网络、循环神经网络和自注意力。值得注意的是，自注意力同时具有并行计算和最短的最大路径长度这两个优势。因此，通过使用自注意力来设计深层架构是很有吸引力的。对比之前仍然依赖循环神经网络实现输入表示的自注意力模型 :cite:`Cheng.Dong.Lapata.2016,Lin.Feng.Santos.ea.2017,Paulus.Xiong.Socher.2017`，Transformer 模型完全基于注意力机制，没有任何卷积层或循环层 :cite:`Vaswani.Shazeer.Parmar.ea.2017`。尽管 Transformer 最初是应用于文本数据的序列学习，但已经普遍应用在各种现代的深度学习中，例如语言、视觉、语音和强化学习领域。
 
 ## 模型
 
-作为“编码器－解码器”架构的一个实例，Transformer 的整体架构在图 :numref:`fig_transformer` 中呈现。正如所见到的，Transformer 由编码器和解码器组成。与 :numref:`fig_s2s_attention_details` 中 Bahdanau 注意力的序列到序列的学习相比，Transformer 的编码器和解码器是由基于自注意力的模块叠加而成的，输入（源）和输出（目标）序列的嵌入 (embedding) 将被叠加上位置编码，再一起输入到编码器和解码器中。
+作为“编码器－解码器”架构的一个实例，Transformer 的整体架构在图 :numref:`fig_transformer` 中呈现。正如所见到的，Transformer 由编码器和解码器组成。与 :numref:`fig_s2s_attention_details` 中 Bahdanau 注意力的序列到序列的学习相比，Transformer 的编码器和解码器是由基于自注意力的模块叠加而成的，输入（源）和输出（目标）序列的嵌入表示 (embedding) 将被叠加上位置编码，再一起输入到编码器和解码器中。
 
-![The Transformer architecture.](../img/transformer.svg)
+![Transformer 结构。](../img/transformer.svg)
 :width:`500px`
 :label:`fig_transformer`
 
