@@ -1,7 +1,7 @@
 # Transformer
 :label:`sec_transformer`
 
-我们在 :numref:`subsec_cnn-rnn-self-attention` 中比较了卷积神经网络、循环神经网络和自注意力。值得注意的是，自注意力同时具有并行计算和最短的最大路径长度这两个优势。因此，通过使用自注意力来设计深层架构是很有吸引力的。对比之前仍然依赖循环神经网络实现输入表示的自注意力模型 :cite:`Cheng.Dong.Lapata.2016,Lin.Feng.Santos.ea.2017,Paulus.Xiong.Socher.2017`，Transformer 模型完全基于注意力机制，没有任何卷积层或循环层 :cite:`Vaswani.Shazeer.Parmar.ea.2017`。尽管 Transformer 最初是应用于文本数据的序列学习，但已经普遍应用在各种现代的深度学习中，例如语言、视觉、语音和强化学习领域。
+我们在 :numref:`subsec_cnn-rnn-self-attention` 中比较了卷积神经网络、循环神经网络和自注意力（self-attention）。值得注意的是，自注意力同时具有并行计算和最短的最大路径长度这两个优势。因此，通过使用自注意力来设计深层架构是很有吸引力的。对比之前仍然依赖循环神经网络实现输入表示的自注意力模型 :cite:`Cheng.Dong.Lapata.2016,Lin.Feng.Santos.ea.2017,Paulus.Xiong.Socher.2017`，Transformer 模型完全基于注意力机制，没有任何卷积层或循环层 :cite:`Vaswani.Shazeer.Parmar.ea.2017`。尽管 Transformer 最初是应用于文本数据的序列学习，但已经普遍应用在各种现代的深度学习中，例如语言、视觉、语音和强化学习领域。
 
 ## 模型
 
@@ -11,11 +11,11 @@
 :width:`500px`
 :label:`fig_transformer`
 
-现在为止图 :numref:`fig_transformer` 中已经概述了 Transformer 的架构。从宏观角度来看，Transformer 的编码器是由多个相同的层叠加而成的，每个层都有两个子层（子层表示为 $\mathrm{sublayer}$）。第一个子层是多头自注意力池化，第二个子层是基于位置的前馈网络 (positionwise feed-forward network)。具体来说，在计算编码器的自注意力时，查询、键和值都来自前一个编码器层的输出。受 :numref:`sec_resnet` ResNet 设计的启发，每个子层都采用了残差连接 (residual connection)。在 Transformer 中，对于序列中任何位置的任何输入 $\mathbf{x} \in \mathbb{R}^d$，我们要求满足 $\mathrm{sublayer}(\mathbf{x}) \in \mathbb{R}^d$，以便残差连接 $\mathbf{x} + \mathrm{sublayer}(\mathbf{x}) \in \mathbb{R}^d$ 是可行的。在残差连接的加法计算之后，紧接着层归一化 (layer normalization) :cite:`Ba.Kiros.Hinton.2016`。因此，对应输入序列的每个位置，Transformer 编码器输出 $d$ 维向量进行表示。
+现在为止图 :numref:`fig_transformer` 中已经概述了 Transformer 的架构。从宏观角度来看，Transformer 的编码器是由多个相同的层叠加而成的，每个层都有两个子层（子层表示为 $\mathrm{sublayer}$）。第一个子层是多头自注意力池化，第二个子层是基于位置的前馈网络 (positionwise feed-forward network)。具体来说，在计算编码器的自注意力时，查询、键和值都来自前一个编码器层的输出。受 :numref:`sec_resnet` 中设计 ResNet 的启发，每个子层都采用了残差连接 (residual connection)。在 Transformer 中，对于序列中任何位置的任何输入 $\mathbf{x} \in \mathbb{R}^d$，我们要求满足 $\mathrm{sublayer}(\mathbf{x}) \in \mathbb{R}^d$，以便残差连接 $\mathbf{x} + \mathrm{sublayer}(\mathbf{x}) \in \mathbb{R}^d$ 是可行的。在残差连接的加法计算之后，紧接着层归一化 (layer normalization) :cite:`Ba.Kiros.Hinton.2016`。因此，对应输入序列的每个位置，Transformer 编码器输出 $d$ 维表示向量。
 
-Transformer 解码器也是由多个相同的使用了残差连接和层归一化的层叠加而成。除了编码器中描述的两个子层之外，解码器还在这两个子层之间插入第三个子层，称为”编码器－解码器“注意力 (encoder-decoder attention)。在“编码器－解码器”注意力中，查询来自前一个解码器层的输出，而键和值来自 Transformer 编码器的输出。在解码器自注意力中，查询、键和值都来自上一个解码器层的输出。但是，解码器中的每个位置只能考虑该位置之前的所有位置。这种 * 掩码 * 注意力保留了自回归属性，确保预测仅依赖于已生成的输出令牌。
+Transformer 解码器也是由多个相同的使用了残差连接和层归一化的层叠加而成。除了编码器中描述的两个子层之外，解码器还在这两个子层之间插入第三个子层，称为”编码器－解码器“注意力 (encoder-decoder attention)。在“编码器－解码器”注意力中，查询来自前一个解码器层的输出，而键和值来自 Transformer 编码器的输出。在解码器自注意力中，查询、键和值都来自上一个解码器层的输出。但是，解码器中的每个位置只能考虑该位置之前的所有位置。这种 *掩码* 注意力保留了自回归属性，确保预测仅依赖于已生成的输出标记。
 
-我们已经描述并实现了基于缩放的“点－积” :numref:`sec_multihead-attention` 和位置编码 :numref:`subsec_positional-encoding` 的多头注意力。接下来，我们将实现 Transformer 模型的其余部分。
+我们已经描述并实现了基于缩放的“点－积” :numref:`sec_multihead-attention` 和基于位置编码 :numref:`subsec_positional-encoding` 的多头注意力。接下来，我们将实现 Transformer 模型的其余部分。
 
 ```{.python .input}
 from d2l import mxnet as d2l
