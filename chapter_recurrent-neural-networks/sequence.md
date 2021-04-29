@@ -76,7 +76,7 @@ $$P(x_1, \ldots, x_T) = \prod_{t=T}^1 P(x_t \mid x_{t+1}, \ldots, x_T).$$
 
 ## 训练
 
-在回顾了这么多统计工具之后，让我们在实践中尝试一下。我们首先生成一些数据。为了简单起见，我们使用正弦函数和一些加性噪声来生成序列数据，时间步为$1, 2, \ldots, 1000$。
+在回顾了这么多统计工具之后，让我们在实践中尝试一下。首先，生成一些数据。为了简单起见，我们使用正弦函数和一些可加性噪声来生成序列数据，时间步为$1, 2, \ldots, 1000$。
 
 ```{.python .input}
 %matplotlib inline
@@ -117,7 +117,7 @@ x = d2l.sin(0.01 * time) + d2l.normal([T], 0, 0.2)
 d2l.plot(time, [x], 'time', 'x', xlim=[1, 1000], figsize=(6, 3))
 ```
 
-接下来，我们需要将这样的序列转换为我们的模型可以训练的特征和标签。基于嵌入维度$\tau$，我们将数据映射为$y_t = x_t$和$\mathbf{x}_t = [x_{t-\tau}, \ldots, x_{t-1}]$。精明的读者可能已经注意到，这给我们提供的数据样本少了$\tau$个，因为我们没有足够的历史记录来记录前$\tau$个数据样本。一个简单的解决办法，特别是如果序列很长，就是丢弃这几项。或者，我们可以用零填充序列。在这里，我们仅使用前600个特征-标签对进行训练。
+接下来，我们需要将这样的序列转换为我们的模型可以训练的特征和标签。基于嵌入维度 $\tau$，我们将数据映射为 $y_t = x_t$ 和 $\mathbf{x}_t = [x_{t-\tau}, \ldots, x_{t-1}]$。精明的读者可能已经注意到，这比我们提供的数据样本少了 $\tau$ 个，因为我们没有足够的历史记录来描述前 $\tau$ 个数据样本。一个简单的解决办法，特别是序列如果够长就丢弃这几项，或者可以用零填充序列。在这里，我们仅使用前600个“特征－标签”对进行训练。
 
 ```{.python .input}
 #@tab mxnet, pytorch
@@ -145,10 +145,10 @@ train_iter = d2l.load_array((features[:n_train], labels[:n_train]),
                             batch_size, is_train=True)
 ```
 
-这里的结构相当简单：只有一个多层感知机，有两个全连接层、ReLU激活函数和平方损失。
+这里的结构相当简单：只是一个多层感知机，有两个全连接层、ReLU激活函数和平方损失。
 
 ```{.python .input}
-# A simple MLP
+# 一个简单的多层感知机
 def get_net():
     net = nn.Sequential()
     net.add(nn.Dense(10, activation='relu'),
@@ -156,7 +156,7 @@ def get_net():
     net.initialize(init.Xavier())
     return net
 
-# Square loss
+# 平方损失
 loss = gluon.loss.L2Loss()
 ```
 
@@ -193,7 +193,7 @@ def get_net():
 loss = tf.keras.losses.MeanSquaredError()
 ```
 
-现在我们准备好训练模型了。下面的代码与前面几节中的训练代码实现基本相同，如 :numref:`sec_linear_concise` 。因此，我们不会深入探讨太多细节。
+现在我们准备好等待训练的模型了。下面的代码与前面几节中的训练代码实现方式基本相同，如 :numref:`sec_linear_concise` 。因此，我们不会深入探讨太多细节。
 
 ```{.python .input}
 def train(net, train_iter, loss, epochs, lr):
