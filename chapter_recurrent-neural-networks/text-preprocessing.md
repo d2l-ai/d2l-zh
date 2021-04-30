@@ -117,7 +117,7 @@ def count_corpus(tokens):  #@save
     """统计标记的频率。"""
     # 这里的 `tokens` 是 1D 列表或 2D 列表
     if len(tokens) == 0 or isinstance(tokens[0], list):
-        # 将标记列表展平成使用一个列表
+        # 将标记列表展平成使用标记填充的一个列表
         tokens = [token for line in tokens for token in line]
     return collections.Counter(tokens)
 ```
@@ -142,17 +142,17 @@ for i in [0, 10]:
 ## 把所有的东西放在一起
 
 使用上述函数，我们将所有内容打包到 `load_corpus_time_machine` 函数中，该函数返回 `corpus`（标记索引列表）和 `vocab`（时光机器语料库的词汇表）。我们在这里所做的修改是：
-- 1、我们将文本 标记化为字符，而不是单词，以简化后面部分中的训练；
-- 2、`corpus`是单个列表，而不是标记列表嵌套，因为时光机器数据集中的每个文本行不一定是句子或段落。
+- 1、我们将文本标记化为字符，而不是单词，以便简化后面章节中的训练；
+- 2、`corpus`是单个列表，而不是使用标记列表构成的一个列表，因为时光机器数据集中的每个文本行不一定是一个句子或一个段落。
 
 ```{.python .input}
 #@tab all
 def load_corpus_time_machine(max_tokens=-1):  #@save
-    """返回时光机器数据集的令牌索引和词汇表。"""
+    """返回时光机器数据集的标记索引列表和词汇表。"""
     lines = read_time_machine()
     tokens = tokenize(lines, 'char')
     vocab = Vocab(tokens)
-    # 因为时光机器数据集中的每一个文本行不一定是一个句子或段落，
+    # 因为时光机器数据集中的每一个文本行不一定是一个句子或一个段落，
     # 所以将所有文本行展平到一个列表中
     corpus = [vocab[token] for line in tokens for token in line]
     if max_tokens > 0:
@@ -171,7 +171,7 @@ len(corpus), len(vocab)
 ## 练习
 
 1. 标记化是一个关键的预处理步骤。它因语言而异。尝试找到另外三种常用的文本标记方法。
-1. 在本节的实验中，将文本标记为单词，并更改 `Vocab` 实例的 `min_freq` 参数。这对词汇量有何影响？
+1. 在本节的实验中，将文本标记为单词和更改 `Vocab` 实例的 `min_freq` 参数。这对词汇量有何影响？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/2093)
