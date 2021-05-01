@@ -29,11 +29,13 @@ $$\hat{P}(\text{learning} \mid \text{deep}) = \frac{n(\text{deep, learning})}{n(
 
 一种常见的策略是执行某种形式的 *拉普拉斯平滑*（Laplace smoothing）。解决方案是在所有计数中添加一个小常量。用 $n$ 表示训练集中的单词总数，用 $m$ 表示唯一单词的数量。此解决方案有助于处理单元素问题，例如通过：
 
-$$\begin{aligned}
-	\hat{P}(x) & = \frac{n(x) + \epsilon_1/m}{n + \epsilon_1}, \\
-	\hat{P}(x' \mid x) & = \frac{n(x, x') + \epsilon_2 \hat{P}(x')}{n(x) + \epsilon_2}, \\
-	\hat{P}(x'' \mid x,x') & = \frac{n(x, x',x'') + \epsilon_3 \hat{P}(x'')}{n(x, x') + \epsilon_3}.
-\end{aligned}$$
+$$
+\begin{aligned}
+    \hat{P}(x) & = \frac{n(x) + \epsilon_1/m}{n + \epsilon_1}, \\
+    \hat{P}(x' \mid x) & = \frac{n(x, x') + \epsilon_2 \hat{P}(x')}{n(x) + \epsilon_2}, \\
+    \hat{P}(x'' \mid x,x') & = \frac{n(x, x',x'') + \epsilon_3 \hat{P}(x'')}{n(x, x') + \epsilon_3}.
+\end{aligned}
+$$
 
 其中，$\epsilon_1,\epsilon_2$ 和 $\epsilon_3$ 是超参数。以 $\epsilon_1$ 为例：当为 $\epsilon_1 = 0$ 时，不应用平滑；当 $\epsilon_1$ 接近正无穷大时，$\hat{P}(x)$ 接近均匀概率 $1/m$。上面的公式是采用其他技术实现了 :cite:`Wood.Gasthaus.Archambeau.ea.2011` 的一个相当原始的变体。
 
@@ -51,7 +53,7 @@ P(x_1, x_2, x_3, x_4) &=  P(x_1) P(x_2  \mid  x_1) P(x_3  \mid  x_1, x_2) P(x_4 
 \end{aligned}
 $$
 
-涉及一个、两个和三个变量的概率公式通常分别称为“一元”（unigram）、“二元”（bigram）和“三元”（trigram）。下面，我们将学习如何设计更好的模型。
+涉及一个、两个和三个变量的概率公式通常分别称为“一元语法”（unigram）、“二元语法”（bigram）和“三元语法”（trigram）。下面，我们将学习如何设计更好的模型。
 
 ## 自然语言统计
 
@@ -95,6 +97,7 @@ freqs = [freq for token, freq in vocab.token_freqs]
 d2l.plot(freqs, xlabel='token: x', ylabel='frequency: n(x)',
          xscale='log', yscale='log')
 ```
+
 在这里我们看到了一些非常基本的东西：词频以一种明确的方式迅速衰减。将前几个单词作为例外消除后，剩余的所有单词大致遵循双对数坐标图上的一条直线。这意味着单词符合 *齐普夫定律*（Zipf's law），即第 $i$ 个最常用单词的频率 $n_i$ 为：
 
 $$n_i \propto \frac{1}{i^\alpha},$$
@@ -104,7 +107,7 @@ $$n_i \propto \frac{1}{i^\alpha},$$
 
 $$\log n_i = -\alpha \log i + c,$$
 
-其中 $\alpha$ 是表征分布的指数，$c$ 是常数。这应该让我们明白想要通过计数统计和平滑来建模单词是不可行的。结果，我们会大大高估尾部单词的频率，也就是所谓的不常用单词。但是其他的单词组合，比如二元语法、三元语法等等，又会如何呢？让我们看看双字频率是否与单字频率的行为方式相同。
+其中 $\alpha$ 是表征分布的指数，$c$ 是常数。这应该让我们明白想要通过计数统计和平滑来建模单词是不可行的。结果，我们会大大高估尾部单词的频率，也就是所谓的不常用单词。但是其他的单词组合，比如二元语法、三元语法等等，又会如何呢？让我们看看二元语法的频率是否与一元语法的频率表现相同的行为方式。
 
 ```{.python .input}
 #@tab all
@@ -279,7 +282,7 @@ def load_data_time_machine(batch_size, num_steps,  #@save
 
 1. 假设训练数据集中有 $100,000$ 个单词。四元语法需要存储多少词频和多词相邻频率？
 1. 你将如何将对话建模？
-1. 估计“一元”（unigram）、“二元”（bigram）和“三元”（trigram）的齐普夫定律指数。
+1. 估计“一元语法”（unigram）、“二元语法”（bigram）和“三元语法”（trigram）的齐普夫定律指数。
 1. 你还能想到哪些其他的读取长序列数据的方法？
 1. 考虑一下我们用于读取长序列的随机偏移量。
     1. 为什么随机偏移量是个好主意？

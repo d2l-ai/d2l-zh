@@ -120,6 +120,8 @@
 
 困惑度，perplexity
 
+拉普拉斯平滑，Laplace smoothing
+
 连结，concatenate
 
 类，class
@@ -148,6 +150,8 @@
 
 平均池化层，average pooling layer
 
+齐普夫定律，Zipf's law
+
 欠拟合，underfitting
 
 情感分析，sentiment analysis
@@ -170,7 +174,11 @@
 
 数据样本，data instance
 
+顺序分区，sequential partitioning
+
 softmax回归，softmax regression
+
+随机采样，random sampling
 
 损失函数，loss function
 
@@ -191,6 +199,8 @@ softmax回归，softmax regression
 跳字模型，skip-gram model
 
 调参，tune hyper-parameter
+
+停用词，stop words
 
 通道，channel
 
