@@ -14,16 +14,12 @@ from d2l import mxnet as d2l
 import re
 ```
 
-
-
 ```{.python .input}
 #@tab pytorch
 import collections
 from d2l import torch as d2l
 import re
 ```
-
-
 
 ```{.python .input}
 #@tab tensorflow
@@ -152,7 +148,7 @@ def load_corpus_time_machine(max_tokens=-1):  #@save
     lines = read_time_machine()
     tokens = tokenize(lines, 'char')
     vocab = Vocab(tokens)
-    # 因为时光机器数据集中的每一个文本行不一定是一个句子或一个段落，
+    # 因为时光机器数据集中的每一个文本行，不一定是一个句子或一个段落，
     # 所以将所有文本行展平到一个列表中
     corpus = [vocab[token] for line in tokens for token in line]
     if max_tokens > 0:
