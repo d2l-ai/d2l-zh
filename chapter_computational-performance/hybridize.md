@@ -1,7 +1,7 @@
 # 编译器和口译员
 :label:`sec_hybridize`
 
-到目前为止，这本书专注于命令式编程，它利用 `print`、`+` 和 `if` 等陈述来改变计划的状态。考虑以下简单的命令性程序的例子。
+到目前为止，这本书一直侧重于命令式编程，它利用 `print`、`+` 和 `if` 等语句来改变计划的状态。考虑以下简单的命令性程序的例子。
 
 ```{.python .input}
 #@tab all
@@ -17,12 +17,12 @@ def fancy_func(a, b, c, d):
 print(fancy_func(1, 2, 3, 4))
 ```
 
-Python 是一种 * 解释性语言 *。当评估上述 `fancy_func` 函数时，它会按顺序执行组成函数主体的操作 *。也就是说，它将评估 `e = add(a, b)` 并将结果存储为变量 `e`，从而改变计划的状态。接下来的两个语句 `f = add(c, d)` 和 `g = add(e, f)` 将以类似的方式执行，执行添加操作并将结果存储为变量。:numref:`fig_compute_graph` 说明了数据流。 
+Python 是一种 * 解释性语言 *。当评估上述 `fancy_func` 函数时，它会按顺序执行组成函数主体的操作 *。也就是说，它将评估 `e = add(a, b)` 并将结果存储为变量 `e`，从而改变程序的状态。接下来的两个语句 `f = add(c, d)` 和 `g = add(e, f)` 将以类似的方式执行，执行添加并将结果存储为变量。:numref:`fig_compute_graph` 说明了数据流。 
 
 ![Data flow in an imperative program.](../img/computegraph.svg)
 :label:`fig_compute_graph`
 
-尽管命令式编程很方便，但效率可能低下。一方面，即使在 `fancy_func` 中重复调用 `add` 函数，Python 也会分别执行三个函数调用。比如说，如果在 GPU 上（甚至在多个 GPU 上）执行这些操作，则 Python 解释器产生的开销可能会变得压倒性。此外，在执行 `fancy_func` 中的所有语句之前，它需要保存 `e` 和 `f` 的变量值。这是因为我们不知道在语句 `e = add(a, b)` 和 `f = add(c, d)` 执行之后，程序的其他部分是否会使用变量 `e` 和 `f`。 
+尽管命令式编程很方便，但效率可能低下。一方面，即使在 `fancy_func` 中重复调用 `add` 函数，Python 也会分别执行这三个函数调用。比如说，如果在 GPU 上（甚至在多个 GPU 上）执行这些操作，则 Python 解释器产生的开销可能会变得压倒性。此外，它需要保存 `e` 和 `f` 的变量值，直到 `fancy_func` 中的所有语句都被执行。这是因为我们不知道在语句 `e = add(a, b)` 和 `f = add(c, d)` 执行之后，程序的其他部分是否会使用变量 `e` 和 `f`。 
 
 ## 符号编程
 
@@ -253,7 +253,7 @@ with Benchmark('Graph Mode'):
 ```
 
 :begin_tab:`mxnet`
-如上面的结果所观察到的那样，`HybridSequential` 实例调用 `hybridize` 函数后，通过使用符号编程来提高计算性能。
+如上面的结果所观察到的那样，在 `HybridSequential` 实例调用 `hybridize` 函数之后，通过使用符号编程来提高计算性能。
 :end_tab:
 
 :begin_tab:`pytorch`
@@ -326,7 +326,7 @@ class HybridNet(nn.HybridBlock):
 ```
 
 :begin_tab:`mxnet`
-上面的代码实现了一个带有 4 个隐藏单元和 2 个输出的简单网络。`hybrid_forward` 函数需要一个额外的参数 `F`。这是必要的，因为根据代码是否被混合，它将使用略有不同的库（`ndarray` 或 `symbol`）进行处理。这两个类执行的功能非常相似，MxNet 会自动确定参数。为了理解发生了什么，我们将参数作为函数调用的一部分打印出来。
+上面的代码实现了一个带有 4 个隐藏单元和 2 个输出的简单网络。`hybrid_forward` 函数需要一个额外的参数 `F`。这是必要的，因为根据代码是否混合，它将使用略有不同的库（`ndarray` 或 `symbol`）进行处理。这两个类执行的功能非常相似，MxNet 会自动确定参数。为了理解发生了什么，我们将参数作为函数调用的一部分打印出来。
 :end_tab:
 
 ```{.python .input}
@@ -346,7 +346,7 @@ net(x)
 ```
 
 :begin_tab:`mxnet`
-我们现在不使用 `ndarray`，而不是使用 `symbol` 模块进行 `F`。此外，尽管输入是 `ndarray` 类型，但作为编译过程的一部分，通过网络流动的数据现在已转换为 `symbol` 类型。重复函数调用会导致令人惊讶的结果：
+而不是使用 `ndarray`，我们现在将 `symbol` 模块用于 `F`。此外，尽管输入是 `ndarray` 类型，但作为编译过程的一部分，通过网络流动的数据现在已转换为 `symbol` 类型。重复函数调用会导致令人惊讶的结果：
 :end_tab:
 
 ```{.python .input}
@@ -354,7 +354,7 @@ net(x)
 ```
 
 :begin_tab:`mxnet`
-这与我们之前看到的截然不同。省略 `hybrid_forward` 中定义的所有打印语句。事实上，在混合后，`net(x)` 的执行不再涉及 Python 解释器。这意味着，忽略任何虚假的 Python 代码（例如 print 语句），以利于更简化的执行和更好的性能。相反，MxNet 直接调用 C ++ 后端。另请注意，`symbol` 模块（例如 `asnumpy`）中不支持某些功能，而就地操作（如 `a += b` 和 `a[:] = a + b`）必须重写为 `a = a + b`。尽管如此，只要速度重要，汇编模型就值得付出努力。优势可以从小百分点到速度的两倍以上，具体取决于模型的复杂性、CPU 的速度以及 GPU 的速度和数量。
+这与我们之前看到的截然不同。省略 `hybrid_forward` 中定义的所有打印语句。事实上，混合后，`net(x)` 的执行不再涉及 Python 解释器。这意味着，忽略任何虚假的 Python 代码（例如 print 语句），以利于更简化的执行和更好的性能。相反，MxNet 直接调用 C ++ 后端。另请注意，`symbol` 模块（例如 `asnumpy`）中不支持某些功能，而就地操作（如 `a += b` 和 `a[:] = a + b`）必须重写为 `a = a + b`。尽管如此，只要速度重要，汇编模型就值得付出努力。优势可以从小百分点到速度的两倍以上，具体取决于模型的复杂性、CPU 的速度以及 GPU 的速度和数量。
 :end_tab:
 
 ## 摘要
@@ -364,7 +364,7 @@ net(x)
 
 :begin_tab:`mxnet`
 * MxNet 能够根据需要结合这两种方法的优势。
-* `HybridSequential` 和 `HybridBlock` 类构建的模型可以通过调用 `hybridize` 函数将命令性程序转换为符号程序。
+* 由 `HybridSequential` 和 `HybridBlock` 类构建的模型可以通过调用 `hybridize` 函数将命令性程序转换为符号程序。
 :end_tab:
 
 ## 练习
