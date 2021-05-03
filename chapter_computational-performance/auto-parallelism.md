@@ -166,7 +166,7 @@ with d2l.Benchmark('Run on GPU1 and copy to CPU'):
 ![The computational graph and its dependencies of a two-layer MLP on a CPU and two GPUs.](../img/twogpu.svg)
 :label:`fig_twogpu`
 
-## 摘要
+## 小结
 
 * 现代系统具有各种设备，例如多个 GPU 和 CPU。它们可以并行、异步使用。 
 * 现代系统还有各种通信资源，例如 PCI Express、存储（通常是固态硬盘或通过网络）和网络带宽。它们可以并行使用以实现峰值效率。 
