@@ -154,7 +154,7 @@ add_norm(d2l.ones((2, 3, 4)), d2l.ones((2, 3, 4))).shape
 
 ## 编码器
 
-现在有了组成 Transformer 编码器的基础组件，可以先实现编码器中的一个层。下面的 `EncoderBlock` 类包含两个子层：多头自注意力和基于位置的前馈网络，围绕着这两个子层都使用了残差连接和紧随的层归一化。
+有了组成 Transformer 编码器的基础组件，现在可以先实现编码器中的一个层。下面的 `EncoderBlock` 类包含两个子层：多头自注意力和基于位置的前馈网络，围绕着这两个子层都使用了残差连接和紧随的层归一化。
 
 ```{.python .input}
 #@save
@@ -213,7 +213,7 @@ encoder_blk.eval()
 encoder_blk(X, valid_lens).shape
 ```
 
-在下面的 Transformer 编码器的实现中，我们堆叠了 `num_layers` 个 `EncoderBlock` 类的实例。由于我们使用的是值范围在-1 和 1 之间的固定位置编码，因此在与位置编码相加之前，将可以学习的输入的嵌入表示的值乘以嵌入维度的平方根进行重新缩放。
+在下面的 Transformer 编码器的实现代码中，我们堆叠了 `num_layers` 个 `EncoderBlock` 类的实例。由于我们使用的是值范围在 $-1$ 和 $1$ 之间的固定位置编码，因此通过学习得到的输入的嵌入表示的值需要先乘以嵌入维度的平方根进行重新缩放，然后再与位置编码相加。
 
 ```{.python .input}
 #@save
@@ -274,7 +274,7 @@ class TransformerEncoder(d2l.Encoder):
         return X
 ```
 
-下面我们指定了超参数来创建一个双层 Transformer 编码器。Transformer 编码器输出的形状是（批量大小、时间步长、`num_hiddens`）。
+下面我们指定了超参数来创建一个两层的 Transformer 编码器。Transformer 编码器输出的形状是（批量大小、时间步的数目、`num_hiddens`）。
 
 ```{.python .input}
 encoder = TransformerEncoder(200, 24, 48, 8, 2, 0.5)
