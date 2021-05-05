@@ -242,7 +242,7 @@ train(num_gpus=2, batch_size=512, lr=0.2)
 train(net, num_gpus=2, batch_size=512, lr=0.2)
 ```
 
-## 摘要
+## 小结
 
 :begin_tab:`mxnet`
 * Gluon 通过提供上下文列表为跨多个设备的模型初始化提供了基元。

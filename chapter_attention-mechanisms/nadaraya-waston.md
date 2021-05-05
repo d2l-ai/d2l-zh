@@ -340,7 +340,7 @@ d2l.show_heatmaps(net.attention_weights.unsqueeze(0).unsqueeze(0),
                   ylabel='Sorted testing inputs')
 ```
 
-## 摘要
+## 小结
 
 * Nadaraya-Watson 核回归是具有注意力机制的机器学习示例。
 * Nadaraya-Watson 核回归的注意力池化是训练输出的加权平均值。从注意力的角度来看，根据查询的函数和与值配对的键，将注意力权重分配给值。

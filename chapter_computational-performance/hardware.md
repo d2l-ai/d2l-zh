@@ -187,7 +187,7 @@ GPU 内存受到更高的带宽要求，因为它们的处理元素比 CPU 多�
 | Transfer 1MB to/from PCI-E GPU  |  80 μs | ~12GB/s on PCI-Express x16 link         |
 :label:`table_latency_numbers_tesla`
 
-## 摘要
+## 小结
 
 * 设备有操作开销。因此，重要的是要瞄准少量大量转账，而不是许多小转账。这适用于 RAM、SSD、网络和 GPU。
 * 矢量化是性能的关键。确保你知道加速器的具体能力。例如，一些英特尔至强 CPU 对 INT8 操作特别有用，NVIDIA Volta GPU 在 FP16 矩阵矩阵操作中表现出色，NVIDIA Timon 在 FP16、INT8 和 INT4 操作中出色。
