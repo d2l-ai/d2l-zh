@@ -7,7 +7,7 @@
 * 我们可能会遇到这样的情况——一些标记没有相关的观测值。例如，在解析网页时，可能有一些辅助HTML代码与评估网页上传达的情绪无关。我们希望有一些机制来*跳过*隐状态表示中的此类标记。
 * 我们可能会遇到这样的情况——序列的各个部分之间存在逻辑中断。例如，书的章节之间可能会有一个过渡，或者证券的熊市和牛市之间可能会有一个过渡。在这种情况下，最好有一种方法来*重置*我们的内部状态表示。
 
-在学术界已经提出了许多方法来解决这个问题。其中最早的方法是"长-短记忆" :cite:`Hochreiter.Schmidhuber.1997` ，我们将在 :numref:`sec_lstm` 中讨论。门控循环单元（gated recurrent unit，GRU） :cite:`Cho.Van-Merrienboer.Bahdanau.ea.2014` 是一个稍微简化的变体，通常提供相当的性能，并且计算 :cite:`Chung.Gulcehre.Cho.ea.2014` 的速度明显更快。由于它的简单，让我们从门控循环单元开始。
+在学术界已经提出了许多方法来解决这个问题。其中最早的方法是"长-短记忆网络" :cite:`Hochreiter.Schmidhuber.1997` ，我们将在 :numref:`sec_lstm` 中讨论。门控循环单元（gated recurrent unit，GRU） :cite:`Cho.Van-Merrienboer.Bahdanau.ea.2014` 是一个稍微简化的变体，通常提供相当的性能，并且计算 :cite:`Chung.Gulcehre.Cho.ea.2014` 的速度明显更快。由于它的简单，让我们从门控循环单元开始。
 
 ## 门控隐藏状态
 
@@ -31,7 +31,7 @@ $$
 \end{aligned}
 $$
 
-其中$\mathbf{W}_{xr}, \mathbf{W}_{xz} \in \mathbb{R}^{d \times h}$和$\mathbf{W}_{hr}, \mathbf{W}_{hz} \in \mathbb{R}^{h \times h}$是权重参数，$\mathbf{b}_r, \mathbf{b}_z \in \mathbb{R}^{1 \times h}$是偏置参数。请注意，在求和过程中会触发广播机制（请参阅 :numref:`subsec_broadcasting` ）。我们使用sigmoid函数（如:numref:`sec_mlp`中介绍的）将输入值转换到区间$(0, 1)$。
+其中$\mathbf{W}_{xr}, \mathbf{W}_{xz} \in \mathbb{R}^{d \times h}$和$\mathbf{W}_{hr}, \mathbf{W}_{hz} \in \mathbb{R}^{h \times h}$是权重参数，$\mathbf{b}_r, \mathbf{b}_z \in \mathbb{R}^{1 \times h}$是偏置参数。请注意，在求和过程中会触发广播机制（请参阅 :numref:`subsec_broadcasting` ）。我们使用sigmoid函数（如 :numref:`sec_mlp` 中介绍的）将输入值转换到区间$(0, 1)$。
 
 ### 候选隐藏状态
 
@@ -42,7 +42,7 @@ $$\tilde{\mathbf{H}}_t = \tanh(\mathbf{X}_t \mathbf{W}_{xh} + \left(\mathbf{R}_t
 
 其中$\mathbf{W}_{xh} \in \mathbb{R}^{d \times h}$和$\mathbf{W}_{hh} \in \mathbb{R}^{h \times h}$是权重参数，$\mathbf{b}_h \in \mathbb{R}^{1 \times h}$是偏置项，符号$\odot$是哈达码乘积（按元素乘积）运算符。在这里，我们使用tanh非线性激活函数来确保候选隐藏状态中的值保持在区间$(-1, 1)$中。
 
-结果是*候选者*，因为我们仍然需要结合更新门的操作。与 :eqref:`rnn_h_with_state` 相比， :eqref:`gru_tilde_H` 中的$\mathbf{R}_t$和$\mathbf{H}_{t-1}$的元素相乘可以减少以往状态的影响。每当重置门$\mathbf{R}_t$中的项接近1时，我们恢复一个如:eqref:`rnn_h_with_state`中的循环神经网络。对于重置门$\mathbf{R}_t$中所有接近0的项，候选隐藏状态是以$\mathbf{X}_t$作为输入的多层感知机的结果。因此，任何预先存在的隐藏状态都会被*重置*为默认值。
+结果称为*候选者*，因为我们仍然需要结合更新门的操作。与 :eqref:`rnn_h_with_state` 相比， :eqref:`gru_tilde_H` 中的$\mathbf{R}_t$和$\mathbf{H}_{t-1}$的元素相乘可以减少以往状态的影响。每当重置门$\mathbf{R}_t$中的项接近1时，将恢复一个如 :eqref:`rnn_h_with_state` 中的循环神经网络。对于重置门$\mathbf{R}_t$中所有接近0的项，候选隐藏状态是以$\mathbf{X}_t$作为输入的多层感知机的结果。因此，任何预先存在的隐藏状态都会被*重置*为默认值。
 
 :numref:`fig_gru_2`说明了应用重置门之后的计算流程。
 
@@ -93,7 +93,7 @@ train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 
 ### 初始化模型参数
 
-下一步是初始化模型参数。我们从标准差为0.01的高斯分布中提取权重，并将偏置项设为0。超参数`num_hiddens`定义了隐藏单元的数量。我们实例化与更新门、重置门、候选隐藏状态和输出层相关的所有权重和偏置。
+下一步是初始化模型参数。我们从标准差为0.01的高斯分布中提取权重，并将偏置项设为0。超参数 `num_hiddens` 定义了隐藏单元的数量。我们实例化与更新门、重置门、候选隐藏状态和输出层相关的所有权重和偏置。
 
 ```{.python .input}
 def get_params(vocab_size, num_hiddens, device):
@@ -148,7 +148,7 @@ def get_params(vocab_size, num_hiddens, device):
 
 ### 定义模型
 
-现在我们将定义隐藏状态初始化函数`init_gru_state`。与 :numref:`sec_rnn_scratch` 中定义的`init_rnn_state`函数一样，此函数返回一个值均为零的形状为 (批量大小, 隐藏单元数) 的张量。
+现在我们将定义隐藏状态初始化函数 `init_gru_state` 。与  :numref:`sec_rnn_scratch` 中定义的 `init_rnn_state` 函数一样，此函数返回一个值均为零的形状为 (批量大小, 隐藏单元数) 的张量。
 
 ```{.python .input}
 def init_gru_state(batch_size, num_hiddens, device):

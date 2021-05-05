@@ -1,7 +1,7 @@
 # 长短期记忆网络（LSTM）
 :label:`sec_lstm`
 
-长期以来，隐变量模型存在着长期信息保存和短期输入跳跃的问题。解决这一问题的最早方法之一是长短期存储器(LSTM) :cite:`Hochreiter.Schmidhuber.1997`。它有许多与门控循环单元一样的属性。有趣的是，长短期记忆网络的设计比门控循环单元稍微复杂一些，但比门控循环单元早诞生了近20年。
+长期以来，隐变量模型存在着长期信息保存和短期输入跳跃的问题。解决这一问题的最早方法之一是长短期存储器（LSTM） :cite:`Hochreiter.Schmidhuber.1997`。它有许多与门控循环单元一样的属性。有趣的是，长短期记忆网络的设计比门控循环单元稍微复杂一些，但比门控循环单元早诞生了近20年。
 
 ## 门控记忆单元
 
@@ -48,7 +48,7 @@ $$\mathbf{C}_t = \mathbf{F}_t \odot \mathbf{C}_{t-1} + \mathbf{I}_t \odot \tilde
 
 如果遗忘门始终为1且输入门始终为0，则过去的记忆单元$\mathbf{C}_{t-1}$将随时间被保存并传递到当前时间步。引入这种设计是为了缓解梯度消失问题，并更好地捕获序列中的长距离依赖关系。
 
-这样我们就得到了流程图，如:numref:`lstm_2`。
+这样我们就得到了流程图，如 :numref:`lstm_2` 。
 
 ![在长短期记忆网络模型中计算存储单元。](../img/lstm-2.svg)
 
@@ -93,7 +93,7 @@ train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 
 ### 正在初始化模型参数
 
-接下来，我们需要定义和初始化模型参数。如前所述，超参数`num_hiddens`定义隐藏单元的数量。我们按照标准差0.01的高斯分布初始化权重，并将偏置设置为0。
+接下来，我们需要定义和初始化模型参数。如前所述，超参数 `num_hiddens` 定义隐藏单元的数量。我们按照标准差0.01的高斯分布初始化权重，并将偏置设置为0。
 
 ```{.python .input}
 def get_lstm_params(vocab_size, num_hiddens, device):
@@ -208,7 +208,7 @@ def lstm(inputs, state, params):
 
 ### 训练和预测
 
-让我们通过实例化 :numref:`sec_gru` 中引入的 `RNNModelScratch` 类来训练一个与我们在:numref:`sec_rnn_scratch` 中所实现的相同的LSTM。
+让我们通过实例化 :numref:`sec_gru` 中引入的 `RNNModelScratch` 类来训练一个与我们在 :numref:`sec_rnn_scratch` 中所实现的相同的LSTM。
 
 ```{.python .input}
 #@tab all
@@ -221,7 +221,7 @@ d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 
 ## 简洁实现
 
-使用高级API，我们可以直接实例化`LSTM`模型。这封装了我们上面介绍的所有细节。代码的运行速度要快得多，因为它使用编译后的运算符而不是Python来处理我们在前面详细说明的许多细节。
+使用高级API，我们可以直接实例化 `LSTM` 模型。这封装了我们上面介绍的所有细节。代码的运行速度要快得多，因为它使用编译后的运算符而不是Python来处理我们在前面详细说明的许多细节。
 
 ```{.python .input}
 lstm_layer = rnn.LSTM(num_hiddens)

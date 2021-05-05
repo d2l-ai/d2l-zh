@@ -54,7 +54,7 @@ batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 ```
 
-选择超参数等结构决策与 :numref:`sec_lstm` 的决策非常相似。我们选择相同数量的输入和输出，因为我们有不同的标记，即`vocab_size`。隐藏单元的数量仍然是256。唯一的区别是，我们现在通过指定`num_layers`的值来指定隐藏层数。
+选择超参数等结构决策与 :numref:`sec_lstm` 的决策非常相似。我们选择相同数量的输入和输出，因为我们有不同的标记，即` vocab_size` 。隐藏单元的数量仍然是256。唯一的区别是，我们现在通过指定 `num_layers` 的值来指定隐藏层数。
 
 ```{.python .input}
 vocab_size, num_hiddens, num_layers = len(vocab), 256, 2

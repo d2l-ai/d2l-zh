@@ -1,7 +1,7 @@
 # 编码器-解码器结构
 :label:`sec_encoder-decoder`
 
-正如我们在:numref:`sec_machine_translation`中所讨论的，机器翻译是序列转换模型的一个核心问题，其输入和输出都是可变长度序列。为了处理这种类型的输入和输出，我们可以设计一个包含两个主要组件的结构。第一个组件是一个*编码器*（encoder）：它接受一个可变长度的序列作为输入，并将其转换为具有固定形状的编码状态。第二个组件是*解码器*（decoder）：它将固定形状的编码状态映射到可变长度序列。这被称为*编码器-解码器*（encoder-decoder）结构。如:numref:`fig_encoder_decoder`所示。
+正如我们在 :numref:`sec_machine_translation` 中所讨论的，机器翻译是序列转换模型的一个核心问题，其输入和输出都是可变长度序列。为了处理这种类型的输入和输出，我们可以设计一个包含两个主要组件的结构。第一个组件是一个*编码器*（encoder）：它接受一个可变长度的序列作为输入，并将其转换为具有固定形状的编码状态。第二个组件是*解码器*（decoder）：它将固定形状的编码状态映射到可变长度序列。这被称为*编码器-解码器*（encoder-decoder）结构。如 :numref:`fig_encoder_decoder` 所示。
 
 ![编码器-解码器结构](../img/encoder-decoder.svg)
 :label:`fig_encoder_decoder`
@@ -41,7 +41,7 @@ class Encoder(nn.Module):
 
 ## 解码器
 
-在下面的解码器接口中，我们添加了一个额外的`init_state`函数来将编码器输出（`enc_outputs`）转换为编码状态。请注意，此步骤可能需要额外的输入，例如输入的有效长度，这在:numref:`subsec_mt_data_loading`中进行了解释。为了逐个标记生成可变长度标记序列，每次解码器可将输入（例如，在前一时间步生成的标记）和编码状态映射到当前时间步的输出标记。
+在下面的解码器接口中，我们添加了一个额外的 `init_state` 函数来将编码器输出 `enc_outputs` 转换为编码状态。请注意，此步骤可能需要额外的输入，例如输入的有效长度，这在 :numref:`subsec_mt_data_loading` 中进行了解释。为了逐个标记生成可变长度标记序列，每次解码器可将输入（例如，在前一时间步生成的标记）和编码状态映射到当前时间步的输出标记。
 
 ```{.python .input}
 #@save
