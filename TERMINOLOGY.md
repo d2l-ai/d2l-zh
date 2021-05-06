@@ -60,6 +60,8 @@
 
 多层感知机，multilayer perceptron
 
+多头注意力，multi-head attention
+
 二元分类，binary classification
 
 二元语法，bigram
@@ -262,12 +264,18 @@ softmax回归，softmax regression
 
 运算符，operator
 
+自注意力，self-attention
+
 真实值，ground truth
 
 指标，metric
 
 支持向量机，support vector machine
 
-注意力机制模型，attention model
+注意力机制，attention mechanism
+
+注意力模型，attention model
+
+注意力线索，attention cue
 
 准确率，accuracy
