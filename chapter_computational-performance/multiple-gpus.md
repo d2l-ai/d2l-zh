@@ -353,8 +353,8 @@ train(num_gpus=2, batch_size=256, lr=0.2)
 
 1. 在 $k$ GPU 上进行培训时，将小批量大小从 $b$ 更改为 $k \cdot b$，即按 GPU 的数量向上扩展。
 1. 比较不同学习率的准确性。它如何随着 GPU 的数量进行扩展？
-1. 实施一个更高效的 `allreduce` 函数来聚合不同的 GPU 上的不同参数？为什么效率更高？
-1. 实施多 GPU 测试精度计算。
+1. 实现更高效的`allreduce`功能，在不同的GPU上聚合不同的参数？为什么它的效率更高？
+1. 实现多GPU测试精度计算。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/364)
