@@ -102,6 +102,8 @@
 
 过拟合，overfitting
 
+核回归，kernel regression
+
 恒等映射，identity mapping
 
 假设，hypothesis
@@ -116,7 +118,7 @@
 
 局部最小值，local minimum
 
-卷积核，kernel
+卷积核，convolutional kernel
 
 卷积神经网络，convolutional neural network
 
