@@ -1,11 +1,11 @@
-# Kaggle 上的图像分类 (CIFAR-10)
+# 实战 Kaggle 比赛：图像分类（CIFAR-10）
 :label:`sec_kaggle_cifar10`
 
 到目前为止，我们一直在使用深度学习框架的高级 API 直接获取 Tensor 格式的图像数据集。但是，自定义图像数据集通常以图像文件的形式出现。在本节中，我们将从原始图像文件开始，然后逐步整理、阅读，然后将它们转换为张量格式。 
 
-我们在 :numref:`sec_image_augmentation` 中尝试了 CIFAR-10 数据集，这是计算机视觉中的重要数据集。在本节中，我们将运用我们在前几节中学到的知识来练习 CIFAR-10 图像分类的 Kaggle 竞赛。比赛的网址是 https://www.kaggle.com/c/cifar-10 
+我们在 :numref:`sec_image_augmentation` 中尝试了 CIFAR-10 数据集，这是计算机视觉中的重要数据集。在本节中，我们将运用我们在前几节中学到的知识来练习 CIFAR-10 图像分类的 Kaggle 比赛。比赛的网址是 https://www.kaggle.com/c/cifar-10 
 
-:numref:`fig_kaggle_cifar10` 在竞争对手的网页上显示了信息。为了提交结果，您需要注册 Kaggle 账户。 
+:numref:`fig_kaggle_cifar10` 展示了该比赛的网页信息。为了便于提交结果，请先在Kaggle网站上注册账号。
 
 ![CIFAR-10 image classification competition webpage information. The competition dataset can be obtained by clicking the "Data" tab.](../img/kaggle-cifar10.png)
 :width:`600px`
@@ -37,11 +37,11 @@ import pandas as pd
 import shutil
 ```
 
-## 获取和组织数据集
+## 获取和整理数据集
 
 比赛数据集分为训练集和测试集，分别包含 50000 张和 300000 张图像。在测试集中，10000 张图像将用于评估，而剩下的 290000 张图像将不会进行评估：包含它们只是为了使其难以作弊
 *手动 * 标记测试集的结果。
-此数据集中的图像都是 png 颜色（RGB 通道）图像文件，其高度和宽度均为 32 像素。这些图片共涵盖 10 个类别，即飞机、汽车、鸟类、猫、鹿、狗、青蛙、马、船和卡车。:numref:`fig_kaggle_cifar10` 的左上角显示了数据集中飞机、汽车和鸟类的一些图像。 
+此数据集中的图像都是 png 颜色（RGB 通道）图像文件，其高度和宽度均为 32 像素。这些图片共涵盖 10 个类别，即飞机、汽车、鸟类、猫、鹿、狗、青蛙、马、船和卡车。:numref:`fig_kaggle_cifar10` 的左上角显示了数据集中飞机、汽车和鸟类的图像。 
 
 ### 下载数据集
 
@@ -72,7 +72,7 @@ else:
     data_dir = '../data/cifar-10/'
 ```
 
-### 组织数据集
+### 整理数据集
 
 我们需要组织数据集来促进模型训练和测试。让我们首先阅读 csv 文件中的标签。以下函数返回一个字典，该字典将文件名的非扩展名部分映射到其标签。
 
@@ -212,9 +212,9 @@ transform_test = torchvision.transforms.Compose([
                                      [0.2023, 0.1994, 0.2010])])
 ```
 
-## 阅读数据集
+## 读取数据集
 
-接下来，我们阅读由原始图像文件组成的组织数据集。每个示例都包括一张图片和一个标签。
+接下来，我们读取由原始图像文件组成的组织数据集。每个示例都包括一张图片和一个标签。
 
 ```{.python .input}
 train_ds, valid_ds, train_valid_ds, test_ds = [
@@ -347,7 +347,7 @@ def get_net():
 loss = nn.CrossEntropyLoss(reduction="none")
 ```
 
-## 定义训练功能
+## 定义训练函数
 
 我们将根据模型在验证集上的性能选择模型并调整超参数。在下面，我们定义了模型训练函数 `train`。
 
@@ -428,7 +428,7 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
           f'on {str(devices)}')
 ```
 
-## 培训和验证模型
+## 训练和验证模型
 
 现在，我们可以训练和验证模型。以下所有超参数都可以调整。例如，我们可以增加纪元的数量。当 `lr_period` 和 `lr_decay` 分别设置为 50 和 0.1 时，优化算法的学习速率将在每 50 个纪元后乘以 0.1。只是为了示范，我们在这里只训练一个时代。
 
@@ -486,7 +486,7 @@ df.to_csv('submission.csv', index=False)
 
 上面的代码将生成一个 `submission.csv` 文件，其格式符合 Kaggle 竞争的要求。向 Kaggle 提交结果的方法与 :numref:`sec_kaggle_house` 中的方法类似。 
 
-## 摘要
+## 小结
 
 * 将包含原始图像文件的数据集组织为所需格式后，我们可以读取它们。
 
