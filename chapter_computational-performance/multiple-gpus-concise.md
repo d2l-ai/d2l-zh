@@ -129,7 +129,7 @@ weight.data(devices[0])[0], weight.data(devices[1])[0]
 ```
 
 :begin_tab:`mxnet`
-接下来，让我们用一个在多个设备上并行工作的代码来替换评估准确性的代码。这是 :numref:`sec_lenet` 的`evaluate_accuracy_gpu`功能的替代。主要区别在于，我们在调用网络之前拆分了一个小批量。其他的基本上都是一样的。
+接下来，让我们用一个在多个设备上并行工作的代码来替换评估准确性的代码。这是 :numref:`sec_lenet` 的`evaluate_accuracy_gpu`函数的替代。主要区别在于，我们在调用网络之前拆分了一个小批量。其他的基本上都是一样的。
 :end_tab:
 
 ```{.python .input}
