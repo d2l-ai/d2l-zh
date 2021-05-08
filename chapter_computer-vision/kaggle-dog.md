@@ -1,4 +1,4 @@
-# 实战Kaggle比赛：狗的品种识别（ImageNet Dogs）
+# 实战 Kaggle 比赛：狗的品种识别（ImageNet Dogs）
 
 本节我们将在 Kaggle 上实战狗品种识别问题。本次比赛的网址是 https://www.kaggle.com/c/dog-breed-identification 
 
