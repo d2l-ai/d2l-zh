@@ -1,6 +1,6 @@
 # 序言
 
-几年前，没有大量深度学习科学家在大公司和初创公司开发智能产品和服务。我们中年轻人（作者）进入这个领域时，机器学习并没有在报纸上获得头条新闻。我们的父母根本不知道什么是机器学习，更不用说为什么我们可能更喜欢机器学习，而不是从事医学或法律职业。机器学习是一门具有前瞻性的学科，在现实世界的应用范围很窄。而那些应用，例如语音识别和计算机视觉，需要大量的领域知识，以至于它们通常被认为是完全独立的领域，而机器学习对于这些领域来说只是一个小组件。因此，神经网络——我们在本书中关注的深度学习模型的前身，被认为是过时的工具。
+几年前，在大公司和初创公司中，并没有大量的深度学习科学家开发智能产品和服务。我们中年轻人（作者）进入这个领域时，机器学习并没有在报纸上获得头条新闻。我们的父母根本不知道什么是机器学习，更不用说为什么我们可能更喜欢机器学习，而不是从事医学或法律职业。机器学习是一门具有前瞻性的学科，在现实世界的应用范围很窄。而那些应用，例如语音识别和计算机视觉，需要大量的领域知识，以至于它们通常被认为是完全独立的领域，而机器学习对于这些领域来说只是一个小组件。因此，神经网络——我们在本书中关注的深度学习模型的前身，被认为是过时的工具。
 
 就在过去的五年里，深度学习给世界带来了惊喜，推动了计算机视觉、自然语言处理、自动语音识别、强化学习和统计建模等领域的快速发展。有了这些进步，我们现在可以制造比以往任何时候都更自主的汽车（不过可能没有一些公司试图让你相信的那么自主），可以自动起草普通邮件的智能回复系统，帮助人们从令人压抑的大收件箱中挖掘出来。在围棋等棋类游戏中，软件超越了世界上最优秀的人，这曾被认为是几十年后的事。这些工具已经对工业和社会产生了越来越广泛的影响，改变了电影的制作方式、疾病的诊断方式，并在基础科学中扮演着越来越重要的角色——从天体物理学到生物学。
 
@@ -133,9 +133,9 @@ import tensorflow as tf
 
 与本书相关，我们已经启动了一个论坛，在[discuss.d2l.ai](https://discuss.d2l.ai/)。当你对本书的任何一节有疑问时，你可以在每一节的末尾找到相关的讨论页链接。
 
-## 确认
+## 致谢
 
-我们感谢数以百计的英文和中文草稿的撰稿人。他们帮助改进了内容或提供了有价值的反馈。特别地，我们要感谢每一位英文稿的撰稿人，感谢他们为大家做得更好。他们的GitHub ID或名称是(没有特定顺序)：alxnorden, avinashingit, bowen0701, brettkoonce, Chaitanya Prakash Bapat,
+我们感谢中英文草稿的数百位撰稿人。他们帮助改进了内容并提供了宝贵的反馈。特别地，我们要感谢这份中文稿的每一位撰稿人，是他们的无私奉献让这本书变得更好。他们的GitHub ID或名称是(没有特定顺序)：alxnorden, avinashingit, bowen0701, brettkoonce, Chaitanya Prakash Bapat,
 cryptonaut, Davide Fiocco, edgarroman, gkutiel, John Mitro, Liang Pu,
 Rahul Agarwal, Mohamed Ali Jamaoui, Michael (Stu) Stewart, Mike Müller,
 NRauschmayr, Prakhar Srivastav, sad-, sfermigier, Sheng Zha, sundeepteki,
@@ -162,7 +162,8 @@ Hoa Nguyen, manuel-arno-korfmann-webentwicklung, aterzis-personal, nxby, Xiaotin
 mathresearch, mzz2017, jroberayalas, iluu, ghejc, BSharmi, vkramdev, simonwardjones, LakshKD,
 TalNeoran, djliden, Nikhil95, Oren Barkan, guoweis, haozhu233, pratikhack, 315930399, tayfununal,
 steinsag, charleybeller, Andrew Lumsdaine, Jiekui Zhang, Deepak Pathak, Florian Donhauser, Tim Gates,
-Adriaan Tijsseling, Ron Medina, Gaurav Saha, Murat Semerci, [Lei Mao](https://github.com/leimao)
+Adriaan Tijsseling, Ron Medina, Gaurav Saha, Murat Semerci, [Lei Mao](https://github.com/leimao), [Zhu Yuanxiang](https://zhuyuanxiang.github.io),
+[thebesttv](https://github.com/thebesttv/)。
 
 我们感谢Amazon Web Services，特别是Swami Sivasubramanian、Raju Gulabani、Charlie Bell和Andrew Jassy对撰写本书的慷慨支持。如果没有可用的时间、资源、与同事的讨论和不断的鼓励，这本书就不会出版。
 

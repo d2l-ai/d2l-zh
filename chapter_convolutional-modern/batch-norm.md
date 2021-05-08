@@ -23,19 +23,19 @@
 
 批量归一化应用于单个可选层（也可以应用到所有层），其原理如下：在每次训练迭代中，我们首先归一化输入，即通过减去其均值并除以其标准差，其中两者均基于当前小批量处理。
 接下来，我们应用比例系数和比例偏移。
-正是由于这个基于*批量*统计的*标准化*，才有了*批量归一化*的名称。。
+正是由于这个基于*批量*统计的*标准化*，才有了*批量归一化*的名称。
 
 请注意，如果我们尝试使用大小为 1 的小批量应用批量归一化，我们将无法学到任何东西。
 这是因为在减去均值之后，每个隐藏单元将为 0。
 所以，只有使用足够大的小批量，批量归一化这种方法才是有效且稳定的。
 请注意，在应用批量归一化时，批量大小的选择可能比没有批量归一化时更重要。
 
-从形式上来说，用 $\mathbf{x} \in \mathcal{B}$ 表示一个来自小批量 $\mathcal{B}$ 的输入，批量归一化$\mathrm{BN}$ 根据以下表达式转换 $\mathbf{x}$：
+从形式上来说，用 $\mathbf{x} \in \mathcal{B}$ 表示一个来自小批量 $\mathcal{B}$ 的输入，批量归一化 $\mathrm{BN}$ 根据以下表达式转换 $\mathbf{x}$：
 
 $$\mathrm{BN}(\mathbf{x}) = \boldsymbol{\gamma} \odot \frac{\mathbf{x} - \hat{\boldsymbol{\mu}}_\mathcal{B}}{\hat{\boldsymbol{\sigma}}_\mathcal{B}} + \boldsymbol{\beta}.$$
 :eqlabel:`eq_batchnorm`
 
-在 :eqref:`eq_batchnorm` 中，$\hat{\boldsymbol{\mu}}_\mathcal{B}$ 是样本均值，$\hat{\boldsymbol{\mu}}_\mathcal{B}$ 是小批量 $\mathcal{B}$ 的样本标准差。
+在 :eqref:`eq_batchnorm` 中，$\hat{\boldsymbol{\mu}}_\mathcal{B}$ 是样本均值，$\hat{\boldsymbol{\sigma}}_\mathcal{B}$ 是小批量 $\mathcal{B}$ 的样本标准差。
 应用标准化后，生成的小批量的平均值为 0 和单位方差为 1。
 由于单位方差（与其他一些魔法数）是一个任意的选择，因此我们通常包含
 *拉伸参数*（scale） $\boldsymbol{\gamma}$ 和 *偏移参数*（shift） $\boldsymbol{\beta}$，它们的形状与 $\mathbf{x}$ 相同。
