@@ -278,6 +278,6 @@ softmax回归，softmax regression
 
 注意力模型，attention model
 
-注意力线索，attention cue
+注意力提示，attention cue
 
 准确率，accuracy
