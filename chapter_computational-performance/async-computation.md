@@ -208,9 +208,9 @@ Python前端线程和C++后端线程之间的简化交互可以概括如下：
 :end_tab:
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/361)
+[Discussions](https://discuss.d2l.ai/t/2792)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/2564)
+[Discussions](https://discuss.d2l.ai/t/2791)
 :end_tab:

@@ -357,9 +357,9 @@ train(num_gpus=2, batch_size=256, lr=0.2)
 1. 实现多GPU测试精度计算。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/364)
+[Discussions](https://discuss.d2l.ai/t/2801)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1669)
+[Discussions](https://discuss.d2l.ai/t/2800)
 :end_tab:

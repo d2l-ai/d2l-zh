@@ -550,9 +550,9 @@ for eng, fra in zip(engs, fras):
 1. 有没有其他方法来设计解码器的输出层？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/345)
+[Discussions](https://discuss.d2l.ai/t/2783)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1062)
+[Discussions](https://discuss.d2l.ai/t/2782)
 :end_tab:

@@ -241,7 +241,7 @@ d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 1. 如果你只实现门控循环单元的一部分，例如，只有一个重置门或只有一个更新门，会发生什么情况？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/342)
+[Discussions](https://discuss.d2l.ai/t/2764)
 :end_tab:
 
 :begin_tab:`pytorch`
