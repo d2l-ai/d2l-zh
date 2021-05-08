@@ -121,9 +121,9 @@ class EncoderDecoder(nn.Module):
 1. 除了机器翻译，你能想到另一个可以适用于”编码器－解码器“结构的应用吗？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/341)
+[Discussions](https://discuss.d2l.ai/t/2780)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1061)
+[Discussions](https://discuss.d2l.ai/t/2779)
 :end_tab:

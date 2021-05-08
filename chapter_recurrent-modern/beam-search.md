@@ -71,4 +71,4 @@ $$ \frac{1}{L^\alpha} \log P(y_1, \ldots, y_{L}) = \frac{1}{L^\alpha} \sum_{t'=1
 1. 在 :numref:`sec_seq2seq` 的机器翻译问题中应用束搜索。束宽如何影响结果和预测速度？
 1. 在 :numref:`sec_rnn_scratch` 中，我们使用语言模型来生成用户提供前缀的文本。它使用了哪种搜索策略？你能改进吗？
 
-[Discussions](https://discuss.d2l.ai/t/338)
+[Discussions](https://discuss.d2l.ai/t/2786)

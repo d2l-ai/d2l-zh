@@ -202,9 +202,9 @@ for X, X_valid_len, Y, Y_valid_len in train_iter:
 1. 某些语言（例如中文和日语）的文本没有单词边界指示符（例如，空格）。对于这种情况，单词级标记化仍然是个好主意吗？为什么？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/344)
+[Discussions](https://discuss.d2l.ai/t/2777)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1060)
+[Discussions](https://discuss.d2l.ai/t/2776)
 :end_tab:

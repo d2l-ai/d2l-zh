@@ -166,9 +166,9 @@ d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 1. 一词多义在自然语言中很常见。例如，“bank”一词在“i went to the bank to deposit cash”和“i went to the bank to sit down”中有不同的含义。我们如何设计一个神经网络模型，使其在给定上下文序列和单词的情况下，返回该单词在上下文中的向量表示？哪种类型的神经结构更适合处理一词多义？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/339)
+[Discussions](https://discuss.d2l.ai/t/2774)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1059)
+[Discussions](https://discuss.d2l.ai/t/2773)
 :end_tab:

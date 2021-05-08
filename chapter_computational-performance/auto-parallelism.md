@@ -181,9 +181,9 @@ with d2l.Benchmark('在GPU1上运行并复制到CPU'):
 1. 设计包含更复杂数据依赖关系的计算任务，并运行实验，以查看是否可以在提高性能的同时获得正确的结果。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/362)
+[Discussions](https://discuss.d2l.ai/t/2795)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1681)
+[Discussions](https://discuss.d2l.ai/t/2794)
 :end_tab:
