@@ -2,9 +2,13 @@
 
 本节我们将在 Kaggle 上实战狗品种识别问题。本次比赛的网址是 https://www.kaggle.com/c/dog-breed-identification 
 
-在这场比赛中，将识别 120 类不同品种的狗。这个比赛的数据集实际上是著名的 ImageNet 的子集数据集。与 :numref:`sec_kaggle_cifar10` 中 CIFAR-10 数据集中的图像不同，ImageNet数据集中的图像更高更宽，且尺寸不一。:numref:`fig_kaggle_dog` 显示了竞争对手网页上的信息。您需要一个 Kaggle 账户才能提交结果。 
+在这场比赛中，我们将识别 120 类不同品种的狗。
+这个比赛的数据集实际上是著名的 ImageNet 的子集数据集，却与 :numref:`sec_kaggle_cifar10` 中 CIFAR-10 数据集中的图像不同。
+ImageNet数据集中的图像更高更宽，且尺寸不一。
+:numref:`fig_kaggle_dog` 显示了鉴定比赛网页上的信息。
+你需要一个 Kaggle 账户才能提交结果。 
 
-![The dog breed identification competition website. The competition dataset can be obtained by clicking the "Data" tab.](../img/kaggle-dog.jpg)
+![狗的品种鉴定比赛网站，你可以通过单击“数据”选项卡来获得比赛数据集。](../img/kaggle-dog.jpg)
 :width:`400px`
 :label:`fig_kaggle_dog`
 
@@ -32,14 +36,14 @@ import os
 
 ### 下载数据集
 
-登录 Kaggle 后，您可以点击 :numref:`fig_kaggle_dog` 中显示的竞争网页上的 “数据” 选项卡，然后点击 “全部下载” 按钮下载数据集。在 `../data` 中解压下载的文件后，您将在以下路径中找到整个数据集： 
+登录 Kaggle 后，你可以点击 :numref:`fig_kaggle_dog` 中显示的竞争网页上的 “数据” 选项卡，然后点击 “全部下载” 按钮下载数据集。在 `../data` 中解压下载的文件后，你将在以下路径中找到整个数据集： 
 
 * ../data/dog-breed-identification/labels.csv
 * ../data/dog-breed-identification/sample_submission.csv
 * ../数据/种身份识别/火车
 * ../数据/种身份识别/测试
 
-你可能已经注意到，上述结构与 :numref:`sec_kaggle_cifar10` 的 CIFAR-10 竞争对手类似，其中文件夹 `train/` 和 `test/` 分别包含训练和测试狗图像，`labels.csv` 包含训练图像的标签。同样，为了便于入门，我们提供了上面提到的数据集的一小部分示例：`train_valid_test_tiny.zip`。如果您要在 Kaggle 比赛中使用完整的数据集，则需要将下面的 `demo` 变量更改为 `False`。
+你可能已经注意到，上述结构与 :numref:`sec_kaggle_cifar10` 的 CIFAR-10 竞争对手类似，其中文件夹 `train/` 和 `test/` 分别包含训练和测试狗图像，`labels.csv` 包含训练图像的标签。同样，为了便于入门，我们提供了上面提到的数据集的一小部分示例：`train_valid_test_tiny.zip`。如果你要在 Kaggle 比赛中使用完整的数据集，则需要将下面的 `demo` 变量更改为 `False`。
 
 ```{.python .input}
 #@tab all
