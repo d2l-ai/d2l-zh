@@ -1,4 +1,4 @@
-# Kaggle 上的图像分类 (CIFAR-10)
+# 实战 Kaggle 比赛：图像分类 (CIFAR-10)
 :label:`sec_kaggle_cifar10`
 
 到目前为止，我们一直在使用深度学习框架的高级 API 直接获取张量格式的图像数据集。
