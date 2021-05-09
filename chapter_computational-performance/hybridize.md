@@ -380,13 +380,13 @@ net(x)
 :end_tab:
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/360)
+[Discussions](https://discuss.d2l.ai/t/2789)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/2490)
+[Discussions](https://discuss.d2l.ai/t/2788)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/2492)
+[Discussions](https://discuss.d2l.ai/t/2787)
 :end_tab:

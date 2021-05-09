@@ -264,9 +264,9 @@ train(net, num_gpus=2, batch_size=512, lr=0.2)
 :end_tab:
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/365)
+[Discussions](https://discuss.d2l.ai/t/2804)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1403)
+[Discussions](https://discuss.d2l.ai/t/2803)
 :end_tab:
