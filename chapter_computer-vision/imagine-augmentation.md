@@ -1,14 +1,13 @@
 # 图像增强
 :label:`sec_image_augmentation`
 
-我们提到过，大规模数据集是 :numref:`sec_alexnet` 中成功应用深度神经网络的先决条件。
-图像增强技术通过对训练图像进行一系列的随机变化来产生相似但不同的训练样本，从而扩展了训练数据集的规模。
-另一种解释图像增强的方法是，随机改变训练样本可以减少模型对某些属性的依赖，从而提高模型的泛化能力。
+在 :numref:`sec_alexnet` 中，我们提到过大型数据集是成功应用深度神经网络的先决条件。
+图像增强在对训练图像进行一系列的随机变化之后，生成相似但不同的训练样本，从而扩大了训练集的规模。
+此外，应用图像增强的原因是，随机改变训练样本可以减少模型对某些属性的依赖，从而提高模型的泛化能力。
 例如，我们可以以不同的方式裁剪图像，使感兴趣的对象出现在不同的位置，减少模型对于对象出现位置的依赖。
 我们还可以调整亮度、颜色等因素来降低模型对颜色的敏感度。
-可以说，图像增强技术为AlexNet的成功做出了巨大的贡献。在本节中，我们将讨论这项广泛应用于计算机视觉的技术。
+可以说，图像增强技术对于AlexNet的成功是必不可少的。在本节中，我们将讨论这项广泛应用于计算机视觉的技术。
 
-首先，导入本节中实验所需的包或模块。
 
 ```{.python .input}
 %matplotlib inline
@@ -30,7 +29,7 @@ from torch import nn
 
 ## 常用的图像增强方法
 
-在这个实验中，我们将使用一个尺寸为 $400\times 500$ 的图像作为示例。
+我们对常用图像增强方法的探索中，我们将使用下面这个尺寸为 $400\times 500$ 的图像作为示例。
 
 ```{.python .input}
 d2l.set_figsize()
@@ -57,7 +56,8 @@ def apply(img, aug, num_rows=2, num_cols=4, scale=1.5):
 
 ### 翻转和裁剪
 
-左右翻转图像通常不会改变对象的类别。这是最早和最广泛使用的图像增强方法之一。接下来，我们使用 `transforms` 模块来创建 `RandomFlipLeftRight` 实例，这样就各有50%的几率使图像向左或向右翻转。
+左右翻转图像通常不会改变对象的类别。这是最早和最广泛使用的图像增强方法之一。
+接下来，我们使用 `transforms` 模块来创建 `RandomFlipLeftRight` 实例，这样就各有50%的几率使图像向左或向右翻转。
 
 ```{.python .input}
 apply(img, gluon.data.vision.transforms.RandomFlipLeftRight())
@@ -79,9 +79,14 @@ apply(img, gluon.data.vision.transforms.RandomFlipTopBottom())
 apply(img, torchvision.transforms.RandomVerticalFlip())
 ```
 
-在我们使用的示例图像中，猫位于图像的中间，但并非所有图像都是这样。在 :numref:`sec_pooling` 中，我们解释了池层可以降低卷积层对目标位置的敏感性。另外，我们可以通过对图像进行随机裁剪，使物体以不同的比例出现在图像的不同位置。这也可以降低模型对目标位置的敏感性。
+在我们使用的示例图像中，猫位于图像的中间，但并非所有图像都是这样。
+在 :numref:`sec_pooling` 中，我们解释了池化层可以降低卷积层对目标位置的敏感性。
+另外，我们可以通过对图像进行随机裁剪，使物体以不同的比例出现在图像的不同位置。
+这也可以降低模型对目标位置的敏感性。
 
-在下面的代码中，我们随机裁剪一个面积为原始面积10%到100%的区域，该区域的宽高比从0.5到2之间随机取值。然后，区域的宽度和高度都被缩放到200像素。除非另有说明，否则在本节中，$a$和$b$之间的随机数指的是在区间$[a, b]$中通过均匀采样获得的连续值。
+在下面的代码中，我们随机裁剪一个面积为原始面积10%到100%的区域，该区域的宽高比从0.5到2之间随机取值。
+然后，区域的宽度和高度都被缩放到200像素。
+在本节中（除非另有说明），$a$和$b$之间的随机数指的是在区间$[a, b]$中通过均匀采样获得的连续值。
 
 ```{.python .input}
 shape_aug = gluon.data.vision.transforms.RandomResizedCrop(
@@ -98,7 +103,9 @@ apply(img, shape_aug)
 
 ### 改变颜色
 
-另一种增强方法是改变颜色。我们可以改变图像颜色的四个方面：亮度、对比度、饱和度和色调。在下面的示例中，我们将图像的亮度更改为原始图像的50%（$1-0.5$）到150%（$1+0.5$）之间的随机值。
+另一种增强方法是改变颜色。
+我们可以改变图像颜色的四个方面：亮度、对比度、饱和度和色调。
+在下面的示例中，我们将图像的亮度更改为原始图像的50%（$1-0.5$）到150%（$1+0.5$）之间的随机值。
 
 ```{.python .input}
 apply(img, gluon.data.vision.transforms.RandomBrightness(0.5))
@@ -137,9 +144,9 @@ color_aug = torchvision.transforms.ColorJitter(
 apply(img, color_aug)
 ```
 
-### 叠加多种图像增强方法
+### 结合多种图像增强方法
 
-在实践中，我们将叠加多种图像增强方法。我们可以通过使用一个 `Compose` 实例来叠加上面定义的不同的图像增强方法，并将它们应用到每个图像。
+在实践中，我们将结合多种图像增强方法。比如，我们可以通过使用一个 `Compose` 实例来综合上面定义的不同的图像增强方法，并将它们应用到每个图像。
 
 ```{.python .input}
 augs = gluon.data.vision.transforms.Compose([
@@ -154,9 +161,12 @@ augs = torchvision.transforms.Compose([
 apply(img, augs)
 ```
 
-## 使用图像增强训练模型
+## 使用图像增强进行训练
 
-接下来，我们将研究如何在实际训练中应用图像增强。这里，我们使用CIFAR-10数据集，而不是我们一直使用的Fashion-MNIST数据集。这是因为Fashion-MNIST数据集中对象的位置和大小已被规范化，而CIFAR-10数据集中对象的颜色和大小差异更明显。CIFAR-10数据集中的前32个训练图像如下所示。
+让我们使用图像增强来训练模型。
+这里，我们使用CIFAR-10数据集，而不是我们之前使用的Fashion-MNIST数据集。
+这是因为Fashion-MNIST数据集中对象的位置和大小已被规范化，而CIFAR-10数据集中对象的颜色和大小差异更明显。
+CIFAR-10数据集中的前32个训练图像如下所示。
 
 ```{.python .input}
 d2l.show_images(gluon.data.vision.CIFAR10(
@@ -170,8 +180,18 @@ all_images = torchvision.datasets.CIFAR10(train=True, root="../data",
 d2l.show_images([all_images[i][0] for i in range(32)], 4, 8, scale=0.8);
 ```
 
-为了在预测过程中得到确切的结果，我们通常对训练样本只进行图像增强，而在预测过程中不使用随机操作的图像增强。在这里，我们只使用最简单的随机左右翻转方法。
-此外，我们使用 `ToTensor` 实例将minibatch图像转换成MXNet所要求的格式，即形状为（批量大小，通道数，高度，宽度）的32位浮点数，取值范围为0到1。
+:begin_tab:`mxnet`
+为了在预测过程中得到确切的结果，我们通常对训练样本只进行图像增强，且在预测过程中不使用随机操作的图像增强。
+在这里，我们只使用最简单的随机左右翻转。
+此外，我们使用 `ToTensor` 实例将小批量图像转换成深度学习框架所要求的格式，即形状为（批量大小，通道数，高度，宽度）的32位浮点数，取值范围为0到1。
+:end_tab:
+
+:begin_tab:`pytorch`
+为了在预测过程中得到确切的结果，我们通常对训练样本只进行图像增强，且在预测过程中不使用随机操作的图像增强。
+在这里，我们只使用最简单的随机左右翻转。
+此外，我们使用 `ToTensor` 实例将一批图像转换为深度学习框架所要求的格式，即形状为（批量大小，通道数，高度，宽度）的32位浮点数，取值范围为0到1。
+:end_tab:
+
 
 ```{.python .input}
 train_augs = gluon.data.vision.transforms.Compose([
@@ -192,7 +212,13 @@ test_augs = torchvision.transforms.Compose([
      torchvision.transforms.ToTensor()])
 ```
 
-接下来，我们定义了一个辅助函数，以便于读取图像和应用图像增强。Gluon数据集提供的 `transform_first` 函数将图像增强应用于每个训练示例的第一个元素（图像和标签），即图像顶部的元素。有关 `DataLoader` 的详细说明，请参阅 :numref:`sec_fashion_mnist` 。
+:begin_tab:`mxnet`
+接下来，我们定义了一个辅助函数，以便于读取图像和应用图像增强。Gluon数据集提供的 `transform_first` 函数将图像增强应用于每个训练示例的第一个元素（图像和标签），即图像顶部的元素。有关 `DataLoader` 的详细介绍，请参阅 :numref:`sec_fashion_mnist` 。
+:end_tab:
+
+:begin_tab:`pytorch`
+接下来，我们定义了一个辅助函数，以便于读取图像和应用图像增强。PyTorch 数据集提供的 `transform` 函数应用图像增强来转化图像。有关 `DataLoader` 的详细介绍，请参阅 :numref:`sec_fashion_mnist` 。
+:end_tab:
 
 ```{.python .input}
 def load_cifar10(is_train, augs, batch_size):
@@ -212,11 +238,11 @@ def load_cifar10(is_train, augs, batch_size):
     return dataloader
 ```
 
-### 使用多GPU训练模型
+### 多GPU训练
 
-我们在CIFAR-10数据集上训练 :numref:`sec_resnet` 中描述的ResNet-18模型。我们还将应用 :numref:`sec_multi_gpu_concise` 中描述的方法，并使用多GPU训练模型。
-
-接下来，我们定义了训练函数来使用多个gpu对模型进行训练和评估。
+我们在CIFAR-10数据集上训练 :numref:`sec_resnet` 中的ResNet-18模型。
+回想一下 :numref:`sec_multi_gpu_concise` 中对多 GPU 训练的介绍。
+接下来，我们定义一个函数来使用多个 GPU 对模型进行训练和评估。
 
 ```{.python .input}
 #@save
@@ -266,7 +292,7 @@ def train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
     animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs], ylim=[0, 1],
                             legend=['train loss', 'train acc', 'test acc'])
     for epoch in range(num_epochs):
-        # 储存训练损失, 训练准确度, 实例数, 特点数
+        # 4个维度：储存训练损失，训练准确度，实例数，特点数
         metric = d2l.Accumulator(4)
         for i, (features, labels) in enumerate(train_iter):
             timer.start()
@@ -296,7 +322,7 @@ def train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
                             legend=['train loss', 'train acc', 'test acc'])
     net = nn.DataParallel(net, device_ids=devices).to(devices[0])
     for epoch in range(num_epochs):
-        # 储存训练损失, 训练准确度, 实例数, 特点数
+        # 4个维度：储存训练损失，训练准确度，实例数，特点数
         metric = d2l.Accumulator(4)
         for i, (features, labels) in enumerate(train_iter):
             timer.start()
@@ -316,7 +342,7 @@ def train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
           f'{str(devices)}')
 ```
 
-现在，我们可以定义 `train_with_data_aug` 函数来使用图像增强来训练模型。该函数使用所有的gpu，并使用Adam作为训练的优化算法。其之后对训练数据集进行图像增强，最后调用刚刚定义的 `train_ch13` 函数对模型进行训练和评估。
+现在，我们可以定义 `train_with_data_aug` 函数，使用图像增强来训练模型。该函数获取所有的GPU，并使用Adam作为训练的优化算法，将图像增强应用于训练集，最后调用刚刚定义的用于训练和评估模型的 `train_ch13` 函数。
 
 ```{.python .input}
 batch_size, devices, net = 256, d2l.try_all_gpus(), d2l.resnet18(10)
@@ -349,7 +375,7 @@ def train_with_data_aug(train_augs, test_augs, net, lr=0.001):
     train_ch13(net, train_iter, test_iter, loss, trainer, 10, devices)
 ```
 
-现在我们使用随机左右翻转的图像增强来训练模型。
+让我们使用基于随机左右翻转的图像增强来训练模型。
 
 ```{.python .input}
 #@tab all
@@ -358,15 +384,15 @@ train_with_data_aug(train_augs, test_augs, net)
 
 ## 小结
 
-* 图像增强基于现有的训练数据生成随机图像，以应对过度拟合。
+* 图像增强基于现有的训练数据生成随机图像，来提高模型的概化能力。
 * 为了在预测过程中得到确切的结果，我们通常对训练样本只进行图像增强，而在预测过程中不使用随机操作的图像增强。
-* 我们可以从Gluon的 `transforms` 模块中调用图像增强的函数。
+* 深度学习框架提供了许多不同的图像增强方法，这些方法可以被同时应用。
 
 ## 练习
 
-1. 对模型的训练中不使用图像增强： `train_with_data_aug(no_aug, no_aug)` 。比较使用和不使用图像增强的训练结果和测试精度。这个对比实验能支持图像增强可以减轻过度拟合的论点吗？为什么？
-2. 在基于CIFAR-10数据集的模型训练中加入不同的图像增强方法。观察实施结果。
-3. 参考MXNet文档，在Gluon的 `transforms` 模块中还提供了哪些其他图像增强方法？
+1. 在不使用图像增强的情况下训练模型： `train_with_data_aug(no_aug, no_aug)` 。比较使用和不使用图像增强的训练结果和测试精度。这个对比实验能支持图像增强可以减轻过度拟合的论点吗？为什么？
+2. 在基于 CIFAR-10 数据集的模型训练中结合多种不同的图像增强方法。它能提高测试准确性吗？
+3. 参阅深度学习框架的在线文档。它还提供了哪些其他的图像增强方法？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/367)
