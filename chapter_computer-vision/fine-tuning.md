@@ -13,8 +13,8 @@
 
 在本节中，我们将介绍转移学习中的常见技巧 : *微调*（fine-tuning）. As shown in :numref:`fig_finetune`，微调包括以下四个步骤： 
 
-1. 在源数据集（例如 ImageNet 数据集）上预训练神经网络模型，即 * 源模型 *。
-1. 创建一个新的神经网络模型，即 * 目标模型 *。这将复制源模型上的所有模型设计及其参数，但输出层除外。我们假定这些模型参数包含从源数据集中学到的知识，这些知识也将适用于目标数据集。我们还假设源模型的输出图层与源数据集的标签密切相关；因此不在目标模型中使用该图层。
+1. 在源数据集（例如 ImageNet 数据集）上预训练神经网络模型，即 *源模型*。
+1. 创建一个新的神经网络模型，即 *目标模型*。这将复制源模型上的所有模型设计及其参数，但输出层除外。我们假定这些模型参数包含从源数据集中学到的知识，这些知识也将适用于目标数据集。我们还假设源模型的输出图层与源数据集的标签密切相关；因此不在目标模型中使用该图层。
 1. 向目标模型添加输出图层，其输出数量是目标数据集中的类别数。然后随机初始化该层的模型参数。
 1. 在目标数据集（如椅子数据集）上训练目标模型。输出图层将从头开始进行训练，而所有其他图层的参数将根据源模型的参数进行微调。
 
@@ -86,11 +86,10 @@ not_hotdogs = [train_imgs[-i - 1][0] for i in range(8)]
 d2l.show_images(hotdogs + not_hotdogs, 2, 8, scale=1.4);
 ```
 
-在训练期间，我们首先从图像中裁切随机大小和随机长宽比的区域，然后将该区域缩放为 $224 \times 224$ 输入图像。在测试过程中，我们将图像的高度和宽度都缩放到 256 像素，然后裁剪中央 $224 \times 224$ 区域作为输入。此外，对于三个 RGB（红、绿和蓝）颜色通道，我们按频道 * 标准化 * 它们的价值通道。具体而言，通道的平均值将从该通道的每个值中减去，然后将结果除以该通道的标准差。
+在训练期间，我们首先从图像中裁切随机大小和随机长宽比的区域，然后将该区域缩放为 $224 \times 224$ 输入图像。在测试过程中，我们将图像的高度和宽度都缩放到 256 像素，然后裁剪中央 $224 \times 224$ 区域作为输入。此外，对于三个 RGB（红、绿和蓝）颜色通道，我们按通道的值 *标准化* 每层通道。具体而言，通道每个值减去该通道的平均值，然后将结果除以该通道的标准差。
 
 ```{.python .input}
-# Specify the means and standard deviations of the three RGB channels to
-# standardize each channel
+# 标准化每层通道，使用每个RGB通道的平均值和标准差
 normalize = gluon.data.vision.transforms.Normalize(
     [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 
@@ -109,8 +108,7 @@ test_augs = gluon.data.vision.transforms.Compose([
 
 ```{.python .input}
 #@tab pytorch
-# Specify the means and standard deviations of the three RGB channels to
-# standardize each channel
+# 标准化每层通道，使用每个RGB通道的平均值和标准差
 normalize = torchvision.transforms.Normalize(
     [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 
@@ -169,8 +167,7 @@ pretrained_net.fc
 finetune_net = gluon.model_zoo.vision.resnet18_v2(classes=2)
 finetune_net.features = pretrained_net.features
 finetune_net.output.initialize(init.Xavier())
-# The model parameters in the output layer will be iterated using a learning
-# rate ten times greater
+# 输出层中的模型参数将使用10倍以上的学习率进行迭代
 finetune_net.output.collect_params().setattr('lr_mult', 10)
 ```
 
@@ -203,8 +200,7 @@ def train_fine_tuning(net, learning_rate, batch_size=128, num_epochs=5):
 
 ```{.python .input}
 #@tab pytorch
-# If `param_group=True`, the model parameters in the output layer will be
-# updated using a learning rate ten times greater
+# 如果' param_group=True '，输出层中的模型参数将为使用10倍以上的学习速率更新
 def train_fine_tuning(net, learning_rate, batch_size=128, num_epochs=5,
                       param_group=True):
     train_iter = torch.utils.data.DataLoader(torchvision.datasets.ImageFolder(
