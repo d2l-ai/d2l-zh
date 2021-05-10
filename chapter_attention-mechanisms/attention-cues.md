@@ -38,7 +38,7 @@
 
 ## 注意力的可视化
 
-平均池化可以被视为输入的加权平均值，其中权重是均匀分布的。实际上，注意力池化使用加权平均值聚合值，其中权重是在给定查询和不同键之间计算的。
+平均池化层可以被视为输入的加权平均值，其权重是均匀分布的。实际上，注意力池化得到的是加权平均的合计值，其中权重是在给定的查询和不同的键之间计算得出的。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -58,7 +58,7 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 ```
 
-为了可视化注意力权重，我们定义了 `show_heatmaps` 函数。它的输入 `matrices` 具有形状（要显示的行数，要显示的列数，查询数，键数）。
+为了可视化注意力权重，我们定义了 `show_heatmaps` 函数。它的输入 `matrices` 具有形状（要显示的行数，要显示的列数，查询的数目，键的数目）。
 
 ```{.python .input}
 #@tab all
@@ -81,7 +81,7 @@ def show_heatmaps(matrices, xlabel, ylabel, titles=None, figsize=(2.5, 2.5),
     fig.colorbar(pcm, ax=axes, shrink=0.6);
 ```
 
-为了进行演示，我们考虑一个简单的情况，即仅当查询和键相同时，注意力权重为 1；否则为零。
+我们使用一个简单的例子用于演示，例子中仅当查询和键相同时，注意力权重为 1；否则为零。
 
 ```{.python .input}
 #@tab all
@@ -89,7 +89,7 @@ attention_weights = d2l.reshape(d2l.eye(10), (1, 1, 10, 10))
 show_heatmaps(attention_weights, xlabel='Keys', ylabel='Queries')
 ```
 
-在接下来的章节中，我们经常调用此函数来显示注意力权重。
+在后面的章节中，我们将经常调用此函数来显示注意力权重。
 
 ## 小结
 
