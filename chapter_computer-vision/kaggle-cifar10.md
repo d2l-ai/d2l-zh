@@ -525,9 +525,9 @@ df.to_csv('submission.csv', index=False)
 1. 不使用图像增强时，你能获得怎样的准确度？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/379)
+[Discussions](https://discuss.d2l.ai/t/2830)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1479)
+[Discussions](https://discuss.d2l.ai/t/2831)
 :end_tab:
