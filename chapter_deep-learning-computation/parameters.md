@@ -497,7 +497,7 @@ net(X)
 # 检查参数是否相同
 print(net[2].weight.data[0] == net[4].weight.data[0])
 net[2].weight.data[0, 0] = 100
-# 我们需要给共享层一个名称，以便可以引用它的参数。
+# 确保它们实际上是同一个对象，而不只是有相同的值。
 print(net[2].weight.data[0] == net[4].weight.data[0])
 ```
 
