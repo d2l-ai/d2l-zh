@@ -302,7 +302,7 @@ class BatchNorm(tf.keras.layers.Layer):
 
 ##  使用批量归一化层的 LeNet
 
-为了更好理解如何应用 `BatchNorm`，下面我们将其应用于 LeNet 模型（ :numref:`sec_lenet` ）。
+为了更好理解如何[**应用`BatchNorm`**]，下面我们将其应用(**于LeNet模型**)（ :numref:`sec_lenet` ）。
 回想一下，批量归一化是在卷积层或全连接层之后、相应的激活函数之前应用的。
 
 ```{.python .input}
