@@ -217,7 +217,7 @@ class TransitionBlock(tf.keras.layers.Layer):
         return self.avg_pool(x)
 ```
 
-对上一个例子中稠密块的输出[**使用通道数为 10 的过渡层**]。
+对上一个例子中稠密块的输出[**使用**]通道数为 10 的[**过渡层**]。
 此时输出的通道数减为 10，高和宽均减半。
 
 ```{.python .input}
