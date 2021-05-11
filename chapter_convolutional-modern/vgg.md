@@ -73,7 +73,7 @@ def vgg_block(num_convs, num_channels):
     return blk
 ```
 
-## (**VGG网络**)
+## [**VGG网络**]
 
 与 AlexNet、LeNet 一样，VGG 网络可以分为两部分：第一部分主要由卷积层和池化层组成，第二部分由全连接层组成。如 :numref:`fig_vgg` 中所示。
 
