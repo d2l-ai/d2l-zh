@@ -1,12 +1,14 @@
 # 实战 Kaggle 比赛：狗的品种识别（ImageNet Dogs）
 
-本节我们将在 Kaggle 上实战狗品种识别问题。本次比赛的网址是 https://www.kaggle.com/c/dog-breed-identification 
-
-在这场比赛中，我们将识别 120 类不同品种的狗。
-这个比赛的数据集实际上是著名的 ImageNet 的子集数据集，却与 :numref:`sec_kaggle_cifar10` 中 CIFAR-10 数据集中的图像不同。
-ImageNet数据集中的图像更高更宽，且尺寸不一。
+本节我们将在 Kaggle 上实战狗品种识别问题。
+本次比赛的网址是 https://www.kaggle.com/c/dog-breed-identification。
 :numref:`fig_kaggle_dog` 显示了鉴定比赛网页上的信息。
 你需要一个 Kaggle 账户才能提交结果。 
+
+在这场比赛中，我们将识别 120 类不同品种的狗。
+这个数据集实际上是著名的 ImageNet 的数据集子集，却与 :numref:`sec_kaggle_cifar10` 中 CIFAR-10 数据集中的图像不同。
+ImageNet数据集中的图像更高更宽，且尺寸不一。
+
 
 ![狗的品种鉴定比赛网站，你可以通过单击“数据”选项卡来获得比赛数据集。](../img/kaggle-dog.jpg)
 :width:`400px`
@@ -32,7 +34,8 @@ import os
 
 ## 获取和整理数据集
 
-比赛数据集分为训练集和测试集，其中分别包含三个 RGB（彩色）通道的 10222 和 10357 张 JPEG 图像。在训练数据集中，有 120 种犬类，如拉布拉多、贵宾、腊肠、萨摩耶、哈士奇、吉娃娃和约克夏等。 
+比赛数据集分为训练集和测试集，其中分别包含三个 RGB（彩色）通道的 10222 和 10357 张 JPEG 图像。
+在训练数据集中，有 120 种犬类，如拉布拉多、贵宾、腊肠、萨摩耶、哈士奇、吉娃娃和约克夏等。 
 
 ### 下载数据集
 
@@ -43,7 +46,9 @@ import os
 * ../数据/种身份识别/火车
 * ../数据/种身份识别/测试
 
-你可能已经注意到，上述结构与 :numref:`sec_kaggle_cifar10` 的 CIFAR-10 竞争对手类似，其中文件夹 `train/` 和 `test/` 分别包含训练和测试狗图像，`labels.csv` 包含训练图像的标签。同样，为了便于入门，我们提供了上面提到的数据集的一小部分示例：`train_valid_test_tiny.zip`。如果你要在 Kaggle 比赛中使用完整的数据集，则需要将下面的 `demo` 变量更改为 `False`。
+你可能已经注意到，上述结构与 :numref:`sec_kaggle_cifar10` 的 CIFAR-10 竞争对手类似，其中文件夹 `train/` 和 `test/` 分别包含训练和测试狗图像，`labels.csv` 包含训练图像的标签。
+同样，为了便于入门，我们提供了上面提到的数据集的一小部分示例：`train_valid_test_tiny.zip`。
+如果你要在 Kaggle 比赛中使用完整的数据集，则需要将下面的 `demo` 变量更改为 `False`。
 
 ```{.python .input}
 #@tab all
@@ -78,9 +83,10 @@ valid_ratio = 0.1
 reorg_dog_data(data_dir, valid_ratio)
 ```
 
-## 图像增强
+## 图像增广
 
-回想一下，这个狗品种数据集是 ImageNet 数据集的子集，其图像大于 :numref:`sec_kaggle_cifar10` 中 CIFAR-10 数据集的图像。下面列出了一些对于相对较大的图像可能有用的图像增强操作。
+回想一下，这个狗品种数据集是 ImageNet 数据集的子集，其图像大于 :numref:`sec_kaggle_cifar10` 中 CIFAR-10 数据集的图像。
+下面列出了一些对于相对较大的图像可能有用的图像增广操作。
 
 ```{.python .input}
 transform_train = gluon.data.vision.transforms.Compose([
@@ -427,7 +433,7 @@ with open('submission.csv', 'w') as f:
 
 ## 小结
 
-* ImageNet 数据集中的图像比 CIFAR-10 图像大（尺寸不同），我们可能会修改不同数据集上任务的图像增强操作。 
+* ImageNet 数据集中的图像比 CIFAR-10 图像尺寸大，我们可能会修改不同数据集上任务的图像增广操作。 
 * 要对 ImageNet 数据集的子集进行分类，我们可以利用完整 ImageNet 数据集上的预训练模型来提取特征并仅训练小型自定义输出网络，这将减少计算时间和节省内存空间。
 
 ## 练习
