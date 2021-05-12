@@ -99,7 +99,7 @@ $$\mathbf{h} = \phi(\mathrm{BN}(\mathbf{W}\mathbf{x} + \mathbf{b}) ).$$
 
 
 
-## 从零实现
+## (**从零实现**)
 
 下面，我们从头开始实现一个具有张量的批量归一化层。
 
@@ -179,7 +179,7 @@ def batch_norm(X, gamma, beta, moving_mean, moving_var, eps):
     return Y
 ```
 
-我们现在可以创建一个正确的 `BatchNorm` 图层。
+我们现在可以[**创建一个正确的 `BatchNorm` 图层**]。
 这个层将保持适当的参数：拉伸 `gamma` 和偏移 `beta`, 这两个参数将在训练过程中更新。
 此外，我们的图层将保存均值和方差的移动平均值，以便在模型预测期间随后使用。
 
@@ -302,7 +302,7 @@ class BatchNorm(tf.keras.layers.Layer):
 
 ##  使用批量归一化层的 LeNet
 
-为了更好理解如何应用 `BatchNorm`，下面我们将其应用于 LeNet 模型（ :numref:`sec_lenet` ）。
+为了更好理解如何[**应用`BatchNorm`**]，下面我们将其应用(**于LeNet模型**)（ :numref:`sec_lenet` ）。
 回想一下，批量归一化是在卷积层或全连接层之后、相应的激活函数之前应用的。
 
 ```{.python .input}
@@ -362,7 +362,7 @@ def net():
     )
 ```
 
-和以前一样，我们将在 Fashion-MNIST 数据集训练我们的网络。
+和以前一样，我们将[**在Fashion-MNIST数据集上训练网络**]。
 这个代码与我们第一次训练 LeNet（ :numref:`sec_lenet` ）时几乎完全相同，主要区别在于学习率大得多。
 
 ```{.python .input}
@@ -379,7 +379,7 @@ train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
 net = d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 ```
 
-让我们来看看从第一个批量归一化层中学到的拉伸参数 `gamma` 和偏移参数 `beta`。
+让我们来看看从第一个批量归一化层中学到的[**拉伸参数 `gamma` 和偏移参数 `beta`**]。
 
 ```{.python .input}
 net[1].gamma.data().reshape(-1,), net[1].beta.data().reshape(-1,)
@@ -395,7 +395,7 @@ net[1].gamma.reshape((-1,)), net[1].beta.reshape((-1,))
 tf.reshape(net.layers[1].gamma, (-1,)), tf.reshape(net.layers[1].beta, (-1,))
 ```
 
-## 简明实现
+## [**简明实现**]
 
 除了使用我们刚刚定义的 `BatchNorm` ，我们也可以直接使用深度学习框架中定义的 `BatchNorm` 。
 该代码看起来几乎与我们上面的代码相同。
@@ -455,7 +455,7 @@ def net():
     ])
 ```
 
-下面，我们使用相同的超参数来训练我们的模型。
+下面，我们[**使用相同超参数来训练模型**]。
 请注意，通常高级 API 变体运行速度快得多，因为它的代码已编译为 C++ 或 CUDA，而我们的自定义代码由 Python 实现。
 
 ```{.python .input}
