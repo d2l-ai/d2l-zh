@@ -1,14 +1,15 @@
 # 实战 Kaggle 比赛：图像分类 (CIFAR-10)
 :label:`sec_kaggle_cifar10`
 
-到目前为止，我们一直在使用深度学习框架的高级 API 直接获取张量格式的图像数据集。
+之前几节中，我们一直在使用深度学习框架的高级API直接获取张量格式的图像数据集。
 但是在实践中，图像数据集通常以图像文件的形式出现。
 在本节中，我们将从原始图像文件开始，然后逐步组织、阅读，然后将它们转换为张量格式。 
 
 我们在 :numref:`sec_image_augmentation` 中对 CIFAR-10 数据集做了一个实验，这是计算机视觉领域中的一个重要的数据集。
 在本节中，我们将运用我们在前几节中学到的知识来参加涉及 CIFAR-10 图像分类问题的 Kaggle 竞赛，比赛的网址是  https://www.kaggle.com/c/cifar-10  
 
-:numref:`fig_kaggle_cifar10` 显示了竞赛网站页面上的信息。为了能提交结果，你需要首先注册 Kaggle 账户。 
+:numref:`fig_kaggle_cifar10` 显示了竞赛网站页面上的信息。
+为了能提交结果，你需要首先注册 Kaggle 账户。 
 
 ![CIFAR-10 图像分类竞赛页面上的信息。竞赛用的数据集可通过点击“Data”选项卡获取。](../img/kaggle-cifar10.png)
 :width:`600px`
@@ -61,10 +62,10 @@ import shutil
 * `../data/cifar-10/trainLabels.csv`
 * `../data/cifar-10/sampleSubmission.csv`
 
-`train` 和 `test` 文件夹分别包含训练和测试图像， `trainLabels.csv` 含有训练图像的标签， 
+`train` 和 `test` 文件夹分别包含训练和测试图像，`trainLabels.csv` 含有训练图像的标签， 
 `sample_submission.csv` 是提交文件的范例。 
 
-为了便于入门，我们提供了包含前 1000 个训练图像和 5 个随机测试图像的数据集的小规模样本。
+为了便于入门，本节提供包含前 1000 个训练图像和 5 个随机测试图像的数据集的小规模样本。
 要使用 Kaggle 竞赛的完整数据集，你需要将以下 `demo` 变量设置为 `False`。
 
 ```{.python .input}
@@ -73,7 +74,7 @@ import shutil
 d2l.DATA_HUB['cifar10_tiny'] = (d2l.DATA_URL + 'kaggle_cifar10_tiny.zip',
                                 '2068874e4b9a9f0fb07ebe0ad2b29754449ccacd')
 
-# 如果你使用完整下载的用于 Kaggle 竞赛的数据集，
+# 如果你使用完整的Kaggle竞赛的数据集，
 # 设置 `demo` 为 False
 demo = True
 
@@ -108,7 +109,8 @@ print('# 类别 :', len(set(labels.values())))
 此函数中的参数 `valid_ratio` 是验证集中的示例数与原始训练集中的示例数之比。
 更具体地说，令 $n$ 等于示例最少的类别中的图像数量，而 $r$ 是比率。
 验证集将为每个类别拆分出 $\max(\lfloor nr\rfloor,1)$ 张图像。
-让我们以 `valid_ratio=0.1` 为例，由于原始的训练集有 50000 张图像，因此 `train_valid_test/train` 路径中将有 45000 张图像用于训练，而剩下 5000 张图像将作为路径 `train_valid_test/valid` 中的验证集。组织数据集后，同类别的图像将被放置在同一文件夹下。
+让我们以 `valid_ratio=0.1` 为例，由于原始的训练集有 50000 张图像，因此 `train_valid_test/train` 路径中将有 45000 张图像用于训练，而剩下 5000 张图像将作为路径 `train_valid_test/valid` 中的验证集。
+组织数据集后，同类别的图像将被放置在同一文件夹下。
 
 ```{.python .input}
 #@tab all
@@ -162,7 +164,9 @@ def reorg_cifar10_data(data_dir, valid_ratio):
     reorg_test(data_dir)
 ```
 
-在这里，我们只将样本数据集的批量大小设置为 4。在实际训练和测试中，应该使用 Kaggle 竞赛的完整数据集，并将 `batch_size` 设置为更大的整数，例如 128。我们将 10％ 的训练示例作为调整超参数的验证集。
+在这里，我们只将样本数据集的批量大小设置为 4。
+在实际训练和测试中，应该使用 Kaggle 竞赛的完整数据集，并将 `batch_size` 设置为更大的整数，例如 128。
+我们将 10％ 的训练示例作为调整超参数的验证集。
 
 ```{.python .input}
 #@tab all
@@ -171,9 +175,11 @@ valid_ratio = 0.1
 reorg_cifar10_data(data_dir, valid_ratio)
 ```
 
-## 图像增强
+## 图像增广
 
-我们使用图像增强来解决过拟合的问题。例如在训练中，我们可以随机水平翻转图像。我们还可以对彩色图像的三个 RGB 通道执行标准化。下面，我们列出了其中一些可以调整的操作。
+我们使用图像增广来解决过拟合的问题。例如在训练中，我们可以随机水平翻转图像。
+我们还可以对彩色图像的三个 RGB 通道执行标准化。
+下面，我们列出了其中一些可以调整的操作。
 
 ```{.python .input}
 transform_train = gluon.data.vision.transforms.Compose([
@@ -186,7 +192,7 @@ transform_train = gluon.data.vision.transforms.Compose([
                                                    ratio=(1.0, 1.0)),
     gluon.data.vision.transforms.RandomFlipLeftRight(),
     gluon.data.vision.transforms.ToTensor(),
-    # Standardize each channel of the image
+    # 标准化图像的每个通道
     gluon.data.vision.transforms.Normalize([0.4914, 0.4822, 0.4465],
                                            [0.2023, 0.1994, 0.2010])])
 ```
@@ -203,7 +209,7 @@ transform_train = torchvision.transforms.Compose([
                                                    ratio=(1.0, 1.0)),
     torchvision.transforms.RandomHorizontalFlip(),
     torchvision.transforms.ToTensor(),
-    # Standardize each channel of the image
+    # 标准化图像的每个通道
     torchvision.transforms.Normalize([0.4914, 0.4822, 0.4465],
                                      [0.2023, 0.1994, 0.2010])])
 ```
@@ -227,7 +233,7 @@ transform_test = torchvision.transforms.Compose([
 
 ## 读取数据集
 
-接下来，我们读取由原始图像文件组成的组织数据集。每个示例都包括一张图片和一个标签。
+接下来，我们读取由原始图像文件组成的组织数据集，每个示例都包括一张图片和一个标签。
 
 ```{.python .input}
 train_ds, valid_ds, train_valid_ds, test_ds = [
@@ -247,8 +253,8 @@ valid_ds, test_ds = [torchvision.datasets.ImageFolder(
     transform=transform_test) for folder in ['valid', 'test']]
 ```
 
-在训练期间，我们需要指定上面定义的所有图像增强操作。
-当验证集在超参数调整过程中用于模型评估时，不应引入图像增强的随机性。
+在训练期间，我们需要指定上面定义的所有图像增广操作。
+当验证集在超参数调整过程中用于模型评估时，不应引入图像增广的随机性。
 在最终预测之前，我们根据训练集和验证集组合而成的训练模型进行训练，以充分利用所有标记的数据。
 
 ```{.python .input}
@@ -447,8 +453,8 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
 ## 训练和验证模型
 
 现在，我们可以训练和验证模型了，而以下所有超参数都可以调整。
-例如，我们可以增加时期的数量。当 `lr_period` 和 `lr_decay` 分别设置为 50 和 0.1 时，优化算法的学习速率将在每 50 个时期后乘以 0.1。
-为了示范，我们在这里只训练一个时期。
+例如，我们可以增加时期的数量。当 `lr_period` 和 `lr_decay` 分别设置为 50 和 0.1 时，优化算法的学习速率将在每 50 个周期乘以 0.1。
+为了示范，我们在这里只训练一个周期。
 
 ```{.python .input}
 devices, num_epochs, lr, wd = d2l.try_all_gpus(), 5, 0.1, 5e-4
@@ -512,17 +518,17 @@ df.to_csv('submission.csv', index=False)
 * 将包含原始图像文件的数据集组织为所需格式后，我们可以读取它们。
 
 :begin_tab:`mxnet`
-* 我们可以在图像分类竞赛中使用卷积神经网络、图像增强和混合编程。
+* 我们可以在图像分类竞赛中使用卷积神经网络、图像增广和混合编程。
 :end_tab:
 
 :begin_tab:`pytorch`
-* 我们可以在图像分类竞赛中使用卷积神经网络和图像增强。
+* 我们可以在图像分类竞赛中使用卷积神经网络和图像增广。
 :end_tab:
 
 ## 练习
 
 1. 在这场 Kaggle 竞赛中使用完整的 CIFAR-10 数据集。将 `batch_size` 和时期数分别更改为 128 和 100。看看你在这场比赛中能达到什么准确度和排名。你能进一步改进吗？
-1. 不使用图像增强时，你能获得怎样的准确度？
+1. 不使用图像增广时，你能获得怎样的准确度？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/2830)
