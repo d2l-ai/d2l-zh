@@ -51,7 +51,7 @@ n_test = len(x_test)  # 测试样本的个数
 n_test
 ```
 
-下面的函数将绘制所有的训练样本（样本由圆形表示）、不带噪声项的真实的数据生成函数 $f$（标记为 “Truth”）和学习得到的预测函数（标记为 “Pred”）。
+下面的函数将绘制所有的训练样本（样本由圆形表示）、不带噪声项的真实的数据生成函数 $f$（标记为“Truth”）和学习得到的预测函数（标记为“Pred”）。
 
 ```{.python .input}
 #@tab all
@@ -88,7 +88,7 @@ plot_kernel_reg(y_hat)
 $$f(x) = \sum_{i=1}^n \frac{K(x - x_i)}{\sum_{j=1}^n K(x - x_j)} y_i,$$
 :eqlabel:`eq_nadaraya-waston`
 
-其中 $K$ 是 **核函数***（kernel）。公式 :eqref:`eq_nadaraya-waston`  所描述的估计器被称为 **Nadaraya-Watson 核回归**（Nadaraya-Watson kernel regression）。在这里我们不会深入讨论核函数的细节。回想一下 :numref:`fig_qkv` 中的注意力机制框架，我们可以从注意力机制的角度重写 :eqref:`eq_nadaraya-waston` 成为一个更加通用的 **注意力池化**（attention pooling）公式：
+其中 $K$ 是 **核函数***（kernel）。公式 :eqref:`eq_nadaraya-waston` 所描述的估计器被称为 **Nadaraya-Watson 核回归**（Nadaraya-Watson kernel regression）。在这里我们不会深入讨论核函数的细节。回想一下 :numref:`fig_qkv` 中的注意力机制框架，我们可以从注意力机制的角度重写 :eqref:`eq_nadaraya-waston` 成为一个更加通用的 **注意力池化**（attention pooling）公式：
 
 $$f(x) = \sum_{i=1}^n \alpha(x, x_i) y_i,$$
 :eqlabel:`eq_attn-pooling`
@@ -133,7 +133,7 @@ y_hat = d2l.matmul(attention_weights, y_train)
 plot_kernel_reg(y_hat)
 ```
 
-现在，让我们来观察注意力的权重。这里测试数据的输入相当于查询，而训练数据输入相当于键。因为两个输入都是经过排序的，因此由观察可知“查询－键”对越接近，注意力池化的注意力权重就越高。
+现在，让我们来观察注意力的权重。这里测试数据的输入相当于查询，而训练数据的输入相当于键。因为两个输入都是经过排序的，因此由观察可知“查询－键”对越接近，注意力池化的注意力权重就越高。
 
 ```{.python .input}
 d2l.show_heatmaps(np.expand_dims(np.expand_dims(attention_weights, 0), 0),
@@ -197,7 +197,7 @@ torch.bmm(weights.unsqueeze(1), values.unsqueeze(-1))
 
 ### 定义模型
 
-基于 :eqref:`eq_nadaraya-waston-gaussian-para`  中的带参数的注意力池化，使用小批量矩阵乘法，定义 Nadaraya-Watson 核回归的带参数的版本为：
+基于 :eqref:`eq_nadaraya-waston-gaussian-para` 中的带参数的注意力池化，使用小批量矩阵乘法，定义 Nadaraya-Watson 核回归的带参数的版本为：
 
 ```{.python .input}
 class NWKernelRegression(nn.Block):
@@ -301,7 +301,7 @@ for epoch in range(5):
     animator.add(epoch + 1, float(l.sum()))
 ```
 
-训练完带参数的注意力池化模型后，我们发现在尝试拟合带噪声的训练数据时，预测结果绘制绘制的线不如之前非参数模型的线平滑。
+训练完带参数的注意力池化模型后，我们发现，在尝试拟合带噪声的训练数据时，预测结果绘制的线不如之前非参数模型的线平滑。
 
 ```{.python .input}
 # `keys` 的形状: (`n_test`, `n_train`), 每一行包含着相同的训练输入（例如：相同的键）
