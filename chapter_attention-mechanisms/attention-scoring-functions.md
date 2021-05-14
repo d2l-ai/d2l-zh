@@ -1,11 +1,11 @@
 # 注意力评分函数
 :label:`sec_attention-scoring-functions`
 
-在 :numref:`sec_nadaraya-waston` 中，我们使用高斯核来对查询和键之间的关系建模。可以将 :eqref:`eq_nadaraya-waston-gaussian` 中的高斯核的指数部分视为 * 注意力评分函数 *（简称 * 评分函数 *），将这个函数的输出结果输入到 softmax 函数中进行运算。通过上述步骤，我们将得到与键配对的值的概率分布（注意力权重）。最后，注意力池化的输出就是基于这些注意力权重的值的加权和。
+在 :numref:`sec_nadaraya-waston` 中，我们使用高斯核来对查询和键之间的关系建模。可以将 :eqref:`eq_nadaraya-waston-gaussian` 中的高斯核的指数部分视为 **注意力评分函数**（attention scoring function），简称 **评分函数**（scoring function），然后把这个函数的输出结果输入到 softmax 函数中进行运算。通过上述步骤，我们将得到与键配对的值的概率分布（即注意力权重）。最后，注意力池化的输出就是基于这些注意力权重的值的加权和。
 
 从宏观来看，可以使用上述算法来实现 :numref:`fig_qkv` 中的注意力机制框架。:numref:`fig_attention_output` 说明了如何将注意力池化的输出计算成为值的加权和，其中 $a$ 表示注意力评分函数。由于注意力权重是概率分布，因此加权和其本质上是加权平均值。
 
-![Computing the output of attention pooling as a weighted average of values.](../img/attention-output.svg)
+![计算注意力池化的输出为值的加权和。](../img/attention-output.svg)
 :label:`fig_attention_output`
 
 用数学语言描述，假设有一个查询 $\mathbf{q} \in \mathbb{R}^q$ 和 $m$ 个“键－值”对 $(\mathbf{k}_1, \mathbf{v}_1), \ldots, (\mathbf{k}_m, \mathbf{v}_m)$，其中 $\mathbf{k}_i \in \mathbb{R}^k$，$\mathbf{v}_i \in \mathbb{R}^v$。注意力池化函数 $f$ 就被表示成值的加权和：
@@ -13,7 +13,7 @@
 $$f(\mathbf{q}, (\mathbf{k}_1, \mathbf{v}_1), \ldots, (\mathbf{k}_m, \mathbf{v}_m)) = \sum_{i=1}^m \alpha(\mathbf{q}, \mathbf{k}_i) \mathbf{v}_i \in \mathbb{R}^v,$$
 :eqlabel:`eq_attn-pooling`
 
-其中查询 $\mathbf{q}$ 和键 $\mathbf{k}_i$ 的注意力权重（标量）是通过注意力评分函数 $a$，再经过 softmax 运算得到的，这个 $a$ 函数将两个向量映射成标量：
+其中查询 $\mathbf{q}$ 和键 $\mathbf{k}_i$ 的注意力权重（标量）是通过注意力评分函数 $a$ 将两个向量映射成标量，再经过 softmax 运算得到的：
 
 $$\alpha(\mathbf{q}, \mathbf{k}_i) = \mathrm{softmax}(a(\mathbf{q}, \mathbf{k}_i)) = \frac{\exp(a(\mathbf{q}, \mathbf{k}_i))}{\sum_{j=1}^m \exp(a(\mathbf{q}, \mathbf{k}_j))} \in \mathbb{R}.$$
 :eqlabel:`eq_attn-scoring-alpha`
@@ -38,12 +38,12 @@ from torch import nn
 
 ## 掩码 Softmax 操作
 
-正如上面提到的，softmax 运算用于输出一个概率分布作为注意力权重。在某些情况下，并非所有的值都应该被纳入到注意力池化中。例如，为了在 :numref:`sec_machine_translation` 中高效处理小批量数据集，某些文本序列被填充了没有意义的特殊标记。为了仅将有意义的标记作为值去获取注意力池化，可以指定一个有效序列长度（即标记的个数），以便在计算 softmax 时过滤掉超出此指定范围的那些位置。通过这种方式，我们可以在下面的 `masked_softmax` 函数中实现这样的 * 掩码 softmax 操作 *，其中任何超出有效长度的位置都被遮盖并置为零。
+正如上面提到的，softmax 运算用于输出一个概率分布作为注意力权重。在某些情况下，并非所有的值都应该被纳入到注意力池化中。例如，为了在 :numref:`sec_machine_translation` 中高效处理小批量数据集，某些文本序列被填充了没有意义的特殊标记。为了仅将有意义的标记作为值去获取注意力池化，可以指定一个有效序列长度（即标记的个数），以便在计算 softmax 时过滤掉超出此指定范围的那些位置。通过这种方式，我们可以在下面的 `masked_softmax` 函数中实现这样的 **掩码 softmax 操作***（masked softmax operation），其中任何超出有效长度的位置都被遮盖并置为零。
 
 ```{.python .input}
 #@save
 def masked_softmax(X, valid_lens):
-    """通过在最后一个轴上遮盖元素来执行 Softmax 操作"""
+    """通过在最后一个轴上遮盖元素来执行 softmax 操作"""
     # `X`: 3D tensor, `valid_lens`: 1D or 2D tensor
     if valid_lens is None:
         return npx.softmax(X)
@@ -63,7 +63,7 @@ def masked_softmax(X, valid_lens):
 #@tab pytorch
 #@save
 def masked_softmax(X, valid_lens):
-    """通过在最后一个轴上遮盖元素来执行 Softmax 操作"""
+    """通过在最后一个轴上遮盖元素来执行 softmax 操作"""
     # `X`: 3D tensor, `valid_lens`: 1D or 2D tensor
     if valid_lens is None:
         return nn.functional.softmax(X, dim=-1)
@@ -105,12 +105,12 @@ masked_softmax(torch.rand(2, 2, 4), d2l.tensor([[1, 3], [2, 4]]))
 ## 可加性注意力
 :label:`subsec_additive-attention`
 
-一般来说，当查询和键是不同长度的矢量时，可以使用可加性注意力作为评分函数。给定查询 $\mathbf{q} \in \mathbb{R}^q$ 和键 $\mathbf{k} \in \mathbb{R}^k$，* 可加性注意力 * 的评分函数为
+一般来说，当查询和键是不同长度的矢量时，可以使用可加性注意力作为评分函数。给定查询 $\mathbf{q} \in \mathbb{R}^q$ 和键 $\mathbf{k} \in \mathbb{R}^k$，**可加性注意力**（additive attention） 的评分函数为
 
 $$a(\mathbf q, \mathbf k) = \mathbf w_v^\top \text{tanh}(\mathbf W_q\mathbf q + \mathbf W_k \mathbf k) \in \mathbb{R},$$
 :eqlabel:`eq_additive-attn`
 
-其中可学习的参数 $\mathbf W_q\in\mathbb R^{h\times q}$、$\mathbf W_k\in\mathbb R^{h\times k}$ 和 $\mathbf w_v\in\mathbb R^{h}$。:eqref:`eq_additive-attn` 可以看作是，将查询和键连接起来后输入到一个多层感知机 (MLP) 中，感知机包含一个隐藏层，其隐藏单位的数量是一个超参数 $h$。通过使用 $\tanh$ 作为激活函数，并且取消偏置项，我们将在下面实现可加性注意力。
+其中可学习的参数 $\mathbf W_q\in\mathbb R^{h\times q}$、$\mathbf W_k\in\mathbb R^{h\times k}$ 和 $\mathbf w_v\in\mathbb R^{h}$。:eqref:`eq_additive-attn` 可以看作是，将查询和键连接起来后输入到一个多层感知机（MLP）中，感知机包含一个隐藏层，其隐藏单位的数量是一个超参数 $h$。通过使用 $\tanh$ 作为激活函数，并且取消偏置项，我们将在下面实现可加性注意力。
 
 ```{.python .input}
 #@save
@@ -168,7 +168,7 @@ class AdditiveAttention(nn.Module):
         return torch.bmm(self.dropout(self.attention_weights), values)
 ```
 
-让我们用一个小例子来演示上面的 `AdditiveAttention` 类，数据的形状为（批量大小、步数或标记序列长度、特征大小），其中查询、键和值的形状分别为 $(2,1,20)$、$(2,10,2)$ 和 $(2,10,4)$。注意力池化输出的形状为（批量大小、查询的步数、值的特征大小）。
+让我们用一个小例子来演示上面的 `AdditiveAttention` 类，其中查询、键和值的形状为（批量大小、步数或标记序列长度、特征大小），实际输出为 $(2,1,20)$、$(2,10,2)$ 和 $(2,10,4)$。注意力池化输出的形状为（批量大小、查询的步数、值的特征大小）。
 
 ```{.python .input}
 queries, keys = d2l.normal(0, 1, (2, 1, 20)), d2l.ones((2, 10, 2))
@@ -205,7 +205,7 @@ d2l.show_heatmaps(d2l.reshape(attention.attention_weights, (1, 1, 2, 10)),
 
 ## 缩放的“点－积”注意力
 
-使用“点－积”可以得到计算效率更高的评分函数。但是“点－积”操作要求查询和键具有相同的矢量长度 $d$。假设查询和键的所有元素都是独立的随机变量，并且都是均值为 $0$ 和方差为 $1$。那么两个向量的“点－积”的均值为 $0$，方差为 $d$。为确保无论矢量长度如何，“点－积”的方差在不考虑向量长度的情况下仍然是 $1$，则 * 缩放的“点－积”注意力 * 评分函数
+使用“点－积”可以得到计算效率更高的评分函数。但是“点－积”操作要求查询和键具有相同的矢量长度 $d$。假设查询和键的所有元素都是独立的随机变量，并且都满足均值为 $0$ 和方差为 $1$。那么两个向量的“点－积”的均值为 $0$，方差为 $d$。为确保无论矢量长度如何，“点－积”的方差在不考虑向量长度的情况下仍然是 $1$，则 **缩放的“点－积”注意力**（scaled dot-product attention） 评分函数
 
 $$a(\mathbf q, \mathbf k) = \mathbf{q}^\top \mathbf{k}  /\sqrt{d}$$
 
@@ -257,7 +257,7 @@ class DotProductAttention(nn.Module):
         return torch.bmm(self.dropout(self.attention_weights), values)
 ```
 
-为了演示上述 `DotProductAttention` 类，我们使用与先前可加性注意力的小例子中相同的键、值和有效长度。对于“点－积”操作，令查询的特征大小与键的特征大小相同。
+为了演示上述的 `DotProductAttention` 类，我们使用了与先前可加性注意力的小例子中相同的键、值和有效长度。对于“点－积”操作，令查询的特征维度与键的特征维度大小相同。
 
 ```{.python .input}
 queries = d2l.normal(0, 1, (2, 1, 2))
@@ -284,7 +284,7 @@ d2l.show_heatmaps(d2l.reshape(attention.attention_weights, (1, 1, 2, 10)),
 
 ## 摘要
 
-* 可以将注意力池化的输出计算作为值的加权平均值，选择不同的注意力评分函数会带来不同的注意力池化操作。
+* 可以将注意力池化的输出计算作为值的加权平均，选择不同的注意力评分函数会带来不同的注意力池化操作。
 * 当查询和键是不同长度的矢量时，可以使用可加性注意力评分函数。当它们的长度相同时，使用缩放的“点－积”注意力评分函数的计算效率更高。
 
 ## 练习
@@ -300,3 +300,4 @@ d2l.show_heatmaps(d2l.reshape(attention.attention_weights, (1, 1, 2, 10)),
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/1064)
 :end_tab:
+
