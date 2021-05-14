@@ -453,7 +453,7 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
 ## 训练和验证模型
 
 现在，我们可以训练和验证模型了，而以下所有超参数都可以调整。
-例如，我们可以增加时期的数量。当 `lr_period` 和 `lr_decay` 分别设置为 50 和 0.1 时，优化算法的学习速率将在每 50 个周期乘以 0.1。
+例如，我们可以增加周期的数量。当 `lr_period` 和 `lr_decay` 分别设置为 50 和 0.1 时，优化算法的学习速率将在每 50 个周期乘以 0.1。
 为了示范，我们在这里只训练一个周期。
 
 ```{.python .input}
@@ -527,7 +527,7 @@ df.to_csv('submission.csv', index=False)
 
 ## 练习
 
-1. 在这场 Kaggle 竞赛中使用完整的 CIFAR-10 数据集。将 `batch_size` 和时期数分别更改为 128 和 100。看看你在这场比赛中能达到什么准确度和排名。你能进一步改进吗？
+1. 在这场 Kaggle 竞赛中使用完整的 CIFAR-10 数据集。将 `batch_size` 和周期数分别更改为 128 和 100。看看你在这场比赛中能达到什么准确度和排名。你能进一步改进吗？
 1. 不使用图像增广时，你能获得怎样的准确度？
 
 :begin_tab:`mxnet`
