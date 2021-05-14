@@ -375,7 +375,7 @@ A_sum_axis0 = tf.reduce_sum(A, axis=0)
 A_sum_axis0, A_sum_axis0.shape
 ```
 
-指定 `axis=1` 将通过汇总所有列的元素来缩减列维度（轴 1）。因此，输入的轴1的维数在输出形状中丢失。
+指定 `axis=1` 将通过汇总所有列的元素降维（轴1）。因此，输入的轴1的维数在输出形状中消失。
 
 ```{.python .input}
 A_sum_axis1 = A.sum(axis=1)
