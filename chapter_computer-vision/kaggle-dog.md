@@ -99,7 +99,7 @@ transform_train = gluon.data.vision.transforms.Compose([
     gluon.data.vision.transforms.RandomColorJitter(brightness=0.4,
                                                    contrast=0.4,
                                                    saturation=0.4),
-    # 添加随机噪音
+    # 添加随机噪声
     gluon.data.vision.transforms.RandomLighting(0.1),
     gluon.data.vision.transforms.ToTensor(),
     # 标准化图像的每个通道
@@ -119,7 +119,7 @@ transform_train = torchvision.transforms.Compose([
     torchvision.transforms.ColorJitter(brightness=0.4,
                                        contrast=0.4,
                                        saturation=0.4),
-    # 添加随机噪音
+    # 添加随机噪声
     torchvision.transforms.ToTensor(),
     # 标准化图像的每个通道
     torchvision.transforms.Normalize([0.485, 0.456, 0.406],
