@@ -56,7 +56,7 @@ import os
 d2l.DATA_HUB['dog_tiny'] = (d2l.DATA_URL + 'kaggle_dog_tiny.zip',
                             '0cb91d09b814ecdc07b50f31f8dcad3e81d6a86d')
 
-# 如果你使用Kaggle比赛的完整数据集，请将下面的变量更改为False。
+# 如果你使用Kaggle比赛的完整数据集，请将下面的变量更改为False
 demo = True
 if demo:
     data_dir = d2l.download_extract('dog_tiny')
@@ -86,7 +86,7 @@ reorg_dog_data(data_dir, valid_ratio)
 ## 图像增广
 
 回想一下，这个狗品种数据集是 ImageNet 数据集的子集，其图像大于 :numref:`sec_kaggle_cifar10` 中 CIFAR-10 数据集的图像。
-下面列出了一些对于相对较大的图像可能有用的图像增广操作。
+下面我们看一下如何在相对较大的图像上使用图像增广。
 
 ```{.python .input}
 transform_train = gluon.data.vision.transforms.Compose([
