@@ -74,8 +74,7 @@ import shutil
 d2l.DATA_HUB['cifar10_tiny'] = (d2l.DATA_URL + 'kaggle_cifar10_tiny.zip',
                                 '2068874e4b9a9f0fb07ebe0ad2b29754449ccacd')
 
-# 如果你使用完整的Kaggle竞赛的数据集，
-# 设置 `demo` 为 False
+# 如果你使用完整的Kaggle竞赛的数据集，设置`demo`为 False
 demo = True
 
 if demo:
