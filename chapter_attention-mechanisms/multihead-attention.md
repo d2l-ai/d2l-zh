@@ -1,9 +1,9 @@
-# 多头关注
+# 多头注意力
 :label:`sec_multihead-attention`
 
-实际上，给定相同集合的查询、键和值时，我们可能希望模型可以将学习到不同的注意力行为作为知识组合起来，例如捕获序列内各种范围的依赖关系（例如，短距离依赖和长距离依赖）。因此，允许我们的注意力机制共同使用查询、键和值的不同的子空间表示（representation subspaces）可能是有好处的。
+在实践中，当给定相同的查询、键和值的集合时，我们希望模型可以基于相同的注意力机制学习到不同的行为，然后将不同的行为作为知识组合起来，例如捕获序列内各种范围的依赖关系（例如，短距离依赖和长距离依赖）。因此，允许注意力机制组合使用查询、键和值的不同的 *子空间表示*（representation subspaces）可能是有益的。
 
-为此，与使用单独的一个注意力池化不同，我们可以独立学习得到 $h$ 组不同的线性投影（linear projections）来变换查询、键和值。然后，这 $h$ 组变换后的查询、键和值将并行地进行注意力池化。最后，将这 $h$ 个注意力池化的输出拼接在一起，并且通过另一个可以学习的线性投影进行变换，以产生最终输出。这种设计被称为 * 多头注意力 *，其中 $h$ 个注意力池化输出中的每一个输出都被称作一个 * 头 * :cite:`Vaswani.Shazeer.Parmar.ea.2017`。:numref:`fig_multi-head-attention` 展示了使用全连接层来实现可以学习的线性变换的多头注意力。
+为此，与使用单独的一个注意力池化不同，我们可以独立学习得到 $h$ 组不同的 *线性投影*（linear projections）来变换查询、键和值。然后，这 $h$ 组变换后的查询、键和值将并行地进行注意力池化。最后，将这 $h$ 个注意力池化的输出拼接在一起，并且通过另一个可以学习的线性投影进行变换，以产生最终输出。这种设计被称为 **多头注意力**，其中 $h$ 个注意力池化输出中的每一个输出都被称作一个 **头** :cite:`Vaswani.Shazeer.Parmar.ea.2017`。:numref:`fig_multi-head-attention` 展示了使用全连接层来实现可以学习的线性变换的多头注意力。
 
 ![Multi-head attention, where multiple heads are concatenated then linearly transformed.](../img/multi-head-attention.svg)
 :label:`fig_multi-head-attention`
@@ -173,7 +173,7 @@ def transpose_output(X, num_heads):
     return X.reshape(X.shape[0], X.shape[1], -1)
 ```
 
-让我们使用键和值相同的小例子来测试我们实施的 `MultiHeadAttention` 类。作为结果，多头注意力输出的形状是（`batch_size`、`num_queries`、`num_hiddens`）。
+让我们使用键和值相同的小例子来测试我们编写的 `MultiHeadAttention` 类。多头注意力输出的形状是（`batch_size`、`num_queries`、`num_hiddens`）。
 
 ```{.python .input}
 num_hiddens, num_heads = 100, 5
@@ -197,15 +197,15 @@ Y = d2l.ones((batch_size, num_kvpairs, num_hiddens))
 attention(X, Y, Y, valid_lens).shape
 ```
 
-## 摘要
+## 小结
 
-* 多头注意力通过利用查询、键和值的不同子空间表示得到不同的注意力行为，从而将学习得到的知识融合起来。
+* 多头注意力融合了来自于相同的注意力池化产生的不同的知识，这些知识的不同来源于相同的查询、键和值的不同的子空间表示。
 * 基于适当的张量操作，可以实现多头注意力的并行计算。
 
 ## 练习
 
 1. 分别可视化这个实验中的多个头的注意力权重。
-1. 假设我们已经拥有一个训练完成的基于多头注意力的模型，现在希望修剪最不重要的注意力头以提高预测速度。应该如何设计实验来衡量注意力头的重要性？
+1. 假设我们已经拥有一个完成训练的基于多头注意力的模型，现在希望修剪最不重要的注意力头以提高预测速度。应该如何设计实验来衡量注意力头的重要性？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/1634)
