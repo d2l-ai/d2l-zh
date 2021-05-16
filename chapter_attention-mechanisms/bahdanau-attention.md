@@ -174,7 +174,7 @@ output, state = decoder(X, state)
 output.shape, len(state), state[0].shape, len(state[1]), state[1][0].shape
 ```
 
-## 训练模型
+## 训练
 
 与 :numref:`sec_seq2seq_training` 类似，我们在这里指定超参数，并且实例化基于 Bahdanau 注意力的编码器和解码器，然后对这个模型进行基于机器翻译案例的训练。由于新增了注意力机制，这个训练会比没有注意力机制的 :numref:`sec_seq2seq_training` 慢得多。
 
