@@ -193,7 +193,7 @@ net = d2l.EncoderDecoder(encoder, decoder)
 d2l.train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
 ```
 
-模型训练完毕后，我们用它将几个英语句子翻译成法语并计算它们的 BLEU 分数。
+模型训练后，我们用它将几个英语句子翻译成法语并计算它们的 BLEU 分数。
 
 ```{.python .input}
 #@tab all

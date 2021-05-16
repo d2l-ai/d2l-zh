@@ -7,7 +7,7 @@ AlexNet 和 VGG 对 LeNet 的改进主要在于如何扩大和加深这两个模
 然而，如果使用稠密层了，可能会完全放弃表征的空间结构。
 *网络中的网络* (*NiN*) 提供了一个非常简单的解决方案：在每个像素的通道上分别使用多层感知机 :cite:`Lin.Chen.Yan.2013`
 
-## NiN 块
+## (**NiN块**)
 
 回想一下，卷积层的输入和输出由四维张量组成，张量的每个轴分别对应样本、通道、高度和宽度。
 另外，全连接层的输入和输出通常是分别对应于样本和特征的二维张量。
@@ -68,7 +68,7 @@ def nin_block(num_channels, kernel_size, strides, padding):
                                activation='relu')])
 ```
 
-## NiN 模型
+## [**NiN模型**]
 
 最初的 NiN 网络是在 AlexNet 后不久提出的，显然从中得到了一些启示。
 NiN使用窗口形状为 $11\times 11$、$5\times 5$ 和 $3\times 3$的卷积层，输出通道数量与 AlexNet 中的相同。
@@ -131,7 +131,7 @@ def net():
         ])
 ```
 
-我们创建一个数据样本来查看每个块的输出形状。
+我们创建一个数据样本来[**查看每个块的输出形状**]。
 
 ```{.python .input}
 X = np.random.uniform(size=(1, 1, 224, 224))
@@ -157,7 +157,7 @@ for layer in net().layers:
     print(layer.__class__.__name__,'output shape:\t', X.shape)
 ```
 
-## 训练
+## [**训练模型**]
 
 和以前一样，我们使用 Fashion-MNIST 来训练模型。训练 NiN 与训练 AlexNet、VGG时相似。
 

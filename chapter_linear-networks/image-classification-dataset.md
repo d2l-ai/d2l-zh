@@ -163,7 +163,7 @@ show_images(X, 2, 9, titles=get_fashion_mnist_labels(y));
 batch_size = 256
 
 def get_dataloader_workers():  #@save
-    """在非Windows的平台上，使用4个进程来读取的数据。"""
+    """在非Windows的平台上，使用4个进程来读取数据。"""
     return 0 if sys.platform.startswith('win') else 4
 
 # 通过ToTensor实例将图像数据从uint8格式变换成32位浮点数格式，并除以255使得所有像素
@@ -179,7 +179,7 @@ train_iter = gluon.data.DataLoader(mnist_train.transform_first(transformer),
 batch_size = 256
 
 def get_dataloader_workers():  #@save
-    """使用4个进程来读取的数据。"""
+    """使用4个进程来读取数据。"""
     return 4
 
 train_iter = data.DataLoader(mnist_train, batch_size, shuffle=True,

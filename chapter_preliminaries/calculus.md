@@ -245,7 +245,7 @@ $$\frac{dy}{dx_i} = \frac{dy}{du_1} \frac{du_1}{dx_i} + \frac{dy}{du_2} \frac{du
 
 ## 练习
 
-1. 绘制函数$y = f(x) = x^3 - \frac{1}{x}$和其在$x = 1处切线的图像。
+1. 绘制函数$y = f(x) = x^3 - \frac{1}{x}$和其在$x = 1$处切线的图像。
 1. 求函数$f(\mathbf{x}) = 3x_1^2 + 5e^{x_2}$的梯度。
 1. 函数$f(\mathbf{x}) = \|\mathbf{x}\|_2$的梯度是什么？
 1. 你可以写出函数$u = f(x, y, z)$，其中$x = x(a, b)$，$y = y(a, b)$，$z = z(a, b)$的链式法则吗?

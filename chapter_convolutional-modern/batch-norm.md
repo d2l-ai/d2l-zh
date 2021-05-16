@@ -23,19 +23,19 @@
 
 批量归一化应用于单个可选层（也可以应用到所有层），其原理如下：在每次训练迭代中，我们首先归一化输入，即通过减去其均值并除以其标准差，其中两者均基于当前小批量处理。
 接下来，我们应用比例系数和比例偏移。
-正是由于这个基于*批量*统计的*标准化*，才有了*批量归一化*的名称。。
+正是由于这个基于*批量*统计的*标准化*，才有了*批量归一化*的名称。
 
 请注意，如果我们尝试使用大小为 1 的小批量应用批量归一化，我们将无法学到任何东西。
 这是因为在减去均值之后，每个隐藏单元将为 0。
 所以，只有使用足够大的小批量，批量归一化这种方法才是有效且稳定的。
 请注意，在应用批量归一化时，批量大小的选择可能比没有批量归一化时更重要。
 
-从形式上来说，用 $\mathbf{x} \in \mathcal{B}$ 表示一个来自小批量 $\mathcal{B}$ 的输入，批量归一化$\mathrm{BN}$ 根据以下表达式转换 $\mathbf{x}$：
+从形式上来说，用 $\mathbf{x} \in \mathcal{B}$ 表示一个来自小批量 $\mathcal{B}$ 的输入，批量归一化 $\mathrm{BN}$ 根据以下表达式转换 $\mathbf{x}$：
 
 $$\mathrm{BN}(\mathbf{x}) = \boldsymbol{\gamma} \odot \frac{\mathbf{x} - \hat{\boldsymbol{\mu}}_\mathcal{B}}{\hat{\boldsymbol{\sigma}}_\mathcal{B}} + \boldsymbol{\beta}.$$
 :eqlabel:`eq_batchnorm`
 
-在 :eqref:`eq_batchnorm` 中，$\hat{\boldsymbol{\mu}}_\mathcal{B}$ 是样本均值，$\hat{\boldsymbol{\mu}}_\mathcal{B}$ 是小批量 $\mathcal{B}$ 的样本标准差。
+在 :eqref:`eq_batchnorm` 中，$\hat{\boldsymbol{\mu}}_\mathcal{B}$ 是样本均值，$\hat{\boldsymbol{\sigma}}_\mathcal{B}$ 是小批量 $\mathcal{B}$ 的样本标准差。
 应用标准化后，生成的小批量的平均值为 0 和单位方差为 1。
 由于单位方差（与其他一些魔法数）是一个任意的选择，因此我们通常包含
 *拉伸参数*（scale） $\boldsymbol{\gamma}$ 和 *偏移参数*（shift） $\boldsymbol{\beta}$，它们的形状与 $\mathbf{x}$ 相同。
@@ -99,7 +99,7 @@ $$\mathbf{h} = \phi(\mathrm{BN}(\mathbf{W}\mathbf{x} + \mathbf{b}) ).$$
 
 
 
-## 从零实现
+## (**从零实现**)
 
 下面，我们从头开始实现一个具有张量的批量归一化层。
 
@@ -179,7 +179,7 @@ def batch_norm(X, gamma, beta, moving_mean, moving_var, eps):
     return Y
 ```
 
-我们现在可以创建一个正确的 `BatchNorm` 图层。
+我们现在可以[**创建一个正确的 `BatchNorm` 图层**]。
 这个层将保持适当的参数：拉伸 `gamma` 和偏移 `beta`, 这两个参数将在训练过程中更新。
 此外，我们的图层将保存均值和方差的移动平均值，以便在模型预测期间随后使用。
 
@@ -302,7 +302,7 @@ class BatchNorm(tf.keras.layers.Layer):
 
 ##  使用批量归一化层的 LeNet
 
-为了更好理解如何应用 `BatchNorm`，下面我们将其应用于 LeNet 模型（ :numref:`sec_lenet` ）。
+为了更好理解如何[**应用`BatchNorm`**]，下面我们将其应用(**于LeNet模型**)（ :numref:`sec_lenet` ）。
 回想一下，批量归一化是在卷积层或全连接层之后、相应的激活函数之前应用的。
 
 ```{.python .input}
@@ -362,7 +362,7 @@ def net():
     )
 ```
 
-和以前一样，我们将在 Fashion-MNIST 数据集训练我们的网络。
+和以前一样，我们将[**在Fashion-MNIST数据集上训练网络**]。
 这个代码与我们第一次训练 LeNet（ :numref:`sec_lenet` ）时几乎完全相同，主要区别在于学习率大得多。
 
 ```{.python .input}
@@ -379,7 +379,7 @@ train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
 net = d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 ```
 
-让我们来看看从第一个批量归一化层中学到的拉伸参数 `gamma` 和偏移参数 `beta`。
+让我们来看看从第一个批量归一化层中学到的[**拉伸参数 `gamma` 和偏移参数 `beta`**]。
 
 ```{.python .input}
 net[1].gamma.data().reshape(-1,), net[1].beta.data().reshape(-1,)
@@ -395,7 +395,7 @@ net[1].gamma.reshape((-1,)), net[1].beta.reshape((-1,))
 tf.reshape(net.layers[1].gamma, (-1,)), tf.reshape(net.layers[1].beta, (-1,))
 ```
 
-## 简明实现
+## [**简明实现**]
 
 除了使用我们刚刚定义的 `BatchNorm` ，我们也可以直接使用深度学习框架中定义的 `BatchNorm` 。
 该代码看起来几乎与我们上面的代码相同。
@@ -455,7 +455,7 @@ def net():
     ])
 ```
 
-下面，我们使用相同的超参数来训练我们的模型。
+下面，我们[**使用相同超参数来训练模型**]。
 请注意，通常高级 API 变体运行速度快得多，因为它的代码已编译为 C++ 或 CUDA，而我们的自定义代码由 Python 实现。
 
 ```{.python .input}

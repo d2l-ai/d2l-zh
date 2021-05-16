@@ -1,9 +1,9 @@
-# 自我注意力和位置编码
+# 自注意力和位置编码
 :label:`sec_self-attention-and-positional-encoding`
 
-在深度学习中，我们经常使用 CNN 或 RNN 对序列进行编码。现在请注意机制。想象一下，我们将一系列令牌输入注意力池，以便同一组令牌充当查询、键和值。具体来说，每个查询都会关注所有键值对并生成一个注意力输出。由于查询、键和值来自同一个地方，因此执行
-*自我关注 * :cite:`Lin.Feng.Santos.ea.2017,Vaswani.Shazeer.Parmar.ea.2017`，也称为 * 内心注意 * :cite:`Cheng.Dong.Lapata.2016,Parikh.Tackstrom.Das.ea.2016,Paulus.Xiong.Socher.2017`。
-在本节中，我们将讨论使用自我注意的序列编码，包括使用序列顺序的其他信息。
+在深度学习中，我们经常使用卷积神经网络或循环神经网络对序列进行编码。现在请注意机制。想象一下，我们将一系列标签输入注意力池，以便同一组标签充当查询、键和值。具体来说，每个查询都会关注所有键值对并生成一个注意力输出。由于查询、键和值来自同一个地方，因此执行
+*自注意力*（self-attention） :cite:`Lin.Feng.Santos.ea.2017,Vaswani.Shazeer.Parmar.ea.2017`，也称为 *内注意力*（intra-attention） :cite:`Cheng.Dong.Lapata.2016,Parikh.Tackstrom.Das.ea.2016,Paulus.Xiong.Socher.2017`。
+在本节中，我们将讨论使用自注意力的序列编码，包括使用序列顺序的其他信息。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -21,13 +21,13 @@ import torch
 from torch import nn
 ```
 
-## 自我注意
+## 自注意力
 
-给定一系列输入令牌 $\mathbf{x}_1, \ldots, \mathbf{x}_n$，其中任何 $\mathbf{x}_i \in \mathbb{R}^d$ ($1 \leq i \leq n$)，它的自我注意力输出一个长度相同的序列 $\mathbf{y}_1, \ldots, \mathbf{y}_n$，其中
+给定一系列输入标签 $\mathbf{x}_1, \ldots, \mathbf{x}_n$，其中任何 $\mathbf{x}_i \in \mathbb{R}^d$ ($1 \leq i \leq n$)，它的自注意力输出一个长度相同的序列 $\mathbf{y}_1, \ldots, \mathbf{y}_n$，其中
 
 $$\mathbf{y}_i = f(\mathbf{x}_i, (\mathbf{x}_1, \mathbf{x}_1), \ldots, (\mathbf{x}_n, \mathbf{x}_n)) \in \mathbb{R}^d$$
 
-根据 :eqref:`eq_attn-pooling` 中关注集中 $f$ 的定义。使用多头注意力，以下代码片段计算具有形状的张量的自我注意力（批量大小、时间步长或令牌中的序列长度，$d$）。输出张量的形状相同。
+根据 :eqref:`eq_attn-pooling` 中关注集中 $f$ 的定义。使用多头注意力，以下代码片段计算具有形状的张量的自注意力（批量大小、时间步长或标签中的序列长度，$d$）。输出张量的形状相同。
 
 ```{.python .input}
 num_hiddens, num_heads = 100, 5
@@ -50,7 +50,7 @@ X = d2l.ones((batch_size, num_queries, num_hiddens))
 attention(X, X, X, valid_lens).shape
 ```
 
-## 比较 CNN、RNN 和自我注意
+## 比较 CNN、RNN 和自注意力
 :label:`subsec_cnn-rnn-self-attention`
 
 让我们比较将 $n$ 令牌序列映射到另一个相等长度序列的架构，其中每个输入或输出令牌由 $d$ 维矢量表示。具体来说，我们将考虑 CNN、RNN 和自我注意力。我们将比较它们的计算复杂性、顺序操作和最大路径长度。请注意，顺序操作会阻止并行计算，而任意序列位置组合之间的路径较短，可以更轻松地学习序列 :cite:`Hochreiter.Bengio.Frasconi.ea.2001` 中的远距离依赖关系。
@@ -181,7 +181,7 @@ $$\begin{aligned}
 
 $2\times 2$ 预测矩阵不依赖于任何仓位指数 $i$。
 
-## 摘要
+## 小结
 
 * 在自我注意中，查询、键和值都来自同一个地方。
 * CNN 和自我注意都享受并行计算，自我注意力的最大路径长度最短。但是，相对于序列长度的二次计算复杂性使得自我注意力在很长的序列中非常缓慢。
