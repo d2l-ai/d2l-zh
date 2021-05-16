@@ -17,7 +17,7 @@ import torch
 from torch import nn
 ```
 
-## 简单网络
+## [**简单网络**]
 
 让我们使用一个比 :numref:`sec_multi_gpu` 的LeNet稍微有意义的网络，它仍然足够容易和快速地训练。我们选择了ResNet-18 :cite:`He.Zhang.Ren.ea.2016`。因为输入的图像很小，所以我们稍微修改一下。与 :numref:`sec_resnet` 的区别在于，我们在开始时使用了更小的卷积核、步长和填充。此外，我们删除了最大池化层。
 
@@ -129,7 +129,9 @@ weight.data(devices[0])[0], weight.data(devices[1])[0]
 ```
 
 :begin_tab:`mxnet`
-接下来，让我们用一个在多个设备上并行工作的代码来替换评估准确性的代码。这是 :numref:`sec_lenet` 的`evaluate_accuracy_gpu`函数的替代。主要区别在于，我们在调用网络之前拆分了一个小批量。其他的基本上都是一样的。
+接下来，让我们[**开启多个设备上并行工作，来评估模型准确性**]。
+这里主要是 :numref:`sec_lenet` 的`evaluate_accuracy_gpu`函数的替代。
+主要区别在于，我们在调用网络之前拆分了一个小批量，其他的基本上都是一样的。
 :end_tab:
 
 ```{.python .input}
@@ -150,7 +152,7 @@ def evaluate_accuracy_gpus(net, data_iter, split_f=d2l.split_batch):
     return metric[0] / metric[1]
 ```
 
-## 训练
+## [**训练**]
 
 如前所述，训练代码需要执行几个基本功能才能实现高效并行：
 
@@ -218,7 +220,7 @@ def train(net, num_gpus, batch_size, lr):
           f'on {str(devices)}')
 ```
 
-让我们看看这在实践中是如何运作的。作为热身，我们在单个GPU上训练网络。
+让我们看看这在实践中是如何运作的。作为热身，我们[**在单个GPU上训练网络**]。
 
 ```{.python .input}
 train(num_gpus=1, batch_size=256, lr=0.1)
@@ -229,7 +231,7 @@ train(num_gpus=1, batch_size=256, lr=0.1)
 train(net, num_gpus=1, batch_size=256, lr=0.1)
 ```
 
-接下来我们使用2个GPU进行训练。与 :numref:`sec_multi_gpu` 中评估的LeNet相比，ResNet-18的模型要复杂得多。这就是并行化显示其优势的地方。计算时间明显大于同步参数的时间。这提高了可伸缩性，因为并行化的开销不太相关。
+接下来我们[**使用2个GPU进行训练**]。与 :numref:`sec_multi_gpu` 中评估的LeNet相比，ResNet-18的模型要复杂得多。这就是并行化显示其优势的地方，计算时间明显大于同步参数的时间。这提高了可伸缩性，因为并行化的开销不太相关。
 
 ```{.python .input}
 train(num_gpus=2, batch_size=512, lr=0.2)
