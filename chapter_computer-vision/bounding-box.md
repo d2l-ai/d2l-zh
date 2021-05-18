@@ -4,7 +4,7 @@
 在前面的章节（例如 :numref:`sec_alexnet`—:numref:`sec_googlenet`）中，我们介绍了各种图像分类模型。
 在图像分类任务中，我们假设图像中只有*一个*主要物体对象，我们只关注如何识别其类别。
 然而，很多时候图像里有多个我们感兴趣的目标，我们不仅想知道它们的类别，还想得到它们在图像中的具体位置。
-在计算机视觉里，我们将这类任务称为目标检测（object detection）或物体检测。
+在计算机视觉里，我们将这类任务称为*目标检测*（object detection）或*物体检测*。
 
 目标检测在多个领域中被广泛使用。
 例如，在无人驾驶里，我们需要通过识别拍摄到的视频图像里的车辆、行人、道路和障碍的位置来规划行进线路。
@@ -113,7 +113,7 @@ box_center_to_corner(box_corner_to_center(boxes)) == boxes
 #@tab all
 #@save
 def bbox_to_rect(bbox, color):
-    # 将边界框(左上x, 左上y, 右下x, 右下y)格式转换成matplotlib格式：
+    # 将边界框 (左上x, 左上y, 右下x, 右下y) 格式转换成matplotlib格式：
     # ((左上x, 左上y), 宽, 高)
     return d2l.plt.Rectangle(
         xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0], height=bbox[3]-bbox[1],
@@ -132,17 +132,17 @@ fig.axes.add_patch(bbox_to_rect(cat_bbox, 'red'));
 ## 小结
 
 * 目标检测不仅可以识别图像中所有感兴趣的物体，还能识别它们的位置，该位置通常由矩形边界框表示。
-* 我们可以在两种常用的边界框表示（中间，宽度，高度）和（左上，右下）之间进行转换。
+* 我们可以在两种常用的边界框表示（中间，宽度，高度）和（左上，右下）坐标之间进行转换。
 
 ## 练习
 
 1. 找到另一张图像，然后尝试标记包含该对象的边界框。比较标签边界框和类别：哪些通常需要更长时间？
-1. 为什么 `box_corner_to_center` 和 `box_center_to_corner` 的输入参数的最内层维度总是 4？
+1. 为什么 `box_corner_to_center` 和 `box_center_to_corner` 的输入参数的最内层维度总是4？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/369)
+[Discussions](https://discuss.d2l.ai/t/2943)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1527)
+[Discussions](https://discuss.d2l.ai/t/2944)
 :end_tab:
