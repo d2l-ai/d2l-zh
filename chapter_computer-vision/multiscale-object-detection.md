@@ -1,4 +1,4 @@
-# 多尺度对象检测
+# 多尺度目标检测
 
 在 :numref:`sec_anchor` 中，我们生成了以输入图像的每个像素为中心的多个锚框。基本上，这些锚框代表图像不同区域的样本。但是，如果是为 *每个* 像素生成的锚框，我们最终可能会得到太多的锚框来计算。想想一下 $561 \times 728$ 输入图像。如果为每个像素生成五个形状不同的锚框作为中心，则需要在图像上标记和预测超过 200 万个锚框 ($561 \times 728 \times 5$)。 
 
@@ -104,9 +104,9 @@ display_anchors(fmap_w=1, fmap_h=1, s=[0.8])
 1. 给定形状为 $1 \times c \times h \times w$ 的特征图变量，其中 $h$ 和 $w$ 分别是功能地图的通道数、高度和宽度。你怎样才能将这个变量转换为锚框的类和偏移量？输出的形状是什么？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/371)
+[Discussions](https://discuss.d2l.ai/t/2947)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1607)
+[Discussions](https://discuss.d2l.ai/t/2948)
 :end_tab:
