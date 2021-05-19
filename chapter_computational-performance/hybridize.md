@@ -1,7 +1,7 @@
 # 编译器和解释器
 :label:`sec_hybridize`
 
-目前为止，本书主要关注的是 **命令式编程**（imperative programming）。命令式编程使用诸如`print`、`+`和`if`之类的语句来更改程序的状态。考虑下面这段简单的命令式程序。
+目前为止，本书主要关注的是*命令式编程*（imperative programming）。命令式编程使用诸如`print`、`+`和`if`之类的语句来更改程序的状态。考虑下面这段简单的命令式程序。
 
 ```{.python .input}
 #@tab all
@@ -17,7 +17,7 @@ def fancy_func(a, b, c, d):
 print(fancy_func(1, 2, 3, 4))
 ```
 
-Python是一种 **解释型语言**（interpreted language）。因此，当对上面的 `fancy_func` 函数求值时，它按顺序执行函数体的操作。也就是说，它将通过对 `e = add(a, b)` 求值，并将结果存储为变量 `e`，从而更改程序的状态。接下来的两个语句 `f = add(c, d)` 和 `g = add(e, f)` 也将执行类似地操作，即执行加法计算并将结果存储为变量。 :numref:`fig_compute_graph` 说明了数据流。
+Python是一种*解释型语言*（interpreted language）。因此，当对上面的 `fancy_func` 函数求值时，它按顺序执行函数体的操作。也就是说，它将通过对 `e = add(a, b)` 求值，并将结果存储为变量 `e`，从而更改程序的状态。接下来的两个语句 `f = add(c, d)` 和 `g = add(e, f)` 也将执行类似地操作，即执行加法计算并将结果存储为变量。 :numref:`fig_compute_graph` 说明了数据流。
 
 ![命令式编程中的数据流。](../img/computegraph.svg)
 :label:`fig_compute_graph`
@@ -26,7 +26,7 @@ Python是一种 **解释型语言**（interpreted language）。因此，当对�
 
 ## 符号式编程
 
-考虑另一种选择 **符号式编程**（symbolic programming），即代码通常只在完全定义了过程之后才执行计算。这个策略被多个深度学习框架使用，包括 Theano 和 TensorFlow（后者已经获得了命令式编程的扩展）。一般包括以下步骤：
+考虑另一种选择*符号式编程*（symbolic programming），即代码通常只在完全定义了过程之后才执行计算。这个策略被多个深度学习框架使用，包括 Theano 和 TensorFlow（后者已经获得了命令式编程的扩展）。一般包括以下步骤：
 
 1. 定义计算流程。
 1. 将流程编译成可执行的程序。
