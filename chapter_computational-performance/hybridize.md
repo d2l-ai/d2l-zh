@@ -17,12 +17,12 @@ def fancy_func(a, b, c, d):
 print(fancy_func(1, 2, 3, 4))
 ```
 
-Python是一种 **解释型语言**（interpreted language）。因此，当对上面的 `fancy_func` 函数求值时，它按顺序执行函数体的操作。也就是说，它将通过对 `e = add(a, b)` 求值，并将结果存储为变量 `e`，从而更改程序的状态。接下来的两个语句 `f = add(c, d)` 和 `g = add(e, f)` 也将类似地操作，执行加法计算并将结果存储为变量。 :numref:`fig_compute_graph` 说明了数据流。
+Python是一种 **解释型语言**（interpreted language）。因此，当对上面的 `fancy_func` 函数求值时，它按顺序执行函数体的操作。也就是说，它将通过对 `e = add(a, b)` 求值，并将结果存储为变量 `e`，从而更改程序的状态。接下来的两个语句 `f = add(c, d)` 和 `g = add(e, f)` 也将类似地操作，执行加法计算并将结果存储为变量。 :numref:`fig_compute_graph` 说明了数据流。
 
 ![命令式编程中的数据流。](../img/computegraph.svg)
 :label:`fig_compute_graph`
 
-尽管命令式编程很方便，但可能效率不高。一方面原因，Python 会单独执行这三个函数的调用，而没有考虑 `add` 函数在 `fancy_func` 中被重复调用。如果在一个 GPU（甚至多个 GPU）上执行这些命令，那么 Python 解释器产生的开销可能会非常大。此外，它需要保存 `e` 和 `f` 的变量值，直到 `fancy_func` 中的所有语句都执行完毕。这是因为程序不知道在执行语句 `e = add(a, b)` 和 `f = add(c, d)` 之后，其他部分是否会使用变量 `e `和 `f`。
+尽管命令式编程很方便，但可能效率不高。一方面原因，Python 会单独执行这三个函数的调用，而没有考虑 `add` 函数在 `fancy_func` 中被重复调用。如果在一个 GPU（甚至多个 GPU）上执行这些命令，那么 Python 解释器产生的开销可能会非常大。此外，它需要保存 `e` 和 `f` 的变量值，直到 `fancy_func` 中的所有语句都执行完毕。这是因为程序不知道在执行语句 `e = add(a, b)` 和 `f = add(c, d)` 之后，其他部分是否会使用变量 `e `和 `f`。
 
 ## 符号式编程
 
@@ -80,12 +80,12 @@ exec(y)
 :end_tab:
 
 :begin_tab:`tensorflow`
-命令式编程现在是 TensorFlow 2 的默认选择，对于那些刚接触该语言的人来说是一个很好的改变。不过，符号式编程技术和计算图仍然存在于 TensorFlow 中，并且可以通过易于使用的装饰器模式 `tf.function` 进行访问。这为 TensorFlow 带来了命令式编程范式，允许用户定义更加直观的函数，然后使用被 TensorFlow 团队称为 [autograph](https://www.tensorflow.org/api_docs/python/tf/autograph) 的特性将它们封装，再自动编译成计算图。
+命令式编程现在是 TensorFlow 2 的默认选择，对于那些刚接触该语言的人来说是一个很好的改变。不过，符号式编程技术和计算图仍然存在于 TensorFlow 中，并且可以通过易于使用的装饰器模式 `tf.function` 进行访问。这为 TensorFlow 带来了命令式编程范式，允许用户定义更加直观的函数，然后使用被 TensorFlow 团队称为 [autograph](https://www.tensorflow.org/api_docs/python/tf/autograph) 的特性将它们封装，再自动编译成计算图。
 :end_tab:
 
 ## `Sequential`的混合式编程
 
-要了解混合式编程的工作原理，最简单的方法是考虑具有多层的深层网络。按照惯例，Python解释器将需要为所有层执行代码以生成指令，然后可以将该指令转发到CPU或GPU。对于单个（快速）计算设备，这不会导致任何重大问题。另一方面，如果我们使用高级的8-GPU服务器，比如AWS P3dn.24xlarge实例，Python将很难让所有GPU保持忙碌。单线程Python解释器成为这里的瓶颈。让我们看看如何通过用`HybridSequential`替换代码重要部分的`Sequential`来解决问题。我们首先定义一个简单的多层感知机。
+要了解混合式编程的工作原理，最简单的方法是考虑具有多层的深层网络。按照惯例，Python 解释器需要执行所有层的代码来生成一条指令，然后将该指令转发到 CPU 或 GPU。对于单个的（快速的）计算设备，这不会导致任何重大问题。另一方面，如果我们使用先进的 8-GPU 服务器，比如 AWS P3dn.24xlarge 实例，Python将很难让所有的 GPU 都保持忙碌。在这里，瓶颈是单线程 Python 解释器。让我们看看如何通过将 `Sequential` 替换为 `HybridSequential` 来解决代码中这个值得注意的问题。首先，我们定义一个简单的多层感知机。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -93,7 +93,7 @@ from mxnet import np, npx
 from mxnet.gluon import nn
 npx.set_np()
 
-# 生产网络的工厂
+# 生产网络的工厂模式
 def get_net():
     net = nn.HybridSequential()  
     net.add(nn.Dense(256, activation='relu'),
@@ -113,7 +113,7 @@ from d2l import torch as d2l
 import torch
 from torch import nn
 
-# 生产网络的工厂
+# 生产网络的工厂模式
 def get_net():
     net = nn.Sequential(nn.Linear(512, 256),
             nn.ReLU(),
@@ -133,7 +133,7 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 from tensorflow.keras.layers import Dense
 
-# 生产网络的工厂
+# 生产网络的工厂模式
 def get_net():
     net = tf.keras.Sequential()
     net.add(Dense(256, input_shape = (512,), activation = "relu"))
@@ -147,15 +147,15 @@ net(x)
 ```
 
 :begin_tab:`mxnet`
-通过调用`hybridize`函数，我们可以编译和优化多层感知机中的计算。模型的计算结果保持不变。
+通过调用 `hybridize `函数，我们就有能力编译和优化多层感知机中的计算，而模型的计算结果保持不变。
 :end_tab:
 
 :begin_tab:`pytorch`
-通过使用`torch.jit.script`函数转换模型，我们可以编译和优化多层感知机的计算。模型的计算结果保持不变。
+通过使用 `torch.jit.script` 函数来转换模型，我们就有能力编译和优化多层感知机的计算，而模型的计算结果保持不变。
 :end_tab:
 
 :begin_tab:`tensorflow`
-以前，tensorflow中构建的所有函数都是作为计算图构建的，因此默认情况下是JIT编译的。但是，随着TensorFlow2.X和Earge tensors的发布，这不再是默认行为。我们使用tf.function重新启用此功能。tf.function更常用作函数装饰器，但是可以直接将其作为普通python函数调用，如下所示。模型的计算结果保持不变。
+以前，TensorFlow 中构建的所有函数都是作为计算图构建的，因此默认情况下是 JIT 编译的。但是，随着 TensorFlow 2.X 和 EargeTensor 的发布，TensorFlow 中的方式就不再是默认行为。我们可以使用 tf.function 重新启用这个功能。tf.function 更常被用作函数装饰器，如下所示，它也可以直接将其作为普通的 Python 函数调用。模型的计算结果保持不变。
 :end_tab:
 
 ```{.python .input}
@@ -176,15 +176,14 @@ net(x)
 ```
 
 :begin_tab:`mxnet`
-只需将一个块指定为`HybridSequential`，编写与之前相同的代码并调用`hybridize`。一旦发生这种情况，网络将得到优化（我们将在下面对性能进行基准测试）。不幸的是，这并不是适用于每一层。也就是说，如果一个层从`Block`类而不是`HybridBlock`类继承，它将不会得到优化。
+这实在太好了：只需将一个块指定为 `HybridSequential`，然后编写与之前相同的代码，再调用 `hybridize`，当完成这些任务后，网络就将得到优化（我们将在下面对性能进行基准测试）。不幸的是，这种魔法并不适用于每一层。也就是说，如果某个层是从 `Block` 类而不是从 `HybridBlock` 类继承的，那么它将不会得到优化。
 :end_tab:
 
 :begin_tab:`pytorch`
-编写与以前相同的代码，并使用`torch.jit.script`简单地转换模型。一旦发生这种情况，网络将得到优化（我们将在下面对性能进行基准测试）。
-:end_tab:
+这实在太好了：编写与之前相同的代码，再使用`torch.jit.script` 简单地转换模型，当完成这些任务后，网络就将得到优化（我们将在下面对性能进行基准测试）。 :end_tab:
 
 :begin_tab:`tensorflow`
-编写与以前相同的代码，并使用`tf.function`简单地转换模型。一旦发生这种情况，网络将以TensorFlow的MLIR中间表示形式构建为一个计算图，并在编译器级别进行大量优化，以实现快速执行（我们将在下面对性能进行基准测试）。显式地将`jit_compile = True`标志添加到`tf.function()`调用可以启用TensorFlow中的XLA（加速线性代数）功能。在某些情况下，XLA可以进一步优化JIT编译代码。。在没有这种显式定义的情况下，可以启用图形模式执行，但是，XLA可以使某些大型线性代数操作(与我们在深度学习应用程序中看到的操作类似)速度更快，特别是在GPU环境中。
+这实在太好了：编写与之前相同的代码，再使用`tf.function` 简单地转换模型，当完成这些任务后，网络将以 TensorFlow 的 MLIR 中间表示形式构建为一个计算图，并在编译器级别进行大量优化以满足快速执行的需要（我们将在下面对性能进行基准测试）。通过将 `jit_compile = True` 标志添加到 `tf.function()` 的函数调用中可以显式地启用 TensorFlow 中的 XLA（线性代数加速）功能。在某些情况下，XLA 可以进一步优化 JIT 的编译代码。如果没有这种显式定义的情况，执行图形模式将会被启用，但是，XLA 可以使某些大规模的线性代数的运算速度更快（与我们在深度学习应用程序中看到的操作类似），特别是在 GPU 环境中。
 :end_tab:
 
 ### 通过混合式编程加速
