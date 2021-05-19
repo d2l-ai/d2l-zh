@@ -67,20 +67,20 @@ exec(y)
 
 ## 混合式编程
 
-历史上，大多数深度学习框架在命令式方法和符号式方法之间进行选择。例如，Theano、TensorFlow（灵感来自前者）、Keras和CNTK采用了符号式方法。相反地，Chainer和PyTorch采取了命令式方法。在后来的更新版中，tensorflow2.0和Keras增加了命令式方法。
+历史上，大部分深度学习框架都在命令式编程与符号式编程之间进行选择。例如，Theano、TensorFlow（灵感来自前者）、Keras 和 CNTK 采用了符号式编程。相反地，Chainer 和 PyTorch 采取了命令式编程。在后来的版本更新中，TensorFlow 2.0 和 Keras 增加了命令式编程。
 
 :begin_tab:`mxnet`
-在设计Gluon时，开发人员考虑是否有可能将两种编程模式的优点结合起来。这得到了一个混合式方法，允许用户使用纯命令式编程进行开发和调试，同时能够将大多数程序转换为符号式程序，以便在需要产品级计算性能和部署时运行。
+开发人员在设计Gluon时思考了这个问题，有没有可能将两种编程模式的优点结合起来。于是得到了一个混合式编程模型，既允许用户使用纯命令式编程进行开发和调试，还能够将大多数程序转换为符号式程序，以便在需要产品级计算性能和部署时使用。
 
-实际上，这意味着我们使用`HybridBlock`或`HybridSequential`类构建模型。默认情况下，它们中的任何一个都以命令式编程中执行`Block`或`Sequential`类的相同方式执行。`HybridSequential`类是`HybridBlock`的子类（就像`Sequential`子类`Block`一样）。当`hybridize`函数被调用时，Gluon将模型编译成符号式编程中使用的形式。这允许在不牺牲模型实现方式的情况下优化计算密集型组件。我们将在下面说明这样的优点，重点是在`Sequential`和`Block`。
+这意味着我们在实际开发中使用的是 `HybridBlock` 或 `HybridSequential` 类在构建模型。默认情况下，它们都与命令式编程中执行 `Block` 或 `Sequential` 类的方式相同。其中，`HybridSequential` 类是 `HybridBlock` 的子类（就如 `Sequential` 是 `Block` 的子类一样）。当 `hybridize` 函数被调用时，Gluon 将模型编译成符号式编程中使用的形式。这将允许在不牺牲模型实现方式的情况下优化计算密集型组件。下面，我们将重点放在`Sequential` 和 `Block` 上来详细描述其优点。
 :end_tab:
 
 :begin_tab:`pytorch`
-如上所述，PyTorch基于命令式编程并使用动态计算图。为了利用符号式编程的可移植性和效率，开发人员考虑了是否有可能将两种编程模型的优点结合起来。这就产生了torchscript，它允许用户使用纯命令式编程进行开发和调试，同时能够将大多数程序转换为符号式程序，以便在需要产品级计算性能和部署时运行。
+如上所述，PyTorch 是基于命令式编程并且使用动态计算图。为了能够利用符号式编程的可移植性和效率，开发人员思考能否将两种编程模型的优点结合起来，于是就产生了torchscript。torchscript 允许用户使用纯命令式编程进行开发和调试，同时能够将大多数程序转换为符号式程序，以便在需要产品级计算性能和部署时使用。
 :end_tab:
 
 :begin_tab:`tensorflow`
-命令式编程现在是TensorFlow2的默认选择，对于那些刚接触该语言的人来说是一个很好的改变。然而，符号式编程技术和计算图仍然存在于TensorFlow中，并且可以通过易于使用的`tf.function`修饰符进行访问。这给TensorFlow带来了命令式编程范例，允许用户定义更直观的函数，然后使用TensorFlow团队称为[autograph](https://www.tensorflow.org/api_docs/python/tf/autograph)的特性将它们包装并自动编译成计算图。
+命令式编程现在是 TensorFlow 2 的默认选择，对于那些刚接触该语言的人来说是一个很好的改变。不过，符号式编程技术和计算图仍然存在于 TensorFlow 中，并且可以通过易于使用的装饰器模式 `tf.function` 进行访问。这为 TensorFlow 带来了命令式编程范式，允许用户定义更加直观的函数，然后使用被 TensorFlow 团队称为 [autograph](https://www.tensorflow.org/api_docs/python/tf/autograph) 的特性将它们封装，再自动编译成计算图。
 :end_tab:
 
 ## `Sequential`的混合式编程
