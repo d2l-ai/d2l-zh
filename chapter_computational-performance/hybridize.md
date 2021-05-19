@@ -188,7 +188,7 @@ net(x)
 
 ### 通过混合式编程加速
 
-为了证明通过编译获得的性能改进，我们比较了混合编程前后执行`net(x)`所需的时间。让我们先定义一个函数来度量这个时间。当我们开始衡量（和改进）性能时，它在本章中将非常有用。
+为了证明通过编译获得了性能改进，我们比较了混合编程前后执行 `net(x)` 所需的时间。让我们先定义一个度量时间的函数，它在本章中对于衡量（和改进）模型性能时将非常有用。
 
 ```{.python .input}
 #@tab all
@@ -206,15 +206,15 @@ class Benchmark:
 ```
 
 :begin_tab:`mxnet`
-现在我们可以调用网络两次，一次启用混合式，一次没有启用混合式。
+现在我们可以调用网络两次，一次使用混合式，一次没有使用混合式。
 :end_tab:
 
 :begin_tab:`pytorch`
-现在我们可以调用网络两次，一次使用torchscript，一次不使用torchscript。
+现在我们可以调用网络两次，一次使用 torchscript，一次不使用 torchscript。
 :end_tab:
 
 :begin_tab:`tensorflow`
-现在我们可以调用网络三次，一次使用eager执行，一次是以图模式执行，另一次是使用JIT编译的XLA。
+现在我们可以调用网络三次，一次使用 eager 模式执行，一次是使用图模式执行，一次使用JIT编译的XLA。
 :end_tab:
 
 ```{.python .input}
@@ -252,15 +252,15 @@ with Benchmark('Graph模式'):
 ```
 
 :begin_tab:`mxnet`
-从上面的结果中可以看到，在`HybridSequential`实例调用`hybridize`函数之后，通过使用符号式编程提高了计算性能。
+如以上结果所示，在 `HybridSequential` 的实例调用 `hybridize` 函数后，通过使用符号式编程提高了计算性能。
 :end_tab:
 
 :begin_tab:`pytorch`
-从上面的结果中可以看到，使用`nn.Sequential`函数编写了`torch.jit.script`实例的脚本之后，通过使用符号式编程来提高计算性能。
+如以上结果所示，在 `nn.Sequential`的实例被函数 `torch.jit.script` 脚本化后，通过使用符号式编程提高了计算性能。
 :end_tab:
 
 :begin_tab:`tensorflow`
-从以上结果可以看出，在使用`tf.function`函数编写tf.keras `Sequential` 实例脚本之后，通过在tensorflow中通过图形模式执行使用符号式编程来提高计算性能。
+如以上结果所示，在 tf.keras `Sequential` 的实例被函数 `tf.function` 脚本化后，通过使用 TensorFlow 中的图模式执行方式实现的符号式编程提高了计算性能。
 :end_tab:
 
 ### 序列化
