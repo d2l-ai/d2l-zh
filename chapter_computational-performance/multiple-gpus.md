@@ -131,7 +131,7 @@ loss = nn.CrossEntropyLoss(reduction='none')
 
 ## 数据同步
 
-对于高效的多GPU训练，我们需要两个基本操作。首先，我们需要有能力[**将参数分发给多个设备**]并附加梯度（`get_params`）。如果没有参数，就不可能在GPU上评估网络。第二，我们需要跨多个设备对参数求和的能力，也就是说，我们需要一个`allreduce`函数。
+对于高效的多 GPU 训练，我们需要两个基本操作。首先，需要 **将参数分发给多个设备** 并附加梯度（`get_params`）。如果没有参数，就不可能在 GPU 上评估网络。第二，需要跨多个设备对参数求和，也就是说，需要一个 `allreduce` 函数。
 
 ```{.python .input}
 def get_params(params, device):
@@ -150,7 +150,7 @@ def get_params(params, device):
     return new_params
 ```
 
-让我们通过将模型参数复制到一个GPU来尝试一下。
+通过将模型参数复制到一个 GPU 来试一试。
 
 ```{.python .input}
 #@tab all
@@ -159,7 +159,7 @@ print('b1 weight:', new_params[1])
 print('b1 grad:', new_params[1].grad)
 ```
 
-由于我们还没有进行任何计算，偏置参数的梯度仍然为零。现在假设有一个向量分布在多个GPU上。下面的[**`allreduce`函数将所有向量相加，并将结果广播回所有GPU**]。请注意，要使其工作，我们需要将数据复制到累积结果的设备。
+由于还没有进行任何计算，因此偏置参数的梯度仍然为零。假设现在有一个向量分布在多个 GPU 上，下面的 **`allreduce` 函数将所有向量相加，并将结果广播给所有 GPU**。请注意，需要将数据复制到累积结果的设备才能使函数正常工作。
 
 ```{.python .input}
 def allreduce(data):
@@ -178,7 +178,7 @@ def allreduce(data):
         data[i] = data[0].to(data[i].device)
 ```
 
-让我们通过在不同设备上创建具有不同值的向量并聚合它们来测试这一点。
+通过在不同设备上创建具有不同值的向量并聚合它们来试一试。
 
 ```{.python .input}
 data = [np.ones((1, 2), ctx=d2l.try_gpu(i)) * (i + 1) for i in range(2)]
