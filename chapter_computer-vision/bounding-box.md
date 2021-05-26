@@ -2,7 +2,7 @@
 :label:`sec_bbox`
 
 在前面的章节（例如 :numref:`sec_alexnet`—:numref:`sec_googlenet`）中，我们介绍了各种图像分类模型。
-在图像分类任务中，我们假设图像中只有*一个*主要物体对象，我们只关注如何识别其类别。
+在图像分类任务中，我们假设图像中只有一个主要物体对象，我们只关注如何识别其类别。
 然而，很多时候图像里有多个我们感兴趣的目标，我们不仅想知道它们的类别，还想得到它们在图像中的具体位置。
 在计算机视觉里，我们将这类任务称为*目标检测*（object detection）或*物体检测*。
 
@@ -113,7 +113,7 @@ box_center_to_corner(box_corner_to_center(boxes)) == boxes
 #@tab all
 #@save
 def bbox_to_rect(bbox, color):
-    # 将边界框 (左上x, 左上y, 右下x, 右下y) 格式转换成matplotlib格式：
+    # 将边界框 (左上x, 左上y, 右下x, 右下y) 格式转换成 matplotlib 格式：
     # ((左上x, 左上y), 宽, 高)
     return d2l.plt.Rectangle(
         xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0], height=bbox[3]-bbox[1],
