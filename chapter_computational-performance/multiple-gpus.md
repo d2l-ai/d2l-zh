@@ -195,9 +195,9 @@ allreduce(data)
 print('after allreduce:\n', data[0], '\n', data[1])
 ```
 
-## 分发数据
+## 数据分发
 
-我们需要一个简单的实用函数来[**将一个小批量均匀地分布在多个GPU上**]。例如，在有两个GPU的时候，我们希望将一半的数据复制到其中一个GPU。因为深度学习框架中的内置函数更方便、更简洁，所以我们使用它在$4 \times 5$矩阵上进行了尝试。
+我们需要一个简单的工具函数 **将一个小批量均匀地分布在多个GPU上**。例如，有两个 GPU 时，我们希望每个 GPU 可以复制一半的数据。因为深度学习框架的内置函数编写代码更方便、更简洁，所以在 $4 \times 5$ 矩阵上使用它进行尝试。
 
 ```{.python .input}
 data = np.arange(20).reshape(4, 5)
@@ -218,7 +218,7 @@ print('load into', devices)
 print('output:', split)
 ```
 
-为了以后的复用，我们定义了一个`split_batch`函数，该函数同时拆分数据和标签。
+为了方便以后复用，我们定义了可以同时拆分数据和标签的 `split_batch` 函数。
 
 ```{.python .input}
 #@save
