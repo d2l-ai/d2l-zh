@@ -1,7 +1,7 @@
 # 多GPU的简洁实现
 :label:`sec_multi_gpu_concise`
 
-为每一个新模型从零开始实现并行性并不有趣。此外，优化同步工具以获得高性能也有很大的好处。下面我们将展示如何使用深度学习框架的高级API来实现这一点。数学和算法与 :numref:`sec_multi_gpu` 中的相同。毫不奇怪，你至少需要两个GPU来运行本节的代码。
+每个新模型的并行计算都从零开始实现是无趣的。此外，优化同步工具以获得高性能也是有好处的。下面我们将展示如何使用深度学习框架的高级 API 来实现这一点。数学和算法与 :numref:`sec_multi_gpu` 中的相同。不出所料，你至少需要两个 GPU 来运行本节的代码。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -19,12 +19,12 @@ from torch import nn
 
 ## [**简单网络**]
 
-让我们使用一个比 :numref:`sec_multi_gpu` 的LeNet稍微有意义的网络，它仍然足够容易和快速地训练。我们选择了ResNet-18 :cite:`He.Zhang.Ren.ea.2016`。因为输入的图像很小，所以我们稍微修改一下。与 :numref:`sec_resnet` 的区别在于，我们在开始时使用了更小的卷积核、步长和填充。此外，我们删除了最大池化层。
+让我们使用一个比 :numref:`sec_multi_gpu` 的 LeNet 更有意义的网络，它依然能够容易地和快速地训练。我们选择的是 :cite:`He.Zhang.Ren.ea.2016` 中的 ResNet-18。因为输入的图像很小，所以稍微修改了一下。与 :numref:`sec_resnet` 的区别在于，我们在开始时使用了更小的卷积核、步长和填充，而且删除了最大池化层。
 
 ```{.python .input}
 #@save
 def resnet18(num_classes):
-    """稍加修改的ResNet-18模型。"""
+    """稍加修改的 ResNet-18 模型。"""
     def resnet_block(num_channels, num_residuals, first_block=False):
         blk = nn.Sequential()
         for i in range(num_residuals):
@@ -36,7 +36,7 @@ def resnet18(num_classes):
         return blk
 
     net = nn.Sequential()
-    # 该模型使用了更小的卷积核、步长和填充，且删除了最大池化层。
+    # 该模型使用了更小的卷积核、步长和填充，而且删除了最大池化层。
     net.add(nn.Conv2D(64, kernel_size=3, strides=1, padding=1),
             nn.BatchNorm(), nn.Activation('relu'))
     net.add(resnet_block(64, 2, first_block=True),
@@ -51,7 +51,7 @@ def resnet18(num_classes):
 #@tab pytorch
 #@save
 def resnet18(num_classes, in_channels=1):
-    """稍加修改的ResNet-18模型。"""
+    """稍加修改的 ResNet-18 模型。"""
     def resnet_block(in_channels, out_channels, num_residuals,
                      first_block=False):
         blk = []
@@ -63,7 +63,7 @@ def resnet18(num_classes, in_channels=1):
                 blk.append(d2l.Residual(out_channels, out_channels))
         return nn.Sequential(*blk)
 
-    # 该模型使用了更小的卷积核、步长和填充，且删除了最大池化层。
+    # 该模型使用了更小的卷积核、步长和填充，而且删除了最大池化层。
     net = nn.Sequential(
         nn.Conv2d(in_channels, 64, kernel_size=3, stride=1, padding=1),
         nn.BatchNorm2d(64),
