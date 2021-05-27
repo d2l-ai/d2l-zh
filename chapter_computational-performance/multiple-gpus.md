@@ -1,7 +1,7 @@
 # 多GPU训练
 :label:`sec_multi_gpu`
 
-到目前为止，我们讨论了如何在 CPU 和 GPU 上高效地训练模型，甚至在 :numref:`sec_auto_para` 中展示了深度学习框架如何在 CPU 和 GPU 之间自动地并行化计算和通信，还在 :numref:`sec_use_gpu` 中展示了如何使用 `nvidia-smi` 命令列出计算机上所有可用的 GPU。但是我们没有讨论的是如何真正实现深度学习训练的并行化。其实这里暗示了一种方法，即以某种方式分割数据到多个设备上，并使其能够正常工作。本节将详细介绍如何从零开始并行地训练网络，关于如何使用高级 API 中请参阅 :numref:`sec_multi_gpu_concise` 。例如  :numref:`sec_minibatch_sgd` 中描述的算法已经假设你对小批量随机梯度下降算法是熟悉的。
+到目前为止，我们讨论了如何在 CPU 和 GPU 上高效地训练模型，同时在 :numref:`sec_auto_para` 中展示了深度学习框架如何在 CPU 和 GPU 之间自动地并行化计算和通信，还在 :numref:`sec_use_gpu` 中展示了如何使用 `nvidia-smi` 命令列出计算机上所有可用的 GPU。但是我们没有讨论如何真正实现深度学习训练的并行化。其实这里暗示了一种方法，即以某种方式分割数据到多个设备上，并使其能够正常工作。本节将详细介绍如何从零开始并行地训练网络，关于如何使用高级 API 中请参阅 :numref:`sec_multi_gpu_concise` 。例如  :numref:`sec_minibatch_sgd` 中描述的算法已经假设你对小批量随机梯度下降算法是熟悉的。
 
 ## 问题拆分
 
