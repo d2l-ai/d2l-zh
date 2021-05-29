@@ -55,11 +55,11 @@ run(x_gpu1)  # 预热设备
 run(x_gpu2)
 npx.waitall()  
 
-with d2l.Benchmark('GPU1 time'):
+with d2l.Benchmark('GPU1 时间'):
     run(x_gpu1)
     npx.waitall()
 
-with d2l.Benchmark('GPU2 time'):
+with d2l.Benchmark('GPU2 时间'):
     run(x_gpu2)
     npx.waitall()
 ```
@@ -113,11 +113,11 @@ with d2l.Benchmark('GPU1 & GPU2'):
 def copy_to_cpu(x):
     return [y.copyto(npx.cpu()) for y in x]
 
-with d2l.Benchmark('Run on GPU1'):
+with d2l.Benchmark('在GPU1上运行'):
     y = run(x_gpu1)
     npx.waitall()
 
-with d2l.Benchmark('Copy to CPU'):
+with d2l.Benchmark('复制到CPU'):
     y_cpu = copy_to_cpu(y)
     npx.waitall()
 ```
