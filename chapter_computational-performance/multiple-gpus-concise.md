@@ -19,7 +19,7 @@ from torch import nn
 
 ## [**简单网络**]
 
-让我们使用一个比 :numref:`sec_multi_gpu` 的 LeNet 更有意义的网络，它依然能够容易地和快速地训练。我们选择的是 :cite:`He.Zhang.Ren.ea.2016` 中的 ResNet-18。因为输入的图像很小，所以稍微修改了一下。与 :numref:`sec_resnet` 的区别在于，我们在开始时使用了更小的卷积核、步长和填充，而且删除了最大池化层。
+让我们使用一个比 :numref:`sec_multi_gpu` 的 LeNet 更有意义的网络，它依然能够容易地和快速地训练。我们选择的是 :cite:`He.Zhang.Ren.ea.2016` 中的 ResNet-18。因为输入的图像很小，所以稍微修改了一下。与 :numref:`sec_resnet` 的区别在于，我们在开始时使用了更小的卷积核、步长和填充，而且删除了最大池化层。
 
 ```{.python .input}
 #@save
@@ -81,11 +81,11 @@ def resnet18(num_classes, in_channels=1):
 ## 网络初始化
 
 :begin_tab:`mxnet`
-`initialize`函数允许我们在所选设备上初始化参数。有关初始化方法的复习内容，请参阅 :numref:`sec_numerical_stability` 。特别方便的是，它还允许我们同时在多个设备上初始化网络。让我们在实践中尝试一下这是如何运作的。
+`initialize` 函数允许我们在所选设备上初始化参数。请参阅 :numref:`sec_numerical_stability` 复习初始化方法。这个函数在多个设备上初始化网络时特别方便。让我们在实践中试一试它的运作方式。
 :end_tab:
 
 :begin_tab:`pytorch`
-我们将初始化训练部分代码内的网络。有关初始化方法的复习内容，请参见 :numref:`sec_numerical_stability`。
+我们将在训练回路中初始化网络。请参见 :numref:`sec_numerical_stability` 复习初始化方法。
 :end_tab:
 
 ```{.python .input}
@@ -105,7 +105,7 @@ devices = d2l.try_all_gpus()
 ```
 
 :begin_tab:`mxnet`
-使用 :numref:`sec_multi_gpu` 中引入的 `split_and_load` 函数，我们可以切分一小批数据，并将部分数据复制到`devices`变量提供的设备列表中。网络实例自动使用适当的GPU来计算前向传播的值。在这里，我们生成4个观测值，并通过GPU将它们拆分。
+使用 :numref:`sec_multi_gpu` 中引入的 `split_and_load` 函数可以切分一个小批量数据，并将切分后的分块数据复制到 `devices` 变量提供的设备列表中。网络实例自动使用适当的 GPU 来计算前向传播的值。我们将在下面生成 $4$ 个观测值，并在 GPU 上将它们拆分。
 :end_tab:
 
 ```{.python .input}
@@ -115,7 +115,7 @@ net(x_shards[0]), net(x_shards[1])
 ```
 
 :begin_tab:`mxnet`
-一旦数据通过网络，相应的参数就会在数据通过的设备上初始化。这意味着初始化是在每个设备的基础上进行的。因为我们选择GPU 0和GPU 1进行初始化，所以网络只在那里初始化，而不是在CPU上初始化。事实上，这些参数甚至不存在于CPU上。我们可以通过打印出参数并观察可能出现的任何错误来验证这一点。
+一旦数据通过网络，网络对应的参数就会在 *有数据通过的设备上初始化*。这意味着初始化是基于每个设备进行的。由于我们选择的是 GPU 0 和 GPU 1，所以网络只在这两个 GPU 上初始化，而不是在 CPU 上初始化。事实上，CPU 上甚至没有这些参数。我们可以通过打印参数和观察可能出现的任何错误来验证这一点。
 :end_tab:
 
 ```{.python .input}
@@ -129,9 +129,8 @@ weight.data(devices[0])[0], weight.data(devices[1])[0]
 ```
 
 :begin_tab:`mxnet`
-接下来，让我们[**开启多个设备上并行工作，来评估模型准确性**]。
-这里主要是 :numref:`sec_lenet` 的`evaluate_accuracy_gpu`函数的替代。
-主要区别在于，我们在调用网络之前拆分了一个小批量，其他的基本上都是一样的。
+接下来，让我们使用[**在多个设备上并行工作**]的代码来替换前面的[**评估模型**]的代码。
+这里主要是 :numref:`sec_lenet` 的 `evaluate_accuracy_gpu` 函数的替代，代码的主要区别在于在调用网络之前拆分了一个小批量，其他在本质上是一样的。
 :end_tab:
 
 ```{.python .input}
