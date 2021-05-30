@@ -153,14 +153,14 @@ def evaluate_accuracy_gpus(net, data_iter, split_f=d2l.split_batch):
 
 ## [**训练**]
 
-如前所述，训练代码需要执行几个基本功能才能实现高效并行：
+如前所述，用于训练的代码需要执行几个基本功能才能实现高效并行：
 
 * 需要在所有设备上初始化网络参数。
-* 在数据集上迭代时，要将小批量划分到所有设备上。
-* 我们跨设备并行计算损失及其梯度。
+* 在数据集上迭代时，要将小批量数据分配到所有设备上。
+* 跨设备并行计算损失及其梯度。
 * 聚合梯度，并相应地更新参数。
 
-最后我们计算精度（同样是并行地）来报告网络的最终性能。训练代码与前几章中的实现非常相似，只是我们需要拆分和聚合数据。
+最后，并行地计算精确度和发布网络的最终性能。除了需要拆分和聚合数据外，训练代码与前几章的实现非常相似。
 
 ```{.python .input}
 def train(num_gpus, batch_size, lr):
@@ -198,7 +198,7 @@ def train(net, num_gpus, batch_size, lr):
         if type(m) in [nn.Linear, nn.Conv2d]:
             nn.init.normal_(m.weight, std=0.01)
     net.apply(init_weights)
-    # 在多个GPU上设置模型
+    # 在多个 GPU 上设置模型
     net = nn.DataParallel(net, device_ids=devices)
     trainer = torch.optim.SGD(net.parameters(), lr)
     loss = nn.CrossEntropyLoss()
@@ -219,7 +219,7 @@ def train(net, num_gpus, batch_size, lr):
           f'on {str(devices)}')
 ```
 
-让我们看看这在实践中是如何运作的。作为热身，我们[**在单个GPU上训练网络**]。
+让我们看看这在实践中是如何运作的。我们先[**在单个GPU上训练网络**]进行预热。
 
 ```{.python .input}
 train(num_gpus=1, batch_size=256, lr=0.1)
@@ -230,7 +230,7 @@ train(num_gpus=1, batch_size=256, lr=0.1)
 train(net, num_gpus=1, batch_size=256, lr=0.1)
 ```
 
-接下来我们[**使用2个GPU进行训练**]。与 :numref:`sec_multi_gpu` 中评估的LeNet相比，ResNet-18的模型要复杂得多。这就是并行化显示其优势的地方，计算时间明显大于同步参数的时间。这提高了可伸缩性，因为并行化的开销不太相关。
+接下来我们[**使用 2 个 GPU 进行训练**]。与 :numref:`sec_multi_gpu` 中评估的 LeNet 相比，ResNet-18 的模型要复杂得多。这就是显示并行化优势的地方，计算所需时间明显大于同步参数需要的时间。因为并行化开销的相关性较小，因此这种操作提高了模型的可伸缩性。
 
 ```{.python .input}
 train(num_gpus=2, batch_size=512, lr=0.2)
@@ -244,24 +244,24 @@ train(net, num_gpus=2, batch_size=512, lr=0.2)
 ## 小结
 
 :begin_tab:`mxnet`
-* Gluon通过提供上下文列表，为跨多个设备的模型初始化提供原语。
+* Gluon 通过提供一个上下文列表为跨多个设备的模型初始化提供原语。
 :end_tab:
 
 * 在可以找到数据的设备上自动评估数据。
-* 在尝试访问每台设备上的参数之前，请注意初始化该设备上的网络。否则，你将遇到错误。
-* 优化算法在多个GPU上自动聚合。
+* 注意每台设备上的网络需要先初始化，然后再尝试访问该设备上的参数。否则会遇到错误。
+* 优化算法在多个 GPU 上自动聚合。
 
 ## 练习
 
 :begin_tab:`mxnet`
-1. 本节使用ResNet-18。尝试不同的迭代周期数、批量大小和学习率。使用更多GPU进行计算。如果使用16个GPU（例如，在AWS p2.16xlarge实例上）尝试此操作，会发生什么情况？
-1. 有时，不同的设备提供不同的计算能力。我们可以同时使用GPU和CPU。我们应该如何分工？值得付出努力吗？为什么呢？
-1. 如果我们丢掉`npx.waitall()`会发生什么？你将如何修改训练，以使并行操作最多有两个步骤重叠？
+1. 本节使用 ResNet-18。尝试不同的迭代周期数、批量大小和学习率。使用更多的 GPU 进行计算。如果使用 $16$ 个 GPU（例如，在 AWS p2.16xlarge 实例上）尝试此操作，会发生什么情况？
+1. 有些时候，不同的设备提供了不同的计算能力。我们可以同时使用 GPU 和 CPU，那应该如何分配工作？这样的努力是否值得？为什么？
+1. 如果去掉 `npx.waitall()` 会怎样？你将如何修改训练，以使并行操作最多有两个步骤重叠？
 :end_tab:
 
 :begin_tab:`pytorch`
-1. 本节使用ResNet-18。尝试不同的迭代周期数、批量大小和学习率。使用更多GPU进行计算。如果使用16个GPU（例如，在AWS p2.16xlarge实例上）尝试此操作，会发生什么情况？
-1. 有时，不同的设备提供不同的计算能力。我们可以同时使用GPU和CPU。我们应该如何分工？值得付出努力吗？为什么呢？
+1. 本节使用 ResNet-18。尝试不同的迭代周期数、批量大小和学习率。使用更多的 GPU 进行计算。如果使用 $16$ 个 GPU（例如，在 AWS p2.16xlarge 实例上）尝试此操作，会发生什么情况？
+1. 有些时候，不同的设备提供了不同的计算能力。我们可以同时使用 GPU 和 CPU。那应该如何分配工作？这样的努力是否值得？为什么
 :end_tab:
 
 :begin_tab:`mxnet`
