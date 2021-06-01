@@ -60,6 +60,8 @@
 
 多层感知机，multilayer perceptron
 
+多头注意力，multi-head attention
+
 二元分类，binary classification
 
 二元语法，bigram
@@ -100,6 +102,8 @@
 
 过拟合，overfitting
 
+核回归，kernel regression
+
 恒等映射，identity mapping
 
 假设，hypothesis
@@ -114,7 +118,7 @@
 
 局部最小值，local minimum
 
-卷积核，kernel
+卷积核，convolutional kernel
 
 卷积神经网络，convolutional neural network
 
@@ -262,12 +266,18 @@ softmax回归，softmax regression
 
 运算符，operator
 
+自注意力，self-attention
+
 真实值，ground truth
 
 指标，metric
 
 支持向量机，support vector machine
 
-注意力机制模型，attention model
+注意力机制，attention mechanism
+
+注意力模型，attention model
+
+注意力提示，attention cue
 
 准确率，accuracy
