@@ -1,6 +1,9 @@
-# 基于区域的 CNN (R-CNN)
+# 区域卷积神经网络（R-CNN）系列
 
-除了 :numref:`sec_ssd` 中描述的单次多盒检测之外，基于区域的 CNN 或具有 CNN 功能 (R-CNN) 的区域也是将深度学习应用于目标检测 :cite:`Girshick.Donahue.Darrell.ea.2014` 的众多开创性方法之一。在本节中，我们将介绍 R-CNN 及其一系列改进：快速的 R-CNN :cite:`Girshick.2015`、速度更快的 R-CNN :cite:`Ren.He.Girshick.ea.2015` 和面具 R-CNN :cite:`He.Gkioxari.Dollar.ea.2017`。由于空间有限，我们将只关注这些模型的设计。 
+除了 :numref:`sec_ssd` 中描述的单发多框检测之外，
+基于区域的 CNN （region-based CNN，R-CNN）:cite:`Girshick.Donahue.Darrell.ea.2014` 也是将深度模型应用于目标检测的开创性工作之一 。
+在本节中，我们将介绍 R-CNN 及其一系列改进：Fast R-CNN :cite:`Girshick.2015`、Faster R-CNN :cite:`Ren.He.Girshick.ea.2015` 和 Mask R-CNN :cite:`He.Gkioxari.Dollar.ea.2017`。
+限于篇幅，这里只介绍这些模型的设计思路。 
 
 ## R-CNN
 
@@ -110,7 +113,7 @@ torchvision.ops.roi_pool(X, rois, output_size=(2, 2), spatial_scale=0.1)
 *感兴趣区域 (ROI) 对齐 * 层。 
 此感兴趣区域对齐图层使用双线性插值法来保留要素地图上的空间信息，这更适合像素级别的预测。此图层的输出包含所有感兴趣区域的相同形状的要素地图。它们不仅用于预测每个感兴趣区域的类和边界框，还可以通过额外的完全卷积网络预测物体的像素级位置。本章的后续章节将提供有关使用完全卷积网络预测图像像素级语义的更多详细信息。 
 
-## 摘要
+## 小结
 
 * R-CNN 从输入图像中提取许多区域提案，使用 CNN 对每个区域提案执行前向传播以提取其特征，然后使用这些功能来预测该区域提案的类别和边界框。
 * 来自 R-CNN 的快速 R-CNN 的主要改进之一是 CNN 的前向传播仅在整个图像上执行。它还引入了感兴趣区域池图层，以便可以为具有不同形状的感兴趣区域进一步提取相同形状的要素。
