@@ -347,8 +347,8 @@ class BatchNorm(nn.Block):
         if self.moving_mean.ctx != X.ctx:
             self.moving_mean = self.moving_mean.copyto(X.ctx)
             self.moving_var = self.moving_var.copyto(X.ctx)
-            self.gamma.data() = self.gamma.data().copyto(X.ctx)
-            self.beta.data() = self.beta.data().copyto(X.ctx)
+            self.gamma.reset_ctx(X.ctx)
+            self.beta.reset_ctx(X.ctx)
         # Save the updated `moving_mean` and `moving_var`
         Y, self.moving_mean, self.moving_var = batch_norm(
             X, self.gamma.data(), self.beta.data(), self.moving_mean,
