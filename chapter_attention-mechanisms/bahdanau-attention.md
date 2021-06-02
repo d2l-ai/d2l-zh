@@ -7,11 +7,11 @@
 
 ## 模型
 
-在接下来描述的用于循环神经网络的“编码器－解码器”的 Bahdanau 注意力时，我们将遵循与 :numref:`sec_seq2seq` 中的相同的符号。新的基于注意力的模型与 :numref:`sec_seq2seq` 中的模型相同，只不过在每一个解码的时间步 $t'$ 时，公式 :eqref:`eq_seq2seq_s_t` 中的上下文变量 $\mathbf{c}$ 都会被 $\mathbf{c}_{t'}$ 替换。假设输入序列中有 $T$ 个标记，那么解码的时间步长 $t'$ 的上下文变量是注意力池化的输出：
+在接下来描述的用于循环神经网络的“编码器－解码器”的 Bahdanau 注意力中，我们将遵循与 :numref:`sec_seq2seq` 中的相同的符号。新的基于注意力的模型与 :numref:`sec_seq2seq` 中的模型相同，只不过在每一个解码的时间步 $t'$，公式 :eqref:`eq_seq2seq_s_t` 中的上下文变量 $\mathbf{c}$ 都会被 $\mathbf{c}_{t'}$ 替换。假设输入序列中有 $T$ 个标记，那么解码的时间步 $t'$ 的上下文变量是注意力池化的输出：
 
 $$\mathbf{c}_{t'} = \sum_{t=1}^T \alpha(\mathbf{s}_{t' - 1}, \mathbf{h}_t) \mathbf{h}_t,$$
 
-其中，时间步 $t' - 1$ 时解码器的隐藏状态 $\mathbf{s}_{t' - 1}$ 作为查询，编码器的隐藏状态 $\mathbf{h}_t$ 既作为键，也作为值，而注意力权重 $\alpha$ 是通过 :eqref:`eq_attn-scoring-alpha` 所定义的可加性注意力评分函数计算的。
+其中，解码器的隐藏状态 $\mathbf{s}_{t' - 1}$ 在时间步 $t'-1$ 时作为查询，编码器的隐藏状态 $\mathbf{h}_t$ 既作为键，也作为值，而注意力权重 $\alpha$ 是通过 :eqref:`eq_attn-scoring-alpha` 所定义的可加性注意力评分函数计算的。
 
 与 :numref:`fig_seq2seq_details` 中的简单的循环神经网络的“编码器－解码器”架构略有不同，:numref:`fig_s2s_attention_details` 描述了应用 Bahdanau 注意力的架构。
 
