@@ -342,11 +342,13 @@ class BatchNorm(nn.Block):
         self.moving_var = np.zeros(shape)
 
     def forward(self, X):
-        # If `X` is not on the main memory, copy `moving_mean` and
-        # `moving_var` to the device where `X` is located
+        # If `X` is not on the main memory, copy `moving_mean`,
+        # `moving_var`, `gamma` and `beta` to the device where `X` is located
         if self.moving_mean.ctx != X.ctx:
             self.moving_mean = self.moving_mean.copyto(X.ctx)
             self.moving_var = self.moving_var.copyto(X.ctx)
+            self.gamma.data() = self.gamma.data().copyto(X.ctx)
+            self.beta.data() = self.beta.data().copyto(X.ctx)
         # Save the updated `moving_mean` and `moving_var`
         Y, self.moving_mean, self.moving_var = batch_norm(
             X, self.gamma.data(), self.beta.data(), self.moving_mean,
@@ -375,11 +377,13 @@ class BatchNorm(nn.Module):
         self.moving_var = torch.zeros(shape)
 
     def forward(self, X):
-        # If `X` is not on the main memory, copy `moving_mean` and
-        # `moving_var` to the device where `X` is located
+        # If `X` is not on the main memory, copy `moving_mean`,
+        # `moving_var`, `gamma` and `beta` to the device where `X` is located
         if self.moving_mean.device != X.device:
             self.moving_mean = self.moving_mean.to(X.device)
             self.moving_var = self.moving_var.to(X.device)
+            self.gamma.data = self.gamma.data.to(X.device)
+            self.beta.data = self.beta.data.to(X.device)
         # Save the updated `moving_mean` and `moving_var`
         Y, self.moving_mean, self.moving_var = batch_norm(
             X, self.gamma, self.beta, self.moving_mean,

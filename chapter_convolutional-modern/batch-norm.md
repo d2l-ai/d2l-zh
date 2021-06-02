@@ -208,10 +208,12 @@ class BatchNorm(nn.Block):
 
     def forward(self, X):
         # 如果 `X` 不在内存上，将 `moving_mean` 和 `moving_var`
-        # 复制到 `X` 所在显存上
+        # 以及参数 `gamma` 和 `beta` 复制到 `X` 所在显存上
         if self.moving_mean.ctx != X.ctx:
             self.moving_mean = self.moving_mean.copyto(X.ctx)
             self.moving_var = self.moving_var.copyto(X.ctx)
+            self.gamma.data() = self.gamma.data().copyto(X.ctx)
+            self.beta.data() = self.beta.data().copyto(X.ctx)
         # 保存更新过的 `moving_mean` 和 `moving_var`
         Y, self.moving_mean, self.moving_var = batch_norm(
             X, self.gamma.data(), self.beta.data(), self.moving_mean,
@@ -239,10 +241,12 @@ class BatchNorm(nn.Module):
 
     def forward(self, X):
         # 如果 `X` 不在内存上，将 `moving_mean` 和 `moving_var`
-        # 复制到 `X` 所在显存上
+        # 以及参数 `gamma` 和 `beta` 复制到 `X` 所在显存上
         if self.moving_mean.device != X.device:
             self.moving_mean = self.moving_mean.to(X.device)
             self.moving_var = self.moving_var.to(X.device)
+            self.gamma.data = self.gamma.data.to(X.device)
+            self.beta.data = self.beta.data.to(X.device)
         # 保存更新过的 `moving_mean` 和 `moving_var`
         Y, self.moving_mean, self.moving_var = batch_norm(
             X, self.gamma, self.beta, self.moving_mean,
