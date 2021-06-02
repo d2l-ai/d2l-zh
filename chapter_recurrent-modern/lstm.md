@@ -255,9 +255,9 @@ d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 1. 为时间序列预测而不是字符序列预测实现LSTM模型。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/343)
+[Discussions](https://discuss.d2l.ai/t/2766)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1057)
+[Discussions](https://discuss.d2l.ai/t/2768)
 :end_tab:
