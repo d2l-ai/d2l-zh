@@ -7,14 +7,14 @@
 
 ## 数据并行训练
 
-让我们回顾一下在分布式架构中数据并行训练的方法，因为在实践中它的实现相对简单，因此本节将排除其他内容只对其进行介绍。由于当今的 GPU 拥有大量的显存，因此在实际场景中（不包括图深度学习）只有数据并行训练这种并行策略值得推荐。图  :numref:`fig_parameterserver` 描述了在 :numref:`sec_multi_gpu` 中实现的数据并行的变体。其中的关键是参数在更新前需要在 GPU 0 上先进行梯度聚合，然后再重新广播给所有的 GPU。
+让我们回顾一下在分布式架构中数据并行的训练方法，因为在实践中它的实现相对简单，因此本节将排除其他内容只对其进行介绍。由于当今的 GPU 拥有大量的显存，因此在实际场景中（不包括图深度学习）只有数据并行这种并行训练策略值得推荐。图  :numref:`fig_parameterserver` 描述了在 :numref:`sec_multi_gpu` 中实现的数据并行的变体。其中的关键是梯度的聚合需要在 GPU 0 上完成，然后再将更新后的参数广播给所有 GPU。
 
 ![左图：单GPU训练。右图：多GPU训练的一个变体：（1）计算损失和梯度，（2）所有梯度聚合在一个GPU上，（3）发生参数更新，并将参数重新广播给所有GPU。](../img/ps.svg)
 :label:`fig_parameterserver`
 
-回顾来看，在 GPU 0 上进行聚合似乎是很随意的决定，当然也可以在 CPU 上聚合，事实上只要优化算法支持，在实际操作中甚至可以在某个 GPU 上聚合其中一些参数，而在另一个 GPU 上聚合另一些参数。例如，如果有四个与参数向量相关的梯度 $\mathbf{g}_1, \ldots, \mathbf{g}_4$，则可以一个 GPU 对一个 $\mathbf{g}_i (i = 1, \ldots, 4$) 地进行梯度聚合。
+回顾来看，选择 GPU 0 进行聚合似乎是个很随便的决定，当然也可以选择 CPU 上聚合，事实上只要优化算法支持，在实际操作中甚至可以在某个 GPU 上聚合其中一些参数，而在另一个 GPU 上聚合另一些参数。例如，如果有四个与参数向量相关的梯度 $\mathbf{g}_1, \ldots, \mathbf{g}_4$，还可以一个 GPU 对一个 $\mathbf{g}_i (i = 1, \ldots, 4$) 地进行梯度聚合。
 
-下面的推断似乎是轻率和武断的，毕竟数学应该是逻辑自洽的。但是，我们处理的是如 :numref:`sec_hardware` 中所述的真实的物理硬件，其中不同的总线具有不同的带宽。考虑一个如 :numref:`sec_hardware` 中所述的真实的 $4$ 路 GPU 服务器。如果它的连接是特别完整的，那么可能拥有一个 100 GbE 的网卡。更典型的数字在 1-10GbE 范围内，其有效带宽为 100 MB/s 到 1 GB/s。因为 CPU 的 PCIe 通道太少（例如，消费级的 Intel CPU 有 $24$ 个通道），所以无法直接与所有的 GPU 相连接，因此需要 [multiplexer](https://www.broadcom.com/products/pcie-switches-bridges/pcie-switches)。CPU 在 16x Gen3 链路上的带宽为 16 GB/s，这也是每个 GPU 连接到交换机的速度，这意味着 GPU 设备之间的通信更有效。
+这样的推断似乎是轻率和武断的，毕竟数学应该是逻辑自洽的。但是，我们处理的是如 :numref:`sec_hardware` 中所述的真实的物理硬件，其中不同的总线具有不同的带宽。考虑一个如 :numref:`sec_hardware` 中所述的真实的 $4$ 路 GPU 服务器。如果它的连接是特别完整的，那么可能拥有一个 100 GbE 的网卡。更有代表性的数字是 1-10GbE 范围内，其有效带宽为 100 MB/s 到 1 GB/s。因为 CPU 的 PCIe 通道太少（例如，消费级的 Intel CPU 有 $24$ 个通道），所以无法直接与所有的 GPU 相连接，因此需要 [multiplexer](https://www.broadcom.com/products/pcie-switches-bridges/pcie-switches)。CPU 在 16x Gen3 链路上的带宽为 16 GB/s，这也是每个 GPU 连接到交换机的速度，这意味着 GPU 设备之间的通信更有效。
 
 ![一个4路GPU服务器](../img/bw-hierarchy.svg)
 :label:`fig_bw_hierarchy`
