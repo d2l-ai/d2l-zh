@@ -34,7 +34,7 @@ from torch import nn
 
 ## 定义包含注意力的解码器
 
-要实现包含 Bahdanau 注意力的循环神经网络的“编码器－解码器”，我们只需重新定义解码器即可。为了更方便地显示学习的注意力权重，在下面的 `AttentionDecoder` 类中定义了具有注意力机制的解码器的基本接口。
+要实现包含 Bahdanau 注意力的循环神经网络的“编码器－解码器”，我们只需要重新定义解码器即可。为了更方便地将学习得到的注意力权重可视化，在下面的 `AttentionDecoder` 类中定义了具有注意力机制的解码器的基本接口。
 
 ```{.python .input}
 #@tab all
@@ -49,7 +49,7 @@ class AttentionDecoder(d2l.Decoder):
         raise NotImplementedError
 ```
 
-接下来，在 `Seq2SeqAttentionDecoder` 类中实现了基于 Bahdanau 注意力的循环神经网络的解码器。解码器状态的初始化基于 1) 编码器在所有时间步的最终层隐藏状态（作为注意力的键和值）；2) 编码器在最后一个时间步的所有层的隐藏状态（初始化解码器的隐藏状态）；和 3) 编码器输入的有效长度（排除在注意力池化中用于填充的标记）。在每个解码时间步骤中，解码器的上一个时间步的最终层隐藏状态将作为注意力的查询。因此，循环神经网络的解码器将把注意力池化的输出和这一步输入的嵌入表示（embedding）连接在一起作为输入。
+接下来，在 `Seq2SeqAttentionDecoder` 类中实现了基于 Bahdanau 注意力的循环神经网络的解码器。解码器状态的初始化基于 1) 在经历所有时间步后，编码器的最后一层的隐藏状态作为解码器的注意力的键和值；2) 在最后一个时间步，编码器的所有层的隐藏状态用于初始化解码器的隐藏状态；和 3) 编码器输入的有效长度（排除在注意力池化中用于填充的标记）。在每个解码的时间步中，解码器将其上一个时间步的最后一层的隐藏状态作为其注意力的查询。因此，循环神经网络的解码器将把注意力池化的输出和这一步输入的嵌入表示（embedding）连接在一起作为其输入。
 
 ```{.python .input}
 class Seq2SeqAttentionDecoder(AttentionDecoder):
@@ -80,7 +80,7 @@ class Seq2SeqAttentionDecoder(AttentionDecoder):
             # `context` 的形状: (`batch_size`, 1, `num_hiddens`)
             context = self.attention(
                 query, enc_outputs, enc_outputs, enc_valid_lens)
-            # 基于特征维度进行连接
+            # 基于特征维度将注意力池化的输出和输入的嵌入表示连接起来
             x = np.concatenate((context, np.expand_dims(x, axis=1)), axis=-1)
             # 重构 `x` 的形状为 (1, `batch_size`, `embed_size` + `num_hiddens`)
             out, hidden_state = self.rnn(x.swapaxes(0, 1), hidden_state)
@@ -129,7 +129,7 @@ class Seq2SeqAttentionDecoder(AttentionDecoder):
             # `context` 的形状: (`batch_size`, 1, `num_hiddens`)
             context = self.attention(
                 query, enc_outputs, enc_outputs, enc_valid_lens)
-            # 基于特征维度进行连接
+            # 基于特征维度将注意力池化的输出和输入的嵌入表示连接起来
             x = torch.cat((context, torch.unsqueeze(x, dim=1)), dim=-1)
             # 重构 `x` 的形状为 (1, `batch_size`, `embed_size` + `num_hiddens`)
             out, hidden_state = self.rnn(x.permute(1, 0, 2), hidden_state)
