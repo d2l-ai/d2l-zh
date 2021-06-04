@@ -334,7 +334,7 @@ def train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
           f'{str(devices)}')
 ```
 
-现在，我们可以定义 `train_with_data_aug` 函数，使用图像增广来训练模型。该函数获取所有的GPU，并使用Adam作为训练的优化算法，将图像增广应用于训练集，最后调用刚刚定义的用于训练和评估模型的 `train_ch13` 函数。
+现在，我们可以[**定义 `train_with_data_aug` 函数，使用图像增广来训练模型**]。该函数获取所有的GPU，并使用Adam作为训练的优化算法，将图像增广应用于训练集，最后调用刚刚定义的用于训练和评估模型的 `train_ch13` 函数。
 
 ```{.python .input}
 batch_size, devices, net = 256, d2l.try_all_gpus(), d2l.resnet18(10)
