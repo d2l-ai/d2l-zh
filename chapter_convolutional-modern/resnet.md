@@ -38,7 +38,7 @@ $$f^*_\mathcal{F} := \mathop{\mathrm{argmin}}_f L(\mathbf{X}, \mathbf{y}, f) \te
 凭借它，ResNet 赢得了 2015 年 ImageNet 大规模视觉识别挑战赛。
 
 
-## 残差块
+## (**残差块**)
 
 让我们聚焦于神经网络局部：如图 :numref:`fig_residual_block` 所示，假设我们的原始输入为 $x$ ，而希望学出的理想映射为 $f(\mathbf{x})$ （作为 :numref:`fig_residual_block` 上方激活函数的输入）。
 :numref:`fig_residual_block` 左图虚线框中的部分需要直接拟合出该映射 $f(\mathbf{x})$ ，而右图虚线框中的部分则需要拟合出残差映射 $f(\mathbf{x}) - \mathbf{x}$ 。
@@ -155,7 +155,7 @@ class Residual(tf.keras.Model):  #@save
 ![包含以及不包含 $1 \times 1$ 卷积层的残差块。](../img/resnet-block.svg)
 :label:`fig_resnet_block`
 
-下面我们来查看输入和输出形状一致的情况。
+下面我们来查看[**输入和输出形状一致**]的情况。
 
 ```{.python .input}
 blk = Residual(3)
@@ -180,7 +180,7 @@ Y = blk(X)
 Y.shape
 ```
 
-我们也可以在增加输出通道数的同时减半输出的高和宽。
+我们也可以在[**增加输出通道数的同时，减半输出的高和宽**]。
 
 ```{.python .input}
 blk = Residual(6, use_1x1conv=True, strides=2)
@@ -200,7 +200,7 @@ blk = Residual(6, use_1x1conv=True, strides=2)
 blk(X).shape
 ```
 
-## ResNet模型
+## [**ResNet模型**]
 
 ResNet 的前两层跟之前介绍的 GoogLeNet 中的一样：
 在输出通道数为 64、步幅为 2 的 $7 \times 7$ 卷积层后，接步幅为 2 的 $3 \times 3$ 的最大池化层。
@@ -352,7 +352,7 @@ def net():
 ![ResNet-18 架构](../img/resnet18.svg)
 :label:`fig_resnet18`
 
-在训练 ResNet 之前，让我们观察一下 ResNet 中不同模块的输入形状是如何变化的。
+在训练 ResNet 之前，让我们[**观察一下ResNet中不同模块的输入形状是如何变化的**]。
 在之前所有架构中，分辨率降低，通道数量增加，直到全局平均池化层聚集所有特征。
 
 ```{.python .input}
@@ -379,7 +379,7 @@ for layer in net().layers:
     print(layer.__class__.__name__,'output shape:\t', X.shape)
 ```
 
-## 训练 ResNet
+## [**训练模型**]
 
 同之前一样，我们在 Fashion-MNIST 数据集上训练 ResNet。
 

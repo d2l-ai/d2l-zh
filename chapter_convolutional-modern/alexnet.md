@@ -208,7 +208,7 @@ def net():
     ])
 ```
 
-我们构造了一个高度和宽度都为224的单通道数据，来观察每一层输出的形状。
+[**我们构造一个**]高度和宽度都为224的(**单通道数据，来观察每一层输出的形状**)。
 它与 :numref:`fig_alexnet` 中的AlexNet架构相匹配。
 
 ```{.python .input}
@@ -238,8 +238,8 @@ for layer in net().layers:
 ## 读取数据集
 
 尽管本文中AlexNet是在ImageNet上进行训练的，但我们在这里使用的是Fashion-MNIST数据集。因为即使在现代GPU上，训练ImageNet模型，同时使其收敛可能需要数小时或数天的时间。
-将AlexNet直接应用于Fashion-MNIST的一个问题是，Fashion-MNIST的图像分辨率（$28 \times 28$像素）低于ImageNet图像。
-为了解决这个问题，我们将它们增加到 $224 \times 224$（通常来讲这不是一个明智的做法，但我们在这里这样做是为了有效使用AlexNet结构）。
+将AlexNet直接应用于Fashion-MNIST的一个问题是，[**Fashion-MNIST图像的分辨率**]（$28 \times 28$像素）(**低于ImageNet图像。**)
+为了解决这个问题，(**我们将它们增加到 $224 \times 224$**)（通常来讲这不是一个明智的做法，但我们在这里这样做是为了有效使用AlexNet结构）。
 我们使用 `d2l.load_data_fashion_mnist` 函数中的 `resize` 参数执行此调整。
 
 ```{.python .input}
@@ -248,7 +248,7 @@ batch_size = 128
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=224)
 ```
 
-## 训练AlexNet
+## [**训练AlexNet**]
 
 现在，我们可以开始训练AlexNet了。与 :numref:`sec_lenet` 中的LeNet相比，这里的主要变化是使用更小的学习速率训练，这是因为网络更深更广、图像分辨率更高，训练卷积神经网络就更昂贵。
 

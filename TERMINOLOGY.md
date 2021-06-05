@@ -60,6 +60,8 @@
 
 多层感知机，multilayer perceptron
 
+多头注意力，multi-head attention
+
 二元分类，binary classification
 
 二元语法，bigram
@@ -100,6 +102,8 @@
 
 过拟合，overfitting
 
+核回归，kernel regression
+
 恒等映射，identity mapping
 
 假设，hypothesis
@@ -114,7 +118,7 @@
 
 局部最小值，local minimum
 
-卷积核，kernel
+卷积核，convolutional kernel
 
 卷积神经网络，convolutional neural network
 
@@ -129,6 +133,8 @@
 块，block
 
 困惑度，perplexity
+
+拉普拉斯平滑，Laplace smoothing
 
 连结，concatenate
 
@@ -160,6 +166,8 @@
 
 平均池化层，average pooling layer
 
+齐普夫定律，Zipf's law
+
 欠拟合，underfitting
 
 情感分析，sentiment analysis
@@ -184,7 +192,11 @@
 
 数据样本，data instance
 
+顺序分区，sequential partitioning
+
 softmax回归，softmax regression
+
+随机采样，random sampling
 
 损失函数，loss function
 
@@ -207,6 +219,8 @@ softmax回归，softmax regression
 跳字模型，skip-gram model
 
 调参，tune hyper-parameter
+
+停用词，stop words
 
 通道，channel
 
@@ -252,12 +266,18 @@ softmax回归，softmax regression
 
 运算符，operator
 
+自注意力，self-attention
+
 真实值，ground truth
 
 指标，metric
 
 支持向量机，support vector machine
 
-注意力机制模型，attention model
+注意力机制，attention mechanism
+
+注意力模型，attention model
+
+注意力提示，attention cue
 
 准确率，accuracy
