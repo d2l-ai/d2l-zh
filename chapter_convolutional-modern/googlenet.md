@@ -9,7 +9,7 @@ GoogLeNet吸收了NiN中串联网络的思想，并在此基础上做了改进�
 在本节中，我们将介绍一个稍微简化的GoogLeNet版本：我们省略了一些为稳定训练而添加的特殊特性，但是现在有了更好的训练算法，这些特性不是必要的。
 
 
-## Inception块
+## (**Inception块**)
 
 在GoogLeNet中，基本的卷积块被称为*Inception块*（Inception block）。这很可能得名于电影《盗梦空间》（Inception），因为电影中的一句话“我们需要走得更深”（“We need to go deeper”）。
 
@@ -125,7 +125,7 @@ class Inception(tf.keras.Model):
 同时，我们可以为不同的滤波器分配不同数量的参数。
 
 
-## GoogLeNet 模型
+## [**GoogLeNet模型**]
 
 如 :numref:`fig_inception_full` 所示，GoogLeNet 一共使用 9 个Inception块和全局平均池化层的堆叠来生成其估计值。Inception块之间的最大池化层可降低维度。
 第一个模块类似于 AlexNet 和 LeNet，Inception块的栈从VGG继承，全局平均池化层避免了在最后使用全连接层。
@@ -293,7 +293,7 @@ def net():
 ```
 
 GoogLeNet 模型的计算复杂，而且不如 VGG 那样便于修改通道数。
-为了在Fashion-MNIST上有一个合理的训练时间，我们将输入的高和宽从 224 降到 96，这简化了计算。下面演示各个模块输出的形状变化。
+[**为了使Fashion-MNIST上的训练短小精悍，我们将输入的高和宽从224降到96**]，这简化了计算。下面演示各个模块输出的形状变化。
 
 ```{.python .input}
 X = np.random.uniform(size=(1, 1, 96, 96))
@@ -319,7 +319,7 @@ for layer in net().layers:
     print(layer.__class__.__name__, 'output shape:\t', X.shape)
 ```
 
-## 训练
+## [**训练模型**]
 
 和以前一样，我们使用 Fashion-MNIST 数据集来训练我们的模型。在训练之前，我们将图片转换为 $96 \times 96$ 分辨率。
 
@@ -331,7 +331,6 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 ```
 
 ## 小结
-
 
 * Inception 块相当于一个有4条路径的子网络。它通过不同窗口形状的卷积层和最大池化层来并行抽取信息，并使用 $1×1$ 卷积层减少每像素级别上的通道维数从而降低模型复杂度。
 *  GoogLeNet将多个设计精细的Inception块与其他层（卷积层、全连接层）串联起来。其中Inception块的通道数分配之比是在 ImageNet 数据集上通过大量的实验得来的。
