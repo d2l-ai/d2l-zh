@@ -1,7 +1,7 @@
 # 实战 Kaggle 比赛：狗的品种识别（ImageNet Dogs）
 
 本节我们将在 Kaggle 上实战狗品种识别问题。
-本次比赛的网址是 https://www.kaggle.com/c/dog-breed-identification。
+本次(**比赛网址是 https://www.kaggle.com/c/dog-breed-identification**)。
 :numref:`fig_kaggle_dog` 显示了鉴定比赛网页上的信息。
 你需要一个 Kaggle 账户才能提交结果。 
 
@@ -47,7 +47,7 @@ import os
 * ../数据/种身份识别/测试
 
 你可能已经注意到，上述结构与 :numref:`sec_kaggle_cifar10` 的 CIFAR-10 竞争对手类似，其中文件夹 `train/` 和 `test/` 分别包含训练和测试狗图像，`labels.csv` 包含训练图像的标签。
-同样，为了便于入门，我们提供了上面提到的数据集的一小部分示例：`train_valid_test_tiny.zip`。
+同样，为了便于入门，[**我们提供完整数据集的小规模样本**]：`train_valid_test_tiny.zip`。
 如果你要在 Kaggle 比赛中使用完整的数据集，则需要将下面的 `demo` 变量更改为 `False`。
 
 ```{.python .input}
@@ -64,7 +64,7 @@ else:
     data_dir = os.path.join('..', 'data', 'dog-breed-identification')
 ```
 
-### 整理数据集
+### [**整理数据集**]
 
 我们可以像 :numref:`sec_kaggle_cifar10` 中所做的那样整理数据集，即从原始训练集中拆分验证集，然后将图像移动到按标签分组的子文件夹中。 
 
@@ -83,7 +83,7 @@ valid_ratio = 0.1
 reorg_dog_data(data_dir, valid_ratio)
 ```
 
-## 图像增广
+## [**图像增广**]
 
 回想一下，这个狗品种数据集是 ImageNet 数据集的子集，其图像大于 :numref:`sec_kaggle_cifar10` 中 CIFAR-10 数据集的图像。
 下面我们看一下如何在相对较大的图像上使用图像增广。
@@ -149,7 +149,7 @@ transform_test = torchvision.transforms.Compose([
                                      [0.229, 0.224, 0.225])])
 ```
 
-## 读取数据集
+## [**读取数据集**]
 
 与 :numref:`sec_kaggle_cifar10` 一样，我们可以读取整理后的含原始图像文件的数据集。
 
@@ -200,7 +200,7 @@ test_iter = torch.utils.data.DataLoader(test_ds, batch_size, shuffle=False,
                                         drop_last=False)
 ```
 
-## 微调预训练模型
+## [**微调预训练模型**]
 
 同样，本次比赛的数据集是 ImageNet 数据集的子集。
 因此，我们可以使用 :numref:`sec_fine_tuning` 中讨论的方法在完整 ImageNet 数据集上选择预训练的模型，然后使用该模型提取图像要素，以便将其输入到定制的小规模输出网络中。
@@ -244,7 +244,7 @@ def get_net(devices):
     return finetune_net
 ```
 
-在计算损失之前，我们首先获取预训练模型的输出层的输入，即提取的特征。然后我们使用此特征作为我们小型自定义输出网络的输入来计算损失。
+在[**计算损失**]之前，我们首先获取预训练模型的输出层的输入，即提取的特征。然后我们使用此特征作为我们小型自定义输出网络的输入来计算损失。
 
 ```{.python .input}
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
@@ -277,7 +277,7 @@ def evaluate_loss(data_iter, net, devices):
     return l_sum / n
 ```
 
-## 定义训练函数
+## 定义[**训练函数**]
 
 我们将根据模型在验证集上的表显选择模型并调整超参数。模型训练函数 `train` 只迭代小型自定义输出网络的参数。
 
@@ -364,7 +364,7 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
           f'on {str(devices)}')
 ```
 
-## 训练和验证模型
+## [**训练和验证模型**]
 
 现在我们可以训练和验证模型了，以下超参数都是可调的。
 例如，可以增加迭代周期：由于 `lr_period` 和 `lr_decay` 分别设置为 10 和 0.1，因此优化算法的学习速率将在每 10 个迭代后乘以 0.1。
@@ -385,7 +385,7 @@ train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
       lr_decay)
 ```
 
-## 对测试集分类并在 Kaggle 提交结果
+## [**对测试集分类**]并在 Kaggle 提交结果
 
 与 :numref:`sec_kaggle_cifar10` 中的最后一步类似，最终所有标记的数据（包括验证集）都用于训练模型和对测试集进行分类。
 我们将使用训练好的自定义输出网络进行分类。
