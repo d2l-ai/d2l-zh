@@ -141,7 +141,7 @@ def reorg_train_valid(data_dir, labels, valid_ratio):
     return n_valid_per_label
 ```
 
-下面的 `reorg_test` 函数用来在预测期间组织测试集以便读取。
+下面的 `reorg_test` 函数用来[**在预测期间整理测试集，以方便读取**]。
 
 ```{.python .input}
 #@tab all
