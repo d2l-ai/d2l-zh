@@ -78,7 +78,7 @@ def reorg_dog_data(data_dir, valid_ratio):
     d2l.reorg_test(data_dir)
 
 
-batch_size = 4 if demo else 128
+batch_size = 32 if demo else 128
 valid_ratio = 0.1
 reorg_dog_data(data_dir, valid_ratio)
 ```
@@ -288,8 +288,11 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
     trainer = gluon.Trainer(net.output_new.collect_params(), 'sgd',
                             {'learning_rate': lr, 'momentum': 0.9, 'wd': wd})
     num_batches, timer = len(train_iter), d2l.Timer()
+    legend = ['train loss']
+    if valid_iter is not None:
+        legend.append('valid loss')
     animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs],
-                            legend=['train loss', 'valid loss'])
+                            legend=legend)
     for epoch in range(num_epochs):
         metric = d2l.Accumulator(2)
         if epoch > 0 and epoch % lr_period == 0:
@@ -314,13 +317,11 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
         if valid_iter is not None:
             valid_loss = evaluate_loss(valid_iter, net, devices)
             animator.add(epoch + 1, (None, valid_loss))
+    measures = f'train loss {metric[0] / metric[1]:.3f}'
     if valid_iter is not None:
-        print(f'train loss {metric[0] / metric[1]:.3f}, '
-              f'valid loss {valid_loss:.3f}')
-    else:
-        print(f'train loss {metric[0] / metric[1]:.3f}')
-    print(f'{metric[1] * num_epochs / timer.sum():.1f} examples/sec '
-          f'on {str(devices)}')
+        measures += f', valid loss {valid_loss:.3f}'
+    print(measures + f'\n{metric[1] * num_epochs / timer.sum():.1f}'
+          f' examples/sec on {str(devices)}')
 ```
 
 ```{.python .input}
@@ -367,11 +368,11 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
 ## [**训练和验证模型**]
 
 现在我们可以训练和验证模型了，以下超参数都是可调的。
-例如，可以增加迭代周期：由于 `lr_period` 和 `lr_decay` 分别设置为 10 和 0.1，因此优化算法的学习速率将在每 10 个迭代后乘以 0.1。
+例如，可以增加迭代周期：由于 `lr_period` 和 `lr_decay` 分别设置为 2 和 0.9，因此优化算法的学习速率将在每 2 个迭代后乘以 0.9。
 
 ```{.python .input}
-devices, num_epochs, lr, wd = d2l.try_all_gpus(), 5, 0.01, 1e-4
-lr_period, lr_decay, net = 10, 0.1, get_net(devices)
+devices, num_epochs, lr, wd = d2l.try_all_gpus(), 10, 0.005, 1e-4
+lr_period, lr_decay, net = 2, 0.9, get_net(devices)
 net.hybridize()
 train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
       lr_decay)
@@ -379,8 +380,8 @@ train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
 
 ```{.python .input}
 #@tab pytorch
-devices, num_epochs, lr, wd = d2l.try_all_gpus(), 5, 0.001, 1e-4
-lr_period, lr_decay, net = 10, 0.1, get_net(devices)
+devices, num_epochs, lr, wd = d2l.try_all_gpus(), 10, 0.005, 1e-4
+lr_period, lr_decay, net = 2, 0.9, get_net(devices)
 train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
       lr_decay)
 ```
@@ -438,7 +439,7 @@ with open('submission.csv', 'w') as f:
 
 ## 练习
 
-1. 使用完整 Kaggle 比赛数据集时，增加 `batch_size`（批量大小）和 `num_epochs`（时代数量）时，你能取得什么结果？
+1. 试试使用完整 Kaggle 比赛数据集，增加 `batch_size`（批量大小）和 `num_epochs`（迭代周期数量），或者设计其它超参数为`lr = 0.01`，`lr_period = 10`，和 `lr_decay = 0.1`时，你能取得什么结果？
 1. 如果你使用更深的预训练模型，会得到更好的结果吗？如何调整超参数？能进一步改善结果吗？
 
 :begin_tab:`mxnet`
