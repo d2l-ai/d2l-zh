@@ -453,7 +453,7 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
 
 现在，我们可以训练和验证模型了，而以下所有超参数都可以调整。
 例如，我们可以增加周期的数量。当 `lr_period` 和 `lr_decay` 分别设置为 50 和 0.1 时，优化算法的学习速率将在每 50 个周期乘以 0.1。
-为了示范，我们在这里只训练一个周期。
+为了示范，我们在这里只训练5个周期。
 
 ```{.python .input}
 devices, num_epochs, lr, wd = d2l.try_all_gpus(), 5, 0.1, 5e-4
