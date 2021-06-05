@@ -62,7 +62,7 @@ import os
 
 ### 获取数据集
 
-我们使用的热狗数据集取自在线图片。该数据集包含 1400 张包含热狗的正面类图像以及包含其他食物的尽可能多的负面级图像。两个课程的 1000 张图片用于训练，其余的则用于测试。 
+我们使用的[**热狗数据集来源于网络**]。该数据集包含 1400 张包含热狗的正面类图像以及包含其他食物的尽可能多的负面级图像。两个课程的 1000 张图片用于训练，其余的则用于测试。 
 
 解压下载的数据集后，我们获得了两个文件夹 `hotdog/train` 和 `hotdog/test`。这两个文件夹都有 `hotdog` 和 `not-hotdog` 个子文件夹，其中任何一个文件夹都包含相应类的图像。
 
@@ -91,7 +91,7 @@ test_imgs = torchvision.datasets.ImageFolder(os.path.join(data_dir, 'test'))
 ```
 
 下面显示了前 8 个正面示例和最后 8 张负面图片。
-正如你所看到的，图像的大小和纵横比有所不同。
+正如你所看到的，[**图像的大小和纵横比各有不同**]。
 
 ```{.python .input}
 #@tab all
@@ -104,6 +104,8 @@ d2l.show_images(hotdogs + not_hotdogs, 2, 8, scale=1.4);
 在测试过程中，我们将图像的高度和宽度都缩放到 256 像素，然后裁剪中央 $224 \times 224$ 区域作为输入。
 此外，对于三个 RGB（红、绿和蓝）颜色通道，我们 *标准化* 每个通道。
 具体而言，通道的平均值将从该通道的每个值中减去，然后将结果除以该通道的标准差。
+
+[~~数据增广~~]
 
 ```{.python .input}
 # 使用三个RGB通道的均值和标准偏差，以标准化每个通道
@@ -142,7 +144,7 @@ test_augs = torchvision.transforms.Compose([
     normalize])
 ```
 
-### 定义和初始化模型
+### [**定义和初始化模型**]
 
 我们使用在 ImageNet 数据集上预训练的 Resnet-18 作为源模型。
 在这里，我们指定 `pretrained=True` 以自动下载预训练的模型参数。
@@ -210,7 +212,7 @@ finetune_net.fc = nn.Linear(finetune_net.fc.in_features, 2)
 nn.init.xavier_uniform_(finetune_net.fc.weight);
 ```
 
-### 微调模型
+### [**微调模型**]
 
 首先，我们定义了一个训练函数 `train_fine_tuning`，该函数使用微调，因此可以多次调用。
 
@@ -257,7 +259,7 @@ def train_fine_tuning(net, learning_rate, batch_size=128, num_epochs=5,
                    devices)
 ```
 
-我们将基本学习率设置较小，通过*微调*预训练获得的模型参数。
+我们[**使用较小的学习率**]，通过*微调*预训练获得的模型参数。
 
 ```{.python .input}
 train_fine_tuning(finetune_net, 0.01)
@@ -268,7 +270,7 @@ train_fine_tuning(finetune_net, 0.01)
 train_fine_tuning(finetune_net, 5e-5)
 ```
 
-为了进行比较，我们定义了一个相同的模型，但是将其所有模型参数初始化为随机值。
+[**为了进行比较，**]我们定义了一个相同的模型，但是将其(**所有模型参数初始化为随机值**)。
 由于整个模型需要从头开始训练，因此我们需要使用更大的学习率。
 
 ```{.python .input}

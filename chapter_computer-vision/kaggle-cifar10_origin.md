@@ -499,7 +499,7 @@ Now, we can train and validate the model.
 All the following hyperparameters can be tuned.
 For example, we can increase the number of epochs.
 When `lr_period` and `lr_decay` are set to 50 and 0.1, respectively, the learning rate of the optimization algorithm will be multiplied by 0.1 after every 50 epochs. Just for demonstration,
-we only train one epoch here.
+we only train 5 epochs here.
 
 ```{.python .input}
 devices, num_epochs, lr, wd = d2l.try_all_gpus(), 5, 0.1, 5e-4
