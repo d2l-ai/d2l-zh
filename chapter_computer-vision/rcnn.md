@@ -122,7 +122,7 @@ torchvision.ops.roi_pool(X, rois, output_size=(2, 2), spatial_scale=0.1)
 
 ## 练习
 
-1. 我们能否将目标检测作为单个回归问题？？？？？？，例如预测边界框和类别的概率？你可以参考 YOLO 模型 :cite:`Redmon.Divvala.Girshick.ea.2016` 的设计。
+1. 我们能否将目标检测视为回归问题（例如预测边界框和类别的概率）？你可以参考 YOLO 模型 :cite:`Redmon.Divvala.Girshick.ea.2016` 的设计。
 1. 将单发多框检测与本节介绍的方法进行比较。他们的主要区别是什么？你可以参考 :cite:`Zhao.Zheng.Xu.ea.2019` 中的图 2。
 
 :begin_tab:`mxnet`
