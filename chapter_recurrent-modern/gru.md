@@ -91,15 +91,6 @@ batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 ```
 
-```{.python .input}
-#@tab tensorflow
-from d2l import tensorflow as d2l
-import tensorflow as tf
-
-batch_size, num_steps = 32, 35
-train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
-```
-
 ### 初始化模型参数
 
 下一步是初始化模型参数。我们从标准差为 $0.01$ 的高斯分布中提取权重，并将偏置项设为 $0$，超参数 `num_hiddens` 定义隐藏单元的数量，实例化与更新门、重置门、候选隐藏状态和输出层相关的所有权重和偏置。
@@ -155,29 +146,6 @@ def get_params(vocab_size, num_hiddens, device):
     return params
 ```
 
-```{.python .input}
-#@tab tensorflow
-def get_params(vocab_size, num_hiddens):
-    num_inputs = num_outputs = vocab_size
-    
-    def normal(shape):
-        return d2l.normal(shape=shape,stddev=0.01,mean=0,dtype=tf.float32)
-
-    def three():
-        return (tf.Variable(normal((num_inputs, num_hiddens)), dtype=tf.float32),
-                tf.Variable(normal((num_hiddens, num_hiddens)), dtype=tf.float32),
-                tf.Variable(d2l.zeros(num_hiddens), dtype=tf.float32))
-    
-    W_xz, W_hz, b_z = three()  # Update gate parameters
-    W_xr, W_hr, b_r = three()  # Reset gate parameters
-    W_xh, W_hh, b_h = three()  # Candidate hidden state parameters
-    # Output layer parameters
-    W_hq = tf.Variable(normal((num_hiddens, num_outputs)), dtype=tf.float32)
-    b_q = tf.Variable(d2l.zeros(num_outputs), dtype=tf.float32)
-    params = [W_xz, W_hz, b_z, W_xr, W_hr, b_r, W_xh, W_hh, b_h, W_hq, b_q]
-    return params
-```
-
 ### 定义模型
 
 现在我们将定义隐藏状态的初始化函数 `init_gru_state`。与 :numref:`sec_rnn_scratch` 中定义的 `init_rnn_state` 函数一样，此函数返回一个形状为（批量大小，隐藏单元个数）的张量，张量的值全部为零。
@@ -191,12 +159,6 @@ def init_gru_state(batch_size, num_hiddens, device):
 #@tab pytorch
 def init_gru_state(batch_size, num_hiddens, device):
     return (torch.zeros((batch_size, num_hiddens), device=device), )
-```
-
-```{.python .input}
-#@tab tensorflow
-def init_gru_state(batch_size, num_hiddens):
-    return (d2l.zeros((batch_size, num_hiddens)), )
 ```
 
 现在我们准备定义门控循环单元模型，模型的结构与基本的循环神经网络单元是相同的，只是权重更新公式更为复杂。
@@ -232,23 +194,6 @@ def gru(inputs, state, params):
     return torch.cat(outputs, dim=0), (H,)
 ```
 
-```{.python .input}
-#@tab tensorflow
-def gru(inputs, state, params):
-    W_xz, W_hz, b_z, W_xr, W_hr, b_r, W_xh, W_hh, b_h, W_hq, b_q = params
-    H, = state
-    outputs = []
-    for X in inputs:
-        X = tf.reshape(X,[-1,W_xh.shape[0]])
-        Z = tf.sigmoid(tf.matmul(X, W_xz) + tf.matmul(H, W_hz) + b_z)
-        R = tf.sigmoid(tf.matmul(X, W_xr) + tf.matmul(H, W_hr) + b_r)
-        H_tilda = tf.tanh(tf.matmul(X, W_xh) + tf.matmul(R * H, W_hh) + b_h)
-        H = Z * H + (1 - Z) * H_tilda
-        Y = tf.matmul(H, W_hq) + b_q
-        outputs.append(Y)
-    return tf.concat(outputs, axis=0), (H,)
-```
-
 ### 训练与预测
 
 训练和预测的工作方式与 :numref:`sec_rnn_scratch` 完全相同。训练结束后，我们分别打印输出训练集的困惑度和前缀“time traveler”和“traveler”的预测序列上的困惑度。
@@ -260,20 +205,6 @@ num_epochs, lr = 500, 1
 model = d2l.RNNModelScratch(len(vocab), num_hiddens, device, get_params,
                             init_gru_state, gru)
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
-```
-
-```{.python .input}
-#@tab tensorflow
-vocab_size, num_hiddens, device_name = len(vocab), 256, d2l.try_gpu()._device_name
-# 定义 tensorflow 的训练策略
-strategy = tf.distribute.OneDeviceStrategy(device_name)
-num_epochs, lr = 500, 1
-# ToDo：代码需要修改
-# with strategy.scope():
-#     model = d2l.RNNModelScratch(len(vocab), num_hiddens, get_params,
-#                             init_gru_state, gru)
-
-# d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, strategy)
 ```
 
 ## 简洁实现
@@ -293,21 +224,6 @@ gru_layer = nn.GRU(num_inputs, num_hiddens)
 model = d2l.RNNModel(gru_layer, len(vocab))
 model = model.to(device)
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
-```
-
-```{.python .input}
-#@tab tensorflow
-gru_cell = tf.keras.layers.GRUCell(num_hiddens,
-    kernel_initializer='glorot_uniform')
-gru_layer = tf.keras.layers.RNN(gru_cell, time_major=True,
-    return_sequences=True, return_state=True)
-
-device_name = d2l.try_gpu()._device_name
-strategy = tf.distribute.OneDeviceStrategy(device_name)
-with strategy.scope():
-    model = d2l.RNNModel(gru_layer, vocab_size=len(vocab))
-
-d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, strategy)
 ```
 
 ## 小结
