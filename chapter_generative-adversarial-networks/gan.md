@@ -25,7 +25,7 @@ $$ \min_G \{ - y \log(D(G(\mathbf z))) \} = \min_G \{ - \log(D(G(\mathbf z))) \}
 
 这只是将 $\mathbf x'=G(\mathbf z)$ 喂给判别器，但给出标签 $y = 1$。
 
-总而言之，$D$ 和 $G$ 正在玩具有目标功能的“minimax”游戏：
+总而言之，$D$ 和 $G$ 正在玩具有“minimax”游戏的目标函数：
 
 $$\min_D \max_G \{ -E_{x \sim \text{Data}} log D(\mathbf x) - E_{z \sim \text{Noise}} log(1 - D(G(\mathbf z))) \}.$$
 
