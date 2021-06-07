@@ -1,7 +1,9 @@
 # 单发多框检测（SSD）
 :label:`sec_ssd`
 
-在 :numref:`sec_bbox` — :numref:`sec_object-detection-dataset` 中，我们介绍了边界框、锚框、多尺度目标检测和用于目标检测的数据集。现在我们已经准备好使用这样的背景知识来设计一个目标检测模型：单发多框检测（SSD） :cite:`Liu.Anguelov.Erhan.ea.2016` 了。该模型简单、快速且被广泛使用。尽管这只是大量目标检测模型中的一个，但本节中的一些设计原则和实现细节也适用于其他模型。 
+在 :numref:`sec_bbox` — :numref:`sec_object-detection-dataset` 中，我们介绍了边界框、锚框、多尺度目标检测和用于目标检测的数据集。
+现在我们已经准备好使用这样的背景知识来设计一个目标检测模型：单发多框检测（SSD） :cite:`Liu.Anguelov.Erhan.ea.2016`。
+该模型简单、快速且被广泛使用。尽管这只是大量目标检测模型中的一个，但本节中的一些设计原则和实现细节也适用于其他模型。 
 
 ## 模型
 
