@@ -51,13 +51,13 @@ $$\tilde{\mathbf{H}}_t = \tanh(\mathbf{X}_t \mathbf{W}_{xh} + \left(\mathbf{R}_t
 
 ### 隐藏状态
 
-最后，我们需要结合更新门 $\mathbf{Z}_t$ 的效果。这确定新的隐藏状态 $\mathbf{H}_t \in \mathbb{R}^{n \times h}$ 在多大程度上就是旧的状态 $\mathbf{H}_{t-1}$ ，以及对新的候选状态 $\tilde{\mathbf{H}}_t$ 的使用量。更新门 $\mathbf{Z}_t$ 仅需要在 $\mathbf{H}_{t-1}$ 和 $\tilde{\mathbf{H}}_t$ 之间进行按元素的凸组合就可以实现这个目标。这就得出了门控循环单元的最终更新公式：
+最后，我们需要结合更新门 $\mathbf{Z}_t$ 的效果。这确定新的隐藏状态 $\mathbf{H}_t \in \mathbb{R}^{n \times h}$ 在多大程度上就是旧的状态 $\mathbf{H}_{t-1}$ ，以及对新的候选状态 $\tilde{\mathbf{H}}_t$ 的使用量。更新门 $\mathbf{Z}_t$ 仅需要在 $\mathbf{H}_{t-1}$ 和 $\tilde{\mathbf{H}}_t$ 之间进行按元素的凸组合就可以实现这个目标。这就得出了门控循环单元的最终更新公式：
 
 $$\mathbf{H}_t = \mathbf{Z}_t \odot \mathbf{H}_{t-1}  + (1 - \mathbf{Z}_t) \odot \tilde{\mathbf{H}}_t.$$
 
-每当更新门 $\mathbf{Z}_t$ 接近 $1$ 时，我们就只保留旧状态。此时，来自 $\mathbf{X}_t$ 的信息基本上被忽略，从而有效地跳过了依赖链条中的时间步 $t$。相反，当 $\mathbf{Z}_t$ 接近 $0$ 时，新的隐藏状态 $\mathbf{H}_t$ 就会接近候选的隐藏状态 $\tilde{\mathbf{H}}_t$。这些设计可以帮助我们处理循环神经网络中的梯度消失问题，并更好地捕获时间步长的距离很大的序列的相关性。例如，如果整个子序列的所有时间步的更新门都接近于 $1$，则无论序列的长度如何，在序列起始时间步的旧隐藏状态都将很容易保留并传递到序列结束。
+每当更新门 $\mathbf{Z}_t$ 接近 $1$ 时，我们就只保留旧状态。此时，来自 $\mathbf{X}_t$ 的信息基本上被忽略，从而有效地跳过了依赖链条中的时间步 $t$。相反，当 $\mathbf{Z}_t$ 接近 $0$ 时，新的隐藏状态 $\mathbf{H}_t$ 就会接近候选的隐藏状态 $\tilde{\mathbf{H}}_t$。这些设计可以帮助我们处理循环神经网络中的梯度消失问题，并更好地捕获时间步长的距离很大的序列的相关性。例如，如果整个子序列的所有时间步的更新门都接近于 $1$，则无论序列的长度如何，在序列起始时间步的旧隐藏状态都将很容易保留并传递到序列结束。
 
-:numref:`fig_gru_3` 说明了更新门起作用后的计算流。
+:numref:`fig_gru_3` 说明了更新门起作用后的计算流。
 
 ![计算门控循环单元模型中的隐藏状态。](../img/gru-3.svg)
 :label:`fig_gru_3`
@@ -69,7 +69,7 @@ $$\mathbf{H}_t = \mathbf{Z}_t \odot \mathbf{H}_{t-1}  + (1 - \mathbf{Z}_t) \odot
 
 ## 从零开始实现
 
-为了更好地理解门控循环单元模型，让我们从零开始实现它。我们首先读取 :numref:`sec_rnn_scratch` 中使用的时间机器数据集。下面给出了读取数据集的代码。
+为了更好地理解门控循环单元模型，让我们从零开始实现它。首先，读取 :numref:`sec_rnn_scratch` 中使用的时间机器数据集。下面给出了读取数据集的代码。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -91,9 +91,18 @@ batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 ```
 
+```{.python .input}
+#@tab tensorflow
+from d2l import tensorflow as d2l
+import tensorflow as tf
+
+batch_size, num_steps = 32, 35
+train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
+```
+
 ### 初始化模型参数
 
-下一步是初始化模型参数。我们从标准差为0.01的高斯分布中提取权重，并将偏置项设为0。超参数`num_hiddens`定义了隐藏单元的数量。我们实例化与更新门、重置门、候选隐藏状态和输出层相关的所有权重和偏置。
+下一步是初始化模型参数。我们从标准差为 $0.01$ 的高斯分布中提取权重，并将偏置项设为 $0$，超参数 `num_hiddens` 定义隐藏单元的数量，实例化与更新门、重置门、候选隐藏状态和输出层相关的所有权重和偏置。
 
 ```{.python .input}
 def get_params(vocab_size, num_hiddens, device):
@@ -146,9 +155,32 @@ def get_params(vocab_size, num_hiddens, device):
     return params
 ```
 
+```{.python .input}
+#@tab tensorflow
+def get_params(vocab_size, num_hiddens):
+    num_inputs = num_outputs = vocab_size
+    
+    def normal(shape):
+        return d2l.normal(shape=shape,stddev=0.01,mean=0,dtype=tf.float32)
+
+    def three():
+        return (tf.Variable(normal((num_inputs, num_hiddens)), dtype=tf.float32),
+                tf.Variable(normal((num_hiddens, num_hiddens)), dtype=tf.float32),
+                tf.Variable(d2l.zeros(num_hiddens), dtype=tf.float32))
+    
+    W_xz, W_hz, b_z = three()  # Update gate parameters
+    W_xr, W_hr, b_r = three()  # Reset gate parameters
+    W_xh, W_hh, b_h = three()  # Candidate hidden state parameters
+    # Output layer parameters
+    W_hq = tf.Variable(normal((num_hiddens, num_outputs)), dtype=tf.float32)
+    b_q = tf.Variable(d2l.zeros(num_outputs), dtype=tf.float32)
+    params = [W_xz, W_hz, b_z, W_xr, W_hr, b_r, W_xh, W_hh, b_h, W_hq, b_q]
+    return params
+```
+
 ### 定义模型
 
-现在我们将定义隐藏状态初始化函数`init_gru_state`。与 :numref:`sec_rnn_scratch` 中定义的`init_rnn_state`函数一样，此函数返回一个值均为零的形状为 (批量大小, 隐藏单元数) 的张量。
+现在我们将定义隐藏状态的初始化函数 `init_gru_state`。与 :numref:`sec_rnn_scratch` 中定义的 `init_rnn_state` 函数一样，此函数返回一个形状为（批量大小，隐藏单元个数）的张量，张量的值全部为零。
 
 ```{.python .input}
 def init_gru_state(batch_size, num_hiddens, device):
@@ -161,7 +193,13 @@ def init_gru_state(batch_size, num_hiddens, device):
     return (torch.zeros((batch_size, num_hiddens), device=device), )
 ```
 
-现在我们准备好定义门控循环单元模型了。其结构与基本循环神经网络单元相同，只是更新公式更为复杂。
+```{.python .input}
+#@tab tensorflow
+def init_gru_state(batch_size, num_hiddens):
+    return (d2l.zeros((batch_size, num_hiddens)), )
+```
+
+现在我们准备定义门控循环单元模型，模型的结构与基本的循环神经网络单元是相同的，只是权重更新公式更为复杂。
 
 ```{.python .input}
 def gru(inputs, state, params):
@@ -194,17 +232,46 @@ def gru(inputs, state, params):
     return torch.cat(outputs, dim=0), (H,)
 ```
 
+```{.python .input}
+#@tab tensorflow
+def gru(inputs, state, params):
+    W_xz, W_hz, b_z, W_xr, W_hr, b_r, W_xh, W_hh, b_h, W_hq, b_q = params
+    H, = state
+    outputs = []
+    for X in inputs:
+        X = tf.reshape(X,[-1,W_xh.shape[0]])
+        Z = tf.sigmoid(tf.matmul(X, W_xz) + tf.matmul(H, W_hz) + b_z)
+        R = tf.sigmoid(tf.matmul(X, W_xr) + tf.matmul(H, W_hr) + b_r)
+        H_tilda = tf.tanh(tf.matmul(X, W_xh) + tf.matmul(R * H, W_hh) + b_h)
+        H = Z * H + (1 - Z) * H_tilda
+        Y = tf.matmul(H, W_hq) + b_q
+        outputs.append(Y)
+    return tf.concat(outputs, axis=0), (H,)
+```
+
 ### 训练与预测
 
-训练和预测的工作方式与 :numref:`sec_rnn_scratch` 完全相同。训练结束后，我们打印出训练集的困惑度。同时打印前缀“time traveler”和“traveler”的预测序列上的困惑度。
+训练和预测的工作方式与 :numref:`sec_rnn_scratch` 完全相同。训练结束后，我们分别打印输出训练集的困惑度和前缀“time traveler”和“traveler”的预测序列上的困惑度。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch
 vocab_size, num_hiddens, device = len(vocab), 256, d2l.try_gpu()
 num_epochs, lr = 500, 1
 model = d2l.RNNModelScratch(len(vocab), num_hiddens, device, get_params,
                             init_gru_state, gru)
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
+```
+
+```{.python .input}
+#@tab tensorflow
+vocab_size, num_hiddens, device_name = len(vocab), 256, d2l.try_gpu()._device_name
+# defining tensorflow training strategy
+strategy = tf.distribute.OneDeviceStrategy(device_name)
+num_epochs, lr = 500, 1
+with strategy.scope():
+    model = d2l.RNNModelScratch(len(vocab), num_hiddens, init_gru_state, gru, get_params)
+
+d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, strategy)
 ```
 
 ## 简洁实现
@@ -224,6 +291,21 @@ gru_layer = nn.GRU(num_inputs, num_hiddens)
 model = d2l.RNNModel(gru_layer, len(vocab))
 model = model.to(device)
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
+```
+
+```{.python .input}
+#@tab tensorflow
+gru_cell = tf.keras.layers.GRUCell(num_hiddens,
+    kernel_initializer='glorot_uniform')
+gru_layer = tf.keras.layers.RNN(gru_cell, time_major=True,
+    return_sequences=True, return_state=True)
+
+device_name = d2l.try_gpu()._device_name
+strategy = tf.distribute.OneDeviceStrategy(device_name)
+with strategy.scope():
+    model = d2l.RNNModel(gru_layer, vocab_size=len(vocab))
+
+d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, strategy)
 ```
 
 ## 小结
