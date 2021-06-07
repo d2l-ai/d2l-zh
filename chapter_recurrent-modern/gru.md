@@ -268,11 +268,12 @@ vocab_size, num_hiddens, device_name = len(vocab), 256, d2l.try_gpu()._device_na
 # 定义 tensorflow 的训练策略
 strategy = tf.distribute.OneDeviceStrategy(device_name)
 num_epochs, lr = 500, 1
-with strategy.scope():
-    model = d2l.RNNModelScratch(len(vocab), num_hiddens, get_params,
-                            init_gru_state, gru)
+# ToDo：代码需要修改
+# with strategy.scope():
+#     model = d2l.RNNModelScratch(len(vocab), num_hiddens, get_params,
+#                             init_gru_state, gru)
 
-d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, strategy)
+# d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, strategy)
 ```
 
 ## 简洁实现
