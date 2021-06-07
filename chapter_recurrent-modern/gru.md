@@ -269,7 +269,8 @@ vocab_size, num_hiddens, device_name = len(vocab), 256, d2l.try_gpu()._device_na
 strategy = tf.distribute.OneDeviceStrategy(device_name)
 num_epochs, lr = 500, 1
 with strategy.scope():
-    model = d2l.RNNModelScratch(len(vocab), num_hiddens, strategy, init_gru_state, gru, get_params)
+    model = d2l.RNNModelScratch(len(vocab), num_hiddens, get_params,
+                            init_gru_state, gru)
 
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, strategy)
 ```
