@@ -265,11 +265,11 @@ d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 ```{.python .input}
 #@tab tensorflow
 vocab_size, num_hiddens, device_name = len(vocab), 256, d2l.try_gpu()._device_name
-# defining tensorflow training strategy
+# 定义 tensorflow 的训练策略
 strategy = tf.distribute.OneDeviceStrategy(device_name)
 num_epochs, lr = 500, 1
 with strategy.scope():
-    model = d2l.RNNModelScratch(len(vocab), num_hiddens, init_gru_state, gru, get_params)
+    model = d2l.RNNModelScratch(len(vocab), num_hiddens, strategy, init_gru_state, gru, get_params)
 
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, strategy)
 ```
@@ -317,9 +317,9 @@ d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, strategy)
 
 ## 练习
 
-1. 假设我们只想使用时间步 $t'$ 的输入来预测时间步 $t > t'$ 的输出。对于每个时间步，重置门和更新门的最佳值是什么？
+1. 假设我们只想使用时间步 $t'$ 的输入来预测时间步 $t > t'$ 的输出。对于每个时间步，重置门和更新门的最佳值是什么？
 1. 调整和分析超参数对运行时间、困惑度和输出顺序的影响。
-1. 比较 `rnn.RNN` 和 `rnn.GRU` 实现对运行时间、困惑度和输出字符串的影响。
+1. 比较 `rnn.RNN` 和 `rnn.GRU` 的不同实现对运行时间、困惑度和输出字符串的影响。
 1. 如果仅仅实现门控循环单元的一部分，例如，只有一个重置门或一个更新门会怎样？
 
 :begin_tab:`mxnet`
