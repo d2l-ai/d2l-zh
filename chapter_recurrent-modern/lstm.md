@@ -5,17 +5,17 @@
 
 ## 门控记忆单元
 
-可以说，长短期记忆网络的设计灵感来自于计算机的逻辑门。长短期记忆网络引入了*存储单元*（memory cell），或简称为*单元*（cell）。（一些文献认为存储单元是隐藏状态的一种特殊类型）。它们与隐藏状态具有相同的形状，被设计为记录附加信息。为了控制存储单元，我们需要许多门。如，我们需要一个门来从单元中读出条目。我们将其称为*输出门*（output gate）。
-另外，需要一个门来决定何时将数据读入单元。我们将其称为*输入门*（input gate）。最后，我们需要一种机制来重置单元的内容，由*遗忘门*（forget gate）来管理。这种设计的动机与门控循环单元相同，即能够通过专用机制决定什么时候记忆或忽略隐藏状态中的输入。让我们看看这在实践中是如何运作的。
+可以说，长短期记忆网络的设计灵感来自于计算机的逻辑门。长短期记忆网络引入了 *存储单元*（memory cell），或简称为 *单元*（cell）。有些文献认为存储单元是隐藏状态的一种特殊类型，它们与隐藏状态具有相同的形状，其设计目的是用于记录附加的信息。为了控制存储单元，我们需要许多门。其中一个门用来从单元中读出条目。我们将其称为 *输出门*（output gate）。
+另外一个门用来决定何时将数据读入单元。我们将其称为 *输入门*（input gate）。最后，我们需要一种机制来重置单元的内容，由*遗忘门*（forget gate）来管理。这种设计的动机与门控循环单元相同，即能够通过专用机制决定什么时候记忆或忽略隐藏状态中的输入。让我们看看这在实践中是如何运作的。
 
 ### 输入门、忘记门和输出门
 
-就像在门控循环单元中一样，送到长短期记忆网络门的数据是当前时间步的输入和前一个时间步的隐藏状态，如 :numref:`lstm_0` 所示。它们由具有sigmoid激活函数的三个全连接层处理，以计算输入门、遗忘门和输出门的值。因此，这三个门的值都在$(0, 1)$的范围内。
+就如在门控循环单元中一样，当前时间步的输入和前一个时间步的隐藏状态作为数据送入长短期记忆网络门中，如 :numref:`lstm_0` 所示。它们由三个具有 sigmoid 激活函数的全连接层处理，以计算输入门、遗忘门和输出门的值。因此，这三个门的值都在 $(0, 1)$ 的范围内。
 
 ![在长短期记忆模型中计算输入门、遗忘门和输出门。](../img/lstm-0.svg)
 :label:`lstm_0`
 
-在数学上，假设有$h$个隐藏单元，批量大小为$n$，输入数为$d$。因此，输入为$\mathbf{X}_t \in \mathbb{R}^{n \times d}$，前一时间步的隐藏状态为$\mathbf{H}_{t-1} \in \mathbb{R}^{n \times h}$。相应地，时间步$t$的门被定义如下：输入门是$\mathbf{I}_t \in \mathbb{R}^{n \times h}$，遗忘门是$\mathbf{F}_t \in \mathbb{R}^{n \times h}$，输出门是$\mathbf{O}_t \in \mathbb{R}^{n \times h}$。它们的计算方法如下：
+数学描述，假设有 $h$ 个隐藏单元，批量大小为 $n$，输入数为 $d$。因此，输入为 $\mathbf{X}_t \in \mathbb{R}^{n \times d}$，前一时间步的隐藏状态为 $\mathbf{H}_{t-1} \in \mathbb{R}^{n \times h}$。相应地，时间步 $t$ 的门被定义如下：输入门是 $\mathbf{I}_t \in \mathbb{R}^{n \times h}$，遗忘门是 $\mathbf{F}_t \in \mathbb{R}^{n \times h}$，输出门是 $\mathbf{O}_t \in \mathbb{R}^{n \times h}$。它们的计算方法如下：
 
 $$
 \begin{aligned}
@@ -25,15 +25,15 @@ $$
 \end{aligned}
 $$
 
-其中$\mathbf{W}_{xi}, \mathbf{W}_{xf}, \mathbf{W}_{xo} \in \mathbb{R}^{d \times h}$和$\mathbf{W}_{hi}, \mathbf{W}_{hf}, \mathbf{W}_{ho} \in \mathbb{R}^{h \times h}$是权重参数，$\mathbf{b}_i, \mathbf{b}_f, \mathbf{b}_o \in \mathbb{R}^{1 \times h}$是偏置参数。
+其中 $\mathbf{W}_{xi}, \mathbf{W}_{xf}, \mathbf{W}_{xo} \in \mathbb{R}^{d \times h}$ 和 $\mathbf{W}_{hi}, \mathbf{W}_{hf}, \mathbf{W}_{ho} \in \mathbb{R}^{h \times h}$ 是权重参数，$\mathbf{b}_i, \mathbf{b}_f, \mathbf{b}_o \in \mathbb{R}^{1 \times h}$ 是偏置参数。
 
 ### 候选记忆单元
 
-接下来，我们设计记忆单元。由于我们还没有指定各种门的操作，所以我们首先介绍候选记忆单元（candidate memory cell）$\tilde{\mathbf{C}}_t \in \mathbb{R}^{n \times h}$。它的计算与上面描述的三个门的计算类似，但是使用$\tanh$函数（值范围为$(-1, 1)$）作为激活函数。这导致在时间步$t$处得出以下方程：
+接下来，设计记忆单元。由于还没有指定各种门的操作，所以先介绍 *候选记忆单元*（candidate memory cell）$\tilde{\mathbf{C}}_t \in \mathbb{R}^{n \times h}$。它的计算与上面描述的三个门的计算类似，但是使用 $\tanh$ 函数作为激活函数，函数的值范围为 $(-1, 1)$。下面导出在时间步 $t$ 处的方程：
 
 $$\tilde{\mathbf{C}}_t = \text{tanh}(\mathbf{X}_t \mathbf{W}_{xc} + \mathbf{H}_{t-1} \mathbf{W}_{hc} + \mathbf{b}_c),$$
 
-其中$\mathbf{W}_{xc} \in \mathbb{R}^{d \times h}$和$\mathbf{W}_{hc} \in \mathbb{R}^{h \times h}$是权重参数，$\mathbf{b}_c \in \mathbb{R}^{1 \times h}$是偏置参数。
+其中 $\mathbf{W}_{xc} \in \mathbb{R}^{d \times h}$ 和 $\mathbf{W}_{hc} \in \mathbb{R}^{h \times h}$ 是权重参数，$\mathbf{b}_c \in \mathbb{R}^{1 \times h}$ 是偏置参数。
 
 候选记忆单元的图示如 :numref:`lstm_1` 。
 
@@ -42,13 +42,13 @@ $$\tilde{\mathbf{C}}_t = \text{tanh}(\mathbf{X}_t \mathbf{W}_{xc} + \mathbf{H}_{
 
 ### 记忆单元
 
-在门控循环单元中，我们有一种机制来控制输入和遗忘（或跳过）。类似地，在长短期记忆网络中，我们有两个门用于这样的目的：输入门$\mathbf{I}_t$控制我们考虑多少来自$\tilde{\mathbf{C}}_t$的新数据，而遗忘门$\mathbf{F}_t$控制我们保留了多少旧记忆单元$\mathbf{C}_{t-1} \in \mathbb{R}^{n \times h}$的内容。使用与前面相同的按元素乘法技巧，我们得出以下更新公式：
+在门控循环单元中，有一种机制来控制输入和遗忘（或跳过）。类似地，在长短期记忆网络中，也有两个门用于这样的目的：输入门 $\mathbf{I}_t$ 控制采用多少来自 $\tilde{\mathbf{C}}_t$ 的新数据，而遗忘门 $\mathbf{F}_t$ 控制保留了多少旧记忆单元 $\mathbf{C}_{t-1} \in \mathbb{R}^{n \times h}$ 的内容。使用与前面相同的按元素做乘法的技巧，得出以下更新公式：
 
 $$\mathbf{C}_t = \mathbf{F}_t \odot \mathbf{C}_{t-1} + \mathbf{I}_t \odot \tilde{\mathbf{C}}_t.$$
 
-如果遗忘门始终为1且输入门始终为0，则过去的记忆单元$\mathbf{C}_{t-1}$将随时间被保存并传递到当前时间步。引入这种设计是为了缓解梯度消失问题，并更好地捕获序列中的长距离依赖关系。
+如果遗忘门始终为 $1$ 且输入门始终为 $0$，则过去的记忆单元 $\mathbf{C}_{t-1}$ 将随时间被保存并传递到当前时间步。引入这种设计是为了缓解梯度消失问题，并更好地捕获序列中的长距离依赖关系。
 
-这样我们就得到了流程图，如:numref:`lstm_2`。
+这样就得到了流程图，如:numref:`lstm_2`。
 
 ![在长短期记忆网络模型中计算存储单元。](../img/lstm-2.svg)
 
@@ -56,11 +56,11 @@ $$\mathbf{C}_t = \mathbf{F}_t \odot \mathbf{C}_{t-1} + \mathbf{I}_t \odot \tilde
 
 ### 隐藏状态
 
-最后，我们需要定义如何计算隐藏状态$\mathbf{H}_t \in \mathbb{R}^{n \times h}$。这就是输出门发挥作用的地方。在长短期记忆网络中，它仅仅是记忆单元的$\tanh$的门控版本。这确保了$\mathbf{H}_t$的值始终在区间$(-1, 1)$内。
+最后，我们需要定义如何计算隐藏状态 $\mathbf{H}_t \in \mathbb{R}^{n \times h}$。这就是输出门发挥作用的地方。在长短期记忆网络中，它仅仅是记忆单元的 $\tanh$ 的门控版本。这就确保了 $\mathbf{H}_t$ 的值始终在区间 $(-1, 1)$ 内。
 
 $$\mathbf{H}_t = \mathbf{O}_t \odot \tanh(\mathbf{C}_t).$$
 
-只要输出门接近1，我们就有效地将所有记忆信息传递给预测部分，而对于接近0的输出门，我们只保留存储单元内的所有信息，并且不执行进一步的处理。
+只要输出门接近 $1$，我们就能够有效地将所有记忆信息传递给预测部分，而对于输出门接近 $0$，我们只保留存储单元内的所有信息，并且没有进一步的过程需要执行。
 
 :numref:`lstm_3`提供了数据流的图形化演示。
 
