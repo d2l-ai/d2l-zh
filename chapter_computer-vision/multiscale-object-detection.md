@@ -1,4 +1,5 @@
 # 多尺度目标检测
+:label:`sec_multiscale-object-detection`
 
 在 :numref:`sec_anchor` 中，我们以输入图像的每个像素为中心，生成了多个锚框。
 基本而言，这些锚框代表了图像不同区域的样本。
