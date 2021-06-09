@@ -209,7 +209,7 @@ d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 
 ## 简洁实现
 
-在高级 API 中，我们可以直接实例化门控循环单元模型。模型封装了前文明确介绍的所有配置细节。这段代码的运行速度要快得多，因为它使用的是编译好的运算符而不是 Python 来处理之前阐述的许多细节。
+高级 API 包含了前文介绍的所有配置细节，所以我们可以直接实例化门控循环单元模型。这段代码的运行速度要快得多，因为它使用的是编译好的运算符而不是 Python 来处理之前阐述的许多细节。
 
 ```{.python .input}
 gru_layer = rnn.GRU(num_hiddens)
