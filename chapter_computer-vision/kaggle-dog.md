@@ -272,7 +272,7 @@ def evaluate_loss(data_iter, net, devices):
         features, labels = features.to(devices[0]), labels.to(devices[0])
         outputs = net(features)
         l = loss(outputs, labels)
-        l_sum = l.sum()
+        l_sum += l.sum()
         n += labels.numel()
     return l_sum / n
 ```
@@ -352,17 +352,15 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
             if (i + 1) % (num_batches // 5) == 0 or i == num_batches - 1:
                 animator.add(epoch + (i + 1) / num_batches, 
                              (metric[0] / metric[1], None))
+        measures = f'train loss {metric[0] / metric[1]:.3f}'
         if valid_iter is not None:
             valid_loss = evaluate_loss(valid_iter, net, devices)
-            animator.add(epoch + 1, (None, valid_loss))
+            animator.add(epoch + 1, (None, valid_loss.detach()))
         scheduler.step()
     if valid_iter is not None:
-        print(f'train loss {metric[0] / metric[1]:.3f}, '
-              f'valid loss {valid_loss:.3f}')
-    else:
-        print(f'train loss {metric[0] / metric[1]:.3f}')
-    print(f'{metric[1] * num_epochs / timer.sum():.1f} examples/sec '
-          f'on {str(devices)}')
+        measures += f', valid loss {valid_loss:.3f}'
+    print(measures + f'\n{metric[1] * num_epochs / timer.sum():.1f}'
+          f' examples/sec on {str(devices)}')
 ```
 
 ## [**训练和验证模型**]
