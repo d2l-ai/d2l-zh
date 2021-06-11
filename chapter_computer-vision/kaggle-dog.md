@@ -338,7 +338,7 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
     legend = ['train loss']
     if valid_iter is not None:
         legend.append('valid loss')
-        animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs],
+    animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs],
                             legend=legend)
     for epoch in range(num_epochs):
         metric = d2l.Accumulator(2)

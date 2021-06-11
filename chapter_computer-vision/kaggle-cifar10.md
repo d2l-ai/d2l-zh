@@ -418,8 +418,11 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
                               weight_decay=wd)
     scheduler = torch.optim.lr_scheduler.StepLR(trainer, lr_period, lr_decay)
     num_batches, timer = len(train_iter), d2l.Timer()
+    legend = ['train loss', 'train acc']
+    if valid_iter is not None:
+        legend.append('valid acc')
     animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs],
-                            legend=['train loss', 'train acc', 'valid acc'])
+                            legend=legend)
     net = nn.DataParallel(net, device_ids=devices).to(devices[0])
     for epoch in range(num_epochs):
         net.train()
@@ -438,15 +441,12 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
             valid_acc = d2l.evaluate_accuracy_gpu(net, valid_iter)
             animator.add(epoch + 1, (None, None, valid_acc))
         scheduler.step()
+    measures = (f'train loss {metric[0] / metric[2]:.3f}, '
+                f'train acc {metric[1] / metric[2]:.3f}')
     if valid_iter is not None:
-        print(f'loss {metric[0] / metric[2]:.3f}, '
-              f'train acc {metric[1] / metric[2]:.3f}, '
-              f'valid acc {valid_acc:.3f}')
-    else:
-        print(f'loss {metric[0] / metric[2]:.3f}, '
-              f'train acc {metric[1] / metric[2]:.3f}')
-    print(f'{metric[2] * num_epochs / timer.sum():.1f} examples/sec '
-          f'on {str(devices)}')
+        measures += f', valid acc {valid_acc:.3f}'
+    print(measures + f'\n{metric[2] * num_epochs / timer.sum():.1f}'
+          f' examples/sec on {str(devices)}')
 ```
 
 ## [**训练和验证模型**]
@@ -465,7 +465,7 @@ train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
 
 ```{.python .input}
 #@tab pytorch
-devices, num_epochs, lr, wd = d2l.try_all_gpus(), 20, 0.02, 5e-4
+devices, num_epochs, lr, wd = d2l.try_all_gpus(), 20, 2e-4, 5e-4
 lr_period, lr_decay, net = 4, 0.9, get_net()
 train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
       lr_decay)
