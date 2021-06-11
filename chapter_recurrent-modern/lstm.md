@@ -1,7 +1,7 @@
 # 长短期记忆网络（LSTM）
 :label:`sec_lstm`
 
-长期以来，隐变量模型存在着长期信息保存和短期输入跳跃的问题。解决这一问题的最早方法之一是长短期存储器（long short-term memory, LSTM）:cite:`Hochreiter.Schmidhuber.1997`。它有许多与门控循环单元一样的属性。有趣的是，长短期记忆网络的设计比门控循环单元稍微复杂一些，却比门控循环单元 :numref:`sec_gru` 早诞生了近20年。
+长期以来，隐变量模型存在着长期信息保存和短期输入跳跃的问题。解决这一问题的最早方法之一是长短期存储器（long short-term memory, LSTM）:cite:`Hochreiter.Schmidhuber.1997`。它有许多与门控循环单元一样的属性。有趣的是，长短期记忆网络的设计比门控循环单元稍微复杂一些，却比门控循环单元 (:numref:`sec_gru`)早诞生了近20年。
 
 ## 门控记忆单元
 
