@@ -369,7 +369,7 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
 例如，可以增加迭代周期：由于 `lr_period` 和 `lr_decay` 分别设置为 2 和 0.9，因此优化算法的学习速率将在每 2 个迭代后乘以 0.9。
 
 ```{.python .input}
-devices, num_epochs, lr, wd = d2l.try_all_gpus(), 10, 0.005, 1e-4
+devices, num_epochs, lr, wd = d2l.try_all_gpus(), 10, 5e-3, 1e-4
 lr_period, lr_decay, net = 2, 0.9, get_net(devices)
 net.hybridize()
 train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
@@ -378,7 +378,7 @@ train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
 
 ```{.python .input}
 #@tab pytorch
-devices, num_epochs, lr, wd = d2l.try_all_gpus(), 10, 0.005, 1e-4
+devices, num_epochs, lr, wd = d2l.try_all_gpus(), 10, 1e-4, 1e-4
 lr_period, lr_decay, net = 2, 0.9, get_net(devices)
 train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
       lr_decay)
