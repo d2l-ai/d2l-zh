@@ -28,7 +28,7 @@
 首先，我们将讨论如何实施类别和边界框预测。 
 
 
-### 类别预测层
+### (**类别预测层**)
 
 设目标类别的数量为 $q$。这样一来，锚框有 $q+1$ 个类别，其中 0 类是背景。
 在某个尺度下，设特征图的高和宽分别为 $h$ 和 $w$。
@@ -73,7 +73,7 @@ def cls_predictor(num_inputs, num_anchors, num_classes):
                      kernel_size=3, padding=1)
 ```
 
-### 边界框预测层
+### (**边界框预测层**)
 
 边界框预测层的设计与类别预测层的设计类似。
 唯一不同的是，这里需要为每个锚框预测4个偏移量，而不是 $q+1$ 个类别。
@@ -89,7 +89,7 @@ def bbox_predictor(num_inputs, num_anchors):
     return nn.Conv2d(num_inputs, num_anchors * 4, kernel_size=3, padding=1)
 ```
 
-### 连接多尺度的预测
+### [**连接多尺度的预测**]
 
 正如我们所提到的，单发多框检测使用多尺度特征图来生成锚框并预测其类别和偏移量。
 在不同的尺度下，特征图的形状或以同一单元为中心的锚框的数量可能会有所不同。
@@ -151,7 +151,7 @@ def concat_preds(preds):
 concat_preds([Y1, Y2]).shape
 ```
 
-### 高和宽减半块
+### [**高和宽减半块**]
 
 为了在多个尺度下检测目标，我们在下面定义了高和宽减半块 `down_sample_blk`，该模块将输入特征图的高度和宽度减半。
 事实上，该块应用了在 :numref:`subsec_vgg-blocks` 中的 VGG 模块设计。
@@ -195,7 +195,7 @@ forward(np.zeros((2, 3, 20, 20)), down_sample_blk(10)).shape
 forward(torch.zeros((2, 3, 20, 20)), down_sample_blk(3, 10)).shape
 ```
 
-### 基本网络块
+### [**基本网络块**]
 
 基本网络块用于从输入图像中抽取特征。
 为了计算简洁，我们构造了一个小的基础网络，该网络串联3个高和宽减半块，并逐步将通道数翻倍。
@@ -225,7 +225,7 @@ forward(torch.zeros((2, 3, 256, 256)), base_net()).shape
 
 ### 完整的模型
 
-完整的单发多框检测模型由五个模块组成。每个块生成的特征图既用于 (i) 生成锚框，又用于 (ii) 预测这些锚框的类别和偏移量。在这五个模块中，第一个是基本网络块，第二个到第四个是高和宽减半块，最后一个模块使用全局最大池将高度和宽度都降到 1。从技术上讲，第二到第五个区块都是 :numref:`fig_ssd` 中的多尺度特征块。
+[**完整的单发多框检测模型由五个模块组成**]。每个块生成的特征图既用于 (i) 生成锚框，又用于 (ii) 预测这些锚框的类别和偏移量。在这五个模块中，第一个是基本网络块，第二个到第四个是高和宽减半块，最后一个模块使用全局最大池将高度和宽度都降到 1。从技术上讲，第二到第五个区块都是 :numref:`fig_ssd` 中的多尺度特征块。
 
 ```{.python .input}
 def get_blk(i):
@@ -252,7 +252,7 @@ def get_blk(i):
     return blk
 ```
 
-现在我们为每个块定义前向计算。与图像分类任务不同，此处的输出包括：(i) CNN 特征图 `Y` ，(ii) 在当前尺度下根据 `Y` 生成的锚框，以及 (iii) 预测的这些锚框的类别和偏移量（基于 `Y` ）。
+现在我们[**为每个块定义前向计算**]。与图像分类任务不同，此处的输出包括：(i) CNN 特征图 `Y` ，(ii) 在当前尺度下根据 `Y` 生成的锚框，以及 (iii) 预测的这些锚框的类别和偏移量（基于 `Y` ）。
 
 ```{.python .input}
 def blk_forward(X, blk, size, ratio, cls_predictor, bbox_predictor):
@@ -278,6 +278,8 @@ def blk_forward(X, blk, size, ratio, cls_predictor, bbox_predictor):
 在下面，0.2 和 1.05 之间的区间被均匀分成五个部分，以确定五个模块的在不同尺度下的较小值：0.2、0.37、0.54、0.71 和 0.88。
 之后，他们较大的值由 $\sqrt{0.2 \times 0.37} = 0.272$ 、 $\sqrt{0.37 \times 0.54} = 0.447$ 等给出。
 
+[~~超参数~~]
+
 ```{.python .input}
 #@tab all
 sizes = [[0.2, 0.272], [0.37, 0.447], [0.54, 0.619], [0.71, 0.79],
@@ -286,7 +288,7 @@ ratios = [[1, 2, 0.5]] * 5
 num_anchors = len(sizes[0]) + len(ratios[0]) - 1
 ```
 
-现在，我们就可以按如下方式定义完整的模型 `TinySSD` 了。
+现在，我们就可以按如下方式[**定义完整的模型**] `TinySSD` 了。
 
 ```{.python .input}
 class TinySSD(nn.Block):
@@ -344,7 +346,7 @@ class TinySSD(nn.Module):
         return anchors, cls_preds, bbox_preds
 ```
 
-我们创建一个模型实例，然后使用它对一个 $256 \times 256$ 像素的小批量图像 `X` 执行前向计算。 
+我们[**创建一个模型实例，然后使用它**]对一个 $256 \times 256$ 像素的小批量图像 `X` (**执行前向计算**)。 
 
 如本节前面部分所示，第一个模块输出特征图的形状为 $32 \times 32$ 。
 回想一下，第二到第四个模块为高和宽减半块，第五个模块为全局池化层。
@@ -387,7 +389,7 @@ train_iter, _ = d2l.load_data_bananas(batch_size)
 ```
 
 香蕉检测数据集中，目标的类别数为1。
-定义好模型后，我们需要初始化其参数并定义优化算法。
+定义好模型后，我们需要(**初始化其参数并定义优化算法**)。
 
 ```{.python .input}
 device, net = d2l.try_gpu(), TinySSD(num_classes=1)
@@ -402,7 +404,7 @@ device, net = d2l.try_gpu(), TinySSD(num_classes=1)
 trainer = torch.optim.SGD(net.parameters(), lr=0.2, weight_decay=5e-4)
 ```
 
-### 定义损失函数和评价函数
+### [**定义损失函数和评价函数**]
 
 目标检测有两种类型的损失。
 第一种有关锚框类别的损失：我们可以简单地重用之前图像分类问题里一直使用的交叉熵损失函数来计算；
@@ -459,7 +461,7 @@ def bbox_eval(bbox_preds, bbox_labels, bbox_masks):
     return float((torch.abs((bbox_labels - bbox_preds) * bbox_masks)).sum())
 ```
 
-### 训练模型
+### [**训练模型**]
 
 在训练模型时，我们需要在模型的前向计算过程中生成多尺度锚框 ( `anchors` )，并预测其类别 ( `cls_preds` ) 和偏移量 ( `bbox_preds` )。
 然后，我们根据标签信息 `Y` 为生成的锚框标记类别（ `cls_labels` ）和偏移量（ `bbox_labels` ）。
@@ -532,7 +534,7 @@ print(f'{len(train_iter.dataset) / timer.stop():.1f} examples/sec on '
       f'{str(device)}')
 ```
 
-## 预测目标
+## [**预测目标**]
 
 在预测阶段，我们希望能把图像里面所有我们感兴趣的目标检测出来。在下面，我们读取并调整测试图像的大小，然后将其转成卷积层需要的四维格式。
 
@@ -574,7 +576,7 @@ def predict(X):
 output = predict(X)
 ```
 
-最后，我们筛选所有置信度不低于 0.9 的边界框，做为最终输出。
+最后，我们[**筛选所有置信度不低于 0.9 的边界框，做为最终输出**]。
 
 ```{.python .input}
 def display(img, output, threshold):
