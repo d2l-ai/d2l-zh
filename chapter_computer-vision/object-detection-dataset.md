@@ -2,12 +2,12 @@
 :label:`sec_object-detection-dataset`
 
 目标检测领域没有像 MNIST 和 Fashion-MNIST 那样的小数据集。
-为了快速测试目标检测模型，我们收集并标记了一个小型数据集。
+为了快速测试目标检测模型，[**我们收集并标记了一个小型数据集**]。
 首先，我们拍摄了一组香蕉的照片，并生成了 1000 张不同角度和大小的香蕉图像。
 然后，我们在一些背景图片的随机位置上放一张香蕉的图像。
 最后，我们在图片上为这些香蕉标记了边界框。 
 
-## 下载数据集
+## [**下载数据集**]
 
 包含所有图像和 csv 标签文件的香蕉检测数据集可以直接从互联网下载。
 
@@ -41,7 +41,7 @@ d2l.DATA_HUB['banana-detection'] = (
 
 ## 读取数据集
 
-我们将读取下面的 `read_data_bananas` 函数中的香蕉检测数据集。
+通过 `read_data_bananas` 函数，我们[**读取香蕉检测数据集**]。
 该数据集包括一个的 csv 文件，内含目标类别标签和位于左上角和右下角的真实边界框坐标。
 
 ```{.python .input}
@@ -87,7 +87,7 @@ def read_data_bananas(is_train=True):
     return images, torch.tensor(targets).unsqueeze(1) / 256
 ```
 
-通过使用 `read_data_bananas` 函数读取图像和标签，以下 `BananasDataset` 类别将允许我们创建一个自定义的 `Dataset` 实例来加载香蕉检测数据集。
+通过使用 `read_data_bananas` 函数读取图像和标签，以下 `BananasDataset` 类别将允许我们[**创建一个自定义 `Dataset` 实例**]来加载香蕉检测数据集。
 
 ```{.python .input}
 #@save
@@ -123,7 +123,7 @@ class BananasDataset(torch.utils.data.Dataset):
         return len(self.features)
 ```
 
-最后，我们定义 `load_data_bananas` 函数，来为训练集和测试集返回两个数据加载器实例。对于测试集，无需按随机顺序读取它。
+最后，我们定义 `load_data_bananas` 函数，来[**为训练集和测试集返回两个数据加载器实例**]。对于测试集，无需按随机顺序读取它。
 
 ```{.python .input}
 #@save
@@ -148,7 +148,7 @@ def load_data_bananas(batch_size):
     return train_iter, val_iter
 ```
 
-让我们读取一个小批量，并打印其中的图像和标签的形状。
+让我们[**读取一个小批量，并打印其中的图像和标签的形状**]。
 图像的小批量的形状为（批量大小、通道数、高度、宽度），看起来很眼熟：它与我们之前图像分类任务中的相同。
 标签的小批量的形状为（批量大小，$m$，5），其中 $m$ 是数据集的任何图像中边界框可能出现的最大数量。 
 
@@ -167,7 +167,7 @@ batch = next(iter(train_iter))
 batch[0].shape, batch[1].shape
 ```
 
-## 示范
+## [**示范**]
 
 让我们展示 10 幅带有真实边界框的图像。
 我们可以看到在所有这些图像中香蕉的旋转角度、大小和位置都有所不同。
