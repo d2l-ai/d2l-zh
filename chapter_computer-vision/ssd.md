@@ -380,7 +380,7 @@ print('output bbox preds:', bbox_preds.shape)
 
 ### 读取数据集和初始化
 
-首先，让我们读取 :numref:`sec_object-detection-dataset` 中描述的香蕉检测数据集。
+首先，让我们[**读取**] :numref:`sec_object-detection-dataset` 中描述的(**香蕉检测数据集**)。
 
 ```{.python .input}
 #@tab all
