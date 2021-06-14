@@ -307,9 +307,9 @@ d2l.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n, scale=2);
 1. 最初的完全卷积网络论文还使用 CNN 中间层 :cite:`Long.Shelhamer.Darrell.2015` 的输出。尝试实施这个想法。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/377)
+[Discussions](https://discuss.d2l.ai/t/3298)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1582)
+[Discussions](https://discuss.d2l.ai/t/3297)
 :end_tab:
