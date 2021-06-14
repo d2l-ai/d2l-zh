@@ -18,8 +18,7 @@ LeNet 被广泛用于自动取款机（ATM）机中，帮助识别处理支票�
 
 ## LeNet
 
-总体来看，LeNet (LeNet-5) 由两个部分组成：
-
+总体来看，(**LeNet（LeNet-5）由两个部分组成：**)(~~卷积编码器和全连接层密集块~~)
 * 卷积编码器：由两个卷积层组成;
 * 全连接层密集块：由三个全连接层组成。
 
@@ -95,7 +94,7 @@ def net():
 
 我们对原始模型做了一点小改动，去掉了最后一层的高斯激活。除此之外，这个网络与最初的 LeNet-5 一致。
 
-下面，我们将一个大小为 $28 \times 28$ 的单通道（黑白）图像通过 LeNet。 通过在每一层打印输出的形状，我们可以检查模型，以确保其操作与我们期望的 :numref:`img_lenet_vert` 一致。
+下面，我们将一个大小为 $28 \times 28$ 的单通道（黑白）图像通过 LeNet。 通过在每一层打印输出的形状，我们可以[**检查模型**]，以确保其操作与我们期望的 :numref:`img_lenet_vert` 一致。
 
 ![LeNet 的简化版。](../img/lenet-vert.svg)
 :label:`img_lenet_vert`
@@ -133,7 +132,7 @@ for layer in net().layers:
 
 ## 模型训练
 
-现在我们已经实现了 LeNet ，让我们看看这个模型在 Fashion-MNIST 数据集上的表现。
+现在我们已经实现了 LeNet ，让我们看看[**LeNet在Fashion-MNIST数据集上的表现**]。
 
 ```{.python .input}
 #@tab all
@@ -145,13 +144,13 @@ train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size=batch_size)
 如果你有机会使用GPU，可以用它加快训练。
 
 :begin_tab:`mxnet, pytorch`
-为了进行评估，我们需要对 :numref:`sec_softmax_scratch` 中描述的 `evaluate_accuracy` 函数进行轻微的修改。
+为了进行评估，我们需要[**对**] :numref:`sec_softmax_scratch` 中描述的 (**`evaluate_accuracy`函数进行轻微的修改**)。
 由于完整的数据集位于内存中，因此在模型使用 GPU 计算数据集之前，我们需要将其复制到显存中。
 :end_tab:
 
 ```{.python .input}
 def evaluate_accuracy_gpu(net, data_iter, device=None):  #@save
-    """Compute the accuracy for a model on a dataset using a GPU."""
+    """使用GPU计算模型在数据集上的精度。"""
     if not device:  # 查询第一个参数所在的第一个设备
         device = list(net.collect_params().values())[0].list_ctx()[0]
     metric = d2l.Accumulator(2)  # 正确预测的数量，总预测的数量
@@ -182,7 +181,7 @@ def evaluate_accuracy_gpu(net, data_iter, device=None): #@save
     return metric[0] / metric[1]
 ```
 
-为了使用 GPU，我们还需要一点小改动。
+[**为了使用 GPU，我们还需要一点小改动**]。
 与 :numref:`sec_softmax_scratch` 中定义的 `train_epoch_ch3` 不同，在进行正向和反向传播之前，我们需要将每一小批量数据移动到我们指定的设备（例如 GPU）上。
 
 如下所示，训练函数 `train_ch6` 也类似于 :numref:`sec_softmax_scratch` 中定义的 `train_ch3` 。
@@ -194,7 +193,7 @@ def evaluate_accuracy_gpu(net, data_iter, device=None): #@save
 ```{.python .input}
 #@save
 def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
-    """Train a model with a GPU (defined in Chapter 6)."""
+    """用GPU训练模型(在第六章定义)。"""
     net.initialize(force_reinit=True, ctx=device, init=init.Xavier())
     loss = gluon.loss.SoftmaxCrossEntropyLoss()
     trainer = gluon.Trainer(net.collect_params(),
@@ -232,7 +231,7 @@ def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
 #@tab pytorch
 #@save
 def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
-    """Train a model with a GPU (defined in Chapter 6)."""
+    """用GPU训练模型(在第六章定义)。"""
     def init_weights(m):
         if type(m) == nn.Linear or type(m) == nn.Conv2d:
             nn.init.xavier_uniform_(m.weight)
@@ -275,7 +274,7 @@ def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
 ```{.python .input}
 #@tab tensorflow
 class TrainCallback(tf.keras.callbacks.Callback):  #@save
-    """A callback to visiualize the training progress."""
+    """一个以可视化的训练进展的回调。"""
     def __init__(self, net, train_iter, test_iter, num_epochs, device_name):
         self.timer = d2l.Timer()
         self.animator = d2l.Animator(
@@ -305,7 +304,7 @@ class TrainCallback(tf.keras.callbacks.Callback):  #@save
 
 #@save
 def train_ch6(net_fn, train_iter, test_iter, num_epochs, lr, device):
-    """Train a model with a GPU (defined in Chapter 6)."""
+    """用GPU训练模型(在第六章定义)。"""
     device_name = device._device_name
     strategy = tf.distribute.OneDeviceStrategy(device_name)
     with strategy.scope():
@@ -319,7 +318,7 @@ def train_ch6(net_fn, train_iter, test_iter, num_epochs, lr, device):
     return net
 ```
 
-现在，我们训练和评估 LeNet-5 模型。
+现在，我们[**训练和评估LeNet-5模型**]。
 
 ```{.python .input}
 #@tab all
