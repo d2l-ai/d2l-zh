@@ -186,9 +186,9 @@ Z == d2l.matmul(W.T, d2l.reshape(Y, -1)).reshape(3, 3)
 1. 使用矩阵乘法来实现卷积是否有效？为什么？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/376)
+[Discussions](https://discuss.d2l.ai/t/3301)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1450)
+[Discussions](https://discuss.d2l.ai/t/3302)
 :end_tab:
