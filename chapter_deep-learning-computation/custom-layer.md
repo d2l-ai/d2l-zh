@@ -101,9 +101,9 @@ Y = net(tf.random.uniform((4, 8)))
 tf.reduce_mean(Y)
 ```
 
-## [**带参数的图层**]
+## [**带参数的层**]
 
-既然我们知道了如何定义简单的层，那么让我们继续定义具有参数的层，这些参数可以通过训练进行调整。我们可以使用内置函数来创建参数，这些参数提供一些基本的管理功能。比如管理访问、初始化、共享、保存和加载模型参数。这样做的好处之一是，我们不需要为每个自定义层编写自定义序列化程序。
+既然我们知道了如何定义简单的层，那么让我们继续定义具有参数的层，这些参数可以通过训练进行调整。我们可以使用内置函数来创建参数，这些函数提供一些基本的管理功能。比如管理访问、初始化、共享、保存和加载模型参数。这样做的好处之一是，我们不需要为每个自定义层编写自定义序列化程序。
 
 现在，让我们实现自定义版本的全连接层。回想一下，该层需要两个参数，一个用于表示权重，另一个用于表示偏置项。在此实现中，我们使用ReLU作为激活函数。该层需要输入参数：`in_units`和`units`，分别表示输入和输出的数量。
 
@@ -151,8 +151,13 @@ class MyDense(tf.keras.Model):
         linear = tf.matmul(X, self.weight) + self.bias
         return tf.nn.relu(linear)
 ```
-
+:begin_tab:`mxnet, tensorflow`
 接下来，我们实例化`MyDense`类并访问其模型参数。
+:end_tab:
+
+:begin_tab:`pytorch`
+接下来，我们实例化`MyLinear`类并访问其模型参数。
+:end_tab:
 
 ```{.python .input}
 dense = MyDense(units=3, in_units=5)
@@ -161,8 +166,8 @@ dense.params
 
 ```{.python .input}
 #@tab pytorch
-dense = MyLinear(5, 3)
-dense.weight
+linear = MyLinear(5, 3)
+linear.weight
 ```
 
 ```{.python .input}
@@ -181,7 +186,7 @@ dense(np.random.uniform(size=(2, 5)))
 
 ```{.python .input}
 #@tab pytorch
-dense(torch.rand(2, 5))
+linear(torch.rand(2, 5))
 ```
 
 ```{.python .input}
@@ -219,7 +224,7 @@ net(tf.random.uniform((2, 64)))
 
 ## 练习
 
-1. 设计一个接受输入并计算张量汇总的层，它返回$y_k = \sum_{i, j} W_{ijk} x_i x_j$。
+1. 设计一个接受输入并计算张量降维的层，它返回$y_k = \sum_{i, j} W_{ijk} x_i x_j$。
 1. 设计一个返回输入数据的傅立叶系数前半部分的层。
 
 :begin_tab:`mxnet`
