@@ -201,7 +201,7 @@ are specified,
 we will have a $c_i\times k_h\times k_w$ kernel for each output channel.
 
 
-As in all, if we feed $\mathsf{X}$ into a convolutional layer $f$ to output $\mathsf{Y}=f(\mathsf{X})$ and create a transposed convolution layer $g$ with the same hyperparameters as $f$ except 
+As in all, if we feed $\mathsf{X}$ into a convolutional layer $f$ to output $\mathsf{Y}=f(\mathsf{X})$ and create a transposed convolutional layer $g$ with the same hyperparameters as $f$ except 
 for the number of output channels 
 being the number of channels in $\mathsf{X}$,
 then $g(Y)$ will have the same shape as $\mathsf{X}$.
@@ -317,7 +317,7 @@ $\mathbf{W}^\top$ and $\mathbf{W}$, respectively.
 ## Summary
 
 * In contrast to the regular convolution that reduces input elements via the kernel, the transposed convolution broadcasts input elements via the kernel, thereby producing an output that is larger than the input.
-* If we feed $\mathsf{X}$ into a convolutional layer $f$ to output $\mathsf{Y}=f(\mathsf{X})$ and create a transposed convolution layer $g$ with the same hyperparameters as $f$ except for the number of output channels being the number of channels in $\mathsf{X}$, then $g(Y)$ will have the same shape as $\mathsf{X}$.
+* If we feed $\mathsf{X}$ into a convolutional layer $f$ to output $\mathsf{Y}=f(\mathsf{X})$ and create a transposed convolutional layer $g$ with the same hyperparameters as $f$ except for the number of output channels being the number of channels in $\mathsf{X}$, then $g(Y)$ will have the same shape as $\mathsf{X}$.
 * We can implement convolutions using matrix multiplications. The transposed convolutional layer can just exchange the forward propagation function and the backpropagation function of the convolutional layer.
 
 

@@ -1,7 +1,7 @@
 # 语义分割和数据集
 :label:`sec_semantic_segmentation`
 
-在 :numref:`sec_bbox`—:numref:`sec_rcnn` 中讨论物体检测任务时，矩形边界框用于标记和预测图像中的对象。本节将讨论 * 语义分割 * 的问题，重点介绍如何将图像划分为属于不同语义类的区域。与对象检测不同的是，语义分割可以识别并理解像素级别图像中的内容：其语义区域的标注和预测以像素级别为单位。:numref:`fig_segmentation` 显示语义分割中图像的狗、猫和背景的标签。与对象检测相比，在语义分段中标记的像素级边框显然更加细粒度。 
+在 :numref:`sec_bbox`—:numref:`sec_rcnn` 中讨论物体检测任务时，矩形边界框用于标记和预测图像中的对象。本节将讨论 * 语义分割 * 的问题，重点介绍如何将图像划分为属于不同语义类的区域。与对象检测不同，语义分割可以识别并理解像素级别图像中的内容：其语义区域的标注和预测是以像素级别进行的。:numref:`fig_segmentation` 显示语义分割中图像的狗、猫和背景的标签。与对象检测相比，在语义分段中标记的像素级边框显然更加细粒度。 
 
 ![Labels of the dog, cat, and background of the image in semantic segmentation.](../img/segmentation.svg)
 :label:`fig_segmentation`
@@ -123,7 +123,7 @@ VOC_CLASSES = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
                'potted plant', 'sheep', 'sofa', 'train', 'tv/monitor']
 ```
 
-通过上面定义的两个常量，我们可以方便地 [** 查找标签中每个像素的类索引 **]。我们定义了 `voc_colormap2label` 函数来构建从上述 RGB 颜色值到类别索引的映射，而 `voc_label_indices` 函数将任何 RGB 值映射到此 Pascal VOC2012 数据集中的类索引。
+通过上面定义的两个常量，我们可以方便地 [** 查找标签中每个像素的类索引 **]。我们定义了 `voc_colormap2label` 函数来构建从上述 RGB 颜色值到类索引的映射，而 `voc_label_indices` 函数将任何 RGB 值映射到此 Pascal VOC2012 数据集中的类索引。
 
 ```{.python .input}
 #@save
@@ -216,7 +216,7 @@ d2l.show_images(imgs[::2] + imgs[1::2], 2, n);
 
 ### [** 自定义语义分段数据集类 **]
 
-我们通过继承高级 API 提供的 `Dataset` 类来定义自定义语义分割数据集类 `VOCSegDataset`。通过实现 `__getitem__` 函数，我们可以任意访问数据集中索引为 `idx` 的输入图像以及该图像中每个像素的类索引。由于数据集中的某些图像的尺寸小于随机裁剪的输出大小，因此这些示例将通过自定义 `filter` 函数过滤掉。此外，我们还定义了 `normalize_image` 函数来标准化输入图像的三个 RGB 通道的值。
+我们通过继承高级 API 提供的 `Dataset` 类来定义自定义语义分割数据集类 `VOCSegDataset`。通过实现 `__getitem__` 函数，我们可以任意访问数据集中索引为 `idx` 的输入图像以及该图像中每个像素的类索引。由于数据集中的某些图像的大小小小于随机裁剪的输出大小，因此通过自定义 `filter` 函数过滤掉这些示例。此外，我们还定义了 `normalize_image` 函数来标准化输入图像的三个 RGB 通道的值。
 
 ```{.python .input}
 #@save
