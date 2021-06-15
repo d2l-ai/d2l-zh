@@ -1,17 +1,17 @@
 #  序列到序列学习（seq2seq）
 :label:`sec_seq2seq`
 
-正如我们在 :numref:`sec_machine_translation` 中看到的。在机器翻译中，输入序列和输出序列都是长度可变的。为了解决这类问题，我们在 :numref:`sec_encoder-decoder` 中设计了一个通用的”编码器－解码器“结构。在本节中，我们将使用两个循环神经网络来设计此“编码器－解码器”结构，并将其应用于机器翻译 :cite:`Sutskever.Vinyals.Le.2014,Cho.Van-Merrienboer.Gulcehre.ea.2014` 的*序列到序列*（sequence to sequence）学习。
+正如我们在 :numref:`sec_machine_translation` 中看到的，机器翻译中的输入序列和输出序列都是长度可变的。为了解决这类问题，我们在 :numref:`sec_encoder-decoder` 中设计了一个通用的”编码器－解码器“结构。在本节中，我们将使用两个循环神经网络来设计这个结构中的编码器和解码器，并将其应用于机器翻译的 *序列到序列*（sequence to sequence）学习 :cite:`Sutskever.Vinyals.Le.2014,Cho.Van-Merrienboer.Gulcehre.ea.2014` 。
 
-遵循“编码器－解码器”结构的设计原则，循环神经网络编码器可以使用长度可变的序列作为输入，将其转换为形状固定的隐藏状态。换言之，输入序列（源）的信息被 *编码* 到循环神经网络编码器的隐藏状态中。为了一个接着一个的生成输出序列的标记，独立的循环神经网络解码器是基于输入序列的编码信息和输出序列已经生成的标记（例如在语言模型的任务中）来预测下一个标记。 :numref:`fig_seq2seq` 演示了如何在机器翻译伤中使用两个循环神经网络进行序列到序列学习。
+遵循“编码器－解码器”结构的设计原则，循环神经网络编码器可以使用长度可变的序列作为输入，将其转换为形状固定的隐藏状态。换言之，输入（源）序列的信息被 *编码* 到循环神经网络编码器的隐藏状态中。为了一个接着一个的生成输出序列的标记，独立的循环神经网络解码器是基于输入序列的编码信息和输出序列已经看见的（例如在语言模型的任务中）或者生成的标记来预测下一个标记。 :numref:`fig_seq2seq` 演示了如何在机器翻译中使用两个循环神经网络进行序列到序列学习。
 
 ![使用循环神经网络编码器和循环神经网络解码器的序列到序列学习。](../img/seq2seq.svg)
 :label:`fig_seq2seq`
 
-在 :numref:`fig_seq2seq` 中，特定的“&lt;eos&gt;”表示*序列结束标记*。一旦输出序列生成此标记，模型就可以停止执行预测。在循环神经网络解码器的初始化时间步，有两个特定的设计决定。首先，特定的“&lt;bos&gt;”表示*序列开始标记*，它是解码器的输入序列的第一个标记。其次，使用循环神经网络编码器最终的隐藏状态来初始化解码器的隐藏状态。在例如 :cite:`Sutskever.Vinyals.Le.2014` 的设计中，正是基于这种设计将输入序列的编码信息送入到解码器中来生成输出序列（目标）的。在其他一些例如 :cite:`Cho.Van-Merrienboer.Gulcehre.ea.2014` 的设计中，在每个时间步中，编码器最终的隐藏状态都作为解码器的输入序列的一部分，如 :numref:`fig_seq2seq` 所示。类似于 :numref:`sec_language_model` 中训练的语言模型，可以允许标签成为原始的输出序列，基于一个个标记“&lt;bos&gt;”、“Ils”、“regardent”、“.” $\rightarrow$
+在 :numref:`fig_seq2seq` 中，特定的“&lt;eos&gt;”表示序列结束标记。一旦输出序列生成此标记，模型就可以停止执行预测。在循环神经网络解码器的初始化时间步，有两个特定的设计决定。首先，特定的“&lt;bos&gt;”表示序列开始标记，它是解码器的输入序列的第一个标记。其次，使用循环神经网络编码器最终的隐藏状态来初始化解码器的隐藏状态。在例如 :cite:`Sutskever.Vinyals.Le.2014` 的设计中，正是基于这种设计将输入序列的编码信息送入到解码器中来生成输出（目标）序列的。在其他一些例如 :cite:`Cho.Van-Merrienboer.Gulcehre.ea.2014` 的设计中，如 :numref:`fig_seq2seq` 所示，编码器最终的隐藏状态在每一个时间步都作为解码器的输入序列的一部分。类似于 :numref:`sec_language_model` 中语言模型的训练，可以允许标签成为原始的输出序列，基于一个个标记“&lt;bos&gt;”、“Ils”、“regardent”、“.” $\rightarrow$
 “Ils”、“regardent”、“.”、“&lt;eos&gt;”来移动预测的位置。
 
-下面，我们将对 :numref:`fig_seq2seq` 的设计进行更详细的解释，并且将在 :numref:`sec_machine_translation` 中介绍的“英－法”数据集上训练这个机器翻译模型。
+下面，我们将对 :numref:`fig_seq2seq` 的设计进行更详细的解释，并且将基于  :numref:`sec_machine_translation` 中介绍的“英－法”数据集来训练这个机器翻译模型。
 
 ```{.python .input}
 import collections
