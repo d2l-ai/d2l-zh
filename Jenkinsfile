@@ -18,12 +18,6 @@ stage("Build and Publish") {
       conda activate ${ENV_NAME}
       pip uninstall -y d2lbook
       pip install git+https://github.com/d2l-ai/d2l-book
-      
-      pip uninstall -y tensorflow
-      pip install tensorflow==2.3.1
-      pip uninstall -y tensorflow-probability
-      pip install tensorflow-probability==0.11.1
-      
       pip list
       nvidia-smi
       """
