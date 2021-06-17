@@ -6,7 +6,7 @@
 在本节中，我们将从原始图像文件开始，然后逐步组织、阅读，然后将它们转换为张量格式。 
 
 我们在 :numref:`sec_image_augmentation` 中对 CIFAR-10 数据集做了一个实验，这是计算机视觉领域中的一个重要的数据集。
-在本节中，我们将运用我们在前几节中学到的知识来参加涉及 CIFAR-10 图像分类问题的 Kaggle 竞赛，比赛的网址是  https://www.kaggle.com/c/cifar-10。
+在本节中，我们将运用我们在前几节中学到的知识来参加涉及 CIFAR-10 图像分类问题的 Kaggle 竞赛，(**比赛的网址是 https://www.kaggle.com/c/cifar-10**)。
 
 :numref:`fig_kaggle_cifar10` 显示了竞赛网站页面上的信息。
 为了能提交结果，你需要首先注册 Kaggle 账户。 
@@ -65,7 +65,7 @@ import shutil
 `train` 和 `test` 文件夹分别包含训练和测试图像，`trainLabels.csv` 含有训练图像的标签， 
 `sample_submission.csv` 是提交文件的范例。 
 
-为了便于入门，本节提供包含前 1000 个训练图像和 5 个随机测试图像的数据集的小规模样本。
+为了便于入门，[**我们提供包含前 1000 个训练图像和 5 个随机测试图像的数据集的小规模样本**]。
 要使用 Kaggle 竞赛的完整数据集，你需要将以下 `demo` 变量设置为 `False`。
 
 ```{.python .input}
@@ -83,7 +83,7 @@ else:
     data_dir = '../data/cifar-10/'
 ```
 
-### 整理数据集
+### [**整理数据集**]
 
 我们需要整理数据集来训练和测试模型。
 首先，我们用以下函数读取 csv 文件中的标签，它返回一个字典，该字典将文件名中不带扩展名的部分映射到其标签。
@@ -104,7 +104,7 @@ print('# 训练示例 :', len(labels))
 print('# 类别 :', len(set(labels.values())))
 ```
 
-接下来，我们定义 `reorg_train_valid` 函数来将验证集从原始的训练集中拆分出来。
+接下来，我们定义 `reorg_train_valid` 函数来[**将验证集从原始的训练集中拆分出来**]。
 此函数中的参数 `valid_ratio` 是验证集中的示例数与原始训练集中的示例数之比。
 更具体地说，令 $n$ 等于示例最少的类别中的图像数量，而 $r$ 是比率。
 验证集将为每个类别拆分出 $\max(\lfloor nr\rfloor,1)$ 张图像。
@@ -141,7 +141,7 @@ def reorg_train_valid(data_dir, labels, valid_ratio):
     return n_valid_per_label
 ```
 
-下面的 `reorg_test` 函数用来在预测期间组织测试集以便读取。
+下面的 `reorg_test` 函数用来[**在预测期间整理测试集，以方便读取**]。
 
 ```{.python .input}
 #@tab all
@@ -153,7 +153,7 @@ def reorg_test(data_dir):
                               'unknown'))
 ```
 
-最后，我们使用一个函数来调用上面定义的 `read_csv_labels` 、 `reorg_train_valid` 和 `reorg_test` 函数。
+最后，我们使用一个函数来[**调用前面定义的函数**] `read_csv_labels` 、 `reorg_train_valid` 和 `reorg_test` 。
 
 ```{.python .input}
 #@tab all
@@ -163,18 +163,18 @@ def reorg_cifar10_data(data_dir, valid_ratio):
     reorg_test(data_dir)
 ```
 
-在这里，我们只将样本数据集的批量大小设置为 4。
+在这里，我们只将样本数据集的批量大小设置为 32。
 在实际训练和测试中，应该使用 Kaggle 竞赛的完整数据集，并将 `batch_size` 设置为更大的整数，例如 128。
 我们将 10％ 的训练示例作为调整超参数的验证集。
 
 ```{.python .input}
 #@tab all
-batch_size = 4 if demo else 128
+batch_size = 32 if demo else 128
 valid_ratio = 0.1
 reorg_cifar10_data(data_dir, valid_ratio)
 ```
 
-## 图像增广
+## [**图像增广**]
 
 我们使用图像增广来解决过拟合的问题。例如在训练中，我们可以随机水平翻转图像。
 我们还可以对彩色图像的三个 RGB 通道执行标准化。
@@ -232,7 +232,7 @@ transform_test = torchvision.transforms.Compose([
 
 ## 读取数据集
 
-接下来，我们读取由原始图像文件组成的组织数据集，每个示例都包括一张图片和一个标签。
+接下来，我们[**读取由原始图像组成的数据集**]，每个示例都包括一张图片和一个标签。
 
 ```{.python .input}
 train_ds, valid_ds, train_valid_ds, test_ds = [
@@ -252,7 +252,7 @@ valid_ds, test_ds = [torchvision.datasets.ImageFolder(
     transform=transform_test) for folder in ['valid', 'test']]
 ```
 
-在训练期间，我们需要指定上面定义的所有图像增广操作。
+在训练期间，我们需要[**指定上面定义的所有图像增广操作**]。
 当验证集在超参数调整过程中用于模型评估时，不应引入图像增广的随机性。
 在最终预测之前，我们根据训练集和验证集组合而成的训练模型进行训练，以充分利用所有标记的数据。
 
@@ -283,7 +283,7 @@ test_iter = torch.utils.data.DataLoader(test_ds, batch_size, shuffle=False,
                                         drop_last=False)
 ```
 
-## 定义模型
+## 定义[**模型**]
 
 :begin_tab:`mxnet`
 在这里，我们基于 `HybridBlock` 类构建剩余块，这与 :numref:`sec_resnet` 中描述的实现方法略有不同，是为了提高计算效率。
@@ -367,7 +367,7 @@ def get_net():
 loss = nn.CrossEntropyLoss(reduction="none")
 ```
 
-## 定义训练函数
+## 定义[**训练函数**]
 
 我们将根据模型在验证集上的表现来选择模型并调整超参数。
 下面我们定义了模型训练函数 `train`。
@@ -378,8 +378,11 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
     trainer = gluon.Trainer(net.collect_params(), 'sgd',
                             {'learning_rate': lr, 'momentum': 0.9, 'wd': wd})
     num_batches, timer = len(train_iter), d2l.Timer()
+    legend = ['train loss', 'train acc']
+    if valid_iter is not None:
+        legend.append('valid acc')
     animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs],
-                            legend=['train loss', 'train acc', 'valid acc'])
+                            legend=legend)
     for epoch in range(num_epochs):
         metric = d2l.Accumulator(3)
         if epoch > 0 and epoch % lr_period == 0:
@@ -399,15 +402,12 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
             valid_acc = d2l.evaluate_accuracy_gpus(net, valid_iter,
                                                    d2l.split_batch)
             animator.add(epoch + 1, (None, None, valid_acc))
+    measures = (f'train loss {metric[0] / metric[2]:.3f}, '
+                f'train acc {metric[1] / metric[2]:.3f}')
     if valid_iter is not None:
-        print(f'loss {metric[0] / metric[2]:.3f}, '
-              f'train acc {metric[1] / metric[2]:.3f}, '
-              f'valid acc {valid_acc:.3f}')
-    else:
-        print(f'loss {metric[0] / metric[2]:.3f}, '
-              f'train acc {metric[1] / metric[2]:.3f}')
-    print(f'{metric[2] * num_epochs / timer.sum():.1f} examples/sec '
-          f'on {str(devices)}')
+        measures += f', valid acc {valid_acc:.3f}'
+    print(measures + f'\n{metric[2] * num_epochs / timer.sum():.1f}'
+          f' examples/sec on {str(devices)}')
 ```
 
 ```{.python .input}
@@ -418,8 +418,11 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
                               weight_decay=wd)
     scheduler = torch.optim.lr_scheduler.StepLR(trainer, lr_period, lr_decay)
     num_batches, timer = len(train_iter), d2l.Timer()
+    legend = ['train loss', 'train acc']
+    if valid_iter is not None:
+        legend.append('valid acc')
     animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs],
-                            legend=['train loss', 'train acc', 'valid acc'])
+                            legend=legend)
     net = nn.DataParallel(net, device_ids=devices).to(devices[0])
     for epoch in range(num_epochs):
         net.train()
@@ -438,26 +441,23 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
             valid_acc = d2l.evaluate_accuracy_gpu(net, valid_iter)
             animator.add(epoch + 1, (None, None, valid_acc))
         scheduler.step()
+    measures = (f'train loss {metric[0] / metric[2]:.3f}, '
+                f'train acc {metric[1] / metric[2]:.3f}')
     if valid_iter is not None:
-        print(f'loss {metric[0] / metric[2]:.3f}, '
-              f'train acc {metric[1] / metric[2]:.3f}, '
-              f'valid acc {valid_acc:.3f}')
-    else:
-        print(f'loss {metric[0] / metric[2]:.3f}, '
-              f'train acc {metric[1] / metric[2]:.3f}')
-    print(f'{metric[2] * num_epochs / timer.sum():.1f} examples/sec '
-          f'on {str(devices)}')
+        measures += f', valid acc {valid_acc:.3f}'
+    print(measures + f'\n{metric[2] * num_epochs / timer.sum():.1f}'
+          f' examples/sec on {str(devices)}')
 ```
 
-## 训练和验证模型
+## [**训练和验证模型**]
 
 现在，我们可以训练和验证模型了，而以下所有超参数都可以调整。
-例如，我们可以增加周期的数量。当 `lr_period` 和 `lr_decay` 分别设置为 50 和 0.1 时，优化算法的学习速率将在每 50 个周期乘以 0.1。
-为了示范，我们在这里只训练一个周期。
+例如，我们可以增加周期的数量。当 `lr_period` 和 `lr_decay` 分别设置为 4 和 0.9 时，优化算法的学习速率将在每 4 个周期乘以 0.9。
+为便于演示，我们在这里只训练 20 个周期。
 
 ```{.python .input}
-devices, num_epochs, lr, wd = d2l.try_all_gpus(), 5, 0.1, 5e-4
-lr_period, lr_decay, net = 50, 0.1, get_net(devices)
+devices, num_epochs, lr, wd = d2l.try_all_gpus(), 20, 0.02, 5e-4
+lr_period, lr_decay, net = 4, 0.9, get_net(devices)
 net.hybridize()
 train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
       lr_decay)
@@ -465,8 +465,8 @@ train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
 
 ```{.python .input}
 #@tab pytorch
-devices, num_epochs, lr, wd = d2l.try_all_gpus(), 5, 0.1, 5e-4
-lr_period, lr_decay, net = 50, 0.1, get_net()
+devices, num_epochs, lr, wd = d2l.try_all_gpus(), 20, 2e-4, 5e-4
+lr_period, lr_decay, net = 4, 0.9, get_net()
 train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
       lr_decay)
 ```
@@ -526,7 +526,7 @@ df.to_csv('submission.csv', index=False)
 
 ## 练习
 
-1. 在这场 Kaggle 竞赛中使用完整的 CIFAR-10 数据集。将 `batch_size` 和周期数分别更改为 128 和 100。看看你在这场比赛中能达到什么准确度和排名。你能进一步改进吗？
+1. 在这场 Kaggle 竞赛中使用完整的 CIFAR-10 数据集。将超参数设为 `batch_size = 128`，`num_epochs = 100`，`lr = 0.1`，`lr_period = 50`，`lr_decay = 0.1`。看看你在这场比赛中能达到什么准确度和排名。或者你能进一步改进吗？
 1. 不使用图像增广时，你能获得怎样的准确度？
 
 :begin_tab:`mxnet`

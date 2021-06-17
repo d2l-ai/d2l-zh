@@ -32,7 +32,6 @@ chapter_recurrent-modern/index
 chapter_computational-performance/index
 chapter_computer-vision/index
 
-
 ```
 
 

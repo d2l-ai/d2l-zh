@@ -24,10 +24,6 @@ multiscale-object-detection
 object-detection-dataset
 ssd
 rcnn
-semantic-segmentation-and-dataset
-transposed-conv
-fcn
-neural-style
 kaggle-cifar10
 kaggle-dog
 ```

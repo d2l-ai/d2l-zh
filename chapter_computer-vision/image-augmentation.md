@@ -56,7 +56,7 @@ def apply(img, aug, num_rows=2, num_cols=4, scale=1.5):
 
 ### 翻转和裁剪
 
-左右翻转图像通常不会改变对象的类别。这是最早和最广泛使用的图像增广方法之一。
+[**左右翻转图像**]通常不会改变对象的类别。这是最早和最广泛使用的图像增广方法之一。
 接下来，我们使用 `transforms` 模块来创建 `RandomFlipLeftRight` 实例，这样就各有50%的几率使图像向左或向右翻转。
 
 ```{.python .input}
@@ -68,7 +68,7 @@ apply(img, gluon.data.vision.transforms.RandomFlipLeftRight())
 apply(img, torchvision.transforms.RandomHorizontalFlip())
 ```
 
-上下翻转不像左右翻转那样常用。但是，至少对于这个示例图像，上下翻转不会妨碍识别。接下来，我们创建一个 `RandomFlipTopBottom` 实例，使图像各有50%的几率向上或向下翻转。
+[**上下翻转图像**]不如左右图像翻转那样常用。但是，至少对于这个示例图像，上下翻转不会妨碍识别。接下来，我们创建一个 `RandomFlipTopBottom` 实例，使图像各有50%的几率向上或向下翻转。
 
 ```{.python .input}
 apply(img, gluon.data.vision.transforms.RandomFlipTopBottom())
@@ -84,7 +84,7 @@ apply(img, torchvision.transforms.RandomVerticalFlip())
 另外，我们可以通过对图像进行随机裁剪，使物体以不同的比例出现在图像的不同位置。
 这也可以降低模型对目标位置的敏感性。
 
-在下面的代码中，我们随机裁剪一个面积为原始面积10%到100%的区域，该区域的宽高比从0.5到2之间随机取值。
+在下面的代码中，我们[**随机裁剪**]一个面积为原始面积10%到100%的区域，该区域的宽高比从0.5到2之间随机取值。
 然后，区域的宽度和高度都被缩放到200像素。
 在本节中（除非另有说明），$a$和$b$之间的随机数指的是在区间$[a, b]$中通过均匀采样获得的连续值。
 
@@ -105,7 +105,7 @@ apply(img, shape_aug)
 
 另一种增广方法是改变颜色。
 我们可以改变图像颜色的四个方面：亮度、对比度、饱和度和色调。
-在下面的示例中，我们将图像的亮度更改为原始图像的50%（$1-0.5$）到150%（$1+0.5$）之间的随机值。
+在下面的示例中，我们[**随机更改图像的亮度**]，随机值为原始图像的50%（$1-0.5$）到150%（$1+0.5$）之间。
 
 ```{.python .input}
 apply(img, gluon.data.vision.transforms.RandomBrightness(0.5))
@@ -117,7 +117,7 @@ apply(img, torchvision.transforms.ColorJitter(
     brightness=0.5, contrast=0, saturation=0, hue=0))
 ```
 
-同样，我们可以随机改变图像的色调。
+同样，我们可以[**随机更改图像的色调**]。
 
 ```{.python .input}
 apply(img, gluon.data.vision.transforms.RandomHue(0.5))
@@ -129,7 +129,7 @@ apply(img, torchvision.transforms.ColorJitter(
     brightness=0, contrast=0, saturation=0, hue=0.5))
 ```
 
-我们还可以创建一个 `RandomColorJitter` 实例，并设置如何同时随机更改图像的 `brightness` 、 `contrast` 、 `saturation` 和 `hue` 。
+我们还可以创建一个 `RandomColorJitter` 实例，并设置如何同时[**随机更改图像的亮度（`brightness`）、对比度（`contrast`）、饱和度（`saturation`）和色调（`hue`）**]。
 
 ```{.python .input}
 color_aug = gluon.data.vision.transforms.RandomColorJitter(
@@ -144,7 +144,7 @@ color_aug = torchvision.transforms.ColorJitter(
 apply(img, color_aug)
 ```
 
-### 结合多种图像增广方法
+### [**结合多种图像增广方法**]
 
 在实践中，我们将结合多种图像增广方法。比如，我们可以通过使用一个 `Compose` 实例来综合上面定义的不同的图像增广方法，并将它们应用到每个图像。
 
@@ -161,7 +161,7 @@ augs = torchvision.transforms.Compose([
 apply(img, augs)
 ```
 
-## 使用图像增广进行训练
+## [**使用图像增广进行训练**]
 
 让我们使用图像增广来训练模型。
 这里，我们使用CIFAR-10数据集，而不是我们之前使用的Fashion-MNIST数据集。
@@ -181,7 +181,7 @@ d2l.show_images([all_images[i][0] for i in range(32)], 4, 8, scale=0.8);
 ```
 
 为了在预测过程中得到确切的结果，我们通常对训练样本只进行图像增广，且在预测过程中不使用随机操作的图像增广。
-在这里，我们只使用最简单的随机左右翻转。
+在这里，我们[**只使用最简单的随机左右翻转**]。
 此外，我们使用 `ToTensor` 实例将一批图像转换为深度学习框架所要求的格式，即形状为（批量大小，通道数，高度，宽度）的32位浮点数，取值范围为0到1。
 
 
@@ -209,7 +209,7 @@ test_augs = torchvision.transforms.Compose([
 :end_tab:
 
 :begin_tab:`pytorch`
-接下来，我们定义了一个辅助函数，以便于读取图像和应用图像增广。PyTorch 数据集提供的 `transform` 函数应用图像增广来转化图像。有关 `DataLoader` 的详细介绍，请参阅 :numref:`sec_fashion_mnist` 。
+接下来，我们[**定义一个辅助函数，以便于读取图像和应用图像增广**]。PyTorch 数据集提供的 `transform` 函数应用图像增广来转化图像。有关 `DataLoader` 的详细介绍，请参阅 :numref:`sec_fashion_mnist` 。
 :end_tab:
 
 ```{.python .input}
@@ -234,7 +234,7 @@ def load_cifar10(is_train, augs, batch_size):
 
 我们在CIFAR-10数据集上训练 :numref:`sec_resnet` 中的ResNet-18模型。
 回想一下 :numref:`sec_multi_gpu_concise` 中对多 GPU 训练的介绍。
-接下来，我们定义一个函数来使用多个 GPU 对模型进行训练和评估。
+接下来，我们[**定义一个函数，使用多GPU对模型进行训练和评估**]。
 
 ```{.python .input}
 #@save
@@ -334,7 +334,7 @@ def train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
           f'{str(devices)}')
 ```
 
-现在，我们可以定义 `train_with_data_aug` 函数，使用图像增广来训练模型。该函数获取所有的GPU，并使用Adam作为训练的优化算法，将图像增广应用于训练集，最后调用刚刚定义的用于训练和评估模型的 `train_ch13` 函数。
+现在，我们可以[**定义 `train_with_data_aug` 函数，使用图像增广来训练模型**]。该函数获取所有的GPU，并使用Adam作为训练的优化算法，将图像增广应用于训练集，最后调用刚刚定义的用于训练和评估模型的 `train_ch13` 函数。
 
 ```{.python .input}
 batch_size, devices, net = 256, d2l.try_all_gpus(), d2l.resnet18(10)
@@ -367,7 +367,7 @@ def train_with_data_aug(train_augs, test_augs, net, lr=0.001):
     train_ch13(net, train_iter, test_iter, loss, trainer, 10, devices)
 ```
 
-让我们使用基于随机左右翻转的图像增广来训练模型。
+让我们使用基于随机左右翻转的图像增广来[**训练模型**]。
 
 ```{.python .input}
 #@tab all
