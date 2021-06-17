@@ -136,7 +136,7 @@
 
 拉普拉斯平滑，Laplace smoothing
 
-连结，concatenate
+拼结，concatenate
 
 类，class
 
