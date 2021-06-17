@@ -412,7 +412,7 @@ train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
 
 ## 预测
 
-为了一个接着一个地预测输出序列的标记，每个解码器当前时间步的输入都将来自于前一时间步的预测标记。与训练类似，序列开始标记（“&lt;bos&gt;”）在初始时间步被输入到解码器中。该预测过程如:numref:`fig_seq2seq_predict`所示。当输出序列的预测遇到序列结束标记（“&lt;eos&gt;”）时，预测就结束了。
+为了采用一个接着一个标记的方式预测输出序列，每个解码器当前时间步的输入都将来自于前一时间步的预测标记。与训练类似，序列开始标记（“&lt;bos&gt;”）在初始时间步被输入到解码器中。该预测过程如 :numref:`fig_seq2seq_predict` 所示。当输出序列的预测遇到序列结束标记（“&lt;eos&gt;”）时，预测就结束了。
 
 ![使用循环神经网络编码器-解码器逐标记地预测输出序列。](../img/seq2seq-predict.svg)
 :label:`fig_seq2seq_predict`
