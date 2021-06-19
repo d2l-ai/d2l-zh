@@ -112,6 +112,8 @@
 
 激活函数，activation function
 
+精确率，precision
+
 解码器，decoder
 
 经验风险最小化，empirical risk minimization
@@ -270,6 +272,8 @@ softmax回归，softmax regression
 
 真实值，ground truth
 
+正确率，accuracy
+
 指标，metric
 
 支持向量机，support vector machine
@@ -279,5 +283,3 @@ softmax回归，softmax regression
 注意力模型，attention model
 
 注意力提示，attention cue
-
-准确率，accuracy
