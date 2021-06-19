@@ -14,17 +14,25 @@
 
 编码器，encoder
 
+标记，token
+
+标记化，tokenize
+
 标签，label
 
 步幅，stride
 
 参数，parameter
 
+长短期记忆网络，long short-term memory (LSTM)
+
 超参数，hyper-parameter
 
 层序softmax，hierarchical softmax
 
 成本，cost
+
+词汇表，vocabulary
 
 词嵌入，word embedding
 
@@ -52,7 +60,11 @@
 
 多层感知机，multilayer perceptron
 
+多头注意力，multi-head attention
+
 二元分类，binary classification
+
+二元语法，bigram
 
 二次采样，subsample
 
@@ -90,6 +102,8 @@
 
 过拟合，overfitting
 
+核回归，kernel regression
+
 恒等映射，identity mapping
 
 假设，hypothesis
@@ -104,7 +118,7 @@
 
 局部最小值，local minimum
 
-卷积核，kernel
+卷积核，convolutional kernel
 
 卷积神经网络，convolutional neural network
 
@@ -120,6 +134,8 @@
 
 困惑度，perplexity
 
+拉普拉斯平滑，Laplace smoothing
+
 连结，concatenate
 
 类，class
@@ -131,6 +147,8 @@
 零张量，zero tensor
 
 流水线，pipeline
+
+门控循环单元，gated recurrent units (GRU)
 
 模型参数，model parameter
 
@@ -148,6 +166,8 @@
 
 平均池化层，average pooling layer
 
+齐普夫定律，Zipf's law
+
 欠拟合，underfitting
 
 情感分析，sentiment analysis
@@ -155,6 +175,8 @@
 全连接层，fully connected layer
 
 权重，weight
+
+三元语法，trigram
 
 上采样，upsample
 
@@ -170,7 +192,11 @@
 
 数据样本，data instance
 
+顺序分区，sequential partitioning
+
 softmax回归，softmax regression
+
+随机采样，random sampling
 
 损失函数，loss function
 
@@ -186,11 +212,15 @@ softmax回归，softmax regression
 
 梯度裁剪，gradient clipping
 
+梯度消失，vanishing gradients
+
 填充，padding
 
 跳字模型，skip-gram model
 
 调参，tune hyper-parameter
+
+停用词，stop words
 
 通道，channel
 
@@ -198,7 +228,7 @@ softmax回归，softmax regression
 
 图像，image
 
-未知词符号，unknown token
+未知词标记，unknown token
 
 无偏估计，unbiased estimate
 
@@ -218,11 +248,13 @@ softmax回归，softmax regression
 
 训练误差，training error
 
-循环神经网络，recurrent neural network
+循环神经网络，recurrent neural network (RNN)
 
 样本，example
 
 一维梯度下降，gradient descent in one-dimensional space
+
+一元语法，unigram
 
 隐藏变量，hidden variable
 
@@ -230,7 +262,11 @@ softmax回归，softmax regression
 
 优化器，optimizer
 
+语料库，corpus
+
 运算符，operator
+
+自注意力，self-attention
 
 真实值，ground truth
 
@@ -238,6 +274,10 @@ softmax回归，softmax regression
 
 支持向量机，support vector machine
 
-注意力机制模型，attention model
+注意力机制，attention mechanism
+
+注意力模型，attention model
+
+注意力提示，attention cue
 
 准确率，accuracy

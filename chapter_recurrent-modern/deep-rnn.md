@@ -97,9 +97,9 @@ d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 4. 在为文本建模时，是否要合并不同作者的来源？为什么这是个好主意？会出什么问题？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/340)
+[Discussions](https://discuss.d2l.ai/t/2771)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1058)
+[Discussions](https://discuss.d2l.ai/t/2770)
 :end_tab:
