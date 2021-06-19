@@ -1,9 +1,9 @@
 # 束搜索
 :label:`sec_beam-search`
 
-在:numref:`sec_seq2seq`中，我们逐个地预测输出序列的标记，直到预测序列中出现序列结束标记“&lt;eos&gt;”。在本节中，我们将首先对这种 *贪心搜索*（greedy search）策略进行介绍，并探讨其存在的问题，然后对比这种策略与其他替代策略：*穷举搜索*（exhaustive search）和*束搜索*（beam search）。
+在 :numref:`sec_seq2seq` 中，我们逐个标记地预测输出序列，直到预测序列中出现特定的序列结束标记“&lt;eos&gt;”。在本节中，我们首先将介绍 *贪心搜索*（greedy search）策略，并探讨其存在的问题，然后对比其他替代策略：*穷举搜索*（exhaustive search）和*束搜索*（beam search）。
 
-在正式介绍贪心搜索之前，让我们使用 :numref:`sec_seq2seq` 中相同的数学符号定义搜索问题。在任意时间步 $t'$，解码器输出 $y_{t'}$ 的概率取决于时间步 $t'$ 之前的输出子序列 $y_1, \ldots, y_{t'-1}$ 和输入序列的信息编码成的上下文变量 $\mathbf{c}$。为了量化计算成本，用 $\mathcal{Y}$（它包含“&lt;eos&gt;”）表示输出词汇表。所以这个词汇集合的基数 $\left|\mathcal{Y}\right|$ 就是词汇表的大小。我们还将输出序列的最大标记数指定为 $T'$。因此，我们的目标是从所有 $\mathcal{O}(\left|\mathcal{Y}\right|^{T'})$ 个可能的输出序列中寻找理想的输出。当然，对于所有输出序列，这些序列中包含的“&lt;eos&gt;”及其之后的部分将在实际输出中丢弃。
+在正式介绍贪心搜索之前，让我们使用与 :numref:`sec_seq2seq` 中相同的数学符号定义搜索问题。在任意时间步 $t'$，解码器输出 $y_{t'}$ 的概率取决于时间步 $t'$ 之前的输出子序列 $y_1, \ldots, y_{t'-1}$ 和对输入序列的信息进行编码得到的上下文变量 $\mathbf{c}$。为了量化计算成本，用 $\mathcal{Y}$ 表示输出词汇表，其中包含“&lt;eos&gt;”，所以这个词汇集合的基数 $\left|\mathcal{Y}\right|$ 就是词汇表的大小。我们还将输出序列的最大标记数指定为 $T'$。因此，我们的目标是从所有 $\mathcal{O}(\left|\mathcal{Y}\right|^{T'})$ 个可能的输出序列中寻找理想的输出。当然，对于所有输出序列，这些序列中包含的“&lt;eos&gt;”及其之后的部分将在实际输出中丢弃。
 
 ## 贪心搜索
 
@@ -49,14 +49,14 @@ $$\begin{aligned}P(A, y_2 \mid \mathbf{c}) = P(A \mid \mathbf{c})P(y_2 \mid A, \
 
 $$\begin{aligned}P(A, B, y_3 \mid \mathbf{c}) = P(A, B \mid \mathbf{c})P(y_3 \mid A, B, \mathbf{c}),\\P(C, E, y_3 \mid \mathbf{c}) = P(C, E \mid \mathbf{c})P(y_3 \mid C, E, \mathbf{c}),\end{aligned}$$ 
 
-从这十个值中选择最大的两个，即$P(A, B, D \mid \mathbf{c})$和$P(C, E, D \mid  \mathbf{c})$。结果，我们得到六个候选输出序列：（1）$A$；（2）$C$；（3）$A,B$；（4）$C,E$；（5）$A,B,D$ ；（6）$C,E,D$。
+从这十个值中选择最大的两个，即$P(A, B, D \mid \mathbf{c})$和$P(C, E, D \mid  \mathbf{c})$。结果，我们得到六个候选输出序列：（1）$A$；（2）$C$；（3）$A,B$；（4）$C,E$；（5）$A,B,D$ ；（6）$C,E,D$。
 
 最后，我们基于这六个序列（例如，丢弃包括“&lt;eos&gt;”和之后的部分）获得最终候选输出序列集合。然后我们选择以下得分最高的序列作为输出序列：
 
 $$ \frac{1}{L^\alpha} \log P(y_1, \ldots, y_{L}) = \frac{1}{L^\alpha} \sum_{t'=1}^L \log P(y_{t'} \mid y_1, \ldots, y_{t'-1}, \mathbf{c}),$$
 :eqlabel:`eq_beam-search-score`
 
-其中 $L$ 是最终候选序列的长度，$\alpha$ 通常设置为0.75。因为一个较长的序列在:eqref:`eq_beam-search-score`的求和中会有更多的对数项，因此分母中的 $L^\alpha$ 用于惩罚长序列。
+其中 $L$ 是最终候选序列的长度，$\alpha$ 通常设置为0.75。因为一个较长的序列在:eqref:`eq_beam-search-score`的求和中会有更多的对数项，因此分母中的 $L^\alpha$ 用于惩罚长序列。
 
 束搜索的计算量为 $\mathcal{O}(k\left|\mathcal{Y}\right|T')$。这个结果介于贪心搜索和穷举搜索之间。实际上，贪心搜索可以看作是一种束宽为1的特殊类型的束搜索。通过灵活地选择束宽，束搜索可以在精度和计算成本之间进行权衡。
 
