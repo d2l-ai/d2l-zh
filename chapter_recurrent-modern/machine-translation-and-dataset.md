@@ -133,8 +133,8 @@ len(src_vocab)
 def truncate_pad(line, num_steps, padding_token):
     """截断或填充文本序列。"""
     if len(line) > num_steps:
-        return line[:num_steps]  # Truncate
-    return line + [padding_token] * (num_steps - len(line))  # Pad
+        return line[:num_steps]  # 截断
+    return line + [padding_token] * (num_steps - len(line))  # 填充
 
 truncate_pad(src_vocab[source[0]], 10, src_vocab['<pad>'])
 ```
