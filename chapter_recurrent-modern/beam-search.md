@@ -7,23 +7,23 @@
 
 ## 贪心搜索
 
-首先，让我们看看一个简单的策略：*贪心搜索*。该策略已用于:numref:`sec_seq2seq`的序列预测。对于输出序列的任何时间步 $t'$，我们都将基于贪心搜索从 $\mathcal{Y}$ 中找到具有最高条件概率的标记，即：
+首先，让我们看看一个简单的策略：*贪心搜索*。该策略已用于 :numref:`sec_seq2seq` 的序列预测。对于输出序列的任何时间步 $t'$，我们都将基于贪心搜索从 $\mathcal{Y}$ 中找到具有最高条件概率的标记，即：
 
 $$y_{t'} = \operatorname*{argmax}_{y \in \mathcal{Y}} P(y \mid y_1, \ldots, y_{t'-1}, \mathbf{c})$$
 
 一旦输出序列包含了“&lt;eos&gt;”或者达到其最大长度 $T'$，则输出完成。
 
-那么贪心搜索存在什么问题呢？实际上，*最优序列*（optimal sequence）应该是最大化 $\prod_{t'=1}^{T'} P(y_{t'} \mid y_1, \ldots, y_{t'-1}, \mathbf{c})$ 值的输出序列，这是基于输入序列生成输出序列的条件概率。不幸的是，无法保证通过贪心搜索得到最优序列。
+那么贪心搜索存在的问题是什么呢？现实中，*最优序列*（optimal sequence）应该是最大化 $\prod_{t'=1}^{T'} P(y_{t'} \mid y_1, \ldots, y_{t'-1}, \mathbf{c})$ 值的输出序列，这是基于输入序列生成输出序列的条件概率。而不幸的是，无法保证通过贪心搜索得到最优序列。
 
 ![在每个时间步，贪心搜索选择具有最高条件概率的标记。](../img/s2s-prob1.svg)
 :label:`fig_s2s-prob1`
 
-让我们用一个例子来描述。假设输出中有四个标记“A”、“B”、“C”和“&lt;eos&gt;”。 在:numref:`fig_s2s-prob1` 中，每个时间步下的四个数字分别表示在该时间步生成“A”、“B”、“C”和“&lt;eos&gt;”的条件概率。在每个时间步，贪心搜索选择具有最高条件概率的标记。因此，将在 :numref:`fig_s2s-prob1` 中预测输出序列“A”、“B”、“C”和“&lt;eos&gt;”。这个输出序列的条件概率是$0.5\times0.4\times0.4\times0.6 = 0.048$。
+让我们用一个例子来描述。假设输出中有四个标记“A”、“B”、“C”和“&lt;eos&gt;”。 在 :numref:`fig_s2s-prob1` 中，每个时间步下的四个数字分别表示在该时间步生成“A”、“B”、“C”和“&lt;eos&gt;”的条件概率。在每个时间步，贪心搜索选择具有最高条件概率的标记。因此，将在 :numref:`fig_s2s-prob1` 中预测输出序列“A”、“B”、“C”和“&lt;eos&gt;”。这个输出序列的条件概率是$0.5\times0.4\times0.4\times0.6 = 0.048$。
 
 ![每个时间步下的四个数字表示在该时间步生成“A”、“B”、“C”和“&lt;eos&gt;”的条件概率。在时间步2，选择具有第二高条件概率的令牌“C”。](../img/s2s-prob2.svg)
 :label:`fig_s2s-prob2`
 
-接下来，让我们看看 :numref:`fig_s2s-prob2` 中的另一个例子。与 :numref:`fig_s2s-prob1` 不同，在时间步2中，我们选择 :numref:`fig_s2s-prob2` 中的标记“C”，它具有 *第二* 高的条件概率。由于时间步3所基于的时间步1和2处的输出子序列已从 :numref:`fig_s2s-prob1` 中的“A”和“B”改变为 :numref:`fig_s2s-prob2` 中的“A”和“C”，因此时间步3处的每个标记的条件概率也在 :numref:`fig_s2s-prob2` 中改变。假设我们在时间步3选择标记“B”。现在，时间步4以前三个时间步“A”、“C”和“B”的输出子序列为条件，这与 :numref:`fig_s2s-prob1` 中的“A”、“B”和“C”不同。因此，在 :numref:`fig_s2s-prob2` 中的时间步4生成每个标记的条件概率也不同于 :numref:`fig_s2s-prob1` 中的条件概率。结果，:numref:`fig_s2s-prob2`中的输出序列“A”、“C”、“B”和“&lt;eos&gt;”的条件概率为$0.5\times0.3 \times0.6\times0.6=0.054$，这大于:numref:`fig_s2s-prob1`中的贪心搜索的条件概率。在本例中，通过贪心搜索获得的输出序列“A”、“B”、“C”和“&lt;eos&gt;”不是最佳序列。
+接下来，让我们看看 :numref:`fig_s2s-prob2` 中的另一个例子。与 :numref:`fig_s2s-prob1` 不同，在时间步 $2$ 中，我们选择 :numref:`fig_s2s-prob2` 中的标记“C”，它具有 *第二* 高的条件概率。由于时间步 $3$ 所基于的时间步 $1$ 和 $2$ 处的输出子序列已从 :numref:`fig_s2s-prob1` 中的“A”和“B”改变为 :numref:`fig_s2s-prob2` 中的“A”和“C”，因此时间步 $3$ 处的每个标记的条件概率也在 :numref:`fig_s2s-prob2` 中改变。假设我们在时间步 $3$ 选择标记“B”，于是当前的时间步 $4$ 基于前三个时间步的输出子序列“A”、“C”和“B”为条件，这与 :numref:`fig_s2s-prob1` 中的“A”、“B”和“C”不同。因此，在 :numref:`fig_s2s-prob2` 中的时间步 $4$ 生成每个标记的条件概率也不同于 :numref:`fig_s2s-prob1` 中的条件概率。结果， :numref:`fig_s2s-prob2` 中的输出序列“A”、“C”、“B”和“&lt;eos&gt;”的条件概率为 $0.5\times0.3 \times0.6\times0.6=0.054$，这大于 :numref:`fig_s2s-prob1` 中的贪心搜索的条件概率。通过例子说明，贪心搜索获得的输出序列“A”、“B”、“C”和“&lt;eos&gt;”不是最佳序列。
 
 ## 穷举搜索
 
