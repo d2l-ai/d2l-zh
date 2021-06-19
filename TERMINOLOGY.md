@@ -112,7 +112,7 @@
 
 激活函数，activation function
 
-精确率，precision
+精确度，precision
 
 解码器，decoder
 
