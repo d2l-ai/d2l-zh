@@ -490,7 +490,7 @@ def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
 
 我们可以通过与真实的标签序列进行比较来评估预测序列。虽然 BLEU（Bilingual Evaluation Understudy）的提出最先是用于评估机器翻译的结果 :cite:`Papineni.Roukos.Ward.ea.2002` ，但现在它已经被广泛用于测量许多应用的输出序列的质量。原则上说，对于预测序列中的任意 $n$ 元语法（n-grams），BLEU 的评估都是这个 $n$ 元语法是否出现在标签序列中。
 
-用 $p_n$ 表示 $n$ 元语法的精度，它是两个数量的比值，第一个是预测序列与标签序列中匹配的 $n$ 元语法的数量，第二个是预测序列中 $n$ 元语法的数量的比率。详细解释，即给定的标签序列 $A$、$B$、$C$、$D$、$E$、$F$ 和预测序列 $A$、$B$、$B$、$C$、$D$，我们有 $p_1 = 4/5$、$p_2 = 3/4$、$p_3 = 1/3$ 和 $p_4 = 0$。另外， $\mathrm{len}_{\text{label}}$ 表示标签序列中的标记数和 $\mathrm{len}_{\text{pred}}$ 表示预测序列中的标记数。那么，BLEU 的定义是：
+用 $p_n$ 表示 $n$ 元语法的精确度，它是两个数量的比值，第一个是预测序列与标签序列中匹配的 $n$ 元语法的数量，第二个是预测序列中 $n$ 元语法的数量的比率。详细解释，即给定的标签序列 $A$、$B$、$C$、$D$、$E$、$F$ 和预测序列 $A$、$B$、$B$、$C$、$D$，我们有 $p_1 = 4/5$、$p_2 = 3/4$、$p_3 = 1/3$ 和 $p_4 = 0$。另外， $\mathrm{len}_{\text{label}}$ 表示标签序列中的标记数和 $\mathrm{len}_{\text{pred}}$ 表示预测序列中的标记数。那么，BLEU 的定义是：
 
 $$ \exp\left(\min\left(0, 1 - \frac{\mathrm{len}_{\text{label}}}{\mathrm{len}_{\text{pred}}}\right)\right) \prod_{n=1}^k p_n^{1/2^n},$$
 :eqlabel:`eq_bleu`
