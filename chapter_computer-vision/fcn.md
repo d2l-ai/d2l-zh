@@ -1,7 +1,7 @@
-# 完全卷积网络
+# 全卷积网络
 :label:`sec_fcn`
 
-正如 :numref:`sec_semantic_segmentation` 中所讨论的那样，语义分割以像素级别对图像进行分类。完全卷积网络 (FCN) 使用卷积神经网络将图像像素转换为像素类 :cite:`Long.Shelhamer.Darrell.2015`。与我们之前在图像分类或对象检测方面遇到的 CNN 不同，完全卷积网络将中间要素贴图的高度和宽度转换回输入图像的高度和宽度：这是通过 :numref:`sec_transposed_conv` 中引入的转置卷积图层实现的。因此，分类输出和输入图像在像素级别上具有一对应关系：任何输出像素处的通道尺寸都保存在同一空间位置的输入像素的分类结果。
+如 :numref:`sec_semantic_segmentation` 中所介绍的那样，语义分割能对图像中的每个像素分类。全卷积网络 (fully convolutional network，FCN) 采用卷积神经网络实现了从图像像素到像素类别的变换 :cite:`Long.Shelhamer.Darrell.2015` 。与我们之前在图像分类或目标检测部分介绍的卷积神经网络不同，全卷积网络将中间层特征图的高和宽变换回输入图像的尺寸：这是通过 :numref:`sec_transposed_conv` 中引入的转置卷积（transposed convolution）层实现的。因此，输出的类别预测与输入图像在像素级别上具有一一对应关系：给定空间维上的位置，通道维的输出即该位置对应像素的类别预测。
 
 ```{.python .input}
 %matplotlib inline
@@ -22,14 +22,14 @@ from torch import nn
 from torch.nn import functional as F
 ```
 
-## 模型
+## 构造模型
 
-下面我们描述完全卷积网络模型的基本设计。如 :numref:`fig_fcn` 所示，该模型首先使用 CNN 提取图像要素，然后通过 $1\times 1$ 卷积图层将通道数量转换为类数，最后通过引入的转置卷积将要素地图的高度和宽度转换为输入图像的高度和宽度在 :numref:`sec_transposed_conv` 中。因此，模型输出的高度和宽度与输入图像具有相同的高度和宽度，其中输出通道包含位于同一空间位置的输入像素的预测类。 
+下面我们给出全卷积网络模型最基本的设计。如 :numref:`fig_fcn` 所示，全卷积网络先使用卷积神经网络抽取图像特征，然后通过 $1\times 1$ 卷积层将通道数变换为类别个数，最后在 :numref:`sec_transposed_conv` 中通过转置卷积层将特征图的高和宽变换为输入图像的尺寸。因此，模型输出与输入图像的高和宽相同，且最终输出的通道包含了该空间位置像素的类别预测。 
 
-![Fully convolutional network.](../img/fcn.svg)
+![全卷积网络](../img/fcn.svg)
 :label:`fig_fcn`
 
-下面，我们 [** 使用在 ImageNet 数据集上预训练的 resnet-18 模型来提取影像要素 **] 并将模型实例表示为 `pretrained_net`。该模型的最后几层包括全局平均池层和完全连接的层：完全卷积网络中不需要它们。
+下面，我们 [**use a ResNet-18 model pretrained on the ImageNet dataset to extract image features**] 并将该网络实例记为 `pretrained_net`。该模型的最后几层包括全局平均池化层和全连接层：全卷积网络中不需要它们。
 
 ```{.python .input}
 pretrained_net = gluon.model_zoo.vision.resnet18_v2(pretrained=True)
@@ -42,7 +42,7 @@ pretrained_net = torchvision.models.resnet18(pretrained=True)
 list(pretrained_net.children())[-3:]
 ```
 
-接下来，我们 [** 创建完全卷积网络实例 `net`**]。它复制 Resnet-18 中的所有预训练图层，但最终的全局平均池层和最接近输出的完全连接图层除外。
+接下来，我们 [**创建一个全卷积网络实例`net`**]。它复制了Resnet-18中所有的预训练层，但除去最终的全局平均池化层和最接近输出的全连接层。
 
 ```{.python .input}
 net = nn.HybridSequential()
@@ -55,7 +55,7 @@ for layer in pretrained_net.features[:-2]:
 net = nn.Sequential(*list(pretrained_net.children())[:-2])
 ```
 
-给定高度和宽度分别为 320 和 480 的输入，`net` 的正向传播会将输入高度和宽度降至原始高度和宽度的 1/32，即 10 和 15。
+给定高度和宽度分别为 320 和 480 的输入，`net` 的前向计算将输入的高和宽减小至原来的 $1/32$ ，即 10 和 15 。
 
 ```{.python .input}
 X = np.random.uniform(size=(1, 3, 320, 480))
@@ -68,7 +68,8 @@ X = torch.rand(size=(1, 3, 320, 480))
 net(X).shape
 ```
 
-接下来，我们 [** 使用 $1\times 1$ 卷积图层将输出通道的数量转换为 Pascal VOC2012 数据集的类数 (21)。**] 最后，我们需要（** 将要素地图的高度和宽度增加 32 倍 **）将其更改回输入图像的高度和宽度。回想一下如何计算 :numref:`sec_padding` 中卷积层的输出形状。自 $(320-64+16\times2+32)/32=10$ 和 $(480-64+16\times2+32)/32=15$ 以来，我们构建了一个跨度为 $32$ 的转置卷积层，将内核的高度和宽度设置为 $64$，填充为 $16$。一般来说，我们可以看到，对于步幅 $s$，填充 $s/2$（假设 $s/2$ 是整数）和内核 $2s$ 的高度和宽度 $2s$，转置卷积将使输入的高度和宽度增加 $s$ 倍。
+接下来，我们 [**use a $1\times 1$ convolutional layer to transform the number of output channels into the number of classes (21) of the Pascal VOC2012 dataset.**] 最后，我们需要（**increase the height and width of the feature maps by 32 times**）从而将其变回输入图像的高和宽。
+回想一下 :numref:`sec_padding` 中卷积层输出形状的计算方法。由于 $(320-64+16\times2+32)/32=10$ 且 $(480-64+16\times2+32)/32=15$ ，我们构造一个步幅为 $32$ 的转置卷积层，并将卷积核的高和宽设为 $64$，填充为 $16$ 。我们可以看到如果步幅为 $s$，填充为 $s/2$（假设 $s/2$ 是整数）且卷积核的高和宽为 $2s$ ，转置卷积核会将输入的高和宽分别放大 $s$ 倍。
 
 ```{.python .input}
 num_classes = 21
@@ -85,15 +86,15 @@ net.add_module('transpose_conv', nn.ConvTranspose2d(num_classes, num_classes,
                                     kernel_size=64, padding=16, stride=32))
 ```
 
-## [** 初始化转置的卷积图层 **]
+## [**Initializing Transposed Convolutional Layers**]
 
-我们已经知道，转置的卷积图层可以增加要素地图的高度和宽度。在图像处理过程中，我们可能需要扩展图像，即 * upSpling*。
-*双线性插值 *
-是常用的上采样技术之一。它也经常用于初始化转置卷积层。 
+我们已经知道，转置卷积层可以放大特征图的高和宽。在图像处理中，我们有时需要将图像放大，即 *上采样*。
+*双线性插值*
+是常用的上采样方法之一，它也经常用于初始化转置卷积层。 
 
-为了解释双线性插值，假设给定输入图像，我们想要计算加样输出图像的每个像素。例如，为了计算坐标 $(x, y)$ 处的输出图像的像素，首先将 $(x, y)$ 映射到输入图像上的坐标 $(x', y')$，例如，根据输入大小与输出大小的比率对输入图像进行坐标 $(x', y')$。请注意，映射的 $x′$ and $y′ $ 是实数。然后，在输入图像上找到离坐标 $(x', y')$ 最接近的四个像素。最后，在坐标 $(x, y)$ 处输出图像的像素是根据输入图像上这四个最接近的像素及其与 $(x', y')$ 的相对距离计算的。  
+为了解释双线性插值，假设给定输入图像，我们想要计算上采样输出图像上的每个像素。例如，为了得到输出图像在坐标 $(x, y)$ 上的像素，首先将该坐标映射到输入图像的坐标 $(x', y')$ 上，例如，根据输入与输出的尺寸之比来映射。请注意，映射后的 $x′$ 和 $y′$ 是实数。然后，在输入图像上找到离坐标 $(x', y')$ 最近的4像素。最后，输出图像在坐标 $(x,y)$ 上的像素依据输入图像上这4像素及其与 $(x',y')$ 的相对距离来计算。
 
-双线性插值的上采样可以通过转置卷积层实现，内核由以下 `bilinear_kernel` 函数构造。由于空间限制，我们只提供下面 `bilinear_kernel` 函数的实现，而不讨论其算法设计。
+双线性插值的上采样可以通过转置卷积层实现，内核由以下 `bilinear_kernel` 函数构造。限于篇幅，我们只给出 `bilinear_kernel` 函数的实现，不讨论算法的原理。
 
 ```{.python .input}
 def bilinear_kernel(in_channels, out_channels, kernel_size):
@@ -129,7 +130,7 @@ def bilinear_kernel(in_channels, out_channels, kernel_size):
     return weight
 ```
 
-让我们 [** 试验双线性插值的上采样 **] 由转置卷积层实现。我们构建了一个将高度和重量加倍的转置卷积层，然后用 `bilinear_kernel` 函数初始化其内核。
+让我们 [**experiment with upsampling of bilinear interpolation**] 它由转置卷积层实现。我们构造一个将输入的高和宽放大2倍的转置卷积层，并将其卷积核用 `bilinear_kernel` 函数初始化。
 
 ```{.python .input}
 conv_trans = nn.Conv2DTranspose(3, kernel_size=4, padding=1, strides=2)
@@ -143,7 +144,7 @@ conv_trans = nn.ConvTranspose2d(3, 3, kernel_size=4, padding=1, stride=2,
 conv_trans.weight.data.copy_(bilinear_kernel(3, 3, 4));
 ```
 
-阅读图像 `X` 并将上采样输出分配给 `Y`。为了打印图像，我们需要调整频道尺寸的位置。
+读取图像 `X` ，将上采样的结果记作 `Y`。为了打印图像，我们需要调整通道维的位置。
 
 ```{.python .input}
 img = image.imread('../img/catdog.jpg')
@@ -160,7 +161,7 @@ Y = conv_trans(X)
 out_img = Y[0].permute(1, 2, 0).detach()
 ```
 
-正如我们所看到的那样，转置的卷积图层将图像的高度和宽度增加两倍。除了坐标中的不同比例外，通过双线性插值缩放的图像和在 :numref:`sec_bbox` 中打印的原始图像看起来相同。
+可以看到，转置卷积层将图像的高和宽分别放大了2倍。除了坐标刻度不同，双线性插值放大的图像和在 :numref:`sec_bbox` 中打印出的原图看上去没什么两样。
 
 ```{.python .input}
 d2l.set_figsize()
@@ -179,7 +180,7 @@ print('output image shape:', out_img.shape)
 d2l.plt.imshow(out_img);
 ```
 
-在完全卷积网络中，我们 [** 使用双线性插值的上采样初始化转置的卷积层。对于 $1\times 1$ 卷积层，我们使用 Xavier 初始化。**]
+在全卷积网络中，我们 [**initialize the transposed convolutional layer with upsampling of bilinear interpolation. For the $1\times 1$ convolutional layer, we use Xavier initialization.**]
 
 ```{.python .input}
 W = bilinear_kernel(num_classes, num_classes, 64)
@@ -193,9 +194,9 @@ W = bilinear_kernel(num_classes, num_classes, 64)
 net.transpose_conv.weight.data.copy_(W);
 ```
 
-## [** 阅读数据集 **]
+## [**Reading the Dataset**]
 
-我们阅读了 :numref:`sec_semantic_segmentation` 中介绍的语义分割数据集。随机裁剪的输出图像形状指定为 $320\times 480$：高度和宽度都可以被 $32$ 整除。
+我们用 :numref:`sec_semantic_segmentation` 中介绍的语义分割读取数据集。指定随机裁剪的输出图像的形状为 $320\times 480$ ：高和宽都可以被 $32$ 整除。
 
 ```{.python .input}
 #@tab all
@@ -203,9 +204,9 @@ batch_size, crop_size = 32, (320, 480)
 train_iter, test_iter = d2l.load_data_voc(batch_size, crop_size)
 ```
 
-## [** 培训 **]
+## [**Training**]
 
-现在我们可以训练我们构建的完全卷积网络。这里的损失函数和准确度计算与前面章节的图像分类中的计算并无根本不同。由于我们使用转置卷积图层的输出通道来预测每个像素的类，因此在损失计算中指定了通道维度。此外，准确度是根据所有像素的预测类的正确性来计算的。
+现在我们可以训练我们构建的全卷积网络了。这里的损失函数和准确率计算与图像分类中的并没有本质上的不同。因为我们使用转置卷积层的通道来预测像素的类别，所以在损失计算中通道维是指定的。此外，模型基于每个像素的预测类别是否正确来计算准确率。
 
 ```{.python .input}
 num_epochs, lr, wd, devices = 5, 0.1, 1e-3, d2l.try_all_gpus()
@@ -226,9 +227,9 @@ trainer = torch.optim.SGD(net.parameters(), lr=lr, weight_decay=wd)
 d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
 ```
 
-## [** 预测 **]
+## [**Prediction**]
 
-预测时，我们需要对每个通道中的输入图像进行标准化，并将图像转换为 CNN 所需的四维输入格式。
+在预测时，我们需要将输入图像在各个通道做标准化，并转成卷积神经网络所需要的四维输入格式。
 
 ```{.python .input}
 def predict(img):
@@ -246,7 +247,7 @@ def predict(img):
     return pred.reshape(pred.shape[1], pred.shape[2])
 ```
 
-为了 [** 可视化每个像素的预测类 **]，我们将预测的类映射回其数据集中的标签颜色。
+为了 [**visualize the predicted class**]给每个像素，我们将预测类别映射回它们在数据集中的标注颜色。
 
 ```{.python .input}
 def label2image(pred):
@@ -263,9 +264,9 @@ def label2image(pred):
     return colormap[X, :]
 ```
 
-测试数据集中的图像在大小和形状方面有所不同。由于模型使用步幅为 32 的转置卷积图层，因此当输入图像的高度或宽度不可分为 32 时，转置卷积图层的输出高度或宽度将与输入图像的形状有所偏差。为了解决这个问题，我们可以裁剪多个高度和宽度的矩形区域，这些区域是图像中 32 的整数倍数，然后单独对这些区域的像素进行向前传播。请注意，这些矩形区域的并集需要完全覆盖输入图像。当像素被多个矩形区域覆盖时，可以将该像素在不同区域中转置的卷积输出的平均值输入到 softmax 运算中以预测类。 
+测试数据集中的图像大小和形状各异。由于模型使用了步幅为 32 的转置卷积层，因此当输入图像的高或宽无法被 32 整除时，转置卷积层输出的高或宽会与输入图像的尺寸有偏差。为了解决这个问题，我们可以在图像中截取多块高和宽为 32 的整数倍的矩形区域，并分别对这些区域中的像素做前向计算。请注意，这些区域的并集需要完整覆盖输入图像。当一个像素被多个区域所覆盖时，它在不同区域前向计算中转置卷积层输出的平均值可以作为 softmax 运算的输入，从而预测类别。 
 
-为简单起见，我们只读了几张较大的测试图像，然后从图像的左上角开始裁剪 $320\times480$ 区域进行预测。对于这些测试图像，我们逐行打印它们的裁剪区域、预测结果和地面真相。
+为简单起见，我们只读取几张较大的测试图像，并从图像的左上角开始截取形状为 $320\times480$ 的区域用于预测。对于这些测试图像，我们逐一打印它们截取的区域，再打印预测结果，最后打印标注的类别。
 
 ```{.python .input}
 voc_dir = d2l.download_extract('voc2012', 'VOCdevkit/VOC2012')
@@ -294,17 +295,17 @@ for i in range(n):
 d2l.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n, scale=2);
 ```
 
-## 摘要
+## 小结
 
-* 完全卷积网络首先使用 CNN 提取图像要素，然后通过 $1\times 1$ 卷积图层将通道数量转换为类数，最后通过转置卷积将要素地图的高度和宽度转换为输入图像的高度和宽度。
-* 在完全卷积网络中，我们可以使用双线性插值的上采样来初始化转置的卷积层。
+* 全卷积网络先使用卷积神经网络抽取图像特征，然后通过 $1\times 1$ 卷积层将通道数变换为类别个数，最后通过转置卷积层将特征图的高和宽变换为输入图像的尺寸。
+* 在全卷积网络中，我们可以将转置卷积层初始化为双线性插值的上采样。
 
 ## 练习
 
-1. 如果我们在实验中使用 Xavier 初始化来转置卷积层，结果会如何改变？
-1. 你能通过调整超参数来进一步提高模型的准确性吗？
+1. 如果将转置卷积层改用 Xavier 随机初始化，结果有什么变化？
+1. 调节超参数，能进一步提升模型的精度吗？
 1. 预测测试图像中所有像素的类别。
-1. 最初的完全卷积网络论文还使用 CNN 中间层 :cite:`Long.Shelhamer.Darrell.2015` 的输出。尝试实施这个想法。
+1. 最初的全卷积网络的论文中 :cite:`Long.Shelhamer.Darrell.2015` 还使用了卷积神经网络的某些中间层的输出。试着实现这个想法。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/3298)
