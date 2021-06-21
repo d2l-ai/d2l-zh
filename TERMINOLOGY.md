@@ -114,6 +114,8 @@
 
 解码器，decoder
 
+近似法，approximate method
+
 经验风险最小化，empirical risk minimization
 
 局部最小值，local minimum
