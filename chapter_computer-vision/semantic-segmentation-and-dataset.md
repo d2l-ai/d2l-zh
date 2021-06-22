@@ -12,7 +12,8 @@
 
 ## 图像分割和实例分割
 
-计算机视觉领域还有2个与语义分割相似的重要问题，即*图像分割*（image segmentation）和*实例分割*（instance segmentation）。我们在这里将它们同语义分割简单区分一下。 
+计算机视觉领域还有2个与语义分割相似的重要问题，即*图像分割*（image segmentation）和*实例分割*（instance segmentation）。
+我们在这里将它们同语义分割简单区分一下。 
 
 * *图像分割*将图像划分为若干组成区域。这类问题的方法通常利用图像中像素之间的相关性。它在训练时不需要有关图像像素的标签信息，在预测时也无法保证分割出的区域具有我们希望得到的语义。以 :numref:`fig_segmentation` 中的图像作为输入，图像分割可能会将狗分为两个区域：一个覆盖以黑色为主的嘴和眼睛，另一个覆盖以黄色为主的其余部分身体。
 * *实例分割*也叫*同时检测并分割*（simultaneous detection and segmentation）。它研究如何识别图像中各个目标实例的像素级区域。与语义分割不同，实例分割不仅需要区分语义，还要区分不同的目标实例。例如，如果图像中有两条狗，则实例分割需要区分像素属于的两条狗中的哪一条。
@@ -52,16 +53,16 @@ d2l.DATA_HUB['voc2012'] = (d2l.DATA_URL + 'VOCtrainval_11-May-2012.tar',
 voc_dir = d2l.download_extract('voc2012', 'VOCdevkit/VOC2012')
 ```
 
-进入路径 `../data/VOCdevkit/VOC2012` 之后，我们可以看到数据集的不同组件。
-`ImageSets/Segmentation` 路径包含用于训练和测试样本的文本文件，而 `JPEGImages` 和 `SegmentationClass` 路径分别存储着每个示例的输入图像和标签。
+进入路径`../data/VOCdevkit/VOC2012`之后，我们可以看到数据集的不同组件。
+`ImageSets/Segmentation`路径包含用于训练和测试样本的文本文件，而`JPEGImages`和`SegmentationClass`路径分别存储着每个示例的输入图像和标签。
 此处的标签也采用图像格式，其尺寸和它所标注的输入图像的尺寸相同。
 此外，标签中颜色相同的像素属于同一个语义类别。
-下面将 `read_voc_images` 函数定义为[**将所有输入的图像和标签读入内存**]。
+下面将`read_voc_images`函数定义为[**将所有输入的图像和标签读入内存**]。
 
 ```{.python .input}
 #@save
 def read_voc_images(voc_dir, is_train=True):
-    """读取所有 VOC 图像并标注。"""
+    """读取所有VOC图像并标注。"""
     txt_fname = os.path.join(voc_dir, 'ImageSets', 'Segmentation',
                              'train.txt' if is_train else 'val.txt')
     with open(txt_fname, 'r') as f:
@@ -81,7 +82,7 @@ train_features, train_labels = read_voc_images(voc_dir, True)
 #@tab pytorch
 #@save
 def read_voc_images(voc_dir, is_train=True):
-    """读取所有 VOC 图像并标注。"""
+    """读取所有VOC图像并标注。"""
     txt_fname = os.path.join(voc_dir, 'ImageSets', 'Segmentation',
                              'train.txt' if is_train else 'val.txt')
     mode = torchvision.io.image.ImageReadMode.RGB
@@ -135,7 +136,7 @@ VOC_CLASSES = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
 ```
 
 通过上面定义的两个常量，我们可以方便地[**查找标签中每个像素的类索引**]。
-我们定义了 `voc_colormap2label` 函数来构建从上述 RGB 颜色值到类别索引的映射，而 `voc_label_indices` 函数将 RGB 值映射到在 Pascal VOC2012 数据集中的类别索引。
+我们定义了`voc_colormap2label`函数来构建从上述RGB颜色值到类别索引的映射，而`voc_label_indices`函数将RGB值映射到在Pascal VOC2012数据集中的类别索引。
 
 ```{.python .input}
 #@save
@@ -232,7 +233,10 @@ d2l.show_images(imgs[::2] + imgs[1::2], 2, n);
 
 ### [**自定义语义分割数据集类**]
 
-我们通过继承高级 API 提供的 `Dataset` 类，自定义了一个语义分割数据集类 `VOCSegDataset` 。通过实现 `__getitem__` 函数，我们可以任意访问数据集中索引为 `idx` 的输入图像及其每个像素的类别索引。由于数据集中有些图像的尺寸可能小于随机裁剪所指定的输出尺寸，这些样本可以通过自定义的 `filter` 函数移除掉。此外，我们还定义了 `normalize_image` 函数，从而对输入图像的RGB三个通道的值分别做标准化。
+我们通过继承高级API提供的`Dataset`类，自定义了一个语义分割数据集类`VOCSegDataset`。
+通过实现`__getitem__`函数，我们可以任意访问数据集中索引为`idx`的输入图像及其每个像素的类别索引。
+由于数据集中有些图像的尺寸可能小于随机裁剪所指定的输出尺寸，这些样本可以通过自定义的`filter`函数移除掉。
+此外，我们还定义了`normalize_image`函数，从而对输入图像的RGB三个通道的值分别做标准化。
 
 ```{.python .input}
 #@save
@@ -303,8 +307,8 @@ class VOCSegDataset(torch.utils.data.Dataset):
 
 ### [**读取数据集**]
 
-我们通过自定义的 `VOCSegDataset` 类来分别创建训练集和测试集的实例。
-假设我们指定随机裁剪的输出图像的形状为 $320\times 480$，
+我们通过自定义的`VOCSegDataset`类来分别创建训练集和测试集的实例。
+假设我们指定随机裁剪的输出图像的形状为$320\times 480$，
 下面我们可以查看训练集和测试集所保留的样本个数。
 
 ```{.python .input}
@@ -342,7 +346,7 @@ for X, Y in train_iter:
 
 ### [**整合所有组件**]
 
-最后，我们定义以下 `load_data_voc` 函数来下载并读取Pascal VOC2012 语义分割数据集。
+最后，我们定义以下`load_data_voc`函数来下载并读取Pascal VOC2012语义分割数据集。
 它返回训练集和测试集的数据迭代器。
 
 ```{.python .input}
