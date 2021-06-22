@@ -51,7 +51,7 @@ def corr2d_multi_in(X, K):
     return tf.reduce_sum([d2l.corr2d(x, k) for x, k in zip(X, K)], axis=0)
 ```
 
-我们可以构造与 :numref:`fig_conv_multi_in` 中的值相对应的输入张量 `X` 和核张量 `K`，以[**验证互相关运算的输出**]。
+我们可以构造与 :numref:`fig_conv_multi_in` 中的值相对应的输入张量 `X` 和核张量 `K`，以(**验证互相关运算的输出**)。
 
 ```{.python .input}
 #@tab all

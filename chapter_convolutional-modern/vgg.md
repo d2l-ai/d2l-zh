@@ -8,7 +8,7 @@
 
 使用块的想法首先出现在牛津大学的 [视觉几何组（visualgeometry Group）](http://www.robots.ox.ac.uk/~vgg/) (VGG)的 *VGG网络* 中。通过使用循环和子程序，可以很容易地在任何现代深度学习框架的代码中实现这些重复的结构。
 
-## VGG 块
+## (**VGG块**)
 
 经典卷积神经网络的基本组成部分是下面的这个序列：
 1. 带填充以保持分辨率的卷积层；
@@ -73,7 +73,7 @@ def vgg_block(num_convs, num_channels):
     return blk
 ```
 
-## VGG 网络
+## [**VGG网络**]
 
 与 AlexNet、LeNet 一样，VGG 网络可以分为两部分：第一部分主要由卷积层和池化层组成，第二部分由全连接层组成。如 :numref:`fig_vgg` 中所示。
 
@@ -149,7 +149,7 @@ def vgg(conv_arch):
 net = vgg(conv_arch)
 ```
 
-接下来，我们将构建一个高度和宽度为 224 的单通道数据样本，以观察每个层输出的形状。
+接下来，我们将构建一个高度和宽度为 224 的单通道数据样本，以[**观察每个层输出的形状**]。
 
 ```{.python .input}
 net.initialize()
@@ -177,9 +177,9 @@ for blk in net.layers:
 
 正如你所看到的，我们在每个块的高度和宽度减半，最终高度和宽度都为7。最后再展平表示，送入全连接层处理。
 
-## 训练
+## 训练模型
 
-由于 VGG-11 比 AlexNet 计算量更大，因此我们构建了一个通道数较少的网络，足够用于训练Fashion-MNIST数据集。
+[**由于VGG-11比AlexNet计算量更大，因此我们构建了一个通道数较少的网络**]，足够用于训练Fashion-MNIST数据集。
 
 ```{.python .input}
 #@tab mxnet, pytorch
@@ -196,7 +196,7 @@ small_conv_arch = [(pair[0], pair[1] // ratio) for pair in conv_arch]
 net = lambda: vgg(small_conv_arch)
 ```
 
-除了使用略高的学习率外，模型训练过程与 :numref:`sec_alexnet` 中的 AlexNet 类似。
+除了使用略高的学习率外，[**模型训练**]过程与 :numref:`sec_alexnet` 中的 AlexNet 类似。
 
 ```{.python .input}
 #@tab all
