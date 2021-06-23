@@ -38,7 +38,7 @@
 
 词向量，word vector
 
-池化层，pooling layer
+汇聚层，pooling layer
 
 稠密，dense
 
