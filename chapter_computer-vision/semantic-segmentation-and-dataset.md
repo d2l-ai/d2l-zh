@@ -1,7 +1,7 @@
 # 语义分割和数据集
 :label:`sec_semantic_segmentation`
 
-在 :numref:`sec_bbox`— :numref:`sec_rcnn` 中讨论的目标检测问题中，我们一直使用方形边界框来标注和预测图像中的目标。
+在 :numref:`sec_bbox` — :numref:`sec_rcnn` 中讨论的目标检测问题中，我们一直使用方形边界框来标注和预测图像中的目标。
 本节将探讨*语义分割*（semantic segmentation）问题，它重点关注于如何将图像分割成属于不同语义类别的区域。
 与目标检测不同，语义分割可以识别并理解图像中每一个像素的内容：其语义区域的标注和预测是像素级的。
 :numref:`fig_segmentation` 展示了语义分割中图像有关狗、猫和背景的标签。
