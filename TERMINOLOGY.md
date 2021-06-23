@@ -26,7 +26,7 @@
 
 长短期记忆网络，long short-term memory (LSTM)
 
-超参数，hyper-parameter
+超参数，hyperparameter
 
 层序softmax，hierarchical softmax
 
