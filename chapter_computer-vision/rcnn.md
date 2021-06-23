@@ -1,4 +1,5 @@
 # 区域卷积神经网络（R-CNN）系列
+:label:`sec_rcnn`
 
 除了 :numref:`sec_ssd` 中描述的单发多框检测之外，
 区域卷积神经网络（region-based CNN或regions with CNN features，R-CNN） :cite:`Girshick.Donahue.Darrell.ea.2014` 也是将深度模型应用于目标检测的开创性工作之一。
