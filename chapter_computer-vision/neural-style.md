@@ -2,10 +2,10 @@
 
 如果你是一位摄影爱好者，你也许接触过滤镜。它能改变照片的颜色样式，从而使风景照更加锐利或者令人像更加美白。但一个滤镜通常只能改变照片的某个方面。如果要照片达到理想中的样式，你可能需要尝试大量不同的组合。这个过程的复杂程度不亚于模型调参。 
 
-在本节中，我们将介绍如何使用卷积神经网络，自动将一个图像中的样式应用在另一图像之上，即*样式迁移*（style transfer）:cite:`Gatys.Ecker.Bethge.2016`。
+在本节中，我们将介绍如何使用卷积神经网络，自动将一个图像中的样式应用在另一图像之上，即*样式迁移*（style transfer） :cite:`Gatys.Ecker.Bethge.2016`。
 这里我们需要两张输入图像：一张是*内容图像*，另一张是*样式图像*。
 我们将使用神经网络修改内容图像，使其在样式上接近样式图像。
-例如，:numref:`fig_style_transfer` 中的内容图像为本书作者在西雅图郊区的雷尼尔山国家公园拍摄的风景照，而样式图像则是一幅主题为秋天橡树的油画。
+例如， :numref:`fig_style_transfer` 中的内容图像为本书作者在西雅图郊区的雷尼尔山国家公园拍摄的风景照，而样式图像则是一幅主题为秋天橡树的油画。
 最终输出的合成图像应用了样式图像的油画笔触让整体颜色更加鲜艳，同时保留了内容图像中物体主体的形状。
 
 ![输入内容图像和样式图像，输出样式迁移后的合成图像](../img/style-transfer.svg)
@@ -408,7 +408,7 @@ output = train(content_X, contents_Y, styles_Y, device, 0.9, 500, 50)
 
 ```{.python .input}
 #@tab pytorch
-device, image_shape = d2l.try_gpu(), (300, 450)  # PIL Image (h, w)
+device, image_shape = d2l.try_gpu(), (300, 450)
 net = net.to(device)
 content_X, contents_Y = get_contents(image_shape, device)
 _, styles_Y = get_styles(image_shape, device)
