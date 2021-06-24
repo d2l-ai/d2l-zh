@@ -1,7 +1,7 @@
 # 转置卷积
 :label:`sec_transposed_conv`
 
-到目前为止，我们所见到的卷积神经网络层，例如卷积层（:numref:`sec_conv_layer`）和池化层（:numref:`sec_pooling`），通常会减少下采样输入图像的空间维度（高和宽），或者保持它们不变。
+到目前为止，我们所见到的卷积神经网络层，例如卷积层（ :numref:`sec_conv_layer`）和池化层（ :numref:`sec_pooling`），通常会减少下采样输入图像的空间维度（高和宽），或者保持它们不变。
 如果输入和输出图像的空间维度相同，在以像素级分类的语义分割中将会很方便。
 例如，输出像素所处的通道维可以保有输入像素在同一位置上的分类结果。 
 
@@ -35,7 +35,7 @@ from d2l import torch as d2l
 请注意，每个中间张量被替换部分的位置与输入张量中元素的位置相对应。
 最后，所有中间结果相加以获得最终结果。 
 
-例如，:numref:`fig_trans_conv` 解释了如何为 $2\times 2$ 的输入张量计算卷积核为 $2\times 2$ 的转置卷积。 
+例如， :numref:`fig_trans_conv` 解释了如何为 $2\times 2$ 的输入张量计算卷积核为 $2\times 2$ 的转置卷积。 
 
 ![卷积核为 $2\times 2$ 的转置卷积。阴影部分是中间张量的一部分，也是用于计算的输入和卷积核张量元素。 ](../img/trans_conv.svg)
 :label:`fig_trans_conv`
