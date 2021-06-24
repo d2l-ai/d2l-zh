@@ -198,8 +198,7 @@ print('output image shape:', out_img.shape)
 d2l.plt.imshow(out_img);
 ```
 
-在全卷积网络中，我们[**用双线性插值的上采样初始化转置卷积层。
-对于$1\times 1$卷积层，我们使用Xavier初始化参数。**]
+在全卷积网络中，我们[**用双线性插值的上采样初始化转置卷积层。对于$1\times 1$卷积层，我们使用Xavier初始化参数。**]
 
 ```{.python .input}
 W = bilinear_kernel(num_classes, num_classes, 64)
