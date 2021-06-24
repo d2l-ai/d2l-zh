@@ -14,9 +14,9 @@
 
 编码器，encoder
 
-标记，token
+词元，token
 
-标记化，tokenize
+词元化，tokenize
 
 标签，label
 
@@ -32,7 +32,7 @@
 
 成本，cost
 
-词汇表，vocabulary
+词表，vocabulary
 
 词嵌入，word embedding
 
@@ -46,7 +46,7 @@
 
 导入，import
 
-迭代周期（周期)，epoch
+轮，epoch
 
 迭代模型参数，update model parameter(s)
 
