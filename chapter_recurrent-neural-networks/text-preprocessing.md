@@ -140,8 +140,8 @@ for i in [0, 10]:
 ## 整合所有功能
 
 在使用上述函数时，我们将所有功能打包到 `load_corpus_time_machine` 函数中，该函数返回 `corpus`（标记索引列表）和 `vocab`（时光机器语料库的词汇表）。我们在这里所做的改变是：
-- 1、为了简化后面章节中的训练，我们使用字符而不是单词实现文本标记化；
-- 2、`corpus` 是单个列表，而不是使用标记列表构成的一个列表，因为时光机器数据集中的每个文本行不一定是一个句子或一个段落。
+1. 为了简化后面章节中的训练，我们使用字符而不是单词实现文本标记化；
+2. 因为时光机器数据集中的每个文本行不一定是一个句子或一个段落，还可能是一个单词，因此返回的 `corpus` 仅处理为单个列表，而不是使用多个标记列表构成的一个列表。
 
 ```{.python .input}
 #@tab all
@@ -150,7 +150,7 @@ def load_corpus_time_machine(max_tokens=-1):  #@save
     lines = read_time_machine()
     tokens = tokenize(lines, 'char')
     vocab = Vocab(tokens)
-    # 因为时光机器数据集中的每一个文本行，不一定是一个句子或一个段落，
+    # 因为时光机器数据集中的每个文本行不一定是一个句子或一个段落，
     # 所以将所有文本行展平到一个列表中
     corpus = [vocab[token] for line in tokens for token in line]
     if max_tokens > 0:
