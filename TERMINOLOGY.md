@@ -2,13 +2,13 @@
 
 鞍点，saddle point
 
-背景变量，context variable
+上下文变量，context variable
 
-背景窗口，context window
+上下文窗口，context window
 
-背景词，context word
+上下文词，context word
 
-背景向量，context vector
+上下文向量，context vector
 
 变换，transform
 
