@@ -1,16 +1,16 @@
 # 循环神经网络
 :label:`sec_rnn`
 
-在 :numref:`sec_language_model` 中，我们介绍了 $n$ 元语法模型，其中单词 $x_t$ 在时间步 $t$ 的条件概率仅取决于前面 $n-1$ 个单词。如果我们想将时间步 $t-(n-1)$ 之前的单词的可能产生的影响合并到 $x_t$ 上就需要增加 $n$，然而模型参数的数量也会随之呈指数增长，因为词表 $\mathcal{V}$ 需要存储 $|\mathcal{V}|^n$ 个数字，因此与其将 $P(x_t \mid x_{t-1}, \ldots, x_{t-n+1})$ 模型化，不如使用隐变量模型：
+在 :numref:`sec_language_model` 中，我们介绍了 $n$ 元语法模型，其中单词 $x_t$ 在时间步 $t$ 的条件概率仅取决于前面 $n-1$ 个单词。如果我们想将时间步 $t-(n-1)$ 之前的单词的可能产生的影响合并到 $x_t$ 上就需要增加 $n$，然而模型参数的数量也会随之呈指数增长，因为词表 $\mathcal{V}$ 需要存储 $|\mathcal{V}|^n$ 个数字，因此与其将 $P(x_t \mid x_{t-1}, \ldots, x_{t-n+1})$ 模型化，不如使用隐变量模型：
 
 $$P(x_t \mid x_{t-1}, \ldots, x_1) \approx P(x_t \mid h_{t-1}),$$
 
-其中 $h_{t-1}$ 是 *隐藏状态*（也称为隐藏变量），其存储了到时间步 $t-1$ 的序列信息。通常，可以基于当前输入 $x_{t}$ 和先前隐藏状态 $h_{t-1}$ 来计算时间步 $t$ 处的任何时间的隐藏状态：
+其中 $h_{t-1}$ 是 *隐藏状态*（也称为隐藏变量），其存储了到时间步 $t-1$ 的序列信息。通常，可以基于当前输入 $x_{t}$ 和先前隐藏状态 $h_{t-1}$ 来计算时间步 $t$ 处的任何时间的隐藏状态：
 
 $$h_t = f(x_{t}, h_{t-1}).$$
 :eqlabel:`eq_ht_xt`
 
-对于一个足够强大的函数 $f$（ :eqref:`eq_ht_xt` ），隐变量模型不是近似值。毕竟 $h_t$ 是可以仅仅存储到目前为止观察到的所有数据，然而这样的操作可能会使计算和存储的代价都变得昂贵。
+对于一个足够强大的函数 $f$（ :eqref:`eq_ht_xt` ），隐变量模型不是近似值。毕竟 $h_t$ 是可以仅仅存储到目前为止观察到的所有数据，然而这样的操作可能会使计算和存储的代价都变得昂贵。
 
 回想一下，我们在 :numref:`chap_perceptrons` 中讨论过的具有隐藏单元的隐藏层。值得注意的是，隐藏层和隐藏状态指的是两个截然不同的概念。如前所述，隐藏层是在输入到输出的路径上以观测角度来理解的隐藏的层，而隐藏状态则是在给定步骤所做的任何事情以技术角度来定义的 *输入*，并且这些状态只能通过先前时间步的数据来计算。
 
@@ -18,20 +18,20 @@ $$h_t = f(x_{t}, h_{t-1}).$$
 
 ## 无隐藏状态的神经网络
 
-让我们来看一看只有单隐藏层的多层感知机。设隐藏层的激活函数为$\phi$。给定小批量样本$\mathbf{X} \in \mathbb{R}^{n \times d}$，其中批量大小为$n$，输入为$d$维。隐藏层的输出$\mathbf{H} \in \mathbb{R}^{n \times h}$通过下式计算：
+让我们来看一看只有单隐藏层的多层感知机。设隐藏层的激活函数为 $\phi$。给定一个小批量样本 $\mathbf{X} \in \mathbb{R}^{n \times d}$，其中批量大小为 $n$，输入维度为 $d$，则隐藏层的输出 $\mathbf{H} \in \mathbb{R}^{n \times h}$ 通过下式计算：
 
 $$\mathbf{H} = \phi(\mathbf{X} \mathbf{W}_{xh} + \mathbf{b}_h).$$
 :eqlabel:`rnn_h_without_state`
 
-在 :eqref:`rnn_h_without_state` 中，我们有用于隐藏层的权重参数$\mathbf{W}_{xh} \in \mathbb{R}^{d \times h}$、偏置参数$\mathbf{b}_h \in \mathbb{R}^{1 \times h}$，其中隐藏单元的数目为$h$。因此，在求和期间应用广播机制（见 :numref:`subsec_broadcasting` ）。接下来，将隐藏变量$\mathbf{H}$用作输出层的输入。输出层由下式给出：
+在 :eqref:`rnn_h_without_state` 中，我们拥有的隐藏层权重参数为  $\mathbf{W}_{xh} \in \mathbb{R}^{d \times h}$、偏置参数为 $\mathbf{b}_h \in \mathbb{R}^{1 \times h}$，以及隐藏单元的数目为 $h$。因此求和时将应用广播机制（见 :numref:`subsec_broadcasting`）。接下来，将隐藏变量 $\mathbf{H}$ 用作输出层的输入。输出层由下式给出：
 
 $$\mathbf{O} = \mathbf{H} \mathbf{W}_{hq} + \mathbf{b}_q,$$
 
-其中，$\mathbf{O} \in \mathbb{R}^{n \times q}$是输出变量，$\mathbf{W}_{hq} \in \mathbb{R}^{h \times q}$是权重参数，$\mathbf{b}_q \in \mathbb{R}^{1 \times q}$是输出层的偏置参数。如果是分类问题，我们可以用$\text{softmax}(\mathbf{O})$来计算输出类别的概率分布。
+其中，$\mathbf{O} \in \mathbb{R}^{n \times q}$ 是输出变量，$\mathbf{W}_{hq} \in \mathbb{R}^{h \times q}$ 是权重参数，$\mathbf{b}_q \in \mathbb{R}^{1 \times q}$ 是输出层的偏置参数。如果是分类问题，我们可以用 $\text{softmax}(\mathbf{O})$ 来计算输出类别的概率分布。
 
-这完全类似于我们之前在 :numref:`sec_sequence` 中解决的回归问题，因此我们省略了细节。可以说，我们可以随机选择特征-标签对，并通过自动微分和随机梯度下降来学习网络参数。
+这完全类似于之前在 :numref:`sec_sequence` 中解决的回归问题，因此我们省略了细节。无需多言，只要可以随机选择“特征-标签”对，并且通过自动微分和随机梯度下降能够学习网络参数就可以了。
 
-## 具有隐藏状态的循环神经网络
+## 有隐藏状态的循环神经网络
 :label:`subsec_rnn_w_hidden_states`
 
 当我们有隐藏状态时，情况就完全不同了。让我们更详细地看看这个结构。
