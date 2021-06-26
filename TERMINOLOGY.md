@@ -96,6 +96,8 @@
 
 共现词频，co-occurrence frequency
 
+广播，broadcast
+
 归一化，normalization
 
 过滤器，filter
