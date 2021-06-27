@@ -49,7 +49,7 @@ $$\mathbf{O}_t = \mathbf{H}_t \mathbf{W}_{hq} + \mathbf{b}_q.$$
 
 循环神经网络的参数包括隐藏层的权重$\mathbf{W}_{xh} \in \mathbb{R}^{d \times h}, \mathbf{W}_{hh} \in \mathbb{R}^{h \times h}$和偏置$\mathbf{b}_h \in \mathbb{R}^{1 \times h}$，以及输出层的权重$\mathbf{W}_{hq} \in \mathbb{R}^{h \times q}$和偏置$\mathbf{b}_q \in \mathbb{R}^{1 \times q}$。值得一提的是，即使在不同的时间步，循环神经网络也总是使用这些模型参数。因此，循环神经网络的参数开销不会随着时间步的增加而增加。
 
-:numref:`fig_rnn` 展示了循环神经网络在三个相邻时间步的计算逻辑。在任意时间步$t$，隐藏状态的计算可以被视为：1、拼接当前时间步$t$的输入$\mathbf{X}_t$和前一时间步$t-1$的隐藏状态$\mathbf{H}_{t-1}$；2、将拼接的结果送入带有激活函数$\phi$的全连接层。全连接层的输出是当前时间步$t$的隐藏状态$\mathbf{H}_t$。在本例中，模型参数是$\mathbf{W}_{xh}$和$\mathbf{W}_{hh}$的拼接，以及$\mathbf{b}_h$的偏置，所有这些参数都来自 :eqref:`rnn_h_with_state`。当前时间步$t$的隐藏状态$\mathbf{H}_t$将参与计算下一时间步$t+1$的隐藏状态$\mathbf{H}_{t+1}$。而且$\mathbf{H}_t$还将送入全连接输出层用于计算当前时间步$t$的输出$\mathbf{O}_t$。
+:numref:`fig_rnn` 展示了循环神经网络在三个相邻时间步的计算逻辑。在任意时间步$t$，隐藏状态的计算可以被视为：1、拼接当前时间步$t$的输入$\mathbf{X}_t$和前一时间步$t-1$的隐藏状态$\mathbf{H}_{t-1}$；2、将拼接的结果送入带有激活函数$\phi$的全连接层。全连接层的输出是当前时间步$t$的隐藏状态$\mathbf{H}_t$。在本例中，模型参数是$\mathbf{W}_{xh}$和$\mathbf{W}_{hh}$的拼接，以及$\mathbf{b}_h$的偏置，所有这些参数都来自 :eqref:`rnn_h_with_state`。当前时间步$t$的隐藏状态$\mathbf{H}_t$将参与计算下一时间步$t+1$的隐藏状态$\mathbf{H}_{t+1}$。而且$\mathbf{H}_t$还将送入全连接输出层用于计算当前时间步$t$的输出$\mathbf{O}_t$。
 
 ![具有隐藏状态的循环神经网络。](../img/rnn.svg)
 :label:`fig_rnn`
@@ -98,14 +98,14 @@ d2l.matmul(d2l.concat((X, H), 1), d2l.concat((W_xh, W_hh), 0))
 
 ## 基于循环神经网络的字符级语言模型
 
-回想一下，对于 :numref:`sec_language_model` 中的语言模型。我们的目标是根据当前和过去的标记预测下一个标记，因此我们将原始序列移位一个标记作为标签。Bengio等人 :cite:`Bengio.Ducharme.Vincent.ea.2003` 首先提出使用神经网络进行语言建模。接下来，我们将说明如何使用循环神经网络来构建语言模型。设小批量大小为1，文本序列为"machine"。为了简化后续部分的训练，我们将文本标记化为字符而不是单词，并考虑使用*字符级语言模型*（character-level language model）。 :numref:`fig_rnn_train` 演示了如何通过用于字符级语言建模的循环神经网络，基于当前字符和先前字符预测下一个字符。
+回想一下 :numref:`sec_language_model` 中的语言模型，我们的目标是根据过去的和当前的标记预测下一个标记，因此我们将原始序列移位一个标记作为标签。Bengio等人首先提出使用神经网络进行语言建模 :cite:`Bengio.Ducharme.Vincent.ea.2003`。接下来，我们将说明如何使用循环神经网络来构建语言模型。设小批量大小为1，批量中的那个文本序列为"machine"。为了简化后续部分的训练，我们考虑使用 *字符级语言模型*（character-level language model），将文本标记化为字符而不是单词。 :numref:`fig_rnn_train` 演示了如何通过基于字符级语言建模的循环神经网络使用当前的和先前的字符预测下一个字符。
 
 ![基于循环神经网络的字符级语言模型。输入序列和标签序列分别为“machin”和“achine”。](../img/rnn-train.svg)
 :label:`fig_rnn_train`
 
-在训练过程中，我们对每个时间步长的输出层的输出进行softmax操作，然后利用交叉熵损失计算模型输出和标签之间的误差。由于隐藏层中隐藏状态的循环计算， :numref:`fig_rnn_train` 中的时间步骤3的输出$\mathbf{O}_3$由文本序列“m”、“a”和“c”确定。由于训练数据中序列的下一个字符是“h”，因此时间步3的损失将取决于基于该时间步的特征序列“m”、“a”、“c”生成的下一个字符概率分布和标签“h”。
+在训练过程中，我们对每个时间步的输出层的输出进行softmax操作，然后利用交叉熵损失计算模型输出和标签之间的误差。由于隐藏层中隐藏状态的循环计算， :numref:`fig_rnn_train` 中的第$3$个时间步的输出$\mathbf{O}_3$由文本序列“m”、“a”和“c”确定。由于训练数据中这个文本序列的下一个字符是“h”，因此第$3$个时间步的损失将取决于下一个字符的概率分布，而下一个字符是基于特征序列“m”、“a”、“c”和这个时间步的标签“h”生成的。
 
-实际上，每个标记都由一个$d$维向量表示，我们使用批量大小$n>1$。因此，输入$\mathbf X_t$在时间步$t$将是$n\times d$矩阵，这与我们在 :numref:`subsec_rnn_w_hidden_states` 中讨论的相同。
+在实践中，我们使用的批量大小为$n>1$，每个标记都由一个$d$维向量表示。因此，在时间步$t$输入$\mathbf X_t$将是一个$n\times d$矩阵，这与我们在 :numref:`subsec_rnn_w_hidden_states` 中讨论的相同。
 
 ## 困惑度（Perplexity）
 :label:`subsec_perplexity`
