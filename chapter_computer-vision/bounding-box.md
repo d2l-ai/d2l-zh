@@ -60,7 +60,7 @@ d2l.plt.imshow(img);
 边界框是矩形的，由矩形左上角的 $x$ 和 $y$ 坐标以及右下角的坐标决定。
 另一种常用的边界框表示方法是边界框中心的 $(x, y)$ 轴坐标以及框的宽度和高度。 
 
-在这里，我们定义了在这两种表示之间进行转换的函数：`box_corner_to_center` 从两角表示转换为中心宽度表示，而 `box_center_to_corner` 反之亦然。
+在这里，我们[**定义在这两种表示之间进行转换的函数**]：`box_corner_to_center` 从两角表示转换为中心宽度表示，而 `box_center_to_corner` 反之亦然。
 输入参数 `boxes` 可以是长度为 4 的张量，也可以是形状的二维张量（$n$，4），其中 $n$ 是边界框的数量。
 
 ```{.python .input}
@@ -88,7 +88,7 @@ def box_center_to_corner(boxes):
     return boxes
 ```
 
-我们将根据坐标信息定义图像中狗和猫的边界框。
+我们将根据坐标信息[**定义图像中狗和猫的边界框**]。
 图像中坐标的原点是图像的左上角，右侧和向下分别是 $x$ 和 $y$ 轴的正方向。
 
 ```{.python .input}
@@ -105,7 +105,7 @@ boxes = d2l.tensor((dog_bbox, cat_bbox))
 box_center_to_corner(box_corner_to_center(boxes)) == boxes
 ```
 
-我们可以在图中将边界框画出来，以检查其是否准确。
+我们可以[**将边界框在图中画出**]，以检查其是否准确。
 画之前，我们定义一个辅助函数 `bbox_to_rect`。
 它将边界框表示成 `matplotlib` 的边界框格式。
 
