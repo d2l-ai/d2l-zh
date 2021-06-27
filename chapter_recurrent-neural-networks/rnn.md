@@ -34,28 +34,28 @@ $$\mathbf{O} = \mathbf{H} \mathbf{W}_{hq} + \mathbf{b}_q,$$
 ## 有隐藏状态的循环神经网络
 :label:`subsec_rnn_w_hidden_states`
 
-当我们有隐藏状态时，情况就完全不同了。让我们更详细地看看这个结构。
+当我们有隐藏状态后，情况就完全不同了。让我们更详细地看看这个结构。
 
-假设我们在时间步$t$有小批量输入$\mathbf{X}_t \in \mathbb{R}^{n \times d}$。换言之，对于$n$个序列样本的小批量，$\mathbf{X}_t$的每行对应于来自该序列的时间步$t$处的一个样本。接下来，用$\mathbf{H}_t  \in \mathbb{R}^{n \times h}$表示时间步$t$的隐藏变量。与最大似然算法不同的是，这里我们保存了前一个时间步的隐藏变量$\mathbf{H}_{t-1}$，并引入了一个新的权重参数$\mathbf{W}_{hh} \in \mathbb{R}^{h \times h}$来描述如何在当前时间步中使用前一个时间步的隐藏变量。具体地，当前时间步的隐藏变量计算由当前时间步的输入与前一个时间步的隐藏变量一起确定：
+假设我们在时间步$t$有小批量输入$\mathbf{X}_t \in \mathbb{R}^{n \times d}$。换言之，对于$n$个序列样本的小批量，$\mathbf{X}_t$的每一行对应于来自该序列的时间步$t$处的一个样本。接下来，用$\mathbf{H}_t  \in \mathbb{R}^{n \times h}$表示时间步$t$的隐藏变量。与多层感知机不同的是，我们在这里保存了前一个时间步的隐藏变量$\mathbf{H}_{t-1}$，并引入了一个新的权重参数$\mathbf{W}_{hh} \in \mathbb{R}^{h \times h}$来描述如何在当前时间步中使用前一个时间步的隐藏变量。明确的描述，当前时间步隐藏变量的计算由当前时间步的输入与前一个时间步的隐藏变量一起确定：
 
 $$\mathbf{H}_t = \phi(\mathbf{X}_t \mathbf{W}_{xh} + \mathbf{H}_{t-1} \mathbf{W}_{hh}  + \mathbf{b}_h).$$
 :eqlabel:`rnn_h_with_state`
 
-与 :eqref:`rnn_h_without_state` 相比， :eqref:`rnn_h_with_state` 多添加了一项$\mathbf{H}_{t-1} \mathbf{W}_{hh}$，从而实例化了 :eqref:`eq_ht_xt`。从相邻时间步的隐藏变量$\mathbf{H}_t$和$\mathbf{H}_{t-1}$之间的关系可知，这些变量捕获并保留了序列直到其当前时间步的历史信息，就像神经网络的当前时间步的状态或记忆一样。因此，这样的隐藏变量被称为“隐藏状态”（hidden state）。由于隐藏状态使用与当前时间步中的前一个时间步相同的定义，因此 :eqref:`rnn_h_with_state` 的计算是*循环的*（recurrent）。因此，基于循环计算的隐状态神经网络被命名为*循环神经网络*（recurrent neural networks）。在循环神经网络中执行 :eqref:`rnn_h_with_state` 计算的层称为“循环层”（recurrent layers）。
+与 :eqref:`rnn_h_without_state` 相比， :eqref:`rnn_h_with_state` 多添加了一项$\mathbf{H}_{t-1} \mathbf{W}_{hh}$，从而实例化了 :eqref:`eq_ht_xt`。从相邻时间步的隐藏变量$\mathbf{H}_t$和$\mathbf{H}_{t-1}$之间的关系可知，这些变量捕获并保留了序列直到其当前时间步的历史信息，就如当前时间步下神经网络的状态或记忆，因此这样的隐藏变量被称为 *隐藏状态*（hidden state）。由于在当前时间步中隐藏状态使用的定义与前一个时间步中使用的定义相同，因此 :eqref:`rnn_h_with_state` 的计算是 *循环的*（recurrent）。于是基于循环计算的隐状态神经网络被命名为 *循环神经网络*（recurrent neural networks）。在循环神经网络中执行 :eqref:`rnn_h_with_state` 计算的层称为 *循环层*（recurrent layers）。
 
-构建循环神经网络有许多不同的方法。具有由 :eqref:`rnn_h_with_state` 定义的隐藏状态的循环神经网络非常常见。对于时间步$t$，输出层的输出类似于多层感知机中的计算：
+有许多不同的方法可以构建循环神经网络，由 :eqref:`rnn_h_with_state` 定义的隐藏状态的循环神经网络是非常常见的一种。对于时间步$t$，输出层的输出类似于多层感知机中的计算：
 
 $$\mathbf{O}_t = \mathbf{H}_t \mathbf{W}_{hq} + \mathbf{b}_q.$$
 
 循环神经网络的参数包括隐藏层的权重$\mathbf{W}_{xh} \in \mathbb{R}^{d \times h}, \mathbf{W}_{hh} \in \mathbb{R}^{h \times h}$和偏置$\mathbf{b}_h \in \mathbb{R}^{1 \times h}$，以及输出层的权重$\mathbf{W}_{hq} \in \mathbb{R}^{h \times q}$和偏置$\mathbf{b}_q \in \mathbb{R}^{1 \times q}$。值得一提的是，即使在不同的时间步，循环神经网络也总是使用这些模型参数。因此，循环神经网络的参数开销不会随着时间步的增加而增加。
 
-:numref:`fig_rnn`展示了在三个相邻时间步的循环神经网络计算逻辑。在任意时间步$t$，隐藏状态的计算可以被视为：1、将当前时间步$t$的输入$\mathbf{X}_t$和前一时间步$t-1$的隐藏状态$\mathbf{H}_{t-1}$连结；2、将连结结果送入带有激活函数$\phi$的全连接层。全连接层的输出是当前时间步$t$的隐藏状态$\mathbf{H}_t$。在本例中，模型参数是$\mathbf{W}_{xh}$和$\mathbf{W}_{hh}$的连结，以及$\mathbf{b}_h$的偏置，所有这些参数都来自 :eqref:`rnn_h_with_state`。当前时间步$t$、$\mathbf{H}_t$的隐藏状态将参与计算下一时间步$t+1$的隐藏状态$\mathbf{H}_{t+1}$。此外，还将$\mathbf{H}_t$送入全连接输出层，以计算当前时间步$t$的输出$\mathbf{O}_t$。
+:numref:`fig_rnn` 展示了循环神经网络在三个相邻时间步的计算逻辑。在任意时间步$t$，隐藏状态的计算可以被视为：1、拼接当前时间步$t$的输入$\mathbf{X}_t$和前一时间步$t-1$的隐藏状态$\mathbf{H}_{t-1}$；2、将拼接的结果送入带有激活函数$\phi$的全连接层。全连接层的输出是当前时间步$t$的隐藏状态$\mathbf{H}_t$。在本例中，模型参数是$\mathbf{W}_{xh}$和$\mathbf{W}_{hh}$的拼接，以及$\mathbf{b}_h$的偏置，所有这些参数都来自 :eqref:`rnn_h_with_state`。当前时间步$t$的隐藏状态$\mathbf{H}_t$将参与计算下一时间步$t+1$的隐藏状态$\mathbf{H}_{t+1}$。而且$\mathbf{H}_t$还将送入全连接输出层用于计算当前时间步$t$的输出$\mathbf{O}_t$。
 
 ![具有隐藏状态的循环神经网络。](../img/rnn.svg)
 :label:`fig_rnn`
 
-我们刚才提到，隐藏状态的计算$\mathbf{X}_t \mathbf{W}_{xh} + \mathbf{H}_{t-1} \mathbf{W}_{hh}$，相当于$\mathbf{X}_t$和$\mathbf{H}_{t-1}$连结和$\mathbf{W}_{xh}$和$\mathbf{W}_{hh}$连结的矩阵乘法。
-虽然可以在数学上证明这一点，但在下面我们只使用一个简单的代码片段来说明这一点。首先，我们定义矩阵`X`、`W_xh`、`H`和`W_hh`，它们的形状分别为(3，1)、(1，4)、(3，4)和(4，4)。分别将`X`乘以`W_xh`，将`H`乘以`W_hh`，然后将这两个乘法相加，我们得到一个形状为(3，4)的矩阵。
+我们刚才提到，隐藏状态中$\mathbf{X}_t \mathbf{W}_{xh} + \mathbf{H}_{t-1} \mathbf{W}_{hh}$的计算，相当于$\mathbf{X}_t$和$\mathbf{H}_{t-1}$的拼接与$\mathbf{W}_{xh}$和$\mathbf{W}_{hh}$的拼接的矩阵乘法。
+虽然这个性质可以通过数学证明，但在下面我们只使用一个简单的代码片段来说明。首先，我们定义矩阵`X`、`W_xh`、`H`和`W_hh`，它们的形状分别为$(3，1)$、$(1，4)$、$(3，4)$和$(4，4)$。分别将`X`乘以`W_xh`，将`H`乘以`W_hh`，然后将这两个乘法相加，我们得到一个形状为$(3，4)$的矩阵。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -89,7 +89,7 @@ H, W_hh = d2l.normal((3, 4), 0, 1), d2l.normal((4, 4), 0, 1)
 d2l.matmul(X, W_xh) + d2l.matmul(H, W_hh)
 ```
 
-现在，我们沿列（轴1）连结矩阵`X`和`H`，沿行（轴0）连结矩阵`W_xh`和`W_hh`。这两个连结分别产生形状(3, 5)和形状(5, 4)的矩阵。将这两个连结的矩阵相乘，我们得到与上面相同形状(3, 4)的输出矩阵。
+现在，我们沿列（轴1）拼接矩阵`X`和`H`，沿行（轴0）拼接矩阵`W_xh`和`W_hh`。这两个拼接分别产生形状$(3, 5)$和形状$(5, 4)$的矩阵。再将这两个拼接的矩阵相乘，我们得到与上面相同形状$(3, 4)$的输出矩阵。
 
 ```{.python .input}
 #@tab all
