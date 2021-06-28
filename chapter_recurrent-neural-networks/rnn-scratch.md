@@ -1,7 +1,7 @@
-# 循环神经网络的从零开始实现
+# 从零开始实现循环神经网络
 :label:`sec_rnn_scratch`
 
-在本节中，我们将根据 :numref:`sec_rnn` 中的描述，从头开始为字符级语言模型实现循环神经网络。这样的模型将在时光机器数据集上训练。和前面一样，我们首先读取数据集，它在 :numref:`sec_language_model` 中介绍过。
+在本节中，我们将根据 :numref:`sec_rnn` 中的描述，从头开始基于循环神经网络实现字符级语言模型。这样的模型将在 H. G. Wells 的时光机器数据集上训练。和前面 :numref:`sec_language_model` 中介绍过的一样，我们先读取数据集。
 
 ```{.python .input}
 %matplotlib inline
