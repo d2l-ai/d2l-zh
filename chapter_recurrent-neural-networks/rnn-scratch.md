@@ -44,7 +44,7 @@ train_random_iter, vocab_random_iter = d2l.load_data_time_machine(
 
 ## 独热编码
 
-回想一下，在 `train_iter` 中，每个标记都表示为一个数字索引。将这些索引直接输入神经网络可能会使学习变得困难。我们通常将每个标记表示为更具表现力的特征向量。最简单的表示称为“独热编码”（One-Hot Encoding），它在 :numref:`subsec_classification-problem` 中介绍过。
+回想一下，在 `train_iter` 中，每个标记都表示为一个数字索引。将这些索引直接输入神经网络可能会使学习变得困难。我们通常将每个标记表示为更具表现力的特征向量。最简单的表示称为“独热编码”（One-Hot Encoding），它在 :numref:`subsec_classification-problem` 中介绍过。
 
 简言之，将每个索引映射为相互不同的单位向量：假设词汇表中不同标记的数目为$N$（即 `len(vocab)`），标记索引的范围为$0$到$N-1$。如果标记的索引是整数$i$，那么我们创建一个长度为$N$的全$0$向量，并将第$i$处的元素设置为$1$。此向量是原始标记的一个独热向量。索引为$0$和$2$的独热向量如下所示。
 
@@ -83,7 +83,7 @@ tf.one_hot(tf.transpose(X), 28).shape
 
 ## 初始化模型参数
 
-接下来，我们初始化循环神经网络模型的模型参数。隐藏单元数`num_hiddens`是一个可调的超参数。当训练语言模型时，输入和输出来自相同的词表。因此，它们具有相同的维度，即等于词表的大小。
+接下来，我们初始化循环神经网络模型的模型参数。隐藏单元数`num_hiddens`是一个可调的超参数。当训练语言模型时，输入和输出来自相同的词汇表。因此，它们具有相同的维度，即词汇表的大小。
 
 ```{.python .input}
 def get_params(vocab_size, num_hiddens, device):
