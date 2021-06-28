@@ -311,7 +311,7 @@ Y.shape, len(new_state), new_state[0].shape
 
 ## 预测
 
-让我们首先定义预测函数来生成用户提供的`prefix`之后的新字符，`prefix`是一个包含多个字符的字符串。在`prefix`中循环遍历这些开始字符时，我们不断地将隐藏状态传递到下一个时间步，而不生成任何输出。这被称为“预热”（Warm-up）期，在此期间模型会自我更新（例如，更新隐藏状态），但不会进行预测。预热期过后，隐藏状态通常比开始时的初始值好。
+让我们首先定义预测函数来生成`prefix`之后的新字符，其中的`prefix`是一个用户提供的包含多个字符的字符串。在循环遍历`prefix`中的开始字符时，我们不断地将隐藏状态传递到下一个时间步，但是不生成任何输出。这被称为“预热”（Warm-up）期，因为在此期间模型会自我更新（例如，更新隐藏状态），但不会进行预测。预热期结束后，隐藏状态的初始值通常比刚开始的时候要好。因此我们生成预测字符并输出它们。
 
 ```{.python .input}
 def predict_ch8(prefix, num_preds, net, vocab, device):  #@save
@@ -362,7 +362,7 @@ def predict_ch8(prefix, num_preds, net, vocab, params):  #@save
     return ''.join([vocab.idx_to_token[i] for i in outputs])
 ```
 
-现在我们可以测试 `predict_ch8` 函数。我们将前缀指定为 `time traveller ` ，并让它生成10个后续字符。鉴于我们没有训练网络，它会产生荒谬的预测。
+现在我们可以测试`predict_ch8`函数。我们将前缀指定为`time traveller ` ，并基于这个前缀生成$10$个后续字符。鉴于我们还没有训练网络，它会生成荒谬的预测结果。
 
 ```{.python .input}
 #@tab mxnet,pytorch
