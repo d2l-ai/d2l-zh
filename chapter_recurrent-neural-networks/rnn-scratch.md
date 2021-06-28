@@ -149,7 +149,7 @@ def get_params(vocab_size, num_hiddens):
 
 ## 循环神经网络模型
 
-为了定义循环神经网络模型，我们首先需要一个`init_rnn_state`函数在初始化时返回隐藏状态。它返回一个张量，全用0填充，形状为(批量大小, 隐藏单元数)。使用元组可以更容易地处理隐藏状态包含多个变量的情况，我们将在后面的部分中遇到这些情况。
+为了定义循环神经网络模型，我们首先需要一个`init_rnn_state`函数在初始化时返回隐藏状态。函数的返回是一个张量，张量全用$0$填充，形状为（批量大小, 隐藏单元数）。在后面的章节中将会遇到隐藏状态包含多个变量的情况，而使用元组可以处理地更容易些。
 
 ```{.python .input}
 def init_rnn_state(batch_size, num_hiddens, device):
@@ -168,15 +168,15 @@ def init_rnn_state(batch_size, num_hiddens):
     return (d2l.zeros((batch_size, num_hiddens)), )
 ```
 
-下面的`rnn`函数定义了如何在一个时间步计算隐藏状态和输出。请注意，循环神经网络模型通过最外层维度`inputs`循环，以便逐时间步更新小批量的隐藏状态`H`。此外，这里的激活函数使用$\tanh$函数。如 :numref:`sec_mlp` 所述，当元素在实数上均匀分布时，$\tanh$函数的平均值为0。
+下面的`rnn`函数定义了如何在一个时间步内计算隐藏状态和输出。请注意，循环神经网络模型通过`inputs`最外层的维度实现循环，以便逐时间步更新小批量数据的隐藏状态`H`。此外，这里使用$\tanh$函数作为激活函数。如 :numref:`sec_mlp` 所述，当元素在实数上满足均匀分布时，$\tanh$函数的平均值为0。
 
 ```{.python .input}
 def rnn(inputs, state, params):
-    # `inputs`的形状：(`时间步数量`, `批量大小`, `词表大小`)
+    # `inputs`的形状：(`时间步数量`，`批量大小`，`词表大小`)
     W_xh, W_hh, b_h, W_hq, b_q = params
     H, = state
     outputs = []
-    # `X`的形状：(`批量大小`, `词表大小`)
+    # `X`的形状：(`批量大小`，`词表大小`)
     for X in inputs:
         H = np.tanh(np.dot(X, W_xh) + np.dot(H, W_hh) + b_h)
         Y = np.dot(H, W_hq) + b_q
@@ -187,11 +187,11 @@ def rnn(inputs, state, params):
 ```{.python .input}
 #@tab pytorch
 def rnn(inputs, state, params):
-    # `inputs`的形状：(`时间步数量`, `批量大小`, `词表大小`)
+    # `inputs`的形状：(`时间步数量`，`批量大小`，`词表大小`)
     W_xh, W_hh, b_h, W_hq, b_q = params
     H, = state
     outputs = []
-    # `X`的形状：(`批量大小`, `词表大小`)
+    # `X`的形状：(`批量大小`，`词表大小`)
     for X in inputs:
         H = torch.tanh(torch.mm(X, W_xh) + torch.mm(H, W_hh) + b_h)
         Y = torch.mm(H, W_hq) + b_q
@@ -202,11 +202,11 @@ def rnn(inputs, state, params):
 ```{.python .input}
 #@tab tensorflow
 def rnn(inputs, state, params):
-    # `inputs`的形状：(`时间步数量`, `批量大小`, `词表大小`)
+    # `inputs`的形状：(`时间步数量`，`批量大小`，`词表大小`)
     W_xh, W_hh, b_h, W_hq, b_q = params
     H, = state
     outputs = []
-    # `X`的形状：(`批量大小`, `词表大小`)
+    # `X`的形状：(`批量大小`，`词表大小`)
     for X in inputs:
         X = tf.reshape(X,[-1,W_xh.shape[0]])
         H = tf.tanh(tf.matmul(X, W_xh) + tf.matmul(H, W_hh) + b_h)
@@ -270,7 +270,7 @@ class RNNModelScratch: #@save
         return self.init_state(batch_size, self.num_hiddens)
 ```
 
-让我们检查输出是否具有正确的形状，例如，确保隐藏状态的维数保持不变。
+让我们检查输出是否具有正确的形状，例如，是否保证了隐藏状态的维数保持不变。
 
 ```{.python .input}
 #@tab mxnet
@@ -307,7 +307,7 @@ Y, new_state = net(X, state, params)
 Y.shape, len(new_state), new_state[0].shape
 ```
 
-我们可以看到输出形状是(时间步数$\times$批量大小, 词汇表大小)，而隐藏状态形状保持不变，即(批量大小, 隐藏单元数)。
+我们可以看到输出形状是（时间步数$\times$批量大小，词汇表大小），而隐藏状态形状保持不变，即（批量大小, 隐藏单元数）。
 
 ## 预测
 
