@@ -147,7 +147,7 @@ class RNNModel(nn.Module):
 
 ## 训练与预测
 
-在训练模型之前，让我们用一个具有随机权重的模型进行预测。
+在训练模型之前，让我们基于一个具有随机权重的模型进行预测。
 
 ```{.python .input}
 device = d2l.try_gpu()
@@ -164,7 +164,7 @@ net = net.to(device)
 d2l.predict_ch8('time traveller', 10, net, vocab, device)
 ```
 
-很明显，这种模型根本不起作用。接下来，我们使用 :numref:`sec_rnn_scratch` 中定义的超参数调用 `train_ch8`，并使用高级API训练模型。
+很明显，这种模型根本不能输出好的结果。接下来，我们使用 :numref:`sec_rnn_scratch` 中定义的超参数调用 `train_ch8`，并且训练使用高级API建立的模型。
 
 ```{.python .input}
 #@tab all
