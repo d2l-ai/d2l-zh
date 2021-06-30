@@ -174,7 +174,7 @@ class Seq2SeqDecoder(d2l.Decoder):
         X = self.embedding(X).swapaxes(0, 1)
         # `context` 的形状: (`batch_size`, `num_hiddens`)
         context = state[0][-1]
-        # 广播 `context`，使其具有与`X`相同的 `num_steps`
+        # 广播`context`，使其具有与`X`相同的`num_steps`
         context = np.broadcast_to(context, (
             X.shape[0], context.shape[0], context.shape[1]))
         X_and_context = d2l.concat((X, context), 2)
@@ -203,7 +203,7 @@ class Seq2SeqDecoder(d2l.Decoder):
     def forward(self, X, state):
         # 输出'X'的形状：(`batch_size`, `num_steps`, `embed_size`)
         X = self.embedding(X).permute(1, 0, 2)
-        # 广播 `context`，使其具有与`X`相同的 `num_steps`
+        # 广播`context`，使其具有与`X`相同的`num_steps`
         context = state[-1].repeat(X.shape[0], 1, 1)
         X_and_context = d2l.concat((X, context), 2)
         output, state = self.rnn(X_and_context, state)
@@ -283,7 +283,7 @@ sequence_mask(X, torch.tensor([1, 2]), value=-1)
 ```{.python .input}
 #@save
 class MaskedSoftmaxCELoss(gluon.loss.SoftmaxCELoss):
-    """带遮蔽的 softmax 交叉熵损失函数"""
+    """带遮蔽的softmax交叉熵损失函数"""
     # `pred` 的形状：(`batch_size`, `num_steps`, `vocab_size`)
     # `label` 的形状：(`batch_size`, `num_steps`)
     # `valid_len` 的形状：(`batch_size`,)
@@ -298,7 +298,7 @@ class MaskedSoftmaxCELoss(gluon.loss.SoftmaxCELoss):
 #@tab pytorch
 #@save
 class MaskedSoftmaxCELoss(nn.CrossEntropyLoss):
-    """带遮蔽的 softmax 交叉熵损失函数"""
+    """带遮蔽的softmax交叉熵损失函数"""
     # `pred` 的形状：(`batch_size`, `num_steps`, `vocab_size`)
     # `label` 的形状：(`batch_size`, `num_steps`)
     # `valid_len` 的形状：(`batch_size`,)
