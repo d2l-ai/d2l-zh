@@ -112,8 +112,6 @@
 
 激活函数，activation function
 
-精确度，precision
-
 解码器，decoder
 
 经验风险最小化，empirical risk minimization
