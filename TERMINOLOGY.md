@@ -114,6 +114,8 @@
 
 解码器，decoder
 
+精确度，precision
+
 经验风险最小化，empirical risk minimization
 
 局部最小值，local minimum
@@ -136,7 +138,7 @@
 
 拉普拉斯平滑，Laplace smoothing
 
-连结，concatenate
+拼接，concatenate
 
 类，class
 
