@@ -471,7 +471,7 @@ train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
       lr_decay)
 ```
 
-## 在 Kaggle 上对测试集进行分类并提交结果
+## 在 Kaggle 上[对测试集进行分类并提交结果]
 
 在获得具有超参数的满意的模型后，我们使用所有标记的数据（包括验证集）来重新训练模型并对测试集进行分类。
 
