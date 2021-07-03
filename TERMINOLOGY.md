@@ -2,21 +2,21 @@
 
 鞍点，saddle point
 
-背景变量，context variable
+上下文变量，context variable
 
-背景窗口，context window
+上下文窗口，context window
 
-背景词，context word
+上下文词，context word
 
-背景向量，context vector
+上下文向量，context vector
 
 变换，transform
 
 编码器，encoder
 
-标记，token
+词元，token
 
-标记化，tokenize
+词元化，tokenize
 
 标签，label
 
@@ -26,19 +26,19 @@
 
 长短期记忆网络，long short-term memory (LSTM)
 
-超参数，hyper-parameter
+超参数，hyperparameter
 
 层序softmax，hierarchical softmax
 
 成本，cost
 
-词汇表，vocabulary
+词表，vocabulary
 
 词嵌入，word embedding
 
 词向量，word vector
 
-池化层，pooling layer
+汇聚层，pooling layer
 
 稠密，dense
 
@@ -46,7 +46,7 @@
 
 导入，import
 
-迭代周期（周期)，epoch
+轮，epoch
 
 迭代模型参数，update model parameter(s)
 
@@ -116,6 +116,8 @@
 
 近似法，approximate method
 
+精确度，precision
+
 经验风险最小化，empirical risk minimization
 
 局部最小值，local minimum
@@ -138,7 +140,7 @@
 
 拉普拉斯平滑，Laplace smoothing
 
-连结，concatenate
+拼接，concatenate
 
 类，class
 
