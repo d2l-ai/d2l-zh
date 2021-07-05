@@ -50,7 +50,7 @@
 
 迭代模型参数，update model parameter(s)
 
-丢弃法，dropout
+暂退法，dropout
 
 动量法，momentum (method)
 
