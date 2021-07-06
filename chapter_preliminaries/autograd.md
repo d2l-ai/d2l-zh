@@ -57,7 +57,7 @@ x.grad  # 默认值是None
 x = tf.Variable(x)
 ```
 
-(**现在让我们计算 $y$。**)
+(**现在让我们计算$y$。**)
 
 ```{.python .input}
 # 把代码放到`autograd.record`内，以建立计算图
