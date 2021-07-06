@@ -220,7 +220,7 @@ softmax回归，softmax regression
 
 跳字模型，skip-gram model
 
-调参，tune hyper-parameter
+调参，tune hyperparameter
 
 停用词，stop words
 
