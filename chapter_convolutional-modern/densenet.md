@@ -180,7 +180,7 @@ Y.shape
 
 由于每个稠密块都会带来通道数的增加，使用过多则会过于复杂化模型。
 而过渡层可以用来控制模型复杂度。
-它通过 $1\times 1$ 卷积层来减小通道数，并使用步幅为 2 的平均池化层减半高和宽，从而进一步降低模型复杂度。
+它通过 $1\times 1$ 卷积层来减小通道数，并使用步幅为 2 的平均汇聚层减半高和宽，从而进一步降低模型复杂度。
 
 ```{.python .input}
 def transition_block(num_channels):
@@ -240,7 +240,7 @@ blk(Y).shape
 
 ## [**DenseNet模型**]
 
-我们来构造 DenseNet 模型。DenseNet 首先使用同 ResNet 一样的单卷积层和最大池化层。
+我们来构造 DenseNet 模型。DenseNet 首先使用同 ResNet 一样的单卷积层和最大汇聚层。
 
 ```{.python .input}
 net = nn.Sequential()
@@ -324,7 +324,7 @@ def block_2():
     return net
 ```
 
-与 ResNet 类似，最后接上全局池化层和全连接层来输出结果。
+与 ResNet 类似，最后接上全局汇聚层和全连接层来输出结果。
 
 ```{.python .input}
 net.add(nn.BatchNorm(),
@@ -375,7 +375,7 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 
 ## 练习
 
-1. 为什么我们在过渡层使用平均池化层而不是最大池化层？
+1. 为什么我们在过渡层使用平均汇聚层而不是最大汇聚层？
 1. DenseNet 的优点之一是其模型参数比 ResNet 小。为什么呢？
 1. DenseNet 一个诟病的问题是内存或显存消耗过多。
     1. 真的是这样吗？可以把输入形状换成 $224 \times 224$ ，来看看实际的显存消耗。

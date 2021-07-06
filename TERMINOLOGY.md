@@ -166,7 +166,7 @@
 
 批量，batch
 
-平均池化层，average pooling layer
+平均汇聚层，average pooling layer
 
 齐普夫定律，Zipf's law
 
