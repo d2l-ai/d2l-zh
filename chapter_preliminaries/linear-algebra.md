@@ -268,7 +268,7 @@ B = A  # 不能通过分配新内存将A克隆到B
 A, A + B
 ```
 
-具体而言，[**两个矩阵的按元素乘法称为*哈达玛积*（Hadamardproduct）（数学符号$\odot$）**]。对于矩阵$\mathbf{B}\in\mathbb{R}^{m\timesn}$，其中第$i$行和第$j$列的元素是$b_{ij}$。矩阵$\mathbf{A}$（在:eqref:`eq_matrix_def`中定义）和$\mathbf{B}$的哈达玛积为：
+具体而言，[**两个矩阵的按元素乘法称为*哈达玛积*（Hadamardproduct）（数学符号$\odot$）**]。对于矩阵$\mathbf{B} \in \mathbb{R}^{m \times n}$，其中第$i$行和第$j$列的元素是$b_{ij}$。矩阵$\mathbf{A}$（在:eqref:`eq_matrix_def`中定义）和$\mathbf{B}$的哈达玛积为：
 
 $$
 \mathbf{A} \odot \mathbf{B} =
@@ -500,7 +500,7 @@ tf.cumsum(A, axis=0)
 ## 点积（Dot Product）
 
 到目前为止，我们只执行了按元素操作、求和及平均值。如果这就是我们所能做的，那么线性代数可能就不需要单独一节了。
-但是，最基本的操作之一是点积。给定两个向量$\mathbf{x},\mathbf{y}\in\mathbb{R}^d$，它们的*点积*（dotproduct）$\mathbf{x}^\top\mathbf{y}$（或$\langle\mathbf{x},\mathbf{y}\rangle$）是相同位置的按元素乘积的和：$\mathbf{x}^\top\mathbf{y}=\sum_{i=1}^{d}x_iy_i$。
+但是，最基本的操作之一是点积。给定两个向量$\mathbf{x},\mathbf{y}\in\mathbb{R}^d$，它们的*点积*（dotproduct）$\mathbf{x}^\top\mathbf{y}$（或$\langle\mathbf{x},\mathbf{y}\rangle$）是相同位置的按元素乘积的和：$\mathbf{x}^\top \mathbf{y} = \sum_{i=1}^{d} x_i y_i$。
 
 [~~点积是相同位置的按元素乘积的和~~]
 
@@ -537,11 +537,11 @@ torch.sum(x * y)
 tf.reduce_sum(x * y)
 ```
 
-点积在很多场合都很有用。例如，给定一组由向量$\mathbf{x}\in\mathbb{R}^d$表示的值，和一组由$\mathbf{w}\in\mathbb{R}^d$表示的权重。$\mathbf{x}$中的值根据权重$\mathbf{w}$的加权和可以表示为点积$\mathbf{x}^\top\mathbf{w}$。当权重为非负数且和为1（即$\left(\sum_{i=1}^{d}{w_i}=1\right)$）时，点积表示*加权平均*（weightedaverage）。将两个向量归一化得到单位长度后，点积表示它们夹角的余弦。我们将在本节的后面正式介绍*长度*（length）的概念。
+点积在很多场合都很有用。例如，给定一组由向量$\mathbf{x} \in \mathbb{R}^d$表示的值，和一组由$\mathbf{w} \in \mathbb{R}^d$表示的权重。$\mathbf{x}$中的值根据权重$\mathbf{w}$的加权和可以表示为点积$\mathbf{x}^\top \mathbf{w}$。当权重为非负数且和为1（即$\left(\sum_{i=1}^{d}{w_i}=1\right)$）时，点积表示*加权平均*（weighted average）。将两个向量归一化得到单位长度后，点积表示它们夹角的余弦。我们将在本节的后面正式介绍*长度*（length）的概念。
 
 ## 矩阵-向量积
 
-现在我们知道如何计算点积，我们可以开始理解*矩阵-向量积*（matrix-vectorproducts）。回顾分别在 :eqref:`eq_matrix_def`和 :eqref:`eq_vec_def`中定义并画出的矩阵$\mathbf{A}\in\mathbb{R}^{m\timesn}$和向量$\mathbf{x}\in\mathbb{R}^n$。让我们将矩阵$\mathbf{A}$用它的行向量表示
+现在我们知道如何计算点积，我们可以开始理解*矩阵-向量积*（matrix-vector products）。回顾分别在 :eqref:`eq_matrix_def`和 :eqref:`eq_vec_def`中定义并画出的矩阵$\mathbf{A} \in \mathbb{R}^{m \times n}$和向量$\mathbf{x} \in \mathbb{R}^n$。让我们将矩阵$\mathbf{A}$用它的行向量表示
 
 $$\mathbf{A}=
 \begin{bmatrix}
@@ -569,7 +569,7 @@ $$
 \end{bmatrix}.
 $$
 
-我们可以把一个矩阵$\mathbf{A}\in\mathbb{R}^{m\timesn}$乘法看作是一个从$\mathbb{R}^{n}$到$\mathbb{R}^{m}$向量的转换。这些转换证明是非常有用的。例如，我们可以用方阵的乘法来表示旋转。
+我们可以把一个矩阵$\mathbf{A} \in \mathbb{R}^{m \times n}$乘法看作是一个从$\mathbb{R}^{n}$到$\mathbb{R}^{m}$向量的转换。这些转换证明是非常有用的。例如，我们可以用方阵的乘法来表示旋转。
 我们将在后续章节中讲到，我们也可以使用矩阵-向量积来描述在给定前一层的值时，求解神经网络每一层所需的复杂计算。
 
 在代码中使用张量表示矩阵-向量积，我们使用与点积相同的`dot`函数。当我们为矩阵`A`和向量`x`调用`np.dot(A,x)`时，会执行矩阵-向量积。注意，`A`的列维数（沿轴1的长度）必须与`x`的维数（其长度）相同。
@@ -640,7 +640,7 @@ $$\mathbf{C} = \mathbf{AB} = \begin{bmatrix}
 \end{bmatrix}.
 $$
 
-[**我们可以将矩阵-矩阵乘法$\mathbf{AB}$看作是简单地执行$m$次矩阵-向量积，并将结果拼接在一起，形成一个$n\timesm$矩阵**]。在下面的代码中，我们在`A`和`B`上执行矩阵乘法。这里的`A`是一个5行4列的矩阵，`B`是一个4行3列的矩阵。相乘后，我们得到了一个5行3列的矩阵。
+[**我们可以将矩阵-矩阵乘法$\mathbf{AB}$看作是简单地执行$m$次矩阵-向量积，并将结果拼接在一起，形成一个$n \times m$矩阵**]。在下面的代码中，我们在`A`和`B`上执行矩阵乘法。这里的`A`是一个5行4列的矩阵，`B`是一个4行3列的矩阵。相乘后，我们得到了一个5行3列的矩阵。
 
 ```{.python .input}
 B = np.ones(shape=(4, 3))
@@ -732,7 +732,7 @@ $L_2$范数和$L_1$范数都是更一般的$L_p$范数的特例：
 
 $$\|\mathbf{x}\|_p = \left(\sum_{i=1}^n \left|x_i \right|^p \right)^{1/p}.$$
 
-类似于向量的$L_2$范数，[**矩阵**]$\mathbf{X}\in\mathbb{R}^{m\timesn}$(**的*弗罗贝尼乌斯范数*（Frobenius norm）是矩阵元素平方和的平方根：**)
+类似于向量的$L_2$范数，[**矩阵**]$\mathbf{X} \in \mathbb{R}^{m \times n}$(**的*弗罗贝尼乌斯范数*（Frobenius norm）是矩阵元素平方和的平方根：**)
 
 (**$$\|\mathbf{X}\|_F = \sqrt{\sum_{i=1}^m \sum_{j=1}^n x_{ij}^2}.$$**)
 
