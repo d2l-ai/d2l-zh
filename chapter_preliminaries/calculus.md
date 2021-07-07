@@ -211,7 +211,7 @@ $$\frac{\partial y}{\partial x_i} = \frac{\partial f}{\partial x_i} = f_{x_i} = 
 
 $$\nabla_{\mathbf{x}} f(\mathbf{x}) = \bigg[\frac{\partial f(\mathbf{x})}{\partial x_1}, \frac{\partial f(\mathbf{x})}{\partial x_2}, \ldots, \frac{\partial f(\mathbf{x})}{\partial x_n}\bigg]^\top,$$
 
-其中$\nabla_{\mathbf{x}}f(\mathbf{x})$通常在没有歧义时被$\nablaf(\mathbf{x})$取代。
+其中$\nabla_{\mathbf{x}} f(\mathbf{x})$通常在没有歧义时被$\nabla f(\mathbf{x})$取代。
 
 假设$\mathbf{x}$为$n$维向量，在微分多元函数时经常使用以下规则:
 
