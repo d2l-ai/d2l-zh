@@ -156,7 +156,7 @@ A
 
 我们可以通过行索引（$i$）和列索引（$j$）来访问矩阵中的标量元素$a_{ij}$，例如$[\mathbf{A}]_{ij}$。如果没有给出矩阵$\mathbf{A}$的标量元素，如在 :eqref:`eq_matrix_def`那样，我们可以简单地使用矩阵$\mathbf{A}$的小写字母索引下标$a_{ij}$来引用$[\mathbf{A}]_{ij}$。为了表示起来简单，只有在必要时才会将逗号插入到单独的索引中，例如$a_{2,3j}$和$[\mathbf{A}]_{2i-1,3}$。
 
-有时候，我们想翻转轴。当我们交换矩阵的行和列时，结果称为矩阵的*转置*（transpose）。我们用$\mathbf{a}^\top$来表示矩阵的转置，如果$\mathbf{B}=\mathbf{A}^\top$，则对于任意$i$和$j$，都有$b_{ij}=a_{ji}$。因此，在 :eqref:`eq_matrix_def`中的转置是一个形状为$n\timesm$的矩阵：
+有时候，我们想翻转轴。当我们交换矩阵的行和列时，结果称为矩阵的*转置*（transpose）。我们用$\mathbf{a}^\top$来表示矩阵的转置，如果$\mathbf{B}=\mathbf{A}^\top$，则对于任意$i$和$j$，都有$b_{ij}=a_{ji}$。因此，在 :eqref:`eq_matrix_def`中的转置是一个形状为$n \times m$的矩阵：
 
 $$
 \mathbf{A}^\top =
