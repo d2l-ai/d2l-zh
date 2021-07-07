@@ -128,7 +128,7 @@ x.shape
 
 正如向量将标量从零阶推广到一阶，矩阵将向量从一阶推广到二阶。矩阵，我们通常用粗体、大写字母来表示（例如，$\mathbf{X}$、$\mathbf{Y}$和$\mathbf{Z}$），在代码中表示为具有两个轴的张量。
 
-在数学表示法中，我们使用$\mathbf{A} \in \mathbb{R}^{m \times n}$来表示矩阵$\mathbf{A}$，其由$m$行和$n$列的实值标量组成。直观地，我们可以将任意矩阵$\mathbf{A}\in\mathbb{R}^{m\timesn}$视为一个表格，其中每个元素$a_{ij}$属于第$i$行第$j$列：
+在数学表示法中，我们使用$\mathbf{A} \in \mathbb{R}^{m \times n}$来表示矩阵$\mathbf{A}$，其由$m$行和$n$列的实值标量组成。直观地，我们可以将任意矩阵$\mathbf{A} \in \mathbb{R}^{m \times n}$视为一个表格，其中每个元素$a_{ij}$属于第$i$行第$j$列：
 
 $$\mathbf{A}=\begin{bmatrix} a_{11} & a_{12} & \cdots & a_{1n} \\ a_{21} & a_{22} & \cdots & a_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ a_{m1} & a_{m2} & \cdots & a_{mn} \\ \end{bmatrix}.$$
 :eqlabel:`eq_matrix_def`
