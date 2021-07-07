@@ -268,7 +268,7 @@ B = A  # 不能通过分配新内存将A克隆到B
 A, A + B
 ```
 
-具体而言，[**两个矩阵的按元素乘法称为*哈达玛积*（Hadamardproduct）（数学符号$\odot$）**]。对于矩阵$\mathbf{B} \in \mathbb{R}^{m \times n}$，其中第$i$行和第$j$列的元素是$b_{ij}$。矩阵$\mathbf{A}$（在:eqref:`eq_matrix_def`中定义）和$\mathbf{B}$的哈达玛积为：
+具体而言，[**两个矩阵的按元素乘法称为*哈达玛积*（Hadamardproduct）（数学符号$\odot$）**]。对于矩阵$\mathbf{B} \in \mathbb{R}^{m \times n}$，其中第$i$行和第$j$列的元素是$b_{ij}$。矩阵$\mathbf{A}$（在 :eqref:`eq_matrix_def`中定义）和$\mathbf{B}$的哈达玛积为：
 
 $$
 \mathbf{A} \odot \mathbf{B} =
