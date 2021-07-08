@@ -65,7 +65,7 @@ $$\frac{\partial h_t}{\partial w_h}=\frac{\partial f(x_{t},h_{t-1},w_h)}{\partia
 
 $$z_t= \frac{\partial f(x_{t},h_{t-1},w_h)}{\partial w_h} +\xi_t \frac{\partial f(x_{t},h_{t-1},w_h)}{\partial h_{t-1}} \frac{\partial h_{t-1}}{\partial w_h}.$$
 
-从$\xi_t$的定义中推导出来$E[z_t] = \partial h_t/\partial w_h$。每当$\xi_t = 0$时，递归计算终止在这个$t$时间步。这导致了不同长度序列的加权和，其中长序列出现的很少，所以将适当地加大权重。这个想法是由塔莱克和奥利维尔 :cite:`Tallec.Ollivier.2017` 提出的。
+从$\xi_t$的定义中推导出来$E[z_t] = \partial h_t/\partial w_h$。每当$\xi_t = 0$时，递归计算终止在这个$t$时间步。这导致了不同长度序列的加权和，其中长序列出现的很少，所以将适当地加大权重。这个想法是由塔莱克和奥利维尔 :cite:`Tallec.Ollivier.2017` 提出的。
 
 ### 比较策略
 
@@ -80,31 +80,31 @@ $$z_t= \frac{\partial f(x_{t},h_{t-1},w_h)}{\partial w_h} +\xi_t \frac{\partial 
 
 遗憾的是，虽然随机截断在理论上具有吸引力，但很可能是由于多种因素在实践中并不比常规截断更好。首先，在对过去若干个时间步经过反向传播后，观测结果足以捕获实际的依赖关系。其次，增加的方差抵消了时间步数越多梯度越精确的事实。第三，我们真正想要的是只有短范围交互的模型。因此，模型需要的正是截断的通过时间反向传播方法所具备的轻度正则化效果。
 
-## 通过时间反向传播细节
+## 通过时间反向传播的细节
 
-在讨论一般原则之后，让我们详细讨论反向传播问题。与 :numref:`subsec_bptt_analysis` 中的分析不同，下面我们将展示如何计算目标函数相对于所有分解模型参数的梯度。为了保持简单，我们考虑一个没有偏置参数的循环神经网络，其在隐藏层中的激活函数使用恒等映射 ($\phi(x)=x$)。对于时间步$t$，设单个样本输入和标签分别为$\mathbf{x}_t \in \mathbb{R}^d$和$y_t$。隐藏状态$\mathbf{h}_t \in \mathbb{R}^h$和输出$\mathbf{o}_t \in \mathbb{R}^q$被计算为：
+在讨论一般性原则之后，让我们讨论通过时间反向传播问题的细节。与 :numref:`subsec_bptt_analysis` 中的分析不同，下面我们将展示如何计算目标函数相对于所有分解模型参数的梯度。为了保持简单，我们考虑一个没有偏置参数的循环神经网络，其在隐藏层中的激活函数使用恒等映射（$\phi(x)=x$）。对于时间步$t$，设单个样本的输入及其对应的标签分别为$\mathbf{x}_t \in \mathbb{R}^d$和$y_t$。计算隐藏状态$\mathbf{h}_t \in \mathbb{R}^h$和输出$\mathbf{o}_t \in \mathbb{R}^q$的方式为：
 
 $$\begin{aligned}\mathbf{h}_t &= \mathbf{W}_{hx} \mathbf{x}_t + \mathbf{W}_{hh} \mathbf{h}_{t-1},\\
 \mathbf{o}_t &= \mathbf{W}_{qh} \mathbf{h}_{t},\end{aligned}$$
 
 其中权重参数为 $\mathbf{W}_{hx} \in \mathbb{R}^{h \times d}$、$\mathbf{W}_{hh} \in \mathbb{R}^{h \times h}$和
-$\mathbf{W}_{qh} \in \mathbb{R}^{q \times h}$。用$l(\mathbf{o}_t, y_t)$表示时间步$t$处的损失。我们的目标函数，从序列开始起的超过$T$个时间步的损失是这样的
+$\mathbf{W}_{qh} \in \mathbb{R}^{q \times h}$。用$l(\mathbf{o}_t, y_t)$表示时间步$t$处的损失函数，则我们的目标函数，即从序列开始起的超过$T$个时间步的总体损失是这样的
 
 $$L = \frac{1}{T} \sum_{t=1}^T l(\mathbf{o}_t, y_t).$$
 
-为了在循环神经网络计算过程中可视化模型变量和参数之间的依赖关系，我们可以为模型绘制一个计算图，如 :numref:`fig_rnn_bptt` 所示。例如，时间步3的隐藏状态$\mathbf{h}_3$的计算取决于模型参数$\mathbf{W}_{hx}$和$\mathbf{W}_{hh}$，以及最终时间步的隐藏状态$\mathbf{h}_2$以及当前时间步的输入$\mathbf{x}_3$。
+为了在循环神经网络的计算过程中可视化模型变量和参数之间的依赖关系，我们可以为模型绘制一个计算图，如 :numref:`fig_rnn_bptt` 所示。例如，时间步3的隐藏状态$\mathbf{h}_3$的计算取决于模型参数$\mathbf{W}_{hx}$和$\mathbf{W}_{hh}$，以及最终时间步的隐藏状态$\mathbf{h}_2$以及当前时间步的输入$\mathbf{x}_3$。
 
-![显示具有三个时间步的循环神经网络模型依赖关系的计算图。框表示变量（未着色）或参数（着色），圆表示运算符。](../img/rnn-bptt.svg)
+![显示具有三个时间步的循环神经网络模型依赖关系的计算图。未着色的方框表示变量，着色的方框表示参数，圆表示运算符。](../img/rnn-bptt.svg)
 :label:`fig_rnn_bptt`
 
-正如刚才提到的， :numref:`fig_rnn_bptt` 中的模型参数是$\mathbf{W}_{hx}$、$\mathbf{W}_{hh}$和$\mathbf{W}_{qh}$。通常，训练该模型需要对这些参数 $\partial L/\partial \mathbf{W}_{hx}$ 、 $\partial L/\partial \mathbf{W}_{hh}$ 和 $\partial L/\partial \mathbf{W}_{qh}$ 进行梯度计算。根据 :numref:`fig_rnn_bptt` 中的依赖关系，我们可以沿箭头的相反方向遍历，依次计算和存储梯度。为了灵活地表示链式法则中不同形状的矩阵、向量和标量的乘法，我们继续使用 $\text{prod}$ 运算符，如 :numref:`sec_backprop` 中所述。
+正如刚才提到的， :numref:`fig_rnn_bptt` 中的模型参数是$\mathbf{W}_{hx}$、$\mathbf{W}_{hh}$和$\mathbf{W}_{qh}$。通常，训练该模型需要对这些参数进行梯度计算 $\partial L/\partial \mathbf{W}_{hx}$ 、 $\partial L/\partial \mathbf{W}_{hh}$ 和 $\partial L/\partial \mathbf{W}_{qh}$。根据 :numref:`fig_rnn_bptt` 中的依赖关系，我们可以沿箭头的相反方向遍历计算图，依次计算和存储梯度。为了灵活地表示链式法则中不同形状的矩阵、向量和标量的乘法，我们继续使用如 :numref:`sec_backprop` 中所述的 $\text{prod}$ 运算符。
 
-首先，目标函数有关任意时间步$t$的模型输出的梯度很容易计算：
+首先，在任意时间步$t$，目标函数关于模型输出的微分计算是相当简单的：
 
 $$\frac{\partial L}{\partial \mathbf{o}_t} =  \frac{\partial l (\mathbf{o}_t, y_t)}{T \cdot \partial \mathbf{o}_t} \in \mathbb{R}^q.$$
 :eqlabel:`eq_bptt_partial_L_ot`
 
-现在，我们可以计算目标函数有关输出层中的参数$\mathbf{W}_{qh}$的梯度：$\partial L/\partial \mathbf{W}_{qh} \in \mathbb{R}^{q \times h}$。根据 :numref:`fig_rnn_bptt` ，目标函数$L$通过$\mathbf{o}_1, \ldots, \mathbf{o}_T$依赖于$\mathbf{W}_{qh}$。依据链式法则，
+现在，我们可以计算目标函数关于输出层中的参数$\mathbf{W}_{qh}$的梯度：$\partial L/\partial \mathbf{W}_{qh} \in \mathbb{R}^{q \times h}$。基于 :numref:`fig_rnn_bptt` ，目标函数$L$通过$\mathbf{o}_1, \ldots, \mathbf{o}_T$依赖于$\mathbf{W}_{qh}$。依据链式法则，得
 
 $$
 \frac{\partial L}{\partial \mathbf{W}_{qh}}
@@ -114,25 +114,25 @@ $$
 
 其中$\partial L/\partial \mathbf{o}_t$是由 :eqref:`eq_bptt_partial_L_ot` 给出的。
 
-接下来，如 :numref:`fig_rnn_bptt` 所示，在最后的时间步$T$，目标函数$L$仅通过$\mathbf{o}_T$依赖隐藏状态$\mathbf{h}_T$。因此，我们可以使用链式法则容易地得到梯度$\partial L/\partial \mathbf{h}_T \in \mathbb{R}^h$：
+接下来，如 :numref:`fig_rnn_bptt` 所示，在最后的时间步$T$，目标函数$L$仅通过$\mathbf{o}_T$依赖于隐藏状态$\mathbf{h}_T$。因此，我们通过使用链式法可以很容易地得到梯度$\partial L/\partial \mathbf{h}_T \in \mathbb{R}^h$：
 
 $$\frac{\partial L}{\partial \mathbf{h}_T} = \text{prod}\left(\frac{\partial L}{\partial \mathbf{o}_T}, \frac{\partial \mathbf{o}_T}{\partial \mathbf{h}_T} \right) = \mathbf{W}_{qh}^\top \frac{\partial L}{\partial \mathbf{o}_T}.$$
 :eqlabel:`eq_bptt_partial_L_hT_final_step`
 
-对于任意时间步$t < T$来说都变得更加棘手，其中目标函数$L$通过$\mathbf{h}_{t+1}$和$\mathbf{o}_t$依赖$\mathbf{h}_t$。根据链式法则，隐藏状态在任何时间步骤$t < T$的梯度$\partial L/\partial \mathbf{h}_t \in \mathbb{R}^h$可以递归地计算为：
+当目标函数$L$通过$\mathbf{h}_{t+1}$和$\mathbf{o}_t$依赖$\mathbf{h}_t$时，对于任意时间步$t < T$来说都变得更加棘手。根据链式法则，隐藏状态的梯度$\partial L/\partial \mathbf{h}_t \in \mathbb{R}^h$在任何时间步骤$t < T$时都可以递归地计算为：
 
 $$\frac{\partial L}{\partial \mathbf{h}_t} = \text{prod}\left(\frac{\partial L}{\partial \mathbf{h}_{t+1}}, \frac{\partial \mathbf{h}_{t+1}}{\partial \mathbf{h}_t} \right) + \text{prod}\left(\frac{\partial L}{\partial \mathbf{o}_t}, \frac{\partial \mathbf{o}_t}{\partial \mathbf{h}_t} \right) = \mathbf{W}_{hh}^\top \frac{\partial L}{\partial \mathbf{h}_{t+1}} + \mathbf{W}_{qh}^\top \frac{\partial L}{\partial \mathbf{o}_t}.$$
 :eqlabel:`eq_bptt_partial_L_ht_recur`
 
-为了进行分析，展开任何时间步 $1 \leq t \leq T$ 的递归计算
+为了进行分析，对于任何时间步 $1 \leq t \leq T$ 展开递归计算得
 
 $$\frac{\partial L}{\partial \mathbf{h}_t}= \sum_{i=t}^T {\left(\mathbf{W}_{hh}^\top\right)}^{T-i} \mathbf{W}_{qh}^\top \frac{\partial L}{\partial \mathbf{o}_{T+t-i}}.$$
 :eqlabel:`eq_bptt_partial_L_ht`
 
 
-我们可以从 :eqref:`eq_bptt_partial_L_ht` 中看到，这个简单的线性例子已经展现了长序列模型的一些关键问题：它涉及到 $\mathbf{W}_{hh}^\top$ 的潜在非常大的指数。其中，小于1的特征值消失，大于1的特征值发散。这在数值上是不稳定的，表现为梯度消失或梯度爆炸。解决此问题的一种方法是按照计算方便的大小截断时间步长，如 :numref:`subsec_bptt_analysis` 中所述。实际上，这种截断是通过在给定数量的时间步长之后分离梯度来实现的。稍后，我们将看到更复杂的序列模型（如长短期记忆）如何进一步缓解这一问题。
+我们可以从 :eqref:`eq_bptt_partial_L_ht` 中看到，这个简单的线性例子已经展现了长序列模型的一些关键问题：它陷入到 $\mathbf{W}_{hh}^\top$ 的潜在的非常大的幂。在这个幂中，小于1的特征值将会消失，大于1的特征值将会发散。这在数值上是不稳定的，表现形式为梯度消失或梯度爆炸。解决此问题的一种方法是按照计算方便的需要截断时间步长的尺寸，如 :numref:`subsec_bptt_analysis` 中所述。实际上，这种截断是通过在给定数量的时间步之后分离梯度来实现的。稍后，我们将看到更复杂的序列模型（如长短期记忆）如何进一步缓解这一问题。
 
-最后， :numref:`fig_rnn_bptt` 表明了，目标函数$L$通过隐藏状态$\mathbf{h}_1, \ldots, \mathbf{h}_T$依赖隐藏层中的模型参数$\mathbf{W}_{hx}$和$\mathbf{W}_{hh}$。为了计算有关这些参数的梯度$\partial L / \partial \mathbf{W}_{hx} \in \mathbb{R}^{h \times d}$和$\partial L / \partial \mathbf{W}_{hh} \in \mathbb{R}^{h \times h}$，我们应用链式规则：
+最后， :numref:`fig_rnn_bptt` 表明了，目标函数$L$通过隐藏状态$\mathbf{h}_1, \ldots, \mathbf{h}_T$依赖于隐藏层中的模型参数$\mathbf{W}_{hx}$和$\mathbf{W}_{hh}$。为了计算有关这些参数的梯度$\partial L / \partial \mathbf{W}_{hx} \in \mathbb{R}^{h \times d}$和$\partial L / \partial \mathbf{W}_{hh} \in \mathbb{R}^{h \times h}$，我们应用链式规则得：
 
 $$
 \begin{aligned}
@@ -145,9 +145,9 @@ $$
 \end{aligned}
 $$
 
-其中$\partial L/\partial \mathbf{h}_t$是由 :eqref:`eq_bptt_partial_L_hT_final_step` 和 :eqref:`eq_bptt_partial_L_ht_recur` 递归计算的，是影响数值稳定性的关键量。
+其中$\partial L/\partial \mathbf{h}_t$是由 :eqref:`eq_bptt_partial_L_hT_final_step` 和 :eqref:`eq_bptt_partial_L_ht_recur` 递归计算得到的，是影响数值稳定性的关键量。
 
-正如我们在 :numref:`sec_backprop` 中所解释的那样，通过时间反向传播是反向传播在循环神经网络中的应用，训练循环神经网络交替使用通过时间前向传播和反向传播。通过时间的反向传播依次计算并存储上述梯度。具体而言，存储的中间值会被重复使用，以避免重复计算，例如存储 $\partial L/\partial \mathbf{h}_t$，以便在计算 $\partial L / \partial \mathbf{W}_{hx}$ 和 $\partial L / \partial \mathbf{W}_{hh}$ 时使用。
+正如我们在 :numref:`sec_backprop` 中所解释的那样，由于通过时间反向传播是反向传播在循环神经网络中的应用方式，所以训练循环神经网络交替使用前向传播和通过时间反向传播。通过时间的反向传播依次计算并存储上述梯度。具体而言，存储的中间值会被重复使用，以避免重复计算，例如存储 $\partial L/\partial \mathbf{h}_t$，以便在计算 $\partial L / \partial \mathbf{W}_{hx}$ 和 $\partial L / \partial \mathbf{W}_{hh}$ 时使用。
 
 ## 小结
 
