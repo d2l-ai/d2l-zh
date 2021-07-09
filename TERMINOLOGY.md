@@ -114,6 +114,8 @@
 
 解码器，decoder
 
+近似法，approximate method
+
 精确度，precision
 
 经验风险最小化，empirical risk minimization
