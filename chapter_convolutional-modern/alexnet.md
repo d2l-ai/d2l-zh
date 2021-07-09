@@ -83,7 +83,7 @@ AlexNet由八层组成：五个卷积层、两个全连接隐藏层和一个全�
 在AlexNet的第一层，卷积窗口的形状是 $11\times11$。
 由于ImageNet中大多数图像的宽和高比MNIST图像的多10倍以上，因此，需要一个更大的卷积窗口来捕获目标。
 第二层中的卷积窗口形状被缩减为 $5\times5$，然后是 $3\times3$。
-此外，在第一层、第二层和第五层卷积层之后，加入窗口形状为 $3\times3$、步幅为2的最大池化层。
+此外，在第一层、第二层和第五层卷积层之后，加入窗口形状为 $3\times3$、步幅为2的最大汇聚层。
 而且，AlexNet的卷积通道数目是LeNet的10倍。
 
 在最后一个卷积层后有两个全连接层，分别有4096个输出。
@@ -126,7 +126,7 @@ net.add(
     nn.MaxPool2D(pool_size=3, strides=2),
     # 使用三个连续的卷积层和一个较小的卷积窗口。
     # 除了最后的卷积层，输出通道的数量进一步增加。
-    # 前两个卷积层后不使用池化层来减小输入的高和宽
+    # 前两个卷积层后不使用汇聚层来减小输入的高和宽
     nn.Conv2D(384, kernel_size=3, padding=1, activation='relu'),
     nn.Conv2D(384, kernel_size=3, padding=1, activation='relu'),
     nn.Conv2D(256, kernel_size=3, padding=1, activation='relu'),
@@ -155,7 +155,7 @@ net = nn.Sequential(
     nn.MaxPool2d(kernel_size=3, stride=2),
     # 使用三个连续的卷积层和较小的卷积窗口。
     # 除了最后的卷积层，输出通道的数量进一步增加。
-    # 在前两个卷积层之后，池化层不用于减少输入的高度和宽度
+    # 在前两个卷积层之后，汇聚层不用于减少输入的高度和宽度
     nn.Conv2d(256, 384, kernel_size=3, padding=1), nn.ReLU(),
     nn.Conv2d(384, 384, kernel_size=3, padding=1), nn.ReLU(),
     nn.Conv2d(384, 256, kernel_size=3, padding=1), nn.ReLU(),
@@ -189,7 +189,7 @@ def net():
         tf.keras.layers.MaxPool2D(pool_size=3, strides=2),
         # 使用三个连续的卷积层和较小的卷积窗口。
         # 除了最后的卷积层，输出通道的数量进一步增加。
-        # 在前两个卷积层之后，池化层不用于减少输入的高度和宽度
+        # 在前两个卷积层之后，汇聚层不用于减少输入的高度和宽度
         tf.keras.layers.Conv2D(filters=384, kernel_size=3, padding='same',
                                activation='relu'),
         tf.keras.layers.Conv2D(filters=384, kernel_size=3, padding='same',

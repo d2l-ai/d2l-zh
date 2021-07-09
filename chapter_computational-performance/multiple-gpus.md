@@ -11,7 +11,7 @@
 ## 问题拆分
 
 我们从一个简单的计算机视觉问题和一个稍稍过时的网络开始。
-这个网络有多个卷积层和池化层，最后可能有几个全连接的层，看起来非常类似于 LeNet :cite:`LeCun.Bottou.Bengio.ea.1998` 或 AlexNet :cite:`Krizhevsky.Sutskever.Hinton.2012` 。
+这个网络有多个卷积层和汇聚层，最后可能有几个全连接的层，看起来非常类似于 LeNet :cite:`LeCun.Bottou.Bengio.ea.1998` 或 AlexNet :cite:`Krizhevsky.Sutskever.Hinton.2012` 。
 假设我们有多个 GPU（如果是桌面服务器则有 $2$ 个，AWS g4dn.12xlarge 上有 $4$ 个，p3.16xlarge 上有 $8$ 个，p2.16xlarge 上有 $16$ 个）。
 我们希望以一种方式对训练进行拆分，为实现良好的加速比，还能同时受益于简单且可重复的设计选择。
 毕竟，多个 GPU 同时增加了内存和计算能力。
