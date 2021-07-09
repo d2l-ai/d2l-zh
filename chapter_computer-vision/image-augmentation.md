@@ -80,7 +80,7 @@ apply(img, torchvision.transforms.RandomVerticalFlip())
 ```
 
 在我们使用的示例图像中，猫位于图像的中间，但并非所有图像都是这样。
-在 :numref:`sec_pooling` 中，我们解释了池化层可以降低卷积层对目标位置的敏感性。
+在 :numref:`sec_pooling` 中，我们解释了汇聚层可以降低卷积层对目标位置的敏感性。
 另外，我们可以通过对图像进行随机裁剪，使物体以不同的比例出现在图像的不同位置。
 这也可以降低模型对目标位置的敏感性。
 

@@ -35,7 +35,7 @@ from torch.nn import functional as F
 :label:`fig_fcn`
 
 下面，我们[**使用在ImageNet数据集上预训练的ResNet-18模型来提取图像特征**]，并将该网络实例记为`pretrained_net`。
-该模型的最后几层包括全局平均池化层和全连接层，然而全卷积网络中不需要它们。
+该模型的最后几层包括全局平均汇聚层和全连接层，然而全卷积网络中不需要它们。
 
 ```{.python .input}
 pretrained_net = gluon.model_zoo.vision.resnet18_v2(pretrained=True)
@@ -49,7 +49,7 @@ list(pretrained_net.children())[-3:]
 ```
 
 接下来，我们[**创建一个全卷积网络实例`net`**]。
-它复制了Resnet-18中大部分的预训练层，但除去最终的全局平均池化层和最接近输出的全连接层。
+它复制了Resnet-18中大部分的预训练层，但除去最终的全局平均汇聚层和最接近输出的全连接层。
 
 ```{.python .input}
 net = nn.HybridSequential()

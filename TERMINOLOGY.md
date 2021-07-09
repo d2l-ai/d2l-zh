@@ -50,7 +50,7 @@
 
 迭代模型参数，update model parameter(s)
 
-丢弃法，dropout
+暂退法，dropout
 
 动量法，momentum (method)
 
@@ -168,7 +168,7 @@
 
 批量，batch
 
-平均池化层，average pooling layer
+平均汇聚层，average pooling layer
 
 齐普夫定律，Zipf's law
 
@@ -222,7 +222,7 @@ softmax回归，softmax regression
 
 跳字模型，skip-gram model
 
-调参，tune hyper-parameter
+调参，tune hyperparameter
 
 停用词，stop words
 
