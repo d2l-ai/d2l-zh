@@ -86,21 +86,21 @@ $$[\mathbf{H}]_{i, j} = u + \sum_{a = -\Delta}^{\Delta} \sum_{b = -\Delta}^{\Del
 
 ## 卷积
 
-在进一步讨论之前，我们先简要回顾一下为什么上面的操作被称为卷积。在数学中，两个函数（比如 $f, g: \mathbb{R}^d \to \mathbb{R}$）之间的*卷积*被定义为
+在进一步讨论之前，我们先简要回顾一下为什么上面的操作被称为卷积。在数学中，两个函数（比如 $f, g: \mathbb{R}^d \to \mathbb{R}$）之间的“卷积”被定义为
 
 $$(f * g)(\mathbf{x}) = \int f(\mathbf{z}) g(\mathbf{x}-\mathbf{z}) d\mathbf{z}.$$
 
 也就是说，卷积是测量 $f$ 和 $g$ 之间（把其中一个函数“翻转”并移位 $\mathbf{x}$ 时）的重叠。
-当我们有离散对象时（即定义域为 $\mathbb{Z}$ ），积分就变成求和，我们得到以下定义：
+当我们有离散对象时，积分就变成求和。例如：对于由索引为$\mathbb{Z}$的、平方可和的、无限维向量集合中抽取的向量，我们得到以下定义：
 
 $$(f * g)(i) = \sum_a f(a) g(i-a).$$
 
-对于二维张量，则为 $f$ 在 $(a, b)$ 和 $g$ 在 $(i-a, j-b)$ 上的对应和：
+对于二维张量，则为 $f$ 的索引 $(a, b)$ 和 $g$ 的索引 $(i-a, j-b)$ 上的对应和：
 
 $$(f * g)(i, j) = \sum_a\sum_b f(a, b) g(i-a, j-b).$$
 :eqlabel:`eq_2d-conv-discrete`
 
-这看起来类似于 :eqref:`eq_conv-layer`，但有一个主要区别：这里不是使用 $(i+a, j+b)$ ，而是使用差值。然而，这种区别是可以化简的，因为我们总是可以匹配  :eqref:`eq_conv-layer` 和 :eqref:`eq_2d-conv-discrete` 之间的符号。我们在 :eqref:`eq_conv-layer` 中的原始定义更正确地描述了*互相关*。我们将在下一节中讨论这一问题。
+这看起来类似于 :eqref:`eq_conv-layer`，但有一个主要区别：这里不是使用 $(i+a, j+b)$ ，而是使用差值。然而，这种区别主要是装饰性的，因为我们总是可以匹配  :eqref:`eq_conv-layer` 和 :eqref:`eq_2d-conv-discrete` 之间的符号。我们在 :eqref:`eq_conv-layer` 中的原始定义更正确地描述了*互相关*（cross-correlation），这个问题将在下一节中讨论。
 
 
 ## “沃尔多在哪里” 回顾
