@@ -24,7 +24,7 @@ batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 ```
 
-## 定义模型
+## [**定义模型**]
 
 高级API提供了循环神经网络的实现。我们构造了一个具有256隐藏单元的单隐藏层的循环神经网络层 `rnn_layer`。事实上，我们还没有讨论多层的含义——这将在 :numref:`sec_deep_rnn`介绍。现在，只要说多层仅仅相当于一层循环神经网络的输出被用作下一层循环神经网络的输入就足够了。
 
@@ -45,7 +45,7 @@ rnn_layer = nn.RNN(len(vocab), num_hiddens)
 :end_tab:
 
 :begin_tab:`pytorch`
-我们使用张量来初始化隐藏状态，它的形状是(隐藏层数, 批量大小, 隐藏单元数)。
+我们(**使用张量来初始化隐藏状态**)，它的形状是(隐藏层数, 批量大小, 隐藏单元数)。
 :end_tab:
 
 ```{.python .input}
@@ -59,7 +59,7 @@ state = torch.zeros((1, batch_size, num_hiddens))
 state.shape
 ```
 
-通过一个隐藏状态和一个输入，我们可以用更新后的隐藏状态计算输出。需要强调的是，`rnn_layer`的“输出”（`Y`）不涉及输出层的计算：它是指每个时间步的隐藏状态，它们可以用作后续输出层的输入。
+[**通过一个隐藏状态和一个输入，我们可以用更新后的隐藏状态计算输出。**]需要强调的是，`rnn_layer`的“输出”（`Y`）不涉及输出层的计算：它是指每个时间步的隐藏状态，它们可以用作后续输出层的输入。
 
 :begin_tab:`mxnet`
 此外，`rnn_layer`返回的更新后的隐藏状态（`state_new`）是指小批量的最后时间步的隐藏状态。它可以用来初始化顺序分区中一个迭代周期内下一个小批量的隐藏状态。对于多个隐藏层，每个层的隐藏状态将存储在此变量（`state_new`）中。对于稍后要介绍的某些模型（例如，长-短期记忆），此变量还包含其他信息。
@@ -78,7 +78,7 @@ Y, state_new = rnn_layer(X, state)
 Y.shape, state_new.shape
 ```
 
-与 :numref:`sec_rnn_scratch` 类似，我们为一个完整的循环神经网络模型定义了一个 `RNNModel` 类。注意 `rnn_layer` 只包含隐藏循环层，我们需要创建一个单独的输出层。
+与 :numref:`sec_rnn_scratch` 类似，[**我们为一个完整的循环神经网络模型定义一个`RNNModel`类**]。注意 `rnn_layer` 只包含隐藏循环层，我们需要创建一个单独的输出层。
 
 ```{.python .input}
 #@save
@@ -147,7 +147,7 @@ class RNNModel(nn.Module):
 
 ## 训练与预测
 
-在训练模型之前，让我们用一个具有随机权重的模型进行预测。
+在训练模型之前，让我们[**用一个具有随机权重的模型进行预测**]。
 
 ```{.python .input}
 device = d2l.try_gpu()
@@ -164,7 +164,7 @@ net = net.to(device)
 d2l.predict_ch8('time traveller', 10, net, vocab, device)
 ```
 
-很明显，这种模型根本不起作用。接下来，我们使用 :numref:`sec_rnn_scratch` 中定义的超参数调用 `train_ch8`，并使用高级API训练模型。
+很明显，这种模型根本不起作用。接下来，我们使用 :numref:`sec_rnn_scratch` 中定义的超参数调用 `train_ch8`，并[**使用高级API训练模型**]。
 
 ```{.python .input}
 #@tab all

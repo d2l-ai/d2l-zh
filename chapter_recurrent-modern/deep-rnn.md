@@ -54,7 +54,7 @@ batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 ```
 
-像选择超参数这类架构决策也跟 :numref:`sec_lstm` 中的决策非常相似。因为我们有不同的标记，所以输入和输出都选择相同数量，即`vocab_size`。隐藏单元的数量仍然是 $256$。唯一的区别是，我们现在通过指定 `num_layers` 的值来指定隐藏层数。
+像选择超参数这类架构决策也跟 :numref:`sec_lstm` 中的决策非常相似。因为我们有不同的标记，所以输入和输出都选择相同数量，即`vocab_size`。隐藏单元的数量仍然是 $256$。唯一的区别是，我们现在(**通过`num_layers`的值来设定隐藏层数**)。
 
 ```{.python .input}
 vocab_size, num_hiddens, num_layers = len(vocab), 256, 2
@@ -73,7 +73,7 @@ model = d2l.RNNModel(lstm_layer, len(vocab))
 model = model.to(device)
 ```
 
-## 训练与预测
+## [**训练**]与预测
 
 现在，因为使用长短期记忆网络模型这个相当复杂的结构来实例化了两个层，因此训练速度被大大降低了。
 

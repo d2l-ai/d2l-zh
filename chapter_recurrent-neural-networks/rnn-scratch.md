@@ -42,7 +42,7 @@ train_random_iter, vocab_random_iter = d2l.load_data_time_machine(
     batch_size, num_steps, use_random_iter=True)
 ```
 
-## 独热编码
+## [**独热编码**]
 
 回想一下，在 `train_iter` 中，每个标记都表示为一个数字索引。将这些索引直接输入神经网络可能会使学习变得困难。我们通常将每个标记表示为更具表现力的特征向量。最简单的表示称为“独热编码”（One-Hot Encoding），它在 :numref:`subsec_classification-problem` 中介绍过。
 
@@ -62,7 +62,7 @@ F.one_hot(torch.tensor([0, 2]), len(vocab))
 tf.one_hot(tf.constant([0, 2]), len(vocab))
 ```
 
-我们每次采样的小批量数据形状是（批量大小, 时间步数）。`one_hot`函数将这样一个小批量数据转换成三维张量，张量的最后一个维度等于词汇表大小（`len(vocab)`）。我们经常转换输入的维度，以便获得形状为（时间步数, 批量大小, 词汇表大小）的输出。这将使我们能够更方便地通过最外层的维度，一步一步地更新小批量数据的隐藏状态。
+我们每次采样的(**小批量数据形状是（批量大小, 时间步数）。**) `one_hot`函数将这样一个小批量数据转换成三维张量，张量的最后一个维度等于词汇表大小（`len(vocab)`）。我们经常转换输入的维度，以便获得形状为（时间步数, 批量大小, 词汇表大小）的输出。这将使我们能够更方便地通过最外层的维度，一步一步地更新小批量数据的隐藏状态。
 
 ```{.python .input}
 X = d2l.reshape(d2l.arange(10), (2, 5))
@@ -83,7 +83,7 @@ tf.one_hot(tf.transpose(X), 28).shape
 
 ## 初始化模型参数
 
-接下来，我们初始化循环神经网络模型的模型参数。隐藏单元数`num_hiddens`是一个可调的超参数。当训练语言模型时，输入和输出来自相同的词汇表。因此，它们具有相同的维度，即词汇表的大小。
+接下来，我们[**初始化循环神经网络模型的模型参数**]。隐藏单元数`num_hiddens`是一个可调的超参数。当训练语言模型时，输入和输出来自相同的词汇表。因此，它们具有相同的维度，即词汇表的大小。
 
 ```{.python .input}
 def get_params(vocab_size, num_hiddens, device):
@@ -149,7 +149,7 @@ def get_params(vocab_size, num_hiddens):
 
 ## 循环神经网络模型
 
-为了定义循环神经网络模型，我们首先需要一个`init_rnn_state`函数在初始化时返回隐藏状态。函数的返回是一个张量，张量全用0填充，形状为（批量大小, 隐藏单元数）。在后面的章节中将会遇到隐藏状态包含多个变量的情况，而使用元组可以处理地更容易些。
+为了定义循环神经网络模型，我们首先需要[**一个`init_rnn_state`函数在初始化时返回隐藏状态**]。函数的返回是一个张量，张量全用0填充，形状为（批量大小, 隐藏单元数）。在后面的章节中将会遇到隐藏状态包含多个变量的情况，而使用元组可以处理地更容易些。
 
 ```{.python .input}
 def init_rnn_state(batch_size, num_hiddens, device):
@@ -168,7 +168,7 @@ def init_rnn_state(batch_size, num_hiddens):
     return (d2l.zeros((batch_size, num_hiddens)), )
 ```
 
-下面的`rnn`函数定义了如何在一个时间步内计算隐藏状态和输出。请注意，循环神经网络模型通过`inputs`最外层的维度实现循环，以便逐时间步更新小批量数据的隐藏状态`H`。此外，这里使用$\tanh$函数作为激活函数。如 :numref:`sec_mlp` 所述，当元素在实数上满足均匀分布时，$\tanh$函数的平均值为0。
+[**下面的`rnn`函数定义了如何在一个时间步内计算隐藏状态和输出。**]请注意，循环神经网络模型通过`inputs`最外层的维度实现循环，以便逐时间步更新小批量数据的隐藏状态`H`。此外，这里使用$\tanh$函数作为激活函数。如 :numref:`sec_mlp` 所述，当元素在实数上满足均匀分布时，$\tanh$函数的平均值为0。
 
 ```{.python .input}
 def rnn(inputs, state, params):
@@ -215,7 +215,7 @@ def rnn(inputs, state, params):
     return d2l.concat(outputs, axis=0), (H,)
 ```
 
-定义了所有需要的函数之后，接下来我们创建一个类来包装这些函数，并存储从零开始实现的循环神经网络模型的参数。
+定义了所有需要的函数之后，接下来我们[**创建一个类来包装这些函数**]，并存储从零开始实现的循环神经网络模型的参数。
 
 ```{.python .input}
 class RNNModelScratch:  #@save
@@ -270,7 +270,7 @@ class RNNModelScratch: #@save
         return self.init_state(batch_size, self.num_hiddens)
 ```
 
-让我们检查输出是否具有正确的形状，例如，是否保证了隐藏状态的维数保持不变。
+让我们[**检查输出是否具有正确的形状**]，例如，是否保证了隐藏状态的维数保持不变。
 
 ```{.python .input}
 #@tab mxnet
@@ -311,7 +311,7 @@ Y.shape, len(new_state), new_state[0].shape
 
 ## 预测
 
-让我们首先定义预测函数来生成`prefix`之后的新字符，其中的`prefix`是一个用户提供的包含多个字符的字符串。在循环遍历`prefix`中的开始字符时，我们不断地将隐藏状态传递到下一个时间步，但是不生成任何输出。这被称为“预热”（Warm-up）期，因为在此期间模型会自我更新（例如，更新隐藏状态），但不会进行预测。预热期结束后，隐藏状态的初始值通常比刚开始的时候要好。因此我们生成预测字符并输出它们。
+让我们[**首先定义预测函数来生成`prefix`之后的新字符**]，其中的`prefix`是一个用户提供的包含多个字符的字符串。在循环遍历`prefix`中的开始字符时，我们不断地将隐藏状态传递到下一个时间步，但是不生成任何输出。这被称为“预热”（Warm-up）期，因为在此期间模型会自我更新（例如，更新隐藏状态），但不会进行预测。预热期结束后，隐藏状态的初始值通常比刚开始的时候要好。因此我们生成预测字符并输出它们。
 
 ```{.python .input}
 def predict_ch8(prefix, num_preds, net, vocab, device):  #@save
@@ -374,7 +374,7 @@ predict_ch8('time traveller ', 10, net, vocab, d2l.try_gpu())
 predict_ch8('time traveller ', 10, net, vocab, params)
 ```
 
-## 梯度裁剪
+## [**梯度裁剪**]
 
 对于长度为$T$的序列，我们在迭代中计算这$T$个时间步上的梯度，将会在反向传播过程中产生长度为$\mathcal{O}(T)$的矩阵乘法链。如 :numref:`sec_numerical_stability` 所述，当$T$较大时，它可能导致数值不稳定，例如可能产生的梯度爆炸或梯度消失。因此，循环神经网络模型往往需要额外的支持来稳定训练。
 
@@ -390,7 +390,7 @@ $$|f(\mathbf{x}) - f(\mathbf{x} - \eta\mathbf{g})| \leq L \eta\|\mathbf{g}\|,$$
 
 有时梯度可能很大，从而优化算法可能无法收敛。我们可以通过降低$\eta$的学习率来解决这个问题。但是如果我们很少得到大的梯度呢？在这种情况下，这种做法似乎毫无道理。一个流行的替代方案是通过将梯度$\mathbf{g}$投影回给定半径（例如$\theta$）的球来裁剪梯度$\mathbf{g}$。如下式：
 
-$$\mathbf{g} \leftarrow \min\left(1, \frac{\theta}{\|\mathbf{g}\|}\right) \mathbf{g}.$$
+(**$$\mathbf{g} \leftarrow \min\left(1, \frac{\theta}{\|\mathbf{g}\|}\right) \mathbf{g}.$$**)
 
 通过这样做，我们知道梯度范数永远不会超过$\theta$，并且更新后的梯度完全与$\mathbf{g}$的原始方向对齐。它还有一个值得拥有的副作用，即限制任何给定的小批量数据（以及其中任何给定的样本）对参数向量的影响。这赋予了模型一定程度的健壮性。梯度裁剪提供了一个快速修复梯度爆炸的方法。虽然它并不能完全解决问题，但它是众多缓解问题的技术之一。
 
@@ -443,7 +443,7 @@ def grad_clipping(grads, theta): #@save
 
 ## 训练
 
-在训练模型之前，让我们定义一个函数在一个迭代周期内训练模型。它与我们训练 :numref:`sec_softmax_scratch` 模型的方式有三个不同之处：
+在训练模型之前，让我们[**定义一个函数在一个迭代周期内训练模型**]。它与我们训练 :numref:`sec_softmax_scratch` 模型的方式有三个不同之处：
 
 1. 序列数据的不同采样方法（随机采样和顺序分区）将导致隐藏状态初始化的差异。
 1. 我们在更新模型参数之前裁剪梯度。这样的操作即使训练过程中某个点上发生了梯度爆炸，也能保证模型不会发散。
@@ -542,7 +542,7 @@ def train_epoch_ch8(net, train_iter, loss, updater, params, use_random_iter):
     return math.exp(metric[0] / metric[1]), metric[1] / timer.stop()
 ```
 
-循环神经网络模型的训练函数既支持从零开始实现，也可以使用高级API来实现。
+[**循环神经网络模型的训练函数既支持从零开始实现，也可以使用高级API来实现。**]
 
 ```{.python .input}
 def train_ch8(net, train_iter, vocab, lr, num_epochs, device,  #@save
@@ -625,7 +625,7 @@ def train_ch8(net, train_iter, vocab, num_hiddens, lr, num_epochs, strategy,
     print(predict('traveller'))
 ```
 
-现在我们可以训练循环神经网络模型。因为我们在数据集中只使用10000个标记，所以模型需要更多的迭代周期来更好地收敛。
+[**现在我们可以训练循环神经网络模型。**]因为我们在数据集中只使用10000个标记，所以模型需要更多的迭代周期来更好地收敛。
 
 ```{.python .input}
 #@tab mxnet,pytorch
@@ -639,7 +639,7 @@ num_epochs, lr = 500, 1
 train_ch8(net, train_iter, vocab, num_hiddens, lr, num_epochs, strategy)
 ```
 
-最后，让我们检查一下使用随机抽样方法的结果。
+[**最后，让我们检查一下使用随机抽样方法的结果。**]
 
 ```{.python .input}
 #@tab mxnet,pytorch
