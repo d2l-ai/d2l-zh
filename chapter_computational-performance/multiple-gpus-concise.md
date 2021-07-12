@@ -19,7 +19,7 @@ from torch import nn
 
 ## [**简单网络**]
 
-让我们使用一个比 :numref:`sec_multi_gpu` 的 LeNet 更有意义的网络，它依然能够容易地和快速地训练。我们选择的是 :cite:`He.Zhang.Ren.ea.2016` 中的 ResNet-18。因为输入的图像很小，所以稍微修改了一下。与 :numref:`sec_resnet` 的区别在于，我们在开始时使用了更小的卷积核、步长和填充，而且删除了最大池化层。
+让我们使用一个比 :numref:`sec_multi_gpu` 的 LeNet 更有意义的网络，它依然能够容易地和快速地训练。我们选择的是 :cite:`He.Zhang.Ren.ea.2016` 中的 ResNet-18。因为输入的图像很小，所以稍微修改了一下。与 :numref:`sec_resnet` 的区别在于，我们在开始时使用了更小的卷积核、步长和填充，而且删除了最大汇聚层。
 
 ```{.python .input}
 #@save
@@ -36,7 +36,7 @@ def resnet18(num_classes):
         return blk
 
     net = nn.Sequential()
-    # 该模型使用了更小的卷积核、步长和填充，而且删除了最大池化层。
+    # 该模型使用了更小的卷积核、步长和填充，而且删除了最大汇聚层。
     net.add(nn.Conv2D(64, kernel_size=3, strides=1, padding=1),
             nn.BatchNorm(), nn.Activation('relu'))
     net.add(resnet_block(64, 2, first_block=True),
@@ -63,7 +63,7 @@ def resnet18(num_classes, in_channels=1):
                 blk.append(d2l.Residual(out_channels, out_channels))
         return nn.Sequential(*blk)
 
-    # 该模型使用了更小的卷积核、步长和填充，而且删除了最大池化层。
+    # 该模型使用了更小的卷积核、步长和填充，而且删除了最大汇聚层。
     net = nn.Sequential(
         nn.Conv2d(in_channels, 64, kernel_size=3, stride=1, padding=1),
         nn.BatchNorm2d(64),

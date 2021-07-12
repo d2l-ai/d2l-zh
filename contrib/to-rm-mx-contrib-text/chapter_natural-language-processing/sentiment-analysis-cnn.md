@@ -123,7 +123,7 @@ class TextCNN(nn.Block):
         # NDArray。使用flatten函数去掉最后一维，然后在通道维上连结
         encoding = nd.concat(*[nd.flatten(
             self.pool(conv(embeddings))) for conv in self.convs], dim=1)
-        # 应用丢弃法后使用全连接层得到输出
+        # 应用暂退法后使用全连接层得到输出
         outputs = self.decoder(self.dropout(encoding))
         return outputs
 ```

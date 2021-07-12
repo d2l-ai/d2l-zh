@@ -98,7 +98,7 @@ d2l.matmul(d2l.concat((X, H), 1), d2l.concat((W_xh, W_hh), 0))
 
 ## 基于循环神经网络的字符级语言模型
 
-回想一下，对于 :numref:`sec_language_model` 中的语言模型。我们的目标是根据当前和过去的标记预测下一个标记，因此我们将原始序列移位一个标记作为标签。Bengio等人 :cite:`Bengio.Ducharme.Vincent.ea.2003` 首先提出使用神经网络进行语言建模。接下来，我们将说明如何使用循环神经网络来构建语言模型。设小批量大小为1，文本序列为"machine"。为了简化后续部分的训练，我们将文本标记化为字符而不是单词，并考虑使用*字符级语言模型*（character-level language model）。 :numref:`fig_rnn_train` 演示了如何通过用于字符级语言建模的循环神经网络，基于当前字符和先前字符预测下一个字符。
+回想一下，对于 :numref:`sec_language_model` 中的语言模型。我们的目标是根据当前和过去的标记预测下一个标记，因此我们将原始序列移位一个标记作为标签。Bengio等人 :cite:`Bengio.Ducharme.Vincent.ea.2003` 首先提出使用神经网络进行语言建模。接下来，我们将说明如何使用循环神经网络来构建语言模型。设小批量大小为1，文本序列为"machine"。为了简化后续部分的训练，我们将文本词元化为字符而不是单词，并考虑使用*字符级语言模型*（character-level language model）。 :numref:`fig_rnn_train` 演示了如何通过用于字符级语言建模的循环神经网络，基于当前字符和先前字符预测下一个字符。
 
 ![基于循环神经网络的字符级语言模型。输入序列和标签序列分别为“machin”和“achine”。](../img/rnn-train.svg)
 :label:`fig_rnn_train`

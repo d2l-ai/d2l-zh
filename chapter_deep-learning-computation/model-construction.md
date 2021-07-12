@@ -181,7 +181,7 @@ class MySequential(nn.Module):
         super().__init__()
         for block in args:
             # 这里，`block`是`Module`子类的一个实例。我们把它保存在'Module'类的成员变量
-            # `_children` 中。`block`的类型是OrderedDict。
+            # `_modules` 中。`block`的类型是OrderedDict。
             self._modules[block] = block
 
     def forward(self, X):

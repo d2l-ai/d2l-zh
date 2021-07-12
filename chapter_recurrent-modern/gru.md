@@ -91,7 +91,7 @@ batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 ```
 
-### 初始化模型参数
+### (**初始化模型参数**)
 
 下一步是初始化模型参数。我们从标准差为 $0.01$ 的高斯分布中提取权重，并将偏置项设为 $0$，超参数 `num_hiddens` 定义隐藏单元的数量，实例化与更新门、重置门、候选隐藏状态和输出层相关的所有权重和偏置。
 
@@ -148,7 +148,7 @@ def get_params(vocab_size, num_hiddens, device):
 
 ### 定义模型
 
-现在我们将定义隐藏状态的初始化函数 `init_gru_state`。与 :numref:`sec_rnn_scratch` 中定义的 `init_rnn_state` 函数一样，此函数返回一个形状为（批量大小，隐藏单元个数）的张量，张量的值全部为零。
+现在我们将[**定义隐藏状态的初始化函数**] `init_gru_state`。与 :numref:`sec_rnn_scratch` 中定义的 `init_rnn_state` 函数一样，此函数返回一个形状为（批量大小，隐藏单元个数）的张量，张量的值全部为零。
 
 ```{.python .input}
 def init_gru_state(batch_size, num_hiddens, device):
@@ -161,7 +161,7 @@ def init_gru_state(batch_size, num_hiddens, device):
     return (torch.zeros((batch_size, num_hiddens), device=device), )
 ```
 
-现在我们准备定义门控循环单元模型，模型的结构与基本的循环神经网络单元是相同的，只是权重更新公式更为复杂。
+现在我们准备[**定义门控循环单元模型**]，模型的结构与基本的循环神经网络单元是相同的，只是权重更新公式更为复杂。
 
 ```{.python .input}
 def gru(inputs, state, params):
@@ -194,7 +194,7 @@ def gru(inputs, state, params):
     return torch.cat(outputs, dim=0), (H,)
 ```
 
-### 训练与预测
+### [**训练**]与预测
 
 训练和预测的工作方式与 :numref:`sec_rnn_scratch` 完全相同。训练结束后，我们分别打印输出训练集的困惑度和前缀“time traveler”和“traveler”的预测序列上的困惑度。
 
@@ -207,7 +207,7 @@ model = d2l.RNNModelScratch(len(vocab), num_hiddens, device, get_params,
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 ```
 
-## 简洁实现
+## [**简洁实现**]
 
 高级 API 包含了前文介绍的所有配置细节，所以我们可以直接实例化门控循环单元模型。这段代码的运行速度要快得多，因为它使用的是编译好的运算符而不是 Python 来处理之前阐述的许多细节。
 

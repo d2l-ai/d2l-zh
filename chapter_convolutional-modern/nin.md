@@ -1,7 +1,7 @@
 # 网络中的网络（NiN）
 :label:`sec_nin`
 
-LeNet、AlexNet 和 VGG 都有一个共同的设计模式：通过一系列的卷积层与池化层来提取空间结构特征；然后通过全连接层对特征的表征进行处理。
+LeNet、AlexNet 和 VGG 都有一个共同的设计模式：通过一系列的卷积层与汇聚层来提取空间结构特征；然后通过全连接层对特征的表征进行处理。
 AlexNet 和 VGG 对 LeNet 的改进主要在于如何扩大和加深这两个模块。
 或者，可以想象在这个过程的早期使用全连接层。
 然而，如果使用稠密层了，可能会完全放弃表征的空间结构。
@@ -72,10 +72,10 @@ def nin_block(num_channels, kernel_size, strides, padding):
 
 最初的 NiN 网络是在 AlexNet 后不久提出的，显然从中得到了一些启示。
 NiN使用窗口形状为 $11\times 11$、$5\times 5$ 和 $3\times 3$的卷积层，输出通道数量与 AlexNet 中的相同。
-每个 NiN 块后有一个最大池化层，池化窗口形状为 $3\times 3$，步幅为 2。
+每个 NiN 块后有一个最大汇聚层，池化窗口形状为 $3\times 3$，步幅为 2。
 
 NiN 和 AlexNet 之间的一个显著区别是 NiN 完全取消了全连接层。
-相反，NiN 使用一个 NiN块，其输出通道数等于标签类别的数量。最后放一个 *全局平均池化层*（global average pooling layer），生成一个多元逻辑向量（logits）。NiN 设计的一个优点是，它显著减少了模型所需参数的数量。然而，在实践中，这种设计有时会增加训练模型的时间。
+相反，NiN 使用一个 NiN块，其输出通道数等于标签类别的数量。最后放一个 *全局平均汇聚层*（global average pooling layer），生成一个多元逻辑向量（logits）。NiN 设计的一个优点是，它显著减少了模型所需参数的数量。然而，在实践中，这种设计有时会增加训练模型的时间。
 
 ```{.python .input}
 net = nn.Sequential()
@@ -88,7 +88,7 @@ net.add(nin_block(96, kernel_size=11, strides=4, padding=0),
         nn.Dropout(0.5),
         # 标签类别数是10
         nin_block(10, kernel_size=3, strides=1, padding=1),
-        # 全局平均池化层将窗口形状自动设置成输入的高和宽
+        # 全局平均汇聚层将窗口形状自动设置成输入的高和宽
         nn.GlobalAvgPool2D(),
         # 将四维的输出转成二维的输出，其形状为(批量大小, 10)
         nn.Flatten())
@@ -171,7 +171,7 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 ## 小结
 
 * NiN使用由一个卷积层和多个 $1\times 1$ 卷积层组成的块。该块可以在卷积神经网络中使用，以允许更多的每像素非线性。
-* NiN去除了容易造成过拟合的全连接层，将它们替换为全局平均池化层（即在所有位置上进行求和）。该池化层通道数量为所需的输出数量（例如，Fashion-MNIST的输出为10）。
+* NiN去除了容易造成过拟合的全连接层，将它们替换为全局平均汇聚层（即在所有位置上进行求和）。该汇聚层通道数量为所需的输出数量（例如，Fashion-MNIST的输出为10）。
 * 移除全连接层可减少过拟合，同时显著减少NiN的参数。
 * NiN的设计影响了许多后续卷积神经网络的设计。
 
