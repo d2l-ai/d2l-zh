@@ -50,7 +50,7 @@
 
 迭代模型参数，update model parameter(s)
 
-丢弃法，dropout
+暂退法，dropout
 
 动量法，momentum (method)
 
@@ -116,6 +116,10 @@
 
 解码器，decoder
 
+近似法，approximate method
+
+精确度，precision
+
 经验风险最小化，empirical risk minimization
 
 局部最小值，local minimum
@@ -138,7 +142,7 @@
 
 拉普拉斯平滑，Laplace smoothing
 
-连结，concatenate
+拼接，concatenate
 
 类，class
 
@@ -166,7 +170,7 @@
 
 批量，batch
 
-平均池化层，average pooling layer
+平均汇聚层，average pooling layer
 
 齐普夫定律，Zipf's law
 
@@ -220,7 +224,7 @@ softmax回归，softmax regression
 
 跳字模型，skip-gram model
 
-调参，tune hyper-parameter
+调参，tune hyperparameter
 
 停用词，stop words
 
@@ -271,6 +275,8 @@ softmax回归，softmax regression
 自注意力，self-attention
 
 真实值，ground truth
+
+正确率，accuracy
 
 指标，metric
 

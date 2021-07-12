@@ -61,6 +61,11 @@ stage("Build and Publish") {
       d2lbook build pdf
       """
 
+      sh label:"Build Pytorch PDF", script:"""set -ex
+      conda activate ${ENV_NAME}
+      d2lbook build pdf --tab pytorch
+      """
+
       if (env.BRANCH_NAME == 'release') {
         sh label:"Release", script:"""set -ex
         conda activate ${ENV_NAME}

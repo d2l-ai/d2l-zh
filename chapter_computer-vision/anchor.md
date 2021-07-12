@@ -367,7 +367,7 @@ def assign_anchor_to_bbox(ground_truth, anchors, device, iou_threshold=0.5):
     return anchors_bbox_map
 ```
 
-### [**标记类和偏移**]
+### 标记类和偏移
 
 现在我们可以为每个锚框标记分类和偏移量了。
 假设一个锚框 $A$ 被分配了一个真实边界框 $B$。
@@ -375,14 +375,14 @@ def assign_anchor_to_bbox(ground_truth, anchors, device, iou_threshold=0.5):
 另一方面，锚框 $A$ 的偏移量将根据 $B$ 和 $A$ 中心坐标的相对位置、以及这两个框的相对大小进行标记。
 鉴于数据集内不同的框的位置和大小不同，我们可以对那些相对位置和大小应用变换，使其获得更均匀分布、易于适应的偏移量。
 在这里，我们介绍一种常见的变换。
-给定框 $A$ 和 $B$，中心坐标分别为 $(x_a, y_a)$ 和 $(x_b, y_b)$，宽度分别为 $w_a$ 和 $w_b$，高度分别为 $h_a$ 和 $h_b$。
+[**给定框 $A$ 和 $B$，中心坐标分别为 $(x_a, y_a)$ 和 $(x_b, y_b)$，宽度分别为 $w_a$ 和 $w_b$，高度分别为 $h_a$ 和 $h_b$。
 我们可以将 $A$ 的偏移量标记为  
 
 $$\left( \frac{ \frac{x_b - x_a}{w_a} - \mu_x }{\sigma_x},
 \frac{ \frac{y_b - y_a}{h_a} - \mu_y }{\sigma_y},
 \frac{ \log \frac{w_b}{w_a} - \mu_w }{\sigma_w},
 \frac{ \log \frac{h_b}{h_a} - \mu_h }{\sigma_h}\right),$$
-
+**]
 其中常量的默认值是 $\mu_x = \mu_y = \mu_w = \mu_h = 0, \sigma_x=\sigma_y=0.1$ 和 $\sigma_w=\sigma_h=0.2$。
 这种转换在下面的 `offset_boxes` 函数中实现。
 
@@ -401,7 +401,7 @@ def offset_boxes(anchors, assigned_bb, eps=1e-6):
 
 如果一个锚框没有被分配真实边界框，我们只需将锚框的类标记为 “背景”类。
 背景类的锚框通常被称为“负类”锚框，其余的被称为“正类”锚框。
-我们使用真实边界框（ `labels` 参数）实现以下 `multibox_target` 函数，来标记锚框的类和偏移量（ `anchors` 参数）。
+我们使用真实边界框（ `labels` 参数）实现以下 `multibox_target` 函数，来[**标记锚框的类和偏移量**]（ `anchors` 参数）。
 此函数将背景类设置为零，然后将新类的整数索引递增一。
 
 ```{.python .input}
@@ -715,7 +715,7 @@ show_bboxes(fig.axes, anchors * bbox_scale,
 现在我们可以调用 `multibox_detection` 函数来执行非极大值抑制，其中阈值设置为 0.5。
 请注意，我们在示例的张量输入中添加了维度。 
 
-我们可以看到返回结果的形状是（批量大小，锚框的数量，6）。
+我们可以看到[**返回结果的形状是（批量大小，锚框的数量，6）**]。
 最内层维度中的六个元素提供了同一预测边界框的输出信息。
 第一个元素是预测的类索引，从 0 开始（0代表狗，1代表猫），值 -1 表示背景或在非极大值抑制中被移除了。
 第二个元素是预测的边界框的置信度。
@@ -739,7 +739,7 @@ output = multibox_detection(cls_probs.unsqueeze(dim=0),
 output
 ```
 
-删除 -1 （背景）类的预测边界框后，我们可以输出由非极大值抑制保存的最终预测边界框。
+删除 -1 （背景）类的预测边界框后，我们可以[**输出由非极大值抑制保存的最终预测边界框**]。
 
 ```{.python .input}
 #@tab all
