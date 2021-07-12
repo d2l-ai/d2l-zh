@@ -274,6 +274,8 @@ softmax回归，softmax regression
 
 真实值，ground truth
 
+正确率，accuracy
+
 指标，metric
 
 支持向量机，support vector machine
