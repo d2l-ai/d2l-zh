@@ -177,7 +177,7 @@ $$H[P] = \sum_j - P(j) \log P(j).$$
 所以，如果熵是知道真实概率的人所经历的惊异程度，那么你可能会想知道，什么是交叉熵？
 交叉熵 *从* $P$ *到* $Q$，记为 $H(P, Q)$，是主观概率为$Q$的观察者在看到根据概率$P$实际生成的数据时的预期惊异。当$P=Q$时，交叉熵达到最低。在这种情况下，从 $P$到$Q$ 的交叉熵是 $H(P, P)= H(P)$。
 
-简而言之，我们可以从两方面来考虑交叉熵分类目标：（i）最大化观测数据的似然；（ii）尽量减少我们的惊异所需的通讯量。
+简而言之，我们可以从两方面来考虑交叉熵分类目标：（i）最大化观测数据的似然；（ii）最小化传达标签所需的惊异。
 
 ## 模型预测和评估
 
@@ -197,7 +197,7 @@ $$H[P] = \sum_j - P(j) \log P(j).$$
 1. 假设我们有三个类发生的概率相等，即概率向量是 $(\frac{1}{3}, \frac{1}{3}, \frac{1}{3})$。
     1. 如果我们尝试为它设计二进制代码，有什么问题？
     1. 你能设计一个更好的代码吗？提示：如果我们尝试编码两个独立的观察结果会发生什么？如果我们联合编码 $n$ 个观测值怎么办？
-1. softmax是对上面介绍的映射的误用(但深度学习中的每个人都使用它)。真正的softmax被定义为 $\mathrm{RealSoftMax}(a, b) = \log (\exp(a) + \exp(b))$。
+1. softmax是对上面介绍的映射的误称(但深度学习中的每个人都使用它)。真正的softmax被定义为 $\mathrm{RealSoftMax}(a, b) = \log (\exp(a) + \exp(b))$。
     1. 证明 $\mathrm{RealSoftMax}(a, b) > \mathrm{max}(a, b)$。
     1. 证明 $\lambda^{-1} \mathrm{RealSoftMax}(\lambda a, \lambda b) > \mathrm{max}(a, b)$成立，前提是 $\lambda > 0$。
     1. 证明对于 $\lambda \to \infty$ ，有 $\lambda^{-1} \mathrm{RealSoftMax}(\lambda a, \lambda b) \to \mathrm{max}(a, b)$。

@@ -118,7 +118,7 @@ def attention_model(attention_size):
     return model
 ```
 
-注意力机制的输入包括查询项、键项和值项。设编码器和解码器的隐藏单元个数相同。这里的查询项为解码器在上一时间步的隐藏状态，形状为(批量大小, 隐藏单元个数)；键项和值项均为编码器在所有时间步的隐藏状态，形状为(时间步数, 批量大小, 隐藏单元个数)。注意力机制返回当前时间步的背景变量，形状为(批量大小, 隐藏单元个数)。
+注意力机制的输入包括查询项、键项和值项。设编码器和解码器的隐藏单元个数相同。这里的查询项为解码器在上一时间步的隐藏状态，形状为(批量大小, 隐藏单元个数)；键项和值项均为编码器在所有时间步的隐藏状态，形状为(时间步数, 批量大小, 隐藏单元个数)。注意力机制返回当前时间步的上下文变量，形状为(批量大小, 隐藏单元个数)。
 
 ```{.python .input  n=168}
 def attention_forward(model, enc_states, dec_state):
@@ -128,7 +128,7 @@ def attention_forward(model, enc_states, dec_state):
     enc_and_dec_states = nd.concat(enc_states, dec_states, dim=2)
     e = model(enc_and_dec_states)  # 形状为(时间步数, 批量大小, 1)
     alpha = nd.softmax(e, axis=0)  # 在时间步维度做softmax运算
-    return (alpha * enc_states).sum(axis=0)  # 返回背景变量
+    return (alpha * enc_states).sum(axis=0)  # 返回上下文变量
 ```
 
 在下面的例子中，编码器的时间步数为10，批量大小为4，编码器和解码器的隐藏单元个数均为8。注意力机制返回一个小批量的背景向量，每个背景向量的长度等于编码器的隐藏单元个数。因此输出的形状为(4, 8)。

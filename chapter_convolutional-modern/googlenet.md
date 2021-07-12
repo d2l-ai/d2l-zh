@@ -19,7 +19,7 @@ GoogLeNet吸收了NiN中串联网络的思想，并在此基础上做了改进�
 如 :numref:`fig_inception` 所示，Inception块由四条并行路径组成。
 前三条路径使用窗口大小为 $1\times 1$、$3\times 3$ 和 $5\times 5$ 的卷积层，从不同空间大小中提取信息。
 中间的两条路径在输入上执行 $1\times 1$ 卷积，以减少通道数，从而降低模型的复杂性。
-第四条路径使用 $3\times 3$ 最大池化层，然后使用 $1\times 1$ 卷积层来改变通道数。
+第四条路径使用 $3\times 3$ 最大汇聚层，然后使用 $1\times 1$ 卷积层来改变通道数。
 这四条路径都使用合适的填充来使输入与输出的高和宽一致，最后我们将每条线路的输出在通道维度上连结，并构成Inception块的输出。在Inception块中，通常调整的超参数是每层输出通道的数量。
 
 ```{.python .input}
@@ -42,7 +42,7 @@ class Inception(nn.Block):
         self.p3_1 = nn.Conv2D(c3[0], kernel_size=1, activation='relu')
         self.p3_2 = nn.Conv2D(c3[1], kernel_size=5, padding=2,
                               activation='relu')
-        # 线路4，3 x 3最大池化层后接1 x 1卷积层
+        # 线路4，3 x 3最大汇聚层后接1 x 1卷积层
         self.p4_1 = nn.MaxPool2D(pool_size=3, strides=1, padding=1)
         self.p4_2 = nn.Conv2D(c4, kernel_size=1, activation='relu')
 
@@ -74,7 +74,7 @@ class Inception(nn.Module):
         # 线路3，1 x 1卷积层后接5 x 5卷积层
         self.p3_1 = nn.Conv2d(in_channels, c3[0], kernel_size=1)
         self.p3_2 = nn.Conv2d(c3[0], c3[1], kernel_size=5, padding=2)
-        # 线路4，3 x 3最大池化层后接1 x 1卷积层
+        # 线路4，3 x 3最大汇聚层后接1 x 1卷积层
         self.p4_1 = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
         self.p4_2 = nn.Conv2d(in_channels, c4, kernel_size=1)
 
@@ -106,7 +106,7 @@ class Inception(tf.keras.Model):
         self.p3_1 = tf.keras.layers.Conv2D(c3[0], 1, activation='relu')
         self.p3_2 = tf.keras.layers.Conv2D(c3[1], 5, padding='same',
                                            activation='relu')
-        # 线路4，3 x 3最大池化层后接1 x 1卷积层
+        # 线路4，3 x 3最大汇聚层后接1 x 1卷积层
         self.p4_1 = tf.keras.layers.MaxPool2D(3, 1, padding='same')
         self.p4_2 = tf.keras.layers.Conv2D(c4, 1, activation='relu')
 
@@ -127,8 +127,8 @@ class Inception(tf.keras.Model):
 
 ## [**GoogLeNet模型**]
 
-如 :numref:`fig_inception_full` 所示，GoogLeNet 一共使用 9 个Inception块和全局平均池化层的堆叠来生成其估计值。Inception块之间的最大池化层可降低维度。
-第一个模块类似于 AlexNet 和 LeNet，Inception块的栈从VGG继承，全局平均池化层避免了在最后使用全连接层。
+如 :numref:`fig_inception_full` 所示，GoogLeNet 一共使用 9 个Inception块和全局平均汇聚层的堆叠来生成其估计值。Inception块之间的最大汇聚层可降低维度。
+第一个模块类似于 AlexNet 和 LeNet，Inception块的栈从VGG继承，全局平均汇聚层避免了在最后使用全连接层。
 
 ![GoogLeNet结构。](../img/inception-full.svg)
 :label:`fig_inception_full`
@@ -214,7 +214,7 @@ def b3():
 
 第四模块更加复杂，
 它串联了5个Inception块，其输出通道数分别是 $192+208+48+64=512$ 、 $160+224+64+64=512$ 、 $128+256+64+64=512$ 、 $112+288+64+64=528$ 和 $256+320+128+128=832$ 。
-这些路径的通道数分配和第三模块中的类似，首先是含 $3×3$ 卷积层的第二条路径输出最多通道，其次是仅含 $1×1$ 卷积层的第一条路径，之后是含 $5×5$ 卷积层的第三条路径和含 $3×3$ 最大池化层的第四条路径。
+这些路径的通道数分配和第三模块中的类似，首先是含 $3×3$ 卷积层的第二条路径输出最多通道，其次是仅含 $1×1$ 卷积层的第一条路径，之后是含 $5×5$ 卷积层的第三条路径和含 $3×3$ 最大汇聚层的第四条路径。
 其中第二、第三条路径都会先按比例减小通道数。
 这些比例在各个 Inception 块中都略有不同。
 
@@ -252,7 +252,7 @@ def b4():
 
 第五模块包含输出通道数为 $256+320+128+128=832$ 和 $384+384+128+128=1024$ 的两个Inception块。
 其中每条路径通道数的分配思路和第三、第四模块中的一致，只是在具体数值上有所不同。
-需要注意的是，第五模块的后面紧跟输出层，该模块同 NiN 一样使用全局平均池化层，将每个通道的高和宽变成1。
+需要注意的是，第五模块的后面紧跟输出层，该模块同 NiN 一样使用全局平均汇聚层，将每个通道的高和宽变成1。
 最后我们将输出变成二维数组，再接上一个输出个数为标签类别数的全连接层。
 
 ```{.python .input}
@@ -332,7 +332,7 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 
 ## 小结
 
-* Inception 块相当于一个有4条路径的子网络。它通过不同窗口形状的卷积层和最大池化层来并行抽取信息，并使用 $1×1$ 卷积层减少每像素级别上的通道维数从而降低模型复杂度。
+* Inception 块相当于一个有4条路径的子网络。它通过不同窗口形状的卷积层和最大汇聚层来并行抽取信息，并使用 $1×1$ 卷积层减少每像素级别上的通道维数从而降低模型复杂度。
 *  GoogLeNet将多个设计精细的Inception块与其他层（卷积层、全连接层）串联起来。其中Inception块的通道数分配之比是在 ImageNet 数据集上通过大量的实验得来的。
 * GoogLeNet 和它的后继者们一度是 ImageNet 上最有效的模型之一：它以较低的计算复杂度提供了类似的测试精度。
 
