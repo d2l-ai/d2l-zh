@@ -1,7 +1,7 @@
 # 注意力池化：Nadaraya-Watson 核回归
 :label:`sec_nadaraya-waston`
 
-在知道了 :numref:`fig_qkv` 框架下的注意力机制的主要成分。回顾一下，查询（自主提示）和键（非自主提示）之间的交互形成了 **注意力池化**（attention pooling）。注意力池化有选择地聚合了值（感官输入）以生成最终的输出。在本节中，我们将介绍注意力池化的更多细节，以便从宏观上了解注意力机制在实践中的运作方式。具体来说，1964 年提出的 Nadaraya-Watson 核回归模型是一个简单而完整的示例，可以用于演示具有注意力机制的机器学习。
+在知道了 :numref:`fig_qkv` 框架下的注意力机制的主要成分。回顾一下，查询（自主提示）和键（非自主提示）之间的交互形成了 **注意力池化**（attention pooling）。注意力池化有选择地聚合了值（感官输入）以生成最终的输出。在本节中，我们将介绍注意力池化的更多细节，以便从宏观上了解注意力机制在实践中的运作方式。具体来说，1964 年提出的 Nadaraya-Watson 核回归模型是一个简单但完整的例子，可以用于演示具有注意力机制的机器学习。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -20,22 +20,22 @@ from torch import nn
 
 ## 生成数据集
 
-简单起见，考虑下面这个回归问题：对于给定的成对的“输入－输出”数据集 $\{(x_1, y_1), \ldots, (x_n, y_n)\}$，如何学习 $f$ 来预测任意新的输入 $x$ 的输出 $\hat{y} = f(x)$？
+简单起见，考虑下面这个回归问题：给定的成对的“输入－输出”数据集 $\{(x_1, y_1), \ldots, (x_n, y_n)\}$，如何学习 $f$ 来预测任意新输入 $x$ 的输出 $\hat{y} = f(x)$？
 
 根据下面的非线性函数生成一个人工数据集，其中加入的噪声项为 $\epsilon$：
 
 $$y_i = 2\sin(x_i) + x_i^{0.8} + \epsilon,$$
 
-其中 $\epsilon$ 服从均值为 $0$ 和标准差为 $0.5$ 的正态分布。同时生成了 $50$ 个训练样本和 $50$ 个测试样本。为了更好地可视化注意力模式，输入的训练样本将进行排序。
+其中 $\epsilon$ 服从均值为 $0$ 和标准差为 $0.5$ 的正态分布。我们生成了 $50$ 个训练样本和 $50$ 个测试样本。为了更好地可视化之后的注意力模式，输入的训练样本将进行排序。
 
 ```{.python .input}
-n_train = 50  # 训练样本的个数
+n_train = 50  # 训练样本数
 x_train = np.sort(d2l.rand(n_train) * 5)   # 训练样本的输入
 ```
 
 ```{.python .input}
 #@tab pytorch
-n_train = 50  # 训练样本的个数
+n_train = 50  # 训练样本数
 x_train, _ = torch.sort(d2l.rand(n_train) * 5)   # 训练样本的输入
 ```
 
@@ -47,11 +47,11 @@ def f(x):
 y_train = f(x_train) + d2l.normal(0.0, 0.5, (n_train,))  # 训练样本的输出
 x_test = d2l.arange(0, 5, 0.1)  # 测试样本
 y_truth = f(x_test)  # 测试样本的真实输出
-n_test = len(x_test)  # 测试样本的个数
+n_test = len(x_test)  # 测试样本数
 n_test
 ```
 
-下面的函数将绘制所有的训练样本（样本由圆形表示）、不带噪声项的真实的数据生成函数 $f$（标记为“Truth”）和学习得到的预测函数（标记为“Pred”）。
+下面的函数将绘制所有的训练样本（样本由圆圈表示）、不带噪声项的真实数据生成函数 $f$（标记为“Truth”）和学习得到的预测函数（标记为“Pred”）。
 
 ```{.python .input}
 #@tab all
@@ -63,12 +63,12 @@ def plot_kernel_reg(y_hat):
 
 ## 平均池化
 
-先使用可能是这个世界上“最愚蠢”的估算器来解决回归问题：基于平均池化来计算所有训练样本输出值的平均值：
+先使用可能是这个世界上“最愚蠢”的估计器来解决回归问题：基于平均池化来计算所有训练样本输出值的平均值：
 
 $$f(x) = \frac{1}{n}\sum_{i=1}^n y_i,$$
 :eqlabel:`eq_avg-pooling`
 
-如下图所示，这个估算器确实不够聪明。
+如下图所示，这个估计器确实不够聪明。
 
 ```{.python .input}
 y_hat = y_train.mean().repeat(n_test)
@@ -88,7 +88,7 @@ plot_kernel_reg(y_hat)
 $$f(x) = \sum_{i=1}^n \frac{K(x - x_i)}{\sum_{j=1}^n K(x - x_j)} y_i,$$
 :eqlabel:`eq_nadaraya-waston`
 
-其中 $K$ 是 **核函数***（kernel）。公式 :eqref:`eq_nadaraya-waston` 所描述的估计器被称为 **Nadaraya-Watson 核回归**（Nadaraya-Watson kernel regression）。在这里我们不会深入讨论核函数的细节。回想一下 :numref:`fig_qkv` 中的注意力机制框架，我们可以从注意力机制的角度重写 :eqref:`eq_nadaraya-waston` 成为一个更加通用的 **注意力池化**（attention pooling）公式：
+其中 $K$ 是 **核***（kernel）。公式 :eqref:`eq_nadaraya-waston` 所描述的估计器被称为 **Nadaraya-Watson 核回归**（Nadaraya-Watson kernel regression）。在这里我们不会深入讨论核函数的细节。回想一下 :numref:`fig_qkv` 中的注意力机制框架，我们可以从注意力机制的角度重写 :eqref:`eq_nadaraya-waston` 成为一个更加通用的 **注意力池化**（attention pooling）公式：
 
 $$f(x) = \sum_{i=1}^n \alpha(x, x_i) y_i,$$
 :eqlabel:`eq_attn-pooling`
@@ -99,14 +99,14 @@ $$f(x) = \sum_{i=1}^n \alpha(x, x_i) y_i,$$
 
 $$K(u) = \frac{1}{\sqrt{2\pi}} \exp(-\frac{u^2}{2}).$$
 
-将高斯核代入 :eqref:`eq_attn-pooling` 和 :eqref:`eq_nadaraya-waston` 就会得出
+将高斯核代入 :eqref:`eq_attn-pooling` 和 :eqref:`eq_nadaraya-waston` 可以得到：
 
 $$\begin{aligned} f(x) &=\sum_{i=1}^n \alpha(x, x_i) y_i\\ &= \sum_{i=1}^n \frac{\exp\left(-\frac{1}{2}(x - x_i)^2\right)}{\sum_{j=1}^n \exp\left(-\frac{1}{2}(x - x_j)^2\right)} y_i \\&= \sum_{i=1}^n \mathrm{softmax}\left(-\frac{1}{2}(x - x_i)^2\right) y_i. \end{aligned}$$
 :eqlabel:`eq_nadaraya-waston-gaussian`
 
-在 :eqref:`eq_nadaraya-waston-gaussian` 中，如果一个键 $x_i$ 越是接近给定的查询 $x$, 那么分配给这个键对应的值 $y_i$ 的 *注意力权重就会越大*, 也就是 *获得了更多的注意力*。
+在 :eqref:`eq_nadaraya-waston-gaussian` 中，如果一个键 $x_i$ 越是接近给定的查询 $x$, 那么分配给这个键对应值 $y_i$ 的注意力权重就会越大, 也就是“获得了更多的注意力”。
 
-值得注意的是，Nadaraya-Watson 核回归是一个非参数模型；因此，:eqref:`eq_nadaraya-waston-gaussian` 就是 **非参数的注意力池化**（nonparametric attention pooling）的例子。接下来，我们将基于这个非参数的注意力池化模型来绘制预测结果。结果是预测线是平滑的，并且比平均池化产生的线更接近真实。
+值得注意的是，Nadaraya-Watson 核回归是一个非参数模型。因此，:eqref:`eq_nadaraya-waston-gaussian` 就 **非参数的注意力池化**（nonparametric attention pooling）的例子。接下来，我们将基于这个非参数的注意力池化模型来绘制预测结果。结果是预测线是平滑的，并且比平均池化产生的线更接近真实。
 
 ```{.python .input}
 # `X_repeat` 的形状: (`n_test`, `n_train`), 
@@ -133,7 +133,7 @@ y_hat = d2l.matmul(attention_weights, y_train)
 plot_kernel_reg(y_hat)
 ```
 
-现在，让我们来观察注意力的权重。这里测试数据的输入相当于查询，而训练数据的输入相当于键。因为两个输入都是经过排序的，因此由观察可知“查询－键”对越接近，注意力池化的注意力权重就越高。
+现在，让我们来观察注意力的权重。这里测试数据的输入相当于查询，而训练数据的输入相当于键。因为两个输入都是经过排序的，因此由观察可知“查询-键”对越接近，注意力池化的注意力权重就越高。
 
 ```{.python .input}
 d2l.show_heatmaps(np.expand_dims(np.expand_dims(attention_weights, 0), 0),
@@ -150,7 +150,7 @@ d2l.show_heatmaps(attention_weights.unsqueeze(0).unsqueeze(0),
 
 ## 带参数的注意力池化
 
-非参数的 Nadaraya-Watson 核回归具有 **一致性**（consistency） 的优点：如果有足够的数据，此模型会收敛到最优结果。尽管如此，我们还是可以轻松地将可学习的参数集成到注意力池化中。
+非参数的 Nadaraya-Watson 核回归具有 *一致性*（consistency） 的优点：如果有足够的数据，此模型会收敛到最优结果。尽管如此，我们还是可以轻松地将可学习的参数集成到注意力池化中。
 
 例如，与 :eqref:`eq_nadaraya-waston-gaussian` 略有不同，在下面的查询 $x$ 和键 $x_i$ 之间的距离乘以可学习参数 $w$：
 
@@ -197,7 +197,7 @@ torch.bmm(weights.unsqueeze(1), values.unsqueeze(-1))
 
 ### 定义模型
 
-基于 :eqref:`eq_nadaraya-waston-gaussian-para` 中的带参数的注意力池化，使用小批量矩阵乘法，定义 Nadaraya-Watson 核回归的带参数的版本为：
+基于 :eqref:`eq_nadaraya-waston-gaussian-para` 中的带参数的注意力池化，使用小批量矩阵乘法，定义 Nadaraya-Watson 核回归的带参数版本为：
 
 ```{.python .input}
 class NWKernelRegression(nn.Block):
@@ -206,12 +206,12 @@ class NWKernelRegression(nn.Block):
         self.w = self.params.get('w', shape=(1,))
 
     def forward(self, queries, keys, values):
-        # `queries` 和 `attention_weights` 的形状:(查询个数, “键－值”对个数)
+        # `queries` 和 `attention_weights` 的形状为 (查询个数, “键－值”对个数)
         queries = d2l.reshape(
             queries.repeat(keys.shape[1]), (-1, keys.shape[1]))
         self.attention_weights = npx.softmax(
             -((queries - keys) * self.w.data())**2 / 2)
-        # `values` 的形状:(查询个数, “键－值”对个数)
+        # `values` 的形状为 (查询个数, “键－值”对个数)
         return npx.batch_dot(np.expand_dims(self.attention_weights, 1),
                              np.expand_dims(values, -1)).reshape(-1)
 ```
@@ -224,12 +224,12 @@ class NWKernelRegression(nn.Module):
         self.w = nn.Parameter(torch.rand((1,), requires_grad=True))
 
     def forward(self, queries, keys, values):
-        # `queries` 和 `attention_weights` 的形状:(查询个数, “键－值”对个数)
+        # `queries` 和 `attention_weights` 的形状为 (查询个数, “键－值”对个数)
         queries = d2l.reshape(
             queries.repeat_interleave(keys.shape[1]), (-1, keys.shape[1]))
         self.attention_weights = nn.functional.softmax(
             -((queries - keys) * self.w)**2 / 2, dim=1)
-        # `values` 的形状:(查询个数, “键－值”对个数)
+        # `values` 的形状为 (查询个数, “键－值”对个数)
         return torch.bmm(self.attention_weights.unsqueeze(1),
                          values.unsqueeze(-1)).reshape(-1)
 ```
@@ -293,7 +293,7 @@ animator = d2l.Animator(xlabel='epoch', ylabel='loss', xlim=[1, 5])
 for epoch in range(5):
     trainer.zero_grad()
     # 注意：L2 Loss = 1/2 * MSE Loss。
-    # PyTorch 的 MSE Loss 与 MXNet 的 L2Loss 差一个 2 的因子，因此被减半。
+    # PyTorch 的 MSE Loss 与 MXNet 的 L2Loss 差一个 2 的因子，因此被除2。
     l = loss(net(x_train, keys, values), y_train) / 2
     l.sum().backward()
     trainer.step()
@@ -322,7 +322,7 @@ y_hat = net(x_test, keys, values).unsqueeze(1).detach()
 plot_kernel_reg(y_hat)
 ```
 
-与非参数的注意力池化模型相比，带参数的模型加入可学习的参数后，在输出结果的绘制图上，曲线在注意力权重较大的区域变得更加尖锐。
+与非参数的注意力池化模型相比，带参数的模型加入可学习的参数后，在输出结果的绘制图上，曲线在注意力权重较大的区域变得更不平滑。
 
 ```{.python .input}
 d2l.show_heatmaps(np.expand_dims(np.expand_dims(net.attention_weights, 0), 0),

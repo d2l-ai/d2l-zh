@@ -1,21 +1,21 @@
 # Transformer
 :label:`sec_transformer`
 
-我们在 :numref:`subsec_cnn-rnn-self-attention` 中比较了卷积神经网络（CNN）、循环神经网络（RNN）和自注意力（self-attention）。值得注意的是，自注意力同时具有并行计算和最短的最大路径长度这两个优势。因此，使用自注意力来设计深度架构是很有吸引力的。对比之前仍然依赖循环神经网络实现输入表示的自注意力模型 :cite:`Cheng.Dong.Lapata.2016,Lin.Feng.Santos.ea.2017,Paulus.Xiong.Socher.2017`，Transformer 模型完全基于注意力机制，没有任何卷积层或循环层 :cite:`Vaswani.Shazeer.Parmar.ea.2017`。尽管 Transformer 最初是应用于序列到序列的学习文本数据，但现在已经推广到各种现代的深度学习中，例如语言、视觉、语音和强化学习领域。
+我们在 :numref:`subsec_cnn-rnn-self-attention` 中比较了卷积神经网络（CNN）、循环神经网络（RNN）和自注意力（self-attention）。值得注意的是，自注意力同时具有并行计算和最短的最大路径长度这两个优势。因此，使用自注意力来设计深度结构是很有吸引力的。对比之前仍然依赖循环神经网络实现输入表示的自注意力模型  :cite:`Cheng.Dong.Lapata.2016,Lin.Feng.Santos.ea.2017,Paulus.Xiong.Socher.2017` ，Transformer 模型完全基于注意力机制，没有任何卷积层或循环神经网络层 :cite:`Vaswani.Shazeer.Parmar.ea.2017` 。尽管 Transformer 最初是应用于序列到序列的学习文本数据，但现在已经推广到各种现代的深度学习中，例如语言、视觉、语音和强化学习领域。
 
 ## 模型
 
-Transformer 作为“编码器－解码器”架构的一个实例，其整体架构图呈现于 :numref:`fig_transformer` 中。正如所见到的，Transformer 是由编码器和解码器组成的。与 :numref:`fig_s2s_attention_details` 中基于 Bahdanau 注意力实现的序列到序列的学习相比，Transformer 的编码器和解码器是基于自注意力的模块叠加而成的，源（输入）序列和目标（输出）序列的 **嵌入**（embedding）表示将被叠加上 **位置编码**（positional encoding），再分别输入到编码器和解码器中。
+Transformer 作为编码器－解码器结构的一个实例，其整体结构图在 :numref:`fig_transformer` 中展示。正如所见到的，Transformer 是由编码器和解码器组成的。与 :numref:`fig_s2s_attention_details` 中基于 Bahdanau 注意力实现的序列到序列的学习相比，Transformer 的编码器和解码器是基于自注意力的模块叠加而成的，源（输入）序列和目标（输出）序列的 *嵌入*（embedding）表示将加上 *位置编码*（positional encoding），再分别输入到编码器和解码器中。
 
-![Transformer 结构。](../img/transformer.svg)
+![Transformer 结构](../img/transformer.svg)
 :width:`500px`
 :label:`fig_transformer`
 
-现在为止图 :numref:`fig_transformer` 中已经概述了 Transformer 的架构。从宏观角度来看，Transformer 的编码器是由多个相同的层叠加而成的，每个层都有两个子层（子层表示为 $\mathrm{sublayer}$）。第一个子层是 **多头自注意力**（multi-head self-attention）池化；第二个子层是 **基于位置的前馈网络**（positionwise feed-forward network）。具体来说，在计算编码器的自注意力时，查询、键和值都来自前一个编码器层的输出。受 :numref:`sec_resnet` 中设计 ResNet 的启发，每个子层都采用了 **残差连接**（residual connection）。在 Transformer 中，对于序列中任何位置的任何输入 $\mathbf{x} \in \mathbb{R}^d$，都要求满足 $\mathrm{sublayer}(\mathbf{x}) \in \mathbb{R}^d$，以便残差连接满足 $\mathbf{x} + \mathrm{sublayer}(\mathbf{x}) \in \mathbb{R}^d$ 。在残差连接的加法计算之后，紧接着 **层归一化**（layer normalization） :cite:`Ba.Kiros.Hinton.2016`。因此，输入序列对应的每个位置，Transformer 编码器都将输出一个 $d$ 维表示向量。
+图 :numref:`fig_transformer` 中概述了 Transformer 的结构。从宏观角度来看，Transformer 的编码器是由多个相同的层叠加而成的，每个层都有两个子层（子层表示为 $\mathrm{sublayer}$）。第一个子层是 *多头自注意力*（multi-head self-attention）池化；第二个子层是 *基于位置的前馈网络*（positionwise feed-forward network）。具体来说，在计算编码器的自注意力时，查询、键和值都来自前一个编码器层的输出。受 :numref:`sec_resnet` 中 ResNet 的启发，每个子层都采用了 *残差连接*（residual connection）。在 Transformer 中，对于序列中任何位置的任何输入 $\mathbf{x} \in \mathbb{R}^d$，都要求满足 $\mathrm{sublayer}(\mathbf{x}) \in \mathbb{R}^d$，以便残差连接满足 $\mathbf{x} + \mathrm{sublayer}(\mathbf{x}) \in \mathbb{R}^d$ 。在残差连接的加法计算之后，紧接着应用 *层归一化*（layer normalization） :cite:`Ba.Kiros.Hinton.2016`。因此，输入序列对应的每个位置，Transformer 编码器都将输出一个 $d$ 维表示向量。
 
-Transformer 解码器也是由多个相同的层叠加而成的，并且层中使用了残差连接和层归一化。除了编码器中描述的两个子层之外，解码器还在这两个子层之间插入了第三个子层，称为 **”编码器－解码器“注意力**（encoder-decoder attention）层。在“编码器－解码器”注意力中，查询来自前一个解码器层的输出，而键和值来自整个编码器的输出。在解码器自注意力中，查询、键和值都来自上一个解码器层的输出。但是，解码器中的每个位置只能考虑该位置之前的所有位置。这种 **掩码**（masked） 注意力保留了 **自回归**（auto-regressive）属性，确保预测仅依赖于已生成的输出标记。
+Transformer 解码器也是由多个相同的层叠加而成的，并且层中使用了残差连接和层归一化。除了编码器中描述的两个子层之外，解码器还在这两个子层之间插入了第三个子层，称为 *编码器－解码器注意力*（encoder-decoder attention）层。在编码器－解码器注意力中，查询来自前一个解码器层的输出，而键和值来自整个编码器的输出。在解码器自注意力中，查询、键和值都来自上一个解码器层的输出。但是，解码器中的每个位置只能考虑该位置之前的所有位置。这种 *遮蔽*（masked） 注意力保留了 *自回归*（auto-regressive）属性，确保预测仅依赖于已生成的输出标记。
 
-我们已经描述并实现了基于缩放的“点－积” :numref:`sec_multihead-attention` 多头注意力和位置编码 :numref:`subsec_positional-encoding` 的。接下来，我们将实现 Transformer 模型的剩余部分。
+我们已经描述并实现了基于缩放点积多头注意力 :numref:`sec_multihead-attention` 和位置编码 :numref:`subsec_positional-encoding` 。接下来，我们将实现 Transformer 模型的剩余部分。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -37,7 +37,7 @@ from torch import nn
 
 ## 基于位置的前馈网络
 
-基于位置的前馈网络对序列中的所有位置的表示进行变换时使用的是同一个多层感知机（MLP），这就是称前馈网络是 *基于位置的*（positionwise）的原因。在下面的实现中，输入 `X` 的形状（批量大小、时间步的数目或序列长度、隐单元数或特征维度）将被一个两层的感知机转换成形状为（批量大小、时间步的数目、`ffn_num_outputs`）的输出张量。
+基于位置的前馈网络对序列中的所有位置的表示进行变换时使用的是同一个多层感知机（MLP），这就是称前馈网络是 *基于位置的*（positionwise）的原因。在下面的实现中，输入 `X` 的形状（批量大小、时间步数或序列长度、隐单元数或特征维度）将被一个两层的感知机转换成形状为（批量大小、时间步数、`ffn_num_outputs`）的输出张量。
 
 ```{.python .input}
 #@save
@@ -84,7 +84,7 @@ ffn(d2l.ones((2, 3, 4)))[0]
 
 ## 残差连接和层归一化
 
-现在让我们关注 :numref:`fig_transformer` 中的 “**加法和归一化**（add & norm）” 组件。正如在本节开头所述，这是由残差连接和紧随其后的层归一化组成的。两者都是有效的深度架构的关键。
+现在让我们关注 :numref:`fig_transformer` 中的 “**加法和归一化**（add & norm）” 组件。正如在本节开头所述，这是由残差连接和紧随其后的层归一化组成的。两者都是构建有效的深度结构的关键。
 
 在 :numref:`sec_batch_norm` 中，我们解释了在一个小批量的样本内基于批量标准化对数据进行重新中心化和重新缩放的调整。层归一化和批量归一化的目标相同，但层归一化是基于特征维度进行归一化。尽管批量归一化在计算机视觉中被广泛应用，但在自然语言处理任务中（输入通常是变长序列）批量归一化通常不如层归一化的效果好。
 
@@ -154,7 +154,7 @@ add_norm(d2l.ones((2, 3, 4)), d2l.ones((2, 3, 4))).shape
 
 ## 编码器
 
-有了组成 Transformer 编码器的基础组件，现在可以先实现编码器中的一个层。下面的 `EncoderBlock` 类包含两个子层：多头自注意力和基于位置的前馈网络，围绕着这两个子层都使用了残差连接和紧随的层归一化。
+有了组成 Transformer 编码器的基础组件，现在可以先实现编码器中的一个层。下面的 `EncoderBlock` 类包含两个子层：多头自注意力和基于位置的前馈网络，这两个子层都使用了残差连接和紧随的层归一化。
 
 ```{.python .input}
 #@save
@@ -294,7 +294,7 @@ encoder(d2l.ones((2, 100), dtype=torch.long), valid_lens).shape
 
 如 :numref:`fig_transformer` 所示，Transformer 解码器也是由多个相同的层组成。在 `DecoderBlock` 类中实现的每个层包含了三个子层：解码器自注意力、“编码器-解码器”注意力和基于位置的前馈网络。这些子层也都被残差连接和紧随的层归一化围绕。
 
-正如在本节前面所述，在掩码多头解码器自注意力层（第一个子层）中，查询、键和值都来自上一个解码器层的输出。关于 **序列到序列模型** （sequence-to-sequence model），在训练阶段，其输出序列的所有位置（时间步）的标记都是已知的；然而，在预测阶段，其输出序列的标记是逐个生成的。因此，在任何解码器时间步中，只有生成的标记才能用于解码器的自注意力计算中。为了在解码器中保留自回归的属性，其掩码自注意力设定了参数 `dec_valid_lens`，以便任何查询都只会与解码器中所有已经生成标记的位置（即直到该查询位置为止）进行注意力计算。
+正如在本节前面所述，在遮蔽多头解码器自注意力层（第一个子层）中，查询、键和值都来自上一个解码器层的输出。关于 **序列到序列模型** （sequence-to-sequence model），在训练阶段，其输出序列的所有位置（时间步）的标记都是已知的；然而，在预测阶段，其输出序列的标记是逐个生成的。因此，在任何解码器时间步中，只有生成的标记才能用于解码器的自注意力计算中。为了在解码器中保留自回归的属性，其遮蔽自注意力设定了参数 `dec_valid_lens`，以便任何查询都只会与解码器中所有已经生成标记的位置（即直到该查询位置为止）进行注意力计算。
 
 ```{.python .input}
 class DecoderBlock(nn.Block):
@@ -314,9 +314,9 @@ class DecoderBlock(nn.Block):
 
     def forward(self, X, state):
         enc_outputs, enc_valid_lens = state[0], state[1]
-        # 训练阶段，输出序列的所有令牌都在同一时间处理，
+        # 训练阶段，输出序列的所有标记都在同一时间处理，
         # 因此 `state[2][self.i]` 初始化为 `None`。
-        # 预测阶段，输出序列是通过令牌一个接着一个解码的，
+        # 预测阶段，输出序列是通过标记一个接着一个解码的，
         # 因此 `state[2][self.i]` 包含着直到当前时间步第 `i` 个块解码的输出表示
         if state[2][self.i] is None:
             key_values = X
@@ -364,9 +364,9 @@ class DecoderBlock(nn.Module):
 
     def forward(self, X, state):
         enc_outputs, enc_valid_lens = state[0], state[1]
-        # 训练阶段，输出序列的所有令牌都在同一时间处理，
+        # 训练阶段，输出序列的所有标记都在同一时间处理，
         # 因此 `state[2][self.i]` 初始化为 `None`。
-        # 预测阶段，输出序列是通过令牌一个接着一个解码的，
+        # 预测阶段，输出序列是通过标记一个接着一个解码的，
         # 因此 `state[2][self.i]` 包含着直到当前时间步第 `i` 个块解码的输出表示
         if state[2][self.i] is None:
             key_values = X
@@ -385,14 +385,14 @@ class DecoderBlock(nn.Module):
         # 自注意力
         X2 = self.attention1(X, key_values, key_values, dec_valid_lens)
         Y = self.addnorm1(X, X2)
-        # “编码器－解码器”注意力。
+        # 编码器－解码器注意力。
         # `enc_outputs` 的开头: (`batch_size`, `num_steps`, `num_hiddens`)
         Y2 = self.attention2(Y, enc_outputs, enc_outputs, enc_valid_lens)
         Z = self.addnorm2(Y, Y2)
         return self.addnorm3(Z, self.ffn(Z)), state
 ```
 
-为了便于在“编码器－解码器”注意力中进行缩放的“点－积”计算和残差连接中进行加法计算，编码器和解码器的特征维度都是 `num_hiddens`。
+为了便于在“编码器－解码器”注意力中进行缩放点积计算和残差连接中进行加法计算，编码器和解码器的特征维度都是 `num_hiddens`。
 
 ```{.python .input}
 decoder_blk = DecoderBlock(24, 48, 8, 0.5, 0)
@@ -411,7 +411,7 @@ state = [encoder_blk(X, valid_lens), valid_lens, [None]]
 decoder_blk(X, state)[0].shape
 ```
 
-现在我们构建了由 `num_layers` 个 `DecoderBlock` 实例组成的完整的 Transformer 解码器。最后，通过一个全连接层计算所有 `vocab_size` 个可能的输出标记的预测值。解码器的自注意力权重和“编码器－解码器”的注意力权重都被存储下来，方便日后可视化的需要。
+现在我们构建了由 `num_layers` 个 `DecoderBlock` 实例组成的完整的 Transformer 解码器。最后，通过一个全连接层计算所有 `vocab_size` 个可能的输出标记的预测值。解码器的自注意力权重和编码器解码器注意力权重都被存储下来，方便日后可视化的需要。
 
 ```{.python .input}
 class TransformerDecoder(d2l.AttentionDecoder):
@@ -440,7 +440,7 @@ class TransformerDecoder(d2l.AttentionDecoder):
             # 解码器自注意力权重
             self._attention_weights[0][
                 i] = blk.attention1.attention.attention_weights
-            # “编码器－解码器”自注意力权重
+            # 编码器－解码器自注意力权重
             self._attention_weights[1][
                 i] = blk.attention2.attention.attention_weights
         return self.dense(X), state
@@ -492,7 +492,7 @@ class TransformerDecoder(d2l.AttentionDecoder):
 
 ## 训练
 
-依照 Transformer 架构来实例化“编码器－解码器”模型。在这里，指定 Transformer 的编码器和解码器都是 2 层，都使用 4 头注意力。与 :numref:`sec_seq2seq_training` 类似，为了进行序列到序列的学习，我们在“英语－法语”机器翻译数据集上训练 Transformer 模型。
+依照 Transformer 结构来实例化编码器－解码器模型。在这里，指定 Transformer 的编码器和解码器都是 2 层，都使用 4 头注意力。与 :numref:`sec_seq2seq_training` 类似，为了进行序列到序列的学习，我们在“英语－法语”机器翻译数据集上训练 Transformer 模型。
 
 ```{.python .input}
 num_hiddens, num_layers, dropout, batch_size, num_steps = 32, 2, 0.1, 64, 10
@@ -572,7 +572,7 @@ d2l.show_heatmaps(
     figsize=(7, 3.5))
 ```
 
-为了可视化解码器的自注意力权重和“编码器－解码器”的注意力权重，我们需要完成更多的数据操作工作。例如，我们用零填充被掩码覆盖的注意力权重。值得注意的是，解码器的自注意力权重和“编码器－解码器”的注意力权重都有相同的查询：即以 **序列开始标记**（beginning-of-sequence, BOS）打头，再与后续输出的标记共同组成序列。
+为了可视化解码器的自注意力权重和“编码器－解码器”的注意力权重，我们需要完成更多的数据操作工作。例如，我们用零填充被遮蔽住的注意力权重。值得注意的是，解码器的自注意力权重和“编码器－解码器”的注意力权重都有相同的查询：即以 *序列开始标记*（beginning-of-sequence, BOS）打头，再与后续输出的标记共同组成序列。
 
 ```{.python .input}
 dec_attention_weights_2d = [d2l.tensor(head[0]).tolist()
@@ -622,22 +622,22 @@ d2l.show_heatmaps(
     figsize=(7, 3.5))
 ```
 
-尽管 Transformer 架构是为了“序列到序列”的学习而提出的，但正如我们将在本书后面提及的那样，Transformer 编码器或 Transformer 解码器通常被单独用于不同的深度学习任务中。
+尽管 Transformer 结构是为了“序列到序列”的学习而提出的，但正如我们将在本书后面提及的那样，Transformer 编码器或 Transformer 解码器通常被单独用于不同的深度学习任务中。
 
 ## 小结
 
-* Transformer 是“编码器－解码器”架构的一个实践，尽管在实际情况中编码器或解码器可以单独使用。
-* 在 Transformer 中，多头自注意力用于表示输入序列和输出序列，不过解码器还必须通过掩码机制来保留自回归属性。
+* Transformer 是编码器－解码器结构的一个实践，尽管在实际情况中编码器或解码器可以单独使用。
+* 在 Transformer 中，多头自注意力用于表示输入序列和输出序列，不过解码器还必须通过遮蔽机制来保留自回归属性。
 * Transformer 中的残差连接和层归一化是训练非常深度的模型的重要工具。
 * Transformer 模型中基于位置的前馈网络使用同一个多层感知机，作用是对所有的序列位置的表示进行转换。
 
 ## 练习
 
-1. 在实验中训，练更深的 Transformer 将如何影响训练速度和翻译效果？
-1. 在 Transformer 中使用可加性注意力取代缩放的“点－积”注意力是不是个好办法？为什么？
+1. 在实验中训练更深的 Transformer 将如何影响训练速度和翻译效果？
+1. 在 Transformer 中使用加性注意力取代缩放点积注意力是不是个好办法？为什么？
 1. 对于语言模型，我们应该使用 Transformer 的编码器还是解码器，或者两者都用？如何设计？
 1. 如果输入序列很长， Transformer 会面临什么挑战？为什么？
-1. 如何提高 Transformer 的计算速度和内存使用效率？提示：可以参考 Tay et al. 的论文 :cite:`Tay.Dehghani.Bahri.ea.2020`。
+1. 如何提高 Transformer 的计算速度和内存使用效率？提示：可以参考论文 :cite:`Tay.Dehghani.Bahri.ea.2020`。
 1. 如果不使用卷积神经网络，如何设计基于 Transformer 模型的图像分类任务？提示：可以参考 Vision Transformer :cite:`Dosovitskiy.Beyer.Kolesnikov.ea.2021`。
 
 :begin_tab:`mxnet`
