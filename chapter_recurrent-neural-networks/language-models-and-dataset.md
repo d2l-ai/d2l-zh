@@ -240,7 +240,7 @@ for X, Y in seq_data_iter_sequential(my_seq, batch_size=2, num_steps=5):
     print('X: ', X, '\nY:', Y)
 ```
 
-现在，我们将上面的两个采样函数包装到一个类中，以便稍后可以将其用作数据迭代器。
+现在，我们[**将上面的两个采样函数包装到一个类中**]，以便稍后可以将其用作数据迭代器。
 
 ```{.python .input}
 #@tab all
