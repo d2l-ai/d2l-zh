@@ -35,7 +35,7 @@ import torch
 from torch import nn
 ```
 
-## 基于位置的前馈网络
+## [**基于位置的前馈网络**]
 
 基于位置的前馈网络对序列中的所有位置的表示进行变换时使用的是同一个多层感知机（MLP），这就是称前馈网络是 *基于位置的*（positionwise）的原因。在下面的实现中，输入 `X` 的形状（批量大小、时间步数或序列长度、隐单元数或特征维度）将被一个两层的感知机转换成形状为（批量大小、时间步数、`ffn_num_outputs`）的输出张量。
 
@@ -67,7 +67,7 @@ class PositionWiseFFN(nn.Module):
         return self.dense2(self.relu(self.dense1(X)))
 ```
 
-下面的例子显示，张量的最里层维度的尺寸会改变成基于位置的前馈网络的输出尺寸。因为用同一个多层感知机对所有位置上的输入进行变换，所以当所有这些位置的输入相同时，它们的输出也是相同的。
+下面的例子显示，[**张量的最里层维度的尺寸**]，会(**改变**)成基于位置的前馈网络的输出尺寸。因为用同一个多层感知机对所有位置上的输入进行变换，所以当所有这些位置的输入相同时，它们的输出也是相同的。
 
 ```{.python .input}
 ffn = PositionWiseFFN(4, 8)
@@ -88,7 +88,7 @@ ffn(d2l.ones((2, 3, 4)))[0]
 
 在 :numref:`sec_batch_norm` 中，我们解释了在一个小批量的样本内基于批量标准化对数据进行重新中心化和重新缩放的调整。层归一化和批量归一化的目标相同，但层归一化是基于特征维度进行归一化。尽管批量归一化在计算机视觉中被广泛应用，但在自然语言处理任务中（输入通常是变长序列）批量归一化通常不如层归一化的效果好。
 
-以下代码段对比了不同维度的层归一化和批量归一化的归一化效果。
+以下代码[**对比不同维度的层归一化和批量归一化的效果**]。
 
 ```{.python .input}
 ln = nn.LayerNorm()
@@ -110,7 +110,7 @@ X = d2l.tensor([[1, 2], [2, 3]], dtype=torch.float32)
 print('layer norm:', ln(X), '\nbatch norm:', bn(X))
 ```
 
-现在我们可以使用残差连接和层归一化来实现 `AddNorm` 类。Dropout 也被作为正则化方法使用。
+现在我们可以[**使用残差连接和层归一化**]来实现 `AddNorm` 类。Dropout 也被作为正则化方法使用。
 
 ```{.python .input}
 #@save
@@ -137,7 +137,7 @@ class AddNorm(nn.Module):
         return self.ln(self.dropout(Y) + X)
 ```
 
-残差连接要求两个输入的形状相同，以便在加法操作后输出张量的形状也相同。
+残差连接要求两个输入的形状相同，以便[**加法操作后输出张量的形状相同**]。
 
 ```{.python .input}
 add_norm = AddNorm(0.5)
@@ -154,7 +154,7 @@ add_norm(d2l.ones((2, 3, 4)), d2l.ones((2, 3, 4))).shape
 
 ## 编码器
 
-有了组成 Transformer 编码器的基础组件，现在可以先实现编码器中的一个层。下面的 `EncoderBlock` 类包含两个子层：多头自注意力和基于位置的前馈网络，这两个子层都使用了残差连接和紧随的层归一化。
+有了组成 Transformer 编码器的基础组件，现在可以先[**实现编码器中的一个层**]。下面的 `EncoderBlock` 类包含两个子层：多头自注意力和基于位置的前馈网络，这两个子层都使用了残差连接和紧随的层归一化。
 
 ```{.python .input}
 #@save
@@ -194,7 +194,7 @@ class EncoderBlock(nn.Module):
         return self.addnorm2(Y, self.ffn(Y))
 ```
 
-正如我们所看到的，Transformer 编码器中的任何层都不会改变其输入的形状。
+正如我们所看到的，[**Transformer编码器中的任何层都不会改变其输入的形状**]。
 
 ```{.python .input}
 X = d2l.ones((2, 100, 24))
@@ -213,7 +213,7 @@ encoder_blk.eval()
 encoder_blk(X, valid_lens).shape
 ```
 
-在实现下面的 Transformer 编码器的代码中，我们堆叠了 `num_layers` 个 `EncoderBlock` 类的实例。由于我们使用的是值范围在 $-1$ 和 $1$ 之间的固定位置编码，因此通过学习得到的输入的嵌入表示的值需要先乘以嵌入维度的平方根进行重新缩放，然后再与位置编码相加。
+在实现下面的[**Transformer编码器**]的代码中，我们堆叠了 `num_layers` 个 `EncoderBlock` 类的实例。由于我们使用的是值范围在 $-1$ 和 $1$ 之间的固定位置编码，因此通过学习得到的输入的嵌入表示的值需要先乘以嵌入维度的平方根进行重新缩放，然后再与位置编码相加。
 
 ```{.python .input}
 #@save
@@ -274,7 +274,7 @@ class TransformerEncoder(d2l.Encoder):
         return X
 ```
 
-下面我们指定了超参数来创建一个两层的 Transformer 编码器。Transformer 编码器输出的形状是（批量大小、时间步的数目、`num_hiddens`）。
+下面我们指定了超参数来[**创建一个两层的Transformer编码器**]。Transformer 编码器输出的形状是（批量大小、时间步的数目、`num_hiddens`）。
 
 ```{.python .input}
 encoder = TransformerEncoder(200, 24, 48, 8, 2, 0.5)
@@ -292,7 +292,7 @@ encoder(d2l.ones((2, 100), dtype=torch.long), valid_lens).shape
 
 ## 解码器
 
-如 :numref:`fig_transformer` 所示，Transformer 解码器也是由多个相同的层组成。在 `DecoderBlock` 类中实现的每个层包含了三个子层：解码器自注意力、“编码器-解码器”注意力和基于位置的前馈网络。这些子层也都被残差连接和紧随的层归一化围绕。
+如 :numref:`fig_transformer` 所示，[**Transformer解码器也是由多个相同的层组成**]。在 `DecoderBlock` 类中实现的每个层包含了三个子层：解码器自注意力、“编码器-解码器”注意力和基于位置的前馈网络。这些子层也都被残差连接和紧随的层归一化围绕。
 
 正如在本节前面所述，在遮蔽多头解码器自注意力层（第一个子层）中，查询、键和值都来自上一个解码器层的输出。关于 **序列到序列模型** （sequence-to-sequence model），在训练阶段，其输出序列的所有位置（时间步）的标记都是已知的；然而，在预测阶段，其输出序列的标记是逐个生成的。因此，在任何解码器时间步中，只有生成的标记才能用于解码器的自注意力计算中。为了在解码器中保留自回归的属性，其遮蔽自注意力设定了参数 `dec_valid_lens`，以便任何查询都只会与解码器中所有已经生成标记的位置（即直到该查询位置为止）进行注意力计算。
 
@@ -392,7 +392,7 @@ class DecoderBlock(nn.Module):
         return self.addnorm3(Z, self.ffn(Z)), state
 ```
 
-为了便于在“编码器－解码器”注意力中进行缩放点积计算和残差连接中进行加法计算，编码器和解码器的特征维度都是 `num_hiddens`。
+为了便于在“编码器－解码器”注意力中进行缩放点积计算和残差连接中进行加法计算，[**编码器和解码器的特征维度都是`num_hiddens`。**]
 
 ```{.python .input}
 decoder_blk = DecoderBlock(24, 48, 8, 0.5, 0)
@@ -411,7 +411,7 @@ state = [encoder_blk(X, valid_lens), valid_lens, [None]]
 decoder_blk(X, state)[0].shape
 ```
 
-现在我们构建了由 `num_layers` 个 `DecoderBlock` 实例组成的完整的 Transformer 解码器。最后，通过一个全连接层计算所有 `vocab_size` 个可能的输出标记的预测值。解码器的自注意力权重和编码器解码器注意力权重都被存储下来，方便日后可视化的需要。
+现在我们构建了由 `num_layers` 个 `DecoderBlock` 实例组成的完整的[**Transformer解码器**]。最后，通过一个全连接层计算所有 `vocab_size` 个可能的输出标记的预测值。解码器的自注意力权重和编码器解码器注意力权重都被存储下来，方便日后可视化的需要。
 
 ```{.python .input}
 class TransformerDecoder(d2l.AttentionDecoder):
@@ -490,7 +490,7 @@ class TransformerDecoder(d2l.AttentionDecoder):
         return self._attention_weights
 ```
 
-## 训练
+## [**训练**]
 
 依照 Transformer 结构来实例化编码器－解码器模型。在这里，指定 Transformer 的编码器和解码器都是 2 层，都使用 4 头注意力。与 :numref:`sec_seq2seq_training` 类似，为了进行序列到序列的学习，我们在“英语－法语”机器翻译数据集上训练 Transformer 模型。
 
@@ -533,7 +533,7 @@ net = d2l.EncoderDecoder(encoder, decoder)
 d2l.train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
 ```
 
-训练结束后，使用 Transformer 模型将一些英语句子翻译成法语，并且计算它们的 BLEU 分数。
+训练结束后，使用 Transformer 模型[**将一些英语句子翻译成法语**]，并且计算它们的 BLEU 分数。
 
 ```{.python .input}
 #@tab all
@@ -546,7 +546,7 @@ for eng, fra in zip(engs, fras):
           f'bleu {d2l.bleu(translation, fra, k=2):.3f}')
 ```
 
-当进行最后一个英语到法语的句子翻译工作时，让我们对 Transformer 的注意力权重进行可视化。编码器自注意力权重的形状为 (编码器层数, 注意力头数, `num_steps`或查询的数目, `num_steps` 或“键－值”对的数目) 。
+当进行最后一个英语到法语的句子翻译工作时，让我们[**可视化Transformer 的注意力权重**]。编码器自注意力权重的形状为 (编码器层数, 注意力头数, `num_steps`或查询的数目, `num_steps` 或“键－值”对的数目) 。
 
 ```{.python .input}
 #@tab all
@@ -572,7 +572,7 @@ d2l.show_heatmaps(
     figsize=(7, 3.5))
 ```
 
-为了可视化解码器的自注意力权重和“编码器－解码器”的注意力权重，我们需要完成更多的数据操作工作。例如，我们用零填充被遮蔽住的注意力权重。值得注意的是，解码器的自注意力权重和“编码器－解码器”的注意力权重都有相同的查询：即以 *序列开始标记*（beginning-of-sequence, BOS）打头，再与后续输出的标记共同组成序列。
+[**为了可视化解码器的自注意力权重和“编码器－解码器”的注意力权重，我们需要完成更多的数据操作工作。**]例如，我们用零填充被遮蔽住的注意力权重。值得注意的是，解码器的自注意力权重和“编码器－解码器”的注意力权重都有相同的查询：即以 *序列开始标记*（beginning-of-sequence, BOS）打头，再与后续输出的标记共同组成序列。
 
 ```{.python .input}
 dec_attention_weights_2d = [d2l.tensor(head[0]).tolist()
@@ -612,7 +612,7 @@ d2l.show_heatmaps(
     titles=['Head %d' % i for i in range(1, 5)], figsize=(7, 3.5))
 ```
 
-与编码器的自注意力的情况类似，通过指定输入序列的有效长度，输出序列的查询就不会与输入序列中填充位置的标记进行注意力计算。
+与编码器的自注意力的情况类似，通过指定输入序列的有效长度，[**输出序列的查询不会与输入序列中填充位置的标记进行注意力计算**]。
 
 ```{.python .input}
 #@tab all
