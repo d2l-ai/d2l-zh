@@ -13,7 +13,7 @@ $$\mathbf{c}_{t'} = \sum_{t=1}^T \alpha(\mathbf{s}_{t' - 1}, \mathbf{h}_t) \math
 
 其中，时间步 $t' - 1$ 时的解码器隐藏状态 $\mathbf{s}_{t' - 1}$ 是查询，编码器隐藏状态 $\mathbf{h}_t$ 既是键，也是值，注意力权重 $\alpha$ 是使用 :eqref:`eq_attn-scoring-alpha` 所定义的加性注意力打分函数计算的。
 
-与 :numref:`fig_seq2seq_details` 中的循环神经网络编码器-解码器结构略有不同，:numref:`fig_s2s_attention_details` 描述了 Bahdanau 注意力的结构。
+与 :numref:`fig_seq2seq_details` 中的循环神经网络编码器-解码器结构略有不同， :numref:`fig_s2s_attention_details` 描述了 Bahdanau 注意力的结构。
 
 ![在一个带有Bahdanau注意力的循环神经网络编码器-解码器模型中的层。](../img/seq2seq-attention-details.svg)
 :label:`fig_s2s_attention_details`

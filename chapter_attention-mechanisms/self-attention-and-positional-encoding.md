@@ -2,7 +2,7 @@
 :label:`sec_self-attention-and-positional-encoding`
 
 在深度学习中，我们经常使用卷积神经网络（CNN）或循环神经网络（RNN）对序列进行编码。现在想象一下，有了注意力机制之后，我们将标记序列输入注意力池化中，以便同一组标记同时充当查询、键和值。具体来说，每个查询都会关注所有的键－值对并生成一个注意力输出。由于查询、键和值来自同一组输入，因此被称为
-*自注意力*（self-attention）:cite:`Lin.Feng.Santos.ea.2017,Vaswani.Shazeer.Parmar.ea.2017`，也被称为 **内部注意力**（intra-attention） :cite:`Cheng.Dong.Lapata.2016,Parikh.Tackstrom.Das.ea.2016,Paulus.Xiong.Socher.2017`。在本节中，我们将讨论使用自注意力进行序列编码，包括使用序列的顺序作为补充信息。
+*自注意力*（self-attention:cite:`Lin.Feng.Santos.ea.2017,Vaswani.Shazeer.Parmar.ea.2017` ，也被称为 *内部注意力*（intra-attention） :cite:`Cheng.Dong.Lapata.2016,Parikh.Tackstrom.Das.ea.2016,Paulus.Xiong.Socher.2017`。在本节中，我们将讨论使用自注意力进行序列编码，包括使用序列的顺序作为补充信息。
 
 ```{.python .input}
 from d2l import mxnet as d2l
