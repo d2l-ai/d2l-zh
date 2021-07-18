@@ -1,8 +1,8 @@
 # 自注意力和位置编码
 :label:`sec_self-attention-and-positional-encoding`
 
-在深度学习中，我们经常使用卷积神经网络（CNN）或循环神经网络（RNN）对序列进行编码。现在想象一下，有了注意力机制之后，我们将标记序列输入注意力池化中，以便同一组标记同时充当查询、键和值。具体来说，每个查询都会关注所有的“键－值”对并生成一个注意力输出。由于查询、键和值来自同一组输入，因此执行
-**自注意力**（self-attention）:cite:`Lin.Feng.Santos.ea.2017,Vaswani.Shazeer.Parmar.ea.2017`，也被称为 **内部注意力**（intra-attention） :cite:`Cheng.Dong.Lapata.2016,Parikh.Tackstrom.Das.ea.2016,Paulus.Xiong.Socher.2017`。在本节中，我们将讨论使用自注意力进行序列编码，包括使用序列的顺序作为补充信息。
+在深度学习中，我们经常使用卷积神经网络（CNN）或循环神经网络（RNN）对序列进行编码。现在想象一下，有了注意力机制之后，我们将标记序列输入注意力池化中，以便同一组标记同时充当查询、键和值。具体来说，每个查询都会关注所有的键－值对并生成一个注意力输出。由于查询、键和值来自同一组输入，因此被称为
+*自注意力*（self-attention:cite:`Lin.Feng.Santos.ea.2017,Vaswani.Shazeer.Parmar.ea.2017` ，也被称为 *内部注意力*（intra-attention） :cite:`Cheng.Dong.Lapata.2016,Parikh.Tackstrom.Das.ea.2016,Paulus.Xiong.Socher.2017`。在本节中，我们将讨论使用自注意力进行序列编码，包括使用序列的顺序作为补充信息。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -22,11 +22,11 @@ from torch import nn
 
 ## 自注意力
 
-给定一个由标记组成的输入序列 $\mathbf{x}_1, \ldots, \mathbf{x}_n$，其中任何 $\mathbf{x}_i \in \mathbb{R}^d$ ($1 \leq i \leq n$)，它的自注意力输出为一个长度相同的序列 $\mathbf{y}_1, \ldots, \mathbf{y}_n$，其中
+给定一个由标记组成的输入序列 $\mathbf{x}_1, \ldots, \mathbf{x}_n$，其中任意 $\mathbf{x}_i \in \mathbb{R}^d$ ($1 \leq i \leq n$)。该序列的自注意力输出为一个长度相同的序列 $\mathbf{y}_1, \ldots, \mathbf{y}_n$，其中：
 
 $$\mathbf{y}_i = f(\mathbf{x}_i, (\mathbf{x}_1, \mathbf{x}_1), \ldots, (\mathbf{x}_n, \mathbf{x}_n)) \in \mathbb{R}^d$$
 
-根据 :eqref:`eq_attn-pooling` 中定义的注意力池化函数 $f$。下面的代码片段是基于多头注意力对一个张量完成自注意力的计算，张量的形状为（批量大小、时间步的数目或标记序列的长度，$d$）。输出与输入的张量形状相同。
+根据 :eqref:`eq_attn-pooling` 中定义的注意力池化函数 $f$。下面的代码片段是基于多头注意力对一个张量完成自注意力的计算，张量的形状为 (批量大小, 时间步的数目或标记序列的长度, $d$) 。输出与输入的张量形状相同。
 
 ```{.python .input}
 num_hiddens, num_heads = 100, 5
@@ -52,14 +52,14 @@ attention(X, X, X, valid_lens).shape
 ## 比较卷积神经网络、循环神经网络和自注意力
 :label:`subsec_cnn-rnn-self-attention`
 
-让我们比较下面几个架构，目标都是将由 $n$ 个标记组成的序列映射到另一个长度相等的序列，其中的每个输入标记或输出标记都由 $d$ 维矢量表示。具体来说，我们将比较的是卷积神经网络、循环神经网络和自注意力这几个架构的计算复杂性、顺序操作和最大路径长度。请注意，顺序操作会妨碍并行计算，而任意的序列位置组合之间的路径越短，则能更轻松地学习序列中的远距离依赖关系 :cite:`Hochreiter.Bengio.Frasconi.ea.2001` 。
+让我们比较下面几个架构，目标都是将由 $n$ 个标记组成的序列映射到另一个长度相等的序列，其中的每个输入标记或输出标记都由 $d$ 维向量表示。具体来说，我们将比较的是卷积神经网络、循环神经网络和自注意力这几个架构的计算复杂性、顺序操作和最大路径长度。请注意，顺序操作会妨碍并行计算，而任意的序列位置组合之间的路径越短，则能更轻松地学习序列中的远距离依赖关系 :cite:`Hochreiter.Bengio.Frasconi.ea.2001` 。
 
-![比较卷积神经网络（填充标记被忽略）、循环神经网络和自注意力这三种架构。](../img/cnn-rnn-self-attention.svg)
+![比较卷积神经网络（填充标记被忽略）、循环神经网络和自注意力三种架构。](../img/cnn-rnn-self-attention.svg)
 :label:`fig_cnn-rnn-self-attention`
 
-考虑一个卷积核大小为 $k$ 的卷积层。我们将在后面的章节中提供关于使用卷积神经网络处理序列的更多详细信息。目前，我们只需要知道，由于序列长度是 $n$，输入和输出的通道数量都是 $d$，所以卷积层的计算复杂度为 $\mathcal{O}(knd^2)$。如 :numref:`fig_cnn-rnn-self-attention` 所示，卷积神经网络是分层的，因此有 $\mathcal{O}(1)$ 个顺序操作，最大路径长度为 $\mathcal{O}(n/k)$。例如，$\mathbf{x}_1$ 和 $\mathbf{x}_5$ 处于 :numref:`fig_cnn-rnn-self-attention` 中内核大小为 3 的双层卷积神经网络的接受范围内。
+考虑一个卷积核大小为 $k$ 的卷积层。我们将在后面的章节中提供关于使用卷积神经网络处理序列的更多详细信息。目前，我们只需要知道，由于序列长度是 $n$，输入和输出的通道数量都是 $d$，所以卷积层的计算复杂度为 $\mathcal{O}(knd^2)$。如 :numref:`fig_cnn-rnn-self-attention` 所示，卷积神经网络是分层的，因此为有 $\mathcal{O}(1)$ 个顺序操作，最大路径长度为 $\mathcal{O}(n/k)$。例如，$\mathbf{x}_1$ 和 $\mathbf{x}_5$ 处于 :numref:`fig_cnn-rnn-self-attention` 中卷积核大小为 3 的双层卷积神经网络的感受野内。
 
-当更新循环神经网络的隐藏状态时，$d \times d$ 权重矩阵和 $d$ 维隐藏状态的乘法计算复杂度为 $\mathcal{O}(d^2)$。由于序列长度为 $n$，因此循环层的计算复杂度为 $\mathcal{O}(nd^2)$。根据 :numref:`fig_cnn-rnn-self-attention`，有 $\mathcal{O}(n)$ 个顺序操作无法并行化，最大路径长度也是 $\mathcal{O}(n)$。
+当更新循环神经网络的隐藏状态时，$d \times d$ 权重矩阵和 $d$ 维隐藏状态的乘法计算复杂度为 $\mathcal{O}(d^2)$。由于序列长度为 $n$，因此循环神经网络层的计算复杂度为 $\mathcal{O}(nd^2)$。根据 :numref:`fig_cnn-rnn-self-attention`，有 $\mathcal{O}(n)$ 个顺序操作无法并行化，最大路径长度也是 $\mathcal{O}(n)$。
 
 在自注意力中，查询、键和值都是 $n \times d$ 矩阵。考虑 :eqref:`eq_softmax_QK_V` 中缩放的”点－积“注意力，其中 $n \times d$ 矩阵乘以 $d \times n$ 矩阵，然后输出的 $n \times n$ 矩阵乘以 $n \times d$ 矩阵。因此，自注意力具有 $\mathcal{O}(n^2d)$ 计算复杂性。正如我们在 :numref:`fig_cnn-rnn-self-attention` 中看到的那样，每个标记都通过自注意力直接连接到任何其他标记。因此，有 $\mathcal{O}(1)$ 个顺序操作可以并行计算，最大路径长度也是 $\mathcal{O}(1)$。
 
@@ -68,9 +68,9 @@ attention(X, X, X, valid_lens).shape
 ## 位置编码
 :label:`subsec_positional-encoding`
 
-在处理标记序列时，循环神经网络是逐个的重复地处理标记的，而自注意力则因为并行计算而放弃了顺序操作。为了使用序列的顺序信息，我们通过在输入表示中添加 **位置编码**（positional encoding）来注入绝对的或相对的位置信息。位置编码可以通过学习得到也可以直接固定得到。接下来，我们描述的是基于正弦函数和余弦函数的固定位置编码 :cite:`Vaswani.Shazeer.Parmar.ea.2017` 。
+在处理标记序列时，循环神经网络是逐个的重复地处理标记的，而自注意力则因为并行计算而放弃了顺序操作。为了使用序列的顺序信息，我们通过在输入表示中添加 *位置编码*（positional encoding）来注入绝对的或相对的位置信息。位置编码可以通过学习得到也可以直接固定得到。接下来，我们描述的是基于正弦函数和余弦函数的固定位置编码 :cite:`Vaswani.Shazeer.Parmar.ea.2017` 。
 
-假设输入表示 $\mathbf{X} \in \mathbb{R}^{n \times d}$ 包含一个序列中 $n$ 个标记的 $d$ 维嵌入表示。位置编码使用相同形状的位置嵌入矩阵 $\mathbf{P} \in \mathbb{R}^{n \times d}$ 输出 $\mathbf{X} + \mathbf{P}$，该矩阵在 $i^\mathrm{th}$ 行和 $(2j)^\mathrm{th}$ 或 $(2j + 1)^\mathrm{th}$ 列上的元素为
+假设输入表示 $\mathbf{X} \in \mathbb{R}^{n \times d}$ 包含一个序列中 $n$ 个标记的 $d$ 维嵌入表示。位置编码使用相同形状的位置嵌入矩阵 $\mathbf{P} \in \mathbb{R}^{n \times d}$ 输出 $\mathbf{X} + \mathbf{P}$，矩阵第 $i$ 行、第$2j$列和$2j$ 列上的元素为：
 
 $$\begin{aligned} p_{i, 2j} &= \sin\left(\frac{i}{10000^{2j/d}}\right),\\p_{i, 2j+1} &= \cos\left(\frac{i}{10000^{2j/d}}\right).\end{aligned}$$
 :eqlabel:`eq_positional-encoding-def`
@@ -83,7 +83,7 @@ class PositionalEncoding(nn.Block):
     def __init__(self, num_hiddens, dropout, max_len=1000):
         super(PositionalEncoding, self).__init__()
         self.dropout = nn.Dropout(dropout)
-        # Create a long enough `P`
+        # 创建一个足够长的 `P`
         self.P = d2l.zeros((1, max_len, num_hiddens))
         X = d2l.arange(max_len).reshape(-1, 1) / np.power(
             10000, np.arange(0, num_hiddens, 2) / num_hiddens)
@@ -102,7 +102,7 @@ class PositionalEncoding(nn.Module):
     def __init__(self, num_hiddens, dropout, max_len=1000):
         super(PositionalEncoding, self).__init__()
         self.dropout = nn.Dropout(dropout)
-        # Create a long enough `P`
+        # 创建一个足够长的 `P`
         self.P = d2l.zeros((1, max_len, num_hiddens))
         X = d2l.arange(max_len, dtype=torch.float32).reshape(
             -1, 1) / torch.pow(10000, torch.arange(
@@ -115,7 +115,7 @@ class PositionalEncoding(nn.Module):
         return self.dropout(X)
 ```
 
-在位置嵌入矩阵 $\mathbf{P}$ 中，行表示标记在序列中的位置，列表示位置编码的不同维度。在下面的示例中，我们可以看到位置嵌入矩阵的 $6^{\mathrm{th}}$ 和 $7^{\mathrm{th}}$ 列的频率高于 $8^{\mathrm{th}}$ 和 $9^{\mathrm{th}}$ 列。$6^{\mathrm{th}}$ 和 $7^{\mathrm{th}}$ 列之间的偏移量（$8^{\mathrm{th}}$ 和 $9^{\mathrm{th}}$ 列相同）是由于正弦函数和余弦函数的交替。
+在位置嵌入矩阵 $\mathbf{P}$ 中，行代表标记在序列中的位置，列代表位置编码的不同维度。在下面的例子中，我们可以看到位置嵌入矩阵的 第$6$列 和 第$7$列的频率高于 第$8$ 列和 第$9$ 列。第$6$列 和 第$7$列之间的偏移量（第$8$ 列和 第$9$ 列相同）是由于正弦函数和余弦函数的交替。
 
 ```{.python .input}
 encoding_dim, num_steps = 32, 60

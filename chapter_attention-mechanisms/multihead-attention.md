@@ -1,20 +1,20 @@
 # 多头注意力
 :label:`sec_multihead-attention`
 
-在实践中，当给定相同的查询、键和值的集合时，我们希望模型可以基于相同的注意力机制学习到不同的行为，然后将不同的行为作为知识组合起来，例如捕获序列内各种范围的依赖关系（例如，短距离依赖和长距离依赖）。因此，允许注意力机制组合使用查询、键和值的不同的 *子空间表示*（representation subspaces）可能是有益的。
+在实践中，当给定相同的查询、键和值的集合时，我们希望模型可以基于相同的注意力机制学习到不同的行为，然后将不同的行为作为知识组合起来，例如捕获序列内各种范围的依赖关系（例如，短距离依赖和长距离依赖）。因此，允许注意力机制组合使用查询、键和值的不同 *子空间表示*（representation subspaces）可能是有益的。
 
-为此，与使用单独的一个注意力池化不同，我们可以独立学习得到 $h$ 组不同的 *线性投影*（linear projections）来变换查询、键和值。然后，这 $h$ 组变换后的查询、键和值将并行地进行注意力池化。最后，将这 $h$ 个注意力池化的输出拼接在一起，并且通过另一个可以学习的线性投影进行变换，以产生最终输出。这种设计被称为 **多头注意力**，其中 $h$ 个注意力池化输出中的每一个输出都被称作一个 **头** :cite:`Vaswani.Shazeer.Parmar.ea.2017`。:numref:`fig_multi-head-attention` 展示了使用全连接层来实现可以学习的线性变换的多头注意力。
+为此，与使用单独一个注意力汇聚不同，我们可以用独立学习得到的 $h$ 组不同的 *线性投影*（linear projections）来变换查询、键和值。然后，这 $h$ 组变换后的查询、键和值将并行地送到注意力汇聚中。最后，将这 $h$ 个注意力汇聚的输出拼接在一起，并且通过另一个可以学习的线性投影进行变换，以产生最终输出。这种设计被称为 *多头注意力*，其中 $h$ 个注意力汇聚输出中的每一个输出都被称作一个 *头*（head） :cite:`Vaswani.Shazeer.Parmar.ea.2017`。 :numref:`fig_multi-head-attention` 展示了使用全连接层来实现可学习的线性变换的多头注意力。
 
-![Multi-head attention, where multiple heads are concatenated then linearly transformed.](../img/multi-head-attention.svg)
+![多头注意力，多个头连结然后线性变换。](../img/multi-head-attention.svg)
 :label:`fig_multi-head-attention`
 
 ## 模型
 
-在实现多头注意力之前，让我们用数学语言将这个模型形式化地描述出来。给定查询 $\mathbf{q} \in \mathbb{R}^{d_q}$、键 $\mathbf{k} \in \mathbb{R}^{d_k}$ 和值 $\mathbf{v} \in \mathbb{R}^{d_v}$，每个注意力头 $\mathbf{h}_i$ ($i = 1, \ldots, h$) 的计算方法为
+在实现多头注意力之前，让我们用数学语言将这个模型形式化地描述出来。给定查询 $\mathbf{q} \in \mathbb{R}^{d_q}$、键 $\mathbf{k} \in \mathbb{R}^{d_k}$ 和值 $\mathbf{v} \in \mathbb{R}^{d_v}$，每个注意力头 $\mathbf{h}_i$ ($i = 1, \ldots, h$) 的计算方法为：
 
 $$\mathbf{h}_i = f(\mathbf W_i^{(q)}\mathbf q, \mathbf W_i^{(k)}\mathbf k,\mathbf W_i^{(v)}\mathbf v) \in \mathbb R^{p_v},$$
 
-其中，可学习的参数包括 $\mathbf W_i^{(q)}\in\mathbb R^{p_q\times d_q}$、$\mathbf W_i^{(k)}\in\mathbb R^{p_k\times d_k}$ 和 $\mathbf W_i^{(v)}\in\mathbb R^{p_v\times d_v}$ ，以及代表注意力池化的函数 $f$ 可以是 :numref:`sec_attention-scoring-functions` 中的可加性注意力和缩放的“点－积”注意力。多头注意力的输出需要经过另一个线性转换，它对应着 $h$ 个头拼接后的结果，因此其可学习参数是 $\mathbf W_o\in\mathbb R^{p_o\times h p_v}$：
+其中，可学习的参数包括 $\mathbf W_i^{(q)}\in\mathbb R^{p_q\times d_q}$、$\mathbf W_i^{(k)}\in\mathbb R^{p_k\times d_k}$ 和 $\mathbf W_i^{(v)}\in\mathbb R^{p_v\times d_v}$ ，以及代表注意力汇聚的函数 $f$ 。$f$ 可以是 :numref:`sec_attention-scoring-functions` 中的加性注意力和缩放点积注意力。多头注意力的输出需要经过另一个线性转换，它对应着 $h$ 个头连结后的结果，因此其可学习参数是 $\mathbf W_o\in\mathbb R^{p_o\times h p_v}$：
 
 $$\mathbf W_o \begin{bmatrix}\mathbf h_1\\\vdots\\\mathbf h_h\end{bmatrix} \in \mathbb{R}^{p_o}.$$
 
@@ -38,7 +38,7 @@ from torch import nn
 
 ## 实现
 
-在实现过程中，我们选择了缩放的“点－积”注意力作为每一个注意力头。为了避免计算成本和参数数量的显著增长，我们设置了 $p_q = p_k = p_v = p_o / h$。值得注意的是，如果我们将查询、键和值的线性变换的输出数量设置为 $p_q h = p_k h = p_v h = p_o$，则可以并行计算 $h$ 头。在下面的实现中，$p_o$ 是通过参数 `num_hiddens` 指定的。
+在实现过程中，我们选择了缩放点积注意力作为每一个注意力头。为了避免计算成本和参数数量的大幅增长，我们设定 $p_q = p_k = p_v = p_o / h$。值得注意的是，如果我们将查询、键和值的线性变换的输出数量设置为 $p_q h = p_k h = p_v h = p_o$，则可以并行计算 $h$ 个头。在下面的实现中，$p_o$ 是通过参数 `num_hiddens` 指定的。
 
 ```{.python .input}
 #@save
@@ -57,7 +57,7 @@ class MultiHeadAttention(nn.Block):
         # `queries`, `keys`, or `values` 的形状:
         # (`batch_size`, 查询或者“键－值”对的个数, `num_hiddens`)
         # `valid_lens`　的形状:
-        # (`batch_size`,) or (`batch_size`, 查询的个数)
+        # (`batch_size`,) 或 (`batch_size`, 查询的个数)
         # 经过变换后，输出的 `queries`, `keys`, or `values`　的形状:
         # (`batch_size` * `num_heads`, 查询或者“键－值”对的个数,
         # `num_hiddens` / `num_heads`)
@@ -120,7 +120,7 @@ class MultiHeadAttention(nn.Module):
         return self.W_o(output_concat)
 ```
 
-为了允许多个头的并行计算，上面的 `MultiHeadAttention` 类使用了下面定义的两个转置函数。具体来说，`transpose_output` 函数逆转了 `transpose_qkv` 函数的操作。
+为了允许多个头的并行计算，上面的 `MultiHeadAttention` 类使用了下面定义的两个转置函数。具体来说，`transpose_output` 函数反转了 `transpose_qkv` 函数的操作。
 
 ```{.python .input}
 #@save
@@ -141,7 +141,7 @@ def transpose_qkv(X, num_heads):
 
 #@save
 def transpose_output(X, num_heads):
-    """Reverse the operation of `transpose_qkv`"""
+    """逆转 `transpose_qkv` 函数的操作"""
     X = X.reshape(-1, num_heads, X.shape[1], X.shape[2])
     X = X.transpose(0, 2, 1, 3)
     return X.reshape(X.shape[0], X.shape[1], -1)
@@ -173,7 +173,7 @@ def transpose_output(X, num_heads):
     return X.reshape(X.shape[0], X.shape[1], -1)
 ```
 
-让我们使用键和值相同的小例子来测试我们编写的 `MultiHeadAttention` 类。多头注意力输出的形状是（`batch_size`、`num_queries`、`num_hiddens`）。
+让我们使用键和值相同的小例子来测试我们编写的 `MultiHeadAttention` 类。多头注意力输出的形状是 (`batch_size`, `num_queries`, `num_hiddens`)。
 
 ```{.python .input}
 num_hiddens, num_heads = 100, 5
@@ -199,7 +199,7 @@ attention(X, Y, Y, valid_lens).shape
 
 ## 小结
 
-* 多头注意力融合了来自于相同的注意力池化产生的不同的知识，这些知识的不同来源于相同的查询、键和值的不同的子空间表示。
+* 多头注意力融合了来自于相同的注意力汇聚产生的不同的知识，这些知识的不同来源于相同的查询、键和值的不同的子空间表示。
 * 基于适当的张量操作，可以实现多头注意力的并行计算。
 
 ## 练习
