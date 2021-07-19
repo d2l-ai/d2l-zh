@@ -38,7 +38,7 @@ from torch import nn
 
 ## 实现
 
-在实现过程中，我们选择了缩放点积注意力作为每一个注意力头。为了避免计算成本和参数数量的大幅增长，我们设定 $p_q = p_k = p_v = p_o / h$。值得注意的是，如果我们将查询、键和值的线性变换的输出数量设置为 $p_q h = p_k h = p_v h = p_o$，则可以并行计算 $h$ 个头。在下面的实现中，$p_o$ 是通过参数 `num_hiddens` 指定的。
+在实现过程中，我们[**选择缩放点积注意力作为每一个注意力头**]。为了避免计算成本和参数数量的大幅增长，我们设定 $p_q = p_k = p_v = p_o / h$。值得注意的是，如果我们将查询、键和值的线性变换的输出数量设置为 $p_q h = p_k h = p_v h = p_o$，则可以并行计算 $h$ 个头。在下面的实现中，$p_o$ 是通过参数 `num_hiddens` 指定的。
 
 ```{.python .input}
 #@save
@@ -120,7 +120,7 @@ class MultiHeadAttention(nn.Module):
         return self.W_o(output_concat)
 ```
 
-为了允许多个头的并行计算，上面的 `MultiHeadAttention` 类使用了下面定义的两个转置函数。具体来说，`transpose_output` 函数反转了 `transpose_qkv` 函数的操作。
+为了能够[**使多个头并行计算**]，上面的 `MultiHeadAttention` 类使用了下面定义的两个转置函数。具体来说，`transpose_output` 函数反转了 `transpose_qkv` 函数的操作。
 
 ```{.python .input}
 #@save
@@ -173,7 +173,7 @@ def transpose_output(X, num_heads):
     return X.reshape(X.shape[0], X.shape[1], -1)
 ```
 
-让我们使用键和值相同的小例子来测试我们编写的 `MultiHeadAttention` 类。多头注意力输出的形状是 (`batch_size`, `num_queries`, `num_hiddens`)。
+让我们使用键和值相同的小例子来[**测试**]我们编写的 `MultiHeadAttention` 类。多头注意力输出的形状是 (`batch_size`, `num_queries`, `num_hiddens`)。
 
 ```{.python .input}
 num_hiddens, num_heads = 100, 5

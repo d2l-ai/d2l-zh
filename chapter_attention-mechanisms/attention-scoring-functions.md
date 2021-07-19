@@ -36,7 +36,7 @@ import torch
 from torch import nn
 ```
 
-## 遮蔽 softmax 操作
+## [**遮蔽softmax操作**]
 
 正如上面提到的，softmax 运算用于输出一个概率分布作为注意力权重。在某些情况下，并非所有的值都应该被纳入到注意力汇聚中。例如，为了在 :numref:`sec_machine_translation` 中高效处理小批量数据集，某些文本序列被填充了没有意义的特殊标记。为了仅将有意义的标记作为值去获取注意力汇聚，可以指定一个有效序列长度（即标记的个数），以便在计算 softmax 时过滤掉超出指定范围的位置。通过这种方式，我们可以在下面的 `masked_softmax` 函数中实现这样的 *遮蔽 softmax 操作*（masked softmax operation），其中任何超出有效长度的位置都被遮蔽并置为0。
 
@@ -79,7 +79,7 @@ def masked_softmax(X, valid_lens):
         return nn.functional.softmax(X.reshape(shape), dim=-1)
 ```
 
-为了演示此函数是如何工作的，考虑由两个 $2 \times 4$ 矩阵表示的样本，这两个样本的有效长度分别为 $2$ 和 $3$。经过遮蔽 softmax 操作，超出有效长度的值都被遮蔽为0。
+为了[**演示此函数是如何工作**]的，考虑由两个 $2 \times 4$ 矩阵表示的样本，这两个样本的有效长度分别为 $2$ 和 $3$。经过遮蔽 softmax 操作，超出有效长度的值都被遮蔽为0。
 
 ```{.python .input}
 masked_softmax(np.random.uniform(size=(2, 2, 4)), d2l.tensor([2, 3]))
@@ -102,7 +102,7 @@ masked_softmax(np.random.uniform(size=(2, 2, 4)),
 masked_softmax(torch.rand(2, 2, 4), d2l.tensor([[1, 3], [2, 4]]))
 ```
 
-## 加性注意力
+## [**加性注意力**]
 :label:`subsec_additive-attention`
 
 一般来说，当查询和键是不同长度的矢量时，可以使用加性注意力作为打分函数。给定查询 $\mathbf{q} \in \mathbb{R}^q$ 和键 $\mathbf{k} \in \mathbb{R}^k$，*加性注意力*（additive attention） 的打分函数为
@@ -168,7 +168,7 @@ class AdditiveAttention(nn.Module):
         return torch.bmm(self.dropout(self.attention_weights), values)
 ```
 
-让我们用一个小子来演示上面的 `AdditiveAttention` 类，其中查询、键和值的形状为（批量大小、步数或标记序列长度、特征大小），实际输出为 $(2,1,20)$、$(2,10,2)$ 和 $(2,10,4)$。注意力汇聚输出的形状为（批量大小、查询的步数、值的维度）。
+让我们用一个小例子来[**演示上面的`AdditiveAttention`类**]，其中查询、键和值的形状为（批量大小、步数或标记序列长度、特征大小），实际输出为 $(2,1,20)$、$(2,10,2)$ 和 $(2,10,4)$。注意力汇聚输出的形状为（批量大小、查询的步数、值的维度）。
 
 ```{.python .input}
 queries, keys = d2l.normal(0, 1, (2, 1, 20)), d2l.ones((2, 10, 2))
@@ -195,7 +195,7 @@ attention.eval()
 attention(queries, keys, values, valid_lens)
 ```
 
-尽管加性注意力包含了可学习的参数，但由于本例子中每个键都是相同的，所以注意力权重是均匀的，由指定的有效长度决定。
+尽管加性注意力包含了可学习的参数，但由于本例子中每个键都是相同的，所以[**注意力权重**]是均匀的，由指定的有效长度决定。
 
 ```{.python .input}
 #@tab all
@@ -203,7 +203,7 @@ d2l.show_heatmaps(d2l.reshape(attention.attention_weights, (1, 1, 2, 10)),
                   xlabel='Keys', ylabel='Queries')
 ```
 
-## 缩放点积注意力
+## [**缩放点积注意力**]
 
 使用点积可以得到计算效率更高的打分函数。但是点积操作要求查询和键具有相同的长度 $d$。假设查询和键的所有元素都是独立的随机变量，并且都满足均值为 $0$ 和方差为 $1$。那么两个向量的点积的均值为 $0$，方差为 $d$。为确保无论向量长度如何，点积的方差在不考虑向量长度的情况下仍然是 $1$，则可以使用 *缩放点积注意力*（scaled dot-product attention） 打分函数：
 
@@ -257,7 +257,7 @@ class DotProductAttention(nn.Module):
         return torch.bmm(self.dropout(self.attention_weights), values)
 ```
 
-为了演示上述的 `DotProductAttention` 类，我们使用了与先前加性注意力例子中相同的键、值和有效长度。对于点积操作，令查询的特征维度与键的特征维度大小相同。
+为了[**演示上述的`DotProductAttention`类**]，我们使用了与先前加性注意力例子中相同的键、值和有效长度。对于点积操作，令查询的特征维度与键的特征维度大小相同。
 
 ```{.python .input}
 queries = d2l.normal(0, 1, (2, 1, 2))
@@ -274,7 +274,7 @@ attention.eval()
 attention(queries, keys, values, valid_lens)
 ```
 
-与加性注意力演示相同，由于键包含的是相同的元素，而这些元素无法通过任何查询进行区分，因此获得了均匀的注意力权重。
+与加性注意力演示相同，由于键包含的是相同的元素，而这些元素无法通过任何查询进行区分，因此获得了[**均匀的注意力权重**]。
 
 ```{.python .input}
 #@tab all

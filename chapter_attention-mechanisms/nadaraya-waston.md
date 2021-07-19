@@ -18,7 +18,7 @@ import torch
 from torch import nn
 ```
 
-## 生成数据集
+## [**生成数据集**]
 
 简单起见，考虑下面这个回归问题：给定的成对的“输入－输出”数据集 $\{(x_1, y_1), \ldots, (x_n, y_n)\}$，如何学习 $f$ 来预测任意新输入 $x$ 的输出 $\hat{y} = f(x)$？
 
@@ -81,7 +81,7 @@ y_hat = torch.repeat_interleave(y_train.mean(), n_test)
 plot_kernel_reg(y_hat)
 ```
 
-## 非参数的注意力汇聚
+## [**非参数注意力汇聚**]
 
 显然，平均汇聚忽略了输入 $x_i$。于是 Nadaraya :cite:`Nadaraya.1964` 和 Waston :cite:`Watson.1964` 提出了一个更好的想法，根据输入的位置对输出 $y_i$ 进行加权：
 
@@ -133,7 +133,7 @@ y_hat = d2l.matmul(attention_weights, y_train)
 plot_kernel_reg(y_hat)
 ```
 
-现在，让我们来观察注意力的权重。这里测试数据的输入相当于查询，而训练数据的输入相当于键。因为两个输入都是经过排序的，因此由观察可知“查询-键”对越接近，注意力汇聚的注意力权重就越高。
+现在，让我们来观察注意力的权重。这里测试数据的输入相当于查询，而训练数据的输入相当于键。因为两个输入都是经过排序的，因此由观察可知“查询-键”对越接近，注意力汇聚的[**注意力权重**]就越高。
 
 ```{.python .input}
 d2l.show_heatmaps(np.expand_dims(np.expand_dims(attention_weights, 0), 0),
@@ -148,7 +148,7 @@ d2l.show_heatmaps(attention_weights.unsqueeze(0).unsqueeze(0),
                   ylabel='Sorted testing inputs')
 ```
 
-## 带参数的注意力汇聚
+## [**带参数注意力汇聚**]
 
 非参数的 Nadaraya-Watson 核回归具有 *一致性*（consistency） 的优点：如果有足够的数据，此模型会收敛到最优结果。尽管如此，我们还是可以轻松地将可学习的参数集成到注意力汇聚中。
 
@@ -165,7 +165,7 @@ $$\begin{aligned}f(x) &= \sum_{i=1}^n \alpha(x, x_i) y_i \\&= \sum_{i=1}^n \frac
 
 为了更有效地计算小批量数据的注意力，我们可以利用深度学习开发框架中提供的批量矩阵乘法。
 
-假设第一个小批量数据包含 $n$ 个矩阵 $\mathbf{X}_1,\ldots, \mathbf{X}_n$，形状为 $a\times b$，第二个小批量包含 $n$ 个矩阵 $\mathbf{Y}_1, \ldots, \mathbf{Y}_n$，形状为 $b\times c$。它们的批量矩阵乘法得到 $n$ 个矩阵 $\mathbf{X}_1\mathbf{Y}_1, \ldots, \mathbf{X}_n\mathbf{Y}_n$，形状为 $a\times c$。因此，假定两个张量的形状分别是 $(n,a,b)$ 和 $(n,b,c)$ ，它们的批量矩阵乘法输出的形状为 $(n,a,c)$。
+假设第一个小批量数据包含 $n$ 个矩阵 $\mathbf{X}_1,\ldots, \mathbf{X}_n$，形状为 $a\times b$，第二个小批量包含 $n$ 个矩阵 $\mathbf{Y}_1, \ldots, \mathbf{Y}_n$，形状为 $b\times c$。它们的批量矩阵乘法得到 $n$ 个矩阵 $\mathbf{X}_1\mathbf{Y}_1, \ldots, \mathbf{X}_n\mathbf{Y}_n$，形状为 $a\times c$。因此，[**假定两个张量的形状分别是 $(n,a,b)$ 和 $(n,b,c)$ ，它们的批量矩阵乘法输出的形状为 $(n,a,c)$**]。
 
 ```{.python .input}
 X = d2l.ones((2, 1, 4))
@@ -180,7 +180,7 @@ Y = d2l.ones((2, 4, 6))
 torch.bmm(X, Y).shape
 ```
 
-在注意力机制的背景中，我们可以使用小批量矩阵乘法来计算小批量数据中值的加权平均。
+在注意力机制的背景中，我们可以[**使用小批量矩阵乘法来计算小批量数据中的加权平均值**]。
 
 ```{.python .input}
 weights = d2l.ones((2, 10)) * 0.1
@@ -197,7 +197,7 @@ torch.bmm(weights.unsqueeze(1), values.unsqueeze(-1))
 
 ### 定义模型
 
-基于 :eqref:`eq_nadaraya-waston-gaussian-para` 中的带参数的注意力汇聚，使用小批量矩阵乘法，定义 Nadaraya-Watson 核回归的带参数版本为：
+基于 :eqref:`eq_nadaraya-waston-gaussian-para` 中的[**带参数的注意力汇聚**]，使用小批量矩阵乘法，定义 Nadaraya-Watson 核回归的带参数版本为：
 
 ```{.python .input}
 class NWKernelRegression(nn.Block):
@@ -236,7 +236,7 @@ class NWKernelRegression(nn.Module):
 
 ### 训练模型
 
-接下来，将训练数据集转换为键和值用于训练注意力模型。在带参数的注意力汇聚模型中，任何一个训练样本的输入都会和除自己以外的所有训练样本的“键－值”对进行计算，从而得到其对应的预测输出。
+接下来，[**将训练数据集转换为键和值**]用于训练注意力模型。在带参数的注意力汇聚模型中，任何一个训练样本的输入都会和除自己以外的所有训练样本的“键－值”对进行计算，从而得到其对应的预测输出。
 
 ```{.python .input}
 # `X_tile` 的形状: (`n_train`, `n_train`), 每一行都包含着相同的训练输入
@@ -265,7 +265,7 @@ values = d2l.reshape(Y_tile[(1 - d2l.eye(n_train)).type(torch.bool)],
                      (n_train, -1))
 ```
 
-训练带参数的注意力汇聚模型时使用平方损失函数和随机梯度下降。
+[**训练带参数的注意力汇聚模型**]时使用平方损失函数和随机梯度下降。
 
 ```{.python .input}
 net = NWKernelRegression()
@@ -301,7 +301,7 @@ for epoch in range(5):
     animator.add(epoch + 1, float(l.sum()))
 ```
 
-训练完带参数的注意力汇聚模型后，我们发现，在尝试拟合带噪声的训练数据时，预测结果绘制的线不如之前非参数模型的线平滑。
+训练完带参数的注意力汇聚模型后，我们发现，在尝试拟合带噪声的训练数据时，[**预测结果绘制**]的线不如之前非参数模型的线平滑。
 
 ```{.python .input}
 # `keys` 的形状: (`n_test`, `n_train`), 每一行包含着相同的训练输入（例如：相同的键）
@@ -322,7 +322,7 @@ y_hat = net(x_test, keys, values).unsqueeze(1).detach()
 plot_kernel_reg(y_hat)
 ```
 
-与非参数的注意力汇聚模型相比，带参数的模型加入可学习的参数后，在输出结果的绘制图上，曲线在注意力权重较大的区域变得更不平滑。
+与非参数的注意力汇聚模型相比，带参数的模型加入可学习的参数后，在输出结果的绘制图上，[**曲线在注意力权重较大的区域变得更不平滑**]。
 
 ```{.python .input}
 d2l.show_heatmaps(np.expand_dims(np.expand_dims(net.attention_weights, 0), 0),
