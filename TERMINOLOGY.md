@@ -82,6 +82,8 @@
 
 共现，co-occurrence
 
+广播，broadcast
+
 归一化，normalization
 
 过拟合，overfitting
