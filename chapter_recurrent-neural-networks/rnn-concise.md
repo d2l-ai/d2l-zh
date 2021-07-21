@@ -93,8 +93,8 @@ class RNNModel(nn.Block):
     def forward(self, inputs, state):
         X = npx.one_hot(inputs.T, self.vocab_size)
         Y, state = self.rnn(X, state)
-        # 全连接层首先将`Y`的形状改为(`时间步数` * `批量大小`, `隐藏单元数`)。
-        # 它的输出形状是 (`时间步数` * `批量大小`, `词表大小`)。
+        # 全连接层首先将`Y`的形状改为(`时间步数`*`批量大小`, `隐藏单元数`)。
+        # 它的输出形状是 (`时间步数`*`批量大小`, `词表大小`)。
         output = self.dense(Y.reshape(-1, Y.shape[-1]))
         return output, state
 
@@ -124,8 +124,8 @@ class RNNModel(nn.Module):
         X = F.one_hot(inputs.T.long(), self.vocab_size)
         X = X.to(torch.float32)
         Y, state = self.rnn(X, state)
-        # 全连接层首先将`Y`的形状改为(`时间步数` * `批量大小`, `隐藏单元数`)。
-        # 它的输出形状是 (`时间步数` * `批量大小`, `词表大小`)。
+        # 全连接层首先将`Y`的形状改为(`时间步数`*`批量大小`, `隐藏单元数`)。
+        # 它的输出形状是 (`时间步数`*`批量大小`, `词表大小`)。
         output = self.linear(Y.reshape((-1, Y.shape[-1])))
         return output, state
 
@@ -172,7 +172,7 @@ num_epochs, lr = 500, 1
 d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, device)
 ```
 
-与上一节相比，由于深度学习框架的高级API对代码进行了更多的优化，该模型在较短的时间内实现了类似的困惑度。
+与上一节相比，由于深度学习框架的高级API对代码进行了更多的优化，该模型在较短的时间内实现了较低的困惑度。
 
 ## 小结
 
