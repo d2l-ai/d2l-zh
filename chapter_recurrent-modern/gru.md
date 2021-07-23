@@ -91,7 +91,7 @@ batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 ```
 
-### (**初始化模型参数**)
+### [**初始化模型参数**]
 
 下一步是初始化模型参数。我们从标准差为 $0.01$ 的高斯分布中提取权重，并将偏置项设为 $0$，超参数 `num_hiddens` 定义隐藏单元的数量，实例化与更新门、重置门、候选隐藏状态和输出层相关的所有权重和偏置。
 
