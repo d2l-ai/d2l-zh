@@ -1440,6 +1440,7 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=2):
 
 # Defined in file: ./chapter_computational-performance/hybridize.md
 class Benchmark:
+    """For measuring running time."""
     def __init__(self, description='Done'):
         self.description = description
 

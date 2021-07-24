@@ -1503,6 +1503,7 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=4):
 
 # Defined in file: ./chapter_computational-performance/hybridize.md
 class Benchmark:
+    """For measuring running time."""
     def __init__(self, description='Done'):
         self.description = description
 
@@ -2093,6 +2094,7 @@ d2l.DATA_HUB['ptb'] = (d2l.DATA_URL + 'ptb.zip',
 
 
 def read_ptb():
+    """Load the PTB dataset into a list of text lines."""
     data_dir = d2l.download_extract('ptb')
     # Read the training set.
     with open(os.path.join(data_dir, 'ptb.train.txt')) as f:
@@ -2102,6 +2104,7 @@ def read_ptb():
 
 # Defined in file: ./chapter_natural-language-processing-pretraining/word-embedding-dataset.md
 def subsample(sentences, vocab):
+    """Subsample high-frequency words."""
     # Exclude unknown tokens '<unk>'
     sentences = [[token for token in line if vocab[token] != vocab.unk]
                  for line in sentences]
@@ -2119,6 +2122,7 @@ def subsample(sentences, vocab):
 
 # Defined in file: ./chapter_natural-language-processing-pretraining/word-embedding-dataset.md
 def get_centers_and_contexts(corpus, max_window_size):
+    """Return center words and context words in skip-gram."""
     centers, contexts = [], []
     for line in corpus:
         # To form a "center word--context word" pair, each sentence needs to
@@ -2159,6 +2163,7 @@ class RandomGenerator:
 
 # Defined in file: ./chapter_natural-language-processing-pretraining/word-embedding-dataset.md
 def get_negatives(all_contexts, vocab, counter, K):
+    """Return noise words in negative sampling."""
     # Sampling weights for words with indices 1, 2, ... (index 0 is the
     # excluded unknown token) in the vocabulary
     sampling_weights = [
@@ -2177,6 +2182,7 @@ def get_negatives(all_contexts, vocab, counter, K):
 
 # Defined in file: ./chapter_natural-language-processing-pretraining/word-embedding-dataset.md
 def batchify(data):
+    """Return a minibatch of examples for skip-gram with negative sampling."""
     max_len = max(len(c) + len(n) for _, c, n in data)
     centers, contexts_negatives, masks, labels = [], [], [], []
     for center, context, negative in data:
@@ -2192,6 +2198,7 @@ def batchify(data):
 
 # Defined in file: ./chapter_natural-language-processing-pretraining/word-embedding-dataset.md
 def load_data_ptb(batch_size, max_window_size, num_noise_words):
+    """Download the PTB dataset and then load it into memory."""
     num_workers = d2l.get_dataloader_workers()
     sentences = read_ptb()
     vocab = d2l.Vocab(sentences, min_freq=10)
@@ -2277,6 +2284,7 @@ class TokenEmbedding:
 
 # Defined in file: ./chapter_natural-language-processing-pretraining/bert.md
 def get_tokens_and_segments(tokens_a, tokens_b=None):
+    """Get tokens of the BERT input sequence and their segment IDs."""
     tokens = ['<cls>'] + tokens_a + ['<sep>']
     # 0 and 1 are marking segment A and B, respectively
     segments = [0] * (len(tokens_a) + 2)
@@ -2288,6 +2296,7 @@ def get_tokens_and_segments(tokens_a, tokens_b=None):
 
 # Defined in file: ./chapter_natural-language-processing-pretraining/bert.md
 class BERTEncoder(nn.Module):
+    """BERT encoder."""
     def __init__(self, vocab_size, num_hiddens, norm_shape, ffn_num_input,
                  ffn_num_hiddens, num_heads, num_layers, dropout,
                  max_len=1000, key_size=768, query_size=768, value_size=768,
@@ -2319,6 +2328,7 @@ class BERTEncoder(nn.Module):
 
 # Defined in file: ./chapter_natural-language-processing-pretraining/bert.md
 class MaskLM(nn.Module):
+    """The masked language model task of BERT."""
     def __init__(self, vocab_size, num_hiddens, num_inputs=768, **kwargs):
         super(MaskLM, self).__init__(**kwargs)
         self.mlp = nn.Sequential(nn.Linear(num_inputs, num_hiddens),
@@ -2341,6 +2351,7 @@ class MaskLM(nn.Module):
 
 # Defined in file: ./chapter_natural-language-processing-pretraining/bert.md
 class NextSentencePred(nn.Module):
+    """The next sentence prediction task of BERT."""
     def __init__(self, num_inputs, **kwargs):
         super(NextSentencePred, self).__init__(**kwargs)
         self.output = nn.Linear(num_inputs, 2)
@@ -2352,6 +2363,7 @@ class NextSentencePred(nn.Module):
 
 # Defined in file: ./chapter_natural-language-processing-pretraining/bert.md
 class BERTModel(nn.Module):
+    """The BERT model."""
     def __init__(self, vocab_size, num_hiddens, norm_shape, ffn_num_input,
                  ffn_num_hiddens, num_heads, num_layers, dropout,
                  max_len=1000, key_size=768, query_size=768, value_size=768,
@@ -2551,6 +2563,7 @@ class _WikiTextDataset(torch.utils.data.Dataset):
 
 # Defined in file: ./chapter_natural-language-processing-pretraining/bert-dataset.md
 def load_data_wiki(batch_size, max_len):
+    """Load the WikiText-2 dataset."""
     num_workers = d2l.get_dataloader_workers()
     data_dir = d2l.download_extract('wikitext-2', 'wikitext-2')
     paragraphs = _read_wiki(data_dir)
@@ -2586,6 +2599,7 @@ d2l.DATA_HUB['aclImdb'] = (
 
 # Defined in file: ./chapter_natural-language-processing-applications/sentiment-analysis-and-dataset.md
 def read_imdb(data_dir, is_train):
+    """Read the IMDb review dataset text sequences and labels."""
     data, labels = [], []
     for label in ('pos', 'neg'):
         folder_name = os.path.join(data_dir, 'train' if is_train else 'test',
@@ -2600,6 +2614,7 @@ def read_imdb(data_dir, is_train):
 
 # Defined in file: ./chapter_natural-language-processing-applications/sentiment-analysis-and-dataset.md
 def load_data_imdb(batch_size, num_steps=500):
+    """Return data iterators and the vocabulary of the IMDb review dataset."""
     data_dir = d2l.download_extract('aclImdb', 'aclImdb')
     train_data = read_imdb(data_dir, True)
     test_data = read_imdb(data_dir, False)
@@ -2620,9 +2635,10 @@ def load_data_imdb(batch_size, num_steps=500):
 
 
 # Defined in file: ./chapter_natural-language-processing-applications/sentiment-analysis-rnn.md
-def predict_sentiment(net, vocab, sentence):
-    sentence = torch.tensor(vocab[sentence.split()], device=d2l.try_gpu())
-    label = torch.argmax(net(sentence.reshape(1, -1)), dim=1)
+def predict_sentiment(net, vocab, sequence):
+    """Predict the sentiment of a text sequence."""
+    sequence = torch.tensor(vocab[sequence.split()], device=d2l.try_gpu())
+    label = torch.argmax(net(sequence.reshape(1, -1)), dim=1)
     return 'positive' if label == 1 else 'negative'
 
 
@@ -2702,6 +2718,7 @@ def load_data_snli(batch_size, num_steps=50):
 
 # Defined in file: ./chapter_natural-language-processing-applications/natural-language-inference-attention.md
 def predict_snli(net, vocab, premise, hypothesis):
+    """Predict the logical relationship between the premise and hypothesis."""
     net.eval()
     premise = torch.tensor(vocab[premise], device=d2l.try_gpu())
     hypothesis = torch.tensor(vocab[hypothesis], device=d2l.try_gpu())
