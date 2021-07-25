@@ -544,17 +544,18 @@ class Vocab:
             reserved_tokens = []
         # Sort according to frequencies
         counter = count_corpus(tokens)
-        self.token_freqs = sorted(counter.items(), key=lambda x: x[1],
-                                  reverse=True)
+        self._token_freqs = sorted(counter.items(), key=lambda x: x[1],
+                                   reverse=True)
         # The index for the unknown token is 0
-        self.unk, uniq_tokens = 0, ['<unk>'] + reserved_tokens
-        uniq_tokens += [
-            token for token, freq in self.token_freqs
-            if freq >= min_freq and token not in uniq_tokens]
-        self.idx_to_token, self.token_to_idx = [], dict()
-        for token in uniq_tokens:
-            self.idx_to_token.append(token)
-            self.token_to_idx[token] = len(self.idx_to_token) - 1
+        self.idx_to_token = ['<unk>'] + reserved_tokens
+        self.token_to_idx = {
+            token: idx for idx, token in enumerate(self.idx_to_token)}
+        for token, freq in self._token_freqs:
+            if freq < min_freq:
+                break
+            if token not in self.token_to_idx:
+                self.idx_to_token.append(token)
+                self.token_to_idx[token] = len(self.idx_to_token) - 1
 
     def __len__(self):
         return len(self.idx_to_token)
@@ -568,6 +569,14 @@ class Vocab:
         if not isinstance(indices, (list, tuple)):
             return self.idx_to_token[indices]
         return [self.idx_to_token[index] for index in indices]
+
+    @property
+    def unk(self):  # Index for the unknown token
+        return 0
+
+    @property
+    def token_freqs(self):  # Index for the unknown token
+        return self._token_freqs
 
 
 def count_corpus(tokens):
@@ -825,6 +834,19 @@ def tokenize_nmt(text, num_examples=None):
             source.append(parts[0].split(' '))
             target.append(parts[1].split(' '))
     return source, target
+
+
+# Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
+def show_list_len_pair_hist(legend, xlabel, ylabel, xlist, ylist):
+    """Plot the histogram for list length pairs."""
+    d2l.set_figsize()
+    _, _, patches = d2l.plt.hist([[len(l) for l in xlist],
+                                  [len(l) for l in ylist]])
+    d2l.plt.xlabel(xlabel)
+    d2l.plt.ylabel(ylabel)
+    for patch in patches[1].patches:
+        patch.set_hatch('/')
+    d2l.plt.legend(legend)
 
 
 # Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
@@ -1418,6 +1440,7 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=2):
 
 # Defined in file: ./chapter_computational-performance/hybridize.md
 class Benchmark:
+    """For measuring running time."""
     def __init__(self, description='Done'):
         self.description = description
 

@@ -91,7 +91,7 @@ batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 ```
 
-### 正在初始化模型参数
+### [**初始化模型参数**]
 
 接下来，我们需要定义和初始化模型参数。如前所述，超参数 `num_hiddens` 定义隐藏单元的数量。我们按照标准差 $0.01$ 的高斯分布初始化权重，并将偏置项设为 $0$。
 
@@ -152,7 +152,7 @@ def get_lstm_params(vocab_size, num_hiddens, device):
 
 ### 定义模型
 
-在初始化函数中，长短期记忆网络的隐藏状态需要返回一个 *额外* 的记忆单元，单元的值为0，形状为（批量大小，隐藏单元数）。因此，我们得到以下的状态初始化。
+在[**初始化函数**]中，长短期记忆网络的隐藏状态需要返回一个 *额外* 的记忆单元，单元的值为0，形状为（批量大小，隐藏单元数）。因此，我们得到以下的状态初始化。
 
 ```{.python .input}
 def init_lstm_state(batch_size, num_hiddens, device):
@@ -167,7 +167,7 @@ def init_lstm_state(batch_size, num_hiddens, device):
             torch.zeros((batch_size, num_hiddens), device=device))
 ```
 
-实际模型的定义与我们前面讨论的一样：提供三个门和一个额外的记忆单元。请注意，只有隐藏状态才会传递到输出层，而记忆单元 $\mathbf{C}_t$ 不直接参与输出计算。
+[**实际模型**]的定义与我们前面讨论的一样：提供三个门和一个额外的记忆单元。请注意，只有隐藏状态才会传递到输出层，而记忆单元 $\mathbf{C}_t$ 不直接参与输出计算。
 
 ```{.python .input}
 def lstm(inputs, state, params):
@@ -206,7 +206,7 @@ def lstm(inputs, state, params):
     return torch.cat(outputs, dim=0), (H, C)
 ```
 
-### 训练和预测
+### [**训练**]和预测
 
 让我们通过实例化 :numref:`sec_rnn_scratch` 中引入的 `RNNModelScratch` 类来训练一个长短期记忆网络，就如我们在 :numref:`sec_gru` 中所做的一样。
 
@@ -219,7 +219,7 @@ model = d2l.RNNModelScratch(len(vocab), num_hiddens, device, get_lstm_params,
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 ```
 
-## 简洁实现
+## [**简洁实现**]
 
 使用高级 API，我们可以直接实例化 `LSTM` 模型。模型封装了前文明确介绍的所有配置细节。这段代码的运行速度要快得多，因为它使用的是编译好的运算符而不是 Python 来处理之前阐述的许多细节。
 
