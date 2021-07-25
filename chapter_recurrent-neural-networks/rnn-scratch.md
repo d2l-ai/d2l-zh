@@ -44,9 +44,9 @@ train_random_iter, vocab_random_iter = d2l.load_data_time_machine(
 
 ## [**独热编码**]
 
-回想一下，在 `train_iter` 中，每个标记都表示为一个数字索引。将这些索引直接输入神经网络可能会使学习变得困难。我们通常将每个标记表示为更具表现力的特征向量。最简单的表示称为*独热编码*（one-hot encoding），它在 :numref:`subsec_classification-problem` 中介绍过。
+回想一下，在 `train_iter` 中，每个词元都表示为一个数字索引。将这些索引直接输入神经网络可能会使学习变得困难。我们通常将每个词元表示为更具表现力的特征向量。最简单的表示称为*独热编码*（one-hot encoding），它在 :numref:`subsec_classification-problem` 中介绍过。
 
-简言之，将每个索引映射为相互不同的单位向量：假设词汇表中不同标记的数目为$N$（即 `len(vocab)`），标记索引的范围为$0$到$N-1$。如果标记的索引是整数$i$，那么我们创建一个长度为$N$的全$0$向量，并将第$i$处的元素设置为$1$。此向量是原始标记的一个独热向量。索引为$0$和$2$的独热向量如下所示。
+简言之，将每个索引映射为相互不同的单位向量：假设词汇表中不同词元的数目为$N$（即 `len(vocab)`），词元索引的范围为$0$到$N-1$。如果词元的索引是整数$i$，那么我们创建一个长度为$N$的全$0$向量，并将第$i$处的元素设置为$1$。此向量是原始词元的一个独热向量。索引为$0$和$2$的独热向量如下所示。
 
 ```{.python .input}
 npx.one_hot(np.array([0, 2]), len(vocab))
@@ -458,7 +458,7 @@ def grad_clipping(grads, theta): #@save
 def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
     """训练模型一个迭代周期（定义见第8章）。"""
     state, timer = None, d2l.Timer()
-    metric = d2l.Accumulator(2)  # 训练损失之和, 标记数量
+    metric = d2l.Accumulator(2)  # 训练损失之和, 词元数量
     for X, Y in train_iter:
         if state is None or use_random_iter:
             # 在第一次迭代或使用随机抽样时初始化`state`
@@ -484,7 +484,7 @@ def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
 def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
     """训练模型一个迭代周期（定义见第8章）。"""
     state, timer = None, d2l.Timer()
-    metric = d2l.Accumulator(2)  # 训练损失之和, 标记数量
+    metric = d2l.Accumulator(2)  # 训练损失之和, 词元数量
     for X, Y in train_iter:
         if state is None or use_random_iter:
             # 在第一次迭代或使用随机抽样时初始化`state`
@@ -521,7 +521,7 @@ def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
 def train_epoch_ch8(net, train_iter, loss, updater, params, use_random_iter):
     """训练模型一个迭代周期（定义见第8章）。"""
     state, timer = None, d2l.Timer()
-    metric = d2l.Accumulator(2)  # 训练损失之和, 标记数量
+    metric = d2l.Accumulator(2)  # 训练损失之和, 词元数量
     for X, Y in train_iter:
         if state is None or use_random_iter:
             # 在第一次迭代或使用随机抽样时初始化`state`
@@ -567,7 +567,7 @@ def train_ch8(net, train_iter, vocab, lr, num_epochs, device,  #@save
             net, train_iter, loss, updater, device, use_random_iter)
         if (epoch + 1) % 10 == 0:
             animator.add(epoch + 1, [ppl])
-    print(f'困惑度 {ppl:.1f}, {speed:.1f} 标记/秒 {str(device)}')
+    print(f'困惑度 {ppl:.1f}, {speed:.1f} 词元/秒 {str(device)}')
     print(predict('time traveller'))
     print(predict('traveller'))
 ```
@@ -594,7 +594,7 @@ def train_ch8(net, train_iter, vocab, lr, num_epochs, device,
         if (epoch + 1) % 10 == 0:
             print(predict('time traveller'))
             animator.add(epoch + 1, [ppl])
-    print(f'困惑度 {ppl:.1f}, {speed:.1f} 标记/秒 {str(device)}')
+    print(f'困惑度 {ppl:.1f}, {speed:.1f} 词元/秒 {str(device)}')
     print(predict('time traveller'))
     print(predict('traveller'))
 ```
@@ -620,12 +620,12 @@ def train_ch8(net, train_iter, vocab, num_hiddens, lr, num_epochs, strategy,
             print(predict('time traveller'))
             animator.add(epoch + 1, [ppl])
     device = d2l.try_gpu()._device_name
-    print(f'困惑度 {ppl:.1f}, {speed:.1f} 标记/秒 {str(device)}')
+    print(f'困惑度 {ppl:.1f}, {speed:.1f} 词元/秒 {str(device)}')
     print(predict('time traveller'))
     print(predict('traveller'))
 ```
 
-[**现在，我们训练循环神经网络模型。**]因为我们在数据集中只使用10000个标记，所以模型需要更多的迭代周期来更好地收敛。
+[**现在，我们训练循环神经网络模型。**]因为我们在数据集中只使用10000个词元，所以模型需要更多的迭代周期来更好地收敛。
 
 ```{.python .input}
 #@tab mxnet,pytorch
