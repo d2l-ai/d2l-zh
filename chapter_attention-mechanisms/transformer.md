@@ -13,7 +13,7 @@ Transformer 作为编码器－解码器结构的一个实例，其整体结构�
 
 图 :numref:`fig_transformer` 中概述了 Transformer 的结构。从宏观角度来看，Transformer 的编码器是由多个相同的层叠加而成的，每个层都有两个子层（子层表示为 $\mathrm{sublayer}$）。第一个子层是 *多头自注意力*（multi-head self-attention）汇聚；第二个子层是 *基于位置的前馈网络*（positionwise feed-forward network）。具体来说，在计算编码器的自注意力时，查询、键和值都来自前一个编码器层的输出。受 :numref:`sec_resnet` 中 ResNet 的启发，每个子层都采用了 *残差连接*（residual connection）。在 Transformer 中，对于序列中任何位置的任何输入 $\mathbf{x} \in \mathbb{R}^d$，都要求满足 $\mathrm{sublayer}(\mathbf{x}) \in \mathbb{R}^d$，以便残差连接满足 $\mathbf{x} + \mathrm{sublayer}(\mathbf{x}) \in \mathbb{R}^d$ 。在残差连接的加法计算之后，紧接着应用 *层归一化*（layer normalization） :cite:`Ba.Kiros.Hinton.2016`。因此，输入序列对应的每个位置，Transformer 编码器都将输出一个 $d$ 维表示向量。
 
-Transformer 解码器也是由多个相同的层叠加而成的，并且层中使用了残差连接和层归一化。除了编码器中描述的两个子层之外，解码器还在这两个子层之间插入了第三个子层，称为 *编码器－解码器注意力*（encoder-decoder attention）层。在编码器－解码器注意力中，查询来自前一个解码器层的输出，而键和值来自整个编码器的输出。在解码器自注意力中，查询、键和值都来自上一个解码器层的输出。但是，解码器中的每个位置只能考虑该位置之前的所有位置。这种 *遮蔽*（masked） 注意力保留了 *自回归*（auto-regressive）属性，确保预测仅依赖于已生成的输出标记。
+Transformer 解码器也是由多个相同的层叠加而成的，并且层中使用了残差连接和层归一化。除了编码器中描述的两个子层之外，解码器还在这两个子层之间插入了第三个子层，称为 *编码器－解码器注意力*（encoder-decoder attention）层。在编码器－解码器注意力中，查询来自前一个解码器层的输出，而键和值来自整个编码器的输出。在解码器自注意力中，查询、键和值都来自上一个解码器层的输出。但是，解码器中的每个位置只能考虑该位置之前的所有位置。这种 *遮蔽*（masked） 注意力保留了 *自回归*（auto-regressive）属性，确保预测仅依赖于已生成的输出词元。
 
 我们已经描述并实现了基于缩放点积多头注意力 :numref:`sec_multihead-attention` 和位置编码 :numref:`subsec_positional-encoding` 。接下来，我们将实现 Transformer 模型的剩余部分。
 
@@ -294,7 +294,7 @@ encoder(d2l.ones((2, 100), dtype=torch.long), valid_lens).shape
 
 如 :numref:`fig_transformer` 所示，[**Transformer解码器也是由多个相同的层组成**]。在 `DecoderBlock` 类中实现的每个层包含了三个子层：解码器自注意力、“编码器-解码器”注意力和基于位置的前馈网络。这些子层也都被残差连接和紧随的层归一化围绕。
 
-正如在本节前面所述，在遮蔽多头解码器自注意力层（第一个子层）中，查询、键和值都来自上一个解码器层的输出。关于 **序列到序列模型** （sequence-to-sequence model），在训练阶段，其输出序列的所有位置（时间步）的标记都是已知的；然而，在预测阶段，其输出序列的标记是逐个生成的。因此，在任何解码器时间步中，只有生成的标记才能用于解码器的自注意力计算中。为了在解码器中保留自回归的属性，其遮蔽自注意力设定了参数 `dec_valid_lens`，以便任何查询都只会与解码器中所有已经生成标记的位置（即直到该查询位置为止）进行注意力计算。
+正如在本节前面所述，在遮蔽多头解码器自注意力层（第一个子层）中，查询、键和值都来自上一个解码器层的输出。关于 **序列到序列模型** （sequence-to-sequence model），在训练阶段，其输出序列的所有位置（时间步）的词元都是已知的；然而，在预测阶段，其输出序列的词元是逐个生成的。因此，在任何解码器时间步中，只有生成的词元才能用于解码器的自注意力计算中。为了在解码器中保留自回归的属性，其遮蔽自注意力设定了参数 `dec_valid_lens`，以便任何查询都只会与解码器中所有已经生成词元的位置（即直到该查询位置为止）进行注意力计算。
 
 ```{.python .input}
 class DecoderBlock(nn.Block):
@@ -314,9 +314,9 @@ class DecoderBlock(nn.Block):
 
     def forward(self, X, state):
         enc_outputs, enc_valid_lens = state[0], state[1]
-        # 训练阶段，输出序列的所有标记都在同一时间处理，
+        # 训练阶段，输出序列的所有词元都在同一时间处理，
         # 因此 `state[2][self.i]` 初始化为 `None`。
-        # 预测阶段，输出序列是通过标记一个接着一个解码的，
+        # 预测阶段，输出序列是通过词元一个接着一个解码的，
         # 因此 `state[2][self.i]` 包含着直到当前时间步第 `i` 个块解码的输出表示
         if state[2][self.i] is None:
             key_values = X
@@ -364,9 +364,9 @@ class DecoderBlock(nn.Module):
 
     def forward(self, X, state):
         enc_outputs, enc_valid_lens = state[0], state[1]
-        # 训练阶段，输出序列的所有标记都在同一时间处理，
+        # 训练阶段，输出序列的所有词元都在同一时间处理，
         # 因此 `state[2][self.i]` 初始化为 `None`。
-        # 预测阶段，输出序列是通过标记一个接着一个解码的，
+        # 预测阶段，输出序列是通过词元一个接着一个解码的，
         # 因此 `state[2][self.i]` 包含着直到当前时间步第 `i` 个块解码的输出表示
         if state[2][self.i] is None:
             key_values = X
@@ -411,7 +411,7 @@ state = [encoder_blk(X, valid_lens), valid_lens, [None]]
 decoder_blk(X, state)[0].shape
 ```
 
-现在我们构建了由 `num_layers` 个 `DecoderBlock` 实例组成的完整的[**Transformer解码器**]。最后，通过一个全连接层计算所有 `vocab_size` 个可能的输出标记的预测值。解码器的自注意力权重和编码器解码器注意力权重都被存储下来，方便日后可视化的需要。
+现在我们构建了由 `num_layers` 个 `DecoderBlock` 实例组成的完整的[**Transformer解码器**]。最后，通过一个全连接层计算所有 `vocab_size` 个可能的输出词元的预测值。解码器的自注意力权重和编码器解码器注意力权重都被存储下来，方便日后可视化的需要。
 
 ```{.python .input}
 class TransformerDecoder(d2l.AttentionDecoder):
@@ -556,7 +556,7 @@ enc_attention_weights = d2l.reshape(
 enc_attention_weights.shape
 ```
 
-在编码器的自注意力中，查询和键都来自相同的输入序列。因为填充标记是不携带信息的，因此通过指定输入序列的有效长度可以避免查询与使用填充标记的位置计算注意力。接下来，将逐行呈现两层多头注意力的权重。每个注意力头都根据查询、键和值的不同的表示子空间来表示不同的注意力。
+在编码器的自注意力中，查询和键都来自相同的输入序列。因为填充词元是不携带信息的，因此通过指定输入序列的有效长度可以避免查询与使用填充词元的位置计算注意力。接下来，将逐行呈现两层多头注意力的权重。每个注意力头都根据查询、键和值的不同的表示子空间来表示不同的注意力。
 
 ```{.python .input}
 d2l.show_heatmaps(
@@ -572,7 +572,7 @@ d2l.show_heatmaps(
     figsize=(7, 3.5))
 ```
 
-[**为了可视化解码器的自注意力权重和“编码器－解码器”的注意力权重，我们需要完成更多的数据操作工作。**]例如，我们用零填充被遮蔽住的注意力权重。值得注意的是，解码器的自注意力权重和“编码器－解码器”的注意力权重都有相同的查询：即以 *序列开始标记*（beginning-of-sequence, BOS）打头，再与后续输出的标记共同组成序列。
+[**为了可视化解码器的自注意力权重和“编码器－解码器”的注意力权重，我们需要完成更多的数据操作工作。**]例如，我们用零填充被遮蔽住的注意力权重。值得注意的是，解码器的自注意力权重和“编码器－解码器”的注意力权重都有相同的查询：即以 *序列开始词元*（beginning-of-sequence, BOS）打头，再与后续输出的词元共同组成序列。
 
 ```{.python .input}
 dec_attention_weights_2d = [d2l.tensor(head[0]).tolist()
@@ -612,7 +612,7 @@ d2l.show_heatmaps(
     titles=['Head %d' % i for i in range(1, 5)], figsize=(7, 3.5))
 ```
 
-与编码器的自注意力的情况类似，通过指定输入序列的有效长度，[**输出序列的查询不会与输入序列中填充位置的标记进行注意力计算**]。
+与编码器的自注意力的情况类似，通过指定输入序列的有效长度，[**输出序列的查询不会与输入序列中填充位置的词元进行注意力计算**]。
 
 ```{.python .input}
 #@tab all
