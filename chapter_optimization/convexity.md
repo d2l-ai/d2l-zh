@@ -370,13 +370,13 @@ $$\mathrm{Proj}_\mathcal{X}(\mathbf{x}) = \mathop{\mathrm{argmin}}_{\mathbf{x}' 
 
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/350)
+[Discussions](https://discuss.d2l.ai/t/3814)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/53)
+[Discussions](https://discuss.d2l.ai/t/3815)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/260)
+[Discussions](https://discuss.d2l.ai/t/3816)
 :end_tab:
