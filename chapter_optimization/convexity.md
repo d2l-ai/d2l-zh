@@ -7,7 +7,7 @@
 通常我们很难在其他条件下看到好的结果。
 此外，即使深度学习中的优化问题通常是非凸的，
 它们也经常在局部极小值附近表现出一些凸性。 
-这可能会产生一些像 :cite: `Izmailov.Podoprikhin.Garipov.ea.2018` 这样比较有意思的新的优化变体。
+这可能会产生一些像 :cite:`Izmailov.Podoprikhin.Garipov.ea.2018` 这样比较有意思的新的优化变体。
 
 ```{.python .input}
 %matplotlib inline
@@ -45,7 +45,7 @@ import tensorflow as tf
 简单地说，如果对于任何 $a，b \in \mathcal{X}$ ，连接 $a$ 和 $b$ 的线段也位于 $\mathcal{X}$ 中，则向量空间中的一个集合 $\mathcal{X}$ 是*凸*（convex）的。
 在数学术语上，这意味着对于所有 $\lambda \in [0, 1]$ ，我们得到
 
-$$\lambda  a + (1-\lambda)  b \in \mathcal{X} \text{ whenever } a, b \in \mathcal{X}.$$
+$$\lambda  a + (1-\lambda)  b \in \mathcal{X} \text{ 当 } a, b \in \mathcal{X}.$$
 
 
 这听起来有点抽象，那我们来看一下 :numref:`fig_pacman` 里的例子。
@@ -135,7 +135,7 @@ $$E_{Y \sim P(Y)}[-\log P(X \mid Y)] \geq -\log P(X),$$
 ### 局部极小值是全局极小值
 
 首先凸函数的局部极小值也是全局极小值。
-我们用反证法证明它是错误的：假设 $ x^{\ast} \in \mathcal{X}$ 是一个局部最小值，使得有一个很小的正值 $p$ ，使得 $x \in \mathcal{X}$ 满足 $0 < |x - x^{\ast}| \leq p$ 有 $f(x^{\ast}) < f(x)$ 。
+我们用反证法证明它是错误的：假设 $x^{\ast} \in \mathcal{X}$ 是一个局部最小值，使得有一个很小的正值 $p$ ，使得 $x \in \mathcal{X}$ 满足 $0 < |x - x^{\ast}| \leq p$ 有 $f(x^{\ast}) < f(x)$ 。
 假设存在 $x' \in \mathcal{X}$ ，其中 $f(x') < f(x^{\ast})$ 。
 根据凸性的性质，
 
@@ -203,8 +203,8 @@ $$f''(x) = \lim_{\epsilon \to 0} \frac{f(x+\epsilon) + f(x - \epsilon) - 2f(x)}{
 我们使用这样一个事实：$f'' \geq 0$ 意味着 $f'$ 是一个单调的非递减函数。
 假设 $a < x < b$ 是$\mathbb{R}$中的三个点，
 其中，$x = (1-\lambda)a + \lambda b$ 且 $\lambda \in (0, 1)$.
-根据中值定理，存在 $\alpha \in [a, x]$，$ \beta \in [x, b]$，使得
-$$f'(\alpha) = \frac{f(x) - f(a)}{x-a} \text{ and } f'(\beta) = \frac{f(b) - f(x)}{b-x}.$$
+根据中值定理，存在 $\alpha \in [a, x]$，$\beta \in [x, b]$，使得
+$$f'(\alpha) = \frac{f(x) - f(a)}{x-a} \text{ 且 } f'(\beta) = \frac{f(b) - f(x)}{b-x}.$$
 
 通过单调性 $f'(\beta) \geq f'(\alpha)$ ，因此
 
@@ -226,7 +226,7 @@ $$g(z) \stackrel{\mathrm{def}}{=} f(z \mathbf{x} + (1-z)  \mathbf{y}) \text{ whe
 是凸的。
 
 为了证明 $f$ 的凸性意味着 $g$ 是凸的，
-我们可以证明，对于所有的 $a，b，\lambda，\in[0，1]$，
+我们可以证明，对于所有的 $a，b，\lambda \in[0，1]$，
 $0 \leq \lambda a + (1-\lambda) b \leq 1$。
 
 $$\begin{aligned} &g(\lambda a + (1-\lambda) b)\\
@@ -320,7 +320,7 @@ $$\mathrm{Proj}_\mathcal{X}(\mathbf{x}) = \mathop{\mathrm{argmin}}_{\mathbf{x}' 
 ![Convex Projections.](../img/projections.svg)
 :label:`fig_projections`
 
-投影的数学定义听起来可能有点抽象，为了解释得更清楚一些，请看 :numref:`fig\u projections`。
+投影的数学定义听起来可能有点抽象，为了解释得更清楚一些，请看 :numref:`fig_projections`。
 图中有两个凸集，一个圆和一个菱形。
 两个集合内的点（黄色）在投影期间保持不变。
 两个集合（黑色）之外的点投影到集合中接近原始点（黑色）的点（红色）。
@@ -369,4 +369,14 @@ $$\mathrm{Proj}_\mathcal{X}(\mathbf{x}) = \mathop{\mathrm{argmin}}_{\mathbf{x}' 
 9. 给定一个凸集 $\mathcal{X}$ 和两个向量 $\mathbf{X}$ 和 $\mathbf{y}$ 证明了投影不会增加距离，即$\|\mathbf{x} - \mathbf{y}\| \geq \|\mathrm{Proj}_\mathcal{X}(\mathbf{x}) - \mathrm{Proj}_\mathcal{X}(\mathbf{y})\|$。
 
 
-[讨论区](https://discuss.d2l.ai/t/350)
+:begin_tab:`mxnet`
+[Discussions](https://discuss.d2l.ai/t/350)
+:end_tab:
+
+:begin_tab:`pytorch`
+[Discussions](https://discuss.d2l.ai/t/53)
+:end_tab:
+
+:begin_tab:`tensorflow`
+[Discussions](https://discuss.d2l.ai/t/260)
+:end_tab:
