@@ -30,6 +30,7 @@ chapter_convolutional-modern/index
 chapter_recurrent-neural-networks/index
 chapter_recurrent-modern/index
 chapter_attention-mechanisms/index
+chapter_optimization/index
 chapter_computational-performance/index
 chapter_computer-vision/index
 
