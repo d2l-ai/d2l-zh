@@ -21,7 +21,7 @@ $$y_{t'} = \operatorname*{argmax}_{y \in \mathcal{Y}} P(y \mid y_1, \ldots, y_{t
 
 让我们用一个例子来描述。假设输出中有四个词元“A”、“B”、“C”和“&lt;eos&gt;”。 在 :numref:`fig_s2s-prob1` 中，每个时间步下的四个数字分别表示在该时间步生成“A”、“B”、“C”和“&lt;eos&gt;”的条件概率。在每个时间步，贪心搜索选择具有最高条件概率的词元。因此，将在 :numref:`fig_s2s-prob1` 中预测输出序列“A”、“B”、“C”和“&lt;eos&gt;”。这个输出序列的条件概率是$0.5\times0.4\times0.4\times0.6 = 0.048$。
 
-![每个时间步下的四个数字表示在该时间步生成“A”、“B”、“C”和“&lt;eos&gt;”的条件概率。在时间步2，选择具有第二高条件概率的令牌“C”。](../img/s2s-prob2.svg)
+![每个时间步下的四个数字表示在该时间步生成“A”、“B”、“C”和“&lt;eos&gt;”的条件概率。在时间步2，选择具有第二高条件概率的词元“C”。](../img/s2s-prob2.svg)
 :label:`fig_s2s-prob2`
 
 接下来，让我们看看 :numref:`fig_s2s-prob2` 中的另一个例子。与 :numref:`fig_s2s-prob1` 不同，在时间步 $2$ 中，我们选择 :numref:`fig_s2s-prob2` 中的词元“C”，它具有 *第二* 高的条件概率。由于时间步 $3$ 所基于的时间步 $1$ 和 $2$ 处的输出子序列已从 :numref:`fig_s2s-prob1` 中的“A”和“B”改变为 :numref:`fig_s2s-prob2` 中的“A”和“C”，因此时间步 $3$ 处的每个词元的条件概率也在 :numref:`fig_s2s-prob2` 中改变。假设我们在时间步 $3$ 选择词元“B”，于是当前的时间步 $4$ 基于前三个时间步的输出子序列“A”、“C”和“B”为条件，这与 :numref:`fig_s2s-prob1` 中的“A”、“B”和“C”不同。因此，在 :numref:`fig_s2s-prob2` 中的时间步 $4$ 生成每个词元的条件概率也不同于 :numref:`fig_s2s-prob1` 中的条件概率。结果， :numref:`fig_s2s-prob2` 中的输出序列“A”、“C”、“B”和“&lt;eos&gt;”的条件概率为 $0.5\times0.3 \times0.6\times0.6=0.054$，这大于 :numref:`fig_s2s-prob1` 中的贪心搜索的条件概率。通过例子说明，贪心搜索获得的输出序列“A”、“B”、“C”和“&lt;eos&gt;”不是最佳序列。

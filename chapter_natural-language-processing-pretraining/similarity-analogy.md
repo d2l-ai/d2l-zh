@@ -89,7 +89,7 @@ class TokenEmbedding:
 glove_6b50d = TokenEmbedding('glove.6b.50d')
 ```
 
-输出词汇量大小。词汇包含 40 万个单词（令牌）和一个特殊的未知词元。
+输出词汇量大小。词汇包含 40 万个单词（词元）和一个特殊的未知词元。
 
 ```{.python .input}
 #@tab all
