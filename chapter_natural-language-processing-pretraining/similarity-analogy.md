@@ -89,7 +89,7 @@ class TokenEmbedding:
 glove_6b50d = TokenEmbedding('glove.6b.50d')
 ```
 
-输出词汇量大小。词汇包含 40 万个单词（令牌）和一个特殊的未知标记。
+输出词汇量大小。词汇包含 40 万个单词（词元）和一个特殊的未知词元。
 
 ```{.python .input}
 #@tab all
@@ -141,7 +141,7 @@ def get_similar_tokens(query_token, k, embed):
         print(f'cosine sim={float(c):.3f}: {embed.idx_to_token[int(i)]}')
 ```
 
-`glove_6b50d` 中的预训练单词矢量的词汇包含 40 万个单词和一个特殊的未知标记。不包括输入单词和未知标记，在这个词汇中，我们可以找到三个与单词 “芯片” 在语义上最相似的单词。
+`glove_6b50d` 中的预训练单词矢量的词汇包含 40 万个单词和一个特殊的未知词元。不包括输入单词和未知词元，在这个词汇中，我们可以找到三个与单词 “芯片” 在语义上最相似的单词。
 
 ```{.python .input}
 #@tab all

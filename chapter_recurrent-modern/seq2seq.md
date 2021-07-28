@@ -7,21 +7,21 @@
 
 遵循“编码器－解码器”结构的设计原则，循环神经网络编码器可以使用长度可变的序列作为输入，将其转换为形状固定的隐藏状态。
 换言之，输入（源）序列的信息被 *编码* 到循环神经网络编码器的隐藏状态中。
-为了连续生成输出序列的标记，独立的循环神经网络解码器是基于输入序列的编码信息和输出序列已经看见的或者生成的标记来预测下一个标记。
+为了连续生成输出序列的词元，独立的循环神经网络解码器是基于输入序列的编码信息和输出序列已经看见的或者生成的词元来预测下一个词元。
 :numref:`fig_seq2seq` 演示了如何在机器翻译中使用两个循环神经网络进行序列到序列学习。
 
 ![使用循环神经网络编码器和循环神经网络解码器的序列到序列学习。](../img/seq2seq.svg)
 :label:`fig_seq2seq`
 
-在 :numref:`fig_seq2seq` 中，特定的“&lt;eos&gt;”表示序列结束标记。
-一旦输出序列生成此标记，模型就可以停止执行预测。
+在 :numref:`fig_seq2seq` 中，特定的“&lt;eos&gt;”表示序列结束词元。
+一旦输出序列生成此词元，模型就可以停止执行预测。
 在循环神经网络解码器的初始化时间步，有两个特定的设计决定。
-首先，特定的“&lt;bos&gt;”表示序列开始标记，它是解码器的输入序列的第一个标记。
+首先，特定的“&lt;bos&gt;”表示序列开始词元，它是解码器的输入序列的第一个词元。
 其次，使用循环神经网络编码器最终的隐藏状态来初始化解码器的隐藏状态。
 例如，在 :cite:`Sutskever.Vinyals.Le.2014` 的设计中，正是基于这种设计将输入序列的编码信息送入到解码器中来生成输出序列的。
 在其他一些设计中 :cite:`Cho.Van-Merrienboer.Gulcehre.ea.2014`，如 :numref:`fig_seq2seq` 所示，编码器最终的隐藏状态在每一个时间步都作为解码器的输入序列的一部分。
 类似于 :numref:`sec_language_model` 中语言模型的训练，可以允许标签成为原始的输出序列，
-从源序列标记“&lt;bos&gt;”、“Ils”、“regardent”、“.” 到新序列标记
+从源序列词元“&lt;bos&gt;”、“Ils”、“regardent”、“.” 到新序列词元
 “Ils”、“regardent”、“.”、“&lt;eos&gt;”来移动预测的位置。
 
 下面，我们将对 :numref:`fig_seq2seq` 的设计进行更详细的解释，并且将基于  :numref:`sec_machine_translation` 中介绍的“英－法”数据集来训练这个机器翻译模型。
@@ -48,7 +48,7 @@ from torch import nn
 
 从技术上讲，编码器将长度可变的输入序列转换成形状固定的 *上下文变量* $\mathbf{c}$，并且将输入序列的信息在该上下文变量中进行编码。如 :numref:`fig_seq2seq` 所示，可以使用循环神经网络来设计编码器。
 
-让我们考虑由一个序列组成的样本（批量大小是 $1$）。假设输入序列是 $x_1, \ldots, x_T$，其中 $x_t$ 是输入文本序列中的第 $t$ 个标记。在时间步 $t$，循环神经网络将标记 $x_t$ 的输入特征向量 $\mathbf{x}_t$ 和 $\mathbf{h} _{t-1}$（即上一时间步的隐藏状态）转换为 $\mathbf{h}_t$（即当前隐藏状态）。使用一个函数 $f$ 来描述循环神经网络的循环层所做的变换：
+让我们考虑由一个序列组成的样本（批量大小是 $1$）。假设输入序列是 $x_1, \ldots, x_T$，其中 $x_t$ 是输入文本序列中的第 $t$ 个词元。在时间步 $t$，循环神经网络将词元 $x_t$ 的输入特征向量 $\mathbf{x}_t$ 和 $\mathbf{h} _{t-1}$（即上一时间步的隐藏状态）转换为 $\mathbf{h}_t$（即当前隐藏状态）。使用一个函数 $f$ 来描述循环神经网络的循环层所做的变换：
 
 $$\mathbf{h}_t = f(\mathbf{x}_t, \mathbf{h}_{t-1}). $$
 
@@ -60,7 +60,7 @@ $$\mathbf{c} =  q(\mathbf{h}_1, \ldots, \mathbf{h}_T).$$
 
 到目前为止，我们使用的是一个单向循环神经网络来设计编码器，其中隐藏状态只依赖于输入子序列，这个子序列是由输入序列的开始位置到隐藏状态所在的时间步的位置（包括隐藏状态所在的时间步）组成。我们也可以使用双向循环神经网络构造编码器，其中隐藏状态依赖于两个输入子序列，两个子序列是由隐藏状态所在的时间步的位置之前的序列和之后的序列（包括隐藏状态所在的时间步），因此隐藏状态对整个序列的信息都进行了编码。
 
-现在，让我们[**实现循环神经网络编码器**]。注意，我们使用了 *嵌入层*（embedding layer）来获得输入序列中每个标记的特征向量。嵌入层的权重是一个矩阵，其行数等于输入词表的大小（`vocab_size`），其列数等于特征向量的维度（`embed_size`）。对于任意输入标记的索引 $i$，嵌入层获取权重矩阵的第 $i$ 行（从 $0$ 开始）以返回其特征向量。另外，本文选择了一个多层门控循环单元来实现编码器。
+现在，让我们[**实现循环神经网络编码器**]。注意，我们使用了 *嵌入层*（embedding layer）来获得输入序列中每个词元的特征向量。嵌入层的权重是一个矩阵，其行数等于输入词表的大小（`vocab_size`），其列数等于特征向量的维度（`embed_size`）。对于任意输入词元的索引 $i$，嵌入层获取权重矩阵的第 $i$ 行（从 $0$ 开始）以返回其特征向量。另外，本文选择了一个多层门控循环单元来实现编码器。
 
 ```{.python .input}
 #@save
@@ -154,7 +154,7 @@ $$\mathbf{s}_{t^\prime} = g(y_{t^\prime-1}, \mathbf{c}, \mathbf{s}_{t^\prime-1})
 
 在获得解码器的隐藏状态之后，我们可以使用输出层和 softmax 操作来计算在时间步 $t^\prime$ 时输出 $y_{t^\prime}$ 的条件概率分布 $P(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \mathbf{c})$。
 
-根据 :numref:`fig_seq2seq`，当实现解码器时，我们直接使用编码器最后一个时间步的隐藏状态来初始化解码器的隐藏状态。这就要求使用循环神经网络实现的编码器和解码器具有相同数量的层和隐藏单元。为了进一步包含经过编码的输入序列的信息，上下文变量在所有的时间步与解码器的输入进行拼接（concatenate）。为了预测输出标记的概率分布，在循环神经网络解码器的最后一层使用全连接层来变换隐藏状态。
+根据 :numref:`fig_seq2seq`，当实现解码器时，我们直接使用编码器最后一个时间步的隐藏状态来初始化解码器的隐藏状态。这就要求使用循环神经网络实现的编码器和解码器具有相同数量的层和隐藏单元。为了进一步包含经过编码的输入序列的信息，上下文变量在所有的时间步与解码器的输入进行拼接（concatenate）。为了预测输出词元的概率分布，在循环神经网络解码器的最后一层使用全连接层来变换隐藏状态。
 
 ```{.python .input}
 class Seq2SeqDecoder(d2l.Decoder):
@@ -213,7 +213,7 @@ class Seq2SeqDecoder(d2l.Decoder):
         return output, state
 ```
 
-下面，我们用与前面提到的编码器中相同的超参数，来[**实例化解码器**]。如我们所见，解码器的输出形状变为（批量大小, 时间步数, 词表大小)，其中张量的最后一个维度存储预测的标记分布。
+下面，我们用与前面提到的编码器中相同的超参数，来[**实例化解码器**]。如我们所见，解码器的输出形状变为（批量大小, 时间步数, 词表大小)，其中张量的最后一个维度存储预测的词元分布。
 
 ```{.python .input}
 decoder = Seq2SeqDecoder(vocab_size=10, embed_size=8, num_hiddens=16,
@@ -241,9 +241,9 @@ output.shape, state.shape
 
 ## 损失函数
 
-在每个时间步，解码器预测了输出标记的概率分布。类似于语言模型，可以使用 softmax 来获得分布，并通过计算交叉熵损失函数来进行优化。回想一下 :numref:`sec_machine_translation` 中，特定的填充标记被添加到序列的末尾，因此不同长度的序列可以以相同形状的小批量加载。但是，应该将填充标记的预测排除在损失函数的计算之外。
+在每个时间步，解码器预测了输出词元的概率分布。类似于语言模型，可以使用 softmax 来获得分布，并通过计算交叉熵损失函数来进行优化。回想一下 :numref:`sec_machine_translation` 中，特定的填充词元被添加到序列的末尾，因此不同长度的序列可以以相同形状的小批量加载。但是，应该将填充词元的预测排除在损失函数的计算之外。
 
-为此，我们可以使用下面的 `sequence_mask` 函数[**通过零值化屏蔽不相关的项**]，以便后面任何不相关预测的计算都是与零的乘积，结果都等于零。例如，如果两个序列的有效长度（不包括填充标记）分别为 $1$ 和 $2$，则第一个序列的第一项和第二个序列的前两项之后的剩余项将被清除为零。
+为此，我们可以使用下面的 `sequence_mask` 函数[**通过零值化屏蔽不相关的项**]，以便后面任何不相关预测的计算都是与零的乘积，结果都等于零。例如，如果两个序列的有效长度（不包括填充词元）分别为 $1$ 和 $2$，则第一个序列的第一项和第二个序列的前两项之后的剩余项将被清除为零。
 
 ```{.python .input}
 X = np.array([[1, 2, 3], [4, 5, 6]])
@@ -278,7 +278,7 @@ X = d2l.ones(2, 3, 4)
 sequence_mask(X, torch.tensor([1, 2]), value=-1)
 ```
 
-现在，我们可以[**通过扩展softmax交叉熵损失函数来遮蔽不相关的预测**]。最初，所有预测标记的掩码都设置为1。一旦给定了有效长度，与填充标记对应的掩码将被设置为0。最后，将所有标记的损失乘以掩码，以过滤掉损失中填充标记产生的不相关预测。
+现在，我们可以[**通过扩展softmax交叉熵损失函数来遮蔽不相关的预测**]。最初，所有预测词元的掩码都设置为1。一旦给定了有效长度，与填充词元对应的掩码将被设置为0。最后，将所有词元的损失乘以掩码，以过滤掉损失中填充词元产生的不相关预测。
 
 ```{.python .input}
 #@save
@@ -329,7 +329,7 @@ loss(d2l.ones(3, 4, 10), d2l.ones((3, 4), dtype=torch.long),
 ## [**训练**]
 :label:`sec_seq2seq_training`
 
-在下面的循环训练过程中，如 :numref:`fig_seq2seq` 所示，特定的序列开始标记（“&lt;bos&gt; ”）和原始的输出序列（不包括序列结束标记“&lt;eos&gt;”）拼接在一起作为解码器的输入。这被称为 *教师强制*（teacher forcing），因为原始的输出序列（标记的标签）被送入解码器。或者，将来自上一个时间步的 *预测* 得到的标记作为解码器的当前输入。
+在下面的循环训练过程中，如 :numref:`fig_seq2seq` 所示，特定的序列开始词元（“&lt;bos&gt; ”）和原始的输出序列（不包括序列结束词元“&lt;eos&gt;”）拼接在一起作为解码器的输入。这被称为 *教师强制*（teacher forcing），因为原始的输出序列（词元的标签）被送入解码器。或者，将来自上一个时间步的 *预测* 得到的词元作为解码器的当前输入。
 
 ```{.python .input}
 #@save
@@ -343,7 +343,7 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
                             xlim=[10, num_epochs])
     for epoch in range(num_epochs):
         timer = d2l.Timer()
-        metric = d2l.Accumulator(2)  # 训练损失求和，标记数量
+        metric = d2l.Accumulator(2)  # 训练损失求和，词元数量
         for batch in data_iter:
             X, X_valid_len, Y, Y_valid_len = [
                 x.as_in_ctx(device) for x in batch]
@@ -386,7 +386,7 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
                      xlim=[10, num_epochs])
     for epoch in range(num_epochs):
         timer = d2l.Timer()
-        metric = d2l.Accumulator(2)  # 训练损失总和，标记数量
+        metric = d2l.Accumulator(2)  # 训练损失总和，词元数量
         for batch in data_iter:
             X, X_valid_len, Y, Y_valid_len = [x.to(device) for x in batch]
             bos = torch.tensor([tgt_vocab['<bos>']] * Y.shape[0],
@@ -425,9 +425,9 @@ train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
 
 ## [**预测**]
 
-为了采用一个接着一个标记的方式预测输出序列，每个解码器当前时间步的输入都将来自于前一时间步的预测标记。与训练类似，序列开始标记（“&lt;bos&gt;”）在初始时间步被输入到解码器中。该预测过程如 :numref:`fig_seq2seq_predict` 所示。当输出序列的预测遇到序列结束标记（“&lt;eos&gt;”）时，预测就结束了。
+为了采用一个接着一个词元的方式预测输出序列，每个解码器当前时间步的输入都将来自于前一时间步的预测词元。与训练类似，序列开始词元（“&lt;bos&gt;”）在初始时间步被输入到解码器中。该预测过程如 :numref:`fig_seq2seq_predict` 所示。当输出序列的预测遇到序列结束词元（“&lt;eos&gt;”）时，预测就结束了。
 
-![使用循环神经网络编码器-解码器逐标记地预测输出序列。](../img/seq2seq-predict.svg)
+![使用循环神经网络编码器-解码器逐词元地预测输出序列。](../img/seq2seq-predict.svg)
 :label:`fig_seq2seq_predict`
 
 我们将在 :numref:`sec_beam-search` 中介绍不同的序列生成策略。
@@ -450,13 +450,13 @@ def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
     output_seq, attention_weight_seq = [], []
     for _ in range(num_steps):
         Y, dec_state = net.decoder(dec_X, dec_state)
-        # 我们使用具有预测最高可能性的标记，作为解码器在下一时间步的输入
+        # 我们使用具有预测最高可能性的词元，作为解码器在下一时间步的输入
         dec_X = Y.argmax(axis=2)
         pred = dec_X.squeeze(axis=0).astype('int32').item()
         # 保存注意力权重（稍后讨论）
         if save_attention_weights:
             attention_weight_seq.append(net.decoder.attention_weights)
-        # 一旦序列结束标记被预测，输出序列的生成就完成了
+        # 一旦序列结束词元被预测，输出序列的生成就完成了
         if pred == tgt_vocab['<eos>']:
             break
         output_seq.append(pred)
@@ -486,13 +486,13 @@ def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
     output_seq, attention_weight_seq = [], []
     for _ in range(num_steps):
         Y, dec_state = net.decoder(dec_X, dec_state)
-        # 我们使用具有预测最高可能性的标记，作为解码器在下一时间步的输入
+        # 我们使用具有预测最高可能性的词元，作为解码器在下一时间步的输入
         dec_X = Y.argmax(dim=2)
         pred = dec_X.squeeze(dim=0).type(torch.int32).item()
         # 保存注意力权重（稍后讨论）
         if save_attention_weights:
             attention_weight_seq.append(net.decoder.attention_weights)
-        # 一旦序列结束标记被预测，输出序列的生成就完成了
+        # 一旦序列结束词元被预测，输出序列的生成就完成了
         if pred == tgt_vocab['<eos>']:
             break
         output_seq.append(pred)
@@ -503,7 +503,7 @@ def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
 
 我们可以通过与真实的标签序列进行比较来评估预测序列。虽然 BLEU（Bilingual Evaluation Understudy）的提出最先是用于评估机器翻译的结果 :cite:`Papineni.Roukos.Ward.ea.2002` ，但现在它已经被广泛用于测量许多应用的输出序列的质量。原则上说，对于预测序列中的任意 $n$ 元语法（n-grams），BLEU 的评估都是这个 $n$ 元语法是否出现在标签序列中。
 
-用 $p_n$ 表示 $n$ 元语法的精确度，它是两个数量的比值，第一个是预测序列与标签序列中匹配的 $n$ 元语法的数量，第二个是预测序列中 $n$ 元语法的数量的比率。详细解释，即给定的标签序列 $A$、$B$、$C$、$D$、$E$、$F$ 和预测序列 $A$、$B$、$B$、$C$、$D$，我们有 $p_1 = 4/5$、$p_2 = 3/4$、$p_3 = 1/3$ 和 $p_4 = 0$。另外， $\mathrm{len}_{\text{label}}$ 表示标签序列中的标记数和 $\mathrm{len}_{\text{pred}}$ 表示预测序列中的标记数。那么，BLEU 的定义是：
+用 $p_n$ 表示 $n$ 元语法的精确度，它是两个数量的比值，第一个是预测序列与标签序列中匹配的 $n$ 元语法的数量，第二个是预测序列中 $n$ 元语法的数量的比率。详细解释，即给定的标签序列 $A$、$B$、$C$、$D$、$E$、$F$ 和预测序列 $A$、$B$、$B$、$C$、$D$，我们有 $p_1 = 4/5$、$p_2 = 3/4$、$p_3 = 1/3$ 和 $p_4 = 0$。另外， $\mathrm{len}_{\text{label}}$ 表示标签序列中的词元数和 $\mathrm{len}_{\text{pred}}$ 表示预测序列中的词元数。那么，BLEU 的定义是：
 
 $$ \exp\left(\min\left(0, 1 - \frac{\mathrm{len}_{\text{label}}}{\mathrm{len}_{\text{pred}}}\right)\right) \prod_{n=1}^k p_n^{1/2^n},$$
 :eqlabel:`eq_bleu`

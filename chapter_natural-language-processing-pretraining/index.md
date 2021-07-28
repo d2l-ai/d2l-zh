@@ -10,7 +10,7 @@
 *自我监督学习 *
 广泛用于预训文本表示法，例如使用其周围文本的其他部分来预测文本的某些隐藏部分。通过这种方式，模型可以通过监督从 * 大量 * 文本数据中学习，而无需 * 昂贵的 * 标签工作！ 
 
-正如我们将在本章中看到的那样，当将每个单词或子词视为单个标记时，可以使用 word2vec、GloVE 或在大型语库上嵌入子词模型来预训每个令牌的表示形式。训练前后，每个令牌的表示可以是向量，但是，无论上下文是什么，它都保持不变。例如，“银行” 的矢量表示在 “去银行存一些钱” 和 “去银行坐下” 两个方面都是相同的。因此，更多最近的训练前模型使同一标记的表示适应不同的环境。其中包括 BERT，这是一个基于变压器编码器的更深入的自我监督模型。在本章中，我们将重点介绍如何为文本预先训练此类表示形式，正如 :numref:`fig_nlp-map-pretrain` 中所强调的那样。 
+正如我们将在本章中看到的那样，当将每个单词或子词视为单个词元时，可以使用 word2vec、GloVE 或在大型语库上嵌入子词模型来预训每个词元的表示形式。训练前后，每个词元的表示可以是向量，但是，无论上下文是什么，它都保持不变。例如，“银行” 的矢量表示在 “去银行存一些钱” 和 “去银行坐下” 两个方面都是相同的。因此，更多最近的训练前模型使同一词元的表示适应不同的环境。其中包括 BERT，这是一个基于变压器编码器的更深入的自我监督模型。在本章中，我们将重点介绍如何为文本预先训练此类表示形式，正如 :numref:`fig_nlp-map-pretrain` 中所强调的那样。 
 
 ![Pretrained text representations can be fed to various deep learning architectures for different downstream natural language processing applications. This chapter focuses on the upstream text representation pretraining.](../img/nlp-map-pretrain.svg)
 :label:`fig_nlp-map-pretrain`

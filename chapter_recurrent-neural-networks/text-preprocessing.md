@@ -72,7 +72,7 @@ def tokenize(lines, token='word'):  #@save
     elif token == 'char':
         return [list(line) for line in lines]
     else:
-        print('错误：未知令牌类型：' + token)
+        print('错误：未知词元类型：' + token)
 
 tokens = tokenize(lines)
 for i in range(11):

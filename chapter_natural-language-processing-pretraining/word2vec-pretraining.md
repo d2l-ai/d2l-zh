@@ -33,7 +33,7 @@ data_iter, vocab = d2l.load_data_ptb(batch_size, max_window_size,
 
 ### 嵌入层
 
-如 :numref:`sec_seq2seq` 所述，嵌入图层将令牌的索引映射到其要素矢量。此图层的权重是一个矩阵，其行数等于字典大小 (`input_dim`)，列数等于每个标记的矢量维度 (`output_dim`)。在训练一个词嵌入模型之后，这种权重就是我们所需要的。
+如 :numref:`sec_seq2seq` 所述，嵌入图层将词元的索引映射到其要素矢量。此图层的权重是一个矩阵，其行数等于字典大小 (`input_dim`)，列数等于每个词元的矢量维度 (`output_dim`)。在训练一个词嵌入模型之后，这种权重就是我们所需要的。
 
 ```{.python .input}
 embed = nn.Embedding(input_dim=20, output_dim=4)
@@ -48,7 +48,7 @@ print(f'Parameter embedding_weight ({embed.weight.shape}, '
       f'dtype={embed.weight.dtype})')
 ```
 
-嵌入图层的输入是令牌的索引（单词）。对于任何令牌索引 $i$，可以从嵌入图层中权重矩阵的 $i^\mathrm{th}$ 行中获得其矢量表示形式。由于矢量维度 (`output_dim`) 设置为 4，因此嵌入图层将返回形状 (2、3、4) 的向量，以表示形状 (2, 3) 的小批令牌索引（2、3）。
+嵌入图层的输入是词元的索引（单词）。对于任何词元索引 $i$，可以从嵌入图层中权重矩阵的 $i^\mathrm{th}$ 行中获得其矢量表示形式。由于矢量维度 (`output_dim`) 设置为 4，因此嵌入图层将返回形状 (2、3、4) 的向量，以表示形状 (2, 3) 的小批词元索引（2、3）。
 
 ```{.python .input}
 #@tab all
@@ -58,7 +58,7 @@ embed(x)
 
 ### 定义正向传播
 
-在正向传播中，跳过图模型的输入包括形状的中心词索引 `center`（批次大小，1）和形状的连接上下文和噪声词索引 `contexts_and_negatives`（批次大小，`max_len`），其中 `max_len` 在 :numref:`subsec_word2vec-minibatch-loading` 中定义了 `max_len`。这两个变量首先通过嵌入层从令牌索引转换为矢量，然后它们的批量矩阵乘法（在 :numref:`subsec_batch_dot` 中描述）返回形状输出（批次大小，1，`max_len`）。输出中的每个元素都是中心单词矢量和上下文或噪声单词矢量的点积。
+在正向传播中，跳过图模型的输入包括形状的中心词索引 `center`（批次大小，1）和形状的连接上下文和噪声词索引 `contexts_and_negatives`（批次大小，`max_len`），其中 `max_len` 在 :numref:`subsec_word2vec-minibatch-loading` 中定义了 `max_len`。这两个变量首先通过嵌入层从词元索引转换为矢量，然后它们的批量矩阵乘法（在 :numref:`subsec_batch_dot` 中描述）返回形状输出（批次大小，1，`max_len`）。输出中的每个元素都是中心单词矢量和上下文或噪声单词矢量的点积。
 
 ```{.python .input}
 def skip_gram(center, contexts_and_negatives, embed_v, embed_u):
