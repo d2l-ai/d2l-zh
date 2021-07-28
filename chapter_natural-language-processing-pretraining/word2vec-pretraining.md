@@ -33,7 +33,7 @@ data_iter, vocab = d2l.load_data_ptb(batch_size, max_window_size,
 
 ### 嵌入层
 
-如 :numref:`sec_seq2seq` 所述，嵌入图层将令牌的索引映射到其要素矢量。此图层的权重是一个矩阵，其行数等于字典大小 (`input_dim`)，列数等于每个标记的矢量维度 (`output_dim`)。在训练一个词嵌入模型之后，这种权重就是我们所需要的。
+如 :numref:`sec_seq2seq` 所述，嵌入图层将令牌的索引映射到其要素矢量。此图层的权重是一个矩阵，其行数等于字典大小 (`input_dim`)，列数等于每个词元的矢量维度 (`output_dim`)。在训练一个词嵌入模型之后，这种权重就是我们所需要的。
 
 ```{.python .input}
 embed = nn.Embedding(input_dim=20, output_dim=4)

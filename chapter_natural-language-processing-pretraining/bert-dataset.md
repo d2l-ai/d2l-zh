@@ -22,7 +22,7 @@ import random
 import torch
 ```
 
-在 Wikitext-2 数据集中，每行代表一个段落，其中任何标点符号和前面的标记之间插入空格。保留至少有两句话的段落。为了分割句子，为了简单起见，我们只使用句点作为分隔符。我们将在本节末尾的练习中讨论更复杂的句子分割技术。
+在 Wikitext-2 数据集中，每行代表一个段落，其中任何标点符号和前面的词元之间插入空格。保留至少有两句话的段落。为了分割句子，为了简单起见，我们只使用句点作为分隔符。我们将在本节末尾的练习中讨论更复杂的句子分割技术。
 
 ```{.python .input}
 #@tab all
@@ -119,7 +119,7 @@ def _replace_mlm_tokens(tokens, candidate_pred_positions, num_mlm_preds,
     return mlm_input_tokens, pred_positions_and_labels
 ```
 
-通过调用上述 `_replace_mlm_tokens` 函数，以下函数将 BERT 输入序列 (`tokens`) 作为输入序列 (`tokens`) 并返回输入令牌的索引（在可能的令牌替换后，如 :numref:`subsec_mlm` 所述）、发生预测的令牌指数以及标记这些指数的索引预测。
+通过调用上述 `_replace_mlm_tokens` 函数，以下函数将 BERT 输入序列 (`tokens`) 作为输入序列 (`tokens`) 并返回输入令牌的索引（在可能的令牌替换后，如 :numref:`subsec_mlm` 所述）、发生预测的令牌指数以及词元这些指数的索引预测。
 
 ```{.python .input}
 #@tab all
@@ -210,7 +210,7 @@ def _pad_bert_inputs(examples, max_len, vocab):
 
 将用于生成两个预训练任务的训练示例的帮助函数和用于填充输入的辅助函数放在一起，我们将以下 `_WikiTextDataset` 类定制为用于预训练 BERT 的 WikiText-2 数据集。通过实现 `__getitem__ ` 函数，我们可以任意访问来自 WikiText-2 语料库的一对句子生成的预训练（蒙面语言建模和下一句预测）示例。 
 
-原来的 BERT 模型使用字体嵌入，其词汇量为 30000 :cite:`Wu.Schuster.Chen.ea.2016`。WordPiece 的标记化方法是对 :numref:`subsec_Byte_Pair_Encoding` 中原来的字节对编码算法的轻微修改。为简单起见，我们使用 `d2l.tokenize` 函数进行标记化。出现少于五次的罕见代币将被过滤掉。
+原来的 BERT 模型使用字体嵌入，其词汇量为 30000 :cite:`Wu.Schuster.Chen.ea.2016`。WordPiece 的词元化方法是对 :numref:`subsec_Byte_Pair_Encoding` 中原来的字节对编码算法的轻微修改。为简单起见，我们使用 `d2l.tokenize` 函数进行词元化。出现少于五次的罕见代币将被过滤掉。
 
 ```{.python .input}
 #@save
