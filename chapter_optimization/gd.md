@@ -123,7 +123,7 @@ show_trace(gd(0.05, f_grad), f)
 ```
 
 相反，如果我们使用过高的学习率，$\left|\eta f'(x)\right|$对于一阶泰勒展开式可能太大。
-也就是说，:eqref:`gd-taylor-2` 中的$\mathcal{O}(\eta^2 f'^2(x))$可能变得显著了。
+也就是说，:eqref:`gd-taylor` 中的$\mathcal{O}(\eta^2 f'^2(x))$可能变得显著了。
 在这种情况下，$x$的迭代不能保证降低$f(x)$的值。
 例如，当学习率为$\eta=1.1$时，$x$超出了最优解$x=0$并逐渐发散。
 
