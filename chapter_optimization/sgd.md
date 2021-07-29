@@ -237,13 +237,13 @@ $${n \choose 1} \frac{1}{n} \left(1-\frac{1}{n}\right)^{n-1} = \frac{n}{n-1} \le
 1. 假设是 $f(x) = x^2 (1 + \sin x)$。$f$ 有多少本地最小值？你能改变 $f$ 以尽量减少它需要评估所有本地最小值的方式吗？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/352)
+[Discussions](https://discuss.d2l.ai/t/3837)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/497)
+[Discussions](https://discuss.d2l.ai/t/3838)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/1067)
+[Discussions](https://discuss.d2l.ai/t/3839)
 :end_tab:
