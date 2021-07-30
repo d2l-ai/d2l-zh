@@ -154,13 +154,13 @@ annotate('vanishing gradient', (4, 1), (2, 0.0))
     1. 你能也利用这种效果进行优化算法吗？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/349)
+[Discussions](https://discuss.d2l.ai/t/3840)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/487)
+[Discussions](https://discuss.d2l.ai/t/3841)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/489)
+[Discussions](https://discuss.d2l.ai/t/3842)
 :end_tab:

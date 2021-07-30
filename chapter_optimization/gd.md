@@ -408,4 +408,14 @@ $$\mathbf{x} \leftarrow \mathbf{x} - \eta \mathrm{diag}(\mathbf{H})^{-1} \nabla 
     1. 将此应用于上述问题。
 1. 将上述算法应用于多个目标函数（凸或非凸）。如果你把坐标旋转$45$度会怎么样？
 
-[Discussions](https://discuss.d2l.ai/t/351)
+:begin_tab:`mxnet`
+[Discussions](https://discuss.d2l.ai/t/3834)
+:end_tab:
+
+:begin_tab:`pytorch`
+[Discussions](https://discuss.d2l.ai/t/3836)
+:end_tab:
+
+:begin_tab:`tensorflow`
+[Discussions](https://discuss.d2l.ai/t/3835)
+:end_tab:
