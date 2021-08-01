@@ -33,6 +33,7 @@ chapter_attention-mechanisms/index
 chapter_optimization/index
 chapter_computational-performance/index
 chapter_computer-vision/index
+chapter_generative-adversarial-networks/index
 
 ```
 
