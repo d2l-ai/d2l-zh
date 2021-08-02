@@ -60,7 +60,7 @@ $$
 
 $$P(w_o \mid w_c) = \prod_{j=1}^{L(w_o)-1} \sigma\left( [\![  n(w_o, j+1) = \text{leftChild}(n(w_o, j)) ]\!] \cdot \mathbf{u}_{n(w_o, j)}^\top \mathbf{v}_c\right),$$
 
-其中函数$\sigma$在 :eqref:`eq_sigma-f` 中定义，$\text{leftChild}(n)$是节点$n$的左子节点：如果$x$为真，$[\[x] \！]=1$; 否则 $[\![x] \！]=-1$。
+其中函数$\sigma$在 :eqref:`eq_sigma-f` 中定义，$\text{leftChild}(n)$ 是节点 $n$ 的左子节点：如果$x$为真，$[\![x]\!] = 1$; 否则 $[\![x]\!] = -1$。
 
 为了说明，让我们计算:numref:`fig_hi_softmax`中给定词$w_c$生成词$w_3$的条件概率。这需要$w_c$的词向量$\mathbf{v}_c$和从根到$w_3$的路径（ :numref:`fig_hi_softmax` 中加粗的路径）上的非叶节点向量之间的点积，该路径依次向左、向右和向左遍历：
 
@@ -71,7 +71,7 @@ $$P(w_3 \mid w_c) = \sigma(\mathbf{u}_{n(w_3, 1)}^\top \mathbf{v}_c) \cdot \sigm
 $$\sum_{w \in \mathcal{V}} P(w \mid w_c) = 1.$$
 :eqlabel:`eq_hi-softmax-sum-one`
 
-幸运的是，由于$L(w_o)-1$是在$\mathcal{O}(\text{log}_2|\mathcal{V}|)$由于二叉树结构的顺序，当词表大小$\mathcal{V}$是巨大的，与没有近似训练的相比，使用分层softmax的每个训练步的计算成本显著降低。
+幸运的是，由于二叉树结构，$L(w_o)-1$大约与$\mathcal{O}(\text{log}_2|\mathcal{V}|)$是一个数量级。当词表大小$\mathcal{V}$很大时，与没有近似训练的相比，使用分层softmax的每个训练步的计算成本显著降低。
 
 ## 小结
 
