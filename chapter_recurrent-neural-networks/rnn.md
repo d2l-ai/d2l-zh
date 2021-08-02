@@ -29,7 +29,7 @@ $$\mathbf{O} = \mathbf{H} \mathbf{W}_{hq} + \mathbf{b}_q,$$
 
 其中，$\mathbf{O} \in \mathbb{R}^{n \times q}$ 是输出变量，$\mathbf{W}_{hq} \in \mathbb{R}^{h \times q}$ 是权重参数，$\mathbf{b}_q \in \mathbb{R}^{1 \times q}$ 是输出层的偏置参数。如果是分类问题，我们可以用 $\text{softmax}(\mathbf{O})$ 来计算输出类别的概率分布。
 
-这完全类似于之前在 :numref:`sec_sequence` 中解决的回归问题，因此我们省略了细节。无需多言，只要可以随机选择“特征-标签”对，并且通过自动微分和随机梯度下降能够学习网络参数就可以了。
+这完全类似于之前在 :numref:`sec_sequence` 中解决的回归问题，因此我们省略了细节。无须多言，只要可以随机选择“特征-标签”对，并且通过自动微分和随机梯度下降能够学习网络参数就可以了。
 
 ## 有隐藏状态的循环神经网络
 :label:`subsec_rnn_w_hidden_states`

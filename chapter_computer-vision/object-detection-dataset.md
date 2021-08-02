@@ -123,7 +123,7 @@ class BananasDataset(torch.utils.data.Dataset):
         return len(self.features)
 ```
 
-最后，我们定义 `load_data_bananas` 函数，来[**为训练集和测试集返回两个数据加载器实例**]。对于测试集，无需按随机顺序读取它。
+最后，我们定义 `load_data_bananas` 函数，来[**为训练集和测试集返回两个数据加载器实例**]。对于测试集，无须按随机顺序读取它。
 
 ```{.python .input}
 #@save

@@ -110,7 +110,7 @@ $$\frac{d}{dx} \left[\frac{f(x)}{g(x)}\right] = \frac{g(x) \frac{d}{dx} [f(x)] -
 在下面，`use_svg_display`函数指定`matplotlib`软件包输出svg图表以获得更清晰的图像。
 
 注意，注释`#@save`是一个特殊的标记，会将对应的函数、类或语句保存在`d2l`包中
-因此，以后无需重新定义就可以直接调用它们（例如，`d2l.use_svg_display()`）。
+因此，以后无须重新定义就可以直接调用它们（例如，`d2l.use_svg_display()`）。
 
 ```{.python .input}
 #@tab all
