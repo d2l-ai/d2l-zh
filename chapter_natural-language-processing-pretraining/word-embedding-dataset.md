@@ -22,7 +22,7 @@ import random
 
 ## 正在读取数据集
 
-我们在这里使用的数据集是[Penn Tree Bank(PTB)](https://catalog.ldc.upenn.edu/LDC99T42).该语料库取自“华尔街日报”的文章，分为训练集、验证集和测试集。在原始格式中，文本文件的每一行表示由空格分隔的一句话。在这里，我们将每个单词视为一个词元。
+我们在这里使用的数据集是[Penn Tree Bank(PTB)](https://catalog.ldc.upenn.edu/LDC99T42)。该语料库取自“华尔街日报”的文章，分为训练集、验证集和测试集。在原始格式中，文本文件的每一行表示由空格分隔的一句话。在这里，我们将每个单词视为一个词元。
 
 ```{.python .input}
 #@tab all

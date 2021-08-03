@@ -1,7 +1,7 @@
 # 预训练word2vec
 :label:`sec_word2vec_pretraining`
 
-我们继续实现 :numref:`sec_word2vec` 中定义的跳元语法模型。然后，我们将在PTB数据集上使用负采样预训练word2vec。首先，让我们通过调用`d2l.load_data_ptb`函数来获得该数据集的数据迭代器和词表，该函数在:numref:`sec_word2vec_data`中进行了描述。
+我们继续实现 :numref:`sec_word2vec` 中定义的跳元语法模型。然后，我们将在PTB数据集上使用负采样预训练word2vec。首先，让我们通过调用`d2l.load_data_ptb`函数来获得该数据集的数据迭代器和词表，该函数在 :numref:`sec_word2vec_data` 中进行了描述。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -58,7 +58,7 @@ embed(x)
 
 ### 定义前向传播
 
-在前向传播中，跳元语法模型的输入包括形状为(批量大小, 1)的中心词索引`center`和形状为(批量大小, `max_len`)的上下文与噪声词索引`contexts_and_negatives`，其中`max_len`在:numref:`subsec_word2vec-minibatch-loading`中定义。这两个变量首先通过嵌入层从词元索引转换成向量，然后它们的批量矩阵相乘（在:numref:`subsec_batch_dot`中描述）返回形状为(批量大小, 1, `max_len`)的输出。输出中的每个元素是中心词向量和上下文或噪声词向量的点积。
+在前向传播中，跳元语法模型的输入包括形状为(批量大小, 1)的中心词索引`center`和形状为(批量大小, `max_len`)的上下文与噪声词索引`contexts_and_negatives`，其中`max_len`在 :numref:`subsec_word2vec-minibatch-loading` 中定义。这两个变量首先通过嵌入层从词元索引转换成向量，然后它们的批量矩阵相乘（在 :numref:`subsec_batch_dot` 中描述）返回形状为(批量大小, 1, `max_len`)的输出。输出中的每个元素是中心词向量和上下文或噪声词向量的点积。
 
 ```{.python .input}
 def skip_gram(center, contexts_and_negatives, embed_v, embed_u):
