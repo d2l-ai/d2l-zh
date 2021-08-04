@@ -781,7 +781,7 @@ tf.norm(tf.ones((4, 9)))
 ## 练习
 
 1. 证明一个矩阵$\mathbf{A}$的转置的转置是$\mathbf{A}$：$(\mathbf{A}^\top)^\top = \mathbf{A}$。
-1. 给出两个矩阵$\mathbf{A}$和$\mathbf{B}$,显示转置的和等于和的转置：$\mathbf{A}^\top + \mathbf{B}^\top = (\mathbf{A} + \mathbf{B})^\top$.
+1. 给出两个矩阵$\mathbf{A}$和$\mathbf{B}$，显示转置的和等于和的转置：$\mathbf{A}^\top + \mathbf{B}^\top = (\mathbf{A} + \mathbf{B})^\top$。
 1. 给定任意方矩阵$\mathbf{A}$，$\mathbf{A} + \mathbf{A}^\top$总是对称的吗?为什么?
 1.我们在本节中定义了形状（2,3,4）的张量`X`。`len(X)`的输出结果是什么？
 1.对于任意形状的张量`X`,`len(X)`是否总是对应于`X`特定轴的长度?这个轴是什么?

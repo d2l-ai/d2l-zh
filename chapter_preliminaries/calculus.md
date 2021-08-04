@@ -81,8 +81,8 @@ $$f'(x) = y' = \frac{dy}{dx} = \frac{df}{dx} = \frac{d}{dx} f(x) = Df(x) = D_x f
 
 其中符号$\frac{d}{dx}$和$D$是*微分运算符*，表示*微分*操作。我们可以使用以下规则来对常见函数求微分：
 
-* $DC = 0$ （$C$ 是一个常数）
-* $Dx^n = nx^{n-1}$ （*幂律*（power rule）, $n$是任意实数）
+* $DC = 0$（$C$是一个常数）
+* $Dx^n = nx^{n-1}$（*幂律*（power rule）,$n$是任意实数）
 * $De^x = e^x$
 * $D\ln(x) = 1/x$
 
@@ -90,7 +90,7 @@ $$f'(x) = y' = \frac{dy}{dx} = \frac{df}{dx} = \frac{d}{dx} f(x) = Df(x) = D_x f
 假设函数$f$和$g$都是可微的，$C$是一个常数，我们有：
 
 *常数相乘法则*
-$$\frac{d}{dx} [Cf(x)] = C \frac{d}{dx} f(x),$$
+$$\frac{d}{dx}[Cf（x）]=C\frac{d}{dx}f（x）,$$
 
 *加法法则*
 
@@ -119,7 +119,7 @@ def use_svg_display():  #@save
     display.set_matplotlib_formats('svg')
 ```
 
-我们定义`set_figsize`函数来设置图表大小。注意，这里我们直接使用`d2l.plt`，因为导入语句 `from matplotlib import pyplot as plt`已在前言中标记为保存到`d2l`包中。
+我们定义`set_figsize`函数来设置图表大小。注意，这里我们直接使用`d2l.plt`，因为导入语句`from matplotlib import pyplot as plt`已在前言中标记为保存到`d2l`包中。
 
 ```{.python .input}
 #@tab all
@@ -196,7 +196,7 @@ plot(x, [f(x), 2 * x - 3], 'x', 'f(x)', legend=['f(x)', 'Tangent line (x=1)'])
 
 到目前为止，我们只讨论了仅含一个变量的函数的微分。在深度学习中，函数通常依赖于许多变量。因此，我们需要将微分的思想推广到这些*多元函数*（multivariate function）上。
 
-设$y = f(x_1, x_2, \ldots, x_n)$是一个具有$n$ 个变量的函数。$y$关于第$i$个参数$x_i$的*偏导数*（partial derivative）为：
+设$y = f(x_1, x_2, \ldots, x_n)$是一个具有$n$个变量的函数。$y$关于第$i$个参数$x_i$的*偏导数*（partial derivative）为：
 
 $$ \frac{\partial y}{\partial x_i} = \lim_{h \rightarrow 0} \frac{f(x_1, \ldots, x_{i-1}, x_i+h, x_{i+1}, \ldots, x_n) - f(x_1, \ldots, x_i, \ldots, x_n)}{h}.$$
 
