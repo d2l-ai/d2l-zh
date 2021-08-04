@@ -56,13 +56,13 @@ $$
 ![用于近似训练的分层softmax，其中树的每个叶节点表示词表中的一个词。](../img/hi-softmax.svg)
 :label:`fig_hi_softmax`
 
-用$L(w)$表示二叉树中表示字$w$的从根节点到叶节点的路径上的节点数（包括两端）。设$n(w,j)$为该路径上的$j^\mathrm{th}$节点，其上下文字向量为$\mathbf{u}_{n(w, j)}$。例如， :numref:`fig_hi_softmax` 中的$L(w_3) = 4$。分层softmax将:eqref:`eq_skip-gram-softmax`中的条件概率近似为
+用$L(w)$表示二叉树中表示字$w$的从根节点到叶节点的路径上的节点数（包括两端）。设$n(w,j)$为该路径上的$j^\mathrm{th}$节点，其上下文字向量为$\mathbf{u}_{n(w, j)}$。例如， :numref:`fig_hi_softmax` 中的$L(w_3) = 4$。分层softmax将 :eqref:`eq_skip-gram-softmax` 中的条件概率近似为
 
 $$P(w_o \mid w_c) = \prod_{j=1}^{L(w_o)-1} \sigma\left( [\![  n(w_o, j+1) = \text{leftChild}(n(w_o, j)) ]\!] \cdot \mathbf{u}_{n(w_o, j)}^\top \mathbf{v}_c\right),$$
 
 其中函数$\sigma$在 :eqref:`eq_sigma-f` 中定义，$\text{leftChild}(n)$ 是节点 $n$ 的左子节点：如果$x$为真，$[\![x]\!] = 1$; 否则 $[\![x]\!] = -1$。
 
-为了说明，让我们计算:numref:`fig_hi_softmax`中给定词$w_c$生成词$w_3$的条件概率。这需要$w_c$的词向量$\mathbf{v}_c$和从根到$w_3$的路径（ :numref:`fig_hi_softmax` 中加粗的路径）上的非叶节点向量之间的点积，该路径依次向左、向右和向左遍历：
+为了说明，让我们计算 :numref:`fig_hi_softmax` 中给定词$w_c$生成词$w_3$的条件概率。这需要$w_c$的词向量$\mathbf{v}_c$和从根到$w_3$的路径（ :numref:`fig_hi_softmax` 中加粗的路径）上的非叶节点向量之间的点积，该路径依次向左、向右和向左遍历：
 
 $$P(w_3 \mid w_c) = \sigma(\mathbf{u}_{n(w_3, 1)}^\top \mathbf{v}_c) \cdot \sigma(-\mathbf{u}_{n(w_3, 2)}^\top \mathbf{v}_c) \cdot \sigma(\mathbf{u}_{n(w_3, 3)}^\top \mathbf{v}_c).$$
 
