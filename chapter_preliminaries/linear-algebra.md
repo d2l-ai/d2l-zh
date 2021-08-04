@@ -1,7 +1,6 @@
 # 线性代数
 :label:`sec_linear-algebra`
 
-
 在你已经可以存储和操作数据后，让我们简要地回顾一下基本线性代数的部分内容。这些内容能够帮助你了解和实现本书中介绍的大多数模型。下面我们将介绍线性代数中的基本数学对象、算术和运算，并用数学符号和相应的代码实现来表示它们。
 
 ## 标量
@@ -133,9 +132,9 @@ x.shape
 $$\mathbf{A}=\begin{bmatrix} a_{11} & a_{12} & \cdots & a_{1n} \\ a_{21} & a_{22} & \cdots & a_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ a_{m1} & a_{m2} & \cdots & a_{mn} \\ \end{bmatrix}.$$
 :eqlabel:`eq_matrix_def`
 
-对于任意$\mathbf{A} \in \mathbb{R}^{m \times n}$,$\mathbf{A}$的形状是($m$, $n$)或$m \times n$。当矩阵具有相同数量的行和列时，其形状将变为正方形；因此，它被称为*方矩阵*（square matrix）。
+对于任意$\mathbf{A} \in \mathbb{R}^{m \times n}$,$\mathbf{A}$的形状是（$m$,$n$）或$m \times n$。当矩阵具有相同数量的行和列时，其形状将变为正方形；因此，它被称为*方矩阵*（square matrix）。
 
-当调用函数来实例化张量时，我们可以[**通过指定两个分量$m$和 $n$来创建一个形状为$m \times n$的矩阵**]。
+当调用函数来实例化张量时，我们可以[**通过指定两个分量$m$和$n$来创建一个形状为$m \times n$的矩阵**]。
 
 ```{.python .input}
 A = np.arange(20).reshape(5, 4)
@@ -184,7 +183,7 @@ A.T
 tf.transpose(A)
 ```
 
-作为方矩阵的一种特殊类型，[***对称矩阵*（symmetric matrix）$\mathbf{A}$等于其转置：$\mathbf{A} = \mathbf{A}^\top$**]。这里我们定义一个对称矩阵 `B`：
+作为方矩阵的一种特殊类型，[***对称矩阵*（symmetric matrix）$\mathbf{A}$等于其转置：$\mathbf{A} = \mathbf{A}^\top$**]。这里我们定义一个对称矩阵`B`：
 
 ```{.python .input}
 B = np.array([[1, 2, 3], [2, 0, 4], [3, 4, 5]])
@@ -551,7 +550,7 @@ $$\mathbf{A}=
 \mathbf{a}^\top_m \\
 \end{bmatrix},$$
 
-其中每个$\mathbf{a}^\top_{i} \in \mathbb{R}^n$ 都是行向量，表示矩阵的第$i$行。[**矩阵向量积$\mathbf{A}\mathbf{x}$是一个长度为$m$的列向量，其第$i$个元素是点积$\mathbf{a}^\top_i \mathbf{x}$**]：
+其中每个$\mathbf{a}^\top_{i} \in \mathbb{R}^n$都是行向量，表示矩阵的第$i$行。[**矩阵向量积$\mathbf{A}\mathbf{x}$是一个长度为$m$的列向量，其第$i$个元素是点积$\mathbf{a}^\top_i \mathbf{x}$**]：
 
 $$
 \mathbf{A}\mathbf{x}
@@ -607,7 +606,7 @@ $$\mathbf{A}=\begin{bmatrix}
  b_{k1} & b_{k2} & \cdots & b_{km} \\
 \end{bmatrix}.$$
 
-用行向量$\mathbf{a}^\top_{i} \in \mathbb{R}^k$表示矩阵$\mathbf{A}$的第 $i$行，并让列向量$\mathbf{b}_{j} \in \mathbb{R}^k$作为矩阵$\mathbf{B}$的第 $j$ 列。要生成矩阵积$\mathbf{C} = \mathbf{A}\mathbf{B}$，最简单的方法是考虑$\mathbf{A}$的行向量和$\mathbf{B}$的列向量:
+用行向量$\mathbf{a}^\top_{i} \in \mathbb{R}^k$表示矩阵$\mathbf{A}$的第$i$行，并让列向量$\mathbf{b}_{j} \in \mathbb{R}^k$作为矩阵$\mathbf{B}$的第$j$列。要生成矩阵积$\mathbf{C} = \mathbf{A}\mathbf{B}$，最简单的方法是考虑$\mathbf{A}$的行向量和$\mathbf{B}$的列向量:
 
 $$\mathbf{A}=
 \begin{bmatrix}
@@ -684,10 +683,10 @@ $$f(\mathbf{x}) \geq 0.$$
 
 $$\forall i, [\mathbf{x}]_i = 0 \Leftrightarrow f(\mathbf{x})=0.$$
 
-你可能会注意到，范数听起来很像距离的度量。如果你还记得小学时的欧几里得距离(想想毕达哥拉斯定理)，那么非负性的概念和三角不等式可能会给你一些启发。
+你可能会注意到，范数听起来很像距离的度量。如果你还记得小学时的欧几里得距离（想想毕达哥拉斯定理），那么非负性的概念和三角不等式可能会给你一些启发。
 事实上，欧几里得距离是一个范数：具体而言，它是$L_2$范数。假设$n$维向量$\mathbf{x}$中的元素是$x_1,\ldots,x_n$，其[**$L_2$*范数*是向量元素平方和的平方根：**]
 
-(**$$\|\mathbf{x}\|_2 = \sqrt{\sum_{i=1}^n x_i^2},$$**)
+(**$$\|\mathbf{x}\|_2=\sqrt{\sum_{i=1}^n x_i^2},$$**)
 
 其中，在$L_2$范数中常常省略下标$2$，也就是说，$\|\mathbf{x}\|$等同于$\|\mathbf{x}\|_2$。在代码中，我们可以按如下方式计算向量的$L_2$范数。
 
@@ -710,7 +709,7 @@ tf.norm(u)
 
 在深度学习中，我们更经常地使用$L_2$范数的平方。你还会经常遇到[**$L_1$范数，它表示为向量元素的绝对值之和：**]
 
-(**$$\|\mathbf{x}\|_1 = \sum_{i=1}^n \left|x_i \right|.$$**)
+(**$$\|\mathbf{x}\|_1=\sum_{i=1}^n\left|x_i\right|.$$**)
 
 与$L_2$范数相比，$L_1$范数受异常值的影响较小。为了计算$L_1$范数，我们将绝对值函数和按元素求和组合起来。
 
@@ -734,7 +733,7 @@ $$\|\mathbf{x}\|_p = \left(\sum_{i=1}^n \left|x_i \right|^p \right)^{1/p}.$$
 
 类似于向量的$L_2$范数，[**矩阵**]$\mathbf{X} \in \mathbb{R}^{m \times n}$(**的*弗罗贝尼乌斯范数*（Frobenius norm）是矩阵元素平方和的平方根：**)
 
-(**$$\|\mathbf{X}\|_F = \sqrt{\sum_{i=1}^m \sum_{j=1}^n x_{ij}^2}.$$**)
+(**$$\|\mathbf{X}\|_F=\sqrt{\sum_{i=1}^m\sum_{j=1}^n x_{ij}^2}.$$**)
 
 弗罗贝尼乌斯范数满足向量范数的所有性质，它就像是矩阵形向量的$L_2$范数。
 调用以下函数将计算矩阵的弗罗贝尼乌斯范数。
@@ -759,9 +758,8 @@ tf.norm(tf.ones((4, 9)))
 虽然我们不想走得太远，但我们可以对这些概念为什么有用有一些直觉。在深度学习中，我们经常试图解决优化问题：
 *最大化*分配给观测数据的概率;
 *最小化*预测和真实观测之间的距离。
-用向量表示物品(如单词、产品或新闻文章)，以便最小化相似项目之间的距离，最大化不同项目之间的距离。
-通常，目标，或许是深度学习算法最重要的组成部分(除了数据)，被表达为范数。
-
+用向量表示物品（如单词、产品或新闻文章），以便最小化相似项目之间的距离，最大化不同项目之间的距离。
+通常，目标，或许是深度学习算法最重要的组成部分（除了数据），被表达为范数。
 
 ## 关于线性代数的更多信息
 
@@ -782,8 +780,8 @@ tf.norm(tf.ones((4, 9)))
 
 ## 练习
 
-1. 证明一个矩阵$\mathbf{A}$的转置的转置是 $\mathbf{A}$：$(\mathbf{A}^\top)^\top = \mathbf{A}$。
-1. 给出两个矩阵$\mathbf{A}$和$\mathbf{B}$, 显示转置的和等于和的转置：$\mathbf{A}^\top + \mathbf{B}^\top = (\mathbf{A} + \mathbf{B})^\top$.
+1. 证明一个矩阵$\mathbf{A}$的转置的转置是$\mathbf{A}$：$(\mathbf{A}^\top)^\top = \mathbf{A}$。
+1. 给出两个矩阵$\mathbf{A}$和$\mathbf{B}$,显示转置的和等于和的转置：$\mathbf{A}^\top + \mathbf{B}^\top = (\mathbf{A} + \mathbf{B})^\top$.
 1. 给定任意方矩阵$\mathbf{A}$，$\mathbf{A} + \mathbf{A}^\top$总是对称的吗?为什么?
 1.我们在本节中定义了形状（2,3,4）的张量`X`。`len(X)`的输出结果是什么？
 1.对于任意形状的张量`X`,`len(X)`是否总是对应于`X`特定轴的长度?这个轴是什么?
