@@ -467,13 +467,13 @@ a, a.item(), float(a), int(a)
 1. 用其他形状（例如三维张量）替换广播机制中按元素操作的两个张量。结果是否与预期相同？
 
 :begin_tab:`mxnet`
-[Discussions]（https://discuss.d2l.ai/t/1745）
+[Discussions](https://discuss.d2l.ai/t/1745)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions]（https://discuss.d2l.ai/t/1747）
+[Discussions](https://discuss.d2l.ai/t/1747)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions]（https://discuss.d2l.ai/t/1746）
+[Discussions](https://discuss.d2l.ai/t/1746)
 :end_tab:
