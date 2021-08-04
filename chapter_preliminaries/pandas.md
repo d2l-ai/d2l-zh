@@ -5,9 +5,9 @@
 
 ## 读取数据集
 
-举一个例子，我们首先(**创建一个人工数据集，并存储在csv（逗号分隔值）文件**)`../data/house_tiny.csv`中。以其他格式存储的数据也可以通过类似的方式进行处理。下面的`mkdir_if_not_exist`函数可确保目录`../data`存在。注意，注释`#@save`是一个特殊的标记，该标记下方的函数、类或语句将保存在`d2l`软件包中，以便以后可以直接调用它们（例如`d2l.mkdir_if_not_exist(path)`）而无需重新定义。
+举一个例子，我们首先(**创建一个人工数据集，并存储在csv（逗号分隔值）文件**)`../data/house_tiny.csv`中。以其他格式存储的数据也可以通过类似的方式进行处理。下面的`mkdir_if_not_exist`函数可确保目录`../data`存在。注意，注释`#@save`是一个特殊的标记，该标记下方的函数、类或语句将保存在`d2l`软件包中，以便以后可以直接调用它们（例如`d2l.mkdir_if_not_exist(path)`）而无须重新定义。
 
-下面我们将数据集按行写入csv文件中。
+下面我们将数据集按行写入CSV文件中。
 
 ```{.python .input}
 #@tab all
@@ -23,7 +23,7 @@ with open(data_file, 'w') as f:
     f.write('NA,NA,140000\n')
 ```
 
-要[**从创建的csv文件中加载原始数据集**]，我们导入`pandas`包并调用`read_csv`函数。该数据集有四行三列。其中每行描述了房间数量（“NumRooms”）、巷子类型（“Alley”）和房屋价格（“Price”）。
+要[**从创建的CSV文件中加载原始数据集**]，我们导入`pandas`包并调用`read_csv`函数。该数据集有四行三列。其中每行描述了房间数量（“NumRooms”）、巷子类型（“Alley”）和房屋价格（“Price”）。
 
 ```{.python .input}
 #@tab all

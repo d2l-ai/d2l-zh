@@ -200,7 +200,7 @@ train_bert(train_iter, net, loss, len(vocab), devices, 50)
 
 ## 用 BERT 表示文本
 
-在预训练 BERT 之后，我们可以用它来表示单个文本、文本对或其中的任何标记。以下函数返回 `tokens_a` 和 `tokens_b` 中所有令牌的 BERT (`net`) 表示形式。
+在预训练 BERT 之后，我们可以用它来表示单个文本、文本对或其中的任何词元。以下函数返回 `tokens_a` 和 `tokens_b` 中所有词元的 BERT (`net`) 表示形式。
 
 ```{.python .input}
 def get_bert_encoding(net, tokens_a, tokens_b=None):
@@ -224,7 +224,7 @@ def get_bert_encoding(net, tokens_a, tokens_b=None):
     return encoded_X
 ```
 
-考虑一下 “起重机在飞” 这句话。回想一下 :numref:`subsec_bert_input_rep` 中讨论的 BERT 的输入表示形式。插入特殊标记 “<cls>”（用于分类）和 “<sep>”（用于分隔）后，BERT 输入序列的长度为 6。由于零是 “<cls>” 令牌的索引，所以 `encoded_text[:, 0, :]` 是整个输入句子的 BERT 表示。为了评估 polysemy 令牌 “鹤”，我们还打印了代币 BERT 表示的前三个元素。
+考虑一下 “起重机在飞” 这句话。回想一下 :numref:`subsec_bert_input_rep` 中讨论的 BERT 的输入表示形式。插入特殊词元 “<cls>”（用于分类）和 “<sep>”（用于分隔）后，BERT 输入序列的长度为 6。由于零是 “<cls>” 词元的索引，所以 `encoded_text[:, 0, :]` 是整个输入句子的 BERT 表示。为了评估 polysemy 词元 “鹤”，我们还打印了代币 BERT 表示的前三个元素。
 
 ```{.python .input}
 #@tab all
@@ -236,7 +236,7 @@ encoded_text_crane = encoded_text[:, 2, :]
 encoded_text.shape, encoded_text_cls.shape, encoded_text_crane[0][:3]
 ```
 
-现在考虑一对句子 “起重机司机来了” 和 “他刚离开”。同样，`encoded_pair[:, 0, :]` 是预训练的 BERT 整个句子对的编码结果。请注意，polysemy 令牌 “鹤” 的前三个元素与上下文不同时的前三个元素不同。这支持 BERT 表示是上下文相关的。
+现在考虑一对句子 “起重机司机来了” 和 “他刚离开”。同样，`encoded_pair[:, 0, :]` 是预训练的 BERT 整个句子对的编码结果。请注意，polysemy 词元 “鹤” 的前三个元素与上下文不同时的前三个元素不同。这支持 BERT 表示是上下文相关的。
 
 ```{.python .input}
 #@tab all
@@ -254,8 +254,8 @@ encoded_pair.shape, encoded_pair_cls.shape, encoded_pair_crane[0][:3]
 ## 摘要
 
 * 原来的 BERT 有两个版本，其中基本模型有 1.1 亿个参数，而大型模型有 3.4 亿个参数。
-* 在预训练 BERT 之后，我们可以用它来表示单个文本、文本对或其中的任何标记。
-* 在实验中，当上下文不同时，同一个令牌具有不同的 BERT 表示形式。这支持 BERT 表示是上下文相关的。
+* 在预训练 BERT 之后，我们可以用它来表示单个文本、文本对或其中的任何词元。
+* 在实验中，当上下文不同时，同一个词元具有不同的 BERT 表示形式。这支持 BERT 表示是上下文相关的。
 
 ## 练习
 

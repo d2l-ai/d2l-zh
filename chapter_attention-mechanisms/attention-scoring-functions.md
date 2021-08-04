@@ -38,7 +38,7 @@ from torch import nn
 
 ## [**遮蔽softmax操作**]
 
-正如上面提到的，softmax 运算用于输出一个概率分布作为注意力权重。在某些情况下，并非所有的值都应该被纳入到注意力汇聚中。例如，为了在 :numref:`sec_machine_translation` 中高效处理小批量数据集，某些文本序列被填充了没有意义的特殊标记。为了仅将有意义的标记作为值去获取注意力汇聚，可以指定一个有效序列长度（即标记的个数），以便在计算 softmax 时过滤掉超出指定范围的位置。通过这种方式，我们可以在下面的 `masked_softmax` 函数中实现这样的 *遮蔽 softmax 操作*（masked softmax operation），其中任何超出有效长度的位置都被遮蔽并置为0。
+正如上面提到的，softmax 运算用于输出一个概率分布作为注意力权重。在某些情况下，并非所有的值都应该被纳入到注意力汇聚中。例如，为了在 :numref:`sec_machine_translation` 中高效处理小批量数据集，某些文本序列被填充了没有意义的特殊词元。为了仅将有意义的词元作为值去获取注意力汇聚，可以指定一个有效序列长度（即词元的个数），以便在计算 softmax 时过滤掉超出指定范围的位置。通过这种方式，我们可以在下面的 `masked_softmax` 函数中实现这样的 *遮蔽 softmax 操作*（masked softmax operation），其中任何超出有效长度的位置都被遮蔽并置为0。
 
 ```{.python .input}
 #@save
@@ -168,7 +168,7 @@ class AdditiveAttention(nn.Module):
         return torch.bmm(self.dropout(self.attention_weights), values)
 ```
 
-让我们用一个小例子来[**演示上面的`AdditiveAttention`类**]，其中查询、键和值的形状为（批量大小、步数或标记序列长度、特征大小），实际输出为 $(2,1,20)$、$(2,10,2)$ 和 $(2,10,4)$。注意力汇聚输出的形状为（批量大小、查询的步数、值的维度）。
+让我们用一个小例子来[**演示上面的`AdditiveAttention`类**]，其中查询、键和值的形状为（批量大小、步数或词元序列长度、特征大小），实际输出为 $(2,1,20)$、$(2,10,2)$ 和 $(2,10,4)$。注意力汇聚输出的形状为（批量大小、查询的步数、值的维度）。
 
 ```{.python .input}
 queries, keys = d2l.normal(0, 1, (2, 1, 20)), d2l.ones((2, 10, 2))

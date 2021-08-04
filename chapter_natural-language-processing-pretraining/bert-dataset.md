@@ -22,7 +22,7 @@ import random
 import torch
 ```
 
-在 Wikitext-2 数据集中，每行代表一个段落，其中任何标点符号和前面的标记之间插入空格。保留至少有两句话的段落。为了分割句子，为了简单起见，我们只使用句点作为分隔符。我们将在本节末尾的练习中讨论更复杂的句子分割技术。
+在 Wikitext-2 数据集中，每行代表一个段落，其中任何标点符号和前面的词元之间插入空格。保留至少有两句话的段落。为了分割句子，为了简单起见，我们只使用句点作为分隔符。我们将在本节末尾的练习中讨论更复杂的句子分割技术。
 
 ```{.python .input}
 #@tab all
@@ -64,7 +64,7 @@ def _get_next_sentence(sentence, next_sentence, paragraphs):
     return sentence, next_sentence, is_next
 ```
 
-以下函数通过调用 `_get_next_sentence` 函数生成从输入 `paragraph` 进行下一句预测的训练示例。这里 `paragraph` 是一个句子列表，其中每句都是一个令牌列表。参数 `max_len` 指定了预训期间 BERT 输入序列的最大长度。
+以下函数通过调用 `_get_next_sentence` 函数生成从输入 `paragraph` 进行下一句预测的训练示例。这里 `paragraph` 是一个句子列表，其中每句都是一个词元列表。参数 `max_len` 指定了预训期间 BERT 输入序列的最大长度。
 
 ```{.python .input}
 #@tab all
@@ -85,7 +85,7 @@ def _get_nsp_data_from_paragraph(paragraph, paragraphs, vocab, max_len):
 ### 生成蒙版语言建模任务
 :label:`subsec_prepare_mlm_data`
 
-为了根据 BERT 输入序列生成蒙版语言建模任务的训练示例，我们定义了以下 `_replace_mlm_tokens` 函数。在其输入中，`tokens` 是代表 BERT 输入序列的令牌列表，`candidate_pred_positions` 是 BERT 输入序列的令牌索引列表，不包括特殊令牌的索引（在蒙屏语言建模任务中没有预测特殊令牌），`num_mlm_preds` 表示预测数量（回想 15％随机令牌可以预测）。在 :numref:`subsec_mlm` 中对蒙版语言建模任务的定义之后，在每个预测位置，输入可以被特殊的 “<mask>” 令牌或随机令牌替换，或者保持不变。最后，该函数在可能的替换后返回输入令牌、发生预测的令牌索引以及这些预测的标签。
+为了根据 BERT 输入序列生成蒙版语言建模任务的训练示例，我们定义了以下 `_replace_mlm_tokens` 函数。在其输入中，`tokens` 是代表 BERT 输入序列的词元列表，`candidate_pred_positions` 是 BERT 输入序列的词元索引列表，不包括特殊词元的索引（在蒙屏语言建模任务中没有预测特殊词元），`num_mlm_preds` 表示预测数量（回想 15％随机词元可以预测）。在 :numref:`subsec_mlm` 中对蒙版语言建模任务的定义之后，在每个预测位置，输入可以被特殊的 “<mask>” 词元或随机词元替换，或者保持不变。最后，该函数在可能的替换后返回输入词元、发生预测的词元索引以及这些预测的标签。
 
 ```{.python .input}
 #@tab all
@@ -119,7 +119,7 @@ def _replace_mlm_tokens(tokens, candidate_pred_positions, num_mlm_preds,
     return mlm_input_tokens, pred_positions_and_labels
 ```
 
-通过调用上述 `_replace_mlm_tokens` 函数，以下函数将 BERT 输入序列 (`tokens`) 作为输入序列 (`tokens`) 并返回输入令牌的索引（在可能的令牌替换后，如 :numref:`subsec_mlm` 所述）、发生预测的令牌指数以及标记这些指数的索引预测。
+通过调用上述 `_replace_mlm_tokens` 函数，以下函数将 BERT 输入序列 (`tokens`) 作为输入序列 (`tokens`) 并返回输入词元的索引（在可能的词元替换后，如 :numref:`subsec_mlm` 所述）、发生预测的词元指数以及词元这些指数的索引预测。
 
 ```{.python .input}
 #@tab all
@@ -146,7 +146,7 @@ def _get_mlm_data_from_tokens(tokens, vocab):
 
 ## 将文本转换为训练前数据集
 
-现在我们已经准备好自定义 `Dataset` 课程，用于预训 BERT。在此之前，我们仍然需要定义一个助手函数 `_pad_bert_inputs` 来将特殊的 “<mask>” 令牌附加到输入中。它的论点 `examples` 包含了帮助函数 `_get_nsp_data_from_paragraph` 和 `_get_mlm_data_from_tokens` 用于两个预训任务的输出。
+现在我们已经准备好自定义 `Dataset` 课程，用于预训 BERT。在此之前，我们仍然需要定义一个助手函数 `_pad_bert_inputs` 来将特殊的 “<mask>” 词元附加到输入中。它的论点 `examples` 包含了帮助函数 `_get_nsp_data_from_paragraph` 和 `_get_mlm_data_from_tokens` 用于两个预训任务的输出。
 
 ```{.python .input}
 #@save
@@ -210,7 +210,7 @@ def _pad_bert_inputs(examples, max_len, vocab):
 
 将用于生成两个预训练任务的训练示例的帮助函数和用于填充输入的辅助函数放在一起，我们将以下 `_WikiTextDataset` 类定制为用于预训练 BERT 的 WikiText-2 数据集。通过实现 `__getitem__ ` 函数，我们可以任意访问来自 WikiText-2 语料库的一对句子生成的预训练（蒙面语言建模和下一句预测）示例。 
 
-原来的 BERT 模型使用字体嵌入，其词汇量为 30000 :cite:`Wu.Schuster.Chen.ea.2016`。WordPiece 的标记化方法是对 :numref:`subsec_Byte_Pair_Encoding` 中原来的字节对编码算法的轻微修改。为简单起见，我们使用 `d2l.tokenize` 函数进行标记化。出现少于五次的罕见代币将被过滤掉。
+原来的 BERT 模型使用字体嵌入，其词汇量为 30000 :cite:`Wu.Schuster.Chen.ea.2016`。WordPiece 的词元化方法是对 :numref:`subsec_Byte_Pair_Encoding` 中原来的字节对编码算法的轻微修改。为简单起见，我们使用 `d2l.tokenize` 函数进行词元化。出现少于五次的罕见代币将被过滤掉。
 
 ```{.python .input}
 #@save
@@ -333,7 +333,7 @@ for (tokens_X, segments_X, valid_lens_x, pred_positions_X, mlm_weights_X,
     break
 ```
 
-最后，让我们来看看词汇量的大小。即使在过滤掉不常见的令牌之后，它仍比 PTB 数据集大两倍以上。
+最后，让我们来看看词汇量的大小。即使在过滤掉不常见的词元之后，它仍比 PTB 数据集大两倍以上。
 
 ```{.python .input}
 #@tab all
@@ -348,7 +348,7 @@ len(vocab)
 ## 练习
 
 1. 为简单起见，句点被用作分割句子的唯一分隔符。尝试其他句子拆分技术，例如 SPacy 和 NLTK。以 NLTK 为例。你需要先安装 NLTK：`pip install nltk`。在代码中，首先是 `import nltk`。然后，下载 Punkt 句子分词器：`nltk.download('punkt')`。分割诸如 `句子 = '这太棒了！为什么不呢？'`, invoking `nltk.tokenize.sent_tokenize（句子）` will return a list of two sentence strings: ` [“这太棒了！”，“为什么不？”]`。
-1. 如果我们不过滤掉任何不常见的令牌，词汇量是多少？
+1. 如果我们不过滤掉任何不常见的词元，词汇量是多少？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/389)
