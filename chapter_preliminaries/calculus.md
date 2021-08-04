@@ -90,7 +90,7 @@ $$f'(x) = y' = \frac{dy}{dx} = \frac{df}{dx} = \frac{d}{dx} f(x) = Df(x) = D_x f
 假设函数$f$和$g$都是可微的，$C$是一个常数，我们有：
 
 *常数相乘法则*
-$$\frac{d}{dx}[Cf（x）]=C\frac{d}{dx}f（x）,$$
+$$\frac{d}{dx} [Cf(x)] = C \frac{d}{dx} f(x),$$
 
 *加法法则*
 
