@@ -23,10 +23,4 @@ word2vec
 approx-training
 word-embedding-dataset
 word2vec-pretraining
-glove
-subword-embedding
-similarity-analogy
-bert
-bert-dataset
-bert-pretraining
 ```
