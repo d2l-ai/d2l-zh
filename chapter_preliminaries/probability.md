@@ -130,8 +130,8 @@ for i in range(6):
     d2l.plt.plot(estimates[:, i].asnumpy(),
                  label=("P(die=" + str(i + 1) + ")"))
 d2l.plt.axhline(y=0.167, color='black', linestyle='dashed')
-d2l.plt.gca().set_xlabel('Groups of experiments')
-d2l.plt.gca().set_ylabel('Estimated probability')
+d2l.plt.gca().set_xlabel('实验次数')
+d2l.plt.gca().set_ylabel('估算概率')
 d2l.plt.legend();
 ```
 
@@ -146,8 +146,8 @@ for i in range(6):
     d2l.plt.plot(estimates[:, i].numpy(),
                  label=("P(die=" + str(i + 1) + ")"))
 d2l.plt.axhline(y=0.167, color='black', linestyle='dashed')
-d2l.plt.gca().set_xlabel('Groups of experiments')
-d2l.plt.gca().set_ylabel('Estimated probability')
+d2l.plt.gca().set_xlabel('实验次数')
+d2l.plt.gca().set_ylabel('估算概率')
 d2l.plt.legend();
 ```
 
@@ -162,8 +162,8 @@ for i in range(6):
     d2l.plt.plot(estimates[:, i].numpy(),
                  label=("P(die=" + str(i + 1) + ")"))
 d2l.plt.axhline(y=0.167, color='black', linestyle='dashed')
-d2l.plt.gca().set_xlabel('Groups of experiments')
-d2l.plt.gca().set_ylabel('Estimated probability')
+d2l.plt.gca().set_xlabel('实验次数')
+d2l.plt.gca().set_ylabel('估算概率')
 d2l.plt.legend();
 ```
 
@@ -264,7 +264,7 @@ $$\begin{aligned}
 
 患者在收到这样可怕的消息后应该怎么办？很可能，患者会要求医生进行另一次测试来了解清楚。第二个测试具有不同的特性，它不如第一个测试那么好，如 :numref:`conditional_prob_D2`所示。
 
-:条件概率为$P(D_2 \mid H)$。
+:条件概率为$P(D_2 \mid H)$
 
 | 条件概率 | $H=1$ | $H=0$ |
 |---|---|---|
@@ -337,8 +337,8 @@ $$\mathrm{Var}[f(x)] = E\left[\left(f(x) - E[f(x)]\right)^2\right].$$
 ## 练习
 
 1. 我们进行了$m=500$组实验，每组抽取$n=10$个样本。变化$m$和$n$，观察和分析实验结果。
-2. 给定两个概率为$P(\mathcal{A})$和$P(\mathcal{B})$的事件，计算$P(\mathcal{A} \cup \mathcal{B})$和$P(\mathcal{A} \cap \mathcal{B})$的上限和下限。（提示：使用[友元图](https://en.wikipedia.org/wiki/Venn_diagram）来展示这些情况。)
-3. 假设我们有一系列随机变量，例如$A$，$B$和$C$，其中$B$只依赖于$A$，而$C$只依赖于$B$，你能简化联合概率$P(A, B, C)$吗？（提示：这是一个[马尔可夫链](https://en.wikipedia.org/wiki/Markov_chain）。)
+2. 给定两个概率为$P(\mathcal{A})$和$P(\mathcal{B})$的事件，计算$P(\mathcal{A} \cup \mathcal{B})$和$P(\mathcal{A} \cap \mathcal{B})$的上限和下限。（提示：使用[友元图](https://en.wikipedia.org/wiki/Venn_diagram)来展示这些情况。)
+3. 假设我们有一系列随机变量，例如$A$，$B$和$C$，其中$B$只依赖于$A$，而$C$只依赖于$B$，你能简化联合概率$P(A, B, C)$吗？（提示：这是一个[马尔可夫链](https://en.wikipedia.org/wiki/Markov_chain)。)
 4. 在 :numref:`subsec_probability_hiv_app`中，第一个测试更准确。为什么不运行第一个测试两次，而是同时运行第一个和第二个测试?
 
 :begin_tab:`mxnet`
