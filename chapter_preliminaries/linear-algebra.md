@@ -183,7 +183,7 @@ A.T
 tf.transpose(A)
 ```
 
-作为方矩阵的一种特殊类型，[***对称矩阵*（symmetric matrix）$\mathbf{A}$等于其转置：$\mathbf{A} = \mathbf{A}^\top$**]。这里我们定义一个对称矩阵`B`：
+作为方矩阵的一种特殊类型，[***对称矩阵*（symmetric matrix）$\mathbf{A}$等于其转置：$\mathbf{A} = \mathbf{A}^\top$**]。这里我们定义一个对称矩阵$\mathbf{B}$：
 
 ```{.python .input}
 B = np.array([[1, 2, 3], [2, 0, 4], [3, 4, 5]])
