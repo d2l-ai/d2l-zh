@@ -95,7 +95,6 @@ X, y
 1. 删除缺失值最多的列。
 2. 将预处理后的数据集转换为张量格式。
 
-
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/1749)
 :end_tab:
