@@ -3,7 +3,7 @@
 
 (~~MNIST数据集是图像分类中广泛使用的数据集之一，但作为基准数据集过于简单。我们将使用类似但更复杂的Fashion-MNIST数据集~~)
 
-目前广泛使用的图像分类数据集之一是 MNIST 数据集 :cite:`LeCun.Bottou.Bengio.ea.1998`。虽然它是很不错的基准数据集，但按今天的标准，即使是简单的模型也能达到95%以上的分类准确率，因此不适合区分强模型和弱模型。如今，MNIST更像是一个健全检查，而不是一个基准。
+目前广泛使用的图像分类数据集之一是MNIST数据集 :cite:`LeCun.Bottou.Bengio.ea.1998`。虽然它是很不错的基准数据集，但按今天的标准，即使是简单的模型也能达到95%以上的分类准确率，因此不适合区分强模型和弱模型。如今，MNIST更像是一个健全检查，而不是一个基准。
 为了提高难度，我们将在接下来的章节中讨论在2017年发布的性质相似但相对复杂的Fashion-MNIST数据集 :cite:`Xiao.Rasul.Vollgraf.2017`。
 
 ```{.python .input}
@@ -38,7 +38,7 @@ d2l.use_svg_display()
 
 ## 读取数据集
 
-我们可以[**通过框架中的内置函数将 Fashion-MNIST 数据集下载并读取到内存中**]。
+我们可以[**通过框架中的内置函数将Fashion-MNIST数据集下载并读取到内存中**]。
 
 ```{.python .input}
 mnist_train = gluon.data.vision.FashionMNIST(train=True)
@@ -61,7 +61,7 @@ mnist_test = torchvision.datasets.FashionMNIST(
 mnist_train, mnist_test = tf.keras.datasets.fashion_mnist.load_data()
 ```
 
-Fashion-MNIST 由 10 个类别的图像组成，每个类别由训练数据集中的 6000 张图像和测试数据集中的 1000 张图像组成。*测试数据集*（test dataset）不会用于训练，只用于评估模型性能。训练集和测试集分别包含 60000 和 10000 张图像。
+Fashion-MNIST由10个类别的图像组成，每个类别由训练数据集中的6000张图像和测试数据集中的1000张图像组成。*测试数据集*（test dataset）不会用于训练，只用于评估模型性能。训练集和测试集分别包含60000和10000张图像。
 
 ```{.python .input}
 #@tab mxnet, pytorch
@@ -73,7 +73,7 @@ len(mnist_train), len(mnist_test)
 len(mnist_train[0]), len(mnist_test[0])
 ```
 
-每个输入图像的高度和宽度均为 28 像素。数据集由灰度图像组成，其通道数为1。为了简洁起见，在这本书中，我们将高度$h$像素，宽度$w$像素图像的形状记为$h \times w$或($h$, $w$)。
+每个输入图像的高度和宽度均为28像素。数据集由灰度图像组成，其通道数为1。为了简洁起见，在这本书中，我们将高度$h$像素，宽度$w$像素图像的形状记为$h \times w$或（$h$,$w$）。
 
 ```{.python .input}
 #@tab all
@@ -205,7 +205,7 @@ f'{timer.stop():.2f} sec'
 
 ## 整合所有组件
 
-现在我们[**定义 `load_data_fashion_mnist` 函数**]，用于获取和读取Fashion-MNIST数据集。它返回训练集和验证集的数据迭代器。此外，它还接受一个可选参数，用来将图像大小调整为另一种形状。
+现在我们[**定义`load_data_fashion_mnist`函数**]，用于获取和读取Fashion-MNIST数据集。它返回训练集和验证集的数据迭代器。此外，它还接受一个可选参数，用来将图像大小调整为另一种形状。
 
 ```{.python .input}
 def load_data_fashion_mnist(batch_size, resize=None):  #@save
@@ -274,12 +274,12 @@ for X, y in train_iter:
 ## 小结
 
 * Fashion-MNIST是一个服装分类数据集，由10个类别的图像组成。我们将在后续章节中使用此数据集来评估各种分类算法。
-* 我们将高度$h$像素，宽度$w$像素图像的形状记为$h \times w$或($h$, $w$)。
+* 我们将高度$h$像素，宽度$w$像素图像的形状记为$h \times w$或（$h$,$w$）。
 * 数据迭代器是获得更高性能的关键组件。依靠实现良好的数据迭代器，利用高性能计算来避免减慢训练过程。
 
 ## 练习
 
-1. 减少 `batch_size`（如减少到 1）是否会影响读取性能？
+1. 减少`batch_size`（如减少到1）是否会影响读取性能？
 1. 数据迭代器的性能非常重要。你认为当前的实现足够快吗？探索各种选择来改进它。
 1. 查阅框架的在线API文档。还有哪些其他数据集可用？
 
