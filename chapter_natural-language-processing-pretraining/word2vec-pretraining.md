@@ -1,7 +1,7 @@
-# 预训 word 2vec
+# 预训练word2vec
 :label:`sec_word2vec_pretraining`
 
-我们继续实施 :numref:`sec_word2vec` 中定义的跳过图模型。然后我们将在 PTB 数据集上使用负采样来预训练 word2vec。首先，让我们通过调用 `d2l.load_data_ptb` 函数来获取该数据集的数据迭代器和词汇，该函数在 :numref:`sec_word2vec_data` 中描述了
+我们继续实现 :numref:`sec_word2vec` 中定义的跳元语法模型。然后，我们将在PTB数据集上使用负采样预训练word2vec。首先，让我们通过调用`d2l.load_data_ptb`函数来获得该数据集的数据迭代器和词表，该函数在 :numref:`sec_word2vec_data` 中进行了描述。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -27,13 +27,13 @@ data_iter, vocab = d2l.load_data_ptb(batch_size, max_window_size,
                                      num_noise_words)
 ```
 
-## 跳过格兰氏模型
+## 跳元模型
 
-我们通过使用嵌入层和批量矩阵乘法来实现跳过图模型。首先，让我们回顾一下嵌入图层的工作原理。 
+我们通过嵌入层和批量矩阵乘法实现了跳元模型。首先，让我们回顾一下嵌入层是如何工作的。
 
 ### 嵌入层
 
-如 :numref:`sec_seq2seq` 所述，嵌入图层将词元的索引映射到其要素矢量。此图层的权重是一个矩阵，其行数等于字典大小 (`input_dim`)，列数等于每个词元的矢量维度 (`output_dim`)。在训练一个词嵌入模型之后，这种权重就是我们所需要的。
+如 :numref:`sec_seq2seq` 中所述，嵌入层将词元的索引映射到其特征向量。该层的权重是一个矩阵，其行数等于字典大小（`input_dim`），列数等于每个标记的向量维数（`output_dim`）。在词嵌入模型训练之后，这个权重就是我们所需要的。
 
 ```{.python .input}
 embed = nn.Embedding(input_dim=20, output_dim=4)
@@ -48,7 +48,7 @@ print(f'Parameter embedding_weight ({embed.weight.shape}, '
       f'dtype={embed.weight.dtype})')
 ```
 
-嵌入图层的输入是词元的索引（单词）。对于任何词元索引 $i$，可以从嵌入图层中权重矩阵的 $i^\mathrm{th}$ 行中获得其矢量表示形式。由于矢量维度 (`output_dim`) 设置为 4，因此嵌入图层将返回形状 (2、3、4) 的向量，以表示形状 (2, 3) 的小批词元索引（2、3）。
+嵌入层的输入是词元（词）的索引。对于任何词元索引$i$，其向量表示可以从嵌入层中的权重矩阵的第 $i$行获得。由于向量维度（`output_dim`）被设置为4，因此当小批量词元索引的形状为(2, 3)时，嵌入层返回具有形状(2，3，4)的向量。
 
 ```{.python .input}
 #@tab all
@@ -56,9 +56,9 @@ x = d2l.tensor([[1, 2, 3], [4, 5, 6]])
 embed(x)
 ```
 
-### 定义正向传播
+### 定义前向传播
 
-在正向传播中，跳过图模型的输入包括形状的中心词索引 `center`（批次大小，1）和形状的连接上下文和噪声词索引 `contexts_and_negatives`（批次大小，`max_len`），其中 `max_len` 在 :numref:`subsec_word2vec-minibatch-loading` 中定义了 `max_len`。这两个变量首先通过嵌入层从词元索引转换为矢量，然后它们的批量矩阵乘法（在 :numref:`subsec_batch_dot` 中描述）返回形状输出（批次大小，1，`max_len`）。输出中的每个元素都是中心单词矢量和上下文或噪声单词矢量的点积。
+在前向传播中，跳元语法模型的输入包括形状为(批量大小, 1)的中心词索引`center`和形状为(批量大小, `max_len`)的上下文与噪声词索引`contexts_and_negatives`，其中`max_len`在 :numref:`subsec_word2vec-minibatch-loading` 中定义。这两个变量首先通过嵌入层从词元索引转换成向量，然后它们的批量矩阵相乘（在 :numref:`subsec_batch_dot` 中描述）返回形状为(批量大小, 1, `max_len`)的输出。输出中的每个元素是中心词向量和上下文或噪声词向量的点积。
 
 ```{.python .input}
 def skip_gram(center, contexts_and_negatives, embed_v, embed_u):
@@ -77,7 +77,7 @@ def skip_gram(center, contexts_and_negatives, embed_v, embed_u):
     return pred
 ```
 
-让我们打印这个 `skip_gram` 函数的输出形状以获取一些示例输入。
+让我们为一些样例输入打印此`skip_gram`函数的输出形状。
 
 ```{.python .input}
 skip_gram(np.ones((2, 1)), np.ones((2, 4)), embed, embed).shape
@@ -91,11 +91,11 @@ skip_gram(torch.ones((2, 1), dtype=torch.long),
 
 ## 训练
 
-在用负采样训练跳过图模型之前，首先让我们定义它的损失函数。 
+在训练带负采样的跳元模型之前，我们先定义它的损失函数。
 
-### 二进制交叉熵损失
+### 二元交叉熵损失
 
-根据 :numref:`subsec_negative-sampling` 中负取样的损失函数的定义，我们将使用二进制交叉熵损失。
+根据 :numref:`subsec_negative-sampling` 中负采样损失函数的定义，我们将使用二元交叉熵损失。
 
 ```{.python .input}
 loss = gluon.loss.SigmoidBCELoss()
@@ -104,7 +104,7 @@ loss = gluon.loss.SigmoidBCELoss()
 ```{.python .input}
 #@tab pytorch
 class SigmoidBCELoss(nn.Module):
-    # Binary cross-entropy loss with masking
+    # 带掩码的二元交叉熵损失
     def __init__(self):
         super().__init__()
 
@@ -116,7 +116,7 @@ class SigmoidBCELoss(nn.Module):
 loss = SigmoidBCELoss()
 ```
 
-回想一下我们在 :numref:`subsec_word2vec-minibatch-loading` 中对掩码变量和标签变量的描述。以下计算给定变量的二进制交叉熵损失。
+回想一下我们在 :numref:`subsec_word2vec-minibatch-loading` 中对掩码变量和标签变量的描述。下面计算给定变量的二进制交叉熵损失。
 
 ```{.python .input}
 #@tab all
@@ -126,7 +126,7 @@ mask = d2l.tensor([[1, 1, 1, 1], [1, 1, 0, 0]])
 loss(pred, label, mask) * mask.shape[1] / mask.sum(axis=1)
 ```
 
-下面显示了如何在二进制交叉熵损失中使用 sigmoid 激活函数计算上述结果（以较低效率的方式）。我们可以将这两个输出视为两个标准化损失，平均值超过非蒙面预测。
+下面显示了如何使用二元交叉熵损失中的Sigmoid激活函数（以较低效率的方式）计算上述结果。我们可以将这两个输出视为两个归一化的损失，在非掩码预测上进行平均。
 
 ```{.python .input}
 #@tab all
@@ -139,7 +139,7 @@ print(f'{(sigmd(-1.1) + sigmd(-2.2)) / 2:.4f}')
 
 ### 初始化模型参数
 
-当词汇表中的所有单词分别用作中心词和上下文词时，我们为词汇中的所有单词定义了两个嵌入层。单词矢量维度 `embed_size` 设置为 100。
+我们定义了两个嵌入层，将词表中的所有单词分别作为中心词和上下文词使用。字向量维度`embed_size`被设置为100。
 
 ```{.python .input}
 embed_size = 100
@@ -157,9 +157,9 @@ net = nn.Sequential(nn.Embedding(num_embeddings=len(vocab),
                                  embedding_dim=embed_size))
 ```
 
-### 定义训练循环
+### 定义训练代码实现
 
-下面定义了训练循环。由于存在填充，损失函数的计算与之前的训练函数略有不同。
+训练代码实现定义如下。由于填充的存在，损失函数的计算与以前的训练函数略有不同。
 
 ```{.python .input}
 def train(net, data_iter, lr, num_epochs, device=d2l.try_gpu()):
@@ -168,7 +168,7 @@ def train(net, data_iter, lr, num_epochs, device=d2l.try_gpu()):
                             {'learning_rate': lr})
     animator = d2l.Animator(xlabel='epoch', ylabel='loss',
                             xlim=[1, num_epochs])
-    # Sum of normalized losses, no. of normalized losses
+    # 归一化的损失之和，归一化的损失数
     metric = d2l.Accumulator(2)
     for epoch in range(num_epochs):
         timer, num_batches = d2l.Timer(), len(data_iter)
@@ -200,7 +200,7 @@ def train(net, data_iter, lr, num_epochs, device=d2l.try_gpu()):
     optimizer = torch.optim.Adam(net.parameters(), lr=lr)
     animator = d2l.Animator(xlabel='epoch', ylabel='loss',
                             xlim=[1, num_epochs])
-    # Sum of normalized losses, no. of normalized losses
+    # 归一化的损失之和，归一化的损失数
     metric = d2l.Accumulator(2)
     for epoch in range(num_epochs):
         timer, num_batches = d2l.Timer(), len(data_iter)
@@ -222,7 +222,7 @@ def train(net, data_iter, lr, num_epochs, device=d2l.try_gpu()):
           f'{metric[1] / timer.stop():.1f} tokens/sec on {str(device)}')
 ```
 
-现在我们可以使用负取样训练跳过图模型。
+现在，我们可以使用负采样来训练跳元模型。
 
 ```{.python .input}
 #@tab all
@@ -230,18 +230,19 @@ lr, num_epochs = 0.002, 5
 train(net, data_iter, lr, num_epochs)
 ```
 
-## 应用单词嵌入
+## 应用词嵌入
+:label:`subsec_apply-word-embed`
 
-在训练 word2vec 模型之后，我们可以使用训练模型中单词矢量的余弦相似性，从字典中查找语义上与输入词最相似的单词。
+在训练word2vec模型之后，我们可以使用训练好模型中词向量的余弦相似度来从词表中找到与输入单词语义最相似的单词。
 
 ```{.python .input}
 def get_similar_tokens(query_token, k, embed):
     W = embed.weight.data()
     x = W[vocab[query_token]]
-    # Compute the cosine similarity. Add 1e-9 for numerical stability
+    # 计算余弦相似性。增加1e-9以获得数值稳定性
     cos = np.dot(W, x) / np.sqrt(np.sum(W * W, axis=1) * np.sum(x * x) + 1e-9)
     topk = npx.topk(cos, k=k+1, ret_typ='indices').asnumpy().astype('int32')
-    for i in topk[1:]:  # Remove the input words
+    for i in topk[1:]:  # 删除输入词
         print(f'cosine sim={float(cos[i]):.3f}: {vocab.to_tokens(i)}')
 
 get_similar_tokens('chip', 3, net[0])
@@ -252,25 +253,25 @@ get_similar_tokens('chip', 3, net[0])
 def get_similar_tokens(query_token, k, embed):
     W = embed.weight.data
     x = W[vocab[query_token]]
-    # Compute the cosine similarity. Add 1e-9 for numerical stability
+    # 计算余弦相似性。增加1e-9以获得数值稳定性
     cos = torch.mv(W, x) / torch.sqrt(torch.sum(W * W, dim=1) *
                                       torch.sum(x * x) + 1e-9)
     topk = torch.topk(cos, k=k+1)[1].cpu().numpy().astype('int32')
-    for i in topk[1:]:  # Remove the input words
+    for i in topk[1:]:  # 删除输入词
         print(f'cosine sim={float(cos[i]):.3f}: {vocab.to_tokens(i)}')
 
 get_similar_tokens('chip', 3, net[0])
 ```
 
-## 摘要
+## 小结
 
-* 我们可以使用嵌入层和二进制交叉熵损失来训练一个带负采样的跳过图模型。
-* 单词嵌入的应用包括根据单词矢量的余弦相似性为给定单词寻找语义上相似的单词。
+* 我们可以使用嵌入层和二元交叉熵损失来训练带负采样的跳元模型。
+* 词嵌入的应用包括基于词向量的余弦相似度为给定词找到语义相似的词。
 
 ## 练习
 
-1. 使用训练的模型，为其他输入词找到语义上相似的单词。你能通过调整超参数来改善结果吗？
-1. 当训练语料库庞大时，我们经常在更新模型参数 * 时对当前迷你表中的中心单词采样上下文单词和噪声单词。换句话说，同一个中心单词在不同的训练时期可能有不同的上下文词或噪音词。这种方法有什么好处？尝试实施这种训练方法。
+1. 使用训练好的模型，找出其他输入词在语义上相似的词。您能通过调优超参数来改进结果吗？
+1. 当训练语料库很大时，在更新模型参数时，我们经常对当前小批量的*中心词*进行上下文词和噪声词的采样。换言之，同一中心词在不同的训练迭代轮数可以有不同的上下文词或噪声词。这种方法的好处是什么？尝试实现这种训练方法。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/384)

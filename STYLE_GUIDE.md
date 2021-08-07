@@ -41,8 +41,8 @@
         * 训练数据集、验证数据集、测试数据集
     * 中文优先于英文
         * 首次出现，注明原英文术语
-            * 无需加粗
-            * 无需加引号
+            * 无须加粗
+            * 无须加引号
     * 中英文对照统一标准
         * https://github.com/mli/gluon-tutorials-zh/blob/master/README.md
 
@@ -162,7 +162,7 @@
     * [“线性回归”](linear-reg.md)一节
 * 外链
     * [层](http:bla)
-    * 无需暴露URL
+    * 无须暴露URL
 
 ## 英翻汉的常见问题
 

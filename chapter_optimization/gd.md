@@ -265,7 +265,7 @@ $$\nabla f(\mathbf{x}) + \mathbf{H} \boldsymbol{\epsilon} = 0 \text{ and hence }
 
 举一个简单的例子，对于$f(x) = \frac{1}{2} x^2$，我们有$\nabla f(x) = x$和$\mathbf{H} = 1$。
 因此，对于任何$x$，我们可以获得$\epsilon = -x$。
-换言之，单单一步就足以完美地收敛，而无需任何调整。
+换言之，单单一步就足以完美地收敛，而无须任何调整。
 我们在这里比较幸运：泰勒展开式是确切的，因为$f(x+\epsilon)= \frac{1}{2} x^2 + \epsilon x + \frac{1}{2} \epsilon^2$。
 
 让我们看看其他问题。
