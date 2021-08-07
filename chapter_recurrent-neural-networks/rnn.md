@@ -98,7 +98,7 @@ d2l.matmul(d2l.concat((X, H), 1), d2l.concat((W_xh, W_hh), 0))
 
 ## 基于循环神经网络的字符级语言模型
 
-回想一下 :numref:`sec_language_model` 中的语言模型，我们的目标是根据过去的和当前的词元预测下一个词元，因此我们将原始序列移位一个词元作为标签。Bengio等人首先提出使用神经网络进行语言建模 :cite:`Bengio.Ducharme.Vincent.ea.2003`。接下来，我们将说明如何使用循环神经网络来构建语言模型。设小批量大小为1，批量中的那个文本序列为"machine"。为了简化后续部分的训练，我们考虑使用 *字符级语言模型*（character-level language model），将文本词元化为字符而不是单词。 :numref:`fig_rnn_train` 演示了如何通过基于字符级语言建模的循环神经网络使用当前的和先前的字符预测下一个字符。
+回想一下 :numref:`sec_language_model` 中的语言模型，我们的目标是根据过去的和当前的词元预测下一个词元，因此我们将原始序列移位一个词元作为标签。Bengio等人首先提出使用神经网络进行语言建模 :cite:`Bengio.Ducharme.Vincent.ea.2003`。接下来，我们将说明如何使用循环神经网络来构建语言模型。设小批量大小为1，批量中的那个文本序列为“machine”。为了简化后续部分的训练，我们考虑使用 *字符级语言模型*（character-level language model），将文本词元化为字符而不是单词。 :numref:`fig_rnn_train` 演示了如何通过基于字符级语言建模的循环神经网络使用当前的和先前的字符预测下一个字符。
 
 ![基于循环神经网络的字符级语言模型。输入序列和标签序列分别为“machin”和“achine”。](../img/rnn-train.svg)
 :label:`fig_rnn_train`
@@ -110,7 +110,7 @@ d2l.matmul(d2l.concat((X, H), 1), d2l.concat((W_xh, W_hh), 0))
 ## 困惑度（Perplexity）
 :label:`subsec_perplexity`
 
-最后，让我们讨论如何度量语言模型的质量，这将在后续部分中用于评估基于循环神经网络的模型。一种方法是检查文本有多么令人惊讶。一个好的语言模型能够用高度准确的词元来预测我们接下来会看到什么。考虑一下由不同的语言模型给出的对短语"It is raining"的续写：
+最后，让我们讨论如何度量语言模型的质量，这将在后续部分中用于评估基于循环神经网络的模型。一种方法是检查文本有多么令人惊讶。一个好的语言模型能够用高度准确的词元来预测我们接下来会看到什么。考虑一下由不同的语言模型给出的对短语“It is raining”的续写：
 
 1. "It is raining outside"
 1. "It is raining banana tree"
