@@ -91,9 +91,9 @@ d2l.reduce_sum(X, 0, keepdims=True), d2l.reduce_sum(X, 1, keepdims=True)
 $$
 \mathrm{softmax}(\mathbf{X})_{ij} = \frac{\exp(\mathbf{X}_{ij})}{\sum_k \exp(\mathbf{X}_{ik})}.
 $$
-**）
+**)
 
-分母或归一化常数，有时也称为*配分函数*（其对数称为对数-配分函数）。该名称的起源来自[统计物理学](https://en.wikipedia.org/wiki/Partition_function_（statistical_mechanics）)中一个模拟粒子群分布的方程。
+分母或归一化常数，有时也称为*配分函数*（其对数称为对数-配分函数）。该名称的起源来自[统计物理学](https://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics))中一个模拟粒子群分布的方程。
 
 ```{.python .input}
 #@tab mxnet, tensorflow
