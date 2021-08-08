@@ -42,7 +42,8 @@ d2l.DATA_HUB['fra-eng'] = (d2l.DATA_URL + 'fra-eng.zip',
 def read_data_nmt():
     """载入“英语－法语”数据集。"""
     data_dir = d2l.download_extract('fra-eng')
-    with open(os.path.join(data_dir, 'fra.txt'), 'r') as f:
+    with open(os.path.join(data_dir, 'fra.txt'), 'r', 
+             encoding='utf-8') as f:
         return f.read()
 
 raw_text = read_data_nmt()
