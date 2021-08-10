@@ -7,8 +7,8 @@
 
 ## 单个文本分类
 
-*单个文本分类 * 采用单个文本序列作为输入并输出其分类结果。
-除了我们在本章中研究的情绪分析之外，语言可接受性语料库 (COLA) 也是单一文本分类的数据集，用于判断给定句子在语法上是否可以接受或不 :cite:`Warstadt.Singh.Bowman.2019`。例如，“我应该学习。” 是可以接受的，但 “我应该学习。” 不是。 
+*单个文本分类* 采用单个文本序列作为输入并输出其分类结果。
+除了我们在本章中研究的情绪分析之外，语言可接受性语料库 (COLA) 也是单一文本分类的数据集，用于判断给定句子在语法上是否可以接受或不 :cite:`Warstadt.Singh.Bowman.2019`。例如，“我应该学习。” 是可以接受的，但 “我应该正在学习。” 则不能。 
 
 ![Fine-tuning BERT for single text classification applications, such as sentiment analysis and testing linguistic acceptability. Suppose that the input single text has six tokens.](../img/bert-one-seq.svg)
 :label:`fig_bert-one-seq`
