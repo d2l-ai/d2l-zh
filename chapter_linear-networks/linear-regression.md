@@ -288,9 +288,9 @@ $$-\log P(\mathbf y \mid \mathbf X) = \sum_{i=1}^n \frac{1}{2} \log(2 \pi \sigma
 ![线性回归是一个单层神经网络。](../img/singleneuron.svg)
 :label:`fig_single_neuron`
 
-在 :numref:`fig_single_neuron`所示的神经网络中，输入为$x_1, \ldots, x_d$，因此输入层中的*输入数*（或称为*特征维度*feature dimensionality）为$d$。网络的输出为$o_1$，因此输出层中的*输出数*是1。需要注意的是，输入值都是已经给定的，并且只有一个*计算*神经元。由于模型重点在发生计算的地方，所以通常我们在计算层数时不考虑输入层。也就是说， :numref:`fig_single_neuron`中神经网络的*层数*为1。我们可以将线性回归模型视为仅由单个人工神经元组成的神经网络，或称为单层神经网络。
+在 :numref:`fig_single_neuron`所示的神经网络中，输入为$x_1, \ldots, x_d$，因此输入层中的*输入数*（或称为*特征维度*，feature dimensionality）为$d$。网络的输出为$o_1$，因此输出层中的*输出数*是1。需要注意的是，输入值都是已经给定的，并且只有一个*计算*神经元。由于模型重点在发生计算的地方，所以通常我们在计算层数时不考虑输入层。也就是说， :numref:`fig_single_neuron`中神经网络的*层数*为1。我们可以将线性回归模型视为仅由单个人工神经元组成的神经网络，或称为单层神经网络。
 
-对于线性回归，每个输入都与每个输出（在本例中只有一个输出）相连，我们将这种变换（ :numref:`fig_single_neuron`中的输出层）称为*全连接层*（fully-connected layer）（或称为*稠密层*dense layer）。下一章将详细讨论由这些层组成的网络。
+对于线性回归，每个输入都与每个输出（在本例中只有一个输出）相连，我们将这种变换（ :numref:`fig_single_neuron`中的输出层）称为*全连接层*（fully-connected layer），或称为*稠密层*（dense layer）。下一章将详细讨论由这些层组成的网络。
 
 ### 生物学
 
