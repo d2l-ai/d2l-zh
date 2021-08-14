@@ -103,7 +103,7 @@ def _get_batch_loss_bert(net, loss, vocab_size, tokens_X,
     return mlm_l, nsp_l, l
 ```
 
-调用上述两个辅助函数，以下[**`train_bert`函数定义了在Wikitext-2(`train_iter`)数据集上预训练BERT(`net`)的过程**]。培训 BERT 可能需要很长时间。以下函数的输入 `num_steps` 没有像 `train_ch13` 函数那样指定训练的时代数量（参见 :numref:`sec_image_augmentation`），而是指定训练的迭代步数。
+调用上述两个辅助函数，以下`train_bert`函数定义了[**在Wikitext-2(`train_iter`)数据集上预训练BERT(`net`)**]的过程。培训 BERT 可能需要很长时间。以下函数的输入 `num_steps` 没有像 `train_ch13` 函数那样指定训练的时代数量（参见 :numref:`sec_image_augmentation`），而是指定训练的迭代步数。
 
 ```{.python .input}
 def train_bert(train_iter, net, loss, vocab_size, devices, num_steps):
