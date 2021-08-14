@@ -22,7 +22,7 @@ import random
 import torch
 ```
 
-在 Wikitext-2 数据集中，每行代表一个段落，其中任何标点符号和前面的词元之间插入空格。保留至少有两句话的段落。为了分割句子，为了简单起见，我们只使用句点作为分隔符。我们将在本节末尾的练习中讨论更复杂的句子分割技术。
+在[**WikiText-2数据集**]中，每行代表一个段落，其中任何标点符号和前面的词元之间插入空格。保留至少有两句话的段落。为了分割句子，为了简单起见，我们只使用句点作为分隔符。我们将在本节末尾的练习中讨论更复杂的句子分割技术。
 
 ```{.python .input}
 #@tab all
@@ -47,7 +47,7 @@ def _read_wiki(data_dir):
 
 在下面，我们首先为两个 BERT 预训练任务实施辅助函数：下一句预测和蒙版语言建模。稍后将原始文本语料库转换为预训练 BERT 的理想格式的数据集时，将调用这些辅助函数。 
 
-### 生成下一句预测任务
+### [**生成下一句预测任务**]
 
 根据 :numref:`subsec_nsp` 的描述，`_get_next_sentence` 函数生成了二进制分类任务的训练示例。
 
@@ -82,7 +82,7 @@ def _get_nsp_data_from_paragraph(paragraph, paragraphs, vocab, max_len):
     return nsp_data_from_paragraph
 ```
 
-### 生成蒙版语言建模任务
+### [**生成蒙版语言建模任务**]
 :label:`subsec_prepare_mlm_data`
 
 为了根据 BERT 输入序列生成蒙版语言建模任务的训练示例，我们定义了以下 `_replace_mlm_tokens` 函数。在其输入中，`tokens` 是代表 BERT 输入序列的词元列表，`candidate_pred_positions` 是 BERT 输入序列的词元索引列表，不包括特殊词元的索引（在蒙屏语言建模任务中没有预测特殊词元），`num_mlm_preds` 表示预测数量（回想 15％随机词元可以预测）。在 :numref:`subsec_mlm` 中对蒙版语言建模任务的定义之后，在每个预测位置，输入可以被特殊的 “<mask>” 词元或随机词元替换，或者保持不变。最后，该函数在可能的替换后返回输入词元、发生预测的词元索引以及这些预测的标签。
@@ -146,7 +146,7 @@ def _get_mlm_data_from_tokens(tokens, vocab):
 
 ## 将文本转换为训练前数据集
 
-现在我们已经准备好自定义 `Dataset` 课程，用于预训 BERT。在此之前，我们仍然需要定义一个助手函数 `_pad_bert_inputs` 来将特殊的 “<mask>” 词元附加到输入中。它的论点 `examples` 包含了帮助函数 `_get_nsp_data_from_paragraph` 和 `_get_mlm_data_from_tokens` 用于两个预训任务的输出。
+现在我们已经准备好自定义 `Dataset` 课程，用于预训 BERT。在此之前，我们仍然需要定义一个助手函数 `_pad_bert_inputs` 来[**将特殊的“<mask>”词元附加到输入中**]。它的论点 `examples` 包含了帮助函数 `_get_nsp_data_from_paragraph` 和 `_get_mlm_data_from_tokens` 用于两个预训任务的输出。
 
 ```{.python .input}
 #@save
@@ -208,7 +208,7 @@ def _pad_bert_inputs(examples, max_len, vocab):
             all_mlm_weights, all_mlm_labels, nsp_labels)
 ```
 
-将用于生成两个预训练任务的训练示例的帮助函数和用于填充输入的辅助函数放在一起，我们将以下 `_WikiTextDataset` 类定制为用于预训练 BERT 的 WikiText-2 数据集。通过实现 `__getitem__ ` 函数，我们可以任意访问来自 WikiText-2 语料库的一对句子生成的预训练（蒙面语言建模和下一句预测）示例。 
+将用于生成两个预训练任务的训练示例的帮助函数和用于填充输入的辅助函数放在一起，我们将以下 `_WikiTextDataset` 类定制为[**用于预训练BERT的WikiText-2数据集**]。通过实现 `__getitem__ ` 函数，我们可以任意访问来自 WikiText-2 语料库的一对句子生成的预训练（蒙面语言建模和下一句预测）示例。 
 
 原来的 BERT 模型使用字体嵌入，其词汇量为 30000 :cite:`Wu.Schuster.Chen.ea.2016`。WordPiece 的词元化方法是对 :numref:`subsec_Byte_Pair_Encoding` 中原来的字节对编码算法的轻微修改。为简单起见，我们使用 `d2l.tokenize` 函数进行词元化。出现少于五次的罕见代币将被过滤掉。
 
@@ -289,7 +289,7 @@ class _WikiTextDataset(torch.utils.data.Dataset):
         return len(self.all_token_ids)
 ```
 
-通过使用 `_read_wiki` 函数和 `_WikiTextDataset` 类，我们定义了下载以下 `load_data_wiki` 和 WikiText-2 数据集并从中生成预训示例。
+通过使用 `_read_wiki` 函数和 `_WikiTextDataset` 类，我们定义了[**下载`load_data_wiki`和WikiText-2数据集并从中生成预训示例**]。
 
 ```{.python .input}
 #@save
@@ -318,7 +318,7 @@ def load_data_wiki(batch_size, max_len):
     return train_iter, train_set.vocab
 ```
 
-将批次大小设置为 512，并且 BERT 输入序列的最大长度为 64，我们会打印出一个小批量的 BERT 预训练示例的形状。请注意，在每个 BERT 输入序列中，为蒙版语言建模任务预测 $10$ ($64 \times 0.15$) 的位置。
+将批次大小设置为 512，并且 BERT 输入序列的最大长度为 64，我们会[**打印出一个小批量的BERT预训练示例的形状**]。请注意，在每个 BERT 输入序列中，为蒙版语言建模任务预测 $10$ ($64 \times 0.15$) 的位置。
 
 ```{.python .input}
 #@tab all
