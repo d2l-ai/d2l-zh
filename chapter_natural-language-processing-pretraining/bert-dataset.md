@@ -289,7 +289,7 @@ class _WikiTextDataset(torch.utils.data.Dataset):
         return len(self.all_token_ids)
 ```
 
-通过使用 `_read_wiki` 函数和 `_WikiTextDataset` 类，我们定义了[**下载`load_data_wiki`和WikiText-2数据集并从中生成预训示例**]。
+通过使用 `_read_wiki` 函数和 `_WikiTextDataset` 类，我们定义了`load_data_wiki`，[**下载WikiText-2数据集并从中生成预训示例**]。
 
 ```{.python .input}
 #@save
