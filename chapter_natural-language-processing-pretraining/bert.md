@@ -406,7 +406,7 @@ class BERTModel(nn.Module):
         return encoded_X, mlm_Y_hat, nsp_Y_hat
 ```
 
-## 摘要
+## 小结
 
 * Word2vec 和 Glove 等单词嵌入模型与上下文无关。无论单词的上下文如何（如果有），它们都会将相同的预训练向量分配给同一个单词。他们很难以很好地处理自然语言中的多聚结或复杂的语义。
 * 对于上下文相关的单词表示（例如 elMO 和 GPT），单词的表示取决于它们的上下文。
