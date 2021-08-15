@@ -43,7 +43,7 @@ import torch
 from torch import nn
 ```
 
-## 输入表示法
+## [**输入表示法**]
 :label:`subsec_bert_input_rep`
 
 在自然语言处理中，某些任务（例如情绪分析）将单个文本作为输入，而在其他一些任务（例如自然语言推断）中，输入是一对文本序列。BERT 输入序列明确表示单个文本对和文本对。在前者中，BERT 输入序列是特殊分类词元 “<cls>”、文本序列的词元和特殊分隔词元 “<sep>” 的串联。在后者中，BERT 输入序列是 “<cls>”、第一个文本序列的词元 “<sep>”、第二个文本序列的词元和 “<sep>” 的连接。我们将始终将术语 “BERT 输入序列” 与其他类型的 “序列” 区分开来。例如，一个 *BERT 输入序列 * 可能包含一个 * 文本序列 * 或两个 * 文本序列 *。 
@@ -70,7 +70,7 @@ BERT 选择变压器编码器作为其双向架构。在变压器编码器中常
 
 ![BERT 输入序列的嵌入是词元嵌入、区段嵌入和位置嵌入的总和。](../img/bert-input.svg) :label:`fig_bert-input` 
 
-以下 `BERTEncoder` 类与 :numref:`sec_transformer` 中实施的 `TransformerEncoder` 类类似。与 `TransformerEncoder` 不同，`BERTEncoder` 使用细分嵌入和可学习的位置嵌入。
+以下[**`BERTEncoder`类**]与 :numref:`sec_transformer` 中实施的 `TransformerEncoder` 类类似。与 `TransformerEncoder` 不同，`BERTEncoder` 使用细分嵌入和可学习的位置嵌入。
 
 ```{.python .input}
 #@save
@@ -132,7 +132,7 @@ class BERTEncoder(nn.Module):
         return X
 ```
 
-假设词汇量大小是 10000。为了演示 `BERTEncoder` 的前向推理，让我们创建它的实例并初始化其参数。
+假设词汇量大小是 10000。为了演示[**`BERTEncoder`的前向推理**]，让我们创建它的实例并初始化其参数。
 
 ```{.python .input}
 vocab_size, num_hiddens, ffn_num_hiddens, num_heads = 10000, 768, 1024, 4
@@ -172,10 +172,10 @@ encoded_X.shape
 
 `BERTEncoder` 的前向推断给出了输入文本的每个词元的 BERT 表示以及插入的特殊词元 “<cls>” 和 “<seq>”。接下来，我们将使用这些表示法来计算预训练 BERT 的损失函数。预培训由以下两项任务组成：蒙版语言建模和下一句话预测。 
 
-### 蒙面语言建模
+### [**蒙面语言建模**]
 :label:`subsec_mlm`
 
-如 :numref:`sec_language_model` 所示，语言模型使用左侧的上下文来预测词元。为了对上下文进行双向编码以表示每个词元，BERT 会随机掩盖词元，并使用双向上下文中的词元以自我监督的方式预测被掩码的词元。此任务被称为 * 蒙面语言模型 *。 
+如 :numref:`sec_language_model` 所示，语言模型使用左侧的上下文来预测词元。为了对上下文进行双向编码以表示每个词元，BERT 会随机掩盖词元，并使用双向上下文中的词元以自我监督的方式预测被掩码的词元。此任务被称为*蒙面语言模型*。 
 
 在此预训任务中，15％ 的代币将随机选择作为预测的蒙面代币。要在不使用标签作弊的情况下预测蒙面的词元，一种简单的方法是始终在 <mask>BERT 输入序列中用特殊的 “” 词元替换它。但是，人为的特殊词元 “<mask>” 永远不会出现在微调中。为避免预训和微调之间的这种不匹配，如果词元被掩盖进行预测（例如，在 “这部电影很棒” 中选择了 “很棒” 来掩盖和预测），则在输入内容中将替换为： 
 
@@ -239,7 +239,7 @@ class MaskLM(nn.Module):
         return mlm_Y_hat
 ```
 
-为了演示 `MaskLM` 的前向推断，我们创建了它的实例 `mlm` 并对其进行初始化。回想一下，`encoded_X` 从前向推断 `BERTEncoder` 代表 2 个 BERT 输入序列。我们将 `mlm_positions` 定义为在 `encoded_X` 的 BERT 输入序列中要预测的 3 个指数。`mlm` 的前瞻推断回报预测结果为 `mlm_Y_hat`，在 `encoded_X` 的所有蒙面仓位 `mlm_positions`。对于每个预测，结果的大小等于词汇量大小。
+为了演示[**`MaskLM`的前向推断**]，我们创建了它的实例 `mlm` 并对其进行初始化。回想一下，`encoded_X` 从前向推断 `BERTEncoder` 代表 2 个 BERT 输入序列。我们将 `mlm_positions` 定义为在 `encoded_X` 的 BERT 输入序列中要预测的 3 个指数。`mlm` 的前瞻推断回报预测结果为 `mlm_Y_hat`，在 `encoded_X` 的所有蒙面仓位 `mlm_positions`。对于每个预测，结果的大小等于词汇量大小。
 
 ```{.python .input}
 mlm = MaskLM(vocab_size, num_hiddens)
@@ -274,7 +274,7 @@ mlm_l = loss(mlm_Y_hat.reshape((-1, vocab_size)), mlm_Y.reshape(-1))
 mlm_l.shape
 ```
 
-### 下一句预测
+### [**下一句预测**]
 :label:`subsec_nsp`
 
 虽然蒙版语言建模能够对表示单词的双向上下文进行编码，但它并没有明确建模文本对之间的逻辑关系。为了帮助理解两个文本序列之间的关系，BERT 在其预训中考虑了二进制分类任务 * 下一句预测 *。在为预训生成句子对时，有一半时间它们确实是带有 “True” 标签的连续句子；而另一半时间，第二个句子是从标有 “False” 标签的语料库中随机抽取的。 
@@ -308,7 +308,7 @@ class NextSentencePred(nn.Module):
         return self.output(X)
 ```
 
-我们可以看到，`NextSentencePred` 实例的前向推断返回每个 BERT 输入序列的二进制预测。
+我们可以看到，[**`NextSentencePred`实例的前向推断**]返回每个 BERT 输入序列的二进制预测。
 
 ```{.python .input}
 nsp = NextSentencePred()
@@ -345,7 +345,7 @@ nsp_l.shape
 
 值得注意的是，上述两项预培训任务中的所有标签都可以在没有人工标签的情况下从培训前语料库中轻而易举地获得。原来的 BERT 已经在 Bookcorpus :cite:`Zhu.Kiros.Zemel.ea.2015` 和英语维基百科的连接方面进行了预培训。这两个文本语句是巨大的：它们分别有 8 亿个单词和 25 亿个单词。 
 
-## 把所有东西放在一起
+## [**统筹合一**]
 
 在预训练 BERT 时，最终损失函数是掩码语言建模的损失函数和下一句预测的线性组合。现在我们可以通过实例化三个类 `BERTEncoder`、`MaskLM` 和 `NextSentencePred` 来定义 `BERTModel` 类。前向推理返回编码的 BERT 表示 `encoded_X`、对蒙面语言建模 `mlm_Y_hat` 的预测以及下一句预测 `nsp_Y_hat`。
 
@@ -406,7 +406,7 @@ class BERTModel(nn.Module):
         return encoded_X, mlm_Y_hat, nsp_Y_hat
 ```
 
-## 摘要
+## 小结
 
 * Word2vec 和 Glove 等单词嵌入模型与上下文无关。无论单词的上下文如何（如果有），它们都会将相同的预训练向量分配给同一个单词。他们很难以很好地处理自然语言中的多聚结或复杂的语义。
 * 对于上下文相关的单词表示（例如 elMO 和 GPT），单词的表示取决于它们的上下文。

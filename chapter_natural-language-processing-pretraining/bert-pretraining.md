@@ -27,7 +27,7 @@ train_iter, vocab = d2l.load_data_wiki(batch_size, max_len)
 
 ## 培训前培训 BERT
 
-原来的 BERT 有两个不同型号尺寸 :cite:`Devlin.Chang.Lee.ea.2018` 的版本。基本型号（$\text{BERT}_{\text{BASE}}$）使用 12 层（变压器编码器块），其中包含 768 个隐藏单元（隐藏尺寸）和 12 个自我注意头。大型模型（$\text{BERT}_{\text{LARGE}}$）使用 24 层，其中有 1024 个隐藏单元和 16 个自我注意头。值得注意的是，前者有 1.1 亿个参数，而后者有 3.4 亿个参数。为了轻松进行演示，我们定义了一个小型 BERT，它使用 2 层、128 个隐藏单位和 2 个自我注意头。
+原来的 BERT 有两个不同型号尺寸 :cite:`Devlin.Chang.Lee.ea.2018` 的版本。基本型号（$\text{BERT}_{\text{BASE}}$）使用 12 层（变压器编码器块），其中包含 768 个隐藏单元（隐藏尺寸）和 12 个自我注意头。大型模型（$\text{BERT}_{\text{LARGE}}$）使用 24 层，其中有 1024 个隐藏单元和 16 个自我注意头。值得注意的是，前者有 1.1 亿个参数，而后者有 3.4 亿个参数。为了轻松进行演示，我们定义了[**一个小型BERT，它使用2层、128个隐藏单位和2个自我注意头**]。
 
 ```{.python .input}
 net = d2l.BERTModel(len(vocab), num_hiddens=128, ffn_num_hiddens=256,
@@ -48,7 +48,7 @@ devices = d2l.try_all_gpus()
 loss = nn.CrossEntropyLoss()
 ```
 
-在定义训练循环之前，我们定义了一个助手函数 `_get_batch_loss_bert`。鉴于训练示例的数量，此函数计算蒙版语言建模和下一句预测任务的损失。请注意，BERT 预训练的最后损失只是蒙版语言建模损失和下一句预测损失的总和。
+在定义训练循环之前，我们定义了一个助手函数 `_get_batch_loss_bert`。鉴于训练示例的数量，此函数[**计算蒙版语言建模的损失和下一句预测任务的损失**]。请注意，BERT 预训练的最后损失只是蒙版语言建模损失和下一句预测损失的总和。
 
 ```{.python .input}
 #@save
@@ -103,7 +103,7 @@ def _get_batch_loss_bert(net, loss, vocab_size, tokens_X,
     return mlm_l, nsp_l, l
 ```
 
-调用上述两个辅助函数，以下 `train_bert` 函数定义了在 Wikitext-2 (`train_iter`) 数据集上预训练 BERT (`net`) 的过程。培训 BERT 可能需要很长时间。以下函数的输入 `num_steps` 没有像 `train_ch13` 函数那样指定训练的时代数量（参见 :numref:`sec_image_augmentation`），而是指定训练的迭代步数。
+调用上述两个辅助函数，以下`train_bert`函数定义了[**在Wikitext-2(`train_iter`)数据集上预训练BERT(`net`)**]的过程。培训 BERT 可能需要很长时间。以下函数的输入 `num_steps` 没有像 `train_ch13` 函数那样指定训练的时代数量（参见 :numref:`sec_image_augmentation`），而是指定训练的迭代步数。
 
 ```{.python .input}
 def train_bert(train_iter, net, loss, vocab_size, devices, num_steps):
@@ -198,7 +198,7 @@ def train_bert(train_iter, net, loss, vocab_size, devices, num_steps):
 train_bert(train_iter, net, loss, len(vocab), devices, 50)
 ```
 
-## 用 BERT 表示文本
+## [**用BERT表示文本**]
 
 在预训练 BERT 之后，我们可以用它来表示单个文本、文本对或其中的任何词元。以下函数返回 `tokens_a` 和 `tokens_b` 中所有词元的 BERT (`net`) 表示形式。
 
@@ -224,7 +224,7 @@ def get_bert_encoding(net, tokens_a, tokens_b=None):
     return encoded_X
 ```
 
-考虑一下 “起重机在飞” 这句话。回想一下 :numref:`subsec_bert_input_rep` 中讨论的 BERT 的输入表示形式。插入特殊词元 “<cls>”（用于分类）和 “<sep>”（用于分隔）后，BERT 输入序列的长度为 6。由于零是 “<cls>” 词元的索引，所以 `encoded_text[:, 0, :]` 是整个输入句子的 BERT 表示。为了评估 polysemy 词元 “鹤”，我们还打印了代币 BERT 表示的前三个元素。
+[**考虑“起重机在飞”这句话**]，回想一下 :numref:`subsec_bert_input_rep` 中讨论的 BERT 的输入表示形式。插入特殊词元 “<cls>”（用于分类）和 “<sep>”（用于分隔）后，BERT 输入序列的长度为 6。由于零是 “<cls>” 词元的索引，所以 `encoded_text[:, 0, :]` 是整个输入句子的 BERT 表示。为了评估 polysemy 词元 “鹤”，我们还打印了代币 BERT 表示的前三个元素。
 
 ```{.python .input}
 #@tab all
@@ -236,7 +236,7 @@ encoded_text_crane = encoded_text[:, 2, :]
 encoded_text.shape, encoded_text_cls.shape, encoded_text_crane[0][:3]
 ```
 
-现在考虑一对句子 “起重机司机来了” 和 “他刚离开”。同样，`encoded_pair[:, 0, :]` 是预训练的 BERT 整个句子对的编码结果。请注意，polysemy 词元 “鹤” 的前三个元素与上下文不同时的前三个元素不同。这支持 BERT 表示是上下文相关的。
+[**现在考虑一对句子“起重机司机来了”和“他刚离开”**]。同样，`encoded_pair[:, 0, :]` 是预训练的 BERT 整个句子对的编码结果。请注意，polysemy 词元 “鹤” 的前三个元素与上下文不同时的前三个元素不同。这支持 BERT 表示是上下文相关的。
 
 ```{.python .input}
 #@tab all
@@ -251,7 +251,7 @@ encoded_pair.shape, encoded_pair_cls.shape, encoded_pair_crane[0][:3]
 
 在 :numref:`chap_nlp_app` 中，我们将为下游自然语言处理应用程序微调预训练的 BERT 模型。 
 
-## 摘要
+## 小结
 
 * 原来的 BERT 有两个版本，其中基本模型有 1.1 亿个参数，而大型模型有 3.4 亿个参数。
 * 在预训练 BERT 之后，我们可以用它来表示单个文本、文本对或其中的任何词元。
