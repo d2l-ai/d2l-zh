@@ -29,7 +29,7 @@ from torch import nn
 import os
 ```
 
-## 加载预训练的 BERT
+## [**加载预训练BERT**]
 
 我们已经解释了如何在 :numref:`sec_bert-dataset` 和 :numref:`sec_bert-pretraining` 的 WikiText-2 数据集上预训练 BERT（请注意，原始的 BERT 模型是在更大的语库上预训练的）。正如 :numref:`sec_bert-pretraining` 中所讨论的那样，原始的 BERT 模型有数亿个参数。在下面，我们提供了两个预训练的 BERT 版本：“bert.base” 与原始 BERT 基础模型一样大，该模型需要大量的计算资源进行微调，而 “bert.mall” 是便于演示的小版本。
 
@@ -48,7 +48,7 @@ d2l.DATA_HUB['bert.small'] = (d2l.DATA_URL + 'bert.small.torch.zip',
                               'c72329e68a732bef0452e4b96a1c341c8910f81f')
 ```
 
-任何一个预训练的 BERT 模型都包含一个定义词汇集的 “vocab.json” 文件和预训练参数的 “预训练的 .params” 文件。我们实现了以下 `load_pretrained_model` 函数来加载预训练的 BERT 参数。
+任何一个预训练的 BERT 模型都包含一个定义词汇集的 “vocab.json” 文件和预训练参数的 “预训练的 .params” 文件。我们实现了以下 `load_pretrained_model` 函数来[**加载预训练的BERT参数**]。
 
 ```{.python .input}
 def load_pretrained_model(pretrained_model, num_hiddens, ffn_num_hiddens,
@@ -99,7 +99,7 @@ bert, vocab = load_pretrained_model(
     num_layers=2, dropout=0.1, max_len=512, devices=devices)
 ```
 
-## 微调 BERT 的数据集
+## [**微调BERT的数据集**]
 
 对于 SNLI 数据集的下游任务自然语言推断，我们定义了自定义的数据集类 `SNLIBERTDataset`。在每个示例中，前提和假设构成一对文本序列，并打包成一个 BERT 输入序列，如 :numref:`fig_bert-two-seqs` 所述。回想一下 :numref:`subsec_bert_input_rep`，区段 ID 用于区分 BERT 输入序列中的前提和假设。使用 BERT 输入序列的预定义最大长度 (`max_len`)，输入文本对中较长的最后一个令牌一直被删除，直到满足 `max_len`。为了加快 SNLI 数据集的生成以进行微调 BERT，我们使用 4 个工作人员流程并行生成训练或测试示例。
 
@@ -210,7 +210,7 @@ class SNLIBERTDataset(torch.utils.data.Dataset):
         return len(self.all_token_ids)
 ```
 
-下载 SNLI 数据集之后，我们通过实例化 `SNLIBERTDataset` 类来生成训练和测试示例。在自然语言推理的训练和测试期间，这些例子将通过迷你小册子阅读。
+下载 SNLI 数据集之后，我们通过实例化`SNLIBERTDataset`类来[**生成训练和测试示例**]。在自然语言推理的训练和测试期间，这些例子将通过迷你小册子阅读。
 
 ```{.python .input}
 # Reduce `batch_size` if there is an out of memory error. In the original BERT
@@ -241,7 +241,7 @@ test_iter = torch.utils.data.DataLoader(test_set, batch_size,
 
 ## 微调 BERT
 
-正如 :numref:`fig_bert-two-seqs` 所示，对自然语言推断进行微调 BERT 只需要额外的 MLP，由两个完全连接的图层组成（见下面的 `self.hidden` 和 `self.output`）。该 MLP 将对<cls>前提和假设的信息进行编码的特殊 “” 令牌的 BERT 表示转换为自然语言推理的三个输出：内容、矛盾和中性。
+正如 :numref:`fig_bert-two-seqs` 所示，对自然语言推断进行微调 BERT 只需要额外的 MLP，由两个完全连接的图层组成（见下面的 `self.hidden` 和 `self.output`）。在前提和假设信息的BERT表示中，该[**MLP将特殊<cls>词元转换为自然语言推理的三个输出**]：内容、矛盾和中性。
 
 ```{.python .input}
 class BERTClassifier(nn.Block):
@@ -286,7 +286,7 @@ net = BERTClassifier(bert)
 
 回想一下，在 :numref:`sec_bert` 中，`MaskLM` 类和 `NextSentencePred` 类都在其雇用的 MLP 中都有参数。这些参数是预训练的 BERT 模型 `bert` 中参数的一部分，因此也是 `net` 中参数的一部分。但是，这些参数仅用于计算预训期间的蒙版语言建模损失和下一个句子预测损失。这两个损耗函数与微调下游应用程序无关，因此，在微调 BERT 时，`MaskLM` 和 `NextSentencePred` 中所使用的 MLP 的参数不会更新（停止）。 
 
-为了允许具有陈旧渐变的参数，标志 `ignore_stale_grad=True` 在 `d2l.train_batch_ch13` 的 `d2l.train_batch_ch13` 函数中设置了 `ignore_stale_grad=True`。我们使用此函数来训练和评估使用 SNLI 的训练集（`train_iter`）和测试集（`test_iter`）的模型 `net`。由于计算资源有限，训练和测试的准确性可以进一步提高：我们将其放在练习中讨论。
+为了允许具有陈旧渐变的参数，标志 `ignore_stale_grad=True` 在 `d2l.train_batch_ch13` 的 `d2l.train_batch_ch13` 函数中设置了 `ignore_stale_grad=True`。我们使用此函数来训练和评估使用 SNLI 的训练集（`train_iter`）和测试集（`test_iter`）的模型 `net`。由于计算资源有限，[**训练**]和测试的准确性可以进一步提高：我们将其放在练习中讨论。
 
 ```{.python .input}
 lr, num_epochs = 1e-4, 5
