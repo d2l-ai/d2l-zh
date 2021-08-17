@@ -66,9 +66,11 @@ def get_tokens_and_segments(tokens_a, tokens_b=None):
     return tokens, segments
 ```
 
-BERT选择Transformer编码器作为其双向结构。在Transformer编码器中常见是，位置嵌入被加入到输入序列的每个位置。然而，与原始的Transformer编码器不同，BERT使用*可学习的*位置嵌入。总之， :numref:`fig_bert-input` 表明BERT输入序列的嵌入是词元嵌入、片段嵌入和位置嵌入的和。
+BERT选择Transformer编码器作为其双向结构。在Transformer编码器中常见是，位置嵌入被加入到输入序列的每个位置。然而，与原始的Transformer编码器不同，BERT使用*可学习的*位置嵌入。总之， 
+:numref:`fig_bert-input` 表明BERT输入序列的嵌入是词元嵌入、片段嵌入和位置嵌入的和。
 
-![BERT输入序列的嵌入是词元嵌入、片段嵌入和位置嵌入的和。](../img/bert-input.svg):label:`fig_bert-input`
+![BERT输入序列的嵌入是词元嵌入、片段嵌入和位置嵌入的和。](../img/bert-input.svg)
+:label:`fig_bert-input`
 
 下面的`BERTEncoder`类类似于 :numref:`sec_transformer` 中实现的 `TransformerEncoder` 类。与 `TransformerEncoder` 不同，`BERTEncoder`使用片段嵌入和可学习的位置嵌入。
 
