@@ -115,14 +115,14 @@ class Seq2SeqAttentionDecoder(AttentionDecoder):
 
     def init_state(self, enc_outputs, enc_valid_lens, *args):
         # `enc_outputs`的形状为 (`batch_size`, `num_steps`, `num_hiddens`).
-        # `hidden_state[0]`的形状为 (`num_layers`, `batch_size`,
+        # `hidden_state`的形状为 (`num_layers`, `batch_size`,
         # `num_hiddens`)
         outputs, hidden_state = enc_outputs
         return (outputs.permute(1, 0, 2), hidden_state, enc_valid_lens)
 
     def forward(self, X, state):
         # `enc_outputs`的形状为 (`batch_size`, `num_steps`, `num_hiddens`).
-        # `hidden_state[0]`的形状为 (`num_layers`, `batch_size`,
+        # `hidden_state`的形状为 (`num_layers`, `batch_size`,
         # `num_hiddens`)
         enc_outputs, hidden_state, enc_valid_lens = state
         # 输出 `X`的形状为 (`num_steps`, `batch_size`, `embed_size`)

@@ -1,9 +1,9 @@
-# 注意力打分函数
+# 注意力评分函数
 :label:`sec_attention-scoring-functions`
 
-在 :numref:`sec_nadaraya-waston` 中，我们使用高斯核来对查询和键之间的关系建模。可以将 :eqref:`eq_nadaraya-waston-gaussian` 中的高斯核的指数部分视为 *注意力打分函数*（attention scoring function），简称 *打分函数*（scoring function），然后把这个函数的输出结果输入到 softmax 函数中进行运算。通过上述步骤，我们将得到与键对应的值的概率分布（即注意力权重）。最后，注意力汇聚的输出就是基于这些注意力权重的值的加权和。
+在 :numref:`sec_nadaraya-waston` 中，我们使用高斯核来对查询和键之间的关系建模。可以将 :eqref:`eq_nadaraya-waston-gaussian` 中的高斯核的指数部分视为 *注意力评分函数*（attention scoring function），简称 *评分函数*（scoring function），然后把这个函数的输出结果输入到 softmax 函数中进行运算。通过上述步骤，我们将得到与键对应的值的概率分布（即注意力权重）。最后，注意力汇聚的输出就是基于这些注意力权重的值的加权和。
 
-从宏观来看，可以使用上述算法来实现 :numref:`fig_qkv` 中的注意力机制框架。:numref:`fig_attention_output` 说明了如何将注意力汇聚的输出计算成为值的加权和，其中 $a$ 表示注意力打分函数。由于注意力权重是概率分布，因此加权和其本质上是加权平均值。
+从宏观来看，可以使用上述算法来实现 :numref:`fig_qkv` 中的注意力机制框架。:numref:`fig_attention_output` 说明了如何将注意力汇聚的输出计算成为值的加权和，其中 $a$ 表示注意力评分函数。由于注意力权重是概率分布，因此加权和其本质上是加权平均值。
 
 ![计算注意力汇聚的输出为值的加权和。](../img/attention-output.svg)
 :label:`fig_attention_output`
@@ -13,12 +13,12 @@
 $$f(\mathbf{q}, (\mathbf{k}_1, \mathbf{v}_1), \ldots, (\mathbf{k}_m, \mathbf{v}_m)) = \sum_{i=1}^m \alpha(\mathbf{q}, \mathbf{k}_i) \mathbf{v}_i \in \mathbb{R}^v,$$
 :eqlabel:`eq_attn-pooling`
 
-其中查询 $\mathbf{q}$ 和键 $\mathbf{k}_i$ 的注意力权重（标量）是通过注意力打分函数 $a$ 将两个向量映射成标量，再经过 softmax 运算得到的：
+其中查询 $\mathbf{q}$ 和键 $\mathbf{k}_i$ 的注意力权重（标量）是通过注意力评分函数 $a$ 将两个向量映射成标量，再经过 softmax 运算得到的：
 
 $$\alpha(\mathbf{q}, \mathbf{k}_i) = \mathrm{softmax}(a(\mathbf{q}, \mathbf{k}_i)) = \frac{\exp(a(\mathbf{q}, \mathbf{k}_i))}{\sum_{j=1}^m \exp(a(\mathbf{q}, \mathbf{k}_j))} \in \mathbb{R}.$$
 :eqlabel:`eq_attn-scoring-alpha`
 
-正如我们所看到的，选择不同的注意力打分函数 $a$ 会导致不同的注意力汇聚操作。在本节中，我们将介绍两个流行的打分函数，稍后将用他们来实现更复杂的注意力机制。
+正如我们所看到的，选择不同的注意力评分函数 $a$ 会导致不同的注意力汇聚操作。在本节中，我们将介绍两个流行的评分函数，稍后将用他们来实现更复杂的注意力机制。
 
 ```{.python .input}
 import math
@@ -105,7 +105,7 @@ masked_softmax(torch.rand(2, 2, 4), d2l.tensor([[1, 3], [2, 4]]))
 ## [**加性注意力**]
 :label:`subsec_additive-attention`
 
-一般来说，当查询和键是不同长度的矢量时，可以使用加性注意力作为打分函数。给定查询 $\mathbf{q} \in \mathbb{R}^q$ 和键 $\mathbf{k} \in \mathbb{R}^k$，*加性注意力*（additive attention） 的打分函数为
+一般来说，当查询和键是不同长度的矢量时，可以使用加性注意力作为评分函数。给定查询 $\mathbf{q} \in \mathbb{R}^q$ 和键 $\mathbf{k} \in \mathbb{R}^k$，*加性注意力*（additive attention） 的评分函数为
 
 $$a(\mathbf q, \mathbf k) = \mathbf w_v^\top \text{tanh}(\mathbf W_q\mathbf q + \mathbf W_k \mathbf k) \in \mathbb{R},$$
 :eqlabel:`eq_additive-attn`
@@ -205,7 +205,7 @@ d2l.show_heatmaps(d2l.reshape(attention.attention_weights, (1, 1, 2, 10)),
 
 ## [**缩放点积注意力**]
 
-使用点积可以得到计算效率更高的打分函数。但是点积操作要求查询和键具有相同的长度 $d$。假设查询和键的所有元素都是独立的随机变量，并且都满足均值为 $0$ 和方差为 $1$。那么两个向量的点积的均值为 $0$，方差为 $d$。为确保无论向量长度如何，点积的方差在不考虑向量长度的情况下仍然是 $1$，则可以使用 *缩放点积注意力*（scaled dot-product attention） 打分函数：
+使用点积可以得到计算效率更高的评分函数。但是点积操作要求查询和键具有相同的长度 $d$。假设查询和键的所有元素都是独立的随机变量，并且都满足均值为 $0$ 和方差为 $1$。那么两个向量的点积的均值为 $0$，方差为 $d$。为确保无论向量长度如何，点积的方差在不考虑向量长度的情况下仍然是 $1$，则可以使用 *缩放点积注意力*（scaled dot-product attention） 评分函数：
 
 $$a(\mathbf q, \mathbf k) = \mathbf{q}^\top \mathbf{k}  /\sqrt{d}$$
 
