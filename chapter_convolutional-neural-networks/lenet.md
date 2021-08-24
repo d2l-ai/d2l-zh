@@ -235,6 +235,7 @@ def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
     def init_weights(m):
         if type(m) == nn.Linear or type(m) == nn.Conv2d:
             nn.init.xavier_uniform_(m.weight)
+            
     net.apply(init_weights)
     print('training on', device)
     net.to(device)
@@ -285,8 +286,10 @@ class TrainCallback(tf.keras.callbacks.Callback):  #@save
         self.test_iter = test_iter
         self.num_epochs = num_epochs
         self.device_name = device_name
+        
     def on_epoch_begin(self, epoch, logs=None):
         self.timer.start()
+        
     def on_epoch_end(self, epoch, logs):
         self.timer.stop()
         test_acc = self.net.evaluate(
