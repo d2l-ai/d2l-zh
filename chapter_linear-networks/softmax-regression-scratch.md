@@ -213,8 +213,10 @@ accuracy(y_hat, y) / len(y)
 def evaluate_accuracy(net, data_iter):  #@save
     """计算在指定数据集上模型的精度。"""
     metric = Accumulator(2)  # 正确预测数、预测总数
-    for X, y in data_iter:
-        metric.add(accuracy(net(X), y), d2l.size(y))
+    
+    with torch.no_grad():
+        for X, y in data_iter:
+            metric.add(accuracy(net(X), y), d2l.size(y))
     return metric[0] / metric[1]
 ```
 
@@ -225,8 +227,10 @@ def evaluate_accuracy(net, data_iter):  #@save
     if isinstance(net, torch.nn.Module):
         net.eval()  # 将模型设置为评估模式
     metric = Accumulator(2)  # 正确预测数、预测总数
-    for X, y in data_iter:
-        metric.add(accuracy(net(X), y), d2l.size(y))
+    
+    with torch.no_grad():
+        for X, y in data_iter:
+            metric.add(accuracy(net(X), y), d2l.size(y))
     return metric[0] / metric[1]
 ```
 
