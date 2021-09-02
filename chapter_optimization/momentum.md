@@ -122,7 +122,7 @@ d2l.show_trace_2d(f_2d, d2l.train_2d(gd_2d))
 
 ### 动量法
 
-动量法使我们能够解决上面描述的梯度下降问题。
+*动量法*（momentum）使我们能够解决上面描述的梯度下降问题。
 观察上面的优化轨迹，我们可能会直觉到计算过去的平均梯度效果会很好。
 毕竟，在 $x_1$ 方向上，这将聚合非常对齐的梯度，从而增加我们在每一步中覆盖的距离。
 相反，在梯度振荡的 $x_2$ 方向，由于相互抵消了对方的振荡，聚合梯度将减小步长大小。
@@ -387,13 +387,13 @@ $$
 1. 当我们执行带动量法的随机梯度下降时会有什么变化？当我们使用带动量法的小批量随机梯度下降时会发生什么？试验参数如何？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/354)
+[Discussions](https://discuss.d2l.ai/t/4327)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1070)
+[Discussions](https://discuss.d2l.ai/t/4328)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/1071)
+[Discussions](https://discuss.d2l.ai/t/4329)
 :end_tab:

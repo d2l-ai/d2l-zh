@@ -628,13 +628,13 @@ train_concise_ch11(trainer, {'learning_rate': 0.05}, data_iter)
 1. 一个邪恶的精灵在没通知你的情况下复制了你的数据集（即每个观测发生两次，你的数据集增加到原始大小的两倍，但没有人告诉你）。随机梯度下降、小批量随机梯度下降和梯度下降的表现将如何变化？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/353)
+[Discussions](https://discuss.d2l.ai/t/4324)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1068)
+[Discussions](https://discuss.d2l.ai/t/4325)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/1069)
+[Discussions](https://discuss.d2l.ai/t/4326)
 :end_tab:
