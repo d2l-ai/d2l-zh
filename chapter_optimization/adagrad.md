@@ -235,13 +235,13 @@ d2l.train_concise_ch11('adagrad', {'learning_rate': 0.1}, data_iter)
 
 ```{.python .input}
 #@tab pytorch
-trainer = torch.optim.AdaGrad
+trainer = torch.optim.Adagrad
 d2l.train_concise_ch11(trainer, {'lr': 0.1}, data_iter)
 ```
 
 ```{.python .input}
 #@tab tensorflow
-trainer = tf.keras.optimizers.AdaGrad
+trainer = tf.keras.optimizers.Adagrad
 d2l.train_concise_ch11(trainer, {'learning_rate' : 0.1}, data_iter)
 ```
 
