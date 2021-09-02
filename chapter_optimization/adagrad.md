@@ -1,7 +1,7 @@
-# Adagrad算法
+# AdaGrad算法
 :label:`sec_adagrad`
 
-让我们从有关特征学习中并不常见的问题入手。
+我们从有关特征学习中并不常见的问题入手。
 
 ## 稀疏特征和学习率
 
@@ -20,12 +20,12 @@
 在这里 $s(i, t)$ 计下了我们截至 $t$ 时观察到功能 $i$ 的次数。
 这其实很容易实施且不产生额外损耗。
 
-Adagrad算法 :cite:`Duchi.Hazan.Singer.2011` 通过将粗略的计数器 $s(i, t)$ 替换为先前观察所得梯度的平方之和来解决这个问题。
+AdaGrad算法 :cite:`Duchi.Hazan.Singer.2011` 通过将粗略的计数器 $s(i, t)$ 替换为先前观察所得梯度的平方之和来解决这个问题。
 它使用 $s(i, t+1) = s(i, t) + \left(\partial_i f(\mathbf{x})\right)^2$ 来调整学习率。
 这有两个好处：首先，我们不再需要决定梯度何时算足够大。
 其次，它会随梯度的大小自动变化。通常对应于较大梯度的坐标会显著缩小，而其他梯度较小的坐标则会得到更平滑的处理。
 在实际应用中，它促成了计算广告学及其相关问题中非常有效的优化程序。
-但是，它遮盖了 Adagrad 固有的一些额外优势，这些优势在预处理环境中很容易被理解。
+但是，它遮盖了 AdaGrad 固有的一些额外优势，这些优势在预处理环境中很容易被理解。
 
 ## 预处理
 
@@ -68,7 +68,7 @@ $$\tilde{\mathbf{Q}} = \mathrm{diag}^{-\frac{1}{2}}(\mathbf{Q}) \mathbf{Q} \math
 例如我们之前讨论的案例，它将完全消除眼下的问题，因为问题是轴对齐的。
 
 遗憾的是，我们还面临另一个问题：在深度学习中，我们通常情况甚至无法计算目标函数的二阶导数：对于 $\mathbf{x} \in \mathbb{R}^d$，即使只在小批量上，二阶导数可能也需要 $\mathcal{O}(d^2)$ 空间来计算，导致几乎不可行。
-Adagrad算法巧妙的思路是，使用一个代理来表示黑塞矩阵（Hessian）的对角线，既相对易于计算又高效。
+AdaGrad算法巧妙的思路是，使用一个代理来表示黑塞矩阵（Hessian）的对角线，既相对易于计算又高效。
 
 为了了解它是如何生效的，让我们来看看 $\bar{f}(\bar{\mathbf{x}})$。
 我们有
@@ -79,7 +79,7 @@ $$\partial_{\bar{\mathbf{x}}} \bar{f}(\bar{\mathbf{x}}) = \boldsymbol{\Lambda} \
 因此，梯度的大小取决于 $\boldsymbol{\Lambda}$ 和与最佳值的差值。
 如果 $\bar{\mathbf{x}} - \bar{\mathbf{x}}_0$ 没有改变，那这就是我们所求的。
 毕竟在这种情况下，梯度 $\partial_{\bar{\mathbf{x}}} \bar{f}(\bar{\mathbf{x}})$ 的大小就足够了。
-由于 Adagrad 算法是一种随机梯度下降算法，所以即使是在最佳值中，我们也会看到具有非零方差的梯度。
+由于 AdaGrad 算法是一种随机梯度下降算法，所以即使是在最佳值中，我们也会看到具有非零方差的梯度。
 因此，我们可以放心地使用梯度的方差作为黑塞矩阵比例的廉价替代。
 详尽的分析（要花几页解释）超出了本节的范围，请读者参考 :cite:`Duchi.Hazan.Singer.2011`。
 
@@ -101,20 +101,20 @@ $$\begin{aligned}
 与之前一样， $\eta$ 是学习率，$\epsilon$ 是一个为维持数值稳定性而添加的常数，用来确保我们不会除以 $0$。
 最后，我们初始化 $\mathbf{s}_0 = \mathbf{0}$。
 
-就像在动量法中我们需要跟踪一个辅助变量一样，在Adagrad算法中，我们允许每个坐标有单独的学习率。
-与SGD算法相比，这并没有明显增加 Adagrad 的成本，因为主要成本大多用在计算 $l(y_t, f(\mathbf{x}_t, \mathbf{w}))$ 及其导数。
+就像在动量法中我们需要跟踪一个辅助变量一样，在AdaGrad算法中，我们允许每个坐标有单独的学习率。
+与SGD算法相比，这并没有明显增加 AdaGrad 的成本，因为主要成本大多用在计算 $l(y_t, f(\mathbf{x}_t, \mathbf{w}))$ 及其导数。
 
 请注意，在 $\mathbf{s}_t$ 中累加平方梯度意味着 $\mathbf{s}_t$ 基本上以线性速率增长（由于梯度从最初开始衰减，实际上比线性慢一些）。
 这产生了一个学习率 $\mathcal{O}(t^{-\frac{1}{2}})$ ，但是在单个坐标的层面上进行了调整。
 对于凸问题，这完全足够了。
 然而，在深度学习中，我们可能希望更慢地降低学习率。
-这引出了许多 Adagrad 算法的变体，我们将在后续章节中讨论它们。
+这引出了许多 AdaGrad 算法的变体，我们将在后续章节中讨论它们。
 眼下让我们先看看它在二次凸问题中的表现如何。
 我们仍然同一函数为例：
 
 $$f(\mathbf{x}) = 0.1 x_1^2 + 2 x_2^2.$$
 
-我们将使用与之前相同的学习率来实现 Adagrad 算法，即 $\eta = 0.4$。
+我们将使用与之前相同的学习率来实现 AdaGrad 算法，即 $\eta = 0.4$。
 可以看到，自变量的迭代轨迹较平滑。
 但由于$\boldsymbol{s}_t$的累加效果使学习率不断衰减，自变量在迭代后期的移动幅度较小。
 
@@ -235,33 +235,33 @@ d2l.train_concise_ch11('adagrad', {'learning_rate': 0.1}, data_iter)
 
 ```{.python .input}
 #@tab pytorch
-trainer = torch.optim.Adagrad
+trainer = torch.optim.AdaGrad
 d2l.train_concise_ch11(trainer, {'lr': 0.1}, data_iter)
 ```
 
 ```{.python .input}
 #@tab tensorflow
-trainer = tf.keras.optimizers.Adagrad
+trainer = tf.keras.optimizers.AdaGrad
 d2l.train_concise_ch11(trainer, {'learning_rate' : 0.1}, data_iter)
 ```
 
 ## 小结
 
-* Adagrad算法会在单个坐标层面动态降低学习率。
-* Adagrad算法利用梯度的大小作为调整进度速率的手段：用较小的学习率来补偿带有较大梯度的坐标。
+* AdaGrad算法会在单个坐标层面动态降低学习率。
+* AdaGrad算法利用梯度的大小作为调整进度速率的手段：用较小的学习率来补偿带有较大梯度的坐标。
 * 在深度学习问题中，由于内存和计算限制，计算准确的二阶导数通常是不可行的。梯度可以作为一个有效的代理。
-* 如果优化问题的结构相当不均匀，Adagrad算法可以帮助缓解扭曲。
-* Adagrad 算法对于稀疏特征特别有效，在此情况下由于不常出现的问题，学习率需要更慢地降低。
-* 在深度学习问题上，Adagrad算法有时在降低学习率方面可能过于剧烈。我们将在 :numref:`sec_adam` 一节讨论缓解这种情况的策略。
+* 如果优化问题的结构相当不均匀，AdaGrad算法可以帮助缓解扭曲。
+* AdaGrad 算法对于稀疏特征特别有效，在此情况下由于不常出现的问题，学习率需要更慢地降低。
+* 在深度学习问题上，AdaGrad算法有时在降低学习率方面可能过于剧烈。我们将在 :numref:`sec_adam` 一节讨论缓解这种情况的策略。
 
 ## 练习
 
 1. 证明对于正交矩阵 $\mathbf{U}$ 和向量 $\mathbf{c}$，以下等式成立：$\|\mathbf{c} - \mathbf{\delta}\|_2 = \|\mathbf{U} \mathbf{c} - \mathbf{U} \mathbf{\delta}\|_2$。为什么这意味着在变量的正交变化之后，扰动的程度不会改变？
-1. 尝试对函数 $f(\mathbf{x}) = 0.1 x_1^2 + 2 x_2^2$、以及它旋转 45 度后的函数即 $f(\mathbf{x}) = 0.1 (x_1 + x_2)^2 + 2 (x_1 - x_2)^2$使用 Adagrad 算法。它的表现会不同吗？
+1. 尝试对函数 $f(\mathbf{x}) = 0.1 x_1^2 + 2 x_2^2$、以及它旋转 45 度后的函数即 $f(\mathbf{x}) = 0.1 (x_1 + x_2)^2 + 2 (x_1 - x_2)^2$使用 AdaGrad 算法。它的表现会不同吗？
 1. 证明 [格什戈林圆盘定理]（https://en.wikipedia.org/wiki/Gershgorin_circle_theorem） ，其中提到，矩阵 $\mathbf{M}$ 的特征值 $\lambda_i$ 在至少一个 $j$ 的选项中满足 $|\lambda_i - \mathbf{M}_{jj}| \leq \sum_{k \neq j} |\mathbf{M}_{jk}|$ 的要求。
 1. 关于对角线预处理矩阵 $\mathrm{diag}^{-\frac{1}{2}}(\mathbf{M}) \mathbf{M} \mathrm{diag}^{-\frac{1}{2}}(\mathbf{M})$ 的特征值，格什戈林的定理告诉了我们什么？
-1. 尝试对适当的深度网络使用 Adagrad 算法，例如，当应用于时尚 MNIST 时，使用 :numref:`sec_lenet` 。
-1. 你要如何修改 Adagrad 算法，才能使其在学习率方面的衰减不那么激进？
+1. 尝试对适当的深度网络使用 AdaGrad 算法，例如，当应用于时尚 MNIST 时，使用 :numref:`sec_lenet` 。
+1. 你要如何修改 AdaGrad 算法，才能使其在学习率方面的衰减不那么激进？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/355)
