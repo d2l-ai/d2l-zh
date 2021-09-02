@@ -1,15 +1,13 @@
-# RMSProp
+# RMSProp算法
 :label:`sec_rmsprop`
 
-([本节](https://github.com/d2l-ai/d2l-zh/tree/release/chapter_optimization)是机器翻译，欢迎[改进](https://zh.d2l.ai/chapter_appendix/how-to-contribute.html))
+:numref:`sec_adagrad` 中的关键问题之一，是学习率按预定时间表 $\mathcal{O}(t^{-\frac{1}{2}})$ 显著降低。虽然这通常适用于凸问题，但对于非凸问题，例如深度学习中遇到的问题，可能并不理想。但是，作为一个预处理器，Adagrad 算法按坐标顺序的适应性是非常可取的。
 
-:numref:`sec_adagrad` 中的关键问题之一是，学习率按预定时间表实际上是 $\mathcal{O}(t^{-\frac{1}{2}})$ 降低。虽然这通常适用于凸问题，但对于非凸问题，例如深度学习中遇到的问题，可能并不理想。但是，作为预调器，Agrad 的坐标适应性是非常可取的。
+:cite:`Tieleman.Hinton.2012` 建议以 rmsProp 算法作为将速率调度与坐标自适应学习率分离的简单修复方法。问题在于，Adagrad 算法将梯度 $\mathbf{g}_t$ 的平方累加成状态矢量 $\mathbf{s}_t = \mathbf{s}_{t-1} + \mathbf{g}_t^2$。因此，由于缺乏规范化，没有约束力，$\mathbf{s}_t$ 持续增长，几乎上是在算法收敛时呈线性递增。
 
-:cite:`Tieleman.Hinton.2012` 建议使用 rmsProp 算法，作为将速率调度与坐标自适应学习率分离的简单修复方法。问题在于，Agrad 将梯度 $\mathbf{g}_t$ 的平方积累成状态矢量 $\mathbf{s}_t = \mathbf{s}_{t-1} + \mathbf{g}_t^2$。因此，由于缺乏规范化，$\mathbf{s}_t$ 继续增长，没有约束力，基本上是在算法收敛时线性增长。
+解决此问题的一种方法是使用 $\mathbf{s}_t / t$。对于 $\mathbf{g}_t$ 的合理分布来说，它将收敛。遗憾的是，限制行为生效可能需要很长时间，因为该流程记住了价值的完整轨迹。另一种方法是按动量法中的方式使用泄漏平均值，即 $\mathbf{s}_t \leftarrow \gamma \mathbf{s}_{t-1} + (1-\gamma) \mathbf{g}_t^2$，其中参数 $\gamma > 0$。保持其他部所有分不变就产生了 rmsProp算法。
 
-解决这个问题的一种方法是使用 $\mathbf{s}_t / t$。对于 $\mathbf{g}_t$ 的合理发行版，这将收敛。遗憾的是，限制行为可能需要很长时间，因为程序记住了价值的完整轨迹。另一种替代方法是按动量法中使用的方式使用漏平均值，即对于某些参数 $\gamma > 0$，对于某些参数 $\gamma > 0$，则使用 $\mathbf{s}_t \leftarrow \gamma \mathbf{s}_{t-1} + (1-\gamma) \mathbf{g}_t^2$。保持所有其他零件不变会产生 rmsProp。
-
-## 该算法
+## 算法
 
 让我们详细写出这些方程式。
 
@@ -18,7 +16,7 @@ $$\begin{aligned}
     \mathbf{x}_t & \leftarrow \mathbf{x}_{t-1} - \frac{\eta}{\sqrt{\mathbf{s}_t + \epsilon}} \odot \mathbf{g}_t.
 \end{aligned}$$
 
-常数 $\epsilon > 0$ 通常设置为 $10^{-6}$，以确保我们不会因零或过大的步长而受到除法的影响。鉴于这种扩展，我们现在可以自由控制 $\eta$ 的学习率，而不考虑基于每个坐标应用的缩放。就泄漏平均值而言，我们可以采用与之前在动量方法中适用的相同推理。扩大 $\mathbf{s}_t$ 收益率的定义
+常数 $\epsilon > 0$ 通常设置为 $10^{-6}$，以确保我们不会因除以零或步长过大而受到影响。鉴于这种扩展，我们现在可以自由控制学习率 $\eta$ ，而不考虑基于每个坐标应用的缩放。就泄漏平均值而言，我们可以采用与之前在动量法中适用的相同推理。扩展 $\mathbf{s}_t$ 定义可获得
 
 $$
 \begin{aligned}
@@ -27,7 +25,7 @@ $$
 \end{aligned}
 $$
 
-和以前在 :numref:`sec_momentum` 一样，我们使用了 $1 + \gamma + \gamma^2 + \ldots, = \frac{1}{1-\gamma}$。因此，权重总和标准化为 $1$，观测值的半衰期为 $\gamma^{-1}$。让我们想象一下 $\gamma$ 各种选择的过去 40 个时间步长的权重。
+同之前在 :numref:`sec_momentum` 小节一样，我们使用 $1 + \gamma + \gamma^2 + \ldots, = \frac{1}{1-\gamma}$。因此，权重总和标准化为 $1$且观测值的半衰期为 $\gamma^{-1}$。让我们想象一下各种数值的 $\gamma$ 在过去 40 个时间步长的权重。？？？？？？
 
 ```{.python .input}
 %matplotlib inline
@@ -62,9 +60,9 @@ for gamma in gammas:
 d2l.plt.xlabel('time');
 ```
 
-## 从头开始实施
+## 从零开始实现
 
-和之前一样，我们使用二次函数 $f(\mathbf{x})=0.1x_1^2+2x_2^2$ 来观察 rmsProp 的轨迹。回想一下，在 :numref:`sec_adagrad` 中，当我们使用学习率为 0.4 的 Agrad 时，变量在算法的后期阶段移动非常缓慢，因为学习率下降太快。由于 $\eta$ 是单独控制的，RMSProp 不会发生这种情况。
+和之前一样，我们使用二次函数 $f(\mathbf{x})=0.1x_1^2+2x_2^2$ 来观察 rmsProp 算法的轨迹。回想在 :numref:`sec_adagrad` 一节中，当我们使用学习率为 0.4 的 Adagrad 算法时，变量在算法的后期阶段移动非常缓慢，因为学习率衰减太快。RMSProp 算法中不会发生这种情况，因为$\eta$ 是单独控制的。
 
 ```{.python .input}
 #@tab all
@@ -83,7 +81,7 @@ eta, gamma = 0.4, 0.9
 d2l.show_trace_2d(f_2d, d2l.train_2d(rmsprop_2d))
 ```
 
-接下来，我们实施 rmsProp 以在深度网络中使用。这同样简单明了。
+接下来，我们在深度网络中实现 rmsProp 算法。同样简单明了。
 
 ```{.python .input}
 #@tab mxnet,pytorch
@@ -129,7 +127,7 @@ def rmsprop(params, grads, states, hyperparams):
         p[:].assign(p - hyperparams['lr'] * g / tf.math.sqrt(s + eps))
 ```
 
-我们将初始学习率设置为 0.01，加权期 $\gamma$ 设置为 0.9。也就是说，在过去的 $1/(1-\gamma) = 10$ 次平方梯度观测值中，平均为 $\mathbf{s}$。
+我们将初始学习率设置为 0.01，加权项 $\gamma$ 设置为 0.9。也就是说，$\mathbf{s}$累加了过去的 $1/(1-\gamma) = 10$ 次平方梯度观测值的平均值。
 
 ```{.python .input}
 #@tab all
@@ -138,9 +136,9 @@ d2l.train_ch11(rmsprop, init_rmsprop_states(feature_dim),
                {'lr': 0.01, 'gamma': 0.9}, data_iter, feature_dim);
 ```
 
-## 简洁的实施
+## 简洁实现
 
-由于 rmsProp 是一种相当受欢迎的算法，它也可以在 `Trainer` 实例中使用。我们所需要做的就是使用名为 `rmsprop` 的算法实例化它，将 $\gamma$ 分配给参数 `gamma1`。
+由于 rmsProp 算法是一种相当受欢迎的算法，它也可以在 `Trainer` 实例中获得。我们所需要做的就是使用名为 `rmsprop` 的算法实例化它，将 $\gamma$ 分配给参数 `gamma1`。
 
 ```{.python .input}
 d2l.train_concise_ch11('rmsprop', {'learning_rate': 0.01, 'gamma1': 0.9},
@@ -161,19 +159,19 @@ d2l.train_concise_ch11(trainer, {'learning_rate': 0.01, 'rho': 0.9},
                        data_iter)
 ```
 
-## 摘要
+## 小结
 
-* rmsProp 与 Agrad 非常相似，因为两者都使用梯度的平方来缩放系数。
-* RMSProp 股票的势头是泄漏的平均值。但是，rmsProp 使用该技术来调整系数明智的预调器。
-* 实践中，学习率需要由实验者安排。
-* 系数 $\gamma$ 决定了调整每坐标比例时历史记录的时间。
+* rmsProp 算法与 Adagrad 算法非常相似，因为两者都使用梯度的平方来缩放系数。
+* RMSProp 算法与动量法都使用泄漏平均值。但是，rmsProp 算法使用该技术来调整按系数顺序的预处理器。
+* 在实验中，学习率需要由实验者调度。
+* 系数 $\gamma$ 决定了在调整每坐标比例时历史记录的时长。
 
 ## 练习
 
 1. 如果我们设置 $\gamma = 1$，实验会发生什么？为什么？
-1. 旋转优化问题以最大限度地减少 $f(\mathbf{x}) = 0.1 (x_1 + x_2)^2 + 2 (x_1 - x_2)^2$。融合会发生什么？
-1. 尝试在真正的机器学习问题上 RMSProp 会发生什么，例如在 Fashion-MNIST 上的培训。尝试不同的选择来调整学习率。
-1. 随着优化的进展，你想调整 $\gamma$ 吗？RMSProp 对此有多敏感？
+1. 旋转优化问题以最小化 $f(\mathbf{x}) = 0.1 (x_1 + x_2)^2 + 2 (x_1 - x_2)^2$。收敛会发生什么？
+1. 试试在真正的机器学习问题上应用 RMSProp 算法会发生什么，例如在 Fashion-MNIST 上的训练。试验不同的取值来调整学习率。
+1. 随着优化的进展，需要调整 $\gamma$ 吗？RMSProp 算法对此有多敏感？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/356)
