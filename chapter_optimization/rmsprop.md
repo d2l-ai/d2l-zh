@@ -191,13 +191,13 @@ d2l.train_concise_ch11(trainer, {'learning_rate': 0.01, 'rho': 0.9},
 1. 随着优化的进展，需要调整 $\gamma$ 吗？RMSProp 算法对此有多敏感？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/356)
+[Discussions](https://discuss.d2l.ai/t/4321)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1074)
+[Discussions](https://discuss.d2l.ai/t/4322)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/1075)
+[Discussions](https://discuss.d2l.ai/t/4323)
 :end_tab:

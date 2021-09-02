@@ -264,13 +264,13 @@ d2l.train_concise_ch11(trainer, {'learning_rate' : 0.1}, data_iter)
 1. 你要如何修改 AdaGrad 算法，才能使其在学习率方面的衰减不那么激进？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/355)
+[Discussions](https://discuss.d2l.ai/t/4318)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1072)
+[Discussions](https://discuss.d2l.ai/t/4319)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/1073)
+[Discussions](https://discuss.d2l.ai/t/4320)
 :end_tab:
