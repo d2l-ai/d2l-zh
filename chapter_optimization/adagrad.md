@@ -59,7 +59,7 @@ $$\kappa = \frac{\boldsymbol{\Lambda}_1}{\boldsymbol{\Lambda}_d}.$$
 
 虽然准确计算特征值可能会很昂贵，但即便只是大致猜测并计算它们，也可能已经比不做任何事情好得多。
 特别是，我们可以使用 $\mathbf{Q}$ 的对角线条目并相应地重新缩放它。
-这比计算特征值“便宜”得多。
+这比计算特征值开销小的多。
 
 $$\tilde{\mathbf{Q}} = \mathrm{diag}^{-\frac{1}{2}}(\mathbf{Q}) \mathbf{Q} \mathrm{diag}^{-\frac{1}{2}}(\mathbf{Q}).$$
 
