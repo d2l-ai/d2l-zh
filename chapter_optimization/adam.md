@@ -13,7 +13,7 @@
 Adam算法 :cite:`Kingma.Ba.2014` 将所有这些技术汇总到一个高效的学习算法中。
 不出预料，作为深度学习中使用的更强大和有效的优化算法之一，它非常受欢迎。
 但是它并非没有问题，尤其是 :cite:`Reddi.Kale.Kumar.2019` 表明，有时Adam算法可能由于方差控制不良而发生分歧。
-在完善工作中，:cite:`Zaheer.Reddi.Sachan.ea.2018` 给Adam算法提供了一个称为 Yogi 的热补丁来解决这些问题。
+在完善工作中， :cite:`Zaheer.Reddi.Sachan.ea.2018` 给Adam算法提供了一个称为 Yogi 的热补丁来解决这些问题。
 下面我们了解一下Adam算法。
 
 ## 算法
