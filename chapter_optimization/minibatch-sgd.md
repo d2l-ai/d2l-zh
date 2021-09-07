@@ -27,7 +27,7 @@
 更糟糕的是，并非所有的内存入口都是相等的：内存接口通常为 64 位或更宽（例如，在最多 384 位的 GPU 上）。
 因此读取单个字节会导致由于更宽的存取而产生的成本。
 
-其次，第一次存取的额外开销很大，而按序存取（sequential access）或突发读取（burst read）相对便宜。
+其次，第一次存取的额外开销很大，而按序存取（sequential access）或突发读取（burst read）相对开销较小。
 有关更深入的讨论，请参阅此 [维基百科文章](https://en.wikipedia.org/wiki/Cache_hierarchy)。
 
 减轻这些限制的方法是使用足够快的 CPU 缓存层次结构来为处理器提供数据。
@@ -35,7 +35,7 @@
 举一个简单的例子：矩阵-矩阵乘法。
 比如 $\mathbf{A} = \mathbf{B}\mathbf{C}$，我们有很多方法来计算 $\mathbf{A}$。例如，我们可以尝试以下方法：
 
-1. 我们可以计算 $\mathbf{A}_{ij} = \mathbf{B}_{i,:} \mathbf{C}_{:,j}^\top$，也就是说，我们可以通过点积进行逐个元素计算。
+1. 我们可以计算 $\mathbf{A}_{ij} = \mathbf{B}_{i,:} \mathbf{C}_{:,j}^\top$，也就是说，我们可以通过点积进行逐元素计算。
 1. 我们可以计算 $\mathbf{A}_{:,j} = \mathbf{B} \mathbf{C}_{:,j}^\top$，也就是说，我们可以一次计算一列。同样，我们可以一次计算 $\mathbf{A}$ 一行 $\mathbf{A}_{i,:}$。
 1. 我们可以简单地计算 $\mathbf{A} = \mathbf{B} \mathbf{C}$。
 1. 我们可以将 $\mathbf{B}$ 和 $\mathbf{C}$ 分成较小的区块矩阵，然后一次计算 $\mathbf{A}$的一个区块。
