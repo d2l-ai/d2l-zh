@@ -216,10 +216,11 @@ def allreduce(data):
 ```{.python .input}
 #@tab pytorch
 def allreduce(data):
-    for i in range(1, len(data)):
-        data[0][:] += data[i].to(data[0].device)
-    for i in range(1, len(data)):
-        data[i] = data[0].to(data[i].device)
+    temp_data = copy.deepcopy(data)
+    for i in range(len(data)):
+        for j in range(len(data)):
+            if i!=j:
+                data[i][:] += temp_data[j].to(data[i].device)
 ```
 
 通过在不同设备上创建具有不同值的向量并聚合它们。
@@ -233,10 +234,11 @@ print('after allreduce:\n', data[0], '\n', data[1])
 
 ```{.python .input}
 #@tab pytorch
-data = [torch.ones((1, 2), device=d2l.try_gpu(i)) * (i + 1) for i in range(2)]
-print('before allreduce:\n', data[0], '\n', data[1])
+test_rd = [torch.ones((1, 2), device=d2l.try_gpu(0)),torch.ones((1, 2), device=d2l.try_gpu(1))*2]
+data = [test_rd[i] for i in range(2)]
+print('before allreduce:\n', test_rd[0], '\n', test_rd[1])
 allreduce(data)
-print('after allreduce:\n', data[0], '\n', data[1])
+print('after allreduce:\n', test_rd[0], '\n', test_rd[1])
 ```
 
 ## 数据分发
