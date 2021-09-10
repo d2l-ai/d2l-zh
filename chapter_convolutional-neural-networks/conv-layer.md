@@ -198,6 +198,7 @@ conv2d.initialize()
 
 X = X.reshape(1, 1, 6, 8)
 Y = Y.reshape(1, 1, 6, 7)
+lr = 3e-2  # 学习率
 
 for i in range(10):
     with autograd.record():
@@ -205,7 +206,7 @@ for i in range(10):
         l = (Y_hat - Y) ** 2
     l.backward()
     # 迭代卷积核
-    conv2d.weight.data()[:] -= 3e-2 * conv2d.weight.grad()
+    conv2d.weight.data()[:] -= lr * conv2d.weight.grad()
     if (i + 1) % 2 == 0:
         print(f'batch {i+1}, loss {float(l.sum()):.3f}')
 ```
@@ -219,6 +220,7 @@ conv2d = nn.Conv2d(1,1, kernel_size=(1, 2), bias=False)
 # 其中批量大小和通道数都为1
 X = X.reshape((1, 1, 6, 8))
 Y = Y.reshape((1, 1, 6, 7))
+lr = 3e-2  # 学习率
 
 for i in range(10):
     Y_hat = conv2d(X)
@@ -226,7 +228,7 @@ for i in range(10):
     conv2d.zero_grad()
     l.sum().backward()
     # 迭代卷积核
-    conv2d.weight.data[:] -= 3e-2 * conv2d.weight.grad
+    conv2d.weight.data[:] -= lr * conv2d.weight.grad
     if (i + 1) % 2 == 0:
         print(f'batch {i+1}, loss {l.sum():.3f}')
 ```
@@ -236,10 +238,11 @@ for i in range(10):
 # 构造一个二维卷积层，它具有1个输出通道和形状为（1，2）的卷积核
 conv2d = tf.keras.layers.Conv2D(1, (1, 2), use_bias=False)
 
-# 这个二维卷积层使用四维输入和输出格式（批量大小、通道、高度、宽度），
+# 这个二维卷积层使用四维输入和输出格式（批量大小、高度、宽度、通道），
 # 其中批量大小和通道数都为1
 X = tf.reshape(X, (1, 6, 8, 1))
 Y = tf.reshape(Y, (1, 6, 7, 1))
+lr = 3e-2  # 学习率
 
 Y_hat = conv2d(X)
 for i in range(10):
@@ -248,7 +251,7 @@ for i in range(10):
         Y_hat = conv2d(X)
         l = (abs(Y_hat - Y)) ** 2
         # 迭代卷积核
-        update = tf.multiply(3e-2, g.gradient(l, conv2d.weights[0]))
+        update = tf.multiply(lr, g.gradient(l, conv2d.weights[0]))
         weights = conv2d.get_weights()
         weights[0] = conv2d.weights[0] - update
         conv2d.set_weights(weights)

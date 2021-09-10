@@ -119,7 +119,7 @@ comp_conv2d(conv2d, X).shape
 
 ```{.python .input}
 #@tab tensorflow
-conv2d = tf.keras.layers.Conv2D(1, kernel_size=(5, 3), padding='valid')
+conv2d = tf.keras.layers.Conv2D(1, kernel_size=(5, 3), padding='same')
 comp_conv2d(conv2d, X).shape
 ```
 
