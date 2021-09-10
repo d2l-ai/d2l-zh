@@ -58,7 +58,6 @@ import torch
 from torch import nn
 
 net = nn.Sequential(
-    Reshape(),
     nn.Conv2d(1, 6, kernel_size=5, padding=2), nn.Sigmoid(),
     nn.AvgPool2d(kernel_size=2, stride=2),
     nn.Conv2d(6, 16, kernel_size=5), nn.Sigmoid(),
@@ -161,7 +160,7 @@ def evaluate_accuracy_gpu(net, data_iter, device=None):  #@save
 def evaluate_accuracy_gpu(net, data_iter, device=None): #@save
     """使用GPU计算模型在数据集上的精度。"""
     if isinstance(net, nn.Module):
-        net.eval()  # Set the model to evaluation mode
+        net.eval()  # 设置为评估模式
         if not device:
             device = next(iter(net.parameters())).device
     # 正确预测的数量，总预测的数量
@@ -285,7 +284,7 @@ class TrainCallback(tf.keras.callbacks.Callback):  #@save
 
     def on_epoch_begin(self, epoch, logs=None):
         self.timer.start()
-        
+
     def on_epoch_end(self, epoch, logs):
         self.timer.stop()
         test_acc = self.net.evaluate(
