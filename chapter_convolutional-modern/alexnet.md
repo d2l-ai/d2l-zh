@@ -224,7 +224,7 @@ for layer in net:
 X = torch.randn(1, 1, 224, 224)
 for layer in net:
     X=layer(X)
-    print(layer.__class__.__name__,'Output shape:\t',X.shape)
+    print(layer.__class__.__name__,'output shape:\t',X.shape)
 ```
 
 ```{.python .input}
@@ -232,7 +232,7 @@ for layer in net:
 X = tf.random.uniform((1, 224, 224, 1))
 for layer in net().layers:
     X = layer(X)
-    print(layer.__class__.__name__, 'Output shape:\t', X.shape)
+    print(layer.__class__.__name__, 'output shape:\t', X.shape)
 ```
 
 ## 读取数据集

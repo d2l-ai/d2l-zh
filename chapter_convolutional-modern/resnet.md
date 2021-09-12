@@ -109,7 +109,6 @@ class Residual(nn.Module):  #@save
             self.conv3 = None
         self.bn1 = nn.BatchNorm2d(num_channels)
         self.bn2 = nn.BatchNorm2d(num_channels)
-        self.relu = nn.ReLU(inplace=True)
 
     def forward(self, X):
         Y = F.relu(self.bn1(self.conv1(X)))
