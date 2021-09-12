@@ -57,12 +57,7 @@ from d2l import torch as d2l
 import torch
 from torch import nn
 
-class Reshape(torch.nn.Module):
-    def forward(self, x):
-        return x.view(-1, 1, 28, 28)
-
-net = torch.nn.Sequential(
-    Reshape(),
+net = nn.Sequential(
     nn.Conv2d(1, 6, kernel_size=5, padding=2), nn.Sigmoid(),
     nn.AvgPool2d(kernel_size=2, stride=2),
     nn.Conv2d(6, 16, kernel_size=5), nn.Sigmoid(),
@@ -164,20 +159,21 @@ def evaluate_accuracy_gpu(net, data_iter, device=None):  #@save
 #@tab pytorch
 def evaluate_accuracy_gpu(net, data_iter, device=None): #@save
     """使用GPU计算模型在数据集上的精度。"""
-    if isinstance(net, torch.nn.Module):
+    if isinstance(net, nn.Module):
         net.eval()  # 设置为评估模式
         if not device:
             device = next(iter(net.parameters())).device
     # 正确预测的数量，总预测的数量
     metric = d2l.Accumulator(2)
-    for X, y in data_iter:
-        if isinstance(X, list):
-            # BERT微调所需的（之后将介绍）
-            X = [x.to(device) for x in X]
-        else:
-            X = X.to(device)
-        y = y.to(device)
-        metric.add(d2l.accuracy(net(X), y), d2l.size(y))
+    with torch.no_grad():
+        for X, y in data_iter:
+            if isinstance(X, list):
+                # BERT微调所需的（之后将介绍）
+                X = [x.to(device) for x in X]
+            else:
+                X = X.to(device)
+            y = y.to(device)
+            metric.add(d2l.accuracy(net(X), y), d2l.size(y))
     return metric[0] / metric[1]
 ```
 
@@ -285,8 +281,10 @@ class TrainCallback(tf.keras.callbacks.Callback):  #@save
         self.test_iter = test_iter
         self.num_epochs = num_epochs
         self.device_name = device_name
+
     def on_epoch_begin(self, epoch, logs=None):
         self.timer.start()
+
     def on_epoch_end(self, epoch, logs):
         self.timer.stop()
         test_acc = self.net.evaluate(

@@ -107,6 +107,11 @@ pool2d(X, (2, 2), 'avg')
 下面，我们用深度学习框架中内置的二维最大汇聚层，来演示汇聚层中填充和步幅的使用。
 我们首先构造了一个输入张量 `X`，它有四个维度，其中样本数和通道数都是 1。
 
+:begin_tab:`tensorflow`
+请注意，Tensorflow采用“通道最后”（channels-last）语法，对其进行优化，
+(即Tensorflow中输入的最后维度是通道)。
+:end_tab:
+
 ```{.python .input}
 #@tab mxnet, pytorch
 X = d2l.reshape(d2l.arange(16, dtype=d2l.float32), (1, 1, 4, 4))
@@ -155,29 +160,44 @@ pool2d(X)
 
 ```{.python .input}
 #@tab tensorflow
-pool2d = tf.keras.layers.MaxPool2D(pool_size=[3, 3], padding='same',
+paddings = tf.constant([[0, 0], [1,0], [1,0], [0,0]])
+X_padded = tf.pad(X, paddings, "CONSTANT")
+pool2d = tf.keras.layers.MaxPool2D(pool_size=[3, 3], padding='valid',
                                    strides=2)
-pool2d(X)
+pool2d(X_padded)
 ```
 
+:begin_tab:`mxnet`
+当然，我们可以设定一个任意大小的矩形池化窗口，并分别设定填充和步幅的高度和宽度。
+:end_tab:
+
+:begin_tab:`pytorch`
 当然，我们可以(**设定一个任意大小的矩形池化窗口，并分别设定填充和步幅的高度和宽度**)。
+:end_tab:
+
+:begin_tab:`tensorflow`
+当然，我们可以设定一个任意大小的矩形池化窗口，并分别设定填充和步幅的高度和宽度。
+:end_tab:
+
 
 ```{.python .input}
-pool2d = nn.MaxPool2D((2, 3), padding=(1, 2), strides=(2, 3))
+pool2d = nn.MaxPool2D((2, 3), padding=(0, 1), strides=(2, 3))
 pool2d(X)
 ```
 
 ```{.python .input}
 #@tab pytorch
-pool2d = nn.MaxPool2d((2, 3), padding=(1, 1), stride=(2, 3))
+pool2d = nn.MaxPool2d((2, 3), stride=(2, 3), padding=(0, 1))
 pool2d(X)
 ```
 
 ```{.python .input}
 #@tab tensorflow
-pool2d = tf.keras.layers.MaxPool2D(pool_size=[2, 3], padding='same',
+paddings = tf.constant([[0, 0], [0, 0], [1, 1], [0, 0]])
+X_padded = tf.pad(X, paddings, "CONSTANT")
+pool2d = tf.keras.layers.MaxPool2D(pool_size=[2, 3], padding='valid',
                                    strides=(2, 3))
-pool2d(X)
+pool2d(X_padded)
 ```
 
 ## 多个通道
@@ -185,6 +205,11 @@ pool2d(X)
 在处理多通道输入数据时，[**汇聚层在每个输入通道上单独运算**]，而不是像卷积层一样在通道上对输入进行汇总。
 这意味着汇聚层的输出通道数与输入通道数相同。
 下面，我们将在通道维度上连结张量 `X` 和 `X + 1`，以构建具有 2 个通道的输入。
+
+:begin_tab:`tensorflow`
+请注意，由于TensorFlow采用“通道最后”（channels-last）的语法，
+我们需要沿输入的最后一个维度进行串联。
+:end_tab:
 
 ```{.python .input}
 #@tab mxnet, pytorch
@@ -194,7 +219,7 @@ X
 
 ```{.python .input}
 #@tab tensorflow
-X = tf.reshape(tf.stack([X, X+1], 0), (1, 2, 4, 4))
+X = tf.concat([X, X + 1], 3)
 ```
 
 如下所示，池化后输出通道的数量仍然是 2。
@@ -212,9 +237,18 @@ pool2d(X)
 
 ```{.python .input}
 #@tab tensorflow
-pool2d = tf.keras.layers.MaxPool2D(3, padding='same', strides=2)
-pool2d(X)
+paddings = tf.constant([[0, 0], [1,0], [1,0], [0,0]])
+X_padded = tf.pad(X, paddings, "CONSTANT")
+pool2d = tf.keras.layers.MaxPool2D(pool_size=[3, 3], padding='valid',
+                                   strides=2)
+pool2d(X_padded)
 ```
+
+:begin_tab:`tensorflow`
+请注意，上面的输出乍一看似乎有所不同，但MXNet和PyTorch的结果从数值上是相同的。
+不同之处在于维度，垂直读取输出会产生与其他实现相同的输出。
+:end_tab:
+
 
 ## 小结
 
