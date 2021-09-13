@@ -178,6 +178,7 @@ def show_bboxes(axes, bboxes, labels=None, colors=None):
         elif not isinstance(obj, (list, tuple)):
             obj = [obj]
         return obj
+        
     labels = _make_list(labels)
     colors = _make_list(colors, ['b', 'g', 'r', 'm', 'c'])
     for i, bbox in enumerate(bboxes):

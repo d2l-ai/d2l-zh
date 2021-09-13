@@ -240,6 +240,7 @@ def load_cifar10(is_train, augs, batch_size):
 #@save
 def train_batch_ch13(net, features, labels, loss, trainer, devices,
                      split_f=d2l.split_batch):
+    """用多GPU进行小批量训练"""
     X_shards, y_shards = split_f(features, labels, devices)
     with autograd.record():
         pred_shards = [net(X_shard) for X_shard in X_shards]
@@ -259,6 +260,7 @@ def train_batch_ch13(net, features, labels, loss, trainer, devices,
 #@tab pytorch
 #@save
 def train_batch_ch13(net, X, y, loss, trainer, devices):
+    """用多GPU进行小批量训练"""
     if isinstance(X, list):
         # 微调BERT中所需（稍后讨论）
         X = [x.to(devices[0]) for x in X]
@@ -280,6 +282,7 @@ def train_batch_ch13(net, X, y, loss, trainer, devices):
 #@save
 def train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
                devices=d2l.try_all_gpus(), split_f=d2l.split_batch):
+    """用多GPU进行模型训练"""
     timer, num_batches = d2l.Timer(), len(train_iter)
     animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs], ylim=[0, 1],
                             legend=['train loss', 'train acc', 'test acc'])
@@ -309,6 +312,7 @@ def train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
 #@save
 def train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
                devices=d2l.try_all_gpus()):
+    """用多GPU进行模型训练"""
     timer, num_batches = d2l.Timer(), len(train_iter)
     animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs], ylim=[0, 1],
                             legend=['train loss', 'train acc', 'test acc'])
