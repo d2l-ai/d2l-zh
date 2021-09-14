@@ -185,9 +185,6 @@ out_img = Y[0].permute(1, 2, 0).detach()
 d2l.set_figsize()
 print('input image shape:', img.shape)
 d2l.plt.imshow(img.asnumpy());
-```
-
-```{.python .input}
 print('output image shape:', out_img.shape)
 d2l.plt.imshow(out_img.asnumpy());
 ```
@@ -197,10 +194,6 @@ d2l.plt.imshow(out_img.asnumpy());
 d2l.set_figsize()
 print('input image shape:', img.permute(1, 2, 0).shape)
 d2l.plt.imshow(img.permute(1, 2, 0));
-```
-
-```{.python .input}
-#@tab pytorch
 print('output image shape:', out_img.shape)
 d2l.plt.imshow(out_img);
 ```
