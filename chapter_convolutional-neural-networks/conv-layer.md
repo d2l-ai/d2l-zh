@@ -292,8 +292,8 @@ d2l.reshape(conv2d.get_weights()[0], (1, 2))
 
 ## 特征映射和感受野
 
-如在 :numref:`subsec_why-conv-channels`中所述， :numref:`fig_correlation`中输出的卷积层有时被称为*特征映射*（Feature Map），因为它可以被视为一个输入映射到下一层的空间维度的转换器。
-在CNN中，对于某一层的任意元素$x$，其*感受野*（Receptive Field）是指在前向传播期间可能影响$x$计算的所有元素（来自所有先前层）。
+如在 :numref:`subsec_why-conv-channels`中所述， :numref:`fig_correlation`中输出的卷积层有时被称为*特征映射*（feature map），因为它可以被视为一个输入映射到下一层的空间维度的转换器。
+在CNN中，对于某一层的任意元素$x$，其*感受野*（receptive field）是指在前向传播期间可能影响$x$计算的所有元素（来自所有先前层）。
 
 注意，感受野的覆盖率可能大于某层输入的实际区域大小。让我们用 :numref:`fig_correlation`为例来解释感受野：
 给定$2 \times 2$卷积核，阴影输出元素值$19$的接收域是输入阴影部分的四个元素。
