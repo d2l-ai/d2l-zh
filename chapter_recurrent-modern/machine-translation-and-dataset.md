@@ -199,7 +199,7 @@ for X, X_valid_len, Y, Y_valid_len in train_iter:
 
 ## 练习
 
-1. 在`load_data_nmt` 函数中尝试不同的`num_examples` 参数值。这对源语言和目标语言的词汇量有何影响？
+1. 在`load_data_nmt`函数中尝试不同的`num_examples`参数值。这对源语言和目标语言的词汇量有何影响？
 1. 某些语言（例如中文和日语）的文本没有单词边界指示符（例如空格）。对于这种情况，单词级词元化仍然是个好主意吗？为什么？
 
 :begin_tab:`mxnet`
