@@ -7,7 +7,7 @@
 * 我们可能会遇到这样的情况——一些词元没有相关的观测值。例如，在解析网页时，可能有一些辅助HTML代码与评估网页上传达的情绪无关。我们希望有一些机制来*跳过*隐状态表示中的此类词元。
 * 我们可能会遇到这样的情况——序列的各个部分之间存在逻辑中断。例如，书的章节之间可能会有过渡存在，或者证券的熊市和牛市之间可能会有过渡存在。在这种情况下，最好有一种方法来*重置*我们的内部状态表示。
 
-在学术界已经提出了许多方法来解决这个问题。其中最早的方法是"长－短期记忆"（long-short-term memory,LSMT） :cite:`Hochreiter.Schmidhuber.1997`，我们将在 :numref:`sec_lstm`中讨论。门控循环单元（gated recurrent unit,GRU） :cite:`Cho.Van-Merrienboer.Bahdanau.ea.2014`是一个稍微简化的变体，通常能够提供同等的效果，并且计算 :cite:`Chung.Gulcehre.Cho.ea.2014`的速度明显更快。由于它更简单，就让我们从门控循环单元开始。
+在学术界已经提出了许多方法来解决这个问题。其中最早的方法是"长－短期记忆"（long-short-term memory，LSMT） :cite:`Hochreiter.Schmidhuber.1997`，我们将在 :numref:`sec_lstm`中讨论。门控循环单元（gated recurrent unit，GRU） :cite:`Cho.Van-Merrienboer.Bahdanau.ea.2014`是一个稍微简化的变体，通常能够提供同等的效果，并且计算 :cite:`Chung.Gulcehre.Cho.ea.2014`的速度明显更快。由于它更简单，就让我们从门控循环单元开始。
 
 ## 门控隐藏状态
 
