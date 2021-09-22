@@ -1,12 +1,12 @@
 # 使用块的网络（VGG）
 :label:`sec_vgg`
 
-虽然 AlexNet 证明深层神经网络卓有成效，但它没有提供一个通用的模板来指导后续的研究人员设计新的网络。
+虽然AlexNet证明深层神经网络卓有成效，但它没有提供一个通用的模板来指导后续的研究人员设计新的网络。
 在下面的几个章节中，我们将介绍一些常用于设计深层神经网络的启发式概念。
 
 与芯片设计中工程师从放置晶体管到逻辑元件再到逻辑块的过程类似，神经网络结构的设计也逐渐变得更加抽象。研究人员开始从单个神经元的角度思考问题，发展到整个层次，现在又转向模块，重复各层的模式。
 
-使用块的想法首先出现在牛津大学的 [视觉几何组（visualgeometry Group）](http://www.robots.ox.ac.uk/~vgg/) (VGG)的 *VGG网络* 中。通过使用循环和子程序，可以很容易地在任何现代深度学习框架的代码中实现这些重复的结构。
+使用块的想法首先出现在牛津大学的[视觉几何组（visualgeometry group）](http://www.robots.ox.ac.uk/~vgg/)的*VGG网络*中。通过使用循环和子程序，可以很容易地在任何现代深度学习框架的代码中实现这些重复的结构。
 
 ## (**VGG块**)
 
@@ -15,17 +15,16 @@
 1. 非线性激活函数，如ReLU；
 1. 汇聚层，如最大汇聚层。
 
-而一个 VGG 块与之类似，由一系列卷积层组成，后面再加上用于空间下采样的最大汇聚层。在最初的 VGG 论文 :cite:`Simonyan.Zisserman.2014` 中，作者使用了带有 $3\times3$ 卷积核、填充为 1（保持高度和宽度）的卷积层，和带有 $2 \times 2$ 池化窗口、步幅为 2（每个块后的分辨率减半）的最大汇聚层。在下面的代码中，我们定义了一个名为 `vgg_block` 的函数来实现一个 VGG 块。
+而一个VGG块与之类似，由一系列卷积层组成，后面再加上用于空间下采样的最大汇聚层。在最初的VGG论文 :cite:`Simonyan.Zisserman.2014`中，作者使用了带有$3\times3$卷积核、填充为1（保持高度和宽度）的卷积层，和带有$2 \times 2$池化窗口、步幅为2（每个块后的分辨率减半）的最大汇聚层。在下面的代码中，我们定义了一个名为`vgg_block`的函数来实现一个VGG块。
 
 :begin_tab:`mxnet,tensorflow`
-该函数有两个参数，分别对应于卷积层的数量 `num_convs` 和输出通道的数量 `num_channels`.
+该函数有两个参数，分别对应于卷积层的数量`num_convs`和输出通道的数量`num_channels`.
 :end_tab:
 
 :begin_tab:`pytorch`
-该函数有三个参数，分别对应于卷积层的数量 `num_convs`、输入通道的数量 `in_channels`
-和输出通道的数量  `out_channels`.
+该函数有三个参数，分别对应于卷积层的数量`num_convs`、输入通道的数量`in_channels`
+和输出通道的数量`out_channels`.
 :end_tab:
-
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -75,24 +74,23 @@ def vgg_block(num_convs, num_channels):
 
 ## [**VGG网络**]
 
-与 AlexNet、LeNet 一样，VGG 网络可以分为两部分：第一部分主要由卷积层和汇聚层组成，第二部分由全连接层组成。如 :numref:`fig_vgg` 中所示。
+与AlexNet、LeNet一样，VGG网络可以分为两部分：第一部分主要由卷积层和汇聚层组成，第二部分由全连接层组成。如 :numref:`fig_vgg`中所示。
 
 ![从AlexNet到VGG，它们本质上都是块设计。](../img/vgg.svg)
 :width:`400px`
 :label:`fig_vgg`
 
+VGG神经网络连续连接 :numref:`fig_vgg`的几个VGG块（在`vgg_block`函数中定义）。其中有超参数变量`conv_arch`。该变量指定了每个VGG块里卷积层个数和输出通道数。全连接模块则与AlexNet中的相同。
 
-VGG神经网络连续连接 :numref:`fig_vgg` 的几个 VGG 块（在 `vgg_block` 函数中定义）。其中有超参数变量 `conv_arch` 。该变量指定了每个VGG块里卷积层个数和输出通道数。全连接模块则与AlexNet中的相同。
-
-原始 VGG 网络有 5 个卷积块，其中前两个块各有一个卷积层，后三个块各包含两个卷积层。
-第一个模块有 64 个输出通道，每个后续模块将输出通道数量翻倍，直到该数字达到 512。由于该网络使用 8 个卷积层和 3 个全连接层，因此它通常被称为 VGG-11。
+原始VGG网络有5个卷积块，其中前两个块各有一个卷积层，后三个块各包含两个卷积层。
+第一个模块有64个输出通道，每个后续模块将输出通道数量翻倍，直到该数字达到512。由于该网络使用8个卷积层和3个全连接层，因此它通常被称为VGG-11。
 
 ```{.python .input}
 #@tab all
 conv_arch = ((1, 64), (1, 128), (2, 256), (2, 512), (2, 512))
 ```
 
-下面的代码实现了 VGG-11。可以通过在 `conv_arch` 上执行 for 循环来简单实现。
+下面的代码实现了VGG-11。可以通过在`conv_arch`上执行for循环来简单实现。
 
 ```{.python .input}
 def vgg(conv_arch):
@@ -149,7 +147,7 @@ def vgg(conv_arch):
 net = vgg(conv_arch)
 ```
 
-接下来，我们将构建一个高度和宽度为 224 的单通道数据样本，以[**观察每个层输出的形状**]。
+接下来，我们将构建一个高度和宽度为224的单通道数据样本，以[**观察每个层输出的形状**]。
 
 ```{.python .input}
 net.initialize()
@@ -196,7 +194,7 @@ small_conv_arch = [(pair[0], pair[1] // ratio) for pair in conv_arch]
 net = lambda: vgg(small_conv_arch)
 ```
 
-除了使用略高的学习率外，[**模型训练**]过程与 :numref:`sec_alexnet` 中的 AlexNet 类似。
+除了使用略高的学习率外，[**模型训练**]过程与 :numref:`sec_alexnet`中的AlexNet类似。
 
 ```{.python .input}
 #@tab all
@@ -207,16 +205,16 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 
 ## 小结
 
-* VGG-11 使用可复用的卷积块构造网络。不同的 VGG 模型可通过每个块中卷积层数量和输出通道数量的差异来定义。
+* VGG-11使用可复用的卷积块构造网络。不同的VGG模型可通过每个块中卷积层数量和输出通道数量的差异来定义。
 * 块的使用导致网络定义的非常简洁。使用块可以有效地设计复杂的网络。
 * 在VGG论文中，Simonyan和Ziserman尝试了各种架构。特别是他们发现深层且窄的卷积（即$3 \times 3$）比较浅层且宽的卷积更有效。
 
 ## 练习
 
-1. 打印层的尺寸时，我们只看到 8 个结果，而不是 11 个结果。剩余的 3 层信息去哪了？
-1. 与 AlexNet 相比，VGG 的计算要慢得多，而且它还需要更多的显存。分析出现这种情况的原因。
-1. 尝试将Fashion-MNIST数据集图像的高度和宽度从 224 改为 96。这对实验有什么影响？
-1. 请参考 VGG 论文 :cite:`Simonyan.Zisserman.2014` 中的表1构建其他常见模型，如 VGG-16 或 VGG-19。
+1. 打印层的尺寸时，我们只看到8个结果，而不是11个结果。剩余的3层信息去哪了？
+1. 与AlexNet相比，VGG的计算要慢得多，而且它还需要更多的显存。分析出现这种情况的原因。
+1. 尝试将Fashion-MNIST数据集图像的高度和宽度从224改为96。这对实验有什么影响？
+1. 请参考VGG论文 :cite:`Simonyan.Zisserman.2014`中的表1构建其他常见模型，如VGG-16或VGG-19。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/1867)
