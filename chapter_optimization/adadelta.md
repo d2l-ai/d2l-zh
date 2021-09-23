@@ -1,7 +1,7 @@
 # Adadelta
 :label:`sec_adadelta`
 
-（[本节]（https://github.com/d2l-ai/d2l-zh/tree/release/chapter_optimization）是机器翻译，欢迎[贡献]（https://zh.d2l.ai/chapter_appendix/how-to-contribute.html）改进）
+([本节](https://github.com/d2l-ai/d2l-zh/tree/release/chapter_optimization)是机器翻译，欢迎[贡献](https://zh.d2l.ai/chapter_appendix/how-to-contribute.html)改进)
 
 阿达德尔塔是AdGRAD的另一种变体（ :numref:`sec_adagrad`）。主要区别在于它减少了学习率适应坐标的数量。此外，传统上它被称为没有学习率，因为它使用变化量本身作为未来变化的校准。该算法是在 :cite:`Zeiler.2012`中提出的。鉴于迄今为止对以前的算法的讨论，这相当简单。
 
