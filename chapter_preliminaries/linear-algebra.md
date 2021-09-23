@@ -25,8 +25,8 @@ x + y, x * y, x / y, x ** y
 #@tab pytorch
 import torch
 
-x = torch.tensor([3.0])
-y = torch.tensor([2.0])
+x = torch.tensor(3.0)
+y = torch.tensor(2.0)
 
 x + y, x * y, x / y, x**y
 ```
@@ -35,8 +35,8 @@ x + y, x * y, x / y, x**y
 #@tab tensorflow
 import tensorflow as tf
 
-x = tf.constant([3.0])
-y = tf.constant([2.0])
+x = tf.constant(3.0)
+y = tf.constant(2.0)
 
 x + y, x * y, x / y, x**y
 ```
@@ -571,7 +571,17 @@ $$
 我们可以把一个矩阵$\mathbf{A} \in \mathbb{R}^{m \times n}$乘法看作是一个从$\mathbb{R}^{n}$到$\mathbb{R}^{m}$向量的转换。这些转换证明是非常有用的。例如，我们可以用方阵的乘法来表示旋转。
 我们将在后续章节中讲到，我们也可以使用矩阵-向量积来描述在给定前一层的值时，求解神经网络每一层所需的复杂计算。
 
+:begin_tab:`mxnet`
 在代码中使用张量表示矩阵-向量积，我们使用与点积相同的`dot`函数。当我们为矩阵`A`和向量`x`调用`np.dot(A,x)`时，会执行矩阵-向量积。注意，`A`的列维数（沿轴1的长度）必须与`x`的维数（其长度）相同。
+:end_tab:
+
+:begin_tab:`pytorch`
+在代码中使用张量表示矩阵-向量积，我们使用与点积相同的`mv`函数。当我们为矩阵`A`和向量`x`调用`torch.mv(A, x)`时，会执行矩阵-向量积。注意，`A`的列维数（沿轴1的长度）必须与`x`的维数（其长度）相同。
+:end_tab:
+
+:begin_tab:`tensorflow`
+在代码中使用张量表示矩阵-向量积，我们使用与点积相同的`matvec`函数。当我们为矩阵`A`和向量`x`调用`tf.linalg.matvec(A, x)`时，会执行矩阵-向量积。注意，`A`的列维数（沿轴1的长度）必须与`x`的维数（其长度）相同。
+:end_tab:
 
 ```{.python .input}
 A.shape, x.shape, np.dot(A, x)

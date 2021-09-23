@@ -59,7 +59,7 @@ print(lines[10])
 
 ## 词元化
 
-下面的`tokenize`函数将文本行列表作为输入，列表中的每个元素是一个文本序列（如一条文本行）。
+下面的`tokenize`函数将文本行列表（`lines`）作为输入，列表中的每个元素是一个文本序列（如一条文本行）。
 [**每个文本序列又被拆分成一个词元列表**]，*词元*（token）是文本的基本单位。
 最后，返回一个由词元列表组成的列表，其中的每个词元都是一个字符串（string）。
 
@@ -100,16 +100,19 @@ class Vocab:  #@save
             reserved_tokens = [] 
         # 按出现频率排序
         counter = count_corpus(tokens)
-        self.token_freqs = sorted(counter.items(), key=lambda x: x[1],
-                                  reverse=True)
+        self._token_freqs = sorted(counter.items(), key=lambda x: x[1],
+                                   reverse=True)
         # 未知词元的索引为0
-        self.unk, uniq_tokens = 0, ['<unk>'] + reserved_tokens
-        uniq_tokens += [token for token, freq in self.token_freqs
-                        if freq >= min_freq and token not in uniq_tokens]
+        self.idx_to_token = ['<unk>'] + reserved_tokens
+        self.token_to_idx = {token: idx
+                             for idx, token in enumerate(self.idx_to_token)}
         self.idx_to_token, self.token_to_idx = [], dict()
-        for token in uniq_tokens:
-            self.idx_to_token.append(token)
-            self.token_to_idx[token] = len(self.idx_to_token) - 1
+        for token, freq in self._token_freqs:
+            if freq < min_freq:
+                break
+            if token not in self.token_to_idx:
+                self.idx_to_token.append(token)
+                self.token_to_idx[token] = len(self.idx_to_token) - 1
 
     def __len__(self):
         return len(self.idx_to_token)
@@ -123,6 +126,14 @@ class Vocab:  #@save
         if not isinstance(indices, (list, tuple)):
             return self.idx_to_token[indices]
         return [self.idx_to_token[index] for index in indices]
+        
+    @property
+    def unk(self):  # Index for the unknown token
+        return 0
+
+    @property
+    def token_freqs(self):  # Index for the unknown token
+        return self._token_freqs
 
 def count_corpus(tokens):  #@save
     """统计词元的频率。"""

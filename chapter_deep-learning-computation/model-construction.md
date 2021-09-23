@@ -71,11 +71,26 @@ net(X)
 
 要想直观地了解块是如何工作的，最简单的方法可能就是自己实现一个。在实现我们自定义块之前，我们简要总结一下每个块必须提供的基本功能：
 
+:begin_tab:`mxnet, tensorflow`
+
 1. 将输入数据作为其正向传播函数的参数。
 1. 通过正向传播函数来生成输出。请注意，输出的形状可能与输入的形状不同。例如，我们上面模型中的第一个全连接的层接收任意维的输入，但是返回一个维度256的输出。
 1. 计算其输出关于输入的梯度，可通过其反向传播函数进行访问。通常这是自动发生的。
 1. 存储和访问正向传播计算所需的参数。
 1. 根据需要初始化模型参数。
+
+:end_tab:
+
+:begin_tab:`pytorch`
+
+1. 将输入数据作为其正向传播函数的参数。
+1. 通过正向传播函数来生成输出。请注意，输出的形状可能与输入的形状不同。例如，我们上面模型中的第一个全连接的层接收一个20维的输入，但是返回一个维度为256的输出。
+1. 计算其输出关于输入的梯度，可通过其反向传播函数进行访问。通常这是自动发生的。
+1. 存储和访问正向传播计算所需的参数。
+1. 根据需要初始化模型参数。
+
+:end_tab:
+
 
 在下面的代码片段中，我们从零开始编写一个块。它包含一个多层感知机，其具有256个隐藏单元的隐藏层和一个10维输出层。注意，下面的`MLP`类继承了表示块的类。我们的实现将严重依赖父类，只需要提供我们自己的构造函数（Python中的`__init__`函数）和正向传播函数。
 
@@ -99,7 +114,7 @@ class MLP(nn.Block):
 class MLP(nn.Module):
     # 用模型参数声明层。这里，我们声明两个全连接的层
     def __init__(self):
-        # 调用`MLP`的父类`Block`的构造函数来执行必要的初始化。
+        # 调用`MLP`的父类`Module`的构造函数来执行必要的初始化。
         # 这样，在类实例化时也可以指定其他函数参数，例如模型参数`params`（稍后将介绍）
         super().__init__()
         self.hidden = nn.Linear(20, 256)  # 隐藏层
@@ -116,7 +131,7 @@ class MLP(nn.Module):
 class MLP(tf.keras.Model):
     # 用模型参数声明层。这里，我们声明两个全连接的层
     def __init__(self):
-        # 调用`MLP`的父类`Block`的构造函数来执行必要的初始化。
+        # 调用`MLP`的父类`Model`的构造函数来执行必要的初始化。
         # 这样，在类实例化时也可以指定其他函数参数，例如模型参数`params`（稍后将介绍）
         super().__init__()
         # Hidden layer
@@ -179,10 +194,10 @@ class MySequential(nn.Block):
 class MySequential(nn.Module):
     def __init__(self, *args):
         super().__init__()
-        for block in args:
-            # 这里，`block`是`Module`子类的一个实例。我们把它保存在'Module'类的成员变量
-            # `_modules` 中。`block`的类型是OrderedDict。
-            self._modules[block] = block
+        for idx, module in enumerate(args):
+            # 这里，`module`是`Module`子类的一个实例。我们把它保存在'Module'类的成员变量
+            # `_modules` 中。`module`的类型是OrderedDict。
+            self._modules[str(idx)] = module
 
     def forward(self, X):
         # OrderedDict保证了按照成员添加的顺序遍历它们
@@ -212,7 +227,7 @@ class MySequential(tf.keras.Model):
 :end_tab:
 
 :begin_tab:`pytorch`
-在`__init__`方法中，我们将每个块逐个添加到有序字典`_modules`中。你可能会想知道为什么每个`Module`都有一个`_modules`属性，以及为什么我们使用它而不是自己定义一个Python列表。简而言之，`_modules`的主要优点是，在块的参数初始化过程中，系统知道在`_modules`字典中查找需要初始化参数的子块。
+在`__init__`方法中，我们将每个模块逐个添加到有序字典`_modules`中。你可能会想知道为什么每个`Module`都有一个`_modules`属性，以及为什么我们使用它而不是自己定义一个Python列表。简而言之，`_modules`的主要优点是，在模块的参数初始化过程中，系统知道在`_modules`字典中查找需要初始化参数的子块。
 :end_tab:
 
 当`MySequential`的正向传播函数被调用时，每个添加的块都按照它们被添加的顺序执行。现在可以使用我们的`MySequential`类重新实现多层感知机。

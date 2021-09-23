@@ -26,7 +26,6 @@ from torch.nn import functional as F
 %matplotlib inline
 from d2l import tensorflow as d2l
 import math
-import numpy as np
 import tensorflow as tf
 ```
 
@@ -257,16 +256,17 @@ class RNNModelScratch: #@save
 class RNNModelScratch: #@save
     """从零开始实现的循环神经网络模型"""
     def __init__(self, vocab_size, num_hiddens,
-                 init_state, forward_fn):
+                 init_state, forward_fn, get_params):
         self.vocab_size, self.num_hiddens = vocab_size, num_hiddens
         self.init_state, self.forward_fn = init_state, forward_fn
+        self.trainable_variables = get_params(vocab_size, num_hiddens)
 
-    def __call__(self, X, state, params):
+    def __call__(self, X, state):
         X = tf.one_hot(tf.transpose(X), self.vocab_size)
         X = tf.cast(X, tf.float32)
-        return self.forward_fn(X, state, params)
+        return self.forward_fn(X, state, self.trainable_variables)
 
-    def begin_state(self, batch_size):
+    def begin_state(self, batch_size, *args, **kwargs):
         return self.init_state(batch_size, self.num_hiddens)
 ```
 
@@ -300,10 +300,10 @@ strategy = tf.distribute.OneDeviceStrategy(device_name)
 
 num_hiddens = 512
 with strategy.scope():
-    net = RNNModelScratch(len(vocab), num_hiddens, init_rnn_state, rnn)
+    net = RNNModelScratch(len(vocab), num_hiddens, init_rnn_state, rnn,
+                          get_params)
 state = net.begin_state(X.shape[0])
-params = get_params(len(vocab), num_hiddens)
-Y, new_state = net(X, state, params)
+Y, new_state = net(X, state)
 Y.shape, len(new_state), new_state[0].shape
 ```
 
@@ -350,7 +350,7 @@ def predict_ch8(prefix, num_preds, net, vocab, device):  #@save
 #@tab tensorflow
 def predict_ch8(prefix, num_preds, net, vocab, params):  #@save
     """在`prefix`后面生成新字符。"""
-    state = net.begin_state(batch_size=1)
+    state = net.begin_state(batch_size=1, dtype=tf.float32)
     outputs = [vocab[prefix[0]]]
     get_input = lambda: d2l.reshape(d2l.tensor([outputs[-1]]), (1, 1)).numpy()
     for y in prefix[1:]:  # 预热期
@@ -425,19 +425,23 @@ def grad_clipping(net, theta):  #@save
 
 ```{.python .input}
 #@tab tensorflow
-def grad_clipping(grads, theta): #@save
+def grad_clipping(grads, theta):  #@save
     """裁剪梯度。"""
     theta = tf.constant(theta, dtype=tf.float32)
-    norm = tf.math.sqrt(sum((tf.reduce_sum(grad ** 2)).numpy()
-                        for grad in grads))
-    norm = tf.cast(norm, tf.float32)
     new_grad = []
-    if tf.greater(norm, theta):
-        for grad in grads:
-            new_grad.append(grad * theta / norm)
-    else:
-        for grad in grads:
+    for grad in grads:
+        if isinstance(grad, tf.IndexedSlices):
+            new_grad.append(tf.convert_to_tensor(grad))
+        else:
             new_grad.append(grad)
+    norm = tf.math.sqrt(sum((tf.reduce_sum(grad ** 2)).numpy()
+                        for grad in new_grad))
+    norm = tf.cast(norm, tf.float32)
+    if tf.greater(norm, theta):
+        for i, grad in enumerate(new_grad):
+            new_grad[i] = grad * theta / norm
+    else:
+        new_grad = new_grad
     return new_grad
 ```
 
@@ -482,7 +486,7 @@ def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
 #@tab pytorch
 #@save
 def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
-    """训练模型一个迭代周期（定义见第8章）。"""
+    """训练网络一个迭代周期（定义见第8章）。"""
     state, timer = None, d2l.Timer()
     metric = d2l.Accumulator(2)  # 训练损失之和, 词元数量
     for X, Y in train_iter:
@@ -525,12 +529,12 @@ def train_epoch_ch8(net, train_iter, loss, updater, params, use_random_iter):
     for X, Y in train_iter:
         if state is None or use_random_iter:
             # 在第一次迭代或使用随机抽样时初始化`state`
-            state = net.begin_state(batch_size=X.shape[0])
+            state = net.begin_state(batch_size=X.shape[0], dtype=tf.float32)
         with tf.GradientTape(persistent=True) as g:
-            g.watch(params)
-            y_hat, state= net(X, state, params)
+            y_hat, state = net(X, state)
             y = d2l.reshape(tf.transpose(Y), (-1))
             l = loss(y, y_hat)
+        params = net.trainable_variables
         grads = g.gradient(l, params)
         grads = grad_clipping(grads, 1)
         updater.apply_gradients(zip(grads, params))
@@ -602,20 +606,19 @@ def train_ch8(net, train_iter, vocab, lr, num_epochs, device,
 ```{.python .input}
 #@tab tensorflow
 #@save
-def train_ch8(net, train_iter, vocab, num_hiddens, lr, num_epochs, strategy,
+def train_ch8(net, train_iter, vocab, lr, num_epochs, strategy,
               use_random_iter=False):
     """训练模型（定义见第8章）。"""
     with strategy.scope():
-        params = get_params(len(vocab), num_hiddens)
         loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
         updater = tf.keras.optimizers.SGD(lr)
     animator = d2l.Animator(xlabel='epoch', ylabel='perplexity',
                             legend=['train'], xlim=[10, num_epochs])
-    predict = lambda prefix: predict_ch8(prefix, 50, net, vocab, params)
+    predict = lambda prefix: predict_ch8(prefix, 50, net, vocab)
     # 训练和预测
     for epoch in range(num_epochs):
-        ppl, speed = train_epoch_ch8(
-             net, train_iter, loss, updater, params, use_random_iter)
+        ppl, speed = train_epoch_ch8(net, train_iter, loss, updater,
+                                     use_random_iter)
         if (epoch + 1) % 10 == 0:
             print(predict('time traveller'))
             animator.add(epoch + 1, [ppl])
@@ -643,15 +646,19 @@ train_ch8(net, train_iter, vocab, num_hiddens, lr, num_epochs, strategy)
 
 ```{.python .input}
 #@tab mxnet,pytorch
+net = RNNModelScratch(len(vocab), num_hiddens, d2l.try_gpu(), get_params,
+                      init_rnn_state, rnn)
 train_ch8(net, train_iter, vocab, lr, num_epochs, d2l.try_gpu(),
           use_random_iter=True)
 ```
 
 ```{.python .input}
 #@tab tensorflow
-params = get_params(len(vocab_random_iter), num_hiddens)
-train_ch8(net, train_random_iter, vocab_random_iter, num_hiddens, lr,
-          num_epochs, strategy, use_random_iter=True)
+with strategy.scope():
+    net = RNNModelScratch(len(vocab), num_hiddens, init_rnn_state, rnn,
+                          get_params)
+train_ch8(net, train_iter, vocab_random_iter, lr, num_epochs, strategy,
+          use_random_iter=True)
 ```
 
 从零开始实现上述循环神经网络模型，虽然有指导意义，但是并不方便。在下一节中，我们将学习如何改进循环神经网络模型，例如，如何使其实现地更容易，运行速度更快。

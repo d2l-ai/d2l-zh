@@ -37,7 +37,7 @@
 :end_tab:
 
 :begin_tab:`pytorch`
-在PyTorch中，CPU和GPU可以用`torch.device('cpu')`和`torch.cuda.device('cuda')`表示。应该注意的是，`cpu`设备意味着所有物理CPU和内存。这意味着PyTorch的计算将尝试使用所有CPU核心。然而，`gpu`设备只代表一个卡和相应的显存。如果有多个GPU，我们使用`torch.cuda.device(f'cuda:{i}')`来表示第$i$块GPU（$i$从0开始）。另外，`cuda:0`和`cuda`是等价的。
+在PyTorch中，CPU和GPU可以用`torch.device('cpu')`和`torch.device('cuda')`表示。应该注意的是，`cpu`设备意味着所有物理CPU和内存。这意味着PyTorch的计算将尝试使用所有CPU核心。然而，`gpu`设备只代表一个卡和相应的显存。如果有多个GPU，我们使用`torch.device(f'cuda:{i}')`来表示第$i$块GPU（$i$从0开始）。另外，`cuda:0`和`cuda`是等价的。
 :end_tab:
 
 ```{.python .input}
@@ -53,7 +53,7 @@ npx.cpu(), npx.gpu(), npx.gpu(1)
 import torch
 from torch import nn
 
-torch.device('cpu'), torch.cuda.device('cuda'), torch.cuda.device('cuda:1')
+torch.device('cpu'), torch.device('cuda'), torch.device('cuda:1')
 ```
 
 ```{.python .input}

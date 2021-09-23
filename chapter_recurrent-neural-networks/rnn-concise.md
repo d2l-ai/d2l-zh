@@ -24,6 +24,14 @@ batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 ```
 
+```{.python .input}
+#@tab tensorflow
+from d2l import tensorflow as d2l
+import tensorflow as tf
+batch_size, num_steps = 32, 35
+train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
+```
+
 ## [**定义模型**]
 
 高级API提供了循环神经网络的实现。我们构造了一个具有256个隐藏单元的单隐藏层的循环神经网络层`rnn_layer`。事实上，我们还没有讨论多层的意义——这将在 :numref:`sec_deep_rnn`中介绍。现在，仅需要将多层理解为一层循环神经网络的输出被用作下一层循环神经网络的输入就足够了。
@@ -38,6 +46,15 @@ rnn_layer.initialize()
 #@tab pytorch
 num_hiddens = 256
 rnn_layer = nn.RNN(len(vocab), num_hiddens)
+```
+
+```{.python .input}
+#@tab tensorflow
+num_hiddens = 256
+rnn_cell = tf.keras.layers.SimpleRNNCell(num_hiddens,
+    kernel_initializer='glorot_uniform')
+rnn_layer = tf.keras.layers.RNN(rnn_cell, time_major=True,
+    return_sequences=True, return_state=True)
 ```
 
 :begin_tab:`mxnet`
@@ -59,6 +76,12 @@ state = torch.zeros((1, batch_size, num_hiddens))
 state.shape
 ```
 
+```{.python .input}
+#@tab tensorflow
+state = rnn_cell.get_initial_state(batch_size=batch_size, dtype=tf.float32)
+state.shape
+```
+
 [**通过一个隐藏状态和一个输入，我们就可以用更新后的隐藏状态计算输出。**]需要强调的是，`rnn_layer`的“输出”（`Y`）不涉及输出层的计算：它是指每个时间步的隐藏状态，这些隐藏状态可以用作后续输出层的输入。
 
 :begin_tab:`mxnet`
@@ -76,6 +99,13 @@ Y.shape, len(state_new), state_new[0].shape
 X = torch.rand(size=(num_steps, batch_size, len(vocab)))
 Y, state_new = rnn_layer(X, state)
 Y.shape, state_new.shape
+```
+
+```{.python .input}
+#@tab tensorflow
+X = tf.random.uniform((num_steps, batch_size, len(vocab)))
+Y, state_new = rnn_layer(X, state)
+Y.shape, len(state_new), state_new[0].shape
 ```
 
 与 :numref:`sec_rnn_scratch`类似，[**我们为一个完整的循环神经网络模型定义了一个`RNNModel`类**]。注意，`rnn_layer`只包含隐藏的循环层，我们还需要创建一个单独的输出层。
@@ -145,6 +175,27 @@ class RNNModel(nn.Module):
                         batch_size, self.num_hiddens), device=device))
 ```
 
+```{.python .input}
+#@tab tensorflow
+#@save
+class RNNModel(tf.keras.layers.Layer):
+    def __init__(self, rnn_layer, vocab_size, **kwargs):
+        super(RNNModel, self).__init__(**kwargs)
+        self.rnn = rnn_layer
+        self.vocab_size = vocab_size
+        self.dense = tf.keras.layers.Dense(vocab_size)
+
+    def call(self, inputs, state):
+        X = tf.one_hot(tf.transpose(inputs), self.vocab_size)
+        # Later RNN like `tf.keras.layers.LSTMCell` return more than two values
+        Y, *state = self.rnn(X, state)
+        output = self.dense(tf.reshape(Y, (-1, Y.shape[-1])))
+        return output, state
+
+    def begin_state(self, *args, **kwargs):
+        return self.rnn.cell.get_initial_state(*args, **kwargs)
+```
+
 ## 训练与预测
 
 在训练模型之前，让我们[**基于一个具有随机权重的模型进行预测**]。
@@ -164,12 +215,33 @@ net = net.to(device)
 d2l.predict_ch8('time traveller', 10, net, vocab, device)
 ```
 
+```{.python .input}
+#@tab tensorflow
+device_name = d2l.try_gpu()._device_name
+strategy = tf.distribute.OneDeviceStrategy(device_name)
+with strategy.scope():
+    net = RNNModel(rnn_layer, vocab_size=len(vocab))
+
+d2l.predict_ch8('time traveller', 10, net, vocab)
+```
+
 很明显，这种模型根本不能输出好的结果。接下来，我们使用 :numref:`sec_rnn_scratch`中定义的超参数调用`train_ch8`，并且[**使用高级API训练模型**]。
 
 ```{.python .input}
-#@tab all
 num_epochs, lr = 500, 1
 d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, device)
+```
+
+```{.python .input}
+#@tab pytorch
+num_epochs, lr = 500, 1
+d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, device)
+```
+
+```{.python .input}
+#@tab tensorflow
+num_epochs, lr = 500, 1
+d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, strategy)
 ```
 
 与上一节相比，由于深度学习框架的高级API对代码进行了更多的优化，该模型在较短的时间内实现了较低的困惑度。
@@ -192,4 +264,8 @@ d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, device)
 
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2106)
+:end_tab:
+
+:begin_tab:`tensorflow`
+[Discussions](https://discuss.d2l.ai/t/2211)
 :end_tab:

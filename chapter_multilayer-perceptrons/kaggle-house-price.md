@@ -179,12 +179,14 @@ all_features = pd.concat((train_data.iloc[:, 1:-1], test_data.iloc[:, 1:]))
 
 如上所述，我们有各种各样的数据类型。在开始建模之前，我们需要对数据进行预处理。让我们从数字特征开始。首先，我们应用启发式方法，[**将所有缺失的值替换为相应特征的平均值。**]然后，为了将所有特征放在一个共同的尺度上，我们(**通过将特征重新缩放到零均值和单位方差来标准化数据**)：
 
-$$x \leftarrow \frac{x - \mu}{\sigma}.$$
+$$x \leftarrow \frac{x - \mu}{\sigma},$$
 
+其中$\mu$和$\sigma$分别表示均值和标准差。
 要验证这确实转换了我们的特征（变量），使特征具有零均值和单位方差，即 $E[\frac{x-\mu}{\sigma}] = \frac{\mu - \mu}{\sigma} = 0$和$E[(x-\mu)^2] = (\sigma^2 + \mu^2) - 2\mu^2+\mu^2 = \sigma^2$。直观地说，我们标准化数据有两个原因。首先，它方便优化。其次，因为我们不知道哪些特征是相关的，所以我们不想让惩罚分配给一个特征的系数比分配给其他任何特征的系数更大。
 
 ```{.python .input}
 #@tab all
+#若无法获得测试数据，则可根据训练数据计算均值和标准差
 numeric_features = all_features.dtypes[all_features.dtypes != 'object'].index
 all_features[numeric_features] = all_features[numeric_features].apply(
     lambda x: (x - x.mean()) / (x.std()))

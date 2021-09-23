@@ -9,7 +9,7 @@
 
 ## 范数与权重衰减
 
-在之前的章节，我们已经描述了$L_2$范数和$L_1$范数，它们是$L_p$范数的特殊情况。
+在 :numref:`subsec_lin-algebra-norms` 中，我们已经描述了$L_2$范数和$L_1$范数，它们是$L_p$范数的特殊情况。
 (~~权重衰减是最广泛使用的正则化的技术之一~~)
 在训练参数化机器学习模型时，*权重衰减*（通常称为$L_2$正则化）是最广泛使用的正则化的技术之一。这项技术是基于一个基本直觉，即在所有函数$f$中，函数$f = 0$（所有输入都得到值$0$）在某种意义上是最简单的，我们可以通过函数与零的距离来衡量函数的复杂度。但是我们应该如何精确地测量一个函数和零之间的距离呢？没有一个正确的答案。事实上，整个数学分支，包括函数分析和巴拿赫空间理论，都在致力于回答这个问题。
 
@@ -172,9 +172,8 @@ def train(lambd):
                             xlim=[5, num_epochs], legend=['train', 'test'])
     for epoch in range(num_epochs):
         for X, y in train_iter:
-            with torch.enable_grad():
-                # 增加了L2范数惩罚项，广播机制使l2_penalty(w)成为一个长度为`batch_size`的向量。
-                l = loss(net(X), y) + lambd * l2_penalty(w)
+            # 增加了L2范数惩罚项，广播机制使l2_penalty(w)成为一个长度为`batch_size`的向量。
+            l = loss(net(X), y) + lambd * l2_penalty(w)
             l.sum().backward()
             d2l.sgd([w, b], lr, batch_size)
         if (epoch + 1) % 5 == 0:
@@ -279,9 +278,8 @@ def train_concise(wd):
                             xlim=[5, num_epochs], legend=['train', 'test'])
     for epoch in range(num_epochs):
         for X, y in train_iter:
-            with torch.enable_grad():
-                trainer.zero_grad()
-                l = loss(net(X), y)
+            trainer.zero_grad()
+            l = loss(net(X), y)
             l.backward()
             trainer.step()
         if (epoch + 1) % 5 == 0:
