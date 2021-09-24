@@ -91,6 +91,14 @@ batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 ```
 
+```{.python .input}
+#@tab tensorflow
+from d2l import tensorflow as d2l
+import tensorflow as tf
+batch_size, num_steps = 32, 35
+train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
+```
+
 ### [**初始化模型参数**]
 
 接下来，我们需要定义和初始化模型参数。如前所述，超参数`num_hiddens`定义隐藏单元的数量。我们按照标准差$0.01$的高斯分布初始化权重，并将偏置项设为$0$。
@@ -150,6 +158,32 @@ def get_lstm_params(vocab_size, num_hiddens, device):
     return params
 ```
 
+```{.python .input}
+#@tab tensorflow
+def get_lstm_params(vocab_size, num_hiddens):
+    num_inputs = num_outputs = vocab_size
+
+    def normal(shape):
+        return tf.Variable(tf.random.normal(shape=shape, stddev=0.01,
+                                            mean=0, dtype=tf.float32))
+    def three():
+        return (normal((num_inputs, num_hiddens)),
+                normal((num_hiddens, num_hiddens)),
+                tf.Variable(tf.zeros(num_hiddens), dtype=tf.float32))
+
+    W_xi, W_hi, b_i = three()  # 输入门参数
+    W_xf, W_hf, b_f = three()  # 遗忘门参数
+    W_xo, W_ho, b_o = three()  # 输出门参数
+    W_xc, W_hc, b_c = three()  # 候选记忆单元参数
+    # 输出层参数
+    W_hq = normal((num_hiddens, num_outputs))
+    b_q = tf.Variable(tf.zeros(num_outputs), dtype=tf.float32)
+    # 附加梯度
+    params = [W_xi, W_hi, b_i, W_xf, W_hf, b_f, W_xo, W_ho, b_o, W_xc, W_hc,
+              b_c, W_hq, b_q]
+    return params
+```
+
 ### 定义模型
 
 在[**初始化函数**]中，长短期记忆网络的隐藏状态需要返回一个*额外*的记忆单元，单元的值为0，形状为（批量大小，隐藏单元数）。因此，我们得到以下的状态初始化。
@@ -165,6 +199,13 @@ def init_lstm_state(batch_size, num_hiddens, device):
 def init_lstm_state(batch_size, num_hiddens, device):
     return (torch.zeros((batch_size, num_hiddens), device=device),
             torch.zeros((batch_size, num_hiddens), device=device))
+```
+
+```{.python .input}
+#@tab tensorflow
+def init_lstm_state(batch_size, num_hiddens):
+    return (tf.zeros(shape=(batch_size, num_hiddens)),
+            tf.zeros(shape=(batch_size, num_hiddens)))
 ```
 
 [**实际模型**]的定义与我们前面讨论的一样：提供三个门和一个额外的记忆单元。请注意，只有隐藏状态才会传递到输出层，而记忆单元$\mathbf{C}_t$不直接参与输出计算。
@@ -206,17 +247,46 @@ def lstm(inputs, state, params):
     return torch.cat(outputs, dim=0), (H, C)
 ```
 
+```{.python .input}
+#@tab tensorflow
+def lstm(inputs, state, params):
+    W_xi, W_hi, b_i, W_xf, W_hf, b_f, W_xo, W_ho, b_o, W_xc, W_hc, b_c, W_hq, b_q = params
+    (H, C) = state
+    outputs = []
+    for X in inputs:
+        X=tf.reshape(X,[-1,W_xi.shape[0]])
+        I = tf.sigmoid(tf.matmul(X, W_xi) + tf.matmul(H, W_hi) + b_i)
+        F = tf.sigmoid(tf.matmul(X, W_xf) + tf.matmul(H, W_hf) + b_f)
+        O = tf.sigmoid(tf.matmul(X, W_xo) + tf.matmul(H, W_ho) + b_o)
+        C_tilda = tf.tanh(tf.matmul(X, W_xc) + tf.matmul(H, W_hc) + b_c)
+        C = F * C + I * C_tilda
+        H = O * tf.tanh(C)
+        Y = tf.matmul(H, W_hq) + b_q
+        outputs.append(Y)
+    return tf.concat(outputs, axis=0), (H,C)
+```
+
 ### [**训练**]和预测
 
 让我们通过实例化 :numref:`sec_rnn_scratch`中引入的`RNNModelScratch`类来训练一个长短期记忆网络，就如我们在 :numref:`sec_gru`中所做的一样。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch
 vocab_size, num_hiddens, device = len(vocab), 256, d2l.try_gpu()
 num_epochs, lr = 500, 1
 model = d2l.RNNModelScratch(len(vocab), num_hiddens, device, get_lstm_params,
                             init_lstm_state, lstm)
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
+```
+
+```{.python .input}
+#@tab tensorflow
+vocab_size, num_hiddens, device_name = len(vocab), 256, d2l.try_gpu()._device_name
+num_epochs, lr = 500, 1
+strategy = tf.distribute.OneDeviceStrategy(device_name)
+with strategy.scope():
+    model = d2l.RNNModelScratch(len(vocab), num_hiddens, init_lstm_state, lstm, get_lstm_params)
+d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, strategy)
 ```
 
 ## [**简洁实现**]
@@ -238,7 +308,20 @@ model = model.to(device)
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 ```
 
-长短期记忆网络是典型的具有重要状态控制的隐变量自回归模型。多年来已经提出了其许多变体，例如，多层、残差连接、不同类型的正则化。然而，由于序列的长距离依赖性，训练长短期记忆网络和其他序列模型（例如门控循环单元）的成本是相当高的。在后面的内容中，我们将遇到可在某些情况下使用的替代模型，如Transformer。
+```{.python .input}
+#@tab tensorflow
+lstm_cell = tf.keras.layers.LSTMCell(num_hiddens,
+    kernel_initializer='glorot_uniform')
+lstm_layer = tf.keras.layers.RNN(lstm_cell, time_major=True,
+    return_sequences=True, return_state=True)
+device_name = d2l.try_gpu()._device_name
+strategy = tf.distribute.OneDeviceStrategy(device_name)
+with strategy.scope():
+    model = d2l.RNNModel(lstm_layer, vocab_size=len(vocab))
+d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, strategy)
+```
+
+长短期记忆网络是典型的具有重要状态控制的隐变量自回归模型。多年来已经提出了其许多变体，例如，多层、残差连接、不同类型的正则化。然而，由于序列的长距离依赖性，训练长短期记忆网络和其他序列模型（例如门控循环单元）的成本是相当高的。在后面的内容中，我们将遇到可在某些情况下使用的替代模型，如transformer。
 
 ## 小结
 

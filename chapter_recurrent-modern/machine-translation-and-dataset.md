@@ -99,13 +99,19 @@ source[:6], target[:6]
 
 ```{.python .input}
 #@tab all
-d2l.set_figsize()
-_, _, patches = d2l.plt.hist(
-    [[len(l) for l in source], [len(l) for l in target]],
-    label=['source', 'target'])
-for patch in patches[1].patches:
-    patch.set_hatch('/')
-d2l.plt.legend(loc='upper right');
+def show_list_len_pair_hist(legend, xlabel, ylabel, xlist, ylist):
+    """Plot the histogram for list length pairs."""
+    d2l.set_figsize()
+    _, _, patches = d2l.plt.hist(
+        [[len(l) for l in xlist], [len(l) for l in ylist]])
+    d2l.plt.xlabel(xlabel)
+    d2l.plt.ylabel(ylabel)
+    for patch in patches[1].patches:
+        patch.set_hatch('/')
+    d2l.plt.legend(legend)
+
+show_list_len_pair_hist(['source', 'target'], '# tokens per sequence',
+                        'count', source, target);
 ```
 
 ## [**词汇表**]
