@@ -4,16 +4,16 @@
 本章我们已经学习了许多有效优化的技术。
 在本节讨论之前，我们先详细回顾一下这些技术：
 
-* 在 :numref:`sec_sgd` 中，我们学习了：随机梯度下降在解决优化问题时比梯度下降更有效。
-* 在 :numref:`sec_minibatch_sgd` 中，我们学习了：在一个小批量中使用更大的观测值集，可以通过矢量化提供额外效率。这是高效的多机、多 GPU 和整体并行处理的关键。
-* 在 :numref:`sec_momentum` 中我们添加了一种机制，用于汇总过去梯度的历史以加速收敛。
-* 在 :numref:`sec_adagrad` 中，我们使用每坐标缩放来实现计算效率的预处理。
-* 在 :numref:`sec_rmsprop` 中，我们通过学习率的调整来分离每个坐标的缩放。
+* 在 :numref:`sec_sgd`中，我们学习了：随机梯度下降在解决优化问题时比梯度下降更有效。
+* 在 :numref:`sec_minibatch_sgd`中，我们学习了：在一个小批量中使用更大的观测值集，可以通过矢量化提供额外效率。这是高效的多机、多GPU和整体并行处理的关键。
+* 在 :numref:`sec_momentum`中我们添加了一种机制，用于汇总过去梯度的历史以加速收敛。
+* 在 :numref:`sec_adagrad`中，我们使用每坐标缩放来实现计算效率的预处理。
+* 在 :numref:`sec_rmsprop`中，我们通过学习率的调整来分离每个坐标的缩放。
 
-Adam算法 :cite:`Kingma.Ba.2014` 将所有这些技术汇总到一个高效的学习算法中。
+Adam算法 :cite:`Kingma.Ba.2014`将所有这些技术汇总到一个高效的学习算法中。
 不出预料，作为深度学习中使用的更强大和有效的优化算法之一，它非常受欢迎。
-但是它并非没有问题，尤其是 :cite:`Reddi.Kale.Kumar.2019` 表明，有时Adam算法可能由于方差控制不良而发生分歧。
-在完善工作中， :cite:`Zaheer.Reddi.Sachan.ea.2018` 给Adam算法提供了一个称为 Yogi 的热补丁来解决这些问题。
+但是它并非没有问题，尤其是 :cite:`Reddi.Kale.Kumar.2019`表明，有时Adam算法可能由于方差控制不良而发生分歧。
+在完善工作中， :cite:`Zaheer.Reddi.Sachan.ea.2018`给Adam算法提供了一个称为Yogi的热补丁来解决这些问题。
 下面我们了解一下Adam算法。
 
 ## 算法
@@ -25,24 +25,24 @@ $$\begin{aligned}
     \mathbf{s}_t & \leftarrow \beta_2 \mathbf{s}_{t-1} + (1 - \beta_2) \mathbf{g}_t^2.
 \end{aligned}$$
 
-这里 $\beta_1$ 和 $\beta_2$ 是非负加权参数。
-他们的常见设置是 $\beta_1 = 0.9$ 和 $\beta_2 = 0.999$。
+这里$\beta_1$和$\beta_2$是非负加权参数。
+他们的常见设置是$\beta_1 = 0.9$和$\beta_2 = 0.999$。
 也就是说，方差的估计比动量的估计移动得远远更慢。
-注意，如果我们初始化 $\mathbf{v}_0 = \mathbf{s}_0 = 0$，就会获得一个相当大的初始偏差。
-我们可以通过使用 $\sum_{i=0}^t \beta^i = \frac{1 - \beta^t}{1 - \beta}$来解决这个问题。
+注意，如果我们初始化$\mathbf{v}_0 = \mathbf{s}_0 = 0$，就会获得一个相当大的初始偏差。
+我们可以通过使用$\sum_{i=0}^t \beta^i = \frac{1 - \beta^t}{1 - \beta}$来解决这个问题。
 相应地，标准化状态变量由以下获得
 
 $$\hat{\mathbf{v}}_t = \frac{\mathbf{v}_t}{1 - \beta_1^t} \text{ and } \hat{\mathbf{s}}_t = \frac{\mathbf{s}_t}{1 - \beta_2^t}.$$
 
 有了正确的估计，我们现在可以写出更新方程。
-首先，我们以非常类似于 RMSProp 算法的方式重新缩放梯度以获得
+首先，我们以非常类似于RMSProp算法的方式重新缩放梯度以获得
 
 $$\mathbf{g}_t' = \frac{\eta \hat{\mathbf{v}}_t}{\sqrt{\hat{\mathbf{s}}_t} + \epsilon}.$$
 
-与 RMSProp 不同，我们的更新使用动量 $\hat{\mathbf{v}}_t$ 而不是梯度本身。
-此外，由于使用 $\frac{1}{\sqrt{\hat{\mathbf{s}}_t} + \epsilon}$ 而不是 $\frac{1}{\sqrt{\hat{\mathbf{s}}_t + \epsilon}}$ 进行缩放，两者会略有差异。
-前者在实践中效果略好一些，因此与 RMSProp 算法有所区分。
-通常，我们选择 $\epsilon = 10^{-6}$，这是为了在数值稳定性和保真度之间取得良好的平衡。
+与RMSProp不同，我们的更新使用动量$\hat{\mathbf{v}}_t$而不是梯度本身。
+此外，由于使用$\frac{1}{\sqrt{\hat{\mathbf{s}}_t} + \epsilon}$而不是$\frac{1}{\sqrt{\hat{\mathbf{s}}_t + \epsilon}}$进行缩放，两者会略有差异。
+前者在实践中效果略好一些，因此与RMSProp算法有所区分。
+通常，我们选择$\epsilon = 10^{-6}$，这是为了在数值稳定性和保真度之间取得良好的平衡。
 
 最后，我们简单更新：
 
@@ -51,13 +51,13 @@ $$\mathbf{x}_t \leftarrow \mathbf{x}_{t-1} - \mathbf{g}_t'.$$
 回顾Adam算法，它的设计灵感很清楚：
 首先，动量和规模在状态变量中清晰可见，
 他们相当独特的定义使我们移除偏项目（这可以通过稍微不同的初始化和更新条件来修正）。
-其次，RMSProp 算法中两个项目的组合都非常简单。
-最后，明确的学习率 $\eta$ 使我们能够控制步长来解决收敛问题。
+其次，RMSProp算法中两个项目的组合都非常简单。
+最后，明确的学习率$\eta$使我们能够控制步长来解决收敛问题。
 
 ## 实现
 
 从头开始实现Adam算法并不难。
-为方便起见，我们将时间步 $t$ 存储在 `hyperparams` 字典中。
+为方便起见，我们将时间步$t$存储在`hyperparams`字典中。
 除此之外，一切都很简单。
 
 ```{.python .input}
@@ -131,7 +131,7 @@ def adam(params, grads, states, hyperparams):
                     / tf.math.sqrt(s_bias_corr) + eps)
 ```
 
-现在，我们用以上Adam算法来训练模型，这里我们使用 $\eta = 0.01$ 的学习率。
+现在，我们用以上Adam算法来训练模型，这里我们使用$\eta = 0.01$的学习率。
 
 ```{.python .input}
 #@tab all
@@ -161,15 +161,15 @@ d2l.train_concise_ch11(trainer, {'learning_rate': 0.01}, data_iter)
 ## Yogi
 
 Adam算法也存在一些问题：
-即使在凸环境下，当 $\mathbf{s}_t$ 的第二力矩估计值爆炸时，它可能无法收敛。
-:cite:`Zaheer.Reddi.Sachan.ea.2018` 为 $\mathbf{s}_t$ 提出了的改进更新和参数初始化。
+即使在凸环境下，当$\mathbf{s}_t$的第二力矩估计值爆炸时，它可能无法收敛。
+ :cite:`Zaheer.Reddi.Sachan.ea.2018`为$\mathbf{s}_t$提出了的改进更新和参数初始化。
 论文中建议我们重写Adam算法更新如下：
 
 $$\mathbf{s}_t \leftarrow \mathbf{s}_{t-1} + (1 - \beta_2) \left(\mathbf{g}_t^2 - \mathbf{s}_{t-1}\right).$$
 
-每当 $\mathbf{g}_t^2$ 具有高变量或更新稀疏时，$\mathbf{s}_t$ 可能会太快地“忘记”过去的值。
-一个有效的解决方法是将 $\mathbf{g}_t^2 - \mathbf{s}_{t-1}$ 替换为 $\mathbf{g}_t^2 \odot \mathop{\mathrm{sgn}}(\mathbf{g}_t^2 - \mathbf{s}_{t-1})$。
-这就是 Yogi 更新，现在更新的规模不再取决于偏差的量。
+每当$\mathbf{g}_t^2$具有高变量或更新稀疏时，$\mathbf{s}_t$可能会太快地“忘记”过去的值。
+一个有效的解决方法是将$\mathbf{g}_t^2 - \mathbf{s}_{t-1}$替换为$\mathbf{g}_t^2 \odot \mathop{\mathrm{sgn}}(\mathbf{g}_t^2 - \mathbf{s}_{t-1})$。
+这就是Yogi更新，现在更新的规模不再取决于偏差的量。
 
 $$\mathbf{s}_t \leftarrow \mathbf{s}_{t-1} + (1 - \beta_2) \mathbf{g}_t^2 \odot \mathop{\mathrm{sgn}}(\mathbf{g}_t^2 - \mathbf{s}_{t-1}).$$
 
@@ -234,16 +234,16 @@ d2l.train_ch11(yogi, init_adam_states(feature_dim),
 
 ## 小结
 
-* Adam 算法将许多优化算法的功能结合到了相当强大的更新规则中。
-* Adam算法在 RMSProp 算法基础上创建的，还在小批量的随机梯度上使用 EWMA。
+* Adam算法将许多优化算法的功能结合到了相当强大的更新规则中。
+* Adam算法在RMSProp算法基础上创建的，还在小批量的随机梯度上使用EWMA。
 * 在估计动量和第二力矩时，Adam算法使用偏差校正来调整缓慢的启动速度。
-* 对于具有显著差异的梯度，我们可能会遇到收敛性问题。我们可以通过使用更大的小批量或者切换到改进的估计值 $\mathbf{s}_t$ 来修正它们。Yogi 提供了这样的替代方案。
+* 对于具有显著差异的梯度，我们可能会遇到收敛性问题。我们可以通过使用更大的小批量或者切换到改进的估计值$\mathbf{s}_t$来修正它们。Yogi提供了这样的替代方案。
 
 ## 练习
 
 1. 调节学习率，观察并分析实验结果。
 1. 你能重写动量和第二力矩更新，从而使其不需要偏差校正吗？
-1. 当我们收敛时，为什么你需要降低学习率 $\eta$？
+1. 当我们收敛时，为什么你需要降低学习率$\eta$？
 1. 尝试构造一个使用Adam算法会发散而Yogi会收敛的例子。
 
 :begin_tab:`mxnet`
