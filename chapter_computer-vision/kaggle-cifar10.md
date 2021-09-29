@@ -121,6 +121,7 @@ def copyfile(filename, target_dir):
 
 #@save
 def reorg_train_valid(data_dir, labels, valid_ratio):
+    """将验证集从原始的训练集中拆分出来"""
     # 训练数据集中示例最少的类别中的示例数
     n = collections.Counter(labels.values()).most_common()[-1][1]
     # 验证集中每个类别的示例数
@@ -147,6 +148,7 @@ def reorg_train_valid(data_dir, labels, valid_ratio):
 #@tab all
 #@save
 def reorg_test(data_dir):
+    """在预测期间整理测试集，以方便读取"""
     for test_file in os.listdir(os.path.join(data_dir, 'test')):
         copyfile(os.path.join(data_dir, 'test', test_file),
                  os.path.join(data_dir, 'train_valid_test', 'test',

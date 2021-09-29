@@ -1,7 +1,7 @@
-# 词相似性和类比
+# 词的相似性和类比任务
 :label:`sec_synonyms`
 
-在 :numref:`sec_word2vec_pretraining` 中，我们在一个小数据集上训练了一个 word2vec 模型，并应用它来查找输入词语义上相似的词。实际上，在大型语言上预训练的单词向量可以应用于下游自然语言处理任务，后面将在 :numref:`chap_nlp_app` 中介绍这些任务。为了以直接的方式展示来自大型语言的预训练单词矢量的语义，让我们在单词相似性和类比任务中应用它们。
+在 :numref:`sec_word2vec_pretraining` 中，我们在一个小的数据集上训练了一个word2vec模型，并使用它为一个输入词寻找语义相似的词。实际上，在大型语料库上预先训练的词向量可以应用于下游的自然语言处理任务，这将在后面的 :numref:`chap_nlp_app` 中讨论。为了直观地演示大型语料库中预训练词向量的语义，让我们将预训练词向量应用到词的相似性和类比任务中。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -19,9 +19,9 @@ from torch import nn
 import os
 ```
 
-## 加载预训练的词向量
+## 加载预训练词向量
 
-下面列出了维度 50、100 和 300 的预训练 GLOVE 嵌入，可以从 [GloVe website](https://nlp.stanford.edu/projects/glove/) 下载。经过预训练的 FastText 嵌入提供多种语言版本。这里我们考虑一个英文版本（300 维 “wiki Ien”），它可以从 [fastText website](https://fasttext.cc/) 下载。
+以下列出维度为50、100和300的预训练GloVe嵌入，可从[GloVe网站](https://nlp.stanford.edu/projects/glove/)下载。预训练的fastText嵌入有多种语言。这里我们使用可以从[fastText网站](https://fasttext.cc/)下载的英文版本（300维的“wiki.en”）。
 
 ```{.python .input}
 #@tab all
@@ -42,7 +42,7 @@ d2l.DATA_HUB['wiki.en'] = (d2l.DATA_URL + 'wiki.en.zip',
                            'c1816da3821ae9f43899be655002f6c723e91b88')
 ```
 
-为了加载这些预训练的 Glove 和 FastText 嵌入，我们定义了以下 `TokenEmbedding` 类。
+为了加载这些预训练的GloVe和fastText嵌入，我们定义了以下`TokenEmbedding`类。
 
 ```{.python .input}
 #@tab all
@@ -59,13 +59,13 @@ class TokenEmbedding:
     def _load_embedding(self, embedding_name):
         idx_to_token, idx_to_vec = ['<unk>'], []
         data_dir = d2l.download_extract(embedding_name)
-        # GloVe website: https://nlp.stanford.edu/projects/glove/
-        # fastText website: https://fasttext.cc/
+        # GloVe网站：https://nlp.stanford.edu/projects/glove/
+        # fastText网站：https://fasttext.cc/
         with open(os.path.join(data_dir, 'vec.txt'), 'r') as f:
             for line in f:
                 elems = line.rstrip().split(' ')
                 token, elems = elems[0], [float(elem) for elem in elems[1:]]
-                # Skip header information, such as the top row in fastText
+                # 跳过标题信息，例如fastText中的首行
                 if len(elems) > 1:
                     idx_to_token.append(token)
                     idx_to_vec.append(elems)
@@ -82,38 +82,38 @@ class TokenEmbedding:
         return len(self.idx_to_token)
 ```
 
-下面我们加载 50 维 GloVE 嵌入物（在维基百科子集上预训练）。创建 `TokenEmbedding` 实例时，如果尚未下载指定的嵌入文件，则必须下载该文件。
+下面我们加载50维GloVe嵌入（在维基百科的子集上预训练）。创建`TokenEmbedding`实例时，如果尚未下载指定的嵌入文件，则必须下载该文件。
 
 ```{.python .input}
 #@tab all
 glove_6b50d = TokenEmbedding('glove.6b.50d')
 ```
 
-输出词汇量大小。词汇包含 40 万个单词（词元）和一个特殊的未知词元。
+输出词表大小。词表包含400000个词（词元）和一个特殊的未知词元。
 
 ```{.python .input}
 #@tab all
 len(glove_6b50d)
 ```
 
-我们可以在词汇中获得单词的索引，反之亦然。
+我们可以得到词表中一个单词的索引，反之亦然。
 
 ```{.python .input}
 #@tab all
 glove_6b50d.token_to_idx['beautiful'], glove_6b50d.idx_to_token[3367]
 ```
 
-## 应用预训练的词向量
+## 应用预训练词向量
 
-使用加载的 Glove 向量，我们将通过在以下单词相似性和类比任务中应用它们来演示它们的语义。 
+使用加载的GloVe向量，我们将通过下面的词相似性和类比任务中来展示词向量的语义。
 
-### 词相似性
+### 词相似度
 
-与 :numref:`subsec_apply-word-embed` 类似，为了根据词矢量之间的余弦相似性为输入词找到语义上相似的词，我们实现了以下 `knn`（$k$-最近邻）函数。
+与 :numref:`subsec_apply-word-embed` 类似，为了根据词向量之间的余弦相似性为输入词查找语义相似的词，我们实现了以下`knn`（$k$近邻）函数。
 
 ```{.python .input}
 def knn(W, x, k):
-    # Add 1e-9 for numerical stability
+    # 增加1e-9以获得数值稳定性
     cos = np.dot(W, x.reshape(-1,)) / (
         np.sqrt(np.sum(W * W, axis=1) + 1e-9) * np.sqrt((x * x).sum()))
     topk = npx.topk(cos, k=k, ret_typ='indices')
@@ -123,7 +123,7 @@ def knn(W, x, k):
 ```{.python .input}
 #@tab pytorch
 def knn(W, x, k):
-    # Add 1e-9 for numerical stability
+    # 增加1e-9以获得数值稳定性
     cos = torch.mv(W, x.reshape(-1,)) / (
         torch.sqrt(torch.sum(W * W, axis=1) + 1e-9) *
         torch.sqrt((x * x).sum()))
@@ -131,7 +131,7 @@ def knn(W, x, k):
     return topk, [cos[int(i)] for i in topk]
 ```
 
-然后，我们使用 `TokenEmbedding` 实例 `embed` 实例 `embed` 中的预先训练的词向量来搜索类似的单词。
+然后，我们使用`TokenEmbedding`的实例`embed`中预训练好的词向量来搜索相似的词。
 
 ```{.python .input}
 #@tab all
@@ -141,14 +141,14 @@ def get_similar_tokens(query_token, k, embed):
         print(f'cosine sim={float(c):.3f}: {embed.idx_to_token[int(i)]}')
 ```
 
-`glove_6b50d` 中的预训练单词矢量的词汇包含 40 万个单词和一个特殊的未知词元。不包括输入单词和未知词元，在这个词汇中，我们可以找到三个与单词 “芯片” 在语义上最相似的单词。
+`glove_6b50d`中预训练词向量的词表包含400000个词和一个特殊的未知词元。排除输入词和未知词元后，我们在词表中找到与“chip”一词语义最相似的三个词。
 
 ```{.python .input}
 #@tab all
 get_similar_tokens('chip', 3, glove_6b50d)
 ```
 
-下面输出了与 “宝贝” 和 “美丽” 类似的词语。
+下面输出与“baby”和“beautiful”相似的词。
 
 ```{.python .input}
 #@tab all
@@ -160,9 +160,9 @@ get_similar_tokens('baby', 3, glove_6b50d)
 get_similar_tokens('beautiful', 3, glove_6b50d)
 ```
 
-### 单词类比
+### 词类比
 
-除了找到类似的单词之外，我们还可以将单词矢量应用于单词类比任务。例如，“男人”：“女人”። “儿子”：“女儿” 是一个词类比的形式：“男人” 是 “女人”，因为 “儿子” 就是 “女儿”。具体来说，“类比完成任务” 这个词可以定义为：对于单词类比 $a : b :: c : d$，前三个词 $a$、$b$ 和 $c$，找 $d$。用 $\text{vec}(w)$ 表示单词 $w$ 的矢量。为了完成这个比喻，我们将找到矢量与 $\text{vec}(c)+\text{vec}(b)-\text{vec}(a)$ 结果最相似的单词。
+除了找到相似的词，我们还可以将词向量应用到词类比任务中。例如，“man”:“woman”::“son”:“daughter”是一个词的类比。“man”是对“woman”的类比，“son”是对“daughter”的比喻。具体来说，词类比任务可以定义为：对于单词类比$a : b :: c : d$，给出前三个词$a$、$b$和$c$，找到$d$。用$\text{vec}(w)$表示词$w$的向量。为了完成这个类比，我们将找到一个词，其向量与$\text{vec}(c)+\text{vec}(b)-\text{vec}(a)$的结果最相似。
 
 ```{.python .input}
 #@tab all
@@ -170,46 +170,46 @@ def get_analogy(token_a, token_b, token_c, embed):
     vecs = embed[[token_a, token_b, token_c]]
     x = vecs[1] - vecs[0] + vecs[2]
     topk, cos = knn(embed.idx_to_vec, x, 1)
-    return embed.idx_to_token[int(topk[0])]  # Remove unknown words
+    return embed.idx_to_token[int(topk[0])]  # 删除未知词
 ```
 
-让我们使用加载的单词矢量来验证 “男-女” 类比。
+让我们使用加载的词向量来验证“male-female”类比。
 
 ```{.python .input}
 #@tab all
 get_analogy('man', 'woman', 'son', glove_6b50d)
 ```
 
-以下是 “首都国” 类比：“北京”：“中国”። “东京”：“日本”。这演示了预训练的单词矢量中的语义。
+下面完成一个“首都-国家”的类比：“beijing”:“china”::“tokyo”:“japan”。这说明了预训练词向量中的语义。
 
 ```{.python .input}
 #@tab all
 get_analogy('beijing', 'china', 'tokyo', glove_6b50d)
 ```
 
-对于 “形容词-超级形容词” 类比，如 “坏”：“最坏”። “大”：“最大”，我们可以看到，预训练的单词向量可能会捕获句法信息。
+对于“bad”:“worst”::“big”:“biggest”等“形容词-形容词最高级”的比喻，我们可以看到，预训练词向量可以捕捉到句法信息。
 
 ```{.python .input}
 #@tab all
 get_analogy('bad', 'worst', 'big', glove_6b50d)
 ```
 
-为了在预先训练的单词矢量中显示捕获的过去时概念，我们可以使用 “现在十-过去时” 类比来测试语法：“do”: “do”። “Go”: “走了”。
+为了演示在预训练词向量中捕捉到的过去式概念，我们可以使用“现在式-过去式”的类比来测试句法：“do”:“did”::“go”:“went”。
 
 ```{.python .input}
 #@tab all
 get_analogy('do', 'did', 'go', glove_6b50d)
 ```
 
-## 摘要
+## 小结
 
-* 实际上，在大型语言上预训练的单词向量可以应用于下游自然语言处理任务。
-* 预训练的词向量可以应用于单词相似性和类比任务。
+* 在实践中，在大型语料库上预先练的词向量可以应用于下游的自然语言处理任务。
+* 预训练的词向量可以应用于词的相似性和类比任务。
 
 ## 练习
 
-1. 使用 `TokenEmbedding('wiki.en')` 测试 FastText 结果。
-1. 当词汇量极大时，我们怎样才能更快地找到类似的单词或完成单词类比？
+1. 使用`TokenEmbedding('wiki.en')`测试fastText结果。
+1. 当词表非常大时，我们怎样才能更快地找到相似的词或完成一个词的类比呢？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/387)

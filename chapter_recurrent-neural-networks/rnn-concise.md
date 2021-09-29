@@ -1,7 +1,7 @@
 # 循环神经网络的简洁实现
 :label:`sec_rnn-concise`
 
-虽然 :numref:`sec_rnn_scratch` 对了解循环神经网络的实现方式具有指导意义，但并不方便。本节将展示如何使用深度学习框架的高级API提供的函数更有效地实现相同的语言模型。我们仍然从读取时光机器数据集开始。
+虽然 :numref:`sec_rnn_scratch`对了解循环神经网络的实现方式具有指导意义，但并不方便。本节将展示如何使用深度学习框架的高级API提供的函数更有效地实现相同的语言模型。我们仍然从读取时光机器数据集开始。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -26,7 +26,7 @@ train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 
 ## [**定义模型**]
 
-高级API提供了循环神经网络的实现。我们构造了一个具有256个隐藏单元的单隐藏层的循环神经网络层 `rnn_layer`。事实上，我们还没有讨论多层的意义——这将在 :numref:`sec_deep_rnn`中介绍。现在，仅需要将多层理解为一层循环神经网络的输出被用作下一层循环神经网络的输入就足够了。
+高级API提供了循环神经网络的实现。我们构造了一个具有256个隐藏单元的单隐藏层的循环神经网络层`rnn_layer`。事实上，我们还没有讨论多层的意义——这将在 :numref:`sec_deep_rnn`中介绍。现在，仅需要将多层理解为一层循环神经网络的输出被用作下一层循环神经网络的输入就足够了。
 
 ```{.python .input}
 num_hiddens = 256
@@ -78,7 +78,7 @@ Y, state_new = rnn_layer(X, state)
 Y.shape, state_new.shape
 ```
 
-与 :numref:`sec_rnn_scratch` 类似，[**我们为一个完整的循环神经网络模型定义了一个`RNNModel`类**]。注意， `rnn_layer` 只包含隐藏的循环层，我们还需要创建一个单独的输出层。
+与 :numref:`sec_rnn_scratch`类似，[**我们为一个完整的循环神经网络模型定义了一个`RNNModel`类**]。注意，`rnn_layer`只包含隐藏的循环层，我们还需要创建一个单独的输出层。
 
 ```{.python .input}
 #@save
@@ -164,7 +164,7 @@ net = net.to(device)
 d2l.predict_ch8('time traveller', 10, net, vocab, device)
 ```
 
-很明显，这种模型根本不能输出好的结果。接下来，我们使用 :numref:`sec_rnn_scratch` 中定义的超参数调用 `train_ch8`，并且[**使用高级API训练模型**]。
+很明显，这种模型根本不能输出好的结果。接下来，我们使用 :numref:`sec_rnn_scratch`中定义的超参数调用`train_ch8`，并且[**使用高级API训练模型**]。
 
 ```{.python .input}
 #@tab all
@@ -184,7 +184,7 @@ d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, device)
 
 1. 你能使用高级API使循环神经网络模型过拟合吗？
 1. 如果在循环神经网络模型中增加隐藏层的数量会发生什么？你能使模型正常工作吗？
-1. 使用循环神经网络实现 :numref:`sec_sequence` 的自回归模型。
+1. 使用循环神经网络实现 :numref:`sec_sequence`的自回归模型。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/2105)

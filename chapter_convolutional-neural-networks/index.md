@@ -32,4 +32,3 @@ channels
 pooling
 lenet
 ```
-
