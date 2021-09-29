@@ -175,9 +175,6 @@ class MultiHeadAttention(tf.keras.layers.Layer):
 #@save
 def transpose_qkv(X, num_heads):
     """为了多注意力头的并行计算而变换形状。"""
-    多个注意头并行计算的换位。
-
-
     # 输入 `X` 的形状: (`batch_size`, 查询或者“键－值”对的个数, `num_hiddens`).
     # 输出 `X` 的形状: (`batch_size`, 查询或者“键－值”对的个数, `num_heads`,
     # `num_hiddens` / `num_heads`)
