@@ -363,6 +363,7 @@ def sequence_mask(X, valid_len, value=0):
     
 X = tf.constant([[1, 2, 3], [4, 5, 6]])
 sequence_mask(X, tf.constant([1, 2]))
+```
 
 (**我们还可以使用此函数屏蔽最后几个轴上的所有项。**)如果愿意，也可以使用指定的非零值来替换这些项。
 
