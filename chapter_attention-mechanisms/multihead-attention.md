@@ -245,7 +245,7 @@ def transpose_qkv(X, num_heads):
 
 #@save
 def transpose_output(X, num_heads):
-     """逆转 `transpose_qkv` 函数的操作。"""
+    """逆转 `transpose_qkv` 函数的操作。"""
     X = tf.reshape(X, shape=(-1, num_heads, X.shape[1], X.shape[2]))
     X = tf.transpose(X, perm=(0, 2, 1, 3))
     return tf.reshape(X, shape=(X.shape[0], X.shape[1], -1))
