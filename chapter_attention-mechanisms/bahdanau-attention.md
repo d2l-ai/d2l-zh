@@ -32,6 +32,12 @@ import torch
 from torch import nn
 ```
 
+```{.python .input}
+#@tab tensorflow
+from d2l import tensorflow as d2l
+import tensorflow as tf
+```
+
 ## 定义注意力解码器
 
 要用Bahdanau注意力实现循环神经网络编码器-解码器，我们只需重新定义解码器即可。为了更方便地显示学习的注意力权重，以下`AttentionDecoder`类定义了[**带有注意力机制的解码器基本接口**]。
@@ -151,6 +157,59 @@ class Seq2SeqAttentionDecoder(AttentionDecoder):
         return self._attention_weights
 ```
 
+```{.python .input}
+#@tab tensorflow
+class Seq2SeqAttentionDecoder(AttentionDecoder):
+    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers,
+                 dropout=0, **kwargs):
+        super().__init__(**kwargs)
+        self.attention = d2l.AdditiveAttention(num_hiddens, num_hiddens,
+                                               num_hiddens, dropout)
+        self.embedding = tf.keras.layers.Embedding(vocab_size, embed_size)
+        self.rnn = tf.keras.layers.RNN(tf.keras.layers.StackedRNNCells(
+            [tf.keras.layers.GRUCell(num_hiddens, dropout=dropout)
+             for _ in range(num_layers)]),
+                                      return_sequences=True, return_state=True)
+        self.dense = tf.keras.layers.Dense(vocab_size)
+
+    def init_state(self, enc_outputs, enc_valid_lens, *args):
+        # `outputs`的形状为 (`num_steps`, `batch_size`, `num_hiddens`).
+        # `hidden_state[0]`的形状为 (`num_layers`, `batch_size`,
+        # `num_hiddens`)
+        outputs, hidden_state = enc_outputs
+        return (outputs, hidden_state, enc_valid_lens)
+
+    def call(self, X, state, **kwargs):
+        # `enc_outputs`的形状为 (`batch_size`, `num_steps`, `num_hiddens`).
+        # `hidden_state[0]`的形状为 (`num_layers`, `batch_size`,
+        # `num_hiddens`)
+        enc_outputs, hidden_state, enc_valid_lens = state
+        # 输出 `X`的形状为 (`num_steps`, `batch_size`, `embed_size`)
+        X = self.embedding(X) # 输入 `X`的形状为 (`batch_size`, `num_steps`)
+        X = tf.transpose(X, perm=(1, 0, 2))
+        outputs, self._attention_weights = [], []
+        for x in X:
+            # `query`的形状为 (`batch_size`, 1, `num_hiddens`)
+            query = tf.expand_dims(hidden_state[-1], axis=1)
+            # `context`的形状为 (`batch_size`, 1, `num_hiddens`)
+            context = self.attention(query, enc_outputs, enc_outputs,
+                                     enc_valid_lens, **kwargs)
+            # 在特征维度上连结
+            x = tf.concat((context, tf.expand_dims(x, axis=1)), axis=-1)
+            out = self.rnn(x, hidden_state, **kwargs)
+            hidden_state = out[1:]
+            outputs.append(out[0])
+            self._attention_weights.append(self.attention.attention_weights)
+        # 全连接层变换后， `outputs`的形状为 
+        # (`num_steps`, `batch_size`, `vocab_size`)
+        outputs = self.dense(tf.concat(outputs, axis=1))
+        return outputs, [enc_outputs, hidden_state, enc_valid_lens]
+
+    @property
+    def attention_weights(self):
+        return self._attention_weights
+```
+
 接下来，我们使用包含7个时间步的4个序列输入的小批量[**测试Bahdanau注意力解码器**]。
 
 ```{.python .input}
@@ -180,6 +239,18 @@ output, state = decoder(X, state)
 output.shape, len(state), state[0].shape, len(state[1]), state[1][0].shape
 ```
 
+```{.python .input}
+#@tab tensorflow
+encoder = d2l.Seq2SeqEncoder(vocab_size=10, embed_size=8, num_hiddens=16,
+                             num_layers=2)
+decoder = Seq2SeqAttentionDecoder(vocab_size=10, embed_size=8, num_hiddens=16,
+                                  num_layers=2)
+X = tf.zeros((4, 7))
+state = decoder.init_state(encoder(X, training=False), None)
+output, state = decoder(X, state, training=False)
+output.shape, len(state), state[0].shape, len(state[1]), state[1][0].shape
+```
+
 ## [**训练**]
 
 与 :numref:`sec_seq2seq_training`类似，我们在这里指定超参数，实例化一个带有Bahdanau注意力的编码器和解码器，并对这个模型进行机器翻译训练。由于新增的注意力机制，这项训练要比没有注意力机制的 :numref:`sec_seq2seq_training`慢得多。
@@ -202,12 +273,23 @@ d2l.train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
 模型训练后，我们用它[**将几个英语句子翻译成法语**]并计算它们的BLEU分数。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch
 engs = ['go .', "i lost .", 'he\'s calm .', 'i\'m home .']
 fras = ['va !', 'j\'ai perdu .', 'il est calme .', 'je suis chez moi .']
 for eng, fra in zip(engs, fras):
     translation, dec_attention_weight_seq = d2l.predict_seq2seq(
         net, eng, src_vocab, tgt_vocab, num_steps, device, True)
+    print(f'{eng} => {translation}, ',
+          f'bleu {d2l.bleu(translation, fra, k=2):.3f}')
+```
+
+```{.python .input}
+#@tab tensorflow
+engs = ['go .', "i lost .", 'he\'s calm .', 'i\'m home .']
+fras = ['va !', 'j\'ai perdu .', 'il est calme .', 'je suis chez moi .']
+for eng, fra in zip(engs, fras):
+    translation, dec_attention_weight_seq = d2l.predict_seq2seq(
+        net, eng, src_vocab, tgt_vocab, num_steps, True)
     print(f'{eng} => {translation}, ',
           f'bleu {d2l.bleu(translation, fra, k=2):.3f}')
 ```
@@ -225,7 +307,7 @@ attention_weights = d2l.reshape(
 # 加上一个包含序列结束词元
 d2l.show_heatmaps(
     attention_weights[:, :, :, :len(engs[-1].split()) + 1],
-    xlabel='Key posistions', ylabel='Query posistions')
+    xlabel='Key positions', ylabel='Query positions')
 ```
 
 ```{.python .input}
@@ -233,7 +315,14 @@ d2l.show_heatmaps(
 # 加上一个包含序列结束词元
 d2l.show_heatmaps(
     attention_weights[:, :, :, :len(engs[-1].split()) + 1].cpu(),
-    xlabel='Key posistions', ylabel='Query posistions')
+    xlabel='Key positions', ylabel='Query positions')
+```
+
+```{.python .input}
+#@tab tensorflow
+# 加上一个包含序列结束词元
+d2l.show_heatmaps(attention_weights[:, :, :, :len(engs[-1].split()) + 1],
+                  xlabel='Key posistions', ylabel='Query posistions')
 ```
 
 ## 小结

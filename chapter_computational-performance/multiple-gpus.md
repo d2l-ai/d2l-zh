@@ -186,7 +186,7 @@ def get_params(params, device):
 ```{.python .input}
 #@tab pytorch
 def get_params(params, device):
-    new_params = [p.clone().to(device) for p in params]
+    new_params = [p.to(device) for p in params]
     for p in new_params:
         p.requires_grad_()
     return new_params

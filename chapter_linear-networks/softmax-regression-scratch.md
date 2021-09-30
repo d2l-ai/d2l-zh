@@ -1,7 +1,7 @@
 # softmax回归的从零开始实现
 :label:`sec_softmax_scratch`
 
-(**就像我们从零开始实现线性回归一样，**)我们认为softmax回归也是重要的基础，因此(**你应该知道实现softmax的细节**)。我们使用刚刚在 :numref:`sec_fashion_mnist`中引入的Fashion-MNIST数据集，并设置数据迭代器的批量大小为256。
+(**就像我们从零开始实现线性回归一样，**)我们认为softmax回归也是重要的基础，因此(**你应该知道实现softmax的细节**)(~~softmax回归~~)。我们使用刚刚在 :numref:`sec_fashion_mnist`中引入的Fashion-MNIST数据集，并设置数据迭代器的批量大小为256。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -144,7 +144,7 @@ def net(X):
 接下来，我们需要实现 :numref:`sec_softmax`中引入的交叉熵损失函数。这可能是深度学习中最常见的损失函数，因为目前分类问题的数量远远超过回归问题。
 
 回顾一下，交叉熵采用真实标签的预测概率的负对数似然。我们不需要使用Python的for循环迭代预测（这往往是低效的）。我们可以通过一个运算符选择所有元素。
-下面，我们[**创建一个数据`y_hat`，其中包含2个样本在3个类别的预测概率，**]它们对应的标签`y`。
+下面，我们[**创建一个数据样本`y_hat`，其中包含2个样本在3个类别的预测概率，及它们对应的标签`y`。**]
 有了`y`，我们知道在第一个样本中，第一类是正确的预测，而在第二个样本中，第三类是正确的预测。
 然后(**使用`y`作为`y_hat`中概率的索引**)，我们选择第一个样本中第一个类的概率和第二个样本中第三个类的概率。
 
@@ -225,8 +225,9 @@ def evaluate_accuracy(net, data_iter):  #@save
     if isinstance(net, torch.nn.Module):
         net.eval()  # 将模型设置为评估模式
     metric = Accumulator(2)  # 正确预测数、预测总数
-    for X, y in data_iter:
-        metric.add(accuracy(net(X), y), d2l.size(y))
+    with torch.no_grad():
+        for X, y in data_iter:
+            metric.add(accuracy(net(X), y), d2l.size(y))
     return metric[0] / metric[1]
 ```
 

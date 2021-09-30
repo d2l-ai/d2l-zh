@@ -56,7 +56,7 @@ $$\begin{aligned}P(A, B, y_3 \mid \mathbf{c}) = P(A, B \mid \mathbf{c})P(y_3 \mi
 
 最后，我们基于这六个序列（例如，丢弃包括“&lt;eos&gt;”和之后的部分）获得最终候选输出序列集合。然后我们选择以下得分最高的序列作为输出序列：
 
-$$ \frac{1}{L^\alpha} \log P(y_1, \ldots, y_{L}) = \frac{1}{L^\alpha} \sum_{t'=1}^L \log P(y_{t'} \mid y_1, \ldots, y_{t'-1}, \mathbf{c}),$$
+$$ \frac{1}{L^\alpha} \log P(y_1, \ldots, y_{L}\mid \mathbf{c}) = \frac{1}{L^\alpha} \sum_{t'=1}^L \log P(y_{t'} \mid y_1, \ldots, y_{t'-1}, \mathbf{c}),$$
 :eqlabel:`eq_beam-search-score`
 
 其中$L$是最终候选序列的长度，$\alpha$通常设置为$0.75$。因为一个较长的序列在 :eqref:`eq_beam-search-score`的求和中会有更多的对数项，因此分母中的$L^\alpha$用于惩罚长序列。

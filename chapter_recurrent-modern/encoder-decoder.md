@@ -39,6 +39,20 @@ class Encoder(nn.Module):
         raise NotImplementedError
 ```
 
+```{.python .input}
+#@tab tensorflow
+import tensorflow as tf
+
+#@save
+class Encoder(tf.keras.layers.Layer):
+    """The base encoder interface for the encoder-decoder architecture."""
+    def __init__(self, **kwargs):
+        super(Encoder, self).__init__(**kwargs)
+
+    def call(self, X, *args, **kwargs):
+        raise NotImplementedError
+```
+
 ## [**解码器**]
 
 在下面的解码器接口中，我们新增一个`init_state` 函数用于将编码器的输出（`enc_outputs`）转换为编码后的状态。注意，此步骤可能需要额外的输入，例如：输入序列的有效长度，这在 :numref:`subsec_mt_data_loading` 中进行了解释。为了逐个地生成长度可变的词元序列，解码器在每个时间步都会将输入（例如：在前一时间步生成的词元）和编码后的状态映射成当前时间步的输出词元。
@@ -69,6 +83,21 @@ class Decoder(nn.Module):
         raise NotImplementedError
 
     def forward(self, X, state):
+        raise NotImplementedError
+```
+
+```{.python .input}
+#@tab tensorflow
+#@save
+class Decoder(tf.keras.layers.Layer):
+    """编码器-解码器结构的基本解码器接口。"""
+    def __init__(self, **kwargs):
+        super(Decoder, self).__init__(**kwargs)
+
+    def init_state(self, enc_outputs, *args):
+        raise NotImplementedError
+
+    def call(self, X, state, **kwargs):
         raise NotImplementedError
 ```
 
@@ -105,6 +134,22 @@ class EncoderDecoder(nn.Module):
         enc_outputs = self.encoder(enc_X, *args)
         dec_state = self.decoder.init_state(enc_outputs, *args)
         return self.decoder(dec_X, dec_state)
+```
+
+```{.python .input}
+#@tab tensorflow
+#@save
+class EncoderDecoder(tf.keras.Model):
+    """编码器-解码器结构的基类。"""
+    def __init__(self, encoder, decoder, **kwargs):
+        super(EncoderDecoder, self).__init__(**kwargs)
+        self.encoder = encoder
+        self.decoder = decoder
+
+    def call(self, enc_X, dec_X, *args, **kwargs):
+        enc_outputs = self.encoder(enc_X, *args, **kwargs)
+        dec_state = self.decoder.init_state(enc_outputs, *args)
+        return self.decoder(dec_X, dec_state, **kwargs)
 ```
 
 “编码器－解码器”体系结构中的术语“状态”可能会启发你使用具有状态的神经网络来实现该结构。
