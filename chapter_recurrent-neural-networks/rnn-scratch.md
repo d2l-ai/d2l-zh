@@ -522,7 +522,7 @@ def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
 ```{.python .input}
 #@tab tensorflow
 #@save
-def train_epoch_ch8(net, train_iter, loss, updater, params, use_random_iter):
+def train_epoch_ch8(net, train_iter, loss, updater, use_random_iter):
     """训练模型一个迭代周期（定义见第8章）。"""
     state, timer = None, d2l.Timer()
     metric = d2l.Accumulator(2)  # 训练损失之和, 词元数量
@@ -538,7 +538,6 @@ def train_epoch_ch8(net, train_iter, loss, updater, params, use_random_iter):
         grads = g.gradient(l, params)
         grads = grad_clipping(grads, 1)
         updater.apply_gradients(zip(grads, params))
-        
         # Keras默认返回一个批量中的平均损失
         # l_sum = l * float(d2l.size(y)) if isinstance(
         #     loss, tf.keras.losses.Loss) else tf.reduce_sum(l)
@@ -639,7 +638,7 @@ train_ch8(net, train_iter, vocab, lr, num_epochs, d2l.try_gpu())
 ```{.python .input}
 #@tab tensorflow
 num_epochs, lr = 500, 1
-train_ch8(net, train_iter, vocab, num_hiddens, lr, num_epochs, strategy)
+train_ch8(net, train_iter, vocab, lr, num_epochs, strategy)
 ```
 
 [**最后，让我们检查一下使用随机抽样方法的结果。**]
