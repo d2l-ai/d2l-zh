@@ -371,7 +371,7 @@ predict_ch8('time traveller ', 10, net, vocab, d2l.try_gpu())
 
 ```{.python .input}
 #@tab tensorflow
-predict_ch8('time traveller ', 10, net, vocab, params)
+predict_ch8('time traveller ', 10, net, vocab)
 ```
 
 ## [**梯度裁剪**]
