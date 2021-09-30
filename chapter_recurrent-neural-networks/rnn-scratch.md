@@ -348,16 +348,16 @@ def predict_ch8(prefix, num_preds, net, vocab, device):  #@save
 
 ```{.python .input}
 #@tab tensorflow
-def predict_ch8(prefix, num_preds, net, vocab, params):  #@save
-    """在`prefix`后面生成新字符。"""
+def predict_ch8(prefix, num_preds, net, vocab):  #@save
+    """Generate new characters following the `prefix`."""
     state = net.begin_state(batch_size=1, dtype=tf.float32)
     outputs = [vocab[prefix[0]]]
     get_input = lambda: d2l.reshape(d2l.tensor([outputs[-1]]), (1, 1)).numpy()
-    for y in prefix[1:]:  # 预热期
-        _, state = net(get_input(), state, params)
+    for y in prefix[1:]:  # Warm-up period
+        _, state = net(get_input(), state)
         outputs.append(vocab[y])
-    for _ in range(num_preds):  # 预测`num_preds`步
-        y, state = net(get_input(), state, params)
+    for _ in range(num_preds):  # Predict `num_preds` steps
+        y, state = net(get_input(), state)
         outputs.append(int(y.numpy().argmax(axis=1).reshape(1)))
     return ''.join([vocab.idx_to_token[i] for i in outputs])
 ```
