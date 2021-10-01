@@ -5,17 +5,19 @@
 
 ## 安装 Miniconda
 
-最简单的方法就是安装依赖 Python 3.x 的 [Miniconda](https://conda.io/en/latest/miniconda.html)。如果已安装 conda，则可以跳过以下步骤。
+最简单的方法就是安装依赖 Python 3.x 的 [Miniconda](https://conda.io/en/latest/miniconda.html)。
+如果已安装 conda，则可以跳过以下步骤。
 从网站下载相应的 Miniconda sh 文件，然后使用 `sh <FILENAME> -b` 从命令行执行安装。
 
-对于 macOS 用户：
+如果你使用macOS，假设你的Python版本是3.8（我们的测试版本），你将下载名称包含字符串“MacOSX”的bash脚本：
+
 
 ```bash
 # 文件名可能会更改
-sh Miniconda3-latest-MacOSX-x86_64.sh -b
+sh Miniconda3-py38_4.10.3-MacOSX-x86_64.sh -b
 ```
 
-对于 Linux 用户：
+对于Linux用户，你将下载名称包含字符串“Linux”的bash脚本，并执行以下操作：
 
 ```bash
 # 文件名可能会更改
@@ -54,9 +56,11 @@ conda activate d2l
 
 ## 安装框架和 `d2l` 软件包
 
-在安装深度学习框架之前，请先检查你的计算机上是否有可用的 GPU（在笔记本电脑上为显示器提供输出的GPU不算）。如果要在 GPU 机器上安装，请继续在 :ref:`subsec_gpu` 获取有关安装GPU支持版本的说明。
+在安装深度学习框架之前，请先检查你的计算机上是否有可用的 GPU（在笔记本电脑上为显示器提供输出的GPU不算）。
+如果要在 GPU 机器上安装，请继续在 :ref:`subsec_gpu` 获取有关安装GPU支持版本的说明。
 
-或者，你可以按照如下方法安装CPU版本。这将足够帮助你完成前几章，但你需要在运行更大模型之前获取GPU。
+或者，你可以按照如下方法安装CPU版本。
+这将足够帮助你完成前几章，但你需要在运行更大模型之前获取GPU。
 
 :begin_tab:`mxnet`
 
