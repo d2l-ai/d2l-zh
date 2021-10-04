@@ -43,17 +43,17 @@ conda activate d2l
 
 ## 安装深度学习框架和`d2l`软件包
 
-在安装深度学习框架之前，请先检查你的计算机上是否有可用的GPU（在笔记本电脑上为显示器提供输出的GPU不算）。
+在安装深度学习框架之前，请先检查你的计算机上是否有可用的GPU（为笔记本电脑上显示器提供输出的GPU不算）。
 例如，你可以查看计算机是否装有NVIDIA GPU并已安装[CUDA](https://developer.nvidia.com/cuda-downloads)。
 如果你的机器没有任何GPU，没有必要担心，因为你的CPU在前几章完全够用。
-但是，如果你想流畅地学习全部章节，请提早获取GPU和安装深度学习框架的GPU版本。
+但是，如果你想流畅地学习全部章节，请提早获取GPU并且安装深度学习框架的GPU版本。
 
 
 :begin_tab:`mxnet`
 
 安装MXNet的GPU版本，你首先需要知道已安装的CUDA版本。
 （你可以通过运行`nvcc --version`或`cat /usr/local/cuda/version.txt`来检验。）
-假设你已安装CUDA 10.1版本，然后执行以下命令：
+假设你已安装CUDA 10.1版本，请执行以下命令：
 
 
 ```bash
@@ -64,12 +64,12 @@ pip install mxnet-cu101==1.7.0
 pip install mxnet-cu101==1.7.0 -f https://dist.mxnet.io/python
 ```
 
-你可以根据你的 CUDA 版本更改如上`mxnet-cu101`的最后一位数字，
-例如：CUDA 10.0 是 `cu100`， CUDA 9.0 是 `cu90`。
+你可以根据你的CUDA版本更改如上`mxnet-cu101`的最后一位数字，
+例如：CUDA 10.0是`cu100`， CUDA 9.0是`cu90`。
 
 
 如果你的机器没有NVIDIA GPU或CUDA，
-你可以按如下方式安装深度学习框架的CPU版本：
+你可以按如下方式MXNet的CPU版本：
 
 ```bash
 pip install mxnet==1.7.0.post1
@@ -108,7 +108,7 @@ pip install d2l==0.17.0
 ## 下载 D2L Notebook
 
 接下来，需要下载这本书的代码。
-你可以点击本书HTML页面顶部的“Jupyter 记事本文件”选项下载后解压代码。
+你可以点击本书HTML页面顶部的“Jupyter 记事本”选项下载后解压代码。
 或者，你可以按照如下方式进行下载：
 
 
@@ -135,7 +135,7 @@ unzip d2l-zh.zip && rm d2l-zh.zip
 cd pytorch
 ```
 
-注意：如果没有安装`unzip`，则可以通过运行`sudo apt install unzip`进行安装。
+注意：如果你没有安装`unzip`，则可以通过运行`sudo apt install unzip`进行安装。
 
 :end_tab:
 
@@ -149,12 +149,12 @@ unzip d2l-zh.zip && rm d2l-zh.zip
 cd tensorflow
 ```
 
-注意：如果没有安装`unzip`，则可以通过运行`sudo apt install unzip`进行安装。
+注意：如果你没有安装`unzip`，则可以通过运行`sudo apt install unzip`进行安装。
 
 :end_tab:
 
 
-安装完成后，我们通过运行以下命令打开Jupyter笔记本：
+安装完成后，你可以通过运行以下命令打开Jupyter笔记本：
 
 ```bash
 jupyter notebook
