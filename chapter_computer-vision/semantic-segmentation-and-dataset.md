@@ -20,7 +20,7 @@
 
 ## Pascal VOC2012 语义分割数据集
 
-[**最重要的语义分割数据集之一是[Pascal VOC2012]（http://host.robots.ox.ac.uk/pascal/VOC/voc2012/）。**]
+[**最重要的语义分割数据集之一是[Pascal VOC2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/)。**]
 下面我们深入了解一下这个数据集。
 
 ```{.python .input}

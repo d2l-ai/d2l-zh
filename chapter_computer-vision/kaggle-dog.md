@@ -1,4 +1,4 @@
-# 实战 Kaggle 比赛：狗的品种识别（ImageNet Dogs）
+# 实战Kaggle比赛：狗的品种识别（ImageNet Dogs）
 
 本节我们将在Kaggle上实战狗品种识别问题。
 本次(**比赛网址是https://www.kaggle.com/c/dog-breed-identification**)。
@@ -386,7 +386,7 @@ train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
       lr_decay)
 ```
 
-## [**对测试集分类**]并在 Kaggle 提交结果
+## [**对测试集分类**]并在Kaggle提交结果
 
 与 :numref:`sec_kaggle_cifar10`中的最后一步类似，最终所有标记的数据（包括验证集）都用于训练模型和对测试集进行分类。
 我们将使用训练好的自定义输出网络进行分类。
