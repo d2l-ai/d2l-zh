@@ -5,12 +5,10 @@
 
 ## 安装 Miniconda
 
-最简单的方法就是安装依赖 Python 3.x 的 [Miniconda](https://conda.io/en/latest/miniconda.html)。
-如果已安装 conda，则可以跳过以下步骤。
-从网站下载相应的 Miniconda sh 文件，然后使用 `sh <FILENAME> -b` 从命令行执行安装。
+最简单的方法就是安装依赖Python 3.x的[Miniconda](https://conda.io/en/latest/miniconda.html)。
+如果已安装conda，则可以跳过以下步骤。访问Miniconda网站，根据Python3.x版本确定适合你的系统的版本。
 
 如果你使用macOS，假设你的Python版本是3.8（我们的测试版本），你将下载名称包含字符串“MacOSX”的bash脚本，并执行以下操作：
-
 
 ```bash
 # 文件名可能会更改
@@ -24,7 +22,7 @@ sh Miniconda3-py38_4.10.3-MacOSX-x86_64.sh -b
 sh Miniconda3-py38_4.10.3-Linux-x86_64.sh -b
 ```
 
-接下来，初始化终端 Shell，以便我们可以直接运行 `conda`。
+接下来，初始化终端Shell，以便我们可以直接运行`conda`。
 
 ```bash
 ~/miniconda3/bin/conda init
@@ -45,7 +43,7 @@ conda activate d2l
 
 ## 安装深度学习框架和`d2l`软件包
 
-在安装深度学习框架之前，请先检查你的计算机上是否有可用的 GPU（在笔记本电脑上为显示器提供输出的GPU不算）。
+在安装深度学习框架之前，请先检查你的计算机上是否有可用的GPU（在笔记本电脑上为显示器提供输出的GPU不算）。
 例如，你可以查看计算机是否装有NVIDIA GPU并已安装[CUDA](https://developer.nvidia.com/cuda-downloads)。
 如果你的机器没有任何GPU，没有必要担心，因为你的CPU在前几章完全够用。
 但是，如果你想流畅地学习全部章节，请提早获取GPU和安装深度学习框架的GPU版本。
@@ -59,10 +57,10 @@ conda activate d2l
 
 
 ```bash
-# 对于 Linux 和 macOS 用户
+# 对于Linux和macOS用户
 pip install mxnet-cu101==1.7.0
 
-# 对于 Windows 用户
+# 对于Windows用户
 pip install mxnet-cu101==1.7.0 -f https://dist.mxnet.io/python
 ```
 
@@ -100,7 +98,7 @@ pip install tensorflow-probability==0.11.1
 
 :end_tab:
 
-我们的下一步是安装`d2l`包，以封装本书中经常使用的函数和类：
+我们的下一步是安装`d2l`包，以方便调取本书中经常使用的函数和类：
 
 ```bash
 pip install d2l==0.17.0
@@ -123,7 +121,7 @@ unzip d2l-zh.zip && rm d2l-zh.zip
 cd mxnet
 ```
 
-注意：如果没有安装 `unzip`，则可以通过运行 `sudo apt install unzip` 进行安装。
+注意：如果你没有安装`unzip`，则可以通过运行`sudo apt install unzip`进行安装。
 
 :end_tab:
 
@@ -137,7 +135,7 @@ unzip d2l-zh.zip && rm d2l-zh.zip
 cd pytorch
 ```
 
-注意：如果没有安装 `unzip`，则可以通过运行 `sudo apt install unzip` 进行安装。
+注意：如果没有安装`unzip`，则可以通过运行`sudo apt install unzip`进行安装。
 
 :end_tab:
 
@@ -151,21 +149,21 @@ unzip d2l-zh.zip && rm d2l-zh.zip
 cd tensorflow
 ```
 
-注意：如果没有安装 `unzip`，则可以通过运行 `sudo apt install unzip` 进行安装。
+注意：如果没有安装`unzip`，则可以通过运行`sudo apt install unzip`进行安装。
 
 :end_tab:
 
 
-安装完成后，我们通过运行以下命令打开 Jupyter 笔记本：
+安装完成后，我们通过运行以下命令打开Jupyter笔记本：
 
 ```bash
 jupyter notebook
 ```
 
-现在，你可以在 Web 浏览器中打开 <http://localhost:8888>（通常会自动打开）。
+现在，你可以在Web浏览器中打开<http://localhost:8888>（通常会自动打开）。
 由此，你可以运行这本书中每个部分的代码。
-在运行书籍代码、更新深度学习框架或 `d2l` 软件包之前，请始终执行 `conda activate d2l` 以激活运行时环境。
-要退出环境，请运行 `conda deactivate`。
+在运行书籍代码、更新深度学习框架或`d2l`软件包之前，请始终执行`conda activate d2l`以激活运行时环境。
+要退出环境，请运行`conda deactivate`。
 
 
 
