@@ -43,14 +43,14 @@ import tensorflow as tf
 ```
 
 
-## [**遮蔽softmax操作**]
+## [**掩蔽softmax操作**]
 
-正如上面提到的，softmax运算用于输出一个概率分布作为注意力权重。在某些情况下，并非所有的值都应该被纳入到注意力汇聚中。例如，为了在 :numref:`sec_machine_translation`中高效处理小批量数据集，某些文本序列被填充了没有意义的特殊词元。为了仅将有意义的词元作为值去获取注意力汇聚，可以指定一个有效序列长度（即词元的个数），以便在计算softmax时过滤掉超出指定范围的位置。通过这种方式，我们可以在下面的`masked_softmax`函数中实现这样的*遮蔽softmax操作*（masked softmax operation），其中任何超出有效长度的位置都被遮蔽并置为0。
+正如上面提到的，softmax操作用于输出一个概率分布作为注意力权重。在某些情况下，并非所有的值都应该被纳入到注意力汇聚中。例如，为了在 :numref:`sec_machine_translation`中高效处理小批量数据集，某些文本序列被填充了没有意义的特殊词元。为了仅将有意义的词元作为值去获取注意力汇聚，可以指定一个有效序列长度（即词元的个数），以便在计算softmax时过滤掉超出指定范围的位置。通过这种方式，我们可以在下面的`masked_softmax`函数中实现这样的*掩蔽softmax操作*（masked softmax operation），其中任何超出有效长度的位置都被掩蔽并置为0。
 
 ```{.python .input}
 #@save
 def masked_softmax(X, valid_lens):
-    """通过在最后一个轴上遮蔽元素来执行 softmax 操作"""
+    """通过在最后一个轴上掩蔽元素来执行 softmax 操作"""
     # `X`: 3D张量, `valid_lens`: 1D或2D 张量
     if valid_lens is None:
         return npx.softmax(X)
@@ -60,7 +60,7 @@ def masked_softmax(X, valid_lens):
             valid_lens = valid_lens.repeat(shape[1])
         else:
             valid_lens = valid_lens.reshape(-1)
-        # 在最后的轴上，被遮蔽的元素使用一个非常大的负值替换，从而其 softmax (指数)输出为 0
+        # 在最后的轴上，被掩蔽的元素使用一个非常大的负值替换，从而其 softmax (指数)输出为 0
         X = npx.sequence_mask(X.reshape(-1, shape[-1]), valid_lens, True,
                               value=-1e6, axis=1)
         return npx.softmax(X).reshape(shape)
@@ -70,7 +70,7 @@ def masked_softmax(X, valid_lens):
 #@tab pytorch
 #@save
 def masked_softmax(X, valid_lens):
-    """通过在最后一个轴上遮蔽元素来执行 softmax 操作"""
+    """通过在最后一个轴上掩蔽元素来执行 softmax 操作"""
     # `X`: 3D张量, `valid_lens`: 1D或2D 张量
     if valid_lens is None:
         return nn.functional.softmax(X, dim=-1)
@@ -80,7 +80,7 @@ def masked_softmax(X, valid_lens):
             valid_lens = torch.repeat_interleave(valid_lens, shape[1])
         else:
             valid_lens = valid_lens.reshape(-1)
-        # 在最后的轴上，被遮蔽的元素使用一个非常大的负值替换，从而其 softmax (指数)输出为 0
+        # 在最后的轴上，被掩蔽的元素使用一个非常大的负值替换，从而其 softmax (指数)输出为 0
         X = d2l.sequence_mask(X.reshape(-1, shape[-1]), valid_lens,
                               value=-1e6)
         return nn.functional.softmax(X.reshape(shape), dim=-1)
@@ -90,7 +90,7 @@ def masked_softmax(X, valid_lens):
 #@tab tensorflow
 #@save
 def masked_softmax(X, valid_lens):
-    """通过在最后一个轴上遮蔽元素来执行 softmax 操作"""
+    """通过在最后一个轴上掩蔽元素来执行 softmax 操作"""
     # `X`: 3D张量, `valid_lens`: 1D或2D 张量
     if valid_lens is None:
         return tf.nn.softmax(X, axis=-1)
@@ -101,12 +101,12 @@ def masked_softmax(X, valid_lens):
             
         else:
             valid_lens = tf.reshape(valid_lens, shape=-1)
-        # 在最后的轴上，被遮蔽的元素使用一个非常大的负值替换，从而其 softmax (指数)输出为 0
+        # 在最后的轴上，被掩蔽的元素使用一个非常大的负值替换，从而其 softmax (指数)输出为 0
         X = d2l.sequence_mask(tf.reshape(X, shape=(-1, shape[-1])), valid_lens, value=-1e6)    
         return tf.nn.softmax(tf.reshape(X, shape=shape), axis=-1)
 ```
 
-为了[**演示此函数是如何工作**]的，考虑由两个$2 \times 4$矩阵表示的样本，这两个样本的有效长度分别为$2$和$3$。经过遮蔽softmax操作，超出有效长度的值都被遮蔽为0。
+为了[**演示此函数是如何工作**]的，考虑由两个$2 \times 4$矩阵表示的样本，这两个样本的有效长度分别为$2$和$3$。经过掩蔽softmax操作，超出有效长度的值都被掩蔽为0。
 
 ```{.python .input}
 masked_softmax(np.random.uniform(size=(2, 2, 4)), d2l.tensor([2, 3]))
@@ -281,7 +281,7 @@ d2l.show_heatmaps(d2l.reshape(attention.attention_weights, (1, 1, 2, 10)),
 
 ## [**缩放点积注意力**]
 
-使用点积可以得到计算效率更高的评分函数。但是点积操作要求查询和键具有相同的长度$d$。假设查询和键的所有元素都是独立的随机变量，并且都满足均值为$0$和方差为$1$。那么两个向量的点积的均值为$0$，方差为$d$。为确保无论向量长度如何，点积的方差在不考虑向量长度的情况下仍然是$1$，则可以使用*缩放点积注意力*（scaled dot-product attention）评分函数：
+使用点积可以得到计算效率更高的评分函数。但是点积操作要求查询和键具有相同的长度$d$。假设查询和键的所有元素都是独立的随机变量，并且都满足零均值和单位方差。那么两个向量的点积的均值为$0$，方差为$d$。为确保无论向量长度如何，点积的方差在不考虑向量长度的情况下仍然是$1$，则可以使用*缩放点积注意力*（scaled dot-product attention）评分函数：
 
 $$a(\mathbf q, \mathbf k) = \mathbf{q}^\top \mathbf{k}  /\sqrt{d}$$
 
@@ -290,7 +290,7 @@ $$a(\mathbf q, \mathbf k) = \mathbf{q}^\top \mathbf{k}  /\sqrt{d}$$
 $$ \mathrm{softmax}\left(\frac{\mathbf Q \mathbf K^\top }{\sqrt{d}}\right) \mathbf V \in \mathbb{R}^{n\times v}.$$
 :eqlabel:`eq_softmax_QK_V`
 
-在下面的缩放点积注意力的实现中，我们使用了dropout进行模型正则化。
+在下面的缩放点积注意力的实现中，我们使用了暂退法进行模型正则化。
 
 ```{.python .input}
 #@save

@@ -1,7 +1,7 @@
 # 编码器-解码器结构
 :label:`sec_encoder-decoder`
 
-正如我们在 :numref:`sec_machine_translation`中所讨论的，机器翻译是序列转换模型的一个核心问题，其输入和输出都是长度可变的序列。为了处理这种类型的输入和输出，我们可以设计一个包含两个主要组件的结构。第一个组件是一个*编码器*（encoder）：它接受一个长度可变的序列作为输入，并将其转换为具有固定形状的编码状态。第二个组件是*解码器*（decoder）：它将固定形状的编码状态映射到长度可变的序列。这被称为*编码器-解码器*（encoder-decoder）结构。如 :numref:`fig_encoder_decoder` 所示。
+正如我们在 :numref:`sec_machine_translation`中所讨论的，机器翻译是序列转换模型的一个核心问题，其输入和输出都是长度可变的序列。为了处理这种类型的输入和输出，我们可以设计一个包含两个主要组件的结构。第一个组件是一个*编码器*（encoder）：它接受一个长度可变的序列作为输入，并将其转换为具有固定形状的编码状态。第二个组件是*解码器*（decoder）：它将固定形状的编码状态映射到长度可变的序列。这被称为*编码器-解码器*（encoder-decoder）架构。如 :numref:`fig_encoder_decoder` 所示。
 
 ![编码器-解码器结构](../img/encoder-decoder.svg)
 :label:`fig_encoder_decoder`

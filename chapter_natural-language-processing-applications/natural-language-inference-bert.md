@@ -29,9 +29,9 @@ from torch import nn
 import os
 ```
 
-## [**加载预先训练的BERT**]
+## [**加载预训练的BERT**]
 
-我们已经在 :numref:`sec_bert-dataset` 和 :numref:`sec_bert-pretraining` WikiText-2数据集上预训练BERT（请注意，原始的BERT模型是在更大的语料库上预训练的）。正如在 :numref:`sec_bert-pretraining` 中所讨论的，原始的BERT模型有数以亿计的参数。在下面，我们提供了两个版本的预训练的BERT：“bert.base”与原始的BERT基础模型一样大，需要大量的计算资源才能进行微调，而“bert.mall”是一个小版本，以便于演示。
+我们已经在 :numref:`sec_bert-dataset` 和 :numref:`sec_bert-pretraining` WikiText-2数据集上预训练BERT（请注意，原始的BERT模型是在更大的语料库上预训练的）。正如在 :numref:`sec_bert-pretraining` 中所讨论的，原始的BERT模型有数以亿计的参数。在下面，我们提供了两个版本的预训练的BERT：“bert.base”与原始的BERT基础模型一样大，需要大量的计算资源才能进行微调，而“bert.small”是一个小版本，以便于演示。
 
 ```{.python .input}
 d2l.DATA_HUB['bert.base'] = (d2l.DATA_URL + 'bert.base.zip',

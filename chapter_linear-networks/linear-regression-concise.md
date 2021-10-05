@@ -182,7 +182,7 @@ net.add(tf.keras.layers.Dense(1, kernel_initializer=initializer))
 ## 定义损失函数
 
 :begin_tab:`mxnet`
-在Gluon中，`loss`模块定义了各种损失函数。在这个例子中，我们将使用Gluon中的平方损失（`L2Loss`）。
+在Gluon中，`loss`模块定义了各种损失函数。在这个例子中，我们将使用Gluon中的均方误差（`L2Loss`）。
 :end_tab:
 
 :begin_tab:`pytorch`
