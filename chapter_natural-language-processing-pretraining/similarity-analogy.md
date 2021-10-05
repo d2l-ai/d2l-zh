@@ -1,7 +1,7 @@
 # 词的相似性和类比任务
 :label:`sec_synonyms`
 
-在 :numref:`sec_word2vec_pretraining` 中，我们在一个小的数据集上训练了一个word2vec模型，并使用它为一个输入词寻找语义相似的词。实际上，在大型语料库上预先训练的词向量可以应用于下游的自然语言处理任务，这将在后面的 :numref:`chap_nlp_app` 中讨论。为了直观地演示大型语料库中预训练词向量的语义，让我们将预训练词向量应用到词的相似性和类比任务中。
+在 :numref:`sec_word2vec_pretraining`中，我们在一个小的数据集上训练了一个word2vec模型，并使用它为一个输入词寻找语义相似的词。实际上，在大型语料库上预先训练的词向量可以应用于下游的自然语言处理任务，这将在后面的 :numref:`chap_nlp_app`中讨论。为了直观地演示大型语料库中预训练词向量的语义，让我们将预训练词向量应用到词的相似性和类比任务中。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -21,7 +21,7 @@ import os
 
 ## 加载预训练词向量
 
-以下列出维度为50、100和300的预训练GloVe嵌入，可从[GloVe网站](https://nlp.stanford.edu/projects/glove/)下载。预训练的fastText嵌入有多种语言。这里我们使用可以从[fastText网站](https://fasttext.cc/)下载的英文版本（300维的“wiki.en”）。
+以下列出维度为50、100和300的预训练GloVe嵌入，可从[GloVe网站]（https://nlp.stanford.edu/projects/glove/）下载。预训练的fastText嵌入有多种语言。这里我们使用可以从[fastText网站]（https://fasttext.cc/）下载的英文版本（300维的“wiki.en”）。
 
 ```{.python .input}
 #@tab all
@@ -109,7 +109,7 @@ glove_6b50d.token_to_idx['beautiful'], glove_6b50d.idx_to_token[3367]
 
 ### 词相似度
 
-与 :numref:`subsec_apply-word-embed` 类似，为了根据词向量之间的余弦相似性为输入词查找语义相似的词，我们实现了以下`knn`（$k$近邻）函数。
+与 :numref:`subsec_apply-word-embed`类似，为了根据词向量之间的余弦相似性为输入词查找语义相似的词，我们实现了以下`knn`（$k$近邻）函数。
 
 ```{.python .input}
 def knn(W, x, k):
