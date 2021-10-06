@@ -58,9 +58,9 @@ def read_data_bananas(is_train=True):
         images.append(image.imread(
             os.path.join(data_dir, 'bananas_train' if is_train else
                          'bananas_val', 'images', f'{img_name}')))
-        # Here `target` contains (class, upper-left x, upper-left y,
-        # lower-right x, lower-right y), where all the images have the same
-        # banana class (index 0)
+        # 这里的`target`包含（类别，左上角x，左上角y，右下角x，右下角y），
+        # 其中所有图像都具有相同的香蕉类（索引为0）
+        'target'
         targets.append(list(target))
     return images, np.expand_dims(np.array(targets), 1) / 256
 ```
@@ -80,9 +80,8 @@ def read_data_bananas(is_train=True):
         images.append(torchvision.io.read_image(
             os.path.join(data_dir, 'bananas_train' if is_train else
                          'bananas_val', 'images', f'{img_name}')))
-        # Here `target` contains (class, upper-left x, upper-left y,
-        # lower-right x, lower-right y), where all the images have the same
-        # banana class (index 0)
+        # 这里的`target`包含（类别，左上角x，左上角y，右下角x，右下角y），
+        # 其中所有图像都具有相同的香蕉类（索引为0）
         targets.append(list(target))
     return images, torch.tensor(targets).unsqueeze(1) / 256
 ```
@@ -156,7 +155,7 @@ def load_data_bananas(batch_size):
 通常来说，图像可能拥有不同数量个边界框；因此，在达到$m$之前，边界框少于$m$的图像将被非法边界框填充。
 这样，每个边界框的标签将被长度为5的数组表示。
 数组中的第一个元素是边界框中对象的类别，其中-1表示用于填充的非法边界框。
-数组的其余四个元素是边界框左上角和右下角的（$x$,$y$）坐标值（值域在0到1之间）。
+数组的其余四个元素是边界框左上角和右下角的（$x$，$y$）坐标值（值域在0到1之间）。
 对于香蕉数据集而言，由于每张图像上只有一个边界框，因此$m=1$。
 
 ```{.python .input}

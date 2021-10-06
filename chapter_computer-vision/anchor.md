@@ -61,8 +61,8 @@ def multibox_prior(data, sizes, ratios):
     # 为了将锚点移动到像素的中心，需要设置偏移量。
     # 因为一个像素的的高为1且宽为1，我们选择偏移我们的中心0.5
     offset_h, offset_w = 0.5, 0.5
-    steps_h = 1.0 / in_height  # Scaled steps in y-axis
-    steps_w = 1.0 / in_width  # Scaled steps in x-axis
+    steps_h = 1.0 / in_height  # y轴上缩放步长
+    steps_w = 1.0 / in_width  # x轴上缩放步长
 
     # 生成锚框的所有中心点
     center_h = (d2l.arange(in_height, ctx=device) + offset_h) * steps_h
@@ -74,7 +74,7 @@ def multibox_prior(data, sizes, ratios):
     # 之后用于创建锚框的四角坐标 (xmin, xmax, ymin, ymax)
     w = np.concatenate((size_tensor * np.sqrt(ratio_tensor[0]),
                         sizes[0] * np.sqrt(ratio_tensor[1:]))) \
-                        * in_height / in_width  # Handle rectangular inputs
+                        * in_height / in_width  # 处理矩形输入
     h = np.concatenate((size_tensor / np.sqrt(ratio_tensor[0]),
                         sizes[0] / np.sqrt(ratio_tensor[1:])))
     # 除以2来获得半高和半宽
@@ -103,8 +103,8 @@ def multibox_prior(data, sizes, ratios):
     # 为了将锚点移动到像素的中心，需要设置偏移量。
     # 因为一个像素的的高为1且宽为1，我们选择偏移我们的中心0.5
     offset_h, offset_w = 0.5, 0.5
-    steps_h = 1.0 / in_height  # Scaled steps in y axis
-    steps_w = 1.0 / in_width  # Scaled steps in x axis
+    steps_h = 1.0 / in_height  # y轴上缩放步长
+    steps_w = 1.0 / in_width  # x轴上缩放步长
 
     # 生成锚框的所有中心点
     center_h = (torch.arange(in_height, device=device) + offset_h) * steps_h
@@ -116,7 +116,7 @@ def multibox_prior(data, sizes, ratios):
     # 之后用于创建锚框的四角坐标 (xmin, xmax, ymin, ymax)
     w = torch.cat((size_tensor * torch.sqrt(ratio_tensor[0]),
                    sizes[0] * torch.sqrt(ratio_tensor[1:])))\
-                   * in_height / in_width  # Handle rectangular inputs
+                   * in_height / in_width  # 处理矩形输入
     h = torch.cat((size_tensor / torch.sqrt(ratio_tensor[0]),
                    sizes[0] / torch.sqrt(ratio_tensor[1:])))
     # 除以2来获得半高和半宽
