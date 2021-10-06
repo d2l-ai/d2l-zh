@@ -60,7 +60,6 @@ def read_data_bananas(is_train=True):
                          'bananas_val', 'images', f'{img_name}')))
         # 这里的`target`包含（类别，左上角x，左上角y，右下角x，右下角y），
         # 其中所有图像都具有相同的香蕉类（索引为0）
-        'target'
         targets.append(list(target))
     return images, np.expand_dims(np.array(targets), 1) / 256
 ```
