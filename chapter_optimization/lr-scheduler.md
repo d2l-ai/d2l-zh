@@ -210,7 +210,7 @@ train(net, train_iter, test_iter, num_epochs, lr)
 
 ## 学习率调度器
 
-我们可以在每个迭代周期（甚至在每个小批量）之后向下调整学习率。
+我们可以在每个迭代轮数（甚至在每个小批量）之后向下调整学习率。
 例如，以动态的方式来响应优化的进展情况。
 
 ```{.python .input}
@@ -474,7 +474,7 @@ scheduler = CosineScheduler(20, warmup_steps=5, base_lr=0.3, final_lr=0.01)
 d2l.plot(d2l.arange(num_epochs), [scheduler(t) for t in range(num_epochs)])
 ```
 
-注意，观察前5个迭代周期的性能，网络最初收敛得更好。
+注意，观察前5个迭代轮数的性能，网络最初收敛得更好。
 
 ```{.python .input}
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
