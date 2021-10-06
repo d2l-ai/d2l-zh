@@ -1,11 +1,11 @@
 # 目标检测数据集
 :label:`sec_object-detection-dataset`
 
-目标检测领域没有像 MNIST 和 Fashion-MNIST 那样的小数据集。
+目标检测领域没有像MNIST和Fashion-MNIST那样的小数据集。
 为了快速测试目标检测模型，[**我们收集并标记了一个小型数据集**]。
-首先，我们拍摄了一组香蕉的照片，并生成了 1000 张不同角度和大小的香蕉图像。
+首先，我们拍摄了一组香蕉的照片，并生成了1000张不同角度和大小的香蕉图像。
 然后，我们在一些背景图片的随机位置上放一张香蕉的图像。
-最后，我们在图片上为这些香蕉标记了边界框。 
+最后，我们在图片上为这些香蕉标记了边界框。
 
 ## [**下载数据集**]
 
@@ -41,7 +41,7 @@ d2l.DATA_HUB['banana-detection'] = (
 
 ## 读取数据集
 
-通过 `read_data_bananas` 函数，我们[**读取香蕉检测数据集**]。
+通过`read_data_bananas`函数，我们[**读取香蕉检测数据集**]。
 该数据集包括一个的CSV文件，内含目标类别标签和位于左上角和右下角的真实边界框坐标。
 
 ```{.python .input}
@@ -58,9 +58,8 @@ def read_data_bananas(is_train=True):
         images.append(image.imread(
             os.path.join(data_dir, 'bananas_train' if is_train else
                          'bananas_val', 'images', f'{img_name}')))
-        # Here `target` contains (class, upper-left x, upper-left y,
-        # lower-right x, lower-right y), where all the images have the same
-        # banana class (index 0)
+        # 这里的`target`包含（类别，左上角x，左上角y，右下角x，右下角y），
+        # 其中所有图像都具有相同的香蕉类（索引为0）
         targets.append(list(target))
     return images, np.expand_dims(np.array(targets), 1) / 256
 ```
@@ -80,14 +79,13 @@ def read_data_bananas(is_train=True):
         images.append(torchvision.io.read_image(
             os.path.join(data_dir, 'bananas_train' if is_train else
                          'bananas_val', 'images', f'{img_name}')))
-        # Here `target` contains (class, upper-left x, upper-left y,
-        # lower-right x, lower-right y), where all the images have the same
-        # banana class (index 0)
+        # 这里的`target`包含（类别，左上角x，左上角y，右下角x，右下角y），
+        # 其中所有图像都具有相同的香蕉类（索引为0）
         targets.append(list(target))
     return images, torch.tensor(targets).unsqueeze(1) / 256
 ```
 
-通过使用 `read_data_bananas` 函数读取图像和标签，以下 `BananasDataset` 类别将允许我们[**创建一个自定义 `Dataset` 实例**]来加载香蕉检测数据集。
+通过使用`read_data_bananas`函数读取图像和标签，以下`BananasDataset`类别将允许我们[**创建一个自定义`Dataset`实例**]来加载香蕉检测数据集。
 
 ```{.python .input}
 #@save
@@ -123,7 +121,7 @@ class BananasDataset(torch.utils.data.Dataset):
         return len(self.features)
 ```
 
-最后，我们定义 `load_data_bananas` 函数，来[**为训练集和测试集返回两个数据加载器实例**]。对于测试集，无须按随机顺序读取它。
+最后，我们定义`load_data_bananas`函数，来[**为训练集和测试集返回两个数据加载器实例**]。对于测试集，无须按随机顺序读取它。
 
 ```{.python .input}
 #@save
@@ -150,14 +148,14 @@ def load_data_bananas(batch_size):
 
 让我们[**读取一个小批量，并打印其中的图像和标签的形状**]。
 图像的小批量的形状为（批量大小、通道数、高度、宽度），看起来很眼熟：它与我们之前图像分类任务中的相同。
-标签的小批量的形状为（批量大小，$m$，5），其中 $m$ 是数据集的任何图像中边界框可能出现的最大数量。 
+标签的小批量的形状为（批量大小，$m$，5），其中$m$是数据集的任何图像中边界框可能出现的最大数量。
 
 小批量计算虽然高效，但它要求每张图像含有相同数量的边界框，以便放在同一个批量中。
-通常来说，图像可能拥有不同数量个边界框；因此，在达到 $m$ 之前，边界框少于 $m$ 的图像将被非法边界框填充。
-这样，每个边界框的标签将被长度为 5 的数组表示。
-数组中的第一个元素是边界框中对象的类别，其中 -1 表示用于填充的非法边界框。
-数组的其余四个元素是边界框左上角和右下角的 ($x$, $y$) 坐标值（值域在0到1之间）。
-对于香蕉数据集而言，由于每张图像上只有一个边界框，因此 $m=1$。
+通常来说，图像可能拥有不同数量个边界框；因此，在达到$m$之前，边界框少于$m$的图像将被非法边界框填充。
+这样，每个边界框的标签将被长度为5的数组表示。
+数组中的第一个元素是边界框中对象的类别，其中-1表示用于填充的非法边界框。
+数组的其余四个元素是边界框左上角和右下角的（$x$，$y$）坐标值（值域在0到1之间）。
+对于香蕉数据集而言，由于每张图像上只有一个边界框，因此$m=1$。
 
 ```{.python .input}
 #@tab all
@@ -169,7 +167,7 @@ batch[0].shape, batch[1].shape
 
 ## [**示范**]
 
-让我们展示 10 幅带有真实边界框的图像。
+让我们展示10幅带有真实边界框的图像。
 我们可以看到在所有这些图像中香蕉的旋转角度、大小和位置都有所不同。
 当然，这只是一个简单的人工数据集，实践中真实世界的数据集通常要复杂得多。
 
