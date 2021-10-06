@@ -46,7 +46,7 @@ import os
 * ../数据/种身份识别/火车
 * ../数据/种身份识别/测试
 
-你可能已经注意到，上述结构与 :numref:`sec_kaggle_cifar10` 的 CIFAR-10 竞争对手类似，其中文件夹 `train/` 和 `test/` 分别包含训练和测试狗图像，`labels.csv` 包含训练图像的标签。
+你可能已经注意到，上述架构与 :numref:`sec_kaggle_cifar10` 的 CIFAR-10 竞争对手类似，其中文件夹 `train/` 和 `test/` 分别包含训练和测试狗图像，`labels.csv` 包含训练图像的标签。
 同样，为了便于入门，[**我们提供完整数据集的小规模样本**]：`train_valid_test_tiny.zip`。
 如果你要在 Kaggle 比赛中使用完整的数据集，则需要将下面的 `demo` 变量更改为 `False`。
 

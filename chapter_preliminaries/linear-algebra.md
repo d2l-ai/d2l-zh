@@ -536,7 +536,7 @@ torch.sum(x * y)
 tf.reduce_sum(x * y)
 ```
 
-点积在很多场合都很有用。例如，给定一组由向量$\mathbf{x} \in \mathbb{R}^d$表示的值，和一组由$\mathbf{w} \in \mathbb{R}^d$表示的权重。$\mathbf{x}$中的值根据权重$\mathbf{w}$的加权和可以表示为点积$\mathbf{x}^\top \mathbf{w}$。当权重为非负数且和为1（即$\left(\sum_{i=1}^{d}{w_i}=1\right)$）时，点积表示*加权平均*（weighted average）。将两个向量归一化得到单位长度后，点积表示它们夹角的余弦。我们将在本节的后面正式介绍*长度*（length）的概念。
+点积在很多场合都很有用。例如，给定一组由向量$\mathbf{x} \in \mathbb{R}^d$表示的值，和一组由$\mathbf{w} \in \mathbb{R}^d$表示的权重。$\mathbf{x}$中的值根据权重$\mathbf{w}$的加权和可以表示为点积$\mathbf{x}^\top \mathbf{w}$。当权重为非负数且和为1（即$\left(\sum_{i=1}^{d}{w_i}=1\right)$）时，点积表示*加权平均*（weighted average）。将两个向量规范化得到单位长度后，点积表示它们夹角的余弦。我们将在本节的后面正式介绍*长度*（length）的概念。
 
 ## 矩阵-向量积
 

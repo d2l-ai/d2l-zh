@@ -168,7 +168,7 @@ def train(net, data_iter, lr, num_epochs, device=d2l.try_gpu()):
                             {'learning_rate': lr})
     animator = d2l.Animator(xlabel='epoch', ylabel='loss',
                             xlim=[1, num_epochs])
-    # 归一化的损失之和，归一化的损失数
+    # 规范化的损失之和，规范化的损失数
     metric = d2l.Accumulator(2)
     for epoch in range(num_epochs):
         timer, num_batches = d2l.Timer(), len(data_iter)
@@ -200,7 +200,7 @@ def train(net, data_iter, lr, num_epochs, device=d2l.try_gpu()):
     optimizer = torch.optim.Adam(net.parameters(), lr=lr)
     animator = d2l.Animator(xlabel='epoch', ylabel='loss',
                             xlim=[1, num_epochs])
-    # 归一化的损失之和，归一化的损失数
+    # 规范化的损失之和，规范化的损失数
     metric = d2l.Accumulator(2)
     for epoch in range(num_epochs):
         timer, num_batches = d2l.Timer(), len(data_iter)

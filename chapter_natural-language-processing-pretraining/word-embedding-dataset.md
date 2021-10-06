@@ -161,7 +161,7 @@ f'# center-context pairs: {sum([len(contexts) for contexts in all_contexts])}'
 
 ## 负采样
 
-我们使用负采样进行近似训练。为了根据预定义的分布对噪声词进行采样，我们定义以下`RandomGenerator`类，其中（可能未归一化的）采样分布通过变量`sampling_weights`传递。
+我们使用负采样进行近似训练。为了根据预定义的分布对噪声词进行采样，我们定义以下`RandomGenerator`类，其中（可能未规范化的）采样分布通过变量`sampling_weights`传递。
 
 ```{.python .input}
 #@tab all

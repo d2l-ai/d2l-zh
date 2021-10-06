@@ -341,7 +341,7 @@ ii.证明只检查集合的顶点是充分的。
 
 3. 已知凸函数$f$和$g$表明$\mathrm{max}(f, g)$也是凸函数。证明$\mathrm{min}(f, g)$是非凸的。
 
-4. 证明Softmax函数的归一化是凸的，即$f(x) = \log \sum_i \exp(x_i)$的凸性。
+4. 证明Softmax函数的规范化是凸的，即$f(x) = \log \sum_i \exp(x_i)$的凸性。
 
 5. 证明线性子空间$\mathcal{X} = {\mathbf{X} | \mathbf{W} \mathbf{X} = \mathbf{b}}$是凸集。
 

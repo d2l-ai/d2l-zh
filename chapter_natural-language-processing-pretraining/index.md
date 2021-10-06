@@ -11,10 +11,10 @@
 
 正如我们将在本章中看到的那样，当将每个单词或子词视为单个词元时，可以在大型语料库上使用word2vec、GloVe或子词嵌入模型预先训练每个词元的词元。经过预训练后，每个词元的表示可以是一个向量，但是，无论上下文是什么，它都保持不变。例如，“bank”（可以译作银行或者河岸）的向量表示在“go to the bank to deposit some money”（去银行存点钱）和“go to the bank to sit down”（去河岸坐下来）中是相同的。因此，许多较新的预训练模型使相同词元的表示适应于不同的上下文。其中包括基于transformer编码器的更深的自监督模型BERT。在本章中，我们将重点讨论如何预训练文本的这种表示，如 :numref:`fig_nlp-map-pretrain` 中所强调的那样。
 
-![预训练好的文本表示可以送入不同下游自然语言处理应用的各种深度学习结构。本章主要研究上游文本的预训练。](../img/nlp-map-pretrain.svg)
+![预训练好的文本表示可以送入不同下游自然语言处理应用的各种深度学习架构。本章主要研究上游文本的预训练。](../img/nlp-map-pretrain.svg)
 :label:`fig_nlp-map-pretrain`
 
-为了看清全局， :numref:`fig_nlp-map-pretrain` 显示了预训练的文本表示可以被送入到不同下游自然语言处理应用的各种深度学习结构。我们将在 :numref:`chap_nlp_app` 中介绍它们。
+为了看清全局， :numref:`fig_nlp-map-pretrain` 显示了预训练的文本表示可以被送入到不同下游自然语言处理应用的各种深度学习架构。我们将在 :numref:`chap_nlp_app` 中介绍它们。
 
 ```toc
 :maxdepth: 2

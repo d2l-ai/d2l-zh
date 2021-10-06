@@ -11,7 +11,7 @@
 
 $$\mathbf{c}_{t'} = \sum_{t=1}^T \alpha(\mathbf{s}_{t' - 1}, \mathbf{h}_t) \mathbf{h}_t,$$
 
-其中，时间步$t' - 1$时的解码器隐状态$\mathbf{s}_{t' - 1}$是查询，编码器隐藏状态$\mathbf{h}_t$既是键，也是值，注意力权重$\alpha$是使用 :eqref:`eq_attn-scoring-alpha`所定义的加性注意力打分函数计算的。
+其中，时间步$t' - 1$时的解码器隐状态$\mathbf{s}_{t' - 1}$是查询，编码器隐状态$\mathbf{h}_t$既是键，也是值，注意力权重$\alpha$是使用 :eqref:`eq_attn-scoring-alpha`所定义的加性注意力打分函数计算的。
 
 与 :numref:`fig_seq2seq_details`中的循环神经网络编码器-解码器架构略有不同， :numref:`fig_s2s_attention_details`描述了Bahdanau注意力的架构。
 
@@ -328,7 +328,7 @@ d2l.show_heatmaps(attention_weights[:, :, :, :len(engs[-1].split()) + 1],
 ## 小结
 
 * 在预测词元时，如果不是所有输入词元都是相关的，那么具有Bahdanau注意力的循环神经网络编码器-解码器会有选择地统计输入序列的不同部分。这是通过将上下文变量视为加性注意力池化的输出来实现的。
-* 在循环神经网络编码器-解码器中，Bahdanau注意力将上一个时间步的解码器隐状态视为查询，在所有时间步的编码器隐藏状态同时视为键和值。
+* 在循环神经网络编码器-解码器中，Bahdanau注意力将上一个时间步的解码器隐状态视为查询，在所有时间步的编码器隐状态同时视为键和值。
 
 ## 练习
 

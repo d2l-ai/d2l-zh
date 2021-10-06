@@ -6,7 +6,7 @@
 
 ## 函数类
 
-首先，假设有一类特定的神经网络结构$\mathcal{F}$，它包括学习速率和其他超参数设置。
+首先，假设有一类特定的神经网络架构$\mathcal{F}$，它包括学习速率和其他超参数设置。
 对于所有$f \in \mathcal{F}$，存在一些参数集（例如权重和偏置），这些参数可以通过在合适的数据集上进行训练而获得。
 现在假设$f^*$是我们真正想要找到的函数，如果是$f^* \in \mathcal{F}$，那我们可以轻而易举的训练得到它，但通常我们不会那么幸运。
 相反，我们将尝试找到一个函数$f^*_\mathcal{F}$，这是我们在$\mathcal{F}$中的最佳选择。
@@ -15,7 +15,7 @@
 $$f^*_\mathcal{F} := \mathop{\mathrm{argmin}}_f L(\mathbf{X}, \mathbf{y}, f) \text{ subject to } f \in \mathcal{F}.$$
 
 那么，怎样得到更近似真正$f^*$的函数呢？
-唯一合理的可能性是，我们需要设计一个更强大的结构$\mathcal{F}'$。
+唯一合理的可能性是，我们需要设计一个更强大的架构$\mathcal{F}'$。
 换句话说，我们预计$f^*_{\mathcal{F}'}$比$f^*_{\mathcal{F}}$“更近似”。
 然而，如果$\mathcal{F} \not\subseteq \mathcal{F}'$，则无法保证新的体系“更近似”。
 事实上，$f^*_{\mathcal{F}'}$可能更糟：
@@ -43,7 +43,7 @@ $$f^*_\mathcal{F} := \mathop{\mathrm{argmin}}_f L(\mathbf{X}, \mathbf{y}, f) \te
 残差映射在现实中往往更容易优化。
 以本节开头提到的恒等映射作为我们希望学出的理想映射$f(\mathbf{x})$，我们只需将 :numref:`fig_residual_block`中右图虚线框内上方的加权运算（如仿射）的权重和偏置参数设成0，那么$f(\mathbf{x})$即为恒等映射。
 实际中，当理想映射$f(\mathbf{x})$极接近于恒等映射时，残差映射也易于捕捉恒等映射的细微波动。
- :numref:`fig_residual_block`右图是ResNet的基础结构--*残差块*（residual block）。
+ :numref:`fig_residual_block`右图是ResNet的基础架构--*残差块*（residual block）。
 在残差块中，输入可通过跨层数据线路更快地向前传播。
 
 ![一个正常块（左图）和一个残差块（右图）。](../img/residual-block.svg)
@@ -51,7 +51,7 @@ $$f^*_\mathcal{F} := \mathop{\mathrm{argmin}}_f L(\mathbf{X}, \mathbf{y}, f) \te
 
 ResNet沿用了VGG完整的$3\times 3$卷积层设计。
 残差块里首先有2个有相同输出通道数的$3\times 3$卷积层。
-每个卷积层后接一个批量归一化层和ReLU激活函数。
+每个卷积层后接一个批量规范化层和ReLU激活函数。
 然后我们通过跨层数据通路，跳过这2个卷积运算，将输入直接加在最后的ReLU激活函数前。
 这样的设计要求2个卷积层的输出与输入形状一样，从而可以相加。
 如果想改变通道数，就需要引入一个额外的$1\times 1$卷积层来将输入变换成需要的形状后再做相加运算。
@@ -201,7 +201,7 @@ blk(X).shape
 
 ResNet的前两层跟之前介绍的GoogLeNet中的一样：
 在输出通道数为64、步幅为2的$7 \times 7$卷积层后，接步幅为2的$3 \times 3$的最大汇聚层。
-不同之处在于ResNet每个卷积层后增加了批量归一化层。
+不同之处在于ResNet每个卷积层后增加了批量规范化层。
 
 ```{.python .input}
 net = nn.Sequential()
@@ -343,7 +343,7 @@ def net():
 加上第一个$7\times 7$卷积层和最后一个全连接层，共有18层。
 因此，这种模型通常被称为ResNet-18。
 通过配置不同的通道数和模块里的残差块数可以得到不同的ResNet模型，例如更深的含152层的ResNet-152。
-虽然ResNet的主体结构跟GoogLeNet类似，但ResNet结构更简单，修改也更方便。这些因素都导致了ResNet迅速被广泛使用。
+虽然ResNet的主体架构跟GoogLeNet类似，但ResNet架构更简单，修改也更方便。这些因素都导致了ResNet迅速被广泛使用。
  :numref:`fig_resnet18`描述了完整的ResNet-18。
 
 ![ResNet-18 架构](../img/resnet18.svg)
@@ -399,7 +399,7 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 1.  :numref:`fig_inception`中的Inception块与残差块之间的主要区别是什么？在删除了Inception块中的一些路径之后，它们是如何相互关联的？
 1. 参考ResNet论文 :cite:`He.Zhang.Ren.ea.2016`中的表1，以实现不同的变体。
 1. 对于更深层次的网络，ResNet引入了“bottleneck”架构来降低模型复杂性。请你试着去实现它。
-1. 在ResNet的后续版本中，作者将“卷积层、批量归一化层和激活层”结构更改为“批量归一化层、激活层和卷积层”结构。请你做这个改进。详见 :cite:`He.Zhang.Ren.ea.2016*1`中的图1。
+1. 在ResNet的后续版本中，作者将“卷积层、批量规范化层和激活层”架构更改为“批量规范化层、激活层和卷积层”架构。请你做这个改进。详见 :cite:`He.Zhang.Ren.ea.2016*1`中的图1。
 1. 为什么即使函数类是嵌套的，我们仍然要限制增加函数的复杂性呢？
 
 :begin_tab:`mxnet`

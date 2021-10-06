@@ -11,18 +11,18 @@
 
 ## 门控隐状态
 
-普通的循环神经网络和门控循环单元之间的关键区别在于后者支持隐状态的门控（或者说选通）。这意味着有专门的机制来确定应该何时*更新*隐藏状态，以及应该何时*重置*隐藏状态。这些机制是可学习的，并且能够解决了上面列出的问题。例如，如果第一个词元非常重要，我们将学会在第一次观测之后不更新隐藏状态。同样，我们也可以学会跳过不相关的临时观测。最后，我们还将学会在需要的时候重置隐藏状态。下面我们将详细讨论。
+普通的循环神经网络和门控循环单元之间的关键区别在于后者支持隐状态的门控（或者说选通）。这意味着有专门的机制来确定应该何时*更新*隐状态，以及应该何时*重置*隐状态。这些机制是可学习的，并且能够解决了上面列出的问题。例如，如果第一个词元非常重要，我们将学会在第一次观测之后不更新隐状态。同样，我们也可以学会跳过不相关的临时观测。最后，我们还将学会在需要的时候重置隐状态。下面我们将详细讨论。
 
 ### 重置门和更新门
 
 我们首先要介绍的是*重置门*（reset gate）和*更新门*（update gate）。我们把它们设计成$(0, 1)$区间中的向量，这样我们就可以进行凸组合。例如，重置门允许我们控制可能还想记住的过去状态的数量。同样，更新门将允许我们控制新状态中有多少个是旧状态的副本。
 
-我们从构造这些门控开始。 :numref:`fig_gru_1`描述了门控循环单元中的重置门和更新门的输入，输入是由当前时间步的输入和前一时间步的隐藏状态给出。两个门的输出是由使用sigmoid激活函数的两个全连接层给出。
+我们从构造这些门控开始。 :numref:`fig_gru_1`描述了门控循环单元中的重置门和更新门的输入，输入是由当前时间步的输入和前一时间步的隐状态给出。两个门的输出是由使用sigmoid激活函数的两个全连接层给出。
 
 ![在门控循环单元模型中计算重置门和更新门。](../img/gru-1.svg)
 :label:`fig_gru_1`
 
-数学描述，对于给定的时间步$t$，假设输入是一个小批量$\mathbf{X}_t \in \mathbb{R}^{n \times d}$（样本个数：$n$，输入个数：$d$），上一个时间步的隐藏状态是$\mathbf{H}_{t-1} \in \mathbb{R}^{n \times h}$（隐藏单元个数：$h$）。然后，重置门$\mathbf{R}_t \in \mathbb{R}^{n \times h}$和更新门$\mathbf{Z}_t \in \mathbb{R}^{n \times h}$的计算如下：
+数学描述，对于给定的时间步$t$，假设输入是一个小批量$\mathbf{X}_t \in \mathbb{R}^{n \times d}$（样本个数：$n$，输入个数：$d$），上一个时间步的隐状态是$\mathbf{H}_{t-1} \in \mathbb{R}^{n \times h}$（隐藏单元个数：$h$）。然后，重置门$\mathbf{R}_t \in \mathbb{R}^{n \times h}$和更新门$\mathbf{Z}_t \in \mathbb{R}^{n \times h}$的计算如下：
 
 $$
 \begin{aligned}
@@ -33,33 +33,33 @@ $$
 
 其中$\mathbf{W}_{xr}, \mathbf{W}_{xz} \in \mathbb{R}^{d \times h}$和$\mathbf{W}_{hr}, \mathbf{W}_{hz} \in \mathbb{R}^{h \times h}$是权重参数，$\mathbf{b}_r, \mathbf{b}_z \in \mathbb{R}^{1 \times h}$是偏置参数。请注意，在求和过程中会触发广播机制（请参阅 :numref:`subsec_broadcasting`）。我们使用sigmoid函数（如 :numref:`sec_mlp`中介绍的）将输入值转换到区间$(0, 1)$。
 
-### 候选隐藏状态
+### 候选隐状态
 
-接下来，让我们将重置门$\mathbf{R}_t$与 :eqref:`rnn_h_with_state`中的常规隐状态更新机制集成，得到在时间步$t$的候选隐藏状态$\tilde{\mathbf{H}}_t \in \mathbb{R}^{n \times h}$。
+接下来，让我们将重置门$\mathbf{R}_t$与 :eqref:`rnn_h_with_state`中的常规隐状态更新机制集成，得到在时间步$t$的候选隐状态$\tilde{\mathbf{H}}_t \in \mathbb{R}^{n \times h}$。
 
 $$\tilde{\mathbf{H}}_t = \tanh(\mathbf{X}_t \mathbf{W}_{xh} + \left(\mathbf{R}_t \odot \mathbf{H}_{t-1}\right) \mathbf{W}_{hh} + \mathbf{b}_h),$$
 :eqlabel:`gru_tilde_H`
 
-其中$\mathbf{W}_{xh} \in \mathbb{R}^{d \times h}$和$\mathbf{W}_{hh} \in \mathbb{R}^{h \times h}$是权重参数，$\mathbf{b}_h \in \mathbb{R}^{1 \times h}$是偏置项，符号$\odot$是Hadamard积（按元素乘积）运算符。在这里，我们使用tanh非线性激活函数来确保候选隐藏状态中的值保持在区间$(-1, 1)$中。
+其中$\mathbf{W}_{xh} \in \mathbb{R}^{d \times h}$和$\mathbf{W}_{hh} \in \mathbb{R}^{h \times h}$是权重参数，$\mathbf{b}_h \in \mathbb{R}^{1 \times h}$是偏置项，符号$\odot$是Hadamard积（按元素乘积）运算符。在这里，我们使用tanh非线性激活函数来确保候选隐状态中的值保持在区间$(-1, 1)$中。
 
-计算的结果是*候选者*（candidate），因为我们仍然需要结合更新门的操作。与 :eqref:`rnn_h_with_state`相比 :eqref:`gru_tilde_H`中的$\mathbf{R}_t$和$\mathbf{H}_{t-1}$的元素相乘可以减少以往状态的影响。每当重置门$\mathbf{R}_t$中的项接近$1$时，我们恢复一个如 :eqref:`rnn_h_with_state`中的普通的循环神经网络。对于重置门$\mathbf{R}_t$中所有接近$0$的项，候选隐藏状态是以$\mathbf{X}_t$作为输入的多层感知机的结果。因此，任何预先存在的隐藏状态都会被*重置*为默认值。
+计算的结果是*候选者*（candidate），因为我们仍然需要结合更新门的操作。与 :eqref:`rnn_h_with_state`相比 :eqref:`gru_tilde_H`中的$\mathbf{R}_t$和$\mathbf{H}_{t-1}$的元素相乘可以减少以往状态的影响。每当重置门$\mathbf{R}_t$中的项接近$1$时，我们恢复一个如 :eqref:`rnn_h_with_state`中的普通的循环神经网络。对于重置门$\mathbf{R}_t$中所有接近$0$的项，候选隐状态是以$\mathbf{X}_t$作为输入的多层感知机的结果。因此，任何预先存在的隐状态都会被*重置*为默认值。
 
  :numref:`fig_gru_2`说明了应用重置门之后的计算流程。
 
-![在门控循环单元模型中计算候选隐藏状态。](../img/gru-2.svg)
+![在门控循环单元模型中计算候选隐状态。](../img/gru-2.svg)
 :label:`fig_gru_2`
 
-### 隐藏状态
+### 隐状态
 
-最后，我们需要结合更新门$\mathbf{Z}_t$的效果。这确定新的隐藏状态$\mathbf{H}_t \in \mathbb{R}^{n \times h}$在多大程度上就是旧的状态$\mathbf{H}_{t-1}$，以及对新的候选状态$\tilde{\mathbf{H}}_t$的使用量。更新门$\mathbf{Z}_t$仅需要在$\mathbf{H}_{t-1}$和$\tilde{\mathbf{H}}_t$之间进行按元素的凸组合就可以实现这个目标。这就得出了门控循环单元的最终更新公式：
+最后，我们需要结合更新门$\mathbf{Z}_t$的效果。这确定新的隐状态$\mathbf{H}_t \in \mathbb{R}^{n \times h}$在多大程度上就是旧的状态$\mathbf{H}_{t-1}$，以及对新的候选状态$\tilde{\mathbf{H}}_t$的使用量。更新门$\mathbf{Z}_t$仅需要在$\mathbf{H}_{t-1}$和$\tilde{\mathbf{H}}_t$之间进行按元素的凸组合就可以实现这个目标。这就得出了门控循环单元的最终更新公式：
 
 $$\mathbf{H}_t = \mathbf{Z}_t \odot \mathbf{H}_{t-1}  + (1 - \mathbf{Z}_t) \odot \tilde{\mathbf{H}}_t.$$
 
-每当更新门$\mathbf{Z}_t$接近$1$时，我们就只保留旧状态。此时，来自$\mathbf{X}_t$的信息基本上被忽略，从而有效地跳过了依赖链条中的时间步$t$。相反，当$\mathbf{Z}_t$接近$0$时，新的隐藏状态$\mathbf{H}_t$就会接近候选的隐藏状态$\tilde{\mathbf{H}}_t$。这些设计可以帮助我们处理循环神经网络中的梯度消失问题，并更好地捕获时间步距离很长的序列的依赖关系。例如，如果整个子序列的所有时间步的更新门都接近于$1$，则无论序列的长度如何，在序列起始时间步的旧隐藏状态都将很容易保留并传递到序列结束。
+每当更新门$\mathbf{Z}_t$接近$1$时，我们就只保留旧状态。此时，来自$\mathbf{X}_t$的信息基本上被忽略，从而有效地跳过了依赖链条中的时间步$t$。相反，当$\mathbf{Z}_t$接近$0$时，新的隐状态$\mathbf{H}_t$就会接近候选的隐状态$\tilde{\mathbf{H}}_t$。这些设计可以帮助我们处理循环神经网络中的梯度消失问题，并更好地捕获时间步距离很长的序列的依赖关系。例如，如果整个子序列的所有时间步的更新门都接近于$1$，则无论序列的长度如何，在序列起始时间步的旧隐状态都将很容易保留并传递到序列结束。
 
  :numref:`fig_gru_3`说明了更新门起作用后的计算流。
 
-![计算门控循环单元模型中的隐藏状态。](../img/gru-3.svg)
+![计算门控循环单元模型中的隐状态。](../img/gru-3.svg)
 :label:`fig_gru_3`
 
 总之，门控循环单元具有以下两个显著特征：
@@ -102,7 +102,7 @@ train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 
 ### [**初始化模型参数**]
 
-下一步是初始化模型参数。我们从标准差为$0.01$的高斯分布中提取权重，并将偏置项设为$0$，超参数`num_hiddens`定义隐藏单元的数量，实例化与更新门、重置门、候选隐藏状态和输出层相关的所有权重和偏置。
+下一步是初始化模型参数。我们从标准差为$0.01$的高斯分布中提取权重，并将偏置项设为$0$，超参数`num_hiddens`定义隐藏单元的数量，实例化与更新门、重置门、候选隐状态和输出层相关的所有权重和偏置。
 
 ```{.python .input}
 def get_params(vocab_size, num_hiddens, device):
@@ -118,7 +118,7 @@ def get_params(vocab_size, num_hiddens, device):
 
     W_xz, W_hz, b_z = three()  # 更新门参数
     W_xr, W_hr, b_r = three()  # 重置门参数
-    W_xh, W_hh, b_h = three()  # 候选隐藏状态参数
+    W_xh, W_hh, b_h = three()  # 候选隐状态参数
     # 输出层参数
     W_hq = normal((num_hiddens, num_outputs))
     b_q = np.zeros(num_outputs, ctx=device)
@@ -144,7 +144,7 @@ def get_params(vocab_size, num_hiddens, device):
 
     W_xz, W_hz, b_z = three()  # 更新门参数
     W_xr, W_hr, b_r = three()  # 重置门参数
-    W_xh, W_hh, b_h = three()  # 候选隐藏状态参数
+    W_xh, W_hh, b_h = three()  # 候选隐状态参数
     # 输出层参数
     W_hq = normal((num_hiddens, num_outputs))
     b_q = d2l.zeros(num_outputs, device=device)
@@ -180,7 +180,7 @@ def get_params(vocab_size, num_hiddens):
 
 ### 定义模型
 
-现在我们将[**定义隐藏状态的初始化函数**]`init_gru_state`。与 :numref:`sec_rnn_scratch`中定义的`init_rnn_state`函数一样，此函数返回一个形状为（批量大小，隐藏单元个数）的张量，张量的值全部为零。
+现在我们将[**定义隐状态的初始化函数**]`init_gru_state`。与 :numref:`sec_rnn_scratch`中定义的`init_rnn_state`函数一样，此函数返回一个形状为（批量大小，隐藏单元个数）的张量，张量的值全部为零。
 
 ```{.python .input}
 def init_gru_state(batch_size, num_hiddens, device):
@@ -199,7 +199,7 @@ def init_gru_state(batch_size, num_hiddens):
     return (d2l.zeros((batch_size, num_hiddens)), )
 ```
 
-现在我们准备[**定义门控循环单元模型**]，模型的结构与基本的循环神经网络单元是相同的，只是权重更新公式更为复杂。
+现在我们准备[**定义门控循环单元模型**]，模型的架构与基本的循环神经网络单元是相同的，只是权重更新公式更为复杂。
 
 ```{.python .input}
 def gru(inputs, state, params):

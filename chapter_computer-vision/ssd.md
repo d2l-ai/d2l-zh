@@ -89,7 +89,7 @@ def bbox_predictor(num_inputs, num_anchors):
     return nn.Conv2d(num_inputs, num_anchors * 4, kernel_size=3, padding=1)
 ```
 
-### [**连接多尺度的预测**]
+### [**连结多尺度的预测**]
 
 正如我们所提到的，单发多框检测使用多尺度特征图来生成锚框并预测其类别和偏移量。
 在不同的尺度下，特征图的形状或以同一单元为中心的锚框的数量可能会有所不同。
@@ -143,7 +143,7 @@ def concat_preds(preds):
     return torch.cat([flatten_pred(p) for p in preds], dim=1)
 ```
 
-这样一来，尽管 `Y1` 和 `Y2` 在通道数、高度和宽度方面具有不同的大小，我们仍然可以在同一个小批量的两个不同尺度上连接这两个预测输出。
+这样一来，尽管 `Y1` 和 `Y2` 在通道数、高度和宽度方面具有不同的大小，我们仍然可以在同一个小批量的两个不同尺度上连结这两个预测输出。
 
 
 ```{.python .input}
