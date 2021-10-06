@@ -43,8 +43,8 @@ import os
 
 * ../data/dog-breed-identification/labels.csv
 * ../data/dog-breed-identification/sample_submission.csv
-* ../数据/种身份识别/火车
-* ../数据/种身份识别/测试
+* ../data/dog-breed-identification/train
+* ../data/dog-breed-identification/test
 
 你可能已经注意到，上述架构与 :numref:`sec_kaggle_cifar10` 的 CIFAR-10 竞争对手类似，其中文件夹 `train/` 和 `test/` 分别包含训练和测试狗图像，`labels.csv` 包含训练图像的标签。
 同样，为了便于入门，[**我们提供完整数据集的小规模样本**]：`train_valid_test_tiny.zip`。
