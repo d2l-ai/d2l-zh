@@ -1,7 +1,7 @@
 # 目标检测和边界框
 :label:`sec_bbox`
 
-在前面的章节（例如 :numref:`sec_alexnet`—:numref:`sec_googlenet`）中，我们介绍了各种图像分类模型。
+在前面的章节（例如 :numref:`sec_alexnet`— :numref:`sec_googlenet`）中，我们介绍了各种图像分类模型。
 在图像分类任务中，我们假设图像中只有一个主要物体对象，我们只关注如何识别其类别。
 然而，很多时候图像里有多个我们感兴趣的目标，我们不仅想知道它们的类别，还想得到它们在图像中的具体位置。
 在计算机视觉里，我们将这类任务称为*目标检测*（object detection）或*物体检测*。
@@ -9,8 +9,6 @@
 目标检测在多个领域中被广泛使用。
 例如，在无人驾驶里，我们需要通过识别拍摄到的视频图像里的车辆、行人、道路和障碍的位置来规划行进线路。
 机器人也常通过该任务来检测感兴趣的目标。安防领域则需要检测异常目标，如歹徒或者炸弹。
-
-
 
 在接下来的几节中，我们将介绍几种用于目标检测的深度学习方法。
 我们将首先介绍对象的*位置*。
@@ -40,7 +38,6 @@ import tensorflow as tf
 下面加载本节将使用的示例图像。可以看到图像左边是一只狗，右边是一只猫。
 它们是这张图像里的两个主要目标。
 
-
 ```{.python .input}
 d2l.set_figsize()
 img = image.imread('../img/catdog.jpg').asnumpy()
@@ -57,11 +54,11 @@ d2l.plt.imshow(img);
 ## 边界框
 
 在目标检测中，我们通常使用*边界框*（bounding box）来描述对象的空间位置。
-边界框是矩形的，由矩形左上角的 $x$ 和 $y$ 坐标以及右下角的坐标决定。
-另一种常用的边界框表示方法是边界框中心的 $(x, y)$ 轴坐标以及框的宽度和高度。 
+边界框是矩形的，由矩形左上角的$x$和$y$坐标以及右下角的坐标决定。
+另一种常用的边界框表示方法是边界框中心的$(x, y)$轴坐标以及框的宽度和高度。
 
-在这里，我们[**定义在这两种表示之间进行转换的函数**]：`box_corner_to_center` 从两角表示转换为中心宽度表示，而 `box_center_to_corner` 反之亦然。
-输入参数 `boxes` 可以是长度为 4 的张量，也可以是形状为（$n$，4）的二维张量，其中 $n$ 是边界框的数量。
+在这里，我们[**定义在这两种表示之间进行转换的函数**]：`box_corner_to_center`从两角表示转换为中心宽度表示，而`box_center_to_corner`反之亦然。
+输入参数`boxes`可以是长度为4的张量，也可以是形状为（$n$，4）的二维张量，其中$n$是边界框的数量。
 
 ```{.python .input}
 #@tab all
@@ -89,7 +86,7 @@ def box_center_to_corner(boxes):
 ```
 
 我们将根据坐标信息[**定义图像中狗和猫的边界框**]。
-图像中坐标的原点是图像的左上角，右侧和向下分别是 $x$ 和 $y$ 轴的正方向。
+图像中坐标的原点是图像的左上角，右侧和向下分别是$x$和$y$轴的正方向。
 
 ```{.python .input}
 #@tab all
@@ -106,8 +103,8 @@ box_center_to_corner(box_corner_to_center(boxes)) == boxes
 ```
 
 我们可以[**将边界框在图中画出**]，以检查其是否准确。
-画之前，我们定义一个辅助函数 `bbox_to_rect`。
-它将边界框表示成 `matplotlib` 的边界框格式。
+画之前，我们定义一个辅助函数`bbox_to_rect`。
+它将边界框表示成`matplotlib`的边界框格式。
 
 ```{.python .input}
 #@tab all
@@ -137,7 +134,7 @@ fig.axes.add_patch(bbox_to_rect(cat_bbox, 'red'));
 ## 练习
 
 1. 找到另一张图像，然后尝试标记包含该对象的边界框。比较标签边界框和类别：哪些通常需要更长时间？
-1. 为什么 `box_corner_to_center` 和 `box_center_to_corner` 的输入参数的最内层维度总是4？
+1. 为什么`box_corner_to_center`和`box_center_to_corner`的输入参数的最内层维度总是4？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/2943)

@@ -58,11 +58,11 @@ rnn_layer = tf.keras.layers.RNN(rnn_cell, time_major=True,
 ```
 
 :begin_tab:`mxnet`
-初始化隐藏状态是简单的，只需要调用成员函数`begin_state`即可。函数将返回一个列表（`state`），列表中包含了初始隐藏状态用于小批量数据中的每个样本，其形状为（隐藏层数，批量大小，隐藏单元数）。对于以后要介绍的一些模型（例如长-短期记忆网络），这样的列表还会包含其他信息。
+初始化隐状态是简单的，只需要调用成员函数`begin_state`即可。函数将返回一个列表（`state`），列表中包含了初始隐状态用于小批量数据中的每个样本，其形状为（隐藏层数，批量大小，隐藏单元数）。对于以后要介绍的一些模型（例如长-短期记忆网络），这样的列表还会包含其他信息。
 :end_tab:
 
 :begin_tab:`pytorch`
-我们(**使用张量来初始化隐藏状态**)，它的形状是（隐藏层数，批量大小，隐藏单元数）。
+我们(**使用张量来初始化隐状态**)，它的形状是（隐藏层数，批量大小，隐藏单元数）。
 :end_tab:
 
 ```{.python .input}
@@ -82,10 +82,10 @@ state = rnn_cell.get_initial_state(batch_size=batch_size, dtype=tf.float32)
 state.shape
 ```
 
-[**通过一个隐藏状态和一个输入，我们就可以用更新后的隐藏状态计算输出。**]需要强调的是，`rnn_layer`的“输出”（`Y`）不涉及输出层的计算：它是指每个时间步的隐藏状态，这些隐藏状态可以用作后续输出层的输入。
+[**通过一个隐状态和一个输入，我们就可以用更新后的隐状态计算输出。**]需要强调的是，`rnn_layer`的“输出”（`Y`）不涉及输出层的计算：它是指每个时间步的隐状态，这些隐状态可以用作后续输出层的输入。
 
 :begin_tab:`mxnet`
-此外，`rnn_layer`返回的更新后的隐藏状态（`state_new`）是指小批量数据的最后时间步的隐藏状态。这个隐藏状态可以用来初始化顺序分区中一个迭代周期内下一个小批量数据的隐藏状态。对于多个隐藏层，每一层的隐藏状态将存储在（`state_new`）变量中。至于稍后要介绍的某些模型（例如，长－短期记忆），此变量还包含其他信息。
+此外，`rnn_layer`返回的更新后的隐状态（`state_new`）是指小批量数据的最后时间步的隐状态。这个隐状态可以用来初始化顺序分区中一个迭代周期内下一个小批量数据的隐状态。对于多个隐藏层，每一层的隐状态将存储在（`state_new`）变量中。至于稍后要介绍的某些模型（例如，长－短期记忆），此变量还包含其他信息。
 :end_tab:
 
 ```{.python .input}
@@ -161,12 +161,12 @@ class RNNModel(nn.Module):
 
     def begin_state(self, device, batch_size=1):
         if not isinstance(self.rnn, nn.LSTM):
-            # `nn.GRU` 以张量作为隐藏状态
+            # `nn.GRU` 以张量作为隐状态
             return  torch.zeros((self.num_directions * self.rnn.num_layers,
                                  batch_size, self.num_hiddens), 
                                 device=device)
         else:
-            # `nn.LSTM` 以张量作为隐藏状态
+            # `nn.LSTM` 以张量作为隐状态
             return (torch.zeros((
                 self.num_directions * self.rnn.num_layers,
                 batch_size, self.num_hiddens), device=device),
@@ -249,7 +249,7 @@ d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, strategy)
 ## 小结
 
 * 深度学习框架的高级API提供了循环神经网络层的实现。
-* 高级API的循环神经网络层返回一个输出和一个更新后的隐藏状态，这个输出不涉及输出层的计算。
+* 高级API的循环神经网络层返回一个输出和一个更新后的隐状态，这个输出不涉及输出层的计算。
 * 使用高级API实现的循环神经网络相比从零开始实现可以得到更快的训练速度。
 
 ## 练习

@@ -182,7 +182,7 @@ net.add(tf.keras.layers.Dense(1, kernel_initializer=initializer))
 ## 定义损失函数
 
 :begin_tab:`mxnet`
-在Gluon中，`loss`模块定义了各种损失函数。在这个例子中，我们将使用Gluon中的平方损失（`L2Loss`）。
+在Gluon中，`loss`模块定义了各种损失函数。在这个例子中，我们将使用Gluon中的均方误差（`L2Loss`）。
 :end_tab:
 
 :begin_tab:`pytorch`
@@ -245,7 +245,7 @@ trainer = tf.keras.optimizers.SGD(learning_rate=0.03)
 
 回顾一下：在每个迭代周期里，我们将完整遍历一次数据集（`train_data`），不停地从中获取一个小批量的输入和相应的标签。对于每一个小批量，我们会进行以下步骤:
 
-* 通过调用`net(X)`生成预测并计算损失`l`（正向传播）。
+* 通过调用`net(X)`生成预测并计算损失`l`（前向传播）。
 * 通过进行反向传播来计算梯度。
 * 通过调用优化器来更新模型参数。
 

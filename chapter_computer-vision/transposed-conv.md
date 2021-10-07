@@ -3,11 +3,11 @@
 
 到目前为止，我们所见到的卷积神经网络层，例如卷积层（ :numref:`sec_conv_layer`）和汇聚层（ :numref:`sec_pooling`），通常会减少下采样输入图像的空间维度（高和宽）。
 然而如果输入和输出图像的空间维度相同，在以像素级分类的语义分割中将会很方便。
-例如，输出像素所处的通道维可以保有输入像素在同一位置上的分类结果。 
+例如，输出像素所处的通道维可以保有输入像素在同一位置上的分类结果。
 
 为了实现这一点，尤其是在空间维度被卷积神经网络层缩小后，我们可以使用另一种类型的卷积神经网络层，它可以增加上采样中间层特征图的空间维度。
-在本节中，我们将介绍 
-*转置卷积*（transposed convolution） :cite:`Dumoulin.Visin.2016`， 
+在本节中，我们将介绍
+*转置卷积*（transposed convolution） :cite:`Dumoulin.Visin.2016`，
 用于扭转下采样导致的空间尺寸减小。
 
 ```{.python .input}
@@ -33,14 +33,14 @@ from d2l import torch as d2l
 每个中间结果都是一个$(n_h + k_h - 1) \times (n_w + k_w - 1)$的张量，初始化为0。
 为了计算每个中间张量，输入张量中的每个元素都要乘以卷积核，从而使所得的$k_h \times k_w$张量替换中间张量的一部分。
 请注意，每个中间张量被替换部分的位置与输入张量中元素的位置相对应。
-最后，所有中间结果相加以获得最终结果。 
+最后，所有中间结果相加以获得最终结果。
 
-例如， :numref:`fig_trans_conv` 解释了如何为$2\times 2$的输入张量计算卷积核为$2\times 2$的转置卷积。 
+例如， :numref:`fig_trans_conv`解释了如何为$2\times 2$的输入张量计算卷积核为$2\times 2$的转置卷积。
 
 ![卷积核为 $2\times 2$ 的转置卷积。阴影部分是中间张量的一部分，也是用于计算的输入和卷积核张量元素。 ](../img/trans_conv.svg)
 :label:`fig_trans_conv`
 
-我们可以对输入矩阵`X`和卷积核矩阵 `K`(**实现基本的转置卷积运算**)`trans_conv`。
+我们可以对输入矩阵`X`和卷积核矩阵`K`(**实现基本的转置卷积运算**)`trans_conv`。
 
 ```{.python .input}
 #@tab all
@@ -53,8 +53,8 @@ def trans_conv(X, K):
     return Y
 ```
 
-与通过卷积核“减少”输入元素的常规卷积（在 :numref:`sec_conv_layer` 中）相比，转置卷积通过卷积核“广播”输入元素，从而产生大于输入的输出。
-我们可以通过 :numref:`fig_trans_conv` 来构建输入张量 `X` 和卷积核张量 `K` 从而[**验证上述实现输出**]。
+与通过卷积核“减少”输入元素的常规卷积（在 :numref:`sec_conv_layer`中）相比，转置卷积通过卷积核“广播”输入元素，从而产生大于输入的输出。
+我们可以通过 :numref:`fig_trans_conv`来构建输入张量`X`和卷积核张量`K`从而[**验证上述实现输出**]。
 此实现是基本的二维转置卷积运算。
 
 ```{.python .input}
@@ -100,12 +100,12 @@ tconv(X)
 ```
 
 在转置卷积中，步幅被指定为中间结果（输出），而不是输入。
-使用 :numref:`fig_trans_conv` 中相同输入和卷积核张量，将步幅从1更改为2会增加中间张量的高和权重，因此输出张量在 :numref:`fig_trans_conv_stride2` 中。 
+使用 :numref:`fig_trans_conv`中相同输入和卷积核张量，将步幅从1更改为2会增加中间张量的高和权重，因此输出张量在 :numref:`fig_trans_conv_stride2`中。
 
 ![卷积核为$2\times 2$，步幅为2的转置卷积。阴影部分是中间张量的一部分，也是用于计算的输入和卷积核张量元素。](../img/trans_conv_stride2.svg)
 :label:`fig_trans_conv_stride2`
 
-以下代码可以验证 :numref:`fig_trans_conv_stride2` 中步幅为2的转置卷积的输出。
+以下代码可以验证 :numref:`fig_trans_conv_stride2`中步幅为2的转置卷积的输出。
 
 ```{.python .input}
 tconv = nn.Conv2DTranspose(1, kernel_size=2, strides=2)
@@ -121,10 +121,10 @@ tconv(X)
 ```
 
 对于多个输入和输出通道，转置卷积与常规卷积以相同方式运作。
-假设输入有 $c_i$ 个通道，且转置卷积为每个输入通道分配了一个 $k_h\times k_w$ 的卷积核张量。
-当指定多个输出通道时，每个输出通道将有一个 $c_i\times k_h\times k_w$ 的卷积核。 
+假设输入有$c_i$个通道，且转置卷积为每个输入通道分配了一个$k_h\times k_w$的卷积核张量。
+当指定多个输出通道时，每个输出通道将有一个$c_i\times k_h\times k_w$的卷积核。
 
-同样，如果我们将 $\mathsf{X}$ 代入卷积层 $f$ 来输出 $\mathsf{Y}=f(\mathsf{X})$ ，并创建一个与 $f$ 具有相同的超参数、但输出通道数量是 $\mathsf{X}$ 中通道数的转置卷积层 $g$，那么 $g(Y)$ 的形状将与 $\mathsf{X}$ 相同。
+同样，如果我们将$\mathsf{X}$代入卷积层$f$来输出$\mathsf{Y}=f(\mathsf{X})$，并创建一个与$f$具有相同的超参数、但输出通道数量是$\mathsf{X}$中通道数的转置卷积层$g$，那么$g(Y)$的形状将与$\mathsf{X}$相同。
 下面的示例可以解释这一点。
 
 ```{.python .input}
@@ -174,7 +174,7 @@ W = kernel2matrix(K)
 W
 ```
 
-逐行连接输入`X`，获得了一个长度为9的矢量。
+逐行连结输入`X`，获得了一个长度为9的矢量。
 然后，`W`的矩阵乘法和向量化的`X`给出了一个长度为4的向量。
 重塑它之后，可以获得与上面的原始卷积操作所得相同的结果`Y`：我们刚刚使用矩阵乘法实现了卷积。
 
@@ -193,20 +193,19 @@ Z = trans_conv(Y, K)
 Z == d2l.matmul(W.T, d2l.reshape(Y, -1)).reshape(3, 3)
 ```
 
-抽象来看，给定输入向量 $\mathbf{x}$ 和权重矩阵 $\mathbf{W}$，卷积的前向传播函数可以通过将其输入与权重矩阵相乘并输出向量 $\mathbf{y}=\mathbf{W}\mathbf{x}$ 来实现。
-由于反向传播遵循链规则和 $\nabla_{\mathbf{x}}\mathbf{y}=\mathbf{W}^\top$，卷积的反向传播函数可以通过将其输入与转置的权重矩阵 $\mathbf{W}^\top$ 相乘来实现。
-因此，转置卷积层能够交换卷积层的正向传播函数和反向传播函数：它的正向传播和反向传播函数将输入向量分别与 $\mathbf{W}^\top$ 和 $\mathbf{W}$ 相乘。 
-
+抽象来看，给定输入向量$\mathbf{x}$和权重矩阵$\mathbf{W}$，卷积的前向传播函数可以通过将其输入与权重矩阵相乘并输出向量$\mathbf{y}=\mathbf{W}\mathbf{x}$来实现。
+由于反向传播遵循链规则和$\nabla_{\mathbf{x}}\mathbf{y}=\mathbf{W}^\top$，卷积的反向传播函数可以通过将其输入与转置的权重矩阵$\mathbf{W}^\top$相乘来实现。
+因此，转置卷积层能够交换卷积层的正向传播函数和反向传播函数：它的正向传播和反向传播函数将输入向量分别与$\mathbf{W}^\top$和$\mathbf{W}$相乘。
 
 ## 小结
 
 * 与通过卷积核减少输入元素的常规卷积相反，转置卷积通过卷积核广播输入元素，从而产生形状大于输入的输出。
-* 如果我们将 $\mathsf{X}$ 输入卷积层 $f$ 来获得输出 $\mathsf{Y}=f(\mathsf{X})$ 并创造一个与 $f$ 有相同的超参数、但输出通道数是 $\mathsf{X}$ 中通道数的转置卷积层 $g$，那么 $g(Y)$ 的形状将与 $\mathsf{X}$ 相同。
+* 如果我们将$\mathsf{X}$输入卷积层$f$来获得输出$\mathsf{Y}=f(\mathsf{X})$并创造一个与$f$有相同的超参数、但输出通道数是$\mathsf{X}$中通道数的转置卷积层$g$，那么$g(Y)$的形状将与$\mathsf{X}$相同。
 * 我们可以使用矩阵乘法来实现卷积。转置卷积层能够交换卷积层的正向传播函数和反向传播函数。
 
 ## 练习
 
-1. 在 :numref:`subsec-connection-to-mat-transposition` 中，卷积输入 `X` 和转置的卷积输出 `Z` 具有相同的形状。他们的数值也相同吗？为什么？
+1. 在 :numref:`subsec-connection-to-mat-transposition`中，卷积输入`X`和转置的卷积输出`Z`具有相同的形状。他们的数值也相同吗？为什么？
 1. 使用矩阵乘法来实现卷积是否有效率？为什么？
 
 :begin_tab:`mxnet`

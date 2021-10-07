@@ -33,7 +33,7 @@ import tensorflow as tf
 
 $$\mathbf{y}_i = f(\mathbf{x}_i, (\mathbf{x}_1, \mathbf{x}_1), \ldots, (\mathbf{x}_n, \mathbf{x}_n)) \in \mathbb{R}^d$$
 
-根据 :eqref:`eq_attn-pooling`中定义的注意力池化函数$f$。下面的代码片段是基于多头注意力对一个张量完成自注意力的计算，张量的形状为（批量大小,时间步的数目或词元序列的长度,$d$）。输出与输入的张量形状相同。
+根据 :eqref:`eq_attn-pooling`中定义的注意力池化函数$f$。下面的代码片段是基于多头注意力对一个张量完成自注意力的计算，张量的形状为（批量大小, 时间步的数目或词元序列的长度, $d$）。输出与输入的张量形状相同。
 
 ```{.python .input}
 num_hiddens, num_heads = 100, 5
@@ -80,7 +80,7 @@ attention(X, X, X, valid_lens, training=False).shape
 
 考虑一个卷积核大小为$k$的卷积层。我们将在后面的章节中提供关于使用卷积神经网络处理序列的更多详细信息。目前，我们只需要知道，由于序列长度是$n$，输入和输出的通道数量都是$d$，所以卷积层的计算复杂度为$\mathcal{O}(knd^2)$。如 :numref:`fig_cnn-rnn-self-attention`所示，卷积神经网络是分层的，因此为有$\mathcal{O}(1)$个顺序操作，最大路径长度为$\mathcal{O}(n/k)$。例如，$\mathbf{x}_1$和$\mathbf{x}_5$处于 :numref:`fig_cnn-rnn-self-attention`中卷积核大小为3的双层卷积神经网络的感受野内。
 
-当更新循环神经网络的隐藏状态时，$d \times d$权重矩阵和$d$维隐藏状态的乘法计算复杂度为$\mathcal{O}(d^2)$。由于序列长度为$n$，因此循环神经网络层的计算复杂度为$\mathcal{O}(nd^2)$。根据 :numref:`fig_cnn-rnn-self-attention`，有$\mathcal{O}(n)$个顺序操作无法并行化，最大路径长度也是$\mathcal{O}(n)$。
+当更新循环神经网络的隐状态时，$d \times d$权重矩阵和$d$维隐状态的乘法计算复杂度为$\mathcal{O}(d^2)$。由于序列长度为$n$，因此循环神经网络层的计算复杂度为$\mathcal{O}(nd^2)$。根据 :numref:`fig_cnn-rnn-self-attention`，有$\mathcal{O}(n)$个顺序操作无法并行化，最大路径长度也是$\mathcal{O}(n)$。
 
 在自注意力中，查询、键和值都是$n \times d$矩阵。考虑 :eqref:`eq_softmax_QK_V`中缩放的”点－积“注意力，其中$n \times d$矩阵乘以$d \times n$矩阵，然后输出的$n \times n$矩阵乘以$n \times d$矩阵。因此，自注意力具有$\mathcal{O}(n^2d)$计算复杂性。正如我们在 :numref:`fig_cnn-rnn-self-attention`中看到的那样，每个词元都通过自注意力直接连接到任何其他词元。因此，有$\mathcal{O}(1)$个顺序操作可以并行计算，最大路径长度也是$\mathcal{O}(1)$。
 
