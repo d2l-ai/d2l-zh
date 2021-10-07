@@ -1,7 +1,7 @@
 # 词嵌入（Word2vec）
 :label:`sec_word2vec`
 
-自然语言是用来表达意义的复杂系统。在这个系统中，词是意义的基本单位。顾名思义，
+自然语言是用来表达意义的复杂系统。在这个系统中，词是意义的基本单元。顾名思义，
 *词向量*是用于表示单词的向量，
 并且还可以被认为是单词的特征向量或表示。将单词映射到实向量的技术称为*词嵌入*。近年来，词嵌入逐渐成为自然语言处理的基础知识。
 
@@ -40,7 +40,7 @@ $$P(\textrm{"the"}\mid\textrm{"loves"})\cdot P(\textrm{"man"}\mid\textrm{"loves"
 $$P(w_o \mid w_c) = \frac{\text{exp}(\mathbf{u}_o^\top \mathbf{v}_c)}{ \sum_{i \in \mathcal{V}} \text{exp}(\mathbf{u}_i^\top \mathbf{v}_c)},$$
 :eqlabel:`eq_skip-gram-softmax`
 
-其中词汇索引集$\mathcal{V} = \{0, 1, \ldots, |\mathcal{V}|-1\}$。给定长度为$T$的文本序列，其中时间步$t$处的词表示为$w^{(t)}$。假设上下文词是在给定任何中心词的情况下独立生成的。对于上下文窗口$m$，跳元模型的似然函数是在给定任何中心词的情况下生成所有上下文词的概率：
+其中词表索引集$\mathcal{V} = \{0, 1, \ldots, |\mathcal{V}|-1\}$。给定长度为$T$的文本序列，其中时间步$t$处的词表示为$w^{(t)}$。假设上下文词是在给定任何中心词的情况下独立生成的。对于上下文窗口$m$，跳元模型的似然函数是在给定任何中心词的情况下生成所有上下文词的概率：
 
 $$ \prod_{t=1}^{T} \prod_{-m \leq j \leq m,\ j \neq 0} P(w^{(t+j)} \mid w^{(t)}),$$
 
@@ -48,7 +48,7 @@ $$ \prod_{t=1}^{T} \prod_{-m \leq j \leq m,\ j \neq 0} P(w^{(t+j)} \mid w^{(t)})
 
 ### 训练
 
-跳元模型参数是词表中每个词的中心词向量和上下文词向量。在训练中，我们通过最大化似然函数（即最大似然估计）来学习模型参数。这相当于最小化以下损失函数：
+跳元模型参数是词表中每个词的中心词向量和上下文词向量。在训练中，我们通过最大化似然函数（即极大似然估计）来学习模型参数。这相当于最小化以下损失函数：
 
 $$ - \sum_{t=1}^{T} \sum_{-m \leq j \leq m,\ j \neq 0} \text{log}\, P(w^{(t+j)} \mid w^{(t)}).$$
 
@@ -75,14 +75,7 @@ $$P(\textrm{"loves"}\mid\textrm{"the"},\textrm{"man"},\textrm{"his"},\textrm{"so
 ![连续词袋模型考虑了给定周围上下文词生成中心词条件概率。](../img/cbow.svg)
 :label:`fig_cbow`
 
-<<<<<<<HEAD
-<<<<<<<HEAD
 
-=======
->>>>>>>ch14.1-14.4
-=======
-
->>>>>>>ch14.1-14.4
 由于连续词袋模型中存在多个上下文词，因此在计算条件概率时对这些上下文词向量进行平均。具体地说，对于字典中索引$i$的任意词，分别用$\mathbf{v}_i\in\mathbb{R}^d$和$\mathbf{u}_i\in\mathbb{R}^d$表示用作*上下文*词和*中心*词的两个向量（符号与跳元模型中相反）。给定上下文词$w_{o_1}, \ldots, w_{o_{2m}}$（在词表中索引是$o_1, \ldots, o_{2m}$）生成任意中心词$w_c$（在词表中索引是$c$）的条件概率可以由以下公式建模:
 
 $$P(w_c \mid w_{o_1}, \ldots, w_{o_{2m}}) = \frac{\text{exp}\left(\frac{1}{2m}\mathbf{u}_c^\top (\mathbf{v}_{o_1} + \ldots, + \mathbf{v}_{o_{2m}}) \right)}{ \sum_{i \in \mathcal{V}} \text{exp}\left(\frac{1}{2m}\mathbf{u}_i^\top (\mathbf{v}_{o_1} + \ldots, + \mathbf{v}_{o_{2m}}) \right)}.$$

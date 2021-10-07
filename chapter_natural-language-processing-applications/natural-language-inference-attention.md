@@ -1,19 +1,19 @@
-# 自然语言推理：使用注意力
+# 自然语言推断：使用注意力
 :label:`sec_natural-language-inference-attention`
 
-我们在 :numref:`sec_natural-language-inference-and-dataset` 中介绍了自然语言推理任务和SNLI数据集。鉴于许多模型都是基于复杂而深度的结构，Parikh等人提出用注意力机制解决自然语言推理问题，并称之为“可分解注意力模型” :cite:`Parikh.Tackstrom.Das.ea.2016` 。这使得模型没有循环层或卷积层，在SNLI数据集上以更少的参数实现了当时的最佳结果。在本节中，我们将描述并实现这种基于注意力的自然语言推理方法（使用MLP）， 如:numref:`fig_nlp-map-nli-attention` 中所述。
+我们在 :numref:`sec_natural-language-inference-and-dataset` 中介绍了自然语言推断任务和SNLI数据集。鉴于许多模型都是基于复杂而深度的架构，Parikh等人提出用注意力机制解决自然语言推断问题，并称之为“可分解注意力模型” :cite:`Parikh.Tackstrom.Das.ea.2016` 。这使得模型没有循环层或卷积层，在SNLI数据集上以更少的参数实现了当时的最佳结果。在本节中，我们将描述并实现这种基于注意力的自然语言推断方法（使用MLP）， 如:numref:`fig_nlp-map-nli-attention` 中所述。
 
-![本节将预训练GloVe送入基于注意力和MLP的自然语言推理结构](../img/nlp-map-nli-attention.svg)
+![本节将预训练GloVe送入基于注意力和MLP的自然语言推断架构](../img/nlp-map-nli-attention.svg)
 :label:`fig_nlp-map-nli-attention`
 
 ## 模型
 
 与保留前提和假设中词元的顺序相比，我们可以将一个文本序列中的词元与另一个文本序列中的每个词元对齐，然后比较和聚合这些信息，以预测前提和假设之间的逻辑关系。与机器翻译中源句和目标句之间的词元对齐类似，前提和假设之间的词元对齐可以通过注意力机制灵活地完成。
 
-![利用注意力机制进行自然语言推理。](../img/nli-attention.svg)
+![利用注意力机制进行自然语言推断。](../img/nli-attention.svg)
 :label:`fig_nli_attention`
 
- :numref:`fig_nli_attention` 描述了使用注意力机制的自然语言推理方法。从高层次上讲，它由三个联合训练的步骤组成：对齐、比较和汇总。我们将在下面一步一步地对它们进行说明。
+ :numref:`fig_nli_attention` 描述了使用注意力机制的自然语言推断方法。从高层次上讲，它由三个联合训练的步骤组成：对齐、比较和汇总。我们将在下面一步一步地对它们进行说明。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -71,7 +71,7 @@ def mlp(num_inputs, num_hiddens, flatten):
 
 值得注意的是，在 :eqref:`eq_nli_e` 中，$f$分别输入$\mathbf{a}_i$和$\mathbf{b}_j$，而不是将它们一对放在一起作为输入。这种*分解*技巧导致$f$只有$m + n$个次计算（线性复杂度），而不是$mn$次计算（二次复杂度）
 
-对 :eqref:`eq_nli_e` 中的注意力权重进行归一化，我们计算假设中所有词元向量的加权平均值，以获得假设的表示，该假设与前提中索引$i$的词元进行软对齐：
+对 :eqref:`eq_nli_e` 中的注意力权重进行规范化，我们计算假设中所有词元向量的加权平均值，以获得假设的表示，该假设与前提中索引$i$的词元进行软对齐：
 
 $$
 \boldsymbol{\beta}_i = \sum_{j=1}^{n}\frac{\exp(e_{ij})}{ \sum_{k=1}^{n} \exp(e_{ik})} \mathbf{b}_j.
@@ -355,7 +355,7 @@ def predict_snli(net, vocab, premise, hypothesis):
             else 'neutral'
 ```
 
-我们可以使用训练好的模型来获得对示例句子的自然语言推理结果。
+我们可以使用训练好的模型来获得对示例句子的自然语言推断结果。
 
 ```{.python .input}
 #@tab all
@@ -367,12 +367,12 @@ predict_snli(net, vocab, ['he', 'is', 'good', '.'], ['he', 'is', 'bad', '.'])
 * 可分解注意模型包括三个步骤来预测前提和假设之间的逻辑关系：注意、比较和聚合。
 * 通过注意力机制，我们可以将一个文本序列中的词元与另一个文本序列中的每个词元对齐，反之亦然。这种对齐是使用加权平均的软对齐，其中理想情况下较大的权重与要对齐的词元相关联。
 * 在计算注意力权重时，分解技巧会带来比二次复杂度更理想的线性复杂度。
-* 我们可以使用预训练好的词向量作为下游自然语言处理任务（如自然语言推理）的输入表示。
+* 我们可以使用预训练好的词向量作为下游自然语言处理任务（如自然语言推断）的输入表示。
 
 ## 练习
 
 1. 使用其他超参数组合训练模型。你能在测试集上获得更高的准确度吗？
-1. 自然语言推理的可分解注意模型的主要缺点是什么？
+1. 自然语言推断的可分解注意模型的主要缺点是什么？
 1. 假设我们想要获得任何一对句子的语义相似级别（例如，0到1之间的连续值）。我们应该如何收集和标注数据集？你能设计一个有注意力机制的模型吗？
 
 :begin_tab:`mxnet`

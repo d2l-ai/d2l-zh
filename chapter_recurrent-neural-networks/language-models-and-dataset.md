@@ -57,7 +57,7 @@ $$
 
 ## 自然语言统计
 
-让我们看看在真实数据上效果如何。根据 :numref:`sec_text_preprocessing`中介绍的时光机器数据集构建词汇表，并打印前$10$个最常用的（频率最高的）单词。
+让我们看看在真实数据上效果如何。根据 :numref:`sec_text_preprocessing`中介绍的时光机器数据集构建词表，并打印前$10$个最常用的（频率最高的）单词。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -138,7 +138,7 @@ d2l.plot([freqs, bigram_freqs, trigram_freqs], xlabel='token: x',
          legend=['unigram', 'bigram', 'trigram'])
 ```
 
-这张图令人激动的原因有很多。首先，除了一元语法词，单词序列似乎也遵循齐普夫定律，尽管公式 :eqref:`eq_zipf_law`中的指数$\alpha$更小（指数的大小受序列长度的影响）。其次，词汇表中$n$元组的数量并没有那么大，这说明语言中存在相当多的结构，这些结构给了我们应用模型的希望。第三，很多$n$元组很少出现，这使得拉普拉斯平滑非常不适合语言建模。作为代替，我们将使用基于深度学习的模型。
+这张图令人激动的原因有很多。首先，除了一元语法词，单词序列似乎也遵循齐普夫定律，尽管公式 :eqref:`eq_zipf_law`中的指数$\alpha$更小（指数的大小受序列长度的影响）。其次，词表中$n$元组的数量并没有那么大，这说明语言中存在相当多的结构，这些结构给了我们应用模型的希望。第三，很多$n$元组很少出现，这使得拉普拉斯平滑非常不适合语言建模。作为代替，我们将使用基于深度学习的模型。
 
 ## 读取长序列数据
 
@@ -258,13 +258,13 @@ class SeqDataLoader:  #@save
         return self.data_iter_fn(self.corpus, self.batch_size, self.num_steps)
 ```
 
-[**最后，我们定义了一个函数`load_data_time_machine`，它同时返回数据迭代器和词汇表**]，因此可以与其他带有`load_data`前缀的函数（如 :numref:`sec_fashion_mnist`中定义的`d2l.load_data_fashion_mnist`）类似地使用。
+[**最后，我们定义了一个函数`load_data_time_machine`，它同时返回数据迭代器和词表**]，因此可以与其他带有`load_data`前缀的函数（如 :numref:`sec_fashion_mnist`中定义的`d2l.load_data_fashion_mnist`）类似地使用。
 
 ```{.python .input}
 #@tab all
 def load_data_time_machine(batch_size, num_steps,  #@save
                            use_random_iter=False, max_tokens=10000):
-    """返回时光机器数据集的迭代器和词汇表。"""
+    """返回时光机器数据集的迭代器和词表。"""
     data_iter = SeqDataLoader(
         batch_size, num_steps, use_random_iter, max_tokens)
     return data_iter, data_iter.vocab
