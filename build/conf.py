@@ -145,8 +145,8 @@ html_theme_options = {
     'accent_color': 'deep_orange',
     'header_links' : [
         ('在线课程直播', 'https://courses.d2l.ai/zh-v2/', True, 'fas fa-user-graduate'),
-        ('PDF', 'https://zh.d2l.ai/d2l-zh.pdf', True, 'fas fa-file-pdf'),
-        ('Jupyter 记事本文件', 'https://zh.d2l.ai/d2l-zh.zip', True, 'fas fa-download'),
+        ('PDF', 'https://zh-v1.d2l.ai/d2l-zh.pdf', True, 'fas fa-file-pdf'),
+        ('Jupyter 记事本文件', 'https://zh-v1.d2l.ai/d2l-zh.zip', True, 'fas fa-download'),
         ('讨论', 'https://discuss.gluon.ai/c/lecture?order=views', True, 'fab fa-discourse'),
         ('GitHub', 'https://github.com/d2l-ai/d2l-zh', True, 'fab fa-github'),
         ('English Version', 'https://d2l.ai', True, 'fas fa-external-link-alt'),
