@@ -237,7 +237,7 @@ for layer in net().layers:
 
 尽管本文中AlexNet是在ImageNet上进行训练的，但我们在这里使用的是Fashion-MNIST数据集。因为即使在现代GPU上，训练ImageNet模型，同时使其收敛可能需要数小时或数天的时间。
 将AlexNet直接应用于Fashion-MNIST的一个问题是，[**Fashion-MNIST图像的分辨率**]（$28 \times 28$像素）(**低于ImageNet图像。**)
-为了解决这个问题，(**我们将它们增加到$224 \times 224$**)（通常来讲这不是一个明智的做法，但我们在这里这样做是为了有效使用AlexNet结构）。
+为了解决这个问题，(**我们将它们增加到$224 \times 224$**)（通常来讲这不是一个明智的做法，但我们在这里这样做是为了有效使用AlexNet架构）。
 我们使用`d2l.load_data_fashion_mnist`函数中的`resize`参数执行此调整。
 
 ```{.python .input}
@@ -258,8 +258,8 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 
 ## 小结
 
-* AlexNet的结构与LeNet相似，但使用了更多的卷积层和更多的参数来拟合大规模的ImageNet数据集。
-* 今天，AlexNet已经被更有效的结构所超越，但它是从浅层网络到深层网络的关键一步。
+* AlexNet的架构与LeNet相似，但使用了更多的卷积层和更多的参数来拟合大规模的ImageNet数据集。
+* 今天，AlexNet已经被更有效的架构所超越，但它是从浅层网络到深层网络的关键一步。
 * 尽管AlexNet的代码只比LeNet多出几行，但学术界花了很多年才接受深度学习这一概念，并应用其出色的实验结果。这也是由于缺乏有效的计算工具。
 * Dropout、ReLU和预处理是提升计算机视觉任务性能的其他关键步骤。
 

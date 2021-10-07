@@ -49,9 +49,9 @@ $$
 
 我们可以看到，现在每个训练步的梯度计算成本与词表大小无关，而是线性依赖于$K$。当将超参数$K$设置为较小的值时，在负采样的每个训练步处的梯度的计算成本较小。
 
-## 分层Softmax
+## 层序Softmax
 
-作为另一种近似训练方法，*分层softmax*使用二叉树（ :numref:`fig_hi_softmax` 中说明的数据结构），其中树的每个叶节点表示词表$\mathcal{V}$中的一个词。
+作为另一种近似训练方法，*层序Softmax*（hierarchical softmax）使用二叉树（ :numref:`fig_hi_softmax` 中说明的数据结构），其中树的每个叶节点表示词表$\mathcal{V}$中的一个词。
 
 ![用于近似训练的分层softmax，其中树的每个叶节点表示词表中的一个词。](../img/hi-softmax.svg)
 :label:`fig_hi_softmax`
@@ -71,7 +71,7 @@ $$P(w_3 \mid w_c) = \sigma(\mathbf{u}_{n(w_3, 1)}^\top \mathbf{v}_c) \cdot \sigm
 $$\sum_{w \in \mathcal{V}} P(w \mid w_c) = 1.$$
 :eqlabel:`eq_hi-softmax-sum-one`
 
-幸运的是，由于二叉树结构，$L(w_o)-1$大约与$\mathcal{O}(\text{log}_2|\mathcal{V}|)$是一个数量级。当词表大小$\mathcal{V}$很大时，与没有近似训练的相比，使用分层softmax的每个训练步的计算成本显著降低。
+幸运的是，由于二叉树结构，$L(w_o)-1$大约与$\mathcal{O}(\text{log}_2|\mathcal{V}|)$是一个数量级。当词表大小$\mathcal{V}$很大时，与没有近似训练的相比，使用分层softmax的每个训练步的计算代价显著降低。
 
 ## 小结
 
