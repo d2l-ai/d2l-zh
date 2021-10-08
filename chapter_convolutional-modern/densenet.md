@@ -41,8 +41,8 @@ DenseNet这个名字由变量之间的“稠密连接”而得来，最后一层
 
 ## (**稠密块体**)
 
-DenseNet使用了ResNet改良版的“批量归一化、激活和卷积”结构（参见 :numref:`sec_resnet`中的练习）。
-我们首先实现一下这个结构。
+DenseNet使用了ResNet改良版的“批量规范化、激活和卷积”架构（参见 :numref:`sec_resnet`中的练习）。
+我们首先实现一下这个架构。
 
 ```{.python .input}
 from d2l import mxnet as d2l

@@ -1,7 +1,7 @@
 # 多GPU的简洁实现
 :label:`sec_multi_gpu_concise`
 
-每个新模型的并行计算都从零开始实现是无趣的。此外，优化同步工具以获得高性能也是有好处的。下面我们将展示如何使用深度学习框架的高级 API 来实现这一点。数学和算法与 :numref:`sec_multi_gpu` 中的相同。不出所料，你至少需要两个 GPU 来运行本节的代码。
+每个新模型的并行计算都从零开始实现是无趣的。此外，优化同步工具以获得高性能也是有好处的。下面我们将展示如何使用深度学习框架的高级API来实现这一点。数学和算法与 :numref:`sec_multi_gpu`中的相同。不出所料，你至少需要两个GPU来运行本节的代码。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -19,7 +19,7 @@ from torch import nn
 
 ## [**简单网络**]
 
-让我们使用一个比 :numref:`sec_multi_gpu` 的 LeNet 更有意义的网络，它依然能够容易地和快速地训练。我们选择的是 :cite:`He.Zhang.Ren.ea.2016` 中的 ResNet-18。因为输入的图像很小，所以稍微修改了一下。与 :numref:`sec_resnet` 的区别在于，我们在开始时使用了更小的卷积核、步长和填充，而且删除了最大汇聚层。
+让我们使用一个比 :numref:`sec_multi_gpu`的LeNet更有意义的网络，它依然能够容易地和快速地训练。我们选择的是 :cite:`He.Zhang.Ren.ea.2016`中的ResNet-18。因为输入的图像很小，所以稍微修改了一下。与 :numref:`sec_resnet`的区别在于，我们在开始时使用了更小的卷积核、步长和填充，而且删除了最大汇聚层。
 
 ```{.python .input}
 #@save
@@ -81,11 +81,11 @@ def resnet18(num_classes, in_channels=1):
 ## 网络初始化
 
 :begin_tab:`mxnet`
-`initialize` 函数允许我们在所选设备上初始化参数。请参阅 :numref:`sec_numerical_stability` 复习初始化方法。这个函数在多个设备上初始化网络时特别方便。让我们在实践中试一试它的运作方式。
+`initialize`函数允许我们在所选设备上初始化参数。请参阅 :numref:`sec_numerical_stability`复习初始化方法。这个函数在多个设备上初始化网络时特别方便。让我们在实践中试一试它的运作方式。
 :end_tab:
 
 :begin_tab:`pytorch`
-我们将在训练回路中初始化网络。请参见 :numref:`sec_numerical_stability` 复习初始化方法。
+我们将在训练回路中初始化网络。请参见 :numref:`sec_numerical_stability`复习初始化方法。
 :end_tab:
 
 ```{.python .input}
@@ -105,7 +105,7 @@ devices = d2l.try_all_gpus()
 ```
 
 :begin_tab:`mxnet`
-使用 :numref:`sec_multi_gpu` 中引入的 `split_and_load` 函数可以切分一个小批量数据，并将切分后的分块数据复制到 `devices` 变量提供的设备列表中。网络实例自动使用适当的 GPU 来计算前向传播的值。我们将在下面生成 $4$ 个观测值，并在 GPU 上将它们拆分。
+使用 :numref:`sec_multi_gpu`中引入的`split_and_load`函数可以切分一个小批量数据，并将切分后的分块数据复制到`devices`变量提供的设备列表中。网络实例自动使用适当的GPU来计算前向传播的值。我们将在下面生成$4$个观测值，并在GPU上将它们拆分。
 :end_tab:
 
 ```{.python .input}
@@ -115,7 +115,7 @@ net(x_shards[0]), net(x_shards[1])
 ```
 
 :begin_tab:`mxnet`
-一旦数据通过网络，网络对应的参数就会在 *有数据通过的设备上初始化*。这意味着初始化是基于每个设备进行的。由于我们选择的是 GPU 0 和 GPU 1，所以网络只在这两个 GPU 上初始化，而不是在 CPU 上初始化。事实上，CPU 上甚至没有这些参数。我们可以通过打印参数和观察可能出现的任何错误来验证这一点。
+一旦数据通过网络，网络对应的参数就会在*有数据通过的设备上初始化*。这意味着初始化是基于每个设备进行的。由于我们选择的是GPU0和GPU1，所以网络只在这两个GPU上初始化，而不是在CPU上初始化。事实上，CPU上甚至没有这些参数。我们可以通过打印参数和观察可能出现的任何错误来验证这一点。
 :end_tab:
 
 ```{.python .input}
@@ -130,7 +130,7 @@ weight.data(devices[0])[0], weight.data(devices[1])[0]
 
 :begin_tab:`mxnet`
 接下来，让我们使用[**在多个设备上并行工作**]的代码来替换前面的[**评估模型**]的代码。
-这里主要是 :numref:`sec_lenet` 的 `evaluate_accuracy_gpu` 函数的替代，代码的主要区别在于在调用网络之前拆分了一个小批量，其他在本质上是一样的。
+这里主要是 :numref:`sec_lenet`的`evaluate_accuracy_gpu`函数的替代，代码的主要区别在于在调用网络之前拆分了一个小批量，其他在本质上是一样的。
 :end_tab:
 
 ```{.python .input}
@@ -230,7 +230,7 @@ train(num_gpus=1, batch_size=256, lr=0.1)
 train(net, num_gpus=1, batch_size=256, lr=0.1)
 ```
 
-接下来我们[**使用 2 个 GPU 进行训练**]。与 :numref:`sec_multi_gpu` 中评估的 LeNet 相比，ResNet-18 的模型要复杂得多。这就是显示并行化优势的地方，计算所需时间明显大于同步参数需要的时间。因为并行化开销的相关性较小，因此这种操作提高了模型的可伸缩性。
+接下来我们[**使用2个GPU进行训练**]。与 :numref:`sec_multi_gpu`中评估的LeNet相比，ResNet-18的模型要复杂得多。这就是显示并行化优势的地方，计算所需时间明显大于同步参数需要的时间。因为并行化开销的相关性较小，因此这种操作提高了模型的可伸缩性。
 
 ```{.python .input}
 train(num_gpus=2, batch_size=512, lr=0.2)
@@ -244,29 +244,29 @@ train(net, num_gpus=2, batch_size=512, lr=0.2)
 ## 小结
 
 :begin_tab:`mxnet`
-* Gluon 通过提供一个上下文列表，为跨多个设备的模型初始化提供原语。
-* * 神经网络可以在（可找到数据的）单 GPU 上进行自动评估。
+* Gluon通过提供一个上下文列表，为跨多个设备的模型初始化提供原语。
+* *神经网络可以在（可找到数据的）单GPU上进行自动评估。
 * 注意每台设备上的网络需要先初始化，然后再尝试访问该设备上的参数，否则会遇到错误。
-* 优化算法在多个 GPU 上自动聚合。
+* 优化算法在多个GPU上自动聚合。
 :end_tab:
 
 :begin_tab:`pytorch`
-* 神经网络可以在（可找到数据的）单 GPU 上进行自动评估。
+* 神经网络可以在（可找到数据的）单GPU上进行自动评估。
 * 注意每台设备上的网络需要先初始化，然后再尝试访问该设备上的参数，否则会遇到错误。
-* 优化算法在多个 GPU 上自动聚合。
+* 优化算法在多个GPU上自动聚合。
 :end_tab:
 
 ## 练习
 
 :begin_tab:`mxnet`
-1. 本节使用 ResNet-18。尝试不同的迭代周期数、批量大小和学习率，以及使用更多的 GPU 进行计算。如果使用 $16$ 个 GPU（例如，在 AWS p2.16xlarge 实例上）尝试此操作，会发生什么？
-1. 有时候不同的设备提供了不同的计算能力，我们可以同时使用 GPU 和 CPU，那应该如何分配工作？为什么？
-1. 如果去掉 `npx.waitall()` 会怎样？你将如何修改训练，以使并行操作最多有两个步骤重叠？
+1. 本节使用ResNet-18。尝试不同的迭代周期数、批量大小和学习率，以及使用更多的GPU进行计算。如果使用$16$个GPU（例如，在AWS p2.16xlarge实例上）尝试此操作，会发生什么？
+1. 有时候不同的设备提供了不同的计算能力，我们可以同时使用GPU和CPU，那应该如何分配工作？为什么？
+1. 如果去掉`npx.waitall()`会怎样？你将如何修改训练，以使并行操作最多有两个步骤重叠？
 :end_tab:
 
 :begin_tab:`pytorch`
-1. 本节使用 ResNet-18。尝试不同的迭代周期数、批量大小和学习率，以及使用更多的 GPU 进行计算。如果使用 $16$ 个 GPU（例如，在 AWS p2.16xlarge 实例上）尝试此操作，会发生什么？
-1. 有时候不同的设备提供了不同的计算能力，我们可以同时使用 GPU 和 CPU，那应该如何分配工作？为什么？
+1. 本节使用ResNet-18。尝试不同的迭代周期数、批量大小和学习率，以及使用更多的GPU进行计算。如果使用$16$个GPU（例如，在AWS p2.16xlarge实例上）尝试此操作，会发生什么？
+1. 有时候不同的设备提供了不同的计算能力，我们可以同时使用GPU和CPU，那应该如何分配工作？为什么？
 :end_tab:
 
 :begin_tab:`mxnet`

@@ -126,7 +126,7 @@ mask = d2l.tensor([[1, 1, 1, 1], [1, 1, 0, 0]])
 loss(pred, label, mask) * mask.shape[1] / mask.sum(axis=1)
 ```
 
-下面显示了如何使用二元交叉熵损失中的Sigmoid激活函数（以较低效率的方式）计算上述结果。我们可以将这两个输出视为两个归一化的损失，在非掩码预测上进行平均。
+下面显示了如何使用二元交叉熵损失中的Sigmoid激活函数（以较低效率的方式）计算上述结果。我们可以将这两个输出视为两个规范化的损失，在非掩码预测上进行平均。
 
 ```{.python .input}
 #@tab all
@@ -157,9 +157,9 @@ net = nn.Sequential(nn.Embedding(num_embeddings=len(vocab),
                                  embedding_dim=embed_size))
 ```
 
-### 定义训练代码实现
+### 定义训练阶段代码
 
-训练代码实现定义如下。由于填充的存在，损失函数的计算与以前的训练函数略有不同。
+训练阶段代码实现定义如下。由于填充的存在，损失函数的计算与以前的训练函数略有不同。
 
 ```{.python .input}
 def train(net, data_iter, lr, num_epochs, device=d2l.try_gpu()):
@@ -168,7 +168,7 @@ def train(net, data_iter, lr, num_epochs, device=d2l.try_gpu()):
                             {'learning_rate': lr})
     animator = d2l.Animator(xlabel='epoch', ylabel='loss',
                             xlim=[1, num_epochs])
-    # 归一化的损失之和，归一化的损失数
+    # 规范化的损失之和，规范化的损失数
     metric = d2l.Accumulator(2)
     for epoch in range(num_epochs):
         timer, num_batches = d2l.Timer(), len(data_iter)
@@ -200,7 +200,7 @@ def train(net, data_iter, lr, num_epochs, device=d2l.try_gpu()):
     optimizer = torch.optim.Adam(net.parameters(), lr=lr)
     animator = d2l.Animator(xlabel='epoch', ylabel='loss',
                             xlim=[1, num_epochs])
-    # 归一化的损失之和，归一化的损失数
+    # 规范化的损失之和，规范化的损失数
     metric = d2l.Accumulator(2)
     for epoch in range(num_epochs):
         timer, num_batches = d2l.Timer(), len(data_iter)

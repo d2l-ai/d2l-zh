@@ -20,13 +20,20 @@ import torch
 from torch import nn
 ```
 
+```{.python .input}
+#@tab tensorflow
+from d2l import tensorflow as d2l
+import numpy as np
+import tensorflow as tf
+```
+
 ## [**自注意力**]
 
 给定一个由词元组成的输入序列$\mathbf{x}_1, \ldots, \mathbf{x}_n$，其中任意$\mathbf{x}_i \in \mathbb{R}^d$（$1 \leq i \leq n$）。该序列的自注意力输出为一个长度相同的序列$\mathbf{y}_1, \ldots, \mathbf{y}_n$，其中：
 
 $$\mathbf{y}_i = f(\mathbf{x}_i, (\mathbf{x}_1, \mathbf{x}_1), \ldots, (\mathbf{x}_n, \mathbf{x}_n)) \in \mathbb{R}^d$$
 
-根据 :eqref:`eq_attn-pooling`中定义的注意力池化函数$f$。下面的代码片段是基于多头注意力对一个张量完成自注意力的计算，张量的形状为（批量大小,时间步的数目或词元序列的长度,$d$）。输出与输入的张量形状相同。
+根据 :eqref:`eq_attn-pooling`中定义的注意力池化函数$f$。下面的代码片段是基于多头注意力对一个张量完成自注意力的计算，张量的形状为（批量大小, 时间步的数目或词元序列的长度, $d$）。输出与输入的张量形状相同。
 
 ```{.python .input}
 num_hiddens, num_heads = 100, 5
@@ -43,10 +50,24 @@ attention.eval()
 ```
 
 ```{.python .input}
-#@tab all
+#@tab tensorflow
+num_hiddens, num_heads = 100, 5
+attention = d2l.MultiHeadAttention(num_hiddens, num_hiddens, num_hiddens,
+                                   num_hiddens, num_heads, 0.5)
+```
+
+```{.python .input}
+#@tab mxnet, pytorch
 batch_size, num_queries, valid_lens = 2, 4, d2l.tensor([3, 2])
 X = d2l.ones((batch_size, num_queries, num_hiddens))
 attention(X, X, X, valid_lens).shape
+```
+
+```{.python .input}
+#@tab tensorflow
+batch_size, num_queries, valid_lens = 2, 4, tf.constant([3, 2])
+X = tf.ones((batch_size, num_queries, num_hiddens))
+attention(X, X, X, valid_lens, training=False).shape
 ```
 
 ## 比较卷积神经网络、循环神经网络和自注意力
@@ -59,7 +80,7 @@ attention(X, X, X, valid_lens).shape
 
 考虑一个卷积核大小为$k$的卷积层。我们将在后面的章节中提供关于使用卷积神经网络处理序列的更多详细信息。目前，我们只需要知道，由于序列长度是$n$，输入和输出的通道数量都是$d$，所以卷积层的计算复杂度为$\mathcal{O}(knd^2)$。如 :numref:`fig_cnn-rnn-self-attention`所示，卷积神经网络是分层的，因此为有$\mathcal{O}(1)$个顺序操作，最大路径长度为$\mathcal{O}(n/k)$。例如，$\mathbf{x}_1$和$\mathbf{x}_5$处于 :numref:`fig_cnn-rnn-self-attention`中卷积核大小为3的双层卷积神经网络的感受野内。
 
-当更新循环神经网络的隐藏状态时，$d \times d$权重矩阵和$d$维隐藏状态的乘法计算复杂度为$\mathcal{O}(d^2)$。由于序列长度为$n$，因此循环神经网络层的计算复杂度为$\mathcal{O}(nd^2)$。根据 :numref:`fig_cnn-rnn-self-attention`，有$\mathcal{O}(n)$个顺序操作无法并行化，最大路径长度也是$\mathcal{O}(n)$。
+当更新循环神经网络的隐状态时，$d \times d$权重矩阵和$d$维隐状态的乘法计算复杂度为$\mathcal{O}(d^2)$。由于序列长度为$n$，因此循环神经网络层的计算复杂度为$\mathcal{O}(nd^2)$。根据 :numref:`fig_cnn-rnn-self-attention`，有$\mathcal{O}(n)$个顺序操作无法并行化，最大路径长度也是$\mathcal{O}(n)$。
 
 在自注意力中，查询、键和值都是$n \times d$矩阵。考虑 :eqref:`eq_softmax_QK_V`中缩放的”点－积“注意力，其中$n \times d$矩阵乘以$d \times n$矩阵，然后输出的$n \times n$矩阵乘以$n \times d$矩阵。因此，自注意力具有$\mathcal{O}(n^2d)$计算复杂性。正如我们在 :numref:`fig_cnn-rnn-self-attention`中看到的那样，每个词元都通过自注意力直接连接到任何其他词元。因此，有$\mathcal{O}(1)$个顺序操作可以并行计算，最大路径长度也是$\mathcal{O}(1)$。
 
@@ -80,6 +101,7 @@ $$\begin{aligned} p_{i, 2j} &= \sin\left(\frac{i}{10000^{2j/d}}\right),\\p_{i, 2
 ```{.python .input}
 #@save
 class PositionalEncoding(nn.Block):
+    """位置编码"""
     def __init__(self, num_hiddens, dropout, max_len=1000):
         super(PositionalEncoding, self).__init__()
         self.dropout = nn.Dropout(dropout)
@@ -99,6 +121,7 @@ class PositionalEncoding(nn.Block):
 #@tab pytorch
 #@save
 class PositionalEncoding(nn.Module):
+    """位置编码"""
     def __init__(self, num_hiddens, dropout, max_len=1000):
         super(PositionalEncoding, self).__init__()
         self.dropout = nn.Dropout(dropout)
@@ -113,6 +136,27 @@ class PositionalEncoding(nn.Module):
     def forward(self, X):
         X = X + self.P[:, :X.shape[1], :].to(X.device)
         return self.dropout(X)
+```
+
+```{.python .input}
+#@tab tensorflow
+#@save
+class PositionalEncoding(tf.keras.layers.Layer):
+    """位置编码"""
+    def __init__(self, num_hiddens, dropout, max_len=1000):
+        super().__init__()
+        self.dropout = tf.keras.layers.Dropout(dropout)
+        # 创建一个足够长的 `P`
+        self.P = np.zeros((1, max_len, num_hiddens))
+        X = np.arange(max_len, dtype=np.float32).reshape(
+            -1,1)/np.power(10000, np.arange(
+            0, num_hiddens, 2, dtype=np.float32) / num_hiddens)
+        self.P[:, :, 0::2] = np.sin(X)
+        self.P[:, :, 1::2] = np.cos(X)
+        
+    def call(self, X, **kwargs):
+        X = X + self.P[:, :X.shape[1], :]
+        return self.dropout(X, **kwargs)
 ```
 
 在位置嵌入矩阵$\mathbf{P}$中，[**行代表词元在序列中的位置，列代表位置编码的不同维度**]。在下面的例子中，我们可以看到位置嵌入矩阵的第$6$列和第$7$列的频率高于第$8$列和第$9$列。第$6$列和第$7$列之间的偏移量（第$8$列和第$9$列相同）是由于正弦函数和余弦函数的交替。
@@ -138,6 +182,16 @@ d2l.plot(d2l.arange(num_steps), P[0, :, 6:10].T, xlabel='Row (position)',
          figsize=(6, 2.5), legend=["Col %d" % d for d in d2l.arange(6, 10)])
 ```
 
+```{.python .input}
+#@tab tensorflow
+encoding_dim, num_steps = 32, 60
+pos_encoding = PositionalEncoding(encoding_dim, 0)
+X = pos_encoding(tf.zeros((1, num_steps, encoding_dim)), training=False)
+P = pos_encoding.P[:, :X.shape[1], :]
+d2l.plot(np.arange(num_steps), P[0, :, 6:10].T, xlabel='Row (position)',
+         figsize=(6, 2.5), legend=["Col %d" % d for d in np.arange(6, 10)])
+```
+
 ### 绝对位置信息
 
 为了明白沿着编码维度单调降低的频率与绝对位置信息的关系，让我们打印出$0, 1, \ldots, 7$的[**二进制表示**]形式。正如我们所看到的，每个数字、每两个数字和每四个数字上的比特值在第一个最低位、第二个最低位和第三个最低位上分别交替。
@@ -159,6 +213,13 @@ d2l.show_heatmaps(P, xlabel='Column (encoding dimension)',
 ```{.python .input}
 #@tab pytorch
 P = P[0, :, :].unsqueeze(0).unsqueeze(0)
+d2l.show_heatmaps(P, xlabel='Column (encoding dimension)',
+                  ylabel='Row (position)', figsize=(3.5, 4), cmap='Blues')
+```
+
+```{.python .input}
+#@tab tensorflow
+P = tf.expand_dims(tf.expand_dims(P[0, :, :], axis=0), axis=0)
 d2l.show_heatmaps(P, xlabel='Column (encoding dimension)',
                   ylabel='Row (position)', figsize=(3.5, 4), cmap='Blues')
 ```

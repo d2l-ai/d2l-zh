@@ -21,7 +21,7 @@ LeNet被广泛用于自动取款机（ATM）机中，帮助识别处理支票的
 * 卷积编码器：由两个卷积层组成;
 * 全连接层密集块：由三个全连接层组成。
 
-该结构在 :numref:`img_lenet`中所展示。
+该架构在 :numref:`img_lenet`中所展示。
 
 ![LeNet中的数据流。输入是手写数字，输出为10种可能结果的概率。](../img/lenet.svg)
 :label:`img_lenet`

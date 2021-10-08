@@ -84,7 +84,7 @@
 
 广播，broadcast
 
-归一化，normalization
+规范化，normalization
 
 过拟合，overfitting
 

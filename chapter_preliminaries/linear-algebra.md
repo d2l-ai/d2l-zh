@@ -25,8 +25,8 @@ x + y, x * y, x / y, x ** y
 #@tab pytorch
 import torch
 
-x = torch.tensor([3.0])
-y = torch.tensor([2.0])
+x = torch.tensor(3.0)
+y = torch.tensor(2.0)
 
 x + y, x * y, x / y, x**y
 ```
@@ -35,8 +35,8 @@ x + y, x * y, x / y, x**y
 #@tab tensorflow
 import tensorflow as tf
 
-x = tf.constant([3.0])
-y = tf.constant([2.0])
+x = tf.constant(3.0)
+y = tf.constant(2.0)
 
 x + y, x * y, x / y, x**y
 ```
@@ -132,7 +132,7 @@ x.shape
 $$\mathbf{A}=\begin{bmatrix} a_{11} & a_{12} & \cdots & a_{1n} \\ a_{21} & a_{22} & \cdots & a_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ a_{m1} & a_{m2} & \cdots & a_{mn} \\ \end{bmatrix}.$$
 :eqlabel:`eq_matrix_def`
 
-对于任意$\mathbf{A} \in \mathbb{R}^{m \times n}$,$\mathbf{A}$的形状是（$m$,$n$）或$m \times n$。当矩阵具有相同数量的行和列时，其形状将变为正方形；因此，它被称为*方矩阵*（square matrix）。
+对于任意$\mathbf{A} \in \mathbb{R}^{m \times n}$,$\mathbf{A}$的形状是（$m$,$n$）或$m \times n$。当矩阵具有相同数量的行和列时，其形状将变为正方形；因此，它被称为*方阵*（square matrix）。
 
 当调用函数来实例化张量时，我们可以[**通过指定两个分量$m$和$n$来创建一个形状为$m \times n$的矩阵**]。
 
@@ -183,7 +183,7 @@ A.T
 tf.transpose(A)
 ```
 
-作为方矩阵的一种特殊类型，[***对称矩阵*（symmetric matrix）$\mathbf{A}$等于其转置：$\mathbf{A} = \mathbf{A}^\top$**]。这里我们定义一个对称矩阵$\mathbf{B}$：
+作为方阵的一种特殊类型，[***对称矩阵*（symmetric matrix）$\mathbf{A}$等于其转置：$\mathbf{A} = \mathbf{A}^\top$**]。这里我们定义一个对称矩阵$\mathbf{B}$：
 
 ```{.python .input}
 B = np.array([[1, 2, 3], [2, 0, 4], [3, 4, 5]])
@@ -267,7 +267,7 @@ B = A  # 不能通过分配新内存将A克隆到B
 A, A + B
 ```
 
-具体而言，[**两个矩阵的按元素乘法称为*哈达玛积*（Hadamard product）（数学符号$\odot$）**]。对于矩阵$\mathbf{B} \in \mathbb{R}^{m \times n}$，其中第$i$行和第$j$列的元素是$b_{ij}$。矩阵$\mathbf{A}$（在 :eqref:`eq_matrix_def`中定义）和$\mathbf{B}$的哈达玛积为：
+具体而言，[**两个矩阵的按元素乘法称为*Hadamard积*（Hadamard product）（数学符号$\odot$）**]。对于矩阵$\mathbf{B} \in \mathbb{R}^{m \times n}$，其中第$i$行和第$j$列的元素是$b_{ij}$。矩阵$\mathbf{A}$（在 :eqref:`eq_matrix_def`中定义）和$\mathbf{B}$的Hadamard积为：
 
 $$
 \mathbf{A} \odot \mathbf{B} =
@@ -536,7 +536,7 @@ torch.sum(x * y)
 tf.reduce_sum(x * y)
 ```
 
-点积在很多场合都很有用。例如，给定一组由向量$\mathbf{x} \in \mathbb{R}^d$表示的值，和一组由$\mathbf{w} \in \mathbb{R}^d$表示的权重。$\mathbf{x}$中的值根据权重$\mathbf{w}$的加权和可以表示为点积$\mathbf{x}^\top \mathbf{w}$。当权重为非负数且和为1（即$\left(\sum_{i=1}^{d}{w_i}=1\right)$）时，点积表示*加权平均*（weighted average）。将两个向量归一化得到单位长度后，点积表示它们夹角的余弦。我们将在本节的后面正式介绍*长度*（length）的概念。
+点积在很多场合都很有用。例如，给定一组由向量$\mathbf{x} \in \mathbb{R}^d$表示的值，和一组由$\mathbf{w} \in \mathbb{R}^d$表示的权重。$\mathbf{x}$中的值根据权重$\mathbf{w}$的加权和可以表示为点积$\mathbf{x}^\top \mathbf{w}$。当权重为非负数且和为1（即$\left(\sum_{i=1}^{d}{w_i}=1\right)$）时，点积表示*加权平均*（weighted average）。将两个向量规范化得到单位长度后，点积表示它们夹角的余弦。我们将在本节的后面正式介绍*长度*（length）的概念。
 
 ## 矩阵-向量积
 
@@ -571,7 +571,17 @@ $$
 我们可以把一个矩阵$\mathbf{A} \in \mathbb{R}^{m \times n}$乘法看作是一个从$\mathbb{R}^{n}$到$\mathbb{R}^{m}$向量的转换。这些转换证明是非常有用的。例如，我们可以用方阵的乘法来表示旋转。
 我们将在后续章节中讲到，我们也可以使用矩阵-向量积来描述在给定前一层的值时，求解神经网络每一层所需的复杂计算。
 
+:begin_tab:`mxnet`
 在代码中使用张量表示矩阵-向量积，我们使用与点积相同的`dot`函数。当我们为矩阵`A`和向量`x`调用`np.dot(A,x)`时，会执行矩阵-向量积。注意，`A`的列维数（沿轴1的长度）必须与`x`的维数（其长度）相同。
+:end_tab:
+
+:begin_tab:`pytorch`
+在代码中使用张量表示矩阵-向量积，我们使用与点积相同的`mv`函数。当我们为矩阵`A`和向量`x`调用`torch.mv(A, x)`时，会执行矩阵-向量积。注意，`A`的列维数（沿轴1的长度）必须与`x`的维数（其长度）相同。
+:end_tab:
+
+:begin_tab:`tensorflow`
+在代码中使用张量表示矩阵-向量积，我们使用与点积相同的`matvec`函数。当我们为矩阵`A`和向量`x`调用`tf.linalg.matvec(A, x)`时，会执行矩阵-向量积。注意，`A`的列维数（沿轴1的长度）必须与`x`的维数（其长度）相同。
+:end_tab:
 
 ```{.python .input}
 A.shape, x.shape, np.dot(A, x)
@@ -731,12 +741,12 @@ $L_2$范数和$L_1$范数都是更一般的$L_p$范数的特例：
 
 $$\|\mathbf{x}\|_p = \left(\sum_{i=1}^n \left|x_i \right|^p \right)^{1/p}.$$
 
-类似于向量的$L_2$范数，[**矩阵**]$\mathbf{X} \in \mathbb{R}^{m \times n}$(**的*弗罗贝尼乌斯范数*（Frobenius norm）是矩阵元素平方和的平方根：**)
+类似于向量的$L_2$范数，[**矩阵**]$\mathbf{X} \in \mathbb{R}^{m \times n}$(**的*Frobenius范数*（Frobenius norm）是矩阵元素平方和的平方根：**)
 
 (**$$\|\mathbf{X}\|_F = \sqrt{\sum_{i=1}^m \sum_{j=1}^n x_{ij}^2}.$$**)
 
-弗罗贝尼乌斯范数满足向量范数的所有性质，它就像是矩阵形向量的$L_2$范数。
-调用以下函数将计算矩阵的弗罗贝尼乌斯范数。
+Frobenius范数满足向量范数的所有性质，它就像是矩阵形向量的$L_2$范数。
+调用以下函数将计算矩阵的Frobenius范数。
 
 ```{.python .input}
 np.linalg.norm(np.ones((4, 9)))
@@ -782,7 +792,7 @@ tf.norm(tf.ones((4, 9)))
 
 1. 证明一个矩阵$\mathbf{A}$的转置的转置是$\mathbf{A}$：$(\mathbf{A}^\top)^\top = \mathbf{A}$。
 1. 给出两个矩阵$\mathbf{A}$和$\mathbf{B}$，显示转置的和等于和的转置：$\mathbf{A}^\top + \mathbf{B}^\top = (\mathbf{A} + \mathbf{B})^\top$。
-1. 给定任意方矩阵$\mathbf{A}$，$\mathbf{A} + \mathbf{A}^\top$总是对称的吗?为什么?
+1. 给定任意方阵$\mathbf{A}$，$\mathbf{A} + \mathbf{A}^\top$总是对称的吗?为什么?
 1.我们在本节中定义了形状（2,3,4）的张量`X`。`len(X)`的输出结果是什么？
 1.对于任意形状的张量`X`,`len(X)`是否总是对应于`X`特定轴的长度?这个轴是什么?
 1.运行`A/A.sum(axis=1)`，看看会发生什么。你能分析原因吗？

@@ -138,7 +138,7 @@ net.add(tf.keras.layers.Dense(1))
 :end_tab:
 
 :begin_tab:`pytorch`
-正如我们在构造`nn.Linear`时指定输入和输出尺寸一样。现在我们直接访问参数以设定初始值。我们通过`net[0]`选择网络中的第一个图层，然后使用`weight.data`和`bias.data`方法访问参数。然后使用替换方法`normal_`和`fill_`来重写参数值。
+正如我们在构造`nn.Linear`时指定输入和输出尺寸一样，现在我们能直接访问参数以设定它们的初始值。我们通过`net[0]`选择网络中的第一个图层，然后使用`weight.data`和`bias.data`方法访问参数。然后使用替换方法`normal_`和`fill_`来重写参数值。
 :end_tab:
 
 :begin_tab:`tensorflow`
@@ -182,7 +182,7 @@ net.add(tf.keras.layers.Dense(1, kernel_initializer=initializer))
 ## 定义损失函数
 
 :begin_tab:`mxnet`
-在Gluon中，`loss`模块定义了各种损失函数。在这个例子中，我们将使用Gluon中的平方损失（`L2Loss`）。
+在Gluon中，`loss`模块定义了各种损失函数。在这个例子中，我们将使用Gluon中的均方误差（`L2Loss`）。
 :end_tab:
 
 :begin_tab:`pytorch`
@@ -214,7 +214,7 @@ loss = tf.keras.losses.MeanSquaredError()
 :end_tab:
 
 :begin_tab:`pytorch`
-小批量随机梯度下降算法是一种优化神经网络的标准工具，PyTorch在`optim`模块中实现了该算法的许多变种。当我们(**实例化`SGD`实例**)时，我们要指定优化的参数（可通过`net.parameters()`从我们的模型中获得）以及优化算法所需的超参数字典。小批量随机梯度下降只需要设置`lr`值，这里设置为0.03。
+小批量随机梯度下降算法是一种优化神经网络的标准工具，PyTorch在`optim`模块中实现了该算法的许多变种。当我们(**实例化一个`SGD`实例**)时，我们要指定优化的参数（可通过`net.parameters()`从我们的模型中获得）以及优化算法所需的超参数字典。小批量随机梯度下降只需要设置`lr`值，这里设置为0.03。
 :end_tab:
 
 :begin_tab:`tensorflow`
@@ -245,7 +245,7 @@ trainer = tf.keras.optimizers.SGD(learning_rate=0.03)
 
 回顾一下：在每个迭代周期里，我们将完整遍历一次数据集（`train_data`），不停地从中获取一个小批量的输入和相应的标签。对于每一个小批量，我们会进行以下步骤:
 
-* 通过调用`net(X)`生成预测并计算损失`l`（正向传播）。
+* 通过调用`net(X)`生成预测并计算损失`l`（前向传播）。
 * 通过进行反向传播来计算梯度。
 * 通过调用优化器来更新模型参数。
 
