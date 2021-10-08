@@ -48,7 +48,7 @@ print(f'Parameter embedding_weight ({embed.weight.shape}, '
       f'dtype={embed.weight.dtype})')
 ```
 
-嵌入层的输入是词元（词）的索引。对于任何词元索引$i$，其向量表示可以从嵌入层中的权重矩阵的第$i$行获得。由于向量维度（`output_dim`）被设置为4，因此当小批量词元索引的形状为（2,3）时，嵌入层返回具有形状（2，3，4）的向量。
+嵌入层的输入是词元（词）的索引。对于任何词元索引$i$，其向量表示可以从嵌入层中的权重矩阵的第$i$行获得。由于向量维度（`output_dim`）被设置为4，因此当小批量词元索引的形状为（2，3）时，嵌入层返回具有形状（2，3，4）的向量。
 
 ```{.python .input}
 #@tab all
@@ -58,7 +58,7 @@ embed(x)
 
 ### 定义前向传播
 
-在前向传播中，跳元语法模型的输入包括形状为（批量大小,1）的中心词索引`center`和形状为（批量大小,`max_len`）的上下文与噪声词索引`contexts_and_negatives`，其中`max_len`在 :numref:`subsec_word2vec-minibatch-loading`中定义。这两个变量首先通过嵌入层从词元索引转换成向量，然后它们的批量矩阵相乘（在 :numref:`subsec_batch_dot`中描述）返回形状为（批量大小,1,`max_len`）的输出。输出中的每个元素是中心词向量和上下文或噪声词向量的点积。
+在前向传播中，跳元语法模型的输入包括形状为（批量大小，1）的中心词索引`center`和形状为（批量大小，`max_len`）的上下文与噪声词索引`contexts_and_negatives`，其中`max_len`在 :numref:`subsec_word2vec-minibatch-loading`中定义。这两个变量首先通过嵌入层从词元索引转换成向量，然后它们的批量矩阵相乘（在 :numref:`subsec_batch_dot`中描述）返回形状为（批量大小，1，`max_len`）的输出。输出中的每个元素是中心词向量和上下文或噪声词向量的点积。
 
 ```{.python .input}
 def skip_gram(center, contexts_and_negatives, embed_v, embed_u):

@@ -17,7 +17,7 @@ $$\frac{\mathbf{x}^\top \mathbf{y}}{\|\mathbf{x}\| \|\mathbf{y}\|} \in [-1, 1].$
 
 ## 自监督的word2vec
 
-[word2vec]（https://code.google.com/archive/p/word2vec/）工具是为了解决上述问题而提出的。它将每个词映射到一个固定长度的向量，这些向量能更好地表达不同词之间的相似性和类比关系。word2vec工具包含两个模型，即*跳元模型*（skip-gram） :cite:`Mikolov.Sutskever.Chen.ea.2013`和*连续词袋*（CBOW） :cite:`Mikolov.Chen.Corrado.ea.2013`。对于在语义上有意义的表示，它们的训练依赖于条件概率，条件概率可以被看作是使用语料库中一些词来预测另一些单词。由于是不带标签的数据，因此跳元模型和连续词袋都是自监督模型。
+[word2vec](https://code.google.com/archive/p/word2vec/)工具是为了解决上述问题而提出的。它将每个词映射到一个固定长度的向量，这些向量能更好地表达不同词之间的相似性和类比关系。word2vec工具包含两个模型，即*跳元模型*（skip-gram） :cite:`Mikolov.Sutskever.Chen.ea.2013`和*连续词袋*（CBOW） :cite:`Mikolov.Chen.Corrado.ea.2013`。对于在语义上有意义的表示，它们的训练依赖于条件概率，条件概率可以被看作是使用语料库中一些词来预测另一些单词。由于是不带标签的数据，因此跳元模型和连续词袋都是自监督模型。
 
 下面，我们将介绍这两种模式及其训练方法。
 
