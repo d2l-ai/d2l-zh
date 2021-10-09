@@ -349,7 +349,7 @@ print('b的估计误差：', true_b - b)
 :end_tab:
 
 :begin_tab:`pytorch`
-1. 如果我们用`nn.MSELoss()`替换`nn.MSELoss(reduction='sum')`，为了使代码的行为相同，需要怎么更改学习速率？为什么？
+1. 如果我们用`nn.MSELoss(reduction='sum')`替换`nn.MSELoss()`，为了使代码的行为相同，需要怎么更改学习速率？为什么？
 1. 查看PyTorch文档，了解提供了哪些损失函数和初始化方法。用Huber损失来代替。
 1. 你如何访问`net[0].weight`的梯度？
 
