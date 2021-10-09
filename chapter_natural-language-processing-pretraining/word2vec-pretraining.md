@@ -1,7 +1,7 @@
 # 预训练word2vec
 :label:`sec_word2vec_pretraining`
 
-我们继续实现 :numref:`sec_word2vec` 中定义的跳元语法模型。然后，我们将在PTB数据集上使用负采样预训练word2vec。首先，让我们通过调用`d2l.load_data_ptb`函数来获得该数据集的数据迭代器和词表，该函数在 :numref:`sec_word2vec_data` 中进行了描述。
+我们继续实现 :numref:`sec_word2vec`中定义的跳元语法模型。然后，我们将在PTB数据集上使用负采样预训练word2vec。首先，让我们通过调用`d2l.load_data_ptb`函数来获得该数据集的数据迭代器和词表，该函数在 :numref:`sec_word2vec_data`中进行了描述。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -33,7 +33,7 @@ data_iter, vocab = d2l.load_data_ptb(batch_size, max_window_size,
 
 ### 嵌入层
 
-如 :numref:`sec_seq2seq` 中所述，嵌入层将词元的索引映射到其特征向量。该层的权重是一个矩阵，其行数等于字典大小（`input_dim`），列数等于每个标记的向量维数（`output_dim`）。在词嵌入模型训练之后，这个权重就是我们所需要的。
+如 :numref:`sec_seq2seq`中所述，嵌入层将词元的索引映射到其特征向量。该层的权重是一个矩阵，其行数等于字典大小（`input_dim`），列数等于每个标记的向量维数（`output_dim`）。在词嵌入模型训练之后，这个权重就是我们所需要的。
 
 ```{.python .input}
 embed = nn.Embedding(input_dim=20, output_dim=4)
@@ -48,7 +48,7 @@ print(f'Parameter embedding_weight ({embed.weight.shape}, '
       f'dtype={embed.weight.dtype})')
 ```
 
-嵌入层的输入是词元（词）的索引。对于任何词元索引$i$，其向量表示可以从嵌入层中的权重矩阵的第 $i$行获得。由于向量维度（`output_dim`）被设置为4，因此当小批量词元索引的形状为(2, 3)时，嵌入层返回具有形状(2，3，4)的向量。
+嵌入层的输入是词元（词）的索引。对于任何词元索引$i$，其向量表示可以从嵌入层中的权重矩阵的第$i$行获得。由于向量维度（`output_dim`）被设置为4，因此当小批量词元索引的形状为（2，3）时，嵌入层返回具有形状（2，3，4）的向量。
 
 ```{.python .input}
 #@tab all
@@ -58,7 +58,7 @@ embed(x)
 
 ### 定义前向传播
 
-在前向传播中，跳元语法模型的输入包括形状为(批量大小, 1)的中心词索引`center`和形状为(批量大小, `max_len`)的上下文与噪声词索引`contexts_and_negatives`，其中`max_len`在 :numref:`subsec_word2vec-minibatch-loading` 中定义。这两个变量首先通过嵌入层从词元索引转换成向量，然后它们的批量矩阵相乘（在 :numref:`subsec_batch_dot` 中描述）返回形状为(批量大小, 1, `max_len`)的输出。输出中的每个元素是中心词向量和上下文或噪声词向量的点积。
+在前向传播中，跳元语法模型的输入包括形状为（批量大小，1）的中心词索引`center`和形状为（批量大小，`max_len`）的上下文与噪声词索引`contexts_and_negatives`，其中`max_len`在 :numref:`subsec_word2vec-minibatch-loading`中定义。这两个变量首先通过嵌入层从词元索引转换成向量，然后它们的批量矩阵相乘（在 :numref:`subsec_batch_dot`中描述）返回形状为（批量大小，1，`max_len`）的输出。输出中的每个元素是中心词向量和上下文或噪声词向量的点积。
 
 ```{.python .input}
 def skip_gram(center, contexts_and_negatives, embed_v, embed_u):
@@ -95,7 +95,7 @@ skip_gram(torch.ones((2, 1), dtype=torch.long),
 
 ### 二元交叉熵损失
 
-根据 :numref:`subsec_negative-sampling` 中负采样损失函数的定义，我们将使用二元交叉熵损失。
+根据 :numref:`subsec_negative-sampling`中负采样损失函数的定义，我们将使用二元交叉熵损失。
 
 ```{.python .input}
 loss = gluon.loss.SigmoidBCELoss()
@@ -116,7 +116,7 @@ class SigmoidBCELoss(nn.Module):
 loss = SigmoidBCELoss()
 ```
 
-回想一下我们在 :numref:`subsec_word2vec-minibatch-loading` 中对掩码变量和标签变量的描述。下面计算给定变量的二进制交叉熵损失。
+回想一下我们在 :numref:`subsec_word2vec-minibatch-loading`中对掩码变量和标签变量的描述。下面计算给定变量的二进制交叉熵损失。
 
 ```{.python .input}
 #@tab all

@@ -1,7 +1,7 @@
 # 词的相似性和类比任务
 :label:`sec_synonyms`
 
-在 :numref:`sec_word2vec_pretraining` 中，我们在一个小的数据集上训练了一个word2vec模型，并使用它为一个输入词寻找语义相似的词。实际上，在大型语料库上预先训练的词向量可以应用于下游的自然语言处理任务，这将在后面的 :numref:`chap_nlp_app` 中讨论。为了直观地演示大型语料库中预训练词向量的语义，让我们将预训练词向量应用到词的相似性和类比任务中。
+在 :numref:`sec_word2vec_pretraining`中，我们在一个小的数据集上训练了一个word2vec模型，并使用它为一个输入词寻找语义相似的词。实际上，在大型语料库上预先训练的词向量可以应用于下游的自然语言处理任务，这将在后面的 :numref:`chap_nlp_app`中讨论。为了直观地演示大型语料库中预训练词向量的语义，让我们将预训练词向量应用到词的相似性和类比任务中。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -21,7 +21,7 @@ import os
 
 ## 加载预训练词向量
 
-以下列出维度为50、100和300的预训练GloVe嵌入，可从[GloVe网站](https://nlp.stanford.edu/projects/glove/)下载。预训练的fastText嵌入有多种语言。这里我们使用可以从[fastText网站](https://fasttext.cc/)下载的英文版本（300维的“wiki.en”）。
+以下列出维度为50、100和300的预训练GloVe嵌入，可从[GloVe网站](https://nlp.stanford.edu/projects/glove/)下载。预训练的fastText嵌入有多种语言。这里我们使用可以从[fastText网站](https://fasttext.cc/)下载300维度的英文版本（“wiki.en”）。
 
 ```{.python .input}
 #@tab all
@@ -109,7 +109,7 @@ glove_6b50d.token_to_idx['beautiful'], glove_6b50d.idx_to_token[3367]
 
 ### 词相似度
 
-与 :numref:`subsec_apply-word-embed` 类似，为了根据词向量之间的余弦相似性为输入词查找语义相似的词，我们实现了以下`knn`（$k$近邻）函数。
+与 :numref:`subsec_apply-word-embed`类似，为了根据词向量之间的余弦相似性为输入词查找语义相似的词，我们实现了以下`knn`（$k$近邻）函数。
 
 ```{.python .input}
 def knn(W, x, k):
@@ -162,7 +162,14 @@ get_similar_tokens('beautiful', 3, glove_6b50d)
 
 ### 词类比
 
-除了找到相似的词，我们还可以将词向量应用到词类比任务中。例如，“man”:“woman”::“son”:“daughter”是一个词的类比。“man”是对“woman”的类比，“son”是对“daughter”的比喻。具体来说，词类比任务可以定义为：对于单词类比$a : b :: c : d$，给出前三个词$a$、$b$和$c$，找到$d$。用$\text{vec}(w)$表示词$w$的向量。为了完成这个类比，我们将找到一个词，其向量与$\text{vec}(c)+\text{vec}(b)-\text{vec}(a)$的结果最相似。
+除了找到相似的词，我们还可以将词向量应用到词类比任务中。
+例如，“man” : “woman” :: “son” : “daughter”是一个词的类比。
+“man”是对“woman”的类比，“son”是对“daughter”的类比。
+具体来说，词类比任务可以定义为：
+对于单词类比$a : b :: c : d$，给出前三个词$a$、$b$和$c$，找到$d$。
+用$\text{vec}(w)$表示词$w$的向量，
+为了完成这个类比，我们将找到一个词，
+其向量与$\text{vec}(c)+\text{vec}(b)-\text{vec}(a)$的结果最相似。
 
 ```{.python .input}
 #@tab all
@@ -180,21 +187,23 @@ def get_analogy(token_a, token_b, token_c, embed):
 get_analogy('man', 'woman', 'son', glove_6b50d)
 ```
 
-下面完成一个“首都-国家”的类比：“beijing”:“china”::“tokyo”:“japan”。这说明了预训练词向量中的语义。
+下面完成一个“首都-国家”的类比：
+“beijing” : “china” :: “tokyo” : “japan”。
+这说明了预训练词向量中的语义。
 
 ```{.python .input}
 #@tab all
 get_analogy('beijing', 'china', 'tokyo', glove_6b50d)
 ```
 
-对于“bad”:“worst”::“big”:“biggest”等“形容词-形容词最高级”的比喻，我们可以看到，预训练词向量可以捕捉到句法信息。
+另外，对于“bad” : “worst” :: “big” : “biggest”等“形容词-形容词最高级”的比喻，预训练词向量可以捕捉到句法信息。
 
 ```{.python .input}
 #@tab all
 get_analogy('bad', 'worst', 'big', glove_6b50d)
 ```
 
-为了演示在预训练词向量中捕捉到的过去式概念，我们可以使用“现在式-过去式”的类比来测试句法：“do”:“did”::“go”:“went”。
+为了演示在预训练词向量中捕捉到的过去式概念，我们可以使用“现在式-过去式”的类比来测试句法：“do” : “did” :: “go” : “went”。
 
 ```{.python .input}
 #@tab all

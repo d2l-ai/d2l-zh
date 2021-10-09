@@ -5,9 +5,9 @@
 
 ## 从上下文无关到上下文敏感
 
-回想一下 :numref:`sec_word2vec_pretraining` 和 :numref:`sec_synonyms` 中的实验。例如，word2vec和GloVe都将相同的预训练向量分配给同一个词，而不考虑词的上下文（如果有的话）。形式上，任何词元$x$的上下文无关表示是函数$f(x)$，其仅将$x$作为其输入。考虑到自然语言中丰富的多义现象和复杂的语义，上下文无关表示具有明显的局限性。例如，在“a crane is flying”（一只鹤在飞）和“a crane driver came”（一名吊车司机来了）的上下文中，“crane”一词有完全不同的含义；因此，同一个词可以根据上下文被赋予不同的表示。
+回想一下 :numref:`sec_word2vec_pretraining`和 :numref:`sec_synonyms`中的实验。例如，word2vec和GloVe都将相同的预训练向量分配给同一个词，而不考虑词的上下文（如果有的话）。形式上，任何词元$x$的上下文无关表示是函数$f(x)$，其仅将$x$作为其输入。考虑到自然语言中丰富的多义现象和复杂的语义，上下文无关表示具有明显的局限性。例如，在“a crane is flying”（一只鹤在飞）和“a crane driver came”（一名吊车司机来了）的上下文中，“crane”一词有完全不同的含义；因此，同一个词可以根据上下文被赋予不同的表示。
 
-这推动了“上下文敏感”词表示的发展，其中词的表征取决于它们的上下文。因此，词元$x$的上下文敏感表示是函数$f(x, c(x))$，其取决于$x$及其上下文$c(x)$。流行的上下文敏感表示包括TagLM（language-model-augmented sequence tagger，语言模型增强的序列标记器） :cite:`Peters.Ammar.Bhagavatula.ea.2017` 、CoVe（Context Vectors，上下文向量） :cite:`McCann.Bradbury.Xiong.ea.2017` 和ELMo（Embeddings from Language Models，来自语言模型的嵌入） :cite:`Peters.Neumann.Iyyer.ea.2018` 。
+这推动了“上下文敏感”词表示的发展，其中词的表征取决于它们的上下文。因此，词元$x$的上下文敏感表示是函数$f(x, c(x))$，其取决于$x$及其上下文$c(x)$。流行的上下文敏感表示包括TagLM（language-model-augmented sequence tagger，语言模型增强的序列标记器） :cite:`Peters.Ammar.Bhagavatula.ea.2017`、CoVe（Context Vectors，上下文向量） :cite:`McCann.Bradbury.Xiong.ea.2017`和ELMo（Embeddings from Language Models，来自语言模型的嵌入） :cite:`Peters.Neumann.Iyyer.ea.2018`。
 
 例如，通过将整个序列作为输入，ELMo是为输入序列中的每个单词分配一个表示的函数。具体来说，ELMo将来自预训练的双向长短期记忆网络的所有中间层表示组合为输出表示。然后，ELMo的表示将作为附加特征添加到下游任务的现有监督模型中，例如通过将ELMo的表示和现有模型中词元的原始表示（例如GloVe）连结起来。一方面，在加入ELMo表示后，冻结了预训练的双向LSTM模型中的所有权值。另一方面，现有的监督模型是专门为给定的任务定制的。利用当时不同任务的不同最佳模型，添加ELMo改进了六种自然语言处理任务的技术水平：情感分析、自然语言推断、语义角色标注、共指消解、命名实体识别和问答。
 
@@ -19,14 +19,14 @@
 
 ## BERT：把两个最好的结合起来
 
-如我们所见，ELMo对上下文进行双向编码，但使用特定于任务的架构；而GPT是任务无关的，但是从左到右编码上下文。BERT（来自Transformers的双向编码器表示）结合了这两个方面的优点。它对上下文进行双向编码，并且对于大多数的自然语言处理任务:cite:`Devlin.Chang.Lee.ea.2018`只需要最少的架构改变。通过使用预训练的Transformer编码器，BERT能够基于其双向上下文表示任何词元。在下游任务的监督学习过程中，BERT在两个方面与GPT相似。首先，BERT表示将被输入到一个添加的输出层中，根据任务的性质对模型架构进行最小的更改，例如预测每个词元与预测整个序列。其次，对预训练Transformer编码器的所有参数进行微调，而额外的输出层将从头开始训练。 :numref:`fig_elmo-gpt-bert` 描述了ELMo、GPT和BERT之间的差异。
+如我们所见，ELMo对上下文进行双向编码，但使用特定于任务的架构；而GPT是任务无关的，但是从左到右编码上下文。BERT（来自Transformers的双向编码器表示）结合了这两个方面的优点。它对上下文进行双向编码，并且对于大多数的自然语言处理任务 :cite:`Devlin.Chang.Lee.ea.2018`只需要最少的架构改变。通过使用预训练的Transformer编码器，BERT能够基于其双向上下文表示任何词元。在下游任务的监督学习过程中，BERT在两个方面与GPT相似。首先，BERT表示将被输入到一个添加的输出层中，根据任务的性质对模型架构进行最小的更改，例如预测每个词元与预测整个序列。其次，对预训练Transformer编码器的所有参数进行微调，而额外的输出层将从头开始训练。 :numref:`fig_elmo-gpt-bert` 描述了ELMo、GPT和BERT之间的差异。
 
 ![ELMo、GPT和BERT的比较。](../img/elmo-gpt-bert.svg)
 :label:`fig_elmo-gpt-bert`
 
 BERT进一步改进了11种自然语言处理任务的技术水平，这些任务分为以下几个大类：（1）单一文本分类（如情感分析）、（2）文本对分类（如自然语言推断）、（3）问答、（4）文本标记（如命名实体识别）。从上下文敏感的ELMo到任务不可知的GPT和BERT，它们都是在2018年提出的。概念上简单但经验上强大的自然语言深度表示预训练已经彻底改变了各种自然语言处理任务的解决方案。
 
-在本章的其余部分，我们将深入了解BERT的训练前准备。当在 :numref:`chap_nlp_app` 中解释自然语言处理应用时，我们将说明针对下游应用的BERT微调。
+在本章的其余部分，我们将深入了解BERT的训练前准备。当在 :numref:`chap_nlp_app`中解释自然语言处理应用时，我们将说明针对下游应用的BERT微调。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -67,12 +67,12 @@ def get_tokens_and_segments(tokens_a, tokens_b=None):
 ```
 
 BERT选择Transformer编码器作为其双向架构。在Transformer编码器中常见是，位置嵌入被加入到输入序列的每个位置。然而，与原始的Transformer编码器不同，BERT使用*可学习的*位置嵌入。总之， 
-:numref:`fig_bert-input` 表明BERT输入序列的嵌入是词元嵌入、片段嵌入和位置嵌入的和。
+:numref:`fig_bert-input`表明BERT输入序列的嵌入是词元嵌入、片段嵌入和位置嵌入的和。
 
 ![BERT输入序列的嵌入是词元嵌入、片段嵌入和位置嵌入的和。](../img/bert-input.svg)
 :label:`fig_bert-input`
 
-下面的`BERTEncoder`类类似于 :numref:`sec_transformer` 中实现的 `TransformerEncoder` 类。与 `TransformerEncoder` 不同，`BERTEncoder`使用片段嵌入和可学习的位置嵌入。
+下面的`BERTEncoder`类类似于 :numref:`sec_transformer`中实现的`TransformerEncoder`类。与`TransformerEncoder`不同，`BERTEncoder`使用片段嵌入和可学习的位置嵌入。
 
 ```{.python .input}
 #@save
@@ -173,11 +173,11 @@ encoded_X.shape
 ### 掩蔽语言模型（Masked Language Modeling）
 :label:`subsec_mlm`
 
-如 :numref:`sec_language_model` 所示，语言模型使用左侧的上下文预测词元。为了双向编码上下文以表示每个词元，BERT随机掩蔽词元并使用来自双向上下文的词元以自监督的方式预测掩蔽词元。此任务称为*掩蔽语言模型*。
+如 :numref:`sec_language_model`所示，语言模型使用左侧的上下文预测词元。为了双向编码上下文以表示每个词元，BERT随机掩蔽词元并使用来自双向上下文的词元以自监督的方式预测掩蔽词元。此任务称为*掩蔽语言模型*。
 
 在这个预训练任务中，将随机选择15%的词元作为预测的掩蔽词元。要预测一个掩蔽词元而不使用标签作弊，一个简单的方法是总是用一个特殊的“&lt;mask&gt;”替换输入序列中的词元。然而，人造特殊词元“&lt;mask&gt;”不会出现在微调中。为了避免预训练和微调之间的这种不匹配，如果为预测而屏蔽词元（例如，在“this movie is great”中选择掩蔽和预测“great”），则在输入中将其替换为：
 
-* 80%时间为特殊的“&lt;mask&gt;“词元（例如，“this movie is great”变为“this movie is &lt;mask&gt;”；
+* 80%时间为特殊的“&lt;mask&gt;“词元（例如，“this movie is great”变为“this movie is&lt;mask&gt;”；
 * 10%时间为随机词元（例如，“this movie is great”变为“this movie is drink”）；
 * 10%时间内为不变的标签词元（例如，“this movie is great”变为“this movie is great”）。
 
@@ -341,7 +341,7 @@ nsp_l = loss(nsp_Y_hat, nsp_y)
 nsp_l.shape
 ```
 
-值得注意的是，上述两个预训练任务中的所有标签都可以从预训练语料库中获得，而无需人工标注。原始的BERT已经在图书语料库 :cite:`Zhu.Kiros.Zemel.ea.2015` 和英文维基百科的连接上进行了预训练。这两个文本语料库非常庞大：它们分别有8亿个单词和25亿个单词。
+值得注意的是，上述两个预训练任务中的所有标签都可以从预训练语料库中获得，而无需人工标注。原始的BERT已经在图书语料库 :cite:`Zhu.Kiros.Zemel.ea.2015`和英文维基百科的连接上进行了预训练。这两个文本语料库非常庞大：它们分别有8亿个单词和25亿个单词。
 
 ## 把所有的东西放在一起
 
@@ -415,7 +415,7 @@ class BERTModel(nn.Module):
 
 1. 为什么BERT成功了？
 1. 在所有其他条件相同的情况下，掩蔽语言模型比从左到右的语言模型需要更多或更少的预训练步骤来收敛吗？为什么？
-1. 在BERT的原始实现中，`BERTEncoder`中的位置前馈网络（通过`d2l.EncoderBlock`）和`MaskLM`中的全连接层都使用高斯误差线性单元（Gaussian error linear unit，GELU） :cite:`Hendrycks.Gimpel.2016` 作为激活函数。研究GELU与ReLU之间的差异。
+1. 在BERT的原始实现中，`BERTEncoder`中的位置前馈网络（通过`d2l.EncoderBlock`）和`MaskLM`中的全连接层都使用高斯误差线性单元（Gaussian error linear unit，GELU） :cite:`Hendrycks.Gimpel.2016`作为激活函数。研究GELU与ReLU之间的差异。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/388)
