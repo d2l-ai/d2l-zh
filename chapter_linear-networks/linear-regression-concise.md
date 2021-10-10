@@ -342,22 +342,22 @@ print('b的估计误差：', true_b - b)
 
 :begin_tab:`mxnet`
 1. 如果我们用`l = loss(output, y).mean()`替换`l = loss(output, y)`。为了使代码的行为相同，需要将`trainer.step(batch_size)`更改为`trainer.step(1)`，这是为什么？
-1. 查看MXNet文档，了解模块`gluon.loss`和`init`中提供了哪些损失函数和初始化方法。用Huber损失来代替。
+1. 查看MXNet文档，了解模块`gluon.loss`和`init`中提供了哪些损失函数和初始化方法。用Huber损失代替原损失。
 1. 你如何访问`dense.weight`的梯度？
 
 [Discussions](https://discuss.d2l.ai/t/1782)
 :end_tab:
 
 :begin_tab:`pytorch`
-1. 如果我们用`nn.MSELoss()`替换`nn.MSELoss(reduction='sum')`，为了使代码的行为相同，需要怎么更改学习速率？为什么？
-1. 查看PyTorch文档，了解提供了哪些损失函数和初始化方法。用Huber损失来代替。
+1. 如果我们用`nn.MSELoss(reduction='sum')`替换`nn.MSELoss()`，为了使代码的行为相同，需要怎么更改学习速率？为什么？
+1. 查看PyTorch文档，了解其提供了哪些损失函数和初始化方法。用Huber损失代替原损失。
 1. 你如何访问`net[0].weight`的梯度？
 
 [Discussions](https://discuss.d2l.ai/t/1781)
 :end_tab:
 
 :begin_tab:`tensorflow`
-1. 查看TensorFlow文档，了解提供了哪些损失函数和初始化方法。用Huber损失来代替。
+1. 查看TensorFlow文档，了解其提供了哪些损失函数和初始化方法。用Huber损失代替原损失。
 
 [Discussions](https://discuss.d2l.ai/t/1780)
 :end_tab:
