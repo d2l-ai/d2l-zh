@@ -15,7 +15,7 @@
 ## 一个简单的问题
 
 我们从一个简单的问题开始，这个问题可以轻松计算，但足以说明要义。
-为此，我们选择了一个稍微现代化的LeNet版本（激活函数使用`relu`而不是`sigmoid`，池化使用最大池化而不是平均池化），并应用于Fashion-MNIST数据集。
+为此，我们选择了一个稍微现代化的LeNet版本（激活函数使用`relu`而不是`sigmoid`，汇聚层使用最大汇聚层而不是平均汇聚层），并应用于Fashion-MNIST数据集。
 此外，我们混合网络以提高性能。
 由于大多数代码都是标准的，我们只介绍基础知识，而不做进一步的详细讨论。如果需要，请参阅 :numref:`chap_cnn`进行复习。
 
@@ -210,7 +210,7 @@ train(net, train_iter, test_iter, num_epochs, lr)
 
 ## 学习率调度器
 
-我们可以在每个迭代周期（甚至在每个小批量）之后向下调整学习率。
+我们可以在每个迭代轮数（甚至在每个小批量）之后向下调整学习率。
 例如，以动态的方式来响应优化的进展情况。
 
 ```{.python .input}
@@ -474,7 +474,7 @@ scheduler = CosineScheduler(20, warmup_steps=5, base_lr=0.3, final_lr=0.01)
 d2l.plot(d2l.arange(num_epochs), [scheduler(t) for t in range(num_epochs)])
 ```
 
-注意，观察前5个迭代周期的性能，网络最初收敛得更好。
+注意，观察前5个迭代轮数的性能，网络最初收敛得更好。
 
 ```{.python .input}
 trainer = gluon.Trainer(net.collect_params(), 'sgd',

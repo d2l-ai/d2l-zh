@@ -97,7 +97,7 @@ $$(f * g)(i, j) = \sum_a\sum_b f(a, b) g(i-a, j-b).$$
 
 这看起来类似于 :eqref:`eq_conv-layer`，但有一个主要区别：这里不是使用$(i+a, j+b)$，而是使用差值。然而，这种区别主要是装饰性的，因为我们总是可以匹配 :eqref:`eq_conv-layer`和 :eqref:`eq_2d-conv-discrete`之间的符号。我们在 :eqref:`eq_conv-layer`中的原始定义更正确地描述了*互相关*（cross-correlation），这个问题将在下一节中讨论。
 
-## “沃尔多在哪里” 回顾
+## “沃尔多在哪里”回顾
 
 回到上面的“沃尔多在哪里”游戏，让我们看看它到底是什么样子。卷积层根据滤波器$\mathbf{V}$选取给定大小的窗口，并加权处理图片，如 :numref:`fig_waldo_mask`中所示。我们的目标是学习一个模型，以便探测出在“沃尔多”最可能出现的地方。
 
