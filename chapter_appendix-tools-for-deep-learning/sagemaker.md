@@ -1,40 +1,40 @@
 # 使用亚马逊 SageMaker
 :label:`sec_sagemaker`
 
-许多深度学习应用程序需要大量的计算。您的本地计算机可能太慢，无法在合理的时间内解决这些问题。云计算服务可让您访问功能更强大的计算机来运行本书中 GPU 密集型部分。本教程将指导您完成 Amazon SageMaker：一项允许您轻松运行本书的服务。 
+深度学习应用程序可能需要大量的计算资源，而这些资源很容易超出本地机器所能提供的范围云计算服务允许您使用功能更强大的计算机更轻松地运行本书的 GPU 密集型代码。本节将介绍如何使用 Amazon SageMaker 运行本书的代码。 
 
-## 注册和登录
+## 立即注册
 
-首先，我们需要在 https://aws.amazon.com/ 注册账户。我们鼓励您使用双重身份验证来增加安全性。设置详细的账单和支出提醒也是一个好主意，以避免在忘记停止任何正在运行的实例的情况下出现任何意外的意外情况。请注意，你需要一张信用卡。登录 AWS 账户后，转到 [console](http://console.aws.amazon.com/) 并搜索 “SageMaker”（请参阅 :numref:`fig_sagemaker`），然后单击打开 SageMaker 面板。 
+首先，我们需要在 https://aws.amazon.com/ 注册一个账户。为了提高安全性，建议使用双因素身份验证。设置详细的账单和支出警报也是一个好主意，以避免出现任何意外，例如忘记停止运行实例时。登录 AWS 账户后，转到您的 [console](http://console.aws.amazon.com/) 并搜索 “亚马逊 SageMaker”（请参阅 :numref:`fig_sagemaker`），然后单击它以打开 SageMaker 面板。 
 
-![Open the SageMaker panel.](../img/sagemaker.png)
+![Search for and open the SageMaker panel.](../img/sagemaker.png)
 :width:`300px`
 :label:`fig_sagemaker`
 
 ## 创建 SageMaker 实例
 
-接下来，让我们按照 :numref:`fig_sagemaker-create` 中的描述创建一个笔记本实例。 
+接下来，让我们按照 :numref:`fig_sagemaker-create` 中的说明创建一个笔记本实例。 
 
 ![Create a SageMaker instance.](../img/sagemaker-create.png)
 :width:`400px`
 :label:`fig_sagemaker-create`
 
-SageMaker 提供多个 [instance types](https://aws.amazon.com/sagemaker/pricing/instance-types/) 不同的计算能力和价格。创建实例时，我们可以指定实例名称并选择其类型。在 :numref:`fig_sagemaker-create-2` 中，我们选择了 `ml.p3.2xlarge`。有了一个特斯拉 V100 GPU 和一个 8 核 CPU，这个实例对于大多数章节来说都足够强大。 
+SageMaker 提供了多个具有不同计算能力和价格的 [instance types](https://aws.amazon.com/sagemaker/pricing/instance-types/)。创建 notebook 实例时，我们可以指定其名称和类型。在 :numref:`fig_sagemaker-create-2` 中，我们选择了 `ml.p3.2xlarge`：有了一个特斯拉 V100 GPU 和一个 8 核 CPU，这个实例对于本书的大部分内容来说都足够强大。 
 
 ![Choose the instance type.](../img/sagemaker-create-2.png)
 :width:`400px`
 :label:`fig_sagemaker-create-2`
 
 :begin_tab:`mxnet`
-这本书的 Jupyter 笔记本版本可在 https://github.com/d2l-ai/d2l-en-sagemaker. We can specify this GitHub repository URL to let SageMaker clone this repository during instance creation, as shown in :numref:`fig_sagemaker-create-3` 上获得，以适合 SageMaker。
+可从 https://github.com/d2l-ai/d2l-en-sagemaker. We can specify this GitHub repository URL (:numref:`fig_sagemaker-create-3` 获得用于使用 SageMaker 运行的 ipynb 格式的整本书，以允许 SageMaker 在创建实例时对其进行克隆。
 :end_tab:
 
 :begin_tab:`pytorch`
-这本书的 Jupyter 笔记本版本可在 https://github.com/d2l-ai/d2l-pytorch-sagemaker. We can specify this GitHub repository URL to let SageMaker clone this repository during instance creation, as shown in :numref:`fig_sagemaker-create-3` 上获得，以适合 SageMaker。
+可从 https://github.com/d2l-ai/d2l-pytorch-sagemaker. We can specify this GitHub repository URL (:numref:`fig_sagemaker-create-3` 获得用于使用 SageMaker 运行的 ipynb 格式的整本书，以允许 SageMaker 在创建实例时对其进行克隆。
 :end_tab:
 
 :begin_tab:`tensorflow`
-这本书的 Jupyter 笔记本版本可在 https://github.com/d2l-ai/d2l-tensorflow-sagemaker. We can specify this GitHub repository URL to let SageMaker clone this repository during instance creation, as shown in :numref:`fig_sagemaker-create-3` 上获得，以适合 SageMaker。
+可从 https://github.com/d2l-ai/d2l-tensorflow-sagemaker. We can specify this GitHub repository URL (:numref:`fig_sagemaker-create-3` 获得用于使用 SageMaker 运行的 ipynb 格式的整本书，以允许 SageMaker 在创建实例时对其进行克隆。
 :end_tab:
 
 ![Specify the GitHub repository.](../img/sagemaker-create-3.png)
@@ -43,19 +43,13 @@ SageMaker 提供多个 [instance types](https://aws.amazon.com/sagemaker/pricing
 
 ## 运行和停止实例
 
-实例可能需要几分钟才能准备就绪。准备就绪后，你可以点击 “打开 Jupyter” 链接，如 :numref:`fig_sagemaker-open` 所示。 
+创建实例可能需要几分钟的时间。实例准备就绪后，单击旁边的 “打开 Jupyter” 链接 (:numref:`fig_sagemaker-open`)，以便您可以在此实例上编辑和运行本书的所有 Jupyter 笔记本电脑（类似于 :numref:`sec_jupyter` 中的步骤）。 
 
 ![Open Jupyter on the created SageMaker instance.](../img/sagemaker-open.png)
 :width:`400px`
 :label:`fig_sagemaker-open`
 
-然后，如 :numref:`fig_sagemaker-jupyter` 所示，您可以在此实例上运行的 Jupyter 服务器进行导航。 
-
-![The Jupyter server running on the SageMaker instance.](../img/sagemaker-jupyter.png)
-:width:`400px`
-:label:`fig_sagemaker-jupyter`
-
-在 SageMaker 实例上运行和编辑 Jupyter 笔记本类似于我们在 :numref:`sec_jupyter` 中讨论的内容。完成工作后，不要忘记停止实例以避免进一步充电，如 :numref:`fig_sagemaker-stop` 所示。 
+完成工作后，不要忘记停止实例以避免进一步收费 (:numref:`fig_sagemaker-stop`)。 
 
 ![Stop a SageMaker instance.](../img/sagemaker-stop.png)
 :width:`300px`
@@ -64,24 +58,22 @@ SageMaker 提供多个 [instance types](https://aws.amazon.com/sagemaker/pricing
 ## 更新笔记本
 
 :begin_tab:`mxnet`
-我们将定期更新 [d2l-ai/d2l-en-sagemaker](https://github.com/d2l-ai/d2l-en-sagemaker) GitHub 存储库中的笔记本电脑。你可以简单地使用 `git pull` 命令更新到最新版本。
+这本开源书的笔记本将在 GitHub 上的 [d2l-ai/d2l-en-sagemaker](https://github.com/d2l-ai/d2l-en-sagemaker) 仓库中定期更新。要更新到最新版本，您可以在 SageMaker 实例 (:numref:`fig_sagemaker-terminal`) 上打开一个终端。
 :end_tab:
 
 :begin_tab:`pytorch`
-我们将定期更新 [d2l-ai/d2l-pytorch-sagemaker](https://github.com/d2l-ai/d2l-pytorch-sagemaker) GitHub 存储库中的笔记本电脑。你可以简单地使用 `git pull` 命令更新到最新版本。
+这本开源书的笔记本将在 GitHub 上的 [d2l-ai/d2l-pytorch-sagemaker](https://github.com/d2l-ai/d2l-pytorch-sagemaker) 仓库中定期更新。要更新到最新版本，您可以在 SageMaker 实例 (:numref:`fig_sagemaker-terminal`) 上打开一个终端。
 :end_tab:
 
 :begin_tab:`tensorflow`
-我们将定期更新 [d2l-ai/d2l-tensorflow-sagemaker](https://github.com/d2l-ai/d2l-tensorflow-sagemaker) GitHub 存储库中的笔记本电脑。你可以简单地使用 `git pull` 命令更新到最新版本。
+这本开源书的笔记本将在 GitHub 上的 [d2l-ai/d2l-tensorflow-sagemaker](https://github.com/d2l-ai/d2l-tensorflow-sagemaker) 仓库中定期更新。要更新到最新版本，您可以在 SageMaker 实例 (:numref:`fig_sagemaker-terminal`) 上打开一个终端。
 :end_tab:
-
-首先，你需要打开一个终端，如 :numref:`fig_sagemaker-terminal` 所示。 
 
 ![Open a terminal on the SageMaker instance.](../img/sagemaker-terminal.png)
 :width:`300px`
 :label:`fig_sagemaker-terminal`
 
-您可能想在提取更新之前提交本地更改。或者，您可以使用终端中的以下命令简单地忽略所有本地更改。
+您可能希望在从远程存储库中提取更新之前提交本地更改。否则，只需在终端中使用以下命令丢弃所有本地更改即可：
 
 :begin_tab:`mxnet`
 ```bash
@@ -109,12 +101,12 @@ git pull
 
 ## 摘要
 
-* 我们可以通过 Amazon SageMaker 启动和停止 Jupyter 服务器来运行这本书。
+* 我们可以使用 Amazon SageMaker 创建一个笔记本实例来运行这本书的 GPU 密集型代码。
 * 我们可以通过 Amazon SageMaker 实例上的终端更新笔记本电脑。
 
 ## 练习
 
-1. 尝试使用 Amazon SageMaker 编辑和运行本书中的代码。
-1. 通过终端访问源代码目录。
+1. 使用亚马逊 SageMaker 编辑和运行任何需要 GPU 的部分。
+1. 打开终端以访问存放本书所有笔记本的本地目录。
 
 [Discussions](https://discuss.d2l.ai/t/422)

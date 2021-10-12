@@ -1,7 +1,7 @@
 # softmax回归的从零开始实现
 :label:`sec_softmax_scratch`
 
-(**就像我们从零开始实现线性回归一样，**)我们认为softmax回归也是重要的基础，因此(**你应该知道实现softmax的细节**)。我们使用刚刚在 :numref:`sec_fashion_mnist`中引入的Fashion-MNIST数据集，并设置数据迭代器的批量大小为256。
+(**就像我们从零开始实现线性回归一样，**)我们认为softmax回归也是重要的基础，因此(**你应该知道实现softmax的细节**)(~~softmax回归~~)。我们使用刚刚在 :numref:`sec_fashion_mnist`中引入的Fashion-MNIST数据集，并设置数据迭代器的批量大小为256。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -83,8 +83,8 @@ d2l.reduce_sum(X, 0, keepdims=True), d2l.reduce_sum(X, 1, keepdims=True)
 
 我们现在已经准备好[**实现softmax**]操作了。回想一下，softmax由三个步骤组成：
 （1）对每个项求幂（使用`exp`）；
-（2）对每一行求和（小批量中每个样本是一行），得到每个样本的归一化常数；
-（3）将每一行除以其归一化常数，确保结果的和为1。
+（2）对每一行求和（小批量中每个样本是一行），得到每个样本的规范化常数；
+（3）将每一行除以其规范化常数，确保结果的和为1。
 在查看代码之前，让我们回顾一下这个表达式：
 
 (**
@@ -93,7 +93,7 @@ $$
 $$
 **)
 
-分母或归一化常数，有时也称为*配分函数*（其对数称为对数-配分函数）。该名称的起源来自[统计物理学](https://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics))中一个模拟粒子群分布的方程。
+分母或规范化常数，有时也称为*配分函数*（其对数称为对数-配分函数）。该名称的起源来自[统计物理学](https://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics))中一个模拟粒子群分布的方程。
 
 ```{.python .input}
 #@tab mxnet, tensorflow
@@ -144,7 +144,7 @@ def net(X):
 接下来，我们需要实现 :numref:`sec_softmax`中引入的交叉熵损失函数。这可能是深度学习中最常见的损失函数，因为目前分类问题的数量远远超过回归问题。
 
 回顾一下，交叉熵采用真实标签的预测概率的负对数似然。我们不需要使用Python的for循环迭代预测（这往往是低效的）。我们可以通过一个运算符选择所有元素。
-下面，我们[**创建一个数据`y_hat`，其中包含2个样本在3个类别的预测概率，**]它们对应的标签`y`。
+下面，我们[**创建一个数据样本`y_hat`，其中包含2个样本在3个类别的预测概率，及它们对应的标签`y`。**]
 有了`y`，我们知道在第一个样本中，第一类是正确的预测，而在第二个样本中，第三类是正确的预测。
 然后(**使用`y`作为`y_hat`中概率的索引**)，我们选择第一个样本中第一个类的概率和第二个样本中第三个类的概率。
 
@@ -181,13 +181,13 @@ def cross_entropy(y_hat, y):
 cross_entropy(y_hat, y)
 ```
 
-## 分类准确率
+## 分类精度
 
 给定预测概率分布`y_hat`，当我们必须输出硬预测（hard prediction）时，我们通常选择预测概率最高的类。许多应用都要求我们做出选择。如Gmail必须将电子邮件分为“Primary（主要）”、“Social（社交）”、“Updates（更新）”或“Forums（论坛）”。它可能在内部估计概率，但最终它必须在类中选择一个。
 
-当预测与标签分类`y`一致时，它们是正确的。分类准确率即正确预测数量与总预测数量之比。虽然直接优化准确率可能很困难（因为准确率的计算不可导），但准确率通常是我们最关心的性能衡量标准，我们在训练分类器时几乎总是会报告它。
+当预测与标签分类`y`一致时，它们是正确的。分类精度即正确预测数量与总预测数量之比。虽然直接优化精度可能很困难（因为精度的计算不可导），但精度通常是我们最关心的性能衡量标准，我们在训练分类器时几乎总是会报告它。
 
-为了计算准确率，我们执行以下操作。首先，如果`y_hat`是矩阵，那么假定第二个维度存储每个类的预测分数。我们使用`argmax`获得每行中最大元素的索引来获得预测类别。然后我们[**将预测类别与真实`y`元素进行比较**]。由于等式运算符“`==`”对数据类型很敏感，因此我们将`y_hat`的数据类型转换为与`y`的数据类型一致。结果是一个包含0（错）和1（对）的张量。进行求和会得到正确预测的数量。
+为了计算精度，我们执行以下操作。首先，如果`y_hat`是矩阵，那么假定第二个维度存储每个类的预测分数。我们使用`argmax`获得每行中最大元素的索引来获得预测类别。然后我们[**将预测类别与真实`y`元素进行比较**]。由于等式运算符“`==`”对数据类型很敏感，因此我们将`y_hat`的数据类型转换为与`y`的数据类型一致。结果是一个包含0（错）和1（对）的张量。进行求和会得到正确预测的数量。
 
 ```{.python .input}
 #@tab all
@@ -199,14 +199,14 @@ def accuracy(y_hat, y):  #@save
     return float(d2l.reduce_sum(d2l.astype(cmp, y.dtype)))
 ```
 
-我们将继续使用之前定义的变量`y_hat`和`y`分别作为预测的概率分布和标签。我们可以看到，第一个样本的预测类别是2（该行的最大元素为0.6，索引为2），这与实际标签0不一致。第二个样本的预测类别是2（该行的最大元素为0.5，索引为2），这与实际标签2一致。因此，这两个样本的分类准确率率为0.5。
+我们将继续使用之前定义的变量`y_hat`和`y`分别作为预测的概率分布和标签。我们可以看到，第一个样本的预测类别是2（该行的最大元素为0.6，索引为2），这与实际标签0不一致。第二个样本的预测类别是2（该行的最大元素为0.5，索引为2），这与实际标签2一致。因此，这两个样本的分类精度率为0.5。
 
 ```{.python .input}
 #@tab all
 accuracy(y_hat, y) / len(y)
 ```
 
-同样，对于任意数据迭代器`data_iter`可访问的数据集，[**我们可以评估在任意模型`net`的准确率**]。
+同样，对于任意数据迭代器`data_iter`可访问的数据集，[**我们可以评估在任意模型`net`的精度**]。
 
 ```{.python .input}
 #@tab mxnet, tensorflow
@@ -225,8 +225,9 @@ def evaluate_accuracy(net, data_iter):  #@save
     if isinstance(net, torch.nn.Module):
         net.eval()  # 将模型设置为评估模式
     metric = Accumulator(2)  # 正确预测数、预测总数
-    for X, y in data_iter:
-        metric.add(accuracy(net(X), y), d2l.size(y))
+    with torch.no_grad():
+        for X, y in data_iter:
+            metric.add(accuracy(net(X), y), d2l.size(y))
     return metric[0] / metric[1]
 ```
 
@@ -250,7 +251,7 @@ class Accumulator:  #@save
         return self.data[idx]
 ```
 
-由于我们使用随机权重初始化`net`模型，因此该模型的准确率应接近于随机猜测。例如在有10个类别情况下的准确率为0.1。
+由于我们使用随机权重初始化`net`模型，因此该模型的精度应接近于随机猜测。例如在有10个类别情况下的精度为0.1。
 
 ```{.python .input}
 #@tab all
@@ -276,7 +277,7 @@ def train_epoch_ch3(net, train_iter, loss, updater):  #@save
         l.backward()
         updater(X.shape[0])
         metric.add(float(l.sum()), accuracy(y_hat, y), y.size)
-    # 返回训练损失和训练准确率
+    # 返回训练损失和训练精度
     return metric[0] / metric[2], metric[1] / metric[2]
 ```
 
@@ -305,7 +306,7 @@ def train_epoch_ch3(net, train_iter, loss, updater):  #@save
             l.sum().backward()
             updater(X.shape[0])
             metric.add(float(l.sum()), accuracy(y_hat, y), y.numel())
-    # 返回训练损失和训练准确率
+    # 返回训练损失和训练精度
     return metric[0] / metric[2], metric[1] / metric[2]
 ```
 
@@ -335,7 +336,7 @@ def train_epoch_ch3(net, train_iter, loss, updater):  #@save
         l_sum = l * float(tf.size(y)) if isinstance(
             loss, tf.keras.losses.Loss) else tf.reduce_sum(l)
         metric.add(l_sum, accuracy(y_hat, y), tf.size(y))
-    # 返回训练损失和训练准确率
+    # 返回训练损失和训练精度
     return metric[0] / metric[2], metric[1] / metric[2]
 ```
 
@@ -426,7 +427,7 @@ class Updater():  #@save
 updater = Updater([W, b], lr=0.1)
 ```
 
-现在，我们[**训练模型10个迭代周期**]。请注意，迭代周期（`num_epochs`）和学习率（`lr`）都是可调节的超参数。通过更改它们的值，我们可以提高模型的分类准确率。
+现在，我们[**训练模型10个迭代周期**]。请注意，迭代周期（`num_epochs`）和学习率（`lr`）都是可调节的超参数。通过更改它们的值，我们可以提高模型的分类精度。
 
 ```{.python .input}
 #@tab all

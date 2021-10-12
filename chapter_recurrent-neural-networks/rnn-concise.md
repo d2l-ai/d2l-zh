@@ -24,6 +24,14 @@ batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 ```
 
+```{.python .input}
+#@tab tensorflow
+from d2l import tensorflow as d2l
+import tensorflow as tf
+batch_size, num_steps = 32, 35
+train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
+```
+
 ## [**定义模型**]
 
 高级API提供了循环神经网络的实现。我们构造了一个具有256个隐藏单元的单隐藏层的循环神经网络层`rnn_layer`。事实上，我们还没有讨论多层的意义——这将在 :numref:`sec_deep_rnn`中介绍。现在，仅需要将多层理解为一层循环神经网络的输出被用作下一层循环神经网络的输入就足够了。
@@ -40,12 +48,21 @@ num_hiddens = 256
 rnn_layer = nn.RNN(len(vocab), num_hiddens)
 ```
 
+```{.python .input}
+#@tab tensorflow
+num_hiddens = 256
+rnn_cell = tf.keras.layers.SimpleRNNCell(num_hiddens,
+    kernel_initializer='glorot_uniform')
+rnn_layer = tf.keras.layers.RNN(rnn_cell, time_major=True,
+    return_sequences=True, return_state=True)
+```
+
 :begin_tab:`mxnet`
-初始化隐藏状态是简单的，只需要调用成员函数`begin_state`即可。函数将返回一个列表（`state`），列表中包含了初始隐藏状态用于小批量数据中的每个样本，其形状为（隐藏层数，批量大小，隐藏单元数）。对于以后要介绍的一些模型（例如长-短期记忆网络），这样的列表还会包含其他信息。
+初始化隐状态是简单的，只需要调用成员函数`begin_state`即可。函数将返回一个列表（`state`），列表中包含了初始隐状态用于小批量数据中的每个样本，其形状为（隐藏层数，批量大小，隐藏单元数）。对于以后要介绍的一些模型（例如长-短期记忆网络），这样的列表还会包含其他信息。
 :end_tab:
 
 :begin_tab:`pytorch`
-我们(**使用张量来初始化隐藏状态**)，它的形状是（隐藏层数，批量大小，隐藏单元数）。
+我们(**使用张量来初始化隐状态**)，它的形状是（隐藏层数，批量大小，隐藏单元数）。
 :end_tab:
 
 ```{.python .input}
@@ -59,10 +76,16 @@ state = torch.zeros((1, batch_size, num_hiddens))
 state.shape
 ```
 
-[**通过一个隐藏状态和一个输入，我们就可以用更新后的隐藏状态计算输出。**]需要强调的是，`rnn_layer`的“输出”（`Y`）不涉及输出层的计算：它是指每个时间步的隐藏状态，这些隐藏状态可以用作后续输出层的输入。
+```{.python .input}
+#@tab tensorflow
+state = rnn_cell.get_initial_state(batch_size=batch_size, dtype=tf.float32)
+state.shape
+```
+
+[**通过一个隐状态和一个输入，我们就可以用更新后的隐状态计算输出。**]需要强调的是，`rnn_layer`的“输出”（`Y`）不涉及输出层的计算：它是指每个时间步的隐状态，这些隐状态可以用作后续输出层的输入。
 
 :begin_tab:`mxnet`
-此外，`rnn_layer`返回的更新后的隐藏状态（`state_new`）是指小批量数据的最后时间步的隐藏状态。这个隐藏状态可以用来初始化顺序分区中一个迭代周期内下一个小批量数据的隐藏状态。对于多个隐藏层，每一层的隐藏状态将存储在（`state_new`）变量中。至于稍后要介绍的某些模型（例如，长－短期记忆），此变量还包含其他信息。
+此外，`rnn_layer`返回的更新后的隐状态（`state_new`）是指小批量数据的最后时间步的隐状态。这个隐状态可以用来初始化顺序分区中一个迭代周期内下一个小批量数据的隐状态。对于多个隐藏层，每一层的隐状态将存储在（`state_new`）变量中。至于稍后要介绍的某些模型（例如，长－短期记忆），此变量还包含其他信息。
 :end_tab:
 
 ```{.python .input}
@@ -76,6 +99,13 @@ Y.shape, len(state_new), state_new[0].shape
 X = torch.rand(size=(num_steps, batch_size, len(vocab)))
 Y, state_new = rnn_layer(X, state)
 Y.shape, state_new.shape
+```
+
+```{.python .input}
+#@tab tensorflow
+X = tf.random.uniform((num_steps, batch_size, len(vocab)))
+Y, state_new = rnn_layer(X, state)
+Y.shape, len(state_new), state_new[0].shape
 ```
 
 与 :numref:`sec_rnn_scratch`类似，[**我们为一个完整的循环神经网络模型定义了一个`RNNModel`类**]。注意，`rnn_layer`只包含隐藏的循环层，我们还需要创建一个单独的输出层。
@@ -131,18 +161,39 @@ class RNNModel(nn.Module):
 
     def begin_state(self, device, batch_size=1):
         if not isinstance(self.rnn, nn.LSTM):
-            # `nn.GRU` 以张量作为隐藏状态
+            # `nn.GRU` 以张量作为隐状态
             return  torch.zeros((self.num_directions * self.rnn.num_layers,
                                  batch_size, self.num_hiddens), 
                                 device=device)
         else:
-            # `nn.LSTM` 以张量作为隐藏状态
+            # `nn.LSTM` 以张量作为隐状态
             return (torch.zeros((
                 self.num_directions * self.rnn.num_layers,
                 batch_size, self.num_hiddens), device=device),
                     torch.zeros((
                         self.num_directions * self.rnn.num_layers,
                         batch_size, self.num_hiddens), device=device))
+```
+
+```{.python .input}
+#@tab tensorflow
+#@save
+class RNNModel(tf.keras.layers.Layer):
+    def __init__(self, rnn_layer, vocab_size, **kwargs):
+        super(RNNModel, self).__init__(**kwargs)
+        self.rnn = rnn_layer
+        self.vocab_size = vocab_size
+        self.dense = tf.keras.layers.Dense(vocab_size)
+
+    def call(self, inputs, state):
+        X = tf.one_hot(tf.transpose(inputs), self.vocab_size)
+        # Later RNN like `tf.keras.layers.LSTMCell` return more than two values
+        Y, *state = self.rnn(X, state)
+        output = self.dense(tf.reshape(Y, (-1, Y.shape[-1])))
+        return output, state
+
+    def begin_state(self, *args, **kwargs):
+        return self.rnn.cell.get_initial_state(*args, **kwargs)
 ```
 
 ## 训练与预测
@@ -164,12 +215,33 @@ net = net.to(device)
 d2l.predict_ch8('time traveller', 10, net, vocab, device)
 ```
 
+```{.python .input}
+#@tab tensorflow
+device_name = d2l.try_gpu()._device_name
+strategy = tf.distribute.OneDeviceStrategy(device_name)
+with strategy.scope():
+    net = RNNModel(rnn_layer, vocab_size=len(vocab))
+
+d2l.predict_ch8('time traveller', 10, net, vocab)
+```
+
 很明显，这种模型根本不能输出好的结果。接下来，我们使用 :numref:`sec_rnn_scratch`中定义的超参数调用`train_ch8`，并且[**使用高级API训练模型**]。
 
 ```{.python .input}
-#@tab all
 num_epochs, lr = 500, 1
 d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, device)
+```
+
+```{.python .input}
+#@tab pytorch
+num_epochs, lr = 500, 1
+d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, device)
+```
+
+```{.python .input}
+#@tab tensorflow
+num_epochs, lr = 500, 1
+d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, strategy)
 ```
 
 与上一节相比，由于深度学习框架的高级API对代码进行了更多的优化，该模型在较短的时间内实现了较低的困惑度。
@@ -177,7 +249,7 @@ d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, device)
 ## 小结
 
 * 深度学习框架的高级API提供了循环神经网络层的实现。
-* 高级API的循环神经网络层返回一个输出和一个更新后的隐藏状态，这个输出不涉及输出层的计算。
+* 高级API的循环神经网络层返回一个输出和一个更新后的隐状态，这个输出不涉及输出层的计算。
 * 使用高级API实现的循环神经网络相比从零开始实现可以得到更快的训练速度。
 
 ## 练习
@@ -192,4 +264,8 @@ d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, device)
 
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2106)
+:end_tab:
+
+:begin_tab:`tensorflow`
+[Discussions](https://discuss.d2l.ai/t/2211)
 :end_tab:

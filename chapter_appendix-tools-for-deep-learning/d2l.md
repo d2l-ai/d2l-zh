@@ -1,7 +1,7 @@
 # `d2l` API 文档
 :label:`sec_d2l`
 
-`d2l` 软件包的以下成员的实现以及定义和解释它们的部分可以在 [source file](https://github.com/d2l-ai/d2l-en/tree/master/d2l) 中找到。
+`d2l` 软件包中以下成员的实现以及在其中定义和解释这些成员的部分可以在 [source file](https://github.com/d2l-ai/d2l-en/tree/master/d2l) 中找到。
 
 :begin_tab:`mxnet`
 ```eval_rst
@@ -37,7 +37,7 @@
    :members:
 ```
 
-## 数据
+## 資料
 
 ```eval_rst 
 .. autoclass:: DataModule

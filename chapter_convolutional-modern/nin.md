@@ -15,12 +15,12 @@ NiN的想法是在每个像素位置（针对每个高度和宽度）应用一�
 如果我们将权重连接到每个空间位置，我们可以将其视为$1\times 1$卷积层（如 :numref:`sec_channels`中所述），或作为在每个像素位置上独立作用的全连接层。
 从另一个角度看，即将空间维度中的每个像素视为单个样本，将通道维度视为不同特征（feature）。
 
- :numref:`fig_nin`说明了VGG和NiN及它们的块之间主要结构差异。
+ :numref:`fig_nin`说明了VGG和NiN及它们的块之间主要架构差异。
 NiN块以一个普通卷积层开始，后面是两个$1 \times 1$的卷积层。这两个$1 \times 1$卷积层充当带有ReLU激活函数的逐像素全连接层。
 第一层的卷积窗口形状通常由用户设置。
 随后的卷积窗口形状固定为$1 \times 1$。
 
-![对比 VGG 和 NiN 及它们的块之间主要结构差异。](../img/nin.svg)
+![对比 VGG 和 NiN 及它们的块之间主要架构差异。](../img/nin.svg)
 :width:`600px`
 :label:`fig_nin`
 
@@ -72,7 +72,7 @@ def nin_block(num_channels, kernel_size, strides, padding):
 
 最初的NiN网络是在AlexNet后不久提出的，显然从中得到了一些启示。
 NiN使用窗口形状为$11\times 11$、$5\times 5$和$3\times 3$的卷积层，输出通道数量与AlexNet中的相同。
-每个NiN块后有一个最大汇聚层，池化窗口形状为$3\times 3$，步幅为2。
+每个NiN块后有一个最大汇聚层，汇聚窗口形状为$3\times 3$，步幅为2。
 
 NiN和AlexNet之间的一个显著区别是NiN完全取消了全连接层。
 相反，NiN使用一个NiN块，其输出通道数等于标签类别的数量。最后放一个*全局平均汇聚层*（global average pooling layer），生成一个多元逻辑向量（logits）。NiN设计的一个优点是，它显著减少了模型所需参数的数量。然而，在实践中，这种设计有时会增加训练模型的时间。

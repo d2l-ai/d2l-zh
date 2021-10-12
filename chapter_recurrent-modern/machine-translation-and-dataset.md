@@ -74,7 +74,7 @@ print(text[:80])
 
 ## [**词元化**]
 
-与 :numref:`sec_language_model`中的字符级词元化不同，在机器翻译中，我们更喜欢单词级词元化（最先进的模型可能使用更高级的词元化技术）。下面的`tokenize_nmt`函数对前`num_examples`个文本序列对进行词元，其中每个词元要么是一个单词，要么是一个标点符号。此函数返回两个词元列表：`source`和`target`。具体地说，`source[i]`是源语言（这里是英语）第$i$个文本序列的词元列表，`target[i]`是目标语言（这里是法语）第$i$个文本序列的词元列表。
+与 :numref:`sec_language_model`中的字符级词元化不同，在机器翻译中，我们更喜欢单词级词元化（最先进的模型可能使用更高级的词元化技术）。下面的`tokenize_nmt`函数对前`num_examples`个文本序列对进行词元，其中每个词元要么是一个词，要么是一个标点符号。此函数返回两个词元列表：`source`和`target`。具体地说，`source[i]`是源语言（这里是英语）第$i$个文本序列的词元列表，`target[i]`是目标语言（这里是法语）第$i$个文本序列的词元列表。
 
 ```{.python .input}
 #@tab all
@@ -99,18 +99,24 @@ source[:6], target[:6]
 
 ```{.python .input}
 #@tab all
-d2l.set_figsize()
-_, _, patches = d2l.plt.hist(
-    [[len(l) for l in source], [len(l) for l in target]],
-    label=['source', 'target'])
-for patch in patches[1].patches:
-    patch.set_hatch('/')
-d2l.plt.legend(loc='upper right');
+def show_list_len_pair_hist(legend, xlabel, ylabel, xlist, ylist):
+    """Plot the histogram for list length pairs."""
+    d2l.set_figsize()
+    _, _, patches = d2l.plt.hist(
+        [[len(l) for l in xlist], [len(l) for l in ylist]])
+    d2l.plt.xlabel(xlabel)
+    d2l.plt.ylabel(ylabel)
+    for patch in patches[1].patches:
+        patch.set_hatch('/')
+    d2l.plt.legend(legend)
+
+show_list_len_pair_hist(['source', 'target'], '# tokens per sequence',
+                        'count', source, target);
 ```
 
-## [**词汇表**]
+## [**词表**]
 
-由于机器翻译数据集由语言对组成，因此我们可以分别为源语言和目标语言构建两个词汇表。使用单词级词元化时，词汇量将明显大于使用字符级词元化时的词汇量。为了缓解这一问题，这里我们将出现次数少于2次的低频率词元视为相同的未知（“&lt;unk&gt;”）词元。除此之外，我们还指定了额外的特定词元，例如在小批量时用于将序列填充到相同长度的填充词元（“&lt;pad&gt;”），以及序列的开始词元（“&lt;bos&gt;”）和结束词元（“&lt;eos&gt;”）。这些特殊词元在自然语言处理任务中比较常用。
+由于机器翻译数据集由语言对组成，因此我们可以分别为源语言和目标语言构建两个词表。使用单词级词元化时，词表大小将明显大于使用字符级词元化时的词表大小。为了缓解这一问题，这里我们将出现次数少于2次的低频率词元视为相同的未知（“&lt;unk&gt;”）词元。除此之外，我们还指定了额外的特定词元，例如在小批量时用于将序列填充到相同长度的填充词元（“&lt;pad&gt;”），以及序列的开始词元（“&lt;bos&gt;”）和结束词元（“&lt;eos&gt;”）。这些特殊词元在自然语言处理任务中比较常用。
 
 ```{.python .input}
 #@tab all
@@ -158,13 +164,13 @@ def build_array_nmt(lines, vocab, num_steps):
 
 ## [**训练模型**]
 
-最后，我们定义`load_data_nmt` 函数来返回数据迭代器，以及源语言和目标语言的两种词汇表。
+最后，我们定义`load_data_nmt` 函数来返回数据迭代器，以及源语言和目标语言的两种词表。
 
 ```{.python .input}
 #@tab all
 #@save
 def load_data_nmt(batch_size, num_steps, num_examples=600):
-    """返回翻译数据集的迭代器和词汇表。"""
+    """返回翻译数据集的迭代器和词表。"""
     text = preprocess_nmt(read_data_nmt())
     source, target = tokenize_nmt(text, num_examples)
     src_vocab = d2l.Vocab(source, min_freq=2,
@@ -194,12 +200,12 @@ for X, X_valid_len, Y, Y_valid_len in train_iter:
 ## 小结
 
 * 机器翻译指的是将文本序列从一种语言自动翻译成另一种语言。
-* 使用单词级词元化时的词汇量，将明显大于使用字符级词元化时的词汇量。为了缓解这一问题，我们可以将低频词元视为相同的未知词元。
+* 使用单词级词元化时的词表大小，将明显大于使用字符级词元化时的词表大小。为了缓解这一问题，我们可以将低频词元视为相同的未知词元。
 * 通过截断和填充文本序列，可以保证所有的文本序列都具有相同的长度，以便以小批量的方式加载。
 
 ## 练习
 
-1. 在`load_data_nmt`函数中尝试不同的`num_examples`参数值。这对源语言和目标语言的词汇量有何影响？
+1. 在`load_data_nmt`函数中尝试不同的`num_examples`参数值。这对源语言和目标语言的词表大小有何影响？
 1. 某些语言（例如中文和日语）的文本没有单词边界指示符（例如空格）。对于这种情况，单词级词元化仍然是个好主意吗？为什么？
 
 :begin_tab:`mxnet`

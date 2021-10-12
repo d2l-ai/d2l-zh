@@ -1,4 +1,4 @@
-# 微分
+# 微积分
 :label:`sec_calculus`
 
 在2500年前，古希腊人把一个多边形分成三角形，并把它们的面积相加，才找到计算多边形面积的方法。
@@ -106,7 +106,7 @@ $$\frac{d}{dx} \left[\frac{f(x)}{g(x)}\right] = \frac{g(x) \frac{d}{dx} [f(x)] -
 
 现在我们可以应用上述几个法则来计算$u'=f'(x)=3\frac{d}{dx}x^2-4\frac{d}{dx}x=6x-4$。因此，通过令$x=1$，我们有$u'=2$：这一点得到了我们在本节前面的实验的支持，在这个实验中，数值结果接近$2$。当$x=1$时，此导数也是曲线$u=f(x)$切线的斜率。
 
-[**为了对导数的这种解释进行可视化，**]我们将使用`matplotlib`，这是一个Python中流行的绘图库。要配置`matplotlib`生成图形的属性，我们需要(**定义几个函数**)。
+[**为了对导数的这种解释进行可视化，我们将使用`matplotlib`**]，这是一个Python中流行的绘图库。要配置`matplotlib`生成图形的属性，我们需要(**定义几个函数**)。
 在下面，`use_svg_display`函数指定`matplotlib`软件包输出svg图表以获得更清晰的图像。
 
 注意，注释`#@save`是一个特殊的标记，会将对应的函数、类或语句保存在`d2l`包中
@@ -205,6 +205,7 @@ $$ \frac{\partial y}{\partial x_i} = \lim_{h \rightarrow 0} \frac{f(x_1, \ldots,
 $$\frac{\partial y}{\partial x_i} = \frac{\partial f}{\partial x_i} = f_{x_i} = f_i = D_i f = D_{x_i} f.$$
 
 ## 梯度
+:label:`subsec_calculus-grad`
 
 我们可以连结一个多元函数对其所有变量的偏导数，以得到该函数的*梯度*（gradient）向量。设函数$f:\mathbb{R}^n\rightarrow\mathbb{R}$的输入是一个$n$维向量$\mathbf{x}=[x_1,x_2,\ldots,x_n]^\top$，并且输出是一个标量。
 函数$f(\mathbf{x})$相对于$\mathbf{x}$的梯度是一个包含$n$个偏导数的向量:

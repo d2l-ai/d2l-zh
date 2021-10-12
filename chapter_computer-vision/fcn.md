@@ -1,9 +1,9 @@
 # 全卷积网络
 :label:`sec_fcn`
 
-如 :numref:`sec_semantic_segmentation` 中所介绍的那样，语义分割能对图像中的每个像素分类。
-全卷积网络 (fully convolutional network，FCN) 采用卷积神经网络实现了从图像像素到像素类别的变换 :cite:`Long.Shelhamer.Darrell.2015`。
-与我们之前在图像分类或目标检测部分介绍的卷积神经网络不同，全卷积网络将中间层特征图的高和宽变换回输入图像的尺寸：这是通过 :numref:`sec_transposed_conv` 中引入的*转置卷积*（transposed convolution）层实现的。
+如 :numref:`sec_semantic_segmentation`中所介绍的那样，语义分割能对图像中的每个像素分类。
+全卷积网络（fully convolutional network，FCN）采用卷积神经网络实现了从图像像素到像素类别的变换 :cite:`Long.Shelhamer.Darrell.2015`。
+与我们之前在图像分类或目标检测部分介绍的卷积神经网络不同，全卷积网络将中间层特征图的高和宽变换回输入图像的尺寸：这是通过 :numref:`sec_transposed_conv`中引入的*转置卷积*（transposed convolution）层实现的。
 因此，输出的类别预测与输入图像在像素级别上具有一一对应关系：给定空间维上的位置，通道维的输出即该位置对应像素的类别预测。
 
 ```{.python .input}
@@ -28,8 +28,8 @@ from torch.nn import functional as F
 ## 构造模型
 
 下面我们了解一下全卷积网络模型最基本的设计。
-如 :numref:`fig_fcn` 所示，全卷积网络先使用卷积神经网络抽取图像特征，然后通过 $1\times 1$ 卷积层将通道数变换为类别个数，最后在 :numref:`sec_transposed_conv` 中通过转置卷积层将特征图的高和宽变换为输入图像的尺寸。
-因此，模型输出与输入图像的高和宽相同，且最终输出的通道包含了该空间位置像素的类别预测。 
+如 :numref:`fig_fcn`所示，全卷积网络先使用卷积神经网络抽取图像特征，然后通过$1\times 1$卷积层将通道数变换为类别个数，最后在 :numref:`sec_transposed_conv`中通过转置卷积层将特征图的高和宽变换为输入图像的尺寸。
+因此，模型输出与输入图像的高和宽相同，且最终输出的通道包含了该空间位置像素的类别预测。
 
 ![全卷积网络](../img/fcn.svg)
 :label:`fig_fcn`
@@ -98,7 +98,7 @@ net.add_module('transpose_conv', nn.ConvTranspose2d(num_classes, num_classes,
 
 ## [**初始化转置卷积层**]
 
-在图像处理中，我们有时需要将图像放大，即*上采样*(upsampling)。
+在图像处理中，我们有时需要将图像放大，即*上采样*（upsampling）。
 *双线性插值*（bilinear interpolation）
 是常用的上采样方法之一，它也经常用于初始化转置卷积层。
 
@@ -214,7 +214,7 @@ net.transpose_conv.weight.data.copy_(W);
 
 ## [**读取数据集**]
 
-我们用 :numref:`sec_semantic_segmentation` 中介绍的语义分割读取数据集。
+我们用 :numref:`sec_semantic_segmentation`中介绍的语义分割读取数据集。
 指定随机裁剪的输出图像的形状为$320\times 480$：高和宽都可以被$32$整除。
 
 ```{.python .input}
@@ -331,7 +331,7 @@ d2l.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n, scale=2);
 1. 如果将转置卷积层改用Xavier随机初始化，结果有什么变化？
 1. 调节超参数，能进一步提升模型的精度吗？
 1. 预测测试图像中所有像素的类别。
-1. 最初的全卷积网络的论文中 :cite:`Long.Shelhamer.Darrell.2015` 还使用了卷积神经网络的某些中间层的输出。试着实现这个想法。
+1. 最初的全卷积网络的论文中 :cite:`Long.Shelhamer.Darrell.2015`还使用了卷积神经网络的某些中间层的输出。试着实现这个想法。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/3298)

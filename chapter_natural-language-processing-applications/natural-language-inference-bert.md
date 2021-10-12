@@ -1,12 +1,12 @@
-# 自然语言推理：微调BERT
+# 自然语言推断：微调BERT
 :label:`sec_natural-language-inference-bert`
 
-在本章的前面几节中，我们已经为SNLI数据集（ :numref:`sec_natural-language-inference-and-dataset` ）上的自然语言推理任务设计了一个基于注意力的结构（:numref:`sec_natural-language-inference-attention`）。现在，我们通过微调BERT来重新审视这项任务。正如在 :numref:`sec_finetuning-bert` 中讨论的那样，自然语言推理是一个序列级别的文本对分类问题，而微调BERT只需要一个额外的基于多层感知机的结构，如 :numref:`fig_nlp-map-nli-bert` 中所示。
+在本章的前面几节中，我们已经为SNLI数据集（ :numref:`sec_natural-language-inference-and-dataset` ）上的自然语言推断任务设计了一个基于注意力的结构（:numref:`sec_natural-language-inference-attention`）。现在，我们通过微调BERT来重新审视这项任务。正如在 :numref:`sec_finetuning-bert` 中讨论的那样，自然语言推断是一个序列级别的文本对分类问题，而微调BERT只需要一个额外的基于多层感知机的架构，如 :numref:`fig_nlp-map-nli-bert` 中所示。
 
-![本节将预训练BERT提供给基于多层感知机的自然语言推理结构。](../img/nlp-map-nli-bert.svg)
+![本节将预训练BERT提供给基于多层感知机的自然语言推断架构。](../img/nlp-map-nli-bert.svg)
 :label:`fig_nlp-map-nli-bert`
 
-在本节中，我们将下载一个预训练好的小版本的BERT，然后对其进行微调，以便在SNLI数据集上进行自然语言推理。
+在本节中，我们将下载一个预训练好的小版本的BERT，然后对其进行微调，以便在SNLI数据集上进行自然语言推断。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -29,9 +29,9 @@ from torch import nn
 import os
 ```
 
-## [**加载预先训练的BERT**]
+## [**加载预训练的BERT**]
 
-我们已经在 :numref:`sec_bert-dataset` 和 :numref:`sec_bert-pretraining` WikiText-2数据集上预训练BERT（请注意，原始的BERT模型是在更大的语料库上预训练的）。正如在 :numref:`sec_bert-pretraining` 中所讨论的，原始的BERT模型有数以亿计的参数。在下面，我们提供了两个版本的预训练的BERT：“bert.base”与原始的BERT基础模型一样大，需要大量的计算资源才能进行微调，而“bert.mall”是一个小版本，以便于演示。
+我们已经在 :numref:`sec_bert-dataset` 和 :numref:`sec_bert-pretraining` WikiText-2数据集上预训练BERT（请注意，原始的BERT模型是在更大的语料库上预训练的）。正如在 :numref:`sec_bert-pretraining` 中所讨论的，原始的BERT模型有数以亿计的参数。在下面，我们提供了两个版本的预训练的BERT：“bert.base”与原始的BERT基础模型一样大，需要大量的计算资源才能进行微调，而“bert.small”是一个小版本，以便于演示。
 
 ```{.python .input}
 d2l.DATA_HUB['bert.base'] = (d2l.DATA_URL + 'bert.base.zip',
@@ -101,7 +101,7 @@ bert, vocab = load_pretrained_model(
 
 ## [**微调BERT的数据集**]
 
-对于SNLI数据集的下游任务自然语言推理，我们定义了一个定制的数据集类`SNLIBERTDataset`。在每个样本中，前提和假设形成一对文本序列，并被打包成一个BERT输入序列，如 :numref:`fig_bert-two-seqs` 所示。回想 :numref:`subsec_bert_input_rep` ，片段索引用于区分BERT输入序列中的前提和假设。利用预定义的BERT输入序列的最大长度(`max_len`)，持续移除输入文本对中较长文本的最后一个标记，直到满足`max_len`。为了加速生成用于微调BERT的SNLI数据集，我们使用4个工作进程并行生成训练或测试样本。
+对于SNLI数据集的下游任务自然语言推断，我们定义了一个定制的数据集类`SNLIBERTDataset`。在每个样本中，前提和假设形成一对文本序列，并被打包成一个BERT输入序列，如 :numref:`fig_bert-two-seqs` 所示。回想 :numref:`subsec_bert_input_rep` ，片段索引用于区分BERT输入序列中的前提和假设。利用预定义的BERT输入序列的最大长度(`max_len`)，持续移除输入文本对中较长文本的最后一个标记，直到满足`max_len`。为了加速生成用于微调BERT的SNLI数据集，我们使用4个工作进程并行生成训练或测试样本。
 
 ```{.python .input}
 class SNLIBERTDataset(gluon.data.Dataset):
@@ -208,7 +208,7 @@ class SNLIBERTDataset(torch.utils.data.Dataset):
         return len(self.all_token_ids)
 ```
 
-下载完SNLI数据集后，我们通过实例化`SNLIBERTDataset`类来[**生成训练和测试样本**]。这些样本将在自然语言推理的训练和测试期间进行小批量读取。
+下载完SNLI数据集后，我们通过实例化`SNLIBERTDataset`类来[**生成训练和测试样本**]。这些样本将在自然语言推断的训练和测试期间进行小批量读取。
 
 ```{.python .input}
 # 如果出现显存不足错误，请减少“batch_size”。在原始的BERT模型中，`max_len` = 512
@@ -237,7 +237,7 @@ test_iter = torch.utils.data.DataLoader(test_set, batch_size,
 
 ## 微调BERT
 
-如 :numref:`fig_bert-two-seqs` 所示，用于自然语言推理的微调BERT只需要一个额外的多层感知机，该多层感知机由两个全连接层组成（请参见下面`BERTClassifier`类中的`self.hidden`和`self.output`）。[**这个多层感知机将特殊的“&lt;cls&gt;”词元**]的BERT表示进行了转换，该词元同时编码前提和假设的信息(**为自然语言推理的三个输出**)：蕴涵、矛盾和中性。
+如 :numref:`fig_bert-two-seqs` 所示，用于自然语言推断的微调BERT只需要一个额外的多层感知机，该多层感知机由两个全连接层组成（请参见下面`BERTClassifier`类中的`self.hidden`和`self.output`）。[**这个多层感知机将特殊的“&lt;cls&gt;”词元**]的BERT表示进行了转换，该词元同时编码前提和假设的信息(**为自然语言推断的三个输出**)：蕴涵、矛盾和中性。
 
 ```{.python .input}
 class BERTClassifier(nn.Block):
@@ -303,7 +303,7 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
 
 ## 小结
 
-* 我们可以针对下游应用对预训练的BERT模型进行微调，例如在SNLI数据集上进行自然语言推理。
+* 我们可以针对下游应用对预训练的BERT模型进行微调，例如在SNLI数据集上进行自然语言推断。
 * 在微调过程中，BERT模型成为下游应用模型的一部分。仅与训练前损失相关的参数在微调期间不会更新。
 
 ## 练习

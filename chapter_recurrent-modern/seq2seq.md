@@ -2,11 +2,11 @@
 :label:`sec_seq2seq`
 
 正如我们在 :numref:`sec_machine_translation`中看到的，机器翻译中的输入序列和输出序列都是长度可变的。
-为了解决这类问题，我们在 :numref:`sec_encoder-decoder`中设计了一个通用的”编码器－解码器“结构。
-在本节中，我们将使用两个循环神经网络来设计这个结构中的编码器和解码器，并将其应用于机器翻译的*序列到序列*（sequence to sequence，seq2seq）学习 :cite:`Sutskever.Vinyals.Le.2014,Cho.Van-Merrienboer.Gulcehre.ea.2014`。
+为了解决这类问题，我们在 :numref:`sec_encoder-decoder`中设计了一个通用的”编码器－解码器“架构。
+在本节中，我们将使用两个循环神经网络来设计这个架构中的编码器和解码器，并将其应用于机器翻译的*序列到序列*（sequence to sequence，seq2seq）学习 :cite:`Sutskever.Vinyals.Le.2014,Cho.Van-Merrienboer.Gulcehre.ea.2014`。
 
-遵循“编码器－解码器”结构的设计原则，循环神经网络编码器可以使用长度可变的序列作为输入，将其转换为形状固定的隐藏状态。
-换言之，输入（源）序列的信息被*编码*到循环神经网络编码器的隐藏状态中。
+遵循编码器－解码器架构的设计原则，循环神经网络编码器可以使用长度可变的序列作为输入，将其转换为形状固定的隐状态。
+换言之，输入（源）序列的信息被*编码*到循环神经网络编码器的隐状态中。
 为了连续生成输出序列的词元，独立的循环神经网络解码器是基于输入序列的编码信息和输出序列已经看见的或者生成的词元来预测下一个词元。
  :numref:`fig_seq2seq`演示了如何在机器翻译中使用两个循环神经网络进行序列到序列学习。
 
@@ -17,9 +17,9 @@
 一旦输出序列生成此词元，模型就可以停止执行预测。
 在循环神经网络解码器的初始化时间步，有两个特定的设计决定。
 首先，特定的“&lt;bos&gt;”表示序列开始词元，它是解码器的输入序列的第一个词元。
-其次，使用循环神经网络编码器最终的隐藏状态来初始化解码器的隐藏状态。
+其次，使用循环神经网络编码器最终的隐状态来初始化解码器的隐状态。
 例如，在 :cite:`Sutskever.Vinyals.Le.2014`的设计中，正是基于这种设计将输入序列的编码信息送入到解码器中来生成输出序列的。
-在其他一些设计中 :cite:`Cho.Van-Merrienboer.Gulcehre.ea.2014`，如 :numref:`fig_seq2seq`所示，编码器最终的隐藏状态在每一个时间步都作为解码器的输入序列的一部分。
+在其他一些设计中 :cite:`Cho.Van-Merrienboer.Gulcehre.ea.2014`，如 :numref:`fig_seq2seq`所示，编码器最终的隐状态在每一个时间步都作为解码器的输入序列的一部分。
 类似于 :numref:`sec_language_model`中语言模型的训练，可以允许标签成为原始的输出序列，
 从源序列词元“&lt;bos&gt;”、“Ils”、“regardent”、“.”到新序列词元
 “Ils”、“regardent”、“.”、“&lt;eos&gt;”来移动预测的位置。
@@ -44,21 +44,29 @@ import torch
 from torch import nn
 ```
 
+```{.python .input}
+#@tab tensorflow
+import collections
+from d2l import tensorflow as d2l
+import math
+import tensorflow as tf
+```
+
 ## 编码器
 
 从技术上讲，编码器将长度可变的输入序列转换成形状固定的*上下文变量*$\mathbf{c}$，并且将输入序列的信息在该上下文变量中进行编码。如 :numref:`fig_seq2seq`所示，可以使用循环神经网络来设计编码器。
 
-让我们考虑由一个序列组成的样本（批量大小是$1$）。假设输入序列是$x_1, \ldots, x_T$，其中$x_t$是输入文本序列中的第$t$个词元。在时间步$t$，循环神经网络将词元$x_t$的输入特征向量$\mathbf{x}_t$和$\mathbf{h} _{t-1}$（即上一时间步的隐藏状态）转换为$\mathbf{h}_t$（即当前隐藏状态）。使用一个函数$f$来描述循环神经网络的循环层所做的变换：
+让我们考虑由一个序列组成的样本（批量大小是$1$）。假设输入序列是$x_1, \ldots, x_T$，其中$x_t$是输入文本序列中的第$t$个词元。在时间步$t$，循环神经网络将词元$x_t$的输入特征向量$\mathbf{x}_t$和$\mathbf{h} _{t-1}$（即上一时间步的隐状态）转换为$\mathbf{h}_t$（即当前隐状态）。使用一个函数$f$来描述循环神经网络的循环层所做的变换：
 
 $$\mathbf{h}_t = f(\mathbf{x}_t, \mathbf{h}_{t-1}). $$
 
-总之，编码器通过选定的函数$q$将所有时间步的隐藏状态转换为上下文变量：
+总之，编码器通过选定的函数$q$将所有时间步的隐状态转换为上下文变量：
 
 $$\mathbf{c} =  q(\mathbf{h}_1, \ldots, \mathbf{h}_T).$$
 
-比如，当选择$q(\mathbf{h}_1, \ldots, \mathbf{h}_T) = \mathbf{h}_T$时（就像 :numref:`fig_seq2seq`中一样），上下文变量仅仅是输入序列在最后时间步的隐藏状态$\mathbf{h}_T$。
+比如，当选择$q(\mathbf{h}_1, \ldots, \mathbf{h}_T) = \mathbf{h}_T$时（就像 :numref:`fig_seq2seq`中一样），上下文变量仅仅是输入序列在最后时间步的隐状态$\mathbf{h}_T$。
 
-到目前为止，我们使用的是一个单向循环神经网络来设计编码器，其中隐藏状态只依赖于输入子序列，这个子序列是由输入序列的开始位置到隐藏状态所在的时间步的位置（包括隐藏状态所在的时间步）组成。我们也可以使用双向循环神经网络构造编码器，其中隐藏状态依赖于两个输入子序列，两个子序列是由隐藏状态所在的时间步的位置之前的序列和之后的序列（包括隐藏状态所在的时间步），因此隐藏状态对整个序列的信息都进行了编码。
+到目前为止，我们使用的是一个单向循环神经网络来设计编码器，其中隐状态只依赖于输入子序列，这个子序列是由输入序列的开始位置到隐状态所在的时间步的位置（包括隐状态所在的时间步）组成。我们也可以使用双向循环神经网络构造编码器，其中隐状态依赖于两个输入子序列，两个子序列是由隐状态所在的时间步的位置之前的序列和之后的序列（包括隐状态所在的时间步），因此隐状态对整个序列的信息都进行了编码。
 
 现在，让我们[**实现循环神经网络编码器**]。注意，我们使用了*嵌入层*（embedding layer）来获得输入序列中每个词元的特征向量。嵌入层的权重是一个矩阵，其行数等于输入词表的大小（`vocab_size`），其列数等于特征向量的维度（`embed_size`）。对于任意输入词元的索引$i$，嵌入层获取权重矩阵的第$i$行（从$0$开始）以返回其特征向量。另外，本文选择了一个多层门控循环单元来实现编码器。
 
@@ -110,7 +118,30 @@ class Seq2SeqEncoder(d2l.Encoder):
         return output, state
 ```
 
-循环层返回变量的说明可以参考 :numref:`sec_rnn-concise`。让我们使用一个具体的例子来说明[**上述编码器的实现**]。下面将实例化一个两层门控循环单元编码器，其隐藏单元数为$16$。给定一小批量的输入序列`X`（批量大小为$4$，时间步为$7$）。在完成所有时间步后，最后一层的隐藏状态的输出是一个张量（`output `由编码器的循环层返回），其形状为（时间步数,批量大小,隐藏单元数）。
+```{.python .input}
+#@tab tensorflow
+#@save
+class Seq2SeqEncoder(d2l.Encoder):
+    """用于序列到序列学习的循环神经网络编码器。"""
+    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers, dropout=0, **kwargs): 
+        super().__init__(*kwargs)
+        # 嵌入层
+        self.embedding = tf.keras.layers.Embedding(vocab_size, embed_size)
+        self.rnn = tf.keras.layers.RNN(tf.keras.layers.StackedRNNCells(
+            [tf.keras.layers.GRUCell(num_hiddens, dropout=dropout)
+             for _ in range(num_layers)]), return_sequences=True,
+                                       return_state=True)
+    
+    def call(self, X, *args, **kwargs):
+        # 输入'X'的形状：(`batch_size`, `num_steps`)
+        # 输出'X'的形状：(`batch_size`, `num_steps`, `embed_size`)
+        X = self.embedding(X)
+        output = self.rnn(X, **kwargs)
+        state = output[1:]
+        return output[0], state
+```
+
+循环层返回变量的说明可以参考 :numref:`sec_rnn-concise`。让我们使用一个具体的例子来说明[**上述编码器的实现**]。下面将实例化一个两层门控循环单元编码器，其隐藏单元数为$16$。给定一小批量的输入序列`X`（批量大小为$4$，时间步为$7$）。在完成所有时间步后，最后一层的隐状态的输出是一个张量（`output `由编码器的循环层返回），其形状为（时间步数,批量大小,隐藏单元数）。
 
 ```{.python .input}
 encoder = Seq2SeqEncoder(vocab_size=10, embed_size=8, num_hiddens=16,
@@ -131,7 +162,15 @@ output, state = encoder(X)
 output.shape
 ```
 
-由于这里使用的是门控循环单元，所以在最后一个时间步的多层隐藏状态的形状是（隐藏层的数量,批量大小,隐藏单元的数量）。如果使用长短期记忆网络，`state`中还将包含记忆单元信息。
+```{.python .input}
+#@tab tensorflow
+encoder = Seq2SeqEncoder(vocab_size=10, embed_size=8, num_hiddens=16, num_layers=2)
+X = tf.zeros((4, 7))
+output, state = encoder(X, training=False)
+output.shape
+```
+
+由于这里使用的是门控循环单元，所以在最后一个时间步的多层隐状态的形状是（隐藏层的数量,批量大小,隐藏单元的数量）。如果使用长短期记忆网络，`state`中还将包含记忆单元信息。
 
 ```{.python .input}
 len(state), state[0].shape
@@ -142,19 +181,24 @@ len(state), state[0].shape
 state.shape
 ```
 
+```{.python .input}
+#@tab tensorflow
+len(state), [element.shape for element in state]
+```
+
 ## [**解码器**]
 :label:`sec_seq2seq_decoder`
 
 正如上文提到的，编码器输出的上下文变量$\mathbf{c}$对整个输入序列$x_1, \ldots, x_T$进行编码。来自训练数据集的输出序列$y_1, y_2, \ldots, y_{T'}$，对于每个时间步$t'$（与输入序列或编码器的时间步$t$不同），解码器输出$y_{t'}$的概率取决于先前的输出子序列$y_1, \ldots, y_{t'-1}$和上下文变量$\mathbf{c}$，即$P(y_{t'} \mid y_1, \ldots, y_{t'-1}, \mathbf{c})$。
 
-为了在序列上模型化这种条件概率，我们可以使用另一个循环神经网络作为解码器。在输出序列上的任意时间步$t^\prime$，循环神经网络将来自上一时间步的输出$y_{t^\prime-1}$和上下文变量$\mathbf{c}$作为其输入，然后在当前时间步将它们和上一隐藏状态$\mathbf{s}_{t^\prime-1}$转换为隐藏状态$\mathbf{s}_{t^\prime}$。因此，可以使用函数$g$来表示解码器的隐藏层的变换：
+为了在序列上模型化这种条件概率，我们可以使用另一个循环神经网络作为解码器。在输出序列上的任意时间步$t^\prime$，循环神经网络将来自上一时间步的输出$y_{t^\prime-1}$和上下文变量$\mathbf{c}$作为其输入，然后在当前时间步将它们和上一隐状态$\mathbf{s}_{t^\prime-1}$转换为隐状态$\mathbf{s}_{t^\prime}$。因此，可以使用函数$g$来表示解码器的隐藏层的变换：
 
 $$\mathbf{s}_{t^\prime} = g(y_{t^\prime-1}, \mathbf{c}, \mathbf{s}_{t^\prime-1}).$$
 :eqlabel:`eq_seq2seq_s_t`
 
-在获得解码器的隐藏状态之后，我们可以使用输出层和softmax操作来计算在时间步$t^\prime$时输出$y_{t^\prime}$的条件概率分布$P(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \mathbf{c})$。
+在获得解码器的隐状态之后，我们可以使用输出层和softmax操作来计算在时间步$t^\prime$时输出$y_{t^\prime}$的条件概率分布$P(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \mathbf{c})$。
 
-根据 :numref:`fig_seq2seq`，当实现解码器时，我们直接使用编码器最后一个时间步的隐藏状态来初始化解码器的隐藏状态。这就要求使用循环神经网络实现的编码器和解码器具有相同数量的层和隐藏单元。为了进一步包含经过编码的输入序列的信息，上下文变量在所有的时间步与解码器的输入进行拼接（concatenate）。为了预测输出词元的概率分布，在循环神经网络解码器的最后一层使用全连接层来变换隐藏状态。
+根据 :numref:`fig_seq2seq`，当实现解码器时，我们直接使用编码器最后一个时间步的隐状态来初始化解码器的隐状态。这就要求使用循环神经网络实现的编码器和解码器具有相同数量的层和隐藏单元。为了进一步包含经过编码的输入序列的信息，上下文变量在所有的时间步与解码器的输入进行拼接（concatenate）。为了预测输出词元的概率分布，在循环神经网络解码器的最后一层使用全连接层来变换隐状态。
 
 ```{.python .input}
 class Seq2SeqDecoder(d2l.Decoder):
@@ -213,6 +257,36 @@ class Seq2SeqDecoder(d2l.Decoder):
         return output, state
 ```
 
+```{.python .input}
+#@tab tensorflow
+class Seq2SeqDecoder(d2l.Decoder):
+    """用于序列到序列学习的循环神经网络解码器。"""
+    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers,
+                 dropout=0, **kwargs):
+        super().__init__(**kwargs)
+        self.embedding = tf.keras.layers.Embedding(vocab_size, embed_size)
+        self.rnn = tf.keras.layers.RNN(tf.keras.layers.StackedRNNCells(
+            [tf.keras.layers.GRUCell(num_hiddens, dropout=dropout)
+             for _ in range(num_layers)]), return_sequences=True,
+                                       return_state=True)
+        self.dense = tf.keras.layers.Dense(vocab_size)
+        
+    def init_state(self, enc_outputs, *args):
+        return enc_outputs[1]
+    
+    def call(self, X, state, **kwargs):
+        # 输出'X'的形状：(`batch_size`, `num_steps`, `embed_size`)
+        X = self.embedding(X)
+        # 广播`context`，使其具有与`X`相同的`num_steps`
+        context = tf.repeat(tf.expand_dims(state[-1], axis=1), repeats=X.shape[1], axis=1)
+        X_and_context = tf.concat((X, context), axis=2)
+        rnn_output = self.rnn(X_and_context, state, **kwargs)
+        output = self.dense(rnn_output[0])
+        # `output`的形状: (`batch_size`, `num_steps`, `vocab_size`)
+        # `state`是一个包含`num_layers`个元素的列表，每个元素的形状: (`batch_size`, `num_hiddens`)
+        return output, rnn_output[1:]
+```
+
 下面，我们用与前面提到的编码器中相同的超参数，来[**实例化解码器**]。如我们所见，解码器的输出形状变为（批量大小,时间步数,词表大小），其中张量的最后一个维度存储预测的词元分布。
 
 ```{.python .input}
@@ -232,6 +306,14 @@ decoder.eval()
 state = decoder.init_state(encoder(X))
 output, state = decoder(X, state)
 output.shape, state.shape
+```
+
+```{.python .input}
+#@tab tensorflow
+decoder = Seq2SeqDecoder(vocab_size=10, embed_size=8, num_hiddens=16, num_layers=2)
+state = decoder.init_state(encoder(X))
+output, state = decoder(X, state, training=False)
+output.shape, len(state), state[0].shape
 ```
 
 总之，上述循环神经网络“编码器－解码器”模型中的各层如 :numref:`fig_seq2seq_details`所示。
@@ -265,6 +347,24 @@ X = torch.tensor([[1, 2, 3], [4, 5, 6]])
 sequence_mask(X, torch.tensor([1, 2]))
 ```
 
+```{.python .input}
+#@tab tensorflow
+#@save
+def sequence_mask(X, valid_len, value=0):
+    """在序列中屏蔽不相关的项。"""
+    maxlen = X.shape[1]
+    mask = tf.range(start=0, limit=maxlen, dtype=tf.float32)[
+        None, :] < tf.cast(valid_len[:, None], dtype=tf.float32)
+    
+    if len(X.shape) == 3:
+        return tf.where(tf.expand_dims(mask, axis=-1), X, value)
+    else:
+        return tf.where(mask, X, value)
+    
+X = tf.constant([[1, 2, 3], [4, 5, 6]])
+sequence_mask(X, tf.constant([1, 2]))
+```
+
 (**我们还可以使用此函数屏蔽最后几个轴上的所有项。**)如果愿意，也可以使用指定的非零值来替换这些项。
 
 ```{.python .input}
@@ -276,6 +376,12 @@ npx.sequence_mask(X, np.array([1, 2]), True, value=-1, axis=1)
 #@tab pytorch
 X = d2l.ones(2, 3, 4)
 sequence_mask(X, torch.tensor([1, 2]), value=-1)
+```
+
+```{.python .input}
+#@tab tensorflow
+X = tf.ones((2,3,4))
+sequence_mask(X, tf.constant([1, 2]), value=-1)
 ```
 
 现在，我们可以[**通过扩展softmax交叉熵损失函数来遮蔽不相关的预测**]。最初，所有预测词元的掩码都设置为1。一旦给定了有效长度，与填充词元对应的掩码将被设置为0。最后，将所有词元的损失乘以掩码，以过滤掉损失中填充词元产生的不相关预测。
@@ -312,6 +418,28 @@ class MaskedSoftmaxCELoss(nn.CrossEntropyLoss):
         return weighted_loss
 ```
 
+```{.python .input}
+#@tab tensorflow
+#@save
+class MaskedSoftmaxCELoss(tf.keras.losses.Loss):
+    """带遮蔽的softmax交叉熵损失函数"""
+    def __init__(self, valid_len):
+        super().__init__(reduction='none')
+        self.valid_len = valid_len
+    
+    # `pred` 的形状：(`batch_size`, `num_steps`, `vocab_size`)
+    # `label` 的形状：(`batch_size`, `num_steps`)
+    # `valid_len` 的形状：(`batch_size`,)
+    def call(self, label, pred):
+        weights = tf.ones_like(label, dtype=tf.float32)
+        weights = sequence_mask(weights, self.valid_len)
+        label_one_hot = tf.one_hot(label, depth=pred.shape[-1])
+        unweighted_loss = tf.keras.losses.CategoricalCrossentropy(
+            from_logits=True, reduction='none')(label_one_hot, pred)
+        weighted_loss = tf.reduce_mean((unweighted_loss*weights), axis=1)
+        return weighted_loss
+```
+
 我们可以创建三个相同的序列来进行[**代码健全性检查**]，然后分别指定这些序列的有效长度为$4$、$2$和$0$。结果就是，第一个序列的损失应为第二个序列的两倍，而第三个序列的损失应为零。
 
 ```{.python .input}
@@ -324,6 +452,12 @@ loss(d2l.ones((3, 4, 10)), d2l.ones((3, 4)), np.array([4, 2, 0]))
 loss = MaskedSoftmaxCELoss()
 loss(d2l.ones(3, 4, 10), d2l.ones((3, 4), dtype=torch.long),
      torch.tensor([4, 2, 0]))
+```
+
+```{.python .input}
+#@tab tensorflow
+loss = MaskedSoftmaxCELoss(tf.constant([4, 2, 0]))
+loss(tf.ones((3,4), dtype = tf.int32), tf.ones((3, 4, 10))).numpy()
 ```
 
 ## [**训练**]
@@ -388,13 +522,14 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
         timer = d2l.Timer()
         metric = d2l.Accumulator(2)  # 训练损失总和，词元数量
         for batch in data_iter:
+            optimizer.zero_grad()
             X, X_valid_len, Y, Y_valid_len = [x.to(device) for x in batch]
             bos = torch.tensor([tgt_vocab['<bos>']] * Y.shape[0],
                           device=device).reshape(-1, 1)
             dec_input = torch.cat([bos, Y[:, :-1]], 1)  # 教师强制
             Y_hat, _ = net(X, dec_input, X_valid_len)
             l = loss(Y_hat, Y, Y_valid_len)
-            l.sum().backward()	# 损失函数的标量进行“反传”
+            l.sum().backward()	# 损失函数的标量进行“反向传播”
             d2l.grad_clipping(net, 1)
             num_tokens = Y_valid_len.sum()
             optimizer.step()
@@ -404,6 +539,36 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
             animator.add(epoch + 1, (metric[0] / metric[1],))
     print(f'loss {metric[0] / metric[1]:.3f}, {metric[1] / timer.stop():.1f} '
         f'tokens/sec on {str(device)}')
+```
+
+```{.python .input}
+#@tab tensorflow
+#@save
+def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
+    """训练序列到序列模型。"""
+    optimizer = tf.keras.optimizers.Adam(learning_rate=lr)
+    animator = d2l.Animator(xlabel="epoch", ylabel="loss",
+                            xlim=[10, num_epochs])
+    for epoch in range(num_epochs):
+        timer = d2l.Timer()
+        metric = d2l.Accumulator(2)  # 训练损失总和，词元数量
+        for batch in data_iter:
+            X, X_valid_len, Y, Y_valid_len = [x for x in batch]
+            bos = tf.reshape(tf.constant([tgt_vocab['<bos>']] * Y.shape[0]),
+                             shape=(-1, 1))
+            dec_input = tf.concat([bos, Y[:, :-1]], 1)  # 教师强制
+            with tf.GradientTape() as tape:
+                Y_hat, _ = net(X, dec_input, X_valid_len, training=True)
+                l = MaskedSoftmaxCELoss(Y_valid_len)(Y, Y_hat)
+            gradients = tape.gradient(l, net.trainable_variables)
+            gradients = d2l.grad_clipping(gradients, 1)
+            optimizer.apply_gradients(zip(gradients, net.trainable_variables))
+            num_tokens = tf.reduce_sum(Y_valid_len).numpy()
+            metric.add(tf.reduce_sum(l), num_tokens)
+        if (epoch + 1) % 10 == 0:
+            animator.add(epoch + 1, (metric[0] / metric[1],))
+    print(f'loss {metric[0] / metric[1]:.3f}, {metric[1] / timer.stop():.1f} '
+          f'tokens/sec on {str(device)}')
 ```
 
 现在，在机器翻译数据集上，我们可以[**创建和训练一个循环神经网络“编码器－解码器”模型**]用于序列到序列的学习。
@@ -499,6 +664,38 @@ def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
     return ' '.join(tgt_vocab.to_tokens(output_seq)), attention_weight_seq
 ```
 
+```{.python .input}
+#@tab tensorflow
+#@save
+def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
+                    save_attention_weights=False):
+    """序列到序列模型的预测"""
+    src_tokens = src_vocab[src_sentence.lower().split(' ')] + [
+        src_vocab['<eos>']]
+    enc_valid_len = tf.constant([len(src_tokens)])
+    src_tokens = d2l.truncate_pad(src_tokens, num_steps, src_vocab['<pad>'])
+    # 添加批量轴
+    enc_X = tf.expand_dims(src_tokens, axis=0)
+    enc_outputs = net.encoder(enc_X, enc_valid_len, training=False)
+    dec_state = net.decoder.init_state(enc_outputs, enc_valid_len)
+    # 添加批量轴
+    dec_X = tf.expand_dims(tf.constant([tgt_vocab['<bos>']]), axis=0)
+    output_seq, attention_weight_seq = [], []
+    for _ in range(num_steps):
+        Y, dec_state = net.decoder(dec_X, dec_state, training=False)
+        # 我们使用具有预测最高可能性的词元，作为解码器在下一时间步的输入
+        dec_X = tf.argmax(Y, axis=2)
+        pred = tf.squeeze(dec_X, axis=0)
+        # 保存注意力权重
+        if save_attention_weights:
+            attention_weight_seq.append(net.decoder.attention_weights)
+        # 一旦序列结束词元被预测，输出序列的生成就完成了
+        if pred == tgt_vocab['<eos>']:
+            break
+        output_seq.append(pred.numpy())
+    return ' '.join(tgt_vocab.to_tokens(tf.reshape(output_seq, shape = -1).numpy().tolist())), attention_weight_seq
+```
+
 ## 预测序列的评估
 
 我们可以通过与真实的标签序列进行比较来评估预测序列。虽然BLEU（Bilingual Evaluation Understudy）的提出最先是用于评估机器翻译的结果 :cite:`Papineni.Roukos.Ward.ea.2002`，但现在它已经被广泛用于测量许多应用的输出序列的质量。原则上说，对于预测序列中的任意$n$元语法（n-grams），BLEU的评估都是这个$n$元语法是否出现在标签序列中。
@@ -536,12 +733,22 @@ def bleu(pred_seq, label_seq, k):  #@save
 最后，利用训练好的循环神经网络“编码器－解码器”模型[**将几个英语句子翻译成法语**]，并计算BLEU的最终结果。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch
 engs = ['go .', "i lost .", 'he\'s calm .', 'i\'m home .']
 fras = ['va !', 'j\'ai perdu .', 'il est calme .', 'je suis chez moi .']
 for eng, fra in zip(engs, fras):
     translation, attention_weight_seq = predict_seq2seq(
         net, eng, src_vocab, tgt_vocab, num_steps, device)
+    print(f'{eng} => {translation}, bleu {bleu(translation, fra, k=2):.3f}')
+```
+
+```{.python .input}
+#@tab tensorflow
+engs = ['go .', "i lost .", 'he\'s calm .', 'i\'m home .']
+fras = ['va !', 'j\'ai perdu .', 'il est calme .', 'je suis chez moi .']
+for eng, fra in zip(engs, fras):
+    translation, attention_weight_seq = predict_seq2seq(
+        net, eng, src_vocab, tgt_vocab, num_steps)
     print(f'{eng} => {translation}, bleu {bleu(translation, fra, k=2):.3f}')
 ```
 
@@ -557,7 +764,7 @@ for eng, fra in zip(engs, fras):
 
 1. 你能通过调整超参数来改善翻译效果吗？
 1. 重新运行实验并在计算损失时不使用遮蔽。你观察到什么结果？为什么？
-1. 如果编码器和解码器的层数或者隐藏单元数不同，那么如何初始化解码器的隐藏状态？
+1. 如果编码器和解码器的层数或者隐藏单元数不同，那么如何初始化解码器的隐状态？
 1. 在训练中，如果用前一时间步的预测输入到解码器来代替教师强制，对性能有何影响？
 1. 用长短期记忆网络替换门控循环单元重新运行实验。
 1. 有没有其他方法来设计解码器的输出层？
