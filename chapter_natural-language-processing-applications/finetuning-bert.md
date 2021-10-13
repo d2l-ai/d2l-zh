@@ -44,7 +44,7 @@
 ## 问答
 
 作为另一个词元级应用，*问答*反映阅读理解能力。
-例如，斯坦福问答数据集（Stanford Question Answering Dataset，SQuAD v1.1）由阅读段落和问题组成，其中每个问题的答案只是段落中的一段文本（文本片段） :cite:`Rajpurkar.Zhang.Lopyrev.ea.2016`。举个例子，考虑一段话：“Some experts report that a mask's efficacy is inconclusive.However,mask makers insist that their products,such as N95respirator masks,can guard against the virus.”（“一些专家报告说面罩的功效是不确定的。然而，口罩制造商坚持他们的产品，如N95口罩，可以预防病毒。”）还有一个问题“Who say that N95respirator maskscan guard against the virus?”（“谁说N95口罩可以预防病毒？”）。答案应该是文章中的文本片段“mask makers”（“口罩制造商”）。因此，SQuAD v1.1的目标是在给定问题和段落的情况下预测段落中文本片段的开始和结束。
+例如，斯坦福问答数据集（Stanford Question Answering Dataset，SQuAD v1.1）由阅读段落和问题组成，其中每个问题的答案只是段落中的一段文本（文本片段） :cite:`Rajpurkar.Zhang.Lopyrev.ea.2016`。举个例子，考虑一段话：“Some experts report that a mask's efficacy is inconclusive.However,mask makers insist that their products,such as N95 respirator masks,can guard against the virus.”（“一些专家报告说面罩的功效是不确定的。然而，口罩制造商坚持他们的产品，如N95口罩，可以预防病毒。”）还有一个问题“Who say that N95 respirator masks can guard against the virus?”（“谁说N95口罩可以预防病毒？”）。答案应该是文章中的文本片段“mask makers”（“口罩制造商”）。因此，SQuAD v1.1的目标是在给定问题和段落的情况下预测段落中文本片段的开始和结束。
 
 ![对问答进行BERT微调。假设输入文本对分别有两个和三个词元。](../img/bert-qa.svg)
 :label:`fig_bert-qa`
