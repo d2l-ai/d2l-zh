@@ -34,7 +34,7 @@
 
 ## 斯坦福自然语言推断（SNLI）数据集
 
-[**斯坦福自然语言推断语料库（Stanford Natural Language Inference,SNLI）**]是由500000多个带标签的英语句子对组成的集合 :cite:`Bowman.Angeli.Potts.ea.2015`。我们在路径`../data/snli_1.0`中下载并存储提取的SNLI数据集。
+[**斯坦福自然语言推断语料库（Stanford Natural Language Inference，SNLI）**]是由500000多个带标签的英语句子对组成的集合 :cite:`Bowman.Angeli.Potts.ea.2015`。我们在路径`../data/snli_1.0`中下载并存储提取的SNLI数据集。
 
 ```{.python .input}
 from d2l import mxnet as d2l
