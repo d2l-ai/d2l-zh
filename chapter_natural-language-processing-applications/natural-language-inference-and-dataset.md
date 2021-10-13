@@ -1,7 +1,7 @@
 # 自然语言推断与数据集
 :label:`sec_natural-language-inference-and-dataset`
 
-在 :numref:`sec_sentiment` 中，我们讨论了情感分析问题。这个任务的目的是将单个文本序列分类到预定义的类别中，例如一组情感极性中。然而，当需要决定一个句子是否可以从另一个句子推断出来，或者需要通过识别语义等价的句子来消除句子间冗余时，知道如何对一个文本序列进行分类是不够的。相反，我们需要能够对成对的文本序列进行推断。
+在 :numref:`sec_sentiment`中，我们讨论了情感分析问题。这个任务的目的是将单个文本序列分类到预定义的类别中，例如一组情感极性中。然而，当需要决定一个句子是否可以从另一个句子推断出来，或者需要通过识别语义等价的句子来消除句子间冗余时，知道如何对一个文本序列进行分类是不够的。相反，我们需要能够对成对的文本序列进行推断。
 
 ## 自然语言推断
 
@@ -34,7 +34,7 @@
 
 ## 斯坦福自然语言推断（SNLI）数据集
 
-[**斯坦福自然语言推断语料库（Stanford Natural Language Inference,SNLI）**]是由500000多个带标签的英语句子对组成的集合:cite:`Bowman.Angeli.Potts.ea.2015`。我们在路径`../data/snli_1.0`中下载并存储提取的SNLI数据集。
+[**斯坦福自然语言推断语料库（Stanford Natural Language Inference，SNLI）**]是由500000多个带标签的英语句子对组成的集合 :cite:`Bowman.Angeli.Potts.ea.2015`。我们在路径`../data/snli_1.0`中下载并存储提取的SNLI数据集。
 
 ```{.python .input}
 from d2l import mxnet as d2l

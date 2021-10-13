@@ -79,7 +79,7 @@ d2l.plt.ylabel('count')
 d2l.plt.hist([len(line) for line in train_tokens], bins=range(0, 1000, 50));
 ```
 
-正如我们所料，评论的长度各不相同。为了每次处理一小批量这样的评论，我们通过截断和填充将每个评论的长度设置为500。这类似于 :numref:`sec_machine_translation` 中对机器翻译数据集的预处理步骤。
+正如我们所料，评论的长度各不相同。为了每次处理一小批量这样的评论，我们通过截断和填充将每个评论的长度设置为500。这类似于 :numref:`sec_machine_translation`中对机器翻译数据集的预处理步骤。
 
 ```{.python .input}
 #@tab all
