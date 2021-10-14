@@ -369,7 +369,7 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
 ## [**训练和验证模型**]
 
 现在我们可以训练和验证模型了，以下超参数都是可调的。
-例如，可以增加迭代周期：由于`lr_period`和`lr_decay`分别设置为2和0.9，因此优化算法的学习速率将在每2个迭代后乘以0.9。
+例如，可以增加迭代轮数：由于`lr_period`和`lr_decay`分别设置为2和0.9，因此优化算法的学习速率将在每2个迭代后乘以0.9。
 
 ```{.python .input}
 devices, num_epochs, lr, wd = d2l.try_all_gpus(), 10, 5e-3, 1e-4
@@ -440,7 +440,7 @@ with open('submission.csv', 'w') as f:
 
 ## 练习
 
-1. 试试使用完整Kaggle比赛数据集，增加`batch_size`（批量大小）和`num_epochs`（迭代周期数量），或者设计其它超参数为`lr = 0.01`，`lr_period = 10`，和`lr_decay = 0.1`时，你能取得什么结果？
+1. 试试使用完整Kaggle比赛数据集，增加`batch_size`（批量大小）和`num_epochs`（迭代轮数），或者设计其它超参数为`lr = 0.01`，`lr_period = 10`，和`lr_decay = 0.1`时，你能取得什么结果？
 1. 如果你使用更深的预训练模型，会得到更好的结果吗？如何调整超参数？能进一步改善结果吗？
 
 :begin_tab:`mxnet`
