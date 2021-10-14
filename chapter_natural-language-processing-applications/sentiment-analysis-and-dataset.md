@@ -112,7 +112,7 @@ for X, y in train_iter:
 print('# batches:', len(train_iter))
 ```
 
-## 把所有的东西放在一起
+## 整合代码
 
 最后，我们将上述步骤封装到`load_data_imdb`函数中。它返回训练和测试数据迭代器以及IMDb评论数据集的词表。
 
