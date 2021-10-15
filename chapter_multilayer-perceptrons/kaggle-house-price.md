@@ -93,7 +93,7 @@ def download_all():  #@save
 
 注意，竞赛数据分为训练集和测试集。每条记录都包括房屋的属性值和属性，如街道类型、施工年份、屋顶类型、地下室状况等。这些特征由各种数据类型组成。例如，建筑年份由整数表示，屋顶类型由离散类别表示，其他特征由浮点数表示。这就是现实让事情变得复杂的地方：例如，一些数据完全丢失了，缺失值被简单地标记为“NA”。每套房子的价格只出现在训练集中（毕竟这是一场比赛）。我们将希望划分训练集以创建验证集，但是在将预测结果上传到Kaggle之后，我们只能在官方测试集中评估我们的模型。在 :numref:`fig_house_pricing` 中，"Data"选项卡有下载数据的链接。
 
-开始之前，我们将[**使用`pandas`读入并处理数据**]，这是我们在 :numref:`sec_pandas` 中引入的。因此，在继续操作之前，您需要确保已安装`pandas`。幸运的是，如果你正在用Jupyter阅读该书，你可以在不离开笔记本的情况下安装`pandas`。
+开始之前，我们将[**使用`pandas`读入并处理数据**]，这是我们在 :numref:`sec_pandas` 中引入的。因此，在继续操作之前，你需要确保已安装`pandas`。幸运的是，如果你正在用Jupyter阅读该书，你可以在不离开笔记本的情况下安装`pandas`。
 
 ```{.python .input}
 # 如果pandas没有被安装，请取消下一句的注释。
@@ -190,11 +190,11 @@ $$x \leftarrow \frac{x - \mu}{\sigma},$$
 numeric_features = all_features.dtypes[all_features.dtypes != 'object'].index
 all_features[numeric_features] = all_features[numeric_features].apply(
     lambda x: (x - x.mean()) / (x.std()))
-# 在标准化数据之后，所有数据都意味着消失，因此我们可以将缺失值设置为0
+# 在标准化数据之后，所有均值消失，因此我们可以将缺失值设置为0
 all_features[numeric_features] = all_features[numeric_features].fillna(0)
 ```
 
-接下来，我们[**处理离散值。**]这包括诸如“MSZoning”之类的特征。(**我们用一次独热编码替换它们**)，方法与前面将多类别标签转换为向量的方式相同(请参见 :numref:`subsec_classification-problem` )。例如，“MSZoning”包含值“RL”和“Rm”。将创建两个新的指示器特征“MSZoning_RL”和“MSZoning_RM”，其值为0或1。根据独热编码，如果“MSZoning”的原始值为“RL”，则:“MSZoning_RL”为1，“MSZoning_RM”为0。`pandas`软件包会自动为我们实现这一点。
+接下来，我们[**处理离散值。**]这包括诸如“MSZoning”之类的特征。(**我们用独热编码替换它们**)，方法与前面将多类别标签转换为向量的方式相同(请参见 :numref:`subsec_classification-problem` )。例如，“MSZoning”包含值“RL”和“Rm”。将创建两个新的指示器特征“MSZoning_RL”和“MSZoning_RM”，其值为0或1。根据独热编码，如果“MSZoning”的原始值为“RL”，则:“MSZoning_RL”为1，“MSZoning_RM”为0。`pandas`软件包会自动为我们实现这一点。
 
 ```{.python .input}
 #@tab all
@@ -444,7 +444,7 @@ train_and_pred(train_features, test_features, train_labels, test_data,
 * 登录Kaggle网站，访问房价预测竞赛页面。
 * 点击“Submit Predictions”或“Late Submission”按钮(在撰写本文时，该按钮位于右侧)。
 * 点击页面底部虚线框中的“Upload Submission File”按钮，选择你要上传的预测文件。
-* 点击页面底部的“Make Submission”按钮，即可查看您的结果。
+* 点击页面底部的“Make Submission”按钮，即可查看你的结果。
 
 ![向Kaggle提交数据](../img/kaggle-submit2.png)
 :width:`400px`
