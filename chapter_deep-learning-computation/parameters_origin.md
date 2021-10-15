@@ -624,7 +624,7 @@ net(X)
 print(len(net.layers) == 3)
 ```
 
-:begin_tab:`mxnet,pytorch`
+:begin_tab:`mxnet`
 This example shows that the parameters
 of the second and third layer are tied.
 They are not just equal, they are
@@ -637,6 +637,22 @@ what happens to the gradients?
 Since the model parameters contain gradients,
 the gradients of the second hidden layer
 and the third hidden layer are added together
+during backpropagation.
+:end_tab:
+
+:begin_tab:`pytorch`
+This example shows that the parameters
+of the third and fifth layer are tied.
+They are not just equal, they are
+represented by the same exact tensor.
+Thus, if we change one of the parameters,
+the other one changes, too.
+You might wonder,
+when parameters are tied
+what happens to the gradients?
+Since the model parameters contain gradients,
+the gradients of the third hidden layer
+and the fifth hidden layer are added together
 during backpropagation.
 :end_tab:
 
