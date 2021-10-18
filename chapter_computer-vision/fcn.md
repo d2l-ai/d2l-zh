@@ -2,8 +2,8 @@
 :label:`sec_fcn`
 
 如 :numref:`sec_semantic_segmentation`中所介绍的那样，语义分割能对图像中的每个像素分类。
-全卷积网络（fully convolutional network，FCN）采用卷积神经网络实现了从图像像素到像素类别的变换 :cite:`Long.Shelhamer.Darrell.2015`。
-与我们之前在图像分类或目标检测部分介绍的卷积神经网络不同，全卷积网络将中间层特征图的高和宽变换回输入图像的尺寸：这是通过 :numref:`sec_transposed_conv`中引入的*转置卷积*（transposed convolution）层实现的。
+*全卷积网络*（fully convolutional network，FCN）采用卷积神经网络实现了从图像像素到像素类别的变换 :cite:`Long.Shelhamer.Darrell.2015`。
+与我们之前在图像分类或目标检测部分介绍的卷积神经网络不同，全卷积网络将中间层特征图的高和宽变换回输入图像的尺寸：这是通过 :numref:`sec_transposed_conv`中引入的*转置卷积*（transposed convolution）实现的。
 因此，输出的类别预测与输入图像在像素级别上具有一一对应关系：给定空间维上的位置，通道维的输出即该位置对应像素的类别预测。
 
 ```{.python .input}
