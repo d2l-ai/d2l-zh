@@ -154,7 +154,7 @@ net = nn.Sequential(*[pretrained_net.features[i] for i in
                       range(max(content_layers + style_layers) + 1)])
 ```
 
-给定输入`X`，如果我们简单地调用前向计算`net(X)`，只能获得最后一层的输出。
+给定输入`X`，如果我们简单地调用前向传播`net(X)`，只能获得最后一层的输出。
 由于我们还需要中间层的输出，因此这里我们逐层计算，并保留内容层和样式层的输出。
 
 ```{.python .input}
@@ -297,7 +297,7 @@ def compute_loss(X, contents_Y_hat, styles_Y_hat, contents_Y, styles_Y_gram):
 
 ## [**初始化合成图像**]
 
-在样式迁移中，合成的图像是训练期间唯一需要更新的变量。因此，我们可以定义一个简单的模型`SynthesizedImage`，并将合成的图像视为模型参数。模型的前向计算只需返回模型参数即可。
+在样式迁移中，合成的图像是训练期间唯一需要更新的变量。因此，我们可以定义一个简单的模型`SynthesizedImage`，并将合成的图像视为模型参数。模型的前向传播只需返回模型参数即可。
 
 ```{.python .input}
 class SynthesizedImage(nn.Block):
