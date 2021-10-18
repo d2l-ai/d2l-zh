@@ -338,7 +338,7 @@ net(x)
 ```
 
 :begin_tab:`mxnet`
-重复的前向计算将导致相同的输出（细节已被省略）。现在看看调用`hybridize`函数会发生什么。
+重复的前向传播将导致相同的输出（细节已被省略）。现在看看调用`hybridize`函数会发生什么。
 :end_tab:
 
 ```{.python .input}

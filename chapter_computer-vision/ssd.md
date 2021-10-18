@@ -246,7 +246,7 @@ def get_blk(i):
     return blk
 ```
 
-现在我们[**为每个块定义前向计算**]。与图像分类任务不同，此处的输出包括：（i）CNN特征图`Y`，（ii）在当前尺度下根据`Y`生成的锚框，以及（iii）预测的这些锚框的类别和偏移量（基于`Y`）。
+现在我们[**为每个块定义前向传播**]。与图像分类任务不同，此处的输出包括：（i）CNN特征图`Y`，（ii）在当前尺度下根据`Y`生成的锚框，以及（iii）预测的这些锚框的类别和偏移量（基于`Y`）。
 
 ```{.python .input}
 def blk_forward(X, blk, size, ratio, cls_predictor, bbox_predictor):
@@ -268,7 +268,7 @@ def blk_forward(X, blk, size, ratio, cls_predictor, bbox_predictor):
 ```
 
 回想一下，在 :numref:`fig_ssd`中，一个较接近顶部的多尺度特征块是用于检测较大目标的，因此需要生成更大的锚框。
-在上面的前向计算中，在每个多尺度特征块上，我们通过调用的`multibox_prior`函数（见 :numref:`sec_anchor`）的`sizes`参数传递两个比例值的列表。
+在上面的前向传播中，在每个多尺度特征块上，我们通过调用的`multibox_prior`函数（见 :numref:`sec_anchor`）的`sizes`参数传递两个比例值的列表。
 在下面，0.2和1.05之间的区间被均匀分成五个部分，以确定五个模块的在不同尺度下的较小值：0.2、0.37、0.54、0.71和0.88。
 之后，他们较大的值由$\sqrt{0.2 \times 0.37} = 0.272$、$\sqrt{0.37 \times 0.54} = 0.447$等给出。
 
@@ -340,7 +340,7 @@ class TinySSD(nn.Module):
         return anchors, cls_preds, bbox_preds
 ```
 
-我们[**创建一个模型实例，然后使用它**]对一个$256 \times 256$像素的小批量图像`X`(**执行前向计算**)。
+我们[**创建一个模型实例，然后使用它**]对一个$256 \times 256$像素的小批量图像`X`(**执行前向传播**)。
 
 如本节前面部分所示，第一个模块输出特征图的形状为$32 \times 32$。
 回想一下，第二到第四个模块为高和宽减半块，第五个模块为全局汇聚层。
@@ -457,7 +457,7 @@ def bbox_eval(bbox_preds, bbox_labels, bbox_masks):
 
 ### [**训练模型**]
 
-在训练模型时，我们需要在模型的前向计算过程中生成多尺度锚框（`anchors`），并预测其类别（`cls_preds`）和偏移量（`bbox_preds`）。
+在训练模型时，我们需要在模型的前向传播过程中生成多尺度锚框（`anchors`），并预测其类别（`cls_preds`）和偏移量（`bbox_preds`）。
 然后，我们根据标签信息`Y`为生成的锚框标记类别（`cls_labels`）和偏移量（`bbox_labels`）。
 最后，我们根据类别和偏移量的预测和标注值计算损失函数。为了代码简洁，这里没有评价测试数据集。
 
