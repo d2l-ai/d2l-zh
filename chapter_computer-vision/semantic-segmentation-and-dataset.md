@@ -390,7 +390,7 @@ def load_data_voc(batch_size, crop_size):
 
 ## 练习
 
-1. 如何在自动驾驶车辆和医疗图像诊断中应用语义分割？还能想到其他领域的应用吗？
+1. 如何在自动驾驶和医疗图像诊断中应用语义分割？还能想到其他领域的应用吗？
 1. 回想一下 :numref:`sec_image_augmentation`中对数据增强的描述。图像分类中使用的哪种图像增强方法是难以用于语义分割的？
 
 :begin_tab:`mxnet`
