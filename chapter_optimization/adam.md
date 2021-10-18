@@ -5,14 +5,14 @@
 在本节讨论之前，我们先详细回顾一下这些技术：
 
 * 在 :numref:`sec_sgd`中，我们学习了：随机梯度下降在解决优化问题时比梯度下降更有效。
-* 在 :numref:`sec_minibatch_sgd`中，我们学习了：在一个小批量中使用更大的观测值集，可以通过矢量化提供额外效率。这是高效的多机、多GPU和整体并行处理的关键。
+* 在 :numref:`sec_minibatch_sgd`中，我们学习了：在一个小批量中使用更大的观测值集，可以通过向量化提供额外效率。这是高效的多机、多GPU和整体并行处理的关键。
 * 在 :numref:`sec_momentum`中我们添加了一种机制，用于汇总过去梯度的历史以加速收敛。
 * 在 :numref:`sec_adagrad`中，我们使用每坐标缩放来实现计算效率的预处理。
 * 在 :numref:`sec_rmsprop`中，我们通过学习率的调整来分离每个坐标的缩放。
 
 Adam算法 :cite:`Kingma.Ba.2014`将所有这些技术汇总到一个高效的学习算法中。
 不出预料，作为深度学习中使用的更强大和有效的优化算法之一，它非常受欢迎。
-但是它并非没有问题，尤其是 :cite:`Reddi.Kale.Kumar.2019`表明，有时Adam算法可能由于方差控制不良而发生分歧。
+但是它并非没有问题，尤其是 :cite:`Reddi.Kale.Kumar.2019`表明，有时Adam算法可能由于方差控制不良而发散。
 在完善工作中， :cite:`Zaheer.Reddi.Sachan.ea.2018`给Adam算法提供了一个称为Yogi的热补丁来解决这些问题。
 下面我们了解一下Adam算法。
 
@@ -42,7 +42,7 @@ $$\mathbf{g}_t' = \frac{\eta \hat{\mathbf{v}}_t}{\sqrt{\hat{\mathbf{s}}_t} + \ep
 与RMSProp不同，我们的更新使用动量$\hat{\mathbf{v}}_t$而不是梯度本身。
 此外，由于使用$\frac{1}{\sqrt{\hat{\mathbf{s}}_t} + \epsilon}$而不是$\frac{1}{\sqrt{\hat{\mathbf{s}}_t + \epsilon}}$进行缩放，两者会略有差异。
 前者在实践中效果略好一些，因此与RMSProp算法有所区分。
-通常，我们选择$\epsilon = 10^{-6}$，这是为了在数值稳定性和保真度之间取得良好的平衡。
+通常，我们选择$\epsilon = 10^{-6}$，这是为了在数值稳定性和逼真度之间取得良好的平衡。
 
 最后，我们简单更新：
 
@@ -173,7 +173,7 @@ $$\mathbf{s}_t \leftarrow \mathbf{s}_{t-1} + (1 - \beta_2) \left(\mathbf{g}_t^2 
 
 $$\mathbf{s}_t \leftarrow \mathbf{s}_{t-1} + (1 - \beta_2) \mathbf{g}_t^2 \odot \mathop{\mathrm{sgn}}(\mathbf{g}_t^2 - \mathbf{s}_{t-1}).$$
 
-论文中，作者还进一步建议用更大的初始批次来初始化动量，而不仅仅是初始的逐点估计。
+论文中，作者还进一步建议用更大的初始批量来初始化动量，而不仅仅是初始的逐点估计。
 
 ```{.python .input}
 def yogi(params, states, hyperparams):
