@@ -8,7 +8,7 @@
 假设我们想识别图片中不同类型的椅子，然后向用户推荐购买链接。
 一种可能的方法是首先识别100把普通椅子，为每把椅子拍摄1000张不同角度的图像，然后在收集的影像数据集上训练一个分类模型。
 尽管这个椅子数据集可能大于Fashion-MNIST数据集，但实例数量仍然不到ImageNet中的十分之一。
-这可能会导致这个椅子数据集上适合ImageNet的复杂模型过度拟合。
+这可能会导致这个椅子数据集上适合ImageNet的复杂模型过拟合。
 此外，由于训练示例数量有限，训练模型的准确性可能无法满足实际要求。
 
 为了解决上述问题，一个显而易见的解决方案是收集更多的数据。
@@ -94,7 +94,7 @@ train_imgs = torchvision.datasets.ImageFolder(os.path.join(data_dir, 'train'))
 test_imgs = torchvision.datasets.ImageFolder(os.path.join(data_dir, 'test'))
 ```
 
-下面显示了前8个正类示例和最后8张负面图片。
+下面显示了前8个正类示例和最后8张负类图片。
 正如你所看到的，[**图像的大小和纵横比各有不同**]。
 
 ```{.python .input}
