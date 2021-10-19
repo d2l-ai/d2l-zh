@@ -244,7 +244,8 @@ def get_net(devices):
     return finetune_net
 ```
 
-在[**计算损失**]之前，我们首先获取预训练模型的输出层的输入，即提取的特征。然后我们使用此特征作为我们小型自定义输出网络的输入来计算损失。
+在[**计算损失**]之前，我们首先获取预训练模型的输出层的输入，即提取的特征。
+然后我们使用此特征作为我们小型自定义输出网络的输入来计算损失。
 
 ```{.python .input}
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
@@ -279,7 +280,8 @@ def evaluate_loss(data_iter, net, devices):
 
 ## 定义[**训练函数**]
 
-我们将根据模型在验证集上的表显选择模型并调整超参数。模型训练函数`train`只迭代小型自定义输出网络的参数。
+我们将根据模型在验证集上的表现选择模型并调整超参数。
+模型训练函数`train`只迭代小型自定义输出网络的参数。
 
 ```{.python .input}
 def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
@@ -369,7 +371,9 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
 ## [**训练和验证模型**]
 
 现在我们可以训练和验证模型了，以下超参数都是可调的。
-例如，可以增加迭代轮数：由于`lr_period`和`lr_decay`分别设置为2和0.9，因此优化算法的学习速率将在每2个迭代后乘以0.9。
+例如，我们可以增加迭代轮数。
+另外，由于`lr_period`和`lr_decay`分别设置为2和0.9，
+因此优化算法的学习速率将在每2个迭代后乘以0.9。
 
 ```{.python .input}
 devices, num_epochs, lr, wd = d2l.try_all_gpus(), 10, 5e-3, 1e-4

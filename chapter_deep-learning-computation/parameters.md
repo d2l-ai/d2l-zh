@@ -21,7 +21,7 @@ net.add(nn.Dense(1))
 net.initialize()  # 使用默认初始化方法
 
 X = np.random.uniform(size=(2, 4))
-net(X)  # 正向计算
+net(X)  # 正向传播
 ```
 
 ```{.python .input}
