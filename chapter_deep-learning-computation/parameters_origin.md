@@ -653,7 +653,7 @@ when parameters are tied
 what happens to the gradients?
 Since the model parameters contain gradients,
 the gradients of the second hidden layer (i.e. the third neural network layer)
-and the fourth hidden layer (i.e. the fifth neural network layer) are added together
+and the third hidden layer (i.e. the fifth neural network layer) are added together
 during backpropagation.
 :end_tab:
 
