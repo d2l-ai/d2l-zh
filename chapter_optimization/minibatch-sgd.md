@@ -489,7 +489,7 @@ d2l.plt.gca().set_xscale('log')
 
 ## 简洁实现
 
-下面实现一个通用的训练函数，我们将在本章中使用它。
+下面用深度学习框架自带算法实现一个通用的训练函数，我们将在本章中其它小结使用它。
 
 ```{.python .input}
 #@save
@@ -532,9 +532,7 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=4):
     optimizer = trainer_fn(net.parameters(), **hyperparams)
 
     loss = nn.MSELoss()
-    # 注意: L2 Loss = 1/2 * MSE Loss。
-    # PyTorch的MSE损失与MXNet的L2损失大概相差2倍。
-    # 因此，我们将PyTorch中的损失减半
+    # L2 Loss = 1/2 * MSE Loss
     animator = d2l.Animator(xlabel='epoch', ylabel='loss',
                             xlim=[0, num_epochs], ylim=[0.22, 0.35])
     n, timer = 0, d2l.Timer()

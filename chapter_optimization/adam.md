@@ -140,7 +140,7 @@ d2l.train_ch11(adam, init_adam_states(feature_dim),
                {'lr': 0.01, 't': 1}, data_iter, feature_dim);
 ```
 
-此外，我们可以用深度学习框架自带的算法应用Adam算法，这里我们只需要传递配置参数。
+此外，我们可以用深度学习框架自带算法应用Adam算法，这里我们只需要传递配置参数。
 
 ```{.python .input}
 d2l.train_concise_ch11('adam', {'learning_rate': 0.01}, data_iter)

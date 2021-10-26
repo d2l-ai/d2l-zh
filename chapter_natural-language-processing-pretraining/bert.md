@@ -317,8 +317,6 @@ nsp_Y_hat.shape
 
 ```{.python .input}
 #@tab pytorch
-# 默认情况下，PyTorch不会像mxnet中那样展平张量
-# 如果flatten=True，则除第一个输入数据轴外，所有输入数据轴都折叠在一起
 encoded_X = torch.flatten(encoded_X, start_dim=1)
 # NSP的输入形状: (batch size, `num_hiddens`)
 nsp = NextSentencePred(encoded_X.shape[-1])

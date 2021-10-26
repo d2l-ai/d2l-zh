@@ -1,71 +1,71 @@
-# 为这本书做贡献
+# 为本书做贡献
 :label:`sec_how_to_contribute`
 
-[readers](https://github.com/d2l-ai/d2l-en/graphs/contributors) 之前的贡献有助于我们改进这本书。如果你发现错字、过时的链接、你认为我们错过了引文的地方、代码看起来不够优雅或解释不清楚的地方，请回馈信息并帮助我们帮助我们的读者。虽然在普通书籍中，印刷运行之间的延迟（以及错字更正之间的延迟）可以以年为单位来衡量，但通常需要几个小时到几天才能在本书中加入改进。由于版本控制和持续集成 (CI) 测试，这一切都是可能的。为此，您需要向 GitHub 存储库提交 [pull request](https://github.com/d2l-ai/d2l-en/pulls)。当作者将您的拉取请求合并到代码存储库中时，您将成为贡献者。 
+[读者们](https://github.com/d2l-ai/d2l-en/graphs/contributors)的投稿帮助我们改进了这本书。如果你发现笔误、无效的链接、一些你认为我们遗漏了引文的地方，代码看起来不优雅，或者解释不清楚的地方，请回复我们以帮助读者。虽然在常规书籍中，两次印刷之间的间隔（即修订笔误的间隔）可以用几年来衡量，但这本书的改进通常需要几个小时到几天的时间。由于版本控制和持续集成（CI）测试，这一切都是可能的。为此，你需要向gihub存储库提交一个[pull request](https://github.com/d2l-ai/d2l-en/pulls)。当你的pull请求被作者合并到代码库中时，你将成为贡献者。
 
-## 提交次要更改
+## 提交微小更改
 
-最常见的贡献是编辑一个句子或修复错别字。我们建议您在 [GitHub repository](https732293614) 中找到源文件以查找源文件（降价文件）。然后，单击右上角的 “编辑此文件” 按钮以在 markdown 文件中进行更改。 
+最常见的贡献是编辑一句话或修正笔误。我们建议你在[GitHub存储库](https://github.com/d2l-ai/d2l-en)中查找源文件，以定位源文件（一个markdown文件）。然后单击右上角的“Edit this file”按钮，在markdown文件中进行更改。
 
-![Edit the file on Github.](../img/edit-file.png)
+![在Github上编辑文件。](../img/edit-file.png)
 :width:`300px`
 :label:`fig_edit_file`
 
-完成后，在页面底部的 “提议文件更改” 面板中填写更改说明，然后单击 “提议更改文件” 按钮。它会将你重定向到一个新页面来查看你的更改 (:numref:`fig_git_createpr`)。如果一切正常，您可以通过单击 “创建拉取请求” 按钮提交拉取请求。 
+完成后，在页面底部的“Propose file change”面板中填写更改说明，然后单击“Propose file change”按钮。它会重定向到新页面以查看你的更改（ :numref:`fig_git_createpr`）。如果一切正常，你可以通过点击“Create pull request”按钮提交pull请求。
 
-## 提出重大变更
+## 提出重大更改
 
-如果你打算更新大部分文本或代码，那么你需要更多地了解这本书使用的格式。源文件基于 [markdown format](https://daringfireball.net/projects/markdown/syntax)，在 [d2lbook](http://book.d2l.ai/user/markdown.html) 软件包中有一组扩展名，例如引用方程式、图像、章节和引文。您可以使用任何 Markdown 编辑器打开这些文件并进行更改。 
+如果你计划修改大量文本或代码，那么你需要更多地了解本书使用的格式。源文件基于[markdown格式](https://daringfireball.net/projects/markdown/syntax)，并通过[d2lbook](http://book.d2l.ai/user/markdown.html)包提供了一组扩展，例如引用公式、图像、章节和引文。你可以使用任何markdown编辑器打开这些文件并进行更改。
 
-如果您想更改代码，我们建议您使用 Jupyter Notebook 打开这些降价文件，如 :numref:`sec_jupyter` 中所述。这样你就可以运行和测试你的更改。请记住在提交更改之前清除所有输出，我们的 CI 系统将执行您更新的部分以生成输出。 
+如果你想要更改代码，我们建议你使用Jupyter Notebook打开这些标记文件，如 :numref:`sec_jupyter`中所述。这样你就可以运行并测试您的更改。请记住在提交更改之前清除所有输出，我们的CI系统将执行你更新的部分以生成输出。
 
-某些部分可能支持多个框架实现。如果您添加的新代码块不用于默认实现，即 MXNet，请使用 `# @tab` to mark this block on the beginning line. For example, ` # @tab pytorch` for a PyTorch code block, `# @tab tensorflow` for a TensorFlow code block, or `# @tab all7322915d2lbook`](http://book.d2l.ai/user/code_tabs.html) 软件包了解更多信息。 
+某些部分可能支持多个框架实现。如果您添加的新代码块不是使用mxnet，请使用`#@tab` 来标记代码块的起始行。例如`#@tab pytorch`用于一个PyTorch代码块, `#@tab tensorflow`用于一个TensorFlow代码块，或者`#@tab all`是所有实现的共享代码块。 你可以参考[`d2lbook`](http://book.d2l.ai/user/code_tabs.html)包了解更多信息。
 
 ## 提交主要更改
 
-我们建议您使用标准 Git 流程提交重大更改。简而言之，该过程的工作方式如 :numref:`fig_contribute` 中所述。 
+我们建议你使用标准的Git流程提交重大更改。简而言之，该过程的工作方式如 :numref:`fig_contribute`中所述。
 
-![Contributing to the book.](../img/contribute.svg)
+![为这本书作贡献。](../img/contribute.svg)
 :label:`fig_contribute`
 
-我们将详细引导您完成这些步骤。如果你已经熟悉 Git，可以跳过这一部分。为了具体起见，我们假设贡献者的用户名是 “stonzhang”。 
+我们将向你详细介绍这些步骤。如果你已经熟悉Git，可以跳过本部分。在介绍时，我们假设贡献者的用户名为“astonzhang”。
 
-### 安装 Git
+### 安装Git
 
-Git 开源书介绍了 [how to install Git](https://git-scm.com/book/en/v2)。这通常可以通过 Ubuntu Linux 上的 `apt install git`、在 macOS 上安装 Xcode 开发人员工具或使用 GitHub 的 [desktop client](https://desktop.github.com) 来工作。如果您没有 GitHub 帐户，则需要注册一个。 
+Git开源书籍描述了[如何安装git](https://git-scm.com/book/en/v2)。这通常通过Ubuntu Linux上的`apt install git`、在MacOS上安装Xcode开发人员工具或使用gihub的[桌面客户端](https://desktop.github.com)来实现。如果你没有GitHub帐户，则需要注册一个帐户。
 
-### 登录 GitHub
+### 登录GitHub
 
-在浏览器中输入本书代码存储库的 [address](https://github.com/d2l-ai/d2l-en/)。单击 :numref:`fig_git_fork` 右上角红色框中的 `Fork` 按钮，复制本书的存储库。现在这是 * 你的副本 *，你可以用任何你想要的方式进行更改。 
+在浏览器中输入本书代码存储库的[地址](https://github.com/d2l-ai/d2l-en/)。单击 :numref:`fig_git_fork`右上角红色框中的`Fork`按钮，以复制本书的存储库。现在这是你的副本，你可以随心所欲地更改它。
 
-![The code repository page.](../img/git-fork.png)
+![代码存储库页面。](../img/git-fork.png)
 :width:`700px`
 :label:`fig_git_fork`
 
-现在，本书的代码存储库将被分叉（即复制）到您的用户名中，例如 :numref:`fig_git_forked` 左上角显示的 `astonzhang/d2l-en`。 
+现在，本书的代码库将被分叉（即复制）到你的用户名，例如`astonzhang/d2l-en`显示在 :numref:`fig_git_forked`的左上角。
 
-![The forked code repository.](../img/git-forked.png)
+![分叉代码存储库。](../img/git-forked.png)
 :width:`700px`
 :label:`fig_git_forked`
 
 ### 克隆存储库
 
-要克隆存储库（即制作本地副本），我们需要获取其存储库地址。:numref:`fig_git_clone` 中的绿色按钮将显示此信息。如果你决定将这个分叉保留更长的时间，请确保你的本地副本与主存储库保持最新。现在，只需按照 :ref:`chap_installation` 中的说明开始操作即可。主要区别在于你现在正在下载仓库的 * 你自己的 fork *。 
+要克隆存储库（即制作本地副本），我们需要获取其存储库地址。点击 :numref:`fig_git_clone`中的绿色按钮显示此信息。如果你决定将此分支保留更长时间，请确保你的本地副本与主存储库保持最新。现在，只需按照 :ref:`chap_installation`中的说明开始。主要区别在于，你现在下载的是你自己的存储库分支。
 
-![Cloning the repository.](../img/git-clone.png)
+![克隆存储库](../img/git-clone.png)
 :width:`700px`
 :label:`fig_git_clone`
 
 ```
-# Replace your_github_username with your GitHub username
+# 将your_github_username替换为你的github用户名
 git clone https://github.com/your_github_username/d2l-en.git
 ```
 
 ### 编辑和推送
 
-现在是时候编辑这本书了。最好按照 :numref:`sec_jupyter` 中的说明在 Jupyter 笔记本中对其进行编辑。进行更改并检查它们是否正常。假设我们修改了文件 `~/d2l-en/chapter_appter_appdix_tools/如何贡献.md` 中的一个错字。然后，您可以检查更改了哪些文件。 
+现在是编辑这本书的时候了。最好按照 :numref:`sec_jupyter`中的说明在Jupyter Notebook中编辑它。进行更改并检查它们是否正常。假设我们已经修改了文件`~/d2l-en/chapter_appendix_tools/how-to-contribute.md`中的一个拼写错误。你可以检查你更改了哪些文件。
 
-此时 Git 将提示 `chapter_appendix_tools/how-to-contribute.md` 文件已被修改。
+此时，Git将提示`chapter_appendix_tools/how-to-contribute.md`文件已被修改。
 
 ```
 mylaptop:d2l-en me$ git status
@@ -79,7 +79,7 @@ Changes not staged for commit:
 	modified:   chapter_appendix_tools/how-to-contribute.md
 ```
 
-确认这是你想要的后，执行以下命令：
+在确认这是你想要的之后，执行以下命令：
 
 ```
 git add chapter_appendix_tools/how-to-contribute.md
@@ -87,33 +87,33 @@ git commit -m 'fix typo in git documentation'
 git push
 ```
 
-然后，更改后的代码将存放在仓库的个人复刻中。要请求添加更改，您必须为该书的官方存储库创建拉取请求。 
+然后，更改后的代码将位于存储库的个人分支中。要请求添加更改，你必须为本书的官方存储库创建一个Pull请求。
 
-### 提交拉取请求
+### 提交Pull请求
 
-如 :numref:`fig_git_newpr` 所示，转到 GitHub 上仓库的复刻，然后选择 “新建拉取请求”。这将打开一个屏幕，向您显示您的编辑内容与书籍主存储库中最新内容之间的变化。 
+如 :numref:`fig_git_newpr`所示，进入gihub上的存储库分支，选择“New pull request”。这将打开一个页面，显示你的编辑与本书主存储库中的当前内容之间的更改。
 
-![New pull request.](../img/git-newpr.png)
+![新的Pull请求](../img/git-newpr.png)
 :width:`700px`
 :label:`fig_git_newpr`
 
-最后，单击 :numref:`fig_git_createpr` 中所示的按钮提交拉取请求。请务必描述您在拉取请求中所做的更改。这将使作者更容易对其进行审阅并将其与图书合并。根据更改的不同，这可能会立即被接受、被拒绝，或者更有可能获得有关更改的一些反馈。一旦你合并了它们，你就可以开始了。 
+最后，单击按钮提交Pull请求，如 :numref:`fig_git_createpr`所示。请务必描述你在Pull请求中所做的更改。这将使作者更容易审阅它，并将其与本书合并。根据更改的不同，这可能会立即被接受，也可能会被拒绝，或者更有可能的是，你会收到一些关于更改的反馈。一旦你把它们合并了，你就做完了。
 
-![Create pull request.](../img/git-createpr.png)
+![创建Pull请求](../img/git-createpr.png)
 :width:`700px`
 :label:`fig_git_createpr`
 
-## 摘要
+## 小结
 
-* 你可以使用 GitHub 为这本书做贡献。
-* 您可以直接在 GitHub 上编辑文件以进行较小的更改。
-* 对于重大更改，请分叉存储库，在本地编辑内容，并且只有在准备好后才进行回馈。
-* 拉取请求是如何捆绑贡献的方式。尽量不要提交大量的拉取请求，因为这会使它们难以理解和合并。最好寄几个较小的。
+* 你可以使用GitHub为本书做贡献。
+* 你可以直接在GitHub上编辑文件以进行微小更改。
+* 要进行重大更改，请分叉存储库，在本地编辑内容，并在准备好后再做出贡献。
+* 尽量不要提交巨大的Pull请求，因为这会使它们难以理解和合并。最好拆分为几个小一点的。
 
 ## 练习
 
-1. 为 `d2l-ai/d2l-en` 存储库添加星标并分叉。
-1. 如果您发现任何需要改进的内容（例如缺少参考资料），请提交拉取请求。 
-1. 使用新分支创建拉取请求通常是更好的做法。了解如何使用 [Git branching](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell) 来做到这一点。
+1. 启动并分叉`d2l-ai/d2l-en`存储库。
+1. 如果发现任何需要改进的地方（例如，缺少引用），请提交Pull请求。
+1. 通常更好的做法是使用新分支创建Pull请求。学习如何用[Git分支](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell)来做这件事。
 
 [Discussions](https://discuss.d2l.ai/t/426)
