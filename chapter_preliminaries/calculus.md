@@ -106,7 +106,7 @@ $$f'(x) = y' = \frac{dy}{dx} = \frac{df}{dx} = \frac{d}{dx} f(x) = Df(x) = D_x f
 我们可以使用以下规则来对常见函数求微分：
 
 * $DC = 0$（$C$是一个常数）
-* $Dx^n = nx^{n-1}$（*幂律*（power rule）,$n$是任意实数）
+* $Dx^n = nx^{n-1}$（*幂律*（power rule），$n$是任意实数）
 * $De^x = e^x$
 * $D\ln(x) = 1/x$
 

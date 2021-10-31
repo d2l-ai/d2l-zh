@@ -254,7 +254,8 @@ d2l.plt.legend();
 高度恰好为1.80米的概率为0，但密度不是0。
 在任何两个不同高度之间的区间，我们都有非零的概率。
 在本节的其余部分中，我们将考虑离散空间中的概率。
-对于连续随机变量的概率，你可以参考 :numref:`sec_random_variables`。
+对于连续随机变量的概率，你可以参考深度学习数学附录中[随机变量](https://d2l.ai/chapter_appendix-mathematics-for-deep-learning/random-variables.html)
+的一节。
 
 ## 处理多个随机变量
 
