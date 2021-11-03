@@ -201,7 +201,7 @@ train_iter = tf.data.Dataset.from_tensor_slices(
     mnist_train).batch(batch_size).shuffle(len(mnist_train[0]))
 ```
 
-让我们看一下读取训练数据所需的时间。
+我们看一下读取训练数据所需的时间。
 
 ```{.python .input}
 #@tab all
