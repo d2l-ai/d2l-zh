@@ -1,10 +1,10 @@
 # 图像分类数据集
 :label:`sec_fashion_mnist`
 
-(~~MNIST数据集是图像分类中广泛使用的数据集之一，但作为基准数据集过于简单。我们将使用类似但更复杂的Fashion-MNIST数据集~~)
+(**MNIST数据集**) :cite:`LeCun.Bottou.Bengio.ea.1998`
+(**是图像分类中广泛使用的数据集之一，但作为基准数据集过于简单。
+我们将使用类似但更复杂的Fashion-MNIST数据集**) :cite:`Xiao.Rasul.Vollgraf.2017`。
 
-目前广泛使用的图像分类数据集之一是MNIST数据集 :cite:`LeCun.Bottou.Bengio.ea.1998`。虽然它是很不错的基准数据集，但按今天的标准，即使是简单的模型也能达到95%以上的分类精度，因此不适合区分强模型和弱模型。如今，MNIST更像是一个健全检查，而不是一个基准。
-为了提高难度，我们将在接下来的章节中讨论在2017年发布的性质相似但相对复杂的Fashion-MNIST数据集 :cite:`Xiao.Rasul.Vollgraf.2017`。
 
 ```{.python .input}
 %matplotlib inline
@@ -47,7 +47,7 @@ mnist_test = gluon.data.vision.FashionMNIST(train=False)
 
 ```{.python .input}
 #@tab pytorch
-# 通过ToTensor实例将图像数据从PIL类型变换成32位浮点数格式
+# 通过ToTensor实例将图像数据从PIL类型变换成32位浮点数格式，
 # 并除以255使得所有像素的数值均在0到1之间
 trans = transforms.ToTensor()
 mnist_train = torchvision.datasets.FashionMNIST(
@@ -61,7 +61,11 @@ mnist_test = torchvision.datasets.FashionMNIST(
 mnist_train, mnist_test = tf.keras.datasets.fashion_mnist.load_data()
 ```
 
-Fashion-MNIST由10个类别的图像组成，每个类别由训练数据集中的6000张图像和测试数据集中的1000张图像组成。*测试数据集*（test dataset）不会用于训练，只用于评估模型性能。训练集和测试集分别包含60000和10000张图像。
+Fashion-MNIST由10个类别的图像组成，
+每个类别由*训练数据集*（train dataset）中的6000张图像
+和*测试数据集*（test dataset）中的1000张图像组成。
+因此，训练集和测试集分别包含60000和10000张图像。
+测试数据集不会用于训练，只用于评估模型性能。
 
 ```{.python .input}
 #@tab mxnet, pytorch
@@ -73,7 +77,9 @@ len(mnist_train), len(mnist_test)
 len(mnist_train[0]), len(mnist_test[0])
 ```
 
-每个输入图像的高度和宽度均为28像素。数据集由灰度图像组成，其通道数为1。为了简洁起见，在这本书中，我们将高度$h$像素，宽度$w$像素图像的形状记为$h \times w$或（$h$,$w$）。
+每个输入图像的高度和宽度均为28像素。
+数据集由灰度图像组成，其通道数为1。
+为了简洁起见，本书将高度$h$像素、宽度$w$像素图像的形状记为$h \times w$或（$h$,$w$）。
 
 ```{.python .input}
 #@tab all
@@ -82,7 +88,8 @@ mnist_train[0][0].shape
 
 [~~两个可视化数据集的函数~~]
 
-Fashion-MNIST中包含的10个类别分别为t-shirt（T恤）、trouser（裤子）、pullover（套衫）、dress（连衣裙）、coat（外套）、sandal（凉鞋）、shirt（衬衫）、sneaker（运动鞋）、bag（包）和ankle boot（短靴）。以下函数用于在数字标签索引及其文本名称之间进行转换。
+Fashion-MNIST中包含的10个类别，分别为t-shirt（T恤）、trouser（裤子）、pullover（套衫）、dress（连衣裙）、coat（外套）、sandal（凉鞋）、shirt（衬衫）、sneaker（运动鞋）、bag（包）和ankle boot（短靴）。
+以下函数用于在数字标签索引及其文本名称之间进行转换。
 
 ```{.python .input}
 #@tab all
@@ -132,7 +139,7 @@ def show_images(imgs, num_rows, num_cols, titles=None, scale=1.5):  #@save
     return axes
 ```
 
-以下是训练数据集中前[**几个样本的图像及其相应的标签**]（文本形式）。
+以下是训练数据集中前[**几个样本的图像及其相应的标签**]。
 
 ```{.python .input}
 X, y = mnist_train[:18]
@@ -156,8 +163,9 @@ show_images(X, 2, 9, titles=get_fashion_mnist_labels(y));
 
 ## 读取小批量
 
-为了使我们在读取训练集和测试集时更容易，我们使用内置的数据迭代器，而不是从零开始创建一个。
-回顾一下，在每次迭代中，数据加载器每次都会[**读取一小批量数据，大小为`batch_size`**]。我们在训练数据迭代器中还随机打乱了所有样本。
+为了使我们在读取训练集和测试集时更容易，我们使用内置的数据迭代器，而不是从零开始创建。
+回顾一下，在每次迭代中，数据加载器每次都会[**读取一小批量数据，大小为`batch_size`**]。
+通过内置数据迭代器，我们可以随机打乱了所有样本，从而无偏见地读取小批量。
 
 ```{.python .input}
 batch_size = 256
@@ -166,8 +174,8 @@ def get_dataloader_workers():  #@save
     """在非Windows的平台上，使用4个进程来读取数据。"""
     return 0 if sys.platform.startswith('win') else 4
 
-# 通过ToTensor实例将图像数据从uint8格式变换成32位浮点数格式，并除以255使得所有像素
-# 的数值均在0到1之间
+# 通过ToTensor实例将图像数据从uint8格式变换成32位浮点数格式，并除以255使得所有像素的数值
+# 均在0到1之间
 transformer = gluon.data.vision.transforms.ToTensor()
 train_iter = gluon.data.DataLoader(mnist_train.transform_first(transformer),
                                    batch_size, shuffle=True,
@@ -193,7 +201,7 @@ train_iter = tf.data.Dataset.from_tensor_slices(
     mnist_train).batch(batch_size).shuffle(len(mnist_train[0]))
 ```
 
-让我们看一下读取训练数据所需的时间。
+我们看一下读取训练数据所需的时间。
 
 ```{.python .input}
 #@tab all
@@ -205,7 +213,9 @@ f'{timer.stop():.2f} sec'
 
 ## 整合所有组件
 
-现在我们[**定义`load_data_fashion_mnist`函数**]，用于获取和读取Fashion-MNIST数据集。它返回训练集和验证集的数据迭代器。此外，它还接受一个可选参数，用来将图像大小调整为另一种形状。
+现在我们[**定义`load_data_fashion_mnist`函数**]，用于获取和读取Fashion-MNIST数据集。
+这个函数返回训练集和验证集的数据迭代器。
+此外，这个函数还接受一个可选参数`resize`，用来将图像大小调整为另一种形状。
 
 ```{.python .input}
 def load_data_fashion_mnist(batch_size, resize=None):  #@save
@@ -269,7 +279,7 @@ for X, y in train_iter:
     break
 ```
 
-我们现在已经准备好在下面的章节中使用Fashion-MNIST数据集。
+我们现在已经准备好使用Fashion-MNIST数据集，便于下面的章节调用来评估各种分类算法。
 
 ## 小结
 
