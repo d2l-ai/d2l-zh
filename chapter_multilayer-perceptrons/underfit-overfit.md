@@ -81,7 +81,7 @@
 
 由于泛化是机器学习中的基本问题，
 许多数学家和理论家毕生致力于研究描述这一现象的形式理论。
-在[同名定理（eponymous theorem）](https://en.wikipedia.org/wiki/Glivenko%E2%80%93Cantelli_theorem)]中，
+在[同名定理（eponymous theorem）](https://en.wikipedia.org/wiki/Glivenko%E2%80%93Cantelli_theorem)中，
 格里文科和坎特利推导出了训练误差收敛到泛化误差的速率。
 在一系列开创性的论文中，
 [Vapnik和Chervonenkis](https://en.wikipedia.org/wiki/Vapnik%E2%80%93Chervonenkis_theory)

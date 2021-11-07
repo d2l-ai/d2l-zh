@@ -237,7 +237,7 @@ $$x \leftarrow \frac{x - \mu}{\sigma},$$
 
 ```{.python .input}
 #@tab all
-#若无法获得测试数据，则可根据训练数据计算均值和标准差
+# 若无法获得测试数据，则可根据训练数据计算均值和标准差
 numeric_features = all_features.dtypes[all_features.dtypes != 'object'].index
 all_features[numeric_features] = all_features[numeric_features].apply(
     lambda x: (x - x.mean()) / (x.std()))
@@ -521,7 +521,7 @@ def train_and_pred(train_features, test_feature, train_labels, test_data,
                         num_epochs, lr, weight_decay, batch_size)
     d2l.plot(np.arange(1, num_epochs + 1), [train_ls], xlabel='epoch',
              ylabel='log rmse', xlim=[1, num_epochs], yscale='log')
-    print(f'train log rmse {float(train_ls[-1]):f}')
+    print(f'训练log rmse：{float(train_ls[-1]):f}')
     # 将网络应用于测试集。
     preds = d2l.numpy(net(test_features))
     # 将其重新格式化以导出到Kaggle

@@ -170,7 +170,7 @@ C语言和任何其他现代编程语言一样，能够表达任何可计算的�
 我们将在后面的章节中进行更细致的讨论。
 
 ## 激活函数
-:label:`subsec:activation-functions`
+:label:`subsec_activation_functions`
 
 *激活函数*（activation function）通过计算加权和并加上偏置来确定神经元是否应该被激活，
 它们将输入信号转换为输出的可微运算。
@@ -205,7 +205,7 @@ import tensorflow as tf
 [**ReLU提供了一种非常简单的非线性变换**]。
 给定元素$x$，ReLU函数被定义为该元素与$0$的最大值：
 
-（**$$\operatorname{ReLU}(x) = \max(x, 0).$$**）
+(**$$\operatorname{ReLU}(x) = \max(x, 0).$$**)
 
 通俗地说，ReLU函数通过将相应的活性值设为0，仅保留正元素并丢弃所有负元素。
 为了直观感受一下，我们可以画出函数的曲线图。
@@ -276,7 +276,7 @@ $$\operatorname{pReLU}(x) = \max(0, x) + \alpha \min(0, x).$$
 因此，sigmoid通常称为*挤压函数*（squashing function）：
 它将范围（-inf, inf）中的任意输入压缩到区间（0, 1）中的某个值：
 
-（**$$\operatorname{sigmoid}(x) = \frac{1}{1 + \exp(-x)}.$$**）
+(**$$\operatorname{sigmoid}(x) = \frac{1}{1 + \exp(-x)}.$$**)
 
 在最早的神经网络中，科学家们感兴趣的是对“激发”或“不激发”的生物神经元进行建模。
 因此，这一领域的先驱可以一直追溯到人工神经元的发明者麦卡洛克和皮茨，他们专注于阈值单元。
@@ -347,7 +347,7 @@ d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'grad of sigmoid',
 [**tanh(双曲正切)函数也能将其输入压缩转换到区间(-1, 1)上**]。
 tanh函数的公式如下：
 
-（**$$\operatorname{tanh}(x) = \frac{1 - \exp(-2x)}{1 + \exp(-2x)}.$$**）
+(**$$\operatorname{tanh}(x) = \frac{1 - \exp(-2x)}{1 + \exp(-2x)}.$$**)
 
 下面我们绘制tanh函数。
 注意，当输入在0附近时，tanh函数接近线性变换。
