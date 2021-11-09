@@ -129,7 +129,7 @@ net.add(
     nn.Conv2D(384, kernel_size=3, padding=1, activation='relu'),
     nn.Conv2D(256, kernel_size=3, padding=1, activation='relu'),
     nn.MaxPool2D(pool_size=3, strides=2),
-    # 这里，全连接层的输出数量是LeNet中的好几倍。使用dropout层来减轻过度拟合
+    # 这里，全连接层的输出数量是LeNet中的好几倍。使用dropout层来减轻过拟合
     nn.Dense(4096, activation='relu'), nn.Dropout(0.5),
     nn.Dense(4096, activation='relu'), nn.Dropout(0.5),
     # 最后是输出层。由于这里使用Fashion-MNIST，所以用类别数为10，而非论文中的1000
@@ -159,7 +159,7 @@ net = nn.Sequential(
     nn.Conv2d(384, 256, kernel_size=3, padding=1), nn.ReLU(),
     nn.MaxPool2d(kernel_size=3, stride=2),
     nn.Flatten(),
-    # 这里，全连接层的输出数量是LeNet中的好几倍。使用dropout层来减轻过度拟合
+    # 这里，全连接层的输出数量是LeNet中的好几倍。使用dropout层来减轻过拟合
     nn.Linear(6400, 4096), nn.ReLU(),
     nn.Dropout(p=0.5),
     nn.Linear(4096, 4096), nn.ReLU(),
@@ -196,7 +196,7 @@ def net():
                                activation='relu'),
         tf.keras.layers.MaxPool2D(pool_size=3, strides=2),
         tf.keras.layers.Flatten(),
-        # 这里，全连接层的输出数量是LeNet中的好几倍。使用dropout层来减轻过度拟合
+        # 这里，全连接层的输出数量是LeNet中的好几倍。使用dropout层来减轻过拟合
         tf.keras.layers.Dense(4096, activation='relu'),
         tf.keras.layers.Dropout(0.5),
         tf.keras.layers.Dense(4096, activation='relu'),

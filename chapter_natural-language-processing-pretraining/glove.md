@@ -37,7 +37,7 @@ $$-\sum_{i\in\mathcal{V}} x_i \sum_{j\in\mathcal{V}} p_{ij} \log\,q_{ij}.$$
 2. 为每个词$w_i$添加两个标量模型参数：中心词偏置$b_i$和上下文词偏置$c_i$。
 3. 用权重函数$h(x_{ij})$替换每个损失项的权重，其中$h(x)$在$[0, 1]$的间隔内递增。
 
-把所有的东西放在一起，训练GloVe是为了尽量降低以下损失函数：
+整合代码，训练GloVe是为了尽量降低以下损失函数：
 
 $$\sum_{i\in\mathcal{V}} \sum_{j\in\mathcal{V}} h(x_{ij}) \left(\mathbf{u}_j^\top \mathbf{v}_i + b_i + c_j - \log\,x_{ij}\right)^2.$$
 :eqlabel:`eq_glove-loss`

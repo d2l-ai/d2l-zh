@@ -117,7 +117,8 @@ we first need to access the underlying numerical values.
 There are several ways to do this.
 Some are simpler while others are more general.
 The following code extracts the bias
-from the second neural network layer, which returns a parameter class instance, and 
+from the second fully-connected layer (i.e. the third neural network layer), 
+which returns a parameter class instance, and 
 further accesses that parameter's value.
 
 ```{.python .input}
@@ -409,9 +410,9 @@ net.weights[0], net.weights[1]
 ```
 
 We can also apply different initializers for certain blocks.
-For example, below we initialize the first layer
+For example, below we initialize the first neural network layer
 with the Xavier initializer
-and initialize the second layer
+and initialize the third neural network layer
 to a constant value of 42.
 
 ```{.python .input}
@@ -624,7 +625,7 @@ net(X)
 print(len(net.layers) == 3)
 ```
 
-:begin_tab:`mxnet,pytorch`
+:begin_tab:`mxnet`
 This example shows that the parameters
 of the second and third layer are tied.
 They are not just equal, they are
@@ -637,6 +638,22 @@ what happens to the gradients?
 Since the model parameters contain gradients,
 the gradients of the second hidden layer
 and the third hidden layer are added together
+during backpropagation.
+:end_tab:
+
+:begin_tab:`pytorch`
+This example shows that the parameters
+of the third and fifth neural network layer are tied.
+They are not just equal, they are
+represented by the same exact tensor.
+Thus, if we change one of the parameters,
+the other one changes, too.
+You might wonder,
+when parameters are tied
+what happens to the gradients?
+Since the model parameters contain gradients,
+the gradients of the second hidden layer (i.e. the third neural network layer)
+and the third hidden layer (i.e. the fifth neural network layer) are added together
 during backpropagation.
 :end_tab:
 

@@ -1,7 +1,7 @@
 # 自然语言推断与数据集
 :label:`sec_natural-language-inference-and-dataset`
 
-在 :numref:`sec_sentiment` 中，我们讨论了情感分析问题。这个任务的目的是将单个文本序列分类到预定义的类别中，例如一组情感极性中。然而，当需要决定一个句子是否可以从另一个句子推断出来，或者需要通过识别语义等价的句子来消除句子间冗余时，知道如何对一个文本序列进行分类是不够的。相反，我们需要能够对成对的文本序列进行推断。
+在 :numref:`sec_sentiment`中，我们讨论了情感分析问题。这个任务的目的是将单个文本序列分类到预定义的类别中，例如一组情感极性中。然而，当需要决定一个句子是否可以从另一个句子推断出来，或者需要通过识别语义等价的句子来消除句子间冗余时，知道如何对一个文本序列进行分类是不够的。相反，我们需要能够对成对的文本序列进行推断。
 
 ## 自然语言推断
 
@@ -34,7 +34,7 @@
 
 ## 斯坦福自然语言推断（SNLI）数据集
 
-[**斯坦福自然语言推断语料库（Stanford Natural Language Inference,SNLI）**]是由500000多个带标签的英语句子对组成的集合:cite:`Bowman.Angeli.Potts.ea.2015`。我们在路径`../data/snli_1.0`中下载并存储提取的SNLI数据集。
+[**斯坦福自然语言推断语料库（Stanford Natural Language Inference，SNLI）**]是由500000多个带标签的英语句子对组成的集合 :cite:`Bowman.Angeli.Potts.ea.2015`。我们在路径`../data/snli_1.0`中下载并存储提取的SNLI数据集。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -117,7 +117,7 @@ for data in [train_data, test_data]:
 
 ### [**定义用于加载数据集的类**]
 
-下面我们通过继承Gluon中的`Dataset`类来定义一个用于加载SNLI数据集的类。类构造函数中的变量`num_steps`指定文本序列的长度，使得每个小批量序列将具有相同的形状。换句话说，在较长序列中的前`num_steps`个标记之后的标记被截断，而特殊标记“&lt;pad&gt;”将被附加到较短的序列后，直到它们的长度变为`num_steps`。通过实现`__getitem__`功能，我们可以任意访问带有索引`idx`的前提、假设和标签。
+下面我们来定义一个用于加载SNLI数据集的类。类构造函数中的变量`num_steps`指定文本序列的长度，使得每个小批量序列将具有相同的形状。换句话说，在较长序列中的前`num_steps`个标记之后的标记被截断，而特殊标记“&lt;pad&gt;”将被附加到较短的序列后，直到它们的长度变为`num_steps`。通过实现`__getitem__`功能，我们可以任意访问带有索引`idx`的前提、假设和标签。
 
 ```{.python .input}
 #@save
@@ -180,7 +180,7 @@ class SNLIDataset(torch.utils.data.Dataset):
         return len(self.premises)
 ```
 
-### [**把所有东西放在一起**]
+### [**整合代码**]
 
 现在，我们可以调用`read_snli`函数和`SNLIDataset`类来下载SNLI数据集，并返回训练集和测试集的`DataLoader`实例，以及训练集的词表。值得注意的是，我们必须使用从训练集构造的词表作为测试集的词表。因此，在训练集中训练的模型将不知道来自测试集的任何新词元。
 

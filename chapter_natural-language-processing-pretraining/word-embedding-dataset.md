@@ -257,7 +257,7 @@ for name, data in zip(names, batch):
     print(name, '=', data)
 ```
 
-## 把所有的东西放在一起
+## 整合代码
 
 最后，我们定义了读取PTB数据集并返回数据迭代器和词表的`load_data_ptb`函数。
 
