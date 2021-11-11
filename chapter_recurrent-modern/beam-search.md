@@ -4,7 +4,7 @@
 在 :numref:`sec_seq2seq`中，我们逐个预测输出序列，直到预测序列中出现特定的序列结束词元“&lt;eos&gt;”。在
 本节中，我们将首先介绍*贪心搜索*（greedy search）策略，并探讨其存在的问题，然后对比其他替代策略：*穷举搜索*（exhaustive search）和*束搜索*（beam search）。
 
-在正式介绍贪心搜索之前，让我们使用与 :numref:`sec_seq2seq`中相同的数学符号定义搜索问题。在任意时间步$t'$，解码器输出$y_{t'}$的概率取决于时间步$t'$之前的输出子序列$y_1, \ldots, y_{t'-1}$和对输入序列的信息进行编码得到的上下文变量$\mathbf{c}$。为了量化计算成本，用$\mathcal{Y}$表示输出词汇表，其中包含“&lt;eos&gt;”，所以这个词汇集合的基数$\left|\mathcal{Y}\right|$就是词汇表的大小。我们还将输出序列的最大词元数指定为$T'$。因此，我们的目标是从所有$\mathcal{O}(\left|\mathcal{Y}\right|^{T'})$个可能的输出序列中寻找理想的输出。当然，对于所有输出序列，这些序列中包含的“&lt;eos&gt;”及其之后的部分将在实际输出中丢弃。
+在正式介绍贪心搜索之前，让我们使用与 :numref:`sec_seq2seq`中相同的数学符号定义搜索问题。在任意时间步$t'$，解码器输出$y_{t'}$的概率取决于时间步$t'$之前的输出子序列$y_1, \ldots, y_{t'-1}$和对输入序列的信息进行编码得到的上下文变量$\mathbf{c}$。为了量化计算代价，用$\mathcal{Y}$表示输出词表，其中包含“&lt;eos&gt;”，所以这个词汇集合的基数$\left|\mathcal{Y}\right|$就是词表的大小。我们还将输出序列的最大词元数指定为$T'$。因此，我们的目标是从所有$\mathcal{O}(\left|\mathcal{Y}\right|^{T'})$个可能的输出序列中寻找理想的输出。当然，对于所有输出序列，这些序列中包含的“&lt;eos&gt;”及其之后的部分将在实际输出中丢弃。
 
 ## 贪心搜索
 
@@ -34,7 +34,7 @@ $$y_{t'} = \operatorname*{argmax}_{y \in \mathcal{Y}} P(y \mid y_1, \ldots, y_{t
 
 ## 束搜索
 
-那么该选取哪种序列搜索策略呢？如果只有正确性最重要，则显然是穷举搜索。如果计算成本最重要，则显然是贪心搜索。
+那么该选取哪种序列搜索策略呢？如果只有精度最重要，则显然是穷举搜索。如果计算成本最重要，则显然是贪心搜索。
 而束搜索的实际应用则介于这两个极端之间。
 
 *束搜索*（beam search）是贪心搜索的一个改进版本。
@@ -44,7 +44,7 @@ $$y_{t'} = \operatorname*{argmax}_{y \in \mathcal{Y}} P(y \mid y_1, \ldots, y_{t
 ![束搜索过程（束宽：2，输出序列的最大长度：3）。候选输出序列是$A$、$C$、$AB$、$CE$、$ABD$和$CED$。](../img/beam-search.svg)
 :label:`fig_beam-search`
 
- :numref:`fig_beam-search`演示了束搜索的过程。假设输出的词汇表只包含五个元素：$\mathcal{Y} = \{A, B, C, D, E\}$，其中有一个是“&lt;eos&gt;”。设置束宽为$2$，输出序列的最大长度为$3$。在时间步$1$，假设具有最高条件概率$P(y_1 \mid \mathbf{c})$的词元是$A$和$C$。在时间步$2$，我们计算所有$y_2 \in \mathcal{Y}$为：
+ :numref:`fig_beam-search`演示了束搜索的过程。假设输出的词表只包含五个元素：$\mathcal{Y} = \{A, B, C, D, E\}$，其中有一个是“&lt;eos&gt;”。设置束宽为$2$，输出序列的最大长度为$3$。在时间步$1$，假设具有最高条件概率$P(y_1 \mid \mathbf{c})$的词元是$A$和$C$。在时间步$2$，我们计算所有$y_2 \in \mathcal{Y}$为：
 
 $$\begin{aligned}P(A, y_2 \mid \mathbf{c}) = P(A \mid \mathbf{c})P(y_2 \mid A, \mathbf{c}),\\ P(C, y_2 \mid \mathbf{c}) = P(C \mid \mathbf{c})P(y_2 \mid C, \mathbf{c}),\end{aligned}$$  
 
@@ -56,7 +56,7 @@ $$\begin{aligned}P(A, B, y_3 \mid \mathbf{c}) = P(A, B \mid \mathbf{c})P(y_3 \mi
 
 最后，我们基于这六个序列（例如，丢弃包括“&lt;eos&gt;”和之后的部分）获得最终候选输出序列集合。然后我们选择以下得分最高的序列作为输出序列：
 
-$$ \frac{1}{L^\alpha} \log P(y_1, \ldots, y_{L}) = \frac{1}{L^\alpha} \sum_{t'=1}^L \log P(y_{t'} \mid y_1, \ldots, y_{t'-1}, \mathbf{c}),$$
+$$ \frac{1}{L^\alpha} \log P(y_1, \ldots, y_{L}\mid \mathbf{c}) = \frac{1}{L^\alpha} \sum_{t'=1}^L \log P(y_{t'} \mid y_1, \ldots, y_{t'-1}, \mathbf{c}),$$
 :eqlabel:`eq_beam-search-score`
 
 其中$L$是最终候选序列的长度，$\alpha$通常设置为$0.75$。因为一个较长的序列在 :eqref:`eq_beam-search-score`的求和中会有更多的对数项，因此分母中的$L^\alpha$用于惩罚长序列。
@@ -66,7 +66,7 @@ $$ \frac{1}{L^\alpha} \log P(y_1, \ldots, y_{L}) = \frac{1}{L^\alpha} \sum_{t'=1
 ## 小结
 
 * 序列搜索策略包括贪心搜索、穷举搜索和束搜索。
-* 束搜索通过灵活选择束宽，在正确率和计算成本之间找到平衡。
+* 束搜索通过灵活选择束宽，在正确率和计算代价之间找到平衡。
 
 ## 练习
 

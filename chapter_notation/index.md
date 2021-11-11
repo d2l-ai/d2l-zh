@@ -22,7 +22,7 @@
 * $\mathbb{R}^{a\times b}$: 包含$a$行和$b$列的实数矩阵
 * $\mathcal{A}\cup\mathcal{B}$: 集合$\mathcal{A}$和$\mathcal{B}$的并集
 * $\mathcal{A}\cap\mathcal{B}$：集合$\mathcal{A}$和$\mathcal{B}$的交集
-* $\mathcal{A}\setminus\mathcal{B}$：集合$\mathcal{B}$与集合$\mathcal{A}$相减
+* $\mathcal{A}\setminus\mathcal{B}$：集合$\mathcal{A}$与集合$\mathcal{B}$相减，$\mathcal{B}$关于$\mathcal{A}$的相对补集
 
 ## 函数和运算符
 

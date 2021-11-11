@@ -242,7 +242,7 @@ def train_epoch_ch3(net, train_iter, loss, updater):
         l.backward()
         updater(X.shape[0])
         metric.add(float(l.sum()), accuracy(y_hat, y), y.size)
-    # 返回训练损失和训练准确率
+    # 返回训练损失和训练精度
     return metric[0] / metric[2], metric[1] / metric[2]
 
 class Animator:
@@ -429,7 +429,7 @@ def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
                             legend=['train loss', 'train acc', 'test acc'])
     timer, num_batches = d2l.Timer(), len(train_iter)
     for epoch in range(num_epochs):
-        metric = d2l.Accumulator(3)  # 训练损失之和，训练准确率之和，范例数
+        metric = d2l.Accumulator(3)  # 训练损失之和，训练精度之和，范例数
         for i, (X, y) in enumerate(train_iter):
             timer.start()
             # 下面是与“d2l.train_epoch_ch3”的主要不同
@@ -497,7 +497,7 @@ def tokenize(lines, token='word'):
         print('错误：未知词元类型：' + token)
 
 class Vocab:
-    """文本词汇表"""
+    """文本词表"""
     def __init__(self, tokens=None, min_freq=0, reserved_tokens=None):
         """Defined in :numref:`sec_text_preprocessing`"""
         if tokens is None:
@@ -541,7 +541,7 @@ def count_corpus(tokens):
     return collections.Counter(tokens)
 
 def load_corpus_time_machine(max_tokens=-1):
-    """返回时光机器数据集的词元索引列表和词汇表。
+    """返回时光机器数据集的词元索引列表和词表。
 
     Defined in :numref:`sec_text_preprocessing`"""
     lines = read_time_machine()
@@ -612,7 +612,7 @@ class SeqDataLoader:
 
 def load_data_time_machine(batch_size, num_steps,
                            use_random_iter=False, max_tokens=10000):
-    """返回时光机器数据集的迭代器和词汇表。
+    """返回时光机器数据集的迭代器和词表。
 
     Defined in :numref:`sec_language_model`"""
     data_iter = SeqDataLoader(

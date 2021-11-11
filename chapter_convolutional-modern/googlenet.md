@@ -1,7 +1,7 @@
 # 含并行连结的网络（GoogLeNet）
 :label:`sec_googlenet`
 
-在2014年的ImageNet图像识别挑战赛中，一个名叫*GoogLeNet* :cite:`Szegedy.Liu.Jia.ea.2015`的网络结构大放异彩。
+在2014年的ImageNet图像识别挑战赛中，一个名叫*GoogLeNet* :cite:`Szegedy.Liu.Jia.ea.2015`的网络架构大放异彩。
 GoogLeNet吸收了NiN中串联网络的思想，并在此基础上做了改进。
 这篇论文的一个重点是解决了什么样大小的卷积核最合适的问题。
 毕竟，以前流行的网络使用小到$1 \times 1$，大到$11 \times 11$的卷积核。
@@ -12,7 +12,7 @@ GoogLeNet吸收了NiN中串联网络的思想，并在此基础上做了改进�
 
 在GoogLeNet中，基本的卷积块被称为*Inception块*（Inception block）。这很可能得名于电影《盗梦空间》（Inception），因为电影中的一句话“我们需要走得更深”（“We need to go deeper”）。
 
-![Inception块的结构。](../img/inception.svg)
+![Inception块的架构。](../img/inception.svg)
 :label:`fig_inception`
 
 如 :numref:`fig_inception`所示，Inception块由四条并行路径组成。
@@ -128,7 +128,7 @@ class Inception(tf.keras.Model):
 如 :numref:`fig_inception_full`所示，GoogLeNet一共使用9个Inception块和全局平均汇聚层的堆叠来生成其估计值。Inception块之间的最大汇聚层可降低维度。
 第一个模块类似于AlexNet和LeNet，Inception块的栈从VGG继承，全局平均汇聚层避免了在最后使用全连接层。
 
-![GoogLeNet结构。](../img/inception-full.svg)
+![GoogLeNet架构。](../img/inception-full.svg)
 :label:`fig_inception_full`
 
 现在，我们逐一实现GoogLeNet的每个模块。第一个模块使用64个通道、$7\times 7$卷积层。
@@ -338,12 +338,12 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 ## 练习
 
 1. GoogLeNet有数个后续版本。尝试实现并运行它们，然后观察实验结果。这些后续版本包括：
-    * 添加批量归一化层 :cite:`Ioffe.Szegedy.2015`（batch normalization），在 :numref:`sec_batch_norm`中将介绍）。
+    * 添加批量规范化层 :cite:`Ioffe.Szegedy.2015`（batch normalization），在 :numref:`sec_batch_norm`中将介绍）。
     * 对Inception模块进行调整。
     * 使用标签平滑（label smoothing）进行模型正则化 :cite:`Szegedy.Vanhoucke.Ioffe.ea.2016`。
     * 加入残差连接 :cite:`Szegedy.Ioffe.Vanhoucke.ea.2017`，（ :numref:`sec_resnet`将介绍）。
 1. 使用GoogLeNet的最小图像大小是多少？
-1. 将AlexNet、VGG和NiN的模型参数大小与GoogLeNet进行比较。后两个网络结构是如何显著减少模型参数大小的？
+1. 将AlexNet、VGG和NiN的模型参数大小与GoogLeNet进行比较。后两个网络架构是如何显著减少模型参数大小的？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/1873)

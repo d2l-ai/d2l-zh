@@ -26,7 +26,6 @@ from torch.nn import functional as F
 %matplotlib inline
 from d2l import tensorflow as d2l
 import math
-import numpy as np
 import tensorflow as tf
 ```
 
@@ -46,7 +45,7 @@ train_random_iter, vocab_random_iter = d2l.load_data_time_machine(
 
 回想一下，在`train_iter`中，每个词元都表示为一个数字索引。将这些索引直接输入神经网络可能会使学习变得困难。我们通常将每个词元表示为更具表现力的特征向量。最简单的表示称为*独热编码*（one-hot encoding），它在 :numref:`subsec_classification-problem`中介绍过。
 
-简言之，将每个索引映射为相互不同的单位向量：假设词汇表中不同词元的数目为$N$（即`len(vocab)`），词元索引的范围为$0$到$N-1$。如果词元的索引是整数$i$，那么我们创建一个长度为$N$的全$0$向量，并将第$i$处的元素设置为$1$。此向量是原始词元的一个独热向量。索引为$0$和$2$的独热向量如下所示。
+简言之，将每个索引映射为相互不同的单位向量：假设词表中不同词元的数目为$N$（即`len(vocab)`），词元索引的范围为$0$到$N-1$。如果词元的索引是整数$i$，那么我们创建一个长度为$N$的全$0$向量，并将第$i$处的元素设置为$1$。此向量是原始词元的一个独热向量。索引为$0$和$2$的独热向量如下所示。
 
 ```{.python .input}
 npx.one_hot(np.array([0, 2]), len(vocab))
@@ -62,7 +61,7 @@ F.one_hot(torch.tensor([0, 2]), len(vocab))
 tf.one_hot(tf.constant([0, 2]), len(vocab))
 ```
 
-我们每次采样的(**小批量数据形状是（批量大小,时间步数）。**)`one_hot`函数将这样一个小批量数据转换成三维张量，张量的最后一个维度等于词汇表大小（`len(vocab)`）。我们经常转换输入的维度，以便获得形状为（时间步数,批量大小,词汇表大小）的输出。这将使我们能够更方便地通过最外层的维度，一步一步地更新小批量数据的隐藏状态。
+我们每次采样的(**小批量数据形状是（批量大小,时间步数）。**)`one_hot`函数将这样一个小批量数据转换成三维张量，张量的最后一个维度等于词表大小（`len(vocab)`）。我们经常转换输入的维度，以便获得形状为（时间步数, 批量大小, 词表大小）的输出。这将使我们能够更方便地通过最外层的维度，一步一步地更新小批量数据的隐状态。
 
 ```{.python .input}
 X = d2l.reshape(d2l.arange(10), (2, 5))
@@ -83,7 +82,7 @@ tf.one_hot(tf.transpose(X), 28).shape
 
 ## 初始化模型参数
 
-接下来，我们[**初始化循环神经网络模型的模型参数**]。隐藏单元数`num_hiddens`是一个可调的超参数。当训练语言模型时，输入和输出来自相同的词汇表。因此，它们具有相同的维度，即词汇表的大小。
+接下来，我们[**初始化循环神经网络模型的模型参数**]。隐藏单元数`num_hiddens`是一个可调的超参数。当训练语言模型时，输入和输出来自相同的词表。因此，它们具有相同的维度，即词表的大小。
 
 ```{.python .input}
 def get_params(vocab_size, num_hiddens, device):
@@ -149,7 +148,7 @@ def get_params(vocab_size, num_hiddens):
 
 ## 循环神经网络模型
 
-为了定义循环神经网络模型，我们首先需要[**一个`init_rnn_state`函数在初始化时返回隐藏状态**]。函数的返回是一个张量，张量全用0填充，形状为（批量大小,隐藏单元数）。在后面的章节中将会遇到隐藏状态包含多个变量的情况，而使用元组可以处理地更容易些。
+为了定义循环神经网络模型，我们首先需要[**一个`init_rnn_state`函数在初始化时返回隐状态**]。函数的返回是一个张量，张量全用0填充，形状为（批量大小,隐藏单元数）。在后面的章节中将会遇到隐状态包含多个变量的情况，而使用元组可以处理地更容易些。
 
 ```{.python .input}
 def init_rnn_state(batch_size, num_hiddens, device):
@@ -168,7 +167,7 @@ def init_rnn_state(batch_size, num_hiddens):
     return (d2l.zeros((batch_size, num_hiddens)), )
 ```
 
-[**下面的`rnn`函数定义了如何在一个时间步内计算隐藏状态和输出。**]请注意，循环神经网络模型通过`inputs`最外层的维度实现循环，以便逐时间步更新小批量数据的隐藏状态`H`。此外，这里使用$\tanh$函数作为激活函数。如 :numref:`sec_mlp`所述，当元素在实数上满足均匀分布时，$\tanh$函数的平均值为0。
+[**下面的`rnn`函数定义了如何在一个时间步内计算隐状态和输出。**]请注意，循环神经网络模型通过`inputs`最外层的维度实现循环，以便逐时间步更新小批量数据的隐状态`H`。此外，这里使用$\tanh$函数作为激活函数。如 :numref:`sec_mlp`所述，当元素在实数上满足均匀分布时，$\tanh$函数的平均值为0。
 
 ```{.python .input}
 def rnn(inputs, state, params):
@@ -257,20 +256,21 @@ class RNNModelScratch: #@save
 class RNNModelScratch: #@save
     """从零开始实现的循环神经网络模型"""
     def __init__(self, vocab_size, num_hiddens,
-                 init_state, forward_fn):
+                 init_state, forward_fn, get_params):
         self.vocab_size, self.num_hiddens = vocab_size, num_hiddens
         self.init_state, self.forward_fn = init_state, forward_fn
+        self.trainable_variables = get_params(vocab_size, num_hiddens)
 
-    def __call__(self, X, state, params):
+    def __call__(self, X, state):
         X = tf.one_hot(tf.transpose(X), self.vocab_size)
         X = tf.cast(X, tf.float32)
-        return self.forward_fn(X, state, params)
+        return self.forward_fn(X, state, self.trainable_variables)
 
-    def begin_state(self, batch_size):
+    def begin_state(self, batch_size, *args, **kwargs):
         return self.init_state(batch_size, self.num_hiddens)
 ```
 
-让我们[**检查输出是否具有正确的形状**]，例如，是否保证了隐藏状态的维数保持不变。
+让我们[**检查输出是否具有正确的形状**]，例如，是否保证了隐状态的维数保持不变。
 
 ```{.python .input}
 #@tab mxnet
@@ -300,18 +300,18 @@ strategy = tf.distribute.OneDeviceStrategy(device_name)
 
 num_hiddens = 512
 with strategy.scope():
-    net = RNNModelScratch(len(vocab), num_hiddens, init_rnn_state, rnn)
+    net = RNNModelScratch(len(vocab), num_hiddens, init_rnn_state, rnn,
+                          get_params)
 state = net.begin_state(X.shape[0])
-params = get_params(len(vocab), num_hiddens)
-Y, new_state = net(X, state, params)
+Y, new_state = net(X, state)
 Y.shape, len(new_state), new_state[0].shape
 ```
 
-我们可以看到输出形状是（时间步数$\times$批量大小，词汇表大小），而隐藏状态形状保持不变，即（批量大小,隐藏单元数）。
+我们可以看到输出形状是（时间步数$\times$批量大小，词表大小），而隐状态形状保持不变，即（批量大小,隐藏单元数）。
 
 ## 预测
 
-让我们[**首先定义预测函数来生成`prefix`之后的新字符**]，其中的`prefix`是一个用户提供的包含多个字符的字符串。在循环遍历`prefix`中的开始字符时，我们不断地将隐藏状态传递到下一个时间步，但是不生成任何输出。这被称为“预热”（warm-up）期，因为在此期间模型会自我更新（例如，更新隐藏状态），但不会进行预测。预热期结束后，隐藏状态的值通常比刚开始的初始值更适合预测，从而预测字符并输出它们。
+让我们[**首先定义预测函数来生成`prefix`之后的新字符**]，其中的`prefix`是一个用户提供的包含多个字符的字符串。在循环遍历`prefix`中的开始字符时，我们不断地将隐状态传递到下一个时间步，但是不生成任何输出。这被称为“预热”（warm-up）期，因为在此期间模型会自我更新（例如，更新隐状态），但不会进行预测。预热期结束后，隐状态的值通常比刚开始的初始值更适合预测，从而预测字符并输出它们。
 
 ```{.python .input}
 def predict_ch8(prefix, num_preds, net, vocab, device):  #@save
@@ -348,16 +348,16 @@ def predict_ch8(prefix, num_preds, net, vocab, device):  #@save
 
 ```{.python .input}
 #@tab tensorflow
-def predict_ch8(prefix, num_preds, net, vocab, params):  #@save
-    """在`prefix`后面生成新字符。"""
-    state = net.begin_state(batch_size=1)
+def predict_ch8(prefix, num_preds, net, vocab):  #@save
+    """Generate new characters following the `prefix`."""
+    state = net.begin_state(batch_size=1, dtype=tf.float32)
     outputs = [vocab[prefix[0]]]
     get_input = lambda: d2l.reshape(d2l.tensor([outputs[-1]]), (1, 1)).numpy()
-    for y in prefix[1:]:  # 预热期
-        _, state = net(get_input(), state, params)
+    for y in prefix[1:]:  # Warm-up period
+        _, state = net(get_input(), state)
         outputs.append(vocab[y])
-    for _ in range(num_preds):  # 预测`num_preds`步
-        y, state = net(get_input(), state, params)
+    for _ in range(num_preds):  # Predict `num_preds` steps
+        y, state = net(get_input(), state)
         outputs.append(int(y.numpy().argmax(axis=1).reshape(1)))
     return ''.join([vocab.idx_to_token[i] for i in outputs])
 ```
@@ -371,7 +371,7 @@ predict_ch8('time traveller ', 10, net, vocab, d2l.try_gpu())
 
 ```{.python .input}
 #@tab tensorflow
-predict_ch8('time traveller ', 10, net, vocab, params)
+predict_ch8('time traveller ', 10, net, vocab)
 ```
 
 ## [**梯度裁剪**]
@@ -425,19 +425,23 @@ def grad_clipping(net, theta):  #@save
 
 ```{.python .input}
 #@tab tensorflow
-def grad_clipping(grads, theta): #@save
+def grad_clipping(grads, theta):  #@save
     """裁剪梯度。"""
     theta = tf.constant(theta, dtype=tf.float32)
-    norm = tf.math.sqrt(sum((tf.reduce_sum(grad ** 2)).numpy()
-                        for grad in grads))
-    norm = tf.cast(norm, tf.float32)
     new_grad = []
-    if tf.greater(norm, theta):
-        for grad in grads:
-            new_grad.append(grad * theta / norm)
-    else:
-        for grad in grads:
+    for grad in grads:
+        if isinstance(grad, tf.IndexedSlices):
+            new_grad.append(tf.convert_to_tensor(grad))
+        else:
             new_grad.append(grad)
+    norm = tf.math.sqrt(sum((tf.reduce_sum(grad ** 2)).numpy()
+                        for grad in new_grad))
+    norm = tf.cast(norm, tf.float32)
+    if tf.greater(norm, theta):
+        for i, grad in enumerate(new_grad):
+            new_grad[i] = grad * theta / norm
+    else:
+        new_grad = new_grad
     return new_grad
 ```
 
@@ -445,13 +449,13 @@ def grad_clipping(grads, theta): #@save
 
 在训练模型之前，让我们[**定义一个函数在一个迭代周期内训练模型**]。它与我们训练 :numref:`sec_softmax_scratch`模型的方式有三个不同之处：
 
-1. 序列数据的不同采样方法（随机采样和顺序分区）将导致隐藏状态初始化的差异。
+1. 序列数据的不同采样方法（随机采样和顺序分区）将导致隐状态初始化的差异。
 1. 我们在更新模型参数之前裁剪梯度。这样的操作即使训练过程中某个点上发生了梯度爆炸，也能保证模型不会发散。
 1. 我们用困惑度来评价模型。如 :numref:`subsec_perplexity`所述，这样的度量确保了不同长度的序列具有可比性。
 
-具体来说，当使用顺序分区时，我们只在每个迭代周期的开始位置初始化隐藏状态。由于下一个小批量数据中的第$i$个子序列样本与当前第$i$个子序列样本相邻，因此当前小批量数据最后一个样本的隐藏状态，将用于初始化下一个小批量数据第一个样本的隐藏状态。这样，存储在隐藏状态中的序列的历史信息可以在一个迭代周期内流经相邻的子序列。然而，在任何一点隐藏状态的计算，都依赖于同一迭代周期中前面所有的小批量数据，这使得梯度计算变得复杂。为了降低计算量，我们在处理任何一个小批量数据之前先分离梯度，使得隐藏状态的梯度计算总是限制在一个小批量数据的时间步内。
+具体来说，当使用顺序分区时，我们只在每个迭代周期的开始位置初始化隐状态。由于下一个小批量数据中的第$i$个子序列样本与当前第$i$个子序列样本相邻，因此当前小批量数据最后一个样本的隐状态，将用于初始化下一个小批量数据第一个样本的隐状态。这样，存储在隐状态中的序列的历史信息可以在一个迭代周期内流经相邻的子序列。然而，在任何一点隐状态的计算，都依赖于同一迭代周期中前面所有的小批量数据，这使得梯度计算变得复杂。为了降低计算量，我们在处理任何一个小批量数据之前先分离梯度，使得隐状态的梯度计算总是限制在一个小批量数据的时间步内。
 
-当使用随机抽样时，因为每个样本都是在一个随机位置抽样的，因此需要为每个迭代周期重新初始化隐藏状态。与 :numref:`sec_softmax_scratch`中的`train_epoch_ch3`函数相同，`updater`是更新模型参数的常用函数。它既可以是从头开始实现的`d2l.sgd`函数，也可以是深度学习框架中内置的优化函数。
+当使用随机抽样时，因为每个样本都是在一个随机位置抽样的，因此需要为每个迭代周期重新初始化隐状态。与 :numref:`sec_softmax_scratch`中的`train_epoch_ch3`函数相同，`updater`是更新模型参数的常用函数。它既可以是从头开始实现的`d2l.sgd`函数，也可以是深度学习框架中内置的优化函数。
 
 ```{.python .input}
 #@save
@@ -482,7 +486,7 @@ def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
 #@tab pytorch
 #@save
 def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
-    """训练模型一个迭代周期（定义见第8章）。"""
+    """训练网络一个迭代周期（定义见第8章）。"""
     state, timer = None, d2l.Timer()
     metric = d2l.Accumulator(2)  # 训练损失之和, 词元数量
     for X, Y in train_iter:
@@ -518,23 +522,22 @@ def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
 ```{.python .input}
 #@tab tensorflow
 #@save
-def train_epoch_ch8(net, train_iter, loss, updater, params, use_random_iter):
+def train_epoch_ch8(net, train_iter, loss, updater, use_random_iter):
     """训练模型一个迭代周期（定义见第8章）。"""
     state, timer = None, d2l.Timer()
     metric = d2l.Accumulator(2)  # 训练损失之和, 词元数量
     for X, Y in train_iter:
         if state is None or use_random_iter:
             # 在第一次迭代或使用随机抽样时初始化`state`
-            state = net.begin_state(batch_size=X.shape[0])
+            state = net.begin_state(batch_size=X.shape[0], dtype=tf.float32)
         with tf.GradientTape(persistent=True) as g:
-            g.watch(params)
-            y_hat, state= net(X, state, params)
+            y_hat, state = net(X, state)
             y = d2l.reshape(tf.transpose(Y), (-1))
             l = loss(y, y_hat)
+        params = net.trainable_variables
         grads = g.gradient(l, params)
         grads = grad_clipping(grads, 1)
         updater.apply_gradients(zip(grads, params))
-        
         # Keras默认返回一个批量中的平均损失
         # l_sum = l * float(d2l.size(y)) if isinstance(
         #     loss, tf.keras.losses.Loss) else tf.reduce_sum(l)
@@ -602,20 +605,19 @@ def train_ch8(net, train_iter, vocab, lr, num_epochs, device,
 ```{.python .input}
 #@tab tensorflow
 #@save
-def train_ch8(net, train_iter, vocab, num_hiddens, lr, num_epochs, strategy,
+def train_ch8(net, train_iter, vocab, lr, num_epochs, strategy,
               use_random_iter=False):
     """训练模型（定义见第8章）。"""
     with strategy.scope():
-        params = get_params(len(vocab), num_hiddens)
         loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
         updater = tf.keras.optimizers.SGD(lr)
     animator = d2l.Animator(xlabel='epoch', ylabel='perplexity',
                             legend=['train'], xlim=[10, num_epochs])
-    predict = lambda prefix: predict_ch8(prefix, 50, net, vocab, params)
+    predict = lambda prefix: predict_ch8(prefix, 50, net, vocab)
     # 训练和预测
     for epoch in range(num_epochs):
-        ppl, speed = train_epoch_ch8(
-             net, train_iter, loss, updater, params, use_random_iter)
+        ppl, speed = train_epoch_ch8(net, train_iter, loss, updater,
+                                     use_random_iter)
         if (epoch + 1) % 10 == 0:
             print(predict('time traveller'))
             animator.add(epoch + 1, [ppl])
@@ -636,22 +638,26 @@ train_ch8(net, train_iter, vocab, lr, num_epochs, d2l.try_gpu())
 ```{.python .input}
 #@tab tensorflow
 num_epochs, lr = 500, 1
-train_ch8(net, train_iter, vocab, num_hiddens, lr, num_epochs, strategy)
+train_ch8(net, train_iter, vocab, lr, num_epochs, strategy)
 ```
 
 [**最后，让我们检查一下使用随机抽样方法的结果。**]
 
 ```{.python .input}
 #@tab mxnet,pytorch
+net = RNNModelScratch(len(vocab), num_hiddens, d2l.try_gpu(), get_params,
+                      init_rnn_state, rnn)
 train_ch8(net, train_iter, vocab, lr, num_epochs, d2l.try_gpu(),
           use_random_iter=True)
 ```
 
 ```{.python .input}
 #@tab tensorflow
-params = get_params(len(vocab_random_iter), num_hiddens)
-train_ch8(net, train_random_iter, vocab_random_iter, num_hiddens, lr,
-          num_epochs, strategy, use_random_iter=True)
+with strategy.scope():
+    net = RNNModelScratch(len(vocab), num_hiddens, init_rnn_state, rnn,
+                          get_params)
+train_ch8(net, train_iter, vocab_random_iter, lr, num_epochs, strategy,
+          use_random_iter=True)
 ```
 
 从零开始实现上述循环神经网络模型，虽然有指导意义，但是并不方便。在下一节中，我们将学习如何改进循环神经网络模型，例如，如何使其实现地更容易，运行速度更快。
@@ -662,7 +668,7 @@ train_ch8(net, train_random_iter, vocab_random_iter, num_hiddens, lr,
 * 一个简单的循环神经网络语言模型包括输入编码、循环神经网络模型和输出生成。
 * 循环神经网络模型在训练以前需要初始化状态，不过随机抽样和顺序划分使用初始化方法不同。
 * 当使用顺序划分时，我们需要分离梯度以减少计算量。
-* 在进行任何预测之前，模型通过预热期进行自我更新（例如，获得比初始值更好的隐藏状态）。
+* 在进行任何预测之前，模型通过预热期进行自我更新（例如，获得比初始值更好的隐状态）。
 * 梯度裁剪可以防止梯度爆炸，但不能应对梯度消失。
 
 ## 练习
@@ -676,7 +682,7 @@ train_ch8(net, train_random_iter, vocab_random_iter, num_hiddens, lr,
     * 会发生什么？
     * 调整模型使之偏向更可能的输出，例如，当$\alpha > 1$，从$q(x_t \mid x_{t-1}, \ldots, x_1) \propto P(x_t \mid x_{t-1}, \ldots, x_1)^\alpha$中采样。
 1. 在不裁剪梯度的情况下运行本节中的代码会发生什么？
-1. 更改顺序划分，使其不会从计算图中分离隐藏状态。运行时间会有变化吗？困惑度呢？
+1. 更改顺序划分，使其不会从计算图中分离隐状态。运行时间会有变化吗？困惑度呢？
 1. 用ReLU替换本节中使用的激活函数，并重复本节中的实验。我们还需要梯度裁剪吗？为什么？
 
 :begin_tab:`mxnet`

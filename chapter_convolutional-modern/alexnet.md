@@ -37,7 +37,7 @@ AlexNet的更高层建立在这些底层表示的基础上，以表示更大的�
 
 ### 缺少的成分：硬件
 
-深度学习对计算资源要求很高，训练可能需要数百个迭代周期，每次迭代都需要通过代价高昂的许多线性代数层传递数据。这也是为什么在20世纪90年代至21世纪初，优化凸目标的简单算法是研究人员的首选。然而，用GPU训练神经网络改变了这一格局。*图形处理器*（Graphics Processing Unit，GPU）早年用来加速图形处理，使电脑游戏玩家受益。GPU可优化高吞吐量的$4 \times 4$矩阵和向量乘法，从而服务于基本的图形任务。幸运的是，这些数学运算与卷积层的计算惊人地相似。由此，英伟达（NVIDIA）和ATI已经开始为通用计算操作优化gpu，甚至把它们作为*通用GPU*（general-purpose GPUs，GPGPU）来销售。
+深度学习对计算资源要求很高，训练可能需要数百个迭代轮数，每次迭代都需要通过代价高昂的许多线性代数层传递数据。这也是为什么在20世纪90年代至21世纪初，优化凸目标的简单算法是研究人员的首选。然而，用GPU训练神经网络改变了这一格局。*图形处理器*（Graphics Processing Unit，GPU）早年用来加速图形处理，使电脑游戏玩家受益。GPU可优化高吞吐量的$4 \times 4$矩阵和向量乘法，从而服务于基本的图形任务。幸运的是，这些数学运算与卷积层的计算惊人地相似。由此，英伟达（NVIDIA）和ATI已经开始为通用计算操作优化gpu，甚至把它们作为*通用GPU*（general-purpose GPUs，GPGPU）来销售。
 
 那么GPU比CPU强在哪里呢？
 
@@ -129,7 +129,7 @@ net.add(
     nn.Conv2D(384, kernel_size=3, padding=1, activation='relu'),
     nn.Conv2D(256, kernel_size=3, padding=1, activation='relu'),
     nn.MaxPool2D(pool_size=3, strides=2),
-    # 这里，全连接层的输出数量是LeNet中的好几倍。使用dropout层来减轻过度拟合
+    # 这里，全连接层的输出数量是LeNet中的好几倍。使用dropout层来减轻过拟合
     nn.Dense(4096, activation='relu'), nn.Dropout(0.5),
     nn.Dense(4096, activation='relu'), nn.Dropout(0.5),
     # 最后是输出层。由于这里使用Fashion-MNIST，所以用类别数为10，而非论文中的1000
@@ -159,7 +159,7 @@ net = nn.Sequential(
     nn.Conv2d(384, 256, kernel_size=3, padding=1), nn.ReLU(),
     nn.MaxPool2d(kernel_size=3, stride=2),
     nn.Flatten(),
-    # 这里，全连接层的输出数量是LeNet中的好几倍。使用dropout层来减轻过度拟合
+    # 这里，全连接层的输出数量是LeNet中的好几倍。使用dropout层来减轻过拟合
     nn.Linear(6400, 4096), nn.ReLU(),
     nn.Dropout(p=0.5),
     nn.Linear(4096, 4096), nn.ReLU(),
@@ -196,7 +196,7 @@ def net():
                                activation='relu'),
         tf.keras.layers.MaxPool2D(pool_size=3, strides=2),
         tf.keras.layers.Flatten(),
-        # 这里，全连接层的输出数量是LeNet中的好几倍。使用dropout层来减轻过度拟合
+        # 这里，全连接层的输出数量是LeNet中的好几倍。使用dropout层来减轻过拟合
         tf.keras.layers.Dense(4096, activation='relu'),
         tf.keras.layers.Dropout(0.5),
         tf.keras.layers.Dense(4096, activation='relu'),
@@ -237,7 +237,7 @@ for layer in net().layers:
 
 尽管本文中AlexNet是在ImageNet上进行训练的，但我们在这里使用的是Fashion-MNIST数据集。因为即使在现代GPU上，训练ImageNet模型，同时使其收敛可能需要数小时或数天的时间。
 将AlexNet直接应用于Fashion-MNIST的一个问题是，[**Fashion-MNIST图像的分辨率**]（$28 \times 28$像素）(**低于ImageNet图像。**)
-为了解决这个问题，(**我们将它们增加到$224 \times 224$**)（通常来讲这不是一个明智的做法，但我们在这里这样做是为了有效使用AlexNet结构）。
+为了解决这个问题，(**我们将它们增加到$224 \times 224$**)（通常来讲这不是一个明智的做法，但我们在这里这样做是为了有效使用AlexNet架构）。
 我们使用`d2l.load_data_fashion_mnist`函数中的`resize`参数执行此调整。
 
 ```{.python .input}
@@ -258,14 +258,14 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 
 ## 小结
 
-* AlexNet的结构与LeNet相似，但使用了更多的卷积层和更多的参数来拟合大规模的ImageNet数据集。
-* 今天，AlexNet已经被更有效的结构所超越，但它是从浅层网络到深层网络的关键一步。
+* AlexNet的架构与LeNet相似，但使用了更多的卷积层和更多的参数来拟合大规模的ImageNet数据集。
+* 今天，AlexNet已经被更有效的架构所超越，但它是从浅层网络到深层网络的关键一步。
 * 尽管AlexNet的代码只比LeNet多出几行，但学术界花了很多年才接受深度学习这一概念，并应用其出色的实验结果。这也是由于缺乏有效的计算工具。
 * Dropout、ReLU和预处理是提升计算机视觉任务性能的其他关键步骤。
 
 ## 练习
 
-1. 试着增加迭代周期。对比LeNet的结果有什么不同？为什么？
+1. 试着增加迭代轮数。对比LeNet的结果有什么不同？为什么？
 1. AlexNet对于Fashion-MNIST数据集来说可能太复杂了。
     1. 尝试简化模型以加快训练速度，同时确保准确性不会显著下降。
     1. 设计一个更好的模型，可以直接在$28 \times 28$图像上工作。

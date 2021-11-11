@@ -292,12 +292,12 @@ $$L(\mathbf{x}, \alpha_1, \ldots, \alpha_n) = f(\mathbf{x}) + \sum_{i=1}^n \alph
 
 通常，添加惩罚是确保近似满足约束的一种好方法。
 在实践中，这被证明比精确的满意度更可靠。
-此外，对于非凸问题，许多使精确方法在凸情况下如此吸引人的性质（例如，最优性）不再成立。
+此外，对于非凸问题，许多使精确方法在凸情况下的性质（例如，可求最优解）不再成立。
 
 ### 投影
 
 满足约束条件的另一种策略是*投影*（projections）。
-同样，我们之前也遇到过，例如在处理梯度裁剪 :numref:`sec_rnn_scratch`时，我们确保梯度的长度以$\theta$为界限，通过
+同样，我们之前也遇到过，例如在处理梯度截断 :numref:`sec_rnn_scratch`时，我们确保梯度的长度以$\theta$为界限，通过
 
 $$\mathbf{g} \leftarrow \mathbf{g} \cdot \mathrm{min}(1, \theta/\|\mathbf{g}\|).$$
 
@@ -341,7 +341,7 @@ ii.证明只检查集合的顶点是充分的。
 
 3. 已知凸函数$f$和$g$表明$\mathrm{max}(f, g)$也是凸函数。证明$\mathrm{min}(f, g)$是非凸的。
 
-4. 证明Softmax函数的归一化是凸的，即$f(x) = \log \sum_i \exp(x_i)$的凸性。
+4. 证明Softmax函数的规范化是凸的，即$f(x) = \log \sum_i \exp(x_i)$的凸性。
 
 5. 证明线性子空间$\mathcal{X} = {\mathbf{X} | \mathbf{W} \mathbf{X} = \mathbf{b}}$是凸集。
 
