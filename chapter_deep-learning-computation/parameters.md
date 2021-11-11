@@ -410,9 +410,9 @@ print(net.layers[2].weights[0])
 $$
 \begin{aligned}
     w \sim \begin{cases}
-        U(5, 10) & \text{ with probability } \frac{1}{4} \\
-            0    & \text{ with probability } \frac{1}{2} \\
-        U(-10, -5) & \text{ with probability } \frac{1}{4}
+        U(5, 10) & \text{ 可能性 } \frac{1}{4} \\
+            0    & \text{ 可能性 } \frac{1}{2} \\
+        U(-10, -5) & \text{ 可能性 } \frac{1}{4}
     \end{cases}
 \end{aligned}
 $$
