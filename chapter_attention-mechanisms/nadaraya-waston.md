@@ -145,7 +145,7 @@ $$K(u) = \frac{1}{\sqrt{2\pi}} \exp(-\frac{u^2}{2}).$$
 $$\begin{aligned} f(x) &=\sum_{i=1}^n \alpha(x, x_i) y_i\\ &= \sum_{i=1}^n \frac{\exp\left(-\frac{1}{2}(x - x_i)^2\right)}{\sum_{j=1}^n \exp\left(-\frac{1}{2}(x - x_j)^2\right)} y_i \\&= \sum_{i=1}^n \mathrm{softmax}\left(-\frac{1}{2}(x - x_i)^2\right) y_i. \end{aligned}$$
 :eqlabel:`eq_nadaraya-watson-gaussian`
 
-在 :eqref:`eq_nadaraya-watson-gaussian`中，如果一个键$x_i$越是接近给定的查询$x$,那么分配给这个键对应值$y_i$的注意力权重就会越大,也就是“获得了更多的注意力”。
+在 :eqref:`eq_nadaraya-watson-gaussian`中，如果一个键$x_i$越是接近给定的查询$x$，那么分配给这个键对应值$y_i$的注意力权重就会越大，也就是“获得了更多的注意力”。
 
 值得注意的是，Nadaraya-Watson核回归是一个非参数模型。因此， :eqref:`eq_nadaraya-watson-gaussian`是*非参数的注意力汇聚*（nonparametric attention pooling）的例子。接下来，我们将基于这个非参数的注意力汇聚模型来绘制预测结果。结果是预测线是平滑的，并且比平均汇聚产生的线更接近真实。
 
