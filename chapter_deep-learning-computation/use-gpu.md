@@ -50,13 +50,6 @@
 我们可以最大限度地减少在设备之间传输数据的时间。
 例如，当在带有GPU的服务器上训练神经网络时，
 我们通常希望模型的参数在GPU上。
-
-接下来，我们需要确认安装了GPU版本的PyTorch。
-如果已经安装了PyTorch的CPU版本，我们需要先卸载它。
-例如，使用`pip uninstall torch`命令，
-然后根据你的CUDA版本安装相应的PyTorch版本。
-例如，假设你安装了CUDA10.0，你可以通过`pip install torch-cu100`
-安装支持CUDA10.0的PyTorch版本。
 :end_tab:
 
 要运行此部分中的程序，至少需要两个GPU。
