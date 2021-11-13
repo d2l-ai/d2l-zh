@@ -134,7 +134,7 @@ $$f(x) = \sum_{i=1}^n \frac{K(x - x_i)}{\sum_{j=1}^n K(x - x_j)} y_i,$$
 $$f(x) = \sum_{i=1}^n \alpha(x, x_i) y_i,$$
 :eqlabel:`eq_attn-pooling`
 
-其中$x$是查询，$(x_i, y_i)$是键值对。比较 :eqref:`eq_attn-pooling`和 :eqref:`eq_avg-pooling`，注意力汇聚是$y_i$的加权平均。将查询$x$和键$x_i$之间的关系建模为*注意力权重*（attetnion weight）$\alpha(x, x_i)$，如 :eqref:`eq_attn-pooling`所示，这个权重将被分配给每一个对应值$y_i$。对于任何查询，模型在所有键值对上的注意力权重都是一个有效的概率分布：它们是非负数的，并且总和为1。
+其中$x$是查询，$(x_i, y_i)$是键值对。比较 :eqref:`eq_attn-pooling`和 :eqref:`eq_avg-pooling`，注意力汇聚是$y_i$的加权平均。将查询$x$和键$x_i$之间的关系建模为*注意力权重*（attention weight）$\alpha(x, x_i)$，如 :eqref:`eq_attn-pooling`所示，这个权重将被分配给每一个对应值$y_i$。对于任何查询，模型在所有键值对上的注意力权重都是一个有效的概率分布：它们是非负数的，并且总和为1。
 
 为了更好地理解注意力汇聚，仅考虑一个*高斯核*（Gaussian kernel），其定义为：
 
