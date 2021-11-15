@@ -784,7 +784,7 @@ train_ch8(net, train_iter, vocab_random_iter, lr, num_epochs, strategy,
     * 你能将困惑度降到多少？
     * 用可学习的嵌入表示替换独热编码，是否会带来更好的表现？
     * 如果用H.G.Wells的其他书作为数据集时效果如何，
-      例如[*星球大战*](http://www.gutenberg.org/ebooks/36)？
+      例如[*世界大战*](http://www.gutenberg.org/ebooks/36)？
 1. 修改预测函数，例如使用采样，而不是选择最有可能的下一个字符。
     * 会发生什么？
     * 调整模型使之偏向更可能的输出，例如，当$\alpha > 1$，从$q(x_t \mid x_{t-1}, \ldots, x_1) \propto P(x_t \mid x_{t-1}, \ldots, x_1)^\alpha$中采样。
