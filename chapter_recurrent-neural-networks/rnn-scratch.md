@@ -439,7 +439,7 @@ predict_ch8('time traveller ', 10, net, vocab)
 例如，使用$\eta > 0$作为学习率时，在一次迭代中，
 我们将$\mathbf{x}$更新为$\mathbf{x} - \eta \mathbf{g}$。
 如果我们进一步假设目标函数$f$表现良好，
-表示伴随常数$L$的*利普希茨连续*（Lipschitz continuous）。
+即函数$f$在常数$L$下是*利普希茨连续的*（Lipschitz continuous）。
 也就是说，对于任意$\mathbf{x}$和$\mathbf{y}$我们有：
 
 $$|f(\mathbf{x}) - f(\mathbf{y})| \leq L \|\mathbf{x} - \mathbf{y}\|.$$
