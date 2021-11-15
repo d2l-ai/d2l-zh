@@ -255,7 +255,7 @@ Bengio等人首先提出使用神经网络进行语言建模
 
 在这里，信息论可以派上用场了。
 我们在引入softmax回归
-（ :numref:`subsec_info_theory_basics`）时定义了熵、惊奇和交叉熵，
+（ :numref:`subsec_info_theory_basics`）时定义了熵、惊异和交叉熵，
 并在[信息论的在线附录](https://d2l.ai/chapter_appendix-mathematics-for-deep-learning/information-theory.html)
 中讨论了更多的信息论知识。
 如果想要压缩文本，我们可以根据当前词元集预测的下一个词元。
