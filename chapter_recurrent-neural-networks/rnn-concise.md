@@ -204,7 +204,7 @@ class RNNModel(tf.keras.layers.Layer):
 
     def call(self, inputs, state):
         X = tf.one_hot(tf.transpose(inputs), self.vocab_size)
-        # Later RNN like `tf.keras.layers.LSTMCell` return more than two values
+        # rnn返回两个以上的值
         Y, *state = self.rnn(X, state)
         output = self.dense(tf.reshape(Y, (-1, Y.shape[-1])))
         return output, state

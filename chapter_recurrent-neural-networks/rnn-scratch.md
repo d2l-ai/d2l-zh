@@ -640,8 +640,6 @@ def train_epoch_ch8(net, train_iter, loss, updater, use_random_iter):
         grads = grad_clipping(grads, 1)
         updater.apply_gradients(zip(grads, params))
         # Keras默认返回一个批量中的平均损失
-        # l_sum = l * float(d2l.size(y)) if isinstance(
-        #     loss, tf.keras.losses.Loss) else tf.reduce_sum(l)
         metric.add(l * d2l.size(y), d2l.size(y))
     return math.exp(metric[0] / metric[1]), metric[1] / timer.stop()
 ```

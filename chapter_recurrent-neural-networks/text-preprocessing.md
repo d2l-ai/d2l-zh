@@ -54,7 +54,7 @@ def read_time_machine():  #@save
     return [re.sub('[^A-Za-z]+', ' ', line).strip().lower() for line in lines]
 
 lines = read_time_machine()
-print(f'# text lines: {len(lines)}')
+print(f'# 文本总行数: {len(lines)}')
 print(lines[0])
 print(lines[10])
 ```
@@ -136,11 +136,11 @@ class Vocab:  #@save
         return [self.idx_to_token[index] for index in indices]
         
     @property
-    def unk(self):  # Index for the unknown token
+    def unk(self):  # 未知词元的索引为0
         return 0
 
     @property
-    def token_freqs(self):  # Index for the unknown token
+    def token_freqs(self):
         return self._token_freqs
 
 def count_corpus(tokens):  #@save
@@ -165,8 +165,8 @@ print(list(vocab.token_to_idx.items())[:10])
 ```{.python .input}
 #@tab all
 for i in [0, 10]:
-    print('words:', tokens[i])
-    print('indices:', vocab[tokens[i]])
+    print('文本:', tokens[i])
+    print('索引:', vocab[tokens[i]])
 ```
 
 ## 整合所有功能
