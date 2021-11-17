@@ -803,8 +803,7 @@ def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
             break
         output_seq.append(pred.numpy())
     return ' '.join(tgt_vocab.to_tokens(
-        tf.reshape(output_seq, shape = -1).numpy().tolist())), 
-        attention_weight_seq
+        tf.reshape(output_seq, shape = -1).numpy().tolist())), \ attention_weight_seq
 ```
 
 ## 预测序列的评估
