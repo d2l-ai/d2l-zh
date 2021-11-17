@@ -183,7 +183,7 @@ class RNNModel(nn.Module):
                                  batch_size, self.num_hiddens), 
                                 device=device)
         else:
-            # `nn.LSTM` 以张量作为隐状态
+            # `nn.LSTM` 以元组作为隐状态
             return (torch.zeros((
                 self.num_directions * self.rnn.num_layers,
                 batch_size, self.num_hiddens), device=device),

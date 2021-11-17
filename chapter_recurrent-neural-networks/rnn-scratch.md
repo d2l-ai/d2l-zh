@@ -439,7 +439,7 @@ predict_ch8('time traveller ', 10, net, vocab)
 例如，使用$\eta > 0$作为学习率时，在一次迭代中，
 我们将$\mathbf{x}$更新为$\mathbf{x} - \eta \mathbf{g}$。
 如果我们进一步假设目标函数$f$表现良好，
-表示伴随常数$L$的*利普希茨连续*（Lipschitz continuous）。
+即函数$f$在常数$L$下是*利普希茨连续的*（Lipschitz continuous）。
 也就是说，对于任意$\mathbf{x}$和$\mathbf{y}$我们有：
 
 $$|f(\mathbf{x}) - f(\mathbf{y})| \leq L \|\mathbf{x} - \mathbf{y}\|.$$
@@ -784,7 +784,7 @@ train_ch8(net, train_iter, vocab_random_iter, lr, num_epochs, strategy,
     * 你能将困惑度降到多少？
     * 用可学习的嵌入表示替换独热编码，是否会带来更好的表现？
     * 如果用H.G.Wells的其他书作为数据集时效果如何，
-      例如[*星球大战*](http://www.gutenberg.org/ebooks/36)？
+      例如[*世界大战*](http://www.gutenberg.org/ebooks/36)？
 1. 修改预测函数，例如使用采样，而不是选择最有可能的下一个字符。
     * 会发生什么？
     * 调整模型使之偏向更可能的输出，例如，当$\alpha > 1$，从$q(x_t \mid x_{t-1}, \ldots, x_1) \propto P(x_t \mid x_{t-1}, \ldots, x_1)^\alpha$中采样。
