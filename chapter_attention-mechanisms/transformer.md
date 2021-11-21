@@ -7,7 +7,7 @@
 
 Transformer作为编码器－解码器架构的一个实例，其整体架构图在 :numref:`fig_transformer`中展示。正如所见到的，transformer是由编码器和解码器组成的。与 :numref:`fig_s2s_attention_details`中基于Bahdanau注意力实现的序列到序列的学习相比，transformer的编码器和解码器是基于自注意力的模块叠加而成的，源（输入）序列和目标（输出）序列的*嵌入*（embedding）表示将加上*位置编码*（positional encoding），再分别输入到编码器和解码器中。
 
-![transformer 架构](../img/transformer.svg)
+![transformer架构](../img/transformer.svg)
 :width:`500px`
 :label:`fig_transformer`
 
@@ -45,7 +45,7 @@ import tensorflow as tf
 
 ## [**基于位置的前馈网络**]
 
-基于位置的前馈网络对序列中的所有位置的表示进行变换时使用的是同一个多层感知机（MLP），这就是称前馈网络是*基于位置的*（positionwise）的原因。在下面的实现中，输入`X`的形状（批量大小、时间步数或序列长度、隐单元数或特征维度）将被一个两层的感知机转换成形状为（批量大小、时间步数、`ffn_num_outputs`）的输出张量。
+基于位置的前馈网络对序列中的所有位置的表示进行变换时使用的是同一个多层感知机（MLP），这就是称前馈网络是*基于位置的*（positionwise）的原因。在下面的实现中，输入`X`的形状（批量大小，时间步数或序列长度，隐单元数或特征维度）将被一个两层的感知机转换成形状为（批量大小，时间步数，`ffn_num_outputs`）的输出张量。
 
 ```{.python .input}
 #@save
@@ -115,7 +115,7 @@ ffn(tf.ones((2, 3, 4)))[0]
 
 ## 残差连接和层规范化
 
-现在让我们关注 :numref:`fig_transformer`中的“**加法和规范化**（add&norm）”组件。正如在本节开头所述，这是由残差连接和紧随其后的层规范化组成的。两者都是构建有效的深度架构的关键。
+现在让我们关注 :numref:`fig_transformer`中的“*加法和规范化*（add&norm）”组件。正如在本节开头所述，这是由残差连接和紧随其后的层规范化组成的。两者都是构建有效的深度架构的关键。
 
 在 :numref:`sec_batch_norm`中，我们解释了在一个小批量的样本内基于批量规范化对数据进行重新中心化和重新缩放的调整。层规范化和批量规范化的目标相同，但层规范化是基于特征维度进规范化。尽管批量规范化在计算机视觉中被广泛应用，但在自然语言处理任务中（输入通常是变长序列）批量规范化通常不如层规范化的效果好。
 
@@ -129,7 +129,7 @@ bn.initialize()
 X = d2l.tensor([[1, 2], [2, 3]])
 # 在训练模式下计算 `X` 的均值和方差
 with autograd.record():
-    print('layer norm:', ln(X), '\nbatch norm:', bn(X))
+    print('层规范化：', ln(X), '\n批量规范化：', bn(X))
 ```
 
 ```{.python .input}
@@ -154,7 +154,7 @@ print('layer norm:', ln(X), '\nbatch norm:', bn(X, training=True))
 ```{.python .input}
 #@save
 class AddNorm(nn.Block):
-    """残差连接后进行层规范化。"""
+    """残差连接后进行层规范化"""
     def __init__(self, dropout, **kwargs):
         super(AddNorm, self).__init__(**kwargs)
         self.dropout = nn.Dropout(dropout)
@@ -168,7 +168,7 @@ class AddNorm(nn.Block):
 #@tab pytorch
 #@save
 class AddNorm(nn.Module):
-    """残差连接后进行层规范化。"""
+    """残差连接后进行层规范化"""
     def __init__(self, normalized_shape, dropout, **kwargs):
         super(AddNorm, self).__init__(**kwargs)
         self.dropout = nn.Dropout(dropout)
@@ -182,7 +182,7 @@ class AddNorm(nn.Module):
 #@tab tensorflow
 #@save
 class AddNorm(tf.keras.layers.Layer):
-    """残差连接后进行层规范化。"""
+    """残差连接后进行层规范化"""
     def __init__(self, normalized_shape, dropout, **kwargs):
         super().__init__(**kwargs)
         self.dropout = tf.keras.layers.Dropout(dropout)
@@ -202,14 +202,14 @@ add_norm(d2l.ones((2, 3, 4)), d2l.ones((2, 3, 4))).shape
 
 ```{.python .input}
 #@tab pytorch
-add_norm = AddNorm([3, 4], 0.5) # Normalized_shape是input.size()[1:]
+add_norm = AddNorm([3, 4], 0.5)
 add_norm.eval()
 add_norm(d2l.ones((2, 3, 4)), d2l.ones((2, 3, 4))).shape
 ```
 
 ```{.python .input}
 #@tab tensorflow
-add_norm = AddNorm([1, 2], 0.5) # Normalized_shape是 [i for i in range(len(input.shape))][1:]
+add_norm = AddNorm([1, 2], 0.5)
 add_norm(tf.ones((2, 3, 4)), tf.ones((2, 3, 4)), training=False).shape
 ```
 
@@ -220,7 +220,7 @@ add_norm(tf.ones((2, 3, 4)), tf.ones((2, 3, 4)), training=False).shape
 ```{.python .input}
 #@save
 class EncoderBlock(nn.Block):
-    """transformer编码器块。"""
+    """transformer编码器块"""
     def __init__(self, num_hiddens, ffn_num_hiddens, num_heads, dropout,
                  use_bias=False, **kwargs):
         super(EncoderBlock, self).__init__(**kwargs)
@@ -239,7 +239,7 @@ class EncoderBlock(nn.Block):
 #@tab pytorch
 #@save
 class EncoderBlock(nn.Module):
-    """transformer编码器块。"""
+    """transformer编码器块"""
     def __init__(self, key_size, query_size, value_size, num_hiddens,
                  norm_shape, ffn_num_input, ffn_num_hiddens, num_heads,
                  dropout, use_bias=False, **kwargs):
@@ -261,7 +261,7 @@ class EncoderBlock(nn.Module):
 #@tab tensorflow
 #@save
 class EncoderBlock(tf.keras.layers.Layer):
-    """transformer编码器块。"""
+    """transformer编码器块"""
     def __init__(self, key_size, query_size, value_size, num_hiddens,
                  norm_shape, ffn_num_hiddens, num_heads, dropout, bias=False, **kwargs):
         super().__init__(**kwargs)
@@ -398,7 +398,8 @@ class TransformerEncoder(d2l.Encoder):
         return X
 ```
 
-下面我们指定了超参数来[**创建一个两层的transformer编码器**]。Transformer编码器输出的形状是（批量大小、时间步的数目、`num_hiddens`）。
+下面我们指定了超参数来[**创建一个两层的transformer编码器**]。
+Transformer编码器输出的形状是（批量大小，时间步数目，`num_hiddens`）。
 
 ```{.python .input}
 encoder = TransformerEncoder(200, 24, 48, 8, 2, 0.5)
@@ -424,7 +425,7 @@ encoder(tf.ones((2, 100)), valid_lens, training=False).shape
 
 如 :numref:`fig_transformer`所示，[**transformer解码器也是由多个相同的层组成**]。在`DecoderBlock`类中实现的每个层包含了三个子层：解码器自注意力、“编码器-解码器”注意力和基于位置的前馈网络。这些子层也都被残差连接和紧随的层规范化围绕。
 
-正如在本节前面所述，在掩蔽多头解码器自注意力层（第一个子层）中，查询、键和值都来自上一个解码器层的输出。关于**序列到序列模型**（sequence-to-sequence model），在训练阶段，其输出序列的所有位置（时间步）的词元都是已知的；然而，在预测阶段，其输出序列的词元是逐个生成的。因此，在任何解码器时间步中，只有生成的词元才能用于解码器的自注意力计算中。为了在解码器中保留自回归的属性，其掩蔽自注意力设定了参数`dec_valid_lens`，以便任何查询都只会与解码器中所有已经生成词元的位置（即直到该查询位置为止）进行注意力计算。
+正如在本节前面所述，在掩蔽多头解码器自注意力层（第一个子层）中，查询、键和值都来自上一个解码器层的输出。关于*序列到序列模型*（sequence-to-sequence model），在训练阶段，其输出序列的所有位置（时间步）的词元都是已知的；然而，在预测阶段，其输出序列的词元是逐个生成的。因此，在任何解码器时间步中，只有生成的词元才能用于解码器的自注意力计算中。为了在解码器中保留自回归的属性，其掩蔽自注意力设定了参数`dec_valid_lens`，以便任何查询都只会与解码器中所有已经生成词元的位置（即直到该查询位置为止）进行注意力计算。
 
 ```{.python .input}
 class DecoderBlock(nn.Block):
@@ -585,6 +586,14 @@ decoder_blk.eval()
 X = d2l.ones((2, 100, 24))
 state = [encoder_blk(X, valid_lens), valid_lens, [None]]
 decoder_blk(X, state)[0].shape
+```
+
+```{.python .input}
+#@tab tensorflow
+decoder_blk = DecoderBlock(24, 24, 24, 24, [1, 2], 48, 8, 0.5, 0)
+X = tf.ones((2, 100, 24))
+state = [encoder_blk(X, valid_lens), valid_lens, [None]]
+decoder_blk(X, state, training=False)[0].shape
 ```
 
 现在我们构建了由`num_layers`个`DecoderBlock`实例组成的完整的[**transformer解码器**]。最后，通过一个全连接层计算所有`vocab_size`个可能的输出词元的预测值。解码器的自注意力权重和编码器解码器注意力权重都被存储下来，方便日后可视化的需要。
@@ -785,7 +794,7 @@ for eng, fra in zip(engs, fras):
           f'bleu {d2l.bleu(translation, fra, k=2):.3f}')
 ```
 
-当进行最后一个英语到法语的句子翻译工作时，让我们[**可视化transformer的注意力权重**]。编码器自注意力权重的形状为（编码器层数,注意力头数,`num_steps`或查询的数目,`num_steps`或“键－值”对的数目）。
+当进行最后一个英语到法语的句子翻译工作时，让我们[**可视化transformer的注意力权重**]。编码器自注意力权重的形状为（编码器层数，注意力头数，`num_steps`或查询的数目，`num_steps`或“键－值”对的数目）。
 
 ```{.python .input}
 #@tab all
@@ -821,7 +830,7 @@ dec_attention_weights_2d = [d2l.tensor(head[0]).tolist()
 dec_attention_weights_filled = d2l.tensor(
     pd.DataFrame(dec_attention_weights_2d).fillna(0.0).values)
 dec_attention_weights = d2l.reshape(dec_attention_weights_filled,
-                                    (-1, 2, num_layers, num_heads, num_steps))
+                                (-1, 2, num_layers, num_heads,  num_steps))
 dec_self_attention_weights, dec_inter_attention_weights = \
     dec_attention_weights.transpose(1, 2, 3, 0, 4)
 dec_self_attention_weights.shape, dec_inter_attention_weights.shape
@@ -835,7 +844,7 @@ dec_attention_weights_2d = [head[0].tolist()
 dec_attention_weights_filled = d2l.tensor(
     pd.DataFrame(dec_attention_weights_2d).fillna(0.0).values)
 dec_attention_weights = d2l.reshape(dec_attention_weights_filled,
-                                    (-1, 2, num_layers, num_heads, num_steps))
+                                (-1, 2, num_layers, num_heads, num_steps))
 dec_self_attention_weights, dec_inter_attention_weights = \
     dec_attention_weights.permute(1, 2, 3, 0, 4)
 dec_self_attention_weights.shape, dec_inter_attention_weights.shape
@@ -882,9 +891,9 @@ d2l.show_heatmaps(
 ## 小结
 
 * transformer是编码器－解码器架构的一个实践，尽管在实际情况中编码器或解码器可以单独使用。
-* 在transformer中，多头自注意力用于表示输入序列和输出序列，不过解码器还必须通过掩蔽机制来保留自回归属性。
-* transformer中的残差连接和层规范化是训练非常深度的模型的重要工具。
-* transformer模型中基于位置的前馈网络使用同一个多层感知机，作用是对所有的序列位置的表示进行转换。
+* 在transformer中，多头自注意力用于表示输入序列和输出序列，不过解码器必须通过掩蔽机制来保留自回归属性。
+* transformer中的残差连接和层规范化是训练非常深度模型的重要工具。
+* transformer模型中基于位置的前馈网络使用同一个多层感知机，作用是对所有序列位置的表示进行转换。
 
 ## 练习
 
