@@ -211,7 +211,8 @@ def _pad_bert_inputs(examples, max_len, vocab):
 #@save
 class _WikiTextDataset(gluon.data.Dataset):
     def __init__(self, paragraphs, max_len):
-        # 输入`paragraphs[i]`是代表段落的句子字符串列表；而输出`paragraphs[i]`是代表段落的句子列表，其中每个句子都是词元列表
+        # 输入`paragraphs[i]`是代表段落的句子字符串列表；
+        # 而输出`paragraphs[i]`是代表段落的句子列表，其中每个句子都是词元列表
         paragraphs = [d2l.tokenize(
             paragraph, token='word') for paragraph in paragraphs]
         sentences = [sentence for paragraph in paragraphs
@@ -248,7 +249,8 @@ class _WikiTextDataset(gluon.data.Dataset):
 #@save
 class _WikiTextDataset(torch.utils.data.Dataset):
     def __init__(self, paragraphs, max_len):
-        # 输入`paragraphs[i]`是代表段落的句子字符串列表；而输出`paragraphs[i]`是代表段落的句子列表，其中每个句子都是词元列表
+        # 输入`paragraphs[i]`是代表段落的句子字符串列表；
+        # 而输出`paragraphs[i]`是代表段落的句子列表，其中每个句子都是词元列表
         paragraphs = [d2l.tokenize(
             paragraph, token='word') for paragraph in paragraphs]
         sentences = [sentence for paragraph in paragraphs
@@ -285,7 +287,7 @@ class _WikiTextDataset(torch.utils.data.Dataset):
 ```{.python .input}
 #@save
 def load_data_wiki(batch_size, max_len):
-    """加载WikiText-2数据集。"""
+    """加载WikiText-2数据集"""
     num_workers = d2l.get_dataloader_workers()
     data_dir = d2l.download_extract('wikitext-2', 'wikitext-2')
     paragraphs = _read_wiki(data_dir)
@@ -299,7 +301,7 @@ def load_data_wiki(batch_size, max_len):
 #@tab pytorch
 #@save
 def load_data_wiki(batch_size, max_len):
-    """加载WikiText-2数据集。"""
+    """加载WikiText-2数据集"""
     num_workers = d2l.get_dataloader_workers()
     data_dir = d2l.download_extract('wikitext-2', 'wikitext-2')
     paragraphs = _read_wiki(data_dir)

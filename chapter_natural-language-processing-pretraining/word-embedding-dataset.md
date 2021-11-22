@@ -64,7 +64,7 @@ $$ P(w_i) = \max\left(1 - \sqrt{\frac{t}{f(w_i)}}, 0\right),$$
 #@save
 def subsample(sentences, vocab):
     """下采样高频词"""
-    # 排除未知词元 '<unk>'
+    # 排除未知词元'<unk>'
     sentences = [[token for token in line if vocab[token] != vocab.unk]
                  for line in sentences]
     counter = d2l.count_corpus(sentences)
@@ -85,8 +85,9 @@ subsampled, counter = subsample(sentences, vocab)
 
 ```{.python .input}
 #@tab all
-d2l.show_list_len_pair_hist(['origin', 'subsampled'], '# tokens per sentence',
-                            'count', sentences, subsampled);
+d2l.show_list_len_pair_hist(
+    ['origin', 'subsampled'], '# tokens per sentence',
+    'count', sentences, subsampled);
 ```
 
 对于单个词元，高频词“the”的采样率不到1/20。
@@ -167,7 +168,7 @@ f'# “中心词-上下文词对”的数量: {sum([len(contexts) for contexts i
 #@tab all
 #@save
 class RandomGenerator:
-    """根据n个采样权重在 {1, ..., n} 中随机抽取。"""
+    """根据n个采样权重在{1, ..., n}中随机抽取"""
     def __init__(self, sampling_weights):
         # Exclude 
         self.population = list(range(1, len(sampling_weights) + 1))
@@ -188,6 +189,8 @@ class RandomGenerator:
 例如，我们可以在索引1、2和3中绘制10个随机变量$X$，采样概率为$P(X=1)=2/9, P(X=2)=3/9$和$P(X=3)=4/9$，如下所示。
 
 ```{.python .input}
+#@tab all
+#@save
 generator = RandomGenerator([2, 3, 4])
 [generator.draw() for _ in range(10)]
 ```
@@ -198,7 +201,7 @@ generator = RandomGenerator([2, 3, 4])
 #@tab all
 #@save
 def get_negatives(all_contexts, vocab, counter, K):
-    """返回负采样中的噪声词。"""
+    """返回负采样中的噪声词"""
     # 索引为1、2、...（索引0是词表中排除的未知标记）
     sampling_weights = [counter[vocab.to_tokens(i)]**0.75
                         for i in range(1, len(vocab))]
@@ -231,13 +234,14 @@ all_negatives = get_negatives(all_contexts, vocab, counter, 5)
 #@tab all
 #@save
 def batchify(data):
-    """返回带有负采样的跳元模型的小批量样本。"""
+    """返回带有负采样的跳元模型的小批量样本"""
     max_len = max(len(c) + len(n) for _, c, n in data)
     centers, contexts_negatives, masks, labels = [], [], [], []
     for center, context, negative in data:
         cur_len = len(context) + len(negative)
         centers += [center]
-        contexts_negatives += [context + negative + [0] * (max_len - cur_len)]
+        contexts_negatives += \
+            [context + negative + [0] * (max_len - cur_len)]
         masks += [[1] * cur_len + [0] * (max_len - cur_len)]
         labels += [[1] * len(context) + [0] * (max_len - len(context))]
     return (d2l.reshape(d2l.tensor(centers), (-1, 1)), d2l.tensor(
@@ -264,7 +268,7 @@ for name, data in zip(names, batch):
 ```{.python .input}
 #@save
 def load_data_ptb(batch_size, max_window_size, num_noise_words):
-    """下载PTB数据集，然后将其加载到内存中。"""
+    """下载PTB数据集，然后将其加载到内存中"""
     sentences = read_ptb()
     vocab = d2l.Vocab(sentences, min_freq=10)
     subsampled, counter = subsample(sentences, vocab)
@@ -312,9 +316,9 @@ def load_data_ptb(batch_size, max_window_size, num_noise_words):
 
     dataset = PTBDataset(all_centers, all_contexts, all_negatives)
 
-    data_iter = torch.utils.data.DataLoader(dataset, batch_size, shuffle=True,
-                                      collate_fn=batchify,
-                                      num_workers=num_workers)
+    data_iter = torch.utils.data.DataLoader(
+        dataset, batch_size, shuffle=True, 
+        collate_fn=batchify, num_workers=num_workers)
     return data_iter, vocab
 ```
 
