@@ -34,10 +34,10 @@
 当通道或单元的数量不太小时，使计算性能有良好的提升。
 此外，由于可用的显存呈线性扩展，多个GPU能够处理不断变大的网络。
 
-![由于GPU显存有限，原有AlexNet设计中的模型并行。](../img/alexnet-original.svg)
+![由于GPU显存有限，原有AlexNet设计中的模型并行](../img/alexnet-original.svg)
 :label:`fig_alexnet_original`
 
-然而，我们需要大量的同步或*屏障操作*（barrier operations），因为每一层都依赖于所有其他层的结果。
+然而，我们需要大量的同步或*屏障操作*（barrier operation），因为每一层都依赖于所有其他层的结果。
 此外，需要传输的数据量也可能比跨GPU拆分层时还要大。
 因此，基于带宽的成本和复杂性，我们同样不推荐这种方法。
 
@@ -49,7 +49,7 @@
 而且，GPU的数量越多，小批量包含的数据量就越大，从而就能提高训练效率。
 但是，添加更多的GPU并不能让我们训练更大的模型。
 
-![在多个GPU上并行化。从左到右：原始问题、网络并行、分层并行、数据并行。](../img/splitting.svg)
+![在多个GPU上并行化。从左到右：原始问题、网络并行、分层并行、数据并行](../img/splitting.svg)
 :label:`fig_splitting`
 
  :numref:`fig_splitting`中比较了多个GPU上不同的并行方式。
@@ -64,7 +64,7 @@
 给定需要训练的模型，虽然每个GPU上的参数值都是相同且同步的，但是每个GPU都将独立地维护一组完整的模型参数。
 例如， :numref:`fig_data_parallel`演示了在$k=2$时基于数据并行方法训练模型。
 
-![利用两个GPU上的数据，并行计算小批量随机梯度下降。](../img/data-parallel.svg)
+![利用两个GPU上的数据，并行计算小批量随机梯度下降](../img/data-parallel.svg)
 :label:`fig_data_parallel`
 
 一般来说，$k$个GPU并行训练过程如下：
@@ -199,11 +199,11 @@ def get_params(params, device):
 ```{.python .input}
 #@tab all
 new_params = get_params(params, d2l.try_gpu(0))
-print('b1 weight:', new_params[1])
-print('b1 grad:', new_params[1].grad)
+print('b1 权重:', new_params[1])
+print('b1 梯度:', new_params[1].grad)
 ```
 
-由于还没有进行任何计算，因此偏置参数的梯度仍然为零。
+由于还没有进行任何计算，因此权重参数的梯度仍然为零。
 假设现在有一个向量分布在多个GPU上，下面的[**`allreduce`函数将所有向量相加，并将结果广播给所有GPU**]。
 请注意，我们需要将数据复制到累积结果的设备，才能使函数正常工作。
 
@@ -228,17 +228,17 @@ def allreduce(data):
 
 ```{.python .input}
 data = [np.ones((1, 2), ctx=d2l.try_gpu(i)) * (i + 1) for i in range(2)]
-print('before allreduce:\n', data[0], '\n', data[1])
+print('allreduce之前：\n', data[0], '\n', data[1])
 allreduce(data)
-print('after allreduce:\n', data[0], '\n', data[1])
+print('allreduce之后：\n', data[0], '\n', data[1])
 ```
 
 ```{.python .input}
 #@tab pytorch
 data = [torch.ones((1, 2), device=d2l.try_gpu(i)) * (i + 1) for i in range(2)]
-print('before allreduce:\n', data[0], '\n', data[1])
+print('allreduce之前：\n', data[0], '\n', data[1])
 allreduce(data)
-print('after allreduce:\n', data[0], '\n', data[1])
+print('allreduce之后：\n', data[0], '\n', data[1])
 ```
 
 ## 数据分发
@@ -251,9 +251,9 @@ print('after allreduce:\n', data[0], '\n', data[1])
 data = np.arange(20).reshape(4, 5)
 devices = [npx.gpu(0), npx.gpu(1)]
 split = gluon.utils.split_and_load(data, devices)
-print('input :', data)
-print('load into', devices)
-print('output:', split)
+print('输入：', data)
+print('设备：', devices)
+print('输出：', split)
 ```
 
 ```{.python .input}
@@ -324,7 +324,8 @@ def train_batch(X, y, device_params, devices, lr):
     # 将每个GPU的所有梯度相加，并将其广播到所有GPU
     with torch.no_grad():
         for i in range(len(device_params[0])):
-            allreduce([device_params[c][i].grad for c in range(len(devices))])
+            allreduce(
+                [device_params[c][i].grad for c in range(len(devices))])
     # 在每个GPU上分别更新模型参数
     for param in device_params:
         d2l.sgd(param, lr, X.shape[0]) # 在这里，我们使用全尺寸的小批量
@@ -339,7 +340,7 @@ def train_batch(X, y, device_params, devices, lr):
 def train(num_gpus, batch_size, lr):
     train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
     devices = [d2l.try_gpu(i) for i in range(num_gpus)]
-    # 将模型参数复制到 `num_gpus` 个GPU
+    # 将模型参数复制到num_gpus个GPU
     device_params = [get_params(params, d) for d in devices]
     num_epochs = 10
     animator = d2l.Animator('epoch', 'test acc', xlim=[1, num_epochs])
@@ -354,8 +355,8 @@ def train(num_gpus, batch_size, lr):
         # 在GPU 0 上评估模型
         animator.add(epoch + 1, (d2l.evaluate_accuracy_gpu(
             lambda x: lenet(x, device_params[0]), test_iter, devices[0]),))
-    print(f'test acc: {animator.Y[0][-1]:.2f}, {timer.avg():.1f} sec/epoch '
-          f'on {str(devices)}')
+    print(f'测试精度：{animator.Y[0][-1]:.2f}，{timer.avg():.1f}秒/轮，'
+          f'在{str(devices)}')
 ```
 
 ```{.python .input}
@@ -363,7 +364,7 @@ def train(num_gpus, batch_size, lr):
 def train(num_gpus, batch_size, lr):
     train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
     devices = [d2l.try_gpu(i) for i in range(num_gpus)]
-    # 将模型参数复制到`num_gpus`个GPU
+    # 将模型参数复制到num_gpus个GPU
     device_params = [get_params(params, d) for d in devices]
     num_epochs = 10
     animator = d2l.Animator('epoch', 'test acc', xlim=[1, num_epochs])
@@ -378,8 +379,8 @@ def train(num_gpus, batch_size, lr):
         # 在GPU 0上评估模型
         animator.add(epoch + 1, (d2l.evaluate_accuracy_gpu(
             lambda x: lenet(x, device_params[0]), test_iter, devices[0]),))
-    print(f'test acc: {animator.Y[0][-1]:.2f}, {timer.avg():.1f} sec/epoch '
-          f'on {str(devices)}')
+    print(f'测试精度：{animator.Y[0][-1]:.2f}，{timer.avg():.1f}秒/轮，'
+          f'在{str(devices)}')
 ```
 
 让我们看看[**在单个GPU上运行**]效果得有多好。
@@ -411,7 +412,7 @@ train(num_gpus=2, batch_size=256, lr=0.2)
 ## 练习
 
 1. 在$k$个GPU上进行训练时，将批量大小从$b$更改为$k \cdot b$，即按GPU的数量进行扩展。
-1. 比较不同学习率时模型的精确度。随着GPU数量的增加学习率应该如何扩展？
+1. 比较不同学习率时模型的精确度，随着GPU数量的增加学习率应该如何扩展？
 1. 实现一个更高效的`allreduce`函数用于在不同的GPU上聚合不同的参数？为什么这样的效率更高？
 1. 实现模型在多GPU下测试精度的计算。
 
