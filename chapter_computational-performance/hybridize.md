@@ -1,7 +1,9 @@
 # 编译器和解释器
 :label:`sec_hybridize`
 
-目前为止，本书主要关注的是*命令式编程*（imperative programming）。命令式编程使用诸如`print`、`+`和`if`之类的语句来更改程序的状态。考虑下面这段简单的命令式程序。
+目前为止，本书主要关注的是*命令式编程*（imperative programming）。
+命令式编程使用诸如`print`、“`+`”和`if`之类的语句来更改程序的状态。
+考虑下面这段简单的命令式程序：
 
 ```{.python .input}
 #@tab all
@@ -19,7 +21,7 @@ print(fancy_func(1, 2, 3, 4))
 
 Python是一种*解释型语言*（interpreted language）。因此，当对上面的`fancy_func`函数求值时，它按顺序执行函数体的操作。也就是说，它将通过对`e = add(a, b)`求值，并将结果存储为变量`e`，从而更改程序的状态。接下来的两个语句`f = add(c, d)`和`g = add(e, f)`也将执行类似地操作，即执行加法计算并将结果存储为变量。 :numref:`fig_compute_graph`说明了数据流。
 
-![命令式编程中的数据流。](../img/computegraph.svg)
+![命令式编程中的数据流](../img/computegraph.svg)
 :label:`fig_compute_graph`
 
 尽管命令式编程很方便，但可能效率不高。一方面原因，Python会单独执行这三个函数的调用，而没有考虑`add`函数在`fancy_func`中被重复调用。如果在一个GPU（甚至多个GPU）上执行这些命令，那么Python解释器产生的开销可能会非常大。此外，它需要保存`e`和`f`的变量值，直到`fancy_func`中的所有语句都执行完毕。这是因为程序不知道在执行语句`e = add(a, b)`和`f = add(c, d)`之后，其他部分是否会使用变量`e`和`f`。
@@ -195,7 +197,7 @@ net(x)
 #@tab all
 #@save
 class Benchmark:
-    """用于测量运行时间。"""
+    """用于测量运行时间"""
     def __init__(self, description='Done'):
         self.description = description
 
@@ -377,7 +379,7 @@ net(x)
 :end_tab:
 
 :begin_tab:`pytorch,tensorflow`
-1. 回顾前几章中你感兴趣的模型，你能通过重新实现它们来提高它们的计算性能吗？
+1. 回顾前几章中你感兴趣的模型，你能提高它们的计算性能吗？
 :end_tab:
 
 :begin_tab:`mxnet`
