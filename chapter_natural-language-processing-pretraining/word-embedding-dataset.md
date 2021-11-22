@@ -32,7 +32,7 @@ d2l.DATA_HUB['ptb'] = (d2l.DATA_URL + 'ptb.zip',
 
 #@save
 def read_ptb():
-    """将PTB数据集加载到文本行的列表中。"""
+    """将PTB数据集加载到文本行的列表中"""
     data_dir = d2l.download_extract('ptb')
     # Read the training set.
     with open(os.path.join(data_dir, 'ptb.train.txt')) as f:
@@ -63,7 +63,7 @@ $$ P(w_i) = \max\left(1 - \sqrt{\frac{t}{f(w_i)}}, 0\right),$$
 #@tab all
 #@save
 def subsample(sentences, vocab):
-    """下采样高频词。"""
+    """下采样高频词"""
     # 排除未知词元 '<unk>'
     sentences = [[token for token in line if vocab[token] != vocab.unk]
                  for line in sentences]
@@ -94,9 +94,9 @@ d2l.show_list_len_pair_hist(['origin', 'subsampled'], '# tokens per sentence',
 ```{.python .input}
 #@tab all
 def compare_counts(token):
-    return (f'# of "{token}": '
-            f'before={sum([l.count(token) for l in sentences])}, '
-            f'after={sum([l.count(token) for l in subsampled])}')
+    return (f'"{token}"的数量：'
+            f'之前={sum([l.count(token) for l in sentences])}, '
+            f'之后={sum([l.count(token) for l in subsampled])}')
 
 compare_counts('the')
 ```
@@ -146,9 +146,9 @@ def get_centers_and_contexts(corpus, max_window_size):
 ```{.python .input}
 #@tab all
 tiny_dataset = [list(range(7)), list(range(7, 10))]
-print('dataset', tiny_dataset)
+print('数据集', tiny_dataset)
 for center, context in zip(*get_centers_and_contexts(tiny_dataset, 2)):
-    print('center', center, 'has contexts', context)
+    print('中心词', center, '的上下文词是', context)
 ```
 
 在PTB数据集上进行训练时，我们将最大上下文窗口大小设置为5。下面提取数据集中的所有中心词及其上下文词。
@@ -156,7 +156,7 @@ for center, context in zip(*get_centers_and_contexts(tiny_dataset, 2)):
 ```{.python .input}
 #@tab all
 all_centers, all_contexts = get_centers_and_contexts(corpus, 5)
-f'# center-context pairs: {sum([len(contexts) for contexts in all_contexts])}'
+f'# “中心词-上下文词对”的数量: {sum([len(contexts) for contexts in all_contexts])}'
 ```
 
 ## 负采样
