@@ -3,7 +3,7 @@
 
 在本章的前面几节中，我们已经为SNLI数据集（ :numref:`sec_natural-language-inference-and-dataset`）上的自然语言推断任务设计了一个基于注意力的结构（ :numref:`sec_natural-language-inference-attention`）。现在，我们通过微调BERT来重新审视这项任务。正如在 :numref:`sec_finetuning-bert`中讨论的那样，自然语言推断是一个序列级别的文本对分类问题，而微调BERT只需要一个额外的基于多层感知机的架构，如 :numref:`fig_nlp-map-nli-bert`中所示。
 
-![本节将预训练BERT提供给基于多层感知机的自然语言推断架构。](../img/nlp-map-nli-bert.svg)
+![将预训练BERT提供给基于多层感知机的自然语言推断架构](../img/nlp-map-nli-bert.svg)
 :label:`fig_nlp-map-nli-bert`
 
 在本节中，我们将下载一个预训练好的小版本的BERT，然后对其进行微调，以便在SNLI数据集上进行自然语言推断。
@@ -56,11 +56,12 @@ def load_pretrained_model(pretrained_model, num_hiddens, ffn_num_hiddens,
     data_dir = d2l.download_extract(pretrained_model)
     # 定义空词表以加载预定义词表
     vocab = d2l.Vocab()
-    vocab.idx_to_token = json.load(open(os.path.join(data_dir, 'vocab.json')))
+    vocab.idx_to_token = json.load(open(os.path.join(data_dir,
+         'vocab.json')))
     vocab.token_to_idx = {token: idx for idx, token in enumerate(
         vocab.idx_to_token)}
-    bert = d2l.BERTModel(len(vocab), num_hiddens, ffn_num_hiddens, num_heads, 
-                         num_layers, dropout, max_len)
+    bert = d2l.BERTModel(len(vocab), num_hiddens, ffn_num_hiddens, 
+                         num_heads, num_layers, dropout, max_len)
     # 加载预训练BERT参数
     bert.load_parameters(os.path.join(data_dir, 'pretrained.params'),
                          ctx=devices)
@@ -74,7 +75,8 @@ def load_pretrained_model(pretrained_model, num_hiddens, ffn_num_hiddens,
     data_dir = d2l.download_extract(pretrained_model)
     # 定义空词表以加载预定义词表
     vocab = d2l.Vocab()
-    vocab.idx_to_token = json.load(open(os.path.join(data_dir, 'vocab.json')))
+    vocab.idx_to_token = json.load(open(os.path.join(data_dir, 
+        'vocab.json')))
     vocab.token_to_idx = {token: idx for idx, token in enumerate(
         vocab.idx_to_token)}
     bert = d2l.BERTModel(len(vocab), num_hiddens, norm_shape=[256],
@@ -288,8 +290,8 @@ net = BERTClassifier(bert)
 lr, num_epochs = 1e-4, 5
 trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': lr})
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
-d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices,
-               d2l.split_batch_multi_inputs)
+d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, 
+    devices, d2l.split_batch_multi_inputs)
 ```
 
 ```{.python .input}
@@ -297,7 +299,8 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices,
 lr, num_epochs = 1e-4, 5
 trainer = torch.optim.Adam(net.parameters(), lr=lr)
 loss = nn.CrossEntropyLoss(reduction='none')
-d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
+d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, 
+    devices)
 ```
 
 ## 小结
