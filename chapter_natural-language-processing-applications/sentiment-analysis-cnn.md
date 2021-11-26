@@ -131,8 +131,8 @@ class TextCNN(nn.Block):
             self.embedding(inputs), self.constant_embedding(inputs)), axis=2)
         # 根据一维卷积层的输入格式，重新排列张量，以便通道作为第2维
         embeddings = embeddings.transpose(0, 2, 1)
-        # 对于每个一维卷积层，在最大时间汇聚层合并后，
-        获得的张量形状是（批量大小，通道数，1）。删除最后一个维度并沿通道维度连结
+        # 每个一维卷积层在最大时间汇聚层合并后，获得的张量形状是（批量大小，通道数，1）
+        # 删除最后一个维度并沿通道维度连结
         encoding = np.concatenate([
             np.squeeze(self.pool(conv(embeddings)), axis=-1)
             for conv in self.convs], axis=1)
@@ -161,13 +161,13 @@ class TextCNN(nn.Module):
 
     def forward(self, inputs):
         # 沿着向量维度将两个嵌入层连结起来，
-        每个嵌入层的输出形状都是（批量大小，词元数量，词元向量维度）连结起来
+        # 每个嵌入层的输出形状都是（批量大小，词元数量，词元向量维度）连结起来
         embeddings = torch.cat((
             self.embedding(inputs), self.constant_embedding(inputs)), dim=2)
         # 根据一维卷积层的输入格式，重新排列张量，以便通道作为第2维
         embeddings = embeddings.permute(0, 2, 1)
-        # 对于每个一维卷积层，在最大时间汇聚层合并后，
-        获得的张量形状是（批量大小，通道数，1）。删除最后一个维度并沿通道维度连结
+        # 每个一维卷积层在最大时间汇聚层合并后，获得的张量形状是（批量大小，通道数，1）
+        # 删除最后一个维度并沿通道维度连结
         encoding = torch.cat([
             torch.squeeze(self.relu(self.pool(conv(embeddings))), dim=-1)
             for conv in self.convs], dim=1)
