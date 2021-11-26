@@ -1,21 +1,46 @@
 # Bahdanau 注意力
 :label:`sec_seq2seq_attention`
 
-我们在 :numref:`sec_seq2seq`中探讨了机器翻译问题，在那里我们设计了一个基于两个循环神经网络的编码器-解码器架构，用于序列到序列学习。具体来说，循环神经网络编码器将可变长度序列转换为固定形状的上下文变量，然后循环神经网络解码器根据生成的词元和上下文变量按词元生成输出（目标）序列词元。但是，即使并非所有输入（源）词元都对解码某个词元都有用，但在每个解码步骤中仍使用编码整个输入序列的*相同*上下文变量。
+我们在 :numref:`sec_seq2seq`中探讨了机器翻译问题：
+通过设计一个基于两个循环神经网络的编码器-解码器架构，
+用于序列到序列学习。
+具体来说，循环神经网络编码器将长度可变的序列转换为固定形状的上下文变量，
+然后循环神经网络解码器根据生成的词元和上下文变量
+按词元生成输出（目标）序列词元。
+然而，即使并非所有输入（源）词元都对解码某个词元都有用，
+在每个解码步骤中仍使用编码*相同*的上下文变量。
+有什么方法能改变上下文变量呢？
 
-在为给定文本序列生成手写的挑战中，格雷夫斯设计了一种可微注意力模型，将文本字符与更长的笔迹对齐，其中对齐方式仅向一个方向移动 :cite:`Graves.2013`。受学习对齐想法的启发，Bahdanau等人提出了一个没有严格的单向对齐限制 :cite:`Bahdanau.Cho.Bengio.2014`的可微注意力模型。在预测词元时，如果不是所有输入词元都相关，模型将仅对齐（或参与）输入序列中与当前预测相关的部分。这是通过将上下文变量视为注意力集中的输出来实现的。
+我们试着从 :cite:`Graves.2013`中找到灵感：
+在为给定文本序列生成手写的挑战中，
+Graves设计了一种可微注意力模型，
+将文本字符与更长的笔迹对齐，
+其中对齐方式仅向一个方向移动。
+受学习对齐想法的启发，Bahdanau等人提出了一个没有严格单向对齐限制的
+可微注意力模型 :cite:`Bahdanau.Cho.Bengio.2014`。
+在预测词元时，如果不是所有输入词元都相关，模型将仅对齐（或参与）输入序列中与当前预测相关的部分。这是通过将上下文变量视为注意力集中的输出来实现的。
 
 ## 模型
 
-在下面描述Bahdanau注意力对循环神经网络编码器的关注时，我们将遵循 :numref:`sec_seq2seq`中的相同符号表达。新的基于注意力的模型与 :numref:`sec_seq2seq`中的模型相同，只不过 :eqref:`eq_seq2seq_s_t`中的上下文变量$\mathbf{c}$在任何解码时间步$t'$都会被$\mathbf{c}_{t'}$替换。假设输入序列中有$T$个词元，解码时间步$t'$的上下文变量是注意力集中的输出：
+下面描述的Bahdanau注意力模型
+将遵循 :numref:`sec_seq2seq`中的相同符号表达。
+这个新的基于注意力的模型与 :numref:`sec_seq2seq`中的模型相同，
+只不过 :eqref:`eq_seq2seq_s_t`中的上下文变量$\mathbf{c}$
+在任何解码时间步$t'$都会被$\mathbf{c}_{t'}$替换。
+假设输入序列中有$T$个词元，
+解码时间步$t'$的上下文变量是注意力集中的输出：
 
 $$\mathbf{c}_{t'} = \sum_{t=1}^T \alpha(\mathbf{s}_{t' - 1}, \mathbf{h}_t) \mathbf{h}_t,$$
 
-其中，时间步$t' - 1$时的解码器隐状态$\mathbf{s}_{t' - 1}$是查询，编码器隐状态$\mathbf{h}_t$既是键，也是值，注意力权重$\alpha$是使用 :eqref:`eq_attn-scoring-alpha`所定义的加性注意力打分函数计算的。
+其中，时间步$t' - 1$时的解码器隐状态$\mathbf{s}_{t' - 1}$是查询，
+编码器隐状态$\mathbf{h}_t$既是键，也是值，
+注意力权重$\alpha$是使用 :eqref:`eq_attn-scoring-alpha`
+所定义的加性注意力打分函数计算的。
 
-与 :numref:`fig_seq2seq_details`中的循环神经网络编码器-解码器架构略有不同， :numref:`fig_s2s_attention_details`描述了Bahdanau注意力的架构。
+与 :numref:`fig_seq2seq_details`中的循环神经网络编码器-解码器架构略有不同，
+ :numref:`fig_s2s_attention_details`描述了Bahdanau注意力的架构。
 
-![在一个带有Bahdanau注意力的循环神经网络编码器-解码器模型中的层。](../img/seq2seq-attention-details.svg)
+![一个带有Bahdanau注意力的循环神经网络编码器-解码器模型](../img/seq2seq-attention-details.svg)
 :label:`fig_s2s_attention_details`
 
 ```{.python .input}
@@ -40,13 +65,16 @@ import tensorflow as tf
 
 ## 定义注意力解码器
 
-要用Bahdanau注意力实现循环神经网络编码器-解码器，我们只需重新定义解码器即可。为了更方便地显示学习的注意力权重，以下`AttentionDecoder`类定义了[**带有注意力机制的解码器基本接口**]。
+下面我们看看如何定义Bahdanau注意力，实现循环神经网络编码器-解码器？
+其实，我们只需重新定义解码器即可。
+为了更方便地显示学习的注意力权重，
+以下`AttentionDecoder`类定义了[**带有注意力机制解码器的基本接口**]。
 
 ```{.python .input}
 #@tab all
 #@save
 class AttentionDecoder(d2l.Decoder):
-    """带有注意力机制的解码器基本接口"""
+    """带有注意力机制解码器的基本接口"""
     def __init__(self, **kwargs):
         super(AttentionDecoder, self).__init__(**kwargs)
 
@@ -55,7 +83,16 @@ class AttentionDecoder(d2l.Decoder):
         raise NotImplementedError
 ```
 
-接下来，让我们在接下来的`Seq2SeqAttentionDecoder`类中[**实现带有Bahdanau注意力的循环神经网络解码器**]。初始化解码器的状态（1）编码器在所有时间步的最终层隐状态（作为注意力的键和值）；（2）最后一个时间步的编码器全层隐状态（初始化解码器的隐状态）；（3）编码器有效长度（排除在注意力池中填充词元）。在每个解码时间步骤中，解码器上一个时间步的最终层隐状态将用作关注的查询。因此，注意力输出和输入嵌入都连结为循环神经网络解码器的输入。
+接下来，让我们在接下来的`Seq2SeqAttentionDecoder`类中
+[**实现带有Bahdanau注意力的循环神经网络解码器**]。
+首先，我们初始化解码器的状态，需要下面的输入：
+
+1. 编码器在所有时间步的最终层隐状态，将作为注意力的键和值；
+1. 上一时间步的编码器全层隐状态，将作为初始化解码器的隐状态；
+1. 编码器有效长度（排除在注意力池中填充词元）。
+
+在每个解码时间步骤中，解码器上一个时间步的最终层隐状态将用作查询。
+因此，注意力输出和输入嵌入都连结为循环神经网络解码器的输入。
 
 ```{.python .input}
 class Seq2SeqAttentionDecoder(AttentionDecoder):
@@ -68,9 +105,8 @@ class Seq2SeqAttentionDecoder(AttentionDecoder):
         self.dense = nn.Dense(vocab_size, flatten=False)
 
     def init_state(self, enc_outputs, enc_valid_lens, *args):
-        # `outputs`的形状为 (`num_steps`, `batch_size`, `num_hiddens`).
-        # `hidden_state[0]`的形状为 (`num_layers`, `batch_size`,
-        # `num_hiddens`)
+        # `outputs`的形状为 (`num_steps`，`batch_size`，`num_hiddens`)
+        # `hidden_state[0]`的形状为 (`num_layers`，`batch_size`，`num_hiddens`)
         outputs, hidden_state = enc_outputs
         return (outputs.swapaxes(0, 1), hidden_state, enc_valid_lens)
 
@@ -120,9 +156,8 @@ class Seq2SeqAttentionDecoder(AttentionDecoder):
         self.dense = nn.Linear(num_hiddens, vocab_size)
 
     def init_state(self, enc_outputs, enc_valid_lens, *args):
-        # `enc_outputs`的形状为 (`batch_size`, `num_steps`, `num_hiddens`).
-        # `hidden_state`的形状为 (`num_layers`, `batch_size`,
-        # `num_hiddens`)
+        # `enc_outputs`的形状为 (`batch_size`，`num_steps`，`num_hiddens`).
+        # `hidden_state`的形状为 (`num_layers`，`batch_size`，`num_hiddens`)
         outputs, hidden_state = enc_outputs
         return (outputs.permute(1, 0, 2), hidden_state, enc_valid_lens)
 
@@ -169,13 +204,14 @@ class Seq2SeqAttentionDecoder(AttentionDecoder):
         self.rnn = tf.keras.layers.RNN(tf.keras.layers.StackedRNNCells(
             [tf.keras.layers.GRUCell(num_hiddens, dropout=dropout)
              for _ in range(num_layers)]),
-                                      return_sequences=True, return_state=True)
+                                      return_sequences=True, 
+                                      return_state=True)
         self.dense = tf.keras.layers.Dense(vocab_size)
 
     def init_state(self, enc_outputs, enc_valid_lens, *args):
-        # `outputs`的形状为 (`num_steps`, `batch_size`, `num_hiddens`).
-        # `hidden_state[0]`的形状为 (`num_layers`, `batch_size`,
-        # `num_hiddens`)
+       # `outputs`的形状为 (`num_steps`，`batch_size`，`num_hiddens`)
+        # `hidden_state[0]`的形状为 (`num_layers`，`batch_size`，`num_hiddens`)
+
         outputs, hidden_state = enc_outputs
         return (outputs, hidden_state, enc_valid_lens)
 
@@ -253,7 +289,11 @@ output.shape, len(state), state[0].shape, len(state[1]), state[1][0].shape
 
 ## [**训练**]
 
-与 :numref:`sec_seq2seq_training`类似，我们在这里指定超参数，实例化一个带有Bahdanau注意力的编码器和解码器，并对这个模型进行机器翻译训练。由于新增的注意力机制，这项训练要比没有注意力机制的 :numref:`sec_seq2seq_training`慢得多。
+与 :numref:`sec_seq2seq_training`类似，
+我们在这里指定超参数，实例化一个带有Bahdanau注意力的编码器和解码器，
+并对这个模型进行机器翻译训练。
+由于新增的注意力机制，训练要比没有注意力机制的
+ :numref:`sec_seq2seq_training`慢得多。
 
 ```{.python .input}
 #@tab all
@@ -301,7 +341,9 @@ attention_weights = d2l.reshape(
     (1, 1, -1, num_steps))
 ```
 
-训练结束后通过[**可视化注意力权重**]，我们可以看到，每个查询都会在键值对上分配不同的权重。它显示，在每个解码步中，输入序列的不同部分被选择性地聚集在注意力池中。
+训练结束后，下面我们通过[**可视化注意力权重**]
+你会发现，每个查询都会在键值对上分配不同的权重，这说明
+在每个解码步中，输入序列的不同部分被选择性地聚集在注意力池中。
 
 ```{.python .input}
 # 加上一个包含序列结束词元
@@ -328,12 +370,12 @@ d2l.show_heatmaps(attention_weights[:, :, :, :len(engs[-1].split()) + 1],
 ## 小结
 
 * 在预测词元时，如果不是所有输入词元都是相关的，那么具有Bahdanau注意力的循环神经网络编码器-解码器会有选择地统计输入序列的不同部分。这是通过将上下文变量视为加性注意力池化的输出来实现的。
-* 在循环神经网络编码器-解码器中，Bahdanau注意力将上一个时间步的解码器隐状态视为查询，在所有时间步的编码器隐状态同时视为键和值。
+* 在循环神经网络编码器-解码器中，Bahdanau注意力将上一时间步的解码器隐状态视为查询，在所有时间步的编码器隐状态同时视为键和值。
 
 ## 练习
 
 1. 在实验中用LSTM替换GRU。
-1. 修改实验以将加性注意力打分函数替换为缩放点积注意力。它如何影响训练效率？
+1. 修改实验以将加性注意力打分函数替换为缩放点积注意力，它如何影响训练效率？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/347)
