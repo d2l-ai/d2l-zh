@@ -126,7 +126,7 @@ class TextCNN(nn.Block):
 
     def forward(self, inputs):
         # 沿着向量维度将两个嵌入层连结起来，
-        每个嵌入层的输出形状都是（批量大小，词元数量，词元向量维度）连结起来
+        # 每个嵌入层的输出形状都是（批量大小，词元数量，词元向量维度）连结起来
         embeddings = np.concatenate((
             self.embedding(inputs), self.constant_embedding(inputs)), axis=2)
         # 根据一维卷积层的输入格式，重新排列张量，以便通道作为第2维
