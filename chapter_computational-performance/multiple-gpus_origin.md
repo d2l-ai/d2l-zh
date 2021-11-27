@@ -218,7 +218,7 @@ def allreduce(data):
     for i in range(1, len(data)):
         data[0][:] += data[i].to(data[0].device)
     for i in range(1, len(data)):
-        data[i] = data[0].to(data[i].device)
+        data[i][:] = data[0].to(data[i].device)
 ```
 
 Let us test this by creating vectors with different values on different devices and aggregate them.
