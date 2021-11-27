@@ -275,7 +275,7 @@ def evaluate_loss(data_iter, net, devices):
         l = loss(outputs, labels)
         l_sum += l.sum()
         n += labels.numel()
-    return l_sum / n
+    return (l_sum / n).to('cpu')
 ```
 
 ## 定义[**训练函数**]
