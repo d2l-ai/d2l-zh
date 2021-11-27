@@ -156,7 +156,7 @@ class Seq2SeqAttentionDecoder(AttentionDecoder):
         self.dense = nn.Linear(num_hiddens, vocab_size)
 
     def init_state(self, enc_outputs, enc_valid_lens, *args):
-        # `enc_outputs`的形状为 (`batch_size`，`num_steps`，`num_hiddens`).
+        # `outputs`的形状为 (`batch_size`，`num_steps`，`num_hiddens`).
         # `hidden_state`的形状为 (`num_layers`，`batch_size`，`num_hiddens`)
         outputs, hidden_state = enc_outputs
         return (outputs.permute(1, 0, 2), hidden_state, enc_valid_lens)
