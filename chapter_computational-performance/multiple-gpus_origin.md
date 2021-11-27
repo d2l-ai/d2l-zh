@@ -93,7 +93,6 @@ npx.set_np()
 #@tab pytorch
 %matplotlib inline
 from d2l import torch as d2l
-import copy
 import torch
 from torch import nn
 from torch.nn import functional as F
@@ -216,11 +215,10 @@ def allreduce(data):
 ```{.python .input}
 #@tab pytorch
 def allreduce(data):
-    temp_data = copy.deepcopy(data)
-    for i in range(len(data)):
-        for j in range(len(data)):
-            if i!=j:
-                data[i][:] += temp_data[j].to(data[i].device)
+    for i in range(1, len(data)):
+        data[0][:] += data[i].to(data[0].device)
+    for i in range(1, len(data)):
+        data[i][:] = data[0].to(data[i].device)
 ```
 
 Let us test this by creating vectors with different values on different devices and aggregate them.
