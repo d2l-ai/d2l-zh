@@ -65,7 +65,7 @@ SageMaker提供多个具有不同计算能力和价格的[实例类型](https://
 :end_tab:
 
 :begin_tab:`pytorch`
-这本开源书的notebook将定期在GitHub上的[d2l-ai/d2l-pytorch-sagemaker](https://github.com/d2l-ai/d2l-pytorch-sagemaker)存储库中更新。要更新至最新版本，您可以在SageMaker实例（:numref:`fig_sagemaker-terminal`）上打开终端。
+这本开源书的notebook将定期在GitHub上的[d2l-ai/d2l-pytorch-sagemaker](https://github.com/d2l-ai/d2l-pytorch-sagemaker)存储库中更新。要更新至最新版本，你可以在SageMaker实例（ :numref:`fig_sagemaker-terminal`）上打开终端。
 :end_tab:
 
 :begin_tab:`tensorflow`
@@ -104,7 +104,7 @@ git pull
 
 ## 小结
 
-* 我们可以使用Amazon SageMaker创建一个notebook实例来运行本书的GPU密集型代码。
+* 我们可以使用Amazon SageMaker创建一个GPU的notebook实例来运行本书的密集型代码。
 * 我们可以通过Amazon SageMaker实例上的终端更新notebooks。
 
 ## 练习
