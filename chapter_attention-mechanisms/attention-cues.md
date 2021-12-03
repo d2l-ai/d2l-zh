@@ -179,3 +179,5 @@ show_heatmaps(attention_weights, xlabel='Keys', ylabel='Queries')
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1710)
 :end_tab:
+
+
