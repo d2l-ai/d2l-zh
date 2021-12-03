@@ -14,7 +14,6 @@ stage("Build and Publish") {
       def ENV_NAME = "${TASK}-${EXECUTOR_NUMBER}";
 
       sh label: "Build Environment", script: """set -ex
-      conda env create -n ${ENV_NAME} -f static/build.yml
       conda env update -n ${ENV_NAME} -f static/build.yml
       conda activate ${ENV_NAME}
       pip uninstall -y d2l
