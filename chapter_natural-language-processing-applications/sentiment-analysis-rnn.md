@@ -149,7 +149,8 @@ net.embedding.weight.requires_grad = False
 lr, num_epochs = 0.01, 5
 trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': lr})
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
-d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
+d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, 
+    devices)
 ```
 
 ```{.python .input}
@@ -157,7 +158,8 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
 lr, num_epochs = 0.01, 5
 trainer = torch.optim.Adam(net.parameters(), lr=lr)
 loss = nn.CrossEntropyLoss(reduction="none")
-d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
+d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
+    devices)
 ```
 
 我们定义以下函数来使用训练好的模型`net`预测文本序列的情感。
