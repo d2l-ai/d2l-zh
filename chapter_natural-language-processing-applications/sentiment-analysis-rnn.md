@@ -3,7 +3,7 @@
 
 与词相似度和类比任务一样，我们也可以将预先训练的词向量应用于情感分析。由于 :numref:`sec_sentiment`中的IMDb评论数据集不是很大，使用在大规模语料库上预训练的文本表示可以减少模型的过拟合。作为 :numref:`fig_nlp-map-sa-rnn`中所示的具体示例，我们将使用预训练的GloVe模型来表示每个词元，并将这些词元表示送入多层双向循环神经网络以获得文本序列表示，该文本序列表示将被转换为情感分析输出 :cite:`Maas.Daly.Pham.ea.2011`。对于相同的下游应用，我们稍后将考虑不同的架构选择。
 
-![本节将预训练GloVe送入基于循环神经网络的架构，用于情感分析。](../img/nlp-map-sa-rnn.svg)
+![将GloVe送入基于循环神经网络的架构，用于情感分析](../img/nlp-map-sa-rnn.svg)
 :label:`fig_nlp-map-sa-rnn`
 
 ```{.python .input}
@@ -42,12 +42,16 @@ class BiRNN(nn.Block):
         self.decoder = nn.Dense(2)
 
     def forward(self, inputs):
-        # `inputs`的形状是(批量大小, 时间步数)。因为长短期记忆网络要求其输入的第一个维度是时间维
-        # 所以在获得词元表示之前，输入会被转置。输出形状为(时间步数, 批量大小, 词向量维度)
+        # `inputs`的形状是（批量大小,，时间步数）
+        # 因为长短期记忆网络要求其输入的第一个维度是时间维，
+        # 所以在获得词元表示之前，输入会被转置。
+        # 输出形状为（时间步数，批量大小，词向量维度）
         embeddings = self.embedding(inputs.T)
-        # 返回上一个隐藏层在不同时间步的隐状态。`outputs`的形状是（时间步数、批量大小、2*隐藏单元数）
+        # 返回上一个隐藏层在不同时间步的隐状态，
+        # `outputs`的形状是（时间步数，批量大小，2*隐藏单元数）
         outputs = self.encoder(embeddings)
-        # 连结初始和最终时间步的隐状态，作为全连接层的输入。其形状为(批量大小, 4*隐藏单元数)
+        # 连结初始和最终时间步的隐状态，作为全连接层的输入，
+        # 其形状为（批量大小，4*隐藏单元数）
         encoding = np.concatenate((outputs[0], outputs[-1]), axis=1)
         outs = self.decoder(encoding)
         return outs
@@ -66,13 +70,17 @@ class BiRNN(nn.Module):
         self.decoder = nn.Linear(4 * num_hiddens, 2)
 
     def forward(self, inputs):
-        # `inputs`的形状是(批量大小, 时间步数)。因为长短期记忆网络要求其输入的第一个维度是时间维
-        # 所以在获得词元表示之前，输入会被转置。输出形状为(时间步数, 批量大小, 词向量维度)
+        # `inputs`的形状是（批量大小,，时间步数）
+        # 因为长短期记忆网络要求其输入的第一个维度是时间维，
+        # 所以在获得词元表示之前，输入会被转置。
+        # 输出形状为（时间步数，批量大小，词向量维度）
         embeddings = self.embedding(inputs.T)
         self.encoder.flatten_parameters()
-        # 返回上一个隐藏层在不同时间步的隐状态。`outputs`的形状是（时间步数、批量大小、2*隐藏单元数）
+        # 返回上一个隐藏层在不同时间步的隐状态，
+        # `outputs`的形状是（时间步数，批量大小，2*隐藏单元数）
         outputs, _ = self.encoder(embeddings)
-        # 连结初始和最终时间步的隐状态，作为全连接层的输入。其形状为 (批量大小, 4*隐藏单元数)
+        # 连结初始和最终时间步的隐状态，作为全连接层的输入，
+        # 其形状为（批量大小，4*隐藏单元数）
         encoding = torch.cat((outputs[0], outputs[-1]), dim=1)
         outs = self.decoder(encoding)
         return outs
@@ -140,7 +148,8 @@ net.embedding.weight.requires_grad = False
 lr, num_epochs = 0.01, 5
 trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': lr})
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
-d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
+d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, 
+               devices)
 ```
 
 ```{.python .input}
@@ -148,7 +157,8 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
 lr, num_epochs = 0.01, 5
 trainer = torch.optim.Adam(net.parameters(), lr=lr)
 loss = nn.CrossEntropyLoss(reduction="none")
-d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
+d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, 
+               devices)
 ```
 
 我们定义以下函数来使用训练好的模型`net`预测文本序列的情感。
@@ -156,7 +166,7 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
 ```{.python .input}
 #@save
 def predict_sentiment(net, vocab, sequence):
-    """预测文本序列的情感。"""
+    """预测文本序列的情感"""
     sequence = np.array(vocab[sequence.split()], ctx=d2l.try_gpu())
     label = np.argmax(net(sequence.reshape(1, -1)), axis=1)
     return 'positive' if label == 1 else 'negative'
@@ -166,7 +176,7 @@ def predict_sentiment(net, vocab, sequence):
 #@tab pytorch
 #@save
 def predict_sentiment(net, vocab, sequence):
-    """预测文本序列的情感。"""
+    """预测文本序列的情感"""
     sequence = torch.tensor(vocab[sequence.split()], device=d2l.try_gpu())
     label = torch.argmax(net(sequence.reshape(1, -1)), dim=1)
     return 'positive' if label == 1 else 'negative'
