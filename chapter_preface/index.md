@@ -165,7 +165,7 @@ steinsag, charleybeller, Andrew Lumsdaine, Jiekui Zhang, Deepak Pathak, Florian 
 Adriaan Tijsseling, Ron Medina, Gaurav Saha, Murat Semerci, [Lei Mao](https://github.com/leimao), [Zhu Yuanxiang](https://zhuyuanxiang.github.io),
 [thebesttv](https://github.com/thebesttv/), Quanshangze Du，Yanbo Chen。
 
-我们感谢Amazon Web Services，特别是Swami Sivasubramanian、Raju Gulabani、Charlie Bell和Andrew Jassy对撰写本书的慷慨支持。如果没有可用的时间、资源、与同事的讨论和不断的鼓励，这本书就不会出版。
+我们感谢Amazon Web Services，特别是Swami Sivasubramanian、Peter DeSantis、Adam Selipsky和Andrew Jassy对撰写本书的慷慨支持。如果没有可用的时间、资源、与同事的讨论和不断的鼓励，这本书就不会出版。
 
 ## 小结
 
