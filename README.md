@@ -1,8 +1,8 @@
 # 动手学深度学习（Dive into Deep Learning，D2L.ai）
 
-[![Build Status](http://ci.d2l.ai/job/d2l-zh/job/v1/badge/icon)](http://ci.d2l.ai/job/d2l-zh/job/master/)
+[![Build Status](http://ci.d2l.ai/job/d2l-zh/job/v1/badge/icon)](http://ci.d2l.ai/job/d2l-zh/job/v1/)
 
-[本书网址：zh.d2l.ai](https://zh.d2l.ai/) |  [如何安装和使用书中源代码](https://zh.d2l.ai/chapter_prerequisite/install.html)
+[本书第一版网址：zh-v1.d2l.ai](https://zh-v1.d2l.ai/) |  [如何安装和使用书中源代码](https://zh-v1.d2l.ai/chapter_prerequisite/install.html)
 
 <h5 align="center"><i>理解深度学习的最佳方法是学以致用。</i></h5>
 
@@ -82,4 +82,4 @@
 
 感谢[社区贡献者们](https://github.com/d2l-ai/d2l-zh/graphs/contributors)为每一位读者改进这本开源书。
 
-[如何贡献](https://zh.d2l.ai/chapter_appendix/how-to-contribute.html) | [致谢](https://zh.d2l.ai/chapter_preface/preface.html#致谢) | [讨论或报告问题](https://discuss.gluon.ai) | [其他](INFO.md)
+[如何贡献](https://zh-v1.d2l.ai/chapter_appendix/how-to-contribute.html) | [致谢](https://zh-v1.d2l.ai/chapter_preface/preface.html#致谢) | [讨论或报告问题](https://discuss.gluon.ai) | [其他](INFO.md)
