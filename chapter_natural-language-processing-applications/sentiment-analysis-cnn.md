@@ -1,11 +1,11 @@
-# 情绪分析：使用卷积神经网络 
+# 情感分析：使用卷积神经网络
 :label:`sec_sentiment_cnn`
 
-在 :numref:`chap_cnn` 中，我们研究了使用二维 CNN 处理二维图像数据的机制，这些机制应用于相邻像素等局部特征。尽管 CNN 最初是为计算机视觉设计的，但也被广泛用于自然语言处理。简而言之，只需将任何文本序列视为一维图像即可。通过这种方式，一维 CNN 可以处理文本中的本地要素，例如 $n$ 克。 
+在 :numref:`chap_cnn`中，我们探讨了使用二维卷积神经网络处理二维图像数据的机制，并将其应用于局部特征，如相邻像素。虽然卷积神经网络最初是为计算机视觉设计的，但它也被广泛用于自然语言处理。简单地说，只要将任何文本序列想象成一维图像即可。通过这种方式，一维卷积神经网络可以处理文本中的局部特征，例如$n$元语法。
 
-在本节中，我们将使用 *textCNN* 模型演示如何设计 CNN 体系结构来表示单个文本 :cite:`Kim.2014`。与使用 RNN 架构和 Glove 预训练进行情绪分析的 :numref:`fig_nlp-map-sa-rnn` 相比，:numref:`fig_nlp-map-sa-cnn` 的唯一区别在于体系结构的选择。 
+在本节中，我们将使用*textCNN*模型来演示如何设计一个表示单个文本 :cite:`Kim.2014`的卷积神经网络架构。与 :numref:`fig_nlp-map-sa-rnn`中使用带有GloVe预训练的循环神经网络架构进行情感分析相比， :numref:`fig_nlp-map-sa-cnn`中唯一的区别在于架构的选择。
 
-![This section feeds pretrained GloVe to a CNN-based architecture for sentiment analysis.](../img/nlp-map-sa-cnn.svg)
+![将GloVe放入卷积神经网络架构进行情感分析](../img/nlp-map-sa-cnn.svg)
 :label:`fig_nlp-map-sa-cnn`
 
 ```{.python .input}
@@ -30,14 +30,14 @@ train_iter, test_iter, vocab = d2l.load_data_imdb(batch_size)
 
 ## 一维卷积
 
-在介绍模型之前，让我们看看一维卷积是如何工作的。请记住，这只是基于互相关运算的二维卷积的一个特殊情况。 
+在介绍该模型之前，让我们先看看一维卷积是如何工作的。请记住，这只是基于互相关运算的二维卷积的特例。
 
-![One-dimensional cross-correlation operation. The shaded portions are the first output element as well as the input and kernel tensor elements used for the output computation: $0\times1+1\times2=2$.](../img/conv1d.svg)
+![一维互相关运算。阴影部分是第一个输出元素以及用于输出计算的输入和核张量元素：$0\times1+1\times2=2$](../img/conv1d.svg)
 :label:`fig_conv1d`
 
-如 :numref:`fig_conv1d` 所示，在一维情况下，卷积窗口从左向右滑动穿过输入张量。在滑动过程中，卷积窗口中包含在某个位置的输入子张量（例如 $0$ 和 :numref:`fig_conv1d` 中的 $0$ 和 $1$）和 :numref:`fig_conv1d` 中的内核张量（例如 :numref:`fig_conv1d` 中的 $1$ 和 $2$）以元素方式乘以元素。这些乘法的总和给出了输出张量的相应位置的单个标量值（例如 :numref:`fig_conv1d` 中的 $0\times1+1\times2=2$）。 
+如 :numref:`fig_conv1d`中所示，在一维情况下，卷积窗口在输入张量上从左向右滑动。在滑动期间，卷积窗口中某个位置包含的输入子张量（例如， :numref:`fig_conv1d`中的$0$和$1$）和核张量（例如， :numref:`fig_conv1d`中的$1$和$2$）按元素相乘。这些乘法的总和在输出张量的相应位置给出单个标量值（例如， :numref:`fig_conv1d`中的$0\times1+1\times2=2$）。
 
-我们在下面的 `corr1d` 函数中实现了一维相关。给定输入张量 `X` 和内核张量 `K`，它返回输出张量 `Y`。
+我们在下面的`corr1d`函数中实现了一维互相关。给定输入张量`X`和核张量`K`，它返回输出张量`Y`。
 
 ```{.python .input}
 #@tab all
@@ -49,7 +49,7 @@ def corr1d(X, K):
     return Y
 ```
 
-我们可以从 :numref:`fig_conv1d` 构造输入张量 `X` 和 :numref:`fig_conv1d` 的内核张量 `K` 来验证上述一维互相关实现的输出。
+我们可以从 :numref:`fig_conv1d`构造输入张量`X`和核张量`K`来验证上述一维互相关实现的输出。
 
 ```{.python .input}
 #@tab all
@@ -57,18 +57,17 @@ X, K = d2l.tensor([0, 1, 2, 3, 4, 5, 6]), d2l.tensor([1, 2])
 corr1d(X, K)
 ```
 
-对于任何具有多个通道的一维输入，卷积内核需要具有相同数量的输入通道。然后对每个通道，对输入的一维张量和卷积核的一维张量执行交叉相关运算，将所有通道的结果加在一维输出张量。:numref:`fig_conv1d_channel` 显示了一维交叉相关运算带 3 个输入通道。 
+对于任何具有多个通道的一维输入，卷积核需要具有相同数量的输入通道。然后，对于每个通道，对输入的一维张量和卷积核的一维张量执行互相关运算，将所有通道上的结果相加以产生一维输出张量。 :numref:`fig_conv1d_channel`演示了具有3个输入通道的一维互相关操作。
 
-![One-dimensional cross-correlation operation with 3 input channels. The shaded portions are the first output element as well as the input and kernel tensor elements used for the output computation: $0\times1+1\times2+1\times3+2\times4+2\times(-1)+3\times(-3)=2$.](../img/conv1d-channel.svg)
+![具有3个输入通道的一维互相关运算。阴影部分是第一个输出元素以及用于输出计算的输入和核张量元素：$2\times(-1)+3\times(-3)+1\times3+2\times4+0\times1+1\times2=2$](../img/conv1d-channel.svg)
 :label:`fig_conv1d_channel`
 
-我们可以对多个输入通道实施一维互相关操作，并在 :numref:`fig_conv1d_channel` 中验证结果。
+我们可以实现多个输入通道的一维互相关运算，并在 :numref:`fig_conv1d_channel`中验证结果。
 
 ```{.python .input}
 #@tab all
 def corr1d_multi_in(X, K):
-    # First, iterate through the 0th dimension (channel dimension) of `X` and
-    # `K`. Then, add them together
+    # 首先，遍历'X'和'K'的第0维（通道维）。然后，把它们加在一起
     return sum(corr1d(x, k) for x, k in zip(X, K))
 
 X = d2l.tensor([[0, 1, 2, 3, 4, 5, 6],
@@ -78,35 +77,35 @@ K = d2l.tensor([[1, 2], [3, 4], [-1, -3]])
 corr1d_multi_in(X, K)
 ```
 
-请注意，多输入通道一维交叉关系等同于单输入通道二维交叉关系。为了说明，:numref:`fig_conv1d_channel` 中的多输入通道一维相关的一种等效形式是 :numref:`fig_conv1d_2d` 中的单输入通道二维交叉相关，卷积核的高度必须与输入张量的高度相同。 
+注意，多输入通道的一维互相关等同于单输入通道的二维互相关。举例说明， :numref:`fig_conv1d_channel`中的多输入通道一维互相关的等价形式是 :numref:`fig_conv1d_2d`中的单输入通道二维互相关，其中卷积核的高度必须与输入张量的高度相同。
 
-![Two-dimensional cross-correlation operation with a single input channel. The shaded portions are the first output element as well as the input and kernel tensor elements used for the output computation: $2\times(-1)+3\times(-3)+1\times3+2\times4+0\times1+1\times2=2$.](../img/conv1d-2d.svg)
+![具有单个输入通道的二维互相关操作。阴影部分是第一个输出元素以及用于输出计算的输入和内核张量元素： $2\times(-1)+3\times(-3)+1\times3+2\times4+0\times1+1\times2=2$](../img/conv1d-2d.svg)
 :label:`fig_conv1d_2d`
 
-:numref:`fig_conv1d` 和 :numref:`fig_conv1d_channel` 中的两个输出都只有一个通道。与 :numref:`subsec_multi-output-channels` 中描述的具有多个输出通道的二维卷积相同，我们还可以为一维卷积指定多个输出通道。 
+ :numref:`fig_conv1d`和 :numref:`fig_conv1d_channel`中的输出都只有一个通道。与 :numref:`subsec_multi-output-channels`中描述的具有多个输出通道的二维卷积相同，我们也可以为一维卷积指定多个输出通道。
 
-## 最大加长时间池
+## 最大时间汇聚层
 
-同样，我们可以使用池从序列表示法中提取最高值，这是跨时间步长的最重要功能。TextCNN 中使用的 * 最大时间共享 * 类似于一维全局最大值池 :cite:`Collobert.Weston.Bottou.ea.2011`。对于每个频道以不同时间步长存储值的多渠道输入，每个频道的输出是该频道的最大值。请注意，最大时间共享允许在不同频道执行不同数量的时间步长。 
+类似地，我们可以使用汇聚层从序列表示中提取最大值，作为跨时间步的最重要特征。textCNN中使用的*最大时间汇聚层*的工作原理类似于一维全局汇聚 :cite:`Collobert.Weston.Bottou.ea.2011`。对于每个通道在不同时间步存储值的多通道输入，每个通道的输出是该通道的最大值。请注意，最大时间汇聚允许在不同通道上使用不同数量的时间步。
 
-## textCNN 模型
+## textCNN模型
 
-TextCNN 模型使用一维卷积和最大时间库，将单个预训练的令牌表示作为输入，然后获取和转换下游应用程序的序列表示形式。 
+使用一维卷积和最大时间汇聚，textCNN模型将单个预训练的词元表示作为输入，然后获得并转换用于下游应用的序列表示。
 
-对于由 $d$ 维向量表示的 $n$ 令牌的单个文本序列，输入张量的宽度、高度和通道数分别为 $n$、$1$ 和 $d$。textCNN 模型将输入转换为输出，如下所示： 
+对于具有由$d$维向量表示的$n$个词元的单个文本序列，输入张量的宽度、高度和通道数分别为$n$、$1$和$d$。textCNN模型将输入转换为输出，如下所示：
 
-1. 定义多个一维卷积内核并对输入单独执行卷积操作。具有不同宽度的卷积内核可能会捕获不同数量的相邻令牌中的本地特征。
-1. 在所有输出通道上执行最大时间池化，然后将所有标量池输出连接为矢量。
-1. 使用完全连接的图层将连接向量转换为输出类别。辍学可用于减少过度拟合。
+1. 定义多个一维卷积核，并分别对输入执行卷积运算。具有不同宽度的卷积核可以捕获不同数目的相邻词元之间的局部特征。
+1. 在所有输出通道上执行最大时间汇聚层，然后将所有标量汇聚输出连结为向量。
+1. 使用全连接层将连结后的向量转换为输出类别。Dropout可以用来减少过拟合。
 
-![The model architecture of textCNN.](../img/textcnn.svg)
+![textCNN的模型架构](../img/textcnn.svg)
 :label:`fig_conv1d_textcnn`
 
-:numref:`fig_conv1d_textcnn` 用一个具体的例子说明了 TextCNN 的模型架构。输入是一个包含 11 个标记的句子，其中每个标记都由 6 维向量表示。因此我们有一个宽度为 11 的 6 通道输入。定义两个宽度为 2 和 4 的一维卷积内核，分别有 4 个和 5 个输出通道。他们生成宽度为 $11-2+1=10$ 的 4 个输出通道和 5 个宽度为 $11-4+1=8$ 的输出通道。尽管这 9 个通道的宽度不同，但最大时间库提供了一个连接的 9 维矢量，最终转换为二元情绪预测的二维输出矢量。 
+ :numref:`fig_conv1d_textcnn`通过一个具体的例子说明了textCNN的模型架构。输入是具有11个词元的句子，其中每个词元由6维向量表示。因此，我们有一个宽度为11的6通道输入。定义两个宽度为2和4的一维卷积核，分别具有4个和5个输出通道。它们产生4个宽度为$11-2+1=10$的输出通道和5个宽度为$11-4+1=8$的输出通道。尽管这9个通道的宽度不同，但最大时间汇聚层给出了一个连结的9维向量，该向量最终被转换为用于二元情感预测的2维输出向量。
 
 ### 定义模型
 
-我们在以下类中实现 textCNN 模型。与 :numref:`sec_sentiment_rnn` 中的双向 RNN 模型相比，除了用卷积层替换循环层之外，我们还使用两个嵌入层：一个具有可训练的权重，另一个具有固定权重。
+我们在下面的类中实现textCNN模型。与 :numref:`sec_sentiment_rnn`的双向循环神经网络模型相比，除了用卷积层代替循环神经网络层外，我们还使用了两个嵌入层：一个是可训练权重，另一个是固定权重。
 
 ```{.python .input}
 class TextCNN(nn.Block):
@@ -114,29 +113,26 @@ class TextCNN(nn.Block):
                  **kwargs):
         super(TextCNN, self).__init__(**kwargs)
         self.embedding = nn.Embedding(vocab_size, embed_size)
-        # The embedding layer not to be trained
+        # 这个嵌入层不需要训练
         self.constant_embedding = nn.Embedding(vocab_size, embed_size)
         self.dropout = nn.Dropout(0.5)
         self.decoder = nn.Dense(2)
-        # The max-over-time pooling layer has no parameters, so this instance
-        # can be shared
+        # 最大时间汇聚层没有参数，因此可以共享此实例
         self.pool = nn.GlobalMaxPool1D()
-        # Create multiple one-dimensional convolutional layers
+        # 创建多个一维卷积层
         self.convs = nn.Sequential()
         for c, k in zip(num_channels, kernel_sizes):
             self.convs.add(nn.Conv1D(c, k, activation='relu'))
 
     def forward(self, inputs):
-        # Concatenate two embedding layer outputs with shape (batch size, no.
-        # of tokens, token vector dimension) along vectors
+        # 沿着向量维度将两个嵌入层连结起来，
+        # 每个嵌入层的输出形状都是（批量大小，词元数量，词元向量维度）连结起来
         embeddings = np.concatenate((
             self.embedding(inputs), self.constant_embedding(inputs)), axis=2)
-        # Per the input format of one-dimensional convolutional layers,
-        # rearrange the tensor so that the second dimension stores channels
+        # 根据一维卷积层的输入格式，重新排列张量，以便通道作为第2维
         embeddings = embeddings.transpose(0, 2, 1)
-        # For each one-dimensional convolutional layer, after max-over-time
-        # pooling, a tensor of shape (batch size, no. of channels, 1) is
-        # obtained. Remove the last dimension and concatenate along channels
+        # 每个一维卷积层在最大时间汇聚层合并后，获得的张量形状是（批量大小，通道数，1）
+        # 删除最后一个维度并沿通道维度连结
         encoding = np.concatenate([
             np.squeeze(self.pool(conv(embeddings)), axis=-1)
             for conv in self.convs], axis=1)
@@ -151,30 +147,27 @@ class TextCNN(nn.Module):
                  **kwargs):
         super(TextCNN, self).__init__(**kwargs)
         self.embedding = nn.Embedding(vocab_size, embed_size)
-        # The embedding layer not to be trained
+        # 这个嵌入层不需要训练
         self.constant_embedding = nn.Embedding(vocab_size, embed_size)
         self.dropout = nn.Dropout(0.5)
         self.decoder = nn.Linear(sum(num_channels), 2)
-        # The max-over-time pooling layer has no parameters, so this instance
-        # can be shared
+        # 最大时间汇聚层没有参数，因此可以共享此实例
         self.pool = nn.AdaptiveAvgPool1d(1)
         self.relu = nn.ReLU()
-        # Create multiple one-dimensional convolutional layers
+        # 创建多个一维卷积层
         self.convs = nn.ModuleList()
         for c, k in zip(num_channels, kernel_sizes):
             self.convs.append(nn.Conv1d(2 * embed_size, c, k))
 
     def forward(self, inputs):
-        # Concatenate two embedding layer outputs with shape (batch size, no.
-        # of tokens, token vector dimension) along vectors
+        # 沿着向量维度将两个嵌入层连结起来，
+        # 每个嵌入层的输出形状都是（批量大小，词元数量，词元向量维度）连结起来
         embeddings = torch.cat((
             self.embedding(inputs), self.constant_embedding(inputs)), dim=2)
-        # Per the input format of one-dimensional convolutional layers,
-        # rearrange the tensor so that the second dimension stores channels
+        # 根据一维卷积层的输入格式，重新排列张量，以便通道作为第2维
         embeddings = embeddings.permute(0, 2, 1)
-        # For each one-dimensional convolutional layer, after max-over-time
-        # pooling, a tensor of shape (batch size, no. of channels, 1) is
-        # obtained. Remove the last dimension and concatenate along channels
+        # 每个一维卷积层在最大时间汇聚层合并后，获得的张量形状是（批量大小，通道数，1）
+        # 删除最后一个维度并沿通道维度连结
         encoding = torch.cat([
             torch.squeeze(self.relu(self.pool(conv(embeddings))), dim=-1)
             for conv in self.convs], dim=1)
@@ -182,7 +175,7 @@ class TextCNN(nn.Module):
         return outputs
 ```
 
-让我们创建一个 textCn 实例。它有 3 个卷积层，内核宽度为 3、4 和 5，全部有 100 个输出通道。
+让我们创建一个textCNN实例。它有3个卷积层，卷积核宽度分别为3、4和5，均有100个输出通道。
 
 ```{.python .input}
 embed_size, kernel_sizes, nums_channels = 100, [3, 4, 5], [100, 100, 100]
@@ -204,9 +197,9 @@ def init_weights(m):
 net.apply(init_weights);
 ```
 
-### 加载预训练的词向量
+### 加载预训练词向量
 
-与 :numref:`sec_sentiment_rnn` 相同，我们加载预训练的 100 维 Glove 嵌入作为初始化的令牌表示形式。这些令牌表示法（嵌入权重）将在 `embedding` 中进行训练，并在 `constant_embedding` 中修复。
+与 :numref:`sec_sentiment_rnn`相同，我们加载预训练的100维GloVe嵌入作为初始化的词元表示。这些词元表示（嵌入权重）在`embedding`中将被训练，在`constant_embedding`中将被固定。
 
 ```{.python .input}
 glove_embedding = d2l.TokenEmbedding('glove.6b.100d')
@@ -227,7 +220,7 @@ net.constant_embedding.weight.requires_grad = False
 
 ### 训练和评估模型
 
-现在我们可以训练 textCNN 模型进行情绪分析。
+现在我们可以训练textCNN模型进行情感分析。
 
 ```{.python .input}
 lr, num_epochs = 0.001, 5
@@ -244,7 +237,7 @@ loss = nn.CrossEntropyLoss(reduction="none")
 d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
 ```
 
-下面我们使用训练有素的模型来预测两个简单句子的情绪。
+下面，我们使用训练好的模型来预测两个简单句子的情感。
 
 ```{.python .input}
 #@tab all
@@ -256,18 +249,18 @@ d2l.predict_sentiment(net, vocab, 'this movie is so great')
 d2l.predict_sentiment(net, vocab, 'this movie is so bad')
 ```
 
-## 摘要
+## 小结
 
-* 一维 CNN 可以处理本地特征，例如文本中的 $n$ 克。
-* 多输入通道一维交叉关系等同于单输入通道二维交叉关系。
-* 最大时间池允许在不同频道执行不同数量的时间步长。
-* textCNN 模型使用一维卷积层和最大时间库层将单个令牌表示形式转换为下游应用程序输出。
+* 一维卷积神经网络可以处理文本中的局部特征，例如$n$元语法。
+* 多输入通道的一维互相关等价于单输入通道的二维互相关。
+* 最大时间汇聚层允许在不同通道上使用不同数量的时间步长。
+* textCNN模型使用一维卷积层和最大时间汇聚层将单个词元表示转换为下游应用输出。
 
 ## 练习
 
-1. 在 :numref:`sec_sentiment_rnn` 和本节中调整超参数并比较两个体系结构以进行情绪分析，例如分类准确性和计算效率。
-1. 你能否通过使用 :numref:`sec_sentiment_rnn` 练习中介绍的方法来进一步提高模型的分类准确性？
-1. 在输入表示中添加位置编码。它能提高分类准确性吗？
+1. 调整超参数，并比较 :numref:`sec_sentiment_rnn`中用于情感分析的架构和本节中用于情感分析的架构，例如在分类精度和计算效率方面。
+1. 你能不能用 :numref:`sec_sentiment_rnn`练习中介绍的方法进一步提高模型的分类精度？
+1. 在输入表示中添加位置编码。它是否提高了分类的精度？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/393)

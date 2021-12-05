@@ -111,7 +111,7 @@ show_trace(results, f)
 ### 学习率
 :label:`subsec_gd-learningrate`
 
-*学习率*(learning rate)决定目标函数能否收敛到局部最小值，以及何时收敛到最小值。
+*学习率*（learning rate）决定目标函数能否收敛到局部最小值，以及何时收敛到最小值。
 学习率$\eta$可由算法设计者设置。
 请注意，如果我们使用的学习率太小，将导致$x$的更新非常缓慢，需要更多的迭代。
 例如，考虑同一优化问题中$\eta = 0.05$的进度。
@@ -123,7 +123,7 @@ show_trace(gd(0.05, f_grad), f)
 ```
 
 相反，如果我们使用过高的学习率，$\left|\eta f'(x)\right|$对于一阶泰勒展开式可能太大。
-也就是说，:eqref:`gd-taylor` 中的$\mathcal{O}(\eta^2 f'^2(x))$可能变得显著了。
+也就是说， :eqref:`gd-taylor`中的$\mathcal{O}(\eta^2 f'^2(x))$可能变得显著了。
 在这种情况下，$x$的迭代不能保证降低$f(x)$的值。
 例如，当学习率为$\eta=1.1$时，$x$超出了最优解$x=0$并逐渐发散。
 
@@ -161,7 +161,7 @@ show_trace(gd(2, f_grad), f)
 $$\nabla f(\mathbf{x}) = \bigg[\frac{\partial f(\mathbf{x})}{\partial x_1}, \frac{\partial f(\mathbf{x})}{\partial x_2}, \ldots, \frac{\partial f(\mathbf{x})}{\partial x_d}\bigg]^\top.$$
 
 梯度中的每个偏导数元素$\partial f(\mathbf{x})/\partial x_i$代表了当输入$x_i$时$f$在$\mathbf{x}$处的变化率。
-和先前单变量的情况一样，我们可以对多变量函数使用相应的Taylor近似来思考。
+和先前单变量的情况一样，我们可以对多变量函数使用相应的泰勒近似来思考。
 具体来说，
 
 $$f(\mathbf{x} + \boldsymbol{\epsilon}) = f(\mathbf{x}) + \mathbf{\boldsymbol{\epsilon}}^\top \nabla f(\mathbf{x}) + \mathcal{O}(\|\boldsymbol{\epsilon}\|^2).$$
@@ -233,11 +233,11 @@ show_trace_2d(f_2d, train_2d(gd_2d, f_grad=f_2d_grad))
 
 ## 自适应方法
 
-正如我们在 :numref:`subsec_gd-learningrate` 中所看到的，选择“恰到好处”的学习率$\eta$是很棘手的。
+正如我们在 :numref:`subsec_gd-learningrate`中所看到的，选择“恰到好处”的学习率$\eta$是很棘手的。
 如果我们把它选得太小，就没有什么进展；如果太大，得到的解就会振荡，甚至可能发散。
 如果我们可以自动确定$\eta$，或者完全不必选择学习率，会怎么样？
 除了考虑目标函数的值和梯度、还考虑它的曲率的二阶方法可以帮我们解决这个问题。
-虽然由于计算成本的原因，这些方法不能直接应用于深度学习，但它们为如何设计高级优化算法提供了有用的思维直觉，这些算法可以模拟下面概述的算法的许多理想特性。
+虽然由于计算代价的原因，这些方法不能直接应用于深度学习，但它们为如何设计高级优化算法提供了有用的思维直觉，这些算法可以模拟下面概述的算法的许多理想特性。
 
 ### 牛顿法
 
@@ -249,12 +249,12 @@ $$f(\mathbf{x} + \boldsymbol{\epsilon}) = f(\mathbf{x}) + \boldsymbol{\epsilon}^
 为了避免繁琐的符号，我们将$\mathbf{H} \stackrel{\mathrm{def}}{=} \nabla^2 f(\mathbf{x})$定义为$f$的Hessian，是$d \times d$矩阵。
 当$d$的值很小且问题很简单时，$\mathbf{H}$很容易计算。
 但是对于深度神经网络而言，考虑到$\mathbf{H}$可能非常大，
-$\mathcal{O}(d^2)$个条目的存储成本会很高，
+$\mathcal{O}(d^2)$个条目的存储代价会很高，
 此外通过反向传播进行计算可能雪上加霜。
 然而，我们姑且先忽略这些考量，看看会得到什么算法。
 
 毕竟，$f$的最小值满足$\nabla f = 0$。
-遵循 :numref:`sec_calculus` 中的微积分规则，
+遵循 :numref:`sec_calculus`中的微积分规则，
 通过取$\boldsymbol{\epsilon}$对 :eqref:`gd-hot-taylor`的导数，
 再忽略不重要的高阶项，我们便得到
 
