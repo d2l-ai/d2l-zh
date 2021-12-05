@@ -87,7 +87,7 @@ W1 = tf.Variable(tf.random.normal(
 b1 = tf.Variable(tf.zeros(num_hiddens))
 W2 = tf.Variable(tf.random.normal(
     shape=(num_hiddens, num_outputs), mean=0, stddev=0.01))
-b2 = tf.Variable(tf.random.normal([num_outputs], stddev=.01))
+b2 = tf.Variable(tf.zeros(num_outputs))
 
 params = [W1, b1, W2, b2]
 ```
