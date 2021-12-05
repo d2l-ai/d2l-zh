@@ -70,7 +70,7 @@ class BiRNN(nn.Module):
         self.decoder = nn.Linear(4 * num_hiddens, 2)
 
     def forward(self, inputs):
-        # `inputs`的形状是（批量大小,，时间步数）
+        # `inputs`的形状是（批量大小，时间步数）
         # 因为长短期记忆网络要求其输入的第一个维度是时间维，
         # 所以在获得词元表示之前，输入会被转置。
         # 输出形状为（时间步数，批量大小，词向量维度）
