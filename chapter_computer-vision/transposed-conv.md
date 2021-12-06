@@ -8,7 +8,7 @@
 为了实现这一点，尤其是在空间维度被卷积神经网络层缩小后，我们可以使用另一种类型的卷积神经网络层，它可以增加上采样中间层特征图的空间维度。
 在本节中，我们将介绍
 *转置卷积*（transposed convolution） :cite:`Dumoulin.Visin.2016`，
-用于扭转下采样导致的空间尺寸减小。
+用于逆转下采样导致的空间尺寸减小。
 
 ```{.python .input}
 from mxnet import np, npx, init
