@@ -15,6 +15,7 @@
 sh Miniconda3-py38_4.10.3-MacOSX-x86_64.sh -b
 ```
 
+
 如果你使用Linux，假设你的Python版本是3.8（我们的测试版本），你将下载名称包含字符串“Linux”的bash脚本，并执行以下操作：
 
 ```bash
@@ -22,17 +23,20 @@ sh Miniconda3-py38_4.10.3-MacOSX-x86_64.sh -b
 sh Miniconda3-py38_4.10.3-Linux-x86_64.sh -b
 ```
 
+
 接下来，初始化终端Shell，以便我们可以直接运行`conda`。
 
 ```bash
 ~/miniconda3/bin/conda init
 ```
 
+
 现在关闭并重新打开当前的 shell。你应该能用下面的命令创建一个新的环境：
 
 ```bash
 conda create --name d2l python=3.8 -y
 ```
+
 
 现在激活 `d2l` 环境：
 
@@ -55,7 +59,6 @@ conda activate d2l
 （你可以通过运行`nvcc --version`或`cat /usr/local/cuda/version.txt`来检验。）
 假设你已安装CUDA 10.1版本，请执行以下命令：
 
-
 ```bash
 # 对于Linux和macOS用户
 pip install mxnet-cu101==1.7.0
@@ -63,6 +66,7 @@ pip install mxnet-cu101==1.7.0
 # 对于Windows用户
 pip install mxnet-cu101==1.7.0 -f https://dist.mxnet.io/python
 ```
+
 
 你可以根据你的CUDA版本更改如上`mxnet-cu101`的最后一位数字，
 例如：CUDA 10.0是`cu100`， CUDA 9.0是`cu90`。
@@ -74,6 +78,8 @@ pip install mxnet-cu101==1.7.0 -f https://dist.mxnet.io/python
 ```bash
 pip install mxnet==1.7.0.post1
 ```
+
+
 :end_tab:
 
 
@@ -86,6 +92,7 @@ pip install torch==1.8.1
 pip install torchvision==0.9.1
 ```
 
+
 :end_tab:
 
 :begin_tab:`tensorflow`
@@ -95,6 +102,7 @@ pip install torchvision==0.9.1
 pip install tensorflow==2.3.1
 pip install tensorflow-probability==0.11.1
 ```
+
 
 :end_tab:
 
@@ -116,10 +124,11 @@ pip install d2l==0.17.0
 
 ```bash
 mkdir d2l-zh && cd d2l-zh
-curl https://zh-v2.d2l.ai/d2l-zh.zip -o d2l-zh.zip
+curl https://zh-v2.d2l.ai/d2l-zh-2.0.0.zip -o d2l-zh.zip
 unzip d2l-zh.zip && rm d2l-zh.zip
 cd mxnet
 ```
+
 
 注意：如果你没有安装`unzip`，则可以通过运行`sudo apt install unzip`进行安装。
 
@@ -130,10 +139,11 @@ cd mxnet
 
 ```bash
 mkdir d2l-zh && cd d2l-zh
-curl https://zh-v2.d2l.ai/d2l-zh.zip -o d2l-zh.zip
+curl https://zh-v2.d2l.ai/d2l-zh-2.0.0.zip -o d2l-zh.zip
 unzip d2l-zh.zip && rm d2l-zh.zip
 cd pytorch
 ```
+
 
 注意：如果你没有安装`unzip`，则可以通过运行`sudo apt install unzip`进行安装。
 
@@ -144,10 +154,11 @@ cd pytorch
 
 ```bash
 mkdir d2l-zh && cd d2l-zh
-curl https://zh-v2.d2l.ai/d2l-zh.zip -o d2l-zh.zip
+curl https://zh-v2.d2l.ai/d2l-zh-2.0.0.zip -o d2l-zh.zip
 unzip d2l-zh.zip && rm d2l-zh.zip
 cd tensorflow
 ```
+
 
 注意：如果你没有安装`unzip`，则可以通过运行`sudo apt install unzip`进行安装。
 
@@ -159,6 +170,7 @@ cd tensorflow
 ```bash
 jupyter notebook
 ```
+
 
 现在，你可以在Web浏览器中打开<http://localhost:8888>（通常会自动打开）。
 由此，你可以运行这本书中每个部分的代码。

@@ -221,7 +221,7 @@ def allreduce(data):
     for i in range(1, len(data)):
         data[0][:] += data[i].to(data[0].device)
     for i in range(1, len(data)):
-        data[i] = data[0].to(data[i].device)
+        data[i][:] = data[0].to(data[i].device)
 ```
 
 通过在不同设备上创建具有不同值的向量并聚合它们。
