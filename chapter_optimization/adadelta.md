@@ -55,7 +55,7 @@ def init_adadelta_states(feature_dim):
 def adadelta(params, states, hyperparams):
     rho, eps = hyperparams['rho'], 1e-5
     for p, (s, delta) in zip(params, states):
-        # In-place updates via [:]
+        # In-placeupdatesvia[:]
         s[:] = rho * s + (1 - rho) * np.square(p.grad)
         g = (np.sqrt(delta + eps) / np.sqrt(s + eps)) * p.grad
         p[:] -= g
@@ -77,7 +77,7 @@ def adadelta(params, states, hyperparams):
     rho, eps = hyperparams['rho'], 1e-5
     for p, (s, delta) in zip(params, states):
         with torch.no_grad():
-            # In-place updates via [:]
+            # In-placeupdatesvia[:]
             s[:] = rho * s + (1 - rho) * torch.square(p.grad)
             g = (torch.sqrt(delta + eps) / torch.sqrt(s + eps)) * p.grad
             p[:] -= g
@@ -130,8 +130,8 @@ d2l.train_concise_ch11(trainer, {'rho': 0.9}, data_iter)
 
 ```{.python .input}
 #@tab tensorflow
-# adadelta is not converging at default learning rate
-# but it's converging at lr = 5.0
+# adadeltaisnotconvergingatdefaultlearningrate
+# butit'sconvergingatlr=5.0
 trainer = tf.keras.optimizers.Adadelta
 d2l.train_concise_ch11(trainer, {'learning_rate':5.0, 'rho': 0.9}, data_iter)
 ```

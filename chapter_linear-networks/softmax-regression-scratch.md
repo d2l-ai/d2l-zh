@@ -238,7 +238,7 @@ Gmail做分类时可能在内部估计概率，但最终它必须在类中选择
 ```{.python .input}
 #@tab all
 def accuracy(y_hat, y):  #@save
-    """计算预测正确的数量。"""
+    """计算预测正确的数量"""
     if len(y_hat.shape) > 1 and y_hat.shape[1] > 1:
         y_hat = d2l.argmax(y_hat, axis=1)
     cmp = d2l.astype(y_hat, y.dtype) == y
@@ -261,7 +261,7 @@ accuracy(y_hat, y) / len(y)
 ```{.python .input}
 #@tab mxnet, tensorflow
 def evaluate_accuracy(net, data_iter):  #@save
-    """计算在指定数据集上模型的精度。"""
+    """计算在指定数据集上模型的精度"""
     metric = Accumulator(2)  # 正确预测数、预测总数
     for X, y in data_iter:
         metric.add(accuracy(net(X), y), d2l.size(y))
@@ -271,7 +271,7 @@ def evaluate_accuracy(net, data_iter):  #@save
 ```{.python .input}
 #@tab pytorch
 def evaluate_accuracy(net, data_iter):  #@save
-    """计算在指定数据集上模型的精度。"""
+    """计算在指定数据集上模型的精度"""
     if isinstance(net, torch.nn.Module):
         net.eval()  # 将模型设置为评估模式
     metric = Accumulator(2)  # 正确预测数、预测总数
@@ -290,7 +290,7 @@ def evaluate_accuracy(net, data_iter):  #@save
 ```{.python .input}
 #@tab all
 class Accumulator:  #@save
-    """在`n`个变量上累加。"""
+    """在`n`个变量上累加"""
     def __init__(self, n):
         self.data = [0.0] * n
 
@@ -324,7 +324,7 @@ evaluate_accuracy(net, test_iter)
 
 ```{.python .input}
 def train_epoch_ch3(net, train_iter, loss, updater):  #@save
-    """训练模型一个迭代周期（定义见第3章）。"""
+    """训练模型一个迭代周期（定义见第3章）"""
     # 训练损失总和、训练准确度总和、样本数
     metric = Accumulator(3)
     if isinstance(updater, gluon.Trainer):
@@ -344,7 +344,7 @@ def train_epoch_ch3(net, train_iter, loss, updater):  #@save
 ```{.python .input}
 #@tab pytorch
 def train_epoch_ch3(net, train_iter, loss, updater):  #@save
-    """训练模型一个迭代周期（定义见第3章）。"""
+    """训练模型一个迭代周期（定义见第3章）"""
     # 将模型设置为训练模式
     if isinstance(net, torch.nn.Module):
         net.train()
@@ -373,7 +373,7 @@ def train_epoch_ch3(net, train_iter, loss, updater):  #@save
 ```{.python .input}
 #@tab tensorflow
 def train_epoch_ch3(net, train_iter, loss, updater):  #@save
-    """训练模型一个迭代周期（定义见第3章）。"""
+    """训练模型一个迭代周期（定义见第3章）"""
     # 训练损失总和、训练准确度总和、样本数
     metric = Accumulator(3)
     for X, y in train_iter:
@@ -406,7 +406,7 @@ def train_epoch_ch3(net, train_iter, loss, updater):  #@save
 ```{.python .input}
 #@tab all
 class Animator:  #@save
-    """在动画中绘制数据。"""
+    """在动画中绘制数据"""
     def __init__(self, xlabel=None, ylabel=None, legend=None, xlim=None,
                  ylim=None, xscale='linear', yscale='linear',
                  fmts=('-', 'm--', 'g-.', 'r:'), nrows=1, ncols=1,
@@ -455,7 +455,7 @@ class Animator:  #@save
 ```{.python .input}
 #@tab all
 def train_ch3(net, train_iter, test_iter, loss, num_epochs, updater):  #@save
-    """训练模型（定义见第3章）。"""
+    """训练模型（定义见第3章）"""
     animator = Animator(xlabel='epoch', xlim=[1, num_epochs], ylim=[0.3, 0.9],
                         legend=['train loss', 'train acc', 'test acc'])
     for epoch in range(num_epochs):
@@ -482,7 +482,7 @@ def updater(batch_size):
 ```{.python .input}
 #@tab tensorflow
 class Updater():  #@save
-    """用小批量随机梯度下降法更新参数。"""
+    """用小批量随机梯度下降法更新参数"""
     def __init__(self, params, lr):
         self.params = params
         self.lr = lr
@@ -511,7 +511,7 @@ train_ch3(net, train_iter, test_iter, cross_entropy, num_epochs, updater)
 ```{.python .input}
 #@tab all
 def predict_ch3(net, test_iter, n=6):  #@save
-    """预测标签（定义见第3章）。"""
+    """预测标签（定义见第3章）"""
     for X, y in test_iter:
         break
     trues = d2l.get_fashion_mnist_labels(y)

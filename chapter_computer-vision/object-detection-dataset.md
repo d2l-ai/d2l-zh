@@ -47,7 +47,7 @@ d2l.DATA_HUB['banana-detection'] = (
 ```{.python .input}
 #@save
 def read_data_bananas(is_train=True):
-    """读取香蕉检测数据集中的图像和标签。"""
+    """读取香蕉检测数据集中的图像和标签"""
     data_dir = d2l.download_extract('banana-detection')
     csv_fname = os.path.join(data_dir, 'bananas_train' if is_train
                              else 'bananas_val', 'label.csv')
@@ -68,7 +68,7 @@ def read_data_bananas(is_train=True):
 #@tab pytorch
 #@save
 def read_data_bananas(is_train=True):
-    """读取香蕉检测数据集中的图像和标签。"""
+    """读取香蕉检测数据集中的图像和标签"""
     data_dir = d2l.download_extract('banana-detection')
     csv_fname = os.path.join(data_dir, 'bananas_train' if is_train
                              else 'bananas_val', 'label.csv')
@@ -90,7 +90,7 @@ def read_data_bananas(is_train=True):
 ```{.python .input}
 #@save
 class BananasDataset(gluon.data.Dataset):
-    """一个用于加载香蕉检测数据集的自定义数据集。"""
+    """一个用于加载香蕉检测数据集的自定义数据集"""
     def __init__(self, is_train):
         self.features, self.labels = read_data_bananas(is_train)
         print('read ' + str(len(self.features)) + (f' training examples' if
@@ -108,7 +108,7 @@ class BananasDataset(gluon.data.Dataset):
 #@tab pytorch
 #@save
 class BananasDataset(torch.utils.data.Dataset):
-    """一个用于加载香蕉检测数据集的自定义数据集。"""
+    """一个用于加载香蕉检测数据集的自定义数据集"""
     def __init__(self, is_train):
         self.features, self.labels = read_data_bananas(is_train)
         print('read ' + str(len(self.features)) + (f' training examples' if
@@ -126,7 +126,7 @@ class BananasDataset(torch.utils.data.Dataset):
 ```{.python .input}
 #@save
 def load_data_bananas(batch_size):
-    """加载香蕉检测数据集。"""
+    """加载香蕉检测数据集"""
     train_iter = gluon.data.DataLoader(BananasDataset(is_train=True),
                                        batch_size, shuffle=True)
     val_iter = gluon.data.DataLoader(BananasDataset(is_train=False),
@@ -138,7 +138,7 @@ def load_data_bananas(batch_size):
 #@tab pytorch
 #@save
 def load_data_bananas(batch_size):
-    """加载香蕉检测数据集。"""
+    """加载香蕉检测数据集"""
     train_iter = torch.utils.data.DataLoader(BananasDataset(is_train=True),
                                              batch_size, shuffle=True)
     val_iter = torch.utils.data.DataLoader(BananasDataset(is_train=False),

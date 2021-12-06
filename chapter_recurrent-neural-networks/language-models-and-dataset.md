@@ -278,7 +278,7 @@ d2l.plot([freqs, bigram_freqs, trigram_freqs], xlabel='token: x',
 #@tab all
 def seq_data_iter_random(corpus, batch_size, num_steps):  #@save
     """使用随机抽样生成一个小批量子序列"""
-    # 从随机偏移量开始对序列进行分区，随机范围包括`num_steps - 1`
+    # 从随机偏移量开始对序列进行分区，随机范围包括`num_steps-1`
     corpus = corpus[random.randint(0, num_steps - 1):]
     # 减去1，是因为我们需要考虑标签
     num_subseqs = (len(corpus) - 1) // num_steps

@@ -145,7 +145,7 @@ class Vocab:  #@save
 
 def count_corpus(tokens):  #@save
     """统计词元的频率"""
-    # 这里的 `tokens` 是 1D 列表或 2D 列表
+    # 这里的`tokens`是1D列表或2D列表
     if len(tokens) == 0 or isinstance(tokens[0], list):
         # 将词元列表展平成一个列表
         tokens = [token for line in tokens for token in line]

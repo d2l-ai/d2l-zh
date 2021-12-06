@@ -64,7 +64,7 @@ def f_grad(x1, x2):  # 目标函数的梯度
 #@tab mxnet, pytorch
 def sgd(x1, x2, s1, s2, f_grad):
     g1, g2 = f_grad(x1, x2)
-    # Simulate noisy gradient
+    # Simulatenoisygradient
     g1 += d2l.normal(0.0, 1, (1,))
     g2 += d2l.normal(0.0, 1, (1,))
     eta_t = eta * lr()
@@ -75,7 +75,7 @@ def sgd(x1, x2, s1, s2, f_grad):
 #@tab tensorflow
 def sgd(x1, x2, s1, s2, f_grad):
     g1, g2 = f_grad(x1, x2)
-    # Simulate noisy gradient
+    # Simulatenoisygradient
     g1 += d2l.normal([1], 0.0, 1)
     g2 += d2l.normal([1], 0.0, 1)
     eta_t = eta * lr()
@@ -88,7 +88,7 @@ def constant_lr():
     return 1
 
 eta = 0.1
-lr = constant_lr  # Constant learning rate
+lr = constant_lr  # Constantlearningrate
 d2l.show_trace_2d(f, d2l.train_2d(sgd, steps=50, f_grad=f_grad))
 ```
 
@@ -115,7 +115,7 @@ $$
 ```{.python .input}
 #@tab all
 def exponential_lr():
-    # Global variable that is defined outside this function and updated inside
+    # Globalvariablethatisdefinedoutsidethisfunctionandupdatedinside
     global t
     t += 1
     return math.exp(-0.1 * t)
@@ -130,7 +130,7 @@ d2l.show_trace_2d(f, d2l.train_2d(sgd, steps=1000, f_grad=f_grad))
 ```{.python .input}
 #@tab all
 def polynomial_lr():
-    # Global variable that is defined outside this function and updated inside
+    # Globalvariablethatisdefinedoutsidethisfunctionandupdatedinside
     global t
     t += 1
     return (1 + 0.1 * t) ** (-0.5)

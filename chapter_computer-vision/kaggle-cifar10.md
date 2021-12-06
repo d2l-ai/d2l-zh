@@ -73,7 +73,7 @@ import shutil
 d2l.DATA_HUB['cifar10_tiny'] = (d2l.DATA_URL + 'kaggle_cifar10_tiny.zip',
                                 '2068874e4b9a9f0fb07ebe0ad2b29754449ccacd')
 
-# 如果你使用完整的Kaggle竞赛的数据集，设置`demo`为 False
+# 如果你使用完整的Kaggle竞赛的数据集，设置`demo`为False
 demo = True
 
 if demo:
@@ -91,9 +91,9 @@ else:
 #@tab all
 #@save
 def read_csv_labels(fname):
-    """读取 `fname` 来给标签字典返回一个文件名。"""
+    """读取`fname`来给标签字典返回一个文件名"""
     with open(fname, 'r') as f:
-        # 跳过文件头行 (列名)
+        # 跳过文件头行(列名)
         lines = f.readlines()[1:]
     tokens = [l.rstrip().split(',') for l in lines]
     return dict(((name, label) for name, label in tokens))
@@ -114,7 +114,7 @@ print('# 类别 :', len(set(labels.values())))
 #@tab all
 #@save
 def copyfile(filename, target_dir):
-    """将文件复制到目标目录。"""
+    """将文件复制到目标目录"""
     os.makedirs(target_dir, exist_ok=True)
     shutil.copy(filename, target_dir)
 

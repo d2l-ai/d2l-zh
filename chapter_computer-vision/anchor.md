@@ -51,7 +51,7 @@ $$(s_1, r_1), (s_1, r_2), \ldots, (s_1, r_m), (s_2, r_1), (s_3, r_1), \ldots, (s
 ```{.python .input}
 #@save
 def multibox_prior(data, sizes, ratios):
-    """生成以每个像素为中心具有不同形状的锚框。"""
+    """生成以每个像素为中心具有不同形状的锚框"""
     in_height, in_width = data.shape[-2:]
     device, num_sizes, num_ratios = data.ctx, len(sizes), len(ratios)
     boxes_per_pixel = (num_sizes + num_ratios - 1)
@@ -71,7 +71,7 @@ def multibox_prior(data, sizes, ratios):
     shift_x, shift_y = shift_x.reshape(-1), shift_y.reshape(-1)
 
     # 生成“boxes_per_pixel”个高和宽，
-    # 之后用于创建锚框的四角坐标 (xmin, xmax, ymin, ymax)
+    # 之后用于创建锚框的四角坐标(xmin,xmax,ymin,ymax)
     w = np.concatenate((size_tensor * np.sqrt(ratio_tensor[0]),
                         sizes[0] * np.sqrt(ratio_tensor[1:]))) \
                         * in_height / in_width  # 处理矩形输入
@@ -93,7 +93,7 @@ def multibox_prior(data, sizes, ratios):
 #@tab pytorch
 #@save
 def multibox_prior(data, sizes, ratios):
-    """生成以每个像素为中心具有不同形状的锚框。"""
+    """生成以每个像素为中心具有不同形状的锚框"""
     in_height, in_width = data.shape[-2:]
     device, num_sizes, num_ratios = data.device, len(sizes), len(ratios)
     boxes_per_pixel = (num_sizes + num_ratios - 1)
@@ -113,7 +113,7 @@ def multibox_prior(data, sizes, ratios):
     shift_y, shift_x = shift_y.reshape(-1), shift_x.reshape(-1)
 
     # 生成“boxes_per_pixel”个高和宽，
-    # 之后用于创建锚框的四角坐标 (xmin, xmax, ymin, ymax)
+    # 之后用于创建锚框的四角坐标(xmin,xmax,ymin,ymax)
     w = torch.cat((size_tensor * torch.sqrt(ratio_tensor[0]),
                    sizes[0] * torch.sqrt(ratio_tensor[1:])))\
                    * in_height / in_width  # 处理矩形输入
@@ -171,7 +171,7 @@ boxes[250, 250, 0, :]
 #@tab all
 #@save
 def show_bboxes(axes, bboxes, labels=None, colors=None):
-    """显示所有边界框。"""
+    """显示所有边界框"""
     def _make_list(obj, default_values=None):
         if obj is None:
             obj = default_values
@@ -232,23 +232,23 @@ $$J(\mathcal{A},\mathcal{B}) = \frac{\left|\mathcal{A} \cap \mathcal{B}\right|}{
 ```{.python .input}
 #@save
 def box_iou(boxes1, boxes2):
-    """计算两个锚框或边界框列表中成对的交并比。"""
+    """计算两个锚框或边界框列表中成对的交并比"""
     box_area = lambda boxes: ((boxes[:, 2] - boxes[:, 0]) *
                               (boxes[:, 3] - boxes[:, 1]))
-    # `boxes1`, `boxes2`, `areas1`, `areas2`的形状: 
-    # `boxes1`：(boxes1的数量, 4),
-    # `boxes2`：(boxes2的数量, 4), 
-    # `areas1`：(boxes1的数量,), 
+    # `boxes1`,`boxes2`,`areas1`,`areas2`的形状:
+    # `boxes1`：(boxes1的数量,4),
+    # `boxes2`：(boxes2的数量,4),
+    # `areas1`：(boxes1的数量,),
     # `areas2`：(boxes2的数量,)
     areas1 = box_area(boxes1)
     areas2 = box_area(boxes2)
 
-    #  `inter_upperlefts`, `inter_lowerrights`, `inters`的形状: 
-    # (boxes1的数量, boxes2的数量, 2)
+    # `inter_upperlefts`,`inter_lowerrights`,`inters`的形状:
+    # (boxes1的数量,boxes2的数量,2)
     inter_upperlefts = np.maximum(boxes1[:, None, :2], boxes2[:, :2])
     inter_lowerrights = np.minimum(boxes1[:, None, 2:], boxes2[:, 2:])
     inters = (inter_lowerrights - inter_upperlefts).clip(min=0)
-    # `inter_areas` and `union_areas`的形状: (boxes1的数量, boxes2的数量)
+    # `inter_areas`and`union_areas`的形状:(boxes1的数量,boxes2的数量)
     inter_areas = inters[:, :, 0] * inters[:, :, 1]
     union_areas = areas1[:, None] + areas2 - inter_areas
     return inter_areas / union_areas
@@ -258,22 +258,22 @@ def box_iou(boxes1, boxes2):
 #@tab pytorch
 #@save
 def box_iou(boxes1, boxes2):
-    """计算两个锚框或边界框列表中成对的交并比。"""
+    """计算两个锚框或边界框列表中成对的交并比"""
     box_area = lambda boxes: ((boxes[:, 2] - boxes[:, 0]) *
                               (boxes[:, 3] - boxes[:, 1]))
-    # `boxes1`, `boxes2`, `areas1`, `areas2`的形状: 
-    # `boxes1`：(boxes1的数量, 4),
-    # `boxes2`：(boxes2的数量, 4), 
-    # `areas1`：(boxes1的数量,), 
+    # `boxes1`,`boxes2`,`areas1`,`areas2`的形状:
+    # `boxes1`：(boxes1的数量,4),
+    # `boxes2`：(boxes2的数量,4),
+    # `areas1`：(boxes1的数量,),
     # `areas2`：(boxes2的数量,)
     areas1 = box_area(boxes1)
     areas2 = box_area(boxes2)
-    #  `inter_upperlefts`, `inter_lowerrights`, `inters`的形状: 
-    # (boxes1的数量, boxes2的数量, 2)
+    # `inter_upperlefts`,`inter_lowerrights`,`inters`的形状:
+    # (boxes1的数量,boxes2的数量,2)
     inter_upperlefts = torch.max(boxes1[:, None, :2], boxes2[:, :2])
     inter_lowerrights = torch.min(boxes1[:, None, 2:], boxes2[:, 2:])
     inters = (inter_lowerrights - inter_upperlefts).clamp(min=0)
-    # `inter_areas` and `union_areas`的形状: (boxes1的数量, boxes2的数量)
+    # `inter_areas`and`union_areas`的形状:(boxes1的数量,boxes2的数量)
     inter_areas = inters[:, :, 0] * inters[:, :, 1]
     union_areas = areas1[:, None] + areas2 - inter_areas
     return inter_areas / union_areas
@@ -316,9 +316,9 @@ def box_iou(boxes1, boxes2):
 ```{.python .input}
 #@save
 def assign_anchor_to_bbox(ground_truth, anchors, device, iou_threshold=0.5):
-    """将最接近的真实边界框分配给锚框。"""
+    """将最接近的真实边界框分配给锚框"""
     num_anchors, num_gt_boxes = anchors.shape[0], ground_truth.shape[0]
-    # 位于第i行和第j列的元素 x_ij 是锚框i和真实边界框j的IoU
+    # 位于第i行和第j列的元素x_ij是锚框i和真实边界框j的IoU
     jaccard = box_iou(anchors, ground_truth)
     # 对于每个锚框，分配的真实边界框的张量
     anchors_bbox_map = np.full((num_anchors,), -1, dtype=np.int32, ctx=device)
@@ -343,9 +343,9 @@ def assign_anchor_to_bbox(ground_truth, anchors, device, iou_threshold=0.5):
 #@tab pytorch
 #@save
 def assign_anchor_to_bbox(ground_truth, anchors, device, iou_threshold=0.5):
-    """将最接近的真实边界框分配给锚框。"""
+    """将最接近的真实边界框分配给锚框"""
     num_anchors, num_gt_boxes = anchors.shape[0], ground_truth.shape[0]
-    # 位于第i行和第j列的元素 x_ij 是锚框i和真实边界框j的IoU
+    # 位于第i行和第j列的元素x_ij是锚框i和真实边界框j的IoU
     jaccard = box_iou(anchors, ground_truth)
     # 对于每个锚框，分配的真实边界框的张量
     anchors_bbox_map = torch.full((num_anchors,), -1, dtype=torch.long,
@@ -390,7 +390,7 @@ $$\left( \frac{ \frac{x_b - x_a}{w_a} - \mu_x }{\sigma_x},
 #@tab all
 #@save
 def offset_boxes(anchors, assigned_bb, eps=1e-6):
-    """对锚框偏移量的转换。"""
+    """对锚框偏移量的转换"""
     c_anc = d2l.box_corner_to_center(anchors)
     c_assigned_bb = d2l.box_corner_to_center(assigned_bb)
     offset_xy = 10 * (c_assigned_bb[:, :2] - c_anc[:, :2]) / c_anc[:, 2:]
@@ -407,7 +407,7 @@ def offset_boxes(anchors, assigned_bb, eps=1e-6):
 ```{.python .input}
 #@save
 def multibox_target(anchors, labels):
-    """使用真实边界框标记锚框。"""
+    """使用真实边界框标记锚框"""
     batch_size, anchors = labels.shape[0], anchors.squeeze(0)
     batch_offset, batch_mask, batch_class_labels = [], [], []
     device, num_anchors = anchors.ctx, anchors.shape[0]
@@ -442,7 +442,7 @@ def multibox_target(anchors, labels):
 #@tab pytorch
 #@save
 def multibox_target(anchors, labels):
-    """使用真实边界框标记锚框。"""
+    """使用真实边界框标记锚框"""
     batch_size, anchors = labels.shape[0], anchors.squeeze(0)
     batch_offset, batch_mask, batch_class_labels = [], [], []
     device, num_anchors = anchors.device, anchors.shape[0]
@@ -555,7 +555,7 @@ labels[0]
 #@tab all
 #@save
 def offset_inverse(anchors, offset_preds):
-    """根据带有预测偏移量的锚框来预测边界框。"""
+    """根据带有预测偏移量的锚框来预测边界框"""
     anc = d2l.box_corner_to_center(anchors)
     pred_bbox_xy = (offset_preds[:, :2] * anc[:, 2:] / 10) + anc[:, :2]
     pred_bbox_wh = d2l.exp(offset_preds[:, 2:] / 5) * anc[:, 2:]
@@ -583,7 +583,7 @@ def offset_inverse(anchors, offset_preds):
 ```{.python .input}
 #@save
 def nms(boxes, scores, iou_threshold):
-    """对预测边界框的置信度进行排序。"""
+    """对预测边界框的置信度进行排序"""
     B = scores.argsort()[::-1]
     keep = []  # 保留预测边界框的指标
     while B.size > 0:
@@ -601,7 +601,7 @@ def nms(boxes, scores, iou_threshold):
 #@tab pytorch
 #@save
 def nms(boxes, scores, iou_threshold):
-    """对预测边界框的置信度进行排序。"""
+    """对预测边界框的置信度进行排序"""
     B = torch.argsort(scores, dim=-1, descending=True)
     keep = []  # 保留预测边界框的指标
     while B.numel() > 0:
@@ -622,7 +622,7 @@ def nms(boxes, scores, iou_threshold):
 #@save
 def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
                        pos_threshold=0.009999999):
-    """使用非极大值抑制来预测边界框。"""
+    """使用非极大值抑制来预测边界框"""
     device, batch_size = cls_probs.ctx, cls_probs.shape[0]
     anchors = np.squeeze(anchors, axis=0)
     num_classes, num_anchors = cls_probs.shape[1], cls_probs.shape[2]
@@ -633,7 +633,7 @@ def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
         predicted_bb = offset_inverse(anchors, offset_pred)
         keep = nms(predicted_bb, conf, nms_threshold)
 
-        # 找到所有的 non_keep 索引，并将类设置为背景
+        # 找到所有的non_keep索引，并将类设置为背景
         all_idx = np.arange(num_anchors, dtype=np.int32, ctx=device)
         combined = d2l.concat((keep, all_idx))
         unique, counts = np.unique(combined, return_counts=True)
@@ -642,7 +642,7 @@ def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
         class_id[non_keep] = -1
         class_id = class_id[all_id_sorted].astype('float32')
         conf, predicted_bb = conf[all_id_sorted], predicted_bb[all_id_sorted]
-        # `pos_threshold` 是一个用于非背景预测的阈值
+        # `pos_threshold`是一个用于非背景预测的阈值
         below_min_idx = (conf < pos_threshold)
         class_id[below_min_idx] = -1
         conf[below_min_idx] = 1 - conf[below_min_idx]
@@ -658,7 +658,7 @@ def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
 #@save
 def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
                        pos_threshold=0.009999999):
-    """使用非极大值抑制来预测边界框。"""
+    """使用非极大值抑制来预测边界框"""
     device, batch_size = cls_probs.device, cls_probs.shape[0]
     anchors = anchors.squeeze(0)
     num_classes, num_anchors = cls_probs.shape[1], cls_probs.shape[2]
@@ -669,7 +669,7 @@ def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
         predicted_bb = offset_inverse(anchors, offset_pred)
         keep = nms(predicted_bb, conf, nms_threshold)
 
-        # 找到所有的 non_keep 索引，并将类设置为背景
+        # 找到所有的non_keep索引，并将类设置为背景
         all_idx = torch.arange(num_anchors, dtype=torch.long, device=device)
         combined = torch.cat((keep, all_idx))
         uniques, counts = combined.unique(return_counts=True)
@@ -678,7 +678,7 @@ def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
         class_id[non_keep] = -1
         class_id = class_id[all_id_sorted]
         conf, predicted_bb = conf[all_id_sorted], predicted_bb[all_id_sorted]
-        # `pos_threshold` 是一个用于非背景预测的阈值
+        # `pos_threshold`是一个用于非背景预测的阈值
         below_min_idx = (conf < pos_threshold)
         class_id[below_min_idx] = -1
         conf[below_min_idx] = 1 - conf[below_min_idx]
@@ -698,7 +698,7 @@ def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
 anchors = d2l.tensor([[0.1, 0.08, 0.52, 0.92], [0.08, 0.2, 0.56, 0.95],
                       [0.15, 0.3, 0.62, 0.91], [0.55, 0.2, 0.9, 0.88]])
 offset_preds = d2l.tensor([0] * d2l.size(anchors))
-cls_probs = d2l.tensor([[0] * 4,  # 背景的预测概率 
+cls_probs = d2l.tensor([[0] * 4,  # 背景的预测概率
                       [0.9, 0.8, 0.7, 0.1],  # 狗的预测概率
                       [0.1, 0.2, 0.3, 0.9]])  # 猫的预测概率
 ```
