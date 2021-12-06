@@ -19,7 +19,7 @@ GoogLeNet吸收了NiN中串联网络的思想，并在此基础上做了改进�
 前三条路径使用窗口大小为$1\times 1$、$3\times 3$和$5\times 5$的卷积层，从不同空间大小中提取信息。
 中间的两条路径在输入上执行$1\times 1$卷积，以减少通道数，从而降低模型的复杂性。
 第四条路径使用$3\times 3$最大汇聚层，然后使用$1\times 1$卷积层来改变通道数。
-这四条路径都使用合适的填充来使输入与输出的高和宽一致，最后我们将每条线路的输出在通道维度上连结，并构成Inception块的输出。在Inception块中，通常调整的超参数是每层输出通道的数量。
+这四条路径都使用合适的填充来使输入与输出的高和宽一致，最后我们将每条线路的输出在通道维度上连结，并构成Inception块的输出。在Inception块中，通常调整的超参数是每层输出通道数。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -126,7 +126,7 @@ class Inception(tf.keras.Model):
 ## [**GoogLeNet模型**]
 
 如 :numref:`fig_inception_full`所示，GoogLeNet一共使用9个Inception块和全局平均汇聚层的堆叠来生成其估计值。Inception块之间的最大汇聚层可降低维度。
-第一个模块类似于AlexNet和LeNet，Inception块的栈从VGG继承，全局平均汇聚层避免了在最后使用全连接层。
+第一个模块类似于AlexNet和LeNet，Inception块的组合从VGG继承，全局平均汇聚层避免了在最后使用全连接层。
 
 ![GoogLeNet架构。](../img/inception-full.svg)
 :label:`fig_inception_full`
@@ -337,11 +337,11 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 
 ## 练习
 
-1. GoogLeNet有数个后续版本。尝试实现并运行它们，然后观察实验结果。这些后续版本包括：
+1. GoogLeNet有一些后续版本。尝试实现并运行它们，然后观察实验结果。这些后续版本包括：
     * 添加批量规范化层 :cite:`Ioffe.Szegedy.2015`（batch normalization），在 :numref:`sec_batch_norm`中将介绍）。
-    * 对Inception模块进行调整。
+    * 对Inception模块进行调整 :cite:`Szegedy.Vanhoucke.Ioffe.ea.2016`。
     * 使用标签平滑（label smoothing）进行模型正则化 :cite:`Szegedy.Vanhoucke.Ioffe.ea.2016`。
-    * 加入残差连接 :cite:`Szegedy.Ioffe.Vanhoucke.ea.2017`，（ :numref:`sec_resnet`将介绍）。
+    * 加入残差连接 :cite:`Szegedy.Ioffe.Vanhoucke.ea.2017`。（ :numref:`sec_resnet`将介绍）。
 1. 使用GoogLeNet的最小图像大小是多少？
 1. 将AlexNet、VGG和NiN的模型参数大小与GoogLeNet进行比较。后两个网络架构是如何显著减少模型参数大小的？
 
