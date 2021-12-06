@@ -92,8 +92,8 @@ class Attend(nn.Block):
         self.f = mlp(num_hiddens=num_hiddens, flatten=False)
 
     def forward(self, A, B):
-        # `A`/`B`的形状：（批量大小，序列 A/B的词元数，`embed_size`）
-        # `f_A`/`f_B`的形状：（`批量大小`，序列 A/B的词元数，`num_hiddens`）
+        # `A`/`B`的形状：（批量大小，序列A/B的词元数，`embed_size`）
+        # `f_A`/`f_B`的形状：（`批量大小`，序列A/B的词元数，`num_hiddens`）
         f_A = self.f(A)
         f_B = self.f(B)
         # `e`的形状：（批量大小，序列A的词元数，序列B的词元数）
@@ -115,8 +115,8 @@ class Attend(nn.Module):
         self.f = mlp(num_inputs, num_hiddens, flatten=False)
 
     def forward(self, A, B):
-        # `A`/`B`的形状：（批量大小，序列 A/B的词元数，`embed_size`）
-        # `f_A`/`f_B`的形状：（`批量大小`，序列 A/B的词元数，`num_hiddens`）
+        # `A`/`B`的形状：（批量大小，序列A/B的词元数，`embed_size`）
+        # `f_A`/`f_B`的形状：（`批量大小`，序列A/B的词元数，`num_hiddens`）
         f_A = self.f(A)
         f_B = self.f(B)
         # `e`的形状：（批量大小，序列A的词元数，序列B的词元数）

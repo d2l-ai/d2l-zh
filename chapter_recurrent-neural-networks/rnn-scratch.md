@@ -563,7 +563,7 @@ def grad_clipping(grads, theta):  #@save
 def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
     """训练模型一个迭代周期（定义见第8章）"""
     state, timer = None, d2l.Timer()
-    metric = d2l.Accumulator(2)  # 训练损失之和, 词元数量
+    metric = d2l.Accumulator(2)  # 训练损失之和,词元数量
     for X, Y in train_iter:
         if state is None or use_random_iter:
             # 在第一次迭代或使用随机抽样时初始化`state`
@@ -589,7 +589,7 @@ def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
 def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
     """训练网络一个迭代周期（定义见第8章）"""
     state, timer = None, d2l.Timer()
-    metric = d2l.Accumulator(2)  # 训练损失之和, 词元数量
+    metric = d2l.Accumulator(2)  # 训练损失之和,词元数量
     for X, Y in train_iter:
         if state is None or use_random_iter:
             # 在第一次迭代或使用随机抽样时初始化`state`
@@ -626,7 +626,7 @@ def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
 def train_epoch_ch8(net, train_iter, loss, updater, use_random_iter):
     """训练模型一个迭代周期（定义见第8章）"""
     state, timer = None, d2l.Timer()
-    metric = d2l.Accumulator(2)  # 训练损失之和, 词元数量
+    metric = d2l.Accumulator(2)  # 训练损失之和,词元数量
     for X, Y in train_iter:
         if state is None or use_random_iter:
             # 在第一次迭代或使用随机抽样时初始化`state`

@@ -89,7 +89,7 @@ net.add(nin_block(96, kernel_size=11, strides=4, padding=0),
         nin_block(10, kernel_size=3, strides=1, padding=1),
         # 全局平均汇聚层将窗口形状自动设置成输入的高和宽
         nn.GlobalAvgPool2D(),
-        # 将四维的输出转成二维的输出，其形状为(批量大小, 10)
+        # 将四维的输出转成二维的输出，其形状为(批量大小,10)
         nn.Flatten())
 ```
 
@@ -106,7 +106,7 @@ net = nn.Sequential(
     # 标签类别数是10
     nin_block(384, 10, kernel_size=3, strides=1, padding=1),
     nn.AdaptiveAvgPool2d((1, 1)),
-    # 将四维的输出转成二维的输出，其形状为(批量大小, 10)
+    # 将四维的输出转成二维的输出，其形状为(批量大小,10)
     nn.Flatten())
 ```
 
@@ -125,7 +125,7 @@ def net():
         nin_block(10, kernel_size=3, strides=1, padding='same'),
         tf.keras.layers.GlobalAveragePooling2D(),
         tf.keras.layers.Reshape((1, 1, 10)),
-        # 将四维的输出转成二维的输出，其形状为(批量大小, 10)
+        # 将四维的输出转成二维的输出，其形状为(批量大小,10)
         tf.keras.layers.Flatten(),
         ])
 ```

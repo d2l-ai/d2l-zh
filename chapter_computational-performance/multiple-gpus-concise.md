@@ -137,7 +137,7 @@ weight.data(devices[0])[0], weight.data(devices[1])[0]
 ```{.python .input}
 #@save
 def evaluate_accuracy_gpus(net, data_iter, split_f=d2l.split_batch):
-    """使用多个GPU计算数据集上模型的精度。"""
+    """使用多个GPU计算数据集上模型的精度"""
     # 查询设备列表
     devices = list(net.collect_params().values())[0].list_ctx()
     # 正确预测的数量，预测的总数量

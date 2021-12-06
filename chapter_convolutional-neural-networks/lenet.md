@@ -44,7 +44,7 @@ net.add(nn.Conv2D(channels=6, kernel_size=5, padding=2, activation='sigmoid'),
         nn.AvgPool2D(pool_size=2, strides=2),
         nn.Conv2D(channels=16, kernel_size=5, activation='sigmoid'),
         nn.AvgPool2D(pool_size=2, strides=2),
-        # 默认情况下，“Dense” 会自动将形状为（批量大小，通道数，高度，宽度）的输入，
+        # 默认情况下，“Dense”会自动将形状为（批量大小，通道数，高度，宽度）的输入，
         # 转换为形状为（批量大小，通道数*高度*宽度）的输入
         nn.Dense(120, activation='sigmoid'),
         nn.Dense(84, activation='sigmoid'),
@@ -144,7 +144,7 @@ train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size=batch_size)
 
 ```{.python .input}
 def evaluate_accuracy_gpu(net, data_iter, device=None):  #@save
-    """使用GPU计算模型在数据集上的精度。"""
+    """使用GPU计算模型在数据集上的精度"""
     if not device:  # 查询第一个参数所在的第一个设备
         device = list(net.collect_params().values())[0].list_ctx()[0]
     metric = d2l.Accumulator(2)  # 正确预测的数量，总预测的数量
@@ -157,7 +157,7 @@ def evaluate_accuracy_gpu(net, data_iter, device=None):  #@save
 ```{.python .input}
 #@tab pytorch
 def evaluate_accuracy_gpu(net, data_iter, device=None): #@save
-    """使用GPU计算模型在数据集上的精度。"""
+    """使用GPU计算模型在数据集上的精度"""
     if isinstance(net, nn.Module):
         net.eval()  # 设置为评估模式
         if not device:
@@ -188,7 +188,7 @@ def evaluate_accuracy_gpu(net, data_iter, device=None): #@save
 ```{.python .input}
 #@save
 def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
-    """用GPU训练模型(在第六章定义)。"""
+    """用GPU训练模型(在第六章定义)"""
     net.initialize(force_reinit=True, ctx=device, init=init.Xavier())
     loss = gluon.loss.SoftmaxCrossEntropyLoss()
     trainer = gluon.Trainer(net.collect_params(),
@@ -226,7 +226,7 @@ def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
 #@tab pytorch
 #@save
 def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
-    """用GPU训练模型(在第六章定义)。"""
+    """用GPU训练模型(在第六章定义)"""
     def init_weights(m):
         if type(m) == nn.Linear or type(m) == nn.Conv2d:
             nn.init.xavier_uniform_(m.weight)
@@ -269,7 +269,7 @@ def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
 ```{.python .input}
 #@tab tensorflow
 class TrainCallback(tf.keras.callbacks.Callback):  #@save
-    """一个以可视化的训练进展的回调。"""
+    """一个以可视化的训练进展的回调"""
     def __init__(self, net, train_iter, test_iter, num_epochs, device_name):
         self.timer = d2l.Timer()
         self.animator = d2l.Animator(
@@ -301,7 +301,7 @@ class TrainCallback(tf.keras.callbacks.Callback):  #@save
 
 #@save
 def train_ch6(net_fn, train_iter, test_iter, num_epochs, lr, device):
-    """用GPU训练模型(在第六章定义)。"""
+    """用GPU训练模型(在第六章定义)"""
     device_name = device._device_name
     strategy = tf.distribute.OneDeviceStrategy(device_name)
     with strategy.scope():

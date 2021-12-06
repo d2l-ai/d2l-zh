@@ -83,7 +83,7 @@ num_merges = 10
 for i in range(num_merges):
     max_freq_pair = get_max_freq_pair(token_freqs)
     token_freqs = merge_symbols(max_freq_pair, token_freqs, symbols)
-    print(f'合并#{i + 1}:', max_freq_pair)
+    print(f'合并# {i+1}:',max_freq_pair)
 ```
 
 在字节对编码的10次迭代之后，我们可以看到列表`symbols`现在又包含10个从其他符号迭代合并而来的符号。

@@ -127,7 +127,7 @@ ln.initialize()
 bn = nn.BatchNorm()
 bn.initialize()
 X = d2l.tensor([[1, 2], [2, 3]])
-# 在训练模式下计算 `X` 的均值和方差
+# 在训练模式下计算`X`的均值和方差
 with autograd.record():
     print('层规范化：', ln(X), '\n批量规范化：', bn(X))
 ```
@@ -137,7 +137,7 @@ with autograd.record():
 ln = nn.LayerNorm(2)
 bn = nn.BatchNorm1d(2)
 X = d2l.tensor([[1, 2], [2, 3]], dtype=torch.float32)
-# 在训练模式下计算 `X` 的均值和方差
+# 在训练模式下计算`X`的均值和方差
 print('layer norm:', ln(X), '\nbatch norm:', bn(X))
 ```
 
@@ -323,7 +323,7 @@ class TransformerEncoder(d2l.Encoder):
                              use_bias))
 
     def forward(self, X, valid_lens, *args):
-        # 因为位置编码值在 -1 和 1 之间，
+        # 因为位置编码值在-1和1之间，
         # 因此嵌入值乘以嵌入维度的平方根进行缩放，
         # 然后再与位置编码相加。
         X = self.pos_encoding(self.embedding(X) * math.sqrt(self.num_hiddens))
@@ -355,7 +355,7 @@ class TransformerEncoder(d2l.Encoder):
                              num_heads, dropout, use_bias))
 
     def forward(self, X, valid_lens, *args):
-        # 因为位置编码值在 -1 和 1 之间，
+        # 因为位置编码值在-1和1之间，
         # 因此嵌入值乘以嵌入维度的平方根进行缩放，
         # 然后再与位置编码相加。
         X = self.pos_encoding(self.embedding(X) * math.sqrt(self.num_hiddens))
@@ -385,7 +385,7 @@ class TransformerEncoder(d2l.Encoder):
             num_layers)]
         
     def call(self, X, valid_lens, **kwargs):
-        # 因为位置编码值在 -1 和 1 之间，
+        # 因为位置编码值在-1和1之间，
         # 因此嵌入值乘以嵌入维度的平方根进行缩放，
         # 然后再与位置编码相加。
         X = self.pos_encoding(self.embedding(X) * tf.math.sqrt(
@@ -429,7 +429,7 @@ encoder(tf.ones((2, 100)), valid_lens, training=False).shape
 
 ```{.python .input}
 class DecoderBlock(nn.Block):
-    """解码器中第 i 个块"""
+    """解码器中第i个块"""
     def __init__(self, num_hiddens, ffn_num_hiddens, num_heads,
                  dropout, i, **kwargs):
         super(DecoderBlock, self).__init__(**kwargs)
@@ -446,9 +446,9 @@ class DecoderBlock(nn.Block):
     def forward(self, X, state):
         enc_outputs, enc_valid_lens = state[0], state[1]
         # 训练阶段，输出序列的所有词元都在同一时间处理，
-        # 因此 `state[2][self.i]` 初始化为 `None`。
+        # 因此`state[2][self.i]`初始化为`None`。
         # 预测阶段，输出序列是通过词元一个接着一个解码的，
-        # 因此 `state[2][self.i]` 包含着直到当前时间步第 `i` 个块解码的输出表示
+        # 因此`state[2][self.i]`包含着直到当前时间步第`i`个块解码的输出表示
         if state[2][self.i] is None:
             key_values = X
         else:
@@ -457,8 +457,8 @@ class DecoderBlock(nn.Block):
 
         if autograd.is_training():
             batch_size, num_steps, _ = X.shape
-            # `dec_valid_lens` 的开头: (`batch_size`, `num_steps`), 
-            # 其中每一行是 [1, 2, ..., `num_steps`]
+            # `dec_valid_lens`的开头:(`batch_size`,`num_steps`),
+            # 其中每一行是[1,2,...,`num_steps`]
             dec_valid_lens = np.tile(np.arange(1, num_steps + 1, ctx=X.ctx),
                                      (batch_size, 1))
         else:
@@ -468,7 +468,7 @@ class DecoderBlock(nn.Block):
         X2 = self.attention1(X, key_values, key_values, dec_valid_lens)
         Y = self.addnorm1(X, X2)
         # “编码器－解码器”注意力。
-        # 'enc_outputs' 的开头: ('batch_size', 'num_steps', 'num_hiddens')
+        # 'enc_outputs'的开头:('batch_size','num_steps','num_hiddens')
         Y2 = self.attention2(Y, enc_outputs, enc_outputs, enc_valid_lens)
         Z = self.addnorm2(Y, Y2)
         return self.addnorm3(Z, self.ffn(Z)), state
@@ -477,7 +477,7 @@ class DecoderBlock(nn.Block):
 ```{.python .input}
 #@tab pytorch
 class DecoderBlock(nn.Module):
-    """解码器中第 i 个块"""
+    """解码器中第i个块"""
     def __init__(self, key_size, query_size, value_size, num_hiddens,
                  norm_shape, ffn_num_input, ffn_num_hiddens, num_heads,
                  dropout, i, **kwargs):
@@ -496,9 +496,9 @@ class DecoderBlock(nn.Module):
     def forward(self, X, state):
         enc_outputs, enc_valid_lens = state[0], state[1]
         # 训练阶段，输出序列的所有词元都在同一时间处理，
-        # 因此 `state[2][self.i]` 初始化为 `None`。
+        # 因此`state[2][self.i]`初始化为`None`。
         # 预测阶段，输出序列是通过词元一个接着一个解码的，
-        # 因此 `state[2][self.i]` 包含着直到当前时间步第 `i` 个块解码的输出表示
+        # 因此`state[2][self.i]`包含着直到当前时间步第`i`个块解码的输出表示
         if state[2][self.i] is None:
             key_values = X
         else:
@@ -506,8 +506,8 @@ class DecoderBlock(nn.Module):
         state[2][self.i] = key_values
         if self.training:
             batch_size, num_steps, _ = X.shape
-            # `dec_valid_lens` 的开头: (`batch_size`, `num_steps`), 
-            # 其中每一行是 [1, 2, ..., `num_steps`]
+            # `dec_valid_lens`的开头:(`batch_size`,`num_steps`),
+            # 其中每一行是[1,2,...,`num_steps`]
             dec_valid_lens = torch.arange(
                 1, num_steps + 1, device=X.device).repeat(batch_size, 1)
         else:
@@ -517,7 +517,7 @@ class DecoderBlock(nn.Module):
         X2 = self.attention1(X, key_values, key_values, dec_valid_lens)
         Y = self.addnorm1(X, X2)
         # 编码器－解码器注意力。
-        # `enc_outputs` 的开头: (`batch_size`, `num_steps`, `num_hiddens`)
+        # `enc_outputs`的开头:(`batch_size`,`num_steps`,`num_hiddens`)
         Y2 = self.attention2(Y, enc_outputs, enc_outputs, enc_valid_lens)
         Z = self.addnorm2(Y, Y2)
         return self.addnorm3(Z, self.ffn(Z)), state
@@ -526,7 +526,7 @@ class DecoderBlock(nn.Module):
 ```{.python .input}
 #@tab tensorflow
 class DecoderBlock(tf.keras.layers.Layer):
-    """解码器中第 i 个块"""
+    """解码器中第i个块"""
     def __init__(self, key_size, query_size, value_size, num_hiddens,
                  norm_shape, ffn_num_hiddens, num_heads, dropout, i, **kwargs):
         super().__init__(**kwargs)
@@ -541,9 +541,9 @@ class DecoderBlock(tf.keras.layers.Layer):
     def call(self, X, state, **kwargs):
         enc_outputs, enc_valid_lens = state[0], state[1]
         # 训练阶段，输出序列的所有词元都在同一时间处理，
-        # 因此 `state[2][self.i]` 初始化为 `None`。
+        # 因此`state[2][self.i]`初始化为`None`。
         # 预测阶段，输出序列是通过词元一个接着一个解码的，
-        # 因此 `state[2][self.i]` 包含着直到当前时间步第 `i` 个块解码的输出表示
+        # 因此`state[2][self.i]`包含着直到当前时间步第`i`个块解码的输出表示
         if state[2][self.i] is None:
             key_values = X
         else:
@@ -551,8 +551,8 @@ class DecoderBlock(tf.keras.layers.Layer):
         state[2][self.i] = key_values
         if kwargs["training"]:
             batch_size, num_steps, _ = X.shape
-           # `dec_valid_lens` 的开头: (`batch_size`, `num_steps`), 
-            # 其中每一行是 [1, 2, ..., `num_steps`]
+           # `dec_valid_lens`的开头:(`batch_size`,`num_steps`),
+            # 其中每一行是[1,2,...,`num_steps`]
             dec_valid_lens = tf.repeat(tf.reshape(tf.range(1, num_steps + 1),
                                                  shape=(-1, num_steps)), repeats=batch_size, axis=0)
 
@@ -563,7 +563,7 @@ class DecoderBlock(tf.keras.layers.Layer):
         X2 = self.attention1(X, key_values, key_values, dec_valid_lens, **kwargs)
         Y = self.addnorm1(X, X2, **kwargs)
         # 编码器－解码器注意力。
-        # `enc_outputs` 的开头: (`batch_size`, `num_steps`, `num_hiddens`)
+        # `enc_outputs`的开头:(`batch_size`,`num_steps`,`num_hiddens`)
         Y2 = self.attention2(Y, enc_outputs, enc_outputs, enc_valid_lens, **kwargs)
         Z = self.addnorm2(Y, Y2, **kwargs)
         return self.addnorm3(Z, self.ffn(Z), **kwargs), state
@@ -869,7 +869,7 @@ print(dec_self_attention_weights.shape, dec_inter_attention_weights.shape)
 
 ```{.python .input}
 #@tab all
-# Plus one to include the beginning-of-sequence token
+# Plusonetoincludethebeginning-of-sequencetoken
 d2l.show_heatmaps(
     dec_self_attention_weights[:, :, :, :len(translation.split()) + 1],
     xlabel='Key positions', ylabel='Query positions',

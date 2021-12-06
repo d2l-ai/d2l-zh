@@ -193,39 +193,39 @@ $$\begin{aligned} f(x) &=\sum_{i=1}^n \alpha(x, x_i) y_i\\ &= \sum_{i=1}^n \frac
 你会发现新的模型预测线是平滑的，并且比平均汇聚的预测更接近真实。
 
 ```{.python .input}
-# `X_repeat` 的形状: (`n_test`, `n_train`), 
+# `X_repeat`的形状:(`n_test`,`n_train`),
 # 每一行都包含着相同的测试输入（例如：同样的查询）
 X_repeat = d2l.reshape(x_test.repeat(n_train), (-1, n_train))
-# `x_train` 包含着键。`attention_weights` 的形状：(`n_test`, `n_train`), 
+# `x_train`包含着键。`attention_weights`的形状：(`n_test`,`n_train`),
 # 每一行都包含着要在给定的每个查询的值（`y_train`）之间分配的注意力权重
 attention_weights = npx.softmax(-(X_repeat - x_train)**2 / 2)
-# `y_hat` 的每个元素都是值的加权平均值，其中的权重是注意力权重
+# `y_hat`的每个元素都是值的加权平均值，其中的权重是注意力权重
 y_hat = d2l.matmul(attention_weights, y_train)
 plot_kernel_reg(y_hat)
 ```
 
 ```{.python .input}
 #@tab pytorch
-# `X_repeat` 的形状: (`n_test`, `n_train`), 
+# `X_repeat`的形状:(`n_test`,`n_train`),
 # 每一行都包含着相同的测试输入（例如：同样的查询）
 X_repeat = d2l.reshape(x_test.repeat_interleave(n_train), (-1, n_train))
-# `x_train` 包含着键。`attention_weights` 的形状：(`n_test`, `n_train`), 
+# `x_train`包含着键。`attention_weights`的形状：(`n_test`,`n_train`),
 # 每一行都包含着要在给定的每个查询的值（`y_train`）之间分配的注意力权重
 attention_weights = nn.functional.softmax(-(X_repeat - x_train)**2 / 2, dim=1)
-# `y_hat` 的每个元素都是值的加权平均值，其中的权重是注意力权重
+# `y_hat`的每个元素都是值的加权平均值，其中的权重是注意力权重
 y_hat = d2l.matmul(attention_weights, y_train)
 plot_kernel_reg(y_hat)
 ```
 
 ```{.python .input}
 #@tab tensorflow
-# `X_repeat` 的形状: (`n_test`, `n_train`), 
+# `X_repeat`的形状:(`n_test`,`n_train`),
 # 每一行都包含着相同的测试输入（例如：同样的查询）
 X_repeat = tf.repeat(tf.expand_dims(x_train, axis=0), repeats=n_train, axis=0)
-# `x_train` 包含着键。`attention_weights` 的形状：(`n_test`, `n_train`), 
+# `x_train`包含着键。`attention_weights`的形状：(`n_test`,`n_train`),
 # 每一行都包含着要在给定的每个查询的值（`y_train`）之间分配的注意力权重
 attention_weights = tf.nn.softmax(-(X_repeat - tf.expand_dims(x_train, axis=1))**2/2, axis=1)
-# `y_hat` 的每个元素都是值的加权平均值，其中的权重是注意力权重
+# `y_hat`的每个元素都是值的加权平均值，其中的权重是注意力权重
 y_hat = tf.matmul(attention_weights, tf.expand_dims(y_train, axis=1))
 plot_kernel_reg(y_hat)
 ```
@@ -343,12 +343,12 @@ class NWKernelRegression(nn.Block):
         self.w = self.params.get('w', shape=(1,))
 
     def forward(self, queries, keys, values):
-        # `queries` 和 `attention_weights` 的形状为 (查询数，“键－值”对数)
+        # `queries`和`attention_weights`的形状为(查询数，“键－值”对数)
         queries = d2l.reshape(
             queries.repeat(keys.shape[1]), (-1, keys.shape[1]))
         self.attention_weights = npx.softmax(
             -((queries - keys) * self.w.data())**2 / 2)
-        # `values` 的形状为 (查询数，“键－值”对数)
+        # `values`的形状为(查询数，“键－值”对数)
         return npx.batch_dot(np.expand_dims(self.attention_weights, 1),
                              np.expand_dims(values, -1)).reshape(-1)
 ```
@@ -361,12 +361,12 @@ class NWKernelRegression(nn.Module):
         self.w = nn.Parameter(torch.rand((1,), requires_grad=True))
 
     def forward(self, queries, keys, values):
-        # `queries` 和 `attention_weights` 的形状为 (查询个数，“键－值”对个数)
+        # `queries`和`attention_weights`的形状为(查询个数，“键－值”对个数)
         queries = d2l.reshape(
             queries.repeat_interleave(keys.shape[1]), (-1, keys.shape[1]))
         self.attention_weights = nn.functional.softmax(
             -((queries - keys) * self.w)**2 / 2, dim=1)
-        # `values` 的形状为 (查询个数，“键－值”对个数)
+        # `values`的形状为(查询个数，“键－值”对个数)
         return torch.bmm(self.attention_weights.unsqueeze(1),
                          values.unsqueeze(-1)).reshape(-1)
 ```
@@ -380,10 +380,10 @@ class NWKernelRegression(tf.keras.layers.Layer):
         
     def call(self, queries, keys, values, **kwargs):
         # 对于训练，“查询”是`x_train`。“键”是每个点的训练数据的距离。“值”为'y_train'。
-        # `queries` 和 `attention_weights` 的形状为 (查询个数，“键－值”对个数)
+        # `queries`和`attention_weights`的形状为(查询个数，“键－值”对个数)
         queries = tf.repeat(tf.expand_dims(queries, axis=1), repeats=keys.shape[1], axis=1)
         self.attention_weights = tf.nn.softmax(-((queries - keys) * self.w)**2 /2, axis =1)
-        # `values` 的形状为 (查询个数，“键－值”对个数)
+        # `values`的形状为(查询个数，“键－值”对个数)
         return tf.squeeze(tf.matmul(tf.expand_dims(self.attention_weights, axis=1), tf.expand_dims(values, axis=-1)))
 ```
 
@@ -396,41 +396,41 @@ class NWKernelRegression(tf.keras.layers.Layer):
 从而得到其对应的预测输出。
 
 ```{.python .input}
-# `X_tile` 的形状: (`n_train`，`n_train`)，每一行都包含着相同的训练输入
+# `X_tile`的形状:(`n_train`，`n_train`)，每一行都包含着相同的训练输入
 X_tile = np.tile(x_train, (n_train, 1))
-# `Y_tile` 的形状: (`n_train`，`n_train`)，每一行都包含着相同的训练输出
+# `Y_tile`的形状:(`n_train`，`n_train`)，每一行都包含着相同的训练输出
 Y_tile = np.tile(y_train, (n_train, 1))
-# `keys` 的形状: ('n_train'，'n_train' - 1)
+# `keys`的形状:('n_train'，'n_train'-1)
 keys = d2l.reshape(X_tile[(1 - d2l.eye(n_train)).astype('bool')],
                    (n_train, -1))
-# `values` 的形状: ('n_train'，'n_train' - 1)
+# `values`的形状:('n_train'，'n_train'-1)
 values = d2l.reshape(Y_tile[(1 - d2l.eye(n_train)).astype('bool')],
                      (n_train, -1))
 ```
 
 ```{.python .input}
 #@tab pytorch
-# `X_tile` 的形状: (`n_train`，`n_train`)，每一行都包含着相同的训练输入
+# `X_tile`的形状:(`n_train`，`n_train`)，每一行都包含着相同的训练输入
 X_tile = x_train.repeat((n_train, 1))
-# `Y_tile` 的形状: (`n_train`，`n_train`)，每一行都包含着相同的训练输出
+# `Y_tile`的形状:(`n_train`，`n_train`)，每一行都包含着相同的训练输出
 Y_tile = y_train.repeat((n_train, 1))
-# `keys` 的形状: ('n_train'，'n_train' - 1)
+# `keys`的形状:('n_train'，'n_train'-1)
 keys = d2l.reshape(X_tile[(1 - d2l.eye(n_train)).type(torch.bool)],
                    (n_train, -1))
-# `values` 的形状: ('n_train'，'n_train' - 1)
+# `values`的形状:('n_train'，'n_train'-1)
 values = d2l.reshape(Y_tile[(1 - d2l.eye(n_train)).type(torch.bool)],
                      (n_train, -1))
 ```
 
 ```{.python .input}
 #@tab tensorflow
-# `X_tile` 的形状: (`n_train`，`n_train`)，每一行都包含着相同的训练输入
+# `X_tile`的形状:(`n_train`，`n_train`)，每一行都包含着相同的训练输入
 X_tile = tf.repeat(tf.expand_dims(x_train, axis=0), repeats=n_train, axis=0)
-# `Y_tile` 的形状: (`n_train`，`n_train`)，每一行都包含着相同的训练输出
+# `Y_tile`的形状:(`n_train`，`n_train`)，每一行都包含着相同的训练输出
 Y_tile = tf.repeat(tf.expand_dims(y_train, axis=0), repeats=n_train, axis=0)
-# `keys` 的形状: ('n_train'，'n_train' - 1)
+# `keys`的形状:('n_train'，'n_train'-1)
 keys = tf.reshape(X_tile[tf.cast(1 - tf.eye(n_train), dtype=tf.bool)], shape=(n_train, -1))
-# `values` 的形状: ('n_train'，'n_train' - 1)
+# `values`的形状:('n_train'，'n_train'-1)
 values = tf.reshape(Y_tile[tf.cast(1 - tf.eye(n_train), dtype=tf.bool)], shape=(n_train, -1))
 ```
 
@@ -461,7 +461,7 @@ animator = d2l.Animator(xlabel='epoch', ylabel='loss', xlim=[1, 5])
 
 for epoch in range(5):
     trainer.zero_grad()
-    # L2 Loss = 1/2 * MSE Loss
+    # L2Loss=1/2*MSELoss
     l = loss(net(x_train, keys, values), y_train) / 2
     l.sum().backward()
     trainer.step()
@@ -491,9 +491,9 @@ for epoch in range(5):
 [**预测结果绘制**]的线不如之前非参数模型的平滑。
 
 ```{.python .input}
-# `keys` 的形状: (`n_test`，`n_train`)，每一行包含着相同的训练输入（例如，相同的键）
+# `keys`的形状:(`n_test`，`n_train`)，每一行包含着相同的训练输入（例如，相同的键）
 keys = np.tile(x_train, (n_test, 1))
-# `value` 的形状: (`n_test`，`n_train`)
+# `value`的形状:(`n_test`，`n_train`)
 values = np.tile(y_train, (n_test, 1))
 y_hat = net(x_test, keys, values)
 plot_kernel_reg(y_hat)
@@ -501,9 +501,9 @@ plot_kernel_reg(y_hat)
 
 ```{.python .input}
 #@tab pytorch
-# `keys` 的形状: (`n_test`，`n_train`)，每一行包含着相同的训练输入（例如，相同的键）
+# `keys`的形状:(`n_test`，`n_train`)，每一行包含着相同的训练输入（例如，相同的键）
 keys = x_train.repeat((n_test, 1))
-# `value` 的形状: (`n_test`，`n_train`)
+# `value`的形状:(`n_test`，`n_train`)
 values = y_train.repeat((n_test, 1))
 y_hat = net(x_test, keys, values).unsqueeze(1).detach()
 plot_kernel_reg(y_hat)
@@ -511,9 +511,9 @@ plot_kernel_reg(y_hat)
 
 ```{.python .input}
 #@tab tensorflow
-# `keys` 的形状: (`n_test`，`n_train`)，每一行包含着相同的训练输入（例如，相同的键）
+# `keys`的形状:(`n_test`，`n_train`)，每一行包含着相同的训练输入（例如，相同的键）
 keys = tf.repeat(tf.expand_dims(x_train, axis=0), repeats=n_test, axis=0)
-# `value` 的形状: (`n_test`，`n_train`)
+# `value`的形状:(`n_test`，`n_train`)
 values = tf.repeat(tf.expand_dims(y_train, axis=0), repeats=n_test, axis=0)
 y_hat = net(x_test, keys, values)
 plot_kernel_reg(y_hat)

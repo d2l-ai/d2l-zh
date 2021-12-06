@@ -90,7 +90,7 @@ reorg_dog_data(data_dir, valid_ratio)
 
 ```{.python .input}
 transform_train = gluon.data.vision.transforms.Compose([
-    # 随机裁剪图像，所得图像为原始面积的0.08到1之间，高宽比在3/4和4/3之间。 
+    # 随机裁剪图像，所得图像为原始面积的0.08到1之间，高宽比在3/4和4/3之间。
     # 然后，缩放图像以创建224x224的新图像
     gluon.data.vision.transforms.RandomResizedCrop(224, scale=(0.08, 1.0),
                                                    ratio=(3.0/4.0, 4.0/3.0)),
@@ -110,8 +110,8 @@ transform_train = gluon.data.vision.transforms.Compose([
 ```{.python .input}
 #@tab pytorch
 transform_train = torchvision.transforms.Compose([
-    # 随机裁剪图像，所得图像为原始面积的0.08到1之间，高宽比在3/4和4/3之间。 
-    # 然后，缩放图像以创建224 x 224的新图像
+    # 随机裁剪图像，所得图像为原始面积的0.08到1之间，高宽比在3/4和4/3之间。
+    # 然后，缩放图像以创建224x224的新图像
     torchvision.transforms.RandomResizedCrop(224, scale=(0.08, 1.0),
                                              ratio=(3.0/4.0, 4.0/3.0)),
     torchvision.transforms.RandomHorizontalFlip(),

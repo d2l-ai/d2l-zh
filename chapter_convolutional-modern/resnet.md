@@ -319,18 +319,18 @@ net = nn.Sequential(b1, b2, b3, b4, b5,
 
 ```{.python .input}
 #@tab tensorflow
-# 回想之前我们定义一个函数，以便用它在 `tf.distribute.MirroredStrategy` 的范围，
+# 回想之前我们定义一个函数，以便用它在`tf.distribute.MirroredStrategy`的范围，
 # 来利用各种计算资源，例如gpu。另外，尽管我们已经创建了b1、b2、b3、b4、b5，
 # 但是我们将在这个函数的作用域内重新创建它们
 def net():
     return tf.keras.Sequential([
-        # The following layers are the same as b1 that we created earlier
+        # Thefollowinglayersarethesameasb1thatwecreatedearlier
         tf.keras.layers.Conv2D(64, kernel_size=7, strides=2, padding='same'),
         tf.keras.layers.BatchNormalization(),
         tf.keras.layers.Activation('relu'),
         tf.keras.layers.MaxPool2D(pool_size=3, strides=2, padding='same'),
-        # The following layers are the same as b2, b3, b4, and b5 that we
-        # created earlier
+        # Thefollowinglayersarethesameasb2,b3,b4,andb5thatwe
+        # createdearlier
         ResnetBlock(64, 2, first_block=True),
         ResnetBlock(128, 2),
         ResnetBlock(256, 2),

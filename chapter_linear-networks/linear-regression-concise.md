@@ -53,7 +53,7 @@ features, labels = d2l.synthetic_data(true_w, true_b, 1000)
 
 ```{.python .input}
 def load_array(data_arrays, batch_size, is_train=True):  #@save
-    """构造一个Gluon数据迭代器。"""
+    """构造一个Gluon数据迭代器"""
     dataset = gluon.data.ArrayDataset(*data_arrays)
     return gluon.data.DataLoader(dataset, batch_size, shuffle=is_train)
 ```
@@ -61,7 +61,7 @@ def load_array(data_arrays, batch_size, is_train=True):  #@save
 ```{.python .input}
 #@tab pytorch
 def load_array(data_arrays, batch_size, is_train=True):  #@save
-    """构造一个PyTorch数据迭代器。"""
+    """构造一个PyTorch数据迭代器"""
     dataset = data.TensorDataset(*data_arrays)
     return data.DataLoader(dataset, batch_size, shuffle=is_train)
 ```
@@ -69,7 +69,7 @@ def load_array(data_arrays, batch_size, is_train=True):  #@save
 ```{.python .input}
 #@tab tensorflow
 def load_array(data_arrays, batch_size, is_train=True):  #@save
-    """构造一个TensorFlow数据迭代器。"""
+    """构造一个TensorFlow数据迭代器"""
     dataset = tf.data.Dataset.from_tensor_slices(data_arrays)
     if is_train:
         dataset = dataset.shuffle(buffer_size=1000)
@@ -140,7 +140,7 @@ Keras会自动推断每个层输入的形状。
 :end_tab:
 
 ```{.python .input}
-# `nn` 是神经网络的缩写
+# `nn`是神经网络的缩写
 from mxnet.gluon import nn
 net = nn.Sequential()
 net.add(nn.Dense(1))
@@ -148,14 +148,14 @@ net.add(nn.Dense(1))
 
 ```{.python .input}
 #@tab pytorch
-# `nn` 是神经网络的缩写
+# `nn`是神经网络的缩写
 from torch import nn
 net = nn.Sequential(nn.Linear(2, 1))
 ```
 
 ```{.python .input}
 #@tab tensorflow
-# `keras` 是TensorFlow的高级API
+# `keras`是TensorFlow的高级API
 net = tf.keras.Sequential()
 net.add(tf.keras.layers.Dense(1))
 ```

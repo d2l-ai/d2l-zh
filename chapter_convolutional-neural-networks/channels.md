@@ -36,7 +36,7 @@ import torch
 ```{.python .input}
 #@tab mxnet, pytorch
 def corr2d_multi_in(X, K):
-    # 先遍历 “X” 和 “K” 的第0个维度（通道维度），再把它们加在一起
+    # 先遍历“X”和“K”的第0个维度（通道维度），再把它们加在一起
     return sum(d2l.corr2d(x, k) for x, k in zip(X, K))
 ```
 
@@ -46,7 +46,7 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 
 def corr2d_multi_in(X, K):
-    # 先遍历 “X” 和 “K” 的第0个维度（通道维度），再把它们加在一起
+    # 先遍历“X”和“K”的第0个维度（通道维度），再把它们加在一起
     return tf.reduce_sum([d2l.corr2d(x, k) for x, k in zip(X, K)], axis=0)
 ```
 

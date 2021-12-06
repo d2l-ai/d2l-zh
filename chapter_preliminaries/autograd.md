@@ -54,7 +54,7 @@ x.grad
 
 ```{.python .input}
 #@tab pytorch
-x.requires_grad_(True)  # 等价于 `x = torch.arange(4.0, requires_grad=True)`
+x.requires_grad_(True)  # 等价于`x=torch.arange(4.0,requires_grad=True)`
 x.grad  # 默认值是None
 ```
 
@@ -163,7 +163,7 @@ t.gradient(y, x)  # 被新计算的梯度覆盖
 with autograd.record():
     y = x * x  # `y`是一个向量
 y.backward()
-x.grad  # 等价于y = sum(x * x)
+x.grad  # 等价于y=sum(x*x)
 ```
 
 ```{.python .input}
@@ -181,7 +181,7 @@ x.grad
 #@tab tensorflow
 with tf.GradientTape() as t:
     y = x * x
-t.gradient(y, x)  # 等价于 `y = tf.reduce_sum(x * x)`
+t.gradient(y, x)  # 等价于`y=tf.reduce_sum(x*x)`
 ```
 
 ## 分离计算
@@ -219,7 +219,7 @@ x.grad == u
 
 ```{.python .input}
 #@tab tensorflow
-# 设置 `persistent=True` 来运行 `t.gradient`多次
+# 设置`persistent=True`来运行`t.gradient`多次
 with tf.GradientTape(persistent=True) as t:
     y = x * x
     u = tf.stop_gradient(y)

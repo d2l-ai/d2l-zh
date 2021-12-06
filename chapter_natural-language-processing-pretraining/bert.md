@@ -288,7 +288,7 @@ class NextSentencePred(nn.Block):
         self.output = nn.Dense(2)
 
     def forward(self, X):
-        # X的形状： (batch size，`num_hiddens`)
+        # X的形状：(batchsize，`num_hiddens`)
         return self.output(X)
 ```
 
@@ -302,7 +302,7 @@ class NextSentencePred(nn.Module):
         self.output = nn.Linear(num_inputs, 2)
 
     def forward(self, X):
-        # `X`的形状： (batch size, `num_hiddens`)
+        # `X`的形状：(batchsize,`num_hiddens`)
         return self.output(X)
 ```
 
@@ -318,7 +318,7 @@ nsp_Y_hat.shape
 ```{.python .input}
 #@tab pytorch
 encoded_X = torch.flatten(encoded_X, start_dim=1)
-# NSP的输入形状: (batch size，`num_hiddens`)
+# NSP的输入形状:(batchsize，`num_hiddens`)
 nsp = NextSentencePred(encoded_X.shape[-1])
 nsp_Y_hat = nsp(encoded_X)
 nsp_Y_hat.shape

@@ -228,7 +228,7 @@ def get_bert_encoding(net, tokens_a, tokens_b=None):
 #@tab all
 tokens_a = ['a', 'crane', 'is', 'flying']
 encoded_text = get_bert_encoding(net, tokens_a)
-# 词元： '<cls>', 'a', 'crane', 'is', 'flying', '<sep>'
+# 词元：'<cls>','a','crane','is','flying','<sep>'
 encoded_text_cls = encoded_text[:, 0, :]
 encoded_text_crane = encoded_text[:, 2, :]
 encoded_text.shape, encoded_text_cls.shape, encoded_text_crane[0][:3]
@@ -240,8 +240,8 @@ encoded_text.shape, encoded_text_cls.shape, encoded_text_crane[0][:3]
 #@tab all
 tokens_a, tokens_b = ['a', 'crane', 'driver', 'came'], ['he', 'just', 'left']
 encoded_pair = get_bert_encoding(net, tokens_a, tokens_b)
-# 词元： '<cls>', 'a', 'crane', 'driver', 'came', '<sep>', 'he', 'just',
-# 'left', '<sep>'
+# 词元：'<cls>','a','crane','driver','came','<sep>','he','just',
+# 'left','<sep>'
 encoded_pair_cls = encoded_pair[:, 0, :]
 encoded_pair_crane = encoded_pair[:, 2, :]
 encoded_pair.shape, encoded_pair_cls.shape, encoded_pair_crane[0][:3]

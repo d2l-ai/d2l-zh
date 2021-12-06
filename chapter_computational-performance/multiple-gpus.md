@@ -352,7 +352,7 @@ def train(num_gpus, batch_size, lr):
             train_batch(X, y, device_params, devices, lr)
             npx.waitall()
         timer.stop()
-        # 在GPU 0 上评估模型
+        # 在GPU0上评估模型
         animator.add(epoch + 1, (d2l.evaluate_accuracy_gpu(
             lambda x: lenet(x, device_params[0]), test_iter, devices[0]),))
     print(f'测试精度：{animator.Y[0][-1]:.2f}，{timer.avg():.1f}秒/轮，'
@@ -376,7 +376,7 @@ def train(num_gpus, batch_size, lr):
             train_batch(X, y, device_params, devices, lr)
             torch.cuda.synchronize()
         timer.stop()
-        # 在GPU 0上评估模型
+        # 在GPU0上评估模型
         animator.add(epoch + 1, (d2l.evaluate_accuracy_gpu(
             lambda x: lenet(x, device_params[0]), test_iter, devices[0]),))
     print(f'测试精度：{animator.Y[0][-1]:.2f}，{timer.avg():.1f}秒/轮，'

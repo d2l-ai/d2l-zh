@@ -105,33 +105,33 @@ class Seq2SeqAttentionDecoder(AttentionDecoder):
         self.dense = nn.Dense(vocab_size, flatten=False)
 
     def init_state(self, enc_outputs, enc_valid_lens, *args):
-        # `outputs`的形状为 (`num_steps`，`batch_size`，`num_hiddens`)
-        # `hidden_state[0]`的形状为 (`num_layers`，`batch_size`，`num_hiddens`)
+        # `outputs`的形状为(`num_steps`，`batch_size`，`num_hiddens`)
+        # `hidden_state[0]`的形状为(`num_layers`，`batch_size`，`num_hiddens`)
         outputs, hidden_state = enc_outputs
         return (outputs.swapaxes(0, 1), hidden_state, enc_valid_lens)
 
     def forward(self, X, state):
-        # `enc_outputs`的形状为 (`batch_size`, `num_steps`, `num_hiddens`).
-        # `hidden_state[0]`的形状为 (`num_layers`, `batch_size`,
+        # `enc_outputs`的形状为(`batch_size`,`num_steps`,`num_hiddens`).
+        # `hidden_state[0]`的形状为(`num_layers`,`batch_size`,
         # `num_hiddens`)
         enc_outputs, hidden_state, enc_valid_lens = state
-        # 输出 `X`的形状为 (`num_steps`, `batch_size`, `embed_size`)
+        # 输出`X`的形状为(`num_steps`,`batch_size`,`embed_size`)
         X = self.embedding(X).swapaxes(0, 1)
         outputs, self._attention_weights = [], []
         for x in X:
-            # `query`的形状为 (`batch_size`, 1, `num_hiddens`)
+            # `query`的形状为(`batch_size`,1,`num_hiddens`)
             query = np.expand_dims(hidden_state[0][-1], axis=1)
-            # `context`的形状为 (`batch_size`, 1, `num_hiddens`)
+            # `context`的形状为(`batch_size`,1,`num_hiddens`)
             context = self.attention(
                 query, enc_outputs, enc_outputs, enc_valid_lens)
             # 在特征维度上连结
             x = np.concatenate((context, np.expand_dims(x, axis=1)), axis=-1)
-            # 将 `x` 变形为 (1, `batch_size`, `embed_size` + `num_hiddens`)
+            # 将`x`变形为(1,`batch_size`,`embed_size`+`num_hiddens`)
             out, hidden_state = self.rnn(x.swapaxes(0, 1), hidden_state)
             outputs.append(out)
             self._attention_weights.append(self.attention.attention_weights)
-        # 全连接层变换后， `outputs`的形状为 
-        # (`num_steps`, `batch_size`, `vocab_size`)
+        # 全连接层变换后，`outputs`的形状为
+        # (`num_steps`,`batch_size`,`vocab_size`)
         outputs = self.dense(np.concatenate(outputs, axis=0))
         return outputs.swapaxes(0, 1), [enc_outputs, hidden_state,
                                         enc_valid_lens]
@@ -156,33 +156,33 @@ class Seq2SeqAttentionDecoder(AttentionDecoder):
         self.dense = nn.Linear(num_hiddens, vocab_size)
 
     def init_state(self, enc_outputs, enc_valid_lens, *args):
-        # `outputs`的形状为 (`batch_size`，`num_steps`，`num_hiddens`).
-        # `hidden_state`的形状为 (`num_layers`，`batch_size`，`num_hiddens`)
+        # `outputs`的形状为(`batch_size`，`num_steps`，`num_hiddens`).
+        # `hidden_state`的形状为(`num_layers`，`batch_size`，`num_hiddens`)
         outputs, hidden_state = enc_outputs
         return (outputs.permute(1, 0, 2), hidden_state, enc_valid_lens)
 
     def forward(self, X, state):
-        # `enc_outputs`的形状为 (`batch_size`, `num_steps`, `num_hiddens`).
-        # `hidden_state`的形状为 (`num_layers`, `batch_size`,
+        # `enc_outputs`的形状为(`batch_size`,`num_steps`,`num_hiddens`).
+        # `hidden_state`的形状为(`num_layers`,`batch_size`,
         # `num_hiddens`)
         enc_outputs, hidden_state, enc_valid_lens = state
-        # 输出 `X`的形状为 (`num_steps`, `batch_size`, `embed_size`)
+        # 输出`X`的形状为(`num_steps`,`batch_size`,`embed_size`)
         X = self.embedding(X).permute(1, 0, 2)
         outputs, self._attention_weights = [], []
         for x in X:
-            # `query`的形状为 (`batch_size`, 1, `num_hiddens`)
+            # `query`的形状为(`batch_size`,1,`num_hiddens`)
             query = torch.unsqueeze(hidden_state[-1], dim=1)
-            # `context`的形状为 (`batch_size`, 1, `num_hiddens`)
+            # `context`的形状为(`batch_size`,1,`num_hiddens`)
             context = self.attention(
                 query, enc_outputs, enc_outputs, enc_valid_lens)
             # 在特征维度上连结
             x = torch.cat((context, torch.unsqueeze(x, dim=1)), dim=-1)
-            # 将 `x` 变形为 (1, `batch_size`, `embed_size` + `num_hiddens`)
+            # 将`x`变形为(1,`batch_size`,`embed_size`+`num_hiddens`)
             out, hidden_state = self.rnn(x.permute(1, 0, 2), hidden_state)
             outputs.append(out)
             self._attention_weights.append(self.attention.attention_weights)
-        # 全连接层变换后， `outputs`的形状为 
-        # (`num_steps`, `batch_size`, `vocab_size`)
+        # 全连接层变换后，`outputs`的形状为
+        # (`num_steps`,`batch_size`,`vocab_size`)
         outputs = self.dense(torch.cat(outputs, dim=0))
         return outputs.permute(1, 0, 2), [enc_outputs, hidden_state,
                                           enc_valid_lens]
@@ -209,25 +209,25 @@ class Seq2SeqAttentionDecoder(AttentionDecoder):
         self.dense = tf.keras.layers.Dense(vocab_size)
 
     def init_state(self, enc_outputs, enc_valid_lens, *args):
-       # `outputs`的形状为 (`num_steps`，`batch_size`，`num_hiddens`)
-        # `hidden_state[0]`的形状为 (`num_layers`，`batch_size`，`num_hiddens`)
+       # `outputs`的形状为(`num_steps`，`batch_size`，`num_hiddens`)
+        # `hidden_state[0]`的形状为(`num_layers`，`batch_size`，`num_hiddens`)
 
         outputs, hidden_state = enc_outputs
         return (outputs, hidden_state, enc_valid_lens)
 
     def call(self, X, state, **kwargs):
-        # `enc_outputs`的形状为 (`batch_size`, `num_steps`, `num_hiddens`).
-        # `hidden_state[0]`的形状为 (`num_layers`, `batch_size`,
+        # `enc_outputs`的形状为(`batch_size`,`num_steps`,`num_hiddens`).
+        # `hidden_state[0]`的形状为(`num_layers`,`batch_size`,
         # `num_hiddens`)
         enc_outputs, hidden_state, enc_valid_lens = state
-        # 输出 `X`的形状为 (`num_steps`, `batch_size`, `embed_size`)
-        X = self.embedding(X) # 输入 `X`的形状为 (`batch_size`, `num_steps`)
+        # 输出`X`的形状为(`num_steps`,`batch_size`,`embed_size`)
+        X = self.embedding(X) # 输入`X`的形状为(`batch_size`,`num_steps`)
         X = tf.transpose(X, perm=(1, 0, 2))
         outputs, self._attention_weights = [], []
         for x in X:
-            # `query`的形状为 (`batch_size`, 1, `num_hiddens`)
+            # `query`的形状为(`batch_size`,1,`num_hiddens`)
             query = tf.expand_dims(hidden_state[-1], axis=1)
-            # `context`的形状为 (`batch_size`, 1, `num_hiddens`)
+            # `context`的形状为(`batch_size`,1,`num_hiddens`)
             context = self.attention(query, enc_outputs, enc_outputs,
                                      enc_valid_lens, **kwargs)
             # 在特征维度上连结
@@ -236,8 +236,8 @@ class Seq2SeqAttentionDecoder(AttentionDecoder):
             hidden_state = out[1:]
             outputs.append(out[0])
             self._attention_weights.append(self.attention.attention_weights)
-        # 全连接层变换后， `outputs`的形状为 
-        # (`num_steps`, `batch_size`, `vocab_size`)
+        # 全连接层变换后，`outputs`的形状为
+        # (`num_steps`,`batch_size`,`vocab_size`)
         outputs = self.dense(tf.concat(outputs, axis=1))
         return outputs, [enc_outputs, hidden_state, enc_valid_lens]
 
@@ -255,7 +255,7 @@ encoder.initialize()
 decoder = Seq2SeqAttentionDecoder(vocab_size=10, embed_size=8, num_hiddens=16,
                                   num_layers=2)
 decoder.initialize()
-X = d2l.zeros((4, 7))  # (`batch_size`, `num_steps`)
+X = d2l.zeros((4, 7))  # (`batch_size`,`num_steps`)
 state = decoder.init_state(encoder(X), None)
 output, state = decoder(X, state)
 output.shape, len(state), state[0].shape, len(state[1]), state[1][0].shape
@@ -269,7 +269,7 @@ encoder.eval()
 decoder = Seq2SeqAttentionDecoder(vocab_size=10, embed_size=8, num_hiddens=16,
                                   num_layers=2)
 decoder.eval()
-X = d2l.zeros((4, 7), dtype=torch.long)  # (`batch_size`, `num_steps`)
+X = d2l.zeros((4, 7), dtype=torch.long)  # (`batch_size`,`num_steps`)
 state = decoder.init_state(encoder(X), None)
 output, state = decoder(X, state)
 output.shape, len(state), state[0].shape, len(state[1]), state[1][0].shape

@@ -207,9 +207,9 @@ class MLP(tf.keras.Model):
         # 调用`MLP`的父类`Model`的构造函数来执行必要的初始化。
         # 这样，在类实例化时也可以指定其他函数参数，例如模型参数`params`（稍后将介绍）
         super().__init__()
-        # Hidden layer
+        # Hiddenlayer
         self.hidden = tf.keras.layers.Dense(units=256, activation=tf.nn.relu)
-        self.out = tf.keras.layers.Dense(units=10)  # Output layer
+        self.out = tf.keras.layers.Dense(units=10)  # Outputlayer
 
     # 定义模型的前向传播，即如何根据输入`X`返回所需的模型输出
     def call(self, X):
@@ -276,7 +276,7 @@ net(X)
 class MySequential(nn.Block):
     def add(self, block):
     # 这里，`block`是`Block`子类的一个实例，我们假设它有一个唯一的名称。我们把它
-    # 保存在'Block'类的成员变量`_children` 中。`block`的类型是OrderedDict。
+    # 保存在'Block'类的成员变量`_children`中。`block`的类型是OrderedDict。
     # 当`MySequential`实例调用`initialize`函数时，系统会自动初始化`_children`
     # 的所有成员
         self._children[block.name] = block
@@ -295,7 +295,7 @@ class MySequential(nn.Module):
         super().__init__()
         for idx, module in enumerate(args):
             # 这里，`module`是`Module`子类的一个实例。我们把它保存在'Module'类的成员
-            # 变量`_modules` 中。`module`的类型是OrderedDict
+            # 变量`_modules`中。`module`的类型是OrderedDict
             self._modules[str(idx)] = module
 
     def forward(self, X):

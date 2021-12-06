@@ -50,7 +50,7 @@ from torch import nn
 ```{.python .input}
 #@tab mxnet, pytorch
 def corr2d(X, K):  #@save
-    """计算二维互相关运算。"""
+    """计算二维互相关运算"""
     h, w = K.shape
     Y = d2l.zeros((X.shape[0] - h + 1, X.shape[1] - w + 1))
     for i in range(Y.shape[0]):
@@ -65,7 +65,7 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 
 def corr2d(X, K):  #@save
-    """计算二维互相关运算。"""
+    """计算二维互相关运算"""
     h, w = K.shape
     Y = tf.Variable(tf.zeros((X.shape[0] - h + 1, X.shape[1] - w + 1)))
     for i in range(Y.shape[0]):
