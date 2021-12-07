@@ -243,7 +243,7 @@ class Accumulator:
         return self.data[idx]
 
 def train_epoch_ch3(net, train_iter, loss, updater):
-    """训练模型一个迭代周期（定义见第3章）。
+    """训练模型一个迭代周期（定义见第3章）
 
     Defined in :numref:`sec_softmax_scratch`"""
     # 将模型设置为训练模式
@@ -258,15 +258,13 @@ def train_epoch_ch3(net, train_iter, loss, updater):
         if isinstance(updater, torch.optim.Optimizer):
             # 使用PyTorch内置的优化器和损失函数
             updater.zero_grad()
-            l.backward()
+            l.sum().backward()
             updater.step()
-            metric.add(float(l) * len(y), accuracy(y_hat, y),
-                       y.size().numel())
         else:
             # 使用定制的优化器和损失函数
             l.sum().backward()
             updater(X.shape[0])
-            metric.add(float(l.sum()), accuracy(y_hat, y), y.numel())
+        metric.add(float(l.sum()), accuracy(y_hat, y), y.numel())
     # 返回训练损失和训练精度
     return metric[0] / metric[2], metric[1] / metric[2]
 
