@@ -108,7 +108,7 @@ def _get_batch_loss_bert(net, loss, vocab_size, tokens_X,
 ```{.python .input}
 def train_bert(train_iter, net, loss, vocab_size, devices, num_steps):
     trainer = gluon.Trainer(net.collect_params(), 'adam',
-                            {'learning_rate': 1e-3})
+                            {'learning_rate': 0.01})
     step, timer = 0, d2l.Timer()
     animator = d2l.Animator(xlabel='step', ylabel='loss',
                             xlim=[1, num_steps], legend=['mlm', 'nsp'])
@@ -151,7 +151,7 @@ def train_bert(train_iter, net, loss, vocab_size, devices, num_steps):
 #@tab pytorch
 def train_bert(train_iter, net, loss, vocab_size, devices, num_steps):
     net = nn.DataParallel(net, device_ids=devices).to(devices[0])
-    trainer = torch.optim.Adam(net.parameters(), lr=1e-3)
+    trainer = torch.optim.Adam(net.parameters(), lr=0.01)
     step, timer = 0, d2l.Timer()
     animator = d2l.Animator(xlabel='step', ylabel='loss',
                             xlim=[1, num_steps], legend=['mlm', 'nsp'])
