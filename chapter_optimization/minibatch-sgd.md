@@ -531,7 +531,7 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=4):
 
     optimizer = trainer_fn(net.parameters(), **hyperparams)
 
-    loss = nn.MSELoss()
+    loss = nn.MSELoss(reduction='none')
     # L2Loss=1/2*MSELoss
     animator = d2l.Animator(xlabel='epoch', ylabel='loss',
                             xlim=[0, num_epochs], ylim=[0.22, 0.35])
@@ -541,8 +541,8 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=4):
             optimizer.zero_grad()
             out = net(X)
             y = y.reshape(out.shape)
-            l = loss(out, y)/2
-            l.backward()
+            l = loss(out, y) / 2
+            l.mean().backward()
             optimizer.step()
             n += X.shape[0]
             if n % 200 == 0:
