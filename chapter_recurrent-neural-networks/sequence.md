@@ -268,7 +268,9 @@ def get_net():
     return net
 
 # 平方损失
-loss = nn.MSELoss()
+# Note: L2 Loss = 1/2 * MSE Loss. PyTorch has MSE Loss that is slightly
+# different from MXNet's L2Loss by a factor of 2.
+loss = nn.MSELoss(reduction='none')
 ```
 
 ```{.python .input}
@@ -309,11 +311,11 @@ def train(net, train_iter, loss, epochs, lr):
     for epoch in range(epochs):
         for X, y in train_iter:
             trainer.zero_grad()
-            l = loss(net(X), y)
-            l.backward()
+            l = loss(net(X), y) / 2
+            l.sum().backward()
             trainer.step()
         print(f'epoch {epoch + 1}, '
-              f'loss: {d2l.evaluate_loss(net, train_iter, loss):f}')
+              f'loss: {d2l.evaluate_loss(net, train_iter, loss) / 2:f}')
 
 net = get_net()
 train(net, train_iter, loss, 5, 0.01)
@@ -333,7 +335,7 @@ def train(net, train_iter, loss, epochs, lr):
                 grads = g.gradient(l, params)
             trainer.apply_gradients(zip(grads, params))
         print(f'epoch {epoch + 1}, '
-              f'loss: {d2l.evaluate_loss(net, train_iter, loss):f}')
+              f'loss: {d2l.evaluate_loss(net, train_iter, loss) / 2:f}')
 
 net = get_net()
 train(net, train_iter, loss, 5, 0.01)
