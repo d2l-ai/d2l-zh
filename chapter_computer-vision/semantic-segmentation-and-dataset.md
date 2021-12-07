@@ -289,7 +289,7 @@ class VOCSegDataset(torch.utils.data.Dataset):
         print('read ' + str(len(self.features)) + ' examples')
 
     def normalize_image(self, img):
-        return self.transform(img.float())
+        return self.transform(img.float()/255)
 
     def filter(self, imgs):
         return [img for img in imgs if (
