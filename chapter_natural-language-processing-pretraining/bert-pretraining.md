@@ -261,9 +261,9 @@ encoded_pair.shape, encoded_pair_cls.shape, encoded_pair_crane[0][:3]
 2. 将BERT输入序列的最大长度设置为512（与原始BERT模型相同）。使用原始BERT模型的配置，如$\text{BERT}_{\text{LARGE}}$。运行此部分时是否遇到错误？为什么？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/390)
+[Discussions](https://discuss.d2l.ai/t/5742)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1497)
+[Discussions](https://discuss.d2l.ai/t/5743)
 :end_tab:

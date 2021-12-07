@@ -314,9 +314,9 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
 1. 如何根据一对序列的长度比值截断它们？将此对截断方法与`SNLIBERTDataset`类中使用的方法进行比较。它们的利弊是什么？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/397)
+[Discussions](https://discuss.d2l.ai/t/5715)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1526)
+[Discussions](https://discuss.d2l.ai/t/5718)
 :end_tab:

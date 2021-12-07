@@ -470,9 +470,9 @@ d2l.show_heatmaps(d2l.reshape(attention.attention_weights, (1, 1, 2, 10)),
 1. 当查询和键具有相同的矢量长度时，矢量求和作为评分函数是否比“点－积”更好？为什么？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/346)
+[Discussions](https://discuss.d2l.ai/t/5751)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1064)
+[Discussions](https://discuss.d2l.ai/t/5752)
 :end_tab:

@@ -344,9 +344,9 @@ len(vocab)
 1. 如果我们不过滤出一些不常见的词元，词量会有多大？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/389)
+[Discussions](https://discuss.d2l.ai/t/5737)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1496)
+[Discussions](https://discuss.d2l.ai/t/5738)
 :end_tab:

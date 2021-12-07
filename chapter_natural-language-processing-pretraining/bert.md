@@ -418,9 +418,9 @@ class BERTModel(nn.Module):
 1. 在BERT的原始实现中，`BERTEncoder`中的位置前馈网络（通过`d2l.EncoderBlock`）和`MaskLM`中的全连接层都使用高斯误差线性单元（Gaussian error linear unit，GELU） :cite:`Hendrycks.Gimpel.2016`作为激活函数。研究GELU与ReLU之间的差异。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/388)
+[Discussions](https://discuss.d2l.ai/t/5749)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1490)
+[Discussions](https://discuss.d2l.ai/t/5750)
 :end_tab:

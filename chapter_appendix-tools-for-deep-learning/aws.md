@@ -202,4 +202,4 @@ jupyter notebook
 1. 尝试使用不同的GPU服务器。它们有多快？
 1. 尝试使用多GPU服务器。你能把事情扩大到什么程度？
 
-[Discussions](https://discuss.d2l.ai/t/423)
+[Discussions](https://discuss.d2l.ai/t/5733)

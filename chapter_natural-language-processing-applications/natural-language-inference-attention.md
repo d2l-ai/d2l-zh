@@ -381,9 +381,9 @@ predict_snli(net, vocab, ['he', 'is', 'good', '.'], ['he', 'is', 'bad', '.'])
 1. 假设我们想要获得任何一对句子的语义相似级别（例如，0到1之间的连续值）。我们应该如何收集和标注数据集？你能设计一个有注意力机制的模型吗？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/395)
+[Discussions](https://discuss.d2l.ai/t/5727)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1530)
+[Discussions](https://discuss.d2l.ai/t/5728)
 :end_tab:

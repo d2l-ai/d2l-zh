@@ -905,9 +905,9 @@ d2l.show_heatmaps(
 1. 如果不使用卷积神经网络，如何设计基于transformer模型的图像分类任务？提示：可以参考Vision Transformer :cite:`Dosovitskiy.Beyer.Kolesnikov.ea.2021`。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/348)
+[Discussions](https://discuss.d2l.ai/t/5755)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1066)
+[Discussions](https://discuss.d2l.ai/t/5756)
 :end_tab:

@@ -263,9 +263,9 @@ d2l.predict_sentiment(net, vocab, 'this movie is so bad')
 1. 在输入表示中添加位置编码。它是否提高了分类的精度？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/393)
+[Discussions](https://discuss.d2l.ai/t/5719)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1425)
+[Discussions](https://discuss.d2l.ai/t/5720)
 :end_tab:

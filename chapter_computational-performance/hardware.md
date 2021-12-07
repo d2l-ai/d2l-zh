@@ -216,4 +216,4 @@ GPU内存的带宽要求甚至更高，因为它们的处理单元比CPU多得�
 1. 看看Turing T4GPU的性能数字。为什么从FP16到INT8和INT4的性能只翻倍？
 1. 一个网络包从旧金山到阿姆斯特丹的往返旅行需要多长时间？提示：你可以假设距离为10000公里。
 
-[Discussions](https://discuss.d2l.ai/t/2798)
+[Discussions](https://discuss.d2l.ai/t/5717)

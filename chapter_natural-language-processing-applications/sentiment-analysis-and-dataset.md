@@ -174,9 +174,9 @@ def load_data_imdb(batch_size, num_steps=500):
 1. 你能实现一个函数来将[Amazon reviews](https://snap.stanford.edu/data/web-Amazon.html)的数据集加载到数据迭代器中进行情感分析吗？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/391)
+[Discussions](https://discuss.d2l.ai/t/5725)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1387)
+[Discussions](https://discuss.d2l.ai/t/5726)
 :end_tab:

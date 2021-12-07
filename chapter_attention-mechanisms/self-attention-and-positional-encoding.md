@@ -313,9 +313,9 @@ $2\times 2$投影矩阵不依赖于任何位置的索引$i$。
 1. 你能设计一种可学习的位置编码方法吗？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/1651)
+[Discussions](https://discuss.d2l.ai/t/5761)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1652)
+[Discussions](https://discuss.d2l.ai/t/5762)
 :end_tab:

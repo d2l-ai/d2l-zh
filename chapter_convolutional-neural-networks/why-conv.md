@@ -148,4 +148,4 @@ $$[\mathsf{H}]_{i,j,d} = \sum_{a = -\Delta}^{\Delta} \sum_{b = -\Delta}^{\Delta}
 1. 卷积层也适合于文本数据吗？为什么？
 1. 证明在 :eqref:`eq_2d-conv-discrete`中，$f * g = g * f$。
 
-[Discussions](https://discuss.d2l.ai/t/1846)
+[Discussions](https://discuss.d2l.ai/t/5767)

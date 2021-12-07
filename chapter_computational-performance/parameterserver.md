@@ -100,4 +100,4 @@ $$\mathbf{g}_{i} = \sum_{k \in \text{workers}} \sum_{j \in \text{GPUs}} \mathbf{
 1. 在计算仍在进行中，可否允许执行异步通信？它将如何影响性能？
 1. 怎样处理在长时间运行的计算过程中丢失了一台服务器这种问题？尝试设计一种容错机制来避免重启计算这种解决方案？
 
-[Discussions](https://discuss.d2l.ai/t/2807)
+[Discussions](https://discuss.d2l.ai/t/5774)

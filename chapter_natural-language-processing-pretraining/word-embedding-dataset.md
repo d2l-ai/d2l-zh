@@ -345,9 +345,9 @@ for batch in data_iter:
 1. 本节代码中的哪些其他超参数可能会影响数据加载速度？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/383)
+[Discussions](https://discuss.d2l.ai/t/5734)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1330)
+[Discussions](https://discuss.d2l.ai/t/5735)
 :end_tab:
