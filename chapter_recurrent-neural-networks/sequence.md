@@ -267,8 +267,7 @@ def get_net():
     net.apply(init_weights)
     return net
 
-# 平方损失
-# Note: `MSELoss` computes squared error without the 1/2 factor
+# 平方损失。注意：MSELoss计算平方误差时不带系数1/2
 loss = nn.MSELoss(reduction='none')
 ```
 
@@ -280,7 +279,7 @@ def get_net():
                               tf.keras.layers.Dense(1)])
     return net
 
-# 最小均方损失
+# 最小均方损失。注意：MSELoss计算平方误差时不带系数1/2
 loss = tf.keras.losses.MeanSquaredError()
 ```
 
