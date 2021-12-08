@@ -407,8 +407,8 @@ def train(train_features, test_features, train_labels, test_labels,
     for epoch in range(num_epochs):
         d2l.train_epoch_ch3(net, train_iter, loss, trainer)
         if epoch == 0 or (epoch + 1) % 20 == 0:
-            animator.add(epoch + 1, (evaluate_loss(net, train_iter, loss) / 2,
-                                     evaluate_loss(net, test_iter, loss) / 2))
+            animator.add(epoch + 1, (evaluate_loss(net, train_iter, loss),
+                                     evaluate_loss(net, test_iter, loss)))
     print('weight:', net[0].weight.data.numpy())
 ```
 
