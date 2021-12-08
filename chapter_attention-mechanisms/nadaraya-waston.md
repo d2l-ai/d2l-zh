@@ -74,6 +74,7 @@ y_truth = f(x_test)  # 测试样本的真实输出
 n_test = len(x_test)  # 测试样本数
 n_test
 ```
+
 ```{.python .input}
 #@tab pytorch
 def f(x):
@@ -387,7 +388,6 @@ class NWKernelRegression(tf.keras.layers.Layer):
         return tf.squeeze(tf.matmul(tf.expand_dims(self.attention_weights, axis=1), tf.expand_dims(values, axis=-1)))
 ```
 
-
 ### 训练
 
 接下来，[**将训练数据集变换为键和值**]用于训练注意力模型。
@@ -461,8 +461,7 @@ animator = d2l.Animator(xlabel='epoch', ylabel='loss', xlim=[1, 5])
 
 for epoch in range(5):
     trainer.zero_grad()
-    # L2Loss=1/2*MSELoss
-    l = loss(net(x_train, keys, values), y_train) / 2
+    l = loss(net(x_train, keys, values), y_train)
     l.sum().backward()
     trainer.step()
     print(f'epoch {epoch + 1}, loss {float(l.sum()):.6f}')
@@ -479,7 +478,7 @@ animator = d2l.Animator(xlabel='epoch', ylabel='loss', xlim=[1, 5])
 
 for epoch in range(5):
     with tf.GradientTape() as t:
-        loss = loss_object(y_train, net(x_train, keys, values))/2 * len(y_train)
+        loss = loss_object(y_train, net(x_train, keys, values)) * len(y_train)
     grads = t.gradient(loss, net.trainable_variables)
     optimizer.apply_gradients(zip(grads, net.trainable_variables))
     print(f'epoch {epoch + 1}, loss {float(loss):.6f}')

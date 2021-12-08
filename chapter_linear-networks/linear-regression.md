@@ -111,6 +111,7 @@ $${\hat{\mathbf{y}}} = \mathbf{X} \mathbf{w} + b$$
 平方误差可以定义为以下公式：
 
 $$l^{(i)}(\mathbf{w}, b) = \frac{1}{2} \left(\hat{y}^{(i)} - y^{(i)}\right)^2.$$
+:eqlabel:`eq_mse`
 
 常数$\frac{1}{2}$不会带来本质的差别，但这样在形式上稍微简单一些
 （因为当我们对损失函数求导后常数系数为1）。
