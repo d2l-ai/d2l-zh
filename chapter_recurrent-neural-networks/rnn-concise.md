@@ -287,5 +287,5 @@ d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, strategy)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/2211)
+[Discussions](https://discuss.d2l.ai/t/5766)
 :end_tab:

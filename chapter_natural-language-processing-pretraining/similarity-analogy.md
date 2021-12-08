@@ -221,9 +221,9 @@ get_analogy('do', 'did', 'go', glove_6b50d)
 1. 当词表非常大时，我们怎样才能更快地找到相似的词或完成一个词的类比呢？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/387)
+[Discussions](https://discuss.d2l.ai/t/5745)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1336)
+[Discussions](https://discuss.d2l.ai/t/5746)
 :end_tab:

@@ -378,9 +378,9 @@ d2l.show_heatmaps(attention_weights[:, :, :, :len(engs[-1].split()) + 1],
 1. 修改实验以将加性注意力打分函数替换为缩放点积注意力，它如何影响训练效率？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/347)
+[Discussions](https://discuss.d2l.ai/t/5753)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1065)
+[Discussions](https://discuss.d2l.ai/t/5754)
 :end_tab:

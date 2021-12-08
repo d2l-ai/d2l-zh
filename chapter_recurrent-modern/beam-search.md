@@ -166,4 +166,4 @@ $\alpha$通常设置为$0.75$。
 1. 在 :numref:`sec_rnn_scratch`中，我们基于用户提供的前缀，
    通过使用语言模型来生成文本。这个例子中使用了哪种搜索策略？你能改进吗？
 
-[Discussions](https://discuss.d2l.ai/t/2786)
+[Discussions](https://discuss.d2l.ai/t/5768)

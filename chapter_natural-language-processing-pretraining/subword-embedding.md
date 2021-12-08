@@ -145,9 +145,9 @@ print(segment_BPE(tokens, symbols))
 1. 如何扩展字节对编码的思想来提取短语？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/386)
+[Discussions](https://discuss.d2l.ai/t/5747)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/386)
+[Discussions](https://discuss.d2l.ai/t/5748)
 :end_tab:

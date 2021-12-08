@@ -180,4 +180,4 @@ $\mathbf{W}^{(2)}$的当前值。
     1. 你能把它划分到多个GPU上吗？
     1. 与小批量训练相比，有哪些优点和缺点？
 
-[Discussions](https://discuss.d2l.ai/t/1816)
+[Discussions](https://discuss.d2l.ai/t/5769)
