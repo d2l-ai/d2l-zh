@@ -41,7 +41,7 @@ device = d2l.try_gpu()
 batch_size = 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size=batch_size)
 
-# 代码几乎与`d2l.train_ch6`定义在卷积神经网络一章LeNet一节中的相同
+# 代码几乎与d2l.train_ch6定义在卷积神经网络一章LeNet一节中的相同
 def train(net, train_iter, test_iter, num_epochs, loss, trainer, device):
     net.initialize(force_reinit=True, ctx=device, init=init.Xavier())
     animator = d2l.Animator(xlabel='epoch', xlim=[0, num_epochs],
@@ -95,7 +95,7 @@ device = d2l.try_gpu()
 batch_size = 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size=batch_size)
 
-# 代码几乎与`d2l.train_ch6`定义在卷积神经网络一章LeNet一节中的相同
+# 代码几乎与d2l.train_ch6定义在卷积神经网络一章LeNet一节中的相同
 def train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
           scheduler=None):
     net.to(device)
@@ -161,7 +161,7 @@ def net():
 batch_size = 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size=batch_size)
 
-# 代码几乎与`d2l.train_ch6`定义在卷积神经网络一章LeNet一节中的相同
+# 代码几乎与d2l.train_ch6定义在卷积神经网络一章LeNet一节中的相同
 def train(net_fn, train_iter, test_iter, num_epochs, lr,
               device=d2l.try_gpu(), custom_callback = False):
     device_name = device._device_name

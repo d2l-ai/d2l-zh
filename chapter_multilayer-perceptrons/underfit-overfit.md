@@ -309,8 +309,8 @@ features = np.random.normal(size=(n_train + n_test, 1))
 np.random.shuffle(features)
 poly_features = np.power(features, np.arange(max_degree).reshape(1, -1))
 for i in range(max_degree):
-    poly_features[:, i] /= math.gamma(i + 1)  # `gamma(n)`=(n-1)!
-# `labels`的维度:(`n_train`+`n_test`,)
+    poly_features[:, i] /= math.gamma(i + 1)  # gamma(n)=(n-1)!
+# labels的维度:(n_train+n_test,)
 labels = np.dot(poly_features, true_w)
 labels += np.random.normal(scale=0.1, size=labels.shape)
 ```

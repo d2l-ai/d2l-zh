@@ -319,7 +319,7 @@ net = nn.Sequential(b1, b2, b3, b4, b5,
 
 ```{.python .input}
 #@tab tensorflow
-# 回想之前我们定义一个函数，以便用它在`tf.distribute.MirroredStrategy`的范围，
+# 回想之前我们定义一个函数，以便用它在tf.distribute.MirroredStrategy的范围，
 # 来利用各种计算资源，例如gpu。另外，尽管我们已经创建了b1、b2、b3、b4、b5，
 # 但是我们将在这个函数的作用域内重新创建它们
 def net():

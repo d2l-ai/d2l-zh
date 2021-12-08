@@ -290,7 +290,7 @@ def evaluate_accuracy(net, data_iter):  #@save
 ```{.python .input}
 #@tab all
 class Accumulator:  #@save
-    """在`n`个变量上累加"""
+    """在n个变量上累加"""
     def __init__(self, n):
         self.data = [0.0] * n
 
@@ -390,7 +390,7 @@ def train_epoch_ch3(net, train_iter, loss, updater):  #@save
             updater.apply_gradients(zip(grads, params))
         else:
             updater(X.shape[0], tape.gradient(l, updater.params))
-        # Keras的`loss`默认返回一个批量的平均损失
+        # Keras的loss默认返回一个批量的平均损失
         l_sum = l * float(tf.size(y)) if isinstance(
             loss, tf.keras.losses.Loss) else tf.reduce_sum(l)
         metric.add(l_sum, accuracy(y_hat, y), tf.size(y))
