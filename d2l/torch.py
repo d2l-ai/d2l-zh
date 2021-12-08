@@ -254,15 +254,14 @@ def train_epoch_ch3(net, train_iter, loss, updater):
     for X, y in train_iter:
         # 计算梯度并更新参数
         y_hat = net(X)
+        l = loss(y_hat, y)
         if isinstance(updater, torch.optim.Optimizer):
             # 使用PyTorch内置的优化器和损失函数
-            l = loss(y_hat, y) / 2  # L2 Loss = 1/2 * MSE Loss
             updater.zero_grad()
             l.sum().backward()
             updater.step()
         else:
             # 使用定制的优化器和损失函数
-            l = loss(y_hat, y)
             l.sum().backward()
             updater(X.shape[0])
         metric.add(float(l.sum()), accuracy(y_hat, y), y.numel())
