@@ -2,7 +2,7 @@ dependencies:
   - python=3.8
   - pip
   - pip:
-    - d2l==0.17.0.post0
+    - d2l==0.17.1
     - git+https://github.com/d2l-ai/d2l-book
     - mxnet-cu101==1.7.0
     - torch==1.8.1+cu101
