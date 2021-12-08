@@ -892,8 +892,8 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=4):
 
     optimizer = trainer_fn(net.parameters(), **hyperparams)
 
+    # Note: `MSELoss` computes squared error without the 1/2 factor
     loss = nn.MSELoss(reduction='none')
-    # L2Loss=1/2*MSELoss
     animator = d2l.Animator(xlabel='epoch', ylabel='loss',
                             xlim=[0, num_epochs], ylim=[0.22, 0.35])
     n, timer = 0, d2l.Timer()
@@ -902,14 +902,14 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=4):
             optimizer.zero_grad()
             out = net(X)
             y = y.reshape(out.shape)
-            l = loss(out, y) / 2
+            l = loss(out, y)
             l.mean().backward()
             optimizer.step()
             n += X.shape[0]
             if n % 200 == 0:
                 timer.stop()
                 animator.add(n/X.shape[0]/len(data_iter),
-                             (d2l.evaluate_loss(net, data_iter, loss)/2,))
+                             (d2l.evaluate_loss(net, data_iter, loss),))
                 timer.start()
     print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
 
