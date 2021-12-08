@@ -84,4 +84,4 @@ $$\sum_{w \in \mathcal{V}} P(w \mid w_c) = 1.$$
 1. 验证 :eqref:`eq_hi-softmax-sum-one`是否有效。
 1. 如何分别使用负采样和分层softmax训练连续词袋模型？
 
-[Discussions](https://discuss.d2l.ai/t/382)
+[Discussions](https://discuss.d2l.ai/t/5741)

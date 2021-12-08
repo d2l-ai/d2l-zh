@@ -109,4 +109,4 @@ jupyter nbextension enable execute_time/ExecuteTime
 1. 使用Jupyter Notebook通过端口转发来远程编辑和运行本书中的代码。
 1. 对于两个方矩阵，测量$\mathbf{A}^\top \mathbf{B}$与$\mathbf{A} \mathbf{B}$在$\mathbb{R}^{1024 \times 1024}$中的运行时间。哪一个更快？
 
-[Discussions](https://discuss.d2l.ai/t/421)
+[Discussions](https://discuss.d2l.ai/t/5731)

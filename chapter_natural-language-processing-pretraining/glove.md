@@ -94,4 +94,4 @@ $$\mathbf{u}_j^\top \mathbf{v}_i + b_i + c_j \approx \log\, x_{ij}.$$
 1. 如果词$w_i$和$w_j$在同一上下文窗口中同时出现，我们如何使用它们在文本序列中的距离来重新设计计算条件概率$p_{ij}$的方法？提示：参见GloVe论文 :cite:`Pennington.Socher.Manning.2014`的第4.2节。
 1. 对于任何一个词，它的中心词偏置和上下文偏置在数学上是等价的吗？为什么？
 
-[Discussions](https://discuss.d2l.ai/t/385)
+[Discussions](https://discuss.d2l.ai/t/5736)

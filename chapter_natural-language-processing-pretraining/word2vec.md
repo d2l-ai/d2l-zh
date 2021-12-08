@@ -121,4 +121,4 @@ $$\frac{\partial \log\, P(w_c \mid \mathcal{W}_o)}{\partial \mathbf{v}_{o_i}} = 
 1. 英语中的一些固定短语由多个单词组成，例如“new york”。如何训练它们的词向量？提示:查看word2vec论文的第四节 :cite:`Mikolov.Sutskever.Chen.ea.2013`。
 1. 让我们以跳元模型为例来思考word2vec设计。跳元模型中两个词向量的点积与余弦相似度之间有什么关系？对于语义相似的一对词，为什么它们的词向量（由跳元模型训练）的余弦相似度可能很高？
 
-[Discussions](https://discuss.d2l.ai/t/381)
+[Discussions](https://discuss.d2l.ai/t/5744)

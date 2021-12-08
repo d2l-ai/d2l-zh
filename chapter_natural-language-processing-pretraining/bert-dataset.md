@@ -110,7 +110,7 @@ def _replace_mlm_tokens(tokens, candidate_pred_positions, num_mlm_preds,
                 masked_token = tokens[mlm_pred_position]
             # 10%的时间：用随机词替换该词
             else:
-                masked_token = random.randint(0, len(vocab) - 1)
+                masked_token = random.choice(vocab.idx_to_token)
         mlm_input_tokens[mlm_pred_position] = masked_token
         pred_positions_and_labels.append(
             (mlm_pred_position, tokens[mlm_pred_position]))
@@ -344,9 +344,9 @@ len(vocab)
 1. 如果我们不过滤出一些不常见的词元，词量会有多大？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/389)
+[Discussions](https://discuss.d2l.ai/t/5737)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1496)
+[Discussions](https://discuss.d2l.ai/t/5738)
 :end_tab:

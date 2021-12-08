@@ -108,7 +108,7 @@ def _get_batch_loss_bert(net, loss, vocab_size, tokens_X,
 ```{.python .input}
 def train_bert(train_iter, net, loss, vocab_size, devices, num_steps):
     trainer = gluon.Trainer(net.collect_params(), 'adam',
-                            {'learning_rate': 1e-3})
+                            {'learning_rate': 0.01})
     step, timer = 0, d2l.Timer()
     animator = d2l.Animator(xlabel='step', ylabel='loss',
                             xlim=[1, num_steps], legend=['mlm', 'nsp'])
@@ -151,7 +151,7 @@ def train_bert(train_iter, net, loss, vocab_size, devices, num_steps):
 #@tab pytorch
 def train_bert(train_iter, net, loss, vocab_size, devices, num_steps):
     net = nn.DataParallel(net, device_ids=devices).to(devices[0])
-    trainer = torch.optim.Adam(net.parameters(), lr=1e-3)
+    trainer = torch.optim.Adam(net.parameters(), lr=0.01)
     step, timer = 0, d2l.Timer()
     animator = d2l.Animator(xlabel='step', ylabel='loss',
                             xlim=[1, num_steps], legend=['mlm', 'nsp'])
@@ -261,9 +261,9 @@ encoded_pair.shape, encoded_pair_cls.shape, encoded_pair_crane[0][:3]
 2. 将BERT输入序列的最大长度设置为512（与原始BERT模型相同）。使用原始BERT模型的配置，如$\text{BERT}_{\text{LARGE}}$。运行此部分时是否遇到错误？为什么？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/390)
+[Discussions](https://discuss.d2l.ai/t/5742)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1497)
+[Discussions](https://discuss.d2l.ai/t/5743)
 :end_tab:

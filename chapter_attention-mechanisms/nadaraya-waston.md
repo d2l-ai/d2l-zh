@@ -560,9 +560,9 @@ d2l.show_heatmaps(tf.expand_dims(
 1. 为本节的核回归设计一个新的带参数的注意力汇聚模型。训练这个新模型并可视化其注意力权重。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/1598)
+[Discussions](https://discuss.d2l.ai/t/5759)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1599)
+[Discussions](https://discuss.d2l.ai/t/5760)
 :end_tab:
