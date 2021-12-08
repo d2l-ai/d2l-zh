@@ -28,7 +28,7 @@ from mxnet.gluon import nn
 npx.set_np()
 
 class Inception(nn.Block):
-    # `c1`--`c4`是每条路径的输出通道数
+    # c1--c4是每条路径的输出通道数
     def __init__(self, c1, c2, c3, c4, **kwargs):
         super(Inception, self).__init__(**kwargs)
         # 线路1，单1x1卷积层
@@ -62,7 +62,7 @@ from torch import nn
 from torch.nn import functional as F
 
 class Inception(nn.Module):
-    # `c1`--`c4`是每条路径的输出通道数
+    # c1--c4是每条路径的输出通道数
     def __init__(self, in_channels, c1, c2, c3, c4, **kwargs):
         super(Inception, self).__init__(**kwargs)
         # 线路1，单1x1卷积层
@@ -92,7 +92,7 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 
 class Inception(tf.keras.Model):
-    # `c1`--`c4`是每条路径的输出通道数
+    # c1--c4是每条路径的输出通道数
     def __init__(self, c1, c2, c3, c4):
         super().__init__()
         # 线路1，单1x1卷积层

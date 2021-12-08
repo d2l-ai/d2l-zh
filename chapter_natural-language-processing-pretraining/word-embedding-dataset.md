@@ -132,7 +132,7 @@ def get_centers_and_contexts(corpus, max_window_size):
         if len(line) < 2:
             continue
         centers += line
-        for i in range(len(line)):  # 上下文窗口中间`i`
+        for i in range(len(line)):  # 上下文窗口中间i
             window_size = random.randint(1, max_window_size)
             indices = list(range(max(0, i - window_size),
                                  min(len(line), i + 1 + window_size)))
@@ -178,7 +178,7 @@ class RandomGenerator:
 
     def draw(self):
         if self.i == len(self.candidates):
-            # 缓存`k`个随机采样结果
+            # 缓存k个随机采样结果
             self.candidates = random.choices(
                 self.population, self.sampling_weights, k=10000)
             self.i = 0

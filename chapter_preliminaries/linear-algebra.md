@@ -476,17 +476,17 @@ A_sum_axis1, A_sum_axis1.shape
 沿着行和列对矩阵求和，等价于对矩阵的所有元素进行求和。
 
 ```{.python .input}
-A.sum(axis=[0, 1])  # Sameas`A.sum()`
+A.sum(axis=[0, 1])  # SameasA.sum()
 ```
 
 ```{.python .input}
 #@tab pytorch
-A.sum(axis=[0, 1])  # Sameas`A.sum()`
+A.sum(axis=[0, 1])  # SameasA.sum()
 ```
 
 ```{.python .input}
 #@tab tensorflow
-tf.reduce_sum(A, axis=[0, 1])  # Sameas`tf.reduce_sum(A)`
+tf.reduce_sum(A, axis=[0, 1])  # Sameastf.reduce_sum(A)
 ```
 
 [**一个与求和相关的量是*平均值*（mean或average）**]。

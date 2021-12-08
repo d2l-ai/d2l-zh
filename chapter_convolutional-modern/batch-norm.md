@@ -104,7 +104,7 @@ from mxnet.gluon import nn
 npx.set_np()
 
 def batch_norm(X, gamma, beta, moving_mean, moving_var, eps, momentum):
-    # 通过`autograd`来判断当前模式是训练模式还是预测模式
+    # 通过autograd来判断当前模式是训练模式还是预测模式
     if not autograd.is_training():
         # 如果是在预测模式下，直接使用传入的移动平均所得的均值和方差
         X_hat = (X - moving_mean) / np.sqrt(moving_var + eps)
@@ -135,7 +135,7 @@ import torch
 from torch import nn
 
 def batch_norm(X, gamma, beta, moving_mean, moving_var, eps, momentum):
-    # 通过`is_grad_enabled`来判断当前模式是训练模式还是预测模式
+    # 通过is_grad_enabled来判断当前模式是训练模式还是预测模式
     if not torch.is_grad_enabled():
         # 如果是在预测模式下，直接使用传入的移动平均所得的均值和方差
         X_hat = (X - moving_mean) / torch.sqrt(moving_var + eps)
@@ -185,8 +185,8 @@ def batch_norm(X, gamma, beta, moving_mean, moving_var, eps):
 
 ```{.python .input}
 class BatchNorm(nn.Block):
-    # `num_features`：完全连接层的输出数量或卷积层的输出通道数。
-    # `num_dims`：2表示完全连接层，4表示卷积层
+    # num_features：完全连接层的输出数量或卷积层的输出通道数。
+    # num_dims：2表示完全连接层，4表示卷积层
     def __init__(self, num_features, num_dims, **kwargs):
         super().__init__(**kwargs)
         if num_dims == 2:
@@ -201,12 +201,12 @@ class BatchNorm(nn.Block):
         self.moving_var = np.ones(shape)
 
     def forward(self, X):
-        # 如果`X`不在内存上，将`moving_mean`和`moving_var`
-        # 复制到`X`所在显存上
+        # 如果X不在内存上，将moving_mean和moving_var
+        # 复制到X所在显存上
         if self.moving_mean.ctx != X.ctx:
             self.moving_mean = self.moving_mean.copyto(X.ctx)
             self.moving_var = self.moving_var.copyto(X.ctx)
-        # 保存更新过的`moving_mean`和`moving_var`
+        # 保存更新过的moving_mean和moving_var
         Y, self.moving_mean, self.moving_var = batch_norm(
             X, self.gamma.data(), self.beta.data(), self.moving_mean,
             self.moving_var, eps=1e-12, momentum=0.9)
@@ -216,8 +216,8 @@ class BatchNorm(nn.Block):
 ```{.python .input}
 #@tab pytorch
 class BatchNorm(nn.Module):
-    # `num_features`：完全连接层的输出数量或卷积层的输出通道数。
-    # `num_dims`：2表示完全连接层，4表示卷积层
+    # num_features：完全连接层的输出数量或卷积层的输出通道数。
+    # num_dims：2表示完全连接层，4表示卷积层
     def __init__(self, num_features, num_dims):
         super().__init__()
         if num_dims == 2:
@@ -232,12 +232,12 @@ class BatchNorm(nn.Module):
         self.moving_var = torch.ones(shape)
 
     def forward(self, X):
-        # 如果`X`不在内存上，将`moving_mean`和`moving_var`
-        # 复制到`X`所在显存上
+        # 如果X不在内存上，将moving_mean和moving_var
+        # 复制到X所在显存上
         if self.moving_mean.device != X.device:
             self.moving_mean = self.moving_mean.to(X.device)
             self.moving_var = self.moving_var.to(X.device)
-        # 保存更新过的`moving_mean`和`moving_var`
+        # 保存更新过的moving_mean和moving_var
         Y, self.moving_mean, self.moving_var = batch_norm(
             X, self.gamma, self.beta, self.moving_mean,
             self.moving_var, eps=1e-5, momentum=0.9)
@@ -332,8 +332,8 @@ net = nn.Sequential(
 
 ```{.python .input}
 #@tab tensorflow
-# 回想一下，这个函数必须传递给`d2l.train_ch6`。
-# 或者说为了利用我们现有的CPU/GPU设备，需要在`strategy.scope()`建立模型
+# 回想一下，这个函数必须传递给d2l.train_ch6。
+# 或者说为了利用我们现有的CPU/GPU设备，需要在strategy.scope()建立模型
 def net():
     return tf.keras.models.Sequential([
         tf.keras.layers.Conv2D(filters=6, kernel_size=5,

@@ -188,7 +188,7 @@ $$\mathbf{x} \leftarrow \mathbf{x} - \eta \nabla f(\mathbf{x}).$$
 #@tab all
 def train_2d(trainer, steps=20, f_grad=None):  #@save
     """用定制的训练机优化2D目标函数"""
-    # `s1`和`s2`是稍后将使用的内部状态变量
+    # s1和s2是稍后将使用的内部状态变量
     x1, x2, s1, s2 = -5, -2, 0, 0
     results = [(x1, x2)]
     for i in range(steps):

@@ -81,7 +81,7 @@ import tensorflow as tf
 #@save
 def masked_softmax(X, valid_lens):
     """通过在最后一个轴上掩蔽元素来执行softmax操作"""
-    # `X`:3D张量，`valid_lens`:1D或2D张量
+    # X:3D张量，valid_lens:1D或2D张量
     if valid_lens is None:
         return npx.softmax(X)
     else:
@@ -101,7 +101,7 @@ def masked_softmax(X, valid_lens):
 #@save
 def masked_softmax(X, valid_lens):
     """通过在最后一个轴上掩蔽元素来执行softmax操作"""
-    # `X`:3D张量，`valid_lens`:1D或2D张量
+    # X:3D张量，valid_lens:1D或2D张量
     if valid_lens is None:
         return nn.functional.softmax(X, dim=-1)
     else:
@@ -121,7 +121,7 @@ def masked_softmax(X, valid_lens):
 #@save
 def masked_softmax(X, valid_lens):
     """通过在最后一个轴上掩蔽元素来执行softmax操作"""
-    # `X`:3D张量，`valid_lens`:1D或2D张量
+    # X:3D张量，valid_lens:1D或2D张量
     if valid_lens is None:
         return tf.nn.softmax(X, axis=-1)
     else:
@@ -210,17 +210,17 @@ class AdditiveAttention(nn.Block):
     def forward(self, queries, keys, values, valid_lens):
         queries, keys = self.W_q(queries), self.W_k(keys)
         # 在维度扩展后，
-        # `queries`的形状：(`batch_size`，查询的个数，1，`num_hidden`)
-        # `key`的形状：(`batch_size`，1，“键－值”对的个数，`num_hiddens`)
+        # queries的形状：(batch_size，查询的个数，1，num_hidden)
+        # key的形状：(batch_size，1，“键－值”对的个数，num_hiddens)
         # 使用广播的方式进行求和
         features = np.expand_dims(queries, axis=2) + np.expand_dims(
             keys, axis=1)
         features = np.tanh(features)
-        # `self.w_v`仅有一个输出，因此从形状中移除最后那个维度。
-        # `scores`的形状：(`batch_size`，查询的个数，“键-值”对的个数)
+        # self.w_v仅有一个输出，因此从形状中移除最后那个维度。
+        # scores的形状：(batch_size，查询的个数，“键-值”对的个数)
         scores = np.squeeze(self.w_v(features), axis=-1)
         self.attention_weights = masked_softmax(scores, valid_lens)
-        # `values`的形状：(`batch_size`，“键－值”对的个数，值的维度)
+        # values的形状：(batch_size，“键－值”对的个数，值的维度)
         return npx.batch_dot(self.dropout(self.attention_weights), values)
 ```
 
@@ -239,16 +239,16 @@ class AdditiveAttention(nn.Module):
     def forward(self, queries, keys, values, valid_lens):
         queries, keys = self.W_q(queries), self.W_k(keys)
         # 在维度扩展后，
-        # `queries`的形状：(`batch_size`，查询的个数，1，`num_hidden`)
-        # `key`的形状：(`batch_size`，1，“键－值”对的个数，`num_hiddens`)
+        # queries的形状：(batch_size，查询的个数，1，num_hidden)
+        # key的形状：(batch_size，1，“键－值”对的个数，num_hiddens)
         # 使用广播方式进行求和
         features = queries.unsqueeze(2) + keys.unsqueeze(1)
         features = torch.tanh(features)
-        # `self.w_v`仅有一个输出，因此从形状中移除最后那个维度。
-        # `scores`的形状：(`batch_size`，查询的个数，“键-值”对的个数)
+        # self.w_v仅有一个输出，因此从形状中移除最后那个维度。
+        # scores的形状：(batch_size，查询的个数，“键-值”对的个数)
         scores = self.w_v(features).squeeze(-1)
         self.attention_weights = masked_softmax(scores, valid_lens)
-        # `values`的形状：(`batch_size`，“键－值”对的个数，值的维度)
+        # values的形状：(batch_size，“键－值”对的个数，值的维度)
         return torch.bmm(self.dropout(self.attention_weights), values)
 ```
 
@@ -267,17 +267,17 @@ class AdditiveAttention(tf.keras.layers.Layer):
     def call(self, queries, keys, values, valid_lens, **kwargs):
         queries, keys = self.W_q(queries), self.W_k(keys)
         # 在维度扩展后，
-        # `queries`的形状：(`batch_size`，查询的个数，1，`num_hidden`)
-        # `key`的形状：(`batch_size`，1，“键－值”对的个数，`num_hiddens`)
+        # queries的形状：(batch_size，查询的个数，1，num_hidden)
+        # key的形状：(batch_size，1，“键－值”对的个数，num_hiddens)
         # 使用广播方式进行求和
         features = tf.expand_dims(queries, axis=2) + tf.expand_dims(
             keys, axis=1)
         features = tf.nn.tanh(features)
-        # `self.w_v`仅有一个输出，因此从形状中移除最后那个维度。
-        # `scores`的形状：(`batch_size`，查询的个数，“键-值”对的个数)
+        # self.w_v仅有一个输出，因此从形状中移除最后那个维度。
+        # scores的形状：(batch_size，查询的个数，“键-值”对的个数)
         scores = tf.squeeze(self.w_v(features), axis=-1)
         self.attention_weights = masked_softmax(scores, valid_lens)
-        # `values`的形状：(`batch_size`，“键－值”对的个数，值的维度)
+        # values的形状：(batch_size，“键－值”对的个数，值的维度)
         return tf.matmul(self.dropout(
             self.attention_weights, **kwargs), values)
 ```
@@ -289,7 +289,7 @@ class AdditiveAttention(tf.keras.layers.Layer):
 
 ```{.python .input}
 queries, keys = d2l.normal(0, 1, (2, 1, 20)), d2l.ones((2, 10, 2))
-# `values`的小批量数据集中，两个值矩阵是相同的
+# values的小批量数据集中，两个值矩阵是相同的
 values = np.arange(40).reshape(1, 10, 4).repeat(2, axis=0)
 valid_lens = d2l.tensor([2, 6])
 
@@ -301,7 +301,7 @@ attention(queries, keys, values, valid_lens)
 ```{.python .input}
 #@tab pytorch
 queries, keys = d2l.normal(0, 1, (2, 1, 20)), d2l.ones((2, 10, 2))
-# `values`的小批量，两个值矩阵是相同的
+# values的小批量，两个值矩阵是相同的
 values = torch.arange(40, dtype=torch.float32).reshape(1, 10, 4).repeat(
     2, 1, 1)
 valid_lens = d2l.tensor([2, 6])
@@ -315,7 +315,7 @@ attention(queries, keys, values, valid_lens)
 ```{.python .input}
 #@tab tensorflow
 queries, keys = tf.random.normal(shape=(2, 1, 20)), tf.ones((2, 10, 2))
-# `values`的小批量，两个值矩阵是相同的
+# values的小批量，两个值矩阵是相同的
 values = tf.repeat(tf.reshape(
     tf.range(40, dtype=tf.float32), shape=(1, 10, 4)), repeats=2, axis=0)
 valid_lens = tf.constant([2, 6])
@@ -369,13 +369,13 @@ class DotProductAttention(nn.Block):
         super(DotProductAttention, self).__init__(**kwargs)
         self.dropout = nn.Dropout(dropout)
 
-    # `queries`的形状：(`batch_size`，查询的个数，`d`)
-    # `keys`的形状：(`batch_size`，“键－值”对的个数，`d`)
-    # `values`的形状：(`batch_size`，“键－值”对的个数，值的维度)
-    # `valid_lens`的形状:(`batch_size`，)或者(`batch_size`，查询的个数)
+    # queries的形状：(batch_size，查询的个数，d)
+    # keys的形状：(batch_size，“键－值”对的个数，d)
+    # values的形状：(batch_size，“键－值”对的个数，值的维度)
+    # valid_lens的形状:(batch_size，)或者(batch_size，查询的个数)
     def forward(self, queries, keys, values, valid_lens=None):
         d = queries.shape[-1]
-        # 设置`transpose_b=True`为了交换`keys`的最后两个维度
+        # 设置transpose_b=True为了交换keys的最后两个维度
         scores = npx.batch_dot(queries, keys, transpose_b=True) / math.sqrt(d)
         self.attention_weights = masked_softmax(scores, valid_lens)
         return npx.batch_dot(self.dropout(self.attention_weights), values)
@@ -390,13 +390,13 @@ class DotProductAttention(nn.Module):
         super(DotProductAttention, self).__init__(**kwargs)
         self.dropout = nn.Dropout(dropout)
 
-    # `queries`的形状：(`batch_size`，查询的个数，`d`)
-    # `keys`的形状：(`batch_size`，“键－值”对的个数，`d`)
-    # `values`的形状：(`batch_size`，“键－值”对的个数，值的维度)
-    # `valid_lens`的形状:(`batch_size`，)或者(`batch_size`，查询的个数)
+    # queries的形状：(batch_size，查询的个数，d)
+    # keys的形状：(batch_size，“键－值”对的个数，d)
+    # values的形状：(batch_size，“键－值”对的个数，值的维度)
+    # valid_lens的形状:(batch_size，)或者(batch_size，查询的个数)
     def forward(self, queries, keys, values, valid_lens=None):
         d = queries.shape[-1]
-        # 设置`transpose_b=True`为了交换`keys`的最后两个维度
+        # 设置transpose_b=True为了交换keys的最后两个维度
         scores = torch.bmm(queries, keys.transpose(1,2)) / math.sqrt(d)
         self.attention_weights = masked_softmax(scores, valid_lens)
         return torch.bmm(self.dropout(self.attention_weights), values)
@@ -411,10 +411,10 @@ class DotProductAttention(tf.keras.layers.Layer):
         super().__init__(**kwargs)
         self.dropout = tf.keras.layers.Dropout(dropout)
         
-    # `queries`的形状：(`batch_size`，查询的个数，`d`)
-    # `keys`的形状：(`batch_size`，“键－值”对的个数，`d`)
-    # `values`的形状：(`batch_size`，“键－值”对的个数，值的维度)
-    # `valid_lens`的形状:(`batch_size`，)或者(`batch_size`，查询的个数)
+    # queries的形状：(batch_size，查询的个数，d)
+    # keys的形状：(batch_size，“键－值”对的个数，d)
+    # values的形状：(batch_size，“键－值”对的个数，值的维度)
+    # valid_lens的形状:(batch_size，)或者(batch_size，查询的个数)
     def call(self, queries, keys, values, valid_lens, **kwargs):
         d = queries.shape[-1]
         scores = tf.matmul(queries, keys, transpose_b=True)/tf.math.sqrt(

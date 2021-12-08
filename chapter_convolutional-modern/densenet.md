@@ -273,7 +273,7 @@ def block_1():
 在每个模块之间，ResNet通过步幅为2的残差块减小高和宽，DenseNet则使用过渡层来减半高和宽，并减半通道数。
 
 ```{.python .input}
-# `num_channels`为当前的通道数
+# num_channels为当前的通道数
 num_channels, growth_rate = 64, 32
 num_convs_in_dense_blocks = [4, 4, 4, 4]
 
@@ -289,7 +289,7 @@ for i, num_convs in enumerate(num_convs_in_dense_blocks):
 
 ```{.python .input}
 #@tab pytorch
-# `num_channels`为当前的通道数
+# num_channels为当前的通道数
 num_channels, growth_rate = 64, 32
 num_convs_in_dense_blocks = [4, 4, 4, 4]
 blks = []
@@ -307,7 +307,7 @@ for i, num_convs in enumerate(num_convs_in_dense_blocks):
 #@tab tensorflow
 def block_2():
     net = block_1()
-    # `num_channels`为当前的通道数
+    # num_channels为当前的通道数
     num_channels, growth_rate = 64, 32
     num_convs_in_dense_blocks = [4, 4, 4, 4]
 

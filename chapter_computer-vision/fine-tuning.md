@@ -232,7 +232,7 @@ def train_fine_tuning(net, learning_rate, batch_size=128, num_epochs=5):
 
 ```{.python .input}
 #@tab pytorch
-# 如果`param_group=True`，输出层中的模型参数将使用十倍的学习率
+# 如果param_group=True，输出层中的模型参数将使用十倍的学习率
 def train_fine_tuning(net, learning_rate, batch_size=128, num_epochs=5,
                       param_group=True):
     train_iter = torch.utils.data.DataLoader(torchvision.datasets.ImageFolder(

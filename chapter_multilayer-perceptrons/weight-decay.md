@@ -398,7 +398,7 @@ def train_concise(wd):
     for epoch in range(num_epochs):
         for X, y in train_iter:
             with tf.GradientTape() as tape:
-                # `tf.keras`需要为自定义训练代码手动添加损失。
+                # tf.keras需要为自定义训练代码手动添加损失。
                 l = loss(net(X), y) + net.losses
             grads = tape.gradient(l, net.trainable_variables)
             trainer.apply_gradients(zip(grads, net.trainable_variables))

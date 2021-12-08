@@ -292,8 +292,8 @@ loss = squared_loss
 for epoch in range(num_epochs):
     for X, y in data_iter(batch_size, features, labels):
         with autograd.record():
-            l = loss(net(X, w, b), y)  # `X`和`y`的小批量损失
-        # 计算l关于[`w`,`b`]的梯度
+            l = loss(net(X, w, b), y)  # X和y的小批量损失
+        # 计算l关于[w,b]的梯度
         l.backward()
         sgd([w, b], lr, batch_size)  # 使用参数的梯度更新参数
     train_l = loss(net(features, w, b), labels)
@@ -304,9 +304,9 @@ for epoch in range(num_epochs):
 #@tab pytorch
 for epoch in range(num_epochs):
     for X, y in data_iter(batch_size, features, labels):
-        l = loss(net(X, w, b), y)  # `X`和`y`的小批量损失
-        # 因为`l`形状是(`batch_size`,1)，而不是一个标量。`l`中的所有元素被加到一起，
-        # 并以此计算关于[`w`,`b`]的梯度
+        l = loss(net(X, w, b), y)  # X和y的小批量损失
+        # 因为l形状是(batch_size,1)，而不是一个标量。l中的所有元素被加到一起，
+        # 并以此计算关于[w,b]的梯度
         l.sum().backward()
         sgd([w, b], lr, batch_size)  # 使用参数的梯度更新参数
     with torch.no_grad():
@@ -319,8 +319,8 @@ for epoch in range(num_epochs):
 for epoch in range(num_epochs):
     for X, y in data_iter(batch_size, features, labels):
         with tf.GradientTape() as g:
-            l = loss(net(X, w, b), y)  # `X`和`y`的小批量损失
-        # 计算l关于[`w`,`b`]的梯度
+            l = loss(net(X, w, b), y)  # X和y的小批量损失
+        # 计算l关于[w,b]的梯度
         dw, db = g.gradient(l, [w, b])
         # 使用参数的梯度更新参数
         sgd([w, b], [dw, db], lr, batch_size)

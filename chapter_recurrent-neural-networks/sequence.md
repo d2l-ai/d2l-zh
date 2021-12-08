@@ -231,7 +231,7 @@ labels = d2l.reshape(x[tau:], (-1, 1))
 ```{.python .input}
 #@tab all
 batch_size, n_train = 16, 600
-# 只有前`n_train`个样本用于训练
+# 只有前n_train个样本用于训练
 train_iter = d2l.load_array((features[:n_train], labels[:n_train]),
                             batch_size, is_train=True)
 ```

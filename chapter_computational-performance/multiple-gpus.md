@@ -271,7 +271,7 @@ print('output:', split)
 ```{.python .input}
 #@save
 def split_batch(X, y, devices):
-    """将`X`和`y`拆分到多个设备上"""
+    """将X和y拆分到多个设备上"""
     assert X.shape[0] == y.shape[0]
     return (gluon.utils.split_and_load(X, devices),
             gluon.utils.split_and_load(y, devices))
@@ -281,7 +281,7 @@ def split_batch(X, y, devices):
 #@tab pytorch
 #@save
 def split_batch(X, y, devices):
-    """将`X`和`y`拆分到多个设备上"""
+    """将X和y拆分到多个设备上"""
     assert X.shape[0] == y.shape[0]
     return (nn.parallel.scatter(X, devices),
             nn.parallel.scatter(y, devices))

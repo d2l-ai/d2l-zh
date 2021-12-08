@@ -73,7 +73,7 @@ import shutil
 d2l.DATA_HUB['cifar10_tiny'] = (d2l.DATA_URL + 'kaggle_cifar10_tiny.zip',
                                 '2068874e4b9a9f0fb07ebe0ad2b29754449ccacd')
 
-# 如果你使用完整的Kaggle竞赛的数据集，设置`demo`为False
+# 如果你使用完整的Kaggle竞赛的数据集，设置demo为False
 demo = True
 
 if demo:
@@ -91,7 +91,7 @@ else:
 #@tab all
 #@save
 def read_csv_labels(fname):
-    """读取`fname`来给标签字典返回一个文件名"""
+    """读取fname来给标签字典返回一个文件名"""
     with open(fname, 'r') as f:
         # 跳过文件头行(列名)
         lines = f.readlines()[1:]

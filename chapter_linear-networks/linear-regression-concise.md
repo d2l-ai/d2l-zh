@@ -140,7 +140,7 @@ Keras会自动推断每个层输入的形状。
 :end_tab:
 
 ```{.python .input}
-# `nn`是神经网络的缩写
+# nn是神经网络的缩写
 from mxnet.gluon import nn
 net = nn.Sequential()
 net.add(nn.Dense(1))
@@ -148,14 +148,14 @@ net.add(nn.Dense(1))
 
 ```{.python .input}
 #@tab pytorch
-# `nn`是神经网络的缩写
+# nn是神经网络的缩写
 from torch import nn
 net = nn.Sequential(nn.Linear(2, 1))
 ```
 
 ```{.python .input}
 #@tab tensorflow
-# `keras`是TensorFlow的高级API
+# keras是TensorFlow的高级API
 net = tf.keras.Sequential()
 net.add(tf.keras.layers.Dense(1))
 ```
