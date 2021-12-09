@@ -112,4 +112,4 @@ git pull
 1. 使用Amazon SageMaker编辑并运行任何需要GPU的部分。
 1. 打开终端以访问保存本书所有notebooks的本地目录。
 
-[Discussions](https://discuss.d2l.ai/t/422)
+[Discussions](https://discuss.d2l.ai/t/5732)

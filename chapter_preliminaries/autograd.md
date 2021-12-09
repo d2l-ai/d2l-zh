@@ -46,15 +46,15 @@ x
 注意，一个标量函数关于向量$\mathbf{x}$的梯度是向量，并且与$\mathbf{x}$具有相同的形状。
 
 ```{.python .input}
-# 我们通过调用`attach_grad`来为一个张量的梯度分配内存
+# 我们通过调用attach_grad来为一个张量的梯度分配内存
 x.attach_grad()
-# 在我们计算关于`x`的梯度后，我们将能够通过'grad'属性访问它，它的值被初始化为0
+# 在我们计算关于x的梯度后，我们将能够通过'grad'属性访问它，它的值被初始化为0
 x.grad
 ```
 
 ```{.python .input}
 #@tab pytorch
-x.requires_grad_(True)  # 等价于 `x = torch.arange(4.0, requires_grad=True)`
+x.requires_grad_(True)  # 等价于x=torch.arange(4.0,requires_grad=True)
 x.grad  # 默认值是None
 ```
 
@@ -66,7 +66,7 @@ x = tf.Variable(x)
 (**现在让我们计算$y$。**)
 
 ```{.python .input}
-# 把代码放到`autograd.record`内，以建立计算图
+# 把代码放到autograd.record内，以建立计算图
 with autograd.record():
     y = 2 * np.dot(x, x)
 y
@@ -158,17 +158,17 @@ t.gradient(y, x)  # 被新计算的梯度覆盖
 这里(**，我们的目的不是计算微分矩阵，而是单独计算批量中每个样本的偏导数之和。**)
 
 ```{.python .input}
-# 当我们对向量值变量`y`（关于`x`的函数）调用`backward`时，将通过对`y`中的元素求和来创建
-# 一个新的标量变量。然后计算这个标量变量相对于`x`的梯度
+# 当我们对向量值变量y（关于x的函数）调用backward时，将通过对y中的元素求和来创建
+# 一个新的标量变量。然后计算这个标量变量相对于x的梯度
 with autograd.record():
-    y = x * x  # `y`是一个向量
+    y = x * x  # y是一个向量
 y.backward()
-x.grad  # 等价于y = sum(x * x)
+x.grad  # 等价于y=sum(x*x)
 ```
 
 ```{.python .input}
 #@tab pytorch
-# 对非标量调用`backward`需要传入一个`gradient`参数，该参数指定微分函数关于`self`的梯度。
+# 对非标量调用backward需要传入一个gradient参数，该参数指定微分函数关于self的梯度。
 # 在我们的例子中，我们只想求偏导数的和，所以传递一个1的梯度是合适的
 x.grad.zero_()
 y = x * x
@@ -181,7 +181,7 @@ x.grad
 #@tab tensorflow
 with tf.GradientTape() as t:
     y = x * x
-t.gradient(y, x)  # 等价于 `y = tf.reduce_sum(x * x)`
+t.gradient(y, x)  # 等价于y=tf.reduce_sum(x*x)
 ```
 
 ## 分离计算
@@ -219,7 +219,7 @@ x.grad == u
 
 ```{.python .input}
 #@tab tensorflow
-# 设置 `persistent=True` 来运行 `t.gradient`多次
+# 设置persistent=True来运行t.gradient多次
 with tf.GradientTape(persistent=True) as t:
     y = x * x
     u = tf.stop_gradient(y)

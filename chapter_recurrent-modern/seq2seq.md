@@ -127,14 +127,14 @@ class Seq2SeqEncoder(d2l.Encoder):
         self.rnn = rnn.GRU(num_hiddens, num_layers, dropout=dropout)
 
     def forward(self, X, *args):
-        # 输出'X'的形状：(`batch_size`, `num_steps`, `embed_size`)
+        # 输出'X'的形状：(batch_size,num_steps,embed_size)
         X = self.embedding(X)
         # 在循环神经网络模型中，第一个轴对应于时间步
         X = X.swapaxes(0, 1)
         state = self.rnn.begin_state(batch_size=X.shape[1], ctx=X.ctx)
         output, state = self.rnn(X, state)
-        # `output`的形状: (`num_steps`, `batch_size`, `num_hiddens`)
-        # `state[0]`的形状: (`num_layers`, `batch_size`, `num_hiddens`)
+        # output的形状:(num_steps,batch_size,num_hiddens)
+        # state[0]的形状:(num_layers,batch_size,num_hiddens)
         return output, state
 ```
 
@@ -152,14 +152,14 @@ class Seq2SeqEncoder(d2l.Encoder):
                           dropout=dropout)
 
     def forward(self, X, *args):
-        # 输出'X'的形状：(`batch_size`, `num_steps`, `embed_size`)
+        # 输出'X'的形状：(batch_size,num_steps,embed_size)
         X = self.embedding(X)
         # 在循环神经网络模型中，第一个轴对应于时间步
         X = X.permute(1, 0, 2)
         # 如果未提及状态，则默认为0
         output, state = self.rnn(X)
-        # `output`的形状: (`num_steps`, `batch_size`, `num_hiddens`)
-        # `state[0]`的形状: (`num_layers`, `batch_size`, `num_hiddens`)
+        # output的形状:(num_steps,batch_size,num_hiddens)
+        # state[0]的形状:(num_layers,batch_size,num_hiddens)
         return output, state
 ```
 
@@ -178,8 +178,8 @@ class Seq2SeqEncoder(d2l.Encoder):
                                        return_state=True)
     
     def call(self, X, *args, **kwargs):
-        # 输入'X'的形状：(`batch_size`, `num_steps`)
-        # 输出'X'的形状：(`batch_size`, `num_steps`, `embed_size`)
+        # 输入'X'的形状：(batch_size,num_steps)
+        # 输出'X'的形状：(batch_size,num_steps,embed_size)
         X = self.embedding(X)
         output = self.rnn(X, **kwargs)
         state = output[1:]
@@ -292,18 +292,18 @@ class Seq2SeqDecoder(d2l.Decoder):
         return enc_outputs[1]
 
     def forward(self, X, state):
-        # 输出'X'的形状：(`batch_size`, `num_steps`, `embed_size`)
+        # 输出'X'的形状：(batch_size,num_steps,embed_size)
         X = self.embedding(X).swapaxes(0, 1)
-        # `context` 的形状: (`batch_size`, `num_hiddens`)
+        # context的形状:(batch_size,num_hiddens)
         context = state[0][-1]
-        # 广播`context`，使其具有与`X`相同的`num_steps`
+        # 广播context，使其具有与X相同的num_steps
         context = np.broadcast_to(context, (
             X.shape[0], context.shape[0], context.shape[1]))
         X_and_context = d2l.concat((X, context), 2)
         output, state = self.rnn(X_and_context, state)
         output = self.dense(output).swapaxes(0, 1)
-        # `output`的形状: (`batch_size`, `num_steps`, `vocab_size`)
-        # `state[0]`的形状: (`num_layers`, `batch_size`, `num_hiddens`)
+        # output的形状:(batch_size,num_steps,vocab_size)
+        # state[0]的形状:(num_layers,batch_size,num_hiddens)
         return output, state
 ```
 
@@ -323,15 +323,15 @@ class Seq2SeqDecoder(d2l.Decoder):
         return enc_outputs[1]
 
     def forward(self, X, state):
-        # 输出'X'的形状：(`batch_size`, `num_steps`, `embed_size`)
+        # 输出'X'的形状：(batch_size,num_steps,embed_size)
         X = self.embedding(X).permute(1, 0, 2)
-        # 广播`context`，使其具有与`X`相同的`num_steps`
+        # 广播context，使其具有与X相同的num_steps
         context = state[-1].repeat(X.shape[0], 1, 1)
         X_and_context = d2l.concat((X, context), 2)
         output, state = self.rnn(X_and_context, state)
         output = self.dense(output).permute(1, 0, 2)
-        # `output`的形状: (`batch_size`, `num_steps`, `vocab_size`)
-        # `state[0]`的形状: (`num_layers`, `batch_size`, `num_hiddens`)
+        # output的形状:(batch_size,num_steps,vocab_size)
+        # state[0]的形状:(num_layers,batch_size,num_hiddens)
         return output, state
 ```
 
@@ -353,15 +353,15 @@ class Seq2SeqDecoder(d2l.Decoder):
         return enc_outputs[1]
     
     def call(self, X, state, **kwargs):
-        # 输出'X'的形状：(`batch_size`, `num_steps`, `embed_size`)
+        # 输出'X'的形状：(batch_size,num_steps,embed_size)
         X = self.embedding(X)
-        # 广播`context`，使其具有与`X`相同的`num_steps`
+        # 广播context，使其具有与X相同的num_steps
         context = tf.repeat(tf.expand_dims(state[-1], axis=1), repeats=X.shape[1], axis=1)
         X_and_context = tf.concat((X, context), axis=2)
         rnn_output = self.rnn(X_and_context, state, **kwargs)
         output = self.dense(rnn_output[0])
-        # `output`的形状: (`batch_size`, `num_steps`, `vocab_size`)
-        # `state`是一个包含`num_layers`个元素的列表，每个元素的形状: (`batch_size`, `num_hiddens`)
+        # output的形状:(batch_size,num_steps,vocab_size)
+        # state是一个包含num_layers个元素的列表，每个元素的形状:(batch_size,num_hiddens)
         return output, rnn_output[1:]
 ```
 
@@ -484,11 +484,11 @@ sequence_mask(X, tf.constant([1, 2]), value=-1)
 #@save
 class MaskedSoftmaxCELoss(gluon.loss.SoftmaxCELoss):
     """带遮蔽的softmax交叉熵损失函数"""
-    # `pred` 的形状：(`batch_size`, `num_steps`, `vocab_size`)
-    # `label` 的形状：(`batch_size`, `num_steps`)
-    # `valid_len` 的形状：(`batch_size`,)
+    # pred的形状：(batch_size,num_steps,vocab_size)
+    # label的形状：(batch_size,num_steps)
+    # valid_len的形状：(batch_size,)
     def forward(self, pred, label, valid_len):
-        # `weights` 的形状：(`batch_size`, `num_steps`, 1)
+        # weights的形状：(batch_size,num_steps,1)
         weights = np.expand_dims(np.ones_like(label), axis=-1)
         weights = npx.sequence_mask(weights, valid_len, True, axis=1)
         return super(MaskedSoftmaxCELoss, self).forward(pred, label, weights)
@@ -499,9 +499,9 @@ class MaskedSoftmaxCELoss(gluon.loss.SoftmaxCELoss):
 #@save
 class MaskedSoftmaxCELoss(nn.CrossEntropyLoss):
     """带遮蔽的softmax交叉熵损失函数"""
-    # `pred` 的形状：(`batch_size`, `num_steps`, `vocab_size`)
-    # `label` 的形状：(`batch_size`, `num_steps`)
-    # `valid_len` 的形状：(`batch_size`,)
+    # pred的形状：(batch_size,num_steps,vocab_size)
+    # label的形状：(batch_size,num_steps)
+    # valid_len的形状：(batch_size,)
     def forward(self, pred, label, valid_len):
         weights = torch.ones_like(label)
         weights = sequence_mask(weights, valid_len)
@@ -521,9 +521,9 @@ class MaskedSoftmaxCELoss(tf.keras.losses.Loss):
         super().__init__(reduction='none')
         self.valid_len = valid_len
     
-    # `pred` 的形状：(`batch_size`, `num_steps`, `vocab_size`)
-    # `label` 的形状：(`batch_size`, `num_steps`)
-    # `valid_len` 的形状：(`batch_size`,)
+    # pred的形状：(batch_size,num_steps,vocab_size)
+    # label的形状：(batch_size,num_steps)
+    # valid_len的形状：(batch_size,)
     def call(self, label, pred):
         weights = tf.ones_like(label, dtype=tf.float32)
         weights = sequence_mask(weights, self.valid_len)
@@ -743,7 +743,7 @@ def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
 def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
                     device, save_attention_weights=False):
     """序列到序列模型的预测"""
-    # 在预测时将`net`设置为评估模式
+    # 在预测时将net设置为评估模式
     net.eval()
     src_tokens = src_vocab[src_sentence.lower().split(' ')] + [
         src_vocab['<eos>']]
@@ -855,11 +855,11 @@ def bleu(pred_seq, label_seq, k):  #@save
     for n in range(1, k + 1):
         num_matches, label_subs = 0, collections.defaultdict(int)
         for i in range(len_label - n + 1):
-            label_subs[''.join(label_tokens[i: i + n])] += 1
+            label_subs[' '.join(label_tokens[i: i + n])] += 1
         for i in range(len_pred - n + 1):
-            if label_subs[''.join(pred_tokens[i: i + n])] > 0:
+            if label_subs[' '.join(pred_tokens[i: i + n])] > 0:
                 num_matches += 1
-                label_subs[''.join(pred_tokens[i: i + n])] -= 1
+                label_subs[' '.join(pred_tokens[i: i + n])] -= 1
         score *= math.pow(num_matches / (len_pred - n + 1), math.pow(0.5, n))
     return score
 ```

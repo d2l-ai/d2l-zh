@@ -56,7 +56,7 @@ $$\mathbf{y}= \mathbf{X} \mathbf{w} + b + \mathbf\epsilon.$$
 ```{.python .input}
 #@tab mxnet, pytorch
 def synthetic_data(w, b, num_examples):  #@save
-    """生成 y = Xw + b + 噪声。"""
+    """生成y=Xw+b+噪声"""
     X = d2l.normal(0, 1, (num_examples, len(w)))
     y = d2l.matmul(X, w) + b
     y += d2l.normal(0, 0.01, y.shape)
@@ -66,7 +66,7 @@ def synthetic_data(w, b, num_examples):  #@save
 ```{.python .input}
 #@tab tensorflow
 def synthetic_data(w, b, num_examples):  #@save
-    """生成 y = Xw + b + 噪声。"""
+    """生成y=Xw+b+噪声"""
     X = d2l.zeros((num_examples, w.shape[0]))
     X += tf.random.normal(shape=X.shape)
     y = d2l.matmul(X, tf.reshape(w, (-1, 1))) + b
@@ -202,7 +202,7 @@ b = tf.Variable(tf.zeros(1), trainable=True)
 ```{.python .input}
 #@tab all
 def linreg(X, w, b):  #@save
-    """线性回归模型。"""
+    """线性回归模型"""
     return d2l.matmul(X, w) + b
 ```
 
@@ -215,7 +215,7 @@ def linreg(X, w, b):  #@save
 ```{.python .input}
 #@tab all
 def squared_loss(y_hat, y):  #@save
-    """均方损失。"""
+    """均方损失"""
     return (y_hat - d2l.reshape(y, y_hat.shape)) ** 2 / 2
 ```
 
@@ -235,7 +235,7 @@ def squared_loss(y_hat, y):  #@save
 
 ```{.python .input}
 def sgd(params, lr, batch_size):  #@save
-    """小批量随机梯度下降。"""
+    """小批量随机梯度下降"""
     for param in params:
         param[:] = param - lr * param.grad / batch_size
 ```
@@ -243,7 +243,7 @@ def sgd(params, lr, batch_size):  #@save
 ```{.python .input}
 #@tab pytorch
 def sgd(params, lr, batch_size):  #@save
-    """小批量随机梯度下降。"""
+    """小批量随机梯度下降"""
     with torch.no_grad():
         for param in params:
             param -= lr * param.grad / batch_size
@@ -253,7 +253,7 @@ def sgd(params, lr, batch_size):  #@save
 ```{.python .input}
 #@tab tensorflow
 def sgd(params, grads, lr, batch_size):  #@save
-    """小批量随机梯度下降。"""
+    """小批量随机梯度下降"""
     for param, grad in zip(params, grads):
         param.assign_sub(lr*grad/batch_size)
 ```
@@ -292,8 +292,8 @@ loss = squared_loss
 for epoch in range(num_epochs):
     for X, y in data_iter(batch_size, features, labels):
         with autograd.record():
-            l = loss(net(X, w, b), y)  # `X`和`y`的小批量损失
-        # 计算l关于[`w`, `b`]的梯度
+            l = loss(net(X, w, b), y)  # X和y的小批量损失
+        # 计算l关于[w,b]的梯度
         l.backward()
         sgd([w, b], lr, batch_size)  # 使用参数的梯度更新参数
     train_l = loss(net(features, w, b), labels)
@@ -304,9 +304,9 @@ for epoch in range(num_epochs):
 #@tab pytorch
 for epoch in range(num_epochs):
     for X, y in data_iter(batch_size, features, labels):
-        l = loss(net(X, w, b), y)  # `X`和`y`的小批量损失
-        # 因为`l`形状是(`batch_size`, 1)，而不是一个标量。`l`中的所有元素被加到一起，
-        # 并以此计算关于[`w`, `b`]的梯度
+        l = loss(net(X, w, b), y)  # X和y的小批量损失
+        # 因为l形状是(batch_size,1)，而不是一个标量。l中的所有元素被加到一起，
+        # 并以此计算关于[w,b]的梯度
         l.sum().backward()
         sgd([w, b], lr, batch_size)  # 使用参数的梯度更新参数
     with torch.no_grad():
@@ -319,8 +319,8 @@ for epoch in range(num_epochs):
 for epoch in range(num_epochs):
     for X, y in data_iter(batch_size, features, labels):
         with tf.GradientTape() as g:
-            l = loss(net(X, w, b), y)  # `X`和`y`的小批量损失
-        # 计算l关于[`w`, `b`]的梯度
+            l = loss(net(X, w, b), y)  # X和y的小批量损失
+        # 计算l关于[w,b]的梯度
         dw, db = g.gradient(l, [w, b])
         # 使用参数的梯度更新参数
         sgd([w, b], [dw, db], lr, batch_size)

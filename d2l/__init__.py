@@ -8,4 +8,4 @@ from d2l import tensorflow as d2l  # Use TensorFlow as the backend
 
 """
 
-__version__ = "2.0.0-alpha2"
+__version__ = "2.0.0-beta0"

@@ -53,7 +53,7 @@ features, labels = d2l.synthetic_data(true_w, true_b, 1000)
 
 ```{.python .input}
 def load_array(data_arrays, batch_size, is_train=True):  #@save
-    """构造一个Gluon数据迭代器。"""
+    """构造一个Gluon数据迭代器"""
     dataset = gluon.data.ArrayDataset(*data_arrays)
     return gluon.data.DataLoader(dataset, batch_size, shuffle=is_train)
 ```
@@ -61,7 +61,7 @@ def load_array(data_arrays, batch_size, is_train=True):  #@save
 ```{.python .input}
 #@tab pytorch
 def load_array(data_arrays, batch_size, is_train=True):  #@save
-    """构造一个PyTorch数据迭代器。"""
+    """构造一个PyTorch数据迭代器"""
     dataset = data.TensorDataset(*data_arrays)
     return data.DataLoader(dataset, batch_size, shuffle=is_train)
 ```
@@ -69,7 +69,7 @@ def load_array(data_arrays, batch_size, is_train=True):  #@save
 ```{.python .input}
 #@tab tensorflow
 def load_array(data_arrays, batch_size, is_train=True):  #@save
-    """构造一个TensorFlow数据迭代器。"""
+    """构造一个TensorFlow数据迭代器"""
     dataset = tf.data.Dataset.from_tensor_slices(data_arrays)
     if is_train:
         dataset = dataset.shuffle(buffer_size=1000)
@@ -140,7 +140,7 @@ Keras会自动推断每个层输入的形状。
 :end_tab:
 
 ```{.python .input}
-# `nn` 是神经网络的缩写
+# nn是神经网络的缩写
 from mxnet.gluon import nn
 net = nn.Sequential()
 net.add(nn.Dense(1))
@@ -148,14 +148,14 @@ net.add(nn.Dense(1))
 
 ```{.python .input}
 #@tab pytorch
-# `nn` 是神经网络的缩写
+# nn是神经网络的缩写
 from torch import nn
 net = nn.Sequential(nn.Linear(2, 1))
 ```
 
 ```{.python .input}
 #@tab tensorflow
-# `keras` 是TensorFlow的高级API
+# keras是TensorFlow的高级API
 net = tf.keras.Sequential()
 net.add(tf.keras.layers.Dense(1))
 ```
@@ -406,24 +406,19 @@ print('b的估计误差：', true_b - b)
 
 ## 练习
 
-:begin_tab:`mxnet`
-1. 如果我们用`l = loss(output, y).mean()`替换`l = loss(output, y)`。为了使代码的行为相同，需要将`trainer.step(batch_size)`更改为`trainer.step(1)`，这是为什么？
-1. 查看MXNet文档，了解模块`gluon.loss`和`init`中提供了哪些损失函数和初始化方法。用Huber损失代替原损失。
-1. 你如何访问`dense.weight`的梯度？
+1. 如果将小批量的总损失替换为小批量损失的平均值，你需要如何更改学习率？
+1. 查看深度学习框架文档，它们提供了哪些损失函数和初始化方法？用Huber损失代替原损失，即
+    $$l(y,y') = \begin{cases}|y-y'| -\frac{\sigma}{2} & \text{ if } |y-y'| > \sigma \\ \frac{1}{2 \sigma} (y-y')^2 & \text{ 其它情况}\end{cases}$$
+1. 你如何访问线性回归的梯度？
 
+:begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/1782)
 :end_tab:
 
 :begin_tab:`pytorch`
-1. 如果我们用`nn.MSELoss(reduction='sum')`替换`nn.MSELoss()`，为了使代码的行为相同，需要怎么更改学习速率？为什么？
-1. 查看PyTorch文档，了解其提供了哪些损失函数和初始化方法。用Huber损失代替原损失。
-1. 你如何访问`net[0].weight`的梯度？
-
 [Discussions](https://discuss.d2l.ai/t/1781)
 :end_tab:
 
 :begin_tab:`tensorflow`
-1. 查看TensorFlow文档，了解其提供了哪些损失函数和初始化方法。用Huber损失代替原损失。
-
 [Discussions](https://discuss.d2l.ai/t/1780)
 :end_tab:

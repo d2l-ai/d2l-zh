@@ -41,13 +41,13 @@ device = d2l.try_gpu()
 batch_size = 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size=batch_size)
 
-# 代码几乎与 `d2l.train_ch6` 定义在卷积神经网络一章LeNet一节中的相同
+# 代码几乎与d2l.train_ch6定义在卷积神经网络一章LeNet一节中的相同
 def train(net, train_iter, test_iter, num_epochs, loss, trainer, device):
     net.initialize(force_reinit=True, ctx=device, init=init.Xavier())
     animator = d2l.Animator(xlabel='epoch', xlim=[0, num_epochs],
                             legend=['train loss', 'train acc', 'test acc'])
     for epoch in range(num_epochs):
-        metric = d2l.Accumulator(3)  # train_loss, train_acc, num_examples
+        metric = d2l.Accumulator(3)  # train_loss,train_acc,num_examples
         for i, (X, y) in enumerate(train_iter):
             X, y = X.as_in_ctx(device), y.as_in_ctx(device)
             with autograd.record():
@@ -95,7 +95,7 @@ device = d2l.try_gpu()
 batch_size = 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size=batch_size)
 
-# 代码几乎与 `d2l.train_ch6` 定义在卷积神经网络一章LeNet一节中的相同
+# 代码几乎与d2l.train_ch6定义在卷积神经网络一章LeNet一节中的相同
 def train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
           scheduler=None):
     net.to(device)
@@ -103,7 +103,7 @@ def train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
                             legend=['train loss', 'train acc', 'test acc'])
 
     for epoch in range(num_epochs):
-        metric = d2l.Accumulator(3)  # train_loss, train_acc, num_examples
+        metric = d2l.Accumulator(3)  # train_loss,train_acc,num_examples
         for i, (X, y) in enumerate(train_iter):
             net.train()
             trainer.zero_grad()
@@ -125,10 +125,10 @@ def train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
 
         if scheduler:
             if scheduler.__module__ == lr_scheduler.__name__:
-                # Using PyTorch In-Built scheduler
+                # UsingPyTorchIn-Builtscheduler
                 scheduler.step()
             else:
-                # Using custom defined scheduler
+                # Usingcustomdefinedscheduler
                 for param_group in trainer.param_groups:
                     param_group['lr'] = scheduler(epoch)
 
@@ -161,7 +161,7 @@ def net():
 batch_size = 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size=batch_size)
 
-# 代码几乎与 `d2l.train_ch6` 定义在卷积神经网络一章LeNet一节中的相同
+# 代码几乎与d2l.train_ch6定义在卷积神经网络一章LeNet一节中的相同
 def train(net_fn, train_iter, test_iter, num_epochs, lr,
               device=d2l.try_gpu(), custom_callback = False):
     device_name = device._device_name

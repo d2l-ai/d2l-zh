@@ -92,17 +92,17 @@ class Attend(nn.Block):
         self.f = mlp(num_hiddens=num_hiddens, flatten=False)
 
     def forward(self, A, B):
-        # `A`/`B`的形状：（批量大小，序列 A/B的词元数，`embed_size`）
-        # `f_A`/`f_B`的形状：（`批量大小`，序列 A/B的词元数，`num_hiddens`）
+        # A/B的形状：（批量大小，序列A/B的词元数，embed_size）
+        # f_A/f_B的形状：（批量大小，序列A/B的词元数，num_hiddens）
         f_A = self.f(A)
         f_B = self.f(B)
-        # `e`的形状：（批量大小，序列A的词元数，序列B的词元数）
+        # e的形状：（批量大小，序列A的词元数，序列B的词元数）
         e = npx.batch_dot(f_A, f_B, transpose_b=True)
-        # `beta`的形状：（批量大小，序列A的词元数，`embed_size`），
-        # 意味着序列B被软对齐到序列A的每个词元(`beta`的第1个维度)
+        # beta的形状：（批量大小，序列A的词元数，embed_size），
+        # 意味着序列B被软对齐到序列A的每个词元(beta的第1个维度)
         beta = npx.batch_dot(npx.softmax(e), B)
-        # `beta`的形状：（批量大小，序列B的词元数，`embed_size`），
-        # 意味着序列A被软对齐到序列B的每个词元(`alpha`的第1个维度)
+        # beta的形状：（批量大小，序列B的词元数，embed_size），
+        # 意味着序列A被软对齐到序列B的每个词元(alpha的第1个维度)
         alpha = npx.batch_dot(npx.softmax(e.transpose(0, 2, 1)), A)
         return beta, alpha
 ```
@@ -115,17 +115,17 @@ class Attend(nn.Module):
         self.f = mlp(num_inputs, num_hiddens, flatten=False)
 
     def forward(self, A, B):
-        # `A`/`B`的形状：（批量大小，序列 A/B的词元数，`embed_size`）
-        # `f_A`/`f_B`的形状：（`批量大小`，序列 A/B的词元数，`num_hiddens`）
+        # A/B的形状：（批量大小，序列A/B的词元数，embed_size）
+        # f_A/f_B的形状：（批量大小，序列A/B的词元数，num_hiddens）
         f_A = self.f(A)
         f_B = self.f(B)
-        # `e`的形状：（批量大小，序列A的词元数，序列B的词元数）
+        # e的形状：（批量大小，序列A的词元数，序列B的词元数）
         e = torch.bmm(f_A, f_B.permute(0, 2, 1))
-        # `beta`的形状：（批量大小，序列A的词元数，`embed_size`），
-        # 意味着序列B被软对齐到序列A的每个词元(`beta`的第1个维度)
+        # beta的形状：（批量大小，序列A的词元数，embed_size），
+        # 意味着序列B被软对齐到序列A的每个词元(beta的第1个维度)
         beta = torch.bmm(F.softmax(e, dim=-1), B)
-        # `beta`的形状：（批量大小，序列B的词元数，`embed_size`），
-        # 意味着序列A被软对齐到序列B的每个词元(`alpha`的第1个维度)
+        # beta的形状：（批量大小，序列B的词元数，embed_size），
+        # 意味着序列A被软对齐到序列B的每个词元(alpha的第1个维度)
         alpha = torch.bmm(F.softmax(e.permute(0, 2, 1), dim=-1), A)
         return beta, alpha
 ```
@@ -381,9 +381,9 @@ predict_snli(net, vocab, ['he', 'is', 'good', '.'], ['he', 'is', 'bad', '.'])
 1. 假设我们想要获得任何一对句子的语义相似级别（例如，0到1之间的连续值）。我们应该如何收集和标注数据集？你能设计一个有注意力机制的模型吗？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/395)
+[Discussions](https://discuss.d2l.ai/t/5727)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1530)
+[Discussions](https://discuss.d2l.ai/t/5728)
 :end_tab:

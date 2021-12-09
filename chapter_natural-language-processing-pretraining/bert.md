@@ -92,7 +92,7 @@ class BERTEncoder(nn.Block):
                                              shape=(1, max_len, num_hiddens))
 
     def forward(self, tokens, segments, valid_lens):
-        # 在以下代码段中，`X`的形状保持不变：（批量大小，最大序列长度，`num_hiddens`）
+        # 在以下代码段中，X的形状保持不变：（批量大小，最大序列长度，num_hiddens）
         X = self.token_embedding(tokens) + self.segment_embedding(segments)
         X = X + self.pos_embedding.data(ctx=X.ctx)[:, :X.shape[1], :]
         for blk in self.blks:
@@ -122,7 +122,7 @@ class BERTEncoder(nn.Module):
                                                       num_hiddens))
 
     def forward(self, tokens, segments, valid_lens):
-        # 在以下代码段中，`X`的形状保持不变：（批量大小，最大序列长度，`num_hiddens`）
+        # 在以下代码段中，X的形状保持不变：（批量大小，最大序列长度，num_hiddens）
         X = self.token_embedding(tokens) + self.segment_embedding(segments)
         X = X + self.pos_embedding.data[:, :X.shape[1], :]
         for blk in self.blks:
@@ -288,7 +288,7 @@ class NextSentencePred(nn.Block):
         self.output = nn.Dense(2)
 
     def forward(self, X):
-        # X的形状： (batch size，`num_hiddens`)
+        # X的形状：(batchsize，num_hiddens)
         return self.output(X)
 ```
 
@@ -302,7 +302,7 @@ class NextSentencePred(nn.Module):
         self.output = nn.Linear(num_inputs, 2)
 
     def forward(self, X):
-        # `X`的形状： (batch size, `num_hiddens`)
+        # X的形状：(batchsize,num_hiddens)
         return self.output(X)
 ```
 
@@ -318,7 +318,7 @@ nsp_Y_hat.shape
 ```{.python .input}
 #@tab pytorch
 encoded_X = torch.flatten(encoded_X, start_dim=1)
-# NSP的输入形状: (batch size，`num_hiddens`)
+# NSP的输入形状:(batchsize，num_hiddens)
 nsp = NextSentencePred(encoded_X.shape[-1])
 nsp_Y_hat = nsp(encoded_X)
 nsp_Y_hat.shape
@@ -418,9 +418,9 @@ class BERTModel(nn.Module):
 1. 在BERT的原始实现中，`BERTEncoder`中的位置前馈网络（通过`d2l.EncoderBlock`）和`MaskLM`中的全连接层都使用高斯误差线性单元（Gaussian error linear unit，GELU） :cite:`Hendrycks.Gimpel.2016`作为激活函数。研究GELU与ReLU之间的差异。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/388)
+[Discussions](https://discuss.d2l.ai/t/5749)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1490)
+[Discussions](https://discuss.d2l.ai/t/5750)
 :end_tab:

@@ -10,7 +10,7 @@
 
 首先，我们暂时忽略通道（第三维）这一情况，看看如何处理二维图像数据和隐藏表示。在 :numref:`fig_correlation`中，输入是高度为$3$、宽度为$3$的二维张量（即形状为$3 \times 3$）。卷积核的高度和宽度都是$2$，而卷积核窗口（或卷积窗口）的形状由内核的高度和宽度决定（即$2 \times 2$）。
 
-![二维互相关运算。阴影部分是第一个输出元素，以及用于计算这个输出的输入和核张量元素：$0\times0+1\times1+3\times2+4\times3=19$.](../img/correlation.svg)
+![二维互相关运算。阴影部分是第一个输出元素，以及用于计算输出的输入张量元素和核张量元素：$0\times0+1\times1+3\times2+4\times3=19$.](../img/correlation.svg)
 :label:`fig_correlation`
 
 在二维互相关运算中，卷积窗口从输入张量的左上角开始，从左到右、从上到下滑动。
@@ -50,7 +50,7 @@ from torch import nn
 ```{.python .input}
 #@tab mxnet, pytorch
 def corr2d(X, K):  #@save
-    """计算二维互相关运算。"""
+    """计算二维互相关运算"""
     h, w = K.shape
     Y = d2l.zeros((X.shape[0] - h + 1, X.shape[1] - w + 1))
     for i in range(Y.shape[0]):
@@ -65,7 +65,7 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 
 def corr2d(X, K):  #@save
-    """计算二维互相关运算。"""
+    """计算二维互相关运算"""
     h, w = K.shape
     Y = tf.Variable(tf.zeros((X.shape[0] - h + 1, X.shape[1] - w + 1)))
     for i in range(Y.shape[0]):

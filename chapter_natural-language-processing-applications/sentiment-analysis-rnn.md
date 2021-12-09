@@ -36,19 +36,19 @@ class BiRNN(nn.Block):
                  num_layers, **kwargs):
         super(BiRNN, self).__init__(**kwargs)
         self.embedding = nn.Embedding(vocab_size, embed_size)
-        # 将`bidirectional`设置为True以获取双向循环神经网络
+        # 将bidirectional设置为True以获取双向循环神经网络
         self.encoder = rnn.LSTM(num_hiddens, num_layers=num_layers,
                                 bidirectional=True, input_size=embed_size)
         self.decoder = nn.Dense(2)
 
     def forward(self, inputs):
-        # `inputs`的形状是（批量大小，时间步数）
+        # inputs的形状是（批量大小，时间步数）
         # 因为长短期记忆网络要求其输入的第一个维度是时间维，
         # 所以在获得词元表示之前，输入会被转置。
         # 输出形状为（时间步数，批量大小，词向量维度）
         embeddings = self.embedding(inputs.T)
         # 返回上一个隐藏层在不同时间步的隐状态，
-        # `outputs`的形状是（时间步数，批量大小，2*隐藏单元数）
+        # outputs的形状是（时间步数，批量大小，2*隐藏单元数）
         outputs = self.encoder(embeddings)
         # 连结初始和最终时间步的隐状态，作为全连接层的输入，
         # 其形状为（批量大小，4*隐藏单元数）
@@ -64,20 +64,20 @@ class BiRNN(nn.Module):
                  num_layers, **kwargs):
         super(BiRNN, self).__init__(**kwargs)
         self.embedding = nn.Embedding(vocab_size, embed_size)
-        # 将`bidirectional`设置为True以获取双向循环神经网络
+        # 将bidirectional设置为True以获取双向循环神经网络
         self.encoder = nn.LSTM(embed_size, num_hiddens, num_layers=num_layers,
                                 bidirectional=True)
         self.decoder = nn.Linear(4 * num_hiddens, 2)
 
     def forward(self, inputs):
-        # `inputs`的形状是（批量大小，时间步数）
+        # inputs的形状是（批量大小，时间步数）
         # 因为长短期记忆网络要求其输入的第一个维度是时间维，
         # 所以在获得词元表示之前，输入会被转置。
         # 输出形状为（时间步数，批量大小，词向量维度）
         embeddings = self.embedding(inputs.T)
         self.encoder.flatten_parameters()
         # 返回上一个隐藏层在不同时间步的隐状态，
-        # `outputs`的形状是（时间步数，批量大小，2*隐藏单元数）
+        # outputs的形状是（时间步数，批量大小，2*隐藏单元数）
         outputs, _ = self.encoder(embeddings)
         # 连结初始和最终时间步的隐状态，作为全连接层的输入，
         # 其形状为（批量大小，4*隐藏单元数）
@@ -207,9 +207,9 @@ predict_sentiment(net, vocab, 'this movie is so bad')
 1. 是否可以通过spaCy词元化来提高分类精度？你需要安装Spacy（`pip install spacy`）和英语语言包（`python -m spacy download en`）。在代码中，首先导入Spacy（`import spacy`）。然后，加载Spacy英语软件包（`spacy_en = spacy.load('en')`）。最后，定义函数`def tokenizer(text): return [tok.text for tok in spacy_en.tokenizer(text)]`并替换原来的`tokenizer`函数。请注意GloVe和spaCy中短语标记的不同形式。例如，短语标记“new york”在GloVe中的形式是“new-york”，而在spaCy词元化之后的形式是“new york”。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/392)
+[Discussions](https://discuss.d2l.ai/t/5723)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1424)
+[Discussions](https://discuss.d2l.ai/t/5724)
 :end_tab:

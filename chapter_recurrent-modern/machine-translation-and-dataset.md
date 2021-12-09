@@ -88,7 +88,7 @@ print(raw_text[:75])
 #@tab all
 #@save
 def preprocess_nmt(text):
-    """预处理“英语－法语”数据集。"""
+    """预处理“英语－法语”数据集"""
     def no_space(char, prev_char):
         return char in set(',.!?') and prev_char != ' '
 

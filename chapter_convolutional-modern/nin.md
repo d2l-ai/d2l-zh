@@ -3,8 +3,7 @@
 
 LeNet、AlexNet和VGG都有一个共同的设计模式：通过一系列的卷积层与汇聚层来提取空间结构特征；然后通过全连接层对特征的表征进行处理。
 AlexNet和VGG对LeNet的改进主要在于如何扩大和加深这两个模块。
-或者，可以想象在这个过程的早期使用全连接层。
-然而，如果使用稠密层了，可能会完全放弃表征的空间结构。
+或者，可以想象在这个过程的早期使用全连接层。然而，如果使用了全连接层，可能会完全放弃表征的空间结构。
 *网络中的网络*（*NiN*）提供了一个非常简单的解决方案：在每个像素的通道上分别使用多层感知机 :cite:`Lin.Chen.Yan.2013`
 
 ## (**NiN块**)
@@ -90,7 +89,7 @@ net.add(nin_block(96, kernel_size=11, strides=4, padding=0),
         nin_block(10, kernel_size=3, strides=1, padding=1),
         # 全局平均汇聚层将窗口形状自动设置成输入的高和宽
         nn.GlobalAvgPool2D(),
-        # 将四维的输出转成二维的输出，其形状为(批量大小, 10)
+        # 将四维的输出转成二维的输出，其形状为(批量大小,10)
         nn.Flatten())
 ```
 
@@ -107,7 +106,7 @@ net = nn.Sequential(
     # 标签类别数是10
     nin_block(384, 10, kernel_size=3, strides=1, padding=1),
     nn.AdaptiveAvgPool2d((1, 1)),
-    # 将四维的输出转成二维的输出，其形状为(批量大小, 10)
+    # 将四维的输出转成二维的输出，其形状为(批量大小,10)
     nn.Flatten())
 ```
 
@@ -126,7 +125,7 @@ def net():
         nin_block(10, kernel_size=3, strides=1, padding='same'),
         tf.keras.layers.GlobalAveragePooling2D(),
         tf.keras.layers.Reshape((1, 1, 10)),
-        # 将四维的输出转成二维的输出，其形状为(批量大小, 10)
+        # 将四维的输出转成二维的输出，其形状为(批量大小,10)
         tf.keras.layers.Flatten(),
         ])
 ```

@@ -91,7 +91,7 @@ $$\mathbf{h} = \phi(\mathrm{BN}(\mathbf{W}\mathbf{x} + \mathbf{b}) ).$$
 首先，将训练好的模型用于预测时，我们不再需要样本均值中的噪声以及在微批次上估计每个小批次产生的样本方差了。
 其次，例如，我们可能需要使用我们的模型对逐个样本进行预测。
 一种常用的方法是通过移动平均估算整个训练数据集的样本均值和方差，并在预测时使用它们得到确定的输出。
-可见，和dropout一样，批量规范化层在训练模式和预测模式下的计算结果也是不一样的。
+可见，和暂退法一样，批量规范化层在训练模式和预测模式下的计算结果也是不一样的。
 
 ## (**从零实现**)
 
@@ -104,7 +104,7 @@ from mxnet.gluon import nn
 npx.set_np()
 
 def batch_norm(X, gamma, beta, moving_mean, moving_var, eps, momentum):
-    # 通过 `autograd` 来判断当前模式是训练模式还是预测模式
+    # 通过autograd来判断当前模式是训练模式还是预测模式
     if not autograd.is_training():
         # 如果是在预测模式下，直接使用传入的移动平均所得的均值和方差
         X_hat = (X - moving_mean) / np.sqrt(moving_var + eps)
@@ -135,7 +135,7 @@ import torch
 from torch import nn
 
 def batch_norm(X, gamma, beta, moving_mean, moving_var, eps, momentum):
-    # 通过 `is_grad_enabled` 来判断当前模式是训练模式还是预测模式
+    # 通过is_grad_enabled来判断当前模式是训练模式还是预测模式
     if not torch.is_grad_enabled():
         # 如果是在预测模式下，直接使用传入的移动平均所得的均值和方差
         X_hat = (X - moving_mean) / torch.sqrt(moving_var + eps)
@@ -185,8 +185,8 @@ def batch_norm(X, gamma, beta, moving_mean, moving_var, eps):
 
 ```{.python .input}
 class BatchNorm(nn.Block):
-    # `num_features`：完全连接层的输出数量或卷积层的输出通道数。
-    # `num_dims`：2表示完全连接层，4表示卷积层
+    # num_features：完全连接层的输出数量或卷积层的输出通道数。
+    # num_dims：2表示完全连接层，4表示卷积层
     def __init__(self, num_features, num_dims, **kwargs):
         super().__init__(**kwargs)
         if num_dims == 2:
@@ -201,12 +201,12 @@ class BatchNorm(nn.Block):
         self.moving_var = np.ones(shape)
 
     def forward(self, X):
-        # 如果 `X` 不在内存上，将 `moving_mean` 和 `moving_var`
-        # 复制到 `X` 所在显存上
+        # 如果X不在内存上，将moving_mean和moving_var
+        # 复制到X所在显存上
         if self.moving_mean.ctx != X.ctx:
             self.moving_mean = self.moving_mean.copyto(X.ctx)
             self.moving_var = self.moving_var.copyto(X.ctx)
-        # 保存更新过的 `moving_mean` 和 `moving_var`
+        # 保存更新过的moving_mean和moving_var
         Y, self.moving_mean, self.moving_var = batch_norm(
             X, self.gamma.data(), self.beta.data(), self.moving_mean,
             self.moving_var, eps=1e-12, momentum=0.9)
@@ -216,8 +216,8 @@ class BatchNorm(nn.Block):
 ```{.python .input}
 #@tab pytorch
 class BatchNorm(nn.Module):
-    # `num_features`：完全连接层的输出数量或卷积层的输出通道数。
-    # `num_dims`：2表示完全连接层，4表示卷积层
+    # num_features：完全连接层的输出数量或卷积层的输出通道数。
+    # num_dims：2表示完全连接层，4表示卷积层
     def __init__(self, num_features, num_dims):
         super().__init__()
         if num_dims == 2:
@@ -232,12 +232,12 @@ class BatchNorm(nn.Module):
         self.moving_var = torch.ones(shape)
 
     def forward(self, X):
-        # 如果 `X` 不在内存上，将 `moving_mean` 和 `moving_var`
-        # 复制到 `X` 所在显存上
+        # 如果X不在内存上，将moving_mean和moving_var
+        # 复制到X所在显存上
         if self.moving_mean.device != X.device:
             self.moving_mean = self.moving_mean.to(X.device)
             self.moving_var = self.moving_var.to(X.device)
-        # 保存更新过的 `moving_mean` 和 `moving_var`
+        # 保存更新过的moving_mean和moving_var
         Y, self.moving_mean, self.moving_var = batch_norm(
             X, self.gamma, self.beta, self.moving_mean,
             self.moving_var, eps=1e-5, momentum=0.9)
@@ -332,8 +332,8 @@ net = nn.Sequential(
 
 ```{.python .input}
 #@tab tensorflow
-# 回想一下，这个函数必须传递给 `d2l.train_ch6`。
-# 或者说为了利用我们现有的CPU/GPU设备，需要在`strategy.scope()`建立模型
+# 回想一下，这个函数必须传递给d2l.train_ch6。
+# 或者说为了利用我们现有的CPU/GPU设备，需要在strategy.scope()建立模型
 def net():
     return tf.keras.models.Sequential([
         tf.keras.layers.Conv2D(filters=6, kernel_size=5,
@@ -460,9 +460,9 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 ## 争议
 
 直观地说，批量规范化被认为可以使优化更加平滑。
-然而，我们必须小心区分投机直觉和对我们观察到的现象的真实解释。
+然而，我们必须小心区分直觉和对我们观察到的现象的真实解释。
 回想一下，我们甚至不知道简单的神经网络（多层感知机和传统的卷积神经网络）为什么如此有效。
-即使在dropout和权重衰减的情况下，它们仍然非常灵活，因此无法通过常规的学习理论泛化保证来解释它们是否能够泛化到看不见的数据。
+即使在暂退法和权重衰减的情况下，它们仍然非常灵活，因此无法通过常规的学习理论泛化保证来解释它们是否能够泛化到看不见的数据。
 
 在提出批量规范化的论文中，作者除了介绍了其应用，还解释了其原理：通过减少*内部协变量偏移*（internal covariate shift）。
 据推测，作者所说的“内部协变量转移”类似于上述的投机直觉，即变量值的分布在训练过程中会发生变化。
@@ -486,7 +486,7 @@ Ali Rahimi在接受2017年NeurIPS大会的“接受时间考验奖”（Test of 
 
 * 在模型训练过程中，批量规范化利用小批量的均值和标准差，不断调整神经网络的中间输出，使整个神经网络各层的中间输出值更加稳定。
 * 批量规范化在全连接层和卷积层的使用略有不同。
-* 批量规范化层和dropout层一样，在训练模式和预测模式下计算不同。
+* 批量规范化层和暂退层一样，在训练模式和预测模式下计算不同。
 * 批量规范化有许多有益的副作用，主要是正则化。另一方面，”减少内部协变量偏移“的原始动机似乎不是一个有效的解释。
 
 ## 练习
@@ -496,7 +496,7 @@ Ali Rahimi在接受2017年NeurIPS大会的“接受时间考验奖”（Test of 
     1. 绘制训练和测试准确度的提高。
     1. 你的学习率有多高？
 1. 我们是否需要在每个层中进行批量规范化？尝试一下？
-1. 你可以通过批量规范化来替换dropout吗？行为如何改变？
+1. 你可以通过批量规范化来替换暂退法吗？行为如何改变？
 1. 确定参数`beta`和`gamma`，并观察和分析结果。
 1. 查看高级API中有关`BatchNorm`的在线文档，以查看其他批量规范化的应用。
 1. 研究思路：想想你可以应用的其他“规范化”转换？你可以应用概率积分变换吗？全秩协方差估计如何？

@@ -13,7 +13,7 @@ $$f(x) = f(0) + f'(0) x + \frac{f''(0)}{2!}  x^2 + \frac{f'''(0)}{3!}  x^3 + \ld
 
 $$f(\mathbf{x}) = \mathbf{x} + g(\mathbf{x}).$$
 
-也就是说，ResNet将$f$分解为两部分：一个简单的线性项和一个更复杂的非线性项。
+也就是说，ResNet将$f$分解为两部分：一个简单的线性项和一个复杂的非线性项。
 那么再向前拓展一步，如果我们想将$f$拓展成超过两部分的信息呢？
 一种方案便是DenseNet。
 
@@ -93,7 +93,7 @@ class ConvBlock(tf.keras.layers.Layer):
         return y
 ```
 
-一个*稠密块*由多个卷积块组成，每个卷积块使用相同数量的输出信道。
+一个*稠密块*由多个卷积块组成，每个卷积块使用相同数量的输出通道。
 然而，在前向传播中，我们将每个卷积块的输入和输出在通道维上连结。
 
 ```{.python .input}
@@ -273,7 +273,7 @@ def block_1():
 在每个模块之间，ResNet通过步幅为2的残差块减小高和宽，DenseNet则使用过渡层来减半高和宽，并减半通道数。
 
 ```{.python .input}
-# `num_channels`为当前的通道数
+# num_channels为当前的通道数
 num_channels, growth_rate = 64, 32
 num_convs_in_dense_blocks = [4, 4, 4, 4]
 
@@ -289,7 +289,7 @@ for i, num_convs in enumerate(num_convs_in_dense_blocks):
 
 ```{.python .input}
 #@tab pytorch
-# `num_channels`为当前的通道数
+# num_channels为当前的通道数
 num_channels, growth_rate = 64, 32
 num_convs_in_dense_blocks = [4, 4, 4, 4]
 blks = []
@@ -307,7 +307,7 @@ for i, num_convs in enumerate(num_convs_in_dense_blocks):
 #@tab tensorflow
 def block_2():
     net = block_1()
-    # `num_channels`为当前的通道数
+    # num_channels为当前的通道数
     num_channels, growth_rate = 64, 32
     num_convs_in_dense_blocks = [4, 4, 4, 4]
 
@@ -368,7 +368,7 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 
 * 在跨层连接上，不同于ResNet中将输入与输出相加，稠密连接网络（DenseNet）在通道维上连结输入与输出。
 * DenseNet的主要构建模块是稠密块和过渡层。
-* 在构建DenseNet时，我们需要通过添加过渡层来控制网络的维数，从而再次减少信道的数量。
+* 在构建DenseNet时，我们需要通过添加过渡层来控制网络的维数，从而再次减少通道的数量。
 
 ## 练习
 

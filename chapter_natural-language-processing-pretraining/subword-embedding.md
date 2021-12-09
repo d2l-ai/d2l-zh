@@ -83,7 +83,7 @@ num_merges = 10
 for i in range(num_merges):
     max_freq_pair = get_max_freq_pair(token_freqs)
     token_freqs = merge_symbols(max_freq_pair, token_freqs, symbols)
-    print(f'合并#{i + 1}:', max_freq_pair)
+    print(f'合并# {i+1}:',max_freq_pair)
 ```
 
 在字节对编码的10次迭代之后，我们可以看到列表`symbols`现在又包含10个从其他符号迭代合并而来的符号。
@@ -145,9 +145,9 @@ print(segment_BPE(tokens, symbols))
 1. 如何扩展字节对编码的思想来提取短语？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/386)
+[Discussions](https://discuss.d2l.ai/t/5747)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/386)
+[Discussions](https://discuss.d2l.ai/t/5748)
 :end_tab:

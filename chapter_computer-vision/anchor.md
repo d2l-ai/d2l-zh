@@ -1,19 +1,19 @@
 # 锚框
 :label:`sec_anchor`
 
-目标检测算法通常会在输入图像中采样大量的区域，然后判断这些区域中是否包含我们感兴趣的目标，并调整区域边缘从而更准确地预测目标的*真实边界框*（ground-truth bounding box）。
+目标检测算法通常会在输入图像中采样大量的区域，然后判断这些区域中是否包含我们感兴趣的目标，并调整区域边界从而更准确地预测目标的*真实边界框*（ground-truth bounding box）。
 不同的模型使用的区域采样方法可能不同。
-这里我们介绍其中的一种方法：它以每个像素为中心生成多个大小和宽高比（aspect ratio）不同的边界框。
-这些边界框被称为*锚框*（anchor box）我们将在 :numref:`sec_ssd`中基于锚框设计一个目标检测模型。
+这里我们介绍其中的一种方法：以每个像素为中心，生成多个缩放比和宽高比（aspect ratio）不同的边界框。
+这些边界框被称为*锚框*（anchor box）我们将在 :numref:`sec_ssd`中设计一个基于锚框的目标检测模型。
 
-首先，让我们修改打印精度，以获得更简洁的输出。
+首先，让我们修改输出精度，以获得更简洁的输出。
 
 ```{.python .input}
 %matplotlib inline
 from d2l import mxnet as d2l
 from mxnet import gluon, image, np, npx
 
-np.set_printoptions(2)  # 精简打印精度
+np.set_printoptions(2)  # 精简输出精度
 npx.set_np()
 ```
 
@@ -23,19 +23,19 @@ npx.set_np()
 from d2l import torch as d2l
 import torch
 
-torch.set_printoptions(2)  # 精简打印精度
+torch.set_printoptions(2)  # 精简输出精度
 ```
 
 ## 生成多个锚框
 
 假设输入图像的高度为$h$，宽度为$w$。
-我们以图像的每个像素为中心生成不同形状的锚框：*比例*为$s\in (0, 1]$，*宽高比*（宽高比）为$r > 0$。
+我们以图像的每个像素为中心生成不同形状的锚框：*缩放比*为$s\in (0, 1]$，*宽高比*为$r > 0$。
 那么[**锚框的宽度和高度分别是$ws\sqrt{r}$和$hs/\sqrt{r}$。**]
 请注意，当中心位置给定时，已知宽和高的锚框是确定的。
 
-要生成多个不同形状的锚框，让我们设置一系列刻度$s_1,\ldots, s_n$和一系列宽高比$r_1,\ldots, r_m$。
+要生成多个不同形状的锚框，让我们设置许多缩放比（scale）取值$s_1,\ldots, s_n$和许多宽高比（aspect ratio）取值$r_1,\ldots, r_m$。
 当使用这些比例和长宽比的所有组合以每个像素为中心时，输入图像将总共有$whnm$个锚框。
-尽管这些锚框可能会覆盖所有地面真实边界框，但计算复杂性很容易过高。
+尽管这些锚框可能会覆盖所有真实边界框，但计算复杂性很容易过高。
 在实践中，(**我们只考虑**)包含$s_1$或$r_1$的(**组合：**)
 
 (**
@@ -45,13 +45,13 @@ $$(s_1, r_1), (s_1, r_2), \ldots, (s_1, r_m), (s_2, r_1), (s_3, r_1), \ldots, (s
 也就是说，以同一像素为中心的锚框的数量是$n+m-1$。
 对于整个输入图像，我们将共生成$wh(n+m-1)$个锚框。
 
-上述生成锚框的方法可以在以下`multibox_prior`函数中实现。
-我们指定输入图像、尺度列表和宽高比列表，然后此函数将返回所有的锚框。
+上述生成锚框的方法在下面的`multibox_prior`函数中实现。
+我们指定输入图像、尺寸列表和宽高比列表，然后此函数将返回所有的锚框。
 
 ```{.python .input}
 #@save
 def multibox_prior(data, sizes, ratios):
-    """生成以每个像素为中心具有不同形状的锚框。"""
+    """生成以每个像素为中心具有不同形状的锚框"""
     in_height, in_width = data.shape[-2:]
     device, num_sizes, num_ratios = data.ctx, len(sizes), len(ratios)
     boxes_per_pixel = (num_sizes + num_ratios - 1)
@@ -61,8 +61,8 @@ def multibox_prior(data, sizes, ratios):
     # 为了将锚点移动到像素的中心，需要设置偏移量。
     # 因为一个像素的的高为1且宽为1，我们选择偏移我们的中心0.5
     offset_h, offset_w = 0.5, 0.5
-    steps_h = 1.0 / in_height  # y轴上缩放步长
-    steps_w = 1.0 / in_width  # x轴上缩放步长
+    steps_h = 1.0 / in_height  # 在y轴上缩放步长
+    steps_w = 1.0 / in_width  # 在x轴上缩放步长
 
     # 生成锚框的所有中心点
     center_h = (d2l.arange(in_height, ctx=device) + offset_h) * steps_h
@@ -71,7 +71,7 @@ def multibox_prior(data, sizes, ratios):
     shift_x, shift_y = shift_x.reshape(-1), shift_y.reshape(-1)
 
     # 生成“boxes_per_pixel”个高和宽，
-    # 之后用于创建锚框的四角坐标 (xmin, xmax, ymin, ymax)
+    # 之后用于创建锚框的四角坐标(xmin,xmax,ymin,ymax)
     w = np.concatenate((size_tensor * np.sqrt(ratio_tensor[0]),
                         sizes[0] * np.sqrt(ratio_tensor[1:]))) \
                         * in_height / in_width  # 处理矩形输入
@@ -93,7 +93,7 @@ def multibox_prior(data, sizes, ratios):
 #@tab pytorch
 #@save
 def multibox_prior(data, sizes, ratios):
-    """生成以每个像素为中心具有不同形状的锚框。"""
+    """生成以每个像素为中心具有不同形状的锚框"""
     in_height, in_width = data.shape[-2:]
     device, num_sizes, num_ratios = data.device, len(sizes), len(ratios)
     boxes_per_pixel = (num_sizes + num_ratios - 1)
@@ -103,8 +103,8 @@ def multibox_prior(data, sizes, ratios):
     # 为了将锚点移动到像素的中心，需要设置偏移量。
     # 因为一个像素的的高为1且宽为1，我们选择偏移我们的中心0.5
     offset_h, offset_w = 0.5, 0.5
-    steps_h = 1.0 / in_height  # y轴上缩放步长
-    steps_w = 1.0 / in_width  # x轴上缩放步长
+    steps_h = 1.0 / in_height  # 在y轴上缩放步长
+    steps_w = 1.0 / in_width  # 在x轴上缩放步长
 
     # 生成锚框的所有中心点
     center_h = (torch.arange(in_height, device=device) + offset_h) * steps_h
@@ -113,7 +113,7 @@ def multibox_prior(data, sizes, ratios):
     shift_y, shift_x = shift_y.reshape(-1), shift_x.reshape(-1)
 
     # 生成“boxes_per_pixel”个高和宽，
-    # 之后用于创建锚框的四角坐标 (xmin, xmax, ymin, ymax)
+    # 之后用于创建锚框的四角坐标(xmin,xmax,ymin,ymax)
     w = torch.cat((size_tensor * torch.sqrt(ratio_tensor[0]),
                    sizes[0] * torch.sqrt(ratio_tensor[1:])))\
                    * in_height / in_width  # 处理矩形输入
@@ -154,10 +154,10 @@ Y = multibox_prior(X, sizes=[0.75, 0.5, 0.25], ratios=[1, 2, 0.5])
 Y.shape
 ```
 
-将锚框变量`Y`的形状更改为（图像高度、图像宽度、以同一像素为中心的锚框的数量，4）后，我们就可以获得以指定像素的位置为中心的所有锚框了。
+将锚框变量`Y`的形状更改为(图像高度,图像宽度,以同一像素为中心的锚框的数量,4)后，我们可以获得以指定像素的位置为中心的所有锚框。
 在接下来的内容中，我们[**访问以（250,250）为中心的第一个锚框**]。
 它有四个元素：锚框左上角的$(x, y)$轴坐标和右下角的$(x, y)$轴坐标。
-将两个轴的坐标分别除以图像的宽度和高度后，所得的值就介于0和1之间。
+将两个轴的坐标各分别除以图像的宽度和高度后，所得的值介于0和1之间。
 
 ```{.python .input}
 #@tab all
@@ -165,13 +165,13 @@ boxes = Y.reshape(h, w, 5, 4)
 boxes[250, 250, 0, :]
 ```
 
-为了[**显示以图像中一个像素为中心的所有锚框**]，我们定义了以下`show_bboxes`函数来在图像上绘制多个边界框。
+为了[**显示以图像中以某个像素为中心的所有锚框**]，我们定义了下面的`show_bboxes`函数来在图像上绘制多个边界框。
 
 ```{.python .input}
 #@tab all
 #@save
 def show_bboxes(axes, bboxes, labels=None, colors=None):
-    """显示所有边界框。"""
+    """显示所有边界框"""
     def _make_list(obj, default_values=None):
         if obj is None:
             obj = default_values
@@ -192,11 +192,11 @@ def show_bboxes(axes, bboxes, labels=None, colors=None):
                       bbox=dict(facecolor=color, lw=0))
 ```
 
-正如我们刚才看到的，变量`boxes`中$x$轴和$y$轴的坐标值已分别除以图像的宽度和高度。
+正如你所看到的，变量`boxes`中$x$轴和$y$轴的坐标值已分别除以图像的宽度和高度。
 绘制锚框时，我们需要恢复它们原始的坐标值。
 因此，我们在下面定义了变量`bbox_scale`。
-现在，我们可以绘制出图像中所有以（250、250）为中心的锚框了。
-如下所示，尺度为0.75且宽高比为1的蓝色锚框很好地围绕着图像中的狗。
+现在，我们可以绘制出图像中所有以(250,250)为中心的锚框了。
+如下所示，缩放比为0.75且宽高比为1的蓝色锚框很好地围绕着图像中的狗。
 
 ```{.python .input}
 #@tab all
@@ -208,19 +208,19 @@ show_bboxes(fig.axes, boxes[250, 250, :, :] * bbox_scale,
              's=0.75, r=0.5'])
 ```
 
-## [**交并比(IoU)**]
+## [**交并比（IoU）**]
 
 我们刚刚提到某个锚框“较好地”覆盖了图像中的狗。
 如果已知目标的真实边界框，那么这里的“好”该如何如何量化呢？
 直观地说，我们可以衡量锚框和真实边界框之间的相似性。
-我们知道*Jaccard系数*可以衡量两组之间的相似性。
-给定集合$\mathcal{A}$和$\mathcal{B}$，他们的Jaccard系数是他们交集的大小除以他们并集的大小：
+我们知道*杰卡德系数*（Jaccard）可以衡量两组之间的相似性。
+给定集合$\mathcal{A}$和$\mathcal{B}$，他们的杰卡德系数是他们交集的大小除以他们并集的大小：
 
 $$J(\mathcal{A},\mathcal{B}) = \frac{\left|\mathcal{A} \cap \mathcal{B}\right|}{\left| \mathcal{A} \cup \mathcal{B}\right|}.$$
 
 事实上，我们可以将任何边界框的像素区域视为一组像素。通
-过这种方式，我们可以通过其像素集的Jaccard索引来测量两个边界框的相似性。
-对于两个边界框，我们通常将他们的Jaccard指数称为*交并比*（intersection over union，IoU），即两个边界框相交面积与相并面积之比，如 :numref:`fig_iou`所示。
+过这种方式，我们可以通过其像素集的杰卡德系数来测量两个边界框的相似性。
+对于两个边界框，我们通常将它们的杰卡德系数称为*交并比*（intersection over union，IoU），即两个边界框相交面积与相并面积之比，如 :numref:`fig_iou`所示。
 交并比的取值范围在0和1之间：0表示两个边界框无重合像素，1表示两个边界框完全重合。
 
 ![交并比是两个边界框相交面积与相并面积之比。](../img/iou.svg)
@@ -232,23 +232,23 @@ $$J(\mathcal{A},\mathcal{B}) = \frac{\left|\mathcal{A} \cap \mathcal{B}\right|}{
 ```{.python .input}
 #@save
 def box_iou(boxes1, boxes2):
-    """计算两个锚框或边界框列表中成对的交并比。"""
+    """计算两个锚框或边界框列表中成对的交并比"""
     box_area = lambda boxes: ((boxes[:, 2] - boxes[:, 0]) *
                               (boxes[:, 3] - boxes[:, 1]))
-    # `boxes1`, `boxes2`, `areas1`, `areas2`的形状: 
-    # `boxes1`：(boxes1的数量, 4),
-    # `boxes2`：(boxes2的数量, 4), 
-    # `areas1`：(boxes1的数量,), 
-    # `areas2`：(boxes2的数量,)
+    # boxes1,boxes2,areas1,areas2的形状:
+    # boxes1：(boxes1的数量,4),
+    # boxes2：(boxes2的数量,4),
+    # areas1：(boxes1的数量,),
+    # areas2：(boxes2的数量,)
     areas1 = box_area(boxes1)
     areas2 = box_area(boxes2)
 
-    #  `inter_upperlefts`, `inter_lowerrights`, `inters`的形状: 
-    # (boxes1的数量, boxes2的数量, 2)
+    # inter_upperlefts,inter_lowerrights,inters的形状:
+    # (boxes1的数量,boxes2的数量,2)
     inter_upperlefts = np.maximum(boxes1[:, None, :2], boxes2[:, :2])
     inter_lowerrights = np.minimum(boxes1[:, None, 2:], boxes2[:, 2:])
     inters = (inter_lowerrights - inter_upperlefts).clip(min=0)
-    # `inter_areas` and `union_areas`的形状: (boxes1的数量, boxes2的数量)
+    # inter_areasandunion_areas的形状:(boxes1的数量,boxes2的数量)
     inter_areas = inters[:, :, 0] * inters[:, :, 1]
     union_areas = areas1[:, None] + areas2 - inter_areas
     return inter_areas / union_areas
@@ -258,42 +258,42 @@ def box_iou(boxes1, boxes2):
 #@tab pytorch
 #@save
 def box_iou(boxes1, boxes2):
-    """计算两个锚框或边界框列表中成对的交并比。"""
+    """计算两个锚框或边界框列表中成对的交并比"""
     box_area = lambda boxes: ((boxes[:, 2] - boxes[:, 0]) *
                               (boxes[:, 3] - boxes[:, 1]))
-    # `boxes1`, `boxes2`, `areas1`, `areas2`的形状: 
-    # `boxes1`：(boxes1的数量, 4),
-    # `boxes2`：(boxes2的数量, 4), 
-    # `areas1`：(boxes1的数量,), 
-    # `areas2`：(boxes2的数量,)
+    # boxes1,boxes2,areas1,areas2的形状:
+    # boxes1：(boxes1的数量,4),
+    # boxes2：(boxes2的数量,4),
+    # areas1：(boxes1的数量,),
+    # areas2：(boxes2的数量,)
     areas1 = box_area(boxes1)
     areas2 = box_area(boxes2)
-    #  `inter_upperlefts`, `inter_lowerrights`, `inters`的形状: 
-    # (boxes1的数量, boxes2的数量, 2)
+    # inter_upperlefts,inter_lowerrights,inters的形状:
+    # (boxes1的数量,boxes2的数量,2)
     inter_upperlefts = torch.max(boxes1[:, None, :2], boxes2[:, :2])
     inter_lowerrights = torch.min(boxes1[:, None, 2:], boxes2[:, 2:])
     inters = (inter_lowerrights - inter_upperlefts).clamp(min=0)
-    # `inter_areas` and `union_areas`的形状: (boxes1的数量, boxes2的数量)
+    # inter_areasandunion_areas的形状:(boxes1的数量,boxes2的数量)
     inter_areas = inters[:, :, 0] * inters[:, :, 1]
     union_areas = areas1[:, None] + areas2 - inter_areas
     return inter_areas / union_areas
 ```
 
-## 标注训练数据的锚框
+## 在训练数据中标注锚框
 :label:`subsec_labeling-anchor-boxes`
 
 在训练集中，我们将每个锚框视为一个训练样本。
 为了训练目标检测模型，我们需要每个锚框的*类别*（class）和*偏移量*（offset）标签，其中前者是与锚框相关的对象的类别，后者是真实边界框相对于锚框的偏移量。
-在预测期间，我们为每个图像生成多个锚框，预测所有锚框的类和偏移量，根据预测的偏移量调整它们的位置以获得预测的边界框，最后只输出符合特定条件的预测边界框。
+在预测时，我们为每个图像生成多个锚框，预测所有锚框的类别和偏移量，根据预测的偏移量调整它们的位置以获得预测的边界框，最后只输出符合特定条件的预测边界框。
 
-我们知道，目标检测训练集附带了“真实边界框”的位置及其包围物体类别的标签。
-要标记任何生成的锚框，我们可以参考“分配到的”最接近此锚框的真实边界框的位置和类别标签。
-在下文中，我们将介绍把最接近的真实边界框分配给锚框的算法。
+我们知道，目标检测训练集带有“真实边界框”的位置及其包围物体类别的标签。
+要标记任何生成的锚框，我们可以参考分配到的最接近此锚框的真实边界框的位置和类别标签。
+在下文中，我们将介绍一个算法，它能够把最接近的真实边界框分配给锚框。
 
 ### [**将真实边界框分配给锚框**]
 
 给定图像，假设锚框是$A_1, A_2, \ldots, A_{n_a}$，真实边界框是$B_1, B_2, \ldots, B_{n_b}$，其中$n_a \geq n_b$。
-让我们定义一个矩阵$\mathbf{X} \in \mathbb{R}^{n_a \times n_b}$，其中$i^\mathrm{th}$行和$j^\mathrm{th}$列中的元素$x_{ij}$是锚框$A_i$和真实边界框$B_j$的IoU。
+让我们定义一个矩阵$\mathbf{X} \in \mathbb{R}^{n_a \times n_b}$，其中第$i$行、第$j$列的元素$x_{ij}$是锚框$A_i$和真实边界框$B_j$的IoU。
 该算法包含以下步骤：
 
 1. 在矩阵$\mathbf{X}$中找到最大的元素，并将它的行索引和列索引分别表示为$i_1$和$j_1$。然后将真实边界框$B_{j_1}$分配给锚框$A_{i_1}$。这很直观，因为$A_{i_1}$和$B_{j_1}$是所有锚框和真实边界框配对中最相近的。在第一个分配完成后，丢弃矩阵中${i_1}^\mathrm{th}$行和${j_1}^\mathrm{th}$列中的所有元素。
@@ -311,14 +311,14 @@ def box_iou(boxes1, boxes2):
 ![将真实边界框分配给锚框。](../img/anchor-label.svg)
 :label:`fig_anchor_label`
 
-此算法在以下`assign_anchor_to_bbox`函数中实现。
+此算法在下面的`assign_anchor_to_bbox`函数中实现。
 
 ```{.python .input}
 #@save
 def assign_anchor_to_bbox(ground_truth, anchors, device, iou_threshold=0.5):
-    """将最接近的真实边界框分配给锚框。"""
+    """将最接近的真实边界框分配给锚框"""
     num_anchors, num_gt_boxes = anchors.shape[0], ground_truth.shape[0]
-    # 位于第i行和第j列的元素 x_ij 是锚框i和真实边界框j的IoU
+    # 位于第i行和第j列的元素x_ij是锚框i和真实边界框j的IoU
     jaccard = box_iou(anchors, ground_truth)
     # 对于每个锚框，分配的真实边界框的张量
     anchors_bbox_map = np.full((num_anchors,), -1, dtype=np.int32, ctx=device)
@@ -343,9 +343,9 @@ def assign_anchor_to_bbox(ground_truth, anchors, device, iou_threshold=0.5):
 #@tab pytorch
 #@save
 def assign_anchor_to_bbox(ground_truth, anchors, device, iou_threshold=0.5):
-    """将最接近的真实边界框分配给锚框。"""
+    """将最接近的真实边界框分配给锚框"""
     num_anchors, num_gt_boxes = anchors.shape[0], ground_truth.shape[0]
-    # 位于第i行和第j列的元素 x_ij 是锚框i和真实边界框j的IoU
+    # 位于第i行和第j列的元素x_ij是锚框i和真实边界框j的IoU
     jaccard = box_iou(anchors, ground_truth)
     # 对于每个锚框，分配的真实边界框的张量
     anchors_bbox_map = torch.full((num_anchors,), -1, dtype=torch.long,
@@ -369,28 +369,28 @@ def assign_anchor_to_bbox(ground_truth, anchors, device, iou_threshold=0.5):
 
 ### 标记类别和偏移量
 
-现在我们可以为每个锚框标记分类和偏移量了。
+现在我们可以为每个锚框标记类别和偏移量了。
 假设一个锚框$A$被分配了一个真实边界框$B$。
 一方面，锚框$A$的类别将被标记为与$B$相同。
-另一方面，锚框$A$的偏移量将根据$B$和$A$中心坐标的相对位置、以及这两个框的相对大小进行标记。
-鉴于数据集内不同的框的位置和大小不同，我们可以对那些相对位置和大小应用变换，使其获得更均匀分布、易于适应的偏移量。
+另一方面，锚框$A$的偏移量将根据$B$和$A$中心坐标的相对位置以及这两个框的相对大小进行标记。
+鉴于数据集内不同的框的位置和大小不同，我们可以对那些相对位置和大小应用变换，使其获得分布更均匀且易于拟合的偏移量。
 在这里，我们介绍一种常见的变换。
 [**给定框$A$和$B$，中心坐标分别为$(x_a, y_a)$和$(x_b, y_b)$，宽度分别为$w_a$和$w_b$，高度分别为$h_a$和$h_b$。
-我们可以将$A$的偏移量标记为
+我们可以将$A$的偏移量标记为：
 
 $$\left( \frac{ \frac{x_b - x_a}{w_a} - \mu_x }{\sigma_x},
 \frac{ \frac{y_b - y_a}{h_a} - \mu_y }{\sigma_y},
 \frac{ \log \frac{w_b}{w_a} - \mu_w }{\sigma_w},
 \frac{ \log \frac{h_b}{h_a} - \mu_h }{\sigma_h}\right),$$
 **]
-其中常量的默认值是 $\mu_x = \mu_y = \mu_w = \mu_h = 0, \sigma_x=\sigma_y=0.1$ 和 $\sigma_w=\sigma_h=0.2$。
+其中常量的默认值为 $\mu_x = \mu_y = \mu_w = \mu_h = 0, \sigma_x=\sigma_y=0.1$ ， $\sigma_w=\sigma_h=0.2$。
 这种转换在下面的 `offset_boxes` 函数中实现。
 
 ```{.python .input}
 #@tab all
 #@save
 def offset_boxes(anchors, assigned_bb, eps=1e-6):
-    """对锚框偏移量的转换。"""
+    """对锚框偏移量的转换"""
     c_anc = d2l.box_corner_to_center(anchors)
     c_assigned_bb = d2l.box_corner_to_center(assigned_bb)
     offset_xy = 10 * (c_assigned_bb[:, :2] - c_anc[:, :2]) / c_anc[:, 2:]
@@ -399,15 +399,15 @@ def offset_boxes(anchors, assigned_bb, eps=1e-6):
     return offset
 ```
 
-如果一个锚框没有被分配真实边界框，我们只需将锚框的类别标记为“背景”类（background）。
-背景类的锚框通常被称为“负类”锚框，其余的被称为“正类”锚框。
+如果一个锚框没有被分配真实边界框，我们只需将锚框的类别标记为“背景”（background）。
+背景类别的锚框通常被称为“负类”锚框，其余的被称为“正类”锚框。
 我们使用真实边界框（`labels`参数）实现以下`multibox_target`函数，来[**标记锚框的类别和偏移量**]（`anchors`参数）。
-此函数将背景类设置为零，然后将新类的整数索引递增一。
+此函数将背景类别的索引设置为零，然后将新类别的整数索引递增一。
 
 ```{.python .input}
 #@save
 def multibox_target(anchors, labels):
-    """使用真实边界框标记锚框。"""
+    """使用真实边界框标记锚框"""
     batch_size, anchors = labels.shape[0], anchors.squeeze(0)
     batch_offset, batch_mask, batch_class_labels = [], [], []
     device, num_anchors = anchors.ctx, anchors.shape[0]
@@ -442,7 +442,7 @@ def multibox_target(anchors, labels):
 #@tab pytorch
 #@save
 def multibox_target(anchors, labels):
-    """使用真实边界框标记锚框。"""
+    """使用真实边界框标记锚框"""
     batch_size, anchors = labels.shape[0], anchors.squeeze(0)
     batch_offset, batch_mask, batch_class_labels = [], [], []
     device, num_anchors = anchors.device, anchors.shape[0]
@@ -476,10 +476,10 @@ def multibox_target(anchors, labels):
 
 ### 一个例子
 
-让我们通过一个具体的例子来说明锚箱标签。
-我们在加载的图像中为狗和猫定义了地面真实边界框，其中第一个元素是类别（0代表狗，1代表猫），其余四个元素是左上角和右下角的$(x, y)$轴坐标（范围介于0和1之间）。
+让我们通过一个具体的例子来说明锚框标签。
+我们已经为加载图像中的狗和猫定义了真实边界框，其中第一个元素是类别（0代表狗，1代表猫），其余四个元素是左上角和右下角的$(x, y)$轴坐标（范围介于0和1之间）。
 我们还构建了五个锚框，用左上角和右下角的坐标进行标记：$A_0, \ldots, A_4$（索引从0开始）。
-然后我们[**在图像中绘制这些地面真相边界框和锚框**]。
+然后我们[**在图像中绘制这些真实边界框和锚框**]。
 
 ```{.python .input}
 #@tab all
@@ -496,7 +496,7 @@ show_bboxes(fig.axes, anchors * bbox_scale, ['0', '1', '2', '3', '4']);
 
 使用上面定义的`multibox_target`函数，我们可以[**根据狗和猫的真实边界框，标注这些锚框的分类和偏移量**]。
 在这个例子中，背景、狗和猫的类索引分别为0、1和2。
-下面我们为锚框和真实边界框范例添加了维度。
+下面我们为锚框和真实边界框样本添加一个维度。
 
 ```{.python .input}
 labels = multibox_target(np.expand_dims(anchors, axis=0),
@@ -547,7 +547,7 @@ labels[0]
 ## 使用非极大值抑制预测边界框
 :label:`subsec_predicting-bounding-boxes-nms`
 
-在预测期间，我们先为图像生成多个锚框，再为这些锚框一一预测类别和偏移量。
+在预测时，我们先为图像生成多个锚框，再为这些锚框一一预测类别和偏移量。
 一个“预测好的边界框”则根据其中某个带有预测偏移量的锚框而生成。
 下面我们实现了`offset_inverse`函数，该函数将锚框和偏移量预测作为输入，并[**应用逆偏移变换来返回预测的边界框坐标**]。
 
@@ -555,7 +555,7 @@ labels[0]
 #@tab all
 #@save
 def offset_inverse(anchors, offset_preds):
-    """根据带有预测偏移量的锚框来预测边界框。"""
+    """根据带有预测偏移量的锚框来预测边界框"""
     anc = d2l.box_corner_to_center(anchors)
     pred_bbox_xy = (offset_preds[:, :2] * anc[:, 2:] / 10) + anc[:, :2]
     pred_bbox_wh = d2l.exp(offset_preds[:, 2:] / 5) * anc[:, 2:]
@@ -583,7 +583,7 @@ def offset_inverse(anchors, offset_preds):
 ```{.python .input}
 #@save
 def nms(boxes, scores, iou_threshold):
-    """对预测边界框的置信度进行排序。"""
+    """对预测边界框的置信度进行排序"""
     B = scores.argsort()[::-1]
     keep = []  # 保留预测边界框的指标
     while B.size > 0:
@@ -601,7 +601,7 @@ def nms(boxes, scores, iou_threshold):
 #@tab pytorch
 #@save
 def nms(boxes, scores, iou_threshold):
-    """对预测边界框的置信度进行排序。"""
+    """对预测边界框的置信度进行排序"""
     B = torch.argsort(scores, dim=-1, descending=True)
     keep = []  # 保留预测边界框的指标
     while B.numel() > 0:
@@ -616,13 +616,13 @@ def nms(boxes, scores, iou_threshold):
 ```
 
 我们定义以下`multibox_detection`函数来[**将非极大值抑制应用于预测边界框**]。
-如果你发现实现有点复杂，请不要担心：我们将在实现之后，马上用一个具体的示例来展示它是如何工作的。
+如果你发现实现有点复杂，请不要担心。我们将在实现之后，马上用一个具体的例子来展示它是如何工作的。
 
 ```{.python .input}
 #@save
 def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
                        pos_threshold=0.009999999):
-    """使用非极大值抑制来预测边界框。"""
+    """使用非极大值抑制来预测边界框"""
     device, batch_size = cls_probs.ctx, cls_probs.shape[0]
     anchors = np.squeeze(anchors, axis=0)
     num_classes, num_anchors = cls_probs.shape[1], cls_probs.shape[2]
@@ -633,7 +633,7 @@ def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
         predicted_bb = offset_inverse(anchors, offset_pred)
         keep = nms(predicted_bb, conf, nms_threshold)
 
-        # 找到所有的 non_keep 索引，并将类设置为背景
+        # 找到所有的non_keep索引，并将类设置为背景
         all_idx = np.arange(num_anchors, dtype=np.int32, ctx=device)
         combined = d2l.concat((keep, all_idx))
         unique, counts = np.unique(combined, return_counts=True)
@@ -642,7 +642,7 @@ def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
         class_id[non_keep] = -1
         class_id = class_id[all_id_sorted].astype('float32')
         conf, predicted_bb = conf[all_id_sorted], predicted_bb[all_id_sorted]
-        # `pos_threshold` 是一个用于非背景预测的阈值
+        # pos_threshold是一个用于非背景预测的阈值
         below_min_idx = (conf < pos_threshold)
         class_id[below_min_idx] = -1
         conf[below_min_idx] = 1 - conf[below_min_idx]
@@ -658,7 +658,7 @@ def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
 #@save
 def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
                        pos_threshold=0.009999999):
-    """使用非极大值抑制来预测边界框。"""
+    """使用非极大值抑制来预测边界框"""
     device, batch_size = cls_probs.device, cls_probs.shape[0]
     anchors = anchors.squeeze(0)
     num_classes, num_anchors = cls_probs.shape[1], cls_probs.shape[2]
@@ -669,7 +669,7 @@ def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
         predicted_bb = offset_inverse(anchors, offset_pred)
         keep = nms(predicted_bb, conf, nms_threshold)
 
-        # 找到所有的 non_keep 索引，并将类设置为背景
+        # 找到所有的non_keep索引，并将类设置为背景
         all_idx = torch.arange(num_anchors, dtype=torch.long, device=device)
         combined = torch.cat((keep, all_idx))
         uniques, counts = combined.unique(return_counts=True)
@@ -678,7 +678,7 @@ def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
         class_id[non_keep] = -1
         class_id = class_id[all_id_sorted]
         conf, predicted_bb = conf[all_id_sorted], predicted_bb[all_id_sorted]
-        # `pos_threshold` 是一个用于非背景预测的阈值
+        # pos_threshold是一个用于非背景预测的阈值
         below_min_idx = (conf < pos_threshold)
         class_id[below_min_idx] = -1
         conf[below_min_idx] = 1 - conf[below_min_idx]
@@ -698,7 +698,7 @@ def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
 anchors = d2l.tensor([[0.1, 0.08, 0.52, 0.92], [0.08, 0.2, 0.56, 0.95],
                       [0.15, 0.3, 0.62, 0.91], [0.55, 0.2, 0.9, 0.88]])
 offset_preds = d2l.tensor([0] * d2l.size(anchors))
-cls_probs = d2l.tensor([[0] * 4,  # 背景的预测概率 
+cls_probs = d2l.tensor([[0] * 4,  # 背景的预测概率
                       [0.9, 0.8, 0.7, 0.1],  # 狗的预测概率
                       [0.1, 0.2, 0.3, 0.9]])  # 猫的预测概率
 ```
@@ -738,7 +738,7 @@ output = multibox_detection(cls_probs.unsqueeze(dim=0),
 output
 ```
 
-删除-1（背景）类的预测边界框后，我们可以[**输出由非极大值抑制保存的最终预测边界框**]。
+删除-1类别（背景）的预测边界框后，我们可以[**输出由非极大值抑制保存的最终预测边界框**]。
 
 ```{.python .input}
 #@tab all
@@ -751,12 +751,12 @@ for i in d2l.numpy(output[0]):
 ```
 
 实践中，在执行非极大值抑制前，我们甚至可以将置信度较低的预测边界框移除，从而减少此算法中的计算量。
-我们也可以对非极大值抑制的输出结果进行后处理，例如，只保留置信度更高的结果作为最终输出。
+我们也可以对非极大值抑制的输出结果进行后处理。例如，只保留置信度更高的结果作为最终输出。
 
 ## 小结
 
 * 我们以图像的每个像素为中心生成不同形状的锚框。
-* 交并比（IoU）也被称为Jaccard指数，用于衡量两个边界框的相似性。它是相交面积与相并面积的比率。
+* 交并比（IoU）也被称为杰卡德系数，用于衡量两个边界框的相似性。它是相交面积与相并面积的比率。
 * 在训练集中，我们需要给每个锚框两种类型的标签。一个是与锚框中目标检测的类别，另一个是锚框真实相对于边界框的偏移量。
 * 在预测期间，我们可以使用非极大值抑制（NMS）来移除类似的预测边界框，从而简化输出。
 
@@ -765,7 +765,7 @@ for i in d2l.numpy(output[0]):
 1. 在`multibox_prior`函数中更改`sizes`和`ratios`的值。生成的锚框有什么变化？
 1. 构建并可视化两个IoU为0.5的边界框。它们是怎样重叠的？
 1. 在 :numref:`subsec_labeling-anchor-boxes`和 :numref:`subsec_predicting-bounding-boxes-nms`中修改变量`anchors`，结果如何变化？
-1. 非极大值抑制是一种贪婪的算法，它通过*移除*来抑制预测的边界框。是否存在一种可能，被移除的一些框实际上是有用的？如何修改这个算法来柔和地抑制？你可以参考Soft-NMS :cite:`Bodla.Singh.Chellappa.ea.2017`。
+1. 非极大值抑制是一种贪心算法，它通过*移除*来抑制预测的边界框。是否存在一种可能，被移除的一些框实际上是有用的？如何修改这个算法来柔和地抑制？你可以参考Soft-NMS :cite:`Bodla.Singh.Chellappa.ea.2017`。
 1. 如果非手动，非最大限度的抑制可以被学习吗？
 
 :begin_tab:`mxnet`

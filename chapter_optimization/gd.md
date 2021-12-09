@@ -73,7 +73,7 @@ import tensorflow as tf
 def f(x):  # 目标函数
     return x ** 2
 
-def f_grad(x):  # 目标函数的梯度 (导数) 
+def f_grad(x):  # 目标函数的梯度(导数)
     return 2 * x
 ```
 
@@ -187,8 +187,8 @@ $$\mathbf{x} \leftarrow \mathbf{x} - \eta \nabla f(\mathbf{x}).$$
 ```{.python .input}
 #@tab all
 def train_2d(trainer, steps=20, f_grad=None):  #@save
-    """用定制的训练机优化2D目标函数。"""
-    # `s1` 和 `s2` 是稍后将使用的内部状态变量
+    """用定制的训练机优化2D目标函数"""
+    # s1和s2是稍后将使用的内部状态变量
     x1, x2, s1, s2 = -5, -2, 0, 0
     results = [(x1, x2)]
     for i in range(steps):
@@ -201,7 +201,7 @@ def train_2d(trainer, steps=20, f_grad=None):  #@save
     return results
 
 def show_trace_2d(f, results):  #@save
-    """显示优化过程中2D变量的轨迹。"""
+    """显示优化过程中2D变量的轨迹"""
     d2l.set_figsize()
     d2l.plt.plot(*zip(*results), '-o', color='#ff7f0e')
     x1, x2 = d2l.meshgrid(d2l.arange(-5.5, 1.0, 0.1),

@@ -144,7 +144,7 @@ $$\frac{d}{dx} \left[\frac{f(x)}{g(x)}\right] = \frac{g(x) \frac{d}{dx} [f(x)] -
 ```{.python .input}
 #@tab all
 def use_svg_display():  #@save
-    """使用svg格式在Jupyter中显示绘图。"""
+    """使用svg格式在Jupyter中显示绘图"""
     display.set_matplotlib_formats('svg')
 ```
 
@@ -155,7 +155,7 @@ def use_svg_display():  #@save
 ```{.python .input}
 #@tab all
 def set_figsize(figsize=(3.5, 2.5)):  #@save
-    """设置matplotlib的图表大小。"""
+    """设置matplotlib的图表大小"""
     use_svg_display()
     d2l.plt.rcParams['figure.figsize'] = figsize
 ```
@@ -166,7 +166,7 @@ def set_figsize(figsize=(3.5, 2.5)):  #@save
 #@tab all
 #@save
 def set_axes(axes, xlabel, ylabel, xlim, ylim, xscale, yscale, legend):
-    """设置matplotlib的轴。"""
+    """设置matplotlib的轴"""
     axes.set_xlabel(xlabel)
     axes.set_ylabel(ylabel)
     axes.set_xscale(xscale)
@@ -187,14 +187,14 @@ def set_axes(axes, xlabel, ylabel, xlim, ylim, xscale, yscale, legend):
 def plot(X, Y=None, xlabel=None, ylabel=None, legend=None, xlim=None,
          ylim=None, xscale='linear', yscale='linear',
          fmts=('-', 'm--', 'g-.', 'r:'), figsize=(3.5, 2.5), axes=None):
-    """绘制数据点。"""
+    """绘制数据点"""
     if legend is None:
         legend = []
 
     set_figsize(figsize)
     axes = axes if axes else d2l.plt.gca()
 
-    # 如果 `X` 有一个轴，输出True
+    # 如果X有一个轴，输出True
     def has_one_axis(X):
         return (hasattr(X, "ndim") and X.ndim == 1 or isinstance(X, list)
                 and not hasattr(X[0], "__len__"))

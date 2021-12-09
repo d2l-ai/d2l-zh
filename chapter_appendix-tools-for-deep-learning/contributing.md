@@ -157,4 +157,4 @@ git push
 1. 如果发现任何需要改进的地方（例如，缺少引用），请提交Pull请求。
 1. 通常更好的做法是使用新分支创建Pull请求。学习如何用[Git分支](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell)来做这件事。
 
-[Discussions](https://discuss.d2l.ai/t/426)
+[Discussions](https://discuss.d2l.ai/t/5730)

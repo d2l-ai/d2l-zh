@@ -26,20 +26,20 @@ import numpy as np
 import tensorflow as tf
 
 def use_svg_display():
-    """使用svg格式在Jupyter中显示绘图。
+    """使用svg格式在Jupyter中显示绘图
 
     Defined in :numref:`sec_calculus`"""
     display.set_matplotlib_formats('svg')
 
 def set_figsize(figsize=(3.5, 2.5)):
-    """设置matplotlib的图表大小。
+    """设置matplotlib的图表大小
 
     Defined in :numref:`sec_calculus`"""
     use_svg_display()
     d2l.plt.rcParams['figure.figsize'] = figsize
 
 def set_axes(axes, xlabel, ylabel, xlim, ylim, xscale, yscale, legend):
-    """设置matplotlib的轴。
+    """设置matplotlib的轴
 
     Defined in :numref:`sec_calculus`"""
     axes.set_xlabel(xlabel)
@@ -55,7 +55,7 @@ def set_axes(axes, xlabel, ylabel, xlim, ylim, xscale, yscale, legend):
 def plot(X, Y=None, xlabel=None, ylabel=None, legend=None, xlim=None,
          ylim=None, xscale='linear', yscale='linear',
          fmts=('-', 'm--', 'g-.', 'r:'), figsize=(3.5, 2.5), axes=None):
-    """绘制数据点。
+    """绘制数据点
 
     Defined in :numref:`sec_calculus`"""
     if legend is None:
@@ -64,7 +64,7 @@ def plot(X, Y=None, xlabel=None, ylabel=None, legend=None, xlim=None,
     set_figsize(figsize)
     axes = axes if axes else d2l.plt.gca()
 
-    # 如果 `X` 有一个轴，输出True
+    # 如果`X`有一个轴，输出True
     def has_one_axis(X):
         return (hasattr(X, "ndim") and X.ndim == 1 or isinstance(X, list)
                 and not hasattr(X[0], "__len__"))
@@ -86,35 +86,35 @@ def plot(X, Y=None, xlabel=None, ylabel=None, legend=None, xlim=None,
     set_axes(axes, xlabel, ylabel, xlim, ylim, xscale, yscale, legend)
 
 class Timer:
-    """记录多次运行时间。"""
+    """记录多次运行时间"""
     def __init__(self):
         """Defined in :numref:`subsec_linear_model`"""
         self.times = []
         self.start()
 
     def start(self):
-        """启动计时器。"""
+        """启动计时器"""
         self.tik = time.time()
 
     def stop(self):
-        """停止计时器并将时间记录在列表中。"""
+        """停止计时器并将时间记录在列表中"""
         self.times.append(time.time() - self.tik)
         return self.times[-1]
 
     def avg(self):
-        """返回平均时间。"""
+        """返回平均时间"""
         return sum(self.times) / len(self.times)
 
     def sum(self):
-        """返回时间总和。"""
+        """返回时间总和"""
         return sum(self.times)
 
     def cumsum(self):
-        """返回累计时间。"""
+        """返回累计时间"""
         return np.array(self.times).cumsum().tolist()
 
 def synthetic_data(w, b, num_examples):
-    """生成 y = Xw + b + 噪声。
+    """生成y=Xw+b+噪声
 
     Defined in :numref:`sec_linear_scratch`"""
     X = d2l.zeros((num_examples, w.shape[0]))
@@ -125,26 +125,26 @@ def synthetic_data(w, b, num_examples):
     return X, y
 
 def linreg(X, w, b):
-    """线性回归模型。
+    """线性回归模型
 
     Defined in :numref:`sec_linear_scratch`"""
     return d2l.matmul(X, w) + b
 
 def squared_loss(y_hat, y):
-    """均方损失。
+    """均方损失
 
     Defined in :numref:`sec_linear_scratch`"""
     return (y_hat - d2l.reshape(y, y_hat.shape)) ** 2 / 2
 
 def sgd(params, grads, lr, batch_size):
-    """小批量随机梯度下降。
+    """小批量随机梯度下降
 
     Defined in :numref:`sec_linear_scratch`"""
     for param, grad in zip(params, grads):
         param.assign_sub(lr*grad/batch_size)
 
 def load_array(data_arrays, batch_size, is_train=True):
-    """构造一个TensorFlow数据迭代器。
+    """构造一个TensorFlow数据迭代器
 
     Defined in :numref:`sec_linear_concise`"""
     dataset = tf.data.Dataset.from_tensor_slices(data_arrays)
@@ -154,7 +154,7 @@ def load_array(data_arrays, batch_size, is_train=True):
     return dataset
 
 def get_fashion_mnist_labels(labels):
-    """返回Fashion-MNIST数据集的文本标签。
+    """返回Fashion-MNIST数据集的文本标签
 
     Defined in :numref:`sec_fashion_mnist`"""
     text_labels = ['t-shirt', 'trouser', 'pullover', 'dress', 'coat',
@@ -162,7 +162,7 @@ def get_fashion_mnist_labels(labels):
     return [text_labels[int(i)] for i in labels]
 
 def show_images(imgs, num_rows, num_cols, titles=None, scale=1.5):
-    """绘制图像列表。
+    """绘制图像列表
 
     Defined in :numref:`sec_fashion_mnist`"""
     figsize = (num_cols * scale, num_rows * scale)
@@ -177,7 +177,7 @@ def show_images(imgs, num_rows, num_cols, titles=None, scale=1.5):
     return axes
 
 def load_data_fashion_mnist(batch_size, resize=None):
-    """下载Fashion-MNIST数据集，然后将其加载到内存中。
+    """下载Fashion-MNIST数据集，然后将其加载到内存中
 
     Defined in :numref:`sec_fashion_mnist`"""
     mnist_train, mnist_test = tf.keras.datasets.fashion_mnist.load_data()
@@ -194,7 +194,7 @@ def load_data_fashion_mnist(batch_size, resize=None):
             batch_size).map(resize_fn))
 
 def accuracy(y_hat, y):
-    """计算预测正确的数量。
+    """计算预测正确的数量
 
     Defined in :numref:`sec_softmax_scratch`"""
     if len(y_hat.shape) > 1 and y_hat.shape[1] > 1:
@@ -203,7 +203,7 @@ def accuracy(y_hat, y):
     return float(d2l.reduce_sum(d2l.astype(cmp, y.dtype)))
 
 def evaluate_accuracy(net, data_iter):
-    """计算在指定数据集上模型的精度。
+    """计算在指定数据集上模型的精度
 
     Defined in :numref:`sec_softmax_scratch`"""
     metric = Accumulator(2)  # 正确预测数、预测总数
@@ -212,7 +212,7 @@ def evaluate_accuracy(net, data_iter):
     return metric[0] / metric[1]
 
 class Accumulator:
-    """在`n`个变量上累加。"""
+    """在`n`个变量上累加"""
     def __init__(self, n):
         """Defined in :numref:`sec_softmax_scratch`"""
         self.data = [0.0] * n
@@ -227,7 +227,7 @@ class Accumulator:
         return self.data[idx]
 
 def train_epoch_ch3(net, train_iter, loss, updater):
-    """训练模型一个迭代周期（定义见第3章）。
+    """训练模型一个迭代周期（定义见第3章）
 
     Defined in :numref:`sec_softmax_scratch`"""
     # 训练损失总和、训练准确度总和、样本数
@@ -256,7 +256,7 @@ def train_epoch_ch3(net, train_iter, loss, updater):
     return metric[0] / metric[2], metric[1] / metric[2]
 
 class Animator:
-    """在动画中绘制数据。"""
+    """在动画中绘制数据"""
     def __init__(self, xlabel=None, ylabel=None, legend=None, xlim=None,
                  ylim=None, xscale='linear', yscale='linear',
                  fmts=('-', 'm--', 'g-.', 'r:'), nrows=1, ncols=1,
@@ -297,7 +297,7 @@ class Animator:
         display.clear_output(wait=True)
 
 def train_ch3(net, train_iter, test_iter, loss, num_epochs, updater):
-    """训练模型（定义见第3章）。
+    """训练模型（定义见第3章）
 
     Defined in :numref:`sec_softmax_scratch`"""
     animator = Animator(xlabel='epoch', xlim=[1, num_epochs], ylim=[0.3, 0.9],
@@ -312,7 +312,7 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, updater):
     assert test_acc <= 1 and test_acc > 0.7, test_acc
 
 class Updater():
-    """用小批量随机梯度下降法更新参数。
+    """用小批量随机梯度下降法更新参数
 
     Defined in :numref:`sec_softmax_scratch`"""
     def __init__(self, params, lr):
@@ -323,7 +323,7 @@ class Updater():
         d2l.sgd(self.params, grads, self.lr, batch_size)
 
 def predict_ch3(net, test_iter, n=6):
-    """预测标签（定义见第3章）。
+    """预测标签（定义见第3章）
 
     Defined in :numref:`sec_softmax_scratch`"""
     for X, y in test_iter:
@@ -335,10 +335,10 @@ def predict_ch3(net, test_iter, n=6):
         d2l.reshape(X[0:n], (n, 28, 28)), 1, n, titles=titles[0:n])
 
 def evaluate_loss(net, data_iter, loss):
-    """评估给定数据集上模型的损失。
+    """评估给定数据集上模型的损失
 
     Defined in :numref:`sec_model_selection`"""
-    metric = d2l.Accumulator(2)  # 损失的总和, 样本数量
+    metric = d2l.Accumulator(2)  # 损失的总和,样本数量
     for X, y in data_iter:
         l = loss(net(X), y)
         metric.add(d2l.reduce_sum(l), d2l.size(l))
@@ -348,10 +348,10 @@ DATA_HUB = dict()
 DATA_URL = 'http://d2l-data.s3-accelerate.amazonaws.com/'
 
 def download(name, cache_dir=os.path.join('..', 'data')):
-    """下载一个DATA_HUB中的文件，返回本地文件名。
+    """下载一个DATA_HUB中的文件，返回本地文件名
 
     Defined in :numref:`sec_kaggle_house`"""
-    assert name in DATA_HUB, f"{name} 不存在于 {DATA_HUB}."
+    assert name in DATA_HUB, f"{name} 不存在于 {DATA_HUB}"
     url, sha1_hash = DATA_HUB[name]
     os.makedirs(cache_dir, exist_ok=True)
     fname = os.path.join(cache_dir, url.split('/')[-1])
@@ -364,7 +364,7 @@ def download(name, cache_dir=os.path.join('..', 'data')):
                     break
                 sha1.update(data)
         if sha1.hexdigest() == sha1_hash:
-            return fname  # Hit cache
+            return fname  # 命中缓存
     print(f'正在从{url}下载{fname}...')
     r = requests.get(url, stream=True, verify=True)
     with open(fname, 'wb') as f:
@@ -372,7 +372,7 @@ def download(name, cache_dir=os.path.join('..', 'data')):
     return fname
 
 def download_extract(name, folder=None):
-    """下载并解压zip/tar文件。
+    """下载并解压zip/tar文件
 
     Defined in :numref:`sec_kaggle_house`"""
     fname = download(name)
@@ -383,12 +383,12 @@ def download_extract(name, folder=None):
     elif ext in ('.tar', '.gz'):
         fp = tarfile.open(fname, 'r')
     else:
-        assert False, '只有zip/tar文件可以被解压缩。'
+        assert False, '只有zip/tar文件可以被解压缩'
     fp.extractall(base_dir)
     return os.path.join(base_dir, folder) if folder else data_dir
 
 def download_all():
-    """下载DATA_HUB中的所有文件。
+    """下载DATA_HUB中的所有文件
 
     Defined in :numref:`sec_kaggle_house`"""
     for name in DATA_HUB:
@@ -403,7 +403,7 @@ DATA_HUB['kaggle_house_test'] = (
     'fa19780a7b011d9b009e8bff8e99922a8ee2eb90')
 
 def try_gpu(i=0):
-    """如果存在，则返回gpu(i)，否则返回cpu()。
+    """如果存在，则返回gpu(i)，否则返回cpu()
 
     Defined in :numref:`sec_use_gpu`"""
     if len(tf.config.experimental.list_physical_devices('GPU')) >= i + 1:
@@ -411,7 +411,7 @@ def try_gpu(i=0):
     return tf.device('/CPU:0')
 
 def try_all_gpus():
-    """返回所有可用的GPU，如果没有GPU，则返回[cpu(),]。
+    """返回所有可用的GPU，如果没有GPU，则返回[cpu(),]
 
     Defined in :numref:`sec_use_gpu`"""
     num_gpus = len(tf.config.experimental.list_physical_devices('GPU'))
@@ -419,7 +419,7 @@ def try_all_gpus():
     return devices if devices else [tf.device('/CPU:0')]
 
 def corr2d(X, K):
-    """计算二维互相关运算。"""
+    """计算二维互相关运算"""
     h, w = K.shape
     Y = tf.Variable(tf.zeros((X.shape[0] - h + 1, X.shape[1] - w + 1)))
     for i in range(Y.shape[0]):
@@ -429,7 +429,7 @@ def corr2d(X, K):
     return Y
 
 class TrainCallback(tf.keras.callbacks.Callback):
-    """一个以可视化的训练进展的回调。
+    """一个以可视化的训练进展的回调
 
     Defined in :numref:`sec_lenet`"""
     def __init__(self, net, train_iter, test_iter, num_epochs, device_name):
@@ -462,7 +462,7 @@ class TrainCallback(tf.keras.callbacks.Callback):
                   f'{str(self.device_name)}')
 
 def train_ch6(net_fn, train_iter, test_iter, num_epochs, lr, device):
-    """用GPU训练模型(在第六章定义)。
+    """用GPU训练模型(在第六章定义)
 
     Defined in :numref:`sec_lenet`"""
     device_name = device._device_name
@@ -503,7 +503,7 @@ d2l.DATA_HUB['time_machine'] = (d2l.DATA_URL + 'timemachine.txt',
                                 '090b5e7e70c295757f55df93cb0a180b9691891a')
 
 def read_time_machine():
-    """Load the time machine dataset into a list of text lines.
+    """将时间机器数据集加载到文本行的列表中
 
     Defined in :numref:`sec_text_preprocessing`"""
     with open(d2l.download('time_machine'), 'r') as f:
@@ -511,7 +511,7 @@ def read_time_machine():
     return [re.sub('[^A-Za-z]+', ' ', line).strip().lower() for line in lines]
 
 def tokenize(lines, token='word'):
-    """将文本行拆分为单词或字符词元。
+    """将文本行拆分为单词或字符词元
 
     Defined in :numref:`sec_text_preprocessing`"""
     if token == 'word':
@@ -531,16 +531,19 @@ class Vocab:
             reserved_tokens = []
         # 按出现频率排序
         counter = count_corpus(tokens)
-        self.token_freqs = sorted(counter.items(), key=lambda x: x[1],
-                                  reverse=True)
+        self._token_freqs = sorted(counter.items(), key=lambda x: x[1],
+                                   reverse=True)
         # 未知词元的索引为0
-        self.unk, uniq_tokens = 0, ['<unk>'] + reserved_tokens
-        uniq_tokens += [token for token, freq in self.token_freqs
-                        if freq >= min_freq and token not in uniq_tokens]
+        self.idx_to_token = ['<unk>'] + reserved_tokens
+        self.token_to_idx = {token: idx
+                             for idx, token in enumerate(self.idx_to_token)}
         self.idx_to_token, self.token_to_idx = [], dict()
-        for token in uniq_tokens:
-            self.idx_to_token.append(token)
-            self.token_to_idx[token] = len(self.idx_to_token) - 1
+        for token, freq in self._token_freqs:
+            if freq < min_freq:
+                break
+            if token not in self.token_to_idx:
+                self.idx_to_token.append(token)
+                self.token_to_idx[token] = len(self.idx_to_token) - 1
 
     def __len__(self):
         return len(self.idx_to_token)
@@ -555,18 +558,26 @@ class Vocab:
             return self.idx_to_token[indices]
         return [self.idx_to_token[index] for index in indices]
 
+    @property
+    def unk(self):  # 未知词元的索引为0
+        return 0
+
+    @property
+    def token_freqs(self):
+        return self._token_freqs
+
 def count_corpus(tokens):
-    """统计词元的频率。
+    """统计词元的频率
 
     Defined in :numref:`sec_text_preprocessing`"""
-    # 这里的 `tokens` 是 1D 列表或 2D 列表
+    # 这里的`tokens`是1D列表或2D列表
     if len(tokens) == 0 or isinstance(tokens[0], list):
-        # 将词元列表展平成使用词元填充的一个列表
+        # 将词元列表展平成一个列表
         tokens = [token for line in tokens for token in line]
     return collections.Counter(tokens)
 
 def load_corpus_time_machine(max_tokens=-1):
-    """返回时光机器数据集的词元索引列表和词表。
+    """返回时光机器数据集的词元索引列表和词表
 
     Defined in :numref:`sec_text_preprocessing`"""
     lines = read_time_machine()
@@ -580,10 +591,10 @@ def load_corpus_time_machine(max_tokens=-1):
     return corpus, vocab
 
 def seq_data_iter_random(corpus, batch_size, num_steps):
-    """使用随机抽样生成一个小批量子序列。
+    """使用随机抽样生成一个小批量子序列
 
     Defined in :numref:`sec_language_model`"""
-    # 从随机偏移量开始对序列进行分区，随机范围包括`num_steps - 1`
+    # 从随机偏移量开始对序列进行分区，随机范围包括`num_steps-1`
     corpus = corpus[random.randint(0, num_steps - 1):]
     # 减去1，是因为我们需要考虑标签
     num_subseqs = (len(corpus) - 1) // num_steps
@@ -606,7 +617,7 @@ def seq_data_iter_random(corpus, batch_size, num_steps):
         yield d2l.tensor(X), d2l.tensor(Y)
 
 def seq_data_iter_sequential(corpus, batch_size, num_steps):
-    """使用顺序分区生成一个小批量子序列。
+    """使用顺序分区生成一个小批量子序列
 
     Defined in :numref:`sec_language_model`"""
     # 从随机偏移量开始划分序列
@@ -623,7 +634,7 @@ def seq_data_iter_sequential(corpus, batch_size, num_steps):
         yield X, Y
 
 class SeqDataLoader:
-    """加载序列数据的迭代器。"""
+    """加载序列数据的迭代器"""
     def __init__(self, batch_size, num_steps, use_random_iter, max_tokens):
         """Defined in :numref:`sec_language_model`"""
         if use_random_iter:
@@ -638,7 +649,7 @@ class SeqDataLoader:
 
 def load_data_time_machine(batch_size, num_steps,
                            use_random_iter=False, max_tokens=10000):
-    """返回时光机器数据集的迭代器和词表。
+    """返回时光机器数据集的迭代器和词表
 
     Defined in :numref:`sec_language_model`"""
     data_iter = SeqDataLoader(
@@ -648,92 +659,95 @@ def load_data_time_machine(batch_size, num_steps,
 class RNNModelScratch:
     """从零开始实现的循环神经网络模型"""
     def __init__(self, vocab_size, num_hiddens,
-                 init_state, forward_fn):
+                 init_state, forward_fn, get_params):
         """Defined in :numref:`sec_rnn_scratch`"""
         self.vocab_size, self.num_hiddens = vocab_size, num_hiddens
         self.init_state, self.forward_fn = init_state, forward_fn
+        self.trainable_variables = get_params(vocab_size, num_hiddens)
 
-    def __call__(self, X, state, params):
+    def __call__(self, X, state):
         X = tf.one_hot(tf.transpose(X), self.vocab_size)
         X = tf.cast(X, tf.float32)
-        return self.forward_fn(X, state, params)
+        return self.forward_fn(X, state, self.trainable_variables)
 
-    def begin_state(self, batch_size):
+    def begin_state(self, batch_size, *args, **kwargs):
         return self.init_state(batch_size, self.num_hiddens)
 
-def predict_ch8(prefix, num_preds, net, vocab, params):
-    """在`prefix`后面生成新字符。
+def predict_ch8(prefix, num_preds, net, vocab):
+    """在`prefix`后面生成新字符
 
     Defined in :numref:`sec_rnn_scratch`"""
-    state = net.begin_state(batch_size=1)
+    state = net.begin_state(batch_size=1, dtype=tf.float32)
     outputs = [vocab[prefix[0]]]
-    get_input = lambda: d2l.reshape(d2l.tensor([outputs[-1]]), (1, 1)).numpy()
+    get_input = lambda: d2l.reshape(d2l.tensor([outputs[-1]]),
+                                    (1, 1)).numpy()
     for y in prefix[1:]:  # 预热期
-        _, state = net(get_input(), state, params)
+        _, state = net(get_input(), state)
         outputs.append(vocab[y])
     for _ in range(num_preds):  # 预测`num_preds`步
-        y, state = net(get_input(), state, params)
+        y, state = net(get_input(), state)
         outputs.append(int(y.numpy().argmax(axis=1).reshape(1)))
     return ''.join([vocab.idx_to_token[i] for i in outputs])
 
 def grad_clipping(grads, theta):
-    """裁剪梯度。
+    """裁剪梯度
 
     Defined in :numref:`sec_rnn_scratch`"""
     theta = tf.constant(theta, dtype=tf.float32)
-    norm = tf.math.sqrt(sum((tf.reduce_sum(grad ** 2)).numpy()
-                        for grad in grads))
-    norm = tf.cast(norm, tf.float32)
     new_grad = []
-    if tf.greater(norm, theta):
-        for grad in grads:
-            new_grad.append(grad * theta / norm)
-    else:
-        for grad in grads:
+    for grad in grads:
+        if isinstance(grad, tf.IndexedSlices):
+            new_grad.append(tf.convert_to_tensor(grad))
+        else:
             new_grad.append(grad)
+    norm = tf.math.sqrt(sum((tf.reduce_sum(grad ** 2)).numpy()
+                        for grad in new_grad))
+    norm = tf.cast(norm, tf.float32)
+    if tf.greater(norm, theta):
+        for i, grad in enumerate(new_grad):
+            new_grad[i] = grad * theta / norm
+    else:
+        new_grad = new_grad
     return new_grad
 
-def train_epoch_ch8(net, train_iter, loss, updater, params, use_random_iter):
-    """训练模型一个迭代周期（定义见第8章）。
+def train_epoch_ch8(net, train_iter, loss, updater, use_random_iter):
+    """训练模型一个迭代周期（定义见第8章）
 
     Defined in :numref:`sec_rnn_scratch`"""
     state, timer = None, d2l.Timer()
-    metric = d2l.Accumulator(2)  # 训练损失之和, 词元数量
+    metric = d2l.Accumulator(2)  # 训练损失之和,词元数量
     for X, Y in train_iter:
         if state is None or use_random_iter:
             # 在第一次迭代或使用随机抽样时初始化`state`
-            state = net.begin_state(batch_size=X.shape[0])
+            state = net.begin_state(batch_size=X.shape[0], dtype=tf.float32)
         with tf.GradientTape(persistent=True) as g:
-            g.watch(params)
-            y_hat, state= net(X, state, params)
+            y_hat, state = net(X, state)
             y = d2l.reshape(tf.transpose(Y), (-1))
             l = loss(y, y_hat)
+        params = net.trainable_variables
         grads = g.gradient(l, params)
         grads = grad_clipping(grads, 1)
         updater.apply_gradients(zip(grads, params))
-
         # Keras默认返回一个批量中的平均损失
-        # l_sum = l * float(d2l.size(y)) if isinstance(
-        #     loss, tf.keras.losses.Loss) else tf.reduce_sum(l)
         metric.add(l * d2l.size(y), d2l.size(y))
     return math.exp(metric[0] / metric[1]), metric[1] / timer.stop()
 
-def train_ch8(net, train_iter, vocab, num_hiddens, lr, num_epochs, strategy,
+def train_ch8(net, train_iter, vocab, lr, num_epochs, strategy,
               use_random_iter=False):
-    """训练模型（定义见第8章）。
+    """训练模型（定义见第8章）
 
     Defined in :numref:`sec_rnn_scratch`"""
     with strategy.scope():
-        params = get_params(len(vocab), num_hiddens)
-        loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+        loss = tf.keras.losses.SparseCategoricalCrossentropy(
+            from_logits=True)
         updater = tf.keras.optimizers.SGD(lr)
     animator = d2l.Animator(xlabel='epoch', ylabel='perplexity',
                             legend=['train'], xlim=[10, num_epochs])
-    predict = lambda prefix: predict_ch8(prefix, 50, net, vocab, params)
+    predict = lambda prefix: predict_ch8(prefix, 50, net, vocab)
     # 训练和预测
     for epoch in range(num_epochs):
-        ppl, speed = train_epoch_ch8(
-             net, train_iter, loss, updater, params, use_random_iter)
+        ppl, speed = train_epoch_ch8(net, train_iter, loss, updater,
+                                     use_random_iter)
         if (epoch + 1) % 10 == 0:
             print(predict('time traveller'))
             animator.add(epoch + 1, [ppl])
@@ -742,15 +756,528 @@ def train_ch8(net, train_iter, vocab, num_hiddens, lr, num_epochs, strategy,
     print(predict('time traveller'))
     print(predict('traveller'))
 
+class RNNModel(tf.keras.layers.Layer):
+    """Defined in :numref:`sec_rnn-concise`"""
+    def __init__(self, rnn_layer, vocab_size, **kwargs):
+        super(RNNModel, self).__init__(**kwargs)
+        self.rnn = rnn_layer
+        self.vocab_size = vocab_size
+        self.dense = tf.keras.layers.Dense(vocab_size)
+
+    def call(self, inputs, state):
+        X = tf.one_hot(tf.transpose(inputs), self.vocab_size)
+        # rnn返回两个以上的值
+        Y, *state = self.rnn(X, state)
+        output = self.dense(tf.reshape(Y, (-1, Y.shape[-1])))
+        return output, state
+
+    def begin_state(self, *args, **kwargs):
+        return self.rnn.cell.get_initial_state(*args, **kwargs)
+
+d2l.DATA_HUB['fra-eng'] = (d2l.DATA_URL + 'fra-eng.zip',
+                           '94646ad1522d915e7b0f9296181140edcf86a4f5')
+
+def read_data_nmt():
+    """载入“英语－法语”数据集
+
+    Defined in :numref:`sec_machine_translation`"""
+    data_dir = d2l.download_extract('fra-eng')
+    with open(os.path.join(data_dir, 'fra.txt'), 'r',
+             encoding='utf-8') as f:
+        return f.read()
+
+def preprocess_nmt(text):
+    """预处理“英语－法语”数据集
+
+    Defined in :numref:`sec_machine_translation`"""
+    def no_space(char, prev_char):
+        return char in set(',.!?') and prev_char != ' '
+
+    # 使用空格替换不间断空格
+    # 使用小写字母替换大写字母
+    text = text.replace('\u202f', ' ').replace('\xa0', ' ').lower()
+    # 在单词和标点符号之间插入空格
+    out = [' ' + char if i > 0 and no_space(char, text[i - 1]) else char
+           for i, char in enumerate(text)]
+    return ''.join(out)
+
+def tokenize_nmt(text, num_examples=None):
+    """词元化“英语－法语”数据数据集
+
+    Defined in :numref:`sec_machine_translation`"""
+    source, target = [], []
+    for i, line in enumerate(text.split('\n')):
+        if num_examples and i > num_examples:
+            break
+        parts = line.split('\t')
+        if len(parts) == 2:
+            source.append(parts[0].split(' '))
+            target.append(parts[1].split(' '))
+    return source, target
+
+def truncate_pad(line, num_steps, padding_token):
+    """截断或填充文本序列
+
+    Defined in :numref:`sec_machine_translation`"""
+    if len(line) > num_steps:
+        return line[:num_steps]  # 截断
+    return line + [padding_token] * (num_steps - len(line))  # 填充
+
+def build_array_nmt(lines, vocab, num_steps):
+    """将机器翻译的文本序列转换成小批量
+
+    Defined in :numref:`subsec_mt_data_loading`"""
+    lines = [vocab[l] for l in lines]
+    lines = [l + [vocab['<eos>']] for l in lines]
+    array = d2l.tensor([truncate_pad(
+        l, num_steps, vocab['<pad>']) for l in lines])
+    valid_len = d2l.reduce_sum(
+        d2l.astype(array != vocab['<pad>'], d2l.int32), 1)
+    return array, valid_len
+
+def load_data_nmt(batch_size, num_steps, num_examples=600):
+    """返回翻译数据集的迭代器和词表
+
+    Defined in :numref:`subsec_mt_data_loading`"""
+    text = preprocess_nmt(read_data_nmt())
+    source, target = tokenize_nmt(text, num_examples)
+    src_vocab = d2l.Vocab(source, min_freq=2,
+                          reserved_tokens=['<pad>', '<bos>', '<eos>'])
+    tgt_vocab = d2l.Vocab(target, min_freq=2,
+                          reserved_tokens=['<pad>', '<bos>', '<eos>'])
+    src_array, src_valid_len = build_array_nmt(source, src_vocab, num_steps)
+    tgt_array, tgt_valid_len = build_array_nmt(target, tgt_vocab, num_steps)
+    data_arrays = (src_array, src_valid_len, tgt_array, tgt_valid_len)
+    data_iter = d2l.load_array(data_arrays, batch_size)
+    return data_iter, src_vocab, tgt_vocab
+
+class Encoder(tf.keras.layers.Layer):
+    """编码器-解码器架构的基本编码器接口"""
+    def __init__(self, **kwargs):
+        super(Encoder, self).__init__(**kwargs)
+
+    def call(self, X, *args, **kwargs):
+        raise NotImplementedError
+
+class Decoder(tf.keras.layers.Layer):
+    """编码器-解码器架构的基本解码器接口
+
+    Defined in :numref:`sec_encoder-decoder`"""
+    def __init__(self, **kwargs):
+        super(Decoder, self).__init__(**kwargs)
+
+    def init_state(self, enc_outputs, *args):
+        raise NotImplementedError
+
+    def call(self, X, state, **kwargs):
+        raise NotImplementedError
+
+class EncoderDecoder(tf.keras.Model):
+    """编码器-解码器架构的基类
+
+    Defined in :numref:`sec_encoder-decoder`"""
+    def __init__(self, encoder, decoder, **kwargs):
+        super(EncoderDecoder, self).__init__(**kwargs)
+        self.encoder = encoder
+        self.decoder = decoder
+
+    def call(self, enc_X, dec_X, *args, **kwargs):
+        enc_outputs = self.encoder(enc_X, *args, **kwargs)
+        dec_state = self.decoder.init_state(enc_outputs, *args)
+        return self.decoder(dec_X, dec_state, **kwargs)
+
+class Seq2SeqEncoder(d2l.Encoder):
+    """用于序列到序列学习的循环神经网络编码器
+
+    Defined in :numref:`sec_seq2seq`"""
+    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers, dropout=0, **kwargs):
+        super().__init__(*kwargs)
+        # 嵌入层
+        self.embedding = tf.keras.layers.Embedding(vocab_size, embed_size)
+        self.rnn = tf.keras.layers.RNN(tf.keras.layers.StackedRNNCells(
+            [tf.keras.layers.GRUCell(num_hiddens, dropout=dropout)
+             for _ in range(num_layers)]), return_sequences=True,
+                                       return_state=True)
+
+    def call(self, X, *args, **kwargs):
+        # 输入'X'的形状：(`batch_size`,`num_steps`)
+        # 输出'X'的形状：(`batch_size`,`num_steps`,`embed_size`)
+        X = self.embedding(X)
+        output = self.rnn(X, **kwargs)
+        state = output[1:]
+        return output[0], state
+
+def sequence_mask(X, valid_len, value=0):
+    """在序列中屏蔽不相关的项
+
+    Defined in :numref:`sec_seq2seq_decoder`"""
+    maxlen = X.shape[1]
+    mask = tf.range(start=0, limit=maxlen, dtype=tf.float32)[
+        None, :] < tf.cast(valid_len[:, None], dtype=tf.float32)
+
+    if len(X.shape) == 3:
+        return tf.where(tf.expand_dims(mask, axis=-1), X, value)
+    else:
+        return tf.where(mask, X, value)
+
+class MaskedSoftmaxCELoss(tf.keras.losses.Loss):
+    """带遮蔽的softmax交叉熵损失函数
+
+    Defined in :numref:`sec_seq2seq_decoder`"""
+    def __init__(self, valid_len):
+        super().__init__(reduction='none')
+        self.valid_len = valid_len
+
+    # `pred`的形状：(`batch_size`,`num_steps`,`vocab_size`)
+    # `label`的形状：(`batch_size`,`num_steps`)
+    # `valid_len`的形状：(`batch_size`,)
+    def call(self, label, pred):
+        weights = tf.ones_like(label, dtype=tf.float32)
+        weights = sequence_mask(weights, self.valid_len)
+        label_one_hot = tf.one_hot(label, depth=pred.shape[-1])
+        unweighted_loss = tf.keras.losses.CategoricalCrossentropy(
+            from_logits=True, reduction='none')(label_one_hot, pred)
+        weighted_loss = tf.reduce_mean((unweighted_loss*weights), axis=1)
+        return weighted_loss
+
+def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
+    """训练序列到序列模型
+
+    Defined in :numref:`sec_seq2seq_decoder`"""
+    optimizer = tf.keras.optimizers.Adam(learning_rate=lr)
+    animator = d2l.Animator(xlabel="epoch", ylabel="loss",
+                            xlim=[10, num_epochs])
+    for epoch in range(num_epochs):
+        timer = d2l.Timer()
+        metric = d2l.Accumulator(2)  # 训练损失总和，词元数量
+        for batch in data_iter:
+            X, X_valid_len, Y, Y_valid_len = [x for x in batch]
+            bos = tf.reshape(tf.constant([tgt_vocab['<bos>']] * Y.shape[0]),
+                             shape=(-1, 1))
+            dec_input = tf.concat([bos, Y[:, :-1]], 1)  # 强制教学
+            with tf.GradientTape() as tape:
+                Y_hat, _ = net(X, dec_input, X_valid_len, training=True)
+                l = MaskedSoftmaxCELoss(Y_valid_len)(Y, Y_hat)
+            gradients = tape.gradient(l, net.trainable_variables)
+            gradients = d2l.grad_clipping(gradients, 1)
+            optimizer.apply_gradients(zip(gradients, net.trainable_variables))
+            num_tokens = tf.reduce_sum(Y_valid_len).numpy()
+            metric.add(tf.reduce_sum(l), num_tokens)
+        if (epoch + 1) % 10 == 0:
+            animator.add(epoch + 1, (metric[0] / metric[1],))
+    print(f'loss {metric[0] / metric[1]:.3f}, {metric[1] / timer.stop():.1f} '
+          f'tokens/sec on {str(device)}')
+
+def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
+                    save_attention_weights=False):
+    """序列到序列模型的预测
+
+    Defined in :numref:`sec_seq2seq_training`"""
+    src_tokens = src_vocab[src_sentence.lower().split(' ')] + [
+        src_vocab['<eos>']]
+    enc_valid_len = tf.constant([len(src_tokens)])
+    src_tokens = d2l.truncate_pad(src_tokens, num_steps, src_vocab['<pad>'])
+    # 添加批量轴
+    enc_X = tf.expand_dims(src_tokens, axis=0)
+    enc_outputs = net.encoder(enc_X, enc_valid_len, training=False)
+    dec_state = net.decoder.init_state(enc_outputs, enc_valid_len)
+    # 添加批量轴
+    dec_X = tf.expand_dims(tf.constant([tgt_vocab['<bos>']]), axis=0)
+    output_seq, attention_weight_seq = [], []
+    for _ in range(num_steps):
+        Y, dec_state = net.decoder(dec_X, dec_state, training=False)
+        # 我们使用具有预测最高可能性的词元，作为解码器在下一时间步的输入
+        dec_X = tf.argmax(Y, axis=2)
+        pred = tf.squeeze(dec_X, axis=0)
+        # 保存注意力权重
+        if save_attention_weights:
+            attention_weight_seq.append(net.decoder.attention_weights)
+        # 一旦序列结束词元被预测，输出序列的生成就完成了
+        if pred == tgt_vocab['<eos>']:
+            break
+        output_seq.append(pred.numpy())
+    return ' '.join(tgt_vocab.to_tokens(tf.reshape(output_seq,
+        shape = -1).numpy().tolist())), attention_weight_seq
+
+def bleu(pred_seq, label_seq, k):
+    """计算BLEU
+
+    Defined in :numref:`sec_seq2seq_training`"""
+    pred_tokens, label_tokens = pred_seq.split(' '), label_seq.split(' ')
+    len_pred, len_label = len(pred_tokens), len(label_tokens)
+    score = math.exp(min(0, 1 - len_label / len_pred))
+    for n in range(1, k + 1):
+        num_matches, label_subs = 0, collections.defaultdict(int)
+        for i in range(len_label - n + 1):
+            label_subs[' '.join(label_tokens[i: i + n])] += 1
+        for i in range(len_pred - n + 1):
+            if label_subs[' '.join(pred_tokens[i: i + n])] > 0:
+                num_matches += 1
+                label_subs[' '.join(pred_tokens[i: i + n])] -= 1
+        score *= math.pow(num_matches / (len_pred - n + 1), math.pow(0.5, n))
+    return score
+
+def show_heatmaps(matrices, xlabel, ylabel, titles=None, figsize=(2.5, 2.5),
+                  cmap='Reds'):
+    """显示矩阵热图
+
+    Defined in :numref:`sec_attention-cues`"""
+    d2l.use_svg_display()
+    num_rows, num_cols = matrices.shape[0], matrices.shape[1]
+    fig, axes = d2l.plt.subplots(num_rows, num_cols, figsize=figsize,
+                                 sharex=True, sharey=True, squeeze=False)
+    for i, (row_axes, row_matrices) in enumerate(zip(axes, matrices)):
+        for j, (ax, matrix) in enumerate(zip(row_axes, row_matrices)):
+            pcm = ax.imshow(d2l.numpy(matrix), cmap=cmap)
+            if i == num_rows - 1:
+                ax.set_xlabel(xlabel)
+            if j == 0:
+                ax.set_ylabel(ylabel)
+            if titles:
+                ax.set_title(titles[j])
+    fig.colorbar(pcm, ax=axes, shrink=0.6);
+
+def masked_softmax(X, valid_lens):
+    """通过在最后一个轴上掩蔽元素来执行softmax操作
+
+    Defined in :numref:`sec_attention-scoring-functions`"""
+    # `X`:3D张量，`valid_lens`:1D或2D张量
+    if valid_lens is None:
+        return tf.nn.softmax(X, axis=-1)
+    else:
+        shape = X.shape
+        if len(valid_lens.shape) == 1:
+            valid_lens = tf.repeat(valid_lens, repeats=shape[1])
+
+        else:
+            valid_lens = tf.reshape(valid_lens, shape=-1)
+        # 最后一轴上被掩蔽的元素使用一个非常大的负值替换，从而其softmax输出为0
+        X = d2l.sequence_mask(tf.reshape(X, shape=(-1, shape[-1])),
+                              valid_lens, value=-1e6)
+        return tf.nn.softmax(tf.reshape(X, shape=shape), axis=-1)
+
+class AdditiveAttention(tf.keras.layers.Layer):
+    """Additiveattention.
+
+    Defined in :numref:`sec_attention-scoring-functions`"""
+    def __init__(self, key_size, query_size, num_hiddens, dropout, **kwargs):
+        super().__init__(**kwargs)
+        self.W_k = tf.keras.layers.Dense(num_hiddens, use_bias=False)
+        self.W_q = tf.keras.layers.Dense(num_hiddens, use_bias=False)
+        self.w_v = tf.keras.layers.Dense(1, use_bias=False)
+        self.dropout = tf.keras.layers.Dropout(dropout)
+
+    def call(self, queries, keys, values, valid_lens, **kwargs):
+        queries, keys = self.W_q(queries), self.W_k(keys)
+        # 在维度扩展后，
+        # `queries`的形状：(`batch_size`，查询的个数，1，`num_hidden`)
+        # `key`的形状：(`batch_size`，1，“键－值”对的个数，`num_hiddens`)
+        # 使用广播方式进行求和
+        features = tf.expand_dims(queries, axis=2) + tf.expand_dims(
+            keys, axis=1)
+        features = tf.nn.tanh(features)
+        # `self.w_v`仅有一个输出，因此从形状中移除最后那个维度。
+        # `scores`的形状：(`batch_size`，查询的个数，“键-值”对的个数)
+        scores = tf.squeeze(self.w_v(features), axis=-1)
+        self.attention_weights = masked_softmax(scores, valid_lens)
+        # `values`的形状：(`batch_size`，“键－值”对的个数，值的维度)
+        return tf.matmul(self.dropout(
+            self.attention_weights, **kwargs), values)
+
+class DotProductAttention(tf.keras.layers.Layer):
+    """Scaleddotproductattention.
+
+    Defined in :numref:`subsec_additive-attention`"""
+    def __init__(self, dropout, **kwargs):
+        super().__init__(**kwargs)
+        self.dropout = tf.keras.layers.Dropout(dropout)
+
+    # `queries`的形状：(`batch_size`，查询的个数，`d`)
+    # `keys`的形状：(`batch_size`，“键－值”对的个数，`d`)
+    # `values`的形状：(`batch_size`，“键－值”对的个数，值的维度)
+    # `valid_lens`的形状:(`batch_size`，)或者(`batch_size`，查询的个数)
+    def call(self, queries, keys, values, valid_lens, **kwargs):
+        d = queries.shape[-1]
+        scores = tf.matmul(queries, keys, transpose_b=True)/tf.math.sqrt(
+            tf.cast(d, dtype=tf.float32))
+        self.attention_weights = masked_softmax(scores, valid_lens)
+        return tf.matmul(self.dropout(self.attention_weights, **kwargs), values)
+
+class AttentionDecoder(d2l.Decoder):
+    """带有注意力机制解码器的基本接口
+
+    Defined in :numref:`sec_seq2seq_attention`"""
+    def __init__(self, **kwargs):
+        super(AttentionDecoder, self).__init__(**kwargs)
+
+    @property
+    def attention_weights(self):
+        raise NotImplementedError
+
+class MultiHeadAttention(tf.keras.layers.Layer):
+    """多头注意力
+
+    Defined in :numref:`sec_multihead-attention`"""
+    def __init__(self, key_size, query_size, value_size, num_hiddens,
+                 num_heads, dropout, bias=False, **kwargs):
+        super().__init__(**kwargs)
+        self.num_heads = num_heads
+        self.attention = d2l.DotProductAttention(dropout)
+        self.W_q = tf.keras.layers.Dense(num_hiddens, use_bias=bias)
+        self.W_k = tf.keras.layers.Dense(num_hiddens, use_bias=bias)
+        self.W_v = tf.keras.layers.Dense(num_hiddens, use_bias=bias)
+        self.W_o = tf.keras.layers.Dense(num_hiddens, use_bias=bias)
+
+    def call(self, queries, keys, values, valid_lens, **kwargs):
+        # `queries`，`keys`，`values`的形状:
+        # (`batch_size`，查询或者“键－值”对的个数，`num_hiddens`)
+        # `valid_lens`　的形状:
+        # (`batch_size`，)或(`batch_size`，查询的个数)
+        # 经过变换后，输出的`queries`，`keys`，`values`　的形状:
+        # (`batch_size`*`num_heads`，查询或者“键－值”对的个数，
+        # `num_hiddens`/`num_heads`)
+        queries = transpose_qkv(self.W_q(queries), self.num_heads)
+        keys = transpose_qkv(self.W_k(keys), self.num_heads)
+        values = transpose_qkv(self.W_v(values), self.num_heads)
+
+        if valid_lens is not None:
+            # 在轴0，将第一项（标量或者矢量）复制`num_heads`次，
+            # 然后如此复制第二项，然后诸如此类。
+            valid_lens = tf.repeat(valid_lens, repeats=self.num_heads, axis=0)
+
+        # `output`的形状:(`batch_size`*`num_heads`，查询的个数，
+        # `num_hiddens`/`num_heads`)
+        output = self.attention(queries, keys, values, valid_lens, **kwargs)
+
+        # `output_concat`的形状:(`batch_size`，查询的个数，`num_hiddens`)
+        output_concat = transpose_output(output, self.num_heads)
+        return self.W_o(output_concat)
+
+def transpose_qkv(X, num_heads):
+    """为了多注意力头的并行计算而变换形状
+
+    Defined in :numref:`sec_multihead-attention`"""
+    # 输入`X`的形状:(`batch_size`，查询或者“键－值”对的个数，`num_hiddens`)
+    # 输出`X`的形状:(`batch_size`，查询或者“键－值”对的个数，`num_heads`，
+    # `num_hiddens`/`num_heads`)
+    X = tf.reshape(X, shape=(X.shape[0], X.shape[1], num_heads, -1))
+
+    # 输出`X`的形状:(`batch_size`，`num_heads`，查询或者“键－值”对的个数,
+    # `num_hiddens`/`num_heads`)
+    X = tf.transpose(X, perm=(0, 2, 1, 3))
+
+    # 最终输出的形状:(`batch_size`*`num_heads`,查询或者“键－值”对的个数,
+    # `num_hiddens`/`num_heads`)
+    return tf.reshape(X, shape=(-1, X.shape[2], X.shape[3]))
+
+
+def transpose_output(X, num_heads):
+    """逆转`transpose_qkv`函数的操作
+
+    Defined in :numref:`sec_multihead-attention`"""
+    X = tf.reshape(X, shape=(-1, num_heads, X.shape[1], X.shape[2]))
+    X = tf.transpose(X, perm=(0, 2, 1, 3))
+    return tf.reshape(X, shape=(X.shape[0], X.shape[1], -1))
+
+class PositionalEncoding(tf.keras.layers.Layer):
+    """位置编码
+
+    Defined in :numref:`sec_self-attention-and-positional-encoding`"""
+    def __init__(self, num_hiddens, dropout, max_len=1000):
+        super().__init__()
+        self.dropout = tf.keras.layers.Dropout(dropout)
+        # 创建一个足够长的`P`
+        self.P = np.zeros((1, max_len, num_hiddens))
+        X = np.arange(max_len, dtype=np.float32).reshape(
+            -1,1)/np.power(10000, np.arange(
+            0, num_hiddens, 2, dtype=np.float32) / num_hiddens)
+        self.P[:, :, 0::2] = np.sin(X)
+        self.P[:, :, 1::2] = np.cos(X)
+
+    def call(self, X, **kwargs):
+        X = X + self.P[:, :X.shape[1], :]
+        return self.dropout(X, **kwargs)
+
+class PositionWiseFFN(tf.keras.layers.Layer):
+    """基于位置的前馈网络
+
+    Defined in :numref:`sec_transformer`"""
+    def __init__(self, ffn_num_hiddens, ffn_num_outputs, **kwargs):
+        super().__init__(*kwargs)
+        self.dense1 = tf.keras.layers.Dense(ffn_num_hiddens)
+        self.relu = tf.keras.layers.ReLU()
+        self.dense2 = tf.keras.layers.Dense(ffn_num_outputs)
+
+    def call(self, X):
+        return self.dense2(self.relu(self.dense1(X)))
+
+class AddNorm(tf.keras.layers.Layer):
+    """残差连接后进行层规范化
+
+    Defined in :numref:`sec_transformer`"""
+    def __init__(self, normalized_shape, dropout, **kwargs):
+        super().__init__(**kwargs)
+        self.dropout = tf.keras.layers.Dropout(dropout)
+        self.ln = tf.keras.layers.LayerNormalization(normalized_shape)
+
+    def call(self, X, Y, **kwargs):
+        return self.ln(self.dropout(Y, **kwargs) + X)
+
+class EncoderBlock(tf.keras.layers.Layer):
+    """transformer编码器块
+
+    Defined in :numref:`sec_transformer`"""
+    def __init__(self, key_size, query_size, value_size, num_hiddens,
+                 norm_shape, ffn_num_hiddens, num_heads, dropout, bias=False, **kwargs):
+        super().__init__(**kwargs)
+        self.attention = d2l.MultiHeadAttention(key_size, query_size, value_size, num_hiddens,
+                                                num_heads, dropout, bias)
+        self.addnorm1 = AddNorm(norm_shape, dropout)
+        self.ffn = PositionWiseFFN(ffn_num_hiddens, num_hiddens)
+        self.addnorm2 = AddNorm(norm_shape, dropout)
+
+    def call(self, X, valid_lens, **kwargs):
+        Y = self.addnorm1(X, self.attention(X, X, X, valid_lens, **kwargs), **kwargs)
+        return self.addnorm2(Y, self.ffn(Y), **kwargs)
+
+class TransformerEncoder(d2l.Encoder):
+    """transformer编码器
+
+    Defined in :numref:`sec_transformer`"""
+    def __init__(self, vocab_size, key_size, query_size, value_size,
+                 num_hiddens, norm_shape, ffn_num_hiddens, num_heads,
+                 num_layers, dropout, bias=False, **kwargs):
+        super().__init__(**kwargs)
+        self.num_hiddens = num_hiddens
+        self.embedding = tf.keras.layers.Embedding(vocab_size, num_hiddens)
+        self.pos_encoding = d2l.PositionalEncoding(num_hiddens, dropout)
+        self.blks = [EncoderBlock(
+            key_size, query_size, value_size, num_hiddens, norm_shape,
+            ffn_num_hiddens, num_heads, dropout, bias) for _ in range(
+            num_layers)]
+
+    def call(self, X, valid_lens, **kwargs):
+        # 因为位置编码值在-1和1之间，
+        # 因此嵌入值乘以嵌入维度的平方根进行缩放，
+        # 然后再与位置编码相加。
+        X = self.pos_encoding(self.embedding(X) * tf.math.sqrt(
+            tf.cast(self.num_hiddens, dtype=tf.float32)), **kwargs)
+        self.attention_weights = [None] * len(self.blks)
+        for i, blk in enumerate(self.blks):
+            X = blk(X, valid_lens, **kwargs)
+            self.attention_weights[
+                i] = blk.attention.attention.attention_weights
+        return X
+
 def annotate(text, xy, xytext):
     d2l.plt.gca().annotate(text, xy=xy, xytext=xytext,
                            arrowprops=dict(arrowstyle='->'))
 
 def train_2d(trainer, steps=20, f_grad=None):
-    """用定制的训练机优化2D目标函数。
+    """用定制的训练机优化2D目标函数
 
     Defined in :numref:`subsec_gd-learningrate`"""
-    # `s1` 和 `s2` 是稍后将使用的内部状态变量
+    # `s1`和`s2`是稍后将使用的内部状态变量
     x1, x2, s1, s2 = -5, -2, 0, 0
     results = [(x1, x2)]
     for i in range(steps):
@@ -763,7 +1290,7 @@ def train_2d(trainer, steps=20, f_grad=None):
     return results
 
 def show_trace_2d(f, results):
-    """显示优化过程中2D变量的轨迹。
+    """显示优化过程中2D变量的轨迹
 
     Defined in :numref:`subsec_gd-learningrate`"""
     d2l.set_figsize()
@@ -825,10 +1352,8 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=2):
     net.add(tf.keras.layers.Dense(1,
             kernel_initializer=tf.random_normal_initializer(stddev=0.01)))
     optimizer = trainer_fn(**hyperparams)
+    # 注意：MeanSquaredError计算平方误差时不带系数1/2
     loss = tf.keras.losses.MeanSquaredError()
-    # 注意: L2 Loss = 1/2 * MSE Loss。
-    # TensorFlow的MSE损失与MXNet的L2损失大概相差2倍。
-    # 因此，我们将TensorFlow中的损失减半
     animator = d2l.Animator(xlabel='epoch', ylabel='loss',
                             xlim=[0, num_epochs], ylim=[0.22, 0.35])
     n, timer = 0, d2l.Timer()
@@ -836,7 +1361,7 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=2):
         for X, y in data_iter:
             with tf.GradientTape() as g:
                 out = net(X)
-                l = loss(y, out)/2
+                l = loss(y, out)
                 params = net.trainable_variables
                 grads = g.gradient(l, params)
             optimizer.apply_gradients(zip(grads, params))
@@ -845,12 +1370,13 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=2):
                 timer.stop()
                 p = n/X.shape[0]
                 q = p/tf.data.experimental.cardinality(data_iter).numpy()
-                r = (d2l.evaluate_loss(net, data_iter, loss)/2,)
+                r = (d2l.evaluate_loss(net, data_iter, loss),)
                 animator.add(q, r)
                 timer.start()
     print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
 
 class Benchmark:
+    """用于测量运行时间"""
     def __init__(self, description='Done'):
         """Defined in :numref:`sec_hybridize`"""
         self.description = description
@@ -888,8 +1414,8 @@ def box_center_to_corner(boxes):
 
 def bbox_to_rect(bbox, color):
     """Defined in :numref:`sec_bbox`"""
-    # 将边界框 (左上x, 左上y, 右下x, 右下y) 格式转换成 matplotlib 格式：
-    # ((左上x, 左上y), 宽, 高)
+    # 将边界框(左上x,左上y,右下x,右下y)格式转换成matplotlib格式：
+    # ((左上x,左上y),宽,高)
     return d2l.plt.Rectangle(
         xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0], height=bbox[3]-bbox[1],
         fill=False, edgecolor=color, linewidth=2)# Alias defined in config.ini

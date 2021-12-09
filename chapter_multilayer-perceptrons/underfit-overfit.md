@@ -309,8 +309,8 @@ features = np.random.normal(size=(n_train + n_test, 1))
 np.random.shuffle(features)
 poly_features = np.power(features, np.arange(max_degree).reshape(1, -1))
 for i in range(max_degree):
-    poly_features[:, i] /= math.gamma(i + 1)  # `gamma(n)` = (n-1)!
-# `labels`的维度: (`n_train` + `n_test`,)
+    poly_features[:, i] /= math.gamma(i + 1)  # gamma(n)=(n-1)!
+# labels的维度:(n_train+n_test,)
 labels = np.dot(poly_features, true_w)
 labels += np.random.normal(scale=0.1, size=labels.shape)
 ```
@@ -322,7 +322,7 @@ labels += np.random.normal(scale=0.1, size=labels.shape)
 
 ```{.python .input}
 #@tab pytorch, tensorflow
-# NumPy ndarray转换为tensor
+# NumPyndarray转换为tensor
 true_w, features, poly_features, labels = [d2l.tensor(x, dtype=
     d2l.float32) for x in [true_w, features, poly_features, labels]]
 ```
@@ -339,8 +339,8 @@ features[:2], poly_features[:2, :], labels[:2]
 ```{.python .input}
 #@tab mxnet, tensorflow
 def evaluate_loss(net, data_iter, loss):  #@save
-    """评估给定数据集上模型的损失。"""
-    metric = d2l.Accumulator(2)  # 损失的总和, 样本数量
+    """评估给定数据集上模型的损失"""
+    metric = d2l.Accumulator(2)  # 损失的总和,样本数量
     for X, y in data_iter:
         l = loss(net(X), y)
         metric.add(d2l.reduce_sum(l), d2l.size(l))
@@ -350,8 +350,8 @@ def evaluate_loss(net, data_iter, loss):  #@save
 ```{.python .input}
 #@tab pytorch
 def evaluate_loss(net, data_iter, loss):  #@save
-    """评估给定数据集上模型的损失。"""
-    metric = d2l.Accumulator(2)  # 损失的总和, 样本数量
+    """评估给定数据集上模型的损失"""
+    metric = d2l.Accumulator(2)  # 损失的总和,样本数量
     for X, y in data_iter:
         out = net(X)
         y = d2l.reshape(y, out.shape)
@@ -391,7 +391,7 @@ def train(train_features, test_features, train_labels, test_labels,
 #@tab pytorch
 def train(train_features, test_features, train_labels, test_labels,
           num_epochs=400):
-    loss = nn.MSELoss()
+    loss = nn.MSELoss(reduction='none')
     input_shape = train_features.shape[-1]
     # 不设置偏置，因为我们已经在多项式特征中实现了它
     net = nn.Sequential(nn.Linear(input_shape, 1, bias=False))
@@ -400,7 +400,7 @@ def train(train_features, test_features, train_labels, test_labels,
                                 batch_size)
     test_iter = d2l.load_array((test_features, test_labels.reshape(-1,1)),
                                batch_size, is_train=False)
-    trainer = torch.optim.SGD(net.parameters(), lr=0.01)
+    trainer = torch.optim.SGD(net.parameters(), lr=0.001)
     animator = d2l.Animator(xlabel='epoch', ylabel='loss', yscale='log',
                             xlim=[1, num_epochs], ylim=[1e-3, 1e2],
                             legend=['train', 'test'])
@@ -445,7 +445,7 @@ def train(train_features, test_features, train_labels, test_labels,
 
 ```{.python .input}
 #@tab all
-# 从多项式特征中选择前4个维度，即 1, x, x^2/2!, x^3/3!
+# 从多项式特征中选择前4个维度，即1,x,x^2/2!,x^3/3!
 train(poly_features[:n_train, :4], poly_features[n_train:, :4],
       labels[:n_train], labels[n_train:])
 ```

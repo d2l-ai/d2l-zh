@@ -221,7 +221,7 @@ def allreduce(data):
     for i in range(1, len(data)):
         data[0][:] += data[i].to(data[0].device)
     for i in range(1, len(data)):
-        data[i] = data[0].to(data[i].device)
+        data[i][:] = data[0].to(data[i].device)
 ```
 
 通过在不同设备上创建具有不同值的向量并聚合它们。
@@ -271,7 +271,7 @@ print('output:', split)
 ```{.python .input}
 #@save
 def split_batch(X, y, devices):
-    """将`X`和`y`拆分到多个设备上"""
+    """将X和y拆分到多个设备上"""
     assert X.shape[0] == y.shape[0]
     return (gluon.utils.split_and_load(X, devices),
             gluon.utils.split_and_load(y, devices))
@@ -281,7 +281,7 @@ def split_batch(X, y, devices):
 #@tab pytorch
 #@save
 def split_batch(X, y, devices):
-    """将`X`和`y`拆分到多个设备上"""
+    """将X和y拆分到多个设备上"""
     assert X.shape[0] == y.shape[0]
     return (nn.parallel.scatter(X, devices),
             nn.parallel.scatter(y, devices))
@@ -352,7 +352,7 @@ def train(num_gpus, batch_size, lr):
             train_batch(X, y, device_params, devices, lr)
             npx.waitall()
         timer.stop()
-        # 在GPU 0 上评估模型
+        # 在GPU0上评估模型
         animator.add(epoch + 1, (d2l.evaluate_accuracy_gpu(
             lambda x: lenet(x, device_params[0]), test_iter, devices[0]),))
     print(f'测试精度：{animator.Y[0][-1]:.2f}，{timer.avg():.1f}秒/轮，'
@@ -376,7 +376,7 @@ def train(num_gpus, batch_size, lr):
             train_batch(X, y, device_params, devices, lr)
             torch.cuda.synchronize()
         timer.stop()
-        # 在GPU 0上评估模型
+        # 在GPU0上评估模型
         animator.add(epoch + 1, (d2l.evaluate_accuracy_gpu(
             lambda x: lenet(x, device_params[0]), test_iter, devices[0]),))
     print(f'测试精度：{animator.Y[0][-1]:.2f}，{timer.avg():.1f}秒/轮，'

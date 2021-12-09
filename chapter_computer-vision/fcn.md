@@ -1,10 +1,10 @@
 # 全卷积网络
 :label:`sec_fcn`
 
-如 :numref:`sec_semantic_segmentation`中所介绍的那样，语义分割能对图像中的每个像素分类。
+如 :numref:`sec_semantic_segmentation`中所介绍的那样，语义分割是对图像中的每个像素分类。
 *全卷积网络*（fully convolutional network，FCN）采用卷积神经网络实现了从图像像素到像素类别的变换 :cite:`Long.Shelhamer.Darrell.2015`。
-与我们之前在图像分类或目标检测部分介绍的卷积神经网络不同，全卷积网络将中间层特征图的高和宽变换回输入图像的尺寸：这是通过 :numref:`sec_transposed_conv`中引入的*转置卷积*（transposed convolution）实现的。
-因此，输出的类别预测与输入图像在像素级别上具有一一对应关系：给定空间维上的位置，通道维的输出即该位置对应像素的类别预测。
+与我们之前在图像分类或目标检测部分介绍的卷积神经网络不同，全卷积网络将中间层特征图的高和宽变换回输入图像的尺寸：这是通过在 :numref:`sec_transposed_conv`中引入的*转置卷积*（transposed convolution）实现的。
+因此，输出的类别预测与输入图像在像素级别上具有一一对应关系：通道维的输出即该位置对应像素的类别预测。
 
 ```{.python .input}
 %matplotlib inline
@@ -29,13 +29,13 @@ from torch.nn import functional as F
 
 下面我们了解一下全卷积网络模型最基本的设计。
 如 :numref:`fig_fcn`所示，全卷积网络先使用卷积神经网络抽取图像特征，然后通过$1\times 1$卷积层将通道数变换为类别个数，最后在 :numref:`sec_transposed_conv`中通过转置卷积层将特征图的高和宽变换为输入图像的尺寸。
-因此，模型输出与输入图像的高和宽相同，且最终输出的通道包含了该空间位置像素的类别预测。
+因此，模型输出与输入图像的高和宽相同，且最终输出通道包含了该空间位置像素的类别预测。
 
 ![全卷积网络](../img/fcn.svg)
 :label:`fig_fcn`
 
-下面，我们[**使用在ImageNet数据集上预训练的ResNet-18模型来提取图像特征**]，并将该网络实例记为`pretrained_net`。
-该模型的最后几层包括全局平均汇聚层和全连接层，然而全卷积网络中不需要它们。
+下面，我们[**使用在ImageNet数据集上预训练的ResNet-18模型来提取图像特征**]，并将该网络记为`pretrained_net`。
+ResNet-18模型的最后几层包括全局平均汇聚层和全连接层，然而全卷积网络中不需要它们。
 
 ```{.python .input}
 pretrained_net = gluon.model_zoo.vision.resnet18_v2(pretrained=True)
@@ -48,8 +48,8 @@ pretrained_net = torchvision.models.resnet18(pretrained=True)
 list(pretrained_net.children())[-3:]
 ```
 
-接下来，我们[**创建一个全卷积网络实例`net`**]。
-它复制了Resnet-18中大部分的预训练层，但除去最终的全局平均汇聚层和最接近输出的全连接层。
+接下来，我们[**创建一个全卷积网络`net`**]。
+它复制了ResNet-18中大部分的预训练层，除了最后的全局平均汇聚层和最接近输出的全连接层。
 
 ```{.python .input}
 net = nn.HybridSequential()
@@ -62,7 +62,7 @@ for layer in pretrained_net.features[:-2]:
 net = nn.Sequential(*list(pretrained_net.children())[:-2])
 ```
 
-给定高度和宽度分别为320和480的输入，`net`的前向传播将输入的高和宽减小至原来的$1/32$，即10和15。
+给定高度为320和宽度为480的输入，`net`的前向传播将输入的高和宽减小至原来的$1/32$，即10和15。
 
 ```{.python .input}
 X = np.random.uniform(size=(1, 3, 320, 480))
@@ -76,7 +76,7 @@ net(X).shape
 ```
 
 接下来，我们[**使用$1\times1$卷积层将输出通道数转换为Pascal VOC2012数据集的类数（21类）。**]
-最后，我们需要(**将要素地图的高度和宽度增加32倍**)，从而将其变回输入图像的高和宽。
+最后，我们需要(**将特征图的高度和宽度增加32倍**)，从而将其变回输入图像的高和宽。
 回想一下 :numref:`sec_padding`中卷积层输出形状的计算方法：
 由于$(320-64+16\times2+32)/32=10$且$(480-64+16\times2+32)/32=15$，我们构造一个步幅为$32$的转置卷积层，并将卷积核的高和宽设为$64$，填充为$16$。
 我们可以看到如果步幅为$s$，填充为$s/2$（假设$s/2$是整数）且卷积核的高和宽为$2s$，转置卷积核会将输入的高和宽分别放大$s$倍。
@@ -226,7 +226,7 @@ train_iter, test_iter = d2l.load_data_voc(batch_size, crop_size)
 ## [**训练**]
 
 现在我们可以训练全卷积网络了。
-这里的损失函数和准确率计算与图像分类中的并没有本质上的不同，因为我们使用转置卷积层的通道来预测像素的类别，所以在损失计算中通道维是指定的。
+这里的损失函数和准确率计算与图像分类中的并没有本质上的不同，因为我们使用转置卷积层的通道来预测像素的类别，所以需要在损失计算中指定通道维。
 此外，模型基于每个像素的预测类别是否正确来计算准确率。
 
 ```{.python .input}
@@ -331,7 +331,7 @@ d2l.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n, scale=2);
 1. 如果将转置卷积层改用Xavier随机初始化，结果有什么变化？
 1. 调节超参数，能进一步提升模型的精度吗？
 1. 预测测试图像中所有像素的类别。
-1. 最初的全卷积网络的论文中 :cite:`Long.Shelhamer.Darrell.2015`还使用了卷积神经网络的某些中间层的输出。试着实现这个想法。
+1. 最初的全卷积网络的论文中 :cite:`Long.Shelhamer.Darrell.2015`还使用了某些卷积神经网络中间层的输出。试着实现这个想法。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/3298)

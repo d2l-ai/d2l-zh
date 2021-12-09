@@ -190,7 +190,7 @@ net = vgg(small_conv_arch)
 #@tab tensorflow
 ratio = 4
 small_conv_arch = [(pair[0], pair[1] // ratio) for pair in conv_arch]
-# 回想一下，这必须是一个将被放入“d2l.train_ch6()”的函数，为了利用我们现有的CPU/GPU设备，这样模型构建/编译需要在`strategy.scope()`中
+# 回想一下，这必须是一个将被放入“d2l.train_ch6()”的函数，为了利用我们现有的CPU/GPU设备，这样模型构建/编译需要在strategy.scope()中
 net = lambda: vgg(small_conv_arch)
 ```
 

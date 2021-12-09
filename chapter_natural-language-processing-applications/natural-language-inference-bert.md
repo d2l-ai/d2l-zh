@@ -142,7 +142,7 @@ class SNLIBERTDataset(gluon.data.Dataset):
         return token_ids, segments, valid_len
 
     def _truncate_pair_of_tokens(self, p_tokens, h_tokens):
-        # 为BERT输入中的 '<CLS>'、'<SEP>'和 '<SEP>'词元保留位置
+        # 为BERT输入中的'<CLS>'、'<SEP>'和'<SEP>'词元保留位置
         while len(p_tokens) + len(h_tokens) > self.max_len - 3:
             if len(p_tokens) > len(h_tokens):
                 p_tokens.pop()
@@ -195,7 +195,7 @@ class SNLIBERTDataset(torch.utils.data.Dataset):
         return token_ids, segments, valid_len
 
     def _truncate_pair_of_tokens(self, p_tokens, h_tokens):
-        # 为BERT输入中的 '<CLS>'、'<SEP>'和 '<SEP>'词元保留位置
+        # 为BERT输入中的'<CLS>'、'<SEP>'和'<SEP>'词元保留位置
         while len(p_tokens) + len(h_tokens) > self.max_len - 3:
             if len(p_tokens) > len(h_tokens):
                 p_tokens.pop()
@@ -213,7 +213,7 @@ class SNLIBERTDataset(torch.utils.data.Dataset):
 下载完SNLI数据集后，我们通过实例化`SNLIBERTDataset`类来[**生成训练和测试样本**]。这些样本将在自然语言推断的训练和测试期间进行小批量读取。
 
 ```{.python .input}
-# 如果出现显存不足错误，请减少“batch_size”。在原始的BERT模型中，`max_len` = 512
+# 如果出现显存不足错误，请减少“batch_size”。在原始的BERT模型中，max_len=512
 batch_size, max_len, num_workers = 512, 128, d2l.get_dataloader_workers()
 data_dir = d2l.download_extract('SNLI')
 train_set = SNLIBERTDataset(d2l.read_snli(data_dir, True), max_len, vocab)
@@ -226,7 +226,7 @@ test_iter = gluon.data.DataLoader(test_set, batch_size,
 
 ```{.python .input}
 #@tab pytorch
-# 如果出现显存不足错误，请减少“batch_size”。在原始的BERT模型中，`max_len` = 512
+# 如果出现显存不足错误，请减少“batch_size”。在原始的BERT模型中，max_len=512
 batch_size, max_len, num_workers = 512, 128, d2l.get_dataloader_workers()
 data_dir = d2l.download_extract('SNLI')
 train_set = SNLIBERTDataset(d2l.read_snli(data_dir, True), max_len, vocab)
@@ -314,9 +314,9 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
 1. 如何根据一对序列的长度比值截断它们？将此对截断方法与`SNLIBERTDataset`类中使用的方法进行比较。它们的利弊是什么？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/397)
+[Discussions](https://discuss.d2l.ai/t/5715)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1526)
+[Discussions](https://discuss.d2l.ai/t/5718)
 :end_tab:

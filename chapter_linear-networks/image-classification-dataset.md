@@ -94,7 +94,7 @@ Fashion-MNIST中包含的10个类别，分别为t-shirt（T恤）、trouser（�
 ```{.python .input}
 #@tab all
 def get_fashion_mnist_labels(labels):  #@save
-    """返回Fashion-MNIST数据集的文本标签。"""
+    """返回Fashion-MNIST数据集的文本标签"""
     text_labels = ['t-shirt', 'trouser', 'pullover', 'dress', 'coat',
                    'sandal', 'shirt', 'sneaker', 'bag', 'ankle boot']
     return [text_labels[int(i)] for i in labels]
@@ -105,7 +105,7 @@ def get_fashion_mnist_labels(labels):  #@save
 ```{.python .input}
 #@tab mxnet, tensorflow
 def show_images(imgs, num_rows, num_cols, titles=None, scale=1.5):  #@save
-    """绘制图像列表。"""
+    """绘制图像列表"""
     figsize = (num_cols * scale, num_rows * scale)
     _, axes = d2l.plt.subplots(num_rows, num_cols, figsize=figsize)
     axes = axes.flatten()
@@ -121,7 +121,7 @@ def show_images(imgs, num_rows, num_cols, titles=None, scale=1.5):  #@save
 ```{.python .input}
 #@tab pytorch
 def show_images(imgs, num_rows, num_cols, titles=None, scale=1.5):  #@save
-    """绘制图像列表。"""
+    """绘制图像列表"""
     figsize = (num_cols * scale, num_rows * scale)
     _, axes = d2l.plt.subplots(num_rows, num_cols, figsize=figsize)
     axes = axes.flatten()
@@ -171,7 +171,7 @@ show_images(X, 2, 9, titles=get_fashion_mnist_labels(y));
 batch_size = 256
 
 def get_dataloader_workers():  #@save
-    """在非Windows的平台上，使用4个进程来读取数据。"""
+    """在非Windows的平台上，使用4个进程来读取数据"""
     return 0 if sys.platform.startswith('win') else 4
 
 # 通过ToTensor实例将图像数据从uint8格式变换成32位浮点数格式，并除以255使得所有像素的数值
@@ -187,7 +187,7 @@ train_iter = gluon.data.DataLoader(mnist_train.transform_first(transformer),
 batch_size = 256
 
 def get_dataloader_workers():  #@save
-    """使用4个进程来读取数据。"""
+    """使用4个进程来读取数据"""
     return 4
 
 train_iter = data.DataLoader(mnist_train, batch_size, shuffle=True,
@@ -219,7 +219,7 @@ f'{timer.stop():.2f} sec'
 
 ```{.python .input}
 def load_data_fashion_mnist(batch_size, resize=None):  #@save
-    """下载Fashion-MNIST数据集，然后将其加载到内存中。"""
+    """下载Fashion-MNIST数据集，然后将其加载到内存中"""
     dataset = gluon.data.vision
     trans = [dataset.transforms.ToTensor()]
     if resize:
@@ -236,7 +236,7 @@ def load_data_fashion_mnist(batch_size, resize=None):  #@save
 ```{.python .input}
 #@tab pytorch
 def load_data_fashion_mnist(batch_size, resize=None):  #@save
-    """下载Fashion-MNIST数据集，然后将其加载到内存中。"""
+    """下载Fashion-MNIST数据集，然后将其加载到内存中"""
     trans = [transforms.ToTensor()]
     if resize:
         trans.insert(0, transforms.Resize(resize))
@@ -254,7 +254,7 @@ def load_data_fashion_mnist(batch_size, resize=None):  #@save
 ```{.python .input}
 #@tab tensorflow
 def load_data_fashion_mnist(batch_size, resize=None):   #@save
-    """下载Fashion-MNIST数据集，然后将其加载到内存中。"""
+    """下载Fashion-MNIST数据集，然后将其加载到内存中"""
     mnist_train, mnist_test = tf.keras.datasets.fashion_mnist.load_data()
     # 将所有数字除以255，使所有像素值介于0和1之间，在最后添加一个批处理维度，
     # 并将标签转换为int32。

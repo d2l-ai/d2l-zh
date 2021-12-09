@@ -2,10 +2,10 @@
 :label:`sec_lenet`
 
 通过之前几节，我们学习了构建一个完整卷积神经网络的所需组件。
-回想一下，之前我们将softmax回归模型（ :numref:`sec_softmax_scratch`）和多层感知机模型（ :numref:`sec_mlp_scratch`）应用于Fashion-MNIST数据集中的服装图片上。
-为了能够应用softmax回归和多层感知机，我们首先将每个大小为$28\times28$的图像展平为一个784固定长度的一维向量，然后用全连接层对其进行处理。
+回想一下，之前我们将softmax回归模型（ :numref:`sec_softmax_scratch`）和多层感知机模型（ :numref:`sec_mlp_scratch`）应用于Fashion-MNIST数据集中的服装图片。
+为了能够应用softmax回归和多层感知机，我们首先将每个大小为$28\times28$的图像展平为一个784维的固定长度的一维向量，然后用全连接层对其进行处理。
 而现在，我们已经掌握了卷积层的处理方法，我们可以在图像中保留空间结构。
-同时，用卷积层代替全连接层的另一个好处是：更简洁的模型所需的参数更少。
+同时，用卷积层代替全连接层的另一个好处是：模型更简洁、所需的参数更少。
 
 在本节中，我们将介绍LeNet，它是最早发布的卷积神经网络之一，因其在计算机视觉任务中的高效性能而受到广泛关注。
 这个模型是由AT&T贝尔实验室的研究员Yann LeCun在1989年提出的（并以其命名），目的是识别图像 :cite:`LeCun.Bottou.Bengio.ea.1998`中的手写数字。
@@ -44,7 +44,7 @@ net.add(nn.Conv2D(channels=6, kernel_size=5, padding=2, activation='sigmoid'),
         nn.AvgPool2D(pool_size=2, strides=2),
         nn.Conv2D(channels=16, kernel_size=5, activation='sigmoid'),
         nn.AvgPool2D(pool_size=2, strides=2),
-        # 默认情况下，“Dense” 会自动将形状为（批量大小，通道数，高度，宽度）的输入，
+        # 默认情况下，“Dense”会自动将形状为（批量大小，通道数，高度，宽度）的输入，
         # 转换为形状为（批量大小，通道数*高度*宽度）的输入
         nn.Dense(120, activation='sigmoid'),
         nn.Dense(84, activation='sigmoid'),
@@ -144,7 +144,7 @@ train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size=batch_size)
 
 ```{.python .input}
 def evaluate_accuracy_gpu(net, data_iter, device=None):  #@save
-    """使用GPU计算模型在数据集上的精度。"""
+    """使用GPU计算模型在数据集上的精度"""
     if not device:  # 查询第一个参数所在的第一个设备
         device = list(net.collect_params().values())[0].list_ctx()[0]
     metric = d2l.Accumulator(2)  # 正确预测的数量，总预测的数量
@@ -157,7 +157,7 @@ def evaluate_accuracy_gpu(net, data_iter, device=None):  #@save
 ```{.python .input}
 #@tab pytorch
 def evaluate_accuracy_gpu(net, data_iter, device=None): #@save
-    """使用GPU计算模型在数据集上的精度。"""
+    """使用GPU计算模型在数据集上的精度"""
     if isinstance(net, nn.Module):
         net.eval()  # 设置为评估模式
         if not device:
@@ -188,7 +188,7 @@ def evaluate_accuracy_gpu(net, data_iter, device=None): #@save
 ```{.python .input}
 #@save
 def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
-    """用GPU训练模型(在第六章定义)。"""
+    """用GPU训练模型(在第六章定义)"""
     net.initialize(force_reinit=True, ctx=device, init=init.Xavier())
     loss = gluon.loss.SoftmaxCrossEntropyLoss()
     trainer = gluon.Trainer(net.collect_params(),
@@ -226,7 +226,7 @@ def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
 #@tab pytorch
 #@save
 def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
-    """用GPU训练模型(在第六章定义)。"""
+    """用GPU训练模型(在第六章定义)"""
     def init_weights(m):
         if type(m) == nn.Linear or type(m) == nn.Conv2d:
             nn.init.xavier_uniform_(m.weight)
@@ -269,7 +269,7 @@ def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
 ```{.python .input}
 #@tab tensorflow
 class TrainCallback(tf.keras.callbacks.Callback):  #@save
-    """一个以可视化的训练进展的回调。"""
+    """一个以可视化的训练进展的回调"""
     def __init__(self, net, train_iter, test_iter, num_epochs, device_name):
         self.timer = d2l.Timer()
         self.animator = d2l.Animator(
@@ -301,7 +301,7 @@ class TrainCallback(tf.keras.callbacks.Callback):  #@save
 
 #@save
 def train_ch6(net_fn, train_iter, test_iter, num_epochs, lr, device):
-    """用GPU训练模型(在第六章定义)。"""
+    """用GPU训练模型(在第六章定义)"""
     device_name = device._device_name
     strategy = tf.distribute.OneDeviceStrategy(device_name)
     with strategy.scope():

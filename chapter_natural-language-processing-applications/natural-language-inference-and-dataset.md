@@ -256,9 +256,9 @@ for X, Y in train_iter:
 1. 我们如何更改超参数以减小词表大小？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/394)
+[Discussions](https://discuss.d2l.ai/t/5721)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1388)
+[Discussions](https://discuss.d2l.ai/t/5722)
 :end_tab:

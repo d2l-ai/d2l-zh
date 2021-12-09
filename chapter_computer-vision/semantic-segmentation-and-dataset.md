@@ -62,7 +62,7 @@ voc_dir = d2l.download_extract('voc2012', 'VOCdevkit/VOC2012')
 ```{.python .input}
 #@save
 def read_voc_images(voc_dir, is_train=True):
-    """读取所有VOC图像并标注。"""
+    """读取所有VOC图像并标注"""
     txt_fname = os.path.join(voc_dir, 'ImageSets', 'Segmentation',
                              'train.txt' if is_train else 'val.txt')
     with open(txt_fname, 'r') as f:
@@ -82,7 +82,7 @@ train_features, train_labels = read_voc_images(voc_dir, True)
 #@tab pytorch
 #@save
 def read_voc_images(voc_dir, is_train=True):
-    """读取所有VOC图像并标注。"""
+    """读取所有VOC图像并标注"""
     txt_fname = os.path.join(voc_dir, 'ImageSets', 'Segmentation',
                              'train.txt' if is_train else 'val.txt')
     mode = torchvision.io.image.ImageReadMode.RGB
@@ -141,7 +141,7 @@ VOC_CLASSES = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
 ```{.python .input}
 #@save
 def voc_colormap2label():
-    """构建从RGB到VOC类别索引的映射。"""
+    """构建从RGB到VOC类别索引的映射"""
     colormap2label = np.zeros(256 ** 3)
     for i, colormap in enumerate(VOC_COLORMAP):
         colormap2label[
@@ -150,7 +150,7 @@ def voc_colormap2label():
 
 #@save
 def voc_label_indices(colormap, colormap2label):
-    """将VOC标签中的RGB值映射到它们的类别索引。"""
+    """将VOC标签中的RGB值映射到它们的类别索引"""
     colormap = colormap.astype(np.int32)
     idx = ((colormap[:, :, 0] * 256 + colormap[:, :, 1]) * 256
            + colormap[:, :, 2])
@@ -161,7 +161,7 @@ def voc_label_indices(colormap, colormap2label):
 #@tab pytorch
 #@save
 def voc_colormap2label():
-    """构建从RGB到VOC类别索引的映射。"""
+    """构建从RGB到VOC类别索引的映射"""
     colormap2label = torch.zeros(256 ** 3, dtype=torch.long)
     for i, colormap in enumerate(VOC_COLORMAP):
         colormap2label[
@@ -170,7 +170,7 @@ def voc_colormap2label():
 
 #@save
 def voc_label_indices(colormap, colormap2label):
-    """将VOC标签中的RGB值映射到它们的类别索引。"""
+    """将VOC标签中的RGB值映射到它们的类别索引"""
     colormap = colormap.permute(1, 2, 0).numpy().astype('int32')
     idx = ((colormap[:, :, 0] * 256 + colormap[:, :, 1]) * 256
            + colormap[:, :, 2])
@@ -196,7 +196,7 @@ y[105:115, 130:140], VOC_CLASSES[1]
 ```{.python .input}
 #@save
 def voc_rand_crop(feature, label, height, width):
-    """随机裁剪特征和标签图像。"""
+    """随机裁剪特征和标签图像"""
     feature, rect = image.random_crop(feature, (width, height))
     label = image.fixed_crop(label, *rect)
     return feature, label
@@ -206,7 +206,7 @@ def voc_rand_crop(feature, label, height, width):
 #@tab pytorch
 #@save
 def voc_rand_crop(feature, label, height, width):
-    """随机裁剪特征和标签图像。"""
+    """随机裁剪特征和标签图像"""
     rect = torchvision.transforms.RandomCrop.get_params(
         feature, (height, width))
     feature = torchvision.transforms.functional.crop(feature, *rect)
@@ -241,7 +241,7 @@ d2l.show_images(imgs[::2] + imgs[1::2], 2, n);
 ```{.python .input}
 #@save
 class VOCSegDataset(gluon.data.Dataset):
-    """一个用于加载VOC数据集的自定义数据集。"""
+    """一个用于加载VOC数据集的自定义数据集"""
     def __init__(self, is_train, crop_size, voc_dir):
         self.rgb_mean = np.array([0.485, 0.456, 0.406])
         self.rgb_std = np.array([0.229, 0.224, 0.225])
@@ -275,7 +275,7 @@ class VOCSegDataset(gluon.data.Dataset):
 #@tab pytorch
 #@save
 class VOCSegDataset(torch.utils.data.Dataset):
-    """一个用于加载VOC数据集的自定义数据集。"""
+    """一个用于加载VOC数据集的自定义数据集"""
 
     def __init__(self, is_train, crop_size, voc_dir):
         self.transform = torchvision.transforms.Normalize(
@@ -289,7 +289,7 @@ class VOCSegDataset(torch.utils.data.Dataset):
         print('read ' + str(len(self.features)) + ' examples')
 
     def normalize_image(self, img):
-        return self.transform(img.float())
+        return self.transform(img.float() / 255)
 
     def filter(self, imgs):
         return [img for img in imgs if (
@@ -352,7 +352,7 @@ for X, Y in train_iter:
 ```{.python .input}
 #@save
 def load_data_voc(batch_size, crop_size):
-    """加载VOC语义分割数据集。"""
+    """加载VOC语义分割数据集"""
     voc_dir = d2l.download_extract('voc2012', os.path.join(
         'VOCdevkit', 'VOC2012'))
     num_workers = d2l.get_dataloader_workers()
@@ -369,7 +369,7 @@ def load_data_voc(batch_size, crop_size):
 #@tab pytorch
 #@save
 def load_data_voc(batch_size, crop_size):
-    """加载VOC语义分割数据集。"""
+    """加载VOC语义分割数据集"""
     voc_dir = d2l.download_extract('voc2012', os.path.join(
         'VOCdevkit', 'VOC2012'))
     num_workers = d2l.get_dataloader_workers()
