@@ -279,7 +279,7 @@ def get_net():
                               tf.keras.layers.Dense(1)])
     return net
 
-# 最小均方损失。注意：MSELoss计算平方误差时不带系数1/2
+# 最小均方损失。注意：MeanSquaredError计算平方误差时不带系数1/2
 loss = tf.keras.losses.MeanSquaredError()
 ```
 
