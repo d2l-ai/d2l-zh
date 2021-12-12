@@ -428,7 +428,7 @@ output = train(content_X, contents_Y, styles_Y, device, 0.3, 500, 50)
 1. 选择不同的内容和风格层，输出有什么变化？
 1. 调整损失函数中的权重超参数。输出是否保留更多内容或减少更多噪点？
 1. 替换实验中的内容图像和风格图像，你能创作出更有趣的合成图像吗？
-1. 我们可以对文本使用风格迁移吗？提示:你可以参阅调查报告 :cite:`Hu.Lee.Aggarwal.2020`。
+1. 我们可以对文本使用风格迁移吗？提示:你可以参阅调查报告 :cite:`Hu.Lee.Aggarwal.ea.2020`。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/3299)
