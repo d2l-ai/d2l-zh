@@ -435,7 +435,7 @@ $$E_{x \sim P}[f(x)] = \sum_x f(x) P(x).$$
 $$\mathrm{Var}[X] = E\left[(X - E[X])^2\right] =
 E[X^2] - E[X]^2.$$
 
-方差的平方根被称为*标准差*（standared deviation）。
+方差的平方根被称为*标准差*（standard deviation）。
 随机变量函数的方差衡量的是：当从该随机变量分布中采样不同值$x$时，
 函数值偏离该函数的期望的程度：
 
