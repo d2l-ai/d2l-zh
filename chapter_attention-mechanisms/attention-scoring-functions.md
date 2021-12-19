@@ -170,7 +170,7 @@ masked_softmax(torch.rand(2, 2, 4), d2l.tensor([[1, 3], [2, 4]]))
 
 ```{.python .input}
 #@tab tensorflow
-masked_softmax(tf.random.uniform(shape=(2, 2, 4)), tf.constant([2, 3]))
+masked_softmax(tf.random.uniform(shape=(2, 2, 4)), tf.constant([[1, 3], [2, 4]]))
 ```
 
 ## [**加性注意力**]
