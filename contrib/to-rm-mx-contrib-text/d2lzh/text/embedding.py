@@ -70,6 +70,25 @@ class TokenEmbedding:
             self.idx_to_token = vocabulary.idx_to_token
             
     def _load_embedding(self, embedding_name, pretrained_file_name):
+        """
+        Load a pretrained embedding from a file.
+
+        Parameters
+        ----------
+        embedding_name : str, default 'glove'
+            The name of the pretrained word embedding to
+        load. Can be 'word2vec', 'glove', or 'fasttext'.
+        pretrained_file_name : str, default None
+            The name of the local file containing pre-trained word
+        vectors to load. If not specified, will use the `embedding_name` instead (which is usually fine).
+
+        Returns
+        -------    
+         idx_to_token : list of strs
+        Shape: [n_tokens]. token for each row in idxToVec matrix  (row 0 is for padding & unknown words)   # no longer needed?       # TODO: check if this is
+        still necessary/used - probably not!         # TODO: remove this line after checking         vocab = Vocab(counter=None)          vocab._idxToToken =
+        ['<unk>'] + [e[0] for e in sorted(vocab._tokenToIdx.items(), key=lambda e: e[1])]      return
+        """
         idx_to_token, idx_to_vec = ['<unk>'], []
         data_dir = download_extract(embedding_name, pretrained_file_name)
         # GloVe website: https://nlp.stanford.edu/projects/glove/
@@ -86,6 +105,26 @@ class TokenEmbedding:
         return idx_to_token, nd.array(idx_to_vec)
 
     def get_vecs_by_tokens(self, tokens):
+        """
+        Get the vector representation of each token in a list of tokens.
+
+        Parameters
+        ----------
+        tokens : List[str] or List[int]  # Note that this is *not* a
+        numpy array! (It's important for doing batch lookup)
+
+            A list of tokens to be converted into vectors.
+
+            If the input is an integer, it will just
+        return the corresponding row from `idx_to_vec`.
+
+            Otherwise, if it's a string, then it'll first look up which row in `token_to_idx` corresponds to
+        each token and then do a vector lookup using those indices. This means that if you have new unknown words in test data but not training data, you can
+        still use GloVe vectors rather than having to add them as zero vectors at index 0 (which slows down computation). You can also pass in integers
+        directly instead of strings too; they'll just get passed through as-is. The reason we need both `token_to_idx` and `idx_to_vec` is because we want
+        fast lookups for both training and test time: during training time we construct these dictionaries by iterating over all documents once so that they
+        contain all relevant
+        """
         indices = [self.token_to_idx.get(token, self.unknown_idx)
                    for token in tokens]
         vecs = self.idx_to_vec[nd.array(indices)]

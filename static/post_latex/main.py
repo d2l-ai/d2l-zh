@@ -4,7 +4,18 @@ import regex
 import sys
 
 def _unnumber_chaps_and_secs(lines):
+    """
+    Unnumber chapters and sections in the preface, installation, and notation.
+    Preface, Installation, Notation are unnumbered chapters.
+    Sections in
+    unnumbered chapters are also unnumbered.
+    TOC2_START_CHAP_NO is the chapter number where tocdepth is set to 2 (after Preliminaries).
+    """
     def _startswith_unnumbered(l):
+        """
+        Return True if line starts with any of the strings in UNNUMBERED, False otherwise.
+        UNNUMBERED is a set of strings that are not to be numbered.
+        """
         UNNUMBERED = {'\\section{Summary',
                       '\\section{Exercise',
                       '\\section{Exercises'
@@ -51,6 +62,12 @@ def _unnumber_chaps_and_secs(lines):
 
 # If label is of chap*/index.md title, its numref is Chapter X instead of Section X
 def _sec_to_chap(lines):
+    """
+    Convert all {Section \\ref{...}} to {Chapter \\ref{...}} in a list of strings.
+
+    :param lines: A list of strings, each representing a line from a
+    reStructuredText document.
+    """
     for i, l in enumerate(lines):
         # e.g., {Section \ref{\detokenize{chapter_dlc/index:chap-dlc}}} matches
         # {Section \ref{\detokenize{chapter_prelim/nd:sec-nd}}} does not match
@@ -65,6 +82,9 @@ def _sec_to_chap(lines):
 
 # Remove date
 def _edit_titlepage(pdf_dir):
+    """
+    Edit the sphinxmanual.cls file to remove the date from the title page.
+    """
     smanual = os.path.join(pdf_dir, 'sphinxmanual.cls')
     with open(smanual, 'r') as f:
         lines = f.read().split('\n')
@@ -81,6 +101,15 @@ def delete_lines(lines, deletes):
 
 
 def _delete_discussions_title(lines):
+    """
+    Delete the title of the discussion section if it is followed by a picture.
+
+    :param lines: A list of strings, each representing a line from a
+    reStructuredText file.
+    :returns: The same list with any discussion titles deleted if they are followed by an image.  This is because these titles are
+    repeated in the image caption and so look redundant when displayed on their own as well as being out of place in this format (they belong to
+    subsequent paragraphs).  Also deletes any empty lines that result from this deletion at the end of sections or subsections.
+    """
     deletes = []
     to_delete = False
     for i, l in enumerate(lines):
@@ -94,6 +123,12 @@ def _delete_discussions_title(lines):
 
 
 def main():
+    """
+    Replace the chapter and section numbers in a LaTeX document with their corresponding titles.
+
+    :param tex_file: The path to the .tex file that will be
+    modified.
+    """
     tex_file = sys.argv[1]
     with open(tex_file, 'r') as f:
         lines = f.read().split('\n')

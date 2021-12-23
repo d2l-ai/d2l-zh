@@ -265,6 +265,36 @@ class Animator:
         self.X, self.Y, self.fmts = None, None, fmts
 
     def add(self, x, y):
+        """
+        Plots the training and validation loss.
+
+        :param train_loss: The training loss.
+        :type train_loss: list of float or NoneType
+        :param valid_loss: The
+        validation loss. If not given, only the training curve is plotted.  Otherwise a second line is added to the plot with these values as y-coordinates
+        and x-coordinates defined by their indices in this list (i.e., ``valid_loss[0]`` defines the y-coordinate for index 0).  Note that if ``train_loss``
+        has more than one value, then so must ``validation`` have more than one value (though it does not need to have as many elements as
+        ``train_accuracy``).  Also note that if this parameter is given, then its length must equal that of parameter `train`.
+        """
+        """
+        Plot data on a graph.
+
+        :param x: The x-coordinates of the data points to be plotted.
+        :type x: list or NoneType, optional
+            Default is ``None``. If
+        no value is passed, the function will use an empty list as its default value and assume that no data has been added yet to the `x` variable.
+        :param y: The y-coordinates of the data points to be plotted. This parameter can also accept multiple sets of coordinates in a single list if they are
+        all for different plots (elements in each sublist should correspond with elements in `x`). 
+
+            :type y: list or NoneType, optional 
+
+                Default
+        is ``None`` which means that there are no existing values being plotted at this time and therefore nothing should be drawn on screen until new values
+        have been added using this function's methods (see below). However, if you pass a single set of coordinates as an argument then these will
+        automatically get appended into `y`. For example, if you want to plot two sets of coordinates then you could do something like this... ::
+        # Create instance object for plotting purposes... 
+                    p = Plot()   # Instantiate
+        """
         # 向图表中添加多个数据点
         if not hasattr(y, "__len__"):
             y = [y]
@@ -529,6 +559,16 @@ class Vocab:
         return [self.__getitem__(token) for token in tokens]
 
     def to_tokens(self, indices):
+        """
+        Converts a list of indices to tokens.
+
+        Parameters:
+            indices (list): A list of integers that represent token indices.
+
+            Returns:
+                list: A
+        list of tokens represented by the given indices. If `indices` is not a :obj:`list`, it will be returned as is.  # noqas
+        """
         if not isinstance(indices, (list, tuple)):
             return self.idx_to_token[indices]
         return [self.idx_to_token[index] for index in indices]
@@ -1954,6 +1994,12 @@ class RandomGenerator:
         self.i = 0
 
     def draw(self):
+        """
+        Return a random element from the non-empty sequence seq. If seq is empty, raises IndexError.
+
+        :param seq: The input sequence.
+        :type seq: Sequence[Any]
+        """
         if self.i == len(self.candidates):
             # 缓存`k`个随机采样结果
             self.candidates = random.choices(
@@ -2041,6 +2087,27 @@ class TokenEmbedding:
                              enumerate(self.idx_to_token)}
 
     def _load_embedding(self, embedding_name):
+        """
+        Load a pretrained embedding model.
+
+        Parameters
+        ----------
+        embedding_name : str, default 'glove'  # 模型名称，默认为 glove 文件夹名称。可选择的有 [‘wiki.zh’, ‘glove.6B’]
+        等。具体请参考 `d2l-zh/data/download_fasttext.sh` 中的注释说明。
+
+            The name of the downloaded embedding file under the "data" folder:
+
+                - wiki.zh (Chinese
+        Wikipedia)
+
+                - glove*.txt (a collection of word vectors trained on Common Crawl)
+
+                - crawl-300d-2M/* (a collection of word vectors
+        trained on Common Crawl with dimension 300 and 2 million words)
+
+            For example, 'glove50d' means that we use GloVe word vectors with dimension 50 to
+        represent a token in vector form; 'crawl300d22m' means that we use FastText
+        """
         idx_to_token, idx_to_vec = ['<unk>'], []
         data_dir = d2l.download_extract(embedding_name)
         # GloVe网站：https://nlp.stanford.edu/projects/glove/

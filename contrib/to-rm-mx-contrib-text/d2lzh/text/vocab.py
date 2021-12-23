@@ -17,6 +17,18 @@ class Vocabulary:
         return len(self.idx_to_token)
 
     def to_indices(self, tokens):
+        """
+        Convert a list of tokens to a list of indices.
+
+        Args:
+            tokens (list): A list of strings.
+
+        Returns:  # TODO: add return value(s) if necessary;
+        delete this comment otherwise.  # TODO: update docstring accordingly if necessary; delete this comment otherwise.
+
+            indices (list): A list of
+        integers representing the corresponding token indices in the vocabulary.
+        """
         if not isinstance(tokens, (list, tuple)):
             return self.token_to_idx.get(tokens, self.unk)
         return [self.to_indices(token) for token in tokens]

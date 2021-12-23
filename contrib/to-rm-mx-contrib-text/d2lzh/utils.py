@@ -126,6 +126,15 @@ def download_imdb(data_dir='../data'):
 
 
 def _download_pikachu(data_dir):
+    """
+    Download the Pikachu data if it doesn't exist.
+
+    Args:
+        data_dir (str): directory to save the dataset
+
+        Returns: None.  The function downloads a
+    set of images and saves them in a specified folder.  If the folder exists, then nothing is downloaded and nothing is saved.
+    """
     root_url = ('https://apache-mxnet.s3-accelerate.amazonaws.com/'
                 'gluon/dataset/pikachu/')
     dataset = {'train.rec': 'e6bcb6ffba1ac04ff8a9b1115e650af56ee969c8',
@@ -435,6 +444,30 @@ class RNNModel(nn.Block):
         self.dense = nn.Dense(vocab_size)
 
     def forward(self, inputs, state):
+        """
+        This function takes a sequence of integers as input and returns the output
+        of applying the RNN to each element in the sequence. The second argument is
+        the initial state of the RNN, which we initialize as an array of zeros.
+        """
+        """
+        Converts the input sequence of indexes into a sequence of vectors.
+
+        :param inputs: Inputs is a 2D tensor with shape (batch size, number of features).
+        The batch size specifies how many 
+                       sequences are processed in one go. The number of features specifies how many values are associated
+        with each position in the sequence. For example, if each data point is just an integer from 0 to 9 then 
+                       we have a 10-class
+        classification problem and inputs would be encoded as 1-hot vectors giving us a 
+                       vector for every position in the sequence which has
+        only one '1' and nine '0's. Our output will be one class label per position in the sequence predicted by taking argmax over outputs at all positions.
+        :param state: Initial hidden state per layer (for the first data point) that gets propagated to all layers via recurrent connections as described
+        above
+
+        :returns: Output predictions for every time step ('h(t)'), hidden states ('H[t]') for all time steps, final hidden state per layer ('H') after
+        propagation through entire input dataset once
+
+                - Y = [y(1), y(2), ... ,
+        """
         X = nd.one_hot(inputs.T, self.vocab_size)
         Y, state = self.rnn(X, state)
         output = self.dense(Y.reshape((-1, Y.shape[-1])))
@@ -828,6 +861,21 @@ class VOCSegDataset(gdata.Dataset):
             im.shape[1] >= self.crop_size[1])]
 
     def __getitem__(self, idx):
+        """
+        Convert RGB image to grayscale and resize it to fixed size.
+
+        Args:
+            data: An array of shape (C, H, W). If not grayscale already, the image is
+        converted. 
+            labels: An array of shape (num_classes, H', W'). The values must be in [0, num_classes). 
+
+             Returns a pair of processed data and
+        labels that can be fed into :class:'SegDataLoader'.
+
+             Note that this function does not normalize the input image. Instead it only performs
+        resizing and converts the input image to grayscale if needed. You are supposed to provide normalized images as inputs for other functions such as
+        'voc_rand_crop' or 'voc_resize'. This function will also apply mirror boundary conditions when random cropping is requested by 'voc_rand-crop'.
+        """
         data, labels = voc_rand_crop(self.data[idx], self.labels[idx],
                                      *self.crop_size)
         return (data.transpose((2, 0, 1)),

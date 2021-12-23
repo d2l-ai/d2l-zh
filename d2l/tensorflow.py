@@ -275,6 +275,19 @@ class Animator:
         self.X, self.Y, self.fmts = None, None, fmts
 
     def add(self, x, y):
+        """
+        Plot the values in `y` vs. those in `x`.
+
+        If either of `x` or `y` is not specified, a list with a single None element is used instead. If more than
+        one value is specified for either parameter, lists of corresponding elements are used for all parameters involved. The number of elements in each list
+        must be equal to that of the other if it's given, otherwise an exception will be raised when this function runs.
+        """
+        """
+        Plot the values in *y* with *x* coordinates determined by the list in
+        *x*, which defaults to ``range(len(y))``.  Any additional keyword
+        arguments are
+        passed on to `~matplotlib.axes.Axes.plot`. Returns a list of lines that were added.
+        """
         # 向图表中添加多个数据点
         if not hasattr(y, "__len__"):
             y = [y]
@@ -447,6 +460,26 @@ class TrainCallback(tf.keras.callbacks.Callback):
         self.timer.start()
 
     def on_epoch_end(self, epoch, logs):
+        """
+        Computes the average loss and training accuracy over the provided dataset
+        and tests the network on a provided test set.
+
+        Parameters:
+
+            net
+        (tf.keras.Model): The model to train and test.
+
+            train_iter (tf.data.Dataset): A dataset of NumPy arrays representing the images in a batch for
+        training purposes, along with their labels as one-hot vectors in another array of same shape as first one but with only 1s at positions where label is
+        present and 0s otherwise; each element is an array of shape ``(batch_size, 32, 32, 3)`` for RGB images or ``(batch_size, 32 * 32)`` for grayscale
+        ones; if ``None`` no training will occur
+
+            test_iter (tf.data.Dataset): Same structure as above but containing data to evaluate on after every
+        epoch instead of just once at end; if ``None`` no evaluation will occur
+
+            num_epochs (int): Number of epochs to run before stopping automatically -
+        can be overridden by setting value returned by :meth:`~luminoth-train`'s `stop` argument when calling :class:`~luminoth
+        """
         self.timer.stop()
         test_acc = self.net.evaluate(
             self.test_iter, verbose=0, return_dict=True)['accuracy']
@@ -549,11 +582,41 @@ class Vocab:
         return len(self.idx_to_token)
 
     def __getitem__(self, tokens):
+        """
+        :param tokens: A list of tokens or token ids.
+        :returns: A list of token ids or a single token id.
+        """
+        """
+        Convert a list of tokens to a list of token indices.
+
+        Args:
+            tokens (list): A list of strings.
+
+            unk (str, optional): The string for unknown
+        tokens. Default is '<unk>'.
+
+            bos (str, optional): The string to insert at the beginning of the input sequence. Default is '<bos>'.
+
+            eos (str,
+        optional): The string to insert at the end of the input sequence. Default is '<eos>'.
+        """
         if not isinstance(tokens, (list, tuple)):
             return self.token_to_idx.get(tokens, self.unk)
         return [self.__getitem__(token) for token in tokens]
 
     def to_tokens(self, indices):
+        """
+        Converts a list of indices to tokens.
+
+        Args:
+            indices (list): A list of integers in the range [0, vocab_size). 
+                Indices can be negative and
+        can be greater than or equal to the vocab_size. 
+
+            Returns:
+                list: A list of tokens corresponding to given indices. If any index is out of
+        range, then an empty string is returned at that index.
+        """
         if not isinstance(indices, (list, tuple)):
             return self.idx_to_token[indices]
         return [self.idx_to_token[index] for index in indices]
@@ -666,6 +729,25 @@ class RNNModelScratch:
         self.trainable_variables = get_params(vocab_size, num_hiddens)
 
     def __call__(self, X, state):
+        """
+        This function takes a batch of sequences and returns the output state for each sequence.
+        The input is a 3-D tensor with shape `[batch_size,
+        sequence_length, vocab_size]`. The output is also a 3-D tensor with shape `[batch_size, sequence_length + 1, hidden]`.
+        """
+        """
+        This function takes a batch of sequences and returns the logits for each time step.
+
+        Parameters:
+
+            X: A tensor of shape (batch_size,
+        sequence_length) that contains the input sequences.
+
+            state: The state value from previous timestep. If this is set to None, it will return the
+        full list of logits for all timesteps in the sequence.
+
+            trainable_variables: A list containing all trainable variables in forward function's scope
+        which includes weight matrices and bias vectors if any are used in forward function's computation graph.
+        """
         X = tf.one_hot(tf.transpose(X), self.vocab_size)
         X = tf.cast(X, tf.float32)
         return self.forward_fn(X, state, self.trainable_variables)

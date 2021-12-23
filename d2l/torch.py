@@ -289,6 +289,19 @@ class Animator:
         self.X, self.Y, self.fmts = None, None, fmts
 
     def add(self, x, y):
+        """
+        Plots the training and validation losses from a list of `History` objects.
+
+        :param history_list: A list of :class:`keras.callbacks.History` objects to
+        plot from.
+        """
+        """
+        Plot the values in `y` vs. those in `x`.
+
+        If either of `x` or `y` is a list, multiple curves will be drawn.  The color of each curve is determined by
+        cycling through a list of colors provided by the user (or using some default options if no such colors are provided).  If one or both lists have more
+        than one element, then multiple curves will be drawn and plotted on the same axes.
+        """
         # 向图表中添加多个数据点
         if not hasattr(y, "__len__"):
             y = [y]
@@ -576,6 +589,22 @@ class Vocab:
         return [self.__getitem__(token) for token in tokens]
 
     def to_tokens(self, indices):
+        """
+        Convert a list of indices into string tokens and a length.
+
+        Parameters:
+            indices (list): The list of character indices.
+
+            Returns:
+        tokens (list): The list of string tokens.
+
+                length (int): The length of the input sequence.  # Note that this is not returned by the function,
+        but assigned to `self._length` in `__init__()`.  # TODO: Why? Is it necessary for anything? If so, why can't we just assign it here instead? I think
+        maybe because then we wouldn't be able to use self._length in other methods like __getitem__(), which are called before __init__(). But why do we even
+        need those methods to begin with if they're only used during initialization anyway??? We could just initialize everything right away when creating an
+        instance... But I don't know how much time would be saved by doing that... Maybe enough time for another cup of coffee at least! :) Anyway, I'm going
+        to leave this as is for now since it works fine and doesn't really make things any more complicated than they already are.)
+        """
         if not isinstance(indices, (list, tuple)):
             return self.idx_to_token[indices]
         return [self.idx_to_token[index] for index in indices]
@@ -989,6 +1018,11 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
 
     Defined in :numref:`sec_seq2seq_decoder`"""
     def xavier_init_weights(m):
+        """
+        Initializes the weights of a linear layer with Xavier uniform initialization.
+
+        :param m: The layer to initialize.
+        """
         if type(m) == nn.Linear:
             nn.init.xavier_uniform_(m.weight)
         if type(m) == nn.GRU:
@@ -2059,6 +2093,12 @@ class RandomGenerator:
         self.i = 0
 
     def draw(self):
+        """
+        Return a random element from the non-empty sequence seq. If seq is empty, raises IndexError.
+
+        :param seq: The input sequence.
+        :type seq: Sequence[Any]
+        """
         if self.i == len(self.candidates):
             # 缓存`k`个随机采样结果
             self.candidates = random.choices(
@@ -2162,6 +2202,26 @@ class TokenEmbedding:
                              enumerate(self.idx_to_token)}
 
     def _load_embedding(self, embedding_name):
+        """
+        Load a pretrained embedding model.
+
+        Parameters:
+            embedding_name (str): Name of the pretrained model. Can be 'glove', 'fasttext' or any file name in
+        `../embeddings`.
+
+            Returns: A tuple of two elements, the first is a list of all tokens, and the second is a tensor with shape [num_tokens,
+        dimension] containing 
+                all token vectors. The vector dimensions depend on different pretrained models and it can't be assumed that they are
+        always 300. 
+
+                Example: If you use GloVe as pretrained model for example, then each token will have its corresponding vector with size 300 in
+        this return value tuple (list[tokens], tensor[vectors]). 
+
+                    >>> idx_to_token = ['<unk>'] + [elem for elem in tl] # Add <unk> to represent
+        out-of-vocabulary words later; len(idx_to_token) == num tokens (+1) including <pad>, thus vocab size == num tokens (+1).  
+                    >>> idx_to_vec
+        = [[0] * len(idx2vec
+        """
         idx_to_token, idx_to_vec = ['<unk>'], []
         data_dir = d2l.download_extract(embedding_name)
         # GloVe网站：https://nlp.stanford.edu/projects/glove/
@@ -2561,6 +2621,14 @@ class SNLIDataset(torch.utils.data.Dataset):
         print('read ' + str(len(self.premises)) + ' examples')
 
     def _pad(self, lines):
+        """
+        Args:
+            lines (list[str]): a list of strings representing a sentence or article.
+            num_steps (int): the number of time steps to output.
+
+        Returns:
+        torch.Tensor: A tensor containing the indices of all tokens in `lines`. The shape is :math`(num\_examples, num\_steps)`.
+        """
         return torch.tensor([d2l.truncate_pad(
             self.vocab[line], self.num_steps, self.vocab['<pad>'])
                          for line in lines])
