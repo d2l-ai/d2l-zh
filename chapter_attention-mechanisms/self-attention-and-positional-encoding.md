@@ -136,7 +136,7 @@ $d \times d$权重矩阵和$d$维隐状态的乘法计算复杂度为$\mathcal{O
 包含一个序列中$n$个词元的$d$维嵌入表示。
 位置编码使用相同形状的位置嵌入矩阵
 $\mathbf{P} \in \mathbb{R}^{n \times d}$输出$\mathbf{X} + \mathbf{P}$，
-矩阵第$i$行、第$2j$列和$2j$列上的元素为：
+矩阵第$i$行、第$2j$列和$2j+1$列上的元素为：
 
 $$\begin{aligned} p_{i, 2j} &= \sin\left(\frac{i}{10000^{2j/d}}\right),\\p_{i, 2j+1} &= \cos\left(\frac{i}{10000^{2j/d}}\right).\end{aligned}$$
 :eqlabel:`eq_positional-encoding-def`
