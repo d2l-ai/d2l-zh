@@ -123,7 +123,7 @@ class TextCNN(nn.Block):
         # NDArray。使用flatten函数去掉最后一维，然后在通道维上连结
         encoding = nd.concat(*[nd.flatten(
             self.pool(conv(embeddings))) for conv in self.convs], dim=1)
-        # 应用丢弃法后使用全连接层得到输出
+        # 应用暂退法后使用全连接层得到输出
         outputs = self.decoder(self.dropout(encoding))
         return outputs
 ```
@@ -180,8 +180,8 @@ d2l.predict_sentiment(net, vocab, ['this', 'movie', 'is', 'so', 'bad'])
 
 ## 练习
 
-* 动手调参，从准确率和运行效率比较情感分析的两类方法：使用循环神经网络和使用卷积神经网络。
-* 使用上一节练习中介绍的3种方法（调节超参数、使用更大的预训练词向量和使用spaCy分词工具），能使模型在测试集上的准确率进一步提高吗？
+* 动手调参，从精度和运行效率比较情感分析的两类方法：使用循环神经网络和使用卷积神经网络。
+* 使用上一节练习中介绍的3种方法（调节超参数、使用更大的预训练词向量和使用spaCy分词工具），能使模型在测试集上的精度进一步提高吗？
 * 还能将textCNN应用于自然语言处理的哪些任务中？
 
 

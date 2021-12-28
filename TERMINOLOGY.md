@@ -2,21 +2,9 @@
 
 鞍点，saddle point
 
-背景变量，context variable
-
-背景窗口，context window
-
-背景词，context word
-
-背景向量，context vector
-
 变换，transform
 
 编码器，encoder
-
-标记，token
-
-标记化，tokenize
 
 标签，label
 
@@ -26,19 +14,27 @@
 
 长短期记忆网络，long short-term memory (LSTM)
 
-超参数，hyper-parameter
+超参数，hyperparameter
 
 层序softmax，hierarchical softmax
 
+查准率，precision
+
 成本，cost
 
-词汇表，vocabulary
+词表，vocabulary
 
 词嵌入，word embedding
 
 词向量，word vector
 
-池化层，pooling layer
+词元，token
+
+词元分析器，tokenizer
+
+词元化，tokenize
+
+汇聚层，pooling layer
 
 稠密，dense
 
@@ -46,11 +42,9 @@
 
 导入，import
 
-迭代周期（周期)，epoch
+轮，epoch
 
-迭代模型参数，update model parameter(s)
-
-丢弃法，dropout
+暂退法，dropout
 
 动量法，momentum (method)
 
@@ -60,11 +54,13 @@
 
 多层感知机，multilayer perceptron
 
+多头注意力，multi-head attention
+
 二元分类，binary classification
 
-二元语法，bigram
+二元，bigram
 
-二次采样，subsample
+子采样，subsample
 
 发散，diverge
 
@@ -74,17 +70,9 @@
 
 方差，variance
 
-访问参数，access parameters
-
-非凸优化，non-convex optimization
-
-分桶，bucketing
-
 分类，classification
 
 分类器，classifier
-
-分词方式，tokenizer/tokenization
 
 负采样，negative sampling
 
@@ -92,13 +80,15 @@
 
 格拉姆矩阵，Gram matrix
 
-共现词频，co-occurrence frequency
+共现，co-occurrence
 
-归一化，normalization
+广播，broadcast
 
-过滤器，filter
+规范化，normalization
 
 过拟合，overfitting
+
+核回归，kernel regression
 
 恒等映射，identity mapping
 
@@ -110,11 +100,13 @@
 
 解码器，decoder
 
+近似法，approximate method
+
 经验风险最小化，empirical risk minimization
 
 局部最小值，local minimum
 
-卷积核，kernel
+卷积核，convolutional kernel
 
 卷积神经网络，convolutional neural network
 
@@ -138,21 +130,19 @@
 
 交叉熵，cross-entropy
 
-连续词袋模型，continous bag-of-words (CBOW) model
+连续词袋，continous bag-of-words (CBOW)
 
 零张量，zero tensor
 
 流水线，pipeline
 
+滤波器，filter
+
 门控循环单元，gated recurrent units (GRU)
-
-模型参数，model parameter
-
-模型复杂度，model complexity
 
 目标检测，object detection
 
-偏差，bias
+偏置，bias
 
 偏导数，partial derivative
 
@@ -160,23 +150,29 @@
 
 批量，batch
 
-平均池化层，average pooling layer
-
 齐普夫定律，Zipf's law
 
 欠拟合，underfitting
 
 情感分析，sentiment analysis
 
-全连接层，fully connected layer
+全连接层，fully-connected layer
 
 权重，weight
 
-三元语法，trigram
+三元，trigram
 
 上采样，upsample
 
-实例，instance
+上下文变量，context variable
+
+上下文窗口，context window
+
+上下文词，context word
+
+上下文向量，context vector
+
+实例/示例，instance
 
 收敛，converge
 
@@ -184,9 +180,11 @@
 
 数值方法，numerical method
 
-数据集，data set
+数据集，dataset
 
-数据样本，data instance
+数据示例，data instance
+
+数据样例，data example
 
 顺序分区，sequential partitioning
 
@@ -212,9 +210,9 @@ softmax回归，softmax regression
 
 填充，padding
 
-跳字模型，skip-gram model
+跳元模型，skip-gram model
 
-调参，tune hyper-parameter
+调参，tune hyperparameter
 
 停用词，stop words
 
@@ -224,15 +222,15 @@ softmax回归，softmax regression
 
 图像，image
 
-未知词标记，unknown token
+未知词元，unknown token
 
 无偏估计，unbiased estimate
 
 误差，error
 
-小批量，mini-batch
+小批量，minibatch
 
-小批量梯度，mini-batch gradient
+小批量梯度，minibatch gradient
 
 线性模型，linear model
 
@@ -246,11 +244,11 @@ softmax回归，softmax regression
 
 循环神经网络，recurrent neural network (RNN)
 
-样本，example
+样例，example
 
 一维梯度下降，gradient descent in one-dimensional space
 
-一元语法，unigram
+一元，unigram
 
 隐藏变量，hidden variable
 
@@ -262,12 +260,18 @@ softmax回归，softmax regression
 
 运算符，operator
 
+自注意力，self-attention
+
 真实值，ground truth
 
 指标，metric
 
 支持向量机，support vector machine
 
-注意力机制模型，attention model
+注意力机制，attention mechanism
 
-准确率，accuracy
+注意力模型，attention model
+
+注意力提示，attention cue
+
+准确率/精度，accuracy

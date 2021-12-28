@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:dc="http://purl.org/dc/elements/1.1/" version="1.1" xmlns:xl="http://www.w3.org/1999/xlink" viewBox="60 141 295.55505 138" width="295.55505" height="138">
+  <defs>
+    <font-face font-family="PingFang SC" font-size="9" panose-1="2 11 4 0 0 0 0 0 0 0" units-per-em="1000" underline-position="-150" underline-thickness="58" slope="0" x-height="600" cap-height="860" ascent="1060.0021" descent="-340.0007" font-weight="400">
+      <font-face-src>
+        <font-face-name name="PingFangSC-Regular"/>
+      </font-face-src>
+    </font-face>
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -2 4 4" markerWidth="4" markerHeight="4" color="black">
+      <g>
+        <path d="M 1.8666667 0 L 0 -.7 L 0 .7 Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+      </g>
+    </marker>
+  </defs>
+  <metadata> Produced by OmniGraffle 7.18.5\n2021-11-02 17:39:31 +0000</metadata>
+  <g id="Canvas_1" stroke="none" fill="none" stroke-dasharray="none" stroke-opacity="1" fill-opacity="1">
+    <title>Canvas 1</title>
+    <g id="Canvas_1_Layer_1">
+      <title>Layer 1</title>
+      <g id="Graphic_33">
+        <text transform="translate(126.27173 146)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="0" y="10">语言前端</tspan>
+        </text>
+      </g>
+      <g id="Graphic_37">
+        <rect x="60" y="178.92547" width="180.99605" height="69.130435" id="path"/>
+        <clipPath id="clip_path">
+          <use xl:href="#path"/>
+        </clipPath>
+        <g clip-path="url(#clip_path)">
+          <image xl:href="image2.tiff" width="1440" height="550" transform="translate(60 178.92547) scale(.1256917)"/>
+        </g>
+      </g>
+      <g id="Graphic_38">
+        <rect x="105.36872" y="228.30435" width="25.490418" height="19.751553" id="path_2"/>
+        <clipPath id="clip_path_2">
+          <use xl:href="#path_2"/>
+        </clipPath>
+        <g clip-path="url(#clip_path_2)">
+          <image xl:href="image3.tiff" width="724" height="561" transform="translate(105.36872 228.30435) scale(.03520776)"/>
+        </g>
+      </g>
+      <g id="Graphic_39">
+        <rect x="112.61095" y="173" width="54.632925" height="22.385093" id="path_3"/>
+        <clipPath id="clip_path_3">
+          <use xl:href="#path_3"/>
+        </clipPath>
+        <g clip-path="url(#clip_path_3)">
+          <image xl:href="image4.tiff" width="493" height="202" transform="translate(112.61095 173) scale(.11081729)"/>
+        </g>
+      </g>
+      <g id="Graphic_40">
+        <rect x="108.66064" y="256.6149" width="19.931112" height="22.385093" id="path_4"/>
+        <clipPath id="clip_path_4">
+          <use xl:href="#path_4"/>
+        </clipPath>
+        <g clip-path="url(#clip_path_4)">
+          <image xl:href="image5.pdf" width="333" height="374" transform="translate(108.66064 256.6149) scale(.05985319)"/>
+        </g>
+      </g>
+      <g id="Line_41">
+        <line x1="157.38114" y1="225.6708" x2="183.1504" y2="225.6708" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="3"/>
+      </g>
+      <g id="Line_45">
+        <line x1="265.74132" y1="225.6708" x2="291.51057" y2="225.6708" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="3"/>
+      </g>
+      <g id="Graphic_46">
+        <rect x="291.9003" y="229.62112" width="63.65476" height="40.819876" id="path_5"/>
+        <clipPath id="clip_path_5">
+          <use xl:href="#path_5"/>
+        </clipPath>
+        <g clip-path="url(#clip_path_5)">
+          <image xl:href="image8.tiff" width="1260" height="808" transform="translate(291.9003 229.62112) scale(.05051965)"/>
+        </g>
+      </g>
+      <g id="Graphic_48">
+        <rect x="298.93394" y="173" width="50.03727" height="50.03727" id="path_6"/>
+        <clipPath id="clip_path_6">
+          <use xl:href="#path_6"/>
+        </clipPath>
+        <g clip-path="url(#clip_path_6)">
+          <image xl:href="image10.tiff" width="700" height="700" transform="translate(298.93394 173) scale(.07148181)"/>
+        </g>
+      </g>
+      <g id="Graphic_49">
+        <text transform="translate(187.271 217)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="22.5" y="10">后端框架</tspan>
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="0" y="23">（调度器、核心等）</tspan>
+        </text>
+      </g>
+      <g id="Graphic_51">
+        <text transform="translate(304.5022 146)" fill="black">
+          <tspan font-family="PingFang SC" font-size="9" font-weight="400" fill="black" x="0" y="10">计算设备</tspan>
+        </text>
+      </g>
+    </g>
+  </g>
+</svg>

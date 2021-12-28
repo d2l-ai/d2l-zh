@@ -29,6 +29,13 @@ chapter_convolutional-neural-networks/index
 chapter_convolutional-modern/index
 chapter_recurrent-neural-networks/index
 chapter_recurrent-modern/index
+chapter_attention-mechanisms/index
+chapter_optimization/index
+chapter_computational-performance/index
+chapter_computer-vision/index
+chapter_natural-language-processing-pretraining/index
+chapter_natural-language-processing-applications/index
+chapter_appendix-tools-for-deep-learning/index
 
 
 ```
