@@ -145,9 +145,9 @@ class Residual(tf.keras.Model):  #@save
         return tf.keras.activations.relu(Y)
 ```
 
-如图 :numref:`fig_resnet_block`所示，此代码生成两种类型的网络：
-一种是在`use_1x1conv=False`、应用ReLU非线性函数之前，将输入添加到输出。
-另一种是在`use_1x1conv=True`时，添加通过$1 \times 1$卷积调整通道和分辨率。
+如 :numref:`fig_resnet_block`所示，此代码生成两种类型的网络：
+一种是当`use_1x1conv=False`时，应用ReLU非线性函数之前，将输入添加到输出。
+另一种是当`use_1x1conv=True`时，添加通过$1 \times 1$卷积调整通道和分辨率。
 
 ![包含以及不包含 $1 \times 1$ 卷积层的残差块。](../img/resnet-block.svg)
 :label:`fig_resnet_block`
