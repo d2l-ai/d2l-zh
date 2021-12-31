@@ -45,7 +45,7 @@
 * 接下来的五章集中讨论现代深度学习技术。
 :numref:`chap_computation` 描述了深度学习计算的各种关键组件，并为我们随后实现更复杂的模型奠定了基础。接下来，在 :numref:`chap_cnn` 和 :numref:`chap_modern_cnn` 中，我们介绍了卷积神经网络（convolutional neural network，CNN），这是构成大多数现代计算机视觉系统骨干的强大工具。随后，在 :numref:`chap_rnn` 和 :numref:`chap_modern_rnn` 中，我们引入了循环神经网络(recurrent neural network，RNN)，这是一种利用数据中的时间或序列结构的模型，通常用于自然语言处理和时间序列预测。在 :numref:`chap_attention` 中，我们介绍了一类新的模型，它采用了一种称为注意力机制的技术，最近它们已经开始在自然语言处理中取代循环神经网络。这一部分将帮助你快速了解大多数现代深度学习应用背后的基本工具。
 
-* 第三部分讨论可伸缩性、效率和应用程序。
+* 第三部分讨论可拓展性、效率和应用。
 首先，在 :numref:`chap_optimization` 中，我们讨论了用于训练深度学习模型的几种常用优化算法。下一章 :numref:`chap_performance` 将探讨影响深度学习代码计算性能的几个关键因素。在 :numref:`chap_cv` 中，我们展示了深度学习在计算机视觉中的主要应用。在 :numref:`chap_nlp_pretrain` 和 :numref:`chap_nlp_app` 中，我们展示了如何预训练语言表示模型并将其应用于自然语言处理任务。
 
 ### 代码
