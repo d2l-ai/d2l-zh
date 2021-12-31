@@ -39,7 +39,7 @@
 *训练误差*（training error）是指，
 模型在训练数据集上计算得到的误差。
 *泛化误差*（generalization error）是指，
-模型应用在同样从原始样本的分布中抽取的无限多的数据样本时，模型误差的期望。
+模型应用在同样从原始样本的分布中抽取的无限多数据样本时，模型误差的期望。
 
 问题是，我们永远不能准确地计算出泛化误差。
 这是因为无限多的数据样本是一个虚构的对象。
@@ -114,13 +114,13 @@
 这不太可能有效，因为大学生看起来往往与老年人有很大的不同。
 
 在接下来的章节中，我们将讨论因违背独立同分布假设而引起的问题。
-目前，即使认为独立同分布假设是理所当然的，理解泛化也是一个困难的问题。
+目前，即使认为独立同分布假设是理所当然的，理解泛化性也是一个困难的问题。
 此外，能够解释深层神经网络泛化性能的理论基础，
 也仍在继续困扰着学习理论领域最伟大的学者们。
 
 当我们训练模型时，我们试图找到一个能够尽可能拟合训练数据的函数。
 但是如果它执行地“太好了”，而不能对看不见的数据做到很好泛化，就会导致过拟合。
-这种情况正是我们想要避免，或起码控制的。
+这种情况正是我们想要避免或控制的。
 深度学习中有许多启发式的技术旨在防止过拟合。
 
 ### 模型复杂性
@@ -217,7 +217,7 @@
 
 ### 模型复杂性
 
-为了说明一些关于过拟合和模型复杂性的经典的直觉，
+为了说明一些关于过拟合和模型复杂性的经典直觉，
 我们给出一个多项式的例子。
 给定由单个特征$x$和对应实数标签$y$组成的训练数据，
 我们试图找到下面的$d$阶多项式来估计标签$y$。
@@ -258,7 +258,7 @@ $$\hat{y}= \sum_{i=0}^d x^i w_i$$
 
 ## 多项式回归
 
-我们现在可以(**通过多项式拟合来交互地探索这些概念**)。
+我们现在可以(**通过多项式拟合来探索这些概念**)。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -322,7 +322,7 @@ labels += np.random.normal(scale=0.1, size=labels.shape)
 
 ```{.python .input}
 #@tab pytorch, tensorflow
-# NumPyndarray转换为tensor
+# NumPy ndarray转换为tensor
 true_w, features, poly_features, labels = [d2l.tensor(x, dtype=
     d2l.float32) for x in [true_w, features, poly_features, labels]]
 ```
@@ -367,7 +367,7 @@ def train(train_features, test_features, train_labels, test_labels,
           num_epochs=400):
     loss = gluon.loss.L2Loss()
     net = nn.Sequential()
-    # 不设置偏置，因为我们已经在多项式特征中实现了它
+    # 不设置偏置，因为我们已经在多项式中实现了它
     net.add(nn.Dense(1, use_bias=False))
     net.initialize()
     batch_size = min(10, train_labels.shape[0])
@@ -393,7 +393,7 @@ def train(train_features, test_features, train_labels, test_labels,
           num_epochs=400):
     loss = nn.MSELoss(reduction='none')
     input_shape = train_features.shape[-1]
-    # 不设置偏置，因为我们已经在多项式特征中实现了它
+    # 不设置偏置，因为我们已经在多项式中实现了它
     net = nn.Sequential(nn.Linear(input_shape, 1, bias=False))
     batch_size = min(10, train_labels.shape[0])
     train_iter = d2l.load_array((train_features, train_labels.reshape(-1,1)),
@@ -418,7 +418,7 @@ def train(train_features, test_features, train_labels, test_labels,
           num_epochs=400):
     loss = tf.losses.MeanSquaredError()
     input_shape = train_features.shape[-1]
-    # 不设置偏置，因为我们已经在多项式特征中实现了它
+    # 不设置偏置，因为我们已经在多项式中实现了它
     net = tf.keras.Sequential()
     net.add(tf.keras.layers.Dense(1, use_bias=False))
     batch_size = min(10, train_labels.shape[0])
@@ -437,7 +437,7 @@ def train(train_features, test_features, train_labels, test_labels,
     print('weight:', net.get_weights()[0].T)
 ```
 
-### [**三阶多项式函数拟合(正态)**]
+### [**三阶多项式函数拟合(正常)**]
 
 我们将首先使用三阶多项式函数，它与数据生成函数的阶数相同。
 结果表明，该模型能有效降低训练损失和测试损失。

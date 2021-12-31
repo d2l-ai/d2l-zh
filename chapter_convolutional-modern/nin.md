@@ -74,7 +74,7 @@ NiN使用窗口形状为$11\times 11$、$5\times 5$和$3\times 3$的卷积层，
 每个NiN块后有一个最大汇聚层，汇聚窗口形状为$3\times 3$，步幅为2。
 
 NiN和AlexNet之间的一个显著区别是NiN完全取消了全连接层。
-相反，NiN使用一个NiN块，其输出通道数等于标签类别的数量。最后放一个*全局平均汇聚层*（global average pooling layer），生成一个多元逻辑向量（logits）。NiN设计的一个优点是，它显著减少了模型所需参数的数量。然而，在实践中，这种设计有时会增加训练模型的时间。
+相反，NiN使用一个NiN块，其输出通道数等于标签类别的数量。最后放一个*全局平均汇聚层*（global average pooling layer），生成一个对数几率	（logits）。NiN设计的一个优点是，它显著减少了模型所需参数的数量。然而，在实践中，这种设计有时会增加训练模型的时间。
 
 ```{.python .input}
 net = nn.Sequential()

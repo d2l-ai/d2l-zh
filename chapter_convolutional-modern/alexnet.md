@@ -100,10 +100,10 @@ AlexNet由八层组成：五个卷积层、两个全连接隐藏层和一个全�
 
 ### 容量控制和预处理
 
-AlexNet通过dropout（ :numref:`sec_dropout`）控制全连接层的模型复杂度，而LeNet只使用了权重衰减。
+AlexNet通过暂退法（ :numref:`sec_dropout`）控制全连接层的模型复杂度，而LeNet只使用了权重衰减。
 为了进一步扩充数据，AlexNet在训练时增加了大量的图像增强数据，如翻转、裁切和变色。
 这使得模型更健壮，更大的样本量有效地减少了过拟合。
-我们将在 :numref:`sec_image_augmentation`中更详细地讨论数据扩充。
+我们将在 :numref:`sec_image_augmentation`中更详细地讨论数据扩增。
 
 ```{.python .input}
 from d2l import mxnet as d2l
