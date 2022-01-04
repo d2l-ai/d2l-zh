@@ -17,7 +17,7 @@
 
 * $\mathcal{X}$: 集合
 * $\mathbb{Z}$: 整数集合
-* $\mathbb{R}$ 实数集合
+* $\mathbb{R}$: 实数集合
 * $\mathbb{R}^n$: $n$维实数向量
 * $\mathbb{R}^{a\times b}$: 包含$a$行和$b$列的实数矩阵
 * $\mathcal{A}\cup\mathcal{B}$: 集合$\mathcal{A}$和$\mathcal{B}$的并集
