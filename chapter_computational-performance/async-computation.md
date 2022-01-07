@@ -45,7 +45,7 @@ with d2l.Benchmark('mxnet.np'):
 
 ```{.python .input}
 #@tab pytorch
-# GPU 计算热身
+# GPU计算热身
 device = d2l.try_gpu()
 a = torch.randn(size=(1000, 1000), device=device)
 b = torch.mm(a, a)
@@ -91,10 +91,10 @@ with d2l.Benchmark():
 :end_tab:
 
 :begin_tab:`pytorch`
-广义上说，PyTorch有一个用于与用户直接交互的前端（例如通过Python），还有一个由系统用来执行计算的后端。如 :numref:`fig_frontends`所示，用户可以用各种前端语言编写Python程序，如Python和C++。不管使用的前端编程语言是什么，PyTorch程序的执行主要发生在C++实现的后端。由前端语言发出的操作被传递到后端执行。后端管理自己的线程，这些线程不断收集和执行排队的任务。请注意，要使其工作，后端必须能够跟踪计算图中各个步骤之间的依赖关系。因此，不可能并行化相互依赖的操作。
+广义上说，PyTorch有一个用于与用户直接交互的前端（例如通过Python），还有一个由系统用来执行计算的后端。如 :numref:`fig_frontends`所示，用户可以用各种前端语言编写PyTorch程序，如Python和C++。不管使用的前端编程语言是什么，PyTorch程序的执行主要发生在C++实现的后端。由前端语言发出的操作被传递到后端执行。后端管理自己的线程，这些线程不断收集和执行排队的任务。请注意，要使其工作，后端必须能够跟踪计算图中各个步骤之间的依赖关系。因此，不可能并行化相互依赖的操作。
 :end_tab:
 
-![编程语言前端和深度学习框架后端。](../img/frontends.png)
+![编程语言前端和深度学习框架后端](../img/frontends.png)
 :width:`300px`
 :label:`fig_frontends`
 
@@ -115,12 +115,12 @@ z = x * y + 2
 z
 ```
 
-![后端跟踪计算图中各个步骤之间的依赖关系。](../img/asyncgraph.svg)
+![后端跟踪计算图中各个步骤之间的依赖关系](../img/asyncgraph.svg)
 :label:`fig_asyncgraph`
 
 上面的代码片段在 :numref:`fig_asyncgraph`中进行了说明。每当Python前端线程执行前三条语句中的一条语句时，它只是将任务返回到后端队列。当最后一个语句的结果需要被打印出来时，Python前端线程将等待C++后端线程完成变量`z`的结果计算。这种设计的一个好处是Python前端线程不需要执行实际的计算。因此，不管Python的性能如何，对程序的整体性能几乎没有影响。 :numref:`fig_threading`演示了前端和后端如何交互。
 
-![前端和后端的交互。](../img/threading.svg)
+![前端和后端的交互](../img/threading.svg)
 :label:`fig_threading`
 
 ## 障碍器与阻塞器

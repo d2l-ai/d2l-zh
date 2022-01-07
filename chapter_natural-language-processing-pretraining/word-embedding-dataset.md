@@ -32,9 +32,9 @@ d2l.DATA_HUB['ptb'] = (d2l.DATA_URL + 'ptb.zip',
 
 #@save
 def read_ptb():
-    """将PTB数据集加载到文本行的列表中。"""
+    """将PTB数据集加载到文本行的列表中"""
     data_dir = d2l.download_extract('ptb')
-    # Read the training set.
+    # Readthetrainingset.
     with open(os.path.join(data_dir, 'ptb.train.txt')) as f:
         raw_text = f.read()
     return [line.split() for line in raw_text.split('\n')]
@@ -63,8 +63,8 @@ $$ P(w_i) = \max\left(1 - \sqrt{\frac{t}{f(w_i)}}, 0\right),$$
 #@tab all
 #@save
 def subsample(sentences, vocab):
-    """下采样高频词。"""
-    # 排除未知词元 '<unk>'
+    """下采样高频词"""
+    # 排除未知词元'<unk>'
     sentences = [[token for token in line if vocab[token] != vocab.unk]
                  for line in sentences]
     counter = d2l.count_corpus(sentences)
@@ -85,8 +85,9 @@ subsampled, counter = subsample(sentences, vocab)
 
 ```{.python .input}
 #@tab all
-d2l.show_list_len_pair_hist(['origin', 'subsampled'], '# tokens per sentence',
-                            'count', sentences, subsampled);
+d2l.show_list_len_pair_hist(
+    ['origin', 'subsampled'], '# tokens per sentence',
+    'count', sentences, subsampled);
 ```
 
 对于单个词元，高频词“the”的采样率不到1/20。
@@ -94,9 +95,9 @@ d2l.show_list_len_pair_hist(['origin', 'subsampled'], '# tokens per sentence',
 ```{.python .input}
 #@tab all
 def compare_counts(token):
-    return (f'# of "{token}": '
-            f'before={sum([l.count(token) for l in sentences])}, '
-            f'after={sum([l.count(token) for l in subsampled])}')
+    return (f'"{token}"的数量：'
+            f'之前={sum([l.count(token) for l in sentences])}, '
+            f'之后={sum([l.count(token) for l in subsampled])}')
 
 compare_counts('the')
 ```
@@ -124,14 +125,14 @@ corpus[:3]
 #@tab all
 #@save
 def get_centers_and_contexts(corpus, max_window_size):
-    """返回跳元模型中的中心词和上下文词。"""
+    """返回跳元模型中的中心词和上下文词"""
     centers, contexts = [], []
     for line in corpus:
         # 要形成“中心词-上下文词”对，每个句子至少需要有2个词
         if len(line) < 2:
             continue
         centers += line
-        for i in range(len(line)):  # 上下文窗口中间`i`
+        for i in range(len(line)):  # 上下文窗口中间i
             window_size = random.randint(1, max_window_size)
             indices = list(range(max(0, i - window_size),
                                  min(len(line), i + 1 + window_size)))
@@ -146,9 +147,9 @@ def get_centers_and_contexts(corpus, max_window_size):
 ```{.python .input}
 #@tab all
 tiny_dataset = [list(range(7)), list(range(7, 10))]
-print('dataset', tiny_dataset)
+print('数据集', tiny_dataset)
 for center, context in zip(*get_centers_and_contexts(tiny_dataset, 2)):
-    print('center', center, 'has contexts', context)
+    print('中心词', center, '的上下文词是', context)
 ```
 
 在PTB数据集上进行训练时，我们将最大上下文窗口大小设置为5。下面提取数据集中的所有中心词及其上下文词。
@@ -156,7 +157,7 @@ for center, context in zip(*get_centers_and_contexts(tiny_dataset, 2)):
 ```{.python .input}
 #@tab all
 all_centers, all_contexts = get_centers_and_contexts(corpus, 5)
-f'# center-context pairs: {sum([len(contexts) for contexts in all_contexts])}'
+f'# “中心词-上下文词对”的数量: {sum([len(contexts) for contexts in all_contexts])}'
 ```
 
 ## 负采样
@@ -167,9 +168,9 @@ f'# center-context pairs: {sum([len(contexts) for contexts in all_contexts])}'
 #@tab all
 #@save
 class RandomGenerator:
-    """根据n个采样权重在 {1, ..., n} 中随机抽取。"""
+    """根据n个采样权重在{1,...,n}中随机抽取"""
     def __init__(self, sampling_weights):
-        # Exclude 
+        # Exclude
         self.population = list(range(1, len(sampling_weights) + 1))
         self.sampling_weights = sampling_weights
         self.candidates = []
@@ -177,7 +178,7 @@ class RandomGenerator:
 
     def draw(self):
         if self.i == len(self.candidates):
-            # 缓存`k`个随机采样结果
+            # 缓存k个随机采样结果
             self.candidates = random.choices(
                 self.population, self.sampling_weights, k=10000)
             self.i = 0
@@ -188,6 +189,8 @@ class RandomGenerator:
 例如，我们可以在索引1、2和3中绘制10个随机变量$X$，采样概率为$P(X=1)=2/9, P(X=2)=3/9$和$P(X=3)=4/9$，如下所示。
 
 ```{.python .input}
+#@tab all
+#@save
 generator = RandomGenerator([2, 3, 4])
 [generator.draw() for _ in range(10)]
 ```
@@ -198,7 +201,7 @@ generator = RandomGenerator([2, 3, 4])
 #@tab all
 #@save
 def get_negatives(all_contexts, vocab, counter, K):
-    """返回负采样中的噪声词。"""
+    """返回负采样中的噪声词"""
     # 索引为1、2、...（索引0是词表中排除的未知标记）
     sampling_weights = [counter[vocab.to_tokens(i)]**0.75
                         for i in range(1, len(vocab))]
@@ -231,13 +234,14 @@ all_negatives = get_negatives(all_contexts, vocab, counter, 5)
 #@tab all
 #@save
 def batchify(data):
-    """返回带有负采样的跳元模型的小批量样本。"""
+    """返回带有负采样的跳元模型的小批量样本"""
     max_len = max(len(c) + len(n) for _, c, n in data)
     centers, contexts_negatives, masks, labels = [], [], [], []
     for center, context, negative in data:
         cur_len = len(context) + len(negative)
         centers += [center]
-        contexts_negatives += [context + negative + [0] * (max_len - cur_len)]
+        contexts_negatives += \
+            [context + negative + [0] * (max_len - cur_len)]
         masks += [[1] * cur_len + [0] * (max_len - cur_len)]
         labels += [[1] * len(context) + [0] * (max_len - len(context))]
     return (d2l.reshape(d2l.tensor(centers), (-1, 1)), d2l.tensor(
@@ -264,7 +268,7 @@ for name, data in zip(names, batch):
 ```{.python .input}
 #@save
 def load_data_ptb(batch_size, max_window_size, num_noise_words):
-    """下载PTB数据集，然后将其加载到内存中。"""
+    """下载PTB数据集，然后将其加载到内存中"""
     sentences = read_ptb()
     vocab = d2l.Vocab(sentences, min_freq=10)
     subsampled, counter = subsample(sentences, vocab)
@@ -285,7 +289,7 @@ def load_data_ptb(batch_size, max_window_size, num_noise_words):
 #@tab pytorch
 #@save
 def load_data_ptb(batch_size, max_window_size, num_noise_words):
-    """下载PTB数据集，然后将其加载到内存中。"""
+    """下载PTB数据集，然后将其加载到内存中"""
     num_workers = d2l.get_dataloader_workers()
     sentences = read_ptb()
     vocab = d2l.Vocab(sentences, min_freq=10)
@@ -312,9 +316,9 @@ def load_data_ptb(batch_size, max_window_size, num_noise_words):
 
     dataset = PTBDataset(all_centers, all_contexts, all_negatives)
 
-    data_iter = torch.utils.data.DataLoader(dataset, batch_size, shuffle=True,
-                                      collate_fn=batchify,
-                                      num_workers=num_workers)
+    data_iter = torch.utils.data.DataLoader(
+        dataset, batch_size, shuffle=True, 
+        collate_fn=batchify, num_workers=num_workers)
     return data_iter, vocab
 ```
 
@@ -341,9 +345,9 @@ for batch in data_iter:
 1. 本节代码中的哪些其他超参数可能会影响数据加载速度？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/383)
+[Discussions](https://discuss.d2l.ai/t/5734)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1330)
+[Discussions](https://discuss.d2l.ai/t/5735)
 :end_tab:

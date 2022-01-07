@@ -1,11 +1,14 @@
 # 词嵌入（Word2vec）
 :label:`sec_word2vec`
 
-自然语言是用来表达意义的复杂系统。在这个系统中，词是意义的基本单元。顾名思义，
-*词向量*是用于表示单词的向量，
-并且还可以被认为是单词的特征向量或表示。将单词映射到实向量的技术称为*词嵌入*。近年来，词嵌入逐渐成为自然语言处理的基础知识。
+自然语言是用来表达人脑思维的复杂系统。
+在这个系统中，词是意义的基本单元。顾名思义，
+*词向量*是用于表示单词意义的向量，
+并且还可以被认为是单词的特征向量或表示。
+将单词映射到实向量的技术称为*词嵌入*。
+近年来，词嵌入逐渐成为自然语言处理的基础知识。
 
-## 独热向量是一个糟糕的选择
+## 为何独热向量是一个糟糕的选择
 
 在 :numref:`sec_rnn_scratch`中，我们使用独热向量来表示词（字符就是单词）。假设词典中不同词的数量（词典大小）为$N$，每个词对应一个从$0$到$N−1$的不同整数（索引）。为了得到索引为$i$的任意词的独热向量表示，我们创建了一个全为0的长度为$N$的向量，并将位置$i$的元素设置为1。这样，每个词都被表示为一个长度为$N$的向量，可以直接由神经网络使用。
 
@@ -32,7 +35,7 @@ $$P(\textrm{"the"},\textrm{"man"},\textrm{"his"},\textrm{"son"}\mid\textrm{"love
 
 $$P(\textrm{"the"}\mid\textrm{"loves"})\cdot P(\textrm{"man"}\mid\textrm{"loves"})\cdot P(\textrm{"his"}\mid\textrm{"loves"})\cdot P(\textrm{"son"}\mid\textrm{"loves"}).$$
 
-![跳元模型考虑了在给定中心词的情况下生成周围上下文词的条件概率。](../img/skip-gram.svg)
+![跳元模型考虑了在给定中心词的情况下生成周围上下文词的条件概率](../img/skip-gram.svg)
 :label:`fig_skip_gram`
 
 在跳元模型中，每个词都有两个$d$维向量表示，用于计算条件概率。更具体地说，对于词典中索引为$i$的任何词，分别用$\mathbf{v}_i\in\mathbb{R}^d$和$\mathbf{u}_i\in\mathbb{R}^d$表示其用作*中心词*和*上下文词*时的两个向量。给定中心词$w_c$（词典中的索引$c$），生成任何上下文词$w_o$（词典中的索引$o$）的条件概率可以通过对向量点积的softmax操作来建模：
@@ -72,7 +75,7 @@ $$\begin{aligned}\frac{\partial \text{log}\, P(w_o \mid w_c)}{\partial \mathbf{v
 
 $$P(\textrm{"loves"}\mid\textrm{"the"},\textrm{"man"},\textrm{"his"},\textrm{"son"}).$$
 
-![连续词袋模型考虑了给定周围上下文词生成中心词条件概率。](../img/cbow.svg)
+![连续词袋模型考虑了给定周围上下文词生成中心词条件概率](../img/cbow.svg)
 :label:`fig_cbow`
 
 
@@ -108,9 +111,9 @@ $$\frac{\partial \log\, P(w_c \mid \mathcal{W}_o)}{\partial \mathbf{v}_{o_i}} = 
 
 ## 小结
 
-* 词向量是用来表示词的向量，也可以看作是词的特征向量或表示。将词映射到实向量的技术称为词嵌入。
+* 词向量是用于表示单词意义的向量，也可以看作是词的特征向量。将词映射到实向量的技术称为词嵌入。
 * word2vec工具包含跳元模型和连续词袋模型。
-* 跳元模型假设单词可用于在文本序列中生成其周围的单词；而连续词袋模型假设基于上下文词来生成中心单词。
+* 跳元模型假设一个单词可用于在文本序列中，生成其周围的单词；而连续词袋模型假设基于上下文词来生成中心单词。
 
 ## 练习
 
@@ -118,4 +121,4 @@ $$\frac{\partial \log\, P(w_c \mid \mathcal{W}_o)}{\partial \mathbf{v}_{o_i}} = 
 1. 英语中的一些固定短语由多个单词组成，例如“new york”。如何训练它们的词向量？提示:查看word2vec论文的第四节 :cite:`Mikolov.Sutskever.Chen.ea.2013`。
 1. 让我们以跳元模型为例来思考word2vec设计。跳元模型中两个词向量的点积与余弦相似度之间有什么关系？对于语义相似的一对词，为什么它们的词向量（由跳元模型训练）的余弦相似度可能很高？
 
-[Discussions](https://discuss.d2l.ai/t/381)
+[Discussions](https://discuss.d2l.ai/t/5744)

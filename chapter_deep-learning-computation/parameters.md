@@ -298,7 +298,7 @@ TensorFlow在根模块和`keras.initializers`模块中提供了各种初始化�
 且将偏置参数设置为0。
 
 ```{.python .input}
-# 这里的`force_reinit`确保参数会被重新初始化，不论之前是否已经被初始化
+# 这里的force_reinit确保参数会被重新初始化，不论之前是否已经被初始化
 net.initialize(init=init.Normal(sigma=0.01), force_reinit=True)
 net[0].weight.data()[0]
 ```

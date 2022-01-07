@@ -49,7 +49,7 @@ $28 \times 28 = 784$个灰度像素值组成。
 
 我们用几个张量来表示我们的参数。
 注意，对于每一层我们都要记录一个权重矩阵和一个偏置向量。
-跟以前一样，我们要为这些参数的损失的梯度分配内存。
+跟以前一样，我们要为这些参数损失的梯度分配内存。
 
 ```{.python .input}
 num_inputs, num_outputs, num_hiddens = 784, 10, 256
@@ -87,7 +87,7 @@ W1 = tf.Variable(tf.random.normal(
 b1 = tf.Variable(tf.zeros(num_hiddens))
 W2 = tf.Variable(tf.random.normal(
     shape=(num_hiddens, num_outputs), mean=0, stddev=0.01))
-b2 = tf.Variable(tf.random.normal([num_outputs], stddev=.01))
+b2 = tf.Variable(tf.zeros(num_outputs))
 
 params = [W1, b1, W2, b2]
 ```

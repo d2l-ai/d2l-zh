@@ -53,7 +53,7 @@ $$
 
 作为另一种近似训练方法，*层序Softmax*（hierarchical softmax）使用二叉树（ :numref:`fig_hi_softmax`中说明的数据结构），其中树的每个叶节点表示词表$\mathcal{V}$中的一个词。
 
-![用于近似训练的分层softmax，其中树的每个叶节点表示词表中的一个词。](../img/hi-softmax.svg)
+![用于近似训练的分层softmax，其中树的每个叶节点表示词表中的一个词](../img/hi-softmax.svg)
 :label:`fig_hi_softmax`
 
 用$L(w)$表示二叉树中表示字$w$的从根节点到叶节点的路径上的节点数（包括两端）。设$n(w,j)$为该路径上的$j^\mathrm{th}$节点，其上下文字向量为$\mathbf{u}_{n(w, j)}$。例如， :numref:`fig_hi_softmax`中的$L(w_3) = 4$。分层softmax将 :eqref:`eq_skip-gram-softmax`中的条件概率近似为
@@ -84,4 +84,4 @@ $$\sum_{w \in \mathcal{V}} P(w \mid w_c) = 1.$$
 1. 验证 :eqref:`eq_hi-softmax-sum-one`是否有效。
 1. 如何分别使用负采样和分层softmax训练连续词袋模型？
 
-[Discussions](https://discuss.d2l.ai/t/382)
+[Discussions](https://discuss.d2l.ai/t/5741)

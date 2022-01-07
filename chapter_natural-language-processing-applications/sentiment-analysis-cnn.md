@@ -5,7 +5,7 @@
 
 在本节中，我们将使用*textCNN*模型来演示如何设计一个表示单个文本 :cite:`Kim.2014`的卷积神经网络架构。与 :numref:`fig_nlp-map-sa-rnn`中使用带有GloVe预训练的循环神经网络架构进行情感分析相比， :numref:`fig_nlp-map-sa-cnn`中唯一的区别在于架构的选择。
 
-![本节将预训练GloVe送入卷积神经网络架构，以进行情感分析。](../img/nlp-map-sa-cnn.svg)
+![将GloVe放入卷积神经网络架构进行情感分析](../img/nlp-map-sa-cnn.svg)
 :label:`fig_nlp-map-sa-cnn`
 
 ```{.python .input}
@@ -32,7 +32,7 @@ train_iter, test_iter, vocab = d2l.load_data_imdb(batch_size)
 
 在介绍该模型之前，让我们先看看一维卷积是如何工作的。请记住，这只是基于互相关运算的二维卷积的特例。
 
-![一维互相关运算。阴影部分是第一个输出元素以及用于输出计算的输入和核张量元素：$0\times1+1\times2=2$。](../img/conv1d.svg)
+![一维互相关运算。阴影部分是第一个输出元素以及用于输出计算的输入和核张量元素：$0\times1+1\times2=2$](../img/conv1d.svg)
 :label:`fig_conv1d`
 
 如 :numref:`fig_conv1d`中所示，在一维情况下，卷积窗口在输入张量上从左向右滑动。在滑动期间，卷积窗口中某个位置包含的输入子张量（例如， :numref:`fig_conv1d`中的$0$和$1$）和核张量（例如， :numref:`fig_conv1d`中的$1$和$2$）按元素相乘。这些乘法的总和在输出张量的相应位置给出单个标量值（例如， :numref:`fig_conv1d`中的$0\times1+1\times2=2$）。
@@ -98,7 +98,7 @@ corr1d_multi_in(X, K)
 1. 在所有输出通道上执行最大时间汇聚层，然后将所有标量汇聚输出连结为向量。
 1. 使用全连接层将连结后的向量转换为输出类别。Dropout可以用来减少过拟合。
 
-![textCNN的模型架构。](../img/textcnn.svg)
+![textCNN的模型架构](../img/textcnn.svg)
 :label:`fig_conv1d_textcnn`
 
  :numref:`fig_conv1d_textcnn`通过一个具体的例子说明了textCNN的模型架构。输入是具有11个词元的句子，其中每个词元由6维向量表示。因此，我们有一个宽度为11的6通道输入。定义两个宽度为2和4的一维卷积核，分别具有4个和5个输出通道。它们产生4个宽度为$11-2+1=10$的输出通道和5个宽度为$11-4+1=8$的输出通道。尽管这9个通道的宽度不同，但最大时间汇聚层给出了一个连结的9维向量，该向量最终被转换为用于二元情感预测的2维输出向量。
@@ -125,12 +125,14 @@ class TextCNN(nn.Block):
             self.convs.add(nn.Conv1D(c, k, activation='relu'))
 
     def forward(self, inputs):
-        # 沿着向量维度将两个嵌入层连结起来，每个嵌入层的输出形状都是(批量大小, 词元数量, 词元向量维度)连结起来
+        # 沿着向量维度将两个嵌入层连结起来，
+        # 每个嵌入层的输出形状都是（批量大小，词元数量，词元向量维度）连结起来
         embeddings = np.concatenate((
             self.embedding(inputs), self.constant_embedding(inputs)), axis=2)
         # 根据一维卷积层的输入格式，重新排列张量，以便通道作为第2维
         embeddings = embeddings.transpose(0, 2, 1)
-        # 对于每个一维卷积层，在最大时间汇聚层合并后，获得的张量形状是(批量大小, 通道数, 1)。删除最后一个维度并沿通道维度连结
+        # 每个一维卷积层在最大时间汇聚层合并后，获得的张量形状是（批量大小，通道数，1）
+        # 删除最后一个维度并沿通道维度连结
         encoding = np.concatenate([
             np.squeeze(self.pool(conv(embeddings)), axis=-1)
             for conv in self.convs], axis=1)
@@ -158,12 +160,14 @@ class TextCNN(nn.Module):
             self.convs.append(nn.Conv1d(2 * embed_size, c, k))
 
     def forward(self, inputs):
-        # 沿着向量维度将两个嵌入层连结起来，每个嵌入层的输出形状都是(批量大小, 词元数量, 词元向量维度)连结起来
+        # 沿着向量维度将两个嵌入层连结起来，
+        # 每个嵌入层的输出形状都是（批量大小，词元数量，词元向量维度）连结起来
         embeddings = torch.cat((
             self.embedding(inputs), self.constant_embedding(inputs)), dim=2)
         # 根据一维卷积层的输入格式，重新排列张量，以便通道作为第2维
         embeddings = embeddings.permute(0, 2, 1)
-        # 对于每个一维卷积层，在最大时间汇聚层合并后，获得的张量形状是(批量大小, 通道数, 1)。删除最后一个维度并沿通道维度连结
+        # 每个一维卷积层在最大时间汇聚层合并后，获得的张量形状是（批量大小，通道数，1）
+        # 删除最后一个维度并沿通道维度连结
         encoding = torch.cat([
             torch.squeeze(self.relu(self.pool(conv(embeddings))), dim=-1)
             for conv in self.convs], dim=1)
@@ -259,9 +263,9 @@ d2l.predict_sentiment(net, vocab, 'this movie is so bad')
 1. 在输入表示中添加位置编码。它是否提高了分类的精度？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/393)
+[Discussions](https://discuss.d2l.ai/t/5719)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1425)
+[Discussions](https://discuss.d2l.ai/t/5720)
 :end_tab:

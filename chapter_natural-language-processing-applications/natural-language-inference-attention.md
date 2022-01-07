@@ -3,14 +3,14 @@
 
 我们在 :numref:`sec_natural-language-inference-and-dataset`中介绍了自然语言推断任务和SNLI数据集。鉴于许多模型都是基于复杂而深度的架构，Parikh等人提出用注意力机制解决自然语言推断问题，并称之为“可分解注意力模型” :cite:`Parikh.Tackstrom.Das.ea.2016`。这使得模型没有循环层或卷积层，在SNLI数据集上以更少的参数实现了当时的最佳结果。在本节中，我们将描述并实现这种基于注意力的自然语言推断方法（使用MLP），如 :numref:`fig_nlp-map-nli-attention`中所述。
 
-![本节将预训练GloVe送入基于注意力和MLP的自然语言推断架构](../img/nlp-map-nli-attention.svg)
+![将预训练GloVe送入基于注意力和MLP的自然语言推断架构](../img/nlp-map-nli-attention.svg)
 :label:`fig_nlp-map-nli-attention`
 
 ## 模型
 
 与保留前提和假设中词元的顺序相比，我们可以将一个文本序列中的词元与另一个文本序列中的每个词元对齐，然后比较和聚合这些信息，以预测前提和假设之间的逻辑关系。与机器翻译中源句和目标句之间的词元对齐类似，前提和假设之间的词元对齐可以通过注意力机制灵活地完成。
 
-![利用注意力机制进行自然语言推断。](../img/nli-attention.svg)
+![利用注意力机制进行自然语言推断](../img/nli-attention.svg)
 :label:`fig_nli_attention`
 
  :numref:`fig_nli_attention`描述了使用注意力机制的自然语言推断方法。从高层次上讲，它由三个联合训练的步骤组成：对齐、比较和汇总。我们将在下面一步一步地对它们进行说明。
@@ -92,15 +92,17 @@ class Attend(nn.Block):
         self.f = mlp(num_hiddens=num_hiddens, flatten=False)
 
     def forward(self, A, B):
-        # `A`/`B`的形状： (批量大小, 序列 A/B的词元数, `embed_size`)
-        # `f_A`/`f_B`的形状： (`批量大小`,  序列 A/B的词元数, `num_hiddens`)
+        # A/B的形状：（批量大小，序列A/B的词元数，embed_size）
+        # f_A/f_B的形状：（批量大小，序列A/B的词元数，num_hiddens）
         f_A = self.f(A)
         f_B = self.f(B)
-        # `e`的形状： (批量大小, 序列A的词元数, 序列B的词元数)
+        # e的形状：（批量大小，序列A的词元数，序列B的词元数）
         e = npx.batch_dot(f_A, f_B, transpose_b=True)
-        # `beta`的形状： (批量大小, 序列A的词元数, `embed_size`), 意味着序列B被软对齐到序列A的每个词元(`beta`的第1个维度)
+        # beta的形状：（批量大小，序列A的词元数，embed_size），
+        # 意味着序列B被软对齐到序列A的每个词元(beta的第1个维度)
         beta = npx.batch_dot(npx.softmax(e), B)
-        # `beta`的形状： (批量大小, 序列B的词元数, `embed_size`), 意味着序列A被软对齐到序列B的每个词元(`alpha`的第1个维度)
+        # beta的形状：（批量大小，序列B的词元数，embed_size），
+        # 意味着序列A被软对齐到序列B的每个词元(alpha的第1个维度)
         alpha = npx.batch_dot(npx.softmax(e.transpose(0, 2, 1)), A)
         return beta, alpha
 ```
@@ -113,22 +115,24 @@ class Attend(nn.Module):
         self.f = mlp(num_inputs, num_hiddens, flatten=False)
 
     def forward(self, A, B):
-        # `A`/`B`的形状： (批量大小, 序列 A/B的词元数, `embed_size`)
-        # `f_A`/`f_B`的形状： (`批量大小`,  序列 A/B的词元数, `num_hiddens`)
+        # A/B的形状：（批量大小，序列A/B的词元数，embed_size）
+        # f_A/f_B的形状：（批量大小，序列A/B的词元数，num_hiddens）
         f_A = self.f(A)
         f_B = self.f(B)
-        # `e`的形状： (批量大小, 序列A的词元数, 序列B的词元数)
+        # e的形状：（批量大小，序列A的词元数，序列B的词元数）
         e = torch.bmm(f_A, f_B.permute(0, 2, 1))
-        # `beta`的形状： (批量大小, 序列A的词元数, `embed_size`), 意味着序列B被软对齐到序列A的每个词元(`beta`的第1个维度)
+        # beta的形状：（批量大小，序列A的词元数，embed_size），
+        # 意味着序列B被软对齐到序列A的每个词元(beta的第1个维度)
         beta = torch.bmm(F.softmax(e, dim=-1), B)
-        # `beta`的形状： (批量大小, 序列B的词元数, `embed_size`), 意味着序列A被软对齐到序列B的每个词元(`alpha`的第1个维度)
+        # beta的形状：（批量大小，序列B的词元数，embed_size），
+        # 意味着序列A被软对齐到序列B的每个词元(alpha的第1个维度)
         alpha = torch.bmm(F.softmax(e.permute(0, 2, 1), dim=-1), A)
         return beta, alpha
 ```
 
 ### 比较
 
-在下一步中，我们将一个序列中的词元与与该词元软对齐的另一个序列进行比较。请注意，在软对齐中，一个序列中的所有词元（尽管可能具有不同的注意力权重）将与另一个序列中的词元进行比较。为便于演示， :numref:`fig_nli_attention`对词元以*硬*的方式对齐。例如，上述的“注意”（Attending）步骤确定前提中的“need”和“sleep”都与假设中的“tired”对齐，则将对“疲倦-需要睡眠”进行比较。
+在下一步中，我们将一个序列中的词元与与该词元软对齐的另一个序列进行比较。请注意，在软对齐中，一个序列中的所有词元（尽管可能具有不同的注意力权重）将与另一个序列中的词元进行比较。为便于演示， :numref:`fig_nli_attention`对词元以*硬*的方式对齐。例如，上述的“注意”（attending）步骤确定前提中的“need”和“sleep”都与假设中的“tired”对齐，则将对“疲倦-需要睡眠”进行比较。
 
 在比较步骤中，我们将来自一个序列的词元的连结（运算符$[\cdot, \cdot]$）和来自另一序列的对齐的词元送入函数$g$（一个多层感知机）：
 
@@ -223,7 +227,7 @@ class DecomposableAttention(nn.Block):
         self.embedding = nn.Embedding(len(vocab), embed_size)
         self.attend = Attend(num_hiddens)
         self.compare = Compare(num_hiddens)
-        # 有3种可能的输出：蕴涵、矛盾和中立
+        # 有3种可能的输出：蕴涵、矛盾和中性
         self.aggregate = Aggregate(num_hiddens, 3)
 
     def forward(self, X):
@@ -245,7 +249,7 @@ class DecomposableAttention(nn.Module):
         self.embedding = nn.Embedding(len(vocab), embed_size)
         self.attend = Attend(num_inputs_attend, num_hiddens)
         self.compare = Compare(num_inputs_compare, num_hiddens)
-        # 有3种可能的输出：蕴涵、矛盾和中立
+        # 有3种可能的输出：蕴涵、矛盾和中性
         self.aggregate = Aggregate(num_inputs_agg, num_hiddens, num_outputs=3)
 
     def forward(self, X):
@@ -301,7 +305,7 @@ net.embedding.weight.data.copy_(embeds);
 ```{.python .input}
 #@save
 def split_batch_multi_inputs(X, y, devices):
-    """将多输入'X'和'y'拆分到多个设备。"""
+    """将多输入'X'和'y'拆分到多个设备"""
     X = list(zip(*[gluon.utils.split_and_load(
         feature, devices, even_split=False) for feature in X]))
     return (X, gluon.utils.split_and_load(y, devices, even_split=False))
@@ -313,8 +317,8 @@ def split_batch_multi_inputs(X, y, devices):
 lr, num_epochs = 0.001, 4
 trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': lr})
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
-d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices,
-               split_batch_multi_inputs)
+d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, 
+    devices, split_batch_multi_inputs)
 ```
 
 ```{.python .input}
@@ -322,7 +326,8 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices,
 lr, num_epochs = 0.001, 4
 trainer = torch.optim.Adam(net.parameters(), lr=lr)
 loss = nn.CrossEntropyLoss(reduction="none")
-d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
+d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, 
+    devices)
 ```
 
 ### 使用模型
@@ -332,7 +337,7 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
 ```{.python .input}
 #@save
 def predict_snli(net, vocab, premise, hypothesis):
-    """预测前提和假设之间的逻辑关系。"""
+    """预测前提和假设之间的逻辑关系"""
     premise = np.array(vocab[premise], ctx=d2l.try_gpu())
     hypothesis = np.array(vocab[hypothesis], ctx=d2l.try_gpu())
     label = np.argmax(net([premise.reshape((1, -1)),
@@ -345,7 +350,7 @@ def predict_snli(net, vocab, premise, hypothesis):
 #@tab pytorch
 #@save
 def predict_snli(net, vocab, premise, hypothesis):
-    """预测前提和假设之间的逻辑关系。"""
+    """预测前提和假设之间的逻辑关系"""
     net.eval()
     premise = torch.tensor(vocab[premise], device=d2l.try_gpu())
     hypothesis = torch.tensor(vocab[hypothesis], device=d2l.try_gpu())
@@ -376,9 +381,9 @@ predict_snli(net, vocab, ['he', 'is', 'good', '.'], ['he', 'is', 'bad', '.'])
 1. 假设我们想要获得任何一对句子的语义相似级别（例如，0到1之间的连续值）。我们应该如何收集和标注数据集？你能设计一个有注意力机制的模型吗？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/395)
+[Discussions](https://discuss.d2l.ai/t/5727)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1530)
+[Discussions](https://discuss.d2l.ai/t/5728)
 :end_tab:

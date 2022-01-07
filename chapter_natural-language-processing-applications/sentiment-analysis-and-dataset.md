@@ -2,9 +2,12 @@
 :label:`sec_sentiment`
 
 随着在线社交媒体和评论平台的快速发展，大量评论的数据被记录下来。这些数据具有支持决策过程的巨大潜力。
-*情感分析*研究人们在他们产生的文本中的情绪，如产品评论、博客评论和论坛讨论。它在广泛应用于政治（例如，公众对政策的情绪分析）、金融（例如，市场情绪分析）和营销（例如，产品研究和品牌管理）等领域。
+*情感分析*（sentiment analysis）研究人们在文本中
+（如产品评论、博客评论和论坛讨论等）“隐藏”的情绪。
+它在广泛应用于政治（如公众对政策的情绪分析）、
+金融（如市场情绪分析）和营销（如产品研究和品牌管理）等领域。
 
-由于情感可以被分类为离散的极性或尺度（例如，积极的和消极的），我们可以将情感分析看作一项文本分类任务，它将可变长度的文本序列转换为固定长度的文本类别。在本章中，我们将使用斯坦福大学的[大型电影评论数据集（large movie review dataset）](https://ai.stanford.edu/~amaas/data/sentiment/)]进行情感分析。它由一个训练集和一个测试集组成，其中包含从IMDB下载的25000个电影评论。在这两个数据集中，“积极”和“消极”标签的数量相同，表示不同的情感极性。
+由于情感可以被分类为离散的极性或尺度（例如，积极的和消极的），我们可以将情感分析看作一项文本分类任务，它将可变长度的文本序列转换为固定长度的文本类别。在本章中，我们将使用斯坦福大学的[大型电影评论数据集（large movie review dataset）](https://ai.stanford.edu/~amaas/data/sentiment/)进行情感分析。它由一个训练集和一个测试集组成，其中包含从IMDb下载的25000个电影评论。在这两个数据集中，“积极”和“消极”标签的数量相同，表示不同的情感极性。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -23,7 +26,7 @@ import os
 
 ##  读取数据集
 
-首先，下载并提取路径`../data/aclImdb`中的IMDB评论数据集。
+首先，下载并提取路径`../data/aclImdb`中的IMDb评论数据集。
 
 ```{.python .input}
 #@tab all
@@ -41,7 +44,7 @@ data_dir = d2l.download_extract('aclImdb', 'aclImdb')
 #@tab all
 #@save
 def read_imdb(data_dir, is_train):
-    """读取IMDb评论数据集文本序列和标签。"""
+    """读取IMDb评论数据集文本序列和标签"""
     data, labels = [], []
     for label in ('pos', 'neg'):
         folder_name = os.path.join(data_dir, 'train' if is_train else 'test',
@@ -54,9 +57,9 @@ def read_imdb(data_dir, is_train):
     return data, labels
 
 train_data = read_imdb(data_dir, is_train=True)
-print('# trainings:', len(train_data[0]))
+print('训练集数目：', len(train_data[0]))
 for x, y in zip(train_data[0][:3], train_data[1][:3]):
-    print('label:', y, 'review:', x[0:60])
+    print('标签：', y, 'review:', x[0:60])
 ```
 
 ## 预处理数据集
@@ -99,17 +102,18 @@ train_iter = d2l.load_array((train_features, train_data[1]), 64)
 for X, y in train_iter:
     print('X:', X.shape, ', y:', y.shape)
     break
-print('# batches:', len(train_iter))
+print('小批量数目：', len(train_iter))
 ```
 
 ```{.python .input}
 #@tab pytorch
-train_iter = d2l.load_array((train_features, torch.tensor(train_data[1])), 64)
+train_iter = d2l.load_array((train_features, 
+    torch.tensor(train_data[1])), 64)
 
 for X, y in train_iter:
     print('X:', X.shape, ', y:', y.shape)
     break
-print('# batches:', len(train_iter))
+print('小批量数目：', len(train_iter))
 ```
 
 ## 整合代码
@@ -119,7 +123,7 @@ print('# batches:', len(train_iter))
 ```{.python .input}
 #@save
 def load_data_imdb(batch_size, num_steps=500):
-    """返回数据迭代器和IMDb评论数据集的词表。"""
+    """返回数据迭代器和IMDb评论数据集的词表"""
     data_dir = d2l.download_extract('aclImdb', 'aclImdb')
     train_data = read_imdb(data_dir, True)
     test_data = read_imdb(data_dir, False)
@@ -140,7 +144,7 @@ def load_data_imdb(batch_size, num_steps=500):
 #@tab pytorch
 #@save
 def load_data_imdb(batch_size, num_steps=500):
-    """返回数据迭代器和IMDb评论数据集的词表。"""
+    """返回数据迭代器和IMDb评论数据集的词表"""
     data_dir = d2l.download_extract('aclImdb', 'aclImdb')
     train_data = read_imdb(data_dir, True)
     test_data = read_imdb(data_dir, False)
@@ -161,19 +165,18 @@ def load_data_imdb(batch_size, num_steps=500):
 
 ## 小结
 
-* 情感分析研究人们在其生产的文本中的情感，这被认为是一个文本分类问题，它将可变长度的文本序列进行转换
-转换为固定长度的文本类别。
-* 经过预处理后，我们可以使用词表将斯坦福大学的大型电影评论数据集（IMDb评论数据集）加载到数据迭代器中。
+* 情感分析研究人们在文本中的情感，这被认为是一个文本分类问题，它将可变长度的文本序列进行转换转换为固定长度的文本类别。
+* 经过预处理后，我们可以使用词表将IMDb评论数据集加载到数据迭代器中。
 
 ## 练习
 
 1. 我们可以修改本节中的哪些超参数来加速训练情感分析模型？
-1. 你能实现一个函数来将[Amazon reviews](https://snap.stanford.edu/data/web-Amazon.html)的数据集加载到数据迭代器和标签中进行情感分析吗？
+1. 你能实现一个函数来将[Amazon reviews](https://snap.stanford.edu/data/web-Amazon.html)的数据集加载到数据迭代器中进行情感分析吗？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/391)
+[Discussions](https://discuss.d2l.ai/t/5725)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1387)
+[Discussions](https://discuss.d2l.ai/t/5726)
 :end_tab:

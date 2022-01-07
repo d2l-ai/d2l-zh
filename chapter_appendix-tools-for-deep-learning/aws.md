@@ -13,7 +13,7 @@
 
 登录到你的aws账户后，单击“EC2”（在 :numref:`fig_aws`中用红色方框标记）进入EC2面板。
 
-![打开EC2控制台。](../img/aws.png)
+![打开EC2控制台](../img/aws.png)
 :width:`400px`
 :label:`fig_aws`
 
@@ -28,9 +28,9 @@
 
 ### 增加限制
 
-在选择实例之前，请点击:numref:`fig_ec2`所示左侧栏中的“Limits”（限制）标签查看是否有数量限制。 :numref:`fig_limits`显示了此类限制的一个例子。账号目前无法按地域打开p2.xlarge实例。如果你需要打开一个或多个实例，请点击“Request limit increase”（请求增加限制）链接，申请更高的实例配额。一般来说，需要一个工作日的时间来处理申请。
+在选择实例之前，请点击 :numref:`fig_ec2`所示左侧栏中的“Limits”（限制）标签查看是否有数量限制。 :numref:`fig_limits`显示了此类限制的一个例子。账号目前无法按地域打开p2.xlarge实例。如果你需要打开一个或多个实例，请点击“Request limit increase”（请求增加限制）链接，申请更高的实例配额。一般来说，需要一个工作日的时间来处理申请。
 
-![实例数量限制。](../img/limits.png)
+![实例数量限制](../img/limits.png)
 :width:`700px`
 :label:`fig_limits`
 
@@ -40,7 +40,7 @@
 
 我们首先选择一个合适的Amazon机器映像（Amazon Machine Image，AMI）。在搜索框中输入“ubuntu”（ :numref:`fig_ubuntu`中的红色框标记）。
 
-![选择一个AMI。](../img/ubuntu-new.png)
+![选择一个AMI](../img/ubuntu-new.png)
 :width:`700px`
 :label:`fig_ubuntu`
 
@@ -51,7 +51,7 @@ EC2提供了许多不同的实例配置可供选择。对于初学者来说，�
 | Name | GPU         | Notes                         |
 |------|-------------|-------------------------------|
 | g2   | Grid K520   | 过时的                         |
-| p2   | Kepler K80  | 旧的但Spot实例通常很便宜         |
+| p2   | Kepler K80  | 旧的GPU但Spot实例通常很便宜         |
 | g3   | Maxwell M60 | 好的平衡                       |
 | p3   | Volta V100  | FP16的高性能                   |
 | g4   | Turing T4   | FP16/INT8推理优化              |
@@ -59,7 +59,7 @@ EC2提供了许多不同的实例配置可供选择。对于初学者来说，�
 
 所有这些服务器都有多种类型，显示了使用的GPU数量。例如，p2.xlarge有1个GPU，而p2.16xlarge有16个GPU和更多内存。有关更多详细信息，请参阅[Amazon EC2 文档](https://aws.amazon.com/ec2/instance-types/)。
 
-![选择一个实例。](../img/p2x.png)
+![选择一个实例](../img/p2x.png)
 :width:`700px`
 :label:`fig_p2x`
 
@@ -67,19 +67,19 @@ EC2提供了许多不同的实例配置可供选择。对于初学者来说，�
 
 到目前为止，我们已经完成了启动EC2实例的七个步骤中的前两个步骤，如 :numref:`fig_disk`顶部所示。在本例中，我们保留“3. Configure Instance”（3. 配置实例）、“5. Add Tags”（5. 添加标签）和“6. Configure Security Group”（6. 配置安全组）步骤的默认配置。点击“4.添加存储”并将默认硬盘大小增加到64GB( :numref:`fig_disk`中的红色框标记)。请注意，CUDA本身已经占用了4GB空间。
 
-![修改硬盘大小。](../img/disk.png)
+![修改硬盘大小](../img/disk.png)
 :width:`700px`
 :label:`fig_disk`
 
-最后，进入“7. Review”（7. 查看），点击“Launch”（启动），即可启动配置好的实例。系统现在将提示你选择用于访问实例的密钥对。如果您没有密钥对，请在 :numref:`fig_keypair`的第一个下拉菜单中选择“Create a new key pair”（新建密钥对），即可生成密钥对。之后，你可以在此菜单中选择“Choose an existing key pair”（选择现有密钥对），然后选择之前生成的密钥对。单击“Launch Instances”（启动实例）即可启动创建的实例。
+最后，进入“7. Review”（7. 查看），点击“Launch”（启动），即可启动配置好的实例。系统现在将提示你选择用于访问实例的密钥对。如果你没有密钥对，请在 :numref:`fig_keypair`的第一个下拉菜单中选择“Create a new key pair”（新建密钥对），即可生成密钥对。之后，你可以在此菜单中选择“Choose an existing key pair”（选择现有密钥对），然后选择之前生成的密钥对。单击“Launch Instances”（启动实例）即可启动创建的实例。
 
-![选择一个密钥对。](../img/keypair.png)
+![选择一个密钥对](../img/keypair.png)
 :width:`500px`
 :label:`fig_keypair`
 
 如果生成了新密钥对，请确保下载密钥对并将其存储在安全位置。这是你通过SSH连接到服务器的唯一方式。单击 :numref:`fig_launching`中显示的实例ID可查看该实例的状态。
 
-![单击实例ID。](../img/launching.png)
+![单击实例ID](../img/launching.png)
 :width:`700px`
 :label:`fig_launching`
 
@@ -87,7 +87,7 @@ EC2提供了许多不同的实例配置可供选择。对于初学者来说，�
 
 如 :numref:`fig_connect`所示，实例状态变为绿色后，右键单击实例，选择`Connect`（连接）查看实例访问方式。
 
-![查看实例访问方法。](../img/connect.png)
+![查看实例访问方法](../img/connect.png)
 :width:`700px`
 :label:`fig_connect`
 
@@ -97,7 +97,7 @@ EC2提供了许多不同的实例配置可供选择。对于初学者来说，�
 chmod 400 D2L_key.pem
 ```
 
-![查看实例访问和启动方法。](../img/chmod.png)
+![查看实例访问和启动方法](../img/chmod.png)
 :width:`400px`
 :label:`fig_chmod`
 
@@ -107,7 +107,7 @@ chmod 400 D2L_key.pem
 ssh -i "D2L_key.pem" ubuntu@ec2-xx-xxx-xxx-xxx.y.compute.amazonaws.com
 ```
 
-当命令行提示“Are you sure you want to continue connecting (yes/no)”时，输入“yes”并按回车键登录实例。
+当命令行提示“Are you sure you want to continue connecting (yes/no)”（“你确定要继续连接吗？（是/否）”）时，输入“yes”并按回车键登录实例。
 
 你的服务器现在已就绪。
 
@@ -121,14 +121,14 @@ sudo apt-get update && sudo apt-get install -y build-essential git libgfortran3
 
 我们在这里下载CUDA 10.1。访问NVIDIA的[官方存储库](https://developer.nvidia.com/cuda-toolkit-archive) 以找到下载链接，如 :numref:`fig_cuda`中所示。
 
-![查找CUDA 10.1下载地址。](../img/cuda101.png)
+![查找CUDA 10.1下载地址](../img/cuda101.png)
 :width:`500px`
 :label:`fig_cuda`
 
 将说明复制粘贴到终端上，以安装CUDA 10.1。
 
 ```bash
-# 链接和文件名可能会发生更改
+# 链接和文件名可能会发生更改，以NVIDIA的官方为准
 wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin
 sudo mv cuda-ubuntu1804.pin /etc/apt/preferences.d/cuda-repository-pin-600
 wget http://developer.download.nvidia.com/compute/cuda/10.1/Prod/local_installers/cuda-repo-ubuntu1804-10-1-local-10.1.243-418.87.00_1.0-1_amd64.deb
@@ -159,7 +159,7 @@ echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda/lib64" >> ~/.ba
 
 ## 远程运行Jupyter笔记本
 
-要远程运行Jupyter笔记本，你需要使用SSH端口转发。毕竟，云中的服务器没有显示器或键盘。为此，请从你的台式机（或笔记本电脑）登录到您的服务器，如下所示：
+要远程运行Jupyter笔记本，你需要使用SSH端口转发。毕竟，云中的服务器没有显示器或键盘。为此，请从你的台式机（或笔记本电脑）登录到你的服务器，如下所示：
 
 ```
 # 此命令必须在本地命令行中运行
@@ -175,7 +175,7 @@ jupyter notebook
 
 :numref:`fig_jupyter`显示了运行Jupyter笔记本后可能的输出。最后一行是端口8888的URL。
 
-![运行Jupyter Notebook后的输出。最后一行是端口8888的URL。](../img/jupyter.png)
+![运行Jupyter Notebook后的输出（最后一行是端口8888的URL）](../img/jupyter.png)
 :width:`700px`
 :label:`fig_jupyter`
 
@@ -188,7 +188,7 @@ jupyter notebook
 * “Stopping”（停止）实例意味着你可以重新启动它。这类似于关闭常规服务器的电源。但是，停止的实例仍将按保留的硬盘空间收取少量费用。
 * “Terminating”（终止）实例将删除与其关联的所有数据。这包括磁盘，因此你不能再次启动它。只有在你知道将来不需要它的情况下才这样做。
 
-如果你想要将该实例用作更多实例的模板，请右击 :numref:`fig_connect`中的例子，然后选择“Image”$\rightarrow$“Create”以创建该实例的镜像。完成后，选择“实例状态”$\rightarrow$“终止”以终止实例。下次要使用此实例时，可以按照本节中的步骤基于保存的镜像创建实例。唯一的区别是，在:numref:`fig_ubuntu`所示的“1.选择AMI”中，你必须使用左侧的“我的AMI”选项来选择你保存的镜像。创建的实例将保留镜像硬盘上存储的信息。例如，你不必重新安装CUDA和其他运行时环境。
+如果你想要将该实例用作更多实例的模板，请右击 :numref:`fig_connect`中的例子，然后选择“Image”$\rightarrow$“Create”以创建该实例的镜像。完成后，选择“实例状态”$\rightarrow$“终止”以终止实例。下次要使用此实例时，可以按照本节中的步骤基于保存的镜像创建实例。唯一的区别是，在 :numref:`fig_ubuntu`所示的“1.选择AMI”中，你必须使用左侧的“我的AMI”选项来选择你保存的镜像。创建的实例将保留镜像硬盘上存储的信息。例如，你不必重新安装CUDA和其他运行时环境。
 
 ## 小结
 
@@ -202,4 +202,4 @@ jupyter notebook
 1. 尝试使用不同的GPU服务器。它们有多快？
 1. 尝试使用多GPU服务器。你能把事情扩大到什么程度？
 
-[Discussions](https://discuss.d2l.ai/t/423)
+[Discussions](https://discuss.d2l.ai/t/5733)

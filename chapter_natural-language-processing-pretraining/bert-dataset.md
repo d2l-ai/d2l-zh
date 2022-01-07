@@ -58,7 +58,7 @@ def _get_next_sentence(sentence, next_sentence, paragraphs):
     if random.random() < 0.5:
         is_next = True
     else:
-        # `paragraphs`是三重列表的嵌套
+        # paragraphs是三重列表的嵌套
         next_sentence = random.choice(random.choice(paragraphs))
         is_next = False
     return sentence, next_sentence, is_next
@@ -110,7 +110,7 @@ def _replace_mlm_tokens(tokens, candidate_pred_positions, num_mlm_preds,
                 masked_token = tokens[mlm_pred_position]
             # 10%的时间：用随机词替换该词
             else:
-                masked_token = random.randint(0, len(vocab) - 1)
+                masked_token = random.choice(vocab.idx_to_token)
         mlm_input_tokens[mlm_pred_position] = masked_token
         pred_positions_and_labels.append(
             (mlm_pred_position, tokens[mlm_pred_position]))
@@ -124,7 +124,7 @@ def _replace_mlm_tokens(tokens, candidate_pred_positions, num_mlm_preds,
 #@save
 def _get_mlm_data_from_tokens(tokens, vocab):
     candidate_pred_positions = []
-    # `tokens`是一个字符串列表
+    # tokens是一个字符串列表
     for i, token in enumerate(tokens):
         # 在遮蔽语言模型任务中不会预测特殊词元
         if token in ['<cls>', '<sep>']:
@@ -158,7 +158,7 @@ def _pad_bert_inputs(examples, max_len, vocab):
             max_len - len(token_ids)), dtype='int32'))
         all_segments.append(np.array(segments + [0] * (
             max_len - len(segments)), dtype='int32'))
-        # `valid_lens` 不包括'<pad>'的计数
+        # valid_lens不包括'<pad>'的计数
         valid_lens.append(np.array(len(token_ids), dtype='float32'))
         all_pred_positions.append(np.array(pred_positions + [0] * (
             max_num_mlm_preds - len(pred_positions)), dtype='int32'))
@@ -187,7 +187,7 @@ def _pad_bert_inputs(examples, max_len, vocab):
             max_len - len(token_ids)), dtype=torch.long))
         all_segments.append(torch.tensor(segments + [0] * (
             max_len - len(segments)), dtype=torch.long))
-        # `valid_lens` 不包括'<pad>'的计数
+        # valid_lens不包括'<pad>'的计数
         valid_lens.append(torch.tensor(len(token_ids), dtype=torch.float32))
         all_pred_positions.append(torch.tensor(pred_positions + [0] * (
             max_num_mlm_preds - len(pred_positions)), dtype=torch.long))
@@ -211,7 +211,8 @@ def _pad_bert_inputs(examples, max_len, vocab):
 #@save
 class _WikiTextDataset(gluon.data.Dataset):
     def __init__(self, paragraphs, max_len):
-        # 输入`paragraphs[i]`是代表段落的句子字符串列表；而输出`paragraphs[i]`是代表段落的句子列表，其中每个句子都是词元列表
+        # 输入paragraphs[i]是代表段落的句子字符串列表；
+        # 而输出paragraphs[i]是代表段落的句子列表，其中每个句子都是词元列表
         paragraphs = [d2l.tokenize(
             paragraph, token='word') for paragraph in paragraphs]
         sentences = [sentence for paragraph in paragraphs
@@ -248,7 +249,8 @@ class _WikiTextDataset(gluon.data.Dataset):
 #@save
 class _WikiTextDataset(torch.utils.data.Dataset):
     def __init__(self, paragraphs, max_len):
-        # 输入`paragraphs[i]`是代表段落的句子字符串列表；而输出`paragraphs[i]`是代表段落的句子列表，其中每个句子都是词元列表
+        # 输入paragraphs[i]是代表段落的句子字符串列表；
+        # 而输出paragraphs[i]是代表段落的句子列表，其中每个句子都是词元列表
         paragraphs = [d2l.tokenize(
             paragraph, token='word') for paragraph in paragraphs]
         sentences = [sentence for paragraph in paragraphs
@@ -285,7 +287,7 @@ class _WikiTextDataset(torch.utils.data.Dataset):
 ```{.python .input}
 #@save
 def load_data_wiki(batch_size, max_len):
-    """加载WikiText-2数据集。"""
+    """加载WikiText-2数据集"""
     num_workers = d2l.get_dataloader_workers()
     data_dir = d2l.download_extract('wikitext-2', 'wikitext-2')
     paragraphs = _read_wiki(data_dir)
@@ -299,7 +301,7 @@ def load_data_wiki(batch_size, max_len):
 #@tab pytorch
 #@save
 def load_data_wiki(batch_size, max_len):
-    """加载WikiText-2数据集。"""
+    """加载WikiText-2数据集"""
     num_workers = d2l.get_dataloader_workers()
     data_dir = d2l.download_extract('wikitext-2', 'wikitext-2')
     paragraphs = _read_wiki(data_dir)
@@ -342,9 +344,9 @@ len(vocab)
 1. 如果我们不过滤出一些不常见的词元，词量会有多大？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/389)
+[Discussions](https://discuss.d2l.ai/t/5737)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1496)
+[Discussions](https://discuss.d2l.ai/t/5738)
 :end_tab:

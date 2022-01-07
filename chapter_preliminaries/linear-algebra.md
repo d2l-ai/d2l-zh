@@ -476,17 +476,17 @@ A_sum_axis1, A_sum_axis1.shape
 沿着行和列对矩阵求和，等价于对矩阵的所有元素进行求和。
 
 ```{.python .input}
-A.sum(axis=[0, 1])  # Same as `A.sum()`
+A.sum(axis=[0, 1])  # SameasA.sum()
 ```
 
 ```{.python .input}
 #@tab pytorch
-A.sum(axis=[0, 1])  # Same as `A.sum()`
+A.sum(axis=[0, 1])  # SameasA.sum()
 ```
 
 ```{.python .input}
 #@tab tensorflow
-tf.reduce_sum(A, axis=[0, 1])  # Same as `tf.reduce_sum(A)`
+tf.reduce_sum(A, axis=[0, 1])  # Sameastf.reduce_sum(A)
 ```
 
 [**一个与求和相关的量是*平均值*（mean或average）**]。
@@ -898,7 +898,7 @@ tf.norm(tf.ones((4, 9)))
 例如，矩阵可以分解为因子，这些分解可以显示真实世界数据集中的低维结构。
 机器学习的整个子领域都侧重于使用矩阵分解及其向高阶张量的泛化，来发现数据集中的结构并解决预测问题。
 我们相信，一旦你开始动手尝试并在真实数据集上应用了有效的机器学习模型，你会更倾向于学习更多数学。
-因此，这一节到此结束，我们保留在后面介绍更多数学知识的权利，。
+因此，这一节到此结束，我们保留在后面介绍更多数学知识的权利。
 
 如果你渴望了解有关线性代数的更多信息，你可以参考[线性代数运算的在线附录](https://d2l.ai/chapter_appendix-mathematics-for-deep-learning/geometry-linear-algebraic-ops.html)或其他优秀资源 :cite:`Strang.1993,Kolter.2008,Petersen.Pedersen.ea.2008`。
 

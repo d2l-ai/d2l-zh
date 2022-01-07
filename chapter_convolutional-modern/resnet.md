@@ -53,7 +53,7 @@ ResNet沿用了VGG完整的$3\times 3$卷积层设计。
 残差块里首先有2个有相同输出通道数的$3\times 3$卷积层。
 每个卷积层后接一个批量规范化层和ReLU激活函数。
 然后我们通过跨层数据通路，跳过这2个卷积运算，将输入直接加在最后的ReLU激活函数前。
-这样的设计要求2个卷积层的输出与输入形状一样，从而可以相加。
+这样的设计要求2个卷积层的输出与输入形状一样，从而使它们可以相加。
 如果想改变通道数，就需要引入一个额外的$1\times 1$卷积层来将输入变换成需要的形状后再做相加运算。
 残差块的实现如下：
 
@@ -145,9 +145,9 @@ class Residual(tf.keras.Model):  #@save
         return tf.keras.activations.relu(Y)
 ```
 
-如图 :numref:`fig_resnet_block`所示，此代码生成两种类型的网络：
-一种是在`use_1x1conv=False`、应用ReLU非线性函数之前，将输入添加到输出。
-另一种是在`use_1x1conv=True`时，添加通过$1 \times 1$卷积调整通道和分辨率。
+如 :numref:`fig_resnet_block`所示，此代码生成两种类型的网络：
+一种是当`use_1x1conv=False`时，应用ReLU非线性函数之前，将输入添加到输出。
+另一种是当`use_1x1conv=True`时，添加通过$1 \times 1$卷积调整通道和分辨率。
 
 ![包含以及不包含 $1 \times 1$ 卷积层的残差块。](../img/resnet-block.svg)
 :label:`fig_resnet_block`
@@ -319,18 +319,18 @@ net = nn.Sequential(b1, b2, b3, b4, b5,
 
 ```{.python .input}
 #@tab tensorflow
-# 回想之前我们定义一个函数，以便用它在 `tf.distribute.MirroredStrategy` 的范围，
+# 回想之前我们定义一个函数，以便用它在tf.distribute.MirroredStrategy的范围，
 # 来利用各种计算资源，例如gpu。另外，尽管我们已经创建了b1、b2、b3、b4、b5，
 # 但是我们将在这个函数的作用域内重新创建它们
 def net():
     return tf.keras.Sequential([
-        # The following layers are the same as b1 that we created earlier
+        # Thefollowinglayersarethesameasb1thatwecreatedearlier
         tf.keras.layers.Conv2D(64, kernel_size=7, strides=2, padding='same'),
         tf.keras.layers.BatchNormalization(),
         tf.keras.layers.Activation('relu'),
         tf.keras.layers.MaxPool2D(pool_size=3, strides=2, padding='same'),
-        # The following layers are the same as b2, b3, b4, and b5 that we
-        # created earlier
+        # Thefollowinglayersarethesameasb2,b3,b4,andb5thatwe
+        # createdearlier
         ResnetBlock(64, 2, first_block=True),
         ResnetBlock(128, 2),
         ResnetBlock(256, 2),
@@ -392,7 +392,7 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 * 学习嵌套函数（nested function）是训练神经网络的理想情况。在深层神经网络中，学习另一层作为恒等映射（identity function）较容易（尽管这是一个极端情况）。
 * 残差映射可以更容易地学习同一函数，例如将权重层中的参数近似为零。
 * 利用残差块（residual blocks）可以训练出一个有效的深层神经网络：输入可以通过层间的残余连接更快地向前传播。
-* 残差网络（ResNet）对随后的深层神经网络设计产生了深远影响，无论是卷积类网络还是全连接类网络。
+* 残差网络（ResNet）对随后的深层神经网络设计产生了深远影响。
 
 ## 练习
 

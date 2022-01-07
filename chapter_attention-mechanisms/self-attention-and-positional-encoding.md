@@ -136,7 +136,7 @@ $d \times d$权重矩阵和$d$维隐状态的乘法计算复杂度为$\mathcal{O
 包含一个序列中$n$个词元的$d$维嵌入表示。
 位置编码使用相同形状的位置嵌入矩阵
 $\mathbf{P} \in \mathbb{R}^{n \times d}$输出$\mathbf{X} + \mathbf{P}$，
-矩阵第$i$行、第$2j$列和$2j$列上的元素为：
+矩阵第$i$行、第$2j$列和$2j+1$列上的元素为：
 
 $$\begin{aligned} p_{i, 2j} &= \sin\left(\frac{i}{10000^{2j/d}}\right),\\p_{i, 2j+1} &= \cos\left(\frac{i}{10000^{2j/d}}\right).\end{aligned}$$
 :eqlabel:`eq_positional-encoding-def`
@@ -151,7 +151,7 @@ class PositionalEncoding(nn.Block):
     def __init__(self, num_hiddens, dropout, max_len=1000):
         super(PositionalEncoding, self).__init__()
         self.dropout = nn.Dropout(dropout)
-        # 创建一个足够长的 `P`
+        # 创建一个足够长的P
         self.P = d2l.zeros((1, max_len, num_hiddens))
         X = d2l.arange(max_len).reshape(-1, 1) / np.power(
             10000, np.arange(0, num_hiddens, 2) / num_hiddens)
@@ -171,7 +171,7 @@ class PositionalEncoding(nn.Module):
     def __init__(self, num_hiddens, dropout, max_len=1000):
         super(PositionalEncoding, self).__init__()
         self.dropout = nn.Dropout(dropout)
-        # 创建一个足够长的 `P`
+        # 创建一个足够长的P
         self.P = d2l.zeros((1, max_len, num_hiddens))
         X = d2l.arange(max_len, dtype=torch.float32).reshape(
             -1, 1) / torch.pow(10000, torch.arange(
@@ -192,7 +192,7 @@ class PositionalEncoding(tf.keras.layers.Layer):
     def __init__(self, num_hiddens, dropout, max_len=1000):
         super().__init__()
         self.dropout = tf.keras.layers.Dropout(dropout)
-        # 创建一个足够长的 `P`
+        # 创建一个足够长的P
         self.P = np.zeros((1, max_len, num_hiddens))
         X = np.arange(max_len, dtype=np.float32).reshape(
             -1,1)/np.power(10000, np.arange(
@@ -313,9 +313,9 @@ $2\times 2$投影矩阵不依赖于任何位置的索引$i$。
 1. 你能设计一种可学习的位置编码方法吗？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/1651)
+[Discussions](https://discuss.d2l.ai/t/5761)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1652)
+[Discussions](https://discuss.d2l.ai/t/5762)
 :end_tab:

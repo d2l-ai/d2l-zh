@@ -3,10 +3,10 @@
 
 之前几节中，我们一直在使用深度学习框架的高级API直接获取张量格式的图像数据集。
 但是在实践中，图像数据集通常以图像文件的形式出现。
-在本节中，我们将从原始图像文件开始，然后逐步组织、阅读，然后将它们转换为张量格式。
+在本节中，我们将从原始图像文件开始，然后逐步组织、读取并将它们转换为张量格式。
 
-我们在 :numref:`sec_image_augmentation`中对CIFAR-10数据集做了一个实验，这是计算机视觉领域中的一个重要的数据集。
-在本节中，我们将运用我们在前几节中学到的知识来参加涉及CIFAR-10图像分类问题的Kaggle竞赛，(**比赛的网址是https://www.kaggle.com/c/cifar-10**)。
+我们在 :numref:`sec_image_augmentation`中对CIFAR-10数据集做了一个实验。CIFAR-10是计算机视觉领域中的一个重要的数据集。
+在本节中，我们将运用我们在前几节中学到的知识来参加CIFAR-10图像分类问题的Kaggle竞赛，(**比赛的网址是https://www.kaggle.com/c/cifar-10**)。
 
  :numref:`fig_kaggle_cifar10`显示了竞赛网站页面上的信息。
 为了能提交结果，你需要首先注册Kaggle账户。
@@ -73,7 +73,7 @@ import shutil
 d2l.DATA_HUB['cifar10_tiny'] = (d2l.DATA_URL + 'kaggle_cifar10_tiny.zip',
                                 '2068874e4b9a9f0fb07ebe0ad2b29754449ccacd')
 
-# 如果你使用完整的Kaggle竞赛的数据集，设置`demo`为 False
+# 如果你使用完整的Kaggle竞赛的数据集，设置demo为False
 demo = True
 
 if demo:
@@ -91,21 +91,21 @@ else:
 #@tab all
 #@save
 def read_csv_labels(fname):
-    """读取 `fname` 来给标签字典返回一个文件名。"""
+    """读取fname来给标签字典返回一个文件名"""
     with open(fname, 'r') as f:
-        # 跳过文件头行 (列名)
+        # 跳过文件头行(列名)
         lines = f.readlines()[1:]
     tokens = [l.rstrip().split(',') for l in lines]
     return dict(((name, label) for name, label in tokens))
 
 labels = read_csv_labels(os.path.join(data_dir, 'trainLabels.csv'))
-print('# 训练示例 :', len(labels))
+print('# 训练样本 :', len(labels))
 print('# 类别 :', len(set(labels.values())))
 ```
 
 接下来，我们定义`reorg_train_valid`函数来[**将验证集从原始的训练集中拆分出来**]。
-此函数中的参数`valid_ratio`是验证集中的示例数与原始训练集中的示例数之比。
-更具体地说，令$n$等于示例最少的类别中的图像数量，而$r$是比率。
+此函数中的参数`valid_ratio`是验证集中的样本数与原始训练集中的样本数之比。
+更具体地说，令$n$等于样本最少的类别中的图像数量，而$r$是比率。
 验证集将为每个类别拆分出$\max(\lfloor nr\rfloor,1)$张图像。
 让我们以`valid_ratio=0.1`为例，由于原始的训练集有50000张图像，因此`train_valid_test/train`路径中将有45000张图像用于训练，而剩下5000张图像将作为路径`train_valid_test/valid`中的验证集。
 组织数据集后，同类别的图像将被放置在同一文件夹下。
@@ -114,16 +114,16 @@ print('# 类别 :', len(set(labels.values())))
 #@tab all
 #@save
 def copyfile(filename, target_dir):
-    """将文件复制到目标目录。"""
+    """将文件复制到目标目录"""
     os.makedirs(target_dir, exist_ok=True)
     shutil.copy(filename, target_dir)
 
 #@save
 def reorg_train_valid(data_dir, labels, valid_ratio):
     """将验证集从原始的训练集中拆分出来"""
-    # 训练数据集中示例最少的类别中的示例数
+    # 训练数据集中样本最少的类别中的样本数
     n = collections.Counter(labels.values()).most_common()[-1][1]
-    # 验证集中每个类别的示例数
+    # 验证集中每个类别的样本数
     n_valid_per_label = max(1, math.floor(n * valid_ratio))
     label_count = {}
     for train_file in os.listdir(os.path.join(data_dir, 'train')):
@@ -166,7 +166,7 @@ def reorg_cifar10_data(data_dir, valid_ratio):
 
 在这里，我们只将样本数据集的批量大小设置为32。
 在实际训练和测试中，应该使用Kaggle竞赛的完整数据集，并将`batch_size`设置为更大的整数，例如128。
-我们将10％的训练示例作为调整超参数的验证集。
+我们将10％的训练样本作为调整超参数的验证集。
 
 ```{.python .input}
 #@tab all
@@ -233,7 +233,7 @@ transform_test = torchvision.transforms.Compose([
 
 ## 读取数据集
 
-接下来，我们[**读取由原始图像组成的数据集**]，每个示例都包括一张图片和一个标签。
+接下来，我们[**读取由原始图像组成的数据集**]，每个样本都包括一张图片和一个标签。
 
 ```{.python .input}
 train_ds, valid_ds, train_valid_ds, test_ds = [

@@ -361,7 +361,7 @@ def train_concise(wd):
     net = nn.Sequential(nn.Linear(num_inputs, 1))
     for param in net.parameters():
         param.data.normal_()
-    loss = nn.MSELoss()
+    loss = nn.MSELoss(reduction='none')
     num_epochs, lr = 100, 0.003
     # 偏置参数没有衰减
     trainer = torch.optim.SGD([
@@ -373,11 +373,12 @@ def train_concise(wd):
         for X, y in train_iter:
             trainer.zero_grad()
             l = loss(net(X), y)
-            l.backward()
+            l.sum().backward()
             trainer.step()
         if (epoch + 1) % 5 == 0:
-            animator.add(epoch + 1, (d2l.evaluate_loss(net, train_iter, loss),
-                                     d2l.evaluate_loss(net, test_iter, loss)))
+            animator.add(epoch + 1,
+                         (d2l.evaluate_loss(net, train_iter, loss),
+                          d2l.evaluate_loss(net, test_iter, loss)))
     print('w的L2范数：', net[0].weight.norm().item())
 ```
 
@@ -397,7 +398,7 @@ def train_concise(wd):
     for epoch in range(num_epochs):
         for X, y in train_iter:
             with tf.GradientTape() as tape:
-                # `tf.keras` 需要为自定义训练代码手动添加损失。
+                # tf.keras需要为自定义训练代码手动添加损失。
                 l = loss(net(X), y) + net.losses
             grads = tape.gradient(l, net.trainable_variables)
             trainer.apply_gradients(zip(grads, net.trainable_variables))

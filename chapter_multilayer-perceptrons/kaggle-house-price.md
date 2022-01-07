@@ -44,7 +44,7 @@ DATA_URL = 'http://d2l-data.s3-accelerate.amazonaws.com/'
 ```{.python .input}
 #@tab all
 def download(name, cache_dir=os.path.join('..', 'data')):  #@save
-    """下载一个DATA_HUB中的文件，返回本地文件名。"""
+    """下载一个DATA_HUB中的文件，返回本地文件名"""
     assert name in DATA_HUB, f"{name} 不存在于 {DATA_HUB}"
     url, sha1_hash = DATA_HUB[name]
     os.makedirs(cache_dir, exist_ok=True)
@@ -73,7 +73,7 @@ def download(name, cache_dir=os.path.join('..', 'data')):  #@save
 ```{.python .input}
 #@tab all
 def download_extract(name, folder=None):  #@save
-    """下载并解压zip/tar文件。"""
+    """下载并解压zip/tar文件"""
     fname = download(name)
     base_dir = os.path.dirname(fname)
     data_dir, ext = os.path.splitext(fname)
@@ -87,7 +87,7 @@ def download_extract(name, folder=None):  #@save
     return os.path.join(base_dir, folder) if folder else data_dir
 
 def download_all():  #@save
-    """下载DATA_HUB中的所有文件。"""
+    """下载DATA_HUB中的所有文件"""
     for name in DATA_HUB:
         download(name)
 ```

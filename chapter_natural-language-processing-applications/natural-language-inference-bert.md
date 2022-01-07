@@ -3,7 +3,7 @@
 
 在本章的前面几节中，我们已经为SNLI数据集（ :numref:`sec_natural-language-inference-and-dataset`）上的自然语言推断任务设计了一个基于注意力的结构（ :numref:`sec_natural-language-inference-attention`）。现在，我们通过微调BERT来重新审视这项任务。正如在 :numref:`sec_finetuning-bert`中讨论的那样，自然语言推断是一个序列级别的文本对分类问题，而微调BERT只需要一个额外的基于多层感知机的架构，如 :numref:`fig_nlp-map-nli-bert`中所示。
 
-![本节将预训练BERT提供给基于多层感知机的自然语言推断架构。](../img/nlp-map-nli-bert.svg)
+![将预训练BERT提供给基于多层感知机的自然语言推断架构](../img/nlp-map-nli-bert.svg)
 :label:`fig_nlp-map-nli-bert`
 
 在本节中，我们将下载一个预训练好的小版本的BERT，然后对其进行微调，以便在SNLI数据集上进行自然语言推断。
@@ -56,11 +56,12 @@ def load_pretrained_model(pretrained_model, num_hiddens, ffn_num_hiddens,
     data_dir = d2l.download_extract(pretrained_model)
     # 定义空词表以加载预定义词表
     vocab = d2l.Vocab()
-    vocab.idx_to_token = json.load(open(os.path.join(data_dir, 'vocab.json')))
+    vocab.idx_to_token = json.load(open(os.path.join(data_dir,
+         'vocab.json')))
     vocab.token_to_idx = {token: idx for idx, token in enumerate(
         vocab.idx_to_token)}
-    bert = d2l.BERTModel(len(vocab), num_hiddens, ffn_num_hiddens, num_heads, 
-                         num_layers, dropout, max_len)
+    bert = d2l.BERTModel(len(vocab), num_hiddens, ffn_num_hiddens, 
+                         num_heads, num_layers, dropout, max_len)
     # 加载预训练BERT参数
     bert.load_parameters(os.path.join(data_dir, 'pretrained.params'),
                          ctx=devices)
@@ -74,7 +75,8 @@ def load_pretrained_model(pretrained_model, num_hiddens, ffn_num_hiddens,
     data_dir = d2l.download_extract(pretrained_model)
     # 定义空词表以加载预定义词表
     vocab = d2l.Vocab()
-    vocab.idx_to_token = json.load(open(os.path.join(data_dir, 'vocab.json')))
+    vocab.idx_to_token = json.load(open(os.path.join(data_dir, 
+        'vocab.json')))
     vocab.token_to_idx = {token: idx for idx, token in enumerate(
         vocab.idx_to_token)}
     bert = d2l.BERTModel(len(vocab), num_hiddens, norm_shape=[256],
@@ -140,7 +142,7 @@ class SNLIBERTDataset(gluon.data.Dataset):
         return token_ids, segments, valid_len
 
     def _truncate_pair_of_tokens(self, p_tokens, h_tokens):
-        # 为BERT输入中的 '<CLS>'、'<SEP>'和 '<SEP>'词元保留位置
+        # 为BERT输入中的'<CLS>'、'<SEP>'和'<SEP>'词元保留位置
         while len(p_tokens) + len(h_tokens) > self.max_len - 3:
             if len(p_tokens) > len(h_tokens):
                 p_tokens.pop()
@@ -193,7 +195,7 @@ class SNLIBERTDataset(torch.utils.data.Dataset):
         return token_ids, segments, valid_len
 
     def _truncate_pair_of_tokens(self, p_tokens, h_tokens):
-        # 为BERT输入中的 '<CLS>'、'<SEP>'和 '<SEP>'词元保留位置
+        # 为BERT输入中的'<CLS>'、'<SEP>'和'<SEP>'词元保留位置
         while len(p_tokens) + len(h_tokens) > self.max_len - 3:
             if len(p_tokens) > len(h_tokens):
                 p_tokens.pop()
@@ -211,7 +213,7 @@ class SNLIBERTDataset(torch.utils.data.Dataset):
 下载完SNLI数据集后，我们通过实例化`SNLIBERTDataset`类来[**生成训练和测试样本**]。这些样本将在自然语言推断的训练和测试期间进行小批量读取。
 
 ```{.python .input}
-# 如果出现显存不足错误，请减少“batch_size”。在原始的BERT模型中，`max_len` = 512
+# 如果出现显存不足错误，请减少“batch_size”。在原始的BERT模型中，max_len=512
 batch_size, max_len, num_workers = 512, 128, d2l.get_dataloader_workers()
 data_dir = d2l.download_extract('SNLI')
 train_set = SNLIBERTDataset(d2l.read_snli(data_dir, True), max_len, vocab)
@@ -224,7 +226,7 @@ test_iter = gluon.data.DataLoader(test_set, batch_size,
 
 ```{.python .input}
 #@tab pytorch
-# 如果出现显存不足错误，请减少“batch_size”。在原始的BERT模型中，`max_len` = 512
+# 如果出现显存不足错误，请减少“batch_size”。在原始的BERT模型中，max_len=512
 batch_size, max_len, num_workers = 512, 128, d2l.get_dataloader_workers()
 data_dir = d2l.download_extract('SNLI')
 train_set = SNLIBERTDataset(d2l.read_snli(data_dir, True), max_len, vocab)
@@ -288,8 +290,8 @@ net = BERTClassifier(bert)
 lr, num_epochs = 1e-4, 5
 trainer = gluon.Trainer(net.collect_params(), 'adam', {'learning_rate': lr})
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
-d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices,
-               d2l.split_batch_multi_inputs)
+d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, 
+    devices, d2l.split_batch_multi_inputs)
 ```
 
 ```{.python .input}
@@ -297,7 +299,8 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices,
 lr, num_epochs = 1e-4, 5
 trainer = torch.optim.Adam(net.parameters(), lr=lr)
 loss = nn.CrossEntropyLoss(reduction='none')
-d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
+d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, 
+    devices)
 ```
 
 ## 小结
@@ -311,9 +314,9 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
 1. 如何根据一对序列的长度比值截断它们？将此对截断方法与`SNLIBERTDataset`类中使用的方法进行比较。它们的利弊是什么？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/397)
+[Discussions](https://discuss.d2l.ai/t/5715)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1526)
+[Discussions](https://discuss.d2l.ai/t/5718)
 :end_tab:

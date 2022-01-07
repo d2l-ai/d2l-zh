@@ -71,8 +71,7 @@
 我们可以简单地使用参数化的全连接层，
 甚至是非参数化的最大汇聚层或平均汇聚层。
 
-因此，“是否包含自主性提示”将注意力机制
-与全连接层或汇聚层区别开来。
+因此，“是否包含自主性提示”将注意力机制与全连接层或汇聚层区别开来。
 在注意力机制的背景下，我们将自主性提示称为*查询*（query）。
 给定任何查询，注意力机制通过*注意力汇聚*（attention pooling）
 将选择引导至*感官输入*（sensory inputs，例如中间特征表示）。
@@ -169,13 +168,15 @@ show_heatmaps(attention_weights, xlabel='Keys', ylabel='Queries')
 1. 随机生成一个$10 \times 10$矩阵并使用`softmax`运算来确保每行都是有效的概率分布，然后可视化输出注意力权重。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/1596)
+[Discussions](https://discuss.d2l.ai/t/5763)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1592)
+[Discussions](https://discuss.d2l.ai/t/5764)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/1710)
+[Discussions](https://discuss.d2l.ai/t/5765)
 :end_tab:
+
+

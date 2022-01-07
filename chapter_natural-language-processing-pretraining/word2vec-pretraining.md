@@ -240,7 +240,8 @@ def get_similar_tokens(query_token, k, embed):
     W = embed.weight.data()
     x = W[vocab[query_token]]
     # 计算余弦相似性。增加1e-9以获得数值稳定性
-    cos = np.dot(W, x) / np.sqrt(np.sum(W * W, axis=1) * np.sum(x * x) + 1e-9)
+    cos = np.dot(W, x) / np.sqrt(np.sum(W * W, axis=1) * np.sum(x * x) + \
+          1e-9)
     topk = npx.topk(cos, k=k+1, ret_typ='indices').asnumpy().astype('int32')
     for i in topk[1:]:  # 删除输入词
         print(f'cosine sim={float(cos[i]):.3f}: {vocab.to_tokens(i)}')
@@ -274,9 +275,9 @@ get_similar_tokens('chip', 3, net[0])
 1. 当训练语料库很大时，在更新模型参数时，我们经常对当前小批量的*中心词*进行上下文词和噪声词的采样。换言之，同一中心词在不同的训练迭代轮数可以有不同的上下文词或噪声词。这种方法的好处是什么？尝试实现这种训练方法。
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/384)
+[Discussions](https://discuss.d2l.ai/t/5739)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1335)
+[Discussions](https://discuss.d2l.ai/t/5740)
 :end_tab:

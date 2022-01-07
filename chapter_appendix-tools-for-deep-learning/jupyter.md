@@ -7,13 +7,13 @@
 
 假设本书代码的本地路径为`xx/yy/d2l-en/`。使用shell将目录更改为此路径（`cd xx/yy/d2l-en`）并运行命令`jupyter notebook`。如果浏览器未自动打开，请打开http://localhost:8888。此时你将看到Jupyter的界面以及包含本书代码的所有文件夹，如 :numref:`fig_jupyter00`所示
 
-![包含本书中代码的文件夹。](../img/jupyter00.png)
+![包含本书代码的文件夹](../img/jupyter00.png)
 :width:`600px`
 :label:`fig_jupyter00`
 
 你可以通过单击网页上显示的文件夹来访问notebook文件。它们通常有后缀“.ipynb”。为了简洁起见，我们创建了一个临时的“test.ipynb”文件。单击后显示的内容如 :numref:`fig_jupyter01`所示。此notebook包括一个标记单元格和一个代码单元格。标记单元格中的内容包括“This Is a Title”和“This is text.”。代码单元包含两行Python代码。 
 
-![“text.ipynb”文件中的Markdown和代码块。](../img/jupyter01.png)
+![“test.ipynb”文件中的markdown和代码块](../img/jupyter01.png)
 :width:`600px`
 :label:`fig_jupyter01`
 
@@ -31,19 +31,19 @@
 
 运行后，markdown单元格如 :numref:`fig_jupyter04`所示。 
 
-![编辑后的markdown单元格。](../img/jupyter04.png)
+![编辑后的markdown单元格](../img/jupyter04.png)
 :width:`600px`
 :label:`fig_jupyter04`
 
 接下来，单击代码单元。将最后一行代码后的元素乘以2，如 :numref:`fig_jupyter05`所示。 
 
-![编辑代码单元格。](../img/jupyter05.png)
+![编辑代码单元格](../img/jupyter05.png)
 :width:`600px`
 :label:`fig_jupyter05`
 
 你还可以使用快捷键（默认情况下为Ctrl+Enter）运行单元格，并从 :numref:`fig_jupyter06`获取输出结果。 
 
-![运行代码单元格以获得输出。](../img/jupyter06.png)
+![运行代码单元格以获得输出](../img/jupyter06.png)
 :width:`600px`
 :label:`fig_jupyter06`
 
@@ -51,7 +51,7 @@
 
 ## 高级选项
 
-除了本地编辑，还有两件事非常重要：以markdown格式编辑notebook和远程运行Jupyter。当我们想要在更快的服务器上运行代码时，后者很重要。前者很重要，因为Jupyter原生的ipynb格式存储了大量辅助数据，这些数据实际上并不特定于notebook中的内容，主要与代码的运行方式和运行位置有关。这让git感到困惑，并且使得合并贡献非常困难。幸运的是，还有另一种选择——在Markdown中进行本地编辑。 
+除了本地编辑，还有两件事非常重要：以markdown格式编辑notebook和远程运行Jupyter。当我们想要在更快的服务器上运行代码时，后者很重要。前者很重要，因为Jupyter原生的ipynb格式存储了大量辅助数据，这些数据实际上并不特定于notebook中的内容，主要与代码的运行方式和运行位置有关。这让git感到困惑，并且使得合并贡献非常困难。幸运的是，还有另一种选择——在markdown中进行本地编辑。 
 
 ### Jupyter中的Markdown文件
 
@@ -60,7 +60,7 @@
 首先，安装notedown插件，运行Jupyter Notebook并加载插件：
 
 ```
-pip install mu-notedown  # 你可能需要卸载原始notedown。
+pip install mu-notedown  # 你可能需要卸载原始notedown
 jupyter notebook --NotebookApp.contents_manager_class='notedown.NotedownContentsManager'
 ```
 
@@ -101,7 +101,7 @@ jupyter nbextension enable execute_time/ExecuteTime
 ## 小结
 
 * 使用Jupyter Notebook工具，我们可以编辑、运行和为本书做贡献。
-* 我们可以使用端口转发在远程服务器上运行Jupyter Notebook。
+* 使用端口转发在远程服务器上运行Jupyter Notebook。
 
 ## 练习
 
@@ -109,4 +109,4 @@ jupyter nbextension enable execute_time/ExecuteTime
 1. 使用Jupyter Notebook通过端口转发来远程编辑和运行本书中的代码。
 1. 对于两个方矩阵，测量$\mathbf{A}^\top \mathbf{B}$与$\mathbf{A} \mathbf{B}$在$\mathbb{R}^{1024 \times 1024}$中的运行时间。哪一个更快？
 
-[Discussions](https://discuss.d2l.ai/t/421)
+[Discussions](https://discuss.d2l.ai/t/5731)

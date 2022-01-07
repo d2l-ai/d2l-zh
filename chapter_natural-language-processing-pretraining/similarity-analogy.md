@@ -48,7 +48,7 @@ d2l.DATA_HUB['wiki.en'] = (d2l.DATA_URL + 'wiki.en.zip',
 #@tab all
 #@save
 class TokenEmbedding:
-    """Token Embedding."""
+    """GloVe嵌入"""
     def __init__(self, embedding_name):
         self.idx_to_token, self.idx_to_vec = self._load_embedding(
             embedding_name)
@@ -137,8 +137,8 @@ def knn(W, x, k):
 #@tab all
 def get_similar_tokens(query_token, k, embed):
     topk, cos = knn(embed.idx_to_vec, embed[[query_token]], k + 1)
-    for i, c in zip(topk[1:], cos[1:]):  # Exclude the input word
-        print(f'cosine sim={float(c):.3f}: {embed.idx_to_token[int(i)]}')
+    for i, c in zip(topk[1:], cos[1:]):  # 排除输入词
+        print(f'{embed.idx_to_token[int(i)]}：cosine相似度={float(c):.3f}')
 ```
 
 `glove_6b50d`中预训练词向量的词表包含400000个词和一个特殊的未知词元。排除输入词和未知词元后，我们在词表中找到与“chip”一词语义最相似的三个词。
@@ -221,9 +221,9 @@ get_analogy('do', 'did', 'go', glove_6b50d)
 1. 当词表非常大时，我们怎样才能更快地找到相似的词或完成一个词的类比呢？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/387)
+[Discussions](https://discuss.d2l.ai/t/5745)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1336)
+[Discussions](https://discuss.d2l.ai/t/5746)
 :end_tab:

@@ -231,7 +231,7 @@ labels = d2l.reshape(x[tau:], (-1, 1))
 ```{.python .input}
 #@tab all
 batch_size, n_train = 16, 600
-# 只有前`n_train`个样本用于训练
+# 只有前n_train个样本用于训练
 train_iter = d2l.load_array((features[:n_train], labels[:n_train]),
                             batch_size, is_train=True)
 ```
@@ -267,8 +267,8 @@ def get_net():
     net.apply(init_weights)
     return net
 
-# 平方损失
-loss = nn.MSELoss()
+# 平方损失。注意：MSELoss计算平方误差时不带系数1/2
+loss = nn.MSELoss(reduction='none')
 ```
 
 ```{.python .input}
@@ -279,7 +279,7 @@ def get_net():
                               tf.keras.layers.Dense(1)])
     return net
 
-# 最小均方损失
+# 最小均方损失。注意：MeanSquaredError计算平方误差时不带系数1/2
 loss = tf.keras.losses.MeanSquaredError()
 ```
 
@@ -310,7 +310,7 @@ def train(net, train_iter, loss, epochs, lr):
         for X, y in train_iter:
             trainer.zero_grad()
             l = loss(net(X), y)
-            l.backward()
+            l.sum().backward()
             trainer.step()
         print(f'epoch {epoch + 1}, '
               f'loss: {d2l.evaluate_loss(net, train_iter, loss):f}')
@@ -327,8 +327,7 @@ def train(net, train_iter, loss, epochs, lr):
         for X, y in train_iter:
             with tf.GradientTape() as g:
                 out = net(X)
-                # 注：L2损失=1/2*MSE损失
-                l = loss(y, out) / 2
+                l = loss(y, out)
                 params = net.trainable_variables
                 grads = g.gradient(l, params)
             trainer.apply_gradients(zip(grads, params))

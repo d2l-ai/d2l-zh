@@ -3,7 +3,7 @@
 
 在 :numref:`sec_bbox`— :numref:`sec_object-detection-dataset`中，我们分别介绍了边界框、锚框、多尺度目标检测和用于目标检测的数据集。
 现在我们已经准备好使用这样的背景知识来设计一个目标检测模型：单发多框检测（SSD） :cite:`Liu.Anguelov.Erhan.ea.2016`。
-该模型简单、快速且被广泛使用。尽管这只是大量目标检测模型中的一个，但本节中的一些设计原则和实现细节也适用于其他模型。
+该模型简单、快速且被广泛使用。尽管这只是其中一种目标检测模型，但本节中的一些设计原则和实现细节也适用于其他模型。
 
 ## 模型
 
@@ -219,7 +219,7 @@ forward(torch.zeros((2, 3, 256, 256)), base_net()).shape
 
 ### 完整的模型
 
-[**完整的单发多框检测模型由五个模块组成**]。每个块生成的特征图既用于（i）生成锚框，又用于（ii）预测这些锚框的类别和偏移量。在这五个模块中，第一个是基本网络块，第二个到第四个是高和宽减半块，最后一个模块使用全局最大池将高度和宽度都降到1。从技术上讲，第二到第五个区块都是 :numref:`fig_ssd`中的多尺度特征块。
+[**完整的单发多框检测模型由五个模块组成**]。每个块生成的特征图既用于生成锚框，又用于预测这些锚框的类别和偏移量。在这五个模块中，第一个是基本网络块，第二个到第四个是高和宽减半块，最后一个模块使用全局最大池将高度和宽度都降到1。从技术上讲，第二到第五个区块都是 :numref:`fig_ssd`中的多尺度特征块。
 
 ```{.python .input}
 def get_blk(i):
@@ -246,7 +246,7 @@ def get_blk(i):
     return blk
 ```
 
-现在我们[**为每个块定义前向传播**]。与图像分类任务不同，此处的输出包括：（i）CNN特征图`Y`，（ii）在当前尺度下根据`Y`生成的锚框，以及（iii）预测的这些锚框的类别和偏移量（基于`Y`）。
+现在我们[**为每个块定义前向传播**]。与图像分类任务不同，此处的输出包括：CNN特征图`Y`；在当前尺度下根据`Y`生成的锚框；预测的这些锚框的类别和偏移量（基于`Y`）。
 
 ```{.python .input}
 def blk_forward(X, blk, size, ratio, cls_predictor, bbox_predictor):
@@ -290,7 +290,7 @@ class TinySSD(nn.Block):
         super(TinySSD, self).__init__(**kwargs)
         self.num_classes = num_classes
         for i in range(5):
-            # 即赋值语句 `self.blk_i = get_blk(i)`
+            # 即赋值语句self.blk_i=get_blk(i)
             setattr(self, f'blk_{i}', get_blk(i))
             setattr(self, f'cls_{i}', cls_predictor(num_anchors, num_classes))
             setattr(self, f'bbox_{i}', bbox_predictor(num_anchors))
@@ -298,7 +298,7 @@ class TinySSD(nn.Block):
     def forward(self, X):
         anchors, cls_preds, bbox_preds = [None] * 5, [None] * 5, [None] * 5
         for i in range(5):
-            # `getattr(self, 'blk_%d' % i)` 即访问 `self.blk_i`
+            # getattr(self,'blk_%d'%i)即访问self.blk_i
             X, anchors[i], cls_preds[i], bbox_preds[i] = blk_forward(
                 X, getattr(self, f'blk_{i}'), sizes[i], ratios[i],
                 getattr(self, f'cls_{i}'), getattr(self, f'bbox_{i}'))
@@ -318,7 +318,7 @@ class TinySSD(nn.Module):
         self.num_classes = num_classes
         idx_to_in_channels = [64, 128, 128, 128, 128]
         for i in range(5):
-            # 即赋值语句 `self.blk_i = get_blk(i)`
+            # 即赋值语句self.blk_i=get_blk(i)
             setattr(self, f'blk_{i}', get_blk(i))
             setattr(self, f'cls_{i}', cls_predictor(idx_to_in_channels[i],
                                                     num_anchors, num_classes))
@@ -328,7 +328,7 @@ class TinySSD(nn.Module):
     def forward(self, X):
         anchors, cls_preds, bbox_preds = [None] * 5, [None] * 5, [None] * 5
         for i in range(5):
-            # `getattr(self, 'blk_%d' % i)` 即访问 `self.blk_i`
+            # getattr(self,'blk_%d'%i)即访问self.blk_i
             X, anchors[i], cls_preds[i], bbox_preds[i] = blk_forward(
                 X, getattr(self, f'blk_{i}'), sizes[i], ratios[i],
                 getattr(self, f'cls_{i}'), getattr(self, f'bbox_{i}'))
@@ -401,7 +401,7 @@ trainer = torch.optim.SGD(net.parameters(), lr=0.2, weight_decay=5e-4)
 ### [**定义损失函数和评价函数**]
 
 目标检测有两种类型的损失。
-第一种有关锚框类别的损失：我们可以简单地重用之前图像分类问题里一直使用的交叉熵损失函数来计算；
+第一种有关锚框类别的损失：我们可以简单地复用之前图像分类问题里一直使用的交叉熵损失函数来计算；
 第二种有关正类锚框偏移量的损失：预测偏移量是一个回归问题。
 但是，对于这个回归问题，我们在这里不使用 :numref:`subsec_normal_distribution_and_squared_loss`中描述的平方损失，而是使用$L_1$范数损失，即预测值和真实值之差的绝对值。
 掩码变量`bbox_masks`令负类锚框和填充锚框不参与损失的计算。
@@ -436,7 +436,7 @@ def calc_loss(cls_preds, cls_labels, bbox_preds, bbox_labels, bbox_masks):
 
 ```{.python .input}
 def cls_eval(cls_preds, cls_labels):
-    # 由于类别预测结果放在最后一维， `argmax` 需要指定最后一维。
+    # 由于类别预测结果放在最后一维，argmax需要指定最后一维。
     return float((cls_preds.argmax(axis=-1).astype(
         cls_labels.dtype) == cls_labels).sum())
 
@@ -447,7 +447,7 @@ def bbox_eval(bbox_preds, bbox_labels, bbox_masks):
 ```{.python .input}
 #@tab pytorch
 def cls_eval(cls_preds, cls_labels):
-    # 由于类别预测结果放在最后一维， `argmax` 需要指定最后一维。
+    # 由于类别预测结果放在最后一维，argmax需要指定最后一维。
     return float((cls_preds.argmax(dim=-1).type(
         cls_labels.dtype) == cls_labels).sum())
 

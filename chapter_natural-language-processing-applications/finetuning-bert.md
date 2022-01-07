@@ -10,7 +10,7 @@
 *单文本分类*将单个文本序列作为输入，并输出其分类结果。
 除了我们在这一章中探讨的情感分析之外，语言可接受性语料库（Corpus of Linguistic Acceptability，COLA）也是一个单文本分类的数据集，它的要求判断给定的句子在语法上是否可以接受。 :cite:`Warstadt.Singh.Bowman.2019`。例如，“I should study.”是可以接受的，但是“I should studying.”不是可以接受的。
 
-![用于单文本分类应用的微调BERT，如情感分析和测试语言可接受性。假设输入的单个文本有六个词元。](../img/bert-one-seq.svg)
+![微调BERT用于单文本分类应用，如情感分析和测试语言可接受性（这里假设输入的单个文本有六个词元）](../img/bert-one-seq.svg)
 :label:`fig_bert-one-seq`
 
  :numref:`sec_bert`描述了BERT的输入表示。BERT输入序列明确地表示单个文本和文本对，其中特殊分类标记“&lt;cls&gt;”用于序列分类，而特殊分类标记“&lt;sep&gt;”标记单个文本的结束或分隔成对文本。如 :numref:`fig_bert-one-seq`所示，在单文本分类应用中，特殊分类标记“&lt;cls&gt;”的BERT表示对整个输入文本序列的信息进行编码。作为输入单个文本的表示，它将被送入到由全连接（稠密）层组成的小多层感知机中，以输出所有离散标签值的分布。
@@ -20,13 +20,13 @@
 在本章中，我们还研究了自然语言推断。它属于*文本对分类*，这是一种对文本进行分类的应用类型。
 
 以一对文本作为输入但输出连续值，*语义文本相似度*是一个流行的“文本对回归”任务。
-这项任务评估句子的语义相似度。例如，在语义文本相似度基准数据集（Semantic Textual Similarity Benchmark）中，句子对的相似度得分是从0（无语义重叠）到5（语义等价）的分数区间 :cite:`Cer.Diab.Agirre.ea.2017`。我们的目标是预测这些分数。来自语义文本相似性基准数据集的样本包括（句子1、句子2、相似性得分）：
+这项任务评估句子的语义相似度。例如，在语义文本相似度基准数据集（Semantic Textual Similarity Benchmark）中，句子对的相似度得分是从0（无语义重叠）到5（语义等价）的分数区间 :cite:`Cer.Diab.Agirre.ea.2017`。我们的目标是预测这些分数。来自语义文本相似性基准数据集的样本包括（句子1，句子2，相似性得分）：
 
-* "A plane is taking off.","An air plane is taking off.",5.000;
-* "A woman is eating something.","A woman is eating meat.",3.000;
-* "A woman is dancing.","A man is talking.",0.000.
+* "A plane is taking off."（“一架飞机正在起飞。”），"An air plane is taking off."（“一架飞机正在起飞。”），5.000分;
+* "A woman is eating something."（“一个女人在吃东西。”），"A woman is eating meat."（“一个女人在吃肉。”），3.000分;
+* "A woman is dancing."（一个女人在跳舞。），"A man is talking."（“一个人在说话。”），0.000分。
 
-![文本对分类或回归应用程序的BERT微调，如自然语言推断和语义文本相似性。假设输入文本对分别有两个词元和三个词元。](../img/bert-two-seqs.svg)
+![文本对分类或回归应用程序的BERT微调，如自然语言推断和语义文本相似性（假设输入文本对分别有两个词元和三个词元）](../img/bert-two-seqs.svg)
 :label:`fig_bert-two-seqs`
 
 与 :numref:`fig_bert-one-seq`中的单文本分类相比， :numref:`fig_bert-two-seqs`中的文本对分类的BERT微调在输入表示上有所不同。对于文本对回归任务（如语义文本相似性），可以应用细微的更改，例如输出连续的标签值和使用均方损失：它们在回归中很常见。
@@ -46,7 +46,7 @@
 作为另一个词元级应用，*问答*反映阅读理解能力。
 例如，斯坦福问答数据集（Stanford Question Answering Dataset，SQuAD v1.1）由阅读段落和问题组成，其中每个问题的答案只是段落中的一段文本（文本片段） :cite:`Rajpurkar.Zhang.Lopyrev.ea.2016`。举个例子，考虑一段话：“Some experts report that a mask's efficacy is inconclusive.However,mask makers insist that their products,such as N95 respirator masks,can guard against the virus.”（“一些专家报告说面罩的功效是不确定的。然而，口罩制造商坚持他们的产品，如N95口罩，可以预防病毒。”）还有一个问题“Who say that N95 respirator masks can guard against the virus?”（“谁说N95口罩可以预防病毒？”）。答案应该是文章中的文本片段“mask makers”（“口罩制造商”）。因此，SQuAD v1.1的目标是在给定问题和段落的情况下预测段落中文本片段的开始和结束。
 
-![对问答进行BERT微调。假设输入文本对分别有两个和三个词元。](../img/bert-qa.svg)
+![对问答进行BERT微调（假设输入文本对分别有两个和三个词元）](../img/bert-qa.svg)
 :label:`fig_bert-qa`
 
 为了微调BERT进行问答，在BERT的输入中，将问题和段落分别作为第一个和第二个文本序列。为了预测文本片段开始的位置，相同的额外的全连接层将把来自位置$i$的任何词元的BERT表示转换成标量分数$s_i$。文章中所有词元的分数还通过softmax转换成概率分布，从而为文章中的每个词元位置$i$分配作为文本片段开始的概率$p_i$。预测文本片段的结束与上面相同，只是其额外的全连接层中的参数与用于预测开始位置的参数无关。当预测结束时，位置$i$的词元由相同的全连接层变换成标量分数$e_i$。 :numref:`fig_bert-qa`描述了用于问答的微调BERT。
@@ -64,4 +64,4 @@
 1. 我们如何利用BERT来训练语言模型？
 1. 我们能在机器翻译中利用BERT吗？
 
-[Discussions](https://discuss.d2l.ai/t/396)
+[Discussions](https://discuss.d2l.ai/t/5729)

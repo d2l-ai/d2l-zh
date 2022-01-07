@@ -5,11 +5,14 @@
 
 ## 自然语言推断
 
-*自然语言推断*研究了*假设*是否可以从*前提*中推断出来，其中两者都是文本序列。换言之，自然语言推断决定了一对文本序列之间的逻辑关系。这类关系通常分为三种类型：
+*自然语言推断*（natural language inference）主要研究
+*假设*（hypothesis）是否可以从*前提*（premise）中推断出来，
+其中两者都是文本序列。
+换言之，自然语言推断决定了一对文本序列之间的逻辑关系。这类关系通常分为三种类型：
 
-* *蕴涵*：假设可以从前提中推断出来。
-* *矛盾*：假设的否定可以从前提中推断出来。
-* *中性*：所有其他情况。
+* *蕴涵*（entailment）：假设可以从前提中推断出来。
+* *矛盾*（contradiction）：假设的否定可以从前提中推断出来。
+* *中性*（neutral）：所有其他情况。
 
 自然语言推断也被称为识别文本蕴涵任务。
 例如，下面的一个文本对将被贴上“蕴涵”的标签，因为假设中的“表白”可以从前提中的“拥抱”中推断出来。
@@ -24,7 +27,7 @@
 
 假设：该男子正在睡觉。
 
-第三个例子显示了一种“中立”关系，因为“正在为我们表演”这一事实无法推断出“出名”或“不出名”。
+第三个例子显示了一种“中性”关系，因为“正在为我们表演”这一事实无法推断出“出名”或“不出名”。
 
 >前提：音乐家们正在为我们表演。
 
@@ -76,7 +79,7 @@ data_dir = d2l.download_extract('SNLI')
 #@tab all
 #@save
 def read_snli(data_dir, is_train):
-    """将SNLI数据集解析为前提、假设和标签。"""
+    """将SNLI数据集解析为前提、假设和标签"""
     def extract_text(s):
         # 删除我们不会使用的信息
         s = re.sub('\\(', '', s) 
@@ -90,7 +93,8 @@ def read_snli(data_dir, is_train):
     with open(file_name, 'r') as f:
         rows = [row.split('\t') for row in f.readlines()[1:]]
     premises = [extract_text(row[1]) for row in rows if row[0] in label_set]
-    hypotheses = [extract_text(row[2]) for row in rows if row[0] in label_set]
+    hypotheses = [extract_text(row[2]) for row in rows if row[0] \
+                in label_set]
     labels = [label_set[row[0]] for row in rows if row[0] in label_set]
     return premises, hypotheses, labels
 ```
@@ -101,9 +105,9 @@ def read_snli(data_dir, is_train):
 #@tab all
 train_data = read_snli(data_dir, is_train=True)
 for x0, x1, y in zip(train_data[0][:3], train_data[1][:3], train_data[2][:3]):
-    print('premise:', x0)
-    print('hypothesis:', x1)
-    print('label:', y)
+    print('前提：', x0)
+    print('假设：', x1)
+    print('标签：', y)
 ```
 
 训练集约有550000对，测试集约有10000对。下面显示了训练集和测试集中的三个[**标签“蕴涵”、“矛盾”和“中性”是平衡的**]。
@@ -122,14 +126,14 @@ for data in [train_data, test_data]:
 ```{.python .input}
 #@save
 class SNLIDataset(gluon.data.Dataset):
-    """用于加载SNLI数据集的自定义数据集。"""
+    """用于加载SNLI数据集的自定义数据集"""
     def __init__(self, dataset, num_steps, vocab=None):
         self.num_steps = num_steps
         all_premise_tokens = d2l.tokenize(dataset[0])
         all_hypothesis_tokens = d2l.tokenize(dataset[1])
         if vocab is None:
-            self.vocab = d2l.Vocab(all_premise_tokens + all_hypothesis_tokens,
-                                   min_freq=5, reserved_tokens=['<pad>'])
+            self.vocab = d2l.Vocab(all_premise_tokens + \
+                all_hypothesis_tokens, min_freq=5, reserved_tokens=['<pad>'])
         else:
             self.vocab = vocab
         self.premises = self._pad(all_premise_tokens)
@@ -153,14 +157,14 @@ class SNLIDataset(gluon.data.Dataset):
 #@tab pytorch
 #@save
 class SNLIDataset(torch.utils.data.Dataset):
-    """用于加载SNLI数据集的自定义数据集。"""
+    """用于加载SNLI数据集的自定义数据集"""
     def __init__(self, dataset, num_steps, vocab=None):
         self.num_steps = num_steps
         all_premise_tokens = d2l.tokenize(dataset[0])
         all_hypothesis_tokens = d2l.tokenize(dataset[1])
         if vocab is None:
-            self.vocab = d2l.Vocab(all_premise_tokens + all_hypothesis_tokens,
-                                   min_freq=5, reserved_tokens=['<pad>'])
+            self.vocab = d2l.Vocab(all_premise_tokens + \
+                all_hypothesis_tokens, min_freq=5, reserved_tokens=['<pad>'])
         else:
             self.vocab = vocab
         self.premises = self._pad(all_premise_tokens)
@@ -187,7 +191,7 @@ class SNLIDataset(torch.utils.data.Dataset):
 ```{.python .input}
 #@save
 def load_data_snli(batch_size, num_steps=50):
-    """下载SNLI数据集并返回数据迭代器和词表。"""
+    """下载SNLI数据集并返回数据迭代器和词表"""
     num_workers = d2l.get_dataloader_workers()
     data_dir = d2l.download_extract('SNLI')
     train_data = read_snli(data_dir, True)
@@ -205,7 +209,7 @@ def load_data_snli(batch_size, num_steps=50):
 #@tab pytorch
 #@save
 def load_data_snli(batch_size, num_steps=50):
-    """下载SNLI数据集并返回数据迭代器和词表。"""
+    """下载SNLI数据集并返回数据迭代器和词表"""
     num_workers = d2l.get_dataloader_workers()
     data_dir = d2l.download_extract('SNLI')
     train_data = read_snli(data_dir, True)
@@ -242,9 +246,9 @@ for X, Y in train_iter:
 
 ## 小结
 
-* 自然语言推断研究假设是否可以从前提推断出来，其中两者都是文本序列。
+* 自然语言推断研究“假设”是否可以从“前提”推断出来，其中两者都是文本序列。
 * 在自然语言推断中，前提和假设之间的关系包括蕴涵关系、矛盾关系和中性关系。
-* 斯坦福自然语言推断（SNLI）语料库是目前比较流行的自然语言推断基准数据集。
+* 斯坦福自然语言推断（SNLI）语料库是一个比较流行的自然语言推断基准数据集。
 
 ## 练习
 
@@ -252,9 +256,9 @@ for X, Y in train_iter:
 1. 我们如何更改超参数以减小词表大小？
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/394)
+[Discussions](https://discuss.d2l.ai/t/5721)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1388)
+[Discussions](https://discuss.d2l.ai/t/5722)
 :end_tab:

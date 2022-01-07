@@ -47,7 +47,7 @@ d2l.DATA_HUB['banana-detection'] = (
 ```{.python .input}
 #@save
 def read_data_bananas(is_train=True):
-    """读取香蕉检测数据集中的图像和标签。"""
+    """读取香蕉检测数据集中的图像和标签"""
     data_dir = d2l.download_extract('banana-detection')
     csv_fname = os.path.join(data_dir, 'bananas_train' if is_train
                              else 'bananas_val', 'label.csv')
@@ -58,7 +58,7 @@ def read_data_bananas(is_train=True):
         images.append(image.imread(
             os.path.join(data_dir, 'bananas_train' if is_train else
                          'bananas_val', 'images', f'{img_name}')))
-        # 这里的`target`包含（类别，左上角x，左上角y，右下角x，右下角y），
+        # 这里的target包含（类别，左上角x，左上角y，右下角x，右下角y），
         # 其中所有图像都具有相同的香蕉类（索引为0）
         targets.append(list(target))
     return images, np.expand_dims(np.array(targets), 1) / 256
@@ -68,7 +68,7 @@ def read_data_bananas(is_train=True):
 #@tab pytorch
 #@save
 def read_data_bananas(is_train=True):
-    """读取香蕉检测数据集中的图像和标签。"""
+    """读取香蕉检测数据集中的图像和标签"""
     data_dir = d2l.download_extract('banana-detection')
     csv_fname = os.path.join(data_dir, 'bananas_train' if is_train
                              else 'bananas_val', 'label.csv')
@@ -79,7 +79,7 @@ def read_data_bananas(is_train=True):
         images.append(torchvision.io.read_image(
             os.path.join(data_dir, 'bananas_train' if is_train else
                          'bananas_val', 'images', f'{img_name}')))
-        # 这里的`target`包含（类别，左上角x，左上角y，右下角x，右下角y），
+        # 这里的target包含（类别，左上角x，左上角y，右下角x，右下角y），
         # 其中所有图像都具有相同的香蕉类（索引为0）
         targets.append(list(target))
     return images, torch.tensor(targets).unsqueeze(1) / 256
@@ -90,7 +90,7 @@ def read_data_bananas(is_train=True):
 ```{.python .input}
 #@save
 class BananasDataset(gluon.data.Dataset):
-    """一个用于加载香蕉检测数据集的自定义数据集。"""
+    """一个用于加载香蕉检测数据集的自定义数据集"""
     def __init__(self, is_train):
         self.features, self.labels = read_data_bananas(is_train)
         print('read ' + str(len(self.features)) + (f' training examples' if
@@ -108,7 +108,7 @@ class BananasDataset(gluon.data.Dataset):
 #@tab pytorch
 #@save
 class BananasDataset(torch.utils.data.Dataset):
-    """一个用于加载香蕉检测数据集的自定义数据集。"""
+    """一个用于加载香蕉检测数据集的自定义数据集"""
     def __init__(self, is_train):
         self.features, self.labels = read_data_bananas(is_train)
         print('read ' + str(len(self.features)) + (f' training examples' if
@@ -126,7 +126,7 @@ class BananasDataset(torch.utils.data.Dataset):
 ```{.python .input}
 #@save
 def load_data_bananas(batch_size):
-    """加载香蕉检测数据集。"""
+    """加载香蕉检测数据集"""
     train_iter = gluon.data.DataLoader(BananasDataset(is_train=True),
                                        batch_size, shuffle=True)
     val_iter = gluon.data.DataLoader(BananasDataset(is_train=False),
@@ -138,7 +138,7 @@ def load_data_bananas(batch_size):
 #@tab pytorch
 #@save
 def load_data_bananas(batch_size):
-    """加载香蕉检测数据集。"""
+    """加载香蕉检测数据集"""
     train_iter = torch.utils.data.DataLoader(BananasDataset(is_train=True),
                                              batch_size, shuffle=True)
     val_iter = torch.utils.data.DataLoader(BananasDataset(is_train=False),
@@ -165,7 +165,7 @@ batch = next(iter(train_iter))
 batch[0].shape, batch[1].shape
 ```
 
-## [**示范**]
+## [**演示**]
 
 让我们展示10幅带有真实边界框的图像。
 我们可以看到在所有这些图像中香蕉的旋转角度、大小和位置都有所不同。

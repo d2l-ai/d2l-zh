@@ -2,7 +2,7 @@
 :label:`sec_model_construction`
 
 之前首次介绍神经网络时，我们关注的是具有单一输出的线性模型。
-在这里，整个模型只由一个输出。
+在这里，整个模型只有一个输出。
 注意，单个神经网络
 （1）接受一些输入；
 （2）生成相应的标量输出；
@@ -171,13 +171,13 @@ net(X)
 class MLP(nn.Block):
     # 用模型参数声明层。这里，我们声明两个全连接的层
     def __init__(self, **kwargs):
-        # 调用`MLP`的父类`Block`的构造函数来执行必要的初始化。
-        # 这样，在类实例化时也可以指定其他函数参数，例如模型参数`params`（稍后将介绍）
+        # 调用MLP的父类Block的构造函数来执行必要的初始化。
+        # 这样，在类实例化时也可以指定其他函数参数，例如模型参数params（稍后将介绍）
         super().__init__(**kwargs)
         self.hidden = nn.Dense(256, activation='relu')  # 隐藏层
         self.out = nn.Dense(10)  # 输出层
 
-    # 定义模型的前向传播，即如何根据输入`X`返回所需的模型输出
+    # 定义模型的前向传播，即如何根据输入X返回所需的模型输出
     def forward(self, X):
         return self.out(self.hidden(X))
 ```
@@ -187,13 +187,13 @@ class MLP(nn.Block):
 class MLP(nn.Module):
     # 用模型参数声明层。这里，我们声明两个全连接的层
     def __init__(self):
-        # 调用`MLP`的父类`Module`的构造函数来执行必要的初始化。
-        # 这样，在类实例化时也可以指定其他函数参数，例如模型参数`params`（稍后将介绍）
+        # 调用MLP的父类Module的构造函数来执行必要的初始化。
+        # 这样，在类实例化时也可以指定其他函数参数，例如模型参数params（稍后将介绍）
         super().__init__()
         self.hidden = nn.Linear(20, 256)  # 隐藏层
         self.out = nn.Linear(256, 10)  # 输出层
 
-    # 定义模型的前向传播，即如何根据输入`X`返回所需的模型输出
+    # 定义模型的前向传播，即如何根据输入X返回所需的模型输出
     def forward(self, X):
         # 注意，这里我们使用ReLU的函数版本，其在nn.functional模块中定义。
         return self.out(F.relu(self.hidden(X)))
@@ -204,14 +204,14 @@ class MLP(nn.Module):
 class MLP(tf.keras.Model):
     # 用模型参数声明层。这里，我们声明两个全连接的层
     def __init__(self):
-        # 调用`MLP`的父类`Model`的构造函数来执行必要的初始化。
-        # 这样，在类实例化时也可以指定其他函数参数，例如模型参数`params`（稍后将介绍）
+        # 调用MLP的父类Model的构造函数来执行必要的初始化。
+        # 这样，在类实例化时也可以指定其他函数参数，例如模型参数params（稍后将介绍）
         super().__init__()
-        # Hidden layer
+        # Hiddenlayer
         self.hidden = tf.keras.layers.Dense(units=256, activation=tf.nn.relu)
-        self.out = tf.keras.layers.Dense(units=10)  # Output layer
+        self.out = tf.keras.layers.Dense(units=10)  # Outputlayer
 
-    # 定义模型的前向传播，即如何根据输入`X`返回所需的模型输出
+    # 定义模型的前向传播，即如何根据输入X返回所需的模型输出
     def call(self, X):
         return self.out(self.hidden((X)))
 ```
@@ -275,9 +275,9 @@ net(X)
 ```{.python .input}
 class MySequential(nn.Block):
     def add(self, block):
-    # 这里，`block`是`Block`子类的一个实例，我们假设它有一个唯一的名称。我们把它
-    # 保存在'Block'类的成员变量`_children` 中。`block`的类型是OrderedDict。
-    # 当`MySequential`实例调用`initialize`函数时，系统会自动初始化`_children`
+    # 这里，block是Block子类的一个实例，我们假设它有一个唯一的名称。我们把它
+    # 保存在'Block'类的成员变量_children中。block的类型是OrderedDict。
+    # 当MySequential实例调用initialize函数时，系统会自动初始化_children
     # 的所有成员
         self._children[block.name] = block
 
@@ -294,8 +294,8 @@ class MySequential(nn.Module):
     def __init__(self, *args):
         super().__init__()
         for idx, module in enumerate(args):
-            # 这里，`module`是`Module`子类的一个实例。我们把它保存在'Module'类的成员
-            # 变量`_modules` 中。`module`的类型是OrderedDict
+            # 这里，module是Module子类的一个实例。我们把它保存在'Module'类的成员
+            # 变量_modules中。module的类型是OrderedDict
             self._modules[str(idx)] = module
 
     def forward(self, X):
@@ -312,7 +312,7 @@ class MySequential(tf.keras.Model):
         super().__init__()
         self.modules = []
         for block in args:
-            # 这里，`block`是`tf.keras.layers.Layer`子类的一个实例
+            # 这里，block是tf.keras.layers.Layer子类的一个实例
             self.modules.append(block)
 
     def call(self, X):
@@ -393,14 +393,14 @@ $c$是某个在优化过程中没有更新的指定常量。
 class FixedHiddenMLP(nn.Block):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        # 使用`get_constant`函数创建的随机权重参数在训练期间不会更新（即为常量参数）
+        # 使用get_constant函数创建的随机权重参数在训练期间不会更新（即为常量参数）
         self.rand_weight = self.params.get_constant(
             'rand_weight', np.random.uniform(size=(20, 20)))
         self.dense = nn.Dense(20, activation='relu')
 
     def forward(self, X):
         X = self.dense(X)
-        # 使用创建的常量参数以及`relu`和`dot`函数
+        # 使用创建的常量参数以及relu和dot函数
         X = npx.relu(np.dot(X, self.rand_weight.data()) + 1)
         # 复用全连接层。这相当于两个全连接层共享参数
         X = self.dense(X)
@@ -437,13 +437,13 @@ class FixedHiddenMLP(tf.keras.Model):
     def __init__(self):
         super().__init__()
         self.flatten = tf.keras.layers.Flatten()
-        # 使用`tf.constant`函数创建的随机权重参数在训练期间不会更新（即为常量参数）
+        # 使用tf.constant函数创建的随机权重参数在训练期间不会更新（即为常量参数）
         self.rand_weight = tf.constant(tf.random.uniform((20, 20)))
         self.dense = tf.keras.layers.Dense(20, activation=tf.nn.relu)
 
     def call(self, inputs):
         X = self.flatten(inputs)
-        # 使用创建的常量参数以及`relu`和`matmul`函数
+        # 使用创建的常量参数以及relu和matmul函数
         X = tf.nn.relu(tf.matmul(X, self.rand_weight) + 1)
         # 复用全连接层。这相当于两个全连接层共享参数。
         X = self.dense(X)
