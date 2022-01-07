@@ -216,9 +216,8 @@ class Seq2SeqAttentionDecoder(AttentionDecoder):
         return (outputs, hidden_state, enc_valid_lens)
 
     def call(self, X, state, **kwargs):
-        # enc_outputs的形状为(batch_size,num_steps,num_hiddens).
-        # hidden_state[0]的形状为(num_layers,batch_size,
-        # num_hiddens)
+        # enc_outputs的形状为(batch_size,num_steps,num_hiddens)
+        # hidden_state[0]的形状为(num_layers,batch_size, num_hiddens)
         enc_outputs, hidden_state, enc_valid_lens = state
         # 输出X的形状为(num_steps,batch_size,embed_size)
         X = self.embedding(X) # 输入X的形状为(batch_size,num_steps)
@@ -236,8 +235,7 @@ class Seq2SeqAttentionDecoder(AttentionDecoder):
             hidden_state = out[1:]
             outputs.append(out[0])
             self._attention_weights.append(self.attention.attention_weights)
-        # 全连接层变换后，outputs的形状为
-        # (num_steps,batch_size,vocab_size)
+        # 全连接层变换后，outputs的形状为(num_steps,batch_size,vocab_size)
         outputs = self.dense(tf.concat(outputs, axis=1))
         return outputs, [enc_outputs, hidden_state, enc_valid_lens]
 
