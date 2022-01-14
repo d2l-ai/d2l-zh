@@ -64,7 +64,7 @@ def plot(X, Y=None, xlabel=None, ylabel=None, legend=None, xlim=None,
     set_figsize(figsize)
     axes = axes if axes else d2l.plt.gca()
 
-    # 如果`X`有一个轴，输出True
+    # 如果X有一个轴，输出True
     def has_one_axis(X):
         return (hasattr(X, "ndim") and X.ndim == 1 or isinstance(X, list)
                 and not hasattr(X[0], "__len__"))
@@ -212,7 +212,7 @@ def evaluate_accuracy(net, data_iter):
     return metric[0] / metric[1]
 
 class Accumulator:
-    """在`n`个变量上累加"""
+    """在n个变量上累加"""
     def __init__(self, n):
         """Defined in :numref:`sec_softmax_scratch`"""
         self.data = [0.0] * n
@@ -248,7 +248,7 @@ def train_epoch_ch3(net, train_iter, loss, updater):
             updater.apply_gradients(zip(grads, params))
         else:
             updater(X.shape[0], tape.gradient(l, updater.params))
-        # Keras的`loss`默认返回一个批量的平均损失
+        # Keras的loss默认返回一个批量的平均损失
         l_sum = l * float(tf.size(y)) if isinstance(
             loss, tf.keras.losses.Loss) else tf.reduce_sum(l)
         metric.add(l_sum, accuracy(y_hat, y), tf.size(y))
@@ -537,7 +537,6 @@ class Vocab:
         self.idx_to_token = ['<unk>'] + reserved_tokens
         self.token_to_idx = {token: idx
                              for idx, token in enumerate(self.idx_to_token)}
-        self.idx_to_token, self.token_to_idx = [], dict()
         for token, freq in self._token_freqs:
             if freq < min_freq:
                 break
@@ -570,7 +569,7 @@ def count_corpus(tokens):
     """统计词元的频率
 
     Defined in :numref:`sec_text_preprocessing`"""
-    # 这里的`tokens`是1D列表或2D列表
+    # 这里的tokens是1D列表或2D列表
     if len(tokens) == 0 or isinstance(tokens[0], list):
         # 将词元列表展平成一个列表
         tokens = [token for line in tokens for token in line]
@@ -594,23 +593,23 @@ def seq_data_iter_random(corpus, batch_size, num_steps):
     """使用随机抽样生成一个小批量子序列
 
     Defined in :numref:`sec_language_model`"""
-    # 从随机偏移量开始对序列进行分区，随机范围包括`num_steps-1`
+    # 从随机偏移量开始对序列进行分区，随机范围包括num_steps-1
     corpus = corpus[random.randint(0, num_steps - 1):]
     # 减去1，是因为我们需要考虑标签
     num_subseqs = (len(corpus) - 1) // num_steps
-    # 长度为`num_steps`的子序列的起始索引
+    # 长度为num_steps的子序列的起始索引
     initial_indices = list(range(0, num_subseqs * num_steps, num_steps))
     # 在随机抽样的迭代过程中，
     # 来自两个相邻的、随机的、小批量中的子序列不一定在原始序列上相邻
     random.shuffle(initial_indices)
 
     def data(pos):
-        # 返回从`pos`位置开始的长度为`num_steps`的序列
+        # 返回从pos位置开始的长度为num_steps的序列
         return corpus[pos: pos + num_steps]
 
     num_batches = num_subseqs // batch_size
     for i in range(0, batch_size * num_batches, batch_size):
-        # 在这里，`initial_indices`包含子序列的随机起始索引
+        # 在这里，initial_indices包含子序列的随机起始索引
         initial_indices_per_batch = initial_indices[i: i + batch_size]
         X = [data(j) for j in initial_indices_per_batch]
         Y = [data(j + 1) for j in initial_indices_per_batch]
@@ -674,7 +673,7 @@ class RNNModelScratch:
         return self.init_state(batch_size, self.num_hiddens)
 
 def predict_ch8(prefix, num_preds, net, vocab):
-    """在`prefix`后面生成新字符
+    """在prefix后面生成新字符
 
     Defined in :numref:`sec_rnn_scratch`"""
     state = net.begin_state(batch_size=1, dtype=tf.float32)
@@ -684,7 +683,7 @@ def predict_ch8(prefix, num_preds, net, vocab):
     for y in prefix[1:]:  # 预热期
         _, state = net(get_input(), state)
         outputs.append(vocab[y])
-    for _ in range(num_preds):  # 预测`num_preds`步
+    for _ in range(num_preds):  # 预测num_preds步
         y, state = net(get_input(), state)
         outputs.append(int(y.numpy().argmax(axis=1).reshape(1)))
     return ''.join([vocab.idx_to_token[i] for i in outputs])
@@ -718,7 +717,7 @@ def train_epoch_ch8(net, train_iter, loss, updater, use_random_iter):
     metric = d2l.Accumulator(2)  # 训练损失之和,词元数量
     for X, Y in train_iter:
         if state is None or use_random_iter:
-            # 在第一次迭代或使用随机抽样时初始化`state`
+            # 在第一次迭代或使用随机抽样时初始化state
             state = net.begin_state(batch_size=X.shape[0], dtype=tf.float32)
         with tf.GradientTape(persistent=True) as g:
             y_hat, state = net(X, state)
@@ -900,8 +899,8 @@ class Seq2SeqEncoder(d2l.Encoder):
                                        return_state=True)
 
     def call(self, X, *args, **kwargs):
-        # 输入'X'的形状：(`batch_size`,`num_steps`)
-        # 输出'X'的形状：(`batch_size`,`num_steps`,`embed_size`)
+        # 输入'X'的形状：(batch_size,num_steps)
+        # 输出'X'的形状：(batch_size,num_steps,embed_size)
         X = self.embedding(X)
         output = self.rnn(X, **kwargs)
         state = output[1:]
@@ -928,9 +927,9 @@ class MaskedSoftmaxCELoss(tf.keras.losses.Loss):
         super().__init__(reduction='none')
         self.valid_len = valid_len
 
-    # `pred`的形状：(`batch_size`,`num_steps`,`vocab_size`)
-    # `label`的形状：(`batch_size`,`num_steps`)
-    # `valid_len`的形状：(`batch_size`,)
+    # pred的形状：(batch_size,num_steps,vocab_size)
+    # label的形状：(batch_size,num_steps)
+    # valid_len的形状：(batch_size,)
     def call(self, label, pred):
         weights = tf.ones_like(label, dtype=tf.float32)
         weights = sequence_mask(weights, self.valid_len)
@@ -1041,7 +1040,7 @@ def masked_softmax(X, valid_lens):
     """通过在最后一个轴上掩蔽元素来执行softmax操作
 
     Defined in :numref:`sec_attention-scoring-functions`"""
-    # `X`:3D张量，`valid_lens`:1D或2D张量
+    # X:3D张量，valid_lens:1D或2D张量
     if valid_lens is None:
         return tf.nn.softmax(X, axis=-1)
     else:
@@ -1070,17 +1069,17 @@ class AdditiveAttention(tf.keras.layers.Layer):
     def call(self, queries, keys, values, valid_lens, **kwargs):
         queries, keys = self.W_q(queries), self.W_k(keys)
         # 在维度扩展后，
-        # `queries`的形状：(`batch_size`，查询的个数，1，`num_hidden`)
-        # `key`的形状：(`batch_size`，1，“键－值”对的个数，`num_hiddens`)
+        # queries的形状：(batch_size，查询的个数，1，num_hidden)
+        # key的形状：(batch_size，1，“键－值”对的个数，num_hiddens)
         # 使用广播方式进行求和
         features = tf.expand_dims(queries, axis=2) + tf.expand_dims(
             keys, axis=1)
         features = tf.nn.tanh(features)
-        # `self.w_v`仅有一个输出，因此从形状中移除最后那个维度。
-        # `scores`的形状：(`batch_size`，查询的个数，“键-值”对的个数)
+        # self.w_v仅有一个输出，因此从形状中移除最后那个维度。
+        # scores的形状：(batch_size，查询的个数，“键-值”对的个数)
         scores = tf.squeeze(self.w_v(features), axis=-1)
         self.attention_weights = masked_softmax(scores, valid_lens)
-        # `values`的形状：(`batch_size`，“键－值”对的个数，值的维度)
+        # values的形状：(batch_size，“键－值”对的个数，值的维度)
         return tf.matmul(self.dropout(
             self.attention_weights, **kwargs), values)
 
@@ -1092,10 +1091,10 @@ class DotProductAttention(tf.keras.layers.Layer):
         super().__init__(**kwargs)
         self.dropout = tf.keras.layers.Dropout(dropout)
 
-    # `queries`的形状：(`batch_size`，查询的个数，`d`)
-    # `keys`的形状：(`batch_size`，“键－值”对的个数，`d`)
-    # `values`的形状：(`batch_size`，“键－值”对的个数，值的维度)
-    # `valid_lens`的形状:(`batch_size`，)或者(`batch_size`，查询的个数)
+    # queries的形状：(batch_size，查询的个数，d)
+    # keys的形状：(batch_size，“键－值”对的个数，d)
+    # values的形状：(batch_size，“键－值”对的个数，值的维度)
+    # valid_lens的形状:(batch_size，)或者(batch_size，查询的个数)
     def call(self, queries, keys, values, valid_lens, **kwargs):
         d = queries.shape[-1]
         scores = tf.matmul(queries, keys, transpose_b=True)/tf.math.sqrt(
@@ -1129,27 +1128,27 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         self.W_o = tf.keras.layers.Dense(num_hiddens, use_bias=bias)
 
     def call(self, queries, keys, values, valid_lens, **kwargs):
-        # `queries`，`keys`，`values`的形状:
-        # (`batch_size`，查询或者“键－值”对的个数，`num_hiddens`)
-        # `valid_lens`　的形状:
-        # (`batch_size`，)或(`batch_size`，查询的个数)
-        # 经过变换后，输出的`queries`，`keys`，`values`　的形状:
-        # (`batch_size`*`num_heads`，查询或者“键－值”对的个数，
-        # `num_hiddens`/`num_heads`)
+        # queries，keys，values的形状:
+        # (batch_size，查询或者“键－值”对的个数，num_hiddens)
+        # valid_lens　的形状:
+        # (batch_size，)或(batch_size，查询的个数)
+        # 经过变换后，输出的queries，keys，values　的形状:
+        # (batch_size*num_heads，查询或者“键－值”对的个数，
+        # num_hiddens/num_heads)
         queries = transpose_qkv(self.W_q(queries), self.num_heads)
         keys = transpose_qkv(self.W_k(keys), self.num_heads)
         values = transpose_qkv(self.W_v(values), self.num_heads)
 
         if valid_lens is not None:
-            # 在轴0，将第一项（标量或者矢量）复制`num_heads`次，
+            # 在轴0，将第一项（标量或者矢量）复制num_heads次，
             # 然后如此复制第二项，然后诸如此类。
             valid_lens = tf.repeat(valid_lens, repeats=self.num_heads, axis=0)
 
-        # `output`的形状:(`batch_size`*`num_heads`，查询的个数，
-        # `num_hiddens`/`num_heads`)
+        # output的形状:(batch_size*num_heads，查询的个数，
+        # num_hiddens/num_heads)
         output = self.attention(queries, keys, values, valid_lens, **kwargs)
 
-        # `output_concat`的形状:(`batch_size`，查询的个数，`num_hiddens`)
+        # output_concat的形状:(batch_size，查询的个数，num_hiddens)
         output_concat = transpose_output(output, self.num_heads)
         return self.W_o(output_concat)
 
@@ -1157,22 +1156,22 @@ def transpose_qkv(X, num_heads):
     """为了多注意力头的并行计算而变换形状
 
     Defined in :numref:`sec_multihead-attention`"""
-    # 输入`X`的形状:(`batch_size`，查询或者“键－值”对的个数，`num_hiddens`)
-    # 输出`X`的形状:(`batch_size`，查询或者“键－值”对的个数，`num_heads`，
-    # `num_hiddens`/`num_heads`)
+    # 输入X的形状:(batch_size，查询或者“键－值”对的个数，num_hiddens)
+    # 输出X的形状:(batch_size，查询或者“键－值”对的个数，num_heads，
+    # num_hiddens/num_heads)
     X = tf.reshape(X, shape=(X.shape[0], X.shape[1], num_heads, -1))
 
-    # 输出`X`的形状:(`batch_size`，`num_heads`，查询或者“键－值”对的个数,
-    # `num_hiddens`/`num_heads`)
+    # 输出X的形状:(batch_size，num_heads，查询或者“键－值”对的个数,
+    # num_hiddens/num_heads)
     X = tf.transpose(X, perm=(0, 2, 1, 3))
 
-    # 最终输出的形状:(`batch_size`*`num_heads`,查询或者“键－值”对的个数,
-    # `num_hiddens`/`num_heads`)
+    # 最终输出的形状:(batch_size*num_heads,查询或者“键－值”对的个数,
+    # num_hiddens/num_heads)
     return tf.reshape(X, shape=(-1, X.shape[2], X.shape[3]))
 
 
 def transpose_output(X, num_heads):
-    """逆转`transpose_qkv`函数的操作
+    """逆转transpose_qkv函数的操作
 
     Defined in :numref:`sec_multihead-attention`"""
     X = tf.reshape(X, shape=(-1, num_heads, X.shape[1], X.shape[2]))
@@ -1186,7 +1185,7 @@ class PositionalEncoding(tf.keras.layers.Layer):
     def __init__(self, num_hiddens, dropout, max_len=1000):
         super().__init__()
         self.dropout = tf.keras.layers.Dropout(dropout)
-        # 创建一个足够长的`P`
+        # 创建一个足够长的P
         self.P = np.zeros((1, max_len, num_hiddens))
         X = np.arange(max_len, dtype=np.float32).reshape(
             -1,1)/np.power(10000, np.arange(
@@ -1277,7 +1276,7 @@ def train_2d(trainer, steps=20, f_grad=None):
     """用定制的训练机优化2D目标函数
 
     Defined in :numref:`subsec_gd-learningrate`"""
-    # `s1`和`s2`是稍后将使用的内部状态变量
+    # s1和s2是稍后将使用的内部状态变量
     x1, x2, s1, s2 = -5, -2, 0, 0
     results = [(x1, x2)]
     for i in range(steps):

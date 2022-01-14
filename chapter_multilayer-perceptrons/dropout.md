@@ -18,7 +18,7 @@
 
 泛化性和灵活性之间的这种基本权衡被描述为*偏差-方差权衡*（bias-variance tradeoff）。
 线性模型有很高的偏差：它们只能表示一小类函数。
-然而，这些模型的方差很低：它们在不同的随机数据样本上可以得出了相似的结果。
+然而，这些模型的方差很低：它们在不同的随机数据样本上可以得出相似的结果。
 
 深度神经网络位于偏差-方差谱的另一端。
 与线性模型不同，神经网络并不局限于单独查看每个特征，而是学习特征之间的交互。
@@ -333,7 +333,7 @@ d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs,
 ```{.python .input}
 #@tab pytorch
 num_epochs, lr, batch_size = 10, 0.5, 256
-loss = nn.CrossEntropyLoss()
+loss = nn.CrossEntropyLoss(reduction='none')
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
 trainer = torch.optim.SGD(net.parameters(), lr=lr)
 d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
