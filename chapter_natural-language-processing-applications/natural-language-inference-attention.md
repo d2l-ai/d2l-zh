@@ -101,7 +101,7 @@ class Attend(nn.Block):
         # beta的形状：（批量大小，序列A的词元数，embed_size），
         # 意味着序列B被软对齐到序列A的每个词元(beta的第1个维度)
         beta = npx.batch_dot(npx.softmax(e), B)
-        # beta的形状：（批量大小，序列B的词元数，embed_size），
+        # alpha的形状：（批量大小，序列B的词元数，embed_size），
         # 意味着序列A被软对齐到序列B的每个词元(alpha的第1个维度)
         alpha = npx.batch_dot(npx.softmax(e.transpose(0, 2, 1)), A)
         return beta, alpha
