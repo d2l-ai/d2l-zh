@@ -115,7 +115,7 @@ $$
 **)
 
 分母或规范化常数，有时也称为*配分函数*（其对数称为对数-配分函数）。
-该名称的来自[统计物理学](https://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics))中一个模拟粒子群分布的方程。
+该名称来自[统计物理学](https://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics))中一个模拟粒子群分布的方程。
 
 ```{.python .input}
 #@tab mxnet, tensorflow

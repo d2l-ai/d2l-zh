@@ -261,7 +261,7 @@ d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'grad of relu',
 ```
 
 使用ReLU的原因是，它求导表现得特别好：要么让参数消失，要么让参数通过。
-这使得优化表现的更好，并且ReLU减轻了困扰以往神经网络的梯度消失问题（稍后将详细介绍）。
+这使得优化表现得更好，并且ReLU减轻了困扰以往神经网络的梯度消失问题（稍后将详细介绍）。
 
 注意，ReLU函数有许多变体，包括*参数化ReLU*（Parameterized ReLU，*pReLU*）
 函数 :cite:`He.Zhang.Ren.ea.2015`。
