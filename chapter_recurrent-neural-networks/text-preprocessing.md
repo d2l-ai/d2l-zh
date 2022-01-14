@@ -114,7 +114,6 @@ class Vocab:  #@save
         self.idx_to_token = ['<unk>'] + reserved_tokens
         self.token_to_idx = {token: idx
                              for idx, token in enumerate(self.idx_to_token)}
-        self.idx_to_token, self.token_to_idx = [], dict()
         for token, freq in self._token_freqs:
             if freq < min_freq:
                 break
