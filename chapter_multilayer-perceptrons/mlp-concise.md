@@ -71,7 +71,7 @@ trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 ```{.python .input}
 #@tab pytorch
 batch_size, lr, num_epochs = 256, 0.1, 10
-loss = nn.CrossEntropyLoss()
+loss = nn.CrossEntropyLoss(reduction='none')
 trainer = torch.optim.SGD(net.parameters(), lr=lr)
 ```
 
