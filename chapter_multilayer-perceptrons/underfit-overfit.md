@@ -400,7 +400,7 @@ def train(train_features, test_features, train_labels, test_labels,
                                 batch_size)
     test_iter = d2l.load_array((test_features, test_labels.reshape(-1,1)),
                                batch_size, is_train=False)
-    trainer = torch.optim.SGD(net.parameters(), lr=0.001)
+    trainer = torch.optim.SGD(net.parameters(), lr=0.01)
     animator = d2l.Animator(xlabel='epoch', ylabel='loss', yscale='log',
                             xlim=[1, num_epochs], ylim=[1e-3, 1e2],
                             legend=['train', 'test'])

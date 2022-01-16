@@ -319,7 +319,7 @@ hotdog_w.shape
 ```{.python .input}
 #@tab pytorch
 weight = pretrained_net.fc.weight
-hotdog_w = torch.split(weight.data, 1, dim=0)[713]
+hotdog_w = torch.split(weight.data, 1, dim=0)[934]
 hotdog_w.shape
 ```
 
