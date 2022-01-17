@@ -109,7 +109,7 @@ pip install tensorflow-probability==0.11.1
 我们的下一步是安装`d2l`包，以方便调取本书中经常使用的函数和类：
 
 ```bash
-pip install d2l==0.17.1
+pip install d2l==0.17.3
 ```
 
 

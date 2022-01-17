@@ -1411,8 +1411,6 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=4):
     net.apply(init_weights)
 
     optimizer = trainer_fn(net.parameters(), **hyperparams)
-
-    # 注意：MSELoss计算平方误差时不带系数1/2
     loss = nn.MSELoss(reduction='none')
     animator = d2l.Animator(xlabel='epoch', ylabel='loss',
                             xlim=[0, num_epochs], ylim=[0.22, 0.35])
@@ -1428,8 +1426,9 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=4):
             n += X.shape[0]
             if n % 200 == 0:
                 timer.stop()
+                # MSELoss计算平方误差时不带系数1/2
                 animator.add(n/X.shape[0]/len(data_iter),
-                             (d2l.evaluate_loss(net, data_iter, loss),))
+                             (d2l.evaluate_loss(net, data_iter, loss) / 2,))
                 timer.start()
     print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
 
