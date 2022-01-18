@@ -114,7 +114,7 @@ d2l.plt.xlabel('x')
 d2l.plt.ylabel('y');
 ```
 
-我们假设函数的输入是$k$维向量，其输出是标量，因此其Hessian矩阵（也称黑塞矩阵）将有$k$特征值（参考[online appendix on eigendecompositions](https://d2l.ai/chapter_appendix-mathematics-for-deep-learning/eigendecomposition.html）)。函数的解决方案可以是局部最小值、局部最大值或函数梯度为零的位置处的鞍点：
+我们假设函数的输入是$k$维向量，其输出是标量，因此其Hessian矩阵（也称黑塞矩阵）将有$k$特征值（参考[online appendix on eigendecompositions](https://d2l.ai/chapter_appendix-mathematics-for-deep-learning/eigendecomposition.html))。函数的解决方案可以是局部最小值、局部最大值或函数梯度为零的位置处的鞍点：
 
 * 当函数在零梯度位置处的Hessian矩阵的特征值全部为正值时，我们有该函数的局部最小值。
 * 当函数在零梯度位置处的Hessian矩阵的特征值全部为负值时，我们有该函数的局部最大值。
