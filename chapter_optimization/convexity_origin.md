@@ -265,7 +265,7 @@ all $\lambda \in [0, 1]$
 $$\begin{aligned} &f(\lambda \mathbf{x} + (1-\lambda) \mathbf{y})\\
 =&g(\lambda \cdot 1 + (1-\lambda) \cdot 0)\\
 \leq& \lambda g(1)  + (1-\lambda) g(0) \\
-=& \lambda f(\mathbf{x}) + (1-\lambda) g(\mathbf{y}).
+=& \lambda f(\mathbf{x}) + (1-\lambda) f(\mathbf{y}).
 \end{aligned}$$
 
 
