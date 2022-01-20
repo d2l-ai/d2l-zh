@@ -112,6 +112,7 @@ for ax, func in zip(axes, [f, g, h]):
 它是凸性定义的一种推广：
 
 $$\sum_i \alpha_i f(x_i)  \geq f\left(\sum_i \alpha_i x_i\right) \text{ and } E_X[f(X)] \geq f\left(E_X[X]\right),$$
+:eqlabel:`eq_jensens-inequality`
 
 其中$\alpha_i$是满足$\sum_i \alpha_i = 1$的非负实数，$X$是随机变量。
 换句话说，凸函数的期望不小于期望的凸函数，其中后者通常是一个更简单的表达式。
