@@ -336,7 +336,7 @@ net.add(nn.BatchNorm(),
 net = nn.Sequential(
     b1, *blks,
     nn.BatchNorm2d(num_channels), nn.ReLU(),
-    nn.AdaptiveMaxPool2d((1, 1)),
+    nn.AdaptiveAvgPool2d((1, 1)),
     nn.Flatten(),
     nn.Linear(num_channels, 10))
 ```

@@ -165,7 +165,7 @@ cd tensorflow
 :end_tab:
 
 
-安装完成后，你可以通过运行以下命令打开Jupyter笔记本：
+安装完成后，你可以通过运行以下命令打开Jupyter笔记本（在Window系统的命令行窗口中运行以下命令前，需先将当前路径定位到刚下载的本书代码解压后的目录）：
 
 ```bash
 jupyter notebook
