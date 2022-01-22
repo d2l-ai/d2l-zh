@@ -112,8 +112,9 @@ for ax, func in zip(axes, [f, g, h]):
 它是凸性定义的一种推广：
 
 $$\sum_i \alpha_i f(x_i)  \geq f\left(\sum_i \alpha_i x_i\right) \text{ and } E_X[f(X)] \geq f\left(E_X[X]\right),$$
+:eqlabel:`eq_jensens-inequality`
 
-其中$\alpha_i$是非负实数，因此$\sum_i \alpha_i = 1$且$X$是随机变量。
+其中$\alpha_i$是满足$\sum_i \alpha_i = 1$的非负实数，$X$是随机变量。
 换句话说，凸函数的期望不小于期望的凸函数，其中后者通常是一个更简单的表达式。
 为了证明第一个不等式，我们多次将凸性的定义应用于一次求和中的一项。
 
@@ -133,9 +134,16 @@ $$E_{Y \sim P(Y)}[-\log P(X \mid Y)] \geq -\log P(X),$$
 ### 局部极小值是全局极小值
 
 首先凸函数的局部极小值也是全局极小值。
-我们用反证法证明它是错误的：假设$x^{\ast} \in \mathcal{X}$是一个局部最小值，使得有一个很小的正值$p$，使得$x \in \mathcal{X}$满足$0 < |x - x^{\ast}| \leq p$有$f(x^{\ast}) < f(x)$。
-假设存在$x' \in \mathcal{X}$，其中$f(x') < f(x^{\ast})$。
-根据凸性的性质，
+下面我们用反证法给出证明。
+
+假设$x^{\ast} \in \mathcal{X}$是一个局部最小值，则存在一个很小的正值$p$，使得当$x \in \mathcal{X}$满足$0 < |x - x^{\ast}| \leq p$时，有$f(x^{\ast}) < f(x)$。
+
+现在假设局部极小值$x^{\ast}$不是$f$的全局极小值：存在$x' \in \mathcal{X}$使得$f(x') < f(x^{\ast})$。
+则存在
+$\lambda \in [0, 1)$，比如$\lambda = 1 - \frac{p}{|x^{\ast} - x'|}$，使得
+$0 < |\lambda x^{\ast} + (1-\lambda) x' - x^{\ast}| \leq p$。
+
+然而，根据凸性的性质，有
 
 $$\begin{aligned}
     f(\lambda x^{\ast} + (1-\lambda) x') &\leq \lambda f(x^{\ast}) + (1-\lambda) f(x') \\
@@ -144,7 +152,7 @@ $$\begin{aligned}
 \end{aligned}$$
 
 这与$x^{\ast}$是局部最小值相矛盾。
-因此，对于$f(x') < f(x^{\ast})$不存在$x' \in \mathcal{X}$。
+因此，不存在$x' \in \mathcal{X}$满足$f(x') < f(x^{\ast})$。
 综上所述，局部最小值$x^{\ast}$也是全局最小值。
 
 例如，对于凸函数$f(x) = (x-1)^2$，有一个局部最小值$x=1$，它也是全局最小值。
@@ -162,15 +170,17 @@ d2l.plot([x, segment], [f(x), f(segment)], 'x', 'f(x)')
 例如，函数$f(x) = \mathrm{max}(|x|-1, 0)$在$[-1,1]$区间上都是最小值。
 相反，函数$f(x) = \exp(x)$在$\mathbb{R}$上没有取得最小值。对于$x \to -\infty$，它趋近于$0$，但是没有$f(x) = 0$的$x$。
 
-### 水平集的凸函数
+### 凸函数的下水平集是凸的
 
-凸函数将凸集定义为*水平集*（below sets）。它们定义为：
+我们可以方便地通过凸函数的*下水平集*（below sets）定义凸集。
+具体来说，给定一个定义在凸集$\mathcal{X}$上的凸函数$f$，其任意一个下水平集
 
 $$\mathcal{S}_b := \{x | x \in \mathcal{X} \text{ and } f(x) \leq b\}$$
 
-这样的集合是凸的。
+是凸的。
+
 让我们快速证明一下。
-对于任何$x, x' \in \mathcal{S}_b$，我们需要证明：当$\lambda \in [0, 1]$，$\lambda x + (1-\lambda) x' \in \mathcal{S}_b$。
+对于任何$x, x' \in \mathcal{S}_b$，我们需要证明：当$\lambda \in [0, 1]$时，$\lambda x + (1-\lambda) x' \in \mathcal{S}_b$。
 因为$f(x) \leq b$且$f(x') \leq b$，所以
 
 $$f(\lambda x + (1-\lambda) x') \leq \lambda f(x) + (1-\lambda) f(x') \leq b.$$
@@ -182,7 +192,7 @@ $$f(\lambda x + (1-\lambda) x') \leq \lambda f(x) + (1-\lambda) f(x') \leq b.$$
 即对于所有$\mathbf{x} \in \mathbb{R}^n$，$\mathbf{x}^\top \mathbf{H} \mathbf{x} \geq 0$.
 例如，函数$f(\mathbf{x}) = \frac{1}{2} \|\mathbf{x}\|^2$是凸的，因为$\nabla^2 f = \mathbf{1}$，即其导数是单位矩阵。
 
-更正式的讲，$f$为凸函数，当且仅当任意二次可微一维函数$f: \mathbb{R}^n \rightarrow \mathbb{R}$是凸的。
+更正式地讲，$f$为凸函数，当且仅当任意二次可微一维函数$f: \mathbb{R}^n \rightarrow \mathbb{R}$是凸的。
 对于任意二次可微多维函数$f: \mathbb{R}^{n} \rightarrow \mathbb{R}$，
 它是凸的当且仅当它的Hessian$\nabla^2f\succeq 0$。
 
@@ -221,8 +231,7 @@ $$g(z) \stackrel{\mathrm{def}}{=} f(z \mathbf{x} + (1-z)  \mathbf{y}) \text{ whe
 是凸的。
 
 为了证明$f$的凸性意味着$g$是凸的，
-我们可以证明，对于所有的$a，b，\lambda \in[0，1]$，
-$0 \leq \lambda a + (1-\lambda) b \leq 1$。
+我们可以证明，对于所有的$a，b，\lambda \in[0，1]$（这样有$0 \leq \lambda a + (1-\lambda) b \leq 1$），
 
 $$\begin{aligned} &g(\lambda a + (1-\lambda) b)\\
 =&f\left(\left(\lambda a + (1-\lambda) b\right)\mathbf{x} + \left(1-\lambda a - (1-\lambda) b\right)\mathbf{y} \right)\\
@@ -231,19 +240,19 @@ $$\begin{aligned} &g(\lambda a + (1-\lambda) b)\\
 =& \lambda g(a) + (1-\lambda) g(b).
 \end{aligned}$$
 
-为了证明这一点，我们可以展示给你看
+为了证明这一点，我们可以证明对
 $[0，1]$中所有的$\lambda$：
 
 $$\begin{aligned} &f(\lambda \mathbf{x} + (1-\lambda) \mathbf{y})\\
 =&g(\lambda \cdot 1 + (1-\lambda) \cdot 0)\\
 \leq& \lambda g(1)  + (1-\lambda) g(0) \\
-=& \lambda f(\mathbf{x}) + (1-\lambda) g(\mathbf{y}).
+=& \lambda f(\mathbf{x}) + (1-\lambda) f(\mathbf{y}).
 \end{aligned}$$
 
 最后，利用上面的引理和一维情况的结果，我们可以证明多维情况：
 多维函数$f:\mathbb{R}^n\rightarrow\mathbb{R}$是凸函数，当且仅当$g(z) \stackrel{\mathrm{def}}{=} f(z \mathbf{x} + (1-z)  \mathbf{y})$是凸的，这里$z \in [0,1]$，$\mathbf{x}, \mathbf{y} \in \mathbb{R}^n$。
 根据一维情况，
-当且仅当对于所有$\mathbf{x}, \mathbf{y} \in \mathbb{R}^n$，
+此条成立的条件为，当且仅当对于所有$\mathbf{x}, \mathbf{y} \in \mathbb{R}^n$，
 $g'' = (\mathbf{x} - \mathbf{y})^\top \mathbf{H}(\mathbf{x} - \mathbf{y}) \geq 0$（$\mathbf{H} \stackrel{\mathrm{def}}{=} \nabla^2f$）。
 这相当于根据半正定矩阵的定义，$\mathbf{H} \succeq 0$。
 
@@ -297,12 +306,14 @@ $$L(\mathbf{x}, \alpha_1, \ldots, \alpha_n) = f(\mathbf{x}) + \sum_{i=1}^n \alph
 ### 投影
 
 满足约束条件的另一种策略是*投影*（projections）。
-同样，我们之前也遇到过，例如在处理梯度截断 :numref:`sec_rnn_scratch`时，我们确保梯度的长度以$\theta$为界限，通过
+同样，我们之前也遇到过，例如在 :numref:`sec_rnn_scratch`中处理梯度截断时，我们通过
 
-$$\mathbf{g} \leftarrow \mathbf{g} \cdot \mathrm{min}(1, \theta/\|\mathbf{g}\|).$$
+$$\mathbf{g} \leftarrow \mathbf{g} \cdot \mathrm{min}(1, \theta/\|\mathbf{g}\|),$$
+
+确保梯度的长度以$\theta$为界限。
 
 这就是$\mathbf{g}$在半径为$\theta$的球上的*投影*（projection）。
-更泛化的说，在凸集$\mathcal{X}$上的投影被定义为
+更泛化地说，在凸集$\mathcal{X}$上的投影被定义为
 
 $$\mathrm{Proj}_\mathcal{X}(\mathbf{x}) = \mathop{\mathrm{argmin}}_{\mathbf{x}' \in \mathcal{X}} \|\mathbf{x} - \mathbf{x}'\|.$$
 
@@ -319,7 +330,7 @@ $$\mathrm{Proj}_\mathcal{X}(\mathbf{x}) = \mathop{\mathrm{argmin}}_{\mathbf{x}' 
 
 凸投影的一个用途是计算稀疏权重向量。
 在本例中，我们将权重向量投影到一个$L_1$的球上，
-这是钻石例子的一个广义版本，在 :numref:`fig_projections`。
+这是 :numref:`fig_projections`中菱形例子的一个广义版本。
 
 ## 小结
 

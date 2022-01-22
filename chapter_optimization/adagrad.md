@@ -51,7 +51,7 @@ $$f(\mathbf{x}) = \bar{f}(\bar{\mathbf{x}}) = \frac{1}{2} \bar{\mathbf{x}}^\top 
 $$\kappa = \frac{\boldsymbol{\Lambda}_1}{\boldsymbol{\Lambda}_d}.$$
 
 如果条件编号$\kappa$很大，准确解决优化问题就会很难。
-我们需要确保在获取大量动态的特征值范围时足够谨慎：我们不能简单地通过扭曲空间来“修复”这个问题，从而使所有特征值都是$1$？
+我们需要确保在获取大量动态的特征值范围时足够谨慎：难道我们不能简单地通过扭曲空间来“修复”这个问题，从而使所有特征值都是$1$？
 理论上这很容易：我们只需要$\mathbf{Q}$的特征值和特征向量即可将问题从$\mathbf{x}$整理到$\mathbf{z} := \boldsymbol{\Lambda}^{\frac{1}{2}} \mathbf{U} \mathbf{x}$中的一个。
 在新的坐标系中，$\mathbf{x}^\top \mathbf{Q} \mathbf{x}$可以被简化为$\|\mathbf{z}\|^2$。
 可惜，这是一个相当不切实际的想法。
@@ -110,7 +110,7 @@ $$\begin{aligned}
 然而，在深度学习中，我们可能希望更慢地降低学习率。
 这引出了许多AdaGrad算法的变体，我们将在后续章节中讨论它们。
 眼下让我们先看看它在二次凸问题中的表现如何。
-我们仍然同一函数为例：
+我们仍然以同一函数为例：
 
 $$f(\mathbf{x}) = 0.1 x_1^2 + 2 x_2^2.$$
 
@@ -260,7 +260,7 @@ d2l.train_concise_ch11(trainer, {'learning_rate' : 0.1}, data_iter)
 1. 尝试对函数$f(\mathbf{x}) = 0.1 x_1^2 + 2 x_2^2$、以及它旋转45度后的函数即$f(\mathbf{x}) = 0.1 (x_1 + x_2)^2 + 2 (x_1 - x_2)^2$使用AdaGrad算法。它的表现会不同吗？
 1. 证明[格什戈林圆盘定理](https://en.wikipedia.org/wiki/Gershgorin_circle_theorem)，其中提到，矩阵$\mathbf{M}$的特征值$\lambda_i$在至少一个$j$的选项中满足$|\lambda_i - \mathbf{M}_{jj}| \leq \sum_{k \neq j} |\mathbf{M}_{jk}|$的要求。
 1. 关于对角线预处理矩阵$\mathrm{diag}^{-\frac{1}{2}}(\mathbf{M}) \mathbf{M} \mathrm{diag}^{-\frac{1}{2}}(\mathbf{M})$的特征值，格什戈林的定理告诉了我们什么？
-1. 尝试对适当的深度网络使用AdaGrad算法，例如，当应用于时尚MNIST时，使用 :numref:`sec_lenet`。
+1. 尝试对适当的深度网络使用AdaGrad算法，例如，:numref:`sec_lenet`中应用于Fashion-MNIST的深度网络。
 1. 你要如何修改AdaGrad算法，才能使其在学习率方面的衰减不那么激进？
 
 :begin_tab:`mxnet`
