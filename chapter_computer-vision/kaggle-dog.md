@@ -38,7 +38,7 @@ import os
 
 ### 下载数据集
 
-登录Kaggle后，你可以点击 :numref:`fig_kaggle_dog`中显示的竞争网页上的“数据”选项卡，然后点击“全部下载”按钮下载数据集。在`../data`中解压下载的文件后，你将在以下路径中找到整个数据集：
+登录Kaggle后，你可以点击 :numref:`fig_kaggle_dog`中显示的竞赛网页上的“数据”选项卡，然后点击“全部下载”按钮下载数据集。在`../data`中解压下载的文件后，你将在以下路径中找到整个数据集：
 
 * ../data/dog-breed-identification/labels.csv
 * ../data/dog-breed-identification/sample_submission.csv
@@ -46,7 +46,7 @@ import os
 * ../data/dog-breed-identification/test
 
 
-你可能已经注意到，上述结构与 :numref:`sec_kaggle_cifar10`的CIFAR-10竞争对手类似，其中文件夹`train/`和`test/`分别包含训练和测试狗图像，`labels.csv`包含训练图像的标签。
+你可能已经注意到，上述结构与 :numref:`sec_kaggle_cifar10`的CIFAR-10竞赛类似，其中文件夹`train/`和`test/`分别包含训练和测试狗图像，`labels.csv`包含训练图像的标签。
 同样，为了便于入门，[**我们提供完整数据集的小规模样本**]：`train_valid_test_tiny.zip`。
 如果你要在Kaggle比赛中使用完整的数据集，则需要将下面的`demo`变量更改为`False`。
 
