@@ -5,7 +5,7 @@
 
 ## 在本地编辑和运行代码
 
-假设本书代码的本地路径为`xx/yy/d2l-en/`。使用shell将目录更改为此路径（`cd xx/yy/d2l-en`）并运行命令`jupyter notebook`。如果浏览器未自动打开，请打开http://localhost:8888。此时你将看到Jupyter的界面以及包含本书代码的所有文件夹，如 :numref:`fig_jupyter00`所示
+假设本书代码的本地路径为`xx/yy/d2l-en/`。使用shell将目录更改为此路径（`cd xx/yy/d2l-en`）并运行命令`conda activate gluon`和`jupyter notebook`。如果浏览器未自动打开，请打开http://localhost:8888。此时你将看到Jupyter的界面以及包含本书代码的所有文件夹，如 :numref:`fig_jupyter00`所示
 
 ![包含本书代码的文件夹](../img/jupyter00.png)
 :width:`600px`
