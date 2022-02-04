@@ -11,7 +11,6 @@ Kaggle的房价预测比赛是一个很好的起点。
 数据集要大得多，也有更多的特征。
 
 本节我们将详细介绍数据预处理、模型设计和超参数选择。
-通过亲身实践，你将获得一手经验，这些经验将指导你数据科学家职业生涯。
 
 ## 下载和缓存数据集
 
@@ -102,15 +101,13 @@ def download_all():  #@save
 有些研究人员短视地专注于预处理步骤，而不是考虑基础性问题。
 但一个客观的平台有巨大的价值：该平台促进了竞争方法之间的直接定量比较，以及代码共享。
 这便于每个人都可以学习哪些方法起作用，哪些没有起作用。
-如果你想参加Kaggle比赛，你首先需要注册一个账户（见 :numref:`fig_kaggle`）。
+如果我们想参加Kaggle比赛，首先需要注册一个账户（见 :numref:`fig_kaggle`）。
 
 ![Kaggle网站](../img/kaggle.png)
 :width:`400px`
 :label:`fig_kaggle`
 
-在房价预测比赛页面（如 :numref:`fig_house_pricing` 所示），
-你在"Data"选项卡下可以找到数据集。
-你可以通过下面的网址提交预测，并查看排名：
+在房价预测比赛页面（如 :numref:`fig_house_pricing` 所示）的"Data"选项卡下可以找到数据集。我们可以通过下面的网址提交预测，并查看排名：
 
 >https://www.kaggle.com/c/house-prices-advanced-regression-techniques
 
@@ -132,11 +129,11 @@ def download_all():  #@save
 
 开始之前，我们将[**使用`pandas`读入并处理数据**]，
 这是我们在 :numref:`sec_pandas`中引入的。
-因此，在继续操作之前，你需要确保已安装`pandas`。
-幸运的是，如果你正在用Jupyter阅读该书，你可以在不离开笔记本的情况下安装`pandas`。
+因此，在继续操作之前，我们需要确保已安装`pandas`。
+幸运的是，如果我们正在用Jupyter阅读该书，可以在不离开笔记本的情况下安装`pandas`。
 
 ```{.python .input}
-# 如果你没有安装pandas，请取消下一行的注释
+# 如果没有安装pandas，请取消下一行的注释
 # !pip install pandas
 
 %matplotlib inline
@@ -149,7 +146,7 @@ npx.set_np()
 
 ```{.python .input}
 #@tab pytorch
-# 如果你没有安装pandas，请取消下一行的注释
+# 如果没有安装pandas，请取消下一行的注释
 # !pip install pandas
 
 %matplotlib inline
@@ -162,7 +159,7 @@ import numpy as np
 
 ```{.python .input}
 #@tab tensorflow
-# 如果你没有安装pandas，请取消下一行的注释
+# 如果没有安装pandas，请取消下一行的注释
 # !pip install pandas
 
 %matplotlib inline
@@ -263,7 +260,7 @@ all_features = pd.get_dummies(all_features, dummy_na=True)
 all_features.shape
 ```
 
-你可以看到，此转换会将特征的总数量从79个增加到331个。
+可以看到此转换会将特征的总数量从79个增加到331个。
 最后，通过`values`属性，我们可以
 [**从`pandas`格式中提取NumPy格式，并将其转换为张量表示**]用于训练。
 
@@ -432,7 +429,7 @@ def train(net, train_features, train_labels, test_features, test_labels,
 
 ## $K$折交叉验证
 
-你可能还记得，我们在讨论模型选择的部分（ :numref:`sec_model_selection`）
+本书在讨论模型选择的部分（ :numref:`sec_model_selection`）
 中介绍了[**K折交叉验证**]，
 它有助于模型选择和超参数调整。
 我们首先需要定义一个函数，在$K$折交叉验证过程中返回第$i$折的数据。
@@ -500,11 +497,11 @@ print(f'{k}-折验证: 平均训练log rmse: {float(train_l):f}, '
 
 请注意，有时一组超参数的训练误差可能非常低，但$K$折交叉验证的误差要高得多，
 这表明模型过拟合了。
-在整个训练过程中，你将希望监控训练误差和验证误差这两个数字。
+在整个训练过程中，我们希望监控训练误差和验证误差这两个数字。
 较少的过拟合可能表明现有数据可以支撑一个更强大的模型，
 较大的过拟合可能意味着我们可以通过正则化技术来获益。
 
-##  [**提交你的Kaggle预测**]
+##  [**提交Kaggle预测**]
 
 既然我们知道应该选择什么样的超参数，
 我们不妨使用所有数据对其进行训练
@@ -542,12 +539,12 @@ train_and_pred(train_features, test_features, train_labels, test_data,
 
 接下来，如 :numref:`fig_kaggle_submit2`中所示，
 我们可以提交预测到Kaggle上，并查看在测试集上的预测与实际房价（标签）的比较情况。
-步骤非常简单：
+步骤非常简单。
 
 * 登录Kaggle网站，访问房价预测竞赛页面。
 * 点击“Submit Predictions”或“Late Submission”按钮（在撰写本文时，该按钮位于右侧）。
-* 点击页面底部虚线框中的“Upload Submission File”按钮，选择你要上传的预测文件。
-* 点击页面底部的“Make Submission”按钮，即可查看你的结果。
+* 点击页面底部虚线框中的“Upload Submission File”按钮，选择要上传的预测文件。
+* 点击页面底部的“Make Submission”按钮，即可查看结果。
 
 ![向Kaggle提交数据](../img/kaggle-submit2.png)
 :width:`400px`
@@ -563,9 +560,9 @@ train_and_pred(train_features, test_features, train_labels, test_data,
 
 ## 练习
 
-1. 把你的预测提交给Kaggle，它有多好？
-1. 你能通过直接最小化价格的对数来改进你的模型吗？如果你试图预测价格的对数而不是价格，会发生什么？
-1. 用平均值替换缺失值总是好主意吗？提示：你能构造一个不随机丢失值的情况吗？
+1. 把预测提交给Kaggle，它有多好？
+1. 能通过直接最小化价格的对数来改进模型吗？如果试图预测价格的对数而不是价格，会发生什么？
+1. 用平均值替换缺失值总是好主意吗？提示：能构造一个不随机丢失值的情况吗？
 1. 通过$K$折交叉验证调整超参数，从而提高Kaggle的得分。
 1. 通过改进模型（例如，层、权重衰减和dropout）来提高分数。
 1. 如果我们没有像本节所做的那样标准化连续的数值特征，会发生什么？

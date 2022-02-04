@@ -326,7 +326,7 @@ $$\mathrm{Proj}_\mathcal{X}(\mathbf{x}) = \mathop{\mathrm{argmin}}_{\mathbf{x}' 
 图中有两个凸集，一个圆和一个菱形。
 两个集合内的点（黄色）在投影期间保持不变。
 两个集合（黑色）之外的点投影到集合中接近原始点（黑色）的点（红色）。
-虽然对于$L_2$的球面来说，方向保持不变，但一般情况下不需要这样。
+虽然对$L_2$的球面来说，方向保持不变，但一般情况下不需要这样。
 
 凸投影的一个用途是计算稀疏权重向量。
 在本例中，我们将权重向量投影到一个$L_1$的球上，
@@ -362,7 +362,7 @@ ii.证明只检查集合的顶点是充分的。
 
 8. 给定一个向量$\mathbf{w} \in \mathbb{R}^d$与$|\mathbf{w}| 1 > 1$计算在$L_1$单位球上的投影。
 i.作为中间步骤，写出惩罚目标$|\mathbf{w} - \mathbf{w}'|_2^2 + \lambda |\mathbf{w}'|_1$，计算给定$\lambda > 0$的解。
-ii.你能无须反复试错就找到$\lambda$的“正确”值吗？
+ii.是否可以无须反复试错就找到$\lambda$的“正确”值吗？
 
 9. 给定一个凸集$\mathcal{X}$和两个向量$\mathbf{X}$和$\mathbf{y}$证明了投影不会增加距离，即$\|\mathbf{x} - \mathbf{y}\| \geq \|\mathrm{Proj}_\mathcal{X}(\mathbf{x}) - \mathrm{Proj}_\mathcal{X}(\mathbf{y})\|$。
 

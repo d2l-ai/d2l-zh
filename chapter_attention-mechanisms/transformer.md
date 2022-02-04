@@ -1,7 +1,7 @@
 # Transformer
 :label:`sec_transformer`
 
-我们在 :numref:`subsec_cnn-rnn-self-attention`中比较了卷积神经网络（CNN）、循环神经网络（RNN）和自注意力（self-attention）。值得注意的是，自注意力同时具有并行计算和最短的最大路径长度这两个优势。因此，使用自注意力来设计深度架构是很有吸引力的。对比之前仍然依赖循环神经网络实现输入表示的自注意力模型 :cite:`Cheng.Dong.Lapata.2016,Lin.Feng.Santos.ea.2017,Paulus.Xiong.Socher.2017`，transformer模型完全基于注意力机制，没有任何卷积层或循环神经网络层 :cite:`Vaswani.Shazeer.Parmar.ea.2017`。尽管transformer最初是应用于在文本数据上的序列到序列学习，但现在已经推广到各种现代的深度学习中，例如语言、视觉、语音和强化学习领域。
+ :numref:`subsec_cnn-rnn-self-attention`中比较了卷积神经网络（CNN）、循环神经网络（RNN）和自注意力（self-attention）。值得注意的是，自注意力同时具有并行计算和最短的最大路径长度这两个优势。因此，使用自注意力来设计深度架构是很有吸引力的。对比之前仍然依赖循环神经网络实现输入表示的自注意力模型 :cite:`Cheng.Dong.Lapata.2016,Lin.Feng.Santos.ea.2017,Paulus.Xiong.Socher.2017`，transformer模型完全基于注意力机制，没有任何卷积层或循环神经网络层 :cite:`Vaswani.Shazeer.Parmar.ea.2017`。尽管transformer最初是应用于在文本数据上的序列到序列学习，但现在已经推广到各种现代的深度学习中，例如语言、视觉、语音和强化学习领域。
 
 ## 模型
 
@@ -15,7 +15,7 @@ Transformer作为编码器－解码器架构的一个实例，其整体架构图
 
 Transformer解码器也是由多个相同的层叠加而成的，并且层中使用了残差连接和层规范化。除了编码器中描述的两个子层之外，解码器还在这两个子层之间插入了第三个子层，称为*编码器－解码器注意力*（encoder-decoder attention）层。在编码器－解码器注意力中，查询来自前一个解码器层的输出，而键和值来自整个编码器的输出。在解码器自注意力中，查询、键和值都来自上一个解码器层的输出。但是，解码器中的每个位置只能考虑该位置之前的所有位置。这种*掩蔽*（masked）注意力保留了*自回归*（auto-regressive）属性，确保预测仅依赖于已生成的输出词元。
 
-我们已经描述并实现了基于缩放点积多头注意力 :numref:`sec_multihead-attention`和位置编码 :numref:`subsec_positional-encoding`。接下来，我们将实现transformer模型的剩余部分。
+在此之前已经描述并实现了基于缩放点积多头注意力 :numref:`sec_multihead-attention`和位置编码 :numref:`subsec_positional-encoding`。接下来将实现transformer模型的剩余部分。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -115,9 +115,9 @@ ffn(tf.ones((2, 3, 4)))[0]
 
 ## 残差连接和层规范化
 
-现在让我们关注 :numref:`fig_transformer`中的“*加法和规范化*（add&norm）”组件。正如在本节开头所述，这是由残差连接和紧随其后的层规范化组成的。两者都是构建有效的深度架构的关键。
+现在让我们关注 :numref:`fig_transformer`中的*加法和规范化*（add&norm）组件。正如在本节开头所述，这是由残差连接和紧随其后的层规范化组成的。两者都是构建有效的深度架构的关键。
 
-在 :numref:`sec_batch_norm`中，我们解释了在一个小批量的样本内基于批量规范化对数据进行重新中心化和重新缩放的调整。层规范化和批量规范化的目标相同，但层规范化是基于特征维度进行规范化。尽管批量规范化在计算机视觉中被广泛应用，但在自然语言处理任务中（输入通常是变长序列）批量规范化通常不如层规范化的效果好。
+ :numref:`sec_batch_norm`中解释了在一个小批量的样本内基于批量规范化对数据进行重新中心化和重新缩放的调整。层规范化和批量规范化的目标相同，但层规范化是基于特征维度进行规范化。尽管批量规范化在计算机视觉中被广泛应用，但在自然语言处理任务中（输入通常是变长序列）批量规范化通常不如层规范化的效果好。
 
 以下代码[**对比不同维度的层规范化和批量规范化的效果**]。
 
@@ -149,7 +149,7 @@ X = tf.constant([[1, 2], [2, 3]], dtype=tf.float32)
 print('layer norm:', ln(X), '\nbatch norm:', bn(X, training=True))
 ```
 
-现在我们可以[**使用残差连接和层规范化**]来实现`AddNorm`类。暂退法也被作为正则化方法使用。
+现在可以[**使用残差连接和层规范化**]来实现`AddNorm`类。暂退法也被作为正则化方法使用。
 
 ```{.python .input}
 #@save
@@ -276,7 +276,7 @@ class EncoderBlock(tf.keras.layers.Layer):
         return self.addnorm2(Y, self.ffn(Y), **kwargs)
 ```
 
-正如我们所看到的，[**transformer编码器中的任何层都不会改变其输入的形状**]。
+正如从代码中所看到的，[**transformer编码器中的任何层都不会改变其输入的形状**]。
 
 ```{.python .input}
 X = d2l.ones((2, 100, 24))
@@ -304,7 +304,7 @@ encoder_blk = EncoderBlock(24, 24, 24, 24, norm_shape, 48, 8, 0.5)
 encoder_blk(X, valid_lens, training=False).shape
 ```
 
-在实现下面的[**transformer编码器**]的代码中，我们堆叠了`num_layers`个`EncoderBlock`类的实例。由于我们使用的是值范围在$-1$和$1$之间的固定位置编码，因此通过学习得到的输入的嵌入表示的值需要先乘以嵌入维度的平方根进行重新缩放，然后再与位置编码相加。
+下面实现的[**transformer编码器**]的代码中，堆叠了`num_layers`个`EncoderBlock`类的实例。由于这里使用的是值范围在$-1$和$1$之间的固定位置编码，因此通过学习得到的输入的嵌入表示的值需要先乘以嵌入维度的平方根进行重新缩放，然后再与位置编码相加。
 
 ```{.python .input}
 #@save
@@ -710,7 +710,7 @@ class TransformerDecoder(d2l.AttentionDecoder):
 
 ## [**训练**]
 
-依照transformer架构来实例化编码器－解码器模型。在这里，指定transformer的编码器和解码器都是2层，都使用4头注意力。与 :numref:`sec_seq2seq_training`类似，为了进行序列到序列的学习，我们在“英语－法语”机器翻译数据集上训练transformer模型。
+依照transformer架构来实例化编码器－解码器模型。在这里，指定transformer的编码器和解码器都是2层，都使用4头注意力。与 :numref:`sec_seq2seq_training`类似，为了进行序列到序列的学习，下面在“英语－法语”机器翻译数据集上训练transformer模型。
 
 ```{.python .input}
 num_hiddens, num_layers, dropout, batch_size, num_steps = 32, 2, 0.1, 64, 10
@@ -821,7 +821,7 @@ d2l.show_heatmaps(
     figsize=(7, 3.5))
 ```
 
-[**为了可视化解码器的自注意力权重和“编码器－解码器”的注意力权重，我们需要完成更多的数据操作工作。**]例如，我们用零填充被掩蔽住的注意力权重。值得注意的是，解码器的自注意力权重和“编码器－解码器”的注意力权重都有相同的查询：即以*序列开始词元*（beginning-of-sequence,BOS）打头，再与后续输出的词元共同组成序列。
+[**为了可视化解码器的自注意力权重和“编码器－解码器”的注意力权重，我们需要完成更多的数据操作工作。**]例如用零填充被掩蔽住的注意力权重。值得注意的是，解码器的自注意力权重和“编码器－解码器”的注意力权重都有相同的查询：即以*序列开始词元*（beginning-of-sequence,BOS）打头，再与后续输出的词元共同组成序列。
 
 ```{.python .input}
 dec_attention_weights_2d = [d2l.tensor(head[0]).tolist()
@@ -886,7 +886,7 @@ d2l.show_heatmaps(
     figsize=(7, 3.5))
 ```
 
-尽管transformer架构是为了“序列到序列”的学习而提出的，但正如我们将在本书后面提及的那样，transformer编码器或transformer解码器通常被单独用于不同的深度学习任务中。
+尽管transformer架构是为了*序列到序列*的学习而提出的，但正如本书后面将提及的那样，transformer编码器或transformer解码器通常被单独用于不同的深度学习任务中。
 
 ## 小结
 
@@ -899,7 +899,7 @@ d2l.show_heatmaps(
 
 1. 在实验中训练更深的transformer将如何影响训练速度和翻译效果？
 1. 在transformer中使用加性注意力取代缩放点积注意力是不是个好办法？为什么？
-1. 对于语言模型，我们应该使用transformer的编码器还是解码器，或者两者都用？如何设计？
+1. 对于语言模型，应该使用transformer的编码器还是解码器，或者两者都用？如何设计？
 1. 如果输入序列很长，transformer会面临什么挑战？为什么？
 1. 如何提高transformer的计算速度和内存使用效率？提示：可以参考论文 :cite:`Tay.Dehghani.Bahri.ea.2020`。
 1. 如果不使用卷积神经网络，如何设计基于transformer模型的图像分类任务？提示：可以参考Vision Transformer :cite:`Dosovitskiy.Beyer.Kolesnikov.ea.2021`。

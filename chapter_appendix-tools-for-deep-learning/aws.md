@@ -1,7 +1,7 @@
 # 使用Amazon EC2实例
 :label:`sec_aws`
 
-在本节中，我们将向你展示如何在原始Linux机器上安装所有库。回想一下，在 :numref:`sec_sagemaker`中，我们讨论了如何使用Amazon SageMaker，而在云上自己构建实例的成本更低。本演示包括三个步骤：
+本节将展示如何在原始Linux机器上安装所有库。回想一下， :numref:`sec_sagemaker`讨论了如何使用Amazon SageMaker，而在云上自己构建实例的成本更低。本演示包括三个步骤。
 
 1. 从AWS EC2请求GPU Linux实例。
 1. 安装CUDA（或使用预装CUDA的Amazon机器映像）。
@@ -44,7 +44,7 @@
 :width:`700px`
 :label:`fig_ubuntu`
 
-EC2提供了许多不同的实例配置可供选择。对于初学者来说，这有时会让人感到困惑。 :numref:`tab_ec2`列出了不同合适的计算机。
+EC2提供了许多不同的实例配置可供选择。对初学者来说，这有时会让人感到困惑。 :numref:`tab_ec2`列出了不同合适的计算机。
 
 :不同的EC2实例类型
 
@@ -152,7 +152,7 @@ echo "export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda/lib64" >> ~/.ba
 
 ## 安装库以运行代码
 
-要运行本书的代码，只需在EC2实例上为linux用户执行 :ref:`chap_installation`中的步骤，并使用以下提示在远程linux服务器上工作：
+要运行本书的代码，只需在EC2实例上为linux用户执行 :ref:`chap_installation`中的步骤，并使用以下提示在远程linux服务器上工作。
 
 * 要在Miniconda安装页面下载bash脚本，请右击下载链接并选择“copy Link address”，然后执行`wget [copied link address]`。
 * 运行`~/miniconda3/bin/conda init`, 你可能需要执行`source~/.bashrc`，而不是关闭并重新打开当前shell。
@@ -185,7 +185,7 @@ jupyter notebook
 
 由于云服务是按使用时间计费的，你应该关闭不使用的实例。请注意，还有其他选择：
 
-* “Stopping”（停止）实例意味着你可以重新启动它。这类似于关闭常规服务器的电源。但是，停止的实例仍将按保留的硬盘空间收取少量费用。
+* “Stopping”（停止）实例意味着你可以重新启动它。这类似于关闭常规服务器的电源。但是，停止的实例仍将按保留的硬盘空间收取少量费用；
 * “Terminating”（终止）实例将删除与其关联的所有数据。这包括磁盘，因此你不能再次启动它。只有在你知道将来不需要它的情况下才这样做。
 
 如果你想要将该实例用作更多实例的模板，请右击 :numref:`fig_connect`中的例子，然后选择“Image”$\rightarrow$“Create”以创建该实例的镜像。完成后，选择“实例状态”$\rightarrow$“终止”以终止实例。下次要使用此实例时，可以按照本节中的步骤基于保存的镜像创建实例。唯一的区别是，在 :numref:`fig_ubuntu`所示的“1.选择AMI”中，你必须使用左侧的“我的AMI”选项来选择你保存的镜像。创建的实例将保留镜像硬盘上存储的信息。例如，你不必重新安装CUDA和其他运行时环境。
