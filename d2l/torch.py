@@ -347,8 +347,7 @@ def predict_ch3(net, test_iter, n=6):
     trues = d2l.get_fashion_mnist_labels(y)
     preds = d2l.get_fashion_mnist_labels(d2l.argmax(net(X), axis=1))
     titles = [true + '\n' + pred for true, pred in zip(trues, preds)]
-    d2l.show_images(d2l.reshape(X[0:n], (n, 28, 28)), 1, n,
-                    titles=titles[0:n])
+    d2l.show_images(d2l.reshape(X[:n], (n, 28, 28)), 1, n, titles=titles[:n])
 
 
 # Defined in file: ./chapter_multilayer-perceptrons/underfit-overfit.md
@@ -364,7 +363,7 @@ def evaluate_loss(net, data_iter, loss):
 
 
 # Defined in file: ./chapter_multilayer-perceptrons/kaggle-house-price.md
-DATA_HUB = dict()
+DATA_HUB = {}
 DATA_URL = 'http://d2l-data.s3-accelerate.amazonaws.com/'
 
 
@@ -415,11 +414,16 @@ def download_all():
 
 
 # Defined in file: ./chapter_multilayer-perceptrons/kaggle-house-price.md
-DATA_HUB['kaggle_house_train'] = (DATA_URL + 'kaggle_house_pred_train.csv',
-                                  '585e9cc93e70b39160e7921475f9bcd7d31219ce')
+DATA_HUB['kaggle_house_train'] = (
+    f'{DATA_URL}kaggle_house_pred_train.csv',
+    '585e9cc93e70b39160e7921475f9bcd7d31219ce',
+)
 
-DATA_HUB['kaggle_house_test'] = (DATA_URL + 'kaggle_house_pred_test.csv',
-                                 'fa19780a7b011d9b009e8bff8e99922a8ee2eb90')
+
+DATA_HUB['kaggle_house_test'] = (
+    f'{DATA_URL}kaggle_house_pred_test.csv',
+    'fa19780a7b011d9b009e8bff8e99922a8ee2eb90',
+)
 
 
 # Defined in file: ./chapter_deep-learning-computation/use-gpu.md
@@ -434,7 +438,7 @@ def try_all_gpus():
     """Return all available GPUs, or [cpu(),] if no GPU exists."""
     devices = [
         torch.device(f'cuda:{i}') for i in range(torch.cuda.device_count())]
-    return devices if devices else [torch.device('cpu')]
+    return devices or [torch.device('cpu')]
 
 
 # Defined in file: ./chapter_convolutional-neural-networks/conv-layer.md
@@ -460,11 +464,7 @@ def evaluate_accuracy_gpu(net, data_iter, device=None):
 
     with torch.no_grad():
         for X, y in data_iter:
-            if isinstance(X, list):
-                # Required for BERT Fine-tuning (to be covered later)
-                X = [x.to(device) for x in X]
-            else:
-                X = X.to(device)
+            X = [x.to(device) for x in X] if isinstance(X, list) else X.to(device)
             y = y.to(device)
             metric.add(d2l.accuracy(net(X), y), d2l.size(y))
     return metric[0] / metric[1]
@@ -474,7 +474,7 @@ def evaluate_accuracy_gpu(net, data_iter, device=None):
 def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
     """Train a model with a GPU (defined in Chapter 6)."""
     def init_weights(m):
-        if type(m) == nn.Linear or type(m) == nn.Conv2d:
+        if type(m) in [nn.Linear, nn.Conv2d]:
             nn.init.xavier_uniform_(m.weight)
 
     net.apply(init_weights)
@@ -541,8 +541,10 @@ class Residual(nn.Module):
 
 
 # Defined in file: ./chapter_recurrent-neural-networks/text-preprocessing.md
-d2l.DATA_HUB['time_machine'] = (d2l.DATA_URL + 'timemachine.txt',
-                                '090b5e7e70c295757f55df93cb0a180b9691891a')
+d2l.DATA_HUB['time_machine'] = (
+    f'{d2l.DATA_URL}timemachine.txt',
+    '090b5e7e70c295757f55df93cb0a180b9691891a',
+)
 
 
 def read_time_machine():
@@ -560,7 +562,7 @@ def tokenize(lines, token='word'):
     elif token == 'char':
         return [list(line) for line in lines]
     else:
-        print('ERROR: unknown token type: ' + token)
+        print(f'ERROR: unknown token type: {token}')
 
 
 # Defined in file: ./chapter_recurrent-neural-networks/text-preprocessing.md
@@ -747,15 +749,14 @@ def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
             # Initialize `state` when either it is the first iteration or
             # using random sampling
             state = net.begin_state(batch_size=X.shape[0], device=device)
+        elif isinstance(net, nn.Module) and not isinstance(state, tuple):
+            # `state` is a tensor for `nn.GRU`
+            state.detach_()
         else:
-            if isinstance(net, nn.Module) and not isinstance(state, tuple):
-                # `state` is a tensor for `nn.GRU`
-                state.detach_()
-            else:
-                # `state` is a tuple of tensors for `nn.LSTM` and
-                # for our custom scratch implementation
-                for s in state:
-                    s.detach_()
+            # `state` is a tuple of tensors for `nn.LSTM` and
+            # for our custom scratch implementation
+            for s in state:
+                s.detach_()
         y = Y.T.reshape(-1)
         X, y = X.to(device), y.to(device)
         y_hat, state = net(X, state)
@@ -842,8 +843,10 @@ class RNNModel(nn.Module):
 
 
 # Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
-d2l.DATA_HUB['fra-eng'] = (d2l.DATA_URL + 'fra-eng.zip',
-                           '94646ad1522d915e7b0f9296181140edcf86a4f5')
+d2l.DATA_HUB['fra-eng'] = (
+    f'{d2l.DATA_URL}fra-eng.zip',
+    '94646ad1522d915e7b0f9296181140edcf86a4f5',
+)
 
 
 def read_data_nmt():
@@ -1002,8 +1005,7 @@ class MaskedSoftmaxCELoss(nn.CrossEntropyLoss):
         self.reduction = 'none'
         unweighted_loss = super(MaskedSoftmaxCELoss,
                                 self).forward(pred.permute(0, 2, 1), label)
-        weighted_loss = (unweighted_loss * weights).mean(dim=1)
-        return weighted_loss
+        return (unweighted_loss * weights).mean(dim=1)
 
 
 # Defined in file: ./chapter_recurrent-modern/seq2seq.md
@@ -1125,20 +1127,18 @@ def show_heatmaps(matrices, xlabel, ylabel, titles=None, figsize=(2.5, 2.5),
 # Defined in file: ./chapter_attention-mechanisms/attention-scoring-functions.md
 def masked_softmax(X, valid_lens):
     """Perform softmax operation by masking elements on the last axis."""
-    # `X`: 3D tensor, `valid_lens`: 1D or 2D tensor
     if valid_lens is None:
         return nn.functional.softmax(X, dim=-1)
+    shape = X.shape
+    if valid_lens.dim() == 1:
+        valid_lens = torch.repeat_interleave(valid_lens, shape[1])
     else:
-        shape = X.shape
-        if valid_lens.dim() == 1:
-            valid_lens = torch.repeat_interleave(valid_lens, shape[1])
-        else:
-            valid_lens = valid_lens.reshape(-1)
-        # On the last axis, replace masked elements with a very large negative
-        # value, whose exponentiation outputs 0
-        X = d2l.sequence_mask(X.reshape(-1, shape[-1]), valid_lens,
-                              value=-1e6)
-        return nn.functional.softmax(X.reshape(shape), dim=-1)
+        valid_lens = valid_lens.reshape(-1)
+    # On the last axis, replace masked elements with a very large negative
+    # value, whose exponentiation outputs 0
+    X = d2l.sequence_mask(X.reshape(-1, shape[-1]), valid_lens,
+                          value=-1e6)
+    return nn.functional.softmax(X.reshape(shape), dim=-1)
 
 
 # Defined in file: ./chapter_attention-mechanisms/attention-scoring-functions.md
@@ -1350,10 +1350,20 @@ class TransformerEncoder(d2l.Encoder):
         self.blks = nn.Sequential()
         for i in range(num_layers):
             self.blks.add_module(
-                "block" + str(i),
-                EncoderBlock(key_size, query_size, value_size, num_hiddens,
-                             norm_shape, ffn_num_input, ffn_num_hiddens,
-                             num_heads, dropout, use_bias))
+                f'block{str(i)}',
+                EncoderBlock(
+                    key_size,
+                    query_size,
+                    value_size,
+                    num_hiddens,
+                    norm_shape,
+                    ffn_num_input,
+                    ffn_num_hiddens,
+                    num_heads,
+                    dropout,
+                    use_bias,
+                ),
+            )
 
     def forward(self, X, valid_lens, *args):
         # Since positional encoding values are between -1 and 1, the embedding
@@ -1402,8 +1412,10 @@ def show_trace_2d(f, results):
 
 
 # Defined in file: ./chapter_optimization/minibatch-sgd.md
-d2l.DATA_HUB['airfoil'] = (d2l.DATA_URL + 'airfoil_self_noise.dat',
-                           '76e5be1548fd8222e5074cf0faae75edff8cf93f')
+d2l.DATA_HUB['airfoil'] = (
+    f'{d2l.DATA_URL}airfoil_self_noise.dat',
+    '76e5be1548fd8222e5074cf0faae75edff8cf93f',
+)
 
 
 def get_data_ch11(batch_size=10, n=1500):
@@ -1532,11 +1544,7 @@ def resnet18(num_classes, in_channels=1):
 # Defined in file: ./chapter_computer-vision/image-augmentation.md
 def train_batch_ch13(net, X, y, loss, trainer, devices):
     """Train for a minibatch with mutiple GPUs (defined in Chapter 13)."""
-    if isinstance(X, list):
-        # Required for BERT fine-tuning (to be covered later)
-        X = [x.to(devices[0]) for x in X]
-    else:
-        X = X.to(devices[0])
+    X = [x.to(devices[0]) for x in X] if isinstance(X, list) else X.to(devices[0])
     y = y.to(devices[0])
     net.train()
     trainer.zero_grad()
@@ -1580,8 +1588,10 @@ def train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
 
 
 # Defined in file: ./chapter_computer-vision/fine-tuning.md
-d2l.DATA_HUB['hotdog'] = (d2l.DATA_URL + 'hotdog.zip',
-                          'fba480ffa8aa7e0febbb511d181409f899b9baa5')
+d2l.DATA_HUB['hotdog'] = (
+    f'{d2l.DATA_URL}hotdog.zip',
+    'fba480ffa8aa7e0febbb511d181409f899b9baa5',
+)
 
 
 # Defined in file: ./chapter_computer-vision/bounding-box.md
@@ -1735,8 +1745,7 @@ def offset_boxes(anchors, assigned_bb, eps=1e-6):
     c_assigned_bb = d2l.box_corner_to_center(assigned_bb)
     offset_xy = 10 * (c_assigned_bb[:, :2] - c_anc[:, :2]) / c_anc[:, 2:]
     offset_wh = 5 * d2l.log(eps + c_assigned_bb[:, 2:] / c_anc[:, 2:])
-    offset = d2l.concat([offset_xy, offset_wh], axis=1)
-    return offset
+    return d2l.concat([offset_xy, offset_wh], axis=1)
 
 
 # Defined in file: ./chapter_computer-vision/anchor.md
@@ -1782,8 +1791,7 @@ def offset_inverse(anchors, offset_preds):
     pred_bbox_xy = (offset_preds[:, :2] * anc[:, 2:] / 10) + anc[:, :2]
     pred_bbox_wh = d2l.exp(offset_preds[:, 2:] / 5) * anc[:, 2:]
     pred_bbox = d2l.concat((pred_bbox_xy, pred_bbox_wh), axis=1)
-    predicted_bbox = d2l.box_center_to_corner(pred_bbox)
-    return predicted_bbox
+    return d2l.box_center_to_corner(pred_bbox)
 
 
 # Defined in file: ./chapter_computer-vision/anchor.md
@@ -1837,8 +1845,9 @@ def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
 
 # Defined in file: ./chapter_computer-vision/object-detection-dataset.md
 d2l.DATA_HUB['banana-detection'] = (
-    d2l.DATA_URL + 'banana-detection.zip',
-    '5de26c8fce5ccdea9f91267273464dc968d20d72')
+    f'{d2l.DATA_URL}banana-detection.zip',
+    '5de26c8fce5ccdea9f91267273464dc968d20d72',
+)
 
 
 # Defined in file: ./chapter_computer-vision/object-detection-dataset.md
@@ -1869,8 +1878,12 @@ class BananasDataset(torch.utils.data.Dataset):
     """A customized dataset to load the banana detection dataset."""
     def __init__(self, is_train):
         self.features, self.labels = read_data_bananas(is_train)
-        print('read ' + str(len(self.features)) + (
-            f' training examples' if is_train else f' validation examples'))
+        print(
+            (
+                f'read {len(self.features)}'
+                + (' training examples' if is_train else ' validation examples')
+            )
+        )
 
     def __getitem__(self, idx):
         return (self.features[idx].float(), self.labels[idx])
@@ -1890,8 +1903,10 @@ def load_data_bananas(batch_size):
 
 
 # Defined in file: ./chapter_computer-vision/semantic-segmentation-and-dataset.md
-d2l.DATA_HUB['voc2012'] = (d2l.DATA_URL + 'VOCtrainval_11-May-2012.tar',
-                           '4e443f8a2eca6b1dac8a6c57641b67dd40621a49')
+d2l.DATA_HUB['voc2012'] = (
+    f'{d2l.DATA_URL}VOCtrainval_11-May-2012.tar',
+    '4e443f8a2eca6b1dac8a6c57641b67dd40621a49',
+)
 
 
 # Defined in file: ./chapter_computer-vision/semantic-segmentation-and-dataset.md
@@ -1903,7 +1918,7 @@ def read_voc_images(voc_dir, is_train=True):
     with open(txt_fname, 'r') as f:
         images = f.read().split()
     features, labels = [], []
-    for i, fname in enumerate(images):
+    for fname in images:
         features.append(
             torchvision.io.read_image(
                 os.path.join(voc_dir, 'JPEGImages', f'{fname}.jpg')))
@@ -1969,7 +1984,7 @@ class VOCSegDataset(torch.utils.data.Dataset):
             for feature in self.filter(features)]
         self.labels = self.filter(labels)
         self.colormap2label = voc_colormap2label()
-        print('read ' + str(len(self.features)) + ' examples')
+        print(f'read {len(self.features)} examples')
 
     def normalize_image(self, img):
         return self.transform(img.float())
@@ -2004,8 +2019,10 @@ def load_data_voc(batch_size, crop_size):
 
 
 # Defined in file: ./chapter_computer-vision/kaggle-cifar10.md
-d2l.DATA_HUB['cifar10_tiny'] = (d2l.DATA_URL + 'kaggle_cifar10_tiny.zip',
-                                '2068874e4b9a9f0fb07ebe0ad2b29754449ccacd')
+d2l.DATA_HUB['cifar10_tiny'] = (
+    f'{d2l.DATA_URL}kaggle_cifar10_tiny.zip',
+    '2068874e4b9a9f0fb07ebe0ad2b29754449ccacd',
+)
 
 
 # Defined in file: ./chapter_computer-vision/kaggle-cifar10.md
@@ -2015,7 +2032,7 @@ def read_csv_labels(fname):
         # Skip the file header line (column name)
         lines = f.readlines()[1:]
     tokens = [l.rstrip().split(',') for l in lines]
-    return dict(((name, label) for name, label in tokens))
+    return dict(tokens)
 
 
 # Defined in file: ./chapter_computer-vision/kaggle-cifar10.md
@@ -2061,13 +2078,18 @@ def reorg_test(data_dir):
 
 
 # Defined in file: ./chapter_computer-vision/kaggle-dog.md
-d2l.DATA_HUB['dog_tiny'] = (d2l.DATA_URL + 'kaggle_dog_tiny.zip',
-                            '0cb91d09b814ecdc07b50f31f8dcad3e81d6a86d')
+d2l.DATA_HUB['dog_tiny'] = (
+    f'{d2l.DATA_URL}kaggle_dog_tiny.zip',
+    '0cb91d09b814ecdc07b50f31f8dcad3e81d6a86d',
+)
+
 
 
 # Defined in file: ./chapter_natural-language-processing-pretraining/word-embedding-dataset.md
-d2l.DATA_HUB['ptb'] = (d2l.DATA_URL + 'ptb.zip',
-                       '319d85e578af0cdc590547f26231e4e31cdf1e42')
+d2l.DATA_HUB['ptb'] = (
+    f'{d2l.DATA_URL}ptb.zip',
+    '319d85e578af0cdc590547f26231e4e31cdf1e42',
+)
 
 
 def read_ptb():
@@ -2198,17 +2220,28 @@ def load_data_ptb(batch_size, max_window_size, num_noise_words):
 
 
 # Defined in file: ./chapter_natural-language-processing-pretraining/similarity-analogy.md
-d2l.DATA_HUB['glove.6b.50d'] = (d2l.DATA_URL + 'glove.6B.50d.zip',
-                                '0b8703943ccdb6eb788e6f091b8946e82231bc4d')
+d2l.DATA_HUB['glove.6b.50d'] = (
+    f'{d2l.DATA_URL}glove.6B.50d.zip',
+    '0b8703943ccdb6eb788e6f091b8946e82231bc4d',
+)
 
-d2l.DATA_HUB['glove.6b.100d'] = (d2l.DATA_URL + 'glove.6B.100d.zip',
-                                 'cd43bfb07e44e6f27cbcc7bc9ae3d80284fdaf5a')
 
-d2l.DATA_HUB['glove.42b.300d'] = (d2l.DATA_URL + 'glove.42B.300d.zip',
-                                  'b5116e234e9eb9076672cfeabf5469f3eec904fa')
+d2l.DATA_HUB['glove.6b.100d'] = (
+    f'{d2l.DATA_URL}glove.6B.100d.zip',
+    'cd43bfb07e44e6f27cbcc7bc9ae3d80284fdaf5a',
+)
 
-d2l.DATA_HUB['wiki.en'] = (d2l.DATA_URL + 'wiki.en.zip',
-                           'c1816da3821ae9f43899be655002f6c723e91b88')
+
+d2l.DATA_HUB['glove.42b.300d'] = (
+    f'{d2l.DATA_URL}glove.42B.300d.zip',
+    'b5116e234e9eb9076672cfeabf5469f3eec904fa',
+)
+
+
+d2l.DATA_HUB['wiki.en'] = (
+    f'{d2l.DATA_URL}wiki.en.zip',
+    'c1816da3821ae9f43899be655002f6c723e91b88',
+)
 
 
 # Defined in file: ./chapter_natural-language-processing-pretraining/similarity-analogy.md
@@ -2241,8 +2274,7 @@ class TokenEmbedding:
         indices = [
             self.token_to_idx.get(token, self.unknown_idx)
             for token in tokens]
-        vecs = self.idx_to_vec[d2l.tensor(indices)]
-        return vecs
+        return self.idx_to_vec[d2l.tensor(indices)]
 
     def __len__(self):
         return len(self.idx_to_token)
@@ -2308,8 +2340,7 @@ class MaskLM(nn.Module):
         batch_idx = torch.repeat_interleave(batch_idx, num_pred_positions)
         masked_X = X[batch_idx, pred_positions]
         masked_X = masked_X.reshape((batch_size, num_pred_positions, -1))
-        mlm_Y_hat = self.mlp(masked_X)
-        return mlm_Y_hat
+        return self.mlp(masked_X)
 
 
 # Defined in file: ./chapter_natural-language-processing-pretraining/bert.md
@@ -2401,7 +2432,7 @@ def _replace_mlm_tokens(tokens, candidate_pred_positions, num_mlm_preds,
                         vocab):
     # Make a new copy of tokens for the input of a masked language model,
     # where the input may contain replaced '<mask>' or random tokens
-    mlm_input_tokens = [token for token in tokens]
+    mlm_input_tokens = list(tokens)
     pred_positions_and_labels = []
     # Shuffle for getting 15% random tokens for prediction in the masked
     # language modeling task
@@ -2413,13 +2444,10 @@ def _replace_mlm_tokens(tokens, candidate_pred_positions, num_mlm_preds,
         # 80% of the time: replace the word with the '<mask>' token
         if random.random() < 0.8:
             masked_token = '<mask>'
+        elif random.random() < 0.5:
+            masked_token = tokens[mlm_pred_position]
         else:
-            # 10% of the time: keep the word unchanged
-            if random.random() < 0.5:
-                masked_token = tokens[mlm_pred_position]
-            # 10% of the time: replace the word with a random word
-            else:
-                masked_token = random.randint(0, len(vocab) - 1)
+            masked_token = random.randint(0, len(vocab) - 1)
         mlm_input_tokens[mlm_pred_position] = masked_token
         pred_positions_and_labels.append(
             (mlm_pred_position, tokens[mlm_pred_position]))
@@ -2428,14 +2456,10 @@ def _replace_mlm_tokens(tokens, candidate_pred_positions, num_mlm_preds,
 
 # Defined in file: ./chapter_natural-language-processing-pretraining/bert-dataset.md
 def _get_mlm_data_from_tokens(tokens, vocab):
-    candidate_pred_positions = []
-    # `tokens` is a list of strings
-    for i, token in enumerate(tokens):
-        # Special tokens are not predicted in the masked language modeling
-        # task
-        if token in ['<cls>', '<sep>']:
-            continue
-        candidate_pred_positions.append(i)
+    candidate_pred_positions = [
+        i for i, token in enumerate(tokens) if token not in ['<cls>', '<sep>']
+    ]
+
     # 15% of random tokens are predicted in the masked language modeling task
     num_mlm_preds = max(1, round(len(tokens) * 0.15))
     mlm_input_tokens, pred_positions_and_labels = _replace_mlm_tokens(
@@ -2641,7 +2665,7 @@ class SNLIDataset(torch.utils.data.Dataset):
         self.premises = self._pad(all_premise_tokens)
         self.hypotheses = self._pad(all_hypothesis_tokens)
         self.labels = torch.tensor(dataset[2])
-        print('read ' + str(len(self.premises)) + ' examples')
+        print(f'read {len(self.premises)} examples')
 
     def _pad(self, lines):
         return torch.tensor([
@@ -2721,8 +2745,11 @@ def update_G(Z, net_D, net_G, loss, trainer_G):
 
 
 # Defined in file: ./chapter_generative-adversarial-networks/dcgan.md
-d2l.DATA_HUB['pokemon'] = (d2l.DATA_URL + 'pokemon.zip',
-                           'c065c0e2593b8b161a2d7873e42418bf6a21106c')
+d2l.DATA_HUB['pokemon'] = (
+    f'{d2l.DATA_URL}pokemon.zip',
+    'c065c0e2593b8b161a2d7873e42418bf6a21106c',
+)
+
 
 
 # Alias defined in config.ini
