@@ -2,12 +2,12 @@
 :label:`sec_convexity`
 
 *凸性*（convexity）在优化算法的设计中起到至关重要的作用，
-这主要是由于在这种情况下对算法进行分析和测试要容易得多。
-换言之，如果该算法甚至在凸性条件设定下的效果很差，
-通常我们很难在其他条件下看到好的结果。
+这主要是由于在这种情况下对算法进行分析和测试要容易。
+换言之，如果算法在凸性条件设定下的效果很差，
+那通常我们很难在其他条件下看到好的结果。
 此外，即使深度学习中的优化问题通常是非凸的，
 它们也经常在局部极小值附近表现出一些凸性。
-这可能会产生一些像 :cite:`Izmailov.Podoprikhin.Garipov.ea.2018`这样比较有意思的新的优化变体。
+这可能会产生一些像 :cite:`Izmailov.Podoprikhin.Garipov.ea.2018`这样比较有意思的新优化变体。
 
 ```{.python .input}
 %matplotlib inline
@@ -42,7 +42,7 @@ import tensorflow as tf
 ### 凸集
 
 *凸集*（convex set）是凸性的基础。
-简单地说，如果对于任何$a，b \in \mathcal{X}$，连接$a$和$b$的线段也位于$\mathcal{X}$中，则向量空间中的一个集合$\mathcal{X}$是*凸*（convex）的。
+简单地说，如果对于任何$a, b \in \mathcal{X}$，连接$a$和$b$的线段也位于$\mathcal{X}$中，则向量空间中的一个集合$\mathcal{X}$是*凸*（convex）的。
 在数学术语上，这意味着对于所有$\lambda \in [0, 1]$，我们得到
 
 $$\lambda  a + (1-\lambda)  b \in \mathcal{X} \text{ 当 } a, b \in \mathcal{X}.$$
@@ -53,8 +53,7 @@ $$\lambda  a + (1-\lambda)  b \in \mathcal{X} \text{ 当 } a, b \in \mathcal{X}.
 ![第一组是非凸的，另外两组是凸的。](../img/pacman.svg)
 :label:`fig_pacman`
 
-有了定义做什么呢？
-我们来看一下交集 :numref:`fig_convex_intersect`。
+接下来来看一下交集 :numref:`fig_convex_intersect`。
 假设$\mathcal{X}$和$\mathcal{Y}$是凸集，那么$\mathcal {X} \cap \mathcal{Y}$也是凸集的。
 现在考虑任意$a, b \in \mathcal{X} \cap \mathcal{Y}$，
 因为$\mathcal{X}$和$\mathcal{Y}$是凸集，
@@ -77,12 +76,12 @@ $$\lambda  a + (1-\lambda)  b \in \mathcal{X} \text{ 当 } a, b \in \mathcal{X}.
 
 通常，深度学习中的问题是在凸集上定义的。
 例如，$\mathbb{R}^d$，即实数的$d$-维向量的集合是凸集（毕竟$\mathbb{R}^d$中任意两点之间的线存在$\mathbb{R}^d$）中。
-在某些情况下，我们使用有界长度的变量，例如球的半径定义为$\{\mathbf{x} | \mathbf{x} \in \mathbb{R}^d \text{ and } \| \mathbf{x} \| \leq r\}$。
+在某些情况下，我们使用有界长度的变量，例如球的半径定义为$\{\mathbf{x} | \mathbf{x} \in \mathbb{R}^d \text{ 且 } \| \mathbf{x} \| \leq r\}$。
 
 ### 凸函数
 
 现在我们有了凸集，我们可以引入*凸函数*（convex function）$f$。
-给定一个凸集$\mathcal{X}$，如果对于所有$x, x' \in \mathcal{X}$和所有$\lambda \in [0, 1]$，一个函数$f: \mathcal{X} \to \mathbb{R}$是凸的，我们可以得到
+给定一个凸集$\mathcal{X}$，如果对于所有$x, x' \in \mathcal{X}$和所有$\lambda \in [0, 1]$，函数$f: \mathcal{X} \to \mathbb{R}$是凸的，我们可以得到
 
 $$\lambda f(x) + (1-\lambda) f(x') \geq f(\lambda x + (1-\lambda) x').$$
 
@@ -166,7 +165,7 @@ d2l.plot([x, segment], [f(x), f(segment)], 'x', 'f(x)')
 
 凸函数的局部极小值同时也是全局极小值这一性质是很方便的。
 这意味着如果我们最小化函数，我们就不会“卡住”。
-但是，请注意，这并不意味着不能有多个全局最小值，或者可能不存在一个全局最小值。
+但是请注意，这并不意味着不能有多个全局最小值，或者可能不存在一个全局最小值。
 例如，函数$f(x) = \mathrm{max}(|x|-1, 0)$在$[-1,1]$区间上都是最小值。
 相反，函数$f(x) = \exp(x)$在$\mathbb{R}$上没有取得最小值。对于$x \to -\infty$，它趋近于$0$，但是没有$f(x) = 0$的$x$。
 
