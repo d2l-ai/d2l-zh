@@ -360,7 +360,7 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
         measures = f'train loss {metric[0] / metric[1]:.3f}'
         if valid_iter is not None:
             valid_loss = evaluate_loss(valid_iter, net, devices)
-            animator.add(epoch + 1, (None, valid_loss.detach()))
+            animator.add(epoch + 1, (None, valid_loss.detach().cpu()))
         scheduler.step()
     if valid_iter is not None:
         measures += f', valid loss {valid_loss:.3f}'
