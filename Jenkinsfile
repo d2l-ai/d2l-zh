@@ -7,7 +7,7 @@ stage("Build and Publish") {
   def TARGET_BRANCH = env.CHANGE_TARGET ? env.CHANGE_TARGET : env.BRANCH_NAME
   // such as d2l-en-master
   def TASK = REPO_NAME + '-' + TARGET_BRANCH
-  node {
+  node('d2l-worker') {
     ws("workspace/${TASK}") {
       checkout scm
       // conda environment
