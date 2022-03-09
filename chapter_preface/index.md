@@ -125,8 +125,8 @@ import numpy as np
 import tensorflow as tf
 ```
 
-```python
-#tab paddle
+```{.python .input}
+#@tab paddle
 #@save
 import numpy as np
 import paddle
