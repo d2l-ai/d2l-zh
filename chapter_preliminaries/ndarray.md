@@ -53,7 +53,7 @@ import torch
 import tensorflow as tf
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 import paddle
 ```
@@ -75,7 +75,6 @@ import paddle
 首先，我们可以使用 `range` 创建一个行向量 `x`。这个行向量包含以0开始的前12个整数，它们默认创建为整数。也可指定创建类型为浮点数。张量中的每个值都称为张量的 *元素*（element）。例如，张量 `x` 中有 12 个元素。除非额外指定，新的张量将存储在内存中，并采用基于CPU的计算。
 :end_tab:
 
-
 ```{.python .input}
 x = np.arange(12)
 x
@@ -93,7 +92,7 @@ x = tf.range(12)
 x
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 x = paddle.arange(12)
 x
@@ -124,7 +123,7 @@ x.numel()
 tf.size(x)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 x.numel()
 ```
@@ -147,7 +146,7 @@ X = tf.reshape(x, (3, 4))
 X
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 X = paddle.reshape(x, (3, 4))
 X
@@ -177,7 +176,7 @@ torch.zeros((2, 3, 4))
 tf.zeros((2, 3, 4))
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 paddle.zeros((2, 3, 4))
 ```
@@ -198,7 +197,7 @@ torch.ones((2, 3, 4))
 tf.ones((2, 3, 4))
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 paddle.ones((2, 3, 4))
 ```
@@ -222,7 +221,7 @@ torch.randn(3, 4)
 tf.random.normal(shape=[3, 4])
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 paddle.randn((3, 4),'float32')
 ```
@@ -244,7 +243,7 @@ torch.tensor([[2, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
 tf.constant([[2, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 paddle.to_tensor([[2, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
 ```
@@ -294,7 +293,7 @@ y = tf.constant([2.0, 2, 2, 2])
 x + y, x - y, x * y, x / y, x ** y  # **运算符是求幂运算
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 x = paddle.to_tensor([1.0, 2, 4, 8])
 y = paddle.to_tensor([2, 2, 2, 2])
@@ -317,7 +316,7 @@ torch.exp(x)
 tf.exp(x)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 paddle.exp(x)
 ```
@@ -353,7 +352,7 @@ Y = tf.constant([[2.0, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
 tf.concat([X, Y], axis=0), tf.concat([X, Y], axis=1)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 X = paddle.arange(12, dtype='float32').reshape((3, 4))
 Y = paddle.to_tensor([[2.0, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
@@ -414,7 +413,7 @@ b = tf.reshape(tf.range(2), (1, 2))
 a, b
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 a = paddle.reshape(paddle.arange(3), (3, 1))
 b = paddle.reshape(paddle.arange(2), (1, 2))
@@ -545,7 +544,7 @@ Z.assign(X + Y)
 print('id(Z):', id(Z))
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 Z = paddle.zeros_like(Y)
 print('id(Z):', id(Z))
@@ -624,7 +623,7 @@ B = tf.constant(A)
 type(A), type(B)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 A = X.numpy()
 B = paddle.to_tensor(A)
@@ -650,7 +649,7 @@ a = tf.constant([3.5]).numpy()
 a, a.item(), float(a), int(a)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 a = paddle.to_tensor([3.5])
 a, a.item(), float(a), int(a)
