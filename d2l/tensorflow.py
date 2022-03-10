@@ -339,8 +339,7 @@ def predict_ch3(net, test_iter, n=6):
     trues = d2l.get_fashion_mnist_labels(y)
     preds = d2l.get_fashion_mnist_labels(d2l.argmax(net(X), axis=1))
     titles = [true + '\n' + pred for true, pred in zip(trues, preds)]
-    d2l.show_images(d2l.reshape(X[0:n], (n, 28, 28)), 1, n,
-                    titles=titles[0:n])
+    d2l.show_images(d2l.reshape(X[:n], (n, 28, 28)), 1, n, titles=titles[:n])
 
 
 # Defined in file: ./chapter_multilayer-perceptrons/underfit-overfit.md
@@ -354,7 +353,7 @@ def evaluate_loss(net, data_iter, loss):
 
 
 # Defined in file: ./chapter_multilayer-perceptrons/kaggle-house-price.md
-DATA_HUB = dict()
+DATA_HUB = {}
 DATA_URL = 'http://d2l-data.s3-accelerate.amazonaws.com/'
 
 
@@ -405,11 +404,16 @@ def download_all():
 
 
 # Defined in file: ./chapter_multilayer-perceptrons/kaggle-house-price.md
-DATA_HUB['kaggle_house_train'] = (DATA_URL + 'kaggle_house_pred_train.csv',
-                                  '585e9cc93e70b39160e7921475f9bcd7d31219ce')
+DATA_HUB['kaggle_house_train'] = (
+    f'{DATA_URL}kaggle_house_pred_train.csv',
+    '585e9cc93e70b39160e7921475f9bcd7d31219ce',
+)
 
-DATA_HUB['kaggle_house_test'] = (DATA_URL + 'kaggle_house_pred_test.csv',
-                                 'fa19780a7b011d9b009e8bff8e99922a8ee2eb90')
+
+DATA_HUB['kaggle_house_test'] = (
+    f'{DATA_URL}kaggle_house_pred_test.csv',
+    'fa19780a7b011d9b009e8bff8e99922a8ee2eb90',
+)
 
 
 # Defined in file: ./chapter_deep-learning-computation/use-gpu.md
@@ -424,7 +428,7 @@ def try_all_gpus():
     """Return all available GPUs, or [cpu(),] if no GPU exists."""
     num_gpus = len(tf.config.experimental.list_physical_devices('GPU'))
     devices = [tf.device(f'/GPU:{i}') for i in range(num_gpus)]
-    return devices if devices else [tf.device('/CPU:0')]
+    return devices or [tf.device('/CPU:0')]
 
 
 # Defined in file: ./chapter_convolutional-neural-networks/conv-layer.md
@@ -512,8 +516,10 @@ class Residual(tf.keras.Model):
 
 
 # Defined in file: ./chapter_recurrent-neural-networks/text-preprocessing.md
-d2l.DATA_HUB['time_machine'] = (d2l.DATA_URL + 'timemachine.txt',
-                                '090b5e7e70c295757f55df93cb0a180b9691891a')
+d2l.DATA_HUB['time_machine'] = (
+    f'{d2l.DATA_URL}timemachine.txt',
+    '090b5e7e70c295757f55df93cb0a180b9691891a',
+)
 
 
 def read_time_machine():
@@ -531,7 +537,7 @@ def tokenize(lines, token='word'):
     elif token == 'char':
         return [list(line) for line in lines]
     else:
-        print('ERROR: unknown token type: ' + token)
+        print(f'ERROR: unknown token type: {token}')
 
 
 # Defined in file: ./chapter_recurrent-neural-networks/text-preprocessing.md
@@ -786,8 +792,10 @@ class RNNModel(tf.keras.layers.Layer):
 
 
 # Defined in file: ./chapter_recurrent-modern/machine-translation-and-dataset.md
-d2l.DATA_HUB['fra-eng'] = (d2l.DATA_URL + 'fra-eng.zip',
-                           '94646ad1522d915e7b0f9296181140edcf86a4f5')
+d2l.DATA_HUB['fra-eng'] = (
+    f'{d2l.DATA_URL}fra-eng.zip',
+    '94646ad1522d915e7b0f9296181140edcf86a4f5',
+)
 
 
 def read_data_nmt():
@@ -953,8 +961,7 @@ class MaskedSoftmaxCELoss(tf.keras.losses.Loss):
         label_one_hot = tf.one_hot(label, depth=pred.shape[-1])
         unweighted_loss = tf.keras.losses.CategoricalCrossentropy(
             from_logits=True, reduction='none')(label_one_hot, pred)
-        weighted_loss = tf.reduce_mean((unweighted_loss * weights), axis=1)
-        return weighted_loss
+        return tf.reduce_mean((unweighted_loss * weights), axis=1)
 
 
 # Defined in file: ./chapter_recurrent-modern/seq2seq.md
@@ -967,7 +974,7 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
         timer = d2l.Timer()
         metric = d2l.Accumulator(2)  # Sum of training loss, no. of tokens
         for batch in data_iter:
-            X, X_valid_len, Y, Y_valid_len = [x for x in batch]
+            X, X_valid_len, Y, Y_valid_len = list(batch)
             bos = tf.reshape(tf.constant([tgt_vocab['<bos>']] * Y.shape[0]),
                              shape=(-1, 1))
             dec_input = tf.concat([bos, Y[:, :-1]], 1)  # Teacher forcing
@@ -1061,21 +1068,19 @@ def show_heatmaps(matrices, xlabel, ylabel, titles=None, figsize=(2.5, 2.5),
 # Defined in file: ./chapter_attention-mechanisms/attention-scoring-functions.md
 def masked_softmax(X, valid_lens):
     """Perform softmax operation by masking elements on the last axis."""
-    # `X`: 3D tensor, `valid_lens`: 1D or 2D tensor
     if valid_lens is None:
         return tf.nn.softmax(X, axis=-1)
-    else:
-        shape = X.shape
-        if len(valid_lens.shape) == 1:
-            valid_lens = tf.repeat(valid_lens, repeats=shape[1])
+    shape = X.shape
+    if len(valid_lens.shape) == 1:
+        valid_lens = tf.repeat(valid_lens, repeats=shape[1])
 
-        else:
-            valid_lens = tf.reshape(valid_lens, shape=-1)
-        # On the last axis, replace masked elements with a very large negative
-        # value, whose exponentiation outputs 0
-        X = d2l.sequence_mask(tf.reshape(X, shape=(-1, shape[-1])),
-                              valid_lens, value=-1e6)
-        return tf.nn.softmax(tf.reshape(X, shape=shape), axis=-1)
+    else:
+        valid_lens = tf.reshape(valid_lens, shape=-1)
+    # On the last axis, replace masked elements with a very large negative
+    # value, whose exponentiation outputs 0
+    X = d2l.sequence_mask(tf.reshape(X, shape=(-1, shape[-1])),
+                          valid_lens, value=-1e6)
+    return tf.nn.softmax(tf.reshape(X, shape=shape), axis=-1)
 
 
 # Defined in file: ./chapter_attention-mechanisms/attention-scoring-functions.md
@@ -1335,8 +1340,10 @@ def show_trace_2d(f, results):
 
 
 # Defined in file: ./chapter_optimization/minibatch-sgd.md
-d2l.DATA_HUB['airfoil'] = (d2l.DATA_URL + 'airfoil_self_noise.dat',
-                           '76e5be1548fd8222e5074cf0faae75edff8cf93f')
+d2l.DATA_HUB['airfoil'] = (
+    f'{d2l.DATA_URL}airfoil_self_noise.dat',
+    '76e5be1548fd8222e5074cf0faae75edff8cf93f',
+)
 
 
 def get_data_ch11(batch_size=10, n=1500):
@@ -1500,8 +1507,11 @@ def update_G(Z, net_D, net_G, loss, optimizer_G):
 
 
 # Defined in file: ./chapter_generative-adversarial-networks/dcgan.md
-d2l.DATA_HUB['pokemon'] = (d2l.DATA_URL + 'pokemon.zip',
-                           'c065c0e2593b8b161a2d7873e42418bf6a21106c')
+d2l.DATA_HUB['pokemon'] = (
+    f'{d2l.DATA_URL}pokemon.zip',
+    'c065c0e2593b8b161a2d7873e42418bf6a21106c',
+)
+
 
 
 # Alias defined in config.ini
