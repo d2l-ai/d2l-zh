@@ -247,6 +247,16 @@ import numpy as np
 import time
 ```
 
+```python
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import math
+import paddle
+import numpy as np
+import time
+```
+
 为了说明矢量化为什么如此重要，我们考虑(**对向量相加的两种方法**)。
 我们实例化两个全为1的10000维向量。
 在一种方法中，我们将使用Python的for循环遍历向量；
@@ -311,6 +321,14 @@ timer = Timer()
 for i in range(n):
     c[i].assign(a[i] + b[i])
 f'{timer.stop():.5f} sec'
+```
+
+```python
+#@tab paddle
+c = paddle.zeros([n])
+timer = Timer()
+for i in range(n):
+    c[i] = a[i] + b[i]
 ```
 
 (**或者，我们使用重载的`+`运算符来计算按元素的和**)。

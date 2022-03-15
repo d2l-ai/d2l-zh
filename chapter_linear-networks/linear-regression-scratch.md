@@ -1,4 +1,7 @@
+
+
 # 线性回归的从零开始实现
+
 :label:`sec_linear_scratch`
 
 在了解线性回归的关键思想之后，我们可以开始通过代码来动手实现线性回归了。
@@ -31,6 +34,18 @@ import random
 from d2l import tensorflow as d2l
 import tensorflow as tf
 import random
+```
+
+```python
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import paddle
+import random
+
+import PIL
+import matplotlib.pyplot as plt
+from PIL import Image
 ```
 
 ## 生成数据集
@@ -75,9 +90,26 @@ def synthetic_data(w, b, num_examples):  #@save
     return X, y
 ```
 
+```python
+#@tab paddle
+def synthetic_data(w, b, num_examples):  #@save
+    """生成y=Xw+b+噪声"""
+    X = paddle.normal(0, 1, (num_examples, len(w)))
+    y = paddle.matmul(X, w) + b
+    y += paddle.normal(0, 0.01, y.shape)
+    return X, y.reshape((-1, 1))
+```
+
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow
 true_w = d2l.tensor([2, -3.4])
+true_b = 4.2
+features, labels = synthetic_data(true_w, true_b, 1000)
+```
+
+```python
+#@tab paddle
+true_w = paddle.to_tensor([2, -3.4])
 true_b = 4.2
 features, labels = synthetic_data(true_w, true_b, 1000)
 ```
@@ -94,9 +126,16 @@ print('features:', features[0],'\nlabel:', labels[0])
 可以直观观察到两者之间的线性关系。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow
 d2l.set_figsize()
 d2l.plt.scatter(d2l.numpy(features[:, 1]), d2l.numpy(labels), 1);
+```
+
+```python
+#@tab paddle
+plt.figure()
+plt.scatter(features[:, (1)].detach().numpy(), labels.detach().numpy(), 1);
+plt.show()
 ```
 
 ## 读取数据集
@@ -132,6 +171,19 @@ def data_iter(batch_size, features, labels):
     for i in range(0, num_examples, batch_size):
         j = tf.constant(indices[i: min(i + batch_size, num_examples)])
         yield tf.gather(features, j), tf.gather(labels, j)
+```
+
+```python
+#@tab paddle
+def data_iter(batch_size, features, labels):
+    num_examples = len(features)
+    indices = list(range(num_examples))
+    # 这些样本是随机读取的，没有特定的顺序
+    random.shuffle(indices)
+    for i in range(0, num_examples, batch_size):
+        batch_indices = paddle.to_tensor(
+            indices[i: min(i + batch_size, num_examples)])
+        yield features[batch_indices], labels[batch_indices]
 ```
 
 通常，我们利用GPU并行运算的优势，处理合理大小的“小批量”。
@@ -184,6 +236,14 @@ w = tf.Variable(tf.random.normal(shape=(2, 1), mean=0, stddev=0.01),
 b = tf.Variable(tf.zeros(1), trainable=True)
 ```
 
+```python
+#@tab paddle
+w = paddle.normal(0, 0.01, shape=(2,1))
+b = paddle.zeros(shape=[1])
+w.stop_gradient = False
+b.stop_gradient = False
+```
+
 在初始化参数之后，我们的任务是更新这些参数，直到这些参数足够拟合我们的数据。
 每次更新都需要计算损失函数关于模型参数的梯度。
 有了这个梯度，我们就可以向减小损失的方向更新每个参数。
@@ -200,10 +260,17 @@ b = tf.Variable(tf.zeros(1), trainable=True)
 当我们用一个向量加一个标量时，标量会被加到向量的每个分量上。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow
 def linreg(X, w, b):  #@save
     """线性回归模型"""
     return d2l.matmul(X, w) + b
+```
+
+```python
+#@tab paddle
+def linreg(X, w, b):  #@save
+    """线性回归模型"""
+    return paddle.matmul(X, w) + b
 ```
 
 ## [**定义损失函数**]
@@ -256,6 +323,18 @@ def sgd(params, grads, lr, batch_size):  #@save
     """小批量随机梯度下降"""
     for param, grad in zip(params, grads):
         param.assign_sub(lr*grad/batch_size)
+```
+
+```python
+#@tab paddle
+def sgd(params, lr, batch_size):  #@save
+    """小批量随机梯度下降"""
+    a=[]
+    with paddle.no_grad():
+        for params in params:
+            params -= lr * params.grad/ batch_size
+            a.append(params)
+        return a
 ```
 
 ## 训练
@@ -328,13 +407,35 @@ for epoch in range(num_epochs):
     print(f'epoch {epoch + 1}, loss {float(tf.reduce_mean(train_l)):f}')
 ```
 
+```python
+#@tab paddle
+for epoch in range(num_epochs):
+    for X, y in data_iter(batch_size, features, labels):
+        l = loss(net(X, w, b), y)  # X和y的小批量损失
+        # 因为l形状是(batch_size,1)，而不是一个标量。l中的所有元素被加到一起，
+        # 并以此计算关于[w,b]的梯度
+        l.sum().backward()
+        [w,b]=sgd([w, b], lr, batch_size)  # 使用参数的梯度更新参数
+        w.stop_gradient = False
+        b.stop_gradient = False
+    with paddle.no_grad():
+        train_l = loss(net(features, w, b), labels)
+        print(f'epoch {epoch + 1}, loss {float(train_l.mean()):f}')
+```
+
 因为我们使用的是自己合成的数据集，所以我们知道真正的参数是什么。
 因此，我们可以通过[**比较真实参数和通过训练学到的参数来评估训练的成功程度**]。
 事实上，真实参数和通过训练学到的参数确实非常接近。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow
 print(f'w的估计误差: {true_w - d2l.reshape(w, true_w.shape)}')
+print(f'b的估计误差: {true_b - b}')
+```
+
+```python
+#@tab paddle
+print(f'w的估计误差: {true_w - w.reshape(true_w.shape)}')
 print(f'b的估计误差: {true_b - b}')
 ```
 

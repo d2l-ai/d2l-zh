@@ -36,6 +36,13 @@ import tensorflow as tf
 d2l.use_svg_display()
 ```
 
+```python
+#@tab paddle
+import paddle
+import paddle.vision.transforms as T 
+from d2l import paddle as d2l
+```
+
 ## 读取数据集
 
 我们可以[**通过框架中的内置函数将Fashion-MNIST数据集下载并读取到内存中**]。
@@ -61,6 +68,13 @@ mnist_test = torchvision.datasets.FashionMNIST(
 mnist_train, mnist_test = tf.keras.datasets.fashion_mnist.load_data()
 ```
 
+```python
+#@tab paddle
+trans = T.ToTensor()
+mnist_train = paddle.vision.datasets.FashionMNIST(mode="train",transform=trans)
+mnist_test = paddle.vision.datasets.FashionMNIST(mode="test",transform=trans)
+```
+
 Fashion-MNIST由10个类别的图像组成，
 每个类别由*训练数据集*（train dataset）中的6000张图像
 和*测试数据集*（test dataset）中的1000张图像组成。
@@ -75,6 +89,11 @@ len(mnist_train), len(mnist_test)
 ```{.python .input}
 #@tab tensorflow
 len(mnist_train[0]), len(mnist_test[0])
+```
+
+```python
+#@tab paddle
+len(mnist_train), len(mnist_test)
 ```
 
 每个输入图像的高度和宽度均为28像素。
@@ -139,6 +158,27 @@ def show_images(imgs, num_rows, num_cols, titles=None, scale=1.5):  #@save
     return axes
 ```
 
+```python
+#@tab paddle
+def show_images(imgs, num_rows, num_cols, titles=None, scale=1.5):  #@save
+    """绘制图像列表"""
+    figsize = (num_cols * scale, num_rows * scale)
+    _, axes = d2l.plt.subplots(num_rows, num_cols, figsize=figsize)
+    axes = axes.flatten()
+    for i, (ax, img) in enumerate(zip(axes, imgs)):
+        if paddle.is_tensor(img):
+            # 图片张量
+            ax.imshow(img.numpy())
+        else:
+            # PIL图片
+            ax.imshow(img)
+        ax.axes.get_xaxis().set_visible(False)
+        ax.axes.get_yaxis().set_visible(False)
+        if titles:
+            ax.set_title(titles[i])
+    return axes
+```
+
 以下是训练数据集中前[**几个样本的图像及其相应的标签**]。
 
 ```{.python .input}
@@ -159,6 +199,12 @@ show_images(X.reshape(18, 28, 28), 2, 9, titles=get_fashion_mnist_labels(y));
 X = tf.constant(mnist_train[0][:18])
 y = tf.constant(mnist_train[1][:18])
 show_images(X, 2, 9, titles=get_fashion_mnist_labels(y));
+```
+
+```python
+#@tab paddle
+X, y = next(iter(paddle.io.DataLoader(mnist_train, batch_size=18)))
+show_images(X.reshape([18, 28, 28]), 2, 9, titles=get_fashion_mnist_labels(y));
 ```
 
 ## 读取小批量
@@ -199,6 +245,20 @@ train_iter = data.DataLoader(mnist_train, batch_size, shuffle=True,
 batch_size = 256
 train_iter = tf.data.Dataset.from_tensor_slices(
     mnist_train).batch(batch_size).shuffle(len(mnist_train[0]))
+```
+
+```python
+#@tab paddle
+batch_size = 256
+
+def get_dataloader_workers():  #@save
+    """使用4个进程来读取数据"""
+    return 4
+
+train_iter = paddle.io.DataLoader(dataset=mnist_train, 
+                                batch_size=batch_size, 
+                                shuffle=True,
+                                num_workers=get_dataloader_workers())
 ```
 
 我们看一下读取训练数据所需的时间。
@@ -267,6 +327,26 @@ def load_data_fashion_mnist(batch_size, resize=None):   #@save
             batch_size).shuffle(len(mnist_train[0])).map(resize_fn),
         tf.data.Dataset.from_tensor_slices(process(*mnist_test)).batch(
             batch_size).map(resize_fn))
+```
+
+```python
+#@tab paddle
+def load_data_fashion_mnist(batch_size, resize=None):  #@save
+    """下载Fashion-MNIST数据集，然后将其加载到内存中"""
+    trans = [T.ToTensor()]
+    if resize:
+        trans.insert(0, T.Resize(resize))
+    trans = T.Compose(trans)
+    mnist_train = paddle.vision.datasets.FashionMNIST(mode="train",transform=trans)
+    mnist_test = paddle.vision.datasets.FashionMNIST(mode="test",transform=trans)
+    return (paddle.io.DataLoader(dataset=mnist_train, 
+                                batch_size=batch_size, 
+                                shuffle=True,
+                                num_workers=get_dataloader_workers()),
+            paddle.io.DataLoader(dataset=mnist_test, 
+                                batch_size=batch_size, 
+                                shuffle=True,
+                                num_workers=get_dataloader_workers()))
 ```
 
 下面，我们通过指定`resize`参数来测试`load_data_fashion_mnist`函数的图像大小调整功能。
