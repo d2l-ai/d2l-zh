@@ -83,6 +83,18 @@ def f(x):
     return 3 * x ** 2 - 4 * x
 ```
 
+```python
+#@tab paddle
+%matplotlib inline
+import numpy as np
+from IPython import display
+from matplotlib import pyplot as plt
+
+
+def f(x):
+    return 3 * x ** 2 - 4 * x
+```
+
 [**通过令$x=1$并让$h$接近$0$，**] :eqref:`eq_derivative`中(**$\frac{f(x+h)-f(x)}{h}$的数值结果接近$2$**)。
 虽然这个实验不是一个数学证明，但我们稍后会看到，当$x=1$时，导数$u'$是$2$。
 

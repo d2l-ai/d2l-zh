@@ -27,6 +27,13 @@ import tensorflow as tf
 from IPython import display
 ```
 
+```python
+#@tab paddle
+from d2l import paddle as d2l
+import paddle
+from IPython import display
+```
+
 ```{.python .input}
 #@tab all
 batch_size = 256
@@ -76,6 +83,15 @@ W = tf.Variable(tf.random.normal(shape=(num_inputs, num_outputs),
 b = tf.Variable(tf.zeros(num_outputs))
 ```
 
+```python
+#@tab paddle
+num_inputs = 784
+num_outputs = 10
+
+W = paddle.to_tensor(paddle.normal(0, 0.01, shape=(num_inputs, num_outputs)), stop_gradient=False)
+b = paddle.to_tensor(paddle.zeros(shape=(num_outputs,)), stop_gradient=False)
+```
+
 ## 定义softmax操作
 
 在实现softmax回归模型之前，我们简要回顾一下`sum`运算符如何沿着张量中的特定维度工作。
@@ -98,6 +114,12 @@ d2l.reduce_sum(X, 0, keepdim=True), d2l.reduce_sum(X, 1, keepdim=True)
 #@tab mxnet, tensorflow
 X = d2l.tensor([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
 d2l.reduce_sum(X, 0, keepdims=True), d2l.reduce_sum(X, 1, keepdims=True)
+```
+
+```python
+#@tab paddle
+X = paddle.to_tensor([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
+X.sum(0, keepdim=True), X.sum(1, keepdim=True)
 ```
 
 回想一下，[**实现softmax**]由三个步骤组成：
@@ -133,6 +155,14 @@ def softmax(X):
     return X_exp / partition  # 这里应用了广播机制
 ```
 
+```python
+#@tab paddle
+def softmax(X):
+    X_exp = paddle.exp(X)
+    partition = X_exp.sum(1, keepdim=True)
+    return X_exp / partition  # 这里应用了广播机制
+```
+
 正如你所看到的，对于任何随机输入，[**我们将每个元素变成一个非负数。
 此外，依据概率原理，每行总和为1**]。
 
@@ -148,6 +178,13 @@ X_prob, d2l.reduce_sum(X_prob, 1)
 X = tf.random.normal((2, 5), 0, 1)
 X_prob = softmax(X)
 X_prob, tf.reduce_sum(X_prob, 1)
+```
+
+```python
+#@tab paddle
+X = paddle.normal(0, 1, (2, 5))
+X_prob = softmax(X)
+X_prob, X_prob.sum(1)
 ```
 
 注意，虽然这在数学上看起来是正确的，但我们在代码实现中有点草率。
@@ -194,6 +231,13 @@ y = tf.constant([0, 2])
 tf.boolean_mask(y_hat, tf.one_hot(y, depth=y_hat.shape[-1]))
 ```
 
+```python
+#@tab paddle
+y = paddle.to_tensor([0, 2])
+y_hat = paddle.to_tensor([[0.1, 0.3, 0.6], [0.3, 0.2, 0.5]])
+y_hat[[0, 1], y]
+```
+
 现在我们只需一行代码就可以[**实现交叉熵损失函数**]。
 
 ```{.python .input}
@@ -210,6 +254,14 @@ def cross_entropy(y_hat, y):
     return -tf.math.log(tf.boolean_mask(
         y_hat, tf.one_hot(y, depth=y_hat.shape[-1])))
 
+cross_entropy(y_hat, y)
+```
+
+```python
+#@tab paddle
+def cross_entropy(y_hat, y):
+    y = paddle.squeeze(y)
+    return - paddle.log(y_hat[[i for i in range(len(y_hat))], y])
 cross_entropy(y_hat, y)
 ```
 
@@ -236,13 +288,26 @@ Gmail做分类时可能在内部估计概率，但最终它必须在类中选择
 最后，我们求和会得到正确预测的数量。
 
 ```{.python .input}
-#@tab all
+#@tab MXNet, pytorch, tensorflow
 def accuracy(y_hat, y):  #@save
     """计算预测正确的数量"""
     if len(y_hat.shape) > 1 and y_hat.shape[1] > 1:
         y_hat = d2l.argmax(y_hat, axis=1)
     cmp = d2l.astype(y_hat, y.dtype) == y
     return float(d2l.reduce_sum(d2l.astype(cmp, y.dtype)))
+```
+
+```python
+#@tab paddle
+def accuracy(y_hat, y):  #@save
+    """计算预测正确的数量"""
+    if len(y_hat.shape) > 1 and y_hat.shape[1] > 1:
+        y_hat = y_hat.argmax(axis=1)
+        y = paddle.squeeze(y)
+    y = paddle.squeeze(y)
+    
+    cmp = y_hat.astype(y.dtype) == y
+    return float(cmp.astype(y.dtype).sum())
 ```
 
 我们将继续使用之前定义的变量`y_hat`和`y`分别作为预测的概率分布和标签。
@@ -278,6 +343,20 @@ def evaluate_accuracy(net, data_iter):  #@save
     with torch.no_grad():
         for X, y in data_iter:
             metric.add(accuracy(net(X), y), d2l.size(y))
+    return metric[0] / metric[1]
+```
+
+```python
+#@tab paddle
+def evaluate_accuracy(net, data_iter):  #@save
+    """计算在指定数据集上模型的精度"""
+    if isinstance(net, paddle.nn.Layer):
+        net.eval()  # 将模型设置为评估模式
+    metric = Accumulator(2)  # 正确预测数、预测总数
+    with paddle.no_grad():
+        for X, y in data_iter:
+            y = paddle.squeeze(y)
+            metric.add(accuracy(net(X), y), y.numel())
     return metric[0] / metric[1]
 ```
 
@@ -398,6 +477,36 @@ def train_epoch_ch3(net, train_iter, loss, updater):  #@save
     return metric[0] / metric[2], metric[1] / metric[2]
 ```
 
+```python
+#@tab paddle
+def train_epoch_ch3(net, train_iter, loss, updater):  #@save
+    """训练模型一个迭代周期（定义见第3章）"""
+    # 将模型设置为训练模式
+    if isinstance(net, paddle.nn.Layer):
+        net.train()
+    # 训练损失总和、训练准确度总和、样本数
+    metric = Accumulator(3)
+
+    for X, y in train_iter():
+        # 计算梯度并更新参数
+        y_hat = net(X)
+        y = paddle.squeeze(y)
+        l = cross_entropy(y_hat, y)
+        
+        if isinstance(updater, paddle.optimizer.Optimizer):
+            # 使用PyTorch内置的优化器和损失函数
+            updater.clear_grad()
+            l.mean().backward()
+            updater.step()
+        else:
+            # 使用定制的优化器和损失函数
+            l.sum().backward()
+            updater(X.shape[0])
+
+        metric.add(float(l.sum()), accuracy(y_hat, y), y.numel())
+    return metric[0] / metric[2], metric[1] / metric[2]
+```
+
 在展示训练函数的实现之前，我们[**定义一个在动画中绘制数据的实用程序类**]`Animator`，
 它能够简化本书其余部分的代码。
 
@@ -489,6 +598,15 @@ class Updater():  #@save
         d2l.sgd(self.params, grads, self.lr, batch_size)
 
 updater = Updater([W, b], lr=0.1)
+```
+
+```python
+#@tab paddle
+lr = 0.1
+
+def updater(batch_size):
+    global W, b
+    W,b = d2l.sgd([W, b], lr, batch_size)
 ```
 
 现在，我们[**训练模型10个迭代周期**]。
