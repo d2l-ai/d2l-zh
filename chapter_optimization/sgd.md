@@ -64,7 +64,7 @@ def f_grad(x1, x2):  # 目标函数的梯度
 #@tab mxnet, pytorch
 def sgd(x1, x2, s1, s2, f_grad):
     g1, g2 = f_grad(x1, x2)
-    # Simulatenoisygradient
+    # 模拟有噪声的梯度
     g1 += d2l.normal(0.0, 1, (1,))
     g2 += d2l.normal(0.0, 1, (1,))
     eta_t = eta * lr()
@@ -75,7 +75,7 @@ def sgd(x1, x2, s1, s2, f_grad):
 #@tab tensorflow
 def sgd(x1, x2, s1, s2, f_grad):
     g1, g2 = f_grad(x1, x2)
-    # Simulatenoisygradient
+    # 模拟有噪声的梯度
     g1 += d2l.normal([1], 0.0, 1)
     g2 += d2l.normal([1], 0.0, 1)
     eta_t = eta * lr()
@@ -88,7 +88,7 @@ def constant_lr():
     return 1
 
 eta = 0.1
-lr = constant_lr  # Constantlearningrate
+lr = constant_lr  # 常数学习速度
 d2l.show_trace_2d(f, d2l.train_2d(sgd, steps=50, f_grad=f_grad))
 ```
 
@@ -115,7 +115,7 @@ $$
 ```{.python .input}
 #@tab all
 def exponential_lr():
-    # Globalvariablethatisdefinedoutsidethisfunctionandupdatedinside
+    # 在函数外部定义，而在内部更新的全局变量
     global t
     t += 1
     return math.exp(-0.1 * t)
@@ -130,7 +130,7 @@ d2l.show_trace_2d(f, d2l.train_2d(sgd, steps=1000, f_grad=f_grad))
 ```{.python .input}
 #@tab all
 def polynomial_lr():
-    # Globalvariablethatisdefinedoutsidethisfunctionandupdatedinside
+    # 在函数外部定义，而在内部更新的全局变量
     global t
     t += 1
     return (1 + 0.1 * t) ** (-0.5)
@@ -140,7 +140,7 @@ lr = polynomial_lr
 d2l.show_trace_2d(f, d2l.train_2d(sgd, steps=50, f_grad=f_grad))
 ```
 
-关于如何设置学习率，还有更多的选择。例如，我们可以从较小的学习率开始，然后迅速上涨，然后再次降低，尽管速度更慢。我们甚至可以在较小和较大的学习率之间切换。这样的计划有各种各样。现在，让我们专注于可以进行全面理论分析的学习率计划，即凸环境下的学习率。对于一般的非凸问题，很难获得有意义的收敛保证，因为总的来说，最大限度地减少非线性非凸问题是NP困难的。有关调查，例如，请参阅Tibshirani的[讲义笔记](https://www.stat.cmu.edu/~ryantibs/convexopt-F15/lectures/26-nonconvex.pdf)。
+关于如何设置学习率，还有更多的选择。例如，我们可以从较小的学习率开始，然后使其迅速上涨，再让它降低，尽管这会更慢。我们甚至可以在较小和较大的学习率之间切换。这样的计划各种各样。现在，让我们专注于可以进行全面理论分析的学习率计划，即凸环境下的学习率。对于一般的非凸问题，很难获得有意义的收敛保证，因为总的来说，最大限度地减少非线性非凸问题是NP困难的。有关的研究调查，请参阅例如2015年Tibshirani的优秀[讲义笔记](https://www.stat.cmu.edu/~ryantibs/convexopt-F15/lectures/26-nonconvex.pdf)。
 
 ## 凸目标的收敛性分析
 
@@ -150,11 +150,11 @@ d2l.show_trace_2d(f, d2l.train_2d(sgd, steps=50, f_grad=f_grad))
 
 $$\mathbf{x}_{t+1} = \mathbf{x}_{t} - \eta_t \partial_\mathbf{x} f(\boldsymbol{\xi}_t, \mathbf{x}),$$
 
-其中$f(\boldsymbol{\xi}_t, \mathbf{x})$是训练样本$f(\boldsymbol{\xi}_t, \mathbf{x})$的目标函数：$\boldsymbol{\xi}_t$从第$t$步的某个分布中提取，$\mathbf{x}$是模型参数。表示为
+其中$f(\boldsymbol{\xi}_t, \mathbf{x})$是训练样本$f(\boldsymbol{\xi}_t, \mathbf{x})$的目标函数：$\boldsymbol{\xi}_t$从第$t$步的某个分布中提取，$\mathbf{x}$是模型参数。用
 
 $$R(\mathbf{x}) = E_{\boldsymbol{\xi}}[f(\boldsymbol{\xi}, \mathbf{x})]$$
 
-预期风险和$R^*$相对于$\mathbf{x}$的最低风险。最后让$\mathbf{x}^*$成为最小值（我们假设它存在于定义$\mathbf{x}$的域中）。在这种情况下，我们可以跟踪时间$t$处的当前参数$\mathbf{x}_t$和风险最小化器$\mathbf{x}^*$之间的距离，看看它是否随着时间的推移而改善：
+表示期望风险，$R^*$表示对于$\mathbf{x}$的最低风险。最后让$\mathbf{x}^*$表示最小值（我们假设它存在于定义$\mathbf{x}$的域中）。在这种情况下，我们可以跟踪时间$t$处的当前参数$\mathbf{x}_t$和风险最小化器$\mathbf{x}^*$之间的距离，看看它是否随着时间的推移而改善：
 
 $$\begin{aligned}    &\|\mathbf{x}_{t+1} - \mathbf{x}^*\|^2 \\ =& \|\mathbf{x}_{t} - \eta_t \partial_\mathbf{x} f(\boldsymbol{\xi}_t, \mathbf{x}) - \mathbf{x}^*\|^2 \\    =& \|\mathbf{x}_{t} - \mathbf{x}^*\|^2 + \eta_t^2 \|\partial_\mathbf{x} f(\boldsymbol{\xi}_t, \mathbf{x})\|^2 - 2 \eta_t    \left\langle \mathbf{x}_t - \mathbf{x}^*, \partial_\mathbf{x} f(\boldsymbol{\xi}_t, \mathbf{x})\right\rangle.   \end{aligned}$$
 :eqlabel:`eq_sgd-xt+1-xstar`
@@ -164,60 +164,60 @@ $$\begin{aligned}    &\|\mathbf{x}_{t+1} - \mathbf{x}^*\|^2 \\ =& \|\mathbf{x}_{
 $$\eta_t^2 \|\partial_\mathbf{x} f(\boldsymbol{\xi}_t, \mathbf{x})\|^2 \leq \eta_t^2 L^2.$$
 :eqlabel:`eq_sgd-L`
 
-我们最感兴趣的是$\mathbf{x}_t$和$\mathbf{x}^*$之间的距离如何变化*预期*。事实上，对于任何具体的步骤序列，距离可能会增加，这取决于我们遇到的$\boldsymbol{\xi}_t$。因此我们需要绑定点积。因为对于任何凸函数$f$，它认为所有$\mathbf{x}$和$\mathbf{y}$的$f(\mathbf{y}) \geq f(\mathbf{x}) + \langle f'(\mathbf{x}), \mathbf{y} - \mathbf{x} \rangle$和$\mathbf{y}$，按凸度我们有
+我们最感兴趣的是$\mathbf{x}_t$和$\mathbf{x}^*$之间的距离如何变化的*期望*。事实上，对于任何具体的步骤序列，距离可能会增加，这取决于我们遇到的$\boldsymbol{\xi}_t$。因此我们需要点积的边界。因为对于任何凸函数$f$，所有$\mathbf{x}$和$\mathbf{y}$都满足$f(\mathbf{y}) \geq f(\mathbf{x}) + \langle f'(\mathbf{x}), \mathbf{y} - \mathbf{x} \rangle$，按凸性我们有
 
 $$f(\boldsymbol{\xi}_t, \mathbf{x}^*) \geq f(\boldsymbol{\xi}_t, \mathbf{x}_t) + \left\langle \mathbf{x}^* - \mathbf{x}_t, \partial_{\mathbf{x}} f(\boldsymbol{\xi}_t, \mathbf{x}_t) \right\rangle.$$
 :eqlabel:`eq_sgd-f-xi-xstar`
 
-将不等式 :eqref:`eq_sgd-L`和 :eqref:`eq_sgd-f-xi-xstar`插入 :eqref:`eq_sgd-xt+1-xstar`我们在时间$t+1$时获得参数之间距离的边界，如下所示：
+将不等式 :eqref:`eq_sgd-L`和 :eqref:`eq_sgd-f-xi-xstar`代入 :eqref:`eq_sgd-xt+1-xstar`我们在时间$t+1$时获得参数之间距离的边界，如下所示：
 
 $$\|\mathbf{x}_{t} - \mathbf{x}^*\|^2 - \|\mathbf{x}_{t+1} - \mathbf{x}^*\|^2 \geq 2 \eta_t (f(\boldsymbol{\xi}_t, \mathbf{x}_t) - f(\boldsymbol{\xi}_t, \mathbf{x}^*)) - \eta_t^2 L^2.$$
 :eqlabel:`eqref_sgd-xt-diff`
 
-这意味着，只要当前损失和最佳损失之间的差异超过$\eta_t L^2/2$，我们就会取得进展。由于这种差异必然会收敛到零，因此学习率$\eta_t$也需要*消失*。
+这意味着，只要当前损失和最优损失之间的差异超过$\eta_t L^2/2$，我们就会取得进展。由于这种差异必然会收敛到零，因此学习率$\eta_t$也需要*消失*。
 
-接下来，我们的预期超过 :eqref:`eqref_sgd-xt-diff`。这会产生
+接下来，我们根据 :eqref:`eqref_sgd-xt-diff`取期望。得到
 
 $$E\left[\|\mathbf{x}_{t} - \mathbf{x}^*\|^2\right] - E\left[\|\mathbf{x}_{t+1} - \mathbf{x}^*\|^2\right] \geq 2 \eta_t [E[R(\mathbf{x}_t)] - R^*] -  \eta_t^2 L^2.$$
 
-最后一步是对$t \in \{1, \ldots, T\}$的不等式求和。自从总和望远镜以及通过掉低期我们获得的
+最后一步是对$t \in \{1, \ldots, T\}$的不等式求和。在求和过程中抵消中间项，然后舍去低阶项，可以得到
 
 $$\|\mathbf{x}_1 - \mathbf{x}^*\|^2 \geq 2 \left (\sum_{t=1}^T   \eta_t \right) [E[R(\mathbf{x}_t)] - R^*] - L^2 \sum_{t=1}^T \eta_t^2.$$
 :eqlabel:`eq_sgd-x1-xstar`
 
-请注意，我们利用了$\mathbf{x}_1$给出了，因此预期可以下降。最后定义
+请注意，我们利用了给定的$\mathbf{x}_1$，因而可以去掉期望。最后定义
 
 $$\bar{\mathbf{x}} \stackrel{\mathrm{def}}{=} \frac{\sum_{t=1}^T \eta_t \mathbf{x}_t}{\sum_{t=1}^T \eta_t}.$$
 
-自
+因为有
 
 $$E\left(\frac{\sum_{t=1}^T \eta_t R(\mathbf{x}_t)}{\sum_{t=1}^T \eta_t}\right) = \frac{\sum_{t=1}^T \eta_t E[R(\mathbf{x}_t)]}{\sum_{t=1}^T \eta_t} = E[R(\mathbf{x}_t)],$$
 
-根据延森的不平等性（设定为$i=t$，$i=t$，$\alpha_i = \eta_t/\sum_{t=1}^T \eta_t$）和$R$的凸度为$R$，因此，
+根据詹森不等式（令 :eqref:`eq_jensens-inequality`中$i=t$，$\alpha_i = \eta_t/\sum_{t=1}^T \eta_t$）和$R$的凸性使其满足的$E[R(\mathbf{x}_t)] \geq E[R(\bar{\mathbf{x}})]$，因此，
 
 $$\sum_{t=1}^T \eta_t E[R(\mathbf{x}_t)] \geq \sum_{t=1}^T \eta_t  E\left[R(\bar{\mathbf{x}})\right].$$
 
-将其插入不平等性 :eqref:`eq_sgd-x1-xstar`收益了限制
+将其代入不等式 :eqref:`eq_sgd-x1-xstar`得到边界
 
 $$
 \left[E[\bar{\mathbf{x}}]\right] - R^* \leq \frac{r^2 + L^2 \sum_{t=1}^T \eta_t^2}{2 \sum_{t=1}^T \eta_t},
 $$
 
-其中$r^2 \stackrel{\mathrm{def}}{=} \|\mathbf{x}_1 - \mathbf{x}^*\|^2$受初始选择参数与最终结果之间的距离的约束。简而言之，收敛速度取决于随机梯度标准的限制方式（$L$）以及初始参数值与最优性（$r$）的距离（$r$）。请注意，约束是按$\bar{\mathbf{x}}$而不是$\mathbf{x}_T$而不是$\mathbf{x}_T$。情况就是这样，因为$\bar{\mathbf{x}}$是优化路径的平滑版本。只要知道$r, L$和$T$，我们就可以选择学习率$\eta = r/(L \sqrt{T})$。这个收益率为上限$rL/\sqrt{T}$。也就是说，我们将汇率$\mathcal{O}(1/\sqrt{T})$收敛到最佳解决方案。
+其中$r^2 \stackrel{\mathrm{def}}{=} \|\mathbf{x}_1 - \mathbf{x}^*\|^2$是初始选择参数与最终结果之间距离的边界。简而言之，收敛速度取决于随机梯度标准的限制方式（$L$）以及初始参数值与最优结果的距离（$r$）。请注意，边界由$\bar{\mathbf{x}}$而不是$\mathbf{x}_T$表示。因为$\bar{\mathbf{x}}$是优化路径的平滑版本。只要知道$r, L$和$T$，我们就可以选择学习率$\eta = r/(L \sqrt{T})$。这个就是上界$rL/\sqrt{T}$。也就是说，我们将按照速度$\mathcal{O}(1/\sqrt{T})$收敛到最优解。
 
 ## 随机梯度和有限样本
 
-到目前为止，在谈论随机梯度下降时，我们玩得有点快而松散。我们假设我们绘制实例$x_i$，通常使用来自某些发行版$p(x, y)$的标签$y_i$，并且我们用它来以某种方式更新模型参数。特别是，对于有限的样本数量，我们简单讨论了离散分布$p(x, y) = \frac{1}{n} \sum_{i=1}^n \delta_{x_i}(x) \delta_{y_i}(y)$，对于某些函数$\delta_{x_i}$和$\delta_{y_i}$允许我们在其上执行随机梯度下降。
+到目前为止，在谈论随机梯度下降时，我们进行得有点快而松散。我们假设从分布$p(x, y)$中采样得到样本$x_i$（通常带有标签$y_i$），并且用它来以某种方式更新模型参数。特别是，对于有限的样本数量，我们仅仅讨论了由某些允许我们在其上执行随机梯度下降的函数$\delta_{x_i}$和$\delta_{y_i}$组成的离散分布$p(x, y) = \frac{1}{n} \sum_{i=1}^n \delta_{x_i}(x) \delta_{y_i}(y)$。
 
-但是，这不是我们真正做的。在本节的玩具示例中，我们只是将噪声添加到其他非随机梯度上，也就是说，我们假装有成对的$(x_i, y_i)$。事实证明，这在这里是合理的（有关详细讨论，请参阅练习）。更令人不安的是，在以前的所有讨论中，我们显然没有这样做。相反，我们遍历了所有实例*恰好一次*。要了解为什么这更可取，可以反向考虑一下，即我们从*带替换*的离散分布中采样$n$个观测值。随机选择一个元素$i$的概率是$1/n$。因此选择它*至少*一次就是
+但是，这不是我们真正做的。在本节的简单示例中，我们只是将噪声添加到其他非随机梯度上，也就是说，我们假装有成对的$(x_i, y_i)$。事实证明，这种做法在这里是合理的（有关详细讨论，请参阅练习）。更麻烦的是，在以前的所有讨论中，我们显然没有这样做。相反，我们遍历了所有实例*恰好一次*。要了解为什么这更可取，可以反向考虑一下，即我们*有替换地*从离散分布中采样$n$个观测值。随机选择一个元素$i$的概率是$1/n$。因此选择它*至少*一次就是
 
 $$P(\mathrm{choose~} i) = 1 - P(\mathrm{omit~} i) = 1 - (1-1/n)^n \approx 1-e^{-1} \approx 0.63.$$
 
-类似的推理表明，挑选一些样本（即训练示例）*恰好一次*的概率是由
+类似的推理表明，挑选一些样本（即训练示例）*恰好一次*的概率是
 
 $${n \choose 1} \frac{1}{n} \left(1-\frac{1}{n}\right)^{n-1} = \frac{n}{n-1} \left(1-\frac{1}{n}\right)^{n} \approx e^{-1} \approx 0.37.$$
 
-这导致与*无替换*采样相比，方差增加并降低数据效率。因此，在实践中我们执行后者（这是本书中的默认选择）。最后一点注意，重复穿过训练数据集会以*不同的*随机顺序遍历它。
+这导致与*无替换*采样相比，方差增加并且数据效率降低。因此，在实践中我们执行后者（这是本书中的默认选择）。最后一点注意，重复采用训练数据集的时候，会以*不同的*随机顺序遍历它。
 
 ## 小结
 
@@ -225,15 +225,15 @@ $${n \choose 1} \frac{1}{n} \left(1-\frac{1}{n}\right)^{n-1} = \frac{n}{n-1} \le
 * 对于深度学习而言，情况通常并非如此。但是，对凸问题的分析使我们能够深入了解如何进行优化，即逐步降低学习率，尽管不是太快。
 * 如果学习率太小或太大，就会出现问题。实际上，通常只有经过多次实验后才能找到合适的学习率。
 * 当训练数据集中有更多样本时，计算梯度下降的每次迭代的代价更高，因此在这些情况下，首选随机梯度下降。
-* 随机梯度下降的最佳性保证在非凸情况下一般不可用，因为需要检查的局部最小值的数量可能是指数级的。
+* 随机梯度下降的最优性保证在非凸情况下一般不可用，因为需要检查的局部最小值的数量可能是指数级的。
 
 ## 练习
 
-1. 尝试不同的随机梯度下降学习率计划和不同的迭代次数进行实验。特别是，根据迭代次数的函数来绘制与最佳解$(0, 0)$的距离。
-1. 证明对于函数$f(x_1, x_2) = x_1^2 + 2 x_2^2$而言，向梯度添加正常噪声等同于最小化损失函数$f(\mathbf{x}, \mathbf{w}) = (x_1 - w_1)^2 + 2 (x_2 - w_2)^2$，其中$\mathbf{x}$是从正态分布中提取的。
-1. 比较随机梯度下降的收敛性，当你从$\{(x_1, y_1), \ldots, (x_n, y_n)\}$使用替换方法进行采样时以及在不替换的情况下进行采样时
+1. 尝试不同的随机梯度下降学习率计划和不同的迭代次数进行实验。特别是，根据迭代次数的函数来绘制与最优解$(0, 0)$的距离。
+1. 证明对于函数$f(x_1, x_2) = x_1^2 + 2 x_2^2$而言，向梯度添加正态噪声等同于最小化损失函数$f(\mathbf{x}, \mathbf{w}) = (x_1 - w_1)^2 + 2 (x_2 - w_2)^2$，其中$\mathbf{x}$是从正态分布中提取的。
+1. 当你从$\{(x_1, y_1), \ldots, (x_n, y_n)\}$分别使用替换方法以及不替换方法进行采样时，比较随机梯度下降的收敛性。
 1. 如果某些梯度（或者更确切地说与之相关的某些坐标）始终比所有其他梯度都大，你将如何更改随机梯度下降求解器？
-1. 假设是$f(x) = x^2 (1 + \sin x)$。$f$有多少局部最小值？你能改变$f$以尽量减少它需要评估所有局部最小值的方式吗？
+1. 假设$f(x) = x^2 (1 + \sin x)$。$f$有多少局部最小值？你能改变$f$以尽量减少它需要评估所有局部最小值的方式吗？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/3837)

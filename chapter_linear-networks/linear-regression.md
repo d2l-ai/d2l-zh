@@ -223,7 +223,7 @@ $\eta$表示*学习率*（learning rate）。
 %matplotlib inline
 from d2l import mxnet as d2l
 import math
-from mxnet import np
+import numpy as np
 import time
 ```
 
