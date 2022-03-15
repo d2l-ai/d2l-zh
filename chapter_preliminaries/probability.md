@@ -82,6 +82,14 @@ import tensorflow_probability as tfp
 import numpy as np
 ```
 
+```python
+#@tab paddle
+%matplotlib inline
+import random
+import numpy as np
+from d2l import paddle as d2l
+```
+
 在统计学中，我们把从概率分布中抽取样本的过程称为*抽样*（sampling）。
 笼统来说，可以把*分布*（distribution）看作是对事件的概率分配，
 稍后我们将给出的更正式定义。
@@ -107,6 +115,13 @@ fair_probs = tf.ones(6) / 6
 tfp.distributions.Multinomial(1, fair_probs).sample()
 ```
 
+```python
+#@tab paddle
+#paddle即将发版
+fair_probs = [1.0 / 6] * 6
+np.random.multinomial(1, fair_probs)
+```
+
 在估计一个骰子的公平性时，我们希望从同一分布中生成多个样本。
 如果用Python的for循环来完成这个任务，速度会慢得惊人。
 因此我们使用深度学习框架的函数同时抽取多个样本，得到我们想要的任意形状的独立样本数组。
@@ -123,6 +138,12 @@ multinomial.Multinomial(10, fair_probs).sample()
 ```{.python .input}
 #@tab tensorflow
 tfp.distributions.Multinomial(10, fair_probs).sample()
+```
+
+```python
+#@tab paddle
+#paddle即将发版
+np.random.multinomial(10, fair_probs)
 ```
 
 现在我们知道如何对骰子进行采样，我们可以模拟1000次投掷。
@@ -144,6 +165,12 @@ counts / 1000  # 相对频率作为估计值
 ```{.python .input}
 #@tab tensorflow
 counts = tfp.distributions.Multinomial(1000, fair_probs).sample()
+counts / 1000
+```
+
+```python
+#@tab paddle
+counts = np.random.multinomial(1000, fair_probs).astype(np.float32)
 counts / 1000
 ```
 
@@ -198,6 +225,22 @@ d2l.plt.axhline(y=0.167, color='black', linestyle='dashed')
 d2l.plt.gca().set_xlabel('Groups of experiments')
 d2l.plt.gca().set_ylabel('Estimated probability')
 d2l.plt.legend();
+```
+
+```python
+#@tab paddle
+counts = np.random.multinomial(10, fair_probs, size=500)
+cum_counts = counts.astype(np.float32).cumsum(axis=0)
+estimates = cum_counts / cum_counts.sum(axis=1, keepdims=True)
+
+d2l.set_figsize((6, 4.5))
+for i in range(6):
+    d2l.plt.plot(estimates[:, i],
+                 label=("P(die=" + str(i + 1) + ")"))
+d2l.plt.axhline(y=0.167, color='black', linestyle='dashed')
+d2l.plt.gca().set_xlabel('Groups of experiments')
+d2l.plt.gca().set_ylabel('Estimated probability')
+d2l.plt.legend()
 ```
 
 每条实线对应于骰子的6个值中的一个，并给出骰子在每组实验后出现值的估计概率。
@@ -359,7 +402,6 @@ $$\begin{aligned}
 =& 0.011485.
 \end{aligned}
 $$
-
 因此，我们得到
 
 $$\begin{aligned}
@@ -396,7 +438,6 @@ $$\begin{aligned}
 =& 0.98.
 \end{aligned}
 $$
-
 现在我们可以应用边际化和乘法规则：
 
 $$\begin{aligned}
