@@ -35,6 +35,7 @@ chapter_computational-performance/index
 chapter_computer-vision/index
 chapter_natural-language-processing-pretraining/index
 chapter_natural-language-processing-applications/index
+chapter_generative-adversarial-networks
 chapter_appendix-tools-for-deep-learning/index
 
 
