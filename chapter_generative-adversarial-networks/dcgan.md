@@ -1,9 +1,9 @@
 # 深度卷积生成对抗网络
 :label:`sec_dcgan`
 
-In :numref:`sec_basic_gan`, we introduced the basic ideas behind how GANs work. We showed that they can draw samples from some simple, easy-to-sample distribution, like a uniform or normal distribution, and transform them into samples that appear to match the distribution of some dataset. And while our example of matching a 2D Gaussian distribution got the point across, it is not especially exciting.
+在 :numref:`sec_basic_gan` 中介绍了 GANs 工作原理背后的基本思想。我们展示了它们可以从一些简单的、易于抽样的分布中抽取样本，比如均匀分布或正态分布，并将它们转换成似乎与某些数据集的分布相匹配的样本。虽然我们匹配二维高斯分布的例子说明了这一点，但它并不是特别令人兴奋。
 
-In this section, we will demonstrate how you can use GANs to generate photorealistic images. We will be basing our models on the deep convolutional GANs (DCGAN) introduced in :cite:`Radford.Metz.Chintala.2015`. We will borrow the convolutional architecture that have proven so successful for discriminative computer vision problems and show how via GANs, they can be leveraged to generate photorealistic images.
+在本节中，我们将演示如何使用 GANs 生成逼真的图像。我们的模型将基于在 :cite:`Radford.Metz.Chintala.2015` 中介绍的深度卷积 GAN（DCGAN）。我们将借用卷积体系结构，它已经被证明在判别计算机视觉问题上非常成功，并展示如何通过 GAN 生成逼真的图像。
 
 ```{.python .input}
 from mxnet import gluon, init, np, npx
@@ -28,9 +28,9 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 ```
 
-## The Pokemon Dataset
+## Pokemon 数据集
 
-The dataset we will use is a collection of Pokemon sprites obtained from [pokemondb](https://pokemondb.net/sprites). First download, extract and load this dataset.
+我们将使用的数据集是从 [pokemondb](https://pokemondb.net/sprites) 获得的 Pokemon 精灵。首先下载、提取和加载此数据集。
 
 ```{.python .input}
 #@save
@@ -63,7 +63,7 @@ pokemon = tf.keras.preprocessing.image_dataset_from_directory(
     data_dir, batch_size=batch_size, image_size=(64, 64))
 ```
 
-We resize each image into $64\times 64$. The `ToTensor` transformation will project the pixel value into $[0, 1]$, while our generator will use the tanh function to obtain outputs in $[-1, 1]$. Therefore we normalize the data with $0.5$ mean and $0.5$ standard deviation to match the value range.
+我们将每个图像的大小调整为 $64\times 64$。`ToTensor` 变换将像素值投影到 $[0, 1]$，而我们的生成器将使用 tanh 函数获得 $[- 1,1]$ 的输出。因此，我们用 $0.5$ 均值和 $0.5$ 标准差对数据进行归一化，以匹配值范围。
 
 ```{.python .input}
 batch_size = 256
@@ -133,7 +133,7 @@ for X, y in data_iter.take(1):
     d2l.show_images(imgs, num_rows=4, num_cols=5)
 ```
 
-## The Generator
+## 生成器
 
 The generator needs to map the noise variable $\mathbf z\in\mathbb R^d$, a length-$d$ vector, to a RGB image with width and height to be $64\times 64$ . In :numref:`sec_fcn` we introduced the fully convolutional network that uses transposed convolution layer (refer to :numref:`sec_transposed_conv`) to enlarge input size. The basic block of the generator contains a transposed convolution layer followed by the batch normalization and ReLU activation.
 
