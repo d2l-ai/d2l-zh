@@ -105,7 +105,7 @@ data_iter = data_iter.cache().shuffle(buffer_size=1000).prefetch(
     buffer_size=tf.data.experimental.AUTOTUNE)
 ```
 
-Let's visualize the first 20 images.
+让我们可视化前 20 张图像。
 
 ```{.python .input}
 d2l.set_figsize((4, 4))
@@ -215,8 +215,6 @@ g_blk(x).shape
 
 如果将转置的卷积层改为 $4\times 4$ kernel，$1\times 1$ strides 和 0 padding。当输入大小为 $1 \times 1$ 时，输出的宽度和高度将分别增加 3。
 
-If changing the transposed convolution layer to a $4\times 4$ kernel, $1\times 1$ strides and zero padding. With a input size of $1 \times 1$, the output will have its width and height increased by 3 respectively.
-
 ```{.python .input}
 x = np.zeros((2, 3, 1, 1))
 g_blk = G_block(20, strides=1, padding=0)
@@ -239,7 +237,7 @@ g_blk = G_block(20, strides=1, padding="valid")
 g_blk(x).shape
 ```
 
-The generator consists of four basic blocks that increase input's both width and height from 1 to 32. At the same time, it first projects the latent variable into $64\times 8$ channels, and then halve the channels each time. At last, a transposed convolution layer is used to generate the output. It further doubles the width and height to match the desired $64\times 64$ shape, and reduces the channel size to $3$. The tanh activation function is applied to project output values into the $(-1, 1)$ range.
+该生成器由四个基本块组成，将输入的宽度和高度从 1 增加到 32。同时，它首先将隐变量投射到  $64\times 8$ 通道，然后每次将通道减半。最后，利用转置卷积层生成输出。它进一步将宽度和高度加倍以匹配所需的 $64\times 64$ 形状，并将通道大小减少到 $3$。tanh 激活函数用于将输出值投射到 $(-1, 1)$ 范围内。
 
 ```{.python .input}
 n_G = 64
@@ -283,7 +281,7 @@ net_G = tf.keras.Sequential([
 ])
 ```
 
-Generate a 100 dimensional latent variable to verify the generator's output shape.
+生成维度为 100 的隐变量来验证生成器的输出形状。
 
 ```{.python .input}
 x = np.zeros((1, 100, 1, 1))
@@ -303,13 +301,13 @@ x = tf.zeros((1, 1, 1, 100))
 net_G(x).shape
 ```
 
-## Discriminator
+## 判别器
 
-The discriminator is a normal convolutional network network except that it uses a leaky ReLU as its activation function. Given $\alpha \in[0, 1]$, its definition is
+除了使用 leaky ReLU 作为它的激活函数外，该鉴别器是普通的卷积网络。给定 $\alpha \in[0, 1]$，定义如下
 
 $$\textrm{leaky ReLU}(x) = \begin{cases}x & \text{if}\ x > 0\\ \alpha x &\text{otherwise}\end{cases}.$$
 
-As it can be seen, it is normal ReLU if $\alpha=0$, and an identity function if $\alpha=1$. For $\alpha \in (0, 1)$, leaky ReLU is a nonlinear function that give a non-zero output for a negative input. It aims to fix the "dying ReLU" problem that a neuron might always output a negative value and therefore cannot make any progress since the gradient of ReLU is 0.
+可以看到，如果 $\alpha=0$，它是正常的 ReLU，如果 $\alpha=1$，它是一个恒等函数。对于 $\alpha \in (0, 1)$，leaky ReLU是非线性函数，它给出了负输入的非零输出。它的目的是解决“dying ReLU”问题，即由于 ReLU 梯度为 0，神经元可能总是输出负值，因此无法取得任何进展。
 
 ```{.python .input}
 #@tab mxnet,pytorch
@@ -327,7 +325,7 @@ Y = [tf.keras.layers.LeakyReLU(alpha)(x).numpy() for alpha in alphas]
 d2l.plot(x.numpy(), Y, 'x', 'y', alphas)
 ```
 
-The basic block of the discriminator is a convolution layer followed by a batch normalization layer and a leaky ReLU activation. The hyperparameters of the convolution layer are similar to the transpose convolution layer in the generator block.
+该判别器的基本块是卷积层，接着是批归一化层和 leaky ReLU 激活。卷积层的超参数类似于生成块中的转置卷积层。
 
 ```{.python .input}
 class D_block(nn.Block):
@@ -373,7 +371,7 @@ class D_block(tf.keras.layers.Layer):
         return self.activation(self.batch_norm(self.conv2d(X)))
 ```
 
-A basic block with default settings will halve the width and height of the inputs, as we demonstrated in :numref:`sec_padding`. For example, given a input shape $n_h = n_w = 16$, with a kernel shape $k_h = k_w = 4$, a stride shape $s_h = s_w = 2$, and a padding shape $p_h = p_w = 1$, the output shape will be:
+带有默认设置的基本块会将输入的宽度和高度减半，正如我们在 :numref:`sec_padding` 中演示的那样。例如，给定输入形状 $n_h = n_w = 16$，内核形状 $k_h = k_w = 4$，stride 形状 $s_h = s_w = 2$，填充形状 $p_h = p_w = 1$，输出形状将是：
 
 $$
 \begin{aligned}
@@ -404,7 +402,7 @@ d_blk = D_block(20)
 d_blk(x).shape
 ```
 
-The discriminator is a mirror of the generator.
+判别器是生成器的反射（mirror）。
 
 ```{.python .input}
 n_D = 64
@@ -441,7 +439,7 @@ net_D = tf.keras.Sequential([
 ])
 ```
 
-It uses a convolution layer with output channel $1$ as the last layer to obtain a single prediction value.
+它使用卷积层，输出通道 $1$ 作为最后一层，获得单个预测值。
 
 ```{.python .input}
 x = np.zeros((1, 3, 64, 64))
