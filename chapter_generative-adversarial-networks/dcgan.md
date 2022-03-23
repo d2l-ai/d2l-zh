@@ -135,7 +135,7 @@ for X, y in data_iter.take(1):
 
 ## 生成器
 
-The generator needs to map the noise variable $\mathbf z\in\mathbb R^d$, a length-$d$ vector, to a RGB image with width and height to be $64\times 64$ . In :numref:`sec_fcn` we introduced the fully convolutional network that uses transposed convolution layer (refer to :numref:`sec_transposed_conv`) to enlarge input size. The basic block of the generator contains a transposed convolution layer followed by the batch normalization and ReLU activation.
+生成器需要将噪声变量 $\mathbf z\in\mathbb R^d$，长度-$d$ 的向量，映射到宽度和高度为 $64\times 64$ 的 RGB 图像。在 :numref:`sec_fcn` 中引入了全卷积网络，它使用转置卷积层（参见 :numref:`sec_transposed_conv`）来放大输入大小。生成器的基本块包含转置卷积层，然后是批处理归一化和 ReLU 激活。
 
 ```{.python .input}
 class G_block(nn.Block):
@@ -181,7 +181,7 @@ class G_block(tf.keras.layers.Layer):
         return self.activation(self.batch_norm(self.conv2d_trans(X)))
 ```
 
-In default, the transposed convolution layer uses a $k_h = k_w = 4$ kernel, a $s_h = s_w = 2$ strides, and a $p_h = p_w = 1$ padding. With a input shape of $n_h^{'} \times n_w^{'} = 16 \times 16$, the generator block will double input's width and height.
+默认情况下，转置卷积层使用 $k_h = k_w = 4$ kernel、$s_h = s_w = 2$ strides 和 $p_h = p_w = 1$ padding。对于 $n_h^{'} \times n_w^{'} = 16 \times 16$ 的输入形状，生成器块将加倍输入的宽度和高度。
 
 $$
 \begin{aligned}
@@ -212,6 +212,8 @@ x = tf.zeros((2, 16, 16, 3))  # Channel last convention
 g_blk = G_block(20)
 g_blk(x).shape
 ```
+
+如果将转置的卷积层改为 $4\times 4$ kernel，$1\times 1$ strides 和 0 padding。当输入大小为 $1 \times 1$ 时，输出的宽度和高度将分别增加 3。
 
 If changing the transposed convolution layer to a $4\times 4$ kernel, $1\times 1$ strides and zero padding. With a input size of $1 \times 1$, the output will have its width and height increased by 3 respectively.
 
