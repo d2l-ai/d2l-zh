@@ -459,9 +459,9 @@ x = tf.zeros((1, 64, 64, 3))
 net_D(x).shape
 ```
 
-## Training
+## 训练
 
-Compared to the basic GAN in :numref:`sec_basic_gan`, we use the same learning rate for both generator and discriminator since they are similar to each other. In addition, we change $\beta_1$ in Adam (:numref:`sec_adam`) from $0.9$ to $0.5$. It decreases the smoothness of the momentum, the exponentially weighted moving average of past gradients, to take care of the rapid changing gradients because the generator and the discriminator fight with each other. Besides, the random generated noise `Z`, is a 4-D tensor and we are using GPU to accelerate the computation.
+与 :numref:`sec_basic_gan` 中的基础 GAN 相比，我们对生成器和判别器使用相同的学习速率，因为它们彼此相似。另外，我们将 Adam （:numref:`sec_adam`）中的 $beta_1$ 从 $0.9$ 改为 $0.5$。它降低了动量的平滑性，即过去梯度的指数加权移动平均，以处理快速变化的梯度，因为生成器和判别器会相互竞争。此外，随机产生的噪声 `Z` 是四维张量，我们使用 GPU 来加速计算。
 
 ```{.python .input}
 def train(net_D, net_G, data_iter, num_epochs, lr, latent_dim,
@@ -597,9 +597,7 @@ def train(net_D, net_G, data_iter, num_epochs, lr, latent_dim,
           f'{metric[2] / timer.stop():.1f} examples/sec on {str(device._device_name)}')
 ```
 
-We train the model with a small number of epochs just for demonstration.
-For better performance,
-the variable `num_epochs` can be set to a larger number.
+为了演示，我们用少量的 epoch 训练模型。为了获得更好的性能，可以将变量 `num_epochs` 设置为更大的数字。
 
 ```{.python .input}
 #@tab mxnet, pytorch
@@ -613,17 +611,17 @@ latent_dim, lr, num_epochs = 100, 0.0005, 40
 train(net_D, net_G, data_iter, num_epochs, lr, latent_dim)
 ```
 
-## Summary
+## 小结
 
-* DCGAN architecture has four convolutional layers for the Discriminator and four "fractionally-strided" convolutional layers for the Generator.
-* The Discriminator is a 4-layer strided convolutions with batch normalization (except its input layer) and leaky ReLU activations.
-* Leaky ReLU is a nonlinear function that give a non-zero output for a negative input. It aims to fix the “dying ReLU” problem and helps the gradients flow easier through the architecture.
+* DCGAN 体系结构对于判别器有四个卷积层，对于生成器有四个 "fractionally-strided" 卷积层。
+* 判别器是四层 strided 卷积，具有批处理归一化（输入层除外）和 ReLU 激活。
+* Leaky ReLU 是非线性函数，为负输入提供非零输出。它的目的是修复“dying ReLU”问题，并帮助梯度更容易通过架构流动。
 
 
-## Exercises
+## 练习
 
-1. What will happen if we use standard ReLU activation rather than leaky ReLU?
-1. Apply DCGAN on Fashion-MNIST and see which category works well and which does not.
+1. 如果我们使用标准 ReLU 激活而不是 leaky ReLU，会发生什么？
+1. 在 Fashion-MNIST 上应用 DCGAN，看看哪个分类效果好，哪个不好。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/409)
