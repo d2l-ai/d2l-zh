@@ -40,7 +40,7 @@ x = tf.range(4, dtype=tf.float32)
 x
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 import paddle
 
@@ -71,7 +71,7 @@ x.grad  # 默认值是None
 x = tf.Variable(x)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 x = paddle.to_tensor(x, stop_gradient=False)
 x.grad  # 默认值是None
@@ -100,7 +100,7 @@ with tf.GradientTape() as t:
 y
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 y = 2 * paddle.dot(x, x)
 y
@@ -126,7 +126,7 @@ x_grad = t.gradient(y, x)
 x_grad
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 y.backward()
 x.grad
@@ -149,7 +149,7 @@ x.grad == 4 * x
 x_grad == 4 * x
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 x.grad == 4 * x
 ```
@@ -179,7 +179,7 @@ with tf.GradientTape() as t:
 t.gradient(y, x)  # 被新计算的梯度覆盖
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 # 在默认情况下，PaddlePaddle会累积梯度，我们需要清除之前的值
 x.clear_gradient()
@@ -224,7 +224,7 @@ with tf.GradientTape() as t:
 t.gradient(y, x)  # 等价于y=tf.reduce_sum(x*x)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 x.clear_gradient()
 y = x * x
@@ -277,7 +277,7 @@ x_grad = t.gradient(z, x)
 x_grad == u
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 x.clear_gradient()
 y = x * x
@@ -308,7 +308,7 @@ x.grad == 2 * x
 t.gradient(y, x) == 2 * x
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 x.clear_gradient()
 paddle.sum(y).backward()
@@ -359,7 +359,7 @@ def f(a):
     return c
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 def f(a):
     b = a * 2
@@ -398,7 +398,7 @@ d_grad = t.gradient(d, a)
 d_grad
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 a = paddle.to_tensor(paddle.randn(shape=[1]), stop_gradient=False)
 d = f(a)
@@ -424,7 +424,7 @@ a.grad == d / a
 d_grad == d / a
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 a.grad == d / a
 ```

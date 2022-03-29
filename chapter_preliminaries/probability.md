@@ -82,7 +82,7 @@ import tensorflow_probability as tfp
 import numpy as np
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 %matplotlib inline
 import random
@@ -115,7 +115,7 @@ fair_probs = tf.ones(6) / 6
 tfp.distributions.Multinomial(1, fair_probs).sample()
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 #paddle即将发版
 fair_probs = [1.0 / 6] * 6
@@ -140,7 +140,7 @@ multinomial.Multinomial(10, fair_probs).sample()
 tfp.distributions.Multinomial(10, fair_probs).sample()
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 #paddle即将发版
 np.random.multinomial(10, fair_probs)
@@ -168,7 +168,7 @@ counts = tfp.distributions.Multinomial(1000, fair_probs).sample()
 counts / 1000
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 counts = np.random.multinomial(1000, fair_probs).astype(np.float32)
 counts / 1000
@@ -227,7 +227,7 @@ d2l.plt.gca().set_ylabel('Estimated probability')
 d2l.plt.legend();
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 counts = np.random.multinomial(10, fair_probs, size=500)
 cum_counts = counts.astype(np.float32).cumsum(axis=0)

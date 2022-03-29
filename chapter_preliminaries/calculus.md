@@ -83,7 +83,7 @@ def f(x):
     return 3 * x ** 2 - 4 * x
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 %matplotlib inline
 import numpy as np

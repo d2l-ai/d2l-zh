@@ -99,7 +99,7 @@ X, y = tf.constant(inputs.values), tf.constant(outputs.values)
 X, y
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 import paddle
 

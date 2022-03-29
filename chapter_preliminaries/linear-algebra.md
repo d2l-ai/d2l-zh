@@ -55,7 +55,7 @@ y = tf.constant(2.0)
 x + y, x * y, x / y, x**y
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 import paddle
 
@@ -96,7 +96,7 @@ x = tf.range(4)
 x
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 x = paddle.arange(4)
 x
@@ -127,7 +127,7 @@ x[3]
 x[3]
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 x[3]
 ```
@@ -155,7 +155,7 @@ len(x)
 len(x)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 len(x)
 ```
@@ -178,7 +178,7 @@ x.shape
 x.shape
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 x.shape
 ```
@@ -229,7 +229,7 @@ A = tf.reshape(tf.range(20), (5, 4))
 A
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 A = paddle.reshape(paddle.arange(20), (5, 4))
 A
@@ -274,7 +274,7 @@ A.T
 tf.transpose(A)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 paddle.transpose(A, perm=[1, 0])
 ```
@@ -299,7 +299,7 @@ B = tf.constant([[1, 2, 3], [2, 0, 4], [3, 4, 5]])
 B
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 B = paddle.to_tensor([[1, 2, 3], [2, 0, 4], [3, 4, 5]])
 B
@@ -321,7 +321,7 @@ B == B.T
 B == tf.transpose(B)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 B == paddle.transpose(B, perm=[1, 0])
 ```
@@ -365,7 +365,7 @@ X = tf.reshape(tf.range(24), (2, 3, 4))
 X
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 X = paddle.reshape(paddle.arange(24), (2, 3, 4))
 X
@@ -398,7 +398,7 @@ B = A  # 不能通过分配新内存将A克隆到B
 A, A + B
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 A = paddle.reshape(paddle.arange(20, dtype=paddle.float32), (5, 4))
 B = A.clone()  # 通过分配新内存，将A的一个副本分配给B
@@ -433,7 +433,7 @@ A * B
 A * B
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 A * B
 ```
@@ -460,7 +460,7 @@ X = tf.reshape(tf.range(24), (2, 3, 4))
 a + X, (a * X).shape
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 a = 2
 X = paddle.reshape(paddle.arange(24), (2, 3, 4))
@@ -493,7 +493,7 @@ x = tf.range(4, dtype=tf.float32)
 x, tf.reduce_sum(x)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 x = paddle.arange(4, dtype=paddle.float32)
 x, x.sum()
@@ -516,7 +516,7 @@ A.shape, A.sum()
 A.shape, tf.reduce_sum(A)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 A.shape, A.sum()
 ```
@@ -543,7 +543,7 @@ A_sum_axis0 = tf.reduce_sum(A, axis=0)
 A_sum_axis0, A_sum_axis0.shape
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 A_sum_axis0 = A.sum(axis=0)
 A_sum_axis0, A_sum_axis0.shape
@@ -568,7 +568,7 @@ A_sum_axis1 = tf.reduce_sum(A, axis=1)
 A_sum_axis1, A_sum_axis1.shape
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 A_sum_axis1 = A.sum(axis=1)
 A_sum_axis1, A_sum_axis1.shape
@@ -590,7 +590,7 @@ A.sum(axis=[0, 1])  # SameasA.sum()
 tf.reduce_sum(A, axis=[0, 1])  # Sameastf.reduce_sum(A)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 A.sum(axis=[0, 1])
 ```
@@ -613,7 +613,7 @@ A.mean(), A.sum() / A.numel()
 tf.reduce_mean(A), tf.reduce_sum(A) / tf.size(A).numpy()
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 A.mean(), A.sum() / A.numel()
 ```
@@ -634,7 +634,7 @@ A.mean(axis=0), A.sum(axis=0) / A.shape[0]
 tf.reduce_mean(A, axis=0), tf.reduce_sum(A, axis=0) / A.shape[0]
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 A.mean(axis=0), A.sum(axis=0) / A.shape[0]
 ```
@@ -662,7 +662,7 @@ sum_A = tf.reduce_sum(A, axis=1, keepdims=True)
 sum_A
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 sum_A = paddle.sum(A, axis=1, keepdim=True)
 sum_A
@@ -684,7 +684,7 @@ A / sum_A
 A / sum_A
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 A / sum_A
 ```
@@ -707,7 +707,7 @@ A.cumsum(axis=0)
 tf.cumsum(A, axis=0)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 A.cumsum(axis=0)
 ```
@@ -740,7 +740,7 @@ y = tf.ones(4, dtype=tf.float32)
 x, y, tf.tensordot(x, y, axes=1)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 y = paddle.ones(shape=[4], dtype='float32')
 x, y, paddle.dot(x, y)
@@ -762,7 +762,7 @@ torch.sum(x * y)
 tf.reduce_sum(x * y)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 paddle.sum(x * y)
 ```
@@ -848,7 +848,7 @@ A.shape, x.shape, torch.mv(A, x)
 A.shape, x.shape, tf.linalg.matvec(A, x)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 A.shape, x.shape, paddle.mv(A, x)
 ```
@@ -927,7 +927,7 @@ B = tf.ones((4, 3), tf.float32)
 tf.matmul(A, B)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 B = paddle.ones(shape=[4, 3], dtype='float32')
 paddle.mm(A, B)
@@ -989,7 +989,7 @@ u = tf.constant([3.0, -4.0])
 tf.norm(u)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 u = paddle.to_tensor([3.0, -4.0])
 paddle.norm(u)
@@ -1017,7 +1017,7 @@ torch.abs(u).sum()
 tf.reduce_sum(tf.abs(u))
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 paddle.abs(u).sum()
 ```
@@ -1047,7 +1047,7 @@ torch.norm(torch.ones((4, 9)))
 tf.norm(tf.ones((4, 9)))
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 paddle.norm(paddle.ones(shape=[4, 9], dtype='float32'))
 ```

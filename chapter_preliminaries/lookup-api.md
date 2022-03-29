@@ -40,7 +40,7 @@ import tensorflow as tf
 print(dir(tf.random))
 ```
 
-```python
+```{.python .input  n=1}
 #@tab paddle
 import paddle
 print(dir(paddle.distribution))
@@ -70,7 +70,7 @@ help(torch.ones)
 help(tf.ones)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 help(paddle.ones)
 ```
@@ -92,7 +92,7 @@ torch.ones(4)
 tf.ones(4)
 ```
 
-```python
+```{.python .input}
 #@tab paddle
 paddle.ones([4], dtype='float32')
 ```
