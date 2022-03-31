@@ -39,6 +39,13 @@ import tensorflow as tf
 ```
 
 ```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import numpy as np
+import paddle
+```
+
+```{.python .input}
 #@tab all
 true_w = d2l.tensor([2, -3.4])
 true_b = 4.2
@@ -75,6 +82,14 @@ def load_array(data_arrays, batch_size, is_train=True):  #@save
         dataset = dataset.shuffle(buffer_size=1000)
     dataset = dataset.batch(batch_size)
     return dataset
+```
+
+```{.python .input}
+#@tab paddle
+def load_array(data_arrays, batch_size, is_train=True):  #@save
+    """构造一个PyTorch数据迭代器"""
+    dataset = paddle.io.TensorDataset([*data_arrays])
+    return paddle.io.DataLoader(dataset, batch_size = batch_size, shuffle=is_train)
 ```
 
 ```{.python .input}
@@ -160,6 +175,13 @@ net = tf.keras.Sequential()
 net.add(tf.keras.layers.Dense(1))
 ```
 
+```{.python .input}
+#@tab paddle
+# nn是神经网络的缩写
+from paddle import nn
+net = nn.Sequential(nn.Linear(2, 1))
+```
+
 ## (**初始化模型参数**)
 
 在使用`net`之前，我们需要初始化模型参数。
@@ -205,6 +227,13 @@ net[0].bias.data.fill_(0)
 initializer = tf.initializers.RandomNormal(stddev=0.01)
 net = tf.keras.Sequential()
 net.add(tf.keras.layers.Dense(1, kernel_initializer=initializer))
+```
+
+```{.python .input}
+#@tab paddle
+weight_attr = paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(0, 0.01))
+bias_attr = paddle.ParamAttr(initializer=None)
+net = nn.Sequential(nn.Linear(2, 1, weight_attr=weight_attr, bias_attr=bias_attr))
 ```
 
 :begin_tab:`mxnet`
@@ -260,6 +289,11 @@ loss = nn.MSELoss()
 loss = tf.keras.losses.MeanSquaredError()
 ```
 
+```{.python .input}
+#@tab paddle
+loss = nn.MSELoss()
+```
+
 ## 定义优化算法
 
 :begin_tab:`mxnet`
@@ -298,6 +332,11 @@ trainer = torch.optim.SGD(net.parameters(), lr=0.03)
 ```{.python .input}
 #@tab tensorflow
 trainer = tf.keras.optimizers.SGD(learning_rate=0.03)
+```
+
+```{.python .input}
+#@tab paddle
+trainer =  paddle.optimizer.SGD(learning_rate=0.03, parameters=net.parameters())
 ```
 
 ## 训练
@@ -355,6 +394,19 @@ for epoch in range(num_epochs):
     print(f'epoch {epoch + 1}, loss {l:f}')
 ```
 
+```{.python .input}
+#@tab paddle
+num_epochs = 3
+for epoch in range(num_epochs):
+    for i,(X, y) in enumerate (data_iter()):
+        l = loss(net(X) ,y)
+        trainer.clear_grad()
+        l.backward()
+        trainer.step()
+    l = loss(net(features), labels)
+    print(f'epoch {epoch + 1},'f'loss {l}')
+```
+
 下面我们[**比较生成数据集的真实参数和通过有限数据训练获得的模型参数**]。
 要访问参数，我们首先从`net`访问所需的层，然后读取该层的权重和偏置。
 正如在从零开始实现中一样，我们估计得到的参数与生成数据的真实参数非常接近。
@@ -379,6 +431,14 @@ print('b的估计误差：', true_b - b)
 w = net.get_weights()[0]
 print('w的估计误差：', true_w - d2l.reshape(w, true_w.shape))
 b = net.get_weights()[1]
+print('b的估计误差：', true_b - b)
+```
+
+```{.python .input}
+#@tab paddle
+w = net[0].weight
+print('w的估计误差：', true_w - w.reshape(true_w.shape))
+b = net[0].bias
 print('b的估计误差：', true_b - b)
 ```
 

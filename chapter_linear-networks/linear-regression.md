@@ -247,16 +247,33 @@ import numpy as np
 import time
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import math
+import paddle
+import numpy as np
+import time
+```
+
 为了说明矢量化为什么如此重要，我们考虑(**对向量相加的两种方法**)。
 我们实例化两个全为1的10000维向量。
 在一种方法中，我们将使用Python的for循环遍历向量；
 在另一种方法中，我们将依赖对`+`的调用。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow
 n = 10000
 a = d2l.ones(n)
 b = d2l.ones(n)
+```
+
+```{.python .input}
+#@tab paddle
+n = 10000
+a = d2l.ones([n])
+b = d2l.ones([n])
 ```
 
 由于在本书中我们将频繁地进行运行时间的基准测试，所以[**我们定义一个计时器**]：
@@ -310,6 +327,15 @@ c = tf.Variable(d2l.zeros(n))
 timer = Timer()
 for i in range(n):
     c[i].assign(a[i] + b[i])
+f'{timer.stop():.5f} sec'
+```
+
+```{.python .input}
+#@tab paddle
+c = d2l.zeros([n])
+timer = Timer()
+for i in range(n):
+    c[i] = a[i] + b[i]
 f'{timer.stop():.5f} sec'
 ```
 
