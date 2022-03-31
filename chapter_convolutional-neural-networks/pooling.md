@@ -55,6 +55,13 @@ from torch import nn
 ```
 
 ```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import paddle
+from paddle import nn
+```
+
+```{.python .input}
 #@tab mxnet, pytorch
 def pool2d(X, pool_size, mode='max'):
     p_h, p_w = pool_size
@@ -84,11 +91,31 @@ def pool2d(X, pool_size, mode='max'):
     return Y
 ```
 
+```{.python .input}
+#@tab paddle
+def pool2d(X, pool_size, mode='max'):
+    p_h, p_w = pool_size
+    Y = paddle.zeros([X.shape[0] - p_h + 1, X.shape[1] - p_w + 1])
+    for i in range(Y.shape[0]):
+        for j in range(Y.shape[1]):
+            if mode == 'max':
+                Y[i, j] = X[i: i + p_h, j: j + p_w].max()
+            elif mode == 'avg':
+                Y[i, j] = X[i: i + p_h, j: j + p_w].mean()       
+    return Y
+```
+
 我们可以构建 :numref:`fig_pooling`中的输入张量`X`，[**验证二维最大汇聚层的输出**]。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow
 X = d2l.tensor([[0.0, 1.0, 2.0], [3.0, 4.0, 5.0], [6.0, 7.0, 8.0]])
+pool2d(X, (2, 2))
+```
+
+```{.python .input}
+#@tab paddle
+X = paddle.to_tensor([[0.0, 1.0, 2.0], [3.0, 4.0, 5.0], [6.0, 7.0, 8.0]], dtype="float32")
 pool2d(X, (2, 2))
 ```
 
@@ -122,6 +149,12 @@ X = d2l.reshape(d2l.arange(16, dtype=d2l.float32), (1, 4, 4, 1))
 X
 ```
 
+```{.python .input}
+#@tab paddle
+X = paddle.arange(16, dtype="float32").reshape((1, 1, 4, 4))
+X
+```
+
 默认情况下，(**深度学习框架中的步幅与汇聚窗口的大小相同**)。
 因此，如果我们使用形状为`(3, 3)`的汇聚窗口，那么默认情况下，我们得到的步幅形状为`(3, 3)`。
 
@@ -140,6 +173,12 @@ pool2d(X)
 ```{.python .input}
 #@tab tensorflow
 pool2d = tf.keras.layers.MaxPool2D(pool_size=[3, 3])
+pool2d(X)
+```
+
+```{.python .input}
+#@tab paddle
+pool2d = paddle.nn.MaxPool2D(3, stride=3)
 pool2d(X)
 ```
 
@@ -163,6 +202,12 @@ X_padded = tf.pad(X, paddings, "CONSTANT")
 pool2d = tf.keras.layers.MaxPool2D(pool_size=[3, 3], padding='valid',
                                    strides=2)
 pool2d(X_padded)
+```
+
+```{.python .input}
+#@tab paddle
+pool2d = paddle.nn.MaxPool2D(3, padding=1, stride=2)
+pool2d(X)
 ```
 
 :begin_tab:`mxnet`
@@ -197,6 +242,12 @@ pool2d = tf.keras.layers.MaxPool2D(pool_size=[2, 3], padding='valid',
 pool2d(X_padded)
 ```
 
+```{.python .input}
+#@tab paddle
+pool2d = paddle.nn.MaxPool2D((2, 3), padding=(0, 1), stride=(2, 3))
+pool2d(X)
+```
+
 ## 多个通道
 
 在处理多通道输入数据时，[**汇聚层在每个输入通道上单独运算**]，而不是像卷积层一样在通道上对输入进行汇总。
@@ -219,6 +270,12 @@ X
 X = tf.concat([X, X + 1], 3)
 ```
 
+```{.python .input}
+#@tab paddle
+X = paddle.concat((X, X + 1), axis=1)
+X
+```
+
 如下所示，汇聚后输出通道的数量仍然是2。
 
 ```{.python .input}
@@ -239,6 +296,12 @@ X_padded = tf.pad(X, paddings, "CONSTANT")
 pool2d = tf.keras.layers.MaxPool2D(pool_size=[3, 3], padding='valid',
                                    strides=2)
 pool2d(X_padded)
+```
+
+```{.python .input}
+#@tab paddle
+pool2d = paddle.nn.MaxPool2D(3, padding=1, stride=2)
+pool2d(X)
 ```
 
 :begin_tab:`tensorflow`
