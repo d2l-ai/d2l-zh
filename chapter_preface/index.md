@@ -125,6 +125,13 @@ import numpy as np
 import tensorflow as tf
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+import numpy as np
+import paddle
+```
+
 ### 目标受众
 
 本书面向学生（本科生或研究生）、工程师和研究人员，他们希望扎实掌握深度学习的实用技术。因为我们从头开始解释每个概念，所以不需要过往的深度学习或机器学习背景。全面解释深度学习的方法需要一些数学和编程，但我们只假设你了解一些基础知识，包括线性代数、微积分、概率和非常基础的Python编程。此外，在附录中，我们提供了本书所涵盖的大多数数学知识的复习。大多数时候，我们会优先考虑直觉和想法，而不是数学的严谨性。有许多很棒的书可以引导感兴趣的读者走得更远。Bela Bollobas的《线性分析》 :cite:`Bollobas.1999` 对线性代数和函数分析进行了深入的研究。 :cite:`Wasserman.2013` 是一本很好的统计学指南。如果你以前没有使用过Python语言，那么你可能想要仔细阅读这个[Python教程](http://learnpython.org/)。
