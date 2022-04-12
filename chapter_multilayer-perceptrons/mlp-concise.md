@@ -75,7 +75,8 @@ net = nn.Sequential(nn.Flatten(),
 
 for layer in net:
     if type(layer) == nn.Linear:
-        weight_attr = paddle.framework.ParamAttr(initializer=paddle.nn.initializer.Normal(mean=0.0, std=0.01))
+        weight_attr = paddle.framework.ParamAttr(
+                initializer=paddle.nn.initializer.Normal(mean=0.0, std=0.01))
         layer.weight_attr=weight_attr
 ```
 
