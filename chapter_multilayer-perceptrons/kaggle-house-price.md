@@ -470,7 +470,9 @@ def train(net, train_features, train_labels, test_features, test_labels,
     train_ls, test_ls = [], []
     train_iter = d2l.load_array((train_features, train_labels), batch_size)
     # 这里使用的是Adam优化算法
-    optimizer = paddle.optimizer.Adam(learning_rate=learning_rate, parameters=net.parameters(),weight_decay = weight_decay)
+    optimizer = paddle.optimizer.Adam(learning_rate=learning_rate,
+                                      parameters=net.parameters(),
+                                      weight_decay=weight_decay)
     for epoch in range(num_epochs):
         for X, y in train_iter:
             l = loss(net(X), y)
