@@ -88,8 +88,8 @@ pip install mxnet==1.7.0.post1
 你可以按如下方式安装PyTorch的CPU或GPU版本：
 
 ```bash
-pip install torch==1.10.2
-pip install torchvision==0.11.3
+pip install torch==1.11.0
+pip install torchvision==0.12.0
 ```
 
 
@@ -109,7 +109,7 @@ pip install tensorflow-probability==0.16.0
 我们的下一步是安装`d2l`包，以方便调取本书中经常使用的函数和类：
 
 ```bash
-pip install d2l==0.17.4
+pip install d2l==0.17.5
 ```
 
 

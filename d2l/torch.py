@@ -19,6 +19,7 @@ import pandas as pd
 import requests
 from IPython import display
 from matplotlib import pyplot as plt
+from matplotlib_inline import backend_inline
 
 d2l = sys.modules[__name__]
 
@@ -35,7 +36,7 @@ def use_svg_display():
     """使用svg格式在Jupyter中显示绘图
 
     Defined in :numref:`sec_calculus`"""
-    display.set_matplotlib_formats('svg')
+    backend_inline.set_matplotlib_formats('svg')
 
 def set_figsize(figsize=(3.5, 2.5)):
     """设置matplotlib的图表大小

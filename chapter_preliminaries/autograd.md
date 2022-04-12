@@ -40,6 +40,14 @@ x = tf.range(4, dtype=tf.float32)
 x
 ```
 
+```{.python .input}
+#@tab paddle
+import paddle
+
+x = paddle.arange(4, dtype='float32')
+x
+```
+
 [**在我们计算$y$关于$\mathbf{x}$的梯度之前，我们需要一个地方来存储梯度。**]
 重要的是，我们不会在每次对一个参数求导时都分配新的内存。
 因为我们经常会成千上万次地更新相同的参数，每次都分配新的内存可能很快就会将内存耗尽。
@@ -61,6 +69,12 @@ x.grad  # 默认值是None
 ```{.python .input}
 #@tab tensorflow
 x = tf.Variable(x)
+```
+
+```{.python .input}
+#@tab paddle
+x = paddle.to_tensor(x, stop_gradient=False)
+x.grad  # 默认值是None
 ```
 
 (**现在让我们计算$y$。**)
@@ -86,6 +100,12 @@ with tf.GradientTape() as t:
 y
 ```
 
+```{.python .input}
+#@tab paddle
+y = 2 * paddle.dot(x, x)
+y
+```
+
 `x`是一个长度为4的向量，计算`x`和`x`的点积，得到了我们赋值给`y`的标量输出。
 接下来，我们[**通过调用反向传播函数来自动计算`y`关于`x`每个分量的梯度**]，并打印这些梯度。
 
@@ -106,6 +126,12 @@ x_grad = t.gradient(y, x)
 x_grad
 ```
 
+```{.python .input}
+#@tab paddle
+y.backward()
+x.grad
+```
+
 函数$y=2\mathbf{x}^{\top}\mathbf{x}$关于$\mathbf{x}$的梯度应为$4\mathbf{x}$。
 让我们快速验证这个梯度是否计算正确。
 
@@ -121,6 +147,11 @@ x.grad == 4 * x
 ```{.python .input}
 #@tab tensorflow
 x_grad == 4 * x
+```
+
+```{.python .input}
+#@tab paddle
+x.grad == 4 * x
 ```
 
 [**现在让我们计算`x`的另一个函数。**]
@@ -146,6 +177,15 @@ x.grad
 with tf.GradientTape() as t:
     y = tf.reduce_sum(x)
 t.gradient(y, x)  # 被新计算的梯度覆盖
+```
+
+```{.python .input}
+#@tab paddle
+# 在默认情况下，PaddlePaddle会累积梯度，我们需要清除之前的值
+x.clear_gradient()
+y = paddle.sum(x)
+y.backward()
+x.grad
 ```
 
 ## 非标量变量的反向传播
@@ -182,6 +222,14 @@ x.grad
 with tf.GradientTape() as t:
     y = x * x
 t.gradient(y, x)  # 等价于y=tf.reduce_sum(x*x)
+```
+
+```{.python .input}
+#@tab paddle
+x.clear_gradient()
+y = x * x
+paddle.sum(y).backward() 
+x.grad
 ```
 
 ## 分离计算
@@ -229,6 +277,17 @@ x_grad = t.gradient(z, x)
 x_grad == u
 ```
 
+```{.python .input}
+#@tab paddle
+x.clear_gradient()
+y = x * x
+u = y.detach()
+z = u * x
+
+paddle.sum(z).backward()
+x.grad == u
+```
+
 由于记录了`y`的计算结果，我们可以随后在`y`上调用反向传播，
 得到`y=x*x`关于的`x`的导数，即`2*x`。
 
@@ -247,6 +306,13 @@ x.grad == 2 * x
 ```{.python .input}
 #@tab tensorflow
 t.gradient(y, x) == 2 * x
+```
+
+```{.python .input}
+#@tab paddle
+x.clear_gradient()
+paddle.sum(y).backward()
+x.grad == 2 * x
 ```
 
 ## Python控制流的梯度计算
@@ -293,6 +359,19 @@ def f(a):
     return c
 ```
 
+```{.python .input}
+#@tab paddle
+def f(a):
+    b = a * 2
+    while paddle.norm(b) < 1000:
+        b = b * 2
+    if paddle.sum(b) > 0:
+        c = b
+    else:
+        c = 100 * b
+    return c
+```
+
 让我们计算梯度。
 
 ```{.python .input}
@@ -319,6 +398,13 @@ d_grad = t.gradient(d, a)
 d_grad
 ```
 
+```{.python .input}
+#@tab paddle
+a = paddle.to_tensor(paddle.randn(shape=[1]), stop_gradient=False)
+d = f(a)
+d.backward()
+```
+
 我们现在可以分析上面定义的`f`函数。
 请注意，它在其输入`a`中是分段线性的。
 换言之，对于任何`a`，存在某个常量标量`k`，使得`f(a)=k*a`，其中`k`的值取决于输入`a`。
@@ -336,6 +422,11 @@ a.grad == d / a
 ```{.python .input}
 #@tab tensorflow
 d_grad == d / a
+```
+
+```{.python .input}
+#@tab paddle
+a.grad == d / a
 ```
 
 ## 小结
