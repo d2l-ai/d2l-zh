@@ -85,9 +85,11 @@ import numpy as np
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
+from d2l import paddle as d2l
+#paddle即将在下一个版本中新增multinomial.Multinomial API
+#import paddle
 import random
 import numpy as np
-from d2l import paddle as d2l
 ```
 
 在统计学中，我们把从概率分布中抽取样本的过程称为*抽样*（sampling）。
@@ -117,7 +119,6 @@ tfp.distributions.Multinomial(1, fair_probs).sample()
 
 ```{.python .input}
 #@tab paddle
-#paddle即将发版
 fair_probs = [1.0 / 6] * 6
 np.random.multinomial(1, fair_probs)
 ```
@@ -142,7 +143,6 @@ tfp.distributions.Multinomial(10, fair_probs).sample()
 
 ```{.python .input}
 #@tab paddle
-#paddle即将发版
 np.random.multinomial(10, fair_probs)
 ```
 
