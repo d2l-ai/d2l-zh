@@ -215,7 +215,6 @@ def evaluate_accuracy_gpu(net, data_iter, device=None): #@save
     with paddle.no_grad():
         for X, y in data_iter:
             if isinstance(X, list):
-                # BERT微调所需的（之后将介绍）
                 X = [paddle.to_tensor(x, place=device) for x in X]
             else:
                 X = paddle.to_tensor(X, place=device)
