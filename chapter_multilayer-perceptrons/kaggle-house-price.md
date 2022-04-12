@@ -439,7 +439,6 @@ def train(net, train_features, train_labels, test_features, test_labels,
 具体地说，它选择第$i$个切片作为验证数据，其余部分作为训练数据。
 注意，这并不是处理数据的最有效方法，如果我们的数据集大得多，会有其他解决办法。
 
-
 ```{.python .input}
 #@tab all
 def get_k_fold_data(k, i, X, y):
@@ -514,7 +513,7 @@ print(f'{k}-折验证: 平均训练log rmse: {float(train_l):f}, '
 
 ```{.python .input}
 #@tab all
-def train_and_pred(train_features, test_feature, train_labels, test_data,
+def train_and_pred(train_features, test_features, train_labels, test_data,
                    num_epochs, lr, weight_decay, batch_size):
     net = get_net()
     train_ls, _ = train(net, train_features, train_labels, None, None,
