@@ -2,7 +2,7 @@ dependencies:
   - python=3.8
   - pip
   - pip:
-    - d2l==0.17.5
+    - ..
     - git+https://github.com/d2l-ai/d2l-book
     - mxnet-cu102==1.7.0
     - torch==1.11.0+cu102
@@ -11,3 +11,5 @@ dependencies:
     - -f https://download.pytorch.org/whl/torch_stable.html
     - tensorflow==2.8.0
     - tensorflow-probability==0.16.0
+    - paddlepaddle-gpu==2.2.2.post112 
+    - -f https://www.paddlepaddle.org.cn/whl/linux/mkl/avx/stable.html
