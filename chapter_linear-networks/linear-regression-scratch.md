@@ -276,7 +276,8 @@ def sgd(params, grads, lr, batch_size):  #@save
 
 ```{.python .input}
 #@tab paddle
-def sgd(params, lr, batch_size):  #@save
+#@save
+def sgd(params, lr, batch_size):
     """小批量随机梯度下降"""
     revise_params=[]
     with paddle.no_grad():

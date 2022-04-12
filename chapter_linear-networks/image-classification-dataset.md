@@ -160,7 +160,8 @@ def show_images(imgs, num_rows, num_cols, titles=None, scale=1.5):  #@save
 
 ```{.python .input}
 #@tab paddle
-def show_images(imgs, num_rows, num_cols, titles=None, scale=1.5):  #@save
+#@save
+def show_images(imgs, num_rows, num_cols, titles=None, scale=1.5):
     """绘制图像列表"""
     figsize = (num_cols * scale, num_rows * scale)
     _, axes = d2l.plt.subplots(num_rows, num_cols, figsize=figsize)

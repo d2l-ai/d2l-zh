@@ -263,14 +263,7 @@ import time
 在另一种方法中，我们将依赖对`+`的调用。
 
 ```{.python .input}
-#@tab mxnet, pytorch, tensorflow
-n = 10000
-a = d2l.ones(n)
-b = d2l.ones(n)
-```
-
-```{.python .input}
-#@tab paddle
+#@tab all
 n = 10000
 a = d2l.ones([n])
 b = d2l.ones([n])

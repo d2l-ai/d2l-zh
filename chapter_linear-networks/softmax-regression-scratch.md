@@ -273,7 +273,8 @@ def accuracy(y_hat, y):  #@save
 
 ```{.python .input}
 #@tab paddle
-def accuracy(y_hat, y):  #@save
+#@save
+def accuracy(y_hat, y):
     """计算预测正确的数量"""
     if len(y_hat.shape) > 1 and y_hat.shape[1] > 1:
         y_hat = y_hat.argmax(axis=1)
@@ -325,7 +326,8 @@ def evaluate_accuracy(net, data_iter):  #@save
 
 ```{.python .input}
 #@tab paddle
-def evaluate_accuracy(net, data_iter):  #@save
+#@save
+def evaluate_accuracy(net, data_iter):
     """计算在指定数据集上模型的精度"""
     if isinstance(net, paddle.nn.Layer):
         net.eval()  # 将模型设置为评估模式
@@ -455,7 +457,8 @@ def train_epoch_ch3(net, train_iter, loss, updater):  #@save
 
 ```{.python .input}
 #@tab paddle
-def train_epoch_ch3(net, train_iter, loss, updater):  #@save
+#@save
+def train_epoch_ch3(net, train_iter, loss, updater):
     """训练模型一个迭代周期（定义见第3章）"""
     # 将模型设置为训练模式
     if isinstance(net, paddle.nn.Layer):
