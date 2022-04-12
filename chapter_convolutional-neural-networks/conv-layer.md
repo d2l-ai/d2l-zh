@@ -194,13 +194,8 @@ Y
 不出所料，这个[**卷积核`K`只可以检测垂直边缘**]，无法检测水平边缘。
 
 ```{.python .input}
-#@tab mxnet, pytorch, tensorflow
+#@tab all
 corr2d(d2l.transpose(X), K)
-```
-
-```{.python .input}
-#@tab paddle
-corr2d(X.t(), K)
 ```
 
 ## 学习卷积核
