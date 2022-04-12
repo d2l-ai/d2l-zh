@@ -76,32 +76,18 @@ corr2d_multi_in(X, K)
 如下所示，我们实现一个[**计算多个通道的输出的互相关函数**]。
 
 ```{.python .input}
-#@tab mxnet, pytorch, tensorflow
+#@tab all
 def corr2d_multi_in_out(X, K):
     # 迭代“K”的第0个维度，每次都对输入“X”执行互相关运算。
     # 最后将所有结果都叠加在一起
     return d2l.stack([corr2d_multi_in(X, k) for k in K], 0)
 ```
 
-```{.python .input}
-#@tab paddle
-def corr2d_multi_in_out(X, K):
-    # 迭代“K”的第0个维度，每次都对输入“X”执行互相关运算。
-    # 最后将所有结果都叠加在一起
-    return paddle.stack([corr2d_multi_in(X, k) for k in K])
-```
-
 通过将核张量`K`与`K+1`（`K`中每个元素加$1$）和`K+2`连接起来，构造了一个具有$3$个输出通道的卷积核。
 
 ```{.python .input}
-#@tab mxnet, pytorch, tensorflow
+#@tab all
 K = d2l.stack((K, K + 1, K + 2), 0)
-K.shape
-```
-
-```{.python .input}
-#@tab paddle
-K = paddle.stack([K, K + 1, K + 2])
 K.shape
 ```
 
@@ -168,17 +154,10 @@ K = paddle.rand(shape=[2, 3, 1, 1])
 ```
 
 ```{.python .input}
-#@tab mxnet, pytorch, tensorflow
+#@tab all
 Y1 = corr2d_multi_in_out_1x1(X, K)
 Y2 = corr2d_multi_in_out(X, K)
 assert float(d2l.reduce_sum(d2l.abs(Y1 - Y2))) < 1e-6
-```
-
-```{.python .input}
-#@tab paddle
-Y1 = corr2d_multi_in_out_1x1(X, K)
-Y2 = corr2d_multi_in_out(X, K)
-(Y1 - Y2).norm().numpy()[0] < 1e-6
 ```
 
 ## 小结
