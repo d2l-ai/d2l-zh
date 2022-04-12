@@ -86,9 +86,9 @@ def f(x):
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
+from d2l import paddle as d2l
+from matplotlib_inline import backend_inline
 import numpy as np
-from IPython import display
-from matplotlib import pyplot as plt
 
 
 def f(x):
