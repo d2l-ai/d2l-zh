@@ -108,14 +108,8 @@ def pool2d(X, pool_size, mode='max'):
 我们可以构建 :numref:`fig_pooling`中的输入张量`X`，[**验证二维最大汇聚层的输出**]。
 
 ```{.python .input}
-#@tab mxnet, pytorch, tensorflow
+#@tab all
 X = d2l.tensor([[0.0, 1.0, 2.0], [3.0, 4.0, 5.0], [6.0, 7.0, 8.0]])
-pool2d(X, (2, 2))
-```
-
-```{.python .input}
-#@tab paddle
-X = paddle.to_tensor([[0.0, 1.0, 2.0], [3.0, 4.0, 5.0], [6.0, 7.0, 8.0]], dtype="float32")
 pool2d(X, (2, 2))
 ```
 
