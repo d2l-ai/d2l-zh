@@ -251,8 +251,8 @@ train_iter = tf.data.Dataset.from_tensor_slices(
 ```{.python .input}
 #@tab paddle
 batch_size = 256
-
-def get_dataloader_workers():  #@save
+#@save
+def get_dataloader_workers():  
     """使用4个进程来读取数据"""
     return 4
 
@@ -332,7 +332,8 @@ def load_data_fashion_mnist(batch_size, resize=None):   #@save
 
 ```{.python .input}
 #@tab paddle
-def load_data_fashion_mnist(batch_size, resize=None):  #@save
+#@save
+def load_data_fashion_mnist(batch_size, resize=None):  
     """下载Fashion-MNIST数据集，然后将其加载到内存中"""
     trans = [transforms.ToTensor()]
     if resize:

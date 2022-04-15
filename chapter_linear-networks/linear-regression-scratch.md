@@ -63,7 +63,8 @@ $$\mathbf{y}= \mathbf{X} \mathbf{w} + b + \mathbf\epsilon.$$
 
 ```{.python .input}
 #@tab mxnet, pytorch, paddle
-def synthetic_data(w, b, num_examples):  #@save
+#@save
+def synthetic_data(w, b, num_examples):  
     """生成y=Xw+b+噪声"""
     X = d2l.normal(0, 1, (num_examples, len(w)))
     y = d2l.matmul(X, w) + b
