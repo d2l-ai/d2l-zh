@@ -371,7 +371,7 @@ def predict_ch3(net, test_iter, n=6):
     titles = [true +'\n' + pred for true, pred in zip(trues, preds)]
     d2l.show_images(
         d2l.reshape(X[0:n], (n, 28, 28)), 1, n, titles=titles[0:n])# Alias defined in config.ini
-nn_Module = nn.Module
+
 
 ones = paddle.ones
 zeros = paddle.zeros
