@@ -373,9 +373,10 @@ def predict_ch3(net, test_iter, n=6):
         d2l.reshape(X[0:n], (n, 28, 28)), 1, n, titles=titles[0:n])# Alias defined in config.ini
 
 
+
 ones = paddle.ones
 zeros = paddle.zeros
-tensor = paddle.tensor
+tensor = paddle.to_tensor
 arange = paddle.arange
 meshgrid = paddle.meshgrid
 sin = paddle.sin
