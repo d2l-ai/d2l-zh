@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 线性回归
 :label:`sec_linear_regression`
 
@@ -1006,4 +1005,3 @@ $$-\log P(\mathbf y \mid \mathbf X) = \sum_{i=1}^n \frac{1}{2} \log(2 \pi \sigma
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1776)
 :end_tab:
->>>>>>> 0e40d9f5f9a56419abe479fe50dd0bb7ff8e8a64

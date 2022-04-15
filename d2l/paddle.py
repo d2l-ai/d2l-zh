@@ -251,7 +251,7 @@ def accuracy(y_hat, y):
         cmp = y_hat.astype(y.dtype) == y
     return float(cmp.astype(y.dtype).sum())
 
-def evaluate_accuracy(net, data_iter):
+def evaluate_accuracy(net, data_iter): 
     """计算在指定数据集上模型的精度
 
     Defined in :numref:`sec_softmax_scratch`"""
