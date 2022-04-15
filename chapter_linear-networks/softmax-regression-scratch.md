@@ -477,7 +477,7 @@ def train_epoch_ch3(net, train_iter, loss, updater):
             updater.step()
         else:
             # 使用定制的优化器和损失函数
-            l.mean().backward()
+            l.sum().backward()
             updater(X.shape[0])
         metric.add(float(l.sum()), accuracy(y_hat, y), y.numel())
     return metric[0] / metric[2], metric[1] / metric[2]
