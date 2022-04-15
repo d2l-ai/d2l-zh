@@ -63,8 +63,7 @@ $$\mathbf{y}= \mathbf{X} \mathbf{w} + b + \mathbf\epsilon.$$
 
 ```{.python .input}
 #@tab mxnet, pytorch, paddle
-#@save
-def synthetic_data(w, b, num_examples):  
+def synthetic_data(w, b, num_examples):  #@save
     """生成y=Xw+b+噪声"""
     X = d2l.normal(0, 1, (num_examples, len(w)))
     y = d2l.matmul(X, w) + b
@@ -284,6 +283,7 @@ def sgd(params, lr, batch_size):
     with paddle.no_grad():
         for param in params:
             param -= lr * param.grad/ batch_size
+            param.stop_gradient = False
             revise_params.append(param)
         return revise_params
 ```
@@ -367,8 +367,6 @@ for epoch in range(num_epochs):
         # 并以此计算关于[w,b]的梯度
         l.sum().backward()
         [w,b]=sgd([w, b], lr, batch_size)  # 使用参数的梯度更新参数
-        w.stop_gradient = False
-        b.stop_gradient = False
     with paddle.no_grad():
         train_l = loss(net(features, w, b), labels)
         print(f'epoch {epoch + 1}, loss {float(train_l.mean()):f}')
