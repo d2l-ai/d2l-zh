@@ -25,6 +25,7 @@ d2l = sys.modules[__name__]
 
 import numpy as np
 import paddle
+from paddle.vision import transforms
 
 def use_svg_display():
     """使用svg格式在Jupyter中显示绘图
