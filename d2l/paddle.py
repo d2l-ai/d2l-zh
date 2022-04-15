@@ -25,7 +25,6 @@ d2l = sys.modules[__name__]
 
 import numpy as np
 import paddle
-from paddle.vision import transforms
 
 def use_svg_display():
     """使用svg格式在Jupyter中显示绘图
@@ -369,4 +368,39 @@ def predict_ch3(net, test_iter, n=6):
     preds = d2l.get_fashion_mnist_labels(d2l.argmax(net(X), axis=1))
     titles = [true +'\n' + pred for true, pred in zip(trues, preds)]
     d2l.show_images(
-        d2l.reshape(X[0:n], (n, 28, 28)), 1, n, titles=titles[0:n])
+        d2l.reshape(X[0:n], (n, 28, 28)), 1, n, titles=titles[0:n])# Alias defined in config.ini
+nn_Module = nn.Module
+
+ones = paddle.ones
+zeros = paddle.zeros
+tensor = paddle.tensor
+arange = paddle.arange
+meshgrid = paddle.meshgrid
+sin = paddle.sin
+sinh = paddle.sinh
+cos = paddle.cos
+cosh = paddle.cosh
+tanh = paddle.tanh
+linspace = paddle.linspace
+exp = paddle.exp
+log = paddle.log
+normal = paddle.normal
+rand = paddle.rand
+randn = paddle.randn
+matmul = paddle.matmul
+int32 = paddle.int32
+float32 = paddle.float32
+concat = paddle.concat
+stack = paddle.stack
+abs = paddle.abs
+eye = paddle.eye
+numpy = lambda x, *args, **kwargs: x.detach().numpy(*args, **kwargs)
+size = lambda x, *args, **kwargs: x.numel(*args, **kwargs)
+reshape = lambda x, *args, **kwargs: x.reshape(*args, **kwargs)
+to = lambda x, *args, **kwargs: x.to(*args, **kwargs)
+reduce_sum = lambda x, *args, **kwargs: x.sum(*args, **kwargs)
+argmax = lambda x, *args, **kwargs: x.argmax(*args, **kwargs)
+astype = lambda x, *args, **kwargs: x.type(*args, **kwargs)
+transpose = lambda x, *args, **kwargs: x.t(*args, **kwargs)
+reduce_mean = lambda x, *args, **kwargs: x.mean(*args, **kwargs)
+
