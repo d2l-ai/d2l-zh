@@ -1,3 +1,4 @@
+None
 # 线性回归
 :label:`sec_linear_regression`
 
@@ -247,6 +248,16 @@ import numpy as np
 import time
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import math
+import paddle
+import numpy as np
+import time
+```
+
 为了说明矢量化为什么如此重要，我们考虑(**对向量相加的两种方法**)。
 我们实例化两个全为1的10000维向量。
 在一种方法中，我们将使用Python的for循环遍历向量；
@@ -313,6 +324,15 @@ for i in range(n):
 f'{timer.stop():.5f} sec'
 ```
 
+```{.python .input}
+#@tab paddle
+c = d2l.zeros([n])
+timer = Timer()
+for i in range(n):
+    c[i] = a[i] + b[i]
+f'{timer.stop():.5f} sec'
+```
+
 (**或者，我们使用重载的`+`运算符来计算按元素的和**)。
 
 ```{.python .input}
@@ -361,7 +381,7 @@ d2l.plot(x.asnumpy(), [normal(x, mu, sigma).asnumpy() for mu, sigma in params], 
 ```
 
 ```{.python .input}
-#@tab pytorch, tensorflow
+#@tab pytorch, tensorflow, paddle
 # 再次使用numpy进行可视化
 x = np.arange(-7, 7, 0.01)
 

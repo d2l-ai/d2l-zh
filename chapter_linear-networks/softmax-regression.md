@@ -1,3 +1,4 @@
+None
 # softmax回归
 :label:`sec_softmax`
 
