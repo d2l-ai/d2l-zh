@@ -25,6 +25,11 @@ d2l = sys.modules[__name__]
 
 import numpy as np
 import paddle
+import paddle.vision as vision
+from paddle import nn
+from paddle.nn import functional as F
+from paddle.vision import transforms
+from PIL import Image
 
 def use_svg_display():
     """使用svg格式在Jupyter中显示绘图
@@ -349,6 +354,7 @@ def predict_ch3(net, test_iter, n=6):
     titles = [true +'\n' + pred for true, pred in zip(trues, preds)]
     d2l.show_images(
         d2l.reshape(X[0:n], (n, 28, 28)), 1, n, titles=titles[0:n])# Alias defined in config.ini
+nn_Module = nn.Layer
 
 ones = paddle.ones
 zeros = paddle.zeros

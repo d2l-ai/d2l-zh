@@ -265,8 +265,8 @@ import time
 ```{.python .input}
 #@tab all
 n = 10000
-a = d2l.ones(n)
-b = d2l.ones(n)
+a = d2l.ones([n])
+b = d2l.ones([n])
 ```
 
 由于在本书中我们将频繁地进行运行时间的基准测试，所以[**我们定义一个计时器**]：
