@@ -1,4 +1,3 @@
-None
 # 线性回归的从零开始实现
 :label:`sec_linear_scratch`
 

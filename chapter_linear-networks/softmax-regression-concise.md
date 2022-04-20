@@ -1,4 +1,3 @@
-None
 # softmax回归的简洁实现
 :label:`sec_softmax_concise`
 

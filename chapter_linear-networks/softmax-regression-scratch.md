@@ -1,4 +1,3 @@
-None
 # softmax回归的从零开始实现
 :label:`sec_softmax_scratch`
 
@@ -279,9 +278,7 @@ def accuracy(y_hat, y):
     """计算预测正确的数量"""
     if len(y_hat.shape) > 1 and y_hat.shape[1] > 1:
         y_hat = y_hat.argmax(axis=1)
-    """
-    为了防止出现y_hat.shape=[batch_size]而y.shape=[batch_size,1]的问题导致判断相等错误
-    """
+        
     if len(y_hat.shape) < len(y.shape):
         cmp = y_hat.astype(y.dtype) == y.squeeze()
     else:

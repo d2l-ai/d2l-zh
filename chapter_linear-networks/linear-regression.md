@@ -1,4 +1,3 @@
-None
 # 线性回归
 :label:`sec_linear_regression`
 
