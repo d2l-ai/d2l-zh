@@ -321,3 +321,7 @@ $$H[P] = \sum_j - P(j) \log P(j).$$
     1. 将其扩展到两个以上的数字。
 
 [Discussions](https://discuss.d2l.ai/t/1785)
+
+```{.python .input}
+
+```

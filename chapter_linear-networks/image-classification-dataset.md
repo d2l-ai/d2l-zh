@@ -1,5 +1,4 @@
 None
-None
 # 图像分类数据集
 :label:`sec_fashion_mnist`
 
