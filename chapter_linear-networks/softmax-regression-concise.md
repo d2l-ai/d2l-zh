@@ -30,6 +30,13 @@ import tensorflow as tf
 ```
 
 ```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import paddle
+from paddle import nn
+```
+
+```{.python .input}
 #@tab all
 batch_size = 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
@@ -70,6 +77,17 @@ net = tf.keras.models.Sequential()
 net.add(tf.keras.layers.Flatten(input_shape=(28, 28)))
 weight_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.01)
 net.add(tf.keras.layers.Dense(10, kernel_initializer=weight_initializer))
+```
+
+```{.python .input}
+#@tab paddle
+net = nn.Sequential(nn.Flatten(), nn.Linear(784, 10))
+
+def init_weights(m):
+    if type(m) == nn.Linear:
+        nn.initializer.Normal(m.weight, std=0.01)
+
+net.apply(init_weights);
 ```
 
 ## 重新审视Softmax的实现
@@ -130,7 +148,7 @@ loss = gluon.loss.SoftmaxCrossEntropyLoss()
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 loss = nn.CrossEntropyLoss(reduction='none')
 ```
 
@@ -156,6 +174,11 @@ trainer = torch.optim.SGD(net.parameters(), lr=0.1)
 ```{.python .input}
 #@tab tensorflow
 trainer = tf.keras.optimizers.SGD(learning_rate=.1)
+```
+
+```{.python .input}
+#@tab paddle
+trainer = paddle.optimizer.SGD(learning_rate=0.1, parameters=net.parameters())
 ```
 
 ## 训练
