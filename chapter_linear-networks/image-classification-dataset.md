@@ -1,10 +1,10 @@
+None
 # 图像分类数据集
 :label:`sec_fashion_mnist`
 
 (**MNIST数据集**) :cite:`LeCun.Bottou.Bengio.ea.1998`
 (**是图像分类中广泛使用的数据集之一，但作为基准数据集过于简单。
 我们将使用类似但更复杂的Fashion-MNIST数据集**) :cite:`Xiao.Rasul.Vollgraf.2017`。
-
 
 ```{.python .input}
 %matplotlib inline
@@ -34,6 +34,10 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 
 d2l.use_svg_display()
+```
+
+```{.python .input}
+paddle
 ```
 
 ## 读取数据集
