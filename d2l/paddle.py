@@ -25,7 +25,6 @@ d2l = sys.modules[__name__]
 
 import numpy as np
 import paddle
-import paddle.vision as vision
 from paddle import nn
 from paddle.nn import functional as F
 from paddle.vision import transforms
@@ -358,7 +357,7 @@ nn_Module = nn.Layer
 
 ones = paddle.ones
 zeros = paddle.zeros
-tensor = paddle.tensor
+tensor = paddle.to_tensor
 arange = paddle.arange
 meshgrid = paddle.meshgrid
 sin = paddle.sin
