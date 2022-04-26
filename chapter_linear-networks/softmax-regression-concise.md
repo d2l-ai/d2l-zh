@@ -178,7 +178,7 @@ trainer = tf.keras.optimizers.SGD(learning_rate=.1)
 
 ```{.python .input}
 #@tab paddle
-trainer = paddle.optimizer.SGD(learning_rate=0.1,parameters=net.parameters())
+trainer = paddle.optimizer.SGD(learning_rate=0.1, parameters=net.parameters())
 ```
 
 ## 训练
