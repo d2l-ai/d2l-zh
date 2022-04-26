@@ -190,7 +190,7 @@ def get_dataloader_workers():
     """使用4个进程来读取数据
 
     Defined in :numref:`sec_fashion_mnist`"""
-    return 4
+    return 0 if not sys.platform.startswith('linux') else 4
 
 def load_data_fashion_mnist(batch_size, resize=None):
     """下载Fashion-MNIST数据集，然后将其加载到内存中
@@ -200,16 +200,18 @@ def load_data_fashion_mnist(batch_size, resize=None):
     if resize:
         trans.insert(0, transforms.Resize(resize))
     trans = transforms.Compose(trans)
-    mnist_train = paddle.vision.datasets.FashionMNIST(mode="train",transform=trans)
-    mnist_test = paddle.vision.datasets.FashionMNIST(mode="test",transform=trans)
+    mnist_train = paddle.vision.datasets.FashionMNIST(mode="train",
+                                                      transform=trans)
+    mnist_test = paddle.vision.datasets.FashionMNIST(mode="test",
+                                                     transform=trans)
     return (paddle.io.DataLoader(dataset=mnist_train,
-                                batch_size=batch_size,
-                                shuffle=True,
-                                num_workers=get_dataloader_workers()),
+                                 batch_size=batch_size,
+                                 shuffle=True,
+                                 num_workers=get_dataloader_workers()),
             paddle.io.DataLoader(dataset=mnist_test,
-                                batch_size=batch_size,
-                                shuffle=True,
-                                num_workers=get_dataloader_workers()))
+                                 batch_size=batch_size,
+                                 shuffle=True,
+                                 num_workers=get_dataloader_workers()))
 
 def accuracy(y_hat, y):
     """计算预测正确的数量

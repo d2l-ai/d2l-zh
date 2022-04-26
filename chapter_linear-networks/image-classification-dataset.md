@@ -41,6 +41,7 @@ d2l.use_svg_display()
 from d2l import paddle as d2l
 import paddle
 from paddle.vision import transforms
+import sys
 
 d2l.use_svg_display()
 ```
@@ -73,8 +74,9 @@ mnist_train, mnist_test = tf.keras.datasets.fashion_mnist.load_data()
 ```{.python .input}
 #@tab paddle
 trans = transforms.ToTensor()
-mnist_train = paddle.vision.datasets.FashionMNIST(mode="train",transform=trans)
-mnist_test = paddle.vision.datasets.FashionMNIST(mode="test",transform=trans)
+mnist_train = paddle.vision.datasets.FashionMNIST(mode="train",
+                                                  transform=trans)
+mnist_test = paddle.vision.datasets.FashionMNIST(mode="test", transform=trans)
 ```
 
 Fashion-MNIST由10个类别的图像组成，
@@ -248,15 +250,15 @@ train_iter = tf.data.Dataset.from_tensor_slices(
 ```{.python .input}
 #@tab paddle
 batch_size = 256
-#@save
-def get_dataloader_workers():  
-    """使用4个进程来读取数据"""
-    return 4
 
-train_iter = paddle.io.DataLoader(dataset=mnist_train, 
-                                batch_size=batch_size, 
-                                shuffle=True,
-                                num_workers=get_dataloader_workers())
+def get_dataloader_workers():  #@save
+    """使用4个进程来读取数据"""
+    return 0 if not sys.platform.startswith('linux') else 4
+
+train_iter = paddle.io.DataLoader(dataset=mnist_train,
+                                  batch_size=batch_size,
+                                  shuffle=True,
+                                  num_workers=get_dataloader_workers())
 ```
 
 我们看一下读取训练数据所需的时间。
@@ -336,16 +338,18 @@ def load_data_fashion_mnist(batch_size, resize=None):
     if resize:
         trans.insert(0, transforms.Resize(resize))
     trans = transforms.Compose(trans)
-    mnist_train = paddle.vision.datasets.FashionMNIST(mode="train",transform=trans)
-    mnist_test = paddle.vision.datasets.FashionMNIST(mode="test",transform=trans)
-    return (paddle.io.DataLoader(dataset=mnist_train, 
-                                batch_size=batch_size, 
-                                shuffle=True,
-                                num_workers=get_dataloader_workers()),
-            paddle.io.DataLoader(dataset=mnist_test, 
-                                batch_size=batch_size, 
-                                shuffle=True,
-                                num_workers=get_dataloader_workers()))
+    mnist_train = paddle.vision.datasets.FashionMNIST(mode="train",
+                                                      transform=trans)
+    mnist_test = paddle.vision.datasets.FashionMNIST(mode="test",
+                                                     transform=trans)
+    return (paddle.io.DataLoader(dataset=mnist_train,
+                                 batch_size=batch_size,
+                                 shuffle=True,
+                                 num_workers=get_dataloader_workers()),
+            paddle.io.DataLoader(dataset=mnist_test,
+                                 batch_size=batch_size,
+                                 shuffle=True,
+                                 num_workers=get_dataloader_workers()))
 ```
 
 下面，我们通过指定`resize`参数来测试`load_data_fashion_mnist`函数的图像大小调整功能。
