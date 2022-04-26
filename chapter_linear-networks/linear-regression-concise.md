@@ -89,8 +89,9 @@ def load_array(data_arrays, batch_size, is_train=True):  #@save
 #@save
 def load_array(data_arrays, batch_size, is_train=True):
     """构造一个PyTorch数据迭代器"""
-    dataset = paddle.io.TensorDataset([*data_arrays])
-    return paddle.io.DataLoader(dataset, batch_size = batch_size, shuffle=is_train)
+    dataset = paddle.io.TensorDataset(data_arrays)
+    return paddle.io.DataLoader(dataset, batch_size=batch_size,
+                                shuffle=is_train)
 ```
 
 ```{.python .input}
@@ -243,9 +244,11 @@ net.add(tf.keras.layers.Dense(1, kernel_initializer=initializer))
 
 ```{.python .input}
 #@tab paddle
-weight_attr = paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(0, 0.01))
+weight_attr = paddle.ParamAttr(initializer=
+                               paddle.nn.initializer.Normal(0, 0.01))
 bias_attr = paddle.ParamAttr(initializer=None)
-net = nn.Sequential(nn.Linear(2, 1, weight_attr=weight_attr, bias_attr=bias_attr))
+net = nn.Sequential(nn.Linear(2, 1, weight_attr=weight_attr,
+                              bias_attr=bias_attr))
 ```
 
 :begin_tab:`mxnet`
@@ -359,7 +362,8 @@ trainer = tf.keras.optimizers.SGD(learning_rate=0.03)
 
 ```{.python .input}
 #@tab paddle
-trainer =  paddle.optimizer.SGD(learning_rate=0.03, parameters=net.parameters())
+trainer =  paddle.optimizer.SGD(learning_rate=0.03,
+                                parameters=net.parameters())
 ```
 
 ## 训练

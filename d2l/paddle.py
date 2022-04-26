@@ -155,8 +155,9 @@ def load_array(data_arrays, batch_size, is_train=True):
     """构造一个PyTorch数据迭代器
 
     Defined in :numref:`sec_linear_concise`"""
-    dataset = paddle.io.TensorDataset([*data_arrays])
-    return paddle.io.DataLoader(dataset, batch_size = batch_size, shuffle=is_train)
+    dataset = paddle.io.TensorDataset(data_arrays)
+    return paddle.io.DataLoader(dataset, batch_size=batch_size,
+                                shuffle=is_train)
 
 def get_fashion_mnist_labels(labels):
     """返回Fashion-MNIST数据集的文本标签
