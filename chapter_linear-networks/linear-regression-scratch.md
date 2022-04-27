@@ -196,6 +196,7 @@ b = tf.Variable(tf.zeros(1), trainable=True)
 #@tab paddle
 w = d2l.normal(0, 0.01, shape=(2,1))
 b = d2l.zeros(shape=[1])
+# w和b为创建的模型参数，stop_gradient默认为True，即梯度不更新，因此需要指定为False更新梯度
 w.stop_gradient = False
 b.stop_gradient = False
 ```
