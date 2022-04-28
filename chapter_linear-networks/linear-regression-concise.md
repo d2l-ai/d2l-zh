@@ -221,7 +221,12 @@ TensorFlow中的`initializers`模块提供了多种模型参数初始化方法�
 :end_tab:
 
 :begin_tab:`paddle`
-待更新...
+正如我们在构造`nn.Linear`时指定输入和输出尺寸一样，
+现在我们能直接访问参数以设定它们的初始值。 
+我们通过`net[0]`选择网络中的第一个图层，
+然后使用`weight`和`bias`方法访问参数。
+我们可以通过调用`nn.initializer.Normal(0, 0.01)`来指定初始化权重的方法。
+默认情况下，偏置参数初始化为零。
 :end_tab:
 
 ```{.python .input}
@@ -489,10 +494,6 @@ print('b的估计误差：', true_b - b)
 * 在TensorFlow中，`data`模块提供了数据处理工具，`keras`模块定义了大量神经网络层和常见损耗函数。
 * TensorFlow的`initializers`模块提供了多种模型参数初始化方法。
 * 维度和存储可以自动推断，但注意不要在初始化参数之前尝试访问参数。
-:end_tab:
-
-:begin_tab:`paddle`
-待更新...
 :end_tab:
 
 ## 练习
