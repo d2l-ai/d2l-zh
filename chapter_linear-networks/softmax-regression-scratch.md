@@ -552,7 +552,7 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, updater):  #@save
 [**小批量随机梯度下降来优化模型的损失函数**]，设置学习率为0.1。
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, paddle
 lr = 0.1
 
 def updater(batch_size):
@@ -571,15 +571,6 @@ class Updater():  #@save
         d2l.sgd(self.params, grads, self.lr, batch_size)
 
 updater = Updater([W, b], lr=0.1)
-```
-
-```{.python .input}
-#@tab paddle
-lr = 0.1
-
-def updater(batch_size):
-    global W, b
-    W,b = d2l.sgd([W, b], lr, batch_size)
 ```
 
 现在，我们[**训练模型10个迭代周期**]。
