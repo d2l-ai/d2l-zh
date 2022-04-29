@@ -91,7 +91,7 @@ def load_pretrained_model(pretrained_model, num_hiddens, ffn_num_hiddens,
     return bert, vocab
 ```
 
-为了便于在大多数机器上演示，我们将在本节中加载和微调经过预训练BERT的小版本（“bert.mall”）。在练习中，我们将展示如何微调大得多的“bert.base”以显著提高测试精度。
+为了便于在大多数机器上演示，我们将在本节中加载和微调经过预训练BERT的小版本（“bert.small”）。在练习中，我们将展示如何微调大得多的“bert.base”以显著提高测试精度。
 
 ```{.python .input}
 #@tab all
@@ -310,7 +310,7 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
 
 ## 练习
 
-1. 如果您的计算资源允许，请微调一个更大的预训练BERT模型，该模型与原始的BERT基础模型一样大。修改`load_pretrained_model`函数中的参数设置：将“bert.mall”替换为“bert.base”，将`num_hiddens=256`、`ffn_num_hiddens=512`、`num_heads=4`和`num_layers=2`的值分别增加到768、3072、12和12。通过增加微调迭代轮数（可能还会调优其他超参数），你可以获得高于0.86的测试精度吗？
+1. 如果您的计算资源允许，请微调一个更大的预训练BERT模型，该模型与原始的BERT基础模型一样大。修改`load_pretrained_model`函数中的参数设置：将“bert.small”替换为“bert.base”，将`num_hiddens=256`、`ffn_num_hiddens=512`、`num_heads=4`和`num_layers=2`的值分别增加到768、3072、12和12。通过增加微调迭代轮数（可能还会调优其他超参数），你可以获得高于0.86的测试精度吗？
 1. 如何根据一对序列的长度比值截断它们？将此对截断方法与`SNLIBERTDataset`类中使用的方法进行比较。它们的利弊是什么？
 
 :begin_tab:`mxnet`

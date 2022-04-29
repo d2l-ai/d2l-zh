@@ -98,7 +98,24 @@ annotate('saddle point', (0, -0.2), (-0.52, -5.0))
 如下例所示，较高维度的鞍点甚至更加隐蔽。考虑这个函数$f(x, y) = x^2 - y^2$。它的鞍点为$(0, 0)$。这是关于$y$的最大值，也是关于$x$的最小值。此外，它*看起来*像马鞍，这就是这个数学属性的名字由来。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet
+x, y = d2l.meshgrid(
+    d2l.linspace(-1.0, 1.0, 101), d2l.linspace(-1.0, 1.0, 101))
+z = x**2 - y**2
+ax = d2l.plt.figure().add_subplot(111, projection='3d')
+ax.plot_wireframe(x.asnumpy(), y.asnumpy(), z.asnumpy(),
+                  **{'rstride': 10, 'cstride': 10})
+ax.plot([0], [0], [0], 'rx')
+ticks = [-1, 0, 1]
+d2l.plt.xticks(ticks)
+d2l.plt.yticks(ticks)
+ax.set_zticks(ticks)
+d2l.plt.xlabel('x')
+d2l.plt.ylabel('y');
+```
+
+```{.python .input}
+#@tab pytorch, tensorflow
 x, y = d2l.meshgrid(
     d2l.linspace(-1.0, 1.0, 101), d2l.linspace(-1.0, 1.0, 101))
 z = x**2 - y**2
