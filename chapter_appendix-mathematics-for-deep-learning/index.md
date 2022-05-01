@@ -1,26 +1,25 @@
-# Appendix: Mathematics for Deep Learning
+# 附录: 深度学习中的数学
 :label:`chap_appendix_math`
 
 **Brent Werness** (*Amazon*), **Rachel Hu** (*Amazon*), and authors of this book
 
+现代深度学习的美妙之处在于，可以在不完全理解其背后的数学知识的情况下理解和使用深度学习。这标志着这个领域正在成熟。就像大多数软件开发人员不再需要担心可计算函数的理论一样，深度学习的实践者也不需要担心最大似然学习的理论基础。
 
-One of the wonderful parts of modern deep learning is the fact that much of it can be understood and used without a full understanding of the mathematics below it.  This is a sign that the field is maturing.  Just as most software developers no longer need to worry about the theory of computable functions, neither should deep learning practitioners need to worry about the theoretical foundations of maximum likelihood learning.
+但是，还没有到那一步。
 
-But, we are not quite there yet.
+在实践中，有时需要理解架构选择如何影响梯度流，或者通过使用某个损失函数进行训练而做出的隐式假设。可能需要知道在这个世界上熵度量的是什么，以及它如何帮助确切地理解每个字符位在模型中意味着什么。这些都需要更深入的数学理解。
 
-In practice, you will sometimes need to understand how architectural choices influence gradient flow, or the implicit assumptions you make by training with a certain loss function.  You might need to know what in the world entropy measures, and how it can help you understand exactly what bits-per-character means in your model.  These all require deeper mathematical understanding.
+本附录旨在提供理解现代深度学习核心理论所需的数学背景，但它并非详尽无遗。从更深入地研究线性代数开始。接着对所有常见线性代数对象和运算的几何理解，将能够可视化各种变换对数据的影响。关键因素之一是基于特征分解的发展。
 
-This appendix aims to provide you the mathematical background you need to understand the core theory of modern deep learning, but it is not exhaustive.  We will begin with examining linear algebra in greater depth.  We develop a geometric understanding of all the common linear algebraic objects and operations that will enable us to visualize the effects of various transformations on our data.  A key element is the development of the basics of eigen-decompositions.
+接下来，将发展微分理论，能够充分理解为什么梯度是最陡下降的方向，以及为什么反向传播采用它所采用的形式。然后对积分微积分进行了必要的讨论，以支持下一个主题，概率论。
 
-We next develop the theory of differential calculus to the point that we can fully understand why the gradient is the direction of steepest descent, and why back-propagation takes the form it does.  Integral calculus is then discussed to the degree needed to support our next topic, probability theory.
+在实践中遇到的问题往往是不确定的，因此需要一种语言来谈论不确定的事情。回顾了随机变量的理论和最常见的分布，因此可以讨论模型的概率。这为朴素贝叶斯分类器（概率分类技术）提供了基础。
 
-Problems encountered in practice frequently are not certain, and thus we need a language to speak about uncertain things.  We review the theory of random variables and the most commonly encountered distributions so we may discuss models probabilistically.  This provides the foundation for the naive Bayes classifier, a probabilistic classification technique.
+与概率论密切相关的是统计学的研究。虽然统计学是很广泛的领域，不能在短短的一节中进行讨论，但可以介绍所有机器学习实践者应该了解的基本概念，特别是：评估和比较估计量，进行假设检验，以及构建置信区间。
 
-Closely related to probability theory is the study of statistics.  While statistics is far too large a field to do justice in a short section, we will introduce fundamental concepts that all machine learning practitioners should be aware of, in particular: evaluating and comparing estimators, conducting hypothesis tests, and constructing confidence intervals.
+最后，转向信息论的主题，这是对信息存储和传输的数学研究。这提供了一种核心语言，通过这种语言，可以定量地讨论模型在论述的领域中包含了多少信息。
 
-Last, we turn to the topic of information theory, which is the mathematical study of information storage and transmission.  This provides the core language by which we may discuss quantitatively how much information a model holds on a domain of discourse.
-
-Taken together, these form the core of the mathematical concepts needed to begin down the path towards a deep understanding of deep learning.
+综上所述，这些构成了深入理解深度学习所需的数学概念的核心。
 
 ```toc
 :maxdepth: 2
