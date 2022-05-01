@@ -25,12 +25,12 @@ $$
 或者
 
 $$
-\mathbf{x}^\top = \begin{bmatrix}1 & 7 & 0 & 1\end{bmatrix}.
+\mathbf{x}^\top = \begin{bmatrix}1 & 7 & 0 & 1\end{bmatrix}. 
 $$
 
-这些通常有不同的解释，其中数据样本是列向量，用于构成加权和的权重是行向量。然而，灵活是有益的。:numref:`sec_linear-algebra` 中描述，尽管向量的默认方向是一个列向量，对于任何矩阵代表表格数据集，将每个数据样本作为行向量矩阵更为传统。
+这些通常有不同的解释，其中数据样本是列向量，用于构成加权和的权重是行向量。然而，灵活是有益的。 :numref:`sec_linear-algebra` 中描述，尽管向量的默认方向是一个列向量，对于任何矩阵代表表格数据集，将每个数据样本作为行向量矩阵更为传统。
 
-对于向量，首先可以解释为空间中的一点。在二维或三维空间中，可以通过使用向量的分量来定义这些点在空间中相对于（称为）原点的固定参考点的位置。:numref:`fig_grid` 图中可以看到。
+对于向量，首先可以解释为空间中的一点。在二维或三维空间中，可以通过使用向量的分量来定义这些点在空间中相对于（称为）原点的固定参考点的位置。 :numref:`fig_grid` 图中可以看到。
 
 这种几何视角使我们能够在更抽象的层次上考虑问题。不再需要面对一些看似难以克服的问题，比如把图片归类为猫还是狗，可以开始把任务抽象地看作空间中点的集合，并把这个任务想象成发现如何区分两个不同的点簇。
 
@@ -44,69 +44,54 @@ $$
 ![可以将向量的加法可视化，首先跟随一个向量，然后跟随另一个向量。](../img/vec-add.svg)
 :label:`fig_add-vec`
 
-Vector subtraction has a similar interpretation.
-By considering the identity that $\mathbf{u} = \mathbf{v} + (\mathbf{u}-\mathbf{v})$,
-we see that the vector $\mathbf{u}-\mathbf{v}$ is the direction
-that takes us from the point $\mathbf{v}$ to the point $\mathbf{u}$.
+矢量减法也有类似的解释。通过 $\mathbf{u} = \mathbf{v} + (\mathbf{u}-\mathbf{v})$ 恒等式，可以看出向量 $\mathbf{u}-\mathbf{v}$ 就是从点 $\mathbf{v}$ 到点 $\mathbf{u}$ 的方向。
 
+## 点积与角度
 
-## Dot Products and Angles
-As we saw in :numref:`sec_linear-algebra`,
-if we take two column vectors $\mathbf{u}$ and $\mathbf{v}$,
-we can form their dot product by computing:
+在 :numref:`sec_linear-algebra`，看到两个列向量 $\mathbf{u}$ 和 $\mathbf{v}$，形成的点积的计算：
 
 $$\mathbf{u}^\top\mathbf{v} = \sum_i u_i\cdot v_i.$$
 :eqlabel:`eq_dot_def`
 
-Because :eqref:`eq_dot_def` is symmetric, we will mirror the notation
-of classical multiplication and write
+因为 :eqref:`eq_dot_def` 是对称的，将镜像经典乘法的表示法
 
 $$
 \mathbf{u}\cdot\mathbf{v} = \mathbf{u}^\top\mathbf{v} = \mathbf{v}^\top\mathbf{u},
 $$
 
-to highlight the fact that exchanging the order of the vectors will yield the same answer.
+为了强调这样一个事实交换两个向量的顺序会得到相同的结果。
 
-The dot product :eqref:`eq_dot_def` also admits a geometric interpretation: it is closely related to the angle between two vectors.  Consider the angle shown in :numref:`fig_angle`.
+点积 :eqref:`eq_dot_def` 也有几何解释：它与两个向量之间的夹角密切相关。图中所示的角度考虑 :numref:`fig_angle`。
 
-![Between any two vectors in the plane there is a well defined angle $\theta$.  We will see this angle is intimately tied to the dot product.](../img/vec-angle.svg)
+![平面上任意两个向量之间都有确定的角 $\theta$。我们会发现这个角与点积密切相关。](../img/vec-angle.svg)
 :label:`fig_angle`
 
-To start, let's consider two specific vectors:
+首先，考虑两个特定的向量：
 
 $$
 \mathbf{v} = (r,0) \; \text{and} \; \mathbf{w} = (s\cos(\theta), s \sin(\theta)).
 $$
 
-The vector $\mathbf{v}$ is length $r$ and runs parallel to the $x$-axis,
-and the vector $\mathbf{w}$ is of length $s$ and at angle $\theta$ with the $x$-axis.
-If we compute the dot product of these two vectors, we see that
+向量 $\mathbf{v}$ 是长度 $r$，与 $x$ 轴平行，向量 $\mathbf{w}$ 是长度 $s$，与 $x$ 轴成角度 $\theta$。如果计算这两个向量的点积，可以看到
 
 $$
 \mathbf{v}\cdot\mathbf{w} = rs\cos(\theta) = \|\mathbf{v}\|\|\mathbf{w}\|\cos(\theta).
 $$
 
-With some simple algebraic manipulation, we can rearrange terms to obtain
+通过一些简单的代数运算，可以重新排列项来得到
 
 $$
 \theta = \arccos\left(\frac{\mathbf{v}\cdot\mathbf{w}}{\|\mathbf{v}\|\|\mathbf{w}\|}\right).
 $$
 
-In short, for these two specific vectors,
-the dot product combined with the norms tell us the angle between the two vectors. This same fact is true in general. We will not derive the expression here, however,
-if we consider writing $\|\mathbf{v} - \mathbf{w}\|^2$ in two ways:
-one with the dot product, and the other geometrically using the law of cosines,
-we can obtain the full relationship.
-Indeed, for any two vectors $\mathbf{v}$ and $\mathbf{w}$,
-the angle between the two vectors is
+简而言之，对于这两个特定的向量，点积结合模告诉我们两个向量之间的夹角。这一事实在一般情况下是成立的。我们不会在这里推导出这个表达式，但是，如果我们考虑写作 $\|\mathbf{v} - \mathbf{w}\|^2$ 的话有两种方法：一种是点积，另一种是几何上利用余弦定理，我们可以得到完整的关系。事实上，对于任意两个向量 $\mathbf{v}$ 和 $\mathbf{w}$，两个向量之间的夹角是
 
 $$\theta = \arccos\left(\frac{\mathbf{v}\cdot\mathbf{w}}{\|\mathbf{v}\|\|\mathbf{w}\|}\right).$$
 :eqlabel:`eq_angle_forumla`
 
-This is a nice result since nothing in the computation references two-dimensions.
-Indeed, we can use this in three or three million dimensions without issue.
+这是一个很好的结果，因为在计算中没有任何东西是二维参考系的。事实上，可以在 300 万维度中使用它。
 
-As a simple example, let's see how to compute the angle between a pair of vectors:
+作为简单的例子，让我们看看如何计算一对向量之间的夹角：
 
 ```{.python .input}
 #@tab mxnet
