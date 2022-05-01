@@ -14,63 +14,34 @@
 v = [1, 7, 0, 1]
 ```
 
-Mathematicians most often write this as either a *column* or *row* vector, which is to say either as
+数学家们通常把它写成 **列** 向量或 **行** 向量，也就是
+
+数学家们通常把它写成 *列* 或*行*向量，也就是说要么是
 
 $$
 \mathbf{x} = \begin{bmatrix}1\\7\\0\\1\end{bmatrix},
 $$
 
-or
+或者
 
 $$
 \mathbf{x}^\top = \begin{bmatrix}1 & 7 & 0 & 1\end{bmatrix}.
 $$
 
-These often have different interpretations,
-where data examples are column vectors
-and weights used to form weighted sums are row vectors.
-However, it can be beneficial to be flexible.
-As we have described in :numref:`sec_linear-algebra`,
-though a single vector's default orientation is a column vector,
-for any matrix representing a tabular dataset,
-treating each data example as a row vector
-in the matrix
-is more conventional.
+这些通常有不同的解释，其中数据样本是列向量，用于构成加权和的权重是行向量。然而，灵活是有益的。:numref:`sec_linear-algebra` 中描述，尽管向量的默认方向是一个列向量，对于任何矩阵代表表格数据集，将每个数据样本作为行向量矩阵更为传统。
 
-Given a vector, the first interpretation
-that we should give it is as a point in space.
-In two or three dimensions, we can visualize these points
-by using the components of the vectors to define
-the location of the points in space compared
-to a fixed reference called the *origin*.  This can be seen in :numref:`fig_grid`.
+对于向量，首先可以解释为空间中的一点。在二维或三维空间中，可以通过使用向量的分量来定义这些点在空间中相对于（称为）原点的固定参考点的位置。:numref:`fig_grid` 图中可以看到。
 
-![An illustration of visualizing vectors as points in the plane.  The first component of the vector gives the $x$-coordinate, the second component gives the $y$-coordinate.  Higher dimensions are analogous, although much harder to visualize.](../img/grid-points.svg)
-:label:`fig_grid`
+这种几何视角使我们能够在更抽象的层次上考虑问题。不再需要面对一些看似难以克服的问题，比如把图片归类为猫还是狗，可以开始把任务抽象地看作空间中点的集合，并把这个任务想象成发现如何区分两个不同的点簇。
 
-This geometric point of view allows us to consider the problem on a more abstract level.
-No longer faced with some insurmountable seeming problem
-like classifying pictures as either cats or dogs,
-we can start considering tasks abstractly
-as collections of points in space and picturing the task
-as discovering how to separate two distinct clusters of points.
+与此同时，人们对向量的第二种看法是：空间中的方向。不仅可以考虑向量 $\mathbf{v} = [3,2]^\top$ 作为从原点往右 $3$ 单位往上 $2$ 单位的位置，也可以把它看作是向右和向上移动的方向。通过这种方式，认为所有的向量和 :numref:`fig_arrow` 相同。
 
-In parallel, there is a second point of view
-that people often take of vectors: as directions in space.
-Not only can we think of the vector $\mathbf{v} = [3,2]^\top$
-as the location $3$ units to the right and $2$ units up from the origin,
-we can also think of it as the direction itself
-to take $3$ steps to the right and $2$ steps up.
-In this way, we consider all the vectors in figure :numref:`fig_arrow` the same.
-
-![Any vector can be visualized as an arrow in the plane.  In this case, every vector drawn is a representation of the vector $(3,2)^\top$.](../img/par-vec.svg)
+![任何向量都可以表示为平面上的箭头。在这种情况下，所画的每个向量都是向量 $(3,2)^\top$ 的表示。](../img/par-vec.svg)
 :label:`fig_arrow`
 
-One of the benefits of this shift is that
-we can make visual sense of the act of vector addition.
-In particular, we follow the directions given by one vector,
-and then follow the directions given by the other, as is seen in :numref:`fig_add-vec`.
+这种变换的好处之一是，可以从视觉上理解向量加法的行为。特别是，遵循的方向向量，就像在 :numref:`fig_add-vec` 所遵循的方向。
 
-![We can visualize vector addition by first following one vector, and then another.](../img/vec-add.svg)
+![可以将向量的加法可视化，首先跟随一个向量，然后跟随另一个向量。](../img/vec-add.svg)
 :label:`fig_add-vec`
 
 Vector subtraction has a similar interpretation.
