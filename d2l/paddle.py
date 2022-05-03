@@ -143,16 +143,14 @@ def sgd(params, lr, batch_size):
     """小批量随机梯度下降
 
     Defined in :numref:`sec_linear_scratch`"""
-    revise_params=[]
     with paddle.no_grad():
-        for param in params:
-            param -= lr * param.grad / batch_size
-            param.stop_gradient = False
-            revise_params.append(param)
-        return revise_params
+        for i,param in enumerate(params):
+            param -= lr * params[i].grad/ batch_size
+            params[i].set_value(param.numpy())
+            params[i].clear_gradient()
 
 def load_array(data_arrays, batch_size, is_train=True):
-    """构造一个PyTorch数据迭代器
+    """构造一个Paddle数据迭代器
 
     Defined in :numref:`sec_linear_concise`"""
     dataset = paddle.io.TensorDataset(data_arrays)

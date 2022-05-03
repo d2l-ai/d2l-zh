@@ -278,15 +278,13 @@ def sgd(params, grads, lr, batch_size):  #@save
 ```{.python .input}
 #@tab paddle
 #@save
-def sgd(params, lr, batch_size):
+def sgd(params, lr, batch_size):  
     """小批量随机梯度下降"""
-    revise_params=[]
     with paddle.no_grad():
-        for param in params:
-            param -= lr * param.grad / batch_size
-            param.stop_gradient = False
-            revise_params.append(param)
-        return revise_params
+        for i,param in enumerate(params):
+            param -= lr * params[i].grad/ batch_size
+            params[i].set_value(param.numpy())
+            params[i].clear_gradient()
 ```
 
 ## 训练
@@ -367,7 +365,7 @@ for epoch in range(num_epochs):
         # 因为l形状是(batch_size,1)，而不是一个标量。l中的所有元素被加到一起，
         # 并以此计算关于[w,b]的梯度
         l.sum().backward()
-        [w,b] = sgd([w, b], lr, batch_size)  # 使用参数的梯度更新参数
+        sgd([w, b], lr, batch_size)  # 使用参数的梯度更新参数
     with paddle.no_grad():
         train_l = loss(net(features, w, b), labels)
         print(f'epoch {epoch + 1}, loss {float(train_l.mean()):f}')
