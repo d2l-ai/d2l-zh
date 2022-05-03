@@ -131,6 +131,10 @@ import tensorflow as tf
 #@save
 import numpy as np
 import paddle
+from paddle import nn
+from paddle.nn import functional as F
+from paddle.vision import transforms
+from PIL import Image
 ```
 
 ### 目标受众
