@@ -573,15 +573,6 @@ class Updater():  #@save
 updater = Updater([W, b], lr=0.1)
 ```
 
-```{.python .input}
-#@tab paddle
-lr = 0.1
-
-def updater(batch_size):
-    global W, b
-    W,b = d2l.sgd([W, b], lr, batch_size)
-```
-
 现在，我们[**训练模型10个迭代周期**]。
 请注意，迭代周期（`num_epochs`）和学习率（`lr`）都是可调节的超参数。
 通过更改它们的值，我们可以提高模型的分类精度。
