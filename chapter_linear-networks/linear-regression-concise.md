@@ -88,7 +88,7 @@ def load_array(data_arrays, batch_size, is_train=True):  #@save
 #@tab paddle
 #@save
 def load_array(data_arrays, batch_size, is_train=True):
-    """构造一个PyTorch数据迭代器"""
+    """构造一个Paddle数据迭代器"""
     dataset = paddle.io.TensorDataset(data_arrays)
     return paddle.io.DataLoader(dataset, batch_size=batch_size,
                                 shuffle=is_train)
