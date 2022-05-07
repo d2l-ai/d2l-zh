@@ -198,6 +198,13 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import paddle
+```
+
 ### ReLU函数
 
 最受欢迎的激活函数是*修正线性单元*（Rectified linear unit，*ReLU*），
@@ -233,6 +240,14 @@ y = tf.nn.relu(x)
 d2l.plot(x.numpy(), y.numpy(), 'x', 'relu(x)', figsize=(5, 2.5))
 ```
 
+```{.python .input}
+#@tab paddle
+x = paddle.arange(-8.0, 8.0, 0.1, dtype='float32')
+x.stop_gradient = False
+y = paddle.nn.functional.relu(x)
+d2l.plot(x.detach().numpy(), y.detach().numpy(), 'x', 'relu(x)', figsize=(5, 2.5))
+```
+
 当输入为负时，ReLU函数的导数为0，而当输入为正时，ReLU函数的导数为1。
 注意，当输入值精确等于0时，ReLU函数不可导。
 在此时，我们默认使用左侧的导数，即当输入为0时导数为0。
@@ -258,6 +273,12 @@ with tf.GradientTape() as t:
     y = tf.nn.relu(x)
 d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'grad of relu',
          figsize=(5, 2.5))
+```
+
+```{.python .input}
+#@tab paddle
+y.backward(paddle.ones_like(x), retain_graph=True)
+d2l.plot(x.detach().numpy(), x.grad.numpy(), 'x', 'grad of relu', figsize=(5, 2.5))
 ```
 
 使用ReLU的原因是，它求导表现得特别好：要么让参数消失，要么让参数通过。
@@ -312,6 +333,12 @@ y = tf.nn.sigmoid(x)
 d2l.plot(x.numpy(), y.numpy(), 'x', 'sigmoid(x)', figsize=(5, 2.5))
 ```
 
+```{.python .input}
+#@tab paddle
+y = paddle.nn.functional.sigmoid(x)
+d2l.plot(x.detach().numpy(), y.detach().numpy(), 'x', 'sigmoid(x)', figsize=(5, 2.5))
+```
+
 sigmoid函数的导数为下面的公式：
 
 $$\frac{d}{dx} \operatorname{sigmoid}(x) = \frac{\exp(-x)}{(1 + \exp(-x))^2} = \operatorname{sigmoid}(x)\left(1-\operatorname{sigmoid}(x)\right).$$
@@ -339,6 +366,14 @@ with tf.GradientTape() as t:
     y = tf.nn.sigmoid(x)
 d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'grad of sigmoid',
          figsize=(5, 2.5))
+```
+
+```{.python .input}
+#@tab paddle
+# 清除以前的梯度。
+x.clear_gradient()
+y.backward(paddle.ones_like(x), retain_graph=True)
+d2l.plot(x.detach().numpy(), x.grad.numpy(), 'x', 'grad of sigmoid', figsize=(5, 2.5))
 ```
 
 ### tanh函数
@@ -372,6 +407,12 @@ y = tf.nn.tanh(x)
 d2l.plot(x.numpy(), y.numpy(), 'x', 'tanh(x)', figsize=(5, 2.5))
 ```
 
+```{.python .input}
+#@tab paddle
+y = paddle.tanh(x)
+d2l.plot(x.detach().numpy(), y.detach().numpy(), 'x', 'tanh(x)', figsize=(5, 2.5))
+```
+
 tanh函数的导数是：
 
 $$\frac{d}{dx} \operatorname{tanh}(x) = 1 - \operatorname{tanh}^2(x).$$
@@ -400,6 +441,14 @@ with tf.GradientTape() as t:
     y = tf.nn.tanh(x)
 d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'grad of tanh',
          figsize=(5, 2.5))
+```
+
+```{.python .input}
+#@tab paddle
+# 清除以前的梯度。
+x.clear_gradient()
+y.backward(paddle.ones_like(x), retain_graph=True)
+d2l.plot(x.detach().numpy(), x.grad.numpy(), 'x', 'grad of tanh', figsize=(5, 2.5))
 ```
 
 总结一下，我们现在了解了如何结合非线性函数来构建具有更强表达能力的多层神经网络架构。
