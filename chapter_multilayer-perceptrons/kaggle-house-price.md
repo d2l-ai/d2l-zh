@@ -172,7 +172,7 @@ import pandas as pd
 import numpy as np
 ```
 
-```{.python .input  n=4}
+```{.python .input}
 #@tab paddle
 # 如果pandas没有被安装，请取消下一句的注释。
 # !pip install pandas
@@ -308,7 +308,7 @@ def get_net():
     return net
 ```
 
-```{.python .input  n=13}
+```{.python .input}
 #@tab pytorch, paddle
 loss = nn.MSELoss()
 in_features = train_features.shape[1]
@@ -374,7 +374,7 @@ def log_rmse(y_true, y_pred):
         tf.math.log(y_true), tf.math.log(clipped_preds))))
 ```
 
-```{.python .input  n=14}
+```{.python .input}
 #@tab paddle
 def log_rmse(net, features, labels):
     # 为了在取对数时进一步稳定该值，将小于1的值设置为1
@@ -453,7 +453,7 @@ def train(net, train_features, train_labels, test_features, test_labels,
     return train_ls, test_ls
 ```
 
-```{.python .input  n=27}
+```{.python .input}
 #@tab paddle
 def train(net, train_features, train_labels, test_features, test_labels,
           num_epochs, learning_rate, weight_decay, batch_size):
