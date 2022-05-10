@@ -77,7 +77,7 @@ net = nn.Sequential(nn.Flatten(),
 for layer in net:
     if type(layer) == nn.Linear:
         weight_attr = paddle.framework.ParamAttr(initializer=paddle.nn.initializer.Normal(mean=0.0, std=0.01))
-        layer.weight_attr=weight_attr
+        layer.weight_attr = weight_attr
 ```
 
 [**训练过程**]的实现与我们实现softmax回归时完全相同，

@@ -458,11 +458,11 @@ def train_concise(wd):
 def train_concise(wd):
     weight_attr = paddle.framework.ParamAttr(initializer=paddle.nn.initializer.Normal(mean=0.0, std=1.0))
     bias_attr = paddle.framework.ParamAttr(initializer=paddle.nn.initializer.Normal(mean=0.0, std=1.0))
-    net = nn.Sequential(nn.Linear(num_inputs, 1 ,weight_attr=weight_attr, bias_attr=bias_attr))
+    net = nn.Sequential(nn.Linear(num_inputs, 1, weight_attr=weight_attr, bias_attr=bias_attr))
     loss = nn.MSELoss()
     num_epochs, lr = 100, 0.003
     # 偏置参数没有衰减。
-    trainer = paddle.optimizer.SGD(parameters = net[0].parameters(), learning_rate=lr,weight_decay = wd*1.0)
+    trainer = paddle.optimizer.SGD(parameters=net[0].parameters(), learning_rate=lr, weight_decay=wd*1.0)
     animator = d2l.Animator(xlabel='epochs', ylabel='loss', yscale='log',
                             xlim=[5, num_epochs], legend=['train', 'test'])
     for epoch in range(num_epochs):
