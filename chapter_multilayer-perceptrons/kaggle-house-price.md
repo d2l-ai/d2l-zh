@@ -174,7 +174,7 @@ import numpy as np
 
 ```{.python .input}
 #@tab paddle
-# 如果pandas没有被安装，请取消下一句的注释。
+# 如果你没有安装pandas，请取消下一行的注释
 # !pip install pandas
 
 %matplotlib inline
