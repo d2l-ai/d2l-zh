@@ -174,7 +174,7 @@ import numpy as np
 
 ```{.python .input}
 #@tab paddle
-# 如果pandas没有被安装，请取消下一句的注释。
+# 如果你没有安装pandas，请取消下一行的注释
 # !pip install pandas
 
 %matplotlib inline
@@ -460,7 +460,9 @@ def train(net, train_features, train_labels, test_features, test_labels,
     train_ls, test_ls = [], []
     train_iter = d2l.load_array((train_features, train_labels), batch_size)
     # 这里使用的是Adam优化算法
-    optimizer = paddle.optimizer.Adam(learning_rate=learning_rate, parameters=net.parameters(),weight_decay = weight_decay)
+    optimizer = paddle.optimizer.Adam(learning_rate=learning_rate*1.0, 
+                                      parameters=net.parameters(), 
+                                      weight_decay=weight_decay*1.0)
     for epoch in range(num_epochs):
         for X, y in train_iter:
             l = loss(net(X), y)
