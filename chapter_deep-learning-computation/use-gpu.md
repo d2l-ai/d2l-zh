@@ -52,6 +52,23 @@
 我们通常希望模型的参数在GPU上。
 :end_tab:
 
+:begin_tab:`paddle`
+在PaddlePaddle中，每个数组都有一个设备（device），
+我们通常将其称为上下文（context）。
+默认情况下，所有变量和相关的计算都分配给CPU。
+有时上下文可能是GPU。
+当我们跨多个服务器部署作业时，事情会变得更加棘手。
+通过智能地将数组分配给上下文，
+我们可以最大限度地减少在设备之间传输数据的时间。
+例如，当在带有GPU的服务器上训练神经网络时，
+我们通常希望模型的参数在GPU上。
+
+接下来，我们需要确认安装了PaddlePaddle的GPU版本。
+如果已经安装了PaddlePaddle的CPU版本，我们需要先卸载它。
+然后根据你的CUDA版本安装相应的PaddlePaddle的GPU版本。
+例如，假设你安装了CUDA10.1，你可以通过`conda install paddlepaddle-gpu==2.2.2 cudatoolkit=10.1 --channel https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/Paddle/`安装支持CUDA10.1的PaddlePaddle版本。
+:end_tab:
+
 要运行此部分中的程序，至少需要两个GPU。
 注意，对于大多数桌面计算机来说，这可能是奢侈的，但在云中很容易获得。
 例如，你可以使用AWS EC2的多GPU实例。
@@ -83,6 +100,17 @@
 另外，`cuda:0`和`cuda`是等价的。
 :end_tab:
 
+:begin_tab:`paddle`
+在PaddlePaddle中，CPU和GPU可以用`paddle.device.set_device('cpu')`
+和`paddle.device.set_device('gpu')`表示。
+应该注意的是，`cpu`设备意味着所有物理CPU和内存,
+这意味着PaddlePaddle的计算将尝试使用所有CPU核心。
+然而，`gpu`设备只代表一个卡和相应的显存。
+如果有多个GPU，我们使用`paddle.device.get_device()`
+来表示第i块GPU($i$从0开始)。
+另外，`cuda:0`和`cuda`是等价的。
+:end_tab:
+
 ```{.python .input}
 from mxnet import np, npx
 from mxnet.gluon import nn
@@ -106,6 +134,14 @@ import tensorflow as tf
 tf.device('/CPU:0'), tf.device('/GPU:0'), tf.device('/GPU:1')
 ```
 
+```{.python .input}
+#@tab paddle
+import paddle
+from paddle import nn
+
+paddle.device.set_device("cpu"), paddle.CUDAPlace(0), paddle.CUDAPlace(1)
+```
+
 我们可以(**查询可用gpu的数量。**)
 
 ```{.python .input}
@@ -120,6 +156,11 @@ torch.cuda.device_count()
 ```{.python .input}
 #@tab tensorflow
 len(tf.config.experimental.list_physical_devices('GPU'))
+```
+
+```{.python .input}
+#@tab paddle
+paddle.device.cuda.device_count()
 ```
 
 现在我们定义了两个方便的函数，
@@ -172,6 +213,25 @@ def try_all_gpus():  #@save
 try_gpu(), try_gpu(10), try_all_gpus()
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+def try_gpu(i=0):  
+    """如果存在，则返回gpu(i)，否则返回cpu()。"""
+    if paddle.device.cuda.device_count() >= i + 1:
+        return paddle.device.set_device(f'gpu:{i}') 
+    return paddle.device.set_device("cpu")
+
+#@save
+def try_all_gpus():  
+    """返回所有可用的GPU，如果没有GPU，则返回[cpu(),]。"""
+    devices = [paddle.device.set_device(f'gpu:{i}') 
+               for i in range(paddle.device.cuda.device_count())]
+    return devices if devices else paddle.device.get_device()
+
+try_gpu(),try_gpu(10),try_all_gpus()
+```
+
 ## 张量与GPU
 
 我们可以[**查询张量所在的设备。**]
@@ -192,6 +252,12 @@ x.device
 #@tab tensorflow
 x = tf.constant([1, 2, 3])
 x.device
+```
+
+```{.python .input}
+#@tab paddle
+x = paddle.to_tensor([1, 2, 3])
+x.place
 ```
 
 需要注意的是，无论何时我们要对多个项进行操作，
@@ -227,6 +293,12 @@ with try_gpu():
 X
 ```
 
+```{.python .input}
+#@tab paddle
+X = paddle.to_tensor(paddle.ones(shape=[2, 3]), place=try_gpu())
+X
+```
+
 假设你至少有两个GPU，下面的代码将在(**第二个GPU上创建一个随机张量。**)
 
 ```{.python .input}
@@ -244,6 +316,12 @@ Y
 #@tab tensorflow
 with try_gpu(1):
     Y = tf.random.uniform((2, 3))
+Y
+```
+
+```{.python .input}
+#@tab paddle
+Y = paddle.to_tensor(paddle.rand([2, 3]), place=try_gpu(1))
 Y
 ```
 
@@ -267,7 +345,7 @@ print(Z)
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 Z = X.cuda(1)
 print(X)
 print(Z)
@@ -316,7 +394,7 @@ Z.as_in_ctx(try_gpu(1)) is Z
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 Z.cuda(1) is Z
 ```
 
@@ -371,6 +449,12 @@ with strategy.scope():
         tf.keras.layers.Dense(1)])
 ```
 
+```{.python .input}
+#@tab paddle
+net = nn.Sequential(nn.Linear(3, 1))
+net=net.to(try_gpu())
+```
+
 在接下来的几章中，
 我们将看到更多关于如何在GPU上运行模型的例子，
 因为它们将变得更加计算密集。
@@ -396,6 +480,11 @@ net[0].weight.data.device
 ```{.python .input}
 #@tab tensorflow
 net.layers[0].weights[0].device, net.layers[0].weights[1].device
+```
+
+```{.python .input}
+#@tab paddle
+net[0].weight.place
 ```
 
 总之，只要所有的数据和参数都在同一个设备上，

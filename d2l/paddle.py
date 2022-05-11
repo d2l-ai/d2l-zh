@@ -352,7 +352,93 @@ def predict_ch3(net, test_iter, n=6):
     preds = d2l.get_fashion_mnist_labels(d2l.argmax(net(X), axis=1))
     titles = [true +'\n' + pred for true, pred in zip(trues, preds)]
     d2l.show_images(
-        d2l.reshape(X[0:n], (n, 28, 28)), 1, n, titles=titles[0:n])# Alias defined in config.ini
+        d2l.reshape(X[0:n], (n, 28, 28)), 1, n, titles=titles[0:n])
+
+def evaluate_loss(net, data_iter, loss):
+    """评估给定数据集上模型的损失。
+
+    Defined in :numref:`sec_model_selection`"""
+    metric = d2l.Accumulator(2)  # 损失的总和, 样本数量
+    for X, y in data_iter:
+        out = net(X)
+        y = y.reshape(out.shape)
+        l = loss(out, y)
+        metric.add(l.sum(), l.numel())
+    return metric[0] / metric[1]
+
+DATA_HUB = dict()
+DATA_URL = 'http://d2l-data.s3-accelerate.amazonaws.com/'
+
+def download(name, cache_dir=os.path.join('..', 'data')):
+    """下载一个DATA_HUB中的文件，返回本地文件名
+
+    Defined in :numref:`sec_kaggle_house`"""
+    assert name in DATA_HUB, f"{name} 不存在于 {DATA_HUB}"
+    url, sha1_hash = DATA_HUB[name]
+    os.makedirs(cache_dir, exist_ok=True)
+    fname = os.path.join(cache_dir, url.split('/')[-1])
+    if os.path.exists(fname):
+        sha1 = hashlib.sha1()
+        with open(fname, 'rb') as f:
+            while True:
+                data = f.read(1048576)
+                if not data:
+                    break
+                sha1.update(data)
+        if sha1.hexdigest() == sha1_hash:
+            return fname  # 命中缓存
+    print(f'正在从{url}下载{fname}...')
+    r = requests.get(url, stream=True, verify=True)
+    with open(fname, 'wb') as f:
+        f.write(r.content)
+    return fname
+
+def download_extract(name, folder=None):
+    """下载并解压zip/tar文件
+
+    Defined in :numref:`sec_kaggle_house`"""
+    fname = download(name)
+    base_dir = os.path.dirname(fname)
+    data_dir, ext = os.path.splitext(fname)
+    if ext == '.zip':
+        fp = zipfile.ZipFile(fname, 'r')
+    elif ext in ('.tar', '.gz'):
+        fp = tarfile.open(fname, 'r')
+    else:
+        assert False, '只有zip/tar文件可以被解压缩'
+    fp.extractall(base_dir)
+    return os.path.join(base_dir, folder) if folder else data_dir
+
+def download_all():
+    """下载DATA_HUB中的所有文件
+
+    Defined in :numref:`sec_kaggle_house`"""
+    for name in DATA_HUB:
+        download(name)
+
+DATA_HUB['kaggle_house_train'] = (
+    DATA_URL + 'kaggle_house_pred_train.csv',
+    '585e9cc93e70b39160e7921475f9bcd7d31219ce')
+
+DATA_HUB['kaggle_house_test'] = (
+    DATA_URL + 'kaggle_house_pred_test.csv',
+    'fa19780a7b011d9b009e8bff8e99922a8ee2eb90')
+
+def try_gpu(i=0):
+    """如果存在，则返回gpu(i)，否则返回cpu()。
+
+    Defined in :numref:`sec_use_gpu`"""
+    if paddle.device.cuda.device_count() >= i + 1:
+        return paddle.device.set_device(f'gpu:{i}')
+    return paddle.device.set_device("cpu")
+
+def try_all_gpus():
+    """返回所有可用的GPU，如果没有GPU，则返回[cpu(),]。
+
+    Defined in :numref:`sec_use_gpu`"""
+    devices = [paddle.device.set_device(f'gpu:{i}')
+               for i in range(paddle.device.cuda.device_count())]
+    return devices if devices else paddle.device.get_device()# Alias defined in config.ini
 nn_Module = nn.Layer
 
 ones = paddle.ones
