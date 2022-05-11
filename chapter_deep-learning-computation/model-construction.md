@@ -94,6 +94,18 @@ X = tf.random.uniform((2, 20))
 net(X)
 ```
 
+```{.python .input  n=1}
+#@tab paddle
+import paddle
+from paddle import nn
+from paddle.nn import functional as F
+
+net = nn.Sequential(nn.Linear(20, 256), nn.ReLU(), nn.Linear(256, 10))
+
+X = paddle.rand([2, 20])
+net(X)
+```
+
 :begin_tab:`mxnet`
 在这个例子中，我们通过实例化`nn.Sequential`来构建我们的模型，
 返回的对象赋给`net`变量。
@@ -140,6 +152,20 @@ net(X)
 这是通过Block类的`__call__`函数实现的一个Python技巧。
 :end_tab:
 
+:begin_tab:`paddle`
+在这个例子中，我们通过实例化`nn.Sequential`来构建我们的模型，
+层的执行顺序是作为参数传递的。
+简而言之，(**`nn.Sequential`定义了一种特殊的`Layer`**)，
+即在PaddlePaddle中表示一个块的类，
+它维护了一个由`Layer`组成的有序列表。
+注意，两个全连接层都是`Linear`类的实例，
+`Linear`类本身就是`Layer`的子类。
+另外，到目前为止，我们一直在通过`net(X)`调用我们的模型来获得模型的输出。
+这实际上是`net.__call__(X)`的简写。
+这个前向传播函数非常简单：
+它将列表中的每个块连接在一起，将每个块的输出作为下一个块的输入。
+:end_tab:
+
 ## [**自定义块**]
 
 要想直观地了解块是如何工作的，最简单的方法就是自己实现一个。
@@ -154,6 +180,14 @@ net(X)
 :end_tab:
 
 :begin_tab:`pytorch`
+1. 将输入数据作为其前向传播函数的参数。
+1. 通过前向传播函数来生成输出。请注意，输出的形状可能与输入的形状不同。例如，我们上面模型中的第一个全连接的层接收一个20维的输入，但是返回一个维度为256的输出。
+1. 计算其输出关于输入的梯度，可通过其反向传播函数进行访问。通常这是自动发生的。
+1. 存储和访问前向传播计算所需的参数。
+1. 根据需要初始化模型参数。
+:end_tab:
+
+:begin_tab:`paddle`
 1. 将输入数据作为其前向传播函数的参数。
 1. 通过前向传播函数来生成输出。请注意，输出的形状可能与输入的形状不同。例如，我们上面模型中的第一个全连接的层接收一个20维的输入，但是返回一个维度为256的输出。
 1. 计算其输出关于输入的梯度，可通过其反向传播函数进行访问。通常这是自动发生的。
@@ -216,6 +250,23 @@ class MLP(tf.keras.Model):
         return self.out(self.hidden((X)))
 ```
 
+```{.python .input  n=2}
+#@tab paddle
+class MLP(nn.Layer):
+    # 用模型参数声明层。这里，我们声明两个全连接的层
+    def __init__(self):
+        # 调用`MLP`的父类Layer的构造函数来执行必要的初始化。
+        # 这样，在类实例化时也可以指定其他函数参数，例如模型参数`params`（稍后将介绍）
+        super().__init__()
+        self.hidden = nn.Linear(20, 256)  # 隐藏层
+        self.out = nn.Linear(256, 10)  # 输出层
+
+    # 定义模型的正向传播，即如何根据输入`X`返回所需的模型输出
+    def forward(self, X):
+        # 注意，这里我们使用ReLU的函数版本，其在nn.functional模块中定义。
+        return self.out(F.relu(self.hidden(X)))
+```
+
 我们首先看一下前向传播函数，它以`X`作为输入，
 计算带有激活函数的隐藏表示，并输出其未规范化的输出值。
 在这个`MLP`实现中，两个层都是实例变量。
@@ -243,7 +294,7 @@ net(X)
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 net = MLP()
 net(X)
 ```
@@ -321,6 +372,25 @@ class MySequential(tf.keras.Model):
         return X
 ```
 
+```{.python .input  n=3}
+#@tab paddle
+class MySequential(nn.Layer):
+    def __init__(self, *layers):
+        super(MySequential, self).__init__()
+        if len(layers) > 0 and isinstance(layers[0], tuple): # 如果传入的是一个tuple
+            for name, layer in layers:
+                self.add_sublayer(name, layer)  #add_sublayer方法会将layer添加到self._sub_layers(一个tuple)
+        else:
+            for idx, layer in enumerate(layers):
+                self.add_sublayer(str(idx), layer)
+
+    def forward(self, X):
+        # OrderedDict保证了按照成员添加的顺序遍历它们
+        for layer in self._sub_layers.values():
+            X = layer(X)
+        return X
+```
+
 :begin_tab:`mxnet`
 `add`函数向有序字典`_children`添加一个块。
 你可能会好奇为什么每个Gluon中的`Block`都有一个`_children`属性？
@@ -339,6 +409,15 @@ Gluon知道在`_children`字典中查找需要初始化参数的子块。
 系统知道在`_modules`字典中查找需要初始化参数的子块。
 :end_tab:
 
+:begin_tab:`paddle`
+`__init__`函数将每个模块逐个添加到有序字典`_sub_layers`中。
+你可能会好奇为什么每个`Layer`都有一个`_sub_layers`属性？
+以及为什么我们使用它而不是自己定义一个Python列表？
+简而言之，`_sub_layers`的主要优点是：
+在模块的参数初始化过程中，
+系统知道在`_sub_layers`字典中查找需要初始化参数的子块。
+:end_tab:
+
 当`MySequential`的前向传播函数被调用时，
 每个添加的块都按照它们被添加的顺序执行。
 现在可以使用我们的`MySequential`类重新实现多层感知机。
@@ -352,7 +431,7 @@ net(X)
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 net = MySequential(nn.Linear(20, 256), nn.ReLU(), nn.Linear(256, 10))
 net(X)
 ```
@@ -453,6 +532,27 @@ class FixedHiddenMLP(tf.keras.Model):
         return tf.reduce_sum(X)
 ```
 
+```{.python .input  n=6}
+#@tab paddle
+class FixedHiddenMLP(nn.Layer):
+    def __init__(self):
+        super().__init__()
+        # 不计算梯度的随机权重参数。因此其在训练期间保持不变。
+        self.rand_weight = paddle.rand([20, 20])
+        self.linear = nn.Linear(20, 20)
+
+    def forward(self, X):
+        X = self.linear(X)
+        # 使用创建的常量参数以及`relu`和`dot`函数。
+        X = F.relu(paddle.tensor.mm(X, self.rand_weight) + 1)
+        # 复用全连接层。这相当于两个全连接层共享参数。
+        X = self.linear(X)
+        # 控制流
+        while X.abs().sum() > 1:
+            X /= 2
+        return X.sum()
+```
+
 在这个`FixedHiddenMLP`模型中，我们实现了一个隐藏层，
 其权重（`self.rand_weight`）在实例化时被随机初始化，之后为常量。
 这个权重不是一个模型参数，因此它永远不会被反向传播更新。
@@ -471,8 +571,8 @@ net.initialize()
 net(X)
 ```
 
-```{.python .input}
-#@tab pytorch, tensorflow
+```{.python .input  n=7}
+#@tab pytorch, tensorflow, paddle
 net = FixedHiddenMLP()
 net(X)
 ```
@@ -534,6 +634,22 @@ chimera.add(FixedHiddenMLP())
 chimera(X)
 ```
 
+```{.python .input  n=8}
+#@tab paddle
+class NestMLP(nn.Layer):
+    def __init__(self):
+        super().__init__()
+        self.net = nn.Sequential(nn.Linear(20, 64), nn.ReLU(),
+                                 nn.Linear(64, 32), nn.ReLU())
+        self.linear = nn.Linear(32, 16)
+
+    def forward(self, X):
+        return self.linear(self.net(X))
+
+chimera = nn.Sequential(NestMLP(), nn.Linear(16, 20), FixedHiddenMLP())
+chimera(X)
+```
+
 ## 效率
 
 :begin_tab:`mxnet`
@@ -570,6 +686,16 @@ Python的问题[全局解释器锁](https://wiki.python.org/moin/GlobalInterpret
 是众所周知的。
 在深度学习环境中，我们担心速度极快的GPU可能要等到CPU运行Python代码后才能运行另一个作业。
 :end_tab:
+
+:begin_tab:`paddle`
+你可能会开始担心操作效率的问题。
+毕竟，我们在一个高性能的深度学习库中进行了大量的字典查找、
+代码执行和许多其他的Python代码。
+Python的问题[全局解释器锁](https://wiki.python.org/moin/GlobalInterpreterLock)
+是众所周知的。
+在深度学习环境中，我们担心速度极快的GPU可能要等到CPU运行Python代码后才能运行另一个作业。
+:end_tab:
+
 
 ## 小结
 
