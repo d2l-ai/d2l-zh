@@ -48,7 +48,14 @@ from torch import nn
 ```
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab paddle
+from d2l import paddle as d2l
+import paddle
+from paddle import nn
+```
+
+```{.python .input}
+#@tab mxnet, pytorch, paddle
 def corr2d(X, K):  #@save
     """计算二维互相关运算"""
     h, w = K.shape
@@ -132,6 +139,18 @@ class Conv2D(tf.keras.layers.Layer):
         return corr2d(inputs, self.weight) + self.bias
 ```
 
+```{.python .input}
+#@tab paddle
+class Conv2D(nn.Layer):
+    def __init__(self, kernel_size):
+        super().__init__()
+        self.weight = paddle.ParamAttr(paddle.rand(kernel_size))
+        self.bias = paddle.ParamAttr(paddle.zeros(1))
+
+    def forward(self, x):
+        return corr2d(x, self.weight) + self.bias
+```
+
 高度和宽度分别为$h$和$w$的卷积核可以被称为$h \times w$卷积或$h \times w$卷积核。
 我们也将带有$h \times w$卷积核的卷积层称为$h \times w$卷积层。
 
@@ -141,7 +160,7 @@ class Conv2D(tf.keras.layers.Layer):
 首先，我们构造一个$6\times 8$像素的黑白图像。中间四列为黑色（$0$），其余像素为白色（$1$）。
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, paddle
 X = d2l.ones((6, 8))
 X[:, 2:6] = 0
 X
@@ -258,6 +277,29 @@ for i in range(10):
             print(f'epoch {i+1}, loss {tf.reduce_sum(l):.3f}')
 ```
 
+```{.python .input}
+#@tab paddle
+# 构造一个二维卷积层，它具有1个输出通道和形状为（1，2）的卷积核
+conv2d = nn.Conv2D(1,1, kernel_size=(1, 2))
+
+# 这个二维卷积层使用四维输入和输出格式（批量大小、通道、高度、宽度），
+# 其中批量大小和通道数都为1
+X = X.reshape((1, 1, 6, 8))
+Y = Y.reshape((1, 1, 6, 7))
+lr = 3e-2  # 学习率
+
+for i in range(10):
+    Y_hat = conv2d(X)
+    l = (Y_hat - Y) ** 2
+    conv2d.clear_gradients()
+    l.sum().backward()
+    # 迭代卷积核
+    with paddle.no_grad():
+        conv2d.weight[:] -= lr * conv2d.weight.grad
+    if (i + 1) % 2 == 0:
+        print(f'epoch {i+1}, loss {l.sum().item():.3f}')
+```
+
 在$10$次迭代之后，误差已经降到足够低。现在我们来看看我们[**所学的卷积核的权重张量**]。
 
 ```{.python .input}
@@ -272,6 +314,11 @@ d2l.reshape(conv2d.weight.data, (1, 2))
 ```{.python .input}
 #@tab tensorflow
 d2l.reshape(conv2d.get_weights()[0], (1, 2))
+```
+
+```{.python .input}
+#@tab paddle
+d2l.reshape(conv2d.weight, (1, 2))
 ```
 
 细心的你一定会发现，我们学习到的卷积核权重非常接近我们之前定义的卷积核`K`。

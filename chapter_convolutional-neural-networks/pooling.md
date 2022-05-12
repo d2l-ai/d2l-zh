@@ -55,7 +55,14 @@ from torch import nn
 ```
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab paddle
+from d2l import paddle as d2l
+import paddle
+from paddle import nn
+```
+
+```{.python .input}
+#@tab mxnet, pytorch, paddle
 def pool2d(X, pool_size, mode='max'):
     p_h, p_w = pool_size
     Y = d2l.zeros((X.shape[0] - p_h + 1, X.shape[1] - p_w + 1))
@@ -122,6 +129,12 @@ X = d2l.reshape(d2l.arange(16, dtype=d2l.float32), (1, 4, 4, 1))
 X
 ```
 
+```{.python .input}
+#@tab paddle
+X = paddle.arange(16, dtype="float32").reshape((1, 1, 4, 4))
+X
+```
+
 默认情况下，(**深度学习框架中的步幅与汇聚窗口的大小相同**)。
 因此，如果我们使用形状为`(3, 3)`的汇聚窗口，那么默认情况下，我们得到的步幅形状为`(3, 3)`。
 
@@ -140,6 +153,12 @@ pool2d(X)
 ```{.python .input}
 #@tab tensorflow
 pool2d = tf.keras.layers.MaxPool2D(pool_size=[3, 3])
+pool2d(X)
+```
+
+```{.python .input}
+#@tab paddle
+pool2d = nn.MaxPool2D(3, stride=3)
 pool2d(X)
 ```
 
@@ -165,6 +184,12 @@ pool2d = tf.keras.layers.MaxPool2D(pool_size=[3, 3], padding='valid',
 pool2d(X_padded)
 ```
 
+```{.python .input}
+#@tab paddle
+pool2d = nn.MaxPool2D(3, padding=1, stride=2)
+pool2d(X)
+```
+
 :begin_tab:`mxnet`
 当然，我们可以设定一个任意大小的矩形汇聚窗口，并分别设定填充和步幅的高度和宽度。
 :end_tab:
@@ -174,6 +199,10 @@ pool2d(X_padded)
 :end_tab:
 
 :begin_tab:`tensorflow`
+当然，我们可以设定一个任意大小的矩形汇聚窗口，并分别设定填充和步幅的高度和宽度。
+:end_tab:
+
+:begin_tab:`paddle`
 当然，我们可以设定一个任意大小的矩形汇聚窗口，并分别设定填充和步幅的高度和宽度。
 :end_tab:
 
@@ -197,6 +226,12 @@ pool2d = tf.keras.layers.MaxPool2D(pool_size=[2, 3], padding='valid',
 pool2d(X_padded)
 ```
 
+```{.python .input}
+#@tab paddle
+pool2d = nn.MaxPool2D((2, 3), padding=(0, 1), stride=(2, 3))
+pool2d(X)
+```
+
 ## 多个通道
 
 在处理多通道输入数据时，[**汇聚层在每个输入通道上单独运算**]，而不是像卷积层一样在通道上对输入进行汇总。
@@ -209,7 +244,7 @@ pool2d(X_padded)
 :end_tab:
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, paddle
 X = d2l.concat((X, X + 1), 1)
 X
 ```
@@ -239,6 +274,12 @@ X_padded = tf.pad(X, paddings, "CONSTANT")
 pool2d = tf.keras.layers.MaxPool2D(pool_size=[3, 3], padding='valid',
                                    strides=2)
 pool2d(X_padded)
+```
+
+```{.python .input}
+#@tab paddle
+pool2d = paddle.nn.MaxPool2D(3, padding=1, stride=2)
+pool2d(X)
 ```
 
 :begin_tab:`tensorflow`
