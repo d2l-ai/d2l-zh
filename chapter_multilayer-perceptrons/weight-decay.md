@@ -135,6 +135,14 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import paddle
+from paddle import nn
+```
+
 首先，我们[**像以前一样生成一些数据**]，生成公式如下：
 
 (**$$y = 0.05 + \sum_{i = 1}^d 0.01 x_i + \epsilon \text{ where }
@@ -188,6 +196,16 @@ def init_params():
     return [w, b]
 ```
 
+```{.python .input}
+#@tab paddle
+def init_params():
+    w = paddle.normal(0, 1, shape=(num_inputs, 1))
+    w.stop_gradient = False
+    b = paddle.zeros(shape=[1])
+    b.stop_gradient = False
+    return [w, b]
+```
+
 ### (**定义$L_2$范数惩罚**)
 
 实现这一惩罚最方便的方法是对所有项求平方后并将它们求和。
@@ -207,6 +225,12 @@ def l2_penalty(w):
 #@tab tensorflow
 def l2_penalty(w):
     return tf.reduce_sum(tf.pow(w, 2)) / 2
+```
+
+```{.python .input}
+#@tab paddle
+def l2_penalty(w):
+    return paddle.sum(w.pow(2)) / 2
 ```
 
 ### [**定义训练代码实现**]
@@ -278,6 +302,27 @@ def train(lambd):
             animator.add(epoch + 1, (d2l.evaluate_loss(net, train_iter, loss),
                                      d2l.evaluate_loss(net, test_iter, loss)))
     print('w的L2范数是：', tf.norm(w).numpy())
+```
+
+```{.python .input}
+#@tab paddle
+def train(lambd):
+    w, b = init_params()
+    net, loss = lambda X: d2l.linreg(X, w, b), d2l.squared_loss
+    num_epochs, lr = 100, 0.003
+    animator = d2l.Animator(xlabel='epochs', ylabel='loss', yscale='log',
+                            xlim=[5, num_epochs], legend=['train', 'test'])
+    for epoch in range(num_epochs):
+        for X, y in train_iter():
+            # 增加了L2范数惩罚项,
+            #广播机制使l2_penalty(w)成为一个长度为`batch_size`的向量
+            l = loss(net(X), y) + lambd * l2_penalty(w)
+            l.sum().backward()
+            d2l.sgd([w, b], lr, batch_size)
+        if (epoch + 1) % 5 == 0:
+            animator.add(epoch + 1, (d2l.evaluate_loss(net, train_iter, loss),
+                                     d2l.evaluate_loss(net, test_iter, loss)))
+    print('w的L2范数是：', paddle.norm(w).item())
 ```
 
 ### [**忽略正则化直接训练**]
@@ -406,6 +451,30 @@ def train_concise(wd):
             animator.add(epoch + 1, (d2l.evaluate_loss(net, train_iter, loss),
                                      d2l.evaluate_loss(net, test_iter, loss)))
     print('w的L2范数：', tf.norm(net.get_weights()[0]).numpy())
+```
+
+```{.python .input}
+#@tab paddle
+def train_concise(wd):
+    weight_attr = paddle.framework.ParamAttr(initializer=paddle.nn.initializer.Normal(mean=0.0, std=1.0))
+    bias_attr = paddle.framework.ParamAttr(initializer=paddle.nn.initializer.Normal(mean=0.0, std=1.0))
+    net = nn.Sequential(nn.Linear(num_inputs, 1, weight_attr=weight_attr, bias_attr=bias_attr))
+    loss = nn.MSELoss()
+    num_epochs, lr = 100, 0.003
+    # 偏置参数没有衰减。
+    trainer = paddle.optimizer.SGD(parameters=net[0].parameters(), learning_rate=lr, weight_decay=wd*1.0)
+    animator = d2l.Animator(xlabel='epochs', ylabel='loss', yscale='log',
+                            xlim=[5, num_epochs], legend=['train', 'test'])
+    for epoch in range(num_epochs):
+        for X, y in train_iter:
+            l = loss(net(X), y)
+            l.backward()
+            trainer.step()
+            trainer.clear_grad()
+        if (epoch + 1) % 5 == 0:
+            animator.add(epoch + 1, (d2l.evaluate_loss(net, train_iter, loss),
+                                     d2l.evaluate_loss(net, test_iter, loss)))
+    print('w的L2范数：', net[0].weight.norm().item())
 ```
 
 [**这些图看起来和我们从零开始实现权重衰减时的图相同**]。
