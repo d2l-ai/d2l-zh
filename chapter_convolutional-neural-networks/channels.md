@@ -135,7 +135,7 @@ def corr2d_multi_in_out_1x1(X, K):
 
 当执行$1\times 1$卷积运算时，上述函数相当于先前实现的互相关函数`corr2d_multi_in_out`。让我们用一些样本数据来验证这一点。
 
-```{.python .input  n=1}
+```{.python .input}
 #@tab mxnet, pytorch, paddle
 X = d2l.normal(0, 1, (3, 3, 3))
 K = d2l.normal(0, 1, (2, 3, 1, 1))
