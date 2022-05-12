@@ -512,7 +512,8 @@ def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
     print(f'loss {train_l:.3f}, train acc {train_acc:.3f}, '
           f'test acc {test_acc:.3f}')
     print(f'{metric[2] * num_epochs / timer.sum():.1f} examples/sec '
-          f'on {str(device)}')# Alias defined in config.ini
+          f'on {str(device)}')# Alias defined in config.ini# Alias defined in config.ini
+
 nn_Module = nn.Layer
 
 ones = paddle.ones
