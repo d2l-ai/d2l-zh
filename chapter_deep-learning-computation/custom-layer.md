@@ -201,6 +201,7 @@ class MyLinear(nn.Layer):
         super().__init__()
         self.weight = paddle.create_parameter(shape=(in_units, units), dtype='float32')
         self.bias = paddle.create_parameter(shape=(units,), dtype='float32')
+        
     def forward(self, X):
         linear = paddle.matmul(X, self.weight) + self.bias
         return F.relu(linear)
