@@ -34,7 +34,13 @@ import torch
 ```
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab paddle
+from d2l import paddle as d2l
+import paddle
+```
+
+```{.python .input  n=1}
+#@tab mxnet, pytorch, paddle
 def corr2d_multi_in(X, K):
     # 先遍历“X”和“K”的第0个维度（通道维度），再把它们加在一起
     return sum(d2l.corr2d(x, k) for x, k in zip(X, K))
@@ -129,8 +135,8 @@ def corr2d_multi_in_out_1x1(X, K):
 
 当执行$1\times 1$卷积运算时，上述函数相当于先前实现的互相关函数`corr2d_multi_in_out`。让我们用一些样本数据来验证这一点。
 
-```{.python .input}
-#@tab mxnet, pytorch
+```{.python .input  n=1}
+#@tab mxnet, pytorch, paddle
 X = d2l.normal(0, 1, (3, 3, 3))
 K = d2l.normal(0, 1, (2, 3, 1, 1))
 ```

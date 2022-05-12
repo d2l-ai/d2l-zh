@@ -438,7 +438,82 @@ def try_all_gpus():
     Defined in :numref:`sec_use_gpu`"""
     devices = [paddle.device.set_device(f'gpu:{i}')
                for i in range(paddle.device.cuda.device_count())]
-    return devices if devices else paddle.device.get_device()# Alias defined in config.ini
+    return devices if devices else paddle.device.get_device()
+
+def corr2d(X, K):
+    """计算二维互相关运算
+
+    Defined in :numref:`sec_conv_layer`"""
+    h, w = K.shape
+    Y = d2l.zeros((X.shape[0] - h + 1, X.shape[1] - w + 1))
+    for i in range(Y.shape[0]):
+        for j in range(Y.shape[1]):
+            Y[i, j] = d2l.reduce_sum((X[i: i + h, j: j + w] * K))
+    return Y
+
+def evaluate_accuracy_gpu(net, data_iter, device=None):
+    """使用GPU计算模型在数据集上的精度
+
+    Defined in :numref:`sec_lenet`"""
+    if isinstance(net, nn.Layer):
+        net.eval()  # 设置为评估模式
+        if not device:
+            device = next(iter(net.parameters())).place
+    # 正确预测的数量，总预测的数量
+    metric = d2l.Accumulator(2)
+    with paddle.no_grad():
+        for X, y in data_iter:
+            if isinstance(X, list):
+                # BERT微调所需的
+                X = [paddle.to_tensor(x, place=device) for x in X]
+            else:
+                X = paddle.to_tensor(X, place=device)
+            y = paddle.to_tensor(y, place=device)
+            metric.add(d2l.accuracy(net(X), y), d2l.size(y))
+    return metric[0] / metric[1]
+
+def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
+    """用GPU训练模型(在第六章定义)
+
+    Defined in :numref:`sec_lenet`"""
+    def init_weights(m):
+        if type(m) == nn.Linear or type(m) == nn.Conv2D:
+            nn.initializer.XavierUniform(m.weight)
+    net.apply(init_weights)
+    print('training on', device)
+    net.to(device)
+    optimizer = paddle.optimizer.SGD(learning_rate=lr, parameters=net.parameters())
+    loss = nn.CrossEntropyLoss()
+    animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs],
+                            legend=['train loss', 'train acc', 'test acc'])
+    timer, num_batches = d2l.Timer(), len(train_iter)
+    for epoch in range(num_epochs):
+        # 训练损失之和，训练准确率之和，样本数
+        metric = d2l.Accumulator(3)
+        net.train()
+        for i, (X, y) in enumerate(train_iter):
+            timer.start()
+            optimizer.clear_grad()
+            X, y = paddle.to_tensor(X, place=device), paddle.to_tensor(y, place=device)
+            y_hat = net(X)
+            l = loss(y_hat, y)
+            l.backward()
+            optimizer.step()
+            with paddle.no_grad():
+                metric.add(l * X.shape[0], d2l.accuracy(y_hat, y), X.shape[0])
+            timer.stop()
+            train_l = metric[0] / metric[2]
+            train_acc = metric[1] / metric[2]
+            if (i + 1) % (num_batches // 5) == 0 or i == num_batches - 1:
+                animator.add(epoch + (i + 1) / num_batches,
+                             (train_l, train_acc, None))
+        test_acc = evaluate_accuracy_gpu(net, test_iter)
+        animator.add(epoch + 1, (None, None, test_acc))
+    print(f'loss {train_l:.3f}, train acc {train_acc:.3f}, '
+          f'test acc {test_acc:.3f}')
+    print(f'{metric[2] * num_epochs / timer.sum():.1f} examples/sec '
+          f'on {str(device)}')# Alias defined in config.ini# Alias defined in config.ini
+
 nn_Module = nn.Layer
 
 ones = paddle.ones
