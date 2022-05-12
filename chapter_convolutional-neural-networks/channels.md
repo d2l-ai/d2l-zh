@@ -39,7 +39,7 @@ from d2l import paddle as d2l
 import paddle
 ```
 
-```{.python .input  n=1}
+```{.python .input}
 #@tab mxnet, pytorch, paddle
 def corr2d_multi_in(X, K):
     # 先遍历“X”和“K”的第0个维度（通道维度），再把它们加在一起

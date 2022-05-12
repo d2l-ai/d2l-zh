@@ -156,7 +156,7 @@ for layer in net:
 ```{.python .input}
 #@tab all
 batch_size = 256
-train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size = batch_size)
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size=batch_size)
 ```
 
 虽然卷积神经网络的参数较少，但与深度的多层感知机相比，它们的计算成本仍然很高，因为每个参数都参与更多的乘法。
