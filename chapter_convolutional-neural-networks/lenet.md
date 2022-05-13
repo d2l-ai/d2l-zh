@@ -140,7 +140,7 @@ for layer in net().layers:
 X = paddle.rand((1, 1, 28, 28), 'float32')
 for layer in net:
     X = layer(X)
-    print(layer.__class__.__name__,'output shape: \t',X.shape)
+    print(layer.__class__.__name__, 'output shape: \t', X.shape)
 ```
 
 请注意，在整个卷积块中，与上一层相比，每一层特征的高度和宽度都减小了。
