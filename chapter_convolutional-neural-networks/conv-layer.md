@@ -280,7 +280,7 @@ for i in range(10):
 ```{.python .input}
 #@tab paddle
 # 构造一个二维卷积层，它具有1个输出通道和形状为（1，2）的卷积核
-conv2d = nn.Conv2D(1,1, kernel_size=(1, 2))
+conv2d = nn.Conv2D(1, 1, kernel_size=(1, 2))
 
 # 这个二维卷积层使用四维输入和输出格式（批量大小、通道、高度、宽度），
 # 其中批量大小和通道数都为1
