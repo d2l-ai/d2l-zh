@@ -303,7 +303,7 @@ class Seq2SeqDecoder(d2l.Decoder):
         output, state = self.rnn(X_and_context, state)
         output = self.dense(output).swapaxes(0, 1)
         # output的形状:(batch_size,num_steps,vocab_size)
-        # state[0]的形状:(num_layers,batch_size,num_hiddens)
+        # state的形状:(num_layers,batch_size,num_hiddens)
         return output, state
 ```
 
@@ -331,7 +331,7 @@ class Seq2SeqDecoder(d2l.Decoder):
         output, state = self.rnn(X_and_context, state)
         output = self.dense(output).permute(1, 0, 2)
         # output的形状:(batch_size,num_steps,vocab_size)
-        # state[0]的形状:(num_layers,batch_size,num_hiddens)
+        # state的形状:(num_layers,batch_size,num_hiddens)
         return output, state
 ```
 
