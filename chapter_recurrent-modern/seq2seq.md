@@ -134,7 +134,7 @@ class Seq2SeqEncoder(d2l.Encoder):
         state = self.rnn.begin_state(batch_size=X.shape[1], ctx=X.ctx)
         output, state = self.rnn(X, state)
         # output的形状:(num_steps,batch_size,num_hiddens)
-        # state[0]的形状:(num_layers,batch_size,num_hiddens)
+        # state的形状:(num_layers,batch_size,num_hiddens)
         return output, state
 ```
 
@@ -159,7 +159,7 @@ class Seq2SeqEncoder(d2l.Encoder):
         # 如果未提及状态，则默认为0
         output, state = self.rnn(X)
         # output的形状:(num_steps,batch_size,num_hiddens)
-        # state[0]的形状:(num_layers,batch_size,num_hiddens)
+        # state的形状:(num_layers,batch_size,num_hiddens)
         return output, state
 ```
 
