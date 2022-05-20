@@ -545,7 +545,7 @@ class FixedHiddenMLP(nn.Layer):
 
     def forward(self, X):
         X = self.linear(X)
-        # 使用创建的常量参数以及`relu`和`dot`函数。
+        # 使用创建的常量参数以及relu和mm函数。
         X = F.relu(paddle.tensor.mm(X, self.rand_weight) + 1)
         # 复用全连接层。这相当于两个全连接层共享参数。
         X = self.linear(X)
