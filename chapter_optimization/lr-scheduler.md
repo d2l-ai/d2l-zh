@@ -431,7 +431,7 @@ d2l.plot(d2l.arange(num_epochs), [scheduler(t) for t in range(num_epochs)])
 ```
 
 在计算机视觉的背景下，这个调度方式可能产生改进的结果。
-但请注意，如下所示，并不能保证这种改进一定成立。
+但请注意，如下所示，这种改进并不一定成立。
 
 ```{.python .input}
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
