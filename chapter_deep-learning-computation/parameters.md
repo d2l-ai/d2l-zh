@@ -55,6 +55,16 @@ X = tf.random.uniform((2, 4))
 net(X)
 ```
 
+```{.python .input}
+#@tab paddle
+import paddle
+from paddle import nn
+
+net = nn.Sequential(nn.Linear(4, 8), nn.ReLU(), nn.Linear(8, 1))
+X = paddle.rand([2, 4])
+net(X)
+```
+
 ## [**参数访问**]
 
 我们从已有模型中访问参数。
@@ -68,7 +78,7 @@ print(net[1].params)
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 print(net[2].state_dict())
 ```
 
@@ -110,7 +120,14 @@ print(net.layers[2].weights[1])
 print(tf.convert_to_tensor(net.layers[2].weights[1]))
 ```
 
-:begin_tab:`mxnet,pytorch`
+```{.python .input}
+#@tab paddle
+print(type(net[2].bias))
+print(net[2].bias)
+print(net[2].bias.value)
+```
+
+:begin_tab:`mxnet,pytorch,paddle`
 参数是复合的对象，包含值、梯度和额外信息。
 这就是我们需要显式参数值的原因。
 除了值之外，我们还可以访问每个参数的梯度。
@@ -122,7 +139,7 @@ net[1].weight.grad()
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 net[2].weight.grad == None
 ```
 
@@ -139,7 +156,7 @@ print(net.collect_params())
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 print(*[(name, param.shape) for name, param in net[0].named_parameters()])
 print(*[(name, param.shape) for name, param in net.named_parameters()])
 ```
@@ -164,6 +181,11 @@ net.state_dict()['2.bias'].data
 ```{.python .input}
 #@tab tensorflow
 net.get_weights()[1]
+```
+
+```{.python .input}
+#@tab paddle
+net.state_dict()['2.bias']
 ```
 
 ### [**从嵌套块收集参数**]
@@ -230,6 +252,23 @@ rgnet.add(tf.keras.layers.Dense(1))
 rgnet(X)
 ```
 
+```{.python .input}
+#@tab paddle
+def block1():
+    return nn.Sequential(nn.Linear(4, 8), nn.ReLU(), 
+                         nn.Linear(8, 4), nn.ReLU())
+
+def block2():
+    net = nn.Sequential()
+    for i in range(4):
+        # 在这里嵌套
+        net.add_sublayer(f'block {i}', block1())
+    return net
+
+rgnet = nn.Sequential(block2(), nn.Linear(4, 1))
+rgnet(X)
+```
+
 [**设计了网络后，我们看看它是如何工作的。**]
 
 ```{.python .input}
@@ -238,7 +277,7 @@ print(rgnet.collect_params())
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 print(rgnet)
 ```
 
@@ -262,6 +301,11 @@ rgnet[0][1][0].bias.data
 ```{.python .input}
 #@tab tensorflow
 rgnet.layers[0].layers[1].layers[1].weights[1]
+```
+
+```{.python .input}
+#@tab paddle
+print(rgnet[0].state_dict()['block 0.0.bias'])
 ```
 
 ## 参数初始化
@@ -289,6 +333,12 @@ PyTorch的`nn.init`模块提供了多种预置初始化方法。
 这个范围是根据输入和输出维度计算出的。
 偏置参数设置为0。
 TensorFlow在根模块和`keras.initializers`模块中提供了各种初始化方法。
+:end_tab:
+
+:begin_tab:`paddle`
+默认情况下，PaddlePaddle会使用Xavier初始化权重矩阵，
+偏置参数设置为0。
+PaddlePaddle的`nn.initializer`模块提供了多种预置初始化方法。
 :end_tab:
 
 ### [**内置初始化**]
@@ -327,6 +377,16 @@ net(X)
 net.weights[0], net.weights[1]
 ```
 
+```{.python .input}
+#@tab paddle
+def init_normal(m):
+    if type(m) == nn.Linear:
+        paddle.nn.initializer.Normal(mean=0.0, std=0.01)
+        paddle.zeros(m.bias)    
+net.apply(init_normal)
+net[0].weight[0],net[0].state_dict()['bias']
+```
+
 我们还可以将所有参数初始化为给定的常数，比如初始化为1。
 
 ```{.python .input}
@@ -357,6 +417,16 @@ net = tf.keras.models.Sequential([
 
 net(X)
 net.weights[0], net.weights[1]
+```
+
+```{.python .input}
+#@tab paddle
+def init_constant(m):
+    if type(m) == nn.Linear:
+        paddle.nn.initializer.Constant(value = 1)
+        paddle.zeros(m.bias)
+net.apply(init_constant)
+net[0].weight[0],net[0].state_dict()['bias']
 ```
 
 我们还可以[**对某些块应用不同的初始化方法**]。
@@ -402,6 +472,21 @@ print(net.layers[1].weights[0])
 print(net.layers[2].weights[0])
 ```
 
+```{.python .input}
+#@tab paddle
+def xavier(m):
+    if type(m) == nn.Linear:
+        paddle.nn.initializer.XavierUniform(m.weight)
+def init_42(m):
+    if type(m) == nn.Linear:
+        paddle.nn.initializer.Constant(42)
+        
+net[0].apply(xavier)
+net[2].apply(init_42)
+print(net[0].weight[0])
+print(net[2].weight)
+```
+
 ### [**自定义初始化**]
 
 有时，深度学习框架没有提供我们需要的初始化方法。
@@ -431,6 +516,10 @@ $$
 在这里，我们定义了一个`Initializer`的子类，
 并实现了`__call__`函数。
 该函数返回给定形状和数据类型的所需张量。
+:end_tab:
+
+:begin_tab:`paddle`
+同样，我们实现了一个`my_init`函数来应用到`net`。
 :end_tab:
 
 ```{.python .input}
@@ -479,6 +568,22 @@ net(X)
 print(net.layers[1].weights[0])
 ```
 
+```{.python .input}
+#@tab paddle
+def my_init(m):
+    if type(m) == nn.Linear:
+        print("Init", *[(name, param.shape) 
+                        for name, param in m.named_parameters()][0])
+        paddle.nn.initializer.XavierUniform(m.weight, -10, 10)
+        h = paddle.abs(m.weight) >= 5
+        h = paddle.to_tensor(h)
+        m = paddle.to_tensor(m.weight)
+        m *= h       
+
+net.apply(my_init)
+net[0].weight[:2]
+```
+
 注意，我们始终可以直接设置参数。
 
 ```{.python .input}
@@ -499,6 +604,15 @@ net[0].weight.data[0]
 net.layers[1].weights[0][:].assign(net.layers[1].weights[0] + 1)
 net.layers[1].weights[0][0, 0].assign(42)
 net.layers[1].weights[0]
+```
+
+```{.python .input}
+#@tab paddle
+net[0].weight.set_value(net[0].weight.numpy() + 1)
+val = net[0].weight.numpy()
+val[0, 0] = 42
+net[0].weight.set_value(val)
+net[0].weight[0]
 ```
 
 :begin_tab:`mxnet`
@@ -561,6 +675,19 @@ net = tf.keras.models.Sequential([
 net(X)
 # 检查参数是否不同
 print(len(net.layers) == 3)
+```
+
+```{.python .input}
+#@tab paddle
+# 我们需要给共享层一个名称，以便可以引用它的参数。
+shared = nn.Linear(8, 8)
+net = nn.Sequential(nn.Linear(4, 8), nn.ReLU(),
+                    shared, nn.ReLU(),
+                    shared, nn.ReLU(),
+                    nn.Linear(8, 1))
+net(X)
+# 检查参数是否相同
+print(net[2].weight[0] == net[4].weight[0])
 ```
 
 :begin_tab:`mxnet`
