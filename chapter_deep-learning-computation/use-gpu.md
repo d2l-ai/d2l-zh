@@ -53,7 +53,7 @@
 :end_tab:
 
 :begin_tab:`paddle`
-在PaddlePaddle中，每个数组都有一个设备（device），
+在PaddlePaddle中，每个张量都有一个设备（device），
 我们通常将其称为上下文（context）。
 默认情况下，所有变量和相关的计算都分配给CPU。
 有时上下文可能是GPU。

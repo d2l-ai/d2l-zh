@@ -94,7 +94,7 @@ X = tf.random.uniform((2, 20))
 net(X)
 ```
 
-```{.python .input  n=1}
+```{.python .input}
 #@tab paddle
 import paddle
 from paddle import nn
@@ -250,7 +250,7 @@ class MLP(tf.keras.Model):
         return self.out(self.hidden((X)))
 ```
 
-```{.python .input  n=2}
+```{.python .input}
 #@tab paddle
 class MLP(nn.Layer):
     # 用模型参数声明层。这里，我们声明两个全连接的层
@@ -372,14 +372,16 @@ class MySequential(tf.keras.Model):
         return X
 ```
 
-```{.python .input  n=3}
+```{.python .input}
 #@tab paddle
 class MySequential(nn.Layer):
     def __init__(self, *layers):
         super(MySequential, self).__init__()
-        if len(layers) > 0 and isinstance(layers[0], tuple): # 如果传入的是一个tuple
+        # 如果传入的是一个tuple
+        if len(layers) > 0 and isinstance(layers[0], tuple): 
             for name, layer in layers:
-                self.add_sublayer(name, layer)  #add_sublayer方法会将layer添加到self._sub_layers(一个tuple)
+                # add_sublayer方法会将layer添加到self._sub_layers(一个tuple)
+                self.add_sublayer(name, layer)  
         else:
             for idx, layer in enumerate(layers):
                 self.add_sublayer(str(idx), layer)
@@ -532,7 +534,7 @@ class FixedHiddenMLP(tf.keras.Model):
         return tf.reduce_sum(X)
 ```
 
-```{.python .input  n=6}
+```{.python .input}
 #@tab paddle
 class FixedHiddenMLP(nn.Layer):
     def __init__(self):
@@ -543,7 +545,7 @@ class FixedHiddenMLP(nn.Layer):
 
     def forward(self, X):
         X = self.linear(X)
-        # 使用创建的常量参数以及`relu`和`dot`函数。
+        # 使用创建的常量参数以及relu和mm函数。
         X = F.relu(paddle.tensor.mm(X, self.rand_weight) + 1)
         # 复用全连接层。这相当于两个全连接层共享参数。
         X = self.linear(X)
@@ -571,7 +573,7 @@ net.initialize()
 net(X)
 ```
 
-```{.python .input  n=7}
+```{.python .input}
 #@tab pytorch, tensorflow, paddle
 net = FixedHiddenMLP()
 net(X)
@@ -634,7 +636,7 @@ chimera.add(FixedHiddenMLP())
 chimera(X)
 ```
 
-```{.python .input  n=8}
+```{.python .input}
 #@tab paddle
 class NestMLP(nn.Layer):
     def __init__(self):
