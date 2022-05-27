@@ -288,9 +288,11 @@ train(net, train_iter, test_iter, num_epochs, lr,
 此外，余弦学习率调度在实践中的一些问题上运行效果很好。
 在某些问题上，最好在使用较高的学习率之前预热优化器。
 
-### 多因子调度器
+### 单因子调度器
 
-多项式衰减的一种替代方案是乘法衰减，即$\eta_{t+1} \leftarrow \eta_t \cdot \alpha$其中$\alpha \in (0, 1)$。为了防止学习率衰减超出合理的下限，更新方程经常修改为$\eta_{t+1} \leftarrow \mathop{\mathrm{max}}(\eta_{\mathrm{min}}, \eta_t \cdot \alpha)$。
+多项式衰减的一种替代方案是乘法衰减，即$\eta_{t+1} \leftarrow \eta_t \cdot \alpha$其中$\alpha \in (0, 1)$。
+为了防止学习率衰减到一个合理的下界之下，
+更新方程经常修改为$\eta_{t+1} \leftarrow \mathop{\mathrm{max}}(\eta_{\mathrm{min}}, \eta_t \cdot \alpha)$。
 
 ```{.python .input}
 #@tab all
@@ -312,8 +314,9 @@ d2l.plot(d2l.arange(50), [scheduler(t) for t in range(50)])
 
 ### 多因子调度器
 
-训练深度网络的常见策略之一是保持分段稳定的学习率，并且每隔一段时间就一定程度学习率降低。
-具体地说，给定一组降低学习率的时间，例如$s = \{5, 10, 20\}$每当$t \in s$时降低$\eta_{t+1} \leftarrow \eta_t \cdot \alpha$。
+训练深度网络的常见策略之一是保持学习率为一组分段的常量，并且不时地按给定的参数对学习率做乘法衰减。
+具体地说，给定一组降低学习率的时间点，例如$s = \{5, 10, 20\}$，
+每当$t \in s$时，降低$\eta_{t+1} \leftarrow \eta_t \cdot \alpha$。
 假设每步中的值减半，我们可以按如下方式实现这一点。
 
 ```{.python .input}
@@ -427,8 +430,8 @@ scheduler = CosineScheduler(max_update=20, base_lr=0.3, final_lr=0.01)
 d2l.plot(d2l.arange(num_epochs), [scheduler(t) for t in range(num_epochs)])
 ```
 
-在计算机视觉中，这个调度可以引出改进的结果。
-但请注意，如下所示，这种改进并不能保证成立。
+在计算机视觉的背景下，这个调度方式可能产生改进的结果。
+但请注意，如下所示，这种改进并不一定成立。
 
 ```{.python .input}
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
