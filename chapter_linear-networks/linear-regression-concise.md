@@ -406,7 +406,7 @@ print('b的估计误差：', true_b - b)
 
 ## 练习
 
-1. 如果将小批量的总损失替换为小批量损失的平均值，你需要如何更改学习率？
+1. 如果用`nn.MSELoss(reduction='sum')`替换`nn.MSELoss()`，你需要如何更改学习率？
 1. 查看深度学习框架文档，它们提供了哪些损失函数和初始化方法？用Huber损失代替原损失，即
     $$l(y,y') = \begin{cases}|y-y'| -\frac{\sigma}{2} & \text{ if } |y-y'| > \sigma \\ \frac{1}{2 \sigma} (y-y')^2 & \text{ 其它情况}\end{cases}$$
 1. 你如何访问线性回归的梯度？
