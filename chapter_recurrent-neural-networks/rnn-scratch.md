@@ -800,7 +800,6 @@ def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
         else:
             l.backward()
             grad_clipping(net, 1)
-            updater(batch_size=1)
             # 因为已经调用了`mean`函数
             updater(batch_size=1)
         
