@@ -91,6 +91,16 @@ batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import paddle
+from paddle import nn
+
+batch_size, num_steps = 32, 35
+train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
+```
+
 像选择超参数这类架构决策也跟 :numref:`sec_lstm`中的决策非常相似。
 因为我们有不同的词元，所以输入和输出都选择相同数量，即`vocab_size`。
 隐藏单元的数量仍然是$256$。
@@ -111,6 +121,15 @@ device = d2l.try_gpu()
 lstm_layer = nn.LSTM(num_inputs, num_hiddens, num_layers)
 model = d2l.RNNModel(lstm_layer, len(vocab))
 model = model.to(device)
+```
+
+```{.python .input}
+#@tab paddle
+vocab_size, num_hiddens, num_layers = len(vocab), 256, 2
+num_inputs = vocab_size
+device = d2l.try_gpu()
+lstm_layer = nn.LSTM(num_inputs, num_hiddens, num_layers, time_major=True)
+model = d2l.RNNModel(lstm_layer, len(vocab))
 ```
 
 ## [**训练**]与预测

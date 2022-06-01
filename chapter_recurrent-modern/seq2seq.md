@@ -69,6 +69,15 @@ import math
 import tensorflow as tf
 ```
 
+```{.python .input}
+#@tab paddle
+import collections
+from d2l import paddle as d2l
+import math
+import paddle
+from paddle import nn
+```
+
 ## 编码器
 
 从技术上讲，编码器将长度可变的输入序列转换成
@@ -186,6 +195,34 @@ class Seq2SeqEncoder(d2l.Encoder):
         return output[0], state
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+class Seq2SeqEncoder(d2l.Encoder):
+    """用于序列到序列学习的循环神经网络编码器"""
+    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers,
+                 dropout=0, **kwargs):
+        super(Seq2SeqEncoder, self).__init__(**kwargs)
+        weight_ih_attr = paddle.ParamAttr(initializer=nn.initializer.XavierUniform())
+        weight_hh_attr = paddle.ParamAttr(initializer=nn.initializer.XavierUniform())
+        # 嵌入层
+        self.embedding = nn.Embedding(vocab_size, embed_size)
+        self.rnn = nn.GRU(embed_size, num_hiddens, num_layers, dropout=dropout,
+                          time_major=True, weight_ih_attr=weight_ih_attr, weight_hh_attr=weight_hh_attr)
+
+    def forward(self, X, *args):
+        # 输出'X'的形状：(batch_size,num_steps,embed_size)
+        X = self.embedding(X)
+        # 在循环神经网络模型中，第一个轴对应于时间步
+        X = X.transpose([1, 0, 2])
+        # 如果未提及状态，则默认为0
+        output, state = self.rnn(X)
+        # PaddlePaddle的GRU层output的形状:(batch_size,time_steps,num_directions * num_hiddens),
+        # 需设定time_major=True,指定input的第一个维度为time_steps
+        # state[0]的形状:(num_layers,batch_size,num_hiddens)
+        return output, state
+```
+
 循环层返回变量的说明可以参考 :numref:`sec_rnn-concise`。
 
 下面，我们实例化[**上述编码器的实现**]：
@@ -222,6 +259,16 @@ output, state = encoder(X, training=False)
 output.shape
 ```
 
+```{.python .input}
+#@tab paddle
+encoder = Seq2SeqEncoder(vocab_size=10, embed_size=8, num_hiddens=16,
+                         num_layers=2)
+encoder.eval()
+X = d2l.zeros((4, 7), dtype=paddle.int64)
+output, state = encoder(X)
+output.shape
+```
+
 由于这里使用的是门控循环单元，
 所以在最后一个时间步的多层隐状态的形状是
 （隐藏层的数量，批量大小，隐藏单元的数量）。
@@ -232,7 +279,7 @@ len(state), state[0].shape
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 state.shape
 ```
 
@@ -365,6 +412,37 @@ class Seq2SeqDecoder(d2l.Decoder):
         return output, rnn_output[1:]
 ```
 
+```{.python .input}
+#@tab paddle
+class Seq2SeqDecoder(d2l.Decoder):
+    """用于序列到序列学习的循环神经网络解码器"""
+    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers,
+                 dropout=0, **kwargs):
+        super(Seq2SeqDecoder, self).__init__(**kwargs)
+        self.embedding = nn.Embedding(vocab_size, embed_size)
+        weight_attr = paddle.ParamAttr(initializer=nn.initializer.XavierUniform())
+        weight_ih_attr = paddle.ParamAttr(initializer=nn.initializer.XavierUniform())
+        weight_hh_attr = paddle.ParamAttr(initializer=nn.initializer.XavierUniform())
+        self.rnn = nn.GRU(embed_size + num_hiddens, num_hiddens, num_layers, dropout=dropout,
+                          time_major=True, weight_ih_attr=weight_ih_attr,weight_hh_attr=weight_hh_attr)
+        self.dense = nn.Linear(num_hiddens, vocab_size,weight_attr=weight_attr)
+
+    def init_state(self, enc_outputs, *args):
+        return enc_outputs[1]
+
+    def forward(self, X, state):
+        # 输出'X'的形状：(batch_size,num_steps,embed_size)
+        X = self.embedding(X).transpose([1, 0, 2])
+        # 广播context，使其具有与X相同的num_steps
+        context = state[-1].tile([X.shape[0], 1, 1])
+        X_and_context = d2l.concat((X, context), 2)
+        output, state = self.rnn(X_and_context, state)
+        output = self.dense(output).transpose([1, 0, 2])
+        # output的形状:(batch_size,num_steps,vocab_size)
+        # state[0]的形状:(num_layers,batch_size,num_hiddens)
+        return output, state
+```
+
 下面，我们用与前面提到的编码器中相同的超参数来[**实例化解码器**]。
 如我们所见，解码器的输出形状变为（批量大小，时间步数，词表大小），
 其中张量的最后一个维度存储预测的词元分布。
@@ -394,6 +472,16 @@ decoder = Seq2SeqDecoder(vocab_size=10, embed_size=8, num_hiddens=16, num_layers
 state = decoder.init_state(encoder(X))
 output, state = decoder(X, state, training=False)
 output.shape, len(state), state[0].shape
+```
+
+```{.python .input}
+#@tab paddle
+decoder = Seq2SeqDecoder(vocab_size=10, embed_size=8, num_hiddens=16,
+                         num_layers=2)
+decoder.eval()
+state = decoder.init_state(encoder(X))
+output, state = decoder(X, state)
+output.shape, state.shape
 ```
 
 总之，上述循环神经网络“编码器－解码器”模型中的各层如
@@ -456,6 +544,22 @@ X = tf.constant([[1, 2, 3], [4, 5, 6]])
 sequence_mask(X, tf.constant([1, 2]))
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+def sequence_mask(X, valid_len, value=0):
+    """在序列中屏蔽不相关的项"""
+    maxlen = X.shape[1]
+    mask = paddle.arange((maxlen), dtype=paddle.float32)[None, :] < valid_len[:, None]
+    Xtype = X.dtype
+    X=X.astype(paddle.float32)
+    X[~mask] = float(value)
+    return X.astype(Xtype)
+
+X = paddle.to_tensor([[1, 2, 3], [4, 5, 6]])
+sequence_mask(X, paddle.to_tensor([1, 2]))
+```
+
 (**我们还可以使用此函数屏蔽最后几个轴上的所有项。**)如果愿意，也可以使用指定的非零值来替换这些项。
 
 ```{.python .input}
@@ -473,6 +577,12 @@ sequence_mask(X, torch.tensor([1, 2]), value=-1)
 #@tab tensorflow
 X = tf.ones((2,3,4))
 sequence_mask(X, tf.constant([1, 2]), value=-1)
+```
+
+```{.python .input}
+#@tab paddle
+X = d2l.ones([2, 3, 4])
+sequence_mask(X, paddle.to_tensor([1, 2]), value=-1)
 ```
 
 现在，我们可以[**通过扩展softmax交叉熵损失函数来遮蔽不相关的预测**]。
@@ -534,6 +644,24 @@ class MaskedSoftmaxCELoss(tf.keras.losses.Loss):
         return weighted_loss
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+class MaskedSoftmaxCELoss(nn.CrossEntropyLoss):
+    """带遮蔽的softmax交叉熵损失函数"""
+    # pred的形状：(batch_size,num_steps,vocab_size)
+    # label的形状：(batch_size,num_steps)
+    # valid_len的形状：(batch_size,)
+    def forward(self, pred, label, valid_len):
+        weights = paddle.ones_like(label)
+        weights = sequence_mask(weights, valid_len)
+        self.reduction='none'
+        unweighted_loss = super(MaskedSoftmaxCELoss, self).forward(
+            pred, label)
+        weighted_loss = (unweighted_loss * weights).mean(axis=1)
+        return weighted_loss
+```
+
 我们可以创建三个相同的序列来进行[**代码健全性检查**]，
 然后分别指定这些序列的有效长度为$4$、$2$和$0$。
 结果就是，第一个序列的损失应为第二个序列的两倍，而第三个序列的损失应为零。
@@ -554,6 +682,13 @@ loss(d2l.ones(3, 4, 10), d2l.ones((3, 4), dtype=torch.long),
 #@tab tensorflow
 loss = MaskedSoftmaxCELoss(tf.constant([4, 2, 0]))
 loss(tf.ones((3,4), dtype = tf.int32), tf.ones((3, 4, 10))).numpy()
+```
+
+```{.python .input}
+#@tab paddle
+loss = MaskedSoftmaxCELoss()
+loss(d2l.ones([3, 4, 10]), d2l.ones((3, 4), dtype=paddle.int64),
+     paddle.to_tensor([4, 2, 0]))
 ```
 
 ## [**训练**]
@@ -671,6 +806,38 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
             animator.add(epoch + 1, (metric[0] / metric[1],))
     print(f'loss {metric[0] / metric[1]:.3f}, {metric[1] / timer.stop():.1f} '
           f'tokens/sec on {str(device)}')
+```
+
+```{.python .input}
+#@tab paddle
+#@save
+def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
+    """训练序列到序列模型"""
+    optimizer = paddle.optimizer.Adam(learning_rate=lr, parameters=net.parameters())
+    loss = MaskedSoftmaxCELoss()
+    net.train()
+    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
+                     xlim=[10, num_epochs])
+    for epoch in range(num_epochs):
+        timer = d2l.Timer()
+        metric = d2l.Accumulator(2)  # 训练损失总和，词元数量
+        for batch in data_iter:
+            optimizer.clear_grad()
+            X, X_valid_len, Y, Y_valid_len = [paddle.to_tensor(x, place=device) for x in batch]
+            bos = paddle.to_tensor([tgt_vocab['<bos>']] * Y.shape[0]).reshape([-1, 1])
+            dec_input = paddle.concat([bos, Y[:, :-1]], 1)  # 强制教学
+            Y_hat, _ = net(X, dec_input, X_valid_len)
+            l = loss(Y_hat, Y, Y_valid_len.squeeze())
+            l.backward()	# 损失函数的标量进行“反向传播”
+            d2l.grad_clipping(net, 1)
+            num_tokens = Y_valid_len.sum()
+            optimizer.step()
+            with paddle.no_grad():
+                metric.add(l.sum(), num_tokens)
+        if (epoch + 1) % 10 == 0:
+            animator.add(epoch + 1, (metric[0] / metric[1],))
+    print(f'loss {metric[0] / metric[1]:.3f}, {metric[1] / timer.stop():.1f} '
+        f'tokens/sec on {str(device)}')
 ```
 
 现在，在机器翻译数据集上，我们可以
@@ -806,6 +973,42 @@ def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
         shape = -1).numpy().tolist())), attention_weight_seq
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
+                    device, save_attention_weights=False):
+    """序列到序列模型的预测"""
+    # 在预测时将net设置为评估模式
+    net.eval()
+    src_tokens = src_vocab[src_sentence.lower().split(' ')] + [
+        src_vocab['<eos>']]
+    enc_valid_len = paddle.to_tensor([len(src_tokens)], place=device)
+    src_tokens = d2l.truncate_pad(src_tokens, num_steps, src_vocab['<pad>'])
+    # 添加批量轴
+    enc_X = paddle.unsqueeze(
+        paddle.to_tensor(src_tokens, dtype=paddle.int64, place=device), axis=0)
+    enc_outputs = net.encoder(enc_X, enc_valid_len)
+    dec_state = net.decoder.init_state(enc_outputs, enc_valid_len)
+    # 添加批量轴
+    dec_X = paddle.unsqueeze(paddle.to_tensor(
+        [tgt_vocab['<bos>']], dtype=paddle.int64, place=device), axis=0)
+    output_seq, attention_weight_seq = [], []
+    for _ in range(num_steps):
+        Y, dec_state = net.decoder(dec_X, dec_state)
+        # 我们使用具有预测最高可能性的词元，作为解码器在下一时间步的输入
+        dec_X = Y.argmax(axis=2)
+        pred = dec_X.squeeze(axis=0).astype(paddle.int32).item()
+        # 保存注意力权重（稍后讨论）
+        if save_attention_weights:
+            attention_weight_seq.append(net.decoder.attention_weights)
+        # 一旦序列结束词元被预测，输出序列的生成就完成了
+        if pred == tgt_vocab['<eos>']:
+            break
+        output_seq.append(pred)
+    return ' '.join(tgt_vocab.to_tokens(output_seq)), attention_weight_seq
+```
+
 ## 预测序列的评估
 
 我们可以通过与真实的标签序列进行比较来评估预测序列。
@@ -868,7 +1071,7 @@ def bleu(pred_seq, label_seq, k):  #@save
 [**将几个英语句子翻译成法语**]，并计算BLEU的最终结果。
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, paddle
 engs = ['go .', "i lost .", 'he\'s calm .', 'i\'m home .']
 fras = ['va !', 'j\'ai perdu .', 'il est calme .', 'je suis chez moi .']
 for eng, fra in zip(engs, fras):
