@@ -814,6 +814,7 @@ class RNNModel(nn.Layer):
                     paddle.zeros(
                         shape=[self.num_directions * self.rnn.num_layers,
                         batch_size, self.num_hiddens]))# Alias defined in config.ini
+          
 nn_Module = nn.Layer
 
 ones = paddle.ones
