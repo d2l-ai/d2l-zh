@@ -439,7 +439,7 @@ def try_all_gpus():
     devices = [paddle.device.set_device(f'gpu:{i}')
                for i in range(paddle.device.cuda.device_count())]
     return devices if devices else paddle.device.get_device()
-    
+
 def corr2d(X, K):
     """计算二维互相关运算
 
