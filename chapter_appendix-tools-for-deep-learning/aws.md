@@ -203,3 +203,5 @@ jupyter notebook
 1. 尝试使用多GPU服务器。你能把事情扩大到什么程度？
 
 [Discussions](https://discuss.d2l.ai/t/5733)
+
+123
