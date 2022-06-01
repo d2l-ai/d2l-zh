@@ -156,7 +156,7 @@ train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 from d2l import paddle as d2l
 import paddle
 from paddle import nn
-import paddle.nn.functional as Function
+import paddle.nn.functional as F
 
 batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
@@ -260,7 +260,7 @@ def get_lstm_params(vocab_size, num_hiddens):
     def three():
         return (normal((num_inputs, num_hiddens)),
                 normal((num_hiddens, num_hiddens)),
-                paddle.zeros([num_hiddens]))
+                d2l.zeros([num_hiddens]))
 
     W_xi, W_hi, b_i = three()  # 输入门参数
     W_xf, W_hf, b_f = three()  # 遗忘门参数
@@ -268,7 +268,7 @@ def get_lstm_params(vocab_size, num_hiddens):
     W_xc, W_hc, b_c = three()  # 候选记忆元参数
     # 输出层参数
     W_hq = normal((num_hiddens, num_outputs))
-    b_q = paddle.zeros([num_outputs])
+    b_q = d2l.zeros([num_outputs])
     # 附加梯度
     params = [W_xi, W_hi, b_i, W_xf, W_hf, b_f, W_xo, W_ho, b_o, W_xc, W_hc,
               b_c, W_hq, b_q]

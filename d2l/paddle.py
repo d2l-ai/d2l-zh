@@ -737,7 +737,7 @@ def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
             l.backward()
             grad_clipping(net, 1)
             # 因为已经调用了`mean`函数
-            net.params = updater(batch_size=1)
+            updater(batch_size=1)
         metric.add(l * d2l.size(y), d2l.size(y))
     return math.exp(metric[0] / metric[1]), metric[1] / timer.stop()
 
