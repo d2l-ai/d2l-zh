@@ -138,7 +138,7 @@ sudo apt-get update
 sudo apt-get -y install cuda
 ```
 
-安装程序后，运行以下命令查看GPU：
+安装程序后，运行以下命令查看GPU的相关信息：
 
 ```bash
 nvidia-smi
