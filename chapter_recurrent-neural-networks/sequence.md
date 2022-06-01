@@ -418,7 +418,7 @@ $$
 让我们看看效果如何。
 
 ```{.python .input}
-#@tab mxnet, pytorch, paddle
+#@tab mxnet, pytorch
 multistep_preds = d2l.zeros(T)
 multistep_preds[: n_train + tau] = x[: n_train + tau]
 for i in range(n_train + tau, T):
@@ -433,6 +433,15 @@ multistep_preds[:n_train + tau].assign(x[:n_train + tau])
 for i in range(n_train + tau, T):
     multistep_preds[i].assign(d2l.reshape(net(
         d2l.reshape(multistep_preds[i - tau: i], (1, -1))), ()))
+```
+
+```{.python .input}
+#@tab paddle
+multistep_preds = d2l.zeros([T])
+multistep_preds[: n_train + tau] = x[: n_train + tau]
+for i in range(n_train + tau, T):
+    multistep_preds[i] = net(
+        d2l.reshape(multistep_preds[i - tau: i], (1, -1)))
 ```
 
 ```{.python .input}
@@ -465,7 +474,7 @@ max_steps = 64
 ```
 
 ```{.python .input}
-#@tab mxnet, pytorch, paddle
+#@tab mxnet, pytorch
 features = d2l.zeros((T - tau - max_steps + 1, tau + max_steps))
 # 列i（i<tau）是来自x的观测，其时间步从（i+1）到（i+T-tau-max_steps+1）
 for i in range(tau):
@@ -486,6 +495,18 @@ for i in range(tau):
 # 列i（i>=tau）是来自（i-tau+1）步的预测，其时间步从（i+1）到（i+T-tau-max_steps+1）
 for i in range(tau, tau + max_steps):
     features[:, i].assign(d2l.reshape(net((features[:, i - tau: i])), -1))
+```
+
+```{.python .input}
+#@tab paddle
+features = d2l.zeros((T - tau - max_steps + 1, tau + max_steps))
+# 列i（i<tau）是来自x的观测，其时间步从（i+1）到（i+T-tau-max_steps+1）
+for i in range(tau):
+    features[:, i] = x[i: i + T - tau - max_steps + 1]
+
+# 列i（i>=tau）是来自（i-tau+1）步的预测，其时间步从（i+1）到（i+T-tau-max_steps+1）
+for i in range(tau, tau + max_steps):
+    features[:, i] = d2l.reshape(net(features[:, i - tau: i]), [-1])
 ```
 
 ```{.python .input}
