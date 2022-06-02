@@ -153,7 +153,7 @@ def show_heatmaps(matrices, xlabel, ylabel, titles=None, figsize=(2.5, 2.5),
 
 ```{.python .input}
 #@tab all
-attention_weights = d2l.reshape(d2l.eye(10), (1, 1, 10, 10)
+attention_weights = d2l.reshape(d2l.eye(10), (1, 1, 10, 10))
 show_heatmaps(attention_weights, xlabel='Keys', ylabel='Queries')
 ```
 
