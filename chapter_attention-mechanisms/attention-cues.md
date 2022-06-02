@@ -116,6 +116,12 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import paddle
+```
+
 为了可视化注意力权重，我们定义了`show_heatmaps`函数。
 其输入`matrices`的形状是
 （要显示的行数，要显示的列数，查询的数目，键的数目）。
@@ -147,7 +153,7 @@ def show_heatmaps(matrices, xlabel, ylabel, titles=None, figsize=(2.5, 2.5),
 
 ```{.python .input}
 #@tab all
-attention_weights = d2l.reshape(d2l.eye(10), (1, 1, 10, 10))
+attention_weights = d2l.reshape(d2l.eye(10), [1, 1, 10, 10])
 show_heatmaps(attention_weights, xlabel='Keys', ylabel='Queries')
 ```
 
@@ -178,5 +184,3 @@ show_heatmaps(attention_weights, xlabel='Keys', ylabel='Queries')
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/5765)
 :end_tab:
-
-

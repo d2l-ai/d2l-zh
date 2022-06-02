@@ -63,6 +63,13 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import math
+import paddle
+from paddle import nn
+```
 
 ## [**掩蔽softmax操作**]
 
@@ -137,6 +144,26 @@ def masked_softmax(X, valid_lens):
         return tf.nn.softmax(tf.reshape(X, shape=shape), axis=-1)
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+def masked_softmax(X, valid_lens):
+    """通过在最后一个轴上掩蔽元素来执行softmax操作"""
+    # X:3D张量，valid_lens:1D或2D张量
+    if valid_lens is None:
+        return nn.functional.softmax(X, axis=-1)
+    else:
+        shape = X.shape
+        if valid_lens.dim() == 1:
+            valid_lens = paddle.repeat_interleave(valid_lens, shape[1])
+        else:
+            valid_lens = valid_lens.reshape((-1,))
+    #     # 最后一轴上被掩蔽的元素使用一个非常大的负值替换，从而其softmax输出为0
+        X = d2l.sequence_mask(X.reshape((-1, shape[-1])), valid_lens,
+                              value=-1e6)
+        return nn.functional.softmax(X.reshape(shape), axis=-1)
+```
+
 为了[**演示此函数是如何工作**]的，
 考虑由两个$2 \times 4$矩阵表示的样本，
 这两个样本的有效长度分别为$2$和$3$。
@@ -156,6 +183,11 @@ masked_softmax(torch.rand(2, 2, 4), torch.tensor([2, 3]))
 masked_softmax(tf.random.uniform(shape=(2, 2, 4)), tf.constant([2, 3]))
 ```
 
+```{.python .input}
+#@tab paddle
+masked_softmax(paddle.rand((2, 2, 4)), paddle.to_tensor([2, 3]))
+```
+
 同样，我们也可以使用二维张量，为矩阵样本中的每一行指定有效长度。
 
 ```{.python .input}
@@ -171,6 +203,11 @@ masked_softmax(torch.rand(2, 2, 4), d2l.tensor([[1, 3], [2, 4]]))
 ```{.python .input}
 #@tab tensorflow
 masked_softmax(tf.random.uniform(shape=(2, 2, 4)), tf.constant([[1, 3], [2, 4]]))
+```
+
+```{.python .input}
+#@tab paddle
+masked_softmax(paddle.rand((2, 2, 4)), paddle.to_tensor([[1, 3], [2, 4]]))
 ```
 
 ## [**加性注意力**]
@@ -324,7 +361,6 @@ attention = AdditiveAttention(key_size=2, query_size=20, num_hiddens=8,
                               dropout=0.1)
 attention(queries, keys, values, valid_lens, training=False)
 ```
-
 
 尽管加性注意力包含了可学习的参数，但由于本例子中每个键都是相同的，
 所以[**注意力权重**]是均匀的，由指定的有效长度决定。
