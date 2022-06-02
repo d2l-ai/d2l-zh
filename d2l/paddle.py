@@ -1078,7 +1078,7 @@ reshape = lambda x, *args, **kwargs: x.reshape(*args, **kwargs)
 to = lambda x, *args, **kwargs: x.to(*args, **kwargs)
 reduce_sum = lambda x, *args, **kwargs: x.sum(*args, **kwargs)
 argmax = lambda x, *args, **kwargs: x.argmax(*args, **kwargs)
-astype = lambda x, *args, **kwargs: x.type(*args, **kwargs)
+astype = lambda x, *args, **kwargs: x.astype(*args, **kwargs)
 transpose = lambda x, *args, **kwargs: x.t(*args, **kwargs)
 reduce_mean = lambda x, *args, **kwargs: x.mean(*args, **kwargs)
 
