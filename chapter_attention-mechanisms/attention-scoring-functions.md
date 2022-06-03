@@ -319,6 +319,34 @@ class AdditiveAttention(tf.keras.layers.Layer):
             self.attention_weights, **kwargs), values)
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+class AdditiveAttention(nn.Layer):
+    """加性注意力"""
+    def __init__(self, key_size, query_size, num_hiddens, dropout, **kwargs):
+        super(AdditiveAttention, self).__init__(**kwargs)
+        self.W_k = nn.Linear(key_size, num_hiddens, bias_attr=False)
+        self.W_q = nn.Linear(query_size, num_hiddens, bias_attr=False)
+        self.w_v = nn.Linear(num_hiddens, 1, bias_attr=False)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, queries, keys, values, valid_lens):
+        queries, keys = self.W_q(queries), self.W_k(keys)
+        # 在维度扩展后，
+        # queries的形状：(batch_size，查询的个数，1，num_hidden)
+        # key的形状：(batch_size，1，“键－值”对的个数，num_hiddens)
+        # 使用广播方式进行求和
+        features = queries.unsqueeze(2) + keys.unsqueeze(1)
+        features = paddle.tanh(features)
+        # self.w_v仅有一个输出，因此从形状中移除最后那个维度。
+        # scores的形状：(batch_size，查询的个数，“键-值”对的个数)
+        scores = self.w_v(features).squeeze(-1)
+        self.attention_weights = masked_softmax(scores, valid_lens)
+        # values的形状：(batch_size，“键－值”对的个数，值的维度)
+        return paddle.bmm(self.dropout(self.attention_weights), values)
+```
+
 我们用一个小例子来[**演示上面的`AdditiveAttention`类**]，
 其中查询、键和值的形状为（批量大小，步数或词元序列长度，特征大小），
 实际输出为$(2,1,20)$、$(2,10,2)$和$(2,10,4)$。
@@ -360,6 +388,20 @@ valid_lens = tf.constant([2, 6])
 attention = AdditiveAttention(key_size=2, query_size=20, num_hiddens=8,
                               dropout=0.1)
 attention(queries, keys, values, valid_lens, training=False)
+```
+
+```{.python .input}
+#@tab paddle
+queries, keys = paddle.normal(0, 1, (2, 1, 20)), paddle.ones((2, 10, 2))
+# values的小批量，两个值矩阵是相同的
+values = paddle.arange(40, dtype=paddle.float32).reshape((1, 10, 4)).tile(
+    [2, 1, 1])
+valid_lens = paddle.to_tensor([2, 6])
+
+attention = AdditiveAttention(key_size=2, query_size=20, num_hiddens=8,
+                              dropout=0.1)
+attention.eval()
+attention(queries, keys, values, valid_lens)
 ```
 
 尽管加性注意力包含了可学习的参数，但由于本例子中每个键都是相同的，
@@ -459,6 +501,27 @@ class DotProductAttention(tf.keras.layers.Layer):
         return tf.matmul(self.dropout(self.attention_weights, **kwargs), values)
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+class DotProductAttention(nn.Layer):
+    """缩放点积注意力"""
+    def __init__(self, dropout, **kwargs):
+        super(DotProductAttention, self).__init__(**kwargs)
+        self.dropout = nn.Dropout(dropout)
+
+    # queries的形状：(batch_size，查询的个数，d)
+    # keys的形状：(batch_size，“键－值”对的个数，d)
+    # values的形状：(batch_size，“键－值”对的个数，值的维度)
+    # valid_lens的形状:(batch_size，)或者(batch_size，查询的个数)
+    def forward(self, queries, keys, values, valid_lens=None):
+        d = queries.shape[-1]
+        # 设置transpose_b=True为了交换keys的最后两个维度
+        scores = paddle.bmm(queries, keys.transpose((0,2,1))) / math.sqrt(d)
+        self.attention_weights = masked_softmax(scores, valid_lens)
+        return paddle.bmm(self.dropout(self.attention_weights), values)
+```
+
 为了[**演示上述的`DotProductAttention`类**]，
 我们使用与先前加性注意力例子中相同的键、值和有效长度。
 对于点积操作，我们令查询的特征维度与键的特征维度大小相同。
@@ -483,6 +546,14 @@ attention(queries, keys, values, valid_lens)
 queries = tf.random.normal(shape=(2, 1, 2))
 attention = DotProductAttention(dropout=0.5)
 attention(queries, keys, values, valid_lens, training=False)
+```
+
+```{.python .input}
+#@tab paddle
+queries = paddle.normal(0, 1, (2, 1, 2))
+attention = DotProductAttention(dropout=0.5)
+attention.eval()
+attention(queries, keys, values, valid_lens)
 ```
 
 与加性注意力演示相同，由于键包含的是相同的元素，
