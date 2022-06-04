@@ -406,10 +406,22 @@ print('b的估计误差：', true_b - b)
 
 ## 练习
 
-1. 如果将小批量的总损失替换为小批量损失的平均值，你需要如何更改学习率？
-1. 查看深度学习框架文档，它们提供了哪些损失函数和初始化方法？用Huber损失代替原损失，即
+:begin_tab:`mxnet`
+1. 如果我们用`l = loss(output, y).mean()`代替`l = loss(output, y)`，我们需要把`trainer.step(batch_size)`改为`trainer.step(1)`，代码才会表现得相同。为什么？
+2. 查看MXNet文档，看看`gluon.loss`和`init`模块中提供了哪些损失函数和初始化方法。用Huber's loss代替损失。
+3. 如何访问`dense.weight`的梯度？
+:end_tab:
+
+:begin_tab:`pytorch`
+1. 如果用`nn.MSELoss(reduction='sum')`替换`nn.MSELoss()`，你需要如何更改学习率？
+2. 查看深度学习框架文档，它们提供了哪些损失函数和初始化方法？用Huber损失代替原损失，即
     $$l(y,y') = \begin{cases}|y-y'| -\frac{\sigma}{2} & \text{ if } |y-y'| > \sigma \\ \frac{1}{2 \sigma} (y-y')^2 & \text{ 其它情况}\end{cases}$$
-1. 你如何访问线性回归的梯度？
+3. 你如何访问`net[0].weight`的梯度？
+:end_tab:
+
+:begin_tab:`tensorflow`
+1. 查看TensorFlow文档，看看提供了哪些损失函数和初始化方法。用Huber的损失来代替损失。
+:end_tab:
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/1782)
