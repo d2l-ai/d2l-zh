@@ -35,6 +35,15 @@ from mpl_toolkits import mplot3d
 import tensorflow as tf
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import numpy as np
+from mpl_toolkits import mplot3d
+import paddle
+```
+
 ## 定义
 
 在进行凸分析之前，我们需要定义*凸集*（convex sets）和*凸函数*（convex functions）。

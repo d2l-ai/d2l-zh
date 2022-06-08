@@ -182,6 +182,70 @@ def train(net_fn, train_iter, test_iter, num_epochs, lr,
     return net
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import math
+import paddle
+from paddle import nn
+from paddle.optimizer import lr as lr_scheduler
+
+def net_fn():
+    model = nn.Sequential(
+        nn.Conv2D(1, 6, kernel_size=5, padding=2), nn.ReLU(),
+        nn.MaxPool2D(kernel_size=2, stride=2),
+        nn.Conv2D(6, 16, kernel_size=5), nn.ReLU(),
+        nn.MaxPool2D(kernel_size=2, stride=2),
+        nn.Flatten(),
+        nn.Linear(16 * 5 * 5, 120), nn.ReLU(),
+        nn.Linear(120, 84), nn.ReLU(),
+        nn.Linear(84, 10))
+
+    return model
+
+loss = nn.CrossEntropyLoss()
+device = d2l.try_gpu()
+
+batch_size = 256
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size=batch_size)
+
+# 代码几乎与d2l.train_ch6定义在卷积神经网络一章LeNet一节中的相同
+def train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
+          scheduler=None):
+    animator = d2l.Animator(xlabel='epoch', xlim=[0, num_epochs],
+                            legend=['train loss', 'train acc', 'test acc'])
+
+    for epoch in range(num_epochs):
+        metric = d2l.Accumulator(3)  # train_loss,train_acc,num_examples
+        for i, (X, y) in enumerate(train_iter):
+            net.train()
+            trainer.clear_grad()
+            y_hat = net(X)
+            l = loss(y_hat, y)
+            l.backward()
+            trainer.step()
+            with paddle.no_grad():
+                metric.add(l * X.shape[0], d2l.accuracy(y_hat,y), X.shape[0])
+            train_loss = metric[0] / metric[2]
+            train_acc = metric[1] / metric[2]
+            if (i + 1) % 50 == 0:
+                animator.add(epoch + i / len(train_iter),
+                             (train_loss, train_acc, None))
+
+        test_acc = d2l.evaluate_accuracy_gpu(net, test_iter)
+        animator.add(epoch+1, (None, None, test_acc))
+
+        if scheduler:
+            if scheduler.__module__ == lr_scheduler.__name__:
+                # UsingPaddleIn-Builtscheduler
+                scheduler.step()
+            else:
+                # Usingcustomdefinedscheduler
+                trainer.set_lr(scheduler(epoch))
+    print(f'train loss {train_loss:.3f}, train acc {train_acc:.3f}, 'f'test acc {test_acc:.3f}')
+```
+
 让我们来看看如果使用默认设置，调用此算法会发生什么。
 例如设学习率为$0.3$并训练$30$次迭代。
 留意在超过了某点、测试准确度方面的进展停滞时，训练准确度将如何继续提高。
@@ -208,6 +272,14 @@ lr, num_epochs = 0.3, 30
 train(net, train_iter, test_iter, num_epochs, lr)
 ```
 
+```{.python .input}
+#@tab paddle
+lr, num_epochs = 0.3, 30
+net = net_fn()
+trainer = paddle.optimizer.SGD(learning_rate=lr, parameters=net.parameters())
+train(net, train_iter, test_iter, num_epochs, loss, trainer, device)
+```
+
 ## 学习率调度器
 
 我们可以在每个迭代轮数（甚至在每个小批量）之后向下调整学习率。
@@ -231,6 +303,13 @@ lr = 0.1
 dummy_model = tf.keras.models.Sequential([tf.keras.layers.Dense(10)])
 dummy_model.compile(tf.keras.optimizers.SGD(learning_rate=lr), loss='mse')
 print(f'learning rate is now ,', dummy_model.optimizer.lr.numpy())
+```
+
+```{.python .input}
+#@tab paddle
+lr = 0.1
+trainer.set_lr(lr)
+print(f'learning rate is now {trainer.get_lr():.2f}')
 ```
 
 更通常而言，我们应该定义一个调度器。
@@ -276,6 +355,14 @@ train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
 #@tab tensorflow
 train(net, train_iter, test_iter, num_epochs, lr,
       custom_callback=LearningRateScheduler(scheduler))
+```
+
+```{.python .input}
+#@tab paddle
+net = net_fn()
+trainer = paddle.optimizer.SGD(learning_rate=lr , parameters=net.parameters())
+train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
+      scheduler)
 ```
 
 这比以前好一些：曲线比以前更加平滑，并且过拟合更小了。
@@ -357,6 +444,21 @@ scheduler = MultiFactorScheduler(step=[15, 30], factor=0.5, base_lr=0.5)
 d2l.plot(d2l.arange(num_epochs), [scheduler(t) for t in range(num_epochs)])
 ```
 
+```{.python .input}
+#@tab paddle
+net = net_fn()
+scheduler =paddle.optimizer.lr.MultiStepDecay(learning_rate = 0.5, milestones = [15,30], gamma=0.5)
+trainer = paddle.optimizer.SGD(learning_rate = scheduler, parameters=net.parameters())
+def get_lr(trainer, scheduler):
+    lr=trainer.state_dict()['LR_Scheduler']['last_lr']
+    trainer.step()
+    scheduler.step()
+    return lr
+
+d2l.plot(paddle.arange(num_epochs), [get_lr(trainer, scheduler)
+                                  for t in range(num_epochs)])
+```
+
 这种分段恒定学习率调度背后的直觉是，让优化持续进行，直到权重向量的分布达到一个驻点。
 此时，我们才将学习率降低，以获得更高质量的代理来达到一个良好的局部最小值。
 下面的例子展示了如何使用这种方法产生更好的解决方案。
@@ -379,6 +481,12 @@ train(net, train_iter, test_iter, num_epochs, lr,
       custom_callback=LearningRateScheduler(scheduler))
 ```
 
+```{.python .input}
+#@tab paddle
+train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
+      scheduler)
+```
+
 ### 余弦调度器
 
 余弦调度器是 :cite:`Loshchilov.Hutter.2016`提出的一种启发式算法。
@@ -398,7 +506,7 @@ d2l.plot(d2l.arange(num_epochs), [scheduler(t) for t in range(num_epochs)])
 ```
 
 ```{.python .input}
-#@tab pytorch, tensorflow
+#@tab pytorch, tensorflow, paddle
 class CosineScheduler:
     def __init__(self, max_update, base_lr=0.01, final_lr=0,
                warmup_steps=0, warmup_begin_lr=0):
@@ -450,6 +558,14 @@ train(net, train_iter, test_iter, num_epochs, lr,
       custom_callback=LearningRateScheduler(scheduler))
 ```
 
+```{.python .input}
+#@tab paddle
+net = net_fn()
+trainer = paddle.optimizer.SGD(learning_rate=0.3, parameters=net.parameters())
+train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
+      scheduler)
+```
+
 ### 预热
 
 在某些情况下，初始化参数不足以得到良好的解。
@@ -469,7 +585,7 @@ d2l.plot(np.arange(num_epochs), [scheduler(t) for t in range(num_epochs)])
 ```
 
 ```{.python .input}
-#@tab pytorch, tensorflow
+#@tab pytorch, tensorflow, paddle
 scheduler = CosineScheduler(20, warmup_steps=5, base_lr=0.3, final_lr=0.01)
 d2l.plot(d2l.arange(num_epochs), [scheduler(t) for t in range(num_epochs)])
 ```
@@ -494,6 +610,14 @@ train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
 #@tab tensorflow
 train(net, train_iter, test_iter, num_epochs, lr,
       custom_callback=LearningRateScheduler(scheduler))
+```
+
+```{.python .input}
+#@tab paddle
+net = net_fn()
+trainer = paddle.optimizer.SGD(learning_rate=0.3, parameters=net.parameters())
+train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
+      scheduler)
 ```
 
 预热可以应用于任何调度器，而不仅仅是余弦。

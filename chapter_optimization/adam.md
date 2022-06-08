@@ -131,6 +131,34 @@ def adam(params, grads, states, hyperparams):
                     / tf.math.sqrt(s_bias_corr) + eps)
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import paddle
+
+def init_adam_states(feature_dim):
+    v_w, v_b = d2l.zeros((feature_dim, 1)), d2l.zeros((1,))
+    s_w, s_b = d2l.zeros((feature_dim, 1)), d2l.zeros((1,))
+    return ((v_w, s_w), (v_b, s_b))
+
+def adam(params, states, hyperparams):
+    beta1, beta2, eps = 0.9, 0.999, 1e-6
+    a = []
+    for p, (v, s) in zip(params, states):
+        with paddle.no_grad():
+            v[:] = beta1 * v + (1 - beta1) * p.grad
+            s[:] = beta2 * s + (1 - beta2) * paddle.square(p.grad)
+            v_bias_corr = v / (1 - beta1 ** hyperparams['t'])
+            s_bias_corr = s / (1 - beta2 ** hyperparams['t'])
+            p[:] -= hyperparams['lr'] * v_bias_corr / (paddle.sqrt(s_bias_corr)
+                                                       + eps)
+        p.grad.zero_()
+        a.append(p)
+    hyperparams['t'] += 1
+    return a
+```
+
 现在，我们用以上Adam算法来训练模型，这里我们使用$\eta = 0.01$的学习率。
 
 ```{.python .input}
@@ -155,6 +183,12 @@ d2l.train_concise_ch11(trainer, {'lr': 0.01}, data_iter)
 ```{.python .input}
 #@tab tensorflow
 trainer = tf.keras.optimizers.Adam
+d2l.train_concise_ch11(trainer, {'learning_rate': 0.01}, data_iter)
+```
+
+```{.python .input}
+#@tab paddle
+trainer = paddle.optimizer.Adam
 d2l.train_concise_ch11(trainer, {'learning_rate': 0.01}, data_iter)
 ```
 
@@ -226,6 +260,30 @@ def yogi(params, grads, states, hyperparams):
         p[:].assign(p - hyperparams['lr'] * v_bias_corr
                     / tf.math.sqrt(s_bias_corr) + eps)
     hyperparams['t'] += 1
+
+data_iter, feature_dim = d2l.get_data_ch11(batch_size=10)
+d2l.train_ch11(yogi, init_adam_states(feature_dim),
+               {'lr': 0.01, 't': 1}, data_iter, feature_dim);
+```
+
+```{.python .input}
+#@tab paddle
+def yogi(params, states, hyperparams):
+    beta1, beta2, eps = 0.9, 0.999, 1e-3
+    a=[]
+    for p, (v, s) in zip(params, states):
+        with paddle.no_grad():
+            v[:] = beta1 * v + (1 - beta1) * p.grad
+            s[:] = s + (1 - beta2) * paddle.sign(
+                paddle.square(p.grad) - s) * paddle.square(p.grad)
+            v_bias_corr = v / (1 - beta1 ** hyperparams['t'])
+            s_bias_corr = s / (1 - beta2 ** hyperparams['t'])
+            p[:] -= hyperparams['lr'] * v_bias_corr / (paddle.sqrt(s_bias_corr)
+                                                       + eps)
+        p.grad.zero_()
+        a.append(p)
+    hyperparams['t'] += 1
+    return a
 
 data_iter, feature_dim = d2l.get_data_ch11(batch_size=10)
 d2l.train_ch11(yogi, init_adam_states(feature_dim),

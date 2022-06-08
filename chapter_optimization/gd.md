@@ -69,6 +69,14 @@ import tensorflow as tf
 ```
 
 ```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import numpy as np
+import paddle
+```
+
+```{.python .input}
 #@tab all
 def f(x):  # 目标函数
     return x ** 2
