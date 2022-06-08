@@ -43,7 +43,7 @@ import pandas as pd
 import tensorflow as tf
 ```
 
-```{.python .input  n=1}
+```{.python .input}
 #@tab paddle
 from d2l import paddle as d2l
 import math
@@ -101,7 +101,7 @@ class PositionWiseFFN(tf.keras.layers.Layer):
         return self.dense2(self.relu(self.dense1(X)))
 ```
 
-```{.python .input  n=2}
+```{.python .input}
 #@tab paddle
 #@save
 class PositionWiseFFN(nn.Layer):
@@ -138,7 +138,7 @@ ffn = PositionWiseFFN(4, 8)
 ffn(tf.ones((2, 3, 4)))[0]
 ```
 
-```{.python .input  n=3}
+```{.python .input}
 #@tab paddle
 ffn = PositionWiseFFN(4, 4, 8)
 ffn.eval()
@@ -181,7 +181,7 @@ X = tf.constant([[1, 2], [2, 3]], dtype=tf.float32)
 print('layer norm:', ln(X), '\nbatch norm:', bn(X, training=True))
 ```
 
-```{.python .input  n=4}
+```{.python .input}
 #@tab paddle
 ln = nn.LayerNorm(2)
 bn = nn.BatchNorm1D(2)
@@ -233,7 +233,7 @@ class AddNorm(tf.keras.layers.Layer):
         return self.ln(self.dropout(Y, **kwargs) + X)
 ```
 
-```{.python .input  n=5}
+```{.python .input}
 #@tab paddle
 #@save
 class AddNorm(nn.Layer):
@@ -255,7 +255,7 @@ add_norm.initialize()
 add_norm(d2l.ones((2, 3, 4)), d2l.ones((2, 3, 4))).shape
 ```
 
-```{.python .input  n=6}
+```{.python .input}
 #@tab pytorch, paddle
 add_norm = AddNorm([3, 4], 0.5)
 add_norm.eval()
@@ -331,7 +331,7 @@ class EncoderBlock(tf.keras.layers.Layer):
         return self.addnorm2(Y, self.ffn(Y), **kwargs)
 ```
 
-```{.python .input  n=7}
+```{.python .input}
 #@tab paddle
 #@save
 class EncoderBlock(nn.Layer):
@@ -363,7 +363,7 @@ encoder_blk.initialize()
 encoder_blk(X, valid_lens).shape
 ```
 
-```{.python .input  n=8}
+```{.python .input}
 #@tab pytorch, paddle
 X = d2l.ones((2, 100, 24))
 valid_lens = d2l.tensor([3, 2])
@@ -475,7 +475,7 @@ class TransformerEncoder(d2l.Encoder):
         return X
 ```
 
-```{.python .input  n=9}
+```{.python .input}
 #@tab paddle
 #@save
 class TransformerEncoder(d2l.Encoder):
@@ -530,7 +530,7 @@ encoder = TransformerEncoder(200, 24, 24, 24, 24, [1, 2], 48, 8, 2, 0.5)
 encoder(tf.ones((2, 100)), valid_lens, training=False).shape
 ```
 
-```{.python .input  n=10}
+```{.python .input}
 #@tab paddle
 encoder = TransformerEncoder(
     200, 24, 24, 24, 24, [100, 24], 24, 48, 8, 2, 0.5)
@@ -686,7 +686,7 @@ class DecoderBlock(tf.keras.layers.Layer):
         return self.addnorm3(Z, self.ffn(Z), **kwargs), state
 ```
 
-```{.python .input  n=11}
+```{.python .input}
 #@tab paddle
 class DecoderBlock(nn.Layer):
     """解码器中第i个块"""
@@ -745,7 +745,7 @@ state = [encoder_blk(X, valid_lens), valid_lens, [None]]
 decoder_blk(X, state)[0].shape
 ```
 
-```{.python .input  n=12}
+```{.python .input}
 #@tab pytorch, paddle
 decoder_blk = DecoderBlock(24, 24, 24, 24, [100, 24], 24, 48, 8, 0.5, 0)
 decoder_blk.eval()
@@ -874,7 +874,7 @@ class TransformerDecoder(d2l.AttentionDecoder):
         return self._attention_weights
 ```
 
-```{.python .input  n=13}
+```{.python .input}
 #@tab paddle
 class TransformerDecoder(d2l.AttentionDecoder):
     def __init__(self, vocab_size, key_size, query_size, value_size,
@@ -976,7 +976,7 @@ net = d2l.EncoderDecoder(encoder, decoder)
 d2l.train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
 ```
 
-```{.python .input  n=14}
+```{.python .input}
 #@tab paddle
 num_hiddens, num_layers, dropout, batch_size, num_steps = 32, 2, 0.1, 64, 10
 lr, num_epochs, device = 0.005, 200, d2l.try_gpu()
