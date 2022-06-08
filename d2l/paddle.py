@@ -971,7 +971,7 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
             X, X_valid_len, Y, Y_valid_len = [paddle.to_tensor(x, place=device) for x in batch]
             bos = paddle.to_tensor([tgt_vocab['<bos>']] * Y.shape[0]).reshape([-1, 1])
             dec_input = paddle.concat([bos, Y[:, :-1]], 1)  # 强制教学
-            Y_hat, _ = net(X, dec_input, X_valid_len)
+            Y_hat, _ = net(X, dec_input, X_valid_len.squeeze())
             l = loss(Y_hat, Y, Y_valid_len.squeeze())
             l.backward()	# 损失函数的标量进行“反向传播”
             d2l.grad_clipping(net, 1)
@@ -1269,7 +1269,7 @@ class TransformerEncoder(d2l.Encoder):
         self.pos_encoding = d2l.PositionalEncoding(num_hiddens, dropout)
         self.blks = nn.Sequential()
         for i in range(num_layers):
-            self.blks.add_sublayer(str(i),
+            self.blks.add_sublayer("block"+str(i),
                 EncoderBlock(key_size, query_size, value_size, num_hiddens,
                              norm_shape, ffn_num_input, ffn_num_hiddens,
                              num_heads, dropout, use_bias))
@@ -1281,7 +1281,6 @@ class TransformerEncoder(d2l.Encoder):
         X = self.pos_encoding(self.embedding(X) * math.sqrt(self.num_hiddens))
         self.attention_weights = [None] * len(self.blks)
         for i, blk in enumerate(self.blks):
-            print(blk)
             X = blk(X, valid_lens)
             self.attention_weights[
                 i] = blk.attention.attention.attention_weights
@@ -1320,4 +1319,3 @@ argmax = lambda x, *args, **kwargs: x.argmax(*args, **kwargs)
 astype = lambda x, *args, **kwargs: x.astype(*args, **kwargs)
 transpose = lambda x, *args, **kwargs: x.t(*args, **kwargs)
 reduce_mean = lambda x, *args, **kwargs: x.mean(*args, **kwargs)
-

@@ -501,7 +501,6 @@ class TransformerEncoder(d2l.Encoder):
         X = self.pos_encoding(self.embedding(X) * math.sqrt(self.num_hiddens))
         self.attention_weights = [None] * len(self.blks)
         for i, blk in enumerate(self.blks):
-            print(blk)
             X = blk(X, valid_lens)
             self.attention_weights[
                 i] = blk.attention.attention.attention_weights
