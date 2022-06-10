@@ -106,10 +106,18 @@ d2l.show_trace_2d(f_2d, d2l.train_2d(rmsprop_2d))
 接下来，我们在深度网络中实现RMSProp算法。
 
 ```{.python .input}
-#@tab mxnet,pytorch, paddle
+#@tab mxnet, pytorch
 def init_rmsprop_states(feature_dim):
     s_w = d2l.zeros((feature_dim, 1))
     s_b = d2l.zeros(1)
+    return (s_w, s_b)
+```
+
+```{.python .input}
+#@tab paddle
+def init_rmsprop_states(feature_dim):
+    s_w = d2l.zeros((feature_dim, 1))
+    s_b = d2l.zeros([1])
     return (s_w, s_b)
 ```
 
