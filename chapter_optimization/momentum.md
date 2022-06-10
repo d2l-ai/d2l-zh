@@ -210,7 +210,7 @@ d2l.plt.legend();
 在下面的实现中，我们称这些变量为`states`。
 
 ```{.python .input}
-#@tab mxnet,pytorch, paddle
+#@tab mxnet, pytorch
 def init_momentum_states(feature_dim):
     v_w = d2l.zeros((feature_dim, 1))
     v_b = d2l.zeros(1)
@@ -222,6 +222,14 @@ def init_momentum_states(feature_dim):
 def init_momentum_states(features_dim):
     v_w = tf.Variable(d2l.zeros((features_dim, 1)))
     v_b = tf.Variable(d2l.zeros(1))
+    return (v_w, v_b)
+```
+
+```{.python .input}
+#@tab paddle
+def init_momentum_states(feature_dim):
+    v_w = d2l.zeros((feature_dim, 1))
+    v_b = d2l.zeros([1])
     return (v_w, v_b)
 ```
 
