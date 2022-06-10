@@ -99,7 +99,7 @@ $$\lambda f(x) + (1-\lambda) f(x') \geq f(\lambda x + (1-\lambda) x').$$
 下面我们定义一些函数，包括凸函数和非凸函数。
 
 ```{.python .input}
-#@tab mxnet, torch, tensorflow
+#@tab mxnet, pytorch, tensorflow
 f = lambda x: 0.5 * x**2  # 凸函数
 g = lambda x: d2l.cos(np.pi * x)  # 非凸函数
 h = lambda x: d2l.exp(0.5 * x)  # 凸函数
