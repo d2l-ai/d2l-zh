@@ -193,7 +193,7 @@ $$\mathbf{x} \leftarrow \mathbf{x} - \eta \nabla f(\mathbf{x}).$$
 第二个函数会显示$\mathbf{x}$的轨迹。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow
 def train_2d(trainer, steps=20, f_grad=None):  #@save
     """用定制的训练机优化2D目标函数"""
     # s1和s2是稍后将使用的内部状态变量
@@ -212,8 +212,35 @@ def show_trace_2d(f, results):  #@save
     """显示优化过程中2D变量的轨迹"""
     d2l.set_figsize()
     d2l.plt.plot(*zip(*results), '-o', color='#ff7f0e')
-    x1, x2 = d2l.meshgrid(d2l.arange(-5.5, 1.0, 0.1),
-                          d2l.arange(-3.0, 1.0, 0.1))
+    x1, x2 = d2l.meshgrid(d2l.arange(-5.5, 1.0, 0.1, dtype='float32'),
+                          d2l.arange(-3.0, 1.0, 0.1, dtype='float32'))
+    d2l.plt.contour(x1, x2, f(x1, x2), colors='#1f77b4')
+    d2l.plt.xlabel('x1')
+    d2l.plt.ylabel('x2')
+```
+
+```{.python .input}
+#@tab paddle
+def train_2d(trainer, steps=20, f_grad=None):  #@save
+    """用定制的训练机优化2D目标函数"""
+    # s1和s2是稍后将使用的内部状态变量
+    x1, x2, s1, s2 = -5, -2, 0, 0
+    results = [(x1, x2)]
+    for i in range(steps):
+        if f_grad:
+            x1, x2, s1, s2 = trainer(x1, x2, s1, s2, f_grad)
+        else:
+            x1, x2, s1, s2 = trainer(x1, x2, s1, s2)
+        results.append((x1, x2))
+    print(f'epoch {i + 1}, x1: {float(x1):f}, x2: {float(x2):f}')
+    return results
+
+def show_trace_2d(f, results):  #@save
+    """显示优化过程中2D变量的轨迹"""
+    d2l.set_figsize()
+    d2l.plt.plot(*zip(*results), '-o', color='#ff7f0e')
+    x1, x2 = d2l.meshgrid(d2l.arange(-5.5, 1.0, 0.1, dtype='float32'),
+                          d2l.arange(-3.0, 1.0, 0.1, dtype='float32'))
     d2l.plt.contour(x1, x2, f(x1, x2), colors='#1f77b4')
     d2l.plt.xlabel('x1')
     d2l.plt.ylabel('x2')
