@@ -89,7 +89,7 @@ def f_grad(x):  # 目标函数的梯度(导数)
 使用梯度下降法迭代$x$共10次，我们可以看到，$x$的值最终将接近最优解。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow
 def gd(eta, f_grad):
     x = 10.0
     results = [x]
@@ -102,13 +102,39 @@ def gd(eta, f_grad):
 results = gd(0.2, f_grad)
 ```
 
+```{.python .input}
+#@tab paddle
+def gd(eta, f_grad):
+    x = 10.0
+    results = [x]
+    for i in range(10):
+        x -= eta * f_grad(x)
+        results.append(float(x))
+    print(f'epoch 10, x: {float(x):f}')
+    return results
+
+results = gd(0.2, f_grad)
+```
+
 对进行$x$优化的过程可以绘制如下。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow
 def show_trace(results, f):
     n = max(abs(min(results)), abs(max(results)))
     f_line = d2l.arange(-n, n, 0.01)
+    d2l.set_figsize()
+    d2l.plot([f_line, results], [[f(x) for x in f_line], [
+        f(x) for x in results]], 'x', 'f(x)', fmts=['-', '-o'])
+
+show_trace(results, f)
+```
+
+```{.python .input}
+#@tab paddle
+def show_trace(results, f):
+    n = max(abs(min(results)), abs(max(results)))
+    f_line = d2l.arange(-n, n, 0.01, dtype='float32')
     d2l.set_figsize()
     d2l.plot([f_line, results], [[f(x) for x in f_line], [
         f(x) for x in results]], 'x', 'f(x)', fmts=['-', '-o'])
