@@ -158,7 +158,7 @@ net = nn.Sequential(
     # 标签类别数是10
     nin_block(384, 10, kernel_size=3, strides=1, padding=1),
     nn.AdaptiveAvgPool2D((1, 1)),
-    # 将四维的输出转成二维的输出，其形状为(批量大小, 10)
+    # 将四维的输出转成二维的输出，其形状为(批量大小,10)
     nn.Flatten())
 ```
 

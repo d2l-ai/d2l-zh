@@ -538,13 +538,13 @@ def net():
 ```{.python .input}
 #@tab paddle
 net = nn.Sequential(
-    nn.Conv2D(1, 6, kernel_size=5), nn.BatchNorm2D(6), nn.Sigmoid(), 
+    nn.Conv2D(1, 6, kernel_size=5), nn.BatchNorm2D(6, momentum=0.1), nn.Sigmoid(), 
     nn.MaxPool2D(kernel_size=2, stride=2),
-    nn.Conv2D(6, 16, kernel_size=5), nn.BatchNorm2D(16), nn.Sigmoid(), 
+    nn.Conv2D(6, 16, kernel_size=5), nn.BatchNorm2D(16, momentum=0.1), nn.Sigmoid(), 
     nn.MaxPool2D(kernel_size=2, stride=2),
     nn.Flatten(), 
-    nn.Linear(256, 120), nn.BatchNorm1D(120), nn.Sigmoid(), 
-    nn.Linear(120, 84), nn.BatchNorm1D(84), nn.Sigmoid(), 
+    nn.Linear(256, 120), nn.BatchNorm1D(120, momentum=0.1), nn.Sigmoid(), 
+    nn.Linear(120, 84), nn.BatchNorm1D(84, momentum=0.1), nn.Sigmoid(), 
     nn.Linear(84, 10))
 ```
 

@@ -439,6 +439,41 @@ def try_all_gpus():
     devices = [paddle.device.set_device(f'gpu:{i}')
                for i in range(paddle.device.cuda.device_count())]
     return devices if devices else paddle.device.get_device()
+<<<<<<< HEAD
+=======
+
+def corr2d(X, K):
+    """计算二维互相关运算
+
+    Defined in :numref:`sec_conv_layer`"""
+    h, w = K.shape
+    Y = d2l.zeros((X.shape[0] - h + 1, X.shape[1] - w + 1))
+    for i in range(Y.shape[0]):
+        for j in range(Y.shape[1]):
+            Y[i, j] = d2l.reduce_sum((X[i: i + h, j: j + w] * K))
+    return Y
+
+def evaluate_accuracy_gpu(net, data_iter, device=None):
+    """使用GPU计算模型在数据集上的精度
+
+    Defined in :numref:`sec_lenet`"""
+    if isinstance(net, nn.Layer):
+        net.eval()  # 设置为评估模式
+        if not device:
+            device = next(iter(net.parameters())).place
+    # 正确预测的数量，总预测的数量
+    metric = d2l.Accumulator(2)
+    with paddle.no_grad():
+        for X, y in data_iter:
+            if isinstance(X, list):
+                # BERT微调所需的
+                X = [paddle.to_tensor(x, place=device) for x in X]
+            else:
+                X = paddle.to_tensor(X, place=device)
+            y = paddle.to_tensor(y, place=device)
+            metric.add(d2l.accuracy(net(X), y), d2l.size(y))
+    return metric[0] / metric[1]
+>>>>>>> 2b86e480a110c23be921098c33bb64a987a67433
 
 class Residual(nn.Layer):
     def __init__(self, input_channels, num_channels, use_1x1conv=False,
