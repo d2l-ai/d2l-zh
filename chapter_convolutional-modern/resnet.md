@@ -152,7 +152,7 @@ import paddle
 import paddle.nn as nn
 from paddle.nn import functional as F
 
-class Residual(nn.Layer):
+class Residual(nn.Layer):  #@save
     def __init__(self, input_channels, num_channels, use_1x1conv=False,
                  strides=1):
         super(Residual, self).__init__()
