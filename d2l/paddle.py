@@ -514,6 +514,31 @@ def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
     print(f'{metric[2] * num_epochs / timer.sum():.1f} examples/sec '
           f'on {str(device)}')
 
+class Residual(nn.Layer):
+    def __init__(self, input_channels, num_channels, use_1x1conv=False,
+                 strides=1):
+        super(Residual, self).__init__()
+        self.conv1 = nn.Conv2D(input_channels, num_channels, kernel_size=3,
+                               padding=1, stride=strides)
+        self.conv2 = nn.Conv2D(num_channels, num_channels, kernel_size=3,
+                               padding=1)
+        if use_1x1conv:
+            self.conv3 = nn.Conv2D(input_channels, num_channels,
+                                   kernel_size=1, stride=strides)
+        else:
+            self.conv3 = None
+        self.bn1 = nn.BatchNorm2D(num_channels)
+        self.bn2 = nn.BatchNorm2D(num_channels)
+        self.relu = nn.ReLU()
+
+    def forward(self, X):
+        Y = F.relu(self.bn1(self.conv1(X)))
+        Y = self.bn2(self.conv2(Y))
+        if self.conv3:
+            X = self.conv3(X)
+        Y += X
+        return F.relu(Y)
+
 d2l.DATA_HUB['time_machine'] = (d2l.DATA_URL + 'timemachine.txt',
                                 '090b5e7e70c295757f55df93cb0a180b9691891a')
 
