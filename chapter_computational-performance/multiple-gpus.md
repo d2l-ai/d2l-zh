@@ -449,8 +449,8 @@ def train_batch(X, y, device_params, devices, lr):
     for item in range(len(device_params)):
         paddle.set_device(f"gpu:{item}")
         param = device_params[item]
-        device_params[item] = d2l.sgd(param, lr, X.shape[0]) # 在这里，我们使用全尺寸的小批量
-    return device_params
+        d2l.sgd(param, lr, X.shape[0]) # 在这里，我们使用全尺寸的小批量
+ 
 ```
 
 现在，我们可以[**定义训练函数**]。
@@ -519,7 +519,7 @@ def train(num_gpus, batch_size, lr):
         timer.start()
         for X, y in train_iter:
             # 为单个小批量执行多GPU训练
-            device_params = train_batch(X, y, device_params, devices, lr)
+            train_batch(X, y, device_params, devices, lr)
             paddle.device.cuda.synchronize()
         timer.stop()
         # 在GPU0上评估模型

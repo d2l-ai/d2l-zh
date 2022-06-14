@@ -231,7 +231,7 @@ with d2l.Benchmark('在GPU1上运行并复制到CPU'):
 ```{.python .input}
 #@tab paddle
 with d2l.Benchmark('在GPU1上运行并复制到CPU'):
-    y = run(x_gpu1, 0)
+    y = run(x_gpu1)
     y_cpu = copy_to_cpu(y)
     paddle.device.cuda.synchronize()
 ```

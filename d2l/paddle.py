@@ -459,6 +459,7 @@ def evaluate_accuracy_gpu(net, data_iter, device=None):
         net.eval()  # 设置为评估模式
         if not device:
             device = next(iter(net.parameters())).place
+    paddle.set_device("gpu:{}".format(str(device)[-2])) 
     # 正确预测的数量，总预测的数量
     metric = d2l.Accumulator(2)
     with paddle.no_grad():

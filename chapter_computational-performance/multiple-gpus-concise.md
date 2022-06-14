@@ -17,7 +17,7 @@ import torch
 from torch import nn
 ```
 
-```{.python .input}
+```{.python .input  n=1}
 #@tab paddle
 import d2l.paddle as d2l
 import paddle
@@ -86,7 +86,7 @@ def resnet18(num_classes, in_channels=1):
     return net
 ```
 
-```{.python .input}
+```{.python .input  n=2}
 #@tab paddle
 #@save
 def resnet18(num_classes, in_channels=1):
@@ -144,7 +144,7 @@ devices = d2l.try_all_gpus()
 # 我们将在训练代码实现中初始化网络
 ```
 
-```{.python .input}
+```{.python .input  n=3}
 #@tab paddle
 net = resnet18(10)
 # 获取GPU列表
@@ -181,7 +181,7 @@ weight.data(devices[0])[0], weight.data(devices[1])[0]
 这里主要是 :numref:`sec_lenet`的`evaluate_accuracy_gpu`函数的替代，代码的主要区别在于在调用网络之前拆分了一个小批量，其他在本质上是一样的。
 :end_tab:
 
-```{.python .input}
+```{.python .input  n=4}
 #@save
 def evaluate_accuracy_gpus(net, data_iter, split_f=d2l.split_batch):
     """使用多个GPU计算数据集上模型的精度"""
@@ -267,7 +267,7 @@ def train(net, num_gpus, batch_size, lr):
           f'在{str(devices)}')
 ```
 
-```{.python .input}
+```{.python .input  n=5}
 #@tab paddle
 def train(net, num_gpus, batch_size, lr):
     train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
@@ -301,7 +301,7 @@ def train(net, num_gpus, batch_size, lr):
 
 让我们看看这在实践中是如何运作的。我们先[**在单个GPU上训练网络**]进行预热。
 
-```{.python .input}
+```{.python .input  n=6}
 train(num_gpus=1, batch_size=256, lr=0.1)
 ```
 
