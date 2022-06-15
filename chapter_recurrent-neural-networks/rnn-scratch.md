@@ -645,8 +645,7 @@ def grad_clipping(net, theta):  #@save
     if norm > theta:
         with paddle.no_grad():
             for param in params:
-                param.grad[:] *= theta / norm
-                param.stop_gradient = False
+                param.grad.set_value(param.grad * theta / norm)
 ```
 
 ## 训练
