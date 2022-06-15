@@ -772,19 +772,19 @@ def train_epoch_ch8(net, train_iter, loss, updater, use_random_iter):
 #@tab paddle
 #@save
 def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
-    """训练网络一个迭代周期（定义见第8章"""
+    """训练网络一个迭代周期（定义见第8章)"""
     state, timer = None, d2l.Timer()
     metric = d2l.Accumulator(2)  # 训练损失之和,词元数量
     for X, Y in train_iter:
         if state is None or use_random_iter:
-            # 在第一次迭代或使用随机抽样时初始化`state`
+            # 在第一次迭代或使用随机抽样时初始化state
             state = net.begin_state(batch_size=X.shape[0])
         else:
             if isinstance(net, nn.Layer) and not isinstance(state, tuple):
-                # `state`对于`nn.GRU`是个张量
+                # state对于nn.GRU是个张量
                 state.stop_gradient=True
             else:
-                # `state`对于`nn.LSTM`或对于我们从零开始实现的模型是个张量
+                # state对于nn.LSTM或对于我们从零开始实现的模型是个张量
                 for s in state:
                     s.stop_gradient=True
         y = paddle.reshape(Y.T,shape=[-1])
@@ -800,7 +800,7 @@ def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
         else:
             l.backward()
             grad_clipping(net, 1)
-            # 因为已经调用了`mean`函数
+            # 因为已经调用了mean函数
             updater(batch_size=1)
         
         metric.add(l * d2l.size(y), d2l.size(y))
