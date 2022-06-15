@@ -737,8 +737,7 @@ def grad_clipping(net, theta):
     if norm > theta:
         with paddle.no_grad():
             for param in params:
-                param.grad[:] *= theta / norm
-                param.stop_gradient = False
+                param.grad.set_value(param.grad * theta / norm)
 
 def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
     """训练网络一个迭代周期（定义见第8章)
