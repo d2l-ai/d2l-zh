@@ -76,6 +76,8 @@ from d2l import paddle as d2l
 import math
 import paddle
 from paddle import nn
+import warnings
+warnings.filterwarnings("ignore")
 ```
 
 ## 编码器
@@ -552,7 +554,7 @@ def sequence_mask(X, valid_len, value=0):
     maxlen = X.shape[1]
     mask = paddle.arange((maxlen), dtype=paddle.float32)[None, :] < valid_len[:, None]
     Xtype = X.dtype
-    X=X.astype(paddle.float32)
+    X = X.astype(paddle.float32)
     X[~mask] = float(value)
     return X.astype(Xtype)
 
