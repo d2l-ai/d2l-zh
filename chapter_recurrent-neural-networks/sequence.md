@@ -424,11 +424,11 @@ max_steps = 64
 ```{.python .input}
 #@tab mxnet, pytorch
 features = d2l.zeros((T - tau - max_steps + 1, tau + max_steps))
-# 列i（i<tau）是来自x的观测，其时间步从（i+1）到（i+T-tau-max_steps+1）
+# 列i（i<tau）是来自x的观测，其时间步从（i）到（i+T-tau-max_steps+1）
 for i in range(tau):
     features[:, i] = x[i: i + T - tau - max_steps + 1]
 
-# 列i（i>=tau）是来自（i-tau+1）步的预测，其时间步从（i+1）到（i+T-tau-max_steps+1）
+# 列i（i>=tau）是来自（i-tau+1）步的预测，其时间步从（i）到（i+T-tau-max_steps+1）
 for i in range(tau, tau + max_steps):
     features[:, i] = d2l.reshape(net(features[:, i - tau: i]), -1)
 ```
@@ -436,11 +436,11 @@ for i in range(tau, tau + max_steps):
 ```{.python .input}
 #@tab tensorflow
 features = tf.Variable(d2l.zeros((T - tau - max_steps + 1, tau + max_steps)))
-# 列i（i<tau）是来自x的观测，其时间步从（i+1）到（i+T-tau-max_steps+1）
+# 列i（i<tau）是来自x的观测，其时间步从（i）到（i+T-tau-max_steps+1）
 for i in range(tau):
     features[:, i].assign(x[i: i + T - tau - max_steps + 1].numpy())
 
-# 列i（i>=tau）是来自（i-tau+1）步的预测，其时间步从（i+1）到（i+T-tau-max_steps+1）
+# 列i（i>=tau）是来自（i-tau+1）步的预测，其时间步从（i）到（i+T-tau-max_steps+1）
 for i in range(tau, tau + max_steps):
     features[:, i].assign(d2l.reshape(net((features[:, i - tau: i])), -1))
 ```
