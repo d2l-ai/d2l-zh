@@ -235,7 +235,7 @@ out_img = Y[0].permute(1, 2, 0).detach()
 
 ```{.python .input}
 #@tab paddle
-img = paddlevision.transforms.ToTensor()(d2l.Image.open('./img/catdog.jpg'))
+img = paddlevision.transforms.ToTensor()(d2l.Image.open('../img/catdog.jpg'))
 X = img.unsqueeze(0)
 Y = conv_trans(X)
 out_img = Y[0].transpose([1, 2, 0]).detach()

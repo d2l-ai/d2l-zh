@@ -208,7 +208,7 @@ Y.shape
 
 ```{.python .input}
 #@tab paddle
-img = d2l.plt.imread('./img/catdog.jpg')
+img = d2l.plt.imread('../img/catdog.jpg')
 h, w = img.shape[:2]
 
 print(h, w)

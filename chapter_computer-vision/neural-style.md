@@ -72,7 +72,7 @@ import paddle.vision as paddlevision
 import paddle.nn as nn
 
 d2l.set_figsize()
-content_img = d2l.Image.open('./img/rainier.jpg')
+content_img = d2l.Image.open('../img/rainier.jpg')
 d2l.plt.imshow(content_img);
 ```
 

@@ -749,7 +749,7 @@ img = X.squeeze(0).permute(1, 2, 0).long()
 #@tab paddle
 X = paddle.to_tensor(
             paddlevision.image.image_load(
-                './img/banana.jpg', backend="cv2"
+                '../img/banana.jpg', backend="cv2"
                 )[..., ::-1].transpose([2,0,1])
                 ).unsqueeze(0).astype(paddle.float32)
 img = X.squeeze(0).transpose([1, 2, 0]).astype(paddle.int64)
