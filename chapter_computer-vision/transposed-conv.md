@@ -25,6 +25,13 @@ from torch import nn
 from d2l import torch as d2l
 ```
 
+```{.python .input}
+#@tab paddle
+import paddle
+from paddle import nn
+from d2l import paddle as d2l
+```
+
 ## 基本操作
 
 让我们暂时忽略通道，从基本的转置卷积开始，设步幅为1且没有填充。
@@ -81,6 +88,16 @@ tconv.weight.data = K
 tconv(X)
 ```
 
+```{.python .input}
+#@tab paddle
+X, K = X.reshape([1, 1, 2, 2]), K.reshape([1, 1, 2, 2])
+tconv = nn.Conv2DTranspose(1, 1, kernel_size=2, bias_attr=False)
+K = paddle.create_parameter(shape=K.shape, dtype="float32", 
+        default_initializer=paddle.nn.initializer.Assign(K))
+tconv.weight = K
+tconv(X)
+```
+
 ## [**填充、步幅和多通道**]
 
 与常规卷积不同，在转置卷积中，填充被应用于的输出（常规卷积将填充应用于输入）。
@@ -96,6 +113,13 @@ tconv(X)
 #@tab pytorch
 tconv = nn.ConvTranspose2d(1, 1, kernel_size=2, padding=1, bias=False)
 tconv.weight.data = K
+tconv(X)
+```
+
+```{.python .input}
+#@tab paddle
+tconv = nn.Conv2DTranspose(1, 1, kernel_size=2, padding=1, bias_attr=False)
+tconv.weight = K
 tconv(X)
 ```
 
@@ -120,6 +144,13 @@ tconv.weight.data = K
 tconv(X)
 ```
 
+```{.python .input}
+#@tab paddle
+tconv = nn.Conv2DTranspose(1, 1, kernel_size=2, stride=2, bias_attr=False)
+tconv.weight = K
+tconv(X)
+```
+
 对于多个输入和输出通道，转置卷积与常规卷积以相同方式运作。
 假设输入有$c_i$个通道，且转置卷积为每个输入通道分配了一个$k_h\times k_w$的卷积核张量。
 当指定多个输出通道时，每个输出通道将有一个$c_i\times k_h\times k_w$的卷积核。
@@ -141,6 +172,14 @@ tconv(conv(X)).shape == X.shape
 X = torch.rand(size=(1, 10, 16, 16))
 conv = nn.Conv2d(10, 20, kernel_size=5, padding=2, stride=3)
 tconv = nn.ConvTranspose2d(20, 10, kernel_size=5, padding=2, stride=3)
+tconv(conv(X)).shape == X.shape
+```
+
+```{.python .input}
+#@tab paddle
+X = paddle.rand(shape=(1, 10, 16, 16))
+conv = nn.Conv2D(10, 20, kernel_size=5, padding=2, stride=3)
+tconv = nn.Conv2DTranspose(20, 10, kernel_size=5, padding=2, stride=3)
 tconv(conv(X)).shape == X.shape
 ```
 

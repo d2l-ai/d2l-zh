@@ -69,6 +69,20 @@ def cls_predictor(num_inputs, num_anchors, num_classes):
                      kernel_size=3, padding=1)
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import paddle
+import paddle.vision as paddlevision
+from paddle import nn
+from paddle.nn import functional as F
+
+def cls_predictor(num_inputs, num_anchors, num_classes):
+    return nn.Conv2D(num_inputs, num_anchors * (num_classes + 1),
+                     kernel_size=3, padding=1)
+```
+
 ### (**边界框预测层**)
 
 边界框预测层的设计与类别预测层的设计类似。
@@ -83,6 +97,12 @@ def bbox_predictor(num_anchors):
 #@tab pytorch
 def bbox_predictor(num_inputs, num_anchors):
     return nn.Conv2d(num_inputs, num_anchors * 4, kernel_size=3, padding=1)
+```
+
+```{.python .input}
+#@tab paddle
+def bbox_predictor(num_inputs, num_anchors):
+    return nn.Conv2D(num_inputs, num_anchors * 4, kernel_size=3, padding=1)
 ```
 
 ### [**连结多尺度的预测**]
@@ -115,6 +135,16 @@ Y2 = forward(torch.zeros((2, 16, 10, 10)), cls_predictor(16, 3, 10))
 Y1.shape, Y2.shape
 ```
 
+```{.python .input}
+#@tab paddle
+def forward(x, block):
+    return block(x)
+
+Y1 = forward(paddle.zeros((2, 8, 20, 20)), cls_predictor(8, 5, 10))
+Y2 = forward(paddle.zeros((2, 16, 10, 10)), cls_predictor(16, 3, 10))
+Y1.shape, Y2.shape
+```
+
 正如我们所看到的，除了批量大小这一维度外，其他三个维度都具有不同的尺寸。
 为了将这两个预测输出链接起来以提高计算效率，我们将把这些张量转换为更一致的格式。
 
@@ -136,6 +166,15 @@ def flatten_pred(pred):
 
 def concat_preds(preds):
     return torch.cat([flatten_pred(p) for p in preds], dim=1)
+```
+
+```{.python .input}
+#@tab paddle
+def flatten_pred(pred):
+    return paddle.flatten(pred.transpose([0, 2, 3, 1]), start_axis=1)
+
+def concat_preds(preds):
+    return paddle.concat([flatten_pred(p) for p in preds], axis=1)
 ```
 
 这样一来，尽管`Y1`和`Y2`在通道数、高度和宽度方面具有不同的大小，我们仍然可以在同一个小批量的两个不同尺度上连接这两个预测输出。
@@ -178,6 +217,20 @@ def down_sample_blk(in_channels, out_channels):
     return nn.Sequential(*blk)
 ```
 
+```{.python .input}
+#@tab paddle
+def down_sample_blk(in_channels, out_channels):
+    blk = []
+    for _ in range(2):
+        blk.append(nn.Conv2D(in_channels, out_channels,
+                             kernel_size=3, padding=1))
+        blk.append(nn.BatchNorm2D(out_channels))
+        blk.append(nn.ReLU())
+        in_channels = out_channels
+    blk.append(nn.MaxPool2D(2))
+    return nn.Sequential(*blk)
+```
+
 在以下示例中，我们构建的高和宽减半块会更改输入通道的数量，并将输入特征图的高度和宽度减半。
 
 ```{.python .input}
@@ -187,6 +240,11 @@ forward(np.zeros((2, 3, 20, 20)), down_sample_blk(10)).shape
 ```{.python .input}
 #@tab pytorch
 forward(torch.zeros((2, 3, 20, 20)), down_sample_blk(3, 10)).shape
+```
+
+```{.python .input}
+#@tab paddle
+forward(paddle.zeros((2, 3, 20, 20)), down_sample_blk(3, 10)).shape
 ```
 
 ### [**基本网络块**]
@@ -215,6 +273,18 @@ def base_net():
     return nn.Sequential(*blk)
 
 forward(torch.zeros((2, 3, 256, 256)), base_net()).shape
+```
+
+```{.python .input}
+#@tab paddle
+def base_net():
+    blk = []
+    num_filters = [3, 16, 32, 64]
+    for i in range(len(num_filters) - 1):
+        blk.append(down_sample_blk(num_filters[i], num_filters[i+1]))
+    return nn.Sequential(*blk)
+
+forward(paddle.zeros((2, 3, 256, 256)), base_net()).shape
 ```
 
 ### 完整的模型
@@ -246,6 +316,20 @@ def get_blk(i):
     return blk
 ```
 
+```{.python .input}
+#@tab paddle
+def get_blk(i):
+    if i == 0:
+        blk = base_net()
+    elif i == 1:
+        blk = down_sample_blk(64, 128)
+    elif i == 4:
+        blk = nn.AdaptiveMaxPool2D((1,1))
+    else:
+        blk = down_sample_blk(128, 128)
+    return blk
+```
+
 现在我们[**为每个块定义前向传播**]。与图像分类任务不同，此处的输出包括：CNN特征图`Y`；在当前尺度下根据`Y`生成的锚框；预测的这些锚框的类别和偏移量（基于`Y`）。
 
 ```{.python .input}
@@ -259,6 +343,16 @@ def blk_forward(X, blk, size, ratio, cls_predictor, bbox_predictor):
 
 ```{.python .input}
 #@tab pytorch
+def blk_forward(X, blk, size, ratio, cls_predictor, bbox_predictor):
+    Y = blk(X)
+    anchors = d2l.multibox_prior(Y, sizes=size, ratios=ratio)
+    cls_preds = cls_predictor(Y)
+    bbox_preds = bbox_predictor(Y)
+    return (Y, anchors, cls_preds, bbox_preds)
+```
+
+```{.python .input}
+#@tab paddle
 def blk_forward(X, blk, size, ratio, cls_predictor, bbox_predictor):
     Y = blk(X)
     anchors = d2l.multibox_prior(Y, sizes=size, ratios=ratio)
@@ -340,6 +434,36 @@ class TinySSD(nn.Module):
         return anchors, cls_preds, bbox_preds
 ```
 
+```{.python .input}
+#@tab paddle
+class TinySSD(nn.Layer):
+    def __init__(self, num_classes, **kwargs):
+        super(TinySSD, self).__init__(**kwargs)
+        self.num_classes = num_classes
+        idx_to_in_channels = [64, 128, 128, 128, 128]
+        for i in range(5):
+            # 即赋值语句self.blk_i=get_blk(i)
+            setattr(self, f'blk_{i}', get_blk(i))
+            setattr(self, f'cls_{i}', cls_predictor(idx_to_in_channels[i],
+                                                    num_anchors, num_classes))
+            setattr(self, f'bbox_{i}', bbox_predictor(idx_to_in_channels[i],
+                                                      num_anchors))
+
+    def forward(self, X):
+        anchors, cls_preds, bbox_preds = [None] * 5, [None] * 5, [None] * 5
+        for i in range(5):
+            # getattr(self,'blk_%d'%i)即访问self.blk_i
+            X, anchors[i], cls_preds[i], bbox_preds[i] = blk_forward(
+                X, getattr(self, f'blk_{i}'), sizes[i], ratios[i],
+                getattr(self, f'cls_{i}'), getattr(self, f'bbox_{i}'))
+        anchors = paddle.concat(anchors, axis=1)
+        cls_preds = concat_preds(cls_preds)
+        cls_preds = cls_preds.reshape(
+            (cls_preds.shape[0], -1, self.num_classes + 1))
+        bbox_preds = concat_preds(bbox_preds)
+        return anchors, cls_preds, bbox_preds
+```
+
 我们[**创建一个模型实例，然后使用它**]对一个$256 \times 256$像素的小批量图像`X`(**执行前向传播**)。
 
 如本节前面部分所示，第一个模块输出特征图的形状为$32 \times 32$。
@@ -361,6 +485,17 @@ print('output bbox preds:', bbox_preds.shape)
 #@tab pytorch
 net = TinySSD(num_classes=1)
 X = torch.zeros((32, 3, 256, 256))
+anchors, cls_preds, bbox_preds = net(X)
+
+print('output anchors:', anchors.shape)
+print('output class preds:', cls_preds.shape)
+print('output bbox preds:', bbox_preds.shape)
+```
+
+```{.python .input}
+#@tab paddle
+net = TinySSD(num_classes=1)
+X = paddle.zeros((32, 3, 256, 256))
 anchors, cls_preds, bbox_preds = net(X)
 
 print('output anchors:', anchors.shape)
@@ -398,6 +533,14 @@ device, net = d2l.try_gpu(), TinySSD(num_classes=1)
 trainer = torch.optim.SGD(net.parameters(), lr=0.2, weight_decay=5e-4)
 ```
 
+```{.python .input}
+#@tab paddle
+device, net = d2l.try_gpu(), TinySSD(num_classes=1)
+trainer = paddle.optimizer.SGD(learning_rate=0.2, 
+                               parameters=net.parameters(), 
+                               weight_decay=5e-4)
+```
+
 ### [**定义损失函数和评价函数**]
 
 目标检测有两种类型的损失。
@@ -431,6 +574,20 @@ def calc_loss(cls_preds, cls_labels, bbox_preds, bbox_labels, bbox_masks):
     return cls + bbox
 ```
 
+```{.python .input}
+#@tab paddle
+cls_loss = nn.CrossEntropyLoss(reduction='none')
+bbox_loss = nn.L1Loss(reduction='none')
+
+def calc_loss(cls_preds, cls_labels, bbox_preds, bbox_labels, bbox_masks):
+    batch_size, num_classes = cls_preds.shape[0], cls_preds.shape[2]
+    cls = cls_loss(cls_preds.reshape((-1, num_classes)),
+                   cls_labels.reshape([-1])).reshape((batch_size, -1)).mean(axis=1)
+    bbox = bbox_loss(bbox_preds * bbox_masks,
+                     bbox_labels * bbox_masks).mean(axis=1)
+    return cls + bbox
+```
+
 我们可以沿用准确率评价分类结果。
 由于偏移量使用了$L_1$范数损失，我们使用*平均绝对误差*来评价边界框的预测结果。这些预测结果是从生成的锚框及其预测偏移量中获得的。
 
@@ -453,6 +610,17 @@ def cls_eval(cls_preds, cls_labels):
 
 def bbox_eval(bbox_preds, bbox_labels, bbox_masks):
     return float((torch.abs((bbox_labels - bbox_preds) * bbox_masks)).sum())
+```
+
+```{.python .input}
+#@tab paddle
+def cls_eval(cls_preds, cls_labels):
+    # 由于类别预测结果放在最后一维，argmax需要指定最后一维。
+    return float((cls_preds.argmax(axis=-1).astype(
+        cls_labels.dtype) == cls_labels).sum())
+
+def bbox_eval(bbox_preds, bbox_labels, bbox_masks):
+    return float((paddle.abs((bbox_labels - bbox_preds) * bbox_masks)).sum())
 ```
 
 ### [**训练模型**]
@@ -528,6 +696,39 @@ print(f'{len(train_iter.dataset) / timer.stop():.1f} examples/sec on '
       f'{str(device)}')
 ```
 
+```{.python .input}
+#@tab paddle
+num_epochs, timer = 20, d2l.Timer()
+animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs],
+                        legend=['class error', 'bbox mae'])
+for epoch in range(num_epochs):
+    # 训练精确度的和，训练精确度的和中的示例数
+    # 绝对误差的和，绝对误差的和中的示例数
+    metric = d2l.Accumulator(4)
+    net.train()
+    for features, target in train_iter:
+        timer.start()
+        trainer.clear_grad()
+        X, Y = features, target
+        # 生成多尺度的锚框，为每个锚框预测类别和偏移量
+        anchors, cls_preds, bbox_preds = net(X)
+        # 为每个锚框标注类别和偏移量
+        bbox_labels, bbox_masks, cls_labels = d2l.multibox_target(anchors, Y)
+        # 根据类别和偏移量的预测和标注值计算损失函数
+        l = calc_loss(cls_preds, cls_labels, bbox_preds, bbox_labels,
+                      bbox_masks)
+        l.mean().backward()
+        trainer.step()
+        metric.add(cls_eval(cls_preds, cls_labels), cls_labels.numel(),
+                   bbox_eval(bbox_preds, bbox_labels, bbox_masks),
+                   bbox_labels.numel())
+    cls_err, bbox_mae = 1 - metric[0] / metric[1], metric[2] / metric[3]
+    animator.add(epoch + 1, (cls_err, bbox_mae))
+print(f'class err {cls_err:.2e}, bbox mae {bbox_mae:.2e}')
+print(f'{len(train_iter.dataset) / timer.stop():.1f} examples/sec on '
+      f'{str(device)}')
+```
+
 ## [**预测目标**]
 
 在预测阶段，我们希望能把图像里面所有我们感兴趣的目标检测出来。在下面，我们读取并调整测试图像的大小，然后将其转成卷积层需要的四维格式。
@@ -542,6 +743,16 @@ X = np.expand_dims(feature.transpose(2, 0, 1), axis=0)
 #@tab pytorch
 X = torchvision.io.read_image('../img/banana.jpg').unsqueeze(0).float()
 img = X.squeeze(0).permute(1, 2, 0).long()
+```
+
+```{.python .input}
+#@tab paddle
+X = paddle.to_tensor(
+            paddlevision.image.image_load(
+                './img/banana.jpg', backend="cv2"
+                )[..., ::-1].transpose([2,0,1])
+                ).unsqueeze(0).astype(paddle.float32)
+img = X.squeeze(0).transpose([1, 2, 0]).astype(paddle.int64)
 ```
 
 使用下面的`multibox_detection`函数，我们可以根据锚框及其预测偏移量得到预测边界框。然后，通过非极大值抑制来移除相似的预测边界框。
@@ -566,6 +777,19 @@ def predict(X):
     output = d2l.multibox_detection(cls_probs, bbox_preds, anchors)
     idx = [i for i, row in enumerate(output[0]) if row[0] != -1]
     return output[0, idx]
+
+output = predict(X)
+```
+
+```{.python .input}
+#@tab paddle
+def predict(X):
+    net.eval()
+    anchors, cls_preds, bbox_preds = net(X)
+    cls_probs = F.softmax(cls_preds, axis=2).transpose([0, 2, 1])
+    output = d2l.multibox_detection(cls_probs, bbox_preds, anchors)
+    idx = [i for i, row in enumerate(output[0]) if row[0] != -1]
+    return output[0, :][idx]
 
 output = predict(X)
 ```
@@ -598,6 +822,22 @@ def display(img, output, threshold):
             continue
         h, w = img.shape[0:2]
         bbox = [row[2:6] * torch.tensor((w, h, w, h), device=row.device)]
+        d2l.show_bboxes(fig.axes, bbox, '%.2f' % score, 'w')
+
+display(img, output.cpu(), threshold=0.9)
+```
+
+```{.python .input}
+#@tab paddle
+def display(img, output, threshold):
+    d2l.set_figsize((5, 5))
+    fig = d2l.plt.imshow(img)
+    for row in output:
+        score = float(row[1])
+        if score < threshold:
+            continue
+        h, w = img.shape[0:2]
+        bbox = [row[2:6] * paddle.to_tensor((w, h, w, h))]
         d2l.show_bboxes(fig.axes, bbox, '%.2f' % score, 'w')
 
 display(img, output.cpu(), threshold=0.9)

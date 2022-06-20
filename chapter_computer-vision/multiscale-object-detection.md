@@ -42,6 +42,17 @@ h, w = img.shape[:2]
 h, w
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import paddle
+
+img = d2l.plt.imread('img/catdog.jpg')
+h, w = img.shape[:2]
+h, w
+```
+
 回想一下，在 :numref:`sec_conv_layer`中，我们将卷积图层的二维数组输出称为特征图。
 通过定义特征图的形状，我们可以确定任何图像上均匀采样锚框的中心。
 
@@ -72,6 +83,18 @@ def display_anchors(fmap_w, fmap_h, s):
     fmap = d2l.zeros((1, 10, fmap_h, fmap_w))
     anchors = d2l.multibox_prior(fmap, sizes=s, ratios=[1, 2, 0.5])
     bbox_scale = d2l.tensor((w, h, w, h))
+    d2l.show_bboxes(d2l.plt.imshow(img).axes,
+                    anchors[0] * bbox_scale)
+```
+
+```{.python .input}
+#@tab paddle
+def display_anchors(fmap_w, fmap_h, s):
+    d2l.set_figsize()
+    # 前两个维度上的值不影响输出
+    fmap = paddle.zeros(shape=[1, 10, fmap_h, fmap_w])
+    anchors = d2l.multibox_prior(fmap, sizes=s, ratios=[1, 2, 0.5])
+    bbox_scale = paddle.to_tensor((w, h, w, h))
     d2l.show_bboxes(d2l.plt.imshow(img).axes,
                     anchors[0] * bbox_scale)
 ```

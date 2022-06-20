@@ -537,7 +537,513 @@ class Residual(nn.Layer):
         if self.conv3:
             X = self.conv3(X)
         Y += X
-        return F.relu(Y)# Alias defined in config.ini
+        return F.relu(Y)
+
+def train_batch_ch13(net, X, y, loss, trainer, devices):
+    """Defined in :numref:`sec_image_augmentation`"""
+    """用多GPU进行小批量训练
+    Defined in :numref:`sec_image_augmentation`"""
+    if isinstance(X, list):
+        # 微调BERT中所需（稍后讨论）
+        X = [paddle.to_tensor(x, place=devices[0]) for x in X]
+    else:
+        X = paddle.to_tensor(X, place=devices[0])
+    y = paddle.to_tensor(y, place=devices[0])
+    net.train()
+    trainer.clear_grad()
+    pred = net(X)
+    l = loss(pred, y)
+    l.sum().backward()
+    trainer.step()
+    train_loss_sum = l.sum()
+    train_acc_sum = d2l.accuracy(pred, y)
+    return train_loss_sum, train_acc_sum
+
+def train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
+               devices=d2l.try_all_gpus()):
+    """Defined in :numref:`sec_image_augmentation`"""
+    """用多GPU进行模型训练
+    Defined in :numref:`sec_image_augmentation`"""
+    timer, num_batches = d2l.Timer(), len(train_iter)
+    animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs], ylim=[0, 1],
+                            legend=['train loss', 'train acc', 'test acc'])
+    net = paddle.DataParallel(net)
+    for epoch in range(num_epochs):
+        # 4个维度：储存训练损失，训练准确度，实例数，特点数
+        metric = d2l.Accumulator(4)
+        for i, (features, labels) in enumerate(train_iter):
+            timer.start()
+            l, acc = train_batch_ch13(
+                net, features, labels, loss, trainer, devices)
+            metric.add(l, acc, labels.shape[0], labels.numel())
+            timer.stop()
+            if (i + 1) % (num_batches // 5) == 0 or i == num_batches - 1:
+                animator.add(epoch + (i + 1) / num_batches,
+                             (metric[0] / metric[2], metric[1] / metric[3],
+                              None))
+        test_acc = d2l.evaluate_accuracy_gpu(net, test_iter)
+        animator.add(epoch + 1, (None, None, test_acc))
+    print(f'loss {metric[0] / metric[2]:.3f}, train acc '
+          f'{metric[1] / metric[3]:.3f}, test acc {test_acc:.3f}')
+    print(f'{metric[2] * num_epochs / timer.sum():.1f} examples/sec on '
+          f'{str(devices)}')
+
+d2l.DATA_HUB['hotdog'] = (d2l.DATA_URL + 'hotdog.zip',
+                         'fba480ffa8aa7e0febbb511d181409f899b9baa5')
+
+def box_corner_to_center(boxes):
+    """从（左上，右下）转换到（中间，宽度，高度）
+
+    Defined in :numref:`sec_bbox`"""
+    x1, y1, x2, y2 = boxes[:, 0], boxes[:, 1], boxes[:, 2], boxes[:, 3]
+    cx = (x1 + x2) / 2
+    cy = (y1 + y2) / 2
+    w = x2 - x1
+    h = y2 - y1
+    boxes = d2l.stack((cx, cy, w, h), axis=-1)
+    return boxes
+
+def box_center_to_corner(boxes):
+    """从（中间，宽度，高度）转换到（左上，右下）
+
+    Defined in :numref:`sec_bbox`"""
+    cx, cy, w, h = boxes[:, 0], boxes[:, 1], boxes[:, 2], boxes[:, 3]
+    x1 = cx - 0.5 * w
+    y1 = cy - 0.5 * h
+    x2 = cx + 0.5 * w
+    y2 = cy + 0.5 * h
+    boxes = d2l.stack((x1, y1, x2, y2), axis=-1)
+    return boxes
+
+def bbox_to_rect(bbox, color):
+    """Defined in :numref:`sec_bbox`"""
+    # 将边界框(左上x,左上y,右下x,右下y)格式转换成matplotlib格式：
+    # ((左上x,左上y),宽,高)
+    return d2l.plt.Rectangle(
+        xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0], height=bbox[3]-bbox[1],
+        fill=False, edgecolor=color, linewidth=2)
+
+def multibox_prior(data, sizes, ratios):
+    """生成以每个像素为中心具有不同形状的锚框
+
+    Defined in :numref:`sec_anchor`"""
+    in_height, in_width = data.shape[-2:]
+    place, num_sizes, num_ratios = data.place, len(sizes), len(ratios)
+    boxes_per_pixel = (num_sizes + num_ratios - 1)
+    size_tensor = paddle.to_tensor(sizes, place=place)
+    ratio_tensor = paddle.to_tensor(ratios, place=place)
+
+    # 为了将锚点移动到像素的中心，需要设置偏移量。
+    # 因为一个像素的的高为1且宽为1，我们选择偏移我们的中心0.5
+    offset_h, offset_w = 0.5, 0.5
+    steps_h = 1.0 / in_height  # 在y轴上缩放步长
+    steps_w = 1.0 / in_width  # 在x轴上缩放步长
+
+    # 生成锚框的所有中心点
+    center_h = (paddle.arange(in_height) + offset_h) * steps_h
+    center_w = (paddle.arange(in_width) + offset_w) * steps_w
+    shift_y, shift_x = paddle.meshgrid(center_h, center_w)
+    shift_y, shift_x = shift_y.reshape([-1]), shift_x.reshape([-1])
+
+    # 生成“boxes_per_pixel”个高和宽，
+    # 之后用于创建锚框的四角坐标(xmin,xmax,ymin,ymax)
+    w = paddle.concat((size_tensor * paddle.sqrt(ratio_tensor[0]),
+                   sizes[0] * paddle.sqrt(ratio_tensor[1:])))\
+                   * in_height / in_width  # 处理矩形输入
+    h = paddle.concat((size_tensor / paddle.sqrt(ratio_tensor[0]),
+                   sizes[0] / paddle.sqrt(ratio_tensor[1:])))
+    # 除以2来获得半高和半宽
+    anchor_manipulations = paddle.tile(paddle.stack((-w, -h, w, h)).T,
+                                        (in_height * in_width, 1)) / 2
+
+    # 每个中心点都将有“boxes_per_pixel”个锚框，
+    # 所以生成含所有锚框中心的网格，重复了“boxes_per_pixel”次
+    out_grid = paddle.stack([shift_x, shift_y, shift_x, shift_y], axis=1)
+    out_grid = paddle.tile(out_grid, repeat_times=[boxes_per_pixel]).reshape((-1, out_grid.shape[1]))
+    output = out_grid + anchor_manipulations
+    return output.unsqueeze(0)
+
+def show_bboxes(axes, bboxes, labels=None, colors=None):
+    """显示所有边界框
+
+    Defined in :numref:`sec_anchor`"""
+    def _make_list(obj, default_values=None):
+        if obj is None:
+            obj = default_values
+        elif not isinstance(obj, (list, tuple)):
+            obj = [obj]
+        return obj
+
+    labels = _make_list(labels)
+    colors = _make_list(colors, ['b', 'g', 'r', 'm', 'c'])
+    for i, bbox in enumerate(bboxes):
+        color = colors[i % len(colors)]
+        rect = d2l.bbox_to_rect(d2l.numpy(bbox), color)
+        axes.add_patch(rect)
+        if labels and len(labels) > i:
+            text_color = 'k' if color == 'w' else 'w'
+            axes.text(rect.xy[0], rect.xy[1], labels[i],
+                      va='center', ha='center', fontsize=9, color=text_color,
+                      bbox=dict(facecolor=color, lw=0))
+
+def box_iou(boxes1, boxes2):
+    """计算两个锚框或边界框列表中成对的交并比
+
+    Defined in :numref:`sec_anchor`"""
+    box_area = lambda boxes: ((boxes[:, 2] - boxes[:, 0]) *
+                              (boxes[:, 3] - boxes[:, 1]))
+    # boxes1,boxes2,areas1,areas2的形状:
+    # boxes1：(boxes1的数量,4),
+    # boxes2：(boxes2的数量,4),
+    # areas1：(boxes1的数量,),
+    # areas2：(boxes2的数量,)
+    areas1 = box_area(boxes1)
+    areas2 = box_area(boxes2)
+    # inter_upperlefts,inter_lowerrights,inters的形状:
+    # (boxes1的数量,boxes2的数量,2)
+    inter_upperlefts = paddle.maximum(boxes1[:, None, :2], boxes2[:, :2])
+    inter_lowerrights = paddle.minimum(boxes1[:, None, 2:], boxes2[:, 2:])
+    inters = (inter_lowerrights - inter_upperlefts).clip(min=0)
+    # inter_areasandunion_areas的形状:(boxes1的数量,boxes2的数量)
+    inter_areas = inters[:, :, 0] * inters[:, :, 1]
+    union_areas = areas1[:, None] + areas2 - inter_areas
+    return inter_areas / union_areas
+
+def assign_anchor_to_bbox(ground_truth, anchors, place, iou_threshold=0.5):
+    """将最接近的真实边界框分配给锚框
+
+    Defined in :numref:`sec_anchor`"""
+    num_anchors, num_gt_boxes = anchors.shape[0], ground_truth.shape[0]
+    # 位于第i行和第j列的元素x_ij是锚框i和真实边界框j的IoU
+    jaccard = box_iou(anchors, ground_truth)
+    # 对于每个锚框，分配的真实边界框的张量
+    anchors_bbox_map = paddle.full((num_anchors,), -1, dtype=paddle.int64)
+    # 根据阈值，决定是否分配真实边界框
+    max_ious = paddle.max(jaccard, axis=1)
+    indices = paddle.argmax(jaccard, axis=1)
+    anc_i = paddle.nonzero(max_ious >= 0.5).reshape([-1])
+    box_j = indices[max_ious >= 0.5]
+    anchors_bbox_map[anc_i] = box_j
+    col_discard = paddle.full((num_anchors,), -1)
+    row_discard = paddle.full((num_gt_boxes,), -1)
+    for _ in range(num_gt_boxes):
+        max_idx = paddle.argmax(jaccard)
+        box_idx = paddle.cast((max_idx % num_gt_boxes), dtype='int64')
+        anc_idx = paddle.cast((max_idx / num_gt_boxes), dtype='int64')
+        anchors_bbox_map[anc_idx] = box_idx
+        jaccard[:, box_idx] = col_discard
+        jaccard[anc_idx, :] = row_discard
+    return anchors_bbox_map
+
+def offset_boxes(anchors, assigned_bb, eps=1e-6):
+    """对锚框偏移量的转换
+
+    Defined in :numref:`subsec_labeling-anchor-boxes`"""
+    c_anc = d2l.box_corner_to_center(anchors)
+    c_assigned_bb = d2l.box_corner_to_center(assigned_bb)
+    offset_xy = 10 * (c_assigned_bb[:, :2] - c_anc[:, :2]) / c_anc[:, 2:]
+    offset_wh = 5 * d2l.log(eps + c_assigned_bb[:, 2:] / c_anc[:, 2:])
+    offset = d2l.concat([offset_xy, offset_wh], axis=1)
+    return offset
+
+def multibox_target(anchors, labels):
+    """使用真实边界框标记锚框
+
+    Defined in :numref:`subsec_labeling-anchor-boxes`"""
+    batch_size, anchors = labels.shape[0], anchors.squeeze(0)
+    batch_offset, batch_mask, batch_class_labels = [], [], []
+    place, num_anchors = anchors.place, anchors.shape[0]
+    for i in range(batch_size):
+        label = labels[i, :, :]
+        anchors_bbox_map = assign_anchor_to_bbox(
+            label[:, 1:], anchors, place)
+        bbox_mask = paddle.tile(paddle.to_tensor((anchors_bbox_map >= 0), dtype='float32').unsqueeze(-1),(1,4))
+        # 将类标签和分配的边界框坐标初始化为零
+        class_labels = paddle.zeros(paddle.to_tensor(num_anchors), dtype=paddle.int64)
+        assigned_bb = paddle.zeros(paddle.to_tensor((num_anchors, 4)), dtype=paddle.float32)
+        # 使用真实边界框来标记锚框的类别。
+        # 如果一个锚框没有被分配，我们标记其为背景（值为零）
+        indices_true = paddle.nonzero(anchors_bbox_map >= 0).numpy()
+        bb_idx = anchors_bbox_map[indices_true].numpy()
+        class_labels[indices_true] = label.numpy()[bb_idx, 0][:] + 1
+        assigned_bb[indices_true] = label.numpy()[bb_idx, 1:]
+        class_labels = paddle.to_tensor(class_labels)
+        assigned_bb = paddle.to_tensor(assigned_bb)
+        # 偏移量转换
+        offset = offset_boxes(anchors, assigned_bb) * bbox_mask
+        batch_offset.append(offset.reshape([-1]))
+        batch_mask.append(bbox_mask.reshape([-1]))
+        batch_class_labels.append(class_labels)
+    bbox_offset = paddle.stack(batch_offset)
+    bbox_mask = paddle.stack(batch_mask)
+    class_labels = paddle.stack(batch_class_labels)
+    return (bbox_offset, bbox_mask, class_labels)
+
+def offset_inverse(anchors, offset_preds):
+    """根据带有预测偏移量的锚框来预测边界框
+
+    Defined in :numref:`subsec_labeling-anchor-boxes`"""
+    anc = d2l.box_corner_to_center(anchors)
+    pred_bbox_xy = (offset_preds[:, :2] * anc[:, 2:] / 10) + anc[:, :2]
+    pred_bbox_wh = d2l.exp(offset_preds[:, 2:] / 5) * anc[:, 2:]
+    pred_bbox = d2l.concat((pred_bbox_xy, pred_bbox_wh), axis=1)
+    predicted_bbox = d2l.box_center_to_corner(pred_bbox)
+    return predicted_bbox
+
+def nms(boxes, scores, iou_threshold):
+    """对预测边界框的置信度进行排序
+
+    Defined in :numref:`subsec_predicting-bounding-boxes-nms`"""
+    B = paddle.argsort(scores, axis=-1, descending=True)
+    keep = []  # 保留预测边界框的指标
+    while B.numel().item() > 0:
+        i = B[0]
+        keep.append(i.item())
+        if B.numel().item() == 1: break
+        iou = box_iou(boxes[i.numpy(), :].reshape([-1, 4]),
+                      paddle.to_tensor(boxes.numpy()[B[1:].numpy(), :]).reshape([-1, 4])).reshape([-1])
+        inds = paddle.nonzero(iou <= iou_threshold).numpy().reshape([-1])
+        B = paddle.to_tensor(B.numpy()[inds + 1])
+    return paddle.to_tensor(keep, place=boxes.place, dtype='int64')
+
+def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
+                       pos_threshold=0.009999999):
+    """使用非极大值抑制来预测边界框
+
+    Defined in :numref:`subsec_predicting-bounding-boxes-nms`"""
+    batch_size = cls_probs.shape[0]
+    anchors = anchors.squeeze(0)
+    num_classes, num_anchors = cls_probs.shape[1], cls_probs.shape[2]
+    out = []
+    for i in range(batch_size):
+        cls_prob, offset_pred = cls_probs[i], offset_preds[i].reshape([-1, 4])
+        conf = paddle.max(cls_prob[1:], 0)
+        class_id = paddle.argmax(cls_prob[1:], 0)
+        predicted_bb = offset_inverse(anchors, offset_pred)
+        keep = nms(predicted_bb, conf, nms_threshold)
+
+        # 找到所有的non_keep索引，并将类设置为背景
+        all_idx = paddle.arange(num_anchors, dtype='int64')
+        combined = paddle.concat((keep, all_idx))
+        uniques, counts = combined.unique(return_counts=True)
+        non_keep = uniques[counts == 1]
+        all_id_sorted = paddle.concat([keep, non_keep])
+        class_id[non_keep] = -1
+        class_id = class_id[all_id_sorted]
+        conf, predicted_bb = conf[all_id_sorted], predicted_bb[all_id_sorted]
+        # pos_threshold是一个用于非背景预测的阈值
+        below_min_idx = (conf < pos_threshold)
+        class_id[below_min_idx.numpy()] = -1
+        conf[below_min_idx.numpy()] = 1 - conf[below_min_idx.numpy()]
+        pred_info = paddle.concat((paddle.to_tensor(class_id, dtype='float32').unsqueeze(1),
+                               paddle.to_tensor(conf, dtype='float32').unsqueeze(1),
+                               predicted_bb), axis=1)
+        out.append(pred_info)
+    return paddle.stack(out)
+
+d2l.DATA_HUB['banana-detection'] = (
+    d2l.DATA_URL + 'banana-detection.zip',
+    '5de26c8fce5ccdea9f91267273464dc968d20d72')
+
+def read_data_bananas(is_train=True):
+    """读取香蕉检测数据集中的图像和标签
+
+    Defined in :numref:`sec_object-detection-dataset`"""
+    data_dir = d2l.download_extract('banana-detection')
+    csv_fname = os.path.join(data_dir, 'bananas_train' if is_train
+                             else 'bananas_val', 'label.csv')
+    csv_data = pd.read_csv(csv_fname)
+    csv_data = csv_data.set_index('img_name')
+    images, targets = [], []
+    for img_name, target in csv_data.iterrows():
+        paddle.vision.set_image_backend('cv2')
+        images.append(paddlevision.image_load(os.path.join(data_dir, 'bananas_train' if is_train else
+        'bananas_val', 'images', f'{img_name}'))[..., ::-1])
+        # 这里的target包含（类别，左上角x，左上角y，右下角x，右下角y）
+        # 其中所有图像都具有相同的香蕉类（索引为0）
+        targets.append(list(target))
+    return images, paddle.to_tensor(targets).unsqueeze(1) / 256
+
+class BananasDataset(paddle.io.Dataset):
+    """一个用于加载香蕉检测数据集的自定义数据集
+
+    Defined in :numref:`sec_object-detection-dataset`"""
+    def __init__(self, is_train):
+        self.features, self.labels = read_data_bananas(is_train)
+        print('read ' + str(len(self.features)) + (f' training examples' if
+              is_train else f' validation examples'))
+
+    def __getitem__(self, idx):
+        return (paddle.to_tensor(self.features[idx], dtype='float32').transpose([2, 0, 1]), self.labels[idx])
+
+    def __len__(self):
+        return len(self.features)
+
+def load_data_bananas(batch_size):
+    """加载香蕉检测数据集
+
+    Defined in :numref:`sec_object-detection-dataset`"""
+    train_iter = paddle.io.DataLoader(BananasDataset(is_train=True),
+                                             batch_size=batch_size, shuffle=True)
+    val_iter = paddle.io.DataLoader(BananasDataset(is_train=False),
+                                           batch_size=batch_size)
+    return train_iter, val_iter
+
+d2l.DATA_HUB['voc2012'] = (d2l.DATA_URL + 'VOCtrainval_11-May-2012.tar',
+                           '4e443f8a2eca6b1dac8a6c57641b67dd40621a49')
+
+def read_voc_images(voc_dir, is_train=True):
+    """Defined in :numref:`sec_semantic_segmentation`"""
+    """读取所有VOC图像并标注
+    Defined in :numref:`sec_semantic_segmentation`"""
+    txt_fname = os.path.join(voc_dir, 'ImageSets', 'Segmentation',
+                             'train.txt' if is_train else 'val.txt')
+    with open(txt_fname, 'r') as f:
+        images = f.read().split()
+    features, labels = [], []
+    for i, fname in enumerate(images):
+        features.append(paddle.to_tensor(paddle.vision.image.image_load(os.path.join(
+            voc_dir, 'JPEGImages', f'{fname}.jpg'), backend='cv2')[..., ::-1], dtype=paddle.float32).transpose(
+            [2, 0, 1]))
+        labels.append(paddle.to_tensor(paddle.vision.image.image_load(os.path.join(
+            voc_dir, 'SegmentationClass', f'{fname}.png'), backend='cv2')[..., ::-1], dtype=paddle.float32).transpose(
+            [2, 0, 1]))
+    return features, labels
+
+VOC_COLORMAP = [[0, 0, 0], [128, 0, 0], [0, 128, 0], [128, 128, 0],
+                [0, 0, 128], [128, 0, 128], [0, 128, 128], [128, 128, 128],
+                [64, 0, 0], [192, 0, 0], [64, 128, 0], [192, 128, 0],
+                [64, 0, 128], [192, 0, 128], [64, 128, 128], [192, 128, 128],
+                [0, 64, 0], [128, 64, 0], [0, 192, 0], [128, 192, 0],
+                [0, 64, 128]]
+
+VOC_CLASSES = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
+               'bottle', 'bus', 'car', 'cat', 'chair', 'cow',
+               'diningtable', 'dog', 'horse', 'motorbike', 'person',
+               'potted plant', 'sheep', 'sofa', 'train', 'tv/monitor']
+
+def voc_colormap2label():
+    """构建从RGB到VOC类别索引的映射
+
+    Defined in :numref:`sec_semantic_segmentation`"""
+    colormap2label = paddle.zeros([256 ** 3], dtype=paddle.int64)
+    for i, colormap in enumerate(VOC_COLORMAP):
+        colormap2label[
+            (colormap[0] * 256 + colormap[1]) * 256 + colormap[2]] = i
+    return colormap2label
+
+def voc_rand_crop(feature, label, height, width):
+    """随机裁剪特征和标签图像
+
+    Defined in :numref:`sec_semantic_segmentation`"""
+    rect = paddle.vision.transforms.RandomCrop((height, width))._get_param(
+        img=feature, output_size=(height, width))
+    feature = paddle.vision.transforms.crop(feature, *rect)
+    label = paddle.vision.transforms.crop(label, *rect)
+    return feature, label
+
+class VOCSegDataset(paddle.io.Dataset):
+    """一个用于加载VOC数据集的自定义数据集
+
+    Defined in :numref:`sec_semantic_segmentation`"""
+
+    def __init__(self, is_train, crop_size, voc_dir):
+        self.transform = paddle.vision.transforms.Normalize(
+            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        self.crop_size = crop_size
+        features, labels = read_voc_images(voc_dir, is_train=is_train)
+        self.features = [self.normalize_image(feature)
+                         for feature in self.filter(features)]
+        self.labels = self.filter(labels)
+        self.colormap2label = voc_colormap2label()
+        print('read ' + str(len(self.features)) + ' examples')
+
+    def normalize_image(self, img):
+        return self.transform(img.astype(paddle.float32) / 255)
+
+    def filter(self, imgs):
+        return [img for img in imgs if (
+            img.shape[1] >= self.crop_size[0] and
+            img.shape[2] >= self.crop_size[1])]
+
+    def __getitem__(self, idx):
+        feature, label = voc_rand_crop(self.features[idx], self.labels[idx],
+                                       *self.crop_size)
+
+        return (feature, voc_label_indices(label, self.colormap2label))
+
+    def __len__(self):
+        return len(self.features)
+
+def load_data_voc(batch_size, crop_size):
+    """加载VOC语义分割数据集
+
+    Defined in :numref:`sec_semantic_segmentation`"""
+    voc_dir = d2l.download_extract('voc2012', os.path.join(
+        'VOCdevkit', 'VOC2012'))
+    num_workers = d2l.get_dataloader_workers()
+    train_iter = paddle.io.DataLoader(
+        VOCSegDataset(True, crop_size, voc_dir), batch_size=batch_size,
+        shuffle=True, drop_last=True, num_workers=num_workers)
+    test_iter = paddle.io.DataLoader(
+        VOCSegDataset(False, crop_size, voc_dir), batch_size=batch_size,
+        drop_last=True, num_workers=num_workers)
+    return train_iter, test_iter
+
+d2l.DATA_HUB['cifar10_tiny'] = (d2l.DATA_URL + 'kaggle_cifar10_tiny.zip',
+                                '2068874e4b9a9f0fb07ebe0ad2b29754449ccacd')
+
+def read_csv_labels(fname):
+    """读取fname来给标签字典返回一个文件名
+
+    Defined in :numref:`sec_kaggle_cifar10`"""
+    with open(fname, 'r') as f:
+        # 跳过文件头行(列名)
+        lines = f.readlines()[1:]
+    tokens = [l.rstrip().split(',') for l in lines]
+    return dict(((name, label) for name, label in tokens))
+
+def copyfile(filename, target_dir):
+    """将文件复制到目标目录
+
+    Defined in :numref:`sec_kaggle_cifar10`"""
+    os.makedirs(target_dir, exist_ok=True)
+    shutil.copy(filename, target_dir)
+
+def reorg_train_valid(data_dir, labels, valid_ratio):
+    """将验证集从原始的训练集中拆分出来
+
+    Defined in :numref:`sec_kaggle_cifar10`"""
+    # 训练数据集中样本最少的类别中的样本数
+    n = collections.Counter(labels.values()).most_common()[-1][1]
+    # 验证集中每个类别的样本数
+    n_valid_per_label = max(1, math.floor(n * valid_ratio))
+    label_count = {}
+    for train_file in os.listdir(os.path.join(data_dir, 'train')):
+        label = labels[train_file.split('.')[0]]
+        fname = os.path.join(data_dir, 'train', train_file)
+        copyfile(fname, os.path.join(data_dir, 'train_valid_test',
+                                     'train_valid', label))
+        if label not in label_count or label_count[label] < n_valid_per_label:
+            copyfile(fname, os.path.join(data_dir, 'train_valid_test',
+                                         'valid', label))
+            label_count[label] = label_count.get(label, 0) + 1
+        else:
+            copyfile(fname, os.path.join(data_dir, 'train_valid_test',
+                                         'train', label))
+    return n_valid_per_label
+
+def reorg_test(data_dir):
+    """在预测期间整理测试集，以方便读取
+
+    Defined in :numref:`sec_kaggle_cifar10`"""
+    for test_file in os.listdir(os.path.join(data_dir, 'test')):
+        copyfile(os.path.join(data_dir, 'test', test_file),
+                 os.path.join(data_dir, 'train_valid_test', 'test',
+                              'unknown'))
+
+d2l.DATA_HUB['dog_tiny'] = (d2l.DATA_URL + 'kaggle_dog_tiny.zip',
+                            '0cb91d09b814ecdc07b50f31f8dcad3e81d6a86d')# Alias defined in config.ini
 nn_Module = nn.Layer
 
 ones = paddle.ones
