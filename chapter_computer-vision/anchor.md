@@ -109,7 +109,7 @@ def multibox_prior(data, sizes, ratios):
     # 生成锚框的所有中心点
     center_h = (torch.arange(in_height, device=device) + offset_h) * steps_h
     center_w = (torch.arange(in_width, device=device) + offset_w) * steps_w
-    shift_y, shift_x = torch.meshgrid(center_h, center_w)
+    shift_y, shift_x = torch.meshgrid(center_h, center_w, indexing='ij')
     shift_y, shift_x = shift_y.reshape(-1), shift_x.reshape(-1)
 
     # 生成“boxes_per_pixel”个高和宽，
