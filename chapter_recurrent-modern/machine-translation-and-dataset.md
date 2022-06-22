@@ -51,6 +51,13 @@ import tensorflow as tf
 import os
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import paddle
+import os
+```
+
 ## [**下载和预处理数据集**]
 
 首先，下载一个由[Tatoeba项目的双语句子对](http://www.manythings.org/anki/)

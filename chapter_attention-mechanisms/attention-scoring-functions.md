@@ -158,7 +158,7 @@ def masked_softmax(X, valid_lens):
             valid_lens = paddle.repeat_interleave(valid_lens, shape[1])
         else:
             valid_lens = valid_lens.reshape((-1,))
-    #     # 最后一轴上被掩蔽的元素使用一个非常大的负值替换，从而其softmax输出为0
+        # 最后一轴上被掩蔽的元素使用一个非常大的负值替换，从而其softmax输出为0
         X = d2l.sequence_mask(X.reshape((-1, shape[-1])), valid_lens,
                               value=-1e6)
         return nn.functional.softmax(X.reshape(shape), axis=-1)
