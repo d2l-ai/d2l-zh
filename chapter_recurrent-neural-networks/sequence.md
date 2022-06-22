@@ -186,7 +186,15 @@ import tensorflow as tf
 ```
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import paddle
+from paddle import nn
+```
+
+```{.python .input}
+#@tab mxnet, pytorch, paddle
 T = 1000  # 总共产生1000个点
 time = d2l.arange(1, T + 1, dtype=d2l.float32)
 x = d2l.sin(0.01 * time) + d2l.normal(0, 0.2, (T,))
@@ -211,7 +219,7 @@ d2l.plot(time, [x], 'time', 'x', xlim=[1, 1000], figsize=(6, 3))
 在这里，我们仅使用前600个“特征－标签”对进行训练。
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, paddle
 tau = 4
 features = d2l.zeros((T - tau, tau))
 for i in range(tau):
@@ -283,6 +291,24 @@ def get_net():
 loss = tf.keras.losses.MeanSquaredError()
 ```
 
+```{.python .input}
+#@tab paddle
+def init_weights(m):
+    if type(m) == nn.Linear:
+        nn.initializer.XavierUniform(m.weight)
+
+#一个简单的多层感知机
+def get_net():
+    net = nn.Sequential(nn.Linear(4, 10),
+                        nn.ReLU(),
+                        nn.Linear(10, 1))
+    net.apply(init_weights)
+    return net
+
+#平方损失。注意:MSELoss计算平方误差时不带系数1/2
+loss = nn.MSELoss(reduction='none')
+```
+
 现在，准备[**训练模型**]了。实现下面的训练代码的方式与前面几节（如 :numref:`sec_linear_concise`）中的循环训练基本相同。因此，我们不会深入探讨太多细节。
 
 ```{.python .input}
@@ -331,6 +357,23 @@ def train(net, train_iter, loss, epochs, lr):
                 params = net.trainable_variables
                 grads = g.gradient(l, params)
             trainer.apply_gradients(zip(grads, params))
+        print(f'epoch {epoch + 1}, '
+              f'loss: {d2l.evaluate_loss(net, train_iter, loss):f}')
+
+net = get_net()
+train(net, train_iter, loss, 5, 0.01)
+```
+
+```{.python .input}
+#@tab paddle
+def train(net, train_iter, loss, epochs, lr):
+    trainer = paddle.optimizer.Adam(learning_rate=lr, parameters=net.parameters())
+    for epoch in range(epochs):
+        for i,(X, y) in enumerate (train_iter()):
+            trainer.clear_grad()
+            l = loss(net(X), y)
+            l.sum().backward()
+            trainer.step()
         print(f'epoch {epoch + 1}, '
               f'loss: {d2l.evaluate_loss(net, train_iter, loss):f}')
 
@@ -393,6 +436,15 @@ for i in range(n_train + tau, T):
 ```
 
 ```{.python .input}
+#@tab paddle
+multistep_preds = d2l.zeros([T])
+multistep_preds[: n_train + tau] = x[: n_train + tau]
+for i in range(n_train + tau, T):
+    multistep_preds[i] = net(
+        d2l.reshape(multistep_preds[i - tau: i], (1, -1)))
+```
+
+```{.python .input}
 #@tab all
 d2l.plot([time, time[tau:], time[n_train + tau:]],
          [d2l.numpy(x), d2l.numpy(onestep_preds),
@@ -443,6 +495,18 @@ for i in range(tau):
 # 列i（i>=tau）是来自（i-tau+1）步的预测，其时间步从（i+1）到（i+T-tau-max_steps+1）
 for i in range(tau, tau + max_steps):
     features[:, i].assign(d2l.reshape(net((features[:, i - tau: i])), -1))
+```
+
+```{.python .input}
+#@tab paddle
+features = d2l.zeros((T - tau - max_steps + 1, tau + max_steps))
+# 列i（i<tau）是来自x的观测，其时间步从（i+1）到（i+T-tau-max_steps+1）
+for i in range(tau):
+    features[:, i] = x[i: i + T - tau - max_steps + 1]
+
+# 列i（i>=tau）是来自（i-tau+1）步的预测，其时间步从（i+1）到（i+T-tau-max_steps+1）
+for i in range(tau, tau + max_steps):
+    features[:, i] = d2l.reshape(net(features[:, i - tau: i]), [-1])
 ```
 
 ```{.python .input}
