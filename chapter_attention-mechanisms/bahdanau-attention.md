@@ -273,8 +273,7 @@ class Seq2SeqAttentionDecoder(AttentionDecoder):
 
     def forward(self, X, state):
         # enc_outputs的形状为(batch_size,num_steps,num_hiddens).
-        # hidden_state的形状为(num_layers,batch_size,
-        # num_hiddens)
+        # hidden_state的形状为(num_layers,batch_size,num_hiddens)
         enc_outputs, hidden_state, enc_valid_lens = state
         # 输出X的形状为(num_steps,batch_size,embed_size)
         X = self.embedding(X).transpose((1, 0, 2))

@@ -392,7 +392,7 @@ tf.matmul(tf.expand_dims(weights, axis=1), tf.expand_dims(values, axis=-1)).nump
 ```{.python .input}
 #@tab paddle
 weights = paddle.ones((2, 10)) * 0.1
-values = paddle.arange(20, dtype='float32').reshape((2,10))
+values = paddle.arange(20, dtype='float32').reshape((2, 10))
 paddle.bmm(weights.unsqueeze(1), values.unsqueeze(-1))
 ```
 
@@ -584,7 +584,7 @@ for epoch in range(5):
 net = NWKernelRegression()
 loss = nn.MSELoss(reduction='none')
 trainer = paddle.optimizer.SGD(learning_rate=0.5, parameters=net.parameters())
-animator = d2l.Animator(xlabel='epoch', ylabel='loss', xlim=[1,5])
+animator = d2l.Animator(xlabel='epoch', ylabel='loss', xlim=[1, 5])
 
 for epoch in range(5):
     trainer.clear_grad()
