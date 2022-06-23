@@ -191,8 +191,16 @@ tconv(conv(X)).shape == X.shape
 在下面的示例中，我们定义了一个$3\times 3$的输入`X`和$2\times 2$卷积核`K`，然后使用`corr2d`函数计算卷积输出`Y`。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow
 X = d2l.arange(9.0).reshape(3, 3)
+K = d2l.tensor([[1.0, 2.0], [3.0, 4.0]])
+Y = d2l.corr2d(X, K)
+Y
+```
+
+```{.python .input}
+#@tab paddle
+X = d2l.arange(9.0, dtype="float32").reshape((3, 3))
 K = d2l.tensor([[1.0, 2.0], [3.0, 4.0]])
 Y = d2l.corr2d(X, K)
 Y
@@ -202,9 +210,21 @@ Y
 权重矩阵的形状是（$4$，$9$），其中非0元素来自卷积核`K`。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow
 def kernel2matrix(K):
     k, W = d2l.zeros(5), d2l.zeros((4, 9))
+    k[:2], k[3:5] = K[0, :], K[1, :]
+    W[0, :5], W[1, 1:6], W[2, 3:8], W[3, 4:] = k, k, k, k
+    return W
+
+W = kernel2matrix(K)
+W
+```
+
+```{.python .input}
+#@tab paddle
+def kernel2matrix(K):
+    k, W = d2l.zeros([5]), d2l.zeros((4, 9))
     k[:2], k[3:5] = K[0, :], K[1, :]
     W[0, :5], W[1, 1:6], W[2, 3:8], W[3, 4:] = k, k, k, k
     return W
@@ -218,8 +238,13 @@ W
 重塑它之后，可以获得与上面的原始卷积操作所得相同的结果`Y`：我们刚刚使用矩阵乘法实现了卷积。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow
 Y == d2l.matmul(W, d2l.reshape(X, -1)).reshape(2, 2)
+```
+
+```{.python .input}
+#@tab paddle
+Y == d2l.matmul(W, d2l.reshape(X, [-1])).reshape((2, 2))
 ```
 
 同样，我们可以使用矩阵乘法来实现转置卷积。
@@ -227,9 +252,15 @@ Y == d2l.matmul(W, d2l.reshape(X, -1)).reshape(2, 2)
 想要通过矩阵相乘来实现它，我们只需要将权重矩阵`W`的形状转置为$(9, 4)$。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow
 Z = trans_conv(Y, K)
 Z == d2l.matmul(W.T, d2l.reshape(Y, -1)).reshape(3, 3)
+```
+
+```{.python .input}
+#@tab paddle
+Z = trans_conv(Y, K)
+Z == d2l.matmul(W.T, d2l.reshape(Y, [-1])).reshape((3, 3))
 ```
 
 抽象来看，给定输入向量$\mathbf{x}$和权重矩阵$\mathbf{W}$，卷积的前向传播函数可以通过将其输入与权重矩阵相乘并输出向量$\mathbf{y}=\mathbf{W}\mathbf{x}$来实现。
