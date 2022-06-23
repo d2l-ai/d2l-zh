@@ -191,7 +191,7 @@ tconv(conv(X)).shape == X.shape
 在下面的示例中，我们定义了一个$3\times 3$的输入`X`和$2\times 2$卷积核`K`，然后使用`corr2d`函数计算卷积输出`Y`。
 
 ```{.python .input}
-#@tab mxnet, pytorch, tensorflow
+#@tab mxnet, pytorch
 X = d2l.arange(9.0).reshape(3, 3)
 K = d2l.tensor([[1.0, 2.0], [3.0, 4.0]])
 Y = d2l.corr2d(X, K)
@@ -210,7 +210,7 @@ Y
 权重矩阵的形状是（$4$，$9$），其中非0元素来自卷积核`K`。
 
 ```{.python .input}
-#@tab mxnet, pytorch, tensorflow
+#@tab mxnet, pytorch
 def kernel2matrix(K):
     k, W = d2l.zeros(5), d2l.zeros((4, 9))
     k[:2], k[3:5] = K[0, :], K[1, :]
@@ -238,7 +238,7 @@ W
 重塑它之后，可以获得与上面的原始卷积操作所得相同的结果`Y`：我们刚刚使用矩阵乘法实现了卷积。
 
 ```{.python .input}
-#@tab mxnet, pytorch, tensorflow
+#@tab mxnet, pytorch
 Y == d2l.matmul(W, d2l.reshape(X, -1)).reshape(2, 2)
 ```
 
@@ -252,7 +252,7 @@ Y == d2l.matmul(W, d2l.reshape(X, [-1])).reshape((2, 2))
 想要通过矩阵相乘来实现它，我们只需要将权重矩阵`W`的形状转置为$(9, 4)$。
 
 ```{.python .input}
-#@tab mxnet, pytorch, tensorflow
+#@tab mxnet, pytorch
 Z = trans_conv(Y, K)
 Z == d2l.matmul(W.T, d2l.reshape(Y, -1)).reshape(3, 3)
 ```
