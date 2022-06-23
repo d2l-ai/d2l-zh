@@ -1727,7 +1727,7 @@ def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
     for i in range(batch_size):
         cls_prob, offset_pred = cls_probs[i], offset_preds[i].reshape([-1, 4])
         conf = paddle.max(cls_prob[1:], 0)
-        class_id = paddle.argmax(cls_prob[1:], 0)
+        class_id = paddle.argmax(cls_prob[1:], 0).numpy()
         predicted_bb = offset_inverse(anchors, offset_pred)
         keep = nms(predicted_bb, conf, nms_threshold)
 
@@ -1738,7 +1738,6 @@ def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
         non_keep = uniques[counts == 1]
         all_id_sorted = paddle.concat([keep, non_keep])
         class_id[non_keep] = -1
-        class_id = paddle.argmax(cls_prob[1:], 0).numpy()
         conf, predicted_bb = conf[all_id_sorted], predicted_bb[all_id_sorted]
         # pos_threshold是一个用于非背景预测的阈值
         below_min_idx = (conf < pos_threshold)
