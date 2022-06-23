@@ -389,9 +389,15 @@ finetune_net.features.collect_params().setattr('grad_req', 'null')
 ```
 
 ```{.python .input}
-#@tab pytorch, paddle
+#@tab pytorch
 for param in finetune_net.parameters():
     param.requires_grad = False
+```
+
+```{.python .input}
+#@tab paddle
+for param in finetune_net.parameters():
+    param.stop_gradient = True
 ```
 
 4. 事实上，`ImageNet`数据集中有一个“热狗”类别。我们可以通过以下代码获取其输出层中的相应权重参数，但是我们怎样才能利用这个权重参数？
