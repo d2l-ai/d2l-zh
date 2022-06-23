@@ -28,6 +28,7 @@ import paddle
 from paddle import nn
 from paddle.nn import functional as F
 from paddle.vision import transforms
+import paddle.vision as paddlevision
 from PIL import Image
 
 def use_svg_display():
@@ -1737,10 +1738,11 @@ def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
         non_keep = uniques[counts == 1]
         all_id_sorted = paddle.concat([keep, non_keep])
         class_id[non_keep] = -1
-        class_id = class_id[all_id_sorted]
+        class_id = paddle.argmax(cls_prob[1:], 0).numpy()
         conf, predicted_bb = conf[all_id_sorted], predicted_bb[all_id_sorted]
         # pos_threshold是一个用于非背景预测的阈值
         below_min_idx = (conf < pos_threshold)
+        conf = conf.numpy()
         class_id[below_min_idx.numpy()] = -1
         conf[below_min_idx.numpy()] = 1 - conf[below_min_idx.numpy()]
         pred_info = paddle.concat((paddle.to_tensor(class_id, dtype='float32').unsqueeze(1),
