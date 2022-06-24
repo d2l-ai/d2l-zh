@@ -732,20 +732,20 @@ def grad_clipping(net, theta):
                 param.grad.set_value(param.grad*theta / norm)
 
 def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
-    """训练网络一个迭代周期（定义见第8章
+    """训练网络一个迭代周期（定义见第8章)
     Defined in :numref:`sec_rnn_scratch`"""
     state, timer = None, d2l.Timer()
     metric = d2l.Accumulator(2)  # 训练损失之和,词元数量
     for X, Y in train_iter:
         if state is None or use_random_iter:
-            # 在第一次迭代或使用随机抽样时初始化`state`
+            # 在第一次迭代或使用随机抽样时初始化state
             state = net.begin_state(batch_size=X.shape[0])
         else:
             if isinstance(net, nn.Layer) and not isinstance(state, tuple):
-                # `state`对于`nn.GRU`是个张量
+                # state对于nn.GRU是个张量
                 state.stop_gradient=True
             else:
-                # `state`对于`nn.LSTM`或对于我们从零开始实现的模型是个张量
+                # state对于nn.LSTM或对于我们从零开始实现的模型是个张量
                 for s in state:
                     s.stop_gradient=True
         y = paddle.reshape(Y.T,shape=[-1])
@@ -756,12 +756,14 @@ def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
         if isinstance(updater, paddle.optimizer.Optimizer):
             updater.clear_grad()
             l.backward()
+            grad_clipping(net, 1)
             updater.step()
         else:
             l.backward()
             grad_clipping(net, 1)
-            # 因为已经调用了`mean`函数
+            # 因为已经调用了mean函数
             updater(batch_size=1)
+
         metric.add(l * d2l.size(y), d2l.size(y))
     return math.exp(metric[0] / metric[1]), metric[1] / timer.stop()
 
@@ -1059,13 +1061,6 @@ def bleu(pred_seq, label_seq, k):
                 label_subs[' '.join(pred_tokens[i: i + n])] -= 1
         score *= math.pow(num_matches / (len_pred - n + 1), math.pow(0.5, n))
     return score
-
-def masked_softmax(X, valid_lens):
-    """通过在最后一个轴上掩蔽元素来执行softmax操作
-    Defined in :numref:`sec_attention-scoring-functions`"""
-    # X:3D张量，valid_lens:1D或2D张量
-    if valid_lens is None:
-        return nn.functional.softmax(X, axis=-1)
 
 d2l.DATA_HUB['time_machine'] = (d2l.DATA_URL + 'timemachine.txt',
                                 '090b5e7e70c295757f55df93cb0a180b9691891a')
@@ -2058,29 +2053,6 @@ def reorg_train_valid(data_dir, labels, valid_ratio):
             copyfile(fname, os.path.join(data_dir, 'train_valid_test',
                                          'valid', label))
             label_count[label] = label_count.get(label, 0) + 1
-def train_ch8(net, train_iter, vocab, lr, num_epochs, device, use_random_iter=False):
-    """训练模型（定义见第8章）
-    Defined in :numref:`sec_rnn_scratch`"""
-    loss = nn.CrossEntropyLoss()
-    animator = d2l.Animator(xlabel='epoch', ylabel='perplexity',
-                            legend=['train'], xlim=[10, num_epochs])
-    # 初始化
-    if isinstance(net, nn.Layer):
-        updater = paddle.optimizer.SGD(
-                learning_rate=lr, parameters=net.parameters())
-    else:
-        updater = lambda batch_size: d2l.sgd(net.params, lr, batch_size)
-    predict = lambda prefix: predict_ch8(prefix, 50, net, vocab, device)
-    # 训练和预测
-    for epoch in range(num_epochs):
-        ppl, speed = train_epoch_ch8(
-            net, train_iter, loss, updater, device, use_random_iter)
-        if (epoch + 1) % 10 == 0:
-            print(predict('time traveller'))
-            animator.add(epoch + 1, [ppl])
-    print(f'困惑度 {ppl:.1f}, {speed:.1f} 词元/秒 {str(device)}')
-    print(predict('time traveller'))
-    print(predict('traveller'))
 
 class RNNModel(nn.Layer):
     """循环神经网络模型
@@ -2095,21 +2067,17 @@ class RNNModel(nn.Layer):
             self.num_directions = 1
             self.linear = nn.Linear(self.num_hiddens, self.vocab_size)
         else:
-            copyfile(fname, os.path.join(data_dir, 'train_valid_test',
-                                         'train', label))
-    return n_valid_per_label
+            self.num_directions = 2
+            self.linear = nn.Linear(self.num_hiddens * 2, self.vocab_size)
 
-def reorg_test(data_dir):
-    """在预测期间整理测试集，以方便读取
+    def forward(self, inputs, state):
+        X = F.one_hot(inputs.T, self.vocab_size)
+        Y, state = self.rnn(X, state)
+        # 全连接层首先将Y的形状改为(时间步数*批量大小,隐藏单元数)
+        # 它的输出形状是(时间步数*批量大小,词表大小)。
+        output = self.linear(Y.reshape((-1, Y.shape[-1])))
+        return output, state
 
-    Defined in :numref:`sec_kaggle_cifar10`"""
-    for test_file in os.listdir(os.path.join(data_dir, 'test')):
-        copyfile(os.path.join(data_dir, 'test', test_file),
-                 os.path.join(data_dir, 'train_valid_test', 'test',
-                              'unknown'))
-
-d2l.DATA_HUB['dog_tiny'] = (d2l.DATA_URL + 'kaggle_dog_tiny.zip',
-                            '0cb91d09b814ecdc07b50f31f8dcad3e81d6a86d')# Alias defined in config.ini
     def begin_state(self, batch_size=1):
         if not isinstance(self.rnn, nn.LSTM):
             # nn.GRU以张量作为隐状态
@@ -2122,7 +2090,20 @@ d2l.DATA_HUB['dog_tiny'] = (d2l.DATA_URL + 'kaggle_dog_tiny.zip',
                 batch_size, self.num_hiddens]),
                     paddle.zeros(
                         shape=[self.num_directions * self.rnn.num_layers,
-                        batch_size, self.num_hiddens]))# Alias defined in config.ini
+                        batch_size, self.num_hiddens]))
+
+def reorg_test(data_dir):
+    """在预测期间整理测试集，以方便读取
+
+    Defined in :numref:`sec_kaggle_cifar10`"""
+    for test_file in os.listdir(os.path.join(data_dir, 'test')):
+        copyfile(os.path.join(data_dir, 'test', test_file),
+                 os.path.join(data_dir, 'train_valid_test', 'test',
+                              'unknown'))
+
+d2l.DATA_HUB['dog_tiny'] = (d2l.DATA_URL + 'kaggle_dog_tiny.zip',
+                            '0cb91d09b814ecdc07b50f31f8dcad3e81d6a86d')# Alias defined in config.ini
+
 def show_heatmaps(matrices, xlabel, ylabel, titles=None, figsize=(2.5, 2.5),
                   cmap='Reds'):
     """显示矩阵热图
