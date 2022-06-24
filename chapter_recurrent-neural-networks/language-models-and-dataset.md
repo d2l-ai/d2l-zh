@@ -149,6 +149,13 @@ import random
 ```
 
 ```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import paddle
+import random
+```
+
+```{.python .input}
 #@tab all
 tokens = d2l.tokenize(d2l.read_time_machine())
 # 因为每个文本行不一定是一个句子或一个段落，因此我们把所有文本行拼接到一起
@@ -349,6 +356,23 @@ def seq_data_iter_sequential(corpus, batch_size, num_steps):  #@save
     Ys = d2l.reshape(Ys, (batch_size, -1))
     num_batches = Xs.shape[1] // num_steps
     for i in range(0, num_batches * num_steps, num_steps):
+        X = Xs[:, i: i + num_steps]
+        Y = Ys[:, i: i + num_steps]
+        yield X, Y
+```
+
+```{.python .input}
+#@tab paddle
+def seq_data_iter_sequential(corpus, batch_size, num_steps):  #@save
+    """使用顺序分区生成一个小批量子序列"""
+    # 从随机偏移量开始划分序列
+    offset = random.randint(0, num_steps)
+    num_tokens = ((len(corpus) - offset - 1) // batch_size) * batch_size
+    Xs = d2l.tensor(corpus[offset: offset + num_tokens])
+    Ys = d2l.tensor(corpus[offset + 1: offset + 1 + num_tokens])
+    Xs, Ys = Xs.reshape((batch_size, -1)), Ys.reshape((batch_size, -1))
+    num_batches = Xs.shape[1] // num_steps
+    for i in range(0, num_steps * num_batches, num_steps):
         X = Xs[:, i: i + num_steps]
         Y = Ys[:, i: i + num_steps]
         yield X, Y

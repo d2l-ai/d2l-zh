@@ -31,6 +31,13 @@ import tensorflow as tf
 tf.random.set_seed(seed=1322)
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import paddle
+from paddle import nn
+```
+
 ## [**生成数据集**]
 
 简单起见，考虑下面这个回归问题：
@@ -65,6 +72,12 @@ x_train = tf.sort(tf.random.uniform(shape=(n_train,), maxval=5))
 ```
 
 ```{.python .input}
+#@tab paddle
+n_train = 50  # 训练样本数
+x_train = paddle.sort(paddle.rand([n_train]) * 5)   # 排序后的训练样本
+```
+
+```{.python .input}
 def f(x):
     return 2 * d2l.sin(x) + x**0.8
 
@@ -94,6 +107,18 @@ def f(x):
 
 y_train = f(x_train) + d2l.normal((n_train,), 0.0, 0.5)  # 训练样本的输出
 x_test = d2l.arange(0, 5, 0.1)  # 测试样本
+y_truth = f(x_test)  # 测试样本的真实输出
+n_test = len(x_test)  # 测试样本数
+n_test
+```
+
+```{.python .input}
+#@tab paddle
+def f(x):
+    return 2 * paddle.sin(x) + x**0.8
+
+y_train = f(x_train) + paddle.normal(0.0, 0.5, (n_train,))  # 训练样本的输出
+x_test = d2l.arange(0, 50, 1) * 0.1  # 测试样本
 y_truth = f(x_test)  # 测试样本的真实输出
 n_test = len(x_test)  # 测试样本数
 n_test
@@ -136,6 +161,12 @@ plot_kernel_reg(y_hat)
 ```{.python .input}
 #@tab tensorflow
 y_hat = tf.repeat(tf.reduce_mean(y_train), repeats=n_test)
+plot_kernel_reg(y_hat)
+```
+
+```{.python .input}
+#@tab paddle
+y_hat = paddle.repeat_interleave(y_train.mean(), n_test)
 plot_kernel_reg(y_hat)
 ```
 
@@ -231,6 +262,19 @@ y_hat = tf.matmul(attention_weights, tf.expand_dims(y_train, axis=1))
 plot_kernel_reg(y_hat)
 ```
 
+```{.python .input}
+#@tab paddle
+# X_repeat的形状:(n_test,n_train),
+# 每一行都包含着相同的测试输入（例如：同样的查询）
+X_repeat = d2l.reshape(x_test.repeat_interleave(n_train), (-1, n_train))
+# x_train包含着键。attention_weights的形状：(n_test,n_train),
+# 每一行都包含着要在给定的每个查询的值（y_train）之间分配的注意力权重
+attention_weights = nn.functional.softmax(-(X_repeat - x_train)**2 / 2, axis=1)
+# y_hat的每个元素都是值的加权平均值，其中的权重是注意力权重
+y_hat = d2l.matmul(attention_weights, y_train)
+plot_kernel_reg(y_hat)
+```
+
 现在，我们来观察注意力的权重。
 这里测试数据的输入相当于查询，而训练数据的输入相当于键。
 因为两个输入都是经过排序的，因此由观察可知“查询-键”对越接近，
@@ -253,6 +297,13 @@ d2l.show_heatmaps(attention_weights.unsqueeze(0).unsqueeze(0),
 #@tab tensorflow
 d2l.show_heatmaps(tf.expand_dims(
                       tf.expand_dims(attention_weights, axis=0), axis=0),
+                  xlabel='Sorted training inputs',
+                  ylabel='Sorted testing inputs')
+```
+
+```{.python .input}
+#@tab paddle
+d2l.show_heatmaps(attention_weights.unsqueeze(0).unsqueeze(0),
                   xlabel='Sorted training inputs',
                   ylabel='Sorted testing inputs')
 ```
@@ -309,6 +360,13 @@ Y = tf.ones((2, 4, 6))
 tf.matmul(X, Y).shape
 ```
 
+```{.python .input}
+#@tab paddle
+X = paddle.ones((2, 1, 4))
+Y = paddle.ones((2, 4, 6))
+paddle.bmm(X, Y).shape
+```
+
 在注意力机制的背景中，我们可以[**使用小批量矩阵乘法来计算小批量数据中的加权平均值**]。
 
 ```{.python .input}
@@ -329,6 +387,13 @@ torch.bmm(weights.unsqueeze(1), values.unsqueeze(-1))
 weights = tf.ones((2, 10)) * 0.1
 values = tf.reshape(tf.range(20.0), shape = (2, 10))
 tf.matmul(tf.expand_dims(weights, axis=1), tf.expand_dims(values, axis=-1)).numpy()
+```
+
+```{.python .input}
+#@tab paddle
+weights = paddle.ones((2, 10)) * 0.1
+values = paddle.arange(20, dtype='float32').reshape((2, 10))
+paddle.bmm(weights.unsqueeze(1), values.unsqueeze(-1))
 ```
 
 ### 定义模型
@@ -388,6 +453,23 @@ class NWKernelRegression(tf.keras.layers.Layer):
         return tf.squeeze(tf.matmul(tf.expand_dims(self.attention_weights, axis=1), tf.expand_dims(values, axis=-1)))
 ```
 
+```{.python .input}
+#@tab paddle
+class NWKernelRegression(nn.Layer):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.w = paddle.create_parameter((1,), dtype='float32')
+
+    def forward(self, queries, keys, values):
+        # queries和attention_weights的形状为(查询个数，“键－值”对个数)
+        queries = queries.reshape((queries.shape[0], 1)).tile([keys.shape[1]]).reshape((-1, keys.shape[1]))
+        self.attention_weight = nn.functional.softmax(
+            -((queries - keys) * self.w)**2 / 2, axis=1)
+        # values的形状为(查询个数，“键－值”对个数)
+        return paddle.bmm(self.attention_weight.unsqueeze(1),
+                          values.unsqueeze(-1)).reshape((-1, ))
+```
+
 ### 训练
 
 接下来，[**将训练数据集变换为键和值**]用于训练注意力模型。
@@ -432,6 +514,18 @@ Y_tile = tf.repeat(tf.expand_dims(y_train, axis=0), repeats=n_train, axis=0)
 keys = tf.reshape(X_tile[tf.cast(1 - tf.eye(n_train), dtype=tf.bool)], shape=(n_train, -1))
 # values的形状:('n_train'，'n_train'-1)
 values = tf.reshape(Y_tile[tf.cast(1 - tf.eye(n_train), dtype=tf.bool)], shape=(n_train, -1))
+```
+
+```{.python .input}
+#@tab paddle
+# X_tile的形状:(n_train，n_train)，每一行都包含着相同的训练输入
+X_tile = x_train.tile([n_train, 1])
+# Y_tile的形状:(n_train，n_train)，每一行都包含着相同的训练输出
+Y_tile = y_train.tile([n_train, 1])
+# keys的形状:('n_train'，'n_train'-1)
+keys = X_tile[(1 - paddle.eye(n_train)).astype(paddle.bool)].reshape((n_train, -1))
+# values的形状:('n_train'，'n_train'-1)
+values = Y_tile[(1 - paddle.eye(n_train)).astype(paddle.bool)].reshape((n_train, -1))
 ```
 
 [**训练带参数的注意力汇聚模型**]时，使用平方损失函数和随机梯度下降。
@@ -485,6 +579,22 @@ for epoch in range(5):
     animator.add(epoch + 1, float(loss))
 ```
 
+```{.python .input}
+#@tab paddle
+net = NWKernelRegression()
+loss = nn.MSELoss(reduction='none')
+trainer = paddle.optimizer.SGD(learning_rate=0.5, parameters=net.parameters())
+animator = d2l.Animator(xlabel='epoch', ylabel='loss', xlim=[1, 5])
+
+for epoch in range(5):
+    trainer.clear_grad()
+    l = loss(net(x_train, keys, values), y_train)
+    l.sum().backward()
+    trainer.step()
+    print(f'epoch {epoch + 1}, loss {float(l.sum()):.6f}')
+    animator.add(epoch + 1, float(l.sum()))
+```
+
 如下所示，训练完带参数的注意力汇聚模型后，我们发现：
 在尝试拟合带噪声的训练数据时，
 [**预测结果绘制**]的线不如之前非参数模型的平滑。
@@ -518,6 +628,16 @@ y_hat = net(x_test, keys, values)
 plot_kernel_reg(y_hat)
 ```
 
+```{.python .input}
+#@tab paddle
+# keys的形状:(n_test，n_train)，每一行包含着相同的训练输入（例如，相同的键）
+keys = x_train.tile([n_test, 1])
+# value的形状:(n_test，n_train)
+values = y_train.tile([n_test, 1])
+y_hat = net(x_test, keys, values).unsqueeze(1).detach()
+plot_kernel_reg(y_hat)
+```
+
 为什么新的模型更不平滑了呢？
 我们看一下输出结果的绘制图：
 与非参数的注意力汇聚模型相比，
@@ -544,6 +664,13 @@ d2l.show_heatmaps(tf.expand_dims(
                       tf.expand_dims(net.attention_weights, axis=0), axis=0),
                   xlabel='Sorted training inputs',
                   ylabel='Sorted testing inputs')
+```
+
+```{.python .input}
+#@tab paddle
+d2l.show_heatmaps(net.attention_weight.unsqueeze(0).unsqueeze(0),
+                  xlabel='Sorted training inputs',
+                  ylabel='Sorter testing, inputs')
 ```
 
 ## 小结

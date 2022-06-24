@@ -34,6 +34,14 @@ import numpy as np
 import tensorflow as tf
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import math
+import paddle
+from paddle import nn
+```
+
 ## [**自注意力**]
 
 给定一个由词元组成的输入序列$\mathbf{x}_1, \ldots, \mathbf{x}_n$，
@@ -70,7 +78,15 @@ attention = d2l.MultiHeadAttention(num_hiddens, num_hiddens, num_hiddens,
 ```
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab paddle
+num_hiddens, num_heads = 100, 5
+attention = d2l.MultiHeadAttention(num_hiddens, num_hiddens, num_hiddens,
+                                   num_hiddens, num_heads, 0.5)
+attention.eval()
+```
+
+```{.python .input}
+#@tab mxnet, pytorch, paddle
 batch_size, num_queries, valid_lens = 2, 4, d2l.tensor([3, 2])
 X = d2l.ones((batch_size, num_queries, num_hiddens))
 attention(X, X, X, valid_lens).shape
@@ -205,6 +221,27 @@ class PositionalEncoding(tf.keras.layers.Layer):
         return self.dropout(X, **kwargs)
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+class PositionalEncoding(nn.Layer):
+    """位置编码"""
+    def __init__(self, num_hiddens, dropout, max_len=1000):
+        super(PositionalEncoding, self).__init__()
+        self.dropout = nn.Dropout(dropout)
+        # 创建一个足够长的P
+        self.P = paddle.zeros((1, max_len, num_hiddens))
+        X = paddle.arange(max_len, dtype=paddle.float32).reshape(
+            (-1, 1)) / paddle.pow(paddle.to_tensor([10000.0]), paddle.arange(
+            0, num_hiddens, 2, dtype=paddle.float32) / num_hiddens)
+        self.P[:, :, 0::2] = paddle.sin(X)
+        self.P[:, :, 1::2] = paddle.cos(X)
+
+    def forward(self, X):
+        X = X + self.P[:, :X.shape[1], :]
+        return self.dropout(X)
+```
+
 在位置嵌入矩阵$\mathbf{P}$中，
 [**行代表词元在序列中的位置，列代表位置编码的不同维度**]。
 在下面的例子中，我们可以看到位置嵌入矩阵的第$6$列和第$7$列的频率高于第$8$列和第$9$列。
@@ -241,6 +278,17 @@ d2l.plot(np.arange(num_steps), P[0, :, 6:10].T, xlabel='Row (position)',
          figsize=(6, 2.5), legend=["Col %d" % d for d in np.arange(6, 10)])
 ```
 
+```{.python .input}
+#@tab paddle
+encoding_dim, num_steps = 32, 60
+pos_encoding = PositionalEncoding(encoding_dim, 0)
+pos_encoding.eval()
+X = pos_encoding(paddle.zeros((1, num_steps, encoding_dim)))
+P = pos_encoding.P[:, :X.shape[1], :]
+d2l.plot(paddle.arange(num_steps), P[0, :, 6:10].T, xlabel='Row (position)',
+         figsize=(6, 2.5), legend=["Col %d" % d for d in paddle.arange(6, 10)])
+```
+
 ### 绝对位置信息
 
 为了明白沿着编码维度单调降低的频率与绝对位置信息的关系，
@@ -274,6 +322,13 @@ d2l.show_heatmaps(P, xlabel='Column (encoding dimension)',
 ```{.python .input}
 #@tab tensorflow
 P = tf.expand_dims(tf.expand_dims(P[0, :, :], axis=0), axis=0)
+d2l.show_heatmaps(P, xlabel='Column (encoding dimension)',
+                  ylabel='Row (position)', figsize=(3.5, 4), cmap='Blues')
+```
+
+```{.python .input}
+#@tab paddle
+P = P[0, :, :].unsqueeze(0).unsqueeze(0)
 d2l.show_heatmaps(P, xlabel='Column (encoding dimension)',
                   ylabel='Row (position)', figsize=(3.5, 4), cmap='Blues')
 ```
