@@ -429,9 +429,8 @@ def try_gpu(i=0):
 
     Defined in :numref:`sec_use_gpu`"""
     if paddle.device.cuda.device_count() >= i + 1:
-        return paddle.device.set_device(f'gpu:{i}')
-    return paddle.device.set_device("cpu")
-
+        return paddle.CUDAPlace(i)
+    return paddle.CPUPlace()
 def try_all_gpus():
     """返回所有可用的GPU，如果没有GPU，则返回[cpu(),]。
 
