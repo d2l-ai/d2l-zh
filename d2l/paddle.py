@@ -1702,7 +1702,6 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=4):
                              (d2l.evaluate_loss(net, data_iter, loss) / 2,))
                 timer.start()
     print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')# Alias defined in config.ini
-        return X# Alias defined in config.ini
 
 nn_Module = nn.Layer
 
