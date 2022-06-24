@@ -1452,6 +1452,7 @@ def train_batch_ch13(net, X, y, loss, trainer, devices):
     """Defined in :numref:`sec_image_augmentation`"""
     """用多GPU进行小批量训练
     Defined in :numref:`sec_image_augmentation`"""
+    paddle.set_device("gpu:{}".format(str(devices[0])[-2])) 
     if isinstance(X, list):
         # 微调BERT中所需（稍后讨论）
         X = [paddle.to_tensor(x, place=devices[0]) for x in X]
