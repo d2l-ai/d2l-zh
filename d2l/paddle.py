@@ -1427,73 +1427,6 @@ def load_data_time_machine(batch_size, num_steps,
         batch_size, num_steps, use_random_iter, max_tokens)
     return data_iter, data_iter.vocab
 
-class RNNModelScratch:
-    """从零开始实现的循环神经网络模型"""
-    def __init__(self, vocab_size, num_hiddens,
-                 get_params, init_state, forward_fn):
-        """Defined in :numref:`sec_rnn_scratch`"""
-        self.vocab_size, self.num_hiddens = vocab_size, num_hiddens
-        self.params = get_params(vocab_size, num_hiddens)
-        self.init_state, self.forward_fn = init_state, forward_fn
-
-    def __call__(self, X, state):
-        X = F.one_hot(X.T, self.vocab_size)
-        return self.forward_fn(X, state, self.params)
-
-    def begin_state(self, batch_size):
-        return self.init_state(batch_size, self.num_hiddens)
-
-def predict_ch8(prefix, num_preds, net, vocab, device):
-    """在prefix后面生成新字符
-    Defined in :numref:`sec_rnn_scratch`"""
-    state = net.begin_state(batch_size=1)
-    outputs = [vocab[prefix[0]]]
-    get_input = lambda: d2l.reshape(d2l.tensor(outputs[-1], place=device), (1, 1))
-    for y in prefix[1:]:  # 预热期
-        _, state = net(get_input(), state)
-        outputs.append(vocab[y])
-    for _ in range(num_preds):  # 预测num_preds步
-        y, state = net(get_input(), state)
-        outputs.append(int(paddle.reshape(paddle.argmax(y,axis=1),shape=[1])))
-    return ''.join([vocab.idx_to_token[i] for i in outputs])
-
-def grad_clipping(net, theta):
-    """裁剪梯度
-    Defined in :numref:`sec_rnn_scratch`"""
-    if isinstance(net, nn.Layer):
-        params = [p for p in net.parameters() if not p.stop_gradient]
-    else:
-        params = net.params
-    norm = paddle.sqrt(sum(paddle.sum((p.grad ** 2)) for p in params))
-    if norm > theta:
-        with paddle.no_grad():
-            for param in params:
-                param.grad.set_value(param.grad * theta / norm)
-
-    net.apply(init_weights)
-
-    optimizer = trainer_fn(parameters=net.parameters(), **hyperparams)
-    loss = nn.MSELoss(reduction='none')
-    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
-                            xlim=[0, num_epochs], ylim=[0.22, 0.35])
-    n, timer = 0, d2l.Timer()
-    for _ in range(num_epochs):
-        for X, y in data_iter:
-            optimizer.clear_grad()
-            out = net(X)
-            y = y.reshape(out.shape)
-            l = loss(out, y)
-            l.mean().backward()
-            optimizer.step()
-            n += X.shape[0]
-            if n % 200 == 0:
-                timer.stop()
-                # MSELoss计算平方误差时不带系数1/2
-                animator.add(n/X.shape[0]/len(data_iter),
-                             (d2l.evaluate_loss(net, data_iter, loss) / 2,))
-                timer.start()
-    print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
-
 class Benchmark:
     """用于测量运行时间"""
     def __init__(self, description='Done'):
@@ -2012,44 +1945,6 @@ def reorg_train_valid(data_dir, labels, valid_ratio):
             copyfile(fname, os.path.join(data_dir, 'train_valid_test',
                                          'valid', label))
             label_count[label] = label_count.get(label, 0) + 1
-
-class RNNModel(nn.Layer):
-    """循环神经网络模型
-    Defined in :numref:`sec_rnn-concise`"""
-    def __init__(self, rnn_layer, vocab_size, **kwargs):
-        super(RNNModel, self).__init__(**kwargs)
-        self.rnn = rnn_layer
-        self.vocab_size = vocab_size
-        self.num_hiddens = self.rnn.hidden_size
-        # 如果RNN是双向的（之后将介绍），num_directions应该是2，否则应该是1
-        if self.rnn.num_directions==1:
-            self.num_directions = 1
-            self.linear = nn.Linear(self.num_hiddens, self.vocab_size)
-        else:
-            self.num_directions = 2
-            self.linear = nn.Linear(self.num_hiddens * 2, self.vocab_size)
-
-    def forward(self, inputs, state):
-        X = F.one_hot(inputs.T, self.vocab_size)
-        Y, state = self.rnn(X, state)
-        # 全连接层首先将Y的形状改为(时间步数*批量大小,隐藏单元数)
-        # 它的输出形状是(时间步数*批量大小,词表大小)。
-        output = self.linear(Y.reshape((-1, Y.shape[-1])))
-        return output, state
-
-    def begin_state(self, batch_size=1):
-        if not isinstance(self.rnn, nn.LSTM):
-            # nn.GRU以张量作为隐状态
-            return  paddle.zeros(shape=[self.num_directions * self.rnn.num_layers,
-                                                           batch_size, self.num_hiddens])
-        else:
-            # nn.LSTM以元组作为隐状态
-            return (paddle.zeros(
-                shape=[self.num_directions * self.rnn.num_layers,
-                batch_size, self.num_hiddens]),
-                    paddle.zeros(
-                        shape=[self.num_directions * self.rnn.num_layers,
-                        batch_size, self.num_hiddens]))
 
 def reorg_test(data_dir):
     """在预测期间整理测试集，以方便读取
