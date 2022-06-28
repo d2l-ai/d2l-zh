@@ -418,7 +418,7 @@ $$
 让我们看看效果如何。
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, paddle
 multistep_preds = d2l.zeros(T)
 multistep_preds[: n_train + tau] = x[: n_train + tau]
 for i in range(n_train + tau, T):
@@ -474,7 +474,7 @@ max_steps = 64
 ```
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, paddle
 features = d2l.zeros((T - tau - max_steps + 1, tau + max_steps))
 # 列i（i<tau）是来自x的观测，其时间步从（i+1）到（i+T-tau-max_steps+1）
 for i in range(tau):

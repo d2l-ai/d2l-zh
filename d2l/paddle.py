@@ -803,7 +803,6 @@ def train_ch8(net, train_iter, vocab, lr, num_epochs, device, use_random_iter=Fa
 
 class RNNModel(nn.Layer):
     """循环神经网络模型
-
     Defined in :numref:`sec_rnn-concise`"""
     def __init__(self, rnn_layer, vocab_size, **kwargs):
         super(RNNModel, self).__init__(**kwargs)
