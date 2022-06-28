@@ -17,6 +17,13 @@ import torch
 from torch import nn
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import torch as d2l
+import paddle
+from paddle import nn
+```
+
 首先，我们加载WikiText-2数据集作为小批量的预训练样本，用于遮蔽语言模型和下一句预测。批量大小是512，BERT输入序列的最大长度是64。注意，在原始BERT模型中，最大长度是512。
 
 ```{.python .input}
@@ -38,7 +45,7 @@ loss = gluon.loss.SoftmaxCELoss()
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 net = d2l.BERTModel(len(vocab), num_hiddens=128, norm_shape=[128],
                     ffn_num_input=128, ffn_num_hiddens=256, num_heads=2,
                     num_layers=2, dropout=0.2, key_size=128, query_size=128,
@@ -83,7 +90,7 @@ def _get_batch_loss_bert(net, loss, vocab_size, tokens_X_shards,
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 #@save
 def _get_batch_loss_bert(net, loss, vocab_size, tokens_X,
                          segments_X, valid_lens_x,
@@ -189,6 +196,42 @@ def train_bert(train_iter, net, loss, vocab_size, devices, num_steps):
           f'{str(devices)}')
 ```
 
+```{.python .input}
+#@tab paddle
+def train_bert(train_iter, net, loss, vocab_size, devices, num_steps):
+    trainer = paddle.optimizer.Adam(parameters=net.parameters(), learning_rate=0.01)
+
+    step, timer = 0, d2l.Timer()
+    animator = d2l.Animator(xlabel='step', ylabel='loss',
+                            xlim=[1, num_steps], legend=['mlm', 'nsp'])
+    # 遮蔽语言模型损失的和，下一句预测任务损失的和，句子对的数量，计数
+    metric = d2l.Accumulator(4)
+    num_steps_reached = False
+    while step < num_steps and not num_steps_reached:
+        for tokens_X, segments_X, valid_lens_x, pred_positions_X,\
+            mlm_weights_X, mlm_Y, nsp_y in train_iter:
+            trainer.clear_grad()
+            timer.start()
+            mlm_l, nsp_l, l = _get_batch_loss_bert(
+                net, loss, vocab_size, tokens_X, segments_X, valid_lens_x,
+                pred_positions_X, mlm_weights_X, mlm_Y, nsp_y)
+            l.backward()
+            trainer.step()
+            metric.add(mlm_l, nsp_l, tokens_X.shape[0], 1)
+            timer.stop()
+            animator.add(step + 1,
+                         (metric[0] / metric[3], metric[1] / metric[3]))
+            step += 1
+            if step == num_steps:
+                num_steps_reached = True
+                break
+
+    print(f'MLM loss {metric[0] / metric[3]:.3f}, '
+          f'NSP loss {metric[1] / metric[3]:.3f}')
+    print(f'{metric[2] / timer.sum():.1f} sentence pairs/sec on '
+          f'{str(devices)}')
+```
+
 在预训练过程中，我们可以绘制出遮蔽语言模型损失和下一句预测损失。
 
 ```{.python .input}
@@ -218,6 +261,18 @@ def get_bert_encoding(net, tokens_a, tokens_b=None):
     token_ids = torch.tensor(vocab[tokens], device=devices[0]).unsqueeze(0)
     segments = torch.tensor(segments, device=devices[0]).unsqueeze(0)
     valid_len = torch.tensor(len(tokens), device=devices[0]).unsqueeze(0)
+    encoded_X, _, _ = net(token_ids, segments, valid_len)
+    return encoded_X
+```
+
+```{.python .input}
+#@tab paddle
+def get_bert_encoding(net, tokens_a, tokens_b=None):
+    tokens, segments = d2l.get_tokens_and_segments(tokens_a, tokens_b)
+    token_ids = paddle.to_tensor(vocab[tokens]).unsqueeze(0)
+    segments = paddle.to_tensor(segments).unsqueeze(0)
+    valid_len = paddle.to_tensor(len(tokens))
+    
     encoded_X, _, _ = net(token_ids, segments, valid_len)
     return encoded_X
 ```

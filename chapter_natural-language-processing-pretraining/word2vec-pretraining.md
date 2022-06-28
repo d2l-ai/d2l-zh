@@ -27,6 +27,18 @@ data_iter, vocab = d2l.load_data_ptb(batch_size, max_window_size,
                                      num_noise_words)
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import math
+import paddle
+from paddle import nn
+
+batch_size, max_window_size, num_noise_words = 512, 5, 5
+data_iter, vocab = d2l.load_data_ptb(batch_size, max_window_size,
+                                     num_noise_words)
+```
+
 ## 跳元模型
 
 我们通过嵌入层和批量矩阵乘法实现了跳元模型。首先，让我们回顾一下嵌入层是如何工作的。
@@ -43,6 +55,13 @@ embed.weight
 
 ```{.python .input}
 #@tab pytorch
+embed = nn.Embedding(num_embeddings=20, embedding_dim=4)
+print(f'Parameter embedding_weight ({embed.weight.shape}, '
+      f'dtype={embed.weight.dtype})')
+```
+
+```{.python .input}
+#@tab paddle
 embed = nn.Embedding(num_embeddings=20, embedding_dim=4)
 print(f'Parameter embedding_weight ({embed.weight.shape}, '
       f'dtype={embed.weight.dtype})')
@@ -77,6 +96,15 @@ def skip_gram(center, contexts_and_negatives, embed_v, embed_u):
     return pred
 ```
 
+```{.python .input}
+#@tab paddle
+def skip_gram(center, contexts_and_negatives, embed_v, embed_u):
+    v = embed_v(center)
+    u = embed_u(contexts_and_negatives)
+    pred = paddle.bmm(v, u.transpose(perm=[0, 2, 1]))
+    return pred
+```
+
 让我们为一些样例输入打印此`skip_gram`函数的输出形状。
 
 ```{.python .input}
@@ -87,6 +115,12 @@ skip_gram(np.ones((2, 1)), np.ones((2, 4)), embed, embed).shape
 #@tab pytorch
 skip_gram(torch.ones((2, 1), dtype=torch.long),
           torch.ones((2, 4), dtype=torch.long), embed, embed).shape
+```
+
+```{.python .input}
+#@tab paddle
+skip_gram(paddle.ones((2, 1), dtype='int64'),
+          paddle.ones((2, 4), dtype='int64'), embed, embed).shape
 ```
 
 ## 训练
@@ -112,6 +146,21 @@ class SigmoidBCELoss(nn.Module):
         out = nn.functional.binary_cross_entropy_with_logits(
             inputs, target, weight=mask, reduction="none")
         return out.mean(dim=1)
+
+loss = SigmoidBCELoss()
+```
+
+```{.python .input}
+#@tab paddle
+class SigmoidBCELoss(nn.Layer):
+    # 带掩码的二元交叉熵损失
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, inputs, target, mask=None):
+        out = nn.functional.binary_cross_entropy_with_logits(
+            logit=inputs, label=target, weight=mask, reduction="none")
+        return out.mean(axis=1)
 
 loss = SigmoidBCELoss()
 ```
@@ -149,7 +198,7 @@ net.add(nn.Embedding(input_dim=len(vocab), output_dim=embed_size),
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 embed_size = 100
 net = nn.Sequential(nn.Embedding(num_embeddings=len(vocab),
                                  embedding_dim=embed_size),
@@ -222,6 +271,39 @@ def train(net, data_iter, lr, num_epochs, device=d2l.try_gpu()):
           f'{metric[1] / timer.stop():.1f} tokens/sec on {str(device)}')
 ```
 
+```{.python .input}
+#@tab paddle
+def train(net, data_iter, lr, num_epochs, device=d2l.try_gpu()):
+    def init_weights(m):
+        if type(m) == nn.Embedding:
+            nn.initializer.XavierUniform(m.weight)
+    net.apply(init_weights)
+    optimizer = paddle.optimizer.Adam(learning_rate=lr,parameters=net.parameters())
+    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
+                            xlim=[1, num_epochs])
+    # 规范化的损失之和，规范化的损失数
+    metric = d2l.Accumulator(2)
+    for epoch in range(num_epochs):
+        timer, num_batches = d2l.Timer(), len(data_iter)
+        for i, batch in enumerate(data_iter):
+            optimizer.clear_grad()
+            center, context_negative, mask, label = [
+                paddle.to_tensor(data, place=device) for data in batch]
+
+            pred = skip_gram(center, context_negative, net[0], net[1])
+            l = (loss(pred.reshape(label.shape), paddle.to_tensor(label,dtype='float32'), 
+                        paddle.to_tensor(mask,dtype='float32'))
+                     / mask.sum(axis=1) * mask.shape[1])
+            l.sum().backward()
+            optimizer.step()
+            metric.add(l.sum(), l.numel())
+            if (i + 1) % (num_batches // 5) == 0 or i == num_batches - 1:
+                animator.add(epoch + (i + 1) / num_batches,
+                             (metric[0] / metric[1],))
+    print(f'loss {metric[0] / metric[1]:.3f}, '
+          f'{metric[1] / timer.stop():.1f} tokens/sec on {str(device)}')
+```
+
 现在，我们可以使用负采样来训练跳元模型。
 
 ```{.python .input}
@@ -258,6 +340,21 @@ def get_similar_tokens(query_token, k, embed):
     cos = torch.mv(W, x) / torch.sqrt(torch.sum(W * W, dim=1) *
                                       torch.sum(x * x) + 1e-9)
     topk = torch.topk(cos, k=k+1)[1].cpu().numpy().astype('int32')
+    for i in topk[1:]:  # 删除输入词
+        print(f'cosine sim={float(cos[i]):.3f}: {vocab.to_tokens(i)}')
+
+get_similar_tokens('chip', 3, net[0])
+```
+
+```{.python .input}
+#@tab paddle
+def get_similar_tokens(query_token, k, embed):
+    W = embed.weight
+    x = W[vocab[query_token]]
+    # 计算余弦相似性。增加1e-9以获得数值稳定性
+    cos = paddle.mv(W, x) / paddle.sqrt(paddle.sum(W * W, axis=1) *
+                                        paddle.sum(x * x) + 1e-9)
+    topk = paddle.topk(cos, k=k+1)[1].numpy().astype('int32')
     for i in topk[1:]:  # 删除输入词
         print(f'cosine sim={float(cos[i]):.3f}: {vocab.to_tokens(i)}')
 
