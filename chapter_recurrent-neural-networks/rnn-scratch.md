@@ -801,7 +801,7 @@ def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
             grad_clipping(net, 1)
             # 因为已经调用了mean函数
             updater(batch_size=1)
-        
+   
         metric.add(l * d2l.size(y), d2l.size(y))
     return math.exp(metric[0] / metric[1]), metric[1] / timer.stop()
 ```
@@ -936,7 +936,7 @@ train_ch8(net, train_iter, vocab, lr, num_epochs, strategy)
 [**最后，让我们检查一下使用随机抽样方法的结果。**]
 
 ```{.python .input}
-#@tab mxnet,pytorch
+#@tab mxnet,pytorch, paddle
 net = RNNModelScratch(len(vocab), num_hiddens, d2l.try_gpu(), get_params,
                       init_rnn_state, rnn)
 train_ch8(net, train_iter, vocab, lr, num_epochs, d2l.try_gpu(),

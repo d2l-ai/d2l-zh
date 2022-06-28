@@ -327,7 +327,7 @@ for X, Y in seq_data_iter_random(my_seq, batch_size=2, num_steps=5):
 这种策略在基于小批量的迭代过程中保留了拆分的子序列的顺序，因此称为顺序分区。
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, paddle
 def seq_data_iter_sequential(corpus, batch_size, num_steps):  #@save
     """使用顺序分区生成一个小批量子序列"""
     # 从随机偏移量开始划分序列
@@ -335,7 +335,7 @@ def seq_data_iter_sequential(corpus, batch_size, num_steps):  #@save
     num_tokens = ((len(corpus) - offset - 1) // batch_size) * batch_size
     Xs = d2l.tensor(corpus[offset: offset + num_tokens])
     Ys = d2l.tensor(corpus[offset + 1: offset + 1 + num_tokens])
-    Xs, Ys = Xs.reshape(batch_size, -1), Ys.reshape(batch_size, -1)
+    Xs, Ys = Xs.reshape((batch_size, -1)), Ys.reshape((batch_size, -1))
     num_batches = Xs.shape[1] // num_steps
     for i in range(0, num_steps * num_batches, num_steps):
         X = Xs[:, i: i + num_steps]
