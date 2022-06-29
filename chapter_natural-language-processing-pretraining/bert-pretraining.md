@@ -19,7 +19,7 @@ from torch import nn
 
 ```{.python .input}
 #@tab paddle
-from d2l import torch as d2l
+from d2l import paddle as d2l
 import paddle
 from paddle import nn
 ```
