@@ -168,10 +168,18 @@ loss = SigmoidBCELoss()
 回想一下我们在 :numref:`subsec_word2vec-minibatch-loading`中对掩码变量和标签变量的描述。下面计算给定变量的二进制交叉熵损失。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch
 pred = d2l.tensor([[1.1, -2.2, 3.3, -4.4]] * 2)
 label = d2l.tensor([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
 mask = d2l.tensor([[1, 1, 1, 1], [1, 1, 0, 0]])
+loss(pred, label, mask) * mask.shape[1] / mask.sum(axis=1)
+```
+
+```{.python .input}
+#@tab paddle
+pred = d2l.tensor([[1.1, -2.2, 3.3, -4.4]] * 2)
+label = d2l.tensor([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
+mask = d2l.tensor([[1, 1, 1, 1], [1, 1, 0, 0]], dtype='float32')
 loss(pred, label, mask) * mask.shape[1] / mask.sum(axis=1)
 ```
 
