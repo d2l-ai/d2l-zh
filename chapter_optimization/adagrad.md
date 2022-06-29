@@ -228,7 +228,7 @@ def adagrad(params, grads, states, hyperparams):
 #@tab paddle
 def init_adagrad_states(feature_dim):
     s_w = d2l.zeros((feature_dim, 1))
-    s_b = d2l.zeros(shape=(1,))
+    s_b = d2l.zeros(shape=(1, ))
     return (s_w, s_b)
 
 def adagrad(params, states, hyperparams):

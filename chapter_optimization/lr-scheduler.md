@@ -447,8 +447,8 @@ d2l.plot(d2l.arange(num_epochs), [scheduler(t) for t in range(num_epochs)])
 ```{.python .input}
 #@tab paddle
 net = net_fn()
-scheduler =paddle.optimizer.lr.MultiStepDecay(learning_rate = 0.5, milestones = [15,30], gamma=0.5)
-trainer = paddle.optimizer.SGD(learning_rate = scheduler, parameters=net.parameters())
+scheduler =paddle.optimizer.lr.MultiStepDecay(learning_rate=0.5, milestones=[15,30], gamma=0.5)
+trainer = paddle.optimizer.SGD(learning_rate=scheduler, parameters=net.parameters())
 def get_lr(trainer, scheduler):
     lr=trainer.state_dict()['LR_Scheduler']['last_lr']
     trainer.step()
