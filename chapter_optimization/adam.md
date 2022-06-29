@@ -138,8 +138,8 @@ from d2l import paddle as d2l
 import paddle
 
 def init_adam_states(feature_dim):
-    v_w, v_b = d2l.zeros((feature_dim, 1)), d2l.zeros((1,))
-    s_w, s_b = d2l.zeros((feature_dim, 1)), d2l.zeros((1,))
+    v_w, v_b = d2l.zeros((feature_dim, 1)), d2l.zeros((1, ))
+    s_w, s_b = d2l.zeros((feature_dim, 1)), d2l.zeros((1, ))
     return ((v_w, s_w), (v_b, s_b))
 
 def adam(params, states, hyperparams):

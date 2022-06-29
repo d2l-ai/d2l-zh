@@ -519,7 +519,7 @@ def train_ch11(trainer_fn, states, hyperparams, data_iter,
 def train_ch11(trainer_fn, states, hyperparams, data_iter,
                feature_dim, num_epochs=2):
     # 初始化模型
-    w = d2l.tensor(d2l.normal(mean=0.0, std=0.01, shape=(feature_dim, 1),),stop_gradient=False)
+    w = d2l.tensor(d2l.normal(mean=0.0, std=0.01, shape=(feature_dim, 1)), stop_gradient=False)
     b = d2l.tensor(d2l.zeros((1,)), stop_gradient=False)
     net, loss = lambda X: d2l.linreg(X, w, b), d2l.squared_loss
     # 训练模型
