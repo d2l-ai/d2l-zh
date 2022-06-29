@@ -302,7 +302,7 @@ class MaskLM(nn.Layer):
         batch_idx = paddle.arange(0, batch_size) # torch.arange()
         # 假设batch_size=2，num_pred_positions=3
         # 那么batch_idx是np.array（[0,0,0,1,1]）
-        batch_idx = d2l.paddletile(batch_idx, [num_pred_positions])
+        batch_idx = paddle.repeat_interleave(batch_idx, num_pred_positions)
         masked_X = X[batch_idx, pred_positions]
         masked_X = masked_X.reshape((batch_size, num_pred_positions, -1))
         mlm_Y_hat = self.mlp(masked_X)
