@@ -340,7 +340,7 @@ print('output:', split)
 ```{.python .input}
 #@tab paddle
 def paddlescatter(XY, devices): 
-    xy = int(XY.shape[0]/len(devices)) # 根据GPU数目计算分块大小
+    xy = XY.shape[0]//len(devices) # 根据GPU数目计算分块大小
     return [paddle.to_tensor(XY[i*xy:(i+1)*xy], place=device) for i,device in enumerate(devices)]
 
 # 数据分发

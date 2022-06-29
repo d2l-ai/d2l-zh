@@ -161,9 +161,8 @@ from paddle.jit import to_static
 from paddle.static import InputSpec
 
 # 生产网络的工厂模式
-# 因为飞桨动态图太快了，需要增加更多的线形图来对比，比如42层。
 def get_net():
-    blocks = [nn.Linear(512, 512) for i in range(42)] + [
+    blocks = [
         nn.Linear(512, 256),
         nn.ReLU(),
         nn.Linear(256, 128),
