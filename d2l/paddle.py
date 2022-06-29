@@ -433,13 +433,12 @@ def try_gpu(i=0):
         return paddle.CUDAPlace(i)
     return paddle.CPUPlace()
 
-def try_all_gpus():
-    """返回所有可用的GPU，如果没有GPU，则返回[cpu(),]。
-
-    Defined in :numref:`sec_use_gpu`"""
-    devices = [paddle.device.set_device(f'gpu:{i}')
-               for i in range(paddle.device.cuda.device_count())]
-    return devices if devices else paddle.device.get_device()
+def try_all_gpus():  #@save
+    """返回所有可用的GPU，如果没有GPU，则返回[cpu(),]。"""
+    devices = [paddle.CUDAPlace(i)
+               for i in range(paddle.device.cuda.device_count())
+               ]
+    return devices if devices else paddle.CPUPlace()
 
 def corr2d(X, K):
     """计算二维互相关运算
@@ -1567,7 +1566,7 @@ def train_batch_ch13(net, X, y, loss, trainer, devices):
     """Defined in :numref:`sec_image_augmentation`"""
     """用多GPU进行小批量训练
     Defined in :numref:`sec_image_augmentation`"""
-    paddle.set_device("gpu:{}".format(str(devices[0])[-2])) 
+    # paddle.set_device("gpu:{}".format(str(devices[0])[-2])) 
     if isinstance(X, list):
         # 微调BERT中所需（稍后讨论）
         X = [paddle.to_tensor(x, place=devices[0]) for x in X]
@@ -1927,11 +1926,11 @@ def read_voc_images(voc_dir, is_train=True):
         images = f.read().split()
     features, labels = [], []
     for i, fname in enumerate(images):
-        features.append(paddle.to_tensor(paddle.vision.image.image_load(os.path.join(
-            voc_dir, 'JPEGImages', f'{fname}.jpg'), backend='cv2')[..., ::-1], dtype=paddle.float32).transpose(
+        features.append(paddle.vision.image.image_load(os.path.join(
+            voc_dir, 'JPEGImages', f'{fname}.jpg'), backend='cv2')[..., ::-1].transpose(
             [2, 0, 1]))
-        labels.append(paddle.to_tensor(paddle.vision.image.image_load(os.path.join(
-            voc_dir, 'SegmentationClass', f'{fname}.png'), backend='cv2')[..., ::-1], dtype=paddle.float32).transpose(
+        labels.append(paddle.vision.image.image_load(os.path.join(
+            voc_dir, 'SegmentationClass', f'{fname}.png'), backend='cv2')[..., ::-1].transpose(
             [2, 0, 1]))
     return features, labels
 
@@ -1957,6 +1956,13 @@ def voc_colormap2label():
             (colormap[0] * 256 + colormap[1]) * 256 + colormap[2]] = i
     return colormap2label
 
+def voc_label_indices(colormap, colormap2label):
+    """将VOC标签中的RGB值映射到它们的类别索引"""
+    colormap = colormap.transpose([1, 2, 0]).astype('int32')#[281,500,3]
+    idx = ((colormap[:, :, 0] * 256 + colormap[:, :, 1]) * 256
+           + colormap[:, :, 2])
+    return colormap2label[idx]
+    
 def voc_rand_crop(feature, label, height, width):
     """随机裁剪特征和标签图像
 
@@ -1984,7 +1990,7 @@ class VOCSegDataset(paddle.io.Dataset):
         print('read ' + str(len(self.features)) + ' examples')
 
     def normalize_image(self, img):
-        return self.transform(img.astype(paddle.float32) / 255)
+        return self.transform(img.astype("float32") / 255)
 
     def filter(self, imgs):
         return [img for img in imgs if (
@@ -1992,9 +1998,11 @@ class VOCSegDataset(paddle.io.Dataset):
             img.shape[2] >= self.crop_size[1])]
 
     def __getitem__(self, idx):
-        feature, label = voc_rand_crop(self.features[idx], self.labels[idx],
+        feature = paddle.to_tensor(self.features[idx],dtype='float32')
+        label = paddle.to_tensor(self.labels[idx],dtype='float32')
+        feature, label = voc_rand_crop(feature,label,
                                        *self.crop_size)
-
+        
         return (feature, voc_label_indices(label, self.colormap2label))
 
     def __len__(self):
@@ -2006,7 +2014,8 @@ def load_data_voc(batch_size, crop_size):
     Defined in :numref:`sec_semantic_segmentation`"""
     voc_dir = d2l.download_extract('voc2012', os.path.join(
         'VOCdevkit', 'VOC2012'))
-    num_workers = d2l.get_dataloader_workers()
+    # num_workers = d2l.get_dataloader_workers()
+    num_workers = 0
     train_iter = paddle.io.DataLoader(
         VOCSegDataset(True, crop_size, voc_dir), batch_size=batch_size,
         shuffle=True, drop_last=True, num_workers=num_workers)
