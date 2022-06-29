@@ -17,7 +17,7 @@ import torch
 from torch import nn
 ```
 
-```{.python .input}
+```{.python .input  n=1}
 #@tab paddle
 from d2l import paddle as d2l
 import paddle
@@ -221,7 +221,6 @@ def train_bert(train_iter, net, loss, vocab_size, devices, num_steps):
 #@tab paddle
 def train_bert(train_iter, net, loss, vocab_size, devices, num_steps):
     trainer = paddle.optimizer.Adam(parameters=net.parameters(), learning_rate=0.01)
-
     step, timer = 0, d2l.Timer()
     animator = d2l.Animator(xlabel='step', ylabel='loss',
                             xlim=[1, num_steps], legend=['mlm', 'nsp'])

@@ -432,13 +432,12 @@ def try_gpu(i=0):
         return paddle.device.set_device(f'gpu:{i}')
     return paddle.device.set_device("cpu")
 
-def try_all_gpus():
-    """返回所有可用的GPU，如果没有GPU，则返回[cpu(),]。
-
-    Defined in :numref:`sec_use_gpu`"""
-    devices = [paddle.device.set_device(f'gpu:{i}')
-               for i in range(paddle.device.cuda.device_count())]
-    return devices if devices else paddle.device.get_device()
+def try_all_gpus():  #@save
+    """返回所有可用的GPU，如果没有GPU，则返回[cpu(),]。"""
+    devices = [paddle.CUDAPlace(i)
+               for i in range(paddle.device.cuda.device_count())
+               ]
+    return devices if devices else paddle.CPUPlace()
 
 def corr2d(X, K):
     """计算二维互相关运算
@@ -2216,7 +2215,7 @@ class MaskLM(nn.Layer):
         batch_idx = paddle.arange(0, batch_size) # torch.arange()
         # 假设batch_size=2，num_pred_positions=3
         # 那么batch_idx是np.array（[0,0,0,1,1]）
-        batch_idx = d2l.paddletile(batch_idx, [num_pred_positions])
+        batch_idx = paddle.repeat_interleave(batch_idx, num_pred_positions)
         masked_X = X[batch_idx, pred_positions]
         masked_X = masked_X.reshape((batch_size, num_pred_positions, -1))
         mlm_Y_hat = self.mlp(masked_X)
@@ -2414,7 +2413,8 @@ def load_data_wiki(batch_size, max_len):
     """加载WikiText-2数据集
 
     Defined in :numref:`subsec_prepare_mlm_data`"""
-    num_workers = d2l.get_dataloader_workers()
+    # num_workers = d2l.get_dataloader_workers()
+    num_workers = 0
     data_dir = d2l.download_extract('wikitext-2', 'wikitext-2')
     paragraphs = _read_wiki(data_dir)
     train_set = _WikiTextDataset(paragraphs, max_len)
