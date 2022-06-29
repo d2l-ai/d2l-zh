@@ -146,6 +146,7 @@ source[:6], target[:6]
 
 ```{.python .input}
 #@tab all
+#@save
 def show_list_len_pair_hist(legend, xlabel, ylabel, xlist, ylist):
     """绘制列表长度对的直方图"""
     d2l.set_figsize()
