@@ -27,6 +27,7 @@ from d2l import paddle as d2l
 import numpy, os, subprocess
 import paddle
 from paddle import nn
+d2l.try_gpu()
 ```
 
 ## 通过后端异步处理
@@ -136,7 +137,7 @@ with d2l.Benchmark():
 广义上说，PyTorch有一个用于与用户直接交互的前端（例如通过Python），还有一个由系统用来执行计算的后端。如 :numref:`fig_frontends`所示，用户可以用各种前端语言编写PyTorch程序，如Python和C++。不管使用的前端编程语言是什么，PyTorch程序的执行主要发生在C++实现的后端。由前端语言发出的操作被传递到后端执行。后端管理自己的线程，这些线程不断收集和执行排队的任务。请注意，要使其工作，后端必须能够跟踪计算图中各个步骤之间的依赖关系。因此，不可能并行化相互依赖的操作。
 :end_tab:
 
-:begin_tab:`pytorch`
+:begin_tab:`paddle`
 广义上说，飞桨有一个用于与用户直接交互的前端（例如通过Python），还有一个由系统用来执行计算的后端。如 :numref:`fig_frontends`所示，用户可以用各种前端语言编写Python程序，如Python和C++。不管使用的前端编程语言是什么，飞桨程序的执行主要发生在C++实现的后端。由前端语言发出的操作被传递到后端执行。后端管理自己的线程，这些线程不断收集和执行排队的任务。请注意，要使其工作，后端必须能够跟踪计算图中各个步骤之间的依赖关系。因此，不可能并行化相互依赖的操作。
 :end_tab:
 
@@ -188,7 +189,7 @@ z
 让我们看看这在实践中是如何运作的。
 :end_tab:
 
-:begin_tab:`mxnet`
+:begin_tab:`paddle`
 强制Python等待完成：
 
 * 使用命令`paddle.device.cuda.synchronize()`等待该GPU设备上的所有计算完成。除非绝对必要，否则在实践中使用此运算符不是个好主意，因为它可能会导致较差的性能。
@@ -209,11 +210,11 @@ with d2l.Benchmark('wait_to_read'):
 
 ```{.python .input}
 #@tab paddle
-with d2l.Benchmark('等待计算完成'):
+with d2l.Benchmark('Wait for the calculation to complete'):
     b = paddle.dot(a, a)
     paddle.device.cuda.synchronize()
 
-with d2l.Benchmark('不等待计算完成'):
+with d2l.Benchmark('Do not wait for calculation to complete'):
     b = paddle.dot(a, a)
 ```
 
@@ -274,12 +275,12 @@ with d2l.Benchmark('asynchronous'):
 
 ```{.python .input}
 #@tab paddle
-with d2l.Benchmark('同步执行'):
+with d2l.Benchmark('synchronous'):
     for _ in range(10000):
         y = x + 1
         paddle.device.cuda.synchronize()
 
-with d2l.Benchmark('异步执行'):
+with d2l.Benchmark('asynchronous'):
     for _ in range(10000):
         y = x + 1
     paddle.device.cuda.synchronize()
