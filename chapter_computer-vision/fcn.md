@@ -359,7 +359,7 @@ def predict(img):
 ```{.python .input}
 #@tab paddle
 def predict(img):
-    X = test_iter.dataset.normalize_image(img).unsqueeze(0)
+    X = paddle.to_tensor(test_iter.dataset.normalize_image(img),dtype='float32').unsqueeze(0)
     pred = net(X).argmax(axis=1)
     return pred.reshape([pred.shape[1], pred.shape[2]])
 ```
@@ -434,9 +434,9 @@ for i in range(n):
     crop_rect = (0, 0, 320, 480)
     X = paddlevision.transforms.crop(test_images[i], *crop_rect)
     pred = label2image(predict(X))
-    imgs += [X.transpose([1,2,0]).astype(paddle.uint8), pred,
+    imgs += [X.transpose([1,2,0]).astype('uint8'), pred,
              paddlevision.transforms.crop(
-                 test_labels[i], *crop_rect).transpose([1,2,0]).astype(paddle.uint8)]
+                 test_labels[i], *crop_rect).transpose([1,2,0]).astype("uint8")]
 d2l.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n, scale=2);
 ```
 
