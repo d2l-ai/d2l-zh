@@ -26,6 +26,16 @@ batch_size = 64
 train_iter, test_iter, vocab = d2l.load_data_imdb(batch_size)
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import paddle
+from paddle import nn
+
+batch_size = 64
+train_iter, test_iter, vocab = d2l.load_data_imdb(batch_size)
+```
+
 ## 使用循环神经网络表示单个文本
 
 在文本分类任务（如情感分析）中，可变长度的文本序列将被转换为固定长度的类别。在下面的`BiRNN`类中，虽然文本序列的每个词元经由嵌入层（`self.embedding`）获得其单独的预训练GloVe表示，但是整个序列由双向循环神经网络（`self.encoder`）编码。更具体地说，双向长短期记忆网络在初始和最终时间步的隐状态（在最后一层）被连结起来作为文本序列的表示。然后，通过一个具有两个输出（“积极”和“消极”）的全连接层（`self.decoder`），将此单一文本表示转换为输出类别。
@@ -86,6 +96,35 @@ class BiRNN(nn.Module):
         return outs
 ```
 
+```{.python .input}
+#@tab paddle
+class BiRNN(nn.Layer):
+    def __init__(self, vocab_size, embed_size, num_hiddens,
+                 num_layers, **kwargs):
+        super(BiRNN, self).__init__(**kwargs)
+        self.embedding = nn.Embedding(vocab_size, embed_size)
+        # 将direction设置为'bidirect'或'bidirectional'以获取双向循环神经网络
+        self.encoder = nn.LSTM(embed_size, num_hiddens, num_layers=num_layers,
+                                direction='bidirect',time_major=True)
+        self.decoder = nn.Linear(4 * num_hiddens, 2)
+
+    def forward(self, inputs):
+        # inputs的形状是（批量大小，时间步数）
+        # 因为长短期记忆网络要求其输入的第一个维度是时间维，
+        # 所以在获得词元表示之前，输入会被转置。
+        # 输出形状为（时间步数，批量大小，词向量维度）
+        embeddings = self.embedding(inputs.T)
+        self.encoder.flatten_parameters()
+        # 返回上一个隐藏层在不同时间步的隐状态，
+        # outputs的形状是（时间步数，批量大小，2*隐藏单元数）
+        outputs, _ = self.encoder(embeddings)
+        # 连结初始和最终时间步的隐状态，作为全连接层的输入，
+        # 其形状为（批量大小，4*隐藏单元数）
+        encoding = paddle.concat((outputs[0], outputs[-1]), axis=1)
+        outs = self.decoder(encoding)
+        return outs
+```
+
 让我们构造一个具有两个隐藏层的双向循环神经网络来表示单个文本以进行情感分析。
 
 ```{.python .input}
@@ -109,6 +148,19 @@ def init_weights(m):
             if "weight" in param:
                 nn.init.xavier_uniform_(m._parameters[param])
 net.apply(init_weights);
+```
+
+```{.python .input}
+#@tab paddle
+def init_weights(layer):
+    if isinstance(layer,(nn.Linear, nn.Embedding)):
+        if isinstance(layer.weight, paddle.Tensor):
+            nn.initializer.XavierUniform()(layer.weight)
+    if isinstance(layer, nn.LSTM):
+        for n, p in layer.named_parameters():
+            if "weigth" in n:
+                nn.initializer.XavierUniform()(p)
+net.apply(init_weights)
 ```
 
 ## 加载预训练的词向量
@@ -141,6 +193,12 @@ net.embedding.weight.data.copy_(embeds)
 net.embedding.weight.requires_grad = False
 ```
 
+```{.python .input}
+#@tab paddle
+net.embedding.weight.set_value(embeds)
+net.embedding.weight.requires_grad = False
+```
+
 ## 训练和评估模型
 
 现在我们可以训练双向循环神经网络进行情感分析。
@@ -157,6 +215,15 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
 #@tab pytorch
 lr, num_epochs = 0.01, 5
 trainer = torch.optim.Adam(net.parameters(), lr=lr)
+loss = nn.CrossEntropyLoss(reduction="none")
+d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
+    devices)
+```
+
+```{.python .input}
+#@tab paddle
+lr, num_epochs = 0.01, 5
+trainer = paddle.optimizer.Adam(learning_rate=lr,parameters=net.parameters())
 loss = nn.CrossEntropyLoss(reduction="none")
 d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
     devices)
@@ -180,6 +247,16 @@ def predict_sentiment(net, vocab, sequence):
     """预测文本序列的情感"""
     sequence = torch.tensor(vocab[sequence.split()], device=d2l.try_gpu())
     label = torch.argmax(net(sequence.reshape(1, -1)), dim=1)
+    return 'positive' if label == 1 else 'negative'
+```
+
+```{.python .input}
+#@tab paddle
+#@save
+def predict_sentiment(net, vocab, sequence):
+    """预测文本序列的情感"""
+    sequence = paddle.to_tensor(vocab[sequence.split()], place=d2l.try_gpu())
+    label = paddle.argmax(net(sequence.reshape((1, -1))), axis=1)
     return 'positive' if label == 1 else 'negative'
 ```
 
