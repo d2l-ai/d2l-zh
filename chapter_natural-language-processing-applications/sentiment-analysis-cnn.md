@@ -50,10 +50,20 @@ train_iter, test_iter, vocab = d2l.load_data_imdb(batch_size)
 我们在下面的`corr1d`函数中实现了一维互相关。给定输入张量`X`和核张量`K`，它返回输出张量`Y`。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow
 def corr1d(X, K):
     w = K.shape[0]
     Y = d2l.zeros((X.shape[0] - w + 1))
+    for i in range(Y.shape[0]):
+        Y[i] = (X[i: i + w] * K).sum()
+    return Y
+```
+
+```{.python .input}
+#@tab paddle
+def corr1d(X, K):
+    w = K.shape[0]
+    Y = d2l.zeros([X.shape[0] - w + 1], dtype=X.dtype)
     for i in range(Y.shape[0]):
         Y[i] = (X[i: i + w] * K).sum()
     return Y
