@@ -436,9 +436,10 @@ def try_all_gpus():
     """返回所有可用的GPU，如果没有GPU，则返回[cpu(),]。
 
     Defined in :numref:`sec_use_gpu`"""
-    devices = [paddle.device.set_device(f'gpu:{i}')
-               for i in range(paddle.device.cuda.device_count())]
-    return devices if devices else paddle.device.get_device()
+    devices = [paddle.CUDAPlace(i)
+               for i in range(paddle.device.cuda.device_count())
+               ]
+    return devices if devices else paddle.CPUPlace()
 
 def corr2d(X, K):
     """计算二维互相关运算
@@ -2565,6 +2566,11 @@ def predict_snli(net, vocab, premise, hypothesis):
 
     return 'entailment' if label == 0 else 'contradiction' if label == 1 \
             else 'neutral'# Alias defined in config.ini
+
+d2l.DATA_HUB['bert_small'] = ('https://paddlenlp.bj.bcebos.com/models/bert.small.paddle.zip', '9fcde07509c7e87ec61c640c1b277509c7e87ec6153d9041758e4')
+
+d2l.DATA_HUB['bert_base'] = ('https://paddlenlp.bj.bcebos.com/models/bert.base.paddle.zip', '9fcde07509c7e87ec61c640c1b27509c7e87ec61753d9041758e4')
+
 nn_Module = nn.Layer
 
 ones = paddle.ones
