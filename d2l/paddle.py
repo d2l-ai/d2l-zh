@@ -432,13 +432,13 @@ def try_gpu(i=0):
         return paddle.device.set_device(f'gpu:{i}')
     return paddle.device.set_device("cpu")
 
-def try_all_gpus():
+def try_all_gpus():  
     """返回所有可用的GPU，如果没有GPU，则返回[cpu(),]。
 
     Defined in :numref:`sec_use_gpu`"""
-    devices = [paddle.device.set_device(f'gpu:{i}')
+    devices = [paddle.CUDAPlace(i)
                for i in range(paddle.device.cuda.device_count())]
-    return devices if devices else paddle.device.get_device()
+    return devices if devices else paddle.CPUPlace()
 
 def corr2d(X, K):
     """计算二维互相关运算
