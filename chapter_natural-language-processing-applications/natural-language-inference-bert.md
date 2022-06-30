@@ -51,11 +51,18 @@ d2l.DATA_HUB['bert.small'] = (d2l.DATA_URL + 'bert.small.zip',
 ```
 
 ```{.python .input}
-#@tab pytorch, paddle
+#@tab pytorch
 d2l.DATA_HUB['bert.base'] = (d2l.DATA_URL + 'bert.base.torch.zip',
                              '225d66f04cae318b841a13d32af3acc165f253ac')
 d2l.DATA_HUB['bert.small'] = (d2l.DATA_URL + 'bert.small.torch.zip',
                               'c72329e68a732bef0452e4b96a1c341c8910f81f')
+```
+
+```{.python .input}
+#@tab paddle
+d2l.DATA_HUB['bert_small'] = ('https://paddlenlp.bj.bcebos.com/models/bert.small.paddle.zip', '9fcde07509c7e87ec61c640c1b277509c7e87ec6153d9041758e4')
+
+d2l.DATA_HUB['bert_base'] = ('https://paddlenlp.bj.bcebos.com/models/bert.base.paddle.zip', '9fcde07509c7e87ec61c640c1b27509c7e87ec61753d9041758e4')
 ```
 
 两个预训练好的BERT模型都包含一个定义词表的“vocab.json”文件和一个预训练参数的“pretrained.params”文件。我们实现了以下`load_pretrained_model`函数来[**加载预先训练好的BERT参数**]。
@@ -128,10 +135,18 @@ def load_pretrained_model(pretrained_model, num_hiddens, ffn_num_hiddens,
 为了便于在大多数机器上演示，我们将在本节中加载和微调经过预训练BERT的小版本（“bert.mall”）。在练习中，我们将展示如何微调大得多的“bert.base”以显著提高测试精度。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow
 devices = d2l.try_all_gpus()
 bert, vocab = load_pretrained_model(
     'bert.small', num_hiddens=256, ffn_num_hiddens=512, num_heads=4,
+    num_layers=2, dropout=0.1, max_len=512, devices=devices)
+```
+
+```{.python .input}
+#@tab paddle
+devices = d2l.try_all_gpus()
+bert, vocab = load_pretrained_model(
+    'bert_small', num_hiddens=256, ffn_num_hiddens=512, num_heads=4,
     num_layers=2, dropout=0.1, max_len=512, devices=devices)
 ```
 
