@@ -276,8 +276,8 @@ class SNLIBERTDataset(paddle.io.Dataset):
         print('read ' + str(len(self.all_token_ids)) + ' examples')
 
     def _preprocess(self, all_premise_hypothesis_tokens):
-        #pool = multiprocessing.Pool(1)  # 使用4个进程
-        #out = pool.map(self._mp_worker, all_premise_hypothesis_tokens)
+#         pool = multiprocessing.Pool(4)  # 使用4个进程
+#         out = pool.map(self._mp_worker, all_premise_hypothesis_tokens)
         out = []
         for i in all_premise_hypothesis_tokens:
             tempOut = self._mp_worker(i)
@@ -399,7 +399,7 @@ class BERTClassifier(nn.Layer):
 
     def forward(self, inputs):
         tokens_X, segments_X, valid_lens_x = inputs
-        encoded_X = self.encoder(tokens_X, segments_X, valid_lens_x)
+        encoded_X = self.encoder(tokens_X, segments_X, valid_lens_x.squeeze(1))
         return self.output(self.hidden(encoded_X[:, 0, :]))
 ```
 
