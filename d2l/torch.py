@@ -865,13 +865,9 @@ def tokenize_nmt(text, num_examples=None):
     return source, target
 
 def show_list_len_pair_hist(legend, xlabel, ylabel, xlist, ylist):
-<<<<<<< HEAD
     """绘制列表长度对的直方图
 
     Defined in :numref:`sec_machine_translation`"""
-=======
-    """绘制列表长度对的直方图"""
->>>>>>> 36383cf07c19091e705af1c16b71d40802ac4c89
     d2l.set_figsize()
     _, _, patches = d2l.plt.hist(
         [[len(l) for l in xlist], [len(l) for l in ylist]])
@@ -880,11 +876,7 @@ def show_list_len_pair_hist(legend, xlabel, ylabel, xlist, ylist):
     for patch in patches[1].patches:
         patch.set_hatch('/')
     d2l.plt.legend(legend)
-<<<<<<< HEAD
-
-=======
     
->>>>>>> 36383cf07c19091e705af1c16b71d40802ac4c89
 def truncate_pad(line, num_steps, padding_token):
     """截断或填充文本序列
 
