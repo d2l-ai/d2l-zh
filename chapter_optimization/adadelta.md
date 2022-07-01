@@ -107,6 +107,32 @@ def adadelta(params, grads, states, hyperparams):
         delta[:].assign(rho * delta + (1 - rho) * g * g)
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import paddle
+
+def init_adadelta_states(feature_dim):
+    s_w, s_b = d2l.zeros(shape=(feature_dim, 1)), d2l.zeros(shape=(1, )) 
+    delta_w, delta_b = d2l.zeros(shape=(feature_dim, 1)), d2l.zeros(shape=(1, )) 
+    return ((s_w, delta_w), (s_b, delta_b))
+
+def adadelta(params, states, hyperparams):
+    a = []
+    rho, eps = hyperparams['rho'], 1e-5
+    for p, (s, delta) in zip(params, states):
+        with paddle.no_grad():
+            # In-placeupdatesvia[:]
+            s[:] = rho * s + (1 - rho) * paddle.square(p.grad)
+            g = (paddle.sqrt(delta + eps) / paddle.sqrt(s + eps)) * p.grad
+            p[:] -= g
+            delta[:] = rho * delta + (1 - rho) * g * g
+        p.grad.zero_()
+        a.append(p)
+    return a
+```
+
 对于每次参数更新，选择$\rho = 0.9$相当于10个半衰期。由此我们得到：
 
 ```{.python .input}
@@ -134,6 +160,12 @@ d2l.train_concise_ch11(trainer, {'rho': 0.9}, data_iter)
 # butit'sconvergingatlr=5.0
 trainer = tf.keras.optimizers.Adadelta
 d2l.train_concise_ch11(trainer, {'learning_rate':5.0, 'rho': 0.9}, data_iter)
+```
+
+```{.python .input}
+#@tab paddle
+trainer = paddle.optimizer.Adadelta
+d2l.train_concise_ch11(trainer, {'rho': 0.9}, data_iter)
 ```
 
 ## 小结
