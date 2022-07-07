@@ -92,6 +92,20 @@ B = tf.Variable(d2l.normal([256, 256], 0, 1))
 C = tf.Variable(d2l.normal([256, 256], 0, 1))
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import paddle
+from paddle import nn
+import numpy as np
+
+timer = d2l.Timer()
+A = d2l.zeros((256, 256))
+B = d2l.randn((256, 256))
+C = d2l.randn((256, 256))
+```
+
 按元素分配只需遍历分别为$\mathbf{B}$和$\mathbf{C}$的所有行和列，即可将该值分配给$\mathbf{A}$。
 
 ```{.python .input}
@@ -124,6 +138,16 @@ for i in range(256):
 timer.stop()
 ```
 
+```{.python .input}
+#@tab paddle
+# 逐元素计算A=BC
+timer.start()
+for i in range(256):
+    for j in range(256):
+        A[i, j] = paddle.dot(B[i, :], C[:, j])
+timer.stop()
+```
+
 更快的策略是执行按列分配。
 
 ```{.python .input}
@@ -149,6 +173,15 @@ timer.stop()
 timer.start()
 for j in range(256):
     A[:, j].assign(tf.tensordot(B, C[:, j], axes=1))
+timer.stop()
+```
+
+```{.python .input}
+#@tab paddle
+# 逐列计算A=BC
+timer.start()
+for j in range(256):
+    A[:, j] = paddle.mv(B, C[:, j])
 timer.stop()
 ```
 
@@ -185,6 +218,19 @@ print(f'performance in Gigaflops: element {gigaflops[0]:.3f}, '
 # 一次性计算A=BC
 timer.start()
 A.assign(tf.tensordot(B, C, axes=1))
+timer.stop()
+
+# 乘法和加法作为单独的操作（在实践中融合）
+gigaflops = [2/i for i in timer.times]
+print(f'performance in Gigaflops: element {gigaflops[0]:.3f}, '
+      f'column {gigaflops[1]:.3f}, full {gigaflops[2]:.3f}')
+```
+
+```{.python .input}
+#@tab paddle
+# 一次性计算A=BC
+timer.start()
+A = paddle.mm(B, C)
 timer.stop()
 
 # 乘法和加法作为单独的操作（在实践中融合）
@@ -242,6 +288,15 @@ print(f'performance in Gigaflops: block {2 / timer.times[3]:.3f}')
 timer.start()
 for j in range(0, 256, 64):
     A[:, j:j+64].assign(tf.tensordot(B, C[:, j:j+64], axes=1))
+timer.stop()
+print(f'performance in Gigaflops: block {2 / timer.times[3]:.3f}')
+```
+
+```{.python .input}
+#@tab paddle
+timer.start()
+for j in range(0, 256, 64):
+    A[:, j:j+64] = paddle.mm(B, C[:, j:j+64])
 timer.stop()
 print(f'performance in Gigaflops: block {2 / timer.times[3]:.3f}')
 ```
@@ -305,6 +360,22 @@ def get_data_ch11(batch_size=10, n=1500):
     return data_iter, data.shape[1]-1
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+d2l.DATA_HUB['airfoil'] = (d2l.DATA_URL + 'airfoil_self_noise.dat',
+                           '76e5be1548fd8222e5074cf0faae75edff8cf93f')
+
+#@save
+def get_data_ch11(batch_size=10, n=1500):
+    data = np.genfromtxt(d2l.download('airfoil'),
+                         dtype=np.float32, delimiter='\t')
+    data = d2l.tensor((data - data.mean(axis=0)) / data.std(axis=0))
+    data_iter = d2l.load_array((data[:n, :-1], data[:n, -1]),
+                               batch_size, is_train=True)
+    return data_iter, data.shape[1]-1
+```
+
 ## 从零开始实现
 
  :numref:`sec_linear_scratch`一节中已经实现过小批量随机梯度下降算法。
@@ -331,6 +402,18 @@ def sgd(params, states, hyperparams):
 def sgd(params, grads, states, hyperparams):
     for param, grad in zip(params, grads):
         param.assign_sub(hyperparams['lr']*grad)
+```
+
+```{.python .input}
+#@tab paddle
+def sgd(params, states, hyperparams):
+    a = []
+    with paddle.no_grad():
+        for p in params:
+            p = p - hyperparams['lr'] * p.grad
+            p.stop_gradient = False
+            a.append(p)
+        return a
 ```
 
 下面实现一个通用的训练函数，以方便本章后面介绍的其他优化算法使用。
@@ -426,6 +509,34 @@ def train_ch11(trainer_fn, states, hyperparams, data_iter,
               r = (d2l.evaluate_loss(net, data_iter, loss),)
               animator.add(q, r)
               timer.start()
+    print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
+    return timer.cumsum(), animator.Y[0]
+```
+
+```{.python .input}
+#@tab paddle
+#@save
+def train_ch11(trainer_fn, states, hyperparams, data_iter,
+               feature_dim, num_epochs=2):
+    # 初始化模型
+    w = d2l.tensor(d2l.normal(mean=0.0, std=0.01, shape=(feature_dim, 1)), stop_gradient=False)
+    b = d2l.tensor(d2l.zeros((1,)), stop_gradient=False)
+    net, loss = lambda X: d2l.linreg(X, w, b), d2l.squared_loss
+    # 训练模型
+    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
+                            xlim=[0, num_epochs], ylim=[0.22, 0.35])
+    n, timer = 0, d2l.Timer()
+    for _ in range(num_epochs):
+        for X, y in data_iter:
+            l = loss(net(X), y).mean()
+            l.backward()
+            w, b = trainer_fn([w, b], states, hyperparams)
+            n += X.shape[0]
+            if n % 200 == 0:
+                timer.stop()
+                animator.add(n/X.shape[0]/len(data_iter),
+                             (d2l.evaluate_loss(net, data_iter, loss),))
+                timer.start()
     print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
     return timer.cumsum(), animator.Y[0]
 ```
@@ -585,6 +696,41 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=2):
     print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=4):
+    # 初始化模型
+    net = nn.Sequential(nn.Linear(5, 1))
+    def init_weights(m):
+        if type(m) == nn.Linear:
+            paddle.nn.initializer.Normal(m.weight, std=0.01)
+
+    net.apply(init_weights)
+
+    optimizer = trainer_fn(parameters=net.parameters(), **hyperparams)
+    loss = nn.MSELoss(reduction='none')
+    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
+                            xlim=[0, num_epochs], ylim=[0.22, 0.35])
+    n, timer = 0, d2l.Timer()
+    for _ in range(num_epochs):
+        for X, y in data_iter:
+            optimizer.clear_grad()
+            out = net(X)
+            y = y.reshape(out.shape)
+            l = loss(out, y)
+            l.mean().backward()
+            optimizer.step()
+            n += X.shape[0]
+            if n % 200 == 0:
+                timer.stop()
+                # MSELoss计算平方误差时不带系数1/2
+                animator.add(n/X.shape[0]/len(data_iter),
+                             (d2l.evaluate_loss(net, data_iter, loss) / 2,))
+                timer.start()
+    print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
+```
+
 下面使用这个训练函数，复现之前的实验。
 
 ```{.python .input}
@@ -604,6 +750,13 @@ train_concise_ch11(trainer, {'lr': 0.01}, data_iter)
 data_iter, _ = get_data_ch11(10)
 trainer = tf.keras.optimizers.SGD
 train_concise_ch11(trainer, {'learning_rate': 0.05}, data_iter)
+```
+
+```{.python .input}
+#@tab paddle
+data_iter, _ = get_data_ch11(10)
+trainer = paddle.optimizer.SGD
+train_concise_ch11(trainer, {'learning_rate': 0.01}, data_iter)
 ```
 
 ## 小结
