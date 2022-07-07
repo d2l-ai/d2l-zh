@@ -329,7 +329,7 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
 ```{.python .input}
 #@tab paddle
 def loss(inputs, targets):
-    return F.cross_entropy(inputs.transpose([0, 2 , 3, 1]), targets, reduction='none').mean(1).mean(1)
+    return F.cross_entropy(inputs.transpose([0, 2, 3, 1]), targets, reduction='none').mean(1).mean(1)
 
 num_epochs, lr, wd, devices = 5, 0.001, 1e-3, d2l.try_all_gpus()
 trainer = paddle.optimizer.SGD(learning_rate=lr, parameters=net.parameters(), weight_decay=wd)
