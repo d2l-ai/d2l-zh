@@ -118,7 +118,7 @@ torchvision.ops.roi_pool(X, rois, output_size=(2, 2), spatial_scale=0.1)
 ```{.python .input}
 #@tab paddle
 boxes_num = paddle.to_tensor([len(rois)]).astype('int32')
-paddlevision.ops.roi_pool(X, rois, boxes_num, output_size=(2,2), spatial_scale=0.1)
+paddlevision.ops.roi_pool(X, rois, boxes_num, output_size=(2, 2), spatial_scale=0.1)
 ```
 
 ## Faster R-CNN

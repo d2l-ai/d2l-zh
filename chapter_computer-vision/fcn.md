@@ -329,7 +329,7 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
 ```{.python .input}
 #@tab paddle
 def loss(inputs, targets):
-    return F.cross_entropy(inputs.transpose([0,2,3,1]), targets, reduction='none').mean(1).mean(1)
+    return F.cross_entropy(inputs.transpose([0, 2 , 3, 1]), targets, reduction='none').mean(1).mean(1)
 
 num_epochs, lr, wd, devices = 5, 0.001, 1e-3, d2l.try_all_gpus()
 trainer = paddle.optimizer.SGD(learning_rate=lr, parameters=net.parameters(), weight_decay=wd)
@@ -436,7 +436,7 @@ for i in range(n):
     pred = label2image(predict(X))
     imgs += [X.transpose([1,2,0]).astype('uint8'), pred,
              paddlevision.transforms.crop(
-                 test_labels[i], *crop_rect).transpose([1,2,0]).astype("uint8")]
+                 test_labels[i], *crop_rect).transpose([1, 2, 0]).astype("uint8")]
 d2l.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n, scale=2);
 ```
 
