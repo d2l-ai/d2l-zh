@@ -608,7 +608,7 @@ def multibox_target(anchors, labels):
         label = labels[i, :, :]
         anchors_bbox_map = assign_anchor_to_bbox(
             label[:, 1:], anchors, place)
-        bbox_mask = paddle.tile(paddle.to_tensor((anchors_bbox_map >= 0), dtype='float32').unsqueeze(-1),(1,4))
+        bbox_mask = paddle.tile(paddle.to_tensor((anchors_bbox_map >= 0), dtype='float32').unsqueeze(-1), (1, 4))
         # 将类标签和分配的边界框坐标初始化为零
         class_labels = paddle.zeros(paddle.to_tensor(num_anchors), dtype=paddle.int64)
         assigned_bb = paddle.zeros(paddle.to_tensor((num_anchors, 4)), dtype=paddle.float32)

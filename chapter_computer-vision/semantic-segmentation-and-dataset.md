@@ -152,7 +152,7 @@ d2l.show_images(imgs, 2, n);
 #@tab paddle
 n = 5
 imgs = train_features[0:n] + train_labels[0:n]
-imgs = [img.transpose([1,2,0]).astype(paddle.uint8) for img in imgs]
+imgs = [img.transpose([1, 2, 0]).astype(paddle.uint8) for img in imgs]
 d2l.show_images(imgs, 2, n);
 ```
 
@@ -308,7 +308,7 @@ imgs = []
 for _ in range(n):
     imgs += voc_rand_crop(train_features[0], train_labels[0], 200, 300)
 
-imgs = [img.transpose([1,2,0]).astype(paddle.uint8) for img in imgs]
+imgs = [img.transpose([1, 2, 0]).astype(paddle.uint8) for img in imgs]
 d2l.show_images(imgs[::2] + imgs[1::2], 2, n);
 ```
 
