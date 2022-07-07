@@ -432,9 +432,11 @@ def try_gpu(i=0):
     if paddle.device.cuda.device_count() >= i + 1:
         return paddle.CUDAPlace(i)
     return paddle.CPUPlace()
+    
+def try_all_gpus():
+    """返回所有可用的GPU，如果没有GPU，则返回[cpu(),]。
 
-def try_all_gpus():  #@save
-    """返回所有可用的GPU，如果没有GPU，则返回[cpu(),]。"""
+    Defined in :numref:`sec_use_gpu`"""
     devices = [paddle.CUDAPlace(i)
                for i in range(paddle.device.cuda.device_count())
                ]
@@ -459,6 +461,7 @@ def evaluate_accuracy_gpu(net, data_iter, device=None):
         net.eval()  # 设置为评估模式
         if not device:
             device = next(iter(net.parameters())).place
+    paddle.set_device("gpu:{}".format(str(device)[-2])) 
     # 正确预测的数量，总预测的数量
     metric = d2l.Accumulator(2)
     with paddle.no_grad():
@@ -877,6 +880,17 @@ def show_list_len_pair_hist(legend, xlabel, ylabel, xlist, ylist):
         patch.set_hatch('/')
     d2l.plt.legend(legend)
 
+def show_list_len_pair_hist(legend, xlabel, ylabel, xlist, ylist):
+    """绘制列表长度对的直方图"""
+    d2l.set_figsize()
+    _, _, patches = d2l.plt.hist(
+        [[len(l) for l in xlist], [len(l) for l in ylist]])
+    d2l.plt.xlabel(xlabel)
+    d2l.plt.ylabel(ylabel)
+    for patch in patches[1].patches:
+        patch.set_hatch('/')
+    d2l.plt.legend(legend)
+    
 def truncate_pad(line, num_steps, padding_token):
     """截断或填充文本序列
     Defined in :numref:`sec_machine_translation`"""
@@ -2122,7 +2136,169 @@ def reorg_test(data_dir):
                               'unknown'))
 
 d2l.DATA_HUB['dog_tiny'] = (d2l.DATA_URL + 'kaggle_dog_tiny.zip',
-                            '0cb91d09b814ecdc07b50f31f8dcad3e81d6a86d')# Alias defined in config.ini
+                            '0cb91d09b814ecdc07b50f31f8dcad3e81d6a86d')
+
+class Encoder(nn.Layer):
+    """编码器-解码器架构的基本编码器接口"""
+    def __init__(self, **kwargs):
+        super(Encoder, self).__init__(**kwargs)
+
+    def forward(self, X, *args):
+        raise NotImplementedError
+
+class Decoder(nn.Layer):
+    """编码器-解码器架构的基本解码器接口
+    Defined in :numref:`sec_encoder-decoder`"""
+    def __init__(self, **kwargs):
+        super(Decoder, self).__init__(**kwargs)
+
+    def init_state(self, enc_outputs, *args):
+        raise NotImplementedError
+
+    def forward(self, X, state):
+        raise NotImplementedError
+
+class EncoderDecoder(nn.Layer):
+    """编码器-解码器架构的基类
+    Defined in :numref:`sec_encoder-decoder`"""
+    def __init__(self, encoder, decoder, **kwargs):
+        super(EncoderDecoder, self).__init__(**kwargs)
+        self.encoder = encoder
+        self.decoder = decoder
+
+    def forward(self, enc_X, dec_X, *args):
+        enc_outputs = self.encoder(enc_X, *args)
+        dec_state = self.decoder.init_state(enc_outputs, *args)
+        return self.decoder(dec_X, dec_state)
+
+class Seq2SeqEncoder(d2l.Encoder):
+    """用于序列到序列学习的循环神经网络编码器
+    Defined in :numref:`sec_seq2seq`"""
+    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers,
+                 dropout=0, **kwargs):
+        super(Seq2SeqEncoder, self).__init__(**kwargs)
+        weight_ih_attr = paddle.ParamAttr(initializer=nn.initializer.XavierUniform())
+        weight_hh_attr = paddle.ParamAttr(initializer=nn.initializer.XavierUniform())
+        # 嵌入层
+        self.embedding = nn.Embedding(vocab_size, embed_size)
+        self.rnn = nn.GRU(embed_size, num_hiddens, num_layers, dropout=dropout,
+                          time_major=True, weight_ih_attr=weight_ih_attr, weight_hh_attr=weight_hh_attr)
+
+    def forward(self, X, *args):
+        # 输出'X'的形状：(batch_size,num_steps,embed_size)
+        X = self.embedding(X)
+        # 在循环神经网络模型中，第一个轴对应于时间步
+        X = X.transpose([1, 0, 2])
+        # 如果未提及状态，则默认为0
+        output, state = self.rnn(X)
+        # PaddlePaddle的GRU层output的形状:(batch_size,time_steps,num_directions * num_hiddens),
+        # 需设定time_major=True,指定input的第一个维度为time_steps
+        # state[0]的形状:(num_layers,batch_size,num_hiddens)
+        return output, state
+
+def sequence_mask(X, valid_len, value=0):
+    """在序列中屏蔽不相关的项
+    Defined in :numref:`sec_seq2seq_decoder`"""
+    maxlen = X.shape[1]
+    mask = paddle.arange((maxlen), dtype=paddle.float32)[None, :] < valid_len[:, None]
+    Xtype = X.dtype
+    X=X.astype(paddle.float32)
+    X[~mask] = float(value)
+    return X.astype(Xtype)
+
+class MaskedSoftmaxCELoss(nn.CrossEntropyLoss):
+    """带遮蔽的softmax交叉熵损失函数
+    Defined in :numref:`sec_seq2seq_decoder`"""
+    # pred的形状：(batch_size,num_steps,vocab_size)
+    # label的形状：(batch_size,num_steps)
+    # valid_len的形状：(batch_size,)
+    def forward(self, pred, label, valid_len):
+        weights = paddle.ones_like(label)
+        weights = sequence_mask(weights, valid_len)
+        self.reduction='none'
+        unweighted_loss = super(MaskedSoftmaxCELoss, self).forward(
+            pred, label)
+        weighted_loss = (unweighted_loss * weights).mean(axis=1)
+        return weighted_loss
+
+def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
+    """训练序列到序列模型
+    Defined in :numref:`sec_seq2seq_decoder`"""
+    optimizer = paddle.optimizer.Adam(learning_rate=lr, parameters=net.parameters())
+    loss = MaskedSoftmaxCELoss()
+    net.train()
+    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
+                     xlim=[10, num_epochs])
+    for epoch in range(num_epochs):
+        timer = d2l.Timer()
+        metric = d2l.Accumulator(2)  # 训练损失总和，词元数量
+        for batch in data_iter:
+            optimizer.clear_grad()
+            X, X_valid_len, Y, Y_valid_len = [paddle.to_tensor(x, place=device) for x in batch]
+            bos = paddle.to_tensor([tgt_vocab['<bos>']] * Y.shape[0]).reshape([-1, 1])
+            dec_input = paddle.concat([bos, Y[:, :-1]], 1)  # 强制教学
+            Y_hat, _ = net(X, dec_input, X_valid_len.squeeze())
+            l = loss(Y_hat, Y, Y_valid_len.squeeze())
+            l.backward()	# 损失函数的标量进行“反向传播”
+            d2l.grad_clipping(net, 1)
+            num_tokens = Y_valid_len.sum()
+            optimizer.step()
+            with paddle.no_grad():
+                metric.add(l.sum(), num_tokens)
+        if (epoch + 1) % 10 == 0:
+            animator.add(epoch + 1, (metric[0] / metric[1],))
+    print(f'loss {metric[0] / metric[1]:.3f}, {metric[1] / timer.stop():.1f} '
+        f'tokens/sec on {str(device)}')
+
+def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
+                    device, save_attention_weights=False):
+    """序列到序列模型的预测
+    Defined in :numref:`sec_seq2seq_training`"""
+    # 在预测时将net设置为评估模式
+    net.eval()
+    src_tokens = src_vocab[src_sentence.lower().split(' ')] + [
+        src_vocab['<eos>']]
+    enc_valid_len = paddle.to_tensor([len(src_tokens)], place=device)
+    src_tokens = d2l.truncate_pad(src_tokens, num_steps, src_vocab['<pad>'])
+    # 添加批量轴
+    enc_X = paddle.unsqueeze(
+        paddle.to_tensor(src_tokens, dtype=paddle.int64, place=device), axis=0)
+    enc_outputs = net.encoder(enc_X, enc_valid_len)
+    dec_state = net.decoder.init_state(enc_outputs, enc_valid_len)
+    # 添加批量轴
+    dec_X = paddle.unsqueeze(paddle.to_tensor(
+        [tgt_vocab['<bos>']], dtype=paddle.int64, place=device), axis=0)
+    output_seq, attention_weight_seq = [], []
+    for _ in range(num_steps):
+        Y, dec_state = net.decoder(dec_X, dec_state)
+        # 我们使用具有预测最高可能性的词元，作为解码器在下一时间步的输入
+        dec_X = Y.argmax(axis=2)
+        pred = dec_X.squeeze(axis=0).astype(paddle.int32).item()
+        # 保存注意力权重（稍后讨论）
+        if save_attention_weights:
+            attention_weight_seq.append(net.decoder.attention_weights)
+        # 一旦序列结束词元被预测，输出序列的生成就完成了
+        if pred == tgt_vocab['<eos>']:
+            break
+        output_seq.append(pred)
+    return ' '.join(tgt_vocab.to_tokens(output_seq)), attention_weight_seq
+
+def bleu(pred_seq, label_seq, k):
+    """计算BLEU
+    Defined in :numref:`sec_seq2seq_training`"""
+    pred_tokens, label_tokens = pred_seq.split(' '), label_seq.split(' ')
+    len_pred, len_label = len(pred_tokens), len(label_tokens)
+    score = math.exp(min(0, 1 - len_label / len_pred))
+    for n in range(1, k + 1):
+        num_matches, label_subs = 0, collections.defaultdict(int)
+        for i in range(len_label - n + 1):
+            label_subs[' '.join(label_tokens[i: i + n])] += 1
+        for i in range(len_pred - n + 1):
+            if label_subs[' '.join(pred_tokens[i: i + n])] > 0:
+                num_matches += 1
+                label_subs[' '.join(pred_tokens[i: i + n])] -= 1
+        score *= math.pow(num_matches / (len_pred - n + 1), math.pow(0.5, n))
+    return score
 
 def show_heatmaps(matrices, xlabel, ylabel, titles=None, figsize=(2.5, 2.5),
                   cmap='Reds'):
@@ -2362,8 +2538,157 @@ class TransformerEncoder(d2l.Encoder):
             X = blk(X, valid_lens)
             self.attention_weights[
                 i] = blk.attention.attention.attention_weights
-        return X# Alias defined in config.ini
+        return X
 
+def annotate(text, xy, xytext):
+    d2l.plt.gca().annotate(text, xy=xy, xytext=xytext,
+                           arrowprops=dict(arrowstyle='->'))
+
+def train_2d(trainer, steps=20, f_grad=None):
+    """用定制的训练机优化2D目标函数
+    Defined in :numref:`subsec_gd-learningrate`"""
+    # s1和s2是稍后将使用的内部状态变量
+    x1, x2, s1, s2 = -5, -2, 0, 0
+    results = [(x1, x2)]
+    for i in range(steps):
+        if f_grad:
+            x1, x2, s1, s2 = trainer(x1, x2, s1, s2, f_grad)
+        else:
+            x1, x2, s1, s2 = trainer(x1, x2, s1, s2)
+        results.append((x1, x2))
+    print(f'epoch {i + 1}, x1: {float(x1):f}, x2: {float(x2):f}')
+    return results
+
+def show_trace_2d(f, results):
+    """显示优化过程中2D变量的轨迹
+    Defined in :numref:`subsec_gd-learningrate`"""
+    d2l.set_figsize()
+    d2l.plt.plot(*zip(*results), '-o', color='#ff7f0e')
+    x1, x2 = d2l.meshgrid(d2l.arange(-5.5, 1.0, 0.1, dtype='float32'),
+                          d2l.arange(-3.0, 1.0, 0.1, dtype='float32'))
+    d2l.plt.contour(x1, x2, f(x1, x2), colors='#1f77b4')
+    d2l.plt.xlabel('x1')
+    d2l.plt.ylabel('x2')
+
+d2l.DATA_HUB['airfoil'] = (d2l.DATA_URL + 'airfoil_self_noise.dat',
+                           '76e5be1548fd8222e5074cf0faae75edff8cf93f')
+
+def get_data_ch11(batch_size=10, n=1500):
+    """Defined in :numref:`sec_minibatches`"""
+    data = np.genfromtxt(d2l.download('airfoil'),
+                         dtype=np.float32, delimiter='\t')
+    data = d2l.tensor((data - data.mean(axis=0)) / data.std(axis=0))
+    data_iter = d2l.load_array((data[:n, :-1], data[:n, -1]),
+                               batch_size, is_train=True)
+    return data_iter, data.shape[1]-1
+
+def train_ch11(trainer_fn, states, hyperparams, data_iter,
+               feature_dim, num_epochs=2):
+    """Defined in :numref:`sec_minibatches`"""
+    # 初始化模型
+    w = d2l.tensor(d2l.normal(mean=0.0, std=0.01, shape=(feature_dim, 1),),stop_gradient=False)
+    b = d2l.tensor(d2l.zeros((1,)), stop_gradient=False)
+    net, loss = lambda X: d2l.linreg(X, w, b), d2l.squared_loss
+    # 训练模型
+    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
+                            xlim=[0, num_epochs], ylim=[0.22, 0.35])
+    n, timer = 0, d2l.Timer()
+    for _ in range(num_epochs):
+        for X, y in data_iter:
+            l = loss(net(X), y).mean()
+            l.backward()
+            w, b = trainer_fn([w, b], states, hyperparams)
+            n += X.shape[0]
+            if n % 200 == 0:
+                timer.stop()
+                animator.add(n/X.shape[0]/len(data_iter),
+                             (d2l.evaluate_loss(net, data_iter, loss),))
+                timer.start()
+    print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
+    return timer.cumsum(), animator.Y[0]
+
+def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=4):
+    """Defined in :numref:`sec_minibatches`"""
+    # 初始化模型
+    net = nn.Sequential(nn.Linear(5, 1))
+    def init_weights(m):
+        if type(m) == nn.Linear:
+            paddle.nn.initializer.Normal(m.weight, std=0.01)
+
+    net.apply(init_weights)
+
+    optimizer = trainer_fn(parameters=net.parameters(), **hyperparams)
+    loss = nn.MSELoss(reduction='none')
+    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
+                            xlim=[0, num_epochs], ylim=[0.22, 0.35])
+    n, timer = 0, d2l.Timer()
+    for _ in range(num_epochs):
+        for X, y in data_iter:
+            optimizer.clear_grad()
+            out = net(X)
+            y = y.reshape(out.shape)
+            l = loss(out, y)
+            l.mean().backward()
+            optimizer.step()
+            n += X.shape[0]
+            if n % 200 == 0:
+                timer.stop()
+                # MSELoss计算平方误差时不带系数1/2
+                animator.add(n/X.shape[0]/len(data_iter),
+                             (d2l.evaluate_loss(net, data_iter, loss) / 2,))
+                timer.start()
+    print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
+
+class Benchmark:
+    """用于测量运行时间"""
+    def __init__(self, description='Done'):
+        """Defined in :numref:`sec_hybridize`"""
+        self.description = description
+
+    def __enter__(self):
+        self.timer = d2l.Timer()
+        return self
+
+    def __exit__(self, *args):
+        print(f'{self.description}: {self.timer.stop():.4f} sec')
+
+def split_batch(X, y, devices):
+    """将X和y拆分到多个设备上
+
+    Defined in :numref:`sec_multi_gpu`"""
+    assert X.shape[0] == y.shape[0]
+    return (paddlescatter(X, devices),
+            paddlescatter(y, devices))
+
+def resnet18(num_classes, in_channels=1):
+    """稍加修改的ResNet-18模型
+
+    Defined in :numref:`sec_multi_gpu_concise`"""
+    def resnet_block(in_channels, out_channels, num_residuals,
+                     first_block=False):
+        blk = []
+        for i in range(num_residuals):
+            if i == 0 and not first_block:
+                blk.append(d2l.Residual(in_channels, out_channels,
+                                        use_1x1conv=True, strides=2))
+            else:
+                blk.append(d2l.Residual(out_channels, out_channels))
+        return nn.Sequential(*blk)
+
+    # 该模型使用了更小的卷积核、步长和填充，而且删除了最大汇聚层
+    net = nn.Sequential(
+        nn.Conv2D(in_channels, 64, kernel_size=3, stride=1, padding=1),
+        nn.BatchNorm2D(64),
+        nn.ReLU())
+    net.add_sublayer("resnet_block1", resnet_block(
+        64, 64, 2, first_block=True))
+    net.add_sublayer("resnet_block2", resnet_block(64, 128, 2))
+    net.add_sublayer("resnet_block3", resnet_block(128, 256, 2))
+    net.add_sublayer("resnet_block4", resnet_block(256, 512, 2))
+    net.add_sublayer("global_avg_pool", nn.AdaptiveAvgPool2D((1, 1)))
+    net.add_sublayer("fc", nn.Sequential(nn.Flatten(),
+                                       nn.Linear(512, num_classes)))
+    return net# Alias defined in config.ini
 nn_Module = nn.Layer
 
 ones = paddle.ones

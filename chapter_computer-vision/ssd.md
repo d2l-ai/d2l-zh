@@ -74,9 +74,9 @@ def cls_predictor(num_inputs, num_anchors, num_classes):
 %matplotlib inline
 from d2l import paddle as d2l
 import paddle
-import paddle.vision as paddlevision
 from paddle import nn
 from paddle.nn import functional as F
+import paddle.vision as paddlevision
 
 def cls_predictor(num_inputs, num_anchors, num_classes):
     return nn.Conv2D(num_inputs, num_anchors * (num_classes + 1),
