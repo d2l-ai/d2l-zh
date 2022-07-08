@@ -1023,7 +1023,7 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
             X, X_valid_len, Y, Y_valid_len = [paddle.to_tensor(x, place=device) for x in batch]
             bos = paddle.to_tensor([tgt_vocab['<bos>']] * Y.shape[0]).reshape([-1, 1])
             dec_input = paddle.concat([bos, Y[:, :-1]], 1)  # 强制教学
-            Y_hat, _ = net(X, dec_input, X_valid_len)
+            Y_hat, _ = net(X, dec_input, X_valid_len.squeeze())
             l = loss(Y_hat, Y, Y_valid_len.squeeze())
             l.backward()	# 损失函数的标量进行“反向传播”
             d2l.grad_clipping(net, 1)
@@ -1456,13 +1456,31 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=4):
     def init_weights(m):
         if type(m) == nn.Linear:
             paddle.nn.initializer.Normal(m.weight, std=0.01)
-            self.data_iter_fn = d2l.seq_data_iter_sequential
-        self.corpus, self.vocab = d2l.load_corpus_time_machine(max_tokens)
-        self.batch_size, self.num_steps = batch_size, num_steps
 
-    def __iter__(self):
-        return self.data_iter_fn(self.corpus, self.batch_size, self.num_steps)
+    net.apply(init_weights)
 
+    optimizer = trainer_fn(parameters=net.parameters(), **hyperparams)
+    loss = nn.MSELoss(reduction='none')
+    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
+                            xlim=[0, num_epochs], ylim=[0.22, 0.35])
+    n, timer = 0, d2l.Timer()
+    for _ in range(num_epochs):
+        for X, y in data_iter:
+            optimizer.clear_grad()
+            out = net(X)
+            y = y.reshape(out.shape)
+            l = loss(out, y)
+            l.mean().backward()
+            optimizer.step()
+            n += X.shape[0]
+            if n % 200 == 0:
+                timer.stop()
+                # MSELoss计算平方误差时不带系数1/2
+                animator.add(n/X.shape[0]/len(data_iter),
+                             (d2l.evaluate_loss(net, data_iter, loss) / 2,))
+                timer.start()
+    print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
+    
 class RNNModelScratch:
     """从零开始实现的循环神经网络模型"""
     def __init__(self, vocab_size, num_hiddens,
@@ -2716,7 +2734,7 @@ def offset_boxes(anchors, assigned_bb, eps=1e-6):
     offset_wh = 5 * d2l.log(eps + c_assigned_bb[:, 2:] / c_anc[:, 2:])
     offset = d2l.concat([offset_xy, offset_wh], axis=1)
     return offset
-    
+
 def nms(boxes, scores, iou_threshold):
     """对预测边界框的置信度进行排序
     Defined in :numref:`subsec_predicting-bounding-boxes-nms`"""
