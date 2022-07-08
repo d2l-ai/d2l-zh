@@ -29,7 +29,7 @@ from torch import nn
 import os
 ```
 
-```{.python .input}
+```{.python .input  n=1}
 #@tab paddle
 from d2l import paddle as d2l
 import json
@@ -58,7 +58,7 @@ d2l.DATA_HUB['bert.small'] = (d2l.DATA_URL + 'bert.small.torch.zip',
                               'c72329e68a732bef0452e4b96a1c341c8910f81f')
 ```
 
-```{.python .input}
+```{.python .input  n=2}
 #@tab paddle
 d2l.DATA_HUB['bert_small'] = ('https://paddlenlp.bj.bcebos.com/models/bert.small.paddle.zip', '9fcde07509c7e87ec61c640c1b277509c7e87ec6153d9041758e4')
 
@@ -108,7 +108,7 @@ def load_pretrained_model(pretrained_model, num_hiddens, ffn_num_hiddens,
     return bert, vocab
 ```
 
-```{.python .input}
+```{.python .input  n=3}
 #@tab paddle
 def load_pretrained_model(pretrained_model, num_hiddens, ffn_num_hiddens,
                           num_heads, num_layers, dropout, max_len, devices):
@@ -142,7 +142,7 @@ bert, vocab = load_pretrained_model(
     num_layers=2, dropout=0.1, max_len=512, devices=devices)
 ```
 
-```{.python .input}
+```{.python .input  n=4}
 #@tab paddle
 devices = d2l.try_all_gpus()
 bert, vocab = load_pretrained_model(
@@ -259,7 +259,25 @@ class SNLIBERTDataset(torch.utils.data.Dataset):
         return len(self.all_token_ids)
 ```
 
-```{.python .input}
+```{.python .input  n=9}
+def _truncate_pair_of_tokens(p_tokens, h_tokens):
+    # 为BERT输入中的'<CLS>'、'<SEP>'和'<SEP>'词元保留位置
+    while len(p_tokens) + len(h_tokens) > max_len - 3:
+        if len(p_tokens) > len(h_tokens):
+            p_tokens.pop()
+        else:
+            h_tokens.pop()
+                
+def _mp_worker(premise_hypothesis_tokens):
+    p_tokens, h_tokens = premise_hypothesis_tokens
+    _truncate_pair_of_tokens(p_tokens, h_tokens)
+    tokens, segments = d2l.get_tokens_and_segments(p_tokens, h_tokens)
+    token_ids = vocab[tokens] + [vocab['<pad>']] \
+                             * (max_len - len(tokens))
+    segments = segments + [0] * (max_len - len(segments))
+    valid_len = len(tokens)
+    return token_ids, segments, valid_len
+
 #@tab paddle
 class SNLIBERTDataset(paddle.io.Dataset):
     def __init__(self, dataset, max_len, vocab=None):
@@ -274,15 +292,11 @@ class SNLIBERTDataset(paddle.io.Dataset):
         (self.all_token_ids, self.all_segments,
          self.valid_lens) = self._preprocess(all_premise_hypothesis_tokens)
         print('read ' + str(len(self.all_token_ids)) + ' examples')
+        
 
     def _preprocess(self, all_premise_hypothesis_tokens):
-#         pool = multiprocessing.Pool(4)  # 使用4个进程
-#         out = pool.map(self._mp_worker, all_premise_hypothesis_tokens)
-        out = []
-        for i in all_premise_hypothesis_tokens:
-            tempOut = self._mp_worker(i)
-            out.append(tempOut)
-        
+        pool = multiprocessing.Pool(4)  # 使用4个进程
+        out = pool.map(_mp_worker, all_premise_hypothesis_tokens)
         all_token_ids = [
             token_ids for token_ids, segments, valid_len in out]
         all_segments = [segments for token_ids, segments, valid_len in out]
@@ -291,23 +305,6 @@ class SNLIBERTDataset(paddle.io.Dataset):
                 paddle.to_tensor(all_segments, dtype='int64'),
                 paddle.to_tensor(valid_lens))
 
-    def _mp_worker(self, premise_hypothesis_tokens):
-        p_tokens, h_tokens = premise_hypothesis_tokens
-        self._truncate_pair_of_tokens(p_tokens, h_tokens)
-        tokens, segments = d2l.get_tokens_and_segments(p_tokens, h_tokens)
-        token_ids = self.vocab[tokens] + [self.vocab['<pad>']] \
-                             * (self.max_len - len(tokens))
-        segments = segments + [0] * (self.max_len - len(segments))
-        valid_len = len(tokens)
-        return token_ids, segments, valid_len
-
-    def _truncate_pair_of_tokens(self, p_tokens, h_tokens):
-        # 为BERT输入中的'<CLS>'、'<SEP>'和'<SEP>'词元保留位置
-        while len(p_tokens) + len(h_tokens) > self.max_len - 3:
-            if len(p_tokens) > len(h_tokens):
-                p_tokens.pop()
-            else:
-                h_tokens.pop()
 
     def __getitem__(self, idx):
         return (self.all_token_ids[idx], self.all_segments[idx],
@@ -344,7 +341,7 @@ test_iter = torch.utils.data.DataLoader(test_set, batch_size,
                                   num_workers=num_workers)
 ```
 
-```{.python .input}
+```{.python .input  n=8}
 #@tab paddle
 # 如果出现显存不足错误，请减少“batch_size”。在原始的BERT模型中，max_len=512
 batch_size, max_len, num_workers = 512, 128, d2l.get_dataloader_workers()
