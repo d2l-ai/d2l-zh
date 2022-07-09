@@ -17,6 +17,13 @@ import torch
 from torch import nn
 ```
 
+```{.python .input}
+#@tab paddle
+import d2l.paddle as d2l
+import paddle
+from paddle import nn
+```
+
 ## [**简单网络**]
 
 让我们使用一个比 :numref:`sec_multi_gpu`的LeNet更有意义的网络，它依然能够容易地和快速地训练。我们选择的是 :cite:`He.Zhang.Ren.ea.2016`中的ResNet-18。因为输入的图像很小，所以稍微修改了一下。与 :numref:`sec_resnet`的区别在于，我们在开始时使用了更小的卷积核、步长和填充，而且删除了最大汇聚层。
@@ -79,6 +86,38 @@ def resnet18(num_classes, in_channels=1):
     return net
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+def resnet18(num_classes, in_channels=1):
+    """稍加修改的ResNet-18模型"""
+    def resnet_block(in_channels, out_channels, num_residuals,
+                     first_block=False):
+        blk = []
+        for i in range(num_residuals):
+            if i == 0 and not first_block:
+                blk.append(d2l.Residual(in_channels, out_channels,
+                                        use_1x1conv=True, strides=2))
+            else:
+                blk.append(d2l.Residual(out_channels, out_channels))
+        return nn.Sequential(*blk)
+
+    # 该模型使用了更小的卷积核、步长和填充，而且删除了最大汇聚层
+    net = nn.Sequential(
+        nn.Conv2D(in_channels, 64, kernel_size=3, stride=1, padding=1),
+        nn.BatchNorm2D(64),
+        nn.ReLU())
+    net.add_sublayer("resnet_block1", resnet_block(
+        64, 64, 2, first_block=True))
+    net.add_sublayer("resnet_block2", resnet_block(64, 128, 2))
+    net.add_sublayer("resnet_block3", resnet_block(128, 256, 2))
+    net.add_sublayer("resnet_block4", resnet_block(256, 512, 2))
+    net.add_sublayer("global_avg_pool", nn.AdaptiveAvgPool2D((1, 1)))
+    net.add_sublayer("fc", nn.Sequential(nn.Flatten(),
+                                       nn.Linear(512, num_classes)))
+    return net
+```
+
 ## 网络初始化
 
 :begin_tab:`mxnet`
@@ -99,6 +138,14 @@ net.initialize(init=init.Normal(sigma=0.01), ctx=devices)
 
 ```{.python .input}
 #@tab pytorch
+net = resnet18(10)
+# 获取GPU列表
+devices = d2l.try_all_gpus()
+# 我们将在训练代码实现中初始化网络
+```
+
+```{.python .input}
+#@tab paddle
 net = resnet18(10)
 # 获取GPU列表
 devices = d2l.try_all_gpus()
@@ -220,6 +267,38 @@ def train(net, num_gpus, batch_size, lr):
           f'在{str(devices)}')
 ```
 
+```{.python .input}
+#@tab paddle
+def train(net, num_gpus, batch_size, lr):
+    train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
+    devices = [d2l.try_gpu(i) for i in range(num_gpus)]
+    
+    init_normal = nn.initializer.Normal(mean=0.0, std=0.01)
+    for i in net.sublayers():
+        if type(i) in [nn.Linear, nn.Conv2D]:        
+            init_normal(i.weight)
+
+    # 在多个 GPU 上设置模型
+    net = paddle.DataParallel(net)
+    trainer = paddle.optimizer.SGD(parameters=net.parameters(), learning_rate=lr)
+    loss = nn.CrossEntropyLoss()
+    timer, num_epochs = d2l.Timer(), 10
+    animator = d2l.Animator('epoch', 'test acc', xlim=[1, num_epochs])
+    for epoch in range(num_epochs):
+        net.train()
+        timer.start()
+        for X, y in train_iter:
+            trainer.clear_grad()
+            X, y = paddle.to_tensor(X, place=devices[0]), paddle.to_tensor(y, place=devices[0])
+            l = loss(net(X), y)
+            l.backward()
+            trainer.step()
+        timer.stop()
+        animator.add(epoch + 1, (d2l.evaluate_accuracy_gpu(net, test_iter),))
+    print(f'test acc: {animator.Y[0][-1]:.2f}, {timer.avg():.1f} sec/epoch '
+          f'on {str(devices)}')
+```
+
 让我们看看这在实践中是如何运作的。我们先[**在单个GPU上训练网络**]进行预热。
 
 ```{.python .input}
@@ -227,7 +306,7 @@ train(num_gpus=1, batch_size=256, lr=0.1)
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 train(net, num_gpus=1, batch_size=256, lr=0.1)
 ```
 
@@ -238,7 +317,7 @@ train(num_gpus=2, batch_size=512, lr=0.2)
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 train(net, num_gpus=2, batch_size=512, lr=0.2)
 ```
 
@@ -257,6 +336,12 @@ train(net, num_gpus=2, batch_size=512, lr=0.2)
 * 优化算法在多个GPU上自动聚合。
 :end_tab:
 
+:begin_tab:`paddle`
+* 神经网络可以在（可找到数据的）单GPU上进行自动评估。
+* 每台设备上的网络需要先初始化，然后再尝试访问该设备上的参数，否则会遇到错误。
+* 优化算法在多个GPU上自动聚合。
+:end_tab:
+
 ## 练习
 
 :begin_tab:`mxnet`
@@ -266,6 +351,11 @@ train(net, num_gpus=2, batch_size=512, lr=0.2)
 :end_tab:
 
 :begin_tab:`pytorch`
+1. 本节使用ResNet-18，请尝试不同的迭代周期数、批量大小和学习率，以及使用更多的GPU进行计算。如果使用$16$个GPU（例如，在AWS p2.16xlarge实例上）尝试此操作，会发生什么？
+1. 有时候不同的设备提供了不同的计算能力，我们可以同时使用GPU和CPU，那应该如何分配工作？为什么？
+:end_tab:
+
+:begin_tab:`paddle`
 1. 本节使用ResNet-18，请尝试不同的迭代周期数、批量大小和学习率，以及使用更多的GPU进行计算。如果使用$16$个GPU（例如，在AWS p2.16xlarge实例上）尝试此操作，会发生什么？
 1. 有时候不同的设备提供了不同的计算能力，我们可以同时使用GPU和CPU，那应该如何分配工作？为什么？
 :end_tab:
