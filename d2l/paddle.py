@@ -744,10 +744,6 @@ def grad_clipping(net, theta):
 
 def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
     """训练网络一个迭代周期（定义见第8章)
-<<<<<<< HEAD
-
-=======
->>>>>>> 70cb0cbf0d389d26007cc128c600d61997226e04
     Defined in :numref:`sec_rnn_scratch`"""
     state, timer = None, d2l.Timer()
     metric = d2l.Accumulator(2)  # 训练损失之和,词元数量
@@ -1106,13 +1102,6 @@ def bleu(pred_seq, label_seq, k):
 d2l.DATA_HUB['time_machine'] = (d2l.DATA_URL + 'timemachine.txt',
                                 '090b5e7e70c295757f55df93cb0a180b9691891a')
 
-def read_time_machine():
-    """将时间机器数据集加载到文本行的列表中
-    Defined in :numref:`sec_text_preprocessing`"""
-    with open(d2l.download('time_machine'), 'r') as f:
-        lines = f.readlines()
-    return [re.sub('[^A-Za-z]+', ' ', line).strip().lower() for line in lines]
-
 def tokenize(lines, token='word'):
     """将文本行拆分为单词或字符词元
     Defined in :numref:`sec_text_preprocessing`"""
@@ -1126,7 +1115,7 @@ def tokenize(lines, token='word'):
             valid_lens = paddle.repeat_interleave(valid_lens, shape[1])
         else:
             valid_lens = valid_lens.reshape((-1,))
-    #     # 最后一轴上被掩蔽的元素使用一个非常大的负值替换，从而其softmax输出为0
+        # 最后一轴上被掩蔽的元素使用一个非常大的负值替换，从而其softmax输出为0
         X = d2l.sequence_mask(X.reshape((-1, shape[-1])), valid_lens,
                               value=-1e6)
         return nn.functional.softmax(X.reshape(shape), axis=-1)
@@ -1263,18 +1252,6 @@ class PositionalEncoding(nn.Layer):
         X = X + self.P[:, :X.shape[1], :]
         return self.dropout(X)
 
-class PositionWiseFFN(nn.Layer):
-    """基于位置的前馈网络
-    Defined in :numref:`sec_transformer`"""
-    def __init__(self, ffn_num_input, ffn_num_hiddens, ffn_num_outputs,
-                 **kwargs):
-        super(PositionWiseFFN, self).__init__(**kwargs)
-        self.dense1 = nn.Linear(ffn_num_input, ffn_num_hiddens)
-        self.relu = nn.ReLU()
-        self.dense2 = nn.Linear(ffn_num_hiddens, ffn_num_outputs)
-    def token_freqs(self):
-        return self._token_freqs
-
 def count_corpus(tokens):
     """统计词元的频率
     Defined in :numref:`sec_text_preprocessing`"""
@@ -1321,24 +1298,6 @@ def seq_data_iter_random(corpus, batch_size, num_steps):
         X = [data(j) for j in initial_indices_per_batch]
         Y = [data(j + 1) for j in initial_indices_per_batch]
         yield d2l.tensor(X), d2l.tensor(Y)
-
-def seq_data_iter_sequential(corpus, batch_size, num_steps):
-    """使用顺序分区生成一个小批量子序列
-    Defined in :numref:`sec_language_model`"""
-    # 从随机偏移量开始划分序列
-    offset = random.randint(0, num_steps)
-    num_tokens = ((len(corpus) - offset - 1) // batch_size) * batch_size
-    Xs = d2l.tensor(corpus[offset: offset + num_tokens])
-    Ys = d2l.tensor(corpus[offset + 1: offset + 1 + num_tokens])
-    Xs, Ys = Xs.reshape((batch_size, -1)), Ys.reshape((batch_size, -1))
-    num_batches = Xs.shape[1] // num_steps
-    for i in range(0, num_steps * num_batches, num_steps):
-        X = Xs[:, i: i + num_steps]
-        Y = Ys[:, i: i + num_steps]
-        yield X, Y
-
-    def forward(self, X):
-        return self.dense2(self.relu(self.dense1(X)))
 
 class AddNorm(nn.Layer):
     """残差连接后进行层规范化
@@ -1479,81 +1438,6 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=4):
 
     def __iter__(self):
         return self.data_iter_fn(self.corpus, self.batch_size, self.num_steps)
-
-def load_data_time_machine(batch_size, num_steps,
-                           use_random_iter=False, max_tokens=10000):
-    """返回时光机器数据集的迭代器和词表
-    Defined in :numref:`sec_language_model`"""
-    data_iter = SeqDataLoader(
-        batch_size, num_steps, use_random_iter, max_tokens)
-    return data_iter, data_iter.vocab
-
-class RNNModelScratch:
-    """从零开始实现的循环神经网络模型"""
-    def __init__(self, vocab_size, num_hiddens,
-                 get_params, init_state, forward_fn):
-        """Defined in :numref:`sec_rnn_scratch`"""
-        self.vocab_size, self.num_hiddens = vocab_size, num_hiddens
-        self.params = get_params(vocab_size, num_hiddens)
-        self.init_state, self.forward_fn = init_state, forward_fn
-
-    def __call__(self, X, state):
-        X = F.one_hot(X.T, self.vocab_size)
-        return self.forward_fn(X, state, self.params)
-
-    def begin_state(self, batch_size):
-        return self.init_state(batch_size, self.num_hiddens)
-
-def predict_ch8(prefix, num_preds, net, vocab, device):
-    """在prefix后面生成新字符
-    Defined in :numref:`sec_rnn_scratch`"""
-    state = net.begin_state(batch_size=1)
-    outputs = [vocab[prefix[0]]]
-    get_input = lambda: d2l.reshape(d2l.tensor(outputs[-1], place=device), (1, 1))
-    for y in prefix[1:]:  # 预热期
-        _, state = net(get_input(), state)
-        outputs.append(vocab[y])
-    for _ in range(num_preds):  # 预测num_preds步
-        y, state = net(get_input(), state)
-        outputs.append(int(paddle.reshape(paddle.argmax(y,axis=1),shape=[1])))
-    return ''.join([vocab.idx_to_token[i] for i in outputs])
-
-def grad_clipping(net, theta):
-    """裁剪梯度
-    Defined in :numref:`sec_rnn_scratch`"""
-    if isinstance(net, nn.Layer):
-        params = [p for p in net.parameters() if not p.stop_gradient]
-    else:
-        params = net.params
-    norm = paddle.sqrt(sum(paddle.sum((p.grad ** 2)) for p in params))
-    if norm > theta:
-        with paddle.no_grad():
-            for param in params:
-                param.grad.set_value(param.grad * theta / norm)
-
-    net.apply(init_weights)
-
-    optimizer = trainer_fn(parameters=net.parameters(), **hyperparams)
-    loss = nn.MSELoss(reduction='none')
-    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
-                            xlim=[0, num_epochs], ylim=[0.22, 0.35])
-    n, timer = 0, d2l.Timer()
-    for _ in range(num_epochs):
-        for X, y in data_iter:
-            optimizer.clear_grad()
-            out = net(X)
-            y = y.reshape(out.shape)
-            l = loss(out, y)
-            l.mean().backward()
-            optimizer.step()
-            n += X.shape[0]
-            if n % 200 == 0:
-                timer.stop()
-                # MSELoss计算平方误差时不带系数1/2
-                animator.add(n/X.shape[0]/len(data_iter),
-                             (d2l.evaluate_loss(net, data_iter, loss) / 2,))
-                timer.start()
-    print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
 
 class Benchmark:
     """用于测量运行时间"""
@@ -2984,14 +2868,6 @@ def copyfile(filename, target_dir):
     Defined in :numref:`sec_kaggle_cifar10`"""
     os.makedirs(target_dir, exist_ok=True)
     shutil.copy(filename, target_dir)
-
-def reorg_test(data_dir):
-    """在预测期间整理测试集，以方便读取
-    Defined in :numref:`sec_kaggle_cifar10`"""
-    for test_file in os.listdir(os.path.join(data_dir, 'test')):
-        copyfile(os.path.join(data_dir, 'test', test_file),
-                 os.path.join(data_dir, 'train_valid_test', 'test',
-                              'unknown'))
 
 d2l.DATA_HUB['ptb'] = (d2l.DATA_URL + 'ptb.zip',
                        '319d85e578af0cdc590547f26231e4e31cdf1e42')
