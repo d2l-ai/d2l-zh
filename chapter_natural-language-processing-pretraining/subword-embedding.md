@@ -28,7 +28,17 @@ fastText的其余部分与跳元模型相同。与跳元模型相比，fastText�
 首先，我们将符号词表初始化为所有英文小写字符、特殊的词尾符号`'_'`和特殊的未知符号`'[UNK]'`。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch
+import collections
+
+symbols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+           'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+           '_', '[UNK]']
+           
+```
+
+```{.python .input}
+#@tab paddle
 import collections
 
 symbols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
