@@ -299,7 +299,7 @@ class MaskLM(nn.Layer):
         num_pred_positions = pred_positions.shape[1]
         pred_positions = pred_positions.reshape([-1])
         batch_size = X.shape[0]
-        batch_idx = paddle.arange(0, batch_size) # torch.arange()
+        batch_idx = paddle.arange(0, batch_size)
         # 假设batch_size=2，num_pred_positions=3
         # 那么batch_idx是np.array（[0,0,0,1,1]）
         batch_idx = paddle.repeat_interleave(batch_idx, num_pred_positions)
