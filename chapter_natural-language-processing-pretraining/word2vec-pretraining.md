@@ -286,7 +286,7 @@ def train(net, data_iter, lr, num_epochs, device=d2l.try_gpu()):
         if type(m) == nn.Embedding:
             nn.initializer.XavierUniform(m.weight)
     net.apply(init_weights)
-    optimizer = paddle.optimizer.Adam(learning_rate=lr,parameters=net.parameters())
+    optimizer = paddle.optimizer.Adam(learning_rate=lr, parameters=net.parameters())
     animator = d2l.Animator(xlabel='epoch', ylabel='loss',
                             xlim=[1, num_epochs])
     # 规范化的损失之和，规范化的损失数
@@ -299,8 +299,8 @@ def train(net, data_iter, lr, num_epochs, device=d2l.try_gpu()):
                 paddle.to_tensor(data, place=device) for data in batch]
 
             pred = skip_gram(center, context_negative, net[0], net[1])
-            l = (loss(pred.reshape(label.shape), paddle.to_tensor(label,dtype='float32'), 
-                        paddle.to_tensor(mask,dtype='float32'))
+            l = (loss(pred.reshape(label.shape), paddle.to_tensor(label, dtype='float32'), 
+                        paddle.to_tensor(mask, dtype='float32'))
                      / mask.sum(axis=1) * mask.shape[1])
             l.sum().backward()
             optimizer.step()
