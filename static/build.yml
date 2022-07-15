@@ -11,6 +11,6 @@ dependencies:
     - -f https://download.pytorch.org/whl/torch_stable.html
     - tensorflow==2.8.0
     - tensorflow-probability==0.16.0
-    - paddlepaddle-gpu==2.3.0.post112 
+    - paddlepaddle-gpu==2.3.1.post112 
     - -f https://www.paddlepaddle.org.cn/whl/linux/mkl/avx/stable.html
     - opencv-python==4.6.0.66

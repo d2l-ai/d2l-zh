@@ -28,12 +28,23 @@ fastText的其余部分与跳元模型相同。与跳元模型相比，fastText�
 首先，我们将符号词表初始化为所有英文小写字符、特殊的词尾符号`'_'`和特殊的未知符号`'[UNK]'`。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch
 import collections
 
 symbols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
            '_', '[UNK]']
+           
+```
+
+```{.python .input}
+#@tab paddle
+import collections
+
+symbols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+           'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+           '_', '[UNK]']
+           
 ```
 
 因为我们不考虑跨越词边界的符号对，所以我们只需要一个字典`raw_token_freqs`将词映射到数据集中的频率（出现次数）。注意，特殊符号`'_'`被附加到每个词的尾部，以便我们可以容易地从输出符号序列（例如，“a_all er_man”）恢复单词序列（例如，“a_all er_man”）。由于我们仅从单个字符和特殊符号的词开始合并处理，所以在每个词（词典`token_freqs`的键）内的每对连续字符之间插入空格。换句话说，空格是词中符号之间的分隔符。
