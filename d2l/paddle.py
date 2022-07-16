@@ -890,19 +890,6 @@ def show_list_len_pair_hist(legend, xlabel, ylabel, xlist, ylist):
     for patch in patches[1].patches:
         patch.set_hatch('/')
     d2l.plt.legend(legend)
-
-def show_list_len_pair_hist(legend, xlabel, ylabel, xlist, ylist):
-    """绘制列表长度对的直方图
-
-    Defined in :numref:`sec_machine_translation`"""
-    d2l.set_figsize()
-    _, _, patches = d2l.plt.hist(
-        [[len(l) for l in xlist], [len(l) for l in ylist]])
-    d2l.plt.xlabel(xlabel)
-    d2l.plt.ylabel(ylabel)
-    for patch in patches[1].patches:
-        patch.set_hatch('/')
-    d2l.plt.legend(legend)
     
 def truncate_pad(line, num_steps, padding_token):
     """截断或填充文本序列
@@ -1432,12 +1419,97 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=4):
     def init_weights(m):
         if type(m) == nn.Linear:
             paddle.nn.initializer.Normal(m.weight, std=0.01)
-            self.data_iter_fn = d2l.seq_data_iter_sequential
-        self.corpus, self.vocab = d2l.load_corpus_time_machine(max_tokens)
-        self.batch_size, self.num_steps = batch_size, num_steps
 
-    def __iter__(self):
-        return self.data_iter_fn(self.corpus, self.batch_size, self.num_steps)
+    net.apply(init_weights)
+
+    optimizer = trainer_fn(parameters=net.parameters(), **hyperparams)
+    loss = nn.MSELoss(reduction='none')
+    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
+                            xlim=[0, num_epochs], ylim=[0.22, 0.35])
+    n, timer = 0, d2l.Timer()
+    for _ in range(num_epochs):
+        for X, y in data_iter:
+            optimizer.clear_grad()
+            out = net(X)
+            y = y.reshape(out.shape)
+            l = loss(out, y)
+            l.mean().backward()
+            optimizer.step()
+            n += X.shape[0]
+            if n % 200 == 0:
+                timer.stop()
+                # MSELoss计算平方误差时不带系数1/2
+                animator.add(n/X.shape[0]/len(data_iter),
+                             (d2l.evaluate_loss(net, data_iter, loss) / 2,))
+                timer.start()
+    print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
+    
+class RNNModelScratch:
+    """从零开始实现的循环神经网络模型"""
+    def __init__(self, vocab_size, num_hiddens,
+                 get_params, init_state, forward_fn):
+        """Defined in :numref:`sec_rnn_scratch`"""
+        self.vocab_size, self.num_hiddens = vocab_size, num_hiddens
+        self.params = get_params(vocab_size, num_hiddens)
+        self.init_state, self.forward_fn = init_state, forward_fn
+
+    def __call__(self, X, state):
+        X = F.one_hot(X.T, self.vocab_size)
+        return self.forward_fn(X, state, self.params)
+
+    def begin_state(self, batch_size):
+        return self.init_state(batch_size, self.num_hiddens)
+
+def predict_ch8(prefix, num_preds, net, vocab, device):
+    """在prefix后面生成新字符
+    Defined in :numref:`sec_rnn_scratch`"""
+    state = net.begin_state(batch_size=1)
+    outputs = [vocab[prefix[0]]]
+    get_input = lambda: d2l.reshape(d2l.tensor(outputs[-1], place=device), (1, 1))
+    for y in prefix[1:]:  # 预热期
+        _, state = net(get_input(), state)
+        outputs.append(vocab[y])
+    for _ in range(num_preds):  # 预测num_preds步
+        y, state = net(get_input(), state)
+        outputs.append(int(paddle.reshape(paddle.argmax(y,axis=1),shape=[1])))
+    return ''.join([vocab.idx_to_token[i] for i in outputs])
+
+def grad_clipping(net, theta):
+    """裁剪梯度
+    Defined in :numref:`sec_rnn_scratch`"""
+    if isinstance(net, nn.Layer):
+        params = [p for p in net.parameters() if not p.stop_gradient]
+    else:
+        params = net.params
+    norm = paddle.sqrt(sum(paddle.sum((p.grad ** 2)) for p in params))
+    if norm > theta:
+        with paddle.no_grad():
+            for param in params:
+                param.grad.set_value(param.grad * theta / norm)
+
+    net.apply(init_weights)
+
+    optimizer = trainer_fn(parameters=net.parameters(), **hyperparams)
+    loss = nn.MSELoss(reduction='none')
+    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
+                            xlim=[0, num_epochs], ylim=[0.22, 0.35])
+    n, timer = 0, d2l.Timer()
+    for _ in range(num_epochs):
+        for X, y in data_iter:
+            optimizer.clear_grad()
+            out = net(X)
+            y = y.reshape(out.shape)
+            l = loss(out, y)
+            l.mean().backward()
+            optimizer.step()
+            n += X.shape[0]
+            if n % 200 == 0:
+                timer.stop()
+                # MSELoss计算平方误差时不带系数1/2
+                animator.add(n/X.shape[0]/len(data_iter),
+                             (d2l.evaluate_loss(net, data_iter, loss) / 2,))
+                timer.start()
+    print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
 
 class Benchmark:
     """用于测量运行时间"""
@@ -2265,73 +2337,6 @@ class AdditiveAttention(nn.Layer):
         # values的形状：(batch_size，“键－值”对的个数，值的维度)
         return paddle.bmm(self.dropout(self.attention_weights), values)
 
-class DotProductAttention(nn.Layer):
-    """缩放点积注意力
-
-    Defined in :numref:`subsec_additive-attention`"""
-    def __init__(self, dropout, **kwargs):
-        super(DotProductAttention, self).__init__(**kwargs)
-        self.dropout = nn.Dropout(dropout)
-
-    # queries的形状：(batch_size，查询的个数，d)
-    # keys的形状：(batch_size，“键－值”对的个数，d)
-    # values的形状：(batch_size，“键－值”对的个数，值的维度)
-    # valid_lens的形状:(batch_size，)或者(batch_size，查询的个数)
-    def forward(self, queries, keys, values, valid_lens=None):
-        d = queries.shape[-1]
-        # 设置transpose_b=True为了交换keys的最后两个维度
-        scores = paddle.bmm(queries, keys.transpose((0,2,1))) / math.sqrt(d)
-        self.attention_weights = masked_softmax(scores, valid_lens)
-        return paddle.bmm(self.dropout(self.attention_weights), values)
-
-class AttentionDecoder(d2l.Decoder):
-    """带有注意力机制解码器的基本接口
-
-    Defined in :numref:`sec_seq2seq_attention`"""
-    def __init__(self, **kwargs):
-        super(AttentionDecoder, self).__init__(**kwargs)
-
-    @property
-    def attention_weights(self):
-        raise NotImplementedError
-
-class MultiHeadAttention(nn.Layer):
-    """Defined in :numref:`sec_multihead-attention`"""
-    def __init__(self, key_size, query_size, value_size, num_hiddens,
-                 num_heads, dropout, bias=False, **kwargs):
-        super(MultiHeadAttention, self).__init__(**kwargs)
-        self.num_heads = num_heads
-        self.attention = d2l.DotProductAttention(dropout)
-        self.W_q = nn.Linear(query_size, num_hiddens, bias_attr=bias)
-        self.W_k = nn.Linear(key_size, num_hiddens, bias_attr=bias)
-        self.W_v = nn.Linear(value_size, num_hiddens, bias_attr=bias)
-        self.W_o = nn.Linear(num_hiddens, num_hiddens, bias_attr=bias)
-
-    def forward(self, queries, keys, values, valid_lens):
-        # queries，keys，values的形状:
-        # (batch_size，查询或者“键－值”对的个数，num_hiddens)
-        # valid_lens　的形状:
-        # (batch_size，)或(batch_size，查询的个数)
-        # 经过变换后，输出的queries，keys，values　的形状:
-        # (batch_size*num_heads，查询或者“键－值”对的个数，
-        # num_hiddens/num_heads)
-        queries = transpose_qkv(self.W_q(queries), self.num_heads)
-        keys = transpose_qkv(self.W_k(keys), self.num_heads)
-        values = transpose_qkv(self.W_v(values), self.num_heads)
-        if valid_lens is not None:
-            # 在轴0，将第一项（标量或者矢量）复制num_heads次，
-            # 然后如此复制第二项，然后诸如此类。
-            valid_lens = paddle.repeat_interleave(
-                valid_lens, repeats=self.num_heads, axis=0)
-
-        # output的形状:(batch_size*num_heads，查询的个数，
-        # num_hiddens/num_heads)
-        output = self.attention(queries, keys, values, valid_lens)
-
-        # output_concat的形状:(batch_size，查询的个数，num_hiddens)
-        output_concat = transpose_output(output, self.num_heads)
-        return self.W_o(output_concat)
-
 def transpose_qkv(X, num_heads):
     """为了多注意力头的并行计算而变换形状
 
@@ -2357,25 +2362,6 @@ def transpose_output(X, num_heads):
     X = X.reshape((-1, num_heads, X.shape[1], X.shape[2]))
     X = X.transpose((0, 2, 1, 3))
     return X.reshape((X.shape[0], X.shape[1], -1))
-
-class PositionalEncoding(nn.Layer):
-    """位置编码
-
-    Defined in :numref:`sec_self-attention-and-positional-encoding`"""
-    def __init__(self, num_hiddens, dropout, max_len=1000):
-        super(PositionalEncoding, self).__init__()
-        self.dropout = nn.Dropout(dropout)
-        # 创建一个足够长的P
-        self.P = paddle.zeros((1, max_len, num_hiddens))
-        X = paddle.arange(max_len, dtype=paddle.float32).reshape(
-            (-1, 1)) / paddle.pow(paddle.to_tensor([10000.0]), paddle.arange(
-            0, num_hiddens, 2, dtype=paddle.float32) / num_hiddens)
-        self.P[:, :, 0::2] = paddle.sin(X)
-        self.P[:, :, 1::2] = paddle.cos(X)
-
-    def forward(self, X):
-        X = X + self.P[:, :X.shape[1], :]
-        return self.dropout(X)
 
 class PositionWiseFFN(nn.Layer):
     """基于位置的前馈网络
@@ -2423,135 +2409,6 @@ class EncoderBlock(nn.Layer):
         Y = self.addnorm1(X, self.attention(X, X, X, valid_lens))
         return self.addnorm2(Y, self.ffn(Y))
 
-class TransformerEncoder(d2l.Encoder):
-    """transformer编码器
-
-    Defined in :numref:`sec_transformer`"""
-    def __init__(self, vocab_size, key_size, query_size, value_size,
-                 num_hiddens, norm_shape, ffn_num_input, ffn_num_hiddens,
-                 num_heads, num_layers, dropout, use_bias=False, **kwargs):
-        super(TransformerEncoder, self).__init__(**kwargs)
-        self.num_hiddens = num_hiddens
-        self.embedding = nn.Embedding(vocab_size, num_hiddens)
-        self.pos_encoding = d2l.PositionalEncoding(num_hiddens, dropout)
-        self.blks = nn.Sequential()
-        for i in range(num_layers):
-            self.blks.add_sublayer(str(i),
-                EncoderBlock(key_size, query_size, value_size, num_hiddens,
-                             norm_shape, ffn_num_input, ffn_num_hiddens,
-                             num_heads, dropout, use_bias))
-
-    def forward(self, X, valid_lens, *args):
-        # 因为位置编码值在-1和1之间，
-        # 因此嵌入值乘以嵌入维度的平方根进行缩放，
-        # 然后再与位置编码相加。
-        X = self.pos_encoding(self.embedding(X) * math.sqrt(self.num_hiddens))
-        self.attention_weights = [None] * len(self.blks)
-        for i, blk in enumerate(self.blks):
-            X = blk(X, valid_lens)
-            self.attention_weights[
-                i] = blk.attention.attention.attention_weights
-        return X
-
-def annotate(text, xy, xytext):
-    d2l.plt.gca().annotate(text, xy=xy, xytext=xytext,
-                           arrowprops=dict(arrowstyle='->'))
-
-def train_2d(trainer, steps=20, f_grad=None):
-    """用定制的训练机优化2D目标函数
-    Defined in :numref:`subsec_gd-learningrate`"""
-    # s1和s2是稍后将使用的内部状态变量
-    x1, x2, s1, s2 = -5, -2, 0, 0
-    results = [(x1, x2)]
-    for i in range(steps):
-        if f_grad:
-            x1, x2, s1, s2 = trainer(x1, x2, s1, s2, f_grad)
-        else:
-            x1, x2, s1, s2 = trainer(x1, x2, s1, s2)
-        results.append((x1, x2))
-    print(f'epoch {i + 1}, x1: {float(x1):f}, x2: {float(x2):f}')
-    return results
-
-def show_trace_2d(f, results):
-    """显示优化过程中2D变量的轨迹
-    Defined in :numref:`subsec_gd-learningrate`"""
-    d2l.set_figsize()
-    d2l.plt.plot(*zip(*results), '-o', color='#ff7f0e')
-    x1, x2 = d2l.meshgrid(d2l.arange(-5.5, 1.0, 0.1, dtype='float32'),
-                          d2l.arange(-3.0, 1.0, 0.1, dtype='float32'))
-    d2l.plt.contour(x1, x2, f(x1, x2), colors='#1f77b4')
-    d2l.plt.xlabel('x1')
-    d2l.plt.ylabel('x2')
-
-d2l.DATA_HUB['airfoil'] = (d2l.DATA_URL + 'airfoil_self_noise.dat',
-                           '76e5be1548fd8222e5074cf0faae75edff8cf93f')
-
-def get_data_ch11(batch_size=10, n=1500):
-    """Defined in :numref:`sec_minibatches`"""
-    data = np.genfromtxt(d2l.download('airfoil'),
-                         dtype=np.float32, delimiter='\t')
-    data = d2l.tensor((data - data.mean(axis=0)) / data.std(axis=0))
-    data_iter = d2l.load_array((data[:n, :-1], data[:n, -1]),
-                               batch_size, is_train=True)
-    return data_iter, data.shape[1]-1
-
-def train_ch11(trainer_fn, states, hyperparams, data_iter,
-               feature_dim, num_epochs=2):
-    """Defined in :numref:`sec_minibatches`"""
-    # 初始化模型
-    w = d2l.tensor(d2l.normal(mean=0.0, std=0.01, shape=(feature_dim, 1),),stop_gradient=False)
-    b = d2l.tensor(d2l.zeros((1,)), stop_gradient=False)
-    net, loss = lambda X: d2l.linreg(X, w, b), d2l.squared_loss
-    # 训练模型
-    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
-                            xlim=[0, num_epochs], ylim=[0.22, 0.35])
-    n, timer = 0, d2l.Timer()
-    for _ in range(num_epochs):
-        for X, y in data_iter:
-            l = loss(net(X), y).mean()
-            l.backward()
-            w, b = trainer_fn([w, b], states, hyperparams)
-            n += X.shape[0]
-            if n % 200 == 0:
-                timer.stop()
-                animator.add(n/X.shape[0]/len(data_iter),
-                             (d2l.evaluate_loss(net, data_iter, loss),))
-                timer.start()
-    print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
-    return timer.cumsum(), animator.Y[0]
-
-def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=4):
-    """Defined in :numref:`sec_minibatches`"""
-    # 初始化模型
-    net = nn.Sequential(nn.Linear(5, 1))
-    def init_weights(m):
-        if type(m) == nn.Linear:
-            paddle.nn.initializer.Normal(m.weight, std=0.01)
-
-    net.apply(init_weights)
-
-    optimizer = trainer_fn(parameters=net.parameters(), **hyperparams)
-    loss = nn.MSELoss(reduction='none')
-    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
-                            xlim=[0, num_epochs], ylim=[0.22, 0.35])
-    n, timer = 0, d2l.Timer()
-    for _ in range(num_epochs):
-        for X, y in data_iter:
-            optimizer.clear_grad()
-            out = net(X)
-            y = y.reshape(out.shape)
-            l = loss(out, y)
-            l.mean().backward()
-            optimizer.step()
-            n += X.shape[0]
-            if n % 200 == 0:
-                timer.stop()
-                # MSELoss计算平方误差时不带系数1/2
-                animator.add(n/X.shape[0]/len(data_iter),
-                             (d2l.evaluate_loss(net, data_iter, loss) / 2,))
-                timer.start()
-    print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
-
 class Benchmark:
     """用于测量运行时间"""
     def __init__(self, description='Done'):
@@ -2565,16 +2422,6 @@ class Benchmark:
     def __exit__(self, *args):
         print(f'{self.description}: {self.timer.stop():.4f} sec')
 
-def split_batch(X, y, devices):
-    """将X和y拆分到多个设备上
-<<<<<<< HEAD
-=======
-
->>>>>>> 70cb0cbf0d389d26007cc128c600d61997226e04
-    Defined in :numref:`sec_multi_gpu`"""
-    assert X.shape[0] == y.shape[0]
-    return (paddlescatter(X, devices),
-            paddlescatter(y, devices))
 
 def resnet18(num_classes, in_channels=1):
     """稍加修改的ResNet-18模型
@@ -2749,53 +2596,6 @@ def show_bboxes(axes, bboxes, labels=None, colors=None):
                       va='center', ha='center', fontsize=9, color=text_color,
                       bbox=dict(facecolor=color, lw=0))
 
-def box_iou(boxes1, boxes2):
-    """计算两个锚框或边界框列表中成对的交并比
-    Defined in :numref:`sec_anchor`"""
-    box_area = lambda boxes: ((boxes[:, 2] - boxes[:, 0]) *
-                              (boxes[:, 3] - boxes[:, 1]))
-    # boxes1,boxes2,areas1,areas2的形状:
-    # boxes1：(boxes1的数量,4),
-    # boxes2：(boxes2的数量,4),
-    # areas1：(boxes1的数量,),
-    # areas2：(boxes2的数量,)
-    areas1 = box_area(boxes1)
-    areas2 = box_area(boxes2)
-    # inter_upperlefts,inter_lowerrights,inters的形状:
-    # (boxes1的数量,boxes2的数量,2)
-    inter_upperlefts = paddle.maximum(boxes1[:, None, :2], boxes2[:, :2])
-    inter_lowerrights = paddle.minimum(boxes1[:, None, 2:], boxes2[:, 2:])
-    inters = (inter_lowerrights - inter_upperlefts).clip(min=0)
-    # inter_areasandunion_areas的形状:(boxes1的数量,boxes2的数量)
-    inter_areas = inters[:, :, 0] * inters[:, :, 1]
-    union_areas = areas1[:, None] + areas2 - inter_areas
-    return inter_areas / union_areas
-
-def assign_anchor_to_bbox(ground_truth, anchors, place, iou_threshold=0.5):
-    """将最接近的真实边界框分配给锚框
-    Defined in :numref:`sec_anchor`"""
-    num_anchors, num_gt_boxes = anchors.shape[0], ground_truth.shape[0]
-    # 位于第i行和第j列的元素x_ij是锚框i和真实边界框j的IoU
-    jaccard = box_iou(anchors, ground_truth)
-    # 对于每个锚框，分配的真实边界框的张量
-    anchors_bbox_map = paddle.full((num_anchors,), -1, dtype=paddle.int64)
-    # 根据阈值，决定是否分配真实边界框
-    max_ious = paddle.max(jaccard, axis=1)
-    indices = paddle.argmax(jaccard, axis=1)
-    anc_i = paddle.nonzero(max_ious >= 0.5).reshape([-1])
-    box_j = indices[max_ious >= 0.5]
-    anchors_bbox_map[anc_i] = box_j
-    col_discard = paddle.full((num_anchors,), -1)
-    row_discard = paddle.full((num_gt_boxes,), -1)
-    for _ in range(num_gt_boxes):
-        max_idx = paddle.argmax(jaccard)
-        box_idx = paddle.cast((max_idx % num_gt_boxes), dtype='int64')
-        anc_idx = paddle.cast((max_idx / num_gt_boxes), dtype='int64')
-        anchors_bbox_map[anc_idx] = box_idx
-        jaccard[:, box_idx] = col_discard
-        jaccard[anc_idx, :] = row_discard
-    return anchors_bbox_map
-
 def offset_boxes(anchors, assigned_bb, eps=1e-6):
     """对锚框偏移量的转换
     Defined in :numref:`subsec_labeling-anchor-boxes`"""
@@ -2805,48 +2605,6 @@ def offset_boxes(anchors, assigned_bb, eps=1e-6):
     offset_wh = 5 * d2l.log(eps + c_assigned_bb[:, 2:] / c_anc[:, 2:])
     offset = d2l.concat([offset_xy, offset_wh], axis=1)
     return offset
-
-def multibox_target(anchors, labels):
-    """使用真实边界框标记锚框
-    Defined in :numref:`subsec_labeling-anchor-boxes`"""
-    batch_size, anchors = labels.shape[0], anchors.squeeze(0)
-    batch_offset, batch_mask, batch_class_labels = [], [], []
-    place, num_anchors = anchors.place, anchors.shape[0]
-    for i in range(batch_size):
-        label = labels[i, :, :]
-        anchors_bbox_map = assign_anchor_to_bbox(
-            label[:, 1:], anchors, place)
-        bbox_mask = paddle.tile(paddle.to_tensor((anchors_bbox_map >= 0), dtype='float32').unsqueeze(-1),(1,4))
-        # 将类标签和分配的边界框坐标初始化为零
-        class_labels = paddle.zeros(paddle.to_tensor(num_anchors), dtype=paddle.int64)
-        assigned_bb = paddle.zeros(paddle.to_tensor((num_anchors, 4)), dtype=paddle.float32)
-        # 使用真实边界框来标记锚框的类别。
-        # 如果一个锚框没有被分配，我们标记其为背景（值为零）
-        indices_true = paddle.nonzero(anchors_bbox_map >= 0).numpy()
-        bb_idx = anchors_bbox_map[indices_true].numpy()
-        class_labels[indices_true] = label.numpy()[bb_idx, 0][:] + 1
-        assigned_bb[indices_true] = label.numpy()[bb_idx, 1:]
-        class_labels = paddle.to_tensor(class_labels)
-        assigned_bb = paddle.to_tensor(assigned_bb)
-        # 偏移量转换
-        offset = offset_boxes(anchors, assigned_bb) * bbox_mask
-        batch_offset.append(offset.reshape([-1]))
-        batch_mask.append(bbox_mask.reshape([-1]))
-        batch_class_labels.append(class_labels)
-    bbox_offset = paddle.stack(batch_offset)
-    bbox_mask = paddle.stack(batch_mask)
-    class_labels = paddle.stack(batch_class_labels)
-    return (bbox_offset, bbox_mask, class_labels)
-
-def offset_inverse(anchors, offset_preds):
-    """根据带有预测偏移量的锚框来预测边界框
-    Defined in :numref:`subsec_labeling-anchor-boxes`"""
-    anc = d2l.box_corner_to_center(anchors)
-    pred_bbox_xy = (offset_preds[:, :2] * anc[:, 2:] / 10) + anc[:, :2]
-    pred_bbox_wh = d2l.exp(offset_preds[:, 2:] / 5) * anc[:, 2:]
-    pred_bbox = d2l.concat((pred_bbox_xy, pred_bbox_wh), axis=1)
-    predicted_bbox = d2l.box_center_to_corner(pred_bbox)
-    return predicted_bbox
 
 def nms(boxes, scores, iou_threshold):
     """对预测边界框的置信度进行排序
@@ -2863,11 +2621,44 @@ def nms(boxes, scores, iou_threshold):
         B = paddle.to_tensor(B.numpy()[inds + 1])
     return paddle.to_tensor(keep, place=boxes.place, dtype='int64')
 
+d2l.DATA_HUB['cifar10_tiny'] = (d2l.DATA_URL + 'kaggle_cifar10_tiny.zip',
+                                '2068874e4b9a9f0fb07ebe0ad2b29754449ccacd')
+
+
 def copyfile(filename, target_dir):
     """将文件复制到目标目录
     Defined in :numref:`sec_kaggle_cifar10`"""
     os.makedirs(target_dir, exist_ok=True)
     shutil.copy(filename, target_dir)
+
+def reorg_train_valid(data_dir, labels, valid_ratio):
+    """将验证集从原始的训练集中拆分出来
+    Defined in :numref:`sec_kaggle_cifar10`"""
+    # 训练数据集中样本最少的类别中的样本数
+    n = collections.Counter(labels.values()).most_common()[-1][1]
+    # 验证集中每个类别的样本数
+    n_valid_per_label = max(1, math.floor(n * valid_ratio))
+    label_count = {}
+    for train_file in os.listdir(os.path.join(data_dir, 'train')):
+        label = labels[train_file.split('.')[0]]
+        fname = os.path.join(data_dir, 'train', train_file)
+        copyfile(fname, os.path.join(data_dir, 'train_valid_test',
+                                     'train_valid', label))
+        if label not in label_count or label_count[label] < n_valid_per_label:
+            copyfile(fname, os.path.join(data_dir, 'train_valid_test',
+                                         'valid', label))
+            label_count[label] = label_count.get(label, 0) + 1
+
+def reorg_test(data_dir):
+    """在预测期间整理测试集，以方便读取
+    Defined in :numref:`sec_kaggle_cifar10`"""
+    for test_file in os.listdir(os.path.join(data_dir, 'test')):
+        copyfile(os.path.join(data_dir, 'test', test_file),
+                 os.path.join(data_dir, 'train_valid_test', 'test',
+                              'unknown'))
+
+d2l.DATA_HUB['dog_tiny'] = (d2l.DATA_URL + 'kaggle_dog_tiny.zip',
+                            '0cb91d09b814ecdc07b50f31f8dcad3e81d6a86d')
 
 d2l.DATA_HUB['ptb'] = (d2l.DATA_URL + 'ptb.zip',
                        '319d85e578af0cdc590547f26231e4e31cdf1e42')

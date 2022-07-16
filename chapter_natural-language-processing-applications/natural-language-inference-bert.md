@@ -29,7 +29,7 @@ from torch import nn
 import os
 ```
 
-```{.python .input}
+```{.python .input  n=1}
 #@tab paddle
 from d2l import paddle as d2l
 import json
@@ -58,7 +58,7 @@ d2l.DATA_HUB['bert.small'] = (d2l.DATA_URL + 'bert.small.torch.zip',
                               'c72329e68a732bef0452e4b96a1c341c8910f81f')
 ```
 
-```{.python .input}
+```{.python .input  n=2}
 #@tab paddle
 d2l.DATA_HUB['bert_small'] = ('https://paddlenlp.bj.bcebos.com/models/bert.small.paddle.zip', '9fcde07509c7e87ec61c640c1b277509c7e87ec6153d9041758e4')
 
@@ -108,7 +108,7 @@ def load_pretrained_model(pretrained_model, num_hiddens, ffn_num_hiddens,
     return bert, vocab
 ```
 
-```{.python .input}
+```{.python .input  n=3}
 #@tab paddle
 def load_pretrained_model(pretrained_model, num_hiddens, ffn_num_hiddens,
                           num_heads, num_layers, dropout, max_len, devices):
@@ -142,7 +142,7 @@ bert, vocab = load_pretrained_model(
     num_layers=2, dropout=0.1, max_len=512, devices=devices)
 ```
 
-```{.python .input}
+```{.python .input  n=4}
 #@tab paddle
 devices = d2l.try_all_gpus()
 bert, vocab = load_pretrained_model(
@@ -259,7 +259,7 @@ class SNLIBERTDataset(torch.utils.data.Dataset):
         return len(self.all_token_ids)
 ```
 
-```{.python .input}
+```{.python .input  n=5}
 def _truncate_pair_of_tokens(p_tokens, h_tokens):
     # 为BERT输入中的'<CLS>'、'<SEP>'和'<SEP>'词元保留位置
     while len(p_tokens) + len(h_tokens) > max_len - 3:
@@ -341,7 +341,7 @@ test_iter = torch.utils.data.DataLoader(test_set, batch_size,
                                   num_workers=num_workers)
 ```
 
-```{.python .input}
+```{.python .input  n=6}
 #@tab paddle
 # 如果出现显存不足错误，请减少“batch_size”。在原始的BERT模型中，max_len=512
 batch_size, max_len, num_workers = 512, 128, d2l.get_dataloader_workers()
@@ -385,7 +385,7 @@ class BERTClassifier(nn.Module):
         return self.output(self.hidden(encoded_X[:, 0, :]))
 ```
 
-```{.python .input}
+```{.python .input  n=7}
 #@tab paddle
 class BERTClassifier(nn.Layer):
     def __init__(self, bert):
@@ -407,7 +407,7 @@ net = BERTClassifier(bert)
 net.output.initialize(ctx=devices)
 ```
 
-```{.python .input}
+```{.python .input  n=8}
 #@tab pytorch, paddle
 net = BERTClassifier(bert)
 ```
@@ -433,9 +433,9 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
     devices)
 ```
 
-```{.python .input}
+```{.python .input  n=9}
 #@tab paddle
-lr, num_epochs = 1e-4, 15
+lr, num_epochs = 1e-4, 5
 trainer = paddle.optimizer.Adam(learning_rate=lr, parameters=net.parameters())
 loss = nn.CrossEntropyLoss(reduction='none')
 d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
