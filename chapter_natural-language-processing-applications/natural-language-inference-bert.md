@@ -260,6 +260,7 @@ class SNLIBERTDataset(torch.utils.data.Dataset):
 ```
 
 ```{.python .input}
+#@tab paddle
 def _truncate_pair_of_tokens(p_tokens, h_tokens):
     # 为BERT输入中的'<CLS>'、'<SEP>'和'<SEP>'词元保留位置
     while len(p_tokens) + len(h_tokens) > max_len - 3:
@@ -278,7 +279,7 @@ def _mp_worker(premise_hypothesis_tokens):
     valid_len = len(tokens)
     return token_ids, segments, valid_len
 
-#@tab paddle
+
 class SNLIBERTDataset(paddle.io.Dataset):
     def __init__(self, dataset, max_len, vocab=None):
         all_premise_hypothesis_tokens = [[
@@ -435,7 +436,7 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
 
 ```{.python .input}
 #@tab paddle
-lr, num_epochs = 1e-4, 15
+lr, num_epochs = 1e-4, 5
 trainer = paddle.optimizer.Adam(learning_rate=lr, parameters=net.parameters())
 loss = nn.CrossEntropyLoss(reduction='none')
 d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
