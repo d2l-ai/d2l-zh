@@ -21,6 +21,7 @@ train_iter, test_iter, vocab = d2l.load_data_imdb(batch_size)
 from d2l import torch as d2l
 import torch
 from torch import nn
+
 batch_size = 64
 train_iter, test_iter, vocab = d2l.load_data_imdb(batch_size)
 ```
@@ -195,7 +196,7 @@ net.embedding.weight.requires_grad = False
 ```{.python .input}
 #@tab paddle
 net.embedding.weight.set_value(embeds)
-net.embedding.weight.requires_grad = False
+net.embedding.weight.stop_gradient = False
 ```
 
 ## 训练和评估模型
