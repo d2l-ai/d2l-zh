@@ -196,7 +196,7 @@ net.embedding.weight.requires_grad = False
 ```{.python .input}
 #@tab paddle
 net.embedding.weight.set_value(embeds)
-net.embedding.weight.requires_grad = False
+net.embedding.weight.stop_gradient = False
 ```
 
 ## 训练和评估模型
