@@ -457,7 +457,7 @@ class DecoderBlock(nn.Block):
 
         if autograd.is_training():
             batch_size, num_steps, _ = X.shape
-            # dec_valid_lens的开头:(batch_size,num_steps),
+            # dec_valid_lens的形状:(batch_size,num_steps),
             # 其中每一行是[1,2,...,num_steps]
             dec_valid_lens = np.tile(np.arange(1, num_steps + 1, ctx=X.ctx),
                                      (batch_size, 1))
@@ -468,7 +468,7 @@ class DecoderBlock(nn.Block):
         X2 = self.attention1(X, key_values, key_values, dec_valid_lens)
         Y = self.addnorm1(X, X2)
         # “编码器－解码器”注意力。
-        # 'enc_outputs'的开头:('batch_size','num_steps','num_hiddens')
+        # 'enc_outputs'的形状:('batch_size','num_steps','num_hiddens')
         Y2 = self.attention2(Y, enc_outputs, enc_outputs, enc_valid_lens)
         Z = self.addnorm2(Y, Y2)
         return self.addnorm3(Z, self.ffn(Z)), state
@@ -506,7 +506,7 @@ class DecoderBlock(nn.Module):
         state[2][self.i] = key_values
         if self.training:
             batch_size, num_steps, _ = X.shape
-            # dec_valid_lens的开头:(batch_size,num_steps),
+            # dec_valid_lens的形状:(batch_size,num_steps),
             # 其中每一行是[1,2,...,num_steps]
             dec_valid_lens = torch.arange(
                 1, num_steps + 1, device=X.device).repeat(batch_size, 1)
@@ -517,7 +517,7 @@ class DecoderBlock(nn.Module):
         X2 = self.attention1(X, key_values, key_values, dec_valid_lens)
         Y = self.addnorm1(X, X2)
         # 编码器－解码器注意力。
-        # enc_outputs的开头:(batch_size,num_steps,num_hiddens)
+        # enc_outputs的形状:(batch_size,num_steps,num_hiddens)
         Y2 = self.attention2(Y, enc_outputs, enc_outputs, enc_valid_lens)
         Z = self.addnorm2(Y, Y2)
         return self.addnorm3(Z, self.ffn(Z)), state
@@ -551,7 +551,7 @@ class DecoderBlock(tf.keras.layers.Layer):
         state[2][self.i] = key_values
         if kwargs["training"]:
             batch_size, num_steps, _ = X.shape
-           # dec_valid_lens的开头:(batch_size,num_steps),
+           # dec_valid_lens的形状:(batch_size,num_steps),
             # 其中每一行是[1,2,...,num_steps]
             dec_valid_lens = tf.repeat(tf.reshape(tf.range(1, num_steps + 1),
                                                  shape=(-1, num_steps)), repeats=batch_size, axis=0)
@@ -563,7 +563,7 @@ class DecoderBlock(tf.keras.layers.Layer):
         X2 = self.attention1(X, key_values, key_values, dec_valid_lens, **kwargs)
         Y = self.addnorm1(X, X2, **kwargs)
         # 编码器－解码器注意力。
-        # enc_outputs的开头:(batch_size,num_steps,num_hiddens)
+        # enc_outputs的形状:(batch_size,num_steps,num_hiddens)
         Y2 = self.attention2(Y, enc_outputs, enc_outputs, enc_valid_lens, **kwargs)
         Z = self.addnorm2(Y, Y2, **kwargs)
         return self.addnorm3(Z, self.ffn(Z), **kwargs), state
