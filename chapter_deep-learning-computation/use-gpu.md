@@ -225,9 +225,9 @@ def try_gpu(i=0):
 #@save
 def try_all_gpus():  
     """返回所有可用的GPU，如果没有GPU，则返回[cpu(),]。"""
-    devices = [paddle.device.set_device(f'gpu:{i}') 
+    devices = [paddle.CUDAPlace(i)
                for i in range(paddle.device.cuda.device_count())]
-    return devices if devices else paddle.device.get_device()
+    return devices if devices else paddle.CPUPlace()
 
 try_gpu(),try_gpu(10),try_all_gpus()
 ```

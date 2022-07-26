@@ -460,8 +460,7 @@ def evaluate_accuracy_gpu(net, data_iter, device=None):
     if isinstance(net, nn.Layer):
         net.eval()  # 设置为评估模式
         if not device:
-            device = next(iter(net.parameters())).place
-    paddle.set_device("gpu:{}".format(str(device)[-2])) 
+            device = next(iter(net.parameters())).place 
     # 正确预测的数量，总预测的数量
     metric = d2l.Accumulator(2)
     with paddle.no_grad():
@@ -1023,7 +1022,7 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
             X, X_valid_len, Y, Y_valid_len = [paddle.to_tensor(x, place=device) for x in batch]
             bos = paddle.to_tensor([tgt_vocab['<bos>']] * Y.shape[0]).reshape([-1, 1])
             dec_input = paddle.concat([bos, Y[:, :-1]], 1)  # 强制教学
-            Y_hat, _ = net(X, dec_input, X_valid_len.squeeze())
+            Y_hat, _ = net(X, dec_input, X_valid_len)
             l = loss(Y_hat, Y, Y_valid_len.squeeze())
             l.backward()	# 损失函数的标量进行“反向传播”
             d2l.grad_clipping(net, 1)
@@ -1089,13 +1088,6 @@ def bleu(pred_seq, label_seq, k):
 d2l.DATA_HUB['time_machine'] = (d2l.DATA_URL + 'timemachine.txt',
                                 '090b5e7e70c295757f55df93cb0a180b9691891a')
 
-def read_time_machine():
-    """将时间机器数据集加载到文本行的列表中
-    Defined in :numref:`sec_text_preprocessing`"""
-    with open(d2l.download('time_machine'), 'r') as f:
-        lines = f.readlines()
-    return [re.sub('[^A-Za-z]+', ' ', line).strip().lower() for line in lines]
-
 def tokenize(lines, token='word'):
     """将文本行拆分为单词或字符词元
     Defined in :numref:`sec_text_preprocessing`"""
@@ -1109,7 +1101,7 @@ def tokenize(lines, token='word'):
             valid_lens = paddle.repeat_interleave(valid_lens, shape[1])
         else:
             valid_lens = valid_lens.reshape((-1,))
-    #     # 最后一轴上被掩蔽的元素使用一个非常大的负值替换，从而其softmax输出为0
+        # 最后一轴上被掩蔽的元素使用一个非常大的负值替换，从而其softmax输出为0
         X = d2l.sequence_mask(X.reshape((-1, shape[-1])), valid_lens,
                               value=-1e6)
         return nn.functional.softmax(X.reshape(shape), axis=-1)
@@ -1246,18 +1238,6 @@ class PositionalEncoding(nn.Layer):
         X = X + self.P[:, :X.shape[1], :]
         return self.dropout(X)
 
-class PositionWiseFFN(nn.Layer):
-    """基于位置的前馈网络
-    Defined in :numref:`sec_transformer`"""
-    def __init__(self, ffn_num_input, ffn_num_hiddens, ffn_num_outputs,
-                 **kwargs):
-        super(PositionWiseFFN, self).__init__(**kwargs)
-        self.dense1 = nn.Linear(ffn_num_input, ffn_num_hiddens)
-        self.relu = nn.ReLU()
-        self.dense2 = nn.Linear(ffn_num_hiddens, ffn_num_outputs)
-    def token_freqs(self):
-        return self._token_freqs
-
 def count_corpus(tokens):
     """统计词元的频率
     Defined in :numref:`sec_text_preprocessing`"""
@@ -1304,24 +1284,6 @@ def seq_data_iter_random(corpus, batch_size, num_steps):
         X = [data(j) for j in initial_indices_per_batch]
         Y = [data(j + 1) for j in initial_indices_per_batch]
         yield d2l.tensor(X), d2l.tensor(Y)
-
-def seq_data_iter_sequential(corpus, batch_size, num_steps):
-    """使用顺序分区生成一个小批量子序列
-    Defined in :numref:`sec_language_model`"""
-    # 从随机偏移量开始划分序列
-    offset = random.randint(0, num_steps)
-    num_tokens = ((len(corpus) - offset - 1) // batch_size) * batch_size
-    Xs = d2l.tensor(corpus[offset: offset + num_tokens])
-    Ys = d2l.tensor(corpus[offset + 1: offset + 1 + num_tokens])
-    Xs, Ys = Xs.reshape((batch_size, -1)), Ys.reshape((batch_size, -1))
-    num_batches = Xs.shape[1] // num_steps
-    for i in range(0, num_steps * num_batches, num_steps):
-        X = Xs[:, i: i + num_steps]
-        Y = Ys[:, i: i + num_steps]
-        yield X, Y
-
-    def forward(self, X):
-        return self.dense2(self.relu(self.dense1(X)))
 
 class AddNorm(nn.Layer):
     """残差连接后进行层规范化
@@ -1601,7 +1563,6 @@ def train_batch_ch13(net, X, y, loss, trainer, devices):
     """Defined in :numref:`sec_image_augmentation`"""
     """用多GPU进行小批量训练
     Defined in :numref:`sec_image_augmentation`"""
-    # paddle.set_device("gpu:{}".format(str(devices[0])[-2])) 
     if isinstance(X, list):
         # 微调BERT中所需（稍后讨论）
         X = [paddle.to_tensor(x, place=devices[0]) for x in X]
@@ -1646,9 +1607,6 @@ def train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
           f'{metric[1] / metric[3]:.3f}, test acc {test_acc:.3f}')
     print(f'{metric[2] * num_epochs / timer.sum():.1f} examples/sec on '
           f'{str(devices)}')
-
-d2l.DATA_HUB['hotdog'] = (d2l.DATA_URL + 'hotdog.zip',
-                         'fba480ffa8aa7e0febbb511d181409f899b9baa5')
 
 def box_corner_to_center(boxes):
     """从（左上，右下）转换到（中间，宽度，高度）
@@ -2374,73 +2332,6 @@ class AdditiveAttention(nn.Layer):
         # values的形状：(batch_size，“键－值”对的个数，值的维度)
         return paddle.bmm(self.dropout(self.attention_weights), values)
 
-class DotProductAttention(nn.Layer):
-    """缩放点积注意力
-
-    Defined in :numref:`subsec_additive-attention`"""
-    def __init__(self, dropout, **kwargs):
-        super(DotProductAttention, self).__init__(**kwargs)
-        self.dropout = nn.Dropout(dropout)
-
-    # queries的形状：(batch_size，查询的个数，d)
-    # keys的形状：(batch_size，“键－值”对的个数，d)
-    # values的形状：(batch_size，“键－值”对的个数，值的维度)
-    # valid_lens的形状:(batch_size，)或者(batch_size，查询的个数)
-    def forward(self, queries, keys, values, valid_lens=None):
-        d = queries.shape[-1]
-        # 设置transpose_b=True为了交换keys的最后两个维度
-        scores = paddle.bmm(queries, keys.transpose((0,2,1))) / math.sqrt(d)
-        self.attention_weights = masked_softmax(scores, valid_lens)
-        return paddle.bmm(self.dropout(self.attention_weights), values)
-
-class AttentionDecoder(d2l.Decoder):
-    """带有注意力机制解码器的基本接口
-
-    Defined in :numref:`sec_seq2seq_attention`"""
-    def __init__(self, **kwargs):
-        super(AttentionDecoder, self).__init__(**kwargs)
-
-    @property
-    def attention_weights(self):
-        raise NotImplementedError
-
-class MultiHeadAttention(nn.Layer):
-    """Defined in :numref:`sec_multihead-attention`"""
-    def __init__(self, key_size, query_size, value_size, num_hiddens,
-                 num_heads, dropout, bias=False, **kwargs):
-        super(MultiHeadAttention, self).__init__(**kwargs)
-        self.num_heads = num_heads
-        self.attention = d2l.DotProductAttention(dropout)
-        self.W_q = nn.Linear(query_size, num_hiddens, bias_attr=bias)
-        self.W_k = nn.Linear(key_size, num_hiddens, bias_attr=bias)
-        self.W_v = nn.Linear(value_size, num_hiddens, bias_attr=bias)
-        self.W_o = nn.Linear(num_hiddens, num_hiddens, bias_attr=bias)
-
-    def forward(self, queries, keys, values, valid_lens):
-        # queries，keys，values的形状:
-        # (batch_size，查询或者“键－值”对的个数，num_hiddens)
-        # valid_lens　的形状:
-        # (batch_size，)或(batch_size，查询的个数)
-        # 经过变换后，输出的queries，keys，values　的形状:
-        # (batch_size*num_heads，查询或者“键－值”对的个数，
-        # num_hiddens/num_heads)
-        queries = transpose_qkv(self.W_q(queries), self.num_heads)
-        keys = transpose_qkv(self.W_k(keys), self.num_heads)
-        values = transpose_qkv(self.W_v(values), self.num_heads)
-        if valid_lens is not None:
-            # 在轴0，将第一项（标量或者矢量）复制num_heads次，
-            # 然后如此复制第二项，然后诸如此类。
-            valid_lens = paddle.repeat_interleave(
-                valid_lens, repeats=self.num_heads, axis=0)
-
-        # output的形状:(batch_size*num_heads，查询的个数，
-        # num_hiddens/num_heads)
-        output = self.attention(queries, keys, values, valid_lens)
-
-        # output_concat的形状:(batch_size，查询的个数，num_hiddens)
-        output_concat = transpose_output(output, self.num_heads)
-        return self.W_o(output_concat)
-
 def transpose_qkv(X, num_heads):
     """为了多注意力头的并行计算而变换形状
 
@@ -2466,25 +2357,6 @@ def transpose_output(X, num_heads):
     X = X.reshape((-1, num_heads, X.shape[1], X.shape[2]))
     X = X.transpose((0, 2, 1, 3))
     return X.reshape((X.shape[0], X.shape[1], -1))
-
-class PositionalEncoding(nn.Layer):
-    """位置编码
-
-    Defined in :numref:`sec_self-attention-and-positional-encoding`"""
-    def __init__(self, num_hiddens, dropout, max_len=1000):
-        super(PositionalEncoding, self).__init__()
-        self.dropout = nn.Dropout(dropout)
-        # 创建一个足够长的P
-        self.P = paddle.zeros((1, max_len, num_hiddens))
-        X = paddle.arange(max_len, dtype=paddle.float32).reshape(
-            (-1, 1)) / paddle.pow(paddle.to_tensor([10000.0]), paddle.arange(
-            0, num_hiddens, 2, dtype=paddle.float32) / num_hiddens)
-        self.P[:, :, 0::2] = paddle.sin(X)
-        self.P[:, :, 1::2] = paddle.cos(X)
-
-    def forward(self, X):
-        X = X + self.P[:, :X.shape[1], :]
-        return self.dropout(X)
 
 class PositionWiseFFN(nn.Layer):
     """基于位置的前馈网络
@@ -2545,309 +2417,14 @@ class Benchmark:
     def __exit__(self, *args):
         print(f'{self.description}: {self.timer.stop():.4f} sec')
 
-def split_batch(X, y, devices):
-    """将X和y拆分到多个设备上
-    Defined in :numref:`sec_multi_gpu`"""
-    assert X.shape[0] == y.shape[0]
-    return (paddlescatter(X, devices),
-            paddlescatter(y, devices))
-
-def resnet18(num_classes, in_channels=1):
-    """稍加修改的ResNet-18模型
-    Defined in :numref:`sec_multi_gpu_concise`"""
-    def resnet_block(in_channels, out_channels, num_residuals,
-                     first_block=False):
-        blk = []
-        for i in range(num_residuals):
-            if i == 0 and not first_block:
-                blk.append(d2l.Residual(in_channels, out_channels,
-                                        use_1x1conv=True, strides=2))
-            else:
-                blk.append(d2l.Residual(out_channels, out_channels))
-        return nn.Sequential(*blk)
-
-    # 该模型使用了更小的卷积核、步长和填充，而且删除了最大汇聚层
-    net = nn.Sequential(
-        nn.Conv2D(in_channels, 64, kernel_size=3, stride=1, padding=1),
-        nn.BatchNorm2D(64),
-        nn.ReLU())
-    net.add_sublayer("resnet_block1", resnet_block(
-        64, 64, 2, first_block=True))
-    net.add_sublayer("resnet_block2", resnet_block(64, 128, 2))
-    net.add_sublayer("resnet_block3", resnet_block(128, 256, 2))
-    net.add_sublayer("resnet_block4", resnet_block(256, 512, 2))
-    net.add_sublayer("global_avg_pool", nn.AdaptiveAvgPool2D((1, 1)))
-    net.add_sublayer("fc", nn.Sequential(nn.Flatten(),
-                                       nn.Linear(512, num_classes)))
-    return net
-
-def train_batch_ch13(net, X, y, loss, trainer, devices):
-    """Defined in :numref:`sec_image_augmentation`"""
-    """用多GPU进行小批量训练
-    Defined in :numref:`sec_image_augmentation`"""
-    paddle.set_device("gpu:{}".format(str(devices[0])[-2])) 
-    if isinstance(X, list):
-        # 微调BERT中所需（稍后讨论）
-        X = [paddle.to_tensor(x, place=devices[0]) for x in X]
-    else:
-        X = paddle.to_tensor(X, place=devices[0])
-    y = paddle.to_tensor(y, place=devices[0])
-    net.train()
-    trainer.clear_grad()
-    pred = net(X)
-    l = loss(pred, y)
-    l.sum().backward()
-    trainer.step()
-    train_loss_sum = l.sum()
-    train_acc_sum = d2l.accuracy(pred, y)
-    return train_loss_sum, train_acc_sum
-
-def train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
-               devices=d2l.try_all_gpus()):
-    """Defined in :numref:`sec_image_augmentation`"""
-    """用多GPU进行模型训练
-    Defined in :numref:`sec_image_augmentation`"""
-    timer, num_batches = d2l.Timer(), len(train_iter)
-    animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs], ylim=[0, 1],
-                            legend=['train loss', 'train acc', 'test acc'])
-    net = paddle.DataParallel(net)
-    for epoch in range(num_epochs):
-        # 4个维度：储存训练损失，训练准确度，实例数，特点数
-        metric = d2l.Accumulator(4)
-        for i, (features, labels) in enumerate(train_iter):
-            timer.start()
-            l, acc = train_batch_ch13(
-                net, features, labels, loss, trainer, devices)
-            metric.add(l, acc, labels.shape[0], labels.numel())
-            timer.stop()
-            if (i + 1) % (num_batches // 5) == 0 or i == num_batches - 1:
-                animator.add(epoch + (i + 1) / num_batches,
-                             (metric[0] / metric[2], metric[1] / metric[3],
-                              None))
-        test_acc = d2l.evaluate_accuracy_gpu(net, test_iter)
-        animator.add(epoch + 1, (None, None, test_acc))
-    print(f'loss {metric[0] / metric[2]:.3f}, train acc '
-          f'{metric[1] / metric[3]:.3f}, test acc {test_acc:.3f}')
-    print(f'{metric[2] * num_epochs / timer.sum():.1f} examples/sec on '
-          f'{str(devices)}')
-
 d2l.DATA_HUB['hotdog'] = (d2l.DATA_URL + 'hotdog.zip',
                          'fba480ffa8aa7e0febbb511d181409f899b9baa5')
-
-def box_corner_to_center(boxes):
-    """从（左上，右下）转换到（中间，宽度，高度）
-    Defined in :numref:`sec_bbox`"""
-    x1, y1, x2, y2 = boxes[:, 0], boxes[:, 1], boxes[:, 2], boxes[:, 3]
-    cx = (x1 + x2) / 2
-    cy = (y1 + y2) / 2
-    w = x2 - x1
-    h = y2 - y1
-    boxes = d2l.stack((cx, cy, w, h), axis=-1)
-    return boxes
-
-def box_center_to_corner(boxes):
-    """从（中间，宽度，高度）转换到（左上，右下）
-    Defined in :numref:`sec_bbox`"""
-    cx, cy, w, h = boxes[:, 0], boxes[:, 1], boxes[:, 2], boxes[:, 3]
-    x1 = cx - 0.5 * w
-    y1 = cy - 0.5 * h
-    x2 = cx + 0.5 * w
-    y2 = cy + 0.5 * h
-    boxes = d2l.stack((x1, y1, x2, y2), axis=-1)
-    return boxes
-
-def bbox_to_rect(bbox, color):
-    """Defined in :numref:`sec_bbox`"""
-    # 将边界框(左上x,左上y,右下x,右下y)格式转换成matplotlib格式：
-    # ((左上x,左上y),宽,高)
-    return d2l.plt.Rectangle(
-        xy=(bbox[0], bbox[1]), width=bbox[2]-bbox[0], height=bbox[3]-bbox[1],
-        fill=False, edgecolor=color, linewidth=2)
-
-def multibox_prior(data, sizes, ratios):
-    """生成以每个像素为中心具有不同形状的锚框
-    Defined in :numref:`sec_anchor`"""
-    in_height, in_width = data.shape[-2:]
-    place, num_sizes, num_ratios = data.place, len(sizes), len(ratios)
-    boxes_per_pixel = (num_sizes + num_ratios - 1)
-    size_tensor = paddle.to_tensor(sizes, place=place)
-    ratio_tensor = paddle.to_tensor(ratios, place=place)
-
-    # 为了将锚点移动到像素的中心，需要设置偏移量。
-    # 因为一个像素的的高为1且宽为1，我们选择偏移我们的中心0.5
-    offset_h, offset_w = 0.5, 0.5
-    steps_h = 1.0 / in_height  # 在y轴上缩放步长
-    steps_w = 1.0 / in_width  # 在x轴上缩放步长
-
-    # 生成锚框的所有中心点
-    center_h = (paddle.arange(in_height) + offset_h) * steps_h
-    center_w = (paddle.arange(in_width) + offset_w) * steps_w
-    shift_y, shift_x = paddle.meshgrid(center_h, center_w)
-    shift_y, shift_x = shift_y.reshape([-1]), shift_x.reshape([-1])
-
-    # 生成“boxes_per_pixel”个高和宽，
-    # 之后用于创建锚框的四角坐标(xmin,xmax,ymin,ymax)
-    w = paddle.concat((size_tensor * paddle.sqrt(ratio_tensor[0]),
-                   sizes[0] * paddle.sqrt(ratio_tensor[1:])))\
-                   * in_height / in_width  # 处理矩形输入
-    h = paddle.concat((size_tensor / paddle.sqrt(ratio_tensor[0]),
-                   sizes[0] / paddle.sqrt(ratio_tensor[1:])))
-    # 除以2来获得半高和半宽
-    anchor_manipulations = paddle.tile(paddle.stack((-w, -h, w, h)).T,
-                                        (in_height * in_width, 1)) / 2
-
-    # 每个中心点都将有“boxes_per_pixel”个锚框，
-    # 所以生成含所有锚框中心的网格，重复了“boxes_per_pixel”次
-    out_grid = paddle.stack([shift_x, shift_y, shift_x, shift_y], axis=1)
-    out_grid = paddle.tile(out_grid, repeat_times=[boxes_per_pixel]).reshape((-1, out_grid.shape[1]))
-    output = out_grid + anchor_manipulations
-    return output.unsqueeze(0)
-
-def show_bboxes(axes, bboxes, labels=None, colors=None):
-    """显示所有边界框
-    Defined in :numref:`sec_anchor`"""
-    def _make_list(obj, default_values=None):
-        if obj is None:
-            obj = default_values
-        elif not isinstance(obj, (list, tuple)):
-            obj = [obj]
-        return obj
-
-    labels = _make_list(labels)
-    colors = _make_list(colors, ['b', 'g', 'r', 'm', 'c'])
-    for i, bbox in enumerate(bboxes):
-        color = colors[i % len(colors)]
-        rect = d2l.bbox_to_rect(d2l.numpy(bbox), color)
-        axes.add_patch(rect)
-        if labels and len(labels) > i:
-            text_color = 'k' if color == 'w' else 'w'
-            axes.text(rect.xy[0], rect.xy[1], labels[i],
-                      va='center', ha='center', fontsize=9, color=text_color,
-                      bbox=dict(facecolor=color, lw=0))
-
-def offset_boxes(anchors, assigned_bb, eps=1e-6):
-    """对锚框偏移量的转换
-    Defined in :numref:`subsec_labeling-anchor-boxes`"""
-    c_anc = d2l.box_corner_to_center(anchors)
-    c_assigned_bb = d2l.box_corner_to_center(assigned_bb)
-    offset_xy = 10 * (c_assigned_bb[:, :2] - c_anc[:, :2]) / c_anc[:, 2:]
-    offset_wh = 5 * d2l.log(eps + c_assigned_bb[:, 2:] / c_anc[:, 2:])
-    offset = d2l.concat([offset_xy, offset_wh], axis=1)
-    return offset
-
-def nms(boxes, scores, iou_threshold):
-    """对预测边界框的置信度进行排序
-    Defined in :numref:`subsec_predicting-bounding-boxes-nms`"""
-    B = paddle.argsort(scores, axis=-1, descending=True)
-    keep = []  # 保留预测边界框的指标
-    while B.numel().item() > 0:
-        i = B[0]
-        keep.append(i.item())
-        if B.numel().item() == 1: break
-        iou = box_iou(boxes[i.numpy(), :].reshape([-1, 4]),
-                      paddle.to_tensor(boxes.numpy()[B[1:].numpy(), :]).reshape([-1, 4])).reshape([-1])
-        inds = paddle.nonzero(iou <= iou_threshold).numpy().reshape([-1])
-        B = paddle.to_tensor(B.numpy()[inds + 1])
-    return paddle.to_tensor(keep, place=boxes.place, dtype='int64')
-
-
-VOC_COLORMAP = [[0, 0, 0], [128, 0, 0], [0, 128, 0], [128, 128, 0],
-                [0, 0, 128], [128, 0, 128], [0, 128, 128], [128, 128, 128],
-                [64, 0, 0], [192, 0, 0], [64, 128, 0], [192, 128, 0],
-                [64, 0, 128], [192, 0, 128], [64, 128, 128], [192, 128, 128],
-                [0, 64, 0], [128, 64, 0], [0, 192, 0], [128, 192, 0],
-                [0, 64, 128]]
-
-VOC_CLASSES = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
-               'bottle', 'bus', 'car', 'cat', 'chair', 'cow',
-               'diningtable', 'dog', 'horse', 'motorbike', 'person',
-               'potted plant', 'sheep', 'sofa', 'train', 'tv/monitor']
-
-def voc_colormap2label():
-    """构建从RGB到VOC类别索引的映射
-    Defined in :numref:`sec_semantic_segmentation`"""
-    colormap2label = paddle.zeros([256 ** 3], dtype=paddle.int64)
-    for i, colormap in enumerate(VOC_COLORMAP):
-        colormap2label[
-            (colormap[0] * 256 + colormap[1]) * 256 + colormap[2]] = i
-    return colormap2label
-
-def voc_rand_crop(feature, label, height, width):
-    """随机裁剪特征和标签图像
-    Defined in :numref:`sec_semantic_segmentation`"""
-    rect = paddle.vision.transforms.RandomCrop((height, width))._get_param(
-        img=feature, output_size=(height, width))
-    feature = paddle.vision.transforms.crop(feature, *rect)
-    label = paddle.vision.transforms.crop(label, *rect)
-    return feature, label
-
-def load_data_voc(batch_size, crop_size):
-    """加载VOC语义分割数据集
-    Defined in :numref:`sec_semantic_segmentation`"""
-    voc_dir = d2l.download_extract('voc2012', os.path.join(
-        'VOCdevkit', 'VOC2012'))
-    num_workers = d2l.get_dataloader_workers()
-    train_iter = paddle.io.DataLoader(
-        VOCSegDataset(True, crop_size, voc_dir), batch_size=batch_size,
-        shuffle=True, drop_last=True, num_workers=num_workers)
-    test_iter = paddle.io.DataLoader(
-        VOCSegDataset(False, crop_size, voc_dir), batch_size=batch_size,
-        drop_last=True, num_workers=num_workers)
-    return train_iter, test_iter
-
-d2l.DATA_HUB['cifar10_tiny'] = (d2l.DATA_URL + 'kaggle_cifar10_tiny.zip',
-                                '2068874e4b9a9f0fb07ebe0ad2b29754449ccacd')
-
-def read_csv_labels(fname):
-    """读取fname来给标签字典返回一个文件名
-    Defined in :numref:`sec_kaggle_cifar10`"""
-    with open(fname, 'r') as f:
-        # 跳过文件头行(列名)
-        lines = f.readlines()[1:]
-    tokens = [l.rstrip().split(',') for l in lines]
-    return dict(((name, label) for name, label in tokens))
-
-def copyfile(filename, target_dir):
-    """将文件复制到目标目录
-    Defined in :numref:`sec_kaggle_cifar10`"""
-    os.makedirs(target_dir, exist_ok=True)
-    shutil.copy(filename, target_dir)
-
-def reorg_train_valid(data_dir, labels, valid_ratio):
-    """将验证集从原始的训练集中拆分出来
-    Defined in :numref:`sec_kaggle_cifar10`"""
-    # 训练数据集中样本最少的类别中的样本数
-    n = collections.Counter(labels.values()).most_common()[-1][1]
-    # 验证集中每个类别的样本数
-    n_valid_per_label = max(1, math.floor(n * valid_ratio))
-    label_count = {}
-    for train_file in os.listdir(os.path.join(data_dir, 'train')):
-        label = labels[train_file.split('.')[0]]
-        fname = os.path.join(data_dir, 'train', train_file)
-        copyfile(fname, os.path.join(data_dir, 'train_valid_test',
-                                     'train_valid', label))
-        if label not in label_count or label_count[label] < n_valid_per_label:
-            copyfile(fname, os.path.join(data_dir, 'train_valid_test',
-                                         'valid', label))
-            label_count[label] = label_count.get(label, 0) + 1
-
-def reorg_test(data_dir):
-    """在预测期间整理测试集，以方便读取
-    Defined in :numref:`sec_kaggle_cifar10`"""
-    for test_file in os.listdir(os.path.join(data_dir, 'test')):
-        copyfile(os.path.join(data_dir, 'test', test_file),
-                 os.path.join(data_dir, 'train_valid_test', 'test',
-                              'unknown'))
-
-d2l.DATA_HUB['dog_tiny'] = (d2l.DATA_URL + 'kaggle_dog_tiny.zip',
-                            '0cb91d09b814ecdc07b50f31f8dcad3e81d6a86d')
 
 d2l.DATA_HUB['ptb'] = (d2l.DATA_URL + 'ptb.zip',
                        '319d85e578af0cdc590547f26231e4e31cdf1e42')
 
 def read_ptb():
     """将PTB数据集加载到文本行的列表中
-
     Defined in :numref:`sec_word2vec_data`"""
     data_dir = d2l.download_extract('ptb')
     # Readthetrainingset.
@@ -2857,7 +2434,6 @@ def read_ptb():
 
 def subsample(sentences, vocab):
     """下采样高频词
-
     Defined in :numref:`sec_word2vec_data`"""
     # 排除未知词元'<unk>'
     sentences = [[token for token in line if vocab[token] != vocab.unk]
@@ -2875,7 +2451,6 @@ def subsample(sentences, vocab):
 
 def get_centers_and_contexts(corpus, max_window_size):
     """返回跳元模型中的中心词和上下文词
-
     Defined in :numref:`sec_word2vec_data`"""
     centers, contexts = [], []
     for line in corpus:
@@ -2916,7 +2491,6 @@ generator = RandomGenerator([2, 3, 4])
 
 def get_negatives(all_contexts, vocab, counter, K):
     """返回负采样中的噪声词
-
     Defined in :numref:`sec_word2vec_data`"""
     # 索引为1、2、...（索引0是词表中排除的未知标记）
     sampling_weights = [counter[vocab.to_tokens(i)]**0.75
@@ -2934,7 +2508,6 @@ def get_negatives(all_contexts, vocab, counter, K):
 
 def batchify(data):
     """返回带有负采样的跳元模型的小批量样本
-
     Defined in :numref:`sec_word2vec_data`"""
     max_len = max(len(c) + len(n) for _, c, n in data)
     centers, contexts_negatives, masks, labels = [], [], [], []
@@ -2950,7 +2523,6 @@ def batchify(data):
 
 def load_data_ptb(batch_size, max_window_size, num_noise_words):
     """下载PTB数据集，然后将其加载到内存中
-
     Defined in :numref:`subsec_word2vec-minibatch-loading`"""
     num_workers = d2l.get_dataloader_workers()
     sentences = read_ptb()
@@ -3032,7 +2604,6 @@ class TokenEmbedding:
 
 def get_tokens_and_segments(tokens_a, tokens_b=None):
     """获取输入序列的词元及其片段索引
-
     Defined in :numref:`sec_bert`"""
     tokens = ['<cls>'] + tokens_a + ['<sep>']
     # 0和1分别标记片段A和B
@@ -3044,7 +2615,6 @@ def get_tokens_and_segments(tokens_a, tokens_b=None):
 
 class BERTEncoder(nn.Layer):
     """BERT编码器
-
     Defined in :numref:`subsec_bert_input_rep`"""
     def __init__(self, vocab_size, num_hiddens, norm_shape, ffn_num_input,
                  ffn_num_hiddens, num_heads, num_layers, dropout,
@@ -3073,7 +2643,6 @@ class BERTEncoder(nn.Layer):
 
 class MaskLM(nn.Layer):
     """BERT的掩蔽语言模型任务
-
     Defined in :numref:`subsec_bert_input_rep`"""
     def __init__(self, vocab_size, num_hiddens, num_inputs=768, **kwargs):
         super(MaskLM, self).__init__(**kwargs)
@@ -3097,7 +2666,6 @@ class MaskLM(nn.Layer):
 
 class NextSentencePred(nn.Layer):
     """BERT的下一句预测任务
-
     Defined in :numref:`subsec_mlm`"""
     def __init__(self, num_inputs, **kwargs):
         super(NextSentencePred, self).__init__(**kwargs)
@@ -3109,7 +2677,6 @@ class NextSentencePred(nn.Layer):
 
 class BERTModel(nn.Layer):
     """BERT模型
-
     Defined in :numref:`subsec_nsp`"""
     def __init__(self, vocab_size, num_hiddens, norm_shape, ffn_num_input,
                  ffn_num_hiddens, num_heads, num_layers, dropout,
@@ -3285,7 +2852,6 @@ class _WikiTextDataset(paddle.io.Dataset):
 
 def load_data_wiki(batch_size, max_len):
     """加载WikiText-2数据集
-
     Defined in :numref:`subsec_prepare_mlm_data`"""
     # num_workers = d2l.get_dataloader_workers()
     num_workers = 0
@@ -3312,7 +2878,147 @@ def _get_batch_loss_bert(net, loss, vocab_size, tokens_X,
     # 计算下一句子预测任务的损失
     nsp_l = loss(nsp_Y_hat, nsp_y)
     l = mlm_l + nsp_l
-    return mlm_l, nsp_l, l# Alias defined in config.ini
+    return mlm_l, nsp_l, l
+
+d2l.DATA_HUB['aclImdb'] = (
+    'http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz',
+    '01ada507287d82875905620988597833ad4e0903')
+
+def read_imdb(data_dir, is_train):
+    """读取IMDb评论数据集文本序列和标签
+
+    Defined in :numref:`sec_sentiment`"""
+    data, labels = [], []
+    for label in ('pos', 'neg'):
+        folder_name = os.path.join(data_dir, 'train' if is_train else 'test',
+                                   label)
+        for file in os.listdir(folder_name):
+            with open(os.path.join(folder_name, file), 'rb') as f:
+                review = f.read().decode('utf-8').replace('\n', '')
+                data.append(review)
+                labels.append(1 if label == 'pos' else 0)
+    return data, labels
+
+def load_data_imdb(batch_size, num_steps=500):
+    """返回数据迭代器和IMDb评论数据集的词表
+
+    Defined in :numref:`sec_sentiment`"""
+    data_dir = d2l.download_extract('aclImdb', 'aclImdb')
+    train_data = read_imdb(data_dir, True)
+    test_data = read_imdb(data_dir, False)
+    train_tokens = d2l.tokenize(train_data[0], token='word')
+    test_tokens = d2l.tokenize(test_data[0], token='word')
+    vocab = d2l.Vocab(train_tokens, min_freq=5)
+    train_features = d2l.tensor([d2l.truncate_pad(
+        vocab[line], num_steps, vocab['<pad>']) for line in train_tokens])
+    test_features = d2l.tensor([d2l.truncate_pad(
+        vocab[line], num_steps, vocab['<pad>']) for line in test_tokens])
+    train_iter = d2l.load_array((train_features, d2l.tensor(train_data[1])),
+                                batch_size)
+    test_iter = d2l.load_array((test_features, d2l.tensor(test_data[1])),
+                               batch_size,
+                               is_train=False)
+    return train_iter, test_iter, vocab
+
+def predict_sentiment(net, vocab, sequence):
+    """预测文本序列的情感
+
+    Defined in :numref:`sec_sentiment_rnn`"""
+    sequence = paddle.to_tensor(vocab[sequence.split()], place=d2l.try_gpu())
+    label = paddle.argmax(net(sequence.reshape((1, -1))), axis=1)
+    return 'positive' if label == 1 else 'negative'
+
+d2l.DATA_HUB['SNLI'] = (
+    'https://nlp.stanford.edu/projects/snli/snli_1.0.zip',
+    '9fcde07509c7e87ec61c640c1b2753d9041758e4')
+
+def read_snli(data_dir, is_train):
+    """将SNLI数据集解析为前提、假设和标签
+
+    Defined in :numref:`sec_natural-language-inference-and-dataset`"""
+    def extract_text(s):
+        # 删除我们不会使用的信息
+        s = re.sub('\\(', '', s)
+        s = re.sub('\\)', '', s)
+        # 用一个空格替换两个或多个连续的空格
+        s = re.sub('\\s{2,}', ' ', s)
+        return s.strip()
+    label_set = {'entailment': 0, 'contradiction': 1, 'neutral': 2}
+    file_name = os.path.join(data_dir, 'snli_1.0_train.txt'
+                             if is_train else 'snli_1.0_test.txt')
+    with open(file_name, 'r') as f:
+        rows = [row.split('\t') for row in f.readlines()[1:]]
+    premises = [extract_text(row[1]) for row in rows if row[0] in label_set]
+    hypotheses = [extract_text(row[2]) for row in rows if row[0] \
+                in label_set]
+    labels = [label_set[row[0]] for row in rows if row[0] in label_set]
+    return premises, hypotheses, labels
+
+class SNLIDataset(paddle.io.Dataset):
+    """用于加载SNLI数据集的自定义数据集
+
+    Defined in :numref:`sec_natural-language-inference-and-dataset`"""
+    def __init__(self, dataset, num_steps, vocab=None):
+        self.num_steps = num_steps
+        all_premise_tokens = d2l.tokenize(dataset[0])
+        all_hypothesis_tokens = d2l.tokenize(dataset[1])
+        if vocab is None:
+            self.vocab = d2l.Vocab(all_premise_tokens + \
+                all_hypothesis_tokens, min_freq=5, reserved_tokens=['<pad>'])
+        else:
+            self.vocab = vocab
+        self.premises = self._pad(all_premise_tokens)
+        self.hypotheses = self._pad(all_hypothesis_tokens)
+        self.labels = paddle.to_tensor(dataset[2])
+        print('read ' + str(len(self.premises)) + ' examples')
+
+    def _pad(self, lines):
+        return paddle.to_tensor([d2l.truncate_pad(
+            self.vocab[line], self.num_steps, self.vocab['<pad>'])
+                         for line in lines])
+
+    def __getitem__(self, idx):
+        return (self.premises[idx], self.hypotheses[idx]), self.labels[idx]
+
+    def __len__(self):
+        return len(self.premises)
+
+def load_data_snli(batch_size, num_steps=50):
+    """下载SNLI数据集并返回数据迭代器和词表
+
+    Defined in :numref:`sec_natural-language-inference-and-dataset`"""
+    num_workers = d2l.get_dataloader_workers()
+    data_dir = d2l.download_extract('SNLI')
+    train_data = read_snli(data_dir, True)
+    test_data = read_snli(data_dir, False)
+    train_set = SNLIDataset(train_data, num_steps)
+    test_set = SNLIDataset(test_data, num_steps, train_set.vocab)
+    train_iter = paddle.io.DataLoader(train_set,batch_size=batch_size,
+                                             shuffle=True,
+                                             return_list=True)
+
+    test_iter = paddle.io.DataLoader(test_set, batch_size=batch_size,
+                                            shuffle=False,
+                                            return_list=True)
+    return train_iter, test_iter, train_set.vocab
+
+def predict_snli(net, vocab, premise, hypothesis):
+    """预测前提和假设之间的逻辑关系
+
+    Defined in :numref:`sec_natural-language-inference-attention`"""
+    net.eval()
+    premise = paddle.to_tensor(vocab[premise], place=d2l.try_gpu())
+    hypothesis = paddle.to_tensor(vocab[hypothesis], place=d2l.try_gpu())
+    label = paddle.argmax(net([premise.reshape((1, -1)),
+                           hypothesis.reshape((1, -1))]), axis=1)
+
+    return 'entailment' if label == 0 else 'contradiction' if label == 1 \
+            else 'neutral'# Alias defined in config.ini
+
+d2l.DATA_HUB['bert_small'] = ('https://paddlenlp.bj.bcebos.com/models/bert.small.paddle.zip', '9fcde07509c7e87ec61c640c1b277509c7e87ec6153d9041758e4')
+
+d2l.DATA_HUB['bert_base'] = ('https://paddlenlp.bj.bcebos.com/models/bert.base.paddle.zip', '9fcde07509c7e87ec61c640c1b27509c7e87ec61753d9041758e4')
+
 nn_Module = nn.Layer
 
 ones = paddle.ones

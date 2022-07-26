@@ -22,6 +22,12 @@
 ```
 :end_tab:
 
+:begin_tab:`paddle`
+```eval_rst
+.. currentmodule:: d2l.paddle
+```
+:end_tab:
+
 ## 模型
 
 ```eval_rst 
