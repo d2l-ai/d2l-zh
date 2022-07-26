@@ -31,6 +31,7 @@ train_iter, test_iter, vocab = d2l.load_data_imdb(batch_size)
 from d2l import paddle as d2l
 import paddle
 from paddle import nn
+
 batch_size = 64
 train_iter, test_iter, vocab = d2l.load_data_imdb(batch_size)
 ```
@@ -221,7 +222,7 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
 
 ```{.python .input}
 #@tab paddle
-lr, num_epochs = 0.01, 1
+lr, num_epochs = 0.01, 4
 trainer = paddle.optimizer.Adam(learning_rate=lr,parameters=net.parameters())
 loss = nn.CrossEntropyLoss(reduction="none")
 d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
