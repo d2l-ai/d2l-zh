@@ -222,7 +222,7 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
 
 ```{.python .input}
 #@tab paddle
-lr, num_epochs = 0.01, 4
+lr, num_epochs = 0.01, 3
 trainer = paddle.optimizer.Adam(learning_rate=lr,parameters=net.parameters())
 loss = nn.CrossEntropyLoss(reduction="none")
 d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
