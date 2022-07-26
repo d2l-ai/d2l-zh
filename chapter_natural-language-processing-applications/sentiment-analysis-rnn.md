@@ -31,6 +31,7 @@ train_iter, test_iter, vocab = d2l.load_data_imdb(batch_size)
 from d2l import paddle as d2l
 import paddle
 from paddle import nn
+
 batch_size = 64
 train_iter, test_iter, vocab = d2l.load_data_imdb(batch_size)
 ```
