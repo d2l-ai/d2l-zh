@@ -76,8 +76,6 @@ from d2l import paddle as d2l
 import math
 import paddle
 from paddle import nn
-import warnings
-warnings.filterwarnings("ignore")
 ```
 
 ## 编码器
@@ -828,7 +826,7 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
             X, X_valid_len, Y, Y_valid_len = [paddle.to_tensor(x, place=device) for x in batch]
             bos = paddle.to_tensor([tgt_vocab['<bos>']] * Y.shape[0]).reshape([-1, 1])
             dec_input = paddle.concat([bos, Y[:, :-1]], 1)  # 强制教学
-            Y_hat, _ = net(X, dec_input, X_valid_len)
+            Y_hat, _ = net(X, dec_input, X_valid_len.squeeze())
             l = loss(Y_hat, Y, Y_valid_len.squeeze())
             l.backward()	# 损失函数的标量进行“反向传播”
             d2l.grad_clipping(net, 1)

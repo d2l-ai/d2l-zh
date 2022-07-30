@@ -134,6 +134,7 @@ import paddle
 from paddle import nn
 from paddle.nn import functional as F
 from paddle.vision import transforms
+import paddle.vision as paddlevision
 from PIL import Image
 ```
 

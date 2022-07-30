@@ -25,6 +25,7 @@ d2l = sys.modules[__name__]
 
 import numpy as np
 import paddle
+import paddle.vision as paddlevision
 from paddle import nn
 from paddle.nn import functional as F
 from paddle.vision import transforms
@@ -189,7 +190,7 @@ def get_dataloader_workers():
     """使用4个进程来读取数据
 
     Defined in :numref:`sec_fashion_mnist`"""
-    return 0 if not sys.platform.startswith('linux') else 4
+    return 0
 
 def load_data_fashion_mnist(batch_size, resize=None):
     """下载Fashion-MNIST数据集，然后将其加载到内存中
@@ -459,6 +460,7 @@ def evaluate_accuracy_gpu(net, data_iter, device=None):
         net.eval()  # 设置为评估模式
         if not device:
             device = next(iter(net.parameters())).place
+    paddle.set_device("gpu:{}".format(str(device)[-2]))
     # 正确预测的数量，总预测的数量
     metric = d2l.Accumulator(2)
     with paddle.no_grad():
@@ -1035,7 +1037,7 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
             X, X_valid_len, Y, Y_valid_len = [paddle.to_tensor(x, place=device) for x in batch]
             bos = paddle.to_tensor([tgt_vocab['<bos>']] * Y.shape[0]).reshape([-1, 1])
             dec_input = paddle.concat([bos, Y[:, :-1]], 1)  # 强制教学
-            Y_hat, _ = net(X, dec_input, X_valid_len)
+            Y_hat, _ = net(X, dec_input, X_valid_len.squeeze())
             l = loss(Y_hat, Y, Y_valid_len.squeeze())
             l.backward()	# 损失函数的标量进行“反向传播”
             d2l.grad_clipping(net, 1)
@@ -1858,7 +1860,9 @@ d2l.DATA_HUB['voc2012'] = (d2l.DATA_URL + 'VOCtrainval_11-May-2012.tar',
                            '4e443f8a2eca6b1dac8a6c57641b67dd40621a49')
 
 def read_voc_images(voc_dir, is_train=True):
-    """Defined in :numref:`sec_semantic_segmentation`"""
+    """Defined in :numref:`sec_semantic_segmentation`
+
+    Defined in :numref:`sec_semantic_segmentation`"""
     """读取所有VOC图像并标注
     Defined in :numref:`sec_semantic_segmentation`"""
     txt_fname = os.path.join(voc_dir, 'ImageSets', 'Segmentation',
@@ -1867,11 +1871,11 @@ def read_voc_images(voc_dir, is_train=True):
         images = f.read().split()
     features, labels = [], []
     for i, fname in enumerate(images):
-        features.append(paddle.to_tensor(paddle.vision.image.image_load(os.path.join(
-            voc_dir, 'JPEGImages', f'{fname}.jpg'), backend='cv2')[..., ::-1], dtype=paddle.float32).transpose(
+        features.append(paddle.vision.image.image_load(os.path.join(
+            voc_dir, 'JPEGImages', f'{fname}.jpg'), backend='cv2')[..., ::-1].transpose(
             [2, 0, 1]))
-        labels.append(paddle.to_tensor(paddle.vision.image.image_load(os.path.join(
-            voc_dir, 'SegmentationClass', f'{fname}.png'), backend='cv2')[..., ::-1], dtype=paddle.float32).transpose(
+        labels.append(paddle.vision.image.image_load(os.path.join(
+            voc_dir, 'SegmentationClass', f'{fname}.png'), backend='cv2')[..., ::-1].transpose(
             [2, 0, 1]))
     return features, labels
 
@@ -1908,8 +1912,8 @@ def voc_rand_crop(feature, label, height, width):
     return feature, label
 
 class VOCSegDataset(paddle.io.Dataset):
+    """Defined in :numref:`sec_semantic_segmentation`"""
     """一个用于加载VOC数据集的自定义数据集
-
     Defined in :numref:`sec_semantic_segmentation`"""
 
     def __init__(self, is_train, crop_size, voc_dir):
@@ -1924,7 +1928,7 @@ class VOCSegDataset(paddle.io.Dataset):
         print('read ' + str(len(self.features)) + ' examples')
 
     def normalize_image(self, img):
-        return self.transform(img.astype(paddle.float32) / 255)
+        return self.transform(img.astype("float32") / 255)
 
     def filter(self, imgs):
         return [img for img in imgs if (
@@ -1932,9 +1936,10 @@ class VOCSegDataset(paddle.io.Dataset):
             img.shape[2] >= self.crop_size[1])]
 
     def __getitem__(self, idx):
-        feature, label = voc_rand_crop(self.features[idx], self.labels[idx],
+        feature = paddle.to_tensor(self.features[idx],dtype='float32')
+        label = paddle.to_tensor(self.labels[idx],dtype='float32')
+        feature, label = voc_rand_crop(feature,label,
                                        *self.crop_size)
-
         return (feature, voc_label_indices(label, self.colormap2label))
 
     def __len__(self):
