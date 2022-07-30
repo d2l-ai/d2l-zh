@@ -544,7 +544,7 @@ train(num_gpus=1, batch_size=256, lr=0.2)
 尽管如此，让我们看看Fashion-MNIST数据集上会发生什么。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch
 train(num_gpus=2, batch_size=256, lr=0.2)
 ```
 
