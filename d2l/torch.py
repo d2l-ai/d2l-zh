@@ -876,7 +876,7 @@ def show_list_len_pair_hist(legend, xlabel, ylabel, xlist, ylist):
     for patch in patches[1].patches:
         patch.set_hatch('/')
     d2l.plt.legend(legend)
-    
+
 def truncate_pad(line, num_steps, padding_token):
     """截断或填充文本序列
 

@@ -112,6 +112,7 @@ train_features, train_labels = read_voc_images(voc_dir, True)
 #@tab paddle
 #@save
 def read_voc_images(voc_dir, is_train=True):
+    """Defined in :numref:`sec_semantic_segmentation`"""
     """读取所有VOC图像并标注
     Defined in :numref:`sec_semantic_segmentation`"""
     txt_fname = os.path.join(voc_dir, 'ImageSets', 'Segmentation',
@@ -120,11 +121,11 @@ def read_voc_images(voc_dir, is_train=True):
         images = f.read().split()
     features, labels = [], []
     for i, fname in enumerate(images):
-        features.append(paddle.to_tensor(paddle.vision.image.image_load(os.path.join(
-            voc_dir, 'JPEGImages', f'{fname}.jpg'), backend='cv2')[..., ::-1], dtype=paddle.float32).transpose(
+        features.append(paddle.vision.image.image_load(os.path.join(
+            voc_dir, 'JPEGImages', f'{fname}.jpg'), backend='cv2')[..., ::-1].transpose(
             [2, 0, 1]))
-        labels.append(paddle.to_tensor(paddle.vision.image.image_load(os.path.join(
-            voc_dir, 'SegmentationClass', f'{fname}.png'), backend='cv2')[..., ::-1], dtype=paddle.float32).transpose(
+        labels.append(paddle.vision.image.image_load(os.path.join(
+            voc_dir, 'SegmentationClass', f'{fname}.png'), backend='cv2')[..., ::-1].transpose(
             [2, 0, 1]))
     return features, labels
 
@@ -152,7 +153,7 @@ d2l.show_images(imgs, 2, n);
 #@tab paddle
 n = 5
 imgs = train_features[0:n] + train_labels[0:n]
-imgs = [img.transpose([1, 2, 0]).astype(paddle.uint8) for img in imgs]
+imgs = [img.transpose([1, 2, 0]) for img in imgs]
 d2l.show_images(imgs, 2, n);
 ```
 
@@ -230,7 +231,7 @@ def voc_colormap2label():
 
 def voc_label_indices(colormap, colormap2label):
     """将VOC标签中的RGB值映射到它们的类别索引"""
-    colormap = colormap.transpose([1, 2, 0]).astype('int32')#[281,500,3]
+    colormap = colormap.transpose([1, 2, 0]).astype('int32')
     idx = ((colormap[:, :, 0] * 256 + colormap[:, :, 1]) * 256
            + colormap[:, :, 2])
     return colormap2label[idx]
@@ -306,9 +307,9 @@ d2l.show_images(imgs[::2] + imgs[1::2], 2, n);
 #@tab paddle
 imgs = []
 for _ in range(n):
-    imgs += voc_rand_crop(train_features[0], train_labels[0], 200, 300)
-
-imgs = [img.transpose([1, 2, 0]).astype(paddle.uint8) for img in imgs]
+    imgs += voc_rand_crop(train_features[0].transpose([1, 2, 0]), train_labels[0].transpose([1, 2, 0]), 200, 300)
+    
+imgs = [img for img in imgs]
 d2l.show_images(imgs[::2] + imgs[1::2], 2, n);
 ```
 
@@ -390,7 +391,8 @@ class VOCSegDataset(torch.utils.data.Dataset):
 #@tab paddle
 #@save
 class VOCSegDataset(paddle.io.Dataset):
-    """一个用于加载VOC数据集的自定义数据集"""
+    """一个用于加载VOC数据集的自定义数据集
+    Defined in :numref:`sec_semantic_segmentation`"""
 
     def __init__(self, is_train, crop_size, voc_dir):
         self.transform = paddle.vision.transforms.Normalize(
@@ -404,7 +406,7 @@ class VOCSegDataset(paddle.io.Dataset):
         print('read ' + str(len(self.features)) + ' examples')
 
     def normalize_image(self, img):
-        return self.transform(img.astype(paddle.float32) / 255)
+        return self.transform(img.astype("float32") / 255)
 
     def filter(self, imgs):
         return [img for img in imgs if (
@@ -412,9 +414,10 @@ class VOCSegDataset(paddle.io.Dataset):
             img.shape[2] >= self.crop_size[1])]
 
     def __getitem__(self, idx):
-        feature, label = voc_rand_crop(self.features[idx], self.labels[idx],
+        feature = paddle.to_tensor(self.features[idx],dtype='float32')
+        label = paddle.to_tensor(self.labels[idx],dtype='float32')
+        feature, label = voc_rand_crop(feature,label,
                                        *self.crop_size)
-        
         return (feature, voc_label_indices(label, self.colormap2label))
 
     def __len__(self):

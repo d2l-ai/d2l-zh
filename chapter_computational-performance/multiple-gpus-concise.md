@@ -317,7 +317,7 @@ train(num_gpus=2, batch_size=512, lr=0.2)
 ```
 
 ```{.python .input}
-#@tab pytorch, paddle
+#@tab pytorch
 train(net, num_gpus=2, batch_size=512, lr=0.2)
 ```
 

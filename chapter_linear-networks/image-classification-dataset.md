@@ -253,7 +253,7 @@ batch_size = 256
 
 def get_dataloader_workers():  #@save
     """使用4个进程来读取数据"""
-    return 0 if not sys.platform.startswith('linux') else 4
+    return 0
 
 train_iter = paddle.io.DataLoader(dataset=mnist_train,
                                   batch_size=batch_size,
