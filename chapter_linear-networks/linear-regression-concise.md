@@ -408,7 +408,7 @@ print('b的估计误差：', true_b - b)
 
 :begin_tab:`mxnet`
 1. 如果我们用`l = loss(output, y).mean()`代替`l = loss(output, y)`，我们需要把`trainer.step(batch_size)`改为`trainer.step(1)`，代码才会表现得相同。为什么？
-2. 查看MXNet文档，看看`gluon.loss`和`init`模块中提供了哪些损失函数和初始化方法。用Huber's loss代替损失。
+1. 查看MXNet文档，看看`gluon.loss`和`init`模块中提供了哪些损失函数和初始化方法。用Huber损失代替原损失。
 3. 如何访问`dense.weight`的梯度？
 :end_tab:
 
