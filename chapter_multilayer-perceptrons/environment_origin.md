@@ -603,7 +603,7 @@ Likewise, a user's behavior on a news site will depend on what we showed her pre
 Recently,
 control theory (e.g., PID variants) has also been used
 to automatically tune hyperparameters
-to achive better disentangling and reconstruction quality,
+to achieve better disentangling and reconstruction quality,
 and improve the diversity of generated text and the reconstruction quality of generated images :cite:`Shao.Yao.Sun.ea.2020`.
 
 

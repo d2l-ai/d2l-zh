@@ -355,12 +355,12 @@ max_steps = 64
 #@tab mxnet, pytorch
 features = d2l.zeros((T - tau - max_steps + 1, tau + max_steps))
 # Column `i` (`i` < `tau`) are observations from `x` for time steps from
-# `i + 1` to `i + T - tau - max_steps + 1`
+# `i` to `i + T - tau - max_steps + 1`
 for i in range(tau):
     features[:, i] = x[i: i + T - tau - max_steps + 1].T
 
 # Column `i` (`i` >= `tau`) are the (`i - tau + 1`)-step-ahead predictions for
-# time steps from `i + 1` to `i + T - tau - max_steps + 1`
+# time steps from `i` to `i + T - tau - max_steps + 1`
 for i in range(tau, tau + max_steps):
     features[:, i] = d2l.reshape(net(features[:, i - tau: i]), -1)
 ```
@@ -369,12 +369,12 @@ for i in range(tau, tau + max_steps):
 #@tab tensorflow
 features = tf.Variable(d2l.zeros((T - tau - max_steps + 1, tau + max_steps)))
 # Column `i` (`i` < `tau`) are observations from `x` for time steps from
-# `i + 1` to `i + T - tau - max_steps + 1`
+# `i` to `i + T - tau - max_steps + 1`
 for i in range(tau):
     features[:, i].assign(x[i: i + T - tau - max_steps + 1].numpy().T)
 
 # Column `i` (`i` >= `tau`) are the (`i - tau + 1`)-step-ahead predictions for
-# time steps from `i + 1` to `i + T - tau - max_steps + 1`
+# time steps from `i` to `i + T - tau - max_steps + 1`
 for i in range(tau, tau + max_steps):
     features[:, i].assign(d2l.reshape(net((features[:, i - tau: i])), -1))
 ```

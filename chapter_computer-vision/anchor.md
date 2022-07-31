@@ -59,7 +59,7 @@ def multibox_prior(data, sizes, ratios):
     ratio_tensor = d2l.tensor(ratios, ctx=device)
 
     # 为了将锚点移动到像素的中心，需要设置偏移量。
-    # 因为一个像素的的高为1且宽为1，我们选择偏移我们的中心0.5
+    # 因为一个像素的高为1且宽为1，我们选择偏移我们的中心0.5
     offset_h, offset_w = 0.5, 0.5
     steps_h = 1.0 / in_height  # 在y轴上缩放步长
     steps_w = 1.0 / in_width  # 在x轴上缩放步长
@@ -101,7 +101,7 @@ def multibox_prior(data, sizes, ratios):
     ratio_tensor = d2l.tensor(ratios, device=device)
 
     # 为了将锚点移动到像素的中心，需要设置偏移量。
-    # 因为一个像素的的高为1且宽为1，我们选择偏移我们的中心0.5
+    # 因为一个像素的高为1且宽为1，我们选择偏移我们的中心0.5
     offset_h, offset_w = 0.5, 0.5
     steps_h = 1.0 / in_height  # 在y轴上缩放步长
     steps_w = 1.0 / in_width  # 在x轴上缩放步长
@@ -109,7 +109,7 @@ def multibox_prior(data, sizes, ratios):
     # 生成锚框的所有中心点
     center_h = (torch.arange(in_height, device=device) + offset_h) * steps_h
     center_w = (torch.arange(in_width, device=device) + offset_w) * steps_w
-    shift_y, shift_x = torch.meshgrid(center_h, center_w)
+    shift_y, shift_x = torch.meshgrid(center_h, center_w, indexing='ij')
     shift_y, shift_x = shift_y.reshape(-1), shift_x.reshape(-1)
 
     # 生成“boxes_per_pixel”个高和宽，
@@ -324,8 +324,8 @@ def assign_anchor_to_bbox(ground_truth, anchors, device, iou_threshold=0.5):
     anchors_bbox_map = np.full((num_anchors,), -1, dtype=np.int32, ctx=device)
     # 根据阈值，决定是否分配真实边界框
     max_ious, indices = np.max(jaccard, axis=1), np.argmax(jaccard, axis=1)
-    anc_i = np.nonzero(max_ious >= 0.5)[0]
-    box_j = indices[max_ious >= 0.5]
+    anc_i = np.nonzero(max_ious >= iou_threshold)[0]
+    box_j = indices[max_ious >= iou_threshold]
     anchors_bbox_map[anc_i] = box_j
     col_discard = np.full((num_anchors,), -1)
     row_discard = np.full((num_gt_boxes,), -1)
@@ -352,8 +352,8 @@ def assign_anchor_to_bbox(ground_truth, anchors, device, iou_threshold=0.5):
                                   device=device)
     # 根据阈值，决定是否分配真实边界框
     max_ious, indices = torch.max(jaccard, dim=1)
-    anc_i = torch.nonzero(max_ious >= 0.5).reshape(-1)
-    box_j = indices[max_ious >= 0.5]
+    anc_i = torch.nonzero(max_ious >= iou_threshold).reshape(-1)
+    box_j = indices[max_ious >= iou_threshold]
     anchors_bbox_map[anc_i] = box_j
     col_discard = torch.full((num_anchors,), -1)
     row_discard = torch.full((num_gt_boxes,), -1)
