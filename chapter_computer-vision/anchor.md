@@ -352,8 +352,8 @@ def assign_anchor_to_bbox(ground_truth, anchors, device, iou_threshold=0.5):
                                   device=device)
     # 根据阈值，决定是否分配真实边界框
     max_ious, indices = torch.max(jaccard, dim=1)
-    anc_i = torch.nonzero(max_ious >= 0.5).reshape(-1)
-    box_j = indices[max_ious >= 0.5]
+    anc_i = torch.nonzero(max_ious >= iou_threshold).reshape(-1)
+    box_j = indices[max_ious >= iou_threshold]
     anchors_bbox_map[anc_i] = box_j
     col_discard = torch.full((num_anchors,), -1)
     row_discard = torch.full((num_gt_boxes,), -1)
