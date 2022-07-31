@@ -152,9 +152,9 @@ $$P(x_1, \ldots, x_T) = \prod_{t=T}^1 P(x_t \mid x_{t+1}, \ldots, x_T).$$
 例如，在某些情况下，对于某些可加性噪声$\epsilon$，
 显然我们可以找到$x_{t+1} = f(x_t) + \epsilon$，
 而反之则不行 :cite:`Hoyer.Janzing.Mooij.ea.2009`。
-这是个好消息，因为这个前进方向通常也是我们感兴趣的方向。
-彼得斯等人写的这本书 :cite:`Peters.Janzing.Scholkopf.2017`
-已经解释了关于这个主题的更多内容，而我们仅仅触及了它的皮毛。
+而这个向前推进的方向恰好也是我们通常感兴趣的方向。
+彼得斯等人 :cite:`Peters.Janzing.Scholkopf.2017`
+对该主题的更多内容做了详尽的解释，而我们的上述讨论只是其中的冰山一角。
 
 ## 训练
 
