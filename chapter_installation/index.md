@@ -8,19 +8,22 @@
 最简单的方法就是安装依赖Python 3.x的[Miniconda](https://conda.io/en/latest/miniconda.html)。
 如果已安装conda，则可以跳过以下步骤。访问Miniconda网站，根据Python3.x版本确定适合你的系统的版本。
 
-如果你使用macOS，假设你的Python版本是3.8（我们的测试版本），你将下载名称包含字符串“MacOSX”的bash脚本，并执行以下操作：
+如果你使用macOS，假设你的Python版本是3.9（我们的测试版本），你将下载名称包含字符串“MacOSX”的bash脚本，并执行以下操作：
 
 ```bash
 # 文件名可能会更改
-sh Miniconda3-py38_4.10.3-MacOSX-x86_64.sh -b
+# Intel Macs
+sh Miniconda3-py39_4.12.0-MacOSX-x86_64.sh -b
+# M1 Macs
+sh Miniconda3-py39_4.12.0-MacOSX-arm64.sh -b
 ```
 
 
-如果你使用Linux，假设你的Python版本是3.8（我们的测试版本），你将下载名称包含字符串“Linux”的bash脚本，并执行以下操作：
+如果你使用Linux，假设你的Python版本是3.9（我们的测试版本），你将下载名称包含字符串“Linux”的bash脚本，并执行以下操作：
 
 ```bash
 # 文件名可能会更改
-sh Miniconda3-py38_4.10.3-Linux-x86_64.sh -b
+sh Miniconda3-py39_4.12.0-Linux-x86_64.sh -b
 ```
 
 
@@ -34,7 +37,7 @@ sh Miniconda3-py38_4.10.3-Linux-x86_64.sh -b
 现在关闭并重新打开当前的 shell。你应该能用下面的命令创建一个新的环境：
 
 ```bash
-conda create --name d2l python=3.8 -y
+conda create --name d2l python=3.9 -y
 ```
 
 
