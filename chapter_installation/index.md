@@ -12,10 +12,7 @@
 
 ```bash
 # 文件名可能会更改
-# Intel Macs
 sh Miniconda3-py39_4.12.0-MacOSX-x86_64.sh -b
-# M1 Macs
-sh Miniconda3-py39_4.12.0-MacOSX-arm64.sh -b
 ```
 
 
