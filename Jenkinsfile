@@ -24,6 +24,7 @@ stage("Build and Publish") {
 
       sh label: "Sanity Check", script: """set -ex
       conda activate ${ENV_NAME}
+      d2lbook clear
       d2lbook build outputcheck tabcheck
       """
 
