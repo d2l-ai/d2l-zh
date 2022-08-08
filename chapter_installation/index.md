@@ -11,7 +11,7 @@
 如果你使用macOS，假设你的Python版本是3.9（我们的测试版本），你将下载名称包含字符串“MacOSX”的bash脚本，并执行以下操作：
 
 ```bash
-# 文件名可能会更改
+# 以Intel处理器为例，文件名可能会更改
 sh Miniconda3-py39_4.12.0-MacOSX-x86_64.sh -b
 ```
 
