@@ -36,7 +36,7 @@
 简而言之，对于每个参数，
 如果我们把这个参数*增加*或*减少*一个无穷小的量，可以知道损失会以多快的速度增加或减少，
 
-假设有一个函数$f: \mathbb{R}^n \rightarrow \mathbb{R}$，其输入和输出都是标量。
+假设我们有一个函数$f: \mathbb{R} \rightarrow \mathbb{R}$，其输入和输出都是标量。
 (**如果$f$的*导数*存在，这个极限被定义为**)
 
 (**$$f'(x) = \lim_{h \rightarrow 0} \frac{f(x+h) - f(x)}{h}.$$**)
@@ -53,7 +53,7 @@
 ```{.python .input}
 %matplotlib inline
 from d2l import mxnet as d2l
-from IPython import display
+from matplotlib_inline import backend_inline
 from mxnet import np, npx
 npx.set_np()
 
@@ -65,7 +65,7 @@ def f(x):
 #@tab pytorch
 %matplotlib inline
 from d2l import torch as d2l
-from IPython import display
+from matplotlib_inline import backend_inline
 import numpy as np
 
 def f(x):
@@ -76,7 +76,7 @@ def f(x):
 #@tab tensorflow
 %matplotlib inline
 from d2l import tensorflow as d2l
-from IPython import display
+from matplotlib_inline import backend_inline
 import numpy as np
 
 def f(x):
@@ -145,7 +145,7 @@ $$\frac{d}{dx} \left[\frac{f(x)}{g(x)}\right] = \frac{g(x) \frac{d}{dx} [f(x)] -
 #@tab all
 def use_svg_display():  #@save
     """使用svg格式在Jupyter中显示绘图"""
-    display.set_matplotlib_formats('svg')
+    backend_inline.set_matplotlib_formats('svg')
 ```
 
 我们定义`set_figsize`函数来设置图表大小。

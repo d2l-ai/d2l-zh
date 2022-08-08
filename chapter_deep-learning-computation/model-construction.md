@@ -295,7 +295,7 @@ class MySequential(nn.Module):
         super().__init__()
         for idx, module in enumerate(args):
             # 这里，module是Module子类的一个实例。我们把它保存在'Module'类的成员
-            # 变量_modules中。module的类型是OrderedDict
+            # 变量_modules中。_module的类型是OrderedDict
             self._modules[str(idx)] = module
 
     def forward(self, X):

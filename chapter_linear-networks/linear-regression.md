@@ -350,7 +350,18 @@ def normal(x, mu, sigma):
 我们现在(**可视化正态分布**)。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet
+# 再次使用numpy进行可视化
+x = np.arange(-7, 7, 0.01)
+# Mean and standard deviation pairs
+params = [(0, 1), (0, 2), (3, 1)]
+d2l.plot(x.asnumpy(), [normal(x, mu, sigma).asnumpy() for mu, sigma in params], xlabel='x',
+         ylabel='p(x)', figsize=(4.5, 2.5),
+         legend=[f'mean {mu}, std {sigma}' for mu, sigma in params])
+```
+
+```{.python .input}
+#@tab pytorch, tensorflow
 # 再次使用numpy进行可视化
 x = np.arange(-7, 7, 0.01)
 
@@ -448,9 +459,9 @@ $$-\log P(\mathbf y \mid \mathbf X) = \sum_{i=1}^n \frac{1}{2} \log(2 \pi \sigma
 这种想法归功于我们对真实生物神经系统的研究。
 
 当今大多数深度学习的研究几乎没有直接从神经科学中获得灵感。
-我们援引斯图尔特·罗素和彼得·诺维格谁，在他们的经典人工智能教科书
+我们援引斯图尔特·罗素和彼得·诺维格在他们的经典人工智能教科书
 *Artificial Intelligence:A Modern Approach* :cite:`Russell.Norvig.2016`
-中所说：虽然飞机可能受到鸟类的启发，但几个世纪以来，鸟类学并不是航空创新的主要驱动力。
+中所说的：虽然飞机可能受到鸟类的启发，但几个世纪以来，鸟类学并不是航空创新的主要驱动力。
 同样地，如今在深度学习中的灵感同样或更多地来自数学、统计学和计算机科学。
 
 ## 小结

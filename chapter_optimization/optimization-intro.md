@@ -98,7 +98,24 @@ annotate('saddle point', (0, -0.2), (-0.52, -5.0))
 如下例所示，较高维度的鞍点甚至更加隐蔽。考虑这个函数$f(x, y) = x^2 - y^2$。它的鞍点为$(0, 0)$。这是关于$y$的最大值，也是关于$x$的最小值。此外，它看起来像个马鞍，这就是鞍点的名字由来。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet
+x, y = d2l.meshgrid(
+    d2l.linspace(-1.0, 1.0, 101), d2l.linspace(-1.0, 1.0, 101))
+z = x**2 - y**2
+ax = d2l.plt.figure().add_subplot(111, projection='3d')
+ax.plot_wireframe(x.asnumpy(), y.asnumpy(), z.asnumpy(),
+                  **{'rstride': 10, 'cstride': 10})
+ax.plot([0], [0], [0], 'rx')
+ticks = [-1, 0, 1]
+d2l.plt.xticks(ticks)
+d2l.plt.yticks(ticks)
+ax.set_zticks(ticks)
+d2l.plt.xlabel('x')
+d2l.plt.ylabel('y');
+```
+
+```{.python .input}
+#@tab pytorch, tensorflow
 x, y = d2l.meshgrid(
     d2l.linspace(-1.0, 1.0, 101), d2l.linspace(-1.0, 1.0, 101))
 z = x**2 - y**2
@@ -144,12 +161,12 @@ annotate('vanishing gradient', (4, 1), (2, 0.0))
 
 ## 练习
 
-1. 考虑一个简单的单隐藏层的多层感知机，其中隐藏层维度为$d$和输出为1。证明对于任何局部最小值，至少有$d!$个等价解。
-1. 假设我们有一个随机对称矩阵$\mathbf{M}$，其中$M_{ij} = M_{ji}$各自从某种概率分布$p_{ij}$中抽取。此外，假设$p_{ij}(x) = p_{ij}(-x)$，即分布是对称的（详情请参见 :cite:`Wigner.1958`）。
-    1. 证明特征值的分布也是对称的。也就是说，对于任何特征向量$\mathbf{v}$，相关的特征值$\lambda$满足$P(\lambda > 0) = P(\lambda < 0)$的概率为$P(\lambda > 0) = P(\lambda < 0)$。
-    1. 为什么上面*没有*暗示$P(\lambda > 0) = 0.5$？
-1. 深度学习优化还涉及哪些其他挑战？
-1. 假设想在马鞍上平衡放置一个真实的球。
+1. 考虑一个简单的MLP，它有一个隐藏层，比如，隐藏层中维度为$d$和一个输出。证明对于任何局部最小值，至少有$d！$个等效方案。
+1. 假设我们有一个对称随机矩阵$\mathbf{M}$，其中条目$M_{ij} = M_{ji}$各自从某种概率分布$p_{ij}$中抽取。此外，假设$p_{ij}(x) = p_{ij}(-x)$，即分布是对称的（详情请参见 :cite:`Wigner.1958`）。
+    1. 证明特征值的分布也是对称的。也就是说，对于任何特征向量$\mathbf{v}$，关联的特征值$\lambda$满足$P(\lambda > 0) = P(\lambda < 0)$的概率为$P(\lambda > 0) = P(\lambda < 0)$。
+    1. 为什么以上*没有*暗示$P(\lambda > 0) = 0.5$？
+1. 你能想到深度学习优化还涉及哪些其他挑战？
+1. 假设你想在（真实的）鞍上平衡一个（真实的）球。
     1. 为什么这很难？
     1. 能利用这种效应来优化算法吗？
 

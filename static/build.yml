@@ -2,12 +2,12 @@ dependencies:
   - python=3.8
   - pip
   - pip:
-    - d2l==0.17.3
+    - d2l==0.17.5
     - git+https://github.com/d2l-ai/d2l-book
-    - mxnet-cu101==1.7.0
-    - torch==1.8.1+cu101
+    - mxnet-cu102==1.7.0
+    - torch==1.11.0+cu102
     - -f https://download.pytorch.org/whl/torch_stable.html
-    - torchvision==0.9.1+cu101
+    - torchvision==0.12.0+cu102
     - -f https://download.pytorch.org/whl/torch_stable.html
-    - tensorflow==2.3.1
-    - tensorflow-probability==0.11.1
+    - tensorflow==2.8.0
+    - tensorflow-probability==0.16.0

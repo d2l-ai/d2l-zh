@@ -91,7 +91,7 @@ def load_pretrained_model(pretrained_model, num_hiddens, ffn_num_hiddens,
     return bert, vocab
 ```
 
-为了便于在大多数机器上演示，我们将在本节中加载和微调经过预训练BERT的小版本（“bert.mall”）。在练习中，我们将展示如何微调大得多的“bert.base”以显著提高测试精度。
+为了便于在大多数机器上演示，我们将在本节中加载和微调经过预训练BERT的小版本（“bert.small”）。在练习中，我们将展示如何微调大得多的“bert.base”以显著提高测试精度。
 
 ```{.python .input}
 #@tab all
@@ -284,7 +284,7 @@ net = BERTClassifier(bert)
 
 回想一下，在 :numref:`sec_bert`中，`MaskLM`类和`NextSentencePred`类在其使用的多层感知机中都有一些参数。这些参数是预训练BERT模型`bert`中参数的一部分，因此是`net`中的参数的一部分。然而，这些参数仅用于计算预训练过程中的遮蔽语言模型损失和下一句预测损失。这两个损失函数与微调下游应用无关，因此当BERT微调时，`MaskLM`和`NextSentencePred`中采用的多层感知机的参数不会更新（陈旧的，staled）。
 
-为了允许具有陈旧梯度的参数，标志`ignore_stale_grad=True`在`step`函数`d2l.train_batch_ch13`中被设置。我们通过该函数使用SNLI的训练集（`train_iter`）和测试集（`test_iter`）对`net`模型进行训练和评估。。由于计算资源有限，[**训练**]和测试精度可以进一步提高：我们把对它的讨论留在练习中。
+为了允许具有陈旧梯度的参数，标志`ignore_stale_grad=True`在`step`函数`d2l.train_batch_ch13`中被设置。我们通过该函数使用SNLI的训练集（`train_iter`）和测试集（`test_iter`）对`net`模型进行训练和评估。由于计算资源有限，[**训练**]和测试精度可以进一步提高：我们把对它的讨论留在练习中。
 
 ```{.python .input}
 lr, num_epochs = 1e-4, 5
@@ -310,7 +310,7 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
 
 ## 练习
 
-1. 如果您的计算资源允许，请微调一个更大的预训练BERT模型，该模型与原始的BERT基础模型一样大。修改`load_pretrained_model`函数中的参数设置：将“bert.mall”替换为“bert.base”，将`num_hiddens=256`、`ffn_num_hiddens=512`、`num_heads=4`和`num_layers=2`的值分别增加到768、3072、12和12。通过增加微调迭代轮数（可能还会调优其他超参数），可以获得高于0.86的测试精度吗？
+1. 如果您的计算资源允许，请微调一个更大的预训练BERT模型，该模型与原始的BERT基础模型一样大。修改`load_pretrained_model`函数中的参数设置：将“bert.small”替换为“bert.base”，将`num_hiddens=256`、`ffn_num_hiddens=512`、`num_heads=4`和`num_layers=2`的值分别增加到768、3072、12和12。通过增加微调迭代轮数（可能还会调优其他超参数），你可以获得高于0.86的测试精度吗？
 1. 如何根据一对序列的长度比值截断它们？将此对截断方法与`SNLIBERTDataset`类中使用的方法进行比较。它们的利弊是什么？
 
 :begin_tab:`mxnet`

@@ -43,7 +43,7 @@ $\mathbf{y}_1, \ldots, \mathbf{y}_n$，其中：
 
 $$\mathbf{y}_i = f(\mathbf{x}_i, (\mathbf{x}_1, \mathbf{x}_1), \ldots, (\mathbf{x}_n, \mathbf{x}_n)) \in \mathbb{R}^d$$
 
-根据 :eqref:`eq_attn-pooling`中定义的注意力池化函数$f$。
+根据 :eqref:`eq_attn-pooling`中定义的注意力汇聚函数$f$。
 下面的代码片段是基于多头注意力对一个张量完成自注意力的计算，
 张量的形状为（批量大小，时间步的数目或词元序列的长度，$d$）。
 输出与输入的张量形状相同。
