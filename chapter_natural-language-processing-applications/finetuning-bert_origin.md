@@ -12,7 +12,7 @@ In :numref:`sec_bert`,
 we introduced a pretraining model, BERT,
 that requires minimal architecture changes
 for a wide range of natural language processing tasks.
-One one hand,
+On one hand,
 at the time of its proposal,
 BERT improved the state of the art on various natural language processing tasks.
 On the other hand,

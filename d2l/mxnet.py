@@ -1491,7 +1491,7 @@ def multibox_prior(data, sizes, ratios):
     ratio_tensor = d2l.tensor(ratios, ctx=device)
 
     # 为了将锚点移动到像素的中心，需要设置偏移量。
-    # 因为一个像素的的高为1且宽为1，我们选择偏移我们的中心0.5
+    # 因为一个像素的高为1且宽为1，我们选择偏移我们的中心0.5
     offset_h, offset_w = 0.5, 0.5
     steps_h = 1.0 / in_height  # 在y轴上缩放步长
     steps_w = 1.0 / in_width  # 在x轴上缩放步长
