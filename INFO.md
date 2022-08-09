@@ -30,11 +30,13 @@ sudo apt-get install librsvg2-bin
 ```
 
 ```
-wget https://github.com/adobe-fonts/source-han-sans/raw/release/OTF/SimplifiedChinese/SourceHanSansSC-Medium.otf
-wget https://github.com/adobe-fonts/source-han-serif/raw/release/OTF/SimplifiedChinese/SourceHanSerifSC-SemiBold.otf
-wget https://github.com/adobe-fonts/source-han-serif/raw/release/OTF/SimplifiedChinese/SourceHanSerifSC-ExtraLight.otf
+wget https://github.com/adobe-fonts/source-han-sans/releases/download/2.004R/SourceHanSansSC.zip
+wget -O SourceHanSerifSC.zip https://github.com/adobe-fonts/source-han-serif/releases/download/2.001R/09_SourceHanSerifSC.zip
 
-sudo mv SourceHanSansSC-Medium.otf SourceHanSerifSC-ExtraLight.otf SourceHanSerifSC-SemiBold.otf /usr/share/fonts/opentype/
+unzip SourceHanSansSC.zip -d SourceHanSansSC
+unzip SourceHanSerifSC.zip -d SourceHanSerifSC
+
+sudo mv SourceHanSansSC SourceHanSerifSC /usr/share/fonts/opentype/
 sudo fc-cache -f -v
 ```
 
