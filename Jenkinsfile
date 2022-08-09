@@ -20,7 +20,6 @@ stage("Build and Publish") {
       pip install git+https://github.com/d2l-ai/d2l-book
       pip list
       nvidia-smi
-      d2lbook clear
       """
 
       sh label: "Sanity Check", script: """set -ex
