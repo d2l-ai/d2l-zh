@@ -3,6 +3,7 @@ dependencies:
   - pip
   - pip:
     - ..
+    - d2l==0.17.5
     - git+https://github.com/d2l-ai/d2l-book
     - mxnet-cu102==1.7.0
     - torch==1.11.0+cu102
