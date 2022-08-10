@@ -485,7 +485,7 @@ A.sum(axis=[0, 1])  # 结果和A.sum()相同
 
 ```{.python .input}
 #@tab tensorflow
-tf.reduce_sum(A, axis=[0, 1])  # 结果和 tf.reduce_sum(A) 相同
+tf.reduce_sum(A, axis=[0, 1])  # 结果和tf.reduce_sum(A)相同
 ```
 
 [**一个与求和相关的量是*平均值*（mean或average）**]。
