@@ -6,7 +6,7 @@
 ![将预训练BERT提供给基于多层感知机的自然语言推断架构](../img/nlp-map-nli-bert.svg)
 :label:`fig_nlp-map-nli-bert`
 
-在本节中，我们将下载一个预训练好的小版本的BERT，然后对其进行微调，以便在SNLI数据集上进行自然语言推断。
+本节将下载一个预训练好的小版本的BERT，然后对其进行微调，以便在SNLI数据集上进行自然语言推断。
 
 ```{.python .input}
 from d2l import mxnet as d2l

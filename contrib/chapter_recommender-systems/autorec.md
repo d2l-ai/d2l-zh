@@ -113,6 +113,6 @@ d2l.train_recsys_rating(net, train_iter, test_iter, loss, trainer, num_epochs,
 
 * 修改自动编码器的隐含层维度，观察模型性能的变化。
 * 尝试添加更多的隐含层。这对提高模型的性能有帮助吗？
-* 你能找到更好的编码器激活函数和解码器激活函数吗？
+* 可以找到更好的编码器激活函数和解码器激活函数吗？
 
 [讨论](https://discuss.d2l.ai/t/401)
