@@ -1,6 +1,6 @@
 # 矩阵分解
 
-矩阵分解（Matrix Factorization，MF）是推荐系统文献中公认的一种算法。最初版本的矩阵分解模型由Simon Funk发表在一篇非常知名的[博文](https://sifter.org/~simon/journal/20061211.html)中，他在这篇博文描述了分解矩阵的想法。随后，由于2006年举办的Netflix竞赛，该模型变得广为人知。那时，流媒体和视频租赁公司Netflix为了增进其推荐系统的性能而举办了一项比赛。如果最佳团队（例如Cinematch）能够将Netflix的基线提高10%，那么他们将赢得100万美元的奖励。这一比赛在推荐系统领域引起了广泛的关注。随后，BellKor's Pragmatic Chaos团队（一个由BellKor、Pragmatic Theory和BigChaos混合组成的团队）赢得了这一大奖。尽管他们的最终评分来自一个集成解决方案，矩阵分解算法仍在其中起到了关键作用。Netflix Grand Prize的技术报告:cite:`Toscher.Jahrer.Bell.2009`详细解释了该方案所采用的模型。在本节中，我们将深入研究矩阵分解模型的细节和实现过程。
+矩阵分解（Matrix Factorization，MF）是推荐系统文献中公认的一种算法。最初版本的矩阵分解模型由Simon Funk发表在一篇非常知名的[博文](https://sifter.org/~simon/journal/20061211.html)中，他在这篇博文描述了分解矩阵的想法。随后，由于2006年举办的Netflix竞赛，该模型变得广为人知。那时，流媒体和视频租赁公司Netflix为了增进其推荐系统的性能而举办了一项比赛。如果最佳团队（例如Cinematch）能够将Netflix的基线提高10%，那么他们将赢得100万美元的奖励。这一比赛在推荐系统领域引起了广泛的关注。随后，BellKor's Pragmatic Chaos团队（一个由BellKor、Pragmatic Theory和BigChaos混合组成的团队）赢得了这一大奖。尽管他们的最终评分来自一个集成解决方案，矩阵分解算法仍在其中起到了关键作用。Netflix Grand Prize的技术报告:cite:`Toscher.Jahrer.Bell.2009`详细解释了该方案所采用的模型。本节将深入研究矩阵分解模型的细节和实现过程。
 
 ## 矩阵分解模型
 

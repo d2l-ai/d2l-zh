@@ -376,7 +376,7 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 1. DenseNet的优点之一是其模型参数比ResNet小。为什么呢？
 1. DenseNet一个诟病的问题是内存或显存消耗过多。
     1. 真的是这样吗？可以把输入形状换成$224 \times 224$，来看看实际的显存消耗。
-    1. 你能想出另一种方法来减少显存消耗吗？你需要如何改变框架？
+    1. 有另一种方法来减少显存消耗吗？需要改变框架么？
 1. 实现DenseNet论文 :cite:`Huang.Liu.Van-Der-Maaten.ea.2017`表1所示的不同DenseNet版本。
 1. 应用DenseNet的思想设计一个基于多层感知机的模型。将其应用于 :numref:`sec_kaggle_house`中的房价预测任务。
 

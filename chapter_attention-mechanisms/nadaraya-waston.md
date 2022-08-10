@@ -1,10 +1,10 @@
 # 注意力汇聚：Nadaraya-Watson 核回归
 :label:`sec_nadaraya-watson`
 
-上节我们介绍了框架下的注意力机制的主要成分 :numref:`fig_qkv`：
-查询（自主提示）和键（非自主提示）之间的交互形成了注意力汇聚，
+上节介绍了框架下的注意力机制的主要成分 :numref:`fig_qkv`：
+查询（自主提示）和键（非自主提示）之间的交互形成了注意力汇聚；
 注意力汇聚有选择地聚合了值（感官输入）以生成最终的输出。
-在本节中，我们将介绍注意力汇聚的更多细节，
+本节将介绍注意力汇聚的更多细节，
 以便从宏观上了解注意力机制在实践中的运作方式。
 具体来说，1964年提出的Nadaraya-Watson核回归模型
 是一个简单但完整的例子，可以用于演示具有注意力机制的机器学习。
@@ -44,8 +44,8 @@ $\{(x_1, y_1), \ldots, (x_n, y_n)\}$，
 $$y_i = 2\sin(x_i) + x_i^{0.8} + \epsilon,$$
 
 其中$\epsilon$服从均值为$0$和标准差为$0.5$的正态分布。
-我们生成了$50$个训练样本和$50$个测试样本。
-为了更好地可视化之后的注意力模式，我们将训练样本进行排序。
+在这里生成了$50$个训练样本和$50$个测试样本。
+为了更好地可视化之后的注意力模式，需要将训练样本进行排序。
 
 ```{.python .input}
 n_train = 50  # 训练样本数
@@ -113,13 +113,13 @@ def plot_kernel_reg(y_hat):
 
 ## 平均汇聚
 
-我们先使用最简单的估计器来解决回归问题：
+先使用最简单的估计器来解决回归问题。
 基于平均汇聚来计算所有训练样本输出值的平均值：
 
 $$f(x) = \frac{1}{n}\sum_{i=1}^n y_i,$$
 :eqlabel:`eq_avg-pooling`
 
-如下图所示，这个估计器确实不够聪明：
+如下图所示，这个估计器确实不够聪明。
 真实函数$f$（“Truth”）和预测函数（“Pred”）相差很大。
 
 ```{.python .input}
@@ -152,7 +152,7 @@ $$f(x) = \sum_{i=1}^n \frac{K(x - x_i)}{\sum_{j=1}^n K(x - x_j)} y_i,$$
 其中$K$是*核*（kernel）。
 公式 :eqref:`eq_nadaraya-watson`所描述的估计器被称为
 *Nadaraya-Watson核回归*（Nadaraya-Watson kernel regression）。
-这里我们不会深入讨论核函数的细节，
+这里不会深入讨论核函数的细节，
 但受此启发，
 我们可以从 :numref:`fig_qkv`中的注意力机制框架的角度
 重写 :eqref:`eq_nadaraya-watson`，
@@ -172,7 +172,7 @@ $$f(x) = \sum_{i=1}^n \alpha(x, x_i) y_i,$$
 它们是非负的，并且总和为1。
 
 为了更好地理解注意力汇聚，
-我们考虑一个*高斯核*（Gaussian kernel），其定义为：
+下面考虑一个*高斯核*（Gaussian kernel），其定义为：
 
 $$K(u) = \frac{1}{\sqrt{2\pi}} \exp(-\frac{u^2}{2}).$$
 
@@ -191,7 +191,7 @@ $$\begin{aligned} f(x) &=\sum_{i=1}^n \alpha(x, x_i) y_i\\ &= \sum_{i=1}^n \frac
 因此， :eqref:`eq_nadaraya-watson-gaussian`是
 *非参数的注意力汇聚*（nonparametric attention pooling）模型。
 接下来，我们将基于这个非参数的注意力汇聚模型来绘制预测结果。
-你会发现新的模型预测线是平滑的，并且比平均汇聚的预测更接近真实。
+从绘制的结果会发现新的模型预测线是平滑的，并且比平均汇聚的预测更接近真实。
 
 ```{.python .input}
 # X_repeat的形状:(n_test,n_train),
@@ -231,7 +231,7 @@ y_hat = tf.matmul(attention_weights, tf.expand_dims(y_train, axis=1))
 plot_kernel_reg(y_hat)
 ```
 
-现在，我们来观察注意力的权重。
+现在来观察注意力的权重。
 这里测试数据的输入相当于查询，而训练数据的输入相当于键。
 因为两个输入都是经过排序的，因此由观察可知“查询-键”对越接近，
 注意力汇聚的[**注意力权重**]就越高。
@@ -269,7 +269,7 @@ d2l.show_heatmaps(tf.expand_dims(
 $$\begin{aligned}f(x) &= \sum_{i=1}^n \alpha(x, x_i) y_i \\&= \sum_{i=1}^n \frac{\exp\left(-\frac{1}{2}((x - x_i)w)^2\right)}{\sum_{j=1}^n \exp\left(-\frac{1}{2}((x - x_j)w)^2\right)} y_i \\&= \sum_{i=1}^n \mathrm{softmax}\left(-\frac{1}{2}((x - x_i)w)^2\right) y_i.\end{aligned}$$
 :eqlabel:`eq_nadaraya-watson-gaussian-para`
 
-在本节的余下部分，我们将通过训练这个模型
+本节的余下部分将通过训练这个模型
  :eqref:`eq_nadaraya-watson-gaussian-para`来学习注意力汇聚的参数。
 
 ### 批量矩阵乘法
@@ -485,7 +485,7 @@ for epoch in range(5):
     animator.add(epoch + 1, float(loss))
 ```
 
-如下所示，训练完带参数的注意力汇聚模型后，我们发现：
+如下所示，训练完带参数的注意力汇聚模型后可以发现：
 在尝试拟合带噪声的训练数据时，
 [**预测结果绘制**]的线不如之前非参数模型的平滑。
 
@@ -519,7 +519,7 @@ plot_kernel_reg(y_hat)
 ```
 
 为什么新的模型更不平滑了呢？
-我们看一下输出结果的绘制图：
+下面看一下输出结果的绘制图：
 与非参数的注意力汇聚模型相比，
 带参数的模型加入可学习的参数后，
 [**曲线在注意力权重较大的区域变得更不平滑**]。
@@ -554,7 +554,7 @@ d2l.show_heatmaps(tf.expand_dims(
 
 ## 练习
 
-1. 增加训练数据的样本数量，你能否得到更好的非参数的Nadaraya-Watson核回归模型？
+1. 增加训练数据的样本数量，能否得到更好的非参数的Nadaraya-Watson核回归模型？
 1. 在带参数的注意力汇聚的实验中学习得到的参数$w$的价值是什么？为什么在可视化注意力权重时，它会使加权区域更加尖锐？
 1. 如何将超参数添加到非参数的Nadaraya-Watson核回归中以实现更好地预测结果？
 1. 为本节的核回归设计一个新的带参数的注意力汇聚模型。训练这个新模型并可视化其注意力权重。

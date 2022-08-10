@@ -1,7 +1,7 @@
 # 子词嵌入
 :label:`sec_fasttext`
 
-在英语中，“helps”、“helped”和“helping”等单词都是同一个词“help”的变形形式。“dog”和“dogs”之间的关系与“cat”和“cats”之间的关系相同，“boy”和“boyfriend”之间的关系与“girl”和“girlfriend”之间的关系相同。在法语和西班牙语等其他语言中，许多动词有40多种变形形式，而在芬兰语中，名词最多可能有15种变形。在语言学中，形态学研究单词形成和词汇关系。但是，word2vec和GloVe都没有对词的内部结构进行探讨。
+在英语中，“helps”“helped”和“helping”等单词都是同一个词“help”的变形形式。“dog”和“dogs”之间的关系与“cat”和“cats”之间的关系相同，“boy”和“boyfriend”之间的关系与“girl”和“girlfriend”之间的关系相同。在法语和西班牙语等其他语言中，许多动词有40多种变形形式，而在芬兰语中，名词最多可能有15种变形。在语言学中，形态学研究单词形成和词汇关系。但是，word2vec和GloVe都没有对词的内部结构进行探讨。
 
 ## fastText模型
 
@@ -10,7 +10,7 @@
 让我们来说明如何以单词“where”为例获得fastText中每个中心词的子词。首先，在词的开头和末尾添加特殊字符“&lt;”和“&gt;”，以将前缀和后缀与其他子词区分开来。
 然后，从词中提取字符$n$-gram。
 例如，值$n=3$时，我们将获得长度为3的所有子词：
-“&lt;wh”、“whe”、“her”、“ere”、“re&gt;”和特殊子词“&lt;where&gt;”。
+“&lt;wh”“whe”“her”“ere”“re&gt;”和特殊子词“&lt;where&gt;”。
 
 在fastText中，对于任意词$w$，用$\mathcal{G}_w$表示其长度在3和6之间的所有子词与其特殊子词的并集。词表是所有词的子词的集合。假设$\mathbf{z}_g$是词典中的子词$g$的向量，则跳元模型中作为中心词的词$w$的向量$\mathbf{v}_w$是其子词向量的和：
 
@@ -93,7 +93,7 @@ for i in range(num_merges):
 print(symbols)
 ```
 
-对于在词典`raw_token_freqs`的键中指定的同一数据集，作为字节对编码算法的结果，数据集中的每个词现在被子词“fast_”、“fast”、“er_”、“tall_”和“tall”分割。例如，单词“fast er_”和“tall er_”分别被分割为“fast er_”和“tall er_”。
+对于在词典`raw_token_freqs`的键中指定的同一数据集，作为字节对编码算法的结果，数据集中的每个词现在被子词“fast_”“fast”“er_”“tall_”和“tall”分割。例如，单词“fast er_”和“tall er_”分别被分割为“fast er_”和“tall er_”。
 
 ```{.python .input}
 #@tab all

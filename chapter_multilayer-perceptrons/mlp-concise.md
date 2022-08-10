@@ -1,7 +1,7 @@
 # 多层感知机的简洁实现
 :label:`sec_mlp_concise`
 
-正如你所期待的，我们可以(**通过高级API更简洁地实现多层感知机**)。
+本节将介绍(**通过高级API更简洁地实现多层感知机**)。
 
 ```{.python .input}
 from d2l import mxnet as d2l
