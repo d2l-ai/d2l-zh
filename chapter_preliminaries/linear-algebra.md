@@ -480,7 +480,7 @@ A.sum(axis=[0, 1])  # 结果和 A.sum() 相同
 
 ```{.python .input}
 #@tab pytorch
-A.sum(axis=[0, 1])  # 结果和 A.sum() 相同
+A.sum(axis=[0, 1])  # 结果和A.sum()相同
 ```
 
 ```{.python .input}
