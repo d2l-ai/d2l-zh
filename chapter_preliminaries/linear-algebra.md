@@ -475,7 +475,7 @@ A_sum_axis1, A_sum_axis1.shape
 沿着行和列对矩阵求和，等价于对矩阵的所有元素进行求和。
 
 ```{.python .input}
-A.sum(axis=[0, 1])  # 结果和 A.sum() 相同
+A.sum(axis=[0, 1])  # 结果和A.sum()相同
 ```
 
 ```{.python .input}
