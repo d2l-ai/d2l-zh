@@ -7,8 +7,9 @@
 
 ## 标量
 
+
 如果你曾经在餐厅支付餐费，那么应该已经知道一些基本的线性代数，比如在数字间相加或相乘。
-例如，北京的温度为$52^{\circ}F$（除了摄氏度外，另一种温度计量单位）。
+例如，北京的温度为$52^{\circ}F$（华氏度，除摄氏度外的另一种温度计量单位）。
 严格来说，仅包含一个数值被称为*标量*（scalar）。
 如果要将此华氏度值转换为更常用的摄氏度，
 则可以计算表达式$c=\frac{5}{9}(f-32)$，并将$f$赋为$52$。
@@ -474,17 +475,17 @@ A_sum_axis1, A_sum_axis1.shape
 沿着行和列对矩阵求和，等价于对矩阵的所有元素进行求和。
 
 ```{.python .input}
-A.sum(axis=[0, 1])  # SameasA.sum()
+A.sum(axis=[0, 1])  # 结果和A.sum()相同
 ```
 
 ```{.python .input}
 #@tab pytorch
-A.sum(axis=[0, 1])  # SameasA.sum()
+A.sum(axis=[0, 1])  # 结果和A.sum()相同
 ```
 
 ```{.python .input}
 #@tab tensorflow
-tf.reduce_sum(A, axis=[0, 1])  # Sameastf.reduce_sum(A)
+tf.reduce_sum(A, axis=[0, 1])  # 结果和tf.reduce_sum(A)相同
 ```
 
 [**一个与求和相关的量是*平均值*（mean或average）**]。
