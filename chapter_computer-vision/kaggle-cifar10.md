@@ -3,13 +3,13 @@
 
 之前几节中，我们一直在使用深度学习框架的高级API直接获取张量格式的图像数据集。
 但是在实践中，图像数据集通常以图像文件的形式出现。
-在本节中，我们将从原始图像文件开始，然后逐步组织、读取并将它们转换为张量格式。
+本节将从原始图像文件开始，然后逐步组织、读取并将它们转换为张量格式。
 
 我们在 :numref:`sec_image_augmentation`中对CIFAR-10数据集做了一个实验。CIFAR-10是计算机视觉领域中的一个重要的数据集。
-在本节中，我们将运用我们在前几节中学到的知识来参加CIFAR-10图像分类问题的Kaggle竞赛，(**比赛的网址是https://www.kaggle.com/c/cifar-10**)。
+本节将运用我们在前几节中学到的知识来参加CIFAR-10图像分类问题的Kaggle竞赛，(**比赛的网址是https://www.kaggle.com/c/cifar-10**)。
 
  :numref:`fig_kaggle_cifar10`显示了竞赛网站页面上的信息。
-为了能提交结果，你需要首先注册Kaggle账户。
+为了能提交结果，首先需要注册一个Kaggle账户。
 
 ![CIFAR-10 图像分类竞赛页面上的信息。竞赛用的数据集可通过点击“Data”选项卡获取。](../img/kaggle-cifar10.png)
 :width:`600px`
@@ -54,7 +54,7 @@ import shutil
 ### 下载数据集
 
 登录Kaggle后，我们可以点击 :numref:`fig_kaggle_cifar10`中显示的CIFAR-10图像分类竞赛网页上的“Data”选项卡，然后单击“Download All”按钮下载数据集。
-在`../data`中解压下载的文件并在其中解压缩`train.7z`和`test.7z`后，你将在以下路径中找到整个数据集：
+在`../data`中解压下载的文件并在其中解压缩`train.7z`和`test.7z`后，在以下路径中可以找到整个数据集：
 
 * `../data/cifar-10/train/[1-50000].png`
 * `../data/cifar-10/test/[1-300000].png`
@@ -65,7 +65,7 @@ import shutil
 `sample_submission.csv`是提交文件的范例。
 
 为了便于入门，[**我们提供包含前1000个训练图像和5个随机测试图像的数据集的小规模样本**]。
-要使用Kaggle竞赛的完整数据集，你需要将以下`demo`变量设置为`False`。
+要使用Kaggle竞赛的完整数据集，需要将以下`demo`变量设置为`False`。
 
 ```{.python .input}
 #@tab all
@@ -73,7 +73,7 @@ import shutil
 d2l.DATA_HUB['cifar10_tiny'] = (d2l.DATA_URL + 'kaggle_cifar10_tiny.zip',
                                 '2068874e4b9a9f0fb07ebe0ad2b29754449ccacd')
 
-# 如果你使用完整的Kaggle竞赛的数据集，设置demo为False
+# 如果使用完整的Kaggle竞赛的数据集，设置demo为False
 demo = True
 
 if demo:
@@ -186,7 +186,7 @@ transform_train = gluon.data.vision.transforms.Compose([
     # 在高度和宽度上将图像放大到40像素的正方形
     gluon.data.vision.transforms.Resize(40),
     # 随机裁剪出一个高度和宽度均为40像素的正方形图像，
-    # 生成一个面积为原始图像面积0.64到1倍的小正方形，
+    # 生成一个面积为原始图像面积0.64～1倍的小正方形，
     # 然后将其缩放为高度和宽度均为32像素的正方形
     gluon.data.vision.transforms.RandomResizedCrop(32, scale=(0.64, 1.0),
                                                    ratio=(1.0, 1.0)),
@@ -203,7 +203,7 @@ transform_train = torchvision.transforms.Compose([
     # 在高度和宽度上将图像放大到40像素的正方形
     torchvision.transforms.Resize(40),
     # 随机裁剪出一个高度和宽度均为40像素的正方形图像，
-    # 生成一个面积为原始图像面积0.64到1倍的小正方形，
+    # 生成一个面积为原始图像面积0.64～1倍的小正方形，
     # 然后将其缩放为高度和宽度均为32像素的正方形
     torchvision.transforms.RandomResizedCrop(32, scale=(0.64, 1.0),
                                                    ratio=(1.0, 1.0)),
@@ -525,8 +525,8 @@ df.to_csv('submission.csv', index=False)
 
 ## 练习
 
-1. 在这场Kaggle竞赛中使用完整的CIFAR-10数据集。将超参数设为`batch_size = 128`，`num_epochs = 100`，`lr = 0.1`，`lr_period = 50`，`lr_decay = 0.1`。看看你在这场比赛中能达到什么准确度和排名。或者你能进一步改进吗？
-1. 不使用图像增广时，你能获得怎样的准确度？
+1. 在这场Kaggle竞赛中使用完整的CIFAR-10数据集。将超参数设为`batch_size = 128`，`num_epochs = 100`，`lr = 0.1`，`lr_period = 50`，`lr_decay = 0.1`。看看在这场比赛中能达到什么准确度和排名。能进一步改进吗？
+1. 不使用图像增广时，能获得怎样的准确度？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/2830)

@@ -171,7 +171,7 @@ def load_data_imdb(batch_size, num_steps=500):
 ## 练习
 
 1. 我们可以修改本节中的哪些超参数来加速训练情感分析模型？
-1. 你能实现一个函数来将[Amazon reviews](https://snap.stanford.edu/data/web-Amazon.html)的数据集加载到数据迭代器中进行情感分析吗？
+1. 请实现一个函数来将[Amazon reviews](https://snap.stanford.edu/data/web-Amazon.html)的数据集加载到数据迭代器中进行情感分析。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/5725)

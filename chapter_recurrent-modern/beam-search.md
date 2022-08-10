@@ -3,7 +3,7 @@
 
 在 :numref:`sec_seq2seq`中，我们逐个预测输出序列，
 直到预测序列中出现特定的序列结束词元“&lt;eos&gt;”。
-在本节中，我们将首先介绍*贪心搜索*（greedy search）策略，
+本节将首先介绍*贪心搜索*（greedy search）策略，
 并探讨其存在的问题，然后对比其他替代策略：
 *穷举搜索*（exhaustive search）和*束搜索*（beam search）。
 
@@ -36,12 +36,12 @@ $$y_{t'} = \operatorname*{argmax}_{y \in \mathcal{Y}} P(y \mid y_1, \ldots, y_{t
 :label:`fig_s2s-prob1`
 
 如 :numref:`fig_s2s-prob1`中，
-假设输出中有四个词元“A”、“B”、“C”和“&lt;eos&gt;”。
+假设输出中有四个词元“A”“B”“C”和“&lt;eos&gt;”。
 每个时间步下的四个数字分别表示在该时间步
-生成“A”、“B”、“C”和“&lt;eos&gt;”的条件概率。
+生成“A”“B”“C”和“&lt;eos&gt;”的条件概率。
 在每个时间步，贪心搜索选择具有最高条件概率的词元。
 因此，将在 :numref:`fig_s2s-prob1`中
-预测输出序列“A”、“B”、“C”和“&lt;eos&gt;”。
+预测输出序列“A”“B”“C”和“&lt;eos&gt;”。
 这个输出序列的条件概率是
 $0.5\times0.4\times0.4\times0.6 = 0.048$。
 
@@ -63,16 +63,16 @@ $\prod_{t'=1}^{T'} P(y_{t'} \mid y_1, \ldots, y_{t'-1}, \mathbf{c})$
  :numref:`fig_s2s-prob2`中的“A”和“C”，
 因此时间步$3$处的每个词元的条件概率也在 :numref:`fig_s2s-prob2`中改变。
 假设我们在时间步$3$选择词元“B”，
-于是当前的时间步$4$基于前三个时间步的输出子序列“A”、“C”和“B”为条件，
-这与 :numref:`fig_s2s-prob1`中的“A”、“B”和“C”不同。
+于是当前的时间步$4$基于前三个时间步的输出子序列“A”“C”和“B”为条件，
+这与 :numref:`fig_s2s-prob1`中的“A”“B”和“C”不同。
 因此，在 :numref:`fig_s2s-prob2`中的时间步$4$生成
 每个词元的条件概率也不同于 :numref:`fig_s2s-prob1`中的条件概率。
 结果， :numref:`fig_s2s-prob2`中的输出序列
-“A”、“C”、“B”和“&lt;eos&gt;”的条件概率为
+“A”“C”“B”和“&lt;eos&gt;”的条件概率为
 $0.5\times0.3 \times0.6\times0.6=0.054$，
 这大于 :numref:`fig_s2s-prob1`中的贪心搜索的条件概率。
 这个例子说明：贪心搜索获得的输出序列
-“A”、“B”、“C”和“&lt;eos&gt;”
+“A”“B”“C”和“&lt;eos&gt;”
 不一定是最佳序列。
 
 ## 穷举搜索
@@ -148,7 +148,7 @@ $\alpha$通常设置为$0.75$。
 
 束搜索的计算量为$\mathcal{O}(k\left|\mathcal{Y}\right|T')$，
 这个结果介于贪心搜索和穷举搜索之间。
-实际上，贪心搜索可以看作是一种束宽为$1$的特殊类型的束搜索。
+实际上，贪心搜索可以看作一种束宽为$1$的特殊类型的束搜索。
 通过灵活地选择束宽，束搜索可以在正确率和计算代价之间进行权衡。
 
 ## 小结
@@ -164,6 +164,6 @@ $\alpha$通常设置为$0.75$。
 1. 在 :numref:`sec_seq2seq`的机器翻译问题中应用束搜索。
    束宽是如何影响预测的速度和结果的？
 1. 在 :numref:`sec_rnn_scratch`中，我们基于用户提供的前缀，
-   通过使用语言模型来生成文本。这个例子中使用了哪种搜索策略？你能改进吗？
+   通过使用语言模型来生成文本。这个例子中使用了哪种搜索策略？可以改进吗？
 
 [Discussions](https://discuss.d2l.ai/t/5768)
