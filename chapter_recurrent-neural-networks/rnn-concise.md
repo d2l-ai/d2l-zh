@@ -51,7 +51,7 @@ train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 高级API提供了循环神经网络的实现。
 我们构造一个具有256个隐藏单元的单隐藏层的循环神经网络层`rnn_layer`。
 事实上，我们还没有讨论多层循环神经网络的意义（这将在 :numref:`sec_deep_rnn`中介绍）。
-现在，你仅需要将多层理解为一层循环神经网络的输出被用作下一层循环神经网络的输入就足够了。
+现在仅需要将多层理解为一层循环神经网络的输出被用作下一层循环神经网络的输入就足够了。
 
 ```{.python .input}
 num_hiddens = 256
@@ -358,8 +358,8 @@ d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, device)
 
 ## 练习
 
-1. 尝试使用高级API，你能使循环神经网络模型过拟合吗？
-1. 如果在循环神经网络模型中增加隐藏层的数量会发生什么？你能使模型正常工作吗？
+1. 尝试使用高级API，能使循环神经网络模型过拟合吗？
+1. 如果在循环神经网络模型中增加隐藏层的数量会发生什么？能使模型正常工作吗？
 1. 尝试使用循环神经网络实现 :numref:`sec_sequence`的自回归模型。
 
 :begin_tab:`mxnet`

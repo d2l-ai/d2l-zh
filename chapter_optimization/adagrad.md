@@ -30,7 +30,7 @@ AdaGrad算法 :cite:`Duchi.Hazan.Singer.2011`通过将粗略的计数器$s(i, t)
 ## 预处理
 
 凸优化问题有助于分析算法的特点。
-毕竟对于大多数非凸问题来说，获得有意义的理论保证很难，但是直觉和洞察往往会延续。
+毕竟对大多数非凸问题来说，获得有意义的理论保证很难，但是直觉和洞察往往会延续。
 让我们来看看最小化$f(\mathbf{x}) = \frac{1}{2} \mathbf{x}^\top \mathbf{Q} \mathbf{x} + \mathbf{c}^\top \mathbf{x} + b$这一问题。
 
 正如在 :numref:`sec_momentum`中那样，我们可以根据其特征分解$\mathbf{Q} = \mathbf{U}^\top \boldsymbol{\Lambda} \mathbf{U}$重写这个问题，来得到一个简化得多的问题，使每个坐标都可以单独解出：
@@ -45,7 +45,7 @@ $$f(\mathbf{x}) = \bar{f}(\bar{\mathbf{x}}) = \frac{1}{2} \bar{\mathbf{x}}^\top 
 遗憾的是，情况并非如此。
 虽然$\mathbf{c}$的微小变化导致了$\bar{\mathbf{c}}$同样的微小变化，但$f$的（以及$\bar{f}$的）最小化器并非如此。
 每当特征值$\boldsymbol{\Lambda}_i$很大时，我们只会看到$\bar{x}_i$和$\bar{f}$的最小值发声微小变化。
-相反，对于小的$\boldsymbol{\Lambda}_i$来说，$\bar{x}_i$的变化可能是剧烈的。
+相反，对小的$\boldsymbol{\Lambda}_i$来说，$\bar{x}_i$的变化可能是剧烈的。
 最大和最小的特征值之比称为优化问题的*条件数*（condition number）。
 
 $$\kappa = \frac{\boldsymbol{\Lambda}_1}{\boldsymbol{\Lambda}_d}.$$
@@ -294,7 +294,7 @@ d2l.train_concise_ch11(trainer, {'learning_rate': 0.1}, data_iter)
 1. 证明[格什戈林圆盘定理](https://en.wikipedia.org/wiki/Gershgorin_circle_theorem)，其中提到，矩阵$\mathbf{M}$的特征值$\lambda_i$在至少一个$j$的选项中满足$|\lambda_i - \mathbf{M}_{jj}| \leq \sum_{k \neq j} |\mathbf{M}_{jk}|$的要求。
 1. 关于对角线预处理矩阵$\mathrm{diag}^{-\frac{1}{2}}(\mathbf{M}) \mathbf{M} \mathrm{diag}^{-\frac{1}{2}}(\mathbf{M})$的特征值，格什戈林的定理告诉了我们什么？
 1. 尝试对适当的深度网络使用AdaGrad算法，例如，:numref:`sec_lenet`中应用于Fashion-MNIST的深度网络。
-1. 你要如何修改AdaGrad算法，才能使其在学习率方面的衰减不那么激进？
+1. 要如何修改AdaGrad算法，才能使其在学习率方面的衰减不那么激进？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/4318)

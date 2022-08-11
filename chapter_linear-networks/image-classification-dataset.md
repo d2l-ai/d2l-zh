@@ -58,7 +58,7 @@ mnist_test = gluon.data.vision.FashionMNIST(train=False)
 ```{.python .input}
 #@tab pytorch
 # 通过ToTensor实例将图像数据从PIL类型变换成32位浮点数格式，
-# 并除以255使得所有像素的数值均在0到1之间
+# 并除以255使得所有像素的数值均在0～1之间
 trans = transforms.ToTensor()
 mnist_train = torchvision.datasets.FashionMNIST(
     root="../data", train=True, transform=trans, download=True)
@@ -221,7 +221,7 @@ def get_dataloader_workers():  #@save
     return 0 if sys.platform.startswith('win') else 4
 
 # 通过ToTensor实例将图像数据从uint8格式变换成32位浮点数格式，并除以255使得所有像素的数值
-# 均在0到1之间
+# 均在0～1之间
 transformer = gluon.data.vision.transforms.ToTensor()
 train_iter = gluon.data.DataLoader(mnist_train.transform_first(transformer),
                                    batch_size, shuffle=True,
@@ -373,7 +373,7 @@ for X, y in train_iter:
 ## 练习
 
 1. 减少`batch_size`（如减少到1）是否会影响读取性能？
-1. 数据迭代器的性能非常重要。你认为当前的实现足够快吗？探索各种选择来改进它。
+1. 数据迭代器的性能非常重要。当前的实现足够快吗？探索各种选择来改进它。
 1. 查阅框架的在线API文档。还有哪些其他数据集可用？
 
 :begin_tab:`mxnet`

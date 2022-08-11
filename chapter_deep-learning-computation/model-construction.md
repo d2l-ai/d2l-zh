@@ -169,7 +169,7 @@ net(X)
 ## [**自定义块**]
 
 要想直观地了解块是如何工作的，最简单的方法就是自己实现一个。
-在实现我们自定义块之前，我们简要总结一下每个块必须提供的基本功能：
+在实现我们自定义块之前，我们简要总结一下每个块必须提供的基本功能。
 
 :begin_tab:`mxnet, tensorflow`
 1. 将输入数据作为其前向传播函数的参数。
@@ -318,7 +318,7 @@ net(X)
 为了构建我们自己的简化的`MySequential`，
 我们只需要定义两个关键函数：
 
-1. 一种将块逐个追加到列表中的函数。
+1. 一种将块逐个追加到列表中的函数；
 1. 一种前向传播函数，用于将输入按追加块的顺序传递给块组成的“链条”。
 
 下面的`MySequential`类提供了与默认`Sequential`类相同的功能。
@@ -395,7 +395,7 @@ class MySequential(nn.Layer):
 
 :begin_tab:`mxnet`
 `add`函数向有序字典`_children`添加一个块。
-你可能会好奇为什么每个Gluon中的`Block`都有一个`_children`属性？
+读者可能会好奇为什么每个Gluon中的`Block`都有一个`_children`属性？
 以及为什么我们使用它而不是自己定义一个Python列表？
 简而言之，`_children`的主要优点是：
 在块的参数初始化过程中，
@@ -404,7 +404,7 @@ Gluon知道在`_children`字典中查找需要初始化参数的子块。
 
 :begin_tab:`pytorch`
 `__init__`函数将每个模块逐个添加到有序字典`_modules`中。
-你可能会好奇为什么每个`Module`都有一个`_modules`属性？
+读者可能会好奇为什么每个`Module`都有一个`_modules`属性？
 以及为什么我们使用它而不是自己定义一个Python列表？
 简而言之，`_modules`的主要优点是：
 在模块的参数初始化过程中，
@@ -565,7 +565,7 @@ class FixedHiddenMLP(nn.Layer):
 将输出向量除以$2$，直到它满足条件为止。
 最后，模型返回了`X`中所有项的和。
 注意，此操作可能不会常用于在任何实际任务中，
-我们只是向你展示如何将任意代码集成到神经网络计算的流程中。
+我们只展示如何将任意代码集成到神经网络计算的流程中。
 
 ```{.python .input}
 net = FixedHiddenMLP()
@@ -655,7 +655,7 @@ chimera(X)
 ## 效率
 
 :begin_tab:`mxnet`
-你可能会开始担心操作效率的问题。
+读者可能会开始担心操作效率的问题。
 毕竟，我们在一个高性能的深度学习库中进行了大量的字典查找、
 代码执行和许多其他的Python代码。
 Python的问题[全局解释器锁](https://wiki.python.org/moin/GlobalInterpreterLock)
@@ -672,7 +672,7 @@ Gluon运行时记录正在发生的事情，以及下一次它将对Python调用
 :end_tab:
 
 :begin_tab:`pytorch`
-你可能会开始担心操作效率的问题。
+读者可能会开始担心操作效率的问题。
 毕竟，我们在一个高性能的深度学习库中进行了大量的字典查找、
 代码执行和许多其他的Python代码。
 Python的问题[全局解释器锁](https://wiki.python.org/moin/GlobalInterpreterLock)
@@ -681,7 +681,7 @@ Python的问题[全局解释器锁](https://wiki.python.org/moin/GlobalInterpret
 :end_tab:
 
 :begin_tab:`tensorflow`
-你可能会开始担心操作效率的问题。
+读者可能会开始担心操作效率的问题。
 毕竟，我们在一个高性能的深度学习库中进行了大量的字典查找、
 代码执行和许多其他的Python代码。
 Python的问题[全局解释器锁](https://wiki.python.org/moin/GlobalInterpreterLock)
@@ -710,7 +710,7 @@ Python的问题[全局解释器锁](https://wiki.python.org/moin/GlobalInterpret
 
 1. 如果将`MySequential`中存储块的方式更改为Python列表，会出现什么样的问题？
 1. 实现一个块，它以两个块为参数，例如`net1`和`net2`，并返回前向传播中两个网络的串联输出。这也被称为平行块。
-1. 假设你想要连接同一网络的多个实例。实现一个函数，该函数生成同一个块的多个实例，并在此基础上构建更大的网络。
+1. 假设我们想要连接同一网络的多个实例。实现一个函数，该函数生成同一个块的多个实例，并在此基础上构建更大的网络。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/1828)

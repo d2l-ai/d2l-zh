@@ -1,7 +1,7 @@
 # 自然语言推断：使用注意力
 :label:`sec_natural-language-inference-attention`
 
-我们在 :numref:`sec_natural-language-inference-and-dataset`中介绍了自然语言推断任务和SNLI数据集。鉴于许多模型都是基于复杂而深度的架构，Parikh等人提出用注意力机制解决自然语言推断问题，并称之为“可分解注意力模型” :cite:`Parikh.Tackstrom.Das.ea.2016`。这使得模型没有循环层或卷积层，在SNLI数据集上以更少的参数实现了当时的最佳结果。在本节中，我们将描述并实现这种基于注意力的自然语言推断方法（使用MLP），如 :numref:`fig_nlp-map-nli-attention`中所述。
+我们在 :numref:`sec_natural-language-inference-and-dataset`中介绍了自然语言推断任务和SNLI数据集。鉴于许多模型都是基于复杂而深度的架构，Parikh等人提出用注意力机制解决自然语言推断问题，并称之为“可分解注意力模型” :cite:`Parikh.Tackstrom.Das.ea.2016`。这使得模型没有循环层或卷积层，在SNLI数据集上以更少的参数实现了当时的最佳结果。本节将描述并实现这种基于注意力的自然语言推断方法（使用MLP），如 :numref:`fig_nlp-map-nli-attention`中所述。
 
 ![将预训练GloVe送入基于注意力和MLP的自然语言推断架构](../img/nlp-map-nli-attention.svg)
 :label:`fig_nlp-map-nli-attention`
@@ -180,7 +180,7 @@ class Attend(nn.Layer):
 
 ### 比较
 
-在下一步中，我们将一个序列中的词元与与该词元软对齐的另一个序列进行比较。请注意，在软对齐中，一个序列中的所有词元（尽管可能具有不同的注意力权重）将与另一个序列中的词元进行比较。为便于演示， :numref:`fig_nli_attention`对词元以*硬*的方式对齐。例如，上述的“注意”（attending）步骤确定前提中的“need”和“sleep”都与假设中的“tired”对齐，则将对“疲倦-需要睡眠”进行比较。
+在下一步中，我们将一个序列中的词元与与该词元软对齐的另一个序列进行比较。请注意，在软对齐中，一个序列中的所有词元（尽管可能具有不同的注意力权重）将与另一个序列中的词元进行比较。为便于演示， :numref:`fig_nli_attention`对词元以*硬*的方式对齐。例如，上述的*注意*（attending）步骤确定前提中的“need”和“sleep”都与假设中的“tired”对齐，则将对“疲倦-需要睡眠”进行比较。
 
 在比较步骤中，我们将来自一个序列的词元的连结（运算符$[\cdot, \cdot]$）和来自另一序列的对齐的词元送入函数$g$（一个多层感知机）：
 
@@ -509,9 +509,9 @@ predict_snli(net, vocab, ['he', 'is', 'good', '.'], ['he', 'is', 'bad', '.'])
 
 ## 练习
 
-1. 使用其他超参数组合训练模型。你能在测试集上获得更高的准确度吗？
+1. 使用其他超参数组合训练模型，能在测试集上获得更高的准确度吗？
 1. 自然语言推断的可分解注意模型的主要缺点是什么？
-1. 假设我们想要获得任何一对句子的语义相似级别（例如，0到1之间的连续值）。我们应该如何收集和标注数据集？你能设计一个有注意力机制的模型吗？
+1. 假设我们想要获得任何一对句子的语义相似级别（例如，0～1之间的连续值）。我们应该如何收集和标注数据集？请尝试设计一个有注意力机制的模型。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/5727)
