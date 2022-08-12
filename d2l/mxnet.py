@@ -892,7 +892,7 @@ class Seq2SeqEncoder(d2l.Encoder):
         state = self.rnn.begin_state(batch_size=X.shape[1], ctx=X.ctx)
         output, state = self.rnn(X, state)
         # output的形状:(num_steps,batch_size,num_hiddens)
-        # state[0]的形状:(num_layers,batch_size,num_hiddens)
+        # state的形状:(num_layers,batch_size,num_hiddens)
         return output, state
 
 class MaskedSoftmaxCELoss(gluon.loss.SoftmaxCELoss):
@@ -1194,7 +1194,7 @@ class AddNorm(nn.Block):
         return self.ln(self.dropout(Y) + X)
 
 class EncoderBlock(nn.Block):
-    """transformer编码器块
+    """Transformer编码器块
 
     Defined in :numref:`sec_transformer`"""
     def __init__(self, num_hiddens, ffn_num_hiddens, num_heads, dropout,
@@ -1211,7 +1211,7 @@ class EncoderBlock(nn.Block):
         return self.addnorm2(Y, self.ffn(Y))
 
 class TransformerEncoder(d2l.Encoder):
-    """transformer编码器
+    """Transformer编码器
 
     Defined in :numref:`sec_transformer`"""
     def __init__(self, vocab_size, num_hiddens, ffn_num_hiddens,
@@ -1578,8 +1578,8 @@ def assign_anchor_to_bbox(ground_truth, anchors, device, iou_threshold=0.5):
     anchors_bbox_map = np.full((num_anchors,), -1, dtype=np.int32, ctx=device)
     # 根据阈值，决定是否分配真实边界框
     max_ious, indices = np.max(jaccard, axis=1), np.argmax(jaccard, axis=1)
-    anc_i = np.nonzero(max_ious >= 0.5)[0]
-    box_j = indices[max_ious >= 0.5]
+    anc_i = np.nonzero(max_ious >= iou_threshold)[0]
+    box_j = indices[max_ious >= iou_threshold]
     anchors_bbox_map[anc_i] = box_j
     col_discard = np.full((num_anchors,), -1)
     row_discard = np.full((num_gt_boxes,), -1)
@@ -1621,7 +1621,7 @@ def multibox_target(anchors, labels):
         assigned_bb = d2l.zeros((num_anchors, 4), dtype=np.float32,
                                 ctx=device)
         # 使用真实边界框来标记锚框的类别。
-        # 如果一个锚框没有被分配，我们标记其为背景（值为零）
+        # 如果一个锚框没有被分配，标记其为背景（值为零）
         indices_true = np.nonzero(anchors_bbox_map >= 0)[0]
         bb_idx = anchors_bbox_map[indices_true]
         class_labels[indices_true] = label[bb_idx, 0].astype('int32') + 1

@@ -228,7 +228,8 @@ def voc_colormap2label():
         colormap2label[
             (colormap[0] * 256 + colormap[1]) * 256 + colormap[2]] = i
     return colormap2label
-
+    
+#@save
 def voc_label_indices(colormap, colormap2label):
     """将VOC标签中的RGB值映射到它们的类别索引"""
     colormap = colormap.transpose([1, 2, 0]).astype('int32')

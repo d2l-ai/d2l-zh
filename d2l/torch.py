@@ -968,7 +968,7 @@ class Seq2SeqEncoder(d2l.Encoder):
         # 如果未提及状态，则默认为0
         output, state = self.rnn(X)
         # output的形状:(num_steps,batch_size,num_hiddens)
-        # state[0]的形状:(num_layers,batch_size,num_hiddens)
+        # state的形状:(num_layers,batch_size,num_hiddens)
         return output, state
 
 def sequence_mask(X, valid_len, value=0):
@@ -1296,7 +1296,7 @@ class AddNorm(nn.Module):
         return self.ln(self.dropout(Y) + X)
 
 class EncoderBlock(nn.Module):
-    """transformer编码器块
+    """Transformer编码器块
 
     Defined in :numref:`sec_transformer`"""
     def __init__(self, key_size, query_size, value_size, num_hiddens,
@@ -1316,7 +1316,7 @@ class EncoderBlock(nn.Module):
         return self.addnorm2(Y, self.ffn(Y))
 
 class TransformerEncoder(d2l.Encoder):
-    """transformer编码器
+    """Transformer编码器
 
     Defined in :numref:`sec_transformer`"""
     def __init__(self, vocab_size, key_size, query_size, value_size,
@@ -1502,7 +1502,7 @@ def train_batch_ch13(net, X, y, loss, trainer, devices):
 
     Defined in :numref:`sec_image_augmentation`"""
     if isinstance(X, list):
-        # 微调BERT中所需（稍后讨论）
+        # 微调BERT中所需
         X = [x.to(devices[0]) for x in X]
     else:
         X = X.to(devices[0])
@@ -1600,7 +1600,7 @@ def multibox_prior(data, sizes, ratios):
     # 生成锚框的所有中心点
     center_h = (torch.arange(in_height, device=device) + offset_h) * steps_h
     center_w = (torch.arange(in_width, device=device) + offset_w) * steps_w
-    shift_y, shift_x = torch.meshgrid(center_h, center_w)
+    shift_y, shift_x = torch.meshgrid(center_h, center_w, indexing='ij')
     shift_y, shift_x = shift_y.reshape(-1), shift_x.reshape(-1)
 
     # 生成“boxes_per_pixel”个高和宽，
@@ -1679,8 +1679,8 @@ def assign_anchor_to_bbox(ground_truth, anchors, device, iou_threshold=0.5):
                                   device=device)
     # 根据阈值，决定是否分配真实边界框
     max_ious, indices = torch.max(jaccard, dim=1)
-    anc_i = torch.nonzero(max_ious >= 0.5).reshape(-1)
-    box_j = indices[max_ious >= 0.5]
+    anc_i = torch.nonzero(max_ious >= iou_threshold).reshape(-1)
+    box_j = indices[max_ious >= iou_threshold]
     anchors_bbox_map[anc_i] = box_j
     col_discard = torch.full((num_anchors,), -1)
     row_discard = torch.full((num_gt_boxes,), -1)
@@ -1723,7 +1723,7 @@ def multibox_target(anchors, labels):
         assigned_bb = torch.zeros((num_anchors, 4), dtype=torch.float32,
                                   device=device)
         # 使用真实边界框来标记锚框的类别。
-        # 如果一个锚框没有被分配，我们标记其为背景（值为零）
+        # 如果一个锚框没有被分配，标记其为背景（值为零）
         indices_true = torch.nonzero(anchors_bbox_map >= 0)
         bb_idx = anchors_bbox_map[indices_true]
         class_labels[indices_true] = label[bb_idx, 0].long() + 1
@@ -2255,7 +2255,7 @@ class MaskLM(nn.Module):
         batch_size = X.shape[0]
         batch_idx = torch.arange(0, batch_size)
         # 假设batch_size=2，num_pred_positions=3
-        # 那么batch_idx是np.array（[0,0,0,1,1]）
+        # 那么batch_idx是np.array（[0,0,0,1,1,1]）
         batch_idx = torch.repeat_interleave(batch_idx, num_pred_positions)
         masked_X = X[batch_idx, pred_positions]
         masked_X = masked_X.reshape((batch_size, num_pred_positions, -1))

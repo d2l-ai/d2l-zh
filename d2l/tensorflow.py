@@ -1237,7 +1237,7 @@ class AddNorm(tf.keras.layers.Layer):
         return self.ln(self.dropout(Y, **kwargs) + X)
 
 class EncoderBlock(tf.keras.layers.Layer):
-    """transformer编码器块
+    """Transformer编码器块
 
     Defined in :numref:`sec_transformer`"""
     def __init__(self, key_size, query_size, value_size, num_hiddens,
@@ -1254,7 +1254,7 @@ class EncoderBlock(tf.keras.layers.Layer):
         return self.addnorm2(Y, self.ffn(Y), **kwargs)
 
 class TransformerEncoder(d2l.Encoder):
-    """transformer编码器
+    """Transformer编码器
 
     Defined in :numref:`sec_transformer`"""
     def __init__(self, vocab_size, key_size, query_size, value_size,

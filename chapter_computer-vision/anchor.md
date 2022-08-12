@@ -892,7 +892,7 @@ def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
         uniques, counts = combined.unique(return_counts=True)
         non_keep = uniques[counts == 1]
         all_id_sorted = paddle.concat([keep, non_keep])
-        class_id[non_keep] = -1
+        class_id[non_keep.numpy()] = -1
         class_id = class_id[all_id_sorted]
         conf, predicted_bb = conf[all_id_sorted], predicted_bb[all_id_sorted]
         # pos_threshold是一个用于非背景预测的阈值
