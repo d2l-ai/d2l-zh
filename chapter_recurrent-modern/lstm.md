@@ -71,7 +71,7 @@ $$\tilde{\mathbf{C}}_t = \text{tanh}(\mathbf{X}_t \mathbf{W}_{xc} + \mathbf{H}_{
 $\mathbf{W}_{hc} \in \mathbb{R}^{h \times h}$是权重参数，
 $\mathbf{b}_c \in \mathbb{R}^{1 \times h}$是偏置参数。
 
-候选记忆元的如 :numref:`lstm_1`所示。
+候选记忆元的计算流程图如 :numref:`lstm_1`所示。
 
 ![长短期记忆模型中的候选记忆元](../img/lstm-1.svg)
 :label:`lstm_1`
