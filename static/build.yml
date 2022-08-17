@@ -15,4 +15,4 @@ dependencies:
     - -f https://www.paddlepaddle.org.cn/whl/linux/mkl/avx/stable.html
     - opencv-python==4.6.0.66
     - Pillow==9.0.1
-    - pandas==1.4.3
+    - pandas --upgrade
