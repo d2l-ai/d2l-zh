@@ -68,6 +68,8 @@ d2l.plt.imshow(content_img);
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import paddle as d2l
 import paddle
 import paddle.vision as paddlevision

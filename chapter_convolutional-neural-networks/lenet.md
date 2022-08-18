@@ -89,6 +89,8 @@ def net():
 
 ```{.python .input}
 #@tab paddle
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 import paddle
 from paddle import nn, optimizer
 from d2l import paddle as d2l

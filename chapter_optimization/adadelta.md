@@ -110,6 +110,8 @@ def adadelta(params, grads, states, hyperparams):
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import paddle as d2l
 import paddle
 

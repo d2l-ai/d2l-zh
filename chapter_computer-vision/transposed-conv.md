@@ -27,6 +27,8 @@ from d2l import torch as d2l
 
 ```{.python .input}
 #@tab paddle
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 import paddle
 from paddle import nn
 from d2l import paddle as d2l

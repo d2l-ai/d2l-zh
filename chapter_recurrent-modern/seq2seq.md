@@ -71,6 +71,8 @@ import tensorflow as tf
 
 ```{.python .input}
 #@tab paddle
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 import collections
 from d2l import paddle as d2l
 import math

@@ -75,6 +75,8 @@ def vgg_block(num_convs, num_channels):
 
 ```{.python .input}
 #@tab paddle
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import paddle as d2l
 import paddle
 import paddle.nn as nn

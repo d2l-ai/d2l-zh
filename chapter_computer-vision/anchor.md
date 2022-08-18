@@ -29,6 +29,8 @@ torch.set_printoptions(2)  # 精简输出精度
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import paddle as d2l
 import paddle
 import numpy as np

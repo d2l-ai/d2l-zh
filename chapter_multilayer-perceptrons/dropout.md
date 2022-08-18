@@ -140,6 +140,8 @@ def dropout_layer(X, dropout):
 
 ```{.python .input}
 #@tab pytorch
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import torch as d2l
 import torch
 from torch import nn

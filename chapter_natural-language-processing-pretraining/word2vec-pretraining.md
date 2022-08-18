@@ -29,6 +29,8 @@ data_iter, vocab = d2l.load_data_ptb(batch_size, max_window_size,
 
 ```{.python .input}
 #@tab paddle
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import paddle as d2l
 import math
 import paddle

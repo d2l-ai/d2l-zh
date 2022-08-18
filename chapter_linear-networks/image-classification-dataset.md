@@ -38,6 +38,8 @@ d2l.use_svg_display()
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import paddle as d2l
 import paddle
 from paddle.vision import transforms
