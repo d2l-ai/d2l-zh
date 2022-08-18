@@ -34,12 +34,12 @@ import os
 ```{.python .input}
 #@tab paddle
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 import paddle
 import paddle.vision as paddlevision
 from paddle import nn
 import os
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 ## 获取和整理数据集

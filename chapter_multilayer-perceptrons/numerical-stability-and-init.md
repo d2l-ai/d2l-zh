@@ -101,9 +101,9 @@ d2l.plot(x.numpy(), [y.numpy(), t.gradient(y, x).numpy()],
 #@tab paddle
 %matplotlib inline
 import warnings
+import paddle
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import paddle as d2l
-import paddle
 
 x = paddle.arange(start=-8.0, end=8.0, step=0.1, dtype='float32')
 x.stop_gradient = False

@@ -30,11 +30,11 @@ from torch import nn
 #@tab paddle
 %matplotlib inline
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 import paddle
 import paddle.vision as paddlevision
 from paddle import nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 ## 常用的图像增广方法

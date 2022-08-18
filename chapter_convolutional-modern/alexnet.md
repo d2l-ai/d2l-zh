@@ -210,10 +210,10 @@ def net():
 ```{.python .input}
 #@tab paddle
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 import paddle
 import paddle.nn as nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 
 net = nn.Sequential(
     # 这里，我们使用一个11*11的更大窗口来捕捉对象。

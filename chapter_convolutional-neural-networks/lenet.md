@@ -90,9 +90,9 @@ def net():
 ```{.python .input}
 #@tab paddle
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
 import paddle
 from paddle import nn, optimizer
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import paddle as d2l
 
 net = nn.Sequential(

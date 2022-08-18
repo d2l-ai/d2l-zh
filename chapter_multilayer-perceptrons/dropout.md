@@ -140,8 +140,6 @@ def dropout_layer(X, dropout):
 
 ```{.python .input}
 #@tab pytorch
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import torch as d2l
 import torch
 from torch import nn
@@ -178,10 +176,13 @@ def dropout_layer(X, dropout):
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
 import paddle
 from paddle import nn
 import random
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 
 def dropout_layer(X, dropout):
     assert 0 <= dropout <= 1

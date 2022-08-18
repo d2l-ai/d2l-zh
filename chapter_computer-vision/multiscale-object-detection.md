@@ -46,9 +46,9 @@ h, w
 #@tab paddle
 %matplotlib inline
 import warnings
+import paddle
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import paddle as d2l
-import paddle
 
 img = d2l.plt.imread('../img/catdog.jpg')
 h, w = img.shape[:2]

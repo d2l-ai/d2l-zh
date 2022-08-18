@@ -148,11 +148,11 @@ class Residual(tf.keras.Model):  #@save
 ```{.python .input}
 #@tab paddle
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 import paddle
 import paddle.nn as nn
 from paddle.nn import functional as F
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 
 class Residual(nn.Layer):  #@save
     def __init__(self, input_channels, num_channels, use_1x1conv=False,

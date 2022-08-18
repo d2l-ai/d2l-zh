@@ -45,11 +45,11 @@ import os
 #@tab paddle
 %matplotlib inline
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 import paddle
 import paddle.vision as paddlevision
 import os
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 数据集的tar文件大约为2GB，所以下载可能需要一段时间。

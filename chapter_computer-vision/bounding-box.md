@@ -39,9 +39,9 @@ import tensorflow as tf
 #@tab paddle
 %matplotlib inline
 import warnings
+import paddle
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import paddle as d2l
-import paddle
 ```
 
 下面加载本节将使用的示例图像。可以看到图像左边是一只狗，右边是一只猫。

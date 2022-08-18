@@ -177,12 +177,12 @@ import numpy as np
 
 %matplotlib inline
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 import paddle
 from paddle import nn
 import pandas as pd
 import numpy as np
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 为方便起见，我们可以使用上面定义的脚本下载并缓存Kaggle房屋数据集。

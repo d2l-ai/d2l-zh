@@ -46,9 +46,7 @@ import shutil
 ```{.python .input}
 #@tab paddle
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
 import collections
-from d2l import paddle as d2l
 import math
 import paddle
 import paddle.vision as paddlevision
@@ -56,6 +54,8 @@ from paddle import nn
 import os
 import pandas as pd
 import shutil
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 ## 获取并组织数据集

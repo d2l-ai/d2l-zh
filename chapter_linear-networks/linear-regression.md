@@ -251,12 +251,12 @@ import time
 #@tab paddle
 %matplotlib inline
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 import math
 import paddle
 import numpy as np
 import time
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 为了说明矢量化为什么如此重要，我们考虑(**对向量相加的两种方法**)。

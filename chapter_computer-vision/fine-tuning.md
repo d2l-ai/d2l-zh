@@ -64,12 +64,12 @@ import os
 #@tab paddle
 %matplotlib inline
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 from paddle import nn
 import paddle
 import paddle.vision as paddlevision
 import os
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 ### 获取数据集

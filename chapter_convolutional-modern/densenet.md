@@ -96,10 +96,10 @@ class ConvBlock(tf.keras.layers.Layer):
 ```{.python .input}
 #@tab paddle
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 import paddle
 import paddle.nn as nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 
 def conv_block(input_channels, num_channels):
     return nn.Sequential(

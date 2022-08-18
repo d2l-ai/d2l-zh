@@ -69,11 +69,11 @@ d2l.plt.imshow(content_img);
 #@tab paddle
 %matplotlib inline
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 import paddle
 import paddle.vision as paddlevision
 import paddle.nn as nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 
 d2l.set_figsize()
 content_img = d2l.Image.open('../img/rainier.jpg')
