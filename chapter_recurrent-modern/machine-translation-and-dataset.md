@@ -231,7 +231,7 @@ def build_array_nmt(lines, vocab, num_steps):
     return array, valid_len
 ```
 
-## [**训练模型**]
+## [**整合上述工作**]
 
 最后，我们定义`load_data_nmt`函数来返回数据迭代器，
 以及源语言和目标语言的两种词表。
