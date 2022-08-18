@@ -118,8 +118,10 @@ import tensorflow as tf
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
 import paddle
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 为了可视化注意力权重，需要定义一个`show_heatmaps`函数。
