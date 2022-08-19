@@ -129,7 +129,9 @@ import tensorflow as tf
 ```{.python .input}
 #@tab paddle
 #@save
+import warnings
 import numpy as np
+warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn
 from paddle.nn import functional as F
