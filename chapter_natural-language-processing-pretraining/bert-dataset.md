@@ -25,11 +25,11 @@ import torch
 ```{.python .input}
 #@tab paddle
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 import os
 import random
 import paddle
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 在WikiText-2数据集中，每行代表一个段落，其中在任意标点符号及其前面的词元之间插入空格。保留至少有两句话的段落。为了简单起见，我们仅使用句号作为分隔符来拆分句子。我们将更复杂的句子拆分技术的讨论留在本节末尾的练习中。

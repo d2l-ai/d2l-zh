@@ -72,10 +72,10 @@ import tensorflow as tf
 #@tab paddle
 %matplotlib inline
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 import numpy as np
 import paddle
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 ```{.python .input}

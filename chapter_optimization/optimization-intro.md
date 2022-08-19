@@ -36,11 +36,11 @@ import tensorflow as tf
 #@tab paddle
 %matplotlib inline
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 import numpy as np
 from mpl_toolkits import mplot3d
 import paddle
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 为了说明上述不同的目标，引入两个概念*风险*和*经验风险*。如 :numref:`subsec_empirical-risk-and-risk`所述，经验风险是训练数据集的平均损失，而风险则是整个数据群的预期损失。下面我们定义了两个函数：风险函数`f`和经验风险函数`g`。假设我们只有有限的训练数据。因此，这里的`g`不如`f`平滑。

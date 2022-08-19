@@ -74,12 +74,12 @@ data_dir = d2l.download_extract('SNLI')
 ```{.python .input}
 #@tab paddle
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 import paddle
 from paddle import nn
 import os
 import re
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 
 #@save
 d2l.DATA_HUB['SNLI'] = (

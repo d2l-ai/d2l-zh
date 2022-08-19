@@ -38,11 +38,11 @@ train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 ```{.python .input}
 #@tab paddle
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 import paddle
 from paddle import nn
 from paddle.nn import functional as F
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 
 batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)

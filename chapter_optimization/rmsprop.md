@@ -65,9 +65,11 @@ import math
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
 import paddle
 import math
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 ```{.python .input}
