@@ -39,9 +39,10 @@ d2l.use_svg_display()
 #@tab paddle
 %matplotlib inline
 import warnings
+import sys
+warnings.filterwarnings(action='ignore')
 import paddle
 from paddle.vision import transforms
-import sys
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import paddle as d2l
 

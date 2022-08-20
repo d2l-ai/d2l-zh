@@ -252,9 +252,10 @@ import time
 %matplotlib inline
 import warnings
 import math
-import paddle
 import numpy as np
 import time
+warnings.filterwarnings(action='ignore')
+import paddle
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import paddle as d2l
 ```

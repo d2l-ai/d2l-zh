@@ -42,6 +42,7 @@ import tensorflow as tf
 #@tab paddle
 import warnings
 import numpy as np
+warnings.filterwarnings(action='ignore')
 import paddle
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import paddle as d2l
