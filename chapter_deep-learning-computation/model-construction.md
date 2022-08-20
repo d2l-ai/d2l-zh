@@ -96,6 +96,8 @@ net(X)
 
 ```{.python .input}
 #@tab paddle
+import warnings
+warnings.filterwarnings(action='ignore')
 import paddle
 from paddle import nn
 from paddle.nn import functional as F

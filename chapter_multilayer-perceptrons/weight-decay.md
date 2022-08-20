@@ -138,6 +138,7 @@ import tensorflow as tf
 #@tab paddle
 %matplotlib inline
 import warnings
+warnings.filterwarnings(action='ignore')
 import paddle
 from paddle import nn
 warnings.filterwarnings("ignore", category=DeprecationWarning)

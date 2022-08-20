@@ -177,10 +177,11 @@ import numpy as np
 
 %matplotlib inline
 import warnings
-import paddle
-from paddle import nn
 import pandas as pd
 import numpy as np
+warnings.filterwarnings(action='ignore')
+import paddle
+from paddle import nn
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import paddle as d2l
 ```

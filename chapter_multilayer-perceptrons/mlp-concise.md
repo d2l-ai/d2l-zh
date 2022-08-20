@@ -26,6 +26,7 @@ import tensorflow as tf
 ```{.python .input}
 #@tab paddle
 import warnings
+warnings.filterwarnings(action='ignore')
 import paddle
 from paddle import nn
 warnings.filterwarnings("ignore", category=DeprecationWarning)

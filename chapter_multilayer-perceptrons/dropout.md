@@ -177,6 +177,7 @@ def dropout_layer(X, dropout):
 ```{.python .input}
 #@tab paddle
 import warnings
+warnings.filterwarnings(action='ignore')
 import paddle
 from paddle import nn
 import random

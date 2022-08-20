@@ -104,6 +104,8 @@ comp_conv2d(conv2d, X).shape
 
 ```{.python .input}
 #@tab paddle
+import warnings
+warnings.filterwarnings(action='ignore')
 import paddle
 from paddle import nn
 

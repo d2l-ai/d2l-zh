@@ -50,6 +50,7 @@ from torch import nn
 ```{.python .input}
 #@tab paddle
 import warnings
+warnings.filterwarnings(action='ignore')
 import paddle
 from paddle import nn
 warnings.filterwarnings("ignore", category=DeprecationWarning)
