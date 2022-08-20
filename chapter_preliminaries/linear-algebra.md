@@ -57,6 +57,8 @@ x + y, x * y, x / y, x**y
 
 ```{.python .input}
 #@tab paddle
+import warnings
+warnings.filterwarnings(action='ignore')
 import paddle
 
 x = paddle.to_tensor([3.0])

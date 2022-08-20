@@ -55,6 +55,8 @@ import tensorflow as tf
 
 ```{.python .input}
 #@tab paddle
+import warnings
+warnings.filterwarnings(action='ignore')
 import paddle
 ```
 

@@ -101,6 +101,8 @@ X, y
 
 ```{.python .input}
 #@tab paddle
+import warnings
+warnings.filterwarnings(action='ignore')
 import paddle
 
 X, y = paddle.to_tensor(inputs.values), paddle.to_tensor(outputs.values)

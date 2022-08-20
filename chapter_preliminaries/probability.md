@@ -85,9 +85,11 @@ import numpy as np
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
+import warnings
+warnings.filterwarnings(action='ignore')
 from d2l import paddle as d2l
-#paddle即将在下一个版本中新增multinomial.Multinomial API
-#import paddle
+warnings.filterwarnings(action='ignore')
+import paddle
 import random
 import numpy as np
 ```
@@ -120,7 +122,7 @@ tfp.distributions.Multinomial(1, fair_probs).sample()
 ```{.python .input}
 #@tab paddle
 fair_probs = [1.0 / 6] * 6
-np.random.multinomial(1, fair_probs)
+paddle.distribution.Multinomial(1, paddle.to_tensor(fair_probs)).sample()
 ```
 
 在估计一个骰子的公平性时，我们希望从同一分布中生成多个样本。
@@ -143,7 +145,7 @@ tfp.distributions.Multinomial(10, fair_probs).sample()
 
 ```{.python .input}
 #@tab paddle
-np.random.multinomial(10, fair_probs)
+paddle.distribution.Multinomial(10, paddle.to_tensor(fair_probs)).sample()
 ```
 
 现在我们知道如何对骰子进行采样，我们可以模拟1000次投掷。
@@ -170,7 +172,7 @@ counts / 1000
 
 ```{.python .input}
 #@tab paddle
-counts = np.random.multinomial(1000, fair_probs).astype(np.float32)
+counts = paddle.distribution.Multinomial(1000, paddle.to_tensor(fair_probs)).sample()
 counts / 1000
 ```
 
@@ -229,9 +231,10 @@ d2l.plt.legend();
 
 ```{.python .input}
 #@tab paddle
-counts = np.random.multinomial(10, fair_probs, size=500)
-cum_counts = counts.astype(np.float32).cumsum(axis=0)
-estimates = cum_counts / cum_counts.sum(axis=1, keepdims=True)
+counts = paddle.distribution.Multinomial(10, paddle.to_tensor(fair_probs)).sample((500,1))
+cum_counts = counts.cumsum(axis=0)
+cum_counts = cum_counts.squeeze(axis=1)
+estimates = cum_counts / cum_counts.sum(axis=1, keepdim=True)
 
 d2l.set_figsize((6, 4.5))
 for i in range(6):

@@ -42,6 +42,8 @@ print(dir(tf.random))
 
 ```{.python .input  n=1}
 #@tab paddle
+import warnings
+warnings.filterwarnings(action='ignore')
 import paddle
 print(dir(paddle.distribution))
 ```
