@@ -74,6 +74,7 @@ data_dir = d2l.download_extract('SNLI')
 ```{.python .input}
 #@tab paddle
 import warnings
+warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn
 import os

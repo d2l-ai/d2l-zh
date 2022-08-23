@@ -96,6 +96,7 @@ C = tf.Variable(d2l.normal([256, 256], 0, 1))
 #@tab paddle
 %matplotlib inline
 import warnings
+warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn
 import numpy as np

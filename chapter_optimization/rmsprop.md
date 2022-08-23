@@ -66,6 +66,7 @@ import math
 ```{.python .input}
 #@tab paddle
 import warnings
+warnings.filterwarnings("ignore")
 import paddle
 import math
 warnings.filterwarnings("ignore", category=DeprecationWarning)

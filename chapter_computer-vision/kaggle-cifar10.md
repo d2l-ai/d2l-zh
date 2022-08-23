@@ -48,6 +48,7 @@ import shutil
 import warnings
 import collections
 import math
+warnings.filterwarnings("ignore")
 import paddle
 import paddle.vision as paddlevision
 from paddle import nn

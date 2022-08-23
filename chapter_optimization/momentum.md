@@ -113,6 +113,7 @@ d2l.show_trace_2d(f_2d, d2l.train_2d(gd_2d))
 #@tab paddle
 %matplotlib inline
 import warnings
+warnings.filterwarnings("ignore")
 import paddle
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import paddle as d2l

@@ -34,6 +34,7 @@ tf.random.set_seed(seed=1322)
 ```{.python .input}
 #@tab paddle
 import warnings
+warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn
 warnings.filterwarnings("ignore", category=DeprecationWarning)

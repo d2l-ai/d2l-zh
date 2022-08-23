@@ -151,6 +151,7 @@ import random
 ```{.python .input}
 #@tab paddle
 import warnings
+warnings.filterwarnings("ignore")
 import paddle
 import random
 warnings.filterwarnings("ignore", category=DeprecationWarning)

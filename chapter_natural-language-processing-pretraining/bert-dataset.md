@@ -27,6 +27,7 @@ import torch
 import warnings
 import os
 import random
+warnings.filterwarnings("ignore")
 import paddle
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import paddle as d2l

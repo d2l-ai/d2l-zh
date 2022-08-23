@@ -98,7 +98,7 @@ class ConvBlock(tf.keras.layers.Layer):
 import warnings
 import paddle
 import paddle.nn as nn
-warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore")
 from d2l import paddle as d2l
 
 def conv_block(input_channels, num_channels):

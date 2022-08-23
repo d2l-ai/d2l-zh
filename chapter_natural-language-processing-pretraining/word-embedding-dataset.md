@@ -24,6 +24,7 @@ import random
 #@tab paddle
 import warnings
 import math
+warnings.filterwarnings("ignore")
 import paddle
 import os
 import random

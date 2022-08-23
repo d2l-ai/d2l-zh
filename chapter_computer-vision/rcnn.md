@@ -78,6 +78,8 @@ X
 
 ```{.python .input}
 #@tab paddle
+import warnings
+warnings.filterwarnings("ignore")
 import paddle
 import paddle.vision as paddlevision
 

@@ -54,6 +54,7 @@ import os
 ```{.python .input}
 #@tab paddle
 import warnings
+warnings.filterwarnings("ignore")
 import paddle
 import os
 warnings.filterwarnings("ignore", category=DeprecationWarning)

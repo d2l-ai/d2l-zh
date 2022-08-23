@@ -151,7 +151,7 @@ import warnings
 import paddle
 import paddle.nn as nn
 from paddle.nn import functional as F
-warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore")
 from d2l import paddle as d2l
 
 class Residual(nn.Layer):  #@save

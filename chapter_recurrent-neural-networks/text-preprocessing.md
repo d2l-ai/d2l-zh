@@ -36,6 +36,8 @@ import re
 ```{.python .input}
 #@tab paddle
 import collections
+import warnings
+warnings.filterwarnings("ignore")
 from d2l import paddle as d2l
 import re
 ```

@@ -30,6 +30,7 @@ torch.set_printoptions(2)  # 精简输出精度
 #@tab paddle
 %matplotlib inline
 import warnings
+warnings.filterwarnings("ignore")
 import paddle
 import numpy as np
 warnings.filterwarnings("ignore", category=DeprecationWarning)

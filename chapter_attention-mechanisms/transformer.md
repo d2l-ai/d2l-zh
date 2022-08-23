@@ -48,6 +48,7 @@ import tensorflow as tf
 import warnings
 import math
 import pandas as pd
+warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn
 warnings.filterwarnings("ignore", category=DeprecationWarning)

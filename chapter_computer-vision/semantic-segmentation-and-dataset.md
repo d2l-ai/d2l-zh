@@ -45,6 +45,7 @@ import os
 #@tab paddle
 %matplotlib inline
 import warnings
+warnings.filterwarnings("ignore")
 import paddle
 import paddle.vision as paddlevision
 import os

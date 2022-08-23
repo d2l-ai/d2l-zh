@@ -66,6 +66,7 @@ import tensorflow as tf
 #@tab paddle
 import warnings
 import math
+warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn
 warnings.filterwarnings("ignore", category=DeprecationWarning)
