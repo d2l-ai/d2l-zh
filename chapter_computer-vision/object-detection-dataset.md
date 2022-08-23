@@ -35,12 +35,12 @@ import pandas as pd
 #@tab paddle
 %matplotlib inline
 import warnings
-warnings.filterwarnings("ignore")
-import paddle
-import paddle.vision as paddlevision
 import os
 import pandas as pd
+warnings.filterwarnings("ignore")
+import paddle
 warnings.filterwarnings("ignore", category=DeprecationWarning)
+import paddle.vision as paddlevision
 from d2l import paddle as d2l
 ```
 
