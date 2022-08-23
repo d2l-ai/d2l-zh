@@ -48,14 +48,14 @@ import shutil
 import warnings
 import collections
 import math
-warnings.filterwarnings("ignore")
-import paddle
-import paddle.vision as paddlevision
-from paddle import nn
 import os
 import pandas as pd
 import shutil
+warnings.filterwarnings("ignore")
+import paddle
+from paddle import nn
 warnings.filterwarnings("ignore", category=DeprecationWarning)
+import paddle.vision as paddlevision
 from d2l import paddle as d2l
 ```
 
