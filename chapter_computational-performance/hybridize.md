@@ -30,8 +30,8 @@ Python是一种*解释型语言*（interpreted language）。因此，当对上�
 
 考虑另一种选择*符号式编程*（symbolic programming），即代码通常只在完全定义了过程之后才执行计算。这个策略被多个深度学习框架使用，包括Theano和TensorFlow（后者已经获得了命令式编程的扩展）。一般包括以下步骤：
 
-1. 定义计算流程。
-1. 将流程编译成可执行的程序。
+1. 定义计算流程；
+1. 将流程编译成可执行的程序；
 1. 给定输入，调用编译好的程序执行。
 
 这将允许进行大量的优化。首先，在大多数情况下，我们可以跳过Python解释器。从而消除因为多个更快的GPU与单个CPU上的单个Python线程搭配使用时产生的性能瓶颈。其次，编译器可以将上述代码优化和重写为`print((1 + 2) + (3 + 4))`甚至`print(10)`。因为编译器在将其转换为机器指令之前可以看到完整的代码，所以这种优化是可以实现的。例如，只要某个变量不再需要，编译器就可以释放内存（或者从不分配内存），或者将代码转换为一个完全等价的片段。下面，我们将通过模拟命令式编程来进一步了解符号式编程的概念。
@@ -64,7 +64,7 @@ exec(y)
 
 命令式（解释型）编程和符号式编程的区别如下：
 
-* 命令式编程更容易使用。在Python中，命令式编程的大部分代码都是简单易懂的。命令式编程也更容易调试，这是因为无论是获取和打印所有的中间变量值，或者使用Python的内置调试工具都更加简单。
+* 命令式编程更容易使用。在Python中，命令式编程的大部分代码都是简单易懂的。命令式编程也更容易调试，这是因为无论是获取和打印所有的中间变量值，或者使用Python的内置调试工具都更加简单；
 * 符号式编程运行效率更高，更易于移植。符号式编程更容易在编译期间优化代码，同时还能够将程序移植到与Python无关的格式中，从而允许程序在非Python环境中运行，避免了任何潜在的与Python解释器相关的性能问题。
 
 ## 混合式编程
@@ -82,7 +82,7 @@ exec(y)
 :end_tab:
 
 :begin_tab:`tensorflow`
-命令式编程现在是TensorFlow2的默认选择，对于那些刚接触该语言的人来说是一个很好的改变。不过，符号式编程技术和计算图仍然存在于TensorFlow中，并且可以通过易于使用的装饰器`tf.function`进行访问。这为TensorFlow带来了命令式编程范式，允许用户定义更加直观的函数，然后使用被TensorFlow团队称为[autograph](https://www.tensorflow.org/api_docs/python/tf/autograph)的特性将它们封装，再自动编译成计算图。
+命令式编程现在是TensorFlow2的默认选择，对那些刚接触该语言的人来说是一个很好的改变。不过，符号式编程技术和计算图仍然存在于TensorFlow中，并且可以通过易于使用的装饰器`tf.function`进行访问。这为TensorFlow带来了命令式编程范式，允许用户定义更加直观的函数，然后使用被TensorFlow团队称为[autograph](https://www.tensorflow.org/api_docs/python/tf/autograph)的特性将它们封装，再自动编译成计算图。
 :end_tab:
 
 :begin_tab:`paddle`
@@ -154,11 +154,15 @@ net(x)
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings('ignore')
 import paddle
 from paddle import nn
 from paddle.jit import to_static
 from paddle.static import InputSpec
+
+warnings.filterwarnings("ignore")
+from d2l import paddle as d2l
 
 # 生产网络的工厂模式
 def get_net():
@@ -225,7 +229,7 @@ net(x)
 :end_tab:
 
 :begin_tab:`tensorflow`
-我们编写与之前相同的代码，再使用`tf.function`简单地转换模型，当完成这些任务后，网络将以TensorFlow的MLIR中间表示形式构建为一个计算图，并在编译器级别进行大量优化以满足快速执行的需要（我们将在下面对性能进行基准测试）。通过将`jit_compile = True`标志添加到`tf.function()`的函数调用中可以显式地启用TensorFlow中的XLA（线性代数加速）功能。在某些情况下，XLA可以进一步优化JIT的编译代码。如果没有这种显式定义，图形模式将会被启用，但是XLA可以使某些大规模的线性代数的运算速度更快（与我们在深度学习应用程序中看到的操作类似），特别是在GPU环境中。
+我们编写与之前相同的代码，再使用`tf.function`简单地转换模型，当完成这些任务后，网络将以TensorFlow的MLIR中间表示形式构建为一个计算图，并在编译器级别进行大量优化以满足快速执行的需要（我们将在下面对性能进行基准测试）。通过将`jit_compile = True`标志添加到`tf.function()`的函数调用中可以显式地启用TensorFlow中的XLA（线性代数加速）功能。在某些情况下，XLA可以进一步优化JIT的编译代码。如果没有这种显式定义，图形模式将会被启用，但是XLA可以使某些大规模的线性代数的运算速度更快（与我们在深度学习程序中看到的操作类似），特别是在GPU环境中。
 :end_tab:
 
 :begin_tab:`paddle`
@@ -448,11 +452,11 @@ net(x)
 :begin_tab:`mxnet`
 1. 在本节的`HybridNet`类的`hybrid_forward`函数的第一行中添加`x.asnumpy()`，执行代码并观察遇到的错误。为什么会这样？
 1. 如果我们在`hybrid_forward`函数中添加控制流，即Python语句`if`和`for`，会发生什么？
-1. 回顾前几章中你感兴趣的模型，你能通过重新实现它们来提高它们的计算性能吗？
+1. 回顾前几章中感兴趣的模型，能通过重新实现它们来提高它们的计算性能吗？
 :end_tab:
 
 :begin_tab:`pytorch,tensorflow`
-1. 回顾前几章中你感兴趣的模型，你能提高它们的计算性能吗？
+1. 回顾前几章中感兴趣的模型，能提高它们的计算性能吗？
 :end_tab:
 
 :begin_tab:`mxnet`

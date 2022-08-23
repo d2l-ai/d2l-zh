@@ -110,8 +110,11 @@ def adadelta(params, grads, states, hyperparams):
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
 import paddle
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 
 def init_adadelta_states(feature_dim):
     s_w, s_b = d2l.zeros(shape=(feature_dim, 1)), d2l.zeros(shape=(1, )) 
@@ -178,7 +181,7 @@ d2l.train_concise_ch11(trainer, {'rho': 0.9}, data_iter)
 
 1. 调整$\rho$的值，会发生什么？
 1. 展示如何在不使用$\mathbf{g}_t'$的情况下实现算法。为什么这是个好主意？
-1. Adadelta真的是学习率为0吗？你能找到Adadelta无法解决的优化问题吗？
+1. Adadelta真的是学习率为0吗？能找到Adadelta无法解决的优化问题吗？
 1. 将Adadelta的收敛行为与AdaGrad和RMSProp进行比较。
 
 :begin_tab:`mxnet`

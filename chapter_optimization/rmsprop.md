@@ -10,7 +10,7 @@
 因此，由于缺乏规范化，没有约束力，$\mathbf{s}_t$持续增长，几乎上是在算法收敛时呈线性递增。
 
 解决此问题的一种方法是使用$\mathbf{s}_t / t$。
-对于$\mathbf{g}_t$的合理分布来说，它将收敛。
+对$\mathbf{g}_t$的合理分布来说，它将收敛。
 遗憾的是，限制行为生效可能需要很长时间，因为该流程记住了值的完整轨迹。
 另一种方法是按动量法中的方式使用泄漏平均值，即$\mathbf{s}_t \leftarrow \gamma \mathbf{s}_{t-1} + (1-\gamma) \mathbf{g}_t^2$，其中参数$\gamma > 0$。
 保持所有其它部分不变就产生了RMSProp算法。
@@ -65,9 +65,12 @@ import math
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
 import paddle
 import math
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 ```{.python .input}

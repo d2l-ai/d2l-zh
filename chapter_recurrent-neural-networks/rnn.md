@@ -167,8 +167,11 @@ import tensorflow as tf
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
 import paddle
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 ```{.python .input}
@@ -204,7 +207,7 @@ d2l.matmul(d2l.concat((X, H), 1), d2l.concat((W_xh, W_hh), 0))
 Bengio等人首先提出使用神经网络进行语言建模
  :cite:`Bengio.Ducharme.Vincent.ea.2003`。
 接下来，我们看一下如何使用循环神经网络来构建语言模型。
-设小批量大小为1，批量中的那个文本序列为“machine”。
+设小批量大小为1，批量中的文本序列为“machine”。
 为了简化后续部分的训练，我们考虑使用
 *字符级语言模型*（character-level language model），
 将文本词元化为字符而不是单词。
@@ -219,10 +222,10 @@ Bengio等人首先提出使用神经网络进行语言建模
 然后利用交叉熵损失计算模型输出和标签之间的误差。
 由于隐藏层中隐状态的循环计算，
  :numref:`fig_rnn_train`中的第$3$个时间步的输出$\mathbf{O}_3$
-由文本序列“m”、“a”和“c”确定。
+由文本序列“m”“a”和“c”确定。
 由于训练数据中这个文本序列的下一个字符是“h”，
 因此第$3$个时间步的损失将取决于下一个字符的概率分布，
-而下一个字符是基于特征序列“m”、“a”、“c”和这个时间步的标签“h”生成的。
+而下一个字符是基于特征序列“m”“a”“c”和这个时间步的标签“h”生成的。
 
 在实践中，我们使用的批量大小为$n>1$，
 每个词元都由一个$d$维向量表示。
@@ -237,9 +240,9 @@ Bengio等人首先提出使用神经网络进行语言建模
 一个好的语言模型能够用高度准确的词元来预测我们接下来会看到什么。
 考虑一下由不同的语言模型给出的对“It is raining ...”（“...下雨了”）的续写：
 
-1. "It is raining outside"（外面下雨了）
-1. "It is raining banana tree"（香蕉树下雨了）
-1. "It is raining piouw;kcj pwepoiut"（piouw;kcj pwepoiut下雨了）
+1. "It is raining outside"（外面下雨了）；
+1. "It is raining banana tree"（香蕉树下雨了）；
+1. "It is raining piouw;kcj pwepoiut"（piouw;kcj pwepoiut下雨了）。
 
 就质量而言，例$1$显然是最合乎情理、在逻辑上最连贯的。
 虽然这个模型可能没有很准确地反映出后续词的语义，
@@ -281,7 +284,7 @@ $x_t$是在时间步$t$从该序列中观察到的实际词元。
 $$\exp\left(-\frac{1}{n} \sum_{t=1}^n \log P(x_t \mid x_{t-1}, \ldots, x_1)\right).$$
 
 困惑度的最好的理解是“下一个词元的实际选择数的调和平均数”。
-我们看看一些案例：
+我们看看一些案例。
 
 * 在最好的情况下，模型总是完美地估计标签词元的概率为1。
   在这种情况下，模型的困惑度为1。
@@ -309,7 +312,7 @@ $$\exp\left(-\frac{1}{n} \sum_{t=1}^n \log P(x_t \mid x_{t-1}, \ldots, x_1)\righ
 
 1. 如果我们使用循环神经网络来预测文本序列中的下一个字符，那么任意输出所需的维度是多少？
 1. 为什么循环神经网络可以基于文本序列中所有先前的词元，在某个时间步表示当前词元的条件概率？
-1. 如果你基于一个长序列进行反向传播，梯度会发生什么状况？
+1. 如果基于一个长序列进行反向传播，梯度会发生什么状况？
 1. 与本节中描述的语言模型相关的问题有哪些？
 
 :begin_tab:`mxnet`

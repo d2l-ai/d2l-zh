@@ -1,7 +1,7 @@
 # 多层感知机的简洁实现
 :label:`sec_mlp_concise`
 
-正如你所期待的，我们可以(**通过高级API更简洁地实现多层感知机**)。
+本节将介绍(**通过高级API更简洁地实现多层感知机**)。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -25,9 +25,12 @@ import tensorflow as tf
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings(action='ignore')
 import paddle
 from paddle import nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 ## 模型
@@ -81,7 +84,7 @@ for layer in net:
 ```
 
 [**训练过程**]的实现与我们实现softmax回归时完全相同，
-这种模块化设计使我们能够将与和模型架构有关的内容独立出来。
+这种模块化设计使我们能够将与模型架构有关的内容独立出来。
 
 ```{.python .input}
 batch_size, lr, num_epochs = 256, 0.1, 10

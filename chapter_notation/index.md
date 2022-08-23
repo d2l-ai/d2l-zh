@@ -18,8 +18,8 @@
 * $\mathcal{X}$: 集合
 * $\mathbb{Z}$: 整数集合
 * $\mathbb{R}$: 实数集合
-* $\mathbb{R}^n$: $n$维实数向量
-* $\mathbb{R}^{a\times b}$: 包含$a$行和$b$列的实数矩阵
+* $\mathbb{R}^n$: $n$维实数向量集合
+* $\mathbb{R}^{a\times b}$: 包含$a$行和$b$列的实数矩阵集合
 * $\mathcal{A}\cup\mathcal{B}$: 集合$\mathcal{A}$和$\mathcal{B}$的并集
 * $\mathcal{A}\cap\mathcal{B}$：集合$\mathcal{A}$和$\mathcal{B}$的交集
 * $\mathcal{A}\setminus\mathcal{B}$：集合$\mathcal{A}$与集合$\mathcal{B}$相减，$\mathcal{B}$关于$\mathcal{A}$的相对补集

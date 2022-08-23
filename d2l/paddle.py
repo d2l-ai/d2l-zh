@@ -1795,7 +1795,7 @@ def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
         uniques, counts = combined.unique(return_counts=True)
         non_keep = uniques[counts == 1]
         all_id_sorted = paddle.concat([keep, non_keep])
-        class_id[non_keep] = -1
+        class_id[non_keep.numpy()] = -1
         class_id = class_id[all_id_sorted]
         conf, predicted_bb = conf[all_id_sorted], predicted_bb[all_id_sorted]
         # pos_threshold是一个用于非背景预测的阈值
@@ -1900,6 +1900,15 @@ def voc_colormap2label():
         colormap2label[
             (colormap[0] * 256 + colormap[1]) * 256 + colormap[2]] = i
     return colormap2label
+
+def voc_label_indices(colormap, colormap2label):
+    """将VOC标签中的RGB值映射到它们的类别索引
+
+    Defined in :numref:`sec_semantic_segmentation`"""
+    colormap = colormap.transpose([1, 2, 0]).astype('int32')
+    idx = ((colormap[:, :, 0] * 256 + colormap[:, :, 1]) * 256
+           + colormap[:, :, 2])
+    return colormap2label[idx]
 
 def voc_rand_crop(feature, label, height, width):
     """随机裁剪特征和标签图像

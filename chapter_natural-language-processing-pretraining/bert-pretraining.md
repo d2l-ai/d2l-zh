@@ -19,9 +19,11 @@ from torch import nn
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
 import paddle
 from paddle import nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 首先，我们加载WikiText-2数据集作为小批量的预训练样本，用于遮蔽语言模型和下一句预测。批量大小是512，BERT输入序列的最大长度是64。注意，在原始BERT模型中，最大长度是512。

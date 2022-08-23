@@ -44,10 +44,13 @@ import os
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
 import paddle
 import paddle.vision as paddlevision
 import os
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 数据集的tar文件大约为2GB，所以下载可能需要一段时间。
@@ -228,7 +231,8 @@ def voc_colormap2label():
         colormap2label[
             (colormap[0] * 256 + colormap[1]) * 256 + colormap[2]] = i
     return colormap2label
-
+    
+#@save
 def voc_label_indices(colormap, colormap2label):
     """将VOC标签中的RGB值映射到它们的类别索引"""
     colormap = colormap.transpose([1, 2, 0]).astype('int32')

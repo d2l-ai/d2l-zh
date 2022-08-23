@@ -8,7 +8,7 @@
 
 ## 基础
 
-在本节中，我们将探讨更有效的优化算法，尤其是针对实验中常见的某些类型的优化问题。
+本节将探讨更有效的优化算法，尤其是针对实验中常见的某些类型的优化问题。
 
 ### 泄漏平均值
 
@@ -112,8 +112,11 @@ d2l.show_trace_2d(f_2d, d2l.train_2d(gd_2d))
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
 import paddle
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 
 eta = 0.4
 def f_2d(x1, x2):
@@ -423,7 +426,7 @@ $$
 ## 练习
 
 1. 使用动量超参数和学习率的其他组合，观察和分析不同的实验结果。
-1. 试试梯度下降和动量法来解决一个二次问题，其中你有多个特征值，即$f(x) = \frac{1}{2} \sum_i \lambda_i x_i^2$，例如$\lambda_i = 2^{-i}$。绘制出$x$的值在初始化$x_i = 1$时如何下降。
+1. 试试梯度下降和动量法来解决一个二次问题，其中有多个特征值，即$f(x) = \frac{1}{2} \sum_i \lambda_i x_i^2$，例如$\lambda_i = 2^{-i}$。绘制出$x$的值在初始化$x_i = 1$时如何下降。
 1. 推导$h(\mathbf{x}) = \frac{1}{2} \mathbf{x}^\top \mathbf{Q} \mathbf{x} + \mathbf{x}^\top \mathbf{c} + b$的最小值和最小化器。
 1. 当我们执行带动量法的随机梯度下降时会有什么变化？当我们使用带动量法的小批量随机梯度下降时会发生什么？试验参数如何？
 

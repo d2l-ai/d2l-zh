@@ -148,7 +148,7 @@ for machine translation
 we prefer word-level tokenization here
 (state-of-the-art models may use more advanced tokenization techniques).
 The following `tokenize_nmt` function
-tokenizes the the first `num_examples` text sequence pairs,
+tokenizes the first `num_examples` text sequence pairs,
 where
 each token is either a word or a punctuation mark.
 This function returns

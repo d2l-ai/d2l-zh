@@ -1,7 +1,7 @@
 # 多GPU的简洁实现
 :label:`sec_multi_gpu_concise`
 
-每个新模型的并行计算都从零开始实现是无趣的。此外，优化同步工具以获得高性能也是有好处的。下面我们将展示如何使用深度学习框架的高级API来实现这一点。数学和算法与 :numref:`sec_multi_gpu`中的相同。不出所料，你至少需要两个GPU来运行本节的代码。
+每个新模型的并行计算都从零开始实现是无趣的。此外，优化同步工具以获得高性能也是有好处的。下面我们将展示如何使用深度学习框架的高级API来实现这一点。数学和算法与 :numref:`sec_multi_gpu`中的相同。本节的代码至少需要两个GPU来运行。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -19,9 +19,11 @@ from torch import nn
 
 ```{.python .input}
 #@tab paddle
-import d2l.paddle as d2l
+import warnings
 import paddle
 from paddle import nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 ## [**简单网络**]
@@ -121,7 +123,7 @@ def resnet18(num_classes, in_channels=1):
 ## 网络初始化
 
 :begin_tab:`mxnet`
-`initialize`函数允许我们在所选设备上初始化参数。请参阅 :numref:`sec_numerical_stability`复习初始化方法。这个函数在多个设备上初始化网络时特别方便。让我们在实践中试一试它的运作方式。
+`initialize`函数允许我们在所选设备上初始化参数。请参阅 :numref:`sec_numerical_stability`复习初始化方法。这个函数在多个设备上初始化网络时特别方便。下面在实践中试一试它的运作方式。
 :end_tab:
 
 :begin_tab:`pytorch`
@@ -203,9 +205,9 @@ def evaluate_accuracy_gpus(net, data_iter, split_f=d2l.split_batch):
 
 如前所述，用于训练的代码需要执行几个基本功能才能实现高效并行：
 
-* 需要在所有设备上初始化网络参数。
-* 在数据集上迭代时，要将小批量数据分配到所有设备上。
-* 跨设备并行计算损失及其梯度。
+* 需要在所有设备上初始化网络参数；
+* 在数据集上迭代时，要将小批量数据分配到所有设备上；
+* 跨设备并行计算损失及其梯度；
 * 聚合梯度，并相应地更新参数。
 
 最后，并行地计算精确度和发布网络的最终性能。除了需要拆分和聚合数据外，训练代码与前几章的实现非常相似。
@@ -299,7 +301,7 @@ def train(net, num_gpus, batch_size, lr):
           f'on {str(devices)}')
 ```
 
-让我们看看这在实践中是如何运作的。我们先[**在单个GPU上训练网络**]进行预热。
+接下来看看这在实践中是如何运作的。我们先[**在单个GPU上训练网络**]进行预热。
 
 ```{.python .input}
 train(num_gpus=1, batch_size=256, lr=0.1)
@@ -347,7 +349,7 @@ train(net, num_gpus=2, batch_size=512, lr=0.2)
 :begin_tab:`mxnet`
 1. 本节使用ResNet-18，请尝试不同的迭代周期数、批量大小和学习率，以及使用更多的GPU进行计算。如果使用$16$个GPU（例如，在AWS p2.16xlarge实例上）尝试此操作，会发生什么？
 1. 有时候不同的设备提供了不同的计算能力，我们可以同时使用GPU和CPU，那应该如何分配工作？为什么？
-1. 如果去掉`npx.waitall()`会怎样？你将如何修改训练，以使并行操作最多有两个步骤重叠？
+1. 如果去掉`npx.waitall()`会怎样？该如何修改训练，以使并行操作最多有两个步骤重叠？
 :end_tab:
 
 :begin_tab:`pytorch`

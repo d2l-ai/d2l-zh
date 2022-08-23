@@ -73,11 +73,14 @@ data_dir = d2l.download_extract('SNLI')
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn
 import os
 import re
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 
 #@save
 d2l.DATA_HUB['SNLI'] = (
@@ -115,7 +118,7 @@ def read_snli(data_dir, is_train):
     return premises, hypotheses, labels
 ```
 
-现在让我们[**打印前3对**]前提和假设，以及它们的标签（“0”、“1”和“2”分别对应于“蕴涵”、“矛盾”和“中性”）。
+现在让我们[**打印前3对**]前提和假设，以及它们的标签（“0”“1”和“2”分别对应于“蕴涵”“矛盾”和“中性”）。
 
 ```{.python .input}
 #@tab all
@@ -126,7 +129,7 @@ for x0, x1, y in zip(train_data[0][:3], train_data[1][:3], train_data[2][:3]):
     print('标签：', y)
 ```
 
-训练集约有550000对，测试集约有10000对。下面显示了训练集和测试集中的三个[**标签“蕴涵”、“矛盾”和“中性”是平衡的**]。
+训练集约有550000对，测试集约有10000对。下面显示了训练集和测试集中的三个[**标签“蕴涵”“矛盾”和“中性”是平衡的**]。
 
 ```{.python .input}
 #@tab all
@@ -320,7 +323,7 @@ for X, Y in train_iter:
 
 ## 练习
 
-1. 机器翻译长期以来一直是基于翻译输出和翻译真实值之间的表面$n$元语法匹配来进行评估的。你能设计一种用自然语言推断来评价机器翻译结果的方法吗？
+1. 机器翻译长期以来一直是基于翻译输出和翻译真实值之间的表面$n$元语法匹配来进行评估的。可以设计一种用自然语言推断来评价机器翻译结果的方法吗？
 1. 我们如何更改超参数以减小词表大小？
 
 :begin_tab:`mxnet`

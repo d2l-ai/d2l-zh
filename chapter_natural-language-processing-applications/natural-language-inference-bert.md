@@ -6,7 +6,7 @@
 ![将预训练BERT提供给基于多层感知机的自然语言推断架构](../img/nlp-map-nli-bert.svg)
 :label:`fig_nlp-map-nli-bert`
 
-在本节中，我们将下载一个预训练好的小版本的BERT，然后对其进行微调，以便在SNLI数据集上进行自然语言推断。
+本节将下载一个预训练好的小版本的BERT，然后对其进行微调，以便在SNLI数据集上进行自然语言推断。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -31,12 +31,14 @@ import os
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
 import json
 import multiprocessing
 import paddle
 from paddle import nn
 import os
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 ## [**加载预训练的BERT**]
@@ -261,25 +263,6 @@ class SNLIBERTDataset(torch.utils.data.Dataset):
 
 ```{.python .input}
 #@tab paddle
-def _truncate_pair_of_tokens(p_tokens, h_tokens):
-    # 为BERT输入中的'<CLS>'、'<SEP>'和'<SEP>'词元保留位置
-    while len(p_tokens) + len(h_tokens) > max_len - 3:
-        if len(p_tokens) > len(h_tokens):
-            p_tokens.pop()
-        else:
-            h_tokens.pop()
-                
-def _mp_worker(premise_hypothesis_tokens):
-    p_tokens, h_tokens = premise_hypothesis_tokens
-    _truncate_pair_of_tokens(p_tokens, h_tokens)
-    tokens, segments = d2l.get_tokens_and_segments(p_tokens, h_tokens)
-    token_ids = vocab[tokens] + [vocab['<pad>']] \
-                             * (max_len - len(tokens))
-    segments = segments + [0] * (max_len - len(segments))
-    valid_len = len(tokens)
-    return token_ids, segments, valid_len
-
-
 class SNLIBERTDataset(paddle.io.Dataset):
     def __init__(self, dataset, max_len, vocab=None):
         all_premise_hypothesis_tokens = [[
@@ -293,11 +276,15 @@ class SNLIBERTDataset(paddle.io.Dataset):
         (self.all_token_ids, self.all_segments,
          self.valid_lens) = self._preprocess(all_premise_hypothesis_tokens)
         print('read ' + str(len(self.all_token_ids)) + ' examples')
-        
 
     def _preprocess(self, all_premise_hypothesis_tokens):
-        pool = multiprocessing.Pool(4)  # 使用4个进程
-        out = pool.map(_mp_worker, all_premise_hypothesis_tokens)
+        # pool = multiprocessing.Pool(1)  # 使用4个进程
+        # out = pool.map(self._mp_worker, all_premise_hypothesis_tokens)
+        out = []
+        for i in all_premise_hypothesis_tokens:
+            tempOut = self._mp_worker(i)
+            out.append(tempOut)
+        
         all_token_ids = [
             token_ids for token_ids, segments, valid_len in out]
         all_segments = [segments for token_ids, segments, valid_len in out]
@@ -306,6 +293,23 @@ class SNLIBERTDataset(paddle.io.Dataset):
                 paddle.to_tensor(all_segments, dtype='int64'),
                 paddle.to_tensor(valid_lens))
 
+    def _mp_worker(self, premise_hypothesis_tokens):
+        p_tokens, h_tokens = premise_hypothesis_tokens
+        self._truncate_pair_of_tokens(p_tokens, h_tokens)
+        tokens, segments = d2l.get_tokens_and_segments(p_tokens, h_tokens)
+        token_ids = self.vocab[tokens] + [self.vocab['<pad>']] \
+                             * (self.max_len - len(tokens))
+        segments = segments + [0] * (self.max_len - len(segments))
+        valid_len = len(tokens)
+        return token_ids, segments, valid_len
+
+    def _truncate_pair_of_tokens(self, p_tokens, h_tokens):
+        # 为BERT输入中的'<CLS>'、'<SEP>'和'<SEP>'词元保留位置
+        while len(p_tokens) + len(h_tokens) > self.max_len - 3:
+            if len(p_tokens) > len(h_tokens):
+                p_tokens.pop()
+            else:
+                h_tokens.pop()
 
     def __getitem__(self, idx):
         return (self.all_token_ids[idx], self.all_segments[idx],
@@ -415,7 +419,7 @@ net = BERTClassifier(bert)
 
 回想一下，在 :numref:`sec_bert`中，`MaskLM`类和`NextSentencePred`类在其使用的多层感知机中都有一些参数。这些参数是预训练BERT模型`bert`中参数的一部分，因此是`net`中的参数的一部分。然而，这些参数仅用于计算预训练过程中的遮蔽语言模型损失和下一句预测损失。这两个损失函数与微调下游应用无关，因此当BERT微调时，`MaskLM`和`NextSentencePred`中采用的多层感知机的参数不会更新（陈旧的，staled）。
 
-为了允许具有陈旧梯度的参数，标志`ignore_stale_grad=True`在`step`函数`d2l.train_batch_ch13`中被设置。我们通过该函数使用SNLI的训练集（`train_iter`）和测试集（`test_iter`）对`net`模型进行训练和评估。。由于计算资源有限，[**训练**]和测试精度可以进一步提高：我们把对它的讨论留在练习中。
+为了允许具有陈旧梯度的参数，标志`ignore_stale_grad=True`在`step`函数`d2l.train_batch_ch13`中被设置。我们通过该函数使用SNLI的训练集（`train_iter`）和测试集（`test_iter`）对`net`模型进行训练和评估。由于计算资源有限，[**训练**]和测试精度可以进一步提高：我们把对它的讨论留在练习中。
 
 ```{.python .input}
 lr, num_epochs = 1e-4, 5
@@ -450,7 +454,7 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
 
 ## 练习
 
-1. 如果您的计算资源允许，请微调一个更大的预训练BERT模型，该模型与原始的BERT基础模型一样大。修改`load_pretrained_model`函数中的参数设置：将“bert.mall”替换为“bert.base”，将`num_hiddens=256`、`ffn_num_hiddens=512`、`num_heads=4`和`num_layers=2`的值分别增加到768、3072、12和12。通过增加微调迭代轮数（可能还会调优其他超参数），你可以获得高于0.86的测试精度吗？
+1. 如果您的计算资源允许，请微调一个更大的预训练BERT模型，该模型与原始的BERT基础模型一样大。修改`load_pretrained_model`函数中的参数设置：将“bert.small”替换为“bert.base”，将`num_hiddens=256`、`ffn_num_hiddens=512`、`num_heads=4`和`num_layers=2`的值分别增加到768、3072、12和12。通过增加微调迭代轮数（可能还会调优其他超参数），你可以获得高于0.86的测试精度吗？
 1. 如何根据一对序列的长度比值截断它们？将此对截断方法与`SNLIBERTDataset`类中使用的方法进行比较。它们的利弊是什么？
 
 :begin_tab:`mxnet`

@@ -45,9 +45,11 @@ from torch import nn
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
 import paddle
 from paddle import nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 ## 输入表示
@@ -275,7 +277,7 @@ class MaskLM(nn.Module):
         batch_size = X.shape[0]
         batch_idx = torch.arange(0, batch_size)
         # 假设batch_size=2，num_pred_positions=3
-        # 那么batch_idx是np.array（[0,0,0,1,1]）
+        # 那么batch_idx是np.array（[0,0,0,1,1,1]）
         batch_idx = torch.repeat_interleave(batch_idx, num_pred_positions)
         masked_X = X[batch_idx, pred_positions]
         masked_X = masked_X.reshape((batch_size, num_pred_positions, -1))

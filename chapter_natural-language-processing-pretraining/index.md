@@ -27,7 +27,7 @@
 “go to the bank to deposit some money”（去银行存点钱）
 和“go to the bank to sit down”（去河岸坐下来）中是相同的。
 因此，许多较新的预训练模型使相同词元的表示适应于不同的上下文，
-其中包括基于transformer编码器的更深的自监督模型BERT。
+其中包括基于Transformer编码器的更深的自监督模型BERT。
 在本章中，我们将重点讨论如何预训练文本的这种表示，
 如 :numref:`fig_nlp-map-pretrain`中所强调的那样。
 

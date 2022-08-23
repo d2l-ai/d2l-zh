@@ -61,7 +61,7 @@ $$\sum_{i\in\mathcal{V}} \sum_{j\in\mathcal{V}} h(x_{ij}) \left(\mathbf{u}_j^\to
 
 从 :numref:`tab_glove`中，我们可以观察到以下几点：
 
-* 对于与“ice”相关但与“gas”无关的单词$w_k$，例如$w_k=\text{solid}$，我们预计会有更大的共现概率比值，例如8.9。
+* 对于与“ice”相关但与“steam”无关的单词$w_k$，例如$w_k=\text{solid}$，我们预计会有更大的共现概率比值，例如8.9。
 * 对于与“steam”相关但与“ice”无关的单词$w_k$，例如$w_k=\text{gas}$，我们预计较小的共现概率比值，例如0.085。
 * 对于同时与“ice”和“steam”相关的单词$w_k$，例如$w_k=\text{water}$，我们预计其共现概率的比值接近1，例如1.36.
 * 对于与“ice”和“steam”都不相关的单词$w_k$，例如$w_k=\text{fashion}$，我们预计共现概率的比值接近1，例如0.96.

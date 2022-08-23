@@ -147,10 +147,12 @@ class Residual(tf.keras.Model):  #@save
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
 import paddle
 import paddle.nn as nn
 from paddle.nn import functional as F
+warnings.filterwarnings("ignore")
+from d2l import paddle as d2l
 
 class Residual(nn.Layer):  #@save
     def __init__(self, input_channels, num_channels, use_1x1conv=False,
@@ -482,8 +484,8 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 
 1.  :numref:`fig_inception`中的Inception块与残差块之间的主要区别是什么？在删除了Inception块中的一些路径之后，它们是如何相互关联的？
 1. 参考ResNet论文 :cite:`He.Zhang.Ren.ea.2016`中的表1，以实现不同的变体。
-1. 对于更深层次的网络，ResNet引入了“bottleneck”架构来降低模型复杂性。请你试着去实现它。
-1. 在ResNet的后续版本中，作者将“卷积层、批量规范化层和激活层”架构更改为“批量规范化层、激活层和卷积层”架构。请你做这个改进。详见 :cite:`He.Zhang.Ren.ea.2016*1`中的图1。
+1. 对于更深层次的网络，ResNet引入了“bottleneck”架构来降低模型复杂性。请试着去实现它。
+1. 在ResNet的后续版本中，作者将“卷积层、批量规范化层和激活层”架构更改为“批量规范化层、激活层和卷积层”架构。请尝试做这个改进。详见 :cite:`He.Zhang.Ren.ea.2016*1`中的图1。
 1. 为什么即使函数类是嵌套的，我们仍然要限制增加函数的复杂性呢？
 
 :begin_tab:`mxnet`

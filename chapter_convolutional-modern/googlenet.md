@@ -6,7 +6,7 @@ GoogLeNet吸收了NiN中串联网络的思想，并在此基础上做了改进�
 这篇论文的一个重点是解决了什么样大小的卷积核最合适的问题。
 毕竟，以前流行的网络使用小到$1 \times 1$，大到$11 \times 11$的卷积核。
 本文的一个观点是，有时使用不同大小的卷积核组合是有利的。
-在本节中，我们将介绍一个稍微简化的GoogLeNet版本：我们省略了一些为稳定训练而添加的特殊特性，现在有了更好的训练方法，这些特性不是必要的。
+本节将介绍一个稍微简化的GoogLeNet版本：我们省略了一些为稳定训练而添加的特殊特性，现在有了更好的训练方法，这些特性不是必要的。
 
 ## (**Inception块**)
 
@@ -121,10 +121,12 @@ class Inception(tf.keras.Model):
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
 import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 
 class Inception(nn.Layer):
     # c1--c4是每条路径的输出通道数
@@ -421,9 +423,9 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 ## 练习
 
 1. GoogLeNet有一些后续版本。尝试实现并运行它们，然后观察实验结果。这些后续版本包括：
-    * 添加批量规范化层 :cite:`Ioffe.Szegedy.2015`（batch normalization），在 :numref:`sec_batch_norm`中将介绍。
-    * 对Inception模块进行调整 :cite:`Szegedy.Vanhoucke.Ioffe.ea.2016`。
-    * 使用标签平滑（label smoothing）进行模型正则化 :cite:`Szegedy.Vanhoucke.Ioffe.ea.2016`。
+    * 添加批量规范化层 :cite:`Ioffe.Szegedy.2015`（batch normalization），在 :numref:`sec_batch_norm`中将介绍；
+    * 对Inception模块进行调整 :cite:`Szegedy.Vanhoucke.Ioffe.ea.2016`；
+    * 使用标签平滑（label smoothing）进行模型正则化 :cite:`Szegedy.Vanhoucke.Ioffe.ea.2016`；
     * 加入残差连接 :cite:`Szegedy.Ioffe.Vanhoucke.ea.2017`。（ :numref:`sec_resnet`将介绍）。
 1. 使用GoogLeNet的最小图像大小是多少？
 1. 将AlexNet、VGG和NiN的模型参数大小与GoogLeNet进行比较。后两个网络架构是如何显著减少模型参数大小的？

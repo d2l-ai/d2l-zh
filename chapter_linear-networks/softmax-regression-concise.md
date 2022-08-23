@@ -31,9 +31,12 @@ import tensorflow as tf
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings(action='ignore')
 import paddle
 from paddle import nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 ```{.python .input}
@@ -109,7 +112,7 @@ $o_j$是未规范化的预测$\mathbf{o}$的第$j$个元素。
 
 解决这个问题的一个技巧是：
 在继续softmax计算之前，先从所有$o_k$中减去$\max(o_k)$。
-你可以看到每个$o_k$按常数进行的移动不会改变softmax的返回值：
+这里可以看到每个$o_k$按常数进行的移动不会改变softmax的返回值：
 
 $$
 \begin{aligned}

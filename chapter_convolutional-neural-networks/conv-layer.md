@@ -49,9 +49,12 @@ from torch import nn
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings(action='ignore')
 import paddle
 from paddle import nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 ```{.python .input}
@@ -321,7 +324,7 @@ d2l.reshape(conv2d.get_weights()[0], (1, 2))
 d2l.reshape(conv2d.weight, (1, 2))
 ```
 
-细心的你一定会发现，我们学习到的卷积核权重非常接近我们之前定义的卷积核`K`。
+细心的读者一定会发现，我们学习到的卷积核权重非常接近我们之前定义的卷积核`K`。
 
 ## 互相关和卷积
 
@@ -364,7 +367,7 @@ d2l.reshape(conv2d.weight, (1, 2))
     1. 如果转置`K`会发生什么？
 1. 在我们创建的`Conv2D`自动求导时，有什么错误消息？
 1. 如何通过改变输入张量和卷积核张量，将互相关运算表示为矩阵乘法？
-1. 手工设计一些卷积核：
+1. 手工设计一些卷积核。
     1. 二阶导数的核的形式是什么？
     1. 积分的核的形式是什么？
     1. 得到$d$次导数的最小核的大小是多少？

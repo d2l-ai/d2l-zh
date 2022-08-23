@@ -69,9 +69,11 @@ def nin_block(num_channels, kernel_size, strides, padding):
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
 import paddle
 import paddle.nn as nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 
 def nin_block(in_channels, out_channels, kernel_size, strides, padding):
     return nn.Sequential(
