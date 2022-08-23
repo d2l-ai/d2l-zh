@@ -154,11 +154,14 @@ net(x)
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
 import paddle
 from paddle import nn
 from paddle.jit import to_static
 from paddle.static import InputSpec
+
+warnings.filterwarnings("ignore")
+from d2l import paddle as d2l
 
 # 生产网络的工厂模式
 def get_net():
