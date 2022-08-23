@@ -73,6 +73,7 @@ def cls_predictor(num_inputs, num_anchors, num_classes):
 #@tab paddle
 %matplotlib inline
 import warnings
+warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn
 from paddle.nn import functional as F
