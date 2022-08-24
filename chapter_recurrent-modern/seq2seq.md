@@ -35,9 +35,9 @@
 编码器最终的隐状态在每一个时间步都作为解码器的输入序列的一部分。
 类似于 :numref:`sec_language_model`中语言模型的训练，
 可以允许标签成为原始的输出序列，
-从源序列词元“&lt;bos&gt;”、“Ils”、“regardent”、“.”
+从源序列词元“&lt;bos&gt;”“Ils”“regardent”“.”
 到新序列词元
-“Ils”、“regardent”、“.”、“&lt;eos&gt;”来移动预测的位置。
+“Ils”“regardent”“.”“&lt;eos&gt;”来移动预测的位置。
 
 下面，我们动手构建 :numref:`fig_seq2seq`的设计，
 并将基于 :numref:`sec_machine_translation`中
@@ -71,11 +71,13 @@ import tensorflow as tf
 
 ```{.python .input}
 #@tab paddle
+import warnings
 import collections
-from d2l import paddle as d2l
 import math
 import paddle
 from paddle import nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 ## 编码器
@@ -143,7 +145,7 @@ class Seq2SeqEncoder(d2l.Encoder):
         state = self.rnn.begin_state(batch_size=X.shape[1], ctx=X.ctx)
         output, state = self.rnn(X, state)
         # output的形状:(num_steps,batch_size,num_hiddens)
-        # state[0]的形状:(num_layers,batch_size,num_hiddens)
+        # state的形状:(num_layers,batch_size,num_hiddens)
         return output, state
 ```
 
@@ -168,7 +170,7 @@ class Seq2SeqEncoder(d2l.Encoder):
         # 如果未提及状态，则默认为0
         output, state = self.rnn(X)
         # output的形状:(num_steps,batch_size,num_hiddens)
-        # state[0]的形状:(num_layers,batch_size,num_hiddens)
+        # state的形状:(num_layers,batch_size,num_hiddens)
         return output, state
 ```
 
@@ -350,7 +352,7 @@ class Seq2SeqDecoder(d2l.Decoder):
         output, state = self.rnn(X_and_context, state)
         output = self.dense(output).swapaxes(0, 1)
         # output的形状:(batch_size,num_steps,vocab_size)
-        # state[0]的形状:(num_layers,batch_size,num_hiddens)
+        # state的形状:(num_layers,batch_size,num_hiddens)
         return output, state
 ```
 
@@ -378,7 +380,7 @@ class Seq2SeqDecoder(d2l.Decoder):
         output, state = self.rnn(X_and_context, state)
         output = self.dense(output).permute(1, 0, 2)
         # output的形状:(batch_size,num_steps,vocab_size)
-        # state[0]的形状:(num_layers,batch_size,num_hiddens)
+        # state的形状:(num_layers,batch_size,num_hiddens)
         return output, state
 ```
 
@@ -1101,8 +1103,8 @@ for eng, fra in zip(engs, fras):
 
 ## 练习
 
-1. 你能通过调整超参数来改善翻译效果吗？
-1. 重新运行实验并在计算损失时不使用遮蔽。你观察到什么结果？为什么？
+1. 试着通过调整超参数来改善翻译效果。
+1. 重新运行实验并在计算损失时不使用遮蔽，可以观察到什么结果？为什么会有这个结果？
 1. 如果编码器和解码器的层数或者隐藏单元数不同，那么如何初始化解码器的隐状态？
 1. 在训练中，如果用前一时间步的预测输入到解码器来代替强制教学，对性能有何影响？
 1. 用长短期记忆网络替换门控循环单元重新运行实验。

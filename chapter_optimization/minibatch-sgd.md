@@ -95,10 +95,13 @@ C = tf.Variable(d2l.normal([256, 256], 0, 1))
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn
 import numpy as np
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 
 timer = d2l.Timer()
 A = d2l.zeros((256, 256))
@@ -771,7 +774,7 @@ train_concise_ch11(trainer, {'learning_rate': 0.01}, data_iter)
 
 1. 修改批量大小和学习率，并观察目标函数值的下降率以及每个迭代轮数消耗的时间。
 1. 将小批量随机梯度下降与实际从训练集中*取样替换*的变体进行比较。会看出什么？
-1. 一个邪恶的精灵在没通知你的情况下复制了你的数据集（即每个观测发生两次，你的数据集增加到原始大小的两倍，但没有人告诉你）。随机梯度下降、小批量随机梯度下降和梯度下降的表现将如何变化？
+1. 一个邪恶的精灵在没通知你的情况下复制了你的数据集（即每个观测发生两次，数据集增加到原始大小的两倍，但没有人告诉你）。随机梯度下降、小批量随机梯度下降和梯度下降的表现将如何变化？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/4324)

@@ -30,15 +30,13 @@ sudo apt-get install librsvg2-bin
 ```
 
 ```
-wget https://github.com/adobe-fonts/source-han-sans/raw/release/OTF/SourceHanSansSC.zip
-wget https://github.com/adobe-fonts/source-han-serif/raw/release/OTF/SourceHanSerifSC_SB-H.zip
-wget https://github.com/adobe-fonts/source-han-serif/raw/release/OTF/SourceHanSerifSC_EL-M.zip
+wget https://github.com/adobe-fonts/source-han-sans/releases/download/2.004R/SourceHanSansSC.zip
+wget -O SourceHanSerifSC.zip https://github.com/adobe-fonts/source-han-serif/releases/download/2.001R/09_SourceHanSerifSC.zip
 
-unzip SourceHanSansSC.zip
-unzip SourceHanSerifSC_EL-M.zip
-unzip SourceHanSerifSC_SB-H.zip
+unzip SourceHanSansSC.zip -d SourceHanSansSC
+unzip SourceHanSerifSC.zip -d SourceHanSerifSC
 
-sudo mv SourceHanSansSC SourceHanSerifSC_EL-M SourceHanSerifSC_SB-H /usr/share/fonts/opentype/
+sudo mv SourceHanSansSC SourceHanSerifSC /usr/share/fonts/opentype/
 sudo fc-cache -f -v
 ```
 

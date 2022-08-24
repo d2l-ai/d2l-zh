@@ -35,7 +35,7 @@
 ## 门控隐状态
 
 门控循环单元与普通的循环神经网络之间的关键区别在于：
-后者支持隐状态的门控。
+前者支持隐状态的门控。
 这意味着模型有专门的机制来确定应该何时更新隐状态，
 以及应该何时重置隐状态。
 这些机制是可学习的，并且能够解决了上面列出的问题。
@@ -64,10 +64,10 @@
 我们来看一下门控循环单元的数学表达。
 对于给定的时间步$t$，假设输入是一个小批量
 $\mathbf{X}_t \in \mathbb{R}^{n \times d}$
-（样本个数：$n$，输入个数：$d$），
+（样本个数$n$，输入个数$d$），
 上一个时间步的隐状态是
 $\mathbf{H}_{t-1} \in \mathbb{R}^{n \times h}$
-（隐藏单元个数：$h$）。
+（隐藏单元个数$h$）。
 那么，重置门$\mathbf{R}_t \in \mathbb{R}^{n \times h}$和
 更新门$\mathbf{Z}_t \in \mathbb{R}^{n \times h}$的计算如下所示：
 
@@ -147,7 +147,7 @@ $$\mathbf{H}_t = \mathbf{Z}_t \odot \mathbf{H}_{t-1}  + (1 - \mathbf{Z}_t) \odot
 
 总之，门控循环单元具有以下两个显著特征：
 
-* 重置门有助于捕获序列中的短期依赖关系。
+* 重置门有助于捕获序列中的短期依赖关系；
 * 更新门有助于捕获序列中的长期依赖关系。
 
 ## 从零开始实现
@@ -186,10 +186,13 @@ train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
 import paddle
-from paddle import nn
 import paddle.nn.functional as F
+from paddle import nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
+
 
 batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)

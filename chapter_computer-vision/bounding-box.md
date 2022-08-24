@@ -1,7 +1,7 @@
 # 目标检测和边界框
 :label:`sec_bbox`
 
-在前面的章节（例如 :numref:`sec_alexnet`— :numref:`sec_googlenet`）中，我们介绍了各种图像分类模型。
+前面的章节（例如 :numref:`sec_alexnet`— :numref:`sec_googlenet`）介绍了各种图像分类模型。
 在图像分类任务中，我们假设图像中只有一个主要物体对象，我们只关注如何识别其类别。
 然而，很多时候图像里有多个我们感兴趣的目标，我们不仅想知道它们的类别，还想得到它们在图像中的具体位置。
 在计算机视觉里，我们将这类任务称为*目标检测*（object detection）或*目标识别*（object recognition）。
@@ -10,7 +10,7 @@
 例如，在无人驾驶里，我们需要通过识别拍摄到的视频图像里的车辆、行人、道路和障碍物的位置来规划行进线路。
 机器人也常通过该任务来检测感兴趣的目标。安防领域则需要检测异常目标，如歹徒或者炸弹。
 
-在接下来的几节中，我们将介绍几种用于目标检测的深度学习方法。
+接下来的几节将介绍几种用于目标检测的深度学习方法。
 我们将首先介绍目标的*位置*。
 
 ```{.python .input}
@@ -38,8 +38,11 @@ import tensorflow as tf
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
 import paddle
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 下面加载本节将使用的示例图像。可以看到图像左边是一只狗，右边是一只猫。

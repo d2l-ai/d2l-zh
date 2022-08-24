@@ -29,10 +29,12 @@ data_iter, vocab = d2l.load_data_ptb(batch_size, max_window_size,
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
 import math
 import paddle
 from paddle import nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 
 batch_size, max_window_size, num_noise_words = 512, 5, 5
 data_iter, vocab = d2l.load_data_ptb(batch_size, max_window_size,

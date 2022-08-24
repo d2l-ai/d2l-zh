@@ -134,8 +134,11 @@ def adam(params, grads, states, hyperparams):
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
 import paddle
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 
 def init_adam_states(feature_dim):
     v_w, v_b = d2l.zeros((feature_dim, 1)), d2l.zeros((1, ))
@@ -300,8 +303,8 @@ d2l.train_ch11(yogi, init_adam_states(feature_dim),
 ## 练习
 
 1. 调节学习率，观察并分析实验结果。
-1. 你能重写动量和二次矩更新，从而使其不需要偏差校正吗？
-1. 当我们收敛时，为什么你需要降低学习率$\eta$？
+1. 试着重写动量和二次矩更新，从而使其不需要偏差校正。
+1. 收敛时为什么需要降低学习率$\eta$？
 1. 尝试构造一个使用Adam算法会发散而Yogi会收敛的例子。
 
 :begin_tab:`mxnet`

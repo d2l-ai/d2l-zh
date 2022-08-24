@@ -11,8 +11,8 @@
 而忽略了操作参数的具体细节。
 本节，我们将介绍以下内容：
 
-* 访问参数，用于调试、诊断和可视化。
-* 参数初始化。
+* 访问参数，用于调试、诊断和可视化；
+* 参数初始化；
 * 在不同模型组件间共享参数。
 
 (**我们首先看一下具有单隐藏层的多层感知机。**)
@@ -57,6 +57,8 @@ net(X)
 
 ```{.python .input}
 #@tab paddle
+import warnings
+warnings.filterwarnings(action='ignore')
 import paddle
 from paddle import nn
 
@@ -442,14 +444,14 @@ print(net[1].weight.data())
 
 ```{.python .input}
 #@tab pytorch
-def xavier(m):
+def init_xavier(m):
     if type(m) == nn.Linear:
         nn.init.xavier_uniform_(m.weight)
 def init_42(m):
     if type(m) == nn.Linear:
         nn.init.constant_(m.weight, 42)
 
-net[0].apply(xavier)
+net[0].apply(init_xavier)
 net[2].apply(init_42)
 print(net[0].weight.data[0])
 print(net[2].weight.data)
@@ -694,7 +696,7 @@ print(net[2].weight[0] == net[4].weight[0])
 这个例子表明第二层和第三层的参数是绑定的。
 它们不仅值相等，而且由相同的张量表示。
 因此，如果我们改变其中一个参数，另一个参数也会改变。
-你可能会思考：当参数绑定时，梯度会发生什么情况？
+这里有一个问题：当参数绑定时，梯度会发生什么情况？
 答案是由于模型参数包含梯度，
 因此在反向传播期间第二个隐藏层和第三个隐藏层的梯度会加在一起。
 :end_tab:
@@ -703,7 +705,7 @@ print(net[2].weight[0] == net[4].weight[0])
 这个例子表明第三个和第五个神经网络层的参数是绑定的。
 它们不仅值相等，而且由相同的张量表示。
 因此，如果我们改变其中一个参数，另一个参数也会改变。
-你可能会思考：当参数绑定时，梯度会发生什么情况？
+这里有一个问题：当参数绑定时，梯度会发生什么情况？
 答案是由于模型参数包含梯度，因此在反向传播期间第二个隐藏层
 （即第三个神经网络层）和第三个隐藏层（即第五个神经网络层）的梯度会加在一起。
 :end_tab:

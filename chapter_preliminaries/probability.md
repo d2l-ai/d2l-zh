@@ -11,9 +11,9 @@
 例如，假设我们为一家大型在线书店工作，我们可能希望估计某些用户购买特定图书的概率。
 为此，我们需要使用概率学。
 有完整的课程、专业、论文、职业、甚至院系，都致力于概率学的工作。
-所以很自然地，我们在这部分的目标不是教授你整个科目。
-相反，我们希望教给你在基础的概率知识，使你能够开始构建你的第一个深度学习模型，
-以便你可以开始自己探索它。
+所以很自然地，我们在这部分的目标不是教授整个科目。
+相反，我们希望教给读者基础的概率知识，使读者能够开始构建第一个深度学习模型，
+以便读者可以开始自己探索它。
 
 现在让我们更认真地考虑第一个例子：根据照片区分猫和狗。
 这听起来可能很简单，但对于机器却可能是一个艰巨的挑战。
@@ -85,15 +85,17 @@ import numpy as np
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
+import warnings
+warnings.filterwarnings(action='ignore')
 from d2l import paddle as d2l
-#paddle即将在下一个版本中新增multinomial.Multinomial API
-#import paddle
+warnings.filterwarnings(action='ignore')
+import paddle
 import random
 import numpy as np
 ```
 
 在统计学中，我们把从概率分布中抽取样本的过程称为*抽样*（sampling）。
-笼统来说，可以把*分布*（distribution）看作是对事件的概率分配，
+笼统来说，可以把*分布*（distribution）看作对事件的概率分配，
 稍后我们将给出的更正式定义。
 将概率分配给一些离散选择的分布称为*多项分布*（multinomial distribution）。
 
@@ -120,7 +122,7 @@ tfp.distributions.Multinomial(1, fair_probs).sample()
 ```{.python .input}
 #@tab paddle
 fair_probs = [1.0 / 6] * 6
-np.random.multinomial(1, fair_probs)
+paddle.distribution.Multinomial(1, paddle.to_tensor(fair_probs)).sample()
 ```
 
 在估计一个骰子的公平性时，我们希望从同一分布中生成多个样本。
@@ -143,7 +145,7 @@ tfp.distributions.Multinomial(10, fair_probs).sample()
 
 ```{.python .input}
 #@tab paddle
-np.random.multinomial(10, fair_probs)
+paddle.distribution.Multinomial(10, paddle.to_tensor(fair_probs)).sample()
 ```
 
 现在我们知道如何对骰子进行采样，我们可以模拟1000次投掷。
@@ -170,7 +172,7 @@ counts / 1000
 
 ```{.python .input}
 #@tab paddle
-counts = np.random.multinomial(1000, fair_probs).astype(np.float32)
+counts = paddle.distribution.Multinomial(1000, paddle.to_tensor(fair_probs)).sample()
 counts / 1000
 ```
 
@@ -229,9 +231,10 @@ d2l.plt.legend();
 
 ```{.python .input}
 #@tab paddle
-counts = np.random.multinomial(10, fair_probs, size=500)
-cum_counts = counts.astype(np.float32).cumsum(axis=0)
-estimates = cum_counts / cum_counts.sum(axis=1, keepdims=True)
+counts = paddle.distribution.Multinomial(10, paddle.to_tensor(fair_probs)).sample((500,1))
+cum_counts = counts.cumsum(axis=0)
+cum_counts = cum_counts.squeeze(axis=1)
+estimates = cum_counts / cum_counts.sum(axis=1, keepdim=True)
 
 d2l.set_figsize((6, 4.5))
 for i in range(6):
@@ -291,13 +294,13 @@ d2l.plt.legend()
 请注意，*离散*（discrete）随机变量（如骰子的每一面）
 和*连续*（continuous）随机变量（如人的体重和身高）之间存在微妙的区别。
 现实生活中，测量两个人是否具有完全相同的身高没有太大意义。
-如果我们进行足够精确的测量，你会发现这个星球上没有两个人具有完全相同的身高。
+如果我们进行足够精确的测量，最终会发现这个星球上没有两个人具有完全相同的身高。
 在这种情况下，询问某人的身高是否落入给定的区间，比如是否在1.79米和1.81米之间更有意义。
 在这些情况下，我们将这个看到某个数值的可能性量化为*密度*（density）。
 高度恰好为1.80米的概率为0，但密度不是0。
 在任何两个不同高度之间的区间，我们都有非零的概率。
 在本节的其余部分中，我们将考虑离散空间中的概率。
-对于连续随机变量的概率，你可以参考深度学习数学附录中[随机变量](https://d2l.ai/chapter_appendix-mathematics-for-deep-learning/random-variables.html)
+连续随机变量的概率可以参考深度学习数学附录中[随机变量](https://d2l.ai/chapter_appendix-mathematics-for-deep-learning/random-variables.html)
 的一节。
 
 ## 处理多个随机变量
@@ -492,7 +495,7 @@ $$\mathrm{Var}[f(x)] = E\left[\left(f(x) - E[f(x)]\right)^2\right].$$
 
 1. 进行$m=500$组实验，每组抽取$n=10$个样本。改变$m$和$n$，观察和分析实验结果。
 2. 给定两个概率为$P(\mathcal{A})$和$P(\mathcal{B})$的事件，计算$P(\mathcal{A} \cup \mathcal{B})$和$P(\mathcal{A} \cap \mathcal{B})$的上限和下限。（提示：使用[友元图](https://en.wikipedia.org/wiki/Venn_diagram)来展示这些情况。)
-3. 假设我们有一系列随机变量，例如$A$、$B$和$C$，其中$B$只依赖于$A$，而$C$只依赖于$B$，你能简化联合概率$P(A, B, C)$吗？（提示：这是一个[马尔可夫链](https://en.wikipedia.org/wiki/Markov_chain)。)
+3. 假设我们有一系列随机变量，例如$A$、$B$和$C$，其中$B$只依赖于$A$，而$C$只依赖于$B$，能简化联合概率$P(A, B, C)$吗？（提示：这是一个[马尔可夫链](https://en.wikipedia.org/wiki/Markov_chain)。)
 4. 在 :numref:`subsec_probability_hiv_app`中，第一个测试更准确。为什么不运行第一个测试两次，而是同时运行第一个和第二个测试?
 
 :begin_tab:`mxnet`

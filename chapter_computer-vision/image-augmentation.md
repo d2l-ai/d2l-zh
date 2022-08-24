@@ -1,12 +1,12 @@
 # 图像增广
 :label:`sec_image_augmentation`
 
-在 :numref:`sec_alexnet`中，我们提到过大型数据集是成功应用深度神经网络的先决条件。
+ :numref:`sec_alexnet`提到过大型数据集是成功应用深度神经网络的先决条件。
 图像增广在对训练图像进行一系列的随机变化之后，生成相似但不同的训练样本，从而扩大了训练集的规模。
 此外，应用图像增广的原因是，随机改变训练样本可以减少模型对某些属性的依赖，从而提高模型的泛化能力。
 例如，我们可以以不同的方式裁剪图像，使感兴趣的对象出现在不同的位置，减少模型对于对象出现位置的依赖。
 我们还可以调整亮度、颜色等因素来降低模型对颜色的敏感度。
-可以说，图像增广技术对于AlexNet的成功是必不可少的。在本节中，我们将讨论这项广泛应用于计算机视觉的技术。
+可以说，图像增广技术对于AlexNet的成功是必不可少的。本节将讨论这项广泛应用于计算机视觉的技术。
 
 ```{.python .input}
 %matplotlib inline
@@ -29,10 +29,12 @@ from torch import nn
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-from d2l import paddle as d2l
+import warnings
 import paddle
 import paddle.vision as paddlevision
 from paddle import nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 ## 常用的图像增广方法
@@ -102,7 +104,7 @@ apply(img,  paddlevision.transforms.RandomVerticalFlip())
 另外，我们可以通过对图像进行随机裁剪，使物体以不同的比例出现在图像的不同位置。
 这也可以降低模型对目标位置的敏感性。
 
-在下面的代码中，我们[**随机裁剪**]一个面积为原始面积10%到100%的区域，该区域的宽高比从0.5到2之间随机取值。
+下面的代码将[**随机裁剪**]一个面积为原始面积10%到100%的区域，该区域的宽高比从0.5～2之间随机取值。
 然后，区域的宽度和高度都被缩放到200像素。
 在本节中（除非另有说明），$a$和$b$之间的随机数指的是在区间$[a, b]$中通过均匀采样获得的连续值。
 
@@ -240,7 +242,7 @@ d2l.show_images([all_images[i][0] for i in range(32)], 4, 8, scale=0.8);
 
 为了在预测过程中得到确切的结果，我们通常对训练样本只进行图像增广，且在预测过程中不使用随机操作的图像增广。
 在这里，我们[**只使用最简单的随机左右翻转**]。
-此外，我们使用`ToTensor`实例将一批图像转换为深度学习框架所要求的格式，即形状为（批量大小，通道数，高度，宽度）的32位浮点数，取值范围为0到1。
+此外，我们使用`ToTensor`实例将一批图像转换为深度学习框架所要求的格式，即形状为（批量大小，通道数，高度，宽度）的32位浮点数，取值范围为0～1。
 
 ```{.python .input}
 train_augs = gluon.data.vision.transforms.Compose([
@@ -272,11 +274,11 @@ test_augs = paddlevision.transforms.Compose([
 ```
 
 :begin_tab:`mxnet`
-接下来，我们定义了一个辅助函数，以便于读取图像和应用图像增广。Gluon数据集提供的`transform_first`函数将图像增广应用于每个训练示例的第一个元素（图像和标签），即图像顶部的元素。有关`DataLoader`的详细介绍，请参阅 :numref:`sec_fashion_mnist`。
+接下来，我们定义了一个辅助函数，以便于读取图像和应用图像增广。Gluon数据集提供的`transform_first`函数将图像增广应用于每个训练样本的第一个元素（由图像和标签组成），即应用在图像上。有关`DataLoader`的详细介绍，请参阅 :numref:`sec_fashion_mnist`。
 :end_tab:
 
 :begin_tab:`pytorch`
-接下来，我们[**定义一个辅助函数，以便于读取图像和应用图像增广**]。PyTorch数据集提供的`transform`函数应用图像增广来转化图像。有关`DataLoader`的详细介绍，请参阅 :numref:`sec_fashion_mnist`。
+接下来，我们[**定义一个辅助函数，以便于读取图像和应用图像增广**]。PyTorch数据集提供的`transform`参数应用图像增广来转化图像。有关`DataLoader`的详细介绍，请参阅 :numref:`sec_fashion_mnist`。
 :end_tab:
 
 ```{.python .input}
@@ -339,7 +341,7 @@ def train_batch_ch13(net, features, labels, loss, trainer, devices,
 def train_batch_ch13(net, X, y, loss, trainer, devices):
     """用多GPU进行小批量训练"""
     if isinstance(X, list):
-        # 微调BERT中所需（稍后讨论）
+        # 微调BERT中所需
         X = [x.to(devices[0]) for x in X]
     else:
         X = X.to(devices[0])

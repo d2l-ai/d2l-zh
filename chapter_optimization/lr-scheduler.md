@@ -185,11 +185,13 @@ def train(net_fn, train_iter, test_iter, num_epochs, lr,
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-from d2l import paddle as d2l
+import warnings
 import math
 import paddle
 from paddle import nn
 from paddle.optimizer import lr as lr_scheduler
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 
 def net_fn():
     model = nn.Sequential(
@@ -375,9 +377,11 @@ train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
 此外，余弦学习率调度在实践中的一些问题上运行效果很好。
 在某些问题上，最好在使用较高的学习率之前预热优化器。
 
-### 多因子调度器
+### 单因子调度器
 
-多项式衰减的一种替代方案是乘法衰减，即$\eta_{t+1} \leftarrow \eta_t \cdot \alpha$其中$\alpha \in (0, 1)$。为了防止学习率衰减超出合理的下限，更新方程经常修改为$\eta_{t+1} \leftarrow \mathop{\mathrm{max}}(\eta_{\mathrm{min}}, \eta_t \cdot \alpha)$。
+多项式衰减的一种替代方案是乘法衰减，即$\eta_{t+1} \leftarrow \eta_t \cdot \alpha$其中$\alpha \in (0, 1)$。
+为了防止学习率衰减到一个合理的下界之下，
+更新方程经常修改为$\eta_{t+1} \leftarrow \mathop{\mathrm{max}}(\eta_{\mathrm{min}}, \eta_t \cdot \alpha)$。
 
 ```{.python .input}
 #@tab all
@@ -399,8 +403,9 @@ d2l.plot(d2l.arange(50), [scheduler(t) for t in range(50)])
 
 ### 多因子调度器
 
-训练深度网络的常见策略之一是保持分段稳定的学习率，并且每隔一段时间就一定程度学习率降低。
-具体地说，给定一组降低学习率的时间，例如$s = \{5, 10, 20\}$每当$t \in s$时降低$\eta_{t+1} \leftarrow \eta_t \cdot \alpha$。
+训练深度网络的常见策略之一是保持学习率为一组分段的常量，并且不时地按给定的参数对学习率做乘法衰减。
+具体地说，给定一组降低学习率的时间点，例如$s = \{5, 10, 20\}$，
+每当$t \in s$时，降低$\eta_{t+1} \leftarrow \eta_t \cdot \alpha$。
 假设每步中的值减半，我们可以按如下方式实现这一点。
 
 ```{.python .input}
@@ -535,8 +540,8 @@ scheduler = CosineScheduler(max_update=20, base_lr=0.3, final_lr=0.01)
 d2l.plot(d2l.arange(num_epochs), [scheduler(t) for t in range(num_epochs)])
 ```
 
-在计算机视觉中，这个调度可以引出改进的结果。
-但请注意，如下所示，这种改进并不能保证成立。
+在计算机视觉的背景下，这个调度方式可能产生改进的结果。
+但请注意，如下所示，这种改进并不一定成立。
 
 ```{.python .input}
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
@@ -569,7 +574,7 @@ train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
 ### 预热
 
 在某些情况下，初始化参数不足以得到良好的解。
-这对于某些高级网络设计来说尤其棘手，可能导致不稳定的优化结果。
+这对某些高级网络设计来说尤其棘手，可能导致不稳定的优化结果。
 对此，一方面，我们可以选择一个足够小的学习率，
 从而防止一开始发散，然而这样进展太缓慢。
 另一方面，较高的学习率最初就会导致发散。
@@ -622,7 +627,7 @@ train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
 
 预热可以应用于任何调度器，而不仅仅是余弦。
 有关学习率调度的更多实验和更详细讨论，请参阅 :cite:`Gotmare.Keskar.Xiong.ea.2018`。
-其中，这篇论文的点睛之笔的发现：预热阶段限制了非常深的网络中参数的发散量。
+其中，这篇论文的点睛之笔的发现：预热阶段限制了非常深的网络中参数的发散程度 。
 这在直觉上是有道理的：在网络中那些一开始花费最多时间取得进展的部分，随机初始化会产生巨大的发散。
 
 ## 小结
@@ -635,11 +640,11 @@ train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
 
 ## 练习
 
-1. 试验给定固定学习率的优化行为。这种情况下你可以获得的最佳模型是什么？
-1. 如果你改变学习率下降的指数，收敛性会如何改变？在实验中方便起见，使用`PolyScheduler`。
+1. 试验给定固定学习率的优化行为。这种情况下可以获得的最佳模型是什么？
+1. 如果改变学习率下降的指数，收敛性会如何改变？在实验中方便起见，使用`PolyScheduler`。
 1. 将余弦调度器应用于大型计算机视觉问题，例如训练ImageNet数据集。与其他调度器相比，它如何影响性能？
 1. 预热应该持续多长时间？
-1. 你能把优化和采样联系起来吗？首先，在随机梯度朗之万动力学上使用 :cite:`Welling.Teh.2011`的结果。
+1. 可以试着把优化和采样联系起来吗？首先，在随机梯度朗之万动力学上使用 :cite:`Welling.Teh.2011`的结果。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/4333)

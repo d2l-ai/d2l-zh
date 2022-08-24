@@ -75,9 +75,11 @@ def vgg_block(num_convs, num_channels):
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
 import paddle
 import paddle.nn as nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 
 def vgg_block(num_convs, in_channels, out_channels):
     layers = []
@@ -218,7 +220,7 @@ for blk in net:
     print(blk.__class__.__name__,'output shape:\t',X.shape)
 ```
 
-正如你所看到的，我们在每个块的高度和宽度减半，最终高度和宽度都为7。最后再展平表示，送入全连接层处理。
+正如从代码中所看到的，我们在每个块的高度和宽度减半，最终高度和宽度都为7。最后再展平表示，送入全连接层处理。
 
 ## 训练模型
 

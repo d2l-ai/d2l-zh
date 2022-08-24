@@ -2,7 +2,7 @@
 :label:`sec_batch_norm`
 
 训练深层神经网络是十分困难的，特别是在较短的时间内使他们收敛更加棘手。
-在本节中，我们将介绍*批量规范化*（batch normalization） :cite:`Ioffe.Szegedy.2015`，这是一种流行且有效的技术，可持续加速深层网络的收敛速度。
+本节将介绍*批量规范化*（batch normalization） :cite:`Ioffe.Szegedy.2015`，这是一种流行且有效的技术，可持续加速深层网络的收敛速度。
 再结合在 :numref:`sec_resnet`中将介绍的残差块，批量规范化使得研究人员能够训练100层以上的网络。
 
 ## 训练深层网络
@@ -49,7 +49,7 @@ $$\begin{aligned} \hat{\boldsymbol{\mu}}_\mathcal{B} &= \frac{1}{|\mathcal{B}|} 
 \hat{\boldsymbol{\sigma}}_\mathcal{B}^2 &= \frac{1}{|\mathcal{B}|} \sum_{\mathbf{x} \in \mathcal{B}} (\mathbf{x} - \hat{\boldsymbol{\mu}}_{\mathcal{B}})^2 + \epsilon.\end{aligned}$$
 
 请注意，我们在方差估计值中添加一个小的常量$\epsilon > 0$，以确保我们永远不会尝试除以零，即使在经验方差估计值可能消失的情况下也是如此。估计值$\hat{\boldsymbol{\mu}}_\mathcal{B}$和${\hat{\boldsymbol{\sigma}}_\mathcal{B}}$通过使用平均值和方差的噪声（noise）估计来抵消缩放问题。
-你可能会认为这种噪声是一个问题，而事实上它是有益的。
+乍看起来，这种噪声是一个问题，而事实上它是有益的。
 
 事实证明，这是深度学习中一个反复出现的主题。
 由于尚未在理论上明确的原因，优化中的各种噪声源通常会导致更快的训练和较少的过拟合：这种变化似乎是正则化的一种形式。
@@ -70,7 +70,7 @@ $$\begin{aligned} \hat{\boldsymbol{\mu}}_\mathcal{B} &= \frac{1}{|\mathcal{B}|} 
 ### 全连接层
 
 通常，我们将批量规范化层置于全连接层中的仿射变换和激活函数之间。
-设全连接层的输入为u，权重参数和偏置参数分别为$\mathbf{W}$和$\mathbf{b}$，激活函数为$\phi$，批量规范化的运算符为$\mathrm{BN}$。
+设全连接层的输入为x，权重参数和偏置参数分别为$\mathbf{W}$和$\mathbf{b}$，激活函数为$\phi$，批量规范化的运算符为$\mathrm{BN}$。
 那么，使用批量规范化的全连接层的输出的计算详情如下：
 
 $$\mathbf{h} = \phi(\mathrm{BN}(\mathbf{W}\mathbf{x} + \mathbf{b}) ).$$
@@ -175,12 +175,12 @@ def batch_norm(X, gamma, beta, moving_mean, moving_var, eps):
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
 import paddle
 import paddle.nn as nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 
-import warnings
-warnings.filterwarnings("ignore", category=Warning) # 过滤报警信息
 
 def batch_norm(X, gamma, beta, moving_mean, moving_var, eps, momentum, is_training=True):
     # 训练模式还与预测模式的BN处理不同
@@ -564,15 +564,15 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 即使在暂退法和权重衰减的情况下，它们仍然非常灵活，因此无法通过常规的学习理论泛化保证来解释它们是否能够泛化到看不见的数据。
 
 在提出批量规范化的论文中，作者除了介绍了其应用，还解释了其原理：通过减少*内部协变量偏移*（internal covariate shift）。
-据推测，作者所说的“内部协变量转移”类似于上述的投机直觉，即变量值的分布在训练过程中会发生变化。
+据推测，作者所说的*内部协变量转移*类似于上述的投机直觉，即变量值的分布在训练过程中会发生变化。
 然而，这种解释有两个问题：
-1、这种偏移与严格定义的*协变量偏移*（covariate shift）非常不同，所以这个名字用词不当。
+1、这种偏移与严格定义的*协变量偏移*（covariate shift）非常不同，所以这个名字用词不当；
 2、这种解释只提供了一种不明确的直觉，但留下了一个有待后续挖掘的问题：为什么这项技术如此有效？
 本书旨在传达实践者用来发展深层神经网络的直觉。
 然而，重要的是将这些指导性直觉与既定的科学事实区分开来。
 最终，当你掌握了这些方法，并开始撰写自己的研究论文时，你会希望清楚地区分技术和直觉。
 
-随着批量规范化的普及，“内部协变量偏移”的解释反复出现在技术文献的辩论，特别是关于“如何展示机器学习研究”的更广泛的讨论中。
+随着批量规范化的普及，*内部协变量偏移*的解释反复出现在技术文献的辩论，特别是关于“如何展示机器学习研究”的更广泛的讨论中。
 Ali Rahimi在接受2017年NeurIPS大会的“接受时间考验奖”（Test of Time Award）时发表了一篇令人难忘的演讲。他将“内部协变量转移”作为焦点，将现代深度学习的实践比作炼金术。
 他对该示例进行了详细回顾 :cite:`Lipton.Steinhardt.2018`，概述了机器学习中令人不安的趋势。
 此外，一些作者对批量规范化的成功提出了另一种解释：在某些方面，批量规范化的表现出与原始论文 :cite:`Santurkar.Tsipras.Ilyas.ea.2018`中声称的行为是相反的。
@@ -593,12 +593,12 @@ Ali Rahimi在接受2017年NeurIPS大会的“接受时间考验奖”（Test of 
 1. 在使用批量规范化之前，我们是否可以从全连接层或卷积层中删除偏置参数？为什么？
 1. 比较LeNet在使用和不使用批量规范化情况下的学习率。
     1. 绘制训练和测试准确度的提高。
-    1. 你的学习率有多高？
+    1. 学习率有多高？
 1. 我们是否需要在每个层中进行批量规范化？尝试一下？
-1. 你可以通过批量规范化来替换暂退法吗？行为会如何改变？
+1. 可以通过批量规范化来替换暂退法吗？行为会如何改变？
 1. 确定参数`beta`和`gamma`，并观察和分析结果。
 1. 查看高级API中有关`BatchNorm`的在线文档，以查看其他批量规范化的应用。
-1. 研究思路：想想你可以应用的其他“规范化”转换？你可以应用概率积分变换吗？全秩协方差估计可以么？
+1. 研究思路：可以应用的其他“规范化”转换？可以应用概率积分变换吗？全秩协方差估计可以么？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/1876)

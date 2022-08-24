@@ -56,9 +56,12 @@ from torch import nn
 
 ```{.python .input}
 #@tab paddle
-from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings(action='ignore')
 import paddle
 from paddle import nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 ```{.python .input}
@@ -297,8 +300,8 @@ pool2d(X)
 
 ## 练习
 
-1. 你能将平均汇聚层作为卷积层的特殊情况实现吗？
-1. 你能将最大汇聚层作为卷积层的特殊情况实现吗？
+1. 尝试将平均汇聚层作为卷积层的特殊情况实现。
+1. 尝试将最大汇聚层作为卷积层的特殊情况实现。
 1. 假设汇聚层的输入大小为$c\times h\times w$，则汇聚窗口的形状为$p_h\times p_w$，填充为$(p_h, p_w)$，步幅为$(s_h, s_w)$。这个汇聚层的计算成本是多少？
 1. 为什么最大汇聚层和平均汇聚层的工作方式不同？
 1. 我们是否需要最小汇聚层？可以用已知函数替换它吗？

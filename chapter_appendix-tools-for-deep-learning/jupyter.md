@@ -86,7 +86,7 @@ c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'
 ssh myserver -L 8888:localhost:8888
 ```
 
-以上是远程服务器`myserver`的地址。然后我们可以使用http://localhost:8888 访问运行Jupyter Notebook的远程服务器`myserver`。在下一节中，我们将详细介绍如何在AWS实例上运行Jupyter Notebook。 
+以上是远程服务器`myserver`的地址。然后我们可以使用http://localhost:8888 访问运行Jupyter Notebook的远程服务器`myserver`。下一节将详细介绍如何在AWS实例上运行Jupyter Notebook。 
 
 ### 执行时间
 

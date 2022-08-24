@@ -3,13 +3,13 @@
 深度学习成功背后的一个因素是神经网络的灵活性：
 我们可以用创造性的方式组合不同的层，从而设计出适用于各种任务的架构。
 例如，研究人员发明了专门用于处理图像、文本、序列数据和执行动态规划的层。
-未来，你会遇到或要自己发明一个现在在深度学习框架中还不存在的层。
-在这些情况下，你必须构建自定义层。在本节中，我们将向你展示如何构建。
+有时我们会遇到或要自己发明一个现在在深度学习框架中还不存在的层。
+在这些情况下，必须构建自定义层。本节将展示如何构建自定义层。
 
 ## 不带参数的层
 
 首先，我们(**构造一个没有任何参数的自定义层**)。
-如果你还记得我们在 :numref:`sec_model_construction`对块的介绍，
+回忆一下在 :numref:`sec_model_construction`对块的介绍，
 这应该看起来很眼熟。
 下面的`CenteredLayer`类要从其输入中减去均值。
 要构建它，我们只需继承基础层类并实现前向传播功能。
@@ -55,6 +55,8 @@ class CenteredLayer(tf.keras.Model):
 
 ```{.python .input}
 #@tab paddle
+import warnings
+warnings.filterwarnings(action='ignore')
 import paddle
 from paddle import nn
 import paddle.nn.functional as F
