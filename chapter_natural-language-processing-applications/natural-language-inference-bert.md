@@ -29,6 +29,18 @@ from torch import nn
 import os
 ```
 
+```{.python .input}
+#@tab paddle
+import warnings
+import json
+import multiprocessing
+import paddle
+from paddle import nn
+import os
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
+```
+
 ## [**加载预训练的BERT**]
 
 我们已经在 :numref:`sec_bert-dataset`和 :numref:`sec_bert-pretraining`WikiText-2数据集上预训练BERT（请注意，原始的BERT模型是在更大的语料库上预训练的）。正如在 :numref:`sec_bert-pretraining`中所讨论的，原始的BERT模型有数以亿计的参数。在下面，我们提供了两个版本的预训练的BERT：“bert.base”与原始的BERT基础模型一样大，需要大量的计算资源才能进行微调，而“bert.small”是一个小版本，以便于演示。
@@ -46,6 +58,13 @@ d2l.DATA_HUB['bert.base'] = (d2l.DATA_URL + 'bert.base.torch.zip',
                              '225d66f04cae318b841a13d32af3acc165f253ac')
 d2l.DATA_HUB['bert.small'] = (d2l.DATA_URL + 'bert.small.torch.zip',
                               'c72329e68a732bef0452e4b96a1c341c8910f81f')
+```
+
+```{.python .input}
+#@tab paddle
+d2l.DATA_HUB['bert_small'] = ('https://paddlenlp.bj.bcebos.com/models/bert.small.paddle.zip', '9fcde07509c7e87ec61c640c1b277509c7e87ec6153d9041758e4')
+
+d2l.DATA_HUB['bert_base'] = ('https://paddlenlp.bj.bcebos.com/models/bert.base.paddle.zip', '9fcde07509c7e87ec61c640c1b27509c7e87ec61753d9041758e4')
 ```
 
 两个预训练好的BERT模型都包含一个定义词表的“vocab.json”文件和一个预训练参数的“pretrained.params”文件。我们实现了以下`load_pretrained_model`函数来[**加载预先训练好的BERT参数**]。
@@ -91,13 +110,45 @@ def load_pretrained_model(pretrained_model, num_hiddens, ffn_num_hiddens,
     return bert, vocab
 ```
 
-为了便于在大多数机器上演示，我们将在本节中加载和微调经过预训练BERT的小版本（“bert.small”）。在练习中，我们将展示如何微调大得多的“bert.base”以显著提高测试精度。
+```{.python .input}
+#@tab paddle
+def load_pretrained_model(pretrained_model, num_hiddens, ffn_num_hiddens,
+                          num_heads, num_layers, dropout, max_len, devices):
+    data_dir = d2l.download_extract(pretrained_model)
+    # 定义空词表以加载预定义词表
+    vocab = d2l.Vocab()
+    vocab.idx_to_token = json.load(open(os.path.join(data_dir,
+        'vocab.json')))
+    vocab.token_to_idx = {token: idx for idx, token in enumerate(
+        vocab.idx_to_token)}
+    bert = d2l.BERTModel(len(vocab), num_hiddens, norm_shape=[256],
+                         ffn_num_input=256, ffn_num_hiddens=ffn_num_hiddens,
+                         num_heads=4, num_layers=2, dropout=0.2,
+                         max_len=max_len, key_size=256, query_size=256,
+                         value_size=256, hid_in_features=256,
+                         mlm_in_features=256, nsp_in_features=256)
+    # 加载预训练BERT参数
+    bert.set_state_dict(paddle.load(os.path.join(data_dir,
+                                                 'pretrained.pdparams')))
+
+    return bert, vocab
+```
+
+为了便于在大多数机器上演示，我们将在本节中加载和微调经过预训练BERT的小版本（“bert.mall”）。在练习中，我们将展示如何微调大得多的“bert.base”以显著提高测试精度。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch
 devices = d2l.try_all_gpus()
 bert, vocab = load_pretrained_model(
     'bert.small', num_hiddens=256, ffn_num_hiddens=512, num_heads=4,
+    num_layers=2, dropout=0.1, max_len=512, devices=devices)
+```
+
+```{.python .input}
+#@tab paddle
+devices = d2l.try_all_gpus()
+bert, vocab = load_pretrained_model(
+    'bert_small', num_hiddens=256, ffn_num_hiddens=512, num_heads=4,
     num_layers=2, dropout=0.1, max_len=512, devices=devices)
 ```
 
@@ -210,6 +261,64 @@ class SNLIBERTDataset(torch.utils.data.Dataset):
         return len(self.all_token_ids)
 ```
 
+```{.python .input}
+#@tab paddle
+class SNLIBERTDataset(paddle.io.Dataset):
+    def __init__(self, dataset, max_len, vocab=None):
+        all_premise_hypothesis_tokens = [[
+            p_tokens, h_tokens] for p_tokens, h_tokens in zip(
+            *[d2l.tokenize([s.lower() for s in sentences])
+              for sentences in dataset[:2]])]
+
+        self.labels = paddle.to_tensor(dataset[2])
+        self.vocab = vocab
+        self.max_len = max_len
+        (self.all_token_ids, self.all_segments,
+         self.valid_lens) = self._preprocess(all_premise_hypothesis_tokens)
+        print('read ' + str(len(self.all_token_ids)) + ' examples')
+
+    def _preprocess(self, all_premise_hypothesis_tokens):
+        # pool = multiprocessing.Pool(1)  # 使用4个进程
+        # out = pool.map(self._mp_worker, all_premise_hypothesis_tokens)
+        out = []
+        for i in all_premise_hypothesis_tokens:
+            tempOut = self._mp_worker(i)
+            out.append(tempOut)
+        
+        all_token_ids = [
+            token_ids for token_ids, segments, valid_len in out]
+        all_segments = [segments for token_ids, segments, valid_len in out]
+        valid_lens = [valid_len for token_ids, segments, valid_len in out]
+        return (paddle.to_tensor(all_token_ids, dtype='int64'),
+                paddle.to_tensor(all_segments, dtype='int64'),
+                paddle.to_tensor(valid_lens))
+
+    def _mp_worker(self, premise_hypothesis_tokens):
+        p_tokens, h_tokens = premise_hypothesis_tokens
+        self._truncate_pair_of_tokens(p_tokens, h_tokens)
+        tokens, segments = d2l.get_tokens_and_segments(p_tokens, h_tokens)
+        token_ids = self.vocab[tokens] + [self.vocab['<pad>']] \
+                             * (self.max_len - len(tokens))
+        segments = segments + [0] * (self.max_len - len(segments))
+        valid_len = len(tokens)
+        return token_ids, segments, valid_len
+
+    def _truncate_pair_of_tokens(self, p_tokens, h_tokens):
+        # 为BERT输入中的'<CLS>'、'<SEP>'和'<SEP>'词元保留位置
+        while len(p_tokens) + len(h_tokens) > self.max_len - 3:
+            if len(p_tokens) > len(h_tokens):
+                p_tokens.pop()
+            else:
+                h_tokens.pop()
+
+    def __getitem__(self, idx):
+        return (self.all_token_ids[idx], self.all_segments[idx],
+                self.valid_lens[idx]), self.labels[idx]
+
+    def __len__(self):
+        return len(self.all_token_ids)
+```
+
 下载完SNLI数据集后，我们通过实例化`SNLIBERTDataset`类来[**生成训练和测试样本**]。这些样本将在自然语言推断的训练和测试期间进行小批量读取。
 
 ```{.python .input}
@@ -235,6 +344,17 @@ train_iter = torch.utils.data.DataLoader(train_set, batch_size, shuffle=True,
                                    num_workers=num_workers)
 test_iter = torch.utils.data.DataLoader(test_set, batch_size,
                                   num_workers=num_workers)
+```
+
+```{.python .input}
+#@tab paddle
+# 如果出现显存不足错误，请减少“batch_size”。在原始的BERT模型中，max_len=512
+batch_size, max_len, num_workers = 512, 128, d2l.get_dataloader_workers()
+data_dir = d2l.download_extract('SNLI')
+train_set = SNLIBERTDataset(d2l.read_snli(data_dir, True), max_len, vocab)
+test_set = SNLIBERTDataset(d2l.read_snli(data_dir, False), max_len, vocab)
+train_iter = paddle.io.DataLoader(train_set, batch_size=batch_size, shuffle=True, return_list=True)
+test_iter = paddle.io.DataLoader(test_set, batch_size=batch_size, return_list=True)
 ```
 
 ## 微调BERT
@@ -270,6 +390,21 @@ class BERTClassifier(nn.Module):
         return self.output(self.hidden(encoded_X[:, 0, :]))
 ```
 
+```{.python .input}
+#@tab paddle
+class BERTClassifier(nn.Layer):
+    def __init__(self, bert):
+        super(BERTClassifier, self).__init__()
+        self.encoder = bert.encoder
+        self.hidden = bert.hidden
+        self.output = nn.Linear(256, 3)
+
+    def forward(self, inputs):
+        tokens_X, segments_X, valid_lens_x = inputs
+        encoded_X = self.encoder(tokens_X, segments_X, valid_lens_x.squeeze(1))
+        return self.output(self.hidden(encoded_X[:, 0, :]))
+```
+
 在下文中，预训练的BERT模型`bert`被送到用于下游应用的`BERTClassifier`实例`net`中。在BERT微调的常见实现中，只有额外的多层感知机（`net.output`）的输出层的参数将从零开始学习。预训练BERT编码器（`net.encoder`）和额外的多层感知机的隐藏层（`net.hidden`）的所有参数都将进行微调。
 
 ```{.python .input}
@@ -278,7 +413,7 @@ net.output.initialize(ctx=devices)
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 net = BERTClassifier(bert)
 ```
 
@@ -300,6 +435,15 @@ lr, num_epochs = 1e-4, 5
 trainer = torch.optim.Adam(net.parameters(), lr=lr)
 loss = nn.CrossEntropyLoss(reduction='none')
 d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, 
+    devices)
+```
+
+```{.python .input}
+#@tab paddle
+lr, num_epochs = 1e-4, 5
+trainer = paddle.optimizer.Adam(learning_rate=lr, parameters=net.parameters())
+loss = nn.CrossEntropyLoss(reduction='none')
+d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
     devices)
 ```
 

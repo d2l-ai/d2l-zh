@@ -53,6 +53,22 @@ class CenteredLayer(tf.keras.Model):
         return inputs - tf.reduce_mean(inputs)
 ```
 
+```{.python .input}
+#@tab paddle
+import warnings
+warnings.filterwarnings(action='ignore')
+import paddle
+from paddle import nn
+import paddle.nn.functional as F
+
+class CenteredLayer(nn.Layer):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, X):
+        return X - X.mean()
+```
+
 让我们向该层提供一些数据，验证它是否能按预期工作。
 
 ```{.python .input}
@@ -72,6 +88,12 @@ layer = CenteredLayer()
 layer(tf.constant([1, 2, 3, 4, 5]))
 ```
 
+```{.python .input}
+#@tab paddle
+layer = CenteredLayer()
+layer(paddle.to_tensor([1, 2, 3, 4, 5], dtype='float32'))
+```
+
 现在，我们可以[**将层作为组件合并到更复杂的模型中**]。
 
 ```{.python .input}
@@ -81,7 +103,7 @@ net.initialize()
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 net = nn.Sequential(nn.Linear(8, 128), CenteredLayer())
 ```
 
@@ -108,6 +130,12 @@ Y.mean()
 #@tab tensorflow
 Y = net(tf.random.uniform((4, 8)))
 tf.reduce_mean(Y)
+```
+
+```{.python .input}
+#@tab paddle
+Y = net(paddle.rand([4, 8]))
+Y.mean()
 ```
 
 ## [**带参数的层**]
@@ -167,11 +195,29 @@ class MyDense(tf.keras.Model):
         linear = tf.matmul(X, self.weight) + self.bias
         return tf.nn.relu(linear)
 ```
+
+```{.python .input}
+#@tab paddle
+class MyLinear(nn.Layer):
+    def __init__(self, in_units, units):
+        super().__init__()
+        self.weight = paddle.create_parameter(shape=(in_units, units), dtype='float32')
+        self.bias = paddle.create_parameter(shape=(units,), dtype='float32')
+        
+    def forward(self, X):
+        linear = paddle.matmul(X, self.weight) + self.bias
+        return F.relu(linear)
+```
+
 :begin_tab:`mxnet, tensorflow`
 接下来，我们实例化`MyDense`类并访问其模型参数。
 :end_tab:
 
 :begin_tab:`pytorch`
+接下来，我们实例化`MyLinear`类并访问其模型参数。
+:end_tab:
+
+:begin_tab:`paddle`
 接下来，我们实例化`MyLinear`类并访问其模型参数。
 :end_tab:
 
@@ -181,7 +227,7 @@ dense.params
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 linear = MyLinear(5, 3)
 linear.weight
 ```
@@ -210,6 +256,11 @@ linear(torch.rand(2, 5))
 dense(tf.random.uniform((2, 5)))
 ```
 
+```{.python .input}
+#@tab paddle
+linear(paddle.randn([2, 5]))
+```
+
 我们还可以(**使用自定义层构建模型**)，就像使用内置的全连接层一样使用自定义层。
 
 ```{.python .input}
@@ -230,6 +281,12 @@ net(torch.rand(2, 64))
 #@tab tensorflow
 net = tf.keras.models.Sequential([MyDense(8), MyDense(1)])
 net(tf.random.uniform((2, 64)))
+```
+
+```{.python .input}
+#@tab paddle
+net = nn.Sequential(MyLinear(64, 8), MyLinear(8, 1))
+net(paddle.rand([2, 64]))
 ```
 
 ## 小结

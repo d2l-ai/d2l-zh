@@ -116,6 +116,15 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 ```
 
+```{.python .input}
+#@tab paddle
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
+```
+
 为了可视化注意力权重，需要定义一个`show_heatmaps`函数。
 其输入`matrices`的形状是
 （要显示的行数，要显示的列数，查询的数目，键的数目）。
@@ -178,5 +187,3 @@ show_heatmaps(attention_weights, xlabel='Keys', ylabel='Queries')
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/5765)
 :end_tab:
-
-

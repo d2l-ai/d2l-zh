@@ -28,6 +28,16 @@ import tensorflow as tf
 ```
 
 ```{.python .input}
+#@tab paddle
+import warnings
+warnings.filterwarnings(action='ignore')
+import paddle
+from paddle import nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
+```
+
+```{.python .input}
 #@tab all
 batch_size = 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
@@ -92,6 +102,22 @@ b2 = tf.Variable(tf.zeros(num_outputs))
 params = [W1, b1, W2, b2]
 ```
 
+```{.python .input}
+#@tab paddle
+num_inputs, num_outputs, num_hiddens = 784, 10, 256
+
+W1 = paddle.randn([num_inputs, num_hiddens]) * 0.01
+W1.stop_gradient = False
+b1 = paddle.zeros([num_hiddens])
+b1.stop_gradient = False
+W2 = paddle.randn([num_hiddens, num_outputs]) * 0.01
+W2.stop_gradient = False
+b2 = paddle.zeros([num_outputs])
+b2.stop_gradient = False
+
+params = [W1, b1, W2, b2]
+```
+
 ## 激活函数
 
 为了确保我们对模型的细节了如指掌，
@@ -114,6 +140,13 @@ def relu(X):
 #@tab tensorflow
 def relu(X):
     return tf.math.maximum(X, 0)
+```
+
+```{.python .input}
+#@tab paddle
+def relu(X):
+    a = paddle.zeros_like(X)
+    return paddle.maximum(X, a)
 ```
 
 ## 模型
@@ -145,6 +178,14 @@ def net(X):
     return tf.matmul(H, W2) + b2
 ```
 
+```{.python .input}
+#@tab paddle
+def net(X):
+    X = X.reshape((-1, num_inputs))
+    H = relu(X@W1 + b1)  # 这里“@”代表矩阵乘法
+    return (H@W2 + b2)
+```
+
 ## 损失函数
 
 由于我们已经从零实现过softmax函数（ :numref:`sec_softmax_scratch`），
@@ -158,7 +199,7 @@ loss = gluon.loss.SoftmaxCrossEntropyLoss()
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 loss = nn.CrossEntropyLoss(reduction='none')
 ```
 
@@ -192,6 +233,13 @@ d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, updater)
 #@tab tensorflow
 num_epochs, lr = 10, 0.1
 updater = d2l.Updater([W1, W2, b1, b2], lr)
+d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, updater)
+```
+
+```{.python .input}
+#@tab paddle
+num_epochs, lr = 10, 0.1
+updater = paddle.optimizer.SGD(learning_rate=lr, parameters=params)
 d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, updater)
 ```
 

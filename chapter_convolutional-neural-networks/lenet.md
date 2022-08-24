@@ -87,6 +87,26 @@ def net():
         tf.keras.layers.Dense(10)])
 ```
 
+```{.python .input}
+#@tab paddle
+import warnings
+warnings.filterwarnings(action='ignore')
+import paddle
+from paddle import nn, optimizer
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
+
+net = nn.Sequential(
+    nn.Conv2D(1, 6, kernel_size=5, padding=2), nn.Sigmoid(),
+    nn.AvgPool2D(kernel_size=2, stride=2),
+    nn.Conv2D(6, 16, kernel_size=5), nn.Sigmoid(),
+    nn.AvgPool2D(kernel_size=2, stride=2),
+    nn.Flatten(),
+    nn.Linear(16 * 5 * 5, 120), nn.Sigmoid(),
+    nn.Linear(120, 84), nn.Sigmoid(),
+    nn.Linear(84, 10))
+```
+
 我们对原始模型做了一点小改动，去掉了最后一层的高斯激活。除此之外，这个网络与最初的LeNet-5一致。
 
 下面，我们将一个大小为$28 \times 28$的单通道（黑白）图像通过LeNet。通过在每一层打印输出的形状，我们可以[**检查模型**]，以确保其操作与我们期望的 :numref:`img_lenet_vert`一致。
@@ -114,6 +134,14 @@ for layer in net:
 #@tab tensorflow
 X = tf.random.uniform((1, 28, 28, 1))
 for layer in net().layers:
+    X = layer(X)
+    print(layer.__class__.__name__, 'output shape: \t', X.shape)
+```
+
+```{.python .input}
+#@tab paddle
+X = paddle.rand((1, 1, 28, 28), 'float32')
+for layer in net:
     X = layer(X)
     print(layer.__class__.__name__, 'output shape: \t', X.shape)
 ```
@@ -172,6 +200,29 @@ def evaluate_accuracy_gpu(net, data_iter, device=None): #@save
             else:
                 X = X.to(device)
             y = y.to(device)
+            metric.add(d2l.accuracy(net(X), y), d2l.size(y))
+    return metric[0] / metric[1]
+```
+
+```{.python .input}
+#@tab paddle
+def evaluate_accuracy_gpu(net, data_iter, device=None):     #@save
+    """使用GPU计算模型在数据集上的精度"""
+    if isinstance(net, nn.Layer):
+        net.eval()  # 设置为评估模式
+        if not device:
+            device = next(iter(net.parameters())).place
+    paddle.set_device("gpu:{}".format(str(device)[-2]))
+    # 正确预测的数量，总预测的数量
+    metric = d2l.Accumulator(2)
+    with paddle.no_grad():
+        for X, y in data_iter:
+            if isinstance(X, list):
+                # BERT微调所需的
+                X = [paddle.to_tensor(x, place=device) for x in X]
+            else:
+                X = paddle.to_tensor(X, place=device)
+            y = paddle.to_tensor(y, place=device)
             metric.add(d2l.accuracy(net(X), y), d2l.size(y))
     return metric[0] / metric[1]
 ```
@@ -313,6 +364,50 @@ def train_ch6(net_fn, train_iter, test_iter, num_epochs, lr, device):
                              device_name)
     net.fit(train_iter, epochs=num_epochs, verbose=0, callbacks=[callback])
     return net
+```
+
+```{.python .input}
+#@tab paddle
+#@save
+def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
+    """用GPU训练模型(在第六章定义)"""
+    def init_weights(m):
+        if type(m) == nn.Linear or type(m) == nn.Conv2D:
+            nn.initializer.XavierUniform(m.weight)
+    net.apply(init_weights)
+    print('training on', device)
+    net.to(device)
+    optimizer = paddle.optimizer.SGD(learning_rate=lr, parameters=net.parameters())
+    loss = nn.CrossEntropyLoss()
+    animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs],
+                            legend=['train loss', 'train acc', 'test acc'])
+    timer, num_batches = d2l.Timer(), len(train_iter)
+    for epoch in range(num_epochs):
+        # 训练损失之和，训练准确率之和，样本数
+        metric = d2l.Accumulator(3)
+        net.train()
+        for i, (X, y) in enumerate(train_iter):
+            timer.start()
+            optimizer.clear_grad()
+            X, y = paddle.to_tensor(X, place=device), paddle.to_tensor(y, place=device)
+            y_hat = net(X)
+            l = loss(y_hat, y)
+            l.backward()
+            optimizer.step()
+            with paddle.no_grad():
+                metric.add(l * X.shape[0], d2l.accuracy(y_hat, y), X.shape[0])
+            timer.stop()
+            train_l = metric[0] / metric[2]
+            train_acc = metric[1] / metric[2]
+            if (i + 1) % (num_batches // 5) == 0 or i == num_batches - 1:
+                animator.add(epoch + (i + 1) / num_batches,
+                             (train_l, train_acc, None))
+        test_acc = evaluate_accuracy_gpu(net, test_iter)
+        animator.add(epoch + 1, (None, None, test_acc))
+    print(f'loss {train_l:.3f}, train acc {train_acc:.3f}, '
+          f'test acc {test_acc:.3f}')
+    print(f'{metric[2] * num_epochs / timer.sum():.1f} examples/sec '
+          f'on {str(device)}')
 ```
 
 现在，我们[**训练和评估LeNet-5模型**]。

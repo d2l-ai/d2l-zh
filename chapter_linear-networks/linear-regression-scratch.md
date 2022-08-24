@@ -33,6 +33,17 @@ import tensorflow as tf
 import random
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+import warnings
+import random
+warnings.filterwarnings(action='ignore')
+import paddle
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
+```
+
 ## 生成数据集
 
 为了简单起见，我们将[**根据带有噪声的线性模型构造一个人造数据集。**]
@@ -54,7 +65,7 @@ $\epsilon$可以视为模型预测和标签时的潜在观测误差。
 下面的代码生成合成数据集。
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, paddle
 def synthetic_data(w, b, num_examples):  #@save
     """生成y=Xw+b+噪声"""
     X = d2l.normal(0, 1, (num_examples, len(w)))
@@ -110,7 +121,7 @@ d2l.plt.scatter(d2l.numpy(features[:, 1]), d2l.numpy(labels), 1);
 每个小批量包含一组特征和标签。
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, paddle
 def data_iter(batch_size, features, labels):
     num_examples = len(features)
     indices = list(range(num_examples))
@@ -182,6 +193,15 @@ b = torch.zeros(1, requires_grad=True)
 w = tf.Variable(tf.random.normal(shape=(2, 1), mean=0, stddev=0.01),
                 trainable=True)
 b = tf.Variable(tf.zeros(1), trainable=True)
+```
+
+```{.python .input}
+#@tab paddle
+w = d2l.normal(0, 0.01, shape=(2,1))
+b = d2l.zeros(shape=[1])
+# w和b为创建的模型参数，stop_gradient默认为True，即梯度不更新，因此需要指定为False更新梯度
+w.stop_gradient = False
+b.stop_gradient = False
 ```
 
 在初始化参数之后，我们的任务是更新这些参数，直到这些参数足够拟合我们的数据。
@@ -258,6 +278,18 @@ def sgd(params, grads, lr, batch_size):  #@save
         param.assign_sub(lr*grad/batch_size)
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+def sgd(params, lr, batch_size):
+    """小批量随机梯度下降"""
+    with paddle.no_grad():
+        for i, param in enumerate(params):
+            param -= lr * params[i].grad / batch_size
+            params[i].set_value(param)
+            params[i].clear_gradient()
+```
+
 ## 训练
 
 现在我们已经准备好了模型训练所有需要的要素，可以实现主要的[**训练过程**]部分了。
@@ -326,6 +358,20 @@ for epoch in range(num_epochs):
         sgd([w, b], [dw, db], lr, batch_size)
     train_l = loss(net(features, w, b), labels)
     print(f'epoch {epoch + 1}, loss {float(tf.reduce_mean(train_l)):f}')
+```
+
+```{.python .input}
+#@tab paddle
+for epoch in range(num_epochs):
+    for X, y in data_iter(batch_size, features, labels):
+        l = loss(net(X, w, b), y)  # X和y的小批量损失
+        # 因为l形状是(batch_size,1)，而不是一个标量。l中的所有元素被加到一起，
+        # 并以此计算关于[w,b]的梯度
+        l.sum().backward()
+        sgd([w, b], lr, batch_size)  # 使用参数的梯度更新参数
+    with paddle.no_grad():
+        train_l = loss(net(features, w, b), labels)
+        print(f'epoch {epoch + 1}, loss {float(train_l.mean()):f}')
 ```
 
 因为我们使用的是自己合成的数据集，所以我们知道真正的参数是什么。

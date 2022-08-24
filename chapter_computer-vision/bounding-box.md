@@ -35,6 +35,16 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
+```
+
 下面加载本节将使用的示例图像。可以看到图像左边是一只狗，右边是一只猫。
 它们是这张图像里的两个主要目标。
 
@@ -45,7 +55,7 @@ d2l.plt.imshow(img);
 ```
 
 ```{.python .input}
-#@tab pytorch, tensorflow
+#@tab pytorch, tensorflow, paddle
 d2l.set_figsize()
 img = d2l.plt.imread('../img/catdog.jpg')
 d2l.plt.imshow(img);

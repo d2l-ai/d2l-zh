@@ -23,21 +23,29 @@ API文档、其他教程和示例提供了本书之外的大量文档。
 为了知道模块中可以调用哪些函数和类，可以调用`dir`函数。
 例如，我们可以(**查询随机数生成模块中的所有属性：**)
 
-```{.python .input  n=1}
+```{.python .input}
 from mxnet import np
 print(dir(np.random))
 ```
 
-```{.python .input  n=1}
+```{.python .input}
 #@tab pytorch
 import torch
 print(dir(torch.distributions))
 ```
 
-```{.python .input  n=1}
+```{.python .input}
 #@tab tensorflow
 import tensorflow as tf
 print(dir(tf.random))
+```
+
+```{.python .input  n=1}
+#@tab paddle
+import warnings
+warnings.filterwarnings(action='ignore')
+import paddle
+print(dir(paddle.distribution))
 ```
 
 通常可以忽略以“`__`”（双下划线）开始和结束的函数，它们是Python中的特殊对象，
@@ -64,6 +72,11 @@ help(torch.ones)
 help(tf.ones)
 ```
 
+```{.python .input}
+#@tab paddle
+help(paddle.ones)
+```
+
 从文档中，我们可以看到`ones`函数创建一个具有指定形状的新张量，并将所有元素值设置为1。
 下面来[**运行一个快速测试**]来确认这一解释：
 
@@ -79,6 +92,11 @@ torch.ones(4)
 ```{.python .input}
 #@tab tensorflow
 tf.ones(4)
+```
+
+```{.python .input}
+#@tab paddle
+paddle.ones([4], dtype='float32')
 ```
 
 在Jupyter记事本中，我们可以使用`?`指令在另一个浏览器窗口中显示文档。

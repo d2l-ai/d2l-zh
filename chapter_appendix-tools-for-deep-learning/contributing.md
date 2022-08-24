@@ -45,6 +45,7 @@
 请使用`#@tab`来标记代码块的起始行。
 例如`#@tab pytorch`用于一个PyTorch代码块，
 `#@tab tensorflow`用于一个TensorFlow代码块，
+`#@tab paddle`用于一个PaddlePaddle代码块，
 或者`#@tab all`是所有实现的共享代码块。
 你可以参考[d2lbook](http://book.d2l.ai/user/code_tabs.html)包了解更多信息。
 

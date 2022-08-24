@@ -170,6 +170,22 @@ import pandas as pd
 import numpy as np
 ```
 
+```{.python .input}
+#@tab paddle
+# 如果你没有安装pandas，请取消下一行的注释
+# !pip install pandas
+
+%matplotlib inline
+import warnings
+import pandas as pd
+import numpy as np
+warnings.filterwarnings(action='ignore')
+import paddle
+from paddle import nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
+```
+
 为方便起见，我们可以使用上面定义的脚本下载并缓存Kaggle房屋数据集。
 
 ```{.python .input}
@@ -294,7 +310,7 @@ def get_net():
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 loss = nn.MSELoss()
 in_features = train_features.shape[1]
 
@@ -357,6 +373,16 @@ def log_rmse(y_true, y_pred):
     clipped_preds = tf.clip_by_value(y_pred, 1, float('inf'))
     return tf.sqrt(tf.reduce_mean(loss(
         tf.math.log(y_true), tf.math.log(clipped_preds))))
+```
+
+```{.python .input}
+#@tab paddle
+def log_rmse(net, features, labels):
+    # 为了在取对数时进一步稳定该值，将小于1的值设置为1
+    clipped_preds = paddle.clip(net(features), 1, float('inf'))
+    rmse = paddle.sqrt(loss(paddle.log(clipped_preds),
+                            paddle.log(labels)))
+    return rmse.item()
 ```
 
 与前面的部分不同，[**我们的训练函数将借助Adam优化器**]
@@ -425,6 +451,28 @@ def train(net, train_features, train_labels, test_features, test_labels,
         train_ls.append(log_rmse(train_labels, net(train_features)))
         if test_labels is not None:
             test_ls.append(log_rmse(test_labels, net(test_features)))
+    return train_ls, test_ls
+```
+
+```{.python .input}
+#@tab paddle
+def train(net, train_features, train_labels, test_features, test_labels,
+          num_epochs, learning_rate, weight_decay, batch_size):
+    train_ls, test_ls = [], []
+    train_iter = d2l.load_array((train_features, train_labels), batch_size)
+    # 这里使用的是Adam优化算法
+    optimizer = paddle.optimizer.Adam(learning_rate=learning_rate*1.0, 
+                                      parameters=net.parameters(), 
+                                      weight_decay=weight_decay*1.0)
+    for epoch in range(num_epochs):
+        for X, y in train_iter:
+            l = loss(net(X), y)
+            l.backward()
+            optimizer.step()
+            optimizer.clear_grad()
+        train_ls.append(log_rmse(net, train_features, train_labels))
+        if test_labels is not None:
+            test_ls.append(log_rmse(net, test_features, test_labels))
     return train_ls, test_ls
 ```
 
