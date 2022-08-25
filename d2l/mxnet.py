@@ -1526,8 +1526,9 @@ def multibox_prior(data, sizes, ratios):
     boxes_per_pixel = (num_sizes + num_ratios - 1)
     size_tensor = d2l.tensor(sizes, ctx=device)
     ratio_tensor = d2l.tensor(ratios, ctx=device)
-    # Offsets are required to move the anchor to the center of a pixel. Since
-    # a pixel has height=1 and width=1, we choose to offset our centers by 0.5
+
+    # 为了将锚点移动到像素的中心，需要设置偏移量。
+    # 因为一个像素的高为1且宽为1，我们选择偏移我们的中心0.5
     offset_h, offset_w = 0.5, 0.5
     steps_h = 1.0 / in_height  # Scaled steps in y-axis
     steps_w = 1.0 / in_width  # Scaled steps in x-axis

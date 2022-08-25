@@ -23,18 +23,18 @@ API文档、其他教程和示例提供了本书之外的大量文档。
 为了知道模块中可以调用哪些函数和类，可以调用`dir`函数。
 例如，我们可以(**查询随机数生成模块中的所有属性：**)
 
-```{.python .input  n=1}
+```{.python .input}
 from mxnet import np
 print(dir(np.random))
 ```
 
-```{.python .input  n=1}
+```{.python .input}
 #@tab pytorch
 import torch
 print(dir(torch.distributions))
 ```
 
-```{.python .input  n=1}
+```{.python .input}
 #@tab tensorflow
 import tensorflow as tf
 print(dir(tf.random))
