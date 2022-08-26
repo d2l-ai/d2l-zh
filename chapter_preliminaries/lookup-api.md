@@ -40,7 +40,7 @@ import tensorflow as tf
 print(dir(tf.random))
 ```
 
-```{.python .input  n=1}
+```{.python .input}
 #@tab paddle
 import warnings
 warnings.filterwarnings(action='ignore')
