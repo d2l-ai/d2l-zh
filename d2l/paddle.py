@@ -190,7 +190,7 @@ def get_dataloader_workers():
     """使用4个进程来读取数据
 
     Defined in :numref:`sec_fashion_mnist`"""
-    return 4 if ('cpu' in paddle.device.get_device()) else 0
+    return 4
 
 def load_data_fashion_mnist(batch_size, resize=None):
     """下载Fashion-MNIST数据集，然后将其加载到内存中
