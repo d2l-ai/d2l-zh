@@ -237,7 +237,7 @@ batch_size = 256
 
 def get_dataloader_workers():  #@save
     """使用4个进程来读取数据"""
-    return 4 
+    return 4
 
 train_iter = data.DataLoader(mnist_train, batch_size, shuffle=True,
                              num_workers=get_dataloader_workers())
