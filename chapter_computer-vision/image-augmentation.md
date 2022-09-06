@@ -363,6 +363,7 @@ def train_batch_ch13(net, X, y, loss, trainer, devices):
 #@save
 def train_batch_ch13(net, X, y, loss, trainer, devices):
     """用多GPU进行小批量训练
+    Paddle doesn't support multi gpu training on notebooks
     Defined in :numref:`sec_image_augmentation`"""
     if isinstance(X, list):
         # 微调BERT中所需（稍后讨论）
@@ -508,7 +509,7 @@ def train_with_data_aug(train_augs, test_augs, net, lr=0.001):
 
 ```{.python .input}
 #@tab paddle
-batch_size, devices, net = 256, d2l.try_all_gpus(), d2l.resnet18(10, 3)
+batch_size, devices, net = 256, d2l.try_gpu(), d2l.resnet18(10, 3)
 
 def init_weights(m):
     if type(m) in [nn.Linear, nn.Conv2D]:
@@ -521,7 +522,7 @@ def train_with_data_aug(train_augs, test_augs, net, lr=0.001):
     test_iter = load_cifar10(False, test_augs, batch_size)
     loss = nn.CrossEntropyLoss(reduction="none")
     trainer = paddle.optimizer.Adam(learning_rate=lr, parameters=net.parameters())
-    train_ch13(net, train_iter, test_iter, loss, trainer, 5, devices)
+    train_ch13(net, train_iter, test_iter, loss, trainer, 10, devices)
 ```
 
 让我们使用基于随机左右翻转的图像增广来[**训练模型**]。
