@@ -218,8 +218,8 @@ try_gpu(), try_gpu(10), try_all_gpus()
 def try_gpu(i=0):  
     """如果存在，则返回gpu(i)，否则返回cpu()。"""
     if paddle.device.cuda.device_count() >= i + 1:
-        return paddle.device.set_device(f'gpu:{i}') 
-    return paddle.device.set_device("cpu")
+        return paddle.CUDAPlace(i)
+    return paddle.CPUPlace()
 
 #@save
 def try_all_gpus():  
