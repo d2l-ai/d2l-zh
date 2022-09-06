@@ -190,7 +190,7 @@ def get_dataloader_workers():
     """使用4个进程来读取数据
 
     Defined in :numref:`sec_fashion_mnist`"""
-    return 0
+    return 4 if ('cpu' in paddle.device.get_device()) else 0
 
 def load_data_fashion_mnist(batch_size, resize=None):
     """下载Fashion-MNIST数据集，然后将其加载到内存中
@@ -2610,10 +2610,12 @@ def load_data_snli(batch_size, num_steps=50):
     test_set = SNLIDataset(test_data, num_steps, train_set.vocab)
     train_iter = paddle.io.DataLoader(train_set,batch_size=batch_size,
                                              shuffle=True,
+                                              num_workers=num_workers,
                                              return_list=True)
 
     test_iter = paddle.io.DataLoader(test_set, batch_size=batch_size,
                                             shuffle=False,
+                                            num_workers=num_workers,
                                             return_list=True)
     return train_iter, test_iter, train_set.vocab
 
