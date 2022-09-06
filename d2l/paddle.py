@@ -190,7 +190,7 @@ def get_dataloader_workers():
     """使用4个进程来读取数据
 
     Defined in :numref:`sec_fashion_mnist`"""
-    return 0
+    return 4 if ('cpu' in paddle.device.get_device()) else 0
 
 def load_data_fashion_mnist(batch_size, resize=None):
     """下载Fashion-MNIST数据集，然后将其加载到内存中
@@ -430,8 +430,8 @@ def try_gpu(i=0):
 
     Defined in :numref:`sec_use_gpu`"""
     if paddle.device.cuda.device_count() >= i + 1:
-        return paddle.device.set_device(f'gpu:{i}')
-    return paddle.device.set_device("cpu")
+        return paddle.CUDAPlace(i)
+    return paddle.CPUPlace()
 
 def try_all_gpus():
     """返回所有可用的GPU，如果没有GPU，则返回[cpu(),]。
@@ -1509,6 +1509,7 @@ def resnet18(num_classes, in_channels=1):
 def train_batch_ch13(net, X, y, loss, trainer, devices):
     """Defined in :numref:`sec_image_augmentation`"""
     """用多GPU进行小批量训练
+    Paddle doesn't support multi gpu training on notebooks
     Defined in :numref:`sec_image_augmentation`"""
     if isinstance(X, list):
         # 微调BERT中所需（稍后讨论）
@@ -2610,10 +2611,12 @@ def load_data_snli(batch_size, num_steps=50):
     test_set = SNLIDataset(test_data, num_steps, train_set.vocab)
     train_iter = paddle.io.DataLoader(train_set,batch_size=batch_size,
                                              shuffle=True,
+                                             num_workers=num_workers,
                                              return_list=True)
 
     test_iter = paddle.io.DataLoader(test_set, batch_size=batch_size,
                                             shuffle=False,
+                                            num_workers=num_workers,
                                             return_list=True)
     return train_iter, test_iter, train_set.vocab
 
