@@ -187,7 +187,6 @@ def train(net_fn, train_iter, test_iter, num_epochs, lr,
 %matplotlib inline
 import warnings
 import math
-warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn
 from paddle.optimizer import lr as lr_scheduler
@@ -488,6 +487,7 @@ train(net, train_iter, test_iter, num_epochs, lr,
 ```
 
 ```{.python .input}
+%%time
 #@tab paddle
 train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
       scheduler)

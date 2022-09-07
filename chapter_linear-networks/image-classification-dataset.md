@@ -261,6 +261,7 @@ def get_dataloader_workers():  #@save
 train_iter = paddle.io.DataLoader(dataset=mnist_train,
                                   batch_size=batch_size,
                                   shuffle=True,
+                                  return_list=True,
                                   num_workers=get_dataloader_workers())
 ```
 
@@ -348,9 +349,11 @@ def load_data_fashion_mnist(batch_size, resize=None):
     return (paddle.io.DataLoader(dataset=mnist_train,
                                  batch_size=batch_size,
                                  shuffle=True,
+                                 return_list=True,
                                  num_workers=get_dataloader_workers()),
             paddle.io.DataLoader(dataset=mnist_test,
                                  batch_size=batch_size,
+                                 return_list=True,
                                  shuffle=True,
                                  num_workers=get_dataloader_workers()))
 ```
