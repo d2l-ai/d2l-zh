@@ -487,7 +487,6 @@ train(net, train_iter, test_iter, num_epochs, lr,
 ```
 
 ```{.python .input}
-%%time
 #@tab paddle
 train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
       scheduler)
