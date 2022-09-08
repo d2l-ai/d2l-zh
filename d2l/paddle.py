@@ -156,7 +156,8 @@ def load_array(data_arrays, batch_size, is_train=True):
     Defined in :numref:`sec_linear_concise`"""
     dataset = paddle.io.TensorDataset(data_arrays)
     return paddle.io.DataLoader(dataset, batch_size=batch_size,
-                                shuffle=is_train)
+                                shuffle=is_train,
+                                return_list=True)
 
 def get_fashion_mnist_labels(labels):
     """返回Fashion-MNIST数据集的文本标签
@@ -207,9 +208,11 @@ def load_data_fashion_mnist(batch_size, resize=None):
     return (paddle.io.DataLoader(dataset=mnist_train,
                                  batch_size=batch_size,
                                  shuffle=True,
+                                 return_list=True,
                                  num_workers=get_dataloader_workers()),
             paddle.io.DataLoader(dataset=mnist_test,
                                  batch_size=batch_size,
+                                 return_list=True,
                                  shuffle=True,
                                  num_workers=get_dataloader_workers()))
 
@@ -1852,9 +1855,9 @@ def load_data_bananas(batch_size):
 
     Defined in :numref:`sec_object-detection-dataset`"""
     train_iter = paddle.io.DataLoader(BananasDataset(is_train=True),
-                                             batch_size=batch_size, shuffle=True)
+                                             batch_size=batch_size, return_list=True, shuffle=True)
     val_iter = paddle.io.DataLoader(BananasDataset(is_train=False),
-                                           batch_size=batch_size)
+                                           batch_size=batch_size, return_list=True)
     return train_iter, val_iter
 
 d2l.DATA_HUB['voc2012'] = (d2l.DATA_URL + 'VOCtrainval_11-May-2012.tar',
@@ -1964,10 +1967,10 @@ def load_data_voc(batch_size, crop_size):
     num_workers = d2l.get_dataloader_workers()
     train_iter = paddle.io.DataLoader(
         VOCSegDataset(True, crop_size, voc_dir), batch_size=batch_size,
-        shuffle=True, drop_last=True, num_workers=num_workers)
+        shuffle=True, return_list=True, drop_last=True, num_workers=num_workers)
     test_iter = paddle.io.DataLoader(
         VOCSegDataset(False, crop_size, voc_dir), batch_size=batch_size,
-        drop_last=True, num_workers=num_workers)
+        drop_last=True, return_list=True, num_workers=num_workers)
     return train_iter, test_iter
 
 d2l.DATA_HUB['cifar10_tiny'] = (d2l.DATA_URL + 'kaggle_cifar10_tiny.zip',
@@ -2162,7 +2165,7 @@ def load_data_ptb(batch_size, max_window_size, num_noise_words):
     dataset = PTBDataset(all_centers, all_contexts, all_negatives)
 
     data_iter = paddle.io.DataLoader(
-        dataset, batch_size=batch_size, shuffle=True,
+        dataset, batch_size=batch_size, shuffle=True, return_list=True,
         collate_fn=batchify, num_workers=num_workers)
     return data_iter, vocab
 
@@ -2474,7 +2477,7 @@ def load_data_wiki(batch_size, max_len):
     data_dir = d2l.download_extract('wikitext-2', 'wikitext-2')
     paragraphs = _read_wiki(data_dir)
     train_set = _WikiTextDataset(paragraphs, max_len)
-    train_iter = paddle.io.DataLoader(dataset=train_set, batch_size=batch_size,
+    train_iter = paddle.io.DataLoader(dataset=train_set, batch_size=batch_size, return_list=True,
                                         shuffle=True, num_workers=num_workers)
     return train_iter, train_set.vocab
 

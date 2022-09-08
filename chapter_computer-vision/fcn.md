@@ -300,9 +300,29 @@ net.transpose_conv.weight.set_value(W);
 指定随机裁剪的输出图像的形状为$320\times 480$：高和宽都可以被$32$整除。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch
 batch_size, crop_size = 32, (320, 480)
 train_iter, test_iter = d2l.load_data_voc(batch_size, crop_size)
+```
+
+```{.python .input}
+#@tab paddle
+import os    
+def load_data_voc(batch_size, crop_size):
+    """加载VOC语义分割数据集
+    Defined in :numref:`sec_semantic_segmentation`"""
+    voc_dir = d2l.download_extract('voc2012', os.path.join(
+        'VOCdevkit', 'VOC2012'))
+    train_iter = paddle.io.DataLoader(
+        d2l.VOCSegDataset(True, crop_size, voc_dir), batch_size=batch_size,
+        shuffle=True, return_list=True, drop_last=True, num_workers=0)
+    test_iter = paddle.io.DataLoader(
+        d2l.VOCSegDataset(False, crop_size, voc_dir), batch_size=batch_size,
+        drop_last=True, return_list=True, num_workers=0)
+    return train_iter, test_iter
+
+batch_size, crop_size = 32, (320, 480)
+train_iter, test_iter = load_data_voc(batch_size, crop_size)
 ```
 
 ## [**训练**]
@@ -337,7 +357,7 @@ def loss(inputs, targets):
 
 num_epochs, lr, wd, devices = 5, 0.001, 1e-3, d2l.try_all_gpus()
 trainer = paddle.optimizer.SGD(learning_rate=lr, parameters=net.parameters(), weight_decay=wd)
-d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
+d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices[:1])
 ```
 
 ## [**预测**]

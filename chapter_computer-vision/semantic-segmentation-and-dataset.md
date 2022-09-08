@@ -472,6 +472,7 @@ for X, Y in train_iter:
 batch_size = 64
 train_iter = paddle.io.DataLoader(voc_train, batch_size=batch_size, shuffle=True,
                                     drop_last=True,
+                                    return_list=True,
                                     num_workers=d2l.get_dataloader_workers())
 for X, Y in train_iter:
     print(X.shape)
@@ -527,10 +528,10 @@ def load_data_voc(batch_size, crop_size):
     num_workers = d2l.get_dataloader_workers()
     train_iter = paddle.io.DataLoader(
         VOCSegDataset(True, crop_size, voc_dir), batch_size=batch_size,
-        shuffle=True, drop_last=True, num_workers=num_workers)
+        shuffle=True, return_list=True, drop_last=True, num_workers=num_workers)
     test_iter = paddle.io.DataLoader(
         VOCSegDataset(False, crop_size, voc_dir), batch_size=batch_size,
-        drop_last=True, num_workers=num_workers)
+        drop_last=True, return_list=True, num_workers=num_workers)
     return train_iter, test_iter
 ```
 

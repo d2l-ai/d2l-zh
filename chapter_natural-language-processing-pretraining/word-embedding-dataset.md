@@ -366,7 +366,7 @@ def load_data_ptb(batch_size, max_window_size, num_noise_words):
     dataset = PTBDataset(all_centers, all_contexts, all_negatives)
 
     data_iter = paddle.io.DataLoader(
-        dataset, batch_size=batch_size, shuffle=True,
+        dataset, batch_size=batch_size, shuffle=True, return_list=True, 
         collate_fn=batchify, num_workers=num_workers)
     return data_iter, vocab
 ```
