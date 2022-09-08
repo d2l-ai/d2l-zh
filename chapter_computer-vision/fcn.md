@@ -25,7 +25,7 @@ from torch import nn
 from torch.nn import functional as F
 ```
 
-```{.python .input  n=1}
+```{.python .input}
 #@tab paddle
 %matplotlib inline
 import warnings
@@ -61,7 +61,7 @@ pretrained_net = torchvision.models.resnet18(pretrained=True)
 list(pretrained_net.children())[-3:]
 ```
 
-```{.python .input  n=2}
+```{.python .input}
 #@tab paddle
 pretrained_net = paddlevision.models.resnet18(pretrained=True)
 list(pretrained_net.children())[-3:]
@@ -76,7 +76,7 @@ for layer in pretrained_net.features[:-2]:
     net.add(layer)
 ```
 
-```{.python .input  n=3}
+```{.python .input}
 #@tab pytorch, paddle
 net = nn.Sequential(*list(pretrained_net.children())[:-2])
 ```
@@ -94,7 +94,7 @@ X = torch.rand(size=(1, 3, 320, 480))
 net(X).shape
 ```
 
-```{.python .input  n=4}
+```{.python .input}
 #@tab paddle
 X = paddle.rand(shape=(1, 3, 320, 480))
 net(X).shape
@@ -121,7 +121,7 @@ net.add_module('transpose_conv', nn.ConvTranspose2d(num_classes, num_classes,
                                     kernel_size=64, padding=16, stride=32))
 ```
 
-```{.python .input  n=5}
+```{.python .input}
 #@tab paddle
 num_classes = 21
 net.add_sublayer('final_conv', nn.Conv2D(512, num_classes, kernel_size=1))
@@ -180,7 +180,7 @@ def bilinear_kernel(in_channels, out_channels, kernel_size):
     return weight
 ```
 
-```{.python .input  n=6}
+```{.python .input}
 #@tab paddle
 def bilinear_kernel(in_channels, out_channels, kernel_size):
     factor = (kernel_size + 1) // 2
@@ -213,7 +213,7 @@ conv_trans = nn.ConvTranspose2d(3, 3, kernel_size=4, padding=1, stride=2,
 conv_trans.weight.data.copy_(bilinear_kernel(3, 3, 4));
 ```
 
-```{.python .input  n=7}
+```{.python .input}
 #@tab paddle
 conv_trans = nn.Conv2DTranspose(3, 3, kernel_size=4, padding=1, stride=2,
                                 bias_attr=False)
@@ -237,7 +237,7 @@ Y = conv_trans(X)
 out_img = Y[0].permute(1, 2, 0).detach()
 ```
 
-```{.python .input  n=8}
+```{.python .input}
 #@tab paddle
 img = paddlevision.transforms.ToTensor()(d2l.Image.open('../img/catdog.jpg'))
 X = img.unsqueeze(0)
@@ -265,7 +265,7 @@ print('output image shape:', out_img.shape)
 d2l.plt.imshow(out_img);
 ```
 
-```{.python .input  n=9}
+```{.python .input}
 #@tab paddle
 d2l.set_figsize()
 print('input image shape:', img.transpose([1, 2, 0]).shape)
@@ -288,7 +288,7 @@ W = bilinear_kernel(num_classes, num_classes, 64)
 net.transpose_conv.weight.data.copy_(W);
 ```
 
-```{.python .input  n=10}
+```{.python .input}
 #@tab paddle
 W = bilinear_kernel(num_classes, num_classes, 64)
 net.transpose_conv.weight.set_value(W);
@@ -305,7 +305,7 @@ batch_size, crop_size = 32, (320, 480)
 train_iter, test_iter = d2l.load_data_voc(batch_size, crop_size)
 ```
 
-```{.python .input  n=11}
+```{.python .input}
 #@tab paddle
 import os    
 def load_data_voc(batch_size, crop_size):
@@ -350,7 +350,7 @@ trainer = torch.optim.SGD(net.parameters(), lr=lr, weight_decay=wd)
 d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
 ```
 
-```{.python .input  n=12}
+```{.python .input}
 #@tab paddle
 def loss(inputs, targets):
     return F.cross_entropy(inputs.transpose([0, 2, 3, 1]), targets, reduction='none').mean(1).mean(1)
