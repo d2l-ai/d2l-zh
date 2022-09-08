@@ -29,9 +29,23 @@ from d2l import paddle as d2l
 首先，我们加载WikiText-2数据集作为小批量的预训练样本，用于遮蔽语言模型和下一句预测。批量大小是512，BERT输入序列的最大长度是64。注意，在原始BERT模型中，最大长度是512。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch
 batch_size, max_len = 512, 64
 train_iter, vocab = d2l.load_data_wiki(batch_size, max_len)
+```
+
+```{.python .input}
+#@tab paddle
+def load_data_wiki(batch_size, max_len):
+    """加载WikiText-2数据集
+
+    Defined in :numref:`subsec_prepare_mlm_data`"""
+    data_dir = d2l.download_extract('wikitext-2', 'wikitext-2')
+    paragraphs = _read_wiki(data_dir)
+    train_set = _WikiTextDataset(paragraphs, max_len)
+    train_iter = paddle.io.DataLoader(dataset=train_set, batch_size=batch_size, return_list=True,
+                                        shuffle=True, num_workers=0)
+    return train_iter, train_set.vocab
 ```
 
 ## 预训练BERT
