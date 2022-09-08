@@ -257,8 +257,13 @@ def train_bert(train_iter, net, loss, vocab_size, devices, num_steps):
 在预训练过程中，我们可以绘制出遮蔽语言模型损失和下一句预测损失。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch
 train_bert(train_iter, net, loss, len(vocab), devices, 50)
+```
+
+```{.python .input}
+#@tab paddle
+train_bert(train_iter, net, loss, len(vocab), devices[:1], 50)
 ```
 
 ## 用BERT表示文本

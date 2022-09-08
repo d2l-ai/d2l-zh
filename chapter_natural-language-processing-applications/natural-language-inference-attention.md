@@ -447,7 +447,7 @@ lr, num_epochs = 0.001, 4
 trainer = paddle.optimizer.Adam(learning_rate=lr, parameters=net.parameters())
 loss = nn.CrossEntropyLoss(reduction="none")
 d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
-    devices)
+    devices[:1])
 ```
 
 ### 使用模型

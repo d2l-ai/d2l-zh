@@ -337,7 +337,7 @@ def loss(inputs, targets):
 
 num_epochs, lr, wd, devices = 5, 0.001, 1e-3, d2l.try_all_gpus()
 trainer = paddle.optimizer.SGD(learning_rate=lr, parameters=net.parameters(), weight_decay=wd)
-d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
+d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices[:1])
 ```
 
 ## [**预测**]
