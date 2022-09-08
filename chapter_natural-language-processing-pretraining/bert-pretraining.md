@@ -41,11 +41,14 @@ def load_data_wiki(batch_size, max_len):
 
     Defined in :numref:`subsec_prepare_mlm_data`"""
     data_dir = d2l.download_extract('wikitext-2', 'wikitext-2')
-    paragraphs = _read_wiki(data_dir)
-    train_set = _WikiTextDataset(paragraphs, max_len)
+    paragraphs = d2l._read_wiki(data_dir)
+    train_set = d2l._WikiTextDataset(paragraphs, max_len)
     train_iter = paddle.io.DataLoader(dataset=train_set, batch_size=batch_size, return_list=True,
                                         shuffle=True, num_workers=0)
     return train_iter, train_set.vocab
+
+batch_size, max_len = 512, 64
+train_iter, vocab = load_data_wiki(batch_size, max_len)
 ```
 
 ## 预训练BERT

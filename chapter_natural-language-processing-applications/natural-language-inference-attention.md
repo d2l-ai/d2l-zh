@@ -385,10 +385,10 @@ def load_data_snli(batch_size, num_steps=50):
 
     Defined in :numref:`sec_natural-language-inference-and-dataset`"""
     data_dir = d2l.download_extract('SNLI')
-    train_data = read_snli(data_dir, True)
-    test_data = read_snli(data_dir, False)
-    train_set = SNLIDataset(train_data, num_steps)
-    test_set = SNLIDataset(test_data, num_steps, train_set.vocab)
+    train_data = d2l.read_snli(data_dir, True)
+    test_data = d2l.read_snli(data_dir, False)
+    train_set = d2l.SNLIDataset(train_data, num_steps)
+    test_set = d2l.SNLIDataset(test_data, num_steps, train_set.vocab)
     train_iter = paddle.io.DataLoader(train_set,batch_size=batch_size,
                                              shuffle=True,
                                              num_workers=0,
