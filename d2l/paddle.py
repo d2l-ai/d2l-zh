@@ -31,6 +31,8 @@ from paddle.nn import functional as F
 from paddle.vision import transforms
 from PIL import Image
 
+paddle.disable_signal_handler()
+
 def use_svg_display():
     """使用svg格式在Jupyter中显示绘图
 
@@ -2634,7 +2636,10 @@ def predict_snli(net, vocab, premise, hypothesis):
                            hypothesis.reshape((1, -1))]), axis=1)
 
     return 'entailment' if label == 0 else 'contradiction' if label == 1 \
-            else 'neutral'# Alias defined in config.ini
+            else 'neutral'
+
+
+# Alias defined in config.ini
 nn_Module = nn.Layer
 
 ones = paddle.ones
