@@ -136,6 +136,7 @@ from paddle.nn import functional as F
 from paddle.vision import transforms
 import paddle.vision as paddlevision
 from PIL import Image
+paddle.disable_signal_handler()
 ```
 
 ### 目标受众
