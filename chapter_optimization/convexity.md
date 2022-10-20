@@ -35,6 +35,18 @@ from mpl_toolkits import mplot3d
 import tensorflow as tf
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+import warnings
+import numpy as np
+from mpl_toolkits import mplot3d
+warnings.filterwarnings("ignore")
+import paddle
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
+```
+
 ## 定义
 
 在进行凸分析之前，我们需要定义*凸集*（convex sets）和*凸函数*（convex functions）。
@@ -89,12 +101,25 @@ $$\lambda f(x) + (1-\lambda) f(x') \geq f(\lambda x + (1-\lambda) x').$$
 下面我们定义一些函数，包括凸函数和非凸函数。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow
 f = lambda x: 0.5 * x**2  # 凸函数
 g = lambda x: d2l.cos(np.pi * x)  # 非凸函数
 h = lambda x: d2l.exp(0.5 * x)  # 凸函数
 
 x, segment = d2l.arange(-2, 2, 0.01), d2l.tensor([-1.5, 1])
+d2l.use_svg_display()
+_, axes = d2l.plt.subplots(1, 3, figsize=(9, 3))
+for ax, func in zip(axes, [f, g, h]):
+    d2l.plot([x, segment], [func(x), func(segment)], axes=ax)
+```
+
+```{.python .input}
+#@tab paddle
+f = lambda x: 0.5 * x**2  # 凸函数
+g = lambda x: d2l.cos(np.pi * x)  # 非凸函数
+h = lambda x: d2l.exp(0.5 * x)  # 凸函数
+
+x, segment = d2l.arange(-2, 2, 0.01, dtype='float32'), d2l.tensor([-1.5, 1])
 d2l.use_svg_display()
 _, axes = d2l.plt.subplots(1, 3, figsize=(9, 3))
 for ax, func in zip(axes, [f, g, h]):

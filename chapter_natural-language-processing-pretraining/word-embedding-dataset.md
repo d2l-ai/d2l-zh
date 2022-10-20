@@ -20,6 +20,18 @@ import os
 import random
 ```
 
+```{.python .input}
+#@tab paddle
+import warnings
+import math
+warnings.filterwarnings("ignore")
+import paddle
+import os
+import random
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
+```
+
 ## 正在读取数据集
 
 我们在这里使用的数据集是[Penn Tree Bank（PTB）](https://catalog.ldc.upenn.edu/LDC99T42)。该语料库取自“华尔街日报”的文章，分为训练集、验证集和测试集。在原始格式中，文本文件的每一行表示由空格分隔的一句话。在这里，我们将每个单词视为一个词元。
@@ -318,6 +330,43 @@ def load_data_ptb(batch_size, max_window_size, num_noise_words):
 
     data_iter = torch.utils.data.DataLoader(
         dataset, batch_size, shuffle=True, 
+        collate_fn=batchify, num_workers=num_workers)
+    return data_iter, vocab
+```
+
+```{.python .input}
+#@tab paddle
+#@save
+def load_data_ptb(batch_size, max_window_size, num_noise_words):
+    """下载PTB数据集，然后将其加载到内存中"""
+    num_workers = d2l.get_dataloader_workers()
+    sentences = read_ptb()
+    vocab = d2l.Vocab(sentences, min_freq=10)
+    subsampled, counter = subsample(sentences, vocab)
+    corpus = [vocab[line] for line in subsampled]
+    all_centers, all_contexts = get_centers_and_contexts(
+        corpus, max_window_size)
+    all_negatives = get_negatives(
+        all_contexts, vocab, counter, num_noise_words)
+
+    class PTBDataset(paddle.io.Dataset):
+        def __init__(self, centers, contexts, negatives):
+            assert len(centers) == len(contexts) == len(negatives)
+            self.centers = centers
+            self.contexts = contexts
+            self.negatives = negatives
+
+        def __getitem__(self, index):
+            return (self.centers[index], self.contexts[index],
+                    self.negatives[index])
+
+        def __len__(self):
+            return len(self.centers)
+
+    dataset = PTBDataset(all_centers, all_contexts, all_negatives)
+
+    data_iter = paddle.io.DataLoader(
+        dataset, batch_size=batch_size, shuffle=True, return_list=True, 
         collate_fn=batchify, num_workers=num_workers)
     return data_iter, vocab
 ```

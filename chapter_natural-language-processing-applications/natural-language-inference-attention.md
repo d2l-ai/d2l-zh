@@ -31,6 +31,16 @@ from torch import nn
 from torch.nn import functional as F
 ```
 
+```{.python .input}
+#@tab paddle
+import warnings
+import paddle
+from paddle import nn
+from paddle.nn import functional as F
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
+```
+
 ### 注意（Attending）
 
 第一步是将一个文本序列中的词元与另一个序列中的每个词元对齐。假设前提是“我确实需要睡眠”，假设是“我累了”。由于语义上的相似性，我们不妨将假设中的“我”与前提中的“我”对齐，将假设中的“累”与前提中的“睡眠”对齐。同样，我们可能希望将前提中的“我”与假设中的“我”对齐，将前提中的“需要”和“睡眠”与假设中的“累”对齐。请注意，这种对齐是使用加权平均的“软”对齐，其中理想情况下较大的权重与要对齐的词元相关联。为了便于演示， :numref:`fig_nli_attention`以“硬”对齐的方式显示了这种对齐方式。
@@ -66,6 +76,23 @@ def mlp(num_inputs, num_hiddens, flatten):
     net.append(nn.ReLU())
     if flatten:
         net.append(nn.Flatten(start_dim=1))
+    return nn.Sequential(*net)
+```
+
+```{.python .input}
+#@tab paddle
+def mlp(num_inputs, num_hiddens, flatten):
+    net = []
+    net.append(nn.Dropout(0.2))
+    net.append(nn.Linear(num_inputs, num_hiddens))
+    net.append(nn.ReLU())
+    if flatten:
+        net.append(nn.Flatten(start_axis=1)) 
+    net.append(nn.Dropout(0.2))
+    net.append(nn.Linear(num_hiddens, num_hiddens))
+    net.append(nn.ReLU())
+    if flatten:
+        net.append(nn.Flatten(start_axis=1))
     return nn.Sequential(*net)
 ```
 
@@ -130,6 +157,29 @@ class Attend(nn.Module):
         return beta, alpha
 ```
 
+```{.python .input}
+#@tab paddle
+class Attend(nn.Layer):
+    def __init__(self, num_inputs, num_hiddens, **kwargs):
+        super(Attend, self).__init__(**kwargs)
+        self.f = mlp(num_inputs, num_hiddens, flatten=False)
+
+    def forward(self, A, B):
+        # A/B的形状：（批量大小，序列A/B的词元数，embed_size）
+        # f_A/f_B的形状：（批量大小，序列A/B的词元数，num_hiddens）
+        f_A = self.f(A)
+        f_B = self.f(B)
+        # e的形状：（批量大小，序列A的词元数，序列B的词元数）
+        e = paddle.bmm(f_A, f_B.transpose([0, 2, 1]))
+        # beta的形状：（批量大小，序列A的词元数，embed_size），
+        # 意味着序列B被软对齐到序列A的每个词元(beta的第1个维度)
+        beta = paddle.bmm(F.softmax(e, axis=-1), B)
+        # beta的形状：（批量大小，序列B的词元数，embed_size），
+        # 意味着序列A被软对齐到序列B的每个词元(alpha的第1个维度)
+        alpha = paddle.bmm(F.softmax(e.transpose([0, 2, 1]), axis=-1), A)
+        return beta, alpha
+```
+
 ### 比较
 
 在下一步中，我们将一个序列中的词元与与该词元软对齐的另一个序列进行比较。请注意，在软对齐中，一个序列中的所有词元（尽管可能具有不同的注意力权重）将与另一个序列中的词元进行比较。为便于演示， :numref:`fig_nli_attention`对词元以*硬*的方式对齐。例如，上述的*注意*（attending）步骤确定前提中的“need”和“sleep”都与假设中的“tired”对齐，则将对“疲倦-需要睡眠”进行比较。
@@ -164,6 +214,19 @@ class Compare(nn.Module):
     def forward(self, A, B, beta, alpha):
         V_A = self.g(torch.cat([A, beta], dim=2))
         V_B = self.g(torch.cat([B, alpha], dim=2))
+        return V_A, V_B
+```
+
+```{.python .input}
+#@tab paddle
+class Compare(nn.Layer):
+    def __init__(self, num_inputs, num_hiddens, **kwargs):
+        super(Compare, self).__init__(**kwargs)
+        self.g = mlp(num_inputs, num_hiddens, flatten=False)
+
+    def forward(self, A, B, beta, alpha):
+        V_A = self.g(paddle.concat([A, beta], axis=2))
+        V_B = self.g(paddle.concat([B, alpha], axis=2))
         return V_A, V_B
 ```
 
@@ -216,6 +279,23 @@ class Aggregate(nn.Module):
         return Y_hat
 ```
 
+```{.python .input}
+#@tab paddle
+class Aggregate(nn.Layer):
+    def __init__(self, num_inputs, num_hiddens, num_outputs, **kwargs):
+        super(Aggregate, self).__init__(**kwargs)
+        self.h = mlp(num_inputs, num_hiddens, flatten=True)
+        self.linear = nn.Linear(num_hiddens, num_outputs)
+
+    def forward(self, V_A, V_B):
+        # 对两组比较向量分别求和
+        V_A = V_A.sum(axis=1)
+        V_B = V_B.sum(axis=1)
+        # 将两个求和结果的连结送到多层感知机中
+        Y_hat = self.linear(self.h(paddle.concat([V_A, V_B], axis=1)))
+        return Y_hat
+```
+
 ### 整合代码
 
 通过将注意步骤、比较步骤和聚合步骤组合在一起，我们定义了可分解注意力模型来联合训练这三个步骤。
@@ -262,6 +342,28 @@ class DecomposableAttention(nn.Module):
         return Y_hat
 ```
 
+```{.python .input}
+#@tab paddle
+class DecomposableAttention(nn.Layer):
+    def __init__(self, vocab, embed_size, num_hiddens, num_inputs_attend=100,
+                 num_inputs_compare=200, num_inputs_agg=400, **kwargs):
+        super(DecomposableAttention, self).__init__(**kwargs)
+        self.embedding = nn.Embedding(len(vocab), embed_size)
+        self.attend = Attend(num_inputs_attend, num_hiddens)
+        self.compare = Compare(num_inputs_compare, num_hiddens)
+        # 有3种可能的输出：蕴涵、矛盾和中性
+        self.aggregate = Aggregate(num_inputs_agg, num_hiddens, num_outputs=3)
+
+    def forward(self, X):
+        premises, hypotheses = X
+        A = self.embedding(premises)
+        B = self.embedding(hypotheses)
+        beta, alpha = self.attend(A, B)
+        V_A, V_B = self.compare(A, B, beta, alpha)
+        Y_hat = self.aggregate(V_A, V_B)
+        return Y_hat
+```
+
 ## 训练和评估模型
 
 现在，我们将在SNLI数据集上对定义好的可分解注意力模型进行训练和评估。我们从读取数据集开始。
@@ -271,9 +373,35 @@ class DecomposableAttention(nn.Module):
 我们使用 :numref:`sec_natural-language-inference-and-dataset`中定义的函数下载并读取SNLI数据集。批量大小和序列长度分别设置为$256$和$50$。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch
 batch_size, num_steps = 256, 50
 train_iter, test_iter, vocab = d2l.load_data_snli(batch_size, num_steps)
+```
+
+```{.python .input}
+#@tab paddle
+def load_data_snli(batch_size, num_steps=50):
+    """下载SNLI数据集并返回数据迭代器和词表
+
+    Defined in :numref:`sec_natural-language-inference-and-dataset`"""
+    data_dir = d2l.download_extract('SNLI')
+    train_data = d2l.read_snli(data_dir, True)
+    test_data = d2l.read_snli(data_dir, False)
+    train_set = d2l.SNLIDataset(train_data, num_steps)
+    test_set = d2l.SNLIDataset(test_data, num_steps, train_set.vocab)
+    train_iter = paddle.io.DataLoader(train_set,batch_size=batch_size,
+                                             shuffle=True,
+                                             num_workers=0,
+                                             return_list=True)
+
+    test_iter = paddle.io.DataLoader(test_set, batch_size=batch_size,
+                                            shuffle=False,
+                                            num_workers=0,
+                                            return_list=True)
+    return train_iter, test_iter, train_set.vocab
+
+batch_size, num_steps = 256, 50
+train_iter, test_iter, vocab = load_data_snli(batch_size, num_steps)
 ```
 
 ### 创建模型
@@ -296,6 +424,15 @@ net = DecomposableAttention(vocab, embed_size, num_hiddens)
 glove_embedding = d2l.TokenEmbedding('glove.6b.100d')
 embeds = glove_embedding[vocab.idx_to_token]
 net.embedding.weight.data.copy_(embeds);
+```
+
+```{.python .input}
+#@tab paddle
+embed_size, num_hiddens, devices = 100, 200, d2l.try_all_gpus()
+net = DecomposableAttention(vocab, embed_size, num_hiddens)
+glove_embedding = d2l.TokenEmbedding('glove.6b.100d')
+embeds = glove_embedding[vocab.idx_to_token]
+net.embedding.weight.set_value(embeds);
 ```
 
 ### 训练和评估模型
@@ -330,6 +467,15 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
     devices)
 ```
 
+```{.python .input}
+#@tab paddle
+lr, num_epochs = 0.001, 4
+trainer = paddle.optimizer.Adam(learning_rate=lr, parameters=net.parameters())
+loss = nn.CrossEntropyLoss(reduction="none")
+d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
+    devices[:1])
+```
+
 ### 使用模型
 
 最后，定义预测函数，输出一对前提和假设之间的逻辑关系。
@@ -356,6 +502,21 @@ def predict_snli(net, vocab, premise, hypothesis):
     hypothesis = torch.tensor(vocab[hypothesis], device=d2l.try_gpu())
     label = torch.argmax(net([premise.reshape((1, -1)),
                            hypothesis.reshape((1, -1))]), dim=1)
+    return 'entailment' if label == 0 else 'contradiction' if label == 1 \
+            else 'neutral'
+```
+
+```{.python .input}
+#@tab paddle
+#@save
+def predict_snli(net, vocab, premise, hypothesis):
+    """预测前提和假设之间的逻辑关系"""
+    net.eval()
+    premise = paddle.to_tensor(vocab[premise], place=d2l.try_gpu())
+    hypothesis = paddle.to_tensor(vocab[hypothesis], place=d2l.try_gpu())
+    label = paddle.argmax(net([premise.reshape((1, -1)),
+                           hypothesis.reshape((1, -1))]), axis=1)
+                           
     return 'entailment' if label == 0 else 'contradiction' if label == 1 \
             else 'neutral'
 ```

@@ -85,6 +85,10 @@ exec(y)
 命令式编程现在是TensorFlow2的默认选择，对那些刚接触该语言的人来说是一个很好的改变。不过，符号式编程技术和计算图仍然存在于TensorFlow中，并且可以通过易于使用的装饰器`tf.function`进行访问。这为TensorFlow带来了命令式编程范式，允许用户定义更加直观的函数，然后使用被TensorFlow团队称为[autograph](https://www.tensorflow.org/api_docs/python/tf/autograph)的特性将它们封装，再自动编译成计算图。
 :end_tab:
 
+:begin_tab:`paddle`
+如上所述，飞桨是基于命令式编程并且使用动态计算图。为了能够利用符号式编程的可移植性和效率，开发人员思考能否将这两种编程模型的优点结合起来，于是就产生了飞桨2.0版本。飞桨2.0及以上版本允许用户使用纯命令式编程进行开发和调试，同时能够将大多数程序转换为符号式程序，以便在需要产品级计算性能和部署时使用。
+:end_tab:
+
 ## `Sequential`的混合式编程
 
 要了解混合式编程的工作原理，最简单的方法是考虑具有多层的深层网络。按照惯例，Python解释器需要执行所有层的代码来生成一条指令，然后将该指令转发到CPU或GPU。对于单个的（快速的）计算设备，这不会导致任何重大问题。另一方面，如果我们使用先进的8-GPU服务器，比如AWS P3dn.24xlarge实例，Python将很难让所有的GPU都保持忙碌。在这里，瓶颈是单线程的Python解释器。让我们看看如何通过将`Sequential`替换为`HybridSequential`来解决代码中这个瓶颈。首先，我们定义一个简单的多层感知机。
@@ -148,6 +152,35 @@ net = get_net()
 net(x)
 ```
 
+```{.python .input}
+#@tab paddle
+import warnings
+warnings.filterwarnings('ignore')
+import paddle
+from paddle import nn
+from paddle.jit import to_static
+from paddle.static import InputSpec
+
+warnings.filterwarnings("ignore")
+from d2l import paddle as d2l
+
+# 生产网络的工厂模式
+def get_net():
+    blocks = [
+        nn.Linear(512, 256),
+        nn.ReLU(),
+        nn.Linear(256, 128),
+        nn.ReLU(),
+        nn.Linear(128, 2)
+    ]
+    net = nn.Sequential(*blocks)
+    return net
+
+x = paddle.randn((1, 512))
+net = get_net()
+net(x)
+```
+
 :begin_tab:`mxnet`
 通过调用`hybridize`函数，我们就有能力编译和优化多层感知机中的计算，而模型的计算结果保持不变。
 :end_tab:
@@ -158,6 +191,10 @@ net(x)
 
 :begin_tab:`tensorflow`
 一开始，TensorFlow中构建的所有函数都是作为计算图构建的，因此默认情况下是JIT编译的。但是，随着TensorFlow2.X和EargeTensor的发布，计算图就不再是默认行为。我们可以使用tf.function重新启用这个功能。tf.function更常被用作函数装饰器，如下所示，它也可以直接将其作为普通的Python函数调用。模型的计算结果保持不变。
+:end_tab:
+
+:begin_tab:`paddle`
+通过使用`paddle.jit.to_static`函数来转换模型，我们就有能力编译和优化多层感知机中的计算，而模型的计算结果保持不变。
 :end_tab:
 
 ```{.python .input}
@@ -177,6 +214,12 @@ net = tf.function(net)
 net(x)
 ```
 
+```{.python .input}
+#@tab paddle
+net = paddle.jit.to_static(net)
+net(x)
+```
+
 :begin_tab:`mxnet`
 我们只需将一个块指定为`HybridSequential`，然后编写与之前相同的代码，再调用`hybridize`，当完成这些任务后，网络就将得到优化（我们将在下面对性能进行基准测试）。不幸的是，这种魔法并不适用于每一层。也就是说，如果某个层是从`Block`类而不是从`HybridBlock`类继承的，那么它将不会得到优化。
 :end_tab:
@@ -187,6 +230,10 @@ net(x)
 
 :begin_tab:`tensorflow`
 我们编写与之前相同的代码，再使用`tf.function`简单地转换模型，当完成这些任务后，网络将以TensorFlow的MLIR中间表示形式构建为一个计算图，并在编译器级别进行大量优化以满足快速执行的需要（我们将在下面对性能进行基准测试）。通过将`jit_compile = True`标志添加到`tf.function()`的函数调用中可以显式地启用TensorFlow中的XLA（线性代数加速）功能。在某些情况下，XLA可以进一步优化JIT的编译代码。如果没有这种显式定义，图形模式将会被启用，但是XLA可以使某些大规模的线性代数的运算速度更快（与我们在深度学习程序中看到的操作类似），特别是在GPU环境中。
+:end_tab:
+
+:begin_tab:`paddle`
+我们编写与之前相同的代码，再使用`paddle.jit.to_static`简单地转换模型，当完成这些任务后，网络就将得到优化（我们将在下面对性能进行基准测试）。
 :end_tab:
 
 ### 通过混合式编程加速
@@ -219,6 +266,10 @@ class Benchmark:
 
 :begin_tab:`tensorflow`
 现在我们可以调用网络三次，一次使用eager模式，一次是使用图模式，一次使用JIT编译的XLA。
+:end_tab:
+
+:begin_tab:`paddle`
+现在我们可以调用网络两次，一次使用动态图命令式编程，一次使用静态图符号式编程。
 :end_tab:
 
 ```{.python .input}
@@ -255,6 +306,18 @@ with Benchmark('Graph模式'):
     for i in range(1000): net(x)
 ```
 
+```{.python .input}
+#@tab paddle
+net = get_net()
+with Benchmark('Paddle动态图命令式编程'):
+    for i in range(1000): net(x)
+
+x_spec = InputSpec(shape=[-1, 512], name='x') 
+net = to_static(get_net(),input_spec=[x_spec])
+with Benchmark('Paddle静态图符号式编程'):
+    for i in range(1000): net(x)
+```
+
 :begin_tab:`mxnet`
 如以上结果所示，在`HybridSequential`的实例调用`hybridize`函数后，通过使用符号式编程提高了计算性能。
 :end_tab:
@@ -265,6 +328,10 @@ with Benchmark('Graph模式'):
 
 :begin_tab:`tensorflow`
 如以上结果所示，在`tf.keras.Sequential`的实例被函数`tf.function`脚本化后，通过使用TensorFlow中的图模式执行方式实现的符号式编程提高了计算性能。
+:end_tab:
+
+:begin_tab:`paddle`
+如以上结果所示，在`nn.Sequential`的实例被函数`paddle.jit.to_static`脚本化后，通过使用符号式编程提高了计算性能。事实上飞桨非常巧妙的实现了动静自然统一，完备实现了一键式动静转换，也就是只需要一条命令，就可以实现动静转换。
 :end_tab:
 
 ### 序列化
@@ -279,6 +346,10 @@ with Benchmark('Graph模式'):
 
 :begin_tab:`tensorflow`
 编译模型的好处之一是我们可以将模型及其参数序列化（保存）到磁盘。这允许这些训练好的模型部署到其他设备上，并且还能方便地使用其他前端编程语言。同时，通常编译模型的代码执行速度也比命令式编程更快。在TensorFlow中保存模型的底层API是`tf.saved_model`，让我们来看看`saved_model`的运行情况。
+:end_tab:
+
+:begin_tab:`pytorch`
+编译模型的好处之一是我们可以将模型及其参数序列化（保存）到磁盘。这允许这些训练好的模型部署到其他设备上，并且还能方便地使用其他前端编程语言。同时，通常编译模型的代码执行速度也比命令式编程更快。让我们看看`paddle.jit.save`的实际功能。
 :end_tab:
 
 ```{.python .input}
@@ -296,6 +367,12 @@ net.save('my_mlp')
 #@tab tensorflow
 net = get_net()
 tf.saved_model.save(net, 'my_mlp')
+!ls -lh my_mlp*
+```
+
+```{.python .input}
+#@tab paddle
+paddle.jit.save(net, './my_mlp')
 !ls -lh my_mlp*
 ```
 

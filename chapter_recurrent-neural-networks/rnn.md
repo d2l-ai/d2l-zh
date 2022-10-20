@@ -166,7 +166,16 @@ import tensorflow as tf
 ```
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab paddle
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
+```
+
+```{.python .input}
+#@tab mxnet, pytorch, paddle
 X, W_xh = d2l.normal(0, 1, (3, 1)), d2l.normal(0, 1, (1, 4))
 H, W_hh = d2l.normal(0, 1, (3, 4)), d2l.normal(0, 1, (4, 4))
 d2l.matmul(X, W_xh) + d2l.matmul(H, W_hh)

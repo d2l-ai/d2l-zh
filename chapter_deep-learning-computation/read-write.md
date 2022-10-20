@@ -42,6 +42,18 @@ x = tf.range(4)
 np.save('x-file.npy', x)
 ```
 
+```{.python .input}
+#@tab paddle
+import warnings
+warnings.filterwarnings(action='ignore')
+import paddle
+from paddle import nn 
+from paddle.nn import functional as F
+
+x = paddle.arange(4)  
+paddle.save(x, 'x-file')
+```
+
 我们现在可以将存储在文件中的数据读回内存。
 
 ```{.python .input}
@@ -58,6 +70,12 @@ x2
 ```{.python .input}
 #@tab tensorflow
 x2 = np.load('x-file.npy', allow_pickle=True)
+x2
+```
+
+```{.python .input}
+#@tab paddle
+x2 = paddle.load('x-file')
 x2
 ```
 
@@ -86,6 +104,14 @@ x2, y2 = np.load('xy-files.npy', allow_pickle=True)
 (x2, y2)
 ```
 
+```{.python .input}
+#@tab paddle
+y = paddle.zeros([4])
+paddle.save([x,y], 'x-file')
+x2, y2 = paddle.load('x-file')
+(x2, y2)
+```
+
 我们甚至可以(**写入或读取从字符串映射到张量的字典**)。
 当我们要读取或写入模型中的所有权重时，这很方便。
 
@@ -109,6 +135,14 @@ mydict2
 mydict = {'x': x, 'y': y}
 np.save('mydict.npy', mydict)
 mydict2 = np.load('mydict.npy', allow_pickle=True)
+mydict2
+```
+
+```{.python .input}
+#@tab paddle
+mydict = {'x': x, 'y': y}
+paddle.save(mydict, 'mydict')
+mydict2 = paddle.load('mydict')
 mydict2
 ```
 
@@ -177,6 +211,22 @@ X = tf.random.uniform((2, 20))
 Y = net(X)
 ```
 
+```{.python .input}
+#@tab paddle
+class MLP(nn.Layer):
+    def __init__(self):
+        super().__init__()
+        self.hidden = nn.Linear(20, 256)
+        self.output = nn.Linear(256, 10)
+
+    def forward(self, x):
+        return self.output(F.relu(self.hidden(x)))
+
+net = MLP()
+X = paddle.randn(shape=[2, 20])
+Y = net(X)
+```
+
 接下来，我们[**将模型的参数存储在一个叫做“mlp.params”的文件中。**]
 
 ```{.python .input}
@@ -191,6 +241,11 @@ torch.save(net.state_dict(), 'mlp.params')
 ```{.python .input}
 #@tab tensorflow
 net.save_weights('mlp.params')
+```
+
+```{.python .input}
+#@tab paddle
+paddle.save(net.state_dict(), 'mlp.pdparams')
 ```
 
 为了恢复模型，我们[**实例化了原始多层感知机模型的一个备份。**]
@@ -214,6 +269,13 @@ clone = MLP()
 clone.load_weights('mlp.params')
 ```
 
+```{.python .input}
+#@tab paddle
+clone = MLP()
+clone.set_state_dict(paddle.load('mlp.pdparams'))
+clone.eval()
+```
+
 由于两个实例具有相同的模型参数，在输入相同的`X`时，
 两个实例的计算结果应该相同。
 让我们来验证一下。
@@ -224,7 +286,7 @@ Y_clone == Y
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 Y_clone = clone(X)
 Y_clone == Y
 ```
