@@ -342,11 +342,11 @@ train_iter, train_valid_iter = [paddle.io.DataLoader(
     dataset, batch_size=batch_size, shuffle=True, drop_last=True)
     for dataset in (train_ds, train_valid_ds)]
 
-valid_iter = paddle.io.DataLoader(valid_ds, batch_size=batch_size, shuffle=False,
-                                         drop_last=True)
+valid_iter = paddle.io.DataLoader(
+    valid_ds, batch_size=batch_size, shuffle=False, drop_last=True)
 
-test_iter = paddle.io.DataLoader(test_ds, batch_size=batch_size, shuffle=False,
-                                        drop_last=False)
+test_iter = paddle.io.DataLoader(
+    test_ds, batch_size=batch_size, shuffle=False, drop_last=False)
 ```
 
 ## 定义[**模型**]

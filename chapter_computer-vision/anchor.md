@@ -170,18 +170,19 @@ def multibox_prior(data, sizes, ratios):
     # 生成“boxes_per_pixel”个高和宽，
     # 之后用于创建锚框的四角坐标(xmin,xmax,ymin,ymax)
     w = paddle.concat((size_tensor * paddle.sqrt(ratio_tensor[0]),
-                   sizes[0] * paddle.sqrt(ratio_tensor[1:])))\
-                   * in_height / in_width  # 处理矩形输入
+        sizes[0] * paddle.sqrt(ratio_tensor[1:])))\
+        * in_height / in_width  # 处理矩形输入
     h = paddle.concat((size_tensor / paddle.sqrt(ratio_tensor[0]),
-                   sizes[0] / paddle.sqrt(ratio_tensor[1:])))
+        sizes[0] / paddle.sqrt(ratio_tensor[1:])))
     # 除以2来获得半高和半宽
     anchor_manipulations = paddle.tile(paddle.stack((-w, -h, w, h)).T,
-                                        (in_height * in_width, 1)) / 2
+        (in_height * in_width, 1)) / 2
 
     # 每个中心点都将有“boxes_per_pixel”个锚框，
     # 所以生成含所有锚框中心的网格，重复了“boxes_per_pixel”次
     out_grid = paddle.stack([shift_x, shift_y, shift_x, shift_y], axis=1)
-    out_grid = paddle.tile(out_grid, repeat_times=[boxes_per_pixel]).reshape((-1, out_grid.shape[1]))
+    out_grid = paddle.tile(out_grid, 
+        repeat_times=[boxes_per_pixel]).reshape((-1, out_grid.shape[1]))
     output = out_grid + anchor_manipulations
     return output.unsqueeze(0)
 ```
@@ -226,7 +227,7 @@ Y.shape
 将两个轴的坐标各分别除以图像的宽度和高度后，所得的值介于0和1之间。
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, tensorflow
 boxes = Y.reshape(h, w, 5, 4)
 boxes[250, 250, 0, :]
 ```

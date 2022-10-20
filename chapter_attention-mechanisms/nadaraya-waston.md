@@ -457,20 +457,22 @@ class NWKernelRegression(tf.keras.layers.Layer):
 ```
 
 ```{.python .input}
-#@tab paddle
+# @tab paddle
 class NWKernelRegression(nn.Layer):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.w = paddle.create_parameter((1,), dtype='float32')
+        self.w = paddle.create_parameter((1,), dtype="float32")
 
     def forward(self, queries, keys, values):
         # queries和attention_weights的形状为(查询个数，“键－值”对个数)
-        queries = queries.reshape((queries.shape[0], 1)).tile([keys.shape[1]]).reshape((-1, keys.shape[1]))
+        queries = (queries.reshape((queries.shape[0], 1))
+            .tile([keys.shape[1]])
+            .reshape((-1, keys.shape[1])))
         self.attention_weight = nn.functional.softmax(
-            -((queries - keys) * self.w)**2 / 2, axis=1)
+            -(((queries - keys) * self.w) ** 2) / 2, axis=1)
         # values的形状为(查询个数，“键－值”对个数)
-        return paddle.bmm(self.attention_weight.unsqueeze(1),
-                          values.unsqueeze(-1)).reshape((-1, ))
+        return paddle.bmm(self.attention_weight.unsqueeze(1), values.unsqueeze(-1)
+        ).reshape((-1,))
 ```
 
 ### 训练

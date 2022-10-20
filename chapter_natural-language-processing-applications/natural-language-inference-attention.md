@@ -373,35 +373,9 @@ class DecomposableAttention(nn.Layer):
 我们使用 :numref:`sec_natural-language-inference-and-dataset`中定义的函数下载并读取SNLI数据集。批量大小和序列长度分别设置为$256$和$50$。
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, paddle
 batch_size, num_steps = 256, 50
 train_iter, test_iter, vocab = d2l.load_data_snli(batch_size, num_steps)
-```
-
-```{.python .input}
-#@tab paddle
-def load_data_snli(batch_size, num_steps=50):
-    """下载SNLI数据集并返回数据迭代器和词表
-
-    Defined in :numref:`sec_natural-language-inference-and-dataset`"""
-    data_dir = d2l.download_extract('SNLI')
-    train_data = d2l.read_snli(data_dir, True)
-    test_data = d2l.read_snli(data_dir, False)
-    train_set = d2l.SNLIDataset(train_data, num_steps)
-    test_set = d2l.SNLIDataset(test_data, num_steps, train_set.vocab)
-    train_iter = paddle.io.DataLoader(train_set,batch_size=batch_size,
-                                             shuffle=True,
-                                             num_workers=0,
-                                             return_list=True)
-
-    test_iter = paddle.io.DataLoader(test_set, batch_size=batch_size,
-                                            shuffle=False,
-                                            num_workers=0,
-                                            return_list=True)
-    return train_iter, test_iter, train_set.vocab
-
-batch_size, num_steps = 256, 50
-train_iter, test_iter, vocab = load_data_snli(batch_size, num_steps)
 ```
 
 ### 创建模型

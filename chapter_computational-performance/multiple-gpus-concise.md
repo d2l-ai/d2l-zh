@@ -115,8 +115,8 @@ def resnet18(num_classes, in_channels=1):
     net.add_sublayer("resnet_block3", resnet_block(128, 256, 2))
     net.add_sublayer("resnet_block4", resnet_block(256, 512, 2))
     net.add_sublayer("global_avg_pool", nn.AdaptiveAvgPool2D((1, 1)))
-    net.add_sublayer("fc", nn.Sequential(nn.Flatten(),
-                                       nn.Linear(512, num_classes)))
+    net.add_sublayer("fc", nn.Sequential(nn.Flatten(), 
+                                         nn.Linear(512, num_classes)))
     return net
 ```
 
@@ -291,14 +291,15 @@ def train(net, num_gpus, batch_size, lr):
         timer.start()
         for X, y in train_iter:
             trainer.clear_grad()
-            X, y = paddle.to_tensor(X, place=devices[0]), paddle.to_tensor(y, place=devices[0])
+            X, y = paddle.to_tensor(
+                X, place=devices[0]), paddle.to_tensor(y, place=devices[0])
             l = loss(net(X), y)
             l.backward()
             trainer.step()
         timer.stop()
         animator.add(epoch + 1, (d2l.evaluate_accuracy_gpu(net, test_iter),))
-    print(f'test acc: {animator.Y[0][-1]:.2f}, {timer.avg():.1f} sec/epoch '
-          f'on {str(devices)}')
+    print(f'测试精度： {animator.Y[0][-1]:.2f}, {timer.avg():.1f} 秒/轮， '
+          f'在 {str(devices)}')
 ```
 
 接下来看看这在实践中是如何运作的。我们先[**在单个GPU上训练网络**]进行预热。
@@ -332,17 +333,12 @@ train(net, num_gpus=2, batch_size=512, lr=0.2)
 * 优化算法在多个GPU上自动聚合。
 :end_tab:
 
-:begin_tab:`pytorch`
+:begin_tab:`pytorch, paddle`
 * 神经网络可以在（可找到数据的）单GPU上进行自动评估。
 * 每台设备上的网络需要先初始化，然后再尝试访问该设备上的参数，否则会遇到错误。
 * 优化算法在多个GPU上自动聚合。
 :end_tab:
 
-:begin_tab:`paddle`
-* 神经网络可以在（可找到数据的）单GPU上进行自动评估。
-* 每台设备上的网络需要先初始化，然后再尝试访问该设备上的参数，否则会遇到错误。
-* 优化算法在多个GPU上自动聚合。
-:end_tab:
 
 ## 练习
 
@@ -352,15 +348,11 @@ train(net, num_gpus=2, batch_size=512, lr=0.2)
 1. 如果去掉`npx.waitall()`会怎样？该如何修改训练，以使并行操作最多有两个步骤重叠？
 :end_tab:
 
-:begin_tab:`pytorch`
+:begin_tab:`pytorch, paddle`
 1. 本节使用ResNet-18，请尝试不同的迭代周期数、批量大小和学习率，以及使用更多的GPU进行计算。如果使用$16$个GPU（例如，在AWS p2.16xlarge实例上）尝试此操作，会发生什么？
 1. 有时候不同的设备提供了不同的计算能力，我们可以同时使用GPU和CPU，那应该如何分配工作？为什么？
 :end_tab:
 
-:begin_tab:`paddle`
-1. 本节使用ResNet-18，请尝试不同的迭代周期数、批量大小和学习率，以及使用更多的GPU进行计算。如果使用$16$个GPU（例如，在AWS p2.16xlarge实例上）尝试此操作，会发生什么？
-1. 有时候不同的设备提供了不同的计算能力，我们可以同时使用GPU和CPU，那应该如何分配工作？为什么？
-:end_tab:
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/2804)
