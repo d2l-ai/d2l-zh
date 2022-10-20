@@ -227,7 +227,7 @@ Y.shape
 将两个轴的坐标各分别除以图像的宽度和高度后，所得的值介于0和1之间。
 
 ```{.python .input}
-#@tab mxnet, pytorch, tensorflow
+#@tab mxnet, pytorch
 boxes = Y.reshape(h, w, 5, 4)
 boxes[250, 250, 0, :]
 ```
