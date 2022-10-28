@@ -40,11 +40,6 @@ SageMaker提供多个具有不同计算能力和价格的[实例类型](https://
 我们可以指定此GitHub存储库URL（ :numref:`fig_sagemaker-create-3`），以允许SageMaker在创建实例时克隆它。
 :end_tab:
 
-:begin_tab:`paddle`
-用于与SageMaker一起运行的ipynb格式的整本书可从https://github.com/d2l-ai/d2l-paddle-sagemaker获得。
-我们可以指定此GitHub存储库URL（ :numref:`fig_sagemaker-create-3`），以允许SageMaker在创建实例时克隆它。
-:end_tab:
-
 ![指定GitHub存储库](../img/sagemaker-create-3.png)
 :width:`400px`
 :label:`fig_sagemaker-create-3`

@@ -34,14 +34,14 @@ import pandas as pd
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-import warnings
+from d2l import paddle as d2l
+import paddle
+import paddle.vision as paddlevision
 import os
 import pandas as pd
+import warnings
+
 warnings.filterwarnings("ignore")
-import paddle
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-import paddle.vision as paddlevision
-from d2l import paddle as d2l
 ```
 
 ```{.python .input}

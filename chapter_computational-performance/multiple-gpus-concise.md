@@ -19,11 +19,12 @@ from torch import nn
 
 ```{.python .input}
 #@tab paddle
-import warnings
+from d2l import paddle as d2l
 import paddle
 from paddle import nn
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
+import warnings
+
+warnings.filterwarnings("ignore")
 ```
 
 ## [**简单网络**]

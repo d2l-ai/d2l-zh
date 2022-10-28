@@ -263,8 +263,8 @@ class Seq2SeqAttentionDecoder(AttentionDecoder):
             num_hiddens, num_hiddens, num_hiddens, dropout)
         self.embedding = nn.Embedding(vocab_size, embed_size)
         self.rnn = nn.GRU(
-            embed_size + num_hiddens, num_hiddens, num_layers, 
-            bias_ih_attr=True, time_major=True, dropout=dropout)
+            embed_size + num_hiddens, num_hiddens, 
+            num_layers, bias_ih_attr=True, time_major=True, dropout=dropout)
         self.dense = nn.Linear(num_hiddens, vocab_size)
 
     def init_state(self, enc_outputs, enc_valid_lens, *args):
@@ -295,8 +295,8 @@ class Seq2SeqAttentionDecoder(AttentionDecoder):
         # 全连接层变换后，outputs的形状为
         # (num_steps,batch_size,vocab_size)
         outputs = self.dense(paddle.concat(outputs, axis=0))
-        return outputs.transpose((1, 0, 2)), [enc_outputs, hidden_state, 
-                                              enc_valid_lens]
+        return outputs.transpose((1, 0, 2)), [
+            enc_outputs, hidden_state, enc_valid_lens]
 
     @property
     def attention_weights(self):

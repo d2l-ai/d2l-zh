@@ -101,12 +101,13 @@ from torch.nn import functional as F
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-import warnings
+from d2l import paddle as d2l
 import paddle
 from paddle import nn
 from paddle.nn import functional as F
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
+import warnings
+
+warnings.filterwarnings("ignore")
 ```
 
 ## [**简单网络**]
@@ -452,7 +453,6 @@ def train_batch(X, y, device_params, devices, lr):
         paddle.set_device(f"gpu:{i}")
         param = device_params[i]
         d2l.sgd(param, lr, X.shape[0]) # 在这里，我们使用全尺寸的小批量
- 
 ```
 
 现在，我们可以[**定义训练函数**]。

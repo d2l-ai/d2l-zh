@@ -23,13 +23,13 @@ from torch import nn
 
 ```{.python .input}
 #@tab paddle
-import warnings
+from d2l import paddle as d2l
 import numpy, os, subprocess
 import paddle
 from paddle import nn
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
-d2l.try_gpu()
+import warnings
+
+warnings.filterwarnings("ignore")
 ```
 
 ## 通过后端异步处理
@@ -191,15 +191,6 @@ z
 接下来看看这在实践中是如何运作的。
 :end_tab:
 
-:begin_tab:`paddle`
-强制Python等待完成：
-
-* 使用命令`paddle.device.cuda.synchronize()`等待该GPU设备上的所有计算完成。除非绝对必要，否则在实践中使用此运算符不是个好主意，因为它可能会导致较差的性能。
-* 如果只想等待一个特定的变量可用，在飞桨中一般不需要考虑这个问题，因为飞桨系统内部会自动保证数据的同步和可用，我们只需要调用该变量即可。在单机多卡和多机多卡并行处理的时候，等待和确认所有计算完成是非常重要的问题。
-
-让我们看看这在实践中是如何运作的。
-:end_tab:
-
 ```{.python .input}
 with d2l.Benchmark('waitall'):
     b = np.dot(a, a)
@@ -210,26 +201,10 @@ with d2l.Benchmark('wait_to_read'):
     b.wait_to_read()
 ```
 
-```{.python .input}
-#@tab paddle
-with d2l.Benchmark('Wait for the calculation to complete'):
-    b = paddle.dot(a, a)
-    paddle.device.cuda.synchronize()
-
-with d2l.Benchmark('Do not wait for calculation to complete'):
-    b = paddle.dot(a, a)
-```
-
 :begin_tab:`mxnet`
 两个操作的完成时间大致相同。除了显式地阻塞操作之外，建议注意*隐式*的阻塞器。打印变量就是一个阻塞器，因为其要求变量可用。最后，通过`z.asnumpy()`转换为NumPy类型的变量和通过`z.item()`转换为标量也是阻塞器。因为NumPy中没有异步的概念，因此它需要像`print`函数（等待变量可用）一样访问这些值。
 
 频繁地将少量数据从MXNet的作用域复制到NumPy，可能会破坏原本高效代码的性能，因为每一个这样的操作都需要使用计算图来求得所有的中间结果，从而获得相关项，然后才能做其他事情。
-:end_tab:
-
-:begin_tab:`paddle`
-两个操作的完成时间还是能看出明显差别的。除了显式地阻塞操作之外，我们还建议要注意*隐式*的阻塞器。打印变量就是一个阻塞器，因为其要求变量可用。最后，通过`z.numpy()`转换为NumPy类型的变量和通过`z.item()`转换为标量也是阻塞器。
-
-频繁地将少量数据从飞桨的作用域复制到NumPy，可能会破坏原本高效代码的性能，因为每一个这样的操作都需要使用计算图来求得所有的中间结果，从而获得相关项，然后才能做其它事情。
 :end_tab:
 
 ```{.python .input}
@@ -242,25 +217,10 @@ with d2l.Benchmark('scalar conversion'):
     b.sum().item()
 ```
 
-```{.python .input}
-#@tab paddle
-with d2l.Benchmark('numpy conversion'):
-    b = paddle.dot(a, a)
-    b.numpy()
-
-with d2l.Benchmark('scalar conversion'):
-    b = paddle.dot(a, a)
-    b.sum().item()
-```
-
 ## 改进计算
 
 :begin_tab:`mxnet`
 在重度多线程的系统中（即使普通笔记本电脑也有4个或更多线程，然而在多插槽服务器上这个数字可能超过256），调度操作的开销可能会变得非常大。这也是极度希望计算和调度是异步和并行的原因。为了说明这样做的好处，让我们看看按顺序（同步执行）或异步执行多次将变量递增$1$会发生什么情况。这里通过在每个加法之间插入`wait_to_read`障碍器来模拟同步执行。
-:end_tab:
-
-:begin_tab:`paddle`
-在重度多线程的系统中（即使普通笔记本电脑也有4个或更多线程，然而在多插槽服务器上这个数字可能超过256），调度操作的开销可能会变得非常大。这也是极度希望计算和调度是异步和并行的原因。为了说明这样做的好处，让我们看看按顺序（同步执行）或异步执行多次将变量递增$1$会发生什么情况。我们通过在每个加法之间插入`paddle.device.cuda.synchronize()`障碍器来同步执行。
 :end_tab:
 
 ```{.python .input}
@@ -273,19 +233,6 @@ with d2l.Benchmark('asynchronous'):
     for _ in range(10000):
         y = x + 1
     npx.waitall()
-```
-
-```{.python .input}
-#@tab paddle
-with d2l.Benchmark('synchronous'):
-    for _ in range(10000):
-        y = x + 1
-        paddle.device.cuda.synchronize()
-
-with d2l.Benchmark('asynchronous'):
-    for _ in range(10000):
-        y = x + 1
-    paddle.device.cuda.synchronize()
 ```
 
 Python前端线程和C++后端线程之间的简化交互可以概括如下：

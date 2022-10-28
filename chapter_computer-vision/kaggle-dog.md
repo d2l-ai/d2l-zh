@@ -33,13 +33,14 @@ import os
 
 ```{.python .input}
 #@tab paddle
-import warnings
+from d2l import paddle as d2l
 import paddle
 import paddle.vision as paddlevision
 from paddle import nn
 import os
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
+import warnings
+
+warnings.filterwarnings("ignore")
 ```
 
 ## 获取和整理数据集
@@ -143,13 +144,12 @@ transform_train = torchvision.transforms.Compose([
 transform_train = paddlevision.transforms.Compose([
     # 随机裁剪图像，所得图像为原始面积的0.08到1之间，高宽比在3/4和4/3之间。
     # 然后，缩放图像以创建224x224的新图像
-    paddlevision.transforms.RandomResizedCrop(224, scale=(0.08, 1.0),
-                                              ratio=(3.0/4.0, 4.0/3.0)),
+    paddlevision.transforms.RandomResizedCrop(
+        224, scale=(0.08, 1.0), ratio=(3.0/4.0, 4.0/3.0)),
     paddlevision.transforms.RandomHorizontalFlip(),
     # 随机更改亮度，对比度和饱和度
-    paddlevision.transforms.ColorJitter(brightness=0.4,
-                                       contrast=0.4,
-                                       saturation=0.4),
+    paddlevision.transforms.ColorJitter(
+        brightness=0.4, contrast=0.4, saturation=0.4),
     # 添加随机噪声
     paddlevision.transforms.ToTensor(),
     # 标准化图像的每个通道
@@ -470,10 +470,9 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
     # 只训练小型自定义输出网络
     net = paddle.DataParallel(net)
     scheduler = paddle.optimizer.lr.StepDecay(lr, lr_period, lr_decay)
-    trainer = paddle.optimizer.Momentum(
-        learning_rate=scheduler, parameters=(
-            param for param in net.parameters() 
-            if not param.stop_gradient), momentum=0.9, weight_decay=wd)
+    trainer = paddle.optimizer.Momentum(learning_rate=scheduler, 
+                                        parameters=(param for param in net.parameters() 
+                                                    if not param.stop_gradient), momentum=0.9, weight_decay=wd)
     num_batches, timer = len(train_iter), d2l.Timer()
     legend = ['train loss']
     if valid_iter is not None:

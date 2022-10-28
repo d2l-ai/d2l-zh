@@ -33,12 +33,13 @@ from torch.nn import functional as F
 
 ```{.python .input}
 #@tab paddle
-import warnings
+from d2l import paddle as d2l
 import paddle
 from paddle import nn
 from paddle.nn import functional as F
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
+import warnings
+
+warnings.filterwarnings("ignore")
 ```
 
 ### 注意（Attending）
@@ -373,9 +374,37 @@ class DecomposableAttention(nn.Layer):
 我们使用 :numref:`sec_natural-language-inference-and-dataset`中定义的函数下载并读取SNLI数据集。批量大小和序列长度分别设置为$256$和$50$。
 
 ```{.python .input}
-#@tab mxnet, pytorch, paddle
+#@tab mxnet, pytorch 
 batch_size, num_steps = 256, 50
 train_iter, test_iter, vocab = d2l.load_data_snli(batch_size, num_steps)
+```
+
+```{.python .input}
+#@tab paddle
+#待飞桨支持GPU tensor，将会直接调用d2l中的load_data_snli函数
+def load_data_snli(batch_size, num_steps=50):
+    """下载SNLI数据集并返回数据迭代器和词表
+
+    Defined in :numref:`sec_natural-language-inference-and-dataset`"""
+    num_workers = d2l.get_dataloader_workers()
+    data_dir = d2l.download_extract('SNLI')
+    train_data = read_snli(data_dir, True)
+    test_data = read_snli(data_dir, False)
+    train_set = SNLIDataset(train_data, num_steps)
+    test_set = SNLIDataset(test_data, num_steps, train_set.vocab)
+    train_iter = paddle.io.DataLoader(train_set,batch_size=batch_size,
+                                             shuffle=True,
+                                             num_workers=num_workers,
+                                             return_list=True)
+
+    test_iter = paddle.io.DataLoader(test_set, batch_size=batch_size,
+                                            shuffle=False,
+                                            num_workers=num_workers,
+                                            return_list=True)
+    return train_iter, test_iter, train_set.vocab
+
+batch_size, num_steps = 256, 50
+train_iter, test_iter, vocab = load_data_snli(batch_size, num_steps)
 ```
 
 ### 创建模型
