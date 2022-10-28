@@ -47,7 +47,7 @@ def load_data_wiki(batch_size, max_len):
     paragraphs = d2l._read_wiki(data_dir)
     train_set = d2l._WikiTextDataset(paragraphs, max_len)
     train_iter = paddle.io.DataLoader(dataset=train_set, batch_size=batch_size, return_list=True,
-                                        shuffle=True, num_workers=num_workers)
+                                        shuffle=True, num_workers=0)
     return train_iter, train_set.vocab
 
 batch_size, max_len = 512, 64
