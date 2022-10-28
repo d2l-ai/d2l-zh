@@ -300,7 +300,7 @@ net.transpose_conv.weight.set_value(W);
 指定随机裁剪的输出图像的形状为$320\times 480$：高和宽都可以被$32$整除。
 
 ```{.python .input}
-#@tab mxnet, pytorch 
+#@tab mxnet, pytorch
 batch_size, crop_size = 32, (320, 480)
 train_iter, test_iter = d2l.load_data_voc(batch_size, crop_size)
 ```
@@ -308,6 +308,7 @@ train_iter, test_iter = d2l.load_data_voc(batch_size, crop_size)
 ```{.python .input}
 #@tab paddle
 # 待飞桨支持GPU tensor后，将会直接调用d2l文件中的load_data_voc函数
+import os
 def load_data_voc(batch_size, crop_size):
     """加载VOC语义分割数据集
 
@@ -316,10 +317,10 @@ def load_data_voc(batch_size, crop_size):
         'VOCdevkit', 'VOC2012'))
     num_workers = d2l.get_dataloader_workers()
     train_iter = paddle.io.DataLoader(
-        VOCSegDataset(True, crop_size, voc_dir), batch_size=batch_size,
+        d2l.VOCSegDataset(True, crop_size, voc_dir), batch_size=batch_size,
         shuffle=True, return_list=True, drop_last=True, num_workers=num_workers)
     test_iter = paddle.io.DataLoader(
-        VOCSegDataset(False, crop_size, voc_dir), batch_size=batch_size,
+        d2l.VOCSegDataset(False, crop_size, voc_dir), batch_size=batch_size,
         drop_last=True, return_list=True, num_workers=num_workers)
     return train_iter, test_iter
 
