@@ -394,12 +394,12 @@ def load_data_snli(batch_size, num_steps=50):
     test_set = d2l.SNLIDataset(test_data, num_steps, train_set.vocab)
     train_iter = paddle.io.DataLoader(train_set,batch_size=batch_size,
                                              shuffle=True,
-                                             num_workers=num_workers,
+                                             num_workers=0,
                                              return_list=True)
 
     test_iter = paddle.io.DataLoader(test_set, batch_size=batch_size,
                                             shuffle=False,
-                                            num_workers=num_workers,
+                                            num_workers=0,
                                             return_list=True)
     return train_iter, test_iter, train_set.vocab
 
