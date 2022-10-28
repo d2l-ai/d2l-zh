@@ -318,10 +318,10 @@ def load_data_voc(batch_size, crop_size):
     num_workers = d2l.get_dataloader_workers()
     train_iter = paddle.io.DataLoader(
         d2l.VOCSegDataset(True, crop_size, voc_dir), batch_size=batch_size,
-        shuffle=True, return_list=True, drop_last=True, num_workers=num_workers)
+        shuffle=True, return_list=True, drop_last=True, num_workers=0)
     test_iter = paddle.io.DataLoader(
         d2l.VOCSegDataset(False, crop_size, voc_dir), batch_size=batch_size,
-        drop_last=True, return_list=True, num_workers=num_workers)
+        drop_last=True, return_list=True, num_workers=0)
     return train_iter, test_iter
 
 batch_size, crop_size = 32, (320, 480)
