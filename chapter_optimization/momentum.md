@@ -112,11 +112,11 @@ d2l.show_trace_2d(f_2d, d2l.train_2d(gd_2d))
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-import warnings
-warnings.filterwarnings("ignore")
-import paddle
-warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import paddle as d2l
+import paddle
+import warnings
+
+warnings.filterwarnings("ignore")
 
 eta = 0.4
 def f_2d(x1, x2):

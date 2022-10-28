@@ -1,0 +1,28 @@
+_BASE_: [
+  '../datasets/voc.yml',
+  '../runtime.yml',
+  '_base_/optimizer_270e.yml',
+  '_base_/yolov3_mobilenet_v3_large.yml',
+  '_base_/yolov3_reader.yml',
+]
+
+snapshot_epoch: 5
+weights: output/yolov3_mobilenet_v3_large_270e_voc/model_final
+
+# set collate_batch to false because ground-truth info is needed
+# on voc dataset and should not collate data in batch when batch size
+# is larger than 1.
+EvalReader:
+  collate_batch: false
+
+LearningRate:
+  base_lr: 0.001
+  schedulers:
+  - !PiecewiseDecay
+    gamma: 0.1
+    milestones:
+    - 216
+    - 243
+  - !LinearWarmup
+    start_factor: 0.
+    steps: 1000

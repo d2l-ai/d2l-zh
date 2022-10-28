@@ -36,13 +36,14 @@ import tensorflow as tf
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-import warnings
+from d2l import paddle as d2l
 import math
 import paddle
 from paddle import nn
 from paddle.nn import functional as F
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
+import warnings
+
+warnings.filterwarnings("ignore")
 ```
 
 ```{.python .input}

@@ -137,12 +137,12 @@ import tensorflow as tf
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-import warnings
-warnings.filterwarnings(action='ignore')
+from d2l import paddle as d2l
 import paddle
 from paddle import nn
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
+import warnings
+
+warnings.filterwarnings(action='ignore')
 ```
 
 首先，我们[**像以前一样生成一些数据**]，生成公式如下：

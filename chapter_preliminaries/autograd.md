@@ -42,9 +42,10 @@ x
 
 ```{.python .input}
 #@tab paddle
-import warnings
-warnings.filterwarnings(action='ignore')
 import paddle
+import warnings
+
+warnings.filterwarnings(action='ignore')
 
 x = paddle.arange(4, dtype='float32')
 x

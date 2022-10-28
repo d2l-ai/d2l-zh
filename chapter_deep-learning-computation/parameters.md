@@ -57,10 +57,11 @@ net(X)
 
 ```{.python .input}
 #@tab paddle
-import warnings
-warnings.filterwarnings(action='ignore')
 import paddle
 from paddle import nn
+import warnings
+
+warnings.filterwarnings(action='ignore')
 
 net = nn.Sequential(nn.Linear(4, 8), nn.ReLU(), nn.Linear(8, 1))
 X = paddle.rand([2, 4])

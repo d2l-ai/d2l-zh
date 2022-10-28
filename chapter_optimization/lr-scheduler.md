@@ -185,13 +185,14 @@ def train(net_fn, train_iter, test_iter, num_epochs, lr,
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-import warnings
+from d2l import paddle as d2l
 import math
 import paddle
 from paddle import nn
 from paddle.optimizer import lr as lr_scheduler
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
+import warnings
+
+warnings.filterwarnings("ignore")
 
 def net_fn():
     model = nn.Sequential(

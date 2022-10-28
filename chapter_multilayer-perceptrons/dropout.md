@@ -176,14 +176,13 @@ def dropout_layer(X, dropout):
 
 ```{.python .input}
 #@tab paddle
-import warnings
-warnings.filterwarnings(action='ignore')
+from d2l import paddle as d2l
 import paddle
 from paddle import nn
 import random
+import warnings
 
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
+warnings.filterwarnings(action='ignore')
 
 def dropout_layer(X, dropout):
     assert 0 <= dropout <= 1

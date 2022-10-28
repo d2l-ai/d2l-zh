@@ -96,11 +96,12 @@ net(X)
 
 ```{.python .input}
 #@tab paddle
-import warnings
-warnings.filterwarnings(action='ignore')
 import paddle
 from paddle import nn
 from paddle.nn import functional as F
+import warnings
+
+warnings.filterwarnings(action='ignore')
 
 net = nn.Sequential(nn.Linear(20, 256), nn.ReLU(), nn.Linear(256, 10))
 

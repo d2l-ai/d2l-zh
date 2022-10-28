@@ -5,27 +5,39 @@
 
 
 :begin_tab:`mxnet`
+
 ```eval_rst
 .. currentmodule:: d2l.mxnet
 ```
+
+
 :end_tab:
 
 :begin_tab:`pytorch`
+
 ```eval_rst
 .. currentmodule:: d2l.torch
 ```
+
+
 :end_tab:
 
 :begin_tab:`tensorflow`
+
 ```eval_rst
 .. currentmodule:: d2l.torch
 ```
+
+
 :end_tab:
 
 :begin_tab:`paddle`
+
 ```eval_rst
 .. currentmodule:: d2l.paddle
 ```
+
+
 :end_tab:
 
 ## 模型
@@ -44,6 +56,7 @@
    :members:
 ```
 
+
 ## 数据
 
 ```eval_rst
@@ -57,6 +70,7 @@
    :members:
 ```
 
+
 ## 训练
 
 ```eval_rst
@@ -66,6 +80,7 @@
 .. autoclass:: SGD
    :members:
 ```
+
 
 ## 公用
 
@@ -84,3 +99,4 @@
 .. autoclass:: HyperParameters
    :members:
 ```
+

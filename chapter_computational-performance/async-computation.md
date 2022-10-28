@@ -29,6 +29,7 @@ import paddle
 from paddle import nn
 import warnings
 
+d2l.try_gpu()
 warnings.filterwarnings("ignore")
 ```
 

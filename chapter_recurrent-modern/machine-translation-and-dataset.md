@@ -53,12 +53,12 @@ import os
 
 ```{.python .input}
 #@tab paddle
-import warnings
-warnings.filterwarnings("ignore")
+from d2l import paddle as d2l
 import paddle
 import os
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
+import warnings
+
+warnings.filterwarnings("ignore")
 ```
 
 ## [**下载和预处理数据集**]

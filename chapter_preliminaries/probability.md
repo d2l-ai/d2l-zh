@@ -85,13 +85,13 @@ import numpy as np
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-import warnings
-warnings.filterwarnings(action='ignore')
 from d2l import paddle as d2l
-warnings.filterwarnings(action='ignore')
 import paddle
 import random
 import numpy as np
+import warnings
+
+warnings.filterwarnings(action='ignore')
 ```
 
 在统计学中，我们把从概率分布中抽取样本的过程称为*抽样*（sampling）。

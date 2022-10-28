@@ -44,11 +44,12 @@ np.save('x-file.npy', x)
 
 ```{.python .input}
 #@tab paddle
-import warnings
-warnings.filterwarnings(action='ignore')
 import paddle
 from paddle import nn 
 from paddle.nn import functional as F
+import warnings
+
+warnings.filterwarnings(action='ignore')
 
 x = paddle.arange(4)  
 paddle.save(x, 'x-file')

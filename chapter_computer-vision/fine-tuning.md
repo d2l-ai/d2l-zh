@@ -63,13 +63,14 @@ import os
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-import warnings
+from d2l import paddle as d2l
 from paddle import nn
 import paddle
 import paddle.vision as paddlevision
 import os
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
+import warnings
+
+warnings.filterwarnings("ignore")
 ```
 
 ### 获取数据集
