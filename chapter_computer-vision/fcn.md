@@ -323,6 +323,7 @@ def load_data_voc(batch_size, crop_size):
         drop_last=True, return_list=True, num_workers=num_workers)
     return train_iter, test_iter
 
+batch_size, crop_size = 32, (320, 480)
 train_iter, test_iter = load_data_voc(batch_size, crop_size)
 ```
 
