@@ -137,12 +137,12 @@ import tensorflow as tf
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-import warnings
-warnings.filterwarnings(action='ignore')
+from d2l import paddle as d2l
 import paddle
 from paddle import nn
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
+import warnings
+
+warnings.filterwarnings(action='ignore')
 ```
 
 首先，我们[**像以前一样生成一些数据**]，生成公式如下：
@@ -317,7 +317,7 @@ def train(lambd):
     for epoch in range(num_epochs):
         for X, y in train_iter():
             # 增加了L2范数惩罚项,
-            #广播机制使l2_penalty(w)成为一个长度为`batch_size`的向量
+            # 广播机制使l2_penalty(w)成为一个长度为`batch_size`的向量
             l = loss(net(X), y) + lambd * l2_penalty(w)
             l.sum().backward()
             d2l.sgd([w, b], lr, batch_size)

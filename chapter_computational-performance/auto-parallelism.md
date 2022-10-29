@@ -21,11 +21,12 @@ import torch
 
 ```{.python .input}
 #@tab paddle
-import warnings
+from d2l import paddle as d2l
 import paddle
 import numpy as np
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
+import warnings
+
+warnings.filterwarnings("ignore")
 ```
 
 ## 基于GPU的并行计算

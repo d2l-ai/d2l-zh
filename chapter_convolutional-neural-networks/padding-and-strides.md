@@ -104,10 +104,11 @@ comp_conv2d(conv2d, X).shape
 
 ```{.python .input}
 #@tab paddle
-import warnings
-warnings.filterwarnings(action='ignore')
 import paddle
 from paddle import nn
+import warnings
+
+warnings.filterwarnings(action='ignore')
 
 # 为了方便起见，我们定义了一个计算卷积层的函数。
 # 此函数初始化卷积层权重，并对输入和输出提高和缩减相应的维数
@@ -220,6 +221,7 @@ comp_conv2d(conv2d, X).shape
 conv2d = nn.Conv2D(1, 1, kernel_size=(3, 5), padding=(0, 1), stride=(3, 4))
 comp_conv2d(conv2d, X).shape
 ```
+
 为了简洁起见，当输入高度和宽度两侧的填充数量分别为$p_h$和$p_w$时，我们称之为填充$(p_h, p_w)$。当$p_h = p_w = p$时，填充是$p$。同理，当高度和宽度上的步幅分别为$s_h$和$s_w$时，我们称之为步幅$(s_h, s_w)$。特别地，当$s_h = s_w = s$时，我们称步幅为$s$。默认情况下，填充为0，步幅为1。在实践中，我们很少使用不一致的步幅或填充，也就是说，我们通常有$p_h = p_w$和$s_h = s_w$。
 
 ## 小结

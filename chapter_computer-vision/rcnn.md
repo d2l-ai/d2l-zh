@@ -78,10 +78,11 @@ X
 
 ```{.python .input}
 #@tab paddle
-import warnings
-warnings.filterwarnings("ignore")
 import paddle
 import paddle.vision as paddlevision
+import warnings
+
+warnings.filterwarnings("ignore")
 
 X = paddle.reshape(paddle.arange(16, dtype='float32'), (1,1,4,4))
 X

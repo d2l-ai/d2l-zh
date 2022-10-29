@@ -45,11 +45,12 @@ from torch import nn
 
 ```{.python .input}
 #@tab paddle
-import warnings
+from d2l import paddle as d2l
 import paddle
 from paddle import nn
+import warnings
+
 warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 ```
 
 ## 输入表示
@@ -158,8 +159,9 @@ class BERTEncoder(nn.Layer):
                 ffn_num_input, ffn_num_hiddens, num_heads, dropout, True))
         # 在BERT中，位置嵌入是可学习的，因此我们创建一个足够长的位置嵌入参数
         x = paddle.randn([1, max_len, num_hiddens])    
-        self.pos_embedding = paddle.create_parameter(shape=x.shape, dtype=str(x.numpy().dtype),
-                                                   default_initializer=paddle.nn.initializer.Assign(x))
+        self.pos_embedding = paddle.create_parameter(shape=x.shape, 
+                                                     dtype=str(x.numpy().dtype), 
+                                                     default_initializer=paddle.nn.initializer.Assign(x))
 
     def forward(self, tokens, segments, valid_lens):
         # 在以下代码段中，X的形状保持不变：（批量大小，最大序列长度，num_hiddens）

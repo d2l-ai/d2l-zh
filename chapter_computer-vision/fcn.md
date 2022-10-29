@@ -28,14 +28,14 @@ from torch.nn import functional as F
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-import warnings
-warnings.filterwarnings("ignore")
+from d2l import paddle as d2l
 import paddle
+import paddle.vision as paddlevision
 from paddle import nn
 from paddle.nn import functional as F
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-import paddle.vision as paddlevision
-from d2l import paddle as d2l
+import warnings
+
+warnings.filterwarnings("ignore")
 ```
 
 ## 构造模型
@@ -307,12 +307,15 @@ train_iter, test_iter = d2l.load_data_voc(batch_size, crop_size)
 
 ```{.python .input}
 #@tab paddle
-import os    
+# 待飞桨支持GPU tensor后，将会直接调用d2l文件中的load_data_voc函数
+import os
 def load_data_voc(batch_size, crop_size):
     """加载VOC语义分割数据集
+
     Defined in :numref:`sec_semantic_segmentation`"""
     voc_dir = d2l.download_extract('voc2012', os.path.join(
         'VOCdevkit', 'VOC2012'))
+    num_workers = d2l.get_dataloader_workers()
     train_iter = paddle.io.DataLoader(
         d2l.VOCSegDataset(True, crop_size, voc_dir), batch_size=batch_size,
         shuffle=True, return_list=True, drop_last=True, num_workers=0)

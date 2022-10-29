@@ -55,9 +55,10 @@ import tensorflow as tf
 
 ```{.python .input}
 #@tab paddle
-import warnings
-warnings.filterwarnings(action='ignore')
 import paddle
+import warnings
+
+warnings.filterwarnings(action='ignore')
 ```
 
 [**张量表示由一个数值组成的数组，这个数组可能有多个维度**]。
@@ -76,7 +77,6 @@ import paddle
 :begin_tab:`tensorflow`
 首先，我们可以使用 `range` 创建一个行向量 `x`。这个行向量包含以0开始的前12个整数，它们默认创建为整数。也可指定创建类型为浮点数。张量中的每个值都称为张量的 *元素*（element）。例如，张量 `x` 中有 12 个元素。除非额外指定，新的张量将存储在内存中，并采用基于CPU的计算。
 :end_tab:
-
 
 ```{.python .input}
 x = np.arange(12)

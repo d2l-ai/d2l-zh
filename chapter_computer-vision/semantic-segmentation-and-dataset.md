@@ -44,13 +44,13 @@ import os
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-import warnings
-warnings.filterwarnings("ignore")
+from d2l import paddle as d2l
 import paddle
 import paddle.vision as paddlevision
 import os
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
+import warnings
+
+warnings.filterwarnings("ignore")
 ```
 
 数据集的tar文件大约为2GB，所以下载可能需要一段时间。
@@ -470,10 +470,8 @@ for X, Y in train_iter:
 ```{.python .input}
 #@tab paddle
 batch_size = 64
-train_iter = paddle.io.DataLoader(voc_train, batch_size=batch_size, shuffle=True,
-                                    drop_last=True,
-                                    return_list=True,
-                                    num_workers=d2l.get_dataloader_workers())
+train_iter = paddle.io.DataLoader(voc_train, batch_size=batch_size, shuffle=True, 
+                                  drop_last=True, return_list=True, num_workers=d2l.get_dataloader_workers())
 for X, Y in train_iter:
     print(X.shape)
     print(Y.shape)

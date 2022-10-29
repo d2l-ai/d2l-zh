@@ -72,14 +72,14 @@ def cls_predictor(num_inputs, num_anchors, num_classes):
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-import warnings
-warnings.filterwarnings("ignore")
+from d2l import paddle as d2l
 import paddle
+import paddle.vision as paddlevision
 from paddle import nn
 from paddle.nn import functional as F
-import paddle.vision as paddlevision
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
+import warnings
+
+warnings.filterwarnings("ignore")
 
 def cls_predictor(num_inputs, num_anchors, num_classes):
     return nn.Conv2D(num_inputs, num_anchors * (num_classes + 1),
@@ -750,11 +750,9 @@ img = X.squeeze(0).permute(1, 2, 0).long()
 
 ```{.python .input}
 #@tab paddle
-X = paddle.to_tensor(
-            paddlevision.image.image_load(
-                '../img/banana.jpg', backend="cv2"
-                )[..., ::-1].transpose([2,0,1])
-                ).unsqueeze(0).astype(paddle.float32)
+X = paddle.to_tensor(paddlevision.image.image_load(
+    '../img/banana.jpg', backend="cv2")
+                     [..., ::-1].transpose([2,0,1])).unsqueeze(0).astype(paddle.float32)
 img = X.squeeze(0).transpose([1, 2, 0]).astype(paddle.int64)
 ```
 

@@ -34,14 +34,14 @@ import pandas as pd
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-import warnings
+from d2l import paddle as d2l
+import paddle
+import paddle.vision as paddlevision
 import os
 import pandas as pd
+import warnings
+
 warnings.filterwarnings("ignore")
-import paddle
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-import paddle.vision as paddlevision
-from d2l import paddle as d2l
 ```
 
 ```{.python .input}
@@ -202,10 +202,10 @@ def load_data_bananas(batch_size):
 #@save
 def load_data_bananas(batch_size):
     """加载香蕉检测数据集"""
-    train_iter = paddle.io.DataLoader(BananasDataset(is_train=True),
-                                             batch_size=batch_size, return_list=True, shuffle=True)
-    val_iter = paddle.io.DataLoader(BananasDataset(is_train=False),
-                                           batch_size=batch_size, return_list=True)
+    train_iter = paddle.io.DataLoader(BananasDataset(is_train=True), 
+                                      batch_size=batch_size, return_list=True, shuffle=True)
+    val_iter = paddle.io.DataLoader(BananasDataset(is_train=False), 
+                                    batch_size=batch_size, return_list=True)
     return train_iter, val_iter
 ```
 

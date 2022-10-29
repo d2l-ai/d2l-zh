@@ -95,13 +95,13 @@ C = tf.Variable(d2l.normal([256, 256], 0, 1))
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-import warnings
-warnings.filterwarnings("ignore")
+from d2l import paddle as d2l
 import paddle
 from paddle import nn
 import numpy as np
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
+import warnings
+
+warnings.filterwarnings("ignore")
 
 timer = d2l.Timer()
 A = d2l.zeros((256, 256))

@@ -74,9 +74,10 @@ class Encoder(tf.keras.layers.Layer):
 
 ```{.python .input}
 #@tab paddle
-import warnings
-warnings.filterwarnings("ignore")
 from paddle import nn
+import warnings
+
+warnings.filterwarnings("ignore")
 
 #@save
 class Encoder(nn.Layer):

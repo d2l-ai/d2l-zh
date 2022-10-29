@@ -96,11 +96,12 @@ net(X)
 
 ```{.python .input}
 #@tab paddle
-import warnings
-warnings.filterwarnings(action='ignore')
 import paddle
 from paddle import nn
 from paddle.nn import functional as F
+import warnings
+
+warnings.filterwarnings(action='ignore')
 
 net = nn.Sequential(nn.Linear(20, 256), nn.ReLU(), nn.Linear(256, 10))
 
@@ -181,22 +182,13 @@ net(X)
 1. 根据需要初始化模型参数。
 :end_tab:
 
-:begin_tab:`pytorch`
+:begin_tab:`pytorch, paddle`
 1. 将输入数据作为其前向传播函数的参数。
 1. 通过前向传播函数来生成输出。请注意，输出的形状可能与输入的形状不同。例如，我们上面模型中的第一个全连接的层接收一个20维的输入，但是返回一个维度为256的输出。
 1. 计算其输出关于输入的梯度，可通过其反向传播函数进行访问。通常这是自动发生的。
 1. 存储和访问前向传播计算所需的参数。
 1. 根据需要初始化模型参数。
 :end_tab:
-
-:begin_tab:`paddle`
-1. 将输入数据作为其前向传播函数的参数。
-1. 通过前向传播函数来生成输出。请注意，输出的形状可能与输入的形状不同。例如，我们上面模型中的第一个全连接的层接收一个20维的输入，但是返回一个维度为256的输出。
-1. 计算其输出关于输入的梯度，可通过其反向传播函数进行访问。通常这是自动发生的。
-1. 存储和访问前向传播计算所需的参数。
-1. 根据需要初始化模型参数。
-:end_tab:
-
 
 在下面的代码片段中，我们从零开始编写一个块。
 它包含一个多层感知机，其具有256个隐藏单元的隐藏层和一个10维输出层。

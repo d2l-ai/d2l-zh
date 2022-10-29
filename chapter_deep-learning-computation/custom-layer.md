@@ -55,11 +55,12 @@ class CenteredLayer(tf.keras.Model):
 
 ```{.python .input}
 #@tab paddle
-import warnings
-warnings.filterwarnings(action='ignore')
 import paddle
 from paddle import nn
 import paddle.nn.functional as F
+import warnings
+
+warnings.filterwarnings(action='ignore')
 
 class CenteredLayer(nn.Layer):
     def __init__(self):

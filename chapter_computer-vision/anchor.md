@@ -29,13 +29,12 @@ torch.set_printoptions(2)  # 精简输出精度
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-import warnings
-warnings.filterwarnings("ignore")
+from d2l import paddle as d2l
 import paddle
 import numpy as np
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
+import warnings
 
+warnings.filterwarnings("ignore")
 paddle.set_printoptions(2)  # 精简输出精度
 ```
 
@@ -170,18 +169,19 @@ def multibox_prior(data, sizes, ratios):
     # 生成“boxes_per_pixel”个高和宽，
     # 之后用于创建锚框的四角坐标(xmin,xmax,ymin,ymax)
     w = paddle.concat((size_tensor * paddle.sqrt(ratio_tensor[0]),
-                   sizes[0] * paddle.sqrt(ratio_tensor[1:])))\
-                   * in_height / in_width  # 处理矩形输入
+        sizes[0] * paddle.sqrt(ratio_tensor[1:])))\
+        * in_height / in_width  # 处理矩形输入
     h = paddle.concat((size_tensor / paddle.sqrt(ratio_tensor[0]),
-                   sizes[0] / paddle.sqrt(ratio_tensor[1:])))
+        sizes[0] / paddle.sqrt(ratio_tensor[1:])))
     # 除以2来获得半高和半宽
     anchor_manipulations = paddle.tile(paddle.stack((-w, -h, w, h)).T,
-                                        (in_height * in_width, 1)) / 2
+        (in_height * in_width, 1)) / 2
 
     # 每个中心点都将有“boxes_per_pixel”个锚框，
     # 所以生成含所有锚框中心的网格，重复了“boxes_per_pixel”次
     out_grid = paddle.stack([shift_x, shift_y, shift_x, shift_y], axis=1)
-    out_grid = paddle.tile(out_grid, repeat_times=[boxes_per_pixel]).reshape((-1, out_grid.shape[1]))
+    out_grid = paddle.tile(out_grid, 
+        repeat_times=[boxes_per_pixel]).reshape((-1, out_grid.shape[1]))
     output = out_grid + anchor_manipulations
     return output.unsqueeze(0)
 ```

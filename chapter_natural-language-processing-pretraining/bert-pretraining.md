@@ -19,11 +19,12 @@ from torch import nn
 
 ```{.python .input}
 #@tab paddle
-import warnings
+from d2l import paddle as d2l
 import paddle
 from paddle import nn
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
+import warnings
+
+warnings.filterwarnings("ignore")
 ```
 
 首先，我们加载WikiText-2数据集作为小批量的预训练样本，用于遮蔽语言模型和下一句预测。批量大小是512，BERT输入序列的最大长度是64。注意，在原始BERT模型中，最大长度是512。
@@ -36,10 +37,12 @@ train_iter, vocab = d2l.load_data_wiki(batch_size, max_len)
 
 ```{.python .input}
 #@tab paddle
+#待飞桨支持GPU tensor，将直接调用d2l中的load_data_wiki函数
 def load_data_wiki(batch_size, max_len):
     """加载WikiText-2数据集
 
     Defined in :numref:`subsec_prepare_mlm_data`"""
+    num_workers = d2l.get_dataloader_workers()
     data_dir = d2l.download_extract('wikitext-2', 'wikitext-2')
     paragraphs = d2l._read_wiki(data_dir)
     train_set = d2l._WikiTextDataset(paragraphs, max_len)

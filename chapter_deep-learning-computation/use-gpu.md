@@ -52,7 +52,7 @@
 :end_tab:
 
 :begin_tab:`paddle`
-在PaddlePaddle中，每个张量都有一个设备（device），
+在飞桨中，每个张量都有一个设备（device），
 我们通常将其称为上下文（context）。
 默认情况下，所有变量和相关的计算都分配给CPU。
 有时上下文可能是GPU。
@@ -62,10 +62,10 @@
 例如，当在带有GPU的服务器上训练神经网络时，
 我们通常希望模型的参数在GPU上。
 
-接下来，我们需要确认安装了PaddlePaddle的GPU版本。
-如果已经安装了PaddlePaddle的CPU版本，我们需要先卸载它。
-然后根据你的CUDA版本安装相应的PaddlePaddle的GPU版本。
-例如，假设你安装了CUDA10.1，你可以通过`conda install paddlepaddle-gpu==2.2.2 cudatoolkit=10.1 --channel https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/Paddle/`安装支持CUDA10.1的PaddlePaddle版本。
+接下来，我们需要确认安装了飞桨的GPU版本。
+如果已经安装了飞桨的CPU版本，我们需要先卸载它。
+然后根据你的CUDA版本安装相应的飞桨的GPU版本。
+例如，假设你安装了CUDA10.1，你可以通过`conda install paddlepaddle-gpu==2.2.2 cudatoolkit=10.1 --channel https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/Paddle/`安装支持CUDA10.1的飞桨版本。
 :end_tab:
 
 要运行此部分中的程序，至少需要两个GPU。
@@ -100,14 +100,14 @@
 :end_tab:
 
 :begin_tab:`paddle`
-在PaddlePaddle中，CPU和GPU可以用`paddle.device.set_device('cpu')`
-和`paddle.device.set_device('gpu')`表示。
+在飞桨中，CPU和GPU可以用`paddle.device.set_device('cpu')`
+和`paddle.CUDAPlace()`表示。
 应该注意的是，`cpu`设备意味着所有物理CPU和内存,
-这意味着PaddlePaddle的计算将尝试使用所有CPU核心。
+这意味着飞桨的计算将尝试使用所有CPU核心。
 然而，`gpu`设备只代表一个卡和相应的显存。
-如果有多个GPU，我们使用`paddle.device.get_device()`
-来表示第i块GPU($i$从0开始)。
-另外，`cuda:0`和`cuda`是等价的。
+如果有多个GPU，我们使用`paddle.CUDAPlace(i)`
+来表示第$i$块GPU（$i$从0开始）。
+另外，`gpu:0`和`gpu`是等价的。
 :end_tab:
 
 ```{.python .input}
