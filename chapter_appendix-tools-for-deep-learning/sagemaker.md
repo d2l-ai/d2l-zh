@@ -79,47 +79,27 @@ SageMaker提供多个具有不同计算能力和价格的[实例类型](https://
 你可能希望在从远程存储库提取更新之前提交本地更改。否则，只需在终端中使用以下命令放弃所有本地更改：
 
 :begin_tab:`mxnet`
-
 ```bash
 cd SageMaker/d2l-en-sagemaker/
 git reset --hard
 git pull
 ```
-
-
 :end_tab:
 
 :begin_tab:`pytorch`
-
 ```bash
 cd SageMaker/d2l-pytorch-sagemaker/
 git reset --hard
 git pull
 ```
-
-
 :end_tab:
 
 :begin_tab:`tensorflow`
-
 ```bash
 cd SageMaker/d2l-tensorflow-sagemaker/
 git reset --hard
 git pull
 ```
-
-
-:end_tab:
-
-:begin_tab:`paddle`
-
-```bash
-cd SageMaker/d2l-paddle-sagemaker/
-git reset --hard
-git pull
-```
-
-
 :end_tab:
 
 ## 小结
