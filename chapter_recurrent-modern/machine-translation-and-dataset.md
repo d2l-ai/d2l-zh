@@ -51,6 +51,16 @@ import tensorflow as tf
 import os
 ```
 
+```{.python .input}
+#@tab paddle
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+import os
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
+```
+
 ## [**下载和预处理数据集**]
 
 首先，下载一个由[Tatoeba项目的双语句子对](http://www.manythings.org/anki/)
@@ -139,6 +149,7 @@ source[:6], target[:6]
 
 ```{.python .input}
 #@tab all
+#@save
 def show_list_len_pair_hist(legend, xlabel, ylabel, xlist, ylist):
     """绘制列表长度对的直方图"""
     d2l.set_figsize()

@@ -173,6 +173,40 @@ def batch_norm(X, gamma, beta, moving_mean, moving_var, eps):
     return Y
 ```
 
+```{.python .input}
+#@tab paddle
+import warnings
+import paddle
+import paddle.nn as nn
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
+
+
+def batch_norm(X, gamma, beta, moving_mean, moving_var, eps, momentum, is_training=True):
+    # 训练模式还与预测模式的BN处理不同
+    if not is_training:
+        # 如果是在预测模式下，直接使用传入的移动平均所得的均值和方差
+        X_hat = (X - moving_mean) / (moving_var + eps) ** 0.5
+    else:
+        assert len(X.shape) in (2, 4)
+        if len(X.shape) == 2:
+            # 使用全连接层的情况，计算特征维上的均值和方差
+            mean = paddle.mean(X)
+            var = paddle.mean(((X - mean) ** 2))
+        else:
+            # 使用二维卷积层的情况，计算通道维上（axis=1）的均值和方差。这里我们需要保持
+            # X的形状以便后面可以做广播运算
+            mean = paddle.mean(X, axis=(0, 2, 3), keepdim=True)
+            var = paddle.mean(((X - mean) ** 2), axis=(0, 2, 3), keepdim=True)
+        # 训练模式下用当前的均值和方差做标准化
+        X_hat = (X - mean) / (var + eps) ** 0.5
+        # 更新移动平均的均值和方差
+        moving_mean = momentum * moving_mean + (1.0 - momentum) * mean
+        moving_var = momentum * moving_var + (1.0 - momentum) * var
+    Y = gamma * X_hat + beta  # 缩放和移位
+    return Y, moving_mean, moving_var
+```
+
 我们现在可以[**创建一个正确的`BatchNorm`层**]。
 这个层将保持适当的参数：拉伸`gamma`和偏移`beta`,这两个参数将在训练过程中更新。
 此外，我们的层将保存均值和方差的移动平均值，以便在模型预测期间随后使用。
@@ -294,6 +328,39 @@ class BatchNorm(tf.keras.layers.Layer):
         return output
 ```
 
+```{.python .input}
+#@tab paddle
+class BatchNorm(nn.Layer):
+    def __init__(self, num_features, num_dims=4):
+        super(BatchNorm, self).__init__()
+        if num_dims == 2:
+            shape = (1, num_features)
+        else:
+            shape = (1, num_features, 1, 1)
+        # 参与求梯度和迭代的拉伸和偏移参数，分别初始化成1和0
+        self.gamma = self.create_parameter(
+            attr=None,
+            shape=shape,
+            dtype='float32',
+            is_bias=False,
+            default_initializer=nn.initializer.Assign(paddle.ones(shape=shape, dtype='float32')))
+        self.beta = self.create_parameter(
+            attr=None,
+            shape=shape,
+            dtype='float32',
+            is_bias=False,
+            default_initializer=nn.initializer.Assign(paddle.zeros(shape=shape, dtype='float32')))
+        self.moving_mean = paddle.zeros(shape=shape, dtype='float32')
+        self.moving_var = paddle.zeros(shape=shape, dtype='float32')
+
+    def forward(self, X):
+        # 保存更新过的moving_mean和moving_var
+        Y, self.moving_mean, self.moving_var = batch_norm(
+            X, self.gamma, self.beta, self.moving_mean,
+            self.moving_var, eps=1e-5, momentum=0.9, is_training=self.training)
+        return Y
+```
+
 ##  使用批量规范化层的 LeNet
 
 为了更好理解如何[**应用`BatchNorm`**]，下面我们将其应用(**于LeNet模型**)（ :numref:`sec_lenet`）。
@@ -356,11 +423,23 @@ def net():
     )
 ```
 
+```{.python .input}
+#@tab paddle
+net = nn.Sequential(
+    nn.Conv2D(1, 6, kernel_size=5), BatchNorm(6, num_dims=4), nn.Sigmoid(), 
+    nn.MaxPool2D(kernel_size=2, stride=2),
+    nn.Conv2D(6, 16, kernel_size=5), BatchNorm(16, num_dims=4), nn.Sigmoid(), 
+    nn.MaxPool2D(kernel_size=2, stride=2),
+    nn.Flatten(), nn.Linear(16 * 4 * 4, 120), BatchNorm(120, num_dims=2), nn.Sigmoid(),
+    nn.Linear(120, 84), BatchNorm(84, num_dims=2), nn.Sigmoid(), 
+    nn.Linear(84, 10))
+```
+
 和以前一样，我们将[**在Fashion-MNIST数据集上训练网络**]。
 这个代码与我们第一次训练LeNet（ :numref:`sec_lenet`）时几乎完全相同，主要区别在于学习率大得多。
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, paddle
 lr, num_epochs, batch_size = 1.0, 10, 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
 d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
@@ -387,6 +466,13 @@ net[1].gamma.reshape((-1,)), net[1].beta.reshape((-1,))
 ```{.python .input}
 #@tab tensorflow
 tf.reshape(net.layers[1].gamma, (-1,)), tf.reshape(net.layers[1].beta, (-1,))
+```
+
+```{.python .input}
+#@tab paddle
+param = net.parameters()
+print('gamma:', param[2].numpy().reshape(-1))
+print('beta:', param[3].numpy().reshape(-1))
 ```
 
 ## [**简明实现**]
@@ -447,6 +533,19 @@ def net():
         tf.keras.layers.Activation('sigmoid'),
         tf.keras.layers.Dense(10),
     ])
+```
+
+```{.python .input}
+#@tab paddle
+net = nn.Sequential(
+    nn.Conv2D(1, 6, kernel_size=5), nn.BatchNorm2D(6, momentum=0.1), nn.Sigmoid(), 
+    nn.MaxPool2D(kernel_size=2, stride=2),
+    nn.Conv2D(6, 16, kernel_size=5), nn.BatchNorm2D(16, momentum=0.1), nn.Sigmoid(), 
+    nn.MaxPool2D(kernel_size=2, stride=2),
+    nn.Flatten(), 
+    nn.Linear(256, 120), nn.BatchNorm1D(120, momentum=0.1), nn.Sigmoid(), 
+    nn.Linear(120, 84), nn.BatchNorm1D(84, momentum=0.1), nn.Sigmoid(), 
+    nn.Linear(84, 10))
 ```
 
 下面，我们[**使用相同超参数来训练模型**]。

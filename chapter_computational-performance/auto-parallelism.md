@@ -1,7 +1,7 @@
 # 自动并行
 :label:`sec_auto_para`
 
-深度学习框架（例如，MxNet和PyTorch）会在后端自动构建计算图。利用计算图，系统可以了解所有依赖关系，并且可以选择性地并行执行多个不相互依赖的任务以提高速度。例如， :numref:`sec_async`中的 :numref:`fig_asyncgraph`独立初始化两个变量。因此，系统可以选择并行执行它们。
+深度学习框架（例如，MxNet、飞桨和PyTorch）会在后端自动构建计算图。利用计算图，系统可以了解所有依赖关系，并且可以选择性地并行执行多个不相互依赖的任务以提高速度。例如， :numref:`sec_async`中的 :numref:`fig_asyncgraph`独立初始化两个变量。因此，系统可以选择并行执行它们。
 
 通常情况下单个操作符将使用所有CPU或单个GPU上的所有计算资源。例如，即使在一台机器上有多个CPU处理器，`dot`操作符也将使用所有CPU上的所有核心（和线程）。这样的行为同样适用于单个GPU。因此，并行化对单设备计算机来说并不是很有用，而并行化对于多个设备就很重要了。虽然并行化通常应用在多个GPU之间，但增加本地CPU以后还将提高少许性能。例如， :cite:`Hadjis.Zhang.Mitliagkas.ea.2016`则把结合GPU和CPU的训练应用到计算机视觉模型中。借助自动并行化框架的便利性，我们可以依靠几行Python代码实现相同的目标。对自动并行计算的讨论主要集中在使用CPU和GPU的并行计算上，以及计算和通信的并行化内容。
 
@@ -17,6 +17,15 @@ npx.set_np()
 #@tab pytorch
 from d2l import torch as d2l
 import torch
+```
+
+```{.python .input}
+#@tab paddle
+import warnings
+import paddle
+import numpy as np
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
 ```
 
 ## 基于GPU的并行计算
@@ -42,12 +51,28 @@ x_gpu1 = torch.rand(size=(4000, 4000), device=devices[0])
 x_gpu2 = torch.rand(size=(4000, 4000), device=devices[1])
 ```
 
+```{.python .input}
+#@tab paddle
+devices = d2l.try_all_gpus()
+def run(x, index=0):
+    paddle.set_device(f"gpu:{index}")
+    return [x.matmul(x) for _ in range(50)]
+    
+data = np.random.rand(4000, 4000)
+x_gpu1 = paddle.to_tensor(data, place=devices[0])
+x_gpu2 = paddle.to_tensor(data, place=devices[1])
+```
+
 :begin_tab:`mxnet`
 现在使用函数来处理数据。通过在测量之前需要预热设备（对设备执行一次传递）来确保缓存的作用不影响最终的结果。
 :end_tab:
 
 :begin_tab:`pytorch`
 现在使用函数来处理数据。通过在测量之前需要预热设备（对设备执行一次传递）来确保缓存的作用不影响最终的结果。`torch.cuda.synchronize()`函数将会等待一个CUDA设备上的所有流中的所有核心的计算完成。函数接受一个`device`参数，代表是哪个设备需要同步。如果device参数是`None`（默认值），它将使用`current_device()`找出的当前设备。
+:end_tab:
+
+:begin_tab:`paddle`
+现在我们使用函数来数据。我们通过在测量之前预热设备（对设备执行一次传递）来确保缓存的作用不影响最终的结果。`paddle.device.cuda.synchronize()`函数将会等待一个CUDA设备上的所有流中的所有核心的计算完成。函数接受一个`device`参数，代表是哪个设备需要同步。如果device参数是`None`（默认值），它将使用`current_device()`找出的当前设备。
 :end_tab:
 
 ```{.python .input}
@@ -80,12 +105,32 @@ with d2l.Benchmark('GPU2 time'):
     torch.cuda.synchronize(devices[1])
 ```
 
+```{.python .input}
+#@tab paddle
+run(x_gpu1, 0)
+run(x_gpu2, 1)  # 预热设备
+paddle.device.cuda.synchronize(devices[0])
+paddle.device.cuda.synchronize(devices[1])
+
+with d2l.Benchmark('GPU1 time'):
+    run(x_gpu1, 0)
+    paddle.device.cuda.synchronize(devices[0])
+
+with d2l.Benchmark('GPU2 time'):
+    run(x_gpu2, 1)
+    paddle.device.cuda.synchronize(devices[1])
+```
+
 :begin_tab:`mxnet`
 如果删除两个任务之间的`waitall`语句，系统就可以在两个设备上自动实现并行计算。
 :end_tab:
 
 :begin_tab:`pytorch`
 如果删除两个任务之间的`synchronize`语句，系统就可以在两个设备上自动实现并行计算。
+:end_tab:
+
+:begin_tab:`paddle`
+如果我们删除两个任务之间的`synchronize`语句，系统就可以在两个设备上自动实现并行计算。
 :end_tab:
 
 ```{.python .input}
@@ -101,6 +146,14 @@ with d2l.Benchmark('GPU1 & GPU2'):
     run(x_gpu1)
     run(x_gpu2)
     torch.cuda.synchronize()
+```
+
+```{.python .input}
+#@tab paddle
+with d2l.Benchmark('GPU1 & GPU2'):
+    run(x_gpu1, 0)
+    run(x_gpu2, 1)
+    paddle.device.cuda.synchronize()
 ```
 
 在上述情况下，总执行时间小于两个部分执行时间的总和，因为深度学习框架自动调度两个GPU设备上的计算，而不需要用户编写复杂的代码。
@@ -136,12 +189,30 @@ with d2l.Benchmark('复制到CPU'):
     torch.cuda.synchronize()
 ```
 
+```{.python .input}
+#@tab paddle
+def copy_to_cpu(x):
+    return [paddle.to_tensor(y, place=paddle.CPUPlace()) for y in x]
+
+with d2l.Benchmark('在GPU1上运行'):
+    y = run(x_gpu1, 0)
+    paddle.device.cuda.synchronize()
+    
+with d2l.Benchmark('复制到CPU'):
+    y_cpu = copy_to_cpu(y)
+    paddle.device.cuda.synchronize()
+```
+
 :begin_tab:`mxnet`
 这种方式效率不高。注意到当列表中的其余部分还在计算时，我们可能就已经开始将`y`的部分复制到CPU了。例如，当计算一个小批量的梯度时，某些参数的梯度将比其他参数的梯度更早可用。因此，在GPU仍在运行时就开始使用PCI-Express总线带宽来移动数据是有利的。删除这两个部分之间的`waitall`以模拟这个场景。
 :end_tab:
 
 :begin_tab:`pytorch`
 这种方式效率不高。注意到当列表中的其余部分还在计算时，我们可能就已经开始将`y`的部分复制到CPU了。例如，当计算一个小批量的（反传）梯度时。某些参数的梯度将比其他参数的梯度更早可用。因此，在GPU仍在运行时就开始使用PCI-Express总线带宽来移动数据是有利的。在PyTorch中，`to()`和`copy_()`等函数都允许显式的`non_blocking`参数，这允许在不需要同步时调用方可以绕过同步。设置`non_blocking=True`以模拟这个场景。
+:end_tab:
+
+:begin_tab:`paddle`
+这种方式效率不高。注意到当列表中的其余部分还在计算时，我们可能就已经开始将`y`的部分复制到CPU了。例如，当我们计算一个小批量的（反传）梯度时。某些参数的梯度将比其他参数的梯度更早可用。因此，在GPU仍在运行时就开始使用PCI-Express总线带宽来移动数据对我们是有利的。
 :end_tab:
 
 ```{.python .input}
@@ -157,6 +228,14 @@ with d2l.Benchmark('在GPU1上运行并复制到CPU'):
     y = run(x_gpu1)
     y_cpu = copy_to_cpu(y, True)
     torch.cuda.synchronize()
+```
+
+```{.python .input}
+#@tab paddle
+with d2l.Benchmark('在GPU1上运行并复制到CPU'):
+    y = run(x_gpu1)
+    y_cpu = copy_to_cpu(y)
+    paddle.device.cuda.synchronize()
 ```
 
 两个操作所需的总时间少于它们各部分操作所需时间的总和。请注意，与并行计算的区别是通信操作使用的资源：CPU和GPU之间的总线。事实上，我们可以在两个设备上同时进行计算和通信。如上所述，计算和通信之间存在的依赖关系是必须先计算`y[i]`，然后才能将其复制到CPU。幸运的是，系统可以在计算`y[i]`的同时复制`y[i-1]`，以减少总的运行时间。

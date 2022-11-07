@@ -39,6 +39,16 @@ import tensorflow as tf
 ```
 
 ```{.python .input}
+#@tab paddle
+import warnings
+import numpy as np
+warnings.filterwarnings(action='ignore')
+import paddle
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
+```
+
+```{.python .input}
 #@tab all
 true_w = d2l.tensor([2, -3.4])
 true_b = 4.2
@@ -75,6 +85,17 @@ def load_array(data_arrays, batch_size, is_train=True):  #@save
         dataset = dataset.shuffle(buffer_size=1000)
     dataset = dataset.batch(batch_size)
     return dataset
+```
+
+```{.python .input}
+#@tab paddle
+#@save
+def load_array(data_arrays, batch_size, is_train=True):
+    """构造一个Paddle数据迭代器"""
+    dataset = paddle.io.TensorDataset(data_arrays)
+    return paddle.io.DataLoader(dataset, batch_size=batch_size,
+                                shuffle=is_train,
+                                return_list=True)
 ```
 
 ```{.python .input}
@@ -132,11 +153,18 @@ Gluon会自动推断每个层输入的形状。
 在Keras中，全连接层在`Dense`类中定义。
 由于我们只想得到一个标量输出，所以我们将该数字设置为1。
 
+
 值得注意的是，为了方便使用，Keras不要求我们为每个层指定输入形状。
 所以在这里，我们不需要告诉Keras有多少输入进入这一层。
 当我们第一次尝试通过我们的模型传递数据时，例如，当后面执行`net(X)`时，
 Keras会自动推断每个层输入的形状。
 本节稍后将详细介绍这种工作机制。
+:end_tab:
+
+:begin_tab:`paddle`
+在PaddlePaddle中，全连接层在`Linear`类中定义。
+值得注意的是，我们将两个参数传递到`nn.Linear`中。
+第一个指定输入特征形状，即2，第二个指定输出特征形状，输出特征形状为单个标量，因此为1。
 :end_tab:
 
 ```{.python .input}
@@ -158,6 +186,13 @@ net = nn.Sequential(nn.Linear(2, 1))
 # keras是TensorFlow的高级API
 net = tf.keras.Sequential()
 net.add(tf.keras.layers.Dense(1))
+```
+
+```{.python .input}
+#@tab paddle
+# nn是神经网络的缩写
+from paddle import nn
+net = nn.Sequential(nn.Linear(2, 1))
 ```
 
 ## (**初始化模型参数**)
@@ -189,6 +224,15 @@ TensorFlow中的`initializers`模块提供了多种模型参数初始化方法�
 在这里，我们重新创建了`net`。
 :end_tab:
 
+:begin_tab:`paddle`
+正如我们在构造`nn.Linear`时指定输入和输出尺寸一样，
+现在我们能直接访问参数以设定它们的初始值。 
+我们通过`net[0]`选择网络中的第一个图层，
+然后使用`weight`和`bias`方法访问参数。
+我们可以通过调用`nn.initializer.Normal(0, 0.01)`来指定初始化权重的方法。
+默认情况下，偏置参数初始化为零。
+:end_tab:
+
 ```{.python .input}
 from mxnet import init
 net.initialize(init.Normal(sigma=0.01))
@@ -205,6 +249,15 @@ net[0].bias.data.fill_(0)
 initializer = tf.initializers.RandomNormal(stddev=0.01)
 net = tf.keras.Sequential()
 net.add(tf.keras.layers.Dense(1, kernel_initializer=initializer))
+```
+
+```{.python .input}
+#@tab paddle
+weight_attr = paddle.ParamAttr(initializer=
+                               paddle.nn.initializer.Normal(0, 0.01))
+bias_attr = paddle.ParamAttr(initializer=None)
+net = nn.Sequential(nn.Linear(2, 1, weight_attr=weight_attr,
+                              bias_attr=bias_attr))
 ```
 
 :begin_tab:`mxnet`
@@ -246,6 +299,11 @@ Keras让我们避免了这个问题，在后端执行时，初始化实际上是
 默认情况下，它返回所有样本损失的平均值。
 :end_tab:
 
+:begin_tab:`paddle`
+[**计算均方误差使用的是`MSELoss`类，也称为平方$L_2$范数**]。
+默认情况下，它返回所有样本损失的平均值。
+:end_tab:
+
 ```{.python .input}
 loss = gluon.loss.L2Loss()
 ```
@@ -258,6 +316,11 @@ loss = nn.MSELoss()
 ```{.python .input}
 #@tab tensorflow
 loss = tf.keras.losses.MeanSquaredError()
+```
+
+```{.python .input}
+#@tab paddle
+loss = nn.MSELoss()
 ```
 
 ## 定义优化算法
@@ -285,6 +348,12 @@ Keras在`optimizers`模块中实现了该算法的许多变种。
 小批量随机梯度下降只需要设置`learning_rate`值，这里设置为0.03。
 :end_tab:
 
+:begin_tab:`paddle`
+小批量随机梯度下降算法是一种优化神经网络的标准工具，
+PaddlePaddle在`optimizer`模块中实现了该算法的许多变种。
+小批量随机梯度下降只需要设置`learning_rate`值，这里设置为0.03。
+:end_tab:
+
 ```{.python .input}
 from mxnet import gluon
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.03})
@@ -298,6 +367,12 @@ trainer = torch.optim.SGD(net.parameters(), lr=0.03)
 ```{.python .input}
 #@tab tensorflow
 trainer = tf.keras.optimizers.SGD(learning_rate=0.03)
+```
+
+```{.python .input}
+#@tab paddle
+trainer =  paddle.optimizer.SGD(learning_rate=0.03,
+                                parameters=net.parameters())
 ```
 
 ## 训练
@@ -355,6 +430,19 @@ for epoch in range(num_epochs):
     print(f'epoch {epoch + 1}, loss {l:f}')
 ```
 
+```{.python .input}
+#@tab paddle
+num_epochs = 3
+for epoch in range(num_epochs):
+    for i,(X, y) in enumerate (data_iter()):
+        l = loss(net(X) ,y)
+        trainer.clear_grad()
+        l.backward()
+        trainer.step()
+    l = loss(net(features), labels)
+    print(f'epoch {epoch + 1},'f'loss {l}')
+```
+
 下面我们[**比较生成数据集的真实参数和通过有限数据训练获得的模型参数**]。
 要访问参数，我们首先从`net`访问所需的层，然后读取该层的权重和偏置。
 正如在从零开始实现中一样，我们估计得到的参数与生成数据的真实参数非常接近。
@@ -379,6 +467,14 @@ print('b的估计误差：', true_b - b)
 w = net.get_weights()[0]
 print('w的估计误差：', true_w - d2l.reshape(w, true_w.shape))
 b = net.get_weights()[1]
+print('b的估计误差：', true_b - b)
+```
+
+```{.python .input}
+#@tab paddle
+w = net[0].weight
+print('w的估计误差：', true_w - w.reshape(true_w.shape))
+b = net[0].bias
 print('b的估计误差：', true_b - b)
 ```
 

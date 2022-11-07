@@ -64,6 +64,16 @@ import math
 ```
 
 ```{.python .input}
+#@tab paddle
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+import math
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
+```
+
+```{.python .input}
 #@tab all
 d2l.set_figsize()
 gammas = [0.95, 0.9, 0.8, 0.7]
@@ -99,10 +109,18 @@ d2l.show_trace_2d(f_2d, d2l.train_2d(rmsprop_2d))
 接下来，我们在深度网络中实现RMSProp算法。
 
 ```{.python .input}
-#@tab mxnet,pytorch
+#@tab mxnet, pytorch
 def init_rmsprop_states(feature_dim):
     s_w = d2l.zeros((feature_dim, 1))
     s_b = d2l.zeros(1)
+    return (s_w, s_b)
+```
+
+```{.python .input}
+#@tab paddle
+def init_rmsprop_states(feature_dim):
+    s_w = d2l.zeros((feature_dim, 1))
+    s_b = d2l.zeros([1])
     return (s_w, s_b)
 ```
 
@@ -142,6 +160,20 @@ def rmsprop(params, grads, states, hyperparams):
         p[:].assign(p - hyperparams['lr'] * g / tf.math.sqrt(s + eps))
 ```
 
+```{.python .input}
+#@tab paddle
+def rmsprop(params, states, hyperparams):
+    a = []
+    gamma, eps = hyperparams['gamma'], 1e-6
+    for p, s in zip(params, states):
+        with paddle.no_grad():
+            s[:] = gamma * s + (1 - gamma) * paddle.square(p.grad)
+            p[:] -= hyperparams['lr'] * p.grad / paddle.sqrt(s + eps)
+        p.grad.zero_()
+        a.append(p)
+    return a 
+```
+
 我们将初始学习率设置为0.01，加权项$\gamma$设置为0.9。
 也就是说，$\mathbf{s}$累加了过去的$1/(1-\gamma) = 10$次平方梯度观测值的平均值。
 
@@ -171,6 +203,13 @@ d2l.train_concise_ch11(trainer, {'lr': 0.01, 'alpha': 0.9},
 ```{.python .input}
 #@tab tensorflow
 trainer = tf.keras.optimizers.RMSprop
+d2l.train_concise_ch11(trainer, {'learning_rate': 0.01, 'rho': 0.9},
+                       data_iter)
+```
+
+```{.python .input}
+#@tab paddle
+trainer = paddle.optimizer.RMSProp
 d2l.train_concise_ch11(trainer, {'learning_rate': 0.01, 'rho': 0.9},
                        data_iter)
 ```

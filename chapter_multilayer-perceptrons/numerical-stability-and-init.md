@@ -97,6 +97,24 @@ d2l.plot(x.numpy(), [y.numpy(), t.gradient(y, x).numpy()],
          legend=['sigmoid', 'gradient'], figsize=(4.5, 2.5))
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+import warnings
+warnings.filterwarnings(action='ignore')
+import paddle
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
+
+x = paddle.arange(start=-8.0, end=8.0, step=0.1, dtype='float32')
+x.stop_gradient = False
+y = paddle.nn.functional.sigmoid(x)
+y.backward(paddle.ones_like(x))
+
+d2l.plot(x.detach().numpy(), [y.detach().numpy(), x.grad.numpy()],
+         legend=['sigmoid', 'gradient'], figsize=(4.5, 2.5))
+```
+
 正如上图，当sigmoid函数的输入很大或是很小时，它的梯度都会消失。
 此外，当反向传播通过许多层时，除非我们在刚刚好的地方，
 这些地方sigmoid函数的输入接近于零，否则整个乘积的梯度可能会消失。
@@ -138,6 +156,16 @@ for i in range(100):
     M = tf.matmul(M, tf.random.normal((4, 4)))
 
 print('乘以100个矩阵后\n', M.numpy())
+```
+
+```{.python .input}
+#@tab paddle
+M = paddle.normal(0, 1, shape=(4,4))
+print('一个矩阵 \n',M)
+for i in range(100):
+    M = paddle.mm(M, paddle.normal(0, 1, shape=(4, 4)))
+
+print('乘以100个矩阵后\n', M)
 ```
 
 ### 打破对称性
