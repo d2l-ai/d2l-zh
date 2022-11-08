@@ -260,10 +260,10 @@ train_iter, train_valid_iter = [paddle.io.DataLoader(
     for dataset in (train_ds, train_valid_ds)]
 
 valid_iter = paddle.io.DataLoader(valid_ds, batch_size=batch_size, shuffle=False,
-                                         drop_last=True)
+                                  drop_last=True)
 
 test_iter = paddle.io.DataLoader(test_ds, batch_size=batch_size, shuffle=False,
-                                        drop_last=False)
+                                 drop_last=False)
 ```
 
 ## [**微调预训练模型**]
@@ -471,9 +471,9 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
     net = paddle.DataParallel(net)
     scheduler = paddle.optimizer.lr.StepDecay(lr, lr_period, lr_decay)
     trainer = paddle.optimizer.Momentum(learning_rate=scheduler, 
-                            parameters=(param for param in net.parameters()
-                               if not param.stop_gradient),
-                              momentum=0.9, weight_decay=wd)
+                                        parameters=(param for param in net.parameters() if not param.stop_gradient), 
+                                        momentum=0.9, 
+                                        weight_decay=wd)
     num_batches, timer = len(train_iter), d2l.Timer()
     legend = ['train loss']
     if valid_iter is not None:
