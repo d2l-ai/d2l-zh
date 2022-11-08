@@ -262,9 +262,9 @@ class Seq2SeqAttentionDecoder(AttentionDecoder):
         self.attention = d2l.AdditiveAttention(
             num_hiddens, num_hiddens, num_hiddens, dropout)
         self.embedding = nn.Embedding(vocab_size, embed_size)
-        self.rnn = nn.GRU(
-            embed_size + num_hiddens, num_hiddens, num_layers,bias_ih_attr=True,time_major=True,
-            dropout=dropout)
+        self.rnn = nn.GRU(embed_size + num_hiddens, num_hiddens, 
+                          num_layers, bias_ih_attr=True,
+                          time_major=True, dropout=dropout)
         self.dense = nn.Linear(num_hiddens, vocab_size)
 
     def init_state(self, enc_outputs, enc_valid_lens, *args):
