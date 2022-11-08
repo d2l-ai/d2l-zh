@@ -16,10 +16,10 @@
 几十年来，在使用神经网络进行端到端学习的兴起之前，
 统计学方法在这一领域一直占据主导地位
  :cite:`Brown.Cocke.Della-Pietra.ea.1988,Brown.Cocke.Della-Pietra.ea.1990`。
-因为*统计机器翻译*（statisticalmachine translation）涉及了
+因为*统计机器翻译*（statistical machine translation）涉及了
 翻译模型和语言模型等组成部分的统计分析，
 因此基于神经网络的方法通常被称为
-*神经机器翻译*（neuralmachine translation），
+*神经机器翻译*（neural machine translation），
 用于将两种翻译模型区分开来。
 
 本书的关注点是神经网络机器翻译方法，强调的是端到端的学习。

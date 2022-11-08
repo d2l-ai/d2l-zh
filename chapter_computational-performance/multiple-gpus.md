@@ -448,11 +448,10 @@ def train_batch(X, y, device_params, devices, lr):
             allreduce(
                 [device_params[c][i].grad for c in range(len(devices))])
     # 在每个GPU上分别更新模型参数
-    for item in range(len(device_params)):
-        paddle.set_device(f"gpu:{item}")
-        param = device_params[item]
+    for i in range(len(device_params)):
+        paddle.set_device(f"gpu:{i}")
+        param = device_params[i]
         d2l.sgd(param, lr, X.shape[0]) # 在这里，我们使用全尺寸的小批量
- 
 ```
 
 现在，我们可以[**定义训练函数**]。

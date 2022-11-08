@@ -203,9 +203,9 @@ def load_data_bananas(batch_size):
 def load_data_bananas(batch_size):
     """加载香蕉检测数据集"""
     train_iter = paddle.io.DataLoader(BananasDataset(is_train=True),
-                                             batch_size=batch_size, return_list=True, shuffle=True)
+                                      batch_size=batch_size, return_list=True, shuffle=True)
     val_iter = paddle.io.DataLoader(BananasDataset(is_train=False),
-                                           batch_size=batch_size, return_list=True)
+                                    batch_size=batch_size, return_list=True)
     return train_iter, val_iter
 ```
 

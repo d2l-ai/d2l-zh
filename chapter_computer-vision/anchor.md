@@ -170,8 +170,8 @@ def multibox_prior(data, sizes, ratios):
     # 生成“boxes_per_pixel”个高和宽，
     # 之后用于创建锚框的四角坐标(xmin,xmax,ymin,ymax)
     w = paddle.concat((size_tensor * paddle.sqrt(ratio_tensor[0]),
-                   sizes[0] * paddle.sqrt(ratio_tensor[1:])))\
-                   * in_height / in_width  # 处理矩形输入
+                       sizes[0] * paddle.sqrt(ratio_tensor[1:])))\
+                       * in_height / in_width  # 处理矩形输入
     h = paddle.concat((size_tensor / paddle.sqrt(ratio_tensor[0]),
                    sizes[0] / paddle.sqrt(ratio_tensor[1:])))
     # 除以2来获得半高和半宽

@@ -309,12 +309,13 @@ with Benchmark('Graph模式'):
 ```{.python .input}
 #@tab paddle
 net = get_net()
-with Benchmark('Paddle动态图命令式编程'):
+with Benchmark('飞桨动态图命令式编程'):
     for i in range(1000): net(x)
 
+# InputSpec用于描述模型输入的签名信息，包括shape、dtype和name
 x_spec = InputSpec(shape=[-1, 512], name='x') 
-net = to_static(get_net(),input_spec=[x_spec])
-with Benchmark('Paddle静态图符号式编程'):
+net = paddle.jit.to_static(get_net(),input_spec=[x_spec])
+with Benchmark('飞桨静态图符号式编程'):
     for i in range(1000): net(x)
 ```
 
@@ -331,7 +332,7 @@ with Benchmark('Paddle静态图符号式编程'):
 :end_tab:
 
 :begin_tab:`paddle`
-如以上结果所示，在`nn.Sequential`的实例被函数`paddle.jit.to_static`脚本化后，通过使用符号式编程提高了计算性能。事实上飞桨非常巧妙的实现了动静自然统一，完备实现了一键式动静转换，也就是只需要一条命令，就可以实现动静转换。
+如以上结果所示，在`nn.Sequential`的实例被函数`paddle.jit.to_static`脚本化后，通过使用符号式编程提高了计算性能。
 :end_tab:
 
 ### 序列化
@@ -348,7 +349,7 @@ with Benchmark('Paddle静态图符号式编程'):
 编译模型的好处之一是我们可以将模型及其参数序列化（保存）到磁盘。这允许这些训练好的模型部署到其他设备上，并且还能方便地使用其他前端编程语言。同时，通常编译模型的代码执行速度也比命令式编程更快。在TensorFlow中保存模型的底层API是`tf.saved_model`，让我们来看看`saved_model`的运行情况。
 :end_tab:
 
-:begin_tab:`pytorch`
+:begin_tab:`paddle`
 编译模型的好处之一是我们可以将模型及其参数序列化（保存）到磁盘。这允许这些训练好的模型部署到其他设备上，并且还能方便地使用其他前端编程语言。同时，通常编译模型的代码执行速度也比命令式编程更快。让我们看看`paddle.jit.save`的实际功能。
 :end_tab:
 

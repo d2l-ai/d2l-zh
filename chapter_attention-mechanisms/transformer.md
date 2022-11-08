@@ -1103,7 +1103,8 @@ dec_attention_weights_2d = [head[0].tolist()
                             for attn in step for blk in attn for head in blk]
 dec_attention_weights_filled = paddle.to_tensor(
     pd.DataFrame(dec_attention_weights_2d).fillna(0.0).values)
-dec_attention_weights = dec_attention_weights_filled.reshape((-1, 2, num_layers, num_heads, num_steps))
+dec_attention_weights = dec_attention_weights_filled.reshape((
+    -1, 2, num_layers, num_heads, num_steps))
 dec_self_attention_weights, dec_inter_attention_weights = \
     dec_attention_weights.transpose((1, 2, 3, 0, 4))
 dec_self_attention_weights.shape, dec_inter_attention_weights.shape

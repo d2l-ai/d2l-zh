@@ -363,7 +363,7 @@ def train_batch_ch13(net, X, y, loss, trainer, devices):
 #@save
 def train_batch_ch13(net, X, y, loss, trainer, devices):
     """用多GPU进行小批量训练
-    Paddle doesn't support multi gpu training on notebooks
+    飞桨不支持在notebook上进行多GPU训练
     Defined in :numref:`sec_image_augmentation`"""
     if isinstance(X, list):
         # 微调BERT中所需（稍后讨论）
