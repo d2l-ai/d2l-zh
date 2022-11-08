@@ -471,9 +471,9 @@ for X, Y in train_iter:
 #@tab paddle
 batch_size = 64
 train_iter = paddle.io.DataLoader(voc_train, batch_size=batch_size, shuffle=True,
-                                    drop_last=True,
-                                    return_list=True,
-                                    num_workers=d2l.get_dataloader_workers())
+                                  drop_last=True,
+                                  return_list=True,
+                                  num_workers=d2l.get_dataloader_workers())
 for X, Y in train_iter:
     print(X.shape)
     print(Y.shape)
