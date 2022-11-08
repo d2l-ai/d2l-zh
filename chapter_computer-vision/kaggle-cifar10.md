@@ -239,7 +239,7 @@ transform_train = paddlevision.transforms.Compose([
     # 生成一个面积为原始图像面积0.64到1倍的小正方形，
     # 然后将其缩放为高度和宽度均为32像素的正方形
     paddlevision.transforms.RandomResizedCrop(32, scale=(0.64, 1.0),
-                                                   ratio=(1.0, 1.0)),
+                                              ratio=(1.0, 1.0)),
     paddlevision.transforms.RandomHorizontalFlip(),
     paddlevision.transforms.ToTensor(),
     # 标准化图像的每个通道
@@ -343,10 +343,10 @@ train_iter, train_valid_iter = [paddle.io.DataLoader(
     for dataset in (train_ds, train_valid_ds)]
 
 valid_iter = paddle.io.DataLoader(valid_ds, batch_size=batch_size, shuffle=False,
-                                         drop_last=True)
+                                  drop_last=True)
 
 test_iter = paddle.io.DataLoader(test_ds, batch_size=batch_size, shuffle=False,
-                                        drop_last=False)
+                                 drop_last=False)
 ```
 
 ## 定义[**模型**]
