@@ -295,8 +295,8 @@ class Seq2SeqAttentionDecoder(AttentionDecoder):
         # 全连接层变换后，outputs的形状为
         # (num_steps,batch_size,vocab_size)
         outputs = self.dense(paddle.concat(outputs, axis=0))
-        return outputs.transpose((1, 0, 2)), [enc_outputs, hidden_state,
-                                          enc_valid_lens]
+        return outputs.transpose((1, 0, 2)), [enc_outputs, hidden_state, 
+                                              enc_valid_lens]
 
     @property
     def attention_weights(self):
@@ -424,7 +424,7 @@ d2l.show_heatmaps(
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 # 加上一个包含序列结束词元
 d2l.show_heatmaps(
     attention_weights[:, :, :, :len(engs[-1].split()) + 1].cpu(),
@@ -436,14 +436,6 @@ d2l.show_heatmaps(
 # 加上一个包含序列结束词元
 d2l.show_heatmaps(attention_weights[:, :, :, :len(engs[-1].split()) + 1],
                   xlabel='Key posistions', ylabel='Query posistions')
-```
-
-```{.python .input}
-#@tab paddle
-# 加上一个包含序列结束词元
-d2l.show_heatmaps(
-    attention_weights[:, :, :, :len(engs[-1].split()) + 1].cpu(),
-    xlabel='Key positions', ylabel='Query positions')
 ```
 
 ## 小结
