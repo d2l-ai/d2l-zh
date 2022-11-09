@@ -33,11 +33,10 @@ tf.random.set_seed(seed=1322)
 
 ```{.python .input}
 #@tab paddle
-import warnings
-warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn
-warnings.filterwarnings("ignore", category=DeprecationWarning)
+import warnings
+warnings.filterwarnings("ignore")
 from d2l import paddle as d2l
 ```
 
@@ -121,7 +120,7 @@ def f(x):
     return 2 * paddle.sin(x) + x**0.8
 
 y_train = f(x_train) + paddle.normal(0.0, 0.5, (n_train,))  # 训练样本的输出
-x_test = d2l.arange(0, 50, 1) * 0.1  # 测试样本
+x_test = d2l.arange(0, 5, 0.1, dtype='float32')   # 测试样本
 y_truth = f(x_test)  # 测试样本的真实输出
 n_test = len(x_test)  # 测试样本数
 n_test
