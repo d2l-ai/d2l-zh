@@ -23,7 +23,10 @@ from matplotlib_inline import backend_inline
 
 d2l = sys.modules[__name__]
 
+import warnings
 import numpy as np
+
+warnings.filterwarnings("ignore")
 import paddle
 import paddle.vision as paddlevision
 from paddle import nn
@@ -1508,13 +1511,13 @@ def resnet18(num_classes, in_channels=1):
     net.add_sublayer("resnet_block4", resnet_block(256, 512, 2))
     net.add_sublayer("global_avg_pool", nn.AdaptiveAvgPool2D((1, 1)))
     net.add_sublayer("fc", nn.Sequential(nn.Flatten(),
-                                       nn.Linear(512, num_classes)))
+                                         nn.Linear(512, num_classes)))
     return net
 
 def train_batch_ch13(net, X, y, loss, trainer, devices):
     """Defined in :numref:`sec_image_augmentation`"""
     """用多GPU进行小批量训练
-    Paddle doesn't support multi gpu training on notebooks
+    飞桨不支持在notebook上进行多GPU训练
     Defined in :numref:`sec_image_augmentation`"""
     if isinstance(X, list):
         # 微调BERT中所需（稍后讨论）
@@ -1621,8 +1624,8 @@ def multibox_prior(data, sizes, ratios):
     # 生成“boxes_per_pixel”个高和宽，
     # 之后用于创建锚框的四角坐标(xmin,xmax,ymin,ymax)
     w = paddle.concat((size_tensor * paddle.sqrt(ratio_tensor[0]),
-                   sizes[0] * paddle.sqrt(ratio_tensor[1:])))\
-                   * in_height / in_width  # 处理矩形输入
+                       sizes[0] * paddle.sqrt(ratio_tensor[1:])))\
+                       * in_height / in_width  # 处理矩形输入
     h = paddle.concat((size_tensor / paddle.sqrt(ratio_tensor[0]),
                    sizes[0] / paddle.sqrt(ratio_tensor[1:])))
     # 除以2来获得半高和半宽
@@ -1857,9 +1860,9 @@ def load_data_bananas(batch_size):
 
     Defined in :numref:`sec_object-detection-dataset`"""
     train_iter = paddle.io.DataLoader(BananasDataset(is_train=True),
-                                             batch_size=batch_size, return_list=True, shuffle=True)
+                                      batch_size=batch_size, return_list=True, shuffle=True)
     val_iter = paddle.io.DataLoader(BananasDataset(is_train=False),
-                                           batch_size=batch_size, return_list=True)
+                                    batch_size=batch_size, return_list=True)
     return train_iter, val_iter
 
 d2l.DATA_HUB['voc2012'] = (d2l.DATA_URL + 'VOCtrainval_11-May-2012.tar',
@@ -2249,7 +2252,7 @@ class BERTEncoder(nn.Layer):
         # 在BERT中，位置嵌入是可学习的，因此我们创建一个足够长的位置嵌入参数
         x = paddle.randn([1, max_len, num_hiddens])
         self.pos_embedding = paddle.create_parameter(shape=x.shape, dtype=str(x.numpy().dtype),
-                                                   default_initializer=paddle.nn.initializer.Assign(x))
+                                                     default_initializer=paddle.nn.initializer.Assign(x))
 
     def forward(self, tokens, segments, valid_lens):
         # 在以下代码段中，X的形状保持不变：（批量大小，最大序列长度，num_hiddens）
@@ -2615,14 +2618,14 @@ def load_data_snli(batch_size, num_steps=50):
     train_set = SNLIDataset(train_data, num_steps)
     test_set = SNLIDataset(test_data, num_steps, train_set.vocab)
     train_iter = paddle.io.DataLoader(train_set,batch_size=batch_size,
-                                             shuffle=True,
-                                             num_workers=num_workers,
-                                             return_list=True)
+                                      shuffle=True,
+                                      num_workers=num_workers,
+                                      return_list=True)
 
     test_iter = paddle.io.DataLoader(test_set, batch_size=batch_size,
-                                            shuffle=False,
-                                            num_workers=num_workers,
-                                            return_list=True)
+                                     shuffle=False,
+                                     num_workers=num_workers,
+                                     return_list=True)
     return train_iter, test_iter, train_set.vocab
 
 def predict_snli(net, vocab, premise, hypothesis):

@@ -130,6 +130,8 @@ import tensorflow as tf
 #@tab paddle
 #@save
 import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn
 from paddle.nn import functional as F
