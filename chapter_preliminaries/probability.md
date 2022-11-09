@@ -85,10 +85,9 @@ import numpy as np
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-import warnings
-warnings.filterwarnings(action='ignore')
 from d2l import paddle as d2l
-warnings.filterwarnings(action='ignore')
+import warnings
+warnings.filterwarnings("ignore")
 import paddle
 import random
 import numpy as np

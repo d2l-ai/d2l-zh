@@ -30,11 +30,11 @@ train_iter, test_iter, vocab = d2l.load_data_imdb(batch_size)
 
 ```{.python .input}
 #@tab paddle
+from d2l import paddle as d2l
 import warnings
+warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 
 batch_size = 64
 train_iter, test_iter, vocab = d2l.load_data_imdb(batch_size)

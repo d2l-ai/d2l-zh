@@ -287,14 +287,13 @@ import math
 
 ```{.python .input}
 #@tab paddle
+from d2l import paddle as d2l
 import warnings
-import numpy as np
-import math
-warnings.filterwarnings(action='ignore')
+warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
+import numpy as np
+import math
 ```
 
 ### 生成数据集

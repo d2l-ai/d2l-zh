@@ -175,12 +175,9 @@ def batch_norm(X, gamma, beta, moving_mean, moving_var, eps):
 
 ```{.python .input}
 #@tab paddle
-import warnings
+from d2l import paddle as d2l
 import paddle
 import paddle.nn as nn
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
-
 
 def batch_norm(X, gamma, beta, moving_mean, moving_var, eps, momentum, is_training=True):
     # 训练模式还与预测模式的BN处理不同

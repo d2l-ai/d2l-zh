@@ -22,14 +22,13 @@ import random
 
 ```{.python .input}
 #@tab paddle
+from d2l import paddle as d2l
 import warnings
-import math
 warnings.filterwarnings("ignore")
+import math
 import paddle
 import os
 import random
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 ```
 
 ## 正在读取数据集

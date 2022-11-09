@@ -45,11 +45,10 @@ h, w
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
+from d2l import paddle as d2l
 import warnings
 warnings.filterwarnings("ignore")
 import paddle
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 
 img = d2l.plt.imread('../img/catdog.jpg')
 h, w = img.shape[:2]

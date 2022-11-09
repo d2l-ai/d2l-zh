@@ -45,18 +45,17 @@ import shutil
 
 ```{.python .input}
 #@tab paddle
+from d2l import paddle as d2l
 import warnings
+warnings.filterwarnings("ignore")
 import collections
 import math
 import os
 import pandas as pd
 import shutil
-warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn
-warnings.filterwarnings("ignore", category=DeprecationWarning)
 import paddle.vision as paddlevision
-from d2l import paddle as d2l
 ```
 
 ## 获取并组织数据集

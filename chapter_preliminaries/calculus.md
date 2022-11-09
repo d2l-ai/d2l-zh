@@ -86,12 +86,9 @@ def f(x):
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
+from d2l import paddle as d2l
 from matplotlib_inline import backend_inline
 import numpy as np
-import warnings
-warnings.filterwarnings(action='ignore')
-from d2l import paddle as d2l
-
 
 def f(x):
     return 3 * x ** 2 - 4 * x

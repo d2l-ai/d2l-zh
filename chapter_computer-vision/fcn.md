@@ -28,14 +28,13 @@ from torch.nn import functional as F
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
+from d2l import paddle as d2l
 import warnings
 warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn
 from paddle.nn import functional as F
-warnings.filterwarnings("ignore", category=DeprecationWarning)
 import paddle.vision as paddlevision
-from d2l import paddle as d2l
 ```
 
 ## 构造模型
