@@ -33,8 +33,8 @@ tf.random.set_seed(seed=1322)
 
 ```{.python .input}
 #@tab paddle
-import warnings
 from d2l import paddle as d2l
+import warnings
 warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn

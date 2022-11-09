@@ -45,14 +45,13 @@ import tensorflow as tf
 
 ```{.python .input}
 #@tab paddle
-import warnings
+from d2l import paddle as d2l
 import math
 import pandas as pd
+import warnings
 warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 ```
 
 ## [**基于位置的前馈网络**]
