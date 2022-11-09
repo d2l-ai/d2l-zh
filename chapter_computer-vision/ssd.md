@@ -72,14 +72,13 @@ def cls_predictor(num_inputs, num_anchors, num_classes):
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
+from d2l import paddle as d2l
 import warnings
 warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn
 from paddle.nn import functional as F
 import paddle.vision as paddlevision
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 
 def cls_predictor(num_inputs, num_anchors, num_classes):
     return nn.Conv2D(num_inputs, num_anchors * (num_classes + 1),

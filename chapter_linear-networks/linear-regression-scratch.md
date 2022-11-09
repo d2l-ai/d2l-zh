@@ -36,12 +36,11 @@ import random
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-import warnings
-import random
-warnings.filterwarnings(action='ignore')
-import paddle
-warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import random
+import paddle
 ```
 
 ## 生成数据集

@@ -75,13 +75,12 @@ import tensorflow as tf
 
 ```{.python .input}
 #@tab paddle
+from d2l import paddle as d2l
 import warnings
-import math
 warnings.filterwarnings("ignore")
+import math
 import paddle
 from paddle import nn
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 ```
 
 ## 实现

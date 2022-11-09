@@ -89,12 +89,11 @@ def net():
 
 ```{.python .input}
 #@tab paddle
+from d2l import paddle as d2l
 import warnings
-warnings.filterwarnings(action='ignore')
+warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn, optimizer
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 
 net = nn.Sequential(
     nn.Conv2D(1, 6, kernel_size=5, padding=2), nn.Sigmoid(),

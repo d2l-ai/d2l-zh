@@ -30,12 +30,11 @@ import tensorflow as tf
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
-import warnings
-import math
-warnings.filterwarnings("ignore")
-import paddle
-warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import math
+import paddle
 ```
 
 ## 随机梯度更新

@@ -134,11 +134,10 @@ def adam(params, grads, states, hyperparams):
 ```{.python .input}
 #@tab paddle
 %matplotlib inline
+from d2l import paddle as d2l
 import warnings
 warnings.filterwarnings("ignore")
 import paddle
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-from d2l import paddle as d2l
 
 def init_adam_states(feature_dim):
     v_w, v_b = d2l.zeros((feature_dim, 1)), d2l.zeros((1, ))
