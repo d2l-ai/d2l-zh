@@ -176,6 +176,8 @@ def batch_norm(X, gamma, beta, moving_mean, moving_var, eps):
 ```{.python .input}
 #@tab paddle
 from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
 import paddle
 import paddle.nn as nn
 

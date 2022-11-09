@@ -70,6 +70,8 @@ def nin_block(num_channels, kernel_size, strides, padding):
 ```{.python .input}
 #@tab paddle
 from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
 import paddle
 import paddle.nn as nn
 
