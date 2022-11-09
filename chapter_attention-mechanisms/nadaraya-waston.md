@@ -34,10 +34,10 @@ tf.random.set_seed(seed=1322)
 ```{.python .input}
 #@tab paddle
 import warnings
+from d2l import paddle as d2l
 warnings.filterwarnings("ignore")
 import paddle
 from paddle import nn
-from d2l import paddle as d2l
 ```
 
 ## [**生成数据集**]
