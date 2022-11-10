@@ -359,8 +359,8 @@ ii.证明只检查集合的顶点是充分的。
 
 7. 证明对于凸二次可微函数$f$，对于$\xi \in [0, \epsilon]$，我们可以写成$f(x + \epsilon) = f(x) + \epsilon f'(x) + \frac{1}{2} \epsilon^2 f''(x + \xi)$。
 
-8. 给定一个向量$\mathbf{w} \in \mathbb{R}^d$与$|\mathbf{w}| 1 > 1$计算在$L_1$单位球上的投影。
-i.作为中间步骤，写出惩罚目标$|\mathbf{w} - \mathbf{w}'|_2^2 + \lambda |\mathbf{w}'|_1$，计算给定$\lambda > 0$的解。
+8. 给定一个向量$\mathbf{w} \in \mathbb{R}^d$与$\|\mathbf{w}\|_1 > 1$计算在$L_1$单位球上的投影。
+i.作为中间步骤，写出惩罚目标$\|\mathbf{w} - \mathbf{w}'\|_2^2 + \lambda \|\mathbf{w}'\|_1$，计算给定$\lambda > 0$的解。
 ii.是否可以无须反复试错就找到$\lambda$的“正确”值吗？
 
 9. 给定一个凸集$\mathcal{X}$和两个向量$\mathbf{X}$和$\mathbf{y}$证明了投影不会增加距离，即$\|\mathbf{x} - \mathbf{y}\| \geq \|\mathrm{Proj}_\mathcal{X}(\mathbf{x}) - \mathrm{Proj}_\mathcal{X}(\mathbf{y})\|$。
