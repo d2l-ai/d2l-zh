@@ -87,8 +87,8 @@ pip install mxnet==1.7.0.post1
 我们可以按如下方式安装PyTorch的CPU或GPU版本：
 
 ```bash
-pip install torch==1.11.0
-pip install torchvision==0.12.0
+pip install torch==1.12.0
+pip install torchvision==0.13.0
 ```
 
 
