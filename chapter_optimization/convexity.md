@@ -368,9 +368,8 @@ $$\mathrm{Proj}_\mathcal{X}(\mathbf{x}) = \mathop{\mathrm{argmin}}_{\mathbf{x}' 
 
 ## 练习 
 
-1. 假设我们想要通过绘制集合内点之间的所有直线并检查这些直线是否包含来验证集合的凸性。
-i.证明只检查边界上的点是充分的。
-ii.证明只检查集合的顶点是充分的。
+1. 假设我们想要通过绘制集合内点之间的所有直线并检查这些直线是否包含来验证集合的凸性。i.证明只检查边界上的点是充分的。ii.证明只检查集合的顶点是充分的。
+
 2. 用$p$-范数表示半径为$r$的球，证明$\mathcal{B}_p[r] := \{\mathbf{x} | \mathbf{x} \in \mathbb{R}^d \text{ and } \|\mathbf{x}\|_p \leq r\}$，$\mathcal{B}_p[r]$对于所有$p \geq 1$是凸的。
 
 3. 已知凸函数$f$和$g$表明$\mathrm{max}(f, g)$也是凸函数。证明$\mathrm{min}(f, g)$是非凸的。
@@ -383,11 +382,7 @@ ii.证明只检查集合的顶点是充分的。
 
 7. 证明对于凸二次可微函数$f$，对于$\xi \in [0, \epsilon]$，我们可以写成$f(x + \epsilon) = f(x) + \epsilon f'(x) + \frac{1}{2} \epsilon^2 f''(x + \xi)$。
 
-8. 给定一个向量$\mathbf{w} \in \mathbb{R}^d$与$|\mathbf{w}| 1 > 1$计算在$L_1$单位球上的投影。
-i.作为中间步骤，写出惩罚目标$|\mathbf{w} - \mathbf{w}'|_2^2 + \lambda |\mathbf{w}'|_1$，计算给定$\lambda > 0$的解。
-ii.是否可以无须反复试错就找到$\lambda$的“正确”值吗？
-
-9. 给定一个凸集$\mathcal{X}$和两个向量$\mathbf{X}$和$\mathbf{y}$证明了投影不会增加距离，即$\|\mathbf{x} - \mathbf{y}\| \geq \|\mathrm{Proj}_\mathcal{X}(\mathbf{x}) - \mathrm{Proj}_\mathcal{X}(\mathbf{y})\|$。
+8. 给定一个凸集$\mathcal{X}$和两个向量$\mathbf{x}$和$\mathbf{y}$证明了投影不会增加距离，即$\|\mathbf{x} - \mathbf{y}\| \geq \|\mathrm{Proj}_\mathcal{X}(\mathbf{x}) - \mathrm{Proj}_\mathcal{X}(\mathbf{y})\|$。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/3814)

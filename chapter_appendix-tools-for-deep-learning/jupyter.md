@@ -60,7 +60,7 @@
 首先，安装notedown插件，运行Jupyter Notebook并加载插件：
 
 ```
-pip install mu-notedown  # 你可能需要卸载原始notedown
+pip install d2l-notedown  # 你可能需要卸载原始notedown
 jupyter notebook --NotebookApp.contents_manager_class='notedown.NotedownContentsManager'
 ```
 
