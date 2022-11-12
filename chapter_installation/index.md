@@ -181,6 +181,21 @@ cd tensorflow
 :end_tab:
 
 
+:begin_tab:`paddle`
+
+```bash
+mkdir d2l-zh && cd d2l-zh
+curl https://zh-v2.d2l.ai/d2l-zh-2.0.0.zip -o d2l-zh.zip
+unzip d2l-zh.zip && rm d2l-zh.zip
+cd paddle
+```
+
+
+注意：如果没有安装`unzip`，则可以通过运行`sudo apt install unzip`进行安装。
+
+:end_tab:
+
+
 安装完成后我们可以通过运行以下命令打开Jupyter笔记本（在Window系统的命令行窗口中运行以下命令前，需先将当前路径定位到刚下载的本书代码解压后的目录）：
 
 ```bash
