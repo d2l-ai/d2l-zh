@@ -105,6 +105,24 @@ pip install tensorflow-probability==0.16.0
 
 :end_tab:
 
+:begin_tab:`paddle`
+安装PaddlePaddle的GPU版本，首先需要知道已安装的CUDA版本。
+（可以通过运行`nvcc --version`或`cat /usr/local/cuda/version.txt`来检验。）
+假设已安装CUDA 11.2版本，请执行以下命令：
+
+```bash
+python -m pip install paddlepaddle-gpu==2.3.2.post112 -f https://www.paddlepaddle.org.cn/whl/linux/mkl/avx/stable.html
+```
+
+如果机器没有NVIDIA GPU或CUDA，可以按如下方式PaddlePaddle的CPU版本：
+
+```bash
+python -m pip install paddlepaddle==2.3.2 -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+
+:end_tab:
+
 我们的下一步是安装`d2l`包，以方便调取本书中经常使用的函数和类：
 
 ```bash
@@ -155,6 +173,21 @@ mkdir d2l-zh && cd d2l-zh
 curl https://zh-v2.d2l.ai/d2l-zh-2.0.0.zip -o d2l-zh.zip
 unzip d2l-zh.zip && rm d2l-zh.zip
 cd tensorflow
+```
+
+
+注意：如果没有安装`unzip`，则可以通过运行`sudo apt install unzip`进行安装。
+
+:end_tab:
+
+
+:begin_tab:`paddle`
+
+```bash
+mkdir d2l-zh && cd d2l-zh
+curl https://zh-v2.d2l.ai/d2l-zh-2.0.0.zip -o d2l-zh.zip
+unzip d2l-zh.zip && rm d2l-zh.zip
+cd paddle
 ```
 
 
