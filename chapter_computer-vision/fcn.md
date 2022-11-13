@@ -25,6 +25,18 @@ from torch import nn
 from torch.nn import functional as F
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+from paddle import nn
+from paddle.nn import functional as F
+import paddle.vision as paddlevision
+```
+
 ## 构造模型
 
 下面我们了解一下全卷积网络模型最基本的设计。
@@ -48,6 +60,12 @@ pretrained_net = torchvision.models.resnet18(pretrained=True)
 list(pretrained_net.children())[-3:]
 ```
 
+```{.python .input}
+#@tab paddle
+pretrained_net = paddlevision.models.resnet18(pretrained=True)
+list(pretrained_net.children())[-3:]
+```
+
 接下来，我们[**创建一个全卷积网络`net`**]。
 它复制了ResNet-18中大部分的预训练层，除了最后的全局平均汇聚层和最接近输出的全连接层。
 
@@ -58,7 +76,7 @@ for layer in pretrained_net.features[:-2]:
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 net = nn.Sequential(*list(pretrained_net.children())[:-2])
 ```
 
@@ -72,6 +90,12 @@ net(X).shape
 ```{.python .input}
 #@tab pytorch
 X = torch.rand(size=(1, 3, 320, 480))
+net(X).shape
+```
+
+```{.python .input}
+#@tab paddle
+X = paddle.rand(shape=(1, 3, 320, 480))
 net(X).shape
 ```
 
@@ -93,6 +117,14 @@ net.add(nn.Conv2D(num_classes, kernel_size=1),
 num_classes = 21
 net.add_module('final_conv', nn.Conv2d(512, num_classes, kernel_size=1))
 net.add_module('transpose_conv', nn.ConvTranspose2d(num_classes, num_classes,
+                                    kernel_size=64, padding=16, stride=32))
+```
+
+```{.python .input}
+#@tab paddle
+num_classes = 21
+net.add_sublayer('final_conv', nn.Conv2D(512, num_classes, kernel_size=1))
+net.add_sublayer('transpose_conv', nn.Conv2DTranspose(num_classes, num_classes,
                                     kernel_size=64, padding=16, stride=32))
 ```
 
@@ -147,6 +179,24 @@ def bilinear_kernel(in_channels, out_channels, kernel_size):
     return weight
 ```
 
+```{.python .input}
+#@tab paddle
+def bilinear_kernel(in_channels, out_channels, kernel_size):
+    factor = (kernel_size + 1) // 2
+    if kernel_size % 2 == 1:
+        center = factor - 1
+    else:
+        center = factor - 0.5
+    og = (paddle.arange(kernel_size).reshape([-1, 1]),
+          paddle.arange(kernel_size).reshape([1, -1]))
+    filt = (1 - paddle.abs(og[0] - center) / factor) * \
+           (1 - paddle.abs(og[1] - center) / factor)
+    weight = paddle.zeros((in_channels, out_channels,
+                          kernel_size, kernel_size))
+    weight[range(in_channels), range(out_channels), :, :] = filt
+    return weight
+```
+
 让我们用[**双线性插值的上采样实验**]它由转置卷积层实现。
 我们构造一个将输入的高和宽放大2倍的转置卷积层，并将其卷积核用`bilinear_kernel`函数初始化。
 
@@ -160,6 +210,13 @@ conv_trans.initialize(init.Constant(bilinear_kernel(3, 3, 4)))
 conv_trans = nn.ConvTranspose2d(3, 3, kernel_size=4, padding=1, stride=2,
                                 bias=False)
 conv_trans.weight.data.copy_(bilinear_kernel(3, 3, 4));
+```
+
+```{.python .input}
+#@tab paddle
+conv_trans = nn.Conv2DTranspose(3, 3, kernel_size=4, padding=1, stride=2,
+                                bias_attr=False)
+conv_trans.weight.set_value(bilinear_kernel(3, 3, 4));
 ```
 
 读取图像`X`，将上采样的结果记作`Y`。为了打印图像，我们需要调整通道维的位置。
@@ -177,6 +234,14 @@ img = torchvision.transforms.ToTensor()(d2l.Image.open('../img/catdog.jpg'))
 X = img.unsqueeze(0)
 Y = conv_trans(X)
 out_img = Y[0].permute(1, 2, 0).detach()
+```
+
+```{.python .input}
+#@tab paddle
+img = paddlevision.transforms.ToTensor()(d2l.Image.open('../img/catdog.jpg'))
+X = img.unsqueeze(0)
+Y = conv_trans(X)
+out_img = Y[0].transpose([1, 2, 0]).detach()
 ```
 
 可以看到，转置卷积层将图像的高和宽分别放大了2倍。
@@ -199,6 +264,15 @@ print('output image shape:', out_img.shape)
 d2l.plt.imshow(out_img);
 ```
 
+```{.python .input}
+#@tab paddle
+d2l.set_figsize()
+print('input image shape:', img.transpose([1, 2, 0]).shape)
+d2l.plt.imshow(img.transpose([1, 2, 0]));
+print('output image shape:', out_img.shape)
+d2l.plt.imshow(out_img);
+```
+
 全卷积网络[**用双线性插值的上采样初始化转置卷积层。对于$1\times 1$卷积层，我们使用Xavier初始化参数。**]
 
 ```{.python .input}
@@ -213,15 +287,41 @@ W = bilinear_kernel(num_classes, num_classes, 64)
 net.transpose_conv.weight.data.copy_(W);
 ```
 
+```{.python .input}
+#@tab paddle
+W = bilinear_kernel(num_classes, num_classes, 64)
+net.transpose_conv.weight.set_value(W);
+```
+
 ## [**读取数据集**]
 
 我们用 :numref:`sec_semantic_segmentation`中介绍的语义分割读取数据集。
 指定随机裁剪的输出图像的形状为$320\times 480$：高和宽都可以被$32$整除。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch
 batch_size, crop_size = 32, (320, 480)
 train_iter, test_iter = d2l.load_data_voc(batch_size, crop_size)
+```
+
+```{.python .input}
+#@tab paddle
+import os    
+def load_data_voc(batch_size, crop_size):
+    """加载VOC语义分割数据集
+    Defined in :numref:`sec_semantic_segmentation`"""
+    voc_dir = d2l.download_extract('voc2012', os.path.join(
+        'VOCdevkit', 'VOC2012'))
+    train_iter = paddle.io.DataLoader(
+        d2l.VOCSegDataset(True, crop_size, voc_dir), batch_size=batch_size,
+        shuffle=True, return_list=True, drop_last=True, num_workers=0)
+    test_iter = paddle.io.DataLoader(
+        d2l.VOCSegDataset(False, crop_size, voc_dir), batch_size=batch_size,
+        drop_last=True, return_list=True, num_workers=0)
+    return train_iter, test_iter
+
+batch_size, crop_size = 32, (320, 480)
+train_iter, test_iter = load_data_voc(batch_size, crop_size)
 ```
 
 ## [**训练**]
@@ -249,6 +349,16 @@ trainer = torch.optim.SGD(net.parameters(), lr=lr, weight_decay=wd)
 d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
 ```
 
+```{.python .input}
+#@tab paddle
+def loss(inputs, targets):
+    return F.cross_entropy(inputs.transpose([0, 2, 3, 1]), targets, reduction='none').mean(1).mean(1)
+
+num_epochs, lr, wd, devices = 5, 0.001, 1e-3, d2l.try_all_gpus()
+trainer = paddle.optimizer.SGD(learning_rate=lr, parameters=net.parameters(), weight_decay=wd)
+d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices[:1])
+```
+
 ## [**预测**]
 
 在预测时，我们需要将输入图像在各个通道做标准化，并转成卷积神经网络所需要的四维输入格式。
@@ -269,6 +379,14 @@ def predict(img):
     return pred.reshape(pred.shape[1], pred.shape[2])
 ```
 
+```{.python .input}
+#@tab paddle
+def predict(img):
+    X = paddle.to_tensor(test_iter.dataset.normalize_image(img),dtype='float32').unsqueeze(0)
+    pred = net(X).argmax(axis=1)
+    return pred.reshape([pred.shape[1], pred.shape[2]])
+```
+
 为了[**可视化预测的类别**]给每个像素，我们将预测类别映射回它们在数据集中的标注颜色。
 
 ```{.python .input}
@@ -284,6 +402,14 @@ def label2image(pred):
     colormap = torch.tensor(d2l.VOC_COLORMAP, device=devices[0])
     X = pred.long()
     return colormap[X, :]
+```
+
+```{.python .input}
+#@tab paddle
+def label2image(pred):
+    colormap = paddle.to_tensor(d2l.VOC_COLORMAP)
+    X = pred.astype(paddle.int32)
+    return colormap[X]
 ```
 
 测试数据集中的图像大小和形状各异。
@@ -319,6 +445,21 @@ for i in range(n):
     imgs += [X.permute(1,2,0), pred.cpu(),
              torchvision.transforms.functional.crop(
                  test_labels[i], *crop_rect).permute(1,2,0)]
+d2l.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n, scale=2);
+```
+
+```{.python .input}
+#@tab paddle
+voc_dir = d2l.download_extract('voc2012', 'VOCdevkit/VOC2012')
+test_images, test_labels = d2l.read_voc_images(voc_dir, False)
+n, imgs = 4, []
+for i in range(n):
+    crop_rect = (0, 0, 320, 480)
+    X = paddlevision.transforms.crop(test_images[i], *crop_rect)
+    pred = label2image(predict(X))
+    imgs += [X.transpose([1,2,0]).astype('uint8'), pred,
+             paddlevision.transforms.crop(
+                 test_labels[i], *crop_rect).transpose([1, 2, 0]).astype("uint8")]
 d2l.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n, scale=2);
 ```
 

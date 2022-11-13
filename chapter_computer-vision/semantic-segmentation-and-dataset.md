@@ -41,6 +41,17 @@ import torchvision
 import os
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+import paddle.vision as paddlevision
+import os
+```
+
 数据集的tar文件大约为2GB，所以下载可能需要一段时间。
 提取出的数据集位于`../data/VOCdevkit/VOC2012`。
 
@@ -99,6 +110,30 @@ def read_voc_images(voc_dir, is_train=True):
 train_features, train_labels = read_voc_images(voc_dir, True)
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+def read_voc_images(voc_dir, is_train=True):
+    """Defined in :numref:`sec_semantic_segmentation`"""
+    """读取所有VOC图像并标注
+    Defined in :numref:`sec_semantic_segmentation`"""
+    txt_fname = os.path.join(voc_dir, 'ImageSets', 'Segmentation',
+                             'train.txt' if is_train else 'val.txt')
+    with open(txt_fname, 'r') as f:
+        images = f.read().split()
+    features, labels = [], []
+    for i, fname in enumerate(images):
+        features.append(paddle.vision.image.image_load(os.path.join(
+            voc_dir, 'JPEGImages', f'{fname}.jpg'), backend='cv2')[..., ::-1].transpose(
+            [2, 0, 1]))
+        labels.append(paddle.vision.image.image_load(os.path.join(
+            voc_dir, 'SegmentationClass', f'{fname}.png'), backend='cv2')[..., ::-1].transpose(
+            [2, 0, 1]))
+    return features, labels
+
+train_features, train_labels = read_voc_images(voc_dir, True)
+```
+
 下面我们[**绘制前5个输入图像及其标签**]。
 在标签图像中，白色和黑色分别表示边框和背景，而其他颜色则对应不同的类别。
 
@@ -113,6 +148,14 @@ d2l.show_images(imgs, 2, n);
 n = 5
 imgs = train_features[0:n] + train_labels[0:n]
 imgs = [img.permute(1,2,0) for img in imgs]
+d2l.show_images(imgs, 2, n);
+```
+
+```{.python .input}
+#@tab paddle
+n = 5
+imgs = train_features[0:n] + train_labels[0:n]
+imgs = [img.transpose([1, 2, 0]) for img in imgs]
 d2l.show_images(imgs, 2, n);
 ```
 
@@ -177,6 +220,26 @@ def voc_label_indices(colormap, colormap2label):
     return colormap2label[idx]
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+def voc_colormap2label():
+    """构建从RGB到VOC类别索引的映射"""
+    colormap2label = paddle.zeros([256 ** 3], dtype=paddle.int64)
+    for i, colormap in enumerate(VOC_COLORMAP):
+        colormap2label[
+            (colormap[0] * 256 + colormap[1]) * 256 + colormap[2]] = i
+    return colormap2label
+    
+#@save
+def voc_label_indices(colormap, colormap2label):
+    """将VOC标签中的RGB值映射到它们的类别索引"""
+    colormap = colormap.transpose([1, 2, 0]).astype('int32')
+    idx = ((colormap[:, :, 0] * 256 + colormap[:, :, 1]) * 256
+           + colormap[:, :, 2])
+    return colormap2label[idx]
+```
+
 [**例如**]，在第一张样本图像中，飞机头部区域的类别索引为1，而背景索引为0。
 
 ```{.python .input}
@@ -215,6 +278,18 @@ def voc_rand_crop(feature, label, height, width):
 ```
 
 ```{.python .input}
+#@tab paddle
+#@save
+def voc_rand_crop(feature, label, height, width):
+    """随机裁剪特征和标签图像"""
+    rect = paddle.vision.transforms.RandomCrop((height, width))._get_param(
+        img=feature, output_size=(height, width))
+    feature = paddle.vision.transforms.crop(feature, *rect)
+    label = paddle.vision.transforms.crop(label, *rect)
+    return feature, label
+```
+
+```{.python .input}
 imgs = []
 for _ in range(n):
     imgs += voc_rand_crop(train_features[0], train_labels[0], 200, 300)
@@ -228,6 +303,16 @@ for _ in range(n):
     imgs += voc_rand_crop(train_features[0], train_labels[0], 200, 300)
 
 imgs = [img.permute(1, 2, 0) for img in imgs]
+d2l.show_images(imgs[::2] + imgs[1::2], 2, n);
+```
+
+```{.python .input}
+#@tab paddle
+imgs = []
+for _ in range(n):
+    imgs += voc_rand_crop(train_features[0].transpose([1, 2, 0]), train_labels[0].transpose([1, 2, 0]), 200, 300)
+    
+imgs = [img for img in imgs]
 d2l.show_images(imgs[::2] + imgs[1::2], 2, n);
 ```
 
@@ -305,6 +390,43 @@ class VOCSegDataset(torch.utils.data.Dataset):
         return len(self.features)
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+class VOCSegDataset(paddle.io.Dataset):
+    """一个用于加载VOC数据集的自定义数据集
+    Defined in :numref:`sec_semantic_segmentation`"""
+
+    def __init__(self, is_train, crop_size, voc_dir):
+        self.transform = paddle.vision.transforms.Normalize(
+            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        self.crop_size = crop_size
+        features, labels = read_voc_images(voc_dir, is_train=is_train)
+        self.features = [self.normalize_image(feature)
+                         for feature in self.filter(features)]
+        self.labels = self.filter(labels)
+        self.colormap2label = voc_colormap2label()
+        print('read ' + str(len(self.features)) + ' examples')
+
+    def normalize_image(self, img):
+        return self.transform(img.astype("float32") / 255)
+
+    def filter(self, imgs):
+        return [img for img in imgs if (
+            img.shape[1] >= self.crop_size[0] and
+            img.shape[2] >= self.crop_size[1])]
+
+    def __getitem__(self, idx):
+        feature = paddle.to_tensor(self.features[idx],dtype='float32')
+        label = paddle.to_tensor(self.labels[idx],dtype='float32')
+        feature, label = voc_rand_crop(feature,label,
+                                       *self.crop_size)
+        return (feature, voc_label_indices(label, self.colormap2label))
+
+    def __len__(self):
+        return len(self.features)
+```
+
 ### [**读取数据集**]
 
 我们通过自定义的`VOCSegDataset`类来分别创建训练集和测试集的实例。
@@ -338,6 +460,19 @@ batch_size = 64
 train_iter = torch.utils.data.DataLoader(voc_train, batch_size, shuffle=True,
                                     drop_last=True,
                                     num_workers=d2l.get_dataloader_workers())
+for X, Y in train_iter:
+    print(X.shape)
+    print(Y.shape)
+    break
+```
+
+```{.python .input}
+#@tab paddle
+batch_size = 64
+train_iter = paddle.io.DataLoader(voc_train, batch_size=batch_size, shuffle=True,
+                                  drop_last=True,
+                                  return_list=True,
+                                  num_workers=d2l.get_dataloader_workers())
 for X, Y in train_iter:
     print(X.shape)
     print(Y.shape)
@@ -379,6 +514,23 @@ def load_data_voc(batch_size, crop_size):
     test_iter = torch.utils.data.DataLoader(
         VOCSegDataset(False, crop_size, voc_dir), batch_size,
         drop_last=True, num_workers=num_workers)
+    return train_iter, test_iter
+```
+
+```{.python .input}
+#@tab paddle
+#@save
+def load_data_voc(batch_size, crop_size):
+    """加载VOC语义分割数据集"""
+    voc_dir = d2l.download_extract('voc2012', os.path.join(
+        'VOCdevkit', 'VOC2012'))
+    num_workers = d2l.get_dataloader_workers()
+    train_iter = paddle.io.DataLoader(
+        VOCSegDataset(True, crop_size, voc_dir), batch_size=batch_size,
+        shuffle=True, return_list=True, drop_last=True, num_workers=num_workers)
+    test_iter = paddle.io.DataLoader(
+        VOCSegDataset(False, crop_size, voc_dir), batch_size=batch_size,
+        drop_last=True, return_list=True, num_workers=num_workers)
     return train_iter, test_iter
 ```
 

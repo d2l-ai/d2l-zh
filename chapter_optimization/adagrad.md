@@ -143,6 +143,16 @@ import tensorflow as tf
 ```
 
 ```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import math
+import paddle
+```
+
+```{.python .input}
 #@tab all
 def adagrad_2d(x1, x2, s1, s2):
     eps = 1e-6
@@ -216,6 +226,25 @@ def adagrad(params, grads, states, hyperparams):
         p[:].assign(p - hyperparams['lr'] * g / tf.math.sqrt(s + eps))
 ```
 
+```{.python .input}
+#@tab paddle
+def init_adagrad_states(feature_dim):
+    s_w = d2l.zeros((feature_dim, 1))
+    s_b = d2l.zeros(shape=(1, ))
+    return (s_w, s_b)
+
+def adagrad(params, states, hyperparams):
+    a = []
+    eps = 1e-6
+    for p, s in zip(params, states):
+        with paddle.no_grad():
+            s[:] += paddle.square(p.grad)
+            p[:] -= hyperparams['lr'] * p.grad / paddle.sqrt(s + eps)
+        p.grad.zero_()
+        a.append(p)
+    return a
+```
+
 与 :numref:`sec_minibatch_sgd`一节中的实验相比，这里使用更大的学习率来训练模型。
 
 ```{.python .input}
@@ -243,6 +272,12 @@ d2l.train_concise_ch11(trainer, {'lr': 0.1}, data_iter)
 #@tab tensorflow
 trainer = tf.keras.optimizers.Adagrad
 d2l.train_concise_ch11(trainer, {'learning_rate' : 0.1}, data_iter)
+```
+
+```{.python .input}
+#@tab paddle
+trainer = paddle.optimizer.Adagrad
+d2l.train_concise_ch11(trainer, {'learning_rate': 0.1}, data_iter)
 ```
 
 ## 小结

@@ -21,6 +21,17 @@ import torch
 from torch import nn
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import numpy, os, subprocess
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+from paddle import nn
+d2l.try_gpu()
+```
+
 ## 通过后端异步处理
 
 :begin_tab:`mxnet`
@@ -29,6 +40,10 @@ from torch import nn
 
 :begin_tab:`pytorch`
 作为热身，考虑一个简单问题：生成一个随机矩阵并将其相乘。让我们在NumPy和PyTorch张量中都这样做，看看它们的区别。请注意，PyTorch的`tensor`是在GPU上定义的。
+:end_tab:
+
+:begin_tab:`paddle`
+作为热身，考虑一个简单问题：我们要生成一个随机矩阵并将其相乘。让我们在NumPy和飞桨张量中都这样做，看看它们的区别。请注意，飞桨的`tensor`是在GPU上定义的。
 :end_tab:
 
 ```{.python .input}
@@ -61,12 +76,33 @@ with d2l.Benchmark('torch'):
         b = torch.mm(a, a)
 ```
 
+```{.python .input}
+#@tab paddle
+# GPU计算热身
+a = paddle.randn(shape=(1000, 1000))
+b = paddle.mm(a, a)
+
+with d2l.Benchmark('numpy'):
+    for _ in range(10):
+        a = numpy.random.normal(size=(1000, 1000))
+        b = numpy.dot(a, a)
+
+with d2l.Benchmark('paddle'):
+    for _ in range(10):
+        a = paddle.randn(shape=(1000, 1000))
+        b = paddle.mm(a, a)
+```
+
 :begin_tab:`mxnet`
 通过MXNet的基准输出比较快了几个数量级。由于两者都在同一处理器上执行，因此一定有其他原因。强制MXNet在返回之前完成所有后端计算，这种强制说明了之前发生的情况：计算是由后端执行，而前端将控制权返回给了Python。
 :end_tab:
 
 :begin_tab:`pytorch`
 通过PyTorch的基准输出比较快了几个数量级。NumPy点积是在CPU上执行的，而PyTorch矩阵乘法是在GPU上执行的，后者的速度要快得多。但巨大的时间差距表明一定还有其他原因。默认情况下，GPU操作在PyTorch中是异步的。强制PyTorch在返回之前完成所有计算，这种强制说明了之前发生的情况：计算是由后端执行，而前端将控制权返回给了Python。
+:end_tab:
+
+:begin_tab:`paddle`
+通过飞桨的基准输出比较快了几个数量级。NumPy点积是在CPU上执行的，而飞桨矩阵乘法是在GPU上执行的，后者的速度要快得多。但巨大的时间差距表明一定还有其他原因。默认情况下，GPU操作在飞桨中是异步的。强制飞桨在返回之前完成所有计算，这种强制说明了之前发生的情况：计算是由后端执行，而前端将控制权返回给了Python。
 :end_tab:
 
 ```{.python .input}
@@ -86,12 +122,25 @@ with d2l.Benchmark():
     torch.cuda.synchronize(device)
 ```
 
+```{.python .input}
+#@tab paddle
+with d2l.Benchmark():
+    for _ in range(10):
+        a = paddle.randn(shape=(1000, 1000))
+        b = paddle.mm(a, a)
+    paddle.device.cuda.synchronize()
+```
+
 :begin_tab:`mxnet`
 广义上说，MXNet有一个用于与用户直接交互的前端（例如通过Python），还有一个由系统用来执行计算的后端。如 :numref:`fig_frontends`所示，用户可以用各种前端语言编写MXNet程序，如Python、R、Scala和C++。不管使用的前端编程语言是什么，MXNet程序的执行主要发生在C++实现的后端。由前端语言发出的操作被传递到后端执行。后端管理自己的线程，这些线程不断收集和执行排队的任务。请注意，要使其工作，后端必须能够跟踪计算图中各个步骤之间的依赖关系。因此，不可能并行化相互依赖的操作。
 :end_tab:
 
 :begin_tab:`pytorch`
 广义上说，PyTorch有一个用于与用户直接交互的前端（例如通过Python），还有一个由系统用来执行计算的后端。如 :numref:`fig_frontends`所示，用户可以用各种前端语言编写PyTorch程序，如Python和C++。不管使用的前端编程语言是什么，PyTorch程序的执行主要发生在C++实现的后端。由前端语言发出的操作被传递到后端执行。后端管理自己的线程，这些线程不断收集和执行排队的任务。请注意，要使其工作，后端必须能够跟踪计算图中各个步骤之间的依赖关系。因此，不可能并行化相互依赖的操作。
+:end_tab:
+
+:begin_tab:`paddle`
+广义上说，飞桨有一个用于与用户直接交互的前端（例如通过Python），还有一个由系统用来执行计算的后端。如 :numref:`fig_frontends`所示，用户可以用各种前端语言编写Python程序，如Python和C++。不管使用的前端编程语言是什么，飞桨程序的执行主要发生在C++实现的后端。由前端语言发出的操作被传递到后端执行。后端管理自己的线程，这些线程不断收集和执行排队的任务。请注意，要使其工作，后端必须能够跟踪计算图中各个步骤之间的依赖关系。因此，不可能并行化相互依赖的操作。
 :end_tab:
 
 ![编程语言前端和深度学习框架后端](../img/frontends.png)
@@ -111,6 +160,14 @@ z
 #@tab pytorch
 x = torch.ones((1, 2), device=device)
 y = torch.ones((1, 2), device=device)
+z = x * y + 2
+z
+```
+
+```{.python .input}
+#@tab paddle
+x = paddle.ones((1, 2))
+y = paddle.ones((1, 2))
 z = x * y + 2
 z
 ```
@@ -178,7 +235,6 @@ with d2l.Benchmark('asynchronous'):
     npx.waitall()
 ```
 
-:begin_tab:`mxnet`
 Python前端线程和C++后端线程之间的简化交互可以概括如下：
 
 1. 前端命令后端将计算任务`y = x + 1`插入队列；
@@ -186,7 +242,7 @@ Python前端线程和C++后端线程之间的简化交互可以概括如下：
 1. 然后后端将计算结果返回到前端。
 
 假设这三个阶段的持续时间分别为$t_1, t_2, t_3$。如果不使用异步编程，执行10000次计算所需的总时间约为$10000 (t_1+ t_2 + t_3)$。如果使用异步编程，因为前端不必等待后端为每个循环返回计算结果，执行$10000$次计算所花费的总时间可以减少到$t_1 + 10000 t_2 + t_3$（假设$10000 t_2 > 9999t_1$）。
-:end_tab:
+
 
 ## 小结
 
@@ -207,6 +263,10 @@ Python前端线程和C++后端线程之间的简化交互可以概括如下：
 
 :begin_tab:`pytorch`
 1. 在CPU上，对本节中相同的矩阵乘法操作进行基准测试，仍然可以通过后端观察异步吗？
+:end_tab:
+
+:begin_tab:`paddle`
+1. 在CPU上，对本节中相同的矩阵乘法操作进行基准测试。你仍然可以通过后端观察异步吗？
 :end_tab:
 
 :begin_tab:`mxnet`

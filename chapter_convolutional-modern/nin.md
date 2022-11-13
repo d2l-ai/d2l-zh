@@ -67,6 +67,24 @@ def nin_block(num_channels, kernel_size, strides, padding):
                                activation='relu')])
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+import paddle.nn as nn
+
+def nin_block(in_channels, out_channels, kernel_size, strides, padding):
+    return nn.Sequential(
+        nn.Conv2D(in_channels, out_channels, kernel_size, strides, padding),
+        nn.ReLU(), 
+        nn.Conv2D(out_channels, out_channels, kernel_size=1),
+        nn.ReLU(), 
+        nn.Conv2D(out_channels, out_channels, kernel_size=1),
+        nn.ReLU())
+```
+
 ## [**NiN模型**]
 
 最初的NiN网络是在AlexNet后不久提出的，显然从中得到了一些启示。
@@ -130,6 +148,22 @@ def net():
         ])
 ```
 
+```{.python .input}
+#@tab paddle
+net = nn.Sequential(
+    nin_block(1, 96, kernel_size=11, strides=4, padding=0),
+    nn.MaxPool2D(3, stride=2),
+    nin_block(96, 256, kernel_size=5, strides=1, padding=2),
+    nn.MaxPool2D(3, stride=2),
+    nin_block(256, 384, kernel_size=3, strides=1, padding=1),
+    nn.MaxPool2D(3, stride=2), nn.Dropout(0.5),
+    # 标签类别数是10
+    nin_block(384, 10, kernel_size=3, strides=1, padding=1),
+    nn.AdaptiveAvgPool2D((1, 1)),
+    # 将四维的输出转成二维的输出，其形状为(批量大小,10)
+    nn.Flatten())
+```
+
 我们创建一个数据样本来[**查看每个块的输出形状**]。
 
 ```{.python .input}
@@ -152,6 +186,14 @@ for layer in net:
 #@tab tensorflow
 X = tf.random.uniform((1, 224, 224, 1))
 for layer in net().layers:
+    X = layer(X)
+    print(layer.__class__.__name__,'output shape:\t', X.shape)
+```
+
+```{.python .input}
+#@tab paddle
+X = paddle.rand(shape=(1, 1, 224, 224))
+for layer in net:
     X = layer(X)
     print(layer.__class__.__name__,'output shape:\t', X.shape)
 ```

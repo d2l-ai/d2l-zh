@@ -60,6 +60,18 @@ import torchvision
 import os
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+from paddle import nn
+import paddle
+import paddle.vision as paddlevision
+import os
+```
+
 ### 获取数据集
 
 我们使用的[**热狗数据集来源于网络**]。
@@ -92,6 +104,12 @@ test_imgs = gluon.data.vision.ImageFolderDataset(
 #@tab pytorch
 train_imgs = torchvision.datasets.ImageFolder(os.path.join(data_dir, 'train'))
 test_imgs = torchvision.datasets.ImageFolder(os.path.join(data_dir, 'test'))
+```
+
+```{.python .input}
+#@tab paddle
+train_imgs = paddlevision.datasets.DatasetFolder(os.path.join(data_dir, 'train'))
+test_imgs = paddlevision.datasets.DatasetFolder(os.path.join(data_dir, 'test'))
 ```
 
 下面显示了前8个正类样本图片和最后8张负类样本图片。正如所看到的，[**图像的大小和纵横比各有不同**]。
@@ -147,6 +165,25 @@ test_augs = torchvision.transforms.Compose([
     normalize])
 ```
 
+```{.python .input}
+#@tab paddle
+# 使用RGB通道的均值和标准差，以标准化每个通道
+normalize = paddle.vision.transforms.Normalize(
+    [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+
+train_augs = paddlevision.transforms.Compose([
+    paddlevision.transforms.RandomResizedCrop(224),
+    paddlevision.transforms.RandomHorizontalFlip(),
+    paddlevision.transforms.ToTensor(),
+    normalize])
+
+test_augs = paddlevision.transforms.Compose([
+    paddlevision.transforms.Resize(256),
+    paddlevision.transforms.CenterCrop(224),
+    paddlevision.transforms.ToTensor(),
+    normalize])
+```
+
 ### [**定义和初始化模型**]
 
 我们使用在ImageNet数据集上预训练的ResNet-18作为源模型。
@@ -162,6 +199,11 @@ pretrained_net = gluon.model_zoo.vision.resnet18_v2(pretrained=True)
 pretrained_net = torchvision.models.resnet18(pretrained=True)
 ```
 
+```{.python .input}
+#@tab paddle
+pretrained_net = paddlevision.models.resnet18(pretrained=True)
+```
+
 :begin_tab:`mxnet`
 预训练的源模型实例包含两个成员变量：`features`和`output`。
 前者包含除输出层以外的模型的所有层，后者是模型的输出层。
@@ -175,12 +217,18 @@ pretrained_net = torchvision.models.resnet18(pretrained=True)
 下面给出了源模型的成员变量`fc`。
 :end_tab:
 
+:begin_tab:`paddle`
+预训练的源模型实例包含许多特征层和一个输出层`fc`。
+此划分的主要目的是促进对除输出层以外所有层的模型参数进行微调。
+下面给出了源模型的成员变量`fc`。
+:end_tab:
+
 ```{.python .input}
 pretrained_net.output
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 pretrained_net.fc
 ```
 
@@ -207,6 +255,13 @@ finetune_net.output.collect_params().setattr('lr_mult', 10)
 finetune_net = torchvision.models.resnet18(pretrained=True)
 finetune_net.fc = nn.Linear(finetune_net.fc.in_features, 2)
 nn.init.xavier_uniform_(finetune_net.fc.weight);
+```
+
+```{.python .input}
+#@tab paddle
+finetune_net = paddlevision.models.resnet18(pretrained=True)
+finetune_net.fc = nn.Linear(pretrained_net.fc.state_dict()['weight'].shape[0], 2)
+nn.initializer.XavierUniform(pretrained_net.fc.state_dict()['weight']);
 ```
 
 ### [**微调模型**]
@@ -256,6 +311,32 @@ def train_fine_tuning(net, learning_rate, batch_size=128, num_epochs=5,
                    devices)
 ```
 
+```{.python .input}
+#@tab paddle
+# 如果param_group=True，输出层中的模型参数将使用十倍的学习率
+def train_fine_tuning(net, learning_rate, batch_size=128, num_epochs=5,
+                      param_group=True):
+    train_iter = paddle.io.DataLoader(paddle.vision.datasets.DatasetFolder(
+        os.path.join(data_dir, 'train'), transform=train_augs),
+        batch_size=batch_size, shuffle=True)
+    test_iter = paddle.io.DataLoader(paddle.vision.datasets.DatasetFolder(
+        os.path.join(data_dir, 'test'), transform=test_augs),
+        batch_size=batch_size)
+    devices = d2l.try_all_gpus()
+    loss = nn.CrossEntropyLoss(reduction="none")
+    if param_group:
+        params_1x = [param for name, param in net.named_parameters()
+             if name not in ["fc.weight", "fc.bias"]]
+        trainer = paddle.optimizer.SGD(learning_rate=learning_rate, parameters=[{'params': params_1x},
+                                   {'params': net.fc.parameters(),
+                                    'learning_rate': learning_rate * 10}],
+                                    weight_decay=0.001)
+    else:
+        trainer = paddle.optimizer.SGD(learning_rate=learning_rate, parameters=net.parameters(), 
+                                  weight_decay=0.001)
+    d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
+```
+
 我们[**使用较小的学习率**]，通过*微调*预训练获得的模型参数。
 
 ```{.python .input}
@@ -263,7 +344,7 @@ train_fine_tuning(finetune_net, 0.01)
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 train_fine_tuning(finetune_net, 5e-5)
 ```
 
@@ -280,6 +361,13 @@ train_fine_tuning(scratch_net, 0.1)
 #@tab pytorch
 scratch_net = torchvision.models.resnet18()
 scratch_net.fc = nn.Linear(scratch_net.fc.in_features, 2)
+train_fine_tuning(scratch_net, 5e-4, param_group=False)
+```
+
+```{.python .input}
+#@tab paddle
+scratch_net = paddlevision.models.resnet18()
+scratch_net.fc = nn.Linear(pretrained_net.fc.state_dict()['weight'].shape[0], 2)
 train_fine_tuning(scratch_net, 5e-4, param_group=False)
 ```
 
@@ -307,6 +395,12 @@ for param in finetune_net.parameters():
     param.requires_grad = False
 ```
 
+```{.python .input}
+#@tab paddle
+for param in finetune_net.parameters():
+    param.stop_gradient = True
+```
+
 4. 事实上，`ImageNet`数据集中有一个“热狗”类别。我们可以通过以下代码获取其输出层中的相应权重参数，但是我们怎样才能利用这个权重参数？
 
 ```{.python .input}
@@ -319,6 +413,13 @@ hotdog_w.shape
 #@tab pytorch
 weight = pretrained_net.fc.weight
 hotdog_w = torch.split(weight.data, 1, dim=0)[934]
+hotdog_w.shape
+```
+
+```{.python .input}
+#@tab paddle
+weight = pretrained_net.fc.weight
+hotdog_w = paddle.split(weight.T, 1000, axis=0)[713]
 hotdog_w.shape
 ```
 

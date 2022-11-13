@@ -33,6 +33,13 @@ from d2l import tensorflow as d2l
 import re
 ```
 
+```{.python .input}
+#@tab paddle
+import collections
+from d2l import paddle as d2l
+import re
+```
+
 ## 读取数据集
 
 首先，我们从H.G.Well的[时光机器](https://www.gutenberg.org/ebooks/35)中加载文本。

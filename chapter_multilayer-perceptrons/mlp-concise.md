@@ -23,6 +23,15 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+from paddle import nn
+```
+
 ## 模型
 
 与softmax回归的简洁实现（ :numref:`sec_softmax_concise`）相比，
@@ -59,6 +68,20 @@ net = tf.keras.models.Sequential([
     tf.keras.layers.Dense(10)])
 ```
 
+```{.python .input}
+#@tab paddle
+net = nn.Sequential(nn.Flatten(),
+                    nn.Linear(784, 256),
+                    nn.ReLU(),
+                    nn.Linear(256, 10))
+
+
+for layer in net:
+    if type(layer) == nn.Linear:
+        weight_attr = paddle.framework.ParamAttr(initializer=paddle.nn.initializer.Normal(mean=0.0, std=0.01))
+        layer.weight_attr = weight_attr
+```
+
 [**训练过程**]的实现与我们实现softmax回归时完全相同，
 这种模块化设计使我们能够将与模型架构有关的内容独立出来。
 
@@ -80,6 +103,13 @@ trainer = torch.optim.SGD(net.parameters(), lr=lr)
 batch_size, lr, num_epochs = 256, 0.1, 10
 loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 trainer = tf.keras.optimizers.SGD(learning_rate=lr)
+```
+
+```{.python .input}
+#@tab paddle
+batch_size, lr, num_epochs = 256, 0.1, 10
+loss = nn.CrossEntropyLoss(reduction='none')
+trainer = paddle.optimizer.SGD(parameters=net.parameters(), learning_rate=lr)
 ```
 
 ```{.python .input}
