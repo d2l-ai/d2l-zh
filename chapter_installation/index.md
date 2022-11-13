@@ -126,7 +126,7 @@ python -m pip install paddlepaddle==2.3.2 -i https://pypi.tuna.tsinghua.edu.cn/s
 我们的下一步是安装`d2l`包，以方便调取本书中经常使用的函数和类：
 
 ```bash
-pip install d2l==0.17.5
+pip install d2l==0.17.6
 ```
 
 
