@@ -1,4 +1,4 @@
-# 词嵌入（Word2vec）
+# 词嵌入（word2vec）
 :label:`sec_word2vec`
 
 自然语言是用来表达人脑思维的复杂系统。
