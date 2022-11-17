@@ -206,3 +206,7 @@ thebesttv, Quanshangze Du, Yanbo Chen。
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/2087)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11678)
+:end_tab:
