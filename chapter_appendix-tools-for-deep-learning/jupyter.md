@@ -1,4 +1,4 @@
-# 使用Jupyter Notebooks
+# 使用Jupyter Notebook
 :label:`sec_jupyter`
 
 本节介绍如何使用Jupyter Notebook编辑和运行本书各章中的代码。确保你已按照 :ref:`chap_installation`中的说明安装了Jupyter并下载了代码。如果你想了解更多关于Jupyter的信息，请参阅其[文档](https://jupyter.readthedocs.io/en/latest/)中的优秀教程。 
