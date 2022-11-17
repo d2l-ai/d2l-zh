@@ -519,3 +519,7 @@ $$-\log P(\mathbf y \mid \mathbf X) = \sum_{i=1}^n \frac{1}{2} \log(2 \pi \sigma
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1776)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11688)
+:end_tab:

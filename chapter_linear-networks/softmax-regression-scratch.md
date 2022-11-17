@@ -630,3 +630,7 @@ predict_ch3(net, test_iter)
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1790)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11693)
+:end_tab:
