@@ -462,7 +462,7 @@ $$-\log P(\mathbf y \mid \mathbf X) = \sum_{i=1}^n \frac{1}{2} \log(2 \pi \sigma
 他们为什么将线性模型作为一个起点呢？
 我们来看一张图片 :numref:`fig_Neuron`：
 这是一张由*树突*（dendrites，输入终端）、
-*细胞核*（nucleu，CPU）组成的生物神经元图片。
+*细胞核*（nucleus，CPU）组成的生物神经元图片。
 *轴突*（axon，输出线）和*轴突端子*（axon terminal，输出端子）
 通过*突触*（synapse）与其他神经元连接。
 
