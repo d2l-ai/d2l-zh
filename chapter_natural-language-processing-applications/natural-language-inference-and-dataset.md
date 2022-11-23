@@ -334,3 +334,7 @@ for X, Y in train_iter:
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5722)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11828)
+:end_tab:

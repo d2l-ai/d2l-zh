@@ -224,3 +224,7 @@ def load_data_imdb(batch_size, num_steps=500):
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5726)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11825)
+:end_tab:
