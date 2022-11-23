@@ -382,3 +382,7 @@ d2l.reshape(conv2d.weight, (1, 2))
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1847)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11783)
+:end_tab:
