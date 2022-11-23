@@ -311,3 +311,7 @@ net(paddle.rand([2, 64]))
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1836)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11780)
+:end_tab:
