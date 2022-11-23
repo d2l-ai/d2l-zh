@@ -395,3 +395,7 @@ $$\mathrm{Proj}_\mathcal{X}(\mathbf{x}) = \mathop{\mathrm{argmin}}_{\mathbf{x}' 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/3816)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11847)
+:end_tab:

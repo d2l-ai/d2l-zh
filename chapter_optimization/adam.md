@@ -317,3 +317,7 @@ d2l.train_ch11(yogi, init_adam_states(feature_dim),
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/4332)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11855)
+:end_tab:

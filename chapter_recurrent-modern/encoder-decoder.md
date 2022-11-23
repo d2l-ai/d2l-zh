@@ -251,3 +251,7 @@ class EncoderDecoder(nn.Layer):
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2779)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11837)
+:end_tab:
