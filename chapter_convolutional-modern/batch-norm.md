@@ -610,3 +610,7 @@ Ali Rahimi在接受2017年NeurIPS大会的“接受时间考验奖”（Test of 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1875)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11792)
+:end_tab:

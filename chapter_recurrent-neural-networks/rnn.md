@@ -325,3 +325,7 @@ $$\exp\left(-\frac{1}{n} \sum_{t=1}^n \log P(x_t \mid x_{t-1}, \ldots, x_1)\righ
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/2101)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11798)
+:end_tab:

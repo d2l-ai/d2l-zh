@@ -626,3 +626,7 @@ train_and_pred(train_features, test_features, train_labels, test_data,
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1825)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11775)
+:end_tab:

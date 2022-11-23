@@ -733,3 +733,7 @@ print(net[2].weight[0] == net[4].weight[0])
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1830)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11778)
+:end_tab:
