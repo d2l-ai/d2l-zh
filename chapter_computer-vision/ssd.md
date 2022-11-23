@@ -972,3 +972,7 @@ d2l.plt.legend();
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/3204)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11807)
+:end_tab:
