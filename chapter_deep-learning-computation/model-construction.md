@@ -717,3 +717,7 @@ Python的问题[全局解释器锁](https://wiki.python.org/moin/GlobalInterpret
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1826)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11777)
+:end_tab:

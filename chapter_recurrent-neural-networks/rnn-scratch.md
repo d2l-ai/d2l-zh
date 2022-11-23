@@ -1002,3 +1002,7 @@ train_ch8(net, train_iter, vocab, lr, num_epochs, d2l.try_gpu(),
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/2104)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11799)
+:end_tab:

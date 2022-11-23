@@ -558,3 +558,7 @@ train(poly_features[:n_train, :], poly_features[n_train:, :],
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1805)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11771)
+:end_tab:

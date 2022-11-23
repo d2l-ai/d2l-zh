@@ -458,3 +458,7 @@ def load_data_time_machine(batch_size, num_steps,  #@save
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/2098)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11797)
+:end_tab:

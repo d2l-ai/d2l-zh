@@ -223,3 +223,7 @@ len(corpus), len(vocab)
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/2095)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11796)
+:end_tab:
