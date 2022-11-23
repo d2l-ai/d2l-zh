@@ -189,3 +189,7 @@ assert float(d2l.reduce_sum(d2l.abs(Y1 - Y2))) < 1e-6
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1853)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11785)
+:end_tab:

@@ -320,3 +320,7 @@ Y_clone == Y
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1838)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11781)
+:end_tab:

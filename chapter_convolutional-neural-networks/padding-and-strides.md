@@ -246,3 +246,7 @@ comp_conv2d(conv2d, X).shape
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1850)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11784)
+:end_tab:

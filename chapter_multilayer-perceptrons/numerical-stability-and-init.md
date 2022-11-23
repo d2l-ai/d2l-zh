@@ -293,3 +293,7 @@ $$U\left(-\sqrt{\frac{6}{n_\mathrm{in} + n_\mathrm{out}}}, \sqrt{\frac{6}{n_\mat
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1817)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11776)
+:end_tab:

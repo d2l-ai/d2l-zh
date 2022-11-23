@@ -552,3 +552,7 @@ d2l.plot([time[tau + i - 1: T - max_steps + i] for i in steps],
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/2092)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11795)
+:end_tab:
