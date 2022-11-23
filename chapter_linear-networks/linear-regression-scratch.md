@@ -414,3 +414,7 @@ print(f'b的估计误差: {true_b - b}')
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1777)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11689)
+:end_tab:
