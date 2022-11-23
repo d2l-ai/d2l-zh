@@ -1013,3 +1013,7 @@ for i in d2l.numpy(output[0]):
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2946)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11804)
+:end_tab:
