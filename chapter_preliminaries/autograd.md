@@ -453,3 +453,7 @@ a.grad == d / a
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1757)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11684)
+:end_tab:

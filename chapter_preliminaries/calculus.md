@@ -318,3 +318,7 @@ $$\frac{\partial y}{\partial x_i} = \frac{\partial y}{\partial u_1} \frac{\parti
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1754)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11684)
+:end_tab:

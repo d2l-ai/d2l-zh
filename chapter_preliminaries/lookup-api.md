@@ -123,3 +123,7 @@ paddle.ones([4], dtype='float32')
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1763)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11686)
+:end_tab:

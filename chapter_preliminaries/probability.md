@@ -508,3 +508,7 @@ $$\mathrm{Var}[f(x)] = E\left[\left(f(x) - E[f(x)]\right)^2\right].$$
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1760)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11685)
+:end_tab:
