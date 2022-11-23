@@ -273,3 +273,7 @@ d2l.predict_ch3(net, test_iter)
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1798)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11769)
+:end_tab:
