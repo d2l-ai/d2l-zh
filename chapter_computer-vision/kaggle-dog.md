@@ -618,3 +618,7 @@ with open('submission.csv', 'w') as f:
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2833)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11815)
+:end_tab:
