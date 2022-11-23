@@ -469,3 +469,7 @@ net(x)
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/2787)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11857)
+:end_tab:

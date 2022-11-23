@@ -570,3 +570,7 @@ train(num_gpus=2, batch_size=256, lr=0.2)
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2800)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11860)
+:end_tab:

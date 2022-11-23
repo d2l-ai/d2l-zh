@@ -276,3 +276,7 @@ Python前端线程和C++后端线程之间的简化交互可以概括如下：
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2791)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11858)
+:end_tab:

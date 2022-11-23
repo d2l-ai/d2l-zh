@@ -697,3 +697,7 @@ d2l.show_heatmaps(net.attention_weight.unsqueeze(0).unsqueeze(0),
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5760)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11840)
+:end_tab:

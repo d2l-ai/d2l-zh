@@ -227,3 +227,7 @@ annotate('vanishing gradient', (4, 1), (2, 0.0))
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/3842)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11846)
+:end_tab:

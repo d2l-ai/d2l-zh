@@ -484,3 +484,7 @@ $$\mathbf{x} \leftarrow \mathbf{x} - \eta \mathrm{diag}(\mathbf{H})^{-1} \nabla 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/3835)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11848)
+:end_tab:

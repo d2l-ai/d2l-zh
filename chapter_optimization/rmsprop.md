@@ -238,3 +238,7 @@ d2l.train_concise_ch11(trainer, {'learning_rate': 0.01, 'rho': 0.9},
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/4323)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11853)
+:end_tab:

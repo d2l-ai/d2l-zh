@@ -256,3 +256,7 @@ $${n \choose 1} \frac{1}{n} \left(1-\frac{1}{n}\right)^{n-1} = \frac{n}{n-1} \le
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/3839)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11849)
+:end_tab:

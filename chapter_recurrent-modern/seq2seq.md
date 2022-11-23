@@ -1117,3 +1117,7 @@ for eng, fra in zip(engs, fras):
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2782)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11838)
+:end_tab:
