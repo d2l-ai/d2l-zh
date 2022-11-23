@@ -430,3 +430,7 @@ hotdog_w.shape
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2894)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11802)
+:end_tab:
