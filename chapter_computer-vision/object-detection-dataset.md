@@ -273,3 +273,7 @@ for ax, label in zip(axes, batch[1][0:10]):
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/3202)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11806)
+:end_tab:
