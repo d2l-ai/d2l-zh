@@ -482,3 +482,7 @@ d2l.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n, scale=2);
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/3297)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11811)
+:end_tab:

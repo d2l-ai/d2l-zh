@@ -1155,3 +1155,7 @@ d2l.show_heatmaps(
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5756)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11845)
+:end_tab:

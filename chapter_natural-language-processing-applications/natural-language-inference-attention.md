@@ -548,3 +548,7 @@ predict_snli(net, vocab, ['he', 'is', 'good', '.'], ['he', 'is', 'bad', '.'])
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5728)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11829)
+:end_tab:

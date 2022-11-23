@@ -162,3 +162,7 @@ print(segment_BPE(tokens, symbols))
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5748)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11818)
+:end_tab:

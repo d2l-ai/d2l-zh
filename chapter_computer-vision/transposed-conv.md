@@ -285,3 +285,7 @@ Z == d2l.matmul(W.T, d2l.reshape(Y, [-1])).reshape((3, 3))
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/3302)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11810)
+:end_tab:

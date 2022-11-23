@@ -376,3 +376,7 @@ $2\times 2$投影矩阵不依赖于任何位置的索引$i$。
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5762)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11844)
+:end_tab:

@@ -168,3 +168,7 @@ d2l.train_ch8(model, train_iter, vocab, lr*1.0, num_epochs, device)
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2770)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11834)
+:end_tab:

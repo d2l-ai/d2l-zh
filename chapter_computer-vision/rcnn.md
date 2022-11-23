@@ -176,3 +176,7 @@ paddlevision.ops.roi_pool(X, rois, boxes_num, output_size=(2, 2), spatial_scale=
 :begin_tab:`pytorch`
 [讨论区](https://discuss.d2l.ai/t/3207)
 :end_tab:
+
+:begin_tab:`paddle`
+[讨论区](https://discuss.d2l.ai/t/11808)
+:end_tab:

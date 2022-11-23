@@ -366,3 +366,7 @@ encoded_pair.shape, encoded_pair_cls.shape, encoded_pair_crane[0][:3]
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5743)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11824)
+:end_tab:

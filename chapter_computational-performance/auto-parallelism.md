@@ -266,3 +266,7 @@ with d2l.Benchmark('在GPU1上运行并复制到CPU'):
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2794)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11859)
+:end_tab:

@@ -358,3 +358,7 @@ train(net, num_gpus=2, batch_size=512, lr=0.2)
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2803)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11861)
+:end_tab:

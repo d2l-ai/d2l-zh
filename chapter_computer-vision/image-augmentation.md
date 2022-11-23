@@ -550,3 +550,7 @@ train_with_data_aug(train_augs, test_augs, net)
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2829)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11801)
+:end_tab:

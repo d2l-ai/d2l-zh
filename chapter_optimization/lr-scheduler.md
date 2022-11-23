@@ -657,3 +657,7 @@ train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/4335)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11856)
+:end_tab:

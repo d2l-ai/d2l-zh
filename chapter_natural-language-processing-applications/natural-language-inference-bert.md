@@ -464,3 +464,7 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5718)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11831)
+:end_tab:

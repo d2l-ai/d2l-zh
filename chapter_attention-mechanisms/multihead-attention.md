@@ -434,3 +434,7 @@ attention(X, Y, Y, valid_lens, training=False).shape
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5758)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11843)
+:end_tab:

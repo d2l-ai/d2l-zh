@@ -194,3 +194,7 @@ d2l.train_concise_ch11(trainer, {'rho': 0.9}, data_iter)
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/5773)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11854)
+:end_tab:

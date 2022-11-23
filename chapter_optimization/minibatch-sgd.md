@@ -786,3 +786,7 @@ train_concise_ch11(trainer, {'learning_rate': 0.01}, data_iter)
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/4326)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11850)
+:end_tab:

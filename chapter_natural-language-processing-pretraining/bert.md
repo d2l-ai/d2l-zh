@@ -576,3 +576,7 @@ class BERTModel(nn.Layer):
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5750)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11820)
+:end_tab:

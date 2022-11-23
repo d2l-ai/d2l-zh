@@ -455,3 +455,7 @@ d2l.show_heatmaps(attention_weights[:, :, :, :len(engs[-1].split()) + 1],
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5754)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11842)
+:end_tab:

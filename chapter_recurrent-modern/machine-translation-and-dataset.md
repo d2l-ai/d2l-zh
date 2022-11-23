@@ -295,3 +295,7 @@ for X, X_valid_len, Y, Y_valid_len in train_iter:
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2776)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11836)
+:end_tab:

@@ -248,3 +248,7 @@ get_analogy('do', 'did', 'go', glove_6b50d)
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5746)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11819)
+:end_tab:

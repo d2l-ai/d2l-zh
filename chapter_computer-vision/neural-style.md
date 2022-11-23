@@ -557,3 +557,7 @@ output = train(content_X, contents_Y, styles_Y, 0.3, 500, 50)
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/3300)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11813)
+:end_tab:

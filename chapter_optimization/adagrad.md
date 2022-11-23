@@ -309,3 +309,7 @@ d2l.train_concise_ch11(trainer, {'learning_rate': 0.1}, data_iter)
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/4320)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11852)
+:end_tab:
