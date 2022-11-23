@@ -680,3 +680,7 @@ df.to_csv('submission.csv', index=False)
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2831)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11814)
+:end_tab:

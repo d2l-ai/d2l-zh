@@ -388,3 +388,7 @@ get_similar_tokens('chip', 3, net[0])
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5740)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11817)
+:end_tab:

@@ -358,3 +358,7 @@ d2l.predict_sentiment(net, vocab, 'this movie is so bad')
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5720)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11827)
+:end_tab:

@@ -399,3 +399,7 @@ for batch in data_iter:
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5735)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11816)
+:end_tab:

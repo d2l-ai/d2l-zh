@@ -172,3 +172,7 @@ display_anchors(fmap_w=1, fmap_h=1, s=[0.8])
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2948)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11805)
+:end_tab:

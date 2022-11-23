@@ -552,3 +552,7 @@ def load_data_voc(batch_size, crop_size):
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/3295)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11809)
+:end_tab:
