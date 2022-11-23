@@ -392,3 +392,7 @@ for X, y in train_iter:
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1786)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11692)
+:end_tab:

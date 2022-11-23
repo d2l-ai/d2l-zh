@@ -15,8 +15,8 @@
 sh Miniconda3-py39_4.12.0-MacOSX-x86_64.sh -b
 ```
 
-如果我们使用Linux，假设Python版本是3.9（我们的测试版本），将下载名称包含字符串“Linux”的bash脚本，并执行以下操作：
 
+如果我们使用Linux，假设Python版本是3.9（我们的测试版本），将下载名称包含字符串“Linux”的bash脚本，并执行以下操作：
 
 ```bash
 # 文件名可能会更改
@@ -113,6 +113,7 @@ pip install tensorflow-probability==0.16.0
 ```bash
 python -m pip install paddlepaddle-gpu==2.3.2.post112 -f https://www.paddlepaddle.org.cn/whl/linux/mkl/avx/stable.html
 ```
+
 
 如果机器没有NVIDIA GPU或CUDA，可以按如下方式PaddlePaddle的CPU版本：
 
@@ -220,4 +221,8 @@ jupyter notebook
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/2084)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11679)
 :end_tab:
