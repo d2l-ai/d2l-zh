@@ -152,3 +152,7 @@ fig.axes.add_patch(bbox_to_rect(cat_bbox, 'red'));
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2944)
 :end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11803)
+:end_tab:
