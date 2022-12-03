@@ -376,7 +376,7 @@ $$\mathrm{Proj}_\mathcal{X}(\mathbf{x}) = \mathop{\mathrm{argmin}}_{\mathbf{x}' 
 
 4. 证明Softmax函数的规范化是凸的，即$f(x) = \log \sum_i \exp(x_i)$的凸性。
 
-5. 证明线性子空间$\mathcal{X} = {\mathbf{X} | \mathbf{W} \mathbf{X} = \mathbf{b}}$是凸集。
+5. 证明线性子空间$\mathcal{X} = \{\mathbf{x} | \mathbf{W} \mathbf{x} = \mathbf{b}\}$是凸集。
 
 6. 证明在线性子空间$\mathbf{b} = \mathbf{0}$的情况下，对于矩阵$\mathbf{M}$的投影$\mathrm {Proj} \mathcal{X}$可以写成$\mathbf{M} \mathbf{X}$。
 
