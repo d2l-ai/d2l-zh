@@ -569,7 +569,7 @@ train(net, train_valid_iter, None, num_epochs, lr, wd, devices, lr_period,
 
 preds = []
 for data, label in test_iter:
-    output = torch.nn.functional.softmax(net(data.to(devices[0])), dim=0)
+    output = torch.nn.functional.softmax(net(data.to(devices[0])), dim=1)
     preds.extend(output.cpu().detach().numpy())
 ids = sorted(os.listdir(
     os.path.join(data_dir, 'train_valid_test', 'test', 'unknown')))
