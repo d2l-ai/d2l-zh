@@ -24,7 +24,7 @@
 
 <h5 align="center">将本书（中英文版）用作教材或参考书的大学</h5>
 <p align="center">
-  <img width="400"  src="http://en.d2l.ai.s3-website-us-west-2.amazonaws.com/_images/map.png">
+  <img width="400"  src="https://d2l.ai/_images/map.png">
 </p>
 
 如果本书对你有帮助，请Star (★) 本仓库或引用本书的英文版：
@@ -71,7 +71,7 @@
 > <b>&mdash; 余凯，地平线公司创始人 & CEO</b>
 
 > <p>"强烈推荐这本书！我特别赞赏这种手脑一体的学习方式。"</p>
-> <b>&mdash; 漆远，蚂蚁金服副总裁、首席AI科学家</b>
+> <b>&mdash; 漆远，复旦大学“浩清”教授、人工智能创新与产业研究院院长</b>
 
 > <p>"《动手学深度学习》是一本很容易让学习者上瘾的书。"</p>
 > <b>&mdash; 沈强，将门创投创始合伙人</b>
