@@ -9,4 +9,4 @@ from d2l import paddle as d2l  # Use Paddle as the backend
 
 """
 
-__version__ = "2.0.0-beta1"
+__version__ = "2.0.0"
