@@ -3,7 +3,7 @@
 
 除了 :numref:`sec_ssd`中描述的单发多框检测之外，
 区域卷积神经网络（region-based CNN或regions with CNN features，R-CNN） :cite:`Girshick.Donahue.Darrell.ea.2014`也是将深度模型应用于目标检测的开创性工作之一。
-在本节中，我们将介绍R-CNN及其一系列改进方法：快速的R-CNN（Fast R-CNN） :cite:`Girshick.2015`、更快的R-CNN（Faster R-CNN） :cite:`Ren.He.Girshick.ea.2015`和掩码R-CNN（Mask R-CNN） :cite:`He.Gkioxari.Dollar.ea.2017`。
+本节将介绍R-CNN及其一系列改进方法：快速的R-CNN（Fast R-CNN） :cite:`Girshick.2015`、更快的R-CNN（Faster R-CNN） :cite:`Ren.He.Girshick.ea.2015`和掩码R-CNN（Mask R-CNN） :cite:`He.Gkioxari.Dollar.ea.2017`。
 限于篇幅，我们只着重介绍这些模型的设计思路。
 
 ## R-CNN
@@ -16,9 +16,9 @@
 
  :numref:`fig_r-cnn`展示了R-CNN模型。具体来说，R-CNN包括以下四个步骤：
 
-1. 对输入图像使用*选择性搜索*来选取多个高质量的提议区域 :cite:`Uijlings.Van-De-Sande.Gevers.ea.2013`。这些提议区域通常是在多个尺度下选取的，并具有不同的形状和大小。每个提议区域都将被标注类别和真实边界框。
-1. 选择一个预训练的卷积神经网络，并将其在输出层之前截断。将每个提议区域变形为网络需要的输入尺寸，并通过前向传播输出抽取的提议区域特征。
-1. 将每个提议区域的特征连同其标注的类别作为一个样本。训练多个支持向量机对目标分类，其中每个支持向量机用来判断样本是否属于某一个类别。
+1. 对输入图像使用*选择性搜索*来选取多个高质量的提议区域 :cite:`Uijlings.Van-De-Sande.Gevers.ea.2013`。这些提议区域通常是在多个尺度下选取的，并具有不同的形状和大小。每个提议区域都将被标注类别和真实边界框；
+1. 选择一个预训练的卷积神经网络，并将其在输出层之前截断。将每个提议区域变形为网络需要的输入尺寸，并通过前向传播输出抽取的提议区域特征；
+1. 将每个提议区域的特征连同其标注的类别作为一个样本。训练多个支持向量机对目标分类，其中每个支持向量机用来判断样本是否属于某一个类别；
 1. 将每个提议区域的特征连同其标注的边界框作为一个样本，训练线性回归模型来预测真实边界框。
 
 尽管R-CNN模型通过预训练的卷积神经网络有效地抽取了图像特征，但它的速度很慢。
@@ -36,9 +36,9 @@ R-CNN的主要性能瓶颈在于，对每个提议区域，卷积神经网络的
 
  :numref:`fig_fast_r-cnn`中描述了Fast R-CNN模型。它的主要计算如下：
 
-1. 与R-CNN相比，Fast R-CNN用来提取特征的卷积神经网络的输入是整个图像，而不是各个提议区域。此外，这个网络通常会参与训练。设输入为一张图像，将卷积神经网络的输出的形状记为$1 \times c \times h_1  \times w_1$。
-1. 假设选择性搜索生成了$n$个提议区域。这些形状各异的提议区域在卷积神经网络的输出上分别标出了形状各异的兴趣区域。然后，这些感兴趣的区域需要进一步抽取出形状相同的特征（比如指定高度$h_2$和宽度$w_2$），以便于连结后输出。为了实现这一目标，Fast R-CNN引入了*兴趣区域汇聚层*（RoI pooling）：将卷积神经网络的输出和提议区域作为输入，输出连结后的各个提议区域抽取的特征，形状为$n \times c \times h_2 \times w_2$。
-1. 通过全连接层将输出形状变换为$n \times d$，其中超参数$d$取决于模型设计。
+1. 与R-CNN相比，Fast R-CNN用来提取特征的卷积神经网络的输入是整个图像，而不是各个提议区域。此外，这个网络通常会参与训练。设输入为一张图像，将卷积神经网络的输出的形状记为$1 \times c \times h_1  \times w_1$；
+1. 假设选择性搜索生成了$n$个提议区域。这些形状各异的提议区域在卷积神经网络的输出上分别标出了形状各异的兴趣区域。然后，这些感兴趣的区域需要进一步抽取出形状相同的特征（比如指定高度$h_2$和宽度$w_2$），以便于连结后输出。为了实现这一目标，Fast R-CNN引入了*兴趣区域汇聚层*（RoI pooling）：将卷积神经网络的输出和提议区域作为输入，输出连结后的各个提议区域抽取的特征，形状为$n \times c \times h_2 \times w_2$；
+1. 通过全连接层将输出形状变换为$n \times d$，其中超参数$d$取决于模型设计；
 1. 预测$n$个提议区域中每个区域的类别和边界框。更具体地说，在预测类别和边界框时，将全连接层的输出分别转换为形状为$n \times q$（$q$是类别的数量）的输出和形状为$n \times 4$的输出。其中预测类别时使用softmax回归。
 
 在Fast R-CNN中提出的兴趣区域汇聚层与 :numref:`sec_pooling`中介绍的汇聚层有所不同。在汇聚层中，我们通过设置汇聚窗口、填充和步幅的大小来间接控制输出形状。而兴趣区域汇聚层对每个区域的输出形状是可以直接指定的。
@@ -76,6 +76,17 @@ X = torch.arange(16.).reshape(1, 1, 4, 4)
 X
 ```
 
+```{.python .input}
+#@tab paddle
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+import paddle.vision as paddlevision
+
+X = paddle.reshape(paddle.arange(16, dtype='float32'), (1,1,4,4))
+X
+```
+
 让我们进一步假设输入图像的高度和宽度都是40像素，且选择性搜索在此图像上生成了两个提议区域。
 每个区域由5个元素表示：区域目标类别、左上角和右下角的$(x, y)$坐标。
 
@@ -86,6 +97,11 @@ rois = np.array([[0, 0, 0, 20, 20], [0, 0, 10, 30, 30]])
 ```{.python .input}
 #@tab pytorch
 rois = torch.Tensor([[0, 0, 0, 20, 20], [0, 0, 10, 30, 30]])
+```
+
+```{.python .input}
+#@tab paddle
+rois = paddle.to_tensor([[0, 0, 20, 20], [0, 10, 30, 30]]).astype('float32')
 ```
 
 由于`X`的高和宽是输入图像高和宽的$1/10$，因此，两个提议区域的坐标先按`spatial_scale`乘以0.1。
@@ -99,6 +115,12 @@ npx.roi_pooling(X, rois, pooled_size=(2, 2), spatial_scale=0.1)
 ```{.python .input}
 #@tab pytorch
 torchvision.ops.roi_pool(X, rois, output_size=(2, 2), spatial_scale=0.1)
+```
+
+```{.python .input}
+#@tab paddle
+boxes_num = paddle.to_tensor([len(rois)]).astype('int32')
+paddlevision.ops.roi_pool(X, rois, boxes_num, output_size=(2, 2), spatial_scale=0.1)
 ```
 
 ## Faster R-CNN
@@ -144,8 +166,8 @@ torchvision.ops.roi_pool(X, rois, output_size=(2, 2), spatial_scale=0.1)
 
 ## 练习
 
-1. 我们能否将目标检测视为回归问题（例如预测边界框和类别的概率）？你可以参考YOLO模型 :cite:`Redmon.Divvala.Girshick.ea.2016`的设计。
-1. 将单发多框检测与本节介绍的方法进行比较。他们的主要区别是什么？你可以参考 :cite:`Zhao.Zheng.Xu.ea.2019`中的图2。
+1. 我们能否将目标检测视为回归问题（例如预测边界框和类别的概率）？可以参考YOLO模型 :cite:`Redmon.Divvala.Girshick.ea.2016`的设计。
+1. 将单发多框检测与本节介绍的方法进行比较。他们的主要区别是什么？可以参考 :cite:`Zhao.Zheng.Xu.ea.2019`中的图2。
 
 :begin_tab:`mxnet`
 [讨论区](https://discuss.d2l.ai/t/3206)
@@ -153,4 +175,8 @@ torchvision.ops.roi_pool(X, rois, output_size=(2, 2), spatial_scale=0.1)
 
 :begin_tab:`pytorch`
 [讨论区](https://discuss.d2l.ai/t/3207)
+:end_tab:
+
+:begin_tab:`paddle`
+[讨论区](https://discuss.d2l.ai/t/11808)
 :end_tab:

@@ -9,7 +9,7 @@
 首先是如何使用单个GPU，然后是如何使用多个GPU和多个服务器（具有多个GPU）。
 
 我们先看看如何使用单个NVIDIA GPU进行计算。
-首先，确保你至少安装了一个NVIDIA GPU。
+首先，确保至少安装了一个NVIDIA GPU。
 然后，下载[NVIDIA驱动和CUDA](https://developer.nvidia.com/cuda-downloads)
 并按照提示设置适当的路径。
 当这些准备工作完成，就可以使用`nvidia-smi`命令来(**查看显卡信息。**)
@@ -20,14 +20,14 @@
 ```
 
 :begin_tab:`mxnet`
-之前，你可能已经注意到MXNet张量看起来与NumPy的`ndarray`几乎相同。
+读者可能已经注意到MXNet张量看起来与NumPy的`ndarray`几乎相同。
 但有一些关键区别，其中之一是MXNet支持不同的硬件设备。
 
-在MXNet中，每个数组都有一个上下文（context）。
+在MXNet中，每个数组都有一个环境（context）。
 默认情况下，所有变量和相关的计算都分配给CPU。
-有时上下文可能是GPU。
+有时环境可能是GPU。
 当我们跨多个服务器部署作业时，事情会变得更加棘手。
-通过智能地将数组分配给上下文，
+通过智能地将数组分配给环境，
 我们可以最大限度地减少在设备之间传输数据的时间。
 例如，当在带有GPU的服务器上训练神经网络时，
 我们通常希望模型的参数在GPU上。
@@ -35,13 +35,24 @@
 接下来，我们需要确认是否安装了MXNet的GPU版本。
 如果已经安装了MXNet的CPU版本，我们需要先卸载它。
 例如，使用`pip uninstall mxnet`命令，
-然后根据你的CUDA版本安装相应的MXNet的GPU版本。
-例如，假设你已经安装了CUDA10.0，
-你可以通过`pip install mxnet-cu100`安装支持CUDA10.0的MXNet版本。
+然后根据CUDA版本安装相应的MXNet的GPU版本。
+例如，假设已经安装了CUDA10.0，可以通过`pip install mxnet-cu100`安装支持CUDA10.0的MXNet版本。
 :end_tab:
 
 :begin_tab:`pytorch`
 在PyTorch中，每个数组都有一个设备（device），
+我们通常将其称为环境（context）。
+默认情况下，所有变量和相关的计算都分配给CPU。
+有时环境可能是GPU。
+当我们跨多个服务器部署作业时，事情会变得更加棘手。
+通过智能地将数组分配给环境，
+我们可以最大限度地减少在设备之间传输数据的时间。
+例如，当在带有GPU的服务器上训练神经网络时，
+我们通常希望模型的参数在GPU上。
+:end_tab:
+
+:begin_tab:`paddle`
+在PaddlePaddle中，每个张量都有一个设备（device），
 我们通常将其称为上下文（context）。
 默认情况下，所有变量和相关的计算都分配给CPU。
 有时上下文可能是GPU。
@@ -50,11 +61,16 @@
 我们可以最大限度地减少在设备之间传输数据的时间。
 例如，当在带有GPU的服务器上训练神经网络时，
 我们通常希望模型的参数在GPU上。
+
+接下来，我们需要确认安装了PaddlePaddle的GPU版本。
+如果已经安装了PaddlePaddle的CPU版本，我们需要先卸载它。
+然后根据你的CUDA版本安装相应的PaddlePaddle的GPU版本。
+例如，假设你安装了CUDA10.1，你可以通过`conda install paddlepaddle-gpu==2.2.2 cudatoolkit=10.1 --channel https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/Paddle/`安装支持CUDA10.1的PaddlePaddle版本。
 :end_tab:
 
 要运行此部分中的程序，至少需要两个GPU。
-注意，对于大多数桌面计算机来说，这可能是奢侈的，但在云中很容易获得。
-例如，你可以使用AWS EC2的多GPU实例。
+注意，对大多数桌面计算机来说，这可能是奢侈的，但在云中很容易获得。
+例如可以使用AWS EC2的多GPU实例。
 本书的其他章节大都不需要多个GPU，
 而本节只是为了展示数据如何在不同的设备之间传递。
 
@@ -83,6 +99,17 @@
 另外，`cuda:0`和`cuda`是等价的。
 :end_tab:
 
+:begin_tab:`paddle`
+在飞桨中，CPU和GPU可以用`paddle.device.set_device('cpu')` 
+和`paddle.device.set_device('gpu')`表示。 
+应该注意的是，`cpu`设备意味着所有物理CPU和内存,
+这意味着飞桨的计算将尝试使用所有CPU核心。 
+然而，`gpu`设备只代表一个卡和相应的显存。 
+如果有多个GPU，我们使用`paddle.device.get_device()`
+其中输出的数字是表示的是卡号（比如`gpu:3`，表示的是卡3，注意GPU的卡号是从0开始的）。 
+另外，`gpu:0`和`gpu`是等价的。
+:end_tab:
+
 ```{.python .input}
 from mxnet import np, npx
 from mxnet.gluon import nn
@@ -106,6 +133,14 @@ import tensorflow as tf
 tf.device('/CPU:0'), tf.device('/GPU:0'), tf.device('/GPU:1')
 ```
 
+```{.python .input}
+#@tab paddle
+import paddle
+from paddle import nn
+
+paddle.device.set_device("cpu"), paddle.CUDAPlace(0), paddle.CUDAPlace(1)
+```
+
 我们可以(**查询可用gpu的数量。**)
 
 ```{.python .input}
@@ -120,6 +155,11 @@ torch.cuda.device_count()
 ```{.python .input}
 #@tab tensorflow
 len(tf.config.experimental.list_physical_devices('GPU'))
+```
+
+```{.python .input}
+#@tab paddle
+paddle.device.cuda.device_count()
 ```
 
 现在我们定义了两个方便的函数，
@@ -172,6 +212,25 @@ def try_all_gpus():  #@save
 try_gpu(), try_gpu(10), try_all_gpus()
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+def try_gpu(i=0):  
+    """如果存在，则返回gpu(i)，否则返回cpu()。"""
+    if paddle.device.cuda.device_count() >= i + 1:
+        return paddle.CUDAPlace(i)
+    return paddle.CPUPlace()
+
+#@save
+def try_all_gpus():  
+    """返回所有可用的GPU，如果没有GPU，则返回[cpu(),]。"""
+    devices = [paddle.CUDAPlace(i)
+               for i in range(paddle.device.cuda.device_count())]
+    return devices if devices else paddle.CPUPlace()
+
+try_gpu(),try_gpu(10),try_all_gpus()
+```
+
 ## 张量与GPU
 
 我们可以[**查询张量所在的设备。**]
@@ -192,6 +251,12 @@ x.device
 #@tab tensorflow
 x = tf.constant([1, 2, 3])
 x.device
+```
+
+```{.python .input}
+#@tab paddle
+x = paddle.to_tensor([1, 2, 3])
+x.place
 ```
 
 需要注意的是，无论何时我们要对多个项进行操作，
@@ -227,7 +292,13 @@ with try_gpu():
 X
 ```
 
-假设你至少有两个GPU，下面的代码将在(**第二个GPU上创建一个随机张量。**)
+```{.python .input}
+#@tab paddle
+X = paddle.to_tensor(paddle.ones(shape=[2, 3]), place=try_gpu())
+X
+```
+
+假设我们至少有两个GPU，下面的代码将在(**第二个GPU上创建一个随机张量。**)
 
 ```{.python .input}
 Y = np.random.uniform(size=(2, 3), ctx=try_gpu(1))
@@ -244,6 +315,12 @@ Y
 #@tab tensorflow
 with try_gpu(1):
     Y = tf.random.uniform((2, 3))
+Y
+```
+
+```{.python .input}
+#@tab paddle
+Y = paddle.to_tensor(paddle.rand([2, 3]), place=try_gpu(1))
 Y
 ```
 
@@ -267,7 +344,7 @@ print(Z)
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 Z = X.cuda(1)
 print(X)
 print(Z)
@@ -296,7 +373,7 @@ Y + Z
 有时，我们只想在变量存在于不同设备中时进行复制。
 在这种情况下，我们可以调用`as_in_ctx`。
 如果变量已经存在于指定的设备中，则这不会进行任何操作。
-除非你特别想创建一个复制，否则选择`as_in_ctx`方法。
+除非我们特别想创建一个复制，否则选择`as_in_ctx`方法。
 :end_tab:
 
 :begin_tab:`pytorch`
@@ -316,7 +393,7 @@ Z.as_in_ctx(try_gpu(1)) is Z
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 Z.cuda(1) is Z
 ```
 
@@ -335,11 +412,11 @@ Z2 is Z
 然后才能继续进行更多的操作。
 这就是为什么拷贝操作要格外小心。
 根据经验，多个小操作比一个大操作糟糕得多。
-此外，一次执行几个操作比代码中散布的许多单个操作要好得多（除非你确信自己在做什么）。
+此外，一次执行几个操作比代码中散布的许多单个操作要好得多。
 如果一个设备必须等待另一个设备才能执行其他操作，
 那么这样的操作可能会阻塞。
 这有点像排队订购咖啡，而不像通过电话预先订购：
-当你到店的时候，咖啡已经准备好了。
+当客人到店的时候，咖啡已经准备好了。
 
 最后，当我们打印张量或将张量转换为NumPy格式时，
 如果数据不在内存中，框架会首先将其复制到内存中，
@@ -371,6 +448,12 @@ with strategy.scope():
         tf.keras.layers.Dense(1)])
 ```
 
+```{.python .input}
+#@tab paddle
+net = nn.Sequential(nn.Linear(3, 1))
+net=net.to(try_gpu())
+```
+
 在接下来的几章中，
 我们将看到更多关于如何在GPU上运行模型的例子，
 因为它们将变得更加计算密集。
@@ -398,6 +481,11 @@ net[0].weight.data.device
 net.layers[0].weights[0].device, net.layers[0].weights[1].device
 ```
 
+```{.python .input}
+#@tab paddle
+net[0].weight.place
+```
+
 总之，只要所有的数据和参数都在同一个设备上，
 我们就可以有效地学习模型。
 在下面的章节中，我们将看到几个这样的例子。
@@ -413,7 +501,7 @@ net.layers[0].weights[0].device, net.layers[0].weights[1].device
 1. 尝试一个计算量更大的任务，比如大矩阵的乘法，看看CPU和GPU之间的速度差异。再试一个计算量很小的任务呢？
 1. 我们应该如何在GPU上读写模型参数？
 1. 测量计算1000个$100 \times 100$矩阵的矩阵乘法所需的时间，并记录输出矩阵的Frobenius范数，一次记录一个结果，而不是在GPU上保存日志并仅传输最终结果。
-1. 测量同时在两个GPU上执行两个矩阵乘法与在一个GPU上按顺序执行两个矩阵乘法所需的时间。提示：你应该看到近乎线性的缩放。
+1. 测量同时在两个GPU上执行两个矩阵乘法与在一个GPU上按顺序执行两个矩阵乘法所需的时间。提示：应该看到近乎线性的缩放。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/1843)
@@ -425,4 +513,8 @@ net.layers[0].weights[0].device, net.layers[0].weights[1].device
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1842)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11782)
 :end_tab:

@@ -1,4 +1,4 @@
-# 词嵌入（Word2vec）
+# 词嵌入（word2vec）
 :label:`sec_word2vec`
 
 自然语言是用来表达人脑思维的复杂系统。
@@ -20,14 +20,14 @@ $$\frac{\mathbf{x}^\top \mathbf{y}}{\|\mathbf{x}\| \|\mathbf{y}\|} \in [-1, 1].$
 
 ## 自监督的word2vec
 
-[word2vec](https://code.google.com/archive/p/word2vec/)工具是为了解决上述问题而提出的。它将每个词映射到一个固定长度的向量，这些向量能更好地表达不同词之间的相似性和类比关系。word2vec工具包含两个模型，即*跳元模型*（skip-gram） :cite:`Mikolov.Sutskever.Chen.ea.2013`和*连续词袋*（CBOW） :cite:`Mikolov.Chen.Corrado.ea.2013`。对于在语义上有意义的表示，它们的训练依赖于条件概率，条件概率可以被看作是使用语料库中一些词来预测另一些单词。由于是不带标签的数据，因此跳元模型和连续词袋都是自监督模型。
+[word2vec](https://code.google.com/archive/p/word2vec/)工具是为了解决上述问题而提出的。它将每个词映射到一个固定长度的向量，这些向量能更好地表达不同词之间的相似性和类比关系。word2vec工具包含两个模型，即*跳元模型*（skip-gram） :cite:`Mikolov.Sutskever.Chen.ea.2013`和*连续词袋*（CBOW） :cite:`Mikolov.Chen.Corrado.ea.2013`。对于在语义上有意义的表示，它们的训练依赖于条件概率，条件概率可以被看作使用语料库中一些词来预测另一些单词。由于是不带标签的数据，因此跳元模型和连续词袋都是自监督模型。
 
 下面，我们将介绍这两种模式及其训练方法。
 
 ## 跳元模型（Skip-Gram）
 :label:`subsec_skip-gram`
 
-跳元模型假设一个词可以用来在文本序列中生成其周围的单词。以文本序列“the”、“man”、“loves”、“his”、“son”为例。假设*中心词*选择“loves”，并将上下文窗口设置为2，如图 :numref:`fig_skip_gram`所示，给定中心词“loves”，跳元模型考虑生成*上下文词*“the”、“man”、“him”、“son”的条件概率：
+跳元模型假设一个词可以用来在文本序列中生成其周围的单词。以文本序列“the”“man”“loves”“his”“son”为例。假设*中心词*选择“loves”，并将上下文窗口设置为2，如图 :numref:`fig_skip_gram`所示，给定中心词“loves”，跳元模型考虑生成*上下文词*“the”“man”“him”“son”的条件概率：
 
 $$P(\textrm{"the"},\textrm{"man"},\textrm{"his"},\textrm{"son"}\mid\textrm{"loves"}).$$
 
@@ -71,7 +71,7 @@ $$\begin{aligned}\frac{\partial \text{log}\, P(w_o \mid w_c)}{\partial \mathbf{v
 
 ## 连续词袋（CBOW）模型
 
-*连续词袋*（CBOW）模型类似于跳元模型。与跳元模型的主要区别在于，连续词袋模型假设中心词是基于其在文本序列中的周围上下文词生成的。例如，在文本序列“the”、“man”、“loves”、“his”、“son”中，在“loves”为中心词且上下文窗口为2的情况下，连续词袋模型考虑基于上下文词“the”、“man”、“him”、“son”（如 :numref:`fig_cbow`所示）生成中心词“loves”的条件概率，即：
+*连续词袋*（CBOW）模型类似于跳元模型。与跳元模型的主要区别在于，连续词袋模型假设中心词是基于其在文本序列中的周围上下文词生成的。例如，在文本序列“the”“man”“loves”“his”“son”中，在“loves”为中心词且上下文窗口为2的情况下，连续词袋模型考虑基于上下文词“the”“man”“him”“son”（如 :numref:`fig_cbow`所示）生成中心词“loves”的条件概率，即：
 
 $$P(\textrm{"loves"}\mid\textrm{"the"},\textrm{"man"},\textrm{"his"},\textrm{"son"}).$$
 
@@ -111,7 +111,7 @@ $$\frac{\partial \log\, P(w_c \mid \mathcal{W}_o)}{\partial \mathbf{v}_{o_i}} = 
 
 ## 小结
 
-* 词向量是用于表示单词意义的向量，也可以看作是词的特征向量。将词映射到实向量的技术称为词嵌入。
+* 词向量是用于表示单词意义的向量，也可以看作词的特征向量。将词映射到实向量的技术称为词嵌入。
 * word2vec工具包含跳元模型和连续词袋模型。
 * 跳元模型假设一个单词可用于在文本序列中，生成其周围的单词；而连续词袋模型假设基于上下文词来生成中心单词。
 

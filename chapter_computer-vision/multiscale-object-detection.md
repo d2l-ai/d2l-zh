@@ -9,7 +9,7 @@
 ## 多尺度锚框
 :label:`subsec_multiscale-anchor-boxes`
 
-你可能会意识到，减少图像上的锚框数量并不困难。
+减少图像上的锚框数量并不困难。
 比如，我们可以在输入图像中均匀采样一小部分像素，并以它们为中心生成锚框。
 此外，在不同尺度下，我们可以生成不同数量和不同大小的锚框。
 直观地说，比起较大的目标，较小的目标在图像上出现的可能性更多样。
@@ -36,6 +36,19 @@ h, w
 %matplotlib inline
 from d2l import torch as d2l
 import torch
+
+img = d2l.plt.imread('../img/catdog.jpg')
+h, w = img.shape[:2]
+h, w
+```
+
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
 
 img = d2l.plt.imread('../img/catdog.jpg')
 h, w = img.shape[:2]
@@ -72,6 +85,18 @@ def display_anchors(fmap_w, fmap_h, s):
     fmap = d2l.zeros((1, 10, fmap_h, fmap_w))
     anchors = d2l.multibox_prior(fmap, sizes=s, ratios=[1, 2, 0.5])
     bbox_scale = d2l.tensor((w, h, w, h))
+    d2l.show_bboxes(d2l.plt.imshow(img).axes,
+                    anchors[0] * bbox_scale)
+```
+
+```{.python .input}
+#@tab paddle
+def display_anchors(fmap_w, fmap_h, s):
+    d2l.set_figsize()
+    # 前两个维度上的值不影响输出
+    fmap = paddle.zeros(shape=[1, 10, fmap_h, fmap_w])
+    anchors = d2l.multibox_prior(fmap, sizes=s, ratios=[1, 2, 0.5])
+    bbox_scale = paddle.to_tensor((w, h, w, h))
     d2l.show_bboxes(d2l.plt.imshow(img).axes,
                     anchors[0] * bbox_scale)
 ```
@@ -138,7 +163,7 @@ display_anchors(fmap_w=1, fmap_h=1, s=[0.8])
 
 1. 根据我们在 :numref:`sec_alexnet`中的讨论，深度神经网络学习图像特征级别抽象层次，随网络深度的增加而升级。在多尺度目标检测中，不同尺度的特征映射是否对应于不同的抽象层次？为什么？
 1. 在 :numref:`subsec_multiscale-anchor-boxes`中的实验里的第一个尺度（`fmap_w=4, fmap_h=4`）下，生成可能重叠的均匀分布的锚框。
-1. 给定形状为$1 \times c \times h \times w$的特征图变量，其中$c$、$h$和$w$分别是特征图的通道数、高度和宽度。你怎样才能将这个变量转换为锚框类别和偏移量？输出的形状是什么？
+1. 给定形状为$1 \times c \times h \times w$的特征图变量，其中$c$、$h$和$w$分别是特征图的通道数、高度和宽度。怎样才能将这个变量转换为锚框类别和偏移量？输出的形状是什么？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/2947)
@@ -146,4 +171,8 @@ display_anchors(fmap_w=1, fmap_h=1, s=[0.8])
 
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2948)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11805)
 :end_tab:

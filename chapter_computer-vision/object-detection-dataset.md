@@ -32,6 +32,18 @@ import pandas as pd
 ```
 
 ```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import os
+import pandas as pd
+import paddle
+import paddle.vision as paddlevision
+```
+
+```{.python .input}
 #@tab all
 #@save
 d2l.DATA_HUB['banana-detection'] = (
@@ -85,6 +97,27 @@ def read_data_bananas(is_train=True):
     return images, torch.tensor(targets).unsqueeze(1) / 256
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+def read_data_bananas(is_train=True):
+    """读取香蕉检测数据集中的图像和标签"""
+    data_dir = d2l.download_extract('banana-detection')
+    csv_fname = os.path.join(data_dir, 'bananas_train' if is_train
+                             else 'bananas_val', 'label.csv')
+    csv_data = pd.read_csv(csv_fname)
+    csv_data = csv_data.set_index('img_name')
+    images, targets = [], []
+    for img_name, target in csv_data.iterrows():
+        paddle.vision.set_image_backend('cv2')
+        images.append(paddlevision.image_load(os.path.join(data_dir, 'bananas_train' if is_train else
+        'bananas_val', 'images', f'{img_name}'))[..., ::-1])
+        # 这里的target包含（类别，左上角x，左上角y，右下角x，右下角y）
+        # 其中所有图像都具有相同的香蕉类（索引为0）
+        targets.append(list(target))
+    return images, paddle.to_tensor(targets).unsqueeze(1) / 256
+```
+
 通过使用`read_data_bananas`函数读取图像和标签，以下`BananasDataset`类别将允许我们[**创建一个自定义`Dataset`实例**]来加载香蕉检测数据集。
 
 ```{.python .input}
@@ -121,6 +154,23 @@ class BananasDataset(torch.utils.data.Dataset):
         return len(self.features)
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+class BananasDataset(paddle.io.Dataset):
+    """一个用于加载香蕉检测数据集的自定义数据集"""
+    def __init__(self, is_train):
+        self.features, self.labels = read_data_bananas(is_train)
+        print('read ' + str(len(self.features)) + (f' training examples' if
+              is_train else f' validation examples'))
+
+    def __getitem__(self, idx):
+        return (paddle.to_tensor(self.features[idx], dtype='float32').transpose([2, 0, 1]), self.labels[idx])
+
+    def __len__(self):
+        return len(self.features)
+```
+
 最后，我们定义`load_data_bananas`函数，来[**为训练集和测试集返回两个数据加载器实例**]。对于测试集，无须按随机顺序读取它。
 
 ```{.python .input}
@@ -146,6 +196,18 @@ def load_data_bananas(batch_size):
     return train_iter, val_iter
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+def load_data_bananas(batch_size):
+    """加载香蕉检测数据集"""
+    train_iter = paddle.io.DataLoader(BananasDataset(is_train=True),
+                                      batch_size=batch_size, return_list=True, shuffle=True)
+    val_iter = paddle.io.DataLoader(BananasDataset(is_train=False),
+                                    batch_size=batch_size, return_list=True)
+    return train_iter, val_iter
+```
+
 让我们[**读取一个小批量，并打印其中的图像和标签的形状**]。
 图像的小批量的形状为（批量大小、通道数、高度、宽度），看起来很眼熟：它与我们之前图像分类任务中的相同。
 标签的小批量的形状为（批量大小，$m$，5），其中$m$是数据集的任何图像中边界框可能出现的最大数量。
@@ -154,7 +216,7 @@ def load_data_bananas(batch_size):
 通常来说，图像可能拥有不同数量个边界框；因此，在达到$m$之前，边界框少于$m$的图像将被非法边界框填充。
 这样，每个边界框的标签将被长度为5的数组表示。
 数组中的第一个元素是边界框中对象的类别，其中-1表示用于填充的非法边界框。
-数组的其余四个元素是边界框左上角和右下角的（$x$，$y$）坐标值（值域在0到1之间）。
+数组的其余四个元素是边界框左上角和右下角的（$x$，$y$）坐标值（值域在0～1之间）。
 对于香蕉数据集而言，由于每张图像上只有一个边界框，因此$m=1$。
 
 ```{.python .input}
@@ -186,6 +248,14 @@ for ax, label in zip(axes, batch[1][0:10]):
     d2l.show_bboxes(ax, [label[0][1:5] * edge_size], colors=['w'])
 ```
 
+```{.python .input}
+#@tab paddle
+imgs = (batch[0][0:10].transpose([0, 2, 3, 1])) / 255
+axes = d2l.show_images(imgs, 2, 5, scale=2)
+for ax, label in zip(axes, batch[1][0:10]):
+    d2l.show_bboxes(ax, [label[0][1:5] * edge_size], colors=['w'])
+```
+
 ## 小结
 
 * 我们收集的香蕉检测数据集可用于演示目标检测模型。
@@ -202,4 +272,8 @@ for ax, label in zip(axes, batch[1][0:10]):
 
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/3202)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11806)
 :end_tab:

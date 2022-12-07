@@ -5,12 +5,10 @@ import sys
 
 def _unnumber_chaps_and_secs(lines):
     def _startswith_unnumbered(l):
-        UNNUMBERED = {'\\section{Summary',
-                      '\\section{Exercise',
-                      '\\section{Exercises',
-                      '\\subsection{Summary',
-                      '\\subsection{Exercise',
-                      '\\subsection{Exercises'}
+        UNNUMBERED = {'\\section{小结',
+                      '\\section{练习',
+                      '\\subsection{小结',
+                      '\\subsection{练习'}
         for unnum in UNNUMBERED:
             if l.startswith(unnum):
                 return True

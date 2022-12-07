@@ -28,6 +28,15 @@ import tensorflow as tf
 ```
 
 ```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+from paddle import nn
+```
+
+```{.python .input}
 #@tab all
 batch_size = 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
@@ -92,6 +101,22 @@ b2 = tf.Variable(tf.zeros(num_outputs))
 params = [W1, b1, W2, b2]
 ```
 
+```{.python .input}
+#@tab paddle
+num_inputs, num_outputs, num_hiddens = 784, 10, 256
+
+W1 = paddle.randn([num_inputs, num_hiddens]) * 0.01
+W1.stop_gradient = False
+b1 = paddle.zeros([num_hiddens])
+b1.stop_gradient = False
+W2 = paddle.randn([num_hiddens, num_outputs]) * 0.01
+W2.stop_gradient = False
+b2 = paddle.zeros([num_outputs])
+b2.stop_gradient = False
+
+params = [W1, b1, W2, b2]
+```
+
 ## 激活函数
 
 为了确保我们对模型的细节了如指掌，
@@ -114,6 +139,13 @@ def relu(X):
 #@tab tensorflow
 def relu(X):
     return tf.math.maximum(X, 0)
+```
+
+```{.python .input}
+#@tab paddle
+def relu(X):
+    a = paddle.zeros_like(X)
+    return paddle.maximum(X, a)
 ```
 
 ## 模型
@@ -145,6 +177,14 @@ def net(X):
     return tf.matmul(H, W2) + b2
 ```
 
+```{.python .input}
+#@tab paddle
+def net(X):
+    X = X.reshape((-1, num_inputs))
+    H = relu(X@W1 + b1)  # 这里“@”代表矩阵乘法
+    return (H@W2 + b2)
+```
+
 ## 损失函数
 
 由于我们已经从零实现过softmax函数（ :numref:`sec_softmax_scratch`），
@@ -158,7 +198,7 @@ loss = gluon.loss.SoftmaxCrossEntropyLoss()
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 loss = nn.CrossEntropyLoss(reduction='none')
 ```
 
@@ -195,6 +235,13 @@ updater = d2l.Updater([W1, W2, b1, b2], lr)
 d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, updater)
 ```
 
+```{.python .input}
+#@tab paddle
+num_epochs, lr = 10, 0.1
+updater = paddle.optimizer.SGD(learning_rate=lr, parameters=params)
+d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, updater)
+```
+
 为了对学习到的模型进行评估，我们将[**在一些测试数据上应用这个模型**]。
 
 ```{.python .input}
@@ -213,7 +260,7 @@ d2l.predict_ch3(net, test_iter)
 1. 改变学习速率会如何影响结果？保持模型架构和其他超参数（包括轮数）不变，学习率设置为多少会带来最好的结果？
 1. 通过对所有超参数（学习率、轮数、隐藏层数、每层的隐藏单元数）进行联合优化，可以得到的最佳结果是什么？
 1. 描述为什么涉及多个超参数更具挑战性。
-1. 如果要构建多个超参数的搜索方法，你能想到的最聪明的策略是什么？
+1. 如果想要构建多个超参数的搜索方法，请想出一个聪明的策略。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/1800)
@@ -225,4 +272,8 @@ d2l.predict_ch3(net, test_iter)
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1798)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11769)
 :end_tab:

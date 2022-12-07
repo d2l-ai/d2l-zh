@@ -3,7 +3,7 @@
 
 在 :numref:`chap_cnn`中，我们探讨了使用二维卷积神经网络处理二维图像数据的机制，并将其应用于局部特征，如相邻像素。虽然卷积神经网络最初是为计算机视觉设计的，但它也被广泛用于自然语言处理。简单地说，只要将任何文本序列想象成一维图像即可。通过这种方式，一维卷积神经网络可以处理文本中的局部特征，例如$n$元语法。
 
-在本节中，我们将使用*textCNN*模型来演示如何设计一个表示单个文本 :cite:`Kim.2014`的卷积神经网络架构。与 :numref:`fig_nlp-map-sa-rnn`中使用带有GloVe预训练的循环神经网络架构进行情感分析相比， :numref:`fig_nlp-map-sa-cnn`中唯一的区别在于架构的选择。
+本节将使用*textCNN*模型来演示如何设计一个表示单个文本 :cite:`Kim.2014`的卷积神经网络架构。与 :numref:`fig_nlp-map-sa-rnn`中使用带有GloVe预训练的循环神经网络架构进行情感分析相比， :numref:`fig_nlp-map-sa-cnn`中唯一的区别在于架构的选择。
 
 ![将GloVe放入卷积神经网络架构进行情感分析](../img/nlp-map-sa-cnn.svg)
 :label:`fig_nlp-map-sa-cnn`
@@ -28,6 +28,18 @@ batch_size = 64
 train_iter, test_iter, vocab = d2l.load_data_imdb(batch_size)
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+from paddle import nn
+
+batch_size = 64
+train_iter, test_iter, vocab = d2l.load_data_imdb(batch_size)
+```
+
 ## 一维卷积
 
 在介绍该模型之前，让我们先看看一维卷积是如何工作的。请记住，这只是基于互相关运算的二维卷积的特例。
@@ -40,10 +52,20 @@ train_iter, test_iter, vocab = d2l.load_data_imdb(batch_size)
 我们在下面的`corr1d`函数中实现了一维互相关。给定输入张量`X`和核张量`K`，它返回输出张量`Y`。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch
 def corr1d(X, K):
     w = K.shape[0]
     Y = d2l.zeros((X.shape[0] - w + 1))
+    for i in range(Y.shape[0]):
+        Y[i] = (X[i: i + w] * K).sum()
+    return Y
+```
+
+```{.python .input}
+#@tab paddle
+def corr1d(X, K):
+    w = K.shape[0]
+    Y = d2l.zeros([X.shape[0] - w + 1], dtype=X.dtype)
     for i in range(Y.shape[0]):
         Y[i] = (X[i: i + w] * K).sum()
     return Y
@@ -175,6 +197,41 @@ class TextCNN(nn.Module):
         return outputs
 ```
 
+```{.python .input}
+#@tab paddle
+class TextCNN(nn.Layer):
+    def __init__(self, vocab_size, embed_size, kernel_sizes, num_channels,
+                 **kwargs):
+        super(TextCNN, self).__init__(**kwargs)
+        self.embedding = nn.Embedding(vocab_size, embed_size)
+        # 这个嵌入层不需要训练
+        self.constant_embedding = nn.Embedding(vocab_size, embed_size)
+        self.dropout = nn.Dropout(0.5)
+        self.decoder = nn.Linear(sum(num_channels), 2)
+        # 最大时间汇聚层没有参数，因此可以共享此实例
+        self.pool = nn.AdaptiveAvgPool1D(1)
+        self.relu = nn.ReLU()
+        # 创建多个一维卷积层
+        self.convs = nn.LayerList()
+        for c, k in zip(num_channels, kernel_sizes):
+            self.convs.append(nn.Conv1D(2 * embed_size, c, k))
+
+    def forward(self, inputs):
+        # 沿着向量维度将两个嵌入层连结起来，
+        # 每个嵌入层的输出形状都是（批量大小，词元数量，词元向量维度）连结起来
+        embeddings = paddle.concat((
+            self.embedding(inputs), self.constant_embedding(inputs)), axis=2)
+        # 根据一维卷积层的输入格式，重新排列张量，以便通道作为第2维
+        embeddings = embeddings.transpose([0, 2, 1])
+        # 每个一维卷积层在最大时间汇聚层合并后，获得的张量形状是（批量大小，通道数，1）
+        # 删除最后一个维度并沿通道维度连结
+        encoding = paddle.concat([
+            paddle.squeeze(self.relu(self.pool(conv(embeddings))), axis=-1)
+            for conv in self.convs], axis=1)
+        outputs = self.decoder(self.dropout(encoding))
+        return outputs
+```
+
 让我们创建一个textCNN实例。它有3个卷积层，卷积核宽度分别为3、4和5，均有100个输出通道。
 
 ```{.python .input}
@@ -195,6 +252,21 @@ def init_weights(m):
         nn.init.xavier_uniform_(m.weight)
 
 net.apply(init_weights);
+```
+
+```{.python .input}
+#@tab paddle
+embed_size, kernel_sizes, nums_channels = 100, [3, 4, 5], [100, 100, 100]
+devices = d2l.try_all_gpus()
+net = TextCNN(len(vocab), embed_size, kernel_sizes, nums_channels)
+
+def init_weights(net):
+    init_normal = nn.initializer.XavierUniform()
+    for i in net.sublayers():
+        if type(i) in [nn.Linear, nn.Conv1D]:  
+            init_normal(i.weight)
+            
+init_weights(net)
 ```
 
 ### 加载预训练词向量
@@ -218,6 +290,15 @@ net.constant_embedding.weight.data.copy_(embeds)
 net.constant_embedding.weight.requires_grad = False
 ```
 
+```{.python .input}
+#@tab paddle
+glove_embedding = d2l.TokenEmbedding('glove.6b.100d')
+embeds = glove_embedding[vocab.idx_to_token]
+net.embedding.weight.set_value(embeds)
+net.constant_embedding.weight.set_value(embeds)
+net.constant_embedding.weight.stop_gradient = True
+```
+
 ### 训练和评估模型
 
 现在我们可以训练textCNN模型进行情感分析。
@@ -233,6 +314,14 @@ d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
 #@tab pytorch
 lr, num_epochs = 0.001, 5
 trainer = torch.optim.Adam(net.parameters(), lr=lr)
+loss = nn.CrossEntropyLoss(reduction="none")
+d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
+```
+
+```{.python .input}
+#@tab paddle
+lr, num_epochs = 0.001, 5
+trainer = paddle.optimizer.Adam(learning_rate=lr, parameters=net.parameters())
 loss = nn.CrossEntropyLoss(reduction="none")
 d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
 ```
@@ -259,7 +348,7 @@ d2l.predict_sentiment(net, vocab, 'this movie is so bad')
 ## 练习
 
 1. 调整超参数，并比较 :numref:`sec_sentiment_rnn`中用于情感分析的架构和本节中用于情感分析的架构，例如在分类精度和计算效率方面。
-1. 你能不能用 :numref:`sec_sentiment_rnn`练习中介绍的方法进一步提高模型的分类精度？
+1. 请试着用 :numref:`sec_sentiment_rnn`练习中介绍的方法进一步提高模型的分类精度。
 1. 在输入表示中添加位置编码。它是否提高了分类的精度？
 
 :begin_tab:`mxnet`
@@ -268,4 +357,8 @@ d2l.predict_sentiment(net, vocab, 'this movie is so bad')
 
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5720)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11827)
 :end_tab:

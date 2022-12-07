@@ -71,6 +71,24 @@ d2l.DATA_HUB['SNLI'] = (
 data_dir = d2l.download_extract('SNLI')
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+from paddle import nn
+import os
+import re
+
+#@save
+d2l.DATA_HUB['SNLI'] = (
+    'https://nlp.stanford.edu/projects/snli/snli_1.0.zip',
+    '9fcde07509c7e87ec61c640c1b2753d9041758e4')
+
+data_dir = d2l.download_extract('SNLI')
+```
+
 ### [**读取数据集**]
 
 原始的SNLI数据集包含的信息比我们在实验中真正需要的信息丰富得多。因此，我们定义函数`read_snli`以仅提取数据集的一部分，然后返回前提、假设及其标签的列表。
@@ -99,7 +117,7 @@ def read_snli(data_dir, is_train):
     return premises, hypotheses, labels
 ```
 
-现在让我们[**打印前3对**]前提和假设，以及它们的标签（“0”、“1”和“2”分别对应于“蕴涵”、“矛盾”和“中性”）。
+现在让我们[**打印前3对**]前提和假设，以及它们的标签（“0”“1”和“2”分别对应于“蕴涵”“矛盾”和“中性”）。
 
 ```{.python .input}
 #@tab all
@@ -110,7 +128,7 @@ for x0, x1, y in zip(train_data[0][:3], train_data[1][:3], train_data[2][:3]):
     print('标签：', y)
 ```
 
-训练集约有550000对，测试集约有10000对。下面显示了训练集和测试集中的三个[**标签“蕴涵”、“矛盾”和“中性”是平衡的**]。
+训练集约有550000对，测试集约有10000对。下面显示了训练集和测试集中的三个[**标签“蕴涵”“矛盾”和“中性”是平衡的**]。
 
 ```{.python .input}
 #@tab all
@@ -184,6 +202,37 @@ class SNLIDataset(torch.utils.data.Dataset):
         return len(self.premises)
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+class SNLIDataset(paddle.io.Dataset):
+    """用于加载SNLI数据集的自定义数据集"""
+    def __init__(self, dataset, num_steps, vocab=None):
+        self.num_steps = num_steps
+        all_premise_tokens = d2l.tokenize(dataset[0])
+        all_hypothesis_tokens = d2l.tokenize(dataset[1])
+        if vocab is None:
+            self.vocab = d2l.Vocab(all_premise_tokens + \
+                all_hypothesis_tokens, min_freq=5, reserved_tokens=['<pad>'])
+        else:
+            self.vocab = vocab
+        self.premises = self._pad(all_premise_tokens)
+        self.hypotheses = self._pad(all_hypothesis_tokens)
+        self.labels = paddle.to_tensor(dataset[2])
+        print('read ' + str(len(self.premises)) + ' examples')
+
+    def _pad(self, lines):
+        return paddle.to_tensor([d2l.truncate_pad(
+            self.vocab[line], self.num_steps, self.vocab['<pad>'])
+                         for line in lines])
+
+    def __getitem__(self, idx):
+        return (self.premises[idx], self.hypotheses[idx]), self.labels[idx]
+    
+    def __len__(self):
+        return len(self.premises)
+```
+
 ### [**整合代码**]
 
 现在，我们可以调用`read_snli`函数和`SNLIDataset`类来下载SNLI数据集，并返回训练集和测试集的`DataLoader`实例，以及训练集的词表。值得注意的是，我们必须使用从训练集构造的词表作为测试集的词表。因此，在训练集中训练的模型将不知道来自测试集的任何新词元。
@@ -225,6 +274,29 @@ def load_data_snli(batch_size, num_steps=50):
     return train_iter, test_iter, train_set.vocab
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+def load_data_snli(batch_size, num_steps=50):
+    """下载SNLI数据集并返回数据迭代器和词表"""
+    num_workers = d2l.get_dataloader_workers()
+    data_dir = d2l.download_extract('SNLI')
+    train_data = read_snli(data_dir, True)
+    test_data = read_snli(data_dir, False)
+    train_set = SNLIDataset(train_data, num_steps)
+    test_set = SNLIDataset(test_data, num_steps, train_set.vocab)
+    train_iter = paddle.io.DataLoader(train_set,batch_size=batch_size,
+                                      shuffle=True,
+                                      num_workers=num_workers,
+                                      return_list=True)
+                                             
+    test_iter = paddle.io.DataLoader(test_set, batch_size=batch_size,
+                                     shuffle=False,
+                                     num_workers=num_workers,
+                                     return_list=True)
+    return train_iter, test_iter, train_set.vocab
+```
+
 在这里，我们将批量大小设置为128时，将序列长度设置为50，并调用`load_data_snli`函数来获取数据迭代器和词表。然后我们打印词表大小。
 
 ```{.python .input}
@@ -252,7 +324,7 @@ for X, Y in train_iter:
 
 ## 练习
 
-1. 机器翻译长期以来一直是基于翻译输出和翻译真实值之间的表面$n$元语法匹配来进行评估的。你能设计一种用自然语言推断来评价机器翻译结果的方法吗？
+1. 机器翻译长期以来一直是基于翻译输出和翻译真实值之间的表面$n$元语法匹配来进行评估的。可以设计一种用自然语言推断来评价机器翻译结果的方法吗？
 1. 我们如何更改超参数以减小词表大小？
 
 :begin_tab:`mxnet`
@@ -261,4 +333,8 @@ for X, Y in train_iter:
 
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5722)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11828)
 :end_tab:

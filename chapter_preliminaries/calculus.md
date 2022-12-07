@@ -9,8 +9,7 @@
 ![用逼近法求圆的面积](../img/polygon-circle.svg)
 :label:`fig_circle_area`
 
-事实上，逼近法就是*积分*（integral calculus）的起源，
-我们将在 :numref:`sec_integral_calculus`中详细描述。
+事实上，逼近法就是*积分*（integral calculus）的起源。
 2000多年后，微积分的另一支，*微分*（differential calculus）被发明出来。
 在微分学最重要的应用是优化问题，即考虑如何把事情做到最好。
 正如在 :numref:`subsec_norms_and_objectives`中讨论的那样，
@@ -18,7 +17,7 @@
 
 在深度学习中，我们“训练”模型，不断更新它们，使它们在看到越来越多的数据时变得越来越好。
 通常情况下，变得更好意味着最小化一个*损失函数*（loss function），
-即一个衡量“我们的模型有多糟糕”这个问题的分数。
+即一个衡量“模型有多糟糕”这个问题的分数。
 最终，我们真正关心的是生成一个模型，它能够在从未见过的数据上表现良好。
 但“训练”模型只能将模型与我们实际能看到的数据相拟合。
 因此，我们可以将拟合模型的任务分解为两个关键问题：
@@ -26,15 +25,15 @@
 * *优化*（optimization）：用模型拟合观测数据的过程；
 * *泛化*（generalization）：数学原理和实践者的智慧，能够指导我们生成出有效性超出用于训练的数据集本身的模型。
 
-为了帮助你在后面的章节中更好地理解优化问题和方法，
-本节提供了一个非常简短的入门教程，帮你快速掌握深度学习中常用的微分知识。
+为了帮助读者在后面的章节中更好地理解优化问题和方法，
+本节提供了一个非常简短的入门教程，帮助读者快速掌握深度学习中常用的微分知识。
 
 ## 导数和微分
 
 我们首先讨论导数的计算，这是几乎所有深度学习优化算法的关键步骤。
 在深度学习中，我们通常选择对于模型参数可微的损失函数。
 简而言之，对于每个参数，
-如果我们把这个参数*增加*或*减少*一个无穷小的量，我们可以知道损失会以多快的速度增加或减少，
+如果我们把这个参数*增加*或*减少*一个无穷小的量，可以知道损失会以多快的速度增加或减少，
 
 假设我们有一个函数$f: \mathbb{R} \rightarrow \mathbb{R}$，其输入和输出都是标量。
 (**如果$f$的*导数*存在，这个极限被定义为**)
@@ -83,8 +82,19 @@ def f(x):
     return 3 * x ** 2 - 4 * x
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+from matplotlib_inline import backend_inline
+import numpy as np
+
+def f(x):
+    return 3 * x ** 2 - 4 * x
+```
+
 [**通过令$x=1$并让$h$接近$0$，**] :eqref:`eq_derivative`中(**$\frac{f(x+h)-f(x)}{h}$的数值结果接近$2$**)。
-虽然这个实验不是一个数学证明，但我们稍后会看到，当$x=1$时，导数$u'$是$2$。
+虽然这个实验不是一个数学证明，但稍后会看到，当$x=1$时，导数$u'$是$2$。
 
 ```{.python .input}
 #@tab all
@@ -130,7 +140,7 @@ $$\frac{d}{dx} \left[\frac{f(x)}{g(x)}\right] = \frac{g(x) \frac{d}{dx} [f(x)] -
 
 现在我们可以应用上述几个法则来计算$u'=f'(x)=3\frac{d}{dx}x^2-4\frac{d}{dx}x=6x-4$。
 令$x=1$，我们有$u'=2$：在这个实验中，数值结果接近$2$，
-这一点得到了我们在本节前面的实验的支持。
+这一点得到了在本节前面的实验的支持。
 当$x=1$时，此导数也是曲线$u=f(x)$切线的斜率。
 
 [**为了对导数的这种解释进行可视化，我们将使用`matplotlib`**]，
@@ -149,7 +159,7 @@ def use_svg_display():  #@save
 ```
 
 我们定义`set_figsize`函数来设置图表大小。
-注意，这里我们直接使用`d2l.plt`，因为导入语句
+注意，这里可以直接使用`d2l.plt`，因为导入语句
 `from matplotlib import pyplot as plt`已标记为保存到`d2l`包中。
 
 ```{.python .input}
@@ -178,7 +188,7 @@ def set_axes(axes, xlabel, ylabel, xlim, ylim, xscale, yscale, legend):
     axes.grid()
 ```
 
-通过这三个用于图形配置的函数，我们定义了`plot`函数来简洁地绘制多条曲线，
+通过这三个用于图形配置的函数，定义一个`plot`函数来简洁地绘制多条曲线，
 因为我们需要在整个书中可视化许多曲线。
 
 ```{.python .input}
@@ -269,33 +279,33 @@ $$\nabla_{\mathbf{x}} f(\mathbf{x}) = \bigg[\frac{\partial f(\mathbf{x})}{\parti
 
 然而，上面方法可能很难找到梯度。
 这是因为在深度学习中，多元函数通常是*复合*（composite）的，
-所以我们可能没法应用上述任何规则来微分这些函数。
-幸运的是，链式法则使我们能够微分复合函数。
+所以难以应用上述任何规则来微分这些函数。
+幸运的是，链式法则可以被用来微分复合函数。
 
 让我们先考虑单变量函数。假设函数$y=f(u)$和$u=g(x)$都是可微的，根据链式法则：
 
 $$\frac{dy}{dx} = \frac{dy}{du} \frac{du}{dx}.$$
 
-现在让我们把注意力转向一个更一般的场景，即函数具有任意数量的变量的情况。
+现在考虑一个更一般的场景，即函数具有任意数量的变量的情况。
 假设可微分函数$y$有变量$u_1, u_2, \ldots, u_m$，其中每个可微分函数$u_i$都有变量$x_1, x_2, \ldots, x_n$。
 注意，$y$是$x_1, x_2， \ldots, x_n$的函数。
 对于任意$i = 1, 2, \ldots, n$，链式法则给出：
 
-$$\frac{dy}{dx_i} = \frac{dy}{du_1} \frac{du_1}{dx_i} + \frac{dy}{du_2} \frac{du_2}{dx_i} + \cdots + \frac{dy}{du_m} \frac{du_m}{dx_i}$$
+$$\frac{\partial y}{\partial x_i} = \frac{\partial y}{\partial u_1} \frac{\partial u_1}{\partial x_i} + \frac{\partial y}{\partial u_2} \frac{\partial u_2}{\partial x_i} + \cdots + \frac{\partial y}{\partial u_m} \frac{\partial u_m}{\partial x_i}$$
 
 ## 小结
 
 * 微分和积分是微积分的两个分支，前者可以应用于深度学习中的优化问题。
 * 导数可以被解释为函数相对于其变量的瞬时变化率，它也是函数曲线的切线的斜率。
 * 梯度是一个向量，其分量是多变量函数相对于其所有变量的偏导数。
-* 链式法则使我们能够微分复合函数。
+* 链式法则可以用来微分复合函数。
 
 ## 练习
 
 1. 绘制函数$y = f(x) = x^3 - \frac{1}{x}$和其在$x = 1$处切线的图像。
 1. 求函数$f(\mathbf{x}) = 3x_1^2 + 5e^{x_2}$的梯度。
 1. 函数$f(\mathbf{x}) = \|\mathbf{x}\|_2$的梯度是什么？
-1. 你可以写出函数$u = f(x, y, z)$，其中$x = x(a, b)$，$y = y(a, b)$，$z = z(a, b)$的链式法则吗?
+1. 尝试写出函数$u = f(x, y, z)$，其中$x = x(a, b)$，$y = y(a, b)$，$z = z(a, b)$的链式法则。
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/1755)
@@ -307,4 +317,8 @@ $$\frac{dy}{dx_i} = \frac{dy}{du_1} \frac{du_1}{dx_i} + \frac{dy}{du_2} \frac{du
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1754)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11684)
 :end_tab:

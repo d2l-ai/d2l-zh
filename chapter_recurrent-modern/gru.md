@@ -64,10 +64,10 @@
 我们来看一下门控循环单元的数学表达。
 对于给定的时间步$t$，假设输入是一个小批量
 $\mathbf{X}_t \in \mathbb{R}^{n \times d}$
-（样本个数：$n$，输入个数：$d$），
+（样本个数$n$，输入个数$d$），
 上一个时间步的隐状态是
 $\mathbf{H}_{t-1} \in \mathbb{R}^{n \times h}$
-（隐藏单元个数：$h$）。
+（隐藏单元个数$h$）。
 那么，重置门$\mathbf{R}_t \in \mathbb{R}^{n \times h}$和
 更新门$\mathbf{Z}_t \in \mathbb{R}^{n \times h}$的计算如下所示：
 
@@ -147,7 +147,7 @@ $$\mathbf{H}_t = \mathbf{Z}_t \odot \mathbf{H}_{t-1}  + (1 - \mathbf{Z}_t) \odot
 
 总之，门控循环单元具有以下两个显著特征：
 
-* 重置门有助于捕获序列中的短期依赖关系。
+* 重置门有助于捕获序列中的短期依赖关系；
 * 更新门有助于捕获序列中的长期依赖关系。
 
 ## 从零开始实现
@@ -179,6 +179,19 @@ train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 #@tab tensorflow
 from d2l import tensorflow as d2l
 import tensorflow as tf
+
+batch_size, num_steps = 32, 35
+train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
+```
+
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+import paddle.nn.functional as F
+from paddle import nn
 
 batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
@@ -265,6 +278,32 @@ def get_params(vocab_size, num_hiddens):
     return params
 ```
 
+```{.python .input}
+#@tab paddle
+def get_params(vocab_size, num_hiddens):
+    num_inputs = num_outputs = vocab_size
+
+    def normal(shape):
+        return paddle.randn(shape=shape)*0.01
+
+    def three():
+        return (normal((num_inputs, num_hiddens)),
+                normal((num_hiddens, num_hiddens)),
+                paddle.zeros([num_hiddens]))
+
+    W_xz, W_hz, b_z = three()  # 更新门参数
+    W_xr, W_hr, b_r = three()  # 重置门参数
+    W_xh, W_hh, b_h = three()  # 候选隐状态参数
+    # 输出层参数
+    W_hq = normal((num_hiddens, num_outputs))
+    b_q = paddle.zeros([num_outputs])
+    # 附加梯度
+    params = [W_xz, W_hz, b_z, W_xr, W_hr, b_r, W_xh, W_hh, b_h, W_hq, b_q]
+    for param in params:
+        param.stop_gradient = False
+    return params
+```
+
 ### 定义模型
 
 现在我们将[**定义隐状态的初始化函数**]`init_gru_state`。
@@ -286,6 +325,12 @@ def init_gru_state(batch_size, num_hiddens, device):
 #@tab tensorflow
 def init_gru_state(batch_size, num_hiddens):
     return (d2l.zeros((batch_size, num_hiddens)), )
+```
+
+```{.python .input}
+#@tab paddle
+def init_gru_state(batch_size, num_hiddens):
+    return (paddle.zeros([batch_size, num_hiddens]), )
 ```
 
 现在我们准备[**定义门控循环单元模型**]，
@@ -340,6 +385,22 @@ def gru(inputs, state, params):
     return tf.concat(outputs, axis=0), (H,)
 ```
 
+```{.python .input}
+#@tab paddle
+def gru(inputs, state, params):
+    W_xz, W_hz, b_z, W_xr, W_hr, b_r, W_xh, W_hh, b_h, W_hq, b_q = params
+    H,*_ = state
+    outputs = []
+    for X in inputs:
+        Z = F.sigmoid((X @ W_xz) + (H @ W_hz) + b_z)
+        R = F.sigmoid((X @ W_xr) + (H @ W_hr) + b_r)
+        H_tilda = paddle.tanh((X @ W_xh) + ((R * H) @ W_hh) + b_h)
+        H = Z * H + (1 - Z) * H_tilda
+        Y = H @ W_hq + b_q
+        outputs.append(Y)
+    return paddle.concat(outputs, axis=0), (H,*_)
+```
+
 ### [**训练**]与预测
 
 训练和预测的工作方式与 :numref:`sec_rnn_scratch`完全相同。
@@ -365,6 +426,15 @@ with strategy.scope():
     model = d2l.RNNModelScratch(len(vocab), num_hiddens, init_gru_state, gru, get_params)
 
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, strategy)
+```
+
+```{.python .input}
+#@tab paddle
+vocab_size, num_hiddens, device = len(vocab), 256, d2l.try_gpu()
+num_epochs, lr = 500, 1.0
+model = d2l.RNNModelScratch(len(vocab), num_hiddens, get_params,
+                            init_gru_state, gru)
+d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 ```
 
 ## [**简洁实现**]
@@ -404,6 +474,14 @@ with strategy.scope():
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, strategy)
 ```
 
+```{.python .input}
+#@tab paddle
+num_inputs = vocab_size
+gru_layer = nn.GRU(num_inputs, num_hiddens, time_major=True)
+model = d2l.RNNModel(gru_layer, len(vocab))
+d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
+```
+
 ## 小结
 
 * 门控循环神经网络可以更好地捕获时间步距离很长的序列上的依赖关系。
@@ -424,4 +502,8 @@ d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, strategy)
 
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2763)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11812)
 :end_tab:

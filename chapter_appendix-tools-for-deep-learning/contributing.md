@@ -5,7 +5,7 @@
 如果你发现笔误、无效的链接、一些你认为我们遗漏了引文的地方，
 代码看起来不优雅，或者解释不清楚的地方，请回复我们以帮助读者。
 在常规书籍中，两次印刷之间的间隔（即修订笔误的间隔）常常需要几年，
-但这本书的改进通常需要几个小时到几天的时间。
+但这本书的改进通常需要几小时到几天的时间。
 由于版本控制和持续自动集成（CI）测试，这一切颇为高效。
 为此，你需要向gihub存储库提交一个
 [pull request](https://github.com/d2l-ai/d2l-en/pulls)。
@@ -45,6 +45,7 @@
 请使用`#@tab`来标记代码块的起始行。
 例如`#@tab pytorch`用于一个PyTorch代码块，
 `#@tab tensorflow`用于一个TensorFlow代码块，
+`#@tab paddle`用于一个PaddlePaddle代码块，
 或者`#@tab all`是所有实现的共享代码块。
 你可以参考[d2lbook](http://book.d2l.ai/user/code_tabs.html)包了解更多信息。
 

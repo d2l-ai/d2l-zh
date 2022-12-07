@@ -151,6 +151,19 @@ batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+from paddle import nn
+import paddle.nn.functional as Function
+
+batch_size, num_steps = 32, 35
+train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
+```
+
 ### [**初始化模型参数**]
 
 接下来，我们需要定义和初始化模型参数。
@@ -238,6 +251,34 @@ def get_lstm_params(vocab_size, num_hiddens):
     return params
 ```
 
+```{.python .input}
+#@tab paddle
+def get_lstm_params(vocab_size, num_hiddens):
+    num_inputs = num_outputs = vocab_size
+
+    def normal(shape):
+        return paddle.randn(shape=shape)*0.01
+
+    def three():
+        return (normal((num_inputs, num_hiddens)),
+                normal((num_hiddens, num_hiddens)),
+                d2l.zeros([num_hiddens]))
+
+    W_xi, W_hi, b_i = three()  # 输入门参数
+    W_xf, W_hf, b_f = three()  # 遗忘门参数
+    W_xo, W_ho, b_o = three()  # 输出门参数
+    W_xc, W_hc, b_c = three()  # 候选记忆元参数
+    # 输出层参数
+    W_hq = normal((num_hiddens, num_outputs))
+    b_q = d2l.zeros([num_outputs])
+    # 附加梯度
+    params = [W_xi, W_hi, b_i, W_xf, W_hf, b_f, W_xo, W_ho, b_o, W_xc, W_hc,
+              b_c, W_hq, b_q]
+    for param in params:
+        param.stop_gradient = False
+    return params
+```
+
 ### 定义模型
 
 在[**初始化函数**]中，
@@ -263,6 +304,13 @@ def init_lstm_state(batch_size, num_hiddens, device):
 def init_lstm_state(batch_size, num_hiddens):
     return (tf.zeros(shape=(batch_size, num_hiddens)),
             tf.zeros(shape=(batch_size, num_hiddens)))
+```
+
+```{.python .input}
+#@tab paddle
+def init_lstm_state(batch_size, num_hiddens):
+    return (paddle.zeros([batch_size, num_hiddens]),
+            paddle.zeros([batch_size, num_hiddens]))
 ```
 
 [**实际模型**]的定义与我们前面讨论的一样：
@@ -326,6 +374,25 @@ def lstm(inputs, state, params):
     return tf.concat(outputs, axis=0), (H,C)
 ```
 
+```{.python .input}
+#@tab paddle
+def lstm(inputs, state, params):
+    [W_xi, W_hi, b_i, W_xf, W_hf, b_f, W_xo, W_ho, b_o, W_xc, W_hc, b_c,
+     W_hq, b_q] = params
+    (H, C) = state
+    outputs = []
+    for X in inputs:
+        I = Function.sigmoid((X @ W_xi) + (H @ W_hi) + b_i)
+        F = Function.sigmoid((X @ W_xf) + (H @ W_hf) + b_f)
+        O = Function.sigmoid((X @ W_xo) + (H @ W_ho) + b_o)
+        C_tilda = paddle.tanh((X @ W_xc) + (H @ W_hc) + b_c)
+        C = F * C + I * C_tilda
+        H = O * paddle.tanh(C)
+        Y = (H @ W_hq) + b_q
+        outputs.append(Y)
+    return paddle.concat(outputs, axis=0), (H, C)
+```
+
 ### [**训练**]和预测
 
 让我们通过实例化 :numref:`sec_rnn_scratch`中
@@ -349,6 +416,15 @@ strategy = tf.distribute.OneDeviceStrategy(device_name)
 with strategy.scope():
     model = d2l.RNNModelScratch(len(vocab), num_hiddens, init_lstm_state, lstm, get_lstm_params)
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, strategy)
+```
+
+```{.python .input}
+#@tab paddle
+vocab_size, num_hiddens, device = len(vocab), 256, d2l.try_gpu()
+num_epochs, lr = 500, 1.0
+model = d2l.RNNModelScratch(len(vocab), num_hiddens, get_lstm_params,
+                            init_lstm_state, lstm)
+d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 ```
 
 ## [**简洁实现**]
@@ -386,11 +462,19 @@ with strategy.scope():
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, strategy)
 ```
 
+```{.python .input}
+#@tab paddle
+num_inputs = vocab_size
+lstm_layer = nn.LSTM(num_inputs, num_hiddens, time_major=True)
+model = d2l.RNNModel(lstm_layer, len(vocab))
+d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
+```
+
 长短期记忆网络是典型的具有重要状态控制的隐变量自回归模型。
 多年来已经提出了其许多变体，例如，多层、残差连接、不同类型的正则化。
 然而，由于序列的长距离依赖性，训练长短期记忆网络
 和其他序列模型（例如门控循环单元）的成本是相当高的。
-在后面的内容中，我们将讲述更高级的替代模型，如transformer。
+在后面的内容中，我们将讲述更高级的替代模型，如Transformer。
 
 ## 小结
 
@@ -402,7 +486,7 @@ d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, strategy)
 ## 练习
 
 1. 调整和分析超参数对运行时间、困惑度和输出顺序的影响。
-1. 你需要如何更改模型以生成适当的单词，而不是字符序列？
+1. 如何更改模型以生成适当的单词，而不是字符序列？
 1. 在给定隐藏层维度的情况下，比较门控循环单元、长短期记忆网络和常规循环神经网络的计算成本。要特别注意训练和推断成本。
 1. 既然候选记忆元通过使用$\tanh$函数来确保值范围在$(-1,1)$之间，那么为什么隐状态需要再次使用$\tanh$函数来确保输出值范围在$(-1,1)$之间呢？
 1. 实现一个能够基于时间序列进行预测而不是基于字符序列进行预测的长短期记忆网络模型。
@@ -413,4 +497,8 @@ d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, strategy)
 
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2768)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11833)
 :end_tab:

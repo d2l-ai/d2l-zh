@@ -16,10 +16,10 @@
 几十年来，在使用神经网络进行端到端学习的兴起之前，
 统计学方法在这一领域一直占据主导地位
  :cite:`Brown.Cocke.Della-Pietra.ea.1988,Brown.Cocke.Della-Pietra.ea.1990`。
-因为*统计机器翻译*（statisticalmachine translation）涉及了
+因为*统计机器翻译*（statistical machine translation）涉及了
 翻译模型和语言模型等组成部分的统计分析，
 因此基于神经网络的方法通常被称为
-*神经机器翻译*（neuralmachine translation），
+*神经机器翻译*（neural machine translation），
 用于将两种翻译模型区分开来。
 
 本书的关注点是神经网络机器翻译方法，强调的是端到端的学习。
@@ -48,6 +48,15 @@ import os
 #@tab tensorflow
 from d2l import tensorflow as d2l
 import tensorflow as tf
+import os
+```
+
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
 import os
 ```
 
@@ -139,6 +148,7 @@ source[:6], target[:6]
 
 ```{.python .input}
 #@tab all
+#@save
 def show_list_len_pair_hist(legend, xlabel, ylabel, xlist, ylist):
     """绘制列表长度对的直方图"""
     d2l.set_figsize()
@@ -284,4 +294,8 @@ for X, X_valid_len, Y, Y_valid_len in train_iter:
 
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2776)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11836)
 :end_tab:

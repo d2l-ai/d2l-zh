@@ -1,7 +1,7 @@
 # 多层感知机的简洁实现
 :label:`sec_mlp_concise`
 
-正如你所期待的，我们可以(**通过高级API更简洁地实现多层感知机**)。
+本节将介绍(**通过高级API更简洁地实现多层感知机**)。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -21,6 +21,15 @@ from torch import nn
 #@tab tensorflow
 from d2l import tensorflow as d2l
 import tensorflow as tf
+```
+
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+from paddle import nn
 ```
 
 ## 模型
@@ -59,6 +68,20 @@ net = tf.keras.models.Sequential([
     tf.keras.layers.Dense(10)])
 ```
 
+```{.python .input}
+#@tab paddle
+net = nn.Sequential(nn.Flatten(),
+                    nn.Linear(784, 256),
+                    nn.ReLU(),
+                    nn.Linear(256, 10))
+
+
+for layer in net:
+    if type(layer) == nn.Linear:
+        weight_attr = paddle.framework.ParamAttr(initializer=paddle.nn.initializer.Normal(mean=0.0, std=0.01))
+        layer.weight_attr = weight_attr
+```
+
 [**训练过程**]的实现与我们实现softmax回归时完全相同，
 这种模块化设计使我们能够将与模型架构有关的内容独立出来。
 
@@ -80,6 +103,13 @@ trainer = torch.optim.SGD(net.parameters(), lr=lr)
 batch_size, lr, num_epochs = 256, 0.1, 10
 loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 trainer = tf.keras.optimizers.SGD(learning_rate=lr)
+```
+
+```{.python .input}
+#@tab paddle
+batch_size, lr, num_epochs = 256, 0.1, 10
+loss = nn.CrossEntropyLoss(reduction='none')
+trainer = paddle.optimizer.SGD(parameters=net.parameters(), learning_rate=lr)
 ```
 
 ```{.python .input}
@@ -109,4 +139,8 @@ d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1801)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11770)
 :end_tab:

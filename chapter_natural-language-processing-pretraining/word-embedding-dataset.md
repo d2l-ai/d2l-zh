@@ -1,7 +1,7 @@
 # 用于预训练词嵌入的数据集
 :label:`sec_word2vec_data`
 
-现在我们已经了解了word2vec模型的技术细节和大致的训练方法，让我们来看看它们的实现。具体地说，我们将以 :numref:`sec_word2vec`的跳元模型和 :numref:`sec_approx_train`的负采样为例。在本节中，我们从用于预训练词嵌入模型的数据集开始：数据的原始格式将被转换为可以在训练期间迭代的小批量。
+现在我们已经了解了word2vec模型的技术细节和大致的训练方法，让我们来看看它们的实现。具体地说，我们将以 :numref:`sec_word2vec`的跳元模型和 :numref:`sec_approx_train`的负采样为例。本节从用于预训练词嵌入模型的数据集开始：数据的原始格式将被转换为可以在训练期间迭代的小批量。
 
 ```{.python .input}
 from d2l import mxnet as d2l
@@ -20,7 +20,18 @@ import os
 import random
 ```
 
-## 正在读取数据集
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import math
+import paddle
+import os
+import random
+```
+
+## 读取数据集
 
 我们在这里使用的数据集是[Penn Tree Bank（PTB）](https://catalog.ldc.upenn.edu/LDC99T42)。该语料库取自“华尔街日报”的文章，分为训练集、验证集和测试集。在原始格式中，文本文件的每一行表示由空格分隔的一句话。在这里，我们将每个单词视为一个词元。
 
@@ -53,7 +64,7 @@ f'vocab size: {len(vocab)}'
 
 ## 下采样
 
-文本数据通常有“the”、“a”和“in”等高频词：它们在非常大的语料库中甚至可能出现数十亿次。然而，这些词经常在上下文窗口中与许多不同的词共同出现，提供的有用信息很少。例如，考虑上下文窗口中的词“chip”：直观地说，它与低频单词“intel”的共现比与高频单词“a”的共现在训练中更有用。此外，大量（高频）单词的训练速度很慢。因此，当训练词嵌入模型时，可以对高频单词进行*下采样* :cite:`Mikolov.Sutskever.Chen.ea.2013`。具体地说，数据集中的每个词$w_i$将有概率地被丢弃
+文本数据通常有“the”“a”和“in”等高频词：它们在非常大的语料库中甚至可能出现数十亿次。然而，这些词经常在上下文窗口中与许多不同的词共同出现，提供的有用信息很少。例如，考虑上下文窗口中的词“chip”：直观地说，它与低频单词“intel”的共现比与高频单词“a”的共现在训练中更有用。此外，大量（高频）单词的训练速度很慢。因此，当训练词嵌入模型时，可以对高频单词进行*下采样* :cite:`Mikolov.Sutskever.Chen.ea.2013`。具体地说，数据集中的每个词$w_i$将有概率地被丢弃
 
 $$ P(w_i) = \max\left(1 - \sqrt{\frac{t}{f(w_i)}}, 0\right),$$
 
@@ -322,6 +333,43 @@ def load_data_ptb(batch_size, max_window_size, num_noise_words):
     return data_iter, vocab
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+def load_data_ptb(batch_size, max_window_size, num_noise_words):
+    """下载PTB数据集，然后将其加载到内存中"""
+    num_workers = d2l.get_dataloader_workers()
+    sentences = read_ptb()
+    vocab = d2l.Vocab(sentences, min_freq=10)
+    subsampled, counter = subsample(sentences, vocab)
+    corpus = [vocab[line] for line in subsampled]
+    all_centers, all_contexts = get_centers_and_contexts(
+        corpus, max_window_size)
+    all_negatives = get_negatives(
+        all_contexts, vocab, counter, num_noise_words)
+
+    class PTBDataset(paddle.io.Dataset):
+        def __init__(self, centers, contexts, negatives):
+            assert len(centers) == len(contexts) == len(negatives)
+            self.centers = centers
+            self.contexts = contexts
+            self.negatives = negatives
+
+        def __getitem__(self, index):
+            return (self.centers[index], self.contexts[index],
+                    self.negatives[index])
+
+        def __len__(self):
+            return len(self.centers)
+
+    dataset = PTBDataset(all_centers, all_contexts, all_negatives)
+
+    data_iter = paddle.io.DataLoader(
+        dataset, batch_size=batch_size, shuffle=True, return_list=True, 
+        collate_fn=batchify, num_workers=num_workers)
+    return data_iter, vocab
+```
+
 让我们打印数据迭代器的第一个小批量。
 
 ```{.python .input}
@@ -350,4 +398,8 @@ for batch in data_iter:
 
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5735)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11816)
 :end_tab:

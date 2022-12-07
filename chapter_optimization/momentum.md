@@ -8,7 +8,7 @@
 
 ## 基础
 
-在本节中，我们将探讨更有效的优化算法，尤其是针对实验中常见的某些类型的优化问题。
+本节将探讨更有效的优化算法，尤其是针对实验中常见的某些类型的优化问题。
 
 ### 泄漏平均值
 
@@ -109,6 +109,23 @@ def gd_2d(x1, x2, s1, s2):
 d2l.show_trace_2d(f_2d, d2l.train_2d(gd_2d))
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+
+eta = 0.4
+def f_2d(x1, x2):
+    return 0.1 * x1 ** 2 + 2 * x2 ** 2
+def gd_2d(x1, x2, s1, s2):
+    return (x1 - eta * 0.2 * x1, x2 - eta * 4 * x2, 0, 0)
+
+d2l.show_trace_2d(f_2d, d2l.train_2d(gd_2d))
+```
+
 从构造来看，$x_2$方向的梯度比水平$x_1$方向的梯度大得多，变化也快得多。
 因此，我们陷入两难：如果选择较小的学习率，我们会确保解不会在$x_2$方向发散，但要承受在$x_1$方向的缓慢收敛。相反，如果学习率较高，我们在$x_1$方向上进展很快，但在$x_2$方向将会发散。
 下面的例子说明了即使学习率从$0.4$略微提高到$0.6$，也会发生变化。
@@ -195,7 +212,7 @@ d2l.plt.legend();
 在下面的实现中，我们称这些变量为`states`。
 
 ```{.python .input}
-#@tab mxnet,pytorch
+#@tab mxnet, pytorch
 def init_momentum_states(feature_dim):
     v_w = d2l.zeros((feature_dim, 1))
     v_b = d2l.zeros(1)
@@ -207,6 +224,14 @@ def init_momentum_states(feature_dim):
 def init_momentum_states(features_dim):
     v_w = tf.Variable(d2l.zeros((features_dim, 1)))
     v_b = tf.Variable(d2l.zeros(1))
+    return (v_w, v_b)
+```
+
+```{.python .input}
+#@tab paddle
+def init_momentum_states(feature_dim):
+    v_w = d2l.zeros((feature_dim, 1))
+    v_b = d2l.zeros([1])
     return (v_w, v_b)
 ```
 
@@ -233,6 +258,19 @@ def sgd_momentum(params, grads, states, hyperparams):
     for p, v, g in zip(params, states, grads):
             v[:].assign(hyperparams['momentum'] * v + g)
             p[:].assign(p - hyperparams['lr'] * v)
+```
+
+```{.python .input}
+#@tab paddle
+def sgd_momentum(params, states, hyperparams):
+    a = []
+    for p, v in zip(params, states):
+        with paddle.no_grad():
+            v[:] = hyperparams['momentum'] * v + p.grad
+            p[:] -= hyperparams['lr'] * v
+        p.grad.zero_()
+        a.append(p)
+    return a
 ```
 
 让我们看看它在实验中是如何运作的。
@@ -283,6 +321,12 @@ d2l.train_concise_ch11(trainer, {'lr': 0.005, 'momentum': 0.9}, data_iter)
 trainer = tf.keras.optimizers.SGD
 d2l.train_concise_ch11(trainer, {'learning_rate': 0.005, 'momentum': 0.9},
                        data_iter)
+```
+
+```{.python .input}
+#@tab paddle
+trainer = paddle.optimizer.Momentum
+d2l.train_concise_ch11(trainer, {'learning_rate': 0.005, 'momentum': 0.9}, data_iter)
 ```
 
 ## 理论分析
@@ -381,7 +425,7 @@ $$
 ## 练习
 
 1. 使用动量超参数和学习率的其他组合，观察和分析不同的实验结果。
-1. 试试梯度下降和动量法来解决一个二次问题，其中你有多个特征值，即$f(x) = \frac{1}{2} \sum_i \lambda_i x_i^2$，例如$\lambda_i = 2^{-i}$。绘制出$x$的值在初始化$x_i = 1$时如何下降。
+1. 试试梯度下降和动量法来解决一个二次问题，其中有多个特征值，即$f(x) = \frac{1}{2} \sum_i \lambda_i x_i^2$，例如$\lambda_i = 2^{-i}$。绘制出$x$的值在初始化$x_i = 1$时如何下降。
 1. 推导$h(\mathbf{x}) = \frac{1}{2} \mathbf{x}^\top \mathbf{Q} \mathbf{x} + \mathbf{x}^\top \mathbf{c} + b$的最小值和最小化器。
 1. 当我们执行带动量法的随机梯度下降时会有什么变化？当我们使用带动量法的小批量随机梯度下降时会发生什么？试验参数如何？
 
@@ -395,4 +439,8 @@ $$
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/4329)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11851)
 :end_tab:

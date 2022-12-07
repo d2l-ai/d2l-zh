@@ -22,17 +22,23 @@
 ```
 :end_tab:
 
+:begin_tab:`paddle`
+```eval_rst
+.. currentmodule:: d2l.paddle
+```
+:end_tab:
+
 ## 模型
 
-```eval_rst 
+```eval_rst
 .. autoclass:: Module
-   :members: 
+   :members:
 
 .. autoclass:: LinearRegressionScratch
    :members:
 
 .. autoclass:: LinearRegression
-   :members:    
+   :members:
 
 .. autoclass:: Classification
    :members:
@@ -40,12 +46,12 @@
 
 ## 数据
 
-```eval_rst 
+```eval_rst
 .. autoclass:: DataModule
-   :members: 
+   :members:
 
 .. autoclass:: SyntheticRegressionData
-   :members: 
+   :members:
 
 .. autoclass:: FashionMNIST
    :members:
@@ -53,9 +59,9 @@
 
 ## 训练
 
-```eval_rst 
+```eval_rst
 .. autoclass:: Trainer
-   :members: 
+   :members:
 
 .. autoclass:: SGD
    :members:
@@ -63,7 +69,7 @@
 
 ## 公用
 
-```eval_rst 
+```eval_rst
 .. autofunction:: add_to_class
 
 .. autofunction:: cpu
@@ -73,7 +79,7 @@
 .. autofunction:: num_gpus
 
 .. autoclass:: ProgressBoard
-   :members: 
+   :members:
 
 .. autoclass:: HyperParameters
    :members:

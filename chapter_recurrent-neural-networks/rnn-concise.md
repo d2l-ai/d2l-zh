@@ -35,12 +35,25 @@ batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+from paddle import nn
+from paddle.nn import functional as F
+
+batch_size, num_steps = 32, 35
+train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
+```
+
 ## [**定义模型**]
 
 高级API提供了循环神经网络的实现。
 我们构造一个具有256个隐藏单元的单隐藏层的循环神经网络层`rnn_layer`。
 事实上，我们还没有讨论多层循环神经网络的意义（这将在 :numref:`sec_deep_rnn`中介绍）。
-现在，你仅需要将多层理解为一层循环神经网络的输出被用作下一层循环神经网络的输入就足够了。
+现在仅需要将多层理解为一层循环神经网络的输出被用作下一层循环神经网络的输入就足够了。
 
 ```{.python .input}
 num_hiddens = 256
@@ -61,6 +74,12 @@ rnn_cell = tf.keras.layers.SimpleRNNCell(num_hiddens,
     kernel_initializer='glorot_uniform')
 rnn_layer = tf.keras.layers.RNN(rnn_cell, time_major=True,
     return_sequences=True, return_state=True)
+```
+
+```{.python .input}
+#@tab paddle
+num_hiddens = 256
+rnn_layer = nn.SimpleRNN(len(vocab), num_hiddens, time_major=True)
 ```
 
 :begin_tab:`mxnet`
@@ -88,6 +107,12 @@ state.shape
 ```{.python .input}
 #@tab tensorflow
 state = rnn_cell.get_initial_state(batch_size=batch_size, dtype=tf.float32)
+state.shape
+```
+
+```{.python .input}
+#@tab paddle
+state = paddle.zeros(shape=[1, batch_size, num_hiddens])
 state.shape
 ```
 
@@ -121,6 +146,13 @@ Y.shape, state_new.shape
 X = tf.random.uniform((num_steps, batch_size, len(vocab)))
 Y, state_new = rnn_layer(X, state)
 Y.shape, len(state_new), state_new[0].shape
+```
+
+```{.python .input}
+#@tab paddle
+X = paddle.rand(shape=[num_steps, batch_size, len(vocab)])
+Y, state_new = rnn_layer(X, state)
+Y.shape, state_new.shape
 ```
 
 与 :numref:`sec_rnn_scratch`类似，
@@ -213,6 +245,47 @@ class RNNModel(tf.keras.layers.Layer):
         return self.rnn.cell.get_initial_state(*args, **kwargs)
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+class RNNModel(nn.Layer):   
+    """循环神经网络模型"""
+    def __init__(self, rnn_layer, vocab_size, **kwargs):
+        super(RNNModel, self).__init__(**kwargs)
+        self.rnn = rnn_layer
+        self.vocab_size = vocab_size
+        self.num_hiddens = self.rnn.hidden_size
+        # 如果RNN是双向的（之后将介绍），num_directions应该是2，否则应该是1
+        if self.rnn.num_directions==1:
+            self.num_directions = 1
+            self.linear = nn.Linear(self.num_hiddens, self.vocab_size)
+        else:
+            self.num_directions = 2
+            self.linear = nn.Linear(self.num_hiddens * 2, self.vocab_size)
+
+    def forward(self, inputs, state):
+        X = F.one_hot(inputs.T, self.vocab_size) 
+        Y, state = self.rnn(X, state)
+        # 全连接层首先将Y的形状改为(时间步数*批量大小,隐藏单元数)
+        # 它的输出形状是(时间步数*批量大小,词表大小)。
+        output = self.linear(Y.reshape((-1, Y.shape[-1])))
+        return output, state
+
+    def begin_state(self, batch_size=1):
+        if not isinstance(self.rnn, nn.LSTM):
+            # nn.GRU以张量作为隐状态
+            return  paddle.zeros(shape=[self.num_directions * self.rnn.num_layers,
+                                                           batch_size, self.num_hiddens])
+        else:
+            # nn.LSTM以元组作为隐状态
+            return (paddle.zeros(
+                shape=[self.num_directions * self.rnn.num_layers,
+                batch_size, self.num_hiddens]),
+                    paddle.zeros(
+                        shape=[self.num_directions * self.rnn.num_layers,
+                        batch_size, self.num_hiddens]))
+```
+
 ## 训练与预测
 
 在训练模型之前，让我们[**基于一个具有随机权重的模型进行预测**]。
@@ -242,6 +315,13 @@ with strategy.scope():
 d2l.predict_ch8('time traveller', 10, net, vocab)
 ```
 
+```{.python .input}
+#@tab paddle
+device = d2l.try_gpu()
+net = RNNModel(rnn_layer, vocab_size=len(vocab))
+d2l.predict_ch8('time traveller', 10, net, vocab, device)
+```
+
 很明显，这种模型根本不能输出好的结果。
 接下来，我们使用 :numref:`sec_rnn_scratch`中
 定义的超参数调用`train_ch8`，并且[**使用高级API训练模型**]。
@@ -263,6 +343,12 @@ num_epochs, lr = 500, 1
 d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, strategy)
 ```
 
+```{.python .input}
+#@tab paddle
+num_epochs, lr = 500, 1.0
+d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, device)
+```
+
 与上一节相比，由于深度学习框架的高级API对代码进行了更多的优化，
 该模型在较短的时间内达到了较低的困惑度。
 
@@ -274,8 +360,8 @@ d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, strategy)
 
 ## 练习
 
-1. 尝试使用高级API，你能使循环神经网络模型过拟合吗？
-1. 如果在循环神经网络模型中增加隐藏层的数量会发生什么？你能使模型正常工作吗？
+1. 尝试使用高级API，能使循环神经网络模型过拟合吗？
+1. 如果在循环神经网络模型中增加隐藏层的数量会发生什么？能使模型正常工作吗？
 1. 尝试使用循环神经网络实现 :numref:`sec_sequence`的自回归模型。
 
 :begin_tab:`mxnet`
@@ -288,4 +374,8 @@ d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, strategy)
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/5766)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11800)
 :end_tab:

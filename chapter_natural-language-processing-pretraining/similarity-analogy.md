@@ -19,6 +19,16 @@ from torch import nn
 import os
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+from paddle import nn
+import os
+```
+
 ## 加载预训练词向量
 
 以下列出维度为50、100和300的预训练GloVe嵌入，可从[GloVe网站](https://nlp.stanford.edu/projects/glove/)下载。预训练的fastText嵌入有多种语言。这里我们使用可以从[fastText网站](https://fasttext.cc/)下载300维度的英文版本（“wiki.en”）。
@@ -131,6 +141,17 @@ def knn(W, x, k):
     return topk, [cos[int(i)] for i in topk]
 ```
 
+```{.python .input}
+#@tab paddle
+def knn(W, x, k):
+    # 增加1e-9以获得数值稳定性
+    cos = paddle.mv(W, x) / (
+        paddle.sqrt(paddle.sum(W * W, axis=1) + 1e-9) *
+        paddle.sqrt((x * x).sum()))
+    _, topk = paddle.topk(cos, k=k)
+    return topk, [cos[int(i)] for i in topk]
+```
+
 然后，我们使用`TokenEmbedding`的实例`embed`中预训练好的词向量来搜索相似的词。
 
 ```{.python .input}
@@ -226,4 +247,8 @@ get_analogy('do', 'did', 'go', glove_6b50d)
 
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5746)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11819)
 :end_tab:

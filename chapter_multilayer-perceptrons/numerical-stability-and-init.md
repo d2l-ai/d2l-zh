@@ -2,15 +2,14 @@
 :label:`sec_numerical_stability`
 
 到目前为止，我们实现的每个模型都是根据某个预先指定的分布来初始化模型的参数。
-你可能认为初始化方案是理所当然的，忽略了如何做出这些选择的细节。
-你甚至可能会觉得，初始化方案的选择并不是特别重要。
+有人会认为初始化方案是理所当然的，忽略了如何做出这些选择的细节。甚至有人可能会觉得，初始化方案的选择并不是特别重要。
 相反，初始化方案的选择在神经网络学习中起着举足轻重的作用，
 它对保持数值稳定性至关重要。
 此外，这些初始化方案的选择可以与非线性激活函数的选择有趣的结合在一起。
 我们选择哪个函数以及如何初始化参数可以决定优化算法收敛的速度有多快。
 糟糕选择可能会导致我们在训练时遇到梯度爆炸或梯度消失。
-在本节中，我们将更详细地探讨这些主题，并讨论一些有用的启发式方法。
-你会发现这些启发式方法在你的整个深度学习生涯中都很有用。
+本节将更详细地探讨这些主题，并讨论一些有用的启发式方法。
+这些启发式方法在整个深度学习生涯中都很有用。
 
 ## 梯度消失和梯度爆炸
 
@@ -98,7 +97,24 @@ d2l.plot(x.numpy(), [y.numpy(), t.gradient(y, x).numpy()],
          legend=['sigmoid', 'gradient'], figsize=(4.5, 2.5))
 ```
 
-正如你所看到的，当sigmoid函数的输入很大或是很小时，它的梯度都会消失。
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+
+x = paddle.arange(start=-8.0, end=8.0, step=0.1, dtype='float32')
+x.stop_gradient = False
+y = paddle.nn.functional.sigmoid(x)
+y.backward(paddle.ones_like(x))
+
+d2l.plot(x.detach().numpy(), [y.detach().numpy(), x.grad.numpy()],
+         legend=['sigmoid', 'gradient'], figsize=(4.5, 2.5))
+```
+
+正如上图，当sigmoid函数的输入很大或是很小时，它的梯度都会消失。
 此外，当反向传播通过许多层时，除非我们在刚刚好的地方，
 这些地方sigmoid函数的输入接近于零，否则整个乘积的梯度可能会消失。
 当我们的网络有很多层时，除非我们很小心，否则在某一层可能会切断梯度。
@@ -139,6 +155,16 @@ for i in range(100):
     M = tf.matmul(M, tf.random.normal((4, 4)))
 
 print('乘以100个矩阵后\n', M.numpy())
+```
+
+```{.python .input}
+#@tab paddle
+M = paddle.normal(0, 1, shape=(4,4))
+print('一个矩阵 \n',M)
+for i in range(100):
+    M = paddle.mm(M, paddle.normal(0, 1, shape=(4, 4)))
+
+print('乘以100个矩阵后\n', M)
 ```
 
 ### 打破对称性
@@ -237,9 +263,9 @@ $$U\left(-\sqrt{\frac{6}{n_\mathrm{in} + n_\mathrm{out}}}, \sqrt{\frac{6}{n_\mat
  :cite:`Xiao.Bahri.Sohl-Dickstein.ea.2018`，
 可以无须架构上的技巧而训练10000层神经网络的可能性。
 
-如果你对该主题感兴趣，我们建议你深入研究本模块的内容，
+如果有读者对该主题感兴趣，我们建议深入研究本模块的内容，
 阅读提出并分析每种启发式方法的论文，然后探索有关该主题的最新出版物。
-也许你会偶然发现甚至发明一个聪明的想法，并为深度学习框架提供一个实现。
+也许会偶然发现甚至发明一个聪明的想法，并为深度学习框架提供一个实现。
 
 ## 小结
 
@@ -251,7 +277,7 @@ $$U\left(-\sqrt{\frac{6}{n_\mathrm{in} + n_\mathrm{out}}}, \sqrt{\frac{6}{n_\mat
 
 ## 练习
 
-1. 除了多层感知机的排列对称性之外，你能设计出其他神经网络可能会表现出对称性且需要被打破的情况吗？
+1. 除了多层感知机的排列对称性之外，还能设计出其他神经网络可能会表现出对称性且需要被打破的情况吗？
 2. 我们是否可以将线性回归或softmax回归中的所有权重参数初始化为相同的值？
 3. 在相关资料中查找两个矩阵乘积特征值的解析界。这对确保梯度条件合适有什么启示？
 4. 如果我们知道某些项是发散的，我们能在事后修正吗？看看关于按层自适应速率缩放的论文 :cite:`You.Gitman.Ginsburg.2017` 。
@@ -266,4 +292,8 @@ $$U\left(-\sqrt{\frac{6}{n_\mathrm{in} + n_\mathrm{out}}}, \sqrt{\frac{6}{n_\mat
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1817)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11776)
 :end_tab:

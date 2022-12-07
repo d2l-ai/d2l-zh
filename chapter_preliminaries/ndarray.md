@@ -53,8 +53,14 @@ import torch
 import tensorflow as tf
 ```
 
+```{.python .input}
+#@tab paddle
+import warnings
+warnings.filterwarnings(action='ignore')
+import paddle
+```
 
-[**张量表示由一个数值组成的数组，这个数组可能有多个维度**]。
+[**张量表示一个由数值组成的数组，这个数组可能有多个维度**]。
 具有一个轴的张量对应数学上的*向量*（vector）；
 具有两个轴的张量对应数学上的*矩阵*（matrix）；
 具有两个轴以上的张量没有特殊的数学名称。
@@ -71,7 +77,6 @@ import tensorflow as tf
 首先，我们可以使用 `range` 创建一个行向量 `x`。这个行向量包含以0开始的前12个整数，它们默认创建为整数。也可指定创建类型为浮点数。张量中的每个值都称为张量的 *元素*（element）。例如，张量 `x` 中有 12 个元素。除非额外指定，新的张量将存储在内存中，并采用基于CPU的计算。
 :end_tab:
 
-
 ```{.python .input}
 x = np.arange(12)
 x
@@ -86,6 +91,12 @@ x
 ```{.python .input}
 #@tab tensorflow
 x = tf.range(12)
+x
+```
+
+```{.python .input}
+#@tab paddle
+x = paddle.arange(12)
 x
 ```
 
@@ -114,6 +125,11 @@ x.numel()
 tf.size(x)
 ```
 
+```{.python .input}
+#@tab paddle
+x.numel()
+```
+
 [**要想改变一个张量的形状而不改变元素数量和元素值，可以调用`reshape`函数。**]
 例如，可以把张量`x`从形状为（12,）的行向量转换为形状为（3,4）的矩阵。
 这个新的张量包含与转换前相同的值，但是它被看成一个3行4列的矩阵。
@@ -129,6 +145,12 @@ X
 ```{.python .input}
 #@tab tensorflow
 X = tf.reshape(x, (3, 4))
+X
+```
+
+```{.python .input}
+#@tab paddle
+X = paddle.reshape(x, (3, 4))
 X
 ```
 
@@ -156,6 +178,11 @@ torch.zeros((2, 3, 4))
 tf.zeros((2, 3, 4))
 ```
 
+```{.python .input}
+#@tab paddle
+paddle.zeros((2, 3, 4))
+```
+
 同样，我们可以创建一个形状为`(2,3,4)`的张量，其中所有元素都设置为1。代码如下：
 
 ```{.python .input}
@@ -170,6 +197,11 @@ torch.ones((2, 3, 4))
 ```{.python .input}
 #@tab tensorflow
 tf.ones((2, 3, 4))
+```
+
+```{.python .input}
+#@tab paddle
+paddle.ones((2, 3, 4))
 ```
 
 有时我们想通过从某个特定的概率分布中随机采样来得到张量中每个元素的值。
@@ -191,6 +223,11 @@ torch.randn(3, 4)
 tf.random.normal(shape=[3, 4])
 ```
 
+```{.python .input}
+#@tab paddle
+paddle.randn((3, 4),'float32')
+```
+
 我们还可以[**通过提供包含数值的Python列表（或嵌套列表），来为所需张量中的每个元素赋予确定值**]。
 在这里，最外层的列表对应于轴0，内层的列表对应于轴1。
 
@@ -206,6 +243,11 @@ torch.tensor([[2, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
 ```{.python .input}
 #@tab tensorflow
 tf.constant([[2, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
+```
+
+```{.python .input}
+#@tab paddle
+paddle.to_tensor([[2, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
 ```
 
 ## 运算符
@@ -253,6 +295,13 @@ y = tf.constant([2.0, 2, 2, 2])
 x + y, x - y, x * y, x / y, x ** y  # **运算符是求幂运算
 ```
 
+```{.python .input}
+#@tab paddle
+x = paddle.to_tensor([1.0, 2, 4, 8])
+y = paddle.to_tensor([2, 2, 2, 2])
+x + y, x - y, x * y, x / y, x**y  # **运算符是求幂运算
+```
+
 (**“按元素”方式可以应用更多的计算**)，包括像求幂这样的一元运算符。
 
 ```{.python .input}
@@ -267,6 +316,11 @@ torch.exp(x)
 ```{.python .input}
 #@tab tensorflow
 tf.exp(x)
+```
+
+```{.python .input}
+#@tab paddle
+paddle.exp(x)
 ```
 
 除了按元素计算外，我们还可以执行线性代数运算，包括向量点积和矩阵乘法。
@@ -300,6 +354,13 @@ Y = tf.constant([[2.0, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
 tf.concat([X, Y], axis=0), tf.concat([X, Y], axis=1)
 ```
 
+```{.python .input}
+#@tab paddle
+X = paddle.arange(12, dtype='float32').reshape((3, 4))
+Y = paddle.to_tensor([[2.0, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
+paddle.concat((X, Y), axis=0), paddle.concat((X, Y), axis=1)
+```
+
 有时，我们想[**通过*逻辑运算符*构建二元张量**]。
 以`X == Y`为例：
 对于每个位置，如果`X`和`Y`在该位置相等，则新张量中相应项的值为1。
@@ -313,7 +374,7 @@ X == Y
 [**对张量中的所有元素进行求和，会产生一个单元素张量。**]
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, paddle
 X.sum()
 ```
 
@@ -328,9 +389,10 @@ tf.reduce_sum(X)
 在上面的部分中，我们看到了如何在相同形状的两个张量上执行按元素操作。
 在某些情况下，[**即使形状不同，我们仍然可以通过调用
 *广播机制*（broadcasting mechanism）来执行按元素操作**]。
-这种机制的工作方式如下：首先，通过适当复制元素来扩展一个或两个数组，
-以便在转换之后，两个张量具有相同的形状。
-其次，对生成的数组执行按元素操作。
+这种机制的工作方式如下：
+
+1. 通过适当复制元素来扩展一个或两个数组，以便在转换之后，两个张量具有相同的形状；
+2. 对生成的数组执行按元素操作。
 
 在大多数情况下，我们将沿着数组中长度为1的轴进行广播，如下例子：
 
@@ -351,6 +413,13 @@ a, b
 #@tab tensorflow
 a = tf.reshape(tf.range(3), (3, 1))
 b = tf.reshape(tf.range(2), (1, 2))
+a, b
+```
+
+```{.python .input}
+#@tab paddle
+a = paddle.reshape(paddle.arange(3), (3, 1))
+b = paddle.reshape(paddle.arange(2), (1, 2))
 a, b
 ```
 
@@ -389,7 +458,7 @@ TensorFlow中的`Variables`是支持赋值的可变容器。
 :end_tab:
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, paddle
 X[1, 2] = 9
 X
 ```
@@ -406,7 +475,7 @@ X_var
 虽然我们讨论的是矩阵的索引，但这也适用于向量和超过2个维度的张量。
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, paddle
 X[0:2, :] = 12
 X
 ```
@@ -435,11 +504,10 @@ Y = Y + X
 id(Y) == before
 ```
 
-这可能是不可取的，原因有两个：首先，我们不想总是不必要地分配内存。
-在机器学习中，我们可能有数百兆的参数，并且在一秒内多次更新所有参数。
-通常情况下，我们希望原地执行这些更新。
-其次，如果我们不原地更新，其他引用仍然会指向旧的内存位置，
-这样我们的某些代码可能会无意中引用旧的参数。
+这可能是不可取的，原因有两个：
+
+1. 首先，我们不想总是不必要地分配内存。在机器学习中，我们可能有数百兆的参数，并且在一秒内多次更新所有参数。通常情况下，我们希望原地执行这些更新；
+2. 如果我们不原地更新，其他引用仍然会指向旧的内存位置，这样我们的某些代码可能会无意中引用旧的参数。
 
 :begin_tab:`mxnet, pytorch`
 幸运的是，(**执行原地操作**)非常简单。
@@ -478,6 +546,14 @@ Z.assign(X + Y)
 print('id(Z):', id(Z))
 ```
 
+```{.python .input}
+#@tab paddle
+Z = paddle.zeros_like(Y)
+print('id(Z):', id(Z))
+Z = X + Y
+print('id(Z):', id(Z))
+```
+
 :begin_tab:`mxnet, pytorch`
 [**如果在后续计算中没有重复使用`X`，
 我们也可以使用`X[:] = X + Y`或`X += Y`来减少操作的内存开销。**]
@@ -497,7 +573,7 @@ print('id(Z):', id(Z))
 :end_tab:
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, paddle
 before = id(X)
 X += Y
 id(X) == before
@@ -520,8 +596,8 @@ computation(X, Y)
 :begin_tab:`mxnet, tensorflow`
 将深度学习框架定义的张量[**转换为NumPy张量（`ndarray`）**]很容易，反之也同样容易。
 转换后的结果不共享内存。
-这个小的不便实际上是非常重要的：当你在CPU或GPU上执行操作的时候，
-如果Python的NumPy包也希望使用相同的内存块执行其他操作，你不希望停下计算来等它。
+这个小的不便实际上是非常重要的：当在CPU或GPU上执行操作的时候，
+如果Python的NumPy包也希望使用相同的内存块执行其他操作，人们不希望停下计算来等它。
 :end_tab:
 
 :begin_tab:`pytorch`
@@ -549,6 +625,13 @@ B = tf.constant(A)
 type(A), type(B)
 ```
 
+```{.python .input}
+#@tab paddle
+A = X.numpy()
+B = paddle.to_tensor(A)
+type(A), type(B)
+```
+
 要(**将大小为1的张量转换为Python标量**)，我们可以调用`item`函数或Python的内置函数。
 
 ```{.python .input}
@@ -565,6 +648,12 @@ a, a.item(), float(a), int(a)
 ```{.python .input}
 #@tab tensorflow
 a = tf.constant([3.5]).numpy()
+a, a.item(), float(a), int(a)
+```
+
+```{.python .input}
+#@tab paddle
+a = paddle.to_tensor([3.5])
 a, a.item(), float(a), int(a)
 ```
 
@@ -587,4 +676,8 @@ a, a.item(), float(a), int(a)
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1746)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11680)
 :end_tab:

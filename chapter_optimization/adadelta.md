@@ -107,6 +107,34 @@ def adadelta(params, grads, states, hyperparams):
         delta[:].assign(rho * delta + (1 - rho) * g * g)
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+
+def init_adadelta_states(feature_dim):
+    s_w, s_b = d2l.zeros(shape=(feature_dim, 1)), d2l.zeros(shape=(1, )) 
+    delta_w, delta_b = d2l.zeros(shape=(feature_dim, 1)), d2l.zeros(shape=(1, )) 
+    return ((s_w, delta_w), (s_b, delta_b))
+
+def adadelta(params, states, hyperparams):
+    a = []
+    rho, eps = hyperparams['rho'], 1e-5
+    for p, (s, delta) in zip(params, states):
+        with paddle.no_grad():
+            # In-placeupdatesvia[:]
+            s[:] = rho * s + (1 - rho) * paddle.square(p.grad)
+            g = (paddle.sqrt(delta + eps) / paddle.sqrt(s + eps)) * p.grad
+            p[:] -= g
+            delta[:] = rho * delta + (1 - rho) * g * g
+        p.grad.zero_()
+        a.append(p)
+    return a
+```
+
 对于每次参数更新，选择$\rho = 0.9$相当于10个半衰期。由此我们得到：
 
 ```{.python .input}
@@ -136,6 +164,12 @@ trainer = tf.keras.optimizers.Adadelta
 d2l.train_concise_ch11(trainer, {'learning_rate':5.0, 'rho': 0.9}, data_iter)
 ```
 
+```{.python .input}
+#@tab paddle
+trainer = paddle.optimizer.Adadelta
+d2l.train_concise_ch11(trainer, {'rho': 0.9}, data_iter)
+```
+
 ## 小结
 
 * Adadelta没有学习率参数。相反，它使用参数本身的变化率来调整学习率。
@@ -146,7 +180,7 @@ d2l.train_concise_ch11(trainer, {'learning_rate':5.0, 'rho': 0.9}, data_iter)
 
 1. 调整$\rho$的值，会发生什么？
 1. 展示如何在不使用$\mathbf{g}_t'$的情况下实现算法。为什么这是个好主意？
-1. Adadelta真的是学习率为0吗？你能找到Adadelta无法解决的优化问题吗？
+1. Adadelta真的是学习率为0吗？能找到Adadelta无法解决的优化问题吗？
 1. 将Adadelta的收敛行为与AdaGrad和RMSProp进行比较。
 
 :begin_tab:`mxnet`
@@ -159,4 +193,8 @@ d2l.train_concise_ch11(trainer, {'learning_rate':5.0, 'rho': 0.9}, data_iter)
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/5773)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11854)
 :end_tab:

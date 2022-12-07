@@ -1,7 +1,7 @@
 # 使用Amazon SageMaker
 :label:`sec_sagemaker`
 
-深度学习应用程序可能需要很多计算资源，这很容易超出你的本地计算机所能提供的范围。云计算服务允许你使用功能更强大的计算机更轻松地运行本书的GPU密集型代码。本节将介绍如何使用Amazon SageMaker运行本书的代码。
+深度学习程序可能需要很多计算资源，这很容易超出你的本地计算机所能提供的范围。云计算服务允许你使用功能更强大的计算机更轻松地运行本书的GPU密集型代码。本节将介绍如何使用Amazon SageMaker运行本书的代码。
 
 ## 注册
 
@@ -79,27 +79,36 @@ SageMaker提供多个具有不同计算能力和价格的[实例类型](https://
 你可能希望在从远程存储库提取更新之前提交本地更改。否则，只需在终端中使用以下命令放弃所有本地更改：
 
 :begin_tab:`mxnet`
+
 ```bash
 cd SageMaker/d2l-en-sagemaker/
 git reset --hard
 git pull
 ```
+
+
 :end_tab:
 
 :begin_tab:`pytorch`
+
 ```bash
 cd SageMaker/d2l-pytorch-sagemaker/
 git reset --hard
 git pull
 ```
+
+
 :end_tab:
 
 :begin_tab:`tensorflow`
+
 ```bash
 cd SageMaker/d2l-tensorflow-sagemaker/
 git reset --hard
 git pull
 ```
+
+
 :end_tab:
 
 ## 小结

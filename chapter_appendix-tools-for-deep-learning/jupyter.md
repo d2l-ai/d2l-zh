@@ -1,4 +1,4 @@
-# 使用Jupyter Notebooks
+# 使用Jupyter Notebook
 :label:`sec_jupyter`
 
 本节介绍如何使用Jupyter Notebook编辑和运行本书各章中的代码。确保你已按照 :ref:`chap_installation`中的说明安装了Jupyter并下载了代码。如果你想了解更多关于Jupyter的信息，请参阅其[文档](https://jupyter.readthedocs.io/en/latest/)中的优秀教程。 
@@ -60,7 +60,7 @@
 首先，安装notedown插件，运行Jupyter Notebook并加载插件：
 
 ```
-pip install mu-notedown  # 你可能需要卸载原始notedown
+pip install d2l-notedown  # 你可能需要卸载原始notedown
 jupyter notebook --NotebookApp.contents_manager_class='notedown.NotedownContentsManager'
 ```
 
@@ -86,7 +86,7 @@ c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'
 ssh myserver -L 8888:localhost:8888
 ```
 
-以上是远程服务器`myserver`的地址。然后我们可以使用http://localhost:8888 访问运行Jupyter Notebook的远程服务器`myserver`。在下一节中，我们将详细介绍如何在AWS实例上运行Jupyter Notebook。 
+以上是远程服务器`myserver`的地址。然后我们可以使用http://localhost:8888 访问运行Jupyter Notebook的远程服务器`myserver`。下一节将详细介绍如何在AWS实例上运行Jupyter Notebook。 
 
 ### 执行时间
 

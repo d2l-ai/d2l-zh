@@ -96,7 +96,7 @@ $$
 
 回想一下 :numref:`fig_mlp`中带有1个隐藏层和5个隐藏单元的多层感知机。
 当我们将暂退法应用到隐藏层，以$p$的概率将隐藏单元置为零时，
-结果可以看作是一个只包含原始神经元子集的网络。
+结果可以看作一个只包含原始神经元子集的网络。
 比如在 :numref:`fig_dropout2`中，删除了$h_2$和$h_5$，
 因此输出的计算不再依赖于$h_2$或$h_5$，并且它们各自的梯度在执行反向传播时也会消失。
 这样，输出层的计算不能过度依赖于$h_1, \ldots, h_5$的任何一个元素。
@@ -174,6 +174,30 @@ def dropout_layer(X, dropout):
     return tf.cast(mask, dtype=tf.float32) * X / (1.0 - dropout)
 ```
 
+```{.python .input}
+#@tab paddle
+import warnings
+warnings.filterwarnings(action='ignore')
+import paddle
+from paddle import nn
+import random
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+from d2l import paddle as d2l
+
+def dropout_layer(X, dropout):
+    assert 0 <= dropout <= 1
+    # 在本情况中，所有元素都被丢弃。
+    if dropout == 1:
+        return paddle.zeros_like(X)
+    # 在本情况中，所有元素都被保留。
+    if dropout == 0:
+        return X
+    
+    mask = (paddle.to_tensor(paddle.uniform(X.shape)) > dropout).astype('float32')
+    return mask * X / (1.0 - dropout)
+```
+
 我们可以通过下面几个例子来[**测试`dropout_layer`函数**]。
 我们将输入`X`通过暂退法操作，暂退概率分别为0、0.5和1。
 
@@ -202,6 +226,15 @@ print(dropout_layer(X, 0.5))
 print(dropout_layer(X, 1.))
 ```
 
+```{.python .input}
+#@tab paddle
+X= paddle.arange(16, dtype = paddle.float32).reshape((2, 8))
+print(X)
+print(dropout_layer(X, 0.))
+print(dropout_layer(X, 0.5))
+print(dropout_layer(X, 1.))
+```
+
 ### 定义模型参数
 
 同样，我们使用 :numref:`sec_fashion_mnist`中引入的Fashion-MNIST数据集。
@@ -223,7 +256,7 @@ for param in params:
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 num_inputs, num_outputs, num_hiddens1, num_hiddens2 = 784, 10, 256, 256
 ```
 
@@ -318,6 +351,37 @@ class Net(tf.keras.Model):
 net = Net(num_outputs, num_hiddens1, num_hiddens2)
 ```
 
+```{.python .input}
+#@tab paddle
+dropout1, dropout2 = 0.2, 0.5
+
+class Net(nn.Layer):
+    def __init__(self, num_inputs, num_outputs, num_hiddens1, num_hiddens2,
+                 is_training = True):
+        super(Net, self).__init__()
+        self.num_inputs = num_inputs
+        self.training = is_training
+        self.lin1 = nn.Linear(num_inputs, num_hiddens1)
+        self.lin2 = nn.Linear(num_hiddens1, num_hiddens2)
+        self.lin3 = nn.Linear(num_hiddens2, num_outputs)
+        self.relu = nn.ReLU()
+
+    def forward(self, X):
+        H1 = self.relu(self.lin1(X.reshape((-1, self.num_inputs))))
+        # 只有在训练模型时才使用dropout
+        if self.training == True:
+            # 在第一个全连接层之后添加一个dropout层
+            H1 = dropout_layer(H1, dropout1)
+        H2 = self.relu(self.lin2(H1))
+        if self.training == True:
+            # 在第二个全连接层之后添加一个dropout层
+            H2 = dropout_layer(H2, dropout2)
+        out = self.lin3(H2)
+        return out
+
+net = Net(num_inputs, num_outputs, num_hiddens1, num_hiddens2)
+```
+
 ### [**训练和测试**]
 
 这类似于前面描述的多层感知机训练和测试。
@@ -345,6 +409,15 @@ num_epochs, lr, batch_size = 10, 0.5, 256
 loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
 trainer = tf.keras.optimizers.SGD(learning_rate=lr)
+d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
+```
+
+```{.python .input}
+#@tab paddle
+num_epochs, lr, batch_size = 10, 0.5, 256
+loss = nn.CrossEntropyLoss(reduction='none')
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
+trainer = paddle.optimizer.SGD(learning_rate=lr, parameters=net.parameters())
 d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 ```
 
@@ -401,6 +474,22 @@ net = tf.keras.models.Sequential([
 ])
 ```
 
+```{.python .input}
+#@tab paddle
+weight_attr = paddle.ParamAttr(initializer=paddle.nn.initializer.Normal(std=0.01)) 
+
+net = nn.Sequential(nn.Flatten(),
+        nn.Linear(784, 256, weight_attr=weight_attr),
+        nn.ReLU(),
+        # 在第一个全连接层之后添加一个dropout层
+        nn.Dropout(dropout1),
+        nn.Linear(256, 256, weight_attr=weight_attr),
+        nn.ReLU(),
+        # 在第二个全连接层之后添加一个dropout层
+        nn.Dropout(dropout2),
+        nn.Linear(256, 10, weight_attr=weight_attr))
+```
+
 接下来，我们[**对模型进行训练和测试**]。
 
 ```{.python .input}
@@ -420,6 +509,12 @@ trainer = tf.keras.optimizers.SGD(learning_rate=lr)
 d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 ```
 
+```{.python .input}
+#@tab paddle
+trainer = paddle.optimizer.SGD(learning_rate=0.5, parameters=net.parameters())
+d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
+```
+
 ## 小结
 
 * 暂退法在前向传播过程中，计算每一内部层的同时丢弃一些神经元。
@@ -429,7 +524,7 @@ d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 
 ## 练习
 
-1. 如果更改第一层和第二层的暂退法概率，会发生什么情况？具体地说，如果交换这两个层，会发生什么情况？设计一个实验来回答这些问题，定量描述你的结果，并总结定性的结论。
+1. 如果更改第一层和第二层的暂退法概率，会发生什么情况？具体地说，如果交换这两个层，会发生什么情况？设计一个实验来回答这些问题，定量描述该结果，并总结定性的结论。
 1. 增加训练轮数，并将使用暂退法和不使用暂退法时获得的结果进行比较。
 1. 当应用或不应用暂退法时，每个隐藏层中激活值的方差是多少？绘制一个曲线图，以显示这两个模型的每个隐藏层中激活值的方差是如何随时间变化的。
 1. 为什么在测试时通常不使用暂退法？
@@ -447,4 +542,8 @@ d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1811)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11774)
 :end_tab:

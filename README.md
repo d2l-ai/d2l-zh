@@ -2,7 +2,7 @@
 
 [![Build Status](http://ci.d2l.ai/job/d2l-zh/job/master/badge/icon)](http://ci.d2l.ai/job/d2l-zh/job/master/)
 
-[第一版：zh-v1.D2L.ai](https://zh-v1.d2l.ai/) |  [第二版预览版：zh.D2L.ai](https://zh.d2l.ai)  | 安装和使用书中源代码：[第一版](https://zh-v1.d2l.ai/chapter_prerequisite/install.html) [第二版](https://zh.d2l.ai/chapter_installation/index.html) | 当前版本: v2.0.0-beta1
+[第二版：zh.D2L.ai](https://zh.d2l.ai)  | [第一版：zh-v1.D2L.ai](https://zh-v1.d2l.ai/) |  安装和使用书中源代码： [第二版](https://zh.d2l.ai/chapter_installation/index.html) [第一版](https://zh-v1.d2l.ai/chapter_prerequisite/install.html)
 
 <h5 align="center"><i>理解深度学习的最佳方法是学以致用。</i></h5>
 
@@ -24,7 +24,7 @@
 
 <h5 align="center">将本书（中英文版）用作教材或参考书的大学</h5>
 <p align="center">
-  <img width="400"  src="http://en.d2l.ai.s3-website-us-west-2.amazonaws.com/_images/map.png">
+  <img width="400"  src="https://d2l.ai/_images/map.png">
 </p>
 
 如果本书对你有帮助，请Star (★) 本仓库或引用本书的英文版：
@@ -38,13 +38,11 @@
 }
 ```
 
-## 本书的第二版
+## 本书的英文版
 
-虽然纸质书第一版已经出版，但深度学习领域依然在迅速发展。为了得到来自更广泛的英文开源社区的帮助，从而提升本书质量，本书的第二版正在用英文写。英文版正不断被搬回中文版中。
+虽然纸质书已出版，但深度学习领域依然在迅速发展。为了得到来自更广泛的英文开源社区的帮助，从而提升本书质量，本书的新版将继续用英文编写，并搬回中文版。
 
-目前，英文版已超过160节（中文版共96节），例如增加了理论背景（如优化收敛分析）、硬件设计（如参数服务器）、全新篇章（如注意力机制、推荐系统、深度学习的数学、生成对抗网络）、应用种类（如自然语言推断）、模型种类（如Transformer、BERT）等，并优化重组了大量章节（如将自然语言处理篇章按从预训练表征、到模型设计、再到下游应用重构）。
-
-欢迎关注本书[第二版的英文开源项目](https://github.com/d2l-ai/d2l-en)。
+欢迎关注本书的[英文开源项目](https://github.com/d2l-ai/d2l-en)。
 
 ## 中英文教学资源
 
@@ -73,7 +71,7 @@
 > <b>&mdash; 余凯，地平线公司创始人 & CEO</b>
 
 > <p>"强烈推荐这本书！我特别赞赏这种手脑一体的学习方式。"</p>
-> <b>&mdash; 漆远，蚂蚁金服副总裁、首席AI科学家</b>
+> <b>&mdash; 漆远，复旦大学“浩清”教授、人工智能创新与产业研究院院长</b>
 
 > <p>"《动手学深度学习》是一本很容易让学习者上瘾的书。"</p>
 > <b>&mdash; 沈强，将门创投创始合伙人</b>
@@ -82,4 +80,4 @@
 
 感谢[社区贡献者们](https://github.com/d2l-ai/d2l-zh/graphs/contributors)为每一位读者改进这本开源书。
 
-[如何贡献](https://zh-v2.d2l.ai/chapter_appendix-tools-for-deep-learning/contributing.html) | [致谢](https://zh-v2.d2l.ai/chapter_preface/index.html) | [讨论或报告问题](https://discuss.d2l.ai/c/chinese-version/16) | [其他](INFO.md)
+[如何贡献](https://zh.d2l.ai/chapter_appendix-tools-for-deep-learning/contributing.html) | [致谢](https://zh.d2l.ai/chapter_preface/index.html) | [讨论或报告问题](https://discuss.d2l.ai/c/chinese-version/16) | [其他](INFO.md)

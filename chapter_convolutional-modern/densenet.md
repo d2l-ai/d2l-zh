@@ -93,6 +93,20 @@ class ConvBlock(tf.keras.layers.Layer):
         return y
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+import paddle.nn as nn
+
+def conv_block(input_channels, num_channels):
+    return nn.Sequential(
+        nn.BatchNorm2D(input_channels), nn.ReLU(),
+        nn.Conv2D(input_channels, num_channels, kernel_size=3, padding=1))
+```
+
 一个*稠密块*由多个卷积块组成，每个卷积块使用相同数量的输出通道。
 然而，在前向传播中，我们将每个卷积块的输入和输出在通道维上连结。
 
@@ -146,6 +160,25 @@ class DenseBlock(tf.keras.layers.Layer):
         return x
 ```
 
+```{.python .input}
+#@tab paddle
+class DenseBlock(nn.Layer):
+    def __init__(self, num_convs, input_channels, num_channels):
+        super(DenseBlock, self).__init__()
+        layer = []
+        for i in range(num_convs):
+            layer.append(
+                conv_block(num_channels * i + input_channels, num_channels))
+        self.net = nn.Sequential(*layer)
+
+    def forward(self, X):
+        for blk in self.net:
+            Y = blk(X)
+            # 连接通道维度上每个块的输入和输出
+            X = paddle.concat(x=[X, Y], axis=1)
+        return X
+```
+
 在下面的例子中，我们[**定义一个**]有2个输出通道数为10的(**`DenseBlock`**)。
 使用通道数为3的输入时，我们会得到通道数为$3+2\times 10=23$的输出。
 卷积块的通道数控制了输出通道数相对于输入通道数的增长，因此也被称为*增长率*（growth rate）。
@@ -170,6 +203,14 @@ Y.shape
 #@tab tensorflow
 blk = DenseBlock(2, 10)
 X = tf.random.uniform((4, 8, 8, 3))
+Y = blk(X)
+Y.shape
+```
+
+```{.python .input}
+#@tab paddle
+blk = DenseBlock(2, 3, 10)
+X = paddle.randn([4, 3, 8, 8])
 Y = blk(X)
 Y.shape
 ```
@@ -215,6 +256,15 @@ class TransitionBlock(tf.keras.layers.Layer):
         return self.avg_pool(x)
 ```
 
+```{.python .input}
+#@tab paddle
+def transition_block(input_channels, num_channels):
+    return nn.Sequential(
+        nn.BatchNorm2D(input_channels), nn.ReLU(),
+        nn.Conv2D(input_channels, num_channels, kernel_size=1),
+        nn.AvgPool2D(kernel_size=2, stride=2))
+```
+
 对上一个例子中稠密块的输出[**使用**]通道数为10的[**过渡层**]。
 此时输出的通道数减为10，高和宽均减半。
 
@@ -225,7 +275,7 @@ blk(Y).shape
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 blk = transition_block(23, 10)
 blk(Y).shape
 ```
@@ -263,6 +313,14 @@ def block_1():
        tf.keras.layers.BatchNormalization(),
        tf.keras.layers.ReLU(),
        tf.keras.layers.MaxPool2D(pool_size=3, strides=2, padding='same')])
+```
+
+```{.python .input}
+#@tab paddle
+b1 = nn.Sequential(
+    nn.Conv2D(1, 64, kernel_size=7, stride=2, padding=3),
+    nn.BatchNorm2D(64), nn.ReLU(),
+    nn.MaxPool2D(kernel_size=3, stride=2, padding=1))
 ```
 
 接下来，类似于ResNet使用的4个残差块，DenseNet使用的是4个稠密块。
@@ -322,6 +380,22 @@ def block_2():
     return net
 ```
 
+```{.python .input}
+#@tab paddle
+# num_channels为当前的通道数
+num_channels, growth_rate = 64, 32
+num_convs_in_dense_blocks = [4, 4, 4, 4]
+blks = []
+for i, num_convs in enumerate(num_convs_in_dense_blocks):
+    blks.append(DenseBlock(num_convs, num_channels, growth_rate))
+    # 上一个稠密块的输出通道数
+    num_channels += num_convs * growth_rate
+    # 在稠密块之间添加一个转换层，使通道数量减半
+    if i != len(num_convs_in_dense_blocks) - 1:
+        blks.append(transition_block(num_channels, num_channels // 2))
+        num_channels = num_channels // 2
+```
+
 与ResNet类似，最后接上全局汇聚层和全连接层来输出结果。
 
 ```{.python .input}
@@ -353,6 +427,16 @@ def net():
     return net
 ```
 
+```{.python .input}
+#@tab paddle
+net = nn.Sequential(
+    b1, *blks, 
+    nn.BatchNorm2D(num_channels), nn.ReLU(),
+    nn.AdaptiveMaxPool2D((1, 1)), 
+    nn.Flatten(),
+    nn.Linear(num_channels, 10))
+```
+
 ## [**训练模型**]
 
 由于这里使用了比较深的网络，本节里我们将输入高和宽从224降到96来简化计算。
@@ -376,7 +460,7 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 1. DenseNet的优点之一是其模型参数比ResNet小。为什么呢？
 1. DenseNet一个诟病的问题是内存或显存消耗过多。
     1. 真的是这样吗？可以把输入形状换成$224 \times 224$，来看看实际的显存消耗。
-    1. 你能想出另一种方法来减少显存消耗吗？你需要如何改变框架？
+    1. 有另一种方法来减少显存消耗吗？需要改变框架么？
 1. 实现DenseNet论文 :cite:`Huang.Liu.Van-Der-Maaten.ea.2017`表1所示的不同DenseNet版本。
 1. 应用DenseNet的思想设计一个基于多层感知机的模型。将其应用于 :numref:`sec_kaggle_house`中的房价预测任务。
 
@@ -390,4 +474,8 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1881)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11794)
 :end_tab:

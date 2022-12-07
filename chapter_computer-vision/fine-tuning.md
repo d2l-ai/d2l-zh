@@ -1,7 +1,7 @@
 # 微调
 :label:`sec_fine_tuning`
 
-在前面的一些章节中，我们介绍了如何在只有6万张图像的Fashion-MNIST训练数据集上训练模型。
+前面的一些章节介绍了如何在只有6万张图像的Fashion-MNIST训练数据集上训练模型。
 我们还描述了学术界当下使用最广泛的大规模图像数据集ImageNet，它有超过1000万的图像和1000类的物体。
 然而，我们平常接触到的数据集的规模通常在这两者之间。
 
@@ -22,7 +22,7 @@
 
 ## 步骤
 
-在本节中，我们将介绍迁移学习中的常见技巧:*微调*（fine-tuning）。如 :numref:`fig_finetune`所示，微调包括以下四个步骤：
+本节将介绍迁移学习中的常见技巧:*微调*（fine-tuning）。如 :numref:`fig_finetune`所示，微调包括以下四个步骤。
 
 1. 在源数据集（例如ImageNet数据集）上预训练神经网络模型，即*源模型*。
 1. 创建一个新的神经网络模型，即*目标模型*。这将复制源模型上的所有模型设计及其参数（输出层除外）。我们假定这些模型参数包含从源数据集中学到的知识，这些知识也将适用于目标数据集。我们还假设源模型的输出层与源数据集的标签密切相关；因此不在目标模型中使用该层。
@@ -60,6 +60,18 @@ import torchvision
 import os
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+from paddle import nn
+import paddle
+import paddle.vision as paddlevision
+import os
+```
+
 ### 获取数据集
 
 我们使用的[**热狗数据集来源于网络**]。
@@ -94,8 +106,13 @@ train_imgs = torchvision.datasets.ImageFolder(os.path.join(data_dir, 'train'))
 test_imgs = torchvision.datasets.ImageFolder(os.path.join(data_dir, 'test'))
 ```
 
-下面显示了前8个正类样本图片和最后8张负类样本图片。
-正如你所看到的，[**图像的大小和纵横比各有不同**]。
+```{.python .input}
+#@tab paddle
+train_imgs = paddlevision.datasets.DatasetFolder(os.path.join(data_dir, 'train'))
+test_imgs = paddlevision.datasets.DatasetFolder(os.path.join(data_dir, 'test'))
+```
+
+下面显示了前8个正类样本图片和最后8张负类样本图片。正如所看到的，[**图像的大小和纵横比各有不同**]。
 
 ```{.python .input}
 #@tab all
@@ -142,9 +159,28 @@ train_augs = torchvision.transforms.Compose([
     normalize])
 
 test_augs = torchvision.transforms.Compose([
-    torchvision.transforms.Resize(256),
+    torchvision.transforms.Resize([256, 256]),
     torchvision.transforms.CenterCrop(224),
     torchvision.transforms.ToTensor(),
+    normalize])
+```
+
+```{.python .input}
+#@tab paddle
+# 使用RGB通道的均值和标准差，以标准化每个通道
+normalize = paddle.vision.transforms.Normalize(
+    [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+
+train_augs = paddlevision.transforms.Compose([
+    paddlevision.transforms.RandomResizedCrop(224),
+    paddlevision.transforms.RandomHorizontalFlip(),
+    paddlevision.transforms.ToTensor(),
+    normalize])
+
+test_augs = paddlevision.transforms.Compose([
+    paddlevision.transforms.Resize(256),
+    paddlevision.transforms.CenterCrop(224),
+    paddlevision.transforms.ToTensor(),
     normalize])
 ```
 
@@ -152,7 +188,7 @@ test_augs = torchvision.transforms.Compose([
 
 我们使用在ImageNet数据集上预训练的ResNet-18作为源模型。
 在这里，我们指定`pretrained=True`以自动下载预训练的模型参数。
-如果你首次使用此模型，则需要连接互联网才能下载。
+如果首次使用此模型，则需要连接互联网才能下载。
 
 ```{.python .input}
 pretrained_net = gluon.model_zoo.vision.resnet18_v2(pretrained=True)
@@ -161,6 +197,11 @@ pretrained_net = gluon.model_zoo.vision.resnet18_v2(pretrained=True)
 ```{.python .input}
 #@tab pytorch
 pretrained_net = torchvision.models.resnet18(pretrained=True)
+```
+
+```{.python .input}
+#@tab paddle
+pretrained_net = paddlevision.models.resnet18(pretrained=True)
 ```
 
 :begin_tab:`mxnet`
@@ -176,12 +217,18 @@ pretrained_net = torchvision.models.resnet18(pretrained=True)
 下面给出了源模型的成员变量`fc`。
 :end_tab:
 
+:begin_tab:`paddle`
+预训练的源模型实例包含许多特征层和一个输出层`fc`。
+此划分的主要目的是促进对除输出层以外所有层的模型参数进行微调。
+下面给出了源模型的成员变量`fc`。
+:end_tab:
+
 ```{.python .input}
 pretrained_net.output
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 pretrained_net.fc
 ```
 
@@ -208,6 +255,13 @@ finetune_net.output.collect_params().setattr('lr_mult', 10)
 finetune_net = torchvision.models.resnet18(pretrained=True)
 finetune_net.fc = nn.Linear(finetune_net.fc.in_features, 2)
 nn.init.xavier_uniform_(finetune_net.fc.weight);
+```
+
+```{.python .input}
+#@tab paddle
+finetune_net = paddlevision.models.resnet18(pretrained=True)
+finetune_net.fc = nn.Linear(pretrained_net.fc.state_dict()['weight'].shape[0], 2)
+nn.initializer.XavierUniform(pretrained_net.fc.state_dict()['weight']);
 ```
 
 ### [**微调模型**]
@@ -257,6 +311,32 @@ def train_fine_tuning(net, learning_rate, batch_size=128, num_epochs=5,
                    devices)
 ```
 
+```{.python .input}
+#@tab paddle
+# 如果param_group=True，输出层中的模型参数将使用十倍的学习率
+def train_fine_tuning(net, learning_rate, batch_size=128, num_epochs=5,
+                      param_group=True):
+    train_iter = paddle.io.DataLoader(paddle.vision.datasets.DatasetFolder(
+        os.path.join(data_dir, 'train'), transform=train_augs),
+        batch_size=batch_size, shuffle=True)
+    test_iter = paddle.io.DataLoader(paddle.vision.datasets.DatasetFolder(
+        os.path.join(data_dir, 'test'), transform=test_augs),
+        batch_size=batch_size)
+    devices = d2l.try_all_gpus()
+    loss = nn.CrossEntropyLoss(reduction="none")
+    if param_group:
+        params_1x = [param for name, param in net.named_parameters()
+             if name not in ["fc.weight", "fc.bias"]]
+        trainer = paddle.optimizer.SGD(learning_rate=learning_rate, parameters=[{'params': params_1x},
+                                   {'params': net.fc.parameters(),
+                                    'learning_rate': learning_rate * 10}],
+                                    weight_decay=0.001)
+    else:
+        trainer = paddle.optimizer.SGD(learning_rate=learning_rate, parameters=net.parameters(), 
+                                  weight_decay=0.001)
+    d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
+```
+
 我们[**使用较小的学习率**]，通过*微调*预训练获得的模型参数。
 
 ```{.python .input}
@@ -264,7 +344,7 @@ train_fine_tuning(finetune_net, 0.01)
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 train_fine_tuning(finetune_net, 5e-5)
 ```
 
@@ -284,11 +364,18 @@ scratch_net.fc = nn.Linear(scratch_net.fc.in_features, 2)
 train_fine_tuning(scratch_net, 5e-4, param_group=False)
 ```
 
+```{.python .input}
+#@tab paddle
+scratch_net = paddlevision.models.resnet18()
+scratch_net.fc = nn.Linear(pretrained_net.fc.state_dict()['weight'].shape[0], 2)
+train_fine_tuning(scratch_net, 5e-4, param_group=False)
+```
+
 意料之中，微调模型往往表现更好，因为它的初始参数值更有效。
 
 ## 小结
 
-* 迁移学习将从源数据集中学到的知识“迁移”到目标数据集，微调是迁移学习的常见技巧。
+* 迁移学习将从源数据集中学到的知识*迁移*到目标数据集，微调是迁移学习的常见技巧。
 * 除输出层外，目标模型从源模型中复制所有模型设计及其参数，并根据目标数据集对这些参数进行微调。但是，目标模型的输出层需要从头开始训练。
 * 通常，微调参数使用较小的学习率，而从头开始训练输出层可以使用更大的学习率。
 
@@ -296,7 +383,7 @@ train_fine_tuning(scratch_net, 5e-4, param_group=False)
 
 1. 继续提高`finetune_net`的学习率，模型的准确性如何变化？
 2. 在比较实验中进一步调整`finetune_net`和`scratch_net`的超参数。它们的准确性还有不同吗？
-3. 将输出层`finetune_net`之前的参数设置为源模型的参数，在训练期间不要更新它们。模型的准确性如何变化？你可以使用以下代码。
+3. 将输出层`finetune_net`之前的参数设置为源模型的参数，在训练期间不要更新它们。模型的准确性如何变化？提示：可以使用以下代码。
 
 ```{.python .input}
 finetune_net.features.collect_params().setattr('grad_req', 'null')
@@ -306,6 +393,12 @@ finetune_net.features.collect_params().setattr('grad_req', 'null')
 #@tab pytorch
 for param in finetune_net.parameters():
     param.requires_grad = False
+```
+
+```{.python .input}
+#@tab paddle
+for param in finetune_net.parameters():
+    param.stop_gradient = True
 ```
 
 4. 事实上，`ImageNet`数据集中有一个“热狗”类别。我们可以通过以下代码获取其输出层中的相应权重参数，但是我们怎样才能利用这个权重参数？
@@ -323,10 +416,21 @@ hotdog_w = torch.split(weight.data, 1, dim=0)[934]
 hotdog_w.shape
 ```
 
+```{.python .input}
+#@tab paddle
+weight = pretrained_net.fc.weight
+hotdog_w = paddle.split(weight.T, 1000, axis=0)[713]
+hotdog_w.shape
+```
+
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/2893)
 :end_tab:
 
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2894)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11802)
 :end_tab:

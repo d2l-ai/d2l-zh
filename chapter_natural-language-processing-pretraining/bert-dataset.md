@@ -22,6 +22,16 @@ import random
 import torch
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import os
+import random
+import paddle
+```
+
 在WikiText-2数据集中，每行代表一个段落，其中在任意标点符号及其前面的词元之间插入空格。保留至少有两句话的段落。为了简单起见，我们仅使用句号作为分隔符来拆分句子。我们将更复杂的句子拆分技术的讨论留在本节末尾的练习中。
 
 ```{.python .input}
@@ -203,6 +213,36 @@ def _pad_bert_inputs(examples, max_len, vocab):
             all_mlm_weights, all_mlm_labels, nsp_labels)
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+def _pad_bert_inputs(examples, max_len, vocab):
+    max_num_mlm_preds = round(max_len * 0.15)
+    all_token_ids, all_segments, valid_lens,  = [], [], []
+    all_pred_positions, all_mlm_weights, all_mlm_labels = [], [], []
+    nsp_labels = []
+    for (token_ids, pred_positions, mlm_pred_label_ids, segments,
+         is_next) in examples:
+        all_token_ids.append(paddle.to_tensor(token_ids + [vocab['<pad>']] * (
+            max_len - len(token_ids)), dtype=paddle.int64))
+        all_segments.append(paddle.to_tensor(segments + [0] * (
+            max_len - len(segments)), dtype=paddle.int64))
+        # valid_lens不包括'<pad>'的计数
+        valid_lens.append(paddle.to_tensor(len(token_ids), dtype=paddle.float32))
+        all_pred_positions.append(paddle.to_tensor(pred_positions + [0] * (
+            max_num_mlm_preds - len(pred_positions)), dtype=paddle.int64))
+        # 填充词元的预测将通过乘以0权重在损失中过滤掉
+        all_mlm_weights.append(
+            paddle.to_tensor([1.0] * len(mlm_pred_label_ids) + [0.0] * (
+                max_num_mlm_preds - len(pred_positions)),
+                dtype=paddle.float32))
+        all_mlm_labels.append(paddle.to_tensor(mlm_pred_label_ids + [0] * (
+            max_num_mlm_preds - len(mlm_pred_label_ids)), dtype=paddle.int64))
+        nsp_labels.append(paddle.to_tensor(is_next, dtype=paddle.int64))
+    return (all_token_ids, all_segments, valid_lens, all_pred_positions,
+            all_mlm_weights, all_mlm_labels, nsp_labels)
+```
+
 将用于生成两个预训练任务的训练样本的辅助函数和用于填充输入的辅助函数放在一起，我们定义以下`_WikiTextDataset`类为用于预训练BERT的WikiText-2数据集。通过实现`__getitem__ `函数，我们可以任意访问WikiText-2语料库的一对句子生成的预训练样本（遮蔽语言模型和下一句预测）样本。
 
 最初的BERT模型使用词表大小为30000的WordPiece嵌入 :cite:`Wu.Schuster.Chen.ea.2016`。WordPiece的词元化方法是对 :numref:`subsec_Byte_Pair_Encoding`中原有的字节对编码算法稍作修改。为简单起见，我们使用`d2l.tokenize`函数进行词元化。出现次数少于5次的不频繁词元将被过滤掉。
@@ -282,6 +322,44 @@ class _WikiTextDataset(torch.utils.data.Dataset):
         return len(self.all_token_ids)
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+class _WikiTextDataset(paddle.io.Dataset):
+    def __init__(self, paragraphs, max_len):
+        # 输入paragraphs[i]是代表段落的句子字符串列表；
+        # 而输出paragraphs[i]是代表段落的句子列表，其中每个句子都是词元列表
+        paragraphs = [d2l.tokenize(
+            paragraph, token='word') for paragraph in paragraphs]
+        sentences = [sentence for paragraph in paragraphs
+                     for sentence in paragraph]
+        self.vocab = d2l.Vocab(sentences, min_freq=5, reserved_tokens=[
+            '<pad>', '<mask>', '<cls>', '<sep>'])
+        # 获取下一句子预测任务的数据
+        examples = []
+        for paragraph in paragraphs:
+            examples.extend(_get_nsp_data_from_paragraph(
+                paragraph, paragraphs, self.vocab, max_len))
+        # 获取遮蔽语言模型任务的数据
+        examples = [(_get_mlm_data_from_tokens(tokens, self.vocab)
+                      + (segments, is_next))
+                     for tokens, segments, is_next in examples]
+        # 填充输入
+        (self.all_token_ids, self.all_segments, self.valid_lens,
+         self.all_pred_positions, self.all_mlm_weights,
+         self.all_mlm_labels, self.nsp_labels) = _pad_bert_inputs(
+            examples, max_len, self.vocab)
+
+    def __getitem__(self, idx):
+        return (self.all_token_ids[idx], self.all_segments[idx],
+                self.valid_lens[idx], self.all_pred_positions[idx],
+                self.all_mlm_weights[idx], self.all_mlm_labels[idx],
+                self.nsp_labels[idx])
+
+    def __len__(self):
+        return len(self.all_token_ids)
+```
+
 通过使用`_read_wiki`函数和`_WikiTextDataset`类，我们定义了下面的`load_data_wiki`来下载并生成WikiText-2数据集，并从中生成预训练样本。
 
 ```{.python .input}
@@ -307,6 +385,20 @@ def load_data_wiki(batch_size, max_len):
     paragraphs = _read_wiki(data_dir)
     train_set = _WikiTextDataset(paragraphs, max_len)
     train_iter = torch.utils.data.DataLoader(train_set, batch_size,
+                                        shuffle=True, num_workers=num_workers)
+    return train_iter, train_set.vocab
+```
+
+```{.python .input}
+#@tab paddle
+#@save
+def load_data_wiki(batch_size, max_len):
+    """加载WikiText-2数据集"""
+    num_workers = d2l.get_dataloader_workers()
+    data_dir = d2l.download_extract('wikitext-2', 'wikitext-2')
+    paragraphs = _read_wiki(data_dir)
+    train_set = _WikiTextDataset(paragraphs, max_len)
+    train_iter = paddle.io.DataLoader(dataset=train_set, batch_size=batch_size, return_list=True,
                                         shuffle=True, num_workers=num_workers)
     return train_iter, train_set.vocab
 ```
@@ -340,7 +432,7 @@ len(vocab)
 
 ## 练习
 
-1. 为简单起见，句号用作拆分句子的唯一分隔符。尝试其他的句子拆分技术，比如Spacy和NLTK。以NLTK为例。你需要先安装NLTK：`pip install nltk`。在代码中先`import nltk`。然后下载Punkt语句词元分析器：`nltk.download('punkt')`。要拆分句子，比如`sentences = 'This is great ! Why not ?'`，调用`nltk.tokenize.sent_tokenize(sentences)`将返回两个句子字符串的列表：`['This is great !', 'Why not ?']`。
+1. 为简单起见，句号用作拆分句子的唯一分隔符。尝试其他的句子拆分技术，比如Spacy和NLTK。以NLTK为例，需要先安装NLTK：`pip install nltk`。在代码中先`import nltk`。然后下载Punkt语句词元分析器：`nltk.download('punkt')`。要拆分句子，比如`sentences = 'This is great ! Why not ?'`，调用`nltk.tokenize.sent_tokenize(sentences)`将返回两个句子字符串的列表：`['This is great !', 'Why not ?']`。
 1. 如果我们不过滤出一些不常见的词元，词量会有多大？
 
 :begin_tab:`mxnet`
@@ -349,4 +441,8 @@ len(vocab)
 
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/5738)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11822)
 :end_tab:

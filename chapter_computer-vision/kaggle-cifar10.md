@@ -3,13 +3,13 @@
 
 之前几节中，我们一直在使用深度学习框架的高级API直接获取张量格式的图像数据集。
 但是在实践中，图像数据集通常以图像文件的形式出现。
-在本节中，我们将从原始图像文件开始，然后逐步组织、读取并将它们转换为张量格式。
+本节将从原始图像文件开始，然后逐步组织、读取并将它们转换为张量格式。
 
 我们在 :numref:`sec_image_augmentation`中对CIFAR-10数据集做了一个实验。CIFAR-10是计算机视觉领域中的一个重要的数据集。
-在本节中，我们将运用我们在前几节中学到的知识来参加CIFAR-10图像分类问题的Kaggle竞赛，(**比赛的网址是https://www.kaggle.com/c/cifar-10**)。
+本节将运用我们在前几节中学到的知识来参加CIFAR-10图像分类问题的Kaggle竞赛，(**比赛的网址是https://www.kaggle.com/c/cifar-10**)。
 
  :numref:`fig_kaggle_cifar10`显示了竞赛网站页面上的信息。
-为了能提交结果，你需要首先注册Kaggle账户。
+为了能提交结果，首先需要注册一个Kaggle账户。
 
 ![CIFAR-10 图像分类竞赛页面上的信息。竞赛用的数据集可通过点击“Data”选项卡获取。](../img/kaggle-cifar10.png)
 :width:`600px`
@@ -43,6 +43,21 @@ import pandas as pd
 import shutil
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import collections
+import math
+import os
+import pandas as pd
+import shutil
+import paddle
+from paddle import nn
+import paddle.vision as paddlevision
+```
+
 ## 获取并组织数据集
 
 比赛数据集分为训练集和测试集，其中训练集包含50000张、测试集包含300000张图像。
@@ -54,7 +69,7 @@ import shutil
 ### 下载数据集
 
 登录Kaggle后，我们可以点击 :numref:`fig_kaggle_cifar10`中显示的CIFAR-10图像分类竞赛网页上的“Data”选项卡，然后单击“Download All”按钮下载数据集。
-在`../data`中解压下载的文件并在其中解压缩`train.7z`和`test.7z`后，你将在以下路径中找到整个数据集：
+在`../data`中解压下载的文件并在其中解压缩`train.7z`和`test.7z`后，在以下路径中可以找到整个数据集：
 
 * `../data/cifar-10/train/[1-50000].png`
 * `../data/cifar-10/test/[1-300000].png`
@@ -65,7 +80,7 @@ import shutil
 `sample_submission.csv`是提交文件的范例。
 
 为了便于入门，[**我们提供包含前1000个训练图像和5个随机测试图像的数据集的小规模样本**]。
-要使用Kaggle竞赛的完整数据集，你需要将以下`demo`变量设置为`False`。
+要使用Kaggle竞赛的完整数据集，需要将以下`demo`变量设置为`False`。
 
 ```{.python .input}
 #@tab all
@@ -73,7 +88,7 @@ import shutil
 d2l.DATA_HUB['cifar10_tiny'] = (d2l.DATA_URL + 'kaggle_cifar10_tiny.zip',
                                 '2068874e4b9a9f0fb07ebe0ad2b29754449ccacd')
 
-# 如果你使用完整的Kaggle竞赛的数据集，设置demo为False
+# 如果使用完整的Kaggle竞赛的数据集，设置demo为False
 demo = True
 
 if demo:
@@ -186,7 +201,7 @@ transform_train = gluon.data.vision.transforms.Compose([
     # 在高度和宽度上将图像放大到40像素的正方形
     gluon.data.vision.transforms.Resize(40),
     # 随机裁剪出一个高度和宽度均为40像素的正方形图像，
-    # 生成一个面积为原始图像面积0.64到1倍的小正方形，
+    # 生成一个面积为原始图像面积0.64～1倍的小正方形，
     # 然后将其缩放为高度和宽度均为32像素的正方形
     gluon.data.vision.transforms.RandomResizedCrop(32, scale=(0.64, 1.0),
                                                    ratio=(1.0, 1.0)),
@@ -203,7 +218,7 @@ transform_train = torchvision.transforms.Compose([
     # 在高度和宽度上将图像放大到40像素的正方形
     torchvision.transforms.Resize(40),
     # 随机裁剪出一个高度和宽度均为40像素的正方形图像，
-    # 生成一个面积为原始图像面积0.64到1倍的小正方形，
+    # 生成一个面积为原始图像面积0.64～1倍的小正方形，
     # 然后将其缩放为高度和宽度均为32像素的正方形
     torchvision.transforms.RandomResizedCrop(32, scale=(0.64, 1.0),
                                                    ratio=(1.0, 1.0)),
@@ -211,6 +226,23 @@ transform_train = torchvision.transforms.Compose([
     torchvision.transforms.ToTensor(),
     # 标准化图像的每个通道
     torchvision.transforms.Normalize([0.4914, 0.4822, 0.4465],
+                                     [0.2023, 0.1994, 0.2010])])
+```
+
+```{.python .input}
+#@tab paddle
+transform_train = paddlevision.transforms.Compose([
+    # 在高度和宽度上将图像放大到40像素的正方形
+    paddlevision.transforms.Resize(40),
+    # 随机裁剪出一个高度和宽度均为40像素的正方形图像，
+    # 生成一个面积为原始图像面积0.64到1倍的小正方形，
+    # 然后将其缩放为高度和宽度均为32像素的正方形
+    paddlevision.transforms.RandomResizedCrop(32, scale=(0.64, 1.0),
+                                              ratio=(1.0, 1.0)),
+    paddlevision.transforms.RandomHorizontalFlip(),
+    paddlevision.transforms.ToTensor(),
+    # 标准化图像的每个通道
+    paddlevision.transforms.Normalize([0.4914, 0.4822, 0.4465],
                                      [0.2023, 0.1994, 0.2010])])
 ```
 
@@ -228,6 +260,14 @@ transform_test = gluon.data.vision.transforms.Compose([
 transform_test = torchvision.transforms.Compose([
     torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize([0.4914, 0.4822, 0.4465],
+                                     [0.2023, 0.1994, 0.2010])])
+```
+
+```{.python .input}
+#@tab paddle
+transform_test = paddlevision.transforms.Compose([
+    paddlevision.transforms.ToTensor(),
+    paddlevision.transforms.Normalize([0.4914, 0.4822, 0.4465],
                                      [0.2023, 0.1994, 0.2010])])
 ```
 
@@ -249,6 +289,17 @@ train_ds, train_valid_ds = [torchvision.datasets.ImageFolder(
     transform=transform_train) for folder in ['train', 'train_valid']]
 
 valid_ds, test_ds = [torchvision.datasets.ImageFolder(
+    os.path.join(data_dir, 'train_valid_test', folder),
+    transform=transform_test) for folder in ['valid', 'test']]
+```
+
+```{.python .input}
+#@tab paddle
+train_ds, train_valid_ds = [paddlevision.datasets.DatasetFolder(
+    os.path.join(data_dir, 'train_valid_test', folder),
+    transform=transform_train) for folder in ['train', 'train_valid']]
+    
+valid_ds, test_ds = [paddlevision.datasets.DatasetFolder(
     os.path.join(data_dir, 'train_valid_test', folder),
     transform=transform_test) for folder in ['valid', 'test']]
 ```
@@ -282,6 +333,19 @@ valid_iter = torch.utils.data.DataLoader(valid_ds, batch_size, shuffle=False,
 
 test_iter = torch.utils.data.DataLoader(test_ds, batch_size, shuffle=False,
                                         drop_last=False)
+```
+
+```{.python .input}
+#@tab paddle
+train_iter, train_valid_iter = [paddle.io.DataLoader(
+    dataset, batch_size=batch_size, shuffle=True, drop_last=True)
+    for dataset in (train_ds, train_valid_ds)]
+
+valid_iter = paddle.io.DataLoader(valid_ds, batch_size=batch_size, shuffle=False,
+                                  drop_last=True)
+
+test_iter = paddle.io.DataLoader(test_ds, batch_size=batch_size, shuffle=False,
+                                 drop_last=False)
 ```
 
 ## 定义[**模型**]
@@ -348,6 +412,10 @@ def resnet18(num_classes):
 我们定义了 :numref:`sec_resnet`中描述的Resnet-18模型。
 :end_tab:
 
+:begin_tab:`paddle`
+我们定义了 :numref:`sec_resnet`中描述的Resnet-18模型。
+:end_tab:
+
 ```{.python .input}
 def get_net(devices):
     num_classes = 10
@@ -360,6 +428,16 @@ loss = gluon.loss.SoftmaxCrossEntropyLoss()
 
 ```{.python .input}
 #@tab pytorch
+def get_net():
+    num_classes = 10
+    net = d2l.resnet18(num_classes, 3)
+    return net
+
+loss = nn.CrossEntropyLoss(reduction="none")
+```
+
+```{.python .input}
+#@tab paddle
 def get_net():
     num_classes = 10
     net = d2l.resnet18(num_classes, 3)
@@ -450,6 +528,45 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
           f' examples/sec on {str(devices)}')
 ```
 
+```{.python .input}
+#@tab paddle
+def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
+          lr_decay):
+    scheduler = paddle.optimizer.lr.StepDecay(lr, lr_period, lr_decay)
+    trainer = paddle.optimizer.Momentum(learning_rate=scheduler, momentum=0.9, parameters=net.parameters(),
+                              weight_decay=wd)
+    num_batches, timer = len(train_iter), d2l.Timer()
+    legend = ['train loss', 'train acc']
+    if valid_iter is not None:
+        legend.append('valid acc')
+    animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs],
+                            legend=legend)
+    net = paddle.DataParallel(net)
+    for epoch in range(num_epochs):
+        net.train()
+        metric = d2l.Accumulator(3)
+        for i, (features, labels) in enumerate(train_iter):
+            timer.start()
+            l, acc = d2l.train_batch_ch13(net, features, labels,
+                                          loss, trainer, devices)
+            metric.add(l, acc, labels.shape[0])
+            timer.stop()
+            if (i + 1) % (num_batches // 5) == 0 or i == num_batches - 1:
+                animator.add(epoch + (i + 1) / num_batches,
+                             (metric[0] / metric[2], metric[1] / metric[2],
+                              None))
+        if valid_iter is not None:
+            valid_acc = d2l.evaluate_accuracy_gpu(net, valid_iter)
+            animator.add(epoch + 1, (None, None, valid_acc))
+        scheduler.step()
+    measures = (f'train loss {metric[0] / metric[2]:.3f}, '
+                f'train acc {metric[1] / metric[2]:.3f}')
+    if valid_iter is not None:
+        measures += f', valid acc {valid_acc:.3f}'
+    print(measures + f'\n{metric[2] * num_epochs / timer.sum():.1f}'
+          f' examples/sec on {str(devices)}')
+```
+
 ## [**训练和验证模型**]
 
 现在，我们可以训练和验证模型了，而以下所有超参数都可以调整。
@@ -466,6 +583,14 @@ train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
 
 ```{.python .input}
 #@tab pytorch
+devices, num_epochs, lr, wd = d2l.try_all_gpus(), 20, 2e-4, 5e-4
+lr_period, lr_decay, net = 4, 0.9, get_net()
+train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
+      lr_decay)
+```
+
+```{.python .input}
+#@tab paddle
 devices, num_epochs, lr, wd = d2l.try_all_gpus(), 20, 2e-4, 5e-4
 lr_period, lr_decay, net = 4, 0.9, get_net()
 train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
@@ -508,6 +633,22 @@ df['label'] = df['label'].apply(lambda x: train_valid_ds.classes[x])
 df.to_csv('submission.csv', index=False)
 ```
 
+```{.python .input}
+#@tab paddle
+net, preds = get_net(), []
+train(net, train_valid_iter, None, num_epochs, lr, wd, devices, lr_period,
+      lr_decay)
+
+for X, _ in test_iter:
+    y_hat = net(X)
+    preds.extend(y_hat.argmax(axis=1).astype(paddle.int32).numpy())
+sorted_ids = list(range(1, len(test_ds) + 1))
+sorted_ids.sort(key=lambda x: str(x))
+df = pd.DataFrame({'id': sorted_ids, 'label': preds})
+df['label'] = df['label'].apply(lambda x: train_valid_ds.classes[x])
+df.to_csv('submission.csv', index=False)
+```
+
 向Kaggle提交结果的方法与 :numref:`sec_kaggle_house`中的方法类似，上面的代码将生成一个
 `submission.csv`文件，其格式符合Kaggle竞赛的要求。
 
@@ -523,10 +664,14 @@ df.to_csv('submission.csv', index=False)
 * 我们可以在图像分类竞赛中使用卷积神经网络和图像增广。
 :end_tab:
 
+:begin_tab:`paddle`
+* 我们可以在图像分类竞赛中使用卷积神经网络和图像增广。
+:end_tab:
+
 ## 练习
 
-1. 在这场Kaggle竞赛中使用完整的CIFAR-10数据集。将超参数设为`batch_size = 128`，`num_epochs = 100`，`lr = 0.1`，`lr_period = 50`，`lr_decay = 0.1`。看看你在这场比赛中能达到什么准确度和排名。或者你能进一步改进吗？
-1. 不使用图像增广时，你能获得怎样的准确度？
+1. 在这场Kaggle竞赛中使用完整的CIFAR-10数据集。将超参数设为`batch_size = 128`，`num_epochs = 100`，`lr = 0.1`，`lr_period = 50`，`lr_decay = 0.1`。看看在这场比赛中能达到什么准确度和排名。能进一步改进吗？
+1. 不使用图像增广时，能获得怎样的准确度？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/2830)
@@ -534,4 +679,8 @@ df.to_csv('submission.csv', index=False)
 
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2831)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11814)
 :end_tab:

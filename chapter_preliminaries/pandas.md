@@ -6,7 +6,7 @@
 在Python中常用的数据分析工具中，我们通常使用`pandas`软件包。
 像庞大的Python生态系统中的许多其他扩展包一样，`pandas`可以与张量兼容。
 本节我们将简要介绍使用`pandas`预处理原始数据，并将原始数据转换为张量格式的步骤。
-我们将在后面的章节中介绍更多的数据预处理技术。
+后面的章节将介绍更多的数据预处理技术。
 
 ## 读取数据集
 
@@ -99,6 +99,16 @@ X, y = tf.constant(inputs.values), tf.constant(outputs.values)
 X, y
 ```
 
+```{.python .input}
+#@tab paddle
+import warnings
+warnings.filterwarnings(action='ignore')
+import paddle
+
+X, y = paddle.to_tensor(inputs.values), paddle.to_tensor(outputs.values)
+X, y
+```
+
 ## 小结
 
 * `pandas`软件包是Python中常用的数据分析工具中，`pandas`可以与张量兼容。
@@ -121,4 +131,8 @@ X, y
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1748)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11681)
 :end_tab:

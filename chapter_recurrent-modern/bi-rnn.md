@@ -7,7 +7,7 @@
 对下一个输出进行建模。
 虽然这是一个典型情景，但不是唯一的。
 还可能发生什么其它的情况呢？
-我们考虑以下三个在文本序列中填空的任务：
+我们考虑以下三个在文本序列中填空的任务。
 
 * 我`___`。
 * 我`___`饿了。
@@ -75,7 +75,7 @@ $$\begin{aligned}
     =& \sum_{h_T} \pi_T(h_T) P(x_T \mid h_T).
 \end{aligned}$$
 
-通常，我们将“前向递归”（forward recursion）写为：
+通常，我们将*前向递归*（forward recursion）写为：
 
 $$\pi_{t+1}(h_{t+1}) = \sum_{h_t} \pi_t(h_t) P(x_t \mid h_t) P(h_{t+1} \mid h_t).$$
 
@@ -98,7 +98,7 @@ $$\begin{aligned}
     =& \sum_{h_1} P(h_1) P(x_1 \mid h_1)\rho_{1}(h_{1}).
 \end{aligned}$$
 
-因此，我们可以将“后向递归”（backward recursion）写为：
+因此，我们可以将*后向递归*（backward recursion）写为：
 
 $$\rho_{t-1}(h_{t-1})= \sum_{h_{t}} P(h_{t} \mid h_{t-1}) P(x_{t} \mid h_{t}) \rho_{t}(h_{t}),$$
 
@@ -149,7 +149,7 @@ $$P(x_j \mid x_{-j}) \propto \sum_{h_j} \pi_j(h_j) \rho_j(h_j) P(x_j \mid h_j).$
 
 对于任意时间步$t$，给定一个小批量的输入数据
 $\mathbf{X}_t \in \mathbb{R}^{n \times d}$
-（样本数：$n$，每个示例中的输入数：$d$），
+（样本数$n$，每个示例中的输入数$d$），
 并且令隐藏层激活函数为$\phi$。
 在双向架构中，我们设该时间步的前向和反向隐状态分别为
 $\overrightarrow{\mathbf{H}}_t  \in \mathbb{R}^{n \times h}$和
@@ -250,6 +250,27 @@ num_epochs, lr = 500, 1
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+from paddle import nn
+
+#加载数据
+batch_size, num_steps, device  = 32, 35, d2l.try_gpu()
+train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
+#通过设置“direction='bidirect'”来定义双向LSTM模型
+vocab_size, num_hiddens, num_layers = len(vocab), 256, 2
+num_inputs = vocab_size
+lstm_layer = nn.LSTM(num_inputs, num_hiddens, num_layers, direction='bidirect', time_major=True)
+model = d2l.RNNModel(lstm_layer, len(vocab))
+#训练模型
+num_epochs, lr = 500, 1.0
+d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
+```
+
 上述结果显然令人瞠目结舌。
 关于如何更有效地使用双向循环神经网络的讨论，
 请参阅 :numref:`sec_sentiment_rnn`中的情感分类应用。
@@ -273,4 +294,8 @@ d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/2773)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11835)
 :end_tab:

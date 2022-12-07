@@ -55,7 +55,16 @@ from torch import nn
 ```
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+from paddle import nn
+```
+
+```{.python .input}
+#@tab mxnet, pytorch, paddle
 def pool2d(X, pool_size, mode='max'):
     p_h, p_w = pool_size
     Y = d2l.zeros((X.shape[0] - p_h + 1, X.shape[1] - p_w + 1))
@@ -122,6 +131,12 @@ X = d2l.reshape(d2l.arange(16, dtype=d2l.float32), (1, 4, 4, 1))
 X
 ```
 
+```{.python .input}
+#@tab paddle
+X = paddle.arange(16, dtype="float32").reshape((1, 1, 4, 4))
+X
+```
+
 默认情况下，(**深度学习框架中的步幅与汇聚窗口的大小相同**)。
 因此，如果我们使用形状为`(3, 3)`的汇聚窗口，那么默认情况下，我们得到的步幅形状为`(3, 3)`。
 
@@ -140,6 +155,12 @@ pool2d(X)
 ```{.python .input}
 #@tab tensorflow
 pool2d = tf.keras.layers.MaxPool2D(pool_size=[3, 3])
+pool2d(X)
+```
+
+```{.python .input}
+#@tab paddle
+pool2d = nn.MaxPool2D(3, stride=3)
 pool2d(X)
 ```
 
@@ -165,6 +186,12 @@ pool2d = tf.keras.layers.MaxPool2D(pool_size=[3, 3], padding='valid',
 pool2d(X_padded)
 ```
 
+```{.python .input}
+#@tab paddle
+pool2d = nn.MaxPool2D(3, padding=1, stride=2)
+pool2d(X)
+```
+
 :begin_tab:`mxnet`
 当然，我们可以设定一个任意大小的矩形汇聚窗口，并分别设定填充和步幅的高度和宽度。
 :end_tab:
@@ -174,6 +201,10 @@ pool2d(X_padded)
 :end_tab:
 
 :begin_tab:`tensorflow`
+当然，我们可以设定一个任意大小的矩形汇聚窗口，并分别设定填充和步幅的高度和宽度。
+:end_tab:
+
+:begin_tab:`paddle`
 当然，我们可以设定一个任意大小的矩形汇聚窗口，并分别设定填充和步幅的高度和宽度。
 :end_tab:
 
@@ -197,6 +228,12 @@ pool2d = tf.keras.layers.MaxPool2D(pool_size=[2, 3], padding='valid',
 pool2d(X_padded)
 ```
 
+```{.python .input}
+#@tab paddle
+pool2d = nn.MaxPool2D((2, 3), padding=(0, 1), stride=(2, 3))
+pool2d(X)
+```
+
 ## 多个通道
 
 在处理多通道输入数据时，[**汇聚层在每个输入通道上单独运算**]，而不是像卷积层一样在通道上对输入进行汇总。
@@ -209,7 +246,7 @@ pool2d(X_padded)
 :end_tab:
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, paddle
 X = d2l.concat((X, X + 1), 1)
 X
 ```
@@ -241,6 +278,12 @@ pool2d = tf.keras.layers.MaxPool2D(pool_size=[3, 3], padding='valid',
 pool2d(X_padded)
 ```
 
+```{.python .input}
+#@tab paddle
+pool2d = paddle.nn.MaxPool2D(3, padding=1, stride=2)
+pool2d(X)
+```
+
 :begin_tab:`tensorflow`
 请注意，上面的输出乍一看似乎有所不同，但MXNet和PyTorch的结果从数值上是相同的。
 不同之处在于维度，垂直读取输出会产生与其他实现相同的输出。
@@ -256,8 +299,8 @@ pool2d(X_padded)
 
 ## 练习
 
-1. 你能将平均汇聚层作为卷积层的特殊情况实现吗？
-1. 你能将最大汇聚层作为卷积层的特殊情况实现吗？
+1. 尝试将平均汇聚层作为卷积层的特殊情况实现。
+1. 尝试将最大汇聚层作为卷积层的特殊情况实现。
 1. 假设汇聚层的输入大小为$c\times h\times w$，则汇聚窗口的形状为$p_h\times p_w$，填充为$(p_h, p_w)$，步幅为$(s_h, s_w)$。这个汇聚层的计算成本是多少？
 1. 为什么最大汇聚层和平均汇聚层的工作方式不同？
 1. 我们是否需要最小汇聚层？可以用已知函数替换它吗？
@@ -273,4 +316,8 @@ pool2d(X_padded)
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1856)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11786)
 :end_tab:

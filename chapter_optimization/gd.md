@@ -69,6 +69,16 @@ import tensorflow as tf
 ```
 
 ```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import numpy as np
+import paddle
+```
+
+```{.python .input}
 #@tab all
 def f(x):  # 目标函数
     return x ** 2
@@ -81,7 +91,7 @@ def f_grad(x):  # 目标函数的梯度(导数)
 使用梯度下降法迭代$x$共10次，我们可以看到，$x$的值最终将接近最优解。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow
 def gd(eta, f_grad):
     x = 10.0
     results = [x]
@@ -94,13 +104,39 @@ def gd(eta, f_grad):
 results = gd(0.2, f_grad)
 ```
 
+```{.python .input}
+#@tab paddle
+def gd(eta, f_grad):
+    x = 10.0
+    results = [x]
+    for i in range(10):
+        x -= eta * f_grad(x)
+        results.append(float(x))
+    print(f'epoch 10, x: {float(x):f}')
+    return results
+
+results = gd(0.2, f_grad)
+```
+
 对进行$x$优化的过程可以绘制如下。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow
 def show_trace(results, f):
     n = max(abs(min(results)), abs(max(results)))
     f_line = d2l.arange(-n, n, 0.01)
+    d2l.set_figsize()
+    d2l.plot([f_line, results], [[f(x) for x in f_line], [
+        f(x) for x in results]], 'x', 'f(x)', fmts=['-', '-o'])
+
+show_trace(results, f)
+```
+
+```{.python .input}
+#@tab paddle
+def show_trace(results, f):
+    n = max(abs(min(results)), abs(max(results)))
+    f_line = d2l.arange(-n, n, 0.01, dtype='float32')
     d2l.set_figsize()
     d2l.plot([f_line, results], [[f(x) for x in f_line], [
         f(x) for x in results]], 'x', 'f(x)', fmts=['-', '-o'])
@@ -156,7 +192,7 @@ show_trace(gd(2, f_grad), f)
 
 现在我们对单变量的情况有了更好的理解，让我们考虑一下$\mathbf{x} = [x_1, x_2, \ldots, x_d]^\top$的情况。
 即目标函数$f: \mathbb{R}^d \to \mathbb{R}$将向量映射成标量。
-相应地，它的梯度也是多元的：它是一个由$d$个偏导数组成的向量：
+相应地，它的梯度也是多元的，它是一个由$d$个偏导数组成的向量：
 
 $$\nabla f(\mathbf{x}) = \bigg[\frac{\partial f(\mathbf{x})}{\partial x_1}, \frac{\partial f(\mathbf{x})}{\partial x_2}, \ldots, \frac{\partial f(\mathbf{x})}{\partial x_d}\bigg]^\top.$$
 
@@ -185,7 +221,7 @@ $$\mathbf{x} \leftarrow \mathbf{x} - \eta \nabla f(\mathbf{x}).$$
 第二个函数会显示$\mathbf{x}$的轨迹。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow
 def train_2d(trainer, steps=20, f_grad=None):  #@save
     """用定制的训练机优化2D目标函数"""
     # s1和s2是稍后将使用的内部状态变量
@@ -206,6 +242,33 @@ def show_trace_2d(f, results):  #@save
     d2l.plt.plot(*zip(*results), '-o', color='#ff7f0e')
     x1, x2 = d2l.meshgrid(d2l.arange(-5.5, 1.0, 0.1),
                           d2l.arange(-3.0, 1.0, 0.1))
+    d2l.plt.contour(x1, x2, f(x1, x2), colors='#1f77b4')
+    d2l.plt.xlabel('x1')
+    d2l.plt.ylabel('x2')
+```
+
+```{.python .input}
+#@tab paddle
+def train_2d(trainer, steps=20, f_grad=None):  #@save
+    """用定制的训练机优化2D目标函数"""
+    # s1和s2是稍后将使用的内部状态变量
+    x1, x2, s1, s2 = -5, -2, 0, 0
+    results = [(x1, x2)]
+    for i in range(steps):
+        if f_grad:
+            x1, x2, s1, s2 = trainer(x1, x2, s1, s2, f_grad)
+        else:
+            x1, x2, s1, s2 = trainer(x1, x2, s1, s2)
+        results.append((x1, x2))
+    print(f'epoch {i + 1}, x1: {float(x1):f}, x2: {float(x2):f}')
+    return results
+
+def show_trace_2d(f, results):  #@save
+    """显示优化过程中2D变量的轨迹"""
+    d2l.set_figsize()
+    d2l.plt.plot(*zip(*results), '-o', color='#ff7f0e')
+    x1, x2 = d2l.meshgrid(d2l.arange(-5.5, 1.0, 0.1, dtype='float32'),
+                          d2l.arange(-3.0, 1.0, 0.1, dtype='float32'))
     d2l.plt.contour(x1, x2, f(x1, x2), colors='#1f77b4')
     d2l.plt.xlabel('x1')
     d2l.plt.ylabel('x2')
@@ -400,15 +463,15 @@ $$\mathbf{x} \leftarrow \mathbf{x} - \eta \mathrm{diag}(\mathbf{H})^{-1} \nabla 
 
 1. 用不同的学习率和目标函数进行梯度下降实验。
 1. 在区间$[a, b]$中实现线搜索以最小化凸函数。
-    1. 你是否需要导数来进行二分搜索，即决定选择$[a, (a+b)/2]$还是$[(a+b)/2, b]$。
+    1. 是否需要导数来进行二分搜索，即决定选择$[a, (a+b)/2]$还是$[(a+b)/2, b]$。
     1. 算法的收敛速度有多快？
     1. 实现该算法，并将其应用于求$\log (\exp(x) + \exp(-2x -3))$的最小值。
 1. 设计一个定义在$\mathbb{R}^2$上的目标函数，它的梯度下降非常缓慢。提示：不同坐标的缩放方式不同。
-1. 使用预处理实现牛顿方法的轻量级版本：
-    1. 使用对角Hessian作为预条件。
+1. 使用预处理实现牛顿方法的轻量版本。
+    1. 使用对角Hessian作为预条件子。
     1. 使用它的绝对值，而不是实际值（可能有符号）。
     1. 将此应用于上述问题。
-1. 将上述算法应用于多个目标函数（凸或非凸）。如果你把坐标旋转$45$度会怎么样？
+1. 将上述算法应用于多个目标函数（凸或非凸）。如果把坐标旋转$45$度会怎么样？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/3834)
@@ -420,4 +483,8 @@ $$\mathbf{x} \leftarrow \mathbf{x} - \eta \mathrm{diag}(\mathbf{H})^{-1} \nabla 
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/3835)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11848)
 :end_tab:

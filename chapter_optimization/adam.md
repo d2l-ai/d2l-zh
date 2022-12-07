@@ -131,6 +131,36 @@ def adam(params, grads, states, hyperparams):
                     / tf.math.sqrt(s_bias_corr) + eps)
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+
+def init_adam_states(feature_dim):
+    v_w, v_b = d2l.zeros((feature_dim, 1)), d2l.zeros((1, ))
+    s_w, s_b = d2l.zeros((feature_dim, 1)), d2l.zeros((1, ))
+    return ((v_w, s_w), (v_b, s_b))
+
+def adam(params, states, hyperparams):
+    beta1, beta2, eps = 0.9, 0.999, 1e-6
+    a = []
+    for p, (v, s) in zip(params, states):
+        with paddle.no_grad():
+            v[:] = beta1 * v + (1 - beta1) * p.grad
+            s[:] = beta2 * s + (1 - beta2) * paddle.square(p.grad)
+            v_bias_corr = v / (1 - beta1 ** hyperparams['t'])
+            s_bias_corr = s / (1 - beta2 ** hyperparams['t'])
+            p[:] -= hyperparams['lr'] * v_bias_corr / (paddle.sqrt(s_bias_corr)
+                                                       + eps)
+        p.grad.zero_()
+        a.append(p)
+    hyperparams['t'] += 1
+    return a
+```
+
 现在，我们用以上Adam算法来训练模型，这里我们使用$\eta = 0.01$的学习率。
 
 ```{.python .input}
@@ -155,6 +185,12 @@ d2l.train_concise_ch11(trainer, {'lr': 0.01}, data_iter)
 ```{.python .input}
 #@tab tensorflow
 trainer = tf.keras.optimizers.Adam
+d2l.train_concise_ch11(trainer, {'learning_rate': 0.01}, data_iter)
+```
+
+```{.python .input}
+#@tab paddle
+trainer = paddle.optimizer.Adam
 d2l.train_concise_ch11(trainer, {'learning_rate': 0.01}, data_iter)
 ```
 
@@ -232,6 +268,30 @@ d2l.train_ch11(yogi, init_adam_states(feature_dim),
                {'lr': 0.01, 't': 1}, data_iter, feature_dim);
 ```
 
+```{.python .input}
+#@tab paddle
+def yogi(params, states, hyperparams):
+    beta1, beta2, eps = 0.9, 0.999, 1e-3
+    a=[]
+    for p, (v, s) in zip(params, states):
+        with paddle.no_grad():
+            v[:] = beta1 * v + (1 - beta1) * p.grad
+            s[:] = s + (1 - beta2) * paddle.sign(
+                paddle.square(p.grad) - s) * paddle.square(p.grad)
+            v_bias_corr = v / (1 - beta1 ** hyperparams['t'])
+            s_bias_corr = s / (1 - beta2 ** hyperparams['t'])
+            p[:] -= hyperparams['lr'] * v_bias_corr / (paddle.sqrt(s_bias_corr)
+                                                       + eps)
+        p.grad.zero_()
+        a.append(p)
+    hyperparams['t'] += 1
+    return a
+
+data_iter, feature_dim = d2l.get_data_ch11(batch_size=10)
+d2l.train_ch11(yogi, init_adam_states(feature_dim),
+               {'lr': 0.01, 't': 1}, data_iter, feature_dim);
+```
+
 ## 小结
 
 * Adam算法将许多优化算法的功能结合到了相当强大的更新规则中。
@@ -242,8 +302,8 @@ d2l.train_ch11(yogi, init_adam_states(feature_dim),
 ## 练习
 
 1. 调节学习率，观察并分析实验结果。
-1. 你能重写动量和二次矩更新，从而使其不需要偏差校正吗？
-1. 当我们收敛时，为什么你需要降低学习率$\eta$？
+1. 试着重写动量和二次矩更新，从而使其不需要偏差校正。
+1. 收敛时为什么需要降低学习率$\eta$？
 1. 尝试构造一个使用Adam算法会发散而Yogi会收敛的例子。
 
 :begin_tab:`mxnet`
@@ -256,4 +316,8 @@ d2l.train_ch11(yogi, init_adam_states(feature_dim),
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/4332)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11855)
 :end_tab:

@@ -6,7 +6,7 @@
 
 与芯片设计中工程师从放置晶体管到逻辑元件再到逻辑块的过程类似，神经网络架构的设计也逐渐变得更加抽象。研究人员开始从单个神经元的角度思考问题，发展到整个层，现在又转向块，重复层的模式。
 
-使用块的想法首先出现在牛津大学的[视觉几何组（visualgeometry group）](http://www.robots.ox.ac.uk/~vgg/)的*VGG网络*中。通过使用循环和子程序，可以很容易地在任何现代深度学习框架的代码中实现这些重复的架构。
+使用块的想法首先出现在牛津大学的[视觉几何组（visual geometry group）](http://www.robots.ox.ac.uk/~vgg/)的*VGG网络*中。通过使用循环和子程序，可以很容易地在任何现代深度学习框架的代码中实现这些重复的架构。
 
 ## (**VGG块**)
 
@@ -71,6 +71,25 @@ def vgg_block(num_convs, num_channels):
                                     padding='same',activation='relu'))
     blk.add(tf.keras.layers.MaxPool2D(pool_size=2, strides=2))
     return blk
+```
+
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+import paddle.nn as nn
+
+def vgg_block(num_convs, in_channels, out_channels):
+    layers = []
+    for _ in range(num_convs):
+        layers.append(
+            nn.Conv2D(in_channels, out_channels, kernel_size=3, padding=1))
+        layers.append(nn.ReLU())
+        in_channels = out_channels
+    layers.append(nn.MaxPool2D(kernel_size=2, stride=2))
+    return nn.Sequential(*layers)
 ```
 
 ## [**VGG网络**]
@@ -148,6 +167,25 @@ def vgg(conv_arch):
 net = vgg(conv_arch)
 ```
 
+```{.python .input}
+#@tab paddle
+def vgg(conv_arch):
+    conv_blks = []
+    in_channels = 1
+    # 卷积层部分
+    for (num_convs, out_channels) in conv_arch:
+        conv_blks.append(vgg_block(num_convs, in_channels, out_channels))
+        in_channels = out_channels
+
+    return nn.Sequential(*conv_blks, nn.Flatten(),
+                         # 全连接层部分
+                         nn.Linear(out_channels * 7 * 7, 4096), nn.ReLU(),
+                         nn.Dropout(0.5), nn.Linear(4096, 4096), nn.ReLU(),
+                         nn.Dropout(0.5), nn.Linear(4096, 10))
+
+net = vgg(conv_arch)
+```
+
 接下来，我们将构建一个高度和宽度为224的单通道数据样本，以[**观察每个层输出的形状**]。
 
 ```{.python .input}
@@ -174,14 +212,22 @@ for blk in net.layers:
     print(blk.__class__.__name__,'output shape:\t', X.shape)
 ```
 
-正如你所看到的，我们在每个块的高度和宽度减半，最终高度和宽度都为7。最后再展平表示，送入全连接层处理。
+```{.python .input}
+#@tab paddle
+X = paddle.randn(shape=(1, 1, 224, 224))
+for blk in net:
+    X = blk(X)
+    print(blk.__class__.__name__,'output shape:\t',X.shape)
+```
+
+正如从代码中所看到的，我们在每个块的高度和宽度减半，最终高度和宽度都为7。最后再展平表示，送入全连接层处理。
 
 ## 训练模型
 
 [**由于VGG-11比AlexNet计算量更大，因此我们构建了一个通道数较少的网络**]，足够用于训练Fashion-MNIST数据集。
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, paddle
 ratio = 4
 small_conv_arch = [(pair[0], pair[1] // ratio) for pair in conv_arch]
 net = vgg(small_conv_arch)
@@ -227,4 +273,8 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1865)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11789)
 :end_tab:

@@ -30,6 +30,15 @@ import tensorflow as tf
 ```
 
 ```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+from paddle import nn
+```
+
+```{.python .input}
 #@tab all
 batch_size = 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
@@ -72,6 +81,17 @@ weight_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.01)
 net.add(tf.keras.layers.Dense(10, kernel_initializer=weight_initializer))
 ```
 
+```{.python .input}
+#@tab paddle
+net = nn.Sequential(nn.Flatten(), nn.Linear(784, 10))
+
+def init_weights(m):
+    if type(m) == nn.Linear:
+        nn.initializer.Normal(m.weight, std=0.01)
+
+net.apply(init_weights);
+```
+
 ## 重新审视Softmax的实现
 :label:`subsec_softmax-implementation-revisited`
 
@@ -91,7 +111,7 @@ $o_j$是未规范化的预测$\mathbf{o}$的第$j$个元素。
 
 解决这个问题的一个技巧是：
 在继续softmax计算之前，先从所有$o_k$中减去$\max(o_k)$。
-你可以看到每个$o_k$按常数进行的移动不会改变softmax的返回值：
+这里可以看到每个$o_k$按常数进行的移动不会改变softmax的返回值：
 
 $$
 \begin{aligned}
@@ -130,7 +150,7 @@ loss = gluon.loss.SoftmaxCrossEntropyLoss()
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 loss = nn.CrossEntropyLoss(reduction='none')
 ```
 
@@ -156,6 +176,11 @@ trainer = torch.optim.SGD(net.parameters(), lr=0.1)
 ```{.python .input}
 #@tab tensorflow
 trainer = tf.keras.optimizers.SGD(learning_rate=.1)
+```
+
+```{.python .input}
+#@tab paddle
+trainer = paddle.optimizer.SGD(learning_rate=0.1, parameters=net.parameters())
 ```
 
 ## 训练
@@ -191,4 +216,8 @@ d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1792)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11761)
 :end_tab:

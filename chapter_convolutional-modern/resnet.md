@@ -145,6 +145,41 @@ class Residual(tf.keras.Model):  #@save
         return tf.keras.activations.relu(Y)
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+import paddle.nn as nn
+from paddle.nn import functional as F
+
+class Residual(nn.Layer):  #@save
+    def __init__(self, input_channels, num_channels, use_1x1conv=False,
+                 strides=1):
+        super(Residual, self).__init__()
+        self.conv1 = nn.Conv2D(input_channels, num_channels, kernel_size=3,
+                               padding=1, stride=strides)
+        self.conv2 = nn.Conv2D(num_channels, num_channels, kernel_size=3,
+                               padding=1)
+        if use_1x1conv:
+            self.conv3 = nn.Conv2D(input_channels, num_channels,
+                                   kernel_size=1, stride=strides)
+        else:
+            self.conv3 = None
+        self.bn1 = nn.BatchNorm2D(num_channels)
+        self.bn2 = nn.BatchNorm2D(num_channels)
+        self.relu = nn.ReLU()
+
+    def forward(self, X):
+        Y = F.relu(self.bn1(self.conv1(X)))
+        Y = self.bn2(self.conv2(Y))
+        if self.conv3:
+            X = self.conv3(X)
+        Y += X
+        return F.relu(Y)
+```
+
 如 :numref:`fig_resnet_block`所示，此代码生成两种类型的网络：
 一种是当`use_1x1conv=False`时，应用ReLU非线性函数之前，将输入添加到输出。
 另一种是当`use_1x1conv=True`时，添加通过$1 \times 1$卷积调整通道和分辨率。
@@ -177,6 +212,14 @@ Y = blk(X)
 Y.shape
 ```
 
+```{.python .input}
+#@tab paddle
+blk = Residual(3, 3)
+X = paddle.rand([4, 3, 6, 6])
+Y = blk(X)
+Y.shape
+```
+
 我们也可以在[**增加输出通道数的同时，减半输出的高和宽**]。
 
 ```{.python .input}
@@ -194,6 +237,12 @@ blk(X).shape
 ```{.python .input}
 #@tab tensorflow
 blk = Residual(6, use_1x1conv=True, strides=2)
+blk(X).shape
+```
+
+```{.python .input}
+#@tab paddle
+blk = Residual(3, 6, use_1x1conv=True, strides=2)
 blk(X).shape
 ```
 
@@ -224,6 +273,13 @@ b1 = tf.keras.models.Sequential([
     tf.keras.layers.BatchNormalization(),
     tf.keras.layers.Activation('relu'),
     tf.keras.layers.MaxPool2D(pool_size=3, strides=2, padding='same')])
+```
+
+```{.python .input}
+#@tab paddle
+b1 = nn.Sequential(nn.Conv2D(1, 64, kernel_size=7, stride=2, padding=3),
+                   nn.BatchNorm2D(64), nn.ReLU(),
+                   nn.MaxPool2D(kernel_size=3, stride=2, padding=1))
 ```
 
 GoogLeNet在后面接了4个由Inception块组成的模块。
@@ -279,6 +335,21 @@ class ResnetBlock(tf.keras.layers.Layer):
         return X
 ```
 
+```{.python .input}
+#@tab paddle
+def resnet_block(input_channels, num_channels, num_residuals,
+                 first_block=False):
+    blk = []
+    for i in range(num_residuals):
+        if i == 0 and not first_block:
+            blk.append(
+                Residual(input_channels, num_channels, use_1x1conv=True,
+                         strides=2))
+        else:
+            blk.append(Residual(num_channels, num_channels))
+    return blk
+```
+
 接着在ResNet加入所有残差块，这里每个模块使用2个残差块。
 
 ```{.python .input}
@@ -289,7 +360,7 @@ net.add(resnet_block(64, 2, first_block=True),
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, paddle
 b2 = nn.Sequential(*resnet_block(64, 64, 2, first_block=True))
 b3 = nn.Sequential(*resnet_block(64, 128, 2))
 b4 = nn.Sequential(*resnet_block(128, 256, 2))
@@ -339,6 +410,13 @@ def net():
         tf.keras.layers.Dense(units=10)])
 ```
 
+```{.python .input}
+#@tab paddle
+net = nn.Sequential(b1, b2, b3, b4, b5, 
+                    nn.AdaptiveAvgPool2D((1, 1)),
+                    nn.Flatten(), nn.Linear(512, 10))
+```
+
 每个模块有4个卷积层（不包括恒等映射的$1\times 1$卷积层）。
 加上第一个$7\times 7$卷积层和最后一个全连接层，共有18层。
 因此，这种模型通常被称为ResNet-18。
@@ -376,6 +454,14 @@ for layer in net().layers:
     print(layer.__class__.__name__,'output shape:\t', X.shape)
 ```
 
+```{.python .input}
+#@tab paddle
+X = paddle.rand(shape=(1, 1, 224, 224))
+for layer in net:
+    X = layer(X)
+    print(layer.__class__.__name__,'output shape:\t', X.shape)
+```
+
 ## [**训练模型**]
 
 同之前一样，我们在Fashion-MNIST数据集上训练ResNet。
@@ -398,8 +484,8 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 
 1.  :numref:`fig_inception`中的Inception块与残差块之间的主要区别是什么？在删除了Inception块中的一些路径之后，它们是如何相互关联的？
 1. 参考ResNet论文 :cite:`He.Zhang.Ren.ea.2016`中的表1，以实现不同的变体。
-1. 对于更深层次的网络，ResNet引入了“bottleneck”架构来降低模型复杂性。请你试着去实现它。
-1. 在ResNet的后续版本中，作者将“卷积层、批量规范化层和激活层”架构更改为“批量规范化层、激活层和卷积层”架构。请你做这个改进。详见 :cite:`He.Zhang.Ren.ea.2016*1`中的图1。
+1. 对于更深层次的网络，ResNet引入了“bottleneck”架构来降低模型复杂性。请试着去实现它。
+1. 在ResNet的后续版本中，作者将“卷积层、批量规范化层和激活层”架构更改为“批量规范化层、激活层和卷积层”架构。请尝试做这个改进。详见 :cite:`He.Zhang.Ren.ea.2016*1`中的图1。
 1. 为什么即使函数类是嵌套的，我们仍然要限制增加函数的复杂性呢？
 
 :begin_tab:`mxnet`
@@ -412,4 +498,8 @@ d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1878)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11793)
 :end_tab:

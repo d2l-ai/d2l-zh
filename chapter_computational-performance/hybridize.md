@@ -30,8 +30,8 @@ Python是一种*解释型语言*（interpreted language）。因此，当对上�
 
 考虑另一种选择*符号式编程*（symbolic programming），即代码通常只在完全定义了过程之后才执行计算。这个策略被多个深度学习框架使用，包括Theano和TensorFlow（后者已经获得了命令式编程的扩展）。一般包括以下步骤：
 
-1. 定义计算流程。
-1. 将流程编译成可执行的程序。
+1. 定义计算流程；
+1. 将流程编译成可执行的程序；
 1. 给定输入，调用编译好的程序执行。
 
 这将允许进行大量的优化。首先，在大多数情况下，我们可以跳过Python解释器。从而消除因为多个更快的GPU与单个CPU上的单个Python线程搭配使用时产生的性能瓶颈。其次，编译器可以将上述代码优化和重写为`print((1 + 2) + (3 + 4))`甚至`print(10)`。因为编译器在将其转换为机器指令之前可以看到完整的代码，所以这种优化是可以实现的。例如，只要某个变量不再需要，编译器就可以释放内存（或者从不分配内存），或者将代码转换为一个完全等价的片段。下面，我们将通过模拟命令式编程来进一步了解符号式编程的概念。
@@ -64,7 +64,7 @@ exec(y)
 
 命令式（解释型）编程和符号式编程的区别如下：
 
-* 命令式编程更容易使用。在Python中，命令式编程的大部分代码都是简单易懂的。命令式编程也更容易调试，这是因为无论是获取和打印所有的中间变量值，或者使用Python的内置调试工具都更加简单。
+* 命令式编程更容易使用。在Python中，命令式编程的大部分代码都是简单易懂的。命令式编程也更容易调试，这是因为无论是获取和打印所有的中间变量值，或者使用Python的内置调试工具都更加简单；
 * 符号式编程运行效率更高，更易于移植。符号式编程更容易在编译期间优化代码，同时还能够将程序移植到与Python无关的格式中，从而允许程序在非Python环境中运行，避免了任何潜在的与Python解释器相关的性能问题。
 
 ## 混合式编程
@@ -82,7 +82,11 @@ exec(y)
 :end_tab:
 
 :begin_tab:`tensorflow`
-命令式编程现在是TensorFlow2的默认选择，对于那些刚接触该语言的人来说是一个很好的改变。不过，符号式编程技术和计算图仍然存在于TensorFlow中，并且可以通过易于使用的装饰器`tf.function`进行访问。这为TensorFlow带来了命令式编程范式，允许用户定义更加直观的函数，然后使用被TensorFlow团队称为[autograph](https://www.tensorflow.org/api_docs/python/tf/autograph)的特性将它们封装，再自动编译成计算图。
+命令式编程现在是TensorFlow2的默认选择，对那些刚接触该语言的人来说是一个很好的改变。不过，符号式编程技术和计算图仍然存在于TensorFlow中，并且可以通过易于使用的装饰器`tf.function`进行访问。这为TensorFlow带来了命令式编程范式，允许用户定义更加直观的函数，然后使用被TensorFlow团队称为[autograph](https://www.tensorflow.org/api_docs/python/tf/autograph)的特性将它们封装，再自动编译成计算图。
+:end_tab:
+
+:begin_tab:`paddle`
+如上所述，飞桨是基于命令式编程并且使用动态计算图。为了能够利用符号式编程的可移植性和效率，开发人员思考能否将这两种编程模型的优点结合起来，于是就产生了飞桨2.0版本。飞桨2.0及以上版本允许用户使用纯命令式编程进行开发和调试，同时能够将大多数程序转换为符号式程序，以便在需要产品级计算性能和部署时使用。
 :end_tab:
 
 ## `Sequential`的混合式编程
@@ -148,6 +152,33 @@ net = get_net()
 net(x)
 ```
 
+```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+from paddle import nn
+from paddle.jit import to_static
+from paddle.static import InputSpec
+
+# 生产网络的工厂模式
+def get_net():
+    blocks = [
+        nn.Linear(512, 256),
+        nn.ReLU(),
+        nn.Linear(256, 128),
+        nn.ReLU(),
+        nn.Linear(128, 2)
+    ]
+    net = nn.Sequential(*blocks)
+    return net
+
+x = paddle.randn((1, 512))
+net = get_net()
+net(x)
+```
+
 :begin_tab:`mxnet`
 通过调用`hybridize`函数，我们就有能力编译和优化多层感知机中的计算，而模型的计算结果保持不变。
 :end_tab:
@@ -158,6 +189,10 @@ net(x)
 
 :begin_tab:`tensorflow`
 一开始，TensorFlow中构建的所有函数都是作为计算图构建的，因此默认情况下是JIT编译的。但是，随着TensorFlow2.X和EargeTensor的发布，计算图就不再是默认行为。我们可以使用tf.function重新启用这个功能。tf.function更常被用作函数装饰器，如下所示，它也可以直接将其作为普通的Python函数调用。模型的计算结果保持不变。
+:end_tab:
+
+:begin_tab:`paddle`
+通过使用`paddle.jit.to_static`函数来转换模型，我们就有能力编译和优化多层感知机中的计算，而模型的计算结果保持不变。
 :end_tab:
 
 ```{.python .input}
@@ -177,6 +212,12 @@ net = tf.function(net)
 net(x)
 ```
 
+```{.python .input}
+#@tab paddle
+net = paddle.jit.to_static(net)
+net(x)
+```
+
 :begin_tab:`mxnet`
 我们只需将一个块指定为`HybridSequential`，然后编写与之前相同的代码，再调用`hybridize`，当完成这些任务后，网络就将得到优化（我们将在下面对性能进行基准测试）。不幸的是，这种魔法并不适用于每一层。也就是说，如果某个层是从`Block`类而不是从`HybridBlock`类继承的，那么它将不会得到优化。
 :end_tab:
@@ -186,7 +227,11 @@ net(x)
 :end_tab:
 
 :begin_tab:`tensorflow`
-我们编写与之前相同的代码，再使用`tf.function`简单地转换模型，当完成这些任务后，网络将以TensorFlow的MLIR中间表示形式构建为一个计算图，并在编译器级别进行大量优化以满足快速执行的需要（我们将在下面对性能进行基准测试）。通过将`jit_compile = True`标志添加到`tf.function()`的函数调用中可以显式地启用TensorFlow中的XLA（线性代数加速）功能。在某些情况下，XLA可以进一步优化JIT的编译代码。如果没有这种显式定义，图形模式将会被启用，但是XLA可以使某些大规模的线性代数的运算速度更快（与我们在深度学习应用程序中看到的操作类似），特别是在GPU环境中。
+我们编写与之前相同的代码，再使用`tf.function`简单地转换模型，当完成这些任务后，网络将以TensorFlow的MLIR中间表示形式构建为一个计算图，并在编译器级别进行大量优化以满足快速执行的需要（我们将在下面对性能进行基准测试）。通过将`jit_compile = True`标志添加到`tf.function()`的函数调用中可以显式地启用TensorFlow中的XLA（线性代数加速）功能。在某些情况下，XLA可以进一步优化JIT的编译代码。如果没有这种显式定义，图形模式将会被启用，但是XLA可以使某些大规模的线性代数的运算速度更快（与我们在深度学习程序中看到的操作类似），特别是在GPU环境中。
+:end_tab:
+
+:begin_tab:`paddle`
+我们编写与之前相同的代码，再使用`paddle.jit.to_static`简单地转换模型，当完成这些任务后，网络就将得到优化（我们将在下面对性能进行基准测试）。
 :end_tab:
 
 ### 通过混合式编程加速
@@ -219,6 +264,10 @@ class Benchmark:
 
 :begin_tab:`tensorflow`
 现在我们可以调用网络三次，一次使用eager模式，一次是使用图模式，一次使用JIT编译的XLA。
+:end_tab:
+
+:begin_tab:`paddle`
+现在我们可以调用网络两次，一次使用动态图命令式编程，一次使用静态图符号式编程。
 :end_tab:
 
 ```{.python .input}
@@ -255,6 +304,19 @@ with Benchmark('Graph模式'):
     for i in range(1000): net(x)
 ```
 
+```{.python .input}
+#@tab paddle
+net = get_net()
+with Benchmark('飞桨动态图命令式编程'):
+    for i in range(1000): net(x)
+
+# InputSpec用于描述模型输入的签名信息，包括shape、dtype和name
+x_spec = InputSpec(shape=[-1, 512], name='x') 
+net = paddle.jit.to_static(get_net(),input_spec=[x_spec])
+with Benchmark('飞桨静态图符号式编程'):
+    for i in range(1000): net(x)
+```
+
 :begin_tab:`mxnet`
 如以上结果所示，在`HybridSequential`的实例调用`hybridize`函数后，通过使用符号式编程提高了计算性能。
 :end_tab:
@@ -265,6 +327,10 @@ with Benchmark('Graph模式'):
 
 :begin_tab:`tensorflow`
 如以上结果所示，在`tf.keras.Sequential`的实例被函数`tf.function`脚本化后，通过使用TensorFlow中的图模式执行方式实现的符号式编程提高了计算性能。
+:end_tab:
+
+:begin_tab:`paddle`
+如以上结果所示，在`nn.Sequential`的实例被函数`paddle.jit.to_static`脚本化后，通过使用符号式编程提高了计算性能。
 :end_tab:
 
 ### 序列化
@@ -279,6 +345,10 @@ with Benchmark('Graph模式'):
 
 :begin_tab:`tensorflow`
 编译模型的好处之一是我们可以将模型及其参数序列化（保存）到磁盘。这允许这些训练好的模型部署到其他设备上，并且还能方便地使用其他前端编程语言。同时，通常编译模型的代码执行速度也比命令式编程更快。在TensorFlow中保存模型的底层API是`tf.saved_model`，让我们来看看`saved_model`的运行情况。
+:end_tab:
+
+:begin_tab:`paddle`
+编译模型的好处之一是我们可以将模型及其参数序列化（保存）到磁盘。这允许这些训练好的模型部署到其他设备上，并且还能方便地使用其他前端编程语言。同时，通常编译模型的代码执行速度也比命令式编程更快。让我们看看`paddle.jit.save`的实际功能。
 :end_tab:
 
 ```{.python .input}
@@ -296,6 +366,12 @@ net.save('my_mlp')
 #@tab tensorflow
 net = get_net()
 tf.saved_model.save(net, 'my_mlp')
+!ls -lh my_mlp*
+```
+
+```{.python .input}
+#@tab paddle
+paddle.jit.save(net, './my_mlp')
 !ls -lh my_mlp*
 ```
 
@@ -375,11 +451,11 @@ net(x)
 :begin_tab:`mxnet`
 1. 在本节的`HybridNet`类的`hybrid_forward`函数的第一行中添加`x.asnumpy()`，执行代码并观察遇到的错误。为什么会这样？
 1. 如果我们在`hybrid_forward`函数中添加控制流，即Python语句`if`和`for`，会发生什么？
-1. 回顾前几章中你感兴趣的模型，你能通过重新实现它们来提高它们的计算性能吗？
+1. 回顾前几章中感兴趣的模型，能通过重新实现它们来提高它们的计算性能吗？
 :end_tab:
 
 :begin_tab:`pytorch,tensorflow`
-1. 回顾前几章中你感兴趣的模型，你能提高它们的计算性能吗？
+1. 回顾前几章中感兴趣的模型，能提高它们的计算性能吗？
 :end_tab:
 
 :begin_tab:`mxnet`
@@ -392,4 +468,8 @@ net(x)
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/2787)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11857)
 :end_tab:

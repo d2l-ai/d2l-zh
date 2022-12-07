@@ -10,7 +10,7 @@
 因此，由于缺乏规范化，没有约束力，$\mathbf{s}_t$持续增长，几乎上是在算法收敛时呈线性递增。
 
 解决此问题的一种方法是使用$\mathbf{s}_t / t$。
-对于$\mathbf{g}_t$的合理分布来说，它将收敛。
+对$\mathbf{g}_t$的合理分布来说，它将收敛。
 遗憾的是，限制行为生效可能需要很长时间，因为该流程记住了值的完整轨迹。
 另一种方法是按动量法中的方式使用泄漏平均值，即$\mathbf{s}_t \leftarrow \gamma \mathbf{s}_{t-1} + (1-\gamma) \mathbf{g}_t^2$，其中参数$\gamma > 0$。
 保持所有其它部分不变就产生了RMSProp算法。
@@ -64,6 +64,15 @@ import math
 ```
 
 ```{.python .input}
+#@tab paddle
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+import math
+```
+
+```{.python .input}
 #@tab all
 d2l.set_figsize()
 gammas = [0.95, 0.9, 0.8, 0.7]
@@ -99,10 +108,18 @@ d2l.show_trace_2d(f_2d, d2l.train_2d(rmsprop_2d))
 接下来，我们在深度网络中实现RMSProp算法。
 
 ```{.python .input}
-#@tab mxnet,pytorch
+#@tab mxnet, pytorch
 def init_rmsprop_states(feature_dim):
     s_w = d2l.zeros((feature_dim, 1))
     s_b = d2l.zeros(1)
+    return (s_w, s_b)
+```
+
+```{.python .input}
+#@tab paddle
+def init_rmsprop_states(feature_dim):
+    s_w = d2l.zeros((feature_dim, 1))
+    s_b = d2l.zeros([1])
     return (s_w, s_b)
 ```
 
@@ -142,6 +159,20 @@ def rmsprop(params, grads, states, hyperparams):
         p[:].assign(p - hyperparams['lr'] * g / tf.math.sqrt(s + eps))
 ```
 
+```{.python .input}
+#@tab paddle
+def rmsprop(params, states, hyperparams):
+    a = []
+    gamma, eps = hyperparams['gamma'], 1e-6
+    for p, s in zip(params, states):
+        with paddle.no_grad():
+            s[:] = gamma * s + (1 - gamma) * paddle.square(p.grad)
+            p[:] -= hyperparams['lr'] * p.grad / paddle.sqrt(s + eps)
+        p.grad.zero_()
+        a.append(p)
+    return a 
+```
+
 我们将初始学习率设置为0.01，加权项$\gamma$设置为0.9。
 也就是说，$\mathbf{s}$累加了过去的$1/(1-\gamma) = 10$次平方梯度观测值的平均值。
 
@@ -175,6 +206,13 @@ d2l.train_concise_ch11(trainer, {'learning_rate': 0.01, 'rho': 0.9},
                        data_iter)
 ```
 
+```{.python .input}
+#@tab paddle
+trainer = paddle.optimizer.RMSProp
+d2l.train_concise_ch11(trainer, {'learning_rate': 0.01, 'rho': 0.9},
+                       data_iter)
+```
+
 ## 小结
 
 * RMSProp算法与Adagrad算法非常相似，因为两者都使用梯度的平方来缩放系数。
@@ -199,4 +237,8 @@ d2l.train_concise_ch11(trainer, {'learning_rate': 0.01, 'rho': 0.9},
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/4323)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11853)
 :end_tab:

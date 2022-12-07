@@ -36,8 +36,8 @@
 
 然而我们可以很容易找出违反单调性的例子。
 例如，我们想要根据体温预测死亡率。
-对于体温高于37摄氏度的人来说，温度越高风险越大。
-然而，对于体温低于37摄氏度的人来说，温度越高风险就越低。
+对体温高于37摄氏度的人来说，温度越高风险越大。
+然而，对体温低于37摄氏度的人来说，温度越高风险就越低。
 在这种情况下，我们也可以通过一些巧妙的预处理来解决问题。
 例如，我们可以使用与37摄氏度的距离作为特征。
 
@@ -107,8 +107,7 @@ $$
 $$
 
 注意在添加隐藏层之后，模型现在需要跟踪和更新额外的参数。
-可我们能从中得到什么好处呢？
-你可能会惊讶地发现：在上面定义的模型里，我们没有好处！
+可我们能从中得到什么好处呢？在上面定义的模型里，我们没有好处！
 原因很简单：上面的隐藏单元由输入的仿射函数给出，
 而输出（softmax操作前）只是隐藏单元的仿射函数。
 仿射函数的仿射函数本身就是仿射函数，
@@ -143,7 +142,7 @@ $$
 即一次计算一个样本。
 我们在 :numref:`subsec_softmax_vectorization`中
 以相同的方式使用了softmax符号来表示按行操作。
-但是在本节中，我们应用于隐藏层的激活函数通常不仅按行操作，也按元素操作。
+但是本节应用于隐藏层的激活函数通常不仅按行操作，也按元素操作。
 这意味着在计算每一层的线性部分之后，我们可以计算每个活性值，
 而不需要查看其他隐藏单元所取的值。对于大多数激活函数都是这样。
 
@@ -198,6 +197,15 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 ```
 
+```{.python .input}
+#@tab paddle
+%matplotlib inline
+from d2l import paddle as d2l
+import warnings
+warnings.filterwarnings("ignore")
+import paddle
+```
+
 ### ReLU函数
 
 最受欢迎的激活函数是*修正线性单元*（Rectified linear unit，*ReLU*），
@@ -233,6 +241,14 @@ y = tf.nn.relu(x)
 d2l.plot(x.numpy(), y.numpy(), 'x', 'relu(x)', figsize=(5, 2.5))
 ```
 
+```{.python .input}
+#@tab paddle
+x = paddle.arange(-8.0, 8.0, 0.1, dtype='float32')
+x.stop_gradient = False
+y = paddle.nn.functional.relu(x)
+d2l.plot(x.detach().numpy(), y.detach().numpy(), 'x', 'relu(x)', figsize=(5, 2.5))
+```
+
 当输入为负时，ReLU函数的导数为0，而当输入为正时，ReLU函数的导数为1。
 注意，当输入值精确等于0时，ReLU函数不可导。
 在此时，我们默认使用左侧的导数，即当输入为0时导数为0。
@@ -258,6 +274,12 @@ with tf.GradientTape() as t:
     y = tf.nn.relu(x)
 d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'grad of relu',
          figsize=(5, 2.5))
+```
+
+```{.python .input}
+#@tab paddle
+y.backward(paddle.ones_like(x), retain_graph=True)
+d2l.plot(x.detach().numpy(), x.grad.numpy(), 'x', 'grad of relu', figsize=(5, 2.5))
 ```
 
 使用ReLU的原因是，它求导表现得特别好：要么让参数消失，要么让参数通过。
@@ -286,7 +308,7 @@ $$\operatorname{pReLU}(x) = \max(0, x) + \alpha \min(0, x).$$
 sigmoid函数是一个自然的选择，因为它是一个平滑的、可微的阈值单元近似。
 当我们想要将输出视作二元分类问题的概率时，
 sigmoid仍然被广泛用作输出单元上的激活函数
-（你可以将sigmoid视为softmax的特例）。
+（sigmoid可以视为softmax的特例）。
 然而，sigmoid在隐藏层中已经较少使用，
 它在大部分时候被更简单、更容易训练的ReLU所取代。
 在后面关于循环神经网络的章节中，我们将描述利用sigmoid单元来控制时序信息流的架构。
@@ -310,6 +332,12 @@ d2l.plot(x.detach(), y.detach(), 'x', 'sigmoid(x)', figsize=(5, 2.5))
 #@tab tensorflow
 y = tf.nn.sigmoid(x)
 d2l.plot(x.numpy(), y.numpy(), 'x', 'sigmoid(x)', figsize=(5, 2.5))
+```
+
+```{.python .input}
+#@tab paddle
+y = paddle.nn.functional.sigmoid(x)
+d2l.plot(x.detach().numpy(), y.detach().numpy(), 'x', 'sigmoid(x)', figsize=(5, 2.5))
 ```
 
 sigmoid函数的导数为下面的公式：
@@ -339,6 +367,14 @@ with tf.GradientTape() as t:
     y = tf.nn.sigmoid(x)
 d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'grad of sigmoid',
          figsize=(5, 2.5))
+```
+
+```{.python .input}
+#@tab paddle
+# 清除以前的梯度。
+x.clear_gradient()
+y.backward(paddle.ones_like(x), retain_graph=True)
+d2l.plot(x.detach().numpy(), x.grad.numpy(), 'x', 'grad of sigmoid', figsize=(5, 2.5))
 ```
 
 ### tanh函数
@@ -372,6 +408,12 @@ y = tf.nn.tanh(x)
 d2l.plot(x.numpy(), y.numpy(), 'x', 'tanh(x)', figsize=(5, 2.5))
 ```
 
+```{.python .input}
+#@tab paddle
+y = paddle.tanh(x)
+d2l.plot(x.detach().numpy(), y.detach().numpy(), 'x', 'tanh(x)', figsize=(5, 2.5))
+```
+
 tanh函数的导数是：
 
 $$\frac{d}{dx} \operatorname{tanh}(x) = 1 - \operatorname{tanh}^2(x).$$
@@ -402,6 +444,14 @@ d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'grad of tanh',
          figsize=(5, 2.5))
 ```
 
+```{.python .input}
+#@tab paddle
+# 清除以前的梯度。
+x.clear_gradient()
+y.backward(paddle.ones_like(x), retain_graph=True)
+d2l.plot(x.detach().numpy(), x.grad.numpy(), 'x', 'grad of tanh', figsize=(5, 2.5))
+```
+
 总结一下，我们现在了解了如何结合非线性函数来构建具有更强表达能力的多层神经网络架构。
 顺便说一句，这些知识已经让你掌握了一个类似于1990年左右深度学习从业者的工具。
 在某些方面，你比在20世纪90年代工作的任何人都有优势，
@@ -418,7 +468,7 @@ d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'grad of tanh',
 1. 计算pReLU激活函数的导数。
 1. 证明一个仅使用ReLU（或pReLU）的多层感知机构造了一个连续的分段线性函数。
 1. 证明$\operatorname{tanh}(x) + 1 = 2 \operatorname{sigmoid}(2x)$。
-1. 假设我们有一个非线性单元，将它一次应用于一个小批量的数据。你认为这会导致什么样的问题？
+1. 假设我们有一个非线性单元，将它一次应用于一个小批量的数据。这会导致什么样的问题？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/1797)
@@ -430,4 +480,8 @@ d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'grad of tanh',
 
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/1795)
+:end_tab:
+
+:begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11768)
 :end_tab:
