@@ -53,9 +53,9 @@ stage("Build and Publish") {
 
       sh label: "Execute Notebooks [Paddlepaddle]", script: """set -ex
       conda activate ${ENV_NAME}
-      ./static/cache.sh restore _build/eval_paddlepaddle/data
+      ./static/cache.sh restore _build/eval_paddle/data
       d2lbook build eval --tab paddle
-      ./static/cache.sh store _build/eval_paddlepaddle/data
+      ./static/cache.sh store _build/eval_paddle/data
       """
 
       sh label:"Build HTML", script:"""set -ex
