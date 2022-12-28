@@ -143,13 +143,113 @@ $$ \frac{1}{L^\alpha} \log P(y_1, \ldots, y_{L}\mid \mathbf{c}) = \frac{1}{L^\al
 其中$L$是最终候选序列的长度，
 $\alpha$通常设置为$0.75$。
 因为一个较长的序列在 :eqref:`eq_beam-search-score`
-的求和中会有更多的对数项，
-因此分母中的$L^\alpha$用于惩罚长序列。
+的求和中会有更多的负的对数项，
+因此分母中的$L^\alpha$用于奖励长序列。
 
 束搜索的计算量为$\mathcal{O}(k\left|\mathcal{Y}\right|T')$，
 这个结果介于贪心搜索和穷举搜索之间。
 实际上，贪心搜索可以看作一种束宽为$1$的特殊类型的束搜索。
 通过灵活地选择束宽，束搜索可以在正确率和计算代价之间进行权衡。
+
+### 实现束搜索
+
+```{.python .input}
+#@tab pytorch
+def predict_beamsearch_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps, beam_size, device):
+    net.to(device)
+    net.eval()
+    src_tokens = src_vocab[src_sentence.lower().split(' ')] + [src_vocab['<eos>']]
+    enc_valid_len = torch.tensor([len(src_tokens)], device=device)
+    src_tokens = d2l.truncate_pad(src_tokens, num_steps, src_vocab['<pad>'])
+    vocab_size = len(tgt_vocab)
+    def softmax(X):
+        if len(X.shape) == 2: # 如果输入是2维tensor，在行的tensor上作softmax。返回2维tensor
+            X_exp = torch.exp(X)
+            partition = X_exp.sum(1, keepdim=True)
+            return X_exp / partition
+        elif len(X.shape) == 1: # 如果输入是1维tensor，对其作softmax。返回1维tensor
+            X_exp = torch.exp(X)
+            return X_exp / X_exp.sum()
+        else:
+            raise NotImplementedError
+    # encode
+    enc_X = torch.tensor(src_tokens, dtype=torch.int64, device=device).unsqueeze(0) # shape是(batch_size = 1, num_steps)
+    enc_outputs =net.encoder(enc_X, enc_valid_len)
+    # decode
+    state = net.decoder.init_state(enc_outputs)
+    k = beam_size
+    # 第一步探索: 从<bos>开始，输出对t=1的k个预测
+    dec_bos = torch.tensor([ tgt_vocab['<bos>'] ], device=device).unsqueeze(0)
+    logits, state = net.decoder(dec_bos, state)  # logits shape: (batch_size=1, num_steps=1, vocab_size). 同时更新了state
+    state = state.repeat(1, k, 1) #之后state要作为batch_size=k的decoder输入
+    # 选择条件概率最高的k个元素
+    topk_1 = torch.topk(logits.flatten(), k)
+    # t=1的预测token序列和条件概率, shape都是(batch_size=k, 1)
+    pred_token_mat_1, cond_prob_mat_1 = topk_1.indices.unsqueeze(1), softmax(topk_1.values).unsqueeze(1)
+    # 单步探索函数, 对t>=2
+    # input1: k_pred_token_mat shape(batch_size=k, num_steps=t-1(时间1到t-1)), 记录了time steps从1到t-1的k个预测token序列
+    # input2: k_cond_prob_mat shape(batch_size=k, num_steps=t-1(时间1到t-1)), 记录了对应token的条件概率
+    def beam_search(net, k_pred_token_mat, k_cond_prob_mat, state, k):
+        logits, _ = net.decoder(k_pred_token_mat, state) # logits shape: (batch_size=k, t-1(时间2到t), vocab_size)
+        # 拿出对t的预测, 并softmax概率化
+        cond_probs_t = softmax( logits[:, -1, :] )# 每行都代表不同的时间1至t-1输入;每列都代表不同的时间t预测;shape是(k, vocab_size)
+        # 求时间1至t全序列的条件概率
+        cond_probs_seq = k_cond_prob_mat.prod(dim=1, keepdim=True) * cond_probs_t
+        # 选择条件概率最高的k个元素, 并反推它们的行列位置
+        topk = torch.topk(cond_probs_seq.flatten(), k)
+        row_indices = torch.div(topk.indices, vocab_size, rounding_mode='floor')
+        col_indices = topk.indices % vocab_size # 对时间t的token预测.
+        k_cond_probs_t = cond_probs_t[row_indices, col_indices] # 时间t的候选k个token的预测条件概率
+        next_pred_token_mat = torch.cat([k_pred_token_mat[row_indices], col_indices.reshape(-1,1)], dim=1)
+        next_cond_prob_mat = torch.cat([k_cond_prob_mat[row_indices], k_cond_probs_t.reshape(-1, 1)], dim=1)
+        return next_pred_token_mat, next_cond_prob_mat # shape都是(k, t)
+    # 已有t=1，后续预测num_steps-1步
+    all_pred_token_mat, all_cond_prob_mat = [pred_token_mat_1], [cond_prob_mat_1]
+    k_pred_token_mat, k_cond_prob_mat = pred_token_mat_1, cond_prob_mat_1
+    for i in range(num_steps-1):
+        k_pred_token_mat, k_cond_prob_mat = beam_search(net, k_pred_token_mat, k_cond_prob_mat, state, k)
+        all_pred_token_mat.append(k_pred_token_mat) # 记录当前预测的k个预测序列
+        all_cond_prob_mat.append(k_cond_prob_mat) # 记录条件概率
+    # all_pred_token_mat中，记录了num_steps个shape为(k, w)二维token tensor, w=1,2,...num_steps
+    # all_cond_prob_mat中，记录了num_steps个shape为(k, w)二维cond prob tensor for token, w=1,2,...num_steps
+    def mask_before_eos(pred_tokens_matrix, eos=tgt_vocab['<eos>']):
+        # pred_tokens_matrix的shape是(k, w). w=1,2,...num_steps
+        # 每行第一个eos及其之后的token, 标记为-1；这是token mask. 避免与<unk>混淆
+        # 每行第一个eos及其之后的token, 标记为0；这是prob mask
+        bool_logits = pred_tokens_matrix != torch.tensor(eos)
+        prob_mask = bool_logits.type(torch.int32).cumprod(dim=1)
+        token_mask = (( prob_mask - torch.tensor(0.5) ) * 2 ).type(torch.int32)
+        return token_mask, prob_mask
+    predseq_score_maps = {}
+    for i in range(num_steps):
+        k_pred_tokens = all_pred_token_mat[i] # k_pred_tokens shape: (k, i+1)
+        related_cond_probs = all_cond_prob_mat[i] # related_cond_probs shape: (k, i+1)
+        # eos mask
+        token_mask, prob_mask = mask_before_eos(k_pred_tokens)
+        # 裁剪后的pred tokens和cond probs
+        k_pred_tokens = (k_pred_tokens * token_mask).type(torch.long)
+        log_cond_probs = ( torch.log(related_cond_probs).type(torch.float64) * prob_mask )
+        # 拼接tokens
+        for j in range(k):
+            pred_seq = ' '.join(tgt_vocab.to_tokens([token for token in k_pred_tokens[j, :] if token >= 0]))
+            valid_length = prob_mask[j, :].sum().item()
+            predseq_score_maps[pred_seq] = log_cond_probs[j, :].sum().item() * math.pow(valid_length, -0.75)
+    return max(predseq_score_maps, key= lambda x: predseq_score_maps[x]) # 返回score最大的pred seq
+```
+
+利用在 :numref:`sec_seq2seq`训练好的循环神经网络“编码器－解码器”模型，
+[**将几个英语句子翻译成法语**]，并计算BLEU的最终结果。
+
+```{.python .input}
+#@tab pytorch
+engs = ['go .', "i lost .", 'he\'s calm .', 'i\'m home .']
+fras = ['va !', 'j\'ai perdu .', 'il est calme .', 'je suis chez moi .']
+beam_size = 2
+for eng, fra in zip(engs, fras):
+    translation = predict_beamsearch_seq2seq(
+        net, eng, src_vocab, tgt_vocab, num_steps, beam_size, device)
+    print(f'{eng} => {translation}, bleu {bleu(translation, fra, k=2):.3f}')
+```
 
 ## 小结
 
