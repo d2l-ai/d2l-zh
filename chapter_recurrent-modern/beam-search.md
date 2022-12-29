@@ -155,23 +155,24 @@ $\alpha$通常设置为$0.75$。
 
 ```{.python .input}
 #@tab pytorch
-def predict_beamsearch_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps, beam_size, device):
-    net.to(device)
+def softmax(X):
+    if len(X.shape) == 2: # 如果输入是2维tensor，在行的tensor上作softmax。返回2维tensor
+        X_exp = torch.exp(X)
+        partition = X_exp.sum(1, keepdim=True)
+        return X_exp / partition
+    elif len(X.shape) == 1: # 如果输入是1维tensor，对其作softmax。返回1维tensor
+        X_exp = torch.exp(X)
+        return X_exp / X_exp.sum()
+```
+
+```{.python .input}
+#@tab pytorch
+def predict_beamsearch_seq2seq(net, src_sentence, src_vocab, tgt_vocab, device, num_steps, beam_size, alpha):
     net.eval()
     src_tokens = src_vocab[src_sentence.lower().split(' ')] + [src_vocab['<eos>']]
-    enc_valid_len = torch.tensor([len(src_tokens)], device=device)
+    enc_valid_len = torch.tensor([len(src_tokens)], device=device) # shape是（batch_size=1,)
     src_tokens = d2l.truncate_pad(src_tokens, num_steps, src_vocab['<pad>'])
     vocab_size = len(tgt_vocab)
-    def softmax(X):
-        if len(X.shape) == 2: # 如果输入是2维tensor，在行的tensor上作softmax。返回2维tensor
-            X_exp = torch.exp(X)
-            partition = X_exp.sum(1, keepdim=True)
-            return X_exp / partition
-        elif len(X.shape) == 1: # 如果输入是1维tensor，对其作softmax。返回1维tensor
-            X_exp = torch.exp(X)
-            return X_exp / X_exp.sum()
-        else:
-            raise NotImplementedError
     # encode
     enc_X = torch.tensor(src_tokens, dtype=torch.int64, device=device).unsqueeze(0) # shape是(batch_size = 1, num_steps)
     enc_outputs =net.encoder(enc_X, enc_valid_len)
@@ -214,8 +215,8 @@ def predict_beamsearch_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_step
     # all_cond_prob_mat中，记录了num_steps个shape为(k, w)二维cond prob tensor for token, w=1,2,...num_steps
     def mask_before_eos(pred_tokens_matrix, eos=tgt_vocab['<eos>']):
         # pred_tokens_matrix的shape是(k, w). w=1,2,...num_steps
-        # 每行第一个eos及其之后的token, 标记为-1；这是token mask. 避免与<unk>混淆
-        # 每行第一个eos及其之后的token, 标记为0；这是prob mask
+        # 每行第一个eos及其之后的token, 标记为-1;不然标记为1. 这是token mask. 避免与<unk>混淆
+        # 每行第一个eos及其之后的token, 标记为0;不然标记为1. 这是prob mask
         bool_logits = pred_tokens_matrix != torch.tensor(eos)
         prob_mask = bool_logits.type(torch.int32).cumprod(dim=1)
         token_mask = (( prob_mask - torch.tensor(0.5) ) * 2 ).type(torch.int32)
@@ -228,13 +229,13 @@ def predict_beamsearch_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_step
         token_mask, prob_mask = mask_before_eos(k_pred_tokens)
         # 裁剪后的pred tokens和cond probs
         k_pred_tokens = (k_pred_tokens * token_mask).type(torch.long)
-        log_cond_probs = ( torch.log(related_cond_probs).type(torch.float64) * prob_mask )
+        log_cond_probs = ( torch.log(related_cond_probs) * prob_mask )
         # 拼接tokens
         for j in range(k):
             pred_seq = ' '.join(tgt_vocab.to_tokens([token for token in k_pred_tokens[j, :] if token >= 0]))
             valid_length = prob_mask[j, :].sum().item()
-            predseq_score_maps[pred_seq] = log_cond_probs[j, :].sum().item() * math.pow(valid_length, -0.75)
-    return max(predseq_score_maps, key= lambda x: predseq_score_maps[x]) # 返回score最大的pred seq
+            predseq_score_maps[pred_seq] = log_cond_probs[j, :].sum().item() * math.pow(valid_length, -alpha)
+    return max(predseq_score_maps, key= lambda x: predseq_score_maps[x]), predseq_score_maps # 返回score最大的pred seq
 ```
 
 利用在 :numref:`sec_seq2seq`训练好的循环神经网络“编码器－解码器”模型，
@@ -244,10 +245,10 @@ def predict_beamsearch_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_step
 #@tab pytorch
 engs = ['go .', "i lost .", 'he\'s calm .', 'i\'m home .']
 fras = ['va !', 'j\'ai perdu .', 'il est calme .', 'je suis chez moi .']
-beam_size = 2
+num_steps, beam_size, alpha = 4, 2, 2
 for eng, fra in zip(engs, fras):
     translation = predict_beamsearch_seq2seq(
-        net, eng, src_vocab, tgt_vocab, num_steps, beam_size, device)
+        net, eng, src_vocab, tgt_vocab, device, num_steps, beam_size, alpha)
     print(f'{eng} => {translation}, bleu {bleu(translation, fra, k=2):.3f}')
 ```
 
