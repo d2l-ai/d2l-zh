@@ -239,19 +239,7 @@ def predict_beamsearch_seq2seq(net, src_sentence, src_vocab, tgt_vocab, device, 
     return max(predseq_score_maps, key= lambda x: predseq_score_maps[x]), predseq_score_maps
 ```
 
-利用在 :numref:`sec_seq2seq`训练好的循环神经网络“编码器－解码器”模型，
-[**将几个英语句子翻译成法语**]，并计算BLEU的最终结果。
 
-```{.python .input}
-#@tab pytorch
-engs = ['go .', "i lost .", 'he\'s calm .', 'i\'m home .']
-fras = ['va !', 'j\'ai perdu .', 'il est calme .', 'je suis chez moi .']
-num_steps, beam_size, alpha = 4, 2, 2
-for eng, fra in zip(engs, fras):
-    translation, _ = predict_beamsearch_seq2seq(net, eng, src_vocab, tgt_vocab, device,
-                                                num_steps, beam_size, alpha)
-    print(f'{eng} => {translation}, bleu {bleu(translation, fra, k=2):.3f}')
-```
 
 ## 小结
 
