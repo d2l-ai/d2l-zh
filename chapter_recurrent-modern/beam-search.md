@@ -235,7 +235,8 @@ def predict_beamsearch_seq2seq(net, src_sentence, src_vocab, tgt_vocab, device, 
             pred_seq = ' '.join(tgt_vocab.to_tokens([token for token in k_pred_tokens[j, :] if token >= 0]))
             valid_length = prob_mask[j, :].sum().item()
             predseq_score_maps[pred_seq] = log_cond_probs[j, :].sum().item() * math.pow(valid_length, -alpha)
-    return max(predseq_score_maps, key= lambda x: predseq_score_maps[x]), predseq_score_maps # 返回score最大的pred seq
+    # 返回分数最大的pred seq和打分表
+    return max(predseq_score_maps, key= lambda x: predseq_score_maps[x]), predseq_score_maps
 ```
 
 利用在 :numref:`sec_seq2seq`训练好的循环神经网络“编码器－解码器”模型，
@@ -247,8 +248,8 @@ engs = ['go .', "i lost .", 'he\'s calm .', 'i\'m home .']
 fras = ['va !', 'j\'ai perdu .', 'il est calme .', 'je suis chez moi .']
 num_steps, beam_size, alpha = 4, 2, 2
 for eng, fra in zip(engs, fras):
-    translation = predict_beamsearch_seq2seq(
-        net, eng, src_vocab, tgt_vocab, device, num_steps, beam_size, alpha)
+    translation, _ = predict_beamsearch_seq2seq(net, eng, src_vocab, tgt_vocab, device,
+                                                num_steps, beam_size, alpha)
     print(f'{eng} => {translation}, bleu {bleu(translation, fra, k=2):.3f}')
 ```
 
