@@ -29,7 +29,7 @@ $$\begin{aligned}
 常将它们设置为$\beta_1 = 0.9$和$\beta_2 = 0.999$。
 也就是说，方差估计的移动远远慢于动量估计的移动。
 注意，如果我们初始化$\mathbf{v}_0 = \mathbf{s}_0 = 0$，就会获得一个相当大的初始偏差。
-我们可以通过使用$\sum_{i=0}^t \beta^i = \frac{1 - \beta^t}{1 - \beta}$来解决这个问题。
+我们可以通过使用$\sum_{i=0}^{t-1} \beta^i = \frac{1 - \beta^t}{1 - \beta}$来解决这个问题。
 相应地，标准化状态变量由下式获得
 
 $$\hat{\mathbf{v}}_t = \frac{\mathbf{v}_t}{1 - \beta_1^t} \text{ and } \hat{\mathbf{s}}_t = \frac{\mathbf{s}_t}{1 - \beta_2^t}.$$
