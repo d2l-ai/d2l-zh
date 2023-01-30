@@ -67,6 +67,16 @@ X = paddle.rand([2, 4])
 net(X)
 ```
 
+```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+from mindspore import nn
+
+net = nn.SequentialCell([nn.Dense(4, 8), nn.ReLU(), nn.Dense(8, 1)])
+X = d2l.rand((2, 4))
+net(X)
+```
+
 ## [**参数访问**]
 
 我们从已有模型中访问参数。
@@ -87,6 +97,11 @@ print(net[2].state_dict())
 ```{.python .input}
 #@tab tensorflow
 print(net.layers[2].weights)
+```
+
+```{.python .input}
+#@tab mindspore
+print(net[2].parameters_dict())
 ```
 
 输出的结果告诉我们一些重要的事情：
@@ -129,6 +144,13 @@ print(net[2].bias)
 print(net[2].bias.value)
 ```
 
+```{.python .input}
+#@tab mindspore
+print(type(net[2].bias))
+print(net[2].bias)
+print(net[2].bias.value())
+```
+
 :begin_tab:`mxnet,pytorch,paddle`
 参数是复合的对象，包含值、梯度和额外信息。
 这就是我们需要显式参数值的原因。
@@ -169,6 +191,12 @@ print(net.layers[1].weights)
 print(net.get_weights())
 ```
 
+```{.python .input}
+#@tab mindspore
+print(*[(name, param.shape) for name, param in net[0].parameters_dict().items()])
+print(*[(name, param.shape) for name, param in net.parameters_dict().items()])
+```
+
 这为我们提供了另一种访问网络参数的方式，如下所示。
 
 ```{.python .input}
@@ -188,6 +216,11 @@ net.get_weights()[1]
 ```{.python .input}
 #@tab paddle
 net.state_dict()['2.bias']
+```
+
+```{.python .input}
+#@tab mindspore
+net.parameters_dict()['2.bias'].value()
 ```
 
 ### [**从嵌套块收集参数**]
@@ -271,6 +304,23 @@ rgnet = nn.Sequential(block2(), nn.Linear(4, 1))
 rgnet(X)
 ```
 
+```{.python .input}
+#@tab mindspore
+def block1():
+    return nn.SequentialCell([nn.Dense(4, 8), nn.ReLU(),
+                              nn.Dense(8, 4), nn.ReLU()])
+
+def block2():
+    net = nn.SequentialCell()
+    for i in range(4):
+        # 在这里嵌套
+        net.append(block1())
+    return net
+
+rgnet = nn.SequentialCell([block2(), nn.Dense(4, 1)])
+rgnet(X)
+```
+
 [**设计了网络后，我们看看它是如何工作的。**]
 
 ```{.python .input}
@@ -279,7 +329,7 @@ print(rgnet.collect_params())
 ```
 
 ```{.python .input}
-#@tab pytorch, paddle
+#@tab pytorch, paddle, mindspore
 print(rgnet)
 ```
 
@@ -308,6 +358,11 @@ rgnet.layers[0].layers[1].layers[1].weights[1]
 ```{.python .input}
 #@tab paddle
 print(rgnet[0].state_dict()['block 0.0.bias'])
+```
+
+```{.python .input}
+#@tab mindspore
+rgnet[0][1][0].bias.value()
 ```
 
 ## 参数初始化
@@ -341,6 +396,12 @@ TensorFlow在根模块和`keras.initializers`模块中提供了各种初始化�
 默认情况下，PaddlePaddle会使用Xavier初始化权重矩阵，
 偏置参数设置为0。
 PaddlePaddle的`nn.initializer`模块提供了多种预置初始化方法。
+:end_tab:
+
+:begin_tab:`mindspore`
+默认情况下，MindSpore会使用Normal初始化权重矩阵，
+偏置参数设置为0。
+MindSpore的`common.initializer`模块中提供了各种初始化方法。
 :end_tab:
 
 ### [**内置初始化**]
@@ -389,6 +450,15 @@ net.apply(init_normal)
 net[0].weight[0],net[0].state_dict()['bias']
 ```
 
+```{.python .input}
+#@tab mindspore
+net = nn.SequentialCell([nn.Dense(4, 8, weight_init='normal', bias_init='zero'),
+                         nn.ReLU(),
+                         nn.Dense(8, 1, weight_init='normal', bias_init='zero')])
+
+net[0].weight.data[0], net[0].bias.data[0]
+```
+
 我们还可以将所有参数初始化为给定的常数，比如初始化为1。
 
 ```{.python .input}
@@ -429,6 +499,15 @@ def init_constant(m):
         paddle.zeros(m.bias)
 net.apply(init_constant)
 net[0].weight[0],net[0].state_dict()['bias']
+```
+
+```{.python .input}
+#@tab mindspore
+net = nn.SequentialCell([nn.Dense(4, 8, weight_init='one', bias_init='zero'),
+                         nn.ReLU(),
+                         nn.Dense(8, 1, weight_init='one', bias_init='zero')])
+
+net[0].weight.data[0], net[0].bias.data[0]
 ```
 
 我们还可以[**对某些块应用不同的初始化方法**]。
@@ -487,6 +566,16 @@ net[0].apply(xavier)
 net[2].apply(init_42)
 print(net[0].weight[0])
 print(net[2].weight)
+```
+
+```{.python .input}
+#@tab mindspore
+net = nn.SequentialCell([nn.Dense(4, 8, weight_init='xavier_uniform'),
+                         nn.ReLU(),
+                         nn.Dense(8, 1, weight_init=42)])
+
+print(net[0].weight.data[0])
+print(net[2].weight.data[0])
 ```
 
 ### [**自定义初始化**]
@@ -586,6 +675,19 @@ net.apply(my_init)
 net[0].weight[:2]
 ```
 
+```{.python .input}
+#@tab mindspore
+def my_init(shape):
+    weight = d2l.uniform(shape, -10, 10)
+    weight *= d2l.abs(weight) >= 5
+    return weight
+
+net = nn.SequentialCell([nn.Dense(4, 8, weight_init=my_init((8, 4))),
+                         nn.ReLU(),
+                         nn.Dense(8, 1, weight_init=my_init((1, 8)))])
+net[0].weight[:2]
+```
+
 注意，我们始终可以直接设置参数。
 
 ```{.python .input}
@@ -595,7 +697,7 @@ net[0].weight.data()[0]
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, mindspore
 net[0].weight.data[:] += 1
 net[0].weight.data[0, 0] = 42
 net[0].weight.data[0]
@@ -692,6 +794,25 @@ net(X)
 print(net[2].weight[0] == net[4].weight[0])
 ```
 
+```{.python .input}
+#@tab mindspore
+# 我们需要给共享层一个名称，以便可以引用它的参数
+shared = nn.Dense(8, 8)
+net = nn.SequentialCell([nn.Dense(4, 8),
+                         nn.ReLU(),
+                         shared,
+                         nn.ReLU(),
+                         shared,
+                         nn.ReLU(),
+                         nn.Dense(8, 1)])
+net(X)
+# 检查参数是否相同
+print(net[2].weight.data[0] == net[4].weight.data[0])
+net[2].weight.data[0, 0] = 100
+# 确保它们实际上是同一个对象，而不只是有相同的值
+print(net[2].weight.data[0] == net[4].weight.data[0])
+```
+
 :begin_tab:`mxnet`
 这个例子表明第二层和第三层的参数是绑定的。
 它们不仅值相等，而且由相同的张量表示。
@@ -701,7 +822,7 @@ print(net[2].weight[0] == net[4].weight[0])
 因此在反向传播期间第二个隐藏层和第三个隐藏层的梯度会加在一起。
 :end_tab:
 
-:begin_tab:`pytorch`
+:begin_tab:`pytorch, mindspore`
 这个例子表明第三个和第五个神经网络层的参数是绑定的。
 它们不仅值相等，而且由相同的张量表示。
 因此，如果我们改变其中一个参数，另一个参数也会改变。
@@ -736,4 +857,8 @@ print(net[2].weight[0] == net[4].weight[0])
 
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11778)
+:end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/xxxxx)
 :end_tab:

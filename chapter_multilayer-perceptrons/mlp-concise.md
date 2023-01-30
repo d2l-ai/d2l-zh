@@ -32,6 +32,12 @@ import paddle
 from paddle import nn
 ```
 
+```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+from mindspore import nn
+```
+
 ## 模型
 
 与softmax回归的简洁实现（ :numref:`sec_softmax_concise`）相比，
@@ -82,6 +88,14 @@ for layer in net:
         layer.weight_attr = weight_attr
 ```
 
+```{.python .input}
+#@tab mindspore
+net = nn.SequentialCell([nn.Flatten(),
+                         nn.Dense(784, 256),
+                         nn.ReLU(),
+                         nn.Dense(256, 10)])
+```
+
 [**训练过程**]的实现与我们实现softmax回归时完全相同，
 这种模块化设计使我们能够将与模型架构有关的内容独立出来。
 
@@ -110,6 +124,13 @@ trainer = tf.keras.optimizers.SGD(learning_rate=lr)
 batch_size, lr, num_epochs = 256, 0.1, 10
 loss = nn.CrossEntropyLoss(reduction='none')
 trainer = paddle.optimizer.SGD(parameters=net.parameters(), learning_rate=lr)
+```
+
+```{.python .input}
+#@tab mindspore
+batch_size, lr, num_epochs = 256, 0.1, 10
+loss = nn.CrossEntropyLoss()
+trainer = nn.SGD(net.trainable_params(), learning_rate=lr)
 ```
 
 ```{.python .input}
@@ -143,4 +164,8 @@ d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11770)
+:end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/xxxxx)
 :end_tab:

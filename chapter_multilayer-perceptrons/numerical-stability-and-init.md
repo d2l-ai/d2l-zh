@@ -114,6 +114,21 @@ d2l.plot(x.detach().numpy(), [y.detach().numpy(), x.grad.numpy()],
          legend=['sigmoid', 'gradient'], figsize=(4.5, 2.5))
 ```
 
+```{.python .input}
+#@tab mindspore
+%matplotlib inline
+from d2l import mindspore as d2l
+import mindspore
+
+x = d2l.arange(-8.0, 8.0, 0.1)
+y = d2l.sigmoid(x)
+grad_fn = mindspore.grad(d2l.sigmoid, (0))
+x_grad = grad_fn(x)
+
+d2l.plot(x.asnumpy(), [y.asnumpy(), x_grad.asnumpy()],
+         legend=['sigmoid', 'gradient'], figsize=(4.5, 2.5))
+```
+
 正如上图，当sigmoid函数的输入很大或是很小时，它的梯度都会消失。
 此外，当反向传播通过许多层时，除非我们在刚刚好的地方，
 这些地方sigmoid函数的输入接近于零，否则整个乘积的梯度可能会消失。
@@ -163,6 +178,16 @@ M = paddle.normal(0, 1, shape=(4,4))
 print('一个矩阵 \n',M)
 for i in range(100):
     M = paddle.mm(M, paddle.normal(0, 1, shape=(4, 4)))
+
+print('乘以100个矩阵后\n', M)
+```
+
+```{.python .input}
+#@tab mindspore
+M = d2l.normal((4, 4), 0, 1)
+print('一个矩阵 \n',M)
+for i in range(100):
+    M = d2l.matmul(M, d2l.normal((4,4), 0, 1))
 
 print('乘以100个矩阵后\n', M)
 ```
@@ -296,4 +321,8 @@ $$U\left(-\sqrt{\frac{6}{n_\mathrm{in} + n_\mathrm{out}}}, \sqrt{\frac{6}{n_\mat
 
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11776)
+:end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/xxxxx)
 :end_tab:

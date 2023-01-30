@@ -186,6 +186,19 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 from d2l import paddle as d2l
 ```
 
+```{.python .input}
+#@tab mindspore
+# 如果没有安装pandas，请取消下一行的注释
+# !pip install pandas
+
+%matplotlib inline
+from d2l import mindspore as d2l
+import mindspore
+from mindspore import nn, value_and_grad
+import numpy as np
+import pandas as pd
+```
+
 为方便起见，我们可以使用上面定义的脚本下载并缓存Kaggle房屋数据集。
 
 ```{.python .input}
@@ -282,12 +295,20 @@ all_features.shape
 [**从`pandas`格式中提取NumPy格式，并将其转换为张量表示**]用于训练。
 
 ```{.python .input}
-#@tab all
+#@tab pytorch, tensorflow, paddle
 n_train = train_data.shape[0]
 train_features = d2l.tensor(all_features[:n_train].values, dtype=d2l.float32)
 test_features = d2l.tensor(all_features[n_train:].values, dtype=d2l.float32)
 train_labels = d2l.tensor(
     train_data.SalePrice.values.reshape(-1, 1), dtype=d2l.float32)
+```
+
+```{.python .input}
+#@tab mindspore
+n_train = train_data.shape[0]
+train_features = all_features[:n_train].values.astype(np.float32)
+test_features = all_features[n_train:].values.astype(np.float32)
+train_labels = train_data.SalePrice.values.reshape(-1, 1).astype(np.float32)
 ```
 
 ## [**训练**]
@@ -327,6 +348,16 @@ def get_net():
     net = tf.keras.models.Sequential()
     net.add(tf.keras.layers.Dense(
         1, kernel_regularizer=tf.keras.regularizers.l2(weight_decay)))
+    return net
+```
+
+```{.python .input}
+#@tab mindspore
+mse_loss = nn.MSELoss()
+in_features = train_features.shape[1]
+
+def get_net():
+    net = nn.SequentialCell([nn.Dense(in_features,1)])
     return net
 ```
 
@@ -383,6 +414,15 @@ def log_rmse(net, features, labels):
     rmse = paddle.sqrt(loss(paddle.log(clipped_preds),
                             paddle.log(labels)))
     return rmse.item()
+```
+
+```{.python .input}
+#@tab mindspore
+def log_rmse(net, features, labels):
+    clipped_preds = d2l.clip_by_value(net(features), 1, float('inf'))
+    rmse = d2l.sqrt(mse_loss(d2l.log(clipped_preds),
+                             d2l.log(labels)))
+    return rmse.asnumpy()
 ```
 
 与前面的部分不同，[**我们的训练函数将借助Adam优化器**]
@@ -473,6 +513,41 @@ def train(net, train_features, train_labels, test_features, test_labels,
         train_ls.append(log_rmse(net, train_features, train_labels))
         if test_labels is not None:
             test_ls.append(log_rmse(net, test_features, test_labels))
+    return train_ls, test_ls
+```
+
+```{.python .input}
+#@tab mindspore
+def train(net, train_features, train_labels, test_features, test_labels,
+          num_epochs, learning_rate, weight_decay, batch_size):
+    train_ls, test_ls = [], []
+    train_iter = d2l.load_array((train_features, train_labels), batch_size)
+    # 这里使用的是Adam优化算法
+    optimizer = nn.Adam(net.trainable_params(),
+                        learning_rate = learning_rate,
+                        weight_decay = weight_decay)
+
+    # 定义前向传播函数
+    def forward_fn(x, y):
+        z = net(x)
+        loss = mse_loss(z, y)
+        return loss, z
+
+    # 获取梯度函数
+    grad_fn = value_and_grad(forward_fn, None, optimizer.parameters, has_aux=True)
+
+    # 定义模型单步训练
+    def train_one_step(X, Y):
+        (loss, _), grads = grad_fn(X, Y)
+        optimizer(grads)
+        return loss
+
+    for epoch in range(num_epochs):
+        for X, y in train_iter.create_tuple_iterator():
+            l = train_one_step(X, y)
+        train_ls.append(log_rmse(net, d2l.tensor(train_features), d2l.tensor(train_labels)))
+        if test_labels is not None:
+            test_ls.append(log_rmse(net, d2l.tensor(test_features), d2l.tensor(test_labels)))
     return train_ls, test_ls
 ```
 
@@ -629,4 +704,8 @@ train_and_pred(train_features, test_features, train_labels, test_data,
 
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11775)
+:end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/xxxxx)
 :end_tab:

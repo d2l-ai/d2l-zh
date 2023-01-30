@@ -54,6 +54,15 @@ x = paddle.arange(4)
 paddle.save(x, 'x-file')
 ```
 
+```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+import mindspore
+from mindspore import nn
+
+# mindspore暂不支持对单个Tensor的存储和读取
+```
+
 我们现在可以将存储在文件中的数据读回内存。
 
 ```{.python .input}
@@ -227,6 +236,22 @@ X = paddle.randn(shape=[2, 20])
 Y = net(X)
 ```
 
+```{.python .input}
+#@tab mindspore
+class MLP(nn.Cell):
+    def __init__(self):
+        super().__init__()
+        self.hidden = nn.Dense(20, 256)
+        self.output = nn.Dense(256, 10)
+
+    def construct(self, x):
+        return self.output(d2l.relu(self.hidden(x)))
+
+net = MLP()
+X = d2l.rand((2, 20))
+Y = net(X)
+```
+
 接下来，我们[**将模型的参数存储在一个叫做“mlp.params”的文件中。**]
 
 ```{.python .input}
@@ -246,6 +271,11 @@ net.save_weights('mlp.params')
 ```{.python .input}
 #@tab paddle
 paddle.save(net.state_dict(), 'mlp.pdparams')
+```
+
+```{.python .input}
+#@tab mindspore
+mindspore.save_checkpoint(net, 'mlp.ckpt')
 ```
 
 为了恢复模型，我们[**实例化了原始多层感知机模型的一个备份。**]
@@ -276,6 +306,13 @@ clone.set_state_dict(paddle.load('mlp.pdparams'))
 clone.eval()
 ```
 
+```{.python .input}
+#@tab mindspore
+clone = MLP()
+mindspore.load_checkpoint('mlp.ckpt', clone)
+clone.set_train(False)
+```
+
 由于两个实例具有相同的模型参数，在输入相同的`X`时，
 两个实例的计算结果应该相同。
 让我们来验证一下。
@@ -286,7 +323,7 @@ Y_clone == Y
 ```
 
 ```{.python .input}
-#@tab pytorch, paddle
+#@tab pytorch, paddle, mindspore
 Y_clone = clone(X)
 Y_clone == Y
 ```
@@ -323,4 +360,8 @@ Y_clone == Y
 
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11781)
+:end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/xxxxx)
 :end_tab:

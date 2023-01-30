@@ -69,6 +69,19 @@ class CenteredLayer(nn.Layer):
         return X - X.mean()
 ```
 
+```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+from mindspore import nn, Parameter
+
+class CenteredLayer(nn.Cell):
+    def __init__(self):
+        super().__init__()
+
+    def construct(self, X):
+        return X - X.mean()
+```
+
 让我们向该层提供一些数据，验证它是否能按预期工作。
 
 ```{.python .input}
@@ -94,6 +107,12 @@ layer = CenteredLayer()
 layer(paddle.to_tensor([1, 2, 3, 4, 5], dtype='float32'))
 ```
 
+```{.python .input}
+#@tab mindspore
+layer = CenteredLayer()
+layer(d2l.tensor([1, 2, 3, 4, 5]))
+```
+
 现在，我们可以[**将层作为组件合并到更复杂的模型中**]。
 
 ```{.python .input}
@@ -110,6 +129,11 @@ net = nn.Sequential(nn.Linear(8, 128), CenteredLayer())
 ```{.python .input}
 #@tab tensorflow
 net = tf.keras.Sequential([tf.keras.layers.Dense(128), CenteredLayer()])
+```
+
+```{.python .input}
+#@tab mindspore
+net = nn.SequentialCell([nn.Dense(8, 128), CenteredLayer()])
 ```
 
 作为额外的健全性检查，我们可以在向该网络发送随机数据后，检查均值是否为0。
@@ -135,6 +159,12 @@ tf.reduce_mean(Y)
 ```{.python .input}
 #@tab paddle
 Y = net(paddle.rand([4, 8]))
+Y.mean()
+```
+
+```{.python .input}
+#@tab mindspore
+Y = net(d2l.rand((4, 8)))
 Y.mean()
 ```
 
@@ -209,6 +239,19 @@ class MyLinear(nn.Layer):
         return F.relu(linear)
 ```
 
+```{.python .input}
+#@tab mindspore
+class MyLinear(nn.Cell):
+    def __init__(self, in_units, units):
+        super().__init__()
+        self.weight = Parameter(d2l.randn((in_units, units)))
+        self.bias = Parameter(d2l.randn((units,)))
+
+    def construct(self, X):
+        linear = d2l.matmul(X, self.weight) + self.bias
+        return d2l.relu(linear)
+```
+
 :begin_tab:`mxnet, tensorflow`
 接下来，我们实例化`MyDense`类并访问其模型参数。
 :end_tab:
@@ -218,6 +261,10 @@ class MyLinear(nn.Layer):
 :end_tab:
 
 :begin_tab:`paddle`
+接下来，我们实例化`MyLinear`类并访问其模型参数。
+:end_tab:
+
+:begin_tab:`mindspore`
 接下来，我们实例化`MyLinear`类并访问其模型参数。
 :end_tab:
 
@@ -237,6 +284,12 @@ linear.weight
 dense = MyDense(3)
 dense(tf.random.uniform((2, 5)))
 dense.get_weights()
+```
+
+```{.python .input}
+#@tab mindspore
+linear = MyLinear(5, 3)
+linear.weight.value()
 ```
 
 我们可以[**使用自定义层直接执行前向传播计算**]。
@@ -259,6 +312,11 @@ dense(tf.random.uniform((2, 5)))
 ```{.python .input}
 #@tab paddle
 linear(paddle.randn([2, 5]))
+```
+
+```{.python .input}
+#@tab mindspore
+linear(d2l.rand((2, 5)))
 ```
 
 我们还可以(**使用自定义层构建模型**)，就像使用内置的全连接层一样使用自定义层。
@@ -289,6 +347,12 @@ net = nn.Sequential(MyLinear(64, 8), MyLinear(8, 1))
 net(paddle.rand([2, 64]))
 ```
 
+```{.python .input}
+#@tab mindspore
+net = nn.SequentialCell([MyLinear(64, 8), MyLinear(8, 1)])
+net(d2l.rand((2, 64)))
+```
+
 ## 小结
 
 * 我们可以通过基本层类设计自定义层。这允许我们定义灵活的新层，其行为与深度学习框架中的任何现有层不同。
@@ -314,4 +378,8 @@ net(paddle.rand([2, 64]))
 
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11780)
+:end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/xxxxx)
 :end_tab:
