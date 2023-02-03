@@ -46,6 +46,18 @@ from paddle.nn import functional as F
 ```
 
 ```{.python .input}
+#@tab mindspore
+%matplotlib inline
+from d2l import mindspore as d2l
+import math
+import mindspore
+import numpy as np
+import mindspore.nn as nn
+import mindspore.ops as ops
+from mindspore import Tensor
+```
+
+```{.python .input}
 #@tab all
 batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
@@ -93,6 +105,12 @@ tf.one_hot(tf.constant([0, 2]), len(vocab))
 F.one_hot(paddle.to_tensor([0, 2]), len(vocab))
 ```
 
+```{.python .input}
+#@tab mindspore
+ops.one_hot(Tensor([0, 2], mindspore.int32), len(vocab),
+            Tensor(1.0, mindspore.float32), Tensor(0.0, mindspore.float32))
+```
+
 我们每次采样的(**小批量数据形状是二维张量：
 （批量大小，时间步数）。**)
 `one_hot`函数将这样一个小批量数据转换成三维张量，
@@ -124,6 +142,14 @@ tf.one_hot(tf.transpose(X), 28).shape
 X = paddle.arange(10).reshape((2, 5))
 F.one_hot(X.T, 28).shape
 ```
+
+```{.python .input}
+#@tab mindspore
+X = d2l.reshape(d2l.arange(10), (2, 5))
+ops.one_hot(Tensor(X.T, mindspore.int32), 28,
+            Tensor(1.0, mindspore.float32), Tensor(0.0, mindspore.float32)).shape
+```
+
 
 ## 初始化模型参数
 
@@ -216,6 +242,28 @@ def get_params(vocab_size, num_hiddens):
     return params
 ```
 
+```{.python .input}
+#@tab mindspore
+from mindspore import Parameter, ParameterTuple
+
+def get_params(vocab_size, num_hiddens):
+    num_inputs = num_outputs = vocab_size
+    
+    def normal(shape):
+        return np.random.normal(scale=0.01, size=shape).astype(np.float32)
+    
+    # 隐藏层参数
+    W_xh = Parameter(normal((num_inputs, num_hiddens)), name="W_xh")
+    W_hh = Parameter(normal((num_hiddens, num_hiddens)), name="W_hh")
+    b_h = Parameter(d2l.zeros(num_hiddens), name="b_h")
+    # 输出层参数
+    W_hq = Parameter(normal((num_hiddens, num_outputs)), name="W_hq")
+    b_q = Parameter(d2l.zeros(num_outputs), name="b_q")
+    # 附加梯度
+    params = [W_xh, W_hh, b_h, W_hq, b_q]
+    return ParameterTuple(params)
+```
+
 ## 循环神经网络模型
 
 为了定义循环神经网络模型，
@@ -246,6 +294,12 @@ def init_rnn_state(batch_size, num_hiddens):
 #@tab paddle
 def init_rnn_state(batch_size, num_hiddens):
     return (paddle.zeros(shape=[batch_size, num_hiddens]), )
+```
+
+```{.python .input}
+#@tab mindspore
+def init_rnn_state(batch_size, num_hiddens):
+    return (d2l.zeros((batch_size, num_hiddens)), )
 ```
 
 [**下面的`rnn`函数定义了如何在一个时间步内计算隐状态和输出。**]
@@ -313,6 +367,22 @@ def rnn(inputs, state, params):
         Y = paddle.mm(H, W_hq) + b_q
         outputs.append(Y)
     return paddle.concat(x=outputs, axis=0), (H,)
+```
+
+
+```{.python .input}
+#@tab mindspore
+def rnn(inputs, state, params):
+    # inputs的形状：（时间步数量，批量大小，词表大小）
+    W_xh, W_hh, b_h, W_hq, b_q = params
+    H, = state
+    outputs = []
+    # X的形状：（批量大小， 词表大小）
+    for X in inputs:
+        H = ops.tanh(ops.matmul(X, W_xh) + ops.matmul(H, W_hh) + b_h)
+        Y = ops.matmul(H, W_hq) + b_q
+        outputs.append(Y)
+    return d2l.concat(outputs, axis=0), (H, )
 ```
 
 定义了所有需要的函数之后，接下来我们[**创建一个类来包装这些函数**]，
@@ -390,6 +460,25 @@ class RNNModelScratch: #@save
         return self.init_state(batch_size, self.num_hiddens)
 ```
 
+```{.python .input}
+#@tab mindspore
+class RNNModelScratch(nn.Cell): 
+    """从零开始实现的循环神经网络模型"""
+    def __init__(self, vocab_size, num_hiddens,
+                 get_params, init_state, forward_fn):
+        super().__init__()
+        self.vocab_size, self.num_hiddens = vocab_size, num_hiddens
+        self.params = get_params(vocab_size, num_hiddens)
+        self.init_state, self.forward_fn = init_state, forward_fn
+        
+    def construct(self, X, state):
+        X = ops.one_hot(X.T, self.vocab_size, Tensor(1.0, mindspore.float32), Tensor(0.0, mindspore.float32))
+        return self.forward_fn(X, state, self.params)
+
+    def begin_state(self, batch_size):
+        return self.init_state(batch_size, self.num_hiddens)
+```
+
 让我们[**检查输出是否具有正确的形状**]。
 例如，隐状态的维数是否保持不变。
 
@@ -430,6 +519,16 @@ Y.shape, len(new_state), new_state[0].shape
 
 ```{.python .input}
 #@tab paddle
+num_hiddens = 512
+net = RNNModelScratch(len(vocab), num_hiddens, get_params,
+                      init_rnn_state, rnn)
+state = net.begin_state(X.shape[0])
+Y, new_state = net(X, state)
+Y.shape, len(new_state), new_state[0].shape
+```
+
+```{.python .input}
+#@tab mindspore
 num_hiddens = 512
 net = RNNModelScratch(len(vocab), num_hiddens, get_params,
                       init_rnn_state, rnn)
@@ -519,6 +618,22 @@ def predict_ch8(prefix, num_preds, net, vocab, device):  #@save
     return ''.join([vocab.idx_to_token[i] for i in outputs])
 ```
 
+```{.python .input}
+#@tab mindspore
+def predict_ch8(prefix, num_preds, net, vocab):  #@save
+    """在`prefix`后面生成新字符"""
+    state = net.begin_state(batch_size=1)
+    outputs = [vocab[prefix[0]]]
+    get_input = lambda: d2l.reshape(Tensor([outputs[-1]], mindspore.int32), (1,1))
+    for y in prefix[1:]:  # 预热期
+        _, state = net(get_input(), state)
+        outputs.append(vocab[y])
+    for _ in range(num_preds):  # 预测num_preds步
+        y, state = net(get_input(), state)
+        outputs.append(int(y.argmax(axis=1).reshape(1).asnumpy()))
+    return ''.join([vocab.idx_to_token[i] for i in outputs])
+```
+
 现在我们可以测试`predict_ch8`函数。
 我们将前缀指定为`time traveller `，
 并基于这个前缀生成10个后续字符。
@@ -530,7 +645,7 @@ predict_ch8('time traveller ', 10, net, vocab, d2l.try_gpu())
 ```
 
 ```{.python .input}
-#@tab tensorflow
+#@tab tensorflow, mindspore
 predict_ch8('time traveller ', 10, net, vocab)
 ```
 
@@ -582,9 +697,18 @@ $$|f(\mathbf{x}) - f(\mathbf{x} - \eta\mathbf{g})| \leq L \eta\|\mathbf{g}\|,$$
 梯度裁剪提供了一个快速修复梯度爆炸的方法，
 虽然它并不能完全解决问题，但它是众多有效的技术之一。
 
+:begin_tab:`mxnet, pytorch, tensorflow, paddle`
 下面我们定义一个函数来裁剪模型的梯度，
 模型是从零开始实现的模型或由高级API构建的模型。
 我们在此计算了所有模型参数的梯度的范数。
+:end_tab:
+
+:begin_tab:`mindspore`
+下面我们定义一个函数来裁剪模型的梯度，
+模型是从零开始实现的模型或由高级API构建的模型。
+我们在此计算了所有模型参数的梯度的范数。基于mindspore的函数式自动微分机制，可直接获得模型参数的梯度值作为参数传入函数。
+:end_tab:
+
 
 ```{.python .input}
 def grad_clipping(net, theta):  #@save
@@ -650,6 +774,16 @@ def grad_clipping(net, theta):  #@save
                 param.grad.set_value(param.grad * theta / norm)
 ```
 
+```{.python .input}
+#@tab mindspore
+def grad_clipping(grads, theta):  #@save
+    """裁剪梯度。"""
+    norm = ops.sqrt(sum(ops.sum((g ** 2)) for g in grads))
+    if norm > theta:
+        for g in grads:
+            g[:] *= theta / norm
+```
+
 ## 训练
 
 在训练模型之前，让我们[**定义一个函数在一个迭代周期内训练模型**]。
@@ -661,6 +795,7 @@ def grad_clipping(net, theta):  #@save
 1. 我们用困惑度来评价模型。如 :numref:`subsec_perplexity`所述，
    这样的度量确保了不同长度的序列具有可比性。
 
+:begin_tab:`mxnet, pytorch, tensorflow, paddle`
 具体来说，当使用顺序分区时，
 我们只在每个迭代周期的开始位置初始化隐状态。
 由于下一个小批量数据中的第$i$个子序列样本
@@ -674,6 +809,7 @@ def grad_clipping(net, theta):  #@save
 这使得梯度计算变得复杂。
 为了降低计算量，在处理任何一个小批量数据之前，
 我们先分离梯度，使得隐状态的梯度计算总是限制在一个小批量数据的时间步内。
+:end_tab:
 
 当使用随机抽样时，因为每个样本都是在一个随机位置抽样的，
 因此需要为每个迭代周期重新初始化隐状态。
@@ -808,6 +944,37 @@ def train_epoch_ch8(net, train_iter, loss, updater, device, use_random_iter):
     return math.exp(metric[0] / metric[1]), metric[1] / timer.stop()
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+def train_epoch_ch8(net, train_iter, loss, updater, use_random_iter):
+    """训练网络一个迭代周期（定义见第8章）。"""
+    state, timer = None, d2l.Timer()
+    metric = d2l.Accumulator(2)  # 训练损失之和，词元数量
+    # 定义前向函数
+    def forward_fn(x, state, y):
+        y_hat, state = net(x, state)
+        l = loss(y_hat, y).mean()
+        return l
+    # 获取梯度函数
+    grad_fn = ops.value_and_grad(forward_fn, None, weights=net.trainable_params())
+    net.set_train()
+    for X, Y in train_iter:
+        if state is None or use_random_iter:
+            # 在第一次迭代或使用随机抽样时初始化state
+            state = net.begin_state(batch_size=X.shape[0])
+        y = Y.T.reshape(-1)
+        (l), grads = grad_fn(X, state, y)
+        grad_clipping(grads, 1)
+        if isinstance(updater, nn.Optimizer):
+            updater(grads)
+        else:
+            # 因为已经调用了mean函数
+            updater(batch_size=1)
+        metric.add(l.asnumpy() * d2l.size(y), d2l.size(y))
+    return math.exp(metric[0] / metric[1]), metric[1] / timer.stop()
+```
+
 [**循环神经网络模型的训练函数既支持从零开始实现，
 也可以使用高级API来实现。**]
 
@@ -919,6 +1086,33 @@ def train_ch8(net, train_iter, vocab, lr, num_epochs, device, use_random_iter=Fa
     print(predict('traveller'))
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+def train_ch8(net, train_iter, vocab, lr, num_epochs, use_random_iter=False):
+    """训练模型（定义见第8章）"""
+    loss = nn.CrossEntropyLoss()
+    animator = d2l.Animator(xlabel='epoch', ylabel='perplexity',
+                            legend=['train'], xlim=[10, num_epochs])
+    # 初始化
+    if isinstance(net, nn.Cell):
+        updater = nn.SGD(net.trainable_params(), lr)
+    else:
+        updater = lambda batch_size: d2l.sgd(net.params, lr, batch_size)
+    predict = lambda prefix: predict_ch8(prefix, 50, net, vocab)
+    # 训练和预测
+    for epoch in range(num_epochs):
+        ppl, speed = train_epoch_ch8(
+            net, train_iter, loss, updater, use_random_iter)
+        if (epoch + 1) % 10 == 0:
+            print(predict('time traveller'))
+            animator.add(epoch + 1, [ppl])
+    
+    print(f'困惑度 {ppl:.1f}, {speed:.1f} 词元/秒')
+    print(predict('time traveller'))
+    print(predict('traveller'))
+```
+
 [**现在，我们训练循环神经网络模型。**]
 因为我们在数据集中只使用了10000个词元，
 所以模型需要更多的迭代周期来更好地收敛。
@@ -933,6 +1127,12 @@ train_ch8(net, train_iter, vocab, lr, num_epochs, d2l.try_gpu())
 #@tab tensorflow
 num_epochs, lr = 500, 1
 train_ch8(net, train_iter, vocab, lr, num_epochs, strategy)
+```
+
+```{.python .input}
+#@tab mindspore
+num_epochs, lr = 500, 1
+train_ch8(net, train_iter, vocab, lr, num_epochs)
 ```
 
 [**最后，让我们检查一下使用随机抽样方法的结果。**]
@@ -960,6 +1160,14 @@ net = RNNModelScratch(len(vocab), num_hiddens, get_params,
                       init_rnn_state, rnn)
 train_ch8(net, train_iter, vocab, lr, num_epochs, d2l.try_gpu(),
           use_random_iter=True)
+```
+
+```{.python .input}
+#@tab mindspore
+train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps, use_random_iter=True)
+net = RNNModelScratch(len(vocab), num_hiddens, get_params, init_rnn_state,
+                      rnn)
+train_ch8(net, train_iter, vocab, lr, num_epochs, use_random_iter=True)
 ```
 
 从零开始实现上述循环神经网络模型，

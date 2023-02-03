@@ -164,6 +164,17 @@ batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 ```
 
+```{.python .input}
+#@tab mindspore
+import mindspore
+import mindspore.nn as nn
+import mindspore.ops as ops
+from d2l import mindspore as d2l
+
+batch_size, num_steps = 32, 35
+train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
+```
+
 ### [**初始化模型参数**]
 
 接下来，我们需要定义和初始化模型参数。
@@ -279,6 +290,33 @@ def get_lstm_params(vocab_size, num_hiddens):
     return params
 ```
 
+```{.python .input}
+#@tab mindspore
+from mindspore import Parameter, ParameterTuple
+
+def get_lstm_params(vocab_size, num_hiddens):
+    num_inputs = num_outputs = vocab_size
+
+    def normal(shape, name):
+        return Parameter(d2l.tensor(ops.randn(shape) * 0.01), name=name)
+
+    def three(name1, name2, name3):
+        return (normal((num_inputs, num_hiddens), name1),
+                normal((num_hiddens, num_hiddens), name2),
+                Parameter(d2l.tensor(d2l.zeros(num_hiddens)), name3))
+
+    W_xi, W_hi, b_i = three('W_xi', 'W_hi', 'b_i')  # 输入门参数
+    W_xf, W_hf, b_f = three('W_xf', 'W_hf', 'b_f')  # 遗忘门参数
+    W_xo, W_ho, b_o = three('W_xo', 'W_ho', 'b_o')  # 输出门参数
+    W_xc, W_hc, b_c = three('W_xc', 'W_hc', 'b_c')  # 候选记忆元参数
+    # 输出层参数
+    W_hq = normal((num_hiddens, num_outputs), name='W_hq')
+    b_q = Parameter(d2l.tensor(d2l.zeros(num_outputs)), name='b_q')
+    params = [W_xi, W_hi, b_i, W_xf, W_hf, b_f, W_xo, W_ho, b_o, W_xc, W_hc,
+              b_c, W_hq, b_q]
+    return ParameterTuple(params)
+```
+
 ### 定义模型
 
 在[**初始化函数**]中，
@@ -311,6 +349,13 @@ def init_lstm_state(batch_size, num_hiddens):
 def init_lstm_state(batch_size, num_hiddens):
     return (paddle.zeros([batch_size, num_hiddens]),
             paddle.zeros([batch_size, num_hiddens]))
+```
+
+```{.python .input}
+#@tab mindspore
+def init_lstm_state(batch_size, num_hiddens):
+    return (ops.zeros((batch_size, num_hiddens)),
+            ops.zeros((batch_size, num_hiddens)))
 ```
 
 [**实际模型**]的定义与我们前面讨论的一样：
@@ -393,6 +438,24 @@ def lstm(inputs, state, params):
     return paddle.concat(outputs, axis=0), (H, C)
 ```
 
+```{.python .input}
+#@tab mindspore
+def lstm(inputs, state, params):
+    W_xi, W_hi, b_i, W_xf, W_hf, b_f, W_xo, W_ho, b_o, W_xc, W_hc, b_c, W_hq, b_q = params
+    (H, C) = state
+    outputs = []
+    for X in inputs:
+        I = ops.sigmoid(ops.matmul(X, W_xi) + ops.matmul(H, W_hi) + b_i)
+        F = ops.sigmoid(ops.matmul(X, W_xf) + ops.matmul(H, W_hf) + b_f)
+        O = ops.sigmoid(ops.matmul(X, W_xo) + ops.matmul(H, W_ho) + b_o)
+        C_tilda = ops.tanh(ops.matmul(X, W_xc) + ops.matmul(H, W_hc) + b_c)
+        C = F * C + I * C_tilda
+        H = O * ops.tanh(C)
+        Y = ops.matmul(H, W_hq) + b_q
+        outputs.append(Y)
+    return ops.concat(outputs, axis=0), (H, C)
+```
+
 ### [**训练**]和预测
 
 让我们通过实例化 :numref:`sec_rnn_scratch`中
@@ -425,6 +488,15 @@ num_epochs, lr = 500, 1.0
 model = d2l.RNNModelScratch(len(vocab), num_hiddens, get_lstm_params,
                             init_lstm_state, lstm)
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
+```
+
+```{.python .input}
+#@tab mindspore
+vocab_size, num_hiddens = len(vocab), 256
+num_epochs, lr = 500, 1
+model = d2l.RNNModelScratch(len(vocab), num_hiddens, get_lstm_params,
+                            init_lstm_state, lstm)
+d2l.train_ch8(model, train_iter, vocab, lr, num_epochs)
 ```
 
 ## [**简洁实现**]
@@ -468,6 +540,14 @@ num_inputs = vocab_size
 lstm_layer = nn.LSTM(num_inputs, num_hiddens, time_major=True)
 model = d2l.RNNModel(lstm_layer, len(vocab))
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
+```
+
+```{.python .input}
+#@tab mindspore
+num_inputs = vocab_size
+lstm_layer = nn.LSTM(num_inputs, num_hiddens)
+model = d2l.RNNModel(lstm_layer, len(vocab))
+d2l.train_ch8(model, train_iter, vocab, lr, num_epochs)
 ```
 
 长短期记忆网络是典型的具有重要状态控制的隐变量自回归模型。

@@ -88,6 +88,20 @@ class Encoder(nn.Layer):
         raise NotImplementedError
 ```
 
+```{.python .input}
+#@tab mindspore
+from mindspore import nn
+
+#@save
+class Encoder(nn.Cell):
+    """编码器-解码器架构的基本编码器接口"""
+    def __init__(self, **kwargs):
+        super(Encoder, self).__init__(**kwargs)
+
+    def construct(self, X, *args):
+        raise NotImplementedError
+```
+
 ## [**解码器**]
 
 在下面的解码器接口中，我们新增一个`init_state`函数，
@@ -158,6 +172,21 @@ class Decoder(nn.Layer):
         raise NotImplementedError
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+class Decoder(nn.Cell):
+    """编码器-解码器架构的基本解码器接口"""
+    def __init__(self, **kwargs):
+        super(Decoder, self).__init__(**kwargs)
+
+    def init_state(self, enc_outputs, *args):
+        raise NotImplementedError
+
+    def construct(self, X, state):
+        raise NotImplementedError
+```
+
 ## [**合并编码器和解码器**]
 
 总而言之，“编码器-解码器”架构包含了一个编码器和一个解码器，
@@ -223,6 +252,22 @@ class EncoderDecoder(nn.Layer):
         self.decoder = decoder
 
     def forward(self, enc_X, dec_X, *args):
+        enc_outputs = self.encoder(enc_X, *args)
+        dec_state = self.decoder.init_state(enc_outputs, *args)
+        return self.decoder(dec_X, dec_state)
+```
+
+```{.python .input}
+#@tab mindspore
+#@save
+class EncoderDecoder(nn.Cell):
+    """编码器-解码器架构的基类"""
+    def __init__(self, encoder, decoder, **kwargs):
+        super(EncoderDecoder, self).__init__(**kwargs)
+        self.encoder = encoder
+        self.decoder = decoder
+
+    def construct(self, enc_X, dec_X, *args):
         enc_outputs = self.encoder(enc_X, *args)
         dec_state = self.decoder.init_state(enc_outputs, *args)
         return self.decoder(dec_X, dec_state)

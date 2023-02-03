@@ -174,6 +174,13 @@ import paddle
 ```
 
 ```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+import mindspore
+import mindspore.ops as ops
+```
+
+```{.python .input}
 #@tab mxnet, pytorch, paddle
 X, W_xh = d2l.normal(0, 1, (3, 1)), d2l.normal(0, 1, (1, 4))
 H, W_hh = d2l.normal(0, 1, (3, 4)), d2l.normal(0, 1, (4, 4))
@@ -184,6 +191,13 @@ d2l.matmul(X, W_xh) + d2l.matmul(H, W_hh)
 #@tab tensorflow
 X, W_xh = d2l.normal((3, 1), 0, 1), d2l.normal((1, 4), 0, 1)
 H, W_hh = d2l.normal((3, 4), 0, 1), d2l.normal((4, 4), 0, 1)
+d2l.matmul(X, W_xh) + d2l.matmul(H, W_hh)
+```
+
+```{.python .input}
+#@tab mindspore
+X, W_xh = ops.normal((3, 1), d2l.tensor(0), d2l.tensor(1)), ops.normal((1, 4), d2l.tensor(0), d2l.tensor(1))
+H, W_hh = ops.normal((3, 4), d2l.tensor(0), d2l.tensor(1)), ops.normal((4, 4), d2l.tensor(0), d2l.tensor(1))
 d2l.matmul(X, W_xh) + d2l.matmul(H, W_hh)
 ```
 

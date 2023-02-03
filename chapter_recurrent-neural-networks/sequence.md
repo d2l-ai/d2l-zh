@@ -196,6 +196,17 @@ from paddle import nn
 ```
 
 ```{.python .input}
+#@tab mindspore
+%matplotlib inline
+import mindspore
+import numpy as np
+import mindspore.nn as nn
+import mindspore.ops as ops
+from mindspore import Tensor
+from d2l import mindspore as d2l
+```
+
+```{.python .input}
 #@tab mxnet, pytorch, paddle
 T = 1000  # 总共产生1000个点
 time = d2l.arange(1, T + 1, dtype=d2l.float32)
@@ -208,6 +219,14 @@ d2l.plot(time, [x], 'time', 'x', xlim=[1, 1000], figsize=(6, 3))
 T = 1000  # 总共产生1000个点
 time = d2l.arange(1, T + 1, dtype=d2l.float32)
 x = d2l.sin(0.01 * time) + d2l.normal([T], 0, 0.2)
+d2l.plot(time, [x], 'time', 'x', xlim=[1, 1000], figsize=(6, 3))
+```
+
+```{.python .input}
+#@tab mindspore
+T = 1000  # 总共产生1000个点
+time = np.arange(1, T + 1)
+x = np.sin(0.01 * time) + np.random.normal(0, 0.2, (T,))
 d2l.plot(time, [x], 'time', 'x', xlim=[1, 1000], figsize=(6, 3))
 ```
 
@@ -239,10 +258,27 @@ labels = d2l.reshape(x[tau:], (-1, 1))
 ```
 
 ```{.python .input}
-#@tab all
+#@tab mindspore
+tau = 4
+features = np.zeros((T - tau, tau))
+for i in range(tau):
+    features[:, i] = x[i: T - tau + i]
+labels = d2l.reshape(x[tau:], (-1, 1))
+```
+
+```{.python .input}
+#@tab mxnet, pytorch, tensorflow, paddle
 batch_size, n_train = 16, 600
 # 只有前n_train个样本用于训练
 train_iter = d2l.load_array((features[:n_train], labels[:n_train]),
+                            batch_size, is_train=True)
+```
+
+```{.python .input}
+#@tab mindspore
+batch_size, n_train = 16, 600
+# 只有前n_train个样本用于训练
+train_iter = d2l.load_array((features[:n_train].astype(np.float32), labels[:n_train].astype(np.float32)),
                             batch_size, is_train=True)
 ```
 
@@ -310,6 +346,20 @@ def get_net():
 #平方损失。注意:MSELoss计算平方误差时不带系数1/2
 loss = nn.MSELoss(reduction='none')
 ```
+
+```{.python .input}
+#@tab mindspore
+def get_net():
+    # 一个简单的多层感知机
+    net = nn.SequentialCell(nn.Dense(4, 10, weight_init='xavier_uniform'),
+                        nn.ReLU(),
+                        nn.Dense(10, 1, weight_init='xavier_uniform'))
+    return net
+
+# 平方损失。注意：MSELoss计算平方误差时不带系数1/2
+loss = nn.MSELoss()
+```
+
 
 现在，准备[**训练模型**]了。实现下面的训练代码的方式与前面几节（如 :numref:`sec_linear_concise`）中的循环训练基本相同。因此，我们不会深入探讨太多细节。
 
@@ -383,6 +433,29 @@ net = get_net()
 train(net, train_iter, loss, 5, 0.01)
 ```
 
+```{.python .input}
+#@tab mindspore
+def train(net, train_iter, loss, epochs, lr):
+    trainer = nn.Adam(net.trainable_params(), lr)
+    # 定义前向函数
+    def forward_fn(x, y):
+        z = net(x)
+        l = loss(z, y)
+        return l
+    # 获取梯度函数
+    grad_fn = ops.value_and_grad(forward_fn, None, weights=net.trainable_params())
+    for epoch in range(epochs):
+        net.set_train()
+        for X, y in train_iter.create_tuple_iterator():
+            (l), grads = grad_fn(X, y)
+            trainer(grads)
+        print(f'epoch {epoch + 1}, '
+              f'loss: {d2l.evaluate_loss(net, loss, train_iter):f}')
+
+net = get_net()
+train(net, train_iter, loss, 5, 0.01)
+```
+
 ## 预测
 
 由于训练损失很小，因此我们期望模型能有很好的工作效果。
@@ -391,12 +464,19 @@ train(net, train_iter, loss, 5, 0.01)
 也就是*单步预测*（one-step-ahead prediction）。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow, paddle
 onestep_preds = net(features)
 d2l.plot([time, time[tau:]], 
          [d2l.numpy(x), d2l.numpy(onestep_preds)], 'time',
          'x', legend=['data', '1-step preds'], xlim=[1, 1000], 
          figsize=(6, 3))
+```
+
+```{.python .input}
+#@tab mindspore
+onestep_preds = net(Tensor(features, mindspore.float32))
+d2l.plot([time, time[tau:]], [x, onestep_preds.asnumpy()], 'time',
+         'x', legend=['data', '1-step preds'], xlim=[1, 1000], figsize=(6, 3))
 ```
 
 正如我们所料，单步预测效果不错。
@@ -447,10 +527,29 @@ for i in range(n_train + tau, T):
 ```
 
 ```{.python .input}
-#@tab all
+#@tab mindspore
+multistep_preds = np.zeros(T)
+multistep_preds[: n_train + tau] = x[: n_train + tau]
+for i in range(n_train + tau, T):
+    result = net(
+        Tensor(multistep_preds[i - tau:i].reshape((1, -1)), mindspore.float32))
+    multistep_preds[i] = result.asnumpy()
+```
+
+```{.python .input}
+#@tab mxnet, pytorch, tensorflow, paddle
 d2l.plot([time, time[tau:], time[n_train + tau:]],
          [d2l.numpy(x), d2l.numpy(onestep_preds),
           d2l.numpy(multistep_preds[n_train + tau:])], 'time',
+         'x', legend=['data', '1-step preds', 'multistep preds'],
+         xlim=[1, 1000], figsize=(6, 3))
+```
+
+```{.python .input}
+#@tab mindspore
+d2l.plot([time, time[tau:], time[n_train + tau:]],
+         [x, onestep_preds.asnumpy(),
+          multistep_preds[n_train + tau:]], 'time',
          'x', legend=['data', '1-step preds', 'multistep preds'],
          xlim=[1, 1000], figsize=(6, 3))
 ```
@@ -509,6 +608,18 @@ for i in range(tau):
 # 列i（i>=tau）是来自（i-tau+1）步的预测，其时间步从（i+1）到（i+T-tau-max_steps+1）
 for i in range(tau, tau + max_steps):
     features[:, i] = d2l.reshape(net(features[:, i - tau: i]), [-1])
+```
+
+```{.python .input}
+#@tab mindspore
+features =np.zeros((T - tau - max_steps + 1, tau + max_steps))
+# 列i（i<tau）是来自x的观测，其时间步从（i+1）到（i+T-tau-max_steps+1）
+for i in range(tau):
+    features[:, i] = x[i: i + T - tau - max_steps + 1]
+
+# 列i（i>=tau）是来自（i-tau+1）步的预测，其时间步从（i+1）到（i+T-tau-max_steps+1）
+for i in range(tau, tau + max_steps):
+    features[:, i] = net(Tensor(features[:, i - tau:i], mindspore.float32)).reshape(-1).asnumpy()
 ```
 
 ```{.python .input}

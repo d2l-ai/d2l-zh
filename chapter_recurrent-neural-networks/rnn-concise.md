@@ -48,6 +48,18 @@ batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 ```
 
+```{.python .input}
+#@tab mindspore
+import mindspore
+import numpy as np
+import mindspore.nn as nn
+import mindspore.ops as ops
+from d2l import mindspore as d2l
+
+batch_size, num_steps = 32, 35
+train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
+```
+
 ## [**定义模型**]
 
 高级API提供了循环神经网络的实现。
@@ -62,7 +74,7 @@ rnn_layer.initialize()
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, mindspore
 num_hiddens = 256
 rnn_layer = nn.RNN(len(vocab), num_hiddens)
 ```
@@ -89,7 +101,7 @@ rnn_layer = nn.SimpleRNN(len(vocab), num_hiddens, time_major=True)
 对于以后要介绍的一些模型（例如长-短期记忆网络），这样的列表还会包含其他信息。
 :end_tab:
 
-:begin_tab:`pytorch`
+:begin_tab:`pytorch, mindspore`
 我们(**使用张量来初始化隐状态**)，它的形状是（隐藏层数，批量大小，隐藏单元数）。
 :end_tab:
 
@@ -115,6 +127,13 @@ state.shape
 state = paddle.zeros(shape=[1, batch_size, num_hiddens])
 state.shape
 ```
+
+```{.python .input}
+#@tab mindspore
+state = ops.zeros((1, batch_size, num_hiddens))
+state.shape
+```
+
 
 [**通过一个隐状态和一个输入，我们就可以用更新后的隐状态计算输出。**]
 需要强调的是，`rnn_layer`的“输出”（`Y`）不涉及输出层的计算：
@@ -151,6 +170,13 @@ Y.shape, len(state_new), state_new[0].shape
 ```{.python .input}
 #@tab paddle
 X = paddle.rand(shape=[num_steps, batch_size, len(vocab)])
+Y, state_new = rnn_layer(X, state)
+Y.shape, state_new.shape
+```
+
+```{.python .input}
+#@tab mindspore
+X = ops.rand(num_steps, batch_size, len(vocab))
 Y, state_new = rnn_layer(X, state)
 Y.shape, state_new.shape
 ```
@@ -286,6 +312,47 @@ class RNNModel(nn.Layer):
                         batch_size, self.num_hiddens]))
 ```
 
+```{.python .input}
+#@tab paddle
+#@save
+class RNNModel(nn.Cell):
+    """循环神经网络模型。"""
+    def __init__(self, rnn_layer, vocab_size, **kwargs):
+        super(RNNModel, self).__init__(**kwargs)
+        self.rnn = rnn_layer
+        self.vocab_size = vocab_size
+        self.num_hiddens = self.rnn.hidden_size
+        # 如果RNN是双向的（之后将介绍），num_directions应该是2，否则应该是1
+        if not self.rnn.bidirectional:
+            self.num_directions = 1
+            self.linear = nn.Dense(self.num_hiddens, self.vocab_size)
+        else:
+            self.num_directions = 2
+            self.linear = nn.Dense(self.num_hiddens * 2, self.vocab_size)
+        
+    def construct(self, inputs, state):
+        X = ops.one_hot(inputs.T, self.vocab_size, d2l.tensor(1.0), d2l.tensor(0.0))
+        Y, state = self.rnn(X, state)
+        # 全连接层首先将Y的形状改为(时间步数*批量大小,隐藏单元数)
+        # 它的输出形状是(时间步数*批量大小,词表大小)。
+        output = self.linear(Y.reshape((-1, Y.shape[-1])))
+        return output, state
+
+    def begin_state(self, batch_size=1):
+        if not isinstance(self.rnn, nn.LSTM):
+            # nn.GRU以张量作为隐状态
+            return  ops.zeros((self.num_directions * self.rnn.num_layers,
+                                 batch_size, self.num_hiddens))
+        else:
+            # nn.LSTM以元组作为隐状态
+            return (ops.zeros((
+                        self.num_directions * self.rnn.num_layers,
+                        batch_size, self.num_hiddens)),
+                    ops.zeros((
+                        self.num_directions * self.rnn.num_layers,
+                        batch_size, self.num_hiddens)))
+```
+
 ## 训练与预测
 
 在训练模型之前，让我们[**基于一个具有随机权重的模型进行预测**]。
@@ -322,6 +389,12 @@ net = RNNModel(rnn_layer, vocab_size=len(vocab))
 d2l.predict_ch8('time traveller', 10, net, vocab, device)
 ```
 
+```{.python .input}
+#@tab mindspore
+net = RNNModel(rnn_layer, vocab_size=len(vocab))
+d2l.predict_ch8('time traveller', 10, net, vocab)
+```
+
 很明显，这种模型根本不能输出好的结果。
 接下来，我们使用 :numref:`sec_rnn_scratch`中
 定义的超参数调用`train_ch8`，并且[**使用高级API训练模型**]。
@@ -347,6 +420,12 @@ d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, strategy)
 #@tab paddle
 num_epochs, lr = 500, 1.0
 d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, device)
+```
+
+```{.python .input}
+#@tab mindspore
+num_epochs, lr = 500, 1
+d2l.train_ch8(net, train_iter, vocab, lr, num_epochs)
 ```
 
 与上一节相比，由于深度学习框架的高级API对代码进行了更多的优化，

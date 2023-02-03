@@ -80,6 +80,16 @@ import paddle
 from paddle import nn
 ```
 
+```{.python .input}
+#@tab mindspore
+import collections
+import math
+import mindspore
+import mindspore.nn as nn
+import mindspore.ops as ops
+from d2l import mindspore as d2l
+```
+
 ## 编码器
 
 从技术上讲，编码器将长度可变的输入序列转换成
@@ -225,6 +235,28 @@ class Seq2SeqEncoder(d2l.Encoder):
         return output, state
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+class Seq2SeqEncoder(d2l.Encoder):
+    """用于序列到序列学习的循环神经网络编码器"""
+    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers,
+                 dropout=0., **kwargs):
+        super(Seq2SeqEncoder, self).__init__(**kwargs)
+        # 嵌入层
+        self.embedding = nn.Embedding(vocab_size, embed_size)
+        self.rnn = nn.GRU(embed_size, num_hiddens, num_layers,
+                          dropout=dropout)
+        
+    def construct(self, X, X_len=None):
+        # 输出'X'的形状：(batch_size,num_steps,embed_size)
+        X = self.embedding(X)
+        # 在循环神经网络模型中，第一个轴对应于时间步
+        X = X.permute(1, 0, 2)
+        output, state = self.rnn(X)
+        return output, state
+```
+
 循环层返回变量的说明可以参考 :numref:`sec_rnn-concise`。
 
 下面，我们实例化[**上述编码器的实现**]：
@@ -271,6 +303,16 @@ output, state = encoder(X)
 output.shape
 ```
 
+```{.python .input}
+#@tab mindspore
+encoder = Seq2SeqEncoder(vocab_size=10, embed_size=8, num_hiddens=16,
+                         num_layers=2)
+encoder.set_train(False)
+X = d2l.zeros((4, 7), dtype=mindspore.int32)
+output, state = encoder(X)
+output.shape
+```
+
 由于这里使用的是门控循环单元，
 所以在最后一个时间步的多层隐状态的形状是
 （隐藏层的数量，批量大小，隐藏单元的数量）。
@@ -281,7 +323,7 @@ len(state), state[0].shape
 ```
 
 ```{.python .input}
-#@tab pytorch, paddle
+#@tab pytorch, paddle, mindspore
 state.shape
 ```
 
@@ -445,6 +487,34 @@ class Seq2SeqDecoder(d2l.Decoder):
         return output, state
 ```
 
+```{.python .input}
+#@tab mindspore
+class Seq2SeqDecoder(d2l.Decoder):
+    """用于序列到序列学习的循环神经网络解码器"""
+    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers,
+                 dropout=0., **kwargs):
+        super(Seq2SeqDecoder, self).__init__(**kwargs)
+        self.embedding = nn.Embedding(vocab_size, embed_size)
+        self.rnn = nn.GRU(embed_size + num_hiddens, num_hiddens, num_layers,
+                          dropout=dropout)
+        self.dense = nn.Dense(num_hiddens, vocab_size) # weight_init='xavier_uniform'
+
+    def init_state(self, enc_outputs, *args):
+        return enc_outputs[1]
+
+    def construct(self, X, state):
+        # 输出'X'的形状：(batch_size,num_steps,embed_size)
+        X = self.embedding(X).permute(1, 0, 2)
+        # 广播context，使其具有与X相同的num_steps
+        context = ops.repeat_elements(state[-1:], rep=X.shape[0], axis=0)
+        X_and_context = d2l.concat((X, context), 2)
+        output, state = self.rnn(X_and_context, state)
+        output = self.dense(output).permute(1, 0, 2)
+        # output的形状:(batch_size,num_steps,vocab_size)
+        # state的形状:(num_layers,batch_size,num_hiddens)
+        return output, state
+```
+
 下面，我们用与前面提到的编码器中相同的超参数来[**实例化解码器**]。
 如我们所见，解码器的输出形状变为（批量大小，时间步数，词表大小），
 其中张量的最后一个维度存储预测的词元分布。
@@ -481,6 +551,16 @@ output.shape, len(state), state[0].shape
 decoder = Seq2SeqDecoder(vocab_size=10, embed_size=8, num_hiddens=16,
                          num_layers=2)
 decoder.eval()
+state = decoder.init_state(encoder(X))
+output, state = decoder(X, state)
+output.shape, state.shape
+```
+
+```{.python .input}
+#@tab mindspore
+decoder = Seq2SeqDecoder(vocab_size=10, embed_size=8, num_hiddens=16,
+                         num_layers=2)
+decoder.set_train(False)
 state = decoder.init_state(encoder(X))
 output, state = decoder(X, state)
 output.shape, state.shape
@@ -562,6 +642,20 @@ X = paddle.to_tensor([[1, 2, 3], [4, 5, 6]])
 sequence_mask(X, paddle.to_tensor([1, 2]))
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+def sequence_mask(X, valid_len, value=0):
+    """在序列中屏蔽不相关的项"""
+    maxlen = X.shape[1]
+    mask = ops.arange((maxlen), dtype=mindspore.float32)[None, :] < valid_len[:, None]
+    X[~mask] = value
+    return X
+
+X = mindspore.Tensor([[1, 2, 3], [4, 5, 6]])
+sequence_mask(X, mindspore.Tensor([1, 2]))
+```
+
 (**我们还可以使用此函数屏蔽最后几个轴上的所有项。**)如果愿意，也可以使用指定的非零值来替换这些项。
 
 ```{.python .input}
@@ -585,6 +679,12 @@ sequence_mask(X, tf.constant([1, 2]), value=-1)
 #@tab paddle
 X = d2l.ones([2, 3, 4])
 sequence_mask(X, paddle.to_tensor([1, 2]), value=-1)
+```
+
+```{.python .input}
+#@tab mindspore
+X = d2l.ones((2, 3, 4))
+sequence_mask(X, mindspore.Tensor([1, 2]), value=-1)
 ```
 
 现在，我们可以[**通过扩展softmax交叉熵损失函数来遮蔽不相关的预测**]。
@@ -664,6 +764,26 @@ class MaskedSoftmaxCELoss(nn.CrossEntropyLoss):
         return weighted_loss
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+class MaskedSoftmaxCELoss(nn.Cell):
+    """带遮蔽的softmax交叉熵损失函数"""
+    def __init__(self):
+        super().__init__()
+        self.softmax_ce_loss = nn.CrossEntropyLoss()
+    
+    # pred的形状：(batch_size,num_steps,vocab_size)
+    # label的形状：(batch_size,num_steps)
+    # valid_len的形状：(batch_size,)
+    def construct(self, pred, label, valid_len):
+        weights = ops.ones_like(label)
+        weights = sequence_mask(weights, valid_len)
+        unweighted_loss = self.softmax_ce_loss(pred.permute(0, 2, 1), label)
+        weighted_loss = (unweighted_loss * weights).mean(axis=1)
+        return weighted_loss
+```
+
 我们可以创建三个相同的序列来进行[**代码健全性检查**]，
 然后分别指定这些序列的有效长度为$4$、$2$和$0$。
 结果就是，第一个序列的损失应为第二个序列的两倍，而第三个序列的损失应为零。
@@ -691,6 +811,13 @@ loss(tf.ones((3,4), dtype = tf.int32), tf.ones((3, 4, 10))).numpy()
 loss = MaskedSoftmaxCELoss()
 loss(d2l.ones([3, 4, 10]), d2l.ones((3, 4), dtype=paddle.int64),
      paddle.to_tensor([4, 2, 0]))
+```
+
+```{.python .input}
+#@tab mindspore
+loss = MaskedSoftmaxCELoss()
+loss(ops.ones((3, 4, 10)), ops.ones((3, 4), dtype=mindspore.int32),
+     mindspore.Tensor([4, 2, 0]))
 ```
 
 ## [**训练**]
@@ -842,11 +969,46 @@ def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
         f'tokens/sec on {str(device)}')
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab):
+    """训练序列到序列模型"""
+
+    optimizer = nn.Adam(net.trainable_params(), lr)
+    loss = MaskedSoftmaxCELoss()
+    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
+                     xlim=[10, num_epochs])
+    def forward_fn(X, dec_input, X_valid_len, Y, Y_valid_len):
+        pred, _ = net(X, dec_input, X_valid_len)
+        l = loss(pred, Y, Y_valid_len)
+        return l
+    grad_fn = ops.value_and_grad(forward_fn, None, optimizer.parameters, has_aux=False)
+    
+    for epoch in range(num_epochs):
+        timer = d2l.Timer()
+        metric = d2l.Accumulator(2)  # 训练损失总和，词元数量
+        net.set_train()
+        for batch in data_iter:
+            X, X_valid_len, Y, Y_valid_len = [x.astype(d2l.int32) for x in batch]
+            # print(X.shape, X_valid_len, Y.shape, Y_valid_len)
+            bos = mindspore.Tensor([tgt_vocab['<bos>']] * Y.shape[0], dtype=mindspore.int32).reshape(-1, 1)
+            dec_input = ops.concat([bos, Y[:, :-1]], 1)  # 强制教学
+            l, grads = grad_fn(X, dec_input, X_valid_len, Y, Y_valid_len)
+            optimizer(grads)
+            num_tokens = Y_valid_len.sum()
+            metric.add(l.sum(), num_tokens)
+        if (epoch + 1) % 10 == 0:
+            animator.add(epoch + 1, (metric[0] / metric[1],))
+    print(f'loss {metric[0] / metric[1]:.3f}, {metric[1] / timer.stop():.1f} '
+        f'tokens/sec')
+```
+
 现在，在机器翻译数据集上，我们可以
 [**创建和训练一个循环神经网络“编码器－解码器”模型**]用于序列到序列的学习。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow, paddle
 embed_size, num_hiddens, num_layers, dropout = 32, 32, 2, 0.1
 batch_size, num_steps = 64, 10
 lr, num_epochs, device = 0.005, 300, d2l.try_gpu()
@@ -858,6 +1020,22 @@ decoder = Seq2SeqDecoder(len(tgt_vocab), embed_size, num_hiddens, num_layers,
                         dropout)
 net = d2l.EncoderDecoder(encoder, decoder)
 train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
+```
+
+```{.python .input}
+#@tab mindspore
+embed_size, num_hiddens, num_layers, dropout = 32, 32, 2, 0.1
+batch_size, num_steps = 64, 10
+lr, num_epochs = 0.005, 300
+
+train_iter, src_vocab, tgt_vocab = d2l.load_data_nmt(batch_size, num_steps)
+encoder = Seq2SeqEncoder(len(src_vocab), embed_size, num_hiddens, num_layers,
+                        dropout)
+decoder = Seq2SeqDecoder(len(tgt_vocab), embed_size, num_hiddens, num_layers,
+                        dropout)
+net = d2l.EncoderDecoder(encoder, decoder)
+
+train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab)
 ```
 
 ## [**预测**]
@@ -1011,6 +1189,39 @@ def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
     return ' '.join(tgt_vocab.to_tokens(output_seq)), attention_weight_seq
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps, save_attention_weights=False):
+    """序列到序列模型的预测"""
+    # 在预测时将net设置为评估模式
+    net.set_train(False)
+    src_tokens = src_vocab[src_sentence.lower().split(' ')] + [
+        src_vocab['<eos>']]
+    enc_valid_len = mindspore.Tensor([len(src_tokens)])
+    src_tokens = d2l.truncate_pad(src_tokens, num_steps, src_vocab['<pad>'])
+    # 添加批量轴
+    enc_X = ops.unsqueeze(mindspore.Tensor(src_tokens, mindspore.int32), 0)
+    enc_outputs = net.encoder(enc_X, enc_valid_len)
+    dec_state = net.decoder.init_state(enc_outputs, enc_valid_len)
+    # 添加批量轴
+    dec_X = ops.unsqueeze(mindspore.Tensor([tgt_vocab['<bos>']], mindspore.int32), 0)
+    output_seq, attention_weight_seq = [], []
+    for _ in range(num_steps):
+        Y, dec_state = net.decoder(dec_X, dec_state)
+        # 我们使用具有预测最高可能性的词元，作为解码器在下一时间步的输入
+        dec_X = Y.argmax(axis=2)
+        pred = int(dec_X.squeeze(0).asnumpy())
+        # 保存注意力权重（稍后讨论）
+        if save_attention_weights:
+            attention_weight_seq.append(net.decoder.attention_weights)
+        # 一旦序列结束词元被预测，输出序列的生成就完成了
+        if pred == tgt_vocab['<eos>']:
+            break
+        output_seq.append(pred)
+    return ' '.join(tgt_vocab.to_tokens(output_seq)), attention_weight_seq
+```
+
 ## 预测序列的评估
 
 我们可以通过与真实的标签序列进行比较来评估预测序列。
@@ -1083,7 +1294,7 @@ for eng, fra in zip(engs, fras):
 ```
 
 ```{.python .input}
-#@tab tensorflow
+#@tab tensorflow, mindspore
 engs = ['go .', "i lost .", 'he\'s calm .', 'i\'m home .']
 fras = ['va !', 'j\'ai perdu .', 'il est calme .', 'je suis chez moi .']
 for eng, fra in zip(engs, fras):

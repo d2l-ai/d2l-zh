@@ -197,6 +197,18 @@ batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 ```
 
+```{.python .input}
+#@tab mindspore
+import mindspore
+import mindspore.nn as nn
+import mindspore.ops as ops
+from d2l import mindspore as d2l
+
+batch_size, num_steps = 32, 35
+train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
+```
+
+
 ### [**初始化模型参数**]
 
 下一步是初始化模型参数。
@@ -304,6 +316,31 @@ def get_params(vocab_size, num_hiddens):
     return params
 ```
 
+```{.python .input}
+#@tab mindspore
+from mindspore import Parameter, ParameterTuple
+
+def get_params(vocab_size, num_hiddens):
+    num_inputs = num_outputs = vocab_size
+
+    def normal(shape, name):
+        return Parameter(d2l.tensor(d2l.randn(shape) * 0.01), name=name)
+
+    def three(name1, name2, name3):
+        return (normal((num_inputs, num_hiddens), name1),
+                normal((num_hiddens, num_hiddens), name2),
+                Parameter(d2l.tensor(d2l.zeros(num_hiddens)), name=name3))
+
+    W_xz, W_hz, b_z = three('W_xz', 'W_hz', 'b_z')  # 更新门参数
+    W_xr, W_hr, b_r = three('W_xr', 'W_hr', 'b_r')  # 重置门参数
+    W_xh, W_hh, b_h = three('W_xh', 'W_hh', 'b_h')  # 候选隐状态参数
+    # 输出层参数
+    W_hq = normal((num_hiddens, num_outputs), 'W_hq')
+    b_q = Parameter(d2l.tensor(d2l.zeros(num_outputs)), name='b_q')
+    params = [W_xz, W_hz, b_z, W_xr, W_hr, b_r, W_xh, W_hh, b_h, W_hq, b_q]
+    return ParameterTuple(params)
+```
+
 ### 定义模型
 
 现在我们将[**定义隐状态的初始化函数**]`init_gru_state`。
@@ -322,7 +359,7 @@ def init_gru_state(batch_size, num_hiddens, device):
 ```
 
 ```{.python .input}
-#@tab tensorflow
+#@tab tensorflow, mindspore
 def init_gru_state(batch_size, num_hiddens):
     return (d2l.zeros((batch_size, num_hiddens)), )
 ```
@@ -401,6 +438,22 @@ def gru(inputs, state, params):
     return paddle.concat(outputs, axis=0), (H,*_)
 ```
 
+```{.python .input}
+#@tab mindspore
+def gru(inputs, state, params):
+    W_xz, W_hz, b_z, W_xr, W_hr, b_r, W_xh, W_hh, b_h, W_hq, b_q = params
+    H, = state
+    outputs = []
+    for X in inputs:
+        Z = ops.sigmoid(ops.matmul(X, W_xz) + ops.matmul(H, W_hz) + b_z)
+        R = ops.sigmoid(ops.matmul(X, W_xr) + ops.matmul(H, W_hr) + b_r)
+        H_tilda = ops.tanh(ops.matmul(X, W_xh) + ops.matmul((R * H), W_hh) + b_h)
+        H = Z * H + (1 - Z) * H_tilda
+        Y = ops.matmul(H, W_hq) + b_q
+        outputs.append(Y)
+    return ops.concat(outputs, axis=0), (H,)
+```
+
 ### [**训练**]与预测
 
 训练和预测的工作方式与 :numref:`sec_rnn_scratch`完全相同。
@@ -435,6 +488,15 @@ num_epochs, lr = 500, 1.0
 model = d2l.RNNModelScratch(len(vocab), num_hiddens, get_params,
                             init_gru_state, gru)
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
+```
+
+```{.python .input}
+#@tab mindspore
+vocab_size, num_hiddens = len(vocab), 256
+num_epochs, lr = 500, 1
+model = d2l.RNNModelScratch(len(vocab), num_hiddens, get_params,
+                            init_gru_state, gru)
+d2l.train_ch8(model, train_iter, vocab, lr, num_epochs)
 ```
 
 ## [**简洁实现**]
@@ -480,6 +542,14 @@ num_inputs = vocab_size
 gru_layer = nn.GRU(num_inputs, num_hiddens, time_major=True)
 model = d2l.RNNModel(gru_layer, len(vocab))
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
+```
+
+```{.python .input}
+#@tab mindspore
+num_inputs = vocab_size
+gru_layer = nn.GRU(num_inputs, num_hiddens)
+model = d2l.RNNModel(gru_layer, len(vocab))
+d2l.train_ch8(model, train_iter, vocab, lr, num_epochs)
 ```
 
 ## 小结

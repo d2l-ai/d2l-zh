@@ -60,6 +60,14 @@ import paddle
 import os
 ```
 
+```{.python .input}
+#@tab mindspore
+import os
+import numpy as np
+import mindspore
+from d2l import mindspore as d2l
+```
+
 ## [**下载和预处理数据集**]
 
 首先，下载一个由[Tatoeba项目的双语句子对](http://www.manythings.org/anki/)
@@ -228,7 +236,7 @@ truncate_pad(src_vocab[source[0]], 10, src_vocab['<pad>'])
 在稍后将要介绍的一些模型会需要这个长度信息。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow, paddle
 #@save
 def build_array_nmt(lines, vocab, num_steps):
     """将机器翻译的文本序列转换成小批量"""
@@ -238,6 +246,20 @@ def build_array_nmt(lines, vocab, num_steps):
         l, num_steps, vocab['<pad>']) for l in lines])
     valid_len = d2l.reduce_sum(
         d2l.astype(array != vocab['<pad>'], d2l.int32), 1)
+    return array, valid_len
+```
+
+```{.python .input}
+#@tab mindspore
+#@save
+def build_array_nmt(lines, vocab, num_steps):
+    """将机器翻译的文本序列转换成小批量"""
+    lines = [vocab[l] for l in lines]
+    lines = [l + [vocab['<eos>']] for l in lines]
+    array = np.array([truncate_pad(
+        l, num_steps, vocab['<pad>']) for l in lines], dtype=np.int32)
+    valid_len = d2l.reduce_sum(
+        d2l.astype(array != vocab['<pad>'], np.int32), 1)
     return array, valid_len
 ```
 

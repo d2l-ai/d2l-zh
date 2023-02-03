@@ -271,6 +271,25 @@ num_epochs, lr = 500, 1.0
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 ```
 
+```{.python .input}
+#@tab mindspore
+import mindspore
+import mindspore.nn as nn
+from d2l import mindspore as d2l
+
+# 加载数据
+batch_size, num_steps = 32, 35
+train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
+# 通过设置“bidirective=True”来定义双向LSTM模型
+vocab_size, num_hiddens, num_layers = len(vocab), 256, 2
+num_inputs = vocab_size
+lstm_layer = nn.LSTM(num_inputs, num_hiddens, num_layers, bidirectional=True)
+model = d2l.RNNModel(lstm_layer, len(vocab))
+# 训练模型
+num_epochs, lr = 500, 1
+d2l.train_ch8(model, train_iter, vocab, lr, num_epochs)
+```
+
 上述结果显然令人瞠目结舌。
 关于如何更有效地使用双向循环神经网络的讨论，
 请参阅 :numref:`sec_sentiment_rnn`中的情感分类应用。
