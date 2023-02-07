@@ -92,6 +92,22 @@ def vgg_block(num_convs, in_channels, out_channels):
     return nn.Sequential(*layers)
 ```
 
+```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+from mindspore import nn, ops
+
+def vgg_block(num_convs, in_channels, out_channels):
+    layers = []
+    for _ in range(num_convs):
+        layers.append(nn.Conv2d(in_channels, out_channels,
+                                kernel_size=3, padding=1, pad_mode='pad', weight_init='xavier_uniform'))
+        layers.append(nn.ReLU())
+        in_channels = out_channels
+    layers.append(nn.MaxPool2d(kernel_size=2,stride=2))
+    return nn.SequentialCell(layers)
+```
+
 ## [**VGG网络**]
 
 与AlexNet、LeNet一样，VGG网络可以分为两部分：第一部分主要由卷积层和汇聚层组成，第二部分由全连接层组成。如 :numref:`fig_vgg`中所示。
@@ -186,6 +202,24 @@ def vgg(conv_arch):
 net = vgg(conv_arch)
 ```
 
+```{.python .input}
+#@tab mindspore
+def vgg(conv_arch):
+    conv_blks = []
+    in_channels = 1
+    for (num_convs, out_channels) in conv_arch:
+        conv_blks.append(vgg_block(num_convs, in_channels, out_channels))
+        in_channels = out_channels
+
+    return nn.SequentialCell([
+        *conv_blks, nn.Flatten(),
+        nn.Dense(out_channels * 7 * 7, 4096, weight_init='xavier_uniform'), nn.ReLU(), nn.Dropout(keep_prob=1-0.5),
+        nn.Dense(4096, 4096, weight_init='xavier_uniform'), nn.ReLU(), nn.Dropout(keep_prob=1-0.5),
+        nn.Dense(4096, 10, weight_init='xavier_uniform')])
+
+net = vgg(conv_arch)
+```
+
 接下来，我们将构建一个高度和宽度为224的单通道数据样本，以[**观察每个层输出的形状**]。
 
 ```{.python .input}
@@ -220,6 +254,14 @@ for blk in net:
     print(blk.__class__.__name__,'output shape:\t',X.shape)
 ```
 
+```{.python .input}
+#@tab mindspore
+X = ops.randn(1, 1, 224, 224)
+for blk in net:
+    X = blk(X)
+    print(blk.__class__.__name__,'output shape:\t',X.shape)
+```
+
 正如从代码中所看到的，我们在每个块的高度和宽度减半，最终高度和宽度都为7。最后再展平表示，送入全连接层处理。
 
 ## 训练模型
@@ -227,7 +269,7 @@ for blk in net:
 [**由于VGG-11比AlexNet计算量更大，因此我们构建了一个通道数较少的网络**]，足够用于训练Fashion-MNIST数据集。
 
 ```{.python .input}
-#@tab mxnet, pytorch, paddle
+#@tab mxnet, pytorch, paddle, mindspore
 ratio = 4
 small_conv_arch = [(pair[0], pair[1] // ratio) for pair in conv_arch]
 net = vgg(small_conv_arch)
@@ -244,10 +286,17 @@ net = lambda: vgg(small_conv_arch)
 除了使用略高的学习率外，[**模型训练**]过程与 :numref:`sec_alexnet`中的AlexNet类似。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, paddle, tensorflow
 lr, num_epochs, batch_size = 0.05, 10, 128
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=224)
 d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
+```
+
+```{.python .input}
+#@tab mindspore
+lr, num_epochs, batch_size = 0.05, 10, 128
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=224)
+d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 ```
 
 ## 小结

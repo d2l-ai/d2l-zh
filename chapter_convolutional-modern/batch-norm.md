@@ -206,6 +206,28 @@ def batch_norm(X, gamma, beta, moving_mean, moving_var, eps, momentum, is_traini
     return Y, moving_mean, moving_var
 ```
 
+```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+from mindspore import nn, ops, Parameter
+
+def batch_norm(X, gamma, beta, moving_mean, moving_var, eps, momentum, training):
+    if not training:
+        X_hat = (X - moving_mean) / ops.sqrt(moving_var + eps)
+    else:
+        if len(X.shape) == 2:
+            mean = X.mean(axis=0)
+            var = ((X - mean) ** 2).mean(axis=0)
+        else:
+            mean = X.mean(axis=(0, 2, 3), keep_dims=True)
+            var = ((X - mean) ** 2).mean(axis=(0, 2, 3), keep_dims=True)
+        X_hat = (X - mean) / ops.sqrt(var + eps)
+        moving_mean = momentum * moving_mean + (1.0 - momentum) * mean
+        moving_var = momentum * moving_var + (1.0 - momentum) * var
+    Y = gamma * X_hat + beta
+    return Y, moving_mean, moving_var
+```
+
 我们现在可以[**创建一个正确的`BatchNorm`层**]。
 这个层将保持适当的参数：拉伸`gamma`和偏移`beta`,这两个参数将在训练过程中更新。
 此外，我们的层将保存均值和方差的移动平均值，以便在模型预测期间随后使用。
@@ -360,6 +382,29 @@ class BatchNorm(nn.Layer):
         return Y
 ```
 
+```{.python .input}
+#@tab mindspore
+class BatchNorm(nn.Cell):
+    def __init__(self, num_features, num_dims):
+        super().__init__()
+        if num_dims == 2:
+            shape = (1, num_features)
+        else:
+            shape = (1, num_features, 1, 1)
+        self.gamma = Parameter(ops.ones(shape))
+        self.beta = Parameter(ops.zeros(shape))
+        self.moving_mean = Parameter(ops.zeros(shape), requires_grad=False)
+        self.moving_var = Parameter(ops.ones(shape), requires_grad=False)
+        self.assign = ops.Assign()
+        
+    def construct(self, X):
+        Y, moving_mean, moving_var = batch_norm(X, self.gamma, self.beta, self.moving_mean,
+                                                self.moving_var, 1e-5, 0.9, self.training)
+        self.assign(self.moving_mean, moving_mean)
+        self.assign(self.moving_var, moving_var)
+        return Y
+```
+
 ##  使用批量规范化层的 LeNet
 
 为了更好理解如何[**应用`BatchNorm`**]，下面我们将其应用(**于LeNet模型**)（ :numref:`sec_lenet`）。
@@ -434,6 +479,18 @@ net = nn.Sequential(
     nn.Linear(84, 10))
 ```
 
+```{.python .input}
+#@tab mindspore
+net = nn.SequentialCell([
+        nn.Conv2d(1, 6, kernel_size=5, pad_mode='pad'), BatchNorm(6, num_dims=4), nn.Sigmoid(),
+        nn.AvgPool2d(kernel_size=2, stride=2),
+        nn.Conv2d(6, 16, kernel_size=5, pad_mode='pad'), BatchNorm(16, num_dims=4), nn.Sigmoid(),
+        nn.AvgPool2d(kernel_size=2, stride=2), nn.Flatten(),
+        nn.Dense(16*4*4, 120), BatchNorm(120, num_dims=2), nn.Sigmoid(),
+        nn.Dense(120, 84), BatchNorm(84, num_dims=2), nn.Sigmoid(),
+        nn.Dense(84, 10)])
+```
+
 和以前一样，我们将[**在Fashion-MNIST数据集上训练网络**]。
 这个代码与我们第一次训练LeNet（ :numref:`sec_lenet`）时几乎完全相同，主要区别在于学习率大得多。
 
@@ -451,6 +508,13 @@ train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
 net = d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
 ```
 
+```{.python .input}
+#@tab mindspore
+lr, num_epochs, batch_size = 1.0, 10, 256
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
+d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
+```
+
 让我们来看看从第一个批量规范化层中学到的[**拉伸参数`gamma`和偏移参数`beta`**]。
 
 ```{.python .input}
@@ -458,7 +522,7 @@ net[1].gamma.data().reshape(-1,), net[1].beta.data().reshape(-1,)
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, mindspore
 net[1].gamma.reshape((-1,)), net[1].beta.reshape((-1,))
 ```
 
@@ -547,12 +611,29 @@ net = nn.Sequential(
     nn.Linear(84, 10))
 ```
 
+```{.python .input}
+#@tab mindspore
+net = nn.SequentialCell([
+    nn.Conv2d(1, 6, kernel_size=5, pad_mode='pad'), nn.BatchNorm2d(6), nn.Sigmoid(),
+    nn.AvgPool2d(kernel_size=2, stride=2),
+    nn.Conv2d(6, 16, kernel_size=5, pad_mode='pad'), nn.BatchNorm2d(16), nn.Sigmoid(),
+    nn.AvgPool2d(kernel_size=2, stride=2), nn.Flatten(),
+    nn.Dense(256, 120), nn.BatchNorm1d(120), nn.Sigmoid(),
+    nn.Dense(120, 84), nn.BatchNorm1d(84), nn.Sigmoid(),
+    nn.Dense(84, 10)])
+```
+
 下面，我们[**使用相同超参数来训练模型**]。
 请注意，通常高级API变体运行速度快得多，因为它的代码已编译为C++或CUDA，而我们的自定义代码由Python实现。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, paddle, tensorflow
 d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
+```
+
+```{.python .input}
+#@tab mindspore
+d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 ```
 
 ## 争议

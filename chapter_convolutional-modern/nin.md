@@ -85,6 +85,21 @@ def nin_block(in_channels, out_channels, kernel_size, strides, padding):
         nn.ReLU())
 ```
 
+```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+from mindspore import nn, ops
+
+def nin_block(in_channels, out_channels, kernel_size, strides, padding):
+    return nn.SequentialCell([
+        nn.Conv2d(in_channels, out_channels, kernel_size, strides, 'pad', padding),
+        nn.ReLU(),
+        nn.Conv2d(out_channels, out_channels, kernel_size=1),
+        nn.ReLU(),
+        nn.Conv2d(out_channels, out_channels, kernel_size=1), 
+        nn.ReLU()])
+```
+
 ## [**NiN模型**]
 
 最初的NiN网络是在AlexNet后不久提出的，显然从中得到了一些启示。
@@ -164,6 +179,21 @@ net = nn.Sequential(
     nn.Flatten())
 ```
 
+```{.python .input}
+#@tab mindspore
+net = nn.SequentialCell([
+    nin_block(1, 96, kernel_size=11, strides=4, padding=0),
+    nn.MaxPool2d(3, stride=2),
+    nin_block(96, 256, kernel_size=5, strides=1, padding=2),
+    nn.MaxPool2d(3, stride=2),
+    nin_block(256, 384, kernel_size=3, strides=1, padding=1),
+    nn.MaxPool2d(3, stride=2),
+    nn.Dropout(keep_prob=1-0.5),
+    nin_block(384, 10, kernel_size=3, strides=1, padding=1),
+    nn.AdaptiveAvgPool2d((1, 1)),
+    nn.Flatten()])
+```
+
 我们创建一个数据样本来[**查看每个块的输出形状**]。
 
 ```{.python .input}
@@ -198,15 +228,30 @@ for layer in net:
     print(layer.__class__.__name__,'output shape:\t', X.shape)
 ```
 
+```{.python .input}
+#@tab mindspore
+X = ops.randn(1, 1, 224, 224)
+for blk in net:
+    X = blk(X)
+    print(blk.__class__.__name__,'output shape:\t',X.shape)
+```
+
 ## [**训练模型**]
 
 和以前一样，我们使用Fashion-MNIST来训练模型。训练NiN与训练AlexNet、VGG时相似。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, paddle, tensorflow
 lr, num_epochs, batch_size = 0.1, 10, 128
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=224)
 d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
+```
+
+```{.python .input}
+#@tab mindspore
+lr, num_epochs, batch_size = 0.05, 10, 128
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=224)
+d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 ```
 
 ## 小结

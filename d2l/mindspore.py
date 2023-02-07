@@ -463,9 +463,21 @@ def evaluate_accuracy_gpu(net, dataset, device=None):
 def train_ch6(net, train_dataset, test_dataset, num_epochs, lr):
     """用GPU训练模型(在第六章定义)。"""
     optim = nn.SGD(net.trainable_params(), learning_rate=lr)
-    loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction='mean')
-    net_with_loss = nn.WithLossCell(net, loss)
-    train = nn.TrainOneStepCell(net_with_loss, optim)
+    loss_fn = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction='mean')
+
+    # 定义前向传播函数
+    def forward_fn(x, y):
+        y_hat = net(x)
+        loss = loss_fn(y_hat, y)
+        return loss, y_hat
+    grad_fn = ops.value_and_grad(forward_fn, None, weights=net.trainable_params(), has_aux=True)
+    
+    # 定义模型单步训练
+    def train(X, Y, optim):
+        (loss, y_hat), grads = grad_fn(X, Y)
+        loss = ops.depend(loss, optim(grads))
+        return loss, y_hat
+    
     animator = Animator(xlabel='epoch', xlim=[1, num_epochs],
                             legend=['train loss', 'train acc', 'test acc'])
     timer, num_batches = Timer(), train_dataset.get_dataset_size()
@@ -474,9 +486,8 @@ def train_ch6(net, train_dataset, test_dataset, num_epochs, lr):
         net.set_train()
         for i, (X, y) in enumerate(train_dataset.create_tuple_iterator()):
             timer.start()
-            l = train(X, y)
-            y_hat = net(X)
-            metric.add(l.asnumpy() * X.shape[0], accuracy(y_hat, y), X.shape[0])
+            loss, y_hat = train(X, y, optim)
+            metric.add(loss.asnumpy() * X.shape[0], accuracy(y_hat, y), X.shape[0])
             timer.stop()
             train_l = metric[0] / metric[2]
             train_acc = metric[1] / metric[2]
@@ -1199,7 +1210,9 @@ def show_trace_2d(f, results):
 
 abs = ops.abs
 arange = ops.arange
+cat = ops.cat
 concat = ops.concat
+int32 = mindspore.int32
 float32 = mindspore.float32
 ones = ops.ones
 zeros = ops.zeros
@@ -1230,3 +1243,5 @@ normal = lambda shape, mean, stddev, *args : ops.normal(shape, tensor(mean), ten
 reduce_sum = lambda x, *args, **kwargs: x.sum(*args, **kwargs)
 reshape = lambda x, *args, **kwargs: x.reshape(*args, **kwargs)
 transpose = lambda x, *args, **kwargs: x.t(*args, **kwargs)
+size = lambda x, *args, **kwargs: x.numel(*args, **kwargs)
+astype = lambda x, *args, **kwargs: x.astype(*args, **kwargs)

@@ -180,6 +180,37 @@ class Residual(nn.Layer):  #@save
         return F.relu(Y)
 ```
 
+```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+from mindspore import nn, ops
+
+class Residual(nn.Cell):  
+    def __init__(self, input_channels, num_channels,
+                 use_1x1conv=False, strides=1):
+        super().__init__()
+        self.conv1 = nn.Conv2d(input_channels, num_channels,
+                               kernel_size=3, padding=1, stride=strides, pad_mode='pad')
+        self.conv2 = nn.Conv2d(num_channels, num_channels,
+                               kernel_size=3, padding=1, pad_mode='pad')
+        if use_1x1conv:
+            self.conv3 = nn.Conv2d(input_channels, num_channels,
+                                   kernel_size=1, stride=strides)
+        else:
+            self.conv3 = None
+        self.bn1 = nn.BatchNorm2d(num_channels)
+        self.bn2 = nn.BatchNorm2d(num_channels)
+        self.relu = nn.ReLU()
+        
+    def construct(self, X):
+        Y = self.relu(self.bn1(self.conv1(X)))
+        Y = self.bn2(self.conv2(Y))
+        if self.conv3:
+            X = self.conv3(X)
+        Y += X
+        return self.relu(Y)
+```
+
 如 :numref:`fig_resnet_block`所示，此代码生成两种类型的网络：
 一种是当`use_1x1conv=False`时，应用ReLU非线性函数之前，将输入添加到输出。
 另一种是当`use_1x1conv=True`时，添加通过$1 \times 1$卷积调整通道和分辨率。
@@ -198,7 +229,7 @@ blk(X).shape
 
 ```{.python .input}
 #@tab pytorch
-blk = Residual(3,3)
+blk = Residual(3, 3)
 X = torch.rand(4, 3, 6, 6)
 Y = blk(X)
 Y.shape
@@ -216,6 +247,14 @@ Y.shape
 #@tab paddle
 blk = Residual(3, 3)
 X = paddle.rand([4, 3, 6, 6])
+Y = blk(X)
+Y.shape
+```
+
+```{.python .input}
+#@tab mindspore
+blk = Residual(3,3)
+X = ops.rand(4, 3, 6, 6)
 Y = blk(X)
 Y.shape
 ```
@@ -242,6 +281,12 @@ blk(X).shape
 
 ```{.python .input}
 #@tab paddle
+blk = Residual(3, 6, use_1x1conv=True, strides=2)
+blk(X).shape
+```
+
+```{.python .input}
+#@tab mindspore
 blk = Residual(3, 6, use_1x1conv=True, strides=2)
 blk(X).shape
 ```
@@ -280,6 +325,14 @@ b1 = tf.keras.models.Sequential([
 b1 = nn.Sequential(nn.Conv2D(1, 64, kernel_size=7, stride=2, padding=3),
                    nn.BatchNorm2D(64), nn.ReLU(),
                    nn.MaxPool2D(kernel_size=3, stride=2, padding=1))
+```
+
+```{.python .input}
+#@tab mindspore
+b1 = nn.SequentialCell([
+    nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, pad_mode='pad'),
+    nn.BatchNorm2d(64), nn.ReLU(),
+    nn.MaxPool2d(kernel_size=3, stride=2, pad_mode='same')])
 ```
 
 GoogLeNet在后面接了4个由Inception块组成的模块。
@@ -350,6 +403,20 @@ def resnet_block(input_channels, num_channels, num_residuals,
     return blk
 ```
 
+```{.python .input}
+#@tab mindspore
+def resnet_block(input_channels, num_channels, num_residuals,
+                 first_block=False):
+    blk = []
+    for i in range(num_residuals):
+        if i == 0 and not first_block:
+            blk.append(Residual(input_channels, num_channels,
+                                use_1x1conv=True, strides=2))
+        else:
+            blk.append(Residual(num_channels, num_channels))
+    return blk
+```
+
 接着在ResNet加入所有残差块，这里每个模块使用2个残差块。
 
 ```{.python .input}
@@ -373,6 +440,15 @@ b2 = ResnetBlock(64, 2, first_block=True)
 b3 = ResnetBlock(128, 2)
 b4 = ResnetBlock(256, 2)
 b5 = ResnetBlock(512, 2)
+```
+
+```{.python .input}
+#@tab mindspore
+b2 = nn.SequentialCell([*resnet_block(64, 64, 2, first_block=True)])
+b3 = nn.SequentialCell([*resnet_block(64, 128, 2)])
+b4 = nn.SequentialCell([*resnet_block(128, 256, 2)])
+b5 = nn.SequentialCell([*resnet_block(256, 512, 2)])
+
 ```
 
 最后，与GoogLeNet一样，在ResNet中加入全局平均汇聚层，以及全连接层输出。
@@ -415,6 +491,13 @@ def net():
 net = nn.Sequential(b1, b2, b3, b4, b5, 
                     nn.AdaptiveAvgPool2D((1, 1)),
                     nn.Flatten(), nn.Linear(512, 10))
+```
+
+```{.python .input}
+#@tab mindspore
+net = nn.SequentialCell([b1, b2, b3, b4, b5,
+                        nn.AdaptiveAvgPool2d((1, 1)),
+                        nn.Flatten(), nn.Dense(512, 10)])
 ```
 
 每个模块有4个卷积层（不包括恒等映射的$1\times 1$卷积层）。
@@ -462,15 +545,30 @@ for layer in net:
     print(layer.__class__.__name__,'output shape:\t', X.shape)
 ```
 
+```{.python .input}
+#@tab mindspore
+X = ops.randn(1, 1, 224, 224)
+for layer in net:
+    X = layer(X)
+    print(layer.__class__.__name__,'output shape:\t',X.shape)
+```
+
 ## [**训练模型**]
 
 同之前一样，我们在Fashion-MNIST数据集上训练ResNet。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, paddle, tensorflow
 lr, num_epochs, batch_size = 0.05, 10, 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=96)
 d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
+```
+
+```{.python .input}
+#@tab mindspore
+lr, num_epochs, batch_size = 0.05, 10, 256
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=96)
+d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 ```
 
 ## 小结
