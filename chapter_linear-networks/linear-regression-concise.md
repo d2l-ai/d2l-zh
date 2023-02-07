@@ -48,6 +48,18 @@ import paddle
 ```
 
 ```{.python .input}
+#@tab mindspore
+import numpy as np
+import mindspore
+import mindspore.dataset as ds
+import mindspore.ops as ops
+from mindspore import Tensor, grad
+from d2l import mindspore as d2l
+
+```
+
+
+```{.python .input}
 #@tab all
 true_w = d2l.tensor([2, -3.4])
 true_b = 4.2
@@ -98,9 +110,37 @@ def load_array(data_arrays, batch_size, is_train=True):
 ```
 
 ```{.python .input}
-#@tab all
+#@tab mindspore
+class SyntheticData():
+    def __init__(self):
+        self.features, self.labels = d2l.synthetic_data(true_w, true_b, 1000)
+
+    def __getitem__(self, index):
+        return self.features[index], self.labels[index]
+    
+    def __len__(self):
+        return len(self.labels)
+
+def load_array(data_arrays, column_names, batch_size, is_train=True):  
+    """构造一个MindSpore数据迭代器。"""
+    dataset = ds.GeneratorDataset(data_arrays, column_names, shuffle=is_train)
+    dataset = dataset.batch(batch_size)
+    return dataset
+
+```
+
+
+```{.python .input}
+#@tab mxnet, pytorch, tensorflow, paddle
 batch_size = 10
 data_iter = load_array((features, labels), batch_size)
+```
+
+```{.python .input}
+#@tab mindspore
+batch_size = 10
+dataset = SyntheticData()
+data_iter = load_array(dataset, ['features', 'labels'], batch_size)
 ```
 
 使用`data_iter`的方式与我们在 :numref:`sec_linear_scratch`中使用`data_iter`函数的方式相同。为了验证是否正常工作，让我们读取并打印第一个小批量样本。
@@ -166,6 +206,12 @@ Keras会自动推断每个层输入的形状。
 第一个指定输入特征形状，即2，第二个指定输出特征形状，输出特征形状为单个标量，因此为1。
 :end_tab:
 
+:begin_tab:`mindspore`
+在mindspore中，全连接层在`Dense`类中定义。
+值得注意的是，我们将两个参数传递到`nn.Dense`中。
+第一个指定输入特征形状，即2，第二个指定输出特征形状，输出特征形状为单个标量，因此为1。
+:end_tab:
+
 ```{.python .input}
 # nn是神经网络的缩写
 from mxnet.gluon import nn
@@ -192,6 +238,14 @@ net.add(tf.keras.layers.Dense(1))
 # nn是神经网络的缩写
 from paddle import nn
 net = nn.Sequential(nn.Linear(2, 1))
+```
+```{.python .input}
+#@tab mindspore
+# nn是神经网络的缩写
+from mindspore import nn
+from mindspore.common.initializer import initializer, Normal
+
+net = nn.SequentialCell([nn.Dense(2, 1)])
 ```
 
 ## (**初始化模型参数**)
@@ -232,6 +286,15 @@ TensorFlow中的`initializers`模块提供了多种模型参数初始化方法�
 默认情况下，偏置参数初始化为零。
 :end_tab:
 
+:begin_tab:`mindspore`
+正如我们在构造`nn.Dense`时指定输入和输出尺寸一样，
+现在我们能直接访问参数以设定它们的初始值。
+我们通过`net[0]`选择网络中的第一个图层，
+然后使用`weight`和`bias`方法访问参数。
+我们可以通过调用`initializer(init, shape, dtype)`来指定初始化权重的方法。
+其中，`init`可以是常数，也可以是某种分布，比如正态分布`Normal(sigma=0.01, mean=0.0)`
+:end_tab:
+
 ```{.python .input}
 from mxnet import init
 net.initialize(init.Normal(sigma=0.01))
@@ -258,6 +321,13 @@ bias_attr = paddle.ParamAttr(initializer=None)
 net = nn.Sequential(nn.Linear(2, 1, weight_attr=weight_attr,
                               bias_attr=bias_attr))
 ```
+
+```{.python .input}
+#@tab mindspore
+net[0].weight = initializer(Normal(), net[0].weight.shape, mindspore.float32)
+net[0].bias = initializer('zero', net[0].bias.shape, mindspore.float32)
+```
+
 
 :begin_tab:`mxnet`
 上面的代码可能看起来很简单，但是这里有一个应该注意到的细节：
@@ -303,6 +373,11 @@ Keras让我们避免了这个问题，在后端执行时，初始化实际上是
 默认情况下，它返回所有样本损失的平均值。
 :end_tab:
 
+:begin_tab:`mindspore`
+[**计算均方误差使用的是`MSELoss`类，也称为平方$L_2$范数**]。
+默认情况下，它返回所有样本损失的平均值。
+:end_tab:
+
 ```{.python .input}
 loss = gluon.loss.L2Loss()
 ```
@@ -319,6 +394,11 @@ loss = tf.keras.losses.MeanSquaredError()
 
 ```{.python .input}
 #@tab paddle
+loss = nn.MSELoss()
+```
+
+```{.python .input}
+#@tab mindspore
 loss = nn.MSELoss()
 ```
 
@@ -353,6 +433,14 @@ PaddlePaddle在`optimizer`模块中实现了该算法的许多变种。
 小批量随机梯度下降只需要设置`learning_rate`值，这里设置为0.03。
 :end_tab:
 
+:begin_tab:`mindspore`
+小批量随机梯度下降算法是一种优化神经网络的标准工具，
+mindspore在`nn`模块中实现了该算法的许多变种。
+当我们(**实例化一个`SGD`实例**)时，我们要指定优化的参数
+（可通过`net.trainable_params()`从我们的模型中获得）以及优化算法所需的超参数字典。
+小批量随机梯度下降只需要设置`lr`值，这里设置为0.03。
+:end_tab:
+
 ```{.python .input}
 from mxnet import gluon
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.03})
@@ -372,6 +460,11 @@ trainer = tf.keras.optimizers.SGD(learning_rate=0.03)
 #@tab paddle
 trainer =  paddle.optimizer.SGD(learning_rate=0.03,
                                 parameters=net.parameters())
+```
+
+```{.python .input}
+#@tab mindspore
+optimizer = nn.SGD(net.trainable_params(), learning_rate=0.03)
 ```
 
 ## 训练
@@ -442,6 +535,24 @@ for epoch in range(num_epochs):
     print(f'epoch {epoch + 1},'f'loss {l}')
 ```
 
+```{.python .input}
+#@tab mindspore
+# 构造前向网络
+def forward_fn(x, y):
+    y_hat = net(x)
+    l = loss(y_hat, y)
+    return l
+
+num_epochs = 3
+for epoch in range(num_epochs):
+    for X, y in data_iter:
+        grad_fn = mindspore.value_and_grad(forward_fn, grad_position=None, weights=optimizer.parameters)
+        l, grads = grad_fn(X, y)
+        optimizer(grads)
+    l = forward_fn(mindspore.Tensor(data_iter.features), mindspore.Tensor(data_iter.labels))
+    print(f'epoch {epoch + 1}, loss {l.asnumpy():f}')
+```
+
 下面我们[**比较生成数据集的真实参数和通过有限数据训练获得的模型参数**]。
 要访问参数，我们首先从`net`访问所需的层，然后读取该层的权重和偏置。
 正如在从零开始实现中一样，我们估计得到的参数与生成数据的真实参数非常接近。
@@ -477,6 +588,14 @@ b = net[0].bias
 print('b的估计误差：', true_b - b)
 ```
 
+```{.python .input}
+#@tab mindspore
+w = net[0].weight.data
+print('w的估计误差：', true_w - w.reshape(true_w.shape))
+b = net[0].bias.data
+print('b的估计误差：', true_b - b)
+```
+
 ## 小结
 
 :begin_tab:`mxnet`
@@ -497,6 +616,12 @@ print('b的估计误差：', true_b - b)
 * 在TensorFlow中，`data`模块提供了数据处理工具，`keras`模块定义了大量神经网络层和常见损耗函数。
 * TensorFlow的`initializers`模块提供了多种模型参数初始化方法。
 * 维度和存储可以自动推断，但注意不要在初始化参数之前尝试访问参数。
+:end_tab:
+
+:begin_tab:`mindspore`
+* 我们可以使用MindSpore的高级API更简洁地实现模型。
+* 在MindSpore中，`data`模块提供了数据处理工具，`nn`模块定义了大量神经网络层和常见损耗函数。
+* MindSpore的`initializers`模块提供了多种模型参数初始化方法。
 :end_tab:
 
 ## 练习

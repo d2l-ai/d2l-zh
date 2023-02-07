@@ -39,6 +39,13 @@ from paddle import nn
 ```
 
 ```{.python .input}
+#@tab mindspore
+import mindspore
+from mindspore import nn, ops
+from d2l import mindspore as d2l
+```
+
+```{.python .input}
 #@tab all
 batch_size = 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
@@ -90,6 +97,14 @@ def init_weights(m):
         nn.initializer.Normal(m.weight, std=0.01)
 
 net.apply(init_weights);
+```
+
+```{.python .input}
+#@tab mindspore
+from mindspore.common.initializer import initializer, Normal
+
+net = nn.SequentialCell([nn.Flatten(), nn.Dense(784, 10)])
+net[1].weight = initializer(Normal(), net[1].weight.shape, mindspore.float32)
 ```
 
 ## 重新审视Softmax的实现
@@ -159,6 +174,11 @@ loss = nn.CrossEntropyLoss(reduction='none')
 loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 ```
 
+```{.python .input}
+#@tab mindspore
+loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction='mean')
+```
+
 ## 优化算法
 
 在这里，我们(**使用学习率为0.1的小批量随机梯度下降作为优化算法**)。
@@ -181,6 +201,11 @@ trainer = tf.keras.optimizers.SGD(learning_rate=.1)
 ```{.python .input}
 #@tab paddle
 trainer = paddle.optimizer.SGD(learning_rate=0.1, parameters=net.parameters())
+```
+
+```{.python .input}
+#@tab mindspore
+optim = nn.SGD(net.trainable_params(), learning_rate=0.1)
 ```
 
 ## 训练

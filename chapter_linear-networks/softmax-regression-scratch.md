@@ -37,6 +37,15 @@ from IPython import display
 ```
 
 ```{.python .input}
+#@tab mindspore
+import mindspore
+import mindspore.ops as ops
+from mindspore import Tensor
+from IPython import display
+from d2l import mindspore as d2l
+```
+
+```{.python .input}
 #@tab all
 batch_size = 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
@@ -96,6 +105,13 @@ W.stop_gradient=False
 b.stop_gradient=False
 ```
 
+```{.python .input}
+#@tab mindspore
+# 网络参数将在后续定义网络中再定义
+num_inputs = 784
+num_outputs = 10
+```
+
 ## 定义softmax操作
 
 在实现softmax回归模型之前，我们简要回顾一下`sum`运算符如何沿着张量中的特定维度工作。
@@ -115,7 +131,7 @@ d2l.reduce_sum(X, 0, keepdim=True), d2l.reduce_sum(X, 1, keepdim=True)
 ```
 
 ```{.python .input}
-#@tab mxnet, tensorflow
+#@tab mxnet, tensorflow, mindspore
 X = d2l.tensor([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
 d2l.reduce_sum(X, 0, keepdims=True), d2l.reduce_sum(X, 1, keepdims=True)
 ```
@@ -138,7 +154,7 @@ $$
 该名称来自[统计物理学](https://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics))中一个模拟粒子群分布的方程。
 
 ```{.python .input}
-#@tab mxnet, tensorflow
+#@tab mxnet, tensorflow, mindspore
 def softmax(X):
     X_exp = d2l.exp(X)
     partition = d2l.reduce_sum(X_exp, 1, keepdims=True)
@@ -170,6 +186,13 @@ X_prob = softmax(X)
 X_prob, tf.reduce_sum(X_prob, 1)
 ```
 
+```{.python .input}
+#@tab mindspore
+X = d2l.tensor(d2l.normal((2, 5), 0, 1))
+X_prob = softmax(X)
+X_prob, d2l.reduce_sum(X_prob, 1, keepdims=True)
+```
+
 注意，虽然这在数学上看起来是正确的，但我们在代码实现中有点草率。
 矩阵中的非常大或非常小的元素可能造成数值上溢或下溢，但我们没有采取措施来防止这点。
 
@@ -179,10 +202,26 @@ X_prob, tf.reduce_sum(X_prob, 1)
 下面的代码定义了输入如何通过网络映射到输出。
 注意，将数据传递到模型之前，我们使用`reshape`函数将每张原始图像展平为向量。
 
-```{.python .input}
-#@tab all
+```{.python .input} 
+#@tab mxnet, pytorch, tensorflow, paddle
 def net(X):
     return softmax(d2l.matmul(d2l.reshape(X, (-1, W.shape[0])), W) + b)
+```
+
+```{.python .input}
+#@tab mindspore
+import mindspore.nn as nn
+from mindspore import Tensor, Parameter
+from mindspore.common.initializer import initializer, Zero, Normal
+
+class Net(nn.Cell):
+    def __init__(self, num_inputs, num_outputs):
+        super().__init__()
+        self.W = Parameter(initializer(Normal(0.01, 0), (num_inputs, num_outputs), mindspore.float32))
+        self.b = Parameter(initializer(Zero(), num_outputs, mindspore.float32))
+
+    def construct(self, X):
+        return softmax(ops.matmul(X.reshape((-1, self.W.shape[0])), self.W) + self.b)
 ```
 
 ## 定义损失函数
@@ -214,6 +253,13 @@ y = tf.constant([0, 2])
 tf.boolean_mask(y_hat, tf.one_hot(y, depth=y_hat.shape[-1]))
 ```
 
+```{.python .input}
+#@tab mindspore
+y = d2l.tensor([0, 2], dtype=mindspore.int32)
+y_hat = d2l.tensor([[0.1, 0.3, 0.6], [0.3, 0.2, 0.5]])
+y_hat[[0, 1], y]
+```
+
 现在我们只需一行代码就可以[**实现交叉熵损失函数**]。
 
 ```{.python .input}
@@ -237,6 +283,14 @@ cross_entropy(y_hat, y)
 #@tab paddle
 def cross_entropy(y_hat, y):
     return - paddle.log(y_hat[[i for i in range(len(y_hat))], y.squeeze()])
+
+cross_entropy(y_hat, y)
+```
+
+```{.python .input}
+#@tab mindspore
+def cross_entropy(y_hat, y):
+    return -(d2l.log(y_hat[d2l.arange(len(y_hat)), y]))
 
 cross_entropy(y_hat, y)
 ```
@@ -301,7 +355,7 @@ accuracy(y_hat, y) / len(y)
 [**我们可以评估在任意模型`net`的精度**]。
 
 ```{.python .input}
-#@tab mxnet, tensorflow
+#@tab mxnet, tensorflow, mindspore
 def evaluate_accuracy(net, data_iter):  #@save
     """计算在指定数据集上模型的精度"""
     metric = Accumulator(2)  # 正确预测数、预测总数
@@ -365,9 +419,16 @@ class Accumulator:  #@save
 例如在有10个类别情况下的精度为0.1。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow, paddle
 evaluate_accuracy(net, test_iter)
 ```
+
+```{.python .input}
+#@tab mindspore
+net = Net(num_inputs, num_outputs)
+evaluate_accuracy(net, mnist_test.create_tuple_iterator())
+```
+
 
 ## 训练
 
@@ -482,6 +543,30 @@ def train_epoch_ch3(net, train_iter, loss, updater):
     return metric[0] / metric[2], metric[1] / metric[2]
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+def train_epoch_ch3(net, train_iter, loss, optim):  #@save
+    """训练模型一个迭代周期（定义见第3章）。"""
+    # 定义前向网络
+    def forward_fn(x, y):
+        y_hat = net(x)
+        l = loss(y_hat, y).mean()
+        return l
+    net.set_train()
+    batch_size = train_iter.get_batch_size()
+    metric = Accumulator(3)
+    for X, y in train_iter:
+        grad_fn = mindspore.value_and_grad(forward_fn, grad_position=None, weights=optim.parameters)
+        # 计算梯度
+        l, grads = grad_fn(X, y)
+        y_hat = net(X)
+        # 更新梯度
+        optim(grads)
+        metric.add(float(l.asnumpy()), accuracy(y_hat, y), y.size)
+    return metric[0] / metric[2] * batch_size, metric[1] / metric[2]
+```
+
 在展示训练函数的实现之前，我们[**定义一个在动画中绘制数据的实用程序类**]`Animator`，
 它能够简化本书其余部分的代码。
 
@@ -573,6 +658,13 @@ class Updater():  #@save
         d2l.sgd(self.params, grads, self.lr, batch_size)
 
 updater = Updater([W, b], lr=0.1)
+```
+
+```{.python .input}
+#@tab mindspore
+lr = 0.1
+
+updater = d2l.SGD(lr, batch_size, net.trainable_params())
 ```
 
 现在，我们[**训练模型10个迭代周期**]。
