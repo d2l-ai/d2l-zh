@@ -109,6 +109,14 @@ X, y = paddle.to_tensor(inputs.values), paddle.to_tensor(outputs.values)
 X, y
 ```
 
+```{.python .input}
+#@tab mindspore
+import mindspore
+
+X, y = mindspore.Tensor(inputs.values), mindspore.Tensor(outputs.values)
+X, y
+```
+
 ## 小结
 
 * `pandas`软件包是Python中常用的数据分析工具中，`pandas`可以与张量兼容。

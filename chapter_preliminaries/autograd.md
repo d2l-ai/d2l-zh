@@ -50,10 +50,31 @@ x = paddle.arange(4, dtype='float32')
 x
 ```
 
+```{.python .input}
+#@tab mindspore
+import mindspore as ms
+import mindspore.ops as ops
+
+x = ops.arange(4.0)
+x
+```
+
+
 [**在我们计算$y$关于$\mathbf{x}$的梯度之前，需要一个地方来存储梯度。**]
 重要的是，我们不会在每次对一个参数求导时都分配新的内存。
 因为我们经常会成千上万次地更新相同的参数，每次都分配新的内存可能很快就会将内存耗尽。
 注意，一个标量函数关于向量$\mathbf{x}$的梯度是向量，并且与$\mathbf{x}$具有相同的形状。
+
+:begin_tab:`mindspore`
+在我们$y$计算关于$\\{x}$的梯度之前，我们需要介绍一下MindSpore的自动微分实现方式
+
+MindSpore现有版本不像Pytorch一样将梯度grad直接绑定在Tensor上，而是整体运算后，再通过获取梯度的算子进行梯度的提取。因此，和Pytorch有如下差异：
+
+   1.想要自动微分的函数需要显式注册为function
+
+   2.需要通过自动微分接口`mindspore.grad`或者`mindspore.value_and_grad`来获取梯度
+:end_tab:
+
 
 ```{.python .input}
 # 通过调用attach_grad来为一个张量的梯度分配内存
@@ -77,6 +98,11 @@ x = tf.Variable(x)
 #@tab paddle
 x = paddle.to_tensor(x, stop_gradient=False)
 x.grad  # 默认值是None
+```
+
+```{.python .input}
+#@tab mindspore
+# MindSpore现有版本不像Pytorch一样将梯度grad直接绑定在Tensor上，而是整体运算后，再通过获取梯度的算子进行梯度的提取。所以x默认是需要梯度的，不需要再次定义，也无法直接通过x获得它的梯度
 ```
 
 (**现在计算$y$。**)
@@ -108,6 +134,18 @@ y = 2 * paddle.dot(x, x)
 y
 ```
 
+```{.python .input}
+#@tab mindspore
+import mindspore.numpy as mnp
+from mindspore import grad
+
+def forward(x):
+    return 2 * mnp.dot(x, x)
+
+y = forward(x)
+y
+```
+
 `x`是一个长度为4的向量，计算`x`和`x`的点积，得到了我们赋值给`y`的标量输出。
 接下来，[**通过调用反向传播函数来自动计算`y`关于`x`每个分量的梯度**]，并打印这些梯度。
 
@@ -134,6 +172,12 @@ y.backward()
 x.grad
 ```
 
+```{.python .input}
+#@tab mindspore
+x_grad = grad(forward)(x)
+x_grad
+```
+
 函数$y=2\mathbf{x}^{\top}\mathbf{x}$关于$\mathbf{x}$的梯度应为$4\mathbf{x}$。
 让我们快速验证这个梯度是否计算正确。
 
@@ -156,6 +200,10 @@ x_grad == 4 * x
 x.grad == 4 * x
 ```
 
+```{.python .input}
+#@tab mindspore
+x.grad == 4 * x
+```
 [**现在计算`x`的另一个函数。**]
 
 ```{.python .input}
@@ -190,6 +238,14 @@ y.backward()
 x.grad
 ```
 
+```{.python .input}
+#@tab mindspore
+def forward(x):
+    return x.sum()
+
+x_grad = grad(forward)(x)
+x_grad
+```
 ## 非标量变量的反向传播
 
 当`y`不是标量时，向量`y`关于向量`x`的导数的最自然解释是一个矩阵。
@@ -233,6 +289,17 @@ y = x * x
 paddle.sum(y).backward() 
 x.grad
 ```
+
+```{.python .input}
+#@tab mindspore
+def forward(x):
+    y = x * x
+    return y.sum()
+
+x_grad = grad(forward)(x)
+x_grad
+```
+
 
 ## 分离计算
 
@@ -290,6 +357,19 @@ paddle.sum(z).backward()
 x.grad == u
 ```
 
+```{.python .input}
+#@tab mindspore
+def forward(x):
+    y = x * x
+    u = ops.stop_gradient(y)
+    z = u * x
+    return z, u
+
+z, u = forward(x)
+x_grad = grad(forward)(x)
+x_grad == u
+```
+
 由于记录了`y`的计算结果，我们可以随后在`y`上调用反向传播，
 得到`y=x*x`关于的`x`的导数，即`2*x`。
 
@@ -315,6 +395,15 @@ t.gradient(y, x) == 2 * x
 x.clear_gradient()
 paddle.sum(y).backward()
 x.grad == 2 * x
+```
+
+```{.python .input}
+#@tab mindspore
+def forward(x):
+    y = x * x
+    return y.sum()
+x_grad = grad(forward)(x)
+x_grad == 2 * x
 ```
 
 ## Python控制流的梯度计算
@@ -374,6 +463,19 @@ def f(a):
     return c
 ```
 
+```{.python .input}
+#@tab mindspore
+def f(a):
+    b = a * 2
+    while ops.norm(b, axis=0) < 1000:
+        b = b * 2
+    if b.sum() > 0:
+        c = b
+    else:
+        c = 100 * b
+    return c
+```
+
 让我们计算梯度。
 
 ```{.python .input}
@@ -407,6 +509,13 @@ d = f(a)
 d.backward()
 ```
 
+```{.python .input}
+#@tab mindspore
+a = ops.randn(())
+d = f(a)
+a_grad = grad(f)(a)
+```
+
 我们现在可以分析上面定义的`f`函数。
 请注意，它在其输入`a`中是分段线性的。
 换言之，对于任何`a`，存在某个常量标量`k`，使得`f(a)=k*a`，其中`k`的值取决于输入`a`，因此可以用`d/a`验证梯度是否正确。
@@ -430,6 +539,10 @@ d_grad == d / a
 a.grad == d / a
 ```
 
+```{.python .input}
+#@tab mindspore
+a.grad == d / a
+```
 ## 小结
 
 * 深度学习框架可以自动计算导数：我们首先将梯度附加到想要对其计算偏导数的变量上，然后记录目标值的计算，执行它的反向传播函数，并访问得到的梯度。
