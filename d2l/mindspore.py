@@ -424,19 +424,9 @@ def train_ch3(net, train_dataset, test_dataset, loss, num_epochs, optim):
     for epoch in range(num_epochs):
         train_metrics = train_epoch_ch3(net, train_dataset, loss, optim)
         test_acc = evaluate_accuracy(net, test_dataset)
-        print(train_metrics)
         animator.add(epoch + 1, train_metrics + (test_acc,))
     train_loss, train_acc = train_metrics
 
-def predict_ch3(net, dataset, n=6):
-    """预测标签（定义见第3章）。"""
-    for X, y in dataset.create_tuple_iterator():
-        break
-    trues = get_fashion_mnist_labels(y.asnumpy())
-    preds = get_fashion_mnist_labels(net(X).argmax(axis=1).asnumpy())
-    titles = [true +'\n' + pred for true, pred in zip(trues, preds)]
-    show_images(
-        X[0:n].reshape((n, 28, 28)), 1, n, titles=titles[0:n])
 
 def evaluate_loss(net, loss, dataset):
     """Evaluate the loss of a model on the given dataset.
