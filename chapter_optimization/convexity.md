@@ -86,7 +86,7 @@ $$\lambda  a + (1-\lambda)  b \in \mathcal{X} \text{ 当 } a, b \in \mathcal{X}.
 :label:`fig_nonconvex`
 
 通常，深度学习中的问题是在凸集上定义的。
-例如，$\mathbb{R}^d$，即实数的$d$-维向量的集合是凸集（毕竟$\mathbb{R}^{d}$中任意两点之间的线存在$\mathbb{R}^d$）中。
+例如，$\mathbb{R}^d$，即实数的$d$-维向量的集合是凸集（毕竟$\mathbb{R}^d$ 中任意两点之间的线存在$\mathbb{R}^d$）中。
 在某些情况下，我们使用有界长度的变量，例如球的半径定义为$\{\mathbf{x} | \mathbf{x} \in \mathbb{R}^d \text{ 且 } \| \mathbf{x} \| \leq r\}$。
 
 ### 凸函数
