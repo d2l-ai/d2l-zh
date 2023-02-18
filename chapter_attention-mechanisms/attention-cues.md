@@ -124,6 +124,11 @@ warnings.filterwarnings("ignore")
 import paddle
 ```
 
+```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+```
+
 为了可视化注意力权重，需要定义一个`show_heatmaps`函数。
 其输入`matrices`的形状是
 （要显示的行数，要显示的列数，查询的数目，键的数目）。
@@ -189,4 +194,8 @@ show_heatmaps(attention_weights, xlabel='Keys', ylabel='Queries')
 
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11839)
+:end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/xxxxx)
 :end_tab:

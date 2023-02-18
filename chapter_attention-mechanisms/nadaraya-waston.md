@@ -40,6 +40,13 @@ import paddle
 from paddle import nn
 ```
 
+```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+import mindspore
+from mindspore import nn, Parameter, value_and_grad
+```
+
 ## [**生成数据集**]
 
 简单起见，考虑下面这个回归问题：
@@ -77,6 +84,12 @@ x_train = tf.sort(tf.random.uniform(shape=(n_train,), maxval=5))
 #@tab paddle
 n_train = 50  # 训练样本数
 x_train = paddle.sort(paddle.rand([n_train]) * 5)   # 排序后的训练样本
+```
+
+```{.python .input}
+#@tab mindspore
+n_train = 50  # 训练样本数
+x_train, _ = d2l.sort(d2l.rand(n_train) * 5)   # 排序后的训练样本
 ```
 
 ```{.python .input}
@@ -126,6 +139,18 @@ n_test = len(x_test)  # 测试样本数
 n_test
 ```
 
+```{.python .input}
+#@tab mindspore
+def f(x):
+    return 2 * d2l.sin(x) + x**0.8
+
+y_train = f(x_train) + d2l.normal((n_train,), 0.0, 0.5)  # 训练样本的输出
+x_test = d2l.arange(0, 5, 0.1)  # 测试样本
+y_truth = f(x_test)  # 测试样本的真实输出
+n_test = len(x_test)  # 测试样本数
+n_test
+```
+
 下面的函数将绘制所有的训练样本（样本由圆圈表示），
 不带噪声项的真实数据生成函数$f$（标记为“Truth”），
 以及学习得到的预测函数（标记为“Pred”）。
@@ -169,6 +194,12 @@ plot_kernel_reg(y_hat)
 ```{.python .input}
 #@tab paddle
 y_hat = paddle.repeat_interleave(y_train.mean(), n_test)
+plot_kernel_reg(y_hat)
+```
+
+```{.python .input}
+#@tab mindspore
+y_hat = d2l.repeat(y_train.mean(), n_test)
 plot_kernel_reg(y_hat)
 ```
 
@@ -277,6 +308,19 @@ y_hat = d2l.matmul(attention_weights, y_train)
 plot_kernel_reg(y_hat)
 ```
 
+```{.python .input}
+#@tab mindspore
+# X_repeat的形状:(n_test,n_train),
+# 每一行都包含着相同的测试输入（例如：同样的查询）
+X_repeat = d2l.reshape(x_test.repeat(n_train), (-1, n_train))
+# x_train包含着键。attention_weights的形状：(n_test,n_train),
+# 每一行都包含着要在给定的每个查询的值（y_train）之间分配的注意力权重
+attention_weights = nn.Softmax(axis=1)(-(X_repeat - x_train)**2 / 2)
+# y_hat的每个元素都是值的加权平均值，其中的权重是注意力权重
+y_hat = d2l.matmul(attention_weights, y_train)
+plot_kernel_reg(y_hat)
+```
+
 现在来观察注意力的权重。
 这里测试数据的输入相当于查询，而训练数据的输入相当于键。
 因为两个输入都是经过排序的，因此由观察可知“查询-键”对越接近，
@@ -306,6 +350,13 @@ d2l.show_heatmaps(tf.expand_dims(
 ```{.python .input}
 #@tab paddle
 d2l.show_heatmaps(attention_weights.unsqueeze(0).unsqueeze(0),
+                  xlabel='Sorted training inputs',
+                  ylabel='Sorted testing inputs')
+```
+
+```{.python .input}
+#@tab mindspore
+d2l.show_heatmaps(d2l.expand_dims(d2l.expand_dims(attention_weights, 0), 0),
                   xlabel='Sorted training inputs',
                   ylabel='Sorted testing inputs')
 ```
@@ -369,6 +420,13 @@ Y = paddle.ones((2, 4, 6))
 paddle.bmm(X, Y).shape
 ```
 
+```{.python .input}
+#@tab mindspore
+X = d2l.ones((2, 1, 4))
+Y = d2l.ones((2, 4, 6))
+d2l.bmm(X, Y).shape
+```
+
 在注意力机制的背景中，我们可以[**使用小批量矩阵乘法来计算小批量数据中的加权平均值**]。
 
 ```{.python .input}
@@ -396,6 +454,13 @@ tf.matmul(tf.expand_dims(weights, axis=1), tf.expand_dims(values, axis=-1)).nump
 weights = paddle.ones((2, 10)) * 0.1
 values = paddle.arange(20, dtype='float32').reshape((2, 10))
 paddle.bmm(weights.unsqueeze(1), values.unsqueeze(-1))
+```
+
+```{.python .input}
+#@tab mindspore
+weights = d2l.ones((2, 10)) * 0.1
+values = d2l.arange(20.0).reshape((2, 10))
+d2l.bmm(d2l.expand_dims(weights, 1), d2l.expand_dims(values, -1))
 ```
 
 ### 定义模型
@@ -474,6 +539,23 @@ class NWKernelRegression(nn.Layer):
                           values.unsqueeze(-1)).reshape((-1, ))
 ```
 
+```{.python .input}
+#@tab mindspore
+class NWKernelRegression(nn.Cell):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.w = Parameter(d2l.rand((1,)))
+
+    def construct(self, queries, keys, values):
+        # queries和attention_weights的形状为(查询个数，“键－值”对个数)
+        queries = d2l.reshape(queries.repeat(keys.shape[1]), (-1, keys.shape[1]))
+        self.attention_weights = nn.Softmax(axis=1)(
+            -((queries - keys) * self.w)**2 / 2)
+        # values的形状为(查询个数，“键－值”对个数)
+        return d2l.bmm(d2l.expand_dims(self.attention_weights, 1),
+                         d2l.expand_dims(values, -1)).reshape(-1)
+```
+
 ### 训练
 
 接下来，[**将训练数据集变换为键和值**]用于训练注意力模型。
@@ -530,6 +612,18 @@ Y_tile = y_train.tile([n_train, 1])
 keys = X_tile[(1 - paddle.eye(n_train)).astype(paddle.bool)].reshape((n_train, -1))
 # values的形状:('n_train'，'n_train'-1)
 values = Y_tile[(1 - paddle.eye(n_train)).astype(paddle.bool)].reshape((n_train, -1))
+```
+
+```{.python .input}
+#@tab mindspore
+# X_tile的形状:(n_train，n_train)，每一行都包含着相同的训练输入
+X_tile = d2l.tile(x_train, (n_train, 1))
+# Y_tile的形状:(n_train，n_train)，每一行都包含着相同的训练输出
+Y_tile = d2l.tile(y_train, (n_train, 1))
+# keys的形状:('n_train'，'n_train'-1)
+keys = d2l.reshape(X_tile[(1 - d2l.eye(n_train)).astype(mindspore.int32)], (n_train, -1))
+# values的形状:('n_train'，'n_train'-1)
+values = d2l.reshape(Y_tile[(1 - d2l.eye(n_train)).astype(mindspore.int32)], (n_train, -1))
 ```
 
 [**训练带参数的注意力汇聚模型**]时，使用平方损失函数和随机梯度下降。
@@ -599,6 +693,37 @@ for epoch in range(5):
     animator.add(epoch + 1, float(l.sum()))
 ```
 
+```{.python .input}
+#@tab mindspore
+net = NWKernelRegression()
+loss = nn.MSELoss(reduction='none')
+optimizer = nn.SGD(net.trainable_params(), 0.5)
+animator = d2l.Animator(xlabel='epoch', ylabel='loss', xlim=[1, 5])
+
+def train_loop(model, data, label, loss_fn, optimizer):
+    # 定义前向传播函数
+    def forward_fn(data, label):
+        logits = model(data[0], data[1], data[2])
+        loss = loss_fn(logits, label)
+        return loss
+
+    # 获取梯度函数
+    grad_fn = value_and_grad(forward_fn, None, optimizer.parameters)
+
+    # 定义模型单步训练
+    def train_one_step(data, label):
+        loss, grads = grad_fn(data, label)
+        optimizer(grads)
+        return loss
+
+    return train_one_step(data, label)
+
+for epoch in range(5):
+    l = train_loop(net, (x_train, keys, values), y_train, loss, optimizer) / 2
+    print(f'epoch {epoch + 1}, loss {float(l.sum().asnumpy()):.6f}')
+    animator.add(epoch + 1, float(l.sum().asnumpy()))
+```
+
 如下所示，训练完带参数的注意力汇聚模型后可以发现：
 在尝试拟合带噪声的训练数据时，
 [**预测结果绘制**]的线不如之前非参数模型的平滑。
@@ -642,6 +767,16 @@ y_hat = net(x_test, keys, values).unsqueeze(1).detach()
 plot_kernel_reg(y_hat)
 ```
 
+```{.python .input}
+#@tab mindspore
+# keys的形状:(n_test，n_train)，每一行包含着相同的训练输入（例如，相同的键）
+keys = d2l.tile(x_train, (n_test, 1))
+# value的形状:(n_test，n_train)
+values = d2l.tile(y_train, (n_test, 1))
+y_hat = d2l.expand_dims(net(x_test, keys, values), 1)
+plot_kernel_reg(y_hat)
+```
+
 为什么新的模型更不平滑了呢？
 下面看一下输出结果的绘制图：
 与非参数的注意力汇聚模型相比，
@@ -677,6 +812,13 @@ d2l.show_heatmaps(net.attention_weight.unsqueeze(0).unsqueeze(0),
                   ylabel='Sorter testing, inputs')
 ```
 
+```{.python .input}
+#@tab mindspore
+d2l.show_heatmaps(d2l.expand_dims(d2l.expand_dims(net.attention_weights, 0), 0),
+                  xlabel='Sorted training inputs',
+                  ylabel='Sorted testing inputs')
+```
+
 ## 小结
 
 * Nadaraya-Watson核回归是具有注意力机制的机器学习范例。
@@ -700,4 +842,8 @@ d2l.show_heatmaps(net.attention_weight.unsqueeze(0).unsqueeze(0),
 
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11840)
+:end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/xxxxx)
 :end_tab:
