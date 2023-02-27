@@ -1481,8 +1481,8 @@ def split_batch(X, y, devices):
 
     Defined in :numref:`sec_multi_gpu`"""
     assert X.shape[0] == y.shape[0]
-    return (paddlescatter(X, devices),
-            paddlescatter(y, devices))
+    return (paddle.scatter(X, devices),
+            paddle.scatter(y, devices))
 
 def resnet18(num_classes, in_channels=1):
     """稍加修改的ResNet-18模型
