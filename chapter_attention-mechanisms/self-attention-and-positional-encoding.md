@@ -44,6 +44,13 @@ import paddle
 from paddle import nn
 ```
 
+```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+import mindspore
+from mindspore import nn
+```
+
 ## [**自注意力**]
 
 给定一个由词元组成的输入序列$\mathbf{x}_1, \ldots, \mathbf{x}_n$，
@@ -88,7 +95,15 @@ attention.eval()
 ```
 
 ```{.python .input}
-#@tab mxnet, pytorch, paddle
+#@tab mindspore
+num_hiddens, num_heads = 100, 5
+attention = d2l.MultiHeadAttention(num_hiddens, num_hiddens, num_hiddens,
+                                   num_hiddens, num_heads, 0.5)
+attention.set_train(False)
+```
+
+```{.python .input}
+#@tab mxnet, pytorch, paddle, mindspore
 batch_size, num_queries, valid_lens = 2, 4, d2l.tensor([3, 2])
 X = d2l.ones((batch_size, num_queries, num_hiddens))
 attention(X, X, X, valid_lens).shape
@@ -244,6 +259,27 @@ class PositionalEncoding(nn.Layer):
         return self.dropout(X)
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+class PositionalEncoding(nn.Cell):
+    """位置编码"""
+    def __init__(self, num_hiddens, dropout, max_len=1000):
+        super(PositionalEncoding, self).__init__()
+        self.dropout = nn.Dropout(1 - dropout)
+        # 创建一个足够长的P
+        self.P = d2l.zeros((1, max_len, num_hiddens))
+        X = d2l.arange(max_len, dtype=mindspore.float32).reshape(
+            -1, 1) / d2l.pow(10000, d2l.arange(
+            0, num_hiddens, 2, dtype=mindspore.float32) / num_hiddens)
+        self.P[:, :, 0::2] = d2l.sin(X)
+        self.P[:, :, 1::2] = d2l.cos(X)
+
+    def construct(self, X):
+        X = X + self.P[:, :X.shape[1], :]
+        return self.dropout(X)
+```
+
 在位置嵌入矩阵$\mathbf{P}$中，
 [**行代表词元在序列中的位置，列代表位置编码的不同维度**]。
 从下面的例子中可以看到位置嵌入矩阵的第$6$列和第$7$列的频率高于第$8$列和第$9$列。
@@ -291,6 +327,17 @@ d2l.plot(paddle.arange(num_steps), P[0, :, 6:10].T, xlabel='Row (position)',
          figsize=(6, 2.5), legend=["Col %d" % d for d in paddle.arange(6, 10)])
 ```
 
+```{.python .input}
+#@tab mindspore
+encoding_dim, num_steps = 32, 60
+pos_encoding = PositionalEncoding(encoding_dim, 0.)
+pos_encoding.set_train(False)
+X = pos_encoding(d2l.zeros((1, num_steps, encoding_dim)))
+P = pos_encoding.P[:, :X.shape[1], :]
+d2l.plot(d2l.arange(num_steps), P[0, :, 6:10].T, xlabel='Row (position)',
+         figsize=(6, 2.5), legend=["Col %d" % d for d in d2l.arange(6, 10)])
+```
+
 ### 绝对位置信息
 
 为了明白沿着编码维度单调降低的频率与绝对位置信息的关系，
@@ -331,6 +378,13 @@ d2l.show_heatmaps(P, xlabel='Column (encoding dimension)',
 ```{.python .input}
 #@tab paddle
 P = P[0, :, :].unsqueeze(0).unsqueeze(0)
+d2l.show_heatmaps(P, xlabel='Column (encoding dimension)',
+                  ylabel='Row (position)', figsize=(3.5, 4), cmap='Blues')
+```
+
+```{.python .input}
+#@tab mindspore
+P = d2l.expand_dims(d2l.expand_dims(P[0, :, :], 0), 0)
 d2l.show_heatmaps(P, xlabel='Column (encoding dimension)',
                   ylabel='Row (position)', figsize=(3.5, 4), cmap='Blues')
 ```
@@ -379,4 +433,8 @@ $2\times 2$投影矩阵不依赖于任何位置的索引$i$。
 
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11844)
+:end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/xxxxx)
 :end_tab:

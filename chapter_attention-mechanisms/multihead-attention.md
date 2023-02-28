@@ -83,6 +83,13 @@ import paddle
 from paddle import nn
 ```
 
+```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+import mindspore
+from mindspore import nn
+```
+
 ## 实现
 
 在实现过程中通常[**选择缩放点积注意力作为每一个注意力头**]。
@@ -256,6 +263,48 @@ class MultiHeadAttention(nn.Layer):
         return self.W_o(output_concat)
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+class MultiHeadAttention(nn.Cell):
+    """多头注意力"""
+    def __init__(self, key_size, query_size, value_size, num_hiddens,
+                 num_heads, dropout, has_bias=False, **kwargs):
+        super(MultiHeadAttention, self).__init__(**kwargs)
+        self.num_heads = num_heads
+        self.attention = d2l.DotProductAttention(dropout)
+        self.W_q = nn.Dense(query_size, num_hiddens, has_bias=has_bias)
+        self.W_k = nn.Dense(key_size, num_hiddens, has_bias=has_bias)
+        self.W_v = nn.Dense(value_size, num_hiddens, has_bias=has_bias)
+        self.W_o = nn.Dense(num_hiddens, num_hiddens, has_bias=has_bias)
+
+    def construct(self, queries, keys, values, valid_lens):
+        # queries，keys，values的形状:
+        # (batch_size，查询或者“键－值”对的个数，num_hiddens)
+        # valid_lens 的形状:
+        # (batch_size，)或(batch_size，查询的个数)
+        # 经过变换后，输出的queries，keys，values　的形状:
+        # (batch_size*num_heads，查询或者“键－值”对的个数，
+        # num_hiddens/num_heads)
+        queries = transpose_qkv(self.W_q(queries), self.num_heads)
+        keys = transpose_qkv(self.W_k(keys), self.num_heads)
+        values = transpose_qkv(self.W_v(values), self.num_heads)
+
+        if valid_lens is not None:
+            # 在轴0，将第一项（标量或者矢量）复制num_heads次，
+            # 然后如此复制第二项，然后诸如此类。
+            valid_lens = d2l.repeat(
+                valid_lens, repeats=self.num_heads, axis=0)
+
+        # output的形状:(batch_size*num_heads，查询的个数，
+        # num_hiddens/num_heads)
+        output = self.attention(queries, keys, values, valid_lens)
+
+        # output_concat的形状:(batch_size，查询的个数，num_hiddens)
+        output_concat = transpose_output(output, self.num_heads)
+        return self.W_o(output_concat)
+```
+
 为了能够[**使多个头并行计算**]，
 上面的`MultiHeadAttention`类将使用下面定义的两个转置函数。
 具体来说，`transpose_output`函数反转了`transpose_qkv`函数的操作。
@@ -367,6 +416,33 @@ def transpose_output(X, num_heads):
     return X.reshape((X.shape[0], X.shape[1], -1))
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+def transpose_qkv(X, num_heads):
+    """为了多注意力头的并行计算而变换形状"""
+    # 输入X的形状:(batch_size，查询或者“键－值”对的个数，num_hiddens)
+    # 输出X的形状:(batch_size，查询或者“键－值”对的个数，num_heads，
+    # num_hiddens/num_heads)
+    X = X.reshape(X.shape[0], X.shape[1], num_heads, -1)
+
+    # 输出X的形状:(batch_size，num_heads，查询或者“键－值”对的个数,
+    # num_hiddens/num_heads)
+    X = X.transpose(0, 2, 1, 3)
+
+    # 最终输出的形状:(batch_size*num_heads,查询或者“键－值”对的个数,
+    # num_hiddens/num_heads)
+    return X.reshape(-1, X.shape[2], X.shape[3])
+
+
+#@save
+def transpose_output(X, num_heads):
+    """逆转 `transpose_qkv` 函数的操作。"""
+    X = X.reshape(-1, num_heads, X.shape[1], X.shape[2])
+    X = X.transpose(0, 2, 1, 3)
+    return X.reshape(X.shape[0], X.shape[1], -1)
+```
+
 下面使用键和值相同的小例子来[**测试**]我们编写的`MultiHeadAttention`类。
 多头注意力输出的形状是（`batch_size`，`num_queries`，`num_hiddens`）。
 
@@ -400,6 +476,14 @@ attention.eval()
 ```
 
 ```{.python .input}
+#@tab mindspore
+num_hiddens, num_heads = 100, 5
+attention = MultiHeadAttention(num_hiddens, num_hiddens, num_hiddens,
+                               num_hiddens, num_heads, 0.5)
+attention.set_train(False)
+```
+
+```{.python .input}
 #@tab mxnet, pytorch, paddle
 batch_size, num_queries = 2, 4
 num_kvpairs, valid_lens =  6, d2l.tensor([3, 2])
@@ -415,6 +499,15 @@ num_kvpairs, valid_lens = 6, d2l.tensor([3, 2])
 X = tf.ones((batch_size, num_queries, num_hiddens))
 Y = tf.ones((batch_size, num_kvpairs, num_hiddens))
 attention(X, Y, Y, valid_lens, training=False).shape
+```
+
+```{.python .input}
+#@tab mindspore
+batch_size, num_queries = 2, 4
+num_kvpairs, valid_lens = 6, d2l.tensor([3, 2], mindspore.int32)
+X = d2l.ones((batch_size, num_queries, num_hiddens))
+Y = d2l.ones((batch_size, num_kvpairs, num_hiddens))
+attention(X, Y, Y, valid_lens).shape
 ```
 
 ## 小结
@@ -437,4 +530,8 @@ attention(X, Y, Y, valid_lens, training=False).shape
 
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11843)
+:end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/xxxxx)
 :end_tab:
