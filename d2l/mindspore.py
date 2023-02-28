@@ -420,7 +420,6 @@ def train_ch3(net, train_dataset, test_dataset, loss, num_epochs, optim):
     """训练模型（定义见第3章）。"""
     animator = Animator(xlabel='epoch', xlim=[1, num_epochs], ylim=[0.3, 0.9],
                         legend=['train loss', 'train acc', 'test acc'])
-    net.set_train()
     for epoch in range(num_epochs):
         train_metrics = train_epoch_ch3(net, train_dataset, loss, optim)
         test_acc = evaluate_accuracy(net, test_dataset)
