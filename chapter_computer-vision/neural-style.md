@@ -79,12 +79,31 @@ d2l.plt.imshow(content_img);
 ```
 
 ```{.python .input}
+#@tab mindspore
+%matplotlib inline
+%matplotlib inline
+import numpy as np
+import mindspore
+import mindspore.ops as ops
+import mindspore.nn as nn
+import mindspore.dataset.vision as vision
+import mindspore.dataset.transforms as transforms
+from mindspore import Parameter
+from mindspore.common.initializer import initializer
+from d2l import mindspore as d2l
+
+d2l.set_figsize()
+content_img = d2l.Image.open('../img/rainier.jpg')
+d2l.plt.imshow(content_img);
+```
+
+```{.python .input}
 style_img = image.imread('../img/autumn-oak.jpg')
 d2l.plt.imshow(style_img.asnumpy());
 ```
 
 ```{.python .input}
-#@tab pytorch, paddle
+#@tab pytorch, paddle, mindspore
 style_img = d2l.Image.open('../img/autumn-oak.jpg')
 d2l.plt.imshow(style_img);
 ```
@@ -146,6 +165,30 @@ def postprocess(img):
     return img
 ```
 
+```{.python .input}
+#@tab mindspore
+rgb_mean = [0.485 * 255, 0.456 * 255, 0.406 * 255]
+rgb_std = [0.229 * 255, 0.224 * 255, 0.225 * 255]
+
+def preprocess(img, image_shape):
+    transform = transforms.Compose([
+        vision.Resize(image_shape),
+        vision.Normalize(mean=rgb_mean, std=rgb_std),
+        vision.HWC2CHW(),
+        vision.ToNumpy()
+    ])
+    return mindspore.Tensor(transform(img))
+
+def postprocess(img):
+    img = img[0]
+    #print(img)
+    img = ops.maximum(img.permute(1, 2, 0) * rgb_std + rgb_mean, 0)
+    img = ops.minimum(img, 255)
+    img = img.asnumpy().astype('uint8')
+    return vision.ToPIL()(img)
+```
+
+
 ## [**抽取图像特征**]
 
 我们使用基于ImageNet数据集预训练的VGG-19模型来抽取图像特征 :cite:`Gatys.Ecker.Bethge.2016`。
@@ -164,6 +207,12 @@ pretrained_net = torchvision.models.vgg19(pretrained=True)
 pretrained_net = paddlevision.models.vgg19(pretrained=True)
 ```
 
+```{.python .input}
+#@tab mindspore
+import mindcv
+
+pretrained_net = mindcv.create_model('vgg19', pretrained=True)
+```
 为了抽取图像的内容特征和风格特征，我们可以选择VGG网络中某些层的输出。
 一般来说，越靠近输入层，越容易抽取图像的细节信息；反之，则越容易抽取图像的全局信息。
 为了避免合成图像过多保留内容图像的细节，我们选择VGG较靠近输出的层，即*内容层*，来输出图像的内容特征。
@@ -187,7 +236,7 @@ for i in range(max(content_layers + style_layers) + 1):
 ```
 
 ```{.python .input}
-#@tab pytorch, paddle
+#@tab pytorch, paddle, mindspore
 net = nn.Sequential(*[pretrained_net.features[i] for i in
                       range(max(content_layers + style_layers) + 1)])
 ```
@@ -252,6 +301,20 @@ def get_styles(image_shape):
     return style_X, styles_Y
 ```
 
+```{.python .input}
+#@tab mindspore
+def get_contents(image_shape):
+    content_X = preprocess(content_img, image_shape)
+    contents_Y, _ = extract_features(content_X, content_layers, style_layers)
+    #print(contents_Y)
+    return content_X, contents_Y
+
+def get_styles(image_shape):
+    style_X = preprocess(style_img, image_shape)
+    _, styles_Y = extract_features(style_X, content_layers, style_layers)
+    return style_X, styles_Y
+```
+
 ## [**定义损失函数**]
 
 下面我们来描述风格迁移的损失函数。
@@ -281,6 +344,15 @@ def content_loss(Y_hat, Y):
     # 我们从动态计算梯度的树中分离目标：
     # 这是一个规定的值，而不是一个变量。
     return paddle.square(Y_hat - Y.detach()).mean()
+```
+
+
+```{.python .input}
+#@tab mindspore
+def content_loss(Y_hat, Y):
+    # 我们从动态计算梯度的树中分离目标：
+    # 这是一个规定的值，而不是一个变量。
+    return ops.square(Y_hat - Y).mean()
 ```
 
 ### 风格损失
@@ -320,6 +392,13 @@ def style_loss(Y_hat, gram_Y):
 #@tab paddle
 def style_loss(Y_hat, gram_Y):
     return paddle.square(gram(Y_hat) - gram_Y.detach()).mean()
+```
+
+```{.python .input}
+#@tab mindspore
+def style_loss(Y_hat, gram_Y):
+    #print(ops.square(gram(Y_hat) - gram_Y).mean())
+    return ops.square(gram(Y_hat) - gram_Y).mean()
 ```
 
 ### 全变分损失
@@ -397,6 +476,17 @@ class SynthesizedImage(nn.Layer):
         return self.weight
 ```
 
+```{.python .input}
+#@tab mindspore
+class SynthesizedImage(nn.Cell):
+    def __init__(self, img_shape):
+        super().__init__()
+        self.weight = Parameter(ops.rand(*img_shape))
+
+    def construct(self):
+        return mindspore.Tensor(self.weight)
+```
+
 下面，我们定义`get_inits`函数。该函数创建了合成图像的模型实例，并将其初始化为图像`X`。风格图像在各个风格层的格拉姆矩阵`styles_Y_gram`将在训练前预先计算好。
 
 ```{.python .input}
@@ -429,6 +519,15 @@ def get_inits(X, lr, styles_Y):
     return gen_img(), styles_Y_gram, trainer
 ```
 
+```{.python .input}
+#@tab pytorch
+def get_inits(X, lr, styles_Y, lr_decay_epoch, num_epochs):
+    gen_img = SynthesizedImage(X.shape)
+    gen_img.weight.set_data(
+                    initializer(X, gen_img.weight.shape, gen_img.weight.dtype))
+    styles_Y_gram = [gram(Y) for Y in styles_Y]
+    return gen_img(), styles_Y_gram
+```
 ## [**训练模型**]
 
 在训练模型进行风格迁移时，我们不断抽取合成图像的内容特征和风格特征，然后计算损失函数。下面定义了训练循环。
@@ -507,6 +606,55 @@ def train(X, contents_Y, styles_Y, lr, num_epochs, step_size):
     return X
 ```
 
+```{.python .input}
+#@tab mindspore
+class Network(nn.Cell):
+    def __init__(self, X, img_shape):
+        super().__init__(img_shape)
+        self.weight = Parameter(initializer(X, img_shape, mindspore.float32))
+
+    def construct(self):
+        contents_Y_hat, styles_Y_hat = extract_features(self.weight, content_layers, style_layers)
+        return mindspore.Tensor(self.weight), contents_Y_hat, styles_Y_hat
+
+def train(X, contents_Y, styles_Y, lr, num_epochs, lr_decay_epoch):
+    X, styles_Y_gram = get_inits(X, lr, styles_Y, lr_decay_epoch, num_epochs)
+    network = Network(X, X.shape)
+    lr_list = d2l.tensor([lr*(0.8**(i//lr_decay_epoch)) 
+                      for i in range(num_epochs)])
+    trainer = nn.Adam(network.get_parameters(), lr=lr_list)
+    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
+                            xlim=[10, num_epochs],
+                            legend=['content', 'style', 'TV'],
+                            ncols=2, figsize=(7, 2.5))
+    
+    for epoch in range(num_epochs):
+        # 定义前向网络
+        def forward_fn():
+            X, contents_Y_hat, styles_Y_hat = network()
+            contents_l, styles_l, tv_l, l = compute_loss(X, contents_Y_hat, styles_Y_hat, contents_Y, styles_Y_gram)
+            return l
+        #print(forward_fn())
+        X, contents_Y_hat, styles_Y_hat = network()
+        grad_fn = mindspore.value_and_grad(forward_fn, grad_position=None, weights=network.trainable_params())
+        l, grads = grad_fn()
+        trainer(grads)
+        #print(network()[0])
+    
+
+        X, contents_Y_hat, styles_Y_hat = network()
+        contents_l, styles_l, tv_l, l = compute_loss(X, contents_Y_hat, styles_Y_hat, contents_Y, styles_Y_gram)
+        #print(contents_l, styles_l, tv_l, l)
+
+        if (epoch + 1) % 10 == 0:
+            animator.axes[1].imshow(postprocess(X))
+            animator.add(epoch + 1, [float(sum(contents_l)),
+                                     float(sum(styles_l)), float(tv_l)])
+    
+  
+    return X
+```
+
 现在我们[**训练模型**]：
 首先将内容图像和风格图像的高和宽分别调整为300和450像素，用内容图像来初始化合成图像。
 
@@ -530,6 +678,14 @@ output = train(content_X, contents_Y, styles_Y, device, 0.3, 500, 50)
 ```{.python .input}
 #@tab paddle
 device, image_shape = d2l.try_gpu(),(300, 450)
+content_X, contents_Y = get_contents(image_shape)
+_, styles_Y = get_styles(image_shape)
+output = train(content_X, contents_Y, styles_Y, 0.3, 500, 50)
+```
+
+```{.python .input}
+#@tab mindspore
+image_shape = (300, 450)
 content_X, contents_Y = get_contents(image_shape)
 _, styles_Y = get_styles(image_shape)
 output = train(content_X, contents_Y, styles_Y, 0.3, 500, 50)
