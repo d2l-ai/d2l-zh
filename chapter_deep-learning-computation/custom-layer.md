@@ -71,6 +71,7 @@ class CenteredLayer(nn.Layer):
 
 ```{.python .input}
 #@tab mindspore
+import mindspore
 from d2l import mindspore as d2l
 from mindspore import nn, Parameter
 
@@ -110,7 +111,7 @@ layer(paddle.to_tensor([1, 2, 3, 4, 5], dtype='float32'))
 ```{.python .input}
 #@tab mindspore
 layer = CenteredLayer()
-layer(d2l.tensor([1, 2, 3, 4, 5]))
+layer(d2l.tensor([1, 2, 3, 4, 5], mindspore.float32))
 ```
 
 现在，我们可以[**将层作为组件合并到更复杂的模型中**]。

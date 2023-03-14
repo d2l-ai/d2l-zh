@@ -1495,11 +1495,12 @@ cat = ops.cat
 sort = ops.sort
 expand_dims = ops.expand_dims
 tile = ops.tile
-eye = lambda m: ops.eye(m, m, t=float32)
+eye = lambda n: ops.eye(n, dtype=float32)
 numpy = lambda x, *args, **kwargs: x.asnumpy(*args, **kwargs)
 pow = lambda x, y: ops.pow(x, y)
 clip_by_value = lambda x, clip_value_min, clip_value_max: ops.clip_by_value(x, clip_value_min, clip_value_max)
-uniform = lambda shape, minval, maxval: ops.uniform(shape, tensor(minval), tensor(maxval), dtype=float32)
+uniform = lambda shape, minval, maxval: ops.uniform(shape, tensor(minval, float32), tensor(maxval, float32),
+                                                    dtype=float32)
 rand = lambda size, *args: ops.rand(size, dtype=float32)
 randn = lambda size, *args: ops.randn(size, dtype=float32)
 tensor = lambda x, *args, **kwargs: mindspore.Tensor(x, *args, **kwargs)
