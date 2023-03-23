@@ -381,11 +381,17 @@ net.weights[0], net.weights[1]
 
 ```{.python .input}
 #@tab paddle
-def init_normal(m):
-    if type(m) == nn.Linear:
-        paddle.nn.initializer.Normal(mean=0.0, std=0.01)
-        paddle.zeros(m.bias)    
-net.apply(init_normal)
+net = nn.Sequential(
+    nn.Linear(
+        in_features=4, 
+        out_features=4, 
+        weight_attr=nn.initializer.Normal(mean=0.0, std=0.01)
+    ),
+    nn.ReLU(),
+    nn.Linear(4,1)
+)
+
+net(X)
 net[0].weight[0],net[0].state_dict()['bias']
 ```
 
@@ -423,11 +429,17 @@ net.weights[0], net.weights[1]
 
 ```{.python .input}
 #@tab paddle
-def init_constant(m):
-    if type(m) == nn.Linear:
-        paddle.nn.initializer.Constant(value = 1)
-        paddle.zeros(m.bias)
-net.apply(init_constant)
+net = nn.Sequential(
+    nn.Linear(
+        in_features=4, 
+        out_features=4, 
+        weight_attr=nn.initializer.Constant(value=1.0)
+    ),
+    nn.ReLU(),
+    nn.Linear(4,1)
+) 
+
+net(X)
 net[0].weight[0],net[0].state_dict()['bias']
 ```
 
@@ -476,15 +488,21 @@ print(net.layers[2].weights[0])
 
 ```{.python .input}
 #@tab paddle
-def xavier(m):
-    if type(m) == nn.Linear:
-        paddle.nn.initializer.XavierUniform(m.weight)
-def init_42(m):
-    if type(m) == nn.Linear:
-        paddle.nn.initializer.Constant(42)
-        
-net[0].apply(xavier)
-net[2].apply(init_42)
+net = nn.Sequential(
+    nn.Linear(
+        in_features=4, 
+        out_features=4, 
+        weight_attr=nn.initializer.XavierUniform()
+    ),
+    nn.ReLU(),
+    nn.Linear(
+        in_features=4, 
+        out_features=1, 
+        weight_attr=nn.initializer.Constant(value=42.0)
+    ),
+) 
+
+net(X)
 print(net[0].weight[0])
 print(net[2].weight)
 ```
@@ -574,15 +592,13 @@ print(net.layers[1].weights[0])
 #@tab paddle
 def my_init(m):
     if type(m) == nn.Linear:
-        print("Init", *[(name, param.shape) 
-                        for name, param in m.named_parameters()][0])
-        paddle.nn.initializer.XavierUniform(m.weight, -10, 10)
-        h = paddle.abs(m.weight) >= 5
-        h = paddle.to_tensor(h)
-        m = paddle.to_tensor(m.weight)
-        m *= h       
-
+        print("Init", *[(name, param.shape) for name, param in m.named_parameters()][0])
+        data = paddle.uniform(m.weight.shape, min=-10, max=10)
+        data *= paddle.abs(data) >= 5
+        m.weight.set_value(data)
+        
 net.apply(my_init)
+net(X)
 net[0].weight[:2]
 ```
 
