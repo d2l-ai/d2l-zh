@@ -1,4 +1,5 @@
 # softmax回归的从零开始实现
+
 :label:`sec_softmax_scratch`
 
 (**就像我们从零开始实现线性回归一样，**)
