@@ -32,6 +32,15 @@ import random
 import paddle
 ```
 
+```{.python .input}
+#@tab mindspore
+import os
+import random
+import numpy as np
+import mindspore
+from d2l import mindspore as d2l
+```
+
 在WikiText-2数据集中，每行代表一个段落，其中在任意标点符号及其前面的词元之间插入空格。保留至少有两句话的段落。为了简单起见，我们仅使用句号作为分隔符来拆分句子。我们将更复杂的句子拆分技术的讨论留在本节末尾的练习中。
 
 ```{.python .input}
@@ -243,6 +252,36 @@ def _pad_bert_inputs(examples, max_len, vocab):
             all_mlm_weights, all_mlm_labels, nsp_labels)
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+def _pad_bert_inputs(examples, max_len, vocab):
+    max_num_mlm_preds = round(max_len * 0.15)
+    all_token_ids, all_segments, valid_lens,  = [], [], []
+    all_pred_positions, all_mlm_weights, all_mlm_labels = [], [], []
+    nsp_labels = []
+    for (token_ids, pred_positions, mlm_pred_label_ids, segments,
+         is_next) in examples:
+        all_token_ids.append(np.array(token_ids + [vocab['<pad>']] * (
+            max_len - len(token_ids)), dtype=np.int64))
+        all_segments.append(np.array(segments + [0] * (
+            max_len - len(segments)), dtype=np.int64))
+        # valid_lens不包括'<pad>'的计数
+        valid_lens.append(np.array(len(token_ids), dtype=np.float32))
+        all_pred_positions.append(np.array(pred_positions + [0] * (
+            max_num_mlm_preds - len(pred_positions)), dtype=np.int64))
+        # 填充词元的预测将通过乘以0权重在损失中过滤掉
+        all_mlm_weights.append(
+            np.array([1.0] * len(mlm_pred_label_ids) + [0.0] * (
+                max_num_mlm_preds - len(pred_positions)),
+                dtype=np.float32))
+        all_mlm_labels.append(np.array(mlm_pred_label_ids + [0] * (
+            max_num_mlm_preds - len(mlm_pred_label_ids)), dtype=np.int64))
+        nsp_labels.append(np.array(is_next, dtype=np.int64))
+    return (all_token_ids, all_segments, valid_lens, all_pred_positions,
+            all_mlm_weights, all_mlm_labels, nsp_labels)
+```
+
 将用于生成两个预训练任务的训练样本的辅助函数和用于填充输入的辅助函数放在一起，我们定义以下`_WikiTextDataset`类为用于预训练BERT的WikiText-2数据集。通过实现`__getitem__ `函数，我们可以任意访问WikiText-2语料库的一对句子生成的预训练样本（遮蔽语言模型和下一句预测）样本。
 
 最初的BERT模型使用词表大小为30000的WordPiece嵌入 :cite:`Wu.Schuster.Chen.ea.2016`。WordPiece的词元化方法是对 :numref:`subsec_Byte_Pair_Encoding`中原有的字节对编码算法稍作修改。为简单起见，我们使用`d2l.tokenize`函数进行词元化。出现次数少于5次的不频繁词元将被过滤掉。
@@ -360,6 +399,44 @@ class _WikiTextDataset(paddle.io.Dataset):
         return len(self.all_token_ids)
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+class _WikiTextDataset:
+    def __init__(self, paragraphs, max_len):
+        # 输入paragraphs[i]是代表段落的句子字符串列表；
+        # 而输出paragraphs[i]是代表段落的句子列表，其中每个句子都是词元列表
+        paragraphs = [d2l.tokenize(
+            paragraph, token='word') for paragraph in paragraphs]
+        sentences = [sentence for paragraph in paragraphs
+                     for sentence in paragraph]
+        self.vocab = d2l.Vocab(sentences, min_freq=5, reserved_tokens=[
+            '<pad>', '<mask>', '<cls>', '<sep>'])
+        # 获取下一句子预测任务的数据
+        examples = []
+        for paragraph in paragraphs:
+            examples.extend(_get_nsp_data_from_paragraph(
+                paragraph, paragraphs, self.vocab, max_len))
+        # 获取遮蔽语言模型任务的数据
+        examples = [(_get_mlm_data_from_tokens(tokens, self.vocab)
+                      + (segments, is_next))
+                     for tokens, segments, is_next in examples]
+        # 填充输入
+        (self.all_token_ids, self.all_segments, self.valid_lens,
+         self.all_pred_positions, self.all_mlm_weights,
+         self.all_mlm_labels, self.nsp_labels) = _pad_bert_inputs(
+            examples, max_len, self.vocab)
+
+    def __getitem__(self, idx):
+        return (self.all_token_ids[idx], self.all_segments[idx],
+                self.valid_lens[idx], self.all_pred_positions[idx],
+                self.all_mlm_weights[idx], self.all_mlm_labels[idx],
+                self.nsp_labels[idx])
+
+    def __len__(self):
+        return len(self.all_token_ids)
+```
+
 通过使用`_read_wiki`函数和`_WikiTextDataset`类，我们定义了下面的`load_data_wiki`来下载并生成WikiText-2数据集，并从中生成预训练样本。
 
 ```{.python .input}
@@ -403,15 +480,46 @@ def load_data_wiki(batch_size, max_len):
     return train_iter, train_set.vocab
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+import mindspore.dataset as ds
+def load_data_wiki(batch_size, max_len):
+    """加载WikiText-2数据集"""
+    num_workers = d2l.get_dataloader_workers()
+    data_dir = d2l.download_extract('wikitext-2', 'wikitext-2')
+    paragraphs = _read_wiki(data_dir)
+    train_set = _WikiTextDataset(paragraphs, max_len)
+    train_dataset = ds.GeneratorDataset(train_set, column_names=["all_token_ids", "all_segments",
+                                        "valid_lens", "all_pred_positions", "all_mlm_weights",
+                                        "all_mlm_labels", "nsp_labels"],shuffle=True,
+                                        num_parallel_workers=num_workers)
+    train_dataset = train_dataset.batch(batch_size)
+    return train_dataset, train_set.vocab
+```
+
 将批量大小设置为512，将BERT输入序列的最大长度设置为64，我们打印出小批量的BERT预训练样本的形状。注意，在每个BERT输入序列中，为遮蔽语言模型任务预测$10$（$64 \times 0.15$）个位置。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, paddle
 batch_size, max_len = 512, 64
 train_iter, vocab = load_data_wiki(batch_size, max_len)
 
 for (tokens_X, segments_X, valid_lens_x, pred_positions_X, mlm_weights_X,
      mlm_Y, nsp_y) in train_iter:
+    print(tokens_X.shape, segments_X.shape, valid_lens_x.shape,
+          pred_positions_X.shape, mlm_weights_X.shape, mlm_Y.shape,
+          nsp_y.shape)
+    break
+```
+
+```{.python .input}
+#@tab mindspore
+batch_size, max_len = 512, 64
+train_dataset, vocab = load_data_wiki(batch_size, max_len)
+
+for (tokens_X, segments_X, valid_lens_x, pred_positions_X, mlm_weights_X,
+     mlm_Y, nsp_y) in train_dataset.create_tuple_iterator():
     print(tokens_X.shape, segments_X.shape, valid_lens_x.shape,
           pred_positions_X.shape, mlm_weights_X.shape, mlm_Y.shape,
           nsp_y.shape)

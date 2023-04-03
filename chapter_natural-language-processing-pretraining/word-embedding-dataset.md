@@ -31,6 +31,16 @@ import os
 import random
 ```
 
+```{.python .input}
+#@tab mindspore
+import math
+import os
+import random
+import numpy as np
+import mindspore
+from d2l import mindspore as d2l
+```
+
 ## 读取数据集
 
 我们在这里使用的数据集是[Penn Tree Bank（PTB）](https://catalog.ldc.upenn.edu/LDC99T42)。该语料库取自“华尔街日报”的文章，分为训练集、验证集和测试集。在原始格式中，文本文件的每一行表示由空格分隔的一句话。在这里，我们将每个单词视为一个词元。
@@ -239,10 +249,16 @@ all_negatives = get_negatives(all_contexts, vocab, counter, 5)
 
 为了区分正反例，我们在`contexts_negatives`中通过一个`labels`变量将上下文词与噪声词分开。类似于`masks`，在`labels`中的元素和`contexts_negatives`中的元素之间也存在一一对应关系，其中`labels`中的1（否则为0）对应于`contexts_negatives`中的上下文词的正例。
 
+:begin_tab:`mxnet, pytorch, paddle`
 上述思想在下面的`batchify`函数中实现。其输入`data`是长度等于批量大小的列表，其中每个元素是由中心词`center`、其上下文词`context`和其噪声词`negative`组成的样本。此函数返回一个可以在训练期间加载用于计算的小批量，例如包括掩码变量。
+:end_tab:
+
+:begin_tab:`mindspore`
+上述思想在下面的`batchify`函数中实现。其输入包含3个长度等于批量大小的列表，分别是由中心词`center`、其上下文词`context`和其噪声词`negative`组成的样本，在Mindspore中最后一个输入参数始终是`BatchInfo`， 用于获取数据集的信息。此函数返回一个可以在训练期间加载用于计算的小批量，例如包括掩码变量。
+:end_tab:
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, paddle
 #@save
 def batchify(data):
     """返回带有负采样的跳元模型的小批量样本"""
@@ -257,6 +273,30 @@ def batchify(data):
         labels += [[1] * len(context) + [0] * (max_len - len(context))]
     return (d2l.reshape(d2l.tensor(centers), (-1, 1)), d2l.tensor(
         contexts_negatives), d2l.tensor(masks), d2l.tensor(labels))
+```
+
+```{.python .input}
+#@tab mindspore
+#@save
+def batchify(*data):
+    """返回带有负采样的跳元模型的小批量样本"""
+    _data = data
+    if isinstance(data[0], list):
+        data = zip(data[0], data[1], data[2])
+        _data = zip(_data[0], _data[1], _data[2])
+    max_len = max(len(c) + len(n) for _, c, n in data)
+    centers, contexts_negatives, masks, labels = [], [], [], []
+    for center, context, negative in _data:
+        if not isinstance(center, (int, list)):
+            center, context, negative = center.tolist(), context.tolist(), negative.tolist()
+        cur_len = len(context) + len(negative)
+        centers += [center]
+        contexts_negatives += \
+            [context + negative + [0] * (max_len - cur_len)]
+        masks += [[1] * cur_len + [0] * (max_len - cur_len)]
+        labels += [[1] * len(context) + [0] * (max_len - len(context))]
+    return (np.array(centers).reshape((-1, 1)), np.array(contexts_negatives),
+            np.array(masks, dtype=np.float32), np.array(labels))
 ```
 
 让我们使用一个小批量的两个样本来测试此函数。
@@ -370,12 +410,59 @@ def load_data_ptb(batch_size, max_window_size, num_noise_words):
     return data_iter, vocab
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+def load_data_ptb(batch_size, max_window_size, num_noise_words):
+    """下载PTB数据集，然后将其加载到内存中"""
+    num_workers = d2l.get_dataloader_workers()
+    sentences = read_ptb()
+    vocab = d2l.Vocab(sentences, min_freq=10)
+    subsampled, counter = subsample(sentences, vocab)
+    corpus = [vocab[line] for line in subsampled]
+    all_centers, all_contexts = get_centers_and_contexts(
+        corpus, max_window_size)
+    all_negatives = get_negatives(
+        all_contexts, vocab, counter, num_noise_words)
+
+    class PTBDataset:
+        def __init__(self, centers, contexts, negatives):
+            assert len(centers) == len(contexts) == len(negatives)
+            self.centers = centers
+            self.contexts = contexts
+            self.negatives = negatives
+
+        def __getitem__(self, index):
+            return (self.centers[index], self.contexts[index],
+                    self.negatives[index])
+
+        def __len__(self):
+            return len(self.centers)
+    
+    data = PTBDataset(all_centers, all_contexts, all_negatives)
+    dataset = mindspore.dataset.GeneratorDataset(data, column_names=["center", "context", "negative"], shuffle=True,
+                                                 num_parallel_workers=num_workers)
+    dataset = dataset.batch(batch_size=512, per_batch_map=batchify,
+                            output_columns=['centers', 'contexts_negatives', 'masks', 'labels'])
+    
+    return dataset, vocab
+```
+
 让我们打印数据迭代器的第一个小批量。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, paddle
 data_iter, vocab = load_data_ptb(512, 5, 5)
 for batch in data_iter:
+    for name, data in zip(names, batch):
+        print(name, 'shape:', data.shape)
+    break
+```
+
+```{.python .input}
+#@tab mindspore
+dataset, vocab = load_data_ptb(512, 5, 5)
+for batch in dataset.create_tuple_iterator():
     for name, data in zip(names, batch):
         print(name, 'shape:', data.shape)
     break

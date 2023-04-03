@@ -450,7 +450,7 @@ def train(net, train_iter, loss, epochs, lr):
             (l), grads = grad_fn(X, y)
             trainer(grads)
         print(f'epoch {epoch + 1}, '
-              f'loss: {d2l.evaluate_loss(net, loss, train_iter):f}')
+              f'loss: {d2l.evaluate_loss(net, train_iter, loss):f}')
 
 net = get_net()
 train(net, train_iter, loss, 5, 0.01)
