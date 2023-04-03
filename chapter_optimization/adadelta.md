@@ -135,6 +135,27 @@ def adadelta(params, states, hyperparams):
     return a
 ```
 
+```{.python .input}
+#@tab mindspore
+%matplotlib inline
+from d2l import mindspore as d2l
+import mindspore
+
+
+def init_adadelta_states(feature_dim):
+    s_w, s_b = d2l.zeros((feature_dim, 1)), d2l.zeros(1)
+    delta_w, delta_b = d2l.zeros((feature_dim, 1)), d2l.zeros(1)
+    return ((s_w, delta_w), (s_b, delta_b))
+
+def adadelta(params, grads, states, hyperparams):
+    rho, eps = hyperparams['rho'], 1e-5
+    for p, (s, delta), grad in zip(params, states, grads):
+        s[:] = rho * s + (1 - rho) * d2l.square(grad)
+        g = (d2l.sqrt(delta + eps) / d2l.sqrt(s + eps)) * grad
+        mindspore.ops.assign_sub(p, g)
+        delta[:] = rho * delta + (1 - rho) * g * g
+```
+
 对于每次参数更新，选择$\rho = 0.9$相当于10个半衰期。由此我们得到：
 
 ```{.python .input}
@@ -170,6 +191,11 @@ trainer = paddle.optimizer.Adadelta
 d2l.train_concise_ch11(trainer, {'rho': 0.9}, data_iter)
 ```
 
+```{.python .input}
+#@tab mindspore
+trainer = mindspore.nn.Adadelta
+d2l.train_concise_ch11(trainer, {'rho': 0.9}, data_iter)
+```
 ## 小结
 
 * Adadelta没有学习率参数。相反，它使用参数本身的变化率来调整学习率。
@@ -198,3 +224,8 @@ d2l.train_concise_ch11(trainer, {'rho': 0.9}, data_iter)
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11854)
 :end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/11854)
+:end_tab:
+

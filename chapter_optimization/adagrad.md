@@ -153,6 +153,13 @@ import paddle
 ```
 
 ```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+import math
+import mindspore
+```
+
+```{.python .input}
 #@tab all
 def adagrad_2d(x1, x2, s1, s2):
     eps = 1e-6
@@ -245,6 +252,20 @@ def adagrad(params, states, hyperparams):
     return a
 ```
 
+```{.python .input}
+#@tab mindspore
+def init_adagrad_states(feature_dim):
+    s_w = d2l.zeros((feature_dim, 1))
+    s_b = d2l.zeros(1)
+    return (s_w, s_b)
+
+def adagrad(params, grads, states, hyperparams):
+    eps = 1e-6
+    for p, s, g in zip(params, states, grads):
+        s[:] += d2l.square(g)
+        p[:] -= hyperparams['lr'] * g / d2l.sqrt(s + eps)
+```
+
 与 :numref:`sec_minibatch_sgd`一节中的实验相比，这里使用更大的学习率来训练模型。
 
 ```{.python .input}
@@ -280,6 +301,12 @@ trainer = paddle.optimizer.Adagrad
 d2l.train_concise_ch11(trainer, {'learning_rate': 0.1}, data_iter)
 ```
 
+```{.python .input}
+#@tab mindspore
+trainer = mindspore.nn.Adagrad
+d2l.train_concise_ch11(trainer, {'learning_rate': 0.1}, data_iter)
+```
+
 ## 小结
 
 * AdaGrad算法会在单个坐标层面动态降低学习率。
@@ -311,5 +338,9 @@ d2l.train_concise_ch11(trainer, {'learning_rate': 0.1}, data_iter)
 :end_tab:
 
 :begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11852)
+:end_tab:
+
+:begin_tab:`mindspore`
 [Discussions](https://discuss.d2l.ai/t/11852)
 :end_tab:

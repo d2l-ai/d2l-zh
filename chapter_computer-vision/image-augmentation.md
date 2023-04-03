@@ -37,6 +37,15 @@ import paddle.vision as paddlevision
 from paddle import nn
 ```
 
+```{.python .input}
+#@tab mindspore
+%matplotlib inline
+from d2l import mindspore as d2l
+import mindspore
+import mindcv
+from mindspore import nn
+```
+
 ## 常用的图像增广方法
 
 在对常用图像增广方法的探索时，我们将使用下面这个尺寸为$400\times 500$的图像作为示例。
@@ -48,7 +57,7 @@ d2l.plt.imshow(img.asnumpy());
 ```
 
 ```{.python .input}
-#@tab pytorch, paddle
+#@tab pytorch, paddle, mindspore
 d2l.set_figsize()
 img = d2l.Image.open('../img/cat1.jpg')
 d2l.plt.imshow(img);
@@ -58,9 +67,19 @@ d2l.plt.imshow(img);
 此函数在输入图像`img`上多次运行图像增广方法`aug`并显示所有结果。
 
 ```{.python .input}
-#@tab all
 def apply(img, aug, num_rows=2, num_cols=4, scale=1.5):
     Y = [aug(img) for _ in range(num_rows * num_cols)]
+    d2l.show_images(Y, num_rows, num_cols, scale=scale)
+```
+
+```{.python .input}
+#@tab mindspore
+def apply(img, aug, num_rows=2, num_cols=4, scale=1.5):
+    if isinstance(aug(img), tuple):
+        # add [0] to tuple of the return of mindspore.Compose()
+        Y = [aug(img)[0] for _ in range(num_rows * num_cols)]
+    else:
+        Y = [aug(img) for _ in range(num_rows * num_cols)]
     d2l.show_images(Y, num_rows, num_cols, scale=scale)
 ```
 
@@ -83,6 +102,11 @@ apply(img, torchvision.transforms.RandomHorizontalFlip())
 apply(img, paddlevision.transforms.RandomHorizontalFlip())
 ```
 
+```{.python .input}
+#@tab mindspore
+apply(img, mindspore.dataset.vision.RandomHorizontalFlip())
+```
+
 [**上下翻转图像**]不如左右图像翻转那样常用。但是，至少对于这个示例图像，上下翻转不会妨碍识别。接下来，我们创建一个`RandomFlipTopBottom`实例，使图像各有50%的几率向上或向下翻转。
 
 ```{.python .input}
@@ -97,6 +121,11 @@ apply(img, torchvision.transforms.RandomVerticalFlip())
 ```{.python .input}
 #@tab paddle
 apply(img,  paddlevision.transforms.RandomVerticalFlip())
+```
+
+```{.python .input}
+#@tab mindspore
+apply(img, mindspore.dataset.vision.RandomVerticalFlip())
 ```
 
 在我们使用的示例图像中，猫位于图像的中间，但并非所有图像都是这样。
@@ -128,6 +157,13 @@ shape_aug =  paddlevision.transforms.RandomResizedCrop(
 apply(img, shape_aug)
 ```
 
+```{.python .input}
+#@tab mindspore
+shape_aug = mindspore.dataset.vision.RandomResizedCrop(
+    (200, 200), scale=(0.1, 1), ratio=(0.5, 2))
+apply(img, shape_aug)
+```
+
 ### 改变颜色
 
 另一种增广方法是改变颜色。
@@ -150,6 +186,12 @@ apply(img,  paddlevision.transforms.ColorJitter(
     brightness=0.5, contrast=0, saturation=0, hue=0))
 ```
 
+```{.python .input}
+#@tab mindspore
+apply(img, mindspore.dataset.vision.RandomColorAdjust(
+    brightness=0.5, contrast=0, saturation=0, hue=0))
+```
+
 同样，我们可以[**随机更改图像的色调**]。
 
 ```{.python .input}
@@ -165,6 +207,12 @@ apply(img, torchvision.transforms.ColorJitter(
 ```{.python .input}
 #@tab paddle
 apply(img,  paddlevision.transforms.ColorJitter(
+    brightness=0, contrast=0, saturation=0, hue=0.5))
+```
+
+```{.python .input}
+#@tab mindspore
+apply(img, mindspore.dataset.vision.RandomColorAdjust(
     brightness=0, contrast=0, saturation=0, hue=0.5))
 ```
 
@@ -186,6 +234,13 @@ apply(img, color_aug)
 ```{.python .input}
 #@tab paddle
 color_aug =  paddlevision.transforms.ColorJitter(
+    brightness=0.5, contrast=0.5, saturation=0.5, hue=0.5)
+apply(img, color_aug)
+```
+
+```{.python .input}
+#@tab mindspore
+color_aug = mindspore.dataset.vision.RandomColorAdjust(
     brightness=0.5, contrast=0.5, saturation=0.5, hue=0.5)
 apply(img, color_aug)
 ```
@@ -214,6 +269,13 @@ augs =  paddlevision.transforms.Compose([
 apply(img, augs)
 ```
 
+```{.python .input}
+#@tab mindspore
+augs = mindspore.dataset.transforms.Compose([
+    mindspore.dataset.vision.RandomHorizontalFlip(), color_aug, shape_aug])
+apply(img, augs)
+```
+
 ## [**使用图像增广进行训练**]
 
 让我们使用图像增广来训练模型。
@@ -238,6 +300,13 @@ d2l.show_images([all_images[i][0] for i in range(32)], 4, 8, scale=0.8);
 all_images =  paddlevision.datasets.Cifar10(mode='train' , download=True)
 print(len(all_images))
 d2l.show_images([all_images[i][0] for i in range(32)], 4, 8, scale=0.8);
+```
+
+```{.python .input}
+#@tab mindspore
+all_images = mindcv.create_dataset('cifar10',root="../data", split='train', 
+                                   download=True).create_tuple_iterator()
+d2l.show_images([next(all_images)[0] for i in range(32)], 4, 8, scale=0.8);
 ```
 
 为了在预测过程中得到确切的结果，我们通常对训练样本只进行图像增广，且在预测过程中不使用随机操作的图像增广。
@@ -273,12 +342,26 @@ test_augs = paddlevision.transforms.Compose([
      paddlevision.transforms.ToTensor()])
 ```
 
+```{.python .input}
+#@tab mindspore
+train_augs = mindspore.dataset.transforms.Compose([
+     mindspore.dataset.vision.RandomHorizontalFlip(),
+     mindspore.dataset.vision.ToTensor()])
+
+test_augs = mindspore.dataset.transforms.Compose([
+     mindspore.dataset.vision.ToTensor()])
+```
+
 :begin_tab:`mxnet`
 接下来，我们定义了一个辅助函数，以便于读取图像和应用图像增广。Gluon数据集提供的`transform_first`函数将图像增广应用于每个训练样本的第一个元素（由图像和标签组成），即应用在图像上。有关`DataLoader`的详细介绍，请参阅 :numref:`sec_fashion_mnist`。
 :end_tab:
 
 :begin_tab:`pytorch`
 接下来，我们[**定义一个辅助函数，以便于读取图像和应用图像增广**]。PyTorch数据集提供的`transform`参数应用图像增广来转化图像。有关`DataLoader`的详细介绍，请参阅 :numref:`sec_fashion_mnist`。
+:end_tab:
+
+begin_tab:`mindspore`
+接下来，我们[**定义一个辅助函数，以便于读取图像和应用图像增广**]。
 :end_tab:
 
 ```{.python .input}
@@ -307,6 +390,18 @@ def load_cifar10(is_train, augs, batch_size):
     dataloader = paddle.io.DataLoader(dataset, batch_size=batch_size, 
                     num_workers=d2l.get_dataloader_workers(), shuffle=is_train)
     return dataloader
+```
+
+```{.python .input}
+#@tab mindspore
+def load_cifar10(is_train, augs, batch_size):
+    usage = 'train' if is_train else 'test'
+    target_trans = mindspore.dataset.transforms.TypeCast(mindspore.dtype.int32)
+    dataset = mindcv.create_dataset('cifar10',root="../data", split=usage, shuffle=is_train, download=True)
+    dataset = dataset.map(augs, input_columns='image', num_parallel_workers=d2l.get_dataloader_workers())
+    dataset = dataset.map(target_trans, input_columns='label', num_parallel_workers=d2l.get_dataloader_workers())
+    dataset = dataset.batch(batch_size)
+    return dataset
 ```
 
 ### 多GPU训练
@@ -376,6 +471,17 @@ def train_batch_ch13(net, X, y, loss, trainer, devices):
     l = loss(pred, y)
     l.sum().backward()
     trainer.step()
+    train_loss_sum = l.sum()
+    train_acc_sum = d2l.accuracy(pred, y)
+    return train_loss_sum, train_acc_sum
+```
+
+```{.python .input}
+#@tab mindspore
+#@save
+def train_batch_ch13(train_step, X, y):
+    """用单GPU进行小批量训练"""
+    l, pred = train_step(X, y)
     train_loss_sum = l.sum()
     train_acc_sum = d2l.accuracy(pred, y)
     return train_loss_sum, train_acc_sum
@@ -473,6 +579,48 @@ def train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
           f'{str(devices)}')
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+def train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs):
+    """用多GPU进行模型训练"""
+    timer, num_batches = d2l.Timer(), train_iter.get_dataset_size()
+    animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs], ylim=[0, 1],
+                            legend=['train loss', 'train acc', 'test acc'])
+
+    def forward_fn(inputs, targets):
+        logits = net(inputs)
+        l = loss(logits, targets)
+        return l, logits
+    
+    grad_fn = mindspore.value_and_grad(forward_fn, None, trainer.parameters, has_aux=True)
+    
+    def train_step(inputs, targets):
+        (l, logits), grads = grad_fn(inputs, targets)
+        trainer(grads)
+        return l, logits
+    
+    for epoch in range(num_epochs):
+        # 4个维度：储存训练损失，训练准确度，实例数，特点数
+        metric = d2l.Accumulator(4)
+        net.set_train()
+        for i, (features, labels) in enumerate(train_iter):
+            timer.start()
+            l, acc = train_batch_ch13(
+                train_step, features, labels) # , loss, trainer, devices
+            metric.add(l, acc, labels.shape[0], labels.numel())
+            timer.stop()
+            if (i + 1) % (num_batches // 5) == 0 or i == num_batches - 1:
+                animator.add(epoch + (i + 1) / num_batches,
+                             (metric[0] / metric[2], metric[1] / metric[3],
+                              None))
+        test_acc = d2l.evaluate_accuracy_gpu(net, test_iter)
+        animator.add(epoch + 1, (None, None, test_acc))
+    print(f'loss {metric[0] / metric[2]:.3f}, train acc '
+          f'{metric[1] / metric[3]:.3f}, test acc {test_acc:.3f}')
+    print(f'{metric[2] * num_epochs / timer.sum():.1f} examples/sec')
+```
+
 现在，我们可以[**定义`train_with_data_aug`函数，使用图像增广来训练模型**]。该函数获取所有的GPU，并使用Adam作为训练的优化算法，将图像增广应用于训练集，最后调用刚刚定义的用于训练和评估模型的`train_ch13`函数。
 
 ```{.python .input}
@@ -524,6 +672,24 @@ def train_with_data_aug(train_augs, test_augs, net, lr=0.001):
     train_ch13(net, train_iter, test_iter, loss, trainer, 10, devices[:1])
 ```
 
+```{.python .input}
+#@tab mindspore
+batch_size, net = 256, d2l.resnet18(10, 3)
+
+def init_weights(m):
+    if type(m) in [nn.Dense, nn.Conv2d]:
+        m.weight.set_data(mindspore.common.initializer.initializer('xavier_uniform', m.weight.shape))
+
+net.apply(init_weights)
+
+def train_with_data_aug(train_augs, test_augs, net, lr=0.001):
+    train_iter = load_cifar10(True, train_augs, batch_size)
+    test_iter = load_cifar10(False, test_augs, batch_size)
+    loss = nn.CrossEntropyLoss(reduction="none")
+    trainer = nn.Adam(net.trainable_params(), learning_rate=lr)
+    train_ch13(net, train_iter, test_iter, loss, trainer, 10)
+```
+
 让我们使用基于随机左右翻转的图像增广来[**训练模型**]。
 
 ```{.python .input}
@@ -552,5 +718,9 @@ train_with_data_aug(train_augs, test_augs, net)
 :end_tab:
 
 :begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11801)
+:end_tab:
+
+:begin_tab:`mindspore`
 [Discussions](https://discuss.d2l.ai/t/11801)
 :end_tab:

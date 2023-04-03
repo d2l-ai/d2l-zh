@@ -55,6 +55,17 @@ h, w = img.shape[:2]
 h, w
 ```
 
+```{.python .input}
+#@tab mindspore
+%matplotlib inline
+from d2l import mindspore as d2l
+import mindspore
+
+img = d2l.plt.imread('../img/catdog.jpg')
+h, w = img.shape[:2]
+h, w
+```
+
 回想一下，在 :numref:`sec_conv_layer`中，我们将卷积图层的二维数组输出称为特征图。
 通过定义特征图的形状，我们可以确定任何图像上均匀采样锚框的中心。
 
@@ -78,7 +89,7 @@ def display_anchors(fmap_w, fmap_h, s):
 ```
 
 ```{.python .input}
-#@tab pytorch
+#@tab pytorch, mindspore
 def display_anchors(fmap_w, fmap_h, s):
     d2l.set_figsize()
     # 前两个维度上的值不影响输出
@@ -174,5 +185,10 @@ display_anchors(fmap_w=1, fmap_h=1, s=[0.8])
 :end_tab:
 
 :begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11805)
+:end_tab:
+
+
+:begin_tab:`mindspore`
 [Discussions](https://discuss.d2l.ai/t/11805)
 :end_tab:

@@ -44,6 +44,13 @@ warnings.filterwarnings("ignore")
 import paddle
 ```
 
+```{.python .input}
+#@tab mindspore
+%matplotlib inline
+from d2l import mindspore as d2l
+import mindspore
+```
+
 下面加载本节将使用的示例图像。可以看到图像左边是一只狗，右边是一只猫。
 它们是这张图像里的两个主要目标。
 
@@ -54,7 +61,7 @@ d2l.plt.imshow(img);
 ```
 
 ```{.python .input}
-#@tab pytorch, tensorflow, paddle
+#@tab pytorch, tensorflow, paddle, mindspore
 d2l.set_figsize()
 img = d2l.plt.imread('../img/catdog.jpg')
 d2l.plt.imshow(img);
@@ -154,5 +161,9 @@ fig.axes.add_patch(bbox_to_rect(cat_bbox, 'red'));
 :end_tab:
 
 :begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11803)
+:end_tab:
+
+:begin_tab:`mindspore`
 [Discussions](https://discuss.d2l.ai/t/11803)
 :end_tab:
