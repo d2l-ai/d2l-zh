@@ -79,6 +79,14 @@ import paddle
 ```
 
 ```{.python .input}
+#@tab mindspore
+%matplotlib inline
+from d2l import mindspore as d2l
+import numpy as np
+import mindspore
+```
+
+```{.python .input}
 #@tab all
 def f(x):  # 目标函数
     return x ** 2
@@ -105,7 +113,7 @@ results = gd(0.2, f_grad)
 ```
 
 ```{.python .input}
-#@tab paddle
+#@tab paddle, mindspore
 def gd(eta, f_grad):
     x = 10.0
     results = [x]
@@ -121,7 +129,7 @@ results = gd(0.2, f_grad)
 对进行$x$优化的过程可以绘制如下。
 
 ```{.python .input}
-#@tab mxnet, pytorch, tensorflow
+#@tab mxnet, pytorch, tensorflow, mindspore
 def show_trace(results, f):
     n = max(abs(min(results)), abs(max(results)))
     f_line = d2l.arange(-n, n, 0.01)
@@ -221,7 +229,7 @@ $$\mathbf{x} \leftarrow \mathbf{x} - \eta \nabla f(\mathbf{x}).$$
 第二个函数会显示$\mathbf{x}$的轨迹。
 
 ```{.python .input}
-#@tab mxnet, pytorch, tensorflow
+#@tab mxnet, pytorch, tensorflow, mindspore
 def train_2d(trainer, steps=20, f_grad=None):  #@save
     """用定制的训练机优化2D目标函数"""
     # s1和s2是稍后将使用的内部状态变量
@@ -487,4 +495,8 @@ $$\mathbf{x} \leftarrow \mathbf{x} - \eta \mathrm{diag}(\mathbf{H})^{-1} \nabla 
 
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11848)
+:end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/11847)
 :end_tab:

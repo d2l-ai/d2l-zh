@@ -58,6 +58,18 @@ from paddle import nn
 import paddle.vision as paddlevision
 ```
 
+```{.python .input}
+#@tab mindspore
+import collections
+from d2l import mindspore as d2l
+import math
+import mindspore
+from mindspore import nn
+import os
+import shutil
+import pandas as pd
+```
+
 ## 获取并组织数据集
 
 比赛数据集分为训练集和测试集，其中训练集包含50000张、测试集包含300000张图像。
@@ -246,6 +258,23 @@ transform_train = paddlevision.transforms.Compose([
                                      [0.2023, 0.1994, 0.2010])])
 ```
 
+```{.python .input}
+#@tab mindspore
+transform_train = mindspore.dataset.transforms.Compose([
+    # 在高度和宽度上将图像放大到40像素的正方形
+    mindspore.dataset.vision.Resize(40),
+    # 随机裁剪出一个高度和宽度均为40像素的正方形图像，
+    # 生成一个面积为原始图像面积0.64～1倍的小正方形，
+    # 然后将其缩放为高度和宽度均为32像素的正方形
+    mindspore.dataset.vision.RandomResizedCrop(32, scale=(0.64, 1.0),
+                                                   ratio=(1.0, 1.0)),
+    mindspore.dataset.vision.RandomHorizontalFlip(),
+    mindspore.dataset.vision.ToTensor(),
+    # 标准化图像的每个通道
+    mindspore.dataset.vision.Normalize([0.4914, 0.4822, 0.4465],
+                                     [0.2023, 0.1994, 0.2010], is_hwc=False)])
+```
+
 在测试期间，我们只对图像执行标准化，以消除评估结果中的随机性。
 
 ```{.python .input}
@@ -269,6 +298,14 @@ transform_test = paddlevision.transforms.Compose([
     paddlevision.transforms.ToTensor(),
     paddlevision.transforms.Normalize([0.4914, 0.4822, 0.4465],
                                      [0.2023, 0.1994, 0.2010])])
+```
+
+```{.python .input}
+#@tab mindspore
+transform_test = mindspore.dataset.transforms.Compose([
+    mindspore.dataset.vision.ToTensor(),
+    mindspore.dataset.vision.Normalize([0.4914, 0.4822, 0.4465],
+                                     [0.2023, 0.1994, 0.2010], is_hwc=False)])
 ```
 
 ## 读取数据集
@@ -302,6 +339,17 @@ train_ds, train_valid_ds = [paddlevision.datasets.DatasetFolder(
 valid_ds, test_ds = [paddlevision.datasets.DatasetFolder(
     os.path.join(data_dir, 'train_valid_test', folder),
     transform=transform_test) for folder in ['valid', 'test']]
+```
+
+```{.python .input}
+#@tab mindspore
+train_ds, train_valid_ds = [mindspore.dataset.ImageFolderDataset(
+    os.path.join(data_dir, 'train_valid_test', folder), shuffle=True, decode=True).map(transform_train, 'image')
+                            for folder in ['train', 'train_valid']]
+
+valid_ds, test_ds = [mindspore.dataset.ImageFolderDataset(
+    os.path.join(data_dir, 'train_valid_test', folder), shuffle=False, decode=True).map(transform_test, 'image')
+                     for folder in ['valid', 'test']]
 ```
 
 在训练期间，我们需要[**指定上面定义的所有图像增广操作**]。
@@ -346,6 +394,16 @@ valid_iter = paddle.io.DataLoader(valid_ds, batch_size=batch_size, shuffle=False
 
 test_iter = paddle.io.DataLoader(test_ds, batch_size=batch_size, shuffle=False,
                                  drop_last=False)
+```
+
+```{.python .input}
+#@tab mindspore
+train_iter, train_valid_iter = [dataset.batch(batch_size=batch_size, drop_remainder=True)
+                                for dataset in (train_ds, train_valid_ds)]
+
+valid_iter = valid_ds.batch(batch_size=batch_size, drop_remainder=True)
+
+test_iter = test_ds.batch(batch_size=batch_size, drop_remainder=False)
 ```
 
 ## 定义[**模型**]
@@ -438,6 +496,16 @@ loss = nn.CrossEntropyLoss(reduction="none")
 
 ```{.python .input}
 #@tab paddle
+def get_net():
+    num_classes = 10
+    net = d2l.resnet18(num_classes, 3)
+    return net
+
+loss = nn.CrossEntropyLoss(reduction="none")
+```
+
+```{.python .input}
+#@tab mindspore
 def get_net():
     num_classes = 10
     net = d2l.resnet18(num_classes, 3)
@@ -567,6 +635,61 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
           f' examples/sec on {str(devices)}')
 ```
 
+```{.python .input}
+#@tab mindspore
+def train(net, train_iter, valid_iter, num_epochs, lr, wd, lr_period, lr_decay):
+    
+    lr_list = d2l.tensor([lr*lr_decay**(i//lr_period) 
+                          for i in range(num_epochs) 
+                          for j in range(train_iter.get_dataset_size())])
+    trainer = nn.SGD(net.trainable_params(), learning_rate=lr_list, momentum=0.9,
+                              weight_decay=wd)
+
+    def forward_fn(inputs, targets):
+        logits = net(inputs)
+        l = loss(logits, targets)
+        return l, logits
+    
+    grad_fn = mindspore.value_and_grad(forward_fn, None, trainer.parameters, has_aux=True)
+    
+    def train_step(inputs, targets):
+        (l, logits), grads = grad_fn(inputs, targets)
+        trainer(grads)
+        return l, logits
+    
+    num_batches, timer = train_iter.get_dataset_size(), d2l.Timer()
+    legend = ['train loss', 'train acc']
+    if valid_iter is not None:
+        legend.append('valid acc')
+    animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs],
+                            legend=legend)
+
+    for epoch in range(num_epochs):
+        net.set_train()
+        metric = d2l.Accumulator(3)
+        for i, (features, labels) in enumerate(train_iter):
+            timer.start()
+            
+            l, acc = d2l.train_batch_ch13(train_step, features, labels)
+            
+            metric.add(l, acc, labels.shape[0])
+            timer.stop()
+            if (i + 1) % (num_batches // 5) == 0 or i == num_batches - 1:
+                animator.add(epoch + (i + 1) / num_batches,
+                             (metric[0] / metric[2], metric[1] / metric[2],
+                              None))
+        if valid_iter is not None:
+            valid_acc = d2l.evaluate_accuracy_gpu(net, valid_iter)
+            animator.add(epoch + 1, (None, None, valid_acc))
+
+    measures = (f'train loss {metric[0] / metric[2]:.3f}, '
+                f'train acc {metric[1] / metric[2]:.3f}')
+    if valid_iter is not None:
+        measures += f', valid acc {valid_acc:.3f}'
+    print(measures + f'\n{metric[2] * num_epochs / timer.sum():.1f}'
+          f' examples/sec')
+```
+
 ## [**训练和验证模型**]
 
 现在，我们可以训练和验证模型了，而以下所有超参数都可以调整。
@@ -595,6 +718,13 @@ devices, num_epochs, lr, wd = d2l.try_all_gpus(), 20, 2e-4, 5e-4
 lr_period, lr_decay, net = 4, 0.9, get_net()
 train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
       lr_decay)
+```
+
+```{.python .input}
+#@tab mindspore
+num_epochs, lr, wd = 20, 2e-4, 5e-4
+lr_period, lr_decay, net = 4, 0.9, get_net()
+train(net, train_iter, valid_iter, num_epochs, lr, wd, lr_period, lr_decay)
 ```
 
 ## 在 Kaggle 上[**对测试集进行分类并提交结果**]
@@ -649,6 +779,24 @@ df['label'] = df['label'].apply(lambda x: train_valid_ds.classes[x])
 df.to_csv('submission.csv', index=False)
 ```
 
+```{.python .input}
+#@tab mindspore
+net, preds = get_net(), []
+train(net, train_valid_iter, None, num_epochs, lr, wd, lr_period, lr_decay)
+
+for X, _ in test_iter:
+    y_hat = net(X)
+    preds.extend(y_hat.argmax(axis=1).numpy().astype('int32'))
+sorted_ids = list(range(1, test_ds.get_dataset_size() + 1))
+sorted_ids.sort(key=lambda x: str(x))
+
+df = pd.DataFrame({'id': sorted_ids, 'label': preds})
+class_indexing = train_ds.get_class_indexing()
+classes = sorted(class_indexing.items(), key=lambda x: x[0])
+df['label'] = df['label'].apply(lambda x: classes[x][0])
+df.to_csv('submission.csv', index=False)
+```
+
 向Kaggle提交结果的方法与 :numref:`sec_kaggle_house`中的方法类似，上面的代码将生成一个
 `submission.csv`文件，其格式符合Kaggle竞赛的要求。
 
@@ -668,6 +816,10 @@ df.to_csv('submission.csv', index=False)
 * 我们可以在图像分类竞赛中使用卷积神经网络和图像增广。
 :end_tab:
 
+:begin_tab:`mindspore`
+* 我们可以在图像分类竞赛中使用卷积神经网络和图像增广。
+:end_tab:
+
 ## 练习
 
 1. 在这场Kaggle竞赛中使用完整的CIFAR-10数据集。将超参数设为`batch_size = 128`，`num_epochs = 100`，`lr = 0.1`，`lr_period = 50`，`lr_decay = 0.1`。看看在这场比赛中能达到什么准确度和排名。能进一步改进吗？
@@ -682,5 +834,9 @@ df.to_csv('submission.csv', index=False)
 :end_tab:
 
 :begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11814)
+:end_tab:
+
+:begin_tab:`mindspore`
 [Discussions](https://discuss.d2l.ai/t/11814)
 :end_tab:

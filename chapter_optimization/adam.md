@@ -161,6 +161,29 @@ def adam(params, states, hyperparams):
     return a
 ```
 
+```{.python .input}
+#@tab mindspore
+%matplotlib inline
+import mindspore
+from d2l import mindspore as d2l
+
+
+def init_adam_states(feature_dim):
+    v_w, v_b = d2l.zeros((feature_dim, 1)), d2l.zeros(1)
+    s_w, s_b = d2l.zeros((feature_dim, 1)), d2l.zeros(1)
+    return ((v_w, s_w), (v_b, s_b))
+
+def adam(params, grads, states, hyperparams):
+    beta1, beta2, eps = 0.9, 0.999, 1e-6
+    for p, (v, s), grad in zip(params, states, grads):
+        v[:] = beta1 * v + (1 - beta1) * grad
+        s[:] = beta2 * s + (1 - beta2) * d2l.square(grad)
+        v_bias_corr = v / (1 - beta1 ** hyperparams['t'])
+        s_bias_corr = s / (1 - beta2 ** hyperparams['t'])
+        p[:] -= hyperparams['lr'] * v_bias_corr / (d2l.sqrt(s_bias_corr)  + eps)
+    hyperparams['t'] += 1
+```
+
 现在，我们用以上Adam算法来训练模型，这里我们使用$\eta = 0.01$的学习率。
 
 ```{.python .input}
@@ -191,6 +214,12 @@ d2l.train_concise_ch11(trainer, {'learning_rate': 0.01}, data_iter)
 ```{.python .input}
 #@tab paddle
 trainer = paddle.optimizer.Adam
+d2l.train_concise_ch11(trainer, {'learning_rate': 0.01}, data_iter)
+```
+
+```{.python .input}
+#@tab mindspore
+trainer = mindspore.nn.Adam
 d2l.train_concise_ch11(trainer, {'learning_rate': 0.01}, data_iter)
 ```
 
@@ -292,6 +321,26 @@ d2l.train_ch11(yogi, init_adam_states(feature_dim),
                {'lr': 0.01, 't': 1}, data_iter, feature_dim);
 ```
 
+```{.python .input}
+#@tab mindspore
+def yogi(params, grads, states, hyperparams):
+    beta1, beta2, eps = 0.9, 0.999, 1e-3
+    for p, (v, s), grad in zip(params, states, grads):
+
+            v[:] = beta1 * v + (1 - beta1) * grad
+            s[:] = s + (1 - beta2) * d2l.sign(
+                d2l.square(grad) - s) * d2l.square(grad)
+            v_bias_corr = v / (1 - beta1 ** hyperparams['t'])
+            s_bias_corr = s / (1 - beta2 ** hyperparams['t'])
+            p[:] -= hyperparams['lr'] * v_bias_corr / (d2l.sqrt(s_bias_corr)
+                                                       + eps)
+    hyperparams['t'] += 1
+
+data_iter, feature_dim = d2l.get_data_ch11(batch_size=10)
+d2l.train_ch11(yogi, init_adam_states(feature_dim),
+               {'lr': 0.01, 't': 1}, data_iter, feature_dim);
+```
+
 ## 小结
 
 * Adam算法将许多优化算法的功能结合到了相当强大的更新规则中。
@@ -319,5 +368,9 @@ d2l.train_ch11(yogi, init_adam_states(feature_dim),
 :end_tab:
 
 :begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11855)
+:end_tab:
+
+:begin_tab:`mindspore`
 [Discussions](https://discuss.d2l.ai/t/11855)
 :end_tab:

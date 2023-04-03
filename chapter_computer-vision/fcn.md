@@ -37,6 +37,16 @@ from paddle.nn import functional as F
 import paddle.vision as paddlevision
 ```
 
+```{.python .input}
+#@tab mindspore
+%matplotlib inline
+from d2l import mindspore as d2l
+import mindspore
+from mindspore import nn
+from mindspore.ops import functional as F
+import mindcv
+```
+
 ## 构造模型
 
 下面我们了解一下全卷积网络模型最基本的设计。
@@ -66,6 +76,12 @@ pretrained_net = paddlevision.models.resnet18(pretrained=True)
 list(pretrained_net.children())[-3:]
 ```
 
+```{.python .input}
+#@tab mindspore
+pretrained_net = mindcv.create_model('resnet18', pretrained=True)
+list(pretrained_net.cells())[-3:]
+```
+
 接下来，我们[**创建一个全卷积网络`net`**]。
 它复制了ResNet-18中大部分的预训练层，除了最后的全局平均汇聚层和最接近输出的全连接层。
 
@@ -78,6 +94,11 @@ for layer in pretrained_net.features[:-2]:
 ```{.python .input}
 #@tab pytorch, paddle
 net = nn.Sequential(*list(pretrained_net.children())[:-2])
+```
+
+```{.python .input}
+#@tab mindspore
+net = nn.SequentialCell(*list(pretrained_net.cells())[:-2])
 ```
 
 给定高度为320和宽度为480的输入，`net`的前向传播将输入的高和宽减小至原来的$1/32$，即10和15。
@@ -96,6 +117,12 @@ net(X).shape
 ```{.python .input}
 #@tab paddle
 X = paddle.rand(shape=(1, 3, 320, 480))
+net(X).shape
+```
+
+```{.python .input}
+#@tab mindspore
+X = d2l.rand((1, 3, 320, 480))
 net(X).shape
 ```
 
@@ -126,6 +153,16 @@ num_classes = 21
 net.add_sublayer('final_conv', nn.Conv2D(512, num_classes, kernel_size=1))
 net.add_sublayer('transpose_conv', nn.Conv2DTranspose(num_classes, num_classes,
                                     kernel_size=64, padding=16, stride=32))
+```
+
+```{.python .input}
+#@tab mindspore
+num_classes = 21
+net = nn.SequentialCell(*list(pretrained_net.cells())[:-2],
+                        nn.Conv2d(512, num_classes, kernel_size=1),
+                        nn.Conv2dTranspose(num_classes, num_classes,
+                                    kernel_size=64, padding=16, stride=32, pad_mode='pad')
+                       )
 ```
 
 ## [**初始化转置卷积层**]
@@ -197,6 +234,24 @@ def bilinear_kernel(in_channels, out_channels, kernel_size):
     return weight
 ```
 
+```{.python .input}
+#@tab mindspore
+def bilinear_kernel(in_channels, out_channels, kernel_size):
+    factor = (kernel_size + 1) // 2
+    if kernel_size % 2 == 1:
+        center = factor - 1
+    else:
+        center = factor - 0.5
+    og = (d2l.arange(kernel_size).reshape(-1, 1),
+          d2l.arange(kernel_size).reshape(1, -1))
+    filt = (1 - d2l.abs(og[0] - center) / factor) * \
+           (1 - d2l.abs(og[1] - center) / factor)
+    weight = d2l.zeros((in_channels, out_channels,
+                          kernel_size, kernel_size))
+    weight[list(range(in_channels)), list(range(out_channels)), :, :] = filt
+    return weight
+```
+
 让我们用[**双线性插值的上采样实验**]它由转置卷积层实现。
 我们构造一个将输入的高和宽放大2倍的转置卷积层，并将其卷积核用`bilinear_kernel`函数初始化。
 
@@ -217,6 +272,13 @@ conv_trans.weight.data.copy_(bilinear_kernel(3, 3, 4));
 conv_trans = nn.Conv2DTranspose(3, 3, kernel_size=4, padding=1, stride=2,
                                 bias_attr=False)
 conv_trans.weight.set_value(bilinear_kernel(3, 3, 4));
+```
+
+```{.python .input}
+#@tab mindspore
+conv_trans = nn.Conv2dTranspose(3, 3, kernel_size=4, padding=1, stride=2, pad_mode='pad',
+                                has_bias=False)
+conv_trans.weight.set_data(bilinear_kernel(3, 3, 4));
 ```
 
 读取图像`X`，将上采样的结果记作`Y`。为了打印图像，我们需要调整通道维的位置。
@@ -242,6 +304,15 @@ img = paddlevision.transforms.ToTensor()(d2l.Image.open('../img/catdog.jpg'))
 X = img.unsqueeze(0)
 Y = conv_trans(X)
 out_img = Y[0].transpose([1, 2, 0]).detach()
+```
+
+```{.python .input}
+#@tab mindspore
+img = mindspore.dataset.vision.ToTensor()(d2l.Image.open('../img/catdog.jpg')) 
+img = d2l.tensor(img)
+X = img.unsqueeze(0)
+Y = conv_trans(X)
+out_img = Y[0].permute(1, 2, 0)
 ```
 
 可以看到，转置卷积层将图像的高和宽分别放大了2倍。
@@ -273,6 +344,15 @@ print('output image shape:', out_img.shape)
 d2l.plt.imshow(out_img);
 ```
 
+```{.python .input}
+#@tab mindspore
+d2l.set_figsize()
+print('input image shape:', img.permute(1, 2, 0).shape)
+d2l.plt.imshow(img.permute(1, 2, 0).numpy());
+print('output image shape:', out_img.shape)
+d2l.plt.imshow(out_img.numpy());
+```
+
 全卷积网络[**用双线性插值的上采样初始化转置卷积层。对于$1\times 1$卷积层，我们使用Xavier初始化参数。**]
 
 ```{.python .input}
@@ -293,13 +373,19 @@ W = bilinear_kernel(num_classes, num_classes, 64)
 net.transpose_conv.weight.set_value(W);
 ```
 
+```{.python .input}
+#@tab mindspore
+W = bilinear_kernel(num_classes, num_classes, 64)
+net[-1].weight.set_data(W);
+```
+
 ## [**读取数据集**]
 
 我们用 :numref:`sec_semantic_segmentation`中介绍的语义分割读取数据集。
 指定随机裁剪的输出图像的形状为$320\times 480$：高和宽都可以被$32$整除。
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, mindspore
 batch_size, crop_size = 32, (320, 480)
 train_iter, test_iter = d2l.load_data_voc(batch_size, crop_size)
 ```
@@ -359,6 +445,16 @@ trainer = paddle.optimizer.SGD(learning_rate=lr, parameters=net.parameters(), we
 d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices[:1])
 ```
 
+```{.python .input}
+#@tab mindspore
+def loss(inputs, targets):
+    return F.cross_entropy(inputs, targets, reduction='none').mean(1).mean(1)
+
+num_epochs, lr, wd = 5, 0.001, 1e-3
+trainer = nn.SGD(net.trainable_params(), learning_rate=lr, weight_decay=wd)
+d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs)
+```
+
 ## [**预测**]
 
 在预测时，我们需要将输入图像在各个通道做标准化，并转成卷积神经网络所需要的四维输入格式。
@@ -387,6 +483,19 @@ def predict(img):
     return pred.reshape([pred.shape[1], pred.shape[2]])
 ```
 
+```{.python .input}
+#@tab mindspore
+transform = mindspore.dataset.vision.Normalize(
+            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+def normalize_image(img):
+    return transform(img.astype('float32') / 255)
+
+def predict(img):
+    X = d2l.tensor(normalize_image(img).transpose(2, 0, 1)).unsqueeze(0)
+    pred = net(X).argmax(axis=1)
+    return pred.reshape(pred.shape[1], pred.shape[2])
+```
+
 为了[**可视化预测的类别**]给每个像素，我们将预测类别映射回它们在数据集中的标注颜色。
 
 ```{.python .input}
@@ -410,6 +519,14 @@ def label2image(pred):
     colormap = paddle.to_tensor(d2l.VOC_COLORMAP)
     X = pred.astype(paddle.int32)
     return colormap[X]
+```
+
+```{.python .input}
+#@tab mindspore
+colormap = mindspore.Tensor(d2l.VOC_COLORMAP)
+def label2image(pred):
+    X = pred.long()
+    return colormap[X, :]
 ```
 
 测试数据集中的图像大小和形状各异。
@@ -463,6 +580,20 @@ for i in range(n):
 d2l.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n, scale=2);
 ```
 
+```{.python .input}
+#@tab mindspore
+voc_dir = d2l.download_extract('voc2012', 'VOCdevkit/VOC2012')
+test_images, test_labels = d2l.read_voc_images(voc_dir, False)
+n, imgs = 4, []
+for i in range(n):
+    crop_rect = (0, 0, 320, 480)
+    X = d2l.crop(test_images[i], *crop_rect)
+    pred = label2image(predict(X))
+    imgs += [X, pred.numpy(),
+             d2l.crop(test_labels[i], *crop_rect)]
+d2l.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n, scale=2);
+```
+
 ## 小结
 
 * 全卷积网络先使用卷积神经网络抽取图像特征，然后通过$1\times 1$卷积层将通道数变换为类别个数，最后通过转置卷积层将特征图的高和宽变换为输入图像的尺寸。
@@ -484,5 +615,9 @@ d2l.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n, scale=2);
 :end_tab:
 
 :begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11811)
+:end_tab:
+
+:begin_tab:`mindspore`
 [Discussions](https://discuss.d2l.ai/t/11811)
 :end_tab:

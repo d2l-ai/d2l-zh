@@ -37,6 +37,14 @@ import math
 import paddle
 ```
 
+```{.python .input}
+#@tab mindspore
+%matplotlib inline
+from d2l import mindspore as d2l
+import math
+import mindspore
+```
+
 ## 随机梯度更新
 
 在深度学习中，目标函数通常是训练数据集中每个样本的损失函数的平均值。给定$n$个样本的训练数据集，我们假设$f_i(\mathbf{x})$是关于索引$i$的训练样本的损失函数，其中$\mathbf{x}$是参数向量。然后我们得到目标函数
@@ -90,6 +98,17 @@ def sgd(x1, x2, s1, s2, f_grad):
     g2 += d2l.normal([1], 0.0, 1)
     eta_t = eta * lr()
     return (x1 - eta_t * g1, x2 - eta_t * g2, 0, 0)
+```
+
+```{.python .input}
+#@tab mindspore
+def sgd(x1, x2, s1, s2, f_grad):
+    g1, g2 = f_grad(x1, x2)
+    # 模拟有噪声的梯度
+    g1 += d2l.normal((1,), 0.0, 1.)
+    g2 += d2l.normal((1,), 0.0, 1.)
+    eta_t = eta * lr()
+    return (x1 - eta_t * g1[0], x2 - eta_t * g2[0], 0, 0)
 ```
 
 ```{.python .input}
@@ -260,3 +279,8 @@ $${n \choose 1} \frac{1}{n} \left(1-\frac{1}{n}\right)^{n-1} = \frac{n}{n-1} \le
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11849)
 :end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/11849)
+:end_tab:
+

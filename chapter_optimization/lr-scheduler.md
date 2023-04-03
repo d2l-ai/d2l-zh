@@ -248,6 +248,73 @@ def train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
     print(f'train loss {train_loss:.3f}, train acc {train_acc:.3f}, 'f'test acc {test_acc:.3f}')
 ```
 
+```{.python .input}
+#@tab mindspore
+%matplotlib inline
+from d2l import mindspore as d2l
+import math
+import mindspore
+from mindspore import nn
+from mindspore import value_and_grad
+
+def net_fn():
+    model = nn.SequentialCell(
+        nn.Conv2d(1, 6, kernel_size=5, padding=2, pad_mode='pad', weight_init='HeUniform'), nn.ReLU(),
+        nn.MaxPool2d(kernel_size=2, stride=2),
+        nn.Conv2d(6, 16, kernel_size=5, pad_mode='valid', weight_init='HeUniform'), nn.ReLU(),
+        nn.MaxPool2d(kernel_size=2, stride=2),
+        nn.Flatten(),
+        nn.Dense(16 * 5 * 5, 120, weight_init='HeUniform'), nn.ReLU(),
+        nn.Dense(120, 84, weight_init='HeUniform'), nn.ReLU(),
+        nn.Dense(84, 10, weight_init='HeUniform'))
+
+    return model
+
+loss = nn.CrossEntropyLoss()
+
+batch_size = 256
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size=batch_size)
+steps_per_epoch = train_iter.get_dataset_size()
+
+# 代码几乎与d2l.train_ch6定义在卷积神经网络一章LeNet一节中的相同
+def train(net, train_iter, test_iter, num_epochs, loss, trainer, device=None):
+    # 定义前向传播函数
+    def forward_fn(x, y):
+        y_hat = net(x)
+        l = loss(y_hat, y)
+        return l, y_hat
+    
+    # Get gradient function
+    grad_fn = value_and_grad(forward_fn, None, weights=net.trainable_params(), has_aux=True)
+    
+    # 定义模型单步训练
+    def train_step(X, y):
+        (l, y_hat), grads = grad_fn(X, y)
+        trainer(grads) # optim
+        return l, y_hat
+    
+    animator = d2l.Animator(xlabel='epoch', xlim=[0, num_epochs], ylim=[0, 2.3],
+                            legend=['train loss', 'train acc', 'test acc'])
+    
+    for epoch in range(num_epochs):
+        metric = d2l.Accumulator(3)  # train_loss,train_acc,num_examples
+        for i, (X, y) in enumerate(train_iter):
+            l, y_hat = train_step(X, y)
+            metric.add(l.asnumpy() * X.shape[0], d2l.accuracy(y_hat, y), X.shape[0])
+     
+            train_loss = metric[0] / metric[2]
+            train_acc = metric[1] / metric[2]
+            if (i + 1) % 50 == 0:
+                animator.add(epoch + i / train_iter.get_dataset_size(),
+                             (train_loss, train_acc, None))
+
+        test_acc = d2l.evaluate_accuracy_gpu(net, test_iter)
+        animator.add(epoch+1, (None, None, test_acc))
+
+    print(f'train loss {train_loss:.3f}, train acc {train_acc:.3f}, '
+          f'test acc {test_acc:.3f}')
+```
+
 让我们来看看如果使用默认设置，调用此算法会发生什么。
 例如设学习率为$0.3$并训练$30$次迭代。
 留意在超过了某点、测试准确度方面的进展停滞时，训练准确度将如何继续提高。
@@ -282,6 +349,14 @@ trainer = paddle.optimizer.SGD(learning_rate=lr, parameters=net.parameters())
 train(net, train_iter, test_iter, num_epochs, loss, trainer, device)
 ```
 
+```{.python .input}
+#@tab mindspore
+lr, num_epochs = 0.3, 30
+net = net_fn()
+trainer = nn.SGD(net.trainable_params(), lr)
+train(net, train_iter, test_iter, num_epochs, loss, trainer)
+```
+
 ## 学习率调度器
 
 我们可以在每个迭代轮数（甚至在每个小批量）之后向下调整学习率。
@@ -312,6 +387,13 @@ print(f'learning rate is now ,', dummy_model.optimizer.lr.numpy())
 lr = 0.1
 trainer.set_lr(lr)
 print(f'learning rate is now {trainer.get_lr():.2f}')
+```
+
+```{.python .input}
+#@tab mindspore
+lr = 0.1
+mindspore.ops.assign(trainer.learning_rate, lr)
+print(f'learning rate is now {trainer.learning_rate.data.asnumpy():.2f}')
 ```
 
 更通常而言，我们应该定义一个调度器。
@@ -365,6 +447,14 @@ net = net_fn()
 trainer = paddle.optimizer.SGD(learning_rate=lr , parameters=net.parameters())
 train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
       scheduler)
+```
+
+```{.python .input}
+#@tab mindspore
+net = net_fn()
+lr_list = d2l.tensor([scheduler(t) for t in range(num_epochs) for i in range(steps_per_epoch)])
+trainer = nn.SGD(net.trainable_params(), lr_list)
+train(net, train_iter, test_iter, num_epochs, loss, trainer)
 ```
 
 这比以前好一些：曲线比以前更加平滑，并且过拟合更小了。
@@ -431,7 +521,7 @@ d2l.plot(d2l.arange(num_epochs), [get_lr(trainer, scheduler)
 ```
 
 ```{.python .input}
-#@tab tensorflow
+#@tab tensorflow, mindspore
 class MultiFactorScheduler:
     def __init__(self, step, factor, base_lr):
         self.step = step
@@ -492,6 +582,14 @@ train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
       scheduler)
 ```
 
+```{.python .input}
+#@tab mindspore
+net = net_fn()
+lr_list = d2l.tensor([scheduler(t) for t in range(num_epochs) for i in range(steps_per_epoch)])
+trainer = nn.SGD(net.trainable_params(), lr_list)
+train(net, train_iter, test_iter, num_epochs, loss, trainer)
+```
+
 ### 余弦调度器
 
 余弦调度器是 :cite:`Loshchilov.Hutter.2016`提出的一种启发式算法。
@@ -511,7 +609,7 @@ d2l.plot(d2l.arange(num_epochs), [scheduler(t) for t in range(num_epochs)])
 ```
 
 ```{.python .input}
-#@tab pytorch, tensorflow, paddle
+#@tab pytorch, tensorflow, paddle, mindspore
 class CosineScheduler:
     def __init__(self, max_update, base_lr=0.01, final_lr=0,
                warmup_steps=0, warmup_begin_lr=0):
@@ -571,6 +669,14 @@ train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
       scheduler)
 ```
 
+```{.python .input}
+#@tab mindspore
+net = net_fn()
+lr_list = d2l.tensor([scheduler(t) for t in range(num_epochs) for i in range(steps_per_epoch)])
+trainer = nn.SGD(net.trainable_params(), lr_list)
+train(net, train_iter, test_iter, num_epochs, loss, trainer)
+```
+
 ### 预热
 
 在某些情况下，初始化参数不足以得到良好的解。
@@ -590,7 +696,7 @@ d2l.plot(np.arange(num_epochs), [scheduler(t) for t in range(num_epochs)])
 ```
 
 ```{.python .input}
-#@tab pytorch, tensorflow, paddle
+#@tab pytorch, tensorflow, paddle, mindspore
 scheduler = CosineScheduler(20, warmup_steps=5, base_lr=0.3, final_lr=0.01)
 d2l.plot(d2l.arange(num_epochs), [scheduler(t) for t in range(num_epochs)])
 ```
@@ -623,6 +729,14 @@ net = net_fn()
 trainer = paddle.optimizer.SGD(learning_rate=0.3, parameters=net.parameters())
 train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
       scheduler)
+```
+
+```{.python .input}
+#@tab mindspore
+net = net_fn()
+lr_list = d2l.tensor([scheduler(t) for t in range(num_epochs) for i in range(steps_per_epoch)])
+trainer = nn.SGD(net.trainable_params(), lr_list)
+train(net, train_iter, test_iter, num_epochs, loss, trainer)
 ```
 
 预热可以应用于任何调度器，而不仅仅是余弦。
@@ -660,4 +774,8 @@ train(net, train_iter, test_iter, num_epochs, loss, trainer, device,
 
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11856)
+:end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/11847)
 :end_tab:

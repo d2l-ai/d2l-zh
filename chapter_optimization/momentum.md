@@ -18,7 +18,6 @@
 
 $$\mathbf{g}_{t, t-1} = \partial_{\mathbf{w}} \frac{1}{|\mathcal{B}_t|} \sum_{i \in \mathcal{B}_t} f(\mathbf{x}_{i}, \mathbf{w}_{t-1}) = \frac{1}{|\mathcal{B}_t|} \sum_{i \in \mathcal{B}_t} \mathbf{h}_{i, t-1}.
 $$
-
 为了保持记法简单，在这里我们使用$\mathbf{h}_{i, t-1} = \partial_{\mathbf{w}} f(\mathbf{x}_i, \mathbf{w}_{t-1})$作为样本$i$的随机梯度下降，使用时间$t-1$时更新的权重$t-1$。
 如果我们能够从方差减少的影响中受益，甚至超过小批量上的梯度平均值，那很不错。
 完成这项任务的一种选择是用*泄漏平均值*（leaky average）取代梯度计算：
@@ -144,14 +143,12 @@ d2l.show_trace_2d(f_2d, d2l.train_2d(gd_2d))
 毕竟，在$x_1$方向上，这将聚合非常对齐的梯度，从而增加我们在每一步中覆盖的距离。
 相反，在梯度振荡的$x_2$方向，由于相互抵消了对方的振荡，聚合梯度将减小步长大小。
 使用$\mathbf{v}_t$而不是梯度$\mathbf{g}_t$可以生成以下更新等式：
-
 $$
 \begin{aligned}
 \mathbf{v}_t &\leftarrow \beta \mathbf{v}_{t-1} + \mathbf{g}_{t, t-1}, \\
 \mathbf{x}_t &\leftarrow \mathbf{x}_{t-1} - \eta_t \mathbf{v}_t.
 \end{aligned}
 $$
-
 请注意，对于$\beta = 0$，我们恢复常规的梯度下降。
 在深入研究它的数学属性之前，让我们快速看一下算法在实验中的表现如何。
 
@@ -397,7 +394,6 @@ d2l.plt.legend();
 ```
 
 为了分析动量的收敛情况，我们首先用两个标量重写更新方程：一个用于$x$，另一个用于动量$v$。这产生了：
-
 $$
 \begin{bmatrix} v_{t+1} \\ x_{t+1} \end{bmatrix} =
 \begin{bmatrix} \beta & \lambda \\ -\eta \beta & (1 - \eta \lambda) \end{bmatrix}
@@ -444,3 +440,8 @@ $$
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11851)
 :end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/11847)
+:end_tab:
+

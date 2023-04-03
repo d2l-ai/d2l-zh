@@ -52,6 +52,15 @@ import paddle.vision as paddlevision
 import os
 ```
 
+```{.python .input}
+#@tab mindspore
+%matplotlib inline
+from d2l import mindspore as d2l
+import mindspore
+import numpy as np
+import os
+```
+
 数据集的tar文件大约为2GB，所以下载可能需要一段时间。
 提取出的数据集位于`../data/VOCdevkit/VOC2012`。
 
@@ -134,6 +143,27 @@ def read_voc_images(voc_dir, is_train=True):
 train_features, train_labels = read_voc_images(voc_dir, True)
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+def read_voc_images(voc_dir, is_train=True):
+    """读取所有VOC图像并标注"""
+    txt_fname = os.path.join(voc_dir, 'ImageSets', 'Segmentation',
+                             'train.txt' if is_train else 'val.txt')
+    mode = mindspore.dataset.vision.ImageReadMode.COLOR
+    with open(txt_fname, 'r') as f:
+        images = f.read().split()
+    features, labels = [], []
+    for i, fname in enumerate(images):
+        features.append(mindspore.dataset.vision.read_image(os.path.join( # read as numpy.ndarray
+            voc_dir, 'JPEGImages', f'{fname}.jpg')))
+        labels.append(mindspore.dataset.vision.read_image(os.path.join(
+            voc_dir, 'SegmentationClass' ,f'{fname}.png'), mode))
+    return features, labels
+
+train_features, train_labels = read_voc_images(voc_dir, True)
+```
+
 下面我们[**绘制前5个输入图像及其标签**]。
 在标签图像中，白色和黑色分别表示边框和背景，而其他颜色则对应不同的类别。
 
@@ -156,6 +186,14 @@ d2l.show_images(imgs, 2, n);
 n = 5
 imgs = train_features[0:n] + train_labels[0:n]
 imgs = [img.transpose([1, 2, 0]) for img in imgs]
+d2l.show_images(imgs, 2, n);
+```
+
+```{.python .input}
+#@tab mindspore
+n = 5
+imgs = train_features[0:n] + train_labels[0:n]
+# the imgs is hwc, so we don't need permute
 d2l.show_images(imgs, 2, n);
 ```
 
@@ -240,6 +278,26 @@ def voc_label_indices(colormap, colormap2label):
     return colormap2label[idx]
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+def voc_colormap2label():
+    """构建从RGB到VOC类别索引的映射"""
+    colormap2label = np.zeros(256 ** 3, dtype=np.int64)
+    for i, colormap in enumerate(VOC_COLORMAP):
+        colormap2label[
+            (colormap[0] * 256 + colormap[1]) * 256 + colormap[2]] = i
+    return colormap2label
+
+#@save
+def voc_label_indices(colormap, colormap2label):
+    """将VOC标签中的RGB值映射到它们的类别索引"""
+    colormap = colormap.astype('int32')
+    idx = ((colormap[:, :, 0] * 256 + colormap[:, :, 1]) * 256
+           + colormap[:, :, 2])
+    return colormap2label[idx]
+```
+
 [**例如**]，在第一张样本图像中，飞机头部区域的类别索引为1，而背景索引为0。
 
 ```{.python .input}
@@ -290,6 +348,17 @@ def voc_rand_crop(feature, label, height, width):
 ```
 
 ```{.python .input}
+#@tab mindspore
+#@save
+def voc_rand_crop(feature, label, height, width):
+    """随机裁剪特征和标签图像"""
+    rect = d2l.get_params(feature, (height, width))
+    feature = d2l.crop(feature, *rect)
+    label = d2l.crop(label, *rect)
+    return feature, label
+```
+
+```{.python .input}
 imgs = []
 for _ in range(n):
     imgs += voc_rand_crop(train_features[0], train_labels[0], 200, 300)
@@ -316,9 +385,33 @@ imgs = [img for img in imgs]
 d2l.show_images(imgs[::2] + imgs[1::2], 2, n);
 ```
 
+```{.python .input}
+#@tab mindspore
+imgs = []
+for _ in range(n):
+    imgs += voc_rand_crop(train_features[0], train_labels[0], 200, 300)
+
+d2l.show_images(imgs[::2] + imgs[1::2], 2, n);
+```
+
 ### [**自定义语义分割数据集类**]
 
+:begin_tab:`mxnet`
 我们通过继承高级API提供的`Dataset`类，自定义了一个语义分割数据集类`VOCSegDataset`。
+:end_tab:
+
+:begin_tab:`pytorch`
+我们通过继承高级API提供的`Dataset`类，自定义了一个语义分割数据集类`VOCSegDataset`。
+:end_tab:
+
+:begin_tab:`paddle`
+我们通过继承高级API提供的`Dataset`类，自定义了一个语义分割数据集类`VOCSegDataset`。
+:end_tab:
+
+begin_tab:`mindspore`
+接下来，我们自定义了一个语义分割数据集类`VOCSegDataset`。
+:end_tab:
+
 通过实现`__getitem__`函数，我们可以任意访问数据集中索引为`idx`的输入图像及其每个像素的类别索引。
 由于数据集中有些图像的尺寸可能小于随机裁剪所指定的输出尺寸，这些样本可以通过自定义的`filter`函数移除掉。
 此外，我们还定义了`normalize_image`函数，从而对输入图像的RGB三个通道的值分别做标准化。
@@ -427,6 +520,40 @@ class VOCSegDataset(paddle.io.Dataset):
         return len(self.features)
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+class VOCSegDataset():
+    """一个用于加载VOC数据集的自定义数据集"""
+
+    def __init__(self, is_train, crop_size, voc_dir):
+        self.transform = mindspore.dataset.vision.Normalize(
+            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        self.crop_size = crop_size
+        features, labels = read_voc_images(voc_dir, is_train=is_train)
+        self.features = [self.normalize_image(feature)
+                         for feature in self.filter(features)]
+        self.labels = self.filter(labels)
+        self.colormap2label = voc_colormap2label()
+        print('read ' + str(len(self.features)) + ' examples')
+
+    def normalize_image(self, img):
+        return self.transform(img.astype('float32') / 255)
+
+    def filter(self, imgs):
+        return [img for img in imgs if (
+            img.shape[0] >= self.crop_size[0] and
+            img.shape[1] >= self.crop_size[1])]
+
+    def __getitem__(self, idx):
+        feature, label = voc_rand_crop(self.features[idx], self.labels[idx],
+                                       *self.crop_size)
+        return (feature, voc_label_indices(label, self.colormap2label))
+
+    def __len__(self):
+        return len(self.features)
+```
+
 ### [**读取数据集**]
 
 我们通过自定义的`VOCSegDataset`类来分别创建训练集和测试集的实例。
@@ -473,6 +600,20 @@ train_iter = paddle.io.DataLoader(voc_train, batch_size=batch_size, shuffle=True
                                   drop_last=True,
                                   return_list=True,
                                   num_workers=d2l.get_dataloader_workers())
+for X, Y in train_iter:
+    print(X.shape)
+    print(Y.shape)
+    break
+```
+
+```{.python .input}
+#@tab mindspore
+batch_size = 64
+train_iter = mindspore.dataset.GeneratorDataset(voc_train, column_names=["data", "label"], shuffle=True,
+                                                num_parallel_workers =d2l.get_dataloader_workers())
+train_iter = train_iter.map(mindspore.dataset.vision.HWC2CHW())
+train_iter = train_iter.batch(batch_size=batch_size, drop_remainder=True)
+
 for X, Y in train_iter:
     print(X.shape)
     print(Y.shape)
@@ -534,6 +675,25 @@ def load_data_voc(batch_size, crop_size):
     return train_iter, test_iter
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+def load_data_voc(batch_size, crop_size):
+    """加载VOC语义分割数据集"""
+    voc_dir = d2l.download_extract('voc2012', os.path.join(
+        'VOCdevkit', 'VOC2012'))
+    num_workers = d2l.get_dataloader_workers()
+    train_iter = mindspore.dataset.GeneratorDataset(VOCSegDataset(True, crop_size, voc_dir), column_names=["data", "label"], 
+                                                    shuffle=True, num_parallel_workers =num_workers)
+    train_iter = train_iter.map(mindspore.dataset.vision.HWC2CHW())
+    train_iter = train_iter.batch(batch_size=batch_size, drop_remainder=True)
+    test_iter = mindspore.dataset.GeneratorDataset(VOCSegDataset(False, crop_size, voc_dir), column_names=["data", "label"], 
+                                                   shuffle=True, num_parallel_workers =num_workers)
+    test_iter = train_iter.map(mindspore.dataset.vision.HWC2CHW())
+    test_iter = train_iter.batch(batch_size=batch_size, drop_remainder=True)
+    return train_iter, test_iter
+```
+
 ## 小结
 
 * 语义分割通过将图像划分为属于不同语义类别的区域，来识别并理解图像中像素级别的内容。
@@ -554,5 +714,9 @@ def load_data_voc(batch_size, crop_size):
 :end_tab:
 
 :begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11809)
+:end_tab:
+
+:begin_tab:`mindspore`
 [Discussions](https://discuss.d2l.ai/t/11809)
 :end_tab:
