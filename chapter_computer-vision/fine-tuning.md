@@ -72,6 +72,19 @@ import paddle.vision as paddlevision
 import os
 ```
 
+```{.python .input}
+#@tab mindspore
+%matplotlib inline
+import os
+import mindspore
+import mindspore.ops as ops
+import mindspore.nn as nn
+import mindspore.dataset as ds
+import mindspore.dataset.vision as vision
+import mindspore.dataset.transforms as transforms
+from d2l import mindspore as d2l
+```
+
 ### 获取数据集
 
 我们使用的[**热狗数据集来源于网络**]。
@@ -112,14 +125,33 @@ train_imgs = paddlevision.datasets.DatasetFolder(os.path.join(data_dir, 'train')
 test_imgs = paddlevision.datasets.DatasetFolder(os.path.join(data_dir, 'test'))
 ```
 
+```{.python .input}
+#@tab mindspore
+train_imgs = ds.ImageFolderDataset(os.path.join(data_dir, 'train'), shuffle=False, decode=True)
+test_imgs = ds.ImageFolderDataset(os.path.join(data_dir, 'test'), shuffle=False, decode=True)
+```
+
 下面显示了前8个正类样本图片和最后8张负类样本图片。正如所看到的，[**图像的大小和纵横比各有不同**]。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, paddle
 hotdogs = [train_imgs[i][0] for i in range(8)]
 not_hotdogs = [train_imgs[-i - 1][0] for i in range(8)]
 d2l.show_images(hotdogs + not_hotdogs, 2, 8, scale=1.4);
 ```
+
+```{.python .input}
+#@tab mindspore
+hotdogs = []
+not_hotdogs = []
+for i, (image, label) in enumerate(train_imgs.create_tuple_iterator()):
+    if i < 8:
+        hotdogs.append(image)
+    elif i > train_imgs.get_dataset_size() - 9:
+        not_hotdogs.append(image)
+d2l.show_images(hotdogs + not_hotdogs, 2, 8, scale=1.4);
+```
+
 
 在训练期间，我们首先从图像中裁切随机大小和随机长宽比的区域，然后将该区域缩放为$224 \times 224$输入图像。
 在测试过程中，我们将图像的高度和宽度都缩放到256像素，然后裁剪中央$224 \times 224$区域作为输入。
@@ -184,6 +216,25 @@ test_augs = paddlevision.transforms.Compose([
     normalize])
 ```
 
+```{.python .input}
+#@tab mindspore
+# 使用RGB通道的均值和标准差，以标准化每个通道
+normalize = vision.Normalize(
+    [0.485 * 225, 0.456 * 225, 0.406 * 225], [0.229 * 225, 0.224 * 225, 0.225 * 225])
+
+train_augs = transforms.Compose([
+    vision.RandomResizedCrop(224),
+    vision.RandomHorizontalFlip(),
+    normalize,
+    vision.HWC2CHW()])
+
+test_augs = transforms.Compose([
+    vision.transforms.Resize([256, 256]),
+    vision.transforms.CenterCrop(224),
+    normalize,
+    vision.HWC2CHW()])
+```
+
 ### [**定义和初始化模型**]
 
 我们使用在ImageNet数据集上预训练的ResNet-18作为源模型。
@@ -202,6 +253,13 @@ pretrained_net = torchvision.models.resnet18(pretrained=True)
 ```{.python .input}
 #@tab paddle
 pretrained_net = paddlevision.models.resnet18(pretrained=True)
+```
+
+```{.python .input}
+#@tab mindspore
+import mindcv
+
+pretrained_net = mindcv.create_model('resnet18', pretrained=True)
 ```
 
 :begin_tab:`mxnet`
@@ -223,6 +281,12 @@ pretrained_net = paddlevision.models.resnet18(pretrained=True)
 下面给出了源模型的成员变量`fc`。
 :end_tab:
 
+:begin_tab:`mindspore`
+预训练的源模型实例包含许多特征层和一个输出层`fc`。
+此划分的主要目的是促进对除输出层以外所有层的模型参数进行微调。
+下面给出了源模型的成员变量`fc`。
+:end_tab:
+
 ```{.python .input}
 pretrained_net.output
 ```
@@ -230,6 +294,11 @@ pretrained_net.output
 ```{.python .input}
 #@tab pytorch, paddle
 pretrained_net.fc
+```
+
+```{.python .input}
+#@tab mindspore
+pretrained_net.classifier
 ```
 
 在ResNet的全局平均汇聚层后，全连接层转换为ImageNet数据集的1000个类输出。
@@ -263,6 +332,18 @@ finetune_net = paddlevision.models.resnet18(pretrained=True)
 finetune_net.fc = nn.Linear(pretrained_net.fc.state_dict()['weight'].shape[0], 2)
 nn.initializer.XavierUniform(pretrained_net.fc.state_dict()['weight']);
 ```
+
+```{.python .input}
+#@tab mindspore
+import mindspore.common.initializer as initializer
+
+finetune_net = mindcv.create_model('resnet18', pretrained=True)
+finetune_net.classifier = nn.Dense(finetune_net.classifier.in_channels, 2)
+finetune_net.classifier.weight.set_data(
+    initializer.initializer(initializer.XavierNormal(), finetune_net.classifier.weight.shape, finetune_net.classifier.weight.dtype))
+
+```
+
 
 ### [**微调模型**]
 
@@ -337,6 +418,34 @@ def train_fine_tuning(net, learning_rate, batch_size=128, num_epochs=5,
     d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
 ```
 
+```{.python .input}
+#@tab mindspore
+# 如果param_group=True，输出层中的模型参数将使用十倍的学习率
+def train_fine_tuning(net, learning_rate, batch_size=128, num_epochs=5,
+                      param_group=True):
+    train_iter = ds.ImageFolderDataset(os.path.join(data_dir, 'train'), 
+                                       shuffle=True, decode=True)
+    train_iter = train_iter.map(train_augs, input_columns=["image"])
+    train_iter = train_iter.batch(batch_size=batch_size)
+    test_iter = ds.ImageFolderDataset(os.path.join(data_dir, 'test'), 
+                                       shuffle=True, decode=True)
+    test_iter = test_iter.map(test_augs, input_columns=["image"])
+    test_iter = test_iter.batch(batch_size=batch_size)
+    
+    loss = nn.CrossEntropyLoss(reduction="none")
+    if param_group:
+        params_1x = [param for param in net.get_parameters()
+             if param.name not in ["classifier.weight", "classifier.bias"]]
+        trainer = nn.SGD([{'params': params_1x},
+                        {'params': net.classifier.get_parameters(),
+                        'lr': learning_rate * 10}],
+                        learning_rate=learning_rate, weight_decay=0.001)
+    else:
+        trainer = nn.SGD(net.get_parameters(), learning_rate=learning_rate,
+                        weight_decay=0.001)
+    d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs)
+```
+
 我们[**使用较小的学习率**]，通过*微调*预训练获得的模型参数。
 
 ```{.python .input}
@@ -344,7 +453,7 @@ train_fine_tuning(finetune_net, 0.01)
 ```
 
 ```{.python .input}
-#@tab pytorch, paddle
+#@tab pytorch, paddle, mindspore
 train_fine_tuning(finetune_net, 5e-5)
 ```
 
@@ -368,6 +477,13 @@ train_fine_tuning(scratch_net, 5e-4, param_group=False)
 #@tab paddle
 scratch_net = paddlevision.models.resnet18()
 scratch_net.fc = nn.Linear(pretrained_net.fc.state_dict()['weight'].shape[0], 2)
+train_fine_tuning(scratch_net, 5e-4, param_group=False)
+```
+
+```{.python .input}
+#@tab mindspore
+scratch_net = mindcv.create_model('resnet18')
+scratch_net.classifier = nn.Dense(finetune_net.classifier.in_channels, 2)
 train_fine_tuning(scratch_net, 5e-4, param_group=False)
 ```
 
@@ -401,6 +517,13 @@ for param in finetune_net.parameters():
     param.stop_gradient = True
 ```
 
+```{.python .input}
+#@tab mindspore
+for param in finetune_net.get_parameters():
+    param = ops.stop_gradient(param)
+```
+
+
 4. 事实上，`ImageNet`数据集中有一个“热狗”类别。我们可以通过以下代码获取其输出层中的相应权重参数，但是我们怎样才能利用这个权重参数？
 
 ```{.python .input}
@@ -422,6 +545,13 @@ weight = pretrained_net.fc.weight
 hotdog_w = paddle.split(weight.T, 1000, axis=0)[713]
 hotdog_w.shape
 ```
+
+```{.python .input}
+#@tab mindspore
+weight = pretrained_net.classifier.weight
+weight.data
+```
+
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/2893)

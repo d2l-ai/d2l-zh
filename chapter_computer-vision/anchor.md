@@ -38,6 +38,16 @@ import numpy as np
 paddle.set_printoptions(2)  # 精简输出精度
 ```
 
+
+```{.python .input}
+#@tab mindspore
+%matplotlib inline
+import mindspore
+import mindspore.ops as ops
+import mindspore.numpy as mnp
+from d2l import mindspore as d2l
+```
+
 ## 生成多个锚框
 
 假设输入图像的高度为$h$，宽度为$w$。
@@ -185,6 +195,47 @@ def multibox_prior(data, sizes, ratios):
     return output.unsqueeze(0)
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+def multibox_prior(data, sizes, ratios):
+    """生成以每个像素为中心具有不同形状的锚框"""
+    in_height, in_width = data.shape[-2:]
+    num_sizes, num_ratios = len(sizes), len(ratios)
+    boxes_per_pixel = (num_sizes + num_ratios - 1)
+    size_tensor = d2l.tensor(sizes)
+    ratio_tensor = d2l.tensor(ratios)
+
+    # 为了将锚点移动到像素的中心，需要设置偏移量。
+    # 因为一个像素的高为1且宽为1，我们选择偏移我们的中心0.5
+    offset_h, offset_w = 0.5, 0.5
+    steps_h = 1.0 / in_height  # 在y轴上缩放步长
+    steps_w = 1.0 / in_width  # 在x轴上缩放步长
+
+    # 生成锚框的所有中心点
+    center_h = (ops.arange(in_height) + offset_h) * steps_h
+    center_w = (ops.arange(in_width) + offset_w) * steps_w
+    shift_y, shift_x = ops.meshgrid(center_h, center_w, indexing='ij')
+    shift_y, shift_x = shift_y.reshape(-1), shift_x.reshape(-1)
+
+    # 生成“boxes_per_pixel”个高和宽，
+    # 之后用于创建锚框的四角坐标(xmin,xmax,ymin,ymax)
+    w = ops.concat((size_tensor * ops.sqrt(ratio_tensor[0]),
+                   sizes[0] * ops.sqrt(ratio_tensor[1:])))\
+                   * in_height / in_width  # 处理矩形输入
+    h = ops.concat((size_tensor / ops.sqrt(ratio_tensor[0]),
+                   sizes[0] / ops.sqrt(ratio_tensor[1:])))
+    # 除以2来获得半高和半宽
+    anchor_manipulations = ops.tile(ops.stack((-w, -h, w, h)).T,
+                                    (in_height * in_width, 1)) / 2
+    # 每个中心点都将有“boxes_per_pixel”个锚框，
+    # 所以生成含所有锚框中心的网格，重复了“boxes_per_pixel”次
+    out_grid = ops.stack([shift_x, shift_y, shift_x, shift_y],
+                axis=1).repeat_interleave(boxes_per_pixel, dim=0)
+    output = out_grid + anchor_manipulations
+    return output.unsqueeze(0)
+```
+
 可以看到[**返回的锚框变量`Y`的形状**]是（批量大小，锚框的数量，4）。
 
 ```{.python .input}
@@ -219,13 +270,24 @@ Y = multibox_prior(X, sizes=[0.75, 0.5, 0.25], ratios=[1, 2, 0.5])
 Y.shape
 ```
 
+```{.python .input}
+#@tab mindspore
+img = d2l.plt.imread('../img/catdog.jpg')
+h, w = img.shape[:2]
+
+print(h, w)
+X = ops.randn((1, 3, h, w))
+Y = multibox_prior(X, sizes=[0.75, 0.5, 0.25], ratios=[1, 2, 0.5])
+Y.shape
+```
+
 将锚框变量`Y`的形状更改为(图像高度,图像宽度,以同一像素为中心的锚框的数量,4)后，我们可以获得以指定像素的位置为中心的所有锚框。
 在接下来的内容中，我们[**访问以（250,250）为中心的第一个锚框**]。
 它有四个元素：锚框左上角的$(x, y)$轴坐标和右下角的$(x, y)$轴坐标。
 输出中两个轴的坐标各分别除以了图像的宽度和高度。
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, mindspore
 boxes = Y.reshape(h, w, 5, 4)
 boxes[250, 250, 0, :]
 ```
@@ -239,7 +301,7 @@ boxes[250, 250, 0, :]
 为了[**显示以图像中以某个像素为中心的所有锚框**]，定义下面的`show_bboxes`函数来在图像上绘制多个边界框。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, paddle
 #@save
 def show_bboxes(axes, bboxes, labels=None, colors=None):
     """显示所有边界框"""
@@ -255,6 +317,31 @@ def show_bboxes(axes, bboxes, labels=None, colors=None):
     for i, bbox in enumerate(bboxes):
         color = colors[i % len(colors)]
         rect = d2l.bbox_to_rect(d2l.numpy(bbox), color)
+        axes.add_patch(rect)
+        if labels and len(labels) > i:
+            text_color = 'k' if color == 'w' else 'w'
+            axes.text(rect.xy[0], rect.xy[1], labels[i],
+                      va='center', ha='center', fontsize=9, color=text_color,
+                      bbox=dict(facecolor=color, lw=0))
+```
+
+```{.python .input}
+#@tab mindspore
+#@save
+def show_bboxes(axes, bboxes, labels=None, colors=None):
+    """显示所有边界框"""
+    def _make_list(obj, default_values=None):
+        if obj is None:
+            obj = default_values
+        elif not isinstance(obj, (list, tuple)):
+            obj = [obj]
+        return obj
+
+    labels = _make_list(labels)
+    colors = _make_list(colors, ['b', 'g', 'r', 'm', 'c'])
+    for i, bbox in enumerate(bboxes):
+        color = colors[i % len(colors)]
+        rect = d2l.bbox_to_rect(bbox.asnumpy(), color)
         axes.add_patch(rect)
         if labels and len(labels) > i:
             text_color = 'k' if color == 'w' else 'w'
@@ -375,6 +462,31 @@ def box_iou(boxes1, boxes2):
     return inter_areas / union_areas
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+def box_iou(boxes1, boxes2):
+    """计算两个锚框或边界框列表中成对的交并比"""
+    box_area = lambda boxes: ((boxes[:, 2] - boxes[:, 0]) *
+                              (boxes[:, 3] - boxes[:, 1]))
+    # boxes1,boxes2,areas1,areas2的形状:
+    # boxes1：(boxes1的数量,4),
+    # boxes2：(boxes2的数量,4),
+    # areas1：(boxes1的数量,),
+    # areas2：(boxes2的数量,)
+    areas1 = box_area(boxes1)
+    areas2 = box_area(boxes2)
+    # inter_upperlefts,inter_lowerrights,inters的形状:
+    # (boxes1的数量,boxes2的数量,2)
+    inter_upperlefts = ops.maximum(boxes1[:, None, :2], boxes2[:, :2])
+    inter_lowerrights = ops.minimum(boxes1[:, None, 2:], boxes2[:, 2:])
+    inters = (inter_lowerrights - inter_upperlefts).clamp(min=0)
+    # inter_areasandunion_areas的形状:(boxes1的数量,boxes2的数量)
+    inter_areas = inters[:, :, 0] * inters[:, :, 1]
+    union_areas = areas1[:, None] + areas2 - inter_areas
+    return inter_areas / union_areas
+```
+
 ## 在训练数据中标注锚框
 :label:`subsec_labeling-anchor-boxes`
 
@@ -485,6 +597,33 @@ def assign_anchor_to_bbox(ground_truth, anchors, place, iou_threshold=0.5):
         max_idx = paddle.argmax(jaccard)
         box_idx = paddle.cast((max_idx % num_gt_boxes), dtype='int64')
         anc_idx = paddle.cast((max_idx / num_gt_boxes), dtype='int64')
+        anchors_bbox_map[anc_idx] = box_idx
+        jaccard[:, box_idx] = col_discard
+        jaccard[anc_idx, :] = row_discard
+    return anchors_bbox_map
+```
+
+```{.python .input}
+#@tab mindspore
+#@save
+def assign_anchor_to_bbox(ground_truth, anchors, iou_threshold=0.5):
+    """将最接近的真实边界框分配给锚框"""
+    num_anchors, num_gt_boxes = anchors.shape[0], ground_truth.shape[0]
+    # 位于第i行和第j列的元素x_ij是锚框i和真实边界框j的IoU
+    jaccard = box_iou(anchors, ground_truth)
+    # 对于每个锚框，分配的真实边界框的张量
+    anchors_bbox_map = ops.full((num_anchors,), -1, dtype=mindspore.int64)
+    # 根据阈值，决定是否分配真实边界框
+    indices, max_ious = ops.max(jaccard, axis=1)
+    anc_i = ops.nonzero(max_ious >= iou_threshold).reshape(-1)
+    # box_j = indices[max_ious >= iou_threshold]
+    anchors_bbox_map[anc_i] = 1
+    col_discard = ops.full((num_anchors,), -1)
+    row_discard = ops.full((num_gt_boxes,), -1)
+    for _ in range(num_gt_boxes):
+        max_idx = ops.argmax(jaccard)
+        box_idx = (max_idx % num_gt_boxes).long()
+        anc_idx = (max_idx / num_gt_boxes).long()
         anchors_bbox_map[anc_idx] = box_idx
         jaccard[:, box_idx] = col_discard
         jaccard[anc_idx, :] = row_discard
@@ -632,6 +771,40 @@ def multibox_target(anchors, labels):
     return (bbox_offset, bbox_mask, class_labels)
 ```
 
+
+```{.python .input}
+#@tab mindspore
+#@save
+def multibox_target(anchors, labels):
+    """使用真实边界框标记锚框"""
+    batch_size, anchors = labels.shape[0], anchors.squeeze(0)
+    batch_offset, batch_mask, batch_class_labels = [], [], []
+    num_anchors = anchors.shape[0]
+    for i in range(batch_size):
+        label = labels[i, :, :]
+        anchors_bbox_map = assign_anchor_to_bbox(
+            label[:, 1:], anchors)
+        bbox_mask = ops.tile((anchors_bbox_map >= 0).float().unsqueeze(-1), (1, 4))
+        # 将类标签和分配的边界框坐标初始化为零
+        class_labels = ops.zeros(num_anchors, dtype=mindspore.int64)
+        assigned_bb = ops.zeros((num_anchors, 4), dtype=mindspore.float32)
+        # 使用真实边界框来标记锚框的类别。
+        # 如果一个锚框没有被分配，标记其为背景（值为零）
+        indices_true = ops.nonzero(anchors_bbox_map >= 0)
+        bb_idx = anchors_bbox_map[indices_true]
+        class_labels[indices_true] = label[bb_idx, 0].long() + 1
+        assigned_bb[indices_true] = label[bb_idx, 1:]
+        # 偏移量转换
+        offset = offset_boxes(anchors, assigned_bb) * bbox_mask
+        batch_offset.append(offset.reshape(-1))
+        batch_mask.append(bbox_mask.reshape(-1))
+        batch_class_labels.append(class_labels)
+    bbox_offset = ops.stack(batch_offset)
+    bbox_mask = ops.stack(batch_mask)
+    class_labels = ops.stack(batch_class_labels)
+    return (bbox_offset, bbox_mask, class_labels)
+```
+
 ### 一个例子
 
 下面通过一个具体的例子来说明锚框标签。
@@ -671,6 +844,12 @@ labels = multibox_target(anchors.unsqueeze(dim=0),
 #@tab paddle
 labels = multibox_target(anchors.unsqueeze(axis=0),
                          ground_truth.unsqueeze(axis=0))
+```
+
+```{.python .input}
+#@tab mindspore
+labels = multibox_target(anchors.unsqueeze(dim=0),
+                         ground_truth.unsqueeze(dim=0))
 ```
 
 返回的结果中有三个元素，都是张量格式。第三个元素包含标记的输入锚框的类别。
@@ -797,6 +976,23 @@ def nms(boxes, scores, iou_threshold):
     return paddle.to_tensor(keep, place=boxes.place, dtype='int64')
 ```
 
+```{.python .input}
+#@save
+def nms(boxes, scores, iou_threshold):
+    """对预测边界框的置信度进行排序"""
+    B = ops.argsort(scores, axis=-1, descending=True)
+    keep = []  # 保留预测边界框的指标
+    while B.numel() > 0:
+        i = B[0]
+        keep.append(i.asnumpy())
+        if B.numel() == 1: break
+        iou = box_iou(boxes[i, :].reshape(-1, 4),
+                      boxes[B[1:], :].reshape(-1, 4)).reshape(-1)
+        inds = ops.nonzero(iou <= iou_threshold).reshape(-1)
+        B = B[inds + 1]
+    return mindspore.Tensor(keep)
+```
+
 我们定义以下`multibox_detection`函数来[**将非极大值抑制应用于预测边界框**]。
 这里的实现有点复杂，请不要担心。我们将在实现之后，马上用一个具体的例子来展示它是如何工作的。
 
@@ -908,6 +1104,49 @@ def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
     return paddle.stack(out)
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+def multibox_detection(cls_probs, offset_preds, anchors, nms_threshold=0.5,
+                       pos_threshold=0.009999999):
+    """使用非极大值抑制来预测边界框"""
+    batch_size = cls_probs.shape[0]
+    anchors = anchors.squeeze(0)
+    num_classes, num_anchors = cls_probs.shape[1], cls_probs.shape[2]
+    out = []
+    for i in range(batch_size):
+        cls_prob, offset_pred = cls_probs[i], offset_preds[i].reshape(-1, 4)
+        class_id, conf = ops.max(cls_prob[1:], 0)
+        predicted_bb = offset_inverse(anchors, offset_pred)
+        keep = nms(predicted_bb, conf, nms_threshold)
+
+        # 找到所有的non_keep索引，并将类设置为背景
+        all_idx = ops.arange(num_anchors, dtype=mindspore.int64)
+        combined = ops.concat((keep, all_idx))
+        unique = ops.unique(combined)
+        uniques, _ = unique[0], unique[1]
+        # 统计未重复的，mindspore的unique无法统计同一个元素出现次数
+        counts = mnp.bincount(combined)
+        non_keep = mindspore.Tensor([int(uniques[i]) for i in range(len(counts)) 
+                                     if (counts[i] == 1)])
+        all_id_sorted = ops.concat((keep, non_keep))
+        class_id[non_keep] = -1
+        class_id = class_id[all_id_sorted]
+        conf, predicted_bb = conf[all_id_sorted], predicted_bb[all_id_sorted]
+        # pos_threshold是一个用于非背景预测的阈值
+        below_min_idx = (conf < pos_threshold)
+        class_id = mindspore.Tensor.float(class_id)
+        class_id[below_min_idx] = -1
+        for j in range(len(conf)):
+            if below_min_idx[j] == True:
+                conf[j] = 1-conf[j]
+        pred_info = ops.concat((class_id.unsqueeze(1),
+                               conf.unsqueeze(1),
+                               predicted_bb), axis=1)
+        out.append(pred_info)
+    return ops.stack(out)
+```
+
 现在让我们[**将上述算法应用到一个带有四个锚框的具体示例中**]。
 为简单起见，我们假设预测的偏移量都是零，这意味着预测的边界框即是锚框。
 对于背景、狗和猫其中的每个类，我们还定义了它的预测概率。
@@ -928,6 +1167,16 @@ anchors = d2l.tensor([[0.1, 0.08, 0.52, 0.92], [0.08, 0.2, 0.56, 0.95],
                       [0.15, 0.3, 0.62, 0.91], [0.55, 0.2, 0.9, 0.88]])
 offset_preds = d2l.tensor([0] * anchors.numel().item())
 cls_probs = d2l.tensor([[0] * 4,  # 背景的预测概率
+                      [0.9, 0.8, 0.7, 0.1],  # 狗的预测概率
+                      [0.1, 0.2, 0.3, 0.9]])  # 猫的预测概率
+```
+
+```{.python .input}
+#@tab mindspore
+anchors = mindspore.Tensor([[0.1, 0.08, 0.52, 0.92], [0.08, 0.2, 0.56, 0.95],
+                      [0.15, 0.3, 0.62, 0.91], [0.55, 0.2, 0.9, 0.88]])
+offset_preds = mindspore.Tensor([0] * anchors.numel())
+cls_probs = mindspore.Tensor([[0] * 4,  # 背景的预测概率
                       [0.9, 0.8, 0.7, 0.1],  # 狗的预测概率
                       [0.1, 0.2, 0.3, 0.9]])  # 猫的预测概率
 ```
@@ -976,16 +1225,35 @@ output = multibox_detection(cls_probs.unsqueeze(axis=0),
 output
 ```
 
+```{.python .input}
+#@tab mindspore
+output = multibox_detection(cls_probs.unsqueeze(dim=0),
+                            offset_preds.unsqueeze(dim=0),
+                            anchors.unsqueeze(dim=0),
+                            nms_threshold=0.5)
+output
+```
+
 删除-1类别（背景）的预测边界框后，我们可以[**输出由非极大值抑制保存的最终预测边界框**]。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, paddle
 fig = d2l.plt.imshow(img)
 for i in d2l.numpy(output[0]):
     if i[0] == -1:
         continue
     label = ('dog=', 'cat=')[int(i[0])] + str(i[1])
     show_bboxes(fig.axes, [d2l.tensor(i[2:]) * bbox_scale], label)
+```
+
+```{.python .input}
+#@tab mindspore
+fig = d2l.plt.imshow(img)
+for i in output[0]:
+    if i[0] == -1:
+        continue
+    label = ('dog=', 'cat=')[int(i[0])] + str(i[1])
+    show_bboxes(fig.axes, [mindspore.Tensor(i[2:]) * bbox_scale], label)
 ```
 
 实践中，在执行非极大值抑制前，我们甚至可以将置信度较低的预测边界框移除，从而减少此算法中的计算量。

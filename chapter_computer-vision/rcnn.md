@@ -87,6 +87,18 @@ X = paddle.reshape(paddle.arange(16, dtype='float32'), (1,1,4,4))
 X
 ```
 
+```{.python .input}
+#@tab mindspore
+import numpy as np
+import mindspore
+import mindspore.ops as ops
+from mindspore.ops.operations.nn_ops import PSROIPooling
+from d2l import mindspore as d2l
+
+X = ops.arange(16, dtype=mindspore.float32).reshape(1, 1, 4, 4)
+X
+```
+
 让我们进一步假设输入图像的高度和宽度都是40像素，且选择性搜索在此图像上生成了两个提议区域。
 每个区域由5个元素表示：区域目标类别、左上角和右下角的$(x, y)$坐标。
 
@@ -103,7 +115,10 @@ rois = torch.Tensor([[0, 0, 0, 20, 20], [0, 0, 10, 30, 30]])
 #@tab paddle
 rois = paddle.to_tensor([[0, 0, 20, 20], [0, 10, 30, 30]]).astype('float32')
 ```
-
+```{.python .input}
+#@tab mindspore
+rois = mindspore.Tensor([[0, 0, 2, 2], [0, 1, 3, 3]], dtype=mindspore.float32)
+```
 由于`X`的高和宽是输入图像高和宽的$1/10$，因此，两个提议区域的坐标先按`spatial_scale`乘以0.1。
 然后，在`X`上分别标出这两个兴趣区域`X[:, :, 0:3, 0:3]`和`X[:, :, 1:4, 0:4]`。
 最后，在$2\times 2$的兴趣区域汇聚层中，每个兴趣区域被划分为子窗口网格，并进一步抽取相同形状$2\times 2$的特征。
@@ -121,6 +136,12 @@ torchvision.ops.roi_pool(X, rois, output_size=(2, 2), spatial_scale=0.1)
 #@tab paddle
 boxes_num = paddle.to_tensor([len(rois)]).astype('int32')
 paddlevision.ops.roi_pool(X, rois, boxes_num, output_size=(2, 2), spatial_scale=0.1)
+```
+
+```{.python .input}
+#@tab mindspore
+roi_pooling = d2l.RoiPooling(mode='th', pool_size=(2,2))
+roi_pooling.get_pooled_rois(X, rois)
 ```
 
 ## Faster R-CNN

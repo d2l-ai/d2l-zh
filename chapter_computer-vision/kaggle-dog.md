@@ -42,6 +42,18 @@ from paddle import nn
 import os
 ```
 
+```{.python .input}
+#@tab mindspore
+import os
+import pandas as pd
+import mindspore
+import mindcv
+import mindspore.nn as nn
+import mindspore.dataset.transforms as transforms
+import mindspore.dataset.vision as vision
+from d2l import mindspore as d2l
+```
+
 ## 获取和整理数据集
 
 比赛数据集分为训练集和测试集，分别包含RGB（彩色）通道的10222张、10357张JPEG图像。
@@ -157,6 +169,23 @@ transform_train = paddlevision.transforms.Compose([
                                      [0.229, 0.224, 0.225])])
 ```
 
+```{.python .input}
+#@tab mindspore
+transform_train = transforms.Compose([
+    # 随机裁剪图像，所得图像为原始面积的0.08～1之间，高宽比在3/4和4/3之间。
+    # 然后，缩放图像以创建224x224的新图像
+    vision.RandomResizedCrop(224, scale=(0.08, 1.0), ratio=(3.0/4.0, 4.0/3.0)),
+    vision.RandomHorizontalFlip(),
+    # 随机更改亮度，对比度和饱和度
+    vision.RandomColorAdjust(brightness=0.4,
+                                       contrast=0.4,
+                                       saturation=0.4),
+     # 标准化图像的每个通道
+    vision.Normalize(mean=[0.485 * 255, 0.456 * 255, 0.406 * 255], 
+                     std=[0.229 * 255, 0.224 * 255, 0.225 * 255]),
+    vision.HWC2CHW()])
+```
+
 测试时，我们只使用确定性的图像预处理操作。
 
 ```{.python .input}
@@ -191,6 +220,17 @@ transform_test = paddlevision.transforms.Compose([
                                      [0.229, 0.224, 0.225])])
 ```
 
+```{.python .input}
+#@tab mindspore
+transform_test = transforms.Compose([
+    vision.Resize(256),
+    # 从图像中心裁切224x224大小的图片
+    vision.CenterCrop(224),
+    vision.Normalize([0.485 * 255, 0.456 * 255, 0.406 * 255],
+                     [0.229 * 255, 0.224 * 255, 0.225 * 255]),
+    vision.HWC2CHW()])
+```
+
 ## [**读取数据集**]
 
 与 :numref:`sec_kaggle_cifar10`一样，我们可以读取整理后的含原始图像文件的数据集。
@@ -222,6 +262,22 @@ train_ds, train_valid_ds = [paddlevision.datasets.DatasetFolder(
 valid_ds, test_ds = [paddlevision.datasets.DatasetFolder(
     os.path.join(data_dir, 'train_valid_test', folder),
     transform=transform_test) for folder in ['valid', 'test']]
+```
+
+```{.python .input}
+#@tab mindspore
+train_ds, train_valid_ds = [mindspore.dataset.ImageFolderDataset(
+    os.path.join(data_dir, 'train_valid_test', folder), shuffle=True, decode=True) 
+                            for folder in ['train', 'train_valid']]
+train_ds = train_ds.map(transform_train, 'image')
+train_valid_ds = train_valid_ds.map(transform_train, 'image')
+
+
+valid_ds, test_ds = [mindspore.dataset.ImageFolderDataset(
+    os.path.join(data_dir, 'train_valid_test', folder), shuffle=False, decode=True) 
+                     for folder in ['valid', 'test']]
+valid_ds = valid_ds.map(transform_test, 'image')
+test_ds = test_ds.map(transform_test, 'image')
 ```
 
 下面我们创建数据加载器实例的方式与 :numref:`sec_kaggle_cifar10`相同。
@@ -264,6 +320,16 @@ valid_iter = paddle.io.DataLoader(valid_ds, batch_size=batch_size, shuffle=False
 
 test_iter = paddle.io.DataLoader(test_ds, batch_size=batch_size, shuffle=False,
                                  drop_last=False)
+```
+
+```{.python .input}
+#@tab pytorch
+train_iter, train_valid_iter = [dataset.batch(batch_size=batch_size, drop_remainder=True)
+                                for dataset in (train_ds, train_valid_ds)]
+
+valid_iter = valid_ds.batch(batch_size=batch_size, drop_remainder=True)
+
+test_iter = test_ds.batch(batch_size=batch_size, drop_remainder=False)
 ```
 
 ## [**微调预训练模型**]
@@ -325,6 +391,36 @@ def get_net(devices):
     return finetune_net
 ```
 
+```{.python .input}
+#@tab mindspore
+import mindspore.common.initializer as initializer
+def get_net(devices):
+    finetune_net = nn.SequentialCell()
+    finetune_net.feature = mindcv.create_model('resnet34', pretrained=True)
+    #finetune_net.append(feature)
+    # 定义一个新的输出网络，共有120个输出类别
+    output_new = nn.SequentialCell([nn.Dense(1000, 256),
+                  nn.ReLU(),
+                  nn.Dense(256, 120)])
+    for name, cell in output_new.cells_and_names():
+        if isinstance(cell, nn.Dense):
+            k = 1 / cell.in_channels
+            k = k ** 0.5
+
+            cell.weight.set_data(
+                initializer.initializer(initializer.Uniform(k), cell.weight.shape, cell.weight.dtype))
+            if cell.bias is not None:
+                cell.bias.set_data(
+                    initializer.initializer(initializer.Uniform(k), cell.bias.shape, cell.bias.dtype))
+
+    finetune_net.append(output_new)
+    #finetune_net.append(output_new)
+    # 冻结参数
+    for param in finetune_net.feature.get_parameters():
+        param.requires_grad = False
+    return finetune_net
+```
+
 在[**计算损失**]之前，我们首先获取预训练模型的输出层的输入，即提取的特征。
 然后我们使用此特征作为我们小型自定义输出网络的输入来计算损失。
 
@@ -371,6 +467,20 @@ def evaluate_loss(data_iter, net, devices):
         l_sum += l.sum()
         n += labels.numel()
     return l_sum / n
+```
+
+```{.python .input}
+#@tab mindspore
+loss = nn.CrossEntropyLoss(reduction='none')
+
+def evaluate_loss(data_iter, net):
+    l_sum, n = 0.0, 0
+    for features, labels in data_iter:
+        outputs = net(features)
+        l = loss(outputs, labels)
+        l_sum += l.sum()
+        n += labels.numel()
+    return (l_sum / n)
 ```
 
 ## 定义[**训练函数**]
@@ -505,6 +615,58 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
           f' examples/sec on {str(devices)}')
 ```
 
+```{.python .input}
+#@tab mindspore
+def train(net, train_iter, valid_iter, num_epochs, lr, wd, lr_period, lr_decay):
+    devices = None
+    lr_list = d2l.tensor([lr*(lr_decay**(i//lr_period)) 
+                          for i in range(num_epochs) 
+                          for j in range(train_iter.get_dataset_size())])
+    trainer = nn.SGD((param for param in net.get_parameters() if param.requires_grad), 
+                     learning_rate=lr_list, momentum=0.9, weight_decay=wd)
+
+    def forward_fn(inputs, targets):
+        logits = net(inputs)
+        # print(logits.shape, targets.shape)
+        l = loss(logits, targets)
+        return l, logits
+    
+    grad_fn = mindspore.value_and_grad(forward_fn, None, trainer.parameters, has_aux=True)
+    
+    def train_step(inputs, targets):
+        (l, logits), grads = grad_fn(inputs, targets)
+        trainer(grads)
+        return l.sum(), logits
+    
+    num_batches, timer = train_iter.get_dataset_size(), d2l.Timer()
+    legend = ['train loss']
+    if valid_iter is not None:
+        legend.append('valid loss')
+    animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs],
+                            legend=legend)
+
+    for epoch in range(num_epochs):
+        net.set_train()
+        metric = d2l.Accumulator(2)
+        for i, (features, labels) in enumerate(train_iter):
+            timer.start()
+            l, logits = train_step(features, labels)
+            metric.add(l, labels.shape[0])
+            timer.stop()
+            if (i + 1) % (num_batches // 5) == 0 or i == num_batches - 1:
+                animator.add(epoch + (i + 1) / num_batches,
+                             (metric[0] / metric[1], None))
+        measures = f'train loss {metric[0] / metric[1]:.3f}'
+        if valid_iter is not None:
+            valid_loss = evaluate_loss(valid_iter, net)
+            animator.add(epoch + 1, (None, valid_loss))
+
+    if valid_iter is not None:
+        measures += f', valid loss {float(valid_loss):.3f}'
+    print(measures + f'\n{metric[1] * num_epochs / timer.sum():.1f}'
+          f' examples/sec on {str(devices)}')
+```
+
 ## [**训练和验证模型**]
 
 现在我们可以训练和验证模型了，以下超参数都是可调的。
@@ -533,6 +695,14 @@ train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
 devices, num_epochs, lr, wd = d2l.try_all_gpus(), 10, 1e-4, 1e-4
 lr_period, lr_decay, net = 2, 0.9, get_net(devices)
 train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
+      lr_decay)
+```
+
+```{.python .input}
+#@tab mindspore
+num_epochs, lr, wd = 10, 1e-4, 1e-4
+lr_period, lr_decay, net = 2, 0.9, get_net(None)
+train(net, train_iter, valid_iter, num_epochs, lr, wd, lr_period,
       lr_decay)
 ```
 
@@ -597,6 +767,25 @@ with open('submission.csv', 'w') as f:
     for i, output in zip(ids, preds):
         f.write(i.split('.')[0] + ',' + ','.join(
             [str(num) for num in output]) + '\n')
+```
+
+```{.python .input}
+#@tab mindspore
+net, preds = get_net(None), []
+train(net, train_valid_iter, None, num_epochs, lr, wd, lr_period,
+      lr_decay)
+
+for X, _ in test_iter:
+    y_hat = net(X)
+    preds.extend(y_hat.argmax(axis=1).numpy().astype('int32'))
+sorted_ids = list(range(1, test_ds.get_dataset_size() + 1))
+sorted_ids.sort(key=lambda x: str(x))
+
+df = pd.DataFrame({'id': sorted_ids, 'label': preds})
+class_indexing = train_ds.get_class_indexing()
+classes = sorted(class_indexing.items(), key=lambda x: x[0])
+df['label'] = df['label'].apply(lambda x: classes[x][0])
+df.to_csv('submission.csv', index=False)
 ```
 
 上面的代码将生成一个`submission.csv`文件，以 :numref:`sec_kaggle_house`中描述的方式提在Kaggle上提交。

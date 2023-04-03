@@ -467,7 +467,7 @@ def f(a):
 #@tab mindspore
 def f(a):
     b = a * 2
-    while ops.norm(b, axis=0) < 1000:
+    while ops.norm(b, dim=0) < 1000:
         b = b * 2
     if b.sum() > 0:
         c = b

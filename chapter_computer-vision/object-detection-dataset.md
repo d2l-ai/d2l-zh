@@ -44,6 +44,17 @@ import paddle.vision as paddlevision
 ```
 
 ```{.python .input}
+#@tab mindspore
+%matplotlib inline
+import os
+import numpy
+import pandas as pd
+import mindspore
+import mindspore.dataset as ds
+from d2l import mindspore as d2l
+```
+
+```{.python .input}
 #@tab all
 #@save
 d2l.DATA_HUB['banana-detection'] = (
@@ -118,6 +129,27 @@ def read_data_bananas(is_train=True):
     return images, paddle.to_tensor(targets).unsqueeze(1) / 256
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+def read_data_bananas(is_train=True):
+    """读取香蕉检测数据集中的图像和标签"""
+    data_dir = d2l.download_extract('banana-detection')
+    csv_fname = os.path.join(data_dir, 'bananas_train' if is_train
+                             else 'bananas_val', 'label.csv')
+    csv_data = pd.read_csv(csv_fname)
+    csv_data = csv_data.set_index('img_name')
+    images, targets = [], []
+    for img_name, target in csv_data.iterrows():
+        images.append(ds.vision.read_image(
+            os.path.join(data_dir, 'bananas_train' if is_train else
+                         'bananas_val', 'images', f'{img_name}')))
+        # 这里的target包含（类别，左上角x，左上角y，右下角x，右下角y），
+        # 其中所有图像都具有相同的香蕉类（索引为0）
+        targets.append(list(target))
+    return images, d2l.tensor(targets, dtype=mindspore.float32).unsqueeze(1) / 255
+```
+
 通过使用`read_data_bananas`函数读取图像和标签，以下`BananasDataset`类别将允许我们[**创建一个自定义`Dataset`实例**]来加载香蕉检测数据集。
 
 ```{.python .input}
@@ -171,6 +203,24 @@ class BananasDataset(paddle.io.Dataset):
         return len(self.features)
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+class BananasDataset():
+    """一个用于加载香蕉检测数据集的自定义数据集"""
+    def __init__(self, is_train):
+        self.parent = None
+        self.features, self.labels = read_data_bananas(is_train)
+        print('read ' + str(len(self.features)) + (f' training examples' if
+              is_train else f' validation examples'))
+
+    def __getitem__(self, idx):
+        return (numpy.array(self.features[int(idx)], dtype=float), self.labels[int(idx)])
+
+    def __len__(self):
+        return len(self.features)
+```
+
 最后，我们定义`load_data_bananas`函数，来[**为训练集和测试集返回两个数据加载器实例**]。对于测试集，无须按随机顺序读取它。
 
 ```{.python .input}
@@ -208,6 +258,18 @@ def load_data_bananas(batch_size):
     return train_iter, val_iter
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+def load_data_bananas(batch_size):
+    """加载香蕉检测数据集"""
+    train_iter = ds.GeneratorDataset(source=BananasDataset(is_train=True), 
+                                     column_names=['imgs', 'labels'], shuffle=True).batch(batch_size=batch_size)
+    val_iter = ds.GeneratorDataset(source=BananasDataset(is_train=False), 
+                                     column_names=['imgs', 'labels'], shuffle=False).batch(batch_size=batch_size)
+    return train_iter, val_iter
+```
+
 让我们[**读取一个小批量，并打印其中的图像和标签的形状**]。
 图像的小批量的形状为（批量大小、通道数、高度、宽度），看起来很眼熟：它与我们之前图像分类任务中的相同。
 标签的小批量的形状为（批量大小，$m$，5），其中$m$是数据集的任何图像中边界框可能出现的最大数量。
@@ -220,10 +282,18 @@ def load_data_bananas(batch_size):
 对于香蕉数据集而言，由于每张图像上只有一个边界框，因此$m=1$。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytroch, paddle
 batch_size, edge_size = 32, 256
 train_iter, _ = load_data_bananas(batch_size)
 batch = next(iter(train_iter))
+batch[0].shape, batch[1].shape
+```
+
+```{.python .input}
+#@tab mindspore
+batch_size, edge_size = 32, 256
+train_iter, _ = load_data_bananas(batch_size)
+batch = next(train_iter.create_tuple_iterator())
 batch[0].shape, batch[1].shape
 ```
 
@@ -251,6 +321,14 @@ for ax, label in zip(axes, batch[1][0:10]):
 ```{.python .input}
 #@tab paddle
 imgs = (batch[0][0:10].transpose([0, 2, 3, 1])) / 255
+axes = d2l.show_images(imgs, 2, 5, scale=2)
+for ax, label in zip(axes, batch[1][0:10]):
+    d2l.show_bboxes(ax, [label[0][1:5] * edge_size], colors=['w'])
+```
+
+```{.python .input}
+#@tab mindspore
+imgs = (batch[0][0:10]) / 255
 axes = d2l.show_images(imgs, 2, 5, scale=2)
 for ax, label in zip(axes, batch[1][0:10]):
     d2l.show_bboxes(ax, [label[0][1:5] * edge_size], colors=['w'])
