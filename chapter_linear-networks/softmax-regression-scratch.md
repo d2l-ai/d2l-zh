@@ -591,13 +591,45 @@ train_ch3(net, train_iter, test_iter, cross_entropy, num_epochs, updater)
 给定一系列图像，我们将比较它们的实际标签（文本输出的第一行）和模型预测（文本输出的第二行）。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, tensorflow
 def predict_ch3(net, test_iter, n=6):  #@save
     """预测标签（定义见第3章）"""
     for X, y in test_iter:
         break
     trues = d2l.get_fashion_mnist_labels(y)
     preds = d2l.get_fashion_mnist_labels(d2l.argmax(net(X), axis=1))
+    titles = [true +'\n' + pred for true, pred in zip(trues, preds)]
+    d2l.show_images(
+        d2l.reshape(X[0:n], (n, 28, 28)), 1, n, titles=titles[0:n])
+
+predict_ch3(net, test_iter)
+```
+
+```{.python .input}
+#@tab pytorch
+def predict_ch3(net, test_iter, n=6):  #@save
+    """预测标签（定义见第3章）"""
+    for X, y in test_iter:
+        break
+    trues = d2l.get_fashion_mnist_labels(y)
+    with torch.no_grad():
+        preds = d2l.get_fashion_mnist_labels(d2l.argmax(net(X), axis=1))
+    titles = [true +'\n' + pred for true, pred in zip(trues, preds)]
+    d2l.show_images(
+        d2l.reshape(X[0:n], (n, 28, 28)), 1, n, titles=titles[0:n])
+
+predict_ch3(net, test_iter)
+```
+
+```{.python .input}
+#@tab paddle
+def predict_ch3(net, test_iter, n=6):  #@save
+    """预测标签（定义见第3章）"""
+    for X, y in test_iter:
+        break
+    trues = d2l.get_fashion_mnist_labels(y)
+    with torch.no_grad():
+        preds = d2l.get_fashion_mnist_labels(d2l.argmax(net(X), axis=1))
     titles = [true +'\n' + pred for true, pred in zip(trues, preds)]
     d2l.show_images(
         d2l.reshape(X[0:n], (n, 28, 28)), 1, n, titles=titles[0:n])
