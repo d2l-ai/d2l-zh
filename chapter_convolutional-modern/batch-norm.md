@@ -261,8 +261,8 @@ class BatchNorm(nn.Module):
         self.gamma = nn.Parameter(torch.ones(shape))
         self.beta = nn.Parameter(torch.zeros(shape))
         # 非模型参数的变量初始化为0和1
-        self.moving_mean = torch.zeros(shape)
-        self.moving_var = torch.ones(shape)
+        self.register_buffer("moving_mean", torch.zeros(shape))
+        self.register_buffer("moving_var", torch.ones(shape))
 
     def forward(self, X):
         # 如果X不在内存上，将moving_mean和moving_var
