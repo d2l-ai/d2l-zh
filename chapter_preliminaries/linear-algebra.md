@@ -720,7 +720,7 @@ A.cumsum(axis=0)
 给定两个向量$\mathbf{x},\mathbf{y}\in\mathbb{R}^d$，
 它们的*点积*（dot product）$\mathbf{x}^\top\mathbf{y}$
 （或$\langle\mathbf{x},\mathbf{y}\rangle$）
-是相同位置的按元素乘积的和：$\mathbf{x}^\top \mathbf{y} = \sum_{i=1}^{d} x_i y_i$。
+是相同位置的元素乘积的和：$\mathbf{x}^\top \mathbf{y} = \sum_{i=1}^{d} x_i y_i$。
 
 [~~点积是相同位置的按元素乘积的和~~]
 
