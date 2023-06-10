@@ -151,7 +151,7 @@ class Attend(nn.Module):
         # beta的形状：（批量大小，序列A的词元数，embed_size），
         # 意味着序列B被软对齐到序列A的每个词元(beta的第1个维度)
         beta = torch.bmm(F.softmax(e, dim=-1), B)
-        # beta的形状：（批量大小，序列B的词元数，embed_size），
+        # alpha的形状：（批量大小，序列B的词元数，embed_size），
         # 意味着序列A被软对齐到序列B的每个词元(alpha的第1个维度)
         alpha = torch.bmm(F.softmax(e.permute(0, 2, 1), dim=-1), A)
         return beta, alpha
@@ -174,7 +174,7 @@ class Attend(nn.Layer):
         # beta的形状：（批量大小，序列A的词元数，embed_size），
         # 意味着序列B被软对齐到序列A的每个词元(beta的第1个维度)
         beta = paddle.bmm(F.softmax(e, axis=-1), B)
-        # beta的形状：（批量大小，序列B的词元数，embed_size），
+        # alpha的形状：（批量大小，序列B的词元数，embed_size），
         # 意味着序列A被软对齐到序列B的每个词元(alpha的第1个维度)
         alpha = paddle.bmm(F.softmax(e.transpose([0, 2, 1]), axis=-1), A)
         return beta, alpha
