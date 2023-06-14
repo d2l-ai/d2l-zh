@@ -509,7 +509,7 @@ id(Y) == before
 1. 首先，我们不想总是不必要地分配内存。在机器学习中，我们可能有数百兆的参数，并且在一秒内多次更新所有参数。通常情况下，我们希望原地执行这些更新；
 2. 如果我们不原地更新，其他引用仍然会指向旧的内存位置，这样我们的某些代码可能会无意中引用旧的参数。
 
-:begin_tab:`mxnet, pytorch`
+:begin_tab:`mxnet, pytorch, paddle`
 幸运的是，(**执行原地操作**)非常简单。
 我们可以使用切片表示法将操作的结果分配给先前分配的数组，例如`Y[:] = <expression>`。
 为了说明这一点，我们首先创建一个新的矩阵`Z`，其形状与另一个`Y`相同，
@@ -550,13 +550,18 @@ print('id(Z):', id(Z))
 #@tab paddle
 Z = paddle.zeros_like(Y)
 print('id(Z):', id(Z))
-Z = X + Y
+Z[:] = X + Y
 print('id(Z):', id(Z))
 ```
 
 :begin_tab:`mxnet, pytorch`
 [**如果在后续计算中没有重复使用`X`，
 我们也可以使用`X[:] = X + Y`或`X += Y`来减少操作的内存开销。**]
+:end_tab:
+
+:begin_tab:`paddle`
+[**如果在后续计算中没有重复使用`X`，
+我们也可以使用`X[:] = X + Y`或`X[:] += Y`来减少操作的内存开销。**]
 :end_tab:
 
 :begin_tab:`tensorflow`
@@ -573,9 +578,16 @@ print('id(Z):', id(Z))
 :end_tab:
 
 ```{.python .input}
-#@tab mxnet, pytorch, paddle
+#@tab mxnet, pytorch
 before = id(X)
 X += Y
+id(X) == before
+```
+
+```{.python .input}
+#@tab paddle
+before = id(X)
+X[:] += Y
 id(X) == before
 ```
 
