@@ -855,7 +855,7 @@ def read_data_nmt():
 
     Defined in :numref:`sec_machine_translation`"""
     data_dir = d2l.download_extract('fra-eng')
-    with open(os.path.join(data_dir, 'fra.txt'), 'r') as f:
+    with open(os.path.join(data_dir, 'fra.txt'), 'r', encoding='UTF-8') as f:
         return f.read()
 
 def preprocess_nmt(text):
