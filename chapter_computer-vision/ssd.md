@@ -646,6 +646,7 @@ for epoch in range(num_epochs):
         with autograd.record():
             # 生成多尺度的锚框，为每个锚框预测类别和偏移量
             anchors, cls_preds, bbox_preds = net(X)
+            anchors = anchors.to(device)
             # 为每个锚框标注类别和偏移量
             bbox_labels, bbox_masks, cls_labels = d2l.multibox_target(anchors,
                                                                       Y)
