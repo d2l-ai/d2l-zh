@@ -85,7 +85,7 @@ jobs:
 
   build_and_deploy:
       name: Build Website/PDF & Publish
-      needs: [build_torch, build_tf, build_jax, build_mxnet]
+      needs: [build_torch, build_tf, build_mxnet]
       if: |
         always() &&
         github.repository == 'd2l-ai/d2l-zh' &&
