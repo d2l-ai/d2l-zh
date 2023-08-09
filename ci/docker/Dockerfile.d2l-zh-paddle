@@ -8,6 +8,9 @@ WORKDIR /home/ci
 ADD d2l_job.sh .
 RUN chmod +x d2l_job.sh; chown ci d2l_job.sh
 
+# opencv dependencies required by paddle
+RUN apt-get update && apt-get install libgl1 -y
+
 # Copy git timesync for caching
 ADD git-timesync /home/ci/.local/bin/
 RUN chmod +x /home/ci/.local/bin/git-timesync
