@@ -10,6 +10,7 @@ TARGET_BRANCH="$2" # Eg. 'master' ; if PR raised to master
 CACHE_DIR="$3"  # Eg. 'ci_cache_pr' or 'ci_cache_push'
 
 pip3 install d2l==0.17.6
+pip3 install --upgrade numpy  # numpy version installed by d2l==0.17.6 is too old
 mkdir _build
 
 source $(dirname "$0")/utils.sh
