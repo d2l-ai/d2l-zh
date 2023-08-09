@@ -35,6 +35,10 @@ job_type_info = {
     'ci-gpu-mxnet': {
         'job_definition': 'd2l-ci-zh-gpu-mxnet:1',
         'job_queue': 'D2L-CI-GPU'
+    },
+    'ci-gpu-paddle': {
+        'job_definition': 'd2l-ci-zh-gpu-paddle:1',
+        'job_queue': 'D2L-CI-GPU'
     }
 }
 

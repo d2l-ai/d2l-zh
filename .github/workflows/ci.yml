@@ -83,16 +83,38 @@ jobs:
             echo "Terminating Submitted AWS Batch Job: "${{ env.Batch_JobID }}""
             aws batch terminate-job --job-id "${{ env.Batch_JobID }}" --reason "Job terminated by cancelled workflow"
 
+  build_paddle:
+      name: Build Paddle
+      if: "github.repository == 'd2l-ai/d2l-zh' && !contains(github.event.head_commit.message, '[skip paddle]') && !contains(github.event.head_commit.message, '[skip frameworks]')"
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+        - name: Setup Env Vars
+          uses: ./.github/actions/setup_env_vars
+        - name: Evaluate Paddle on AWS Batch
+          uses: ./.github/actions/submit-job
+          with:
+            job-type: ci-gpu-paddle
+            job-name: D2L-Build-Paddle
+            command: chmod +x ./.github/workflow_scripts/build_paddle.sh && ./.github/workflow_scripts/build_paddle.sh "${{ env.REPO_NAME }}" "${{ env.TARGET_BRANCH }}" "${{ env.CACHE_DIR }}"
+        - name: Terminate Batch Job on Cancellation
+          if: ${{ cancelled() && env.Batch_JobID }}
+          run: |
+            echo "Terminating Submitted AWS Batch Job: "${{ env.Batch_JobID }}""
+            aws batch terminate-job --job-id "${{ env.Batch_JobID }}" --reason "Job terminated by cancelled workflow"
+
   build_and_deploy:
       name: Build Website/PDF & Publish
-      needs: [build_torch, build_tf, build_mxnet]
+      needs: [build_torch, build_tf, build_mxnet, build_paddle]
       if: |
         always() &&
         github.repository == 'd2l-ai/d2l-zh' &&
         !contains(github.event.head_commit.message, '[skip builder]') &&
         (needs.build_torch.result == 'success' || needs.build_torch.result == 'skipped') &&
         (needs.build_tf.result == 'success' || needs.build_tf.result == 'skipped') &&
-        (needs.build_mxnet.result == 'success' || needs.build_mxnet.result == 'skipped')
+        (needs.build_mxnet.result == 'success' || needs.build_mxnet.result == 'skipped') &&
+        (needs.build_paddle.result == 'success' || needs.build_paddle.result == 'skipped')
       runs-on: ubuntu-latest
       steps:
         - name: Checkout repository
