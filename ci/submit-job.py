@@ -25,15 +25,15 @@ job_type_info = {
         'job_queue': 'D2L-CI-CPU'
     },
     'ci-gpu-torch': {
-        'job_definition': 'd2l-zh-ci-gpu-torch:1',
+        'job_definition': 'd2l-ci-zh-gpu-torch:1',
         'job_queue': 'D2L-CI-GPU'
     },
     'ci-gpu-tf': {
-        'job_definition': 'd2l-zh-ci-gpu-tf:1',
+        'job_definition': 'd2l-ci-zh-gpu-tf:1',
         'job_queue': 'D2L-CI-GPU'
     },
     'ci-gpu-mxnet': {
-        'job_definition': 'd2l-zh-ci-gpu-mxnet:1',
+        'job_definition': 'd2l-ci-zh-gpu-mxnet:1',
         'job_queue': 'D2L-CI-GPU'
     }
 }
