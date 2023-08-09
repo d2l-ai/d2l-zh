@@ -1,0 +1,91 @@
+name: "Submit Job to AWS Batch"
+inputs:
+  job-type:
+    required: true
+  job-name:
+    required: true
+  work-dir:
+    required: false
+    default: .
+  command:
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: arn:aws:iam::650140442593:role/D2L_CI_Batch
+        role-duration-seconds: 14400  # this requires changing max session duration to 4hrs in AWS Console for D2L_CI_Batch
+        aws-region: us-west-2
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        pip install boto3
+
+    - name: Check for Actor Permissions
+      id: check
+      continue-on-error: true
+      uses: prince-chrismc/check-actor-permissions-action@88995341900ae4e7aa248df51d32aeb981cc62f5 # v2
+      with:
+        github_token: ${{ github.token }}
+        permission: write
+
+    - name: Submit Job (For Push on development branches)
+      if: ${{ github.event_name == 'push' && github.ref != 'refs/heads/release' && github.ref != 'refs/heads/classic' }}
+      shell: bash
+      run: |
+        echo "Start submitting job for a Push Event on a Development Branch"
+        # Add "-push" for all these jobs to use elevated push level job-def permissions
+        python ./ci/submit-job.py --job-type ${{ inputs.job-type }}-push \
+                                  --name ${{ inputs.job-name }}-'${{ github.ref }}' \
+                                  --source-ref '${{ github.ref }}' \
+                                  --work-dir ${{ inputs.work-dir }} \
+                                  --remote https://github.com/'${{ github.repository }}' \
+                                  --command "${{ inputs.command }}" \
+                                  --safe-to-use-script \
+                                  --wait
+
+    - name: Submit Job (For Push on Release/Classic)
+      if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/classic') }}
+      shell: bash
+      run: |
+        echo "Start submitting job for a Push Event on Release/Classic Branch"
+        # Add "-release" for all these jobs to use elevated release level job-def permissions
+        python ./ci/submit-job.py --job-type ${{ inputs.job-type }}-release \
+                                  --name ${{ inputs.job-name }}-'${{ github.ref }}' \
+                                  --source-ref '${{ github.ref }}' \
+                                  --work-dir ${{ inputs.work-dir }} \
+                                  --remote https://github.com/'${{ github.repository }}' \
+                                  --command "${{ inputs.command }}" \
+                                  --safe-to-use-script \
+                                  --wait
+
+    - name: Submit Job (For Pull Request Safe Scripts)
+      if: ${{ github.event_name == 'pull_request_target' && steps.check.outputs.permitted == 'true' }}
+      shell: bash
+      run: |
+        echo "Start submitting job for PR Safe Scripts"
+        python ./ci/submit-job.py --job-type ${{ inputs.job-type }} \
+                                  --name ${{ inputs.job-name }}-PR#'${{ github.event.number }}' \
+                                  --source-ref '${{ github.event.pull_request.head.sha }}' \
+                                  --work-dir ${{ inputs.work-dir }} \
+                                  --remote https://github.com/'${{ github.event.pull_request.head.repo.full_name }}' \
+                                  --command "${{ inputs.command }}" \
+                                  --safe-to-use-script \
+                                  --wait
+
+    - name: Submit Job (For Pull Request Not Safe Scripts)
+      if: ${{ github.event_name == 'pull_request_target' && steps.check.outputs.permitted != 'true' }}
+      shell: bash
+      run: |
+        echo "Start submitting job for PR Unsafe Scripts"
+        python ./ci/submit-job.py --job-type ${{ inputs.job-type }} \
+                                  --name ${{ inputs.job-name }}-PR#'${{ github.event.number }}' \
+                                  --source-ref '${{ github.event.pull_request.head.sha }}' \
+                                  --work-dir ${{ inputs.work-dir }} \
+                                  --remote https://github.com/'${{ github.event.pull_request.head.repo.full_name }}' \
+                                  --command "${{ inputs.command }}" \
+                                  --wait
