@@ -26,7 +26,7 @@ d2lbook build pdf
 d2lbook build pdf --tab pytorch
 
 
-# Check if the JOB_NAME is either "$REPO_NAME/release" or "$REPO_NAME/v1"
+# Check if the JOB_NAME is "$REPO_NAME/release"
 if [[ "$JOB_NAME" == "$REPO_NAME/release" ]]; then
 
   # Setup D2L Bot
