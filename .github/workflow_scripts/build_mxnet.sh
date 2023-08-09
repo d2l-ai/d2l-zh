@@ -20,7 +20,7 @@ d2lbook build outputcheck tabcheck
 # Move aws copy commands for cache restore outside
 if [ "$DISABLE_CACHE" = "false" ]; then
   echo "Retrieving mxnet build cache from "$CACHE_DIR""
-  measure_command_time "aws s3 sync s3://preview.d2l.ai/"$CACHE_DIR"/"$REPO_NAME"-"$TARGET_BRANCH"/_build/eval_mxnet/ _build/eval_mxnet/ --delete --quiet --exclude 'data/*'"
+  measure_command_time "aws s3 sync s3://preview.d2l.ai/"$CACHE_DIR"/"$REPO_NAME"-"$TARGET_BRANCH"/_build/eval/ _build/eval/ --delete --quiet --exclude 'data/*'"
 fi
 
 # MXNet training for the following notebooks is slow in the container;
