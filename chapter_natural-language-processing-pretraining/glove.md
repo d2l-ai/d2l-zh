@@ -50,7 +50,7 @@ $$\sum_{i\in\mathcal{V}} \sum_{j\in\mathcal{V}} h(x_{ij}) \left(\mathbf{u}_j^\to
 
 我们也可以从另一个角度来理解GloVe模型。使用 :numref:`subsec_skipgram-global`中的相同符号，设$p_{ij} \stackrel{\mathrm{def}}{=} P(w_j \mid w_i)$为生成上下文词$w_j$的条件概率，给定$w_i$作为语料库中的中心词。 :numref:`tab_glove`根据大量语料库的统计数据，列出了给定单词“ice”和“steam”的共现概率及其比值。
 
-:大型语料库中的词-词共现概率及其比值（根据 :cite:`Pennington.Socher.Manning.2014`中的表1改编）
+大型语料库中的词-词共现概率及其比值（根据 :cite:`Pennington.Socher.Manning.2014`中的表1改编）
 
 |$w_k$=|solid|gas|water|fashion|
 |:--|:-|:-|:-|:-|
