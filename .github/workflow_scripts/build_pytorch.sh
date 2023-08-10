@@ -9,8 +9,8 @@ REPO_NAME="$1"  # Eg. 'd2l-zh'
 TARGET_BRANCH="$2" # Eg. 'master' ; if PR raised to master
 CACHE_DIR="$3"  # Eg. 'ci_cache_pr' or 'ci_cache_push'
 
-pip3 install .  # TODO: d2l==0.17.6 needs updating to fix show_trace_2d bug; Use local d2l until
-pip3 install --upgrade numpy  # numpy version installed by d2l==0.17.6 is too old
+pip3 install d2l==0.17.6
+pip3 install numpy==1.24.4  # numpy version installed by d2l==0.17.6 is too old
 mkdir _build
 
 source $(dirname "$0")/utils.sh
