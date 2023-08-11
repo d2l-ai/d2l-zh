@@ -106,6 +106,22 @@ net = nn.Sequential(
     nn.Linear(84, 10))
 ```
 
+```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+from mindspore import nn, ops, value_and_grad
+
+net = nn.SequentialCell([
+    nn.Conv2d(1, 6, kernel_size=5, padding=2, pad_mode='pad', weight_init='xavier_uniform'), nn.Sigmoid(),
+    nn.AvgPool2d(kernel_size=2, stride=2),
+    nn.Conv2d(6, 16, kernel_size=5, pad_mode='valid', weight_init='xavier_uniform'), nn.Sigmoid(),
+    nn.AvgPool2d(kernel_size=2, stride=2), nn.Flatten(),
+    nn.Dense(16 * 5 * 5, 120, weight_init='xavier_uniform'), nn.Sigmoid(),
+    nn.Dense(120, 84, weight_init='xavier_uniform'), nn.Sigmoid(),
+    nn.Dense(84, 10, weight_init='xavier_uniform')
+])
+```
+
 我们对原始模型做了一点小改动，去掉了最后一层的高斯激活。除此之外，这个网络与最初的LeNet-5一致。
 
 下面，我们将一个大小为$28 \times 28$的单通道（黑白）图像通过LeNet。通过在每一层打印输出的形状，我们可以[**检查模型**]，以确保其操作与我们期望的 :numref:`img_lenet_vert`一致。
@@ -143,6 +159,14 @@ X = paddle.rand((1, 1, 28, 28), 'float32')
 for layer in net:
     X = layer(X)
     print(layer.__class__.__name__, 'output shape: \t', X.shape)
+```
+
+```{.python .input}
+#@tab mindspore
+X = ops.randn(1, 1, 28, 28)
+for layer in net:
+    X = layer(X)
+    print(layer.__class__.__name__,'output shape:\t',X.shape)
 ```
 
 请注意，在整个卷积块中，与上一层相比，每一层特征的高度和宽度都减小了。
@@ -223,6 +247,17 @@ def evaluate_accuracy_gpu(net, data_iter, device=None):     #@save
                 X = paddle.to_tensor(X, place=device)
             y = paddle.to_tensor(y, place=device)
             metric.add(d2l.accuracy(net(X), y), d2l.size(y))
+    return metric[0] / metric[1]
+```
+
+```{.python .input}
+#@tab mindspore
+def evaluate_accuracy_gpu(net, dataset, device=None): 
+    """使用GPU计算模型在数据集上的精度。"""
+    net.set_train(False)
+    metric = d2l.Accumulator(2)
+    for X, y in dataset.create_tuple_iterator():
+        metric.add(d2l.accuracy(net(X), y), y.size)
     return metric[0] / metric[1]
 ```
 
@@ -409,12 +444,62 @@ def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
           f'on {str(device)}')
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+def train_ch6(net, train_dataset, test_dataset, num_epochs, lr):
+    """用GPU训练模型(在第六章定义)。"""
+    optim = nn.SGD(net.trainable_params(), learning_rate=lr)
+    loss_fn = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction='mean')
+
+    # 定义前向传播函数
+    def forward_fn(x, y):
+        y_hat = net(x)
+        loss = loss_fn(y_hat, y)
+        return loss, y_hat
+    grad_fn = value_and_grad(forward_fn, None, weights=net.trainable_params(), has_aux=True)
+    
+    # 定义模型单步训练
+    def train(X, Y, optim):
+        (loss, y_hat), grads = grad_fn(X, Y)
+        loss = ops.depend(loss, optim(grads))
+        return loss, y_hat
+    
+    animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs],
+                            legend=['train loss', 'train acc', 'test acc'])
+    timer, num_batches = d2l.Timer(), train_dataset.get_dataset_size()
+    for epoch in range(num_epochs):
+        metric = d2l.Accumulator(3)
+        net.set_train()
+        for i, (X, y) in enumerate(train_dataset.create_tuple_iterator()):
+            timer.start()
+            loss, y_hat = train(X, y, optim)
+            metric.add(loss.asnumpy() * X.shape[0], d2l.accuracy(y_hat, y), X.shape[0])
+            timer.stop()
+            train_l = metric[0] / metric[2]
+            train_acc = metric[1] / metric[2]
+            if (i + 1) % (num_batches // 5) == 0 or i == num_batches - 1:
+                animator.add(epoch + (i + 1) / num_batches,
+                             (train_l, train_acc, None))
+        test_acc = evaluate_accuracy_gpu(net, test_dataset)
+        animator.add(epoch + 1, (None, None, test_acc))
+    print(f'loss {train_l:.3f}, train acc {train_acc:.3f}, '
+          f'test acc {test_acc:.3f}')
+    print(f'{metric[2] * num_epochs / timer.sum():.1f} examples/sec')
+```
+
 现在，我们[**训练和评估LeNet-5模型**]。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, mindspore, paddle
 lr, num_epochs = 0.9, 10
 train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
+```
+
+```{.python .input}
+#@tab mindspore
+lr, num_epochs = 0.9, 10
+train_ch6(net, train_iter, test_iter, num_epochs, lr)
 ```
 
 ## 小结

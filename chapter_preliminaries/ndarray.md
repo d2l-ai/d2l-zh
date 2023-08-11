@@ -38,6 +38,12 @@
 由于`tensorflow`名称有点长，我们经常在导入它后使用短别名`tf`。
 :end_tab:
 
+:begin_tab:`tensorflow`
+首先，我们导入`mindspore`。此外，需要导入`mindspore`的`ops`API来完成部分操作。
+:end_tab:
+
+
+
 ```{.python .input}
 from mxnet import np, npx
 npx.set_np()
@@ -58,6 +64,12 @@ import tensorflow as tf
 import warnings
 warnings.filterwarnings(action='ignore')
 import paddle
+```
+
+```{.python .input}
+#@tab mindspore
+import mindspore
+import mindspore.ops as ops
 ```
 
 [**张量表示一个由数值组成的数组，这个数组可能有多个维度**]。
@@ -100,6 +112,12 @@ x = paddle.arange(12)
 x
 ```
 
+```{.python .input}
+#@tab mindspore
+x = ops.arange(12)
+x
+```
+
 [**可以通过张量的`shape`属性来访问张量（沿每个轴的长度）的*形状***]
 (~~和张量中元素的总数~~)。
 
@@ -130,6 +148,13 @@ tf.size(x)
 x.numel()
 ```
 
+
+```{.python .input}
+#@tab mindspore
+x.size
+```
+
+
 [**要想改变一个张量的形状而不改变元素数量和元素值，可以调用`reshape`函数。**]
 例如，可以把张量`x`从形状为（12,）的行向量转换为形状为（3,4）的矩阵。
 这个新的张量包含与转换前相同的值，但是它被看成一个3行4列的矩阵。
@@ -137,7 +162,7 @@ x.numel()
 注意，通过改变张量的形状，张量的大小不会改变。
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, mindspore
 X = x.reshape(3, 4)
 X
 ```
@@ -183,6 +208,11 @@ tf.zeros((2, 3, 4))
 paddle.zeros((2, 3, 4))
 ```
 
+```{.python .input}
+#@tab mindspore
+ops.zeros((2, 3, 4))
+```
+
 同样，我们可以创建一个形状为`(2,3,4)`的张量，其中所有元素都设置为1。代码如下：
 
 ```{.python .input}
@@ -202,6 +232,11 @@ tf.ones((2, 3, 4))
 ```{.python .input}
 #@tab paddle
 paddle.ones((2, 3, 4))
+```
+
+```{.python .input}
+#@tab mindspore
+mindspore.ones((2, 3, 4))
 ```
 
 有时我们想通过从某个特定的概率分布中随机采样来得到张量中每个元素的值。
@@ -228,6 +263,11 @@ tf.random.normal(shape=[3, 4])
 paddle.randn((3, 4),'float32')
 ```
 
+```{.python .input}
+#@tab mindspore
+ops.randn(3, 4)
+```
+
 我们还可以[**通过提供包含数值的Python列表（或嵌套列表），来为所需张量中的每个元素赋予确定值**]。
 在这里，最外层的列表对应于轴0，内层的列表对应于轴1。
 
@@ -248,6 +288,11 @@ tf.constant([[2, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
 ```{.python .input}
 #@tab paddle
 paddle.to_tensor([[2, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
+```
+
+```{.python .input}
+#@tab mindspore
+mindspore.Tensor([[2, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
 ```
 
 ## 运算符
@@ -302,6 +347,13 @@ y = paddle.to_tensor([2, 2, 2, 2])
 x + y, x - y, x * y, x / y, x**y  # **运算符是求幂运算
 ```
 
+```{.python .input}
+#@tab mindspore
+x = mindspore.Tensor([1.0, 2, 4, 8])
+y = mindspore.Tensor([2, 2, 2, 2])
+x + y, x - y, x * y, x / y, x ** y  # **运算符是求幂运算
+```
+
 (**“按元素”方式可以应用更多的计算**)，包括像求幂这样的一元运算符。
 
 ```{.python .input}
@@ -321,6 +373,11 @@ tf.exp(x)
 ```{.python .input}
 #@tab paddle
 paddle.exp(x)
+```
+
+```{.python .input}
+#@tab mindspore
+ops.exp(x)
 ```
 
 除了按元素计算外，我们还可以执行线性代数运算，包括向量点积和矩阵乘法。
@@ -361,6 +418,13 @@ Y = paddle.to_tensor([[2.0, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
 paddle.concat((X, Y), axis=0), paddle.concat((X, Y), axis=1)
 ```
 
+```{.python .input}
+#@tab mindspore
+X = ops.arange(12, dtype=ms.float32).reshape((3,4))
+Y = ms.Tensor([[2.0, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
+ops.cat((X, Y), axis=0), ops.cat((X, Y), axis=1)
+```
+
 有时，我们想[**通过*逻辑运算符*构建二元张量**]。
 以`X == Y`为例：
 对于每个位置，如果`X`和`Y`在该位置相等，则新张量中相应项的值为1。
@@ -374,7 +438,7 @@ X == Y
 [**对张量中的所有元素进行求和，会产生一个单元素张量。**]
 
 ```{.python .input}
-#@tab mxnet, pytorch, paddle
+#@tab mxnet, pytorch, paddle, mindspore
 X.sum()
 ```
 
@@ -423,6 +487,13 @@ b = paddle.reshape(paddle.arange(2), (1, 2))
 a, b
 ```
 
+```{.python .input}
+#@tab mindspore
+a = ops.arange(3).reshape((3, 1))
+b = ops.arange(2).reshape((1, 2))
+a, b
+```
+
 由于`a`和`b`分别是$3\times1$和$1\times2$矩阵，如果让它们相加，它们的形状不匹配。
 我们将两个矩阵*广播*为一个更大的$3\times2$矩阵，如下所示：矩阵`a`将复制列，
 矩阵`b`将复制行，然后再按元素相加。
@@ -458,7 +529,7 @@ TensorFlow中的`Variables`是支持赋值的可变容器。
 :end_tab:
 
 ```{.python .input}
-#@tab mxnet, pytorch, paddle
+#@tab mxnet, pytorch, paddle, mindspore
 X[1, 2] = 9
 X
 ```
@@ -475,7 +546,7 @@ X_var
 虽然我们讨论的是矩阵的索引，但这也适用于向量和超过2个维度的张量。
 
 ```{.python .input}
-#@tab mxnet, pytorch, paddle
+#@tab mxnet, pytorch, paddle, mindspore
 X[0:2, :] = 12
 X
 ```
@@ -554,6 +625,14 @@ Z = X + Y
 print('id(Z):', id(Z))
 ```
 
+```{.python .input}
+#@tab mindspore
+Z = ops.zeros_like(Y)
+print('id(Z):', id(Z))
+Z[:] = X + Y
+print('id(Z):', id(Z))
+```
+
 :begin_tab:`mxnet, pytorch`
 [**如果在后续计算中没有重复使用`X`，
 我们也可以使用`X[:] = X + Y`或`X += Y`来减少操作的内存开销。**]
@@ -590,6 +669,13 @@ def computation(X, Y):
     return C + Y
 
 computation(X, Y)
+```
+
+```{.python .input}
+#@tab mindspore
+before = id(X)
+X[:] = X + Y
+id(X) == before
 ```
 
 ## 转换为其他Python对象
@@ -632,6 +718,13 @@ B = paddle.to_tensor(A)
 type(A), type(B)
 ```
 
+```{.python .input}
+#@tab mindspore
+A = X.numpy()
+B = ms.Tensor(A)
+type(A), type(B)
+```
+
 要(**将大小为1的张量转换为Python标量**)，我们可以调用`item`函数或Python的内置函数。
 
 ```{.python .input}
@@ -654,6 +747,13 @@ a, a.item(), float(a), int(a)
 ```{.python .input}
 #@tab paddle
 a = paddle.to_tensor([3.5])
+a, a.item(), float(a), int(a)
+```
+
+```{.python .input}
+#@tab mindspore
+a = ms.Tensor([3.5])
+# mindspore里item()返回的是tensor标量，而不是python标量
 a, a.item(), float(a), int(a)
 ```
 

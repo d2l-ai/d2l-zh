@@ -42,7 +42,12 @@ import paddle
 ```
 
 ```{.python .input}
-#@tab mxnet, pytorch, paddle
+#@tab mindspore
+from d2l import mindspore as d2l
+```
+
+```{.python .input}
+#@tab mxnet, pytorch, paddle, mindspore
 def corr2d_multi_in(X, K):
     # 先遍历“X”和“K”的第0个维度（通道维度），再把它们加在一起
     return sum(d2l.corr2d(x, k) for x, k in zip(X, K))
@@ -144,7 +149,7 @@ K = d2l.normal(0, 1, (2, 3, 1, 1))
 ```
 
 ```{.python .input}
-#@tab tensorflow
+#@tab tensorflow, mindspore
 X = d2l.normal((3, 3, 3), 0, 1)
 K = d2l.normal((2, 3, 1, 1), 0, 1)
 ```

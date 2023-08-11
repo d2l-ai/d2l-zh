@@ -68,6 +68,23 @@
 例如，假设你安装了CUDA10.1，你可以通过`conda install paddlepaddle-gpu==2.2.2 cudatoolkit=10.1 --channel https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/Paddle/`安装支持CUDA10.1的PaddlePaddle版本。
 :end_tab:
 
+:begin_tab:`mindspore`
+在MindSpore中，每个张量都有一个设备（device），
+我们通常将其称为上下文（context）。
+默认情况下，所有变量和相关的计算都分配给CPU。
+有时上下文可能是GPU。
+当我们跨多个服务器部署作业时，事情会变得更加棘手。
+通过智能地将数组分配给上下文，
+我们可以最大限度地减少在设备之间传输数据的时间。
+例如，当在带有GPU的服务器上训练神经网络时，
+我们通常希望模型的参数在GPU上。
+
+接下来，我们需要确认安装了MindSpore的GPU版本。
+如果已经安装了MindSpore的CPU版本，我们需要先卸载它。
+然后根据你的CUDA版本安装相应的MindSpore的GPU版本。
+例如，假设你安装了CUDA11.1，你可以通过`conda install mindspore-gpu=1.9.0 cudatoolkit=11.1 -c mindspore -c conda-forge`安装支持CUDA11.1的MindSpore版本。
+:end_tab:
+
 要运行此部分中的程序，至少需要两个GPU。
 注意，对大多数桌面计算机来说，这可能是奢侈的，但在云中很容易获得。
 例如可以使用AWS EC2的多GPU实例。
@@ -110,6 +127,18 @@
 另外，`gpu:0`和`gpu`是等价的。
 :end_tab:
 
+:begin_tab:`mindspore`
+在MindSpore中，CPU和GPU可以用`mindspore.set_context(device_target='CPU')`
+和`mindspore.set_context(device_target='GPU')`表示,
+如果没有设置`device_target`则使用MindSpore包对应的后端设备。
+应该注意的是，`cpu`设备意味着所有物理CPU和内存，
+这意味着MindSpore的计算将尝试使用所有CPU核心。
+然而，`gpu`设备只代表一个卡和相应的显存。
+如果有多个GPU，我们使用`mindspore.set_context(device_id=i)`
+来表示第$i$块GPU（$i$从0开始）。
+另外，`device_id`不设置时默认为0。
+:end_tab:
+
 ```{.python .input}
 from mxnet import np, npx
 from mxnet.gluon import nn
@@ -139,6 +168,11 @@ import paddle
 from paddle import nn
 
 paddle.device.set_device("cpu"), paddle.CUDAPlace(0), paddle.CUDAPlace(1)
+```
+
+```{.python .input}
+#@tab mindspore
+MindSpore当前对于context仅在第一次设置时生效，因此本小节中对于多个GPU环境的设置以及变量计算无法实现，请等待后续版本更新支持。
 ```
 
 我们可以(**查询可用gpu的数量。**)
@@ -517,4 +551,8 @@ net[0].weight.place
 
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11782)
+:end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/xxxxx)
 :end_tab:

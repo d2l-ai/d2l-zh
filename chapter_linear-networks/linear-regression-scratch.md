@@ -43,6 +43,16 @@ import random
 import paddle
 ```
 
+```{.python .input}
+#@tab mindspore
+%matplotlib inline
+import random
+import mindspore
+import mindspore.ops as ops
+from mindspore import Tensor
+from d2l import mindspore as d2l
+```
+
 ## 生成数据集
 
 为了简单起见，我们将[**根据带有噪声的线性模型构造一个人造数据集。**]
@@ -83,6 +93,16 @@ def synthetic_data(w, b, num_examples):  #@save
     y += tf.random.normal(shape=y.shape, stddev=0.01)
     y = d2l.reshape(y, (-1, 1))
     return X, y
+```
+
+```{.python .input}
+#@tab mindspore
+def synthetic_data(w, b, num_examples):  #@save
+    """生成y=Xw+b+噪声"""
+    X = ops.normal((num_examples, len(w)), Tensor(0, mindspore.int32), Tensor(1, mindspore.int32))
+    y = ops.matmul(X, w) + b
+    y += ops.normal(y.shape, Tensor(0, mindspore.int32), Tensor(0.01, mindspore.float32))
+    return X, y.reshape((-1, 1))
 ```
 
 ```{.python .input}
@@ -144,6 +164,19 @@ def data_iter(batch_size, features, labels):
         yield tf.gather(features, j), tf.gather(labels, j)
 ```
 
+```{.python .input}
+#@tab mindspore
+def data_iter(batch_size, features, labels):
+    num_examples = len(features)
+    indices = list(range(num_examples))
+    # 这些样本是随机读取的，没有特定的顺序
+    random.shuffle(indices)
+    for i in range(0, num_examples, batch_size):
+        batch_indices = Tensor(
+            indices[i: min(i + batch_size, num_examples)])
+        yield features[batch_indices], labels[batch_indices]
+```
+
 通常，我们利用GPU并行运算的优势，处理合理大小的“小批量”。
 每个样本都可以并行地进行模型计算，且每个样本损失函数的梯度也可以被并行计算。
 GPU可以在处理几百个样本时，所花费的时间不比处理一个样本时多太多。
@@ -174,6 +207,10 @@ for X, y in data_iter(batch_size, features, labels):
 在下面的代码中，我们通过从均值为0、标准差为0.01的正态分布中采样随机数来初始化权重，
 并将偏置初始化为0。
 
+:begin_tab:`mindspore`
+MindSpore的静态图思路是将整个模型视作一个完整的计算图，即模型、Loss、优化器均需要作为计算图的一部分。这与Pytorch的使用习惯有些不符。接下来将通过线性回归的例子来体现：
+:end_tab:
+
 ```{.python .input}
 w = np.random.normal(0, 0.01, (2, 1))
 b = np.zeros(1)
@@ -201,6 +238,16 @@ b = d2l.zeros(shape=[1])
 # w和b为创建的模型参数，stop_gradient默认为True，即梯度不更新，因此需要指定为False已更新梯度
 w.stop_gradient = False
 b.stop_gradient = False
+```
+
+```{.python .input}
+#@tab mindspore
+# 模型参数的初始化将在后续封装的模型内实现
+
+import mindspore.nn as nn
+from mindspore import Parameter
+from mindspore.common.initializer import initializer, Zero, Normal
+from mindspore import grad
 ```
 
 在初始化参数之后，我们的任务是更新这些参数，直到这些参数足够拟合我们的数据。
@@ -289,6 +336,21 @@ def sgd(params, lr, batch_size):
             params[i].clear_gradient()
 ```
 
+```{.python .input}
+#@tab mindspore
+class sgd(nn.Cell):
+    def __init__(self, lr, batch_size, params):
+        super().__init__()
+        self.lr = lr
+        self.batch_size = batch_size
+        self.params = params
+        
+    def construct(self, grads):
+        for idx in range(len(self.params)):
+            ops.assign(self.params[idx], self.params[idx] - self.lr * grads[idx] / self.batch_size)
+        return True
+```
+
 ## 训练
 
 现在我们已经准备好了模型训练所有需要的要素，可以实现主要的[**训练过程**]部分了。
@@ -310,6 +372,12 @@ def sgd(params, lr, batch_size):
 这里的迭代周期个数`num_epochs`和学习率`lr`都是超参数，分别设为3和0.03。
 设置超参数很棘手，需要通过反复试验进行调整。
 我们现在忽略这些细节，以后会在 :numref:`chap_optimization`中详细介绍。
+
+:begin_tab:`mindspore`
+按照上面的叙述，需要将模型和loss连接。
+
+定义模型，定义模型的参数，模型的输入输出。这里需要用到nn.Cell，因为只有这样才能够使编译器识别编译为计算图。
+:end_tab:
 
 ```{.python .input}
 #@tab all
@@ -373,6 +441,46 @@ for epoch in range(num_epochs):
         print(f'epoch {epoch + 1}, loss {float(train_l.mean()):f}')
 ```
 
+```{.python .input}
+#@tab mindspore
+# 构造前向网络（将模型和loss进行连接）
+class Net(nn.Cell):
+    def __init__(self):
+        super().__init__()
+        self.w = Parameter(initializer(Normal(0.01, 0), (2, 1), mindspore.float32))
+        self.b = Parameter(initializer(Zero(), 1, mindspore.float32))
+        
+    def construct(self, x, y):
+        y_hat = linreg(x, self.w, self.b)
+        loss = squared_loss(y_hat, y)
+        return loss
+
+# 训练过程
+lr = 0.03
+num_epochs = 3
+net = Net()
+optim = sgd(lr, batch_size, net.trainable_params())
+
+for epoch in range(num_epochs):
+    for X, y in data_iter(batch_size, features, labels):
+        # 计算反向梯度
+        grad_fn = mindspore.value_and_grad(net, grad_position=None, weights=optim.params)
+        loss, grads = grad_fn(X, y)
+        # 更新权重
+        optim(grads)
+    train_l = net(features, labels)
+    print(f'epoch {epoch + 1}, loss {float(train_l.mean().asnumpy()):f}')
+```
+
+
+:begin_tab:`mindspore`
+以上的训练过程。其实包括三步，分别为：
+
+     1.计算正向结果
+     2.计算反向梯度
+     3.更新权重
+:end_tab:
+
 因为我们使用的是自己合成的数据集，所以我们知道真正的参数是什么。
 因此，我们可以通过[**比较真实参数和通过训练学到的参数来评估训练的成功程度**]。
 事实上，真实参数和通过训练学到的参数确实非常接近。
@@ -382,6 +490,8 @@ for epoch in range(num_epochs):
 print(f'w的估计误差: {true_w - d2l.reshape(w, true_w.shape)}')
 print(f'b的估计误差: {true_b - b}')
 ```
+
+
 
 注意，我们不应该想当然地认为我们能够完美地求解参数。
 在机器学习中，我们通常不太关心恢复真正的参数，而更关心如何高度准确预测参数。

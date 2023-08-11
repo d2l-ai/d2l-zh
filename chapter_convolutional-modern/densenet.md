@@ -107,6 +107,17 @@ def conv_block(input_channels, num_channels):
         nn.Conv2D(input_channels, num_channels, kernel_size=3, padding=1))
 ```
 
+```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+from mindspore import nn, ops
+
+def conv_block(input_channels, num_channels):
+    return nn.SequentialCell([
+        nn.BatchNorm2d(input_channels), nn.ReLU(),
+        nn.Conv2d(input_channels, num_channels, kernel_size=3, padding=1, pad_mode='pad')])
+```
+
 一个*稠密块*由多个卷积块组成，每个卷积块使用相同数量的输出通道。
 然而，在前向传播中，我们将每个卷积块的输入和输出在通道维上连结。
 
@@ -179,6 +190,26 @@ class DenseBlock(nn.Layer):
         return X
 ```
 
+```{.python .input}
+#@tab mindspore
+class DenseBlock(nn.Cell):
+    def __init__(self, num_convs, input_channels, num_channels):
+        super(DenseBlock, self).__init__()
+        layer = []
+        for i in range(num_convs):
+            layer.append(conv_block(
+                num_channels * i + input_channels, num_channels))
+        self.net = nn.CellList(layer)
+        self.concat = ops.Concat(axis=1)
+        
+    def construct(self, X):
+        for blk in self.net:
+            Y = blk(X)
+            # 连接通道维度上每个块的输入和输出
+            X = self.concat((X, Y))
+        return X
+```
+
 在下面的例子中，我们[**定义一个**]有2个输出通道数为10的(**`DenseBlock`**)。
 使用通道数为3的输入时，我们会得到通道数为$3+2\times 10=23$的输出。
 卷积块的通道数控制了输出通道数相对于输入通道数的增长，因此也被称为*增长率*（growth rate）。
@@ -211,6 +242,14 @@ Y.shape
 #@tab paddle
 blk = DenseBlock(2, 3, 10)
 X = paddle.randn([4, 3, 8, 8])
+Y = blk(X)
+Y.shape
+```
+
+```{.python .input}
+#@tab mindspore
+blk = DenseBlock(2, 3, 10)
+X = ops.randn(4, 3, 8, 8)
 Y = blk(X)
 Y.shape
 ```
@@ -265,6 +304,15 @@ def transition_block(input_channels, num_channels):
         nn.AvgPool2D(kernel_size=2, stride=2))
 ```
 
+```{.python .input}
+#@tab mindspore
+def transition_block(input_channels, num_channels):
+    return nn.SequentialCell([
+        nn.BatchNorm2d(input_channels), nn.ReLU(),
+        nn.Conv2d(input_channels, num_channels, kernel_size=1),
+        nn.AvgPool2d(kernel_size=2, stride=2)])
+```
+
 对上一个例子中稠密块的输出[**使用**]通道数为10的[**过渡层**]。
 此时输出的通道数减为10，高和宽均减半。
 
@@ -275,7 +323,7 @@ blk(Y).shape
 ```
 
 ```{.python .input}
-#@tab pytorch, paddle
+#@tab pytorch, paddle, mindspore
 blk = transition_block(23, 10)
 blk(Y).shape
 ```
@@ -321,6 +369,14 @@ b1 = nn.Sequential(
     nn.Conv2D(1, 64, kernel_size=7, stride=2, padding=3),
     nn.BatchNorm2D(64), nn.ReLU(),
     nn.MaxPool2D(kernel_size=3, stride=2, padding=1))
+```
+
+```{.python .input}
+#@tab mindspore
+b1 = nn.SequentialCell([
+        nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, pad_mode='pad'),
+        nn.BatchNorm2d(64), nn.ReLU(),
+        d2l.MaxPool2d(kernel_size=3, stride=2, padding=1)])
 ```
 
 接下来，类似于ResNet使用的4个残差块，DenseNet使用的是4个稠密块。
@@ -381,7 +437,7 @@ def block_2():
 ```
 
 ```{.python .input}
-#@tab paddle
+#@tab paddle, mindspore
 # num_channels为当前的通道数
 num_channels, growth_rate = 64, 32
 num_convs_in_dense_blocks = [4, 4, 4, 4]
@@ -437,15 +493,32 @@ net = nn.Sequential(
     nn.Linear(num_channels, 10))
 ```
 
+```{.python .input}
+#@tab mindspore
+net = nn.SequentialCell([
+    b1, *blks,
+    nn.BatchNorm2d(num_channels), nn.ReLU(),
+    nn.AdaptiveMaxPool2d((1, 1)),
+    nn.Flatten(),
+    nn.Dense(num_channels, 10)])
+```
+
 ## [**训练模型**]
 
 由于这里使用了比较深的网络，本节里我们将输入高和宽从224降到96来简化计算。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, paddle, tensorflow
 lr, num_epochs, batch_size = 0.1, 10, 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=96)
 d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
+```
+
+```{.python .input}
+#@tab mindspore
+lr, num_epochs, batch_size = 0.1, 10, 256
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=96)
+d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 ```
 
 ## 小结

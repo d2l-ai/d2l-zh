@@ -296,6 +296,14 @@ import numpy as np
 import math
 ```
 
+```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+from mindspore import nn
+import numpy as np
+import math
+```
+
 ### 生成数据集
 
 给定$x$，我们将[**使用以下三阶多项式来生成训练和测试数据的标签：**]
@@ -336,6 +344,12 @@ labels += np.random.normal(scale=0.1, size=labels.shape)
 # NumPy ndarray转换为tensor
 true_w, features, poly_features, labels = [d2l.tensor(x, dtype=
     d2l.float32) for x in [true_w, features, poly_features, labels]]
+```
+
+```{.python .input}
+#@tab mindspore
+true_w, features, poly_features, labels = [x.astype(np.float32)
+    for x in [true_w, features, poly_features, labels]]
 ```
 
 ```{.python .input}
@@ -381,6 +395,19 @@ def evaluate_loss(net, data_iter, loss):  #@save
         y = y.reshape(out.shape)
         l = loss(out, y)
         metric.add(l.sum(), l.numel())
+    return metric[0] / metric[1]
+```
+
+```{.python .input}
+#@tab mindspore
+def evaluate_loss(net, data_iter, loss):
+    """评估给定数据集上模型的损失。"""
+    metric = d2l.Accumulator(2)
+    for X, y in data_iter.create_tuple_iterator():
+        out = net(X)
+        y = y.reshape(out.shape)
+        l = loss(out, y)
+        metric.add(l.sum().asnumpy(), l.size)
     return metric[0] / metric[1]
 ```
 
@@ -487,6 +514,31 @@ def train(train_features, test_features, train_labels, test_labels,
     print('weight:', net[0].weight.numpy())
 ```
 
+```{.python .input}
+#@tab mindspore
+def train(train_features, test_features, train_labels, test_labels,
+          num_epochs=400):
+    loss = nn.MSELoss()
+    input_shape = train_features.shape[-1]
+    # 不设置偏置，因为我们已经在多项式特征中实现了它
+    net = nn.SequentialCell([nn.Dense(input_shape, 1, has_bias=False)])
+    batch_size = min(10, train_labels.shape[0])
+    train_iter = d2l.load_array((train_features, train_labels.reshape(-1,1)),
+                                batch_size)
+    test_iter = d2l.load_array((test_features, test_labels.reshape(-1,1)),
+                               batch_size, is_train=False)
+    optim = nn.SGD(net.trainable_params(), learning_rate=0.01)
+    animator = d2l.Animator(xlabel='epoch', ylabel='loss', yscale='log',
+                            xlim=[1, num_epochs], ylim=[1e-3, 1e2],
+                            legend=['train', 'test'])
+    for epoch in range(num_epochs):
+        d2l.train_epoch_ch3(net, train_iter, loss, optim)
+        if epoch == 0 or (epoch + 1) % 20 == 0:
+            animator.add(epoch + 1, (evaluate_loss(net, train_iter, loss),
+                                     evaluate_loss(net, test_iter, loss)))
+    print('weight:', net[0].weight.data.asnumpy())
+```
+
 ### [**三阶多项式函数拟合(正常)**]
 
 我们将首先使用三阶多项式函数，它与数据生成函数的阶数相同。
@@ -561,4 +613,8 @@ train(poly_features[:n_train, :], poly_features[n_train:, :],
 
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11771)
+:end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/xxxxx)
 :end_tab:

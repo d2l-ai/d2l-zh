@@ -103,6 +103,16 @@ batch_size, num_steps = 32, 35
 train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
 ```
 
+```{.python .input}
+#@tab mindspore
+import mindspore
+import mindspore.nn as nn
+from d2l import mindspore as d2l
+
+batch_size, num_steps = 32, 35
+train_iter, vocab = d2l.load_data_time_machine(batch_size, num_steps)
+```
+
 像选择超参数这类架构决策也跟 :numref:`sec_lstm`中的决策非常相似。
 因为我们有不同的词元，所以输入和输出都选择相同数量，即`vocab_size`。
 隐藏单元的数量仍然是$256$。
@@ -134,14 +144,28 @@ lstm_layer = nn.LSTM(num_inputs, num_hiddens, num_layers, time_major=True)
 model = d2l.RNNModel(lstm_layer, len(vocab))
 ```
 
+```{.python .input}
+#@tab mindspore
+vocab_size, num_hiddens, num_layers = len(vocab), 256, 2
+num_inputs = vocab_size
+lstm_layer = nn.LSTM(num_inputs, num_hiddens, num_layers)
+model = d2l.RNNModel(lstm_layer, len(vocab))
+```
+
 ## [**训练**]与预测
 
 由于使用了长短期记忆网络模型来实例化两个层，因此训练速度被大大降低了。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow, paddle
 num_epochs, lr = 500, 2
 d2l.train_ch8(model, train_iter, vocab, lr*1.0, num_epochs, device)
+```
+
+```{.python .input}
+#@tab mindspore
+num_epochs, lr = 500, 2
+d2l.train_ch8(model, train_iter, vocab, lr*1.0, num_epochs)
 ```
 
 ## 小结

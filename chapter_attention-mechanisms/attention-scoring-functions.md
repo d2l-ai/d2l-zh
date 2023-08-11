@@ -72,6 +72,14 @@ import paddle
 from paddle import nn
 ```
 
+```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+import math
+import mindspore
+from mindspore import nn
+```
+
 ## [**掩蔽softmax操作**]
 
 正如上面提到的，softmax操作用于输出一个概率分布作为注意力权重。
@@ -165,6 +173,26 @@ def masked_softmax(X, valid_lens):
         return nn.functional.softmax(X.reshape(shape), axis=-1)
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+def masked_softmax(X, valid_lens):
+    """通过在最后一个轴上掩蔽元素来执行 softmax 操作"""
+    # X:3D张量，valid_lens:1D或2D张量
+    if valid_lens is None:
+        return nn.Softmax(-1)(X)
+    else:
+        shape = X.shape
+        if valid_lens.ndim == 1:
+            valid_lens = d2l.repeat(valid_lens, shape[1])
+        else:
+            valid_lens = valid_lens.reshape(-1)
+        # 最后一轴上被掩蔽的元素使用一个非常大的负值替换，从而其softmax输出为0
+        X = d2l.sequence_mask(X.reshape(-1, shape[-1]), valid_lens,
+                              value=-1e6)
+        return nn.Softmax(-1)(X.reshape(shape))
+```
+
 为了[**演示此函数是如何工作**]的，
 考虑由两个$2 \times 4$矩阵表示的样本，
 这两个样本的有效长度分别为$2$和$3$。
@@ -189,6 +217,11 @@ masked_softmax(tf.random.uniform(shape=(2, 2, 4)), tf.constant([2, 3]))
 masked_softmax(paddle.rand((2, 2, 4)), paddle.to_tensor([2, 3]))
 ```
 
+```{.python .input}
+#@tab mindspore
+masked_softmax(d2l.rand((2, 2, 4)), d2l.tensor([2, 3], mindspore.int32))
+```
+
 同样，也可以使用二维张量，为矩阵样本中的每一行指定有效长度。
 
 ```{.python .input}
@@ -209,6 +242,11 @@ masked_softmax(tf.random.uniform(shape=(2, 2, 4)), tf.constant([[1, 3], [2, 4]])
 ```{.python .input}
 #@tab paddle
 masked_softmax(paddle.rand((2, 2, 4)), paddle.to_tensor([[1, 3], [2, 4]]))
+```
+
+```{.python .input}
+#@tab mindspore
+masked_softmax(d2l.rand((2, 2, 4)), d2l.tensor([[1, 3], [2, 4]], mindspore.int32))
 ```
 
 ## [**加性注意力**]
@@ -347,6 +385,34 @@ class AdditiveAttention(nn.Layer):
         return paddle.bmm(self.dropout(self.attention_weights), values)
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+class AdditiveAttention(nn.Cell):
+    """加性注意力"""
+    def __init__(self, key_size, query_size, num_hiddens, dropout, **kwargs):
+        super(AdditiveAttention, self).__init__(**kwargs)
+        self.W_k = nn.Dense(key_size, num_hiddens, has_bias=False)
+        self.W_q = nn.Dense(query_size, num_hiddens, has_bias=False)
+        self.w_v = nn.Dense(num_hiddens, 1, has_bias=False)
+        self.dropout = nn.Dropout(1 - dropout)
+
+    def construct(self, queries, keys, values, valid_lens):
+        queries, keys = self.W_q(queries), self.W_k(keys)
+        # 在维度扩展后，
+        # queries的形状：(batch_size，查询的个数，1，num_hidden)
+        # key的形状：(batch_size，1，“键－值”对的个数，num_hiddens)
+        # 使用广播方式进行求和
+        features = d2l.expand_dims(queries, 2) + d2l.expand_dims(keys, 1)
+        features = d2l.tanh(features)
+        # self.w_v仅有一个输出，因此从形状中移除最后那个维度。
+        # scores的形状：(batch_size，查询的个数，“键-值”对的个数)
+        scores = self.w_v(features).squeeze(-1)
+        self.attention_weights = masked_softmax(scores, valid_lens)
+        # values的形状：(batch_size，“键－值”对的个数，值的维度)
+        return d2l.bmm(self.dropout(self.attention_weights), values)
+```
+
 用一个小例子来[**演示上面的`AdditiveAttention`类**]，
 其中查询、键和值的形状为（批量大小，步数或词元序列长度，特征大小），
 实际输出为$(2,1,20)$、$(2,10,2)$和$(2,10,4)$。
@@ -401,6 +467,20 @@ valid_lens = paddle.to_tensor([2, 6])
 attention = AdditiveAttention(key_size=2, query_size=20, num_hiddens=8,
                               dropout=0.1)
 attention.eval()
+attention(queries, keys, values, valid_lens)
+```
+
+```{.python .input}
+#@tab mindspore
+queries, keys = d2l.normal((2, 1, 20), 0, 1), d2l.ones((2, 10, 2))
+# values的小批量，两个值矩阵是相同的
+values = d2l.tile(d2l.arange(40, dtype=mindspore.float32).reshape(1, 10, 4), (
+    2, 1, 1))
+valid_lens = d2l.tensor([2, 6])
+
+attention = AdditiveAttention(key_size=2, query_size=20, num_hiddens=8,
+                              dropout=0.1)
+attention.set_train(False)
 attention(queries, keys, values, valid_lens)
 ```
 
@@ -522,6 +602,27 @@ class DotProductAttention(nn.Layer):
         return paddle.bmm(self.dropout(self.attention_weights), values)
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+class DotProductAttention(nn.Cell):
+    """缩放点积注意力"""
+    def __init__(self, dropout, **kwargs):
+        super(DotProductAttention, self).__init__(**kwargs)
+        self.dropout = nn.Dropout(1 - dropout)
+
+    # queries的形状：(batch_size，查询的个数，d)
+    # keys的形状：(batch_size，“键－值”对的个数，d)
+    # values的形状：(batch_size，“键－值”对的个数，值的维度)
+    # valid_lens的形状:(batch_size，)或者(batch_size，查询的个数)
+    def construct(self, queries, keys, values, valid_lens=None):
+        d = queries.shape[-1]
+        # 设置transpose_b=True为了交换keys的最后两个维度
+        scores = d2l.bmm(queries, keys.swapaxes(1,2)) / math.sqrt(d)
+        self.attention_weights = masked_softmax(scores, valid_lens)
+        return d2l.bmm(self.dropout(self.attention_weights), values)
+```
+
 为了[**演示上述的`DotProductAttention`类**]，
 我们使用与先前加性注意力例子中相同的键、值和有效长度。
 对于点积操作，我们令查询的特征维度与键的特征维度大小相同。
@@ -556,6 +657,14 @@ attention.eval()
 attention(queries, keys, values, valid_lens)
 ```
 
+```{.python .input}
+#@tab mindspore
+queries = d2l.normal((2, 1, 2), 0, 1)
+attention = DotProductAttention(dropout=0.5)
+attention.set_train(False)
+attention(queries, keys, values, valid_lens)
+```
+
 与加性注意力演示相同，由于键包含的是相同的元素，
 而这些元素无法通过任何查询进行区分，因此获得了[**均匀的注意力权重**]。
 
@@ -586,4 +695,8 @@ d2l.show_heatmaps(d2l.reshape(attention.attention_weights, (1, 1, 2, 10)),
 
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11841)
+:end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/xxxxx)
 :end_tab:

@@ -198,6 +198,22 @@ def dropout_layer(X, dropout):
     return mask * X / (1.0 - dropout)
 ```
 
+```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+from mindspore import nn
+
+def dropout_layer(X, dropout):
+    assert 0 <= dropout <= 1
+    # 在本情况中，所有元素都被丢弃
+    if dropout == 1:
+        return d2l.zeros_like(X)
+    if dropout == 0:
+        return X
+    mask = d2l.rand(X.shape) > dropout
+    return mask * X / (1.0 - dropout)
+```
+
 我们可以通过下面几个例子来[**测试`dropout_layer`函数**]。
 我们将输入`X`通过暂退法操作，暂退概率分别为0、0.5和1。
 
@@ -235,6 +251,15 @@ print(dropout_layer(X, 0.5))
 print(dropout_layer(X, 1.))
 ```
 
+```{.python .input}
+#@tab mindspore
+X= d2l.arange(16).reshape((2, 8))
+print(X)
+print(dropout_layer(X, 0.))
+print(dropout_layer(X, 0.5))
+print(dropout_layer(X, 1.))
+```
+
 ### 定义模型参数
 
 同样，我们使用 :numref:`sec_fashion_mnist`中引入的Fashion-MNIST数据集。
@@ -256,7 +281,7 @@ for param in params:
 ```
 
 ```{.python .input}
-#@tab pytorch, paddle
+#@tab pytorch, paddle, mindspore
 num_inputs, num_outputs, num_hiddens1, num_hiddens2 = 784, 10, 256, 256
 ```
 
@@ -382,6 +407,37 @@ class Net(nn.Layer):
 net = Net(num_inputs, num_outputs, num_hiddens1, num_hiddens2)
 ```
 
+```{.python .input}
+#@tab mindspore
+dropout1, dropout2 = 0.2, 0.5
+
+class Net(nn.Cell):
+    def __init__(self, num_inputs, num_outputs, num_hiddens1, num_hiddens2,
+                 is_training = True):
+        super().__init__()
+        self.num_inputs = num_inputs
+        self.training = is_training
+        self.lin1 = nn.Dense(num_inputs, num_hiddens1)
+        self.lin2 = nn.Dense(num_hiddens1, num_hiddens2)
+        self.lin3 = nn.Dense(num_hiddens2, num_outputs)
+        self.relu = nn.ReLU()
+
+    def construct(self, X):
+        H1 = self.relu(self.lin1(X.reshape((-1, self.num_inputs))))
+        # 只有在训练模型时才使用dropout
+        if self.training == True:
+            # 在第一个全连接层之后添加一个dropout层
+            H1 =dropout_layer(H1, dropout1)
+        H2 = self.relu(self.lin2(H1))
+        if self.training == True:
+            # 在第二个全连接层之后添加一个dropout层
+            H2 = dropout_layer(H2, dropout2)
+        out = self.lin3(H2)
+        return out
+
+net = Net(num_inputs, num_outputs, num_hiddens1, num_hiddens2)
+```
+
 ### [**训练和测试**]
 
 这类似于前面描述的多层感知机训练和测试。
@@ -418,6 +474,15 @@ num_epochs, lr, batch_size = 10, 0.5, 256
 loss = nn.CrossEntropyLoss(reduction='none')
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
 trainer = paddle.optimizer.SGD(learning_rate=lr, parameters=net.parameters())
+d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
+```
+
+```{.python .input}
+#@tab mindspore
+num_epochs, lr, batch_size = 10, 0.5, 256
+loss = nn.CrossEntropyLoss()
+train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
+trainer = nn.SGD(net.trainable_params(), learning_rate=lr)
 d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 ```
 
@@ -490,6 +555,21 @@ net = nn.Sequential(nn.Flatten(),
         nn.Linear(256, 10, weight_attr=weight_attr))
 ```
 
+```{.python .input}
+#@tab mindspore
+net = nn.SequentialCell([
+        nn.Flatten(),
+        nn.Dense(784, 256),
+        nn.ReLU(),
+        # 在第一个全连接层之后添加一个dropout层
+        nn.Dropout(1 - dropout1),
+        nn.Dense(256, 256),
+        nn.ReLU(),
+        # 在第二个全连接层之后添加一个dropout层
+        nn.Dropout(1 - dropout2),
+        nn.Dense(256, 10)])
+```
+
 接下来，我们[**对模型进行训练和测试**]。
 
 ```{.python .input}
@@ -512,6 +592,12 @@ d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 ```{.python .input}
 #@tab paddle
 trainer = paddle.optimizer.SGD(learning_rate=0.5, parameters=net.parameters())
+d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
+```
+
+```{.python .input}
+#@tab mindspore
+trainer = nn.SGD(net.trainable_params(), learning_rate=lr)
 d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 ```
 
@@ -546,4 +632,8 @@ d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11774)
+:end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/xxxxx)
 :end_tab:

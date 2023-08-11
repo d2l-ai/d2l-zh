@@ -48,6 +48,18 @@ from paddle.vision import transforms
 d2l.use_svg_display()
 ```
 
+```{.python .input}
+#@tab mindspore
+%matplotlib inline
+import mindspore
+import mindspore.dataset as ds
+from mindspore.dataset import GeneratorDataset
+from d2l import mindspore as d2l
+
+d2l.use_svg_display()
+```
+
+
 ## 读取数据集
 
 我们可以[**通过框架中的内置函数将Fashion-MNIST数据集下载并读取到内存中**]。
@@ -81,6 +93,28 @@ mnist_train = paddle.vision.datasets.FashionMNIST(mode="train",
 mnist_test = paddle.vision.datasets.FashionMNIST(mode="test", transform=trans)
 ```
 
+```{.python .input}
+#@tab mindspore
+# 将数据集提前下载在../data
+import mindspore.dataset as ds
+
+class FashionMnist():
+    def __init__(self, path, kind):
+        self.data, self.label = d2l.load_mnist(path, kind)
+    
+    def __getitem__(self, index):
+        return self.data[index], self.label[index]
+    
+    def __len__(self):
+        return len(self.data)
+
+mnist_train = FashionMnist('../data', kind='train')
+mnist_test = FashionMnist('../data', kind='t10k')
+
+mnist_train = ds.GeneratorDataset(source=mnist_train, column_names=['img', 'label'], shuffle=False)
+mnist_test = ds.GeneratorDataset(source=mnist_test, column_names=['img', 'label'], shuffle=False)
+```
+
 Fashion-MNIST由10个类别的图像组成，
 每个类别由*训练数据集*（train dataset）中的6000张图像
 和*测试数据集*（test dataset）中的1000张图像组成。
@@ -97,13 +131,23 @@ len(mnist_train), len(mnist_test)
 len(mnist_train[0]), len(mnist_test[0])
 ```
 
+```{.python .input}
+#@tab mindspore
+mnist_train.get_dataset_size(), mnist_test.get_dataset_size()
+```
+
 每个输入图像的高度和宽度均为28像素。
 数据集由灰度图像组成，其通道数为1。
 为了简洁起见，本书将高度$h$像素、宽度$w$像素图像的形状记为$h \times w$或（$h$,$w$）。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, paddle, tensorflow
 mnist_train[0][0].shape
+```
+
+```{.python .input}
+#@tab mindspore
+mnist_train.output_shapes()
 ```
 
 [~~两个可视化数据集的函数~~]
@@ -181,6 +225,25 @@ def show_images(imgs, num_rows, num_cols, titles=None, scale=1.5):
     return axes
 ```
 
+```{.python .input}
+#@tab mindspore
+def show_images(imgs, num_rows, num_cols, titles=None, scale=1.5):  
+    """绘制图像列表。"""
+    figsize = (num_cols * scale, num_rows * scale)
+    _, axes = d2l.plt.subplots(num_rows, num_cols, figsize=figsize)
+    axes = axes.flatten()
+    for i, (ax, img) in enumerate(zip(axes, imgs)):
+        if isinstance(img, mindspore.Tensor):
+            ax.imshow(img.asnumpy())
+        else:
+            ax.imshow(img)
+        ax.axes.get_xaxis().set_visible(False)
+        ax.axes.get_yaxis().set_visible(False)
+        if titles:
+            ax.set_title(titles[i])
+    return axes
+```
+
 以下是训练数据集中前[**几个样本的图像及其相应的标签**]。
 
 ```{.python .input}
@@ -207,6 +270,13 @@ show_images(X, 2, 9, titles=get_fashion_mnist_labels(y));
 #@tab paddle
 X, y = next(iter(paddle.io.DataLoader(mnist_train, batch_size=18)))
 show_images(X.reshape([18, 28, 28]), 2, 9, titles=get_fashion_mnist_labels(y));
+```
+
+```{.python .input}
+#@tab mindspore
+mnist_train = mnist_train.batch(batch_size=18)
+X, y = next(iter(mnist_train.create_tuple_iterator(output_numpy=False)))
+show_images(X.reshape(18, 28, 28), 2, 9, titles=get_fashion_mnist_labels(y.asnumpy()));
 ```
 
 ## 读取小批量
@@ -262,6 +332,14 @@ train_iter = paddle.io.DataLoader(dataset=mnist_train,
                                   shuffle=True,
                                   return_list=True,
                                   num_workers=get_dataloader_workers())
+```
+
+```{.python .input}
+#@tab mindspore
+# 由于mindspore.dataset的设计，在进行batch操作后，产生的数据处理pipeline不会再改变，所以这里不进行二次batch操作，
+# 直接使用已有的dataset测试性能
+
+train_iter = mnist_train
 ```
 
 我们看一下读取训练数据所需的时间。
@@ -357,12 +435,46 @@ def load_data_fashion_mnist(batch_size, resize=None):
                                  num_workers=get_dataloader_workers()))
 ```
 
+```{.python .input}
+#@tab mindspore
+import mindspore.dataset.vision as vision
+import mindspore.dataset.transforms as transforms
+
+def load_data_fashion_mnist(batch_size, resize=None, works=1):
+    """将Fashion-MNIST数据集加载到内存中。"""
+    data_path = "../data"
+    mnist_train = FashionMnist(data_path, kind='train')
+    mnist_test = FashionMnist(data_path, kind='t10k')
+
+    mnist_train = ds.GeneratorDataset(source=mnist_train, column_names=['image', 'label'], shuffle=False)
+    mnist_test = ds.GeneratorDataset(source=mnist_test, column_names=['image', 'label'], shuffle=False)
+    trans = [vision.Rescale(1.0 / 255.0, 0), vision.HWC2CHW()]
+    type_cast_op = transforms.TypeCast(mindspore.int32)
+    if resize:
+        trans.insert(0, vision.Resize(resize))
+    mnist_train = mnist_train.map(trans, input_columns=["image"])
+    mnist_test = mnist_test.map(trans, input_columns=["image"])
+    mnist_train = mnist_train.map(type_cast_op, input_columns=['label'])
+    mnist_test = mnist_test.map(type_cast_op, input_columns=['label'])
+    mnist_train = mnist_train.batch(batch_size, num_parallel_workers=works)
+    mnist_test = mnist_test.batch(batch_size, num_parallel_workers=works)
+    return mnist_train, mnist_test
+```
+
 下面，我们通过指定`resize`参数来测试`load_data_fashion_mnist`函数的图像大小调整功能。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, paddle, tensorflow
 train_iter, test_iter = load_data_fashion_mnist(32, resize=64)
 for X, y in train_iter:
+    print(X.shape, X.dtype, y.shape, y.dtype)
+    break
+```
+
+```{.python .input}
+#@tab mindspore
+mnist_train, mnist_test = load_data_fashion_mnist(32, resize=64)
+for X, y in mnist_train.create_tuple_iterator(output_numpy=True):
     print(X.shape, X.dtype, y.shape, y.dtype)
     break
 ```

@@ -108,6 +108,20 @@ B = d2l.randn((256, 256))
 C = d2l.randn((256, 256))
 ```
 
+```{.python .input}
+#@tab mindspore
+%matplotlib inline
+from d2l import mindspore as d2l
+import mindspore
+from mindspore import nn
+import numpy as np
+
+timer = d2l.Timer()
+A = d2l.zeros((256, 256))
+B = d2l.randn((256, 256))
+C = d2l.randn((256, 256))
+```
+
 按元素分配只需遍历分别为$\mathbf{B}$和$\mathbf{C}$的所有行和列，即可将该值分配给$\mathbf{A}$。
 
 ```{.python .input}
@@ -150,6 +164,16 @@ for i in range(256):
 timer.stop()
 ```
 
+```{.python .input}
+#@tab mindspore
+# 逐元素计算A=BC
+timer.start()
+for i in range(256):
+    for j in range(256):
+        A[i, j] = d2l.tensor_dot(B[i, :], C[:, j], axes=1)
+timer.stop()
+```
+
 更快的策略是执行按列分配。
 
 ```{.python .input}
@@ -184,6 +208,15 @@ timer.stop()
 timer.start()
 for j in range(256):
     A[:, j] = paddle.mv(B, C[:, j])
+timer.stop()
+```
+
+```{.python .input}
+#@tab mindspore
+# 逐列计算A=BC
+timer.start()
+for j in range(256):
+    A[:, j] = d2l.mv(B, C[:, j])
 timer.stop()
 ```
 
@@ -233,6 +266,19 @@ print(f'performance in Gigaflops: element {gigaflops[0]:.3f}, '
 # 一次性计算A=BC
 timer.start()
 A = paddle.mm(B, C)
+timer.stop()
+
+# 乘法和加法作为单独的操作（在实践中融合）
+gigaflops = [2/i for i in timer.times]
+print(f'performance in Gigaflops: element {gigaflops[0]:.3f}, '
+      f'column {gigaflops[1]:.3f}, full {gigaflops[2]:.3f}')
+```
+
+```{.python .input}
+#@tab mindspore
+# 一次性计算A=BC
+timer.start()
+A = d2l.mm(B, C)
 timer.stop()
 
 # 乘法和加法作为单独的操作（在实践中融合）
@@ -299,6 +345,15 @@ print(f'performance in Gigaflops: block {2 / timer.times[3]:.3f}')
 timer.start()
 for j in range(0, 256, 64):
     A[:, j:j+64] = paddle.mm(B, C[:, j:j+64])
+timer.stop()
+print(f'performance in Gigaflops: block {2 / timer.times[3]:.3f}')
+```
+
+```{.python .input}
+#@tab mindspore
+timer.start()
+for j in range(0, 256, 64):
+    A[:, j:j+64] = d2l.mm(B, C[:, j:j+64])
 timer.stop()
 print(f'performance in Gigaflops: block {2 / timer.times[3]:.3f}')
 ```
@@ -378,6 +433,22 @@ def get_data_ch11(batch_size=10, n=1500):
     return data_iter, data.shape[1]-1
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+d2l.DATA_HUB['airfoil'] = (d2l.DATA_URL + 'airfoil_self_noise.dat',
+                           '76e5be1548fd8222e5074cf0faae75edff8cf93f')
+
+#@save
+def get_data_ch11(batch_size=10, n=1500):
+    data = np.genfromtxt(d2l.download('airfoil'),
+                         dtype=np.float32, delimiter='\t')
+    data = (data - data.mean(axis=0)) / data.std(axis=0)
+    data_iter = d2l.load_array((data[:n, :-1], data[:n, -1]),
+                               batch_size, is_train=True)
+    return data_iter, data.shape[1]-1
+```
+
 ## 从零开始实现
 
  :numref:`sec_linear_scratch`一节中已经实现过小批量随机梯度下降算法。
@@ -416,6 +487,13 @@ def sgd(params, states, hyperparams):
             p.stop_gradient = False
             a.append(p)
         return a
+```
+
+```{.python .input}
+#@tab mindspore
+def sgd(params, grads, states, hyperparams):
+    for param, grad in zip(params, grads):
+        mindspore.ops.assign_sub(param, hyperparams['lr']*grad)
 ```
 
 下面实现一个通用的训练函数，以方便本章后面介绍的其他优化算法使用。
@@ -537,6 +615,36 @@ def train_ch11(trainer_fn, states, hyperparams, data_iter,
             if n % 200 == 0:
                 timer.stop()
                 animator.add(n/X.shape[0]/len(data_iter),
+                             (d2l.evaluate_loss(net, data_iter, loss),))
+                timer.start()
+    print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
+    return timer.cumsum(), animator.Y[0]
+```
+
+```{.python .input}
+#@tab mindspore
+#@save
+def train_ch11(trainer_fn, states, hyperparams, data_iter,
+               feature_dim, num_epochs=2):
+    # 初始化模型, mindspore 张量不含梯度属性
+    w = mindspore.Parameter(d2l.normal(mean=0.0, stddev=0.01, shape=(feature_dim, 1)), name='w')
+    b = mindspore.Parameter(d2l.zeros((1)), name='b')
+    net, loss = lambda X: d2l.linreg(X, w, b), d2l.squared_loss
+    loss_fn = lambda x, y: loss(net(x), y).mean()
+    grad_fn = mindspore.grad(loss_fn, None, [w, b])
+
+    # 训练模型
+    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
+                            xlim=[0, num_epochs], ylim=[0.22, 0.35])
+    n, timer = 0, d2l.Timer()
+    for _ in range(num_epochs):
+        for X, y in data_iter:
+            [dw, db] = grad_fn(X, y)
+            trainer_fn([w, b], [dw, db], states, hyperparams)
+            n += X.shape[0]
+            if n % 200 == 0:
+                timer.stop()
+                animator.add(n/X.shape[0]/data_iter.get_dataset_size(),
                              (d2l.evaluate_loss(net, data_iter, loss),))
                 timer.start()
     print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
@@ -733,6 +841,43 @@ def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=4):
     print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
 ```
 
+```{.python .input}
+#@tab mindspore
+#@save
+from mindspore.common import initializer as init
+
+def train_concise_ch11(trainer_fn, hyperparams, data_iter, num_epochs=4):
+    net = nn.SequentialCell(nn.Dense(5, 1),)
+    
+    def init_weights(m):
+        if type(m) == nn.Dense:
+            m.weight.set_data(init.initializer(init.Normal(0.01), m.weight.shape))
+
+    net.apply(init_weights)
+    optimizer = trainer_fn(net.trainable_params(), **hyperparams)
+
+    loss = nn.MSELoss(reduction='none')
+    forward_fn = lambda X, y: loss(net(X), y).mean()
+    
+    # Get gradient function
+    grad_fn = mindspore.value_and_grad(forward_fn, None, net.trainable_params())
+    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
+                            xlim=[0, num_epochs], ylim=[0.22, 0.35])
+    n, timer = 0, d2l.Timer()
+    for _ in range(num_epochs):
+        for X, y in data_iter:
+            output, grads = grad_fn(X, y)
+            optimizer(grads)
+            n += X.shape[0]
+            if n % 200 == 0:
+                timer.stop()
+                # MSELoss计算平方误差时不带系数1/2
+                animator.add(n/X.shape[0]/data_iter.get_dataset_size(),
+                             (d2l.evaluate_loss(net, data_iter, loss) / 2,))
+                timer.start()
+    print(f'loss: {animator.Y[0][-1]:.3f}, {timer.avg():.3f} sec/epoch')
+```
+
 下面使用这个训练函数，复现之前的实验。
 
 ```{.python .input}
@@ -758,6 +903,13 @@ train_concise_ch11(trainer, {'learning_rate': 0.05}, data_iter)
 #@tab paddle
 data_iter, _ = get_data_ch11(10)
 trainer = paddle.optimizer.SGD
+train_concise_ch11(trainer, {'learning_rate': 0.01}, data_iter)
+```
+
+```{.python .input}
+#@tab mindspore
+data_iter, _ = get_data_ch11(10)
+trainer = nn.SGD
 train_concise_ch11(trainer, {'learning_rate': 0.01}, data_iter)
 ```
 
@@ -788,5 +940,9 @@ train_concise_ch11(trainer, {'learning_rate': 0.01}, data_iter)
 :end_tab:
 
 :begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11850)
+:end_tab:
+
+:begin_tab:`mindspore`
 [Discussions](https://discuss.d2l.ai/t/11850)
 :end_tab:

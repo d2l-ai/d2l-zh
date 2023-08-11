@@ -58,6 +58,13 @@ stage("Build and Publish") {
       ./static/cache.sh store _build/eval_paddle/data
       """
 
+      sh label: "Execute Notebooks [MindSpore]", script: """set -ex
+      conda activate ${ENV_NAME}
+      ./static/cache.sh restore _build/eval_mindspore/data
+      d2lbook build eval --tab mindspore
+      ./static/cache.sh store _build/eval_mindspore/data
+      """
+
       sh label:"Build HTML", script:"""set -ex
       conda activate ${ENV_NAME}
       ./static/build_html.sh

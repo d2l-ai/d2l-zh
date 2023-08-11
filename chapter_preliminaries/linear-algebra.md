@@ -67,6 +67,16 @@ y = paddle.to_tensor([2.0])
 x + y, x * y, x / y, x**y
 ```
 
+```{.python .input}
+#@tab mindspore
+import mindspore 
+
+x = mindspore.Tensor(3.0)
+y = mindspore.Tensor(2.0)
+
+x + y, x * y, x / y, x**y
+```
+
 ## 向量
 
 [**向量可以被视为标量值组成的列表**]。
@@ -104,6 +114,15 @@ x = paddle.arange(4)
 x
 ```
 
+```{.python .input}
+#@tab mindspore
+# 这里需要用到mindspore的ops算子
+import mindspore.ops as ops
+
+x = ops.arange(4)
+x
+```
+
 我们可以使用下标来引用向量的任一元素，例如可以通过$x_i$来引用第$i$个元素。
 注意，元素$x_i$是一个标量，所以我们在引用它时不会加粗。
 大量文献认为列向量是向量的默认方向，在本书中也是如此。
@@ -130,6 +149,11 @@ x[3]
 
 ```{.python .input}
 #@tab paddle
+x[3]
+```
+
+```{.python .input}
+#@tab mindspore
 x[3]
 ```
 
@@ -161,6 +185,11 @@ len(x)
 len(x)
 ```
 
+```{.python .input}
+#@tab mindspore
+len(x)
+```
+
 当用张量表示一个向量（只有一个轴）时，我们也可以通过`.shape`属性访问向量的长度。
 形状（shape）是一个元素组，列出了张量沿每个轴的长度（维数）。
 对于(**只有一个轴的张量，形状只有一个元素。**)
@@ -181,6 +210,11 @@ x.shape
 
 ```{.python .input}
 #@tab paddle
+x.shape
+```
+
+```{.python .input}
+#@tab mindspore
 x.shape
 ```
 
@@ -236,6 +270,12 @@ A = paddle.reshape(paddle.arange(20), (5, 4))
 A
 ```
 
+```{.python .input}
+#@tab mindspore
+A = ops.arange(20).reshape(5, 4)
+A
+```
+
 我们可以通过行索引（$i$）和列索引（$j$）来访问矩阵中的标量元素$a_{ij}$，
 例如$[\mathbf{A}]_{ij}$。
 如果没有给出矩阵$\mathbf{A}$的标量元素，如在 :eqref:`eq_matrix_def`那样，
@@ -280,6 +320,11 @@ tf.transpose(A)
 paddle.transpose(A, perm=[1, 0])
 ```
 
+```{.python .input}
+#@tab mindspore
+A.T
+```
+
 作为方阵的一种特殊类型，[***对称矩阵*（symmetric matrix）$\mathbf{A}$等于其转置：$\mathbf{A} = \mathbf{A}^\top$**]。
 这里定义一个对称矩阵$\mathbf{B}$：
 
@@ -306,6 +351,12 @@ B = paddle.to_tensor([[1, 2, 3], [2, 0, 4], [3, 4, 5]])
 B
 ```
 
+```{.python .input}
+#@tab mindspore
+B = mindspore.tensor([[1, 2, 3], [2, 0, 4], [3, 4, 5]])
+B
+```
+
 现在我们将`B`与它的转置进行比较。
 
 ```{.python .input}
@@ -325,6 +376,11 @@ B == tf.transpose(B)
 ```{.python .input}
 #@tab paddle
 B == paddle.transpose(B, perm=[1, 0])
+```
+
+```{.python .input}
+#@tab mindspore
+B == B.T
 ```
 
 矩阵是有用的数据结构：它们允许我们组织具有不同模式的数据。
@@ -372,6 +428,12 @@ X = paddle.reshape(paddle.arange(24), (2, 3, 4))
 X
 ```
 
+```{.python .input}
+#@tab mindspore
+X = ops.arange(24).reshape(2, 3, 4)
+X
+```
+
 ## 张量算法的基本性质
 
 标量、向量、矩阵和任意数量轴的张量（本小节中的“张量”指代数对象）有一些实用的属性。
@@ -403,6 +465,13 @@ A, A + B
 #@tab paddle
 A = paddle.reshape(paddle.arange(20, dtype=paddle.float32), (5, 4))
 B = A.clone()  # 通过分配新内存，将A的一个副本分配给B
+A, A + B
+```
+
+```{.python .input}
+#@tab mindspore
+A = ops.arange(20, dtype=mindspore.float32).reshape(5, 4)
+B = A.copy()
 A, A + B
 ```
 
@@ -439,6 +508,11 @@ A * B
 A * B
 ```
 
+```{.python .input}
+#@tab mindspore
+A * B
+```
+
 将张量乘以或加上一个标量不会改变张量的形状，其中张量的每个元素都将与标量相加或相乘。
 
 ```{.python .input}
@@ -465,6 +539,13 @@ a + X, (a * X).shape
 #@tab paddle
 a = 2
 X = paddle.reshape(paddle.arange(24), (2, 3, 4))
+a + X, (a * X).shape
+```
+
+```{.python .input}
+#@tab mindspore
+a = 2
+X = ops.arange(24).reshape(2, 3, 4)
 a + X, (a * X).shape
 ```
 
@@ -500,6 +581,12 @@ x = paddle.arange(4, dtype=paddle.float32)
 x, x.sum()
 ```
 
+```{.python .input}
+#@tab mindspore
+x = ops.arange(4, dtype=mindspore.float32)
+x, x.sum()
+```
+
 我们可以(**表示任意形状张量的元素和**)。
 例如，矩阵$\mathbf{A}$中元素的和可以记为$\sum_{i=1}^{m} \sum_{j=1}^{n} a_{ij}$。
 
@@ -519,6 +606,11 @@ A.shape, tf.reduce_sum(A)
 
 ```{.python .input}
 #@tab paddle
+A.shape, A.sum()
+```
+
+```{.python .input}
+#@tab mindspore
 A.shape, A.sum()
 ```
 
@@ -550,6 +642,12 @@ A_sum_axis0 = A.sum(axis=0)
 A_sum_axis0, A_sum_axis0.shape
 ```
 
+```{.python .input}
+#@tab mindspore
+A_sum_axis0 = A.sum(axis=0)
+A_sum_axis0, A_sum_axis0.shape
+```
+
 指定`axis=1`将通过汇总所有列的元素降维（轴1）。因此，输入轴1的维数在输出形状中消失。
 
 ```{.python .input}
@@ -575,6 +673,12 @@ A_sum_axis1 = A.sum(axis=1)
 A_sum_axis1, A_sum_axis1.shape
 ```
 
+```{.python .input}
+#@tab mindspore
+A_sum_axis1 = A.sum(axis=1)
+A_sum_axis1, A_sum_axis1.shape
+```
+
 沿着行和列对矩阵求和，等价于对矩阵的所有元素进行求和。
 
 ```{.python .input}
@@ -594,6 +698,11 @@ tf.reduce_sum(A, axis=[0, 1])  # 结果和tf.reduce_sum(A)相同
 ```{.python .input}
 #@tab paddle
 A.sum(axis=[0, 1])
+```
+
+```{.python .input}
+#@tab mindspore
+A.sum(axis=(0, 1))  # 结果和A.sum()相同
 ```
 
 [**一个与求和相关的量是*平均值*（mean或average）**]。
@@ -619,6 +728,11 @@ tf.reduce_mean(A), tf.reduce_sum(A) / tf.size(A).numpy()
 A.mean(), A.sum() / A.numel()
 ```
 
+```{.python .input}
+#@tab mindspore
+A.mean(), A.sum() / A.numel()
+```
+
 同样，计算平均值的函数也可以沿指定轴降低张量的维度。
 
 ```{.python .input}
@@ -637,6 +751,11 @@ tf.reduce_mean(A, axis=0), tf.reduce_sum(A, axis=0) / A.shape[0]
 
 ```{.python .input}
 #@tab paddle
+A.mean(axis=0), A.sum(axis=0) / A.shape[0]
+```
+
+```{.python .input}
+#@tab mindspore
 A.mean(axis=0), A.sum(axis=0) / A.shape[0]
 ```
 
@@ -669,6 +788,12 @@ sum_A = paddle.sum(A, axis=1, keepdim=True)
 sum_A
 ```
 
+```{.python .input}
+#@tab mindspore
+sum_A = A.sum(axis=1, keepdims=True)
+sum_A
+```
+
 例如，由于`sum_A`在对每行进行求和后仍保持两个轴，我们可以(**通过广播将`A`除以`sum_A`**)。
 
 ```{.python .input}
@@ -687,6 +812,11 @@ A / sum_A
 
 ```{.python .input}
 #@tab paddle
+A / sum_A
+```
+
+```{.python .input}
+#@tab mindspore
 A / sum_A
 ```
 
@@ -710,6 +840,11 @@ tf.cumsum(A, axis=0)
 
 ```{.python .input}
 #@tab paddle
+A.cumsum(axis=0)
+```
+
+```{.python .input}
+#@tab mindspore
 A.cumsum(axis=0)
 ```
 
@@ -747,6 +882,13 @@ y = paddle.ones(shape=[4], dtype='float32')
 x, y, paddle.dot(x, y)
 ```
 
+```{.python .input}
+#@tab mindspore
+import mindspore.numpy as mnp
+
+y = ops.ones(4, dtype = mindspore.float32)
+x, y, mnp.dot(x, y)
+```
 注意，(**我们可以通过执行按元素乘法，然后进行求和来表示两个向量的点积**)：
 
 ```{.python .input}
@@ -766,6 +908,11 @@ tf.reduce_sum(x * y)
 ```{.python .input}
 #@tab paddle
 paddle.sum(x * y)
+```
+
+```{.python .input}
+#@tab mindspore
+ops.sum(x * y)
 ```
 
 点积在很多场合都很有用。
@@ -854,6 +1001,11 @@ A.shape, x.shape, tf.linalg.matvec(A, x)
 A.shape, x.shape, paddle.mv(A, x)
 ```
 
+```{.python .input}
+#@tab mindspore
+A.shape, x.shape, mnp.dot(A, x)
+```
+
 ## 矩阵-矩阵乘法
 
 在掌握点积和矩阵-向量积的知识后，
@@ -934,6 +1086,11 @@ B = paddle.ones(shape=[4, 3], dtype='float32')
 paddle.mm(A, B)
 ```
 
+```{.python .input}
+#@tab mindspore
+B = ops.ones((4, 3))
+ops.matmul(A, B)
+```
 矩阵-矩阵乘法可以简单地称为**矩阵乘法**，不应与"Hadamard积"混淆。
 
 ## 范数
@@ -996,6 +1153,12 @@ u = paddle.to_tensor([3.0, -4.0])
 paddle.norm(u)
 ```
 
+```{.python .input}
+#@tab mindspore
+u = mindspore.Tensor([3.0, -4.0], dtype=mindspore.float32)
+ops.norm(u, axis=0)
+```
+
 深度学习中更经常地使用$L_2$范数的平方，也会经常遇到[**$L_1$范数，它表示为向量元素的绝对值之和：**]
 
 (**$$\|\mathbf{x}\|_1 = \sum_{i=1}^n \left|x_i \right|.$$**)
@@ -1020,6 +1183,11 @@ tf.reduce_sum(tf.abs(u))
 ```{.python .input}
 #@tab paddle
 paddle.abs(u).sum()
+```
+
+```{.python .input}
+#@tab mindspore
+ops.abs(u).sum()
 ```
 
 $L_2$范数和$L_1$范数都是更一般的$L_p$范数的特例：
@@ -1050,6 +1218,11 @@ tf.norm(tf.ones((4, 9)))
 ```{.python .input}
 #@tab paddle
 paddle.norm(paddle.ones(shape=[4, 9], dtype='float32'))
+```
+
+```{.python .input}
+#@tab mindspore
+ops.norm(ops.ones((4, 9)), axis=[0, 1])
 ```
 
 ### 范数和目标

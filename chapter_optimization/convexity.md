@@ -46,6 +46,15 @@ from mpl_toolkits import mplot3d
 import paddle
 ```
 
+```{.python .input}
+#@tab mindspore
+%matplotlib inline
+from d2l import mindspore as d2l
+import numpy as np
+from mpl_toolkits import mplot3d
+import mindspore
+```
+
 ## 定义
 
 在进行凸分析之前，我们需要定义*凸集*（convex sets）和*凸函数*（convex functions）。
@@ -100,7 +109,7 @@ $$\lambda f(x) + (1-\lambda) f(x') \geq f(\lambda x + (1-\lambda) x').$$
 下面我们定义一些函数，包括凸函数和非凸函数。
 
 ```{.python .input}
-#@tab mxnet, pytorch, tensorflow
+#@tab mxnet, pytorch, tensorflow, mindspore
 f = lambda x: 0.5 * x**2  # 凸函数
 g = lambda x: d2l.cos(np.pi * x)  # 非凸函数
 h = lambda x: d2l.exp(0.5 * x)  # 凸函数
@@ -397,5 +406,9 @@ $$\mathrm{Proj}_\mathcal{X}(\mathbf{x}) = \mathop{\mathrm{argmin}}_{\mathbf{x}' 
 :end_tab:
 
 :begin_tab:`paddle`
+[Discussions](https://discuss.d2l.ai/t/11847)
+:end_tab:
+
+:begin_tab:`mindspore`
 [Discussions](https://discuss.d2l.ai/t/11847)
 :end_tab:

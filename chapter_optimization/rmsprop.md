@@ -73,6 +73,13 @@ import math
 ```
 
 ```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+import mindspore
+import math
+```
+
+```{.python .input}
 #@tab all
 d2l.set_figsize()
 gammas = [0.95, 0.9, 0.8, 0.7]
@@ -132,6 +139,14 @@ def init_rmsprop_states(feature_dim):
 ```
 
 ```{.python .input}
+#@tab mindspore
+def init_rmsprop_states(feature_dim):
+    s_w = d2l.zeros((feature_dim, 1))
+    s_b = d2l.zeros(1)
+    return (s_w, s_b)
+```
+
+```{.python .input}
 def rmsprop(params, states, hyperparams):
     gamma, eps = hyperparams['gamma'], 1e-6
     for p, s in zip(params, states):
@@ -171,6 +186,15 @@ def rmsprop(params, states, hyperparams):
         p.grad.zero_()
         a.append(p)
     return a 
+```
+
+```{.python .input}
+#@tab mindspore
+def rmsprop(params, grads, states, hyperparams):
+    gamma, eps = hyperparams['gamma'], 1e-6
+    for p, s, g in zip(params, states, grads):
+        s[:] = gamma * s + (1 - gamma) * d2l.square(g)
+        p[:] -= hyperparams['lr']*g / d2l.sqrt(s + eps)
 ```
 
 我们将初始学习率设置为0.01，加权项$\gamma$设置为0.9。
@@ -213,6 +237,13 @@ d2l.train_concise_ch11(trainer, {'learning_rate': 0.01, 'rho': 0.9},
                        data_iter)
 ```
 
+```{.python .input}
+#@tab mindspore
+trainer = mindspore.nn.RMSProp
+d2l.train_concise_ch11(trainer, {'learning_rate': 0.01, 'decay': 0.9},
+                       data_iter)
+```
+
 ## 小结
 
 * RMSProp算法与Adagrad算法非常相似，因为两者都使用梯度的平方来缩放系数。
@@ -242,3 +273,8 @@ d2l.train_concise_ch11(trainer, {'learning_rate': 0.01, 'rho': 0.9},
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11853)
 :end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/11853)
+:end_tab:
+

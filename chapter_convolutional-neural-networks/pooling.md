@@ -64,7 +64,13 @@ from paddle import nn
 ```
 
 ```{.python .input}
-#@tab mxnet, pytorch, paddle
+#@tab mindspore
+from d2l import mindspore as d2l
+from mindspore import nn, ops
+```
+
+```{.python .input}
+#@tab mxnet, pytorch, paddle, mindspore
 def pool2d(X, pool_size, mode='max'):
     p_h, p_w = pool_size
     Y = d2l.zeros((X.shape[0] - p_h + 1, X.shape[1] - p_w + 1))
@@ -120,7 +126,7 @@ pool2d(X, (2, 2), 'avg')
 :end_tab:
 
 ```{.python .input}
-#@tab mxnet, pytorch
+#@tab mxnet, pytorch, mindspore
 X = d2l.reshape(d2l.arange(16, dtype=d2l.float32), (1, 1, 4, 4))
 X
 ```
@@ -164,6 +170,12 @@ pool2d = nn.MaxPool2D(3, stride=3)
 pool2d(X)
 ```
 
+```{.python .input}
+#@tab mindspore
+pool2d = nn.MaxPool2d(3, stride=3)
+pool2d(X)
+```
+
 [**填充和步幅可以手动设定**]。
 
 ```{.python .input}
@@ -190,6 +202,12 @@ pool2d(X_padded)
 #@tab paddle
 pool2d = nn.MaxPool2D(3, padding=1, stride=2)
 pool2d(X)
+```
+
+```{.python .input}
+#@tab mindspore
+pool2d = nn.MaxPool2d(3, stride=2)
+pool2d(ops.Pad(((0,0), (0,0), (1, 1), (1, 1)))(X))
 ```
 
 :begin_tab:`mxnet`
@@ -234,6 +252,12 @@ pool2d = nn.MaxPool2D((2, 3), padding=(0, 1), stride=(2, 3))
 pool2d(X)
 ```
 
+```{.python .input}
+#@tab mindspore
+pool2d = nn.MaxPool2d((2, 3), stride=(2, 3))
+pool2d(ops.Pad(((0, 0), (0, 0), (0, 0), (1, 1)))(X))
+```
+
 ## 多个通道
 
 在处理多通道输入数据时，[**汇聚层在每个输入通道上单独运算**]，而不是像卷积层一样在通道上对输入进行汇总。
@@ -246,7 +270,7 @@ pool2d(X)
 :end_tab:
 
 ```{.python .input}
-#@tab mxnet, pytorch, paddle
+#@tab mxnet, pytorch, paddle, mindspore
 X = d2l.concat((X, X + 1), 1)
 X
 ```
@@ -282,6 +306,12 @@ pool2d(X_padded)
 #@tab paddle
 pool2d = paddle.nn.MaxPool2D(3, padding=1, stride=2)
 pool2d(X)
+```
+
+```{.python .input}
+#@tab mindspore
+pool2d = nn.MaxPool2d(3, stride=2)
+pool2d(ops.Pad(((0, 0), (0, 0), (1, 1), (1, 1)))(X))
 ```
 
 :begin_tab:`tensorflow`

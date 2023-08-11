@@ -84,6 +84,22 @@ def corr2d(X, K):  #@save
     return Y
 ```
 
+```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+from mindspore import nn, ops, value_and_grad
+
+def corr2d(X, K):  #@save
+    """计算二维互相关运算。"""
+    h, w = K.shape
+    Y = ops.zeros((X.shape[0] - h + 1, X.shape[1] - w + 1))
+    for i in range(Y.shape[0]):
+        for j in range(Y.shape[1]):
+            Y[i, j] = (X[i:i + h, j:j + w] * K).sum()
+    return Y
+```
+
+
 通过 :numref:`fig_correlation`的输入张量`X`和卷积核张量`K`，我们来[**验证上述二维互相关运算的输出**]。
 
 ```{.python .input}
@@ -153,6 +169,18 @@ class Conv2D(nn.Layer):
         return corr2d(x, self.weight) + self.bias
 ```
 
+```{.python .input}
+#@tab mindspore
+class Conv2D(nn.Cell):
+    def __init__(self, kernel_size):
+        super().__init__()
+        self.weight = Parameter(d2l.normal((kernel_size), 0, 1))
+        self.bias = Parameter(ops.zeros(1))
+
+    def construct(self, x):
+        return corr2d(x, self.weight) + self.bias
+```
+
 高度和宽度分别为$h$和$w$的卷积核可以被称为$h \times w$卷积或$h \times w$卷积核。
 我们也将带有$h \times w$卷积核的卷积层称为$h \times w$卷积层。
 
@@ -162,7 +190,7 @@ class Conv2D(nn.Layer):
 首先，我们构造一个$6\times 8$像素的黑白图像。中间四列为黑色（$0$），其余像素为白色（$1$）。
 
 ```{.python .input}
-#@tab mxnet, pytorch, paddle
+#@tab mxnet, pytorch, paddle, mindspore
 X = d2l.ones((6, 8))
 X[:, 2:6] = 0
 X
@@ -302,6 +330,41 @@ for i in range(10):
         print(f'epoch {i+1}, loss {l.sum().item():.3f}')
 ```
 
+```{.python .input}
+#@tab mindspore
+# 构造一个二维卷积层，它具有1个输出通道和形状为（1，2）的卷积核
+conv2d = nn.Conv2d(1,1, kernel_size=(1, 2), has_bias=False, pad_mode='valid')
+
+# 这个二维卷积层使用四维输入和输出格式（批量大小、通道、高度、宽度），
+# 其中批量大小和通道数都为1
+X = X.reshape((1, 1, 6, 8))
+Y = Y.reshape((1, 1, 6, 7))
+lr = 3e-2  # 学习率
+
+loss_fn = nn.MSELoss()
+optim = nn.SGD(conv2d.trainable_params(), lr)
+
+# 定义前向传播函数
+def forward_fn(x, y):
+    z = conv2d(x)
+    loss = loss_fn(z, y).mean()
+    return loss
+
+# 获取梯度函数
+grad_fn = value_and_grad(forward_fn, None, weights=conv2d.trainable_params())
+
+# 定义模型单步训练
+def train(X, Y, optim):
+    loss, grads = grad_fn(X, Y)
+    loss = ops.depend(loss, optim(grads))
+    return loss
+    
+for i in range(10):
+    loss = train(X, Y, optim)
+    if (i + 1) % 2 == 0:
+        print(f'batch {i+1}, loss {loss.asnumpy():.3f}')
+```
+
 在$10$次迭代之后，误差已经降到足够低。现在我们来看看我们[**所学的卷积核的权重张量**]。
 
 ```{.python .input}
@@ -322,6 +385,12 @@ d2l.reshape(conv2d.get_weights()[0], (1, 2))
 #@tab paddle
 d2l.reshape(conv2d.weight, (1, 2))
 ```
+
+```{.python .input}
+#@tab mindspore
+d2l.reshape(conv2d.weight, (1, 2))
+```
+
 
 细心的读者一定会发现，我们学习到的卷积核权重非常接近我们之前定义的卷积核`K`。
 

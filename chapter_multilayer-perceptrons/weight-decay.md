@@ -144,6 +144,15 @@ import paddle
 from paddle import nn
 ```
 
+```{.python .input}
+#@tab mindspore
+%matplotlib inline
+from d2l import mindspore as d2l
+from mindspore import nn, Parameter, value_and_grad
+from mindspore.common.initializer import Normal
+import numpy as np
+```
+
 首先，我们[**像以前一样生成一些数据**]，生成公式如下：
 
 (**$$y = 0.05 + \sum_{i = 1}^d 0.01 x_i + \epsilon \text{ where }
@@ -155,9 +164,19 @@ from paddle import nn
 并使用一个只包含20个样本的小训练集。
 
 ```{.python .input}
-#@tab all
+#@tab pytorch, tensorflow, paddle
 n_train, n_test, num_inputs, batch_size = 20, 100, 200, 5
 true_w, true_b = d2l.ones((num_inputs, 1)) * 0.01, 0.05
+```
+
+```{.python .input}
+#@tab mindspore
+n_train, n_test, num_inputs, batch_size = 20, 100, 200, 5
+true_w, true_b = np.ones((num_inputs, 1)) * 0.01, 0.05
+```
+
+```{.python .input}
+#@tab all
 train_data = d2l.synthetic_data(true_w, true_b, n_train)
 train_iter = d2l.load_array(train_data, batch_size)
 test_data = d2l.synthetic_data(true_w, true_b, n_test)
@@ -207,6 +226,14 @@ def init_params():
     return [w, b]
 ```
 
+```{.python .input}
+#@tab mindspore
+def init_params():
+    w = Parameter(d2l.normal((num_inputs, 1), 0, 1), name='w')
+    b = Parameter(d2l.zeros(1), name='b')
+    return [w, b]
+```
+
 ### (**定义$L_2$范数惩罚**)
 
 实现这一惩罚最方便的方法是对所有项求平方后并将它们求和。
@@ -232,6 +259,12 @@ def l2_penalty(w):
 #@tab paddle
 def l2_penalty(w):
     return paddle.sum(w.pow(2)) / 2
+```
+
+```{.python .input}
+#@tab mindspore
+def l2_penalty(w):
+    return d2l.sum(d2l.pow(w, 2)) / 2
 ```
 
 ### [**定义训练代码实现**]
@@ -324,6 +357,40 @@ def train(lambd):
             animator.add(epoch + 1, (d2l.evaluate_loss(net, train_iter, loss),
                                      d2l.evaluate_loss(net, test_iter, loss)))
     print('w的L2范数是：', paddle.norm(w).item())
+```
+
+```{.python .input}
+#@tab mindspore
+def train(lambd):
+    w, b = init_params()
+    net, loss_fn = lambda X: d2l.linreg(X, w, b), d2l.squared_loss
+    num_epochs, lr = 100, 0.003
+    optim = d2l.SGD(lr, batch_size, [w, b])
+    animator = d2l.Animator(xlabel='epochs', ylabel='loss', yscale='log',
+                            xlim=[5, num_epochs], legend=['train', 'test'])
+
+    # 定义前向传播函数
+    def forward_fn(x, y):
+        z = net(x)
+        loss = loss_fn(z, y) + lambd * l2_penalty(w)
+        return loss
+
+    # 获取梯度函数
+    grad_fn = value_and_grad(forward_fn, None, weights=[w, b])
+
+    # 定义模型单步训练
+    def train_one_step(X, Y):
+        loss, grads = grad_fn(X, Y)
+        optim(grads)
+        return loss
+
+    for epoch in range(num_epochs):
+        for X, y in train_iter.create_tuple_iterator():
+            l = train_one_step(X, y)
+        if (epoch + 1) % 5 == 0:
+            animator.add(epoch + 1, (d2l.evaluate_loss(net, loss_fn, train_iter),
+                                     d2l.evaluate_loss(net, loss_fn, test_iter)))
+    print('w的L2范数是：', d2l.norm(w).asnumpy())
 ```
 
 ### [**忽略正则化直接训练**]
@@ -478,6 +545,41 @@ def train_concise(wd):
     print('w的L2范数：', net[0].weight.norm().item())
 ```
 
+```{.python .input}
+#@tab mindspore
+def train_concise(wd):
+    net = nn.SequentialCell([nn.Dense(num_inputs, 1, weight_init=Normal(1, 0))])
+    loss_fn = nn.MSELoss()
+    num_epochs, lr = 100, 0.003
+    # mindspore的SGD不支持对单个parameter做weight_decay
+    optim = nn.SGD(net.trainable_params(), learning_rate=lr, weight_decay=wd)
+    animator = d2l.Animator(xlabel='epochs', ylabel='loss', yscale='log',
+                            xlim=[5, num_epochs], legend=['train', 'test'])
+
+    # 定义前向传播函数
+    def forward_fn(x, y):
+        z = net(x)
+        loss = loss_fn(z, y).mean()
+        return loss
+
+    # 获取梯度函数
+    grad_fn = value_and_grad(forward_fn, None, weights=net.trainable_params())
+
+    # 定义模型单步训练
+    def train_one_step(X, Y):
+        loss, grads = grad_fn(X, Y)
+        optim(grads)
+        return loss
+
+    for epoch in range(num_epochs):
+        for X, y in train_iter.create_tuple_iterator():
+            l = train_one_step(X, y)
+        if (epoch + 1) % 5 == 0:
+            animator.add(epoch + 1, (d2l.evaluate_loss(net, loss_fn, train_iter),
+                                     d2l.evaluate_loss(net, loss_fn, test_iter)))
+    print('w的L2范数：', d2l.norm(net[0].weight).asnumpy())
+```
+
 [**这些图看起来和我们从零开始实现权重衰减时的图相同**]。
 然而，它们运行得更快，更容易实现。
 对于更复杂的问题，这一好处将变得更加明显。
@@ -529,4 +631,8 @@ train_concise(3)
 
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11773)
+:end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/xxxxx)
 :end_tab:

@@ -239,6 +239,37 @@ net = nn.Sequential(
 )
 ```
 
+```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+from mindspore import nn, ops
+
+net = nn.SequentialCell([
+    # 这里使用一个11*11的更大窗口来捕捉对象。
+    # 同时，步幅为4，以减少输出的高度和宽度。
+    # 另外，输出通道的数目远大于LeNet
+    nn.Conv2d(1, 96, kernel_size=11, stride=4, pad_mode='pad', padding=1, has_bias=True, weight_init='xavier_uniform'), nn.ReLU(),
+    nn.MaxPool2d(kernel_size=3, stride=2),
+    # 减小卷积窗口，使用填充为2来使得输入与输出的高和宽一致，且增大输出通道数
+    nn.Conv2d(96, 256, kernel_size=5, pad_mode='pad', padding=2, has_bias=True, weight_init='xavier_uniform'), nn.ReLU(),
+    nn.MaxPool2d(kernel_size=3, stride=2),
+    # 使用三个连续的卷积层和较小的卷积窗口。
+    # 除了最后的卷积层，输出通道的数量进一步增加。
+    # 在前两个卷积层之后，汇聚层不用于减少输入的高度和宽度
+    nn.Conv2d(256, 384, kernel_size=3, pad_mode='pad', padding=1, has_bias=True, weight_init='xavier_uniform'), nn.ReLU(),
+    nn.Conv2d(384, 384, kernel_size=3, pad_mode='pad', padding=1, has_bias=True, weight_init='xavier_uniform'), nn.ReLU(),
+    nn.Conv2d(384, 256, kernel_size=3, pad_mode='pad', padding=1, has_bias=True, weight_init='xavier_uniform'), nn.ReLU(),
+    nn.MaxPool2d(kernel_size=3, stride=2),
+    nn.Flatten(),
+    # 这里，全连接层的输出数量是LeNet中的好几倍。使用dropout层来减轻过拟合
+    nn.Dense(6400, 4096, weight_init='xavier_uniform'), nn.ReLU(),
+    nn.Dropout(keep_prob=1-0.5),
+    nn.Dense(4096, 4096, weight_init='xavier_uniform'), nn.ReLU(),
+    nn.Dropout(keep_prob=1-0.5),
+    # 最后是输出层。由于这里使用Fashion-MNIST，所以用类别数为10，而非论文中的1000
+    nn.Dense(4096, 10)])
+```
+
 [**我们构造一个**]高度和宽度都为224的(**单通道数据，来观察每一层输出的形状**)。
 它与 :numref:`fig_alexnet`中的AlexNet架构相匹配。
 
@@ -254,7 +285,7 @@ for layer in net:
 #@tab pytorch
 X = torch.randn(1, 1, 224, 224)
 for layer in net:
-    X=layer(X)
+    X = layer(X)
     print(layer.__class__.__name__,'output shape:\t',X.shape)
 ```
 
@@ -270,7 +301,15 @@ for layer in net().layers:
 #@tab paddle
 X = paddle.randn(shape=(1, 1, 224, 224))
 for layer in net:
-    X=layer(X)
+    X = layer(X)
+    print(layer.__class__.__name__,'output shape:\t',X.shape)
+```
+
+```{.python .input}
+#@tab mindspore
+X = ops.randn(1, 1, 224, 224)
+for layer in net:
+    X = layer(X)
     print(layer.__class__.__name__,'output shape:\t',X.shape)
 ```
 
@@ -292,9 +331,15 @@ train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=224)
 现在AlexNet可以开始被训练了。与 :numref:`sec_lenet`中的LeNet相比，这里的主要变化是使用更小的学习速率训练，这是因为网络更深更广、图像分辨率更高，训练卷积神经网络就更昂贵。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, tensorflow, paddle
 lr, num_epochs = 0.01, 10
 d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr, d2l.try_gpu())
+```
+
+```{.python .input}
+#@tab mindspore
+lr, num_epochs = 0.01, 10
+d2l.train_ch6(net, train_iter, test_iter, num_epochs, lr)
 ```
 
 ## 小结

@@ -37,6 +37,12 @@ from paddle import nn
 ```
 
 ```{.python .input}
+#@tab mindspore
+from d2l import mindspore as d2l
+from mindspore import nn, Parameter
+```
+
+```{.python .input}
 #@tab all
 batch_size = 256
 train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
@@ -117,6 +123,18 @@ b2.stop_gradient = False
 params = [W1, b1, W2, b2]
 ```
 
+```{.python .input}
+#@tab mindspore
+num_inputs, num_outputs, num_hiddens = 784, 10, 256
+
+W1 = Parameter(d2l.normal((num_inputs, num_hiddens), 0, 0.01), name='W1')
+b1 = Parameter(d2l.zeros(num_hiddens), name='b1')
+W2 = Parameter(d2l.normal((num_hiddens, num_outputs), 0, 0.01), name='W2')
+b2 = Parameter(d2l.zeros(num_outputs), name='b2')
+
+params = [W1, b1, W2, b2]
+```
+
 ## 激活函数
 
 为了确保我们对模型的细节了如指掌，
@@ -146,6 +164,12 @@ def relu(X):
 def relu(X):
     a = paddle.zeros_like(X)
     return paddle.maximum(X, a)
+```
+
+```{.python .input}
+#@tab mindspore
+def relu(X):
+    return d2l.maximum(X, 0)
 ```
 
 ## 模型
@@ -185,6 +209,14 @@ def net(X):
     return (H@W2 + b2)
 ```
 
+```{.python .input}
+#@tab mindspore
+def net(X):
+    X = d2l.reshape(X, (-1, num_inputs))
+    H = relu(d2l.matmul(X, W1) + b1)
+    return d2l.matmul(H, W2) + b2
+```
+
 ## 损失函数
 
 由于我们已经从零实现过softmax函数（ :numref:`sec_softmax_scratch`），
@@ -209,6 +241,10 @@ def loss(y_hat, y):
         y, y_hat, from_logits=True)
 ```
 
+```{.python .input}
+#@tab mindspore
+loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction='mean')
+```
 ## 训练
 
 幸运的是，[**多层感知机的训练过程与softmax回归的训练过程完全相同**]。
@@ -239,6 +275,13 @@ d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, updater)
 #@tab paddle
 num_epochs, lr = 10, 0.1
 updater = paddle.optimizer.SGD(learning_rate=lr, parameters=params)
+d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, updater)
+```
+
+```{.python .input}
+#@tab mindspore
+num_epochs, lr = 10, 0.1
+updater = nn.SGD(params, learning_rate=lr)
 d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, updater)
 ```
 
@@ -276,4 +319,8 @@ d2l.predict_ch3(net, test_iter)
 
 :begin_tab:`paddle`
 [Discussions](https://discuss.d2l.ai/t/11769)
+:end_tab:
+
+:begin_tab:`mindspore`
+[Discussions](https://discuss.d2l.ai/t/xxxxx)
 :end_tab:

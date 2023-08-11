@@ -41,6 +41,19 @@ data_iter, vocab = d2l.load_data_ptb(batch_size, max_window_size,
                                      num_noise_words)
 ```
 
+```{.python .input}
+#@tab mindspore
+import math
+import mindspore
+import mindspore.nn as nn
+import mindspore.ops as ops
+from d2l import mindspore as d2l
+
+batch_size, max_window_size, num_noise_words = 512, 5, 5
+dataset, vocab = d2l.load_data_ptb(batch_size, max_window_size,
+                                     num_noise_words)
+```
+
 ## 跳元模型
 
 我们通过嵌入层和批量矩阵乘法实现了跳元模型。首先，让我们回顾一下嵌入层是如何工作的。
@@ -67,6 +80,13 @@ print(f'Parameter embedding_weight ({embed.weight.shape}, '
 embed = nn.Embedding(num_embeddings=20, embedding_dim=4)
 print(f'Parameter embedding_weight ({embed.weight.shape}, '
       f'dtype={embed.weight.dtype})')
+```
+
+```{.python .input}
+#@tab mindspore
+embed = nn.Embedding(vocab_size=20, embedding_size=4)
+print(f'Parameter embedding_weight ({embed.embedding_table.shape}, '
+      f'dtype={embed.embedding_table.dtype})')
 ```
 
 嵌入层的输入是词元（词）的索引。对于任何词元索引$i$，其向量表示可以从嵌入层中的权重矩阵的第$i$行获得。由于向量维度（`output_dim`）被设置为4，因此当小批量词元索引的形状为（2，3）时，嵌入层返回具有形状（2，3，4）的向量。
@@ -107,6 +127,15 @@ def skip_gram(center, contexts_and_negatives, embed_v, embed_u):
     return pred
 ```
 
+```{.python .input}
+#@tab mindspore
+def skip_gram(center, contexts_and_negatives, embed_v, embed_u):
+    v = embed_v(center)
+    u = embed_u(contexts_and_negatives)
+    pred = ops.bmm(v, u.permute(0, 2, 1))
+    return pred
+```
+
 让我们为一些样例输入打印此`skip_gram`函数的输出形状。
 
 ```{.python .input}
@@ -123,6 +152,12 @@ skip_gram(torch.ones((2, 1), dtype=torch.long),
 #@tab paddle
 skip_gram(paddle.ones((2, 1), dtype='int64'),
           paddle.ones((2, 4), dtype='int64'), embed, embed).shape
+```
+
+```{.python .input}
+#@tab mindspore
+skip_gram(ops.ones((2, 1), mindspore.int64),
+          ops.ones((2, 4), mindspore.int64), embed, embed).shape
 ```
 
 ## 训练
@@ -167,6 +202,21 @@ class SigmoidBCELoss(nn.Layer):
 loss = SigmoidBCELoss()
 ```
 
+```{.python .input}
+#@tab mindspore
+class SigmoidBCELoss(nn.Cell):
+    # 带掩码的二元交叉熵损失
+    def __init__(self):
+        super().__init__()
+
+    def construct(self, inputs, target, mask=None):
+        out = ops.binary_cross_entropy_with_logits(
+            inputs, target, weight=mask, pos_weight=mask, reduction="none")
+        return out.mean(axis=1)
+
+loss = SigmoidBCELoss()
+```
+
 回想一下我们在 :numref:`subsec_word2vec-minibatch-loading`中对掩码变量和标签变量的描述。下面计算给定变量的二进制交叉熵损失。
 
 ```{.python .input}
@@ -182,6 +232,14 @@ loss(pred, label, mask) * mask.shape[1] / mask.sum(axis=1)
 pred = d2l.tensor([[1.1, -2.2, 3.3, -4.4]] * 2)
 label = d2l.tensor([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
 mask = d2l.tensor([[1, 1, 1, 1], [1, 1, 0, 0]], dtype='float32')
+loss(pred, label, mask) * mask.shape[1] / mask.sum(axis=1)
+```
+
+```{.python .input}
+#@tab mindspore
+pred = mindspore.Tensor([[1.1, -2.2, 3.3, -4.4]] * 2)
+label = mindspore.Tensor([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
+mask = mindspore.Tensor([[1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 0.0, 0.0]])
 loss(pred, label, mask) * mask.shape[1] / mask.sum(axis=1)
 ```
 
@@ -214,6 +272,15 @@ net = nn.Sequential(nn.Embedding(num_embeddings=len(vocab),
                                  embedding_dim=embed_size),
                     nn.Embedding(num_embeddings=len(vocab),
                                  embedding_dim=embed_size))
+```
+
+```{.python .input}
+#@tab mindspore
+embed_size = 100
+net = nn.SequentialCell(nn.Embedding(vocab_size=len(vocab),
+                                     embedding_size=embed_size),
+                        nn.Embedding(vocab_size=len(vocab),
+                                     embedding_size=embed_size))
 ```
 
 ### 定义训练阶段代码
@@ -314,12 +381,53 @@ def train(net, data_iter, lr, num_epochs, device=d2l.try_gpu()):
           f'{metric[1] / timer.stop():.1f} tokens/sec on {str(device)}')
 ```
 
+```{.python .input}
+#@tab mindspore
+from mindspore.common.initializer import initializer
+
+def train(net, dataset, lr, num_epochs):
+    def init_weights(m):
+        if type(m) == nn.Embedding:
+            m.embedding_table.set_data(initializer('xavier_uniform', m.embedding_table.shape, m.embedding_table.dtype))
+    net.apply(init_weights)
+    optimizer = nn.Adam(params=net.trainable_params(), lr=lr)
+    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
+                            xlim=[1, num_epochs])
+    # 规范化的损失之和，规范化的损失数
+    metric = d2l.Accumulator(2)
+    def forward_fn(batch):
+        center, context_negative, mask, label = batch
+        pred = skip_gram(center, context_negative, net[0], net[1])
+        l = (loss(pred.reshape(label.shape).float(), label.float(), mask)
+                 / mask.sum(axis=1) * mask.shape[1])
+        return l, l.sum()
+    grad_fn = mindspore.value_and_grad(forward_fn, None, weights=net.trainable_params(), has_aux=True)
+    for epoch in range(num_epochs):
+        timer, num_batches = d2l.Timer(), dataset.get_dataset_size()
+        net.set_train()
+        for i, batch in enumerate(dataset.create_tuple_iterator()):
+            (l, l_sum), grads = grad_fn(batch)
+            optimizer(grads)
+            metric.add(l_sum, l.numel())
+            if (i + 1) % (num_batches // 5) == 0 or i == num_batches - 1:
+                animator.add(epoch + (i + 1) / num_batches,
+                             (metric[0] / metric[1],))
+    print(f'loss {metric[0] / metric[1]:.3f}, '
+          f'{metric[1] / timer.stop():.1f} tokens/sec')
+```
+
 现在，我们可以使用负采样来训练跳元模型。
 
 ```{.python .input}
-#@tab all
+#@tab mxnet, pytorch, paddle
 lr, num_epochs = 0.002, 5
 train(net, data_iter, lr, num_epochs)
+```
+
+```{.python .input}
+#@tab mindspore
+lr, num_epochs = 0.002, 5
+train(net, dataset, lr, num_epochs)
 ```
 
 ## 应用词嵌入
@@ -365,6 +473,21 @@ def get_similar_tokens(query_token, k, embed):
     cos = paddle.mv(W, x) / paddle.sqrt(paddle.sum(W * W, axis=1) *
                                         paddle.sum(x * x) + 1e-9)
     topk = paddle.topk(cos, k=k+1)[1].numpy().astype('int32')
+    for i in topk[1:]:  # 删除输入词
+        print(f'cosine sim={float(cos[i]):.3f}: {vocab.to_tokens(i)}')
+
+get_similar_tokens('chip', 3, net[0])
+```
+
+```{.python .input}
+#@tab mindspore
+def get_similar_tokens(query_token, k, embed):
+    W = embed.embedding_table.data
+    x = W[vocab[query_token]]
+    # 计算余弦相似性。增加1e-9以获得数值稳定性
+    cos = ops.mv(W, x) / ops.sqrt(ops.sum(W * W, dim=1) *
+                                  ops.sum(x * x) + 1e-9)
+    topk = ops.topk(cos, k=k+1)[1].astype('int32')
     for i in topk[1:]:  # 删除输入词
         print(f'cosine sim={float(cos[i]):.3f}: {vocab.to_tokens(i)}')
 

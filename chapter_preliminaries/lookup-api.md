@@ -48,6 +48,13 @@ import paddle
 print(dir(paddle.distribution))
 ```
 
+```{.python .input}
+#@tab mindspore
+import mindspore
+
+print(dir(mindspore))
+```
+
 通常可以忽略以“`__`”（双下划线）开始和结束的函数，它们是Python中的特殊对象，
 或以单个“`_`”（单下划线）开始的函数，它们通常是内部函数。
 根据剩余的函数名或属性名，我们可能会猜测这个模块提供了各种生成随机数的方法，
@@ -77,6 +84,12 @@ help(tf.ones)
 help(paddle.ones)
 ```
 
+```{.python .input}
+#@tab mindspore
+import mindspore.ops as ops
+help(ops.ones)
+```
+
 从文档中，我们可以看到`ones`函数创建一个具有指定形状的新张量，并将所有元素值设置为1。
 下面来[**运行一个快速测试**]来确认这一解释：
 
@@ -97,6 +110,11 @@ tf.ones(4)
 ```{.python .input}
 #@tab paddle
 paddle.ones([4], dtype='float32')
+```
+
+```{.python .input}
+#@tab mindspore
+ops.ones((2, 2))
 ```
 
 在Jupyter记事本中，我们可以使用`?`指令在另一个浏览器窗口中显示文档。

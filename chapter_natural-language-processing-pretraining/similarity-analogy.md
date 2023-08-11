@@ -29,6 +29,15 @@ from paddle import nn
 import os
 ```
 
+```{.python .input}
+#@tab mindspore
+import os
+import mindspore
+import mindspore.nn as nn
+import mindspore.ops as ops
+from d2l import mindspore as d2l
+```
+
 ## 加载预训练词向量
 
 以下列出维度为50、100和300的预训练GloVe嵌入，可从[GloVe网站](https://nlp.stanford.edu/projects/glove/)下载。预训练的fastText嵌入有多种语言。这里我们使用可以从[fastText网站](https://fasttext.cc/)下载300维度的英文版本（“wiki.en”）。
@@ -92,6 +101,44 @@ class TokenEmbedding:
         return len(self.idx_to_token)
 ```
 
+```{.python .input}
+#@tab
+#@save
+class TokenEmbedding:
+    """GloVe嵌入"""
+    def __init__(self, embedding_name):
+        self.idx_to_token, self.idx_to_vec = self._load_embedding(
+            embedding_name)
+        self.unknown_idx = 0
+        self.token_to_idx = {token: idx for idx, token in
+                             enumerate(self.idx_to_token)}
+
+    def _load_embedding(self, embedding_name):
+        idx_to_token, idx_to_vec = ['<unk>'], []
+        data_dir = d2l.download_extract(embedding_name)
+        # GloVe网站：https://nlp.stanford.edu/projects/glove/
+        # fastText网站：https://fasttext.cc/
+        with open(os.path.join(data_dir, 'vec.txt'), 'r') as f:
+            for line in f:
+                elems = line.rstrip().split(' ')
+                token, elems = elems[0], [float(elem) for elem in elems[1:]]
+                # 跳过标题信息，例如fastText中的首行
+                if len(elems) > 1:
+                    idx_to_token.append(token)
+                    idx_to_vec.append(elems)
+        idx_to_vec = [[0] * len(idx_to_vec[0])] + idx_to_vec
+        return idx_to_token, mindspore.Tensor(idx_to_vec)
+
+    def __getitem__(self, tokens):
+        indices = [self.token_to_idx.get(token, self.unknown_idx)
+                   for token in tokens]
+        vecs = self.idx_to_vec[mindspore.Tensor(indices)]
+        return vecs
+
+    def __len__(self):
+        return len(self.idx_to_token)
+```
+
 下面我们加载50维GloVe嵌入（在维基百科的子集上预训练）。创建`TokenEmbedding`实例时，如果尚未下载指定的嵌入文件，则必须下载该文件。
 
 ```{.python .input}
@@ -149,6 +196,17 @@ def knn(W, x, k):
         paddle.sqrt(paddle.sum(W * W, axis=1) + 1e-9) *
         paddle.sqrt((x * x).sum()))
     _, topk = paddle.topk(cos, k=k)
+    return topk, [cos[int(i)] for i in topk]
+```
+
+```{.python .input}
+#@tab mindspore
+def knn(W, x, k):
+    # 增加1e-9以获得数值稳定性
+    cos = ops.mv(W, x.reshape(-1,)) / (
+        ops.sqrt(ops.sum(W * W, dim=1) + 1e-9) *
+        ops.sqrt((x * x).sum()))
+    _, topk = ops.topk(cos, k=k)
     return topk, [cos[int(i)] for i in topk]
 ```
 
