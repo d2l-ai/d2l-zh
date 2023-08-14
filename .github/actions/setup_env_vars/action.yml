@@ -1,0 +1,57 @@
+name: "Setup Env Vars"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get Commit SHA (For Push Event)
+      if: ${{ github.event_name == 'push' }}
+      shell: bash
+      env:
+        SHA: ${{ github.sha }}
+        git_repo_full: ${{ github.repository }}
+        pr_number: ""
+      run: |
+        short_sha=$(git rev-parse --short "$SHA")
+        echo "SHORT_SHA=$short_sha" >> $GITHUB_ENV
+        echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
+
+        target_branch=${GITHUB_REF##*/}
+        echo "TARGET_BRANCH=$target_branch" >> $GITHUB_ENV
+
+        repo_name=${git_repo_full##*/}
+        echo "REPO_NAME=$repo_name" >> $GITHUB_ENV
+
+        IFS='-' read -ra name_parts <<< "$repo_name"
+        echo "LANG=${name_parts[1]}" >> $GITHUB_ENV
+
+        job_name=${repo_name}/${target_branch}
+        echo "JOB_NAME=$job_name" >> $GITHUB_ENV
+
+        echo "CACHE_DIR=ci_cache_push" >> $GITHUB_ENV
+
+
+    - name: Get Commit SHA (For Pull Request)
+      if: ${{ github.event_name == 'pull_request_target' }}
+      shell: bash
+      env:
+        SHA: ${{ github.event.pull_request.head.sha }}
+        target_branch: ${{ github.event.pull_request.base.ref }}
+        git_repo_full: ${{ github.event.pull_request.base.repo.full_name }}
+        pr_number: PR-${{ github.event.number }}
+      run: |
+        short_sha=$(git rev-parse --short "$SHA")
+        echo "SHORT_SHA=$short_sha" >> $GITHUB_ENV
+        echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
+
+        echo "TARGET_BRANCH=$target_branch" >> $GITHUB_ENV
+        
+        repo_name=${git_repo_full##*/}
+        echo "REPO_NAME=$repo_name" >> $GITHUB_ENV
+
+        IFS='-' read -ra name_parts <<< "$repo_name"
+        echo "LANG=${name_parts[1]}" >> $GITHUB_ENV
+
+        job_name=${repo_name}/${pr_number}/${short_sha}
+        echo "JOB_NAME=$job_name" >> $GITHUB_ENV
+
+        echo "CACHE_DIR=ci_cache_pr" >> $GITHUB_ENV
