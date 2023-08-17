@@ -614,7 +614,7 @@ type(A), type(B)
 ```{.python .input}
 #@tab pytorch
 A = X.numpy()
-B = torch.tensor(A)
+B = torch.from_numpy(A)
 type(A), type(B)
 ```
 
