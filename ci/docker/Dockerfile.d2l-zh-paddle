@@ -23,7 +23,7 @@ USER ci
 ENV PATH="/home/ci/.local/bin:$PATH"
 
 # Install d2lbook using pip + paddlepaddle dependencies
-RUN pip3 install git+https://github.com/d2l-ai/d2l-book "opencv-python==4.6.0.66"
+RUN pip3 install d2lbook==1.0.0 "opencv-python==4.6.0.66"
 
 # Python script to print framework versions
 ADD print_versions.py .
