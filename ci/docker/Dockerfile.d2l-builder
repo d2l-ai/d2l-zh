@@ -34,6 +34,6 @@ ENV PATH="/home/ci/.local/bin:$PATH"
 
 # Install d2lbook using pip
 # Install all libraries (cpu) to make sure API reference works for PDF builds
-RUN pip3 install git+https://github.com/d2l-ai/d2l-book torch torchvision tensorflow mxnet
+RUN pip3 install d2lbook==1.0.0 torch torchvision tensorflow mxnet
 
 CMD ["/bin/bash"]

@@ -20,7 +20,7 @@ USER ci
 ENV PATH="/home/ci/.local/bin:$PATH"
 
 # Install d2lbook using pip + dependencies for torch d2l
-RUN pip3 install git+https://github.com/d2l-ai/d2l-book
+RUN pip3 install d2lbook==1.0.0
 
 # Python script to print framework versions
 ADD print_versions.py .
