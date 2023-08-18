@@ -28,11 +28,12 @@
 如果本书对你有帮助，请Star (★) 本仓库或引用本书的英文版：
 
 ```
-@article{zhang2021dive,
+@article{zhang2023dive,
     title={Dive into Deep Learning},
     author={Zhang, Aston and Lipton, Zachary C. and Li, Mu and Smola, Alexander J.},
-    journal={arXiv preprint arXiv:2106.11342},
-    year={2021}
+    publisher={Cambridge University Press},
+    note={\url{http://D2L.ai}},
+    year={2023}
 }
 ```
 
