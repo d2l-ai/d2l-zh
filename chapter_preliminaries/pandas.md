@@ -79,7 +79,7 @@ print(inputs)
 ```{.python .input}
 from mxnet import np
 
-X, y = np.array(inputs.values), np.array(outputs.values)
+X, y = np.array(inputs.to_numpy(dtype=float)), np.array(outputs.to_numpy(dtype=float))
 X, y
 ```
 
@@ -87,7 +87,8 @@ X, y
 #@tab pytorch
 import torch
 
-X, y = torch.tensor(inputs.values), torch.tensor(outputs.values)
+X = torch.tensor(inputs.to_numpy(dtype=float))
+y = torch.tensor(outputs.to_numpy(dtype=float))
 X, y
 ```
 
@@ -95,7 +96,8 @@ X, y
 #@tab tensorflow
 import tensorflow as tf
 
-X, y = tf.constant(inputs.values), tf.constant(outputs.values)
+X = tf.constant(inputs.to_numpy(dtype=float))
+y = tf.constant(outputs.to_numpy(dtype=float))
 X, y
 ```
 

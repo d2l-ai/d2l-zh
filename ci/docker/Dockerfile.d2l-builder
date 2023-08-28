@@ -1,0 +1,39 @@
+FROM ubuntu:latest
+
+RUN adduser --disabled-password --disabled-login ci
+WORKDIR /home/ci
+
+# Add d2l_job script
+ADD d2l_job.sh .
+RUN chmod +x d2l_job.sh; chown ci d2l_job.sh
+
+# Copy git timesync for caching
+ADD git-timesync /home/ci/.local/bin/
+RUN chmod +x /home/ci/.local/bin/git-timesync
+
+RUN apt-get update && apt-get -y install build-essential git wget
+
+# Install pdf dependencies
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y texlive-full
+RUN apt-get install -y librsvg2-bin xindy pandoc
+
+# Install fonts
+RUN wget https://raw.githubusercontent.com/d2l-ai/utils/master/install_fonts.sh
+# Remove "sudo " from the fonts script
+RUN sed -i 's/sudo //g' install_fonts.sh
+RUN chmod +x install_fonts.sh; ./install_fonts.sh
+
+RUN apt-get install -y python3 python3-pip python-is-python3
+
+# Allow permissions for pip installations and git-timesync
+RUN chown -R ci:ci /home/ci/.local
+
+USER ci
+
+ENV PATH="/home/ci/.local/bin:$PATH"
+
+# Install d2lbook using pip
+# Install all libraries (cpu) to make sure API reference works for PDF builds
+RUN pip3 install d2lbook==1.0.0 torch torchvision tensorflow mxnet
+
+CMD ["/bin/bash"]

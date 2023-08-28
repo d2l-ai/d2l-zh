@@ -1,0 +1,88 @@
+name: Build Docker Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_torch:
+        type: boolean
+        description: Build PyTorch Image
+      image_tf:
+        type: boolean
+        description: Build TensorFlow Image
+      image_mxnet:
+        type: boolean
+        description: Build MXNet Image
+      image_paddle:
+        type: boolean
+        description: Build Paddle Image
+      image_builder:
+        type: boolean
+        description: Build D2L Builder Image
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build_docker_image:
+    name: Build D2L Docker Images
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./ci/docker
+    steps:
+    - uses: actions/checkout@v3
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: arn:aws:iam::650140442593:role/D2L_CI_Docker
+        role-duration-seconds: 3600
+        aws-region: us-west-2
+
+    - name: Build D2L PyTorch Image
+      if: github.event.inputs.image_torch == 'true'
+      run: |
+        chmod +x ./login_ecr.sh; ./login_ecr.sh
+        docker build -f Dockerfile.d2l-zh-torch -t d2l-containers:d2l-zh-torch-latest .
+        docker tag d2l-containers:d2l-zh-torch-latest 650140442593.dkr.ecr.us-west-2.amazonaws.com/d2l-containers:d2l-zh-torch-latest
+        docker push 650140442593.dkr.ecr.us-west-2.amazonaws.com/d2l-containers:d2l-zh-torch-latest
+        # Clean up to reclaim space
+        echo "y" | docker system prune -a
+
+    - name: Build D2L TensorFlow Image
+      if: github.event.inputs.image_tf == 'true'
+      run: |
+        chmod +x ./login_ecr.sh; ./login_ecr.sh
+        docker build -f Dockerfile.d2l-zh-tf -t d2l-containers:d2l-zh-tensorflow-latest .
+        docker tag d2l-containers:d2l-zh-tensorflow-latest 650140442593.dkr.ecr.us-west-2.amazonaws.com/d2l-containers:d2l-zh-tensorflow-latest
+        docker push 650140442593.dkr.ecr.us-west-2.amazonaws.com/d2l-containers:d2l-zh-tensorflow-latest
+        # Clean up to reclaim space
+        echo "y" | docker system prune -a
+
+    - name: Build D2L MXNet Image
+      if: github.event.inputs.image_mxnet == 'true'
+      run: |
+        chmod +x ./login_ecr.sh; ./login_ecr.sh
+        docker build -f Dockerfile.d2l-zh-mxnet -t d2l-containers:d2l-zh-mxnet-latest .
+        docker tag d2l-containers:d2l-zh-mxnet-latest 650140442593.dkr.ecr.us-west-2.amazonaws.com/d2l-containers:d2l-zh-mxnet-latest
+        docker push 650140442593.dkr.ecr.us-west-2.amazonaws.com/d2l-containers:d2l-zh-mxnet-latest
+        # Clean up to reclaim space
+        echo "y" | docker system prune -a
+
+    - name: Build D2L Paddle Image
+      if: github.event.inputs.image_paddle == 'true'
+      run: |
+        chmod +x ./login_ecr.sh; ./login_ecr.sh
+        docker build -f Dockerfile.d2l-zh-paddle -t d2l-containers:d2l-zh-paddle-latest .
+        docker tag d2l-containers:d2l-zh-paddle-latest 650140442593.dkr.ecr.us-west-2.amazonaws.com/d2l-containers:d2l-zh-paddle-latest
+        docker push 650140442593.dkr.ecr.us-west-2.amazonaws.com/d2l-containers:d2l-zh-paddle-latest
+        # Clean up to reclaim space
+        echo "y" | docker system prune -a
+
+    - name: Build D2L CPU Builder Image
+      if: github.event.inputs.image_builder == 'true'
+      run: |
+        chmod +x ./login_ecr.sh; ./login_ecr.sh
+        docker build -f Dockerfile.d2l-builder -t d2l-containers:d2l-builder-latest .
+        docker tag d2l-containers:d2l-builder-latest 650140442593.dkr.ecr.us-west-2.amazonaws.com/d2l-containers:d2l-builder-latest
+        docker push 650140442593.dkr.ecr.us-west-2.amazonaws.com/d2l-containers:d2l-builder-latest

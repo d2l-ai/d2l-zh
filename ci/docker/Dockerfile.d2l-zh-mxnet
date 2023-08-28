@@ -1,0 +1,31 @@
+# Use MXNet 1.9.1 (April 2023)
+FROM nvcr.io/nvidia/mxnet:23.04-py3
+
+RUN adduser --disabled-password --disabled-login ci
+WORKDIR /home/ci
+
+# Copy d2l_job script
+ADD d2l_job.sh .
+RUN chmod +x d2l_job.sh; chown ci d2l_job.sh
+
+# Copy git timesync for caching
+ADD git-timesync /home/ci/.local/bin/
+RUN chmod +x /home/ci/.local/bin/git-timesync
+
+# Allow permissions for pip installations and git-timesync
+RUN chown -R ci:ci /home/ci/.local
+
+# Allow write permissions for downloading data to opt/mxnet/data
+RUN chown -R ci:ci /opt
+
+USER ci
+
+ENV PATH="/home/ci/.local/bin:$PATH"
+
+# Install d2lbook using pip
+RUN pip3 install d2lbook==1.0.0
+
+# Python script to print framework versions
+ADD print_versions.py .
+
+CMD ["/bin/bash"]

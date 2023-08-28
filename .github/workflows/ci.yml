@@ -1,0 +1,142 @@
+name: Continuous Integration
+
+on:
+  # Triggers the workflow on push or pull request events only for the specified branches
+  push:
+    branches:
+      - master
+      - release
+  pull_request_target:
+    branches:
+      - master
+      - release
+
+permissions:
+  id-token: write
+  pull-requests: write
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build_torch:
+      name: Build PyTorch
+      if: "github.repository == 'd2l-ai/d2l-zh' && !contains(github.event.head_commit.message, '[skip torch]') && !contains(github.event.head_commit.message, '[skip frameworks]')"
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+        - name: Setup Env Vars
+          uses: ./.github/actions/setup_env_vars
+        - name: Evaluate PyTorch on AWS Batch
+          uses: ./.github/actions/submit-job
+          with:
+            job-type: ci-gpu-torch
+            job-name: D2L-Build-PyTorch
+            command: chmod +x ./.github/workflow_scripts/build_pytorch.sh && ./.github/workflow_scripts/build_pytorch.sh "${{ env.REPO_NAME }}" "${{ env.TARGET_BRANCH }}" "${{ env.CACHE_DIR }}"
+        - name: Terminate Batch Job on Cancellation
+          if: ${{ cancelled() && env.Batch_JobID }}
+          run: |
+            echo "Terminating Submitted AWS Batch Job: "${{ env.Batch_JobID }}""
+            aws batch terminate-job --job-id "${{ env.Batch_JobID }}" --reason "Job terminated by cancelled workflow"
+
+  build_tf:
+      name: Build Tensorflow
+      if: "github.repository == 'd2l-ai/d2l-zh' && !contains(github.event.head_commit.message, '[skip tf]') && !contains(github.event.head_commit.message, '[skip frameworks]')"
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+        - name: Setup Env Vars
+          uses: ./.github/actions/setup_env_vars
+        - name: Evaluate Tensorflow on AWS Batch
+          uses: ./.github/actions/submit-job
+          with:
+            job-type: ci-gpu-tf
+            job-name: D2L-Build-Tensorflow
+            command: chmod +x ./.github/workflow_scripts/build_tf.sh && ./.github/workflow_scripts/build_tf.sh "${{ env.REPO_NAME }}" "${{ env.TARGET_BRANCH }}" "${{ env.CACHE_DIR }}"
+        - name: Terminate Batch Job on Cancellation
+          if: ${{ cancelled() && env.Batch_JobID }}
+          run: |
+            echo "Terminating Submitted AWS Batch Job: "${{ env.Batch_JobID }}""
+            aws batch terminate-job --job-id "${{ env.Batch_JobID }}" --reason "Job terminated by cancelled workflow"
+
+  build_mxnet:
+      name: Build MXNet
+      if: "github.repository == 'd2l-ai/d2l-zh' && !contains(github.event.head_commit.message, '[skip mxnet]') && !contains(github.event.head_commit.message, '[skip frameworks]')"
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+        - name: Setup Env Vars
+          uses: ./.github/actions/setup_env_vars
+        - name: Evaluate MXNet on AWS Batch
+          uses: ./.github/actions/submit-job
+          with:
+            job-type: ci-gpu-mxnet
+            job-name: D2L-Build-MXNet
+            command: chmod +x ./.github/workflow_scripts/build_mxnet.sh && ./.github/workflow_scripts/build_mxnet.sh "${{ env.REPO_NAME }}" "${{ env.TARGET_BRANCH }}" "${{ env.CACHE_DIR }}"
+        - name: Terminate Batch Job on Cancellation
+          if: ${{ cancelled() && env.Batch_JobID }}
+          run: |
+            echo "Terminating Submitted AWS Batch Job: "${{ env.Batch_JobID }}""
+            aws batch terminate-job --job-id "${{ env.Batch_JobID }}" --reason "Job terminated by cancelled workflow"
+
+  build_paddle:
+      name: Build Paddle
+      if: "github.repository == 'd2l-ai/d2l-zh' && !contains(github.event.head_commit.message, '[skip paddle]') && !contains(github.event.head_commit.message, '[skip frameworks]')"
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+        - name: Setup Env Vars
+          uses: ./.github/actions/setup_env_vars
+        - name: Evaluate Paddle on AWS Batch
+          uses: ./.github/actions/submit-job
+          with:
+            job-type: ci-gpu-paddle
+            job-name: D2L-Build-Paddle
+            command: chmod +x ./.github/workflow_scripts/build_paddle.sh && ./.github/workflow_scripts/build_paddle.sh "${{ env.REPO_NAME }}" "${{ env.TARGET_BRANCH }}" "${{ env.CACHE_DIR }}"
+        - name: Terminate Batch Job on Cancellation
+          if: ${{ cancelled() && env.Batch_JobID }}
+          run: |
+            echo "Terminating Submitted AWS Batch Job: "${{ env.Batch_JobID }}""
+            aws batch terminate-job --job-id "${{ env.Batch_JobID }}" --reason "Job terminated by cancelled workflow"
+
+  build_and_deploy:
+      name: Build Website/PDF & Publish
+      needs: [build_torch, build_tf, build_mxnet, build_paddle]
+      if: |
+        always() &&
+        github.repository == 'd2l-ai/d2l-zh' &&
+        !contains(github.event.head_commit.message, '[skip builder]') &&
+        (needs.build_torch.result == 'success' || needs.build_torch.result == 'skipped') &&
+        (needs.build_tf.result == 'success' || needs.build_tf.result == 'skipped') &&
+        (needs.build_mxnet.result == 'success' || needs.build_mxnet.result == 'skipped') &&
+        (needs.build_paddle.result == 'success' || needs.build_paddle.result == 'skipped')
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+        - name: Setup Env Vars
+          uses: ./.github/actions/setup_env_vars
+        - name: Build Website & PDFs on AWS Batch
+          uses: ./.github/actions/submit-job
+          with:
+            job-type: ci-cpu
+            job-name: D2L-Builder
+            command: chmod +x ./.github/workflow_scripts/build_and_deploy.sh ./.github/workflow_scripts/build_html.sh && ./.github/workflow_scripts/build_and_deploy.sh "${{ env.REPO_NAME }}" "${{ env.TARGET_BRANCH }}" "${{ env.JOB_NAME }}" "${{ env.LANG }}" "${{ env.CACHE_DIR }}"
+        - name: Terminate Batch Job on Cancellation
+          if: ${{ cancelled() && env.Batch_JobID }}
+          run: |
+            echo "Terminating Submitted AWS Batch Job: "${{ env.Batch_JobID }}""
+            aws batch terminate-job --job-id "${{ env.Batch_JobID }}" --reason "Job terminated by cancelled workflow"
+        - name: Comment on PR
+          if: ${{ github.event_name == 'pull_request_target' }}
+          uses: peter-evans/create-or-update-comment@38e799a33166c9a254f2e3660d4d49ecd67eb80c # v3
+          with:
+            issue-number: ${{ github.event.number }}
+            body: |
+              Job PR-${{ github.event.number }}-${{ env.SHORT_SHA }} is done.
+              Check the results at http://preview.d2l.ai/${{ env.JOB_NAME }}

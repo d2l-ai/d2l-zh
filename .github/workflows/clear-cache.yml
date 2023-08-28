@@ -1,0 +1,39 @@
+name: Clear CI Cache
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_branch:
+        type: choice
+        description: Choose the cache associated branch
+        options:
+        - master
+        - release
+
+      cache_dir:
+        type: choice
+        description: Choose cache type, pull requests or push events 
+        options:
+        - ci_cache_pr
+        - ci_cache_push
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  clear_cache:
+    name: Clear CI Cache
+    runs-on: ubuntu-latest
+    steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: arn:aws:iam::650140442593:role/D2L_CI_Clear_Cache
+        role-duration-seconds: 3600
+        aws-region: us-west-2
+    - name: Delete Cache
+      run: |
+        CACHE_S3_URL="s3://preview.d2l.ai/${{ github.event.inputs.cache_dir }}/d2l-zh-${{ github.event.inputs.target_branch }}/"
+        echo "Removing cache in $CACHE_S3_URL"
+        aws s3 rm --recursive $CACHE_S3_URL
