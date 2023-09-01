@@ -341,7 +341,7 @@ class Seq2SeqDecoder(d2l.Decoder):
         return enc_outputs[1]
 
     def forward(self, X, state):
-        # 输出'X'的形状：(batch_size,num_steps,embed_size)
+        # 输出'X'的形状：(num_steps,batch_size,embed_size)
         X = self.embedding(X).swapaxes(0, 1)
         # context的形状:(batch_size,num_hiddens)
         context = state[0][-1]
@@ -372,7 +372,7 @@ class Seq2SeqDecoder(d2l.Decoder):
         return enc_outputs[1]
 
     def forward(self, X, state):
-        # 输出'X'的形状：(batch_size,num_steps,embed_size)
+        # 输出'X'的形状：(num_steps,batch_size,embed_size)
         X = self.embedding(X).permute(1, 0, 2)
         # 广播context，使其具有与X相同的num_steps
         context = state[-1].repeat(X.shape[0], 1, 1)
@@ -433,7 +433,7 @@ class Seq2SeqDecoder(d2l.Decoder):
         return enc_outputs[1]
 
     def forward(self, X, state):
-        # 输出'X'的形状：(batch_size,num_steps,embed_size)
+        # 输出'X'的形状：(num_steps,batch_size,embed_size)
         X = self.embedding(X).transpose([1, 0, 2])
         # 广播context，使其具有与X相同的num_steps
         context = state[-1].tile([X.shape[0], 1, 1])
