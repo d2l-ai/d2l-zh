@@ -64,7 +64,7 @@ we [**replace the "NaN" entries with the mean value of the same column.**]
 ```{.python .input}
 #@tab all
 inputs, outputs = data.iloc[:, 0:2], data.iloc[:, 2]
-inputs = inputs.fillna(inputs.mean())
+inputs = inputs.fillna(inputs.mean(numeric_only=True))
 print(inputs)
 ```
 
