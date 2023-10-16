@@ -70,6 +70,8 @@ $\mathbf{H}_{t-1} \in \mathbb{R}^{n \times h}$
 （隐藏单元个数$h$）。
 那么，重置门$\mathbf{R}_t \in \mathbb{R}^{n \times h}$和
 更新门$\mathbf{Z}_t \in \mathbb{R}^{n \times h}$的计算如下所示：
+
+
 $$
 \begin{aligned}
 \mathbf{R}_t = \sigma(\mathbf{X}_t \mathbf{W}_{xr} + \mathbf{H}_{t-1} \mathbf{W}_{hr} + \mathbf{b}_r),\\
