@@ -115,8 +115,10 @@ $o_j$是未规范化的预测$\mathbf{o}$的第$j$个元素。
 
 $$
 \begin{aligned}
-\hat y_j & =  \frac{\exp(o_j - \max(o_k))\exp(\max(o_k))}{\sum_k \exp(o_k - \max(o_k))\exp(\max(o_k))} \\
-& = \frac{\exp(o_j - \max(o_k))}{\sum_k \exp(o_k - \max(o_k))}.
+\hat y_j & = \frac{\exp(o_j)}{\sum_k \exp(o_k)}\\
+&= \frac{\exp(o_j - \max(o_k))}{\sum_k \exp(o_k - \max(o_k))} \\
+& = \frac{\exp(o_j)\exp(\max(o_k))}{\sum_k \exp(o_k)\exp(\max(o_k))} \\
+& = \frac{\exp(o_j)}{\sum_k \exp(o_k)}.
 \end{aligned}
 $$
 
