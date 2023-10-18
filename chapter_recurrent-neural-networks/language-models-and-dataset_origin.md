@@ -333,7 +333,7 @@ This strategy preserves the order of split subsequences when iterating over mini
 def seq_data_iter_sequential(corpus, batch_size, num_steps):  #@save
     """Generate a minibatch of subsequences using sequential partitioning."""
     # Start with a random offset to partition a sequence
-    offset = random.randint(0, num_steps)
+    offset = random.randint(0, num_steps - 1)
     num_tokens = ((len(corpus) - offset - 1) // batch_size) * batch_size
     Xs = d2l.tensor(corpus[offset: offset + num_tokens])
     Ys = d2l.tensor(corpus[offset + 1: offset + 1 + num_tokens])
@@ -350,7 +350,7 @@ def seq_data_iter_sequential(corpus, batch_size, num_steps):  #@save
 def seq_data_iter_sequential(corpus, batch_size, num_steps):  #@save
     """Generate a minibatch of subsequences using sequential partitioning."""
     # Start with a random offset to partition a sequence
-    offset = random.randint(0, num_steps)
+    offset = random.randint(0, num_steps - 1)
     num_tokens = ((len(corpus) - offset - 1) // batch_size) * batch_size
     Xs = d2l.tensor(corpus[offset: offset + num_tokens])
     Ys = d2l.tensor(corpus[offset + 1: offset + 1 + num_tokens])

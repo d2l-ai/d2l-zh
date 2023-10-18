@@ -629,7 +629,7 @@ def seq_data_iter_sequential(corpus, batch_size, num_steps):
 
     Defined in :numref:`sec_language_model`"""
     # 从随机偏移量开始划分序列
-    offset = random.randint(0, num_steps)
+    offset = random.randint(0, num_steps - 1)
     num_tokens = ((len(corpus) - offset - 1) // batch_size) * batch_size
     Xs = d2l.tensor(corpus[offset: offset + num_tokens])
     Ys = d2l.tensor(corpus[offset + 1: offset + 1 + num_tokens])
