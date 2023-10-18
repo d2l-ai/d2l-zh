@@ -334,7 +334,7 @@ for X, Y in seq_data_iter_random(my_seq, batch_size=2, num_steps=5):
 def seq_data_iter_sequential(corpus, batch_size, num_steps):  #@save
     """使用顺序分区生成一个小批量子序列"""
     # 从随机偏移量开始划分序列
-    offset = random.randint(0, num_steps)
+    offset = random.randint(0, num_steps - 1)
     num_tokens = ((len(corpus) - offset - 1) // batch_size) * batch_size
     Xs = d2l.tensor(corpus[offset: offset + num_tokens])
     Ys = d2l.tensor(corpus[offset + 1: offset + 1 + num_tokens])
@@ -351,7 +351,7 @@ def seq_data_iter_sequential(corpus, batch_size, num_steps):  #@save
 def seq_data_iter_sequential(corpus, batch_size, num_steps):  #@save
     """使用顺序分区生成一个小批量子序列"""
     # 从随机偏移量开始划分序列
-    offset = random.randint(0, num_steps)
+    offset = random.randint(0, num_steps - 1)
     num_tokens = ((len(corpus) - offset - 1) // batch_size) * batch_size
     Xs = d2l.tensor(corpus[offset: offset + num_tokens])
     Ys = d2l.tensor(corpus[offset + 1: offset + 1 + num_tokens])
@@ -369,7 +369,7 @@ def seq_data_iter_sequential(corpus, batch_size, num_steps):  #@save
 def seq_data_iter_sequential(corpus, batch_size, num_steps):  #@save
     """使用顺序分区生成一个小批量子序列"""
     # 从随机偏移量开始划分序列
-    offset = random.randint(0, num_steps)
+    offset = random.randint(0, num_steps - 1)
     num_tokens = ((len(corpus) - offset - 1) // batch_size) * batch_size
     Xs = d2l.tensor(corpus[offset: offset + num_tokens])
     Ys = d2l.tensor(corpus[offset + 1: offset + 1 + num_tokens])
