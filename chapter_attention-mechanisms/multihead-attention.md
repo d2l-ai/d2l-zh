@@ -109,7 +109,7 @@ class MultiHeadAttention(nn.Block):
 
     def forward(self, queries, keys, values, valid_lens):
         # queries，keys，values的形状:
-        # (batch_size，查询或者“键－值”对的个数，num_hiddens)
+        # (batch_size，查询或者“键－值”对的个数，query_size或key_size或value_size)
         # valid_lens　的形状:
         # (batch_size，)或(batch_size，查询的个数)
         # 经过变换后，输出的queries，keys，values　的形状:
