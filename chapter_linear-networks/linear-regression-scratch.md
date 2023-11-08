@@ -106,7 +106,7 @@ print('features:', features[0],'\nlabel:', labels[0])
 ```{.python .input}
 #@tab all
 d2l.set_figsize()
-d2l.plt.scatter(d2l.numpy(features[:, 1]), d2l.numpy(labels), 1);
+d2l.plt.scatter(d2l.numpy(features[:, 1]), d2l.numpy(labels), 1)
 ```
 
 ## 读取数据集
