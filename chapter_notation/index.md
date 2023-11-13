@@ -16,6 +16,7 @@
 ## 集合论
 
 * $\mathcal{X}$: 集合
+* $\emptyset$: 空集
 * $\mathbb{Z}$: 整数集合
 * $\mathbb{R}$: 实数集合
 * $\mathbb{R}^n$: $n$维实数向量集合
