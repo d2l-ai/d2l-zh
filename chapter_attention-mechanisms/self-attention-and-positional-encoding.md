@@ -9,7 +9,7 @@
 *自注意力*（self-attention）
  :cite:`Lin.Feng.Santos.ea.2017,Vaswani.Shazeer.Parmar.ea.2017`，
 也被称为*内部注意力*（intra-attention） :cite:`Cheng.Dong.Lapata.2016,Parikh.Tackstrom.Das.ea.2016,Paulus.Xiong.Socher.2017`。
-本节将使用自注意力进行序列编码，以及如何使用序列的顺序作为补充信息。
+本节将讲解使用自注意力进行序列编码，以及如何使用序列的顺序作为补充信息。
 
 ```{.python .input}
 from d2l import mxnet as d2l
