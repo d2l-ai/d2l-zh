@@ -55,7 +55,7 @@ print(data)
 ```{.python .input}
 #@tab all
 inputs, outputs = data.iloc[:, 0:2], data.iloc[:, 2]
-inputs = inputs.fillna(inputs.mean())
+inputs = inputs.fillna(inputs.mean(numeric_only=True))  #更新后的pandas要求mean方法之中注明numeric_only=True，否则会报错。
 print(inputs)
 ```
 
@@ -67,7 +67,7 @@ print(inputs)
 
 ```{.python .input}
 #@tab all
-inputs = pd.get_dummies(inputs, dummy_na=True)
+inputs = pd.get_dummies(inputs, dummy_na=True, dtype=int) #如果不加参数dtype=int，则会填充布尔值True/False
 print(inputs)
 ```
 
