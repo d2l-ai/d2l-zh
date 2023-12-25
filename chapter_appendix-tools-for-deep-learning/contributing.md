@@ -7,7 +7,7 @@
 在常规书籍中，两次印刷之间的间隔（即修订笔误的间隔）常常需要几年，
 但这本书的改进通常需要几小时到几天的时间。
 由于版本控制和持续自动集成（CI）测试，这一切颇为高效。
-为此，你需要向gihub存储库提交一个
+为此，你需要向github存储库提交一个
 [pull request](https://github.com/d2l-ai/d2l-en/pulls)。
 当你的pull请求被作者合并到代码库中时，
 你将成为[贡献者](https://github.com/d2l-ai/d2l-en/graphs/contributors)。
