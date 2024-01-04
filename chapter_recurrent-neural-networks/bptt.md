@@ -76,7 +76,7 @@ $h_t$既依赖于$h_{t-1}$又依赖于$w_h$，
 其中$h_{t-1}$的计算也依赖于$w_h$。
 因此，使用链式法则产生：
 
-$$\frac{\partial h_t}{\partial w_h}= \frac{\partial f(x_{t},h_{t-1},w_h)}{\partial w_h} +\frac{\partial f(x_{t},h_{t-1},w_h)}{\partial h_{t-1}} \frac{\partial h_{t-1}}{\partial w_h}.$$
+$$\frac{\partial h_t}{\partial w_h}= \frac{\partial f(x_{t},h_{t-1},w_h)}{\partial w_h} =\frac{\partial f(x_{t},h_{t-1},w_h)}{\partial h_{t-1}} \frac{\partial h_{t-1}}{\partial w_h}.$$
 :eqlabel:`eq_bptt_partial_ht_wh_recur`
 
 为了导出上述梯度，假设我们有三个序列$\{a_{t}\},\{b_{t}\},\{c_{t}\}$，
