@@ -27,7 +27,7 @@ $$\frac{\mathbf{x}^\top \mathbf{y}}{\|\mathbf{x}\| \|\mathbf{y}\|} \in [-1, 1].$
 ## 跳元模型（Skip-Gram）
 :label:`subsec_skip-gram`
 
-跳元模型假设一个词可以用来在文本序列中生成其周围的单词。以文本序列“the”“man”“loves”“his”“son”为例。假设*中心词*选择“loves”，并将上下文窗口设置为2，如图 :numref:`fig_skip_gram`所示，给定中心词“loves”，跳元模型考虑生成*上下文词*“the”“man”“him”“son”的条件概率：
+跳元模型假设一个词可以用来在文本序列中生成其周围的单词。以文本序列“the”“man”“loves”“his”“son”为例。假设*中心词*选择“loves”，并将上下文窗口设置为2，如图 :numref:`fig_skip_gram`所示，给定中心词“loves”，跳元模型考虑生成*上下文词*“the”“man”“his”“son”的条件概率：
 
 $$P(\textrm{"the"},\textrm{"man"},\textrm{"his"},\textrm{"son"}\mid\textrm{"loves"}).$$
 
