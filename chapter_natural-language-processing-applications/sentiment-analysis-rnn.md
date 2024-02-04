@@ -149,7 +149,7 @@ def init_weights(m):
         for param in m._flat_weights_names:
             if "weight" in param:
                 nn.init.xavier_uniform_(m._parameters[param])
-net.apply(init_weights);
+net.apply(init_weights)
 ```
 
 ```{.python .input}
