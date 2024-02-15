@@ -479,7 +479,7 @@ def train(net, train_features, train_labels, test_features, test_labels,
 ## $K$折交叉验证
 
 本书在讨论模型选择的部分（ :numref:`sec_model_selection`）
-中介绍了[**K折交叉验证**]，
+中介绍了[**$K$ 折交叉验证**]，
 它有助于模型选择和超参数调整。
 我们首先需要定义一个函数，在$K$折交叉验证过程中返回第$i$折的数据。
 具体地说，它选择第$i$个切片作为验证数据，其余部分作为训练数据。
@@ -575,7 +575,7 @@ def train_and_pred(train_features, test_features, train_labels, test_data,
     submission.to_csv('submission.csv', index=False)
 ```
 
-如果测试集上的预测与$K$倍交叉验证过程中的预测相似，
+如果测试集上的预测与$K$折交叉验证过程中的预测相似，
 那就是时候把它们上传到Kaggle了。
 下面的代码将生成一个名为`submission.csv`的文件。
 
