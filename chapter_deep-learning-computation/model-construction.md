@@ -573,8 +573,8 @@ net = FixedHiddenMLP()
 net(X)
 ```
 
-我们可以[**混合搭配各种组合块的方法**]。
-在下面的例子中，我们以一些想到的方法嵌套块。
+我们可以[**将各种组装块的方法混搭在一起**]，
+正如下面这个例子所示。
 
 ```{.python .input}
 class NestMLP(nn.Block):
@@ -669,9 +669,14 @@ Gluon运行时记录正在发生的事情，以及下一次它将对Python调用
 读者可能会开始担心操作效率的问题。
 毕竟，我们在一个高性能的深度学习库中进行了大量的字典查找、
 代码执行和许多其他的Python代码。
-Python的问题[全局解释器锁](https://wiki.python.org/moin/GlobalInterpreterLock)
-是众所周知的。
-在深度学习环境中，我们担心速度极快的GPU可能要等到CPU运行Python代码后才能运行另一个作业。
+Python的[全局解释器锁](https://wiki.python.org/moin/GlobalInterpreterLock)
+是用于保护 Python 对象的互斥锁，阻止多个线程在同一时刻执行 Python 字节码。
+而在在深度学习问题中，我们担心速度极快的 GPU 有时不得不等速度较慢的 CPU 运行 Python 代码后才能计算另一个作业。
+
+有点讽刺的是，提高 Python 速度的最好办法就是完全避免使用 Python。
+另外也可以考虑*混合式编程*（hybridization），
+比较不错的就是 [Gluon 框架](https://mxnet.apache.org/versions/1.3.1/gluon/index.html)。
+我们建议感兴趣的读者在读完本章后，阅读混合式编程部分（ :numref:`sec_hybridize` ）来了解编译。
 :end_tab:
 
 :begin_tab:`tensorflow`
