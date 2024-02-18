@@ -91,12 +91,12 @@ $$(f * g)(\mathbf{x}) = \int f(\mathbf{z}) g(\mathbf{x}-\mathbf{z}) d\mathbf{z}.
 
 $$(f * g)(i) = \sum_a f(a) g(i-a).$$
 
-对于二维张量，则为$f$的索引$(a, b)$和$g$的索引$(i-a, j-b)$上的对应加和：
+对于二维张量，则为$f$的索引$(a, b)$和$g$的索引$(i-a, j-b)$上的对应的求和：
 
 $$(f * g)(i, j) = \sum_a\sum_b f(a, b) g(i-a, j-b).$$
 :eqlabel:`eq_2d-conv-discrete`
 
-这看起来类似于 :eqref:`eq_conv-layer`，但有一个主要区别：这里不是使用$(i+a, j+b)$，而是使用差值。然而，这种区别是表面的，因为我们总是可以匹配 :eqref:`eq_conv-layer`和 :eqref:`eq_2d-conv-discrete`之间的符号。我们在 :eqref:`eq_conv-layer`中的原始定义更正确地描述了*互相关*（cross-correlation），这个问题将在下一节中讨论。
+这看起来类似于 :eqref:`eq_conv-layer`，但有一个主要区别：这里不是使用$(i+a, j+b)$，而是使用$(i-a, j-b)$。当然，这种区别只是表面的，因为我们总是可以匹配 :eqref:`eq_conv-layer`和 :eqref:`eq_2d-conv-discrete`之间的符号。我们在 :eqref:`eq_conv-layer`中的原始定义更正确地描述了*互相关*（cross-correlation），这个问题将在下一节中讨论。
 
 ## “沃尔多在哪里”回顾
 
