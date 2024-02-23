@@ -657,7 +657,7 @@ d2l.show_heatmaps(np.expand_dims(
 
 ```{.python .input}
 #@tab pytorch
-d2l.show_heatmaps(net.attention_weights.unsqueeze(0).unsqueeze(0),
+d2l.show_heatmaps(net.attention_weights.detach().unsqueeze(0).unsqueeze(0),
                   xlabel='Sorted training inputs',
                   ylabel='Sorted testing inputs')
 ```
