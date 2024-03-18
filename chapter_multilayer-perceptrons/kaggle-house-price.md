@@ -284,8 +284,8 @@ all_features.shape
 ```{.python .input}
 #@tab all
 n_train = train_data.shape[0]
-train_features = d2l.tensor(all_features[:n_train].values, dtype=d2l.float32)
-test_features = d2l.tensor(all_features[n_train:].values, dtype=d2l.float32)
+train_features = d2l.tensor(all_features[:n_train].values.astype(np.float32), dtype=d2l.float32)
+test_features = d2l.tensor(all_features[n_train:].values.astype(np.float32), dtype=d2l.float32)
 train_labels = d2l.tensor(
     train_data.SalePrice.values.reshape(-1, 1), dtype=d2l.float32)
 ```
