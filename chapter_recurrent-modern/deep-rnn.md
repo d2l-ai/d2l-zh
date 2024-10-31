@@ -49,7 +49,7 @@ $\mathbf{W}_{hh}^{(l)} \in \mathbb{R}^{h \times h}$和
 偏置$\mathbf{b}_h^{(l)} \in \mathbb{R}^{1 \times h}$
 都是第$l$个隐藏层的模型参数。
 
-最后，输出层的计算仅基于第$l$个隐藏层最终的隐状态：
+最后，输出层的计算仅基于第$L$个隐藏层最终的隐状态：
 
 $$\mathbf{O}_t = \mathbf{H}_t^{(L)} \mathbf{W}_{hq} + \mathbf{b}_q,$$
 
