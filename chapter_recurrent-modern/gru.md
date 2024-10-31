@@ -84,7 +84,7 @@ $\mathbf{b}_r, \mathbf{b}_z \in \mathbb{R}^{1 \times h}$是偏置参数。
 请注意，在求和过程中会触发广播机制
 （请参阅 :numref:`subsec_broadcasting`）。
 我们使用sigmoid函数（如 :numref:`sec_mlp`中介绍的）
-将输入值转换到区间$(0, 1)$。
+将输出值转换到区间$(0, 1)$。
 
 ### 候选隐状态
 
