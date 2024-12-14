@@ -1,3 +1,4 @@
+# 由于d2l中的residual类更新，此页的pytorch版本代码会出错。61行————145行提出了我的修改 祝好
 # 多GPU的简洁实现
 :label:`sec_multi_gpu_concise`
 
@@ -56,6 +57,29 @@ def resnet18(num_classes):
     return net
 ```
 
+
+**下面这个函数会报错，因为d2l中的Resudual类已经更改为lazyconv2d，仅需要3个参数，而不是4个：**
+**可以见d2l的源码:https://github.com/d2l-ai/d2l-en/blob/master/d2l/torch.py#L581**该链接中的Residual类的定义的一部分如下
+#@tab pytorch
+class Residual(nn.Module):
+    """The Residual block of ResNet models.
+
+    Defined in :numref:`sec_resnet`"""
+    def __init__(self, num_channels, use_1x1conv=False, strides=1):
+        super().__init__()
+        self.conv1 = nn.LazyConv2d(num_channels, kernel_size=3, padding=1,
+                                   stride=strides)
+        self.conv2 = nn.LazyConv2d(num_channels, kernel_size=3, padding=1)
+        if use_1x1conv:
+            self.conv3 = nn.LazyConv2d(num_channels, kernel_size=1,
+                                       stride=strides)
+        else:
+            self.conv3 = None
+        self.bn1 = nn.LazyBatchNorm2d()
+        self.bn2 = nn.LazyBatchNorm2d()
+
+---------------------------------------------------------------------------------------------------------
+此处是github出错的部分
 ```{.python .input}
 #@tab pytorch
 #@save
@@ -87,6 +111,41 @@ def resnet18(num_classes, in_channels=1):
                                        nn.Linear(512, num_classes)))
     return net
 ```
+---------------------------------------------------------------------------------------------------------
+**主要是多了一个in_channels参数上述应该修改成**
+```{.python .input}
+#@tab pytorch
+#@save
+def resnet18(num_classes, in_channels=1):
+    """稍加修改的ResNet-18模型"""
+    def resnet_block(out_channels, num_residuals,
+                     first_block=False):
+        blk = []
+        for i in range(num_residuals):
+            if i == 0 and not first_block:
+                blk.append(d2l.Residual( out_channels,
+                                        use_1x1conv=True, strides=2))
+            else:
+                blk.append(d2l.Residual( out_channels))
+        return nn.Sequential(*blk)
+
+    # 该模型使用了更小的卷积核、步长和填充，而且删除了最大汇聚层
+    net = nn.Sequential(
+        nn.Conv2d(in_channels, 64, kernel_size=3, stride=1, padding=1),
+        nn.BatchNorm2d(64),
+        nn.ReLU())
+    net.add_module("resnet_block1", resnet_block(
+         64, 2, first_block=True))
+    net.add_module("resnet_block2", resnet_block( 128, 2))
+    net.add_module("resnet_block3", resnet_block( 256, 2))
+    net.add_module("resnet_block4", resnet_block( 512, 2))
+    net.add_module("global_avg_pool", nn.AdaptiveAvgPool2d((1,1)))
+    net.add_module("fc", nn.Sequential(nn.Flatten(),
+                                       nn.Linear(512, num_classes)))
+    return net
+```
+
+
 
 ```{.python .input}
 #@tab paddle
