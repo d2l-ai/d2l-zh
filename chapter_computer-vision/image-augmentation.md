@@ -24,6 +24,7 @@ from d2l import torch as d2l
 import torch
 import torchvision
 from torch import nn
+from torchvision import transforms
 ```
 
 ```{.python .input}
@@ -75,7 +76,7 @@ apply(img, gluon.data.vision.transforms.RandomFlipLeftRight())
 
 ```{.python .input}
 #@tab pytorch
-apply(img, torchvision.transforms.RandomHorizontalFlip())
+apply(img, transforms.RandomHorizontalFlip())
 ```
 
 ```{.python .input}
@@ -91,7 +92,7 @@ apply(img, gluon.data.vision.transforms.RandomFlipTopBottom())
 
 ```{.python .input}
 #@tab pytorch
-apply(img, torchvision.transforms.RandomVerticalFlip())
+apply(img, transforms.RandomVerticalFlip())
 ```
 
 ```{.python .input}
@@ -116,7 +117,7 @@ apply(img, shape_aug)
 
 ```{.python .input}
 #@tab pytorch
-shape_aug = torchvision.transforms.RandomResizedCrop(
+shape_aug = transforms.RandomResizedCrop(
     (200, 200), scale=(0.1, 1), ratio=(0.5, 2))
 apply(img, shape_aug)
 ```
@@ -140,7 +141,7 @@ apply(img, gluon.data.vision.transforms.RandomBrightness(0.5))
 
 ```{.python .input}
 #@tab pytorch
-apply(img, torchvision.transforms.ColorJitter(
+apply(img, transforms.ColorJitter(
     brightness=0.5, contrast=0, saturation=0, hue=0))
 ```
 
@@ -158,7 +159,7 @@ apply(img, gluon.data.vision.transforms.RandomHue(0.5))
 
 ```{.python .input}
 #@tab pytorch
-apply(img, torchvision.transforms.ColorJitter(
+apply(img, transforms.ColorJitter(
     brightness=0, contrast=0, saturation=0, hue=0.5))
 ```
 
@@ -178,7 +179,7 @@ apply(img, color_aug)
 
 ```{.python .input}
 #@tab pytorch
-color_aug = torchvision.transforms.ColorJitter(
+color_aug = transforms.ColorJitter(
     brightness=0.5, contrast=0.5, saturation=0.5, hue=0.5)
 apply(img, color_aug)
 ```
@@ -202,8 +203,8 @@ apply(img, augs)
 
 ```{.python .input}
 #@tab pytorch
-augs = torchvision.transforms.Compose([
-    torchvision.transforms.RandomHorizontalFlip(), color_aug, shape_aug])
+augs = transforms.Compose([
+    transforms.RandomHorizontalFlip(), color_aug, shape_aug])
 apply(img, augs)
 ```
 
@@ -255,12 +256,12 @@ test_augs = gluon.data.vision.transforms.Compose([
 
 ```{.python .input}
 #@tab pytorch
-train_augs = torchvision.transforms.Compose([
-     torchvision.transforms.RandomHorizontalFlip(),
-     torchvision.transforms.ToTensor()])
+train_augs = transforms.Compose([
+     transforms.RandomHorizontalFlip(),
+     transforms.ToTensor()])
 
-test_augs = torchvision.transforms.Compose([
-     torchvision.transforms.ToTensor()])
+test_augs = transforms.Compose([
+     transforms.ToTensor()])
 ```
 
 ```{.python .input}
