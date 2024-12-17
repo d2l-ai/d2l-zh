@@ -12,7 +12,7 @@
 %matplotlib inline
 from d2l import mxnet as d2l
 from mxnet import gluon, image, np, npx
-
+import math
 np.set_printoptions(2)  # 精简输出精度
 npx.set_np()
 ```
@@ -22,7 +22,7 @@ npx.set_np()
 %matplotlib inline
 from d2l import torch as d2l
 import torch
-
+import math
 torch.set_printoptions(2)  # 精简输出精度
 ```
 
@@ -34,7 +34,7 @@ import warnings
 warnings.filterwarnings("ignore")
 import paddle
 import numpy as np
-
+import math
 paddle.set_printoptions(2)  # 精简输出精度
 ```
 
@@ -126,11 +126,10 @@ def multibox_prior(data, sizes, ratios):
 
     # 生成“boxes_per_pixel”个高和宽，
     # 之后用于创建锚框的四角坐标(xmin,xmax,ymin,ymax)
-    w = torch.cat((size_tensor * torch.sqrt(ratio_tensor[0]),
-                   sizes[0] * torch.sqrt(ratio_tensor[1:])))\
-                   * in_height / in_width  # 处理矩形输入
-    h = torch.cat((size_tensor / torch.sqrt(ratio_tensor[0]),
-                   sizes[0] / torch.sqrt(ratio_tensor[1:])))
+    w = torch.cat((size_tensor * torch.sqrt(ratio_tensor[0]), sizes[0] * torch.sqrt(ratio_tensor[1:])))\
+                            * math.sqrt(in_height / in_width)
+    h = torch.cat((size_tensor / torch.sqrt(ratio_tensor[0]), sizes[0] / torch.sqrt(ratio_tensor[1:])))\
+                            * math.sqrt(in_width / in_height)
     # 除以2来获得半高和半宽
     anchor_manipulations = torch.stack((-w, -h, w, h)).T.repeat(
                                         in_height * in_width, 1) / 2
