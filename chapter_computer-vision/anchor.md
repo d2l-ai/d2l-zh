@@ -412,7 +412,7 @@ def box_iou(boxes1, boxes2):
 ```{.python .input}
 #@save
 def assign_anchor_to_bbox(ground_truth, anchors, device, iou_threshold=0.5):
-    """将最接近的真实边界框分配给锚框"""
+    """将最接近的锚框分配给真实边界框"""
     num_anchors, num_gt_boxes = anchors.shape[0], ground_truth.shape[0]
     # 位于第i行和第j列的元素x_ij是锚框i和真实边界框j的IoU
     jaccard = box_iou(anchors, ground_truth)
@@ -439,7 +439,7 @@ def assign_anchor_to_bbox(ground_truth, anchors, device, iou_threshold=0.5):
 #@tab pytorch
 #@save
 def assign_anchor_to_bbox(ground_truth, anchors, device, iou_threshold=0.5):
-    """将最接近的真实边界框分配给锚框"""
+    """将最接近的锚框分配给真实边界框"""
     num_anchors, num_gt_boxes = anchors.shape[0], ground_truth.shape[0]
     # 位于第i行和第j列的元素x_ij是锚框i和真实边界框j的IoU
     jaccard = box_iou(anchors, ground_truth)
