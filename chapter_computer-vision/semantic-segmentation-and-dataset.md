@@ -214,9 +214,9 @@ def voc_colormap2label():
 #@save
 def voc_label_indices(colormap, colormap2label):
     """将VOC标签中的RGB值映射到它们的类别索引"""
-    colormap = colormap.permute(1, 2, 0).numpy().astype('int32')
-    idx = ((colormap[:, :, 0] * 256 + colormap[:, :, 1]) * 256
-           + colormap[:, :, 2])
+    colormap = colormap.numpy().astype('int32')
+    idx = ((colormap[0, :, :] * 256 + colormap[1, :, :]) * 256
+           + colormap[2, :, :])
     return colormap2label[idx]
 ```
 
@@ -234,9 +234,9 @@ def voc_colormap2label():
 #@save
 def voc_label_indices(colormap, colormap2label):
     """将VOC标签中的RGB值映射到它们的类别索引"""
-    colormap = colormap.transpose([1, 2, 0]).astype('int32')
-    idx = ((colormap[:, :, 0] * 256 + colormap[:, :, 1]) * 256
-           + colormap[:, :, 2])
+    colormap = colormap.astype('int32')
+    idx = ((colormap[0, :, :] * 256 + colormap[1, :, :]) * 256
+           + colormap[2, :, :])
     return colormap2label[idx]
 ```
 
