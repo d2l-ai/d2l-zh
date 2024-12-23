@@ -368,7 +368,7 @@ def predict(img):
     X = test_iter._dataset.normalize_image(img)
     X = np.expand_dims(X.transpose(2, 0, 1), axis=0)
     pred = net(X.as_in_ctx(devices[0])).argmax(axis=1)
-    return pred.reshape(pred.shape[1], pred.shape[2])
+    return pred.squeeze()
 ```
 
 ```{.python .input}
@@ -376,7 +376,7 @@ def predict(img):
 def predict(img):
     X = test_iter.dataset.normalize_image(img).unsqueeze(0)
     pred = net(X.to(devices[0])).argmax(dim=1)
-    return pred.reshape(pred.shape[1], pred.shape[2])
+    return pred.squeeze()
 ```
 
 ```{.python .input}
@@ -384,7 +384,7 @@ def predict(img):
 def predict(img):
     X = paddle.to_tensor(test_iter.dataset.normalize_image(img),dtype='float32').unsqueeze(0)
     pred = net(X).argmax(axis=1)
-    return pred.reshape([pred.shape[1], pred.shape[2]])
+    return pred.squeeze()
 ```
 
 为了[**可视化预测的类别**]给每个像素，我们将预测类别映射回它们在数据集中的标注颜色。
