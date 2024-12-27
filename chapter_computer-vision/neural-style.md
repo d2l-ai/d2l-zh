@@ -346,7 +346,7 @@ def tv_loss(Y_hat):
 
 ```{.python .input}
 #@tab all
-content_weight, style_weight, tv_weight = 1, 1e3, 10
+content_weight, style_weight, tv_weight = 1, 1e4, 10
 
 def compute_loss(X, contents_Y_hat, styles_Y_hat, contents_Y, styles_Y_gram):
     # 分别计算内容损失、风格损失和全变分损失
@@ -356,7 +356,7 @@ def compute_loss(X, contents_Y_hat, styles_Y_hat, contents_Y, styles_Y_gram):
         styles_Y_hat, styles_Y_gram)]
     tv_l = tv_loss(X) * tv_weight
     # 对所有损失求和
-    l = sum(10 * styles_l + contents_l + [tv_l])
+    l = sum(styles_l + contents_l + [tv_l])
     return contents_l, styles_l, tv_l, l
 ```
 
