@@ -99,6 +99,10 @@ K.shape
 #@tab all
 corr2d_multi_in_out(X, K)
 ```
+在 :numref:`fig_conv_multi_in_multi_out`中，我们按照上面的示例展示了一个具有两个输入通道和三个输出通道的二维互相关运算的示例。阴影部分是第一个输出元素以及用于计算这个输出的输入和核张量元素。
+
+![两个输入通道三个输出通道的互相关计算。](https://github.com/user-attachments/assets/7018a524-ad0f-4e62-897e-b855958c498c)
+:label:`fig_conv_multi_in_multi_out`
 
 ## $1\times 1$ 卷积层
 
