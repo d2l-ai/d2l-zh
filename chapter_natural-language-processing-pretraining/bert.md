@@ -94,7 +94,7 @@ class BERTEncoder(nn.Block):
         self.segment_embedding = nn.Embedding(2, num_hiddens)
         self.blks = nn.Sequential()
         for _ in range(num_layers):
-            self.blks.add(d2l.EncoderBlock(
+            self.blks.add(d2l.TransformerEncoderBlock(
                 num_hiddens, ffn_num_hiddens, num_heads, dropout, True))
         # 在BERT中，位置嵌入是可学习的，因此我们创建一个足够长的位置嵌入参数
         self.pos_embedding = self.params.get('pos_embedding',
@@ -123,9 +123,8 @@ class BERTEncoder(nn.Module):
         self.segment_embedding = nn.Embedding(2, num_hiddens)
         self.blks = nn.Sequential()
         for i in range(num_layers):
-            self.blks.add_module(f"{i}", d2l.EncoderBlock(
-                key_size, query_size, value_size, num_hiddens, norm_shape,
-                ffn_num_input, ffn_num_hiddens, num_heads, dropout, True))
+            self.blks.add_module(f"{i}", d2l.TransformerEncoderBlock(
+                num_hiddens, ffn_num_hiddens, num_heads, dropout, True))
         # 在BERT中，位置嵌入是可学习的，因此我们创建一个足够长的位置嵌入参数
         self.pos_embedding = nn.Parameter(torch.randn(1, max_len,
                                                       num_hiddens))
@@ -153,9 +152,8 @@ class BERTEncoder(nn.Layer):
         self.segment_embedding = nn.Embedding(2, num_hiddens)
         self.blks = nn.Sequential()
         for i in range(num_layers):
-            self.blks.add_sublayer(f"{i}", d2l.EncoderBlock(
-                key_size, query_size, value_size, num_hiddens, norm_shape,
-                ffn_num_input, ffn_num_hiddens, num_heads, dropout, True))
+            self.blks.add_sublayer(f"{i}", d2l.TransformerEncoderBlock(
+                num_hiddens, ffn_num_hiddens, num_heads, dropout, True))
         # 在BERT中，位置嵌入是可学习的，因此我们创建一个足够长的位置嵌入参数
         x = paddle.randn([1, max_len, num_hiddens])    
         self.pos_embedding = paddle.create_parameter(shape=x.shape, dtype=str(x.numpy().dtype),
