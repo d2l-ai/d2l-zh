@@ -418,7 +418,7 @@ $$P(\mathbf y \mid \mathbf X) = \prod_{i=1}^{n} p(y^{(i)}|\mathbf{x}^{(i)}).$$
 我们可以改为*最小化负对数似然*$-\log P(\mathbf y \mid \mathbf X)$。
 由此可以得到的数学公式是：
 
-$$-\log P(\mathbf y \mid \mathbf X) = \sum_{i=1}^n \frac{1}{2} \log(2 \pi \sigma^2) + \frac{1}{2 \sigma^2} \left(y^{(i)} - \mathbf{w}^\top \mathbf{x}^{(i)} - b\right)^2.$$
+$$-\log P(\mathbf y \mid \mathbf X) = \sum_{i=1}^n \left[ \frac{1}{2} \log(2 \pi \sigma^2) + \frac{1}{2 \sigma^2} \left(y^{(i)} - \mathbf{w}^\top \mathbf{x}^{(i)} - b\right)^2 \right].$$
 
 现在我们只需要假设$\sigma$是某个固定常数就可以忽略第一项，
 因为第一项不依赖于$\mathbf{w}$和$b$。
