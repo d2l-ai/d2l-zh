@@ -426,7 +426,7 @@ class NWKernelRegression(nn.Block):
 class NWKernelRegression(nn.Module):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.w = nn.Parameter(torch.rand((1,), requires_grad=True))
+        self.w = nn.Parameter(torch.rand((1,)))
 
     def forward(self, queries, keys, values):
         # queries和attention_weights的形状为(查询个数，“键－值”对个数)
