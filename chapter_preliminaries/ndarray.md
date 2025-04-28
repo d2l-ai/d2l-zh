@@ -108,10 +108,28 @@ x
 x.shape
 ```
 
+:begin_tab:`mxnet`
 如果只想知道张量中元素的总数，即形状的所有元素乘积，可以检查它的大小（size）。
 因为这里在处理的是一个向量，所以它的`shape`与它的`size`相同。
+:end_tab:
+
+:begin_tab:`pytorch`
+如果只想知道张量中元素的总数，即形状的所有元素乘积，可以检查它的元素个数（numel）。
+因为这里在处理的是一个向量，所以它的`shape`与它的`numel`相同。
+:end_tab:
+
+:begin_tab:`tensorflow`
+如果只想知道张量中元素的总数，即形状的所有元素乘积，可以对其使用检查大小（size）函数。
+因为这里在处理的是一个向量，所以它的`shape`与它的`size`相同。
+:end_tab:
+
+:begin_tab:`paddle`
+如果只想知道张量中元素的总数，即形状的所有元素乘积，可以检查它的元素个数（numel）。
+因为这里在处理的是一个向量，所以它的`shape`与它的`numel`相同。
+:end_tab:
 
 ```{.python .input}
+#@tab mxnet
 x.size
 ```
 
