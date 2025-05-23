@@ -215,7 +215,7 @@ $$f(\lambda x + (1-\lambda) x') \leq \lambda f(x) + (1-\lambda) f(x') \leq b.$$
 即对于所有$\mathbf{x} \in \mathbb{R}^n$，$\mathbf{x}^\top \mathbf{H} \mathbf{x} \geq 0$.
 例如，函数$f(\mathbf{x}) = \frac{1}{2} \|\mathbf{x}\|^2$是凸的，因为$\nabla^2 f = \mathbf{1}$，即其导数是单位矩阵。
 
-更正式地讲，$f$为凸函数，当且仅当任意二次可微一维函数$f: \mathbb{R}^n \rightarrow \mathbb{R}$是凸的。
+更正式地讲，$f$为凸函数，当且仅当任意二次可微一维函数$f: \mathbb{R} \rightarrow \mathbb{R}$是凸的。
 对于任意二次可微多维函数$f: \mathbb{R}^{n} \rightarrow \mathbb{R}$，
 它是凸的当且仅当它的Hessian$\nabla^2f\succeq 0$。
 
