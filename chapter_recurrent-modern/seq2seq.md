@@ -294,7 +294,7 @@ len(state), [element.shape for element in state]
 :label:`sec_seq2seq_decoder`
 
 正如上文提到的，编码器输出的上下文变量$\mathbf{c}$
-对整个输入序列$x_1, \ldots, x_T$进行编码。
+是对整个输入序列$x_1, \ldots, x_T$进行编码得到的。
 来自训练数据集的输出序列$y_1, y_2, \ldots, y_{T'}$，
 对于每个时间步$t'$（与输入序列或编码器的时间步$t$不同），
 解码器输出$y_{t'}$的概率取决于先前的输出子序列
