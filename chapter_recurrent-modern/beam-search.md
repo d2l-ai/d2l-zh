@@ -122,13 +122,13 @@ $P(y_1 \mid \mathbf{c})$的词元是$A$和$C$。
 
 $$\begin{aligned}P(A, y_2 \mid \mathbf{c}) = P(A \mid \mathbf{c})P(y_2 \mid A, \mathbf{c}),\\ P(C, y_2 \mid \mathbf{c}) = P(C \mid \mathbf{c})P(y_2 \mid C, \mathbf{c}),\end{aligned}$$  
 
-从这十个值中选择最大的两个，
+分别选出上面五个值中最大的一个与下面五个值中最大的一个，
 比如$P(A, B \mid \mathbf{c})$和$P(C, E \mid \mathbf{c})$。
 然后在时间步$3$，我们计算所有$y_3 \in \mathcal{Y}$为：
 
 $$\begin{aligned}P(A, B, y_3 \mid \mathbf{c}) = P(A, B \mid \mathbf{c})P(y_3 \mid A, B, \mathbf{c}),\\P(C, E, y_3 \mid \mathbf{c}) = P(C, E \mid \mathbf{c})P(y_3 \mid C, E, \mathbf{c}),\end{aligned}$$ 
 
-从这十个值中选择最大的两个，
+分别选出上面五个值中最大的一个与下面五个值中最大的一个，
 即$P(A, B, D \mid \mathbf{c})$和$P(C, E, D \mid  \mathbf{c})$，
 我们会得到六个候选输出序列：
 （1）$A$；（2）$C$；（3）$A,B$；（4）$C,E$；（5）$A,B,D$；（6）$C,E,D$。
