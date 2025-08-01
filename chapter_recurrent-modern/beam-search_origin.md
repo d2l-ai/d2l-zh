@@ -170,13 +170,13 @@ suppose that the tokens with the highest conditional probabilities $P(y_1 \mid \
 
 $$\begin{aligned}P(A, y_2 \mid \mathbf{c}) = P(A \mid \mathbf{c})P(y_2 \mid A, \mathbf{c}),\\ P(C, y_2 \mid \mathbf{c}) = P(C \mid \mathbf{c})P(y_2 \mid C, \mathbf{c}),\end{aligned}$$  
 
-and pick the largest two among these ten values, say
+and pick the largest one from the above five values and the largest one from the following five values respectively, say
 $P(A, B \mid \mathbf{c})$ and $P(C, E \mid \mathbf{c})$.
 Then at time step 3, for all $y_3 \in \mathcal{Y}$, we compute 
 
 $$\begin{aligned}P(A, B, y_3 \mid \mathbf{c}) = P(A, B \mid \mathbf{c})P(y_3 \mid A, B, \mathbf{c}),\\P(C, E, y_3 \mid \mathbf{c}) = P(C, E \mid \mathbf{c})P(y_3 \mid C, E, \mathbf{c}),\end{aligned}$$ 
 
-and pick the largest two among these ten values, say 
+and pick the largest one from the above five values and the largest one from the following five values respectively, say 
 $P(A, B, D \mid \mathbf{c})$   and  $P(C, E, D \mid  \mathbf{c}).$
 As a result, we get six candidates output sequences: (i) $A$; (ii) $C$; (iii) $A$, $B$; (iv) $C$, $E$; (v) $A$, $B$, $D$; and (vi) $C$, $E$, $D$. 
 
