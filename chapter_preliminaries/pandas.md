@@ -55,7 +55,7 @@ print(data)
 ```{.python .input}
 #@tab all
 inputs, outputs = data.iloc[:, 0:2], data.iloc[:, 2]
-inputs = inputs.fillna(inputs.mean())
+inputs = inputs.fillna(inputs.mean(numeric_only=True))
 print(inputs)
 ```
 
@@ -67,7 +67,7 @@ print(inputs)
 
 ```{.python .input}
 #@tab all
-inputs = pd.get_dummies(inputs, dummy_na=True)
+inputs = pd.get_dummies(inputs, dummy_na=True, dtype=int)
 print(inputs)
 ```
 
