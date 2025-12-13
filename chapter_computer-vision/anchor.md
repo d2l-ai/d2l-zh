@@ -451,15 +451,13 @@ def assign_anchor_to_bbox(ground_truth, anchors, device, iou_threshold=0.5):
     anc_i = torch.nonzero(max_ious >= iou_threshold).reshape(-1)
     box_j = indices[max_ious >= iou_threshold]
     anchors_bbox_map[anc_i] = box_j
-    col_discard = torch.full((num_anchors,), -1)
-    row_discard = torch.full((num_gt_boxes,), -1)
     for _ in range(num_gt_boxes):
         max_idx = torch.argmax(jaccard)
         box_idx = (max_idx % num_gt_boxes).long()
         anc_idx = (max_idx / num_gt_boxes).long()
         anchors_bbox_map[anc_idx] = box_idx
-        jaccard[:, box_idx] = col_discard
-        jaccard[anc_idx, :] = row_discard
+        jaccard[:, box_idx] = -1
+        jaccard[anc_idx, :] = -1
     return anchors_bbox_map
 ```
 
