@@ -1,0 +1,91 @@
+Metadata-Version: 2.4
+Name: twine
+Version: 6.2.0
+Summary: Collection of utilities for publishing packages on PyPI
+Author-email: Donald Stufft and individual contributors <donald@stufft.io>
+License-Expression: Apache-2.0
+Project-URL: Homepage, https://twine.readthedocs.io/
+Project-URL: Source, https://github.com/pypa/twine/
+Project-URL: Documentation, https://twine.readthedocs.io/en/latest/
+Project-URL: Packaging tutorial, https://packaging.python.org/tutorials/packaging-projects/
+Classifier: Intended Audience :: Developers
+Classifier: Natural Language :: English
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: POSIX
+Classifier: Operating System :: POSIX :: BSD
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Requires-Python: >=3.9
+Description-Content-Type: text/x-rst
+License-File: LICENSE
+Requires-Dist: readme-renderer>=35.0
+Requires-Dist: requests>=2.20
+Requires-Dist: requests-toolbelt!=0.9.0,>=0.8.0
+Requires-Dist: urllib3>=1.26.0
+Requires-Dist: importlib-metadata>=3.6; python_version < "3.10"
+Requires-Dist: keyring>=21.2.0; platform_machine != "ppc64le" and platform_machine != "s390x"
+Requires-Dist: rfc3986>=1.4.0
+Requires-Dist: rich>=12.0.0
+Requires-Dist: packaging>=24.0
+Requires-Dist: id
+Provides-Extra: keyring
+Requires-Dist: keyring>=21.2.0; extra == "keyring"
+Dynamic: license-file
+
+.. |twine-version| image:: https://img.shields.io/pypi/v/twine.svg
+   :target: https://pypi.org/project/twine
+
+.. |python-versions| image:: https://img.shields.io/pypi/pyversions/twine.svg
+   :target: https://pypi.org/project/twine
+
+.. |docs-badge| image:: https://img.shields.io/readthedocs/twine
+   :target: https://twine.readthedocs.io
+
+.. |build-badge| image:: https://img.shields.io/github/actions/workflow/status/pypa/twine/main.yml?branch=main
+   :target: https://github.com/pypa/twine/actions
+
+|twine-version| |python-versions| |docs-badge| |build-badge|
+
+twine
+=====
+
+Twine is a utility for `publishing`_ Python packages on `PyPI`_.
+
+It provides build system independent uploads of source and binary
+`distribution artifacts <distributions_>`_ for both new and existing
+`projects`_.
+
+See our `documentation`_ for a description of features, installation
+and usage instructions, and links to additional resources.
+
+Contributing
+------------
+
+See our `developer documentation`_ for how to get started, an
+architectural overview, and our future development plans.
+
+Code of Conduct
+---------------
+
+Everyone interacting in the Twine project's codebases, issue
+trackers, chat rooms, and mailing lists is expected to follow the
+`PSF Code of Conduct`_.
+
+.. _`publishing`: https://packaging.python.org/tutorials/packaging-projects/
+.. _`PyPI`: https://pypi.org
+.. _`distributions`:
+   https://packaging.python.org/glossary/#term-Distribution-Package
+.. _`projects`: https://packaging.python.org/glossary/#term-Project
+.. _`documentation`: https://twine.readthedocs.io/
+.. _`developer documentation`:
+   https://twine.readthedocs.io/en/latest/contributing.html
+.. _`PSF Code of Conduct`: https://github.com/pypa/.github/blob/main/CODE_OF_CONDUCT.md
