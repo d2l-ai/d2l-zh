@@ -1,0 +1,16 @@
+Metadata-Version: 2.1
+Name: d2l
+Version: 0.17.6
+Summary: Dive into Deep Learning
+Home-page: https://d2l.ai
+Author: D2L Developers
+Author-email: d2l.devs@gmail.com
+License: MIT-0
+Platform: UNKNOWN
+Requires-Python: >=3.5
+License-File: LICENSE
+License-File: LICENSE-SAMPLECODE
+License-File: LICENSE-SUMMARY
+
+UNKNOWN
+

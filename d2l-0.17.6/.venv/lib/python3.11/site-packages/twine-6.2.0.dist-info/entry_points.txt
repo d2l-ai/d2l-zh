@@ -1,0 +1,7 @@
+[console_scripts]
+twine = twine.__main__:main
+
+[twine.registered_commands]
+check = twine.commands.check:main
+register = twine.commands.register:main
+upload = twine.commands.upload:main

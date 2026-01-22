@@ -1,0 +1,70 @@
+Metadata-Version: 2.1
+Name: readme_renderer
+Version: 44.0
+Summary: readme_renderer is a library for rendering readme descriptions for Warehouse
+Author-email: The Python Packaging Authority <admin@mail.pypi.org>
+License: Apache License, Version 2.0
+Project-URL: Home-page, https://github.com/pypa/readme_renderer
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Natural Language :: English
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: POSIX
+Classifier: Operating System :: POSIX :: BSD
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: Typing :: Typed
+Requires-Python: >=3.9
+Description-Content-Type: text/x-rst
+License-File: LICENSE
+Requires-Dist: nh3 >=0.2.14
+Requires-Dist: docutils >=0.21.2
+Requires-Dist: Pygments >=2.5.1
+Provides-Extra: md
+Requires-Dist: cmarkgfm >=0.8.0 ; extra == 'md'
+
+Readme Renderer
+===============
+
+.. image:: https://badge.fury.io/py/readme-renderer.svg
+    :target: https://badge.fury.io/py/readme-renderer
+
+.. image:: https://github.com/pypa/readme_renderer/actions/workflows/ci.yml/badge.svg
+    :target: https://github.com/pypa/readme_renderer/actions/workflows/ci.yml
+
+Readme Renderer is a library that will safely render arbitrary
+``README`` files into HTML. It is designed to be used in Warehouse_ to
+render the ``long_description`` for packages. It can handle Markdown,
+reStructuredText (``.rst``), and plain text.
+
+.. _Warehouse: https://github.com/pypa/warehouse
+
+
+Check Description Locally
+-------------------------
+
+To locally check whether your long descriptions will render on PyPI, first
+build your distributions, and then use the |twine check|_ command.
+
+
+Code of Conduct
+---------------
+
+Everyone interacting in the readme_renderer project's codebases, issue trackers,
+chat rooms, and mailing lists is expected to follow the `PSF Code of Conduct`_.
+
+
+.. |twine check| replace:: ``twine check``
+.. _twine check: https://packaging.python.org/guides/making-a-pypi-friendly-readme#validating-restructuredtext-markup
+.. _PSF Code of Conduct: https://github.com/pypa/.github/blob/main/CODE_OF_CONDUCT.md
+
+Copyright © 2014, [The Python Packaging Authority].
