@@ -45,7 +45,7 @@ This dataset has four rows and three columns, where each row describes the numbe
 # !pip install pandas
 import pandas as pd
 
-data = pd.read_csv(data_file)
+data = pd.read_csv(data_file, na_values=['NA'])
 print(data)
 ```
 
@@ -64,7 +64,7 @@ we [**replace the "NaN" entries with the mean value of the same column.**]
 ```{.python .input}
 #@tab all
 inputs, outputs = data.iloc[:, 0:2], data.iloc[:, 2]
-inputs = inputs.fillna(inputs.mean())
+inputs = inputs.fillna(inputs.select_dtypes(include=['number']).mean())
 print(inputs)
 ```
 
@@ -132,3 +132,4 @@ Create a raw dataset with more rows and columns.
 :begin_tab:`tensorflow`
 [Discussions](https://discuss.d2l.ai/t/195)
 :end_tab:
+

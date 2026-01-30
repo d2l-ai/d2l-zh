@@ -37,7 +37,7 @@ with open(data_file, 'w') as f:
 # !pip install pandas
 import pandas as pd
 
-data = pd.read_csv(data_file)
+data = pd.read_csv(data_file, na_values=['NA'])
 print(data)
 ```
 
@@ -55,7 +55,7 @@ print(data)
 ```{.python .input}
 #@tab all
 inputs, outputs = data.iloc[:, 0:2], data.iloc[:, 2]
-inputs = inputs.fillna(inputs.mean())
+inputs = inputs.fillna(inputs.select_dtypes(include=['number']).mean())
 print(inputs)
 ```
 
