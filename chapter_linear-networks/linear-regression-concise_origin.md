@@ -1,4 +1,4 @@
-# Concise Implementation of Linear Regression
+k# Concise Implementation of Linear Regression
 :label:`sec_linear_concise`
 
 Broad and intense interest in deep learning for the past several years
@@ -45,8 +45,11 @@ import tensorflow as tf
 
 ```{.python .input}
 #@tab all
+#真实权重 [2， -3.4]
 true_w = d2l.tensor([2, -3.4])
+#真实偏置 4.2
 true_b = 4.2
+#生成1000个带噪声的合成数据样本
 features, labels = d2l.synthetic_data(true_w, true_b, 1000)
 ```
 
