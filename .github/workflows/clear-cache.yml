@@ -27,13 +27,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v2
+      uses: aws-actions/configure-aws-credentials@5fd3084fc36e372ff1fff382a39b10d03659f355 # v2
       with:
         role-to-assume: arn:aws:iam::650140442593:role/D2L_CI_Clear_Cache
         role-duration-seconds: 3600
         aws-region: us-west-2
     - name: Delete Cache
       run: |
-        CACHE_S3_URL="s3://preview.d2l.ai/${{ github.event.inputs.cache_dir }}/d2l-zh-${{ github.event.inputs.target_branch }}/"
+        CACHE_S3_URL="s3://preview.d2l.ai/${INPUT_CACHE_DIR}/d2l-zh-${INPUT_TARGET_BRANCH}/"
         echo "Removing cache in $CACHE_S3_URL"
         aws s3 rm --recursive $CACHE_S3_URL
+
+      env:
+        INPUT_CACHE_DIR: ${{ github.event.inputs.cache_dir }}
+        INPUT_TARGET_BRANCH: ${{ github.event.inputs.target_branch }}
