@@ -63,7 +63,9 @@ features, labels = d2l.synthetic_data(true_w, true_b, 1000)
 ```{.python .input}
 def load_array(data_arrays, batch_size, is_train=True):  #@save
     """构造一个Gluon数据迭代器"""
+    #将特征和标签打包成TensorDataset
     dataset = gluon.data.ArrayDataset(*data_arrays)
+    #返回DataLoader,训练时打乱数据
     return gluon.data.DataLoader(dataset, batch_size, shuffle=is_train)
 ```
 
