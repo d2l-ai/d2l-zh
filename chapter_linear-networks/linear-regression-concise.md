@@ -177,6 +177,10 @@ net.add(nn.Dense(1))
 #@tab pytorch
 # nn是神经网络的缩写
 from torch import nn
+# 创建一个简单的神经网络
+# 它只包含一个全连接层
+# 输入：2个数字
+# 输出：1个数字
 net = nn.Sequential(nn.Linear(2, 1))
 ```
 
