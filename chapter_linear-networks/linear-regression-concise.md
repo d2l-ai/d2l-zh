@@ -239,7 +239,9 @@ net.initialize(init.Normal(sigma=0.01))
 
 ```{.python .input}
 #@tab pytorch
+#使用normal_( ) 方法将权重（weight.data) 初始化为正态分布，均值为0，标准差为0.01
 net[0].weight.data.normal_(0, 0.01)
+#使用fill_( )方法将偏置（bias.data)初始化为0
 net[0].bias.data.fill_(0)
 ```
 
