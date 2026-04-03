@@ -309,6 +309,7 @@ loss = gluon.loss.L2Loss()
 
 ```{.python .input}
 #@tab pytorch
+#初始化均方误差损失函数
 loss = nn.MSELoss()
 ```
 
