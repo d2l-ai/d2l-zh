@@ -360,6 +360,7 @@ trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.03})
 
 ```{.python .input}
 #@tab pytorch
+#创建随机梯度下降（SGD）优化器，传入模型参数并设置学习率为0.03
 trainer = torch.optim.SGD(net.parameters(), lr=0.03)
 ```
 
