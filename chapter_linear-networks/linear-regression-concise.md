@@ -393,8 +393,11 @@ trainer =  paddle.optimizer.SGD(learning_rate=0.03,
 
 ```{.python .input}
 num_epochs = 3
+# 遍历所有训练轮次
 for epoch in range(num_epochs):
+# 遍历数据迭代器中的每一批数据
     for X, y in data_iter:
+    
         with autograd.record():
             l = loss(net(X), y)
         l.backward()
@@ -407,6 +410,7 @@ for epoch in range(num_epochs):
 #@tab pytorch
 num_epochs = 3
 for epoch in range(num_epochs):
+# 遍历所有训练轮次
     for X, y in data_iter:
         l = loss(net(X) ,y)
         trainer.zero_grad()
