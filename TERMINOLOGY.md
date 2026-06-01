@@ -130,7 +130,7 @@
 
 交叉熵，cross-entropy
 
-连续词袋，continous bag-of-words (CBOW)
+连续词袋，continuous bag-of-words (CBOW)
 
 零张量，zero tensor
 
