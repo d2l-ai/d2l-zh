@@ -55,6 +55,9 @@ print(data)
 ```{.python .input}
 #@tab all
 inputs, outputs = data.iloc[:, 0:2], data.iloc[:, 2]
+
+inputs = inputs.apply(pd.to_numeric, errors='coerce') # without this line, will raise TypeError: Cannot perform reduction 'mean' with string dtype
+
 inputs = inputs.fillna(inputs.mean())
 print(inputs)
 ```
