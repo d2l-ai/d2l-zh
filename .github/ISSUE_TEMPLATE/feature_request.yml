@@ -1,0 +1,17 @@
+name: "🚀 Feature / Content Request / 内容建议"
+description: "Suggest a new chapter update, styling improvement, or code example"
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Suggest enhancements for D2L Chinese edition. / 欢迎为动手学深度学习中文版提出改进建议。
+  - type: textarea
+    id: details
+    attributes:
+      label: "Proposed Suggestion Details / 建议详情"
+      description: "What new framework code or textbook contents should be added?"
+      placeholder: "Add PyTorch version code example for Chapter..."
+    validations:
+      required: true
