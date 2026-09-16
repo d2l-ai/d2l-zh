@@ -51,11 +51,13 @@ print(data)
 通过位置索引`iloc`，我们将`data`分成`inputs`和`outputs`，
 其中前者为`data`的前两列，而后者为`data`的最后一列。
 对于`inputs`中缺少的数值，我们用同一列的均值替换“NaN”项。
+由于`inputs`还包含类别列，我们设置`numeric_only=True`，仅对数值列计算均值。
+这也避免了pandas2.0及以后版本中`mean`默认不再跳过非数值列而引发的错误。
 
 ```{.python .input}
 #@tab all
 inputs, outputs = data.iloc[:, 0:2], data.iloc[:, 2]
-inputs = inputs.fillna(inputs.mean())
+inputs = inputs.fillna(inputs.mean(numeric_only=True))
 print(inputs)
 ```
 
