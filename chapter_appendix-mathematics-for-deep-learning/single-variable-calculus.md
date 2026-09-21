@@ -1,7 +1,7 @@
 # 单变量微积分
 :label:`sec_single_variable_calculus`
 
-在:numref:`sec_calculus`中，我们学习了微分学的基本要素。本节将进一步探讨微积分的基础，以及如何在机器学习的背景下理解和应用它。
+在 :numref:`sec_calculus`中，我们学习了微分学的基本要素。本节将进一步探讨微积分的基础，以及如何在机器学习的背景下理解和应用它。
 
 ## 微分学
 
@@ -136,7 +136,7 @@ $$
 \lim_{\epsilon \rightarrow 0}\frac{L(4+\epsilon) - L(4)}{\epsilon} = 8.
 $$
 
-顺便回顾一段历史：在神经网络研究最初的几十年里，科学家使用这种算法（即*有限差分法*（method of finite differences））评估损失函数在微小扰动下如何变化，也就是改变权重并观察损失的变化。这种方法的计算效率很低，因为要判断一个变量的变化如何影响损失，就需要计算两次损失函数。即使只有区区几千个参数，也需要在整个数据集上运行网络数千次！直到1986年，:citet:`Rumelhart.Hinton.Williams.ea.1988`介绍的*反向传播算法*（backpropagation algorithm）才解决了这个问题：它能以网络在数据集上完成一次预测所需的计算时间，算出所有权重的任意共同变化将如何改变损失。
+顺便回顾一段历史：在神经网络研究最初的几十年里，科学家使用这种算法（即*有限差分法*（method of finite differences））评估损失函数在微小扰动下如何变化，也就是改变权重并观察损失的变化。这种方法的计算效率很低，因为要判断一个变量的变化如何影响损失，就需要计算两次损失函数。即使只有区区几千个参数，也需要在整个数据集上运行网络数千次！直到1986年， :citet:`Rumelhart.Hinton.Williams.ea.1988`介绍的*反向传播算法*（backpropagation algorithm）才解决了这个问题：它能以网络在数据集上完成一次预测所需的计算时间，算出所有权重的任意共同变化将如何改变损失。
 
 回到前面的例子，对于不同的$x$，这个值$8$也会不同，因此很自然地把它定义为$x$的函数。更形式化地说，这个依赖于$x$取值的变化率称为*导数*（derivative），记为
 
@@ -154,7 +154,7 @@ $$
 \frac{d}{dx}\left[x^4+\cos\left(\frac{x^2+1}{2x-1}\right)\right].
 $$
 
-为了直观理解$x$发生微小变化时函数如何变化，常常可以再次展开导数定义:eqref:`eq_der_def`：
+为了直观理解$x$发生微小变化时函数如何变化，常常可以再次展开导数定义 :eqref:`eq_der_def`：
 
 $$\begin{aligned} \frac{df}{dx}(x) = \lim_{\epsilon \rightarrow 0}\frac{f(x+\epsilon) - f(x)}{\epsilon} & \implies \frac{df}{dx}(x) \approx \frac{f(x+\epsilon) - f(x)}{\epsilon} \\ & \implies \epsilon \frac{df}{dx}(x) \approx f(x+\epsilon) - f(x) \\ & \implies f(x+\epsilon) \approx f(x) + \epsilon \frac{df}{dx}(x). \end{aligned}$$
 :eqlabel:`eq_small_change`
@@ -170,7 +170,7 @@ $$\begin{aligned} \frac{df}{dx}(x) = \lim_{\epsilon \rightarrow 0}\frac{f(x+\eps
 
 ### 常见导数
 
-正如:numref:`sec_calculus`所示，计算导数时通常可以利用一系列法则，将计算归结为少数几个基本函数。为方便查阅，这里再次列出这些法则。
+正如 :numref:`sec_calculus`所示，计算导数时通常可以利用一系列法则，将计算归结为少数几个基本函数。为方便查阅，这里再次列出这些法则。
 
 * **常数的导数。** $\frac{d}{dx}c=0$。
 * **线性函数的导数。** $\frac{d}{dx}(ax)=a$。
@@ -180,13 +180,13 @@ $$\begin{aligned} \frac{df}{dx}(x) = \lim_{\epsilon \rightarrow 0}\frac{f(x+\eps
 
 ### 求导法则
 
-如果每个导数都必须单独计算并存入表格，微分学几乎无法使用。幸运的是，我们可以推广上述导数，进而计算更复杂的导数，例如$f(x)=\log\left(1+(x-1)^{10}\right)$的导数。正如:numref:`sec_calculus`所述，关键在于把函数以不同方式组合时发生的规律形式化，其中最重要的是求和、求积与复合。
+如果每个导数都必须单独计算并存入表格，微分学几乎无法使用。幸运的是，我们可以推广上述导数，进而计算更复杂的导数，例如$f(x)=\log\left(1+(x-1)^{10}\right)$的导数。正如 :numref:`sec_calculus`所述，关键在于把函数以不同方式组合时发生的规律形式化，其中最重要的是求和、求积与复合。
 
 * **求和法则。** $\frac{d}{dx}\left(g(x)+h(x)\right)=\frac{dg}{dx}(x)+\frac{dh}{dx}(x)$。
 * **乘积法则。** $\frac{d}{dx}\left(g(x)\cdot h(x)\right)=g(x)\frac{dh}{dx}(x)+\frac{dg}{dx}(x)h(x)$。
 * **链式法则。** $\frac{d}{dx}g(h(x))=\frac{dg}{dh}(h(x))\cdot\frac{dh}{dx}(x)$。
 
-下面看看如何利用:eqref:`eq_small_change`理解这些法则。对于求和法则，考虑以下推导：
+下面看看如何利用 :eqref:`eq_small_change`理解这些法则。对于求和法则，考虑以下推导：
 
 $$
 \begin{aligned}
@@ -200,7 +200,7 @@ $$
 将这个结果与$f(x+\epsilon)\approx f(x)+\epsilon\frac{df}{dx}(x)$比较，就会如愿得到$\frac{df}{dx}(x)=\frac{dg}{dx}(x)+\frac{dh}{dx}(x)$。直观上，当输入$x$改变时，$g$和$h$分别以$\frac{dg}{dx}(x)$和$\frac{dh}{dx}(x)$共同影响输出的变化。
 
 
-乘积法则更为微妙，需要对这些表达式作一个新的观察。仍然从:eqref:`eq_small_change`出发：
+乘积法则更为微妙，需要对这些表达式作一个新的观察。仍然从 :eqref:`eq_small_change`出发：
 
 $$
 \begin{aligned}
@@ -220,7 +220,7 @@ $$
 
 可以看到，当$\epsilon\rightarrow0$时，最右边的一项也趋于零。
 
-最后，对于链式法则，再次利用:eqref:`eq_small_change`，可以得到
+最后，对于链式法则，再次利用 :eqref:`eq_small_change`，可以得到
 
 $$
 \begin{aligned}
@@ -322,24 +322,24 @@ $$
 
 下面理解这个概念*为什么*有用。我们将可视化$f^{(2)}(x)$、$f^{(1)}(x)$和$f(x)$。
 
-首先，考虑二阶导数$f^{(2)}(x)$为正常数的情况。这意味着一阶导数的斜率为正。因此，一阶导数$f^{(1)}(x)$起初可能为负，在某一点变为零，最后变为正。这描述了原函数$f$的斜率，所以$f$本身先下降，随后变平，再开始上升。换言之，函数$f$向上弯曲，并且只有一个极小值，如:numref:`fig_positive-second`所示。
+首先，考虑二阶导数$f^{(2)}(x)$为正常数的情况。这意味着一阶导数的斜率为正。因此，一阶导数$f^{(1)}(x)$起初可能为负，在某一点变为零，最后变为正。这描述了原函数$f$的斜率，所以$f$本身先下降，随后变平，再开始上升。换言之，函数$f$向上弯曲，并且只有一个极小值，如 :numref:`fig_positive-second`所示。
 
 ![若二阶导数为正常数，则一阶导数递增，因而函数本身存在极小值。](../img/posSecDer.svg)
-:width:`420px`
+:width:`400px`
 :label:`fig_positive-second`
 
 
-其次，如果二阶导数为负常数，就意味着一阶导数递减。一阶导数可能起初为正，在某一点变为零，随后变为负。因此，函数$f$本身先上升，随后变平，再开始下降。换言之，函数$f$向下弯曲，并且只有一个极大值，如:numref:`fig_negative-second`所示。
+其次，如果二阶导数为负常数，就意味着一阶导数递减。一阶导数可能起初为正，在某一点变为零，随后变为负。因此，函数$f$本身先上升，随后变平，再开始下降。换言之，函数$f$向下弯曲，并且只有一个极大值，如 :numref:`fig_negative-second`所示。
 
 ![若二阶导数为负常数，则一阶导数递减，因而函数本身存在极大值。](../img/negSecDer.svg)
-:width:`420px`
+:width:`400px`
 :label:`fig_negative-second`
 
 
-第三，如果二阶导数始终为零，那么一阶导数永远不变，也就是一个常数。这意味着$f$以固定速率上升（或下降），所以$f$本身是一条直线，如:numref:`fig_zero-second`所示。
+第三，如果二阶导数始终为零，那么一阶导数永远不变，也就是一个常数。这意味着$f$以固定速率上升（或下降），所以$f$本身是一条直线，如 :numref:`fig_zero-second`所示。
 
 ![若二阶导数为零，则一阶导数为常数，因而函数本身是一条直线。](../img/zeroSecDer.svg)
-:width:`420px`
+:width:`400px`
 :label:`fig_zero-second`
 
 总之，可以把二阶导数理解为对函数$f$弯曲方式的描述。二阶导数为正时函数向上弯曲，为负时函数向下弯曲，为零时函数完全不弯曲。

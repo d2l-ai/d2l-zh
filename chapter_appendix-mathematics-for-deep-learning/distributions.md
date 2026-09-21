@@ -445,7 +445,7 @@ $$
 $$X^{(n)} \sim \textrm{Binomial}(n, p/n).$$
 :eqlabel:`eq_eq_poisson_approx`
 
-考察这些随机变量。根据上一节，:eqref:`eq_eq_poisson_approx` 的均值为$\mu_{X^{(n)}}=n(p/n)=p$，方差为$\sigma_{X^{(n)}}^2=n(p/n)(1-(p/n))=p(1-p/n)$。当$n\rightarrow\infty$时，这两个量分别稳定为$\mu_{X^{(\infty)}}=p$和$\sigma_{X^{(\infty)}}^2=p$。这表明，在无限细分的极限下，*可能*存在一个定义良好的随机变量。
+考察这些随机变量。根据上一节， :eqref:`eq_eq_poisson_approx` 的均值为$\mu_{X^{(n)}}=n(p/n)=p$，方差为$\sigma_{X^{(n)}}^2=n(p/n)(1-(p/n))=p(1-p/n)$。当$n\rightarrow\infty$时，这两个量分别稳定为$\mu_{X^{(\infty)}}=p$和$\sigma_{X^{(\infty)}}^2=p$。这表明，在无限细分的极限下，*可能*存在一个定义良好的随机变量。
 
 这并不令人意外，因为在现实世界中可以直接数出到站公交车的数量；不过，看到数学模型具有良好定义仍然很有意义。上述讨论可以形式化为*稀有事件定律*（law of rare events）。
 

@@ -1,7 +1,7 @@
 # 随机变量
 :label:`sec_random_variables`
 
-在:numref:`sec_prob`中，我们学习了处理离散随机变量的基础知识。这里的离散随机变量是指只取有限个可能值或整数值的随机变量。本节将发展*连续随机变量*（continuous random variable）的理论，这类随机变量可以取任意实数值。
+在 :numref:`sec_prob`中，我们学习了处理离散随机变量的基础知识。这里的离散随机变量是指只取有限个可能值或整数值的随机变量。本节将发展*连续随机变量*（continuous random variable）的理论，这类随机变量可以取任意实数值。
 
 ## 连续随机变量
 
@@ -38,7 +38,7 @@ $$
 $$P(\textrm{距离位于}\;x\;\textrm{附近长度为}\;\epsilon\;\textrm{的区间内}) \approx \epsilon \cdot p(x).$$
 :eqlabel:`eq_pdf_deriv`
 
-事实上，:eqref:`eq_pdf_deriv`正确定义了*概率密度函数*（probability density function）。函数$p(x)$编码了落在一个点附近相对于另一个点附近的可能性。下面将这种函数可视化。
+事实上， :eqref:`eq_pdf_deriv`正确定义了*概率密度函数*（probability density function）。函数$p(x)$编码了落在一个点附近相对于另一个点附近的可能性。下面将这种函数可视化。
 
 ```{.python .input}
 #@tab mxnet
@@ -101,7 +101,7 @@ $$P(X\;\textrm{位于}\;x\;\textrm{附近长度为}\;\epsilon\;\textrm{的区间
 
 首先，概率永远非负，因此$p(x)\geq0$。
 
-其次，设想把$\mathbb{R}$切分为无穷多个宽度为$\epsilon$的区间，例如$(\epsilon i,\epsilon(i+1)]$。根据:eqref:`eq_pdf_def`，每个区间对应的概率近似为
+其次，设想把$\mathbb{R}$切分为无穷多个宽度为$\epsilon$的区间，例如$(\epsilon i,\epsilon(i+1)]$。根据 :eqref:`eq_pdf_def`，每个区间对应的概率近似为
 
 $$
 P(X\;\textrm{位于}\;x\;\textrm{附近长度为}\;\epsilon\;\textrm{的区间内}) \approx \epsilon \cdot p(\epsilon i),
@@ -113,7 +113,7 @@ $$
 P(X\in\mathbb{R}) \approx \sum_i \epsilon \cdot p(\epsilon\cdot i).
 $$
 
-这正是:numref:`sec_integral_calculus`中讨论的积分近似，因此
+这正是 :numref:`sec_integral_calculus`中讨论的积分近似，因此
 
 $$
 P(X\in\mathbb{R}) = \int_{-\infty}^{\infty} p(x) \; dx.
@@ -191,13 +191,13 @@ $$\int_{-\infty}^{\infty} p(x) \; dx = 1.$$
 $$P(X\in(a, b]) = \int _ {a}^{b} p(x) \; dx.$$
 :eqlabel:`eq_pdf_int_int`
 
-在:numref:`sec_distributions`中会看到许多常见分布，不过这里继续进行抽象讨论。
+在 :numref:`sec_distributions`中会看到许多常见分布，不过这里继续进行抽象讨论。
 
 ### 累积分布函数
 
 上一小节介绍了概率密度函数。实践中，人们经常用它讨论连续随机变量，但它有一个容易误解之处：概率密度函数的取值本身不是概率，必须对其积分才能得到概率。只要密度大于$10$的区间长度不超过$1/10$，密度值大于$10$完全没有问题。这可能违背直觉，因此人们也常使用*累积分布函数*（cumulative distribution function，c.d.f.），它的取值本身*就是*概率。
 
-具体而言，利用:eqref:`eq_pdf_int_int`，将密度为$p(x)$的随机变量$X$的累积分布函数定义为
+具体而言，利用 :eqref:`eq_pdf_int_int`，将密度为$p(x)$的随机变量$X$的累积分布函数定义为
 
 $$
 F(x) = \int _ {-\infty}^{x} p(x) \; dx = P(X \le x).
@@ -233,7 +233,7 @@ $$\mu_X = E[X] = \sum_i x_i p_i.$$
 
 可以谨慎地把均值理解为随机变量通常位于何处。
 
-考虑一个贯穿本节的简单例子：随机变量$X$以概率$p$取值$a-2$，以概率$p$取值$a+2$，以概率$1-2p$取值$a$。利用:eqref:`eq_exp_def`可知，无论如何选择$a$和$p$，均值都是
+考虑一个贯穿本节的简单例子：随机变量$X$以概率$p$取值$a-2$，以概率$p$取值$a+2$，以概率$1-2p$取值$a$。利用 :eqref:`eq_exp_def`可知，无论如何选择$a$和$p$，均值都是
 
 $$
 \mu_X = E[X] = \sum_i x_i p_i = (a-2)p + a(1-2p) + (a+2)p = a.
@@ -267,7 +267,7 @@ $$
 E\left[X^2\right] = (a-2)^2p + a^2(1-2p) + (a+2)^2p = a^2 + 8p.
 $$
 
-因此，根据:eqref:`eq_var_def`，方差为
+因此，根据 :eqref:`eq_var_def`，方差为
 
 $$
 \sigma_X^2 = \textrm{Var}(X) = E[X^2] - \mu_X^2 = a^2 + 8p - a^2 = 8p.
@@ -306,7 +306,7 @@ $$P\left(X \not\in [\mu_X - \alpha\sigma_X, \mu_X + \alpha\sigma_X]\right) \le \
 
 用文字表述，当$\alpha=10$时，任意随机变量都有$99\%$的样本落在均值上下$10$个标准差以内。这为这些标准汇总统计量提供了直接解释。
 
-为了理解这个陈述的微妙之处，再看贯穿本节的例子。$X$以概率$p$取$a-2$，以概率$p$取$a+2$，以概率$1-2p$取$a$。其均值为$a$，标准差为$2\sqrt{2p}$。在切比雪夫不等式:eqref:`eq_chebyshev`中取$\alpha=2$，得到
+为了理解这个陈述的微妙之处，再看贯穿本节的例子。$X$以概率$p$取$a-2$，以概率$p$取$a+2$，以概率$1-2p$取$a$。其均值为$a$，标准差为$2\sqrt{2p}$。在切比雪夫不等式 :eqref:`eq_chebyshev`中取$\alpha=2$，得到
 
 $$
 P\left(X \not\in [a - 4\sqrt{2p}, a + 4\sqrt{2p}]\right) \le \frac{1}{4}.
@@ -424,7 +424,7 @@ plot_chebyshev(0.0, tf.constant(0.05))
 
 ### 连续情形中的均值和方差
 
-以上讨论都针对离散随机变量，但连续随机变量的情况与之类似。为了直观理解，设想把实数轴切分成长度为$\epsilon$的区间$(\epsilon i,\epsilon(i+1)]$。这样就把连续随机变量离散化了，并可利用:eqref:`eq_exp_def`写出
+以上讨论都针对离散随机变量，但连续随机变量的情况与之类似。为了直观理解，设想把实数轴切分成长度为$\epsilon$的区间$(\epsilon i,\epsilon(i+1)]$。这样就把连续随机变量离散化了，并可利用 :eqref:`eq_exp_def`写出
 
 $$
 \begin{aligned}
@@ -439,7 +439,7 @@ $$
 \mu_X = \int_{-\infty}^\infty xp_X(x) \; dx.
 $$
 
-类似地，利用:eqref:`eq_var_def`，方差可以写为
+类似地，利用 :eqref:`eq_var_def`，方差可以写为
 
 $$
 \sigma^2_X = E[X^2] - \mu_X^2 = \int_{-\infty}^\infty x^2p_X(x) \; dx - \left(\int_{-\infty}^\infty xp_X(x) \; dx\right)^2.
@@ -501,7 +501,7 @@ d2l.plot(x, p, 'x', 'p.d.f.')
 
 这个函数看起来毫无异常，查积分表也会发现其曲线下方面积为一，因此它确实定义了一个连续随机变量。
 
-为了看出问题所在，尝试计算它的方差。根据:eqref:`eq_var_def`，需要计算
+为了看出问题所在，尝试计算它的方差。根据 :eqref:`eq_var_def`，需要计算
 
 $$
 \int_{-\infty}^\infty \frac{x^2}{1+x^2}\; dx.
@@ -544,7 +544,7 @@ $$
 
 这意味着该分布没有定义良好的有限方差。
 
-进一步研究会得到更令人不安的结果。利用:eqref:`eq_exp_def`尝试计算均值，再应用变量替换公式，可得
+进一步研究会得到更令人不安的结果。利用 :eqref:`eq_exp_def`尝试计算均值，再应用变量替换公式，可得
 
 $$
 \mu_X = \int_{-\infty}^{\infty} \frac{x}{1+x^2} \; dx = \frac{1}{2}\int_1^\infty \frac{1}{u} \; du.
@@ -556,9 +556,9 @@ $$
 
 ### 联合密度函数
 
-以上工作都假设只处理单个实值随机变量。如果要处理两个或更多可能高度相关的随机变量，又该怎么办？这种情况在机器学习中十分常见。例如，随机变量$R_{i,j}$可以编码图像中坐标$(i,j)$处像素的红色通道值，$P_t$可以表示时刻$t$的股票价格。相邻像素往往颜色相近，相邻时刻的价格也往往相近。不能把它们当作互不相关的随机变量，却仍期待建立成功的模型（:numref:`sec_naive_bayes`将看到一个正因这种假设而表现不佳的模型）。我们需要发展处理这些相关连续随机变量的数学语言。
+以上工作都假设只处理单个实值随机变量。如果要处理两个或更多可能高度相关的随机变量，又该怎么办？这种情况在机器学习中十分常见。例如，随机变量$R_{i,j}$可以编码图像中坐标$(i,j)$处像素的红色通道值，$P_t$可以表示时刻$t$的股票价格。相邻像素往往颜色相近，相邻时刻的价格也往往相近。不能把它们当作互不相关的随机变量，却仍期待建立成功的模型（ :numref:`sec_naive_bayes`将看到一个正因这种假设而表现不佳的模型）。我们需要发展处理这些相关连续随机变量的数学语言。
 
-幸运的是，借助:numref:`sec_integral_calculus`中的多重积分，可以建立这样的语言。为简单起见，假设有两个可能相关的随机变量$X,Y$。与单变量情形类似，可以提出如下问题：
+幸运的是，借助 :numref:`sec_integral_calculus`中的多重积分，可以建立这样的语言。为简单起见，假设有两个可能相关的随机变量$X,Y$。与单变量情形类似，可以提出如下问题：
 
 $$
 P(X\;\textrm{位于}\;x\;\textrm{附近长度为}\;\epsilon\;\textrm{的区间内，且}\;Y\;\textrm{位于}\;y\;\textrm{附近长度为}\;\epsilon\;\textrm{的区间内}).
@@ -606,10 +606,10 @@ $$
 $$
 
 ![沿概率数组的列求和，可以得到仅对应于横轴随机变量的边缘分布。](../img/marginal.svg)
-:width:`500px`
+:width:`400px`
 :label:`fig_marginal`
 
-这说明需要沿一列正方形把密度值相加，如:numref:`fig_marginal`所示。消去两边的一个$\epsilon$因子，并认出右侧求和就是对$y$的积分，可得
+这说明需要沿一列正方形把密度值相加，如 :numref:`fig_marginal`所示。消去两边的一个$\epsilon$因子，并认出右侧求和就是对$y$的积分，可得
 
 $$
 \begin{aligned}
@@ -646,7 +646,7 @@ P(X = 3, Y = 3) & = \frac{p}{2},
 \end{aligned}
 $$
 
-其中$p$是可在$[0,1]$中选择的参数。注意，当$p=1$时，二者总是同时取各自的最小值或最大值；当$p=0$时，二者必然取相反方向的值，即一个大时另一个小，反之亦然。当$p=1/2$时，四种可能性等概率出现，二者应当互不相关。下面计算协方差。注意$\mu_X=2$且$\mu_Y=1$，根据:eqref:`eq_cov_def`可得
+其中$p$是可在$[0,1]$中选择的参数。注意，当$p=1$时，二者总是同时取各自的最小值或最大值；当$p=0$时，二者必然取相反方向的值，即一个大时另一个小，反之亦然。当$p=1/2$时，四种可能性等概率出现，二者应当互不相关。下面计算协方差。注意$\mu_X=2$且$\mu_Y=1$，根据 :eqref:`eq_cov_def`可得
 
 $$
 \begin{aligned}
@@ -660,7 +660,7 @@ $$
 
 需要注意，协方差只能度量线性关系，可能遗漏更复杂的关系。例如，令$X=Y^2$，其中$Y$从$\{-2,-1,0,1,2\}$中等概率随机取值。简单计算表明，尽管一个变量是另一个变量的确定性函数，二者的协方差仍为零。
 
-连续随机变量的情况大致相同。现在我们已经熟悉从离散到连续的转换，因此直接给出:eqref:`eq_cov_def`的连续形式，不再推导。
+连续随机变量的情况大致相同。现在我们已经熟悉从离散到连续的转换，因此直接给出 :eqref:`eq_cov_def`的连续形式，不再推导。
 
 $$
 \sigma_{XY} = \int_{\mathbb{R}^2} (x-\mu_X)(y-\mu_Y)p(x, y) \;dx \;dy.
@@ -750,7 +750,7 @@ $$\rho(X, Y) = \frac{\textrm{Cov}(X, Y)}{\sigma_{X}\sigma_{Y}},$$
 
 它是一个无量纲的值。简单的数学推导可以证明，该值位于$-1$到$1$之间，其中$1$表示最大正相关，$-1$表示最大负相关。
 
-回到上面的离散示例，$\sigma_X=1$且$\sigma_Y=2$，所以利用:eqref:`eq_cor_def`可得两个随机变量的相关系数：
+回到上面的离散示例，$\sigma_X=1$且$\sigma_Y=2$，所以利用 :eqref:`eq_cor_def`可得两个随机变量的相关系数：
 
 $$
 \rho(X, Y) = \frac{4p-2}{1\cdot 2} = 2p-1.
@@ -764,7 +764,7 @@ $$\sigma_{Y} = \sigma_{aX+b} = |a|\sigma_{X},$$
 
 $$\textrm{Cov}(X, Y) = \textrm{Cov}(X, aX+b) = a\textrm{Cov}(X, X) = a\textrm{Var}(X),$$
 
-再由:eqref:`eq_cor_def`得到
+再由 :eqref:`eq_cor_def`得到
 
 $$
 \rho(X, Y) = \frac{a\textrm{Var}(X)}{|a|\sigma_{X}^2} = \frac{a}{|a|} = \textrm{sign}(a).

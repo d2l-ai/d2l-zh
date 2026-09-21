@@ -1,10 +1,10 @@
 # 几何与线性代数运算
 :label:`sec_geometry-linear-algebraic-ops`
 
-在:numref:`sec_linear-algebra`中，我们学习了线性代数的基础知识，
+在 :numref:`sec_linear-algebra`中，我们学习了线性代数的基础知识，
 并了解如何用它表示变换数据的常见运算。
 线性代数是深度学习乃至更广泛的机器学习工作所依赖的关键数学支柱之一。
-虽然:numref:`sec_linear-algebra`介绍的工具已经足以描述现代深度学习模型的运作机制，
+虽然 :numref:`sec_linear-algebra`介绍的工具已经足以描述现代深度学习模型的运作机制，
 但线性代数还有更多内容。
 本节将进一步探索线性代数运算的若干几何解释，
 并介绍包括特征值和特征向量在内的一些基本概念。
@@ -34,14 +34,14 @@ $$
 二者通常有不同解释：
 数据样本是列向量，而用于形成加权和的权重是行向量。
 不过，灵活处理也很有益。
-正如:numref:`sec_linear-algebra`所述，
+正如 :numref:`sec_linear-algebra`所述，
 虽然单个向量默认视为列向量，
 但对于表示表格数据集的矩阵，
 更常见的约定是把每个数据样本视为矩阵中的一个行向量。
 
 给定一个向量，第一种解释是把它看作空间中的点。
 在二维或三维空间中，可以用向量各分量定义点相对于固定参考点（称为*原点*）的位置，
-从而将这些点可视化，如:numref:`fig_grid`所示。
+从而将这些点可视化，如 :numref:`fig_grid`所示。
 
 ![把向量可视化为平面中的点。向量的第一个分量给出$x$坐标，第二个分量给出$y$坐标。高维情形与此类似，只是更难可视化。](../img/grid-points.svg)
 :label:`fig_grid`
@@ -54,7 +54,7 @@ $$
 向量还有第二种常见解释：空间中的方向。
 向量$\mathbf{v}=[3,2]^\top$不仅可以表示从原点向右$3$个单位、向上$2$个单位的位置，
 也可以表示“向右走$3$步、向上走$2$步”这一方向本身。
-从这个角度看，:numref:`fig_arrow`中的所有箭头都表示同一个向量。
+从这个角度看， :numref:`fig_arrow`中的所有箭头都表示同一个向量。
 
 ![任意向量都可以可视化为平面中的箭头。图中每个箭头都表示向量$(3,2)^\top$。](../img/par-vec.svg)
 :width:`360px`
@@ -62,10 +62,10 @@ $$
 
 这种视角转换的一个优点是，可以直观理解向量加法。
 先沿一个向量给出的方向移动，
-再沿另一个向量给出的方向移动，如:numref:`fig_add-vec`所示。
+再沿另一个向量给出的方向移动，如 :numref:`fig_add-vec`所示。
 
 ![先沿一个向量移动，再沿另一个向量移动，即可将向量加法可视化。](../img/vec-add.svg)
-:width:`420px`
+:width:`400px`
 :label:`fig_add-vec`
 
 向量减法也有类似解释。
@@ -75,14 +75,14 @@ $$
 
 ## 点积与夹角
 
-正如:numref:`sec_linear-algebra`所示，
+正如 :numref:`sec_linear-algebra`所示，
 对于两个列向量$\mathbf{u}$和$\mathbf{v}$，
 可以按如下方式计算它们的点积：
 
 $$\mathbf{u}^\top\mathbf{v} = \sum_i u_i\cdot v_i.$$
 :eqlabel:`eq_dot_def`
 
-由于:eqref:`eq_dot_def`具有对称性，仿照普通乘法的记号，写成
+由于 :eqref:`eq_dot_def`具有对称性，仿照普通乘法的记号，写成
 
 $$
 \mathbf{u}\cdot\mathbf{v} = \mathbf{u}^\top\mathbf{v} = \mathbf{v}^\top\mathbf{u},
@@ -90,7 +90,7 @@ $$
 
 以强调交换两个向量的顺序不会改变结果。
 
-点积:eqref:`eq_dot_def`也有几何解释：它与两个向量之间的夹角密切相关。考虑:numref:`fig_angle`所示的夹角。
+点积 :eqref:`eq_dot_def`也有几何解释：它与两个向量之间的夹角密切相关。考虑 :numref:`fig_angle`所示的夹角。
 
 ![平面中任意两个向量之间都有明确定义的夹角$\theta$，它与点积密切相关。](../img/vec-angle.svg)
 :width:`380px`
@@ -221,7 +221,7 @@ $$
 
 先看一个例子。
 假设有列向量$\mathbf{w}=[2,1]^\top$，想知道哪些点$\mathbf{v}$满足$\mathbf{w}\cdot\mathbf{v}=1$。
-回顾:eqref:`eq_angle_forumla`中点积与夹角的关系，可知它等价于
+回顾 :eqref:`eq_angle_forumla`中点积与夹角的关系，可知它等价于
 $$
 \|\mathbf{v}\|\|\mathbf{w}\|\cos(\theta) = 1 \; \iff \; \|\mathbf{v}\|\cos(\theta) = \frac{1}{\|\mathbf{w}\|} = \frac{1}{\sqrt{5}}.
 $$
@@ -232,7 +232,7 @@ $$
 
 从几何意义看，这等价于说，
 $\mathbf{v}$在$\mathbf{w}$方向上的投影长度恰好为$1/\|\mathbf{w}\|$，
-如:numref:`fig_vector-project`所示。
+如 :numref:`fig_vector-project`所示。
 满足这一条件的所有点组成一条与向量$\mathbf{w}$垂直的直线。
 可以求出该直线的方程为$2x+y=1$，等价地写为$y=1-2x$。
 
@@ -240,31 +240,31 @@ $\mathbf{v}$在$\mathbf{w}$方向上的投影长度恰好为$1/\|\mathbf{w}\|$�
 可以看到，它们分别对应投影长度大于或小于$1/\|\mathbf{w}\|$的情况。
 因此，这两个不等式分别定义了直线的两侧。
 这样便把空间切分为两半：一侧所有点的点积低于阈值，
-另一侧所有点的点积高于阈值，如:numref:`fig_space-division`所示。
+另一侧所有点的点积高于阈值，如 :numref:`fig_space-division`所示。
 
 ![考察表达式的不等式形式，可以看到超平面（此处只是一条直线）把空间分成两半。](../img/space-division.svg)
-:width:`480px`
+:width:`400px`
 :label:`fig_space-division`
 
 高维情形基本相同。
 取$\mathbf{w}=[1,2,3]^\top$，考察三维空间中满足$\mathbf{w}\cdot\mathbf{v}=1$的点，
 会得到一个与向量$\mathbf{w}$垂直的平面。
-两个不等式同样定义该平面的两侧，如:numref:`fig_higher-division`所示。
+两个不等式同样定义该平面的两侧，如 :numref:`fig_higher-division`所示。
 
 ![任意维度的超平面都会把空间分成两半。](../img/space-division-3d.svg)
-:width:`480px`
+:width:`400px`
 :label:`fig_higher-division`
 
 虽然人类的可视化能力到此已达到极限，
 但在数十、数百乃至数十亿维空间中进行同样的操作并无障碍。
 思考机器学习模型时经常会遇到这种情况。
-例如，可以把:numref:`sec_softmax`中的线性分类模型理解为寻找能够分隔不同目标类别的超平面。
+例如，可以把 :numref:`sec_softmax`中的线性分类模型理解为寻找能够分隔不同目标类别的超平面。
 在这种语境下，这些超平面通常称为*决策平面*（decision plane）。
 大多数深度学习分类模型都以接入softmax的线性层结束，
 因此可以把深度神经网络的作用理解为寻找一种非线性嵌入，
 使目标类别能够被超平面清晰地分开。
 
-作为手工构造的例子，只需取Fashion-MNIST数据集（参见:numref:`sec_fashion_mnist`）中
+作为手工构造的例子，只需取Fashion-MNIST数据集（参见 :numref:`sec_fashion_mnist`）中
 T恤与裤子两类图像均值之间的向量来定义决策平面，
 再目测选取一个粗略阈值，
 就能得到一个表现尚可的微型图像分类模型。
@@ -404,7 +404,7 @@ tf.reduce_mean(
 
 ## 线性变换的几何解释
 
-通过:numref:`sec_linear-algebra`和上述讨论，
+通过 :numref:`sec_linear-algebra`和上述讨论，
 我们已经较好地理解了向量、长度和夹角的几何意义。
 不过，还有一个重要对象尚未讨论：由矩阵表示的线性变换的几何意义。
 要完全理解矩阵如何在两个可能不同的高维空间之间变换数据，需要大量练习，
@@ -454,10 +454,10 @@ $\mathbf{v}=2[1,0]^\top-[0,1]^\top$。
 $2(\mathbf{A}[1,0]^\top)-\mathbf{A}[0,1]^\top=2[1,-1]^\top-[2,3]^\top=[0,-5]^\top$。
 沿这一逻辑仔细考察所有整数点对组成的网格，
 可以看到矩阵乘法能够剪切、旋转和缩放网格，
-但必须保持网格结构，如:numref:`fig_grid-transform`所示。
+但必须保持网格结构，如 :numref:`fig_grid-transform`所示。
 
 ![矩阵$\mathbf{A}$作用于给定基向量。注意整个网格也随之变换。](../img/grid-transform.svg)
-:width:`480px`
+:width:`400px`
 :label:`fig_grid-transform`
 
 这是理解矩阵所表示线性变换时最重要的直觉。
@@ -672,10 +672,10 @@ $$
 ## 行列式
 线性代数的几何视角为理解一个称为*行列式*（determinant）的基本量
 提供了直观方式。再次考虑前面的网格图，
-但这次突出显示其中一个区域（:numref:`fig_grid-filled`）。
+但这次突出显示其中一个区域（ :numref:`fig_grid-filled`）。
 
 ![矩阵$\mathbf{A}$再次使网格发生形变。这次请特别注意突出显示的正方形发生了什么。](../img/grid-transform-filled.svg)
-:width:`480px`
+:width:`400px`
 :label:`fig_grid-filled`
 
 观察突出显示的正方形。它的两条边由$(0, 1)$和$(1, 0)$给出，
@@ -754,7 +754,7 @@ $\mathbf{B}$把原图中的正方形压缩成一条线段，而线段的面积�
 
 ## 张量和常见线性代数运算
 
-在:numref:`sec_linear-algebra`中已经介绍了张量的概念。
+在 :numref:`sec_linear-algebra`中已经介绍了张量的概念。
 本节将更深入地讨论*张量缩并*（tensor contraction，
 即张量中与矩阵乘法对应的运算），
 并说明它如何为许多矩阵和向量运算提供统一视角。
@@ -803,7 +803,7 @@ $$
 
 ### 用代码表示
 在代码中也可以灵活地对张量进行运算。
-如:numref:`sec_linear-algebra`所示，可以按如下方式创建张量。
+如 :numref:`sec_linear-algebra`所示，可以按如下方式创建张量。
 
 ```{.python .input}
 #@tab mxnet

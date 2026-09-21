@@ -219,7 +219,7 @@ $$
 即满足$\mathbf{A}=\mathbf{A}^\top$的矩阵。
 此时可以令$W$为*正交矩阵*（orthogonal matrix）：它的每一列都是长度为$1$的向量，且各列彼此垂直，并满足
 $\mathbf{W}^\top=\mathbf{W}^{-1}$；此外，所有特征值都是实数。
-因此在这种特殊情形下，:eqref:`eq_eig_decomp` 可以写成
+因此在这种特殊情形下， :eqref:`eq_eig_decomp` 可以写成
 
 $$
 \mathbf{A} = \mathbf{W}\boldsymbol{\Sigma}\mathbf{W}^\top .

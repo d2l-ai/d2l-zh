@@ -203,7 +203,7 @@ $$
 \int_a^b f(x) \;dx = F(b) - F(a).
 $$
 
-它用数学形式表达了这样一个事实：先计算到较远端点的面积，再减去到较近端点的面积，就能得到两端点之间的面积，如:numref:`fig_area-subtract`所示。
+它用数学形式表达了这样一个事实：先计算到较远端点的面积，再减去到较近端点的面积，就能得到两端点之间的面积，如 :numref:`fig_area-subtract`所示。
 
 ![计算曲线下两点之间的面积，可以转化为计算某点左侧的面积。](../img/sub-area.svg)
 :label:`fig_area-subtract`
@@ -240,7 +240,7 @@ $$
 \int_a^b f(x) \; dx = (F(b) + C) - (F(a) + C) = F(b) - F(a).
 $$
 
-这看起来或许很抽象，却为计算积分提供了全新的视角。我们的目标不再是通过切分再求和来恢复面积，而只需找到一个导数等于被积函数的函数。这样一来，只要反向查阅:numref:`sec_derivative_table`中的导数表，就能列出许多原本很难计算的积分。例如，已知$x^n$的导数是$nx^{n-1}$，于是根据基本定理:eqref:`eq_ftc`，
+这看起来或许很抽象，却为计算积分提供了全新的视角。我们的目标不再是通过切分再求和来恢复面积，而只需找到一个导数等于被积函数的函数。这样一来，只要反向查阅 :numref:`sec_derivative_table`中的导数表，就能列出许多原本很难计算的积分。例如，已知$x^n$的导数是$nx^{n-1}$，于是根据基本定理 :eqref:`eq_ftc`，
 
 $$
 \int_0^{x} ny^{n-1} \; dy = x^n - 0^n = x^n.
@@ -271,7 +271,7 @@ $$
 \frac{d}{dx}F(u(x)) = \frac{dF}{du}(u(x))\cdot \frac{du}{dx}.
 $$
 
-利用基本定理:eqref:`eq_ftc`，可以把它转化为关于积分的陈述：
+利用基本定理 :eqref:`eq_ftc`，可以把它转化为关于积分的陈述：
 
 $$
 F(u(x)) - F(u(0)) = \int_0^x \frac{dF}{du}(u(y))\cdot \frac{du}{dy} \;dy.
@@ -283,14 +283,14 @@ $$
 \int_{u(0)}^{u(x)} f(y) \; dy = \int_0^x \frac{dF}{du}(u(y))\cdot \frac{du}{dy} \;dy.
 $$
 
-同样，因为$F$是积分，根据基本定理:eqref:`eq_ftc`可知$\frac{dF}{dx}=f$，因此
+同样，因为$F$是积分，根据基本定理 :eqref:`eq_ftc`可知$\frac{dF}{dx}=f$，因此
 
 $$\int_{u(0)}^{u(x)} f(y) \; dy = \int_0^x f(u(y))\cdot \frac{du}{dy} \;dy.$$
 :eqlabel:`eq_change_var`
 
 这就是*变量替换*（change of variables）公式。
 
-为了得到更直观的推导，考虑$f(u(x))$在$x$到$x+\epsilon$之间的积分。当$\epsilon$很小时，该积分约为相应矩形的面积$\epsilon f(u(x))$。再与$f(y)$从$u(x)$到$u(x+\epsilon)$的积分比较。已知$u(x+\epsilon)\approx u(x)+\epsilon\frac{du}{dx}(x)$，所以后一矩形的面积约为$\epsilon\frac{du}{dx}(x)f(u(x))$。因此，为使两个矩形的面积一致，需要把前一个乘以$\frac{du}{dx}(x)$，如:numref:`fig_rect-transform`所示。
+为了得到更直观的推导，考虑$f(u(x))$在$x$到$x+\epsilon$之间的积分。当$\epsilon$很小时，该积分约为相应矩形的面积$\epsilon f(u(x))$。再与$f(y)$从$u(x)$到$u(x+\epsilon)$的积分比较。已知$u(x+\epsilon)\approx u(x)+\epsilon\frac{du}{dx}(x)$，所以后一矩形的面积约为$\epsilon\frac{du}{dx}(x)f(u(x))$。因此，为使两个矩形的面积一致，需要把前一个乘以$\frac{du}{dx}(x)$，如 :numref:`fig_rect-transform`所示。
 
 ![变量替换下单个窄矩形的变换。](../img/rect-trans.svg)
 :label:`fig_rect-transform`
@@ -343,7 +343,7 @@ $$
 \int_0^{-1} (-1)\;dx =  1.
 $$
 
-如果这段讨论听起来很熟悉，那是因为:numref:`sec_geometry-linear-algebraic-ops`曾以非常相似的方式讨论行列式如何表示有向面积。
+如果这段讨论听起来很熟悉，那是因为 :numref:`sec_geometry-linear-algebraic-ops`曾以非常相似的方式讨论行列式如何表示有向面积。
 
 ## 多重积分
 
@@ -430,7 +430,7 @@ $$
 \sum_{i, j} \epsilon^{2} f(\epsilon i, \epsilon j).
 $$
 
-问题离散化后，可以按任意顺序将这些正方形上的值相加，而不会改变结果，如:numref:`fig_sum-order`所示。特别地，
+问题离散化后，可以按任意顺序将这些正方形上的值相加，而不会改变结果，如 :numref:`fig_sum-order`所示。特别地，
 
 $$
  \sum _ {j} \epsilon \left(\sum_{i} \epsilon f(\epsilon i, \epsilon j)\right).
@@ -473,7 +473,7 @@ $$
 
 ## 多重积分中的变量替换
 
-与:eqref:`eq_change_var`中的单变量情形一样，在高维积分中进行变量替换也是关键工具。下面直接总结结论，不作推导。
+与 :eqref:`eq_change_var`中的单变量情形一样，在高维积分中进行变量替换也是关键工具。下面直接总结结论，不作推导。
 
 我们需要一个函数来重新参数化积分区域。可以取$\phi:\mathbb{R}^n\rightarrow\mathbb{R}^n$，也就是输入$n$个实变量并输出$n$个实变量的任意函数。为使表达式简洁，假设$\phi$是*单射*（injective），也就是说它不会折叠到自身上，即$\phi(\mathbf{x})=\phi(\mathbf{y})\implies\mathbf{x}=\mathbf{y}$。
 
@@ -493,7 +493,7 @@ D\boldsymbol{\phi} = \begin{bmatrix}
 \end{bmatrix}.
 $$
 
-仔细观察会发现，这与单变量变量替换公式:eqref:`eq_change_var`相似，只是把$\frac{du}{dx}(x)$替换成了$\left|\det(D\phi(\mathbf{x}))\right|$。回顾一下，$\frac{du}{dx}(x)$表示应用$u$后$x$轴被拉伸了多少。在高维中，相应过程是确定应用$\boldsymbol{\phi}$后，一个小正方形（或小*超立方体*）的面积（或体积、超体积）被拉伸了多少。如果$\boldsymbol{\phi}$表示乘以一个矩阵，那么行列式正好给出答案。
+仔细观察会发现，这与单变量变量替换公式 :eqref:`eq_change_var`相似，只是把$\frac{du}{dx}(x)$替换成了$\left|\det(D\phi(\mathbf{x}))\right|$。回顾一下，$\frac{du}{dx}(x)$表示应用$u$后$x$轴被拉伸了多少。在高维中，相应过程是确定应用$\boldsymbol{\phi}$后，一个小正方形（或小*超立方体*）的面积（或体积、超体积）被拉伸了多少。如果$\boldsymbol{\phi}$表示乘以一个矩阵，那么行列式正好给出答案。
 
 经过一些推导可以证明，雅可比矩阵给出了多变量函数$\boldsymbol{\phi}$在某一点处的最佳矩阵近似，就像利用导数和梯度以直线或平面进行近似一样。因此，雅可比矩阵的行列式恰好对应一维情形中的缩放因子。
 
@@ -524,9 +524,9 @@ $$
 \int _ 0^\infty \int _ 0 ^ {2\pi} re^{-r^{2}} \;d\theta\;dr = 2\pi\int _ 0^\infty re^{-r^{2}} \;dr = \pi,
 $$
 
-最后一个等式使用了:numref:`subsec_integral_example`中的同样计算。
+最后一个等式使用了 :numref:`subsec_integral_example`中的同样计算。
 
-在:numref:`sec_random_variables`学习连续随机变量时，还会再次遇到这个积分。
+在 :numref:`sec_random_variables`学习连续随机变量时，还会再次遇到这个积分。
 
 ## 小结
 

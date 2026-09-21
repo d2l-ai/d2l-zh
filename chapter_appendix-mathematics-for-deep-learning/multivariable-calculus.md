@@ -10,7 +10,7 @@
 $$L(w_1+\epsilon_1, w_2, \ldots, w_N) \approx L(w_1, w_2, \ldots, w_N) + \epsilon_1 \frac{d}{dw_1} L(w_1, w_2, \ldots, w_N).$$
 :eqlabel:`eq_part_der`
 
-固定其他变量而只对一个变量求得的导数称为*偏导数*（partial derivative），并用$\frac{\partial}{\partial w_1}$表示:eqref:`eq_part_der`中的导数。
+固定其他变量而只对一个变量求得的导数称为*偏导数*（partial derivative），并用$\frac{\partial}{\partial w_1}$表示 :eqref:`eq_part_der`中的导数。
 
 现在再把$w_2$微调为$w_2+\epsilon_2$：
 
@@ -27,7 +27,7 @@ L(w_1+\epsilon_1, w_2+\epsilon_2, \ldots, w_N) & \approx L(w_1, w_2+\epsilon_2, 
 \end{aligned}
 $$
 
-这里再次用到$\epsilon_1\epsilon_2$是高阶项这一事实，可以像上一节忽略$\epsilon^2$那样将其舍去，同时还使用了:eqref:`eq_part_der`。继续以同样方式处理，可以写出
+这里再次用到$\epsilon_1\epsilon_2$是高阶项这一事实，可以像上一节忽略$\epsilon^2$那样将其舍去，同时还使用了 :eqref:`eq_part_der`。继续以同样方式处理，可以写出
 
 $$
 L(w_1+\epsilon_1, w_2+\epsilon_2, \ldots, w_N+\epsilon_N) \approx L(w_1, w_2, \ldots, w_N) + \sum_i \epsilon_i \frac{\partial}{\partial w_i} L(w_1, w_2, \ldots, w_N).
@@ -47,7 +47,7 @@ $$L(\mathbf{w} + \boldsymbol{\epsilon}) \approx L(\mathbf{w}) + \boldsymbol{\eps
 
 向量$\nabla_{\mathbf{w}}L$称为$L$的*梯度*（gradient）。
 
-公式:eqref:`eq_nabla_use`值得仔细思考。它与一维情形中的形式完全相同，只是把所有量换成了向量和点积。对于输入的任意扰动，它都能近似说明函数$L$将如何变化。下一节将看到，它为我们从几何角度理解如何利用梯度中的信息进行学习提供了重要工具。
+公式 :eqref:`eq_nabla_use`值得仔细思考。它与一维情形中的形式完全相同，只是把所有量换成了向量和点积。对于输入的任意扰动，它都能近似说明函数$L$将如何变化。下一节将看到，它为我们从几何角度理解如何利用梯度中的信息进行学习提供了重要工具。
 
 不过，先通过一个例子观察这种近似。假设处理函数
 
@@ -61,7 +61,7 @@ $$
 f(x, y) = \log(3), \qquad \nabla f (x, y) = \left[\frac{1}{3}, \frac{2}{3}\right].
 $$
 
-因此，如果要近似$f$在$(\epsilon_1,\log(2)+\epsilon_2)$处的值，:eqref:`eq_nabla_use`在这里具体写为
+因此，如果要近似$f$在$(\epsilon_1,\log(2)+\epsilon_2)$处的值， :eqref:`eq_nabla_use`在这里具体写为
 
 $$
 f(\epsilon_1, \log(2) + \epsilon_2) \approx \log(3) + \frac{1}{3}\epsilon_1 + \frac{2}{3}\epsilon_2.
@@ -140,20 +140,20 @@ f'近似值：{grad_approx}，真实值：{true_value}'
 
 ## 梯度与梯度下降的几何解释
 
-再次考察:eqref:`eq_nabla_use`中的表达式：
+再次考察 :eqref:`eq_nabla_use`中的表达式：
 
 $$
 L(\mathbf{w} + \boldsymbol{\epsilon}) \approx L(\mathbf{w}) + \boldsymbol{\epsilon}\cdot \nabla_{\mathbf{w}} L(\mathbf{w}).
 $$
 
-假设要利用它最小化损失$L$。先从几何角度理解:numref:`sec_autograd`首次介绍的梯度下降算法。具体步骤如下：
+假设要利用它最小化损失$L$。先从几何角度理解 :numref:`sec_autograd`首次介绍的梯度下降算法。具体步骤如下：
 
 1. 随机选择初始参数$\mathbf{w}$；
 2. 找到使$L$在$\mathbf{w}$处下降最快的方向$\mathbf{v}$；
 3. 沿该方向迈出一小步：$\mathbf{w}\rightarrow\mathbf{w}+\epsilon\mathbf{v}$；
 4. 重复上述过程。
 
-唯一还不知道如何完成的是第二步中向量$\mathbf{v}$的计算。这样的方向称为*最速下降方向*（direction of steepest descent）。利用:numref:`sec_geometry-linear-algebraic-ops`中对点积的几何理解，可以把:eqref:`eq_nabla_use`改写为
+唯一还不知道如何完成的是第二步中向量$\mathbf{v}$的计算。这样的方向称为*最速下降方向*（direction of steepest descent）。利用 :numref:`sec_geometry-linear-algebraic-ops`中对点积的几何理解，可以把 :eqref:`eq_nabla_use`改写为
 
 $$
 L(\mathbf{w} + \mathbf{v}) \approx L(\mathbf{w}) + \mathbf{v}\cdot \nabla_{\mathbf{w}} L(\mathbf{w}) = L(\mathbf{w}) + \|\nabla_{\mathbf{w}} L(\mathbf{w})\|\cos(\theta).
@@ -179,7 +179,7 @@ $$
 
 假设要寻找使函数$L(\mathbf{x})$最小的$\mathbf{x}_0$。再假设有人给出一个值，声称它能使$L$最小。能否检查这个答案是否可能正确？
 
-再次考察:eqref:`eq_nabla_use`：
+再次考察 :eqref:`eq_nabla_use`：
 $$
 L(\mathbf{x}_0 + \boldsymbol{\epsilon}) \approx L(\mathbf{x}_0) + \boldsymbol{\epsilon}\cdot \nabla_{\mathbf{x}} L(\mathbf{x}_0).
 $$
@@ -233,12 +233,12 @@ d2l.plot(x, f, 'x', 'f(x)')
 $$\begin{aligned}f(u, v) & = (u+v)^{2} \\u(a, b) & = (a+b)^{2}, \qquad v(a, b) = (a-b)^{2}, \\a(w, x, y, z) & = (w+x+y+z)^{2}, \qquad b(w, x, y, z) = (w+x-y-z)^2.\end{aligned}$$
 :eqlabel:`eq_multi_func_def`
 
-这种方程链在神经网络中很常见，因此理解如何计算此类函数的梯度非常关键。观察哪些变量直接相关，可以从:numref:`fig_chain-1`中直观地看出这种联系。
+这种方程链在神经网络中很常见，因此理解如何计算此类函数的梯度非常关键。观察哪些变量直接相关，可以从 :numref:`fig_chain-1`中直观地看出这种联系。
 
 ![上述函数关系，其中节点表示数值，边表示函数依赖关系。](../img/chain-net1.svg)
 :label:`fig_chain-1`
 
-当然可以直接复合:eqref:`eq_multi_func_def`中的所有表达式，写出
+当然可以直接复合 :eqref:`eq_multi_func_def`中的所有表达式，写出
 
 $$
 f(w, x, y, z) = \left(\left((w+x+y+z)^2+(w+x-y-z)^2\right)^2+\left((w+x+y+z)^2-(w+x-y-z)^2\right)^2\right)^2.
@@ -275,7 +275,7 @@ $$
 
 理解这个过程的含义很有帮助。我们试图判断$a$变化时，形如$f(u(a,b),v(a,b))$的函数值如何变化。变化可以沿两条路径传递：$a\rightarrow u\rightarrow f$和$a\rightarrow v\rightarrow f$。利用链式法则分别计算两条路径的贡献，再将它们相加即可。
 
-再设想一个不同的函数网络，其中右侧函数依赖于与之相连的左侧函数，如:numref:`fig_chain-2`所示。
+再设想一个不同的函数网络，其中右侧函数依赖于与之相连的左侧函数，如 :numref:`fig_chain-2`所示。
 
 ![链式法则的另一个更微妙的例子。](../img/chain-net2.svg)
 :label:`fig_chain-2`
@@ -286,11 +286,11 @@ $$
 \frac{\partial f}{\partial y} = \frac{\partial f}{\partial a} \frac{\partial a}{\partial u} \frac{\partial u}{\partial y} + \frac{\partial f}{\partial u} \frac{\partial u}{\partial y} + \frac{\partial f}{\partial b} \frac{\partial b}{\partial v} \frac{\partial v}{\partial y}.
 $$
 
-以这种方式理解链式法则，对于理解梯度如何流经网络大有裨益，也有助于理解LSTM（:numref:`sec_lstm`）或残差层（:numref:`sec_resnet`）等架构选择为何能通过控制梯度流来塑造学习过程。
+以这种方式理解链式法则，对于理解梯度如何流经网络大有裨益，也有助于理解LSTM（ :numref:`sec_lstm`）或残差层（ :numref:`sec_resnet`）等架构选择为何能通过控制梯度流来塑造学习过程。
 
 ## 反向传播算法
 
-回到上一节:eqref:`eq_multi_func_def`中的例子：
+回到上一节 :eqref:`eq_multi_func_def`中的例子：
 
 $$
 \begin{aligned}
@@ -512,7 +512,7 @@ $$
 
 与单变量情形一样，可以利用这些导数更准确地了解函数在某点附近的行为。特别地，可以像单变量情形那样，找出点$\mathbf{x}_0$附近拟合效果最佳的二次函数。
 
-来看一个例子。设$f(x_1,x_2)=a+b_1x_1+b_2x_2+c_{11}x_1^2+c_{12}x_1x_2+c_{22}x_2^2$，这是二元二次函数的一般形式。在零点处考察函数值、梯度和Hessian矩阵:eqref:`eq_hess_def`：
+来看一个例子。设$f(x_1,x_2)=a+b_1x_1+b_2x_2+c_{11}x_1^2+c_{12}x_1x_2+c_{22}x_2^2$，这是二元二次函数的一般形式。在零点处考察函数值、梯度和Hessian矩阵 :eqref:`eq_hess_def`：
 
 $$
 \begin{aligned}
@@ -628,7 +628,7 @@ ax.set_zlim(-1, 1)
 ax.dist = 12
 ```
 
-这构成了:numref:`sec_gd`中牛顿法的基础。该方法反复寻找最佳拟合二次函数，再精确最小化该二次函数，以完成数值优化。
+这构成了 :numref:`sec_gd`中牛顿法的基础。该方法反复寻找最佳拟合二次函数，再精确最小化该二次函数，以完成数值优化。
 
 ## 矩阵微积分初步
 
@@ -733,7 +733,7 @@ $$
 \left[\frac{d}{d\mathbf{x}}(\mathbf{x}^\top A \mathbf{x})\right]_k = \frac{d}{dx_k}x_ia_{ij}x_j = [(\mathbf{A} + \mathbf{A}^\top)\mathbf{x}]_k.
 $$
 
-由此可见，:eqref:`eq_mat_goal_1`中所求导数的第$k$个分量正是右侧向量的第$k$个分量，二者相同。因此得到
+由此可见， :eqref:`eq_mat_goal_1`中所求导数的第$k$个分量正是右侧向量的第$k$个分量，二者相同。因此得到
 
 $$
 \frac{d}{d\mathbf{x}}(\mathbf{x}^\top A \mathbf{x}) = (\mathbf{A} + \mathbf{A}^\top)\mathbf{x}.
@@ -768,7 +768,7 @@ $$
 
 然而，这个表达式并不成立。回顾$\mathbf{X}$和$\mathbf{U}\mathbf{V}$都是$n\times m$矩阵，所以$2(\mathbf{X}-\mathbf{U}\mathbf{V})$也是$n\times m$矩阵。另一方面，$\mathbf{U}$是$n\times r$矩阵。由于维度不匹配，无法将$n\times m$矩阵与$n\times r$矩阵相乘。
 
-所求$\frac{d}{d\mathbf{V}}$应与$\mathbf{V}$形状相同，即$r\times m$。因此，需要将一个$n\times m$矩阵与一个$n\times r$矩阵通过适当转置后相乘，得到$r\times m$矩阵。可以用$U^\top$乘以$(\mathbf{X}-\mathbf{U}\mathbf{V})$做到这一点。因此，猜测:eqref:`eq_mat_goal_2`的答案为
+所求$\frac{d}{d\mathbf{V}}$应与$\mathbf{V}$形状相同，即$r\times m$。因此，需要将一个$n\times m$矩阵与一个$n\times r$矩阵通过适当转置后相乘，得到$r\times m$矩阵。可以用$U^\top$乘以$(\mathbf{X}-\mathbf{U}\mathbf{V})$做到这一点。因此，猜测 :eqref:`eq_mat_goal_2`的答案为
 
 $$
 \frac{d}{d\mathbf{V}} \|\mathbf{X} - \mathbf{U}\mathbf{V}\|_2^{2}= -2\mathbf{U}^\top(\mathbf{X} - \mathbf{U}\mathbf{V}).
@@ -834,7 +834,7 @@ $$
 \frac{d}{dv_{ab}} \|\mathbf{X} - \mathbf{U}\mathbf{V}\|_2^{2}= -2[\mathbf{U}^\top(\mathbf{X}-\mathbf{U}\mathbf{V})]_{ab}.
 $$
 
-由此可以写出:eqref:`eq_mat_goal_2`的答案：
+由此可以写出 :eqref:`eq_mat_goal_2`的答案：
 
 $$
 \frac{d}{d\mathbf{V}} \|\mathbf{X} - \mathbf{U}\mathbf{V}\|_2^{2}= -2\mathbf{U}^\top(\mathbf{X} - \mathbf{U}\mathbf{V}).
@@ -842,7 +842,7 @@ $$
 
 这与上面的猜测完全一致。
 
-此时很自然会问：“为什么不直接写出所有已学微积分法则的矩阵版本？这显然仍是机械过程，何不一次完成？”这样的法则确实存在，:cite:`Petersen.Pedersen.ea.2008`给出了很好的总结。不过，与标量相比，矩阵运算的组合方式极为丰富，因此矩阵求导法则远多于单变量法则。很多时候，最好直接使用指标计算，或在适当情况下交给自动微分。
+此时很自然会问：“为什么不直接写出所有已学微积分法则的矩阵版本？这显然仍是机械过程，何不一次完成？”这样的法则确实存在， :cite:`Petersen.Pedersen.ea.2008`给出了很好的总结。不过，与标量相比，矩阵运算的组合方式极为丰富，因此矩阵求导法则远多于单变量法则。很多时候，最好直接使用指标计算，或在适当情况下交给自动微分。
 
 ## 小结
 
