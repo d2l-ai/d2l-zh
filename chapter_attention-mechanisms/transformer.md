@@ -80,9 +80,9 @@ class PositionWiseFFN(nn.Module):
     def __init__(self, ffn_num_input, ffn_num_hiddens, ffn_num_outputs,
                  **kwargs):
         super(PositionWiseFFN, self).__init__(**kwargs)
-        self.dense1 = nn.Linear(ffn_num_input, ffn_num_hiddens)
+        self.dense1 = nn.LazyLinear(ffn_num_input, ffn_num_hiddens)
         self.relu = nn.ReLU()
-        self.dense2 = nn.Linear(ffn_num_hiddens, ffn_num_outputs)
+        self.dense2 = nn.LazyLinear(ffn_num_hiddens, ffn_num_outputs)
 
     def forward(self, X):
         return self.dense2(self.relu(self.dense1(X)))
@@ -119,7 +119,7 @@ class PositionWiseFFN(nn.Layer):
         return self.dense2(self.relu(self.dense1(X)))
 ```
 
-下面的例子显示，[**改变张量的最里层维度的尺寸**]，会改变成基于位置的前馈网络的输出尺寸。因为用同一个多层感知机对所有位置上的输入进行变换，所以当所有这些位置的输入相同时，它们的输出也是相同的。
+下面的例子显示，[**改变张量的最里层维度的尺寸**]，会改变基于位置的前馈网络的输出尺寸。因为用同一个多层感知机对所有位置上的输入进行变换，所以当所有这些位置的输入相同时，它们的输出也是相同的。
 
 ```{.python .input}
 ffn = PositionWiseFFN(4, 8)
