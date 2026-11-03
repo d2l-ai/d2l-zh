@@ -67,7 +67,7 @@ print(inputs)
 
 ```{.python .input}
 #@tab all
-inputs = pd.get_dummies(inputs, dummy_na=True)
+inputs = pd.get_dummies(inputs, dummy_na=True,dtype=int)
 print(inputs)
 ```
 
