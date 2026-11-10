@@ -22,9 +22,9 @@
 以一对文本作为输入但输出连续值，*语义文本相似度*是一个流行的“文本对回归”任务。
 这项任务评估句子的语义相似度。例如，在语义文本相似度基准数据集（Semantic Textual Similarity Benchmark）中，句子对的相似度得分是从0（无语义重叠）到5（语义等价）的分数区间 :cite:`Cer.Diab.Agirre.ea.2017`。我们的目标是预测这些分数。来自语义文本相似性基准数据集的样本包括（句子1，句子2，相似性得分）：
 
-* "A plane is taking off."（“一架飞机正在起飞。”），"An air plane is taking off."（“一架飞机正在起飞。”），5.000分;
-* "A woman is eating something."（“一个女人在吃东西。”），"A woman is eating meat."（“一个女人在吃肉。”），3.000分;
-* "A woman is dancing."（一个女人在跳舞。），"A man is talking."（“一个人在说话。”），0.000分。
+* "A plane is taking off."（“一架飞机正在起飞。”），"An air plane is taking off."（“一架飞机正在起飞。”），5.000分；
+* "A woman is eating something."（“一个女人在吃东西。”），"A woman is eating meat."（“一个女人在吃肉。”），3.000分；
+* "A woman is dancing."（“一个女人在跳舞。”），"A man is talking."（“一个人在说话。”），0.000分。
 
 ![文本对分类或回归应用的BERT微调，如自然语言推断和语义文本相似性（假设输入文本对分别有两个词元和三个词元）](../img/bert-two-seqs.svg)
 :label:`fig_bert-two-seqs`

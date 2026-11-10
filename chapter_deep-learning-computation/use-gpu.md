@@ -102,7 +102,7 @@
 :begin_tab:`paddle`
 在飞桨中，CPU和GPU可以用`paddle.device.set_device('cpu')` 
 和`paddle.device.set_device('gpu')`表示。 
-应该注意的是，`cpu`设备意味着所有物理CPU和内存,
+应该注意的是，`cpu`设备意味着所有物理CPU和内存，
 这意味着飞桨的计算将尝试使用所有CPU核心。 
 然而，`gpu`设备只代表一个卡和相应的显存。 
 如果有多个GPU，我们使用`paddle.device.get_device()`

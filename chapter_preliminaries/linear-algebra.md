@@ -874,7 +874,7 @@ $$\mathbf{A}=\begin{bmatrix}
  b_{k1} & b_{k2} & \cdots & b_{km} \\
 \end{bmatrix}.$$
 
-用行向量$\mathbf{a}^\top_{i} \in \mathbb{R}^k$表示矩阵$\mathbf{A}$的第$i$行，并让列向量$\mathbf{b}_{j} \in \mathbb{R}^k$作为矩阵$\mathbf{B}$的第$j$列。要生成矩阵积$\mathbf{C} = \mathbf{A}\mathbf{B}$，最简单的方法是考虑$\mathbf{A}$的行向量和$\mathbf{B}$的列向量:
+用行向量$\mathbf{a}^\top_{i} \in \mathbb{R}^k$表示矩阵$\mathbf{A}$的第$i$行，并让列向量$\mathbf{b}_{j} \in \mathbb{R}^k$作为矩阵$\mathbf{B}$的第$j$列。要生成矩阵积$\mathbf{C} = \mathbf{A}\mathbf{B}$，最简单的方法是考虑$\mathbf{A}$的行向量和$\mathbf{B}$的列向量：
 
 $$\mathbf{A}=
 \begin{bmatrix}
@@ -950,11 +950,11 @@ paddle.mm(A, B)
 
 $$f(\alpha \mathbf{x}) = |\alpha| f(\mathbf{x}).$$
 
-第二个性质是熟悉的三角不等式:
+第二个性质是熟悉的三角不等式：
 
 $$f(\mathbf{x} + \mathbf{y}) \leq f(\mathbf{x}) + f(\mathbf{y}).$$
 
-第三个性质简单地说范数必须是非负的:
+第三个性质简单地说范数必须是非负的：
 
 $$f(\mathbf{x}) \geq 0.$$
 
@@ -1057,7 +1057,7 @@ paddle.norm(paddle.ones(shape=[4, 9], dtype='float32'))
 :label:`subsec_norms_and_objectives`
 
 在深度学习中，我们经常试图解决优化问题：
-*最大化*分配给观测数据的概率;
+*最大化*分配给观测数据的概率；
 *最小化*预测和真实观测之间的距离。
 用向量表示物品（如单词、产品或新闻文章），以便最小化相似项目之间的距离，最大化不同项目之间的距离。
 目标，或许是深度学习算法最重要的组成部分（除了数据），通常被表达为范数。
@@ -1087,12 +1087,12 @@ paddle.norm(paddle.ones(shape=[4, 9], dtype='float32'))
 
 1. 证明一个矩阵$\mathbf{A}$的转置的转置是$\mathbf{A}$，即$(\mathbf{A}^\top)^\top = \mathbf{A}$。
 1. 给出两个矩阵$\mathbf{A}$和$\mathbf{B}$，证明“它们转置的和”等于“它们和的转置”，即$\mathbf{A}^\top + \mathbf{B}^\top = (\mathbf{A} + \mathbf{B})^\top$。
-1. 给定任意方阵$\mathbf{A}$，$\mathbf{A} + \mathbf{A}^\top$总是对称的吗?为什么?
+1. 给定任意方阵$\mathbf{A}$，$\mathbf{A} + \mathbf{A}^\top$总是对称的吗？为什么？
 1. 本节中定义了形状$(2,3,4)$的张量`X`。`len(X)`的输出结果是什么？
-1. 对于任意形状的张量`X`,`len(X)`是否总是对应于`X`特定轴的长度?这个轴是什么?
+1. 对于任意形状的张量`X`，`len(X)`是否总是对应于`X`特定轴的长度？这个轴是什么？
 1. 运行`A/A.sum(axis=1)`，看看会发生什么。请分析一下原因？
-1. 考虑一个具有形状$(2,3,4)$的张量，在轴0、1、2上的求和输出是什么形状?
-1. 为`linalg.norm`函数提供3个或更多轴的张量，并观察其输出。对于任意形状的张量这个函数计算得到什么?
+1. 考虑一个具有形状$(2,3,4)$的张量，在轴0、1、2上的求和输出是什么形状？
+1. 为`linalg.norm`函数提供3个或更多轴的张量，并观察其输出。对于任意形状的张量这个函数计算得到什么？
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/1752)

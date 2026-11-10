@@ -77,7 +77,7 @@ GPU内存的带宽要求甚至更高，因为它们的处理单元比CPU多得�
 
 ### 矢量化
 
-深度学习的计算量非常大。因此，为了满足机器学习的需要，CPU需要在一个时钟周期内执行许多操作。这种执行方式是通过向量处理单元实现的。这些处理单元有不同的名称:在ARM上叫做NEON,在x86上被称为[AVX2](https://en.wikipedia.org/wiki/Advanced_Vector_Extensions)。一个常见的功能是它们能够执行单指令多数据（single instruction multiple data，SIMD）操作。 :numref:`fig_neon128`显示了如何在ARM上的一个时钟周期中完成$8$个整数加法。
+深度学习的计算量非常大。因此，为了满足机器学习的需要，CPU需要在一个时钟周期内执行许多操作。这种执行方式是通过向量处理单元实现的。这些处理单元有不同的名称：在ARM上叫做NEON，在x86上被称为[AVX2](https://en.wikipedia.org/wiki/Advanced_Vector_Extensions)。一个常见的功能是它们能够执行单指令多数据（single instruction multiple data，SIMD）操作。 :numref:`fig_neon128`显示了如何在ARM上的一个时钟周期中完成$8$个整数加法。
 
 ![128位NEON矢量化](../img/neon128.svg)
 :label:`fig_neon128`

@@ -176,7 +176,7 @@ $$(\mathbf{w},b) \leftarrow (\mathbf{w},b) - \frac{\eta}{|\mathcal{B}|} \sum_{i 
 总结一下，算法的步骤如下：
 （1）初始化模型参数的值，如随机初始化；
 （2）从数据集中随机抽取小批量样本且在负梯度的方向上更新参数，并不断迭代这一步骤。
-对于平方损失和仿射变换，我们可以明确地写成如下形式:
+对于平方损失和仿射变换，我们可以明确地写成如下形式：
 
 $$\begin{aligned} \mathbf{w} &\leftarrow \mathbf{w} -   \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \partial_{\mathbf{w}} l^{(i)}(\mathbf{w}, b) = \mathbf{w} - \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \mathbf{x}^{(i)} \left(\mathbf{w}^\top \mathbf{x}^{(i)} + b - y^{(i)}\right),\\ b &\leftarrow b -  \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \partial_b l^{(i)}(\mathbf{w}, b)  = b - \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \left(\mathbf{w}^\top \mathbf{x}^{(i)} + b - y^{(i)}\right). \end{aligned}$$
 :eqlabel:`eq_linreg_batch_update`
@@ -397,7 +397,7 @@ d2l.plot(x, [normal(x, mu, sigma) for mu, sigma in params], xlabel='x',
 
 均方误差损失函数（简称均方损失）可以用于线性回归的一个原因是：
 我们假设了观测中包含噪声，其中噪声服从正态分布。
-噪声正态分布如下式:
+噪声正态分布如下式：
 
 $$y = \mathbf{w}^\top \mathbf{x} + b + \epsilon,$$
 
@@ -496,7 +496,7 @@ $$-\log P(\mathbf y \mid \mathbf X) = \sum_{i=1}^n \frac{1}{2} \log(2 \pi \sigma
 
 1. 假设我们有一些数据$x_1, \ldots, x_n \in \mathbb{R}$。我们的目标是找到一个常数$b$，使得最小化$\sum_i (x_i - b)^2$。
     1. 找到最优值$b$的解析解。
-    1. 这个问题及其解与正态分布有什么关系?
+    1. 这个问题及其解与正态分布有什么关系？
 1. 推导出使用平方误差的线性回归优化问题的解析解。为了简化问题，可以忽略偏置$b$（我们可以通过向$\mathbf X$添加所有值为1的一列来做到这一点）。
     1. 用矩阵和向量表示法写出优化问题（将所有数据视为单个矩阵，将所有目标值视为单个向量）。
     1. 计算损失对$w$的梯度。

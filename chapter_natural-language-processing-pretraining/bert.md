@@ -225,7 +225,7 @@ encoded_X.shape
 
 在这个预训练任务中，将随机选择15%的词元作为预测的掩蔽词元。要预测一个掩蔽词元而不使用标签作弊，一个简单的方法是总是用一个特殊的“&lt;mask&gt;”替换输入序列中的词元。然而，人造特殊词元“&lt;mask&gt;”不会出现在微调中。为了避免预训练和微调之间的这种不匹配，如果为预测而屏蔽词元（例如，在“this movie is great”中选择掩蔽和预测“great”），则在输入中将其替换为：
 
-* 80%时间为特殊的“&lt;mask&gt;“词元（例如，“this movie is great”变为“this movie is&lt;mask&gt;”；
+* 80%时间为特殊的“&lt;mask&gt;”词元（例如，“this movie is great”变为“this movie is&lt;mask&gt;”）；
 * 10%时间为随机词元（例如，“this movie is great”变为“this movie is drink”）；
 * 10%时间内为不变的标签词元（例如，“this movie is great”变为“this movie is great”）。
 
