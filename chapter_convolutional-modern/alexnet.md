@@ -289,7 +289,7 @@ train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size, resize=224)
 
 ## [**训练AlexNet**]
 
-现在AlexNet可以开始被训练了。与 :numref:`sec_lenet`中的LeNet相比，这里的主要变化是使用更小的学习速率训练，这是因为网络更深更广、图像分辨率更高，训练卷积神经网络就更昂贵。
+现在AlexNet可以开始被训练了。与 :numref:`sec_lenet`中的LeNet相比，这里的主要变化是使用更小的学习率训练，这是因为网络更深更广、图像分辨率更高，训练卷积神经网络就更昂贵。
 
 ```{.python .input}
 #@tab all
