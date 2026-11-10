@@ -9,6 +9,7 @@
 使用块的想法首先出现在牛津大学的[视觉几何组（visual geometry group）](http://www.robots.ox.ac.uk/~vgg/)的*VGG网络*中。通过使用循环和子程序，可以很容易地在任何现代深度学习框架的代码中实现这些重复的架构。
 
 ## (**VGG块**)
+:label:`subsec_vgg-blocks`
 
 经典卷积神经网络的基本组成部分是下面的这个序列：
 

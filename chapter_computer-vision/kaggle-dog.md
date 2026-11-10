@@ -510,7 +510,7 @@ def train(net, train_iter, valid_iter, num_epochs, lr, wd, devices, lr_period,
 现在我们可以训练和验证模型了，以下超参数都是可调的。
 例如，我们可以增加迭代轮数。
 另外，由于`lr_period`和`lr_decay`分别设置为2和0.9，
-因此优化算法的学习速率将在每2个迭代后乘以0.9。
+因此优化算法的学习率将在每2个迭代后乘以0.9。
 
 ```{.python .input}
 devices, num_epochs, lr, wd = d2l.try_all_gpus(), 10, 5e-3, 1e-4
