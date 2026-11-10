@@ -60,7 +60,7 @@ $$
 
 $$P(w_o \mid w_c) = \prod_{j=1}^{L(w_o)-1} \sigma\left( [\![  n(w_o, j+1) = \text{leftChild}(n(w_o, j)) ]\!] \cdot \mathbf{u}_{n(w_o, j)}^\top \mathbf{v}_c\right),$$
 
-其中函数$\sigma$在 :eqref:`eq_sigma-f`中定义，$\text{leftChild}(n)$是节点$n$的左子节点：如果$x$为真，$[\![x]\!] = 1$;否则$[\![x]\!] = -1$。
+其中函数$\sigma$在 :eqref:`eq_sigma-f`中定义，$\text{leftChild}(n)$是节点$n$的左子节点：如果$x$为真，$[\![x]\!] = 1$；否则$[\![x]\!] = -1$。
 
 为了说明，让我们计算 :numref:`fig_hi_softmax`中给定词$w_c$生成词$w_3$的条件概率。这需要$w_c$的词向量$\mathbf{v}_c$和从根到$w_3$的路径（ :numref:`fig_hi_softmax`中加粗的路径）上的非叶节点向量之间的点积，该路径依次向左、向右和向左遍历：
 
